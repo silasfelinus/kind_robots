@@ -125,6 +125,7 @@ import {
   VALUES,
   VILLAGES,
   WIZARD_ADDS,
+  WIZARD_AT,
 } from '../arcade/pinball/rules/village'
 import { AMI_VILLAGE_GREYBOX } from '../arcade/pinball/tables/amiVillage/table'
 import type {
@@ -2747,11 +2748,11 @@ async function runPinballRules() {
   s = lockOne(s)
   assert.equal(s.play.locks, 1)
   assert.equal(scene('lock')?.text, 'LOCK 1')
-  s = lockOne(s)
   s = wait(s, LATER)
   const beforeMultiball = s
   s = lockOne(s)
-  assert.ok(s.play.multiball.running, 'three locks: multiball')
+  assert.ok(s.play.multiball.running, "the game's first multiball: two locks")
+  assert.equal(s.play.multiballs, 1)
   assert.ok(
     showTriggers(beforeMultiball, s, 0).some((show) => show.id === 'secret'),
     'multiball starts with a light show',
@@ -2763,6 +2764,14 @@ async function runPinballRules() {
   )
   assert.equal(s.ballsInPlay, 1 + MULTIBALL_ADDS)
   assert.equal(s.play.locks, 0)
+  // Every multiball after the first takes three.
+  let later: PinballRulesState = {
+    ...beforeMultiball,
+    play: { ...beforeMultiball.play, multiballs: 1 },
+  }
+  later = lockOne(later)
+  assert.ok(!later.play.multiball.running, 'later ones take three locks')
+  assert.equal(scene('lock')?.sub, 'MULTIBALL IN 1')
   // A drain in the multiball ball save comes straight back.
   s = drain(s, 2)
   assert.equal(s.ballsInPlay, 1 + MULTIBALL_ADDS, 'saved')
@@ -2869,13 +2878,16 @@ async function runPinballRules() {
   assert.equal(s.lives, 3)
   assert.equal(s.play.villages.mode, null, 'the ball took its village with it')
 
-  // The wizard mode: all twelve villages, then the saucer.
+  // The wizard mode: half the map's villages, then the saucer.
   s = plunge(start())
   s = {
     ...s,
     play: {
       ...s.play,
-      villages: { ...s.play.villages, visited: VILLAGES.map((_, i) => i) },
+      villages: {
+        ...s.play.villages,
+        visited: VILLAGES.slice(0, WIZARD_AT).map((_, i) => i),
+      },
     },
   }
   s = make(s, 'award')

@@ -19,6 +19,7 @@ import {
   BALL_SAVE_STEPS,
   COMBO_STEPS,
   EXTRA_BALL_AT,
+  FIRST_MULTIBALL_LOCKS,
   JACKPOTS_FOR_SUPER,
   LOCKS_FOR_MULTIBALL,
   MULTIBALL_ADDS,
@@ -30,6 +31,7 @@ import {
   VALUES,
   VILLAGES,
   WIZARD_ADDS,
+  WIZARD_AT,
   WIZARD_NAME,
   nextRandom,
   pick,
@@ -53,6 +55,8 @@ export type FeatureState = {
   combo: { count: number; lastAt: number }
   /** Balls locked toward the next multiball. */
   locks: number
+  /** Multiballs started this game (the first needs fewer locks). */
+  multiballs: number
   multiball: { running: boolean; jackpots: number; superLit: boolean }
   villages: {
     /** Villages played, in order, as indexes into VILLAGES. */
@@ -82,6 +86,7 @@ export function initialFeatures(seed: number): FeatureState {
     skill: { target, armed: true, until: Number.POSITIVE_INFINITY },
     combo: { count: 0, lastAt: Number.NEGATIVE_INFINITY },
     locks: 0,
+    multiballs: 0,
     multiball: { running: false, jackpots: 0, superLit: false },
     villages: {
       visited: [],
@@ -210,7 +215,8 @@ export function shot(
   if (comboEligible) spoke = combo(state, tick, effects) || spoke
   // Before the mode: the ramp that ends a village does not count toward
   // relighting the saucer for the next one.
-  if (isRamp) spoke = relight(state, effects) || spoke
+  if (isRamp || ORBIT_SHOTS.includes(id))
+    spoke = relight(state, effects) || spoke
   if (state.play.wizard.running && ARROW_SHOTS.includes(id))
     return wizardShot(state, effects)
   if (state.play.multiball.running) spoke = jackpot(state, id, effects) || spoke
@@ -339,13 +345,15 @@ function lock(
     locks,
     stats: { ...play.stats, locks: play.stats.locks + 1 },
   }
-  if (locks < LOCKS_FOR_MULTIBALL) {
+  const needed =
+    play.multiballs === 0 ? FIRST_MULTIBALL_LOCKS : LOCKS_FOR_MULTIBALL
+  if (locks < needed) {
     effects.push(
       { type: 'sound', name: 'lock' },
       {
         type: 'dmd',
         text: `LOCK ${locks}`,
-        sub: `MULTIBALL IN ${LOCKS_FOR_MULTIBALL - locks}`,
+        sub: `MULTIBALL IN ${needed - locks}`,
         ms: 2000,
         scene: 'lock',
       },
@@ -355,6 +363,7 @@ function lock(
   state.play = {
     ...state.play,
     locks: 0,
+    multiballs: play.multiballs + 1,
     multiball: { running: true, jackpots: 0, superLit: false },
   }
   addBalls(state, MULTIBALL_ADDS, tick, effects)
@@ -374,7 +383,7 @@ function saucer(
   const play = state.play
   const v = play.villages
   if (!v.scoopLit || v.mode || play.wizard.running) return false
-  if (v.visited.length >= VILLAGES.length) {
+  if (v.visited.length >= WIZARD_AT) {
     state.play = {
       ...play,
       villages: { ...v, scoopLit: false },
@@ -498,7 +507,7 @@ function endMode(
   )
 }
 
-/** Ramps count down to relighting the saucer after a village. */
+/** Ramps and orbits count down to relighting the saucer after a village. */
 function relight(state: PinballRulesState, effects: RuleEffect[]): boolean {
   const v = state.play.villages
   if (v.scoopLit || v.mode || state.play.wizard.running) return false
@@ -516,9 +525,7 @@ function relight(state: PinballRulesState, effects: RuleEffect[]): boolean {
   effects.push({
     type: 'dmd',
     text:
-      v.visited.length >= VILLAGES.length
-        ? 'WIZARD MODE IS LIT'
-        : 'VILLAGE IS LIT',
+      v.visited.length >= WIZARD_AT ? 'WIZARD MODE IS LIT' : 'VILLAGE IS LIT',
     sub: 'SHOOT THE SAUCER',
     ms: 1500,
   })

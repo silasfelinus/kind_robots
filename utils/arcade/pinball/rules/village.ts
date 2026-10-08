@@ -52,15 +52,26 @@ export const SKILL_STEPS = PHYSICS_HZ * 6
 export const SKILL_TARGETS = ['upper-feed', 'spinner', 'right-ramp'] as const
 /** Ball save after the plunge. */
 export const BALL_SAVE_STEPS = PHYSICS_HZ * 10
-/** Locks that start AMI multiball, and the balls it adds. */
+/**
+ * Locks that start AMI multiball: two for the game's first, so a newcomer
+ * meets it (t-013: none of ten novice games did at three), then three.
+ */
+export const FIRST_MULTIBALL_LOCKS = 2
 export const LOCKS_FOR_MULTIBALL = 3
+/** The balls multiball adds. */
 export const MULTIBALL_ADDS = 2
 /** Ramp jackpots before the super jackpot lights at the lock. */
 export const JACKPOTS_FOR_SUPER = 2
-/** Ramp shots that relight the saucer after a village. */
+/** Ramp or orbit shots that relight the saucer after a village. */
 export const RAMPS_TO_RELIGHT = 2
 /** Villages visited that light the extra ball (at the upper feed). */
 export const EXTRA_BALL_AT = 5
+/**
+ * Villages visited that light the Malaria-Free wizard mode at the saucer:
+ * half the map. All twelve was out of reach (t-013: a good player saw 1.4
+ * a game); the map's twelve still give each run of six its own villages.
+ */
+export const WIZARD_AT = 6
 /** The wizard mode's extra balls. */
 export const WIZARD_ADDS = 2
 

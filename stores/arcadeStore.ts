@@ -18,6 +18,12 @@ import {
   type HallOfFameEntry,
   type PendingArcadeScore,
 } from '~/utils/arcade/leaderboard'
+import {
+  MASTERY_KEY,
+  mergeMastery,
+  sanitizeMastery,
+  type MasteryRecord,
+} from '~/utils/arcade/mastery'
 
 export type ArcadeBoardRange = 'all' | 'today'
 
@@ -97,6 +103,24 @@ function writePending(rows: PendingArcadeScore[]) {
   }
 }
 
+function readMastery(): MasteryRecord {
+  try {
+    return sanitizeMastery(
+      JSON.parse(localStorage.getItem(MASTERY_KEY) ?? '{}'),
+    )
+  } catch {
+    return {}
+  }
+}
+
+function writeMastery(record: MasteryRecord) {
+  try {
+    localStorage.setItem(MASTERY_KEY, JSON.stringify(record))
+  } catch {
+    // Blocked storage: the goals count for this visit only.
+  }
+}
+
 function rankRows(rows: ArcadeBoardEntry[]): ArcadeBoardEntry[] {
   return [...rows]
     .sort((a, b) => b.score - a.score || a.createdAt.localeCompare(b.createdAt))
@@ -118,6 +142,8 @@ export const useArcadeStore = defineStore('arcadeStore', () => {
   const savedInitials = ref('')
   /** Players last seated at each co-op cabinet, by game slug. */
   const seatedPlayers = ref<Record<string, number>>({})
+  /** Mastery goals this device's player has earned, by game slug. */
+  const mastery = ref<MasteryRecord>({})
   /** Scores waiting in this browser to reach the global board. */
   const pendingCount = ref(0)
   const hallOfFame = ref<HallOfFameEntry[]>([])
@@ -164,7 +190,21 @@ export const useArcadeStore = defineStore('arcadeStore', () => {
     return hallOfFame.value
   }
 
+  /** The mastery goals this player has earned at a cabinet. */
+  function masteryFor(game: string): string[] {
+    return mastery.value[game] ?? []
+  }
+
+  /** Keep the goals a game just earned (stores own persistence). */
+  function recordMastery(game: string, ids: readonly string[]) {
+    const next = mergeMastery(mastery.value, game, ids)
+    if (next === mastery.value) return
+    mastery.value = next
+    writeMastery(next)
+  }
+
   function loadPreferences(prefersReducedMotion: boolean) {
+    mastery.value = readMastery()
     const prefs = readPrefs()
     muted.value = prefs.muted === true
     crt.value = prefs.crt ?? !prefersReducedMotion
@@ -298,6 +338,9 @@ export const useArcadeStore = defineStore('arcadeStore', () => {
     muted,
     crt,
     savedInitials,
+    mastery,
+    masteryFor,
+    recordMastery,
     playersFor,
     setPlayers,
     board,

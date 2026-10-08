@@ -8,6 +8,7 @@
 // games appear in the hall as "coming soon" cabinets.
 
 import type { ArcadeGameMeta, ArcadeGameModule } from './types'
+import { MASTERY_GOALS } from './pinball/rules/mastery'
 
 export const ARCADE_GAMES: ArcadeGameMeta[] = [
   {
@@ -661,6 +662,7 @@ export const PREVIEW_GAMES: ArcadeGameMeta[] = [
       'UP  NUDGE THE TABLE',
       '3D PREVIEW: NO SCORES',
     ],
+    mastery: MASTERY_GOALS,
     width: 360,
     height: 640,
     maxPlausibleScore: 0,

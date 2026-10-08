@@ -37,6 +37,7 @@ export type PinballSoundName =
   | 'extra-ball'
   | 'wizard'
   | 'match'
+  | 'mastery'
   | 'secret-tease'
   | 'secret-found'
 
@@ -308,6 +309,15 @@ export const PINBALL_CUES: Record<PinballSoundName, SynthCue> = {
     duration: 0.5,
     gain: 0.12,
     wave: 'square',
+  },
+  /** A mastery goal earned for the first time (rules/mastery.ts). */
+  mastery: {
+    bus: 'callout',
+    frequency: 784,
+    endFrequency: 2093,
+    duration: 0.45,
+    gain: 0.12,
+    wave: 'triangle',
   },
 }
 

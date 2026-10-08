@@ -37,6 +37,8 @@ import {
   type RulesEvent,
 } from './rules/engine'
 import { lampStates } from './rules/lamps'
+import { goalsMet, MASTERY_GOALS, masteryEffects } from './rules/mastery'
+import { partsComplete } from '../mastery'
 import { musicFor } from './rules/subTable'
 import type { PinballMusicBed } from './audio/catalog'
 import {
@@ -115,6 +117,10 @@ export class PinballRuntime implements ArcadeWebGLGameInstance {
   readonly dmdQueue = new DmdQueue()
   readonly dmd = new Dmd()
   private hiScore: number
+  /** Mastery goals this player had earned before this game. */
+  private earnedBefore: Set<string>
+  /** ...and the goals earned this game, in the order they came. */
+  private earnedNow: string[] = []
   private disposed = false
 
   constructor(
@@ -127,6 +133,7 @@ export class PinballRuntime implements ArcadeWebGLGameInstance {
     this.demo = options.demo
     this.factory = factory
     this.hiScore = options.hiScore
+    this.earnedBefore = new Set(options.mastery ?? [])
     this.mixer = new PinballMixer(options.sound)
     this.physics = new PinballPhysics(R, table)
     this.rules = initialRules(table.balls, Math.floor(this.rng() * 0x100000000))
@@ -144,6 +151,11 @@ export class PinballRuntime implements ArcadeWebGLGameInstance {
 
   get over() {
     return this.rules.over
+  }
+
+  /** Mastery goals earned this game (none in the attract demo). */
+  get mastered(): readonly string[] {
+    return this.earnedNow
   }
 
   get isDisposed() {
@@ -355,8 +367,24 @@ export class PinballRuntime implements ArcadeWebGLGameInstance {
       if (made > (this.rules.shotsMade[shot] ?? 0)) this.scene?.pulse(shot)
     }
     this.shows.push(...showTriggers(this.rules, state, this.tick))
+    const goals = this.demo ? [] : goalsMet(this.rules, state, effects)
     this.rules = state
     for (const effect of effects) this.effect(effect)
+    for (const goal of goals) this.master(goal)
+  }
+
+  /**
+   * A goal (or a part of one) met: kept for the store, and announced if it is
+   * new to the player. The part that completes a goal earns the goal too.
+   */
+  private master(goal: string) {
+    if (this.earnedNow.includes(goal)) return
+    this.earnedNow.push(goal)
+    if (this.earnedBefore.has(goal)) return
+    const earned = new Set([...this.earnedBefore, ...this.earnedNow])
+    const rungs = MASTERY_GOALS.filter((g) => earned.has(g.id)).length
+    for (const effect of masteryEffects(goal, rungs)) this.effect(effect)
+    for (const done of partsComplete(MASTERY_GOALS, earned)) this.master(done)
   }
 
   private effect(effect: RuleEffect) {

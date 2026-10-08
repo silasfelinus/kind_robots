@@ -23,7 +23,8 @@ tutorial:
   sections:
     - key: purpose
       title: What belongs in Projects
-      body: This is the public workshop for things you can use or play directly: tools, games, learning experiments, creative studios, and prototypes that have grown into real surfaces.
+      body: >-
+        This is the public workshop for things you can use or play directly: tools, games, learning experiments, creative studios, and prototypes that have grown into real surfaces.
       image: /images/channels/plan/channel.webp
     - key: launch
       title: Pick a project and jump in

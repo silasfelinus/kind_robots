@@ -158,7 +158,7 @@ function drawScene(seconds: number): void {
       (hash(i + 2) - 0.5) * width * 0.04
     const base = floorY + hash(i + 20) * (height - floorY) * 0.35
     const size = Math.min(width, height) * (0.08 + hash(i + 33) * 0.05)
-    const hue = [340, 20, 160, 280][i % 4]
+    const hue = [340, 20, 160, 280][i % 4] ?? 200
     const submerged = Math.min(
       1,
       Math.max(0, (waterY < base - size ? 1 : 0.3) * (0.4 + tide)),

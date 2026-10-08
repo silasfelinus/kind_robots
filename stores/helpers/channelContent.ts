@@ -54,7 +54,8 @@ export type ChannelContentItem = {
   defaultTab?: string
   sort?: string | number
   cards?: string | NavigationCard[]
-  tutorial?: TutorialContent
+  /** Content and the database may hand back null for an unset tutorial. */
+  tutorial?: TutorialContent | null
   requiredBeforeNext?: string[]
   requiredRole?: string
   requiredPermission?: string
@@ -252,7 +253,9 @@ function resolveTab(
     const legacy = channel.tabs.find(
       (tab) =>
         tab.dashboardTab === dashboardTab &&
-        (!dashboardKey || !tab.dashboardKey || tab.dashboardKey === dashboardKey),
+        (!dashboardKey ||
+          !tab.dashboardKey ||
+          tab.dashboardKey === dashboardKey),
     )
     if (legacy) return legacy
   }
@@ -296,7 +299,7 @@ function resolveTabItem(
     dashboardTab,
   )
   const explicitTutorial =
-    item.tutorial !== undefined && item.tutorial.enabled !== false
+    item.tutorial != null && item.tutorial.enabled !== false
   const tutorial =
     item.tutorial?.enabled === false
       ? null
@@ -473,7 +476,11 @@ export function filterChannelsByRole(
 ): ResolvedChannel[] {
   const roleSet = new Set(
     (typeof roles === 'string' ? [roles] : roles)
-      .map((role) => String(role ?? '').trim().toUpperCase())
+      .map((role) =>
+        String(role ?? '')
+          .trim()
+          .toUpperCase(),
+      )
       .filter(Boolean),
   )
 

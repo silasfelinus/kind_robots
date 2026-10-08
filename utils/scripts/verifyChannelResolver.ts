@@ -133,7 +133,11 @@ assert.equal(
   'Parent Ami line.',
   'tab should inherit parent Ami dialogue',
 )
-assert.equal(generate.amiTip, 'Tab Ami line.', 'tab Ami dialogue should override parent')
+assert.equal(
+  generate.amiTip,
+  'Tab Ami line.',
+  'tab Ami dialogue should override parent',
+)
 assert.equal(
   gallery.image,
   '/images/dashboard-tabs/art/gallery.webp',
@@ -264,6 +268,25 @@ assert.deepEqual(
   ['gallery', 'generate'],
   'administrators should bypass capability gates',
 )
+
+// An unset tutorial can arrive as null (an empty `tutorial:` key, or a
+// database row), not just absent: it must resolve like an absent one, not
+// throw. A throw here takes down every page that resolves the channels
+// (2026-10-08: every kindrobots.org page returned 500).
+{
+  const nullTutorials = resolveChannels([
+    { ...items[0]!, tutorial: null },
+    { ...items[1]!, tutorial: null },
+    { ...items[2]!, tutorial: null },
+  ])
+  const nulled = nullTutorials.find((channel) => channel.channelKey === 'play')
+  assert.ok(nulled, 'a channel with a null tutorial still resolves')
+  assert.deepEqual(
+    nulled.tabs.map((tab) => tab.tutorial?.explicit),
+    [false, false],
+    'a null tab tutorial is the default, not an explicit one',
+  )
+}
 
 console.log(
   `Channel resolver contract passed: ${channels.length} channels, ${play.tabs.length} shared-route Play tabs, authored tutorials, explicit page help, dialogue inheritance, role filtering, and capability gates verified.`,

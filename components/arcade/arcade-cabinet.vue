@@ -389,8 +389,15 @@ function fitScreen() {
 const board = computed(() => store.board(props.slug, 'all'))
 const hiScore = () => board.value[0]?.score ?? 0
 
+function unlockArcadeAudio() {
+  sound?.unlock()
+  if (game && 'unlockAudio' in game && typeof game.unlockAudio === 'function') {
+    game.unlockAudio()
+  }
+}
+
 function press(button: ArcadeButton, down: boolean, seat = 0) {
-  if (down) sound?.unlock()
+  if (down) unlockArcadeAudio()
   seatInput(seat).setTouch(button, down)
 }
 
@@ -471,7 +478,7 @@ function togglePlayers() {
   if (!choosingPlayers.value) return
   players.value = players.value >= seatLimit.value ? 1 : players.value + 1
   store.setPlayers(props.slug, players.value)
-  sound?.unlock()
+  unlockArcadeAudio()
   sound?.play('blip')
 }
 
@@ -614,7 +621,7 @@ function enterPhase(next: ArcadePhase) {
 
 function startGame() {
   if (!gameModule) return
-  sound?.unlock()
+  unlockArcadeAudio()
   sound?.play('start')
   // One WebGL game owns the stage at a time: free the demo and any old game.
   retire(demoGame)
@@ -633,7 +640,7 @@ function startGame() {
 }
 
 function togglePause() {
-  sound?.unlock()
+  unlockArcadeAudio()
   if (machine.phase === 'playing') dispatch({ type: 'pause' })
   else if (machine.phase === 'paused') dispatch({ type: 'resume' })
 }
@@ -1073,7 +1080,7 @@ function resizeCanvas() {
 }
 
 function onScreenPointer() {
-  sound?.unlock()
+  unlockArcadeAudio()
   canvasRef.value?.focus({ preventScroll: true })
   if (ATTRACT_PHASES.includes(machine.phase)) startGame()
   else if (machine.phase === 'paused') dispatch({ type: 'resume' })
@@ -1082,7 +1089,7 @@ function onScreenPointer() {
 
 function onKey(event: KeyboardEvent) {
   if (event.target instanceof HTMLInputElement) return
-  sound?.unlock()
+  unlockArcadeAudio()
   if (event.code === 'KeyP' || event.code === 'Escape') {
     togglePause()
     return
@@ -1109,7 +1116,7 @@ function onVisibility() {
 }
 
 function toggleMute() {
-  sound?.unlock()
+  unlockArcadeAudio()
   store.setMuted(!store.muted)
   sound?.setMuted(store.muted)
 }

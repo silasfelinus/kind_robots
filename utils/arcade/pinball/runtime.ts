@@ -111,6 +111,10 @@ export class PinballRuntime implements ArcadeWebGLGameInstance {
     return this.disposed
   }
 
+  unlockAudio() {
+    if (!this.demo) this.mixer.unlock()
+  }
+
   mount(canvas: HTMLCanvasElement) {
     if (this.disposed || this.scene) return
     this.scene = new PinballScene(this.physics.table, canvas, this.factory)
@@ -127,6 +131,9 @@ export class PinballRuntime implements ArcadeWebGLGameInstance {
   update(input: InputFrame) {
     if (this.disposed || this.rules.over) return
     this.tick++
+    if (!this.demo && Object.values(input.pressed).some(Boolean)) {
+      this.mixer.unlock()
+    }
     const controls = this.demo ? this.pilot() : input
     const both = controls.held.a && !this.physics.ballOnPlunger()
     // A tilted machine's flippers are dead until the ball drains.

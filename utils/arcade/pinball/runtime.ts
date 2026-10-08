@@ -111,6 +111,10 @@ export class PinballRuntime implements ArcadeWebGLGameInstance {
     return this.disposed
   }
 
+  unlockAudio() {
+    if (!this.demo) this.mixer.unlock()
+  }
+
   mount(canvas: HTMLCanvasElement) {
     if (this.disposed || this.scene) return
     this.scene = new PinballScene(this.physics.table, canvas, this.factory)

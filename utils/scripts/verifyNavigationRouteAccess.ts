@@ -236,13 +236,13 @@ const workspaceHeaderSource = readFileSync(
 const appSource = readFileSync('app.vue', 'utf8')
 assert.match(
   appSource,
-  /v-if="workspaceSheetOpen"[\s\S]*?class="[^"]*\bleft-0\b[^"]*"/,
-  'The tutorial/workspace sheet must stay anchored to the left edge.',
+  /v-if="workspaceSheetOpen"[\s\S]*?class="[^"]*\bright-0\b[^"]*"/,
+  'The tutorial/workspace sheet must stay anchored to the right edge beside the header utility icons.',
 )
 assert.match(
   appSource,
-  /\.kr-sheet-slide-enter-from,[\s\S]*?transform:\s*translateX\(-1rem\);/,
-  'The tutorial/workspace sheet must enter from the left rather than sweeping in from the right.',
+  /\.kr-sheet-slide-enter-from,[\s\S]*?transform:\s*translateX\(1rem\);/,
+  'The tutorial/workspace sheet must enter from the right edge.',
 )
 assert.ok(
   workspaceHeaderSource.includes('to="/art"'),

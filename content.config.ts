@@ -40,6 +40,14 @@ const navigationCardSchema = z.object({
   action: z.string().optional(),
 })
 
+const tutorialSectionSchema = z.object({
+  key: z.string(),
+  title: z.string(),
+  body: z.string(),
+  image: z.string().optional(),
+  underConstruction: z.boolean().optional(),
+})
+
 const tutorialSchema = z.object({
   enabled: z.boolean().optional(),
   title: z.string().optional(),
@@ -50,6 +58,7 @@ const tutorialSchema = z.object({
   body: z.string().optional(),
   image: z.string().optional(),
   underConstruction: z.boolean().optional(),
+  sections: z.array(tutorialSectionSchema).optional(),
 })
 
 const contentNavigationSchema = z.union([

@@ -10,6 +10,14 @@ export type NavigationCard = {
   action?: string
 }
 
+export type TutorialSectionContent = {
+  key: string
+  title: string
+  body: string
+  image?: string
+  underConstruction?: boolean
+}
+
 export type TutorialContent = {
   enabled?: boolean
   title?: string
@@ -20,6 +28,7 @@ export type TutorialContent = {
   body?: string
   image?: string
   underConstruction?: boolean
+  sections?: TutorialSectionContent[]
 }
 
 export type ChannelContentItem = {
@@ -68,6 +77,7 @@ export type ResolvedTutorialSection = {
   title: string
   body: string
   image: string
+  explicit: boolean
   underConstruction?: boolean
 }
 
@@ -79,6 +89,7 @@ export type ResolvedTutorialChannel = {
   tagline: string
   earnings: string
   underConstruction?: boolean
+  sectionsSource: 'authored' | 'tabs'
   sections: ResolvedTutorialSection[]
 }
 
@@ -284,6 +295,8 @@ function resolveTabItem(
     dashboardKey,
     dashboardTab,
   )
+  const explicitTutorial =
+    item.tutorial !== undefined && item.tutorial.enabled !== false
   const tutorial =
     item.tutorial?.enabled === false
       ? null
@@ -297,6 +310,7 @@ function resolveTabItem(
             narrative ||
             title,
           image: tutorialImage(item.tutorial?.image, image),
+          explicit: explicitTutorial,
           underConstruction:
             item.tutorial?.underConstruction === true ||
             text(item.status) === 'under-construction' ||
@@ -390,11 +404,27 @@ export function resolveChannels(
       const defaultTab = tabs.some((tab) => tab.tabKey === requestedDefault)
         ? requestedDefault
         : tabs[0]?.tabKey || ''
-      const tutorialSections = tabs
+      const tabTutorialSections = tabs
         .map((tab) => tab.tutorial)
         .filter(
           (section): section is ResolvedTutorialSection => section !== null,
         )
+      const authoredTutorialSections = (item.tutorial?.sections ?? []).map(
+        (section): ResolvedTutorialSection => ({
+          key: text(section.key),
+          title: text(section.title),
+          body: text(section.body),
+          image: tutorialImage(section.image, base.image),
+          explicit: true,
+          underConstruction: section.underConstruction || undefined,
+        }),
+      )
+      const hasAuthoredTutorialSections = authoredTutorialSections.length > 0
+      const tutorialSections = hasAuthoredTutorialSections
+        ? authoredTutorialSections
+        : tabTutorialSections
+      const sectionsSource: ResolvedTutorialChannel['sectionsSource'] =
+        hasAuthoredTutorialSections ? 'authored' : 'tabs'
       const tutorial =
         item.tutorial?.enabled === false
           ? null
@@ -417,6 +447,7 @@ export function resolveChannels(
                 item.tutorial?.underConstruction === true ||
                 text(item.status) === 'under-construction' ||
                 undefined,
+              sectionsSource,
               sections: tutorialSections,
             }
 
@@ -459,12 +490,15 @@ export function filterChannelsByRole(
         tutorial: channel.tutorial
           ? {
               ...channel.tutorial,
-              sections: tabs
-                .map((tab) => tab.tutorial)
-                .filter(
-                  (section): section is ResolvedTutorialSection =>
-                    section !== null,
-                ),
+              sections:
+                channel.tutorial.sectionsSource === 'tabs'
+                  ? tabs
+                      .map((tab) => tab.tutorial)
+                      .filter(
+                        (section): section is ResolvedTutorialSection =>
+                          section !== null,
+                      )
+                  : channel.tutorial.sections,
             }
           : null,
       }

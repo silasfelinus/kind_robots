@@ -627,6 +627,27 @@ export const ARCADE_GAMES: ArcadeGameMeta[] = [
     accent: '#ec4899',
     controls: 'Ride, steer, toss',
   },
+  {
+    slug: 'bumper-bubbles',
+    title: 'Bumper Bubbles',
+    riffsOn: 'Bubble Bobble',
+    blurb:
+      'A little robot hops between floating platforms blowing bubbles. Trap a gremlin in a bubble, then bump it to pop it for points and a falling gem. Wait too long and the gremlin bursts free, angrier and faster. Quick pops build a chain bonus, and every round brings more gremlins.',
+    howTo: [
+      'LEFT/RIGHT  WALK',
+      'UP OR B  HOP',
+      'A  BLOW A BUBBLE',
+      'TRAP GREMLINS',
+      'BUMP BUBBLES TO POP',
+      'POP FAST FOR CHAINS',
+    ],
+    width: 256,
+    height: 240,
+    maxPlausibleScore: 2_000_000,
+    titleArt: '/images/arcade/games/bumper-bubbles-title.webp',
+    accent: '#38bdf8',
+    controls: 'Walk, hop, blow',
+  },
 ]
 
 export type ComingSoonCabinet = {
@@ -704,6 +725,7 @@ const LOADERS: Record<string, () => Promise<ArcadeGameModule>> = {
   'rover-ramble': () => import('./games/roverRamble'),
   'cable-crawler': () => import('./games/cableCrawler'),
   'petal-post': () => import('./games/petalPost'),
+  'bumper-bubbles': () => import('./games/bumperBubbles'),
   'kind-pinball-3d': () =>
     import('./games/kindPinball3d').then(async (module) => {
       await module.prepare()

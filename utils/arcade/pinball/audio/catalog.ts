@@ -37,6 +37,8 @@ export type PinballSoundName =
   | 'extra-ball'
   | 'wizard'
   | 'match'
+  | 'secret-tease'
+  | 'secret-found'
 
 export type SynthCue = {
   bus: PinballBus
@@ -192,6 +194,23 @@ export const PINBALL_CUES: Record<PinballSoundName, SynthCue> = {
     gain: 0.08,
     wave: 'triangle',
   },
+  // The secret door's creak and the room's welcome (t-012).
+  'secret-tease': {
+    bus: 'callout',
+    frequency: 180,
+    endFrequency: 95,
+    duration: 0.6,
+    gain: 0.1,
+    wave: 'sawtooth',
+  },
+  'secret-found': {
+    bus: 'callout',
+    frequency: 247,
+    endFrequency: 1480,
+    duration: 0.9,
+    gain: 0.14,
+    wave: 'triangle',
+  },
   // Table 1's feature callouts (t-007): rising sweeps, longer and brighter
   // the bigger the award.
   'skill-shot': {
@@ -302,9 +321,11 @@ export const PINBALL_CALLOUTS = {
   tilt: 'TILT',
 } as const
 
-export type PinballMusicBed = 'mode' | 'multiball'
+export type PinballMusicBed = 'mode' | 'multiball' | 'sub-table'
 
 export const MUSIC_BEDS: Record<PinballMusicBed, readonly number[]> = {
   mode: [110, 165, 220],
   multiball: [146.83, 220, 293.66],
+  // The hidden room (t-012): lower and stranger, a tritone under it.
+  'sub-table': [98, 138.59, 196],
 }

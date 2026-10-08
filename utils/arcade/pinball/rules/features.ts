@@ -44,6 +44,8 @@ export type ModeState = {
   total: number
   /** The whole seconds last put on the DMD timer. */
   shown: number
+  /** The clock stopped here while the ball is in the hidden room, or null. */
+  pausedAt: number | null
 }
 
 export type FeatureState = {
@@ -65,6 +67,8 @@ export type FeatureState = {
   extraBallLit: boolean
   /** Extra balls earned and not yet played. */
   extraBalls: number
+  /** Jackpots are worth this many times over (the hidden room doubles them). */
+  jackpotX: number
   /** Ball save: armed until the plunge, then good until `until`. */
   ballSave: { armed: boolean; until: number }
   /** This ball's counts, for the end-of-ball bonus. */
@@ -89,6 +93,7 @@ export function initialFeatures(seed: number): FeatureState {
     wizard: { running: false, hits: 0, total: 0 },
     extraBallLit: false,
     extraBalls: 0,
+    jackpotX: 1,
     ballSave: { armed: true, until: Number.NEGATIVE_INFINITY },
     stats: { ramps: 0, orbits: 0, locks: 0, villages: 0 },
     seed: next,
@@ -255,7 +260,8 @@ function jackpot(
 ): boolean {
   const mb = state.play.multiball
   if (RAMP_SHOTS.includes(id)) {
-    const value = VALUES.jackpot + VALUES.jackpotStep * mb.jackpots
+    const value =
+      (VALUES.jackpot + VALUES.jackpotStep * mb.jackpots) * state.play.jackpotX
     const jackpots = mb.jackpots + 1
     award(state, value)
     state.play = {
@@ -273,7 +279,8 @@ function jackpot(
     return true
   }
   if (id === 'lock' && mb.superLit) {
-    award(state, VALUES.superJackpot)
+    const value = VALUES.superJackpot * state.play.jackpotX
+    award(state, value)
     state.play = {
       ...state.play,
       multiball: { ...mb, jackpots: 0, superLit: false },
@@ -285,7 +292,7 @@ function jackpot(
         text: 'SUPER JACKPOT',
         ms: 2500,
         scene: 'super-jackpot',
-        value: VALUES.superJackpot,
+        value,
       },
     )
     return true
@@ -393,6 +400,7 @@ function saucer(
         endsAt: tick + def.seconds * PHYSICS_HZ,
         total: 0,
         shown: def.seconds,
+        pausedAt: null,
       },
     },
     stats: { ...play.stats, villages: play.stats.villages + 1 },
@@ -435,6 +443,7 @@ function modeShot(
 ): boolean {
   const mode = state.play.villages.mode!
   const def = VILLAGES[mode.village]!
+  if (mode.pausedAt !== null) return false
   if (!def.shots.includes(id) || tick >= mode.endsAt) return false
   const hits = mode.hits + 1
   const points = VALUES.modeShotBase * hits
@@ -526,6 +535,37 @@ function wizardShot(state: PinballRulesState, effects: RuleEffect[]): boolean {
   return true
 }
 
+/**
+ * A village rescued without playing its mode (the hidden room's reward): it
+ * counts on the map toward the extra ball and the wizard mode. False when
+ * every village is already on the map.
+ */
+export function rescueVillage(
+  state: PinballRulesState,
+  effects: RuleEffect[],
+): boolean {
+  const play = state.play
+  const v = play.villages
+  const busy = v.mode ? [v.mode.village] : []
+  const open = VILLAGES.map((_, i) => i).filter(
+    (i) => !v.visited.includes(i) && !busy.includes(i),
+  )
+  if (!open.length) return false
+  const [village, seed] = pick(open, play.seed)
+  const visited = [...v.visited, village]
+  award(state, VALUES.villageVisited)
+  state.play = {
+    ...play,
+    seed,
+    villages: { ...v, visited, saved: v.saved + 1 },
+    stats: { ...play.stats, villages: play.stats.villages + 1 },
+    extraBallLit: play.extraBallLit || visited.length === EXTRA_BALL_AT,
+  }
+  if (visited.length === EXTRA_BALL_AT)
+    effects.push({ type: 'dmd', text: 'EXTRA BALL IS LIT', ms: 1500 })
+  return true
+}
+
 /** Time passing: the skill shot lapses and a village's clock runs. */
 export function tickFeatures(
   state: PinballRulesState,
@@ -536,7 +576,7 @@ export function tickFeatures(
   if (skill.armed && tick > skill.until)
     state.play = { ...state.play, skill: { ...skill, armed: false } }
   const mode = state.play.villages.mode
-  if (!mode) return
+  if (!mode || mode.pausedAt !== null) return
   if (tick >= mode.endsAt) {
     endMode(state, mode, VILLAGES[mode.village]!.name, effects)
     return
@@ -596,6 +636,7 @@ function endMultiball(state: PinballRulesState, effects: RuleEffect[]) {
     state.play = {
       ...state.play,
       multiball: { running: false, jackpots: 0, superLit: false },
+      jackpotX: 1,
     }
 }
 

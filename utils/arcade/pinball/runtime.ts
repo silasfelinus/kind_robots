@@ -14,6 +14,9 @@ import type {
   InputFrame,
 } from '../types'
 import { PinballMixer } from './audio/mixer'
+import { Dmd } from './dmd'
+import { DmdQueue, type DmdRequest } from './dmdQueue'
+import { drawDmd } from './dmdScenes'
 import {
   PinballPhysics,
   PHYSICS_HZ,
@@ -44,6 +47,8 @@ import {
 import type { CameraPresetId, RuleEffect, TableDef } from './types'
 
 const STEPS_PER_TICK = PHYSICS_HZ / 60
+/** Ms of DMD time per arcade tick. */
+const TICK_MS = 1000 / 60
 /** Ticks to hold Down for a full plunger pull. */
 const PULL_TICKS = 45
 /** A ball this slow for this long, off the plunger, gets a small shove. */
@@ -90,6 +95,10 @@ export class PinballRuntime implements ArcadeWebGLGameInstance {
   private size = { width: 0, height: 0, dpr: 1 }
   /** Light shows playing over the lamp matrix. */
   private shows: LightShow[] = []
+  /** The backbox DMD: its scene queue and the 128x32 frame it draws. */
+  readonly dmdQueue = new DmdQueue()
+  readonly dmd = new Dmd()
+  private hiScore: number
   private disposed = false
 
   constructor(
@@ -101,6 +110,7 @@ export class PinballRuntime implements ArcadeWebGLGameInstance {
     this.rng = options.rng
     this.demo = options.demo
     this.factory = factory
+    this.hiScore = options.hiScore
     this.mixer = new PinballMixer(options.sound)
     this.physics = new PinballPhysics(R, table)
     this.rules = initialRules(table.balls)
@@ -174,6 +184,24 @@ export class PinballRuntime implements ArcadeWebGLGameInstance {
     this.unstick(left || right)
     this.scene?.setView(this.view())
     this.lamps()
+    this.dmdQueue.tick(TICK_MS)
+    this.drawDmd()
+  }
+
+  /** Draw the DMD's current scene (or the score, or attract pages). */
+  private drawDmd() {
+    drawDmd(
+      this.dmd,
+      this.demo ? null : this.dmdQueue.showing,
+      {
+        score: this.rules.score,
+        ball: this.rules.ball,
+        multiplier: this.rules.bonusMultiplier,
+        attract: this.demo,
+        highScore: this.hiScore,
+      },
+      this.dmdQueue.now,
+    )
   }
 
   /** Light the table from the rules, or run the attract show in a demo. */
@@ -276,6 +304,22 @@ export class PinballRuntime implements ArcadeWebGLGameInstance {
       case 'sound':
         if (!this.demo) this.mixer.play(effect.name)
         break
+      case 'dmd': {
+        const request: DmdRequest = {
+          scene: effect.scene ?? 'message',
+          text: effect.text,
+          sub: effect.sub,
+          value: effect.value,
+        }
+        // A plain message keeps the length the rules asked for; named
+        // scenes run their own timing.
+        if (!effect.scene) request.ms = effect.ms
+        this.dmdQueue.push(request)
+        break
+      }
+      case 'dmd-clear':
+        this.dmdQueue.clear(effect.scene)
+        break
       case 'mechanism':
         if (effect.action === 'flash') this.scene?.pulse(effect.id)
         if (effect.action === 'reset') this.physics.resetDropBank(effect.id)
@@ -339,6 +383,7 @@ export class PinballRuntime implements ArcadeWebGLGameInstance {
       doors: this.physics.doorStates(),
       toys: this.physics.toyAngles(),
     })
+    this.scene.setDmd(this.dmd.buf)
     this.scene.render()
   }
 

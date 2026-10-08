@@ -130,7 +130,7 @@ export function stepRules(
       state: { ...state, ball: 1, ballsInPlay: 1 },
       effects: [
         { type: 'serve-ball' },
-        { type: 'dmd', text: 'BALL 1', ms: 1500 },
+        { type: 'dmd', text: 'BALL 1', ms: 1500, scene: 'ball', value: 1 },
       ],
     }
   }
@@ -161,7 +161,7 @@ export function stepRules(
     effects.push({ type: 'sound', name: 'drain' })
     if (lives <= 0) {
       effects.push(
-        { type: 'dmd', text: 'GAME OVER', ms: 4000 },
+        { type: 'dmd', text: 'GAME OVER', ms: 4000, scene: 'game-over' },
         { type: 'game-over' },
       )
       return {
@@ -173,13 +173,22 @@ export function stepRules(
     effects.push(
       { type: 'mechanism', id: 'ami', action: 'reset' },
       { type: 'serve-ball' },
-      { type: 'dmd', text: `BALL ${ball}`, ms: 1500 },
+      {
+        type: 'dmd',
+        text: `BALL ${ball}`,
+        ms: 1500,
+        scene: 'ball',
+        value: ball,
+      },
     )
     if (next.sub.doorOpen) {
       effects.push({ type: 'mechanism', id: 'secret-door', action: 'close' })
     }
     if (next.tilted) {
-      effects.push({ type: 'mechanism', id: 'flippers', action: 'enable' })
+      effects.push(
+        { type: 'mechanism', id: 'flippers', action: 'enable' },
+        { type: 'dmd-clear', scene: 'tilt' },
+      )
     }
     return {
       state: {
@@ -336,7 +345,7 @@ function nudge(
       effects: [
         { type: 'mechanism', id: 'flippers', action: 'disable' },
         { type: 'sound', name: 'tilt' },
-        { type: 'dmd', text: 'TILT', ms: 3000 },
+        { type: 'dmd', text: 'TILT', ms: 3000, scene: 'tilt' },
       ],
     }
   }
@@ -345,7 +354,12 @@ function nudge(
     state: { ...next, tiltWarnings: warnings },
     effects: [
       { type: 'sound', name: 'tilt-warning' },
-      { type: 'dmd', text: warnings === 1 ? 'WARNING' : 'DANGER', ms: 1200 },
+      {
+        type: 'dmd',
+        text: warnings === 1 ? 'WARNING' : 'DANGER',
+        ms: 1200,
+        scene: 'tilt-warning',
+      },
     ],
   }
 }

@@ -639,6 +639,11 @@ const shots: ShotDef[] = [
   { id: 'sub-home', kind: 'scoop', sensors: ['sub-home'], displayName: 'HOME' },
 ]
 
+/** The DMD's glass on the backbox face (t-006), and its width (4:1). */
+const BACKBOX_FACE_Z = -1.005 + 0.012
+const DMD_WIDTH = 0.4
+const DMD_AT: Vec3 = [ROOM_X, 0.072, BACKBOX_FACE_Z + 0.002]
+
 /** Where the apron plate begins, just below the flipper tips. */
 const APRON_TOP_Z = 0.035
 
@@ -738,6 +743,11 @@ export const AMI_VILLAGE_GREYBOX: TableDef = {
         min: [LEFT_X - 0.02, 0, TOP_Z - 0.06],
         max: [RIGHT_X + 0.02, 0.03, BOTTOM_Z + 0.02],
       },
+      // The DMD in the backbox above the arch.
+      include: [
+        [DMD_AT[0] - DMD_WIDTH / 2, DMD_AT[1] + DMD_WIDTH / 8, DMD_AT[2]],
+        [DMD_AT[0] + DMD_WIDTH / 2, DMD_AT[1] + DMD_WIDTH / 8, DMD_AT[2]],
+      ],
       portrait: [(LEFT_X + RIGHT_X) / 2, 1.2, 0.25],
       portraitFovDeg: 36,
     },
@@ -819,6 +829,7 @@ export const AMI_VILLAGE_GREYBOX: TableDef = {
   ],
   inserts,
   flashers,
+  dmd: { at: DMD_AT, width: DMD_WIDTH, occluder: 'backbox' },
   art: {
     // Rendered by a durable ArtJob from conductor's art-prompts.yaml
     // (kind-pinball/t-009), to the playfield rectangle below.

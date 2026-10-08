@@ -12,6 +12,8 @@
 // table is pitched by `physical.pitchDeg`; physics applies that as a tilted
 // gravity vector, and the renderer rotates the table root by the same angle.
 
+import type { DmdSceneId } from './dmdQueue'
+
 export type Vec3 = readonly [number, number, number]
 
 export type MaterialId =
@@ -224,6 +226,8 @@ export type CameraPreset = {
   fovDeg: number
   /** The box this preset must show, in table-local metres. */
   frame: { min: Vec3; max: Vec3 }
+  /** Points the camera must also keep on screen (the DMD in the backbox). */
+  include?: Vec3[]
   /** A tall (phone) screen's eye: closer to top-down so the table fills it. */
   portrait?: Vec3
   portraitFovDeg?: number
@@ -313,6 +317,11 @@ export type TableDef = {
       max: readonly [number, number]
     }
   }
+  /**
+   * The DMD in the backbox (t-006): the centre of its glass, facing the
+   * player, and its width (it is 4:1). It fades with the occluder it sits in.
+   */
+  dmd?: { at: Vec3; width: number; occluder?: string }
   /** Solid trim the renderer draws and the physics never sees (the apron plate). */
   trim?: BoxCollider[]
   /** Where a new ball sits in the shooter lane, and the lane's launch speed range (m/s). */
@@ -348,4 +357,14 @@ export type RuleEffect =
   | { type: 'serve-ball' }
   | { type: 'game-over' }
   | { type: 'mechanism'; id: string; action: string; payload?: unknown }
-  | { type: 'dmd'; text: string; sub?: string; ms: number }
+  | {
+      type: 'dmd'
+      text: string
+      sub?: string
+      ms: number
+      /** The DMD scene to show it in (dmdQueue.ts); a plain message if unset. */
+      scene?: DmdSceneId
+      value?: number
+    }
+  /** Take a scene off the DMD (a mode ends, a tilt clears). */
+  | { type: 'dmd-clear'; scene: DmdSceneId }

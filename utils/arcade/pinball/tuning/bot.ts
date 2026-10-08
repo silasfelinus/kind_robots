@@ -15,7 +15,8 @@
 import { emptyInput, type InputFrame } from '../../types'
 import type { PinballRulesState } from '../rules/engine'
 import { ARROW_SHOTS, RAMP_SHOTS, VILLAGES } from '../rules/village'
-import type { BallView, FlipperDef } from '../types'
+import type { BallView } from '../physics/world'
+import type { FlipperDef } from '../types'
 import {
   CRADLE_OFFSET,
   delaysFor,

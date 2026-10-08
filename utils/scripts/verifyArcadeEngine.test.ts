@@ -52,6 +52,7 @@ import {
   type InputFrame,
 } from '../arcade/types'
 import RAPIER from '@dimforge/rapier3d-compat'
+import * as THREE from 'three'
 import {
   livePhysicsWorlds,
   MAX_BALL_SPEED,
@@ -76,6 +77,16 @@ import {
   initialShotProgress,
   recognizeShots,
 } from '../arcade/pinball/rules/shots'
+import { fitCamera, portraitBlend } from '../arcade/pinball/render/camera'
+import {
+  QualityGovernor,
+  TIER_SETTINGS,
+} from '../arcade/pinball/render/quality'
+import {
+  attractLamps,
+  lampStates,
+  RAINBOW_LAMPS,
+} from '../arcade/pinball/rules/lamps'
 import { cameraViewFor, PinballRuntime } from '../arcade/pinball/runtime'
 import { AMI_VILLAGE_GREYBOX } from '../arcade/pinball/tables/amiVillage/table'
 import type { SwitchEvent, TableDef, Vec3 } from '../arcade/pinball/types'
@@ -2078,11 +2089,217 @@ async function runLanternRescue() {
   }
 }
 
+async function runPinballRender() {
+  // conductor kind-pinball/t-019: the hero render pass's pure parts.
+  const table = AMI_VILLAGE_GREYBOX
+  const pitch = (table.physical.pitchDeg * Math.PI) / 180
+  const up = new THREE.Vector3(0, Math.cos(pitch), -Math.sin(pitch))
+
+  // Camera framing: at a phone, a tablet and a desktop aspect, every corner
+  // of each preset's frame box is on screen, and the box fills one axis.
+  for (const preset of table.cameras) {
+    for (const aspect of [390 / 844, 1180 / 820, 1280 / 800]) {
+      const framing = fitCamera(preset, aspect, up)
+      const camera = new THREE.PerspectiveCamera(framing.fov, aspect, 0.01, 50)
+      camera.position.copy(framing.eye)
+      camera.up.copy(up)
+      camera.lookAt(framing.target)
+      camera.updateMatrixWorld()
+      let reach = 0
+      for (const x of [preset.frame.min[0], preset.frame.max[0]])
+        for (const y of [preset.frame.min[1], preset.frame.max[1]])
+          for (const z of [preset.frame.min[2], preset.frame.max[2]]) {
+            const p = new THREE.Vector3(x, y, z).project(camera)
+            assert.ok(
+              Math.abs(p.x) <= 1 && Math.abs(p.y) <= 1,
+              `${preset.id} at ${aspect.toFixed(2)}: corner on screen`,
+            )
+            reach = Math.max(reach, Math.abs(p.x), Math.abs(p.y))
+          }
+      assert.ok(
+        reach > 0.9,
+        `${preset.id} at ${aspect.toFixed(2)}: fills the screen`,
+      )
+    }
+  }
+  const main = table.cameras.find((c) => c.id === 'main')!
+  const elevation = (aspect: number) => {
+    const f = fitCamera(main, aspect, up)
+    const d = f.eye.clone().sub(f.target)
+    return Math.atan2(d.y, Math.hypot(d.x, d.z))
+  }
+  assert.ok(
+    elevation(390 / 844) > elevation(1280 / 800) + 0.15,
+    'a phone looks down on the table more steeply than a desktop',
+  )
+  assert.equal(portraitBlend(0.4), 1)
+  assert.equal(portraitBlend(1.6), 0)
+
+  // Quality tiers come from measured frame time, step down while slow, and
+  // never climb back to a tier that failed.
+  const governor = new QualityGovernor('high')
+  const feed = (ms: number, frames: number) => {
+    const changes: string[] = []
+    for (let i = 0; i < frames; i++) {
+      const tier = governor.sample(ms)
+      if (tier) changes.push(tier)
+    }
+    return changes
+  }
+  assert.deepEqual(feed(16.7, 2000), [], 'full rate at high stays high')
+  assert.deepEqual(feed(30, 400), ['medium', 'low'], 'slow frames step down')
+  assert.deepEqual(feed(16.7, 3000), [], 'a failed tier is not retried')
+  assert.deepEqual(feed(5000, 400), [], 'stalls (a hidden tab) are not frames')
+  const recovering = new QualityGovernor('high')
+  for (let i = 0; i < 400; i++) recovering.sample(19)
+  assert.equal(recovering.tier, 'high', 'just under 50 FPS is not slow')
+  const pinned = new QualityGovernor('high')
+  pinned.force('low')
+  for (let i = 0; i < 2000; i++) pinned.sample(2)
+  assert.equal(pinned.tier, 'low', 'a pinned tier ignores timing')
+  pinned.force(null)
+  assert.ok(pinned.stats().p95Ms >= pinned.stats().averageMs - 1e-9)
+  assert.ok(
+    TIER_SETTINGS.low.shadowMapSize === 0 && TIER_SETTINGS.low.bloomScale === 0,
+    'the low tier draws no shadow map and no bloom',
+  )
+  for (const tier of ['high', 'medium', 'low'] as const)
+    assert.ok(TIER_SETTINGS[tier].maxPixelRatio <= 2, 'DPR is capped at 2')
+
+  // The table's lamps: unique ids, real shots and flashers behind them, and
+  // every lamp the lamp matrix drives exists on the table.
+  const inserts = table.inserts ?? []
+  const flashers = table.flashers ?? []
+  const ids = [...inserts.map((i) => i.id), ...flashers.map((f) => f.id)]
+  assert.equal(new Set(ids).size, ids.length, 'lamp ids are unique')
+  for (const insert of inserts) {
+    if (insert.shot)
+      assert.ok(
+        table.shots.some((s) => s.id === insert.shot),
+        `${insert.id} points at a real shot`,
+      )
+    if (insert.flasher)
+      assert.ok(
+        flashers.some((f) => f.id === insert.flasher),
+        `${insert.id} fires a real flasher`,
+      )
+  }
+  for (const shot of table.shots.filter((s) => s.id !== 'secret'))
+    assert.ok(
+      inserts.some((i) => i.shot === shot.id),
+      `${shot.id} has an insert (only the secret has none)`,
+    )
+  const start = lampStates(initialRules(table.balls), table)
+  for (const id of Object.keys(start.lamps))
+    assert.ok(ids.includes(id), `${id} is a table lamp`)
+  for (const id of [
+    'arrow-lock',
+    'arrow-left-orbit',
+    'lamp-award',
+    'lamp-kickback',
+    'lamp-net-n',
+    'arrow-sub-home',
+    'flasher-secret',
+    ...RAINBOW_LAMPS,
+  ])
+    assert.ok(ids.includes(id), `the lamp matrix's ${id} is on the table`)
+
+  // What the lamps say: the state of the game, readable at a glance.
+  assert.equal(start.lamps['arrow-left-ramp'], 'on', 'shots start lit')
+  assert.equal(start.lamps['arrow-lock'], 'off', 'the lock starts unlit')
+  assert.equal(start.lamps['lamp-kickback'], 'on', 'the kickback starts lit')
+  assert.equal(start.gi, 1)
+  const lit: PinballRulesState = {
+    ...initialRules(table.balls),
+    dropsDown: { ami: ['drop-a', 'drop-m', 'drop-i'] },
+    sub: { doorOpen: true, closesAt: 1e9, found: 0, nets: ['net-n'] },
+    bonusMultiplier: 3,
+    kickbackLit: false,
+  }
+  const lamps = lampStates(lit, table).lamps
+  assert.equal(
+    lamps['arrow-lock'],
+    'blink',
+    'the A-M-I bank down lights the lock',
+  )
+  assert.equal(lamps['lamp-drop-m'], 'on')
+  assert.equal(
+    lamps['arrow-left-orbit'],
+    'blink',
+    'an open door lights the way',
+  )
+  assert.equal(lamps['flasher-secret'], 'blink')
+  assert.equal(lamps['lamp-kickback'], 'off')
+  assert.equal(lamps['lamp-net-n'], 'on')
+  assert.equal(lamps['lamp-net-e'], 'off')
+  assert.deepEqual(
+    RAINBOW_LAMPS.map((id) => lamps[id]),
+    ['on', 'on', 'off', 'off', 'off', 'off'],
+    'the rainbow counts the bonus multiplier',
+  )
+  const tilted = lampStates({ ...lit, tilted: true }, table)
+  assert.equal(tilted.gi, 0, 'a tilt puts the GI out')
+  assert.ok(
+    Object.values(tilted.lamps).every((l) => l === 'off'),
+    'and every lamp',
+  )
+  const frames = [0, 5, 10, 15].map((t) => attractLamps(table, t).lamps)
+  assert.ok(
+    frames.every((f) => Object.values(f).includes('on')),
+    'the attract show always has lamps lit',
+  )
+  assert.notDeepEqual(frames[0], frames[1], 'and they chase')
+
+  // The scene: lamps follow the matrix, pulses and tiers are safe without
+  // WebGL, and nothing leaks.
+  const resources = liveRenderResources()
+  const scene = new PinballScene(table, {} as HTMLCanvasElement, () =>
+    stubRenderer({ disposed: 0, frames: 0 }),
+  )
+  scene.resize(390, 844, 3)
+  scene.setLamps(lamps, 1)
+  assert.equal(scene.lampLevels()['arrow-lock'], 'blink')
+  for (const shot of table.shots) scene.pulse(shot.id)
+  for (const tier of ['low', 'medium', 'high'] as const) {
+    scene.forceQuality(tier)
+    assert.equal(scene.quality, tier)
+    for (let i = 0; i < 5; i++) scene.render()
+  }
+  scene.forceQuality(null)
+  assert.equal(scene.stats().tier, 'high')
+  scene.dispose()
+  assert.equal(
+    liveRenderResources(),
+    resources,
+    'the hero pass frees everything',
+  )
+
+  // The runtime lights the table from its rules every tick.
+  const runtime = new PinballRuntime(
+    { rng: mulberry32(4), sound: { play: () => {} }, demo: false, hiScore: 0 },
+    RAPIER,
+    table,
+    () => stubRenderer({ disposed: 0, frames: 0 }),
+  )
+  runtime.mount({} as HTMLCanvasElement)
+  runtime.update(emptyInput())
+  const shown = (runtime as unknown as { scene: PinballScene }).scene
+  assert.deepEqual(
+    shown.lampLevels(),
+    lampStates(initialRules(table.balls), table).lamps,
+    'the runtime shows the lamp matrix',
+  )
+  runtime.forceQuality('low')
+  assert.equal(runtime.renderStats()?.tier, 'low')
+  runtime.dispose()
+}
+
 await runLanternRescue()
 await runCoopGames()
 await runPinball3d()
 await runPinballShots()
 await runPinballSubTable()
 await runPinballFeel()
+await runPinballRender()
 await runPinballSoak()
 console.log('verifyArcadeEngine: ok')

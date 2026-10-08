@@ -214,10 +214,53 @@ export type CameraPresetId =
 
 export type CameraPreset = {
   id: CameraPresetId
-  /** Camera position and look target, in table-local metres. */
+  /**
+   * Camera position and look target, in table-local metres. Only the
+   * direction from target to position is kept: the renderer pulls the
+   * camera back until `frame` fits the screen (render/camera.ts).
+   */
   position: Vec3
   target: Vec3
   fovDeg: number
+  /** The box this preset must show, in table-local metres. */
+  frame: { min: Vec3; max: Vec3 }
+  /** A tall (phone) screen's eye: closer to top-down so the table fills it. */
+  portrait?: Vec3
+  portraitFovDeg?: number
+}
+
+/**
+ * A lamp's state, as rules ask for it: unlit (the plastic still shows its
+ * colour), lit, or flashing for attention.
+ */
+export type LampLevel = 'off' | 'on' | 'blink'
+
+/**
+ * A playfield insert: translucent plastic set flush in the playfield with a
+ * lamp under it. Shot arrows name their shot so a made shot flashes them.
+ */
+export type InsertDef = {
+  id: string
+  /** Centre on the playfield (x, z). */
+  at: readonly [number, number]
+  shape: 'arrow' | 'circle' | 'rect'
+  /** Arrow length / circle diameter / rect width, and the rect's depth. */
+  size: number
+  depth?: number
+  /** Turn about Y from pointing up the table (-Z), radians. */
+  yaw?: number
+  color: number
+  /** The shot this arrow lights the way to. */
+  shot?: string
+  /** A flasher fired when that shot is made. */
+  flasher?: string
+}
+
+/** A flasher dome: a bright lamp under coloured plastic that fires on events. */
+export type FlasherDef = {
+  id: string
+  at: Vec3
+  color: number
 }
 
 export type ShotDef = {
@@ -256,6 +299,10 @@ export type TableDef = {
   toys?: ToyDef[]
   zones?: ZoneDef[]
   occluders?: OccluderDef[]
+  inserts?: InsertDef[]
+  flashers?: FlasherDef[]
+  /** Solid trim the renderer draws and the physics never sees (the apron plate). */
+  trim?: BoxCollider[]
   /** Where a new ball sits in the shooter lane, and the lane's launch speed range (m/s). */
   plunger: { rest: Vec3; minSpeed: number; maxSpeed: number }
   /** A ball whose Z passes this line has drained. */

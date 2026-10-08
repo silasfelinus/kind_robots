@@ -1,0 +1,99 @@
+// /utils/arcade/pinball/rules/lamps.ts
+//
+// The lamp matrix (conductor kind-pinball/t-019): which inserts and flashers
+// are lit, read from the rules state. Pure, like the rules reducer, so the
+// renderer only draws what this says and tests can check it without WebGL.
+//
+// What is lit is what matters now: the lock arrow flashes once the A-M-I
+// bank is down, the left orbit flashes while the secret door is open, the
+// kickback lamp shows it will save the ball, and the rainbow across the
+// lower playfield counts the bonus multiplier the sub-table brought home.
+// Table 1's modes (t-007) will light the shot arrows on this same map;
+// until then the main shots stay lit as targets. Attract mode runs a chase
+// up the table, and a tilt puts every lamp and the GI out.
+
+import type { InsertDef, LampLevel, TableDef } from '../types'
+import type { PinballRulesState } from './engine'
+
+export type LampFrame = {
+  lamps: Record<string, LampLevel>
+  /** General illumination, 0 (out) to 1. */
+  gi: number
+}
+
+/** Rainbow lamps across the lower playfield, in order, for the multiplier. */
+export const RAINBOW_LAMPS = [
+  'rainbow-1',
+  'rainbow-2',
+  'rainbow-3',
+  'rainbow-4',
+  'rainbow-5',
+  'rainbow-6',
+]
+
+const NET_LAMPS: Record<string, string> = {
+  'net-n': 'lamp-net-n',
+  'net-e': 'lamp-net-e',
+  'net-t': 'lamp-net-t',
+}
+
+/** Arcade ticks per step of the attract chase. */
+const CHASE_TICKS = 5
+/** Bands the chase divides the table into, and how many are lit at once. */
+const CHASE_BANDS = 9
+const CHASE_LIT = 3
+
+function chaseBand(insert: InsertDef): number {
+  return Math.floor((0.2 - insert.at[1]) * 12)
+}
+
+/** The attract show: a chase running up the table, flashers on the beat. */
+export function attractLamps(table: TableDef, tick: number): LampFrame {
+  const lamps: Record<string, LampLevel> = {}
+  const phase = Math.floor(tick / CHASE_TICKS)
+  for (const insert of table.inserts ?? []) {
+    const band =
+      (((chaseBand(insert) - phase) % CHASE_BANDS) + CHASE_BANDS) % CHASE_BANDS
+    lamps[insert.id] = band < CHASE_LIT ? 'on' : 'off'
+  }
+  for (const [i, flasher] of (table.flashers ?? []).entries()) {
+    lamps[flasher.id] = phase % CHASE_BANDS === i * 2 ? 'on' : 'off'
+  }
+  return { lamps, gi: 1 }
+}
+
+/** The lamps for a game in progress. */
+export function lampStates(
+  state: PinballRulesState,
+  table: TableDef,
+): LampFrame {
+  const lamps: Record<string, LampLevel> = {}
+  for (const insert of table.inserts ?? []) lamps[insert.id] = 'off'
+  for (const flasher of table.flashers ?? []) lamps[flasher.id] = 'off'
+  if (state.tilted) return { lamps, gi: 0 }
+
+  const set = (id: string, level: LampLevel) => {
+    if (id in lamps) lamps[id] = level
+  }
+  for (const insert of table.inserts ?? []) {
+    if (insert.shot && insert.shape === 'arrow') set(insert.id, 'on')
+  }
+  const amiDown = state.dropsDown.ami ?? []
+  for (const id of amiDown) set(`lamp-${id}`, 'on')
+  set('arrow-lock', amiDown.length >= 3 ? 'blink' : 'off')
+  set('lamp-award', 'on')
+  if (state.sub.doorOpen) {
+    set('arrow-left-orbit', 'blink')
+    set('flasher-secret', 'blink')
+  }
+  set('lamp-kickback', state.kickbackLit ? 'on' : 'off')
+  const earned = Math.min(RAINBOW_LAMPS.length, state.bonusMultiplier - 1)
+  for (const [i, id] of RAINBOW_LAMPS.entries())
+    set(id, i < earned ? 'on' : 'off')
+  for (const net of state.sub.nets) set(NET_LAMPS[net] ?? '', 'on')
+  set(
+    'arrow-sub-home',
+    state.sub.nets.length >= Object.keys(NET_LAMPS).length ? 'blink' : 'on',
+  )
+  return { lamps, gi: 1 }
+}

@@ -163,7 +163,10 @@ type PageSeed = {
    * figure or machine dead centre -- eight of eight, two of them androids the
    * negative named outright (ArtJobs 34761-34762, 34795-34798). The 9:16
    * mobile canvas never did, so bots' tablet renders on it; the slug, file and
-   * frontmatter stay tablet's, and the CSS covers the 3:4 viewport.
+   * frontmatter stay tablet's, and the CSS covers the 3:4 viewport. Silas,
+   * 2026-10-08, approved the same for the other pages whose tablet art came
+   * back with a centred figure: academy, characters, coat-dance, scenarios,
+   * memory.
    */
   canvasFor?: Partial<Record<BackdropVariant, BackdropVariant>>
 }
@@ -204,6 +207,7 @@ const PAGES: PageSeed[] = [
     title: 'Characters — Character Gallery',
     scene:
       'A character gallery: a long warm hall with a high vaulted ceiling, framed empty portrait niches and draped fabric receding down both side walls, dust catching in shafts of light from clerestory windows. Costume stands, prop weapons and open wardrobe trunks sit against the walls. It reads as a place where many different people and creatures are about to be introduced.',
+    canvasFor: { tablet: 'mobile' },
   },
   {
     page: 'rewards',
@@ -216,6 +220,7 @@ const PAGES: PageSeed[] = [
     title: 'Scenarios — Scenario Gallery',
     scene:
       'A scenario table: an enormous map-strewn planning table seen from a low angle in a warm study, with sculpted terrain, tiny standing figures, dice and reference books pushed to the edges, and tall shelves of bound volumes rising on both sides. Candlelight and a single green-shaded lamp. Anticipation of a story about to be played.',
+    canvasFor: { tablet: 'mobile' },
   },
   {
     page: 'art',
@@ -258,6 +263,7 @@ const PAGES: PageSeed[] = [
     title: 'Art Academy',
     scene:
       'An art academy studio: a high-windowed atelier with plaster casts and anatomical models on shelves down one side, easels and stools ranged along the other, master studies pinned in rows on the far wall. Cool north light, chalk dust in the air, a faint smell of turpentine implied. Studious and generous rather than austere.',
+    canvasFor: { tablet: 'mobile' },
   },
   {
     page: 'coloring',
@@ -366,6 +372,7 @@ const PAGES: PageSeed[] = [
     title: 'Coat Dance — The Cloakroom Ball',
     scene:
       'An empty ballroom where coats on stands sway as though dancing, chandeliers dimmed, moonlight across the parquet. Elegant and uncanny.',
+    canvasFor: { tablet: 'mobile' },
   },
   {
     page: 'conductor-app',
@@ -432,6 +439,7 @@ const PAGES: PageSeed[] = [
     title: 'Memory — The Card Hall',
     scene:
       'A hall of face-down cards floating in neat ranks, a few flipped to show tiny glowing scenes, candlelight. Tense concentration.',
+    canvasFor: { tablet: 'mobile' },
   },
   {
     page: 'messages',

@@ -20,6 +20,8 @@ export type ArcadeSoundName =
   | 'extra'
   | 'blip'
   | 'warn'
+  | 'zuzuSuccess'
+  | 'zuzuDeath'
 
 export type Note = {
   freq: number
@@ -59,6 +61,22 @@ const PRESETS: Record<ArcadeSoundName, Note[]> = {
   ],
   blip: [{ freq: 880, dur: 0.04, type: 'square', vol: 0.04 }],
   warn: [{ freq: 220, to: 330, dur: 0.15, type: 'square', vol: 0.05 }],
+  // zuzu-lair/t-008: weird-west stingers for the quick-time player.
+  // Success: a bright spur jingle rising to a held twang.
+  zuzuSuccess: [
+    { freq: 1760, dur: 0.05, type: 'triangle', vol: 0.07 },
+    { freq: 2349, dur: 0.05, type: 'triangle', vol: 0.07, at: 0.05 },
+    { freq: 392, dur: 0.1, type: 'sawtooth', vol: 0.06, at: 0.1 },
+    { freq: 494, dur: 0.1, type: 'sawtooth', vol: 0.06, at: 0.2 },
+    { freq: 587, dur: 0.3, type: 'sawtooth', vol: 0.07, at: 0.3 },
+  ],
+  // Death: a gunshot crack, then a sour trombone slide down.
+  zuzuDeath: [
+    { freq: 400, dur: 0.12, noise: true, vol: 0.2 },
+    { freq: 392, to: 262, dur: 0.25, type: 'sawtooth', vol: 0.07, at: 0.2 },
+    { freq: 370, to: 247, dur: 0.25, type: 'sawtooth', vol: 0.07, at: 0.45 },
+    { freq: 349, to: 110, dur: 0.6, type: 'sawtooth', vol: 0.08, at: 0.7 },
+  ],
 }
 
 // ---------------------------------------------------------------- music

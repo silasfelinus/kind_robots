@@ -2290,7 +2290,12 @@ async function runPinballRender() {
   const lit: PinballRulesState = {
     ...initialRules(table.balls),
     dropsDown: { ami: ['drop-a', 'drop-m', 'drop-i'] },
-    sub: { doorOpen: true, closesAt: 1e9, found: 0, nets: ['net-n'] },
+    sub: {
+      ...initialRules(table.balls).sub,
+      doorOpen: true,
+      closesAt: 1e9,
+      nets: ['net-n'],
+    },
     bonusMultiplier: 3,
     kickbackLit: false,
   }

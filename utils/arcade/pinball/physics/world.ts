@@ -113,8 +113,13 @@ function boxRotation(def: BoxCollider) {
   return yawQuat(def.yaw ?? 0)
 }
 
-/** Height of a flipper's rubber face, above the ball's centre. */
-const FLIPPER_HEIGHT = 0.024
+/**
+ * Height of a flipper's rubber face: above the ball's top, not only its
+ * centre. Near the tip the bat sweeps a couple of centimetres a physics step,
+ * and a face lower than the ball let the solver push a hard-struck ball up
+ * over the bat and off the playfield (t-013).
+ */
+const FLIPPER_HEIGHT = 0.032
 
 /**
  * A flipper's outline in its own frame (+X from the pivot to the tip): a
@@ -122,18 +127,53 @@ const FLIPPER_HEIGHT = 0.024
  * lying capsule meets the ball below its equator and throws it in the air.
  */
 export function flipperOutline(def: FlipperDef): Vec3[] {
-  const points: Vec3[] = []
-  const segments = 16
+  return flipperProfile(def).flatMap(([x, z]): Vec3[] => [
+    [x, 0.0005, z],
+    [x, FLIPPER_HEIGHT, z],
+  ])
+}
+
+/** Points round each end of a flipper's outline. */
+const FLIPPER_END_SEGMENTS = 48
+/** Points along each side, between the ends. */
+const FLIPPER_SIDE_POINTS = 12
+/**
+ * How far a flipper's rubber bows out at mid-length. A real rubber ring is
+ * convex, so the normal turns along the bat and where the ball is struck
+ * steers the shot. A flat side, as the convex hull of two end circles has,
+ * sends every carried ball off the same way: the ramps and orbits were
+ * one-tick shots (conductor kind-pinball/t-013, TUNING.md). More bow widens
+ * the aim but narrows the post pass, to about 17 ms at 5 mm.
+ */
+export const FLIPPER_BULGE = 0.005
+
+/**
+ * A flipper's plan outline in its own frame (+X from the pivot to the tip),
+ * grown by `grow`: round ends and gently bowed sides. Physics takes its hull;
+ * the renderer draws the bat and its rubber from it.
+ */
+export function flipperProfile(
+  def: FlipperDef,
+  grow = 0,
+): Array<[number, number]> {
+  const points: Array<[number, number]> = []
   for (const [cx, r] of [
-    [0, def.baseRadius],
-    [def.length, def.tipRadius],
+    [0, def.baseRadius + grow],
+    [def.length, def.tipRadius + grow],
   ] as const) {
-    for (let i = 0; i < segments; i++) {
-      const a = (2 * Math.PI * i) / segments
-      for (const y of [0.0005, FLIPPER_HEIGHT]) {
-        points.push([cx + Math.cos(a) * r, y, Math.sin(a) * r])
-      }
+    for (let i = 0; i < FLIPPER_END_SEGMENTS; i++) {
+      const a = (2 * Math.PI * i) / FLIPPER_END_SEGMENTS
+      points.push([cx + Math.cos(a) * r, Math.sin(a) * r])
     }
+  }
+  for (let j = 1; j < FLIPPER_SIDE_POINTS; j++) {
+    const t = j / FLIPPER_SIDE_POINTS
+    const half =
+      def.baseRadius +
+      (def.tipRadius - def.baseRadius) * t +
+      grow +
+      FLIPPER_BULGE * Math.sin(Math.PI * t)
+    points.push([def.length * t, half], [def.length * t, -half])
   }
   return points
 }

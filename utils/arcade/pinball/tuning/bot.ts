@@ -8,7 +8,8 @@
 //   average  saves more, catches the ball on a held flipper and shoots from
 //            the cradle, but blind
 //   good     saves most balls, cradles, and aims from the measured aiming
-//            chart (tuning/aim.ts) at whatever the rules have lit
+//            chart (tuning/aim.ts), measured from where its ball rests, at whatever
+//            the rules have lit
 //
 // Seeded, so a session replays exactly.
 
@@ -17,12 +18,7 @@ import type { PinballRulesState } from '../rules/engine'
 import { ARROW_SHOTS, RAMP_SHOTS, VILLAGES } from '../rules/village'
 import type { BallView } from '../physics/world'
 import type { FlipperDef } from '../types'
-import {
-  CRADLE_OFFSET,
-  delaysFor,
-  type AimChart,
-  type FlipperSide,
-} from './aim'
+import { cradlePoint, type Aimer, type FlipperSide } from './aim'
 
 export type BotSkill = {
   name: string
@@ -81,6 +77,8 @@ const LEAD = 2
 const NUDGE_GAP = 120
 /** A ball faster than this is not caught on a held flipper. */
 const CATCH_SPEED = 2.5
+/** A caught ball slower than this has come to rest. */
+const SETTLED = 0.005
 
 /** The flipper nearest a point. */
 function nearest(
@@ -175,7 +173,7 @@ export class PinballBot {
   constructor(
     readonly skill: BotSkill,
     private rng: () => number,
-    private chart: AimChart | null = null,
+    private aimer: Aimer | null = null,
   ) {}
 
   frame(view: BotView): InputFrame {
@@ -241,7 +239,13 @@ export class PinballBot {
         approach = {
           ballId: ball.id,
           save: this.rng() < this.skill.save,
-          cradle: !room && lone && this.rng() < this.skill.cradle,
+          // Catch only a ball that will land on the flipper, slowly enough.
+          cradle:
+            !room &&
+            lone &&
+            ball.speed < CATCH_SPEED &&
+            crosses(flipper, ball) &&
+            this.rng() < this.skill.cradle,
           // How far ahead the player reads the ball: a good one flips as it
           // arrives, a worse one early or late.
           at: LEAD + Math.round((this.rng() * 2 - 1) * this.skill.jitter),
@@ -262,25 +266,15 @@ export class PinballBot {
         this.lastNudge = this.tick
         frame.pressed.up = true
       }
-      // Catch only a ball that will land on the flipper, and slowly enough.
-      if (
-        approach.cradle &&
-        (ball.speed > CATCH_SPEED || !crosses(flipper, ball))
-      )
-        approach.cradle = false
       if (approach.cradle) {
         // Catch it: hold the flipper up until the ball settles in the
         // crook by the pivot.
         this.hold[side] = Math.max(this.hold[side], 2)
-        if (
-          !room &&
-          ball.speed < 0.04 &&
-          Math.hypot(
-            ball.position[0] - (flipper.pivot[0] + CRADLE_OFFSET[0]),
-            ball.position[2] - (flipper.pivot[2] + CRADLE_OFFSET[1]),
-          ) < 0.02
-        )
-          this.startCradle(view, side, ball.id)
+        // Wait for it to come fully to rest, as a player does before aiming.
+        const [cx, cz] = cradlePoint(flipper)
+        const off = Math.hypot(ball.position[0] - cx, ball.position[2] - cz)
+        if (!room && ball.speed < SETTLED && off < 0.025)
+          this.startCradle(view, side, ball)
         continue
       }
       // Flip once, when the ball (read `at` ticks ahead) is over the flipper.
@@ -299,19 +293,25 @@ export class PinballBot {
     }
   }
 
-  private startCradle(view: BotView, side: FlipperSide, ballId: number) {
-    const target = this.skill.aim ? this.choose(view.rules, side) : null
-    const options =
-      target && this.chart ? delaysFor(this.chart, side, target) : []
+  private startCradle(view: BotView, side: FlipperSide, ball: BallView) {
+    const row =
+      this.skill.aim && this.aimer
+        ? this.aimer(side, ball.position[0], ball.position[2])
+        : null
+    const target = row ? this.choose(view.rules, row) : null
+    const options = target
+      ? row!.flatMap((made, d) => (made === target ? [d] : []))
+      : []
+    // The middle of a window is the safest timing.
     const delay = options.length
-      ? options[Math.floor(this.rng() * options.length)]!
+      ? options[Math.floor(options.length / 2)]!
       : BLIND_DELAYS[0] +
         Math.floor(this.rng() * (BLIND_DELAYS[1] - BLIND_DELAYS[0]))
     const releaseAt =
       this.tick + CRADLE_WAIT + Math.floor(this.rng() * CRADLE_WAIT)
     this.cradled = {
       side,
-      ballId,
+      ballId: ball.id,
       since: this.tick,
       releaseAt,
       flipAt: releaseAt + delay,
@@ -352,12 +352,16 @@ export class PinballBot {
     }
   }
 
-  /** The shot worth going for from `side`, of those the chart says it can make. */
-  private choose(rules: PinballRulesState, side: FlipperSide): string | null {
-    const makeable = (shot: string) =>
-      !!this.chart && delaysFor(this.chart, side, shot).length > 0
+  /** The shot worth going for, of those this cradle's chart says it can make. */
+  private choose(
+    rules: PinballRulesState,
+    row: Array<string | null>,
+  ): string | null {
+    const makeable = (shot: string) => row.includes(shot)
     const play = rules.play
     const wanted: string[] = []
+    if (play.skill.armed && play.skill.until !== Number.POSITIVE_INFINITY)
+      wanted.push(play.skill.target)
     if (play.wizard.running) wanted.push(...ARROW_SHOTS)
     if (play.multiball.superLit) wanted.push('lock')
     if (play.multiball.running) wanted.push(...RAMP_SHOTS)

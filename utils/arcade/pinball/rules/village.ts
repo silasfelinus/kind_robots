@@ -42,9 +42,14 @@ export const VALUES = {
 
 /** A ramp or orbit this soon after the last is a combo. */
 export const COMBO_STEPS = PHYSICS_HZ * 4
-/** The skill shot: the lit bumper, hit first, this soon after the plunge. */
-export const SKILL_STEPS = PHYSICS_HZ * 5
-export const SKILL_TARGETS = ['pop-left', 'pop-right', 'pop-bottom'] as const
+/**
+ * The skill shot. Every plunge rounds the left orbit and comes down the left
+ * inlane to the left flipper (measured, t-013), so the plunge lights one of
+ * the shots that flipper can make; made first, this soon after the plunge,
+ * it is the skill shot. (It was the lit pop bumper, which no plunge reaches.)
+ */
+export const SKILL_STEPS = PHYSICS_HZ * 6
+export const SKILL_TARGETS = ['upper-feed', 'spinner', 'right-ramp'] as const
 /** Ball save after the plunge. */
 export const BALL_SAVE_STEPS = PHYSICS_HZ * 10
 /** Locks that start AMI multiball, and the balls it adds. */

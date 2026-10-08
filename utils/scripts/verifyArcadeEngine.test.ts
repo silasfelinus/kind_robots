@@ -1142,8 +1142,9 @@ async function runPinballFeel() {
 
   // Post pass: drop the cradled ball, tap as it rolls down the bat, and it
   // crosses to the other flipper, which catches it. Reproducible across a
-  // window of timings, not one magic frame.
-  for (const delay of [144, 150, 156]) {
+  // window of timings, not one magic frame. (On the bowed rubber of t-013,
+  // where the strike point steers the ball, it is a real skill: about 17 ms.)
+  for (const delay of [170, 172, 174]) {
     const pass = new PinballPhysics(RAPIER, table)
     cradled(pass)
     pass.setFlipper('left', false)
@@ -2691,36 +2692,32 @@ async function runPinballRules() {
   s = feed(s, { type: 'spin', id: 'spinner', ballId: 1, speed: 2 })
   assert.ok(s.score > VALUES.sling, 'the spinner scores')
 
-  // The skill shot: the lit bumper, first, soon after the plunge.
+  // The skill shot: the plunge lights a shot the left flipper can make;
+  // made first, soon after the plunge, it pays (t-013: no plunge reaches the
+  // bumpers, so they could never be the skill shot).
   s = plunge(start())
   assert.ok(said('SKILL SHOT'), 'the plunge invites the skill shot')
   const target = s.play.skill.target
+  assert.ok(['upper-feed', 'spinner', 'right-ramp'].includes(target))
+  assert.equal(lampStates(s, table).lamps[`arrow-${target}`], 'blink')
   let before = s.score
-  s = feed(s, { type: 'contact', id: target, ballId: 1, impulse: 1 })
-  assert.ok(scene('skill-shot'), 'the lit bumper is the skill shot')
-  assert.equal(s.score - before, VALUES.pop + VALUES.skillShot)
-  s = feed(s, { type: 'contact', id: target, ballId: 1, impulse: 1 })
+  s = make(s, target)
+  assert.ok(scene('skill-shot'), 'the lit shot is the skill shot')
+  assert.ok(s.score - before >= VALUES.skillShot)
+  s = wait(s, COMBO_STEPS + 20)
+  s = make(s, target)
   assert.ok(!scene('skill-shot'), 'only once')
   s = plunge(start())
-  const other = ['pop-left', 'pop-right', 'pop-bottom'].find(
+  const other = ['upper-feed', 'spinner', 'right-ramp'].find(
     (id) => id !== s.play.skill.target,
   )!
-  s = feed(s, { type: 'contact', id: other, ballId: 1, impulse: 1 })
-  s = feed(s, {
-    type: 'contact',
-    id: s.play.skill.target,
-    ballId: 1,
-    impulse: 1,
-  })
-  assert.ok(!scene('skill-shot'), 'a different bumper first is no skill shot')
+  s = make(s, other)
+  s = wait(s, COMBO_STEPS + 20)
+  s = make(s, s.play.skill.target)
+  assert.ok(!scene('skill-shot'), 'a different shot first is no skill shot')
   s = plunge(start())
   s = wait(s, SKILL_STEPS + 20)
-  s = feed(s, {
-    type: 'contact',
-    id: s.play.skill.target,
-    ballId: 1,
-    impulse: 1,
-  })
+  s = make(s, s.play.skill.target)
   assert.ok(!scene('skill-shot'), 'nor is a late one')
 
   // Combos: ramps and orbits chained quickly, worth more each step.

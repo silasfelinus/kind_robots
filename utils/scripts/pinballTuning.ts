@@ -22,7 +22,12 @@ import type { PinballPhysics } from '../arcade/pinball/physics/world'
 import type { PinballRulesState } from '../arcade/pinball/rules/engine'
 import { PinballRuntime } from '../arcade/pinball/runtime'
 import { AMI_VILLAGE_GREYBOX } from '../arcade/pinball/tables/amiVillage/table'
-import { measureAimChart, type AimChart } from '../arcade/pinball/tuning/aim'
+import {
+  cachedAimer,
+  measureAimChart,
+  type AimChart,
+  type Aimer,
+} from '../arcade/pinball/tuning/aim'
 import {
   BOT_SKILLS,
   PinballBot,
@@ -54,6 +59,8 @@ export type GameReport = {
   capped: boolean
   aimed: number
   aimedHits: number
+  /** Down-the-middle drains, by the last thing other than a flipper the ball touched. */
+  drainFrom: Record<string, number>
 }
 
 function headless(): RendererLike {
@@ -69,7 +76,7 @@ function headless(): RendererLike {
 export function playGame(
   skill: BotSkill,
   seed: number,
-  chart: AimChart | null,
+  aimer: Aimer | null,
   minutes = 20,
 ): GameReport {
   const table = AMI_VILLAGE_GREYBOX
@@ -88,13 +95,15 @@ export function playGame(
     physics: PinballPhysics
     rules: PinballRulesState
   }
-  const bot = new PinballBot(skill, mulberry32(seed * 7919 + 1), chart)
+  const bot = new PinballBot(skill, mulberry32(seed * 7919 + 1), aimer)
 
   // Watch the physics for drains and flipper touches.
   const physics = inner.physics
   const step = physics.step.bind(physics)
   const lastLow = new Map<number, number>()
   const lastFlipper = new Map<number, number>()
+  const lastTouch = new Map<number, string>()
+  const drainFrom: Record<string, number> = {}
   const drains: Record<DrainCause, number> = { outlane: 0, sdtm: 0, center: 0 }
   let tick = 0
   physics.step = () => {
@@ -102,10 +111,23 @@ export function playGame(
     for (const e of events) {
       if (e.type === 'contact' && e.id.startsWith('flipper'))
         lastFlipper.set(e.ballId, tick)
+      else if (
+        e.type === 'contact' ||
+        e.type === 'drop' ||
+        e.type === 'eject' ||
+        e.type === 'spin'
+      )
+        lastTouch.set(e.ballId, e.id)
       if (e.type === 'drain') {
         const x = lastLow.get(e.ballId) ?? 0
         const flipped = tick - (lastFlipper.get(e.ballId) ?? -1e9) < 45
-        drains[Math.abs(x) > 0.16 ? 'outlane' : flipped ? 'center' : 'sdtm']++
+        const cause: DrainCause =
+          Math.abs(x) > 0.16 ? 'outlane' : flipped ? 'center' : 'sdtm'
+        drains[cause]++
+        if (cause !== 'outlane') {
+          const from = lastTouch.get(e.ballId) ?? 'plunge'
+          drainFrom[from] = (drainFrom[from] ?? 0) + 1
+        }
       }
     }
     return events
@@ -164,6 +186,7 @@ export function playGame(
     capped: !rules.over,
     aimed: bot.aimed,
     aimedHits: bot.aimedHits,
+    drainFrom,
   }
   runtime.dispose()
   return report
@@ -180,6 +203,8 @@ export type SkillSummary = {
   villages: number
   capped: number
   aimAccuracy: number | null
+  /** Share of down-the-middle drains by what the ball last touched, top five. */
+  drainFrom: Array<[string, number]>
 }
 
 function quantile(sorted: number[], q: number): number {
@@ -198,6 +223,11 @@ export function summarize(skill: string, games: GameReport[]): SkillSummary {
       drains[k] += g.drains[k]
     for (const [s, n] of Object.entries(g.shots)) shots[s] = (shots[s] ?? 0) + n
   }
+  const from: Record<string, number> = {}
+  for (const g of games)
+    for (const [k, n] of Object.entries(g.drainFrom))
+      from[k] = (from[k] ?? 0) + n
+  const middle = Object.values(from).reduce((a, n) => a + n, 0) || 1
   const total = drains.outlane + drains.sdtm + drains.center || 1
   const share = (n: number) => Math.round((n / games.length) * 100)
   const aimed = games.reduce((a, g) => a + g.aimed, 0)
@@ -236,6 +266,10 @@ export function summarize(skill: string, games: GameReport[]): SkillSummary {
         (games.reduce((a, g) => a + g.villages, 0) / (games.length || 1)) * 10,
       ) / 10,
     capped: games.filter((g) => g.capped).length,
+    drainFrom: Object.entries(from)
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 5)
+      .map(([k, n]) => [k, Math.round((n / middle) * 100)]),
     aimAccuracy: aimed
       ? Math.round((games.reduce((a, g) => a + g.aimedHits, 0) / aimed) * 100)
       : null,
@@ -267,6 +301,15 @@ export function markdown(
   for (const s of summaries)
     lines.push(
       `| ${s.skill} | ${s.games} | ${s.ballSeconds} | ${s.score.median.toLocaleString('en-US')} (${s.score.p10.toLocaleString('en-US')}–${s.score.p90.toLocaleString('en-US')}) | ${s.reached.mode}% | ${s.reached.multiball}% | ${s.reached.subTable}% | ${s.reached.wizard}% | ${s.reached.extraBall}% | ${s.villages} | ${s.drains.outlane}/${s.drains.sdtm}/${s.drains.center}% | ${s.aimAccuracy === null ? '–' : `${s.aimAccuracy}%`} |`,
+    )
+  lines.push(
+    '',
+    '| Skill | Down-the-middle drains came last from |',
+    '|---|---|',
+  )
+  for (const s of summaries)
+    lines.push(
+      `| ${s.skill} | ${s.drainFrom.map(([k, n]) => `${k} ${n}%`).join(', ') || 'none'} |`,
     )
   lines.push('', '| Skill | Shots made per minute |', '|---|---|')
   for (const s of summaries)
@@ -302,6 +345,7 @@ async function main() {
     cradle: measureAimChart(RAPIER, AMI_VILLAGE_GREYBOX, 'cradle'),
     inlane: measureAimChart(RAPIER, AMI_VILLAGE_GREYBOX, 'inlane'),
   }
+  const aimer = cachedAimer(RAPIER, AMI_VILLAGE_GREYBOX)
   const summaries: SkillSummary[] = []
   const raw: Record<string, GameReport[]> = {}
   for (const name of skills) {
@@ -309,7 +353,7 @@ async function main() {
     if (!skill) throw new Error(`unknown skill ${name}`)
     raw[name] = []
     for (let g = 0; g < games; g++) {
-      const report = playGame(skill, seed + g, charts.cradle, minutes)
+      const report = playGame(skill, seed + g, aimer, minutes)
       raw[name]!.push(report)
       process.stderr.write(
         `${name} #${g + 1}: ${report.score.toLocaleString('en-US')} in ${Math.round(report.seconds)} s\n`,

@@ -136,24 +136,28 @@ export function plunged(
     effects.push({
       type: 'dmd',
       text: 'SKILL SHOT',
-      sub: 'HIT THE LIT BUMPER',
+      sub: `SHOOT THE ${skill.target.replace(/-/g, ' ').toUpperCase()}`,
       ms: 1500,
     })
   state.play = { ...play, skill, ballSave }
 }
 
-/** A bumper hit: the first one after the plunge is the skill shot, or not. */
-export function bumper(
+/** A bumper hit. */
+export function bumper(state: PinballRulesState) {
+  award(state, VALUES.pop)
+}
+
+/** The first shot after the plunge: the skill shot if it is the lit one. */
+function skillShot(
   state: PinballRulesState,
   id: string,
   tick: number,
   effects: RuleEffect[],
-) {
-  award(state, VALUES.pop)
+): boolean {
   const skill = state.play.skill
-  if (!skill.armed || skill.until === Number.POSITIVE_INFINITY) return
+  if (!skill.armed || skill.until === Number.POSITIVE_INFINITY) return false
   state.play = { ...state.play, skill: { ...skill, armed: false } }
-  if (id !== skill.target || tick > skill.until || state.tilted) return
+  if (id !== skill.target || tick > skill.until) return false
   award(state, VALUES.skillShot)
   effects.push(
     { type: 'sound', name: 'skill-shot' },
@@ -165,6 +169,7 @@ export function bumper(
       value: VALUES.skillShot,
     },
   )
+  return true
 }
 
 const SHOT_VALUE: Record<string, number> = {
@@ -188,7 +193,7 @@ export function shot(
   effects: RuleEffect[],
 ): boolean {
   if (state.tilted) return false
-  let spoke = false
+  let spoke = skillShot(state, id, tick, effects)
   award(state, SHOT_VALUE[id] ?? 0)
   const isRamp = RAMP_SHOTS.includes(id)
   if (isRamp || ORBIT_SHOTS.includes(id)) {

@@ -70,6 +70,8 @@ export function lampStates(
   if (play.multiball.running) for (const id of RAMP_SHOTS) hot.add(id)
   if (play.multiball.superLit) hot.add('lock')
   if (play.extraBallLit) hot.add('upper-feed')
+  if (play.skill.armed && play.skill.until !== Number.POSITIVE_INFINITY)
+    hot.add(play.skill.target)
   for (const id of hot) set(`arrow-${id}`, 'blink')
   set('lamp-award', play.villages.scoopLit ? 'blink' : 'on')
   if (state.sub.doorOpen) {

@@ -22,6 +22,7 @@ import type {
   FlasherDef,
   FlipperDef,
   InsertDef,
+  MeshCollider,
   ScoopDef,
   SensorDef,
   ShotDef,
@@ -298,6 +299,67 @@ function slingCap(id: string, corners: [XZ, XZ, XZ]): ColliderDef {
   return { kind: 'mesh', id, vertices, indices, material: 'plastic-clear' }
 }
 
+/**
+ * A clear roof spanning the tops of the facing rails of two ramps, between two
+ * depths. Both rails climb with their ramps, so the roof slopes down toward
+ * the playfield and toward the lower rail: a ball landing on it rolls off.
+ */
+function channelRoof(
+  id: string,
+  a: MeshCollider[],
+  b: MeshCollider[],
+  zFrom: number,
+  zTo: number,
+): ColliderDef {
+  const rails = (ramp: MeshCollider[]) =>
+    ramp.filter((m) => /-rail-[lr]$/.test(m.id))
+  // The top edge of a rail at depth z: its vertices are a bottom and a top
+  // per point along the ramp.
+  const topAt = (rail: MeshCollider, z: number): [number, number, number] => {
+    const v = rail.vertices
+    for (let k = 3; k + 6 < v.length; k += 6) {
+      const [z0, z1] = [v[k + 2]!, v[k + 8]!]
+      if (z0 === z1 || (z0 - z) * (z1 - z) > 0) continue
+      const t = (z - z0) / (z1 - z0)
+      return [
+        v[k]! + (v[k + 6]! - v[k]!) * t,
+        v[k + 1]! + (v[k + 7]! - v[k + 1]!) * t,
+        z,
+      ]
+    }
+    throw new Error(`${rail.id} does not reach z=${z}`)
+  }
+  const mid = (zFrom + zTo) / 2
+  // Of each ramp, the rail facing the other one.
+  const facing = (mine: MeshCollider[], theirs: MeshCollider[]) => {
+    const other = topAt(rails(theirs)[0]!, mid)[0]
+    return rails(mine).sort(
+      (p, q) =>
+        Math.abs(topAt(p, mid)[0] - other) - Math.abs(topAt(q, mid)[0] - other),
+    )[0]!
+  }
+  const railA = facing(a, b)
+  const railB = facing(b, a)
+  const vertices: number[] = []
+  const indices: number[] = []
+  const n = 8
+  for (let i = 0; i <= n; i++) {
+    const z = zFrom + ((zTo - zFrom) * i) / n
+    vertices.push(...topAt(railA, z), ...topAt(railB, z))
+    if (i === 0) continue
+    const [a0, b0, a1, b1] = [2 * i - 2, 2 * i - 1, 2 * i, 2 * i + 1]
+    indices.push(a0, b0, a1, b0, b1, a1)
+  }
+  return {
+    kind: 'mesh',
+    id,
+    vertices,
+    indices,
+    material: 'plastic-clear',
+    twoSided: true,
+  }
+}
+
 /** The left ramp's centreline (x, z, height); the right ramp mirrors it. */
 // The entrance is turned ~25 degrees toward the flipper that shoots it, the
 // top is a hairpin, the return runs down the outside over the orbit lane,
@@ -445,6 +507,16 @@ const colliders: ColliderDef[] = [
     thickness: 0.004,
     height: 0.045,
   }),
+  // The channel between the left ramp and the upper feed, from the mouth
+  // divider to the cap, is roofed: a hard flip can drop a ball into it from
+  // above, where it wedged for good (found by the attract soak, t-013).
+  channelRoof(
+    'channel-roof-left',
+    ramp('left-ramp', LEFT_RAMP, { railHeight: 0.035, cover: RAMP_COVER }),
+    ramp('upper-feed', UPPER_FEED, { width: 0.04, cover: [0.06, 0.27] }),
+    -0.34,
+    -0.5,
+  ),
   wall('channel-cap-right', [0.123, -0.485], [0.09, -0.46], {
     material: 'chrome',
     thickness: 0.004,

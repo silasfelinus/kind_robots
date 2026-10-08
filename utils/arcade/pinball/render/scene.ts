@@ -1,30 +1,58 @@
 // /utils/arcade/pinball/render/scene.ts
 //
-// The pinball renderer (conductor kind-pinball/t-004): a Three.js scene built
-// from a TableDef, mirroring the physics world each frame. Greybox materials
-// for now (t-019 brings the PBR hero pass), but already a real perspective
-// table: pitched root, physically based materials, an environment map so the
-// steel ball reflects, and shadows.
+// The pinball renderer (conductor kind-pinball/t-004, hero pass t-019): a
+// Three.js scene built from a TableDef, mirroring the physics world each
+// frame. Physically based materials over a painted, clearcoated playfield
+// (render/materials.ts); a night-cabinet environment for chrome and the
+// steel ball; GI along the rails and slings; flush inserts and flasher
+// domes driven by the lamp matrix (rules/lamps.ts), with a small pool of
+// real lights following the brightest flashers; a contact shadow under
+// every ball; ACES tone mapping and restrained bloom (render/post.ts); and a
+// camera fitted to the screen (render/camera.ts).
+//
+// What it costs to draw is set by a quality tier chosen from measured frame
+// time (render/quality.ts). Every tier draws the same table.
 //
 // Every geometry, material and texture it creates is tracked and released in
 // dispose(), and liveRenderResources() lets tests prove nothing leaks when a
 // cabinet is entered and left over and over.
 
 import * as THREE from 'three'
-import { RoomEnvironment } from 'three/examples/jsm/environments/RoomEnvironment.js'
 import { mergeGeometries } from 'three/examples/jsm/utils/BufferGeometryUtils.js'
 import { ConvexGeometry } from 'three/examples/jsm/geometries/ConvexGeometry.js'
-import { flipperOutline, flipperYaw } from '../physics/world'
+import { flipperYaw } from '../physics/world'
 import type { BallView } from '../physics/world'
 import type {
   BoxCollider,
   CameraPreset,
   CameraPresetId,
+  FlipperDef,
+  LampLevel,
   MaterialId,
   MeshCollider,
   TableDef,
   Vec3,
 } from '../types'
+import { fitCamera, type Framing } from './camera'
+import {
+  artBounds,
+  BALL_MATERIAL,
+  buildEnvironment,
+  contactShadowTexture,
+  FLIPPER_MATERIAL,
+  FLIPPER_RUBBER,
+  insertShape,
+  MATERIALS,
+  paintPlayfield,
+  planarUVs,
+} from './materials'
+import { createPostChain, type PostChain } from './post'
+import {
+  QualityGovernor,
+  TIER_SETTINGS,
+  type QualityTier,
+  type TierSettings,
+} from './quality'
 
 /** The slice of WebGLRenderer the scene uses, so tests can pass a stub. */
 export type RendererLike = {
@@ -39,12 +67,14 @@ export type RendererFactory = (canvas: HTMLCanvasElement) => RendererLike
 export const createWebGLRenderer: RendererFactory = (canvas) => {
   const renderer = new THREE.WebGLRenderer({
     canvas,
+    // The post chain multisamples its own buffer; the low tier draws
+    // straight to the screen, which keeps the canvas's own antialiasing.
     antialias: true,
     powerPreference: 'high-performance',
   })
   renderer.outputColorSpace = THREE.SRGBColorSpace
   renderer.toneMapping = THREE.ACESFilmicToneMapping
-  renderer.toneMappingExposure = 1.1
+  renderer.toneMappingExposure = 1.05
   renderer.shadowMap.enabled = true
   renderer.shadowMap.type = THREE.PCFShadowMap
   return renderer
@@ -57,33 +87,39 @@ export function liveRenderResources(): number {
   return liveResources
 }
 
-const MATERIALS: Record<MaterialId, THREE.MeshStandardMaterialParameters> = {
-  playfield: { color: 0x2b1d5c, roughness: 0.42, metalness: 0 },
-  chrome: { color: 0xdfe6ee, roughness: 0.18, metalness: 1 },
-  rubber: { color: 0xf8fafc, roughness: 0.85, metalness: 0 },
-  'plastic-clear': {
-    color: 0xffffff,
-    roughness: 0.05,
-    transparent: true,
-    opacity: 0.15,
-  },
-  'plastic-printed': { color: 0x2dd4bf, roughness: 0.3, metalness: 0 },
-  wood: { color: 0x3a2a55, roughness: 0.55, metalness: 0.1 },
-  post: { color: 0xf8fafc, roughness: 0.6, metalness: 0 },
-  ramp: {
-    color: 0x7dd3fc,
-    roughness: 0.12,
-    metalness: 0,
-    transparent: true,
-    opacity: 0.45,
-  },
-  cabinet: { color: 0x1c1030, roughness: 0.6, metalness: 0.2 },
-}
-
 /** How far a drop target travels toward down or up each frame (0..1). */
 const DROP_TRAVEL = 0.4
 /** How far the camera moves toward its preset each frame (0..1). */
 const CAMERA_EASE = 0.08
+/** How far a lamp moves toward its level each frame: a bulb's warm-up. */
+const LAMP_EASE = 0.35
+/** Insert glow when off (the plastic still shows), on, and at a flash peak. */
+const INSERT_OFF = 0.04
+const INSERT_ON = 2.6
+const INSERT_FLASH = 5
+/** Flasher dome glow at rest and when fired. */
+const FLASHER_REST = 0.12
+const FLASHER_FIRED = 2.4
+/** Pulses fade by this much a frame. */
+const PULSE_DECAY = 0.07
+/** Frames per half-cycle of a blinking lamp (~3.75 Hz at 60 FPS). */
+const BLINK_FRAMES = 8
+/** A pooled flasher light's intensity at full fire. */
+const FLASHER_LIGHT = 0.12
+const FLASHER_REACH = 0.45
+/** Where the pooled light sits from its dome: up, and in over the playfield. */
+const FLASHER_LIFT = 0.07
+const FLASHER_THROW = 0.06
+/** Each GI bulb's intensity at full GI. */
+const GI_LIGHT = 0.05
+/** How far GI moves toward its level each frame (it browns out on a tilt). */
+const GI_EASE = 0.12
+/** Pop bumper cap colours, in table order, and their glow at rest and lit. */
+const POP_COLORS = [0xf472b6, 0x22d3ee, 0xfb923c]
+const POP_REST = 0.5
+const POP_FLASH = 4
+/** Most pooled flasher lights any tier uses. */
+const FLASHER_POOL = 4
 
 function v3(v: Vec3): THREE.Vector3 {
   return new THREE.Vector3(v[0], v[1], v[2])
@@ -95,47 +131,115 @@ function v3(v: Vec3): THREE.Vector3 {
  * merges with the box and cylinder pieces sharing its material.
  */
 function meshGeometry(def: MeshCollider): THREE.BufferGeometry {
-  const geo = new THREE.BufferGeometry()
+  // The back faces get their own copy of the vertices: shared, the two
+  // windings' normals would average to nothing and the surface would shade
+  // as crumpled foil.
+  const count = def.vertices.length / 3
   const reversed: number[] = []
   for (let i = 0; i < def.indices.length; i += 3) {
-    reversed.push(def.indices[i]!, def.indices[i + 2]!, def.indices[i + 1]!)
+    reversed.push(
+      def.indices[i]! + count,
+      def.indices[i + 2]! + count,
+      def.indices[i + 1]! + count,
+    )
   }
+  const geo = new THREE.BufferGeometry()
   geo.setAttribute(
     'position',
-    new THREE.Float32BufferAttribute(def.vertices, 3),
+    new THREE.Float32BufferAttribute([...def.vertices, ...def.vertices], 3),
   )
   geo.setAttribute(
     'uv',
-    new THREE.Float32BufferAttribute(
-      new Array((def.vertices.length / 3) * 2).fill(0),
-      2,
-    ),
+    new THREE.Float32BufferAttribute(new Array(count * 4).fill(0), 2),
   )
   geo.setIndex([...def.indices, ...reversed])
   geo.computeVertexNormals()
   return geo
 }
 
+/**
+ * A flipper's outline in its own frame, grown or shrunk by `grow` and spanning
+ * y0..y1: the bat's plastic body is the physics outline drawn a little in,
+ * and its rubber ring is the outline itself, round the middle of the bat.
+ */
+function batOutline(
+  def: FlipperDef,
+  grow: number,
+  y0: number,
+  y1: number,
+): THREE.Vector3[] {
+  const points: THREE.Vector3[] = []
+  for (const [cx, r] of [
+    [0, def.baseRadius + grow],
+    [def.length, def.tipRadius + grow],
+  ] as const) {
+    for (let i = 0; i < 16; i++) {
+      const a = (2 * Math.PI * i) / 16
+      for (const y of [y0, y1])
+        points.push(new THREE.Vector3(cx + Math.cos(a) * r, y, Math.sin(a) * r))
+    }
+  }
+  return points
+}
+
+type Lamp = {
+  material: THREE.MeshStandardMaterial
+  level: LampLevel
+  /** Current glow, eased toward the level's. */
+  glow: number
+  pulse: number
+}
+
+type Flasher = Lamp & { position: THREE.Vector3; color: THREE.Color }
+
+export type RenderStats = {
+  tier: QualityTier
+  averageMs: number
+  p95Ms: number
+  frames: number
+  drawCalls: number
+  triangles: number
+}
+
 export class PinballScene {
   readonly scene = new THREE.Scene()
-  readonly camera = new THREE.PerspectiveCamera(44, 9 / 16, 0.02, 20)
+  readonly camera = new THREE.PerspectiveCamera(32, 9 / 16, 0.02, 20)
   private renderer: RendererLike
+  /** The real WebGL renderer, when there is one (not a test stub). */
+  private gl: THREE.WebGLRenderer | null
+  private post: PostChain | null = null
   private root = new THREE.Group()
   private table: TableDef
   private tracked = new Set<{ dispose(): void }>()
-  private materials = new Map<MaterialId, THREE.MeshStandardMaterial>()
+  private materials = new Map<MaterialId, THREE.MeshPhysicalMaterial>()
   private ballGeometry: THREE.SphereGeometry
   private ballMaterial: THREE.MeshStandardMaterial
-  private balls = new Map<number, THREE.Mesh>()
+  private shadowGeometry: THREE.PlaneGeometry
+  private shadowMaterial: THREE.MeshBasicMaterial
+  private balls = new Map<number, { ball: THREE.Mesh; shadow: THREE.Mesh }>()
   private flippers = new Map<string, THREE.Group>()
   private drops = new Map<string, THREE.Mesh>()
   private spinners = new Map<string, THREE.Group>()
-  private caps = new Map<string, THREE.MeshStandardMaterial>()
+  private caps = new Map<string, THREE.MeshPhysicalMaterial>()
   private flash = new Map<string, number>()
   private doors = new Map<string, { closed: THREE.Group; open: THREE.Group }>()
   private toys = new Map<string, THREE.Group>()
+  private inserts = new Map<string, Lamp>()
+  private flashers = new Map<string, Flasher>()
+  /** Insert ids by the shot they point at, and that shot's flasher. */
+  private shotLamps = new Map<string, { insert: string; flasher?: string }>()
+  private flasherLights: THREE.PointLight[] = []
+  private giLights: THREE.PointLight[] = []
+  private hemisphere: THREE.HemisphereLight
+  private keyLights: THREE.DirectionalLight[] = []
+  /** Static scenery meshes, which cast shadow-map shadows on high only. */
+  private staticCasters: THREE.Mesh[] = []
+  private gi = 1
+  private giTarget = 1
+  private frame = 0
   private occluders: Array<{
-    material: THREE.MeshStandardMaterial
+    mesh: THREE.Mesh
+    material: THREE.MeshPhysicalMaterial
     fadeFor: CameraPresetId
   }> = []
   private view: CameraPresetId = 'main'
@@ -144,6 +248,13 @@ export class PinballScene {
   private look = new THREE.Vector3()
   private aimed = false
   private aspect = 9 / 16
+  private framings = new Map<CameraPresetId, Framing>()
+  /** World up as seen from the pitched table. */
+  private up: THREE.Vector3
+  private size = { width: 0, height: 0, dpr: 1 }
+  private governor = new QualityGovernor('high')
+  private settings: TierSettings = TIER_SETTINGS.high
+  private lastFrameAt = 0
   private disposed = false
 
   constructor(
@@ -153,22 +264,41 @@ export class PinballScene {
   ) {
     this.table = table
     this.renderer = factory(canvas)
-    this.scene.background = new THREE.Color(0x07040f)
+    this.gl =
+      this.renderer instanceof THREE.WebGLRenderer ? this.renderer : null
+    if (this.gl) this.gl.info.autoReset = false
+    this.scene.background = new THREE.Color(0x05040c)
     this.root.rotation.x = (table.physical.pitchDeg * Math.PI) / 180
+    this.up = new THREE.Vector3(0, 1, 0).applyQuaternion(
+      this.root.quaternion.clone().invert(),
+    )
     this.scene.add(this.root)
     this.ballGeometry = this.track(
       new THREE.SphereGeometry(table.physical.ballRadiusM, 32, 16),
     )
     this.ballMaterial = this.track(
-      new THREE.MeshStandardMaterial({
-        color: 0xffffff,
-        metalness: 1,
-        roughness: 0.08,
+      new THREE.MeshStandardMaterial(BALL_MATERIAL),
+    )
+    const r = table.physical.ballRadiusM
+    this.shadowGeometry = this.track(new THREE.PlaneGeometry(r * 3.4, r * 3.4))
+    this.shadowGeometry.rotateX(-Math.PI / 2)
+    this.shadowMaterial = this.track(
+      new THREE.MeshBasicMaterial({
+        color: 0x000000,
+        alphaMap: this.track(contactShadowTexture()),
+        transparent: true,
+        depthWrite: false,
+        polygonOffset: true,
+        polygonOffsetFactor: -2,
       }),
     )
-    this.buildEnvironment()
+    this.hemisphere = new THREE.HemisphereLight(0xc7d2fe, 0x1e1033, 0.55)
+    this.scene.add(this.hemisphere)
     this.buildLights()
     this.buildTable()
+    this.buildLamps()
+    if (this.gl) this.reflect(this.track(buildEnvironment(this.gl)))
+    this.applyTier()
     this.aimCamera(9 / 16)
   }
 
@@ -186,40 +316,36 @@ export class PinballScene {
     return resource
   }
 
-  private material(id: MaterialId): THREE.MeshStandardMaterial {
+  private material(id: MaterialId): THREE.MeshPhysicalMaterial {
     let m = this.materials.get(id)
     if (!m) {
-      m = this.track(new THREE.MeshStandardMaterial(MATERIALS[id]))
+      m = this.track(new THREE.MeshPhysicalMaterial(MATERIALS[id]))
       this.materials.set(id, m)
     }
     return m
   }
 
-  /** A soft studio environment so metal reads as metal (real renderer only). */
-  private buildEnvironment() {
-    if (!(this.renderer instanceof THREE.WebGLRenderer)) return
-    const pmrem = new THREE.PMREMGenerator(this.renderer)
-    const room = new RoomEnvironment()
-    const env = this.track(pmrem.fromScene(room, 0.04).texture)
-    this.scene.environment = env
-    this.scene.environmentIntensity = 0.55
-    room.traverse((node) => {
-      const mesh = node as THREE.Mesh
-      mesh.geometry?.dispose()
-      const mat = mesh.material as THREE.Material | THREE.Material[] | undefined
-      if (Array.isArray(mat)) mat.forEach((m) => m.dispose())
-      else mat?.dispose()
+  /**
+   * Give every material the environment map itself: through
+   * scene.environment, three.js would use one intensity for all of them,
+   * and the playfield needs far less reflection than chrome or the ball.
+   */
+  private reflect(env: THREE.Texture) {
+    this.scene.traverse((node) => {
+      const material = (node as THREE.Mesh).material
+      if (
+        material instanceof THREE.MeshStandardMaterial &&
+        material.envMap === null
+      )
+        material.envMap = env
     })
-    pmrem.dispose()
+    this.ballMaterial.envMap = env
   }
 
   private buildLights() {
-    this.scene.add(new THREE.HemisphereLight(0xc7d2fe, 0x1e1033, 0.7))
-    const key = new THREE.DirectionalLight(0xfff4e0, 2.2)
+    const key = new THREE.DirectionalLight(0xfff4e0, 1.6)
     key.position.set(0.3, 1.6, 0.6)
     key.target = this.root
-    key.castShadow = true
-    key.shadow.mapSize.set(1024, 1024)
     const cam = key.shadow.camera
     cam.left = -0.45
     cam.right = 0.45
@@ -228,7 +354,9 @@ export class PinballScene {
     cam.near = 0.5
     cam.far = 3
     key.shadow.bias = -0.0005
+    key.shadow.normalBias = 0.002
     this.scene.add(key)
+    this.keyLights.push(key)
     // Each zone (the sub-table) has its own key light, so its toys and
     // flippers cast shadows too: the main light's shadow box ends at the arch.
     for (const zone of this.table.zones ?? []) {
@@ -237,11 +365,9 @@ export class PinballScene {
       const aim = new THREE.Object3D()
       aim.position.set(cx, 0, cz)
       this.root.add(aim)
-      const light = new THREE.DirectionalLight(0xffe7c2, 1.6)
+      const light = new THREE.DirectionalLight(0xffe7c2, 1.5)
       light.position.set(cx + 0.15, 1.2, cz + 0.35)
       light.target = aim
-      light.castShadow = true
-      light.shadow.mapSize.set(512, 512)
       const half = Math.max(
         zone.max[0] - zone.min[0],
         zone.max[1] - zone.min[1],
@@ -253,13 +379,29 @@ export class PinballScene {
       light.shadow.camera.near = 0.3
       light.shadow.camera.far = 2.5
       light.shadow.bias = -0.0005
+      light.shadow.normalBias = 0.002
       this.root.add(light)
+      this.keyLights.push(light)
     }
-    // Warm GI glow down each side rail, as a lit cabinet has.
-    for (const x of [-0.24, 0.24]) {
-      const gi = new THREE.PointLight(0xffd59a, 0.08, 0.5, 2)
-      gi.position.set(x, 0.06, -0.3)
-      this.root.add(gi)
+    // GI: warm bulbs under the slings first (every tier keeps those), then
+    // under the upper plastics either side of the pops.
+    for (const [x, z] of [
+      [-0.15, -0.17],
+      [0.15, -0.17],
+      [-0.17, -0.64],
+      [0.19, -0.66],
+    ] as const) {
+      const bulb = new THREE.PointLight(0xffd59a, GI_LIGHT, 0.45, 2)
+      bulb.position.set(x, 0.035, z)
+      this.root.add(bulb)
+      this.giLights.push(bulb)
+    }
+    for (let i = 0; i < FLASHER_POOL; i++) {
+      // A gentler falloff than physical: a flasher washes an area of the
+      // playfield rather than burning a hot spot on the nearest plastic.
+      const light = new THREE.PointLight(0xffffff, 0, FLASHER_REACH, 1)
+      this.root.add(light)
+      this.flasherLights.push(light)
     }
   }
 
@@ -276,7 +418,7 @@ export class PinballScene {
       pieces.set(material, list)
     }
     const one = new THREE.Vector3(1, 1, 1)
-    for (const def of this.table.colliders) {
+    for (const def of [...this.table.colliders, ...(this.table.trim ?? [])]) {
       if (def.kind !== 'post' && def.hidden) continue
       if (def.kind === 'mesh') {
         add(def.material, meshGeometry(def), new THREE.Matrix4())
@@ -313,30 +455,56 @@ export class PinballScene {
         if (def.kick) this.addPopCap(def.id, def.at, def.radius, def.halfHeight)
       }
     }
+    this.paintPlayfield()
     for (const [material, list] of pieces) {
       const merged = mergeGeometries(list, false)
       for (const geo of list) geo.dispose()
       if (!merged) continue
+      if (material === 'playfield') planarUVs(merged, artBounds(this.table))
       const mesh = new THREE.Mesh(this.track(merged), this.material(material))
-      mesh.castShadow = material !== 'playfield' && material !== 'ramp'
       mesh.receiveShadow = true
+      if (material !== 'playfield' && material !== 'ramp')
+        this.staticCasters.push(mesh)
       this.root.add(mesh)
     }
     this.buildMechanisms()
     this.buildDoorsAndToys()
+    const body = this.track(new THREE.MeshPhysicalMaterial(FLIPPER_MATERIAL))
     for (const def of this.table.flippers) {
       const group = new THREE.Group()
       group.position.copy(v3(def.pivot))
-      const geo = this.track(
-        new ConvexGeometry(flipperOutline(def).map((p) => v3(p))),
+      const bat = new THREE.Mesh(
+        this.track(new ConvexGeometry(batOutline(def, -0.0015, 0.0005, 0.024))),
+        body,
       )
-      const bat = new THREE.Mesh(geo, this.material('rubber'))
       bat.castShadow = true
-      group.add(bat)
+      const rubber = new THREE.Mesh(
+        this.track(new ConvexGeometry(batOutline(def, 0, 0.006, 0.018))),
+        this.track(
+          new THREE.MeshPhysicalMaterial({
+            color: FLIPPER_RUBBER[def.side],
+            roughness: 0.75,
+          }),
+        ),
+      )
+      group.add(bat, rubber)
       group.rotation.y = flipperYaw(def, def.restAngle)
       this.flippers.set(def.id, group)
       this.root.add(group)
     }
+  }
+
+  /** The painted playfield art, on the real renderer only (it needs a canvas). */
+  private paintPlayfield() {
+    if (!this.gl) return
+    const canvas = paintPlayfield(this.table, artBounds(this.table))
+    if (!canvas) return
+    const art = this.track(new THREE.CanvasTexture(canvas))
+    art.colorSpace = THREE.SRGBColorSpace
+    art.anisotropy = Math.min(8, this.gl.capabilities.getMaxAnisotropy())
+    const playfield = this.material('playfield')
+    playfield.map = art
+    playfield.color.set(0xffffff)
   }
 
   /** Drop targets, scoop holes and saucer rims, and the spinner plates. */
@@ -459,7 +627,7 @@ export class PinballScene {
     }
     for (const def of this.table.occluders ?? []) {
       const material = this.track(
-        new THREE.MeshStandardMaterial({
+        new THREE.MeshPhysicalMaterial({
           ...MATERIALS.cabinet,
           transparent: true,
         }),
@@ -478,46 +646,232 @@ export class PinballScene {
       // Faded, it must not keep shading the area it hides.
       mesh.castShadow = false
       this.root.add(mesh)
-      this.occluders.push({ material, fadeFor: def.fadeFor })
+      this.occluders.push({ mesh, material, fadeFor: def.fadeFor })
     }
   }
 
-  /** The lit cap on a pop bumper; it flashes when the bumper fires. */
+  /** Inserts set flush in the playfield, and the flasher domes. */
+  private buildLamps() {
+    for (const def of this.table.inserts ?? []) {
+      const geo = this.track(new THREE.ShapeGeometry(insertShape(def), 12))
+      geo.rotateX(-Math.PI / 2)
+      const color = new THREE.Color(def.color)
+      const material = this.track(
+        new THREE.MeshStandardMaterial({
+          color: color.clone().multiplyScalar(0.2),
+          emissive: color,
+          emissiveIntensity: INSERT_OFF,
+          roughness: 0.18,
+          polygonOffset: true,
+          polygonOffsetFactor: -1,
+        }),
+      )
+      const mesh = new THREE.Mesh(geo, material)
+      mesh.position.set(def.at[0], 0.0004, def.at[1])
+      mesh.rotation.y = def.yaw ?? 0
+      mesh.receiveShadow = true
+      this.root.add(mesh)
+      this.inserts.set(def.id, {
+        material,
+        level: 'off',
+        glow: INSERT_OFF,
+        pulse: 0,
+      })
+      if (def.shot)
+        this.shotLamps.set(def.shot, { insert: def.id, flasher: def.flasher })
+    }
+    const dome = this.track(
+      new THREE.SphereGeometry(0.011, 24, 12, 0, Math.PI * 2, 0, Math.PI / 2),
+    )
+    const base = this.track(new THREE.CylinderGeometry(0.013, 0.013, 0.004, 24))
+    const post = this.track(new THREE.CylinderGeometry(0.003, 0.003, 1, 12))
+    const black = this.track(
+      new THREE.MeshStandardMaterial({ color: 0x0b0b10, roughness: 0.6 }),
+    )
+    const bounds = artBounds(this.table)
+    const mid = (bounds.x0 + bounds.x1) / 2
+    for (const def of this.table.flashers ?? []) {
+      const color = new THREE.Color(def.color)
+      const material = this.track(
+        new THREE.MeshPhysicalMaterial({
+          color: color.clone().multiplyScalar(0.6),
+          emissive: color,
+          emissiveIntensity: FLASHER_REST,
+          roughness: 0.15,
+          clearcoat: 1,
+          transparent: true,
+          opacity: 0.9,
+        }),
+      )
+      const group = new THREE.Group()
+      group.position.copy(v3(def.at))
+      const plinth = new THREE.Mesh(base, black)
+      plinth.position.y = 0.002
+      const lens = new THREE.Mesh(dome, material)
+      lens.position.y = 0.004
+      group.add(plinth, lens)
+      if (def.at[1] > 0.005) {
+        const stand = new THREE.Mesh(post, this.material('chrome'))
+        stand.scale.y = def.at[1]
+        stand.position.y = -def.at[1] / 2
+        group.add(stand)
+      }
+      this.root.add(group)
+      this.flashers.set(def.id, {
+        material,
+        level: 'off',
+        glow: FLASHER_REST,
+        pulse: 0,
+        // The light it throws comes from above and in front of the dome:
+        // a point light a centimetre from the rail it stands on would burn
+        // that one patch white.
+        position: v3(def.at).add(
+          new THREE.Vector3(
+            Math.max(-FLASHER_THROW, Math.min(FLASHER_THROW, mid - def.at[0])),
+            FLASHER_LIFT,
+            def.at[2] < -0.9 ? FLASHER_THROW : 0,
+          ),
+        ),
+        color,
+      })
+    }
+  }
+
+  /**
+   * The lit cap on a pop bumper, in its own colour, and the chrome skirt at
+   * its foot; the cap flashes when the bumper fires.
+   */
   private addPopCap(id: string, at: Vec3, radius: number, halfHeight: number) {
+    const color = POP_COLORS[this.caps.size % POP_COLORS.length]!
     const geo = this.track(
       new THREE.CylinderGeometry(radius * 0.92, radius * 0.92, 0.006, 32),
     )
     const mat = this.track(
-      new THREE.MeshStandardMaterial({
-        color: 0xf472b6,
-        emissive: 0xf472b6,
-        emissiveIntensity: 0.25,
-        roughness: 0.35,
+      new THREE.MeshPhysicalMaterial({
+        color,
+        emissive: color,
+        emissiveIntensity: POP_REST,
+        roughness: 0.25,
+        clearcoat: 1,
       }),
     )
     const cap = new THREE.Mesh(geo, mat)
     cap.position.set(at[0], at[1] + halfHeight + 0.003, at[2])
     cap.castShadow = true
     this.root.add(cap)
+    const skirt = new THREE.Mesh(
+      this.track(new THREE.TorusGeometry(radius * 1.12, 0.0025, 8, 40)),
+      this.material('chrome'),
+    )
+    skirt.rotation.x = -Math.PI / 2
+    skirt.position.set(at[0], 0.0025, at[2])
+    this.root.add(skirt)
     this.caps.set(id, mat)
   }
 
-  /** Light up a mechanism briefly (rules ask for this on a hit). */
+  /**
+   * Light up a mechanism, insert or flasher briefly (rules ask for this on a
+   * hit). A shot id flashes that shot's arrow and fires its flasher.
+   */
   pulse(id: string) {
     if (this.caps.has(id)) this.flash.set(id, 1)
+    const shot = this.shotLamps.get(id)
+    const insert = this.inserts.get(shot?.insert ?? id)
+    if (insert) insert.pulse = 1
+    const flasher = this.flashers.get(shot?.flasher ?? id)
+    if (flasher) flasher.pulse = 1
+  }
+
+  /** Set every lamp from the lamp matrix (rules/lamps.ts), and the GI level. */
+  setLamps(lamps: Record<string, LampLevel>, gi: number) {
+    for (const [id, level] of Object.entries(lamps)) {
+      const lamp = this.inserts.get(id) ?? this.flashers.get(id)
+      if (lamp) lamp.level = level
+    }
+    this.giTarget = gi
+  }
+
+  /** The level each lamp is set to (for tests). */
+  lampLevels(): Record<string, LampLevel> {
+    const out: Record<string, LampLevel> = {}
+    for (const [id, lamp] of this.inserts) out[id] = lamp.level
+    for (const [id, lamp] of this.flashers) out[id] = lamp.level
+    return out
+  }
+
+  /** Pin a quality tier (screenshots, tests); null returns to measuring. */
+  forceQuality(tier: QualityTier | null) {
+    this.governor.force(tier)
+    this.applyTier()
+  }
+
+  get quality(): QualityTier {
+    return this.governor.tier
+  }
+
+  /** Apply the governor's tier to the renderer, lights and shadows. */
+  private applyTier() {
+    const before = this.settings
+    this.settings = TIER_SETTINGS[this.governor.tier]
+    const s = this.settings
+    const shadows = s.shadowMapSize > 0
+    for (const light of this.keyLights) {
+      light.castShadow = shadows
+      if (shadows && light.shadow.mapSize.x !== s.shadowMapSize) {
+        light.shadow.mapSize.set(s.shadowMapSize, s.shadowMapSize)
+        light.shadow.map?.dispose()
+        light.shadow.map = null
+      }
+    }
+    for (const mesh of this.staticCasters) mesh.castShadow = s.staticShadows
+    for (const [i, light] of this.flasherLights.entries())
+      light.visible = i < s.flasherLights
+    for (const [i, light] of this.giLights.entries())
+      light.visible = i < s.giLights
+    this.shadowMaterial.opacity = s.contactShadow
+    if (this.gl) {
+      if (this.gl.shadowMap.enabled !== shadows) {
+        this.gl.shadowMap.enabled = shadows
+        this.scene.traverse((node) => {
+          const material = (node as THREE.Mesh).material
+          if (material instanceof THREE.Material) material.needsUpdate = true
+        })
+      }
+      const postChanged =
+        !this.post ||
+        before.bloomScale !== s.bloomScale ||
+        before.samples !== s.samples
+      if (postChanged) {
+        this.post?.dispose()
+        this.post =
+          s.bloomScale > 0
+            ? createPostChain(this.gl, this.scene, this.camera, s)
+            : null
+      }
+    }
+    if (this.size.width > 0) this.applySize()
+  }
+
+  private applySize() {
+    const { width, height, dpr } = this.size
+    const ratio = Math.min(this.settings.maxPixelRatio, Math.max(1, dpr))
+    this.renderer.setPixelRatio(ratio)
+    this.renderer.setSize(width, height, false)
+    this.post?.setSize(width, height, ratio)
   }
 
   /** Where a preset puts the camera at the current aspect, in table space. */
-  private framing(id: CameraPresetId) {
-    const p = this.preset(id)
-    // A narrower screen pulls the camera back so the full width stays in view.
-    const fit = Math.max(1, 0.78 / this.aspect)
-    const target = v3(p.target)
-    const eye = v3(p.position).sub(target).multiplyScalar(fit).add(target)
-    return { eye, target, fov: p.fovDeg }
+  private framing(id: CameraPresetId): Framing {
+    let framing = this.framings.get(id)
+    if (!framing) {
+      framing = fitCamera(this.preset(id), this.aspect, this.up)
+      this.framings.set(id, framing)
+    }
+    return framing
   }
 
   private aimCamera(aspect: number) {
+    if (aspect !== this.aspect) this.framings.clear()
     this.aspect = aspect
     if (!this.aimed) {
       const { eye, target } = this.framing(this.view)
@@ -531,7 +885,7 @@ export class PinballScene {
   private placeCamera() {
     this.root.updateMatrixWorld()
     this.camera.position.copy(this.root.localToWorld(this.eye.clone()))
-    this.camera.fov = this.preset(this.view).fovDeg
+    this.camera.fov = this.framing(this.view).fov
     this.camera.aspect = this.aspect
     this.camera.updateProjectionMatrix()
     this.camera.lookAt(this.root.localToWorld(this.look.clone()))
@@ -561,15 +915,18 @@ export class PinballScene {
       const away = this.framing(occluder.fadeFor).target
       const span = home.distanceTo(away) || 1
       const t = Math.min(1, Math.max(0, 1 - this.look.distanceTo(away) / span))
-      occluder.material.opacity = 1 - 0.9 * t
+      occluder.material.opacity = 1 - t
       occluder.material.depthWrite = t < 0.5
+      // Gone, not just clear: a faded lid still catches the key light's
+      // highlight and veils the room under it.
+      occluder.mesh.visible = t < 0.95
     }
   }
 
   resize(width: number, height: number, dpr: number) {
     if (this.disposed || width <= 0 || height <= 0) return
-    this.renderer.setPixelRatio(Math.min(2, Math.max(1, dpr)))
-    this.renderer.setSize(width, height, false)
+    this.size = { width, height, dpr }
+    this.applySize()
     this.aimCamera(width / height)
   }
 
@@ -586,21 +943,30 @@ export class PinballScene {
   ) {
     if (this.disposed) return
     const seen = new Set<number>()
+    const r = this.table.physical.ballRadiusM
     for (const ball of balls) {
       seen.add(ball.id)
-      let mesh = this.balls.get(ball.id)
-      if (!mesh) {
-        mesh = new THREE.Mesh(this.ballGeometry, this.ballMaterial)
-        mesh.castShadow = true
-        this.balls.set(ball.id, mesh)
-        this.root.add(mesh)
+      let view = this.balls.get(ball.id)
+      if (!view) {
+        view = {
+          ball: new THREE.Mesh(this.ballGeometry, this.ballMaterial),
+          shadow: new THREE.Mesh(this.shadowGeometry, this.shadowMaterial),
+        }
+        view.ball.castShadow = true
+        this.balls.set(ball.id, view)
+        this.root.add(view.ball, view.shadow)
       }
-      mesh.position.set(...ball.position)
-      mesh.quaternion.set(...ball.rotation)
+      view.ball.position.set(...ball.position)
+      view.ball.quaternion.set(...ball.rotation)
+      view.shadow.position.set(
+        ball.position[0],
+        ball.position[1] - r + 0.0006,
+        ball.position[2],
+      )
     }
-    for (const [id, mesh] of this.balls) {
+    for (const [id, view] of this.balls) {
       if (seen.has(id)) continue
-      this.root.remove(mesh)
+      this.root.remove(view.ball, view.shadow)
       this.balls.delete(id)
     }
     for (const def of this.table.flippers) {
@@ -637,22 +1003,81 @@ export class PinballScene {
     }
     for (const [id, level] of this.flash) {
       const mat = this.caps.get(id)
-      if (mat) mat.emissiveIntensity = 0.25 + level * 2.5
+      if (mat) mat.emissiveIntensity = POP_REST + level * POP_FLASH
       const next = level - 0.08
       if (next <= 0) this.flash.delete(id)
       else this.flash.set(id, next)
     }
   }
 
+  /** One frame of lamp warm-up and fade, GI, and the flasher light pool. */
+  private animateLamps() {
+    this.frame++
+    const blinkOn = Math.floor(this.frame / BLINK_FRAMES) % 2 === 0
+    const ease = (lamp: Lamp, off: number, on: number, peak: number) => {
+      const lit =
+        lamp.level === 'on' || (lamp.level === 'blink' && blinkOn) ? on : off
+      lamp.glow += (lit - lamp.glow) * LAMP_EASE
+      lamp.pulse = Math.max(0, lamp.pulse - PULSE_DECAY)
+      lamp.material.emissiveIntensity =
+        Math.max(lamp.glow, lamp.pulse * peak) * this.gi
+    }
+    this.gi += (this.giTarget - this.gi) * GI_EASE
+    for (const lamp of this.inserts.values())
+      ease(lamp, INSERT_OFF, INSERT_ON, INSERT_FLASH)
+    for (const lamp of this.flashers.values())
+      ease(lamp, FLASHER_REST, FLASHER_FIRED, FLASHER_FIRED)
+    for (const light of this.giLights) light.intensity = GI_LIGHT * this.gi
+    this.hemisphere.intensity = 0.2 + 0.35 * this.gi
+    // The pool follows the brightest flashers; the rest glow on their own.
+    const firing = [...this.flashers.values()]
+      .filter((f) => f.material.emissiveIntensity > FLASHER_REST * 2)
+      .sort(
+        (a, b) => b.material.emissiveIntensity - a.material.emissiveIntensity,
+      )
+    for (const [i, light] of this.flasherLights.entries()) {
+      const flasher = firing[i]
+      if (!flasher || !light.visible) {
+        light.intensity = 0
+        continue
+      }
+      light.position.copy(flasher.position)
+      light.color.copy(flasher.color)
+      light.intensity =
+        (FLASHER_LIGHT * flasher.material.emissiveIntensity) / FLASHER_FIRED
+    }
+  }
+
+  /** Frame timing, the tier, and what the last frame cost to draw. */
+  stats(): RenderStats {
+    const timing = this.governor.stats()
+    return {
+      tier: this.governor.tier,
+      ...timing,
+      drawCalls: this.gl?.info.render.calls ?? 0,
+      triangles: this.gl?.info.render.triangles ?? 0,
+    }
+  }
+
   render() {
     if (this.disposed) return
+    const now = performance.now()
+    if (this.lastFrameAt > 0 && this.governor.sample(now - this.lastFrameAt))
+      this.applyTier()
+    this.lastFrameAt = now
     this.easeCamera()
-    this.renderer.render(this.scene, this.camera)
+    this.animateLamps()
+    this.gl?.info.reset()
+    if (this.post) this.post.render()
+    else this.renderer.render(this.scene, this.camera)
   }
 
   dispose() {
     if (this.disposed) return
     this.disposed = true
+    this.post?.dispose()
+    this.post = null
+    for (const light of this.keyLights) light.shadow.map?.dispose()
     for (const resource of this.tracked) {
       resource.dispose()
       liveResources--

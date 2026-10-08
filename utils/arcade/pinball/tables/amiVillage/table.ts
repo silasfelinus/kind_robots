@@ -19,7 +19,9 @@ import type {
   ColliderDef,
   DoorDef,
   DropTargetDef,
+  FlasherDef,
   FlipperDef,
+  InsertDef,
   ScoopDef,
   SensorDef,
   ShotDef,
@@ -33,6 +35,7 @@ import {
   ramp,
   wall,
   walls,
+  WALL_HEIGHT,
   type XZ,
   type XZH,
 } from '../builders'
@@ -636,6 +639,85 @@ const shots: ShotDef[] = [
   { id: 'sub-home', kind: 'scoop', sensors: ['sub-home'], displayName: 'HOME' },
 ]
 
+/** Where the apron plate begins, just below the flipper tips. */
+const APRON_TOP_Z = 0.035
+
+/** Shot colours: each shot's arrow, and the flasher its shot fires. */
+const CYAN = 0x22d3ee
+const MAGENTA = 0xf472b6
+const YELLOW = 0xfacc15
+const AMBER = 0xfb923c
+
+function arrow(
+  shot: string,
+  at: XZ,
+  color: number,
+  flasher: string,
+  yaw = 0,
+  size = 0.03,
+): InsertDef {
+  return {
+    id: `arrow-${shot}`,
+    at,
+    shape: 'arrow',
+    size,
+    yaw,
+    color,
+    shot,
+    flasher,
+  }
+}
+
+function lamp(id: string, at: XZ, color: number, size = 0.012): InsertDef {
+  return { id, at, shape: 'circle', size, color }
+}
+
+// The lamp matrix (t-019): an arrow in front of every shot's mouth, pointing
+// the way in, in its shot's colour; lamps for the A-M-I targets, the award
+// saucer and the kickback; the rainbow across the lower playfield that
+// counts the bonus multiplier; and the room's N-E-T and HOME lamps.
+const inserts: InsertDef[] = [
+  arrow('left-orbit', [-0.19, -0.31], CYAN, 'flasher-left', 0.35),
+  arrow('left-ramp', [-0.128, -0.287], MAGENTA, 'flasher-left', 0.19),
+  arrow('upper-feed', [-0.064, -0.312], YELLOW, 'flasher-back-left', 0.13),
+  arrow('lock', [0, -0.245], AMBER, 'flasher-back-left'),
+  arrow('spinner', [0.0675, -0.3], CYAN, 'flasher-back-right', 0, 0.026),
+  arrow('right-ramp', [0.128, -0.287], MAGENTA, 'flasher-right', -0.19),
+  arrow('right-orbit', [0.19, -0.31], YELLOW, 'flasher-right', -0.35),
+  { ...lamp('lamp-award', [0.12, -0.212], 0xfde68a, 0.018), shot: 'award' },
+  ...['a', 'm', 'i'].map((letter, i) =>
+    lamp(`lamp-drop-${letter}`, [-0.021 + i * 0.021, -0.284], 0xe0f2fe, 0.01),
+  ),
+  lamp('lamp-kickback', [-0.235, -0.05], 0xef4444, 0.016),
+  ...[0xef4444, 0xf97316, 0xfacc15, 0x4ade80, 0x38bdf8, 0xa78bfa].map(
+    (color, i) => {
+      const x = -0.05 + i * 0.02
+      return lamp(
+        `rainbow-${i + 1}`,
+        [x, -0.125 - 0.016 * (1 - (x / 0.06) ** 2)],
+        color,
+      )
+    },
+  ),
+  ...['n', 'e', 't'].map((letter, i) =>
+    lamp(
+      `lamp-net-${letter}`,
+      [ROOM_X - 0.05 + i * 0.05, ROOM_TOP_Z + 0.035],
+      CYAN,
+    ),
+  ),
+  arrow('sub-home', [ROOM_X + 0.12, -1.325], AMBER, 'flasher-secret'),
+]
+
+const flashers: FlasherDef[] = [
+  { id: 'flasher-left', at: [LEFT_X, WALL_HEIGHT, -0.5], color: 0x67e8f9 },
+  { id: 'flasher-right', at: [RIGHT_X, WALL_HEIGHT, -0.5], color: MAGENTA },
+  { id: 'flasher-back-left', at: [-0.07, 0, -0.955], color: YELLOW },
+  { id: 'flasher-back-right', at: [0.07, 0, -0.955], color: AMBER },
+  // On the corner plastic over the secret hole: it flashes while the door is open.
+  { id: 'flasher-secret', at: [-0.21, 0.033, -0.87], color: 0xf43f5e },
+]
+
 export const AMI_VILLAGE_GREYBOX: TableDef = {
   id: 'ami-village-greybox',
   title: 'AMI Village Rescue (greybox)',
@@ -648,15 +730,28 @@ export const AMI_VILLAGE_GREYBOX: TableDef = {
   cameras: [
     {
       id: 'main',
-      position: [(LEFT_X + RIGHT_X) / 2, 0.84, 0.56],
-      target: [(LEFT_X + RIGHT_X) / 2, 0, -0.37],
-      fovDeg: 44,
+      position: [(LEFT_X + RIGHT_X) / 2, 0.75, 0.55],
+      target: [(LEFT_X + RIGHT_X) / 2, 0, -0.4],
+      fovDeg: 32,
+      // The whole playfield, from the apron to the foot of the backbox.
+      frame: {
+        min: [LEFT_X - 0.02, 0, TOP_Z - 0.06],
+        max: [RIGHT_X + 0.02, 0.03, BOTTOM_Z + 0.02],
+      },
+      portrait: [(LEFT_X + RIGHT_X) / 2, 1.2, 0.25],
+      portraitFovDeg: 36,
     },
     {
       id: 'sub-table',
       position: [ROOM_X, 0.52, -0.83],
       target: [ROOM_X, 0, -1.25],
-      fovDeg: 44,
+      fovDeg: 32,
+      frame: {
+        min: [ROOM_X - ROOM_HALF - 0.03, 0, ROOM_TOP_Z - 0.02],
+        max: [ROOM_X + ROOM_HALF + 0.03, 0.03, ROOM_BOTTOM_Z + 0.04],
+      },
+      portrait: [ROOM_X, 0.7, -0.95],
+      portraitFovDeg: 36,
     },
   ],
   colliders,
@@ -722,12 +817,33 @@ export const AMI_VILLAGE_GREYBOX: TableDef = {
       max: [ROOM_X + ROOM_HALF + 0.03, ROOM_BOTTOM_Z + 0.03],
     },
   ],
+  inserts,
+  flashers,
+  trim: [
+    {
+      // The apron plate over the drain: a ball passing the flippers rolls
+      // under it, as on a real machine.
+      kind: 'box',
+      id: 'apron-plate',
+      at: [(LEFT_X + LANE_WALL_X) / 2, 0.03, (APRON_TOP_Z + BOTTOM_Z) / 2],
+      half: [(LANE_WALL_X - LEFT_X) / 2, 0.002, (BOTTOM_Z - APRON_TOP_Z) / 2],
+      material: 'cabinet',
+    },
+  ],
   occluders: [
     {
       // The backbox: it stands between the main camera and the room.
       id: 'backbox',
       at: [ROOM_X, 0.2, -1.005],
       half: [WIDTH / 2 + 0.04, 0.2, 0.012],
+      fadeFor: 'sub-table',
+    },
+    {
+      // Its lid over the room, so a steep (phone) camera sees cabinet, not
+      // the secret, over the top of the backbox.
+      id: 'backbox-lid',
+      at: [ROOM_X, 0.4, (ROOM_TOP_Z - 1.005) / 2],
+      half: [WIDTH / 2 + 0.04, 0.012, (-1.005 - ROOM_TOP_Z) / 2 + 0.02],
       fadeFor: 'sub-table',
     },
   ],

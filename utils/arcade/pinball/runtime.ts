@@ -23,14 +23,17 @@ import {
 import {
   PinballScene,
   createWebGLRenderer,
+  type RenderStats,
   type RendererFactory,
 } from './render/scene'
+import type { QualityTier } from './render/quality'
 import {
   initialRules,
   stepRules,
   type PinballRulesState,
   type RulesEvent,
 } from './rules/engine'
+import { attractLamps, lampStates } from './rules/lamps'
 import type { CameraPresetId, RuleEffect, TableDef } from './types'
 
 const STEPS_PER_TICK = PHYSICS_HZ / 60
@@ -154,6 +157,27 @@ export class PinballRuntime implements ArcadeWebGLGameInstance {
     this.apply({ type: 'tick', tick: this.steps })
     this.unstick(left || right)
     this.scene?.setView(this.view())
+    this.lamps()
+  }
+
+  /** Light the table from the rules, or run the attract show in a demo. */
+  private lamps() {
+    if (!this.scene) return
+    const table = this.physics.table
+    const frame = this.demo
+      ? attractLamps(table, this.tick)
+      : lampStates(this.rules, table)
+    this.scene.setLamps(frame.lamps, frame.gi)
+  }
+
+  /** Pin the renderer's quality tier (screenshots, tests); null measures again. */
+  forceQuality(tier: QualityTier | null) {
+    this.scene?.forceQuality(tier)
+  }
+
+  /** The renderer's frame timing, tier and draw cost. */
+  renderStats(): RenderStats | null {
+    return this.scene?.stats() ?? null
   }
 
   /** The camera preset the balls on the table call for right now. */
@@ -218,6 +242,10 @@ export class PinballRuntime implements ArcadeWebGLGameInstance {
     const { state, effects } = stepRules(this.rules, event, {
       shots: this.physics.table.shots,
     })
+    // A made shot flashes its arrow and fires its flasher.
+    for (const [shot, made] of Object.entries(state.shotsMade)) {
+      if (made > (this.rules.shotsMade[shot] ?? 0)) this.scene?.pulse(shot)
+    }
     this.rules = state
     for (const effect of effects) this.effect(effect)
   }

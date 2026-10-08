@@ -48,6 +48,7 @@ import {
   emptyInput,
   isWebGLInstance,
   type ArcadeGameInstance,
+  type ArcadeGuidePage,
   type ArcadePlayableInstance,
   type InputFrame,
 } from '../arcade/types'
@@ -105,6 +106,7 @@ import { cameraViewFor, PinballRuntime } from '../arcade/pinball/runtime'
 import { aimedShot, delaysFor } from '../arcade/pinball/tuning/aim'
 import { BOT_SKILLS, PinballBot } from '../arcade/pinball/tuning/bot'
 import { playGame, summarize } from './pinballTuning'
+import { MAP_SHOTS, pinballGuide } from '../arcade/pinball/guide'
 import {
   goalsMet,
   MASTERY_GOALS,
@@ -139,6 +141,8 @@ import {
   VILLAGES,
   WIZARD_ADDS,
   WIZARD_AT,
+  WIZARD_NAME,
+  RAMP_SHOTS,
 } from '../arcade/pinball/rules/village'
 import { AMI_VILLAGE_GREYBOX } from '../arcade/pinball/tables/amiVillage/table'
 import type {
@@ -3260,6 +3264,110 @@ async function runPinballTuning() {
   assert.ok(frame.held.down, 'the bot pulls the plunger')
 }
 
+async function runPinballGuide() {
+  // conductor kind-pinball/t-015: the table guide. Every page fits the
+  // 360x640 cabinet, the map's numbers match the copy, and the hidden room
+  // stays a secret until the player has found it once.
+  const table = AMI_VILLAGE_GREYBOX
+  const [W, H] = [360, 640]
+  const fits = (pages: ArcadeGuidePage[]) => {
+    for (const page of pages) {
+      assert.ok(measureText(page.title, 3) <= W - 24, page.title)
+      const scale = page.scale ?? 2
+      for (const line of page.lines)
+        assert.ok(measureText(line, scale) <= W - 16, `${page.title}: ${line}`)
+      const top = 46 + (page.diagram ? page.diagram.height + 10 : 0)
+      // The cabinet's spacing (drawGuide) at its tightest still fits.
+      assert.ok(
+        top + page.lines.length * scale * 9 <= H - 24,
+        `${page.title} fits`,
+      )
+    }
+  }
+  const words = (pages: ArcadeGuidePage[]) =>
+    pages.flatMap((p) => [p.title, ...p.lines]).join('\n')
+
+  const fresh = pinballGuide(new Set())
+  fits(fresh)
+  assert.deepEqual(
+    fresh.map((p) => p.title),
+    [
+      'SHOT MAP',
+      'VILLAGES',
+      'MULTIBALL',
+      'MORE SCORING',
+      WIZARD_NAME,
+      'MASTERY',
+    ],
+  )
+  assert.ok(
+    !/SECRET|HIDDEN|NET RUN|NETS|DOOR|HOME|SUB/.test(words(fresh)),
+    'nothing gives the hidden room away',
+  )
+  assert.equal(
+    fresh[5]!.lines.filter((l) => l === '???').length,
+    MASTERY_GOALS.filter((g) => g.secret).length,
+  )
+  // Each village's mode is on the card.
+  for (const v of VILLAGES) assert.ok(words(fresh).includes(v.name), v.name)
+
+  const found = pinballGuide(new Set(['secret']))
+  fits(found)
+  assert.ok(found.some((p) => p.title === 'SECRET VILLAGE'))
+  assert.ok(words(found).includes('NET RUN'))
+  assert.equal(found.at(-1)!.title, 'MASTERY')
+
+  // The map's numbers are the ones the copy uses, and every shot has an
+  // arrow to draw.
+  const num = (id: string) => MAP_SHOTS.indexOf(id as never) + 1
+  assert.equal(num('upper-feed'), 3)
+  assert.equal(num('lock'), 4)
+  assert.equal(num('award'), 8)
+  assert.deepEqual(RAMP_SHOTS.map(num), [2, 6])
+  for (const shot of MAP_SHOTS) {
+    assert.ok(
+      table.shots.some((s) => s.id === shot),
+      shot,
+    )
+    assert.ok(
+      table.inserts?.some((n) => n.shot === shot),
+      `${shot} insert`,
+    )
+  }
+  assert.ok(fresh[0]!.lines.join(' ').includes('8 AWARD'))
+
+  // The map draws into any 2D context; only an unfound room is a "?".
+  const calls: string[] = []
+  const stub = new Proxy(
+    {},
+    {
+      get: (_, key) =>
+        typeof key === 'string' &&
+        /^(fillStyle|strokeStyle|lineWidth|lineCap|font|textAlign|textBaseline|globalAlpha)$/.test(
+          key,
+        )
+          ? (calls.push(key), undefined)
+          : (..._args: unknown[]) => {
+              calls.push(String(key))
+              return { addColorStop: () => {} }
+            },
+      set: () => true,
+    },
+  ) as unknown as CanvasRenderingContext2D
+  const draw = (pages: ArcadeGuidePage[]) => {
+    calls.length = 0
+    const map = pages[0]!.diagram!
+    map.draw(stub, 8, 46, W - 16, map.height)
+    return calls.filter((c) => c === 'arc').length
+  }
+  assert.equal(draw(fresh), draw(found) + 1, 'the "?" disc, unfound only')
+
+  // The 3D cabinet's module carries the guide.
+  const module = await import('../arcade/games/kindPinball3d')
+  assert.equal(typeof module.default.guide, 'function')
+  assert.equal(module.default.guide!(new Set()).length, fresh.length)
+}
+
 async function runPinballMastery() {
   // conductor kind-pinball/t-014: the mastery ladder. Goals are read from the
   // rules' before/after state, announced on the DMD only the first time a
@@ -3549,6 +3657,7 @@ await runPinballDmd()
 await runPinballRules()
 await runPinballSubRules()
 await runPinballMastery()
+await runPinballGuide()
 await runPinballTuning()
 await runPinballSoak()
 console.log('verifyArcadeEngine: ok')

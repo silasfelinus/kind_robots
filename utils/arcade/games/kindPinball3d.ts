@@ -10,6 +10,7 @@
 
 import RAPIER from '@dimforge/rapier3d-compat'
 import type { ArcadeGameModule } from '../types'
+import { pinballGuide } from '../pinball/guide'
 import { PinballRuntime } from '../pinball/runtime'
 import { AMI_VILLAGE_GREYBOX } from '../pinball/tables/amiVillage/table'
 
@@ -23,7 +24,9 @@ export function prepare(): Promise<void> {
 
 const kindPinball3d: ArcadeGameModule = {
   create: (options) => new PinballRuntime(options, RAPIER, AMI_VILLAGE_GREYBOX),
+  guide: (earned) => pinballGuide(earned, AMI_VILLAGE_GREYBOX),
 }
 
 export const create = kindPinball3d.create
+export const guide = kindPinball3d.guide
 export default kindPinball3d

@@ -144,6 +144,9 @@ jobs:
       - name: Kind Robots Arcade engine
         run: npm run test:arcade-engine
 
+      - name: Zuzu gamebook branching and combat
+        run: npm run test:zuzu-gamebook
+
       - name: Zuzu Showdown fight simulation
         run: npm run test:zuzu-showdown-sim
 

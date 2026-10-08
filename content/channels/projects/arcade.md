@@ -11,6 +11,10 @@ icon: kind-icon:arcade
 image: /images/arcade/arcade-attract-splash.webp
 route: /play/arcade
 sort: 115
+tutorial:
+  title: Arcade
+  body: Choose a cabinet and start playing. Games support the controls they advertise, including keyboard, touch, or gamepad where available; difficulty rises as you survive, and high-score games let you leave three initials on the board. The Arcade is free to play and does not require an account.
+  image: /images/arcade/arcade-attract-splash.webp
 ---
 
 A row of classic arcade cabinets, each with an original Kind Robots game that

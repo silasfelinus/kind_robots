@@ -744,6 +744,18 @@ export const ANIMATION_EFFECTS = [
     generationSafe: true,
     preferredSurface: 'fullscreen',
   },
+  {
+    id: 'tidepool-ebb',
+    label: 'Tidepool Ebb',
+    reveal: 'A rocky tidepool drains and refills around swaying anemones',
+    icon: 'kind-icon:sparkle',
+    tooltip:
+      'The tide ebbs and floods over a tidepool of anemones 🌊 hover near an anemone to make it curl, click to send a surge through the pool',
+    color: '#6ec8dc',
+    releasedAt: '2026-10-08T08:00:00Z',
+    generationSafe: true,
+    preferredSurface: 'fullscreen',
+  },
 ] as const satisfies readonly AnimationEffectDefinition[]
 
 export type AnimationEffectId = (typeof ANIMATION_EFFECTS)[number]['id']

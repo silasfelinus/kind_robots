@@ -25,6 +25,18 @@ export type PinballSoundName =
   | 'ramp-exit'
   | 'metal-rail'
   | 'plastic'
+  | 'skill-shot'
+  | 'combo'
+  | 'lock'
+  | 'multiball'
+  | 'jackpot'
+  | 'super-jackpot'
+  | 'mode-start'
+  | 'mode-shot'
+  | 'mode-complete'
+  | 'extra-ball'
+  | 'wizard'
+  | 'match'
 
 export type SynthCue = {
   bus: PinballBus
@@ -179,6 +191,104 @@ export const PINBALL_CUES: Record<PinballSoundName, SynthCue> = {
     duration: 0.045,
     gain: 0.08,
     wave: 'triangle',
+  },
+  // Table 1's feature callouts (t-007): rising sweeps, longer and brighter
+  // the bigger the award.
+  'skill-shot': {
+    bus: 'callout',
+    frequency: 660,
+    endFrequency: 1320,
+    duration: 0.35,
+    gain: 0.12,
+    wave: 'square',
+  },
+  combo: {
+    bus: 'callout',
+    frequency: 880,
+    endFrequency: 1320,
+    duration: 0.16,
+    gain: 0.1,
+    wave: 'triangle',
+  },
+  lock: {
+    bus: 'callout',
+    frequency: 220,
+    endFrequency: 440,
+    duration: 0.3,
+    gain: 0.12,
+    wave: 'square',
+  },
+  multiball: {
+    bus: 'callout',
+    frequency: 330,
+    endFrequency: 990,
+    duration: 0.6,
+    gain: 0.14,
+    wave: 'sawtooth',
+  },
+  jackpot: {
+    bus: 'callout',
+    frequency: 523,
+    endFrequency: 1046,
+    duration: 0.45,
+    gain: 0.14,
+    wave: 'square',
+  },
+  'super-jackpot': {
+    bus: 'callout',
+    frequency: 392,
+    endFrequency: 1568,
+    duration: 0.8,
+    gain: 0.15,
+    wave: 'sawtooth',
+  },
+  'mode-start': {
+    bus: 'callout',
+    frequency: 294,
+    endFrequency: 587,
+    duration: 0.4,
+    gain: 0.12,
+    wave: 'triangle',
+  },
+  'mode-shot': {
+    bus: 'callout',
+    frequency: 784,
+    endFrequency: 1046,
+    duration: 0.12,
+    gain: 0.1,
+    wave: 'triangle',
+  },
+  'mode-complete': {
+    bus: 'callout',
+    frequency: 523,
+    endFrequency: 1568,
+    duration: 0.6,
+    gain: 0.13,
+    wave: 'square',
+  },
+  'extra-ball': {
+    bus: 'callout',
+    frequency: 440,
+    endFrequency: 1760,
+    duration: 0.7,
+    gain: 0.14,
+    wave: 'triangle',
+  },
+  wizard: {
+    bus: 'callout',
+    frequency: 196,
+    endFrequency: 1568,
+    duration: 1.2,
+    gain: 0.15,
+    wave: 'sawtooth',
+  },
+  match: {
+    bus: 'callout',
+    frequency: 1046,
+    endFrequency: 1046,
+    duration: 0.5,
+    gain: 0.12,
+    wave: 'square',
   },
 }
 

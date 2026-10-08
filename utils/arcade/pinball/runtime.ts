@@ -58,6 +58,11 @@ const STILL_TICKS = 60 * 4
 const ROOM_PILOT_X = 0.02
 /** How often the attract pilot makes a save it goes for. */
 const PILOT_SKILL = 0.8
+/** Multiball and ball-save balls: ticks between them, and on the plunger before launch. */
+const ADD_BALL_GAP = 90
+const AUTO_LAUNCH_TICKS = 30
+/** The skill shot's lit bumper flashes this often. */
+const SKILL_PULSE_TICKS = 24
 
 /**
  * The camera preset the balls call for: the sub-table's only while every
@@ -87,6 +92,11 @@ export class PinballRuntime implements ArcadeWebGLGameInstance {
   private factory: RendererFactory
   private pull = 0
   private nudgeCooldown = 0
+  /** Balls the rules asked for that are not on the table yet. */
+  private ballsToAdd = 0
+  private addGap = 0
+  /** Ticks until the plunger fires a ball it served itself; 0 when none waits. */
+  private autoLaunch = 0
   /** Ticks each ball (by id) has sat still, for the ball search. */
   private still = new Map<number, number>()
   private tick = 0
@@ -113,12 +123,13 @@ export class PinballRuntime implements ArcadeWebGLGameInstance {
     this.hiScore = options.hiScore
     this.mixer = new PinballMixer(options.sound)
     this.physics = new PinballPhysics(R, table)
-    this.rules = initialRules(table.balls)
+    this.rules = initialRules(table.balls, Math.floor(this.rng() * 0x100000000))
     this.apply({ type: 'start' })
   }
 
+  /** The attract demo plays the rules but never scores. */
   get score() {
-    return this.rules.score
+    return this.demo ? 0 : this.rules.score
   }
 
   get lives() {
@@ -168,6 +179,7 @@ export class PinballRuntime implements ArcadeWebGLGameInstance {
     this.physics.setFlipper('left', left)
     this.physics.setFlipper('right', right)
     this.plunger(controls)
+    this.addBalls()
     if (this.nudgeCooldown > 0) this.nudgeCooldown--
     if (controls.pressed.up && this.nudgeCooldown === 0) {
       this.physics.nudge((this.rng() - 0.5) * 0.12, -0.12)
@@ -213,6 +225,10 @@ export class PinballRuntime implements ArcadeWebGLGameInstance {
       ? attractShow(table, this.tick)
       : applyShows(lampStates(this.rules, table), this.shows, table, this.tick)
     this.scene.setLamps(frame.lamps, frame.gi)
+    // The skill shot's bumper flashes until the ball finds a bumper.
+    const skill = this.rules.play.skill
+    if (!this.demo && skill.armed && this.tick % SKILL_PULSE_TICKS === 0)
+      this.scene.pulse(skill.target)
   }
 
   /** Pin the renderer's quality tier (screenshots, tests); null measures again. */
@@ -230,7 +246,29 @@ export class PinballRuntime implements ArcadeWebGLGameInstance {
     return cameraViewFor(this.physics.ballViews())
   }
 
+  /**
+   * Put the balls the rules asked for (multiball, a ball save) on the
+   * plunger one at a time, and fire each one up the lane as a real machine's
+   * auto-plunger does.
+   */
+  private addBalls() {
+    if (this.addGap > 0) this.addGap--
+    if (this.autoLaunch > 0) {
+      this.autoLaunch--
+      if (this.autoLaunch === 0 && this.physics.launch(1))
+        this.mixer.play('launch')
+      return
+    }
+    if (this.ballsToAdd <= 0 || this.addGap > 0) return
+    if (this.physics.ballOnPlunger()) return
+    this.physics.serveBall()
+    this.ballsToAdd--
+    this.autoLaunch = AUTO_LAUNCH_TICKS
+    this.addGap = ADD_BALL_GAP
+  }
+
   private plunger(controls: InputFrame) {
+    if (this.autoLaunch > 0) return
     if (!this.physics.ballOnPlunger()) {
       this.pull = 0
       return
@@ -301,6 +339,9 @@ export class PinballRuntime implements ArcadeWebGLGameInstance {
       case 'serve-ball':
         this.physics.serveBall()
         break
+      case 'add-ball':
+        this.ballsToAdd += effect.count
+        break
       case 'sound':
         if (!this.demo) this.mixer.play(effect.name)
         break
@@ -310,6 +351,7 @@ export class PinballRuntime implements ArcadeWebGLGameInstance {
           text: effect.text,
           sub: effect.sub,
           value: effect.value,
+          items: effect.items,
         }
         // A plain message keeps the length the rules asked for; named
         // scenes run their own timing.

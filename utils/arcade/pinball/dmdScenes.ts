@@ -252,6 +252,7 @@ export function drawDmd(
     }
     case 'mode-timer': {
       dmd.text(text || 'MODE', 2, 2, { level: 2 })
+      if (request.sub) dmd.text(request.sub, 2, 13, { level: 3 })
       dmd.text(formatScore(idle.score), 2, 24, { level: 2 })
       const seconds = String(Math.max(0, Math.ceil(value)))
       const hurry = value <= 5 && Math.floor(t / 250) % 2 === 0

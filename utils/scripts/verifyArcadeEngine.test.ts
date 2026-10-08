@@ -101,8 +101,25 @@ import {
 } from '../arcade/pinball/dmdQueue'
 import { drawDmd, fitScale, formatScore } from '../arcade/pinball/dmdScenes'
 import { cameraViewFor, PinballRuntime } from '../arcade/pinball/runtime'
+import {
+  BALL_SAVE_STEPS,
+  COMBO_STEPS,
+  EXTRA_BALL_AT,
+  MULTIBALL_ADDS,
+  nextRandom,
+  RAMPS_TO_RELIGHT,
+  SKILL_STEPS,
+  VALUES,
+  VILLAGES,
+  WIZARD_ADDS,
+} from '../arcade/pinball/rules/village'
 import { AMI_VILLAGE_GREYBOX } from '../arcade/pinball/tables/amiVillage/table'
-import type { SwitchEvent, TableDef, Vec3 } from '../arcade/pinball/types'
+import type {
+  RuleEffect,
+  SwitchEvent,
+  TableDef,
+  Vec3,
+} from '../arcade/pinball/types'
 import {
   enqueuePending,
   formatChampion,
@@ -1987,7 +2004,8 @@ async function runPinball3d() {
       runtime.update(frame)
       if (t % 4 === 0) runtime.render()
     }
-    assert.equal(runtime.score, 0, 'the greybox posts no score')
+    if (cycle % 2 === 0)
+      assert.equal(runtime.score, 0, 'the attract demo never scores')
     runtime.dispose()
     runtime.dispose()
     runtime.update(emptyInput())
@@ -2547,6 +2565,386 @@ async function runPinballDmd() {
   assert.ok((main.include ?? []).length >= 2, 'the camera frames the DMD')
 }
 
+async function runPinballRules() {
+  // conductor kind-pinball/t-007: Table 1's rules depth, replayed through the
+  // pure reducer with no physics or WebGL.
+  const table = AMI_VILLAGE_GREYBOX
+  const context = { shots: table.shots }
+  let tick = 0
+  let effects: RuleEffect[] = []
+  const feed = (state: PinballRulesState, event: SwitchEvent, at?: number) => {
+    tick = at ?? tick + 10
+    const step = stepRules(state, { type: 'switch', event, tick }, context)
+    effects = step.effects
+    return step.state
+  }
+  const wait = (state: PinballRulesState, steps: number) => {
+    const all: RuleEffect[] = []
+    let next = state
+    for (let i = 0; i < steps; i += 10) {
+      tick += 10
+      const step = stepRules(next, { type: 'tick', tick }, context)
+      all.push(...step.effects)
+      next = step.state
+    }
+    effects = all
+    return next
+  }
+  /** Make a shot: its switches in order, by the same ball. */
+  const make = (state: PinballRulesState, id: string, ballId = 1) => {
+    const def = table.shots.find((s) => s.id === id)!
+    const all: RuleEffect[] = []
+    let next = state
+    for (const sensor of def.sensors) {
+      const event: SwitchEvent =
+        def.kind === 'scoop'
+          ? { type: 'capture', id: sensor, ballId }
+          : def.kind === 'spinner'
+            ? { type: 'spin', id: sensor, ballId, speed: 2 }
+            : { type: 'sensor-enter', id: sensor, ballId }
+      next = feed(next, event)
+      all.push(...effects)
+    }
+    effects = all
+    return next
+  }
+  type DmdEffect = Extract<RuleEffect, { type: 'dmd' }>
+  const scene = (name: string) =>
+    effects.find((e): e is DmdEffect => e.type === 'dmd' && e.scene === name)
+  const said = (text: string) =>
+    effects.some((e) => e.type === 'dmd' && e.text === text)
+  const drain = (state: PinballRulesState, ballId = 1) =>
+    feed(state, { type: 'drain', ballId })
+  const start = (seed = 7) => {
+    tick = 0
+    return stepRules(initialRules(3, seed), { type: 'start' }, context).state
+  }
+  const plunge = (state: PinballRulesState) =>
+    feed(state, { type: 'sensor-enter', id: 'shooter-exit', ballId: 1 })
+  /** Long enough for the ball save, a combo and a skill shot to lapse. */
+  const LATER = BALL_SAVE_STEPS + COMBO_STEPS + SKILL_STEPS
+
+  // Switches score.
+  let s = start()
+  s = feed(s, {
+    type: 'contact',
+    id: 'sling-left-kicker',
+    ballId: 1,
+    impulse: 1,
+  })
+  assert.equal(s.score, VALUES.sling)
+  s = feed(s, { type: 'spin', id: 'spinner', ballId: 1, speed: 2 })
+  assert.ok(s.score > VALUES.sling, 'the spinner scores')
+
+  // The skill shot: the lit bumper, first, soon after the plunge.
+  s = plunge(start())
+  assert.ok(said('SKILL SHOT'), 'the plunge invites the skill shot')
+  const target = s.play.skill.target
+  let before = s.score
+  s = feed(s, { type: 'contact', id: target, ballId: 1, impulse: 1 })
+  assert.ok(scene('skill-shot'), 'the lit bumper is the skill shot')
+  assert.equal(s.score - before, VALUES.pop + VALUES.skillShot)
+  s = feed(s, { type: 'contact', id: target, ballId: 1, impulse: 1 })
+  assert.ok(!scene('skill-shot'), 'only once')
+  s = plunge(start())
+  const other = ['pop-left', 'pop-right', 'pop-bottom'].find(
+    (id) => id !== s.play.skill.target,
+  )!
+  s = feed(s, { type: 'contact', id: other, ballId: 1, impulse: 1 })
+  s = feed(s, {
+    type: 'contact',
+    id: s.play.skill.target,
+    ballId: 1,
+    impulse: 1,
+  })
+  assert.ok(!scene('skill-shot'), 'a different bumper first is no skill shot')
+  s = plunge(start())
+  s = wait(s, SKILL_STEPS + 20)
+  s = feed(s, {
+    type: 'contact',
+    id: s.play.skill.target,
+    ballId: 1,
+    impulse: 1,
+  })
+  assert.ok(!scene('skill-shot'), 'nor is a late one')
+
+  // Combos: ramps and orbits chained quickly, worth more each step.
+  s = plunge(start())
+  s = make(s, 'left-ramp')
+  assert.equal(s.play.combo.count, 0)
+  before = s.score
+  s = make(s, 'right-orbit')
+  assert.ok(said('2-WAY COMBO'))
+  assert.equal(s.score - before, VALUES.orbit + VALUES.comboBase)
+  s = make(s, 'right-ramp')
+  assert.ok(said('3-WAY COMBO'))
+  s = wait(s, COMBO_STEPS + 20)
+  s = make(s, 'left-orbit')
+  assert.equal(s.play.combo.count, 0, 'a slow shot starts over')
+
+  // Locks: lit by the A-M-I bank; the third starts AMI multiball.
+  const lockOne = (state: PinballRulesState) => {
+    let next = state
+    for (const id of ['drop-a', 'drop-m', 'drop-i'])
+      next = feed(next, { type: 'drop', id, bank: 'ami', ballId: 1 })
+    return make(next, 'lock')
+  }
+  s = plunge(start())
+  s = make(s, 'lock')
+  assert.equal(s.play.locks, 0, 'an unlit lock is just a scoop')
+  s = lockOne(s)
+  assert.equal(s.play.locks, 1)
+  assert.equal(scene('lock')?.text, 'LOCK 1')
+  s = lockOne(s)
+  s = wait(s, LATER)
+  const beforeMultiball = s
+  s = lockOne(s)
+  assert.ok(s.play.multiball.running, 'three locks: multiball')
+  assert.ok(
+    showTriggers(beforeMultiball, s, 0).some((show) => show.id === 'secret'),
+    'multiball starts with a light show',
+  )
+  assert.ok(scene('multiball'))
+  assert.ok(
+    effects.some((e) => e.type === 'add-ball' && e.count === MULTIBALL_ADDS),
+    'the runtime is asked for the extra balls',
+  )
+  assert.equal(s.ballsInPlay, 1 + MULTIBALL_ADDS)
+  assert.equal(s.play.locks, 0)
+  // A drain in the multiball ball save comes straight back.
+  s = drain(s, 2)
+  assert.equal(s.ballsInPlay, 1 + MULTIBALL_ADDS, 'saved')
+  assert.ok(effects.some((e) => e.type === 'add-ball'))
+  // Ramps are jackpots; two light the super jackpot at the lock.
+  before = s.score
+  s = make(s, 'left-ramp')
+  assert.equal(scene('jackpot')?.value, VALUES.jackpot)
+  s = wait(s, COMBO_STEPS + 20)
+  s = make(s, 'right-ramp')
+  assert.equal(
+    scene('jackpot')?.value,
+    VALUES.jackpot + VALUES.jackpotStep,
+    'each jackpot is worth more',
+  )
+  assert.ok(s.play.multiball.superLit)
+  assert.equal(lampStates(s, table).lamps['arrow-lock'], 'blink')
+  assert.equal(lampStates(s, table).lamps['arrow-left-ramp'], 'blink')
+  const beforeSuper = s
+  s = make(s, 'lock')
+  assert.ok(scene('super-jackpot'))
+  assert.ok(
+    showTriggers(beforeSuper, s, 0).some((show) => show.id === 'jackpot'),
+    'a super jackpot lights the whole table',
+  )
+  assert.ok(s.score - before > VALUES.superJackpot + 2 * VALUES.jackpot)
+  assert.ok(!s.play.multiball.superLit)
+  // After the save, drains take balls away; one left ends multiball.
+  s = wait(s, LATER)
+  s = drain(s, 2)
+  s = drain(s, 3)
+  assert.equal(s.ballsInPlay, 1)
+  assert.ok(!s.play.multiball.running, 'one ball left: multiball is over')
+  assert.equal(s.lives, 3, 'and no ball was lost')
+
+  // The village map: the saucer starts a village's timed mode.
+  s = plunge(start(3))
+  assert.equal(lampStates(s, table).lamps['lamp-award'], 'blink')
+  s = make(s, 'award')
+  const mode = s.play.villages.mode!
+  const village = VILLAGES[mode.village]!
+  assert.ok(scene('mode-intro'), 'the village is announced')
+  assert.equal(scene('mode-intro')?.text, village.name)
+  assert.equal(scene('mode-timer')?.value, village.seconds)
+  assert.ok(!s.play.villages.scoopLit)
+  for (const id of village.shots)
+    assert.equal(lampStates(s, table).lamps[`arrow-${id}`], 'blink')
+  s = wait(s, PHYSICS_HZ + 10)
+  assert.equal(
+    scene('mode-timer')?.value,
+    village.seconds - 1,
+    'the countdown runs',
+  )
+  for (let i = 0; i < village.need; i++) {
+    s = make(s, village.shots[i % village.shots.length]!)
+    s = wait(s, 20)
+  }
+  assert.equal(s.play.villages.mode, null)
+  assert.equal(s.play.villages.saved, 1)
+  assert.equal(
+    s.play.villages.rampsToRelight,
+    RAMPS_TO_RELIGHT,
+    'the shot that saves a village does not count toward the next',
+  )
+  // Ramps relight the saucer for the next village.
+  s = wait(s, COMBO_STEPS + 20)
+  for (let i = 0; i < RAMPS_TO_RELIGHT; i++) {
+    s = make(s, 'left-ramp')
+    s = wait(s, COMBO_STEPS + 20)
+  }
+  assert.ok(s.play.villages.scoopLit, 'the ramps relight the saucer')
+  s = make(s, 'award')
+  const second = s.play.villages.mode!
+  assert.notEqual(second.village, mode.village, 'a village is visited once')
+  s = wait(s, VILLAGES[second.village]!.seconds * PHYSICS_HZ + 20)
+  assert.equal(s.play.villages.mode, null, 'time runs out')
+  assert.ok(
+    effects.some((e) => e.type === 'dmd-clear' && e.scene === 'mode-timer'),
+  )
+  assert.ok(scene('mode-total'))
+  assert.equal(s.play.villages.saved, 1)
+
+  // The extra ball: lit at the fifth village, collected at the upper feed,
+  // played as the same ball.
+  s = plunge(start())
+  s = {
+    ...s,
+    play: {
+      ...s.play,
+      villages: { ...s.play.villages, visited: [0, 1, 2, 3] },
+    },
+  }
+  s = make(s, 'award')
+  assert.equal(s.play.villages.visited.length, EXTRA_BALL_AT)
+  assert.ok(s.play.extraBallLit && said('EXTRA BALL IS LIT'))
+  assert.equal(lampStates(s, table).lamps['arrow-upper-feed'], 'blink')
+  s = make(s, 'upper-feed')
+  assert.ok(scene('extra-ball'))
+  assert.equal(s.play.extraBalls, 1)
+  s = wait(s, LATER)
+  s = drain(s)
+  assert.ok(scene('extra-ball'), 'shoot again')
+  assert.equal(s.ball, 1)
+  assert.equal(s.lives, 3)
+  assert.equal(s.play.villages.mode, null, 'the ball took its village with it')
+
+  // The wizard mode: all twelve villages, then the saucer.
+  s = plunge(start())
+  s = {
+    ...s,
+    play: {
+      ...s.play,
+      villages: { ...s.play.villages, visited: VILLAGES.map((_, i) => i) },
+    },
+  }
+  s = make(s, 'award')
+  assert.ok(s.play.wizard.running && scene('wizard'))
+  assert.ok(
+    effects.some((e) => e.type === 'add-ball' && e.count === WIZARD_ADDS),
+  )
+  assert.equal(lampStates(s, table).lamps['arrow-spinner'], 'blink')
+  before = s.score
+  s = make(s, 'spinner')
+  assert.equal(s.score - before, VALUES.spin + VALUES.wizardShot)
+  s = wait(s, LATER)
+  s = drain(s, 2)
+  s = drain(s, 3)
+  assert.ok(!s.play.wizard.running, 'the wizard mode ends with its multiball')
+  assert.equal(s.play.villages.visited.length, 0, 'and the map starts over')
+
+  // Ball save: a drain soon after the plunge comes straight back, once.
+  s = plunge(start())
+  s = drain(s)
+  assert.ok(said('BALL SAVED'))
+  assert.equal(s.lives, 3)
+  assert.equal(s.ballsInPlay, 1)
+  s = drain(s)
+  assert.equal(s.lives, 2, 'the save is used up')
+  assert.equal(s.ball, 2)
+
+  // The bonus counts the ball's shots, times the multiplier.
+  s = plunge(start())
+  s = make(s, 'left-ramp')
+  s = wait(s, LATER)
+  s = make(s, 'right-orbit')
+  s = { ...s, bonusMultiplier: 2 }
+  before = s.score
+  s = drain(s)
+  const bonusScene = scene('bonus')
+  assert.ok(bonusScene)
+  assert.equal(bonusScene.value, 2)
+  assert.equal(
+    s.score - before,
+    2 * (VALUES.bonusRamp + VALUES.bonusOrbit),
+    'the bonus is added',
+  )
+  assert.equal(s.play.stats.ramps, 0, 'and the next ball starts afresh')
+
+  // Tilt: no points, no bonus.
+  s = plunge(start())
+  s = make(s, 'left-ramp')
+  // A free nudge, two warnings, then the tilt.
+  for (let i = 0; i < 4; i++)
+    s = stepRules(s, { type: 'nudge', tick: tick + i * 10 }, context).state
+  tick += 40
+  assert.ok(s.tilted)
+  before = s.score
+  s = feed(s, { type: 'contact', id: 'pop-left', ballId: 1, impulse: 1 })
+  s = make(s, 'right-ramp')
+  s = wait(s, LATER)
+  s = drain(s)
+  assert.equal(s.score, before, 'a tilted ball scores nothing')
+  assert.ok(!scene('bonus'))
+
+  // Match: the last drain draws a digit; a match plays one more ball.
+  const last = (score: number) => ({
+    ...plunge(start()),
+    score,
+    lives: 1,
+  })
+  const [r] = nextRandom(last(0).play.seed)
+  const digit = Math.floor(r * 10) % 10
+  s = wait(last(1000 + digit * 10), LATER)
+  s = drain(s)
+  assert.ok(scene('match'), 'a match')
+  assert.ok(!s.over && s.lives === 1)
+  s = wait(last(1000 + ((digit + 1) % 10) * 10), LATER)
+  s = drain(s)
+  assert.ok(s.over, 'no match: game over')
+  s = wait(last(0), LATER)
+  s = drain(s)
+  assert.ok(s.over, 'no score, no match')
+
+  // Replays are exact: the same events make the same game.
+  const replay = () => {
+    let r = plunge(start(11))
+    for (const id of ['left-ramp', 'award', 'right-orbit', 'spinner'])
+      r = make(r, id)
+    r = lockOne(r)
+    return JSON.stringify(r)
+  }
+  assert.equal(replay(), replay())
+
+  // The runtime puts the balls the rules ask for on the plunger and fires
+  // them, one at a time.
+  const runtime = new PinballRuntime(
+    { rng: mulberry32(9), sound: { play: () => {} }, demo: false, hiScore: 0 },
+    RAPIER,
+    table,
+    () => stubRenderer({ disposed: 0, frames: 0 }),
+  )
+  const inner = runtime as unknown as {
+    effect(effect: RuleEffect): void
+    physics: PinballPhysics
+    rules: PinballRulesState
+  }
+  for (let t = 0; t < 60; t++) runtime.update(emptyInput())
+  const fire = emptyInput()
+  fire.pressed.a = true
+  runtime.update(fire)
+  for (let t = 0; t < 60; t++) runtime.update(emptyInput())
+  inner.effect({ type: 'add-ball', count: 2 })
+  // Launched, each one goes up the table.
+  inner.rules = { ...inner.rules, ballsInPlay: 3 }
+  const upTable = new Set<number>()
+  for (let t = 0; t < 600; t++) {
+    runtime.update(emptyInput())
+    for (const ball of inner.physics.ballViews())
+      if (ball.position[2] < -0.3) upTable.add(ball.id)
+  }
+  assert.ok(upTable.size >= 3, 'multiball launches two more balls')
+  runtime.dispose()
+}
+
 await runLanternRescue()
 await runCoopGames()
 await runPinball3d()
@@ -2555,5 +2953,6 @@ await runPinballSubTable()
 await runPinballFeel()
 await runPinballRender()
 await runPinballDmd()
+await runPinballRules()
 await runPinballSoak()
 console.log('verifyArcadeEngine: ok')

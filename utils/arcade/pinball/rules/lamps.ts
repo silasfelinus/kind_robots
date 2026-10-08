@@ -8,13 +8,17 @@
 // bank is down, the left orbit flashes while the secret door is open, the
 // kickback lamp shows it will save the ball, and the rainbow across the
 // lower playfield counts the bonus multiplier the sub-table brought home.
-// Table 1's modes (t-007) will light the shot arrows on this same map;
-// until then the main shots stay lit as targets, and a tilt puts every lamp
-// and the GI out. Light shows and the attract show play over this matrix
+// Table 1's features (t-007) blink the arrows that are worth going for: a
+// village's shots, the jackpot ramps and the super jackpot at the lock in
+// multiball, every arrow in the wizard mode, the upper feed for the extra
+// ball, and the award saucer while it will start a village. Every other shot
+// arrow stays lit as a target, and a tilt puts every lamp and the GI out.
+// Light shows and the attract show play over this matrix
 // (rules/lightShows.ts).
 
 import type { LampLevel, TableDef } from '../types'
 import type { PinballRulesState } from './engine'
+import { ARROW_SHOTS, RAMP_SHOTS, VILLAGES } from './village'
 
 export type LampFrame = {
   lamps: Record<string, LampLevel>
@@ -57,7 +61,17 @@ export function lampStates(
   const amiDown = state.dropsDown.ami ?? []
   for (const id of amiDown) set(`lamp-${id}`, 'on')
   set('arrow-lock', amiDown.length >= 3 ? 'blink' : 'off')
-  set('lamp-award', 'on')
+  const play = state.play
+  const village = play.villages.mode
+    ? VILLAGES[play.villages.mode.village]
+    : undefined
+  const hot = new Set<string>(village?.shots ?? [])
+  if (play.wizard.running) for (const id of ARROW_SHOTS) hot.add(id)
+  if (play.multiball.running) for (const id of RAMP_SHOTS) hot.add(id)
+  if (play.multiball.superLit) hot.add('lock')
+  if (play.extraBallLit) hot.add('upper-feed')
+  for (const id of hot) set(`arrow-${id}`, 'blink')
+  set('lamp-award', play.villages.scoopLit ? 'blink' : 'on')
   if (state.sub.doorOpen) {
     set('arrow-left-orbit', 'blink')
     set('flasher-secret', 'blink')

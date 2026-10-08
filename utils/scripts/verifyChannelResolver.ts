@@ -24,6 +24,17 @@ const items: ChannelContentItem[] = [
     sort: 20,
     dottitip: 'Legacy Dotti line.',
     amiTip: 'Parent Ami line.',
+    tutorial: {
+      overview: 'Learn the shape of the Play channel.',
+      sections: [
+        {
+          key: 'purpose',
+          title: 'What belongs here',
+          body: 'A conceptual channel section that is not a nav-tab catalog.',
+          image: '/images/play-purpose.webp',
+        },
+      ],
+    },
   },
   {
     contentType: 'tab',
@@ -46,6 +57,11 @@ const items: ChannelContentItem[] = [
     sort: 20,
     amiTip: 'Tab Ami line.',
     requiredPermission: 'member',
+    tutorial: {
+      title: 'Generate help',
+      body: 'Explicit help for the active Generate page.',
+      image: '/images/generate-help.webp',
+    },
   },
   {
     contentType: 'channel',
@@ -123,6 +139,26 @@ assert.equal(
   '/images/dashboard-tabs/art/gallery.webp',
   'legacy dashboard metadata should provide the transitional image fallback',
 )
+assert.equal(
+  play.tutorial?.sectionsSource,
+  'authored',
+  'authored channel tutorial sections should take precedence over tab-derived sections',
+)
+assert.deepEqual(
+  play.tutorial?.sections.map((section) => section.key),
+  ['purpose'],
+  'a conceptual channel tutorial should not turn into a catalog of tabs',
+)
+assert.equal(
+  gallery.tutorial?.explicit,
+  false,
+  'description fallback should remain distinguishable from explicitly authored tab help',
+)
+assert.equal(
+  generate.tutorial?.explicit,
+  true,
+  'frontmatter tutorial content should be marked as explicit active-page help',
+)
 
 const explicitGenerate = resolveChannelLocation(channels, {
   channelKey: 'play',
@@ -176,6 +212,13 @@ assert.deepEqual(
   ['gallery'],
   'guests should not receive member-gated tabs',
 )
+assert.deepEqual(
+  guestChannels
+    .find((channel) => channel.channelKey === 'play')
+    ?.tutorial?.sections.map((section) => section.key),
+  ['purpose'],
+  'permission filtering should preserve authored conceptual channel tutorial sections',
+)
 
 const memberAccess = {
   role: 'USER',
@@ -223,5 +266,5 @@ assert.deepEqual(
 )
 
 console.log(
-  `Channel resolver contract passed: ${channels.length} channels, ${play.tabs.length} shared-route Play tabs, dialogue inheritance, role filtering, and capability gates verified.`,
+  `Channel resolver contract passed: ${channels.length} channels, ${play.tabs.length} shared-route Play tabs, authored tutorials, explicit page help, dialogue inheritance, role filtering, and capability gates verified.`,
 )

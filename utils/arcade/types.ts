@@ -23,6 +23,11 @@ export const ARCADE_BUTTONS: ArcadeButton[] = [
 export type InputFrame = {
   held: Record<ArcadeButton, boolean>
   pressed: Record<ArcadeButton, boolean>
+  /**
+   * A plunger pulled back this far (0..1) by a finger on a touch screen, for
+   * a game that has one (Kind Pinball's touch layout); absent otherwise.
+   */
+  plunger?: number
 }
 
 /**
@@ -74,6 +79,11 @@ export type ArcadeGameMeta = {
   maxPlayers?: number
   /** The cabinet's mastery ladder, shown on its how-to-play page. */
   mastery?: readonly ArcadeMasteryGoal[]
+  /**
+   * The game's own touch layout in place of the d-pad and buttons while it
+   * plays ('pinball': utils/arcade/pinballTouch.ts).
+   */
+  touchLayout?: 'pinball'
 }
 
 export type ArcadeGameOptions = {

@@ -663,6 +663,7 @@ export const PREVIEW_GAMES: ArcadeGameMeta[] = [
       '3D PREVIEW: NO SCORES',
     ],
     mastery: MASTERY_GOALS,
+    touchLayout: 'pinball',
     width: 360,
     height: 640,
     maxPlausibleScore: 0,

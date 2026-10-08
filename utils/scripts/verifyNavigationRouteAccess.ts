@@ -244,6 +244,21 @@ assert.match(
   /\.kr-sheet-slide-enter-from,[\s\S]*?transform:\s*translateX\(1rem\);/,
   'The tutorial/workspace sheet must enter from the right edge.',
 )
+assert.match(
+  appSource,
+  /@media \(min-width:\s*768px\)[\s\S]*?\.kr-main\s*\{[\s\S]*?padding-right:\s*var\(--sheet-w\);/,
+  'Desktop content must reserve workspace sheet width on the right edge.',
+)
+assert.doesNotMatch(
+  appSource,
+  /@media \(min-width:\s*768px\)[\s\S]*?\.kr-main\s*\{[\s\S]*?padding-left:\s*var\(--sheet-w\);/,
+  'Desktop content must not keep reserving workspace sheet width on the left edge.',
+)
+assert.match(
+  appSource,
+  /const footerVars = computed<CSSProperties>\(\(\) => \{[\s\S]*?left:\s*'0px',[\s\S]*?right:\s*'var\(--sheet-w\)'/,
+  'The workspace hand/footer must reserve the right-side sheet width instead of the left.',
+)
 assert.ok(
   workspaceHeaderSource.includes('to="/art"'),
   'The fixed workspace header must keep a direct Art Studio shortcut.',

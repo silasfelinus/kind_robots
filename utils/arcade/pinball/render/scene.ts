@@ -33,7 +33,9 @@ import type {
   TableDef,
   Vec3,
 } from '../types'
+import { DMD_COLS, DMD_ROWS } from '../dmd'
 import { fitCamera, type Framing } from './camera'
+import { createDmdCanvas, paintDmd } from './dmdTexture'
 import {
   artBounds,
   BALL_MATERIAL,
@@ -118,6 +120,8 @@ const GI_EASE = 0.12
 const POP_COLORS = [0xf472b6, 0x22d3ee, 0xfb923c]
 const POP_REST = 0.5
 const POP_FLASH = 4
+/** DMD dot glow: the brightest dots just reach the bloom threshold. */
+const DMD_GLOW = 2.2
 /** Most pooled flasher lights any tier uses. */
 const FLASHER_POOL = 4
 
@@ -238,10 +242,19 @@ export class PinballScene {
   private giTarget = 1
   private frame = 0
   private occluders: Array<{
+    id: string
     mesh: THREE.Mesh
     material: THREE.MeshPhysicalMaterial
     fadeFor: CameraPresetId
   }> = []
+  /** The DMD panel, its canvas and the last framebuffer painted on it. */
+  private dmd: {
+    group: THREE.Group
+    canvas: HTMLCanvasElement
+    texture: THREE.CanvasTexture
+    occluder?: string
+    shown: Uint8Array
+  } | null = null
   private view: CameraPresetId = 'main'
   /** The camera's current eye and look target, in table space (eased). */
   private eye = new THREE.Vector3()
@@ -298,6 +311,7 @@ export class PinballScene {
     this.buildLights()
     this.buildTable()
     this.buildLamps()
+    this.buildDmd()
     if (this.gl) this.reflect(this.track(buildEnvironment(this.gl)))
     this.applyTier()
     this.aimCamera(9 / 16)
@@ -671,7 +685,7 @@ export class PinballScene {
       // Faded, it must not keep shading the area it hides.
       mesh.castShadow = false
       this.root.add(mesh)
-      this.occluders.push({ mesh, material, fadeFor: def.fadeFor })
+      this.occluders.push({ id: def.id, mesh, material, fadeFor: def.fadeFor })
     }
   }
 
@@ -760,6 +774,80 @@ export class PinballScene {
         color,
       })
     }
+  }
+
+  /**
+   * The DMD in the backbox (real renderer only: it paints a canvas). A dot
+   * panel lit by its own picture, a black bezel round it, and a faint glass
+   * in front that catches the room.
+   */
+  private buildDmd() {
+    const def = this.table.dmd
+    if (!def || !this.gl) return
+    const canvas = createDmdCanvas()
+    const g = canvas?.getContext('2d')
+    if (!canvas || !g) return
+    const blank = new Uint8Array(DMD_COLS * DMD_ROWS)
+    paintDmd(g, blank)
+    const texture = this.track(new THREE.CanvasTexture(canvas))
+    texture.colorSpace = THREE.SRGBColorSpace
+    texture.anisotropy = Math.min(4, this.gl.capabilities.getMaxAnisotropy())
+    const w = def.width
+    const h = def.width / 4
+    const group = new THREE.Group()
+    group.position.copy(v3(def.at))
+    const panel = new THREE.Mesh(
+      this.track(new THREE.PlaneGeometry(w, h)),
+      this.track(
+        new THREE.MeshStandardMaterial({
+          color: 0x000000,
+          emissive: 0xffffff,
+          emissiveMap: texture,
+          emissiveIntensity: DMD_GLOW,
+          roughness: 0.9,
+        }),
+      ),
+    )
+    const bezel = new THREE.Mesh(
+      this.track(new THREE.BoxGeometry(w + 0.024, h + 0.024, 0.006)),
+      this.track(
+        new THREE.MeshStandardMaterial({ color: 0x050407, roughness: 0.5 }),
+      ),
+    )
+    bezel.position.z = -0.0035
+    const glass = new THREE.Mesh(
+      this.track(new THREE.PlaneGeometry(w, h)),
+      this.track(
+        new THREE.MeshPhysicalMaterial({
+          color: 0xffffff,
+          transparent: true,
+          opacity: 0.06,
+          roughness: 0.05,
+          clearcoat: 1,
+          depthWrite: false,
+        }),
+      ),
+    )
+    glass.position.z = 0.002
+    group.add(bezel, panel, glass)
+    this.root.add(group)
+    this.dmd = { group, canvas, texture, occluder: def.occluder, shown: blank }
+  }
+
+  /** Show a DMD frame (the 128x32 framebuffer); repaints only on change. */
+  setDmd(buf: Uint8Array) {
+    const dmd = this.dmd
+    if (!dmd || this.disposed) return
+    if (
+      dmd.shown.length === buf.length &&
+      dmd.shown.every((v, i) => v === buf[i])
+    )
+      return
+    dmd.shown = buf.slice()
+    const g = dmd.canvas.getContext('2d')
+    if (!g) return
+    paintDmd(g, dmd.shown)
+    dmd.texture.needsUpdate = true
   }
 
   /**
@@ -945,6 +1033,9 @@ export class PinballScene {
       // Gone, not just clear: a faded lid still catches the key light's
       // highlight and veils the room under it.
       occluder.mesh.visible = t < 0.95
+      // The DMD is part of the backbox: it goes when the backbox does.
+      if (this.dmd && this.dmd.occluder === occluder.id)
+        this.dmd.group.visible = t < 0.5
     }
   }
 

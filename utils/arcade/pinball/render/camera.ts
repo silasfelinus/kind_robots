@@ -38,6 +38,7 @@ function corners(preset: CameraPreset): THREE.Vector3[] {
   for (const x of [x0, x1])
     for (const y of [y0, y1])
       for (const z of [z0, z1]) out.push(new THREE.Vector3(x, y, z))
+  for (const p of preset.include ?? []) out.push(new THREE.Vector3(...p))
   return out
 }
 

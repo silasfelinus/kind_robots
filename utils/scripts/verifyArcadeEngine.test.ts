@@ -92,6 +92,14 @@ import {
   SHOW_TICKS,
   showTriggers,
 } from '../arcade/pinball/rules/lightShows'
+import {
+  DMD_SCENES,
+  DmdQueue,
+  MAX_WAIT_MS,
+  TIMER_INTERRUPT_MS,
+  type DmdSceneId,
+} from '../arcade/pinball/dmdQueue'
+import { drawDmd, fitScale, formatScore } from '../arcade/pinball/dmdScenes'
 import { cameraViewFor, PinballRuntime } from '../arcade/pinball/runtime'
 import { AMI_VILLAGE_GREYBOX } from '../arcade/pinball/tables/amiVillage/table'
 import type { SwitchEvent, TableDef, Vec3 } from '../arcade/pinball/types'
@@ -2392,6 +2400,153 @@ async function runPinballRender() {
   runtime.dispose()
 }
 
+async function runPinballDmd() {
+  // conductor kind-pinball/t-006: the physical DMD's queue and scenes.
+  // Read through a call: TypeScript would narrow a bare `queue.showing` to
+  // null after the first assertion that it is null.
+  const up = (q: DmdQueue) => q.showing
+  const step = (queue: DmdQueue, ms: number) => {
+    for (let t = 0; t < ms; t += 10) queue.tick(10)
+  }
+
+  // Nothing queued: the score is up.
+  const queue = new DmdQueue()
+  assert.equal(up(queue), null)
+
+  // A scene shows, runs its length, and the score comes back.
+  queue.push({ scene: 'message', text: 'LOCK IS LIT', ms: 1000 })
+  assert.equal(up(queue)?.request.text, 'LOCK IS LIT')
+  step(queue, 1010)
+  assert.equal(up(queue), null, 'a message ends')
+
+  // Higher priority takes over once the current scene has had its minimum.
+  queue.push({ scene: 'message', text: 'A' })
+  queue.push({ scene: 'jackpot', value: 1e6 })
+  assert.equal(up(queue)?.request.text, 'A', 'the minimum is honoured')
+  step(queue, DMD_SCENES.message.minMs + 10)
+  assert.equal(up(queue)?.request.scene, 'jackpot', 'then the jackpot')
+  step(queue, DMD_SCENES.jackpot.durationMs)
+  assert.equal(up(queue), null, 'the preempted message is not replayed')
+
+  // Equal or lower priority waits its turn, in order, and goes stale.
+  queue.push({ scene: 'skill-shot', value: 5 })
+  queue.push({ scene: 'message', text: 'FIRST' })
+  queue.push({ scene: 'message', text: 'SECOND' })
+  step(queue, DMD_SCENES['skill-shot'].durationMs + 10)
+  assert.equal(up(queue)?.request.text, 'FIRST', 'waiting scenes in order')
+  step(queue, MAX_WAIT_MS)
+  assert.equal(up(queue), null, 'a scene that waited too long is dropped')
+  queue.reset()
+
+  // Gameplay timers outrank celebrations: a jackpot interrupts a mode
+  // countdown only briefly, and the countdown comes back where it was.
+  queue.push({ scene: 'mode-timer', text: 'NET DROP', value: 30 })
+  step(queue, 500)
+  queue.push({ scene: 'message', text: 'NICE' })
+  assert.equal(up(queue)?.request.scene, 'mode-timer', 'a message waits')
+  queue.push({ scene: 'jackpot', value: 5e5 })
+  assert.equal(up(queue)?.request.scene, 'jackpot', 'a jackpot shows')
+  step(queue, TIMER_INTERRUPT_MS + 10)
+  assert.equal(up(queue)?.request.scene, 'mode-timer', 'only briefly')
+  assert.ok(up(queue)!.elapsed >= 500, 'the timer resumes where it was')
+  queue.push({ scene: 'mode-timer', text: 'NET DROP', value: 12 })
+  assert.equal(up(queue)?.request.value, 12, 'a timer updates in place')
+  assert.equal(
+    [up(queue), ...queue.pending].filter(
+      (s) => s?.request.scene === 'mode-timer',
+    ).length,
+    1,
+  )
+  queue.push({ scene: 'tilt' })
+  assert.equal(up(queue)?.request.scene, 'tilt', 'a tilt beats a timer')
+  step(queue, 10_000)
+  assert.equal(up(queue)?.request.scene, 'tilt', 'and holds')
+  queue.clear('tilt')
+  assert.equal(up(queue)?.request.scene, 'mode-timer', 'until cleared')
+  queue.clear('mode-timer')
+  assert.equal(up(queue), null)
+
+  // Every scene draws something, at its start, middle and end.
+  const dmd = new Dmd()
+  const idle = { score: 1234567, ball: 2, multiplier: 3 }
+  const lit = () => dmd.buf.reduce((n, v) => n + (v >= 1 ? 1 : 0), 0)
+  for (const scene of Object.keys(DMD_SCENES) as DmdSceneId[]) {
+    const q = new DmdQueue()
+    q.push({
+      scene,
+      text: scene === 'message' ? 'A DOOR CREAKS...' : undefined,
+      sub: scene === 'message' ? 'SOMEWHERE' : undefined,
+      value: 2_500_000,
+      items: [
+        { label: 'NETS', value: 30_000 },
+        { label: 'HOUSES', value: 50_000 },
+      ],
+    })
+    // Sampled after the 300 ms entrances (type-on, slide-in) have run.
+    let at = 0
+    for (const next of [300, 900, 1800]) {
+      step(q, next - at)
+      at = next
+      const showing = q.showing
+      if (!showing) break
+      drawDmd(dmd, showing, idle, q.now)
+      assert.ok(lit() > 20, `${scene} at ${at} ms lights the display`)
+    }
+  }
+  drawDmd(dmd, null, idle, 0)
+  assert.ok(lit() > 60, 'the idle score lights the display')
+  for (const page of [0, 1, 2, 3]) {
+    drawDmd(dmd, null, { ...idle, attract: true, highScore: 9e6 }, page * 2500)
+    assert.ok(lit() > 20, `attract page ${page} lights the display`)
+  }
+  assert.equal(formatScore(1234567), '1,234,567')
+  assert.equal(fitScale('1,234,567'), 2, 'a seven-digit score drops a size')
+  assert.equal(fitScale('12,345'), 3, 'a short one is big')
+  assert.equal(fitScale('MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM'), 1)
+
+  // The runtime: the rules' effects reach the display.
+  const table = AMI_VILLAGE_GREYBOX
+  const runtime = new PinballRuntime(
+    { rng: mulberry32(5), sound: { play: () => {} }, demo: false, hiScore: 0 },
+    RAPIER,
+    table,
+    () => stubRenderer({ disposed: 0, frames: 0 }),
+  )
+  runtime.update(emptyInput())
+  assert.equal(
+    runtime.dmdQueue.showing?.request.scene,
+    'ball',
+    'a new game puts BALL 1 up',
+  )
+  const shown = runtime.dmd.buf.reduce((n, v) => n + (v >= 2 ? 1 : 0), 0)
+  assert.ok(shown > 20, 'and draws it')
+  const inner = runtime as unknown as {
+    apply(event: unknown): void
+    steps: number
+  }
+  // A lone nudge is free; two warnings; the fourth tilts.
+  for (let i = 0; i < 4; i++) inner.apply({ type: 'nudge', tick: i * 10 })
+  assert.equal(runtime.dmdQueue.showing?.request.scene, 'tilt', 'a tilt shows')
+  inner.apply({
+    type: 'switch',
+    event: { type: 'drain', ballId: 0 },
+    tick: 1000,
+  })
+  assert.notEqual(
+    runtime.dmdQueue.showing?.request.scene,
+    'tilt',
+    'and clears when the ball drains',
+  )
+  runtime.dispose()
+
+  // The table puts the DMD in the backbox, and the main camera keeps it on
+  // screen at every aspect.
+  const panel = table.dmd
+  assert.ok(panel, 'Table 1 has a DMD')
+  const main = table.cameras.find((c) => c.id === 'main')!
+  assert.ok((main.include ?? []).length >= 2, 'the camera frames the DMD')
+}
+
 await runLanternRescue()
 await runCoopGames()
 await runPinball3d()
@@ -2399,5 +2554,6 @@ await runPinballShots()
 await runPinballSubTable()
 await runPinballFeel()
 await runPinballRender()
+await runPinballDmd()
 await runPinballSoak()
 console.log('verifyArcadeEngine: ok')

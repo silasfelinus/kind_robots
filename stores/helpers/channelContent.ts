@@ -423,6 +423,8 @@ export function resolveChannels(
       const tutorialSections = hasAuthoredTutorialSections
         ? authoredTutorialSections
         : tabTutorialSections
+      const sectionsSource: ResolvedTutorialChannel['sectionsSource'] =
+        hasAuthoredTutorialSections ? 'authored' : 'tabs'
       const tutorial =
         item.tutorial?.enabled === false
           ? null
@@ -445,7 +447,7 @@ export function resolveChannels(
                 item.tutorial?.underConstruction === true ||
                 text(item.status) === 'under-construction' ||
                 undefined,
-              sectionsSource: hasAuthoredTutorialSections ? 'authored' : 'tabs',
+              sectionsSource,
               sections: tutorialSections,
             }
 

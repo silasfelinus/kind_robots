@@ -329,6 +329,13 @@ export class PinballRuntime implements ArcadeWebGLGameInstance {
       this.pull = 0
       return
     }
+    // A finger dragging the plunger sets the pull directly (t-010 touch);
+    // letting go fires it as releasing the key does.
+    if (controls.plunger !== undefined) {
+      const depth = Math.min(1, Math.max(0, controls.plunger))
+      this.pull = Math.round(depth * PULL_TICKS)
+      return
+    }
     if (controls.held.down) {
       this.pull = Math.min(PULL_TICKS, this.pull + 1)
       return

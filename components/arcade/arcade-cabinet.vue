@@ -59,6 +59,13 @@
         ]"
         aria-label="Touch controls"
       >
+        <ArcadePinballTouch
+          v-if="pinballPad"
+          ref="pinballPadRef"
+          :hints="pinballHints"
+          @press="(button, down) => press(button, down)"
+          @plunger="(depth) => (pinballPull = depth)"
+        />
         <button
           type="button"
           class="cabinet-pause-chip"
@@ -68,7 +75,7 @@
           <span aria-hidden="true">❚❚</span>
         </button>
         <div
-          v-for="seat in seatList"
+          v-for="seat in pinballPad ? [] : seatList"
           :key="seat"
           class="cabinet-cluster"
           :class="`cabinet-cluster-${seat + 1}`"
@@ -221,6 +228,7 @@
 
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useArcadeStore } from '@/stores/arcadeStore'
+import ArcadePinballTouch from './arcade-pinball-touch.vue'
 import { useUserStore } from '@/stores/userStore'
 import { findArcadeGame, loadArcadeGame } from '~/utils/arcade/games'
 import {
@@ -368,6 +376,21 @@ const locked = computed(
   () => touchControls.value && LOCKED_PHASES.includes(phase.value),
 )
 
+// A game with its own touch layout (Kind Pinball, t-010) takes over the
+// whole screen while it plays; initials and the rest keep the d-pad.
+const pinballPad = computed(
+  () =>
+    locked.value &&
+    phase.value === 'playing' &&
+    meta.value?.touchLayout === 'pinball',
+)
+const pinballPadRef = ref<{ release(): void } | null>(null)
+/** The plunger's pull from a finger on the lane (0..1), or null. */
+const pinballPull = ref<number | null>(null)
+/** The touch hints show until the first ball of the visit is lost. */
+const pinballHints = ref(true)
+let hintLives: number | null = null
+
 // On the page, small-viewport units (svh) don't change when a phone's URL bar
 // slides in and out, so the screen keeps one size. While locked, the screen is
 // fitted to the space measured around it instead (fitScreen), so no resize,
@@ -481,6 +504,8 @@ function setDpad(next: Record<DpadDirection, boolean>, seat = 0) {
 
 /** Let go of every touch control on every seat. */
 function releaseTouch() {
+  pinballPadRef.value?.release()
+  pinballPull.value = null
   for (let seat = 0; seat < MAX_SEATS; seat++) {
     releaseDpad(seat)
     for (const button of ['a', 'b', 'start'] as const)
@@ -638,6 +663,7 @@ function enterPhase(next: ArcadePhase) {
 
 function startGame() {
   if (!gameModule) return
+  hintLives = null
   unlockArcadeAudio()
   sound?.play('start')
   // One WebGL game owns the stage at a time: free the demo and any old game.
@@ -779,7 +805,9 @@ function eitherFrame(frames: InputFrame[]): InputFrame {
 
 function tick() {
   ticks++
-  const frames = inputs.slice(0, players.value).map((seatIn) => seatIn.poll())
+  const frames: InputFrame[] = inputs
+    .slice(0, players.value)
+    .map((seatIn) => seatIn.poll())
   const frame = frames.length > 1 ? eitherFrame(frames) : frames[0]!
   const current = machine.phase
   // The table guide holds the cabinet where it was (attract or paused).
@@ -805,6 +833,11 @@ function tick() {
     return
   }
   if (current === 'playing' && game) {
+    if (pinballPad.value && pinballPull.value !== null)
+      frames[0]!.plunger = pinballPull.value
+    // The first ball gone: the touch hints have done their job.
+    if (hintLives === null) hintLives = game.lives
+    else if (game.lives < hintLives) pinballHints.value = false
     game.update(frames[0]!, frames)
     if (game.over) {
       if (game.mastered?.length) store.recordMastery(props.slug, game.mastered)

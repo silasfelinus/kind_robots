@@ -116,6 +116,7 @@ import { aimedShot, delaysFor } from '../arcade/pinball/tuning/aim'
 import { BOT_SKILLS, PinballBot } from '../arcade/pinball/tuning/bot'
 import { playGame, summarize } from './pinballTuning'
 import { MAP_SHOTS, pinballGuide } from '../arcade/pinball/guide'
+import { PinballTouch, zoneAt } from '../arcade/pinballTouch'
 import { delivered, HUT_COUNT, toyPose } from '../arcade/pinball/rules/toys'
 import {
   goalsMet,
@@ -3315,6 +3316,109 @@ async function runPinballTuning() {
   assert.ok(frame.held.down, 'the bot pulls the plunger')
 }
 
+async function runPinballTouch() {
+  // conductor kind-pinball/t-010: the touch layout. No d-pad: the lower
+  // corners flip, a drag down the lane pulls the plunger, a quick swipe up
+  // nudges.
+  assert.equal(zoneAt(0.2, 0.8), 'left')
+  assert.equal(zoneAt(0.7, 0.8), 'right')
+  assert.equal(zoneAt(0.95, 0.8), 'plunger')
+  assert.equal(zoneAt(0.95, 0.45), 'right', 'above the strip: the flipper')
+  assert.equal(zoneAt(0.5, 0.2), 'none', 'the top of the table is free')
+  assert.equal(findArcadeGame('kind-pinball-3d')?.touchLayout, 'pinball')
+
+  let log: string[] = []
+  let pull: number | null = null
+  const touch = new PinballTouch({
+    press: (button, down) => log.push(`${button}:${down ? 'down' : 'up'}`),
+    plunger: (depth) => (pull = depth),
+  })
+  // Flippers, one finger each; two fingers on one side are one press.
+  touch.down(1, 0.2, 0.8, 0)
+  touch.down(2, 0.3, 0.9, 10)
+  touch.down(3, 0.7, 0.8, 20)
+  assert.deepEqual(log, ['left:down', 'right:down'])
+  touch.up(1)
+  assert.deepEqual(log, ['left:down', 'right:down'], 'still one finger left')
+  touch.up(2)
+  touch.up(3)
+  assert.deepEqual(log, ['left:down', 'right:down', 'left:up', 'right:up'])
+  // The lane: a tap flips right; a drag down pulls, and letting go fires.
+  log = []
+  touch.down(4, 0.93, 0.6, 0)
+  touch.up(4)
+  assert.deepEqual(log, ['right:down', 'right:up'], 'a tap on the lane flips')
+  log = []
+  touch.down(5, 0.93, 0.6, 0)
+  touch.move(5, 0.93, 0.7, 100)
+  assert.deepEqual(
+    log,
+    ['right:down', 'right:up'],
+    'a drag lets the flipper go',
+  )
+  const half = pull!
+  assert.ok(half > 0.2 && half < 0.8)
+  touch.move(5, 0.93, 0.95, 200)
+  assert.equal(pull, 1, 'pulled all the way')
+  touch.up(5)
+  assert.equal(pull, null, 'let go: the plunger fires')
+  // A quick swipe up nudges, once; a slow one does not.
+  log = []
+  touch.down(6, 0.5, 0.3, 0)
+  touch.move(6, 0.5, 0.18, 120)
+  touch.move(6, 0.5, 0.05, 180)
+  touch.up(6)
+  assert.deepEqual(log, ['up:down', 'up:up'])
+  log = []
+  touch.down(7, 0.5, 0.3, 0)
+  touch.move(7, 0.5, 0.1, 900)
+  touch.up(7)
+  assert.deepEqual(log, [])
+  // Everything lets go at once when the overlay hides.
+  log = []
+  touch.down(8, 0.2, 0.8, 0)
+  touch.down(9, 0.93, 0.6, 0)
+  touch.move(9, 0.93, 0.8, 50)
+  touch.release()
+  assert.ok(log.includes('left:up') && pull === null)
+
+  // The runtime: the drag's depth is the pull, and letting go fires the
+  // ball as hard as it was pulled.
+  const launchSpeed = (depth: number) => {
+    const runtime = new PinballRuntime(
+      {
+        rng: mulberry32(2),
+        sound: { play: () => {} },
+        demo: false,
+        hiScore: 0,
+      },
+      RAPIER,
+      AMI_VILLAGE_GREYBOX,
+      () => stubRenderer({ disposed: 0, frames: 0 }),
+    )
+    const inner = runtime as unknown as { physics: PinballPhysics }
+    assert.ok(inner.physics.ballOnPlunger())
+    for (let i = 0; i < 5; i++) {
+      const frame = emptyInput()
+      frame.plunger = depth
+      runtime.update(frame)
+    }
+    assert.ok(inner.physics.ballOnPlunger(), 'held back while pulled')
+    runtime.update(emptyInput())
+    let top = 0
+    for (let i = 0; i < 6; i++) {
+      runtime.update(emptyInput())
+      top = Math.max(top, ...inner.physics.ballViews().map((b) => b.speed))
+    }
+    runtime.dispose()
+    return top
+  }
+  const soft = launchSpeed(0.4)
+  const hard = launchSpeed(1)
+  assert.ok(soft > 0, 'a part pull still fires')
+  assert.ok(hard > soft * 1.3, `a full pull fires harder (${soft}, ${hard})`)
+}
+
 async function runPinballToys() {
   // conductor kind-pinball/t-010: the signature toys. The rules decide what
   // each shows; the scene eases toward it; nothing here touches the ball.
@@ -3911,6 +4015,7 @@ await runPinballSubRules()
 await runPinballMastery()
 await runPinballGuide()
 await runPinballToys()
+await runPinballTouch()
 runPinballAudio()
 await runPinballTuning()
 await runPinballSoak()

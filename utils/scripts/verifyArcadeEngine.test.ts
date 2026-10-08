@@ -3444,7 +3444,8 @@ async function runPinballDevices() {
     )
     if ('size' in device) {
       runtime.mount({} as HTMLCanvasElement)
-      runtime.resize(...device.size)
+      const [width, height, dpr] = device.size
+      runtime.resize(width, height, dpr)
       runtime.forceQuality(device.tier)
     }
     for (let t = 0; t < 1800; t++) {

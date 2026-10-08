@@ -101,6 +101,9 @@ import {
 } from '../arcade/pinball/dmdQueue'
 import { drawDmd, fitScale, formatScore } from '../arcade/pinball/dmdScenes'
 import { cameraViewFor, PinballRuntime } from '../arcade/pinball/runtime'
+import { aimedShot, delaysFor } from '../arcade/pinball/tuning/aim'
+import { BOT_SKILLS, PinballBot } from '../arcade/pinball/tuning/bot'
+import { playGame, summarize } from './pinballTuning'
 import {
   doorSteps,
   HURRY_FLOOR,
@@ -3200,6 +3203,41 @@ async function runPinballSubRules() {
   )
 }
 
+async function runPinballTuning() {
+  // conductor kind-pinball/t-013: the tuning harness keeps working. A bot
+  // plays a short seeded game on the real physics and rules, the same seed
+  // plays the same game, and the aiming chart measures a cradled shot.
+  const quick = playGame(BOT_SKILLS.good, 3, null, 1)
+  assert.ok(quick.seconds > 0 && quick.seconds <= 60)
+  assert.ok(quick.ballSeconds.length >= 1)
+  assert.equal(
+    JSON.stringify(playGame(BOT_SKILLS.good, 3, null, 1)),
+    JSON.stringify(quick),
+    'a seeded session replays exactly',
+  )
+  const summary = summarize('good', [quick])
+  assert.equal(summary.games, 1)
+  assert.ok(
+    summary.drains.outlane + summary.drains.sdtm + summary.drains.center <= 101,
+  )
+  // Every chart entry is a real shot or nothing; a delay that makes a shot
+  // is found by delaysFor.
+  const table = AMI_VILLAGE_GREYBOX
+  const made = aimedShot(RAPIER, table, 'right', 18)
+  assert.ok(made === null || table.shots.some((s) => s.id === made))
+  const chart = { left: [null, 'award'], right: [] as Array<string | null> }
+  assert.deepEqual(delaysFor(chart, 'left', 'award'), [1])
+  // The bot plunges a ball on the plunger.
+  const bot = new PinballBot(BOT_SKILLS.novice, mulberry32(1), null)
+  const frame = bot.frame({
+    balls: [],
+    rules: initialRules(3),
+    ballOnPlunger: true,
+    flippers: table.flippers,
+  })
+  assert.ok(frame.held.down, 'the bot pulls the plunger')
+}
+
 await runLanternRescue()
 await runCoopGames()
 await runPinball3d()
@@ -3210,5 +3248,6 @@ await runPinballRender()
 await runPinballDmd()
 await runPinballRules()
 await runPinballSubRules()
+await runPinballTuning()
 await runPinballSoak()
 console.log('verifyArcadeEngine: ok')

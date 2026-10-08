@@ -107,11 +107,16 @@ import {
   type DmdSceneId,
 } from '../arcade/pinball/dmdQueue'
 import { drawDmd, fitScale, formatScore } from '../arcade/pinball/dmdScenes'
-import { cameraViewFor, PinballRuntime } from '../arcade/pinball/runtime'
+import {
+  cameraPresetFor,
+  cameraViewFor,
+  PinballRuntime,
+} from '../arcade/pinball/runtime'
 import { aimedShot, delaysFor } from '../arcade/pinball/tuning/aim'
 import { BOT_SKILLS, PinballBot } from '../arcade/pinball/tuning/bot'
 import { playGame, summarize } from './pinballTuning'
 import { MAP_SHOTS, pinballGuide } from '../arcade/pinball/guide'
+import { delivered, HUT_COUNT, toyPose } from '../arcade/pinball/rules/toys'
 import {
   goalsMet,
   MASTERY_GOALS,
@@ -3310,6 +3315,207 @@ async function runPinballTuning() {
   assert.ok(frame.held.down, 'the bot pulls the plunger')
 }
 
+async function runPinballToys() {
+  // conductor kind-pinball/t-010: the signature toys. The rules decide what
+  // each shows; the scene eases toward it; nothing here touches the ball.
+  const table = AMI_VILLAGE_GREYBOX
+  const context = { shots: table.shots }
+  const start = () =>
+    stepRules(initialRules(3, 21), { type: 'start' }, context).state
+  let tick = 0
+  const feed = (state: PinballRulesState, event: SwitchEvent) => {
+    tick += 10
+    return stepRules(state, { type: 'switch', event, tick }, context).state
+  }
+
+  // Scenery only: no hut, beacon or drone collider, so the physics (and
+  // every soak and tuning number) is the same with the toys as without.
+  const hero = table.hero!
+  assert.equal(hero.huts.length, HUT_COUNT)
+  assert.equal(HUT_COUNT, WIZARD_AT, 'one hut per village to the wizard')
+  assert.ok(
+    !table.colliders.some((c) => /hut|beacon|drone/.test(c.id)),
+    'the toys have no colliders',
+  )
+  // The beacon hangs above a ball's reach; the drone flies under the glass.
+  const ballTop = table.physical.ballRadiusM * 2
+  assert.ok(hero.beacon.at[1] - 0.012 > ballTop)
+  assert.ok(hero.drone.perch[1] < 0.12 && hero.drone.circle.at[1] < 0.12)
+
+  // The pose, from the rules.
+  let s = start()
+  let pose = toyPose(s)
+  assert.deepEqual(pose.huts, Array(HUT_COUNT).fill('dark'))
+  assert.deepEqual(pose.beacon, {
+    eyes: [false, false, false],
+    turning: false,
+    excited: false,
+  })
+  assert.deepEqual(pose.drone, { nets: 0, mode: 'perch' })
+  s = feed(s, { type: 'drop', id: 'drop-a', bank: 'ami', ballId: 1 })
+  s = feed(s, { type: 'drop', id: 'drop-i', bank: 'ami', ballId: 1 })
+  pose = toyPose(s)
+  assert.deepEqual(pose.beacon.eyes, [true, false, true], 'an eye per drop')
+  assert.equal(pose.beacon.turning, false)
+  s = feed(s, { type: 'drop', id: 'drop-m', bank: 'ami', ballId: 1 })
+  assert.equal(toyPose(s).beacon.turning, true, 'the lit lock turns it')
+  const villages = (visited: number[], saved: number, mode: boolean) => ({
+    ...s,
+    play: {
+      ...s.play,
+      villages: {
+        ...s.play.villages,
+        visited,
+        saved,
+        mode: mode
+          ? {
+              village: visited.at(-1)!,
+              hits: 0,
+              endsAt: 1,
+              total: 0,
+              shown: 1,
+              pausedAt: null,
+            }
+          : null,
+      },
+    },
+  })
+  assert.deepEqual(toyPose(villages([0, 3, 5, 7], 2, false)).huts, [
+    'saved',
+    'saved',
+    'visited',
+    'visited',
+    'dark',
+    'dark',
+  ])
+  assert.deepEqual(toyPose(villages([0, 3, 5], 2, true)).huts.slice(0, 4), [
+    'saved',
+    'saved',
+    'playing',
+    'dark',
+  ])
+  const wizard = {
+    ...s,
+    play: { ...s.play, wizard: { running: true, hits: 0, total: 0 } },
+  }
+  assert.ok(toyPose(wizard).huts.every((h) => h === 'wizard'))
+  assert.equal(toyPose(wizard).drone.mode, 'circle')
+  const multiball = {
+    ...s,
+    play: {
+      ...s.play,
+      multiball: { running: true, jackpots: 0, superLit: false },
+    },
+  }
+  assert.equal(toyPose(multiball).beacon.excited, true)
+  assert.equal(toyPose(multiball).drone.mode, 'circle')
+
+  // The drone carries the nets, and delivers only when they come HOME.
+  s = start()
+  s = feed(s, { type: 'capture', id: 'lock', ballId: 1 })
+  s = feed(s, { type: 'capture', id: 'secret-hole', ballId: 1 })
+  for (const id of ['net-n', 'net-e'])
+    s = feed(s, { type: 'contact', id, ballId: 1, impulse: 1 })
+  assert.equal(toyPose(s).drone.nets, 2)
+  s = feed(s, { type: 'contact', id: 'net-t', ballId: 1, impulse: 1 })
+  const home = feed(s, { type: 'capture', id: 'sub-home', ballId: 1 })
+  assert.ok(delivered(s, home), 'all three nets home: a delivery')
+  const drained = feed(s, { type: 'capture', id: 'sub-drain', ballId: 1 })
+  assert.ok(!delivered(s, drained), 'past the flippers: no delivery')
+
+  // The camera presets: restrained, and every one but the room's frames
+  // the whole field.
+  const r = start()
+  assert.equal(cameraPresetFor('sub-table', multiball, false), 'sub-table')
+  assert.equal(cameraPresetFor('main', multiball, true), 'multiball')
+  assert.equal(cameraPresetFor('main', wizard, false), 'multiball')
+  assert.equal(cameraPresetFor('main', r, true), 'plunge')
+  assert.equal(cameraPresetFor('main', r, false), 'main')
+  const main = table.cameras.find((c) => c.id === 'main')!
+  for (const id of ['plunge', 'multiball'] as const) {
+    const preset = table.cameras.find((c) => c.id === id)!
+    assert.deepEqual(preset.frame, main.frame, `${id} frames the whole field`)
+    assert.deepEqual(preset.target, main.target)
+  }
+
+  // The scene: the toys follow the pose; the moments play out and settle.
+  const scene = new PinballScene(table, {} as HTMLCanvasElement, () =>
+    stubRenderer({ disposed: 0, frames: 0 }),
+  )
+  const toys = scene.heroToys!
+  assert.ok(toys, 'the table has its toys')
+  scene.setToys(toyPose(multiball))
+  const perch = toys.droneAt
+  for (let i = 0; i < 60; i++) scene.render()
+  assert.ok(
+    Math.hypot(toys.droneAt[0] - perch[0], toys.droneAt[2] - perch[2]) > 0.05,
+    'in multiball the drone leaves its perch',
+  )
+  scene.setToys(toyPose(start()))
+  scene.deliver()
+  assert.ok(toys.isDelivering)
+  for (let i = 0; i < 200; i++) scene.render()
+  assert.ok(!toys.isDelivering, 'the delivery flight ends')
+  // A jackpot's sparks fly and fall away.
+  scene.burst('left-ramp')
+  scene.burst('beacon')
+  assert.ok(scene.sparksLive > 0)
+  for (let i = 0; i < 60; i++) scene.render()
+  assert.equal(scene.sparksLive, 0, 'the sparks burn out')
+  // A sling rubber flexes when its kicker fires, then settles.
+  scene.kick('sling-left-kicker')
+  assert.equal(scene.rubberKick('sling-left-kicker'), 1)
+  for (let i = 0; i < 12; i++) scene.render()
+  assert.equal(scene.rubberKick('sling-left-kicker'), 0)
+  // The trail follows only a fast ball.
+  const ball = (speed: number, z: number): BallView => ({
+    id: 1,
+    position: [0, 0.0135, z],
+    rotation: [0, 0, 0, 1],
+    velocity: [0, 0, -speed],
+    speed,
+    captured: false,
+    zone: 'main',
+  })
+  for (let i = 0; i < 6; i++) scene.sync([ball(0.5, -0.2 - i * 0.01)], {})
+  assert.equal(scene.trailLit, 0, 'a slow ball leaves no trail')
+  for (let i = 0; i < 6; i++) scene.sync([ball(3, -0.2 - i * 0.05)], {})
+  assert.ok(scene.trailLit > 0, 'a fast ball leaves a streak')
+  // The low tier drops the trail and thins the sparks.
+  scene.forceQuality('low')
+  scene.sync([ball(3, -0.6)], {})
+  assert.equal(scene.trailLit, 0, 'no trail on the low tier')
+  scene.burst('left-ramp')
+  assert.ok(scene.sparksLive <= TIER_SETTINGS.low.sparks)
+  scene.dispose()
+
+  // The runtime drives them: the pose each step, a kick on a sling hit.
+  const runtime = new PinballRuntime(
+    { rng: mulberry32(4), sound: { play: () => {} }, demo: false, hiScore: 0 },
+    RAPIER,
+    table,
+    () => stubRenderer({ disposed: 0, frames: 0 }),
+  )
+  runtime.mount({} as HTMLCanvasElement)
+  const inner = runtime as unknown as {
+    scene: PinballScene
+    apply(event: RulesEvent): void
+  }
+  inner.apply({
+    type: 'switch',
+    tick: 10,
+    event: { type: 'contact', id: 'sling-right-kicker', ballId: 1, impulse: 1 },
+  })
+  assert.equal(inner.scene.rubberKick('sling-right-kicker'), 1)
+  runtime.update(emptyInput())
+  assert.equal(
+    inner.scene.cameraView,
+    'plunge',
+    'a new ball on the plunger leans the camera to the lane',
+  )
+  runtime.dispose()
+}
+
 async function runPinballGuide() {
   // conductor kind-pinball/t-015: the table guide. Every page fits the
   // 360x640 cabinet, the map's numbers match the copy, and the hidden room
@@ -3704,6 +3910,7 @@ await runPinballRules()
 await runPinballSubRules()
 await runPinballMastery()
 await runPinballGuide()
+await runPinballToys()
 runPinballAudio()
 await runPinballTuning()
 await runPinballSoak()

@@ -40,6 +40,7 @@ import { lampStates } from './rules/lamps'
 import { goalsMet, MASTERY_GOALS, masteryEffects } from './rules/mastery'
 import { partsComplete } from '../mastery'
 import { musicFor } from './rules/subTable'
+import { delivered, toyPose } from './rules/toys'
 import type { PinballMusicBed } from './audio/catalog'
 import {
   applyShows,
@@ -80,6 +81,28 @@ export function cameraViewFor(balls: BallView[]): CameraPresetId {
     ? 'sub-table'
     : 'main'
 }
+
+/**
+ * The camera preset for the moment (t-010): the room's while every ball is
+ * in it; a higher eye through multiball and the wizard mode, so every ball
+ * stays in view; a lean toward the shooter lane while a lone ball waits on
+ * the plunger; the main view otherwise. All but the room's frame the whole
+ * field, and the scene eases between them.
+ */
+export function cameraPresetFor(
+  view: CameraPresetId,
+  rules: PinballRulesState,
+  onPlunger: boolean,
+): CameraPresetId {
+  if (view === 'sub-table') return view
+  if (rules.play.multiball.running || rules.play.wizard.running)
+    return 'multiball'
+  if (onPlunger && rules.ballsInPlay <= 1) return 'plunge'
+  return 'main'
+}
+
+/** A sling kicker's switch: its rubber flexes when it fires. */
+const SLING_KICKER = /^sling-.+-kicker$/
 
 export class PinballRuntime implements ArcadeWebGLGameInstance {
   readonly renderMode = 'webgl' as const
@@ -213,7 +236,9 @@ export class PinballRuntime implements ArcadeWebGLGameInstance {
     this.apply({ type: 'tick', tick: this.steps })
     this.unstick({ left, right })
     this.music()
-    this.scene?.setView(this.view())
+    this.scene?.setView(
+      cameraPresetFor(this.view(), this.rules, this.physics.ballOnPlunger()),
+    )
     this.lamps()
     this.dmdQueue.tick(TICK_MS)
     this.drawDmd()
@@ -367,10 +392,45 @@ export class PinballRuntime implements ArcadeWebGLGameInstance {
       if (made > (this.rules.shotsMade[shot] ?? 0)) this.scene?.pulse(shot)
     }
     this.shows.push(...showTriggers(this.rules, state, this.tick))
+    this.toys(event, state, effects)
     const goals = this.demo ? [] : goalsMet(this.rules, state, effects)
     this.rules = state
     for (const effect of effects) this.effect(effect)
     for (const goal of goals) this.master(goal)
+  }
+
+  /**
+   * The signature toys follow the rules (rules/toys.ts); the moments are
+   * events: the drone's delivery, a jackpot's sparks over the shot that
+   * scored it (or the beacon, for the lock's super jackpot), and a sling
+   * rubber's flex when its kicker fires.
+   */
+  private toys(
+    event: RulesEvent,
+    state: PinballRulesState,
+    effects: RuleEffect[],
+  ) {
+    const scene = this.scene
+    if (!scene) return
+    scene.setToys(toyPose(state))
+    if (delivered(this.rules, state)) scene.deliver()
+    if (
+      event.type === 'switch' &&
+      event.event.type === 'contact' &&
+      SLING_KICKER.test(event.event.id)
+    )
+      scene.kick(event.event.id)
+    const jackpot = effects.some(
+      (e) =>
+        e.type === 'dmd' &&
+        (e.scene === 'jackpot' || e.scene === 'super-jackpot'),
+    )
+    if (!jackpot) return
+    const made = Object.entries(state.shotsMade)
+      .filter(([shot, n]) => n > (this.rules.shotsMade[shot] ?? 0))
+      .map(([shot]) => shot)
+    for (const shot of made.length ? made : ['beacon'])
+      scene.burst(shot === 'lock' ? 'beacon' : shot)
   }
 
   /**

@@ -819,6 +819,15 @@ export const AMI_VILLAGE_GREYBOX: TableDef = {
   ],
   inserts,
   flashers,
+  art: {
+    // Rendered by a durable ArtJob from conductor's art-prompts.yaml
+    // (kind-pinball/t-009), to the playfield rectangle below.
+    playfield: {
+      src: '/images/pinball/ami-village-playfield.webp',
+      min: [LEFT_X - 0.02, TOP_Z - 0.05],
+      max: [RIGHT_X + 0.02, BOTTOM_Z + 0.05],
+    },
+  },
   trim: [
     {
       // The apron plate over the drain: a ball passing the flippers rolls

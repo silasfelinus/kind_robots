@@ -9,10 +9,11 @@
 // kickback lamp shows it will save the ball, and the rainbow across the
 // lower playfield counts the bonus multiplier the sub-table brought home.
 // Table 1's modes (t-007) will light the shot arrows on this same map;
-// until then the main shots stay lit as targets. Attract mode runs a chase
-// up the table, and a tilt puts every lamp and the GI out.
+// until then the main shots stay lit as targets, and a tilt puts every lamp
+// and the GI out. Light shows and the attract show play over this matrix
+// (rules/lightShows.ts).
 
-import type { InsertDef, LampLevel, TableDef } from '../types'
+import type { LampLevel, TableDef } from '../types'
 import type { PinballRulesState } from './engine'
 
 export type LampFrame = {
@@ -35,31 +36,6 @@ const NET_LAMPS: Record<string, string> = {
   'net-n': 'lamp-net-n',
   'net-e': 'lamp-net-e',
   'net-t': 'lamp-net-t',
-}
-
-/** Arcade ticks per step of the attract chase. */
-const CHASE_TICKS = 5
-/** Bands the chase divides the table into, and how many are lit at once. */
-const CHASE_BANDS = 9
-const CHASE_LIT = 3
-
-function chaseBand(insert: InsertDef): number {
-  return Math.floor((0.2 - insert.at[1]) * 12)
-}
-
-/** The attract show: a chase running up the table, flashers on the beat. */
-export function attractLamps(table: TableDef, tick: number): LampFrame {
-  const lamps: Record<string, LampLevel> = {}
-  const phase = Math.floor(tick / CHASE_TICKS)
-  for (const insert of table.inserts ?? []) {
-    const band =
-      (((chaseBand(insert) - phase) % CHASE_BANDS) + CHASE_BANDS) % CHASE_BANDS
-    lamps[insert.id] = band < CHASE_LIT ? 'on' : 'off'
-  }
-  for (const [i, flasher] of (table.flashers ?? []).entries()) {
-    lamps[flasher.id] = phase % CHASE_BANDS === i * 2 ? 'on' : 'off'
-  }
-  return { lamps, gi: 1 }
 }
 
 /** The lamps for a game in progress. */

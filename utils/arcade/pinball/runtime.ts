@@ -33,7 +33,14 @@ import {
   type PinballRulesState,
   type RulesEvent,
 } from './rules/engine'
-import { attractLamps, lampStates } from './rules/lamps'
+import { lampStates } from './rules/lamps'
+import {
+  applyShows,
+  attractShow,
+  liveShows,
+  showTriggers,
+  type LightShow,
+} from './rules/lightShows'
 import type { CameraPresetId, RuleEffect, TableDef } from './types'
 
 const STEPS_PER_TICK = PHYSICS_HZ / 60
@@ -81,6 +88,8 @@ export class PinballRuntime implements ArcadeWebGLGameInstance {
   /** Physics steps taken, the clock the shot recognizer times windows by. */
   private steps = 0
   private size = { width: 0, height: 0, dpr: 1 }
+  /** Light shows playing over the lamp matrix. */
+  private shows: LightShow[] = []
   private disposed = false
 
   constructor(
@@ -171,9 +180,10 @@ export class PinballRuntime implements ArcadeWebGLGameInstance {
   private lamps() {
     if (!this.scene) return
     const table = this.physics.table
+    this.shows = liveShows(this.shows, this.tick)
     const frame = this.demo
-      ? attractLamps(table, this.tick)
-      : lampStates(this.rules, table)
+      ? attractShow(table, this.tick)
+      : applyShows(lampStates(this.rules, table), this.shows, table, this.tick)
     this.scene.setLamps(frame.lamps, frame.gi)
   }
 
@@ -253,6 +263,7 @@ export class PinballRuntime implements ArcadeWebGLGameInstance {
     for (const [shot, made] of Object.entries(state.shotsMade)) {
       if (made > (this.rules.shotsMade[shot] ?? 0)) this.scene?.pulse(shot)
     }
+    this.shows.push(...showTriggers(this.rules, state, this.tick))
     this.rules = state
     for (const effect of effects) this.effect(effect)
   }

@@ -255,6 +255,7 @@ export class PinballScene {
   private governor = new QualityGovernor('high')
   private settings: TierSettings = TIER_SETTINGS.high
   private lastFrameAt = 0
+  private albedoLoaded = false
   private disposed = false
 
   constructor(
@@ -494,10 +495,16 @@ export class PinballScene {
     }
   }
 
-  /** The painted playfield art, on the real renderer only (it needs a canvas). */
+  /**
+   * The painted playfield art, on the real renderer only (it needs a
+   * canvas). The table's generated albedo loads in the background and is
+   * painted in when it arrives; until then, or if it never does, the
+   * procedural art stands.
+   */
   private paintPlayfield() {
     if (!this.gl) return
-    const canvas = paintPlayfield(this.table, artBounds(this.table))
+    const bounds = artBounds(this.table)
+    const canvas = paintPlayfield(this.table, bounds)
     if (!canvas) return
     const art = this.track(new THREE.CanvasTexture(canvas))
     art.colorSpace = THREE.SRGBColorSpace
@@ -505,6 +512,24 @@ export class PinballScene {
     const playfield = this.material('playfield')
     playfield.map = art
     playfield.color.set(0xffffff)
+    const src = this.table.art?.playfield?.src
+    if (!src || typeof Image === 'undefined') return
+    const image = new Image()
+    image.decoding = 'async'
+    image.onload = () => {
+      if (this.disposed) return
+      const painted = paintPlayfield(this.table, bounds, image)
+      if (!painted) return
+      art.image = painted
+      art.needsUpdate = true
+      this.albedoLoaded = true
+    }
+    image.src = src
+  }
+
+  /** The generated playfield art has loaded and is on the table. */
+  get hasGeneratedArt(): boolean {
+    return this.albedoLoaded
   }
 
   /** Drop targets, scoop holes and saucer rims, and the spinner plates. */

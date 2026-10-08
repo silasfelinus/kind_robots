@@ -301,6 +301,18 @@ export type TableDef = {
   occluders?: OccluderDef[]
   inserts?: InsertDef[]
   flashers?: FlasherDef[]
+  /**
+   * Generated art (t-009): a top-down playfield albedo, served from
+   * /images/, and the table rectangle (x, z) it covers. Optional: without it,
+   * or until it loads, the renderer paints the playfield itself.
+   */
+  art?: {
+    playfield?: {
+      src: string
+      min: readonly [number, number]
+      max: readonly [number, number]
+    }
+  }
   /** Solid trim the renderer draws and the physics never sees (the apron plate). */
   trim?: BoxCollider[]
   /** Where a new ball sits in the shooter lane, and the lane's launch speed range (m/s). */

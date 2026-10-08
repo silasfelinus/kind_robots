@@ -7,7 +7,9 @@ import {
 } from '@/stores/helpers/channelContent'
 import {
   imageSrcToMediaPath,
+  isMediaOriginReachable,
   mediaAssetExists,
+  mediaOriginDescription,
   mediaSourceDescription,
 } from './mediaContractSource'
 
@@ -153,8 +155,21 @@ async function main(): Promise<void> {
     }
   }
 
+  // Probe once so an unreachable origin skips the media references instead of
+  // timing out serially on every image (which outlasts the CI job limit).
+  const mediaReachable = references.some((reference) => reference.mediaPath)
+    ? await isMediaOriginReachable()
+    : true
+  if (!mediaReachable) {
+    console.warn(
+      `Channel artwork audit skipped media references: ${mediaOriginDescription()} is unreachable (transient network/host issue, not an artwork problem).`,
+    )
+  }
+
   const missing: AssetReference[] = []
   for (const reference of references) {
+    if (reference.mediaPath && !mediaReachable) continue
+
     const exists = reference.mediaPath
       ? await mediaAssetExists(reference.mediaPath)
       : reference.publicPath

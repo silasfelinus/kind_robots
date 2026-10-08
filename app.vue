@@ -377,7 +377,7 @@ const shellVars = computed<CSSProperties>(() => {
 
 const footerVars = computed<CSSProperties>(() => {
   return {
-    left: 'var(--sheet-w)',
+    left: '0px',
     /*
      * FULL WIDTH AGAIN. This used to read
      * `calc(var(--dock-circle) + 0.75rem + 0.5rem)` so the hand would stop
@@ -387,7 +387,7 @@ const footerVars = computed<CSSProperties>(() => {
      * hub, 2026-08-11), so there is nothing in the bottom-right corner left to
      * dodge and the cards get the width back.
      */
-    right: '0px',
+    right: 'var(--sheet-w)',
     height: 'var(--footer-h)',
   } as CSSProperties
 })
@@ -456,13 +456,13 @@ onBeforeUnmount(() => {
 
 <style scoped>
 .kr-main {
-  padding-right: 0;
+  padding-left: 0;
   padding-bottom: var(--footer-h);
 }
 
 @media (min-width: 768px) {
   .kr-main {
-    padding-left: var(--sheet-w);
+    padding-right: var(--sheet-w);
   }
 }
 

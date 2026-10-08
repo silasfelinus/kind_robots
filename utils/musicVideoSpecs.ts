@@ -1127,11 +1127,124 @@ const giantSkeleton: MusicVideoSpec = {
   ],
 }
 
+/*
+ * D. Zuzu's Lair, chapter 1: "The Dry Gulch" keyframes (zuzu-lair t-006).
+ * One scene per SCENES.yaml node (conductor projects/zuzu-lair/chapters/
+ * 01-dry-gulch), in node order, each as long as its clip. A silent
+ * instrumental run in the comic's house lane, with the same Zuzu canon,
+ * negatives and bannedTerms as the intro. The importer caps hero shots at
+ * eight, so the opening, the first moment pair and the later moments carry
+ * the motion prompts; the rest render as stills. Success and death nodes
+ * start from their moment's last frame (SCENES.yaml from_last_frame_of): the
+ * spec has no field for that yet, so t-007 pins those first frames when it
+ * animates the clips.
+ */
+const zuzuLairCh1: MusicVideoSpec = {
+  key: 'zuzu-lair-ch1',
+  title: "Zuzu's Lair: The Dry Gulch",
+  summary:
+    '51 s, 14 keyframes for the chapter 1 scene graph, one per node, comic house look.',
+  comicSeriesSlug: 'zuzu-koala-assassin',
+  pitch:
+    "Chapter one of Zuzu's Lair, an interactive weird western. Zuzu, a short stocky koala ronin in a kasa and poncho, walks into a sun-bleached canyon at late afternoon and meets four dangers in a row: a collapsing rope bridge, a giant scorpion, a rockslide and a gila monster bandit at a high noon standoff. Each danger has a clean escape and a cartoonishly violent death, then he walks out into the sunset.",
+  settings: {
+    ...zuzuIntro.settings,
+    durationSec: 51,
+    bpm: 120,
+    vocal: 'instrumental',
+    heroShots: 8,
+    genre: 'spaghetti western instrumental',
+    mood: 'tense, dusty, sun-bleached',
+  },
+  sections: [],
+  scenes: [
+    {
+      atSec: 0,
+      prompt: `${ZUZU}, standing at the mouth of a narrow red-rock canyon at late afternoon, long shadow stretching ahead of him, dust blowing, bleached cattle skull on a rock, wide shot`,
+      motionPrompt:
+        'The camera slowly pushes in as Zuzu tilts his kasa down against the wind and walks into the canyon.',
+    },
+    {
+      atSec: 5,
+      prompt: `${ZUZU}, halfway across a frayed rope bridge over a deep canyon gorge, planks splintering under his feet, ropes snapping, low angle from the far cliff`,
+      motionPrompt:
+        'The bridge planks crack and drop away one by one toward Zuzu as the camera shakes.',
+    },
+    {
+      atSec: 9,
+      prompt: `${ZUZU}, leaping across a gap in a collapsing rope bridge, poncho flaring, landing on the far cliff edge in a crouch, dust rising`,
+      motionPrompt:
+        'Zuzu leaps the gap and lands on the cliff edge as the last of the bridge falls away behind him.',
+    },
+    {
+      atSec: 12,
+      prompt: `${ZUZU}, falling backward off a snapped rope bridge into a deep canyon gorge, arms and short legs flailing, eyes wide, his kasa flying off above him, broken planks tumbling around him`,
+      kenBurns: 'zoom-in',
+    },
+    {
+      atSec: 16,
+      prompt: `${ZUZU}, walking along a narrow canyon ledge, a giant scorpion rising from behind a boulder on his left, its stinger arched high over him, low angle`,
+      motionPrompt:
+        "The giant scorpion's tail whips down toward Zuzu from the left as the camera pulls back.",
+    },
+    {
+      atSec: 20,
+      prompt: `${ZUZU}, rolling right across the canyon ledge as a giant scorpion stinger strikes the rock where he stood, rock chips flying`,
+      kenBurns: 'zoom-in',
+    },
+    {
+      atSec: 23,
+      prompt: `${ZUZU}, just stung by a giant scorpion's stinger, his grey fur turned sickly green, cheeks puffed out, eyes crossed, body stiff as a plank, tipping over backward on a canyon ledge`,
+      kenBurns: 'zoom-in',
+    },
+    {
+      atSec: 26,
+      prompt: `${ZUZU}, running down a steep canyon trail as a wall of tumbling boulders and dust pours down the slope behind him, a dark crevice in the rock wall to his left`,
+      motionPrompt:
+        'Boulders thunder down the slope after Zuzu as the camera tracks alongside him.',
+    },
+    {
+      atSec: 30,
+      prompt: `${ZUZU}, pressed flat inside a narrow rock crevice, boulders and dust roaring past the opening in front of him, his eyes narrowed under the kasa`,
+      motionPrompt:
+        'The rockslide roars past the crevice mouth and the dust slowly settles around Zuzu.',
+    },
+    {
+      atSec: 33,
+      prompt: `a huge round boulder sitting on a canyon trail with a pair of small grey koala feet sticking out from under it, a flattened straw kasa beside them, dust hanging in the air`,
+      kenBurns: 'zoom-in',
+    },
+    {
+      atSec: 36,
+      prompt: `${ZUZU}, facing an anthro gila monster bandit in a tattered long riding coat across a dusty canyon floor, the bandit reaching for a revolver at his hip, high noon standoff, wide shot`,
+      motionPrompt:
+        "The camera pushes in slowly as the gila monster's claw twitches toward his revolver.",
+    },
+    {
+      atSec: 40,
+      prompt: `${ZUZU}, katana drawn in one flash of steel, the gila monster bandit's revolver spinning out of his claw into the dust, the bandit stumbling back wide-eyed`,
+      kenBurns: 'zoom-in',
+    },
+    {
+      atSec: 43,
+      prompt: `${ZUZU}, blown backward off his feet by a revolver shot, his kasa spinning off his head with a smoking hole through the brim, the gila monster bandit grinning behind a smoking revolver, dusty canyon floor`,
+      kenBurns: 'zoom-in',
+    },
+    {
+      atSec: 46,
+      prompt: `${ZUZU}, walking away from the camera out of the canyon mouth into a huge orange sunset, katana on his back, long shadow behind him, the defeated gila monster sitting in the dust in the foreground`,
+      motionPrompt:
+        'The camera holds still as Zuzu walks out into the sunset and the dust settles.',
+    },
+  ],
+}
+
 export const MUSIC_VIDEO_SPECS: readonly MusicVideoSpec[] = [
   kindRobotsTheme,
   kindRobotsThemeClassic,
   zuzuIntro,
   giantSkeleton,
+  zuzuLairCh1,
 ]
 
 export function musicVideoSpecByKey(key: string): MusicVideoSpec | null {

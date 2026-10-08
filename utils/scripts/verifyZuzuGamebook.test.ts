@@ -52,8 +52,8 @@ assert.ok(isSavedRun(JSON.parse(JSON.stringify(initial))))
 assert.equal(isSavedRun({ ...initial, sceneId: 'missing' }), false)
 assert.equal(isSavedRun({ ...initial, health: 500 }), false)
 
-const unable = takeChoice({ ...initial, items: [] }, 'approach')
-assert.equal(unable, initial.items.length === 0 ? initial : unable, 'item gating never mutates input')
+const noWater = { ...initial, items: [] }
+assert.equal(takeChoice(noWater, 'approach'), noWater, 'unavailable items block choices')
 const good = takeChoice(initial, 'approach')
 assert.equal(good.sceneId, 'coyote')
 assert.ok(good.flags.includes('coyote-kindness'))

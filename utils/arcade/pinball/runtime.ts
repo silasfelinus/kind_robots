@@ -65,7 +65,7 @@ const PILOT_SKILL = 0.8
 /** Multiball and ball-save balls: ticks between them, and on the plunger before launch. */
 const ADD_BALL_GAP = 90
 const AUTO_LAUNCH_TICKS = 30
-/** The skill shot's lit bumper flashes this often. */
+/** The skill shot's lit arrow flashes this often. */
 const SKILL_PULSE_TICKS = 24
 
 /**
@@ -244,7 +244,7 @@ export class PinballRuntime implements ArcadeWebGLGameInstance {
       ? attractShow(table, this.tick)
       : applyShows(lampStates(this.rules, table), this.shows, table, this.tick)
     this.scene.setLamps(frame.lamps, frame.gi)
-    // The skill shot's bumper flashes until the ball finds a bumper.
+    // The skill shot's arrow flashes until the first shot after the plunge.
     const skill = this.rules.play.skill
     if (!this.demo && skill.armed && this.tick % SKILL_PULSE_TICKS === 0)
       this.scene.pulse(skill.target)

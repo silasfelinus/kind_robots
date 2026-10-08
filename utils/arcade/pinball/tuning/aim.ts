@@ -10,7 +10,7 @@
 import { PHYSICS_HZ } from '../clock'
 import { PinballPhysics, type RapierModule } from '../physics/world'
 import { initialShotProgress, recognizeShots } from '../rules/shots'
-import type { TableDef } from '../types'
+import type { FlipperDef, TableDef } from '../types'
 
 export type FlipperSide = 'left' | 'right'
 
@@ -27,8 +27,14 @@ export type Feed = 'cradle' | 'inlane'
 export const AIM_DELAYS = 90
 /** How long the flipper stays up after the flip. */
 export const AIM_HOLD_TICKS = 15
-/** Where a ball comes to rest on a held flipper (from the pivot, per side). */
-export const CRADLE_OFFSET: [number, number] = [0, -0.027]
+/**
+ * Where a ball comes to rest on a held main flipper: just outboard of the
+ * pivot and above it (measured; the chart's shots are from here).
+ */
+export function cradlePoint(flipper: FlipperDef): [number, number] {
+  const outboard = flipper.side === 'left' ? -1 : 1
+  return [flipper.pivot[0] + outboard * 0.0027, flipper.pivot[2] - 0.0285]
+}
 const STEPS_PER_TICK = PHYSICS_HZ / 60
 /** How long after the flip a shot still counts as this flip's. */
 const AIM_WATCH_TICKS = 60 * 4
@@ -40,11 +46,24 @@ export function inlane(physics: PinballPhysics, side: FlipperSide) {
   physics.serveBall([0.19 * s, 0.0136, -0.16], [0, 0, 0.35])
 }
 
-/** Serve a ball and let it settle on the held flipper of `side`. */
-export function cradle(physics: PinballPhysics, side: FlipperSide) {
+/**
+ * A ball at rest on the held flipper of `side`: served above the flipper and
+ * left to settle, or placed where a ball in play came to rest (`at`, x and z).
+ */
+export function cradle(
+  physics: PinballPhysics,
+  side: FlipperSide,
+  at?: [number, number],
+) {
+  physics.setFlipper(side, true)
+  for (let i = 0; i < PHYSICS_HZ / 4; i++) physics.step()
+  if (at) {
+    physics.serveBall([at[0], 0.0135, at[1]], [0, 0, 0])
+    for (let i = 0; i < PHYSICS_HZ / 2; i++) physics.step()
+    return
+  }
   const x = side === 'left' ? -0.06 : 0.06
   physics.serveBall([x, 0.0136, -0.15], [0, 0, 0])
-  physics.setFlipper(side, true)
   for (let i = 0; i < PHYSICS_HZ * 2.5; i++) physics.step()
 }
 
@@ -55,11 +74,12 @@ export function aimedShot(
   side: FlipperSide,
   delay: number,
   feed: Feed = 'cradle',
+  at?: [number, number],
 ): string | null {
   const physics = new PinballPhysics(R, table)
   try {
     if (feed === 'cradle') {
-      cradle(physics, side)
+      cradle(physics, side, at)
       physics.setFlipper(side, false)
     } else {
       inlane(physics, side)
@@ -96,6 +116,39 @@ export function measureAimChart(
     for (let delay = 0; delay < AIM_DELAYS; delay++)
       chart[side].push(aimedShot(R, table, side, delay, feed))
   return chart
+}
+
+/** What each release delay makes from a ball cradled on `side` at x, z. */
+export type Aimer = (
+  side: FlipperSide,
+  x: number,
+  z: number,
+) => Array<string | null>
+
+/**
+ * An aimer that measures the chart for wherever the ball rests, to the
+ * nearest `cell` (a player who cradles a little further out aims a little
+ * differently), and keeps each measurement for the rest of the run.
+ */
+export function cachedAimer(
+  R: RapierModule,
+  table: TableDef,
+  cell = 0.002,
+): Aimer {
+  const cache = new Map<string, Array<string | null>>()
+  return (side, x, z) => {
+    const cx = Math.round(x / cell) * cell
+    const cz = Math.round(z / cell) * cell
+    const key = `${side}:${cx.toFixed(4)}:${cz.toFixed(4)}`
+    let row = cache.get(key)
+    if (!row) {
+      row = []
+      for (let delay = 0; delay < AIM_DELAYS; delay++)
+        row.push(aimedShot(R, table, side, delay, 'cradle', [cx, cz]))
+      cache.set(key, row)
+    }
+    return row
+  }
 }
 
 /** Release delays on `side` that make `shot`. */

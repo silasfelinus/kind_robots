@@ -297,7 +297,7 @@ export function stepRules(
     } else if (NET_TARGETS.includes(sw.id)) {
       netHit(next, sw.id, effects)
     } else if (sw.id.startsWith('pop-')) {
-      bumper(next, sw.id, tick, effects)
+      bumper(next)
       effects.push(
         { type: 'sound', name: 'pop' },
         { type: 'mechanism', id: sw.id, action: 'flash' },

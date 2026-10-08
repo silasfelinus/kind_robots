@@ -20,7 +20,7 @@
 import * as THREE from 'three'
 import { mergeGeometries } from 'three/examples/jsm/utils/BufferGeometryUtils.js'
 import { ConvexGeometry } from 'three/examples/jsm/geometries/ConvexGeometry.js'
-import { flipperYaw } from '../physics/world'
+import { flipperProfile, flipperYaw } from '../physics/world'
 import type { BallView } from '../physics/world'
 import type {
   BoxCollider,
@@ -172,18 +172,10 @@ function batOutline(
   y0: number,
   y1: number,
 ): THREE.Vector3[] {
-  const points: THREE.Vector3[] = []
-  for (const [cx, r] of [
-    [0, def.baseRadius + grow],
-    [def.length, def.tipRadius + grow],
-  ] as const) {
-    for (let i = 0; i < 16; i++) {
-      const a = (2 * Math.PI * i) / 16
-      for (const y of [y0, y1])
-        points.push(new THREE.Vector3(cx + Math.cos(a) * r, y, Math.sin(a) * r))
-    }
-  }
-  return points
+  return flipperProfile(def, grow).flatMap(([x, z]) => [
+    new THREE.Vector3(x, y0, z),
+    new THREE.Vector3(x, y1, z),
+  ])
 }
 
 type Lamp = {

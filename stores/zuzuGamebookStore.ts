@@ -1,8 +1,12 @@
 import { ref } from 'vue'
 import { defineStore } from 'pinia'
 import {
-  startRun, takeChoice, fight, isSavedRun,
-  type Run, type BattleAction,
+  startRun,
+  takeChoice,
+  fight,
+  isSavedRun,
+  type Run,
+  type BattleAction,
 } from '~/utils/zuzuGamebook/adventure'
 
 const SAVE_KEY = 'kr-zuzu-gamebook-v1'
@@ -37,8 +41,13 @@ export const useZuzuGamebookStore = defineStore('zuzuGamebook', () => {
         const parsed: unknown = JSON.parse(raw)
         if (isSavedRun(parsed)) run.value = parsed
       }
-      const endings: unknown = JSON.parse(localStorage.getItem(ENDINGS_KEY) ?? '[]')
-      if (Array.isArray(endings)) discovered.value = endings.filter((entry): entry is string => typeof entry === 'string')
+      const endings: unknown = JSON.parse(
+        localStorage.getItem(ENDINGS_KEY) ?? '[]',
+      )
+      if (Array.isArray(endings))
+        discovered.value = endings.filter(
+          (entry): entry is string => typeof entry === 'string',
+        )
     } catch {
       // Corrupt or blocked storage starts a new adventure safely.
     }

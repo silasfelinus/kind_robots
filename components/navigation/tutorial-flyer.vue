@@ -32,6 +32,32 @@
     </div>
 
     <section
+      v-if="activeTabTutorial"
+      class="overflow-hidden rounded-2xl border border-primary/25 bg-primary/5 shadow-sm"
+    >
+      <img
+        v-if="activeTabTutorial.image"
+        :src="activeTabTutorial.image"
+        :alt="`${activeTabTutorial.title} tutorial illustration`"
+        loading="lazy"
+        class="w-full object-cover md:max-h-56"
+      />
+      <div class="flex flex-col gap-1.5 p-4">
+        <p
+          class="kr-text-eyebrow text-xs tracking-widest text-primary"
+        >
+          On this page
+        </p>
+        <h3 class="kr-text-black-base leading-tight text-base-content md:text-lg">
+          {{ activeTabTutorial.title }}
+        </h3>
+        <p class="kr-text-dim-sm-70 font-medium leading-relaxed md:text-base">
+          {{ activeTabTutorial.body }}
+        </p>
+      </div>
+    </section>
+
+    <section
       v-for="section in config.sections"
       :key="section.key"
       class="flex flex-col gap-3 lg:flex-row lg:items-start lg:gap-5"
@@ -191,6 +217,36 @@
             </div>
           </section>
 
+          <section
+            v-if="activeTabTutorial"
+            class="mt-5 overflow-hidden rounded-2xl border border-primary/25 bg-primary/5 shadow-sm"
+          >
+            <figure
+              v-if="activeTabTutorial.image"
+              class="border-b border-primary/15 bg-base-200/40 p-2.5"
+            >
+              <img
+                :src="activeTabTutorial.image"
+                :alt="`${activeTabTutorial.title} tutorial illustration`"
+                loading="lazy"
+                class="max-h-56 w-full rounded-xl object-cover shadow-sm"
+              />
+            </figure>
+            <div class="p-4 sm:p-5">
+              <p
+                class="kr-text-eyebrow text-xs tracking-widest text-primary"
+              >
+                On this page
+              </p>
+              <h3 class="kr-text-black-base mt-1 leading-tight text-base-content">
+                {{ activeTabTutorial.title }}
+              </h3>
+              <p class="kr-text-dim-sm-70 mt-1.5 font-medium leading-relaxed">
+                {{ activeTabTutorial.body }}
+              </p>
+            </div>
+          </section>
+
           <ol class="mt-5 space-y-3">
             <li
               v-for="(section, index) in config.sections"
@@ -288,6 +344,7 @@ import {
 const props = withDefaults(
   defineProps<{
     channel: string
+    tab?: string
     autoOpen?: boolean
     inline?: boolean
   }>(),
@@ -306,6 +363,24 @@ const requestedChannelKey = computed(() => props.channel.trim())
 const contentChannel = computed(() =>
   channelContentStore.getChannel(requestedChannelKey.value),
 )
+const contentTab = computed(() => {
+  const channel = contentChannel.value
+  const tabKey = props.tab?.trim() || ''
+  return channel && tabKey
+    ? channelContentStore.getTab(channel.channelKey, tabKey)
+    : null
+})
+const activeTabTutorial = computed(() => {
+  const tutorial = contentTab.value?.tutorial
+  if (
+    !tutorial?.explicit ||
+    contentChannel.value?.tutorial?.sectionsSource !== 'authored'
+  ) {
+    return null
+  }
+
+  return tutorial
+})
 const legacyChannelKey = computed(() =>
   isTutorialChannelKey(requestedChannelKey.value)
     ? requestedChannelKey.value
@@ -332,7 +407,10 @@ const heroImage = computed(() => {
     ? getTutorialHero(legacyChannelKey.value)
     : null
 })
-const stepCount = computed(() => config.value?.sections?.length ?? 0)
+const stepCount = computed(
+  () =>
+    (config.value?.sections?.length ?? 0) + (activeTabTutorial.value ? 1 : 0),
+)
 const visible = computed(() => {
   if (!channelKey.value || !config.value) return false
   if (props.inline) return true

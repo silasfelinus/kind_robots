@@ -229,6 +229,27 @@ export const PLATES: Record<string, ScenePlate> = {
     source: 'Gamebook round 2, gb2-zuzu-bandage-2',
     fit: 'exact',
   },
+  'names-wall': {
+    file: 'names-wall',
+    alt: 'A plank wall pinned edge to edge with torn yellowed sheets, each a faded sketch of a young fennec, fox or raccoon face, lit orange by firelight.',
+    artImageId: 243405,
+    source: 'Gamebook round 2, gb2-names-wall-2 (Kontext on 242685)',
+    fit: 'exact',
+  },
+  'hb-store': {
+    file: 'hb-store',
+    alt: 'The looted timber interior of a frontier store: empty shelves, slumped flour sacks, scattered tins and a hook hanging from the beams.',
+    artImageId: 243416,
+    source: 'Gamebook round 3, gb3-hb-store-1',
+    fit: 'exact',
+  },
+  'zuzu-alone': {
+    file: 'zuzu-alone',
+    alt: 'Zuzu crouches alone on a rock above moonlit dunes under a starry sky, kasa low, katana across his back.',
+    artImageId: 243422,
+    source: 'Gamebook round 3, gb3-zuzu-shadow-1',
+    fit: 'exact',
+  },
   'zuzu-moon': {
     file: 'zuzu-moon',
     alt: 'Zuzu stands alone on a dusty rise against a pale full moon, poncho over his sash, his katana slung across his back.',

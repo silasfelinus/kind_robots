@@ -336,7 +336,7 @@ const scenes: Scene[] = [
     'hb-notices',
     II,
     'Old Paper',
-    'posters-boardwalk',
+    'names-wall',
     'The notices are older than the fire, curled and sun-bleached, nailed one over another. Faces drawn by careful hands: a rabbit kit, a young raccoon, a fennec girl with enormous ears. Most of the words are gone. On three of them you can still read the same four: last seen, mission road.',
     {
       effects: { flag: 'poster-clue' },
@@ -353,7 +353,7 @@ const scenes: Scene[] = [
     'hb-store-find',
     II,
     'What the Looters Missed',
-    'shuttered-town',
+    'hb-store',
     'The shelves are bare and the counter is kicked over, but whoever stripped this place was in a hurry. Behind a loose board under the counter you find a roll of clean linen and a corked water skin, still full.',
     {
       effects: { gain: 'bandage' },
@@ -370,7 +370,7 @@ const scenes: Scene[] = [
     'hb-store-empty',
     II,
     'Broken Glass',
-    'shuttered-town',
+    'hb-store',
     'You search too fast in bad light. Broken glass hides under the flour dust and opens the pad of your paw. There is nothing here the looters left behind except the quiet.',
     {
       effects: { hurt: 1 },
@@ -476,7 +476,7 @@ const scenes: Scene[] = [
     'lost-them',
     III,
     'Gone',
-    'zuzu-moon',
+    'zuzu-alone',
     'It is easy, in the end. A dry wash, a turn they do not see, a long wait behind a rock. When you climb back to the ridge the road behind you is empty under the rising moon. You stand there much longer than there is any reason to.',
     {
       choices: [

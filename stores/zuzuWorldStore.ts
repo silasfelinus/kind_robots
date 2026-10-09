@@ -155,21 +155,19 @@ export const useZuzuWorldStore = defineStore('zuzuWorld', () => {
     error.value = ''
     notice.value = ''
     try {
-      const result = await performFetch<{ path?: string }>(
-        '/api/conductor/pitch',
+      const result = await performFetch<{ id: number }>(
+        '/api/worlds/zuzu/request',
         {
           method: 'POST',
           body: JSON.stringify({
-            title: `Zuzu: revise art #${art.id}`,
-            target: projectSlug || art.sourceProject,
-            summary: `Requested update to existing ArtImage #${art.id} (${art.title}). Source: ${art.source}. Original must remain unchanged. Request: ${direction.trim()}`,
-            why: 'Cross-project Zuzu World Studio visual curation request.',
-            firstTask: `Inspect ArtImage #${art.id}, verify latest locked cast and VIDEO-GUARDRAILS; create derived ArtJob, present candidate privately for review in the target production. Do not overwrite canonical art or publish.`,
+            artImageId: art.id,
+            projectSlug: projectSlug || art.sourceProject,
+            direction: direction.trim(),
           }),
         },
       )
-      if (!result.success) throw new Error(result.message || 'Could not submit request.')
-      notice.value = 'Submitted as a Conductor pitch for review. Artwork remains unchanged.'
+      if (!result.success) throw new Error(result.message || 'Could not save request.')
+      notice.value = result.message || 'Private request saved for agent review.'
       return true
     } catch (cause) {
       error.value = cause instanceof Error

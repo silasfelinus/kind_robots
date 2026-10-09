@@ -242,3 +242,85 @@ export function replayJourney(seed: number, actions: readonly JourneyAction[]): 
   }
   return state
 }
+
+function validRoll(value: unknown, landId: string | undefined, locationId: string | undefined): value is JourneyRoll {
+  if (!value || typeof value !== 'object') return false
+  const v = value as Partial<JourneyRoll>
+  return v.landId === landId && v.locationId === locationId &&
+    Array.isArray(v.dice) && v.dice.length === 2 &&
+    v.dice.every((die) => Number.isInteger(die) && die >= 1 && die <= 6) &&
+    Object.hasOwn(SKILLS, v.skill ?? '') && v.modifier === SKILLS[v.skill!] &&
+    Number.isInteger(v.difficulty) && Number.isInteger(v.total) &&
+    v.total === v.dice[0]! + v.dice[1]! + v.modifier! && v.success === (v.total >= v.difficulty!)
+}
+
+export function isJourneyState(value: unknown): value is JourneyState {
+  if (!value || typeof value !== 'object') return false
+  const s = value as Partial<JourneyState>
+  if (s.version !== 1 || s.manifestBlobSha !== JOURNEY_WORLD.source.blobSha ||
+      !Number.isSafeInteger(s.seed) || s.seed! < 1 || s.seed! > 0xffffffff ||
+      !Number.isInteger(s.rngState) || s.rngState! < 0 || s.rngState! > 0xffffffff ||
+      !Number.isInteger(s.landIndex) || s.landIndex! < 0 || s.landIndex! >= 5 ||
+      !Number.isInteger(s.turn) || s.turn! < 0 ||
+      !Number.isInteger(s.hp) || s.hp! < 0 || s.hp! > 8 ||
+      !Number.isInteger(s.provisions) || s.provisions! < 0 || s.provisions! > 30 ||
+      !['explore', 'boss', 'complete', 'fallen', 'retired'].includes(s.phase ?? '') ||
+      !s.layouts || typeof s.layouts !== 'object' || !Array.isArray(s.resolved) ||
+      !Array.isArray(s.bosses) || !Array.isArray(s.shifts) || !Array.isArray(s.journal) ||
+      !(s.position === null || typeof s.position === 'string') ||
+      !(s.active === null || typeof s.active === 'string')) return false
+
+  const known = new Map(JOURNEY_WORLD.lands.flatMap((land) =>
+    land.locations.map((loc) => [loc.id, land.id])))
+  if (!JOURNEY_WORLD.lands.every((land) => {
+    const ids = s.layouts![land.id]
+    return Array.isArray(ids) && ids.length === 3 && new Set(ids).size === 3 &&
+      land.locations.every((location) => ids.includes(location.id))
+  })) return false
+
+  const seen = new Set<string>()
+  for (const item of s.resolved) {
+    if (!item || typeof item.locationId !== 'string' || seen.has(item.locationId) ||
+        known.get(item.locationId) !== item.landId || !Number.isInteger(item.turn) ||
+        item.turn < 1 || item.turn > s.turn! ||
+        !['test', 'withdraw'].includes(item.approach) ||
+        !Number.isInteger(item.hpChange) || !Number.isInteger(item.provisionChange)) return false
+    seen.add(item.locationId)
+    if (item.roll !== null && !validRoll(item.roll, item.landId, item.locationId)) return false
+    if (item.approach === 'test' && item.roll === null) return false
+    if (item.approach === 'withdraw' && item.roll !== null) return false
+  }
+  if (s.bosses.length > 5 || s.bosses.some((item, index) =>
+    item?.landId !== JOURNEY_WORLD.lands[index]?.id ||
+    item?.id !== JOURNEY_WORLD.lands[index]?.boss.id ||
+    !validRoll(item.roll, item.landId, item.id) || !item.roll.success)) return false
+  if (s.shifts.some((item) => !item ||
+      !JOURNEY_WORLD.lands.some((land) => land.id === item.landId) ||
+      !Array.isArray(item.before) || !Array.isArray(item.after) ||
+      item.before.length !== 3 || item.after.length !== 3 ||
+      item.before.filter((id) => !item.after.includes(id)).length !== 0 ||
+      !known.has(item.causeLocationId) || known.get(item.causeLocationId) !== item.landId ||
+      typeof item.reason !== 'string' || !Number.isInteger(item.turn) ||
+      item.turn < 1 || item.turn > s.turn!)) return false
+  if (s.journal.some((item) => !item || typeof item.text !== 'string' ||
+      !Number.isInteger(item.turn) || item.turn < 0 || item.turn > s.turn!)) return false
+  if (s.lastRoll !== null && !validRoll(s.lastRoll, s.lastRoll?.landId, s.lastRoll?.locationId)) return false
+
+  const land = JOURNEY_WORLD.lands[s.landIndex!]!
+  const currentResolved = s.resolved.filter((item) => item.landId === land.id).length
+  if (s.position !== null && !s.layouts[land.id]!.includes(s.position)) return false
+  if (s.active !== null && (s.phase !== 'explore' || s.position !== s.active || seen.has(s.active))) return false
+  if (s.bosses.some((item) => s.resolved.filter((r) => r.landId === item.landId).length !== 3)) return false
+  if (s.resolved.some((item) => JOURNEY_WORLD.lands.findIndex((l) => l.id === item.landId) > s.landIndex!)) return false
+  if (s.phase === 'explore' &&
+      (currentResolved === 3 || s.hp === 0 || s.bosses.length !== s.landIndex)) return false
+  if (s.phase === 'boss' &&
+      (currentResolved !== 3 || s.hp === 0 || s.active !== null || s.bosses.length !== s.landIndex)) return false
+  if (s.phase === 'complete' && (s.bosses.length !== 5 || s.hp === 0)) return false
+  if (s.phase === 'fallen' && s.hp !== 0) return false
+  return true
+}
+
+export function restoreJourney(value: unknown): JourneyState | null {
+  return isJourneyState(value) ? value : null
+}

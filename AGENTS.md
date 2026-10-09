@@ -60,6 +60,10 @@ MariaDB. Production is served at `https://kindrobots.org` through the current co
 - When returning code in chat, return complete copy-paste-ready files or sections — never
   placeholders or ellipses. In-repo, normal targeted edits are fine.
 
+## Admin route and navigation contract (Silas, 2026-10-09)
+
+An **admin-only feature or development preview** must be available at an `/admin/...` route and have a discoverable `content/channels/admin/*.md` tab with `requiredRole: ADMIN`. Do not leave an admin-only prototype under `/play/...` or a Projects-only tab. Keep public release routes under `/play` for the point when they actually launch. Exceptions for internal non-navigation helpers require an explicit owner decision; avoid silent `navigation: false` for requested admin tools. When relocating an existing admin-only preview, update any associated project route and UI contract tests together. Audit other existing inconsistencies incrementally rather than destructively moving unrelated mature routes.
+
 ## Art-first interface standard
 
 Kind Robots is an **art-focused website**. Outside settings, administration, diagnostics,

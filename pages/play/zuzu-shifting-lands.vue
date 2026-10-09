@@ -332,7 +332,7 @@
   </main>
 </template>
 <script setup lang="ts">
-import { onMounted, ref } from 'vue'
+import { nextTick, onMounted, ref } from 'vue'
 import { useUserStore } from '~/stores/userStore'
 import { useShiftingLandsStore } from '~/stores/shiftingLandsStore'
 const user = useUserStore()
@@ -343,8 +343,10 @@ onMounted(async () => {
   await user.initialize()
   if (user.isAdmin) game.initialize()
 })
-function draw() {
-  if (game.draw()) flipKey.value++
+async function draw() {
+  if (!game.draw()) return
+  await nextTick()
+  flipKey.value++
 }
 function resetRun() {
   if (

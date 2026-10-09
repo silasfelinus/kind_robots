@@ -13,6 +13,10 @@ icon: kind-icon:palette-color
 route: /artjob
 sort: 10
 requiredRole: ADMIN
+tutorial:
+  title: ArtJob Pipeline
+  body: >-
+    Start here when art is missing or slow. The queue shows which art servers are online, what is waiting, rendering, or failed, and why a job stopped. Retry a failed job once its cause is fixed, cancel work nobody needs, and open any finished job to see the image it produced.
 ---
 
 Operate the art-generation pipeline.

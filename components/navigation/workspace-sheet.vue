@@ -327,6 +327,7 @@
 import { computed, ref } from 'vue'
 import { useRoute } from 'vue-router'
 import { useBuilderStore } from '@/stores/builderStore'
+import { useChannelContentStore } from '@/stores/channelContentStore'
 import { usePageStore } from '@/stores/pageStore'
 import { useSheetStore } from '@/stores/sheetStore'
 import { NAV_CARDS } from '@/stores/helpers/navCards'
@@ -369,6 +370,7 @@ const BUILDER_DEFAULT_IMAGE_FIELD_PRIORITY = [
 
 const route = useRoute()
 const builderStore = useBuilderStore()
+const channelContentStore = useChannelContentStore()
 const pageStore = usePageStore()
 const sheetStore = useSheetStore()
 
@@ -376,22 +378,73 @@ const showDebugPath = ref(false)
 const showTutorial = ref(false)
 const openFieldKey = ref('')
 
-const override = computed(() => sheetStore.override)
+/*
+ * Route first, like workspace-header and channel-select. Only content pages
+ * call setPage, so on a dedicated page (/admin/worlds/zuzu, /artjob) pageStore
+ * and the sheet override it set still describe the last content page visited:
+ * an Admin tab showed the Home Dashboard card and the Home tutorial.
+ */
+const routeLocation = computed(() =>
+  channelContentStore.resolveActiveLocation({ path: route.path }),
+)
+
+const routeTabOutrunsPage = computed(() => {
+  const routeChannel = routeLocation.value?.channel
+  if (!routeChannel || !routeLocation.value?.tab) return false
+
+  return pageStore.resolvedChannel?.channelKey !== routeChannel.channelKey
+})
+
+const routeTab = computed(() =>
+  routeTabOutrunsPage.value ? (routeLocation.value?.tab ?? null) : null,
+)
+
+const override = computed(() => {
+  const current = sheetStore.override
+  if (
+    routeTab.value &&
+    (!current || current.source?.startsWith('dashboard-tab'))
+  ) {
+    return {
+      source: `route-tab:${routeTab.value.tabKey}`,
+      label: routeTab.value.label,
+      title: routeTab.value.title || routeTab.value.label,
+      narrative:
+        routeTab.value.summary ||
+        routeTab.value.description ||
+        routeTab.value.narrative,
+      imagePath: routeTab.value.image,
+      artImageId: null,
+      icon: routeTab.value.icon,
+    }
+  }
+
+  return current
+})
+
+const tutorialLocation = computed(() =>
+  routeTabOutrunsPage.value
+    ? routeLocation.value
+    : {
+        channel: pageStore.resolvedChannel,
+        tab: pageStore.resolvedTab,
+      },
+)
 
 const tutorialChannelKey = computed(() => {
-  const modernChannel = pageStore.resolvedChannel
+  const modernChannel = tutorialLocation.value?.channel
   if (modernChannel?.tutorial) return modernChannel.channelKey
 
   return resolveTutorialChannelFromRoute(route.path)
 })
 
 const tutorialTabKey = computed(() => {
-  const modernChannel = pageStore.resolvedChannel
+  const modernChannel = tutorialLocation.value?.channel
   if (!modernChannel || modernChannel.channelKey !== tutorialChannelKey.value) {
     return ''
   }
 
-  return pageStore.resolvedTab?.tabKey || ''
+  return tutorialLocation.value?.tab?.tabKey || ''
 })
 
 const isBuilder = computed(() => {

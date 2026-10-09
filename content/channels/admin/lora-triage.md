@@ -11,6 +11,10 @@ route: /admin/lora-triage
 sort: 74
 navigation: false
 requiredRole: ADMIN
+tutorial:
+  title: LoRA Triage
+  body: >-
+    Review LoRAs in batches and mark each one SFW or NSFW, then save the batch at once. Your place in the list is kept in this browser, so a long triage can be finished across sessions.
 ---
 
 Review LoRA maturity classifications in batches while preserving local triage progress between sessions.

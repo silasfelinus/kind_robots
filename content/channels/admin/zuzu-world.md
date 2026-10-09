@@ -11,6 +11,10 @@ icon: kind-icon:gallery
 route: /admin/worlds/zuzu
 sort: 124
 requiredRole: ADMIN
+tutorial:
+  title: Zuzu World
+  body: >-
+    One shared archive for every Zuzu production. Search or filter by project and media type, open a card to see where it came from and which projects already use it, link it to another production with Use in project rather than copying it, or send a visual fix back to the agents with Request edit. Canon and lore, characters, scenarios, props, LoRAs, the comic, music videos, and the gamebook are each one button away.
 ---
 
 Browse Zuzu's art and linked productions, connect existing images to new projects without copying them, and submit visual change requests for agent review.

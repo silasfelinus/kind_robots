@@ -359,9 +359,22 @@ const fallbackChannel: ResolvedChannel = {
   tabs: [],
 }
 
+/*
+ * Route first, like workspace-header. Only content pages call setPage, so on a
+ * dedicated page such as /admin/worlds/zuzu pageStore still describes the last
+ * content page visited -- the button read "Home" beside an Admin tab picker
+ * and the Admin row was never highlighted.
+ */
+const routeLocation = computed(() =>
+  channelContentStore.resolveActiveLocation({ path: route.path }),
+)
+
 const activeChannel = computed<ResolvedChannel>(() => {
   return (
-    pageStore.resolvedChannel ?? visibleChannels.value[0] ?? fallbackChannel
+    routeLocation.value?.channel ??
+    pageStore.resolvedChannel ??
+    visibleChannels.value[0] ??
+    fallbackChannel
   )
 })
 
@@ -378,6 +391,9 @@ const activeTab = computed<ResolvedTab | null>(() => {
   ) {
     return pageStore.resolvedTab
   }
+
+  const routeTab = routeLocation.value?.tab
+  if (routeTab && routeTab.channelKey === channel.channelKey) return routeTab
 
   const storedTabKey = channelContentStore.getActiveTab(channel.channelKey)
 

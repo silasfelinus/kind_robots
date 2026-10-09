@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict'
-import { readFileSync } from 'node:fs'
+import { readdirSync, readFileSync } from 'node:fs'
 import {
   filterChannelsByRole,
   resolveChannels,
@@ -310,9 +310,51 @@ const workspaceSheetSource = readFileSync(
 )
 assert.match(
   workspaceSheetSource,
-  /const tutorialChannelKey = computed\(\(\) => \{[\s\S]*?pageStore\.resolvedChannel[\s\S]*?modernChannel\?\.tutorial[\s\S]*?resolveTutorialChannelFromRoute\(route\.path\)/,
+  /const tutorialChannelKey = computed\(\(\) => \{[\s\S]*?tutorialLocation\.value\?\.channel[\s\S]*?modernChannel\?\.tutorial[\s\S]*?resolveTutorialChannelFromRoute\(route\.path\)/,
   'Workspace tutorial resolution must prefer modern content channels before legacy route fallback.',
 )
+assert.match(
+  workspaceSheetSource,
+  /const tutorialLocation = computed\(\(\) =>\s*routeTabOutrunsPage\.value\s*\?\s*routeLocation\.value/,
+  'Dedicated pages never call setPage, so the workspace tutorial must follow the route when pageStore still describes another channel.',
+)
+
+for (const source of [
+  workspaceSheetSource,
+  readFileSync('components/navigation/channel-select.vue', 'utf8'),
+]) {
+  assert.ok(
+    source.includes(
+      'channelContentStore.resolveActiveLocation({ path: route.path })',
+    ),
+    'Channel picker and workspace sheet must resolve the active channel from the route, as workspace-header does.',
+  )
+}
+
+const adminChannelSource = readFileSync(
+  'content/channels/admin/index.md',
+  'utf8',
+)
+for (const key of ['operations', 'studios', 'care', 'boundaries']) {
+  assert.match(
+    adminChannelSource,
+    new RegExp(`\\n\\s{4}- key:\\s*${key}\\n`),
+    `Admin conceptual tutorial must keep the "${key}" section.`,
+  )
+}
+
+const adminTabFiles = readdirSync('content/channels/admin').filter(
+  (file) => file.endsWith('.md') && file !== 'index.md',
+)
+for (const file of adminTabFiles) {
+  const source = readFileSync(`content/channels/admin/${file}`, 'utf8')
+  const frontMatter = source.match(/^---\n([\s\S]*?)\n---/)?.[1] ?? ''
+  assert.match(
+    frontMatter,
+    /\ntutorial:\s*\n\s+(?:enabled:\s*false|title:[^\n]+\n\s+body:)/,
+    `Admin tab ${file} must carry explicit page help (or deliberately disable it).`,
+  )
+}
 assert.ok(
   workspaceSheetSource.includes(':tab="tutorialTabKey || undefined"'),
   'Workspace tutorials must pass the active modern tab into the tutorial flyer.',

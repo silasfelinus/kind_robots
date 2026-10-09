@@ -350,7 +350,7 @@
               required
             />
           </label>
-          <p class="text-xs text-base-content/60">Sends a private Conductor pitch for agent review. It does not immediately spend GPU time or publish art.</p>
+          <p class="text-xs text-base-content/60">Creates a private Kind Robots agent Todo linked to the project. No render or publication starts automatically.</p>
           <div class="flex justify-end gap-2">
             <button type="button" class="kr-btn btn-outline" @click="showRequest = false">Cancel</button>
             <button type="submit" class="kr-btn-primary" :disabled="studio.requesting || !requestDirection.trim()">

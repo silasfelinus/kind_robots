@@ -11,6 +11,11 @@
  * the closest vetted render until its own plate lands (conductor
  * projects/zuzu-gamebook/art/ROUND-1.yaml queues those). Alt text describes the
  * picture itself, not the prose.
+ *
+ * Shared Zuzu canon, locked cast ArtImages and the full Zuzu art inventory live
+ * in the conductor world registry, worlds/zuzu (README.md, catalog.json). These
+ * plates are indexed there in assets/repository-media.json and their ledger in
+ * assets/ledger-part-05.json; keep them in step when a plate changes.
  */
 export type ScenePlate = {
   file: string

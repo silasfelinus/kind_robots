@@ -3,8 +3,12 @@
        above the site header and shell (their stacking contexts would trap it). -->
   <Teleport to="body" :disabled="!locked">
     <div
+      ref="cabinetRef"
       class="arcade-cabinet"
-      :class="{ 'arcade-cabinet--locked': locked }"
+      :class="{
+        'arcade-cabinet--locked': locked,
+        'arcade-cabinet--fullscreen': fullscreen,
+      }"
       :style="{ '--arcade-accent': meta?.accent ?? '#f472b6' }"
       @contextmenu="onContextMenu"
     >
@@ -211,6 +215,14 @@
           >
             {{ crt ? 'CRT on' : 'CRT off' }}
           </button>
+          <button
+            type="button"
+            class="cabinet-switch"
+            :aria-pressed="fullscreen"
+            @click="toggleFullscreen"
+          >
+            {{ fullscreen ? 'Exit fullscreen' : 'Fullscreen' }}
+          </button>
           <span class="cabinet-coin">Free play</span>
         </div>
       </div>
@@ -277,6 +289,8 @@ const isWebGLCabinet = computed(() => meta.value?.renderMode === 'webgl')
 /** The most players a cabinet seats on one device. */
 const MAX_SEATS = 4
 
+const cabinetRef = ref<HTMLDivElement | null>(null)
+const fullscreen = ref(false)
 const screenRef = ref<HTMLDivElement | null>(null)
 const wrapRef = ref<HTMLDivElement | null>(null)
 /** Bezel width (px) that fits the space actually left for the screen while locked. */
@@ -396,7 +410,8 @@ let hintLives: number | null = null
 // fitted to the space measured around it instead (fitScreen), so no resize,
 // rotation or split view can push part of it off screen.
 const screenMaxWidth = computed(() => {
-  if (locked.value && fittedWidth.value > 0) return `${fittedWidth.value}px`
+  if ((locked.value || fullscreen.value) && fittedWidth.value > 0)
+    return `${fittedWidth.value}px`
   const ratio = (meta.value?.width ?? 4) / (meta.value?.height ?? 3)
   return `min(100%, calc(62svh * ${ratio.toFixed(4)}))`
 })
@@ -404,7 +419,7 @@ const screenMaxWidth = computed(() => {
 /** Size the bezel to the largest screen that fits the measured play area. */
 function fitScreen() {
   const wrap = wrapRef.value
-  if (!locked.value || !wrap) {
+  if ((!locked.value && !fullscreen.value) || !wrap) {
     fittedWidth.value = 0
     return
   }
@@ -421,6 +436,25 @@ function fitScreen() {
   // The locked bezel has no padding: the screen gets the whole wrap.
   const ratio = (meta.value?.width ?? 4) / (meta.value?.height ?? 3)
   fittedWidth.value = Math.max(0, Math.floor(Math.min(width, height * ratio)))
+}
+
+function syncFullscreen() {
+  fullscreen.value = document.fullscreenElement === cabinetRef.value
+  void nextTick(fitScreen)
+}
+
+async function toggleFullscreen() {
+  const cabinet = cabinetRef.value
+  if (!cabinet) return
+  try {
+    if (document.fullscreenElement === cabinet) {
+      await document.exitFullscreen()
+    } else if (!document.fullscreenElement) {
+      await cabinet.requestFullscreen()
+    }
+  } catch {
+    fullscreen.value = document.fullscreenElement === cabinet
+  }
 }
 
 const board = computed(() => store.board(props.slug, 'all'))
@@ -1379,6 +1413,7 @@ onMounted(() => {
   window.addEventListener('keydown', onKey)
   window.addEventListener('online', onOnline)
   document.addEventListener('visibilitychange', onVisibility)
+  document.addEventListener('fullscreenchange', syncFullscreen)
   resizeObserver = new ResizeObserver(resizeCanvas)
   if (screenRef.value) resizeObserver.observe(screenRef.value)
   wrapObserver = new ResizeObserver(fitScreen)
@@ -1399,6 +1434,10 @@ watch(players, () => {
   applySeats()
 })
 
+watch(fullscreen, () => {
+  void nextTick(fitScreen)
+})
+
 watch(locked, (on) => {
   setPageLock(on)
   // Locking swaps the settings panel for the overlay and back, so the button
@@ -1415,6 +1454,9 @@ onBeforeUnmount(() => {
   window.removeEventListener('keydown', onKey)
   window.removeEventListener('online', onOnline)
   document.removeEventListener('visibilitychange', onVisibility)
+  document.removeEventListener('fullscreenchange', syncFullscreen)
+  if (document.fullscreenElement === cabinetRef.value)
+    void document.exitFullscreen()
   resizeObserver?.disconnect()
   wrapObserver?.disconnect()
   sound?.dispose()
@@ -1451,6 +1493,38 @@ onBeforeUnmount(() => {
     0 0 28px color-mix(in srgb, var(--arcade-accent) 45%, transparent),
     inset 0 0 0 2px rgba(253, 230, 138, 0.25);
   overflow: hidden;
+}
+
+.arcade-cabinet--fullscreen {
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  border: 0;
+  border-radius: 0;
+  margin: 0;
+  background: radial-gradient(circle at 50% 40%, #1e1b4b, #05030f 75%);
+}
+
+.arcade-cabinet--fullscreen .cabinet-marquee,
+.arcade-cabinet--fullscreen .cabinet-title-plate {
+  display: none;
+}
+
+.arcade-cabinet--fullscreen .cabinet-screen-wrap {
+  flex: 1;
+  min-height: 0;
+  display: grid;
+  place-items: center;
+  padding: 0.5rem;
+}
+
+.arcade-cabinet--fullscreen .cabinet-bezel {
+  width: 100%;
+  padding: 0;
+}
+
+.arcade-cabinet--fullscreen .cabinet-panel {
+  flex: 0 0 auto;
 }
 
 /* Pinned play view on touch devices: the game screen fills the device and owns

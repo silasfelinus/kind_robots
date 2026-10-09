@@ -93,8 +93,8 @@ export function isHomesteadState(v: unknown): v is HomesteadState {
   if (
     s.version !== 1 ||
     !Number.isSafeInteger(s.seed) ||
-    !Number.isInteger(s.health) ||
-    !Number.isInteger(s.provisions) ||
+    (typeof s.health !== 'number' || !Number.isInteger(s.health)) ||
+    (typeof s.provisions !== 'number' || !Number.isInteger(s.provisions)) ||
     !Array.isArray(s.deck) ||
     !Array.isArray(s.discard) ||
     !Array.isArray(s.revealed) ||

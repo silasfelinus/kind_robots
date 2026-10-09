@@ -174,7 +174,7 @@ export function isHomesteadState(value: unknown): value is HomesteadState {
         check.dice.every((die) => Number.isInteger(die) && die >= 1 && die <= 6) &&
         Number.isInteger(check.total) &&
         typeof check.success === 'boolean' &&
-        DISPOSITIONS.includes(check.disposition)))) &&
+        DISPOSITIONS.includes(check.disposition))) &&
     state.rngState! >= 0 &&
     state.rngState! <= 4294967295 &&
     state.health >= 0 &&

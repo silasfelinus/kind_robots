@@ -96,8 +96,10 @@ export type RenderOptions = {
   stage?: LoadedStage
   /** The stage event's state (stages.ts advanceStageFx). */
   stageFx?: StageFx
-  /** Pixel (the default) or HD (t-027): smooth images, the vector font, smooth sparks. */
+  /** Pixel or HD (t-027): smooth images, the vector font, smooth sparks. */
   style?: RenderStyle
+  /** The camera's zoom (advanceZoom toward zoomTarget); 1, the whole stage, when left out. */
+  zoom?: number
 }
 
 /** Set a context up for a render style: image filtering and the HUD font. */
@@ -136,10 +138,77 @@ const HUD = {
 // ---------------------------------------------------------------- camera
 
 /** The camera follows the fighters' midpoint, held inside the stage. */
-export function cameraX(s: MatchState): number {
+/**
+ * The camera follows the fighters' midpoint and stops where the view meets the stage's edge. Zoomed in,
+ * the view is narrower, so it can follow them further toward the walls.
+ */
+export function cameraX(s: MatchState, zoom = 1): number {
   const mid = Math.trunc((s.fighters[0].x + s.fighters[1].x) / 2)
-  const limit = (STAGE_HALF_WIDTH - VIEW_WIDTH / 2) * SUB
+  const limit = Math.round((STAGE_HALF_WIDTH - VIEW_WIDTH / 2 / zoom) * SUB)
   return Math.max(-limit, Math.min(limit, mid))
+}
+
+// ---------------------------------------------------------------- the zoom camera
+//
+// Silas (2026-10-09 PT): "Characters should be almost twice as large." The camera closes in on the
+// fight, Samurai Shodown style: up to MAX_ZOOM while the fighters are close, pulling back as they
+// part or leap so both stay in view. The sim never knows: the zoom is a draw transform about
+// (ZOOM_X, ZOOM_Y), the fighters and the floor scaled by it, the stage's deeper layers by less (a
+// camera moving in grows near things more than far ones), and the HUD not at all.
+
+/** The closest the camera comes: a standing Zuzu stands about twice as tall. */
+export const MAX_ZOOM = 1.85
+/** The point the view zooms about: the screen's centre, just under the floor. */
+export const ZOOM_X = VIEW_WIDTH / 2
+export const ZOOM_Y = 250
+/** Room either side of the fighters (their half-widths and some air). */
+const ZOOM_MARGIN = 54
+/** The highest screen row a head may reach, just under the names. */
+export const HEAD_ROW = 34
+/** Room above the art's height for hats and ears. */
+const HEAD_ROOM = 6
+
+/** How far in the camera wants to be for this frame of the match. */
+export function zoomTarget(s: MatchState, roster: Pair<FighterData>): number {
+  const gap = Math.abs(s.fighters[0].x - s.fighters[1].x) / SUB
+  const wide = VIEW_WIDTH / (gap + 2 * ZOOM_MARGIN)
+  // The highest head this jump will reach, so the camera pulls back on the way up, not after.
+  let top = 0
+  for (const side of [0, 1] as const) {
+    const f = s.fighters[side]
+    const data = roster[side]
+    const rise = f.vy > 0 ? (f.vy * f.vy) / (2 * Math.max(1, data.gravity)) : 0
+    const apex = Math.max(0, f.y + rise) / SUB
+    top = Math.max(top, apex + data.hurtStand.y + data.hurtStand.h + HEAD_ROOM)
+  }
+  // Zoomed by z the floor sits at ZOOM_Y - (ZOOM_Y - FLOOR_Y) z, and a head `top` above it at
+  // ZOOM_Y - (ZOOM_Y - FLOOR_Y + top) z, which must stay at or below HEAD_ROW.
+  const tall = (ZOOM_Y - HEAD_ROW) / (ZOOM_Y - FLOOR_Y + top)
+  return Math.max(1, Math.min(MAX_ZOOM, wide, tall))
+}
+
+/** Ease the camera toward its target: out quickly (nobody leaves the screen), in gently. */
+export function advanceZoom(
+  zoom: number,
+  target: number,
+  reducedMotion: boolean,
+): number {
+  const rate = target < zoom ? 0.2 : reducedMotion ? 0.03 : 0.07
+  const next = zoom + (target - zoom) * rate
+  return Math.abs(next - target) < 0.002 ? target : next
+}
+
+/** A stage layer's zoom: the floor and fighters take it all, the far sky barely any. */
+export function layerZoom(zoom: number, factor: number): number {
+  return 1 + (zoom - 1) * factor
+}
+
+/** Apply a zoom about (ZOOM_X, ZOOM_Y) to everything drawn next. */
+function zoomAbout(g: G, zoom: number): void {
+  if (zoom === 1) return
+  g.translate(ZOOM_X, ZOOM_Y)
+  g.scale(zoom, zoom)
+  g.translate(-ZOOM_X, -ZOOM_Y)
 }
 
 export function screenX(worldX: number, camera: number): number {
@@ -371,12 +440,25 @@ function drawPixelSprite(
   y: number,
   scale = 1,
 ): void {
+  // In HD (smooth images) the same pixels draw as overlapping round dots, so the stage's hand-drawn
+  // creatures read as soft silhouettes beside the painted art instead of blocks.
+  const smooth = g.imageSmoothingEnabled && typeof g.arc === 'function'
   sprite.forEach((row, ry) => {
     for (let rx = 0; rx < row.length; rx += 1) {
       const key = row[rx]
       if (!key || key === '.') continue
       g.fillStyle = STAGE_INK[key] ?? '#ff00ff'
-      g.fillRect(x + rx * scale, y + ry * scale, scale, scale)
+      if (smooth) {
+        g.beginPath()
+        g.arc(
+          x + (rx + 0.5) * scale,
+          y + (ry + 0.5) * scale,
+          scale * 0.95,
+          0,
+          Math.PI * 2,
+        )
+        g.fill()
+      } else g.fillRect(x + rx * scale, y + ry * scale, scale, scale)
     }
   })
 }
@@ -463,6 +545,7 @@ export function drawStageArt(
   camera: number,
   reducedMotion: boolean,
   fx: StageFx,
+  zoom = 1,
 ): void {
   const m = stage.manifest
   const cam = camera / SUB
@@ -472,6 +555,9 @@ export function drawStageArt(
   for (const layer of m.layers) {
     const image = stage.layers[layer.name]
     if (!image) continue
+    // Each layer (and what hangs off it) under its own share of the zoom.
+    g.save()
+    zoomAbout(g, layerZoom(zoom, layer.factor))
     const x = layerX(layer, cam)
     const shimmer =
       (m.stage === 'watering-hole' || m.stage === 'lone-apple-tree') &&
@@ -655,13 +741,17 @@ export function drawStageArt(
     if (fire?.w && fire.h) {
       // The bonfire's glow breathes, and embers climb out of it.
       const glow = reducedMotion ? 0.3 : 0.25 + 0.1 * Math.sin(frame / 5)
-      g.fillStyle = `rgba(251, 146, 60, ${glow.toFixed(2)})`
-      g.fillRect(
-        x + fire.x - 6,
-        layer.y + fire.y + Math.round(fire.h / 3),
-        fire.w + 12,
-        Math.round((fire.h * 2) / 3),
-      )
+      // A soft pool of light round the fire (a plain wash where a context can't draw gradients).
+      const cx = x + fire.x + fire.w / 2
+      const cy = layer.y + fire.y + (fire.h * 2) / 3
+      const r = fire.w + 14
+      if (typeof g.createRadialGradient === 'function') {
+        const pool = g.createRadialGradient(cx, cy, 0, cx, cy, r)
+        pool.addColorStop(0, `rgba(251, 146, 60, ${(glow * 1.6).toFixed(2)})`)
+        pool.addColorStop(1, 'rgba(251, 146, 60, 0)')
+        g.fillStyle = pool
+      } else g.fillStyle = `rgba(251, 146, 60, ${glow.toFixed(2)})`
+      g.fillRect(cx - r, cy - r, r * 2, r * 2)
       g.fillStyle = '#fdba74'
       for (const ember of embersAt(frame, fire.w, fire.h, reducedMotion)) {
         g.fillRect(x + fire.x + ember.x, layer.y + fire.y + ember.y, 1, 1)
@@ -769,7 +859,11 @@ export function drawStageArt(
         )
       }
     }
+    g.restore()
   }
+  // The ground's own goings-on zoom with the floor; the rain is on the lens.
+  g.save()
+  zoomAbout(g, zoom)
   const slump =
     m.stage === 'the-dunes' && !reducedMotion
       ? duneSlumpAt(frame, VIEW_WIDTH)
@@ -801,6 +895,7 @@ export function drawStageArt(
       g.fillRect(Math.round(devil.x + Math.cos(a) * r), FLOOR_Y - k, 2, 1)
     }
   }
+  g.restore()
   if (m.stage === 'storm-canyon') {
     g.fillStyle = 'rgba(186, 214, 255, 0.35)'
     for (const drop of rainAt(frame, reducedMotion, VIEW_WIDTH, VIEW_HEIGHT)) {
@@ -1197,7 +1292,8 @@ export function drawMatch(
   options: RenderOptions,
 ): void {
   applyRenderStyle(g, options.style)
-  const camera = cameraX(s)
+  const zoom = options.zoom ?? 1
+  const camera = cameraX(s, zoom)
   if (options.stage)
     drawStageArt(
       g,
@@ -1207,8 +1303,17 @@ export function drawMatch(
       camera,
       options.reducedMotion,
       options.stageFx ?? { bell: null },
+      zoom,
     )
-  else drawStage(g, camera, s.frame, options.reducedMotion)
+  else {
+    g.save()
+    zoomAbout(g, zoom)
+    drawStage(g, camera, s.frame, options.reducedMotion)
+    g.restore()
+  }
+  // The fight itself, under the camera's zoom; the HUD and callouts stay put.
+  g.save()
+  zoomAbout(g, zoom)
   // The fighter who is attacking draws in front.
   const order: Array<0 | 1> =
     s.fighters[1].attack && !s.fighters[0].attack ? [0, 1] : [1, 0]
@@ -1237,6 +1342,7 @@ export function drawMatch(
       options.style === 'hd',
     )
   if (options.showBoxes) drawBoxes(g, s, roster, camera)
+  g.restore()
   const eyeStrip = drawSuperFlash(g, s, roster)
   drawHud(g, s, roster)
   if (!eyeStrip) drawCallouts(g, callouts)

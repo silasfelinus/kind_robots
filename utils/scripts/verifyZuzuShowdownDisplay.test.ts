@@ -32,12 +32,27 @@ import {
 } from '../arcade/font'
 import { recolourPixels, type P2Rule } from '../zuzuShowdown/recolour'
 import {
+  FLOOR_Y,
+  HEAD_ROW,
+  MAX_ZOOM,
   VIEW_HEIGHT,
   VIEW_WIDTH,
+  ZOOM_X,
+  ZOOM_Y,
+  advanceZoom,
+  cameraX,
   drawMatch,
+  layerZoom,
+  zoomTarget,
   type Callout,
 } from '../zuzuShowdown/render'
-import { createMatch, step } from '../zuzuShowdown/sim'
+import {
+  MAX_SEPARATION,
+  STAGE_HALF_WIDTH,
+  createMatch,
+  step,
+} from '../zuzuShowdown/sim'
+import { mulberry32 } from '../arcade/curve'
 import type { Spark } from '../zuzuShowdown/effects'
 import {
   SPRITE_FIGHTERS,
@@ -443,5 +458,123 @@ check(
     }
   },
 )
+
+check(
+  'the camera closes in on the fight: about twice the size up close, back out to fit',
+  () => {
+    const zuzus: [FighterData, FighterData] = [ZUZU, ZUZU]
+    // At the round's start (140 apart) Zuzu fills the closest zoom; the Coyote (104 tall) a touch less.
+    assert.equal(zoomTarget(createMatch(zuzus), zuzus), MAX_ZOOM)
+    const coyote = zoomTarget(createMatch(ROSTER), ROSTER)
+    assert.ok(coyote > 1.7 && coyote <= MAX_ZOOM, `${coyote}`)
+    // A full screen apart, the whole stage again.
+    const apart = createMatch(zuzus)
+    apart.fighters[0].x = (-MAX_SEPARATION / 2) * SUB
+    apart.fighters[1].x = (MAX_SEPARATION / 2) * SUB
+    assert.equal(zoomTarget(apart, zuzus), 1)
+    // Taking off, the camera already makes room for the top of the jump.
+    const jump = createMatch(zuzus)
+    jump.fighters[0].vy = ZUZU.jumpVelocity
+    assert.ok(zoomTarget(jump, zuzus) < 1.45, `${zoomTarget(jump, zuzus)}`)
+    // Easing: out faster than in, and it settles exactly.
+    const out = advanceZoom(1.8, 1.2, false) - 1.8
+    const back = advanceZoom(1.2, 1.8, false) - 1.2
+    assert.ok(-out > back && back > 0)
+    let z = 1
+    for (let i = 0; i < 400; i += 1) z = advanceZoom(z, 1.5, false)
+    assert.equal(z, 1.5)
+    assert.equal(layerZoom(1.8, 1), 1.8)
+    assert.equal(layerZoom(1.8, 0), 1)
+  },
+)
+
+check(
+  'zoomed, both fighters stay on screen and every head under the names',
+  () => {
+    for (const roster of [ROSTER, [ZUZU, ZUZU] as [FighterData, FighterData]])
+      for (const seed of [3, 17, 2026]) {
+        const rand = mulberry32(seed)
+        let s = createMatch(roster)
+        const held = [neutralInput(), neutralInput()]
+        for (let i = 0; i < 2400 && s.phase !== 'over'; i += 1) {
+          for (const p of held)
+            for (const button of [
+              'left',
+              'right',
+              'up',
+              'down',
+              'lp',
+              'hk',
+            ] as const)
+              if (rand() < 0.08) p[button] = !p[button]
+          s = step(s, [{ ...held[0]! }, { ...held[1]! }], roster)
+          const z = zoomTarget(s, roster)
+          const camera = cameraX(s, z) / SUB
+          for (const side of [0, 1] as const) {
+            const f = s.fighters[side]
+            const data = roster[side]
+            const x = ZOOM_X + (f.x / SUB - camera) * z
+            const half = (data.pushbox.w / 2) * z
+            assert.ok(
+              x - half >= -1 && x + half <= VIEW_WIDTH + 1,
+              `side ${side} at ${x} (zoom ${z}) frame ${i}`,
+            )
+            const head =
+              Math.max(0, f.y / SUB) + data.hurtStand.y + data.hurtStand.h
+            const row = ZOOM_Y - (ZOOM_Y - FLOOR_Y + head) * z
+            // (At zoom 1 a big jump can reach the HUD, as it always could: the zoom never adds to that.)
+            if (z > 1)
+              assert.ok(
+                row >= HEAD_ROW - 1,
+                `side ${side}'s head at row ${row} (zoom ${z}) frame ${i}`,
+              )
+          }
+        }
+      }
+  },
+)
+
+check('every stage still fills the screen at every zoom and camera', () => {
+  for (const slug of Object.keys(STAGE_NAMES) as StageSlug[]) {
+    const m = JSON.parse(
+      readFileSync(join(STAGES, stageFile(slug, 'pixel')), 'utf8'),
+    ) as StageManifest
+    const byName = Object.fromEntries(m.layers.map((l) => [l.name, l]))
+    for (const z of [1, 1.25, 1.5, 1.7, MAX_ZOOM]) {
+      const limit = STAGE_HALF_WIDTH - VIEW_WIDTH / 2 / z
+      for (const cam of [-limit, 0, limit]) {
+        for (const name of ['backdrop', 'floor']) {
+          const l = byName[name]
+          assert.ok(l, `${slug} has a ${name}`)
+          const k = layerZoom(z, l.factor)
+          const left = ZOOM_X + (Math.round(l.x - cam * l.factor) - ZOOM_X) * k
+          const right = left + l.w * k
+          const at = `${slug} ${name} at zoom ${z}, camera ${cam.toFixed(0)}`
+          assert.ok(
+            left <= 0 && right >= VIEW_WIDTH,
+            `${at}: ${left.toFixed(1)}..${right.toFixed(1)}`,
+          )
+          const top = ZOOM_Y + (l.y - ZOOM_Y) * k
+          const bottom = ZOOM_Y + (l.y + l.h - ZOOM_Y) * k
+          if (name === 'backdrop')
+            assert.ok(top <= 0, `${at}: sky starts at ${top}`)
+          else
+            assert.ok(bottom >= VIEW_HEIGHT, `${at}: ground ends at ${bottom}`)
+        }
+        // No gap between the sky and the ground.
+        const sky = byName.backdrop!
+        const ground = byName.floor!
+        const skyBottom =
+          ZOOM_Y + (sky.y + sky.h - ZOOM_Y) * layerZoom(z, sky.factor)
+        const groundTop =
+          ZOOM_Y + (ground.y - ZOOM_Y) * layerZoom(z, ground.factor)
+        assert.ok(
+          groundTop <= skyBottom,
+          `${slug} at zoom ${z}: ${groundTop} > ${skyBottom}`,
+        )
+      }
+    }
+  }
+})
 
 console.log(`verifyZuzuShowdownDisplay: ${passed} checks passed`)

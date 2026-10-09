@@ -222,21 +222,48 @@
                     class="grid grid-cols-2 gap-2"
                     aria-label="Drawn character species and occupation"
                   >
-                    <div class="relative isolate overflow-hidden rounded-xl border border-base-content/20 bg-base-300 px-3 py-4">
-                      <img src="/images/adventure/card/card-back3.webp" alt="" class="absolute inset-0 -z-10 size-full object-cover opacity-20" />
-                      <p class="text-[10px] font-bold uppercase tracking-widest opacity-70">Species card</p>
-                      <p class="mt-1 font-serif text-lg font-black capitalize">{{ game.state.activeEncounter.species }}</p>
+                    <div
+                      class="relative isolate overflow-hidden rounded-xl border border-base-content/20 bg-base-300 px-3 py-4"
+                    >
+                      <img
+                        src="/images/adventure/card/card-back3.webp"
+                        alt=""
+                        class="absolute inset-0 -z-10 size-full object-cover opacity-20"
+                      />
+                      <p
+                        class="text-[10px] font-bold uppercase tracking-widest opacity-70"
+                      >
+                        Species card
+                      </p>
+                      <p class="mt-1 font-serif text-lg font-black capitalize">
+                        {{ game.state.activeEncounter.species }}
+                      </p>
                     </div>
-                    <div class="relative isolate overflow-hidden rounded-xl border border-base-content/20 bg-base-300 px-3 py-4">
-                      <img src="/images/adventure/card/card-back4.webp" alt="" class="absolute inset-0 -z-10 size-full object-cover opacity-20" />
-                      <p class="text-[10px] font-bold uppercase tracking-widest opacity-70">Role card</p>
-                      <p class="mt-1 font-serif text-lg font-black capitalize">{{ game.state.activeEncounter.role }}</p>
+                    <div
+                      class="relative isolate overflow-hidden rounded-xl border border-base-content/20 bg-base-300 px-3 py-4"
+                    >
+                      <img
+                        src="/images/adventure/card/card-back4.webp"
+                        alt=""
+                        class="absolute inset-0 -z-10 size-full object-cover opacity-20"
+                      />
+                      <p
+                        class="text-[10px] font-bold uppercase tracking-widest opacity-70"
+                      >
+                        Role card
+                      </p>
+                      <p class="mt-1 font-serif text-lg font-black capitalize">
+                        {{ game.state.activeEncounter.role }}
+                      </p>
                     </div>
                   </div>
                   <p class="text-sm leading-relaxed">
                     {{ game.activeCard.narrative }}
                   </p>
-                  <p class="text-xs opacity-70">Choose a check: roll 2d6 plus the listed skill. Results are saved with your journey.</p>
+                  <p class="text-xs opacity-70">
+                    Choose a check: roll 2d6 plus the listed skill. Results are
+                    saved with your journey.
+                  </p>
                   <div class="flex flex-wrap gap-2">
                     <button
                       class="btn btn-primary btn-sm"
@@ -330,11 +357,34 @@
             class="rounded-2xl border border-warning/40 bg-base-200 p-4"
             aria-live="polite"
           >
-            <p class="text-xs font-black uppercase tracking-widest text-warning">Last skill check</p>
-            <p class="mt-2 font-serif text-3xl font-black">{{ game.state.lastCheck.dice.join(' + ') }} <span class="text-lg opacity-70">+ {{ game.state.lastCheck.modifier }}</span></p>
-            <p class="text-sm">Total {{ game.state.lastCheck.total }} against {{ game.state.lastCheck.difficulty }}</p>
-            <p class="font-bold" :class="game.state.lastCheck.success ? 'text-success' : 'text-error'">{{ game.state.lastCheck.success ? 'Success' : 'Failure' }}</p>
-            <p class="mt-2 text-xs opacity-70">The encounter's disposition was {{ game.state.lastCheck.disposition }}. Species does not determine intent.</p>
+            <p
+              class="text-xs font-black uppercase tracking-widest text-warning"
+            >
+              Last skill check
+            </p>
+            <p class="mt-2 font-serif text-3xl font-black">
+              {{ game.state.lastCheck.dice.join(' + ') }}
+              <span class="text-lg opacity-70"
+                >+ {{ game.state.lastCheck.modifier }}</span
+              >
+            </p>
+            <p class="text-sm">
+              Total {{ game.state.lastCheck.total }} against
+              {{ game.state.lastCheck.difficulty }}
+            </p>
+            <p
+              class="font-bold"
+              :class="
+                game.state.lastCheck.success ? 'text-success' : 'text-error'
+              "
+            >
+              {{ game.state.lastCheck.success ? 'Success' : 'Failure' }}
+            </p>
+            <p class="mt-2 text-xs opacity-70">
+              The encounter's disposition was
+              {{ game.state.lastCheck.disposition }}. Species does not determine
+              intent.
+            </p>
           </section>
           <section
             class="rounded-2xl border border-base-content/10 bg-base-200 p-4"
@@ -351,9 +401,10 @@
             </ol>
           </section>
           <p class="text-xs opacity-65">
-            Prototype: three encounters, independent species/role draws, deterministic
-            skill rolls and local save/resume. Live Facet resource queries, combat,
-            companions, additional lands and server saves remain upcoming.
+            Prototype: three encounters, independent species/role draws,
+            deterministic skill rolls and local save/resume. Live Facet resource
+            queries, combat, companions, additional lands and server saves
+            remain upcoming.
           </p>
         </aside>
       </div>

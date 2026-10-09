@@ -6,7 +6,7 @@ label: Shifting Lands
 title: Zuzu · Shifting Lands Workshop
 subtitle: Build and playtest the illustrated narrative board game
 summary: Homestead cards, encounters and Zuzu’s journey.
-description: "Admin-only playable Homestead prototype with illustrated locations, drawn species and role cards, skill checks, and a saved journey."
+description: 'Admin-only playable Homestead prototype with illustrated locations, drawn species and role cards, skill checks, and a saved journey.'
 icon: kind-icon:map
 route: /admin/zuzu-shifting-lands
 sort: 125

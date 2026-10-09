@@ -140,8 +140,10 @@ export function isHomesteadState(value: unknown): value is HomesteadState {
     state.version !== 2 ||
     !Number.isSafeInteger(state.seed) ||
     !Number.isInteger(state.rngState) ||
-    (typeof state.health !== 'number' || !Number.isInteger(state.health)) ||
-    (typeof state.provisions !== 'number' || !Number.isInteger(state.provisions)) ||
+    typeof state.health !== 'number' ||
+    !Number.isInteger(state.health) ||
+    typeof state.provisions !== 'number' ||
+    !Number.isInteger(state.provisions) ||
     !Array.isArray(state.deck) ||
     !Array.isArray(state.discard) ||
     !Array.isArray(state.revealed) ||
@@ -150,7 +152,11 @@ export function isHomesteadState(value: unknown): value is HomesteadState {
     !(state.active === null || typeof state.active === 'string')
   )
     return false
-  const all = [...state.deck, ...state.discard, ...(state.active ? [state.active] : [])]
+  const all = [
+    ...state.deck,
+    ...state.discard,
+    ...(state.active ? [state.active] : []),
+  ]
   const participant = state.activeEncounter
   const check = state.lastCheck
   return (
@@ -167,11 +173,14 @@ export function isHomesteadState(value: unknown): value is HomesteadState {
         ROLE_IDS.includes(participant.role) &&
         DISPOSITIONS.includes(participant.disposition))) &&
     (check === null ||
-      (check != null && IDS.includes(check.locationId) &&
+      (check != null &&
+        IDS.includes(check.locationId) &&
         (check.approach === 'insight' || check.approach === 'bearing') &&
         Array.isArray(check.dice) &&
         check.dice.length === 2 &&
-        check.dice.every((die) => Number.isInteger(die) && die >= 1 && die <= 6) &&
+        check.dice.every(
+          (die) => Number.isInteger(die) && die >= 1 && die <= 6,
+        ) &&
         Number.isInteger(check.total) &&
         typeof check.success === 'boolean' &&
         DISPOSITIONS.includes(check.disposition))) &&
@@ -201,20 +210,32 @@ export function restoreHomestead(value: unknown): HomesteadState | null {
     bossResolved: old.bossResolved === true,
   }
   if (candidate.active) {
-    const [rng, encounter] = createParticipant(candidate.active, candidate.rngState)
+    const [rng, encounter] = createParticipant(
+      candidate.active,
+      candidate.rngState,
+    )
     candidate.rngState = rng
     candidate.activeEncounter = encounter
   }
   return isHomesteadState(candidate) ? candidate : null
 }
-function createParticipant(locationId: string, start: number): [number, HomesteadEncounter] {
+function createParticipant(
+  locationId: string,
+  start: number,
+): [number, HomesteadEncounter] {
   const [r1, species] = sample(SPECIES_IDS, start)
   const [r2, role] = sample(ROLE_IDS, r1)
   const [r3, disposition] = sample(DISPOSITIONS, r2)
   return [r3, { locationId, species, role, disposition }]
 }
 export function drawHomestead(state: HomesteadState): HomesteadState {
-  if (state.active || state.health <= 0 || !state.deck.length || state.bossResolved) return state
+  if (
+    state.active ||
+    state.health <= 0 ||
+    !state.deck.length ||
+    state.bossResolved
+  )
+    return state
   const [active, ...deck] = state.deck
   const [rngState, activeEncounter] = createParticipant(active!, state.rngState)
   return {
@@ -225,16 +246,33 @@ export function drawHomestead(state: HomesteadState): HomesteadState {
     rngState,
     revealed: [...state.revealed, active!],
     lastCheck: null,
-    journal: [...state.journal, `Drew ${HOMESTEAD_CARDS.find((card) => card.id === active)?.title}.`],
+    journal: [
+      ...state.journal,
+      `Drew ${HOMESTEAD_CARDS.find((card) => card.id === active)?.title}.`,
+    ],
   }
 }
-export function resolveHomestead(state: HomesteadState, approach: Approach): HomesteadState {
-  if (!state.active || !state.activeEncounter || state.health <= 0 || state.bossResolved) return state
+export function resolveHomestead(
+  state: HomesteadState,
+  approach: Approach,
+): HomesteadState {
+  if (
+    !state.active ||
+    !state.activeEncounter ||
+    state.health <= 0 ||
+    state.bossResolved
+  )
+    return state
   if (approach === 'bearing' && state.provisions <= 0) return state
-  const card = HOMESTEAD_CARDS.find((candidate) => candidate.id === state.active)!
+  const card = HOMESTEAD_CARDS.find(
+    (candidate) => candidate.id === state.active,
+  )!
   const [r1, d1] = nextRandom(state.rngState)
   const [r2, d2] = nextRandom(r1)
-  const dice: [number, number] = [Math.floor(d1 * 6) + 1, Math.floor(d2 * 6) + 1]
+  const dice: [number, number] = [
+    Math.floor(d1 * 6) + 1,
+    Math.floor(d2 * 6) + 1,
+  ]
   const difficulty = approach === 'insight' ? 9 : 7
   const modifier = HOMESTEAD_SKILLS[approach]
   const total = dice[0] + dice[1] + modifier
@@ -250,10 +288,26 @@ export function resolveHomestead(state: HomesteadState, approach: Approach): Hom
     disposition: state.activeEncounter.disposition,
   }
   const spent = approach === 'bearing' ? 1 : 0
-  const health = Math.max(0, Math.min(8, state.health + (success && card.id !== 'farm' ? 1 : success ? 0 : -1)))
-  const provisions = Math.max(0, Math.min(30, state.provisions - spent + (card.id === 'farm' ? (success ? 2 : -1) : 0)))
-  const species = HOMESTEAD_SPECIES.find((item) => item.id === state.activeEncounter!.species)!.label
-  const role = HOMESTEAD_ROLES.find((item) => item.id === state.activeEncounter!.role)!.label
+  const health = Math.max(
+    0,
+    Math.min(
+      8,
+      state.health + (success && card.id !== 'farm' ? 1 : success ? 0 : -1),
+    ),
+  )
+  const provisions = Math.max(
+    0,
+    Math.min(
+      30,
+      state.provisions - spent + (card.id === 'farm' ? (success ? 2 : -1) : 0),
+    ),
+  )
+  const species = HOMESTEAD_SPECIES.find(
+    (item) => item.id === state.activeEncounter!.species,
+  )!.label
+  const role = HOMESTEAD_ROLES.find(
+    (item) => item.id === state.activeEncounter!.role,
+  )!.label
   return {
     ...state,
     active: null,
@@ -270,12 +324,24 @@ export function resolveHomestead(state: HomesteadState, approach: Approach): Hom
     ],
   }
 }
-export function confrontAbbess(state: HomesteadState, choice: 'confront' | 'escape'): HomesteadState {
-  if (state.active || state.deck.length || state.health <= 0 || state.bossResolved) return state
+export function confrontAbbess(
+  state: HomesteadState,
+  choice: 'confront' | 'escape',
+): HomesteadState {
+  if (
+    state.active ||
+    state.deck.length ||
+    state.health <= 0 ||
+    state.bossResolved
+  )
+    return state
   return {
     ...state,
     bossResolved: true,
     health: Math.max(0, state.health - (choice === 'escape' ? 2 : 0)),
-    journal: [...state.journal, choice === 'confront' ? BOSS_CARD.reward : BOSS_CARD.penalty],
+    journal: [
+      ...state.journal,
+      choice === 'confront' ? BOSS_CARD.reward : BOSS_CARD.penalty,
+    ],
   }
 }

@@ -85,14 +85,16 @@
           </NuxtLink>
         </div>
 
-        <details class="rounded-2xl border border-base-content/10 bg-base-200/80 p-4">
+        <details
+          class="rounded-2xl border border-base-content/10 bg-base-200/80 p-4"
+        >
           <summary class="cursor-pointer text-sm font-bold">
             Resource identity audit · Characters, Scenarios, Rewards &amp; LoRAs
           </summary>
           <div class="mt-4 space-y-3">
             <p class="text-sm text-base-content/70">
-              Compare Conductor's prepared Zuzu submissions with records owned by
-              this admin account. Exact slugs identify candidates; matching
+              Compare Conductor's prepared Zuzu submissions with records owned
+              by this admin account. Exact slugs identify candidates; matching
               names and LoRA triggers always need review before edits. This
               lookup never creates, changes or publishes records.
             </p>
@@ -103,9 +105,15 @@
               @click="studio.loadResourceAudit()"
             >
               <span v-if="studio.auditingResources" class="kr-spinner-xs" />
-              {{ studio.resourceAudit ? 'Refresh owned IDs' : 'Audit owned IDs' }}
+              {{
+                studio.resourceAudit ? 'Refresh owned IDs' : 'Audit owned IDs'
+              }}
             </button>
-            <p v-if="studio.resourceAuditError" class="kr-note kr-note-error" role="alert">
+            <p
+              v-if="studio.resourceAuditError"
+              class="kr-note kr-note-error"
+              role="alert"
+            >
               {{ studio.resourceAuditError }}
             </p>
             <template v-if="studio.resourceAudit">
@@ -120,7 +128,10 @@
                   {{ studio.resourceAudit.counts['slug-match'] }} slug matches
                 </span>
                 <span class="kr-badge-outline">
-                  {{ studio.resourceAudit.counts['name-review'] + studio.resourceAudit.counts['trigger-review'] }}
+                  {{
+                    studio.resourceAudit.counts['name-review'] +
+                    studio.resourceAudit.counts['trigger-review']
+                  }}
                   to inspect
                 </span>
                 <span class="kr-badge-outline">
@@ -130,7 +141,8 @@
                   {{ studio.resourceAudit.counts.missing }} unmatched
                 </span>
                 <span class="kr-badge-outline">
-                  {{ studio.resourceAudit.taggedFacets.length }} Zuzu-tagged Facets
+                  {{ studio.resourceAudit.taggedFacets.length }} Zuzu-tagged
+                  Facets
                 </span>
               </div>
               <div class="grid gap-2 sm:grid-cols-2 xl:grid-cols-3">
@@ -139,26 +151,38 @@
                   :key="match.candidate.kind + ':' + match.candidate.key"
                   class="rounded-xl border border-base-content/10 bg-base-100 p-3 text-sm"
                 >
-                  <p class="text-xs uppercase tracking-wide text-base-content/55">
+                  <p
+                    class="text-xs uppercase tracking-wide text-base-content/55"
+                  >
                     {{ match.candidate.kind }}
                   </p>
                   <p class="mt-1 font-semibold">{{ match.candidate.name }}</p>
                   <p class="text-xs text-base-content/70">
-                    {{ match.status === 'slug-match' ? 'Exact slug found' :
-                       match.status === 'name-review' ? 'Name match: inspect identity' :
-                       match.status === 'trigger-review' ? 'LoRA trigger: inspect identity' :
-                       match.status === 'ambiguous' ? 'Multiple matches: inspect manually' :
-                       'No owned match found' }}
+                    {{
+                      match.status === 'slug-match'
+                        ? 'Exact slug found'
+                        : match.status === 'name-review'
+                          ? 'Name match: inspect identity'
+                          : match.status === 'trigger-review'
+                            ? 'LoRA trigger: inspect identity'
+                            : match.status === 'ambiguous'
+                              ? 'Multiple matches: inspect manually'
+                              : 'No owned match found'
+                    }}
                   </p>
-                  <p v-for="row in match.matches" :key="row.id" class="mt-1 font-mono text-xs">
+                  <p
+                    v-for="row in match.matches"
+                    :key="row.id"
+                    class="mt-1 font-mono text-xs"
+                  >
                     ID #{{ row.id }} · {{ row.name }}
                   </p>
                 </article>
               </div>
               <p class="text-xs text-base-content/65">
                 Facet membership uses FacetProfile.metadata.worlds = ["zuzu"].
-                Species, occupation, role and agenda remain independent
-                taxonomy axes. The audit does not assign canon authority.
+                Species, occupation, role and agenda remain independent taxonomy
+                axes. The audit does not assign canon authority.
               </p>
               <div
                 v-if="studio.resourceAudit.taggedFacets.length"

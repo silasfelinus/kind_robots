@@ -93,13 +93,17 @@ export const useZuzuWorldStore = defineStore('zuzuWorld', () => {
         '/api/worlds/zuzu/resource-audit',
       )
       if (!result.success || !result.data) {
-        throw new Error(result.message || 'Unable to audit Zuzu resource identities.')
+        throw new Error(
+          result.message || 'Unable to audit Zuzu resource identities.',
+        )
       }
       resourceAudit.value = result.data
     } catch (cause) {
       resourceAudit.value = null
       resourceAuditError.value =
-        cause instanceof Error ? cause.message : 'Unable to load resource audit.'
+        cause instanceof Error
+          ? cause.message
+          : 'Unable to load resource audit.'
     } finally {
       auditingResources.value = false
     }

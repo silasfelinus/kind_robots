@@ -1,5 +1,7 @@
-export type ZuzuResourceKind = 'character' | 'scenario' | 'reward' | 'model-resource'
-export type ZuzuMatchStatus = 'slug-match' | 'name-review' | 'trigger-review' | 'ambiguous' | 'missing'
+export type ZuzuResourceKind =
+  'character' | 'scenario' | 'reward' | 'model-resource'
+export type ZuzuMatchStatus =
+  'slug-match' | 'name-review' | 'trigger-review' | 'ambiguous' | 'missing'
 
 export type ZuzuResourceCandidate = {
   kind: ZuzuResourceKind
@@ -52,10 +54,14 @@ function requiredString(value: unknown): string {
 }
 
 function optionalString(value: unknown): string | null {
-  return typeof value === 'string' && value.trim() ? requiredString(value) : null
+  return typeof value === 'string' && value.trim()
+    ? requiredString(value)
+    : null
 }
 
-export function parseZuzuResourceCandidates(input: unknown): ZuzuResourceCandidate[] {
+export function parseZuzuResourceCandidates(
+  input: unknown,
+): ZuzuResourceCandidate[] {
   const source = asRecord(input)
   if (source.schema_version !== 1 || source.status !== 'prepared-not-applied')
     throw new Error('Unsupported Zuzu resource submission manifest.')
@@ -91,7 +97,10 @@ export function parseZuzuResourceCandidates(input: unknown): ZuzuResourceCandida
     const name = requiredString(record.name)
     candidates.push({
       kind: 'model-resource',
-      key: name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, ''),
+      key: name
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/^-|-$/g, ''),
       name,
       slug: null,
       trigger: optionalString(record.trigger),
@@ -99,16 +108,25 @@ export function parseZuzuResourceCandidates(input: unknown): ZuzuResourceCandida
     })
   }
 
-  if (new Set(candidates.map((entry) => entry.kind + ':' + entry.key)).size !== candidates.length)
+  if (
+    new Set(candidates.map((entry) => entry.kind + ':' + entry.key)).size !==
+    candidates.length
+  )
     throw new Error('Duplicate Zuzu candidate keys.')
   return candidates
 }
 
 function normalized(value: string | null | undefined): string {
-  return String(value ?? '').trim().replace(/\s+/g, ' ').toLocaleLowerCase('en')
+  return String(value ?? '')
+    .trim()
+    .replace(/\s+/g, ' ')
+    .toLocaleLowerCase('en')
 }
 
-function triggerMatches(haystack: string | null | undefined, trigger: string): boolean {
+function triggerMatches(
+  haystack: string | null | undefined,
+  trigger: string,
+): boolean {
   return String(haystack ?? '')
     .split(/[\s,;|]+/)
     .some((part) => normalized(part) === normalized(trigger))
@@ -121,19 +139,29 @@ export function reconcileZuzuResources(
   return candidates.map((candidate) => {
     const rows = existing[candidate.kind]
     const bySlug = candidate.slug
-      ? rows.filter((row) => normalized(row.slug) === normalized(candidate.slug))
+      ? rows.filter(
+          (row) => normalized(row.slug) === normalized(candidate.slug),
+        )
       : []
-    const byName = rows.filter((row) => normalized(row.name) === normalized(candidate.name))
+    const byName = rows.filter(
+      (row) => normalized(row.name) === normalized(candidate.name),
+    )
     const byTrigger = candidate.trigger
-      ? rows.filter((row) => triggerMatches(row.triggerWords, candidate.trigger!))
+      ? rows.filter((row) =>
+          triggerMatches(row.triggerWords, candidate.trigger!),
+        )
       : []
     const pool = bySlug.length ? bySlug : byName.length ? byName : byTrigger
     const status: ZuzuMatchStatus =
-      pool.length > 1 ? 'ambiguous'
-      : !pool.length ? 'missing'
-      : bySlug.length ? 'slug-match'
-      : byName.length ? 'name-review'
-      : 'trigger-review'
+      pool.length > 1
+        ? 'ambiguous'
+        : !pool.length
+          ? 'missing'
+          : bySlug.length
+            ? 'slug-match'
+            : byName.length
+              ? 'name-review'
+              : 'trigger-review'
     return {
       candidate,
       status,
@@ -142,7 +170,9 @@ export function reconcileZuzuResources(
   })
 }
 
-export function countZuzuMatches(matches: readonly ZuzuResourceMatch[]): Record<ZuzuMatchStatus, number> {
+export function countZuzuMatches(
+  matches: readonly ZuzuResourceMatch[],
+): Record<ZuzuMatchStatus, number> {
   const counts: Record<ZuzuMatchStatus, number> = {
     'slug-match': 0,
     'name-review': 0,
@@ -156,5 +186,7 @@ export function countZuzuMatches(matches: readonly ZuzuResourceMatch[]): Record<
 
 export function worldTags(metadata: Record<string, unknown> | null): string[] {
   if (!Array.isArray(metadata?.worlds)) return []
-  return metadata.worlds.filter((value): value is string => typeof value === 'string')
+  return metadata.worlds.filter(
+    (value): value is string => typeof value === 'string',
+  )
 }

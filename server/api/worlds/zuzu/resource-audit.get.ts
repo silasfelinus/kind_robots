@@ -28,7 +28,9 @@ async function sourceCandidates(): Promise<ZuzuResourceCandidate[]> {
     signal: AbortSignal.timeout(12000),
   })
   if (!response.ok)
-    throw new Error('Zuzu candidate manifest unavailable (' + response.status + ').')
+    throw new Error(
+      'Zuzu candidate manifest unavailable (' + response.status + ').',
+    )
   const candidates = parseZuzuResourceCandidates(await response.json())
   cached = { at: Date.now(), candidates }
   return candidates
@@ -45,68 +47,77 @@ export default defineEventHandler(async (event) => {
     const names = (kind: ZuzuResourceKind) =>
       selected(kind).map((candidate) => candidate.name)
     const slugs = (kind: ZuzuResourceKind) =>
-      selected(kind).flatMap((candidate) => candidate.slug ? [candidate.slug] : [])
+      selected(kind).flatMap((candidate) =>
+        candidate.slug ? [candidate.slug] : [],
+      )
     const visible = {
       userId: ownerId,
       isActive: true,
       ...(matureVisible ? {} : { isMature: false }),
     }
 
-    const [characters, scenarios, rewards, resources, facets] = await Promise.all([
-      prisma.character.findMany({
-        where: {
-          ...visible,
-          OR: [
-            { slug: { in: slugs('character') } },
-            { name: { in: names('character') } },
-          ],
-        },
-        select: { id: true, slug: true, name: true },
-      }),
-      prisma.scenario.findMany({
-        where: {
-          ...visible,
-          OR: [
-            { slug: { in: slugs('scenario') } },
-            { title: { in: names('scenario') } },
-          ],
-        },
-        select: { id: true, slug: true, title: true },
-      }),
-      prisma.reward.findMany({
-        where: {
-          ...visible,
-          OR: [
-            { slug: { in: slugs('reward') } },
-            { name: { in: names('reward') } },
-          ],
-        },
-        select: { id: true, slug: true, name: true },
-      }),
-      prisma.resource.findMany({
-        where: {
-          ...visible,
-          resourceType: 'LORA',
-          OR: [
-            { name: { in: names('model-resource') } },
-            { customLabel: { in: names('model-resource') } },
-            ...selected('model-resource').flatMap((candidate) =>
-              candidate.trigger
-                ? [{ triggerWords: { contains: candidate.trigger } }]
-                : [],
-            ),
-          ],
-        },
-        select: { id: true, slug: true, name: true, customLabel: true, triggerWords: true },
-      }),
-      loadFacetCatalogEntries({
-        userId: ownerId,
-        isAdmin: false,
-        includeMature: matureVisible,
-        taxonomies: ['SPECIES', 'OCCUPATION', 'ROLE', 'ARCHETYPE', 'SETTING'],
-        take: 2000,
-      }),
-    ])
+    const [characters, scenarios, rewards, resources, facets] =
+      await Promise.all([
+        prisma.character.findMany({
+          where: {
+            ...visible,
+            OR: [
+              { slug: { in: slugs('character') } },
+              { name: { in: names('character') } },
+            ],
+          },
+          select: { id: true, slug: true, name: true },
+        }),
+        prisma.scenario.findMany({
+          where: {
+            ...visible,
+            OR: [
+              { slug: { in: slugs('scenario') } },
+              { title: { in: names('scenario') } },
+            ],
+          },
+          select: { id: true, slug: true, title: true },
+        }),
+        prisma.reward.findMany({
+          where: {
+            ...visible,
+            OR: [
+              { slug: { in: slugs('reward') } },
+              { name: { in: names('reward') } },
+            ],
+          },
+          select: { id: true, slug: true, name: true },
+        }),
+        prisma.resource.findMany({
+          where: {
+            ...visible,
+            resourceType: 'LORA',
+            OR: [
+              { name: { in: names('model-resource') } },
+              { customLabel: { in: names('model-resource') } },
+              ...selected('model-resource').flatMap((candidate) =>
+                candidate.trigger
+                  ? [{ triggerWords: { contains: candidate.trigger } }]
+                  : [],
+              ),
+            ],
+          },
+          select: {
+            id: true,
+            slug: true,
+            name: true,
+            customLabel: true,
+            triggerWords: true,
+          },
+        }),
+        loadFacetCatalogEntries({
+          userId: ownerId,
+          isAdmin: false,
+          includeMature: matureVisible,
+          taxonomies: ['SPECIES', 'OCCUPATION', 'ROLE', 'ARCHETYPE', 'SETTING'],
+          take: 2000,
+        }),
+      ])
 
     const matches = reconcileZuzuResources(candidates, {
       character: characters,

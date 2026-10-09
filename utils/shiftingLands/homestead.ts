@@ -160,20 +160,21 @@ export function isHomesteadState(value: unknown): value is HomesteadState {
     state.revealed.every((id) => typeof id === 'string' && IDS.includes(id)) &&
     state.revealed.length === new Set(state.revealed).size &&
     state.journal.every((entry) => typeof entry === 'string') &&
-    (state.active ? participant !== null : participant === null) &&
+    (state.active ? participant != null : participant === null) &&
     (!participant ||
       (participant.locationId === state.active &&
         SPECIES_IDS.includes(participant.species) &&
         ROLE_IDS.includes(participant.role) &&
         DISPOSITIONS.includes(participant.disposition))) &&
     (check === null ||
-      (IDS.includes(check.locationId) &&
+      (check != null && IDS.includes(check.locationId) &&
         (check.approach === 'insight' || check.approach === 'bearing') &&
+        Array.isArray(check.dice) &&
         check.dice.length === 2 &&
         check.dice.every((die) => Number.isInteger(die) && die >= 1 && die <= 6) &&
         Number.isInteger(check.total) &&
         typeof check.success === 'boolean' &&
-        DISPOSITIONS.includes(check.disposition))) &&
+        DISPOSITIONS.includes(check.disposition)))) &&
     state.rngState! >= 0 &&
     state.rngState! <= 4294967295 &&
     state.health >= 0 &&

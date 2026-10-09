@@ -242,6 +242,8 @@ export type FighterData = {
   childGuard?: boolean
   /** Bullets per load; moves with `ammoCost` need them, `reload` refills. */
   ammo?: number
+  /** Regrows one load every this many frames (the Siblings' apples, from the Lone Apple Tree). */
+  ammoRegen?: number
   /** Colours (and a hat) for the stand-in renderer until sprites exist. */
   look?: FighterLook
 }

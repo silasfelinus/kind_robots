@@ -9,12 +9,14 @@ import type { FighterData } from '../types'
 import { PLACEHOLDER_A, PLACEHOLDER_B } from './placeholders'
 import { ABBESS } from './abbess'
 import { COYOTE } from './coyote'
+import { SIBLINGS } from './siblings'
 import { ZUZU } from './zuzu'
 
 export const FIGHTERS: FighterData[] = [
   ZUZU,
   COYOTE,
   ABBESS,
+  SIBLINGS,
   PLACEHOLDER_A,
   PLACEHOLDER_B,
 ]

@@ -167,6 +167,8 @@ jobs:
 
       - name: Zuzu Showdown fighter kit (The Abbess)
         run: npm run test:zuzu-showdown-abbess
+      - name: Zuzu Showdown fighter kit (The Siblings)
+        run: npm run test:zuzu-showdown-siblings
 
       - name: Zuzu Showdown fighter sprites
         run: npm run test:zuzu-showdown-sprites

@@ -38,11 +38,15 @@
               v-if="isWebGLCabinet"
               ref="stageRef"
               class="cabinet-stage"
+              :style="{
+                imageRendering: renderStyle === 'pixel' ? 'pixelated' : 'auto',
+              }"
               aria-hidden="true"
             />
             <canvas
               ref="canvasRef"
               class="cabinet-canvas"
+              :style="canvasStyle"
               :aria-label="`${meta?.title ?? 'Arcade'} game screen`"
               role="img"
               tabindex="0"
@@ -218,6 +222,14 @@
           <button
             type="button"
             class="cabinet-switch"
+            :title="`Render style: ${RENDER_STYLE_NAMES[renderStyle]} (click for ${RENDER_STYLE_NAMES[otherStyle]})`"
+            @click="toggleRenderStyle"
+          >
+            {{ RENDER_STYLE_NAMES[renderStyle] }}
+          </button>
+          <button
+            type="button"
+            class="cabinet-switch"
             :aria-pressed="fullscreen"
             @click="toggleFullscreen"
           >
@@ -242,6 +254,14 @@ import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useArcadeStore } from '@/stores/arcadeStore'
 import ArcadePinballTouch from './arcade-pinball-touch.vue'
 import { useUserStore } from '@/stores/userStore'
+import type { CSSProperties } from 'vue'
+import {
+  fitDisplay,
+  MAX_DPR,
+  RENDER_STYLE_NAMES,
+  type DisplayFit,
+  type RenderStyle,
+} from '~/utils/arcade/display'
 import { findArcadeGame, loadArcadeGame } from '~/utils/arcade/games'
 import {
   ArcadeInput,
@@ -300,6 +320,34 @@ const stageRef = ref<HTMLCanvasElement | null>(null)
 const phase = ref<ArcadePhase>('title')
 const muted = computed(() => store.muted)
 const crt = computed(() => store.crt)
+const renderStyle = computed(() => store.styleFor(props.slug))
+const otherStyle = computed<RenderStyle>(() =>
+  renderStyle.value === 'hd' ? 'pixel' : 'hd',
+)
+/** The canvas's current fit (display.ts): backing size, scale, CSS width, filtering. */
+const fit = ref<DisplayFit>({
+  canvasWidth: 1,
+  canvasHeight: 1,
+  scale: 1,
+  cssWidth: 0,
+  smoothing: true,
+  rendering: 'auto',
+})
+/** Pixel style shows the canvas at a whole multiple, centred; HD fills the screen. */
+const canvasStyle = computed<CSSProperties>(() => {
+  const info = meta.value
+  const shown = fit.value
+  const base = { imageRendering: shown.rendering }
+  if (!info || !shown.cssWidth || renderStyle.value === 'hd') return base
+  return {
+    ...base,
+    position: 'absolute',
+    inset: '0',
+    margin: 'auto',
+    width: `${shown.cssWidth}px`,
+    height: `${(shown.cssWidth * info.height) / info.width}px`,
+  }
+})
 const touchControls = ref(false)
 /** Directions held on each seat's touch d-pad. */
 const dpadHeld = ref<Array<Record<DpadDirection, boolean>>>(
@@ -651,10 +699,12 @@ function sizeStage(instance: ArcadePlayableInstance | null) {
   const screen = screenRef.value
   if (!isWebGLInstance(instance) || !screen) return
   const rect = screen.getBoundingClientRect()
+  // Pixel draws the table at 1x and lets the browser enlarge it; HD uses the device's ratio.
+  const dpr = window.devicePixelRatio || 1
   instance.resize(
     rect.width,
     rect.height,
-    Math.min(window.devicePixelRatio || 1, 2),
+    renderStyle.value === 'pixel' ? 1 : Math.min(dpr, MAX_DPR),
   )
 }
 
@@ -1098,6 +1148,7 @@ function render() {
   const h = info.height
   const scale = canvas.width / w
   g.setTransform(scale, 0, 0, scale, 0, 0)
+  g.imageSmoothingEnabled = fit.value.smoothing
   const current = machine.phase
   const accent = info.accent
 
@@ -1309,9 +1360,18 @@ function resizeCanvas() {
   const screen = screenRef.value
   if (!canvas || !screen) return
   const rect = screen.getBoundingClientRect()
-  const dpr = Math.min(window.devicePixelRatio || 1, 2)
-  canvas.width = Math.max(1, Math.round(rect.width * dpr))
-  canvas.height = Math.max(1, Math.round(rect.height * dpr))
+  const info = meta.value
+  const next = fitDisplay({
+    width: info?.width ?? 4,
+    height: info?.height ?? 3,
+    available: rect.width,
+    dpr: window.devicePixelRatio || 1,
+    // A 3D cabinet's 2D layer sits over the full-size stage, so it always fills the screen.
+    style: isWebGLCabinet.value ? 'hd' : renderStyle.value,
+  })
+  fit.value = next
+  canvas.width = next.canvasWidth
+  canvas.height = next.canvasHeight
   sizeStage(game)
   sizeStage(demoGame)
   render()
@@ -1362,6 +1422,11 @@ function toggleMute() {
   unlockArcadeAudio()
   store.setMuted(!store.muted)
   sound?.setMuted(store.muted)
+}
+
+function toggleRenderStyle() {
+  store.setGameStyle(props.slug, otherStyle.value)
+  resizeCanvas()
 }
 
 function toggleCrt() {

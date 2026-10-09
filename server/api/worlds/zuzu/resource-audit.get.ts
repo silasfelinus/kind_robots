@@ -86,6 +86,7 @@ export default defineEventHandler(async (event) => {
       prisma.resource.findMany({
         where: {
           ...visible,
+          resourceType: 'LORA',
           OR: [
             { name: { in: names('model-resource') } },
             { customLabel: { in: names('model-resource') } },

@@ -332,6 +332,11 @@ export type TableDef = {
       min: readonly [number, number]
       max: readonly [number, number]
     }
+    /**
+     * The machine's room (t-020): the backglass over the DMD, and posters
+     * and neighbouring screens from the rest of the arcade.
+     */
+    room?: { backglass?: string; posters?: readonly string[] }
   }
   /**
    * The DMD in the backbox (t-006): the centre of its glass, facing the

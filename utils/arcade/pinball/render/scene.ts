@@ -20,6 +20,7 @@
 import * as THREE from 'three'
 import type { ToyPose } from '../rules/toys'
 import { Heroes, Sparks, Trail } from './heroes'
+import { Room } from './room'
 import { mergeGeometries } from 'three/examples/jsm/utils/BufferGeometryUtils.js'
 import { ConvexGeometry } from 'three/examples/jsm/geometries/ConvexGeometry.js'
 import { flipperProfile, flipperYaw } from '../physics/world'
@@ -231,6 +232,8 @@ export class PinballScene {
   private toys = new Map<string, THREE.Group>()
   /** The signature toys (t-010), the jackpot sparks and the ball trail. */
   private heroes: Heroes | null = null
+  /** The cabinet body and the room around it (t-020). */
+  private room: Room
   private sparks: Sparks
   private trail: Trail
   /** Sling rubbers that flex when their kicker fires: 1 at the kick. */
@@ -331,6 +334,16 @@ export class PinballScene {
     this.trail = new Trail(TRAIL_BALLS, track)
     this.root.add(this.sparks.points, this.trail.points)
     this.buildRubbers()
+    this.room = new Room(
+      this.table,
+      track,
+      this.root.rotation.x,
+      this.table.art?.room,
+    )
+    this.root.add(this.room.cabinet)
+    this.scene.add(this.room.world)
+    // The room fades into the dark well away from the machine.
+    this.scene.fog = new THREE.Fog(0x05040c, 2.8, 9)
     if (this.gl) this.reflect(this.track(buildEnvironment(this.gl)))
     this.applyTier()
     this.aimCamera(9 / 16)
@@ -924,6 +937,11 @@ export class PinballScene {
     this.heroes?.deliver()
   }
 
+  /** The cabinet and the room around it, for tests. */
+  get stage(): Room {
+    return this.room
+  }
+
   /** The signature toys, for tests (null on a table without them). */
   get heroToys(): Heroes | null {
     return this.heroes
@@ -1054,6 +1072,7 @@ export class PinballScene {
     const s = this.settings
     this.sparks.budget = s.sparks
     this.trail.enabled = s.trail
+    this.room?.setTier(this.governor.tier)
     const shadows = s.shadowMapSize > 0
     for (const light of this.keyLights) {
       light.castShadow = shadows
@@ -1163,6 +1182,7 @@ export class PinballScene {
       // The DMD is part of the backbox: it goes when the backbox does.
       if (this.dmd && this.dmd.occluder === occluder.id)
         this.dmd.group.visible = t < 0.5
+      if (occluder.id === 'backbox') this.room.setBackglassOpacity(1 - t)
     }
   }
 

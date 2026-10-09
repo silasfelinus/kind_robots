@@ -1011,6 +1011,19 @@ export const AMI_VILLAGE_GREYBOX: TableDef = {
   art: {
     // Rendered by a durable ArtJob from conductor's art-prompts.yaml
     // (kind-pinball/t-009), to the playfield rectangle below.
+    room: {
+      backglass: '/images/arcade/games/kind-pinball-title.webp',
+      posters: [
+        '/images/arcade/games/butterfly-blaster-title.webp',
+        '/images/arcade/games/rescue-rally-title.webp',
+        '/images/arcade/games/zuzu-ghost-trail-title.webp',
+        '/images/arcade/games/timber-bot-title.webp',
+        '/images/arcade/games/battery-maze-title.webp',
+        '/images/arcade/games/gloom-invaders-title.webp',
+        '/images/arcade/games/pipe-pals-title.webp',
+        '/images/arcade/games/ribbon-riders-title.webp',
+      ],
+    },
     playfield: {
       src: '/images/pinball/ami-village-playfield.webp',
       min: [LEFT_X - 0.02, TOP_Z - 0.05],

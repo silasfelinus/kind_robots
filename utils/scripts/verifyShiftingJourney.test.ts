@@ -16,7 +16,7 @@ import {
 
 assert.equal(JOURNEY_WORLD.schemaVersion, 2)
 assert.equal(JOURNEY_WORLD.lands.length, 5)
-assert.equal(JOURNEY_WORLD.lands.flatMap((land) => land.locations).length, 15)
+assert.equal(JOURNEY_WORLD.lands.reduce((total, land) => total + land.locations.length, 0), 15)
 assert.equal(new Set(JOURNEY_WORLD.lands.flatMap((land) => land.locations.map((loc) => loc.id))).size, 15)
 assert.equal(JOURNEY_WORLD.source.blobSha.length, 40)
 assert.doesNotMatch(JSON.stringify(JOURNEY_WORLD).toLowerCase(), /canon_motivation|world_mysteries|cosmic horror|sacrifice/)

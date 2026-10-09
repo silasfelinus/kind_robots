@@ -67,6 +67,7 @@ import {
   moveOf,
   projectileBox,
   pushbox,
+  toWorld,
 } from './sim'
 import {
   SUB,
@@ -1238,6 +1239,309 @@ function drawThrown(
   return true
 }
 
+// ---------------------------------------------------------------- the Abbess's summons
+//
+// What the Abbess calls up from the thin places (t-011: "tentacle and portal effects"), drawn from the
+// sim's own state so they line up with the boxes: the Reaching Tentacle's crack (startup) and the
+// tentacle itself (its hitbox, rising then sinking), the Thin Place's portals, the Choir's row of
+// nuns and its floor-sweeping tentacle, Vespers' toll, and the rift Open the Door tears.
+
+const THING = '#4c3a63'
+const THING_LIGHT = '#8b74b0'
+const THING_INK = '#160f1f'
+const RIFT_GLOW = 'rgba(167, 139, 250, 0.55)'
+
+/** Where an attack's box would be this frame (even outside its active frames), on screen. */
+function moveRect(
+  f: FighterState,
+  data: FighterData,
+  camera: number,
+): { x: number; y: number; w: number; h: number } | null {
+  if (!f.attack) return null
+  const move = moveOf(data, f.attack)
+  if (move.hitbox.w <= 0 || move.hitbox.h <= 0) return null
+  return rectOf(toWorld(f, move.hitbox), camera)
+}
+
+/**
+ * A tentacle rising from the floor at x: `height` tall, its tip curling toward `lean` (1 forward,
+ * -1 back), tapering from `base` wide, suckers down its inner side.
+ */
+function drawTentacle(
+  g: G,
+  x: number,
+  floor: number,
+  height: number,
+  base: number,
+  lean: number,
+  sway: number,
+): void {
+  if (height <= 1) return
+  const steps = 14
+  const left: Array<[number, number]> = []
+  const right: Array<[number, number]> = []
+  const spine: Array<[number, number, number]> = []
+  for (let i = 0; i <= steps; i += 1) {
+    const t = i / steps
+    const cx =
+      x + lean * (t * t * height * 0.35) + Math.sin(t * 3 + sway) * 2 * t
+    const cy = floor - t * height
+    const w = (base / 2) * (1 - t * 0.85)
+    left.push([cx - w, cy])
+    right.push([cx + w, cy])
+    spine.push([cx, cy, w])
+  }
+  const outline = [...left, ...right.reverse()]
+  g.fillStyle = THING_INK
+  g.beginPath()
+  outline.forEach(([px, py], i) =>
+    i ? g.lineTo(px, py + 0.8) : g.moveTo(px, py + 0.8),
+  )
+  g.closePath()
+  g.fill()
+  g.fillStyle = THING
+  g.beginPath()
+  outline.forEach(([px, py], i) => (i ? g.lineTo(px, py) : g.moveTo(px, py)))
+  g.closePath()
+  g.fill()
+  // The paler inner side, and its suckers.
+  g.fillStyle = THING_LIGHT
+  for (let i = 1; i < steps; i += 2) {
+    const [cx, cy, w] = spine[i]!
+    g.beginPath()
+    g.arc(cx + lean * w * 0.45, cy, Math.max(0.6, w * 0.32), 0, Math.PI * 2)
+    g.fill()
+  }
+}
+
+/** A portal in the air: a dark oval in a violet ring, `open` 0 (shut) to 1. */
+function drawPortal(g: G, x: number, y: number, h: number, open: number): void {
+  if (open <= 0) return
+  const rx = Math.max(1, h * 0.28 * open)
+  const ry = h / 2
+  g.fillStyle = RIFT_GLOW
+  g.beginPath()
+  g.ellipse(x, y, rx + 3, ry + 3, 0, 0, Math.PI * 2)
+  g.fill()
+  g.fillStyle = THING_INK
+  g.beginPath()
+  g.ellipse(x, y, rx, ry, 0, 0, Math.PI * 2)
+  g.fill()
+  g.strokeStyle = '#ccfbf1'
+  g.lineWidth = 0.8
+  g.beginPath()
+  g.ellipse(x, y, rx, ry, 0, 0, Math.PI * 2)
+  g.stroke()
+}
+
+/** The Abbess's summons for each fighter mid-move: behind the fighters, or (`front`) before them. */
+function drawSummons(
+  g: G,
+  s: MatchState,
+  roster: Pair<FighterData>,
+  camera: number,
+  reducedMotion: boolean,
+  front: boolean,
+): void {
+  if (typeof g.ellipse !== 'function') return
+  for (const side of [0, 1] as const) {
+    const f = s.fighters[side]
+    const data = roster[side]
+    const attack = f.attack
+    if (!attack) continue
+    const move = moveOf(data, attack)
+    const frame = attack.frame
+    const x = screenX(f.x, camera)
+    const sway = reducedMotion ? 0 : s.frame / 6
+    g.save()
+    switch (attack.id) {
+      case 'reaching-tentacle': {
+        const r = moveRect(f, data, camera)
+        if (!r) break
+        const cx = r.x + r.w / 2
+        if (!front && frame < move.startup) {
+          // The floor cracks where it will rise: a widening violet seam, the trap's tell.
+          const t = frame / move.startup
+          g.fillStyle = RIFT_GLOW
+          g.beginPath()
+          g.ellipse(cx, FLOOR_Y, 4 + 10 * t, 1.5 + 1.5 * t, 0, 0, Math.PI * 2)
+          g.fill()
+          g.fillStyle = THING_INK
+          g.fillRect(cx - (2 + 8 * t), FLOOR_Y - 0.5, 4 + 16 * t, 1)
+        }
+        if (front && frame >= move.startup) {
+          const end = move.startup + move.active
+          const out =
+            frame < end
+              ? Math.min(1, (frame - move.startup + 3) / 4)
+              : Math.max(0, 1 - (frame - end) / 12)
+          drawTentacle(
+            g,
+            cx,
+            FLOOR_Y,
+            r.h * out,
+            Math.max(8, r.w * 0.55),
+            f.facing,
+            sway,
+          )
+        }
+        break
+      }
+      case 'the-thin-place': {
+        if (front) break
+        const at = move.teleport?.frame ?? move.startup
+        // Into one portal and, from the frame she moves, out of another that closes behind her.
+        const open =
+          frame <= at
+            ? Math.min(1, frame / (at * 0.6))
+            : Math.max(0, 1 - (frame - at) / 14)
+        drawPortal(
+          g,
+          x + (frame <= at ? 0 : -f.facing * 4),
+          FLOOR_Y - 46,
+          92,
+          open,
+        )
+        break
+      }
+      case 'the-choir': {
+        if (!front && frame < move.startup + move.active + 20) {
+          // A row of nuns flickers in behind her, chanting.
+          const fade = frame < move.startup ? frame / move.startup : 1
+          for (let k = 1; k <= 5; k += 1) {
+            const flicker = reducedMotion
+              ? 1
+              : 0.6 + 0.4 * Math.sin((s.frame + k * 7) / 3)
+            g.fillStyle = `rgba(28, 25, 23, ${(0.55 * fade * flicker).toFixed(2)})`
+            const nx = x - f.facing * (14 + k * 16)
+            g.beginPath()
+            g.ellipse(nx, FLOOR_Y - 40, 7, 9, 0, Math.PI, 0)
+            g.lineTo(nx + 9, FLOOR_Y)
+            g.lineTo(nx - 9, FLOOR_Y)
+            g.closePath()
+            g.fill()
+            g.fillStyle = `rgba(245, 245, 244, ${(0.5 * fade * flicker).toFixed(2)})`
+            g.fillRect(nx - 3, FLOOR_Y - 38, 6, 3)
+          }
+        }
+        if (front && frame >= move.startup - 4) {
+          // The giant tentacle sweeps the floor of the whole screen, out from her feet.
+          const r = moveRect(f, data, camera)
+          if (!r) break
+          const span = Math.min(
+            1,
+            (frame - move.startup + 5) / (move.active + 4),
+          )
+          const fadeOut = Math.max(
+            0,
+            1 - Math.max(0, frame - move.startup - move.active) / 14,
+          )
+          const reach = r.w * span * fadeOut
+          const from = f.facing > 0 ? r.x : r.x + r.w
+          const thick = 10
+          g.fillStyle = THING_INK
+          g.beginPath()
+          g.moveTo(from, FLOOR_Y + 1)
+          for (let i = 0; i <= 20; i += 1) {
+            const t = i / 20
+            g.lineTo(
+              from + f.facing * reach * t,
+              FLOOR_Y - thick * (1 - t * 0.8) - Math.sin(t * 9 + sway) * 2 - 1,
+            )
+          }
+          g.lineTo(from + f.facing * reach, FLOOR_Y + 1)
+          g.closePath()
+          g.fill()
+          g.fillStyle = THING
+          g.beginPath()
+          g.moveTo(from, FLOOR_Y)
+          for (let i = 0; i <= 20; i += 1) {
+            const t = i / 20
+            g.lineTo(
+              from + f.facing * reach * t,
+              FLOOR_Y - thick * (1 - t * 0.8) - Math.sin(t * 9 + sway) * 2,
+            )
+          }
+          g.lineTo(from + f.facing * reach, FLOOR_Y)
+          g.closePath()
+          g.fill()
+          g.fillStyle = THING_LIGHT
+          for (let i = 1; i < 10; i += 1)
+            g.fillRect(
+              from + f.facing * reach * (i / 10) - 1,
+              FLOOR_Y - 2.5,
+              2,
+              1.5,
+            )
+        }
+        break
+      }
+      case 'open-the-door': {
+        if (front || frame > move.startup + move.active + 40) break
+        // The door to the thin place tears open: one vast eye, and a mass of tentacles reaching out.
+        const r = moveRect(f, data, camera)
+        if (!r) break
+        const open = Math.min(1, frame / (move.startup + 6))
+        const close = Math.max(
+          0,
+          Math.min(1, (move.startup + move.active + 40 - frame) / 12),
+        )
+        const cx = r.x + r.w / 2
+        const cy = FLOOR_Y - r.h / 2
+        drawPortal(g, cx, cy, r.h, open * close)
+        const eye = 9 * open * close
+        if (eye > 1) {
+          g.fillStyle = '#fde68a'
+          g.beginPath()
+          g.ellipse(cx, cy - 6, eye * 1.6, eye, 0, 0, Math.PI * 2)
+          g.fill()
+          g.fillStyle = THING_INK
+          g.beginPath()
+          g.ellipse(
+            cx + f.facing * -2,
+            cy - 6,
+            eye * 0.35,
+            eye * 0.85,
+            0,
+            0,
+            Math.PI * 2,
+          )
+          g.fill()
+        }
+        for (let k = -2; k <= 2; k += 1)
+          drawTentacle(
+            g,
+            cx + k * 14,
+            FLOOR_Y,
+            r.h * 0.6 * open * close * (1 - Math.abs(k) * 0.15),
+            9,
+            -f.facing,
+            sway + k,
+          )
+        break
+      }
+      case 'vespers': {
+        if (!front || frame < move.startup || frame > move.startup + 40) break
+        // The mission bell tolls: rings spreading out from above her.
+        const age = frame - move.startup
+        g.strokeStyle = `rgba(253, 230, 138, ${(0.8 * (1 - age / 40)).toFixed(2)})`
+        g.lineWidth = 1
+        for (const gap of [0, 12, 24]) {
+          const rad = age * 1.6 + gap
+          if (rad <= 0) continue
+          g.beginPath()
+          g.arc(x, FLOOR_Y - 104, rad, 0, Math.PI * 2)
+          g.stroke()
+        }
+        break
+      }
+      default:
+        break
+    }
+    g.restore()
+  }
+}
+
 function drawProjectiles(
   g: G,
   s: MatchState,
@@ -1502,6 +1806,7 @@ export function drawMatch(
   // The fight itself, under the camera's lift and zoom; the HUD and callouts stay put.
   g.save()
   zoomAbout(g, zoom, pan)
+  drawSummons(g, s, roster, camera, options.reducedMotion, false)
   // The fighter who is attacking draws in front.
   const order: Array<0 | 1> =
     s.fighters[1].attack && !s.fighters[0].attack ? [0, 1] : [1, 0]
@@ -1520,6 +1825,7 @@ export function drawMatch(
         perfect: s.fighters[side].health >= roster[side].health,
       },
     )
+  drawSummons(g, s, roster, camera, options.reducedMotion, true)
   drawProjectiles(g, s, roster, camera, s.frame)
   if (options.sparks)
     drawSparks(

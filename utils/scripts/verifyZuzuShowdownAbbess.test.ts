@@ -17,14 +17,13 @@ import {
   createMatch,
   hashState,
   moveOf,
-  pushbox,
   step,
 } from '../zuzuShowdown/sim'
 import { PLACEHOLDER_B } from '../zuzuShowdown/fighters/placeholders'
 import { ABBESS } from '../zuzuShowdown/fighters/abbess'
 import { COYOTE } from '../zuzuShowdown/fighters/coyote'
 import { ZUZU } from '../zuzuShowdown/fighters/zuzu'
-import { DEFAULT_FIGHTERS, FIGHTERS } from '../zuzuShowdown/fighters'
+import { FIGHTERS } from '../zuzuShowdown/fighters'
 import {
   SIM_BUTTONS,
   SUB,
@@ -98,10 +97,6 @@ function play(
 
 const hits = (log: SimEvent[]) =>
   log.filter((e): e is Extract<SimEvent, { type: 'hit' }> => e.type === 'hit')
-const specialsFired = (log: SimEvent[], id: string) =>
-  log.filter(
-    (e) => (e.type === 'special' || e.type === 'super') && e.move === id,
-  ).length
 
 // ---------------------------------------------------------------- data
 
@@ -260,11 +255,6 @@ check('the Abbess replays deterministically and keeps every invariant', () => {
           assert.ok(f.health >= 0 && f.meter >= 0 && f.meter <= METER_MAX)
           assert.ok(f.bell >= 0)
         }
-        const [a, b] = s.fighters
-        const gap = Math.abs(a.x - b.x)
-        if (a.y === 0 && b.y === 0 && s.phase === 'fight')
-          assert.ok(gap >= 0, 'sane gap')
-        void pushbox
       }
       return hashState(s)
     }

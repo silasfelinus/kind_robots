@@ -737,6 +737,9 @@ function think(
   if (f.jumpCancel > 0) f.jumpCancel -= 1
   if (f.blind > 0 && f.action !== 'hitstun') f.blind -= 1
   if (f.bell > 0) f.bell -= 1
+  if (data.ammoRegen && data.ammo && s.frame % data.ammoRegen === 0) {
+    f.ammo = Math.min(data.ammo, f.ammo + 1)
+  }
 
   // Combo Breaker: Dodge + any attack while being comboed, for two bars.
   if (

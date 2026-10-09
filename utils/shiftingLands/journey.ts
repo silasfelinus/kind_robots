@@ -310,7 +310,7 @@ export function isJourneyState(value: unknown): value is JourneyState {
   const currentResolved = s.resolved.filter((item) => item.landId === land.id).length
   if (s.position !== null && !s.layouts[land.id]!.includes(s.position)) return false
   if (s.active !== null && (s.phase !== 'explore' || s.position !== s.active || seen.has(s.active))) return false
-  if (s.bosses.some((item) => s.resolved.filter((r) => r.landId === item.landId).length !== 3)) return false
+  if (s.bosses.some((item) => s.resolved!.filter((r) => r.landId === item.landId).length !== 3)) return false
   if (s.resolved.some((item) => JOURNEY_WORLD.lands.findIndex((l) => l.id === item.landId) > s.landIndex!)) return false
   if (s.phase === 'explore' &&
       (currentResolved === 3 || s.hp === 0 || s.bosses.length !== s.landIndex)) return false

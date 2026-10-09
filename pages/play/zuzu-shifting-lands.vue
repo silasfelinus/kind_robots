@@ -1,5 +1,5 @@
 <template>
-  <main class="kr-surface min-h-screen">
+  <main class="kr-surface">
     <div v-if="!user.initialized" class="grid min-h-96 place-items-center">
       <span class="kr-spinner-lg-primary" />
     </div>
@@ -18,9 +18,9 @@
           <p class="text-xs font-bold uppercase tracking-[.3em] text-warning">
             The Wasteland · Private playable prototype
           </p>
-          <h1 class="mt-1 font-serif text-3xl font-black sm:text-5xl">
+          <h2 class="mt-1 font-serif text-3xl font-black sm:text-5xl">
             Zuzu: Shifting Lands
-          </h1>
+          </h2>
           <p class="mt-2 text-sm opacity-75">
             An illustrated journey where every card changes the road.
           </p>

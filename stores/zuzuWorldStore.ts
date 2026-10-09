@@ -1,6 +1,7 @@
 import { computed, ref } from 'vue'
 import { defineStore } from 'pinia'
 import { performFetch } from '~/stores/utils'
+import type { ZuzuResourceAuditReport } from '~/utils/zuzuResourceAudit'
 import {
   ZUZU_ASSET_PAGE_SIZE,
   type ZuzuAsset,
@@ -23,6 +24,9 @@ export const useZuzuWorldStore = defineStore('zuzuWorld', () => {
   const loading = ref(false)
   const saving = ref(false)
   const requesting = ref(false)
+  const resourceAudit = ref<ZuzuResourceAuditReport | null>(null)
+  const auditingResources = ref(false)
+  const resourceAuditError = ref('')
   const error = ref('')
   const notice = ref('')
   let requestSerial = 0
@@ -77,6 +81,27 @@ export const useZuzuWorldStore = defineStore('zuzuWorld', () => {
       total.value = 0
     } finally {
       if (serial === requestSerial) loading.value = false
+    }
+  }
+
+  async function loadResourceAudit(): Promise<void> {
+    if (auditingResources.value) return
+    auditingResources.value = true
+    resourceAuditError.value = ''
+    try {
+      const result = await performFetch<ZuzuResourceAuditReport>(
+        '/api/worlds/zuzu/resource-audit',
+      )
+      if (!result.success || !result.data) {
+        throw new Error(result.message || 'Unable to audit Zuzu resource identities.')
+      }
+      resourceAudit.value = result.data
+    } catch (cause) {
+      resourceAudit.value = null
+      resourceAuditError.value =
+        cause instanceof Error ? cause.message : 'Unable to load resource audit.'
+    } finally {
+      auditingResources.value = false
     }
   }
 
@@ -213,6 +238,10 @@ export const useZuzuWorldStore = defineStore('zuzuWorld', () => {
     requesting,
     error,
     notice,
+    resourceAudit,
+    resourceAuditError,
+    auditingResources,
+    loadResourceAudit,
     load,
     setFilter,
     setSearch,

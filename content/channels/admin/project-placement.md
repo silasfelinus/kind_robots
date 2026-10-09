@@ -17,6 +17,10 @@ loadingMessage: Loading project placement controls...
 refreshLabel: Reload Projects
 dottiTip: I turned the migration script into a button with a report and several opportunities to reconsider.
 amiTip: That is what responsible danger looks like.
+tutorial:
+  title: Project Placement
+  body: >-
+    Apply the canonical channel and tab placement map to existing Project records. Review the plan first, then apply it and read the report of every changed, unchanged, or missing slug.
 ---
 
 Apply the canonical navigation placement map to existing Project records and inspect every changed, unchanged, or missing slug.

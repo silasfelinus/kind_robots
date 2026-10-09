@@ -11,6 +11,10 @@ icon: kind-icon:butterfly
 route: /butterfly-gallery
 sort: 175
 requiredRole: ADMIN
+tutorial:
+  title: Butterfly Gallery
+  body: >-
+    A sorting room for the art archive, guided by some opinionated butterflies. Sort pieces into the places they belong; the room stays in Admin until it passes its final visual acceptance, then it moves to Play.
 ---
 
 Sort the art archive with the help of some opinionated butterflies.

@@ -11,6 +11,10 @@ icon: kind-icon:book-open
 route: /play/comics/studio
 sort: 125
 requiredRole: ADMIN
+tutorial:
+  title: Comic Studio
+  body: >-
+    Silas's workspace for the comic. Pitch a panel idea to an editor that pushes back, compare render lanes side by side and resubmit the weak ones, then compose pages from panel segments and rearrange them freely until the page reads right.
 ---
 
 Silas's workspace for the comic: the editor, the vetting board and the page composer.

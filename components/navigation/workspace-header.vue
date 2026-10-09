@@ -628,18 +628,43 @@ const greeting = computed(() =>
   userStore.isLoggedIn ? `Welcome ${userStore.username}` : '',
 )
 
-const brandLine = computed(
-  () => pageStore.room || activeTitle.value || 'Kind Robots',
-)
+/*
+ * Only content pages call setPage, so on a dedicated page (/admin/worlds/zuzu)
+ * pageStore still holds the last content page visited and the header read
+ * "Dashboard Room" over an Admin tab. When the stored page belongs to another
+ * channel than the route, its room and message are not this page's to show.
+ */
+const pageStoreIsStale = computed(() => {
+  const routeChannel = routeChannelLocation.value?.channel
+  const storedChannel = pageStore.resolvedChannel
+  return Boolean(
+    routeChannel &&
+    storedChannel &&
+    routeChannel.channelKey !== storedChannel.channelKey,
+  )
+})
 
-const headerMessage = computed(
-  () =>
+const brandLine = computed(() => {
+  if (pageStoreIsStale.value) {
+    return activeTabConfig.value.room || activeTitle.value || 'Kind Robots'
+  }
+
+  return pageStore.room || activeTitle.value || 'Kind Robots'
+})
+
+const headerMessage = computed(() => {
+  if (pageStoreIsStale.value) {
+    return activeTabConfig.value.subtitle || activeTabConfig.value.summary || ''
+  }
+
+  return (
     pageStore.tabMessage ||
     activeTabConfig.value.subtitle ||
     pageStore.subtitle ||
     activeTabConfig.value.summary ||
-    '',
-)
+    ''
+  )
+})
 
 /**
  * Navigates the tab picker. Routes through the shared tabRouteTarget so this

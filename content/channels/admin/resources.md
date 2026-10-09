@@ -13,6 +13,10 @@ route: /resources
 modelType: resource
 sort: 76
 requiredRole: ADMIN
+tutorial:
+  title: Resource Gallery
+  body: >-
+    The checkpoints, LoRAs, embeddings, and other models the art servers can use. Open a resource to see its previews, trigger words, and maturity, then seed an art build from it to test how it renders.
 ---
 
 Browse checkpoints, LoRAs, embeddings, and other generation resources.

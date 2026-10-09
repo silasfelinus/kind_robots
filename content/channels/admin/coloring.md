@@ -13,6 +13,10 @@ icon: kind-icon:paintbrush
 route: /coloring
 sort: 120
 requiredRole: ADMIN
+tutorial:
+  title: Coloring Book
+  body: >-
+    Pick a generated page or a sampler, fill regions with color, and save palettes you want to reuse. Unfinished pages wait for you, so you can come back to a work in progress later.
 ---
 
 Admin-only coloring tools for AI-generated pages and sampler art.

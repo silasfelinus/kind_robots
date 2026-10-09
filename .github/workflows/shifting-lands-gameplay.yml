@@ -5,8 +5,8 @@ on:
     paths:
       - 'utils/shiftingLands/**'
       - 'stores/shiftingLandsStore.ts'
-      - 'pages/play/zuzu-shifting-lands.vue'
-      - 'content/channels/projects/zuzu-shifting-lands.md'
+      - 'pages/admin/zuzu-shifting-lands.vue'
+      - 'content/channels/admin/zuzu-shifting-lands.md'
       - 'utils/scripts/verifyShiftingLands.test.ts'
       - '.github/workflows/shifting-lands-gameplay.yml'
   push:
@@ -14,8 +14,8 @@ on:
     paths:
       - 'utils/shiftingLands/**'
       - 'stores/shiftingLandsStore.ts'
-      - 'pages/play/zuzu-shifting-lands.vue'
-      - 'content/channels/projects/zuzu-shifting-lands.md'
+      - 'pages/admin/zuzu-shifting-lands.vue'
+      - 'content/channels/admin/zuzu-shifting-lands.md'
       - 'utils/scripts/verifyShiftingLands.test.ts'
       - '.github/workflows/shifting-lands-gameplay.yml'
 jobs:

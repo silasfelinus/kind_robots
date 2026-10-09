@@ -59,7 +59,7 @@ assert.equal(isJourneyState({ ...landed, resolved: [landed.resolved[0], landed.r
 assert.equal(isJourneyState({ ...landed, manifestBlobSha: 'obsolete' }), false)
 assert.equal(restoreJourney({ ...landed, layouts: { homestead: ['fake', 'fake', 'fake'] } }), null)
 
-let reopened = travelJourney(landed, chosen)
+const reopened = travelJourney(landed, chosen)
 assert.equal(reopened.active, null, 'revisits never recreate an encounter')
 assert.equal(resolveJourney(reopened, 'test'), reopened, 'revisits never farm rewards')
 

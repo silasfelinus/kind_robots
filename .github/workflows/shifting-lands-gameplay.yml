@@ -1,0 +1,34 @@
+name: Shifting Lands Gameplay Contract
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'utils/shiftingLands/**'
+      - 'stores/shiftingLandsStore.ts'
+      - 'pages/play/zuzu-shifting-lands.vue'
+      - 'content/channels/projects/zuzu-shifting-lands.md'
+      - 'utils/scripts/verifyShiftingLands.test.ts'
+      - '.github/workflows/shifting-lands-gameplay.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'utils/shiftingLands/**'
+      - 'stores/shiftingLandsStore.ts'
+      - 'pages/play/zuzu-shifting-lands.vue'
+      - 'content/channels/projects/zuzu-shifting-lands.md'
+      - 'utils/scripts/verifyShiftingLands.test.ts'
+      - '.github/workflows/shifting-lands-gameplay.yml'
+jobs:
+  contract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+      - run: npm ci
+        env:
+          CYPRESS_INSTALL_BINARY: '0'
+      - run: npx tsx utils/scripts/verifyShiftingLands.test.ts

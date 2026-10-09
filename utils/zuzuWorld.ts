@@ -11,7 +11,7 @@ export const ZUZU_PROJECTS = [
   {
     slug: 'zuzu-shifting-lands',
     label: 'Shifting Lands',
-    route: '/play/zuzu-shifting-lands',
+    route: '/admin/zuzu-shifting-lands',
   },
   { slug: 'zuzu-showdown', label: 'Showdown', route: '/play/zuzu-showdown' },
   { slug: 'kr-arcade', label: 'Ghost Trail', route: '/play/arcade' },

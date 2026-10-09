@@ -209,7 +209,8 @@
                     One story ends. Others are hidden in the dust.
                   </p>
                   <p class="mt-2 text-sm opacity-75">
-                    Found {{ store.discovered.length }} of 6 preview endings.
+                    Found {{ store.discovered.length }} of
+                    {{ ENDING_IDS.length }} endings.
                   </p>
                   <button
                     class="btn btn-warning mt-4"
@@ -228,10 +229,10 @@
                 </h3>
                 <div class="grid gap-3">
                   <button
-                    v-for="(choice, index) in current.choices"
+                    v-for="(choice, index) in choices"
                     :key="choice.id"
                     type="button"
-                    :disabled="!allowed(choice)"
+                    :disabled="!!lockReason(store.run, choice)"
                     class="group flex min-h-16 items-center gap-4 rounded-xl border border-base-content/20 bg-base-100 px-4 py-4 text-left transition hover:border-warning hover:bg-base-300 focus-visible:outline focus-visible:outline-2 focus-visible:outline-warning disabled:cursor-not-allowed disabled:opacity-45"
                     @click="store.choose(choice.id)"
                   >
@@ -244,13 +245,9 @@
                         choice.label
                       }}</span
                       ><span
-                        v-if="!allowed(choice)"
+                        v-if="lockReason(store.run, choice)"
                         class="mt-1 block text-xs opacity-75"
-                        >{{
-                          choice.requires
-                            ? 'Requires: ' + choice.requires
-                            : 'Not enough Resolve'
-                        }}</span
+                        >{{ lockReason(store.run, choice) }}</span
                       ></span
                     >
                     <icon
@@ -384,8 +381,10 @@
 import { computed, onMounted, ref } from 'vue'
 import {
   scene,
-  type Choice,
   type BattleAction,
+  ENDING_IDS,
+  lockReason,
+  visibleChoices,
 } from '~/utils/zuzuGamebook/adventure'
 import { plate, platePath } from '~/utils/zuzuGamebook/art'
 import { useZuzuGamebookStore } from '~/stores/zuzuGamebookStore'
@@ -396,6 +395,7 @@ const userStore = useUserStore()
 const showSheet = ref(false)
 const current = computed(() => scene(store.run.sceneId))
 const art = computed(() => plate(current.value.art))
+const choices = computed(() => visibleChoices(store.run, current.value))
 const moves: { action: BattleAction; label: string; help: string }[] = [
   {
     action: 'strike',
@@ -418,12 +418,6 @@ const moves: { action: BattleAction; label: string; help: string }[] = [
     help: '2 Resolve · 6 damage on a hit',
   },
 ]
-function allowed(choice: Choice) {
-  return (
-    (!choice.requires || store.run.items.includes(choice.requires)) &&
-    (!choice.cost || store.run.resolve >= choice.cost)
-  )
-}
 function restart() {
   if (
     window.confirm(

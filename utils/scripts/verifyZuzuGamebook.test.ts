@@ -9,13 +9,18 @@ import {
   takeChoice,
   fight,
   isSavedRun,
+  lockReason,
+  visibleChoices,
+  ENDING_IDS,
   type Run,
+  type BattleAction,
 } from '../zuzuGamebook/adventure'
 
 const ids = Object.keys(BOOK)
-assert.ok(ids.length >= 18, 'preview has substantive scenes')
+assert.ok(ids.length >= 60, 'Book One has substantive scenes')
 const endings = ids.filter((id) => !!BOOK[id]?.ending)
-assert.equal(endings.length, 6, 'preview has six authored outcomes')
+assert.ok(endings.length >= 8, 'at least eight authored endings')
+assert.deepEqual([...ENDING_IDS].sort(), [...endings].sort())
 
 for (const node of Object.values(BOOK)) {
   assert.ok(
@@ -150,6 +155,116 @@ assert.equal(
   blocked.battle?.turn === coyote.battle?.turn ? blocked : coyote,
   'unaffordable move does not advance',
 )
+// Every flag a choice needs, retires on, or rolls a bonus from is set somewhere.
+const settable = new Set<string>()
+for (const node of Object.values(BOOK)) {
+  if (node.effects?.flag) settable.add(node.effects.flag)
+  for (const choice of node.choices ?? [])
+    if (choice.flag) settable.add(choice.flag)
+}
+for (const node of Object.values(BOOK)) {
+  for (const choice of node.choices ?? []) {
+    for (const flag of [
+      choice.needs,
+      choice.unless,
+      choice.check?.bonus?.flag,
+    ]) {
+      if (flag)
+        assert.ok(
+          settable.has(flag),
+          node.id + ': flag ' + flag + ' is never set',
+        )
+    }
+    if (choice.needs)
+      assert.ok(
+        choice.hint,
+        node.id + '/' + choice.id + ' needs a disabled hint',
+      )
+  }
+}
+
+// No time loops: the section graph (choices, check outcomes, battle results) is acyclic.
+const state = new Map<string, 'open' | 'done'>()
+function acyclic(id: string) {
+  if (state.get(id) === 'done') return
+  assert.notEqual(state.get(id), 'open', 'story loop through ' + id)
+  state.set(id, 'open')
+  const node = scene(id)
+  for (const choice of node.choices ?? []) {
+    acyclic(choice.to)
+    if (choice.check) {
+      acyclic(choice.check.success)
+      acyclic(choice.check.failure)
+    }
+  }
+  if (node.battle) {
+    acyclic(node.battle.win)
+    acyclic(node.battle.lose)
+  }
+  state.set(id, 'done')
+}
+acyclic('the-crossing')
+
+// Locked and retired choices behave.
+const gate = { ...startRun(9), sceneId: 'morning', flags: [] as string[] }
+const take = BOOK.morning!.choices!.find((c) => c.id === 'take')!
+assert.ok(
+  lockReason(gate, take),
+  'needs-gated choice is locked without its flag',
+)
+assert.equal(takeChoice(gate, 'take'), gate, 'locked choice does nothing')
+assert.equal(
+  takeChoice({ ...gate, flags: ['abbess-doubt'] }, 'take').sceneId,
+  'take-them',
+)
+const bell = { ...startRun(9), sceneId: 'hollow-bell', flags: ['poster-clue'] }
+assert.ok(
+  !visibleChoices(bell, BOOK['hollow-bell']!).some((c) => c.id === 'posters'),
+  'a retired choice is not offered again',
+)
+const hurt = takeChoice(
+  { ...startRun(9), sceneId: 'canyon-road', health: 1 },
+  'long',
+)
+assert.equal(hurt.sceneId, 'bone-river')
+const fall = { ...startRun(9), sceneId: 'bridge-fall', health: 2 }
+assert.ok(fall.health >= 1)
+
+// Stateful exploration: seeded random playthroughs reach every ending and never stall.
+let rng = 20261009
+const rand = (n: number) => {
+  rng = (rng * 1103515245 + 12345) >>> 0
+  return (rng >>> 16) % n
+}
+const reached = new Set<string>()
+const actions: BattleAction[] = ['strike', 'guard', 'feint', 'quiet-draw']
+for (let walk = 0; walk < 6000; walk++) {
+  let run = startRun(walk * 7919 + 1)
+  for (let step = 0; step < 200; step++) {
+    const node = scene(run.sceneId)
+    if (node.ending) {
+      reached.add(node.id)
+      break
+    }
+    if (run.battle) {
+      const next = fight(run, actions[rand(actions.length)]!)
+      run = next === run ? fight(run, 'strike') : next
+      continue
+    }
+    const open = visibleChoices(run, node).filter((c) => !lockReason(run, c))
+    assert.ok(open.length, 'stalled with no available choice at ' + node.id)
+    run = takeChoice(run, open[rand(open.length)]!.id)
+    assert.ok(run.health >= 0 && run.health <= 12)
+    assert.ok(run.items.length <= 5)
+  }
+}
+for (const id of endings)
+  assert.ok(reached.has(id), 'ending never reached in play: ' + id)
+
 console.log(
-  'Zuzu gamebook contract: scene graph, plates, six endings, items, dice, combat replay, saves and power costs passed',
+  'Zuzu gamebook contract: ' +
+    ids.length +
+    ' sections, ' +
+    endings.length +
+    ' endings, acyclic, stateful exploration, plates, items, dice, combat replay, saves and power costs passed',
 )

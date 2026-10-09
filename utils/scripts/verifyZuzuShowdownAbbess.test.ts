@@ -100,40 +100,46 @@ const hits = (log: SimEvent[]) =>
 
 // ---------------------------------------------------------------- data
 
-check('every special matches its fighters.yaml input; she joins the roster', () => {
-  const yaml: Record<string, string> = {
-    benediction: 'QCF+P',
-    'reaching-tentacle': 'DP+P',
-    'the-thin-place': 'QCB+K',
-    'last-rites': '360+P',
-    vespers: 'dd+P',
-    'the-choir': 'QCF QCF+P',
-    'open-the-door': 'QCB QCB+HP',
-  }
-  assert.deepEqual(
-    ABBESS.specials.map((s) => s.id).sort(),
-    Object.keys(yaml).sort(),
-  )
-  for (const special of ABBESS.specials) {
-    const parsed = parseNotation(yaml[special.id]!)
-    assert.ok(parsed, special.id)
-    assert.equal(parsed.motion, special.motion, special.id)
-    assert.equal(parsed.button, special.button, special.id)
-  }
-  assert.ok(FIGHTERS.includes(ABBESS))
-  assert.equal(ABBESS.health, 950)
-})
+check(
+  'every special matches its fighters.yaml input; she joins the roster',
+  () => {
+    const yaml: Record<string, string> = {
+      benediction: 'QCF+P',
+      'reaching-tentacle': 'DP+P',
+      'the-thin-place': 'QCB+K',
+      'last-rites': '360+P',
+      vespers: 'dd+P',
+      'the-choir': 'QCF QCF+P',
+      'open-the-door': 'QCB QCB+HP',
+    }
+    assert.deepEqual(
+      ABBESS.specials.map((s) => s.id).sort(),
+      Object.keys(yaml).sort(),
+    )
+    for (const special of ABBESS.specials) {
+      const parsed = parseNotation(yaml[special.id]!)
+      assert.ok(parsed, special.id)
+      assert.equal(parsed.motion, special.motion, special.id)
+      assert.equal(parsed.button, special.button, special.id)
+    }
+    assert.ok(FIGHTERS.includes(ABBESS))
+    assert.equal(ABBESS.health, 950)
+  },
+)
 
 // ---------------------------------------------------------------- the kit
 
-check('Benediction throws a dagger that hits at range; the HP flies higher', () => {
-  const log: SimEvent[] = []
-  play(fightAt(200), 80, motion([2, 3, 6], { lp: true }), [], log)
-  assert.ok(hits(log).some((h) => h.move === 'benediction'))
-  const lp = play(fightAt(300), 20, motion([2, 3, 6], { lp: true }))
-  const hp = play(fightAt(300), 20, motion([2, 3, 6], { hp: true }))
-  assert.ok(hp.projectiles[0]!.y > lp.projectiles[0]!.y)
-})
+check(
+  'Benediction throws a dagger that hits at range; the HP flies higher',
+  () => {
+    const log: SimEvent[] = []
+    play(fightAt(200), 80, motion([2, 3, 6], { lp: true }), [], log)
+    assert.ok(hits(log).some((h) => h.move === 'benediction'))
+    const lp = play(fightAt(300), 20, motion([2, 3, 6], { lp: true }))
+    const hp = play(fightAt(300), 20, motion([2, 3, 6], { hp: true }))
+    assert.ok(hp.projectiles[0]!.y > lp.projectiles[0]!.y)
+  },
+)
 
 check('Reaching Tentacle is slow, launches, and the HP reaches farther', () => {
   const log: SimEvent[] = []
@@ -160,35 +166,32 @@ check('The Thin Place: LK lands her behind them, HK at the far wall', () => {
   assert.ok(Math.abs(hk.fighters[0].x) <= 384 * SUB)
 })
 
-check('Last Rites grabs through a block for 160, and flings the Siblings', () => {
-  const log: SimEvent[] = []
-  const s = play(
-    fightAt(36),
-    60,
-    motion([6, 3, 2, 1, 4, 7, 8, 9, 6], { lp: true }, 1),
-    Array(60).fill(press({ left: true })),
-    log,
-  )
-  assert.ok(log.some((e) => e.type === 'throw' && e.attacker === 0))
-  assert.equal(s.fighters[1].health, PLACEHOLDER_B.health - 160)
-  assert.equal(moveOf(ABBESS, { id: 'last-rites', heavy: false }).fling, true)
-})
+check(
+  'Last Rites grabs through a block for 160, and flings the Siblings',
+  () => {
+    const log: SimEvent[] = []
+    const s = play(
+      fightAt(36),
+      60,
+      motion([6, 3, 2, 1, 4, 7, 8, 9, 6], { lp: true }, 1),
+      Array(60).fill(press({ left: true })),
+      log,
+    )
+    assert.ok(log.some((e) => e.type === 'throw' && e.attacker === 0))
+    assert.equal(s.fighters[1].health, PLACEHOLDER_B.health - 160)
+    assert.equal(moveOf(ABBESS, { id: 'last-rites', heavy: false }).fling, true)
+  },
+)
 
 check('Vespers halves the speed of the opponent’s projectiles', () => {
   const roster: [FighterData, FighterData] = [ABBESS, COYOTE]
   const shotAfter = (bell: boolean): number => {
     let s = fightAt(300, roster)
-    if (bell) s = play(s, 40, motion([2, 5, 2], { lp: true }), [], undefined, roster)
+    if (bell)
+      s = play(s, 40, motion([2, 5, 2], { lp: true }), [], undefined, roster)
     assert.equal(s.fighters[0].bell > 0, bell)
     const before = s.projectiles.length
-    s = play(
-      s,
-      20,
-      [],
-      motion([2, 1, 4], { lp: true }),
-      undefined,
-      roster,
-    )
+    s = play(s, 20, [], motion([2, 1, 4], { lp: true }), undefined, roster)
     assert.equal(s.projectiles.length, before + 1)
     const x0 = s.projectiles.find((c) => c.owner === 1)!.x
     s = play(s, 10, [], [], undefined, roster)

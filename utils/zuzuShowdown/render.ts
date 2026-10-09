@@ -73,6 +73,7 @@ import {
   type FighterData,
   type FighterState,
   type MatchState,
+  type Projectile,
   type SimEvent,
   type WorldBox,
 } from './types'
@@ -1132,6 +1133,111 @@ function drawFighter(
   g.restore()
 }
 
+// What each fighter throws, drawn in game pixels on the projectile's box (its centre and facing).
+const STRAW = '#d9b66a'
+const STRAW_DARK = '#a7823e'
+const KASA_BAND = '#ea7a2a'
+const PROJECTILE_INK = '#1c1512'
+
+/** Draw a projectile as the thing it is; false when the move has no drawing (it falls back to a box). */
+function drawThrown(
+  g: G,
+  p: Projectile,
+  r: { x: number; y: number; w: number; h: number },
+): boolean {
+  if (typeof g.ellipse !== 'function') return false
+  const cx = r.x + r.w / 2
+  const cy = r.y + r.h / 2
+  const dir = p.vx < 0 ? -1 : 1
+  g.save()
+  g.translate(cx, cy)
+  g.lineJoin = 'round'
+  switch (p.move) {
+    case 'kasa-toss': {
+      // Zuzu's straw kasa, skimming flat and spinning: the band's highlight swings round the crown.
+      const half = r.w / 2
+      g.fillStyle = PROJECTILE_INK
+      g.beginPath()
+      g.moveTo(-half - 1, 2)
+      g.lineTo(0, -6)
+      g.lineTo(half + 1, 2)
+      g.ellipse(0, 2, half + 1, 2.5, 0, 0, Math.PI)
+      g.fill()
+      g.fillStyle = STRAW
+      g.beginPath()
+      g.moveTo(-half, 1.5)
+      g.lineTo(0, -5)
+      g.lineTo(half, 1.5)
+      g.ellipse(0, 1.5, half, 1.8, 0, 0, Math.PI)
+      g.fill()
+      g.fillStyle = KASA_BAND
+      g.fillRect(-half * 0.42, -2.2, half * 0.84, 1.6)
+      const spin = Math.sin(p.age * 0.7) * half * 0.6
+      g.fillStyle = STRAW_DARK
+      g.fillRect(spin - 0.6, -4, 1.2, 5.5)
+      break
+    }
+    case 'wild-shot': {
+      // A revolver slug and its tracer: a hot streak trailing back toward the gun.
+      g.fillStyle = 'rgba(253, 224, 71, 0.45)'
+      g.fillRect(dir > 0 ? -16 : 2, -1, 14, 2)
+      g.fillStyle = '#fff7d6'
+      g.fillRect(dir > 0 ? -9 : 2, -0.5, 7, 1)
+      g.fillStyle = '#3f3f46'
+      g.beginPath()
+      g.ellipse(dir * 1.5, 0, 2.5, 1.5, 0, 0, Math.PI * 2)
+      g.fill()
+      break
+    }
+    case 'benediction': {
+      // The Abbess's ritual dagger, turning end over end.
+      g.rotate(p.age * 0.55 * dir)
+      g.fillStyle = PROJECTILE_INK
+      g.fillRect(-7, -1.6, 15, 3.2)
+      g.fillStyle = '#d4d8de'
+      g.beginPath()
+      g.moveTo(-1, -1.1)
+      g.lineTo(7, 0)
+      g.lineTo(-1, 1.1)
+      g.closePath()
+      g.fill()
+      g.fillStyle = '#5b3b26'
+      g.fillRect(-2.2, -3.2, 1.6, 6.4)
+      g.fillRect(-6.5, -0.9, 4.4, 1.8)
+      break
+    }
+    case 'apple-toss': {
+      // The toddler's apple, tumbling as it arcs.
+      g.rotate(p.age * 0.25 * dir)
+      const rad = Math.min(r.w, r.h) / 2
+      g.fillStyle = PROJECTILE_INK
+      g.beginPath()
+      g.arc(0, 0, rad + 0.8, 0, Math.PI * 2)
+      g.fill()
+      g.fillStyle = '#c8262d'
+      g.beginPath()
+      g.arc(0, 0, rad, 0, Math.PI * 2)
+      g.fill()
+      g.fillStyle = '#f9a8a8'
+      g.beginPath()
+      g.arc(-rad * 0.35, -rad * 0.35, rad * 0.28, 0, Math.PI * 2)
+      g.fill()
+      g.fillStyle = '#5b3b26'
+      g.fillRect(-0.5, -rad - 2, 1, 2.5)
+      g.fillStyle = '#4d7c2a'
+      g.beginPath()
+      g.ellipse(1.8, -rad - 1, 1.8, 0.9, -0.5, 0, Math.PI * 2)
+      g.fill()
+      break
+    }
+    default:
+      g.restore()
+      return false
+  }
+  g.restore()
+  return true
+}
+
 function drawProjectiles(
   g: G,
   s: MatchState,
@@ -1143,6 +1249,7 @@ function drawProjectiles(
     const box = projectileBox(s, roster, index)
     if (!box) return
     const r = rectOf(box, camera)
+    if (drawThrown(g, p, r)) return
     const colors = SIDE_COLORS[p.owner]
     g.fillStyle = colors.light
     g.fillRect(r.x, r.y, r.w, r.h)

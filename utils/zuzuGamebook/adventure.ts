@@ -320,7 +320,7 @@ export const BOOK: Record<string, Scene> = {
     'posters',
     'IV · THE VEIL',
     'The Wall of Names',
-    'posters-street',
+    'posters-boardwalk',
     'Under lantern light, the painted faces of missing children look back. The posters name the mission. Every narrow lane seems to point back toward it. The bell tolls again from a town that has no bell ringer.',
     [
       {

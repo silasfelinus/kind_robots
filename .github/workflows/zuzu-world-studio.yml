@@ -1,0 +1,41 @@
+name: Zuzu World Studio Contract
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'utils/zuzuWorld.ts'
+      - 'stores/zuzuWorldStore.ts'
+      - 'pages/admin/worlds/**'
+      - 'server/api/worlds/zuzu/**'
+      - 'server/utils/zuzuWorldLedger.ts'
+      - 'content/channels/admin/zuzu-world.md'
+      - 'utils/scripts/verifyZuzuWorldStudio.test.ts'
+      - '.github/workflows/zuzu-world-studio.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'utils/zuzuWorld.ts'
+      - 'stores/zuzuWorldStore.ts'
+      - 'pages/admin/worlds/**'
+      - 'server/api/worlds/zuzu/**'
+      - 'server/utils/zuzuWorldLedger.ts'
+      - 'content/channels/admin/zuzu-world.md'
+      - 'utils/scripts/verifyZuzuWorldStudio.test.ts'
+      - '.github/workflows/zuzu-world-studio.yml'
+  workflow_dispatch:
+
+jobs:
+  contract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: 'npm'
+      - run: npm ci
+        env:
+          CYPRESS_INSTALL_BINARY: '0'
+      - run: npx tsx utils/scripts/verifyZuzuWorldStudio.test.ts

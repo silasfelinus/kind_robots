@@ -6,7 +6,7 @@ import {
   confrontAbbess,
   createHomestead,
   drawHomestead,
-  isHomesteadState,
+  restoreHomestead,
   resolveHomestead,
   type HomesteadState,
 } from '~/utils/shiftingLands/homestead'
@@ -39,7 +39,8 @@ export const useShiftingLandsStore = defineStore('shiftingLands', () => {
         const value = window.localStorage.getItem(SAVE_KEY)
         if (value) {
           const parsed: unknown = JSON.parse(value)
-          if (isHomesteadState(parsed)) state.value = parsed
+          const restored = restoreHomestead(parsed)
+          if (restored) state.value = restored
         }
       } catch {
         /* malformed save creates fresh run */
@@ -58,7 +59,7 @@ export const useShiftingLandsStore = defineStore('shiftingLands', () => {
     persist()
     return true
   }
-  function resolve(choice: 'help' | 'risk') {
+  function resolve(choice: 'insight' | 'bearing') {
     state.value = resolveHomestead(state.value, choice)
     persist()
   }

@@ -23,7 +23,6 @@ import {
 import { PLACEHOLDER_B } from '../zuzuShowdown/fighters/placeholders'
 import { ABBESS } from '../zuzuShowdown/fighters/abbess'
 import { SIBLINGS } from '../zuzuShowdown/fighters/siblings'
-import { COYOTE } from '../zuzuShowdown/fighters/coyote'
 import { ZUZU } from '../zuzuShowdown/fighters/zuzu'
 import { FIGHTERS } from '../zuzuShowdown/fighters'
 import {
@@ -144,7 +143,6 @@ check('Apple Toss spends one of three apples; they regrow', () => {
   }
   s = play(s, 100, toss, [], undefined, roster)
   assert.equal(s.projectiles.length, 0, 'no apple left to throw')
-  s = play(s, SIBLINGS.ammoRegen! * 2, [])
   s = play(fightAt(300), SIBLINGS.ammoRegen! * 2, [])
   assert.equal(s.fighters[0].ammo, 3)
   let t = play(fightAt(300), 100, toss)

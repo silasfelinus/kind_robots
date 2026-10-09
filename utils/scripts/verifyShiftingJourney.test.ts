@@ -87,7 +87,8 @@ assert.equal(shifted, true, 'some reproducible seeds cause visible land mutation
 
 const commands: JourneyAction[] = []
 let endState: JourneyState | null = null
-for (let seed = 1; seed <= 4000 && endState === null; seed++) {
+let victoriousRuns = 0
+for (let seed = 1; seed <= 600; seed++) {
   let s = newJourney(seed)
   const history: JourneyAction[] = []
   for (let turn = 0; turn < 100 && !['complete', 'fallen', 'retired'].includes(s.phase); turn++) {
@@ -111,8 +112,11 @@ for (let seed = 1; seed <= 4000 && endState === null; seed++) {
     assert.ok(isJourneyState(s), 'all transitions preserve a valid state')
   }
   if (s.phase !== 'complete') continue
-  endState = s
-  commands.push(...history)
+  victoriousRuns++
+  if (!endState) {
+    endState = s
+    commands.push(...history)
+  }
   assert.equal(s.bosses.length, 5)
   assert.equal(s.resolved.length, 15)
   assert.deepEqual(s.bosses.map((boss) => boss.landId),
@@ -122,6 +126,7 @@ for (let seed = 1; seed <= 4000 && endState === null; seed++) {
     'complete run must replay deterministically from the seed and recorded commands')
 }
 assert.ok(endState, 'at least one seeded complete five-land run must exist')
+assert.ok(victoriousRuns >= 15, 'random travel and combat should not make a complete run vanishingly rare')
 assert.equal(stepJourney(endState!, { type: 'TRAVEL', locationId: chosen }), endState,
   'winning runs are terminal')
 

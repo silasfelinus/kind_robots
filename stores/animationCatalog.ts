@@ -756,6 +756,18 @@ export const ANIMATION_EFFECTS = [
     generationSafe: true,
     preferredSurface: 'fullscreen',
   },
+  {
+    id: 'aurora-curtains',
+    label: 'Aurora Curtains',
+    reveal: 'Ribbons of northern light fold and shimmer over a dark ridge',
+    icon: 'kind-icon:sparkle',
+    tooltip:
+      'Green and violet aurora curtains drift over a starry ridge 🌌 hover to brighten the strands near you, click to send a pulse of light across the sky',
+    color: '#5eead4',
+    releasedAt: '2026-10-09T08:00:00Z',
+    generationSafe: true,
+    preferredSurface: 'fullscreen',
+  },
 ] as const satisfies readonly AnimationEffectDefinition[]
 
 export type AnimationEffectId = (typeof ANIMATION_EFFECTS)[number]['id']

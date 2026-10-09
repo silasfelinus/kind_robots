@@ -133,6 +133,7 @@
     "test:zuzu-showdown-render": "tsx utils/scripts/verifyZuzuShowdownRender.test.ts",
     "test:zuzu-showdown-zuzu": "tsx utils/scripts/verifyZuzuShowdownZuzu.test.ts",
     "test:zuzu-showdown-coyote": "tsx utils/scripts/verifyZuzuShowdownCoyote.test.ts",
+    "test:zuzu-showdown-abbess": "tsx utils/scripts/verifyZuzuShowdownAbbess.test.ts",
     "test:zuzu-showdown-sprites": "tsx utils/scripts/verifyZuzuShowdownSprites.test.ts",
     "test:zuzu-showdown-cpu": "tsx utils/scripts/verifyZuzuShowdownCpu.test.ts",
     "test:zuzu-showdown-screens": "tsx utils/scripts/verifyZuzuShowdownScreens.test.ts",

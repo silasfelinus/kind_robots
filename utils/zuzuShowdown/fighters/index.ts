@@ -7,12 +7,14 @@
 import type { Motion } from '../motion'
 import type { FighterData } from '../types'
 import { PLACEHOLDER_A, PLACEHOLDER_B } from './placeholders'
+import { ABBESS } from './abbess'
 import { COYOTE } from './coyote'
 import { ZUZU } from './zuzu'
 
 export const FIGHTERS: FighterData[] = [
   ZUZU,
   COYOTE,
+  ABBESS,
   PLACEHOLDER_A,
   PLACEHOLDER_B,
 ]

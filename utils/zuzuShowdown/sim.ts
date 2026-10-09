@@ -64,6 +64,8 @@ export const MAX_ROUNDS = 5
 
 /** Stage edges, in pixels either side of centre. */
 export const STAGE_HALF_WIDTH = 384
+/** Pixels between a teleporting fighter and the opponent they appear behind. */
+const TELEPORT_GAP = 28
 /** Fighters can't walk further apart than one screen. */
 export const MAX_SEPARATION = 400
 export const START_OFFSET = 70
@@ -173,6 +175,7 @@ function freshFighter(data: FighterData, side: Side): FighterState {
     jumpCancel: 0,
     ammo: data.ammo ?? 0,
     blind: 0,
+    bell: 0,
     motion: emptyMotion(),
     buffer: [],
     prev: neutralInput(),
@@ -639,6 +642,20 @@ function applyMoveVelocity(f: FighterState, move: MoveData): void {
   }
 }
 
+/** Reappear behind the opponent, or at the wall beyond them, facing them. */
+function teleport(
+  f: FighterState,
+  o: FighterState,
+  to: 'behind' | 'wall',
+): void {
+  const edge = (STAGE_HALF_WIDTH - 24) * SUB
+  const dir = o.x >= f.x ? 1 : -1
+  const target = to === 'wall' ? dir * edge : o.x + dir * TELEPORT_GAP * SUB
+  f.x = Math.max(-edge, Math.min(edge, target))
+  f.facing = o.x >= f.x ? 1 : -1
+  f.vx = 0
+}
+
 /** A seeded aim wobble of up to `spread` pixels either way. */
 function spreadOffset(s: MatchState, spread: number | undefined): number {
   if (!spread) return 0
@@ -667,6 +684,12 @@ function advanceAttack(
   }
   if (move.reload && attack.frame === move.startup) {
     s.fighters[side].ammo = data.ammo ?? 0
+  }
+  if (move.slowProjectiles && attack.frame === move.startup) {
+    f.bell = move.slowProjectiles
+  }
+  if (move.teleport && attack.frame === move.teleport.frame) {
+    teleport(f, s.fighters[other(side)], move.teleport.to)
   }
   const projectile = move.projectile
   if (projectile && attack.frame === projectile.spawnFrame) {
@@ -713,6 +736,7 @@ function think(
   if (f.reversal > 0) f.reversal -= 1
   if (f.jumpCancel > 0) f.jumpCancel -= 1
   if (f.blind > 0 && f.action !== 'hitstun') f.blind -= 1
+  if (f.bell > 0) f.bell -= 1
 
   // Combo Breaker: Dodge + any attack while being comboed, for two bars.
   if (
@@ -1514,7 +1538,9 @@ function moveProjectiles(s: MatchState, roster: Pair<FighterData>): void {
         if (Math.abs(owner.x - next.x) <= CATCH_RANGE * SUB) continue
       }
     }
-    next.x += next.vx
+    // Vespers: the bell halves the speed of the other side's projectiles.
+    const slowed = s.fighters[p.owner === 0 ? 1 : 0].bell > 0
+    next.x += slowed ? Math.trunc(next.vx / 2) : next.vx
     if (next.life > 0 && Math.abs(next.x) <= edge) kept.push(next)
   }
   s.projectiles = kept

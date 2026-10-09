@@ -9,15 +9,15 @@ not advisory. Where it conflicts with an agent's own origin prompt, this file wi
 
 ## Where this sits
 
-| Layer | Who reads it | Where |
-|---|---|---|
-| Origin | one origin's agents, before any repo is open | claude.ai / ChatGPT custom instructions |
-| **All agents** | **every agent, every origin** | **this file**, plus `conductor/AGENTS.md` and `conductor/CONTROL.md` |
-| Session notes | whoever is mid-task | `AI_README.md` |
+| Layer          | Who reads it                                 | Where                                                                |
+| -------------- | -------------------------------------------- | -------------------------------------------------------------------- |
+| Origin         | one origin's agents, before any repo is open | claude.ai / ChatGPT custom instructions                              |
+| **All agents** | **every agent, every origin**                | **this file**, plus `conductor/AGENTS.md` and `conductor/CONTROL.md` |
+| Session notes  | whoever is mid-task                          | `AI_README.md`                                                       |
 
 Coordination — task claiming, project kinds, roadmaps, PR/TALKBACK protocol, the security
 model, escalation — lives in the `conductor` repo's `AGENTS.md` and `CONTROL.md`. This file
-covers only what is true about *this codebase*. Don't restate coordination rules here.
+covers only what is true about _this codebase_. Don't restate coordination rules here.
 
 ## Stack
 
@@ -59,6 +59,10 @@ MariaDB. Production is served at `https://kindrobots.org` through the current co
 - Match the idiom of the file you're editing. Keep diffs small and reviewable.
 - When returning code in chat, return complete copy-paste-ready files or sections — never
   placeholders or ellipses. In-repo, normal targeted edits are fine.
+
+## Admin route and navigation contract (Silas, 2026-10-09)
+
+An **admin-only feature or development preview** must be available at an `/admin/...` route and have a discoverable `content/channels/admin/*.md` tab with `requiredRole: ADMIN`. Do not leave an admin-only prototype under `/play/...` or a Projects-only tab. Keep public release routes under `/play` for the point when they actually launch. Exceptions for internal non-navigation helpers require an explicit owner decision; avoid silent `navigation: false` for requested admin tools. When relocating an existing admin-only preview, update any associated project route and UI contract tests together. Audit other existing inconsistencies incrementally rather than destructively moving unrelated mature routes.
 
 ## Art-first interface standard
 
@@ -114,10 +118,10 @@ needs code that was just pushed. Never open with `.\scripts\thing.ps1` or
     git pull
     .\scripts\sync-comfy-models.ps1 -Local D:\comfy\comfy-fast\models -Tier core -Yes
 
-Silas, 2026-09-08, after this cost him two rounds: *"if I ran your commands 'from
-ferngrotto' they would fail ... I'm missing a cd and git pull at minimum"*, and again:
-*"don't assume that I'm going to be running commands immediately after the last message
-from the same window."*
+Silas, 2026-09-08, after this cost him two rounds: _"if I ran your commands 'from
+ferngrotto' they would fail ... I'm missing a cd and git pull at minimum"_, and again:
+_"don't assume that I'm going to be running commands immediately after the last message
+from the same window."_
 
 The same rule covers paths: write them for the shell he is actually in. `/d/code/...` is
 Git Bash and means nothing to PowerShell, which resolves it against the current drive and

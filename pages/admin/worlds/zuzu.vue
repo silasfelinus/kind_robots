@@ -138,7 +138,7 @@
               <span class="kr-spinner-lg-primary" />
             </div>
             <div v-else-if="!studio.items.length" class="kr-panel grid min-h-72 place-items-center gap-2 p-8 text-center">
-              <Icon name="kind-icon:images" class="h-10 w-10 text-base-content/40" />
+              <Icon name="kind-icon:gallery" class="h-10 w-10 text-base-content/40" />
               <p class="font-bold">No accessible artwork matches these filters</p>
               <p class="max-w-md text-sm text-base-content/60">
                 The registry records historical render IDs; images only appear here when the live database permits access.
@@ -388,7 +388,7 @@ const quickLinks = [
   { label: 'LoRAs & models', icon: 'kind-icon:database', to: '/resources' },
   { label: 'Comic Studio', icon: 'kind-icon:book', to: '/play/comics/studio' },
   { label: 'Music videos', icon: 'kind-icon:video', to: '/play/music-video' },
-  { label: 'Gamebook', icon: 'kind-icon:gamepad-2', to: '/play/zuzu-gamebook' },
+  { label: 'Gamebook', icon: 'kind-icon:book-open', to: '/play/zuzu-gamebook' },
 ]
 
 onMounted(async () => {

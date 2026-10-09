@@ -11,6 +11,10 @@ icon: kind-icon:map
 route: /admin/zuzu-shifting-lands
 sort: 125
 requiredRole: ADMIN
+tutorial:
+  title: Shifting Lands
+  body: >-
+    Playtest the illustrated narrative board game set in Zuzu's wasteland. Explore the Homestead's locations, draw species and role cards, resolve skill checks as encounters come up, and pick your journey back up where you saved it. It stays in Admin until Shifting Lands is ready for public play.
 ---
 
 Playtest the Homestead's illustrated board and encounter decks. This development workshop stays in Admin until Shifting Lands is ready for public play.

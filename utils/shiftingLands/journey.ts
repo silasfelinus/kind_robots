@@ -201,9 +201,9 @@ export function confrontJourneyBoss(state: JourneyState, approach: BossApproach)
   }
   if (approach === 'parley' && state.provisions < 1) return state
   const skill: Skill = approach === 'challenge' ? 'steel' : 'bearing'
-  const [rngState, check] = roll(state.rngState, land.id, land.boss.id, skill, 9 + state.landIndex)
+  const [rngState, check] = roll(state.rngState, land.id, land.boss.id, skill, (approach === 'parley' ? 8 : 9) + state.landIndex)
   const provisions = state.provisions - (approach === 'parley' ? 1 : 0)
-  const hp = clamp(state.hp - (check.success ? 0 : approach === 'challenge' ? 2 : 1), 8)
+  const hp = clamp(state.hp - (check.success ? 0 : 1), 8)
   const journal = [...state.journal, entry(turn, 'boss', land.id,
     land.boss.label + ': ' + approach + ', ' + check.dice.join('+') + ' + ' +
     check.modifier + ' versus ' + check.difficulty + ': ' + (check.success ? 'cleared.' : 'repelled.'))]
@@ -220,7 +220,7 @@ export function confrontJourneyBoss(state: JourneyState, approach: BossApproach)
   else journal.push(entry(turn, 'start', JOURNEY_WORLD.lands[state.landIndex + 1]!.id,
     'Zuzu enters ' + JOURNEY_WORLD.lands[state.landIndex + 1]!.name + '.'))
   return {
-    ...state, rngState, provisions, hp, bosses, journal, lastRoll: check,
+    ...state, rngState, provisions, hp: clamp(hp + 2, 8), bosses, journal, lastRoll: check,
     landIndex: final ? state.landIndex : state.landIndex + 1,
     phase, position: null, active: null, turn,
   }

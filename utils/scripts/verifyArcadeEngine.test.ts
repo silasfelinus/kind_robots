@@ -86,6 +86,12 @@ import {
 } from '../arcade/pinball/rules/shots'
 import { fitCamera, portraitBlend } from '../arcade/pinball/render/camera'
 import {
+  CAMERA_MODES,
+  CameraFollow,
+  isCameraMode,
+  nextCameraMode,
+} from '../arcade/pinball/render/cameraMode'
+import {
   QualityGovernor,
   TIER_SETTINGS,
 } from '../arcade/pinball/render/quality'
@@ -2286,6 +2292,100 @@ async function runPinballRender() {
   )
   assert.equal(portraitBlend(0.4), 1)
   assert.equal(portraitBlend(1.6), 0)
+
+  // Camera views (kind-pinball/t-021): the player's modes cycle, the full
+  // table hands framing to the preset, and the close views are eased and
+  // never lose a ball -- a ball anywhere, rising up the table or sitting
+  // by the flippers, is always inside the frame.
+  assert.deepEqual([...CAMERA_MODES], ['dynamic', 'flippers', 'full'])
+  assert.equal(nextCameraMode('full'), 'dynamic')
+  assert.ok(isCameraMode('flippers') && !isCameraMode('bogus'))
+  const ballAt = (x: number, z: number, id = 1) =>
+    ({
+      id,
+      position: [x, 0.0135, z],
+      rotation: [0, 0, 0, 1],
+      velocity: [0, 0, 0],
+      speed: 0,
+      captured: false,
+    }) as const
+  const mainBox = table.cameras.find((c) => c.id === 'main')!.frame
+  assert.equal(
+    new CameraFollow(table).step('full', [ballAt(0, -0.5)]),
+    null,
+    'the full table is the preset framing',
+  )
+  for (const mode of ['dynamic', 'flippers'] as const) {
+    const follow = new CameraFollow(table)
+    let last: number | null = null
+    let narrowest = Infinity
+    // Up the table and back down, along a diagonal.
+    const path: Array<[number, number]> = []
+    for (let i = 0; i <= 240; i++) {
+      const u = i <= 120 ? i / 120 : (240 - i) / 120
+      path.push([
+        -0.2 + 0.45 * u,
+        mainBox.max[2] - u * (mainBox.max[2] - mainBox.min[2] - 0.05),
+      ])
+    }
+    for (const [x, z] of path) {
+      const shot = follow.step(mode, [ballAt(x, z)])!
+      assert.ok(shot, `${mode}: a close shot`)
+      const { min, max } = shot.frame
+      assert.ok(
+        x >= min[0] && x <= max[0] && z >= min[2] && z <= max[2],
+        `${mode}: the ball (${x.toFixed(2)}, ${z.toFixed(2)}) is in frame`,
+      )
+      assert.ok(
+        min[0] >= mainBox.min[0] - 1e-9 && max[2] <= mainBox.max[2] + 1e-9,
+        `${mode}: the frame stays on the table`,
+      )
+      narrowest = Math.min(narrowest, max[0] - min[0])
+      const centre = (min[2] + max[2]) / 2
+      if (last !== null && Math.abs(z - path[0]![1]) < 0.01)
+        assert.ok(Math.abs(centre - last) < 0.2, `${mode}: no jump`)
+      last = centre
+    }
+    assert.ok(
+      narrowest < mainBox.max[0] - mainBox.min[0] - 0.01,
+      `${mode}: closer than the whole table`,
+    )
+  }
+  {
+    // Settled on the flippers, then a ball up the table pulls the view up.
+    const follow = new CameraFollow(table)
+    const down = [ballAt(0, 0.08)]
+    let shot = follow.step('dynamic', down)!
+    for (let i = 0; i < 200; i++) shot = follow.step('dynamic', down)!
+    const flipperZ = table.flippers[0]!.pivot[2]
+    assert.ok(
+      shot.frame.min[2] < flipperZ && shot.frame.max[2] > flipperZ,
+      'settled on the flippers',
+    )
+    for (let i = 0; i < 200; i++)
+      shot = follow.step('dynamic', [ballAt(0, -0.7)])!
+    assert.ok(shot.frame.max[2] < flipperZ, 'follows a high ball up the table')
+    // Eased back to the whole table: the framing returns to the preset.
+    let out: unknown = shot
+    for (let i = 0; i < 400 && out; i++)
+      out = follow.step('full', [ballAt(0, -0.7)])
+    assert.equal(out, null, 'full table hands the camera back to the preset')
+    // Balls too far apart for a close view: the whole table.
+    const wide = new CameraFollow(table)
+    let spread = wide.step('dynamic', [
+      ballAt(-0.2, -0.8, 1),
+      ballAt(0.2, 0.1, 2),
+    ])!
+    for (let i = 0; i < 300; i++)
+      spread = wide.step('dynamic', [
+        ballAt(-0.2, -0.8, 1),
+        ballAt(0.2, 0.1, 2),
+      ])!
+    assert.ok(
+      spread.frame.max[2] - spread.frame.min[2] > 0.85,
+      'multiball spread frames the whole table',
+    )
+  }
 
   // Quality tiers come from measured frame time, step down while slow, and
   // never climb back to a tier that failed.

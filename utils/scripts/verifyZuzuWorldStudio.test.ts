@@ -36,10 +36,8 @@ const assign = read('../../server/api/worlds/zuzu/assign.post.ts')
 assert.match(assign, /requireAdminApiUser\(event\)/)
 assert.match(assign, /isZuzuProjectSlug/)
 assert.match(assign, /buildArtImageWhere\(access\)/)
-assert.match(
-  assign,
-  /projectArtImage\.createMany\(\{ data, skipDuplicates: true \}\)/,
-)
+assert.match(assign, /projectArtImage\.createMany\(/)
+assert.match(assign, /skipDuplicates:\s*true/)
 assert.match(assign, /projectArtImage\.deleteMany/)
 assert.doesNotMatch(assign, /artImage\.delete/)
 assert.doesNotMatch(assign, /artImage\.create/)

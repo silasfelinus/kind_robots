@@ -13,6 +13,10 @@ icon: kind-icon:map
 route: /conductor
 sort: 15
 requiredRole: ADMIN
+tutorial:
+  title: Project Planner
+  body: >-
+    Every Conductor project and its roadmap in one place. Read a project's milestones and task states, see what is ready, claimed, or waiting on a human decision, and follow a task back to the pull request that shipped it.
 ---
 
 Review projects and coordinate their next steps.

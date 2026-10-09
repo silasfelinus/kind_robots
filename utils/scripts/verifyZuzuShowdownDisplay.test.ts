@@ -39,8 +39,11 @@ import {
   VIEW_WIDTH,
   ZOOM_X,
   ZOOM_Y,
+  PAN_MAX,
   advanceZoom,
+  cameraPan,
   cameraX,
+  panLimit,
   drawMatch,
   layerZoom,
   zoomTarget,
@@ -472,10 +475,28 @@ check(
     apart.fighters[0].x = (-MAX_SEPARATION / 2) * SUB
     apart.fighters[1].x = (MAX_SEPARATION / 2) * SUB
     assert.equal(zoomTarget(apart, zuzus), 1)
-    // Taking off, the camera already makes room for the top of the jump.
+    // A jump lifts the view instead of pulling it back: a plain jump keeps Zuzu close up, and only one
+    // the lift can't follow (a super jump) pulls back, from take-off.
     const jump = createMatch(zuzus)
     jump.fighters[0].vy = ZUZU.jumpVelocity
-    assert.ok(zoomTarget(jump, zuzus) < 1.45, `${zoomTarget(jump, zuzus)}`)
+    const jumping = zoomTarget(jump, zuzus)
+    assert.ok(jumping >= 1.6 && jumping < MAX_ZOOM, `${jumping}`)
+    jump.fighters[0].y = 60 * SUB
+    jump.fighters[0].vy = 0
+    const lift = cameraPan(jump, zuzus, jumping)
+    assert.ok(lift > 0 && lift <= panLimit(jumping), `${lift}`)
+    assert.equal(
+      cameraPan(createMatch(zuzus), zuzus, MAX_ZOOM),
+      0,
+      'no lift standing',
+    )
+    const superJump = createMatch(zuzus)
+    superJump.fighters[0].vy = 12 * SUB
+    assert.ok(
+      zoomTarget(superJump, zuzus) < 1.6,
+      `${zoomTarget(superJump, zuzus)}`,
+    )
+    assert.equal(panLimit(1), 0, 'unzoomed, the sky has nothing to spare')
     // Easing: out faster than in, and it settles exactly.
     const out = advanceZoom(1.8, 1.2, false) - 1.8
     const back = advanceZoom(1.2, 1.8, false) - 1.2
@@ -521,13 +542,22 @@ check(
             )
             const head =
               Math.max(0, f.y / SUB) + data.hurtStand.y + data.hurtStand.h
-            const row = ZOOM_Y - (ZOOM_Y - FLOOR_Y + head) * z
-            // (At zoom 1 a big jump can reach the HUD, as it always could: the zoom never adds to that.)
-            if (z > 1)
+            const pan = cameraPan(s, roster, z)
+            assert.ok(pan >= 0 && pan <= PAN_MAX)
+            if (z > 1) {
+              // Zoomed in, the lift keeps every head under the names and every pair of feet in view.
+              const row = ZOOM_Y - (ZOOM_Y - FLOOR_Y + head) * z + pan
               assert.ok(
                 row >= HEAD_ROW - 1,
-                `side ${side}'s head at row ${row} (zoom ${z}) frame ${i}`,
+                `side ${side}'s head at row ${row} (zoom ${z}, lift ${pan}) frame ${i}`,
               )
+              const feet =
+                ZOOM_Y - (ZOOM_Y - FLOOR_Y + Math.max(0, f.y / SUB)) * z + pan
+              assert.ok(
+                feet <= VIEW_HEIGHT + 7,
+                `side ${side}'s feet at row ${feet} (zoom ${z}, lift ${pan}) frame ${i}`,
+              )
+            }
           }
         }
       }
@@ -556,9 +586,12 @@ check('every stage still fills the screen at every zoom and camera', () => {
           )
           const top = ZOOM_Y + (l.y - ZOOM_Y) * k
           const bottom = ZOOM_Y + (l.y + l.h - ZOOM_Y) * k
-          if (name === 'backdrop')
+          if (name === 'backdrop') {
             assert.ok(top <= 0, `${at}: sky starts at ${top}`)
-          else
+            // Lifted as far as it goes, the sky still reaches the top.
+            const lifted = top + panLimit(z) * l.factor
+            assert.ok(lifted <= 0.001, `${at}: lifted sky starts at ${lifted}`)
+          } else
             assert.ok(bottom >= VIEW_HEIGHT, `${at}: ground ends at ${bottom}`)
         }
         // No gap between the sky and the ground.

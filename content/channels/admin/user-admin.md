@@ -11,6 +11,10 @@ route: /user-admin
 sort: 50
 navigation: false
 requiredRole: ADMIN
+tutorial:
+  title: Users & Moderation
+  body: >-
+    Create users, change roles and access, reset passwords, restrict accounts, and log in as a user to see what they see. The forum moderation queue is here too, so account decisions and escalated posts sit side by side.
 ---
 
 Manage users, roles, access, logins, and the forum moderation queue from one admin surface.

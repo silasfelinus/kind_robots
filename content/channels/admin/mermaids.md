@@ -14,6 +14,10 @@ icon: kind-icon:mermaid
 route: /mermaids
 sort: 150
 requiredRole: ADMIN
+tutorial:
+  title: Mermaids of Venice
+  body: >-
+    A writing desk for the novel's landing page. Edit the copy and preview exactly how the page will read; this surface deliberately works without generated artwork.
 ---
 
 An admin-only writing and preview surface for the Mermaids of Venice landing page.

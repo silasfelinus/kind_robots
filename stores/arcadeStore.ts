@@ -18,6 +18,7 @@ import {
   type HallOfFameEntry,
   type PendingArcadeScore,
 } from '~/utils/arcade/leaderboard'
+import { isRenderStyle, type RenderStyle } from '~/utils/arcade/display'
 import {
   MASTERY_KEY,
   mergeMastery,
@@ -37,6 +38,7 @@ export type ArcadeBoardEntry = {
   createdAt: string
 }
 
+const DEFAULT_RENDER_STYLE: RenderStyle = 'hd'
 const BOARD_SIZE = 10
 const LOCAL_KEY = (game: string) => `kr-arcade-local-${game}`
 const PREFS_KEY = 'kr-arcade-prefs'
@@ -45,6 +47,9 @@ const PENDING_KEY = 'kr-arcade-pending'
 type ArcadePrefs = {
   muted?: boolean
   crt?: boolean
+  /** The player's render style for every cabinet, and per-game overrides by slug. */
+  renderStyle?: RenderStyle
+  gameStyles?: Record<string, RenderStyle>
   initials?: string
   /** Players last seated at each co-op cabinet, by game slug. */
   players?: Record<string, number>
@@ -139,6 +144,8 @@ export const useArcadeStore = defineStore('arcadeStore', () => {
   const muted = ref(false)
   /** CRT scanlines; defaults off for reduced-motion viewers. */
   const crt = ref(true)
+  const renderStyle = ref<RenderStyle>(DEFAULT_RENDER_STYLE)
+  const gameStyles = ref<Record<string, RenderStyle>>({})
   const savedInitials = ref('')
   /** Players last seated at each co-op cabinet, by game slug. */
   const seatedPlayers = ref<Record<string, number>>({})
@@ -208,6 +215,13 @@ export const useArcadeStore = defineStore('arcadeStore', () => {
     const prefs = readPrefs()
     muted.value = prefs.muted === true
     crt.value = prefs.crt ?? !prefersReducedMotion
+    renderStyle.value = isRenderStyle(prefs.renderStyle)
+      ? prefs.renderStyle
+      : DEFAULT_RENDER_STYLE
+    gameStyles.value = {}
+    if (prefs.gameStyles && typeof prefs.gameStyles === 'object')
+      for (const [game, style] of Object.entries(prefs.gameStyles))
+        if (isRenderStyle(style)) gameStyles.value[game] = style
     savedInitials.value =
       typeof prefs.initials === 'string' ? prefs.initials : ''
     seatedPlayers.value = {}
@@ -223,6 +237,8 @@ export const useArcadeStore = defineStore('arcadeStore', () => {
     writePrefs({
       muted: muted.value,
       crt: crt.value,
+      renderStyle: renderStyle.value,
+      gameStyles: gameStyles.value,
       initials: savedInitials.value,
       players: seatedPlayers.value,
     })
@@ -245,6 +261,26 @@ export const useArcadeStore = defineStore('arcadeStore', () => {
 
   function setCrt(value: boolean) {
     crt.value = value
+    savePreferences()
+  }
+
+  /** The style a cabinet draws in: its own override, else the player's arcade-wide choice. */
+  function styleFor(game: string): RenderStyle {
+    return gameStyles.value[game] ?? renderStyle.value
+  }
+
+  function setRenderStyle(value: RenderStyle) {
+    renderStyle.value = value
+    savePreferences()
+  }
+
+  /** Override one cabinet's style; `null` returns it to the arcade-wide choice. */
+  function setGameStyle(game: string, value: RenderStyle | null) {
+    const next = Object.fromEntries(
+      Object.entries(gameStyles.value).filter(([slug]) => slug !== game),
+    ) as Record<string, RenderStyle>
+    if (value) next[game] = value
+    gameStyles.value = next
     savePreferences()
   }
 
@@ -337,6 +373,11 @@ export const useArcadeStore = defineStore('arcadeStore', () => {
     lastSubmittedId,
     muted,
     crt,
+    renderStyle,
+    gameStyles,
+    styleFor,
+    setRenderStyle,
+    setGameStyle,
     savedInitials,
     mastery,
     masteryFor,

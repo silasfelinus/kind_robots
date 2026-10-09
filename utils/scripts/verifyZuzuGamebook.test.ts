@@ -1,4 +1,7 @@
 import assert from 'node:assert/strict'
+import { existsSync, readdirSync } from 'node:fs'
+import { join } from 'node:path'
+import { PLATES, platePath } from '../zuzuGamebook/art'
 import {
   BOOK,
   scene,
@@ -43,6 +46,29 @@ for (const node of Object.values(BOOK)) {
       node.id + ': combat outcome missing',
     )
   }
+}
+
+const scenesDir = join(process.cwd(), 'public', 'zuzu-gamebook', 'scenes')
+for (const node of Object.values(BOOK)) {
+  const art = PLATES[node.art]
+  assert.ok(art, node.id + ': unknown plate ' + node.art)
+  assert.ok(art.alt.length > 40, node.art + ' needs descriptive alt text')
+  assert.ok(art.artImageId > 0, node.art + ' needs its ArtImage provenance')
+  assert.ok(
+    existsSync(join(scenesDir, art.file + '.webp')),
+    node.art + ': plate file missing',
+  )
+  assert.equal(platePath(art), '/zuzu-gamebook/scenes/' + art.file + '.webp')
+}
+const usedPlates = new Set(Object.values(BOOK).map((node) => node.art))
+for (const key of Object.keys(PLATES)) {
+  assert.ok(usedPlates.has(key), 'plate ' + key + ' is not used by any scene')
+}
+for (const file of readdirSync(scenesDir)) {
+  assert.ok(
+    Object.values(PLATES).some((p) => p.file + '.webp' === file),
+    'stray plate file ' + file,
+  )
 }
 
 const reachable = new Set<string>()
@@ -125,5 +151,5 @@ assert.equal(
   'unaffordable move does not advance',
 )
 console.log(
-  'Zuzu gamebook contract: scene graph, six endings, items, dice, combat replay, saves and power costs passed',
+  'Zuzu gamebook contract: scene graph, plates, six endings, items, dice, combat replay, saves and power costs passed',
 )

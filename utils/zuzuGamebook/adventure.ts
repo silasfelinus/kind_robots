@@ -115,7 +115,7 @@ export const BOOK: Record<string, Scene> = {
     'hidden-pool',
     'I · WATERS',
     'The Thing Below',
-    'waterhole',
+    'ripples',
     'A disturbance travels against the wind. The silhouette beneath the surface is longer than your sword. You find a ledge above the bank, giving you a heartbeat to prepare while the coyote remains oblivious.',
     [
       {
@@ -135,7 +135,7 @@ export const BOOK: Record<string, Scene> = {
     'coyote',
     'I · WATERS',
     'An Unsteady Truce',
-    'waterhole',
+    'coyote',
     'The coyote accepts the canteen without lowering his one good eye. His coat is patched beyond repair. You see a revolver at his right hip, but his fingers tremble with thirst. He passes the canteen back. An impossible ripple splits the water behind him.',
     [
       {
@@ -172,7 +172,7 @@ export const BOOK: Record<string, Scene> = {
     'aftermath',
     'I · WATERS',
     'What Mercy Costs',
-    'aftermath',
+    'coyote-wounded',
     'The river falls still. The coyote sits in the dust, his right wrist badly injured. He flinches at your approach, then notices the bandage in your hand. Beyond the ridge, a bell tolls once and stops.',
     [
       {
@@ -202,7 +202,7 @@ export const BOOK: Record<string, Scene> = {
     'dust-road',
     'II · ASHES',
     'The Long Way Round',
-    'road',
+    'dust-road',
     'You let the water remain a mystery. The trail climbs through dry gullies, where bleached roots hold the dust together. At dusk you discover smoke on the horizon. A hollow bell tower stands over a town that should have been alive.',
     [
       { id: 'hurry', label: 'Descend before the sun dies.', to: 'hollow-bell' },
@@ -218,7 +218,7 @@ export const BOOK: Record<string, Scene> = {
     'hollow-bell',
     'II · ASHES',
     'Hollow Bell',
-    'bell',
+    'hollow-bell',
     'The town has fallen silent. Empty doors turn on broken hinges. You remove your wide hat in the main street. Something small moves beneath a burned boardwalk. Farther on, a wall is layered with old missing-child posters.',
     [
       { id: 'search', label: 'Kneel beside the boardwalk.', to: 'survivors' },
@@ -262,7 +262,7 @@ export const BOOK: Record<string, Scene> = {
     'apple-tree',
     'III · THE FOLLOWERS',
     'Fruit in the Wasteland',
-    'road',
+    'apple-tree',
     'A lone apple tree grows where nothing should. Behind you, two small silhouettes stop when you stop. You gather what fruit you can carry, leave the best on a flat rock, and walk on without turning. The path eventually reaches a mission with a playground choked in cobwebs.',
     [
       {
@@ -320,7 +320,7 @@ export const BOOK: Record<string, Scene> = {
     'posters',
     'IV · THE VEIL',
     'The Wall of Names',
-    'posters',
+    'posters-street',
     'Under lantern light, the painted faces of missing children look back. The posters name the mission. Every narrow lane seems to point back toward it. The bell tolls again from a town that has no bell ringer.',
     [
       {
@@ -340,7 +340,7 @@ export const BOOK: Record<string, Scene> = {
     'cellar',
     'V · THE DARK',
     'Under the Floorboards',
-    'mission',
+    'altar',
     'A narrow passage descends beneath the mission. Candles burn around an old stone door. Beyond it you hear the muffled cries of the siblings and a voice chanting. Your reflection in a polished bowl shows a blade descending from the darkness.',
     [
       {
@@ -365,7 +365,7 @@ export const BOOK: Record<string, Scene> = {
     'abbess',
     'V · THE DARK',
     'A Knife Behind a Prayer',
-    'abbess',
+    'abbess-crypt',
     'The abbess casts aside her robes. A dagger glints in the candlelight. The altar behind her begins to shake; a shape presses against reality from the other side. She means to buy time with your blood.',
     undefined,
     undefined,
@@ -382,7 +382,7 @@ export const BOOK: Record<string, Scene> = {
     'rescue',
     'V · THE DARK',
     'The Choice That Remains',
-    'portal',
+    'sister-dagger',
     'The children are alive. Behind them the torn air opens wider, hungry for the world. The sister stands with a dagger in her shaking hand. There is time to flee. There may also be enough time to close the breach, at a price.',
     [
       {
@@ -404,7 +404,7 @@ export const BOOK: Record<string, Scene> = {
     'ending-water',
     'AN ENDING',
     'Silence Beneath the Surface',
-    'crocodile',
+    'kasa-on-water',
     'The watering hole returns to stillness. Two hats drift on the black water. Nobody will tell the story of the stranger who almost changed this place.',
     undefined,
     'dark',
@@ -413,7 +413,7 @@ export const BOOK: Record<string, Scene> = {
     'ending-alone',
     'AN ENDING',
     'One Shadow on the Road',
-    'road',
+    'zuzu-moon',
     'At sunrise your tracks run east, alone. The smallest footprints vanish behind you. You survived; the shape of what you left undone will travel farther than you do.',
     undefined,
     'bittersweet',
@@ -422,7 +422,7 @@ export const BOOK: Record<string, Scene> = {
     'ending-warning',
     'AN ENDING',
     'The Unheard Warning',
-    'posters',
+    'shuttered-town',
     'You carry news to the neighboring towns. More than one family bolts its doors before nightfall. You cannot be sure who escaped the mission, but your warning will not be forgotten.',
     undefined,
     'bittersweet',
@@ -431,7 +431,7 @@ export const BOOK: Record<string, Scene> = {
     'ending-altar',
     'AN ENDING',
     'The Bell Without a Ringer',
-    'abbess',
+    'empty-gate',
     'The bell calls out across the wasteland. No hand holds its rope. By dawn, there is no trace of the mission beyond its broken gate.',
     undefined,
     'dark',
@@ -440,7 +440,7 @@ export const BOOK: Record<string, Scene> = {
     'ending-three',
     'AN ENDING',
     'Three Small Shadows',
-    'road',
+    'three-road',
     'The mission burns behind the ridge. The sister takes the toddler’s hand. You walk ahead, then slow your step until three shadows fall together along the road. Nothing is settled. Something has begun.',
     undefined,
     'hope',
@@ -449,7 +449,7 @@ export const BOOK: Record<string, Scene> = {
     'ending-seal',
     'AN ENDING',
     'What the Desert Keeps',
-    'portal',
+    'kneeling-blade',
     'The breach folds inward. The abbess’s bell cracks and falls silent. When the children look back, they see you alive, on your knees, the sword blackened. The road will be longer. There will be a road.',
     undefined,
     'hope',

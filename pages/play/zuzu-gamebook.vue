@@ -57,9 +57,12 @@
               class="relative isolate aspect-[4/3] overflow-hidden rounded-[1.5rem] border border-warning/20 bg-stone-950 shadow-2xl sm:aspect-[16/9]"
             >
               <img
-                :src="artSrc"
+                :src="platePath(art)"
                 class="absolute inset-0 size-full object-cover"
-                :alt="'Illustrated concept view of ' + current.title"
+                :style="{ objectPosition: art.focus ?? 'center' }"
+                :alt="art.alt"
+                width="1344"
+                height="768"
               />
               <div
                 class="absolute inset-0 bg-gradient-to-t from-black via-transparent to-black/35"
@@ -259,9 +262,11 @@
               </section>
             </div>
             <p class="mx-5 mt-4 text-xs opacity-55">
-              Preview art is original vector concept scenery. Conductor agents
-              are producing scene-specific generated illustrations; no art
-              delivery is claimed yet.
+              Illustrations are Zuzu: Koala Assassin comic renders.
+              <template v-if="art.fit === 'stand-in'">
+                This section shows the nearest existing plate while its own
+                illustration is painted.
+              </template>
             </p>
           </article>
 
@@ -382,6 +387,7 @@ import {
   type Choice,
   type BattleAction,
 } from '~/utils/zuzuGamebook/adventure'
+import { plate, platePath } from '~/utils/zuzuGamebook/art'
 import { useZuzuGamebookStore } from '~/stores/zuzuGamebookStore'
 import { useUserStore } from '~/stores/userStore'
 
@@ -389,9 +395,7 @@ const store = useZuzuGamebookStore()
 const userStore = useUserStore()
 const showSheet = ref(false)
 const current = computed(() => scene(store.run.sceneId))
-const artSrc = computed(
-  () => '/zuzu-gamebook/scenes/' + current.value.art + '.svg',
-)
+const art = computed(() => plate(current.value.art))
 const moves: { action: BattleAction; label: string; help: string }[] = [
   {
     action: 'strike',

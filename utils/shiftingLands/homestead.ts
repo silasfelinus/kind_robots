@@ -1,3 +1,7 @@
+export type SpeciesId = 'rabbit' | 'otter' | 'coyote'
+export type RoleId = 'homesteader' | 'caretaker' | 'trader'
+export type DispositionId = 'helpful' | 'wary' | 'predatory'
+export type Approach = 'insight' | 'bearing'
 export type HomesteadCard = {
   id: string
   title: string
@@ -7,18 +11,49 @@ export type HomesteadCard = {
   reward: string
   penalty: string
 }
+export type HomesteadEncounter = {
+  locationId: string
+  species: SpeciesId
+  role: RoleId
+  disposition: DispositionId
+}
+export type HomesteadCheck = {
+  locationId: string
+  approach: Approach
+  dice: [number, number]
+  modifier: number
+  difficulty: number
+  total: number
+  success: boolean
+  disposition: DispositionId
+}
 export type HomesteadState = {
-  version: 1
+  version: 2
   seed: number
+  rngState: number
   deck: string[]
   discard: string[]
   revealed: string[]
   active: string | null
+  activeEncounter: HomesteadEncounter | null
+  lastCheck: HomesteadCheck | null
   health: number
   provisions: number
   journal: string[]
   bossResolved: boolean
 }
+export const HOMESTEAD_SPECIES: { id: SpeciesId; label: string }[] = [
+  { id: 'rabbit', label: 'Rabbit' },
+  { id: 'otter', label: 'Otter' },
+  { id: 'coyote', label: 'Coyote' },
+]
+export const HOMESTEAD_ROLES: { id: RoleId; label: string }[] = [
+  { id: 'homesteader', label: 'Homesteader' },
+  { id: 'caretaker', label: 'Caretaker' },
+  { id: 'trader', label: 'Trader' },
+]
+const DISPOSITIONS: DispositionId[] = ['helpful', 'wary', 'predatory']
+export const HOMESTEAD_SKILLS = { insight: 2, bearing: 1 } as const
 export const HOMESTEAD_CARDS: HomesteadCard[] = [
   {
     id: 'farm',
@@ -61,125 +96,185 @@ export const BOSS_CARD: HomesteadCard = {
   reward: 'The Homestead is liberated. The next land awaits.',
   penalty: 'Zuzu escapes the mission wounded, carrying its dreadful truth.',
 }
-const IDS = HOMESTEAD_CARDS.map((c) => c.id)
+const IDS = HOMESTEAD_CARDS.map((card) => card.id)
+const SPECIES_IDS = HOMESTEAD_SPECIES.map((card) => card.id)
+const ROLE_IDS = HOMESTEAD_ROLES.map((card) => card.id)
+const nextRandom = (value: number): [number, number] => {
+  const next = (Math.imul(value, 1664525) + 1013904223) >>> 0
+  return [next, next / 4294967296]
+}
+const sample = <T>(pool: readonly T[], rng: number): [number, T] => {
+  const [next, roll] = nextRandom(rng)
+  return [next, pool[Math.floor(roll * pool.length)]!]
+}
 export function createHomestead(seed: number): HomesteadState {
   const value = Math.max(1, Math.trunc(Math.abs(seed)) || 1)
   let rng = value >>> 0
-  const random = () => {
-    rng = (Math.imul(rng, 1664525) + 1013904223) >>> 0
-    return rng / 4294967296
-  }
   const deck = [...IDS]
   for (let i = deck.length - 1; i > 0; i--) {
-    const j = Math.floor(random() * (i + 1))
+    const [next, roll] = nextRandom(rng)
+    rng = next
+    const j = Math.floor(roll * (i + 1))
     ;[deck[i], deck[j]] = [deck[j]!, deck[i]!]
   }
   return {
-    version: 1,
+    version: 2,
     seed: value,
+    rngState: rng,
     deck,
     discard: [],
     revealed: [],
     active: null,
+    activeEncounter: null,
+    lastCheck: null,
     health: 8,
     provisions: 2,
     journal: ['Zuzu enters the Homestead, a stranger carrying an old code.'],
     bossResolved: false,
   }
 }
-export function isHomesteadState(v: unknown): v is HomesteadState {
-  if (!v || typeof v !== 'object') return false
-  const s = v as Partial<HomesteadState>
+export function isHomesteadState(value: unknown): value is HomesteadState {
+  if (!value || typeof value !== 'object') return false
+  const state = value as Partial<HomesteadState>
   if (
-    s.version !== 1 ||
-    !Number.isSafeInteger(s.seed) ||
-    (typeof s.health !== 'number' || !Number.isInteger(s.health)) ||
-    (typeof s.provisions !== 'number' || !Number.isInteger(s.provisions)) ||
-    !Array.isArray(s.deck) ||
-    !Array.isArray(s.discard) ||
-    !Array.isArray(s.revealed) ||
-    !Array.isArray(s.journal) ||
-    typeof s.bossResolved !== 'boolean' ||
-    !(s.active === null || typeof s.active === 'string')
+    state.version !== 2 ||
+    !Number.isSafeInteger(state.seed) ||
+    !Number.isInteger(state.rngState) ||
+    (typeof state.health !== 'number' || !Number.isInteger(state.health)) ||
+    (typeof state.provisions !== 'number' || !Number.isInteger(state.provisions)) ||
+    !Array.isArray(state.deck) ||
+    !Array.isArray(state.discard) ||
+    !Array.isArray(state.revealed) ||
+    !Array.isArray(state.journal) ||
+    typeof state.bossResolved !== 'boolean' ||
+    !(state.active === null || typeof state.active === 'string')
   )
     return false
-  const all = [...s.deck, ...s.discard, ...(s.active ? [s.active] : [])]
+  const all = [...state.deck, ...state.discard, ...(state.active ? [state.active] : [])]
+  const participant = state.activeEncounter
+  const check = state.lastCheck
   return (
-    all.length === 3 &&
-    new Set(all).size === 3 &&
-    all.every((id) => IDS.includes(id)) &&
-    s.revealed.every((id) => IDS.includes(id)) &&
-    s.journal.every((v) => typeof v === 'string') &&
-    s.health >= 0 &&
-    s.health <= 8 &&
-    s.provisions >= 0 &&
-    s.provisions <= 30
+    all.length === IDS.length &&
+    new Set(all).size === IDS.length &&
+    all.every((id) => typeof id === 'string' && IDS.includes(id)) &&
+    state.revealed.every((id) => typeof id === 'string' && IDS.includes(id)) &&
+    state.revealed.length === new Set(state.revealed).size &&
+    state.journal.every((entry) => typeof entry === 'string') &&
+    (state.active ? participant !== null : participant === null) &&
+    (!participant ||
+      (participant.locationId === state.active &&
+        SPECIES_IDS.includes(participant.species) &&
+        ROLE_IDS.includes(participant.role) &&
+        DISPOSITIONS.includes(participant.disposition))) &&
+    (check === null ||
+      (IDS.includes(check.locationId) &&
+        (check.approach === 'insight' || check.approach === 'bearing') &&
+        check.dice.length === 2 &&
+        check.dice.every((die) => Number.isInteger(die) && die >= 1 && die <= 6) &&
+        Number.isInteger(check.total) &&
+        typeof check.success === 'boolean' &&
+        DISPOSITIONS.includes(check.disposition))) &&
+    state.rngState! >= 0 &&
+    state.rngState! <= 4294967295 &&
+    state.health >= 0 &&
+    state.health <= 8 &&
+    state.provisions >= 0 &&
+    state.provisions <= 30
   )
 }
-export function drawHomestead(s: HomesteadState): HomesteadState {
-  if (s.active || s.health <= 0 || !s.deck.length || s.bossResolved) return s
-  const [active, ...deck] = s.deck
+export function restoreHomestead(value: unknown): HomesteadState | null {
+  if (isHomesteadState(value)) return value
+  if (!value || typeof value !== 'object') return null
+  const old = value as Record<string, unknown>
+  if (old.version !== 1) return null
+  const fresh = createHomestead(Number(old.seed))
+  const candidate: HomesteadState = {
+    ...fresh,
+    deck: Array.isArray(old.deck) ? old.deck : [],
+    discard: Array.isArray(old.discard) ? old.discard : [],
+    revealed: Array.isArray(old.revealed) ? old.revealed : [],
+    active: typeof old.active === 'string' ? old.active : null,
+    health: typeof old.health === 'number' ? old.health : 8,
+    provisions: typeof old.provisions === 'number' ? old.provisions : 2,
+    journal: Array.isArray(old.journal) ? old.journal : fresh.journal,
+    bossResolved: old.bossResolved === true,
+  }
+  if (candidate.active) {
+    const [rng, encounter] = createParticipant(candidate.active, candidate.rngState)
+    candidate.rngState = rng
+    candidate.activeEncounter = encounter
+  }
+  return isHomesteadState(candidate) ? candidate : null
+}
+function createParticipant(locationId: string, start: number): [number, HomesteadEncounter] {
+  const [r1, species] = sample(SPECIES_IDS, start)
+  const [r2, role] = sample(ROLE_IDS, r1)
+  const [r3, disposition] = sample(DISPOSITIONS, r2)
+  return [r3, { locationId, species, role, disposition }]
+}
+export function drawHomestead(state: HomesteadState): HomesteadState {
+  if (state.active || state.health <= 0 || !state.deck.length || state.bossResolved) return state
+  const [active, ...deck] = state.deck
+  const [rngState, activeEncounter] = createParticipant(active!, state.rngState)
   return {
-    ...s,
-    active: active!,
+    ...state,
     deck,
-    revealed: [...s.revealed, active!],
-    journal: [
-      ...s.journal,
-      `Drew ${HOMESTEAD_CARDS.find((c) => c.id === active)?.title}.`,
-    ],
+    active: active!,
+    activeEncounter,
+    rngState,
+    revealed: [...state.revealed, active!],
+    lastCheck: null,
+    journal: [...state.journal, `Drew ${HOMESTEAD_CARDS.find((card) => card.id === active)?.title}.`],
   }
 }
-export function resolveHomestead(
-  s: HomesteadState,
-  choice: 'help' | 'risk',
-): HomesteadState {
-  if (!s.active || s.health <= 0 || s.bossResolved) return s
-  const card = HOMESTEAD_CARDS.find((c) => c.id === s.active)!
-  const positive = choice === 'help'
-  const health = Math.max(
-    0,
-    Math.min(
-      8,
-      s.health + (positive && card.id !== 'farm' ? 1 : positive ? 0 : -1),
-    ),
-  )
-  const provisions = Math.max(
-    0,
-    Math.min(
-      30,
-      s.provisions +
-        (positive && card.id === 'farm'
-          ? 2
-          : !positive && card.id === 'farm'
-            ? -1
-            : 0),
-    ),
-  )
+export function resolveHomestead(state: HomesteadState, approach: Approach): HomesteadState {
+  if (!state.active || !state.activeEncounter || state.health <= 0 || state.bossResolved) return state
+  if (approach === 'bearing' && state.provisions <= 0) return state
+  const card = HOMESTEAD_CARDS.find((candidate) => candidate.id === state.active)!
+  const [r1, d1] = nextRandom(state.rngState)
+  const [r2, d2] = nextRandom(r1)
+  const dice: [number, number] = [Math.floor(d1 * 6) + 1, Math.floor(d2 * 6) + 1]
+  const difficulty = approach === 'insight' ? 9 : 7
+  const modifier = HOMESTEAD_SKILLS[approach]
+  const total = dice[0] + dice[1] + modifier
+  const success = total >= difficulty
+  const check: HomesteadCheck = {
+    locationId: card.id,
+    approach,
+    dice,
+    difficulty,
+    modifier,
+    total,
+    success,
+    disposition: state.activeEncounter.disposition,
+  }
+  const spent = approach === 'bearing' ? 1 : 0
+  const health = Math.max(0, Math.min(8, state.health + (success && card.id !== 'farm' ? 1 : success ? 0 : -1)))
+  const provisions = Math.max(0, Math.min(30, state.provisions - spent + (card.id === 'farm' ? (success ? 2 : -1) : 0)))
+  const species = HOMESTEAD_SPECIES.find((item) => item.id === state.activeEncounter!.species)!.label
+  const role = HOMESTEAD_ROLES.find((item) => item.id === state.activeEncounter!.role)!.label
   return {
-    ...s,
+    ...state,
+    active: null,
+    activeEncounter: null,
+    rngState: r2,
+    discard: [...state.discard, card.id],
+    lastCheck: check,
     health,
     provisions,
-    discard: [...s.discard, s.active],
-    active: null,
     journal: [
-      ...s.journal,
-      `${card.title}: ${positive ? card.reward : card.penalty}`,
+      ...state.journal,
+      `${card.title}: ${species} ${role} (${check.disposition}). ${approach} ${dice.join('+')} + ${modifier} = ${total} against ${difficulty}: ${success ? 'success' : 'failure'}.`,
+      success ? card.reward : card.penalty,
     ],
   }
 }
-export function confrontAbbess(
-  s: HomesteadState,
-  choice: 'confront' | 'escape',
-): HomesteadState {
-  if (s.active || s.deck.length || s.health <= 0 || s.bossResolved) return s
+export function confrontAbbess(state: HomesteadState, choice: 'confront' | 'escape'): HomesteadState {
+  if (state.active || state.deck.length || state.health <= 0 || state.bossResolved) return state
   return {
-    ...s,
+    ...state,
     bossResolved: true,
-    health: Math.max(0, s.health - (choice === 'escape' ? 2 : 0)),
-    journal: [
-      ...s.journal,
-      choice === 'confront' ? BOSS_CARD.reward : BOSS_CARD.penalty,
-    ],
+    health: Math.max(0, state.health - (choice === 'escape' ? 2 : 0)),
+    journal: [...state.journal, choice === 'confront' ? BOSS_CARD.reward : BOSS_CARD.penalty],
   }
 }

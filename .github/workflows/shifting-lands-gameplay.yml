@@ -1,4 +1,6 @@
 name: Shifting Lands Gameplay Contract
+permissions:
+  contents: read
 on:
   pull_request:
     branches: [main]
@@ -8,6 +10,8 @@ on:
       - 'pages/admin/zuzu-shifting-lands.vue'
       - 'content/channels/admin/zuzu-shifting-lands.md'
       - 'utils/scripts/verifyShiftingLands.test.ts'
+      - 'utils/scripts/verifyShiftingJourney.test.ts'
+      - 'utils/scripts/importShiftingLandsWorld.mjs'
       - '.github/workflows/shifting-lands-gameplay.yml'
   push:
     branches: [main]
@@ -17,6 +21,8 @@ on:
       - 'pages/admin/zuzu-shifting-lands.vue'
       - 'content/channels/admin/zuzu-shifting-lands.md'
       - 'utils/scripts/verifyShiftingLands.test.ts'
+      - 'utils/scripts/verifyShiftingJourney.test.ts'
+      - 'utils/scripts/importShiftingLandsWorld.mjs'
       - '.github/workflows/shifting-lands-gameplay.yml'
 jobs:
   contract:
@@ -32,3 +38,4 @@ jobs:
         env:
           CYPRESS_INSTALL_BINARY: '0'
       - run: npx tsx utils/scripts/verifyShiftingLands.test.ts
+      - run: npx tsx utils/scripts/verifyShiftingJourney.test.ts

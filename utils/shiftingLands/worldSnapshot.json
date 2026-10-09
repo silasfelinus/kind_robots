@@ -1,0 +1,200 @@
+{
+  "schemaVersion": 2,
+  "source": {
+    "repository": "silasfelinus/conductor",
+    "path": "projects/zuzu-shifting-lands/WORLD-DECKS.json",
+    "blobSha": "314cacc4171fc49b893fc86a2a8a1503ef8d78b4"
+  },
+  "lands": [
+    {
+      "id": "homestead",
+      "name": "The Homestead",
+      "chapter": 1,
+      "biome": "homestead",
+      "locations": [
+        {
+          "id": "border-farm",
+          "label": "Border Farm",
+          "teaser": "An orchard leans over a broken frontier fence.",
+          "skill": "insight",
+          "difficulty": 7,
+          "art": "/zuzu-gamebook/scenes/apple-tree.webp"
+        },
+        {
+          "id": "old-well",
+          "label": "The Old Well",
+          "teaser": "Water glints below weathered stones.",
+          "skill": "awareness",
+          "difficulty": 9,
+          "art": "/zuzu-gamebook/scenes/waterhole.webp"
+        },
+        {
+          "id": "wayside-refuge",
+          "label": "Wayside Refuge",
+          "teaser": "A refuge lantern burns against the dust.",
+          "skill": "bearing",
+          "difficulty": 9,
+          "art": "/zuzu-gamebook/scenes/mission.webp"
+        }
+      ],
+      "boss": {
+        "id": "abbess-at-the-mission",
+        "label": "The Abbess",
+        "teaser": "A kindly host waits beyond the mission doors.",
+        "art": "/zuzu-gamebook/scenes/abbess-welcome.webp"
+      }
+    },
+    {
+      "id": "dustwater",
+      "name": "Dustwater Crossing",
+      "chapter": 2,
+      "biome": "dustwater",
+      "locations": [
+        {
+          "id": "ferry-landing",
+          "label": "Ferry Landing",
+          "teaser": "A narrow crossing collects travelers and rumors.",
+          "skill": "bearing",
+          "difficulty": 7,
+          "art": null
+        },
+        {
+          "id": "trading-post",
+          "label": "Trading Post",
+          "teaser": "The price of help shifts with each visitor.",
+          "skill": "wits",
+          "difficulty": 9,
+          "art": null
+        },
+        {
+          "id": "dry-delta",
+          "label": "The Dry Delta",
+          "teaser": "An old riverbed no longer follows the map.",
+          "skill": "awareness",
+          "difficulty": 9,
+          "art": null
+        }
+      ],
+      "boss": {
+        "id": "crossing-gate",
+        "label": "The Crossing Gate",
+        "teaser": "The crossing will demand its price.",
+        "art": null
+      }
+    },
+    {
+      "id": "tablelands",
+      "name": "The Broken Tablelands",
+      "chapter": 3,
+      "biome": "tablelands",
+      "locations": [
+        {
+          "id": "quarry",
+          "label": "Abandoned Quarry",
+          "teaser": "The quarry's silence hides a recent bargain.",
+          "skill": "wits",
+          "difficulty": 9,
+          "art": null
+        },
+        {
+          "id": "canyon-trail",
+          "label": "Canyon Trail",
+          "teaser": "Stone and weather guard a narrow route.",
+          "skill": "awareness",
+          "difficulty": 11,
+          "art": null
+        },
+        {
+          "id": "canyon-camp",
+          "label": "Canyon Camp",
+          "teaser": "A circle of firelight offers uncertain company.",
+          "skill": "insight",
+          "difficulty": 9,
+          "art": null
+        }
+      ],
+      "boss": {
+        "id": "canyon-warden",
+        "label": "The Canyon Warden",
+        "teaser": "The canyon has a keeper.",
+        "art": null
+      }
+    },
+    {
+      "id": "cave",
+      "name": "Storm-Crow Depths",
+      "chapter": 4,
+      "biome": "cave",
+      "locations": [
+        {
+          "id": "cave-mouth",
+          "label": "The Cave Mouth",
+          "teaser": "Wind answers from the dark threshold.",
+          "skill": "resolve",
+          "difficulty": 9,
+          "art": null
+        },
+        {
+          "id": "stone-hollow",
+          "label": "Stone Hollow",
+          "teaser": "Deep echoes follow every whispered bargain.",
+          "skill": "bearing",
+          "difficulty": 11,
+          "art": null
+        },
+        {
+          "id": "underground-crossroads",
+          "label": "Crossroads Below",
+          "teaser": "The tunnels disagree about where they lead.",
+          "skill": "wits",
+          "difficulty": 11,
+          "art": null
+        }
+      ],
+      "boss": {
+        "id": "storm-crow-judgement",
+        "label": "The Deep-Cave Judgement",
+        "teaser": "The depths call for judgement.",
+        "art": null
+      }
+    },
+    {
+      "id": "verge",
+      "name": "The Black Verge",
+      "chapter": 5,
+      "biome": "verge",
+      "locations": [
+        {
+          "id": "obsidian-road",
+          "label": "Obsidian Road",
+          "teaser": "The ground keeps a memory of heat.",
+          "skill": "resolve",
+          "difficulty": 11,
+          "art": null
+        },
+        {
+          "id": "fortified-camp",
+          "label": "Fortified Camp",
+          "teaser": "Watchfires mark a settlement that will not sleep.",
+          "skill": "insight",
+          "difficulty": 11,
+          "art": null
+        },
+        {
+          "id": "last-threshold",
+          "label": "The Last Threshold",
+          "teaser": "Beyond this gate, old promises weigh heavily.",
+          "skill": "bearing",
+          "difficulty": 11,
+          "art": null
+        }
+      ],
+      "boss": {
+        "id": "verge-antagonist",
+        "label": "Beyond the Verge",
+        "teaser": "The last trial stands ahead.",
+        "art": null
+      }
+    }
+  ]
+}

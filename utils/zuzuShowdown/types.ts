@@ -191,6 +191,13 @@ export type MoveData = {
   rapid?: boolean
   /** The body passes through the opponent (no pushbox) during the window. */
   passThrough?: FrameWindow
+  /**
+   * On this move frame the fighter reappears elsewhere, facing the opponent:
+   * `behind` them, or at the far wall beyond them (The Thin Place).
+   */
+  teleport?: { frame: number; to: 'behind' | 'wall' }
+  /** From the active frames, the opponent's projectiles fly at half speed for this long (Vespers). */
+  slowProjectiles?: number
 }
 
 /** A command move: a motion plus a button (or Easy Special) runs `move`. */
@@ -338,6 +345,8 @@ export type FighterState = {
   ammo: number
   /** Frames left in which this fighter can't block (Pocket Sand). */
   blind: number
+  /** Frames left in which the opponent's projectiles fly at half speed (Vespers). */
+  bell: number
   motion: MotionState
   /** Buttons pressed during a freeze, applied on the first free frame. */
   buffer: BufferedButton[]

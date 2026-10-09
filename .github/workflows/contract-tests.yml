@@ -165,6 +165,9 @@ jobs:
       - name: Zuzu Showdown fighter kit (Coyote Vagrant)
         run: npm run test:zuzu-showdown-coyote
 
+      - name: Zuzu Showdown fighter kit (The Abbess)
+        run: npm run test:zuzu-showdown-abbess
+
       - name: Zuzu Showdown fighter sprites
         run: npm run test:zuzu-showdown-sprites
 

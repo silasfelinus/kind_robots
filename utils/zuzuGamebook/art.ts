@@ -81,12 +81,12 @@ export const PLATES: Record<string, ScenePlate> = {
     source: MV + ' s08',
     fit: 'exact',
   },
-  'posters-street': {
-    file: 'posters-street',
-    alt: 'Zuzu walks a long burning street of tall timber buildings toward a dark bell tower, smoke boiling into the night.',
-    artImageId: 242685,
-    source: MV + ' s08, alternate seed',
-    fit: 'stand-in',
+  'posters-boardwalk': {
+    file: 'posters-boardwalk',
+    alt: 'A dark covered boardwalk stretches away under a single hanging lantern, its plank walls pinned with old yellowed paper notices.',
+    artImageId: 243327,
+    source: 'Gamebook round 1, gb-posters-r3-2 (repaired ArtJob 34959)',
+    fit: 'exact',
   },
   siblings: {
     file: 'siblings',

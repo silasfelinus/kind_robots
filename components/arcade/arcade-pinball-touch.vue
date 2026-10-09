@@ -26,6 +26,16 @@
         &uarr; SWIPE UP TO NUDGE
       </span>
     </div>
+    <button
+      type="button"
+      class="pinball-touch-view"
+      aria-label="Change camera view"
+      @pointerdown.stop.prevent="emit('press', 'b', true)"
+      @pointerup.stop.prevent="emit('press', 'b', false)"
+      @pointercancel.stop="emit('press', 'b', false)"
+    >
+      VIEW
+    </button>
   </div>
 </template>
 
@@ -95,6 +105,22 @@ onBeforeUnmount(release)
   touch-action: none;
   -webkit-user-select: none;
   user-select: none;
+}
+
+.pinball-touch-view {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  font:
+    700 0.75rem/1 ui-monospace,
+    monospace;
+  letter-spacing: 0.08em;
+  color: rgba(253, 230, 138, 0.95);
+  background: rgba(15, 10, 46, 0.6);
+  border: 1px solid rgba(253, 230, 138, 0.6);
+  border-radius: 999px;
+  padding: 0.45rem 0.8rem;
+  touch-action: none;
 }
 
 .pinball-touch-hints {

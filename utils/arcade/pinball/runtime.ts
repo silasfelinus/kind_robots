@@ -49,6 +49,14 @@ import {
   showTriggers,
   type LightShow,
 } from './rules/lightShows'
+import {
+  CAMERA_MODE_LABELS,
+  CameraFollow,
+  DEFAULT_CAMERA_MODE,
+  isCameraMode,
+  nextCameraMode,
+  type CameraMode,
+} from './render/cameraMode'
 import type { CameraPresetId, RuleEffect, TableDef } from './types'
 
 const STEPS_PER_TICK = PHYSICS_HZ / 60
@@ -101,6 +109,19 @@ export function cameraPresetFor(
   return 'main'
 }
 
+/** Where the player's camera view is remembered between games. */
+export const CAMERA_MODE_KEY = 'kind-pinball-camera-mode'
+
+function savedCameraMode(): CameraMode {
+  try {
+    const saved = globalThis.localStorage?.getItem(CAMERA_MODE_KEY)
+    if (isCameraMode(saved)) return saved
+  } catch {
+    // Storage blocked: the default view.
+  }
+  return DEFAULT_CAMERA_MODE
+}
+
 /** A sling kicker's switch: its rubber flexes when it fires. */
 const SLING_KICKER = /^sling-.+-kicker$/
 
@@ -109,6 +130,9 @@ export class PinballRuntime implements ArcadeWebGLGameInstance {
   readonly level = 1
 
   private physics: PinballPhysics
+  /** The player's camera view (b / the VIEW chip cycles it) and its follower. */
+  private cameraMode: CameraMode = DEFAULT_CAMERA_MODE
+  private follow: CameraFollow
   private rules: PinballRulesState
   private scene: PinballScene | null = null
   private mixer: PinballMixer
@@ -161,6 +185,30 @@ export class PinballRuntime implements ArcadeWebGLGameInstance {
     this.physics = new PinballPhysics(R, table)
     this.rules = initialRules(table.balls, Math.floor(this.rng() * 0x100000000))
     this.apply({ type: 'start' })
+    this.follow = new CameraFollow(table)
+    if (!this.demo) this.cameraMode = savedCameraMode()
+  }
+
+  /** The camera view in force (dynamic, flippers or full table). */
+  get cameraViewMode(): CameraMode {
+    return this.cameraMode
+  }
+
+  /** Pick a camera view and remember it for this player. */
+  setCameraViewMode(mode: CameraMode, announce = true) {
+    this.cameraMode = mode
+    try {
+      globalThis.localStorage?.setItem(CAMERA_MODE_KEY, mode)
+    } catch {
+      // Not remembered; it still applies to this game.
+    }
+    if (announce) {
+      this.dmdQueue.push({
+        scene: 'message',
+        text: CAMERA_MODE_LABELS[mode],
+        ms: 1200,
+      })
+    }
   }
 
   /** The attract demo plays the rules but never scores. */
@@ -236,8 +284,19 @@ export class PinballRuntime implements ArcadeWebGLGameInstance {
     this.apply({ type: 'tick', tick: this.steps })
     this.unstick({ left, right })
     this.music()
-    this.scene?.setView(
-      cameraPresetFor(this.view(), this.rules, this.physics.ballOnPlunger()),
+    if (controls.pressed.b && !this.demo) {
+      this.setCameraViewMode(nextCameraMode(this.cameraMode))
+    }
+    const view = cameraPresetFor(
+      this.view(),
+      this.rules,
+      this.physics.ballOnPlunger(),
+    )
+    this.scene?.setView(view)
+    this.scene?.setFollow(
+      view === 'sub-table'
+        ? null
+        : this.follow.step(this.cameraMode, this.physics.ballViews()),
     )
     this.lamps()
     this.dmdQueue.tick(TICK_MS)

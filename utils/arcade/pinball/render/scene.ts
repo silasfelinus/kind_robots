@@ -37,6 +37,7 @@ import type {
 } from '../types'
 import { DMD_COLS, DMD_ROWS } from '../dmd'
 import { fitCamera, type Framing } from './camera'
+import type { FollowShot } from './cameraMode'
 import { createDmdCanvas, paintDmd } from './dmdTexture'
 import {
   artBounds,
@@ -102,6 +103,8 @@ const RUBBER_DECAY = 0.12
 const DROP_TRAVEL = 0.4
 /** How far the camera moves toward its preset each frame (0..1). */
 const CAMERA_EASE = 0.08
+/** ...and toward a followed frame, which already eases itself (cameraMode.ts). */
+const FOLLOW_EASE = 0.3
 /** How far a lamp moves toward its level each frame: a bulb's warm-up. */
 const LAMP_EASE = 0.35
 /** Insert glow when off (the plastic still shows), on, and at a flash peak. */
@@ -272,6 +275,8 @@ export class PinballScene {
   private aimed = false
   private aspect = 9 / 16
   private framings = new Map<CameraPresetId, Framing>()
+  /** The close shot the player's camera view asks for, if any (t-021). */
+  private follow: FollowShot | null = null
   /** World up as seen from the pitched table. */
   private up: THREE.Vector3
   private size = { width: 0, height: 0, dpr: 1 }
@@ -1136,6 +1141,38 @@ export class PinballScene {
     if (this.table.cameras.some((c) => c.id === id)) this.view = id
   }
 
+  /**
+   * Frame a box on the table instead of the main preset (the player's
+   * dynamic and flipper views); null returns to the preset. The sub-table
+   * view ignores it.
+   */
+  setFollow(shot: FollowShot | null) {
+    this.follow = shot
+  }
+
+  /** The framing the camera is heading for: a followed shot or the preset. */
+  private goal(): { framing: Framing; ease: number } {
+    if (this.follow && this.view !== 'sub-table') {
+      const main = this.preset('main')
+      const lower = (p: Vec3): Vec3 => {
+        const t = main.target
+        return [p[0], t[1] + (p[1] - t[1]) * this.follow!.lift, p[2]]
+      }
+      const shot: CameraPreset = {
+        ...main,
+        position: lower(main.position),
+        portrait: main.portrait && lower(main.portrait),
+        frame: this.follow.frame,
+        include: undefined,
+      }
+      return {
+        framing: fitCamera(shot, this.aspect, this.up),
+        ease: FOLLOW_EASE,
+      }
+    }
+    return { framing: this.framing(this.view), ease: CAMERA_EASE }
+  }
+
   /** The preset the camera is easing toward. */
   get cameraView(): CameraPresetId {
     return this.view
@@ -1146,9 +1183,9 @@ export class PinballScene {
    * stands in front of the area it is visiting.
    */
   private easeCamera() {
-    const { eye, target } = this.framing(this.view)
-    this.eye.lerp(eye, CAMERA_EASE)
-    this.look.lerp(target, CAMERA_EASE)
+    const { framing, ease } = this.goal()
+    this.eye.lerp(framing.eye, ease)
+    this.look.lerp(framing.target, ease)
     this.placeCamera()
     const home = this.framing('main').target
     for (const occluder of this.occluders) {

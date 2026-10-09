@@ -5,7 +5,10 @@
     <div
       ref="cabinetRef"
       class="arcade-cabinet"
-      :class="{ 'arcade-cabinet--locked': locked, 'arcade-cabinet--fullscreen': fullscreen }"
+      :class="{
+        'arcade-cabinet--locked': locked,
+        'arcade-cabinet--fullscreen': fullscreen,
+      }"
       :style="{ '--arcade-accent': meta?.accent ?? '#f472b6' }"
       @contextmenu="onContextMenu"
     >
@@ -407,7 +410,8 @@ let hintLives: number | null = null
 // fitted to the space measured around it instead (fitScreen), so no resize,
 // rotation or split view can push part of it off screen.
 const screenMaxWidth = computed(() => {
-  if ((locked.value || fullscreen.value) && fittedWidth.value > 0) return `${fittedWidth.value}px`
+  if ((locked.value || fullscreen.value) && fittedWidth.value > 0)
+    return `${fittedWidth.value}px`
   const ratio = (meta.value?.width ?? 4) / (meta.value?.height ?? 3)
   return `min(100%, calc(62svh * ${ratio.toFixed(4)}))`
 })
@@ -1451,7 +1455,8 @@ onBeforeUnmount(() => {
   window.removeEventListener('online', onOnline)
   document.removeEventListener('visibilitychange', onVisibility)
   document.removeEventListener('fullscreenchange', syncFullscreen)
-  if (document.fullscreenElement === cabinetRef.value) void document.exitFullscreen()
+  if (document.fullscreenElement === cabinetRef.value)
+    void document.exitFullscreen()
   resizeObserver?.disconnect()
   wrapObserver?.disconnect()
   sound?.dispose()

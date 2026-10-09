@@ -4,28 +4,52 @@
       <div v-if="!ready" class="grid min-h-72 place-items-center kr-panel">
         <span class="kr-spinner-lg-primary" />
       </div>
-      <div v-else-if="!userStore.isAdmin" class="kr-note kr-note-error p-10 text-center">
+      <div
+        v-else-if="!userStore.isAdmin"
+        class="kr-note kr-note-error p-10 text-center"
+      >
         Administrator access required for the Zuzu world studio.
       </div>
       <template v-else>
-        <section class="relative isolate overflow-hidden rounded-2xl border border-base-content/10 bg-base-300 shadow-xl">
+        <section
+          class="relative isolate overflow-hidden rounded-2xl border border-base-content/10 bg-base-300 shadow-xl"
+        >
           <div
             v-if="studio.items[0] && !brokenIds.includes(studio.items[0].id)"
             class="absolute inset-0 bg-cover bg-center opacity-35"
-            :style="{ backgroundImage: `url('${studio.items[0].thumbnailUrl}')` }"
+            :style="{
+              backgroundImage: `url('${studio.items[0].thumbnailUrl}')`,
+            }"
           />
-          <div class="absolute inset-0 bg-gradient-to-r from-base-300 via-base-300/90 to-base-300/25" />
-          <div class="relative flex min-h-48 flex-wrap items-end justify-between gap-4 p-5 md:min-h-56 md:p-8">
+          <div
+            class="absolute inset-0 bg-gradient-to-r from-base-300 via-base-300/90 to-base-300/25"
+          />
+          <div
+            class="relative flex min-h-48 flex-wrap items-end justify-between gap-4 p-5 md:min-h-56 md:p-8"
+          >
             <div class="max-w-xl">
-              <p class="kr-text-eyebrow text-primary">Shared universe · Private worldbuilding</p>
-              <h2 class="mt-2 text-3xl font-black tracking-tight md:text-5xl">Zuzu World</h2>
-              <p class="mt-3 max-w-lg text-sm text-base-content/75 md:text-base">
-                Every image has a story. Find it, compare it, and give it a new role in another production.
+              <p class="kr-text-eyebrow text-primary">
+                Shared universe · Private worldbuilding
+              </p>
+              <h2 class="mt-2 text-3xl font-black tracking-tight md:text-5xl">
+                Zuzu World
+              </h2>
+              <p
+                class="mt-3 max-w-lg text-sm text-base-content/75 md:text-base"
+              >
+                Every image has a story. Find it, compare it, and give it a new
+                role in another production.
               </p>
               <div class="mt-4 flex flex-wrap gap-2">
-                <span class="kr-badge-outline">{{ studio.recordedCount }} ledger references</span>
-                <span class="kr-badge-outline">{{ studio.ledgerCount }} source ledgers</span>
-                <span class="kr-badge-outline">{{ studio.total }} visible matches</span>
+                <span class="kr-badge-outline"
+                  >{{ studio.recordedCount }} ledger references</span
+                >
+                <span class="kr-badge-outline"
+                  >{{ studio.ledgerCount }} source ledgers</span
+                >
+                <span class="kr-badge-outline"
+                  >{{ studio.total }} visible matches</span
+                >
               </div>
             </div>
             <div class="flex flex-wrap items-center gap-2">
@@ -53,13 +77,20 @@
             :to="destination.to"
             class="group flex items-center gap-2 rounded-xl border border-base-content/10 bg-base-200 p-3 text-xs font-bold transition hover:border-primary/60 hover:bg-primary/10"
           >
-            <Icon :name="destination.icon" class="h-5 w-5 shrink-0 text-primary group-hover:scale-110" />
+            <Icon
+              :name="destination.icon"
+              class="h-5 w-5 shrink-0 text-primary group-hover:scale-110"
+            />
             <span>{{ destination.label }}</span>
           </NuxtLink>
         </div>
 
-        <div class="flex flex-wrap items-center gap-3 rounded-2xl border border-base-content/10 bg-base-200/80 p-3">
-          <label class="input input-bordered flex min-w-44 flex-1 items-center gap-2 rounded-xl">
+        <div
+          class="flex flex-wrap items-center gap-3 rounded-2xl border border-base-content/10 bg-base-200/80 p-3"
+        >
+          <label
+            class="input input-bordered flex min-w-44 flex-1 items-center gap-2 rounded-xl"
+          >
             <Icon name="kind-icon:search" class="h-4 w-4 opacity-60" />
             <input
               type="search"
@@ -79,7 +110,11 @@
               @change="onFilter('project', $event)"
             >
               <option value="">All projects</option>
-              <option v-for="project in ZUZU_PROJECTS" :key="project.slug" :value="project.slug">
+              <option
+                v-for="project in ZUZU_PROJECTS"
+                :key="project.slug"
+                :value="project.slug"
+              >
                 {{ project.label }}
               </option>
             </select>
@@ -98,21 +133,34 @@
               <option value="sheets">Character sheets</option>
             </select>
           </label>
-          <button type="button" class="kr-btn btn-outline" :disabled="studio.loading" @click="studio.load()">
+          <button
+            type="button"
+            class="kr-btn btn-outline"
+            :disabled="studio.loading"
+            @click="studio.load()"
+          >
             <Icon name="kind-icon:refresh" class="kr-icon-4" />
             Refresh
           </button>
         </div>
 
-        <p v-if="studio.error" class="kr-note kr-note-error" role="alert">{{ studio.error }}</p>
-        <p v-if="studio.notice" class="kr-note kr-note-success" role="status">{{ studio.notice }}</p>
+        <p v-if="studio.error" class="kr-note kr-note-error" role="alert">
+          {{ studio.error }}
+        </p>
+        <p v-if="studio.notice" class="kr-note kr-note-success" role="status">
+          {{ studio.notice }}
+        </p>
 
-        <div class="grid min-h-80 items-start gap-4 xl:grid-cols-[minmax(0,1fr)_minmax(285px,330px)]">
+        <div
+          class="grid min-h-80 items-start gap-4 xl:grid-cols-[minmax(0,1fr)_minmax(285px,330px)]"
+        >
           <section class="min-w-0 space-y-3" aria-label="Zuzu asset gallery">
             <div class="flex flex-wrap items-center justify-between gap-2 px-1">
               <div class="flex items-center gap-2">
                 <span class="font-black">Asset Library</span>
-                <span class="kr-badge-outline">{{ studio.total }} live matches</span>
+                <span class="kr-badge-outline"
+                  >{{ studio.total }} live matches</span
+                >
                 <span v-if="studio.loading" class="kr-spinner-xs" />
               </div>
               <div class="flex items-center gap-2 text-xs text-base-content/60">
@@ -123,34 +171,63 @@
                   :disabled="studio.page <= 1 || studio.loading"
                   aria-label="Previous page"
                   @click="studio.goToPage(studio.page - 1)"
-                >‹</button>
+                >
+                  ‹
+                </button>
                 <button
                   class="kr-btn btn-outline btn-sm"
                   type="button"
                   :disabled="studio.page >= studio.pageCount || studio.loading"
                   aria-label="Next page"
                   @click="studio.goToPage(studio.page + 1)"
-                >›</button>
+                >
+                  ›
+                </button>
               </div>
             </div>
 
-            <div v-if="studio.loading && !studio.items.length" class="grid min-h-72 place-items-center kr-panel">
+            <div
+              v-if="studio.loading && !studio.items.length"
+              class="grid min-h-72 place-items-center kr-panel"
+            >
               <span class="kr-spinner-lg-primary" />
             </div>
-            <div v-else-if="!studio.items.length" class="kr-panel grid min-h-72 place-items-center gap-2 p-8 text-center">
-              <Icon name="kind-icon:gallery" class="h-10 w-10 text-base-content/40" />
-              <p class="font-bold">No accessible artwork matches these filters</p>
-              <p class="max-w-md text-sm text-base-content/60">
-                The registry records historical render IDs; images only appear here when the live database permits access.
+            <div
+              v-else-if="!studio.items.length"
+              class="kr-panel grid min-h-72 place-items-center gap-2 p-8 text-center"
+            >
+              <Icon
+                name="kind-icon:gallery"
+                class="h-10 w-10 text-base-content/40"
+              />
+              <p class="font-bold">
+                No accessible artwork matches these filters
               </p>
-              <button type="button" class="kr-btn btn-outline" @click="clearFilters">Clear filters</button>
+              <p class="max-w-md text-sm text-base-content/60">
+                The registry records historical render IDs; images only appear
+                here when the live database permits access.
+              </p>
+              <button
+                type="button"
+                class="kr-btn btn-outline"
+                @click="clearFilters"
+              >
+                Clear filters
+              </button>
             </div>
-            <div v-else class="grid grid-cols-2 gap-3 sm:grid-cols-3 2xl:grid-cols-4">
+            <div
+              v-else
+              class="grid grid-cols-2 gap-3 sm:grid-cols-3 2xl:grid-cols-4"
+            >
               <article
                 v-for="asset in studio.items"
                 :key="asset.id"
                 class="group relative min-w-0 overflow-hidden rounded-xl border bg-base-200 shadow-sm transition hover:shadow-lg"
-                :class="studio.focusId === asset.id ? 'border-primary ring-2 ring-primary/40' : 'border-base-content/10'"
+                :class="
+                  studio.focusId === asset.id
+                    ? 'border-primary ring-2 ring-primary/40'
+                    : 'border-base-content/10'
+                "
               >
                 <div class="relative aspect-[4/3] overflow-hidden bg-base-300">
                   <button
@@ -160,7 +237,11 @@
                     @click="studio.focus(asset.id)"
                   >
                     <img
-                      :src="brokenIds.includes(asset.id) ? fallbackImage : asset.thumbnailUrl"
+                      :src="
+                        brokenIds.includes(asset.id)
+                          ? fallbackImage
+                          : asset.thumbnailUrl
+                      "
                       :alt="asset.title"
                       loading="lazy"
                       class="h-full w-full object-cover transition duration-300 group-hover:scale-105"
@@ -170,7 +251,10 @@
                       v-if="asset.mediaKind === 'video'"
                       class="pointer-events-none absolute inset-0 grid place-items-center"
                     >
-                      <Icon name="kind-icon:play" class="h-12 w-12 rounded-full bg-base-300/75 p-3 text-white" />
+                      <Icon
+                        name="kind-icon:play"
+                        class="h-12 w-12 rounded-full bg-base-300/75 p-3 text-white"
+                      />
                     </span>
                   </button>
                   <button
@@ -181,36 +265,68 @@
                     @click="studio.toggle(asset.id)"
                   >
                     <Icon
-                      :name="studio.selectedIds.includes(asset.id) ? 'kind-icon:check' : 'kind-icon:plus'"
+                      :name="
+                        studio.selectedIds.includes(asset.id)
+                          ? 'kind-icon:check'
+                          : 'kind-icon:plus'
+                      "
                       class="h-4 w-4"
                     />
                   </button>
-                  <span class="absolute right-2 top-2 z-10 rounded-lg bg-base-300/85 px-2 py-1 text-[10px] font-bold text-white">
+                  <span
+                    class="absolute right-2 top-2 z-10 rounded-lg bg-base-300/85 px-2 py-1 text-[10px] font-bold text-white"
+                  >
                     #{{ asset.id }}
                   </span>
                 </div>
                 <div class="space-y-2 p-3">
-                  <button type="button" class="block w-full truncate text-left text-sm font-bold hover:text-primary" @click="studio.focus(asset.id)">
+                  <button
+                    type="button"
+                    class="block w-full truncate text-left text-sm font-bold hover:text-primary"
+                    @click="studio.focus(asset.id)"
+                  >
                     {{ asset.title }}
                   </button>
                   <div class="flex flex-wrap gap-1">
-                    <span v-if="asset.entity" class="rounded-md bg-primary/20 px-2 py-0.5 text-[10px] text-primary">{{ asset.entity }}</span>
-                    <span class="rounded-md bg-base-300 px-2 py-0.5 text-[10px]">{{ asset.mediaKind }}</span>
-                    <span v-if="asset.linkedProjectIds.length" class="rounded-md bg-success/15 px-2 py-0.5 text-[10px] text-success">{{ asset.linkedProjectIds.length }} linked</span>
+                    <span
+                      v-if="asset.entity"
+                      class="rounded-md bg-primary/20 px-2 py-0.5 text-[10px] text-primary"
+                      >{{ asset.entity }}</span
+                    >
+                    <span
+                      class="rounded-md bg-base-300 px-2 py-0.5 text-[10px]"
+                      >{{ asset.mediaKind }}</span
+                    >
+                    <span
+                      v-if="asset.linkedProjectIds.length"
+                      class="rounded-md bg-success/15 px-2 py-0.5 text-[10px] text-success"
+                      >{{ asset.linkedProjectIds.length }} linked</span
+                    >
                   </div>
                 </div>
               </article>
             </div>
             <p class="px-1 text-xs text-base-content/55">
-              Images are shown from authorized Kind Robots records referenced by the Conductor ledger; recorded render status alone does not guarantee a surviving file.
+              Images are shown from authorized Kind Robots records referenced by
+              the Conductor ledger; recorded render status alone does not
+              guarantee a surviving file.
             </p>
           </section>
 
-          <aside class="xl:sticky xl:top-2" aria-label="Selected asset inspector">
-            <div v-if="studio.focused" class="overflow-hidden rounded-2xl border border-base-content/10 bg-base-200 shadow-lg">
+          <aside
+            class="xl:sticky xl:top-2"
+            aria-label="Selected asset inspector"
+          >
+            <div
+              v-if="studio.focused"
+              class="overflow-hidden rounded-2xl border border-base-content/10 bg-base-200 shadow-lg"
+            >
               <div class="relative aspect-[4/3] bg-base-300">
                 <video
-                  v-if="studio.focused.mediaKind === 'video' && !brokenIds.includes(studio.focused.id)"
+                  v-if="
+                    studio.focused.mediaKind === 'video' &&
+                    !brokenIds.includes(studio.focused.id)
+                  "
                   :key="studio.focused.id"
                   :src="studio.focused.previewUrl"
                   controls
@@ -219,7 +335,11 @@
                 />
                 <img
                   v-else
-                  :src="brokenIds.includes(studio.focused.id) ? fallbackImage : studio.focused.thumbnailUrl"
+                  :src="
+                    brokenIds.includes(studio.focused.id)
+                      ? fallbackImage
+                      : studio.focused.thumbnailUrl
+                  "
                   :alt="studio.focused.title"
                   class="h-full w-full object-contain"
                   @error="markBroken(studio.focused.id)"
@@ -227,47 +347,107 @@
               </div>
               <div class="space-y-4 p-4">
                 <div>
-                  <p class="text-xs font-mono text-base-content/60">ArtImage #{{ studio.focused.id }}</p>
-                  <h3 class="mt-1 text-lg font-black">{{ studio.focused.title }}</h3>
-                  <p class="mt-1 text-xs text-base-content/65">{{ studio.focused.entity || 'Concept / production art' }}</p>
+                  <p class="text-xs font-mono text-base-content/60">
+                    ArtImage #{{ studio.focused.id }}
+                  </p>
+                  <h3 class="mt-1 text-lg font-black">
+                    {{ studio.focused.title }}
+                  </h3>
+                  <p class="mt-1 text-xs text-base-content/65">
+                    {{ studio.focused.entity || 'Concept / production art' }}
+                  </p>
                 </div>
                 <div class="space-y-1 rounded-xl bg-base-300/60 p-3 text-xs">
-                  <div class="flex justify-between gap-3"><span class="text-base-content/60">Source project</span><strong>{{ labelFor(studio.focused.sourceProject) }}</strong></div>
-                  <div class="flex justify-between gap-3"><span class="text-base-content/60">Format</span><strong>{{ studio.focused.fileType }}</strong></div>
-                  <div class="flex justify-between gap-3"><span class="text-base-content/60">Published</span><strong>{{ studio.focused.isPublic ? 'Yes' : 'Private' }}</strong></div>
-                  <div class="flex justify-between gap-3"><span class="text-base-content/60">Project links</span><strong>{{ studio.focused.linkedProjectIds.length }}</strong></div>
+                  <div class="flex justify-between gap-3">
+                    <span class="text-base-content/60">Source project</span
+                    ><strong>{{
+                      labelFor(studio.focused.sourceProject)
+                    }}</strong>
+                  </div>
+                  <div class="flex justify-between gap-3">
+                    <span class="text-base-content/60">Format</span
+                    ><strong>{{ studio.focused.fileType }}</strong>
+                  </div>
+                  <div class="flex justify-between gap-3">
+                    <span class="text-base-content/60">Published</span
+                    ><strong>{{
+                      studio.focused.isPublic ? 'Yes' : 'Private'
+                    }}</strong>
+                  </div>
+                  <div class="flex justify-between gap-3">
+                    <span class="text-base-content/60">Project links</span
+                    ><strong>{{
+                      studio.focused.linkedProjectIds.length
+                    }}</strong>
+                  </div>
                 </div>
                 <div>
-                  <p class="mb-2 text-xs font-bold uppercase tracking-wide text-base-content/60">Used as a project resource</p>
-                  <div v-if="studio.focused.linkedProjectIds.length" class="flex flex-wrap gap-1">
+                  <p
+                    class="mb-2 text-xs font-bold uppercase tracking-wide text-base-content/60"
+                  >
+                    Used as a project resource
+                  </p>
+                  <div
+                    v-if="studio.focused.linkedProjectIds.length"
+                    class="flex flex-wrap gap-1"
+                  >
                     <span
                       v-for="projectId in studio.focused.linkedProjectIds"
                       :key="projectId"
                       class="rounded-lg bg-primary/20 px-2 py-1 text-xs"
-                    >{{ studio.projects.find((p) => p.id === projectId)?.title || `Project #${projectId}` }}</span>
+                      >{{
+                        studio.projects.find((p) => p.id === projectId)
+                          ?.title || `Project #${projectId}`
+                      }}</span
+                    >
                   </div>
-                  <p v-else class="text-xs text-base-content/55">No explicit shared project links yet.</p>
+                  <p v-else class="text-xs text-base-content/55">
+                    No explicit shared project links yet.
+                  </p>
                 </div>
-                <p v-if="studio.focused.promptString" class="line-clamp-3 text-xs leading-relaxed text-base-content/70">{{ studio.focused.promptString }}</p>
+                <p
+                  v-if="studio.focused.promptString"
+                  class="line-clamp-3 text-xs leading-relaxed text-base-content/70"
+                >
+                  {{ studio.focused.promptString }}
+                </p>
                 <div class="grid grid-cols-2 gap-2">
-                  <button type="button" class="kr-btn-primary" @click="openAssignment">
+                  <button
+                    type="button"
+                    class="kr-btn-primary"
+                    @click="openAssignment"
+                  >
                     <Icon name="kind-icon:plus" class="kr-icon-4" />
                     Use in project
                   </button>
-                  <button type="button" class="kr-btn btn-outline" @click="showRequest = true">
+                  <button
+                    type="button"
+                    class="kr-btn btn-outline"
+                    @click="showRequest = true"
+                  >
                     <Icon name="kind-icon:sparkles" class="kr-icon-4" />
                     Request edit
                   </button>
                 </div>
                 <div class="flex items-center justify-between gap-2 text-xs">
-                  <NuxtLink to="/artjob" class="link link-primary">Open ArtQueue</NuxtLink>
-                  <span v-if="studio.focused.artJobIds.length">Jobs: {{ studio.focused.artJobIds.join(', ') }}</span>
+                  <NuxtLink to="/artjob" class="link link-primary"
+                    >Open ArtQueue</NuxtLink
+                  >
+                  <span v-if="studio.focused.artJobIds.length"
+                    >Jobs: {{ studio.focused.artJobIds.join(', ') }}</span
+                  >
                 </div>
-                <p class="break-all text-[10px] text-base-content/45">Source: {{ studio.focused.source }}</p>
+                <p class="break-all text-[10px] text-base-content/45">
+                  Source: {{ studio.focused.source }}
+                </p>
               </div>
             </div>
-            <div v-else class="kr-panel grid min-h-60 place-items-center p-6 text-center text-sm text-base-content/60">
-              Select an image to inspect its source and share it between productions.
+            <div
+              v-else
+              class="kr-panel grid min-h-60 place-items-center p-6 text-center text-sm text-base-content/60"
+            >
+              Select an image to inspect its source and share it between
+              productions.
             </div>
           </aside>
         </div>
@@ -277,14 +457,32 @@
           class="sticky bottom-2 z-20 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-primary/40 bg-base-300 p-3 shadow-2xl"
         >
           <div class="flex min-w-0 items-center gap-2">
-            <strong class="text-sm">{{ studio.selectedItems.length }} selected</strong>
+            <strong class="text-sm"
+              >{{ studio.selectedItems.length }} selected</strong
+            >
             <div class="flex max-w-52 gap-1 overflow-hidden">
-              <img v-for="asset in studio.selectedItems.slice(0, 4)" :key="asset.id" :src="asset.thumbnailUrl" :alt="asset.title" class="h-9 w-9 rounded-md object-cover" />
+              <img
+                v-for="asset in studio.selectedItems.slice(0, 4)"
+                :key="asset.id"
+                :src="asset.thumbnailUrl"
+                :alt="asset.title"
+                class="h-9 w-9 rounded-md object-cover"
+              />
             </div>
           </div>
           <div class="flex items-center gap-2">
-            <button type="button" class="kr-btn btn-outline btn-sm" @click="studio.clearSelection()">Clear</button>
-            <button type="button" class="kr-btn-primary btn-sm" @click="openAssignment">
+            <button
+              type="button"
+              class="kr-btn btn-outline btn-sm"
+              @click="studio.clearSelection()"
+            >
+              Clear
+            </button>
+            <button
+              type="button"
+              class="kr-btn-primary btn-sm"
+              @click="openAssignment"
+            >
               <Icon name="kind-icon:plus" class="kr-icon-4" />
               Use in project
             </button>
@@ -292,32 +490,75 @@
         </div>
       </template>
 
-      <div v-if="showAssign" class="fixed inset-0 z-[100] grid place-items-center overflow-y-auto bg-black/70 p-3" @click.self="showAssign = false">
-        <section class="w-full max-w-lg space-y-4 rounded-2xl border border-base-content/20 bg-base-200 p-5 shadow-2xl" role="dialog" aria-modal="true" aria-label="Assign art to projects">
+      <div
+        v-if="showAssign"
+        class="fixed inset-0 z-[100] grid place-items-center overflow-y-auto bg-black/70 p-3"
+        @click.self="showAssign = false"
+      >
+        <section
+          class="w-full max-w-lg space-y-4 rounded-2xl border border-base-content/20 bg-base-200 p-5 shadow-2xl"
+          role="dialog"
+          aria-modal="true"
+          aria-label="Assign art to projects"
+        >
           <div class="flex items-center justify-between gap-2">
             <h2 class="text-xl font-black">Use in another production</h2>
-            <button type="button" class="kr-btn btn-ghost btn-sm" aria-label="Close project assignment" @click="showAssign = false">✕</button>
+            <button
+              type="button"
+              class="kr-btn btn-ghost btn-sm"
+              aria-label="Close project assignment"
+              @click="showAssign = false"
+            >
+              ✕
+            </button>
           </div>
           <p class="text-sm text-base-content/70">
-            Link {{ studio.selectedIds.length || 1 }} existing art {{ studio.selectedIds.length === 1 ? 'asset' : 'assets' }} as general references. The original image stays intact and can be used by several productions.
+            Link {{ studio.selectedIds.length || 1 }} existing art
+            {{ studio.selectedIds.length === 1 ? 'asset' : 'assets' }} as
+            general references. The original image stays intact and can be used
+            by several productions.
           </p>
-          <div class="grid max-h-72 grid-cols-1 gap-2 overflow-y-auto sm:grid-cols-2">
+          <div
+            class="grid max-h-72 grid-cols-1 gap-2 overflow-y-auto sm:grid-cols-2"
+          >
             <label
               v-for="project in studio.projects"
               :key="project.id"
               class="flex cursor-pointer items-center gap-3 rounded-xl border border-base-content/10 bg-base-300/60 p-3 text-sm hover:border-primary/50"
             >
-              <input type="checkbox" class="checkbox checkbox-primary checkbox-sm" :checked="targetProjectIds.includes(project.id)" @change="toggleTarget(project.id)" />
+              <input
+                type="checkbox"
+                class="checkbox checkbox-primary checkbox-sm"
+                :checked="targetProjectIds.includes(project.id)"
+                @change="toggleTarget(project.id)"
+              />
               <span>{{ project.title }}</span>
             </label>
           </div>
-          <p v-if="!studio.projects.length" class="text-sm text-warning">No synchronized Zuzu projects are available for linking.</p>
+          <p v-if="!studio.projects.length" class="text-sm text-warning">
+            No synchronized Zuzu projects are available for linking.
+          </p>
           <div class="rounded-xl bg-base-300 p-3 text-xs text-base-content/70">
-            <strong>Link</strong> shares a reference. <strong>Unlink</strong> removes only the reference, never the image. To request a new crop, variant or animation, use the art request panel.
+            <strong>Link</strong> shares a reference.
+            <strong>Unlink</strong> removes only the reference, never the image.
+            To request a new crop, variant or animation, use the art request
+            panel.
           </div>
           <div class="flex flex-wrap justify-end gap-2">
-            <button type="button" class="kr-btn btn-outline" :disabled="studio.saving || !targetProjectIds.length" @click="saveAssignment('unlink')">Unlink from selected</button>
-            <button type="button" class="kr-btn-primary" :disabled="studio.saving || !targetProjectIds.length" @click="saveAssignment('link')">
+            <button
+              type="button"
+              class="kr-btn btn-outline"
+              :disabled="studio.saving || !targetProjectIds.length"
+              @click="saveAssignment('unlink')"
+            >
+              Unlink from selected
+            </button>
+            <button
+              type="button"
+              class="kr-btn-primary"
+              :disabled="studio.saving || !targetProjectIds.length"
+              @click="saveAssignment('link')"
+            >
               <span v-if="studio.saving" class="kr-spinner-xs" />
               Link to projects
             </button>
@@ -325,19 +566,46 @@
         </section>
       </div>
 
-      <div v-if="showRequest" class="fixed inset-0 z-[100] grid place-items-center overflow-y-auto bg-black/70 p-3" @click.self="showRequest = false">
-        <form class="w-full max-w-lg space-y-4 rounded-2xl border border-base-content/20 bg-base-200 p-5 shadow-2xl" role="dialog" aria-modal="true" aria-label="Request a new art variation" @submit.prevent="submitRequest">
+      <div
+        v-if="showRequest"
+        class="fixed inset-0 z-[100] grid place-items-center overflow-y-auto bg-black/70 p-3"
+        @click.self="showRequest = false"
+      >
+        <form
+          class="w-full max-w-lg space-y-4 rounded-2xl border border-base-content/20 bg-base-200 p-5 shadow-2xl"
+          role="dialog"
+          aria-modal="true"
+          aria-label="Request a new art variation"
+          @submit.prevent="submitRequest"
+        >
           <div class="flex items-center justify-between gap-2">
             <h2 class="text-xl font-black">Request a visual change</h2>
-            <button type="button" class="kr-btn btn-ghost btn-sm" aria-label="Close request" @click="showRequest = false">✕</button>
+            <button
+              type="button"
+              class="kr-btn btn-ghost btn-sm"
+              aria-label="Close request"
+              @click="showRequest = false"
+            >
+              ✕
+            </button>
           </div>
           <p class="text-sm text-base-content/70">
-            Source ArtImage #{{ studio.focused?.id }}. Make a new derivative, never overwrite the locked original.
+            Source ArtImage #{{ studio.focused?.id }}. Make a new derivative,
+            never overwrite the locked original.
           </p>
           <label class="block space-y-1 text-sm">
             <span>Target production</span>
-            <select v-model="requestProject" class="select select-bordered w-full rounded-xl">
-              <option v-for="project in ZUZU_PROJECTS" :key="project.slug" :value="project.slug">{{ project.label }}</option>
+            <select
+              v-model="requestProject"
+              class="select select-bordered w-full rounded-xl"
+            >
+              <option
+                v-for="project in ZUZU_PROJECTS"
+                :key="project.slug"
+                :value="project.slug"
+              >
+                {{ project.label }}
+              </option>
             </select>
           </label>
           <label class="block space-y-1 text-sm">
@@ -350,10 +618,23 @@
               required
             />
           </label>
-          <p class="text-xs text-base-content/60">Creates a private Kind Robots agent Todo linked to the project. No render or publication starts automatically.</p>
+          <p class="text-xs text-base-content/60">
+            Creates a private Kind Robots agent Todo linked to the project. No
+            render or publication starts automatically.
+          </p>
           <div class="flex justify-end gap-2">
-            <button type="button" class="kr-btn btn-outline" @click="showRequest = false">Cancel</button>
-            <button type="submit" class="kr-btn-primary" :disabled="studio.requesting || !requestDirection.trim()">
+            <button
+              type="button"
+              class="kr-btn btn-outline"
+              @click="showRequest = false"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              class="kr-btn-primary"
+              :disabled="studio.requesting || !requestDirection.trim()"
+            >
               <span v-if="studio.requesting" class="kr-spinner-xs" />
               Submit request
             </button>
@@ -441,7 +722,9 @@ async function saveAssignment(action: 'link' | 'unlink') {
 }
 
 async function submitRequest() {
-  if (await studio.requestArtChange(requestProject.value, requestDirection.value)) {
+  if (
+    await studio.requestArtChange(requestProject.value, requestDirection.value)
+  ) {
     requestDirection.value = ''
     showRequest.value = false
   }

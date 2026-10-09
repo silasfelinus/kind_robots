@@ -1,7 +1,10 @@
 import { createError, defineEventHandler, readBody } from 'h3'
 import prisma from '~/server/utils/prisma'
 import { requireAdminApiUser } from '~/server/utils/authGuard'
-import { buildArtImageWhere, getArtImageAccessContext } from '~/server/utils/artImageAccess'
+import {
+  buildArtImageWhere,
+  getArtImageAccessContext,
+} from '~/server/utils/artImageAccess'
 import { loadZuzuArtLedger } from '~/server/utils/zuzuWorldLedger'
 import { errorHandler } from '~/server/utils/error'
 import { isZuzuProjectSlug } from '~/utils/zuzuWorld'
@@ -17,9 +20,12 @@ function ids(value: unknown, max: number, label: string): number[] {
     throw createError({ statusCode: 400, message: `Select 1–${max} ${label}.` })
   }
   const unique = [...new Set(value)]
-  if (unique.length !== value.length ||
-      !unique.every((id) => typeof id === 'number' &&
-        Number.isSafeInteger(id) && id > 0)) {
+  if (
+    unique.length !== value.length ||
+    !unique.every(
+      (id) => typeof id === 'number' && Number.isSafeInteger(id) && id > 0,
+    )
+  ) {
     throw createError({ statusCode: 400, message: `Invalid ${label} IDs.` })
   }
   return unique
@@ -45,7 +51,10 @@ export default defineEventHandler(async (event) => {
 
     const ledger = await loadZuzuArtLedger()
     if (artImageIds.some((id) => !ledger.items.has(id))) {
-      throw createError({ statusCode: 400, message: 'Unknown Zuzu source artwork.' })
+      throw createError({
+        statusCode: 400,
+        message: 'Unknown Zuzu source artwork.',
+      })
     }
 
     const [images, projects] = await Promise.all([
@@ -54,9 +63,13 @@ export default defineEventHandler(async (event) => {
           AND: [
             buildArtImageWhere(access),
             { id: { in: artImageIds } },
-            ...(access.showMature ? [] : [{
-              OR: [{ isMature: false }, { isMature: null }],
-            }]),
+            ...(access.showMature
+              ? []
+              : [
+                  {
+                    OR: [{ isMature: false }, { isMature: null }],
+                  },
+                ]),
           ],
         },
         select: { id: true },
@@ -67,31 +80,49 @@ export default defineEventHandler(async (event) => {
       }),
     ])
     if (images.length !== artImageIds.length) {
-      throw createError({ statusCode: 403, message: 'One or more images are not accessible.' })
+      throw createError({
+        statusCode: 403,
+        message: 'One or more images are not accessible.',
+      })
     }
-    if (projects.length !== projectIds.length ||
-      !projects.every((project) =>
-        project.conductorSlug && isZuzuProjectSlug(project.conductorSlug))) {
-      throw createError({ statusCode: 400, message: 'Invalid Zuzu production selection.' })
+    if (
+      projects.length !== projectIds.length ||
+      !projects.every(
+        (project) =>
+          project.conductorSlug && isZuzuProjectSlug(project.conductorSlug),
+      )
+    ) {
+      throw createError({
+        statusCode: 400,
+        message: 'Invalid Zuzu production selection.',
+      })
     }
 
     const data = artImageIds.flatMap((artImageId) =>
       projectIds.map((projectId) => ({ artImageId, projectId })),
     )
-    const result = action === 'link'
-      ? await prisma.projectArtImage.createMany({ data, skipDuplicates: true })
-      : await prisma.projectArtImage.deleteMany({
-        where: {
-          OR: data.map(({ projectId, artImageId }) => ({ projectId, artImageId })),
-        },
-      })
+    const result =
+      action === 'link'
+        ? await prisma.projectArtImage.createMany({
+            data,
+            skipDuplicates: true,
+          })
+        : await prisma.projectArtImage.deleteMany({
+            where: {
+              OR: data.map(({ projectId, artImageId }) => ({
+                projectId,
+                artImageId,
+              })),
+            },
+          })
 
     return {
       success: true,
       data: { changed: result.count, references: data.length, action },
-      message: action === 'link'
-        ? `Linked ${result.count} new project references. Originals were not copied.`
-        : `Unlinked ${result.count} references. Original art was preserved.`,
+      message:
+        action === 'link'
+          ? `Linked ${result.count} new project references. Originals were not copied.`
+          : `Unlinked ${result.count} references. Original art was preserved.`,
       statusCode: 200,
     }
   } catch (error: unknown) {

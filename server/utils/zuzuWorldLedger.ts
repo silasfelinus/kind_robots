@@ -26,20 +26,25 @@ async function readJson(path: string): Promise<unknown> {
     signal: AbortSignal.timeout(12000),
     headers: { Accept: 'application/json' },
   })
-  if (!response.ok) throw new Error(`Conductor source unavailable (${response.status})`)
+  if (!response.ok)
+    throw new Error(`Conductor source unavailable (${response.status})`)
   return response.json()
 }
 
 async function load(): Promise<SourceCache> {
-  const catalog = await readJson('worlds/zuzu/catalog.json') as {
+  const catalog = (await readJson('worlds/zuzu/catalog.json')) as {
     asset_inventory?: { ledger_parts?: unknown }
   }
   const paths = catalog.asset_inventory?.ledger_parts
   if (
-    !Array.isArray(paths) || paths.length < 4 || paths.length > 25 ||
-    !paths.every((p): p is string =>
-      typeof p === 'string' &&
-      /^worlds\/zuzu\/assets\/ledger-part-\d{2}\.json$/.test(p))
+    !Array.isArray(paths) ||
+    paths.length < 4 ||
+    paths.length > 25 ||
+    !paths.every(
+      (p): p is string =>
+        typeof p === 'string' &&
+        /^worlds\/zuzu\/assets\/ledger-part-\d{2}\.json$/.test(p),
+    )
   ) {
     throw new Error('Conductor Zuzu ledger manifest is invalid.')
   }
@@ -72,20 +77,27 @@ async function load(): Promise<SourceCache> {
             entity: entry.entity || null,
             source: ledger.path,
             sourceProject,
-            jobIds: Array.isArray(entry.jobs) ? entry.jobs.filter(Number.isInteger) : [],
+            jobIds: Array.isArray(entry.jobs)
+              ? entry.jobs.filter(Number.isInteger)
+              : [],
           })
         }
       }
     }
   }
 
-  const videoBuilds = await readJson('worlds/zuzu/assets/video-builds.json') as {
+  const videoBuilds = (await readJson(
+    'worlds/zuzu/assets/video-builds.json',
+  )) as {
     videos?: {
       id: number
       final_art_image_id?: number | null
       older_exports?: number[]
       art_image_refs?: number[]
-      animation_revisions?: { clip_art_image_id?: number | null; status: string }[]
+      animation_revisions?: {
+        clip_art_image_id?: number | null
+        status: string
+      }[]
     }[]
   }
   for (const video of videoBuilds.videos ?? []) {
@@ -93,7 +105,9 @@ async function load(): Promise<SourceCache> {
       video.final_art_image_id,
       ...(video.older_exports ?? []),
       ...(video.art_image_refs ?? []),
-      ...(video.animation_revisions ?? []).map((revision) => revision.clip_art_image_id),
+      ...(video.animation_revisions ?? []).map(
+        (revision) => revision.clip_art_image_id,
+      ),
     ]
     for (const id of ids) {
       if (!Number.isInteger(id) || !id || items.has(id)) continue
@@ -114,20 +128,24 @@ async function load(): Promise<SourceCache> {
 export async function loadZuzuArtLedger(): Promise<SourceCache> {
   if (snapshot && Date.now() - snapshot.loadedAt < CACHE_MS) return snapshot
   if (!loading) {
-    loading = load().then((value) => {
-      snapshot = value
-      return value
-    }).catch((error: unknown) => {
-      if (snapshot) return snapshot
-      throw createError({
-        statusCode: 503,
-        message: error instanceof Error
-          ? `Unable to read the Zuzu world registry: ${error.message}`
-          : 'Unable to read the Zuzu world registry.',
+    loading = load()
+      .then((value) => {
+        snapshot = value
+        return value
       })
-    }).finally(() => {
-      loading = null
-    })
+      .catch((error: unknown) => {
+        if (snapshot) return snapshot
+        throw createError({
+          statusCode: 503,
+          message:
+            error instanceof Error
+              ? `Unable to read the Zuzu world registry: ${error.message}`
+              : 'Unable to read the Zuzu world registry.',
+        })
+      })
+      .finally(() => {
+        loading = null
+      })
   }
   return loading
 }

@@ -37,12 +37,19 @@ export default defineEventHandler(async (event) => {
     const access = await getArtImageAccessContext(event)
     if (!access.isAdmin) {
       event.node.res.statusCode = 403
-      return { success: false, message: 'Admin access required.', statusCode: 403 }
+      return {
+        success: false,
+        message: 'Admin access required.',
+        statusCode: 403,
+      }
     }
 
     const query = getQuery(event)
     const page = Math.max(1, Math.min(1000, Number(query.page) || 1))
-    const search = String(query.q ?? '').trim().toLowerCase().slice(0, 120)
+    const search = String(query.q ?? '')
+      .trim()
+      .toLowerCase()
+      .slice(0, 120)
     const project = String(query.project ?? '')
     const kind = String(query.kind ?? 'all')
     const scope = isZuzuProjectSlug(project) ? project : ''
@@ -62,9 +69,13 @@ export default defineEventHandler(async (event) => {
           AND: [
             buildArtImageWhere(access),
             { id: { in: candidateIds } },
-            ...(access.showMature ? [] : [{
-              OR: [{ isMature: false }, { isMature: null }],
-            }]),
+            ...(access.showMature
+              ? []
+              : [
+                  {
+                    OR: [{ isMature: false }, { isMature: null }],
+                  },
+                ]),
           ],
         },
         select: {
@@ -100,16 +111,22 @@ export default defineEventHandler(async (event) => {
     for (const image of images) {
       const meta = ledger.items.get(image.id)
       if (!meta) continue
-      const linked = image.ProjectLinks.filter((link) =>
-        link.Project.conductorSlug && isZuzuProjectSlug(link.Project.conductorSlug),
+      const linked = image.ProjectLinks.filter(
+        (link) =>
+          link.Project.conductorSlug &&
+          isZuzuProjectSlug(link.Project.conductorSlug),
       )
-      const projectSlugs = [...new Set([
-        meta.sourceProject,
-        ...linked.map((link) => link.Project.conductorSlug).filter(
-          (value): value is string => Boolean(value),
-        ),
-      ])]
-      const mediaKind = VIDEO_FORMATS.test(image.fileType || '') ? 'video' : 'image'
+      const projectSlugs = [
+        ...new Set([
+          meta.sourceProject,
+          ...linked
+            .map((link) => link.Project.conductorSlug)
+            .filter((value): value is string => Boolean(value)),
+        ]),
+      ]
+      const mediaKind = VIDEO_FORMATS.test(image.fileType || '')
+        ? 'video'
+        : 'image'
       const title = meta.key.startsWith('Music video #')
         ? meta.key
         : titleForKey(meta.key)
@@ -117,16 +134,24 @@ export default defineEventHandler(async (event) => {
       if (scope && !projectSlugs.includes(scope)) continue
       if (kind === 'video' && mediaKind !== 'video') continue
       if (kind === 'image' && mediaKind !== 'image') continue
-      if (kind === 'sheets' && !/(angle|expression|lora|sheet)/i.test(meta.source + meta.key)) continue
-      if (search && ![
-        title,
-        String(image.id),
-        meta.entity ?? '',
-        meta.key,
-        meta.source,
-        image.fileName ?? '',
-        image.promptString ?? '',
-      ].some((value) => value.toLowerCase().includes(search))) continue
+      if (
+        kind === 'sheets' &&
+        !/(angle|expression|lora|sheet)/i.test(meta.source + meta.key)
+      )
+        continue
+      if (
+        search &&
+        ![
+          title,
+          String(image.id),
+          meta.entity ?? '',
+          meta.key,
+          meta.source,
+          image.fileName ?? '',
+          image.promptString ?? '',
+        ].some((value) => value.toLowerCase().includes(search))
+      )
+        continue
 
       all.push({
         id: image.id,

@@ -28,8 +28,8 @@ export const useZuzuWorldStore = defineStore('zuzuWorld', () => {
   let requestSerial = 0
   let searchTimer: ReturnType<typeof setTimeout> | null = null
 
-  const focused = computed(() =>
-    items.value.find((item) => item.id === focusId.value) ?? null,
+  const focused = computed(
+    () => items.value.find((item) => item.id === focusId.value) ?? null,
   )
   const selectedItems = computed(() =>
     items.value.filter((item) => selectedIds.value.includes(item.id)),
@@ -69,8 +69,10 @@ export const useZuzuWorldStore = defineStore('zuzuWorld', () => {
       }
     } catch (cause) {
       if (serial !== requestSerial) return
-      error.value = cause instanceof Error
-        ? cause.message : 'Unable to load the world library.'
+      error.value =
+        cause instanceof Error
+          ? cause.message
+          : 'Unable to load the world library.'
       items.value = []
       total.value = 0
     } finally {
@@ -114,10 +116,15 @@ export const useZuzuWorldStore = defineStore('zuzuWorld', () => {
     selectedIds.value = []
   }
 
-  async function assign(projectIds: number[], action: 'link' | 'unlink'): Promise<boolean> {
+  async function assign(
+    projectIds: number[],
+    action: 'link' | 'unlink',
+  ): Promise<boolean> {
     const ids = selectedIds.value.length
       ? selectedIds.value
-      : focused.value ? [focused.value.id] : []
+      : focused.value
+        ? [focused.value.id]
+        : []
     if (!ids.length || !projectIds.length) {
       error.value = 'Select artwork and at least one project.'
       return false
@@ -126,26 +133,31 @@ export const useZuzuWorldStore = defineStore('zuzuWorld', () => {
     error.value = ''
     notice.value = ''
     try {
-      const result = await performFetch<{ changed: number; references: number }>(
-        '/api/worlds/zuzu/assign',
-        {
-          method: 'POST',
-          body: JSON.stringify({ artImageIds: ids, projectIds, action }),
-        },
-      )
-      if (!result.success) throw new Error(result.message || 'Could not save links.')
+      const result = await performFetch<{
+        changed: number
+        references: number
+      }>('/api/worlds/zuzu/assign', {
+        method: 'POST',
+        body: JSON.stringify({ artImageIds: ids, projectIds, action }),
+      })
+      if (!result.success)
+        throw new Error(result.message || 'Could not save links.')
       notice.value = result.message || 'Project references saved.'
       await load()
       return true
     } catch (cause) {
-      error.value = cause instanceof Error ? cause.message : 'Could not update projects.'
+      error.value =
+        cause instanceof Error ? cause.message : 'Could not update projects.'
       return false
     } finally {
       saving.value = false
     }
   }
 
-  async function requestArtChange(projectSlug: string, direction: string): Promise<boolean> {
+  async function requestArtChange(
+    projectSlug: string,
+    direction: string,
+  ): Promise<boolean> {
     const art = focused.value
     if (!art || !direction.trim()) {
       error.value = 'Choose an asset and describe the requested change.'
@@ -166,12 +178,15 @@ export const useZuzuWorldStore = defineStore('zuzuWorld', () => {
           }),
         },
       )
-      if (!result.success) throw new Error(result.message || 'Could not save request.')
+      if (!result.success)
+        throw new Error(result.message || 'Could not save request.')
       notice.value = result.message || 'Private request saved for agent review.'
       return true
     } catch (cause) {
-      error.value = cause instanceof Error
-        ? cause.message : 'Unable to send the Conductor request.'
+      error.value =
+        cause instanceof Error
+          ? cause.message
+          : 'Unable to send the Conductor request.'
       return false
     } finally {
       requesting.value = false
@@ -179,10 +194,33 @@ export const useZuzuWorldStore = defineStore('zuzuWorld', () => {
   }
 
   return {
-    items, projects, total, recordedCount, ledgerCount, page, pageCount,
-    search, projectFilter, kindFilter, selectedIds, selectedItems, focusId, focused,
-    loading, saving, requesting, error, notice,
-    load, setFilter, setSearch, goToPage, focus, toggle,
-    clearSelection, assign, requestArtChange,
+    items,
+    projects,
+    total,
+    recordedCount,
+    ledgerCount,
+    page,
+    pageCount,
+    search,
+    projectFilter,
+    kindFilter,
+    selectedIds,
+    selectedItems,
+    focusId,
+    focused,
+    loading,
+    saving,
+    requesting,
+    error,
+    notice,
+    load,
+    setFilter,
+    setSearch,
+    goToPage,
+    focus,
+    toggle,
+    clearSelection,
+    assign,
+    requestArtChange,
   }
 })

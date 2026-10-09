@@ -1,7 +1,10 @@
 import { createError, defineEventHandler, readBody } from 'h3'
 import prisma from '~/server/utils/prisma'
 import { requireAdminApiUser } from '~/server/utils/authGuard'
-import { getArtImageAccessContext, buildArtImageWhere } from '~/server/utils/artImageAccess'
+import {
+  getArtImageAccessContext,
+  buildArtImageWhere,
+} from '~/server/utils/artImageAccess'
 import { loadZuzuArtLedger } from '~/server/utils/zuzuWorldLedger'
 import { isZuzuProjectSlug } from '~/utils/zuzuWorld'
 import { errorHandler } from '~/server/utils/error'
@@ -25,18 +28,29 @@ export default defineEventHandler(async (event) => {
     }
     const id = body.artImageId
     const projectSlug = body.projectSlug
-    const direction = typeof body.direction === 'string' ? body.direction.trim() : ''
-    if (typeof id !== 'number' || !Number.isSafeInteger(id) || id <= 0 ||
-      typeof projectSlug !== 'string' || !isZuzuProjectSlug(projectSlug) ||
-      !direction || direction.length > 4000) {
+    const direction =
+      typeof body.direction === 'string' ? body.direction.trim() : ''
+    if (
+      typeof id !== 'number' ||
+      !Number.isSafeInteger(id) ||
+      id <= 0 ||
+      typeof projectSlug !== 'string' ||
+      !isZuzuProjectSlug(projectSlug) ||
+      !direction ||
+      direction.length > 4000
+    ) {
       throw createError({
         statusCode: 400,
-        message: 'Provide a valid art ID, Zuzu production and instructions (up to 4000 characters).',
+        message:
+          'Provide a valid art ID, Zuzu production and instructions (up to 4000 characters).',
       })
     }
     const ledger = await loadZuzuArtLedger()
     if (!ledger.items.has(id)) {
-      throw createError({ statusCode: 404, message: 'This asset is not in the Zuzu registry.' })
+      throw createError({
+        statusCode: 404,
+        message: 'This asset is not in the Zuzu registry.',
+      })
     }
     const [art, project] = await Promise.all([
       prisma.artImage.findFirst({
@@ -44,9 +58,13 @@ export default defineEventHandler(async (event) => {
           AND: [
             buildArtImageWhere(access),
             { id },
-            ...(access.showMature ? [] : [{
-              OR: [{ isMature: false }, { isMature: null }],
-            }]),
+            ...(access.showMature
+              ? []
+              : [
+                  {
+                    OR: [{ isMature: false }, { isMature: null }],
+                  },
+                ]),
           ],
         },
         select: { id: true },
@@ -57,7 +75,10 @@ export default defineEventHandler(async (event) => {
       }),
     ])
     if (!art) {
-      throw createError({ statusCode: 403, message: 'Source artwork is not accessible.' })
+      throw createError({
+        statusCode: 403,
+        message: 'Source artwork is not accessible.',
+      })
     }
     const todo = await prisma.todo.create({
       data: {

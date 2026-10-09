@@ -16,6 +16,7 @@ import { mulberry32 } from '../arcade/curve'
 import { STAGE_HALF_WIDTH, createMatch, step } from '../zuzuShowdown/sim'
 import { VIEW_HEIGHT, VIEW_WIDTH, drawMatch } from '../zuzuShowdown/render'
 import { findFighter } from '../zuzuShowdown/fighters'
+import { PLACEHOLDER_A } from '../zuzuShowdown/fighters/placeholders'
 import {
   BELL_RING_FRAMES,
   STAGE_NAMES,
@@ -174,7 +175,8 @@ check('a fight is on the challenger’s home stage', () => {
   assert.equal(stageFor([ZUZU, COYOTE]), 'watering-hole')
   assert.equal(stageFor([COYOTE, ZUZU]), 'hollow-bell')
   assert.equal(stageFor([ZUZU, ZUZU]), 'hollow-bell')
-  const placeholder = findFighter('placeholder-a')
+  // A fighter with no home stage of its own (a stand-in).
+  const placeholder = PLACEHOLDER_A
   assert.equal(stageFor([placeholder, placeholder]), 'hollow-bell')
   assert.equal(stageFor([COYOTE, placeholder]), 'watering-hole')
   // The Abbess and Storm Crow have their stages ahead of their sprite sets.

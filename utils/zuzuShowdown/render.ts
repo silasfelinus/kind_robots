@@ -163,37 +163,100 @@ export const ZOOM_X = VIEW_WIDTH / 2
 export const ZOOM_Y = 250
 /** Room either side of the fighters (their half-widths and some air). */
 const ZOOM_MARGIN = 54
-/** The highest screen row a head may reach, just under the names. */
-export const HEAD_ROW = 34
+/**
+ * The highest screen row a head may reach: up behind the life bars, as Street Fighter's jumpers go,
+ * which leaves the camera closer during a jump.
+ */
+export const HEAD_ROW = 14
 /** Room above the art's height for hats and ears. */
 const HEAD_ROOM = 6
+/**
+ * The furthest the view lifts to follow a jump, in screen pixels. Street Fighter style, a jump pans the
+ * camera up rather than pulling it back: pulling back on every hop pumped the zoom in and out (Silas,
+ * 2026-10-09 PT: "the screen totally spazzes out" with the jumpy stand-ins).
+ */
+export const PAN_MAX = 120
 
-/** How far in the camera wants to be for this frame of the match. */
-export function zoomTarget(s: MatchState, roster: Pair<FighterData>): number {
-  const gap = Math.abs(s.fighters[0].x - s.fighters[1].x) / SUB
-  const wide = VIEW_WIDTH / (gap + 2 * ZOOM_MARGIN)
-  // The highest head this jump will reach, so the camera pulls back on the way up, not after.
+/** The highest point of either fighter, in game pixels above the floor (`apex`: where this jump peaks). */
+function headTop(
+  s: MatchState,
+  roster: Pair<FighterData>,
+  apex: boolean,
+): number {
   let top = 0
   for (const side of [0, 1] as const) {
     const f = s.fighters[side]
     const data = roster[side]
-    const rise = f.vy > 0 ? (f.vy * f.vy) / (2 * Math.max(1, data.gravity)) : 0
-    const apex = Math.max(0, f.y + rise) / SUB
-    top = Math.max(top, apex + data.hurtStand.y + data.hurtStand.h + HEAD_ROOM)
+    const rise =
+      apex && f.vy > 0 ? (f.vy * f.vy) / (2 * Math.max(1, data.gravity)) : 0
+    const y = Math.max(0, f.y + rise) / SUB
+    top = Math.max(top, y + data.hurtStand.y + data.hurtStand.h + HEAD_ROOM)
   }
-  // Zoomed by z the floor sits at ZOOM_Y - (ZOOM_Y - FLOOR_Y) z, and a head `top` above it at
-  // ZOOM_Y - (ZOOM_Y - FLOOR_Y + top) z, which must stay at or below HEAD_ROW.
-  const tall = (ZOOM_Y - HEAD_ROW) / (ZOOM_Y - FLOOR_Y + top)
-  return Math.max(1, Math.min(MAX_ZOOM, wide, tall))
+  return top
 }
 
-/** Ease the camera toward its target: out quickly (nobody leaves the screen), in gently. */
+/**
+ * How far the view may lift at a zoom: up to PAN_MAX, and no further than the sky still covers the
+ * top of the screen. Layers lift by their scroll factor, as they zoom by it, so the sky (which starts at
+ * the top) has ZOOM_Y (zoom - 1) to spare whatever its factor.
+ */
+export function panLimit(zoom: number): number {
+  return Math.max(0, Math.min(PAN_MAX, ZOOM_Y * (zoom - 1)))
+}
+
+/** How far the view lifts this frame so the highest head stays under the names. */
+/** The lowest fighter's feet, in game pixels above the floor. */
+function footLow(s: MatchState): number {
+  return Math.max(0, Math.min(s.fighters[0].y, s.fighters[1].y) / SUB)
+}
+
+/** Screen pixels the lowest feet keep above the bottom edge (a toe may touch it). */
+const FOOT_MARGIN = -6
+
+/** How far the view must lift at a zoom to bring a head `top` above the floor down to HEAD_ROW. */
+function liftNeeded(zoom: number, top: number): number {
+  return HEAD_ROW - (ZOOM_Y - (ZOOM_Y - FLOOR_Y + top) * zoom)
+}
+
+/** How far the view may lift at a zoom: the sky's limit, and no further than keeps the lowest feet in. */
+function liftRoom(zoom: number, low: number): number {
+  const feet = ZOOM_Y - (ZOOM_Y - FLOOR_Y + low) * zoom
+  return Math.max(0, Math.min(panLimit(zoom), VIEW_HEIGHT - FOOT_MARGIN - feet))
+}
+
+/** How far the view lifts this frame so the highest head stays under the names, feet still in view. */
+export function cameraPan(
+  s: MatchState,
+  roster: Pair<FighterData>,
+  zoom: number,
+): number {
+  const needed = liftNeeded(zoom, headTop(s, roster, false))
+  return Math.max(0, Math.min(liftRoom(zoom, footLow(s)), needed))
+}
+
+/**
+ * How far in the camera wants to be: close enough to fill the screen with the fight, but no closer
+ * than lets both fighters fit, side to side and (with the lift) head to foot. A jump is followed by
+ * lifting the view; only when one fighter is far above the other does the camera pull back, from
+ * take-off, aiming at the jump's peak.
+ */
+export function zoomTarget(s: MatchState, roster: Pair<FighterData>): number {
+  const gap = Math.abs(s.fighters[0].x - s.fighters[1].x) / SUB
+  const wide = VIEW_WIDTH / (gap + 2 * ZOOM_MARGIN)
+  const top = headTop(s, roster, true)
+  const low = footLow(s)
+  for (let z = Math.min(MAX_ZOOM, wide); z > 1; z -= 0.01)
+    if (liftNeeded(z, top) <= liftRoom(z, low)) return z
+  return 1
+}
+
+/** Ease the camera toward its target: out briskly (nobody leaves the screen), in slowly. */
 export function advanceZoom(
   zoom: number,
   target: number,
   reducedMotion: boolean,
 ): number {
-  const rate = target < zoom ? 0.2 : reducedMotion ? 0.03 : 0.07
+  const rate = target < zoom ? 0.1 : reducedMotion ? 0.02 : 0.035
   const next = zoom + (target - zoom) * rate
   return Math.abs(next - target) < 0.002 ? target : next
 }
@@ -203,8 +266,9 @@ export function layerZoom(zoom: number, factor: number): number {
   return 1 + (zoom - 1) * factor
 }
 
-/** Apply a zoom about (ZOOM_X, ZOOM_Y) to everything drawn next. */
-function zoomAbout(g: G, zoom: number): void {
+/** Apply the camera's lift, then its zoom about (ZOOM_X, ZOOM_Y), to everything drawn next. */
+function zoomAbout(g: G, zoom: number, pan = 0): void {
+  if (pan) g.translate(0, pan)
   if (zoom === 1) return
   g.translate(ZOOM_X, ZOOM_Y)
   g.scale(zoom, zoom)
@@ -546,6 +610,7 @@ export function drawStageArt(
   reducedMotion: boolean,
   fx: StageFx,
   zoom = 1,
+  pan = 0,
 ): void {
   const m = stage.manifest
   const cam = camera / SUB
@@ -557,7 +622,7 @@ export function drawStageArt(
     if (!image) continue
     // Each layer (and what hangs off it) under its own share of the zoom.
     g.save()
-    zoomAbout(g, layerZoom(zoom, layer.factor))
+    zoomAbout(g, layerZoom(zoom, layer.factor), pan * layer.factor)
     const x = layerX(layer, cam)
     const shimmer =
       (m.stage === 'watering-hole' || m.stage === 'lone-apple-tree') &&
@@ -572,6 +637,20 @@ export function drawStageArt(
     if (flash > 0 && layer.name !== 'backdrop')
       g.filter = `brightness(${(1 - 0.75 * flash).toFixed(2)})`
     drawLayer(g, image, layer, x, m.scale, shimmer)
+    if (layer.name === 'backdrop' && pan > 0) {
+      // Lifted, the view sees below the sky's art: its bottom row carries on down to the ground.
+      g.drawImage(
+        image,
+        0,
+        (layer.h - 1) * m.scale,
+        layer.w * m.scale,
+        m.scale,
+        x,
+        layer.y + layer.h - 1,
+        layer.w,
+        VIEW_HEIGHT,
+      )
+    }
     g.filter = 'none'
     if (flash > 0 && layer.name === 'backdrop') {
       g.fillStyle = `rgba(220, 235, 255, ${(0.65 * flash).toFixed(2)})`
@@ -863,7 +942,7 @@ export function drawStageArt(
   }
   // The ground's own goings-on zoom with the floor; the rain is on the lens.
   g.save()
-  zoomAbout(g, zoom)
+  zoomAbout(g, zoom, pan)
   const slump =
     m.stage === 'the-dunes' && !reducedMotion
       ? duneSlumpAt(frame, VIEW_WIDTH)
@@ -1294,6 +1373,7 @@ export function drawMatch(
   applyRenderStyle(g, options.style)
   const zoom = options.zoom ?? 1
   const camera = cameraX(s, zoom)
+  const pan = zoom > 1 ? cameraPan(s, roster, zoom) : 0
   if (options.stage)
     drawStageArt(
       g,
@@ -1304,16 +1384,17 @@ export function drawMatch(
       options.reducedMotion,
       options.stageFx ?? { bell: null },
       zoom,
+      pan,
     )
   else {
     g.save()
-    zoomAbout(g, zoom)
+    zoomAbout(g, zoom, pan)
     drawStage(g, camera, s.frame, options.reducedMotion)
     g.restore()
   }
-  // The fight itself, under the camera's zoom; the HUD and callouts stay put.
+  // The fight itself, under the camera's lift and zoom; the HUD and callouts stay put.
   g.save()
-  zoomAbout(g, zoom)
+  zoomAbout(g, zoom, pan)
   // The fighter who is attacking draws in front.
   const order: Array<0 | 1> =
     s.fighters[1].attack && !s.fighters[0].attack ? [0, 1] : [1, 0]

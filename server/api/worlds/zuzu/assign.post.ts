@@ -43,7 +43,7 @@ export default defineEventHandler(async (event) => {
       throw createError({ statusCode: 400, message: 'Invalid assignment.' })
     }
     const artImageIds = ids(body.artImageIds, 48, 'art images')
-    const projectIds = ids(body.projectIds, 7, 'projects')
+    const projectIds = ids(body.projectIds, 8, 'projects')
     const action = body.action
     if (action !== 'link' && action !== 'unlink') {
       throw createError({ statusCode: 400, message: 'Use link or unlink.' })

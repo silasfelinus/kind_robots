@@ -53,20 +53,22 @@ assert.equal(
 )
 const page = readFileSync(
   fileURLToPath(
-    new URL('../../pages/play/zuzu-shifting-lands.vue', import.meta.url),
+    new URL('../../pages/admin/zuzu-shifting-lands.vue', import.meta.url),
   ),
   'utf8',
 )
 const content = readFileSync(
   fileURLToPath(
     new URL(
-      '../../content/channels/projects/zuzu-shifting-lands.md',
+      '../../content/channels/admin/zuzu-shifting-lands.md',
       import.meta.url,
     ),
   ),
   'utf8',
 )
 assert.match(content, /requiredRole: ADMIN/)
+assert.match(content, /channelKey: admin/)
+assert.match(content, /route: \/admin\/zuzu-shifting-lands/)
 assert.match(page, /NavigationFlipCard/)
 assert.match(page, /images\/adventure\/card\/card-back1.webp/)
 assert.match(page, /game\.state\.discard/)

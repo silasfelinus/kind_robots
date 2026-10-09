@@ -1,10 +1,8 @@
 name: One-time Shifting Lands audit formatter
 on:
-  push:
-    branches:
-      - worker/zuzu-shifting-lands-t004-resource-audit-20261009
-    paths:
-      - '.github/workflows/zuzu-resource-audit-format-once.yml'
+  pull_request:
+    types: [ready_for_review]
+    branches: [main]
 permissions:
   contents: write
 jobs:
@@ -15,6 +13,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
+          ref: worker/zuzu-shifting-lands-t004-resource-audit-20261009
       - uses: actions/setup-node@v4
         with:
           node-version: '24'

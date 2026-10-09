@@ -20,6 +20,8 @@ import {
 export type ShowdownMode = 'cpu' | 'versus' | 'dummy'
 
 type ShowdownPrefs = {
+  /** PREFS_VERSION when written; older saves predate today's defaults. */
+  version?: number
   muted?: boolean
   renderStyle?: RenderStyle
   crt?: boolean
@@ -34,6 +36,12 @@ type ShowdownPrefs = {
 }
 
 const PREFS_KEY = 'kr-zuzu-showdown-prefs'
+/**
+ * Version 2 (Silas, 2026-10-09 PT: "non-pixel and sound on should be defaults"): HD and sound start on.
+ * A save from before it kept Pixel and silence only because they were the defaults then, so those two
+ * choices are read afresh once; everything else carries over.
+ */
+const PREFS_VERSION = 2
 
 function readPrefs(): ShowdownPrefs {
   try {
@@ -53,8 +61,8 @@ function writePrefs(prefs: ShowdownPrefs) {
 }
 
 export const useZuzuShowdownStore = defineStore('zuzuShowdownStore', () => {
-  const muted = ref(true)
-  const renderStyle = ref<RenderStyle>('pixel')
+  const muted = ref(false)
+  const renderStyle = ref<RenderStyle>('hd')
   const crt = ref(false)
   const easySpecials = ref(false)
   const showBoxes = ref(false)
@@ -78,10 +86,10 @@ export const useZuzuShowdownStore = defineStore('zuzuShowdownStore', () => {
   }) {
     const prefs = readPrefs()
     reducedMotion.value = options.reducedMotion
-    muted.value = prefs.muted ?? true
-    renderStyle.value = isRenderStyle(prefs.renderStyle)
-      ? prefs.renderStyle
-      : 'pixel'
+    const current = prefs.version === PREFS_VERSION
+    muted.value = current ? (prefs.muted ?? false) : false
+    renderStyle.value =
+      current && isRenderStyle(prefs.renderStyle) ? prefs.renderStyle : 'hd'
     crt.value = prefs.crt ?? !options.reducedMotion
     easySpecials.value = prefs.easySpecials ?? options.coarsePointer
     showBoxes.value = prefs.showBoxes === true
@@ -107,6 +115,7 @@ export const useZuzuShowdownStore = defineStore('zuzuShowdownStore', () => {
 
   function save() {
     writePrefs({
+      version: PREFS_VERSION,
       muted: muted.value,
       renderStyle: renderStyle.value,
       crt: crt.value,

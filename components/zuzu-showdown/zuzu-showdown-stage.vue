@@ -1,8 +1,12 @@
 <template>
   <Teleport to="body" :disabled="!locked">
     <div
+      ref="stageRef"
       class="showdown-stage"
-      :class="{ 'showdown-stage--locked': locked }"
+      :class="{
+        'showdown-stage--locked': locked,
+        'showdown-stage--fullscreen': fullscreen,
+      }"
       @contextmenu="onContextMenu"
     >
       <div ref="screenRef" class="showdown-screen">
@@ -21,6 +25,18 @@
           class="showdown-crt"
           :style="{ width: canvasWidth }"
         />
+      </div>
+
+      <div v-if="canFullscreen" class="showdown-bar">
+        <button
+          type="button"
+          class="kr-btn-xs"
+          :aria-pressed="fullscreen"
+          title="Fullscreen (F)"
+          @click="toggleFullscreen"
+        >
+          {{ fullscreen ? 'Exit fullscreen' : 'Fullscreen' }}
+        </button>
       </div>
 
       <div
@@ -63,7 +79,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
+import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import {
   createArcadeSound,
   type ArcadeSound,
@@ -97,9 +113,11 @@ import {
   VIEW_HEIGHT,
   VIEW_WIDTH,
   advanceCallouts,
+  advanceZoom,
   applyRenderStyle,
   drawCard,
   drawMatch,
+  zoomTarget,
   type Callout,
 } from '~/utils/zuzuShowdown/render'
 import { findFighter } from '~/utils/zuzuShowdown/fighters'
@@ -330,7 +348,10 @@ function currentRoster(): [FighterData, FighterData] {
 
 let roster = currentRoster()
 
+const stageRef = ref<HTMLElement | null>(null)
 const canvasRef = ref<HTMLCanvasElement | null>(null)
+const fullscreen = ref(false)
+const canFullscreen = ref(false)
 const screenRef = ref<HTMLElement | null>(null)
 const dpadRef = ref<HTMLElement | null>(null)
 const canvasWidth = ref('100%')
@@ -369,6 +390,8 @@ const touchButtons: Array<{
 
 let match: MatchState = createMatch(roster)
 let callouts: Callout[] = []
+// The camera's zoom (render.ts zoomTarget): close in on the fight, back out as the fighters part or leap.
+let zoom = 1
 let sparks: Spark[] = []
 // The finishing blow's slow-down and flash (t-019).
 let slowdown: KoSlowdown = null
@@ -426,6 +449,7 @@ function startMatch() {
   callouts = advanceCallouts([], match.events)
   sparks = []
   slowdown = null
+  zoom = zoomTarget(match, roster)
   stageFx = advanceStageFx(newStageFx(), match.events)
   cpu = newCpu(store.cpuLevel, Math.floor(Math.random() * 0xffffffff))
   resultCountdown = RESULT_DELAY
@@ -524,6 +548,7 @@ function tick() {
   callouts = advanceCallouts(callouts, match.events)
   sparks = advanceSparks(sparks, match, roster)
   stageFx = advanceStageFx(stageFx, match.events)
+  zoom = advanceZoom(zoom, zoomTarget(match, roster), store.reducedMotion)
   playSounds()
   slowdown = slowdown ?? koSlowdownFor(match.events)
   if (match.phase === 'over') {
@@ -556,6 +581,7 @@ function render() {
     stage: currentStage() ?? undefined,
     stageFx,
     style: store.renderStyle,
+    zoom,
   })
   if (
     store.mode === 'dummy' &&
@@ -671,10 +697,18 @@ function setPageLock(on: boolean) {
 
 /** Size the canvas for its box, the screen's pixel ratio and the render style (utils/arcade/display). */
 function fitCanvas() {
+  const box = screenRef.value
+  let available = box?.clientWidth ?? VIEW_WIDTH
+  // Fullscreen, the screen has the height left over too: the widest 16:9 that fits both.
+  if (fullscreen.value && box && box.clientHeight > 0)
+    available = Math.min(
+      available,
+      Math.floor((box.clientHeight * VIEW_WIDTH) / VIEW_HEIGHT),
+    )
   fit.value = fitDisplay({
     width: VIEW_WIDTH,
     height: VIEW_HEIGHT,
-    available: screenRef.value?.clientWidth ?? VIEW_WIDTH,
+    available,
     dpr: window.devicePixelRatio || 1,
     style: store.renderStyle,
   })
@@ -685,10 +719,35 @@ function onBlur() {
   if (phase.value === 'fight') phase.value = 'paused'
 }
 
-/** Training: R puts the fighters back where the last reset did. */
+/** Training: R puts the fighters back where the last reset did. F toggles fullscreen. */
 function onTrainingKey(event: KeyboardEvent) {
-  if (event.code !== 'KeyR' || event.repeat || store.mode !== 'dummy') return
+  if (event.repeat) return
+  const target = event.target as HTMLElement | null
+  if (target?.closest?.('input, select, textarea')) return
+  if (event.code === 'KeyF' && canFullscreen.value) {
+    void toggleFullscreen()
+    return
+  }
+  if (event.code !== 'KeyR' || store.mode !== 'dummy') return
   store.resetPositions(store.reset.place)
+}
+
+/** Fullscreen, as the arcade cabinets have it: the fight fills the screen, Esc or F to leave. */
+async function toggleFullscreen() {
+  const el = stageRef.value
+  if (!el) return
+  try {
+    if (document.fullscreenElement === el) await document.exitFullscreen()
+    else if (!document.fullscreenElement) await el.requestFullscreen()
+  } catch {
+    syncFullscreen()
+  }
+}
+
+function syncFullscreen() {
+  fullscreen.value =
+    !!stageRef.value && document.fullscreenElement === stageRef.value
+  void nextTick(fitCanvas)
 }
 
 watch(locked, (on) => {
@@ -715,6 +774,7 @@ watch(
   () => {
     roster = currentRoster()
     match = createMatch(roster)
+    zoom = zoomTarget(match, roster)
     callouts = []
     sparks = []
     slowdown = null
@@ -741,6 +801,9 @@ onMounted(() => {
   const reduced =
     window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ?? false
   touchControls.value = coarse
+  canFullscreen.value = !!document.fullscreenEnabled
+  document.addEventListener('fullscreenchange', syncFullscreen)
+  zoom = zoomTarget(match, roster)
   store.loadPreferences({ reducedMotion: reduced, coarsePointer: coarse })
   applyKeyMaps()
   sound = createArcadeSound(store.muted)
@@ -771,6 +834,9 @@ onBeforeUnmount(() => {
   window.removeEventListener('pointerdown', unlockSound)
   sound?.dispose()
   setPageLock(false)
+  document.removeEventListener('fullscreenchange', syncFullscreen)
+  if (stageRef.value && document.fullscreenElement === stageRef.value)
+    void document.exitFullscreen()
 })
 </script>
 
@@ -801,6 +867,38 @@ onBeforeUnmount(() => {
   display: flex;
   justify-content: center;
   width: 100%;
+}
+
+.showdown-bar {
+  display: flex;
+  justify-content: flex-end;
+}
+
+/* Fullscreen: the fight takes the whole screen, centred on black, the bar and any touch controls
+   below it. */
+.showdown-stage--fullscreen {
+  width: 100%;
+  height: 100%;
+  justify-content: center;
+  padding: 0.5rem;
+  background: #000;
+}
+
+.showdown-stage--fullscreen .showdown-screen {
+  flex: 1;
+  min-height: 0;
+  align-items: center;
+}
+
+.showdown-stage--fullscreen .showdown-canvas,
+.showdown-stage--fullscreen .showdown-crt {
+  border-radius: 0;
+}
+
+/* The canvas is centred in the tall screen, so its scanlines centre with it. */
+.showdown-stage--fullscreen .showdown-crt {
+  top: 50%;
+  transform: translateY(-50%);
 }
 
 .showdown-canvas {

@@ -6,14 +6,15 @@ import { ZUZU_PROJECTS, isZuzuProjectSlug } from '../zuzuWorld'
 const read = (relative: string): string =>
   readFileSync(fileURLToPath(new URL(relative, import.meta.url)), 'utf8')
 
-assert.equal(ZUZU_PROJECTS.length, 7)
-assert.equal(new Set(ZUZU_PROJECTS.map((entry) => entry.slug)).size, 7)
+assert.equal(ZUZU_PROJECTS.length, 8)
+assert.equal(new Set(ZUZU_PROJECTS.map((entry) => entry.slug)).size, 8)
 for (const slug of [
   'comic-creator',
   'music-video',
   'comic-film',
   'zuzu-lair',
   'zuzu-gamebook',
+  'zuzu-shifting-lands',
   'zuzu-showdown',
   'kr-arcade',
 ]) {

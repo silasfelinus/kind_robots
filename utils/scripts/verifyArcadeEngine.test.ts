@@ -1978,7 +1978,16 @@ async function runPinball3d() {
   const hall = ARCADE_GAMES.find((game) => game.slug === 'kind-pinball')!
   assert.equal(hall.renderMode, 'webgl', 'the hall plays the 3D table')
   assert.equal(findArcadeGame('kind-pinball'), hall)
-  assert.equal(PREVIEW_GAMES.length, 0, 'no preview cabinet is left')
+  assert.deepEqual(
+    PREVIEW_GAMES.map((game) => game.slug),
+    ['zuzu-pinball'],
+    'the only preview cabinet is Zuzu and it is not in the public hall',
+  )
+  assert.equal(
+    isPlausibleScore('zuzu-pinball', 100_000),
+    false,
+    'an unlisted admin preview never posts public leaderboard scores',
+  )
   assert.equal(findArcadeGame('kind-pinball-3d'), undefined)
   assert.ok(isPlausibleScore('kind-pinball', 60_000_000), 'a 3D-sized score')
   assert.equal(isPlausibleScore('kind-pinball', 200_000_000), false)

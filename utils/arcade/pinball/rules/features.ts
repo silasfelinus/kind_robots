@@ -326,7 +326,11 @@ function addBalls(
   effects.push({ type: 'add-ball', count })
 }
 
-/** The lock: lit by the A-M-I bank; the third lock starts AMI multiball. */
+/**
+ * The lock, the Care Package Depot (t-031): lit by the A-M-I bank, each ball
+ * it collects is packed as a care package, and the last one needed starts
+ * AMI multiball as the packages go out to the village.
+ */
 function lock(
   state: PinballRulesState,
   tick: number,
@@ -352,8 +356,8 @@ function lock(
       { type: 'sound', name: 'lock' },
       {
         type: 'dmd',
-        text: `LOCK ${locks}`,
-        sub: `MULTIBALL IN ${needed - locks}`,
+        text: `PACKAGE ${locks}`,
+        sub: `${needed - locks} MORE TO SEND`,
         ms: 2000,
         scene: 'lock',
       },
@@ -369,7 +373,13 @@ function lock(
   addBalls(state, MULTIBALL_ADDS, tick, effects)
   effects.push(
     { type: 'sound', name: 'multiball' },
-    { type: 'dmd', text: 'AMI MULTIBALL', ms: 2500, scene: 'multiball' },
+    {
+      type: 'dmd',
+      text: 'AMI MULTIBALL',
+      sub: 'CARE PACKAGES OUT',
+      ms: 2500,
+      scene: 'multiball',
+    },
   )
   return true
 }

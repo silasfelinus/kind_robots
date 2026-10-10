@@ -15,6 +15,10 @@
 //   antenna turns when the lock is lit, and the head flashes through
 //   multiball.
 //
+//   The Care Package Depot (t-031): the post house over the lock. A packed
+//   parcel waits on it for each ball locked; the lock that starts multiball
+//   sends them all out to the village huts.
+//
 //   The net drone: it carries a net for each N-E-T target hit in the hidden
 //   room's NET RUN. Bringing all three home sends it on a delivery flight to
 //   the village (an event the runtime raises: see deliveries()); it circles
@@ -22,7 +26,11 @@
 //   its perch.
 
 import type { PinballRulesState } from './engine'
-import { WIZARD_AT } from './village'
+import {
+  FIRST_MULTIBALL_LOCKS,
+  LOCKS_FOR_MULTIBALL,
+  WIZARD_AT,
+} from './village'
 
 export type HutLevel = 'dark' | 'visited' | 'saved' | 'playing' | 'wizard'
 
@@ -41,6 +49,14 @@ export type ToyPose = {
     /** Nets it is carrying (0..3). */
     nets: number
     mode: 'perch' | 'circle'
+  }
+  depot: {
+    /** Care packages packed and waiting (one per ball locked). */
+    packed: number
+    /** How many packages fill the depot and start multiball. */
+    needed: number
+    /** Multiball is on: the packages have gone out. */
+    sending: boolean
   }
 }
 
@@ -73,6 +89,12 @@ export function toyPose(state: PinballRulesState): ToyPose {
     drone: {
       nets: Math.min(3, state.sub.nets.length),
       mode: play.multiball.running || play.wizard.running ? 'circle' : 'perch',
+    },
+    depot: {
+      packed: play.locks,
+      needed:
+        play.multiballs === 0 ? FIRST_MULTIBALL_LOCKS : LOCKS_FOR_MULTIBALL,
+      sending: play.multiball.running,
     },
   }
 }

@@ -31,6 +31,7 @@ import {
   type ArcadeState,
 } from '../arcade/machine'
 import { isAllowedInitials, normalizeInitials } from '../arcade/initials'
+import { INK, RAMPS, mix, pixelSprite } from '../arcade/snes'
 import {
   ARCADE_GAMES,
   COMING_SOON,
@@ -2178,6 +2179,31 @@ async function runQuiltInvariant() {
 
 await runGames()
 await runQuiltInvariant()
+
+/** The 16-bit style kit: sprites gain an ink outline, colours snap to 15-bit. */
+function runSnesKit() {
+  const dot = pixelSprite(['a'], { a: '#ff0000' })
+  assert.equal(dot.width, 3, 'an outlined sprite grows a pixel each way')
+  assert.equal(dot.height, 3)
+  assert.equal(dot.pixels[4], '#ff0000')
+  assert.equal(dot.pixels[1], INK, 'a side neighbour is outline')
+  assert.equal(dot.pixels[0], null, 'corners stay clear')
+  const bare = pixelSprite(
+    ['ab'],
+    { a: '#000000', b: '#ffffff' },
+    { outline: null },
+  )
+  assert.equal(bare.width, 2)
+  assert.throws(() => pixelSprite(['z'], {}), /no colour/)
+  for (const ramp of Object.values(RAMPS)) assert.equal(ramp.length, 5)
+  const [r, g, b] = [1, 3, 5].map((i) =>
+    parseInt(mix('#000000', '#ffffff', 0.37).slice(i, i + 2), 16),
+  )
+  for (const channel of [r, g, b])
+    assert.equal(channel! % 8, 0, '15-bit colour')
+}
+
+runSnesKit()
 
 /** Lantern Swarm: a rescued lantern docks as a twin, or waits as a spare. */
 function runPinballAudio() {

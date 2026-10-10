@@ -25,7 +25,22 @@ export type ScenePlate = {
   fit: 'exact' | 'stand-in'
   /** CSS object-position for the 4:3 phone crop of a 16:9 plate. */
   focus?: string
+  /**
+   * The render's shape: 'wide' 1344x768 (the default), 'tall' 896x1152 or 'square' 1024x1024. Silas, 2026-10-10:
+   * "some are shown horizontally and some vertically, left right top bottom, for variety" — see plateLayout().
+   */
+  shape?: PlateShape
 }
+
+export type PlateShape = 'wide' | 'tall' | 'square'
+export type PlateLayout = 'top' | 'bottom' | 'left' | 'right'
+
+export const PLATE_SIZE: Record<PlateShape, { width: number; height: number }> =
+  {
+    wide: { width: 1344, height: 768 },
+    tall: { width: 896, height: 1152 },
+    square: { width: 1024, height: 1024 },
+  }
 
 const MV = 'Zuzu intro music video keyframe'
 
@@ -250,6 +265,132 @@ export const PLATES: Record<string, ScenePlate> = {
     source: 'Gamebook round 3, gb3-zuzu-shadow-1',
     fit: 'exact',
   },
+  'gun-shallows': {
+    file: 'waterhole',
+    alt: 'Zuzu, a short grey koala in a rust-brown poncho, wide straw kasa and orange sash, stands at the edge of a still desert watering hole at dusk, his katana hilt over his shoulder.',
+    artImageId: 242684,
+    source: 'Stand-in (waterhole) until art round 4 renders this plate',
+    fit: 'stand-in',
+  },
+  'croc-eggs': {
+    file: 'ripples',
+    alt: 'Zuzu stands in the shallows of a pale blue desert pool, ripples spreading around his feet, dunes and bare mountains behind him.',
+    artImageId: 242683,
+    source: 'Stand-in (ripples) until art round 4 renders this plate',
+    fit: 'stand-in',
+  },
+  'bowl-bones': {
+    file: 'ripples',
+    alt: 'Zuzu stands in the shallows of a pale blue desert pool, ripples spreading around his feet, dunes and bare mountains behind him.',
+    artImageId: 242683,
+    source: 'Stand-in (ripples) until art round 4 renders this plate',
+    fit: 'stand-in',
+  },
+  'dying-badger': {
+    file: 'hb-store',
+    alt: 'The looted timber interior of a frontier store: empty shelves, slumped flour sacks, scattered tins and a hook hanging from the beams.',
+    artImageId: 243416,
+    source: 'Stand-in (hb-store) until art round 4 renders this plate',
+    fit: 'stand-in',
+  },
+  looter: {
+    file: 'hollow-bell',
+    alt: 'Zuzu stands small in the middle of a burning frontier street, flames along both boardwalks and a wooden bell tower black against the smoke.',
+    artImageId: 242696,
+    source: 'Stand-in (hollow-bell) until art round 4 renders this plate',
+    fit: 'stand-in',
+  },
+  'candle-wax': {
+    file: 'hb-store',
+    alt: 'The looted timber interior of a frontier store: empty shelves, slumped flour sacks, scattered tins and a hook hanging from the beams.',
+    artImageId: 243416,
+    source: 'Stand-in (hb-store) until art round 4 renders this plate',
+    fit: 'stand-in',
+  },
+  'bell-view': {
+    file: 'hollow-bell',
+    alt: 'Zuzu stands small in the middle of a burning frontier street, flames along both boardwalks and a wooden bell tower black against the smoke.',
+    artImageId: 242696,
+    source: 'Stand-in (hollow-bell) until art round 4 renders this plate',
+    fit: 'stand-in',
+  },
+  'stolen-bread': {
+    file: 'zuzu-fire',
+    alt: 'Zuzu sits cross-legged beside a crackling campfire at night, poncho drawn around him, the katana hilt over his shoulder.',
+    artImageId: 243349,
+    source: 'Stand-in (zuzu-fire) until art round 4 renders this plate',
+    fit: 'stand-in',
+  },
+  fever: {
+    file: 'camp',
+    alt: 'A tiny figure sits by a small campfire in a rocky desert basin under a sky crowded with stars and the milky way.',
+    artImageId: 243339,
+    source: 'Stand-in (camp) until art round 4 renders this plate',
+    fit: 'stand-in',
+  },
+  'apples-sister': {
+    file: 'apple-tree',
+    alt: 'A lone red-leafed apple tree glows against the setting sun on a desert ridge, a small fox standing beneath it.',
+    artImageId: 242569,
+    source: 'Stand-in (apple-tree) until art round 4 renders this plate',
+    fit: 'stand-in',
+  },
+  'stone-face': {
+    file: 'bone-valley',
+    alt: 'A cracked dry riverbed winds between grey hills, a large bleached skull half buried in the foreground.',
+    artImageId: 243345,
+    source: 'Stand-in (bone-valley) until art round 4 renders this plate',
+    fit: 'stand-in',
+  },
+  'dry-well': {
+    file: 'dust-road',
+    alt: 'A lone twisted tree on a ridge above a winding desert road at dawn, a tiny traveller far below on the trail.',
+    artImageId: 242562,
+    source: 'Stand-in (dust-road) until art round 4 renders this plate',
+    fit: 'stand-in',
+  },
+  'raider-kits': {
+    file: 'canyon',
+    alt: 'A sagging rope bridge spans a deep red canyon at dusk, tiny travellers at either end of it.',
+    artImageId: 243341,
+    source: 'Stand-in (canyon) until art round 4 renders this plate',
+    fit: 'stand-in',
+  },
+  peddler: {
+    file: 'wagon',
+    alt: 'An abandoned covered wagon with shredded canvas stands on the trail at dusk, a vulture perched on top.',
+    artImageId: 243348,
+    source: 'Stand-in (wagon) until art round 4 renders this plate',
+    fit: 'stand-in',
+  },
+  'crow-witch': {
+    file: 'dust-road',
+    alt: 'A lone twisted tree on a ridge above a winding desert road at dawn, a tiny traveller far below on the trail.',
+    artImageId: 242562,
+    source: 'Stand-in (dust-road) until art round 4 renders this plate',
+    fit: 'stand-in',
+  },
+  'storm-shrine': {
+    file: 'bone-valley',
+    alt: 'A cracked dry riverbed winds between grey hills, a large bleached skull half buried in the foreground.',
+    artImageId: 243345,
+    source: 'Stand-in (bone-valley) until art round 4 renders this plate',
+    fit: 'stand-in',
+  },
+  'desert-bloom': {
+    file: 'apple-tree',
+    alt: 'A lone red-leafed apple tree glows against the setting sun on a desert ridge, a small fox standing beneath it.',
+    artImageId: 242569,
+    source: 'Stand-in (apple-tree) until art round 4 renders this plate',
+    fit: 'stand-in',
+  },
+  'hb-noon': {
+    file: 'hb-noon',
+    alt: 'The empty main street of a timber frontier town at noon, doors hanging open, a tall bell tower at the far end.',
+    artImageId: 243412,
+    source: 'Gamebook round 3, gb3-hb-noon-1',
+    fit: 'exact',
+  },
   'zuzu-moon': {
     file: 'zuzu-moon',
     alt: 'Zuzu stands alone on a dusty rise against a pale full moon, poncho over his sash, his katana slung across his back.',
@@ -293,6 +434,111 @@ export const PLATES: Record<string, ScenePlate> = {
     source: 'Gamebook round 1, gb-ending-altar-1',
     fit: 'exact',
   },
+  wren: {
+    file: 'chapel',
+    alt: 'A plain chapel washed in pale light from tall windows, a bell rope hanging over an altar where something stands shrouded in white cloth.',
+    artImageId: 243317,
+    source: 'Stand-in (chapel) until art round 5 renders this plate',
+    fit: 'stand-in',
+  },
+  'rabbit-kit': {
+    file: 'empty-cot',
+    alt: 'A ragged stitched cloth doll with button eyes lies on the pillow of a neatly made cot.',
+    artImageId: 243322,
+    source: 'Stand-in (empty-cot) until art round 5 renders this plate',
+    fit: 'stand-in',
+  },
+  'pilgrim-wagon': {
+    file: 'wagon',
+    alt: 'An abandoned covered wagon with shredded canvas stands on the trail at dusk, a vulture perched on top.',
+    artImageId: 243348,
+    source: 'Stand-in (wagon) until art round 5 renders this plate',
+    fit: 'stand-in',
+  },
+  'the-dream': {
+    file: 'zuzu-moon',
+    alt: 'Zuzu stands alone on a dusty rise against a pale full moon, poncho over his sash, his katana slung across his back.',
+    artImageId: 242587,
+    source: 'Stand-in (zuzu-moon) until art round 5 renders this plate',
+    fit: 'stand-in',
+  },
+  'mags-bar': {
+    file: 'posters-boardwalk',
+    alt: 'A dark covered boardwalk stretches away under a single hanging lantern, its plank walls pinned with old yellowed paper notices.',
+    artImageId: 243327,
+    source: 'Stand-in (posters-boardwalk) until art round 5 renders this plate',
+    fit: 'stand-in',
+  },
+  'baron-office': {
+    file: 'shuttered-town',
+    alt: 'Zuzu steps out of a lantern-lit timber doorway into the night, kasa low over his eyes, poncho and orange sash, the katana hilt over his right shoulder.',
+    artImageId: 243296,
+    source: 'Stand-in (shuttered-town) until art round 5 renders this plate',
+    fit: 'stand-in',
+  },
+  'torch-mob': {
+    file: 'hollow-bell',
+    alt: 'Zuzu stands small in the middle of a burning frontier street, flames along both boardwalks and a wooden bell tower black against the smoke.',
+    artImageId: 242696,
+    source: 'Stand-in (hollow-bell) until art round 5 renders this plate',
+    fit: 'stand-in',
+  },
+  'bounty-badger': {
+    file: 'dust-road',
+    alt: 'A lone twisted tree on a ridge above a winding desert road at dawn, a tiny traveller far below on the trail.',
+    artImageId: 242562,
+    source: 'Stand-in (dust-road) until art round 5 renders this plate',
+    fit: 'stand-in',
+  },
+  'shifting-road': {
+    file: 'three-road',
+    alt: 'Three silhouettes walk toward a huge orange sun down a long desert road: Zuzu under his wide hat between two big-eared fennec foxes.',
+    artImageId: 242575,
+    source: 'Stand-in (three-road) until art round 5 renders this plate',
+    fit: 'stand-in',
+  },
+  'mob-fire-gate': {
+    file: 'mission',
+    alt: 'The abbess, a round-faced otter nun in a black habit, stands with folded paws at the open iron gate of an adobe mission, a cobwebbed merry-go-round lit in the yard behind her.',
+    artImageId: 242738,
+    source: 'Stand-in (mission) until art round 5 renders this plate',
+    fit: 'stand-in',
+  },
+  'cellar-cells': {
+    file: 'locked-door',
+    alt: 'A dark timber corridor lit by one wall candle, a heavy door standing ajar onto blackness where two small eyes glint.',
+    artImageId: 243319,
+    source: 'Stand-in (locked-door) until art round 5 renders this plate',
+    fit: 'stand-in',
+  },
+  'abbess-knife': {
+    file: 'abbess-crypt',
+    alt: 'The otter abbess stands in a candlelit stone crypt before a bare altar, a small curved dagger in her paw, a huge violet shadow with tentacles rising on the wall behind her.',
+    artImageId: 243304,
+    source: 'Stand-in (abbess-crypt) until art round 5 renders this plate',
+    fit: 'stand-in',
+  },
+  'nuns-kneel': {
+    file: 'refectory',
+    alt: 'A long dim timber hall lit by wall candles, a single table at its far end set with bowls.',
+    artImageId: 243311,
+    source: 'Stand-in (refectory) until art round 5 renders this plate',
+    fit: 'stand-in',
+  },
+  'children-leaving': {
+    file: 'empty-gate',
+    alt: 'An empty adobe archway at grey dawn, its iron gate hanging open, a small bronze bell dangling from a rope that no one holds.',
+    artImageId: 243299,
+    source: 'Stand-in (empty-gate) until art round 5 renders this plate',
+    fit: 'stand-in',
+  },
+  'bell-dawn': {
+    file: 'bell-tower',
+    alt: 'A bell hangs on its rope under a timber canopy, the desert stretching away at dusk beyond the beams.',
+    artImageId: 243328,
+    source: 'Stand-in (bell-tower) until art round 5 renders this plate',
+    fit: 'stand-in',
+  },
 }
 
 export function platePath(plate: ScenePlate): string {
@@ -304,4 +550,24 @@ export function plate(key: string): ScenePlate {
   const found = PLATES[key]
   if (!found) throw new Error('Unknown gamebook plate: ' + key)
   return found
+}
+
+/**
+ * The plate a section shows: its own render when one is keyed by the section id (one plate per section,
+ * conductor zuzu-gamebook art rounds 6+), else the shared plate its `art` key names.
+ */
+export function sectionPlate(node: { id: string; art: string }): ScenePlate {
+  return PLATES[node.id] ?? plate(node.art)
+}
+
+/**
+ * Where the plate sits beside the text. Wide plates go above or below it, tall and square ones to its left or
+ * right; the side is a stable pick from the section id, so a section always looks the same but neighbours vary.
+ */
+export function plateLayout(sectionId: string, art: ScenePlate): PlateLayout {
+  let hash = 0
+  for (const ch of sectionId) hash = (hash * 31 + ch.charCodeAt(0)) >>> 0
+  const flip = (hash >>> 3) % 2 === 1
+  if ((art.shape ?? 'wide') === 'wide') return flip ? 'bottom' : 'top'
+  return flip ? 'right' : 'left'
 }

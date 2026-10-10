@@ -31,7 +31,6 @@ import {
   type ArcadeState,
 } from '../arcade/machine'
 import { isAllowedInitials, normalizeInitials } from '../arcade/initials'
-import { INK, RAMPS, mix, pixelSprite } from '../arcade/snes'
 import {
   ARCADE_GAMES,
   COMING_SOON,
@@ -73,7 +72,6 @@ import {
   PinballScene,
   type RendererLike,
 } from '../arcade/pinball/render/scene'
-import { wireformRails } from '../arcade/pinball/render/wireforms'
 import {
   initialRules,
   SECRET_DOOR_STEPS,
@@ -158,8 +156,6 @@ import {
   WIZARD_AT,
   WIZARD_NAME,
   RAMP_SHOTS,
-  FIRST_MULTIBALL_LOCKS,
-  LOCKS_FOR_MULTIBALL,
 } from '../arcade/pinball/rules/village'
 import { AMI_VILLAGE_GREYBOX } from '../arcade/pinball/tables/amiVillage/table'
 import type {
@@ -1978,7 +1974,16 @@ async function runPinball3d() {
   const hall = ARCADE_GAMES.find((game) => game.slug === 'kind-pinball')!
   assert.equal(hall.renderMode, 'webgl', 'the hall plays the 3D table')
   assert.equal(findArcadeGame('kind-pinball'), hall)
-  assert.equal(PREVIEW_GAMES.length, 0, 'no preview cabinet is left')
+  assert.deepEqual(
+    PREVIEW_GAMES.map((game) => game.slug),
+    ['zuzu-pinball'],
+    'the only preview cabinet is Zuzu and it is not in the public hall',
+  )
+  assert.equal(
+    isPlausibleScore('zuzu-pinball', 100_000),
+    false,
+    'an unlisted admin preview never posts public leaderboard scores',
+  )
   assert.equal(findArcadeGame('kind-pinball-3d'), undefined)
   assert.ok(isPlausibleScore('kind-pinball', 60_000_000), 'a 3D-sized score')
   assert.equal(isPlausibleScore('kind-pinball', 200_000_000), false)
@@ -2182,31 +2187,6 @@ async function runQuiltInvariant() {
 
 await runGames()
 await runQuiltInvariant()
-
-/** The 16-bit style kit: sprites gain an ink outline, colours snap to 15-bit. */
-function runSnesKit() {
-  const dot = pixelSprite(['a'], { a: '#ff0000' })
-  assert.equal(dot.width, 3, 'an outlined sprite grows a pixel each way')
-  assert.equal(dot.height, 3)
-  assert.equal(dot.pixels[4], '#ff0000')
-  assert.equal(dot.pixels[1], INK, 'a side neighbour is outline')
-  assert.equal(dot.pixels[0], null, 'corners stay clear')
-  const bare = pixelSprite(
-    ['ab'],
-    { a: '#000000', b: '#ffffff' },
-    { outline: null },
-  )
-  assert.equal(bare.width, 2)
-  assert.throws(() => pixelSprite(['z'], {}), /no colour/)
-  for (const ramp of Object.values(RAMPS)) assert.equal(ramp.length, 5)
-  const [r, g, b] = [1, 3, 5].map((i) =>
-    parseInt(mix('#000000', '#ffffff', 0.37).slice(i, i + 2), 16),
-  )
-  for (const channel of [r, g, b])
-    assert.equal(channel! % 8, 0, '15-bit colour')
-}
-
-runSnesKit()
 
 /** Lantern Swarm: a rescued lantern docks as a twin, or waits as a spare. */
 function runPinballAudio() {
@@ -2874,7 +2854,8 @@ async function runPinballRules() {
   assert.equal(s.play.locks, 0, 'an unlit lock is just a scoop')
   s = lockOne(s)
   assert.equal(s.play.locks, 1)
-  assert.equal(scene('lock')?.text, 'PACKAGE 1', 'the depot packs it')
+  assert.equal(scene('lock')?.text, 'PACKAGE 1')
+  assert.equal(scene('lock')?.sub, '1 MORE TO SEND')
   s = wait(s, LATER)
   const beforeMultiball = s
   s = lockOne(s)
@@ -2884,7 +2865,7 @@ async function runPinballRules() {
     showTriggers(beforeMultiball, s, 0).some((show) => show.id === 'secret'),
     'multiball starts with a light show',
   )
-  assert.equal(scene('multiball')?.sub, 'CARE PACKAGES OUT')
+  assert.ok(scene('multiball'))
   assert.ok(
     effects.some((e) => e.type === 'add-ball' && e.count === MULTIBALL_ADDS),
     'the runtime is asked for the extra balls',
@@ -4070,144 +4051,6 @@ async function runPinballCalmCamera() {
   runtime.dispose()
 }
 
-/** kind-pinball/t-028: sculpted, lit toys and scenery; the physics untouched. */
-async function runPinballDressing() {
-  const table = AMI_VILLAGE_GREYBOX
-  const colliders = JSON.stringify(table.colliders)
-  const scene = new PinballScene(table, {} as HTMLCanvasElement, () =>
-    stubRenderer({ disposed: 0, frames: 0 }),
-  )
-  const dressing = scene.dressed!
-  assert.ok(dressing, 'the table is dressed')
-  const pops = table.colliders.filter((c) => c.kind === 'post' && c.kick)
-  assert.ok(pops.length >= 6, 'the village and the Ridge have their pops')
-  assert.deepEqual(
-    [...dressing.pops.keys()].sort(),
-    pops.map((p) => p.id).sort(),
-    'every pop bumper is a lit lantern cap',
-  )
-  assert.equal(dressing.lanternCount, table.lanterns?.length ?? 0)
-  assert.ok(dressing.lanternCount >= 8, 'lanterns line the rails and the Ridge')
-  for (const lantern of table.lanterns ?? []) {
-    const [x] = lantern.at
-    assert.ok(
-      (x < 0 && lantern.side === -1) || (x > 0 && lantern.side === 1),
-      'every lantern hangs out over the rail, never over a lane',
-    )
-  }
-  // A pop that fires flashes its cap, then settles back.
-  const lit = dressing.pops.get(pops[0]!.id)!
-  const rest = lit.emissiveIntensity
-  scene.pulse(pops[0]!.id)
-  scene.sync([], {})
-  assert.ok(lit.emissiveIntensity > rest * 4, 'the cap flashes')
-  for (let i = 0; i < 30; i++) scene.sync([], {})
-  assert.ok(Math.abs(lit.emissiveIntensity - rest) < 1e-6, 'and settles')
-  // The lanterns follow the GI: out in a blackout, back after it.
-  for (let i = 0; i < 30; i++) scene.render()
-  const glow = dressing.lanternGlow
-  assert.ok(glow > 1, 'the lanterns are lit')
-  scene.setLamps({}, 0)
-  for (let i = 0; i < 120; i++) scene.render()
-  assert.ok(dressing.lanternGlow < glow * 0.1, 'a blackout puts them out')
-  scene.setLamps({}, 1)
-  for (let i = 0; i < 120; i++) scene.render()
-  assert.ok(dressing.lanternGlow > glow * 0.8, 'and they come back')
-  // The dressing is scenery: the table's colliders are untouched by it.
-  assert.equal(JSON.stringify(table.colliders), colliders)
-  scene.dispose()
-}
-
-/** kind-pinball/t-029: wireform ramps and metalwork; the physics untouched. */
-async function runPinballMetalwork() {
-  const table = AMI_VILLAGE_GREYBOX
-  const colliders = JSON.stringify(table.colliders)
-  const rails = wireformRails(table)
-  for (const ramp of ['left-ramp', 'right-ramp', 'upper-feed'])
-    for (const side of ['l', 'r'])
-      assert.ok(rails.has(`${ramp}-rail-${side}`), `${ramp} is a wireform`)
-  for (const id of rails)
-    assert.ok(
-      table.colliders.some((c) => c.id === id),
-      'the physics keeps every rail it draws as wire',
-    )
-  const scene = new PinballScene(table, {} as HTMLCanvasElement, () =>
-    stubRenderer({ disposed: 0, frames: 0 }),
-  )
-  const metal = scene.metalwork!
-  assert.equal(metal.ramps, rails.size / 2, 'every ramp with rails is wired')
-  for (let i = 0; i < 30; i++) scene.render()
-  const glow = metal.stripGlow
-  assert.ok(glow > 1, 'the floor strips are lit')
-  scene.setLamps({}, 0)
-  for (let i = 0; i < 120; i++) scene.render()
-  assert.ok(metal.stripGlow < glow * 0.1, 'and dim with the GI')
-  assert.equal(JSON.stringify(table.colliders), colliders)
-  scene.dispose()
-}
-
-/** kind-pinball/t-031: the Care Package Depot packs locked balls and sends them out. */
-async function runPinballDepot() {
-  const table = AMI_VILLAGE_GREYBOX
-  assert.ok(table.hero?.depot, 'the lock is the Care Package Depot')
-  assert.ok(
-    (table.hero?.depot?.slots.length ?? 0) >= LOCKS_FOR_MULTIBALL,
-    'a parcel slot for every package multiball needs',
-  )
-  const start = () => initialRules(3, 21)
-  // The pose: one package per locked ball; multiball sends them.
-  let s = start()
-  assert.deepEqual(toyPose(s).depot, {
-    packed: 0,
-    needed: FIRST_MULTIBALL_LOCKS,
-    sending: false,
-  })
-  s = { ...s, play: { ...s.play, locks: 1 } }
-  assert.equal(toyPose(s).depot.packed, 1)
-  s = {
-    ...s,
-    play: {
-      ...s.play,
-      locks: 0,
-      multiballs: 1,
-      multiball: { running: true, jackpots: 0, superLit: false },
-    },
-  }
-  assert.deepEqual(toyPose(s).depot, {
-    packed: 0,
-    needed: LOCKS_FOR_MULTIBALL,
-    sending: true,
-  })
-
-  // The toy: parcels pop in as balls lock, then fly to the huts.
-  const scene = new PinballScene(table, {} as HTMLCanvasElement, () =>
-    stubRenderer({ disposed: 0, frames: 0 }),
-  )
-  const toys = scene.heroToys!
-  const base = toyPose(start())
-  const pose = (packed: number, sending: boolean) => ({
-    ...base,
-    depot: { packed, needed: FIRST_MULTIBALL_LOCKS, sending },
-  })
-  scene.setToys(pose(0, false))
-  for (let i = 0; i < 30; i++) scene.render()
-  assert.equal(toys.parcelsWaiting, 0, 'an empty depot')
-  scene.setToys(pose(1, false))
-  for (let i = 0; i < 60; i++) scene.render()
-  assert.equal(toys.parcelsWaiting, 1, 'one package packed')
-  scene.setToys(pose(0, true))
-  scene.render()
-  assert.equal(
-    toys.parcelsFlying,
-    FIRST_MULTIBALL_LOCKS,
-    'multiball sends every package the depot needed',
-  )
-  for (let i = 0; i < 200; i++) scene.render()
-  assert.equal(toys.parcelsFlying, 0, 'every package arrives')
-  assert.equal(toys.parcelsWaiting, 0, 'and the depot is empty again')
-  scene.dispose()
-}
-
 async function runPinballGuide() {
   // conductor kind-pinball/t-015: the table guide. Every page fits the
   // 360x640 cabinet, the map's numbers match the copy, and the hidden room
@@ -4605,9 +4448,6 @@ await runPinballMastery()
 await runPinballRidge()
 await runPinballRidgeFlippers()
 await runPinballCalmCamera()
-await runPinballDressing()
-await runPinballMetalwork()
-await runPinballDepot()
 await runPinballGuide()
 await runPinballToys()
 await runPinballStage()

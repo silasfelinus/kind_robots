@@ -106,14 +106,18 @@
 import { computed } from 'vue'
 import { useRoute } from 'vue-router'
 import { useArcadeStore } from '@/stores/arcadeStore'
-import { findArcadeGame } from '~/utils/arcade/games'
+import { ARCADE_GAMES, findArcadeGame } from '~/utils/arcade/games'
 
 const route = useRoute()
 const store = useArcadeStore()
 const slug = computed(() =>
   typeof route.query.game === 'string' ? route.query.game : '',
 )
-const meta = computed(() => findArcadeGame(slug.value))
+const meta = computed(() =>
+  ARCADE_GAMES.some((game) => game.slug === slug.value)
+    ? findArcadeGame(slug.value)
+    : undefined,
+)
 
 const ranges = [
   { key: 'today' as const, label: "Today's best · worldwide" },

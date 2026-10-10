@@ -266,7 +266,11 @@ import {
   type DisplayFit,
   type RenderStyle,
 } from '~/utils/arcade/display'
-import { findArcadeGame, loadArcadeGame } from '~/utils/arcade/games'
+import {
+  ARCADE_GAMES,
+  findArcadeGame,
+  loadArcadeGame,
+} from '~/utils/arcade/games'
 import {
   ArcadeInput,
   assignPads,
@@ -967,7 +971,9 @@ function tick() {
       if (game.mastered?.length) store.recordMastery(props.slug, game.mastered)
       lastScore = game.score
       lastLevel = game.level
-      qualifies = qualifiesForBoard(lastScore, board.value)
+      qualifies =
+        ARCADE_GAMES.some((entry) => entry.slug === props.slug) &&
+        qualifiesForBoard(lastScore, board.value)
       emit('scored', lastScore)
       dispatch({ type: 'gameOver' })
     }

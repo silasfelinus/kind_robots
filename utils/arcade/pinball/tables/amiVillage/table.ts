@@ -1282,9 +1282,15 @@ export const AMI_VILLAGE_GREYBOX: TableDef = {
       ],
     },
     playfield: {
-      src: '/images/pinball/ami-village-playfield.webp',
+      src: '/images/pinball/ami-village-playfield-painted.webp',
       min: [LEFT_X - 0.02, TOP_Z - 0.05],
       max: [RIGHT_X + 0.02, BOTTOM_Z + 0.05],
+    },
+    // The Ridge's floor, up to where the main field's art begins.
+    ridge: {
+      src: '/images/pinball/ami-village-ridge-painted.webp',
+      min: [LEFT_X - 0.02, UPPER_TOP_Z - 0.06],
+      max: [RIGHT_X + 0.02, TOP_Z - 0.05],
     },
   },
   trim: [

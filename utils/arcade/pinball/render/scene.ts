@@ -51,6 +51,7 @@ import {
   insertShape,
   MATERIALS,
   paintPlayfield,
+  type ArtImages,
   planarUVs,
 } from './materials'
 import { createPostChain, type PostChain } from './post'
@@ -590,7 +591,8 @@ export class PinballScene {
   private paintPlayfield() {
     if (!this.gl) return
     const bounds = artBounds(this.table)
-    const canvas = paintPlayfield(this.table, bounds)
+    const maxSize = Math.min(4096, this.gl.capabilities.maxTextureSize)
+    const canvas = paintPlayfield(this.table, bounds, {}, maxSize)
     if (!canvas) return
     const art = this.track(new THREE.CanvasTexture(canvas))
     art.colorSpace = THREE.SRGBColorSpace
@@ -598,19 +600,24 @@ export class PinballScene {
     const playfield = this.material('playfield')
     playfield.map = art
     playfield.color.set(0xffffff)
-    const src = this.table.art?.playfield?.src
-    if (!src || typeof Image === 'undefined') return
-    const image = new Image()
-    image.decoding = 'async'
-    image.onload = () => {
-      if (this.disposed) return
-      const painted = paintPlayfield(this.table, bounds, image)
-      if (!painted) return
-      art.image = painted
-      art.needsUpdate = true
-      this.albedoLoaded = true
+    if (typeof Image === 'undefined') return
+    const images: ArtImages = {}
+    for (const key of ['playfield', 'ridge'] as const) {
+      const src = this.table.art?.[key]?.src
+      if (!src) continue
+      const image = new Image()
+      image.decoding = 'async'
+      image.onload = () => {
+        if (this.disposed) return
+        images[key] = image
+        const painted = paintPlayfield(this.table, bounds, images, maxSize)
+        if (!painted) return
+        art.image = painted
+        art.needsUpdate = true
+        if (key === 'playfield') this.albedoLoaded = true
+      }
+      image.src = src
     }
-    image.src = src
   }
 
   /** The generated playfield art has loaded and is on the table. */

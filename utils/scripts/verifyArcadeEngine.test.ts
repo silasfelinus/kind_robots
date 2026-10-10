@@ -73,6 +73,7 @@ import {
   PinballScene,
   type RendererLike,
 } from '../arcade/pinball/render/scene'
+import { artBounds, artScale } from '../arcade/pinball/render/materials'
 import { wireformRails } from '../arcade/pinball/render/wireforms'
 import {
   initialRules,
@@ -2553,6 +2554,39 @@ async function runPinballRender() {
         'art rectangle = playfield',
       )
   }
+  // The Ridge has its own painted art (t-027), over its floor, meeting the
+  // main field's art where the arch begins.
+  const ridgeArt = table.art?.ridge
+  const ridgeFloor = table.colliders.find((c) => c.id === 'ridge-floor')
+  assert.ok(ridgeArt && ridgeFloor && ridgeFloor.kind === 'box' && art)
+  if (ridgeArt && ridgeFloor && ridgeFloor.kind === 'box' && art) {
+    assert.ok(ridgeArt.src.startsWith('/images/'))
+    assert.ok(
+      Math.abs(ridgeArt.min[1] - (ridgeFloor.at[2] - ridgeFloor.half[2])) <
+        1e-9,
+      'the Ridge art starts at the top of its floor',
+    )
+    assert.ok(
+      Math.abs(ridgeArt.max[1] - art.min[1]) < 1e-9,
+      'and meets the main field art',
+    )
+    assert.ok(
+      Math.abs(ridgeArt.min[0] - art.min[0]) < 1e-9 &&
+        Math.abs(ridgeArt.max[0] - art.max[0]) < 1e-9,
+      'as wide as the main field art',
+    )
+  }
+  // The painted canvas stays inside the device's texture limit.
+  const bounds = artBounds(table)
+  for (const maxSize of [2048, 4096, 8192]) {
+    const scale = artScale(bounds, maxSize)
+    const longest = Math.max(bounds.x1 - bounds.x0, bounds.z1 - bounds.z0)
+    assert.ok(longest * scale <= maxSize, `fits a ${maxSize} texture`)
+  }
+  assert.ok(
+    artScale(bounds, 8192) > 1240,
+    'sharper than the old procedural canvas where the device allows',
+  )
 
   // The scene: lamps follow the matrix, pulses and tiers are safe without
   // WebGL, and nothing leaks.

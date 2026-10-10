@@ -77,7 +77,7 @@ export class Room {
     this.buildCabinet(b, front, back, left, right)
     this.backglass = this.buildBackglass(table, b, art.backglass)
     this.buildLegs(pitch, front, back, left, right)
-    this.buildRoom(art.posters ?? [])
+    this.buildRoom(art.posters ?? [], tableToWorld([0, 0, b.z0], pitch).z)
   }
 
   /** A texture loaded from the site's images (none in tests); fit to cover. */
@@ -306,7 +306,7 @@ export class Room {
     }
   }
 
-  private buildRoom(posters: readonly string[]) {
+  private buildRoom(posters: readonly string[], farZ: number) {
     // The floor: dark tiles that take the lamps' pools of light.
     const g = canvas(256, 256)
     let tiles: THREE.Texture | null = null
@@ -384,9 +384,11 @@ export class Room {
     })
 
     // A pendant lamp over each machine, and its pool of light on the floor.
+    // This machine's hangs past the far end of its cabinet, clear of the
+    // view down the table however long the table is.
     const pool = this.lightPool()
     for (const x of [0, ...NEIGHBOURS.map((n) => n.x)]) {
-      const z = x === 0 ? -0.45 : NEIGHBOURS.find((n) => n.x === x)!.z
+      const z = x === 0 ? farZ - 0.25 : NEIGHBOURS.find((n) => n.x === x)!.z
       const shade = new THREE.Mesh(
         this.track(new THREE.ConeGeometry(0.16, 0.12, 24, 1, true)),
         this.track(

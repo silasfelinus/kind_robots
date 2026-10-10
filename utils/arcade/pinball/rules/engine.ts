@@ -51,6 +51,13 @@ import {
   type SubTableState,
 } from './subTable'
 import { VALUES } from './village'
+import {
+  initialRidge,
+  reachRidge,
+  ridgeNewBall,
+  ridgeSwitch,
+  type RidgeState,
+} from './ridge'
 
 export type RulesEvent =
   | { type: 'switch'; event: SwitchEvent; tick?: number }
@@ -80,6 +87,8 @@ export type PinballRulesState = {
   dropsDown: Record<string, string[]>
   shotProgress: ShotProgress
   sub: SubTableState
+  /** The Ridge, the upper playfield (rules/ridge.ts). */
+  ridge: RidgeState
   /** The end-of-ball bonus multiplier; the sub-table's reward rides back on it. */
   bonusMultiplier: number
   /** The left outlane kickback will fire. */
@@ -106,6 +115,7 @@ export function initialRules(balls: number, seed = 1): PinballRulesState {
     dropsDown: {},
     shotProgress: initialShotProgress(),
     sub: initialSubTable(),
+    ridge: initialRidge(),
     bonusMultiplier: 1,
     kickbackLit: true,
     tiltWarnings: 0,
@@ -219,6 +229,7 @@ export function stepRules(
       )
     }
     newBall(next)
+    ridgeNewBall(next)
     return {
       state: {
         ...next,
@@ -261,6 +272,8 @@ export function stepRules(
       enterRoom(next, tick, effects)
     } else if (sw.id === 'sub-home' || sw.id === 'sub-drain') {
       leaveRoom(next, sw.id === 'sub-home', tick, effects)
+    } else if (sw.id === 'upper-feed') {
+      reachRidge(next, effects)
     }
     effects.push({ type: 'sound', name: 'scoop' })
     return { state: next, effects }
@@ -296,6 +309,8 @@ export function stepRules(
       plunged(next, tick, effects)
     } else if (NET_TARGETS.includes(sw.id)) {
       netHit(next, sw.id, effects)
+    } else if (ridgeSwitch(next, sw.id, effects)) {
+      // The Ridge's lanes, clouds, pops and gate (rules/ridge.ts).
     } else if (sw.id.startsWith('pop-')) {
       bumper(next)
       effects.push(

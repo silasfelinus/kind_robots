@@ -292,7 +292,8 @@ export function paintPlayfield(
 
   // The map hub: rings and bearings around the pop bumpers.
   const pops = table.colliders.filter(
-    (c): c is PostCollider => c.kind === 'post' && !!c.kick,
+    (c): c is PostCollider =>
+      c.kind === 'post' && !!c.kick && c.id.startsWith('pop-'),
   )
   if (pops.length) {
     const cx = px(pops.reduce((a, c) => a + c.at[0], 0) / pops.length)

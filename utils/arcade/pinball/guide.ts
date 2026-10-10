@@ -112,6 +112,23 @@ export function pinballGuide(
       ],
     },
     {
+      title: 'THE RIDGE',
+      lines: [
+        'THE UPPER FEED (3) LIFTS',
+        'THE BALL TO THE RIDGE,',
+        'PAST THE TOP OF THE ARCH.',
+        '',
+        'S-K-Y LANES: +1X BONUS,',
+        'AND THE SAUCER RELIT.',
+        'ALL 3 CLOUDS: KICKBACK',
+        'RELIT, OR A CLOUD BURST.',
+        '',
+        'BACK DOWN THROUGH THE GATE',
+        'PAYS A RIDGE RUN FOR EVERY',
+        'HIT UP THERE.',
+      ],
+    },
+    {
       title: 'MORE SCORING',
       lines: [
         'SKILL SHOT: THE PLUNGE',

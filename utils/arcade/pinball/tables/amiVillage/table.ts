@@ -56,6 +56,14 @@ const BALL_R = 0.0135
 const GLASS_Y = 0.12
 /** Where the shooter lane opens onto the arch. */
 const LANE_TOP_Z = -0.57
+/**
+ * The Ridge, the upper playfield (t-022): the table runs on this far past
+ * the arch, so it is longer than one screen. The backbox and the hidden room
+ * stand behind it, moved back by the same distance.
+ */
+const UPPER_DEPTH = 0.42
+const UPPER_TOP_Z = TOP_Z - UPPER_DEPTH
+const BACK = -UPPER_DEPTH
 
 /** The top arch: a half ellipse traced as short wall segments. */
 const ARCH_POINTS: XZ[] = (() => {
@@ -71,11 +79,26 @@ const ARCH_POINTS: XZ[] = (() => {
 })()
 /** Arch segments (numbered from 1 at the left) that form the secret door. */
 const DOOR_SEGMENTS = [4, 5]
+/** ...and the two at its crown, a one-way gate down from the Ridge. */
+const GATE_SEGMENTS = [9, 10]
+const GATE_FROM = ARCH_POINTS[GATE_SEGMENTS[0]! - 1]!
+const GATE_TO = ARCH_POINTS[GATE_SEGMENTS[GATE_SEGMENTS.length - 1]!]!
 
 function arch(): ColliderDef[] {
-  return walls('arch', ARCH_POINTS, { thickness: 0.009 }).filter(
-    (_, i) => !DOOR_SEGMENTS.includes(i + 1),
-  )
+  return [
+    ...walls('arch', ARCH_POINTS, { thickness: 0.009 }).filter(
+      (_, i) =>
+        !DOOR_SEGMENTS.includes(i + 1) && !GATE_SEGMENTS.includes(i + 1),
+    ),
+    // A ball coming down off the Ridge passes; one riding the arch does not.
+    // The gate keeps the arch's own segments, so an orbit runs as before.
+    ...GATE_SEGMENTS.map((n): ColliderDef =>
+      wall(`ridge-gate-${n}`, ARCH_POINTS[n - 1]!, ARCH_POINTS[n]!, {
+        thickness: 0.009,
+        passDir: [0, 0, 1],
+      }),
+    ),
+  ]
 }
 
 // --- The hidden sub-table (conductor kind-pinball/t-011) -----------------
@@ -139,9 +162,9 @@ function secretChamber(): BoxCollider[] {
 /** The room's centre line and its walls (it sits behind the backbox). */
 const ROOM_X = (LEFT_X + RIGHT_X) / 2
 const ROOM_HALF = 0.17
-const ROOM_BOTTOM_Z = -1.06
-const ROOM_TOP_Z = -1.42
-const ROOM_FLIPPER_Z = -1.11
+const ROOM_BOTTOM_Z = -1.06 + BACK
+const ROOM_TOP_Z = -1.42 + BACK
+const ROOM_FLIPPER_Z = -1.11 + BACK
 
 function room(): ColliderDef[] {
   const x = (dx: number) => ROOM_X + dx
@@ -152,20 +175,25 @@ function room(): ColliderDef[] {
       // Inlane guide: down the side, then in over the flipper pivot.
       ...walls(
         `sub-inlane-${name}`,
-        [m([ROOM_HALF, -1.18]), m([0.064, ROOM_FLIPPER_Z - 0.004])],
+        [m([ROOM_HALF, -1.18 + BACK]), m([0.064, ROOM_FLIPPER_Z - 0.004])],
         { material: 'chrome', thickness: 0.004 },
       ),
       // Under the flipper: closes the corner behind the guide.
       wall(
         `sub-apron-${name}`,
         m([0.064, ROOM_FLIPPER_Z - 0.004]),
-        m([0.075, -1.087]),
+        m([0.075, -1.087 + BACK]),
         { material: 'chrome', thickness: 0.004 },
       ),
       // The top corner, cut so a ball cannot sit in it.
-      wall(`sub-corner-${name}`, m([ROOM_HALF, -1.36]), m([0.11, ROOM_TOP_Z]), {
-        material: 'rubber',
-      }),
+      wall(
+        `sub-corner-${name}`,
+        m([ROOM_HALF, -1.36 + BACK]),
+        m([0.11, ROOM_TOP_Z]),
+        {
+          material: 'rubber',
+        },
+      ),
     ]
   }
   return [
@@ -203,9 +231,9 @@ function room(): ColliderDef[] {
     ...walls(
       'sub-drain-vee',
       [
-        [x(-0.075), -1.087],
-        [x(0), -1.062],
-        [x(0.075), -1.087],
+        [x(-0.075), -1.087 + BACK],
+        [x(0), -1.062 + BACK],
+        [x(0.075), -1.087 + BACK],
       ],
       { material: 'chrome', thickness: 0.004 },
     ),
@@ -445,6 +473,95 @@ const HERO: HeroDef = (() => {
   }
 })()
 
+// --- The Ridge, the upper playfield (conductor kind-pinball/t-022) --------
+//
+// The table runs on past the arch to the hilltop above the village. The
+// upper feed's subway brings a ball up through the Ridge's kicker at its far
+// left corner; it rolls across the S-K-Y lanes, through two pop bumpers and
+// past the cloud standups, and the funnel at the foot brings it to the gate
+// in the arch's crown, where it drops back into the village above the pops.
+// The funnel's foot leaves room for the Ridge's own flippers (t-023).
+
+/** Where the funnel walls meet the side rails. */
+const RIDGE_FUNNEL_Z = -1.07
+/** The S-K-Y lanes: their dividers' x, and how far down the Ridge they run. */
+const SKY_DIVIDERS = [-0.16, -0.04, 0.08, 0.2]
+const SKY_TOP_Z = UPPER_TOP_Z + 0.04
+const SKY_BOTTOM_Z = UPPER_TOP_Z + 0.11
+const RIDGE_POPS: Array<{ id: string; at: XZ }> = [
+  { id: 'ridge-pop-left', at: [-0.1, UPPER_TOP_Z + 0.19] },
+  { id: 'ridge-pop-right', at: [0.14, UPPER_TOP_Z + 0.19] },
+  { id: 'ridge-pop-bottom', at: [0.02, UPPER_TOP_Z + 0.26] },
+]
+const RIDGE_ENTRY: XZ = [-0.215, UPPER_TOP_Z + 0.03]
+
+function ridge(): ColliderDef[] {
+  const midZ = (UPPER_TOP_Z + TOP_Z) / 2
+  const halfZ = (TOP_Z - UPPER_TOP_Z) / 2 + 0.03
+  return [
+    {
+      kind: 'box',
+      id: 'ridge-floor',
+      at: [(LEFT_X + RIGHT_X) / 2, -0.01, midZ - 0.03],
+      half: [WIDTH / 2 + 0.02, 0.01, halfZ],
+      material: 'playfield',
+      restitution: 0.2,
+    },
+    {
+      kind: 'box',
+      id: 'ridge-glass',
+      at: [(LEFT_X + RIGHT_X) / 2, GLASS_Y, midZ - 0.03],
+      half: [WIDTH / 2 + 0.02, 0.005, halfZ],
+      material: 'plastic-clear',
+      restitution: 0.1,
+      hidden: true,
+    },
+    ...walls(
+      'ridge-wall',
+      [
+        [LEFT_X, RIDGE_FUNNEL_Z],
+        [LEFT_X, UPPER_TOP_Z],
+        [RIGHT_X, UPPER_TOP_Z],
+        [RIGHT_X, RIDGE_FUNNEL_Z],
+      ],
+      { thickness: 0.012 },
+    ),
+    // The funnel down to the gate: it seals the corners behind the arch.
+    wall('ridge-funnel-left', [LEFT_X, RIDGE_FUNNEL_Z], GATE_FROM, {
+      material: 'chrome',
+      thickness: 0.004,
+    }),
+    wall('ridge-funnel-right', [RIGHT_X, RIDGE_FUNNEL_Z], GATE_TO, {
+      material: 'chrome',
+      thickness: 0.004,
+    }),
+    // The top corners, cut so a ball cannot sit in them.
+    wall(
+      'ridge-corner-right',
+      [RIGHT_X - 0.035, UPPER_TOP_Z],
+      [RIGHT_X, UPPER_TOP_Z + 0.035],
+      { material: 'rubber' },
+    ),
+    ...SKY_DIVIDERS.map((x, i): ColliderDef =>
+      wall(`sky-divider-${i + 1}`, [x, SKY_TOP_Z], [x, SKY_BOTTOM_Z], {
+        material: 'chrome',
+        thickness: 0.004,
+        height: 0.025,
+      }),
+    ),
+    ...RIDGE_POPS.map((pop): ColliderDef => ({
+      kind: 'post',
+      id: pop.id,
+      at: [pop.at[0], 0.0125, pop.at[1]],
+      radius: 0.024,
+      halfHeight: 0.0125,
+      material: 'plastic-printed',
+      restitution: 0.4,
+      kick: 1.1,
+    })),
+  ]
+}
+
 const POPS: Array<{ id: string; at: XZ }> = [
   { id: 'pop-left', at: [0.03, -0.585] },
   { id: 'pop-right', at: [0.12, -0.6] },
@@ -481,6 +598,7 @@ const colliders: ColliderDef[] = [
   ...arch(),
   ...secretChamber(),
   ...room(),
+  ...ridge(),
   wall('shooter-wall', [LANE_WALL_X, LANE_TOP_Z], [LANE_WALL_X, BOTTOM_Z]),
   wall(
     'shooter-gate',
@@ -636,6 +754,23 @@ const sensors: SensorDef[] = [
   sensor('right-ramp-entry', 0.135, -0.335, 0.008, [0.02, 0.015, 0.008]),
   sensor('right-ramp-made', 0.24, -0.53, 0.046, [0.015, 0.02, 0.015]),
   sensor('upper-feed-entry', -0.068, -0.37, 0.008, [0.02, 0.015, 0.008]),
+  // The Ridge (t-022): its three top lanes, and the gate home.
+  ...[0, 1, 2].map((i) =>
+    sensor(
+      `sky-${'sky'[i]}`,
+      (SKY_DIVIDERS[i]! + SKY_DIVIDERS[i + 1]!) / 2,
+      (SKY_TOP_Z + SKY_BOTTOM_Z) / 2,
+      0,
+      [0.02, 0.015, 0.008],
+    ),
+  ),
+  sensor(
+    'ridge-exit',
+    (GATE_FROM[0] + GATE_TO[0]) / 2,
+    GATE_FROM[1] - 0.03,
+    0,
+    [0.03, 0.015, 0.01],
+  ),
 ]
 
 const drops: DropTargetDef[] = [
@@ -644,6 +779,15 @@ const drops: DropTargetDef[] = [
     bank: 'ami',
     at: [x, 0.0125, -0.3],
     half: [0.0095, 0.0125, 0.004],
+  })),
+  // The cloud standups down the Ridge's left side, facing in (t-022).
+  ...[-1.21, -1.165, -1.12].map((z, i): DropTargetDef => ({
+    id: `cloud-${i + 1}`,
+    bank: 'cloud',
+    at: [LEFT_X + 0.012, 0.0125, z],
+    half: [0.012, 0.0125, 0.004],
+    yaw: Math.PI / 2,
+    standup: true,
   })),
   // The N-E-T standups across the top of the sub-table.
   ...[-0.05, 0, 0.05].map((dx, i): DropTargetDef => ({
@@ -676,15 +820,27 @@ const scoops: ScoopDef[] = [
     subwayTo: 'award',
   },
   {
-    // Shot 3: the hole at the top of the upper feed (the hidden sub-table
-    // will sit here, t-011); for now it is a subway to the award saucer.
+    // Shot 3: the hole at the top of the upper feed, a subway up to the Ridge.
     id: 'upper-feed',
     at: [-0.092, 0.036 + BALL_R, -0.625],
     radius: 0.02,
     captureMaxSpeed: Number.POSITIVE_INFINITY,
     holdMs: 1400,
     eject: { at: [-0.092, 0.036 + BALL_R, -0.625], velocity: [0, 0, 0] },
-    subwayTo: 'award',
+    subwayTo: 'ridge-entry',
+  },
+  {
+    // Where the upper feed's subway comes up onto the Ridge: it kicks the
+    // ball across the top, over the S-K-Y lanes.
+    id: 'ridge-entry',
+    at: [RIDGE_ENTRY[0], BALL_R, RIDGE_ENTRY[1]],
+    radius: 0.012,
+    captureMaxSpeed: -1,
+    holdMs: 0,
+    eject: {
+      at: [RIDGE_ENTRY[0], BALL_R, RIDGE_ENTRY[1]],
+      velocity: [0.75, 0, -0.05],
+    },
   },
   {
     // The secret door's hole, under the corner plastic.
@@ -704,30 +860,33 @@ const scoops: ScoopDef[] = [
     // Where the subway brings the ball up into the sub-table. It never
     // captures; it only kicks the arriving ball down toward the flippers.
     id: 'sub-entry',
-    at: [ROOM_X - 0.12, BALL_R, -1.37],
+    at: [ROOM_X - 0.12, BALL_R, -1.37 + BACK],
     radius: 0.012,
     captureMaxSpeed: -1,
     holdMs: 0,
-    eject: { at: [ROOM_X - 0.12, BALL_R, -1.37], velocity: [0.35, 0, 0.5] },
+    eject: {
+      at: [ROOM_X - 0.12, BALL_R, -1.37 + BACK],
+      velocity: [0.35, 0, 0.5],
+    },
   },
   {
     // The sub-table's goal: back to the village with the full reward.
     id: 'sub-home',
-    at: [ROOM_X + 0.12, BALL_R, -1.37],
+    at: [ROOM_X + 0.12, BALL_R, -1.37 + BACK],
     radius: 0.016,
     captureMaxSpeed: 1.5,
     holdMs: 1000,
-    eject: { at: [ROOM_X + 0.12, BALL_R, -1.37], velocity: [0, 0, 0] },
+    eject: { at: [ROOM_X + 0.12, BALL_R, -1.37 + BACK], velocity: [0, 0, 0] },
     subwayTo: 'award',
   },
   {
     // Past the room's flippers: the ball is not lost, it goes home too.
     id: 'sub-drain',
-    at: [ROOM_X, BALL_R, -1.078],
+    at: [ROOM_X, BALL_R, -1.078 + BACK],
     radius: 0.02,
     captureMaxSpeed: Number.POSITIVE_INFINITY,
     holdMs: 700,
-    eject: { at: [ROOM_X, BALL_R, -1.078], velocity: [0, 0, 0] },
+    eject: { at: [ROOM_X, BALL_R, -1.078 + BACK], velocity: [0, 0, 0] },
     subwayTo: 'award',
     hidden: true,
   },
@@ -781,7 +940,9 @@ const shots: ShotDef[] = [
 ]
 
 /** The DMD's glass on the backbox face (t-006), and its width (4:1). */
-const BACKBOX_FACE_Z = -1.005 + 0.012
+/** The backbox's face, at the far end of the Ridge. */
+const BACKBOX_Z = -1.005 + BACK
+const BACKBOX_FACE_Z = BACKBOX_Z + 0.012
 const DMD_WIDTH = 0.4
 const DMD_AT: Vec3 = [ROOM_X, 0.072, BACKBOX_FACE_Z + 0.002]
 
@@ -852,7 +1013,18 @@ const inserts: InsertDef[] = [
       CYAN,
     ),
   ),
-  arrow('sub-home', [ROOM_X + 0.12, -1.325], AMBER, 'flasher-secret'),
+  arrow('sub-home', [ROOM_X + 0.12, -1.325 + BACK], AMBER, 'flasher-secret'),
+  // The Ridge (t-022): a lamp under each S-K-Y lane, one by each cloud.
+  ...[0, 1, 2].map((i) =>
+    lamp(
+      `lamp-sky-${'sky'[i]}`,
+      [(SKY_DIVIDERS[i]! + SKY_DIVIDERS[i + 1]!) / 2, SKY_BOTTOM_Z + 0.03],
+      CYAN,
+    ),
+  ),
+  ...[-1.21, -1.165, -1.12].map((z, i) =>
+    lamp(`lamp-cloud-${i + 1}`, [LEFT_X + 0.04, z], MAGENTA, 0.009),
+  ),
 ]
 
 const flashers: FlasherDef[] = [
@@ -879,9 +1051,9 @@ export const AMI_VILLAGE_GREYBOX: TableDef = {
       position: [(LEFT_X + RIGHT_X) / 2, 0.75, 0.55],
       target: [(LEFT_X + RIGHT_X) / 2, 0, -0.4],
       fovDeg: 32,
-      // The whole playfield, from the apron to the foot of the backbox.
+      // The whole table, from the apron to the top of the Ridge.
       frame: {
-        min: [LEFT_X - 0.02, 0, TOP_Z - 0.06],
+        min: [LEFT_X - 0.02, 0, UPPER_TOP_Z - 0.04],
         max: [RIGHT_X + 0.02, 0.03, BOTTOM_Z + 0.02],
       },
       // The DMD in the backbox above the arch.
@@ -901,7 +1073,7 @@ export const AMI_VILLAGE_GREYBOX: TableDef = {
       target: [(LEFT_X + RIGHT_X) / 2, 0, -0.4],
       fovDeg: 32,
       frame: {
-        min: [LEFT_X - 0.02, 0, TOP_Z - 0.06],
+        min: [LEFT_X - 0.02, 0, UPPER_TOP_Z - 0.04],
         max: [RIGHT_X + 0.02, 0.03, BOTTOM_Z + 0.02],
       },
       include: [
@@ -918,7 +1090,7 @@ export const AMI_VILLAGE_GREYBOX: TableDef = {
       target: [(LEFT_X + RIGHT_X) / 2, 0, -0.4],
       fovDeg: 32,
       frame: {
-        min: [LEFT_X - 0.02, 0, TOP_Z - 0.06],
+        min: [LEFT_X - 0.02, 0, UPPER_TOP_Z - 0.04],
         max: [RIGHT_X + 0.02, 0.03, BOTTOM_Z + 0.02],
       },
       include: [
@@ -930,14 +1102,14 @@ export const AMI_VILLAGE_GREYBOX: TableDef = {
     },
     {
       id: 'sub-table',
-      position: [ROOM_X, 0.52, -0.83],
-      target: [ROOM_X, 0, -1.25],
+      position: [ROOM_X, 0.52, -0.83 + BACK],
+      target: [ROOM_X, 0, -1.25 + BACK],
       fovDeg: 32,
       frame: {
         min: [ROOM_X - ROOM_HALF - 0.03, 0, ROOM_TOP_Z - 0.02],
         max: [ROOM_X + ROOM_HALF + 0.03, 0.03, ROOM_BOTTOM_Z + 0.04],
       },
-      portrait: [ROOM_X, 0.7, -0.95],
+      portrait: [ROOM_X, 0.7, -0.95 + BACK],
       portraitFovDeg: 36,
     },
   ],
@@ -990,7 +1162,7 @@ export const AMI_VILLAGE_GREYBOX: TableDef = {
     {
       // A village windmill turning in the middle of the room.
       id: 'windmill',
-      at: [ROOM_X, 0.012, -1.27],
+      at: [ROOM_X, 0.012, -1.27 + BACK],
       arms: 4,
       armHalf: [0.022, 0.011, 0.003],
       spin: 2.2,
@@ -1045,7 +1217,7 @@ export const AMI_VILLAGE_GREYBOX: TableDef = {
     {
       // The backbox: it stands between the main camera and the room.
       id: 'backbox',
-      at: [ROOM_X, 0.2, -1.005],
+      at: [ROOM_X, 0.2, BACKBOX_Z],
       half: [WIDTH / 2 + 0.04, 0.2, 0.012],
       fadeFor: 'sub-table',
     },
@@ -1053,8 +1225,8 @@ export const AMI_VILLAGE_GREYBOX: TableDef = {
       // Its lid over the room, so a steep (phone) camera sees cabinet, not
       // the secret, over the top of the backbox.
       id: 'backbox-lid',
-      at: [ROOM_X, 0.4, (ROOM_TOP_Z - 1.005) / 2],
-      half: [WIDTH / 2 + 0.04, 0.012, (-1.005 - ROOM_TOP_Z) / 2 + 0.02],
+      at: [ROOM_X, 0.4, (ROOM_TOP_Z + BACKBOX_Z) / 2],
+      half: [WIDTH / 2 + 0.04, 0.012, (BACKBOX_Z - ROOM_TOP_Z) / 2 + 0.02],
       fadeFor: 'sub-table',
     },
   ],

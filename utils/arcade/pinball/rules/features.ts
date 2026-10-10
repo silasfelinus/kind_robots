@@ -507,6 +507,20 @@ function endMode(
   )
 }
 
+/**
+ * Relight the award saucer now (the Ridge's SKY HIGH), unless it is lit
+ * already or a village or the wizard mode is running. True when it lit.
+ */
+export function relightSaucer(state: PinballRulesState): boolean {
+  const v = state.play.villages
+  if (v.scoopLit || v.mode || state.play.wizard.running) return false
+  state.play = {
+    ...state.play,
+    villages: { ...v, rampsToRelight: 0, scoopLit: true },
+  }
+  return true
+}
+
 /** Ramps and orbits count down to relighting the saucer after a village. */
 function relight(state: PinballRulesState, effects: RuleEffect[]): boolean {
   const v = state.play.villages

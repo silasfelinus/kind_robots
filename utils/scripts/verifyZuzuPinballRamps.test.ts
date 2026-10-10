@@ -39,7 +39,7 @@ for (const id of rampNames) {
   assert.ok(path[0]![2] === 0 && path.some((p) => p[2] > 0.04))
   assert.ok(path.at(-1)![2] >= 0.03, `${id} needs raised exit clearance`)
   assert.ok(
-    path.every(([x, z, y]) => x >= -0.255 && x <= 0.235 && z >= -0.97 && z <= 0.14 && y >= 0 && y < 0.12),
+    path.every(([x, z, y]) => x >= -0.255 && x <= 0.235 && z >= -0.97 && z <= 0.14 && y >= 0 && y < 0.27),
     `${id} centreline must remain within physical cabinet envelope`,
   )
   const shot = table.shots.find((s) => s.id === id)!
@@ -65,6 +65,42 @@ for (const id of rampNames) {
     completed.push(...result.completed)
   }
   assert.equal(completed.length, 0, 'Wrong-way descent never awards a ramp')
+}
+
+// A real ball needs room between crossing decks. A 27mm ball cannot roll
+// through two ramps at the same height, and the clear roofs demand more than
+// the ball diameter. Sample all 3D centrelines to reject impossible crossings.
+const sampled = (path: ReadonlyArray<readonly [number, number, number]>) => {
+  const points: Vec3[] = []
+  for (let i = 0; i < path.length - 1; i++) {
+    const a = path[i]!
+    const b = path[i + 1]!
+    const steps = Math.ceil(Math.hypot(b[0] - a[0], b[1] - a[1]) / 0.006)
+    for (let k = 0; k < steps; k++) {
+      const t = k / steps
+      points.push([a[0] + (b[0] - a[0]) * t, a[2] + (b[2] - a[2]) * t, a[1] + (b[1] - a[1]) * t])
+    }
+  }
+  return points
+}
+for (let i = 0; i < rampNames.length; i++) {
+  for (let j = i + 1; j < rampNames.length; j++) {
+    for (const a of sampled(ZUZU_RAMP_PATHS[rampNames[i]!])) {
+      for (const b of sampled(ZUZU_RAMP_PATHS[rampNames[j]!])) {
+        if (Math.hypot(a[0] - b[0], a[2] - b[2]) >= 0.04) continue
+        assert.ok(
+          Math.abs(a[1] - b[1]) > 0.04,
+          `Dangerous same-level crossing between ${rampNames[i]} and ${rampNames[j]}`,
+        )
+      }
+    }
+  }
+}
+
+const croc = table.scoops.find((scoop) => scoop.id === 'croc-mouth')!
+for (const point of sampled(ZUZU_RAMP_PATHS['village-switchback'])) {
+  const closeToMouth = Math.hypot(point[0] - croc.at[0], point[2] - croc.at[2]) < 0.05
+  assert.ok(!closeToMouth || point[1] > 0.05, 'Village ramp must not plug the Croc aiming lane')
 }
 
 // A physical rolling steel ball must remain on the table when introduced

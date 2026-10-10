@@ -355,8 +355,12 @@
                   <template #front>
                     <img
                       v-if="game.activeEncounter?.art || game.activeCard.art"
-                      :src="game.activeEncounter?.art || game.activeCard.art || ''"
-                      :alt="game.activeEncounter?.title || game.activeCard.label"
+                      :src="
+                        game.activeEncounter?.art || game.activeCard.art || ''
+                      "
+                      :alt="
+                        game.activeEncounter?.title || game.activeCard.label
+                      "
                       class="size-full object-cover"
                     />
                     <div v-else class="relative size-full">
@@ -399,9 +403,19 @@
                   </p>
                 </div>
                 <div v-if="game.activeEncounter" class="space-y-3">
-                  <div class="rounded-xl border border-warning/30 bg-base-300/65 p-4">
-                    <p class="text-xs font-black uppercase tracking-widest text-warning">Your decision</p>
-                    <p class="mt-2 text-sm opacity-80">Two roads are open. Each choice has its own stakes, skill check and written result. Choose once; your dice and consequences are saved.</p>
+                  <div
+                    class="rounded-xl border border-warning/30 bg-base-300/65 p-4"
+                  >
+                    <p
+                      class="text-xs font-black uppercase tracking-widest text-warning"
+                    >
+                      Your decision
+                    </p>
+                    <p class="mt-2 text-sm opacity-80">
+                      Two roads are open. Each choice has its own stakes, skill
+                      check and written result. Choose once; your dice and
+                      consequences are saved.
+                    </p>
                   </div>
                   <button
                     v-for="option in game.activeEncounter.choices"
@@ -411,23 +425,66 @@
                     @click="game.choose(option.id)"
                   >
                     <span class="flex items-start justify-between gap-3">
-                      <strong class="text-base group-hover:text-warning">{{ option.label }}</strong>
-                      <span class="shrink-0 rounded-lg border border-warning/40 px-2 py-1 text-xs font-bold capitalize">{{ option.roll.skill }} · {{ option.roll.target }}</span>
+                      <strong class="text-base group-hover:text-warning">{{
+                        option.label
+                      }}</strong>
+                      <span
+                        class="shrink-0 rounded-lg border border-warning/40 px-2 py-1 text-xs font-bold capitalize"
+                        >{{ option.roll.skill }} ·
+                        {{ option.roll.target }}</span
+                      >
                     </span>
                     <span class="mt-2 block text-sm">{{ option.intent }}</span>
-                    <span class="mt-2 block text-xs opacity-65">{{ option.risk }}</span>
-                    <span class="mt-2 inline-flex items-center gap-1 text-xs font-bold text-warning"><Icon name="kind-icon:dice" class="size-4" /> Roll 2d6 + skill</span>
+                    <span class="mt-2 block text-xs opacity-65">{{
+                      option.risk
+                    }}</span>
+                    <span
+                      class="mt-2 inline-flex items-center gap-1 text-xs font-bold text-warning"
+                      ><Icon name="kind-icon:dice" class="size-4" /> Roll 2d6 +
+                      skill</span
+                    >
                   </button>
                 </div>
                 <template v-else>
-                  <div class="rounded-xl border border-base-content/15 bg-base-300/65 p-4 text-sm">
-                    <p class="text-xs font-black uppercase tracking-widest opacity-65">Later-land preview rules</p>
-                    <p class="mt-2"><strong class="capitalize">{{ game.activeCard.skill }}</strong> check · target <strong>{{ game.activeCard.difficulty }}</strong> · roll 2d6 + skill</p>
-                    <p class="mt-1 text-xs opacity-70">The later-land authored content pass is still pending. This route uses the existing deterministic check.</p>
+                  <div
+                    class="rounded-xl border border-base-content/15 bg-base-300/65 p-4 text-sm"
+                  >
+                    <p
+                      class="text-xs font-black uppercase tracking-widest opacity-65"
+                    >
+                      Later-land preview rules
+                    </p>
+                    <p class="mt-2">
+                      <strong class="capitalize">{{
+                        game.activeCard.skill
+                      }}</strong>
+                      check · target
+                      <strong>{{ game.activeCard.difficulty }}</strong> · roll
+                      2d6 + skill
+                    </p>
+                    <p class="mt-1 text-xs opacity-70">
+                      The later-land authored content pass is still pending.
+                      This route uses the existing deterministic check.
+                    </p>
                   </div>
-                  <div class="grid grid-cols-[repeat(auto-fit,minmax(min(100%,170px),1fr))] gap-2">
-                    <button type="button" class="btn btn-primary min-h-12" @click="game.resolve('test')"><Icon name="kind-icon:dice" class="size-5" /> Roll the check</button>
-                    <button type="button" class="btn btn-outline min-h-12" @click="game.resolve('withdraw')">Withdraw</button>
+                  <div
+                    class="grid grid-cols-[repeat(auto-fit,minmax(min(100%,170px),1fr))] gap-2"
+                  >
+                    <button
+                      type="button"
+                      class="btn btn-primary min-h-12"
+                      @click="game.resolve('test')"
+                    >
+                      <Icon name="kind-icon:dice" class="size-5" /> Roll the
+                      check
+                    </button>
+                    <button
+                      type="button"
+                      class="btn btn-outline min-h-12"
+                      @click="game.resolve('withdraw')"
+                    >
+                      Withdraw
+                    </button>
                   </div>
                 </template>
               </div>
@@ -566,17 +623,29 @@
             aria-label="Last encounter outcome"
             aria-live="polite"
           >
-            <p class="text-xs font-black uppercase tracking-widest text-warning">The road remembers</p>
-            <h3 class="mt-2 font-serif text-xl font-bold">{{ lastPlayedTitle }}</h3>
-            <p class="mt-3 text-sm leading-relaxed">{{ game.lastAuthoredOutcome.resultText }}</p>
+            <p
+              class="text-xs font-black uppercase tracking-widest text-warning"
+            >
+              The road remembers
+            </p>
+            <h3 class="mt-2 font-serif text-xl font-bold">
+              {{ lastPlayedTitle }}
+            </h3>
+            <p class="mt-3 text-sm leading-relaxed">
+              {{ game.lastAuthoredOutcome.resultText }}
+            </p>
             <p class="mt-3 text-xs opacity-70">
               {{ game.lastAuthoredOutcome.roll.dice.join(' + ') }} +
               {{ game.lastAuthoredOutcome.roll.modifier }} =
               {{ game.lastAuthoredOutcome.roll.total }} vs
               {{ game.lastAuthoredOutcome.roll.difficulty }} ·
-              {{ game.lastAuthoredOutcome.roll.success ? 'Success' : 'Failure' }}
-              · HP {{ game.lastAuthoredOutcome.hpChange >= 0 ? '+' : '' }}{{ game.lastAuthoredOutcome.hpChange }}
-              · Provisions {{ game.lastAuthoredOutcome.provisionChange >= 0 ? '+' : '' }}{{ game.lastAuthoredOutcome.provisionChange }}
+              {{
+                game.lastAuthoredOutcome.roll.success ? 'Success' : 'Failure'
+              }}
+              · HP {{ game.lastAuthoredOutcome.hpChange >= 0 ? '+' : ''
+              }}{{ game.lastAuthoredOutcome.hpChange }} · Provisions
+              {{ game.lastAuthoredOutcome.provisionChange >= 0 ? '+' : ''
+              }}{{ game.lastAuthoredOutcome.provisionChange }}
             </p>
           </section>
 
@@ -829,10 +898,15 @@
                 <p class="font-bold">
                   Visited on turn {{ inspectedOutcome.turn }}
                 </p>
-                <p v-if="game.savedEncounter(inspectId || '')" class="mt-1 leading-relaxed">
+                <p
+                  v-if="game.savedEncounter(inspectId || '')"
+                  class="mt-1 leading-relaxed"
+                >
                   {{ game.savedEncounter(inspectId || '')?.resultText }}
                 </p>
-                <p v-else class="mt-1">Approach: {{ inspectedOutcome.approach }}</p>
+                <p v-else class="mt-1">
+                  Approach: {{ inspectedOutcome.approach }}
+                </p>
                 <p v-if="inspectedOutcome.roll">
                   Roll {{ inspectedOutcome.roll.dice.join(' + ') }} +
                   {{ inspectedOutcome.roll.modifier }} =
@@ -882,8 +956,11 @@ const landScenery: Record<string, string> = {
 const landAtmosphere = computed(
   () => landScenery[game.currentLand.id] ?? landScenery.homestead!,
 )
-const lastPlayedTitle = computed(() =>
-  AUTHORED_PACK.encounters.find((e) => e.id === game.lastAuthoredOutcome?.encounterId)?.title ?? 'An encounter remembered',
+const lastPlayedTitle = computed(
+  () =>
+    AUTHORED_PACK.encounters.find(
+      (e) => e.id === game.lastAuthoredOutcome?.encounterId,
+    )?.title ?? 'An encounter remembered',
 )
 const dealKey = ref(0)
 const inspectorOpen = ref(false)

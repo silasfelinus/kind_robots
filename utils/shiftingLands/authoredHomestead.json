@@ -53,18 +53,14 @@
             "text": "The eldest returns his bow. There is room beside their hearth, and a small parcel for the road.",
             "hp_delta": 0,
             "provisions_delta": 1,
-            "add_flags": [
-              "orchard-family-trust"
-            ],
+            "add_flags": ["orchard-family-trust"],
             "map_effect": "none"
           },
           "failure": {
             "text": "Their courtesy is strained. They shut the gate, and Zuzu loses precious daylight finding another way.",
             "hp_delta": -1,
             "provisions_delta": 0,
-            "add_flags": [
-              "orchard-family-wary"
-            ],
+            "add_flags": ["orchard-family-wary"],
             "map_effect": "none"
           }
         },
@@ -82,18 +78,14 @@
             "text": "The broken latch is wired from the inside. Zuzu repairs it before speaking, earning a cautious nod.",
             "hp_delta": 0,
             "provisions_delta": 1,
-            "add_flags": [
-              "orchard-latch-repaired"
-            ],
+            "add_flags": ["orchard-latch-repaired"],
             "map_effect": "none"
           },
           "failure": {
             "text": "His hesitation reads as a threat. The family retreats indoors and leaves him outside in the cold.",
             "hp_delta": -1,
             "provisions_delta": 0,
-            "add_flags": [
-              "orchard-family-wary"
-            ],
+            "add_flags": ["orchard-family-wary"],
             "map_effect": "none"
           }
         }
@@ -121,18 +113,14 @@
             "text": "With a grunt and a crack of timber, the wheel settles. She presses dried fruit into Zuzu's hands.",
             "hp_delta": 0,
             "provisions_delta": 2,
-            "add_flags": [
-              "orchard-debt-owed"
-            ],
+            "add_flags": ["orchard-debt-owed"],
             "map_effect": "none"
           },
           "failure": {
             "text": "The barrel slips against his ribs. The cart rolls free, but he leaves the farm bruised.",
             "hp_delta": -1,
             "provisions_delta": 1,
-            "add_flags": [
-              "orchard-debt-owed"
-            ],
+            "add_flags": ["orchard-debt-owed"],
             "map_effect": "none"
           }
         },
@@ -150,18 +138,14 @@
             "text": "Zuzu wedges the axle with a scavenged pin. The farmer quietly offers food and dry cloth.",
             "hp_delta": 0,
             "provisions_delta": 2,
-            "add_flags": [
-              "orchard-cart-mended"
-            ],
+            "add_flags": ["orchard-cart-mended"],
             "map_effect": "none"
           },
           "failure": {
             "text": "The improvised pin snaps. He saves the crop but cuts his palm catching the axle.",
             "hp_delta": -1,
             "provisions_delta": 0,
-            "add_flags": [
-              "orchard-cart-mended"
-            ],
+            "add_flags": ["orchard-cart-mended"],
             "map_effect": "none"
           }
         }
@@ -189,18 +173,14 @@
             "text": "The wire parts cleanly. A startled thief flees, leaving a pouch of stolen rations behind.",
             "hp_delta": 0,
             "provisions_delta": 1,
-            "add_flags": [
-              "farm-snare-disarmed"
-            ],
+            "add_flags": ["farm-snare-disarmed"],
             "map_effect": "none"
           },
           "failure": {
             "text": "A board snaps up from the dirt. Zuzu staggers backward as the thief vanishes.",
             "hp_delta": -2,
             "provisions_delta": 0,
-            "add_flags": [
-              "farm-thief-escaped"
-            ],
+            "add_flags": ["farm-thief-escaped"],
             "map_effect": "none"
           }
         },
@@ -218,18 +198,14 @@
             "text": "He appears where the thief least expects him. In the chase, the nearby shortcut collapses into the ditch.",
             "hp_delta": 0,
             "provisions_delta": 1,
-            "add_flags": [
-              "farm-shortcut-collapsed"
-            ],
+            "add_flags": ["farm-shortcut-collapsed"],
             "map_effect": "recorded-prospective-shift"
           },
           "failure": {
             "text": "The thief doubles back through the brush. Zuzu loses the trail and the last of the light.",
             "hp_delta": -1,
             "provisions_delta": 0,
-            "add_flags": [
-              "farm-thief-escaped"
-            ],
+            "add_flags": ["farm-thief-escaped"],
             "map_effect": "none"
           }
         }
@@ -257,18 +233,14 @@
             "text": "She waters the sprout, then insists Zuzu take a handful of preserved fruit from her cellar.",
             "hp_delta": 0,
             "provisions_delta": 1,
-            "add_flags": [
-              "seed-keeper-trust"
-            ],
+            "add_flags": ["seed-keeper-trust"],
             "map_effect": "none"
           },
           "failure": {
             "text": "He fumbles the measure and spills most of it. She thanks him, but there is little to spare.",
             "hp_delta": 0,
             "provisions_delta": -1,
-            "add_flags": [
-              "seed-keeper-trust"
-            ],
+            "add_flags": ["seed-keeper-trust"],
             "map_effect": "none"
           }
         },
@@ -286,18 +258,14 @@
             "text": "A stone windbreak holds. Beneath its foundation lies a sealed jar of old provisions.",
             "hp_delta": 0,
             "provisions_delta": 2,
-            "add_flags": [
-              "sprout-sheltered"
-            ],
+            "add_flags": ["sprout-sheltered"],
             "map_effect": "none"
           },
           "failure": {
             "text": "The wind returns before he finishes. He takes a cut across the knuckles rescuing the seed tin.",
             "hp_delta": -1,
             "provisions_delta": 0,
-            "add_flags": [
-              "sprout-sheltered"
-            ],
+            "add_flags": ["sprout-sheltered"],
             "map_effect": "none"
           }
         }
@@ -325,18 +293,14 @@
             "text": "The bucket rises safely. The keeper fills Zuzu's flask and shares the morning's small breakfast.",
             "hp_delta": 0,
             "provisions_delta": 2,
-            "add_flags": [
-              "well-pulley-secured"
-            ],
+            "add_flags": ["well-pulley-secured"],
             "map_effect": "none"
           },
           "failure": {
             "text": "The rope burns through his palm. Water is saved, but the wound throbs beneath his bandage.",
             "hp_delta": -1,
             "provisions_delta": 1,
-            "add_flags": [
-              "well-pulley-secured"
-            ],
+            "add_flags": ["well-pulley-secured"],
             "map_effect": "none"
           }
         },
@@ -354,18 +318,14 @@
             "text": "The knot settles under tension. Soon the line moves as smoothly as a song without words.",
             "hp_delta": 0,
             "provisions_delta": 1,
-            "add_flags": [
-              "well-line-repaired"
-            ],
+            "add_flags": ["well-line-repaired"],
             "map_effect": "none"
           },
           "failure": {
             "text": "The new line snags against the stone. Zuzu buys a replacement rope with his remaining provisions.",
             "hp_delta": 0,
             "provisions_delta": -1,
-            "add_flags": [
-              "well-line-repaired"
-            ],
+            "add_flags": ["well-line-repaired"],
             "map_effect": "none"
           }
         }
@@ -393,18 +353,14 @@
             "text": "The bitter note is willow bark. She explains its use and gives Zuzu a wrapped medicinal dose.",
             "hp_delta": 1,
             "provisions_delta": 0,
-            "add_flags": [
-              "well-herbalist-trust"
-            ],
+            "add_flags": ["well-herbalist-trust"],
             "map_effect": "none"
           },
           "failure": {
             "text": "His question sounds like an accusation. She tips the cup into the sand, and the exchange ends coldly.",
             "hp_delta": 0,
             "provisions_delta": 0,
-            "add_flags": [
-              "well-herbalist-offended"
-            ],
+            "add_flags": ["well-herbalist-offended"],
             "map_effect": "none"
           }
         },
@@ -422,18 +378,14 @@
             "text": "The bitterness passes, leaving a welcome calm in his aching limbs. The traveler offers a second dose.",
             "hp_delta": 1,
             "provisions_delta": 0,
-            "add_flags": [
-              "well-herbalist-trust"
-            ],
+            "add_flags": ["well-herbalist-trust"],
             "map_effect": "none"
           },
           "failure": {
             "text": "The herbs are too strong on an empty stomach. Zuzu retreats behind the well to recover.",
             "hp_delta": -1,
             "provisions_delta": 0,
-            "add_flags": [
-              "well-herbalist-offended"
-            ],
+            "add_flags": ["well-herbalist-offended"],
             "map_effect": "none"
           }
         }
@@ -461,18 +413,14 @@
             "text": "One foundation block has slipped. Zuzu helps mark a safe detour before the passage gives way.",
             "hp_delta": 0,
             "provisions_delta": 0,
-            "add_flags": [
-              "well-stones-slipping"
-            ],
+            "add_flags": ["well-stones-slipping"],
             "map_effect": "recorded-prospective-shift"
           },
           "failure": {
             "text": "His boot loosens a cracked step. Stones spill into the shaft and bruising dust blinds him.",
             "hp_delta": -1,
             "provisions_delta": 0,
-            "add_flags": [
-              "well-unsafe"
-            ],
+            "add_flags": ["well-unsafe"],
             "map_effect": "none"
           }
         },
@@ -490,18 +438,14 @@
             "text": "The weight touches a shelf where none should be. He pockets a small brass fitting and backs away.",
             "hp_delta": 0,
             "provisions_delta": 1,
-            "add_flags": [
-              "well-hidden-shelf"
-            ],
+            "add_flags": ["well-hidden-shelf"],
             "map_effect": "none"
           },
           "failure": {
             "text": "The rope snaps against sharp stone. Whatever moved below remains unseen, and Zuzu is left soaked and shivering.",
             "hp_delta": -1,
             "provisions_delta": -1,
-            "add_flags": [
-              "well-unsafe"
-            ],
+            "add_flags": ["well-unsafe"],
             "map_effect": "none"
           }
         }
@@ -529,18 +473,14 @@
             "text": "Both doors open to receive the water. One household quietly repays the journey with bread.",
             "hp_delta": 0,
             "provisions_delta": 2,
-            "add_flags": [
-              "well-households-helped"
-            ],
+            "add_flags": ["well-households-helped"],
             "map_effect": "none"
           },
           "failure": {
             "text": "Zuzu trips on loose stone and spills a bucket. He uses his own water to make the delivery whole.",
             "hp_delta": 0,
             "provisions_delta": -1,
-            "add_flags": [
-              "well-households-helped"
-            ],
+            "add_flags": ["well-households-helped"],
             "map_effect": "none"
           }
         },
@@ -558,18 +498,14 @@
             "text": "The trail leads toward the refuge road, where a small ribbon is tied to a marker stone.",
             "hp_delta": 0,
             "provisions_delta": 0,
-            "add_flags": [
-              "mission-road-clue"
-            ],
+            "add_flags": ["mission-road-clue"],
             "map_effect": "none"
           },
           "failure": {
             "text": "The marks lead in circles after dusk. Zuzu returns to the well with bleeding feet and few answers.",
             "hp_delta": -1,
             "provisions_delta": 0,
-            "add_flags": [
-              "missing-household-unfound"
-            ],
+            "add_flags": ["missing-household-unfound"],
             "map_effect": "none"
           }
         }
@@ -597,18 +533,14 @@
             "text": "The stew warms his hands. A novice brings extra bread and the names of nearby roads.",
             "hp_delta": 1,
             "provisions_delta": 1,
-            "add_flags": [
-              "refuge-welcomed"
-            ],
+            "add_flags": ["refuge-welcomed"],
             "map_effect": "none"
           },
           "failure": {
             "text": "A bell sounds before he can finish eating. He leaves uneasy, with his pack lighter than before.",
             "hp_delta": 0,
             "provisions_delta": -1,
-            "add_flags": [
-              "refuge-watchful"
-            ],
+            "add_flags": ["refuge-watchful"],
             "map_effect": "none"
           }
         },
@@ -626,18 +558,14 @@
             "text": "Tracks enter under the arch more often than they leave. Zuzu commits the detail to memory.",
             "hp_delta": 0,
             "provisions_delta": 0,
-            "add_flags": [
-              "gate-one-way-tracks"
-            ],
+            "add_flags": ["gate-one-way-tracks"],
             "map_effect": "none"
           },
           "failure": {
             "text": "His scrutiny is noticed. The sister's smile thins, and Zuzu sleeps beyond the wall instead.",
             "hp_delta": -1,
             "provisions_delta": 0,
-            "add_flags": [
-              "refuge-watchful"
-            ],
+            "add_flags": ["refuge-watchful"],
             "map_effect": "none"
           }
         }
@@ -665,18 +593,14 @@
             "text": "The novice whispers of a missing roster and slips Zuzu a room number before hurrying away.",
             "hp_delta": 0,
             "provisions_delta": 0,
-            "add_flags": [
-              "dormitory-room-number"
-            ],
+            "add_flags": ["dormitory-room-number"],
             "map_effect": "none"
           },
           "failure": {
             "text": "Footsteps approach. The novice retreats behind a practiced smile, and Zuzu is sent outside.",
             "hp_delta": 0,
             "provisions_delta": -1,
-            "add_flags": [
-              "novice-silenced"
-            ],
+            "add_flags": ["novice-silenced"],
             "map_effect": "none"
           }
         },
@@ -694,18 +618,14 @@
             "text": "A splinter of ribbon caught in the hinge matches one seen on the refuge road. Zuzu keeps it.",
             "hp_delta": 0,
             "provisions_delta": 0,
-            "add_flags": [
-              "dormitory-ribbon-evidence"
-            ],
+            "add_flags": ["dormitory-ribbon-evidence"],
             "map_effect": "none"
           },
           "failure": {
             "text": "The lock catches his tool. A caretaker arrives before he can retrieve it, and Zuzu flees wounded.",
             "hp_delta": -1,
             "provisions_delta": 0,
-            "add_flags": [
-              "refuge-watchful"
-            ],
+            "add_flags": ["refuge-watchful"],
             "map_effect": "none"
           }
         }
@@ -733,18 +653,14 @@
             "text": "The sister relaxes at his measured thanks and includes a note about the safer road east.",
             "hp_delta": 0,
             "provisions_delta": 2,
-            "add_flags": [
-              "kitchen-novice-trust"
-            ],
+            "add_flags": ["kitchen-novice-trust"],
             "map_effect": "none"
           },
           "failure": {
             "text": "A superior calls from within. She retreats before he can thank her, leaving only a crust.",
             "hp_delta": 0,
             "provisions_delta": 1,
-            "add_flags": [
-              "kitchen-novice-wary"
-            ],
+            "add_flags": ["kitchen-novice-wary"],
             "map_effect": "none"
           }
         },
@@ -762,18 +678,14 @@
             "text": "He washes the last pans and hears a whispered warning about a door that stays locked.",
             "hp_delta": 0,
             "provisions_delta": 1,
-            "add_flags": [
-              "refuge-locked-door-clue"
-            ],
+            "add_flags": ["refuge-locked-door-clue"],
             "map_effect": "none"
           },
           "failure": {
             "text": "He stays too long under watchful eyes. A sleepless night in the cold costs him strength.",
             "hp_delta": -1,
             "provisions_delta": 0,
-            "add_flags": [
-              "kitchen-novice-wary"
-            ],
+            "add_flags": ["kitchen-novice-wary"],
             "map_effect": "none"
           }
         }
@@ -801,18 +713,14 @@
             "text": "The caretaker lets slip that the clapper was removed on orders from above, then refuses to say more.",
             "hp_delta": 0,
             "provisions_delta": 0,
-            "add_flags": [
-              "bell-clapper-removed"
-            ],
+            "add_flags": ["bell-clapper-removed"],
             "map_effect": "none"
           },
           "failure": {
             "text": "He calls the question impertinent and sends Zuzu down the wrong lane outside the gate.",
             "hp_delta": -1,
             "provisions_delta": 0,
-            "add_flags": [
-              "bell-caretaker-hostile"
-            ],
+            "add_flags": ["bell-caretaker-hostile"],
             "map_effect": "recorded-prospective-shift"
           }
         },
@@ -830,18 +738,14 @@
             "text": "The bronze bell is intact but mute by design. Zuzu marks the tower as a place to return.",
             "hp_delta": 0,
             "provisions_delta": 0,
-            "add_flags": [
-              "bell-physical-evidence"
-            ],
+            "add_flags": ["bell-physical-evidence"],
             "map_effect": "none"
           },
           "failure": {
             "text": "A loose stair gives beneath him. Zuzu catches the rail but limps away as watchers assemble below.",
             "hp_delta": -2,
             "provisions_delta": 0,
-            "add_flags": [
-              "bell-caretaker-hostile"
-            ],
+            "add_flags": ["bell-caretaker-hostile"],
             "map_effect": "none"
           }
         }

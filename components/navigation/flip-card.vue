@@ -90,9 +90,12 @@ async function play(): Promise<void> {
     emit('start')
   }, 20)
 
-  halfwayTimer = setTimeout(() => {
-    emit('halfway')
-  }, Math.round(props.durationMs / 2))
+  halfwayTimer = setTimeout(
+    () => {
+      emit('halfway')
+    },
+    Math.round(props.durationMs / 2),
+  )
 
   doneTimer = setTimeout(() => {
     isFlipping.value = false
@@ -153,9 +156,15 @@ defineExpose({
 }
 
 @keyframes flip-card-reveal {
-  0% { transform: rotateY(180deg) scale(1); }
-  50% { transform: rotateY(270deg) scale(var(--flip-scale)); }
-  100% { transform: rotateY(360deg) scale(1); }
+  0% {
+    transform: rotateY(180deg) scale(1);
+  }
+  50% {
+    transform: rotateY(270deg) scale(var(--flip-scale));
+  }
+  100% {
+    transform: rotateY(360deg) scale(1);
+  }
 }
 
 .flip-card-inner.is-flipping.is-revealing {

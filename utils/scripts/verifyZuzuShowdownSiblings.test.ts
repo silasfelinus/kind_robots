@@ -26,7 +26,14 @@ import { ABBESS } from '../zuzuShowdown/fighters/abbess'
 import { SIBLINGS } from '../zuzuShowdown/fighters/siblings'
 import { ZUZU } from '../zuzuShowdown/fighters/zuzu'
 import { FIGHTERS } from '../zuzuShowdown/fighters'
-import { SPRITE_PUPPETS, puppetPlace } from '../zuzuShowdown/sprites'
+import {
+  FLEE_DELAY,
+  FLEE_SPEED,
+  SPRITE_PUPPETS,
+  fleeShift,
+  puppetPlace,
+} from '../zuzuShowdown/sprites'
+import { drawMatch } from '../zuzuShowdown/render'
 import {
   SIM_BUTTONS,
   SUB,
@@ -317,6 +324,40 @@ check('the toddler puppet follows her state, ducking from every hit', () => {
   // In the air he rides her back, rising with her.
   const jump = at({ action: 'jump', y: 40 * SUB })
   assert.ok(jump.up >= 40, 'riding her back')
+})
+
+check('KO is never a death: she scoops him up and runs off-screen', () => {
+  // A beat on one knee, then she runs; he rides in her arms.
+  assert.equal(fleeShift(0), 0)
+  assert.equal(fleeShift(FLEE_DELAY), 0)
+  assert.equal(fleeShift(FLEE_DELAY + 10), 10 * FLEE_SPEED)
+  const base = createMatch(ROSTER).fighters[0]
+  const held = puppetPlace({ ...base, action: 'walk' }, { fleeing: true })
+  assert.ok(held.front && held.pose === 'duck', 'carried, not left behind')
+  // A whole KO draws, and she has left the screen by the end of it.
+  let s = fightAt(80)
+  s.fighters[0].health = 1
+  s = play(s, 1, [], [press({ right: true })])
+  s.fighters[0].health = 0
+  let ran = 0
+  for (let i = 0; i < 200 && s.phase !== 'intro'; i += 1) {
+    s = step(s, [N, N], ROSTER)
+    const xs: number[] = []
+    const g = new Proxy({} as CanvasRenderingContext2D, {
+      get: (_t, key) =>
+        key === 'fillRect'
+          ? (x: number) => xs.push(x)
+          : key === 'measureText'
+            ? () => ({ width: 4 })
+            : typeof key === 'string' && /^[a-z]/.test(key) && key !== 'canvas'
+              ? () => ({ addColorStop() {} })
+              : undefined,
+      set: () => true,
+    })
+    drawMatch(g, s, ROSTER, [], { showBoxes: false, reducedMotion: true })
+    if (s.phase === 'ko') ran = Math.max(ran, fleeShift(s.phaseFrame))
+  }
+  assert.ok(ran >= 240, `she ran off (${ran} px)`)
 })
 
 check('the Siblings replay deterministically and keep every invariant', () => {

@@ -133,6 +133,8 @@ export function puppetPlace(
     up: Math.round(f.y / SUB) + 34,
     front: false,
   }
+  // Scooped up in her arms as she runs.
+  if (context.fleeing) return { pose: 'duck', back: -2, up: 16, front: true }
   if (context.intro !== undefined && f.action === 'idle')
     // He peeks out from behind her; she pushes him back.
     return behind('stand', context.intro < 50 ? 6 : TODDLE)
@@ -186,6 +188,17 @@ export type SpriteContext = {
   intro?: number
   /** The round was won without taking a hit (the Perfect pose replaces the victory). */
   perfect?: boolean
+  /** The Siblings' KO: she has scooped him up and runs off-screen (fighters.yaml children_rules). */
+  fleeing?: boolean
+}
+
+/** Frames she stays down on one knee before she runs, and her speed (pixels a frame). */
+export const FLEE_DELAY = 45
+export const FLEE_SPEED = 4
+
+/** How far the Siblings have fled, in pixels, this many frames into their KO. */
+export function fleeShift(koFrames: number): number {
+  return Math.max(0, koFrames - FLEE_DELAY) * FLEE_SPEED
 }
 
 // Moves whose attack id names a rig animation directly ('wild-shot' -> 'wild_shot').

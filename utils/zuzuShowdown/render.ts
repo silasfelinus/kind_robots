@@ -19,7 +19,9 @@ import {
 } from '../arcade/font'
 import { SPARK_PALETTES, SPARK_PIXELS, sparkFrame, type Spark } from './effects'
 import {
+  FLEE_SPEED,
   drawSprite,
+  fleeShift,
   pickSprite,
   puppetKey,
   puppetPlace,
@@ -62,6 +64,7 @@ import {
   type StageLayer,
 } from './stages'
 import {
+  KO_FRAMES,
   METER_BAR,
   STAGE_HALF_WIDTH,
   hitbox,
@@ -1159,6 +1162,39 @@ function drawFighter(
 }
 
 /**
+ * The Siblings' KO is never a death (fighters.yaml children_rules): after a
+ * beat on one knee she scoops her brother up and runs off the far side of the
+ * screen. How far she has run, in pixels (0 for anyone else, or before she runs).
+ */
+function fleeDistance(
+  s: MatchState,
+  roster: Pair<FighterData>,
+  side: 0 | 1,
+): number {
+  const f = s.fighters[side]
+  if (!roster[side].childGuard || f.action !== 'ko') return 0
+  if (s.phase === 'ko') return fleeShift(s.phaseFrame)
+  return s.phase === 'over' ? fleeShift(KO_FRAMES) : 0
+}
+
+/** The fighter as drawn while fleeing: turned away from the opponent, running. */
+function fleeingPose(
+  f: FighterState,
+  o: FighterState,
+  fled: number,
+): FighterState {
+  const away = f.x >= o.x ? 1 : -1
+  return {
+    ...f,
+    x: f.x + away * fled * SUB,
+    facing: away,
+    action: 'walk',
+    vx: away * SUB,
+    frame: Math.round(fled / FLEE_SPEED),
+  }
+}
+
+/**
  * A fighter's puppet (the Siblings' toddler, t-011), in its pose for her state: behind her, or (`front`)
  * before her. Only drawn from its art; with none loaded there is nothing to draw, and it never has a box.
  */
@@ -2093,11 +2129,15 @@ export function drawMatch(
     s.fighters[1].attack && !s.fighters[0].attack ? [0, 1] : [1, 0]
   const mirror = roster[0].slug === roster[1].slug
   for (const side of order) {
-    const f = s.fighters[side]
+    const fled = fleeDistance(s, roster, side)
+    const f = fled
+      ? fleeingPose(s.fighters[side], s.fighters[side === 0 ? 1 : 0], fled)
+      : s.fighters[side]
     const slug = roster[side].slug
     const context: SpriteContext = {
       intro: s.phase === 'intro' ? s.phaseFrame : undefined,
       perfect: f.health >= roster[side].health,
+      fleeing: fled > 0,
     }
     const puppet = options.sprites?.[puppetKey(slug)]
     drawPuppet(g, f, side, camera, mirror, puppet, context, false)

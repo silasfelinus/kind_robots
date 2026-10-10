@@ -57,7 +57,7 @@ mutate this reducer's state.
 
 ## Admin board integration (t-015)
 
-`/admin/zuzu-shifting-lands` now opens `components/shifting-lands/journey-board.vue`
+`/admin/zuzu-shifting-lands` now opens `components/shifting-lands-journey-board.vue`
 by default; the original Homestead prototype remains available through the
 Homestead workshop switch. Only administrators see either workshop.
 

@@ -69,8 +69,6 @@ const STILL_SPEED = 0.01
 const STILL_TICKS = 60 * 4
 /** How far past a held flipper's length a resting ball counts as cradled. */
 const CRADLE_REACH = 0.03
-/** The sub-table's centre line, for the attract pilot. */
-const ROOM_PILOT_X = 0.02
 /** How often the attract pilot makes a save it goes for. */
 const PILOT_SKILL = 0.8
 /** Multiball and ball-save balls: ticks between them, and on the plunger before launch. */
@@ -577,10 +575,15 @@ export class PinballRuntime implements ArcadeWebGLGameInstance {
     for (const ball of this.physics.ballViews()) {
       const [x, , z] = ball.position
       const coming = ball.velocity[2] > 0.08
-      // The sub-table's flippers sit on the same buttons, further up.
-      const room = ball.zone === 'sub-table'
-      const near = room ? z > -1.15 && z < -1.08 : z > -0.08 && z < 0.0
-      const mid = room ? ROOM_PILOT_X : 0
+      // The room's and the Ridge's flippers sit on the same buttons; each
+      // ball is played on its own zone's pair.
+      const pair = this.physics.table.flippers.filter(
+        (f) => f.zone === ball.zone,
+      )
+      if (!pair.length) continue
+      const pivotZ = pair.reduce((a, f) => a + f.pivot[2], 0) / pair.length
+      const mid = pair.reduce((a, f) => a + f.pivot[0], 0) / pair.length
+      const near = z > pivotZ - 0.04 && z < pivotZ + 0.04
       if (coming && near) {
         approaching = true
         if (!this.pilotApproach) {

@@ -185,9 +185,8 @@ export class PinballBot {
     }
     this.pull = 0
     this.pullTarget = 0
-    const main = view.flippers.filter((f) => !f.id.startsWith('sub-'))
     if (this.cradled) this.shootFromCradle(view, frame)
-    else this.watch(view, main, frame)
+    else this.watch(view, view.flippers, frame)
     for (const side of ['left', 'right'] as const)
       if (this.hold[side] > 0) {
         this.hold[side]--
@@ -217,8 +216,11 @@ export class PinballBot {
     for (const id of this.approaches.keys())
       if (!view.balls.some((b) => b.id === id)) this.approaches.delete(id)
     for (const ball of view.balls) {
-      const room = ball.zone === 'sub-table'
-      const mine = flippers.filter((f) => f.id.startsWith('sub-') === room)
+      // A ball's own flippers: the room's and the Ridge's sit on the same
+      // buttons as the main pair.
+      const mine = flippers.filter((f) => f.zone === ball.zone)
+      // Off the main table (the room, the Ridge) the bot only flips.
+      const room = ball.zone !== undefined
       const flipper = nearest(mine, ball.position[0], ball.position[2])
       if (!flipper) continue
       const side = flipper.side

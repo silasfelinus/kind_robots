@@ -123,9 +123,10 @@ export function pinballGuide(
         'ALL 3 CLOUDS: KICKBACK',
         'RELIT, OR A CLOUD BURST.',
         '',
-        'BACK DOWN THROUGH THE GATE',
-        'PAYS A RIDGE RUN FOR EVERY',
-        'HIT UP THERE.',
+        'ITS FLIPPERS KEEP YOU UP:',
+        'THE LOOKOUT SPOTS A LANE,',
+        'MORE EACH TIME. DOWN THE',
+        'GATE PAYS A RIDGE RUN.',
       ],
     },
     {

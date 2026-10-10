@@ -78,6 +78,7 @@ export function lampStates(
   // The Ridge (t-022): its lanes and clouds as they are made; the unmade
   // ones blink while a ball is up there.
   const ridge = state.ridge
+  if (ridge.up) set('arrow-lookout', 'blink')
   for (const id of SKY_LANES)
     set(
       `lamp-${id}`,

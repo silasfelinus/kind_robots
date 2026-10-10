@@ -121,14 +121,16 @@ for (const power of [0.6, 1]) {
     let captured = false
     let ejected = false
     let swallowedDrain = false
-    run(PHYSICS_HZ * 3, () => {
+    // Check conservation at the instant of ejection. A ball is allowed to
+    // drain later in ordinary free play; that is not a failed scoop return.
+    for (let step = 0; step < PHYSICS_HZ * 3 && !ejected; step++) {
       for (const event of physics.step()) {
         if (event.type === 'capture' && event.id === mouth.id) captured = true
         if (event.type === 'eject' && event.id === mouth.id) ejected = true
         if (event.type === 'drain' && event.ballId === id && !ejected)
           swallowedDrain = true
       }
-    })
+    }
     assert.ok(captured, 'Croc must actually capture a physical ball')
     assert.ok(ejected, 'Croc must safely eject its captive')
     assert.equal(swallowedDrain, false, 'a ball never drains during Croc hold')

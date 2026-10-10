@@ -10,6 +10,36 @@
 import type { ArcadeGameMeta, ArcadeGameModule } from './types'
 import { MASTERY_GOALS } from './pinball/rules/mastery'
 
+/**
+ * The Canvas 2D Kind Pinball: the hall's table on a device without WebGL
+ * (the 3D table's fallback, conductor kind-pinball/t-024).
+ */
+const KIND_PINBALL_2D: ArcadeGameMeta = {
+  slug: 'kind-pinball',
+  title: 'Kind Pinball',
+  riffsOn: 'pinball',
+  blurb:
+    'AMI Village Rescue, a full Kind Robots pinball table with a dot-matrix display, two crossing ramps and two orbits. Plunge into the blinking lane for the skill shot. Roll through the N-E-T lanes to raise your bonus, hit the A-M-I targets to ready the saucer, then shoot the saucer to light a village. Light all five villages for the jackpot. Every third ramp shot starts a timed mode; play all four for the super jackpot. Chain ramps and orbits for combos. The third village lights AMI multiball: three balls, and every ramp or saucer shot flies a mosquito net to a village.',
+  howTo: [
+    'LEFT/RIGHT  FLIPPERS',
+    'A  BOTH FLIPPERS',
+    'HOLD DOWN, LET GO',
+    'UP  NUDGE THE TABLE',
+    'BLINKING LANE = SKILL',
+    'A-M-I READIES SAUCER',
+    '5 VILLAGES = JACKPOT',
+    '3 RAMPS START A MODE',
+    'RAMP + ORBIT = COMBO',
+    '3 VILLAGES = MULTIBALL',
+  ],
+  width: 288,
+  height: 488,
+  maxPlausibleScore: 50_000_000,
+  titleArt: '/images/arcade/games/kind-pinball-title.webp',
+  accent: '#facc15',
+  controls: 'Flip, plunge, nudge',
+}
+
 export const ARCADE_GAMES: ArcadeGameMeta[] = [
   {
     slug: 'butterfly-blaster',
@@ -156,30 +186,36 @@ export const ARCADE_GAMES: ArcadeGameMeta[] = [
     controls: 'Flap, steer, joust',
   },
   {
+    // The 3D table (conductor kind-pinball/t-024): Three.js and Rapier, the
+    // Ridge past the arch and the hidden room behind the backbox. A device
+    // without WebGL gets the Canvas 2D table; both play the one board.
     slug: 'kind-pinball',
     title: 'Kind Pinball',
     riffsOn: 'pinball',
     blurb:
-      'AMI Village Rescue, a full Kind Robots pinball table with a dot-matrix display, two crossing ramps and two orbits. Plunge into the blinking lane for the skill shot. Roll through the N-E-T lanes to raise your bonus, hit the A-M-I targets to ready the saucer, then shoot the saucer to light a village. Light all five villages for the jackpot. Every third ramp shot starts a timed mode; play all four for the super jackpot. Chain ramps and orbits for combos. The third village lights AMI multiball: three balls, and every ramp or saucer shot flies a mosquito net to a village.',
+      'AMI Village Rescue in 3D: a full pinball table in a lit arcade, with a steel ball on real physics, crossing ramps, two orbits, a dot-matrix display and a camera that follows the ball. Shoot the saucer to start a village mode, lock balls for AMI multiball, and take the upper feed to the Ridge, a second playfield past the arch with its own flippers. Somewhere behind the backbox, a secret waits.',
     howTo: [
       'LEFT/RIGHT  FLIPPERS',
       'A  BOTH FLIPPERS',
       'HOLD DOWN, LET GO',
       'UP  NUDGE THE TABLE',
-      'B   CHANGE CAMERA VIEW',
-      'BLINKING LANE = SKILL',
-      'A-M-I READIES SAUCER',
-      '5 VILLAGES = JACKPOT',
-      '3 RAMPS START A MODE',
-      'RAMP + ORBIT = COMBO',
-      '3 VILLAGES = MULTIBALL',
+      'B  CHANGE THE VIEW',
+      'SAUCER STARTS A VILLAGE',
+      'LOCKS LIGHT MULTIBALL',
+      'UPPER FEED: THE RIDGE',
     ],
-    width: 288,
-    height: 488,
-    maxPlausibleScore: 50_000_000,
+    mastery: MASTERY_GOALS,
+    touchLayout: 'pinball',
+    width: 360,
+    height: 640,
+    // Good players' games run to a few million, the best past ten (TUNING.md);
+    // the Canvas table's ceiling was 50 million.
+    maxPlausibleScore: 100_000_000,
     titleArt: '/images/arcade/games/kind-pinball-title.webp',
     accent: '#facc15',
     controls: 'Flip, plunge, nudge',
+    renderMode: 'webgl',
+    fallback: KIND_PINBALL_2D,
   },
   {
     slug: 'gloom-invaders',
@@ -670,32 +706,7 @@ export const COMING_SOON: ComingSoonCabinet[] = []
  * Pinball's 3D rebuild lives here until it replaces the Canvas table
  * (conductor kind-pinball/t-004; the Canvas game is the rollback path).
  */
-export const PREVIEW_GAMES: ArcadeGameMeta[] = [
-  {
-    slug: 'kind-pinball-3d',
-    title: 'Kind Pinball 3D',
-    riffsOn: 'pinball',
-    blurb:
-      'A preview of the 3D Kind Pinball table: a real perspective playfield with a steel ball, flippers and pop bumpers on a physics engine. Greybox for now; the full AMI Village Rescue table is being built on it.',
-    howTo: [
-      'LEFT/RIGHT  FLIPPERS',
-      'A  BOTH FLIPPERS',
-      'HOLD DOWN, LET GO',
-      'UP  NUDGE THE TABLE',
-      'B   CHANGE CAMERA VIEW',
-      '3D PREVIEW: NO SCORES',
-    ],
-    mastery: MASTERY_GOALS,
-    touchLayout: 'pinball',
-    width: 360,
-    height: 640,
-    maxPlausibleScore: 0,
-    titleArt: '/images/arcade/games/kind-pinball-title.webp',
-    accent: '#facc15',
-    controls: 'Flip, plunge, nudge',
-    renderMode: 'webgl',
-  },
-]
+export const PREVIEW_GAMES: ArcadeGameMeta[] = []
 
 const LOADERS: Record<string, () => Promise<ArcadeGameModule>> = {
   'butterfly-blaster': () => import('./games/butterflyBlaster'),
@@ -705,7 +716,13 @@ const LOADERS: Record<string, () => Promise<ArcadeGameModule>> = {
   'pipe-pals': () => import('./games/pipePals'),
   'timber-bot': () => import('./games/timberBot'),
   'butterfly-joust': () => import('./games/butterflyJoust'),
-  'kind-pinball': () => import('./games/kindPinball'),
+  'kind-pinball': () =>
+    canRenderWebGL()
+      ? import('./games/kindPinball3d').then(async (module) => {
+          await module.prepare()
+          return module
+        })
+      : import('./games/kindPinball'),
   'gloom-invaders': () => import('./games/gloomInvaders'),
   'hedgehog-crossing': () => import('./games/hedgehogCrossing'),
   'ribbon-riders': () => import('./games/ribbonRiders'),
@@ -728,18 +745,42 @@ const LOADERS: Record<string, () => Promise<ArcadeGameModule>> = {
   'cable-crawler': () => import('./games/cableCrawler'),
   'petal-post': () => import('./games/petalPost'),
   'bumper-bubbles': () => import('./games/bumperBubbles'),
-  'kind-pinball-3d': () =>
-    import('./games/kindPinball3d').then(async (module) => {
-      await module.prepare()
-      return module
-    }),
 }
 
+let webgl: boolean | null = null
+
+/**
+ * Whether this device can draw a WebGL cabinet, asked once. On the server
+ * there is no device to ask, and the answer is yes.
+ */
+export function canRenderWebGL(): boolean {
+  if (webgl !== null) return webgl
+  if (typeof document === 'undefined') return true
+  try {
+    const canvas = document.createElement('canvas')
+    webgl = !!(canvas.getContext('webgl2') ?? canvas.getContext('webgl'))
+  } catch {
+    webgl = false
+  }
+  return webgl
+}
+
+/** Pin the answer (tests); null asks the device again. */
+export function overrideWebGLSupport(value: boolean | null) {
+  webgl = value
+}
+
+/**
+ * A cabinet by slug, as this device will play it: a WebGL cabinet's
+ * fallback where WebGL is missing.
+ */
 export function findArcadeGame(slug: string): ArcadeGameMeta | undefined {
-  return (
-    ARCADE_GAMES.find((game) => game.slug === slug) ??
-    PREVIEW_GAMES.find((game) => game.slug === slug)
-  )
+  const game =
+    ARCADE_GAMES.find((g) => g.slug === slug) ??
+    PREVIEW_GAMES.find((g) => g.slug === slug)
+  if (game?.renderMode === 'webgl' && game.fallback && !canRenderWebGL())
+    return game.fallback
+  return game
 }
 
 export function loadArcadeGame(slug: string): Promise<ArcadeGameModule> {

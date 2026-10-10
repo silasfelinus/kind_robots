@@ -1,9 +1,9 @@
 // /utils/arcade/games/kindPinball3d.ts
 //
 // Kind Pinball 3D (conductor kind-pinball/t-004): the arcade adapter for the
-// Three.js + Rapier pinball runtime. It is an unlisted preview cabinet
-// (/play/arcade?game=kind-pinball-3d) while the 3D table is built; the
-// Canvas 2D Kind Pinball stays the public cabinet and the rollback path.
+// Three.js + Rapier pinball runtime. It is the hall's Kind Pinball
+// (t-024); a device without WebGL plays the Canvas 2D table instead
+// (utils/arcade/games.ts).
 //
 // Three.js and Rapier are only ever loaded through this module, which the
 // arcade registry imports lazily, so no other page pays for them.

@@ -75,6 +75,11 @@ export type ArcadeGameMeta = {
   controls: string
   /** Omitted for the classic Canvas 2D cabinets. */
   renderMode?: ArcadeRenderMode
+  /**
+   * The cabinet to play instead on a device that cannot draw this one (the
+   * Canvas 2D Kind Pinball where WebGL is missing); same slug, same board.
+   */
+  fallback?: ArcadeGameMeta
   /** Same-device players the cabinet can seat (default 1). */
   maxPlayers?: number
   /** The cabinet's mastery ladder, shown on its how-to-play page. */

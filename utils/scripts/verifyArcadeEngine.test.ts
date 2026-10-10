@@ -37,6 +37,7 @@ import {
   findArcadeGame,
   isPlausibleScore,
   loadArcadeGame,
+  overrideWebGLSupport,
   PREVIEW_GAMES,
 } from '../arcade/games'
 import { glyphFor, lineStep, MIN_LINE_STEP, measureText } from '../arcade/font'
@@ -507,7 +508,7 @@ function scriptedInput(tick: number): InputFrame {
   assert.equal(dmdTextWidth('ABC'), 17)
   assert.equal(dmdTextWidth('ABC', 2), 34)
 
-  const pinball = ARCADE_GAMES.find((g) => g.slug === 'kind-pinball')!
+  const pinball = ARCADE_GAMES.find((g) => g.slug === 'kind-pinball')!.fallback!
   assert.equal(pinball.height, PINBALL_HEIGHT, 'meta height includes the DMD')
   assert.equal(PINBALL_HEIGHT - DMD_BAND, 416)
 
@@ -688,7 +689,9 @@ function canvasGame(
 async function runGames() {
   const g = stubContext()
   const quiet = { play: () => {} }
-  for (const meta of ARCADE_GAMES) {
+  // Every Canvas cabinet, and the WebGL one's Canvas fallback.
+  overrideWebGLSupport(false)
+  for (const meta of ARCADE_GAMES.map((m) => m.fallback ?? m)) {
     const mod = await loadArcadeGame(meta.slug)
 
     const demo = canvasGame(
@@ -731,6 +734,7 @@ async function runGames() {
     )
     assert.ok(Number.isFinite(player.level) && player.level >= 1)
   }
+  overrideWebGLSupport(null)
 }
 
 /** Two seated: both games run, render, and keep their co-op rules. */
@@ -1969,26 +1973,39 @@ async function runPinballShots() {
 }
 
 async function runPinball3d() {
-  // The preview cabinet is reachable but unlisted, WebGL, and never scores.
-  const preview = findArcadeGame('kind-pinball-3d')
-  assert.ok(preview, 'the 3D preview is reachable by slug')
-  assert.equal(preview.renderMode, 'webgl')
-  assert.ok(PREVIEW_GAMES.includes(preview))
+  // kind-pinball/t-024: the hall's Kind Pinball is the 3D table, on the one
+  // board; a device without WebGL plays the Canvas 2D table instead.
+  const hall = ARCADE_GAMES.find((game) => game.slug === 'kind-pinball')!
+  assert.equal(hall.renderMode, 'webgl', 'the hall plays the 3D table')
+  assert.equal(findArcadeGame('kind-pinball'), hall)
+  assert.equal(PREVIEW_GAMES.length, 0, 'no preview cabinet is left')
+  assert.equal(findArcadeGame('kind-pinball-3d'), undefined)
+  assert.ok(isPlausibleScore('kind-pinball', 60_000_000), 'a 3D-sized score')
+  assert.equal(isPlausibleScore('kind-pinball', 200_000_000), false)
+  const fallback = hall.fallback!
+  assert.equal(fallback.slug, hall.slug, 'the same board')
+  assert.equal(fallback.renderMode ?? 'canvas2d', 'canvas2d')
   assert.ok(
-    !ARCADE_GAMES.some((game) => game.slug === preview.slug),
-    'not listed in the hall',
+    !fallback.howTo.some((line) => line.includes('VIEW')),
+    'the Canvas table has no camera views to offer',
   )
-  for (const score of [1, 100, 1_000_000]) {
-    assert.equal(isPlausibleScore('kind-pinball-3d', score), false)
+  overrideWebGLSupport(false)
+  try {
+    assert.equal(findArcadeGame('kind-pinball'), fallback)
+    const flat = await loadArcadeGame('kind-pinball')
+    const game = flat.create({
+      rng: mulberry32(1),
+      sound: { play: () => {} },
+      demo: true,
+      hiScore: 0,
+    })
+    assert.ok(!isWebGLInstance(game), 'without WebGL: the Canvas table')
+  } finally {
+    overrideWebGLSupport(null)
   }
-  assert.ok(
-    ARCADE_GAMES.every(
-      (game) => (game.renderMode ?? 'canvas2d') === 'canvas2d',
-    ),
-  )
 
   // The registry loader initialises Rapier and hands back a WebGL game.
-  const mod = await loadArcadeGame('kind-pinball-3d')
+  const mod = await loadArcadeGame('kind-pinball')
   const viaRegistry = mod.create({
     rng: mulberry32(1),
     sound: { play: () => {} },
@@ -3431,7 +3448,7 @@ async function runPinballTouch() {
   assert.equal(zoneAt(0.95, 0.8), 'plunger')
   assert.equal(zoneAt(0.95, 0.45), 'right', 'above the strip: the flipper')
   assert.equal(zoneAt(0.5, 0.2), 'none', 'the top of the table is free')
-  assert.equal(findArcadeGame('kind-pinball-3d')?.touchLayout, 'pinball')
+  assert.equal(findArcadeGame('kind-pinball')?.touchLayout, 'pinball')
 
   let log: string[] = []
   let pull: number | null = null
@@ -4190,7 +4207,7 @@ async function runPinballMastery() {
   assert.deepEqual(sanitizeMastery({ 'kind-pinball-3d': ids }), {
     'kind-pinball-3d': ids,
   })
-  assert.equal(findArcadeGame('kind-pinball-3d')?.mastery, MASTERY_GOALS)
+  assert.equal(findArcadeGame('kind-pinball')?.mastery, MASTERY_GOALS)
 
   // Real play: the skill shot, then the hidden room and NETS HOME, which
   // also saves a village.

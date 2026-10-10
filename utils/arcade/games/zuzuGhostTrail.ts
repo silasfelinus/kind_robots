@@ -113,9 +113,10 @@ const H = 240
 const GROUND_Y = 208
 const GRAVITY = 0.3
 const JUMP_VY = -5.4
-/** Walk and jump pace (Silas, 2026-10-10: the original 1.3 / 2 felt slow over long acts). */
+/** Walk pace (Silas, 2026-10-10: the original 1.3 felt slow over long acts). */
 const WALK = 1.7
-const JUMP_VX = 2.2
+/** A jump's committed sideways speed: every authored gap, updraft and lift is tuned to it. */
+const JUMP_VX = 2
 const KUNAI_SPEED = 4.5
 const INVULN_TICKS = 100
 const DEATH_TICKS = 110

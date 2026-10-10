@@ -283,7 +283,8 @@ const s4a2: Act = {
     // Cover in the clearing.
     { x: 3260, y: 150, w: 80, h: 18, look: 'stone' },
     // The stump, its wind, and the gulf beyond.
-    { x: 3800, w: 120, h: 90, look: 'stone' },
+    // (Ends 60 px short of the gulf, so walking off its top lands on the ground below.)
+    { x: 3800, w: 100, h: 90, look: 'stone' },
     // The wall and its lift.
     { x: 4400, w: 100, h: 110, look: 'stone' },
     { x: 5600, y: 150, w: 90, h: 18, look: 'stone' },

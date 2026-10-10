@@ -358,7 +358,8 @@ const THE_BROKEN_BRIDGE: Act = {
     {
       id: 'chasm-monk',
       at: 3600,
-      squad: [{ kind: 'monk', x: 3880, y: 200 }],
+      // (Floats above the island run, not in the jump line over the pits.)
+      squad: [{ kind: 'monk', x: 3880, y: 160 }],
     },
     {
       id: 'the-pier',

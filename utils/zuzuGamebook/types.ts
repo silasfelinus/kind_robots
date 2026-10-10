@@ -83,7 +83,8 @@ export type Run = {
 
 /**
  * An act module (BOOK-ONE-OUTLINE.md, conductor projects/zuzu-gamebook): its own new sections, choices it adds to
- * sections that already exist, and existing choices it reroutes into itself, keyed 'sceneId/choiceId'.
+ * sections that already exist, and existing choices it reroutes into itself, keyed 'sceneId/choiceId'
+ * (or 'sceneId/choiceId#success' / '#failure' for a checked choice).
  */
 export type Act = {
   scenes: Scene[]

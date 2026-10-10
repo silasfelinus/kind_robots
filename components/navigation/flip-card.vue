@@ -8,7 +8,7 @@
     <div
       ref="cardRef"
       class="flip-card-inner"
-      :class="{ 'is-flipping': isFlipping, 'is-revealing': revealOnTrigger }"
+      :class="{ 'is-flipping': isFlipping, 'is-revealing': props.revealOnTrigger }"
     >
       <div class="flip-card-face flip-card-front">
         <slot name="front" />

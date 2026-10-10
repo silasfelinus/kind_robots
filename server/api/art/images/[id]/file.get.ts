@@ -89,7 +89,7 @@ export default defineEventHandler(async (event) => {
       image.imagePath &&
       !image.imagePath.includes(`/api/art/images/${id}/file`)
     ) {
-      return sendRedirect(event, image.imagePath, 302)
+      return sendRedirect(event, versionedImagePath(image), 302)
     }
 
     if (!image.imageData) {
@@ -192,3 +192,28 @@ export default defineEventHandler(async (event) => {
     }
   }
 })
+
+/*
+ * A forced re-render writes new bytes to the SAME media path, and that path is
+ * served with an hour of browser caching. Redirecting to the bare path made the
+ * ArtJob card for a fresh render show the browser's cached copy of the image it
+ * replaced (Silas, 2026-10-10: two tutorial-audit renders looked like the old
+ * text-heavy art although the new files were correct). Each render is its own
+ * ArtImage row, so its updatedAt gives the redirect a URL of its own. Only
+ * site-local paths are versioned; an absolute URL may be signed.
+ */
+function versionedImagePath(image: {
+  imagePath: string | null
+  updatedAt: Date | null
+}): string {
+  const path = image.imagePath ?? ''
+  const stamp = image.updatedAt ? new Date(image.updatedAt).getTime() : NaN
+  if (
+    !path.startsWith('/') ||
+    path.startsWith('//') ||
+    !Number.isFinite(stamp)
+  ) {
+    return path
+  }
+  return `${path}${path.includes('?') ? '&' : '?'}v=${stamp}`
+}

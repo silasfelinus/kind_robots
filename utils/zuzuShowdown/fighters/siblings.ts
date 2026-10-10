@@ -27,6 +27,20 @@ const NO_HITBOX = { x: 0, y: 0, w: 0, h: 0 }
 
 // Kicks are fast and scrappy; punches are claw swipes and shoves.
 const normals = defaultNormals(HEIGHT)
+// She is small and her reach is short (t-011: the boxes follow her art, as
+// t-010 did for Zuzu and the Coyote).
+const reach: Partial<Record<keyof typeof normals, MoveData['hitbox']>> = {
+  stand_hk: { x: 6, y: 26, w: 30, h: 10 },
+  crouch_hp: { x: 2, y: 40, w: 18, h: 36 },
+  crouch_hk: { x: 6, y: 0, w: 34, h: 10 },
+  jump_lp: { x: 2, y: 18, w: 16, h: 14 },
+  jump_hp: { x: 4, y: 14, w: 22, h: 18 },
+  jump_hk: { x: 2, y: 8, w: 34, h: 16 },
+}
+for (const [id, hitbox] of Object.entries(reach)) {
+  const key = id as keyof typeof normals
+  normals[key] = { ...normals[key], hitbox: hitbox! }
+}
 
 const appleToss: MoveData = {
   startup: 16,
@@ -55,7 +69,7 @@ const baredTeeth: MoveData = {
   startup: 5,
   active: 8,
   recovery: 24,
-  hitbox: { x: 2, y: 30, w: 30, h: 70 },
+  hitbox: { x: 2, y: 56, w: 28, h: 44 },
   damage: 90,
   chip: 9,
   hitstun: 22,

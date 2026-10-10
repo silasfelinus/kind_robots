@@ -42,8 +42,8 @@
 
       <section class="relative isolate overflow-hidden rounded-3xl border border-base-content/15 bg-base-300 shadow-2xl">
         <img
-          src="/zuzu-gamebook/scenes/dust-road.webp"
-          alt="Zuzu's frontier road, background art from the established gamebook"
+          :src="landAtmosphere"
+          alt="Existing Zuzu Gamebook atmosphere plate, not a location-specific illustration"
           class="absolute inset-0 size-full object-cover object-center opacity-60"
         />
         <div class="absolute inset-0 bg-gradient-to-r from-base-300 via-base-300/70 to-base-300/15" />
@@ -123,9 +123,9 @@
                       :alt="card.label"
                       class="size-full object-cover"
                     />
-                    <div v-else-if="revealed(card.id)" class="relative flex size-full flex-col items-center justify-center gap-2 bg-gradient-to-br from-base-200 via-base-300 to-base-200 p-4 text-center">
-                      <Icon name="kind-icon:map" class="size-12 opacity-40" />
-                      <span class="text-xs font-bold opacity-75">Illustration pending</span>
+                    <div v-else-if="revealed(card.id)" class="relative size-full overflow-hidden bg-base-300">
+                      <img :src="landAtmosphere" alt="Provisional atmosphere from existing Zuzu art" class="size-full object-cover opacity-70" />
+                      <span class="absolute left-2 top-2 rounded bg-base-300/90 px-2 py-1 text-[10px] font-bold">Scene art pending</span>
                     </div>
                     <img
                       v-else
@@ -187,11 +187,9 @@
                 <NavigationFlipCard :trigger-key="dealKey" :duration-ms="650" radius="0">
                   <template #front>
                     <img v-if="game.activeCard.art" :src="game.activeCard.art" :alt="game.activeCard.label" class="size-full object-cover" />
-                    <div v-else class="grid size-full place-items-center bg-gradient-to-br from-base-200 to-base-300">
-                      <div class="text-center">
-                        <Icon name="kind-icon:map" class="mx-auto size-16 opacity-30" />
-                        <p class="mt-3 text-sm opacity-60">Scene illustration pending</p>
-                      </div>
+                    <div v-else class="relative size-full">
+                      <img :src="landAtmosphere" alt="Provisional Zuzu atmosphere artwork" class="size-full object-cover" />
+                      <span class="absolute bottom-3 right-3 rounded bg-black/75 px-3 py-1 text-xs font-bold text-white">Location art pending</span>
                     </div>
                   </template>
                   <template #back>
@@ -229,8 +227,9 @@
             <div v-else-if="game.bossReady" class="grid lg:grid-cols-[minmax(0,1.2fr)_minmax(260px,1fr)]">
               <div class="relative min-h-72 overflow-hidden bg-base-300 lg:min-h-[420px]">
                 <img v-if="game.currentLand.boss.art" :src="game.currentLand.boss.art" :alt="game.currentLand.boss.label" class="absolute inset-0 size-full object-cover" />
-                <div v-else class="absolute inset-0 grid place-items-center bg-gradient-to-br from-base-300 via-base-200 to-base-300">
-                  <Icon name="kind-icon:swords" class="size-24 opacity-35" />
+                <div v-else class="absolute inset-0">
+                  <img :src="landAtmosphere" alt="Provisional Zuzu landscape artwork" class="size-full object-cover opacity-80" />
+                  <Icon name="kind-icon:swords" class="absolute left-4 top-4 size-12 text-white drop-shadow-lg" />
                 </div>
                 <div class="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/90 to-transparent p-6 text-white">
                   <p class="text-xs font-black uppercase tracking-widest">Major trial · {{ game.state.landIndex + 1 }} / 5</p>
@@ -399,6 +398,13 @@ import { useShiftingLandsJourneyStore } from '~/stores/shiftingLandsJourneyStore
 
 const emit = defineEmits<{ legacy: [] }>()
 const game = useShiftingLandsJourneyStore()
+const landAtmosphere = computed(() => ({
+  homestead: '/zuzu-gamebook/scenes/dust-road.webp',
+  dustwater: '/zuzu-gamebook/scenes/waterhole.webp',
+  tablelands: '/zuzu-gamebook/scenes/canyon.webp',
+  cave: '/zuzu-gamebook/scenes/locked-door.webp',
+  verge: '/zuzu-gamebook/scenes/bone-valley.webp',
+}[game.currentLand.id] || '/zuzu-gamebook/scenes/dust-road.webp'))
 const dealKey = ref(0)
 const inspectorOpen = ref(false)
 const inspectId = ref<string | null>(null)

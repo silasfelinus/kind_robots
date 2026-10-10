@@ -418,11 +418,12 @@ const canDraw = computed(() =>
   game.reachable.some((id) => game.remaining.some((card) => card.id === id)),
 )
 const bossCleared = computed(() => game.state.bosses.some((boss) => boss.landId === game.currentLand.id))
-const endTitle = computed(() => ({
-  complete: 'The five lands are behind you.',
-  fallen: 'Zuzu has fallen.',
-  retired: 'The road ends here.',
-}[game.state.phase] || 'The journey goes on.'))
+const endTitle = computed(() => {
+  if (game.state.phase === 'complete') return 'The five lands are behind you.'
+  if (game.state.phase === 'fallen') return 'Zuzu has fallen.'
+  if (game.state.phase === 'retired') return 'The road ends here.'
+  return 'The journey goes on.'
+})
 const inspectedCard = computed(() => {
   for (const land of game.world.lands)
     for (const card of land.locations)

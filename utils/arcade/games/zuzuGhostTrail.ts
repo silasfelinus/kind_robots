@@ -1146,8 +1146,7 @@ class ZuzuGhostTrail implements ArcadeGameInstance {
   private collectSecret() {
     if (this.foundSecrets.has(this.stage.key)) return
     const { x, y } = this.stage.secret
-    if (Math.abs(this.x - x) >= 12 || Math.abs(this.y - 14 - y) >= 13)
-      return
+    if (Math.abs(this.x - x) >= 12 || Math.abs(this.y - 14 - y) >= 13) return
     this.foundSecrets.add(this.stage.key)
     this.addScore(800, x, y)
     this.banner = {

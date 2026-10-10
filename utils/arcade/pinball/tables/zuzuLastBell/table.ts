@@ -89,7 +89,7 @@ const colliders: ColliderDef[] = [
   {
     kind: 'box',
     id: 'zuzu-glass',
-    at: [0.02, 0.12, FLOOR_MID],
+    at: [0.02, 0.17, FLOOR_MID],
     half: [0.3, 0.005, (BOTTOM - TOP) / 2 + 0.02],
     material: 'plastic-clear',
     hidden: true,
@@ -287,7 +287,7 @@ const inserts: InsertDef[] = [
 
 const frame = {
   min: [LEFT - 0.025, 0, TOP - 0.05] as Vec3,
-  max: [RIGHT + 0.025, 0.13, BOTTOM + 0.02] as Vec3,
+  max: [RIGHT + 0.025, 0.19, BOTTOM + 0.02] as Vec3,
 }
 
 export const ZUZU_LAST_BELL_GREYBOX: TableDef = {

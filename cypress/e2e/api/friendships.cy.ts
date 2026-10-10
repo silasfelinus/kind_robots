@@ -22,7 +22,7 @@ type UserRelation = {
   pairId?: number | null
 }
 
-const fallbackApiBase = 'https://kind-robots.vercel.app'
+const fallbackApiBase = `${Cypress.config('baseUrl') || 'http://localhost:3000'}`
 const invalidToken = 'definitely-not-a-real-token'
 const normalRequestTimeout = 20_000
 const expectedFailureTimeout = 8_000

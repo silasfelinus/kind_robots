@@ -2,8 +2,8 @@ import { createLoggedInTestUser } from '../../support/api-auth'
 // cypress/e2e/api/botcafe.cy.ts
 
 describe('BotCafe API Tests', function () {
-  const chatUrl = 'https://kind-robots.vercel.app/api/botcafe/chat'
-  const brainstormUrl = 'https://kind-robots.vercel.app/api/botcafe/brainstorm'
+  const chatUrl = `${Cypress.config('baseUrl') || 'http://localhost:3000'}/api/botcafe/chat`
+  const brainstormUrl = `${Cypress.config('baseUrl') || 'http://localhost:3000'}/api/botcafe/brainstorm`
 
   let apiKey = ''
   let openaiApiKey = ''

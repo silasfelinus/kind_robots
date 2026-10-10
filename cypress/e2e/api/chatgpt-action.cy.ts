@@ -66,9 +66,7 @@ describe('ChatGPT admin action bridge', () => {
       expect(response.status, JSON.stringify(response.body)).to.eq(200)
       expect(response.body.openapi).to.eq('3.1.0')
       expect(response.body.info?.title).to.eq('Kind Robots Admin Action')
-      expect(response.body.servers?.[0]?.url).to.eq(
-        'https://kind-robots.vercel.app',
-      )
+      expect(response.body.servers?.[0]?.url).to.eq('https://kindrobots.org')
 
       const action = response.body.paths?.['/api/chatgpt']?.post
       expect(action?.operationId).to.eq('executeKindRobotsOperation')

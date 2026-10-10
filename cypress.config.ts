@@ -435,7 +435,7 @@ const sweepCypressFixtures = async (
 
 export default defineConfig({
   e2e: {
-    baseUrl: 'https://kind-robots.vercel.app',
+    baseUrl: process.env.CYPRESS_BASE_URL || 'http://localhost:3000',
     setupNodeEvents(on, config) {
       const timingEnabled =
         process.env.CYPRESS_TIMING_LOG === '1' ||

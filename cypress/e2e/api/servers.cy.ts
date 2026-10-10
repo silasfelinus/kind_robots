@@ -63,7 +63,7 @@ describe('Server API Full CRUD + Auth Tests', () => {
     })
   })
 
-  const fallbackApiBase = 'https://kind-robots.vercel.app'
+  const fallbackApiBase = `${Cypress.config('baseUrl') || 'http://localhost:3000'}`
   const invalidToken = 'definitely-not-a-real-token'
   const time = Date.now()
   const serverTitle = `Server-${time}`

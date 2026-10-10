@@ -24,7 +24,7 @@ type EndpointKey =
 
 type CreatedIds = Partial<Record<EndpointKey, number>>
 
-const fallbackApiBase = 'https://kind-robots.vercel.app'
+const fallbackApiBase = `${Cypress.config('baseUrl') || 'http://localhost:3000'}`
 const time = Date.now()
 
 const endpointPaths: Record<EndpointKey, string> = {

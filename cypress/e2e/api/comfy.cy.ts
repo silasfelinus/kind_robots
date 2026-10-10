@@ -15,7 +15,7 @@ interface ComfyDirectResponse {
 }
 
 describe.skip('Comfy Direct Test Endpoint', () => {
-  let apiBase = 'https://kind-robots.vercel.app/api/comfy/test'
+  let apiBase = `${Cypress.config('baseUrl') || 'http://localhost:3000'}/api/comfy/test`
   let apiKey = ''
   let serverId = 25
   let fluxCheckpointId = 0
@@ -26,7 +26,7 @@ describe.skip('Comfy Direct Test Endpoint', () => {
   before(() => {
     cy.env(['API_BASE', 'API_KEY', 'COMFY_TEST_SERVER_ID', 'COMFY_FLUX_CHECKPOINT_ID', 'COMFY_SDXL_CHECKPOINT_ID', 'COMFY_KONTEXT_CHECKPOINT_ID', 'COMFY_TURBO_CHECKPOINT_ID']).then((env) => {
       const rawApiBase = String(
-        env.API_BASE || 'https://kind-robots.vercel.app',
+        env.API_BASE || `${Cypress.config('baseUrl') || 'http://localhost:3000'}`,
       )
       const cleanApiBase = rawApiBase.replace(/\/+$/, '')
 

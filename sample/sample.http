@@ -1,7 +1,7 @@
 # TEMPLATE: teaching copy of an .http request file for the fictional Sample model.
 # Real .http files sit next to the server route they exercise (e.g. server/api/samples/).
 
-@base = https://kind-robots.vercel.app/api
+@base = http://localhost:3000/api
 @usertoken = {{$dotenv USER_TOKEN}}
 
 ###

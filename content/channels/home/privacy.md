@@ -18,8 +18,9 @@ tutorial:
   body: >-
     The privacy policy opens with The Short Version: Kind Robots does not sell
     or share your data. It then covers what is collected and why, the single
-    exception for a valid court order, admin access, and the difference
-    between private and public content. It also states that you own what you
+    exception for a valid court order, admin access, and how visibility works:
+    new content starts public, anything marked mature starts private, and you
+    can change the default or any single item. It also states that you own what you
     make, explains how to ask for your account to be deleted, and gives
     admin@kindrobots.org for questions.
   image: /images/splash/privacy.webp

@@ -18,7 +18,8 @@ tutorial:
   body: >-
     Account opens with shortcuts to the Newsfeed, Friends and the Animation
     Manager. Under Account & Privacy you can verify your email, set or change
-    your password, choose whether new creations start public, show mature
+    your password, choose whether new creations start public (mature ones always start
+    private), show mature
     content, list yourself in the member directory, allow friend requests, and
     pick who can message you. Updates & Promotions sets how often Kind Robots
     emails you, and Creator Earnings at the bottom shows what your creations

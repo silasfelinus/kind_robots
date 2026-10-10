@@ -8,6 +8,7 @@ subtitle: One archive of Zuzu art for every production
 summary: Zuzu artwork and project links.
 description: Search Zuzu art from every production, link images to projects, and request visual edits from the agents.
 icon: kind-icon:gallery
+image: /zuzu-gamebook/scenes/zuzu-alone.webp
 route: /admin/worlds/zuzu
 sort: 124
 requiredRole: ADMIN

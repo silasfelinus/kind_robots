@@ -10,6 +10,7 @@ subtitle: Run the Hair by Superkate service desk
 description: Price appointments, manage clients, review history, and prepare friendly receipts.
 summary: Manage salon clients and services.
 icon: kind-icon:sparkles
+image: /images/dashboard-tabs/art/stylist.webp
 route: /stylist
 sort: 60
 tutorial:

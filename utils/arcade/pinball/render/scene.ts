@@ -22,6 +22,7 @@ import type { ToyPose } from '../rules/toys'
 import { Heroes, Sparks, Trail } from './heroes'
 import { Room } from './room'
 import { Dressing, POP_FLASH, POP_REST, wallPaint } from './dressing'
+import { Wireforms, wireformRails } from './wireforms'
 import { mergeGeometries } from 'three/examples/jsm/utils/BufferGeometryUtils.js'
 import { ConvexGeometry } from 'three/examples/jsm/geometries/ConvexGeometry.js'
 import { flipperProfile, flipperYaw } from '../physics/world'
@@ -174,6 +175,20 @@ function meshGeometry(def: MeshCollider): THREE.BufferGeometry {
   return geo
 }
 
+/** Chrome lane guides taller than this are drawn as clear plastic shields (t-029). */
+const SHIELD_HEIGHT = 0.03
+
+/**
+ * A wall's drawn material: tall chrome sheets read as dark slabs in the
+ * room, so they are clear plastic shields, as on a real machine, with the
+ * wireforms' chrome bead along their tops.
+ */
+function shieldFor(def: BoxCollider): MaterialId {
+  return def.material === 'chrome' && def.half[1] * 2 > SHIELD_HEIGHT
+    ? 'plastic-clear'
+    : def.material
+}
+
 /**
  * A flipper's outline in its own frame, grown or shrunk by `grow` and spanning
  * y0..y1: the bat's plastic body is the physics outline drawn a little in,
@@ -231,6 +246,7 @@ export class PinballScene {
   private spinners = new Map<string, THREE.Group>()
   private caps = new Map<string, THREE.MeshPhysicalMaterial>()
   private dressing: Dressing | null = null
+  private wireforms: Wireforms | null = null
   private flash = new Map<string, number>()
   private doors = new Map<string, { closed: THREE.Group; open: THREE.Group }>()
   private toys = new Map<string, THREE.Group>()
@@ -348,6 +364,8 @@ export class PinballScene {
     this.dressing = new Dressing(this.table, track)
     this.caps = this.dressing.pops
     this.root.add(this.dressing.group)
+    this.wireforms = new Wireforms(this.table, track)
+    this.root.add(this.wireforms.group)
     this.room = new Room(
       this.table,
       track,
@@ -486,8 +504,10 @@ export class PinballScene {
       pieces.set(material, list)
     }
     const one = new THREE.Vector3(1, 1, 1)
+    const wired = wireformRails(this.table)
     for (const def of [...this.table.colliders, ...(this.table.trim ?? [])]) {
       if (def.kind !== 'post' && def.hidden) continue
+      if (wired.has(def.id)) continue
       if (def.kind === 'mesh') {
         add(def.material, meshGeometry(def), new THREE.Matrix4())
         continue
@@ -501,7 +521,7 @@ export class PinballScene {
               def.yaw ?? 0,
             )
         add(
-          def.material,
+          shieldFor(def),
           new THREE.BoxGeometry(
             def.half[0] * 2,
             def.half[1] * 2,
@@ -977,6 +997,11 @@ export class PinballScene {
     return this.dressing
   }
 
+  /** The ramp metalwork (t-029), for tests. */
+  get metalwork(): Wireforms | null {
+    return this.wireforms
+  }
+
   /** The signature toys, for tests (null on a table without them). */
   get heroToys(): Heroes | null {
     return this.heroes
@@ -1375,6 +1400,7 @@ export class PinballScene {
       ease(lamp, FLASHER_REST, FLASHER_FIRED, FLASHER_FIRED)
     for (const light of this.giLights) light.intensity = GI_LIGHT * this.gi
     this.dressing?.setGi(this.gi)
+    this.wireforms?.setGi(this.gi)
     this.hemisphere.intensity = 0.2 + 0.35 * this.gi
     // The pool follows the brightest flashers; the rest glow on their own.
     const firing = [...this.flashers.values()]

@@ -1,6 +1,7 @@
 import { access, readdir, readFile } from 'node:fs/promises'
 import { dirname, relative, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
+import { parse as parseYaml } from 'yaml'
 import {
   resolveChannels,
   type ChannelContentItem,
@@ -77,6 +78,50 @@ async function filesWithin(directory: string): Promise<string[]> {
   return nested.flat()
 }
 
+type TutorialFrontMatter = {
+  image?: unknown
+  hero?: unknown
+  sections?: Array<{ key?: unknown; image?: unknown }>
+}
+
+/*
+ * Tutorial art is checked as written in frontmatter, not as resolved: an
+ * omitted tutorial image falls back to the tab or channel image, which the
+ * resolved pass above already covers. The flat parser cannot see nested
+ * blocks, so this reads the frontmatter as YAML.
+ */
+async function loadTutorialImages(): Promise<Array<[string, string]>> {
+  const files = (await filesWithin(channelsDirectory)).filter((file) =>
+    file.endsWith('.md'),
+  )
+  const found: Array<[string, string]> = []
+
+  for (const file of files) {
+    const source = await readFile(file, 'utf8')
+    const match = source.match(/^---\r?\n([\s\S]*?)\r?\n---(?:\r?\n|$)/)
+    if (!match?.[1]) continue
+
+    const data = parseYaml(match[1]) as { tutorial?: TutorialFrontMatter }
+    const tutorial = data?.tutorial
+    if (!tutorial || typeof tutorial !== 'object') continue
+
+    const location = `${relative(channelsDirectory, file)} tutorial`
+    for (const value of [tutorial.image, tutorial.hero]) {
+      if (typeof value === 'string') found.push([location, value])
+    }
+    for (const section of tutorial.sections ?? []) {
+      if (typeof section?.image === 'string') {
+        found.push([
+          `${location} section ${String(section.key)}`,
+          section.image,
+        ])
+      }
+    }
+  }
+
+  return found
+}
+
 async function loadChannelItems(): Promise<ChannelContentItem[]> {
   const files = (await filesWithin(channelsDirectory)).filter((file) =>
     file.endsWith('.md'),
@@ -96,7 +141,10 @@ async function loadChannelItems(): Promise<ChannelContentItem[]> {
   )
 }
 
-function assetReference(location: string, image: string): AssetReference | null {
+function assetReference(
+  location: string,
+  image: string,
+): AssetReference | null {
   const value = image.trim()
   if (!value || /^https?:\/\//i.test(value)) return null
 
@@ -155,6 +203,10 @@ async function main(): Promise<void> {
     }
   }
 
+  for (const [location, image] of await loadTutorialImages()) {
+    inspect(location, image)
+  }
+
   // Probe once so an unreachable origin skips the media references instead of
   // timing out serially on every image (which outlasts the CI job limit).
   const mediaReachable = references.some((reference) => reference.mediaPath)
@@ -184,7 +236,9 @@ async function main(): Promise<void> {
   )
 
   if (!missing.length) {
-    console.log('All resolved channel and tab artwork exists in public/ or the media origin.')
+    console.log(
+      'All resolved channel and tab artwork exists in public/ or the media origin.',
+    )
     return
   }
 

@@ -49,9 +49,11 @@ assert.ok(
 
 assert.ok(
   tabSelect.includes('class="tab-select dropdown dropdown-start min-w-0"') &&
-    tabSelect.includes('w-[min(18rem,calc(100vw-1rem))]') &&
-    tabSelect.includes('xl:w-[min(22rem,calc(100vw-1rem))]'),
-  'the tablet tab menu must open beneath its trigger and stay narrower than the desktop menu',
+    tabSelect.includes(
+      'const availableWidth = window.innerWidth - rect.left',
+    ) &&
+    tabSelect.includes('Math.min(3, fitColumns, neededColumns)'),
+  'the tab menu must open beneath its trigger and size its columns to the width actually available, so a tablet gets fewer columns than a desktop',
 )
 assert.equal(
   channelTabList.match(
@@ -227,7 +229,11 @@ for (const path of [
   'content/channels/admin/forum-moderation.md',
 ]) {
   const content = source(path)
-  assert.match(content, /\nnavigation: false\n/, `${path} must declare that it is nested, not deleted`)
+  assert.match(
+    content,
+    /\nnavigation: false\n/,
+    `${path} must declare that it is nested, not deleted`,
+  )
   assert.doesNotMatch(
     content,
     /\nvisible: false\n/,
@@ -246,12 +252,21 @@ const accountCenter = source('components/user/account-center.vue')
 const accountLinksIndex = accountCenter.indexOf('<home-account-links />')
 const accountSettingsIndex = accountCenter.indexOf('<account-settings />')
 assert.ok(
-  accountLinksIndex >= 0 && accountSettingsIndex >= 0 && accountLinksIndex < accountSettingsIndex,
+  accountLinksIndex >= 0 &&
+    accountSettingsIndex >= 0 &&
+    accountLinksIndex < accountSettingsIndex,
   'Account center must show Newsfeed and Friends links before the existing account controls',
 )
 const accountLinks = source('components/home/home-account-links.vue')
-for (const route of ['/plan/newsfeed', '/friends', '/build/animation-manager']) {
-  assert.ok(accountLinks.includes(`to="${route}"`), `Account hub must link to ${route}`)
+for (const route of [
+  '/plan/newsfeed',
+  '/friends',
+  '/build/animation-manager',
+]) {
+  assert.ok(
+    accountLinks.includes(`to="${route}"`),
+    `Account hub must link to ${route}`,
+  )
 }
 assert.equal(
   accountLinks.includes('to="/account"'),
@@ -272,7 +287,10 @@ assert.match(source('content/about.md'), /\ntitle: 'Support'\n/)
 assert.match(source('content/about.md'), /\n:about-page\n/)
 const aboutPage = source('components/pages/about-page.vue')
 for (const route of ['/about', '/giving', '/sanctuary']) {
-  assert.ok(aboutPage.includes(`to="${route}"`), `Support must link to ${route}`)
+  assert.ok(
+    aboutPage.includes(`to="${route}"`),
+    `Support must link to ${route}`,
+  )
 }
 
 assert.equal(
@@ -308,11 +326,15 @@ const userAdminCenter = source('components/user/user-admin-center.vue')
 assert.ok(userAdminCenter.includes('<user-manager-directory />'))
 assert.ok(userAdminCenter.includes('<forum-moderation-panel />'))
 assert.ok(
-  source('pages/admin/forum-moderation.vue').includes('<forum-moderation-panel />'),
+  source('pages/admin/forum-moderation.vue').includes(
+    '<forum-moderation-panel />',
+  ),
   'the legacy moderation route must reuse the shared moderation panel',
 )
 
-const animationManagerTab = source('content/channels/admin/animation-manager.md')
+const animationManagerTab = source(
+  'content/channels/admin/animation-manager.md',
+)
 assert.match(animationManagerTab, /\nnavigation: false\n/)
 assert.doesNotMatch(animationManagerTab, /\nrequiredRole: ADMIN\n/)
 const animationManagerPage = source('content/build/animation-manager.md')
@@ -361,4 +383,6 @@ assert.ok(
   'the full navigation directory must link leaf destinations rather than subtab parents',
 )
 
-console.log('Navigation consolidation verified: Account tools, Resources triage access, Admin > Retired subtabs, hidden diagnostics, nested routes, access metadata, and ArtJob icon all hold.')
+console.log(
+  'Navigation consolidation verified: Account tools, Resources triage access, Admin > Retired subtabs, hidden diagnostics, nested routes, access metadata, and ArtJob icon all hold.',
+)

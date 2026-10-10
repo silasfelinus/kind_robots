@@ -4,8 +4,8 @@ channelKey: admin
 tabKey: art-archive
 label: Art Archive
 title: Art Archive
-subtitle: Ingest, browse, and curate the private legacy art collection
-description: Scan the private media-server archive, import it as private mature ArtImages with resource provenance, then browse, rate, collect, and curate what landed.
+subtitle: Import and curate the private legacy art archive
+description: Import the private legacy art archive from the media server, then filter, inspect, rate, and trash what came in.
 summary: Import and curate archived art.
 icon: kind-icon:archive
 route: /art-archive
@@ -14,7 +14,13 @@ requiredRole: ADMIN
 tutorial:
   title: Art Archive
   body: >-
-    Scan the private media-server archive and import what it finds as private, mature-flagged ArtImages that remember which resource they came from. Once imported, browse, rate, collect, and curate the results; nothing here becomes public on its own.
+    Ingest from the media server brings the private legacy archive in. Dry run
+    reports what an import would do without writing anything, and Import adds
+    the images as private and mature. Filter by path, folder, processed state,
+    resource match, or rating, and click an image to see its prompt, metadata,
+    and resource match evidence. The Curation board rates selected images from 1
+    to 5 stars, moves them to a recoverable trash, or queues a preset ArtJob for
+    them.
 ---
 
 Ingest the private legacy art archive and curate what it brought in.

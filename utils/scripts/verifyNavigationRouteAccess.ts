@@ -291,11 +291,11 @@ const projectsChannelSource = readFileSync(
   'content/channels/projects/index.md',
   'utf8',
 )
-for (const key of ['purpose', 'launch', 'evolving', 'boundaries']) {
+for (const key of ['make', 'learn', 'games', 'toys']) {
   assert.match(
     projectsChannelSource,
     new RegExp(`\\n\\s{4}- key:\\s*${key}\\n`),
-    `Projects conceptual tutorial must keep the "${key}" section.`,
+    `Play conceptual tutorial must keep the "${key}" section.`,
   )
 }
 assert.doesNotMatch(
@@ -335,7 +335,7 @@ const adminChannelSource = readFileSync(
   'content/channels/admin/index.md',
   'utf8',
 )
-for (const key of ['operations', 'studios', 'care', 'boundaries']) {
+for (const key of ['art', 'projects', 'studios', 'people', 'shelf']) {
   assert.match(
     adminChannelSource,
     new RegExp(`\\n\\s{4}- key:\\s*${key}\\n`),

@@ -4,10 +4,10 @@ channelKey: projects
 label: Play
 title: Play
 room: The Workshop
-subtitle: Tools, games, and experiments
-description: Tools, games, and experiments, many of them designed and built by Kind Robots' agents. Make art and video, brainstorm, practice music and Mandarin, or play something the robots built.
+subtitle: Make things, practice, and play games
+description: Make images and video, brainstorm ideas, practice singing and Mandarin, or play arcade cabinets, card dungeons, and other games, many built by the Kind Robots agents.
 icon: kind-icon:blueprint
-image: /images/channels/plan/channel.webp
+image: /images/arcade/arcade-hall-backdrop.webp
 route: /art
 defaultTab: art
 sort: 40
@@ -16,28 +16,56 @@ refreshLabel: Refresh Play
 dottiTip: Every bench in this workshop holds something to make or something to play.
 amiTip: Several of these the robots built mostly on their own. I checked them for goblins. Mostly.
 tutorial:
-  title: Projects
-  tagline: Pick a thing, understand its state, and jump in.
-  overview: Projects is the workshop for finished tools, playable experiments, learning spaces, and agent-built prototypes that do not belong in Storybook or Admin.
-  hero: /images/channels/plan/channel.webp
+  title: Play
+  tagline: Make art, practice a skill, or play a game.
+  overview: >-
+    Play holds the hands-on parts of Kind Robots. Some tabs make things, like
+    images, short video clips and music videos. Some help you practice singing
+    or Mandarin. The rest are games and toys, many of them built mostly by the
+    Kind Robots agents. Pick a tab from the Play menu; each one explains its
+    own controls in this sidebar.
+  hero: /images/arcade/arcade-hall-backdrop.webp
   sections:
-    - key: purpose
-      title: What belongs in Projects
+    - key: make
+      title: Make images, clips and music videos
       body: >-
-        This is the public workshop for things you can use or play directly: tools, games, learning experiments, creative studios, and prototypes that have grown into real surfaces.
-      image: /images/channels/plan/channel.webp
-    - key: launch
-      title: Pick a project and jump in
-      body: Choose a destination from the Projects menu and open it directly. Each project owns its own controls and page-specific help, so the channel tutorial stays focused on how the workshop fits together.
-      image: /images/arcade/arcade-attract-splash.webp
-    - key: evolving
-      title: Expect some experiments to evolve
-      body: Projects can range from polished tools to experiments still gaining features. Labels and page-specific help should tell you what is ready now without turning this tutorial into a running catalog.
-      image: /images/channels/plan/mandarin.webp
-    - key: boundaries
-      title: Know the neighboring rooms
-      body: Storybook is for narrative ingredients and story-making. Admin is for operational controls and private management. Projects is where front-facing tools, games, and experiments live.
-      image: /images/channels/play/channel.webp
+        Art opens on the Image Generator: pick a recipe, write a prompt and
+        press Generate, then find the results in the Gallery. Video Gen turns a
+        still image into a short animated clip. Music Video shows finished
+        videos and lets you remix one into your own draft. Brainstorm produces
+        batches of ideas or art prompts and can send the ones you keep
+        straight to image generation. Generating costs mana, so sign in first.
+      image: /images/art/generate.webp
+    - key: learn
+      title: Practice singing and Mandarin
+      body: >-
+        Music Mentor takes a recording of your singing and gives feedback on
+        pitch, timing, dynamics and arrangement. The audio is analyzed in your
+        browser and does not leave your device, and the coaching costs mana.
+        Mandarin is a free course that shows how each character is built from
+        its parts, lets you hear it, and then asks you to recall it and rate
+        how well you knew it.
+      image: /images/mandarin-tutor/cards/v2/f24c02b7272a3d3004079114.webp
+    - key: games
+      title: Play a game
+      body: >-
+        The Arcade is a hall of free cabinets, each an original game based on a
+        classic, with worldwide high-score boards and no account needed. Memory
+        Dungeon is a card-matching game with lives, power-ups and floors to
+        clear. The Ruler Is Hooked has you fishing for your kingdom between
+        royal decisions. Zuzu Gamebook is an illustrated adventure with
+        choices, dice rolls and several endings.
+      image: /images/background/memorydungeon.webp
+    - key: toys
+      title: Try the toys and the gallery
+      body: >-
+        Rebel Button is a button you are told not to press; each press changes
+        its message and adds to a click leaderboard. Cthulhuquarium is an idle
+        aquarium where you collect coins, feed and breed strange creatures, and
+        decorate the tank once you sign in. Tzaddikim is a sourced gallery of
+        people worth celebrating, where signed-in visitors can nominate and
+        react.
+      image: /images/channels/play/aquarium.webp
 # Stage 3 backdrop art, resolved by slug via /api/art/backdrop/<page>-<variant>.
 # The route finds the completed ArtJob for this page and redirects to its
 # image, so art appears on its own once generation finishes. Until then the

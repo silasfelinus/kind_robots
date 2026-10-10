@@ -13,7 +13,9 @@
     </header>
 
     <!-- Short Version -->
-    <section class="mb-10 p-5 rounded-2xl bg-(--kr-surface) border border-base-300">
+    <section
+      class="mb-10 p-5 rounded-2xl bg-(--kr-surface) border border-base-300"
+    >
       <h2 class="text-xl font-semibold mb-2">The Short Version</h2>
       <p>
         We don't sell your data. We don't share your data. We don't want your
@@ -81,29 +83,40 @@
     <section class="mb-10">
       <h2 class="text-xl font-semibold mb-2">Public vs. Private Content</h2>
       <p class="mb-4">
-        Kind Robots uses an
+        Everything you make has a visibility setting, and you control it. Kind
+        Robots uses an
         <code class="badge badge-ghost font-mono">isPublic</code> flag on
-        content. Here's what that means:
+        content, with these defaults:
       </p>
       <div class="grid gap-4 sm:grid-cols-2">
         <div class="p-4 rounded-xl bg-base-200 border border-base-300">
-          <h3 class="font-semibold mb-1">🔒 Private (default)</h3>
+          <h3 class="font-semibold mb-1">
+            🌐 Public (default for most content)
+          </h3>
           <p class="text-sm">
-            Only you can see it. It is not shared, indexed, discussed, or fed
-            into any community features. Admin access aside, it stays yours
-            alone.
+            New content that is not marked mature starts public, so the
+            community can view, remix, and share it. You can make it private at
+            any time, but we can't recall anything copied while it was public.
+            The internet is what it is.
           </p>
         </div>
         <div class="p-4 rounded-xl bg-base-200 border border-base-300">
-          <h3 class="font-semibold mb-1">🌐 Public</h3>
+          <h3 class="font-semibold mb-1">
+            🔒 Private (default for mature content)
+          </h3>
           <p class="text-sm">
-            Content you mark public is available to the community — viewable,
-            remixable, shareable. You can make it private again at any time, but
-            we can't recall anything copied while it was public. The internet is
-            what it is.
+            Anything marked mature starts private. Private content is visible
+            only to you: it is not shared, indexed, discussed, or fed into any
+            community features. Admin access aside, it stays yours alone.
           </p>
         </div>
       </div>
+      <p class="mt-4">
+        These are defaults, not rules. Turn off
+        <span class="font-semibold">Public by default</span> under Privacy &amp;
+        Consent on your Account page to start everything private, and change any
+        single item's visibility whenever you like.
+      </p>
     </section>
 
     <!-- Ownership -->

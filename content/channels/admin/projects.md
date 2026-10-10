@@ -6,17 +6,23 @@ dashboardKey: conductor
 dashboardTab: conductor
 label: Projects
 title: Project Planner
-subtitle: Organize the work that matters
-description: Browse projects, review status, and move ideas through the Conductor pipeline.
-summary: Review projects and progress.
+subtitle: Conductor projects, pitches, and roadmaps
+description: Browse Conductor projects, review pitches, and read each project's roadmap and milestones.
+summary: Projects, pitches, and roadmaps.
 icon: kind-icon:map
 route: /conductor
 sort: 15
 requiredRole: ADMIN
 tutorial:
-  title: Project Planner
+  title: Projects
   body: >-
-    Every Conductor project and its roadmap in one place. Read a project's milestones and task states, see what is ready, claimed, or waiting on a human decision, and follow a task back to the pull request that shipped it.
+    The Projects gallery shows every Conductor project, filtered by Active,
+    Continuous, Paused, Completed, Archived, or All. Proposed opens Pitch
+    Review, where you approve, reject, or archive pitches. Sync lists projects
+    whose status or database record has drifted, and Blocked shows which tasks
+    are stuck and why. Open a project to edit its profile, status, and priority,
+    read its roadmap tasks and milestones, and leave a task or comment for the
+    project worker.
 ---
 
 Review projects and coordinate their next steps.

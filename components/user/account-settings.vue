@@ -140,7 +140,8 @@
             <span>
               <span class="block font-semibold">Public by default</span>
               <span class="kr-text-dim-xs-60 block">
-                New creations start visible to everyone.
+                New creations start visible to everyone. Anything marked mature
+                starts private either way.
               </span>
             </span>
             <input

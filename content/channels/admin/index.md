@@ -4,8 +4,8 @@ channelKey: admin
 label: Admin
 title: Admin
 room: Control Room
-subtitle: Operational controls for managers
-description: Queues, servers, permissions, moderation, system health, and other dangerous buttons.
+subtitle: Run the site and build what is not public yet
+description: The art queue and models, agent projects, unreleased studios, user accounts, and forum moderation.
 icon: kind-icon:server
 route: /artjob
 defaultTab: artjob
@@ -17,31 +17,59 @@ dottiTip: Admin tools are powerful, so I brought validation.
 amiTip: I brought a helmet.
 tutorial:
   title: Admin
-  tagline: Keep the robots running, and build what is not public yet.
+  tagline: Run the site, steer the agents, and build what is not public yet.
   overview: >-
-    Admin is the control room for Kind Robots. It holds the operational tools that keep the site working and the studios that are still being built, and it is only visible to administrators.
-  hero: /images/channels/admin/channel.webp
+    Admin is where Kind Robots is run and where its unreleased studios are
+    built. It covers five jobs: keeping art generation working, steering the
+    agent projects, building the studios, looking after accounts and the forum,
+    and keeping side tools and retired pages within reach. Only administrators
+    can see it.
+  hero: /images/splash/screenfx.webp
   sections:
-    - key: operations
-      title: Watch the pipelines
+    - key: art
+      title: Art generation and the archive
       body: >-
-        Most days start with the pipelines. ArtJob shows whether art is rendering and why anything failed, Resources shows what the art servers can draw with, and Projects shows what the agents are working on. When something on the public site looks wrong, one of these usually explains it.
-      image: /images/channels/admin/resources.webp
+        ArtJob is the render queue, where you see which jobs are pending, running,
+        or failed, check each art server's health, and retry or cancel jobs.
+        Resources holds the checkpoints and LoRAs the servers draw with, LoRA Triage
+        marks each LoRA SFW or NSFW, and Art Archive imports and rates the private
+        legacy art collection.
+      image: /images/dashboard-tabs/art/generate.webp
+    - key: projects
+      title: Projects and the agents
+      body: >-
+        Projects shows every Conductor project with its roadmap, milestones, and
+        blocked tasks, and its Proposed button is where you approve or reject new
+        pitches. From a project page you can leave a task or comment for the project
+        worker. Project Placement is a one-off backfill that writes each project's
+        channel, tab, and live URL.
+      image: /images/dashboard-tabs/conductor/conductor.webp
     - key: studios
-      title: Studios still in the workshop
+      title: Studios being built
       body: >-
-        Some tabs are real creative tools that are not public yet. They live here while they are built and checked, and each one moves to Play once Silas has accepted it. Expect them to change between visits.
-      image: /images/channels/admin/zuzu-world.webp
-    - key: care
-      title: These buttons touch real data
+        Zuzu World is one archive of Zuzu art that any production can link to. Comic
+        Studio is where you pitch to the Editor, compare panel renders, and lay out
+        pages. Zuzu Showdown is the fighting game, Shifting Lands is the Homestead
+        card-game prototype, and Butterfly Gallery sorts the private art archive
+        into bins. They stay admin-only while they are built, so expect them to
+        change between visits.
+      image: /zuzu-gamebook/scenes/zuzu-fire.webp
+    - key: people
+      title: Accounts and the forum
       body: >-
-        Retries, imports, role changes, and moderation decisions act on live accounts, art, and records. Private and mature material imported here stays private unless someone deliberately publishes it, and every tab explains its own controls in its page help.
-      image: /images/channels/admin/art-archive.webp
-    - key: boundaries
-      title: Know the neighboring rooms
+        Users & Moderation lists every account, where you change roles, reset
+        passwords, shadow-restrict an account, or log in as a user to see what they
+        see. Forum Moderation holds posts that were hidden automatically after two
+        people flagged them, and you restore each one or confirm its removal.
+      image: /images/channels/admin/forum-moderation.webp
+    - key: shelf
+      title: Side tools and the Retired shelf
       body: >-
-        Home is your own account, Storybook holds the ingredients of stories, and Play is where finished tools and games live for everyone. Admin is for running the place and for work that is not ready to be seen yet; retired surfaces stay reachable under Retired without crowding the menu.
-      image: /images/channels/admin/channel.webp
+        Coloring Book pairs color and black-and-white pages for the coloring book. Animation Manager previews and layers the site's screen effects and sets the
+        startup animation for your browser. Retired keeps older pages reachable
+        without crowding the menu, including AppMaker, the Conductor App page, the Mermaids of Venice page editor, and the
+        Scene Animator.
+      image: /images/butterfly-gallery/room.webp
 # Stage 3 backdrop art, resolved by slug via /api/art/backdrop/<page>-<variant>.
 # The route finds the completed ArtJob for this page and redirects to its
 # image, so art appears on its own once generation finishes. Until then the

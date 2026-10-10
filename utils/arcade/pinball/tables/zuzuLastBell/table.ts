@@ -15,7 +15,7 @@ const SHOOTER_WALL = 0.245
 const TOP = -0.97
 const BOTTOM = 0.14
 const FLOOR_MID = (TOP + BOTTOM) / 2
-const BELL: Vec3 = [0, 0.065, -1.02]
+const BELL: Vec3 = [0, BALL, -0.79]
 
 const arch: XZ[] = Array.from({ length: 25 }, (_, step) => {
   const theta = Math.PI + (step * Math.PI) / 24

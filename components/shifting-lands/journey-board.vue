@@ -303,6 +303,26 @@
               </div>
             </div>
           </section>
+          <section v-if="visitedCards.length" class="rounded-2xl border border-base-content/15 bg-base-200 p-4 sm:p-5" aria-label="Discovered locations">
+            <details>
+              <summary class="cursor-pointer font-serif text-lg font-black">Your discovered trail · {{ visitedCards.length }} places</summary>
+              <div class="mt-4 grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-5">
+                <button
+                  v-for="card in visitedCards"
+                  :key="card.id"
+                  type="button"
+                  class="overflow-hidden rounded-xl border border-base-content/15 bg-base-300 text-left focus-visible:outline focus-visible:outline-4 focus-visible:outline-primary"
+                  :aria-label="'Inspect previous visit to ' + card.label"
+                  @click="openInspector(card.id)"
+                >
+                  <img v-if="card.art" :src="card.art" :alt="card.label" class="aspect-[4/3] w-full object-cover" />
+                  <div v-else class="grid aspect-[4/3] place-items-center"><Icon name="kind-icon:map" class="size-8 opacity-40" /></div>
+                  <span class="block truncate px-2 py-2 text-xs font-bold">{{ card.label }}</span>
+                  <span class="block truncate px-2 pb-2 text-[10px] opacity-65">{{ card.land }}</span>
+                </button>
+              </div>
+            </details>
+          </section>
         </div>
 
         <aside class="space-y-4">
@@ -401,6 +421,14 @@ const inspectedCard = computed(() => {
   return null
 })
 const inspectedOutcome = computed(() => game.state.resolved.find((entry) => entry.locationId === inspectId.value) ?? null)
+const visitedCards = computed(() => {
+  const cards: Array<{ id: string; label: string; land: string; art: string | null }> = []
+  for (const land of game.world.lands)
+    for (const card of land.locations)
+      if (game.state.resolved.some((entry) => entry.locationId === card.id))
+        cards.push({ id: card.id, label: card.label, land: land.name, art: card.art })
+  return cards
+})
 
 function visited(id: string) {
   return game.state.resolved.some((entry) => entry.locationId === id)

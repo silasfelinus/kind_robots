@@ -17,7 +17,30 @@
 // nearest launcher that still has umbrellas.
 
 import { levelCurve } from '../curve'
-import { drawText } from '../font'
+import { drawText, measureText } from '../font'
+import {
+  INK,
+  RAMPS,
+  Sparkles,
+  backdropRng,
+  bandedGradient,
+  bevel,
+  cachedLayer,
+  drawCloud,
+  drawRidge,
+  drawSprite,
+  drawStars,
+  dropShadow,
+  glow,
+  hudPanel,
+  pixelSprite,
+  rgba,
+  ridge,
+  shadedOrb,
+  starField,
+  vignette,
+} from '../snes'
+import type { Ramp } from '../snes'
 import type {
   ArcadeGameInstance,
   ArcadeGameModule,
@@ -102,14 +125,357 @@ type Particle = {
 }
 type Floater = { x: number; y: number; text: string; life: number }
 
-const RAINBOW = [
-  '#f87171',
-  '#fb923c',
-  '#facc15',
-  '#4ade80',
-  '#38bdf8',
-  '#a78bfa',
+// --- 16-bit art (utils/arcade/snes.ts) -------------------------------------------
+
+/** Stormy dusk: deep indigo overhead, warming to a violet-rose horizon behind the hills. */
+const SKY_BANDS = [
+  '#0a0820',
+  RAMPS.night[1],
+  RAMPS.night[2],
+  '#2c2866',
+  '#46357a',
+  '#6a3f7e',
+  '#8a4c7c',
 ]
+const STORM: Ramp = ['#100e26', '#2a284f', '#3e3e6e', '#5f6092', '#9093c2']
+const STORM_FAR: Ramp = ['#0c0a20', '#1a183c', '#262452', '#36346c', '#4c4c88']
+const ICE: Ramp = ['#24406e', '#4a7fb8', '#9cd0f0', '#dff4ff', '#ffffff']
+const DROOP: Ramp = ['#2f3a12', '#5c6b1e', '#8f9a3a', '#c4c86a', '#eef0b8']
+/** The six umbrella colours, red to violet, as shading ramps. */
+const RAINBOW_RAMPS: readonly Ramp[] = [
+  ['#4a0d1a', '#a3172f', '#e8383d', '#f87171', '#fecaca'],
+  RAMPS.rust,
+  RAMPS.gold,
+  RAMPS.leaf,
+  RAMPS.sky,
+  RAMPS.purple,
+]
+
+function rampPalette(ramp: Ramp): Record<string, string> {
+  return {
+    '0': ramp[0],
+    '1': ramp[1],
+    '2': ramp[2],
+    '3': ramp[3],
+    '4': ramp[4],
+  }
+}
+
+/**
+ * A sphere (or the part of one inside the w x h box) as shade digits '0'..'4', lit from the upper
+ * left the way 16-bit sprite artists shaded a ball.
+ */
+function sphereRows(
+  w: number,
+  h: number,
+  cx: number,
+  cy: number,
+  r: number,
+): string[] {
+  const rows: string[] = []
+  for (let y = 0; y < h; y++) {
+    let row = ''
+    for (let x = 0; x < w; x++) {
+      const nx = (x + 0.5 - cx) / r
+      const ny = (y + 0.5 - cy) / r
+      const d2 = nx * nx + ny * ny
+      if (d2 > 1) {
+        row += '.'
+        continue
+      }
+      const light = -0.45 * nx - 0.55 * ny + 0.7 * Math.sqrt(1 - d2)
+      row +=
+        light > 0.9
+          ? '4'
+          : light > 0.62
+            ? '3'
+            : light > 0.3
+              ? '2'
+              : light > 0
+                ? '1'
+                : '0'
+    }
+    rows.push(row)
+  }
+  return rows
+}
+
+/** Hailstones: an icy ball, with a frost glint that winks as it tumbles. */
+const HAIL_BODY = sphereRows(5, 5, 2.5, 2.5, 2.7)
+const HAIL_SPRITES = [
+  pixelSprite(HAIL_BODY, rampPalette(ICE)),
+  pixelSprite(
+    HAIL_BODY.map((row, y) =>
+      y === 3 ? row.slice(0, 3) + '4' + row.slice(4) : row,
+    ),
+    rampPalette(ICE),
+  ),
+] as const
+
+/** A zippy lightning sprite, flickering between two charges. */
+const BOLT_ROWS = [
+  '...hhY.',
+  '..hYYy.',
+  '.hYxYx.',
+  'hYYYYYy',
+  '..YYYy.',
+  '..hYy..',
+  '.hYy...',
+  '.Yy....',
+  'y......',
+]
+const BOLT_SPRITES = [
+  pixelSprite(BOLT_ROWS, {
+    h: RAMPS.gold[4],
+    Y: RAMPS.gold[3],
+    y: RAMPS.gold[2],
+    x: INK,
+  }),
+  pixelSprite(BOLT_ROWS, {
+    h: '#ffffff',
+    Y: RAMPS.gold[3],
+    y: RAMPS.rust[3],
+    x: INK,
+  }),
+] as const
+
+/** The grumpy thunder-goose, facing right: wings up, wings down. */
+const GOOSE_PALETTE = {
+  W: RAMPS.cream[3],
+  w: RAMPS.cream[2],
+  g: RAMPS.steel[3],
+  G: RAMPS.steel[2],
+  d: RAMPS.steel[1],
+  n: '#2a3048',
+  N: RAMPS.steel[1],
+  e: '#ffffff',
+  x: INK,
+  o: RAMPS.rust[3],
+  O: RAMPS.rust[2],
+  f: RAMPS.rust[2],
+}
+const GOOSE_SPRITES = [
+  pixelSprite(
+    [
+      '.....WW...........',
+      '....WWwg......nn..',
+      '....Wwwg.....nxxn.',
+      '.....wgG.....nNeNo',
+      '..wWWWwwwwwwwnNNoO',
+      'wWWWWWWWWWWwwwn...',
+      '.gwwwwwwwwwwwwg...',
+      '..ggGGGGGGGGGg....',
+      '....GGdddddG......',
+      '.....f...f........',
+    ],
+    GOOSE_PALETTE,
+  ),
+  pixelSprite(
+    [
+      '..................',
+      '..............nn..',
+      '.............nxxn.',
+      '.............nNeNo',
+      '..wWWWwwwwwwwnNNoO',
+      'wWWWWgGGWWWwwwn...',
+      '.gwwwgGGdwwwwwg...',
+      '..ggGGgGdGGGGg....',
+      '....GGGddddG......',
+      '.....fGd.f........',
+    ],
+    GOOSE_PALETTE,
+  ),
+] as const
+
+/** The three seedlings of a bed, composited into one sprite, the top rows nudged to sway. */
+function bedRows(
+  seedlings: readonly (readonly string[])[],
+  shifts: readonly number[],
+): string[] {
+  const h = Math.max(...seedlings.map((s) => s.length))
+  const grid = Array.from({ length: h }, () => new Array<string>(21).fill('.'))
+  seedlings.forEach((rows, i) => {
+    const pad = h - rows.length
+    rows.forEach((row, r) => {
+      const shift = r < 3 ? shifts[i]! : 0
+      for (let c = 0; c < row.length; c++) {
+        const ch = row[c]!
+        if (ch !== '.') grid[r + pad]![i * 7 + 1 + c + shift] = ch
+      }
+    })
+  })
+  return grid.map((row) => row.join(''))
+}
+
+const SPROUT = ['HL.Ll', 'LlsLd', '.dsd.', '..s..', '..S..', '..S..']
+const BUD_SPROUT = [
+  '..P..',
+  'HLpLl',
+  'LlsLd',
+  '.dsd.',
+  '..s..',
+  '..S..',
+  '..S..',
+]
+const SPROUT_PALETTE = {
+  H: RAMPS.leaf[4],
+  L: RAMPS.leaf[3],
+  l: RAMPS.leaf[2],
+  d: RAMPS.leaf[1],
+  s: RAMPS.leaf[2],
+  S: RAMPS.leaf[1],
+  P: RAMPS.pink[3],
+  p: RAMPS.pink[2],
+}
+/** BED_SPRITES[sway frame]: a growing bed's seedlings. */
+const BED_SPRITES = [
+  pixelSprite(bedRows([SPROUT, BUD_SPROUT, SPROUT], [0, 1, 0]), SPROUT_PALETTE),
+  pixelSprite(bedRows([SPROUT, BUD_SPROUT, SPROUT], [1, 0, 1]), SPROUT_PALETTE),
+] as const
+const WILTING = ['.....', '.sss.', 'Yy..s', 'yY..s', '.d..S', '....S']
+const DROOP_SPRITE = pixelSprite(
+  bedRows([WILTING, WILTING, WILTING], [0, 0, 0]),
+  {
+    Y: DROOP[3],
+    y: DROOP[2],
+    s: DROOP[2],
+    S: DROOP[1],
+    d: DROOP[1],
+  },
+)
+const WILTED_SPRITE = pixelSprite(
+  ['.gGGg...gGGg...gGg.', 'dddgg..ddggd..ddgd.'],
+  { g: RAMPS.steel[2], G: RAMPS.steel[3], d: RAMPS.steel[1] },
+)
+
+/** A sprout launcher: a smiling terracotta pot under a leafy dome (the barrel is drawn apart). */
+const LAUNCHER_ROWS = [
+  ...sphereRows(18, 6, 9, 6.5, 6),
+  'eddddddddddddddddc',
+  'cccccccccccccccccb',
+  '.dccccccccccccccb.',
+  '.dcccckcccckccccb.',
+  '..dccpckcckcpccb..',
+  '..dccccckkcccccb..',
+  '...bbbbbbbbbbbb...',
+]
+const LAUNCHER_SPRITE = pixelSprite(LAUNCHER_ROWS, {
+  ...rampPalette(RAMPS.leaf),
+  b: RAMPS.rust[1],
+  c: RAMPS.rust[2],
+  d: RAMPS.rust[3],
+  e: RAMPS.rust[4],
+  k: INK,
+  p: RAMPS.pink[3],
+})
+const SOAKED_SPRITE = pixelSprite(LAUNCHER_ROWS, {
+  ...rampPalette(RAMPS.steel),
+  b: RAMPS.water[0],
+  c: RAMPS.water[1],
+  d: RAMPS.water[2],
+  e: RAMPS.water[3],
+  k: INK,
+  p: RAMPS.water[3],
+})
+
+const FAR_HILLS = ridge(17, W, 26, 4)
+const NEAR_HILLS = ridge(43, W, 12, 4)
+const STARS = starField(97, 40, W, 140)
+const DRIZZLE = (() => {
+  const rand = backdropRng(83)
+  return Array.from({ length: 44 }, () => ({
+    x: rand() * W,
+    y: rand() * GROUND,
+    speed: 1.4 + rand() * 1.2,
+    len: 2 + Math.floor(rand() * 3),
+  }))
+})()
+/** Where the storm's lightning lights the cloud deck from inside, in turn. */
+const FLASHES = (() => {
+  const rand = backdropRng(71)
+  return Array.from({ length: 7 }, () => 30 + rand() * (W - 60))
+})()
+const FLASH_EVERY = 260
+
+/** Clouds for one wrapping strip of the storm deck. */
+function deckClouds(
+  seed: number,
+  count: number,
+  y: number,
+  size: number,
+): { x: number; y: number; size: number }[] {
+  const rand = backdropRng(seed)
+  return Array.from({ length: count }, (_, i) => ({
+    x: (W / count) * i + rand() * 14,
+    y: y + rand() * 5,
+    size: size + rand() * 3,
+  }))
+}
+const DECKS = [
+  {
+    key: 'rain-catcher-deck-far',
+    h: 38,
+    speed: 0.05,
+    ramp: STORM_FAR,
+    top: 8,
+    clouds: deckClouds(61, 8, 10, 10),
+  },
+  {
+    key: 'rain-catcher-deck-near',
+    h: 42,
+    speed: 0.13,
+    ramp: STORM,
+    top: 0,
+    clouds: deckClouds(67, 9, 19, 7.5),
+  },
+] as const
+
+/** A canvas painted once (null headless, where the caller paints straight onto the screen). */
+function bakeCanvas(
+  w: number,
+  h: number,
+  paint: (k: CanvasRenderingContext2D) => void,
+): HTMLCanvasElement | null {
+  if (typeof document === 'undefined') return null
+  const canvas = document.createElement('canvas')
+  canvas.width = w
+  canvas.height = h
+  const k = canvas.getContext('2d')
+  if (!k) return null
+  paint(k)
+  return canvas
+}
+
+const strips = new Map<string, HTMLCanvasElement | null>()
+
+/** A screen-wide strip baked once, then scrolled sideways and wrapped (a parallax layer). */
+function scrollStrip(
+  g: CanvasRenderingContext2D,
+  key: string,
+  h: number,
+  offset: number,
+  paint: (k: CanvasRenderingContext2D) => void,
+) {
+  let canvas = strips.get(key)
+  if (canvas === undefined) {
+    canvas = bakeCanvas(W, h, paint)
+    strips.set(key, canvas)
+  }
+  const x = -Math.round(((offset % W) + W) % W)
+  g.save()
+  g.imageSmoothingEnabled = false
+  for (const dx of [x, x + W]) {
+    if (canvas) {
+      g.drawImage(canvas, dx, 0)
+    } else {
+      g.save()
+      g.translate(dx, 0)
+      paint(g)
+      g.restore()
+    }
+  }
+  g.restore()
+}
 
 class RainCatcher implements ArcadeGameInstance {
   score = 0
@@ -145,6 +511,9 @@ class RainCatcher implements ArcadeGameInstance {
   private particles: Particle[] = []
   private floaters: Floater[] = []
   private banner: { text: string; sub?: string; ticks: number } | null = null
+  // Cosmetic sparkles roll their own dice, so the game's seeded rng is untouched.
+  private fx = new Sparkles()
+  private fxRng = backdropRng(37)
 
   constructor(options: ArcadeGameOptions) {
     this.rng = options.rng
@@ -364,6 +733,7 @@ class RainCatcher implements ArcadeGameInstance {
       s.y += s.vy
       if ((s.tx - s.x) * s.vx + (s.ty - s.y) * s.vy <= 0) {
         this.blooms.push({ x: s.tx, y: s.ty, t: 0 })
+        this.fx.burst(s.tx, s.ty, this.fxRng, { count: 5, speed: 1.2 })
         s.vx = 0
         s.vy = 0
       }
@@ -395,6 +765,7 @@ class RainCatcher implements ArcadeGameInstance {
         goose.vx = 0
         this.addScore(GOOSE_POINTS * this.multiplier, goose.x, goose.y - 10)
         this.burst(goose.x, goose.y, 14, '#e5e7eb')
+        this.fx.burst(goose.x, goose.y, this.fxRng, { count: 16, speed: 2.2 })
         this.sound.play('pop')
       }
       this.geese = this.geese.filter((goose) => goose.vx !== 0)
@@ -409,6 +780,12 @@ class RainCatcher implements ArcadeGameInstance {
     const points = (h.sprite ? SPRITE_POINTS : HAIL_POINTS) * this.multiplier
     this.addScore(points, h.x, h.y - 8)
     this.burst(h.x, h.y, 6, h.sprite ? '#fde047' : '#e0f2fe')
+    this.fx.burst(h.x, h.y, this.fxRng, {
+      count: h.sprite ? 12 : 6,
+      colours: h.sprite
+        ? [RAMPS.gold[4], RAMPS.gold[3], '#ffffff']
+        : [ICE[3], RAMPS.teal[3], RAMPS.gold[4]],
+    })
     this.sound.play('pop')
   }
 
@@ -496,9 +873,21 @@ class RainCatcher implements ArcadeGameInstance {
       const wilted = this.beds.findIndex((b) => b === 0)
       if (wilted < 0) break
       this.beds[wilted] = BED_HEALTH
+      this.fx.burst(BEDS[wilted]!, GROUND - 8, this.fxRng, {
+        count: 16,
+        colours: [RAMPS.leaf[3], RAMPS.leaf[4], RAMPS.pink[3]],
+      })
       this.bonusBeds--
       regrown++
     }
+    BEDS.forEach((x, i) => {
+      if (this.beds[i]! > 0)
+        this.fx.burst(x, GROUND - 8, this.fxRng, {
+          count: 5,
+          speed: 1.1,
+          colours: [RAMPS.leaf[4], RAMPS.gold[4], RAMPS.pink[3]],
+        })
+    })
     this.clear = WAVE_CLEAR_TICKS
     this.banner = {
       text: 'WAVE CLEAR!',
@@ -536,6 +925,7 @@ class RainCatcher implements ArcadeGameInstance {
   }
 
   private updateEffects() {
+    this.fx.update()
     for (const p of this.particles) {
       p.x += p.vx
       p.y += p.vy
@@ -604,213 +994,443 @@ class RainCatcher implements ArcadeGameInstance {
 
   render(g: CanvasRenderingContext2D) {
     this.renderSky(g)
-    for (const goose of this.geese) this.renderGoose(g, goose)
-    for (const h of this.hail) this.renderHail(g, h)
-    for (const s of this.shots) {
-      g.strokeStyle = 'rgba(255, 255, 255, 0.35)'
-      g.lineWidth = 1
-      g.beginPath()
-      g.moveTo(LAUNCHERS[s.from]!, GROUND - 10)
-      g.lineTo(s.x, s.y)
-      g.stroke()
-      g.fillStyle = '#ffffff'
-      g.fillRect(s.x - 1, s.y - 1, 3, 3)
-    }
-    for (const b of this.blooms) this.renderBloom(g, b)
     this.renderGround(g)
+    for (const goose of this.geese) this.renderGoose(g, goose)
+    this.hail.forEach((h, i) => this.renderHail(g, h, i))
+    for (const s of this.shots) this.renderShot(g, s)
+    for (const b of this.blooms) this.renderBloom(g, b)
     for (const p of this.particles) {
-      g.globalAlpha = Math.max(0, p.life / 30)
+      g.globalAlpha = Math.max(0, Math.min(1, p.life / 30))
+      g.fillStyle = INK
+      g.fillRect(Math.round(p.x) - 1, Math.round(p.y) - 1, 3, 3)
       g.fillStyle = p.color
-      g.fillRect(p.x - 1, p.y - 1, 2, 2)
+      g.fillRect(Math.round(p.x) - 1, Math.round(p.y) - 1, 2, 2)
     }
     g.globalAlpha = 1
-    for (const f of this.floaters)
-      drawText(g, f.text, f.x, f.y, { align: 'center', color: '#fde68a' })
+    this.fx.render(g)
+    for (const f of this.floaters) {
+      drawText(g, f.text, f.x, f.y, {
+        align: 'center',
+        color: RAMPS.gold[3],
+        outline: INK,
+      })
+    }
     if (!this.over && this.ending === 0) this.renderSight(g)
+    vignette(g, W, H, 0.3)
     this.renderHud(g)
   }
 
   private renderSky(g: CanvasRenderingContext2D) {
-    const sky = g.createLinearGradient(0, 0, 0, GROUND)
-    sky.addColorStop(0, '#1e1b4b')
-    sky.addColorStop(1, '#3b4a7a')
-    g.fillStyle = sky
-    g.fillRect(0, 0, W, H)
-    // Storm clouds along the top.
-    for (let i = 0; i < 9; i++) {
-      const x = ((i * 41 + this.tick * 0.08) % (W + 40)) - 20
-      g.fillStyle = i % 2 ? '#475569' : '#334155'
-      g.beginPath()
-      g.ellipse(x, SKY_TOP + 2, 26, 9, 0, 0, Math.PI * 2)
-      g.fill()
+    // The banded dusk, the rosy horizon and the moon: painted once.
+    cachedLayer(g, 'rain-catcher-sky', W, H, (k) => {
+      bandedGradient(k, 0, 0, W, GROUND, SKY_BANDS, 6)
+      glow(k, W / 2, GROUND - 16, 170, RAMPS.pink[2], 0.2)
+      glow(k, 262, 58, 30, RAMPS.cream[3], 0.35)
+      shadedOrb(k, 262, 58, 9, RAMPS.cream, { outline: null, glint: false })
+      k.fillStyle = RAMPS.cream[2]
+      k.fillRect(264, 60, 2, 2)
+      k.fillRect(259, 56, 1, 1)
+      k.fillRect(266, 54, 1, 1)
+    })
+    drawStars(g, STARS, this.tick, RAMPS.purple)
+    // The storm deck: a far bank of cloud, lightning flickering inside it, a nearer bank.
+    const [far, near] = DECKS
+    this.renderDeck(g, far)
+    const phase = this.tick % FLASH_EVERY
+    if (phase < 12 && phase % 6 < 3) {
+      const x = FLASHES[Math.floor(this.tick / FLASH_EVERY) % FLASHES.length]!
+      glow(g, x, 16, 50, RAMPS.purple[4], 0.55)
+      glow(g, x, 18, 18, '#ffffff', 0.4)
     }
+    this.renderDeck(g, near)
+    // A soft drizzle falls everywhere the umbrellas are not.
+    g.fillStyle = rgba(ICE[3], 0.22)
+    for (const d of DRIZZLE) {
+      const y = ((d.y + this.tick * d.speed) % (GROUND - 30)) + 26
+      const x = (((d.x - this.tick * d.speed * 0.2) % W) + W) % W
+      g.fillRect(Math.round(x), Math.round(y), 1, d.len)
+    }
+    // Hills behind the garden, the far ones drifting slower.
+    drawRidge(g, FAR_HILLS, {
+      base: GROUND - 22,
+      bottom: GROUND,
+      width: W,
+      offset: this.tick * 0.03,
+      fill: '#2a2458',
+      rim: '#4a3f86',
+    })
+    drawRidge(g, NEAR_HILLS, {
+      base: GROUND - 3,
+      bottom: GROUND,
+      width: W,
+      offset: this.tick * 0.08,
+      fill: '#173a3c',
+      rim: '#2f6158',
+    })
   }
 
-  private renderHail(g: CanvasRenderingContext2D, h: Hail) {
-    g.strokeStyle = h.sprite
-      ? 'rgba(253, 224, 71, 0.5)'
-      : 'rgba(186, 230, 253, 0.4)'
-    g.lineWidth = 1
-    g.beginPath()
-    g.moveTo(h.x0, h.y0)
-    g.lineTo(h.x, h.y)
-    g.stroke()
-    if (h.sprite) {
-      // A zippy little lightning sprite.
-      g.fillStyle = Math.floor(this.tick / 4) % 2 ? '#fde047' : '#fef9c3'
-      g.beginPath()
-      g.moveTo(h.x - 2, h.y - 4)
-      g.lineTo(h.x + 2, h.y - 1)
-      g.lineTo(h.x, h.y)
-      g.lineTo(h.x + 2, h.y + 4)
-      g.lineTo(h.x - 2, h.y + 1)
-      g.lineTo(h.x, h.y)
-      g.fill()
+  private renderDeck(
+    g: CanvasRenderingContext2D,
+    deck: (typeof DECKS)[number],
+  ) {
+    scrollStrip(g, deck.key, deck.h, this.tick * deck.speed, (k) => {
+      if (deck.top)
+        bandedGradient(k, 0, 0, W, deck.top, [deck.ramp[0], deck.ramp[1]], 2)
+      for (const c of deck.clouds) {
+        // Each cloud also paints a screen-width away, so the strip wraps seamlessly.
+        for (const dx of [-W, 0, W])
+          drawCloud(k, c.x + dx, c.y, c.size, deck.ramp)
+      }
+    })
+  }
+
+  private renderGround(g: CanvasRenderingContext2D) {
+    cachedLayer(g, 'rain-catcher-ground', W, H, (k) => {
+      bandedGradient(
+        k,
+        0,
+        GROUND,
+        W,
+        H - GROUND,
+        [RAMPS.earth[2], RAMPS.earth[1], RAMPS.earth[0]],
+        3,
+      )
+      k.fillStyle = INK
+      k.fillRect(0, GROUND - 1, W, 1)
+      k.fillStyle = RAMPS.leaf[1]
+      k.fillRect(0, GROUND, W, 4)
+      k.fillStyle = RAMPS.leaf[2]
+      k.fillRect(0, GROUND, W, 2)
+      k.fillStyle = RAMPS.leaf[3]
+      k.fillRect(0, GROUND, W, 1)
+      const rand = backdropRng(53)
+      for (let x = 0; x < W; x += 3) {
+        const tall = rand()
+        k.fillStyle = RAMPS.leaf[2]
+        if (tall > 0.45) k.fillRect(x, GROUND - 2, 1, 2)
+        k.fillStyle = RAMPS.leaf[3]
+        if (tall > 0.8) k.fillRect(x + 1, GROUND - 3, 1, 3)
+        k.fillStyle = RAMPS.leaf[0]
+        k.fillRect(x + 1, GROUND + 4, 1, 1)
+        k.fillStyle = rand() < 0.5 ? RAMPS.earth[3] : RAMPS.earth[0]
+        k.fillRect(
+          x + Math.floor(rand() * 3),
+          GROUND + 6 + Math.floor(rand() * 18),
+          1,
+          1,
+        )
+      }
+      // Stepping stones on the paths between the beds and launchers.
+      for (const x of [38, 70, 102, 134, 186, 218, 250, 282]) {
+        bevel(k, x - 3, GROUND + 15, 7, 4, RAMPS.steel, { depth: 1 })
+      }
+    })
+    BEDS.forEach((x, i) => this.renderBed(g, x, i))
+    LAUNCHERS.forEach((x, i) => this.renderLauncher(g, x, i))
+  }
+
+  private renderBed(g: CanvasRenderingContext2D, x: number, i: number) {
+    const health = this.beds[i]!
+    // A raised planter of lit boards with dark soil on top.
+    dropShadow(g, x + 2, GROUND + 3, 13, 2, 0.4)
+    bevel(g, x - 11, GROUND - 4, 22, 6, RAMPS.earth, { depth: 1 })
+    g.fillStyle = RAMPS.earth[0]
+    g.fillRect(x - 10, GROUND - 4, 20, 2)
+    g.fillStyle = RAMPS.earth[1]
+    g.fillRect(x - 10, GROUND - 1, 20, 1)
+    g.fillRect(x - 6, GROUND - 3, 1, 1)
+    g.fillRect(x + 4, GROUND - 3, 1, 1)
+    if (health === 0) {
+      // Wilted: flattened grey stalks in a puddle.
+      g.fillStyle = rgba(RAMPS.water[2], 0.8)
+      g.fillRect(x - 12, GROUND - 5, 24, 2)
+      g.fillStyle = RAMPS.water[3]
+      g.fillRect(
+        x - 10 + (Math.floor(this.tick / 30) % 3) * 3,
+        GROUND - 5,
+        6,
+        1,
+      )
+      g.fillStyle = '#ffffff'
+      g.fillRect(x + 6, GROUND - 5, 2, 1)
+      drawSprite(g, WILTED_SPRITE, x, GROUND - 3, { anchor: 'feet' })
       return
     }
-    g.fillStyle = '#e0f2fe'
-    g.fillRect(h.x - 1.5, h.y - 1.5, 3, 3)
-    g.fillStyle = '#ffffff'
-    g.fillRect(h.x - 0.5, h.y - 1.5, 1, 1)
+    // Seedlings sway (each bed on its own beat); drooping ones bow and go pale.
+    const sprite =
+      health < BED_HEALTH
+        ? DROOP_SPRITE
+        : BED_SPRITES[(Math.floor(this.tick / 24) + i) % 2]!
+    drawSprite(g, sprite, x, GROUND - 2, { anchor: 'feet' })
   }
 
-  private renderBloom(g: CanvasRenderingContext2D, b: Bloom) {
-    const r = this.bloomRadius(b)
-    if (r <= 0.5) return
-    // A rainbow umbrella burst: rings of colour.
-    for (let i = 0; i < RAINBOW.length; i++) {
-      const ring = r * (1 - i / RAINBOW.length)
-      if (ring <= 0.5) continue
-      g.fillStyle = RAINBOW[(i + Math.floor(this.tick / 4)) % RAINBOW.length]!
-      g.globalAlpha = 0.55
+  private renderLauncher(g: CanvasRenderingContext2D, x: number, i: number) {
+    const soaked = this.soaked[i]
+    const ammo = this.ammo[i]!
+    dropShadow(g, x + 2, GROUND + 1, 12, 2, 0.45)
+    // The leafy barrel tracks the sight: a shaded vector stalk (pixel sprites never rotate).
+    const px = x
+    const py = GROUND - 9
+    const a = Math.atan2(this.sightY - py, this.sightX - px)
+    const tx = px + Math.cos(a) * 11
+    const ty = py + Math.sin(a) * 11
+    const ramp = soaked ? RAMPS.steel : RAMPS.leaf
+    g.lineCap = 'round'
+    for (const [width, colour, off] of [
+      [5, INK, 0],
+      [3, ramp[1], 0],
+      [1, ramp[3], -0.6],
+    ] as const) {
+      g.lineWidth = width
+      g.strokeStyle = colour
       g.beginPath()
-      g.arc(b.x, b.y, ring, 0, Math.PI * 2)
-      g.fill()
+      g.moveTo(px + off, py + off)
+      g.lineTo(tx + off, ty + off)
+      g.stroke()
     }
-    g.globalAlpha = 1
+    g.lineCap = 'butt'
+    g.lineWidth = 1
+    if (!soaked && ammo > 0) {
+      glow(g, tx, ty, 7, RAMPS.gold[3], 0.35)
+      shadedOrb(g, tx, ty, 2, RAINBOW_RAMPS[(ammo - 1) % RAINBOW_RAMPS.length]!)
+    }
+    drawSprite(g, soaked ? SOAKED_SPRITE : LAUNCHER_SPRITE, x, GROUND + 1, {
+      anchor: 'feet',
+    })
+    // Umbrellas left, in a recessed tray in the soil.
+    g.fillStyle = INK
+    g.fillRect(x - 11, GROUND + 2, 22, 11)
+    g.fillStyle = RAMPS.earth[0]
+    g.fillRect(x - 10, GROUND + 3, 20, 9)
+    for (let k = 0; k < ammo; k++) {
+      const pr = RAINBOW_RAMPS[k % RAINBOW_RAMPS.length]!
+      const bx = x - 9 + (k % 5) * 4
+      const by = GROUND + 4 + Math.floor(k / 5) * 4
+      g.fillStyle = pr[1]
+      g.fillRect(bx, by, 3, 3)
+      g.fillStyle = pr[2]
+      g.fillRect(bx, by, 2, 2)
+      g.fillStyle = pr[4]
+      g.fillRect(bx, by, 1, 1)
+    }
+    if (soaked) {
+      // Drips run off the soaked pot.
+      for (let d = 0; d < 2; d++) {
+        const fall = (this.tick + d * 17 + i * 11) % 34
+        g.fillStyle = RAMPS.water[3]
+        g.fillRect(x - 6 + d * 11, GROUND - 6 + Math.floor(fall / 4), 1, 2)
+      }
+      if (Math.floor(this.tick / 20) % 2 === 0)
+        drawText(g, 'SOAKED', x, GROUND - 32, {
+          align: 'center',
+          color: RAMPS.water[3],
+          outline: INK,
+        })
+    }
   }
 
   private renderGoose(g: CanvasRenderingContext2D, goose: Goose) {
     const flap = Math.floor(this.tick / 8) % 2
     const dir = Math.sign(goose.vx) || 1
-    g.fillStyle = '#e5e7eb'
-    g.fillRect(goose.x - 6, goose.y - 3, 12, 6)
-    g.fillStyle = '#d1d5db'
-    g.fillRect(goose.x - 3, goose.y - 3 - (flap ? 4 : -2), 7, 3)
-    // Grumpy head and orange beak.
-    g.fillStyle = '#374151'
-    g.fillRect(goose.x + dir * 6 - 2, goose.y - 6, 4, 4)
-    g.fillStyle = '#fb923c'
-    g.fillRect(goose.x + dir * 9 - 1, goose.y - 5, 3, 2)
-    // A little storm cloud trailing it.
-    g.fillStyle = 'rgba(71, 85, 105, 0.8)'
+    // A little storm cloud trails it, drizzling.
+    const cx = goose.x - dir * 13
+    const cy = goose.y + 6
+    g.fillStyle = rgba(ICE[3], 0.6)
+    for (let d = 0; d < 3; d++) {
+      const fall = (this.tick + d * 5) % 12
+      g.fillRect(Math.round(cx - 3 + d * 3), Math.round(cy + 3 + fall), 1, 2)
+    }
+    drawCloud(g, cx, cy, 3.5, STORM)
+    drawSprite(g, GOOSE_SPRITES[flap]!, goose.x, goose.y - 1, {
+      flipX: dir < 0,
+    })
+  }
+
+  private renderHail(g: CanvasRenderingContext2D, h: Hail, i: number) {
+    // The streak it leaves (the classic trail), brightening toward the stone.
+    const colour = h.sprite ? RAMPS.gold[3] : ICE[3]
+    const trail = g.createLinearGradient(h.x0, h.y0, h.x, h.y)
+    trail.addColorStop(0, rgba(colour, 0))
+    trail.addColorStop(1, rgba(colour, 0.55))
+    g.save()
+    g.globalCompositeOperation = 'lighter'
+    g.strokeStyle = trail
+    g.lineWidth = 2
     g.beginPath()
-    g.ellipse(goose.x - dir * 10, goose.y + 6, 6, 3, 0, 0, Math.PI * 2)
-    g.fill()
-  }
-
-  private renderGround(g: CanvasRenderingContext2D) {
-    g.fillStyle = '#14532d'
-    g.fillRect(0, GROUND, W, H - GROUND)
-    g.fillStyle = '#166534'
-    for (let x = 0; x < W; x += 8) g.fillRect(x, GROUND, 4, 2)
-    BEDS.forEach((x, i) => this.renderBed(g, x, this.beds[i]!))
-    LAUNCHERS.forEach((x, i) => this.renderLauncher(g, x, i))
-  }
-
-  private renderBed(g: CanvasRenderingContext2D, x: number, health: number) {
-    g.fillStyle = '#78350f'
-    g.fillRect(x - 10, GROUND - 3, 20, 5)
-    if (health === 0) {
-      // Wilted: flattened grey stalks in a puddle.
-      g.fillStyle = 'rgba(147, 197, 253, 0.6)'
-      g.fillRect(x - 11, GROUND - 1, 22, 2)
-      g.fillStyle = '#6b7280'
-      g.fillRect(x - 7, GROUND - 4, 6, 1)
-      g.fillRect(x + 1, GROUND - 4, 6, 1)
+    g.moveTo(h.x0, h.y0)
+    g.lineTo(h.x, h.y)
+    g.stroke()
+    g.restore()
+    const frame = (Math.floor(this.tick / 5) + i) % 2
+    if (h.sprite) {
+      glow(g, h.x, h.y, 12, RAMPS.gold[2], 0.4)
+      drawSprite(g, BOLT_SPRITES[frame]!, h.x, h.y, { flipX: h.vx < 0 })
       return
     }
-    // Three seedlings swaying (bent over and paler while drooping).
-    const droop = health < BED_HEALTH
-    for (let s = -1; s <= 1; s++) {
-      const sx = x + s * 6
-      const sway = droop ? 2 : Math.round(Math.sin(this.tick / 20 + sx) * 1)
-      const tall = droop ? 4 : 6
-      g.fillStyle = droop ? '#a3a35a' : '#4ade80'
-      g.fillRect(sx, GROUND - 3 - tall, 1, tall)
-      g.fillStyle = droop ? '#bef264' : '#86efac'
-      g.fillRect(sx - 2 + sway, GROUND - 4 - tall, 2, 2)
-      g.fillRect(sx + 1 + sway, GROUND - 5 - tall + (droop ? 2 : 0), 2, 2)
-    }
+    glow(g, h.x, h.y, 6, ICE[3], 0.35)
+    drawSprite(g, HAIL_SPRITES[frame]!, h.x, h.y)
   }
 
-  private renderLauncher(g: CanvasRenderingContext2D, x: number, i: number) {
-    const soaked = this.soaked[i]
-    // A sprout launcher: a pot with a big leafy cannon.
-    g.fillStyle = soaked ? '#475569' : '#b45309'
-    g.fillRect(x - 9, GROUND - 8, 18, 8)
-    g.fillStyle = soaked ? '#64748b' : '#22c55e'
+  private renderShot(g: CanvasRenderingContext2D, s: Shot) {
+    // A glowing seed arcing up from its launcher, its target winking where it will bloom.
+    const fx = LAUNCHERS[s.from]!
+    const fy = GROUND - 10
+    const trail = g.createLinearGradient(fx, fy, s.x, s.y)
+    trail.addColorStop(0, rgba(RAMPS.pink[2], 0))
+    trail.addColorStop(1, rgba(RAMPS.gold[3], 0.7))
+    g.save()
+    g.globalCompositeOperation = 'lighter'
+    g.strokeStyle = trail
+    g.lineWidth = 2
     g.beginPath()
-    g.arc(x, GROUND - 10, 6, Math.PI, 0)
-    g.fill()
-    g.fillRect(x - 1, GROUND - 20, 3, 10)
-    // Umbrella pips.
-    const ammo = this.ammo[i]!
-    for (let k = 0; k < ammo; k++) {
-      g.fillStyle = RAINBOW[k % RAINBOW.length]!
-      g.fillRect(x - 9 + (k % 5) * 4, GROUND + 4 + Math.floor(k / 5) * 4, 3, 3)
+    g.moveTo(fx, fy)
+    g.lineTo(s.x, s.y)
+    g.stroke()
+    g.restore()
+    if (Math.floor(this.tick / 4) % 2 === 0) {
+      const mx = Math.round(s.tx)
+      const my = Math.round(s.ty)
+      g.fillStyle = INK
+      for (let d = -2; d <= 2; d++) {
+        g.fillRect(mx + d - 1, my + d - 1, 3, 3)
+        g.fillRect(mx + d - 1, my - d - 1, 3, 3)
+      }
+      g.fillStyle = RAMPS.pink[3]
+      for (let d = -2; d <= 2; d++) {
+        g.fillRect(mx + d, my + d, 1, 1)
+        g.fillRect(mx + d, my - d, 1, 1)
+      }
     }
-    if (soaked && Math.floor(this.tick / 20) % 2 === 0)
-      drawText(g, 'SOAKED', x, GROUND - 30, {
-        align: 'center',
-        color: '#93c5fd',
-      })
+    glow(g, s.x, s.y, 8, RAMPS.gold[3], 0.6)
+    shadedOrb(g, s.x, s.y, 2.5, RAMPS.gold)
+  }
+
+  private renderBloom(g: CanvasRenderingContext2D, b: Bloom) {
+    const r = this.bloomRadius(b)
+    if (r <= 0.5) return
+    // A rainbow umbrella popping open, seen from below: six shaded panels around a knob,
+    // spinning slowly, with a flash of colour-math light as it blooms.
+    glow(g, b.x, b.y, r * 2, RAMPS.pink[3], 0.32)
+    if (b.t < 8) glow(g, b.x, b.y, r * 1.4, '#ffffff', 0.6 * (1 - b.t / 8))
+    const disc = (radius: number) => {
+      g.beginPath()
+      g.arc(b.x, b.y, radius, 0, Math.PI * 2)
+      g.fill()
+    }
+    g.fillStyle = INK
+    disc(r + 1)
+    const spin = b.t * 0.06 + (b.x + b.y) * 0.1
+    const step = (Math.PI * 2) / RAINBOW_RAMPS.length
+    RAINBOW_RAMPS.forEach((ramp, i) => {
+      const a0 = spin + i * step
+      const mid = a0 + step / 2
+      // Panels facing the light (upper left) are lit; the far side falls into shadow.
+      const lit = -0.7 * Math.cos(mid) - 0.7 * Math.sin(mid)
+      const shade = lit > 0.35 ? 3 : lit > -0.35 ? 2 : 1
+      const bands: [number, string][] = [
+        [r, ramp[shade - 1]!],
+        [r - 1.5, ramp[shade]!],
+        [r * 0.55, ramp[shade + 1]!],
+      ]
+      for (const [radius, colour] of bands) {
+        if (radius <= 0) continue
+        g.fillStyle = colour
+        g.beginPath()
+        g.moveTo(b.x, b.y)
+        g.arc(b.x, b.y, radius, a0, a0 + step)
+        g.closePath()
+        g.fill()
+      }
+    })
+    // Ribs between the panels.
+    g.strokeStyle = rgba(INK, 0.7)
+    g.lineWidth = 1
+    g.beginPath()
+    for (let i = 0; i < RAINBOW_RAMPS.length; i++) {
+      const a = spin + i * step
+      g.moveTo(b.x, b.y)
+      g.lineTo(b.x + Math.cos(a) * r, b.y + Math.sin(a) * r)
+    }
+    g.stroke()
+    if (r >= 4) shadedOrb(g, b.x, b.y, 1.5, RAMPS.cream, { glint: false })
   }
 
   private renderSight(g: CanvasRenderingContext2D) {
     const x = Math.round(this.sightX)
     const y = Math.round(this.sightY)
-    g.strokeStyle = '#fde047'
-    g.lineWidth = 1
-    g.strokeRect(x - 5.5, y - 5.5, 11, 11)
-    g.fillStyle = '#fde047'
-    g.fillRect(x - 9, y, 4, 1)
-    g.fillRect(x + 6, y, 4, 1)
-    g.fillRect(x, y - 9, 1, 4)
-    g.fillRect(x, y + 6, 1, 4)
+    const k = 5 + (Math.floor(this.tick / 10) % 2)
+    glow(g, x, y, 10, RAMPS.gold[3], 0.2)
+    // Corner brackets and cross ticks, ink-outlined.
+    const marks: [number, number, number, number][] = [
+      [-k, -k, 3, 1],
+      [-k, -k, 1, 3],
+      [k - 2, -k, 3, 1],
+      [k, -k, 1, 3],
+      [-k, k, 3, 1],
+      [-k, k - 2, 1, 3],
+      [k - 2, k, 3, 1],
+      [k, k - 2, 1, 3],
+      [-10, 0, 4, 1],
+      [7, 0, 4, 1],
+      [0, -10, 1, 4],
+      [0, 7, 1, 4],
+    ]
+    g.fillStyle = INK
+    for (const [dx, dy, w, h] of marks)
+      g.fillRect(x + dx - 1, y + dy - 1, w + 2, h + 2)
+    g.fillStyle = RAMPS.gold[3]
+    for (const [dx, dy, w, h] of marks) g.fillRect(x + dx, y + dy, w, h)
+    g.fillStyle = INK
+    g.fillRect(x - 1, y - 1, 3, 3)
+    g.fillStyle = RAMPS.gold[4]
+    g.fillRect(x, y, 1, 1)
   }
 
   private renderHud(g: CanvasRenderingContext2D) {
-    const shadow = '#1e1b4b'
-    drawText(g, String(this.score).padStart(6, '0'), 4, 3, {
+    // Score (and the multiplier beside it) top left; high score and wave top right.
+    const score = String(this.score).padStart(6, '0')
+    const scoreW = measureText(score, 2) + 10
+    hudPanel(g, 4, 3, scoreW, 20)
+    drawText(g, score, 9, 6, {
       scale: 2,
-      color: '#fde047',
-      shadow,
+      color: RAMPS.gold[3],
+      shadow: INK,
     })
-    drawText(g, `HI ${Math.max(this.hiScore, this.score)}`, W - 4, 2, {
+    if (this.multiplier > 1) {
+      const mult = `${this.multiplier}X`
+      hudPanel(g, scoreW + 8, 3, measureText(mult) + 10, 13, RAMPS.rust)
+      drawText(g, mult, scoreW + 13, 6, {
+        color: RAMPS.gold[4],
+        outline: INK,
+      })
+    }
+    const hi = `HI ${Math.max(this.hiScore, this.score)}`
+    const wave = `WAVE ${this.level}`
+    const sideW = Math.max(measureText(hi), measureText(wave)) + 12
+    hudPanel(g, W - 4 - sideW, 3, sideW, 22)
+    drawText(g, hi, W - 10, 6, {
       align: 'right',
-      color: '#f9a8d4',
-      shadow,
+      color: RAMPS.pink[3],
+      outline: INK,
     })
-    drawText(g, `WAVE ${this.level}`, W - 4, 10, {
+    drawText(g, wave, W - 10, 15, {
       align: 'right',
-      color: '#a5f3fc',
-      shadow,
+      color: RAMPS.teal[3],
+      outline: INK,
     })
-    if (this.multiplier > 1)
-      drawText(g, `${this.multiplier}X`, 84, 6, { color: '#fdba74', shadow })
     if (this.banner) {
       drawText(g, this.banner.text, W / 2, 92, {
         scale: 2,
         align: 'center',
         color: '#ffffff',
-        shadow: '#7c3aed',
+        outline: INK,
+        shadow: RAMPS.purple[1],
       })
       if (this.banner.sub)
         drawText(g, this.banner.sub, W / 2, 112, {
           align: 'center',
-          color: '#fde68a',
-          shadow,
+          color: RAMPS.gold[3],
+          outline: INK,
         })
     }
   }

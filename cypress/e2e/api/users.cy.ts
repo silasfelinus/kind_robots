@@ -44,12 +44,8 @@ describe('User Management API Tests', () => {
 
   before(() => {
     cy.env(['BASE_URL', 'AUTH_URL', 'API_KEY']).then((env) => {
-      const rawBaseUrl = String(
-        env.BASE_URL || `${testBaseUrl}/api/users`,
-      )
-      const rawAuthUrl = String(
-        env.AUTH_URL || `${testBaseUrl}/api/auth`,
-      )
+      const rawBaseUrl = String(env.BASE_URL || `${testBaseUrl}/api/users`)
+      const rawAuthUrl = String(env.AUTH_URL || `${testBaseUrl}/api/auth`)
 
       baseUrl = rawBaseUrl.replace(/\/+$/, '')
       authUrl = rawAuthUrl.replace(/\/+$/, '')

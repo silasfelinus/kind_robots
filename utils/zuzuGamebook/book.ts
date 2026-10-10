@@ -1093,7 +1093,7 @@ const scenes: Scene[] = [
     CH.VII,
     'A Debt Repaid',
     'coyote-bandaged',
-    'The shape on the ridge is the coyote. His right wrist is still wrapped in your knot, and his revolver is on the wrong hip now. "Saw you go by," he says, which is the most anyone has said to you in days. He does not ask where you are going. He runs beside you, and with him to find the short way, you reach the mission before the moon is high.',
+    'The shape on the ridge is the coyote. His right sleeve is pinned shut over the wrist where the gun hand used to be, and he rides the ache of it the way he rides everything, quietly. "Saw you go by," he says, which is the most anyone has said to you in days. He does not ask where you are going. He runs beside you, and with him to find the short way, you reach the mission before the moon is high.',
     {
       effects: { flag: 'ally-coyote' },
       choices: [

@@ -47,7 +47,9 @@ export const AUTHORED_PACK = pack as unknown as {
   locations: Array<{ location_id: string; encounter_ids: string[] }>
   encounters: AuthoredEncounter[]
 }
-const cards = new Map(AUTHORED_PACK.encounters.map((e) => [e.id, e]))
+const cards = new Map<string, AuthoredEncounter>(
+  AUTHORED_PACK.encounters.map((e): [string, AuthoredEncounter] => [e.id, e]),
+)
 const skillBonus: Record<Skill, number> = {
   steel: 3, awareness: 2, wits: 2, bearing: 2, resolve: 2, insight: 2,
 }

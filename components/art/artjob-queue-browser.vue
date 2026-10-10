@@ -615,12 +615,13 @@ onMounted(async () => {
   pageSizeInput.value = String(artJobStore.jobPageSize || 20)
   pageInput.value = String(artJobStore.jobPage || 1)
 
-  if (artJobStore.jobs.length) {
-    void artJobStore.fetchJobs()
-    void loadSecondaryDashboardData()
-    return
-  }
-
+  // Every visit re-picks the first tab with content, revisits included. The
+  // store outlives the page, so a revisit used to skip this and just refetch
+  // whatever tab was last open -- usually FAILED after a requeue had emptied
+  // it, landing on "No FAILED jobs" with 737 pending one tab over. Silas,
+  // 2026-10-10: "it should start me at the selection with the first
+  // content". Cached jobs from the last visit stay on screen while the stats
+  // and the chosen tab load, so there is no spinner flash.
   queueLoadMessage.value = loadStore.randomLoadMessage()
   await loadInitialJobs()
   void loadSecondaryDashboardData({ includeStats: false })

@@ -9,7 +9,7 @@ import {
 } from '../../support/api-auth'
 
 describe('Todo API Tests', () => {
-  const baseUrl = 'https://kind-robots.vercel.app/api/todos'
+  const baseUrl = `${Cypress.config('baseUrl')}/api/todos`
   const badJwt = 'definitely-not-valid'
   const uniqueTitle = `Todo-${Date.now()}`
 

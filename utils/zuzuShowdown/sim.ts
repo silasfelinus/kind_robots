@@ -1639,6 +1639,7 @@ function resolveHits(
       scoreRead(s, defenderSide, 'guard')
       s.events.push({ type: 'parry', side: defenderSide })
       s.hitstop = Math.max(s.hitstop, 10)
+      if (dMove.parry.meter) gainMeter(d, dMove.parry.meter)
       if (c.kind === 'strike') {
         const a = s.fighters[c.attacker]
         takeDamage(a, roster[c.attacker], dMove.parry.damage, RED_PERCENT)

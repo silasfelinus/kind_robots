@@ -240,6 +240,18 @@ export type CameraPreset = {
  * (rules/toys.ts) and the ball never touches. They have no colliders, so the
  * physics is the same with them or without.
  */
+/**
+ * A paper lantern hung from a pole (t-028): scenery on the rails and the
+ * Ridge, with no collider. `at` is the pole's foot; `side` is the way its
+ * arm reaches (+1 toward +x).
+ */
+export type LanternDef = {
+  at: Vec3
+  height?: number
+  side?: 1 | -1
+  color?: number
+}
+
 export type HeroDef = {
   /** The hut bank: each hut's base on its wall top, turned to face the field. */
   huts: Array<{ at: Vec3; yaw: number }>
@@ -247,6 +259,11 @@ export type HeroDef = {
   beacon: { at: Vec3 }
   /** The net drone: its perch, the loop it flies in multiball, and its drop point. */
   drone: { perch: Vec3; circle: { at: Vec3; radius: number }; deliver: Vec3 }
+  /**
+   * The Care Package Depot over the lock (t-031): the centre of its roof's
+   * eaves, the roof's width and depth, and where each packed parcel sits.
+   */
+  depot?: { roof: Vec3; width: number; depth: number; slots: Vec3[] }
 }
 
 /**
@@ -319,6 +336,7 @@ export type TableDef = {
   toys?: ToyDef[]
   /** The signature toys (t-010), drawn from the rules' state. */
   hero?: HeroDef
+  lanterns?: LanternDef[]
   zones?: ZoneDef[]
   occluders?: OccluderDef[]
   inserts?: InsertDef[]

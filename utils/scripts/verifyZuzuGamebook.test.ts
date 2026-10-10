@@ -1,7 +1,14 @@
 import assert from 'node:assert/strict'
 import { existsSync, readdirSync } from 'node:fs'
 import { join } from 'node:path'
-import { PLATES, platePath } from '../zuzuGamebook/art'
+import {
+  PLATES,
+  plateLayout,
+  platePath,
+  sectionPlate,
+} from '../zuzuGamebook/art'
+import { SECTION_PLATES } from '../zuzuGamebook/sectionArt'
+import { journal } from '../zuzuGamebook/journal'
 import {
   BOOK,
   scene,
@@ -11,6 +18,8 @@ import {
   isSavedRun,
   lockReason,
   visibleChoices,
+  honor,
+  taint,
   ENDING_IDS,
   type Run,
   type BattleAction,
@@ -64,15 +73,50 @@ for (const node of Object.values(BOOK)) {
     node.art + ': plate file missing',
   )
   assert.equal(platePath(art), '/zuzu-gamebook/scenes/' + art.file + '.webp')
+  // A section's own plate (keyed by its id, one plate per section) wins over the shared one.
+  const own = sectionPlate(node)
+  assert.ok(
+    existsSync(join(scenesDir, own.file + '.webp')),
+    node.id + ': own plate file missing',
+  )
+  const layout = plateLayout(node.id, own)
+  assert.ok(
+    (own.shape ?? 'wide') === 'wide'
+      ? layout === 'top' || layout === 'bottom'
+      : layout === 'left' || layout === 'right',
+    node.id + ': wide plates sit above or below the text, tall ones beside it',
+  )
 }
 const usedPlates = new Set(Object.values(BOOK).map((node) => node.art))
 for (const key of Object.keys(PLATES)) {
   assert.ok(usedPlates.has(key), 'plate ' + key + ' is not used by any scene')
 }
-for (const file of readdirSync(scenesDir)) {
+for (const file of readdirSync(scenesDir, { withFileTypes: true })) {
+  if (file.isDirectory()) continue
   assert.ok(
-    Object.values(PLATES).some((p) => p.file + '.webp' === file),
-    'stray plate file ' + file,
+    Object.values(PLATES).some((p) => p.file + '.webp' === file.name),
+    'stray plate file ' + file.name,
+  )
+}
+// One plate per section: keyed by a real section id, filed under scenes/sections/, reviewed provenance.
+for (const [id, own] of Object.entries(SECTION_PLATES)) {
+  assert.ok(BOOK[id], 'section plate for unknown section ' + id)
+  assert.equal(
+    own.file,
+    'sections/' + id,
+    id + ': section plates live in scenes/sections/',
+  )
+  assert.equal(own.fit, 'exact', id + ': a section plate depicts its section')
+  assert.ok(
+    own.alt.length > 40 && own.artImageId > 0,
+    id + ': alt text and provenance',
+  )
+}
+const sectionsDir = join(scenesDir, 'sections')
+for (const file of existsSync(sectionsDir) ? readdirSync(sectionsDir) : []) {
+  assert.ok(
+    SECTION_PLATES[file.replace(/\.webp$/, '')],
+    'stray section plate file ' + file,
   )
 }
 
@@ -116,7 +160,9 @@ assert.ok(good.flags.includes('coyote-kindness'))
 assert.ok(!good.items.includes('water'))
 assert.equal(initial.items.includes('water'), true, 'transitions are immutable')
 
-const coyote = takeChoice(good, 'defend')
+const ground = takeChoice(good, 'defend')
+assert.equal(ground.sceneId, 'a1-terrain', 'Act I splices the fight ground in')
+const coyote = takeChoice(ground, 'open')
 assert.equal(coyote.sceneId, 'crocodile')
 assert.equal(coyote.battle?.hp, 8)
 assert.equal(
@@ -159,8 +205,11 @@ assert.equal(
 const settable = new Set<string>()
 for (const node of Object.values(BOOK)) {
   if (node.effects?.flag) settable.add(node.effects.flag)
-  for (const choice of node.choices ?? [])
+  for (const flag of node.effects?.flags ?? []) settable.add(flag)
+  for (const choice of node.choices ?? []) {
     if (choice.flag) settable.add(choice.flag)
+    for (const flag of choice.flags ?? []) settable.add(flag)
+  }
 }
 for (const node of Object.values(BOOK)) {
   for (const choice of node.choices ?? []) {
@@ -226,9 +275,63 @@ const hurt = takeChoice(
   { ...startRun(9), sceneId: 'canyon-road', health: 1 },
   'long',
 )
-assert.equal(hurt.sceneId, 'bone-river')
+assert.equal(hurt.sceneId, 'a4-canyon-floor')
+assert.ok(hurt.health >= 1, 'section damage never kills')
 const fall = { ...startRun(9), sceneId: 'bridge-fall', health: 2 }
 assert.ok(fall.health >= 1)
+
+// Moral tallies, gates and lasting change (BOOK-ONE-OUTLINE.md §2).
+const moral = {
+  ...startRun(5),
+  flags: ['honor:a', 'honor:b', 'taint:x', 'debt:y'],
+}
+assert.equal(honor(moral), 2)
+assert.equal(taint(moral), 1)
+const gated = {
+  id: 'g',
+  label: 'g',
+  to: 'the-crossing',
+  needsHonor: 3,
+  hint: 'Not yet.',
+}
+assert.equal(lockReason(moral, gated), 'Not yet.')
+assert.equal(
+  lockReason({ ...moral, flags: [...moral.flags, 'honor:c'] }, gated),
+  null,
+)
+assert.ok(lockReason(moral, { ...gated, needsHonor: 0, needsTaint: 2 }))
+assert.ok(lockReason(moral, { ...gated, needsHonor: 0, maxTaint: 0 }))
+assert.equal(lockReason(moral, { ...gated, needsHonor: 0, maxTaint: 1 }), null)
+for (const node of Object.values(BOOK)) {
+  for (const choice of node.choices ?? []) {
+    if (choice.needsHonor || choice.needsTaint || choice.maxTaint !== undefined)
+      assert.ok(
+        choice.hint,
+        node.id + '/' + choice.id + ' needs a disabled hint',
+      )
+  }
+  const attr = node.effects?.attr
+  if (attr)
+    assert.ok(
+      Math.abs(attr.amount) === 1,
+      node.id + ': attributes move one step at a time',
+    )
+}
+
+const notes = journal([
+  'honor:sang',
+  'taint:listened',
+  'debt:looter',
+  'met:wren',
+  'clue:wax',
+  'sister-trust',
+])
+assert.deepEqual(notes.deeds, [
+  { text: 'sang' },
+  { text: 'listened', dark: true },
+])
+assert.deepEqual(notes.debts, ['looter'])
+assert.deepEqual(notes.learned, ['wax', 'sister trust'])
 
 // Stateful exploration: seeded random playthroughs reach every ending and never stall.
 let rng = 20261009

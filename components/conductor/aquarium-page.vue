@@ -5,6 +5,8 @@
     slug="cthulhuquarium"
     :fallback="config"
     :show-deliverables="false"
+    :show-intro="false"
+    wide
   >
     <template #interactive>
       <CthulhuquariumPlay />
@@ -55,12 +57,12 @@ const config: ProjectFrontConfig = {
   tagline:
     'It sits in the back of the curiosity shop, and now it is yours to feed.',
   description:
-    'A darkly funny idle aquarium. Feed the occupants to keep them paying you, and unlock new species with what they earn. Every species has a field note, a rarity, and a reason it is not in any book — and the tank goes deeper than the ones you start with.',
+    'A darkly funny aquarium. Every fed creature drops coins: tap them, buy more creatures, and fill the tank.',
   sections: [
     {
       key: 'loop',
-      title: 'Feed the tank',
-      body: 'Feed keeps a species paying out; hungry things pause, they never lose what they already earned.',
+      title: 'Coins from every fish',
+      body: 'Every fed creature drops coins; tap them before they fade, then buy more fish and a bigger tank.',
       icon: 'kind-icon:coin',
     },
     {
@@ -73,7 +75,7 @@ const config: ProjectFrontConfig = {
   deliverables: {
     done: [
       'Server-backed tanks with real offline income',
-      'The real play loop — server-driven feeding and species unlocks',
+      'The fun loop — every fish drops coins, copies, and a tank that grows to 40',
       'Bestiary schema shared with Ruler Hooked',
       'Browsable public aquariums',
     ],

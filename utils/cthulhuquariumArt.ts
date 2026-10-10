@@ -61,11 +61,6 @@ export function artForSpecies(slug: string | null | undefined): string | null {
   return lookup('fish', slug)
 }
 
-/** An egg plate, keyed by rarity tier (common..mythic). */
-export function artForEggTier(tier: string | null | undefined): string | null {
-  return lookup('egg', tier)
-}
-
 /** A collection-set plate, keyed by set slug. */
 export function artForSet(slug: string | null | undefined): string | null {
   return lookup('set', slug)

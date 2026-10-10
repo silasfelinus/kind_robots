@@ -9,6 +9,24 @@
 
 import { levelCurve } from '../curve'
 import { drawText } from '../font'
+import {
+  INK,
+  RAMPS,
+  Sparkles,
+  backdropRng,
+  bevel,
+  cachedLayer,
+  dropShadow,
+  drawSprite,
+  gauge,
+  glow,
+  hudPanel,
+  mix,
+  pixelSprite,
+  rgba,
+  shadedOrb,
+  vignette,
+} from '../snes'
 import type {
   ArcadeGameInstance,
   ArcadeGameModule,
@@ -66,6 +84,188 @@ function dist(a: { x: number; y: number }, b: { x: number; y: number }) {
   return Math.hypot(a.x - b.x, a.y - b.y)
 }
 
+// --- 16-bit art (utils/arcade/snes.ts) -------------------------------------------
+
+const TILE = 24
+const TILE_DARK = [
+  '#120a33',
+  '#24124f',
+  '#3a2479',
+  '#5b3fb0',
+  '#8f7be0',
+] as const
+
+const BOWL_BANDS = Array.from({ length: 6 }, (_, i) =>
+  mix(RAMPS.steel[2], '#dfe7f5', i / 5),
+)
+
+const SHEEN = [
+  'rgba(244, 114, 182, 0.55)',
+  'rgba(250, 204, 21, 0.5)',
+  'rgba(94, 234, 212, 0.5)',
+  'rgba(167, 139, 250, 0.55)',
+]
+
+const CAUSTICS = (() => {
+  const rand = backdropRng(11)
+  return Array.from({ length: 22 }, () => ({
+    x: rand() * 1.5 - 0.75,
+    y: rand() * 1.5 - 0.75,
+    w: 4 + Math.round(rand() * 6),
+    phase: rand() * Math.PI * 2,
+  }))
+})()
+
+const MITE_PALETTE = {
+  r: RAMPS.rust[1],
+  o: RAMPS.rust[2],
+  y: RAMPS.rust[3],
+  h: RAMPS.rust[4],
+  w: '#ffffff',
+  k: INK,
+  l: RAMPS.rust[0],
+}
+const MITE_BODY = [
+  '..rrrrr...',
+  '.rooyyhr..',
+  'rooooyywwr',
+  'rooooooowk',
+  'roooooooor',
+  '.rrooooorr',
+  '..rrrrrr..',
+]
+const MITE_SPRITES = [
+  pixelSprite([...MITE_BODY, '.l..l..l..', 'l..l..l...'], MITE_PALETTE),
+  pixelSprite([...MITE_BODY, '..l..l..l.', '...l..l..l'], MITE_PALETTE),
+] as const
+
+const BRUSH_SPRITE = pixelSprite(
+  [
+    '..hhhhhhhhhhhhhhhh..',
+    '.hTTTTTTTTTTTTTTTTt.',
+    '.TTkkkTTTTTTTTkkkTt.',
+    '.TTTwkTTTTTTTTwkTTt.',
+    '.tTTTTTTTkkTTTTTTtt.',
+    '..tttttttttttttttt..',
+    '..gGgGgGgGgGgGgGgG..',
+    '..GgGgGgGgGgGgGgGg..',
+    '..d.d.d.d.d.d.d.d...',
+  ],
+  {
+    h: RAMPS.teal[4],
+    T: RAMPS.teal[2],
+    t: RAMPS.teal[1],
+    k: INK,
+    w: '#ffffff',
+    g: RAMPS.gold[2],
+    G: RAMPS.gold[3],
+    d: RAMPS.gold[1],
+  },
+)
+
+const CRUMB_SPRITE = pixelSprite(['.GY.', 'GYGg', 'gGgd', '.dd.'], {
+  Y: RAMPS.gold[4],
+  G: RAMPS.gold[3],
+  g: RAMPS.gold[2],
+  d: RAMPS.gold[1],
+})
+
+const CEREAL_SPRITE = pixelSprite(['.PPp.', 'P...p', 'p...d', '.pdd.'], {
+  P: RAMPS.pink[3],
+  p: RAMPS.pink[2],
+  d: RAMPS.pink[1],
+})
+
+const DRIP_SPRITE = pixelSprite(
+  ['.w.', '.W.', 'WwW', 'WWd', '.d.'],
+  { w: RAMPS.water[4], W: RAMPS.water[3], d: RAMPS.water[2] },
+  { outline: RAMPS.water[0] },
+)
+
+const SOAP_SPRITE = pixelSprite(
+  [
+    '....ss.....',
+    '..ssss.....',
+    '....ss.....',
+    '...tttt....',
+    '...tttt....',
+    '.hPPPPPPp..',
+    'hPPPPPPPpd.',
+    'hPwwwwwPpd.',
+    'hPwcwcwPpd.',
+    'hPwwcwwPpd.',
+    'hPPPPPPPpd.',
+    'hPPPPPPPpd.',
+    '.pppppppd..',
+  ],
+  {
+    s: RAMPS.steel[3],
+    t: RAMPS.teal[2],
+    h: RAMPS.pink[4],
+    P: RAMPS.pink[2],
+    p: RAMPS.pink[1],
+    d: RAMPS.pink[0],
+    w: RAMPS.cream[3],
+    c: RAMPS.teal[3],
+  },
+)
+
+const PLANT_SPRITE = pixelSprite(
+  [
+    '.....LL......',
+    '..LL.LlL.LL..',
+    '.LllLLllLllL.',
+    '.Llllllllld..',
+    '..dllllllld..',
+    '...dlldlld...',
+    '....ddddd....',
+    '..RRRRRRRRR..',
+    '..rrrrrrrrq..',
+    '...rrrrrrq...',
+    '...rrrrrrq...',
+    '....qqqqq....',
+  ],
+  {
+    L: RAMPS.leaf[3],
+    l: RAMPS.leaf[2],
+    d: RAMPS.leaf[1],
+    R: RAMPS.rust[3],
+    r: RAMPS.rust[2],
+    q: RAMPS.rust[1],
+  },
+)
+
+const MUG_SPRITE = pixelSprite(
+  [
+    '.hhhhhhh...',
+    'hTTTTTTTt..',
+    'hTkTTTkTtTT',
+    'hTTTTTTTt.T',
+    'hTTkkkTTtTT',
+    'hTTTTTTTt..',
+    '.ttttttt...',
+  ],
+  { h: RAMPS.teal[4], T: RAMPS.teal[2], t: RAMPS.teal[1], k: INK },
+)
+
+const SPONGE_SPRITE = pixelSprite(
+  [
+    'LLLLLLLLLLLL',
+    'llllllllllld',
+    'GGGGGGGGGGGG',
+    'GgGgggGgggGd',
+    'gggdgggggdgd',
+    '.dddddddddd.',
+  ],
+  {
+    L: RAMPS.leaf[3],
+    l: RAMPS.leaf[2],
+    d: RAMPS.gold[1],
+    G: RAMPS.gold[3],
+    g: RAMPS.gold[2],
+  },
+)
+
 class SinkSuds implements ArcadeGameInstance {
   score = 0
   level = 0
@@ -96,6 +296,9 @@ class SinkSuds implements ArcadeGameInstance {
   private overTimer = 0
   private nextExtra = EXTRA_LIFE_EVERY
   private banner: { text: string; sub?: string; ticks: number } | null = null
+  // Cosmetic sparkles roll their own dice, so the game's seeded rng is untouched.
+  private fx = new Sparkles()
+  private fxRng = backdropRng(29)
 
   constructor(options: ArcadeGameOptions) {
     this.rng = options.rng
@@ -359,6 +562,7 @@ class SinkSuds implements ArcadeGameInstance {
       const m = this.mess[i]!
       if (dist(m, b) < r + m.r) {
         this.mess.splice(i, 1)
+        this.fx.burst(m.x, m.y, this.fxRng, { count: 4, speed: 1 })
         const points = m.kind === 'grease' ? 25 : 10
         this.addScore(points)
         this.grow(m.kind === 'grease' ? 2 : 1)
@@ -378,6 +582,7 @@ class SinkSuds implements ArcadeGameInstance {
           this.mites.splice(i, 1)
           this.addScore(100, m.x, m.y)
           this.burst(m.x, m.y, 8, '#b45309')
+          this.fx.burst(m.x, m.y, this.fxRng, { count: 10 })
           this.sound.play('pop')
           // A swallowed mite drops a crumb somewhere else: the sink is never quite done.
           this.addMess()
@@ -442,6 +647,7 @@ class SinkSuds implements ArcadeGameInstance {
   }
 
   private updateEffects() {
+    this.fx.update()
     for (const p of this.pops) {
       p.x += p.vx
       p.y += p.vy
@@ -500,19 +706,19 @@ class SinkSuds implements ArcadeGameInstance {
 
   render(g: CanvasRenderingContext2D) {
     this.renderKitchen(g)
+    this.renderBasin(g)
     for (const m of this.mess) this.renderMess(g, m)
     for (const d of this.drips) {
-      g.fillStyle = 'rgba(165, 243, 252, 0.8)'
-      g.beginPath()
-      g.ellipse(d.x, d.y, 2, 3.5, 0, 0, Math.PI * 2)
-      g.fill()
+      drawSprite(g, DRIP_SPRITE, d.x, d.y)
     }
     for (const m of this.mites) this.renderMite(g, m)
     for (const br of this.brushes) this.renderBrush(g, br)
     for (const p of this.pops) {
       g.globalAlpha = Math.max(0, p.life / 45)
+      g.fillStyle = INK
+      g.fillRect(Math.round(p.x) - 1, Math.round(p.y) - 1, 3, 3)
       g.fillStyle = p.color
-      g.fillRect(p.x - 1, p.y - 1, 2, 2)
+      g.fillRect(Math.round(p.x) - 1, Math.round(p.y) - 1, 2, 2)
     }
     g.globalAlpha = 1
     if (
@@ -521,114 +727,175 @@ class SinkSuds implements ArcadeGameInstance {
     ) {
       this.renderBubble(g)
     }
+    this.fx.render(g)
     for (const f of this.floaters) {
-      drawText(g, f.text, f.x, f.y, { align: 'center', color: '#fde68a' })
+      drawText(g, f.text, f.x, f.y, {
+        align: 'center',
+        color: RAMPS.gold[3],
+        outline: INK,
+      })
     }
+    vignette(g, W, H, 0.3)
     this.renderHud(g)
   }
 
   private renderKitchen(g: CanvasRenderingContext2D) {
-    // Countertop tiles.
-    g.fillStyle = '#312e81'
-    g.fillRect(0, 0, W, H)
-    g.fillStyle = '#3730a3'
-    for (let y = 0; y < H; y += 24) {
-      for (let x = (y / 24) % 2 ? 0 : 24; x < W; x += 48)
-        g.fillRect(x, y, 24, 24)
+    // Glazed backsplash tiles, lit from the upper left; painted once.
+    cachedLayer(g, 'sink-suds-kitchen', W, H, (k) => {
+      k.fillStyle = RAMPS.night[1]
+      k.fillRect(0, 0, W, H)
+      for (let y = 0; y < H; y += TILE) {
+        for (let x = 0; x < W; x += TILE) {
+          const ramp = ((x + y) / TILE) % 2 ? RAMPS.purple : TILE_DARK
+          bevel(k, x + 1, y + 1, TILE - 2, TILE - 2, ramp, {
+            depth: 2,
+            outline: null,
+          })
+          k.fillStyle = rgba(RAMPS.purple[4], 0.35)
+          for (let i = 0; i < 6; i++) k.fillRect(x + 4 + i, y + 9 - i, 2, 1)
+        }
+      }
+      // Counter clutter in the corners the basin leaves free.
+      drawSprite(k, SOAP_SPRITE, 34, 78, { anchor: 'feet', scale: 2 })
+      drawSprite(k, PLANT_SPRITE, W - 36, 80, { anchor: 'feet', scale: 2 })
+      drawSprite(k, MUG_SPRITE, 30, H - 30, { anchor: 'feet', scale: 2 })
+      drawSprite(k, SPONGE_SPRITE, W - 32, H - 30, { anchor: 'feet', scale: 2 })
+    })
+    // The chrome faucet at the back of the sink, with a pink and a teal tap.
+    const top = SINK.cy - SINK.ry
+    bevel(g, SINK.cx - 5, top - 26, 10, 24, RAMPS.steel)
+    bevel(g, SINK.cx - 22, top - 31, 44, 8, RAMPS.steel)
+    bevel(g, SINK.cx - 3, top - 4, 6, 6, RAMPS.steel, { depth: 1 })
+    shadedOrb(g, SINK.cx - 32, top - 24, 6, RAMPS.pink)
+    shadedOrb(g, SINK.cx + 32, top - 24, 6, RAMPS.teal)
+  }
+
+  private renderBasin(g: CanvasRenderingContext2D) {
+    const { cx, cy, rx, ry } = SINK
+    const ellipse = (x: number, y: number, ex: number, ey: number) => {
+      g.beginPath()
+      g.ellipse(x, y, ex, ey, 0, 0, Math.PI * 2)
+      g.fill()
     }
-    // Faucet at the back of the sink.
-    g.fillStyle = '#cbd5e1'
-    g.fillRect(SINK.cx - 6, SINK.cy - SINK.ry - 26, 12, 22)
-    g.fillRect(SINK.cx - 22, SINK.cy - SINK.ry - 30, 44, 7)
-    // Basin rim and bowl.
-    g.fillStyle = '#e2e8f0'
+    // Steel rim: ink edge, lit upper-left arc, shadowed lower-right arc.
+    g.fillStyle = INK
+    ellipse(cx, cy, rx + 12, ry + 12)
+    g.fillStyle = RAMPS.steel[2]
+    ellipse(cx, cy, rx + 10, ry + 10)
+    g.lineWidth = 3
+    g.strokeStyle = RAMPS.steel[4]
     g.beginPath()
-    g.ellipse(SINK.cx, SINK.cy, SINK.rx + 9, SINK.ry + 9, 0, 0, Math.PI * 2)
-    g.fill()
-    const bowl = g.createRadialGradient(
-      SINK.cx,
-      SINK.cy - 30,
-      20,
-      SINK.cx,
-      SINK.cy,
-      SINK.rx,
-    )
-    bowl.addColorStop(0, '#f8fafc')
-    bowl.addColorStop(1, '#94a3b8')
-    g.fillStyle = bowl
+    g.ellipse(cx, cy, rx + 7, ry + 7, 0, Math.PI * 1.02, Math.PI * 1.62)
+    g.stroke()
+    g.strokeStyle = RAMPS.steel[3]
     g.beginPath()
-    g.ellipse(SINK.cx, SINK.cy, SINK.rx, SINK.ry, 0, 0, Math.PI * 2)
-    g.fill()
+    g.ellipse(cx, cy, rx + 7, ry + 7, 0, Math.PI * 0.75, Math.PI * 1.02)
+    g.ellipse(cx, cy, rx + 7, ry + 7, 0, Math.PI * 1.62, Math.PI * 1.9)
+    g.stroke()
+    g.strokeStyle = RAMPS.steel[1]
+    g.beginPath()
+    g.ellipse(cx, cy, rx + 7, ry + 7, 0, Math.PI * 0.05, Math.PI * 0.6)
+    g.stroke()
+    g.fillStyle = RAMPS.steel[0]
+    ellipse(cx, cy, rx + 2, ry + 2)
+    // The bowl, shaded in bands toward the light.
+    BOWL_BANDS.forEach((colour, i) => {
+      const t = i / BOWL_BANDS.length
+      g.fillStyle = colour
+      ellipse(cx - t * 24, cy - t * 30, rx * (1 - t * 0.6), ry * (1 - t * 0.6))
+    })
+    // A skin of water with light dancing on it.
+    g.save()
+    g.beginPath()
+    g.ellipse(cx, cy, rx, ry, 0, 0, Math.PI * 2)
+    g.clip()
+    g.fillStyle = rgba(RAMPS.water[2], 0.16)
+    g.fillRect(cx - rx, cy - ry, rx * 2, ry * 2)
+    g.fillStyle = rgba(RAMPS.water[4], 0.4)
+    for (const c of CAUSTICS) {
+      const sway = Math.sin(this.tick / 40 + c.phase)
+      g.fillRect(
+        Math.round(cx + c.x * rx + sway * 6),
+        Math.round(cy + c.y * ry),
+        Math.round(c.w + sway * 2),
+        1,
+      )
+    }
+    g.restore()
     // The drain: it glows when the bubble is full of suds.
     const ready = this.stage >= MAX_STAGE
     if (ready) {
-      g.fillStyle = `rgba(250, 204, 21, ${0.35 + 0.25 * Math.sin(this.tick / 6)})`
-      g.beginPath()
-      g.arc(DRAIN.x, DRAIN.y, DRAIN.r + 8, 0, Math.PI * 2)
-      g.fill()
+      glow(
+        g,
+        DRAIN.x,
+        DRAIN.y,
+        DRAIN.r + 22,
+        RAMPS.gold[3],
+        0.45 + 0.25 * Math.sin(this.tick / 6),
+      )
     }
-    g.fillStyle = '#475569'
+    shadedOrb(g, DRAIN.x, DRAIN.y, DRAIN.r + 3, RAMPS.steel, { glint: false })
+    g.fillStyle = INK
     g.beginPath()
-    g.arc(DRAIN.x, DRAIN.y, DRAIN.r, 0, Math.PI * 2)
+    g.arc(DRAIN.x, DRAIN.y, DRAIN.r - 1, 0, Math.PI * 2)
     g.fill()
-    g.strokeStyle = '#1e293b'
-    g.lineWidth = 2
-    g.beginPath()
+    g.fillStyle = RAMPS.steel[3]
     for (let i = -1; i <= 1; i++) {
-      g.moveTo(DRAIN.x - 8, DRAIN.y + i * 5)
-      g.lineTo(DRAIN.x + 8, DRAIN.y + i * 5)
+      g.fillRect(DRAIN.x - 8, DRAIN.y + i * 5 - 1, 16, 2)
     }
-    g.stroke()
+    if (ready) {
+      g.fillStyle = RAMPS.gold[4]
+      for (let i = 0; i < 4; i++) {
+        const a = this.tick / 10 + (i * Math.PI) / 2
+        g.fillRect(
+          Math.round(DRAIN.x + Math.cos(a) * (DRAIN.r + 6)),
+          Math.round(DRAIN.y + Math.sin(a) * (DRAIN.r + 6)),
+          2,
+          2,
+        )
+      }
+    }
   }
 
   private renderMess(g: CanvasRenderingContext2D, m: Mess) {
     if (m.kind === 'grease') {
-      g.fillStyle = 'rgba(161, 98, 7, 0.55)'
+      const tilt = (m.x + m.y) % 3
+      g.fillStyle = 'rgba(122, 44, 16, 0.55)'
       g.beginPath()
-      g.ellipse(m.x, m.y, 6, 4, (m.x + m.y) % 3, 0, Math.PI * 2)
+      g.ellipse(m.x, m.y, 7, 5, tilt, 0, Math.PI * 2)
       g.fill()
-      g.fillStyle = 'rgba(253, 224, 71, 0.6)'
-      g.fillRect(m.x - 1, m.y - 2, 2, 1)
+      g.fillStyle = 'rgba(194, 84, 27, 0.6)'
+      g.beginPath()
+      g.ellipse(m.x - 1, m.y - 1, 5, 3, tilt, 0, Math.PI * 2)
+      g.fill()
+      g.fillStyle = 'rgba(255, 224, 194, 0.8)'
+      g.fillRect(Math.round(m.x) - 3, Math.round(m.y) - 2, 2, 1)
     } else {
-      g.fillStyle = '#b45309'
-      g.fillRect(m.x - 2, m.y - 1.5, 4, 3)
-      g.fillStyle = '#f59e0b'
-      g.fillRect(m.x - 1, m.y - 1.5, 2, 1)
+      const sprite =
+        (Math.round(m.x) + Math.round(m.y)) % 2 ? CRUMB_SPRITE : CEREAL_SPRITE
+      drawSprite(g, sprite, m.x, m.y)
     }
   }
 
   private renderMite(g: CanvasRenderingContext2D, m: Mite) {
-    const legs = Math.floor(this.tick / 5) % 2
-    g.fillStyle = '#9a3412'
-    g.beginPath()
-    g.ellipse(m.x, m.y, 4, 3, Math.atan2(m.vy, m.vx), 0, Math.PI * 2)
-    g.fill()
-    g.strokeStyle = '#7c2d12'
-    g.lineWidth = 1
-    g.beginPath()
-    for (const side of [-1, 1]) {
-      g.moveTo(m.x - 2, m.y)
-      g.lineTo(m.x - 4, m.y + side * (3 + legs))
-      g.moveTo(m.x + 2, m.y)
-      g.lineTo(m.x + 4, m.y + side * (4 - legs))
-    }
-    g.stroke()
-    g.fillStyle = '#fde68a'
-    g.fillRect(m.x + Math.cos(Math.atan2(m.vy, m.vx)) * 3 - 0.5, m.y - 1, 1, 1)
+    const frame = Math.floor(this.tick / 6) % 2
+    dropShadow(g, m.x, m.y + 5, 5, 1.5, 0.3)
+    drawSprite(g, frame ? MITE_SPRITES[1] : MITE_SPRITES[0], m.x, m.y, {
+      flipX: m.vx < 0,
+    })
   }
 
   private renderBrush(g: CanvasRenderingContext2D, br: Brush) {
-    g.save()
-    g.translate(br.x, br.y)
-    g.rotate(Math.sin(br.angle) * 0.3)
-    g.fillStyle = '#14b8a6'
-    g.fillRect(-10, -6, 20, 8)
-    g.fillStyle = '#fde68a'
-    for (let i = -9; i <= 9; i += 3) g.fillRect(i, 2, 1.5, 5)
-    g.fillStyle = '#0f766e'
-    g.fillRect(-6, -4, 3, 2)
-    g.fillRect(3, -4, 3, 2)
-    g.restore()
+    const bob = Math.round(Math.sin(br.angle * 2) * 1.5)
+    dropShadow(g, br.x, br.y + 9, 11, 2.5, 0.35)
+    drawSprite(g, BRUSH_SPRITE, br.x, br.y + bob, {
+      flipX: Math.sin(br.angle) < 0,
+    })
+    // Bristles scrubbing: a few suds flecks under the brush.
+    g.fillStyle = RAMPS.water[4]
+    const f = Math.floor(this.tick / 4) % 3
+    g.fillRect(Math.round(br.x) - 9 + f * 6, Math.round(br.y) + 8, 2, 1)
+    g.fillRect(Math.round(br.x) + 5 - f * 4, Math.round(br.y) + 9, 1, 1)
   }
 
   private renderBubble(g: CanvasRenderingContext2D) {
@@ -637,6 +904,7 @@ class SinkSuds implements ArcadeGameInstance {
       this.draining > 0
         ? this.radius * Math.max(0.1, 1 - this.draining / 70)
         : this.radius
+    dropShadow(g, b.x + r * 0.35, b.y + r * 0.95, r * 0.8, r * 0.28, 0.3)
     const wob = Math.sin(b.wobble) * 0.08
     g.save()
     g.translate(b.x, b.y)
@@ -644,19 +912,47 @@ class SinkSuds implements ArcadeGameInstance {
     const film = g.createRadialGradient(-r * 0.3, -r * 0.3, r * 0.1, 0, 0, r)
     film.addColorStop(0, 'rgba(255, 255, 255, 0.85)')
     film.addColorStop(0.5, 'rgba(165, 243, 252, 0.35)')
-    film.addColorStop(0.8, 'rgba(244, 114, 182, 0.35)')
-    film.addColorStop(1, 'rgba(167, 139, 250, 0.7)')
+    film.addColorStop(0.8, 'rgba(244, 114, 182, 0.4)')
+    film.addColorStop(1, 'rgba(167, 139, 250, 0.75)')
     g.fillStyle = film
     g.beginPath()
     g.arc(0, 0, r, 0, Math.PI * 2)
     g.fill()
-    g.strokeStyle = 'rgba(255, 255, 255, 0.8)'
+    // A rainbow sheen swirling around the film.
+    const spin = this.tick / 18
+    g.lineWidth = Math.max(1.5, r / 6)
+    SHEEN.forEach((colour, i) => {
+      g.strokeStyle = colour
+      g.beginPath()
+      g.arc(0, 0, r * 0.8, spin + i * 0.45, spin + i * 0.45 + 0.45)
+      g.stroke()
+    })
     g.lineWidth = 1
+    g.strokeStyle = INK
+    g.beginPath()
+    g.arc(0, 0, r + 0.5, 0, Math.PI * 2)
     g.stroke()
-    // A happy little face.
-    g.fillStyle = '#1e1b4b'
-    g.fillRect(-r * 0.35, -r * 0.15, 2, 2)
-    g.fillRect(r * 0.2, -r * 0.15, 2, 2)
+    g.strokeStyle = 'rgba(255, 255, 255, 0.9)'
+    g.beginPath()
+    g.arc(0, 0, r - 0.5, Math.PI * 0.9, Math.PI * 1.6)
+    g.stroke()
+    // The window highlight every 16-bit bubble has.
+    g.fillStyle = '#ffffff'
+    g.fillRect(Math.round(-r * 0.55), Math.round(-r * 0.55), 3, 2)
+    g.fillRect(Math.round(-r * 0.6), Math.round(-r * 0.3), 2, 2)
+    // A happy little face with shiny eyes and pink cheeks.
+    const ex = Math.round(r * 0.3)
+    const ey = Math.round(-r * 0.15)
+    g.fillStyle = INK
+    g.fillRect(-ex - 1, ey, 2, 3)
+    g.fillRect(ex - 1, ey, 2, 3)
+    g.fillStyle = '#ffffff'
+    g.fillRect(-ex - 1, ey, 1, 1)
+    g.fillRect(ex - 1, ey, 1, 1)
+    g.fillStyle = rgba(RAMPS.pink[2], 0.7)
+    g.fillRect(-ex - 4, ey + 4, 3, 1)
+    g.fillRect(ex + 2, ey + 4, 3, 1)
+    g.strokeStyle = INK
     g.beginPath()
     g.arc(0, r * 0.15, r * 0.25, 0.2, Math.PI - 0.2)
     g.stroke()
@@ -664,49 +960,62 @@ class SinkSuds implements ArcadeGameInstance {
   }
 
   private renderHud(g: CanvasRenderingContext2D) {
-    const shadow = '#1e1b4b'
-    drawText(g, String(this.score).padStart(6, '0'), 8, 6, {
+    // Score and high score share one box, clear of the faucet in the middle.
+    hudPanel(g, 4, 3, 86, 31)
+    drawText(g, String(this.score).padStart(6, '0'), 10, 6, {
       scale: 2,
-      color: '#a5f3fc',
-      shadow,
+      color: RAMPS.teal[4],
+      shadow: INK,
     })
-    drawText(g, `HI ${Math.max(this.hiScore, this.score)}`, W / 2, 6, {
-      scale: 2,
-      align: 'center',
-      color: '#fde68a',
-      shadow,
+    drawText(g, `HI ${Math.max(this.hiScore, this.score)}`, 10, 24, {
+      color: RAMPS.gold[3],
+      outline: INK,
     })
-    for (let i = 0; i < Math.min(this.lives, 5); i++) {
-      drawText(g, '*', W - 14 - i * 14, 6, {
-        scale: 2,
-        color: '#f9a8d4',
-        shadow,
-      })
+    const lives = Math.min(this.lives, 5)
+    if (lives > 0) {
+      hudPanel(g, W - 8 - lives * 14, 3, lives * 14 + 4, 20)
+      for (let i = 0; i < lives; i++) {
+        shadedOrb(g, W - 13 - i * 14, 13, 4.5, RAMPS.water)
+      }
     }
-    drawText(g, `SINK ${this.level}`, 8, H - 12, { color: '#c4b5fd' })
+    hudPanel(g, 4, H - 19, 58, 15)
+    drawText(g, `SINK ${this.level}`, 10, H - 15, {
+      color: RAMPS.purple[4],
+      outline: INK,
+    })
     // Suds meter: how close the bubble is to full size.
     const filled =
       this.stage >= MAX_STAGE
         ? 1
         : (this.stage - 1 + this.growth / GROWTH_PER_STAGE) / (MAX_STAGE - 1)
-    g.fillStyle = '#1e1b4b'
-    g.fillRect(W - 110, H - 14, 100, 8)
-    g.fillStyle = filled >= 1 ? '#facc15' : '#a5f3fc'
-    g.fillRect(W - 110, H - 14, 100 * filled, 8)
-    drawText(g, 'SUDS', W - 116, H - 13, { align: 'right', color: '#a5f3fc' })
+    hudPanel(g, W - 152, H - 19, 148, 15)
+    drawText(g, 'SUDS', W - 146, H - 15, {
+      color: RAMPS.teal[4],
+      outline: INK,
+    })
+    gauge(
+      g,
+      W - 112,
+      H - 15,
+      102,
+      7,
+      filled,
+      filled >= 1 ? RAMPS.gold : RAMPS.water,
+    )
     if (this.banner) {
       drawText(g, this.banner.text, W / 2, H / 2 - 50, {
         scale: 3,
         align: 'center',
         color: '#ffffff',
-        shadow: '#0e7490',
+        outline: INK,
+        shadow: RAMPS.teal[1],
       })
       if (this.banner.sub) {
         drawText(g, this.banner.sub, W / 2, H / 2 - 18, {
           scale: 2,
           align: 'center',
-          color: '#fde68a',
-          shadow,
+          color: RAMPS.gold[3],
+          outline: INK,
         })
       }
     }

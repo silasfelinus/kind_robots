@@ -12,7 +12,31 @@
 // A blows a bubble.
 
 import { levelCurve } from '../curve'
-import { drawText } from '../font'
+import { drawText, measureText } from '../font'
+import {
+  INK,
+  RAMPS,
+  Sparkles,
+  backdropRng,
+  bandedGradient,
+  bevel,
+  cachedLayer,
+  drawCloud,
+  drawRidge,
+  drawSprite,
+  drawStars,
+  dropShadow,
+  glow,
+  hudPanel,
+  mix,
+  pixelSprite,
+  rgba,
+  ridge,
+  shadedOrb,
+  starField,
+  vignette,
+} from '../snes'
+import type { PixelSprite, Ramp } from '../snes'
 import type {
   ArcadeGameInstance,
   ArcadeGameModule,
@@ -85,12 +109,6 @@ const LAYOUTS: Platform[][] = [
     { x: 176, y: 176, w: 80 },
   ],
 ]
-const BACKDROPS = [
-  { sky: '#1e1b4b', plat: '#f472b6', top: '#fbcfe8' },
-  { sky: '#042f2e', plat: '#2dd4bf', top: '#99f6e4' },
-  { sky: '#2e1065', plat: '#a78bfa', top: '#ddd6fe' },
-  { sky: '#431407', plat: '#fb923c', top: '#fed7aa' },
-]
 const KIND_COLORS = ['#4ade80', '#f87171', '#facc15', '#38bdf8', '#e879f9']
 
 type Body = {
@@ -132,6 +150,322 @@ function platformsFor(round: number): Platform[] {
   return LAYOUTS[(round - 1) % LAYOUTS.length]!
 }
 
+// --- 16-bit art (utils/arcade/snes.ts) -------------------------------------------
+
+/** One ramp per gremlin kind, built around KIND_COLORS so gems and pops match. */
+const KIND_RAMPS: readonly Ramp[] = [
+  ['#0e3b2a', '#17803f', '#4ade80', '#a7f3c0', '#effff4'],
+  ['#4a1024', '#a3304a', '#f87171', '#fcb4b4', '#fff0f0'],
+  ['#5a3a08', '#b07a0c', '#facc15', '#fde98a', '#fffbe0'],
+  ['#0c2a5a', '#1c6aa8', '#38bdf8', '#a5e4ff', '#effaff'],
+  ['#3d0f4a', '#8a2a9e', '#e879f9', '#f5c2fc', '#fff0ff'],
+]
+
+/** Backdrop bodies, muted so the actors in front of them still pop. */
+const MOON: Ramp = ['#3a3048', '#6a5a70', '#a898a0', '#d8cfc8', '#f4efe8']
+const PLANET: Ramp = ['#2a0f3a', '#4a1f5a', '#7a3a7a', '#a8609a', '#d090c0']
+
+/** Each round's stage: banded sky, a far and a near parallax ridge, and its decor. */
+type Theme = {
+  sky: readonly string[]
+  plat: Ramp
+  far: { fill: string; rim: string }
+  near: { fill: string; rim: string }
+  stars: Ramp | null
+  clouds: Ramp | null
+  orb: { x: number; y: number; r: number; ramp: Ramp; ring: boolean } | null
+  rays: boolean
+  decor: string
+}
+
+const THEMES: readonly Theme[] = [
+  // Candy night under a big cream moon.
+  {
+    sky: [
+      RAMPS.night[0],
+      RAMPS.night[1],
+      RAMPS.purple[0],
+      mix(RAMPS.purple[1], RAMPS.pink[0], 0.6),
+    ],
+    plat: RAMPS.pink,
+    far: {
+      fill: mix(RAMPS.purple[0], RAMPS.pink[0], 0.5),
+      rim: RAMPS.pink[1],
+    },
+    near: { fill: RAMPS.night[1], rim: RAMPS.purple[1] },
+    stars: RAMPS.purple,
+    clouds: null,
+    orb: { x: 196, y: 58, r: 15, ramp: MOON, ring: false },
+    rays: false,
+    decor: RAMPS.pink[3],
+  },
+  // A sunken lagoon: light shafts and kelp hills.
+  {
+    sky: ['#030d18', '#06213a', RAMPS.water[0], RAMPS.teal[0]],
+    plat: RAMPS.teal,
+    far: { fill: mix(RAMPS.teal[0], RAMPS.water[0], 0.4), rim: '#14505a' },
+    near: { fill: '#04161e', rim: RAMPS.teal[0] },
+    stars: null,
+    clouds: null,
+    orb: null,
+    rays: true,
+    decor: RAMPS.water[4],
+  },
+  // Deep space, a ringed planet and gold stars.
+  {
+    sky: [
+      RAMPS.night[0],
+      RAMPS.night[0],
+      RAMPS.night[1],
+      RAMPS.purple[0],
+      RAMPS.night[2],
+    ],
+    plat: RAMPS.purple,
+    far: { fill: '#1a0f40', rim: RAMPS.night[3] },
+    near: { fill: RAMPS.night[0], rim: RAMPS.night[2] },
+    stars: RAMPS.gold,
+    clouds: null,
+    orb: { x: 54, y: 56, r: 14, ramp: PLANET, ring: true },
+    rays: false,
+    decor: RAMPS.purple[3],
+  },
+  // Ember sunset with drifting dusk clouds.
+  {
+    sky: ['#1a0618', RAMPS.ember[0], '#7a1f2a', RAMPS.rust[1], RAMPS.rust[2]],
+    plat: RAMPS.gold,
+    far: { fill: mix(RAMPS.ember[0], RAMPS.rust[0], 0.5), rim: '#7a1f2a' },
+    near: { fill: '#1a0612', rim: RAMPS.ember[0] },
+    stars: null,
+    clouds: ['#2a0c1e', '#6a1f3a', '#a83a4a', '#e0705a', '#ffc08a'],
+    orb: { x: 128, y: 168, r: 30, ramp: RAMPS.gold, ring: false },
+    rays: false,
+    decor: RAMPS.gold[4],
+  },
+]
+
+const STARS = starField(47, 44, W, 160)
+const FAR_RIDGE = ridge(53, W, 58)
+const NEAR_RIDGE = ridge(59, W, 30, 3)
+const CLOUDS = (() => {
+  const rand = backdropRng(61)
+  return Array.from({ length: 4 }, (_, i) => ({
+    x: i * 74 + rand() * 30,
+    y: 44 + rand() * 70,
+    size: 7 + rand() * 5,
+    speed: 0.04 + rand() * 0.05,
+  }))
+})()
+/** Little bubbles rising through the backdrop: it is Bubble Bobble, after all. */
+const DECOR_BUBBLES = (() => {
+  const rand = backdropRng(67)
+  return Array.from({ length: 16 }, () => ({
+    x: rand() * W,
+    y: rand() * (H + 20),
+    r: 1.5 + rand() * 3.5,
+    speed: 0.12 + rand() * 0.25,
+    phase: rand() * Math.PI * 2,
+  }))
+})()
+
+const SHEEN = [
+  'rgba(244, 114, 182, 0.6)',
+  'rgba(250, 204, 21, 0.55)',
+  'rgba(94, 234, 212, 0.55)',
+  'rgba(167, 139, 250, 0.6)',
+]
+
+// The robot: a teal cat-eared bot with a gold antenna light, facing right.
+const ROBOT_PALETTE = {
+  Y: RAMPS.gold[4],
+  y: RAMPS.gold[2],
+  H: RAMPS.teal[4],
+  h: RAMPS.teal[3],
+  T: RAMPS.teal[2],
+  t: RAMPS.teal[1],
+  d: RAMPS.teal[0],
+  v: RAMPS.night[1],
+  w: RAMPS.sky[3],
+  e: '#e6fff8',
+  g: RAMPS.gold[3],
+  G: RAMPS.gold[4],
+  P: RAMPS.pink[3],
+  p: RAMPS.pink[2],
+  q: RAMPS.pink[1],
+}
+const ROBOT_HEAD = [
+  '.....YY.....',
+  '.h....y...t.',
+  '.hh...y..tt.',
+  '.hHHHHHHHHt.',
+  'hHTTTTTTTTTt',
+]
+const ROBOT_EYES = ['hTwvveeveeTt', 'hTvvveeveeTt', 'hTvvvvvvvvTt']
+const ROBOT_BODY = [
+  'hTTTTTTTTTtt',
+  '.dttttttttd.',
+  '..hTTgGTTt..',
+  '.hTTTggTTTt.',
+  '.hTTTTTTTtt.',
+  '..dttttttd..',
+]
+function robot(eyes: readonly string[], feet: readonly string[]): PixelSprite {
+  return pixelSprite(
+    [...ROBOT_HEAD, ...eyes, ...ROBOT_BODY, ...feet],
+    ROBOT_PALETTE,
+  )
+}
+const ROBOT = {
+  stand: robot(ROBOT_EYES, ['..Pp...Pp...', '..PPq..PPq..']),
+  run: [
+    robot(ROBOT_EYES, ['.Pp.....Pp..', 'PPq.....PPq.']),
+    robot(ROBOT_EYES, ['...Pp.Pp....', '...PPqPPq...']),
+  ] as const,
+  jump: robot(ROBOT_EYES, ['...Pp..Pp...', '....q...q...']),
+  // Cheeks puffed, eyes squeezed shut, lips pursed round a bubble.
+  blow: robot(
+    ['hTwvvvvvvvTt', 'hTvveevveeTt', 'hTvvvvvvpPTt'],
+    ['..Pp...Pp...', '..PPq..PPq..'],
+  ),
+}
+const LIFE_SPRITE = pixelSprite(
+  [
+    '.h..Y..t.',
+    '.hh.y.tt.',
+    'hHHHHHHHt',
+    'hTwvvvvTt',
+    'hTvveveTt',
+    'hTTTTTTtt',
+    '.dtttttd.',
+  ],
+  ROBOT_PALETTE,
+)
+
+// Gremlins: horned fuzzballs with a toothy grin, facing right. Angry ones go ember red.
+const GREMLIN_TOP = ['.N........N.', '.nn......nn.', '..LLLLLLLL..']
+type GremlinFrames = {
+  walk: readonly [PixelSprite, PixelSprite]
+  trapped: PixelSprite
+}
+function gremlinFrames(ramp: Ramp, angry: boolean): GremlinFrames {
+  const palette = {
+    d: ramp[0],
+    b: ramp[1],
+    B: ramp[2],
+    L: ramp[3],
+    H: ramp[4],
+    n: RAMPS.cream[2],
+    N: RAMPS.cream[4],
+    w: '#ffffff',
+    k: INK,
+  }
+  const brow = angry ? '.LHkkBBkkBb.' : '.LHLBBBBBBb.'
+  const face = [
+    brow,
+    'LHBwwBBBwwBb',
+    'LBBwkBBBwkBb',
+    'BBBBBBBBBBbb',
+    'BBkwkwkwkBbd',
+    'bBBkkkkkkBbd',
+    '.bbbbbbbbbd.',
+  ]
+  const make = (feet: string) =>
+    pixelSprite([...GREMLIN_TOP, ...face, feet], palette)
+  return {
+    walk: [make('..dd....dd..'), make('...dd..dd...')],
+    // Caught: eyes rolled up at the bubble wall, mouth an "o", feet tucked.
+    trapped: pixelSprite(
+      [
+        ...GREMLIN_TOP,
+        brow,
+        'LHBwkBBBwkBb',
+        'LBBwwBBBwwBb',
+        'BBBBBBBBBBbb',
+        'BBBBBkkBBBbd',
+        'bBBBBkkBBBbd',
+        '.bbbbbbbbbd.',
+        '...dd..dd...',
+      ],
+      palette,
+    ),
+  }
+}
+const GREMLIN_FRAMES = KIND_RAMPS.map((r) => gremlinFrames(r, false))
+const ANGRY_FRAMES = gremlinFrames(RAMPS.ember, true)
+
+const GEM_SPRITES = KIND_RAMPS.map((r) =>
+  pixelSprite(['.HLLB.', 'HLLBBb', 'bBBbbd', '.bBbd.', '..bd..'], {
+    H: r[4],
+    L: r[3],
+    B: r[2],
+    b: r[1],
+    d: r[0],
+  }),
+)
+
+/** A darker twin of a ramp, for the checkered candy tiles. */
+function deeper(ramp: Ramp): Ramp {
+  return [
+    ramp[0],
+    mix(ramp[0], ramp[1], 0.5),
+    ramp[1],
+    mix(ramp[1], ramp[2], 0.6),
+    ramp[3],
+  ]
+}
+
+/**
+ * A candy slab: checkered bevelled tiles in an ink frame, frosted on top with drips, and a
+ * soft shadow cast on the backdrop below. Bricks offset row to row when `rows` > 1.
+ */
+function paintSlab(
+  k: CanvasRenderingContext2D,
+  x0: number,
+  y: number,
+  w: number,
+  rows: number,
+  ramp: Ramp,
+  seed: number,
+) {
+  const h = rows * 8
+  const dark = deeper(ramp)
+  const rand = backdropRng(seed)
+  k.fillStyle = rgba(INK, 0.4)
+  k.fillRect(x0 + 3, y + h + 1, w, 3)
+  k.fillStyle = INK
+  k.fillRect(x0 - 1, y - 1, w + 2, h + 2)
+  for (let row = 0; row < rows; row++) {
+    const shift = row % 2 ? 4 : 0
+    for (let x = x0 - shift, i = 0; x < x0 + w; x += 8, i++) {
+      const left = Math.max(x, x0)
+      const right = Math.min(x + 8, x0 + w)
+      if (right - left <= 0) continue
+      const tile = (i + row) % 2 ? dark : ramp
+      bevel(k, left, y + row * 8, right - left, 8, tile, {
+        depth: 1,
+        outline: null,
+      })
+      if (right - left >= 6 && rand() < 0.5) {
+        k.fillStyle = tile[4]
+        k.fillRect(left + 2, y + row * 8 + 3, 1, 1)
+      }
+    }
+  }
+  // Frosting along the top, dripping down the tiles here and there.
+  k.fillStyle = RAMPS.cream[4]
+  k.fillRect(x0, y, w, 1)
+  k.fillStyle = RAMPS.cream[3]
+  k.fillRect(x0, y + 1, w, 1)
+  for (let x = x0 + 1; x < x0 + w - 1; x++) {
+    if (rand() < 0.14) {
+      const len = 1 + Math.floor(rand() * 3)
+      k.fillStyle = RAMPS.cream[3]
+      k.fillRect(x, y + 2, 1, len)
+      k.fillStyle = RAMPS.cream[2]
+      k.fillRect(x, y + 2 + len, 1, 1)
+    }
+  }
+}
+
 class BumperBubbles implements ArcadeGameInstance {
   score = 0
   level = 1
@@ -168,6 +502,9 @@ class BumperBubbles implements ArcadeGameInstance {
   private chainLeft = 0
   private nextExtra = EXTRA_EVERY
   private banner: { text: string; sub?: string; ticks: number } | null = null
+  // Cosmetic sparkles roll their own dice, so the game's seeded rng is untouched.
+  private fx = new Sparkles()
+  private fxRng = backdropRng(71)
 
   constructor(options: ArcadeGameOptions) {
     this.rng = options.rng
@@ -310,6 +647,10 @@ class BumperBubbles implements ArcadeGameInstance {
       }
       if (this.roundTicks < 1500) this.addScore(1000 * this.level)
       this.sound.play('level')
+      this.fx.burst(this.player.x, this.player.y - 8, this.fxRng, {
+        count: 24,
+        speed: 2.4,
+      })
     }
   }
 
@@ -455,6 +796,11 @@ class BumperBubbles implements ArcadeGameInstance {
         else {
           this.addScore(10, b.x, b.y)
           this.burst(b.x, b.y, 6, '#bae6fd')
+          this.fx.burst(b.x, b.y, this.fxRng, {
+            count: 4,
+            speed: 1,
+            colours: [RAMPS.water[4], RAMPS.water[3]],
+          })
           this.sound.play('pop')
         }
       }
@@ -464,6 +810,10 @@ class BumperBubbles implements ArcadeGameInstance {
       if (Math.abs(gem.x - p.x) < 9 && Math.abs(gem.y - p.y) < 12) {
         this.addScore(300, gem.x, gem.y - 8)
         this.sound.play('pickup')
+        this.fx.burst(gem.x, gem.y - 5, this.fxRng, {
+          count: 10,
+          colours: [RAMPS.gold[4], RAMPS.gold[3], '#ffffff'],
+        })
         return false
       }
       return true
@@ -492,6 +842,12 @@ class BumperBubbles implements ArcadeGameInstance {
     const points = 200 * this.chain
     this.addScore(points, b.x, b.y)
     this.burst(b.x, b.y, 12, KIND_COLORS[b.held!.kind]!)
+    const ramp = KIND_RAMPS[b.held!.kind]!
+    this.fx.burst(b.x, b.y, this.fxRng, {
+      count: 6 + this.chain * 4,
+      speed: 1.3 + this.chain * 0.3,
+      colours: [ramp[4], ramp[3], RAMPS.gold[4]],
+    })
     this.sound.play('boom')
     this.gems.push({
       x: b.x,
@@ -517,6 +873,9 @@ class BumperBubbles implements ArcadeGameInstance {
       this.nextExtra += EXTRA_EVERY
       this.banner = { text: 'EXTRA LIFE!', ticks: 90 }
       this.sound.play('extra')
+      this.fx.burst(this.player.x, this.player.y - 8, this.fxRng, {
+        count: 16,
+      })
     }
   }
 
@@ -536,6 +895,7 @@ class BumperBubbles implements ArcadeGameInstance {
   }
 
   private updateEffects() {
+    this.fx.update()
     for (const p of this.particles) {
       p.x += p.vx
       p.y += p.vy
@@ -610,152 +970,352 @@ class BumperBubbles implements ArcadeGameInstance {
   // --- render -------------------------------------------------------------------
 
   render(g: CanvasRenderingContext2D) {
-    const bd = BACKDROPS[(this.level - 1) % BACKDROPS.length]!
-    g.fillStyle = bd.sky
-    g.fillRect(0, 0, W, H)
-    // Drifting backdrop dots.
-    g.fillStyle = 'rgba(255,255,255,0.08)'
-    for (let i = 0; i < 18; i++) {
-      const x = (i * 53) % W
-      const y = (i * 37 + this.tick * 0.1 * ((i % 3) + 1)) % H
-      g.fillRect(x, y, 3, 3)
-    }
-    // Floor and platforms.
-    g.fillStyle = bd.plat
-    g.fillRect(0, FLOOR_Y, W, H - FLOOR_Y)
-    g.fillStyle = bd.top
-    g.fillRect(0, FLOOR_Y, W, 2)
-    for (const p of this.platforms) {
-      g.fillStyle = bd.plat
-      g.fillRect(p.x, p.y, p.w, 8)
-      g.fillStyle = bd.top
-      g.fillRect(p.x, p.y, p.w, 2)
-    }
-    for (const gem of this.gems) {
-      if (gem.life < 90 && Math.floor(this.tick / 4) % 2) continue
-      g.fillStyle = gem.color
-      g.fillRect(gem.x - 3, gem.y - 8, 6, 6)
-      g.fillStyle = '#ffffff'
-      g.fillRect(gem.x - 2, gem.y - 7, 2, 2)
-    }
-    for (const gr of this.gremlins) this.renderGremlin(g, gr, gr.x, gr.y, 1)
+    const ti = (this.level - 1) % THEMES.length
+    const theme = THEMES[ti]!
+    this.renderBackdrop(g, ti, theme)
+    this.renderStage(g, ti, theme)
+    for (const gem of this.gems) this.renderGem(g, gem)
+    for (const gr of this.gremlins) this.renderGremlin(g, gr)
     for (const b of this.bubbles) this.renderBubble(g, b)
     this.renderPlayer(g)
     for (const p of this.particles) {
       g.globalAlpha = Math.max(0, p.life / 28)
+      g.fillStyle = INK
+      g.fillRect(Math.round(p.x) - 1, Math.round(p.y) - 1, 3, 3)
       g.fillStyle = p.color
-      g.fillRect(p.x - 1, p.y - 1, 2, 2)
+      g.fillRect(Math.round(p.x) - 1, Math.round(p.y) - 1, 2, 2)
     }
     g.globalAlpha = 1
+    this.fx.render(g)
     for (const f of this.floaters) {
-      drawText(g, f.text, f.x, f.y, { align: 'center', color: '#fde68a' })
+      // Kept on screen: a pop at the wall still shows its points whole.
+      const half = measureText(f.text) / 2 + 2
+      const x = Math.max(half, Math.min(W - half, f.x))
+      drawText(g, f.text, x, f.y, {
+        align: 'center',
+        color: RAMPS.gold[3],
+        outline: INK,
+      })
     }
+    // HURRY: the whole stage flushes red while the gremlins rage.
+    if (this.roundTicks >= HURRY_TICKS && this.clear === 0) {
+      g.fillStyle = rgba(RAMPS.ember[2], 0.06 + 0.04 * Math.sin(this.tick / 8))
+      g.fillRect(0, 0, W, H)
+    }
+    vignette(g, W, H, 0.3)
     this.renderHud(g)
   }
 
-  private renderGremlin(
+  /** Where a body at (x, y) would land: the nearest platform top below it, or the floor. */
+  private surfaceBelow(x: number, y: number): number {
+    let best = FLOOR_Y
+    for (const p of this.platforms) {
+      if (x >= p.x && x <= p.x + p.w && p.y >= y - 0.5 && p.y < best) best = p.y
+    }
+    return best
+  }
+
+  /** A shadow on whatever is underneath, shrinking and fading as the body rises. */
+  private castShadow(
     g: CanvasRenderingContext2D,
-    gr: Gremlin,
     x: number,
     y: number,
-    scale: number,
+    rx: number,
   ) {
-    const w = 12 * scale
-    const h = 11 * scale
-    g.fillStyle = gr.angry ? '#ef4444' : KIND_COLORS[gr.kind]!
-    g.fillRect(x - w / 2, y - h, w, h)
-    g.fillRect(x - w / 2 + 1, y - h - 2, 2, 2)
-    g.fillRect(x + w / 2 - 3, y - h - 2, 2, 2)
-    g.fillStyle = '#ffffff'
-    g.fillRect(x - 4 * scale, y - h + 2, 3 * scale, 3 * scale)
-    g.fillRect(x + 1 * scale, y - h + 2, 3 * scale, 3 * scale)
-    g.fillStyle = '#111827'
-    const look = gr.dir === 1 ? 1 : 0
-    g.fillRect(x - 4 * scale + look, y - h + 3, 2, 2)
-    g.fillRect(x + 1 * scale + look, y - h + 3, 2, 2)
+    const ground = this.surfaceBelow(x, y)
+    const lift = ground - y
+    if (lift > 80) return
+    const k = 1 - lift / 100
+    dropShadow(g, x, ground, Math.max(2, rx * k), 1.5, 0.35 * k)
+  }
+
+  private renderBackdrop(
+    g: CanvasRenderingContext2D,
+    ti: number,
+    theme: Theme,
+  ) {
+    // The banded sky and its moon, planet, sun or light shafts, painted once per theme.
+    cachedLayer(g, `bumper-bubbles-sky-${ti}`, W, H, (k) => {
+      bandedGradient(k, 0, 0, W, H, theme.sky, 4)
+      if (theme.rays) {
+        for (let i = 0; i < 5; i++) {
+          const x = 20 + i * 52
+          k.fillStyle = rgba(RAMPS.water[4], 0.05 + (i % 2) * 0.03)
+          k.beginPath()
+          k.moveTo(x, 0)
+          k.lineTo(x + 18 + (i % 3) * 6, 0)
+          k.lineTo(x + 70, H)
+          k.lineTo(x + 34, H)
+          k.closePath()
+          k.fill()
+        }
+      }
+      const orb = theme.orb
+      if (orb) {
+        glow(k, orb.x, orb.y, orb.r * 2.6, orb.ramp[3], 0.22)
+        if (orb.ring) {
+          k.strokeStyle = RAMPS.gold[0]
+          k.lineWidth = 2
+          k.beginPath()
+          k.ellipse(orb.x, orb.y, orb.r * 1.8, orb.r * 0.45, -0.3, Math.PI, 0)
+          k.stroke()
+        }
+        shadedOrb(k, orb.x, orb.y, orb.r, orb.ramp, { outline: null })
+        if (orb.ring) {
+          k.strokeStyle = RAMPS.gold[1]
+          k.lineWidth = 2
+          k.beginPath()
+          k.ellipse(orb.x, orb.y, orb.r * 1.8, orb.r * 0.45, -0.3, 0, Math.PI)
+          k.stroke()
+        } else if (orb.ramp === MOON) {
+          // Moon craters.
+          k.fillStyle = rgba(MOON[1], 0.6)
+          k.fillRect(orb.x + 3, orb.y + 2, 4, 3)
+          k.fillRect(orb.x - 6, orb.y + 6, 3, 2)
+          k.fillRect(orb.x + 6, orb.y - 6, 2, 2)
+        }
+      }
+    })
+    if (theme.stars) drawStars(g, STARS, this.tick, theme.stars)
+    if (theme.clouds) {
+      for (const c of CLOUDS) {
+        const x = ((c.x + this.tick * c.speed) % (W + 60)) - 30
+        drawCloud(g, x, c.y, c.size, theme.clouds)
+      }
+    }
+    // Two parallax ridges drifting at different speeds.
+    drawRidge(g, FAR_RIDGE, {
+      base: 206,
+      bottom: FLOOR_Y,
+      width: W,
+      offset: this.tick * 0.04,
+      fill: theme.far.fill,
+      rim: theme.far.rim,
+    })
+    drawRidge(g, NEAR_RIDGE, {
+      base: 222,
+      bottom: FLOOR_Y,
+      width: W,
+      offset: this.tick * 0.11,
+      step: 3,
+      fill: theme.near.fill,
+      rim: theme.near.rim,
+    })
+    // Bubbles rising through the backdrop, wobbling as they go.
+    g.lineWidth = 1
+    for (const d of DECOR_BUBBLES) {
+      const y =
+        ((((d.y - this.tick * d.speed) % (H + 20)) + H + 20) % (H + 20)) - 10
+      const x = d.x + Math.sin(this.tick / 30 + d.phase) * 3
+      g.strokeStyle = rgba(theme.decor, 0.35)
+      g.beginPath()
+      g.arc(x, y, d.r, 0, Math.PI * 2)
+      g.stroke()
+      g.fillStyle = rgba('#ffffff', 0.5)
+      g.fillRect(Math.round(x - d.r * 0.5), Math.round(y - d.r * 0.5), 1, 1)
+    }
+  }
+
+  private renderStage(g: CanvasRenderingContext2D, ti: number, theme: Theme) {
+    // Candy platforms and the brick floor, painted once per layout and theme.
+    const li = (this.level - 1) % LAYOUTS.length
+    cachedLayer(g, `bumper-bubbles-stage-${li}-${ti}`, W, H, (k) => {
+      this.platforms.forEach((p, i) => {
+        paintSlab(k, p.x, p.y, p.w, 1, theme.plat, li * 31 + i * 7 + 3)
+      })
+      paintSlab(k, 0, FLOOR_Y, W, 2, theme.plat, li * 31 + 97)
+    })
+  }
+
+  private renderGem(g: CanvasRenderingContext2D, gem: Gem) {
+    if (gem.life < 90 && Math.floor(this.tick / 4) % 2) return
+    const kind = Math.max(0, KIND_COLORS.indexOf(gem.color))
+    const ramp = KIND_RAMPS[kind]!
+    const bob = gem.onGround
+      ? Math.round(Math.sin(this.tick / 10 + gem.x) * 1.2)
+      : 0
+    this.castShadow(g, gem.x, gem.y, 4)
+    glow(
+      g,
+      gem.x,
+      gem.y - 5 + bob,
+      11,
+      ramp[3],
+      0.35 + 0.15 * Math.sin(this.tick / 6),
+    )
+    drawSprite(g, GEM_SPRITES[kind]!, gem.x, gem.y - 1 + bob, {
+      anchor: 'feet',
+    })
+    // A glint flares across the facets now and then.
+    if ((this.tick + kind * 9) % 48 < 10) {
+      const x = Math.round(gem.x) - 2
+      const y = Math.round(gem.y) - 7 + bob
+      g.fillStyle = '#ffffff'
+      g.fillRect(x - 1, y, 3, 1)
+      g.fillRect(x, y - 1, 1, 3)
+    }
+  }
+
+  private renderGremlin(g: CanvasRenderingContext2D, gr: Gremlin) {
+    const set = gr.angry ? ANGRY_FRAMES : GREMLIN_FRAMES[gr.kind]!
+    this.castShadow(g, gr.x, gr.y, 6)
+    if (gr.angry) {
+      glow(
+        g,
+        gr.x,
+        gr.y - 6,
+        13,
+        RAMPS.ember[2],
+        0.25 + 0.12 * Math.sin(this.tick / 5),
+      )
+    }
+    const moving = gr.onGround && gr.vx !== 0 && this.ready === 0
+    const frame = moving ? Math.floor((this.tick + gr.kind * 3) / 8) % 2 : 0
+    drawSprite(g, set.walk[frame]!, gr.x, gr.y + 1, {
+      anchor: 'feet',
+      flipX: gr.dir === -1,
+    })
+    if (gr.angry) {
+      // Steam puffing from the horns.
+      const t = Math.floor(this.tick / 5) % 4
+      g.fillStyle = rgba('#ffffff', 0.7 - t * 0.15)
+      g.fillRect(Math.round(gr.x) - 6, Math.round(gr.y) - 15 - t, 2, 2)
+      g.fillRect(Math.round(gr.x) + 5, Math.round(gr.y) - 17 + t / 2, 2, 2)
+    }
   }
 
   private renderBubble(g: CanvasRenderingContext2D, b: Bubble) {
-    const r = BUBBLE_R + (b.held ? 3 : 0)
+    // A fresh bubble swells out of the robot's mouth (looks only; the hitbox is unchanged).
+    const grow = b.flight > 0 ? Math.min(1, 0.45 + b.age / 10) : 1
+    const r = (BUBBLE_R + (b.held ? 3 : 0)) * grow
+    const warn = b.held !== null && b.holdLeft < 90
+    const flicker = warn && Math.floor(this.tick / 4) % 2 === 1
     if (b.held) {
-      this.renderGremlin(g, b.held, b.x, b.y + 6, 0.8)
+      if (warn) glow(g, b.x, b.y, r + 9, RAMPS.ember[2], 0.4)
+      const set = b.held.angry ? ANGRY_FRAMES : GREMLIN_FRAMES[b.held.kind]!
+      const jiggle = warn ? (Math.floor(this.tick / 3) % 2 ? 1 : -1) : 0
+      drawSprite(g, set.trapped, b.x + jiggle, b.y + 1, {
+        flipX: b.held.dir === -1,
+      })
     }
-    const flicker = b.held && b.holdLeft < 90 && Math.floor(this.tick / 4) % 2
-    g.fillStyle = flicker ? 'rgba(254,202,202,0.45)' : 'rgba(186,230,253,0.28)'
+    const wob = Math.sin((b.age + b.x) / 7) * 0.06
+    g.save()
+    g.translate(b.x, b.y)
+    g.scale(1 + wob, 1 - wob)
+    const film = g.createRadialGradient(-r * 0.35, -r * 0.35, r * 0.1, 0, 0, r)
+    film.addColorStop(0, 'rgba(255, 255, 255, 0.55)')
+    film.addColorStop(0.45, rgba(RAMPS.water[4], 0.1))
+    if (flicker) {
+      film.addColorStop(0.8, rgba(RAMPS.ember[3], 0.35))
+      film.addColorStop(1, rgba(RAMPS.ember[2], 0.8))
+    } else {
+      film.addColorStop(0.8, rgba(RAMPS.teal[3], 0.25))
+      film.addColorStop(1, rgba(RAMPS.sky[3], 0.75))
+    }
+    g.fillStyle = film
     g.beginPath()
-    g.arc(b.x, b.y, r, 0, Math.PI * 2)
+    g.arc(0, 0, r, 0, Math.PI * 2)
     g.fill()
-    g.strokeStyle = flicker ? '#fca5a5' : '#e0f2fe'
-    g.lineWidth = 1.5
+    // The rainbow sheen swirling round the film.
+    const spin = this.tick / 16 + b.x / 30
+    g.lineWidth = r > 8 ? 1.5 : 1
+    SHEEN.forEach((colour, i) => {
+      g.strokeStyle = colour
+      g.beginPath()
+      g.arc(0, 0, r * 0.78, spin + i * 0.5, spin + i * 0.5 + 0.5)
+      g.stroke()
+    })
+    g.lineWidth = 1
+    g.strokeStyle = INK
+    g.beginPath()
+    g.arc(0, 0, r + 0.5, 0, Math.PI * 2)
     g.stroke()
+    g.strokeStyle = flicker ? RAMPS.ember[4] : 'rgba(255, 255, 255, 0.9)'
+    g.beginPath()
+    g.arc(0, 0, r - 0.5, Math.PI * 0.95, Math.PI * 1.6)
+    g.stroke()
+    g.strokeStyle = 'rgba(255, 255, 255, 0.4)'
+    g.beginPath()
+    g.arc(0, 0, r - 1.5, Math.PI * 0.15, Math.PI * 0.45)
+    g.stroke()
+    // The window highlight every 16-bit bubble has.
     g.fillStyle = '#ffffff'
-    g.fillRect(b.x - r / 2, b.y - r / 2, 2, 2)
+    g.fillRect(Math.round(-r * 0.55), Math.round(-r * 0.6), 2, 2)
+    g.fillRect(Math.round(-r * 0.65), Math.round(-r * 0.25), 1, 1)
+    g.restore()
   }
 
   private renderPlayer(g: CanvasRenderingContext2D) {
     const p = this.player
     if (this.dead > 0) return
+    this.castShadow(g, p.x, p.y, 6)
     if (this.invuln > 0 && Math.floor(this.tick / 4) % 2) return
-    const x = p.x
-    const y = p.y
-    g.fillStyle = '#2dd4bf'
-    g.fillRect(x - 6, y - 13, 12, 12)
-    g.fillStyle = '#0f766e'
-    g.fillRect(x - 6, y - 4, 12, 4)
-    // Cat ears and antenna.
-    g.fillStyle = '#2dd4bf'
-    g.fillRect(x - 6, y - 16, 3, 3)
-    g.fillRect(x + 3, y - 16, 3, 3)
-    g.fillStyle = '#facc15'
-    g.fillRect(x - 1, y - 17, 2, 4)
-    // Face looks the way it walks.
-    g.fillStyle = '#ffffff'
-    const ex = p.face === 1 ? 1 : -4
-    g.fillRect(x + ex, y - 10, 3, 3)
-    g.fillStyle = '#111827'
-    g.fillRect(x + ex + (p.face === 1 ? 1 : 0), y - 9, 2, 2)
-    // Walking feet.
-    g.fillStyle = '#f472b6'
-    const step = p.onGround && p.vx !== 0 ? Math.floor(this.tick / 6) % 2 : 0
-    g.fillRect(x - 6 + step, y - 1, 4, 1)
-    g.fillRect(x + 2 - step, y - 1, 4, 1)
+    const still = this.ready > 0 || this.clear > 0
+    let sprite = ROBOT.stand
+    if (p.cooldown > SHOT_COOLDOWN - 8) sprite = ROBOT.blow
+    else if (!p.onGround) sprite = ROBOT.jump
+    else if (p.vx !== 0 && !still)
+      sprite = ROBOT.run[Math.floor(this.tick / 6) % 2]!
+    drawSprite(g, sprite, p.x, p.y + 1, {
+      anchor: 'feet',
+      flipX: p.face === -1,
+    })
+    // The antenna light pulses.
+    glow(
+      g,
+      Math.round(p.x),
+      p.y - 15,
+      6,
+      RAMPS.gold[3],
+      0.4 + 0.25 * Math.sin(this.tick / 7),
+    )
   }
 
   private renderHud(g: CanvasRenderingContext2D) {
-    const shadow = '#1e1b4b'
-    drawText(g, String(this.score).padStart(6, '0'), 6, 5, {
+    hudPanel(g, 3, 2, 80, 20)
+    drawText(g, String(this.score).padStart(6, '0'), 8, 5, {
       scale: 2,
-      color: '#fde047',
-      shadow,
+      color: RAMPS.gold[3],
+      shadow: INK,
     })
-    drawText(g, `HI ${Math.max(this.hiScore, this.score)}`, W - 6, 3, {
-      align: 'right',
-      color: '#f9a8d4',
-      shadow,
-    })
-    drawText(g, `ROUND ${this.level}`, W - 6, 13, {
-      align: 'right',
-      color: '#a5f3fc',
-    })
+    // Lives as little robot heads, with the chain count beneath while one runs.
+    hudPanel(g, 88, 2, 62, 20)
     for (let i = 0; i < Math.min(this.lives, 5); i++) {
-      g.fillStyle = '#2dd4bf'
-      g.fillRect(100 + i * 9, 6, 6, 6)
+      drawSprite(g, LIFE_SPRITE, 92 + i * 11, 3, { anchor: 'topleft' })
     }
     if (this.chain > 1 && this.chainLeft > 0) {
-      drawText(g, `CHAIN X${this.chain}`, 100, 16, { color: '#fde68a' })
+      drawText(g, `CHAIN X${this.chain}`, 92, 14, {
+        color: Math.floor(this.tick / 6) % 2 ? RAMPS.gold[4] : RAMPS.gold[3],
+        outline: INK,
+      })
     }
+    const hi = `HI ${Math.max(this.hiScore, this.score)}`
+    const round = `ROUND ${this.level}`
+    const pw = Math.max(measureText(hi), measureText(round)) + 12
+    hudPanel(g, W - 3 - pw, 2, pw, 20)
+    drawText(g, hi, W - 9, 4, {
+      align: 'right',
+      color: RAMPS.pink[3],
+      outline: INK,
+    })
+    drawText(g, round, W - 9, 13, {
+      align: 'right',
+      color: RAMPS.teal[3],
+      outline: INK,
+    })
     if (this.banner) {
       drawText(g, this.banner.text, W / 2, 100, {
         scale: 2,
         align: 'center',
         color: '#ffffff',
-        shadow: '#7c3aed',
+        outline: INK,
+        shadow: RAMPS.purple[1],
       })
       if (this.banner.sub) {
         drawText(g, this.banner.sub, W / 2, 120, {
           align: 'center',
-          color: '#fde68a',
-          shadow,
+          color: RAMPS.gold[3],
+          outline: INK,
         })
       }
     }

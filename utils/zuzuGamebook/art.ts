@@ -17,6 +17,8 @@
  * plates are indexed there in assets/repository-media.json and their ledger in
  * assets/ledger-part-05.json; keep them in step when a plate changes.
  */
+import { SECTION_PLATES } from './sectionArt'
+
 export type ScenePlate = {
   file: string
   alt: string
@@ -25,7 +27,22 @@ export type ScenePlate = {
   fit: 'exact' | 'stand-in'
   /** CSS object-position for the 4:3 phone crop of a 16:9 plate. */
   focus?: string
+  /**
+   * The render's shape: 'wide' 1344x768 (the default), 'tall' 896x1152 or 'square' 1024x1024. Silas, 2026-10-10:
+   * "some are shown horizontally and some vertically, left right top bottom, for variety" — see plateLayout().
+   */
+  shape?: PlateShape
 }
+
+export type PlateShape = 'wide' | 'tall' | 'square'
+export type PlateLayout = 'top' | 'bottom' | 'left' | 'right'
+
+export const PLATE_SIZE: Record<PlateShape, { width: number; height: number }> =
+  {
+    wide: { width: 1344, height: 768 },
+    tall: { width: 896, height: 1152 },
+    square: { width: 1024, height: 1024 },
+  }
 
 const MV = 'Zuzu intro music video keyframe'
 
@@ -250,6 +267,133 @@ export const PLATES: Record<string, ScenePlate> = {
     source: 'Gamebook round 3, gb3-zuzu-shadow-1',
     fit: 'exact',
   },
+  'gun-shallows': {
+    file: 'waterhole',
+    alt: 'Zuzu, a short grey koala in a rust-brown poncho, wide straw kasa and orange sash, stands at the edge of a still desert watering hole at dusk, his katana hilt over his shoulder.',
+    artImageId: 242684,
+    source: 'Stand-in (waterhole) until art round 4 renders this plate',
+    fit: 'stand-in',
+  },
+  'croc-eggs': {
+    file: 'ripples',
+    alt: 'Zuzu stands in the shallows of a pale blue desert pool, ripples spreading around his feet, dunes and bare mountains behind him.',
+    artImageId: 242683,
+    source: 'Stand-in (ripples) until art round 4 renders this plate',
+    fit: 'stand-in',
+  },
+  'bowl-bones': {
+    file: 'bowl-bones',
+    alt: 'A cracked clay bowl sits half sunk in still dark water, an old bleached bone lying in it.',
+    artImageId: 243519,
+    source: 'Gamebook round 4, gb4-bowl-bones-2',
+    fit: 'exact',
+  },
+  'dying-badger': {
+    file: 'hb-store',
+    alt: 'The looted timber interior of a frontier store: empty shelves, slumped flour sacks, scattered tins and a hook hanging from the beams.',
+    artImageId: 243416,
+    source: 'Stand-in (hb-store) until art round 4 renders this plate',
+    fit: 'stand-in',
+  },
+  looter: {
+    file: 'looter',
+    alt: 'A young raccoon in a vest crouches in the dust with a sack over his shoulder and a boot at his feet, a small fire burning behind him at dusk.',
+    artImageId: 243522,
+    source: 'Gamebook round 4, gb4-looter-1',
+    fit: 'exact',
+  },
+  'candle-wax': {
+    file: 'candle-wax',
+    alt: 'A stub of black candle burns on a scorched wooden threshold, its black wax pooled and dripping over the edge.',
+    artImageId: 243524,
+    source: 'Gamebook round 4, gb4-candle-wax-1',
+    fit: 'exact',
+    shape: 'square',
+  },
+  'bell-view': {
+    file: 'hollow-bell',
+    alt: 'Zuzu stands small in the middle of a burning frontier street, flames along both boardwalks and a wooden bell tower black against the smoke.',
+    artImageId: 242696,
+    source: 'Stand-in (hollow-bell) until art round 4 renders this plate',
+    fit: 'stand-in',
+  },
+  'stolen-bread': {
+    file: 'stolen-bread',
+    alt: 'A fennec girl with bandaged wrists sits by a campfire under the stars, clutching a piece of bread to her chest.',
+    artImageId: 243528,
+    source: 'Gamebook round 4, gb4-stolen-bread-1',
+    fit: 'exact',
+  },
+  fever: {
+    file: 'camp',
+    alt: 'A tiny figure sits by a small campfire in a rocky desert basin under a sky crowded with stars and the milky way.',
+    artImageId: 243339,
+    source: 'Stand-in (camp) until art round 4 renders this plate',
+    fit: 'stand-in',
+  },
+  'apples-sister': {
+    file: 'apples-sister',
+    alt: 'Under a lone apple tree in the golden evening, a fennec girl hands a red apple to her little brother.',
+    artImageId: 243533,
+    source: 'Gamebook round 4, gb4-apples-sister-2',
+    fit: 'exact',
+  },
+  'stone-face': {
+    file: 'bone-valley',
+    alt: 'A cracked dry riverbed winds between grey hills, a large bleached skull half buried in the foreground.',
+    artImageId: 243345,
+    source: 'Stand-in (bone-valley) until art round 4 renders this plate',
+    fit: 'stand-in',
+  },
+  'dry-well': {
+    file: 'dust-road',
+    alt: 'A lone twisted tree on a ridge above a winding desert road at dawn, a tiny traveller far below on the trail.',
+    artImageId: 242562,
+    source: 'Stand-in (dust-road) until art round 4 renders this plate',
+    fit: 'stand-in',
+  },
+  'raider-kits': {
+    file: 'raider-kits',
+    alt: 'A wide-eyed young jackal in a hooded wrap peeks round a weathered wooden doorpost, frightened.',
+    artImageId: 243538,
+    source: 'Gamebook round 4, gb4-raider-kits-1',
+    fit: 'exact',
+  },
+  peddler: {
+    file: 'peddler',
+    alt: 'A lanky hare in a battered top hat and long coat holds up a bottle of water in a dim wooden waystation, more bottles on the tables beside him.',
+    artImageId: 243541,
+    source: 'Gamebook round 4, gb4-peddler-2',
+    fit: 'exact',
+  },
+  'crow-witch': {
+    file: 'crow-witch',
+    alt: 'An old crow witch in a black feather shawl and pointed hat sits on the branch of a dead tree under a full moon, a crow perched beside her.',
+    artImageId: 243543,
+    source: 'Gamebook round 4, gb4-crow-witch-2',
+    fit: 'exact',
+  },
+  'storm-shrine': {
+    file: 'bone-valley',
+    alt: 'A cracked dry riverbed winds between grey hills, a large bleached skull half buried in the foreground.',
+    artImageId: 243345,
+    source: 'Stand-in (bone-valley) until art round 4 renders this plate',
+    fit: 'stand-in',
+  },
+  'desert-bloom': {
+    file: 'apple-tree',
+    alt: 'A lone red-leafed apple tree glows against the setting sun on a desert ridge, a small fox standing beneath it.',
+    artImageId: 242569,
+    source: 'Stand-in (apple-tree) until art round 4 renders this plate',
+    fit: 'stand-in',
+  },
+  'hb-noon': {
+    file: 'hb-noon',
+    alt: 'The empty main street of a timber frontier town at noon, doors hanging open, a tall bell tower at the far end.',
+    artImageId: 243412,
+    source: 'Gamebook round 3, gb3-hb-noon-1',
+    fit: 'exact',
+  },
   'zuzu-moon': {
     file: 'zuzu-moon',
     alt: 'Zuzu stands alone on a dusty rise against a pale full moon, poncho over his sash, his katana slung across his back.',
@@ -293,6 +437,111 @@ export const PLATES: Record<string, ScenePlate> = {
     source: 'Gamebook round 1, gb-ending-altar-1',
     fit: 'exact',
   },
+  wren: {
+    file: 'wren',
+    alt: 'A young otter novice in a grey habit and white veil stands in a dark doorway clutching a folded note, a candle burning on the table beside her.',
+    artImageId: 243548,
+    source: 'Gamebook round 5, gb5-wren-1',
+    fit: 'exact',
+  },
+  'rabbit-kit': {
+    file: 'rabbit-kit',
+    alt: 'A small rabbit child in a plain sweater sits very still in a dark doorway, staring out with tired eyes.',
+    artImageId: 243550,
+    source: 'Gamebook round 5, gb5-rabbit-kit-1',
+    fit: 'exact',
+  },
+  'pilgrim-wagon': {
+    file: 'wagon',
+    alt: 'An abandoned covered wagon with shredded canvas stands on the trail at dusk, a vulture perched on top.',
+    artImageId: 243348,
+    source: 'Stand-in (wagon) until art round 5 renders this plate',
+    fit: 'stand-in',
+  },
+  'the-dream': {
+    file: 'zuzu-moon',
+    alt: 'Zuzu stands alone on a dusty rise against a pale full moon, poncho over his sash, his katana slung across his back.',
+    artImageId: 242587,
+    source: 'Stand-in (zuzu-moon) until art round 5 renders this plate',
+    fit: 'stand-in',
+  },
+  'mags-bar': {
+    file: 'mags-bar',
+    alt: 'A weathered rabbit barkeep with one notched ear leans on her counter in lamplight, bottles and a scattergun on the shelf behind her.',
+    artImageId: 243556,
+    source: 'Gamebook round 5, gb5-mags-bar-1',
+    fit: 'exact',
+  },
+  'baron-office': {
+    file: 'baron-office',
+    alt: 'A horned water baron in a waistcoat and tie sits on his desk before a map of wells, crystal water jugs beside him.',
+    artImageId: 243558,
+    source: 'Gamebook round 5, gb5-baron-office-1',
+    fit: 'exact',
+  },
+  'torch-mob': {
+    file: 'hollow-bell',
+    alt: 'Zuzu stands small in the middle of a burning frontier street, flames along both boardwalks and a wooden bell tower black against the smoke.',
+    artImageId: 242696,
+    source: 'Stand-in (hollow-bell) until art round 5 renders this plate',
+    fit: 'stand-in',
+  },
+  'bounty-badger': {
+    file: 'bounty-badger',
+    alt: 'A broad bounty hunter in a wide hat, long coat and bandolier stands in a dim street, a rifle over his shoulder.',
+    artImageId: 243562,
+    source: 'Gamebook round 5, gb5-bounty-badger-1',
+    fit: 'exact',
+  },
+  'shifting-road': {
+    file: 'shifting-road',
+    alt: 'A pale road winds across dark broken ground toward a black spire of rock under a huge full moon.',
+    artImageId: 243564,
+    source: 'Gamebook round 5, gb5-shifting-road-1',
+    fit: 'exact',
+  },
+  'mob-fire-gate': {
+    file: 'mission',
+    alt: 'The abbess, a round-faced otter nun in a black habit, stands with folded paws at the open iron gate of an adobe mission, a cobwebbed merry-go-round lit in the yard behind her.',
+    artImageId: 242738,
+    source: 'Stand-in (mission) until art round 5 renders this plate',
+    fit: 'stand-in',
+  },
+  'cellar-cells': {
+    file: 'cellar-cells',
+    alt: 'In a candlelit stone cell, a fox child and a small mouse wait behind iron bars, frightened.',
+    artImageId: 243568,
+    source: 'Gamebook round 5, gb5-cellar-cells-1',
+    fit: 'exact',
+  },
+  'abbess-knife': {
+    file: 'abbess-knife',
+    alt: 'The otter abbess stands in a pitch-dark crypt holding a long curved knife, black candles burning around her feet.',
+    artImageId: 243597,
+    source: 'Gamebook round 5, gb5-abbess-knife-1',
+    fit: 'exact',
+  },
+  'nuns-kneel': {
+    file: 'refectory',
+    alt: 'A long dim timber hall lit by wall candles, a single table at its far end set with bowls.',
+    artImageId: 243311,
+    source: 'Stand-in (refectory) until art round 5 renders this plate',
+    fit: 'stand-in',
+  },
+  'children-leaving': {
+    file: 'empty-gate',
+    alt: 'An empty adobe archway at grey dawn, its iron gate hanging open, a small bronze bell dangling from a rope that no one holds.',
+    artImageId: 243299,
+    source: 'Stand-in (empty-gate) until art round 5 renders this plate',
+    fit: 'stand-in',
+  },
+  'bell-dawn': {
+    file: 'bell-tower',
+    alt: 'A bell hangs on its rope under a timber canopy, the desert stretching away at dusk beyond the beams.',
+    artImageId: 243328,
+    source: 'Stand-in (bell-tower) until art round 5 renders this plate',
+    fit: 'stand-in',
+  },
 }
 
 export function platePath(plate: ScenePlate): string {
@@ -304,4 +553,24 @@ export function plate(key: string): ScenePlate {
   const found = PLATES[key]
   if (!found) throw new Error('Unknown gamebook plate: ' + key)
   return found
+}
+
+/**
+ * The plate a section shows: its own render when sectionArt.ts has one (one plate per section, conductor
+ * zuzu-gamebook art rounds 6+), else the shared plate its `art` key names.
+ */
+export function sectionPlate(node: { id: string; art: string }): ScenePlate {
+  return SECTION_PLATES[node.id] ?? plate(node.art)
+}
+
+/**
+ * Where the plate sits beside the text. Wide plates go above or below it, tall and square ones to its left or
+ * right; the side is a stable pick from the section id, so a section always looks the same but neighbours vary.
+ */
+export function plateLayout(sectionId: string, art: ScenePlate): PlateLayout {
+  let hash = 0
+  for (const ch of sectionId) hash = (hash * 31 + ch.charCodeAt(0)) >>> 0
+  const flip = (hash >>> 3) % 2 === 1
+  if ((art.shape ?? 'wide') === 'wide') return flip ? 'bottom' : 'top'
+  return flip ? 'right' : 'left'
 }

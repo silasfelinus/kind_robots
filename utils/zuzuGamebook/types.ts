@@ -7,8 +7,15 @@ export type Choice = {
   gain?: string
   spend?: string
   flag?: string
+  /** Extra journal flags (deeds, debts, clues) recorded when the choice is taken. */
+  flags?: string[]
   heal?: number
   cost?: number
+  /** Minimum Honor / Taint the choice needs; below it the choice shows disabled with `hint`. */
+  needsHonor?: number
+  needsTaint?: number
+  /** Most Taint the choice allows; above it the choice shows disabled with `hint` (the best ending's clean hands). */
+  maxTaint?: number
   /** A journal flag the choice needs; without it the choice shows disabled with `hint`. */
   needs?: string
   hint?: string
@@ -26,6 +33,9 @@ export type Choice = {
 /** Consequences applied when a scene is entered. Damage never drops Zuzu below 1 HP outside combat. */
 export type SceneEffects = {
   flag?: string
+  flags?: string[]
+  /** Lasting change to an attribute, one step at a time, clamped to -2..4. */
+  attr?: { attribute: Attribute; amount: number }
   gain?: string
   heal?: number
   hurt?: number
@@ -71,4 +81,15 @@ export type Run = {
   endings: string[]
   battle: Battle | null
   lastRoll: Roll | null
+}
+
+/**
+ * An act module (BOOK-ONE-OUTLINE.md, conductor projects/zuzu-gamebook): its own new sections, choices it adds to
+ * sections that already exist, and existing choices it reroutes into itself, keyed 'sceneId/choiceId'
+ * (or 'sceneId/choiceId#success' / '#failure' for a checked choice).
+ */
+export type Act = {
+  scenes: Scene[]
+  extend?: Record<string, Choice[]>
+  reroute?: Record<string, string>
 }

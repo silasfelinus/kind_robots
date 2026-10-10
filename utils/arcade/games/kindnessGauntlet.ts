@@ -30,7 +30,27 @@
 // held the bot stands still and the arrows only turn, as in the classic.
 
 import { levelCurve } from '../curve'
-import { drawText } from '../font'
+import { drawText, measureText } from '../font'
+import {
+  INK,
+  RAMPS,
+  type PixelSprite,
+  type Ramp,
+  Sparkles,
+  backdropRng,
+  bandedGradient,
+  bevel,
+  cachedLayer,
+  dropShadow,
+  drawSprite,
+  gauge,
+  glow,
+  hudPanel,
+  mix,
+  pixelSprite,
+  rgba,
+  vignette,
+} from '../snes'
 import type {
   ArcadeGameInstance,
   ArcadeGameModule,
@@ -246,6 +266,784 @@ function newHero(seat: number): Hero {
   }
 }
 
+// --- 16-bit art (utils/arcade/snes.ts) -------------------------------------------
+
+/** walls[] value for a solid server rack (the floor is built all rack, then carved). */
+const RACK = 1
+
+type View = 'down' | 'up' | 'side'
+
+/** Each bot's body and head ramps, around its class colours. */
+const BOT_LOOKS: Record<BotClass, { body: Ramp; head: Ramp }> = {
+  hugs: {
+    body: ['#4a1606', '#8a2e0a', '#ea580c', '#fb923c', '#fed7aa'],
+    head: ['#7a2c10', '#c2541b', '#fdba74', '#fed7aa', '#fff4e6'],
+  },
+  fix: {
+    body: ['#0b3a4a', '#0f6b73', '#0d9488', '#2dd4bf', '#a7f3e4'],
+    head: ['#0f6b73', '#14a3a0', '#5eead4', '#a7f3e4', '#e6fffa'],
+  },
+  sage: {
+    body: ['#24124f', '#4c2a99', '#7c3aed', '#a78bfa', '#e9e1ff'],
+    head: ['#4c2a99', '#7c5cf0', '#c4b5fd', '#e4dcff', '#ffffff'],
+  },
+  zip: {
+    body: ['#123d2a', '#1d6b3a', '#16a34a', '#4ade80', '#d9ffe0'],
+    head: ['#1d6b3a', '#3fa34d', '#86efac', '#c6f7d6', '#f0fff4'],
+  },
+}
+
+function botPalette(cls: BotClass): Record<string, string> {
+  const { body, head } = BOT_LOOKS[cls]
+  return {
+    D: head[0],
+    S: head[1],
+    B: head[2],
+    L: head[3],
+    H: head[4],
+    d: body[0],
+    s: body[1],
+    b: body[2],
+    l: body[3],
+    h: body[4],
+    k: INK,
+    e: RAMPS.gold[3],
+    w: '#ffffff',
+    M: RAMPS.steel[3],
+    m: RAMPS.steel[2],
+    n: RAMPS.steel[1],
+    p: RAMPS.pink[3],
+    g: RAMPS.teal[3],
+    q: RAMPS.pink[3],
+    Q: RAMPS.gold[4],
+  }
+}
+
+/** Stamp `art` into `grid` at (x, y); '.' in the art is see-through. */
+function stamp(grid: string[][], x: number, y: number, art: readonly string[]) {
+  art.forEach((line, dy) => {
+    for (let dx = 0; dx < line.length; dx++) {
+      const ch = line[dx]!
+      const row = grid[y + dy]
+      if (ch !== '.' && row && x + dx >= 0 && x + dx < row.length)
+        row[x + dx] = ch
+    }
+  })
+}
+
+const BOT_HEAD: Record<View, readonly string[]> = {
+  down: ['.HHHHHHHH.', 'HLLLLLLLLS', 'LkkkkkkkkS', 'LkeekkeekS', '.LBBBBBBS.'],
+  up: ['.HHHHHHHH.', 'HLLLLLLLLS', 'LLBBBBBBBS', 'LBmMmMmMBS', '.BSSSSSSS.'],
+  side: ['.HHHHHHH..', 'HLLLLLLLBS', 'LMLLLkkkkS', 'LmLLLkkeeS', '.LBBBBBBS.'],
+}
+const BOT_TORSO: Record<View, readonly string[]> = {
+  down: ['lhhhhhhhbs', 'hlkkkkllbs', 'llkpgklbbs', 'lbbbbbbbsd', '.ssssssss.'],
+  up: ['lhhhhhhhbs', 'hllllllbbs', 'llmMmMmbbs', 'lbbbbbbbsd', '.ssssssss.'],
+  side: ['lhhhhhbs', 'hlllllks', 'lllbbkgs', 'lbbbbbsd', '.sssssd.'],
+}
+const BOT_LEGS: Record<View, readonly (readonly string[])[]> = {
+  down: [
+    ['..Mn..Mn..', '.Mnn...nn.'],
+    ['..Mn..Mn..', '..nn..Mnn.'],
+  ],
+  up: [
+    ['..Mn..Mn..', '.Mnn...nn.'],
+    ['..Mn..Mn..', '..nn..Mnn.'],
+  ],
+  side: [
+    ['.Mn..Mn.', 'Mnn..Mnn'],
+    ['..MnMn..', '..nnnn..'],
+  ],
+}
+
+/**
+ * A bot as rows of palette letters: 16 wide, feet on the bottom row. All four share Fix's
+ * head and frame, each with its own silhouette: Hugs's big hugging arms, Fix's shoulder pads
+ * and treads, Sage's antenna and robe, Zip's slim body, fin and wheel. `frame` is the walk step.
+ */
+function botRows(cls: BotClass, view: View, frame: 0 | 1): string[] {
+  const grid = Array.from({ length: 16 }, () => new Array<string>(16).fill('.'))
+  const side = view === 'side'
+  const tx = side ? 4 : 3
+  if (cls === 'hugs' && side) stamp(grid, 2, 10 + frame, ['SS.', 'DS.'])
+  if (cls === 'zip' && side)
+    stamp(grid, 0, 5, ['..H', '.HL', 'HLB', 'LBS', '.S.'])
+  if (cls === 'zip' && !side) stamp(grid, 7, 2, ['HL', 'LB'])
+  if (cls === 'sage') stamp(grid, 6, 1, ['.Q.', 'QqQ', '.M.'])
+  stamp(grid, 3, 4, BOT_HEAD[view])
+  if (cls === 'zip' && !side) {
+    stamp(
+      grid,
+      4,
+      9,
+      view === 'down'
+        ? ['lhhhhhbs', 'hlkkkkbs', 'llkpgkbs', 'lbbbbbsd', '.ssssss.']
+        : ['lhhhhhbs', 'hllllbbs', 'lmMmMmbs', 'lbbbbbsd', '.ssssss.'],
+    )
+  } else {
+    stamp(grid, tx, 9, BOT_TORSO[view])
+  }
+  if (cls === 'sage') {
+    const hem = frame ? '.dsdsdsdsds.' : '.sdsdsdsdsd.'
+    if (side) stamp(grid, 3, 12, ['lbbbbbbbsd', hem.slice(1, 11)])
+    else stamp(grid, 2, 12, ['lbbbbbbbbbsd', hem])
+  }
+  if (cls === 'fix') {
+    if (side) stamp(grid, 5, 9, ['MMm', 'mmn'])
+    else {
+      stamp(grid, 1, 9, ['MMM', 'mmn'])
+      stamp(grid, 12, 9, ['MMm', 'mnn'])
+    }
+    const tread = frame ? 'mMmMmMmMmM' : 'MmMmMmMmMm'
+    stamp(grid, 3, 14, [side ? `.${tread.slice(1, 9)}.` : tread, 'nnnnnnnnnn'])
+  } else if (cls === 'zip') {
+    if (side)
+      stamp(
+        grid,
+        5,
+        13,
+        frame ? ['.nmMn.', 'nMkwMn', '.nMmn.'] : ['.nMMn.', 'nMwkMn', '.nmmn.'],
+      )
+    else
+      stamp(
+        grid,
+        6,
+        13,
+        frame ? ['nmmn', 'nMMn', '.nn.'] : ['nMMn', 'nmmn', '.nn.'],
+      )
+  } else {
+    stamp(grid, tx, 14, BOT_LEGS[view][frame]!)
+  }
+  if (cls === 'hugs') {
+    const lift = frame
+    if (side) stamp(grid, 10, 10 + lift, ['.LLB', 'LBBS', '.SSD'])
+    else {
+      stamp(grid, 0, 9 + lift, ['.HS', 'HLS', 'HLS', 'LBS', '.SD'])
+      stamp(grid, 13, 10 - lift, ['LB.', 'LBS', 'LBS', 'BSD', '.D.'])
+    }
+  }
+  return grid.map((row) => row.join(''))
+}
+
+type BotSprites = Record<View, readonly [PixelSprite, PixelSprite]>
+
+const BOT_SPRITES = Object.fromEntries(
+  CLASS_ORDER.map((cls) => {
+    const palette = botPalette(cls)
+    const views = (['down', 'up', 'side'] as const).map(
+      (view) =>
+        [
+          view,
+          [
+            pixelSprite(botRows(cls, view, 0), palette),
+            pixelSprite(botRows(cls, view, 1), palette),
+          ] as const,
+        ] as const,
+    )
+    return [cls, Object.fromEntries(views) as BotSprites]
+  }),
+) as Record<BotClass, BotSprites>
+
+/** The aiming wrench nut, shown the exact way (of eight) the bot faces. */
+const WRENCH_SPRITE = pixelSprite(['MM.', 'MwM', '.Mm'], {
+  M: RAMPS.steel[3],
+  m: RAMPS.steel[2],
+  w: '#ffffff',
+})
+
+/** An empty battery blinking over a flat bot. */
+const FLAT_SPRITE = pixelSprite(
+  ['MMMMMMM.', 'Mr....MM', 'Mr....MM', 'MMMMMMM.'],
+  {
+    M: RAMPS.steel[3],
+    r: RAMPS.ember[2],
+  },
+)
+
+const GLITCH_PALETTE = {
+  d: '#3b0a45',
+  s: '#86198f',
+  b: '#d946ef',
+  l: '#f0abfc',
+  h: '#fdf4ff',
+  c: '#22d3ee',
+  C: '#a5f3fc',
+  w: '#ffffff',
+  k: INK,
+}
+const GLITCH_ROWS = [
+  [
+    '..sbbbs..',
+    '.sblhlbs.',
+    'sbllbbbbs',
+    'bwwbbwwbs',
+    'bwkbbwkbs',
+    'sbbbbbbbc',
+    'sbkbkbkbs',
+    '.sbsbsbs.',
+    '..s.s.s..',
+  ],
+  [
+    '..sbbbs..',
+    '.sblhlbs.',
+    'sbllbbbbs',
+    'bwwbbwwbC',
+    'bkwbbkwbs',
+    'Csbbbbbbb',
+    'sbkbkbkbs',
+    '.sbs.sbs.',
+    '.s..s..s.',
+  ],
+] as const
+const GLITCH_SPRITES = GLITCH_ROWS.map((rows) =>
+  pixelSprite(rows, GLITCH_PALETTE),
+)
+/** The cyan ghost each glitch smears beside itself (chromatic split). */
+const GLITCH_GHOSTS = GLITCH_ROWS.map((rows) =>
+  pixelSprite(
+    rows,
+    Object.fromEntries(
+      Object.keys(GLITCH_PALETTE).map((key) => [key, RAMPS.teal[3]]),
+    ),
+    { outline: null },
+  ),
+)
+
+/** Rows of palette letters from a per-pixel painter ('.' is clear). */
+function raster(
+  w: number,
+  h: number,
+  paint: (x: number, y: number) => string,
+): string[] {
+  return Array.from({ length: h }, (_, y) =>
+    Array.from({ length: w }, (_, x) => paint(x, y)).join(''),
+  )
+}
+
+/** A glitch generator: a battered steel cabinet with a static-filled screen and a vent. */
+const GENERATOR_ROWS = raster(14, 14, (x, y) => {
+  const edge = (x === 0 || x === 13) && (y === 0 || y === 13)
+  if (edge) return '.'
+  if (y === 13 || x === 13) return '0'
+  if (y === 12 || x === 12) return '1'
+  if (y === 0 || x === 0) return '4'
+  if (y === 1 || x === 1) return '3'
+  if (y >= 2 && y <= 7 && x >= 2 && x <= 11) return 'k'
+  if ((y === 9 || y === 10) && x >= 3 && x <= 10 && x % 2 === 1) return 'v'
+  return '2'
+})
+const GENERATOR_SPRITE = pixelSprite(GENERATOR_ROWS, {
+  0: RAMPS.steel[0],
+  1: RAMPS.steel[1],
+  2: RAMPS.steel[2],
+  3: RAMPS.steel[3],
+  4: RAMPS.steel[4],
+  k: INK,
+  v: RAMPS.night[0],
+})
+const GENERATOR_FLASH = pixelSprite(GENERATOR_ROWS, {
+  0: '#ffffff',
+  1: '#ffffff',
+  2: '#ffffff',
+  3: '#ffffff',
+  4: '#ffffff',
+  k: RAMPS.pink[4],
+  v: '#ffffff',
+})
+
+const PINK_PALETTE = {
+  h: RAMPS.pink[4],
+  P: RAMPS.pink[3],
+  p: RAMPS.pink[2],
+  q: RAMPS.pink[1],
+}
+const GOLD_PALETTE = {
+  y: '#ffffff',
+  G: RAMPS.gold[4],
+  g: RAMPS.gold[3],
+  o: RAMPS.gold[2],
+  O: RAMPS.gold[1],
+}
+
+/** A frosted donut snack with sprinkles. */
+const SNACK_SPRITE = pixelSprite(
+  [
+    '..hhPPPp..',
+    '.hPtPPwPp.',
+    'hPPPppPyPq',
+    'PwPp..qPPq',
+    'gPPq..qPtq',
+    'ogPPqqPPqO',
+    '.oggqqqgO.',
+    '..OooooO..',
+  ],
+  {
+    ...PINK_PALETTE,
+    t: RAMPS.teal[3],
+    w: '#ffffff',
+    y: RAMPS.gold[4],
+    g: RAMPS.gold[3],
+    o: RAMPS.gold[2],
+    O: RAMPS.gold[1],
+  },
+)
+
+const KEY_SPRITE = pixelSprite(
+  ['.yGg.......', 'yG.gGGGGGGg', 'Gg.oooooooo', '.go....oo.o', '.......O..O'],
+  GOLD_PALETTE,
+)
+
+/** A kindness pulse: a pink heart. */
+const HEART_SPRITE = pixelSprite(
+  [
+    '.PP...PP.',
+    'PhhP.PPPp',
+    'PhPPPPPPp',
+    'PPPPPPPPp',
+    '.PPPPPPp.',
+    '..pPPPq..',
+    '...ppq...',
+    '....q....',
+  ],
+  PINK_PALETTE,
+)
+
+/** A little gold bot trapped in a cage, waving for help (two frames). */
+const CAGED_PALETTE = {
+  H: RAMPS.gold[4],
+  L: RAMPS.gold[3],
+  B: RAMPS.gold[2],
+  S: RAMPS.gold[1],
+  k: INK,
+  e: '#ffffff',
+  p: RAMPS.pink[3],
+}
+const CAGED_BODY = ['.LkekekS.', '.LBBpBBS.', '..SSSSS..']
+const CAGED_SPRITES = [
+  pixelSprite(
+    [
+      '..HHHHH..',
+      '.HLLLLLS.',
+      ...CAGED_BODY,
+      'LLBBBBBSS',
+      'L.BBBBBS.',
+      '..S...S..',
+    ],
+    CAGED_PALETTE,
+  ),
+  pixelSprite(
+    [
+      'L.HHHHH.S',
+      'LHLLLLLSS',
+      ...CAGED_BODY,
+      '.LBBBBBS.',
+      '.LBBBBBS.',
+      '..S...S..',
+    ],
+    CAGED_PALETTE,
+  ),
+]
+const CAGE_BARS = pixelSprite(
+  raster(13, 15, (x, y) => {
+    if (y === 0) return 'W'
+    if (y === 1) return 'M'
+    if (y === 2 || y === 12) return 'k'
+    if (y === 13) return 'm'
+    if (y === 14) return 'n'
+    return x % 3 === 0 ? 'M' : '.'
+  }),
+  {
+    W: RAMPS.steel[4],
+    M: RAMPS.steel[3],
+    m: RAMPS.steel[2],
+    n: RAMPS.steel[1],
+    k: INK,
+  },
+  { outline: null },
+)
+
+/** A locked door tile: shaded gold bars and a crossbar over the dark, with a keyhole plate. */
+const DOOR_SPRITE = pixelSprite(
+  raster(16, 16, (x, y) => {
+    if (y === 0) return 'W'
+    if (y === 1) return 'M'
+    if (y === 14) return 'm'
+    if (y === 15) return 'k'
+    if (x >= 5 && x <= 9 && y >= 9 && y <= 13) {
+      if (x === 7 && y >= 10 && y <= 12) return 'k'
+      return x === 5 || y === 9 ? 'G' : x === 9 || y === 13 ? 'o' : 'g'
+    }
+    if (y === 6) return 'G'
+    if (y === 7) return 'g'
+    if (y === 8) return 'O'
+    const bar = x % 5
+    if (x === 0 || x === 15 || bar === 0 || bar === 4) return 'v'
+    return bar === 1 ? 'G' : bar === 2 ? 'g' : 'O'
+  }),
+  {
+    ...GOLD_PALETTE,
+    W: RAMPS.steel[4],
+    M: RAMPS.steel[3],
+    m: RAMPS.steel[1],
+    k: INK,
+    v: '#1c1520',
+  },
+  { outline: null },
+)
+
+const SPARK_PALETTE = { h: RAMPS.gold[3], Y: RAMPS.gold[4], w: '#ffffff' }
+const SPARK_SPRITES = [
+  pixelSprite(['..h..', '.hYh.', 'hYwYh', '.hYh.', '..h..'], SPARK_PALETTE, {
+    outline: RAMPS.rust[1],
+  }),
+  pixelSprite(['h...h', '.hYh.', '.YwY.', '.hYh.', 'h...h'], SPARK_PALETTE, {
+    outline: RAMPS.rust[1],
+  }),
+]
+/** Hugs's big sparks. */
+const BIG_SPARK_SPRITES = [
+  pixelSprite(
+    [
+      '...h...',
+      '..hYh..',
+      '.hYwYh.',
+      'hYwwwYh',
+      '.hYwYh.',
+      '..hYh..',
+      '...h...',
+    ],
+    SPARK_PALETTE,
+    { outline: RAMPS.rust[1] },
+  ),
+  pixelSprite(
+    [
+      'h..h..h',
+      '.hYYYh.',
+      '.YwwwY.',
+      'hYwwwYh',
+      '.YwwwY.',
+      '.hYYYh.',
+      'h..h..h',
+    ],
+    SPARK_PALETTE,
+    { outline: RAMPS.rust[1] },
+  ),
+]
+
+/** HUD icons: a pulse heart, a rescued bot and a key. */
+const HUD_HEART = pixelSprite(
+  ['hP.PP', 'PPPPq', '.PPq.', '..q..'],
+  PINK_PALETTE,
+)
+const HUD_BOT = pixelSprite(['HLLLS', 'LkLkS', 'LBBBS', '.S.S.'], CAGED_PALETTE)
+const HUD_KEY = pixelSprite(['.Gg...', 'G.Gggg', '.go.oO'], GOLD_PALETTE)
+
+/** The raised floor of the server room: cool steel panels. */
+const FLOOR_RAMP: Ramp = ['#0a0a1e', '#131735', '#1c2248', '#2a3363', '#414d8a']
+/** The rack walls' colours change every floor, so a long run doesn't look like one dungeon. */
+const WALL_THEMES: readonly Ramp[] = [
+  RAMPS.purple,
+  RAMPS.sky,
+  RAMPS.pink,
+  RAMPS.steel,
+]
+const CABLE_RAMPS: readonly Ramp[] = [RAMPS.pink, RAMPS.teal, RAMPS.gold]
+const LED_COLOURS = [
+  RAMPS.leaf[3],
+  RAMPS.teal[3],
+  RAMPS.leaf[3],
+  RAMPS.gold[3],
+  RAMPS.ember[3],
+]
+const FOG = RAMPS.night[0]
+const FOG_BANDS = [rgba(FOG, 0.75), rgba(FOG, 0.48), rgba(FOG, 0.22)]
+const AO_BANDS = [rgba(INK, 0.6), rgba(INK, 0.38), rgba(INK, 0.18)]
+
+/** A steady per-tile dice roll for floor and rack details (never the game's rng). */
+function tileHash(tx: number, ty: number, level: number): number {
+  let h =
+    Math.imul(tx + 1, 374761393) +
+    Math.imul(ty + 1, 668265263) +
+    Math.imul(level, 1274126177)
+  h = Math.imul(h ^ (h >>> 13), 1274126177)
+  return ((h ^ (h >>> 16)) >>> 0) / 4294967296
+}
+
+function rackAt(walls: Uint8Array, tx: number, ty: number): boolean {
+  if (tx < 0 || ty < 0 || tx >= MW || ty >= MH) return true
+  return walls[ty * MW + tx] === RACK
+}
+
+function wallTheme(level: number): Ramp {
+  return WALL_THEMES[(level - 1) % WALL_THEMES.length]!
+}
+
+/**
+ * The static floor plan, tiles (x0..x1, y0..y1): banded raised-floor panels (some perforated,
+ * some vented) with cable runs along the foot of the walls and the walls' shadows, then the
+ * walls as server racks seen from above: bevelled tops with vents, lit where they meet the
+ * floor, and a rack front of drive bays, grilles or fans wherever floor lies below. Doors are
+ * painted as floor; they're drawn live over it while locked.
+ */
+function paintFloor(
+  k: CanvasRenderingContext2D,
+  walls: Uint8Array,
+  level: number,
+  x0: number,
+  y0: number,
+  x1: number,
+  y1: number,
+) {
+  const theme = wallTheme(level)
+  const rack = (tx: number, ty: number) => rackAt(walls, tx, ty)
+  for (let ty = y0; ty <= y1; ty++) {
+    // Each row of wall-foot cable is one run, so it reads as laid, not scattered.
+    const cabled = tileHash(0, ty, level + 7) < 0.6
+    const cable = CABLE_RAMPS[Math.floor(tileHash(1, ty, level) * 3)]!
+    for (let tx = x0; tx <= x1; tx++) {
+      if (rack(tx, ty)) continue
+      const x = tx * T
+      const y = ty * T
+      bandedGradient(k, x, y, T, T, [FLOOR_RAMP[2], FLOOR_RAMP[1]], 2)
+      k.fillStyle = FLOOR_RAMP[3]
+      k.fillRect(x, y, T - 1, 1)
+      k.fillRect(x, y, 1, T - 1)
+      k.fillStyle = FLOOR_RAMP[0]
+      k.fillRect(x, y + T - 1, T, 1)
+      k.fillRect(x + T - 1, y, 1, T)
+      const h = tileHash(tx, ty, level)
+      if (h < 0.12) {
+        for (let i = 0; i < 3; i++) {
+          for (let j = 0; j < 3; j++) {
+            k.fillStyle = FLOOR_RAMP[0]
+            k.fillRect(x + 3 + i * 4, y + 3 + j * 4, 2, 2)
+            k.fillStyle = FLOOR_RAMP[3]
+            k.fillRect(x + 3 + i * 4, y + 5 + j * 4, 2, 1)
+          }
+        }
+      } else if (h > 0.95) {
+        for (let i = 0; i < 4; i++) {
+          k.fillStyle = INK
+          k.fillRect(x + 3, y + 4 + i * 2, 10, 1)
+          k.fillStyle = FLOOR_RAMP[3]
+          k.fillRect(x + 3, y + 5 + i * 2, 10, 1)
+        }
+      }
+      const wallAbove = rack(tx, ty - 1)
+      if (wallAbove && cabled) {
+        k.fillStyle = cable[3]
+        k.fillRect(x, y + 4, T, 1)
+        k.fillStyle = cable[1]
+        k.fillRect(x, y + 5, T, 1)
+        k.fillStyle = RAMPS.teal[1]
+        k.fillRect(x, y + 7, T, 1)
+        k.fillStyle = RAMPS.night[0]
+        k.fillRect(x, y + 8, T, 1)
+        if (h > 0.5) {
+          k.fillStyle = RAMPS.steel[3]
+          k.fillRect(x + Math.floor(h * 12) + 2, y + 3, 1, 4)
+        }
+      }
+      if (wallAbove) {
+        AO_BANDS.forEach((band, i) => {
+          k.fillStyle = band
+          k.fillRect(x, y + i, T, 1)
+        })
+      }
+      if (rack(tx - 1, ty)) {
+        k.fillStyle = AO_BANDS[0]!
+        k.fillRect(x, y, 1, T)
+        k.fillStyle = AO_BANDS[2]!
+        k.fillRect(x + 1, y, 1, T)
+      }
+    }
+  }
+  const face = mix(theme[0], RAMPS.steel[0], 0.5)
+  const faceLit = mix(theme[1], RAMPS.steel[1], 0.5)
+  for (let ty = y0; ty <= y1; ty++) {
+    for (let tx = x0; tx <= x1; tx++) {
+      if (!rack(tx, ty)) continue
+      const x = tx * T
+      const y = ty * T
+      const up = !rack(tx, ty - 1)
+      const down = !rack(tx, ty + 1)
+      const left = !rack(tx - 1, ty)
+      const right = !rack(tx + 1, ty)
+      const h = tileHash(tx, ty, level)
+      const topH = down ? 8 : T
+      // The rack's lid: a panel with vent slots, seamed from its neighbours. Lids
+      // along the floor catch the light; deep in a block of racks they sink into shade.
+      let deep = true
+      for (let dy = -1; dy <= 1 && deep; dy++)
+        for (let dx = -1; dx <= 1; dx++)
+          if (!rack(tx + dx, ty + dy)) deep = false
+      const lid = deep ? mix(theme[0], theme[1], 0.5) : theme[1]
+      const seam = deep ? theme[1] : theme[2]
+      k.fillStyle = theme[0]
+      k.fillRect(x, y, T, topH)
+      k.fillStyle = lid
+      k.fillRect(x + 1, y + 1, T - 2, topH - 2)
+      k.fillStyle = seam
+      k.fillRect(x + 1, y + 1, T - 2, 1)
+      k.fillRect(x + 1, y + 1, 1, topH - 2)
+      if (!down) {
+        if (h < 0.4) {
+          for (let i = 0; i < 3; i++) {
+            k.fillStyle = theme[0]
+            k.fillRect(x + 4, y + 4 + i * 3, 8, 1)
+            k.fillStyle = seam
+            k.fillRect(x + 4, y + 5 + i * 3, 8, 1)
+          }
+        } else if (h < 0.7) {
+          k.fillStyle = theme[0]
+          k.fillRect(x + 7, y + 7, 2, 2)
+          k.fillStyle = seam
+          k.fillRect(x + 7, y + 7, 1, 1)
+        }
+      } else {
+        // The rack front, facing the floor below: a lit lip, then the bays.
+        k.fillStyle = theme[4]
+        k.fillRect(x, y + 7, T, 1)
+        k.fillStyle = face
+        k.fillRect(x, y + 8, T, 8)
+        k.fillStyle = faceLit
+        k.fillRect(x, y + 8, T, 1)
+        const variant = Math.floor(h * 3)
+        if (variant === 0) {
+          for (const b of [9, 12]) {
+            k.fillStyle = faceLit
+            k.fillRect(x + 2, y + b, 9, 1)
+            k.fillStyle = INK
+            k.fillRect(x + 2, y + b + 1, 9, 1)
+            k.fillStyle = RAMPS.steel[3]
+            k.fillRect(x + 5, y + b + 1, 3, 1)
+          }
+        } else if (variant === 1) {
+          for (let i = 0; i < 5; i++) {
+            k.fillStyle = INK
+            k.fillRect(x + 2 + i * 2, y + 9, 1, 5)
+            k.fillStyle = faceLit
+            k.fillRect(x + 3 + i * 2, y + 9, 1, 5)
+          }
+        } else {
+          k.fillStyle = INK
+          k.fillRect(x + 3, y + 9, 6, 5)
+          k.fillStyle = faceLit
+          k.fillRect(x + 4, y + 10, 4, 3)
+          k.fillStyle = RAMPS.steel[2]
+          k.fillRect(x + 5, y + 10, 2, 3)
+          k.fillRect(x + 4, y + 11, 4, 1)
+          k.fillStyle = INK
+          k.fillRect(x + 5, y + 11, 2, 1)
+        }
+        k.fillStyle = INK
+        k.fillRect(x + 11, y + 9, 3, 5)
+        k.fillRect(x, y + 15, T, 1)
+      }
+      k.fillStyle = INK
+      if (up) {
+        k.fillRect(x, y, T, 1)
+        k.fillStyle = theme[4]
+        k.fillRect(x + (left ? 1 : 0), y + 1, T - (left ? 1 : 0), 1)
+        k.fillStyle = INK
+      }
+      if (left) {
+        k.fillRect(x, y, 1, T)
+        k.fillStyle = theme[3]
+        k.fillRect(x + 1, y + 1, 1, topH - 1)
+        k.fillStyle = INK
+      }
+      if (right) {
+        k.fillRect(x + T - 1, y, 1, T)
+        k.fillStyle = theme[0]
+        k.fillRect(x + T - 2, y + 1, 1, topH - 1)
+      }
+    }
+  }
+}
+
+/** The LED pair on a rack front (paintFloor leaves a dark socket at x+11..13). */
+function rackFaces(walls: Uint8Array, tx: number, ty: number): boolean {
+  return rackAt(walls, tx, ty) && !rackAt(walls, tx, ty + 1)
+}
+
+const floorLayers: Array<{ key: string; canvas: HTMLCanvasElement }> = []
+
+/**
+ * The floor plan, painted once per floor layout to an offscreen canvas the size of the whole
+ * floor and copied each frame under the camera. Like snes.ts cachedLayer, but it keeps only
+ * the two latest layouts (every floor is a new one, so a long run would otherwise pile up
+ * canvases). Headless it paints just the tiles on screen.
+ */
+function floorLayer(
+  g: CanvasRenderingContext2D,
+  key: string,
+  paintAll: (k: CanvasRenderingContext2D) => void,
+  paintVisible: () => void,
+) {
+  if (typeof document === 'undefined') {
+    paintVisible()
+    return
+  }
+  let layer = floorLayers.find((l) => l.key === key)
+  if (!layer) {
+    const canvas =
+      floorLayers.length >= 2
+        ? floorLayers.shift()!.canvas
+        : document.createElement('canvas')
+    canvas.width = MW * T
+    canvas.height = MH * T
+    const k = canvas.getContext('2d')
+    if (!k) {
+      paintVisible()
+      return
+    }
+    paintAll(k)
+    layer = { key, canvas }
+    floorLayers.push(layer)
+  }
+  g.save()
+  g.imageSmoothingEnabled = false
+  g.drawImage(layer.canvas, 0, 0)
+  g.restore()
+}
+
+/** The choose-your-bot stage: a banded server hall with racks along the back. */
+function paintSelect(k: CanvasRenderingContext2D) {
+  bandedGradient(
+    k,
+    0,
+    0,
+    W,
+    H,
+    [RAMPS.night[0], RAMPS.night[2], RAMPS.purple[0], RAMPS.night[1]],
+    4,
+  )
+  const rand = backdropRng(61)
+  for (let x = -6; x < W; x += 22) {
+    const top = 34 + Math.floor(rand() * 10)
+    bevel(k, x, top, 20, 150 - top, RAMPS.night, { depth: 1 })
+    for (let y = top + 6; y < 146; y += 7) {
+      k.fillStyle = RAMPS.night[0]
+      k.fillRect(x + 3, y, 14, 2)
+      k.fillStyle = rand() < 0.5 ? RAMPS.night[4] : RAMPS.purple[1]
+      k.fillRect(x + 14, y, 2, 1)
+    }
+  }
+  bandedGradient(
+    k,
+    0,
+    150,
+    W,
+    H - 150,
+    [RAMPS.purple[1], RAMPS.night[1], RAMPS.night[0]],
+    3,
+  )
+  k.fillStyle = rgba(RAMPS.purple[3], 0.18)
+  for (let x = 0; x < W; x += 20) k.fillRect(x, 150, 1, H - 150)
+  for (const y of [158, 170, 186, 206, 232]) k.fillRect(0, y, W, 1)
+}
+
 class KindnessGauntlet implements ArcadeGameInstance {
   score = 0
   level = 1
@@ -281,6 +1079,13 @@ class KindnessGauntlet implements ArcadeGameInstance {
   private particles: Particle[] = []
   private floaters: Floater[] = []
   private banner: { text: string; sub?: string; ticks: number } | null = null
+  // Cosmetic only: sparkles roll their own dice, so the game's seeded rng is untouched.
+  private fx = new Sparkles()
+  private fxRng = backdropRng(57)
+  /** How far each seat's bot has rolled: its walk cycle. */
+  private strides: number[] = []
+  /** Where the last kindness pulse went off. */
+  private pulseAt: Thing = { x: 0, y: 0 }
 
   constructor(options: ArcadeGameOptions) {
     this.rng = options.rng
@@ -624,6 +1429,7 @@ class KindnessGauntlet implements ArcadeGameInstance {
       const dy = Math.floor(t0 / MW) * T + T / 2
       this.addScore(DOOR_POINTS, dx, dy - 12)
       this.burst(dx, dy, 12, '#fbbf24')
+      this.sparkle(dx, dy, 12)
       this.sound.play('pickup')
     }
   }
@@ -693,7 +1499,13 @@ class KindnessGauntlet implements ArcadeGameInstance {
       if (this.tick % DRAIN_TICKS === 0) hero.battery--
       if (hero.fireCooldown > 0) hero.fireCooldown--
       const controls = frames[hero.seat] ?? idleFrame()
+      const fromX = hero.x
+      const fromY = hero.y
       this.move(hero, controls)
+      this.strides[hero.seat] =
+        (this.strides[hero.seat] ?? 0) +
+        Math.abs(hero.x - fromX) +
+        Math.abs(hero.y - fromY)
       this.tryDoors(hero)
       if (controls.pressed.a || (controls.held.a && hero.fireCooldown === 0))
         this.fire(hero)
@@ -786,6 +1598,11 @@ class KindnessGauntlet implements ArcadeGameInstance {
         life: 50,
       })
       this.burst(flat.x, flat.y, 12, '#bbf7d0')
+      this.sparkle(flat.x, flat.y, 12, [
+        RAMPS.leaf[3],
+        RAMPS.leaf[4],
+        '#ffffff',
+      ])
       this.sound.play('extra')
     }
   }
@@ -858,6 +1675,8 @@ class KindnessGauntlet implements ArcadeGameInstance {
     if (hero.pulses <= 0) return
     hero.pulses--
     this.pulseFlash = 20
+    this.pulseAt = { x: hero.x, y: hero.y }
+    this.sparkle(hero.x, hero.y, 16, [RAMPS.pink[3], RAMPS.pink[4], '#ffffff'])
     const onScreen = this.glitches.filter((g) => this.visible(g))
     for (const g of onScreen) this.fixGlitch(g)
     const magic = this.specOf(hero).magic
@@ -910,6 +1729,7 @@ class KindnessGauntlet implements ArcadeGameInstance {
     this.generators = this.generators.filter((g) => g !== gen)
     this.addScore(GENERATOR_POINTS * this.level, gen.x, gen.y - 12)
     this.burst(gen.x, gen.y, 14, '#a5f3fc')
+    this.sparkle(gen.x, gen.y, 14, [RAMPS.teal[3], RAMPS.teal[4], '#ffffff'])
     this.sound.play('boom')
   }
 
@@ -917,6 +1737,7 @@ class KindnessGauntlet implements ArcadeGameInstance {
     this.glitches = this.glitches.filter((other) => other !== g)
     this.addScore(GLITCH_POINTS, g.x, g.y - 8)
     this.burst(g.x, g.y, 5, '#f0abfc')
+    this.sparkle(g.x, g.y, 4, [RAMPS.pink[3], RAMPS.teal[3], '#ffffff'])
     this.sound.play('pop')
   }
 
@@ -1006,6 +1827,7 @@ class KindnessGauntlet implements ArcadeGameInstance {
       this.items = this.items.filter((other) => other !== item)
       if (item.kind === 'snack') {
         hero.battery = Math.min(MAX_BATTERY, hero.battery + SNACK_CHARGE)
+        this.sparkle(item.x, item.y, 8, [RAMPS.pink[3], RAMPS.gold[4]])
         this.floaters.push({
           x: item.x,
           y: item.y - 10,
@@ -1015,6 +1837,7 @@ class KindnessGauntlet implements ArcadeGameInstance {
         this.sound.play('pickup')
       } else if (item.kind === 'key') {
         this.keys++
+        this.sparkle(item.x, item.y, 10)
         this.floaters.push({
           x: item.x,
           y: item.y - 10,
@@ -1024,6 +1847,7 @@ class KindnessGauntlet implements ArcadeGameInstance {
         this.sound.play('pickup')
       } else if (item.kind === 'pulse') {
         hero.pulses++
+        this.sparkle(item.x, item.y, 10, [RAMPS.pink[3], RAMPS.pink[4]])
         this.floaters.push({
           x: item.x,
           y: item.y - 10,
@@ -1035,6 +1859,7 @@ class KindnessGauntlet implements ArcadeGameInstance {
         this.rescued++
         this.addScore(RESCUE_POINTS * this.level, item.x, item.y - 10)
         this.burst(item.x, item.y, 12, '#fde68a')
+        this.sparkle(item.x, item.y, 16)
         this.banner = { text: 'BOT RESCUED!', ticks: 60 }
         this.sound.play('extra')
       }
@@ -1064,7 +1889,18 @@ class KindnessGauntlet implements ArcadeGameInstance {
     }
   }
 
+  /** A cosmetic sparkle burst (its own dice, never the game's). */
+  private sparkle(
+    x: number,
+    y: number,
+    count: number,
+    colours: readonly string[] = [RAMPS.gold[4], RAMPS.gold[3], '#ffffff'],
+  ) {
+    this.fx.burst(x, y, this.fxRng, { count, colours })
+  }
+
   private updateEffects() {
+    this.fx.update()
     for (const p of this.particles) {
       p.x += p.vx
       p.y += p.vy
@@ -1219,295 +2055,480 @@ class KindnessGauntlet implements ArcadeGameInstance {
       this.renderSelect(g)
       return
     }
-    g.fillStyle = '#05030d'
+    g.fillStyle = FOG
     g.fillRect(0, 0, W, H)
     g.save()
     g.beginPath()
     g.rect(0, VIEW_Y, W, VIEW_H)
     g.clip()
     g.translate(-Math.round(this.camX), VIEW_Y - Math.round(this.camY))
-    this.renderMap(g)
-    this.renderExit(g)
-    for (const item of this.items) this.renderItem(g, item)
-    for (const gen of this.generators) this.renderGenerator(g, gen)
-    for (const gl of this.glitches) this.renderGlitch(g, gl)
-    for (const s of this.sparks) {
-      g.fillStyle = this.tick % 4 < 2 ? '#fde047' : '#ffffff'
-      g.fillRect(s.x - 2, s.y - 2, 4, 4)
-    }
-    this.renderHeroes(g)
-    for (const p of this.particles) {
-      g.globalAlpha = Math.max(0, p.life / 30)
-      g.fillStyle = p.color
-      g.fillRect(p.x - 1, p.y - 1, 2, 2)
-    }
-    g.globalAlpha = 1
-    for (const f of this.floaters) {
-      drawText(g, f.text, f.x, f.y, { align: 'center', color: '#fde68a' })
-    }
-    g.restore()
-    if (this.pulseFlash > 0) {
-      g.globalAlpha = this.pulseFlash / 30
-      g.fillStyle = '#fbcfe8'
-      g.fillRect(0, VIEW_Y, W, VIEW_H)
-      g.globalAlpha = 1
-    }
-    this.renderHud(g)
-  }
-
-  private renderMap(g: CanvasRenderingContext2D) {
     const x0 = Math.max(0, Math.floor(this.camX / T))
     const y0 = Math.max(0, Math.floor(this.camY / T))
     const x1 = Math.min(MW - 1, x0 + Math.ceil(W / T) + 1)
     const y1 = Math.min(MH - 1, y0 + Math.ceil(VIEW_H / T) + 1)
+    floorLayer(
+      g,
+      this.floorKey(),
+      (k) => paintFloor(k, this.walls, this.level, 0, 0, MW - 1, MH - 1),
+      () => paintFloor(g, this.walls, this.level, x0, y0, x1, y1),
+    )
+    this.renderFog(g, x0, y0, x1, y1)
+    this.renderLeds(g, x0, y0, x1, y1)
+    this.renderDoors(g)
+    this.renderExit(g)
+    for (const item of this.items) this.renderItem(g, item)
+    for (const gen of this.generators) this.renderGenerator(g, gen)
+    for (const gl of this.glitches) this.renderGlitch(g, gl)
+    this.renderSparks(g)
+    this.renderHeroes(g)
+    this.renderZaps(g)
+    for (const p of this.particles) {
+      g.globalAlpha = Math.max(0, Math.min(1, p.life / 16))
+      g.fillStyle = INK
+      g.fillRect(Math.round(p.x) - 1, Math.round(p.y) - 1, 3, 3)
+      g.fillStyle = p.color
+      g.fillRect(Math.round(p.x) - 1, Math.round(p.y) - 1, 2, 2)
+    }
+    g.globalAlpha = 1
+    this.fx.render(g)
+    if (this.pulseFlash > 0) this.renderPulse(g)
+    for (const f of this.floaters) {
+      drawText(g, f.text, f.x, f.y, {
+        align: 'center',
+        color: RAMPS.gold[3],
+        outline: INK,
+      })
+    }
+    g.restore()
+    vignette(g, W, H, 0.3)
+    this.renderHud(g)
+  }
+
+  /** The floor plan's cache key: its rack layout (doors count as floor) and its theme. */
+  private floorKey(): string {
+    let h = 2166136261
+    for (let i = 0; i < this.walls.length; i++)
+      h = Math.imul(h ^ (this.walls[i] === RACK ? 1 : 0) ^ (i & 7), 16777619)
+    return `kindness-gauntlet-floor-${this.level}-${h >>> 0}`
+  }
+
+  /**
+   * Unexplored tiles stay dark, with the darkness feathering a few banded steps into the
+   * explored floor along its edge.
+   */
+  private renderFog(
+    g: CanvasRenderingContext2D,
+    x0: number,
+    y0: number,
+    x1: number,
+    y1: number,
+  ) {
+    const hidden = (tx: number, ty: number) =>
+      tx >= 0 && ty >= 0 && tx < MW && ty < MH && !this.seen[this.idx(tx, ty)]
+    g.fillStyle = FOG
     for (let ty = y0; ty <= y1; ty++) {
       for (let tx = x0; tx <= x1; tx++) {
-        if (!this.seen[this.idx(tx, ty)]) continue
+        if (hidden(tx, ty)) g.fillRect(tx * T, ty * T, T, T)
+      }
+    }
+    for (let ty = y0; ty <= y1; ty++) {
+      for (let tx = x0; tx <= x1; tx++) {
+        if (hidden(tx, ty)) continue
         const x = tx * T
         const y = ty * T
-        if (this.walls[this.idx(tx, ty)] === DOOR) {
-          // A locked door: gold bars over the dark.
-          g.fillStyle = '#1c1917'
-          g.fillRect(x, y, T, T)
-          g.fillStyle = '#f59e0b'
-          for (let i = 1; i < T; i += 5) g.fillRect(x + i, y, 2, T)
-          g.fillRect(x, y + 6, T, 2)
-          g.fillStyle = '#fde68a'
-          g.fillRect(x + 6, y + 9, 4, 3)
-        } else if (this.wallAt(tx, ty)) {
-          g.fillStyle = '#4c1d95'
-          g.fillRect(x, y, T, T)
-          g.fillStyle = '#6d28d9'
-          g.fillRect(x, y, T, 2)
-          g.fillRect(x + ((ty % 2) * T) / 2, y + 8, 1, 8)
-          g.fillStyle = '#2e1065'
-          g.fillRect(x, y + 7, T, 1)
-        } else {
-          g.fillStyle = (tx + ty) % 2 ? '#111827' : '#0f172a'
-          g.fillRect(x, y, T, T)
-        }
+        const up = hidden(tx, ty - 1)
+        const down = hidden(tx, ty + 1)
+        const left = hidden(tx - 1, ty)
+        const right = hidden(tx + 1, ty)
+        if (!up && !down && !left && !right) continue
+        FOG_BANDS.forEach((band, i) => {
+          g.fillStyle = band
+          const d = i * 2
+          if (up) g.fillRect(x, y + d, T, 2)
+          if (down) g.fillRect(x, y + T - 2 - d, T, 2)
+          if (left) g.fillRect(x + d, y, 2, T)
+          if (right) g.fillRect(x + T - 2 - d, y, 2, T)
+        })
       }
     }
   }
 
+  /** Blinking status LEDs on every rack front in view, each with its own rhythm. */
+  private renderLeds(
+    g: CanvasRenderingContext2D,
+    x0: number,
+    y0: number,
+    x1: number,
+    y1: number,
+  ) {
+    g.save()
+    for (let ty = y0; ty <= y1; ty++) {
+      for (let tx = x0; tx <= x1; tx++) {
+        if (!this.seen[this.idx(tx, ty)] || !rackFaces(this.walls, tx, ty))
+          continue
+        const h = tileHash(tx, ty, this.level + 3)
+        const x = tx * T + 12
+        const y = ty * T
+        for (let i = 0; i < 2; i++) {
+          const beat = Math.floor(this.tick / (10 + i * 7) + h * 40 + i * 3)
+          if (beat % (3 + i) === 0) continue
+          const colour = LED_COLOURS[Math.floor(h * 97 + i * 2) % 5]!
+          const ly = y + 10 + i * 2
+          g.globalCompositeOperation = 'lighter'
+          g.fillStyle = rgba(colour, 0.28)
+          g.fillRect(x - 1, ly - 1, 3, 3)
+          g.globalCompositeOperation = 'source-over'
+          g.fillStyle = colour
+          g.fillRect(x, ly, 1, 1)
+          g.fillStyle = '#ffffff'
+          g.fillRect(x, ly, 1, 1)
+          g.fillStyle = colour
+          g.fillRect(x + 1, ly, 1, 1)
+        }
+      }
+    }
+    g.restore()
+  }
+
+  private renderDoors(g: CanvasRenderingContext2D) {
+    const ready = this.keys > 0
+    for (const door of this.doors) {
+      if (door.open) continue
+      for (const t of door.tiles) {
+        if (!this.seen[t]) continue
+        const x = (t % MW) * T
+        const y = Math.floor(t / MW) * T
+        drawSprite(g, DOOR_SPRITE, x, y, { anchor: 'topleft' })
+        if (ready)
+          glow(
+            g,
+            x + T / 2,
+            y + 11,
+            12,
+            RAMPS.gold[3],
+            0.25 + 0.15 * Math.sin(this.tick / 8),
+          )
+      }
+    }
+  }
+
+  /** The stairs down: lit steps sinking into the dark, with motes of light rising. */
   private renderExit(g: CanvasRenderingContext2D) {
     const e = this.exit
     if (!this.seen[this.idx(Math.floor(e.x / T), Math.floor(e.y / T))]) return
+    const x = Math.round(e.x)
+    const y = Math.round(e.y)
+    glow(g, x, y, 18 + Math.sin(this.tick / 10) * 3, RAMPS.teal[3], 0.4)
+    bevel(g, x - 8, y - 8, 16, 16, RAMPS.steel, { depth: 1 })
+    const ramp = RAMPS.teal
     for (let i = 0; i < 4; i++) {
-      g.fillStyle = i % 2 ? '#22d3ee' : '#0e7490'
-      g.fillRect(e.x - 8 + i, e.y - 8 + i * 4, 16 - i * 2, 4)
+      const left = x - 6 + i
+      const w = 12 - i * 2
+      const top = y - 6 + i * 3
+      g.fillStyle = ramp[3 - i]!
+      g.fillRect(left, top, w, 3)
+      g.fillStyle = ramp[4 - i]!
+      g.fillRect(left, top, w, 1)
+      g.fillStyle = INK
+      g.fillRect(left, top + 2, w, 1)
     }
+    g.fillStyle = INK
+    g.fillRect(x - 2, y + 6, 4, 1)
+    g.save()
+    g.globalCompositeOperation = 'lighter'
+    for (let i = 0; i < 3; i++) {
+      const t = ((this.tick + i * 23) % 60) / 60
+      g.globalAlpha = 1 - t
+      g.fillStyle = RAMPS.teal[4]
+      g.fillRect(x - 4 + i * 4, Math.round(y + 2 - t * 18), 1, 2)
+    }
+    g.restore()
     if (Math.floor(this.tick / 15) % 2 === 0) {
-      drawText(g, 'EXIT', e.x, e.y - 18, { align: 'center', color: '#a5f3fc' })
+      drawText(g, 'EXIT', x, y - 19, {
+        align: 'center',
+        color: RAMPS.teal[4],
+        outline: INK,
+      })
     }
   }
 
   private renderItem(g: CanvasRenderingContext2D, item: Item) {
     const { x, y } = item
+    const bob = Math.round(Math.sin(this.tick / 10 + x * 0.1) * 1.2)
     if (item.kind === 'snack') {
-      // A frosted donut.
-      g.fillStyle = '#f59e0b'
-      g.beginPath()
-      g.arc(x, y, 5, 0, Math.PI * 2)
-      g.fill()
-      g.fillStyle = '#f472b6'
-      g.beginPath()
-      g.arc(x, y - 1, 4, 0, Math.PI * 2)
-      g.fill()
-      g.fillStyle = '#111827'
-      g.fillRect(x - 1, y - 2, 2, 2)
+      dropShadow(g, x, y + 5, 5, 1.5, 0.4)
+      drawSprite(g, SNACK_SPRITE, x, y - 1 + bob)
     } else if (item.kind === 'key') {
-      // A chunky gold key, glinting.
-      g.fillStyle = Math.floor(this.tick / 10) % 2 ? '#fbbf24' : '#fde047'
-      g.beginPath()
-      g.arc(x - 3, y, 3, 0, Math.PI * 2)
-      g.fill()
-      g.fillRect(x - 1, y - 1, 8, 2)
-      g.fillRect(x + 4, y + 1, 2, 3)
-      g.fillRect(x + 1, y + 1, 1, 2)
-      g.fillStyle = '#1c1917'
-      g.fillRect(x - 4, y - 1, 2, 2)
+      glow(g, x, y, 10 + Math.sin(this.tick / 7) * 2, RAMPS.gold[3], 0.45)
+      dropShadow(g, x, y + 5, 5, 1.5, 0.4)
+      drawSprite(g, KEY_SPRITE, x, y - 1 + bob)
+      const glint = this.tick % 50
+      if (glint < 8) {
+        const gx = Math.round(x - 4 + glint)
+        const gy = y - 3 + bob
+        g.fillStyle = '#ffffff'
+        g.fillRect(gx - 1, gy, 3, 1)
+        g.fillRect(gx, gy - 1, 1, 3)
+      }
     } else if (item.kind === 'pulse') {
-      g.fillStyle = Math.floor(this.tick / 8) % 2 ? '#f9a8d4' : '#fbcfe8'
-      g.beginPath()
-      g.moveTo(x, y + 5)
-      g.lineTo(x - 5, y - 1)
-      g.lineTo(x - 2, y - 4)
-      g.lineTo(x, y - 2)
-      g.lineTo(x + 2, y - 4)
-      g.lineTo(x + 5, y - 1)
-      g.fill()
+      glow(g, x, y, 11 + Math.sin(this.tick / 6) * 2, RAMPS.pink[3], 0.5)
+      dropShadow(g, x, y + 6, 4, 1.4, 0.4)
+      drawSprite(g, HEART_SPRITE, x, y - 1 + bob)
     } else {
-      // A trapped bot behind bars.
-      g.fillStyle = '#facc15'
-      g.fillRect(x - 4, y - 4, 8, 8)
-      g.fillStyle = '#0f172a'
-      g.fillRect(x - 2, y - 2, 1, 1)
-      g.fillRect(x + 1, y - 2, 1, 1)
-      g.fillStyle = '#94a3b8'
-      for (let i = -6; i <= 6; i += 3) g.fillRect(x + i, y - 7, 1, 14)
-      g.fillRect(x - 7, y - 7, 15, 1)
-      g.fillRect(x - 7, y + 6, 15, 1)
+      // A trapped bot behind bars, waving for help.
+      dropShadow(g, x, y + 8, 8, 2, 0.45)
+      const wave = Math.floor(this.tick / 12 + x) % 2
+      drawSprite(g, CAGED_SPRITES[wave]!, x, y + 1)
+      drawSprite(g, CAGE_BARS, x, y)
     }
   }
 
+  /** A glitch generator: glowing hotter as its next glitch is due, static on its screen. */
   private renderGenerator(g: CanvasRenderingContext2D, gen: Generator) {
-    const { x, y } = gen
-    g.fillStyle = gen.flash > 0 ? '#ffffff' : '#334155'
-    g.fillRect(x - 7, y - 7, 14, 14)
-    // Static on its little screen.
-    for (let i = 0; i < 6; i++) {
-      g.fillStyle = (this.tick + i * 3) % 5 < 2 ? '#f0abfc' : '#22d3ee'
-      g.fillRect(
-        x - 5 + ((i * 7 + this.tick) % 10),
-        y - 5 + ((i * 5) % 8),
-        2,
-        2,
-      )
+    const x = Math.round(gen.x)
+    const y = Math.round(gen.y)
+    const due = 1 - Math.min(1, gen.timer / 90)
+    const throb = 0.5 + 0.5 * Math.sin(this.tick / (8 - due * 5))
+    glow(g, x, y, 16 + throb * 4, GLITCH_PALETTE.b, 0.22 + 0.3 * due * throb)
+    dropShadow(g, x, y + 8, 8, 2, 0.45)
+    drawSprite(g, gen.flash > 0 ? GENERATOR_FLASH : GENERATOR_SPRITE, x, y)
+    if (gen.flash <= 0) {
+      for (let i = 0; i < 6; i++) {
+        g.fillStyle =
+          (this.tick + i * 3) % 5 < 2 ? GLITCH_PALETTE.l : GLITCH_PALETTE.c
+        g.fillRect(
+          x - 5 + ((i * 7 + this.tick) % 9),
+          y - 5 + ((i * 5) % 5),
+          2,
+          1,
+        )
+      }
+      g.fillStyle = rgba(RAMPS.teal[3], 0.35)
+      g.fillRect(x - 5, y - 5 + (Math.floor(this.tick / 3) % 6), 10, 1)
     }
-    g.fillStyle = '#1f2937'
-    g.fillRect(x - 7, y + 8, 14, 2)
-    g.fillStyle = '#4ade80'
-    g.fillRect(x - 7, y + 8, (14 * gen.hp) / gen.maxHp, 2)
+    // The warning lamp on top blinks faster as a glitch gets ready.
+    const lit = Math.floor(this.tick / (12 - due * 8)) % 2 === 0
+    g.fillStyle = INK
+    g.fillRect(x - 3, y - 10, 6, 3)
+    g.fillStyle = lit ? RAMPS.ember[3] : RAMPS.ember[1]
+    g.fillRect(x - 2, y - 9, 4, 2)
+    g.fillStyle = lit ? RAMPS.ember[4] : RAMPS.ember[2]
+    g.fillRect(x - 2, y - 9, 2, 1)
+    if (lit) glow(g, x, y - 8, 7, RAMPS.ember[2], 0.6)
+    const hp = gen.hp / gen.maxHp
+    gauge(
+      g,
+      x - 7,
+      y + 10,
+      14,
+      2,
+      hp,
+      hp > 0.5 ? RAMPS.leaf : hp > 0.25 ? RAMPS.gold : RAMPS.ember,
+    )
   }
 
   private renderGlitch(g: CanvasRenderingContext2D, gl: Glitch) {
     const shift = (Math.floor(this.tick / 3 + gl.wobble) % 3) - 1
-    g.fillStyle = '#22d3ee'
-    g.fillRect(gl.x - 4 + shift, gl.y - 4, 7, 7)
-    g.fillStyle = '#e879f9'
-    g.fillRect(gl.x - 3 - shift, gl.y - 3, 7, 7)
-    g.fillStyle = '#ffffff'
-    g.fillRect(gl.x - 2, gl.y - 1, 2, 2)
-    g.fillRect(gl.x + 1, gl.y - 1, 2, 2)
+    const frame = Math.floor(this.tick / 8 + gl.wobble) % 2
+    const x = Math.round(gl.x)
+    const y = Math.round(gl.y)
+    dropShadow(g, x, y + 5, 4, 1.4, 0.4)
+    g.save()
+    g.globalCompositeOperation = 'lighter'
+    drawSprite(g, GLITCH_GHOSTS[frame]!, x - shift * 2, y, { alpha: 0.45 })
+    g.restore()
+    drawSprite(g, GLITCH_SPRITES[frame]!, x + shift, y)
+  }
+
+  /** Wrench sparks: a hot glow, a trail in the thrower's colour, and a twinkling star. */
+  private renderSparks(g: CanvasRenderingContext2D) {
+    const frame = Math.floor(this.tick / 3) % 2
+    for (const s of this.sparks) {
+      const big = this.specOf(s.owner).power > 1
+      const trail = BOT_LOOKS[s.owner.cls].head[3]
+      glow(g, s.x, s.y, big ? 10 : 7, RAMPS.gold[3], 0.55)
+      g.fillStyle = rgba(trail, 0.7)
+      g.fillRect(
+        Math.round(s.x - s.vx * 1.5) - 1,
+        Math.round(s.y - s.vy * 1.5) - 1,
+        2,
+        2,
+      )
+      g.fillStyle = rgba(trail, 0.35)
+      g.fillRect(
+        Math.round(s.x - s.vx * 2.6),
+        Math.round(s.y - s.vy * 2.6),
+        1,
+        1,
+      )
+      drawSprite(g, (big ? BIG_SPARK_SPRITES : SPARK_SPRITES)[frame]!, s.x, s.y)
+    }
   }
 
   private renderHeroes(g: CanvasRenderingContext2D) {
     const duo = this.heroes.length > 1
-    for (const hero of this.heroes) {
+    for (const hero of [...this.heroes].sort((a, b) => a.y - b.y)) {
+      const x = Math.round(hero.x)
+      const y = Math.round(hero.y)
+      if (duo) {
+        g.strokeStyle = rgba(SEAT_COLORS[hero.seat]!, 0.8)
+        g.lineWidth = 1
+        g.beginPath()
+        g.ellipse(x, y + 7, 7, 2.5, 0, 0, Math.PI * 2)
+        g.stroke()
+      }
+      if (!hero.flat) glow(g, x, y, 14, BOT_LOOKS[hero.cls].head[3], 0.2)
+      dropShadow(g, x, y + 7, 6, 2, 0.45)
       if (hero.flat) {
         // Flat: dimmed, with a blinking empty battery overhead.
-        g.globalAlpha = 0.45
-        this.renderBot(g, hero.cls, hero.x, hero.y, 4)
-        g.globalAlpha = 1
-        if (Math.floor(this.tick / 15) % 2 === 0) {
-          g.fillStyle = '#ef4444'
-          g.fillRect(hero.x - 4, hero.y - 16, 8, 4)
-          g.fillRect(hero.x + 4, hero.y - 15, 1, 2)
-        }
+        this.drawBot(g, hero.cls, x, y, 4, 0, 1, 0.45)
+        if (Math.floor(this.tick / 15) % 2 === 0)
+          drawSprite(g, FLAT_SPRITE, x, y - 15)
         continue
       }
-      this.renderBot(g, hero.cls, hero.x, hero.y, hero.facing)
+      const step = Math.floor((this.strides[hero.seat] ?? 0) / 6) % 2
+      const fx = FACE_X[hero.facing]!
+      const fy = FACE_Y[hero.facing]!
+      const wrench = () =>
+        drawSprite(g, WRENCH_SPRITE, x + fx * 8, y + 1 + fy * 7)
+      if (fy < 0) wrench()
+      this.drawBot(g, hero.cls, x, y, hero.facing, step as 0 | 1)
+      if (fy >= 0) wrench()
+      if (hero.cls === 'sage') {
+        // Sage's antenna tip glows, pink then gold.
+        const pink = Math.floor(this.tick / 10) % 2 === 1
+        const colour = pink ? RAMPS.pink[3] : RAMPS.gold[4]
+        glow(g, x, y - 7, 6, colour, 0.6)
+        g.fillStyle = colour
+        g.fillRect(x - 1, y - 8, 1, 1)
+      }
       // 1P/2P tags above their bots, 3P/4P below (they start a row lower).
       if (duo)
-        drawText(
-          g,
-          `${hero.seat + 1}P`,
-          hero.x,
-          hero.y + (hero.seat >= 2 ? 10 : -18),
-          {
-            align: 'center',
-            color: SEAT_COLORS[hero.seat],
-          },
-        )
+        drawText(g, `${hero.seat + 1}P`, x, y + (hero.seat >= 2 ? 11 : -19), {
+          align: 'center',
+          color: SEAT_COLORS[hero.seat],
+          outline: INK,
+        })
     }
   }
 
-  /** Each bot keeps Fix's shape with its own silhouette touch. */
-  private renderBot(
+  /** A bot sprite for a facing (of eight) and walk step, its body centred on (x, y). */
+  private drawBot(
     g: CanvasRenderingContext2D,
     cls: BotClass,
     x: number,
     y: number,
     facing: number,
+    step: 0 | 1,
+    scale = 1,
+    alpha?: number,
   ) {
-    const spec = BOT_CLASSES[cls]
-    const fx = FACE_X[facing]!
-    const fy = FACE_Y[facing]!
-    if (cls === 'zip') {
-      // A wheel underneath and a swept-back fin.
-      g.fillStyle = '#1f2937'
-      g.fillRect(x - 3, y + 4, 6, 3)
-      g.fillStyle = '#9ca3af'
-      g.fillRect(x - 1, y + 5, 2, 1)
-      g.fillStyle = spec.head
-      g.fillRect(x - fx * 6 - 1, y - 6, 2, 6)
+    const view: View = facing === 0 ? 'up' : facing === 4 ? 'down' : 'side'
+    drawSprite(g, BOT_SPRITES[cls][view][step], x, y + 8 * scale, {
+      anchor: 'feet',
+      flipX: FACE_X[facing]! < 0,
+      scale,
+      alpha,
+    })
+  }
+
+  /** A clinging glitch zaps the bot it's draining: a flickering arc between them. */
+  private renderZaps(g: CanvasRenderingContext2D) {
+    if (this.tick % 4 >= 3) return
+    g.save()
+    g.globalCompositeOperation = 'lighter'
+    for (const gl of this.glitches) {
+      const prey = this.nearestStanding(gl)
+      if (!prey || Math.hypot(prey.x - gl.x, prey.y - gl.y) >= 9) continue
+      const flick = (this.tick + Math.floor(gl.wobble * 5)) % 3
+      const mx = (gl.x + prey.x) / 2 + (flick - 1) * 2
+      const my = (gl.y + prey.y) / 2 - 3 + flick
+      g.strokeStyle = rgba(GLITCH_PALETTE.l, 0.9)
+      g.lineWidth = 1
+      g.beginPath()
+      g.moveTo(gl.x, gl.y)
+      g.lineTo(mx, my)
+      g.lineTo(prey.x, prey.y - 2)
+      g.stroke()
+      g.fillStyle = '#ffffff'
+      g.fillRect(Math.round(mx), Math.round(my), 1, 1)
     }
-    g.fillStyle = spec.body
-    if (cls === 'hugs') {
-      // Broad shoulders and two big hugging arms.
-      g.fillRect(x - 7, y - 4, 14, 10)
-      g.fillStyle = spec.head
-      g.fillRect(x - 10, y - 2, 3, 6)
-      g.fillRect(x + 7, y - 2, 3, 6)
-    } else if (cls === 'zip') {
-      g.fillRect(x - 4, y - 4, 8, 8)
-    } else {
-      g.fillRect(x - 5, y - 4, 10, 9)
+    g.restore()
+  }
+
+  /** A kindness pulse: rings of pink light racing out from the bot that sent it. */
+  private renderPulse(g: CanvasRenderingContext2D) {
+    const t = 1 - this.pulseFlash / 20
+    const { x, y } = this.pulseAt
+    g.save()
+    g.globalCompositeOperation = 'lighter'
+    g.fillStyle = rgba(RAMPS.pink[2], 0.22 * (1 - t))
+    g.fillRect(this.camX - 8, this.camY - 8, W + 16, VIEW_H + 16)
+    for (let i = 0; i < 3; i++) {
+      const r = 8 + (t * 260 - i * 26)
+      if (r <= 2) continue
+      g.strokeStyle = rgba(
+        [RAMPS.pink[4], RAMPS.pink[3], RAMPS.gold[3]][i]!,
+        0.75 * (1 - t),
+      )
+      g.lineWidth = 5 - i * 1.5
+      g.beginPath()
+      g.arc(x, y, r, 0, Math.PI * 2)
+      g.stroke()
     }
-    g.fillStyle = spec.head
-    g.fillRect(x - 4, y - 7, 8, 5)
-    if (cls === 'sage') {
-      // A tall antenna with a glowing tip.
-      g.fillStyle = '#e9d5ff'
-      g.fillRect(x, y - 12, 1, 5)
-      g.fillStyle = Math.floor(this.tick / 10) % 2 ? '#f0abfc' : '#fde047'
-      g.fillRect(x - 1, y - 14, 3, 3)
-    }
-    g.fillStyle = '#0f172a'
-    g.fillRect(x - 3, y - 6, 6, 2)
-    g.fillStyle = '#fde047'
-    g.fillRect(x - 2 + fx, y - 6, 1, 1)
-    g.fillRect(x + 1 + fx, y - 6, 1, 1)
-    // The wrench points the way the bot is facing.
-    g.fillStyle = '#e5e7eb'
-    const reach = cls === 'hugs' ? 9 : 7
-    g.fillRect(x + fx * reach - 1, y + fy * reach - 1, 3, 3)
+    g.restore()
+    glow(g, x, y, 30 * (1 - t) + 6, RAMPS.pink[4], 0.6 * (1 - t))
   }
 
   private renderSelect(g: CanvasRenderingContext2D) {
     const duo = this.heroes.length > 1
-    g.fillStyle = '#05030d'
-    g.fillRect(0, 0, W, H)
-    drawText(g, duo ? 'CHOOSE YOUR BOTS' : 'CHOOSE YOUR BOT', W / 2, 14, {
+    cachedLayer(g, 'kindness-gauntlet-select', W, H, paintSelect)
+    drawText(g, duo ? 'CHOOSE YOUR BOTS' : 'CHOOSE YOUR BOT', W / 2, 12, {
       scale: 2,
       align: 'center',
-      color: '#fde047',
-      shadow: '#7c3aed',
+      color: RAMPS.gold[4],
+      outline: INK,
+      shadow: RAMPS.purple[1],
     })
     CLASS_ORDER.forEach((cls, i) => {
       const spec = BOT_CLASSES[cls]
+      const look = BOT_LOOKS[cls]
       const cx = 44 + i * 77
       const here = this.heroes.filter((h) => h.choice === i)
       const lit = here.length > 0
-      g.fillStyle = lit ? '#312e81' : '#111827'
-      g.fillRect(cx - 34, 44, 68, 112)
-      g.strokeStyle = !lit
-        ? '#374151'
-        : duo
+      const frame = lit
+        ? duo
           ? SEAT_COLORS[here[0]!.seat]!
-          : spec.head
-      g.lineWidth = lit ? 2 : 1
-      g.strokeRect(cx - 34, 44, 68, 112)
-      g.save()
-      g.translate(cx, 86)
-      g.scale(3, 3)
-      this.renderBot(
-        g,
-        cls,
-        0,
-        0,
-        lit ? 3 + (Math.floor(this.tick / 20) % 3) : 4,
-      )
-      g.restore()
-      drawText(g, spec.name, cx, 128, {
+          : look.head[3]
+        : RAMPS.night[3]
+      g.fillStyle = frame
+      g.fillRect(cx - 36, 42, 72, 112)
+      hudPanel(g, cx - 34, 44, 68, 108, lit ? RAMPS.purple : RAMPS.night)
+      // A pedestal, and the bot on it (turning and stepping while chosen).
+      bevel(g, cx - 18, 103, 36, 6, RAMPS.steel, { depth: 1 })
+      if (lit) {
+        glow(g, cx, 80, 34, look.body[3], 0.35)
+        glow(g, cx, 104, 18, look.head[4], 0.3)
+      }
+      dropShadow(g, cx, 105, 15, 3, 0.5)
+      const facing = lit ? 3 + (Math.floor(this.tick / 20) % 3) : 4
+      const step = lit ? Math.floor(this.tick / 10) % 2 : 0
+      this.drawBot(g, cls, cx, 81, facing, step as 0 | 1, 3, lit ? 1 : 0.6)
+      if (cls === 'sage') {
+        const tip =
+          Math.floor(this.tick / 10) % 2 ? RAMPS.pink[3] : RAMPS.gold[4]
+        glow(g, cx, 60, 10, tip, lit ? 0.6 : 0.3)
+      }
+      drawText(g, spec.name, cx, 120, {
         scale: 2,
         align: 'center',
-        color: lit ? '#ffffff' : '#9ca3af',
+        color: lit ? '#ffffff' : RAMPS.steel[2],
+        outline: INK,
       })
-      drawText(g, spec.role, cx, 146, {
+      drawText(g, spec.role, cx, 140, {
         align: 'center',
-        color: lit ? spec.head : '#6b7280',
+        color: lit ? look.head[3] : RAMPS.steel[1],
+        outline: INK,
       })
       // Whose cursor is on this card (1P/2P above it, 3P/4P below), and who
       // has locked it in.
@@ -1518,34 +2539,44 @@ class KindnessGauntlet implements ArcadeGameInstance {
             g,
             h.picked ? `${h.seat + 1}P READY` : `${h.seat + 1}P`,
             left ? cx - 33 : cx + 33,
-            h.seat < 2 ? 35 : 158,
-            { align: left ? 'left' : 'right', color: SEAT_COLORS[h.seat] },
+            h.seat < 2 ? 32 : 157,
+            {
+              align: left ? 'left' : 'right',
+              color: SEAT_COLORS[h.seat],
+              outline: INK,
+            },
           )
         }
     })
     if (duo) {
+      const step = this.heroes.length > 2 ? 9 : 10
+      hudPanel(g, 8, 166, W - 16, 2 + this.heroes.length * step, RAMPS.night)
       for (const h of this.heroes) {
         const spec = BOT_CLASSES[CLASS_ORDER[h.choice]!]
         drawText(
           g,
           `${h.seat + 1}P ${spec.name}: ${spec.about[0]}`,
           W / 2,
-          168 + h.seat * (this.heroes.length > 2 ? 9 : 10),
+          168 + h.seat * step,
           {
             align: 'center',
             color: SEAT_COLORS[h.seat],
+            outline: INK,
           },
         )
       }
     } else {
       const spec = BOT_CLASSES[CLASS_ORDER[this.lead.choice]!]
+      hudPanel(g, 40, 168, W - 80, 24, RAMPS.night)
       drawText(g, spec.about[0], W / 2, 172, {
         align: 'center',
-        color: '#e5e7eb',
+        color: RAMPS.steel[4],
+        outline: INK,
       })
       drawText(g, spec.about[1], W / 2, 182, {
         align: 'center',
-        color: '#e5e7eb',
+        color: RAMPS.steel[4],
+        outline: INK,
       })
     }
     if (Math.floor(this.tick / 20) % 2 === 0)
@@ -1556,100 +2587,139 @@ class KindnessGauntlet implements ArcadeGameInstance {
           : 'LEFT/RIGHT TO PICK   A TO GO',
         W / 2,
         206,
-        { align: 'center', color: '#a5f3fc' },
+        { align: 'center', color: RAMPS.teal[3], outline: INK },
       )
-    drawText(g, `${Math.ceil(this.selecting / 60)}`, W / 2, 222, {
+    const secs = `${Math.ceil(this.selecting / 60)}`
+    const sw = measureText(secs) + 10
+    hudPanel(g, W / 2 - sw / 2, 219, sw, 12, RAMPS.night)
+    drawText(g, secs, W / 2, 221, {
       align: 'center',
-      color: '#6b7280',
+      color: RAMPS.steel[3],
+      outline: INK,
     })
+    vignette(g, W, H, 0.3)
   }
 
+  // --- HUD ---------------------------------------------------------------------
+
   private renderHud(g: CanvasRenderingContext2D) {
-    const shadow = '#1e1b4b'
-    drawText(g, String(this.score).padStart(6, '0'), 4, 2, {
+    cachedLayer(g, 'kindness-gauntlet-hud', W, VIEW_Y, (k) => {
+      bandedGradient(k, 0, 0, W, VIEW_Y, [RAMPS.night[2], RAMPS.night[0]], 2)
+      k.fillStyle = INK
+      k.fillRect(0, VIEW_Y - 1, W, 1)
+    })
+    hudPanel(g, 2, 1, 78, 14)
+    drawText(g, String(this.score).padStart(6, '0'), 6, 1, {
       scale: 2,
-      color: '#fde047',
-      shadow,
+      color: RAMPS.gold[4],
+      shadow: INK,
     })
-    drawText(g, `HI ${Math.max(this.hiScore, this.score)}`, W - 4, 1, {
+    // On the right: the high score over the floor number.
+    const hi = `HI ${Math.max(this.hiScore, this.score)}`
+    const floor = `FLOOR ${this.level}`
+    const rightW = Math.max(measureText(hi), measureText(floor)) + 8
+    const rightX = W - 2 - rightW
+    hudPanel(g, rightX, 1, rightW, 14)
+    drawText(g, hi, W - 6, 1, {
       align: 'right',
-      color: '#f9a8d4',
+      color: RAMPS.pink[3],
+      shadow: INK,
     })
-    if (this.heroes.length > 1) this.renderDuoHud(g)
-    else this.renderSoloHud(g)
+    drawText(g, floor, W - 6, 8, {
+      align: 'right',
+      color: RAMPS.teal[3],
+      shadow: INK,
+    })
+    // Beside it: bots rescued, and the team's keys while a door is locked.
+    const infoX = rightX - 3 - 28
+    hudPanel(g, infoX, 1, 28, 14)
+    drawSprite(g, HUD_BOT, infoX + 6, 4)
+    drawText(g, String(this.rescued), infoX + 11, 1, {
+      color: RAMPS.gold[3],
+      shadow: INK,
+    })
+    if (this.keys > 0 || this.doors.some((d) => !d.open)) {
+      drawSprite(g, HUD_KEY, infoX + 6, 11)
+      drawText(g, String(this.keys), infoX + 11, 8, {
+        color: RAMPS.gold[4],
+        shadow: INK,
+      })
+    }
+    this.renderSeats(g, 84, infoX - 3)
     if (this.banner) {
+      // A dimmed band behind the banner keeps it legible over the busy dungeon.
+      const tall = this.banner.sub ? 34 : 22
+      g.fillStyle = rgba(INK, 0.55)
+      g.fillRect(0, 86, W, tall)
+      g.fillStyle = rgba(RAMPS.purple[3], 0.6)
+      g.fillRect(0, 86, W, 1)
+      g.fillRect(0, 86 + tall - 1, W, 1)
       drawText(g, this.banner.text, W / 2, 90, {
         scale: 2,
         align: 'center',
         color: '#ffffff',
-        shadow: '#7c3aed',
+        outline: INK,
+        shadow: RAMPS.purple[1],
       })
       if (this.banner.sub) {
         drawText(g, this.banner.sub, W / 2, 110, {
           align: 'center',
-          color: '#fde68a',
-          shadow,
+          color: RAMPS.gold[3],
+          outline: INK,
         })
       }
     }
   }
 
-  private batteryBar(
-    g: CanvasRenderingContext2D,
-    hero: Hero,
-    x: number,
-    y: number,
-    w: number,
-  ) {
-    g.fillStyle = '#1f2937'
-    g.fillRect(x, y, w, 5)
-    const frac = Math.max(0, hero.battery) / MAX_BATTERY
-    g.fillStyle = frac > 0.4 ? '#4ade80' : frac > 0.2 ? '#facc15' : '#ef4444'
-    g.fillRect(x, y, w * frac, 5)
-  }
-
-  private renderSoloHud(g: CanvasRenderingContext2D) {
-    const me = this.lead
-    drawText(g, `${this.specOf(me).name}  FLOOR ${this.level}`, W - 4, 9, {
-      align: 'right',
-      color: '#a5f3fc',
-    })
-    drawText(g, 'BATTERY', 84, 1, { color: '#bbf7d0' })
-    this.batteryBar(g, me, 84, 9, 70)
-    drawText(g, `PULSE ${me.pulses}`, 162, 1, { color: '#fbcfe8' })
-    drawText(g, `SAVED ${this.rescued}`, 162, 9, { color: '#fde68a' })
-    if (this.keys > 0 || this.doors.some((d) => !d.open))
-      drawText(g, `KEY ${this.keys}`, 214, 1, { color: '#fbbf24' })
-  }
-
   /**
-   * A row per bot: whose it is, its battery, its pulses. Two bots stack in one
-   * column; three or four fill two narrower ones.
+   * A boxed panel per seated bot between `left` and `right`: whose it is (and which bot, when
+   * there's room), its pulses, and its battery gauge (FLAT, blinking, once it runs out).
    */
-  private renderDuoHud(g: CanvasRenderingContext2D) {
-    drawText(g, `FLOOR ${this.level}`, W - 4, 9, {
-      align: 'right',
-      color: '#a5f3fc',
-    })
-    const crowd = this.heroes.length > 2
-    const colW = crowd ? 54 : 78
-    const bar = crowd ? 26 : 44
+  private renderSeats(
+    g: CanvasRenderingContext2D,
+    left: number,
+    right: number,
+  ) {
+    const count = this.heroes.length
+    const gap = 3
+    const pw = Math.floor((right - left - gap * (count - 1)) / count)
     for (const hero of this.heroes) {
-      const x = 84 + Math.floor(hero.seat / 2) * colW
-      const y = 1 + (hero.seat % 2) * 8
-      drawText(g, `${hero.seat + 1}P`, x, y, { color: SEAT_COLORS[hero.seat] })
+      const x = left + hero.seat * (pw + gap)
+      const spec = this.specOf(hero)
+      hudPanel(g, x, 1, pw, 14)
+      const label =
+        count === 1
+          ? `${spec.name} BATTERY`
+          : count === 2
+            ? `${hero.seat + 1}P ${spec.name}`
+            : `${hero.seat + 1}P`
+      drawText(g, label, x + 4, 1, {
+        color: count === 1 ? RAMPS.leaf[4] : SEAT_COLORS[hero.seat],
+        shadow: INK,
+      })
+      const pulses = String(hero.pulses)
+      drawText(g, pulses, x + pw - 4, 1, {
+        align: 'right',
+        color: RAMPS.pink[4],
+        shadow: INK,
+      })
+      drawSprite(g, HUD_HEART, x + pw - 8 - measureText(pulses), 4)
       if (hero.flat) {
         if (Math.floor(this.tick / 15) % 2 === 0)
-          drawText(g, 'FLAT', x + 14, y, { color: '#ef4444' })
+          drawText(g, 'FLAT', x + 4, 8, { color: RAMPS.ember[3], shadow: INK })
       } else {
-        this.batteryBar(g, hero, x + 14, y + 1, bar)
+        const frac = Math.max(0, hero.battery) / MAX_BATTERY
+        gauge(
+          g,
+          x + 4,
+          10,
+          pw - 8,
+          3,
+          frac,
+          frac > 0.4 ? RAMPS.leaf : frac > 0.2 ? RAMPS.gold : RAMPS.ember,
+        )
       }
-      drawText(g, String(hero.pulses), x + 16 + bar, y, { color: '#fbcfe8' })
     }
-    const infoX = crowd ? 196 : 162
-    drawText(g, `SAVED ${this.rescued}`, infoX, 1, { color: '#fde68a' })
-    if (this.keys > 0 || this.doors.some((d) => !d.open))
-      drawText(g, `KEY ${this.keys}`, infoX, 9, { color: '#fbbf24' })
   }
 }
 

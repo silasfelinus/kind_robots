@@ -41,210 +41,238 @@
           :class="showSheet ? 'xl:grid-cols-[minmax(0,1fr)_20rem]' : ''"
         >
           <article class="min-w-0">
-            <div
-              class="relative isolate aspect-[4/3] overflow-hidden rounded-[1.5rem] border border-warning/20 bg-stone-950 shadow-2xl sm:aspect-[16/9]"
-            >
-              <img
-                :src="platePath(art)"
-                class="absolute inset-0 size-full object-cover"
-                :style="{ objectPosition: art.focus ?? 'center' }"
-                :alt="art.alt"
-                width="1344"
-                height="768"
-              />
+            <div :class="frameClass">
               <div
-                class="absolute inset-0 bg-gradient-to-t from-black via-transparent to-black/35"
-              />
-              <div
-                class="absolute left-4 top-4 rounded-md border border-white/25 bg-black/65 px-3 py-2 text-[10px] font-bold uppercase tracking-[.25em] text-amber-100 sm:left-7 sm:top-6"
+                class="relative isolate overflow-hidden rounded-[1.5rem] border border-warning/20 bg-stone-950 shadow-2xl"
+                :class="plateClass"
               >
-                {{ current.chapter }}
-              </div>
-              <div
-                class="absolute right-4 top-4 flex items-center gap-2 rounded-md bg-black/65 px-3 py-2 text-xs font-bold sm:right-7 sm:top-6"
-                aria-label="Resources"
-              >
-                <span class="text-rose-300">♥ {{ store.run.health }}/12</span>
-                <span class="opacity-40">·</span>
-                <span class="text-sky-300">✦ {{ store.run.resolve }}/4</span>
-              </div>
-              <div class="absolute inset-x-4 bottom-5 sm:inset-x-8 sm:bottom-7">
-                <p class="text-xs uppercase tracking-[.28em] text-amber-300">
-                  Section
-                  {{ String(store.run.visited.length).padStart(3, '0') }}
-                </p>
-                <h2
-                  class="mt-1 max-w-3xl font-serif text-3xl font-black leading-tight text-white drop-shadow-xl sm:text-5xl"
-                >
-                  {{ current.title }}
-                </h2>
-              </div>
-            </div>
-            <div
-              class="relative z-10 mx-2 -mt-1 rounded-b-[1.5rem] border border-warning/20 bg-base-200 px-5 pb-6 pt-7 shadow-xl sm:mx-5 sm:px-10 sm:pb-10"
-            >
-              <p
-                class="max-w-3xl font-serif text-lg leading-[1.85] text-base-content sm:text-[1.35rem]"
-              >
-                {{ current.text }}
-              </p>
-
-              <section
-                v-if="store.run.lastRoll"
-                class="mt-6 border-y border-base-content/15 py-4"
-                aria-live="polite"
-                aria-label="Last dice result"
-              >
-                <div class="flex flex-wrap items-center justify-between gap-3">
-                  <div>
-                    <p
-                      class="text-xs font-black uppercase tracking-[.22em] opacity-65"
-                    >
-                      {{ store.run.lastRoll.label }} CHECK
-                    </p>
-                    <p class="mt-1 text-sm">
-                      <strong>{{ store.run.lastRoll.total }}</strong> vs
-                      {{ store.run.lastRoll.target }} ·
-                      <span
-                        :class="
-                          store.run.lastRoll.success
-                            ? 'text-success'
-                            : 'text-error'
-                        "
-                        >{{
-                          store.run.lastRoll.success ? 'SUCCESS' : 'SETBACK'
-                        }}</span
-                      >
-                    </p>
-                  </div>
-                  <div
-                    :key="store.rollSerial"
-                    class="flex items-center gap-2"
-                    aria-hidden="true"
-                  >
-                    <span
-                      v-for="(die, index) of store.run.lastRoll.dice"
-                      :key="index"
-                      class="zuzu-die grid size-12 place-items-center rounded-lg border-2 border-amber-900 bg-amber-100 font-serif text-2xl font-black text-stone-900 shadow-lg"
-                      >{{ die }}</span
-                    >
-                    <span class="ml-2 text-sm opacity-70"
-                      >+ {{ store.run.lastRoll.modifier }}</span
-                    >
-                  </div>
-                </div>
-              </section>
-
-              <div
-                v-if="current.battle && store.run.battle"
-                class="mt-7 rounded-xl border border-error/30 bg-base-300 p-4 sm:p-6"
-              >
-                <div class="flex flex-wrap items-center justify-between gap-3">
-                  <div>
-                    <p class="text-xs uppercase tracking-[.2em] opacity-60">
-                      CONFRONTATION · ROUND {{ store.run.battle.turn }}
-                    </p>
-                    <h3 class="font-serif text-xl font-bold">
-                      {{ current.battle.name }}
-                    </h3>
-                  </div>
-                  <span class="text-sm font-bold text-error"
-                    >Foe HP {{ store.run.battle.hp }}/{{
-                      current.battle.hp
-                    }}</span
-                  >
-                </div>
-                <progress
-                  class="progress progress-error mt-3 w-full"
-                  :value="store.run.battle.hp"
-                  :max="current.battle.hp"
-                  aria-label="Enemy health"
+                <img
+                  :src="platePath(art)"
+                  class="absolute inset-0 size-full object-cover"
+                  :style="{ objectPosition: art.focus ?? 'center' }"
+                  :alt="art.alt"
+                  :width="PLATE_SIZE[shape].width"
+                  :height="PLATE_SIZE[shape].height"
                 />
-                <p class="mt-3 text-sm opacity-80" aria-live="polite">
-                  {{ store.run.battle.log }}
-                </p>
-                <p class="mt-3 text-sm font-semibold text-warning">
-                  The foe circles and prepares to strike. Choose your approach.
-                </p>
-                <div class="mt-4 grid gap-2 sm:grid-cols-2">
-                  <button
-                    v-for="move in moves"
-                    :key="move.action"
-                    type="button"
-                    class="group rounded-xl border border-base-content/20 bg-base-100 p-3 text-left transition hover:border-warning hover:bg-base-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-warning"
-                    :disabled="
-                      move.action === 'quiet-draw' && store.run.resolve < 2
-                    "
-                    @click="store.battle(move.action)"
+                <div
+                  class="absolute inset-0 bg-gradient-to-t via-transparent to-black/35"
+                  :class="layout === 'top' ? 'from-black' : 'from-black/40'"
+                />
+                <div
+                  class="absolute left-4 top-4 rounded-md border border-white/25 bg-black/65 px-3 py-2 text-[10px] font-bold uppercase tracking-[.25em] text-amber-100 sm:left-7 sm:top-6"
+                >
+                  {{ current.chapter }}
+                </div>
+                <div
+                  class="absolute right-4 top-4 flex items-center gap-2 rounded-md bg-black/65 px-3 py-2 text-xs font-bold sm:right-7 sm:top-6"
+                  aria-label="Resources"
+                >
+                  <span class="text-rose-300">♥ {{ store.run.health }}/12</span>
+                  <span class="opacity-40">·</span>
+                  <span class="text-sky-300">✦ {{ store.run.resolve }}/4</span>
+                </div>
+                <div
+                  v-if="layout === 'top'"
+                  class="absolute inset-x-4 bottom-5 sm:inset-x-8 sm:bottom-7"
+                >
+                  <p class="text-xs uppercase tracking-[.28em] text-amber-300">
+                    Section
+                    {{ String(store.run.visited.length).padStart(3, '0') }}
+                  </p>
+                  <h2
+                    class="mt-1 max-w-3xl font-serif text-3xl font-black leading-tight text-white drop-shadow-xl sm:text-5xl"
                   >
-                    <strong class="block text-base">{{ move.label }}</strong
-                    ><span class="mt-1 block text-xs opacity-65">{{
-                      move.help
-                    }}</span>
-                  </button>
+                    {{ current.title }}
+                  </h2>
                 </div>
               </div>
-              <template v-else-if="current.ending">
+              <div
+                class="relative z-10 border border-warning/20 bg-base-200 px-5 pb-6 pt-7 shadow-xl sm:px-10 sm:pb-10"
+                :class="
+                  layout === 'top'
+                    ? 'mx-2 -mt-1 rounded-b-[1.5rem] sm:mx-5'
+                    : 'rounded-[1.5rem]'
+                "
+              >
+                <header v-if="layout !== 'top'" class="mb-5">
+                  <p class="text-xs uppercase tracking-[.28em] text-warning">
+                    Section
+                    {{ String(store.run.visited.length).padStart(3, '0') }}
+                  </p>
+                  <h2
+                    class="mt-1 max-w-3xl font-serif text-3xl font-black leading-tight sm:text-4xl"
+                  >
+                    {{ current.title }}
+                  </h2>
+                </header>
+                <p
+                  class="max-w-3xl font-serif text-lg leading-[1.85] text-base-content sm:text-[1.35rem]"
+                >
+                  {{ current.text }}
+                </p>
+
+                <section
+                  v-if="store.run.lastRoll"
+                  class="mt-6 border-y border-base-content/15 py-4"
+                  aria-live="polite"
+                  aria-label="Last dice result"
+                >
+                  <div
+                    class="flex flex-wrap items-center justify-between gap-3"
+                  >
+                    <div>
+                      <p
+                        class="text-xs font-black uppercase tracking-[.22em] opacity-65"
+                      >
+                        {{ store.run.lastRoll.label }} CHECK
+                      </p>
+                      <p class="mt-1 text-sm">
+                        <strong>{{ store.run.lastRoll.total }}</strong> vs
+                        {{ store.run.lastRoll.target }} ·
+                        <span
+                          :class="
+                            store.run.lastRoll.success
+                              ? 'text-success'
+                              : 'text-error'
+                          "
+                          >{{
+                            store.run.lastRoll.success ? 'SUCCESS' : 'SETBACK'
+                          }}</span
+                        >
+                      </p>
+                    </div>
+                    <div
+                      :key="store.rollSerial"
+                      class="flex items-center gap-2"
+                      aria-hidden="true"
+                    >
+                      <span
+                        v-for="(die, index) of store.run.lastRoll.dice"
+                        :key="index"
+                        class="zuzu-die grid size-12 place-items-center rounded-lg border-2 border-amber-900 bg-amber-100 font-serif text-2xl font-black text-stone-900 shadow-lg"
+                        >{{ die }}</span
+                      >
+                      <span class="ml-2 text-sm opacity-70"
+                        >+ {{ store.run.lastRoll.modifier }}</span
+                      >
+                    </div>
+                  </div>
+                </section>
+
                 <div
-                  class="mt-7 rounded-xl border border-warning/30 bg-warning/10 p-5"
+                  v-if="current.battle && store.run.battle"
+                  class="mt-7 rounded-xl border border-error/30 bg-base-300 p-4 sm:p-6"
                 >
-                  <p
-                    class="text-xs font-black uppercase tracking-[.2em] text-warning"
+                  <div
+                    class="flex flex-wrap items-center justify-between gap-3"
                   >
-                    {{ current.ending }} ending discovered
-                  </p>
-                  <p class="mt-2 font-serif text-lg">
-                    One story ends. Others are hidden in the dust.
-                  </p>
-                  <p class="mt-2 text-sm opacity-75">
-                    Found {{ store.discovered.length }} of
-                    {{ ENDING_IDS.length }} endings.
-                  </p>
-                  <button
-                    class="btn btn-warning mt-4"
-                    type="button"
-                    @click="restart"
-                  >
-                    Walk another road
-                  </button>
-                </div>
-              </template>
-              <section v-else class="mt-8" aria-label="Story choices">
-                <h3
-                  class="mb-4 text-xs font-black uppercase tracking-[.26em] opacity-65"
-                >
-                  What will Zuzu do?
-                </h3>
-                <div class="grid gap-3">
-                  <button
-                    v-for="(choice, index) in choices"
-                    :key="choice.id"
-                    type="button"
-                    :disabled="!!lockReason(store.run, choice)"
-                    class="group flex min-h-16 items-center gap-4 rounded-xl border border-base-content/20 bg-base-100 px-4 py-4 text-left transition hover:border-warning hover:bg-base-300 focus-visible:outline focus-visible:outline-2 focus-visible:outline-warning disabled:cursor-not-allowed disabled:opacity-45"
-                    @click="store.choose(choice.id)"
-                  >
-                    <span
-                      class="grid size-9 shrink-0 place-items-center rounded-lg border border-warning/50 font-serif font-bold text-warning"
-                      >{{ index + 1 }}</span
-                    >
-                    <span class="flex-1"
-                      ><span class="block font-semibold leading-snug">{{
-                        choice.label
+                    <div>
+                      <p class="text-xs uppercase tracking-[.2em] opacity-60">
+                        CONFRONTATION · ROUND {{ store.run.battle.turn }}
+                      </p>
+                      <h3 class="font-serif text-xl font-bold">
+                        {{ current.battle.name }}
+                      </h3>
+                    </div>
+                    <span class="text-sm font-bold text-error"
+                      >Foe HP {{ store.run.battle.hp }}/{{
+                        current.battle.hp
                       }}</span
-                      ><span
-                        v-if="lockReason(store.run, choice)"
-                        class="mt-1 block text-xs opacity-75"
-                        >{{ lockReason(store.run, choice) }}</span
-                      ></span
                     >
-                    <icon
-                      name="kind-icon:arrow-right"
-                      class="size-4 shrink-0 opacity-35 group-hover:opacity-100"
-                    />
-                  </button>
+                  </div>
+                  <progress
+                    class="progress progress-error mt-3 w-full"
+                    :value="store.run.battle.hp"
+                    :max="current.battle.hp"
+                    aria-label="Enemy health"
+                  />
+                  <p class="mt-3 text-sm opacity-80" aria-live="polite">
+                    {{ store.run.battle.log }}
+                  </p>
+                  <p class="mt-3 text-sm font-semibold text-warning">
+                    The foe circles and prepares to strike. Choose your
+                    approach.
+                  </p>
+                  <div class="mt-4 grid gap-2 sm:grid-cols-2">
+                    <button
+                      v-for="move in moves"
+                      :key="move.action"
+                      type="button"
+                      class="group rounded-xl border border-base-content/20 bg-base-100 p-3 text-left transition hover:border-warning hover:bg-base-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-warning"
+                      :disabled="
+                        move.action === 'quiet-draw' && store.run.resolve < 2
+                      "
+                      @click="store.battle(move.action)"
+                    >
+                      <strong class="block text-base">{{ move.label }}</strong
+                      ><span class="mt-1 block text-xs opacity-65">{{
+                        move.help
+                      }}</span>
+                    </button>
+                  </div>
                 </div>
-              </section>
+                <template v-else-if="current.ending">
+                  <div
+                    class="mt-7 rounded-xl border border-warning/30 bg-warning/10 p-5"
+                  >
+                    <p
+                      class="text-xs font-black uppercase tracking-[.2em] text-warning"
+                    >
+                      {{ current.ending }} ending discovered
+                    </p>
+                    <p class="mt-2 font-serif text-lg">
+                      One story ends. Others are hidden in the dust.
+                    </p>
+                    <p class="mt-2 text-sm opacity-75">
+                      Found {{ store.discovered.length }} of
+                      {{ ENDING_IDS.length }} endings.
+                    </p>
+                    <button
+                      class="btn btn-warning mt-4"
+                      type="button"
+                      @click="restart"
+                    >
+                      Walk another road
+                    </button>
+                  </div>
+                </template>
+                <section v-else class="mt-8" aria-label="Story choices">
+                  <h3
+                    class="mb-4 text-xs font-black uppercase tracking-[.26em] opacity-65"
+                  >
+                    What will Zuzu do?
+                  </h3>
+                  <div class="grid gap-3">
+                    <button
+                      v-for="(choice, index) in choices"
+                      :key="choice.id"
+                      type="button"
+                      :disabled="!!lockReason(store.run, choice)"
+                      class="group flex min-h-16 items-center gap-4 rounded-xl border border-base-content/20 bg-base-100 px-4 py-4 text-left transition hover:border-warning hover:bg-base-300 focus-visible:outline focus-visible:outline-2 focus-visible:outline-warning disabled:cursor-not-allowed disabled:opacity-45"
+                      @click="store.choose(choice.id)"
+                    >
+                      <span
+                        class="grid size-9 shrink-0 place-items-center rounded-lg border border-warning/50 font-serif font-bold text-warning"
+                        >{{ index + 1 }}</span
+                      >
+                      <span class="flex-1"
+                        ><span class="block font-semibold leading-snug">{{
+                          choice.label
+                        }}</span
+                        ><span
+                          v-if="lockReason(store.run, choice)"
+                          class="mt-1 block text-xs opacity-75"
+                          >{{ lockReason(store.run, choice) }}</span
+                        ></span
+                      >
+                      <icon
+                        name="kind-icon:arrow-right"
+                        class="size-4 shrink-0 opacity-35 group-hover:opacity-100"
+                      />
+                    </button>
+                  </div>
+                </section>
+              </div>
             </div>
             <p class="mx-5 mt-4 text-xs opacity-55">
               Illustrations are Zuzu: Koala Assassin comic renders.
@@ -345,15 +373,28 @@
             >
               Journal
             </h3>
-            <p class="mt-2 text-sm">
-              {{
-                store.run.flags.length
-                  ? store.run.flags
-                      .map((flag) => flag.replace(/-/g, ' '))
-                      .join(' · ')
-                  : 'The road has not yet left its marks.'
-              }}
+            <p v-if="!store.run.flags.length" class="mt-2 text-sm opacity-75">
+              The road has not yet left its marks.
             </p>
+            <template v-else>
+              <p v-if="notes.deeds.length" class="mt-2 text-sm">
+                <span class="opacity-60">Deeds:</span>
+                <template v-for="(deed, i) in notes.deeds" :key="deed.text">
+                  <span v-if="i"> · </span>
+                  <span :class="deed.dark ? 'italic text-error' : ''">{{
+                    deed.text
+                  }}</span>
+                </template>
+              </p>
+              <p v-if="notes.debts.length" class="mt-2 text-sm">
+                <span class="opacity-60">Owed by:</span>
+                {{ notes.debts.join(' · ') }}
+              </p>
+              <p v-if="notes.learned.length" class="mt-2 text-sm">
+                <span class="opacity-60">Learned:</span>
+                {{ notes.learned.join(' · ') }}
+              </p>
+            </template>
             <p class="mt-4 text-xs opacity-60">
               Sections travelled: {{ store.run.visited.length }} · Endings
               discovered: {{ store.discovered.length }}
@@ -374,14 +415,45 @@ import {
   lockReason,
   visibleChoices,
 } from '~/utils/zuzuGamebook/adventure'
-import { plate, platePath } from '~/utils/zuzuGamebook/art'
+import {
+  PLATE_SIZE,
+  plateLayout,
+  platePath,
+  sectionPlate,
+} from '~/utils/zuzuGamebook/art'
+import { journal } from '~/utils/zuzuGamebook/journal'
 import { useZuzuGamebookStore } from '~/stores/zuzuGamebookStore'
 
 const store = useZuzuGamebookStore()
 const showSheet = ref(false)
 const current = computed(() => scene(store.run.sceneId))
-const art = computed(() => plate(current.value.art))
+const art = computed(() => sectionPlate(current.value))
+const shape = computed(() => art.value.shape ?? 'wide')
+// Silas, 2026-10-10: plates shown "horizontally and some vertically, left right top bottom, for variety".
+const layout = computed(() => plateLayout(current.value.id, art.value))
+const frameClass = computed(() => {
+  if (layout.value === 'top') return 'flex flex-col'
+  if (layout.value === 'bottom') return 'flex flex-col gap-4'
+  return [
+    'flex flex-col gap-4 md:grid md:items-start',
+    layout.value === 'left'
+      ? 'md:grid-cols-[minmax(0,5fr)_minmax(0,7fr)]'
+      : 'md:grid-cols-[minmax(0,7fr)_minmax(0,5fr)]',
+  ]
+})
+const plateClass = computed(() => [
+  shape.value === 'wide'
+    ? 'aspect-[4/3] sm:aspect-[16/9]'
+    : shape.value === 'tall'
+      ? 'aspect-[4/5] md:aspect-[7/9]'
+      : 'aspect-square',
+  layout.value === 'bottom' || layout.value === 'right' ? 'md:order-last' : '',
+  layout.value === 'left' || layout.value === 'right'
+    ? 'md:sticky md:top-4'
+    : '',
+])
 const choices = computed(() => visibleChoices(store.run, current.value))
+const notes = computed(() => journal(store.run.flags))
 const moves: { action: BattleAction; label: string; help: string }[] = [
   {
     action: 'strike',

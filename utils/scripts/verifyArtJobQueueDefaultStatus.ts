@@ -30,10 +30,23 @@ requireMatch(
   `${componentPath} must retry startup selection from fresh stats when the chosen section empties during a queue race.`,
 )
 
-requireMatch(
-  /if \(artJobStore\.jobs\.length\) \{[\s\S]*void artJobStore\.fetchJobs\(\)[\s\S]*return[\s\S]*\}[\s\S]*await loadInitialJobs\(\)/,
-  `${componentPath} must preserve an already-established status selection instead of re-defaulting it.`,
-)
+// Revisits re-pick too. The queue/trainer tabs are v-show, so this component
+// only remounts on a real revisit or reload -- and the store outlives the page,
+// so an early return on cached jobs reopened whatever tab was last open, often
+// an emptied FAILED with hundreds pending next door. Silas, 2026-10-10: "it
+// should start me at the selection with the first content".
+const onMountedBody =
+  /onMounted\(async \(\) => \{([\s\S]*?)\n\}\)/.exec(component)?.[1] ?? ''
+if (!/await loadInitialJobs\(\)/.test(onMountedBody)) {
+  throw new Error(
+    `${componentPath} must choose its section via loadInitialJobs on mount.`,
+  )
+}
+if (/artJobStore\.jobs\.length[\s\S]*?return/.test(onMountedBody)) {
+  throw new Error(
+    `${componentPath} must not skip the first-non-empty selection on a revisit with cached jobs.`,
+  )
+}
 
 requireMatch(
   /async function changeStatus\(status: ArtJobStatus \| 'ALL'\): Promise<void> \{[\s\S]*await artJobStore\.fetchJobs\(status, 1\)/,
@@ -41,5 +54,5 @@ requireMatch(
 )
 
 console.log(
-  'ArtJob queue default status verified: startup chooses the first non-empty section, retries one queue race, and preserves explicit selections.',
+  'ArtJob queue default status verified: startup chooses the first non-empty section, retries one queue race, re-picks on every revisit, and keeps explicit clicks authoritative.',
 )

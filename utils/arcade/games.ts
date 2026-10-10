@@ -144,27 +144,6 @@ export const ARCADE_GAMES: ArcadeGameMeta[] = [
     controls: 'Run, jump, bump',
   },
   {
-    slug: 'timber-bot',
-    title: 'Timber Bot',
-    riffsOn: 'Timber',
-    blurb:
-      'A storm left the grove full of dead trees. Chop every trunk down a log at a time before the clock runs out, duck the grumpy bees, and step clear when a treetop creaks. Plant a sapling in every stump for a green-grove bonus.',
-    howTo: [
-      'WALK LEFT AND RIGHT',
-      'A  CHOP OR PLANT',
-      'DOWN  DUCK THE BEES',
-      'CREAK? STEP ASIDE!',
-      'CLEAR EVERY TRUNK',
-      'PLANT STUMPS FOR BONUS',
-    ],
-    width: 420,
-    height: 360,
-    maxPlausibleScore: 3_000_000,
-    titleArt: '/images/arcade/games/timber-bot-title.webp',
-    accent: '#86efac',
-    controls: 'Walk, chop, duck',
-  },
-  {
     slug: 'butterfly-joust',
     title: 'Butterfly Joust',
     riffsOn: 'Joust',
@@ -737,7 +716,6 @@ const LOADERS: Record<string, () => Promise<ArcadeGameModule>> = {
   'rescue-rally': () => import('./games/rescueRally'),
   'sink-suds': () => import('./games/sinkSuds'),
   'pipe-pals': () => import('./games/pipePals'),
-  'timber-bot': () => import('./games/timberBot'),
   'butterfly-joust': () => import('./games/butterflyJoust'),
   'kind-pinball': () =>
     canRenderWebGL()

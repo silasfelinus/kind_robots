@@ -12,51 +12,38 @@
 // (prices, caps, and elapsed-tick income all come from here, never from the
 // request body).
 
-import type { Prisma, Rarity } from '~/prisma/generated/prisma/client'
+import type { Prisma } from '~/prisma/generated/prisma/client'
 import prisma from './prisma'
 import { getUniqueAquariumSlugForUser } from './aquariumSlug'
 import { CTHULHUQUARIUM_SCENE_IDS } from './cthulhuquariumBackgrounds.generated'
 import {
-  breedCost,
   cleanDebris,
   clampDecorCoordinate,
   conflictsWithEquippedIdleSet,
-  convergeBreedStats,
   DEBRIS_SPOTLESS_MILESTONE_THRESHOLD,
   DECOR_CATALOG,
   deriveFishRarityTier,
-  eggCatalog,
   fishSlotsCap,
-  eggCost,
-  EGG_SIZE_OPTIONS,
   feedCoinRebate,
   feedCost,
   FEED_RESTORES_HUNGER_TO,
   firedBestiaryMilestones,
-  FIRST_EVOLUTION_MILESTONE,
   unlockedBackgroundKeys,
   FIRST_FULL_TANK_MILESTONE,
   FIRST_SPOTLESS_TANK_MILESTONE,
   HUNGER_STARTING_VALUE,
   isKnownDecorKind,
-  isKnownEggRarity,
-  isKnownEggSize,
   isKnownSetPieceKind,
   justCompletedBestiary as computeJustCompletedBestiary,
   justFirstFullTank,
   justFirstSpotlessTank,
   LAST_AQUARIUM_CONFIG,
   MAX_CLEAN_CLICKS_PER_REQUEST,
-  mergeBestStats,
-  pickHatchIndex,
-  qualifiesForBreedingEvolution,
-  rollIndividualStats,
   rollRareEvent,
+  releasePrice,
   rotateShopStock,
-  sellPrice,
   SET_PIECE_CATALOG,
   settleTick,
-  STAT_BLOCK_KEYS,
   todaysShopDateKey,
   STARTING_COINS,
   unlockCost,
@@ -64,8 +51,6 @@ import {
   type LandmarkMilestoneConfig,
   type LastAquariumConfig,
   type RareEventResult,
-  type StatBlock,
-  type StatRolls,
 } from './aquariumEconomy'
 import {
   FIRST_RIVALRY_RESOLVED_MILESTONE_ID,
@@ -156,15 +141,6 @@ const stockMonsterSelect = {
   ...monsterEconomyOverridesSelect,
 } satisfies Prisma.MonsterSelect
 
-// cthulhuquarium/t-055: the rolled individual stats and parentage were
-// already written by t-029's breedFishForUser/purchaseSpeciesForUser (see
-// breedStockSelect/sellStockSelect below, which needed them for their own
-// server-side math) but never reached the general tank load -- there was no
-// frontend surface asking for them yet. Surfacing them here is what lets the
-// tank UI offer a breeding flow at all: picking two owned individuals of the
-// same species needs their ids (parentAId/parentBId are read back, not
-// written, from this shape) and the rolled stats are what a future stat
-// display would read, though this task only wires the action itself.
 const ownedStockSelect = {
   id: true,
   monsterId: true,
@@ -172,14 +148,6 @@ const ownedStockSelect = {
   hunger: true,
   mood: true,
   placedAt: true,
-  statCharm: true,
-  statEmpathy: true,
-  statGrace: true,
-  statLuck: true,
-  statMight: true,
-  statWits: true,
-  parentAId: true,
-  parentBId: true,
   Monster: { select: stockMonsterSelect },
 } satisfies Prisma.AquariumStockSelect
 
@@ -202,17 +170,6 @@ const ownedDecorSelect = {
   zIndex: true,
   createdAt: true,
 } satisfies Prisma.AquariumDecorSelect
-
-// cthulhuquarium/t-041: unhatched eggs only -- once hatched, an egg's
-// outcome already lives on the created AquariumStock row and the
-// Ichthyonomicon entry; the row itself is kept (never deleted, for
-// history) but has nothing left to show in the live tank view.
-const ownedEggSelect = {
-  id: true,
-  rarity: true,
-  size: true,
-  purchasedAt: true,
-} satisfies Prisma.AquariumEggSelect
 
 const ownedAquariumSelect = {
   id: true,
@@ -246,11 +203,6 @@ const ownedAquariumSelect = {
   Stock: { select: ownedStockSelect },
   Sets: { select: ownedSetSelect, orderBy: { equippedAt: 'asc' } },
   Decor: { select: ownedDecorSelect, orderBy: { createdAt: 'asc' } },
-  Eggs: {
-    select: ownedEggSelect,
-    where: { hatchedAt: null },
-    orderBy: { purchasedAt: 'asc' },
-  },
 } satisfies Prisma.AquariumSelect
 
 export type OwnedAquarium = Prisma.AquariumGetPayload<{
@@ -264,21 +216,10 @@ export type OwnedAquarium = Prisma.AquariumGetPayload<{
 // "the server disposes, the client never invents an economy number"
 // discipline as everywhere else in this file.
 //
-// cthulhuquarium/t-055: each Stock row's Monster also carries `breedCost`,
-// the SAME breedCost(deriveFishRarityTier(...), ...) call breedFishForUser
-// itself uses to price a breed -- computed here purely so the tank UI can
-// show "breed for N coins" in its confirmation step before the player
-// commits, without the client re-deriving rarity/pricing math of its own.
-// cthulhuquarium/t-062: sellPrice mirrors breedCost's discipline just above
-// -- computed here with the SAME sellFishForUser(server/utils/aquarium.ts)
-// math (unlockCost + sellPrice off the individual's own rolled stats) so
-// the tank UI can show what pressing Sell would actually pay before the
-// player commits, without re-deriving the sell curve client-side. Kept as
-// a top-level ClientStock field rather than nested under Monster like
-// breedCost -- unlike breedCost, this is per-individual (depends on THIS
-// fish's own stat roll), not a fixed per-species number.
+// cthulhuquarium/t-082: sellPrice is the flat release refund
+// (aquariumEconomy.ts releasePrice, LOOP.md) -- shown on the Release button
+// so the player sees the payout before clicking.
 type ClientStock = OwnedAquarium['Stock'][number] & {
-  Monster: OwnedAquarium['Stock'][number]['Monster'] & { breedCost: number }
   sellPrice: number
   // cthulhuquarium/t-080: what each coin this fish drops is worth
   // (aquariumCollect.ts coinValueForTier) -- the SAME number coinRatePerSecond
@@ -365,41 +306,24 @@ function toClientAquarium(aquarium: OwnedAquarium): ClientAquarium {
     upgrades: clientUpgrades(aquarium),
     Stock: aquarium.Stock.map((stock) => {
       const rarity = deriveFishRarityTier(stock.Monster)
+      const buyCost = unlockCost(rarity, stock.Monster.unlockCost)
       return {
         ...stock,
-        Monster: {
-          ...stock.Monster,
-          breedCost: breedCost(rarity, stock.Monster.unlockCost),
-        },
-        sellPrice: sellPrice(
-          unlockCost(rarity, stock.Monster.unlockCost),
-          toIndividualStatBlock(stock),
-        ),
+        sellPrice: releasePrice(buyCost),
         coinValue: coinValueForTier(rarity),
-        buyCost: unlockCost(rarity, stock.Monster.unlockCost),
+        buyCost,
       }
     }),
   }
 }
 
-// cthulhuquarium/t-041: an unhatched egg reserves its `size` in the weighed
-// pool from the moment it's bought -- SAME pool as Stock's Monster.size,
-// checked by the SAME rule, so a hatch (whose resolved species is always
-// size <= the egg's own) can never overflow the tank. Every call site that
-// already summed tank.Stock for a capacity check must also sum tank.Eggs
-// (unhatched-only, per ownedEggSelect's own where clause) or a player could
-// bypass the cap entirely by buying eggs first.
-//
-// cthulhuquarium/t-081 (LOOP.md): room counts FISH, not size -- every fish and
-// every unhatched egg takes exactly one slot (FISH_SLOT_SIZE) against
-// fishSlotsCap, whatever its species size.
+// cthulhuquarium/t-081 (LOOP.md): room counts FISH, not size -- every fish
+// takes exactly one slot (FISH_SLOT_SIZE) against fishSlotsCap, whatever its
+// species size. (Eggs used to reserve slots too; t-082 removed eggs.)
 const FISH_SLOT_SIZE = 1
 
-function currentReservedSize(tank: {
-  Stock: OwnedAquarium['Stock']
-  Eggs: OwnedAquarium['Eggs']
-}): number {
-  return (tank.Stock.length + tank.Eggs.length) * FISH_SLOT_SIZE
+function currentReservedSize(tank: { Stock: OwnedAquarium['Stock'] }): number {
+  return tank.Stock.length * FISH_SLOT_SIZE
 }
 
 async function logEvent(
@@ -948,11 +872,10 @@ export async function cleanTankForUser(
 // user has ever collected, never the active set alone: retiring an
 // already-collected species must never shrink the count.
 //
-// t-031 adds two things on top of t-024's collected/fieldNote view: the
-// book's own best-individual-stats record (AquariumCodexEntry.bestStat*,
-// t-032's columns -- see mergeBestStats in aquariumEconomy.ts) and a
-// currentlyOwned flag distinct from collected, so a species can be "in the
-// book" without being "in the tank right now." They diverge the moment a
+// t-031 adds a currentlyOwned flag on top of t-024's collected/fieldNote
+// view, so a species can be "in the book" without being "in the tank right
+// now." (Its best-individual-stats record went with hidden stats, t-082.)
+// They diverge the moment a
 // fish is sold (t-030's sellFishForUser below): collected stays true
 // forever, currentlyOwned goes false, and the book's re-order affordance
 // (see toBestiaryEntry) is what makes that safe -- per t-031's own note,
@@ -972,9 +895,8 @@ function milestoneEventKind(milestone: { id: string }): string {
 }
 
 // cthulhuquarium/t-074: shared by every call site that can grow
-// currentReservedSize (species purchase, egg purchase, breed) -- same
-// existing-row idempotency guard as the bestiary-milestone blocks below,
-// factored out once instead of tripled since none of the surrounding
+// currentReservedSize (species purchase) -- same existing-row idempotency
+// guard as the bestiary-milestone blocks below, factored out so the
 // per-route logic differs. Query-only (no write) so the caller can push the
 // result onto its own `firedMilestones` array and let that array's existing
 // logEvent loop do the actual logging, same as every bestiary milestone --
@@ -1016,6 +938,8 @@ const bestiaryMonsterSelect = {
   tier: true,
   behavior: true,
   hue: true,
+  ...monsterRaritySelect,
+  ...monsterEconomyOverridesSelect,
 } satisfies Prisma.MonsterSelect
 
 type BestiaryMonster = Prisma.MonsterGetPayload<{
@@ -1037,14 +961,12 @@ export interface BestiaryEntry {
   collected: boolean
   firstAcquiredAt: string | null
   fieldNote: string | null
+  // What a re-order costs, so the book can print it on the button.
+  cost: number
   // t-031: distinct from `collected` -- true only while a live AquariumStock
   // row exists for this species. False after a sell (t-030) even though
   // `collected` stays true forever; drives the book's re-order affordance.
   currentlyOwned: boolean
-  // t-031: the book's best-individual-seen record (AquariumCodexEntry's
-  // bestStat* columns). All null for any species until cthulhuquarium/t-029
-  // (genetics) starts rolling individual stats -- see mergeBestStats.
-  bestStats: StatBlock | null
 }
 
 export interface BestiaryResult {
@@ -1071,119 +993,9 @@ function bestiaryUnionWhere(collectedIds: number[]): Prisma.MonsterWhereInput {
   }
 }
 
-const codexBestStatSelect = {
-  bestStatCharm: true,
-  bestStatEmpathy: true,
-  bestStatGrace: true,
-  bestStatLuck: true,
-  bestStatMight: true,
-  bestStatWits: true,
-} satisfies Prisma.AquariumCodexEntrySelect
-
-type CodexBestStats = Prisma.AquariumCodexEntryGetPayload<{
-  select: typeof codexBestStatSelect
-}>
-
-function toStatBlock(row: CodexBestStats): StatBlock {
-  return {
-    charm: row.bestStatCharm,
-    empathy: row.bestStatEmpathy,
-    grace: row.bestStatGrace,
-    luck: row.bestStatLuck,
-    might: row.bestStatMight,
-    wits: row.bestStatWits,
-  }
-}
-
-function isAllNull(stats: StatBlock): boolean {
-  return Object.values(stats).every((value) => value == null)
-}
-
-// The observed side of every mergeBestStats call in this file today -- see
-// the call site's own comment for why that's provably correct, not a stub.
-const NULL_STAT_BLOCK: StatBlock = {
-  charm: null,
-  empathy: null,
-  grace: null,
-  luck: null,
-  might: null,
-  wits: null,
-}
-
-// Plain scalar shape, not a Prisma *Input type -- these six columns are
-// identical between the checked/unchecked create and update input variants,
-// so tying this to one of them would fight whichever call site spreads it
-// alongside userId/monsterId (unchecked-style FK scalars).
-interface CodexBestStatColumns {
-  bestStatCharm: number | null
-  bestStatEmpathy: number | null
-  bestStatGrace: number | null
-  bestStatLuck: number | null
-  bestStatMight: number | null
-  bestStatWits: number | null
-}
-
-function fromStatBlock(stats: StatBlock): CodexBestStatColumns {
-  return {
-    bestStatCharm: stats.charm,
-    bestStatEmpathy: stats.empathy,
-    bestStatGrace: stats.grace,
-    bestStatLuck: stats.luck,
-    bestStatMight: stats.might,
-    bestStatWits: stats.wits,
-  }
-}
-
-// cthulhuquarium/t-029: AquariumStock's own individual stat* columns --
-// same shape/role as CodexBestStatColumns above, but for the fish's OWN
-// rolled stats rather than the book's per-species best-ever record.
-interface IndividualStatColumns {
-  statCharm: number | null
-  statEmpathy: number | null
-  statGrace: number | null
-  statLuck: number | null
-  statMight: number | null
-  statWits: number | null
-}
-
-function toIndividualStatBlock(row: IndividualStatColumns): StatBlock {
-  return {
-    charm: row.statCharm,
-    empathy: row.statEmpathy,
-    grace: row.statGrace,
-    luck: row.statLuck,
-    might: row.statMight,
-    wits: row.statWits,
-  }
-}
-
-function fromIndividualStatBlock(stats: StatBlock): IndividualStatColumns {
-  return {
-    statCharm: stats.charm,
-    statEmpathy: stats.empathy,
-    statGrace: stats.grace,
-    statLuck: stats.luck,
-    statMight: stats.might,
-    statWits: stats.wits,
-  }
-}
-
-// One fresh [0,1) roll per hidden stat -- the one place in this file that
-// actually calls Math.random, threaded into aquariumEconomy.ts's pure
-// rollIndividualStats/convergeBreedStats functions (same "randomness lives
-// outside the pure module" discipline as rollRareEvent's call site below).
-function rollSixRandoms(): StatRolls {
-  const rolls = {} as Record<(typeof STAT_BLOCK_KEYS)[number], number>
-  for (const key of STAT_BLOCK_KEYS) {
-    rolls[key] = Math.random()
-  }
-  return rolls
-}
-
 function toBestiaryEntry(
   monster: BestiaryMonster,
   firstAcquiredAt: Date | null,
-  bestStats: StatBlock | null,
   currentlyOwned: boolean,
 ): BestiaryEntry {
   const collected = firstAcquiredAt !== null
@@ -1202,12 +1014,11 @@ function toBestiaryEntry(
     collected,
     firstAcquiredAt: firstAcquiredAt ? firstAcquiredAt.toISOString() : null,
     fieldNote: collected ? monster.fieldNote : null,
+    cost: unlockCost(deriveFishRarityTier(monster), monster.unlockCost),
     // Never owned means never bought a live fish either -- collected can
     // still be true here in the future via a non-purchase route (e.g. a
     // hatched offspring), so this doesn't just mirror `collected`.
     currentlyOwned: collected && currentlyOwned,
-    bestStats:
-      collected && bestStats && !isAllNull(bestStats) ? bestStats : null,
   }
 }
 
@@ -1220,7 +1031,6 @@ export async function listBestiaryForUser(
       select: {
         monsterId: true,
         firstAcquiredAt: true,
-        ...codexBestStatSelect,
       },
     }),
     prisma.aquariumStock.findMany({
@@ -1230,9 +1040,6 @@ export async function listBestiaryForUser(
   ])
   const collectedAt = new Map(
     codexEntries.map((entry) => [entry.monsterId, entry.firstAcquiredAt]),
-  )
-  const bestStatsByMonster = new Map(
-    codexEntries.map((entry) => [entry.monsterId, toStatBlock(entry)]),
   )
   const ownedMonsterIds = new Set(ownedStock.map((row) => row.monsterId))
 
@@ -1246,7 +1053,6 @@ export async function listBestiaryForUser(
     toBestiaryEntry(
       monster,
       collectedAt.get(monster.id) ?? null,
-      bestStatsByMonster.get(monster.id) ?? null,
       ownedMonsterIds.has(monster.id),
     ),
   )
@@ -1362,11 +1168,6 @@ export async function purchaseSpeciesForUser(
     )
   }
 
-  // t-029: roll this individual's hidden stats once, on acquisition --
-  // never rerolled afterward (SYSTEMS.md "Hidden stats are discovered, not
-  // rolled-for-forever").
-  const rolledStats = rollIndividualStats(monster, rollSixRandoms())
-
   const { aquarium, stock, justCompletedBestiary, firedMilestones } =
     await prisma.$transaction(async (tx) => {
       const { totalCount, collectedCount: collectedCountBefore } =
@@ -1377,7 +1178,6 @@ export async function purchaseSpeciesForUser(
           aquariumId: tank.id,
           monsterId: monster.id,
           hunger: HUNGER_STARTING_VALUE,
-          ...fromIndividualStatBlock(rolledStats),
         },
         select: ownedStockSelect,
       })
@@ -1392,23 +1192,13 @@ export async function purchaseSpeciesForUser(
       // distinct species, not fish.
       const existingEntry = await tx.aquariumCodexEntry.findUnique({
         where: { userId_monsterId: { userId, monsterId: monster.id } },
-        select: { id: true, ...codexBestStatSelect },
+        select: { id: true },
       })
-      // t-031/t-029: fold this individual's freshly-rolled stats into the
-      // book's best-ever record.
-      const mergedStats = mergeBestStats(
-        existingEntry ? toStatBlock(existingEntry) : NULL_STAT_BLOCK,
-        rolledStats,
-      )
-      await tx.aquariumCodexEntry.upsert({
-        where: { userId_monsterId: { userId, monsterId: monster.id } },
-        create: {
-          userId,
-          monsterId: monster.id,
-          ...fromStatBlock(mergedStats),
-        },
-        update: { ...fromStatBlock(mergedStats) },
-      })
+      if (!existingEntry) {
+        await tx.aquariumCodexEntry.create({
+          data: { userId, monsterId: monster.id },
+        })
+      }
       const collectedCountAfter = collectedCountBefore + (existingEntry ? 0 : 1)
 
       // cthulhuquarium/t-028: bestiary-breakpoint milestones (economy.yaml
@@ -1525,639 +1315,11 @@ export async function purchaseSpeciesForUser(
 }
 
 // ---------------------------------------------------------------------------
-// Eggs -- cthulhuquarium/t-041. Two steps, two routes: purchaseEggForUser
-// reserves capacity and charges coins up front (the "decision" the task
-// note requires -- the player sees the cost before committing); hatchEggForUser
-// resolves and consumes the egg later, for free, since it was already paid
-// for. See aquariumEconomy.ts's own header comment on EGG_SIZE_OPTIONS/
-// eggCost for the pricing rationale.
-// ---------------------------------------------------------------------------
-
-export interface EggCatalogResult {
-  catalog: ReturnType<typeof eggCatalog>
-  eggs: OwnedAquarium['Eggs']
-}
-
-// Static catalog (all six rarities x all three sizes, no rotation -- eggs
-// are a shop fixture, not a discovery slate like the species catalog) plus
-// this tank's own unhatched eggs, same "catalog + this tank's own state"
-// shape as listSetsForUser/listDecorForUser.
-export async function listEggCatalogForUser(
-  userId: number,
-  username: string,
-): Promise<EggCatalogResult> {
-  const tank = await getOrCreateTankForUser(userId, username)
-  return { catalog: eggCatalog(), eggs: tank.Eggs }
-}
-
-export interface PurchaseEggResult {
-  aquarium: ClientAquarium
-  egg: OwnedAquarium['Eggs'][number]
-  cost: number
-  // cthulhuquarium/t-074: an unhatched egg reserves its size the instant it's
-  // bought (see this function's own comment), so THIS is the growth event
-  // for first_full_tank, not the later hatch -- at most one entry, since it's
-  // the only landmark an egg purchase can cross.
-  firedMilestones: LandmarkMilestoneConfig[]
-}
-
-export async function purchaseEggForUser(
-  userId: number,
-  username: string,
-  rarity: Rarity,
-  size: number,
-): Promise<PurchaseEggResult> {
-  if (!isKnownEggRarity(rarity)) {
-    throw apiError(400, `'${rarity}' is not a real rarity tier.`)
-  }
-  if (!isKnownEggSize(size)) {
-    throw apiError(
-      400,
-      `Eggs are only offered at sizes ${EGG_SIZE_OPTIONS.join(', ')}.`,
-    )
-  }
-
-  const tank = await getOrCreateTankForUser(userId, username)
-
-  // The size is reserved the instant the egg is bought -- checked ONCE,
-  // here, by the ordinary capacity rule (currentReservedSize folds in every
-  // other unhatched egg too), so hatching itself never needs a capacity
-  // check at all: the space already exists.
-  const currentSize = currentReservedSize(tank)
-  if (currentSize + FISH_SLOT_SIZE > tank.effectiveSizeCap) {
-    throw apiError(
-      409,
-      `Your tank is full (${currentSize}/${tank.effectiveSizeCap} fish) -- an egg's slot is reserved the moment you buy it.`,
-    )
-  }
-
-  const cost = eggCost(rarity, size)
-  if (tank.coins < cost) {
-    throw apiError(
-      402,
-      `A ${rarity.toLowerCase()} egg that size costs ${cost} coins; your tank only has ${tank.coins}.`,
-    )
-  }
-
-  const { aquarium, egg, firedMilestones } = await prisma.$transaction(
-    async (tx) => {
-      const createdEgg = await tx.aquariumEgg.create({
-        data: { aquariumId: tank.id, rarity, size },
-        select: ownedEggSelect,
-      })
-
-      const firedMilestones: LandmarkMilestoneConfig[] = []
-      const fullTankMilestone = await checkFirstFullTank(
-        tx,
-        tank.id,
-        currentSize,
-        currentSize + FISH_SLOT_SIZE,
-        tank.effectiveSizeCap,
-      )
-      if (fullTankMilestone) firedMilestones.push(fullTankMilestone)
-
-      const updatedAquarium = await tx.aquarium.update({
-        where: { id: tank.id },
-        data: { coins: { decrement: cost } },
-        select: ownedAquariumSelect,
-      })
-      await logEvent(tx, tank.id, 'purchase', {
-        type: 'egg',
-        rarity,
-        size,
-        aquariumEggId: createdEgg.id,
-        cost,
-      })
-      for (const milestone of firedMilestones) {
-        await logEvent(tx, tank.id, milestoneEventKind(milestone), {
-          landmark: milestone.id,
-          slotsCapDelta: milestone.slotsCapDelta,
-        })
-      }
-      return { aquarium: updatedAquarium, egg: createdEgg, firedMilestones }
-    },
-  )
-
-  return { aquarium: toClientAquarium(aquarium), egg, cost, firedMilestones }
-}
-
-export interface HatchEggResult {
-  aquarium: ClientAquarium
-  stock: OwnedAquarium['Stock'][number]
-  justCompletedBestiary: boolean
-  firedMilestones: BestiaryMilestoneConfig[]
-}
-
-export async function hatchEggForUser(
-  userId: number,
-  username: string,
-  aquariumEggId: number,
-): Promise<HatchEggResult> {
-  const tank = await getOrCreateTankForUser(userId, username)
-
-  const egg = tank.Eggs.find((row) => row.id === aquariumEggId)
-  if (!egg) {
-    throw apiError(
-      404,
-      'That egg is not in your tank (or has already hatched).',
-    )
-  }
-
-  // EGGS HATCH EXISTING SPECIES, and always the BASE of a line (EvolvesFrom:
-  // none -- no other species' evolvesToId points at it) matching the egg's
-  // own rarity grade, per the task note's "rarity describes the LINE, read
-  // off the shell" decision. size <= egg.size is the whole reason a hatch
-  // can never overflow the tank -- the reservation already covers it.
-  //
-  // Deliberately NOT filtered against species the player already owns: a
-  // duplicate
-  // individual is a genuinely useful outcome here, not a wasted one --
-  // breeding (t-029) requires two individuals of the SAME species, and a
-  // hatch is the only route to a second one of an already-owned line base.
-  const eligiblePool = await prisma.monster.findMany({
-    where: {
-      isActive: true,
-      isPublic: true,
-      games: { contains: 'cthulhuquarium' },
-      tier: egg.rarity,
-      size: { lte: egg.size },
-      EvolvesFrom: { none: {} },
-    },
-    select: stockMonsterSelect,
-    orderBy: { id: 'asc' },
-  })
-  if (eligiblePool.length === 0) {
-    throw apiError(
-      409,
-      `No ${egg.rarity.toLowerCase()}-tier line exists yet at size ${egg.size} or smaller -- this egg can't hatch right now. Nothing was lost; try again once the bestiary grows.`,
-    )
-  }
-  const monster =
-    eligiblePool[pickHatchIndex(eligiblePool.length, Math.random())]!
-
-  const rolledStats = rollIndividualStats(monster, rollSixRandoms())
-
-  const { aquarium, stock, justCompletedBestiary, firedMilestones } =
-    await prisma.$transaction(async (tx) => {
-      // Race guard, same "server disposes" discipline as everywhere else --
-      // updateMany's count is 0 if another request hatched (or somehow
-      // deleted) this exact egg between the read above and this write.
-      const hatched = await tx.aquariumEgg.updateMany({
-        where: { id: egg.id, aquariumId: tank.id, hatchedAt: null },
-        data: { hatchedAt: new Date(), hatchedMonsterId: monster.id },
-      })
-      if (hatched.count === 0) {
-        throw apiError(409, 'That egg has already hatched.')
-      }
-
-      const { totalCount, collectedCount: collectedCountBefore } =
-        await countBestiaryTotals(tx, userId)
-
-      const createdStock = await tx.aquariumStock.create({
-        data: {
-          aquariumId: tank.id,
-          monsterId: monster.id,
-          hunger: HUNGER_STARTING_VALUE,
-          ...fromIndividualStatBlock(rolledStats),
-        },
-        select: ownedStockSelect,
-      })
-
-      const existingEntry = await tx.aquariumCodexEntry.findUnique({
-        where: { userId_monsterId: { userId, monsterId: monster.id } },
-        select: { id: true, ...codexBestStatSelect },
-      })
-      const mergedStats = mergeBestStats(
-        existingEntry ? toStatBlock(existingEntry) : NULL_STAT_BLOCK,
-        rolledStats,
-      )
-      await tx.aquariumCodexEntry.upsert({
-        where: { userId_monsterId: { userId, monsterId: monster.id } },
-        create: {
-          userId,
-          monsterId: monster.id,
-          ...fromStatBlock(mergedStats),
-        },
-        update: { ...fromStatBlock(mergedStats) },
-      })
-      const collectedCountAfter = collectedCountBefore + (existingEntry ? 0 : 1)
-
-      const candidateMilestones = firedBestiaryMilestones(
-        collectedCountBefore,
-        collectedCountAfter,
-      )
-      const firedMilestones: BestiaryMilestoneConfig[] = []
-      if (candidateMilestones.length > 0) {
-        const alreadyLoggedKinds = new Set(
-          (
-            await tx.aquariumEvent.findMany({
-              where: {
-                aquariumId: tank.id,
-                kind: { in: candidateMilestones.map(milestoneEventKind) },
-              },
-              select: { kind: true },
-            })
-          ).map((row) => row.kind),
-        )
-        for (const milestone of candidateMilestones) {
-          if (!alreadyLoggedKinds.has(milestoneEventKind(milestone))) {
-            firedMilestones.push(milestone)
-          }
-        }
-      }
-      const slotsCapDelta = firedMilestones.reduce(
-        (sum, milestone) => sum + milestone.slotsCapDelta,
-        0,
-      )
-
-      // No coins column touched here -- the egg was already paid for at
-      // purchase. slotsCapDelta from a freshly-crossed milestone can still
-      // apply, same as any other acquisition route.
-      const updatedAquarium = await tx.aquarium.update({
-        where: { id: tank.id },
-        data:
-          slotsCapDelta > 0
-            ? { setSlotsCap: { increment: slotsCapDelta } }
-            : {},
-        select: ownedAquariumSelect,
-      })
-
-      let justCompletedBestiary = false
-      if (
-        computeJustCompletedBestiary(
-          totalCount,
-          collectedCountBefore,
-          collectedCountAfter,
-        )
-      ) {
-        const alreadyCelebrated = await tx.aquariumEvent.findFirst({
-          where: { aquariumId: tank.id, kind: BESTIARY_COMPLETE_EVENT_KIND },
-          select: { id: true },
-        })
-        if (!alreadyCelebrated) {
-          justCompletedBestiary = true
-          await logEvent(tx, tank.id, BESTIARY_COMPLETE_EVENT_KIND, {
-            collectedCount: collectedCountAfter,
-            totalCount,
-          })
-        }
-      }
-
-      for (const milestone of firedMilestones) {
-        await logEvent(tx, tank.id, milestoneEventKind(milestone), {
-          landmark: milestone.id,
-          slotsCapDelta: milestone.slotsCapDelta,
-          collectedCount: collectedCountAfter,
-        })
-      }
-
-      await logEvent(tx, tank.id, 'hatch', {
-        aquariumEggId: egg.id,
-        eggRarity: egg.rarity,
-        eggSize: egg.size,
-        monsterId: monster.id,
-        aquariumStockId: createdStock.id,
-      })
-
-      return {
-        aquarium: updatedAquarium,
-        stock: createdStock,
-        justCompletedBestiary,
-        firedMilestones,
-      }
-    })
-
-  return {
-    aquarium: toClientAquarium(aquarium),
-    stock,
-    justCompletedBestiary,
-    firedMilestones,
-  }
-}
-
-// ---------------------------------------------------------------------------
-// Breeding -- cthulhuquarium/t-029. "Breeding never consumes the parents"
-// (SYSTEMS.md): both parent AquariumStock rows are read-only here, never
-// updated or deleted -- only a new offspring row is created, linked back to
-// both via parentAId/parentBId (nullable/SetNull, per t-032's own schema
-// comment on those columns).
-//
-// v1 SCOPE DECISION (flagged for reviewer/Silas): only two individuals of
-// the SAME species may breed together. SYSTEMS.md describes secret
-// evolution as "a second, separate evolution axis... same evolves_to
-// plumbing" as growth evolution, and Monster.evolvesToId/evolutionKind are
-// both PER-SPECIES fields, not a cross-species pairing rule -- there is no
-// design text describing what a cross-species offspring's species would
-// even be. Same-species pairing is the smallest change that satisfies every
-// written rule (never consumes parents, converges stats, unlocks a second
-// evolution axis) without inventing an unspecified hybridization mechanic.
-// Revisit if Silas wants cross-species breeding.
-// ---------------------------------------------------------------------------
-
-const breedStockSelect = {
-  id: true,
-  aquariumId: true,
-  monsterId: true,
-  statCharm: true,
-  statEmpathy: true,
-  statGrace: true,
-  statLuck: true,
-  statMight: true,
-  statWits: true,
-  Monster: {
-    select: {
-      id: true,
-      name: true,
-      size: true,
-      isActive: true,
-      isPublic: true,
-      evolutionKind: true,
-      evolvesToId: true,
-      ...monsterRaritySelect,
-      ...monsterEconomyOverridesSelect,
-    },
-  },
-} satisfies Prisma.AquariumStockSelect
-
-type BreedParentStock = Prisma.AquariumStockGetPayload<{
-  select: typeof breedStockSelect
-}>
-
-export interface BreedResult {
-  aquarium: ClientAquarium
-  stock: OwnedAquarium['Stock'][number]
-  cost: number
-  // True when the offspring's rolled stats qualified for the parent
-  // species' Monster.evolutionKind === 'BREEDING' secret evolution -- the
-  // created stock row is then the EVOLVED species, not the parents' own.
-  evolved: boolean
-  justCompletedBestiary: boolean
-  // cthulhuquarium/t-074: also carries the (at most one) first_full_tank
-  // landmark this breed crossed.
-  firedMilestones: Array<BestiaryMilestoneConfig | LandmarkMilestoneConfig>
-}
-
-export async function breedFishForUser(
-  userId: number,
-  username: string,
-  parentAId: number,
-  parentBId: number,
-): Promise<BreedResult> {
-  if (parentAId === parentBId) {
-    throw apiError(
-      400,
-      'A fish cannot breed with itself -- pick two different individuals.',
-    )
-  }
-
-  const tank = await getOrCreateTankForUser(userId, username)
-
-  const [parentA, parentB]: [BreedParentStock | null, BreedParentStock | null] =
-    await Promise.all([
-      prisma.aquariumStock.findUnique({
-        where: { id: parentAId },
-        select: breedStockSelect,
-      }),
-      prisma.aquariumStock.findUnique({
-        where: { id: parentBId },
-        select: breedStockSelect,
-      }),
-    ])
-
-  // Always scoped back to the caller's own tank (tank.id, resolved from the
-  // verified userId above) -- never trust aquariumId from the client, same
-  // ownership discipline as every other route in this file.
-  if (!parentA || parentA.aquariumId !== tank.id) {
-    throw apiError(404, `Fish ${parentAId} is not in your tank.`)
-  }
-  if (!parentB || parentB.aquariumId !== tank.id) {
-    throw apiError(404, `Fish ${parentBId} is not in your tank.`)
-  }
-  if (parentA.monsterId !== parentB.monsterId) {
-    throw apiError(
-      409,
-      'Only two of the same species can breed together (for now).',
-    )
-  }
-
-  const monster = parentA.Monster
-  if (!monster.isActive || !monster.isPublic) {
-    throw apiError(409, `${monster.name} is not currently breedable.`)
-  }
-
-  const currentSize = currentReservedSize(tank)
-  const offspringSize = FISH_SLOT_SIZE
-  if (currentSize + offspringSize > tank.effectiveSizeCap) {
-    throw apiError(
-      409,
-      `Breeding would exceed your tank's room (${currentSize}/${tank.effectiveSizeCap} fish).`,
-    )
-  }
-
-  const rarity = deriveFishRarityTier(monster)
-  const cost = breedCost(rarity, monster.unlockCost)
-  if (tank.coins < cost) {
-    throw apiError(
-      402,
-      `Breeding costs ${cost} coins; your tank only has ${tank.coins}.`,
-    )
-  }
-
-  const offspringStats = convergeBreedStats(
-    toIndividualStatBlock(parentA),
-    toIndividualStatBlock(parentB),
-    rollSixRandoms(),
-  )
-
-  // Secret evolution (Monster.evolutionKind === 'BREEDING'): gated on the
-  // offspring's own rolled stats, not on the pairing alone -- "the payoff"
-  // (SYSTEMS.md), not a guaranteed outcome of breeding at all. Re-checks the
-  // evolved species is itself active/public before committing to it, same
-  // as purchaseSpeciesForUser's own monster lookup -- an evolvesToId
-  // pointing at a retired/unpublished species falls back to the parents'
-  // own species rather than creating an offspring nobody can otherwise own.
-  let evolved = false
-  let offspringMonsterId = monster.id
-  if (
-    monster.evolutionKind === 'BREEDING' &&
-    monster.evolvesToId &&
-    qualifiesForBreedingEvolution(offspringStats)
-  ) {
-    const evolvedMonster = await prisma.monster.findFirst({
-      where: { id: monster.evolvesToId, isActive: true, isPublic: true },
-      select: { id: true },
-    })
-    if (evolvedMonster) {
-      offspringMonsterId = evolvedMonster.id
-      evolved = true
-    }
-  }
-
-  const { aquarium, stock, justCompletedBestiary, firedMilestones } =
-    await prisma.$transaction(async (tx) => {
-      const { totalCount, collectedCount: collectedCountBefore } =
-        await countBestiaryTotals(tx, userId)
-
-      const createdStock = await tx.aquariumStock.create({
-        data: {
-          aquariumId: tank.id,
-          monsterId: offspringMonsterId,
-          hunger: HUNGER_STARTING_VALUE,
-          parentAId: parentA.id,
-          parentBId: parentB.id,
-          ...fromIndividualStatBlock(offspringStats),
-        },
-        select: ownedStockSelect,
-      })
-
-      const existingEntry = await tx.aquariumCodexEntry.findUnique({
-        where: {
-          userId_monsterId: { userId, monsterId: offspringMonsterId },
-        },
-        select: { id: true, ...codexBestStatSelect },
-      })
-      const mergedStats = mergeBestStats(
-        existingEntry ? toStatBlock(existingEntry) : NULL_STAT_BLOCK,
-        offspringStats,
-      )
-      await tx.aquariumCodexEntry.upsert({
-        where: {
-          userId_monsterId: { userId, monsterId: offspringMonsterId },
-        },
-        create: {
-          userId,
-          monsterId: offspringMonsterId,
-          ...fromStatBlock(mergedStats),
-        },
-        update: { ...fromStatBlock(mergedStats) },
-      })
-      const collectedCountAfter = collectedCountBefore + (existingEntry ? 0 : 1)
-
-      const candidateMilestones = firedBestiaryMilestones(
-        collectedCountBefore,
-        collectedCountAfter,
-      )
-      const firedMilestones: Array<
-        BestiaryMilestoneConfig | LandmarkMilestoneConfig
-      > = []
-      if (candidateMilestones.length > 0) {
-        const alreadyLoggedKinds = new Set(
-          (
-            await tx.aquariumEvent.findMany({
-              where: {
-                aquariumId: tank.id,
-                kind: { in: candidateMilestones.map(milestoneEventKind) },
-              },
-              select: { kind: true },
-            })
-          ).map((row) => row.kind),
-        )
-        for (const milestone of candidateMilestones) {
-          if (!alreadyLoggedKinds.has(milestoneEventKind(milestone))) {
-            firedMilestones.push(milestone)
-          }
-        }
-      }
-
-      // cthulhuquarium/t-074: this breed is exactly the growth event
-      // currentSize/offspringSize above already priced against
-      // tank.effectiveSizeCap.
-      const fullTankMilestone = await checkFirstFullTank(
-        tx,
-        tank.id,
-        currentSize,
-        currentSize + offspringSize,
-        tank.effectiveSizeCap,
-      )
-      if (fullTankMilestone) firedMilestones.push(fullTankMilestone)
-
-      if (evolved) {
-        const alreadyEvolved = await tx.aquariumEvent.findFirst({
-          where: {
-            aquariumId: tank.id,
-            kind: milestoneEventKind(FIRST_EVOLUTION_MILESTONE),
-          },
-          select: { id: true },
-        })
-        if (!alreadyEvolved) firedMilestones.push(FIRST_EVOLUTION_MILESTONE)
-      }
-
-      const slotsCapDelta = firedMilestones.reduce(
-        (sum, milestone) => sum + milestone.slotsCapDelta,
-        0,
-      )
-
-      const updatedAquarium = await tx.aquarium.update({
-        where: { id: tank.id },
-        data: {
-          coins: { decrement: cost },
-          ...(slotsCapDelta > 0
-            ? { setSlotsCap: { increment: slotsCapDelta } }
-            : {}),
-        },
-        select: ownedAquariumSelect,
-      })
-
-      let justCompletedBestiary = false
-      if (
-        computeJustCompletedBestiary(
-          totalCount,
-          collectedCountBefore,
-          collectedCountAfter,
-        )
-      ) {
-        const alreadyCelebrated = await tx.aquariumEvent.findFirst({
-          where: { aquariumId: tank.id, kind: BESTIARY_COMPLETE_EVENT_KIND },
-          select: { id: true },
-        })
-        if (!alreadyCelebrated) {
-          justCompletedBestiary = true
-          await logEvent(tx, tank.id, BESTIARY_COMPLETE_EVENT_KIND, {
-            collectedCount: collectedCountAfter,
-            totalCount,
-          })
-        }
-      }
-
-      for (const milestone of firedMilestones) {
-        await logEvent(tx, tank.id, milestoneEventKind(milestone), {
-          landmark: milestone.id,
-          slotsCapDelta: milestone.slotsCapDelta,
-          collectedCount: collectedCountAfter,
-        })
-      }
-
-      await logEvent(tx, tank.id, 'breed', {
-        parentAId: parentA.id,
-        parentBId: parentB.id,
-        offspringStockId: createdStock.id,
-        monsterId: offspringMonsterId,
-        evolved,
-        cost,
-      })
-
-      return {
-        aquarium: updatedAquarium,
-        stock: createdStock,
-        justCompletedBestiary,
-        firedMilestones,
-      }
-    })
-
-  return {
-    aquarium: toClientAquarium(aquarium),
-    stock,
-    cost,
-    evolved,
-    justCompletedBestiary,
-    firedMilestones,
-  }
-}
-
-// ---------------------------------------------------------------------------
-// Selling -- cthulhuquarium/t-030. Deletes the live AquariumStock row and
-// pays out aquariumEconomy.ts's sellPrice(...) coins, priced off THIS
-// individual's own rolled stats. AquariumCodexEntry (the Ichthyonomicon) is
+// Selling (Release) -- cthulhuquarium/t-030, t-082. Deletes the live
+// AquariumStock row and pays out aquariumEconomy.ts's releasePrice: a flat
+// half of the species' unlock cost (LOOP.md -- with a full tank, releasing a
+// common to buy a rarer fish is how a player trades up; hidden-stat pricing
+// was removed with breeding). AquariumCodexEntry (the Ichthyonomicon) is
 // never touched -- t-031's "never decreases" record is exactly what makes
 // this safe: purchaseSpeciesForUser's re-order path only checks live
 // ownership, so the species stays buyable again afterward regardless of
@@ -2171,12 +1333,6 @@ const sellStockSelect = {
   id: true,
   aquariumId: true,
   monsterId: true,
-  statCharm: true,
-  statEmpathy: true,
-  statGrace: true,
-  statLuck: true,
-  statMight: true,
-  statWits: true,
   Monster: {
     select: {
       name: true,
@@ -2205,14 +1361,14 @@ export async function sellFishForUser(
   })
   // Always scoped back to the caller's own tank (tank.id, resolved from the
   // verified userId above) -- never trust aquariumId from the client, same
-  // ownership discipline as breedFishForUser's parent lookups.
+  // ownership discipline as every other per-fish route.
   if (!stock || stock.aquariumId !== tank.id) {
     throw apiError(404, `Fish ${aquariumStockId} is not in your tank.`)
   }
 
   const rarity = deriveFishRarityTier(stock.Monster)
   const baseCost = unlockCost(rarity, stock.Monster.unlockCost)
-  const salePrice = sellPrice(baseCost, toIndividualStatBlock(stock))
+  const salePrice = releasePrice(baseCost)
 
   const aquarium = await prisma.$transaction(async (tx) => {
     await tx.aquariumStock.delete({ where: { id: aquariumStockId } })

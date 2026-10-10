@@ -16,6 +16,7 @@
 // the scene's dispose() frees them and the leak tests count them.
 
 import * as THREE from 'three'
+import { RoundedBoxGeometry } from 'three/examples/jsm/geometries/RoundedBoxGeometry.js'
 import type { HeroDef, Vec3 } from '../types'
 import type { HutLevel, ToyPose } from '../rules/toys'
 
@@ -40,6 +41,105 @@ const DELIVERY_FRAMES = 150
 const BEACON_TURN = 0.18
 const ROTOR_TURN = 0.9
 
+/** How far a wing swings each way as AMI flutters, radians. */
+const WING_FLAP = 0.35
+const WING_OPEN = 0.45
+
+/**
+ * One butterfly wing, upper and lower lobe, in its own plane: x outward from
+ * the body, y up. UVs span the wing's bounds so its painted art fills it.
+ */
+function wingGeometry(): THREE.ShapeGeometry {
+  const shape = new THREE.Shape()
+  shape.moveTo(0, 0.002)
+  shape.bezierCurveTo(0.006, 0.03, 0.03, 0.036, 0.034, 0.02)
+  shape.bezierCurveTo(0.037, 0.008, 0.02, 0.002, 0.004, -0.001)
+  shape.bezierCurveTo(0.02, -0.006, 0.026, -0.02, 0.016, -0.024)
+  shape.bezierCurveTo(0.008, -0.026, 0.002, -0.014, 0, 0.002)
+  const geo = new THREE.ShapeGeometry(shape, 12)
+  const position = geo.getAttribute('position')
+  const uv = geo.getAttribute('uv')
+  for (let i = 0; i < position.count; i++) {
+    uv.setXY(i, position.getX(i) / 0.037, (position.getY(i) + 0.026) / 0.062)
+  }
+  return geo
+}
+
+/** The wings' paint: amber at the body through orange and magenta to violet, cyan eyespots. */
+function wingArt(track: Track): THREE.Texture | null {
+  if (typeof document === 'undefined') return null
+  const size = 128
+  const canvas = document.createElement('canvas')
+  canvas.width = size
+  canvas.height = size
+  const g = canvas.getContext('2d')
+  if (!g) return null
+  const glow = g.createRadialGradient(0, size * 0.58, 4, 0, size * 0.58, size)
+  glow.addColorStop(0, '#fde68a')
+  glow.addColorStop(0.3, '#fb923c')
+  glow.addColorStop(0.62, '#db2777')
+  glow.addColorStop(0.9, '#4c1d95')
+  g.fillStyle = glow
+  g.fillRect(0, 0, size, size)
+  g.strokeStyle = 'rgba(46,16,62,0.7)'
+  g.lineWidth = 2
+  for (const a of [-0.9, -0.45, 0, 0.4, 0.8]) {
+    g.beginPath()
+    g.moveTo(0, size * 0.58)
+    g.lineTo(Math.cos(a) * size, size * 0.58 + Math.sin(a) * size)
+    g.stroke()
+  }
+  g.fillStyle = '#67e8f9'
+  for (const [x, y, r] of [
+    [96, 28, 9],
+    [70, 18, 5],
+    [62, 104, 6],
+  ] as const) {
+    g.beginPath()
+    g.arc(x, y, r, 0, Math.PI * 2)
+    g.fill()
+  }
+  const texture = track(new THREE.CanvasTexture(canvas))
+  texture.colorSpace = THREE.SRGBColorSpace
+  return texture
+}
+
+/** Frames a care package takes to fly from the depot to its hut. */
+const PARCEL_FLIGHT = 80
+/** Frames between one package leaving and the next. */
+const PARCEL_STAGGER = 14
+/** How high a package arcs over the table on its way, metres. */
+const PARCEL_ARC = 0.12
+/** A hut's window flare as a package lands at its door. */
+const PARCEL_ARRIVAL_GLOW = 5
+
+type Parcel = {
+  group: THREE.Group
+  slot: THREE.Vector3
+  /** Frames into its flight; negative while it waits its turn, 0 at rest. */
+  flight: number
+  hut: number
+  shown: number
+}
+
+/** A parcel: kraft card with a ribbon round it in a village colour. */
+function buildParcel(
+  box: THREE.BoxGeometry,
+  ribbon: THREE.BoxGeometry,
+  card: THREE.Material,
+  tie: THREE.Material,
+): THREE.Group {
+  const group = new THREE.Group()
+  const body = new THREE.Mesh(box, card)
+  body.castShadow = true
+  const across = new THREE.Mesh(ribbon, tie)
+  const along = new THREE.Mesh(ribbon, tie)
+  along.rotation.y = Math.PI / 2
+  group.add(body, across, along)
+  group.scale.setScalar(0)
+  return group
+}
+
 export class Heroes {
   readonly group = new THREE.Group()
   private def: HeroDef
@@ -49,6 +149,7 @@ export class Heroes {
   private eyes: Array<{ material: THREE.MeshStandardMaterial; glow: number }> =
     []
   private beacon: THREE.Group
+  private wings: Array<{ group: THREE.Group; side: number }> = []
   private beaconMaterial: THREE.MeshStandardMaterial
   private drone: THREE.Group
   private rotors: THREE.Mesh[] = []
@@ -59,6 +160,8 @@ export class Heroes {
   /** Frames into a delivery flight; 0 when the drone is not delivering. */
   private delivering = 0
   private dronePosition = new THREE.Vector3()
+  private parcels: Parcel[] = []
+  private sending = false
 
   constructor(def: HeroDef, track: Track) {
     this.def = def
@@ -68,23 +171,57 @@ export class Heroes {
     this.headMaterial = head.material
     this.beacon = head.beacon
     this.beaconMaterial = head.beaconMaterial
+    this.buildDepot(track)
     this.drone = this.buildDrone(track)
     this.dronePosition.set(...def.drone.perch)
     this.drone.position.copy(this.dronePosition)
   }
 
+  /**
+   * Round village huts (t-028): mud walls on a darker footing, a stepped
+   * thatch roof with an overhang, a door, and a lit window either side of it.
+   */
   private buildHuts(track: Track) {
-    const wall = track(new THREE.BoxGeometry(0.02, 0.014, 0.016))
-    wall.translate(0, 0.007, 0)
-    const roof = track(new THREE.ConeGeometry(0.0155, 0.011, 4))
-    roof.rotateY(Math.PI / 4)
-    roof.translate(0, 0.0195, 0)
-    const pane = track(new THREE.PlaneGeometry(0.009, 0.007))
+    const wall = track(new THREE.CylinderGeometry(0.0092, 0.0098, 0.013, 14))
+    wall.translate(0, 0.0065, 0)
+    const footing = track(
+      new THREE.CylinderGeometry(0.0102, 0.0104, 0.0025, 14),
+    )
+    footing.translate(0, 0.00125, 0)
+    const thatch = track(
+      new THREE.LatheGeometry(
+        (
+          [
+            [0.0001, 0.0262],
+            [0.0034, 0.0222],
+            [0.0042, 0.0214],
+            [0.0074, 0.0186],
+            [0.0082, 0.0178],
+            [0.0118, 0.0142],
+            [0.0128, 0.0124],
+            [0.0112, 0.0122],
+          ] as const
+        ).map(([r, y]) => new THREE.Vector2(r, y)),
+        14,
+      ),
+    )
+    const door = track(new THREE.PlaneGeometry(0.0046, 0.0078))
+    const pane = track(new THREE.PlaneGeometry(0.0034, 0.0034))
     const wallMat = track(
-      new THREE.MeshStandardMaterial({ color: 0xe9d5b5, roughness: 0.8 }),
+      new THREE.MeshStandardMaterial({ color: 0xc98a4b, roughness: 0.9 }),
+    )
+    const footMat = track(
+      new THREE.MeshStandardMaterial({ color: 0x6b3f22, roughness: 0.9 }),
     )
     const roofMat = track(
-      new THREE.MeshStandardMaterial({ color: 0x7c2d12, roughness: 0.6 }),
+      new THREE.MeshStandardMaterial({
+        color: 0xd9b25f,
+        roughness: 0.95,
+        side: THREE.DoubleSide,
+      }),
+    )
+    const doorMat = track(
+      new THREE.MeshStandardMaterial({ color: 0x3b2314, roughness: 0.8 }),
     )
     for (const spot of this.def.huts) {
       const hut = new THREE.Group()
@@ -93,8 +230,11 @@ export class Heroes {
       hut.scale.setScalar(HUT_SCALE)
       const body = new THREE.Mesh(wall, wallMat)
       body.castShadow = true
-      const top = new THREE.Mesh(roof, roofMat)
+      const foot = new THREE.Mesh(footing, footMat)
+      const top = new THREE.Mesh(thatch, roofMat)
       top.castShadow = true
+      const entry = new THREE.Mesh(door, doorMat)
+      entry.position.set(0, 0.0039, 0.0099)
       const window = track(
         new THREE.MeshStandardMaterial({
           color: 0x1c1208,
@@ -102,9 +242,13 @@ export class Heroes {
           emissiveIntensity: HUT_GLOW.dark,
         }),
       )
-      const glass = new THREE.Mesh(pane, window)
-      glass.position.set(0, 0.0075, 0.0081)
-      hut.add(body, top, glass)
+      hut.add(body, foot, top, entry)
+      for (const a of [-0.75, 0.75]) {
+        const glass = new THREE.Mesh(pane, window)
+        glass.position.set(Math.sin(a) * 0.0099, 0.0075, Math.cos(a) * 0.0099)
+        glass.rotation.y = a
+        hut.add(glass)
+      }
       this.group.add(hut)
       this.huts.push({ window, glow: HUT_GLOW.dark })
     }
@@ -131,10 +275,61 @@ export class Heroes {
       }),
     )
     const box = new THREE.Mesh(
-      track(new THREE.BoxGeometry(0.036, 0.024, 0.026)),
+      track(new RoundedBoxGeometry(0.036, 0.024, 0.026, 3, 0.007)),
       material,
     )
     box.castShadow = true
+    // A dark glass visor the eyes shine through, and an ear pod each side.
+    const visor = new THREE.Mesh(
+      track(new RoundedBoxGeometry(0.031, 0.012, 0.004, 2, 0.0018)),
+      track(
+        new THREE.MeshPhysicalMaterial({
+          color: 0x0b1020,
+          roughness: 0.08,
+          clearcoat: 1,
+        }),
+      ),
+    )
+    visor.position.set(0, 0.002, 0.0118)
+    const earGeo = track(new THREE.CylinderGeometry(0.0055, 0.0055, 0.004, 16))
+    earGeo.rotateZ(Math.PI / 2)
+    for (const side of [-1, 1]) {
+      const ear = new THREE.Mesh(earGeo, chrome)
+      ear.position.set(side * 0.019, 0.001, 0)
+      head.add(ear)
+    }
+    const collar = new THREE.Mesh(
+      track(new THREE.TorusGeometry(0.006, 0.0018, 8, 20)),
+      chrome,
+    )
+    collar.rotation.x = Math.PI / 2
+    collar.position.set(0, -0.0125, 0.004)
+    head.add(visor, collar)
+    // AMI's butterfly wings, behind the head; they flutter (t-028).
+    const art = wingArt(track)
+    const wingMat = track(
+      new THREE.MeshStandardMaterial({
+        color: art ? 0xffffff : 0xfb923c,
+        map: art,
+        emissive: art ? 0xffffff : 0xdb2777,
+        emissiveMap: art,
+        emissiveIntensity: 0.55,
+        roughness: 0.5,
+        side: THREE.DoubleSide,
+      }),
+    )
+    const wingGeo = track(wingGeometry())
+    for (const side of [-1, 1]) {
+      const group = new THREE.Group()
+      group.position.set(side * 0.006, 0.006, -0.012)
+      const wing = new THREE.Mesh(wingGeo, wingMat)
+      wing.scale.x = side
+      wing.castShadow = true
+      group.add(wing)
+      group.rotation.y = side * WING_OPEN
+      head.add(group)
+      this.wings.push({ group, side })
+    }
     // The post runs down from the head to the lock pocket's back wall.
     const postLength = at[1] - 0.025
     const postGeo = track(
@@ -206,22 +401,51 @@ export class Heroes {
       }),
     )
     const body = new THREE.Mesh(
-      track(new THREE.BoxGeometry(0.026, 0.008, 0.018)),
+      track(new RoundedBoxGeometry(0.026, 0.009, 0.018, 3, 0.0035)),
       shell,
     )
     body.castShadow = true
-    const armGeo = track(new THREE.BoxGeometry(0.05, 0.002, 0.003))
+    const dome = new THREE.Mesh(
+      track(
+        new THREE.SphereGeometry(0.0055, 16, 8, 0, Math.PI * 2, 0, Math.PI / 2),
+      ),
+      track(
+        new THREE.MeshPhysicalMaterial({
+          color: 0x0e7490,
+          roughness: 0.05,
+          clearcoat: 1,
+          emissive: 0x22d3ee,
+          emissiveIntensity: 0.3,
+        }),
+      ),
+    )
+    dome.position.y = 0.0042
+    drone.add(dome)
+    const armGeo = track(new THREE.CylinderGeometry(0.0013, 0.0013, 0.05, 8))
+    armGeo.rotateZ(Math.PI / 2)
     for (const yaw of [Math.PI / 4, -Math.PI / 4]) {
       const arm = new THREE.Mesh(armGeo, trim)
       arm.rotation.y = yaw
       drone.add(arm)
     }
+    const podGeo = track(new THREE.CylinderGeometry(0.0024, 0.0028, 0.004, 12))
+    const skidGeo = track(new THREE.CylinderGeometry(0.0008, 0.0008, 0.02, 6))
+    skidGeo.rotateX(Math.PI / 2)
+    for (const x of [-0.008, 0.008]) {
+      const skid = new THREE.Mesh(skidGeo, trim)
+      skid.position.set(x, -0.0065, 0)
+      drone.add(skid)
+    }
+    const bladeGeo = track(new THREE.BoxGeometry(0.017, 0.0004, 0.0022))
+    const bladeMat = track(
+      new THREE.MeshStandardMaterial({ color: 0x1f2937, roughness: 0.5 }),
+    )
     const rotorGeo = track(new THREE.CylinderGeometry(0.009, 0.009, 0.0008, 16))
     const rotorMat = track(
       new THREE.MeshStandardMaterial({
         color: 0xcbd5e1,
         transparent: true,
-        opacity: 0.45,
+        opacity: 0.18,
         depthWrite: false,
       }),
     )
@@ -231,13 +455,18 @@ export class Heroes {
       [0.0177, -0.0177],
       [-0.0177, -0.0177],
     ] as const) {
+      const pod = new THREE.Mesh(podGeo, shell)
+      pod.position.set(x, 0, z)
       const rotor = new THREE.Mesh(rotorGeo, rotorMat)
-      rotor.position.set(x, 0.002, z)
-      drone.add(rotor)
+      rotor.position.set(x, 0.0025, z)
+      const blade = new THREE.Mesh(bladeGeo, bladeMat)
+      rotor.add(blade)
+      drone.add(pod, rotor)
       this.rotors.push(rotor)
     }
     // The nets it carries, slung underneath: one per N-E-T target hit.
-    const netGeo = track(new THREE.BoxGeometry(0.008, 0.006, 0.008))
+    const netGeo = track(new THREE.SphereGeometry(0.0046, 12, 8))
+    netGeo.scale(1, 0.72, 1)
     const netMat = track(
       new THREE.MeshStandardMaterial({
         color: 0x22c55e,
@@ -256,6 +485,91 @@ export class Heroes {
     drone.add(body)
     this.group.add(drone)
     return drone
+  }
+
+  /**
+   * The Care Package Depot (t-031): a little post house over the lock, its
+   * roof on the pocket's walls under AMI, and a parcel for every package
+   * slot (shown as balls are locked).
+   */
+  private buildDepot(track: Track) {
+    const def = this.def.depot
+    if (!def) return
+    const wood = track(
+      new THREE.MeshStandardMaterial({ color: 0x7c4a2a, roughness: 0.75 }),
+    )
+    const tiles = track(
+      new THREE.MeshStandardMaterial({
+        color: 0x0f766e,
+        roughness: 0.55,
+        side: THREE.DoubleSide,
+      }),
+    )
+    const [x, y, z] = def.roof
+    const half = def.width / 2
+    const pitch = 0.009
+    for (const side of [-1, 1]) {
+      const slope = Math.hypot(def.depth / 2, pitch)
+      const plane = new THREE.Mesh(
+        track(new THREE.PlaneGeometry(def.width, slope)),
+        tiles,
+      )
+      plane.rotation.x = -Math.PI / 2 + side * Math.atan2(pitch, def.depth / 2)
+      plane.position.set(x, y + pitch / 2, z + (side * def.depth) / 4)
+      plane.castShadow = true
+      this.group.add(plane)
+    }
+    const postGeo = track(new THREE.CylinderGeometry(0.0018, 0.0018, 0.016, 8))
+    for (const px of [-half + 0.006, half - 0.006])
+      for (const pz of [z - def.depth / 2 + 0.003, z + def.depth / 2 - 0.003]) {
+        const post = new THREE.Mesh(postGeo, wood)
+        post.position.set(x + px, y - 0.008, pz)
+        this.group.add(post)
+      }
+    const ridge = new THREE.Mesh(
+      track(new THREE.CylinderGeometry(0.0015, 0.0015, def.width, 8)),
+      wood,
+    )
+    ridge.rotation.z = Math.PI / 2
+    ridge.position.set(x, y + pitch, z)
+    this.group.add(ridge)
+    const box = track(new THREE.BoxGeometry(0.011, 0.009, 0.011))
+    const ribbon = track(new THREE.BoxGeometry(0.0118, 0.0094, 0.0024))
+    const card = track(
+      new THREE.MeshStandardMaterial({ color: 0xc8955a, roughness: 0.85 }),
+    )
+    const ties = [0xf472b6, 0x22d3ee, 0xfacc15].map((color) =>
+      track(
+        new THREE.MeshStandardMaterial({
+          color,
+          emissive: color,
+          emissiveIntensity: 0.35,
+          roughness: 0.4,
+        }),
+      ),
+    )
+    def.slots.forEach((at, i) => {
+      const group = buildParcel(box, ribbon, card, ties[i % ties.length]!)
+      const slot = new THREE.Vector3(...at)
+      group.position.copy(slot)
+      this.group.add(group)
+      this.parcels.push({
+        group,
+        slot,
+        flight: 0,
+        hut: (i * 2 + 1) % Math.max(1, this.def.huts.length),
+        shown: 0,
+      })
+    })
+  }
+
+  /** Packages on the depot now, and in the air (for tests). */
+  get parcelsWaiting(): number {
+    return this.parcels.filter((p) => p.flight === 0 && p.shown > 0.5).length
+  }
+
+  get parcelsFlying(): number {
+    return this.parcels.filter((p) => p.flight !== 0).length
   }
 
   /** What the rules say the toys show now. */
@@ -310,10 +624,64 @@ export class Heroes {
         ? 0.6
         : 0.15
       : 0
+    const flap =
+      Math.sin(this.frame * (beacon?.excited ? 0.45 : 0.12)) * WING_FLAP
+    for (const wing of this.wings)
+      wing.group.rotation.y = wing.side * (WING_OPEN + flap)
     // A little bob, so the head reads as a robot, not a block.
     this.head.position.y =
       this.def.beacon.at[1] + Math.sin(this.frame * 0.05) * 0.0008
     this.animateDrone()
+    this.animateDepot()
+  }
+
+  /**
+   * Packed parcels pop in on the depot; when multiball starts every one the
+   * depot needed is sent, one after another, to a hut whose window flares
+   * as it lands.
+   */
+  private animateDepot() {
+    const depot = this.pose?.depot
+    if (!depot || !this.parcels.length) return
+    if (depot.sending && !this.sending) {
+      const count = Math.min(depot.needed, this.parcels.length)
+      for (let i = 0; i < count; i++) {
+        const parcel = this.parcels[i]!
+        parcel.flight = i === 0 ? 1 : -i * PARCEL_STAGGER
+        parcel.shown = 1
+      }
+    }
+    this.sending = depot.sending
+    this.parcels.forEach((parcel, i) => {
+      if (parcel.flight < 0) {
+        parcel.flight++
+        if (parcel.flight === 0) parcel.flight = 1
+      } else if (parcel.flight > 0) {
+        parcel.flight++
+      }
+      if (parcel.flight > 0) {
+        const t = Math.min(1, parcel.flight / PARCEL_FLIGHT)
+        const hut = this.def.huts[parcel.hut]
+        const to = hut ? new THREE.Vector3(...hut.at) : parcel.slot
+        parcel.group.position.lerpVectors(parcel.slot, to, t)
+        parcel.group.position.y += 4 * t * (1 - t) * PARCEL_ARC
+        parcel.group.rotation.y += 0.12
+        if (t >= 1) {
+          parcel.flight = 0
+          parcel.shown = 0
+          parcel.group.position.copy(parcel.slot)
+          parcel.group.rotation.y = 0
+          const window = this.huts[parcel.hut]
+          if (window) window.glow = PARCEL_ARRIVAL_GLOW
+        }
+      } else if (parcel.flight === 0) {
+        const want = !depot.sending && i < depot.packed ? 1 : 0
+        parcel.shown += (want - parcel.shown) * GLOW_EASE * 1.5
+        if (Math.abs(want - parcel.shown) < 0.01) parcel.shown = want
+      }
+      parcel.group.scale.setScalar(parcel.flight !== 0 ? 1 : parcel.shown)
+      parcel.group.visible = parcel.flight !== 0 || parcel.shown > 0.01
+    })
   }
 
   private animateDrone() {

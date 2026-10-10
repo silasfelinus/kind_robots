@@ -10,6 +10,29 @@
 
 import { levelCurve } from '../curve'
 import { drawText } from '../font'
+import {
+  INK,
+  RAMPS,
+  Sparkles,
+  backdropRng,
+  bandedGradient,
+  cachedLayer,
+  drawCloud,
+  drawRidge,
+  drawSprite,
+  drawStars,
+  gauge,
+  glow,
+  hudPanel,
+  mix,
+  pixelSprite,
+  rgba,
+  ridge,
+  shadedOrb,
+  starField,
+  vignette,
+} from '../snes'
+import type { Ramp } from '../snes'
 import type {
   ArcadeGameInstance,
   ArcadeGameModule,
@@ -99,6 +122,233 @@ function angleDiff(a: number, b: number): number {
   return d
 }
 
+// --- 16-bit art (utils/arcade/snes.ts) -------------------------------------------
+
+/** The village sits on this line; the HUD's bottom boxes live on the ground below it. */
+const GROUND = H - 22
+const HUTS = 8
+const hutX = (i: number) => 18 + i * ((W - 36) / (HUTS - 1))
+
+/** The malaria cloud's sickly green, and the haze a swarm hums in. */
+const SICK: Ramp = ['#1a2e05', '#3f6212', '#65a30d', '#a3e635', '#ecfccb']
+/** Moonlit night clouds. */
+const DUSK: Ramp = [
+  RAMPS.night[0],
+  RAMPS.night[2],
+  RAMPS.night[3],
+  mix(RAMPS.night[4], RAMPS.purple[2], 0.4),
+  mix(RAMPS.purple[2], RAMPS.purple[3], 0.5),
+]
+/** Dim far stars, baked into the sky. */
+const FAR_STAR: Ramp = [
+  RAMPS.night[2],
+  RAMPS.night[3],
+  RAMPS.night[4],
+  RAMPS.purple[2],
+  RAMPS.purple[3],
+]
+/** Thatch and mud walls, dimmed for night. */
+const NIGHT_THATCH = RAMPS.gold.map((c) =>
+  mix(c, RAMPS.night[1], 0.62),
+) as unknown as Ramp
+const NIGHT_MUD = RAMPS.earth.map((c) =>
+  mix(c, RAMPS.night[1], 0.55),
+) as unknown as Ramp
+
+const SKY_BANDS = [
+  RAMPS.night[0],
+  RAMPS.night[1],
+  RAMPS.night[2],
+  RAMPS.purple[0],
+  mix(RAMPS.purple[0], RAMPS.pink[0], 0.6),
+  mix(RAMPS.pink[0], RAMPS.rust[1], 0.3),
+]
+
+const FAR_STARS = starField(41, 150, W, GROUND - 40)
+const FAR_RIDGE = ridge(43, W, 28, 4)
+const NEAR_RIDGE = ridge(47, W, 14, 3)
+
+/** The milky way: a diagonal band of dust, laid out once. */
+const NEBULA = (() => {
+  const rand = backdropRng(53)
+  const colours = [RAMPS.purple[2], RAMPS.pink[1], RAMPS.night[4], RAMPS.sky[1]]
+  return Array.from({ length: 700 }, () => {
+    const t = rand()
+    const spread = (rand() + rand() + rand() - 1.5) * 34
+    return {
+      x: Math.floor(t * W),
+      y: Math.floor(GROUND - 60 - t * (GROUND - 110) + spread),
+      colour: colours[Math.floor(rand() * colours.length)]!,
+    }
+  })
+})()
+
+const ACACIAS = [
+  { x: 50, h: 28, w: 38 },
+  { x: 176, h: 22, w: 30 },
+  { x: 302, h: 32, w: 44 },
+  { x: 430, h: 24, w: 34 },
+]
+
+const FIREFLIES = (() => {
+  const rand = backdropRng(59)
+  return Array.from({ length: 9 }, () => ({
+    x: rand() * W,
+    y: GROUND - 8 - rand() * 40,
+    phase: rand() * Math.PI * 2,
+    speed: 0.6 + rand() * 0.8,
+  }))
+})()
+
+// Aedes mosquitoes: black with white bands, a red eye, glassy wings, two flap frames.
+const SKEETER_PALETTE = {
+  a: RAMPS.steel[0],
+  w: RAMPS.steel[3],
+  t: RAMPS.steel[1],
+  T: RAMPS.steel[2],
+  e: RAMPS.ember[2],
+  p: RAMPS.steel[2],
+  l: RAMPS.steel[1],
+  W: 'rgba(214, 234, 255, 0.72)',
+  V: '#ffffff',
+}
+const SKEETER_BIG = [
+  pixelSprite(
+    [
+      '......VW.......',
+      '.....VWW.......',
+      '....VWWW.......',
+      '.....WW........',
+      'awawaTTTte.....',
+      '.awawttttepppp.',
+      '...l.l.l.......',
+      '..l..l..l......',
+    ],
+    SKEETER_PALETTE,
+  ),
+  pixelSprite(
+    [
+      '...............',
+      '...............',
+      '..VVWW.........',
+      '.VWWWWW........',
+      'awawaTTTte.....',
+      '.awawttttepppp.',
+      '..l..l.l.......',
+      '.l..l...l......',
+    ],
+    SKEETER_PALETTE,
+  ),
+] as const
+const SKEETER_SMALL = [
+  pixelSprite(
+    ['....VW....', '...VWW....', 'awaTTte...', '.wattteppp', '..l.l.....'],
+    SKEETER_PALETTE,
+  ),
+  pixelSprite(
+    ['..........', '.VVWW.....', 'awaTTte...', '.wattteppp', '.l..l.....'],
+    SKEETER_PALETTE,
+  ),
+] as const
+
+// AMI, the Anti-Malaria Intelligence: a little robot fairy in a sky-blue dress.
+const AMI_PALETTE = {
+  g: RAMPS.gold[3],
+  G: RAMPS.gold[4],
+  H: RAMPS.sky[4],
+  h: RAMPS.sky[3],
+  s: RAMPS.sky[2],
+  f: RAMPS.cream[3],
+  c: RAMPS.pink[3],
+  k: INK,
+  D: RAMPS.sky[2],
+  d: RAMPS.sky[1],
+  L: RAMPS.sky[3],
+  W: 'rgba(191, 233, 255, 0.7)',
+}
+const AMI_HEAD = [
+  '......G......',
+  '......g......',
+  '....hHHhs....',
+  '...hHffffs...',
+  '...hfkffks...',
+  '...sfcffcs...',
+]
+const AMI_SPRITES = [
+  pixelSprite(
+    [
+      ...AMI_HEAD,
+      'WW...ssss..WW',
+      'WWW..dLDd.WWW',
+      '.WWWdLDDDdWW.',
+      '..WdLDDDDDdW.',
+      '...dDDDDDDd..',
+      '..dDDDDDDDDd.',
+      '...d.d.d.d...',
+    ],
+    AMI_PALETTE,
+  ),
+  pixelSprite(
+    [
+      ...AMI_HEAD,
+      '.....ssss....',
+      '.W...dLDd...W',
+      '.WW.dLDDDd.WW',
+      '..WdLDDDDDdW.',
+      '...dDDDDDDd..',
+      '..dDDDDDDDDd.',
+      '...d.d.d.d...',
+    ],
+    AMI_PALETTE,
+  ),
+] as const
+
+/** A spare butterfly for the lives box. */
+const LIFE_SPRITE = pixelSprite(
+  [
+    '.pp...pp.',
+    'pPyp.pyPp',
+    'pyyyByyyp',
+    '.pyyByyp.',
+    '..tvBvt..',
+    '.tTtBtTt.',
+    '.tt...tt.',
+  ],
+  {
+    p: RAMPS.pink[2],
+    P: RAMPS.pink[4],
+    y: RAMPS.gold[3],
+    B: RAMPS.purple[0],
+    v: RAMPS.purple[2],
+    t: RAMPS.teal[2],
+    T: RAMPS.teal[4],
+  },
+)
+
+/** The puffs drawCloud lays down, for an ink outline under them. */
+const CLOUD_PUFFS: readonly (readonly [number, number, number])[] = [
+  [-1.1, 0.25, 0.55],
+  [-0.45, -0.15, 0.75],
+  [0.35, -0.3, 0.85],
+  [1.05, 0.15, 0.6],
+  [0, 0.35, 0.7],
+]
+
+function cloudOutline(
+  g: CanvasRenderingContext2D,
+  x: number,
+  y: number,
+  size: number,
+) {
+  g.fillStyle = INK
+  for (const [dx, dy, k] of CLOUD_PUFFS) {
+    const r = size * k
+    g.beginPath()
+    g.arc(x + dx * size, y + dy * size + r * 0.12, r + 1.5, 0, Math.PI * 2)
+    g.fill()
+  }
+}
+
 class ButterflyBlaster implements ArcadeGameInstance {
   score = 0
   level = 0
@@ -136,6 +386,9 @@ class ButterflyBlaster implements ArcadeGameInstance {
   private waveDelay = 0
   private banner: { text: string; sub?: string; ticks: number } | null = null
   private overTimer = 0
+  // Cosmetic sparkles roll their own dice, so the game's seeded rng is untouched.
+  private fx = new Sparkles()
+  private fxRng = backdropRng(31)
 
   constructor(options: ArcadeGameOptions) {
     this.rng = options.rng
@@ -213,6 +466,7 @@ class ButterflyBlaster implements ArcadeGameInstance {
     this.updateFairy()
     this.updateParticles()
     this.collide()
+    this.fx.update()
 
     if (this.banner && --this.banner.ticks <= 0) this.banner = null
 
@@ -220,6 +474,15 @@ class ButterflyBlaster implements ArcadeGameInstance {
       if (this.waveDelay === 0) {
         this.waveDelay = 150
         this.villages++
+        this.fx.burst(
+          hutX((this.villages - 1) % HUTS),
+          GROUND - 12,
+          this.fxRng,
+          {
+            count: 14,
+            colours: [RAMPS.gold[4], RAMPS.gold[3], RAMPS.pink[3]],
+          },
+        )
         this.cloud = null
         this.drops = []
         this.sound.play('level')
@@ -469,6 +732,7 @@ class ButterflyBlaster implements ArcadeGameInstance {
       '#94a3b8',
     ])
     this.sound.play('pop')
+    this.fx.burst(swarm.x, swarm.y, this.fxRng, { count: 3 + swarm.size * 2 })
     if (swarm.size > 1) {
       const next = (swarm.size - 1) as Size
       this.swarms.push(this.makeSwarm(swarm.x, swarm.y, next))
@@ -493,6 +757,7 @@ class ButterflyBlaster implements ArcadeGameInstance {
         shot.life = 0
         this.addScore(cloud.small ? 1000 : 200, cloud.x, cloud.y)
         this.burst(cloud.x, cloud.y, 24, ['#65a30d', '#a3e635', '#d9f99d'])
+        this.fx.burst(cloud.x, cloud.y, this.fxRng, { count: 16, speed: 2.2 })
         this.sound.play('boom')
         this.cloud = null
       }
@@ -509,6 +774,10 @@ class ButterflyBlaster implements ArcadeGameInstance {
       this.shield = SHIELD_TICKS
       this.addScore(250, ship.x, ship.y)
       this.sound.play('pickup')
+      this.fx.burst(ship.x, ship.y, this.fxRng, {
+        count: 14,
+        colours: [RAMPS.sky[4], RAMPS.teal[3], '#ffffff'],
+      })
       this.banner = { text: 'BED NET!', sub: 'THANK YOU, AMI', ticks: 70 }
     }
 
@@ -616,117 +885,400 @@ class ButterflyBlaster implements ArcadeGameInstance {
     for (const swarm of this.swarms) this.renderSwarm(g, swarm)
     if (this.cloud) this.renderCloud(g, this.cloud)
     for (const drop of this.drops) {
-      g.fillStyle = 'rgba(163, 230, 53, 0.35)'
-      g.beginPath()
-      g.arc(drop.x, drop.y, 4, 0, Math.PI * 2)
-      g.fill()
-      g.fillStyle = '#d9f99d'
-      g.fillRect(drop.x - 1, drop.y - 1, 2, 2)
+      glow(g, drop.x, drop.y, 9, SICK[3], 0.5)
+      shadedOrb(g, drop.x, drop.y, 2.5, SICK, { glint: false })
     }
-    for (const shot of this.shots) this.renderSparkle(g, shot)
     for (const p of this.particles) {
+      const x = Math.round(p.x)
+      const y = Math.round(p.y)
       g.globalAlpha = Math.max(0, p.life / p.max)
+      g.fillStyle = INK
+      g.fillRect(x - 1, y - 1, 3, 3)
       g.fillStyle = p.color
-      g.fillRect(p.x - 1, p.y - 1, 2, 2)
+      g.fillRect(x - 1, y - 1, 2, 2)
     }
     g.globalAlpha = 1
+    for (const shot of this.shots) this.renderSparkle(g, shot)
     if (
       this.alive &&
       !(this.invuln > 0 && Math.floor(this.invuln / 6) % 2 === 0)
     ) {
       this.renderButterfly(g)
     }
+    this.fx.render(g)
     for (const f of this.floaters) {
-      drawText(g, f.text, f.x, f.y, { align: 'center', color: '#fde68a' })
+      drawText(g, f.text, f.x, f.y, {
+        align: 'center',
+        color: RAMPS.gold[3],
+        outline: INK,
+      })
     }
+    vignette(g, W, H, 0.3)
     this.renderHud(g)
   }
 
   private renderSky(g: CanvasRenderingContext2D) {
-    const sky = g.createLinearGradient(0, 0, 0, H)
-    sky.addColorStop(0, '#0b0620')
-    sky.addColorStop(1, '#2e1065')
-    g.fillStyle = sky
-    g.fillRect(0, 0, W, H)
+    // The far sky, the milky way, the moon and the sleeping village: painted once.
+    cachedLayer(g, 'butterfly-blaster-night', W, H, (k) => {
+      bandedGradient(k, 0, 0, W, GROUND, SKY_BANDS, 6)
+      k.save()
+      k.globalAlpha = 0.18
+      for (const [t, colour] of [
+        [0.2, RAMPS.pink[1]],
+        [0.5, RAMPS.purple[1]],
+        [0.8, RAMPS.sky[1]],
+      ] as const) {
+        glow(k, t * W, GROUND - 60 - t * (GROUND - 110), 90, colour, 1)
+      }
+      k.restore()
+      k.save()
+      k.globalAlpha = 0.55
+      for (const d of NEBULA) {
+        k.fillStyle = d.colour
+        k.fillRect(d.x, d.y, 1, 1)
+      }
+      k.restore()
+      drawStars(k, FAR_STARS, 0, FAR_STAR)
+      this.paintMoon(k, W - 46, 46, 16)
+      // Two ridges of hills, rim-lit from the moon side.
+      drawRidge(k, FAR_RIDGE, {
+        base: GROUND - 16,
+        bottom: GROUND,
+        width: W,
+        step: 4,
+        fill: mix(RAMPS.night[2], RAMPS.purple[0], 0.5),
+        rim: RAMPS.night[4],
+      })
+      drawRidge(k, NEAR_RIDGE, {
+        base: GROUND - 3,
+        bottom: GROUND,
+        width: W,
+        step: 3,
+        fill: RAMPS.night[1],
+        rim: RAMPS.night[3],
+      })
+      for (const tree of ACACIAS) this.paintAcacia(k, tree.x, tree.h, tree.w)
+      // Packed-earth ground in bands.
+      bandedGradient(
+        k,
+        0,
+        GROUND,
+        W,
+        H - GROUND,
+        [NIGHT_MUD[1], NIGHT_MUD[0], RAMPS.night[0]],
+        2,
+      )
+      k.fillStyle = NIGHT_MUD[3]
+      k.fillRect(0, GROUND, W, 1)
+      for (let i = 0; i < HUTS; i++) this.paintHut(k, hutX(i))
+    })
+
+    // Twinkling near stars (laid out by the game at start-up).
     for (const star of this.stars) {
-      const twinkle = 0.5 + 0.5 * Math.sin(star.phase + this.tickCount / 25)
-      g.globalAlpha = 0.35 + twinkle * 0.65
-      g.fillStyle = '#ffffff'
-      g.fillRect(star.x, star.y, star.r, star.r)
+      const twinkle = Math.sin(star.phase + this.tickCount / 25)
+      const x = Math.round(star.x)
+      const y = Math.round(star.y)
+      if (y >= GROUND - 20) continue
+      g.fillStyle =
+        twinkle > 0.6
+          ? RAMPS.sky[4]
+          : twinkle > -0.2
+            ? RAMPS.sky[3]
+            : RAMPS.purple[2]
+      g.fillRect(x, y, 1, 1)
+      if (star.r > 1 && twinkle > 0.7) {
+        g.fillStyle = RAMPS.sky[3]
+        g.fillRect(x - 1, y, 3, 1)
+        g.fillRect(x, y - 1, 1, 3)
+        if (twinkle > 0.93) {
+          g.fillStyle = rgba(RAMPS.sky[3], 0.5)
+          g.fillRect(x - 2, y, 1, 1)
+          g.fillRect(x + 2, y, 1, 1)
+          g.fillRect(x, y - 2, 1, 1)
+          g.fillRect(x, y + 2, 1, 1)
+        }
+      }
     }
-    g.globalAlpha = 1
-    // Crescent moon.
-    g.fillStyle = '#fef3c7'
-    g.beginPath()
-    g.arc(W - 46, 46, 16, 0, Math.PI * 2)
-    g.fill()
-    g.fillStyle = '#0d0724'
-    g.beginPath()
-    g.arc(W - 40, 41, 15, 0, Math.PI * 2)
-    g.fill()
-    // The village the butterfly is protecting.
-    g.fillStyle = '#1e1b4b'
-    g.fillRect(0, H - 14, W, 14)
-    const huts = 8
-    for (let i = 0; i < huts; i++) {
-      const x = 18 + i * ((W - 36) / (huts - 1))
-      g.fillStyle = '#1e1b4b'
-      g.fillRect(x - 10, H - 26, 20, 14)
-      g.beginPath()
-      g.moveTo(x - 13, H - 26)
-      g.lineTo(x, H - 37)
-      g.lineTo(x + 13, H - 26)
-      g.closePath()
-      g.fill()
-      const lit = i < this.villages % (huts + 1) || this.villages > huts
-      g.fillStyle = lit ? '#fde68a' : '#312e81'
-      g.fillRect(x - 3, H - 21, 6, 5)
+
+    // Moonlit clouds drifting past.
+    g.save()
+    g.globalAlpha = 0.55
+    for (const [speed, offset, y, size] of [
+      [0.12, 40, 116, 8],
+      [0.07, 300, 196, 11],
+    ] as const) {
+      const span = W + 120
+      const x =
+        ((((this.tickCount * speed + offset) % span) + span) % span) - 60
+      drawCloud(g, x, y, size, DUSK)
+    }
+    g.restore()
+
+    // Lit windows: one more for every village kept safe.
+    for (let i = 0; i < HUTS; i++) {
+      const x = Math.round(hutX(i))
+      const lit = i < this.villages % (HUTS + 1) || this.villages > HUTS
+      const top = GROUND - 11
+      g.fillStyle = INK
+      g.fillRect(x - 4, top - 1, 8, 7)
+      if (lit) {
+        const flicker = 0.4 + 0.08 * Math.sin(this.tickCount / 7 + i * 1.7)
+        glow(g, x, top + 2, 22, RAMPS.gold[3], flicker + 0.1)
+        g.fillStyle = RAMPS.gold[2]
+        g.fillRect(x - 3, top, 6, 5)
+        g.fillStyle = RAMPS.gold[4]
+        g.fillRect(x - 3, top, 6, 2)
+        g.fillStyle = RAMPS.rust[2]
+        g.fillRect(x, top, 1, 5)
+      } else {
+        g.fillStyle = RAMPS.night[2]
+        g.fillRect(x - 3, top, 6, 5)
+        g.fillStyle = RAMPS.night[3]
+        g.fillRect(x - 3, top, 6, 1)
+      }
+    }
+
+    // Fireflies over the village rooftops.
+    g.save()
+    g.globalCompositeOperation = 'lighter'
+    for (const fly of FIREFLIES) {
+      const t = this.tickCount / 60
+      const on = Math.sin(t * fly.speed * 3 + fly.phase)
+      if (on < 0.2) continue
+      const x = Math.round(fly.x + Math.sin(t * fly.speed + fly.phase) * 14)
+      const y = Math.round(fly.y + Math.cos(t * fly.speed * 1.3) * 5)
+      g.globalAlpha = on
+      g.fillStyle = rgba(RAMPS.leaf[3], 0.35)
+      g.fillRect(x - 1, y - 1, 3, 3)
+      g.fillStyle = RAMPS.gold[4]
+      g.fillRect(x, y, 1, 1)
+    }
+    g.restore()
+  }
+
+  private paintMoon(
+    k: CanvasRenderingContext2D,
+    x: number,
+    y: number,
+    r: number,
+  ) {
+    glow(k, x, y, r * 3.2, RAMPS.cream[3], 0.28)
+    shadedOrb(k, x, y, r, RAMPS.cream, { glint: false })
+    // The night side, faint with earthshine, and a few craters.
+    k.save()
+    k.beginPath()
+    k.arc(x, y, r, 0, Math.PI * 2)
+    k.clip()
+    k.fillStyle = RAMPS.cream[1]
+    for (const [cx, cy, cr] of [
+      [-8, 6, 2.5],
+      [-11, -2, 1.5],
+      [-4, 11, 1.5],
+    ] as const) {
+      k.beginPath()
+      k.arc(x + cx, y + cy, cr, 0, Math.PI * 2)
+      k.fill()
+    }
+    k.fillStyle = mix(RAMPS.night[2], RAMPS.night[3], 0.5)
+    k.beginPath()
+    k.arc(x + 7, y - 5, r - 2, 0, Math.PI * 2)
+    k.fill()
+    k.fillStyle = rgba(RAMPS.night[4], 0.35)
+    k.fillRect(x + 1, y - 13, 6, 1)
+    k.restore()
+    k.fillStyle = '#ffffff'
+    k.fillRect(x - 13, y + 2, 2, 2)
+  }
+
+  private paintAcacia(
+    k: CanvasRenderingContext2D,
+    x: number,
+    h: number,
+    w: number,
+  ) {
+    const base = GROUND
+    k.fillStyle = INK
+    k.fillRect(x - 2, base - h, 4, h)
+    k.fillStyle = RAMPS.night[0]
+    k.fillRect(x - 1, base - h, 2, h)
+    // Forked branches up to a flat crown.
+    k.fillStyle = INK
+    for (let i = 0; i < 6; i++) {
+      k.fillRect(x - 3 - i, base - h + 4 - i, 2, 2)
+      k.fillRect(x + 1 + i, base - h + 3 - i, 2, 2)
+    }
+    const crown = (
+      dx: number,
+      dy: number,
+      rw: number,
+      ry: number,
+      c: string,
+    ) => {
+      k.fillStyle = c
+      k.beginPath()
+      k.ellipse(x + dx, base - h - 4 + dy, rw, ry, 0, 0, Math.PI * 2)
+      k.fill()
+    }
+    crown(0, 0, w / 2 + 1, 4, INK)
+    crown(0, 0, w / 2, 3, RAMPS.night[1])
+    crown(3, -1, w / 2 - 4, 2, RAMPS.night[2])
+    k.fillStyle = RAMPS.night[4]
+    k.fillRect(x + 4, base - h - 7, Math.round(w / 2) - 5, 1)
+  }
+
+  private paintHut(k: CanvasRenderingContext2D, cx: number) {
+    const x = Math.round(cx)
+    const wallTop = GROUND - 14
+    // Mud walls: lit on the moon side (right), shadowed on the left.
+    k.fillStyle = INK
+    k.fillRect(x - 11, wallTop - 1, 22, 16)
+    bandedGradient(
+      k,
+      x - 10,
+      wallTop,
+      20,
+      14,
+      [NIGHT_MUD[3], NIGHT_MUD[2], NIGHT_MUD[1]],
+      2,
+    )
+    k.fillStyle = NIGHT_MUD[1]
+    k.fillRect(x - 10, wallTop, 4, 14)
+    k.fillStyle = NIGHT_MUD[4]
+    k.fillRect(x + 9, wallTop, 1, 14)
+    // Doorway.
+    k.fillStyle = INK
+    k.fillRect(x + 4, wallTop + 6, 4, 8)
+    // A conical thatch roof in stripes, outlined.
+    const apex = wallTop - 13
+    const roof = (grow: number) => {
+      k.beginPath()
+      k.moveTo(x - 14 - grow, wallTop + 1 + grow * 0.5)
+      k.lineTo(x, apex - grow)
+      k.lineTo(x + 14 + grow, wallTop + 1 + grow * 0.5)
+      k.closePath()
+    }
+    k.fillStyle = INK
+    roof(1.5)
+    k.fill()
+    k.save()
+    roof(0)
+    k.clip()
+    bandedGradient(
+      k,
+      x - 15,
+      apex,
+      30,
+      wallTop - apex + 2,
+      [NIGHT_THATCH[3], NIGHT_THATCH[2], NIGHT_THATCH[1]],
+      3,
+    )
+    k.fillStyle = NIGHT_THATCH[0]
+    for (let r = apex + 4; r < wallTop; r += 4) k.fillRect(x - 15, r, 30, 1)
+    k.fillStyle = rgba(NIGHT_THATCH[0], 0.6)
+    k.fillRect(x - 15, apex, 13, wallTop - apex + 2)
+    k.restore()
+    k.fillStyle = NIGHT_THATCH[4]
+    for (let i = 0; i < 12; i++) {
+      k.fillRect(x + 1 + i, apex + 1 + Math.round(i * 0.93), 1, 1)
     }
   }
 
   private renderButterfly(g: CanvasRenderingContext2D) {
     const ship = this.ship
     const open = 0.55 + 0.45 * Math.abs(Math.sin(this.flap))
+    glow(g, ship.x, ship.y, 24, RAMPS.pink[3], 0.32)
     g.save()
     g.translate(ship.x, ship.y)
     g.rotate(ship.angle)
-    const wing = g.createLinearGradient(-12, -10, 12, 10)
-    RAINBOW.forEach((color, i) =>
-      wing.addColorStop(i / (RAINBOW.length - 1), color),
-    )
-    g.fillStyle = wing
+    const wings = () => {
+      g.beginPath()
+      g.ellipse(6, -4, 7, 6, -0.5, 0, Math.PI * 2)
+      g.ellipse(5, 5, 5, 4, 0.5, 0, Math.PI * 2)
+    }
     for (const side of [-1, 1]) {
       g.save()
       g.scale(side * open, 1)
+      // Ink outline, then rainbow bands radiating from the body.
+      g.strokeStyle = INK
+      g.lineWidth = 2.4
+      wings()
+      g.stroke()
+      g.save()
+      wings()
+      g.clip()
+      RAINBOW.forEach((colour, i) => {
+        g.fillStyle = colour
+        g.beginPath()
+        g.arc(0, 0, 16 - i * 2, 0, Math.PI * 2)
+        g.fill()
+      })
+      // Hindwings sit in shadow; the forewing's leading edge catches the light.
+      g.fillStyle = rgba(INK, 0.32)
       g.beginPath()
-      g.ellipse(6, -4, 7, 6, -0.5, 0, Math.PI * 2)
+      g.ellipse(5, 7, 6, 4, 0.5, 0, Math.PI * 2)
       g.fill()
+      g.fillStyle = rgba('#ffffff', 0.35)
       g.beginPath()
-      g.ellipse(5, 5, 5, 4, 0.5, 0, Math.PI * 2)
+      g.ellipse(7, -8, 5, 2, -0.5, 0, Math.PI * 2)
+      g.fill()
+      g.restore()
+      // Wing veins and the white eyespots.
+      g.strokeStyle = rgba(INK, 0.55)
+      g.lineWidth = 0.8
+      g.beginPath()
+      g.moveTo(1, -1)
+      g.lineTo(11, -8)
+      g.moveTo(1, 1)
+      g.lineTo(8, 6)
+      g.stroke()
+      g.fillStyle = INK
+      g.beginPath()
+      g.arc(9, -6, 1.8, 0, Math.PI * 2)
+      g.fill()
+      g.fillStyle = '#ffffff'
+      g.beginPath()
+      g.arc(9, -6, 1.1, 0, Math.PI * 2)
+      g.arc(6, 6, 0.9, 0, Math.PI * 2)
       g.fill()
       g.restore()
     }
-    g.fillStyle = '#3b0764'
+    // A shaded, segmented body, a round head and gold-tipped antennae.
+    g.fillStyle = INK
     g.beginPath()
-    g.ellipse(0, 0, 2, 8, 0, 0, Math.PI * 2)
+    g.ellipse(0, 1, 2.8, 8.5, 0, 0, Math.PI * 2)
     g.fill()
-    g.strokeStyle = '#3b0764'
-    g.lineWidth = 1
+    g.fillStyle = RAMPS.purple[1]
     g.beginPath()
-    g.moveTo(-1, -7)
-    g.lineTo(-4, -12)
-    g.moveTo(1, -7)
-    g.lineTo(4, -12)
+    g.ellipse(0, 1, 1.8, 7.5, 0, 0, Math.PI * 2)
+    g.fill()
+    g.fillStyle = RAMPS.purple[3]
+    g.beginPath()
+    g.ellipse(-0.6, 0, 0.8, 5.5, 0, 0, Math.PI * 2)
+    g.fill()
+    g.fillStyle = INK
+    for (const y of [2, 4.5, 7]) g.fillRect(-1.8, y, 3.6, 0.7)
+    g.strokeStyle = INK
+    g.lineWidth = 1.2
+    g.beginPath()
+    g.moveTo(-1, -8)
+    g.quadraticCurveTo(-2, -12, -4.5, -13)
+    g.moveTo(1, -8)
+    g.quadraticCurveTo(2, -12, 4.5, -13)
     g.stroke()
+    shadedOrb(g, -4.5, -13, 1.2, RAMPS.gold, { glint: false })
+    shadedOrb(g, 4.5, -13, 1.2, RAMPS.gold, { glint: false })
+    shadedOrb(g, 0, -7.5, 2.4, RAMPS.purple, { glint: false })
     g.restore()
     if (
       this.shield > 0 &&
       (this.shield > 90 || Math.floor(this.shield / 8) % 2 === 0)
     ) {
+      glow(g, ship.x, ship.y, 22, RAMPS.teal[3], 0.3)
       this.renderMesh(g, ship.x, ship.y, 15, this.tickCount / 40)
     }
   }
 
+  /** AMI's bed net: a shaded hoop with a fine mesh across it. */
   private renderMesh(
     g: CanvasRenderingContext2D,
     x: number,
@@ -736,18 +1288,42 @@ class ButterflyBlaster implements ArcadeGameInstance {
   ) {
     g.save()
     g.translate(x, y)
-    g.rotate(spin)
-    g.strokeStyle = 'rgba(255, 255, 255, 0.75)'
-    g.lineWidth = 1
+    g.fillStyle = rgba(RAMPS.sky[4], 0.12)
     g.beginPath()
     g.arc(0, 0, r, 0, Math.PI * 2)
-    for (let i = -r + 5; i < r; i += 5) {
-      const half = Math.sqrt(r * r - i * i)
-      g.moveTo(i, -half)
-      g.lineTo(i, half)
-      g.moveTo(-half, i)
-      g.lineTo(half, i)
+    g.fill()
+    g.save()
+    g.clip()
+    g.rotate(spin)
+    g.lineWidth = 1
+    const mesh = (offset: number, colour: string) => {
+      g.strokeStyle = colour
+      g.beginPath()
+      for (let i = -r + 4; i < r; i += 4) {
+        g.moveTo(i + offset, -r)
+        g.lineTo(i + offset, r)
+        g.moveTo(-r, i + offset)
+        g.lineTo(r, i + offset)
+      }
+      g.stroke()
     }
+    mesh(0.8, rgba(INK, 0.45))
+    mesh(0, rgba(RAMPS.cream[3], 0.75))
+    g.restore()
+    // The hoop: ink, then the cloth's lit and shadowed rims.
+    g.lineWidth = 3
+    g.strokeStyle = INK
+    g.beginPath()
+    g.arc(0, 0, r, 0, Math.PI * 2)
+    g.stroke()
+    g.lineWidth = 1.5
+    g.strokeStyle = RAMPS.cream[1]
+    g.beginPath()
+    g.arc(0, 0, r, 0, Math.PI * 2)
+    g.stroke()
+    g.strokeStyle = RAMPS.cream[4]
+    g.beginPath()
+    g.arc(0, 0, r, Math.PI * 0.95, Math.PI * 1.7)
     g.stroke()
     g.restore()
   }
@@ -757,36 +1333,13 @@ class ButterflyBlaster implements ArcadeGameInstance {
     x: number,
     y: number,
     heading: number,
-    scale: number,
+    big: boolean,
     buzz: number,
   ) {
-    g.save()
-    g.translate(x, y)
-    g.rotate(heading)
-    g.scale(scale, scale)
-    g.fillStyle =
-      buzz > 0 ? 'rgba(226, 232, 240, 0.7)' : 'rgba(226, 232, 240, 0.4)'
-    g.beginPath()
-    g.ellipse(-2, -3, 4, 2, -0.6, 0, Math.PI * 2)
-    g.ellipse(-2, 3, 4, 2, 0.6, 0, Math.PI * 2)
-    g.fill()
-    g.fillStyle = '#475569'
-    g.beginPath()
-    g.ellipse(-3, 0, 4, 1.6, 0, 0, Math.PI * 2)
-    g.fill()
-    g.fillStyle = '#1e293b'
-    g.beginPath()
-    g.arc(2, 0, 2, 0, Math.PI * 2)
-    g.fill()
-    g.fillStyle = '#f87171'
-    g.fillRect(2.5, -1.2, 1, 1)
-    g.strokeStyle = '#1e293b'
-    g.lineWidth = 0.8
-    g.beginPath()
-    g.moveTo(4, 0)
-    g.lineTo(8, 0)
-    g.stroke()
-    g.restore()
+    const frames = big ? SKEETER_BIG : SKEETER_SMALL
+    drawSprite(g, buzz ? frames[0] : frames[1], x, y, {
+      flipX: Math.cos(heading) < 0,
+    })
   }
 
   private renderSwarm(g: CanvasRenderingContext2D, swarm: Swarm) {
@@ -798,14 +1351,26 @@ class ButterflyBlaster implements ArcadeGameInstance {
         swarm.x,
         swarm.y,
         heading,
-        1.1,
+        true,
         this.tickCount % 4 < 2 ? 1 : 0,
       )
       return
     }
-    g.fillStyle = 'rgba(132, 204, 22, 0.08)'
+    // The sickly haze the swarm hums in.
+    const haze = g.createRadialGradient(
+      swarm.x,
+      swarm.y,
+      r * 0.2,
+      swarm.x,
+      swarm.y,
+      r * 1.15,
+    )
+    haze.addColorStop(0, rgba(SICK[2], 0.2))
+    haze.addColorStop(0.7, rgba(SICK[1], 0.12))
+    haze.addColorStop(1, rgba(SICK[1], 0))
+    g.fillStyle = haze
     g.beginPath()
-    g.arc(swarm.x, swarm.y, r, 0, Math.PI * 2)
+    g.arc(swarm.x, swarm.y, r * 1.15, 0, Math.PI * 2)
     g.fill()
     const count = SWARM_COUNT[swarm.size]
     for (let i = 0; i < count; i++) {
@@ -822,7 +1387,7 @@ class ButterflyBlaster implements ArcadeGameInstance {
         mx,
         my,
         orbit + Math.PI / 2,
-        0.75,
+        false,
         (this.tickCount + i) % 4 < 2 ? 1 : 0,
       )
     }
@@ -830,119 +1395,169 @@ class ButterflyBlaster implements ArcadeGameInstance {
 
   private renderCloud(g: CanvasRenderingContext2D, cloud: Cloud) {
     const s = cloud.small ? 0.6 : 1
+    const size = 13 * s
+    const bob = Math.round(Math.sin(this.tickCount / 9) * 1.5)
+    const y = cloud.y + bob
+    glow(g, cloud.x, y, 34 * s, SICK[3], 0.3)
+    cloudOutline(g, cloud.x, y, size)
+    drawCloud(g, cloud.x, y, size, SICK)
+    // A scowling face.
     g.save()
-    g.translate(cloud.x, cloud.y)
+    g.translate(Math.round(cloud.x), Math.round(y))
     g.scale(s, s)
-    g.fillStyle = 'rgba(77, 124, 15, 0.85)'
-    for (const [cx, cy, cr] of [
-      [-12, 2, 10],
-      [0, -4, 13],
-      [13, 2, 10],
-      [0, 6, 11],
-    ] as const) {
-      g.beginPath()
-      g.arc(cx, cy, cr, 0, Math.PI * 2)
-      g.fill()
-    }
-    g.fillStyle = '#ecfccb'
+    g.fillStyle = INK
+    g.fillRect(-8, -4, 6, 5)
+    g.fillRect(2, -4, 6, 5)
+    g.fillStyle = SICK[4]
     g.fillRect(-7, -3, 4, 3)
     g.fillRect(3, -3, 4, 3)
-    g.fillStyle = '#1a2e05'
-    g.fillRect(-6, -2, 2, 2)
-    g.fillRect(4, -2, 2, 2)
-    g.fillRect(-8, -6, 5, 1)
-    g.fillRect(3, -6, 5, 1)
+    g.fillStyle = RAMPS.ember[2]
+    g.fillRect(-5, -2, 2, 2)
+    g.fillRect(3, -2, 2, 2)
+    g.fillStyle = INK
+    // Angry brows and a jagged frown.
+    g.fillRect(-9, -7, 3, 1)
+    g.fillRect(-6, -6, 3, 1)
+    g.fillRect(3, -6, 3, 1)
+    g.fillRect(6, -7, 3, 1)
+    g.fillRect(-5, 5, 10, 2)
+    g.fillStyle = SICK[4]
+    g.fillRect(-3, 5, 1, 1)
+    g.fillRect(2, 5, 1, 1)
     g.restore()
   }
 
   private renderFairy(g: CanvasRenderingContext2D, fairy: Fairy) {
-    const flutter = Math.abs(Math.sin(this.tickCount / 4))
-    g.save()
-    g.translate(fairy.x, fairy.y)
-    g.fillStyle = 'rgba(147, 197, 253, 0.6)'
-    g.beginPath()
-    g.ellipse(-6, -2, 6 * flutter + 1, 4, -0.4, 0, Math.PI * 2)
-    g.ellipse(6, -2, 6 * flutter + 1, 4, 0.4, 0, Math.PI * 2)
-    g.fill()
-    g.fillStyle = '#3b82f6'
-    g.beginPath()
-    g.moveTo(-4, 8)
-    g.lineTo(0, -2)
-    g.lineTo(4, 8)
-    g.closePath()
-    g.fill()
-    g.fillStyle = '#93c5fd'
-    g.beginPath()
-    g.arc(0, -5, 3.5, 0, Math.PI * 2)
-    g.fill()
-    g.fillStyle = 'rgba(253, 224, 71, 0.9)'
-    g.beginPath()
-    g.arc(fairy.vx > 0 ? 7 : -7, 2, 2.5 + flutter, 0, Math.PI * 2)
-    g.fill()
-    g.restore()
-    if (fairy.carrying) this.renderMesh(g, fairy.x, fairy.y + 13, 6, 0)
+    const flutter = Math.floor(this.tickCount / 5) % 2
+    const facing = fairy.vx > 0 ? 1 : -1
+    const wand = { x: fairy.x + facing * 9, y: fairy.y + 2 }
+    glow(g, fairy.x, fairy.y, 20, RAMPS.sky[3], 0.25)
+    drawSprite(g, flutter ? AMI_SPRITES[1] : AMI_SPRITES[0], fairy.x, fairy.y, {
+      flipX: facing < 0,
+    })
+    // The wand, with a twinkling star on its tip.
+    const stick = Math.round(Math.min(fairy.x + facing * 3, wand.x))
+    g.fillStyle = INK
+    g.fillRect(stick - 1, Math.round(fairy.y + 2), 8, 3)
+    g.fillStyle = RAMPS.gold[2]
+    g.fillRect(stick, Math.round(fairy.y + 3), 6, 1)
+    const pulse = 0.55 + 0.25 * Math.sin(this.tickCount / 4)
+    glow(g, wand.x, wand.y, 10, RAMPS.gold[3], pulse)
+    const wx = Math.round(wand.x)
+    const wy = Math.round(wand.y)
+    g.fillStyle = RAMPS.gold[4]
+    g.fillRect(wx - 2, wy, 5, 1)
+    g.fillRect(wx, wy - 2, 1, 5)
+    g.fillStyle = '#ffffff'
+    g.fillRect(wx, wy, 1, 1)
+    if (fairy.carrying) this.renderMesh(g, fairy.x, fairy.y + 15, 6, 0)
   }
 
   private renderNet(g: CanvasRenderingContext2D, net: Net) {
-    g.fillStyle = 'rgba(255, 255, 255, 0.12)'
-    g.beginPath()
-    g.arc(net.x, net.y, 11, 0, Math.PI * 2)
-    g.fill()
-    this.renderMesh(g, net.x, net.y, 8, net.spin)
+    glow(g, net.x, net.y, 16, RAMPS.sky[4], 0.35)
+    this.renderMesh(g, net.x, net.y, 9, net.spin)
+    // A twinkle orbiting the falling net says "catch me".
+    const a = this.tickCount / 8
+    const tx = Math.round(net.x + Math.cos(a) * 12)
+    const ty = Math.round(net.y + Math.sin(a) * 12)
+    g.fillStyle = RAMPS.sky[4]
+    g.fillRect(tx - 1, ty, 3, 1)
+    g.fillRect(tx, ty - 1, 1, 3)
   }
 
   private renderSparkle(g: CanvasRenderingContext2D, shot: Shot) {
-    const color = shot.hue % 2 ? '#f9a8d4' : '#fde68a'
-    g.fillStyle = 'rgba(253, 230, 138, 0.25)'
-    g.beginPath()
-    g.arc(shot.x, shot.y, 4, 0, Math.PI * 2)
-    g.fill()
-    g.fillStyle = color
-    g.fillRect(shot.x - 3, shot.y - 0.5, 6, 1)
-    g.fillRect(shot.x - 0.5, shot.y - 3, 1, 6)
+    const colour = RAINBOW[shot.hue % RAINBOW.length]!
+    const x = Math.round(shot.x)
+    const y = Math.round(shot.y)
+    // A short comet tail of fading afterimages.
+    for (let i = 3; i >= 1; i--) {
+      g.globalAlpha = 0.18 * (4 - i)
+      g.fillStyle = colour
+      g.fillRect(
+        Math.round(shot.x - shot.vx * i * 0.45),
+        Math.round(shot.y - shot.vy * i * 0.45),
+        2,
+        2,
+      )
+    }
+    g.globalAlpha = 1
+    glow(g, x, y, 9, colour, 0.65)
+    const diagonal = (this.tickCount + shot.hue) % 8 < 4
+    g.fillStyle = INK
+    g.fillRect(x - 1, y - 1, 3, 3)
+    g.fillStyle = colour
+    if (diagonal) {
+      for (const d of [-2, 2]) {
+        g.fillRect(x + d, y + d, 1, 1)
+        g.fillRect(x + d, y - d, 1, 1)
+      }
+      g.fillRect(x - 1, y - 1, 3, 3)
+    } else {
+      g.fillRect(x - 3, y, 7, 1)
+      g.fillRect(x, y - 3, 1, 7)
+    }
     g.fillStyle = '#ffffff'
-    g.fillRect(shot.x - 1, shot.y - 1, 2, 2)
+    g.fillRect(x, y, 1, 1)
   }
 
   private renderHud(g: CanvasRenderingContext2D) {
-    const shadow = '#1e1b4b'
-    drawText(g, String(this.score).padStart(6, '0'), 8, 8, {
+    hudPanel(g, 4, 3, 84, 21)
+    drawText(g, String(this.score).padStart(6, '0'), 10, 7, {
       scale: 2,
-      color: '#f9a8d4',
-      shadow,
+      color: RAMPS.pink[3],
+      shadow: INK,
     })
     const hi = Math.max(this.hiScore, this.score)
-    drawText(g, `HI ${String(hi).padStart(6, '0')}`, W / 2, 8, {
+    hudPanel(g, W / 2 - 62, 3, 124, 21)
+    drawText(g, `HI ${String(hi).padStart(6, '0')}`, W / 2, 7, {
       scale: 2,
       align: 'center',
-      color: '#fde68a',
-      shadow,
+      color: RAMPS.gold[3],
+      shadow: INK,
     })
-    for (let i = 0; i < Math.min(this.lives, 6); i++) {
-      drawText(g, '*', W - 14 - i * 14, 8, {
-        scale: 2,
-        color: '#f472b6',
-        shadow,
-      })
+    const lives = Math.min(this.lives, 6)
+    if (lives > 0) {
+      hudPanel(g, W - 8 - lives * 14, 3, lives * 14 + 4, 21, RAMPS.pink)
+      for (let i = 0; i < lives; i++) {
+        const bob = Math.round(Math.sin(this.tickCount / 12 + i) * 0.6)
+        drawSprite(g, LIFE_SPRITE, W - 13 - i * 14, 13 + bob)
+      }
     }
-    drawText(g, `WAVE ${this.level}`, 8, H - 10, { color: '#c4b5fd' })
-    drawText(g, `VILLAGES SAFE ${this.villages}`, W - 8, H - 10, {
-      align: 'right',
-      color: '#fde68a',
+    hudPanel(g, 4, H - 19, 60, 15)
+    drawText(g, `WAVE ${this.level}`, 10, H - 15, {
+      color: RAMPS.purple[4],
+      outline: INK,
     })
+    const safe = `VILLAGES SAFE ${this.villages}`
+    const safeW = safe.length * 6 + 10
+    hudPanel(g, W - 4 - safeW, H - 19, safeW, 15, RAMPS.gold)
+    drawText(g, safe, W - 10, H - 15, {
+      align: 'right',
+      color: RAMPS.gold[4],
+      outline: INK,
+    })
+    if (this.shield > 0) {
+      hudPanel(g, W / 2 - 60, H - 19, 120, 15, RAMPS.teal)
+      drawText(g, 'NET', W / 2 - 54, H - 15, {
+        color: RAMPS.teal[4],
+        outline: INK,
+      })
+      gauge(g, W / 2 - 30, H - 15, 84, 7, this.shield / SHIELD_TICKS, RAMPS.sky)
+    }
     if (this.banner) {
       drawText(g, this.banner.text, W / 2, H / 2 - 30, {
         scale: 3,
         align: 'center',
         color: '#ffffff',
-        shadow: '#db2777',
+        outline: INK,
+        shadow: RAMPS.pink[1],
       })
       if (this.banner.sub) {
         drawText(g, this.banner.sub, W / 2, H / 2 + 2, {
           scale: 2,
           align: 'center',
-          color: '#fde68a',
-          shadow,
+          color: RAMPS.gold[3],
+          outline: INK,
         })
       }
     }

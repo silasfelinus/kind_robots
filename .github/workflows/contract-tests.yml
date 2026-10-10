@@ -180,6 +180,8 @@ jobs:
         run: npm run test:zuzu-showdown-hyena
       - name: Zuzu Showdown fighter kit (Old Komodo)
         run: npm run test:zuzu-showdown-komodo
+      - name: Zuzu Showdown fighter kit (The Swamp Witch)
+        run: npm run test:zuzu-showdown-witch
 
       - name: Zuzu Showdown fighter sprites
         run: npm run test:zuzu-showdown-sprites

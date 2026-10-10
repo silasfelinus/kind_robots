@@ -23,6 +23,7 @@ import type {
   FlipperDef,
   HeroDef,
   InsertDef,
+  LanternDef,
   MeshCollider,
   ScoopDef,
   SensorDef,
@@ -484,6 +485,18 @@ const HERO: HeroDef = (() => {
   return {
     huts,
     beacon: { at: [0, 0.058, LOCK_Z - 0.035] },
+    // The post house over the lock pocket: a roof over its back half (the
+    // mouth stays open) on the pocket's walls, the parcels on their tops.
+    depot: {
+      roof: [0, WALL_HEIGHT + 0.014, LOCK_Z - 0.0145],
+      width: 0.064,
+      depth: 0.03,
+      slots: [
+        [-0.025, WALL_HEIGHT + 0.0055, LOCK_Z + 0.013],
+        [0.025, WALL_HEIGHT + 0.0055, LOCK_Z + 0.013],
+        [-0.025, WALL_HEIGHT + 0.0055, LOCK_Z + 0.027],
+      ],
+    },
     drone: {
       perch: [-0.16, 0.085, TOP_Z + 0.13],
       circle: { at: [cx, 0.09, -0.48], radius: 0.11 },
@@ -491,6 +504,25 @@ const HERO: HeroDef = (() => {
     },
   }
 })()
+
+/**
+ * Paper lanterns along the rails and up the Ridge (t-028), each hung out
+ * over the cabinet's side rail so none overhangs a lane.
+ */
+const LANTERN_COLORS = [0xff6b3d, 0xf59e0b, 0xf472b6, 0xef4444]
+const LANTERNS: LanternDef[] = [
+  ...[-0.62, -0.42, -0.22].flatMap((z): LanternDef[] => [
+    { at: [LEFT_X, WALL_HEIGHT, z], side: -1 },
+    { at: [RIGHT_X, WALL_HEIGHT, z], side: 1 },
+  ]),
+  ...[UPPER_TOP_Z + 0.1, UPPER_TOP_Z + 0.3].flatMap((z): LanternDef[] => [
+    { at: [LEFT_X, WALL_HEIGHT, z], side: -1, height: 0.06 },
+    { at: [RIGHT_X, WALL_HEIGHT, z], side: 1, height: 0.06 },
+  ]),
+].map((def, i) => ({
+  ...def,
+  color: LANTERN_COLORS[i % LANTERN_COLORS.length],
+}))
 
 // --- The Ridge, the upper playfield (conductor kind-pinball/t-022) --------
 //
@@ -1216,6 +1248,7 @@ export const AMI_VILLAGE_GREYBOX: TableDef = {
     },
   ],
   hero: HERO,
+  lanterns: LANTERNS,
   zones: [
     {
       // The Ridge: everything past the arch's crown, short of the backbox.
@@ -1241,7 +1274,7 @@ export const AMI_VILLAGE_GREYBOX: TableDef = {
         '/images/arcade/games/butterfly-blaster-title.webp',
         '/images/arcade/games/rescue-rally-title.webp',
         '/images/arcade/games/zuzu-ghost-trail-title.webp',
-        '/images/arcade/games/timber-bot-title.webp',
+        '/images/arcade/games/butterfly-joust-title.webp',
         '/images/arcade/games/battery-maze-title.webp',
         '/images/arcade/games/gloom-invaders-title.webp',
         '/images/arcade/games/pipe-pals-title.webp',

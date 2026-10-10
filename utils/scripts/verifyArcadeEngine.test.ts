@@ -2879,7 +2879,7 @@ async function runPinballRules() {
   }
   later = lockOne(later)
   assert.ok(!later.play.multiball.running, 'later ones take three locks')
-  assert.equal(scene('lock')?.sub, 'MULTIBALL IN 1')
+  assert.equal(scene('lock')?.sub, '1 MORE TO SEND')
   // A drain in the multiball ball save comes straight back.
   s = drain(s, 2)
   assert.equal(s.ballsInPlay, 1 + MULTIBALL_ADDS, 'saved')

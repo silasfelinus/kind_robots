@@ -354,15 +354,6 @@ jobs:
       - name: ESLint ratchet
         run: npm run test:lint-ratchet
 
-      - name: Zuzu pinball format diagnostic temporary
-        run: |
-          for file in utils/scripts/verifyZuzuPinballPhysics.test.ts utils/arcade/pinball/tables/zuzuLastBell/table.ts; do
-            npx prettier --write "$file" >/dev/null
-            echo "FORMAT_START:$file"
-            base64 -w76 "$file"
-            echo "FORMAT_END:$file"
-          done
-
       - name: Prettier ratchet
         run: npm run test:prettier-ratchet
 

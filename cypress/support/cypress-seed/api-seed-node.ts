@@ -67,7 +67,7 @@ type CurrentUserData = {
   email?: string | null
 }
 
-const defaultApiBase = 'https://kind-robots.vercel.app/api'
+const defaultApiBase = `${process.env.CYPRESS_BASE_URL || 'http://localhost:3000'}/api`
 const defaultTestPassword = 'testtest12'
 const seedDir = path.resolve('.cypress-cache')
 const seedFile = path.join(seedDir, 'api-seed.json')

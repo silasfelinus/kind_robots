@@ -32,6 +32,7 @@ const props = withDefaults(
     radius?: string
     scale?: number
     disabled?: boolean
+    revealOnTrigger?: boolean
   }>(),
   {
     triggerKey: 0,
@@ -39,6 +40,7 @@ const props = withDefaults(
     radius: '1.75rem',
     scale: 1.06,
     disabled: false,
+    revealOnTrigger: false,
   },
 )
 

@@ -24,7 +24,13 @@ import {
   UPGRADE_TRACKS,
   upgradeCost,
 } from '../../server/utils/aquariumCollect.js'
-import { feedCost, STARTING_COINS } from '../../server/utils/aquariumEconomy.js'
+import {
+  feedCost,
+  fishSlotsCap,
+  STARTING_COINS,
+  STARTING_FISH_SLOTS,
+  TANK_EXPANSIONS,
+} from '../../server/utils/aquariumEconomy.js'
 
 const now = new Date('2026-10-10T12:00:00.000Z')
 const secondsAgo = (seconds: number) => new Date(now.getTime() - seconds * 1000)
@@ -257,10 +263,10 @@ console.log('✅ feedCost: 2% of unlock cost, at least 1')
 
 // --- upgrades ---------------------------------------------------------------
 
-assert.deepEqual([...UPGRADE_TRACKS].sort(), ['dropSpeed', 'food'])
-assert.ok(!UPGRADE_TRACKS.includes('slots' as never), 'no coin-bought capacity')
+assert.deepEqual([...UPGRADE_TRACKS].sort(), ['dropSpeed', 'food', 'room'])
 assert.ok(isKnownUpgradeTrack('food'))
 assert.ok(isKnownUpgradeTrack('dropSpeed'))
+assert.ok(isKnownUpgradeTrack('room'), 't-081: room is bought with coins')
 assert.ok(!isKnownUpgradeTrack('slots'))
 assert.ok(!isKnownUpgradeTrack('toString'), 'prototype keys are not tracks')
 assert.ok(!isKnownUpgradeTrack(3))
@@ -284,6 +290,13 @@ assert.deepEqual(
   [0, 1, 2, 3].map((level) => upgradeCost('dropSpeed', level)),
   [100, 220, 484, 1065],
 )
+assert.deepEqual(
+  Array.from({ length: TANK_EXPANSIONS.length + 1 }, (_, level) =>
+    upgradeCost('room', level),
+  ),
+  [400, 1200, 3000, 7500, 18000, 40000, 90000, null],
+  'room prices are economy.yaml fun_loop.tank_expansions, then maxed',
+)
 
 assert.equal(discountedFeedCost(10, 0), 10)
 assert.equal(discountedFeedCost(10, 1), 9)
@@ -292,7 +305,28 @@ assert.equal(discountedFeedCost(10, 99), 6, 'levels past max clamp')
 assert.equal(discountedFeedCost(1, FOOD_MAX_LEVEL), 1, 'never free')
 assert.equal(discountedFeedCost(feedCost('MYTHIC'), FOOD_MAX_LEVEL), 550)
 console.log(
-  '✅ upgrades: food + drop speed only, escalating prices, clamped effects',
+  '✅ upgrades: room, drop speed and food; escalating prices, clamped effects',
 )
+
+// --- fish room (t-081): counted in fish, bought with coins -------------------
+
+assert.equal(STARTING_FISH_SLOTS, 12)
+assert.equal(fishSlotsCap(0, []), 12)
+assert.equal(fishSlotsCap(1, []), 16)
+assert.equal(
+  fishSlotsCap(TANK_EXPANSIONS.length, []),
+  40,
+  'LOOP.md: 40 fish at the top',
+)
+assert.equal(fishSlotsCap(99, []), 40, 'expansions past the table clamp')
+assert.equal(fishSlotsCap(-2, []), 12)
+assert.equal(fishSlotsCap(Number.NaN, []), 12)
+assert.equal(
+  fishSlotsCap(0, ['extra_species_slot']),
+  13,
+  'the extra_species_slot set piece still adds its slot',
+)
+assert.equal(fishSlotsCap(0, ['swim_speed']), 12)
+console.log('✅ fishSlotsCap: 12 to start, +4 per expansion, 40 at the top')
 
 console.log('✅ verifyAquariumCollect: all assertions passed')

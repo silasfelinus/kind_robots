@@ -4,7 +4,7 @@
 // DESIGN-BRIEF MVP item 4). Price and effect come from
 // server/utils/aquariumCollect.ts's UPGRADE_CATALOG, never the request.
 //
-// Body: { track: 'food' | 'dropSpeed' }
+// Body: { track: 'food' | 'dropSpeed' | 'room' }
 
 import { defineEventHandler, readBody, createError } from 'h3'
 import { errorHandler } from '../../utils/error'

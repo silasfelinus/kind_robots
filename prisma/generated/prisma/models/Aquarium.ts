@@ -37,6 +37,7 @@ export type AquariumAvgAggregateOutputType = {
   debrisLevel: number | null
   foodLevel: number | null
   dropSpeedLevel: number | null
+  tankExpansions: number | null
 }
 
 export type AquariumSumAggregateOutputType = {
@@ -48,6 +49,7 @@ export type AquariumSumAggregateOutputType = {
   debrisLevel: number | null
   foodLevel: number | null
   dropSpeedLevel: number | null
+  tankExpansions: number | null
 }
 
 export type AquariumMinAggregateOutputType = {
@@ -70,6 +72,7 @@ export type AquariumMinAggregateOutputType = {
   collectAnchorAt: Date | null
   foodLevel: number | null
   dropSpeedLevel: number | null
+  tankExpansions: number | null
 }
 
 export type AquariumMaxAggregateOutputType = {
@@ -92,6 +95,7 @@ export type AquariumMaxAggregateOutputType = {
   collectAnchorAt: Date | null
   foodLevel: number | null
   dropSpeedLevel: number | null
+  tankExpansions: number | null
 }
 
 export type AquariumCountAggregateOutputType = {
@@ -114,6 +118,7 @@ export type AquariumCountAggregateOutputType = {
   collectAnchorAt: number
   foodLevel: number
   dropSpeedLevel: number
+  tankExpansions: number
   _all: number
 }
 
@@ -127,6 +132,7 @@ export type AquariumAvgAggregateInputType = {
   debrisLevel?: true
   foodLevel?: true
   dropSpeedLevel?: true
+  tankExpansions?: true
 }
 
 export type AquariumSumAggregateInputType = {
@@ -138,6 +144,7 @@ export type AquariumSumAggregateInputType = {
   debrisLevel?: true
   foodLevel?: true
   dropSpeedLevel?: true
+  tankExpansions?: true
 }
 
 export type AquariumMinAggregateInputType = {
@@ -160,6 +167,7 @@ export type AquariumMinAggregateInputType = {
   collectAnchorAt?: true
   foodLevel?: true
   dropSpeedLevel?: true
+  tankExpansions?: true
 }
 
 export type AquariumMaxAggregateInputType = {
@@ -182,6 +190,7 @@ export type AquariumMaxAggregateInputType = {
   collectAnchorAt?: true
   foodLevel?: true
   dropSpeedLevel?: true
+  tankExpansions?: true
 }
 
 export type AquariumCountAggregateInputType = {
@@ -204,6 +213,7 @@ export type AquariumCountAggregateInputType = {
   collectAnchorAt?: true
   foodLevel?: true
   dropSpeedLevel?: true
+  tankExpansions?: true
   _all?: true
 }
 
@@ -313,6 +323,7 @@ export type AquariumGroupByOutputType = {
   collectAnchorAt: Date | null
   foodLevel: number
   dropSpeedLevel: number
+  tankExpansions: number
   _count: AquariumCountAggregateOutputType | null
   _avg: AquariumAvgAggregateOutputType | null
   _sum: AquariumSumAggregateOutputType | null
@@ -358,6 +369,7 @@ export type AquariumWhereInput = {
   collectAnchorAt?: Prisma.DateTimeNullableFilter<"Aquarium"> | Date | string | null
   foodLevel?: Prisma.IntFilter<"Aquarium"> | number
   dropSpeedLevel?: Prisma.IntFilter<"Aquarium"> | number
+  tankExpansions?: Prisma.IntFilter<"Aquarium"> | number
   User?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
   Stock?: Prisma.AquariumStockListRelationFilter
   Events?: Prisma.AquariumEventListRelationFilter
@@ -386,6 +398,7 @@ export type AquariumOrderByWithRelationInput = {
   collectAnchorAt?: Prisma.SortOrderInput | Prisma.SortOrder
   foodLevel?: Prisma.SortOrder
   dropSpeedLevel?: Prisma.SortOrder
+  tankExpansions?: Prisma.SortOrder
   User?: Prisma.UserOrderByWithRelationInput
   Stock?: Prisma.AquariumStockOrderByRelationAggregateInput
   Events?: Prisma.AquariumEventOrderByRelationAggregateInput
@@ -419,6 +432,7 @@ export type AquariumWhereUniqueInput = Prisma.AtLeast<{
   collectAnchorAt?: Prisma.DateTimeNullableFilter<"Aquarium"> | Date | string | null
   foodLevel?: Prisma.IntFilter<"Aquarium"> | number
   dropSpeedLevel?: Prisma.IntFilter<"Aquarium"> | number
+  tankExpansions?: Prisma.IntFilter<"Aquarium"> | number
   User?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
   Stock?: Prisma.AquariumStockListRelationFilter
   Events?: Prisma.AquariumEventListRelationFilter
@@ -447,6 +461,7 @@ export type AquariumOrderByWithAggregationInput = {
   collectAnchorAt?: Prisma.SortOrderInput | Prisma.SortOrder
   foodLevel?: Prisma.SortOrder
   dropSpeedLevel?: Prisma.SortOrder
+  tankExpansions?: Prisma.SortOrder
   _count?: Prisma.AquariumCountOrderByAggregateInput
   _avg?: Prisma.AquariumAvgOrderByAggregateInput
   _max?: Prisma.AquariumMaxOrderByAggregateInput
@@ -477,6 +492,7 @@ export type AquariumScalarWhereWithAggregatesInput = {
   collectAnchorAt?: Prisma.DateTimeNullableWithAggregatesFilter<"Aquarium"> | Date | string | null
   foodLevel?: Prisma.IntWithAggregatesFilter<"Aquarium"> | number
   dropSpeedLevel?: Prisma.IntWithAggregatesFilter<"Aquarium"> | number
+  tankExpansions?: Prisma.IntWithAggregatesFilter<"Aquarium"> | number
 }
 
 export type AquariumCreateInput = {
@@ -497,6 +513,7 @@ export type AquariumCreateInput = {
   collectAnchorAt?: Date | string | null
   foodLevel?: number
   dropSpeedLevel?: number
+  tankExpansions?: number
   User: Prisma.UserCreateNestedOneWithoutAquariumsInput
   Stock?: Prisma.AquariumStockCreateNestedManyWithoutAquariumInput
   Events?: Prisma.AquariumEventCreateNestedManyWithoutAquariumInput
@@ -525,6 +542,7 @@ export type AquariumUncheckedCreateInput = {
   collectAnchorAt?: Date | string | null
   foodLevel?: number
   dropSpeedLevel?: number
+  tankExpansions?: number
   Stock?: Prisma.AquariumStockUncheckedCreateNestedManyWithoutAquariumInput
   Events?: Prisma.AquariumEventUncheckedCreateNestedManyWithoutAquariumInput
   Sets?: Prisma.AquariumSetUncheckedCreateNestedManyWithoutAquariumInput
@@ -550,6 +568,7 @@ export type AquariumUpdateInput = {
   collectAnchorAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   foodLevel?: Prisma.IntFieldUpdateOperationsInput | number
   dropSpeedLevel?: Prisma.IntFieldUpdateOperationsInput | number
+  tankExpansions?: Prisma.IntFieldUpdateOperationsInput | number
   User?: Prisma.UserUpdateOneRequiredWithoutAquariumsNestedInput
   Stock?: Prisma.AquariumStockUpdateManyWithoutAquariumNestedInput
   Events?: Prisma.AquariumEventUpdateManyWithoutAquariumNestedInput
@@ -578,6 +597,7 @@ export type AquariumUncheckedUpdateInput = {
   collectAnchorAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   foodLevel?: Prisma.IntFieldUpdateOperationsInput | number
   dropSpeedLevel?: Prisma.IntFieldUpdateOperationsInput | number
+  tankExpansions?: Prisma.IntFieldUpdateOperationsInput | number
   Stock?: Prisma.AquariumStockUncheckedUpdateManyWithoutAquariumNestedInput
   Events?: Prisma.AquariumEventUncheckedUpdateManyWithoutAquariumNestedInput
   Sets?: Prisma.AquariumSetUncheckedUpdateManyWithoutAquariumNestedInput
@@ -605,6 +625,7 @@ export type AquariumCreateManyInput = {
   collectAnchorAt?: Date | string | null
   foodLevel?: number
   dropSpeedLevel?: number
+  tankExpansions?: number
 }
 
 export type AquariumUpdateManyMutationInput = {
@@ -625,6 +646,7 @@ export type AquariumUpdateManyMutationInput = {
   collectAnchorAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   foodLevel?: Prisma.IntFieldUpdateOperationsInput | number
   dropSpeedLevel?: Prisma.IntFieldUpdateOperationsInput | number
+  tankExpansions?: Prisma.IntFieldUpdateOperationsInput | number
 }
 
 export type AquariumUncheckedUpdateManyInput = {
@@ -647,6 +669,7 @@ export type AquariumUncheckedUpdateManyInput = {
   collectAnchorAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   foodLevel?: Prisma.IntFieldUpdateOperationsInput | number
   dropSpeedLevel?: Prisma.IntFieldUpdateOperationsInput | number
+  tankExpansions?: Prisma.IntFieldUpdateOperationsInput | number
 }
 
 export type AquariumListRelationFilter = {
@@ -690,6 +713,7 @@ export type AquariumCountOrderByAggregateInput = {
   collectAnchorAt?: Prisma.SortOrder
   foodLevel?: Prisma.SortOrder
   dropSpeedLevel?: Prisma.SortOrder
+  tankExpansions?: Prisma.SortOrder
 }
 
 export type AquariumAvgOrderByAggregateInput = {
@@ -701,6 +725,7 @@ export type AquariumAvgOrderByAggregateInput = {
   debrisLevel?: Prisma.SortOrder
   foodLevel?: Prisma.SortOrder
   dropSpeedLevel?: Prisma.SortOrder
+  tankExpansions?: Prisma.SortOrder
 }
 
 export type AquariumMaxOrderByAggregateInput = {
@@ -723,6 +748,7 @@ export type AquariumMaxOrderByAggregateInput = {
   collectAnchorAt?: Prisma.SortOrder
   foodLevel?: Prisma.SortOrder
   dropSpeedLevel?: Prisma.SortOrder
+  tankExpansions?: Prisma.SortOrder
 }
 
 export type AquariumMinOrderByAggregateInput = {
@@ -745,6 +771,7 @@ export type AquariumMinOrderByAggregateInput = {
   collectAnchorAt?: Prisma.SortOrder
   foodLevel?: Prisma.SortOrder
   dropSpeedLevel?: Prisma.SortOrder
+  tankExpansions?: Prisma.SortOrder
 }
 
 export type AquariumSumOrderByAggregateInput = {
@@ -756,6 +783,7 @@ export type AquariumSumOrderByAggregateInput = {
   debrisLevel?: Prisma.SortOrder
   foodLevel?: Prisma.SortOrder
   dropSpeedLevel?: Prisma.SortOrder
+  tankExpansions?: Prisma.SortOrder
 }
 
 export type AquariumScalarRelationFilter = {
@@ -893,6 +921,7 @@ export type AquariumCreateWithoutUserInput = {
   collectAnchorAt?: Date | string | null
   foodLevel?: number
   dropSpeedLevel?: number
+  tankExpansions?: number
   Stock?: Prisma.AquariumStockCreateNestedManyWithoutAquariumInput
   Events?: Prisma.AquariumEventCreateNestedManyWithoutAquariumInput
   Sets?: Prisma.AquariumSetCreateNestedManyWithoutAquariumInput
@@ -919,6 +948,7 @@ export type AquariumUncheckedCreateWithoutUserInput = {
   collectAnchorAt?: Date | string | null
   foodLevel?: number
   dropSpeedLevel?: number
+  tankExpansions?: number
   Stock?: Prisma.AquariumStockUncheckedCreateNestedManyWithoutAquariumInput
   Events?: Prisma.AquariumEventUncheckedCreateNestedManyWithoutAquariumInput
   Sets?: Prisma.AquariumSetUncheckedCreateNestedManyWithoutAquariumInput
@@ -975,6 +1005,7 @@ export type AquariumScalarWhereInput = {
   collectAnchorAt?: Prisma.DateTimeNullableFilter<"Aquarium"> | Date | string | null
   foodLevel?: Prisma.IntFilter<"Aquarium"> | number
   dropSpeedLevel?: Prisma.IntFilter<"Aquarium"> | number
+  tankExpansions?: Prisma.IntFilter<"Aquarium"> | number
 }
 
 export type AquariumCreateWithoutStockInput = {
@@ -995,6 +1026,7 @@ export type AquariumCreateWithoutStockInput = {
   collectAnchorAt?: Date | string | null
   foodLevel?: number
   dropSpeedLevel?: number
+  tankExpansions?: number
   User: Prisma.UserCreateNestedOneWithoutAquariumsInput
   Events?: Prisma.AquariumEventCreateNestedManyWithoutAquariumInput
   Sets?: Prisma.AquariumSetCreateNestedManyWithoutAquariumInput
@@ -1022,6 +1054,7 @@ export type AquariumUncheckedCreateWithoutStockInput = {
   collectAnchorAt?: Date | string | null
   foodLevel?: number
   dropSpeedLevel?: number
+  tankExpansions?: number
   Events?: Prisma.AquariumEventUncheckedCreateNestedManyWithoutAquariumInput
   Sets?: Prisma.AquariumSetUncheckedCreateNestedManyWithoutAquariumInput
   Decor?: Prisma.AquariumDecorUncheckedCreateNestedManyWithoutAquariumInput
@@ -1062,6 +1095,7 @@ export type AquariumUpdateWithoutStockInput = {
   collectAnchorAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   foodLevel?: Prisma.IntFieldUpdateOperationsInput | number
   dropSpeedLevel?: Prisma.IntFieldUpdateOperationsInput | number
+  tankExpansions?: Prisma.IntFieldUpdateOperationsInput | number
   User?: Prisma.UserUpdateOneRequiredWithoutAquariumsNestedInput
   Events?: Prisma.AquariumEventUpdateManyWithoutAquariumNestedInput
   Sets?: Prisma.AquariumSetUpdateManyWithoutAquariumNestedInput
@@ -1089,6 +1123,7 @@ export type AquariumUncheckedUpdateWithoutStockInput = {
   collectAnchorAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   foodLevel?: Prisma.IntFieldUpdateOperationsInput | number
   dropSpeedLevel?: Prisma.IntFieldUpdateOperationsInput | number
+  tankExpansions?: Prisma.IntFieldUpdateOperationsInput | number
   Events?: Prisma.AquariumEventUncheckedUpdateManyWithoutAquariumNestedInput
   Sets?: Prisma.AquariumSetUncheckedUpdateManyWithoutAquariumNestedInput
   Decor?: Prisma.AquariumDecorUncheckedUpdateManyWithoutAquariumNestedInput
@@ -1113,6 +1148,7 @@ export type AquariumCreateWithoutSetsInput = {
   collectAnchorAt?: Date | string | null
   foodLevel?: number
   dropSpeedLevel?: number
+  tankExpansions?: number
   User: Prisma.UserCreateNestedOneWithoutAquariumsInput
   Stock?: Prisma.AquariumStockCreateNestedManyWithoutAquariumInput
   Events?: Prisma.AquariumEventCreateNestedManyWithoutAquariumInput
@@ -1140,6 +1176,7 @@ export type AquariumUncheckedCreateWithoutSetsInput = {
   collectAnchorAt?: Date | string | null
   foodLevel?: number
   dropSpeedLevel?: number
+  tankExpansions?: number
   Stock?: Prisma.AquariumStockUncheckedCreateNestedManyWithoutAquariumInput
   Events?: Prisma.AquariumEventUncheckedCreateNestedManyWithoutAquariumInput
   Decor?: Prisma.AquariumDecorUncheckedCreateNestedManyWithoutAquariumInput
@@ -1180,6 +1217,7 @@ export type AquariumUpdateWithoutSetsInput = {
   collectAnchorAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   foodLevel?: Prisma.IntFieldUpdateOperationsInput | number
   dropSpeedLevel?: Prisma.IntFieldUpdateOperationsInput | number
+  tankExpansions?: Prisma.IntFieldUpdateOperationsInput | number
   User?: Prisma.UserUpdateOneRequiredWithoutAquariumsNestedInput
   Stock?: Prisma.AquariumStockUpdateManyWithoutAquariumNestedInput
   Events?: Prisma.AquariumEventUpdateManyWithoutAquariumNestedInput
@@ -1207,6 +1245,7 @@ export type AquariumUncheckedUpdateWithoutSetsInput = {
   collectAnchorAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   foodLevel?: Prisma.IntFieldUpdateOperationsInput | number
   dropSpeedLevel?: Prisma.IntFieldUpdateOperationsInput | number
+  tankExpansions?: Prisma.IntFieldUpdateOperationsInput | number
   Stock?: Prisma.AquariumStockUncheckedUpdateManyWithoutAquariumNestedInput
   Events?: Prisma.AquariumEventUncheckedUpdateManyWithoutAquariumNestedInput
   Decor?: Prisma.AquariumDecorUncheckedUpdateManyWithoutAquariumNestedInput
@@ -1231,6 +1270,7 @@ export type AquariumCreateWithoutDecorInput = {
   collectAnchorAt?: Date | string | null
   foodLevel?: number
   dropSpeedLevel?: number
+  tankExpansions?: number
   User: Prisma.UserCreateNestedOneWithoutAquariumsInput
   Stock?: Prisma.AquariumStockCreateNestedManyWithoutAquariumInput
   Events?: Prisma.AquariumEventCreateNestedManyWithoutAquariumInput
@@ -1258,6 +1298,7 @@ export type AquariumUncheckedCreateWithoutDecorInput = {
   collectAnchorAt?: Date | string | null
   foodLevel?: number
   dropSpeedLevel?: number
+  tankExpansions?: number
   Stock?: Prisma.AquariumStockUncheckedCreateNestedManyWithoutAquariumInput
   Events?: Prisma.AquariumEventUncheckedCreateNestedManyWithoutAquariumInput
   Sets?: Prisma.AquariumSetUncheckedCreateNestedManyWithoutAquariumInput
@@ -1298,6 +1339,7 @@ export type AquariumUpdateWithoutDecorInput = {
   collectAnchorAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   foodLevel?: Prisma.IntFieldUpdateOperationsInput | number
   dropSpeedLevel?: Prisma.IntFieldUpdateOperationsInput | number
+  tankExpansions?: Prisma.IntFieldUpdateOperationsInput | number
   User?: Prisma.UserUpdateOneRequiredWithoutAquariumsNestedInput
   Stock?: Prisma.AquariumStockUpdateManyWithoutAquariumNestedInput
   Events?: Prisma.AquariumEventUpdateManyWithoutAquariumNestedInput
@@ -1325,6 +1367,7 @@ export type AquariumUncheckedUpdateWithoutDecorInput = {
   collectAnchorAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   foodLevel?: Prisma.IntFieldUpdateOperationsInput | number
   dropSpeedLevel?: Prisma.IntFieldUpdateOperationsInput | number
+  tankExpansions?: Prisma.IntFieldUpdateOperationsInput | number
   Stock?: Prisma.AquariumStockUncheckedUpdateManyWithoutAquariumNestedInput
   Events?: Prisma.AquariumEventUncheckedUpdateManyWithoutAquariumNestedInput
   Sets?: Prisma.AquariumSetUncheckedUpdateManyWithoutAquariumNestedInput
@@ -1349,6 +1392,7 @@ export type AquariumCreateWithoutEggsInput = {
   collectAnchorAt?: Date | string | null
   foodLevel?: number
   dropSpeedLevel?: number
+  tankExpansions?: number
   User: Prisma.UserCreateNestedOneWithoutAquariumsInput
   Stock?: Prisma.AquariumStockCreateNestedManyWithoutAquariumInput
   Events?: Prisma.AquariumEventCreateNestedManyWithoutAquariumInput
@@ -1376,6 +1420,7 @@ export type AquariumUncheckedCreateWithoutEggsInput = {
   collectAnchorAt?: Date | string | null
   foodLevel?: number
   dropSpeedLevel?: number
+  tankExpansions?: number
   Stock?: Prisma.AquariumStockUncheckedCreateNestedManyWithoutAquariumInput
   Events?: Prisma.AquariumEventUncheckedCreateNestedManyWithoutAquariumInput
   Sets?: Prisma.AquariumSetUncheckedCreateNestedManyWithoutAquariumInput
@@ -1416,6 +1461,7 @@ export type AquariumUpdateWithoutEggsInput = {
   collectAnchorAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   foodLevel?: Prisma.IntFieldUpdateOperationsInput | number
   dropSpeedLevel?: Prisma.IntFieldUpdateOperationsInput | number
+  tankExpansions?: Prisma.IntFieldUpdateOperationsInput | number
   User?: Prisma.UserUpdateOneRequiredWithoutAquariumsNestedInput
   Stock?: Prisma.AquariumStockUpdateManyWithoutAquariumNestedInput
   Events?: Prisma.AquariumEventUpdateManyWithoutAquariumNestedInput
@@ -1443,6 +1489,7 @@ export type AquariumUncheckedUpdateWithoutEggsInput = {
   collectAnchorAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   foodLevel?: Prisma.IntFieldUpdateOperationsInput | number
   dropSpeedLevel?: Prisma.IntFieldUpdateOperationsInput | number
+  tankExpansions?: Prisma.IntFieldUpdateOperationsInput | number
   Stock?: Prisma.AquariumStockUncheckedUpdateManyWithoutAquariumNestedInput
   Events?: Prisma.AquariumEventUncheckedUpdateManyWithoutAquariumNestedInput
   Sets?: Prisma.AquariumSetUncheckedUpdateManyWithoutAquariumNestedInput
@@ -1467,6 +1514,7 @@ export type AquariumCreateWithoutEventsInput = {
   collectAnchorAt?: Date | string | null
   foodLevel?: number
   dropSpeedLevel?: number
+  tankExpansions?: number
   User: Prisma.UserCreateNestedOneWithoutAquariumsInput
   Stock?: Prisma.AquariumStockCreateNestedManyWithoutAquariumInput
   Sets?: Prisma.AquariumSetCreateNestedManyWithoutAquariumInput
@@ -1494,6 +1542,7 @@ export type AquariumUncheckedCreateWithoutEventsInput = {
   collectAnchorAt?: Date | string | null
   foodLevel?: number
   dropSpeedLevel?: number
+  tankExpansions?: number
   Stock?: Prisma.AquariumStockUncheckedCreateNestedManyWithoutAquariumInput
   Sets?: Prisma.AquariumSetUncheckedCreateNestedManyWithoutAquariumInput
   Decor?: Prisma.AquariumDecorUncheckedCreateNestedManyWithoutAquariumInput
@@ -1534,6 +1583,7 @@ export type AquariumUpdateWithoutEventsInput = {
   collectAnchorAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   foodLevel?: Prisma.IntFieldUpdateOperationsInput | number
   dropSpeedLevel?: Prisma.IntFieldUpdateOperationsInput | number
+  tankExpansions?: Prisma.IntFieldUpdateOperationsInput | number
   User?: Prisma.UserUpdateOneRequiredWithoutAquariumsNestedInput
   Stock?: Prisma.AquariumStockUpdateManyWithoutAquariumNestedInput
   Sets?: Prisma.AquariumSetUpdateManyWithoutAquariumNestedInput
@@ -1561,6 +1611,7 @@ export type AquariumUncheckedUpdateWithoutEventsInput = {
   collectAnchorAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   foodLevel?: Prisma.IntFieldUpdateOperationsInput | number
   dropSpeedLevel?: Prisma.IntFieldUpdateOperationsInput | number
+  tankExpansions?: Prisma.IntFieldUpdateOperationsInput | number
   Stock?: Prisma.AquariumStockUncheckedUpdateManyWithoutAquariumNestedInput
   Sets?: Prisma.AquariumSetUncheckedUpdateManyWithoutAquariumNestedInput
   Decor?: Prisma.AquariumDecorUncheckedUpdateManyWithoutAquariumNestedInput
@@ -1586,6 +1637,7 @@ export type AquariumCreateManyUserInput = {
   collectAnchorAt?: Date | string | null
   foodLevel?: number
   dropSpeedLevel?: number
+  tankExpansions?: number
 }
 
 export type AquariumUpdateWithoutUserInput = {
@@ -1606,6 +1658,7 @@ export type AquariumUpdateWithoutUserInput = {
   collectAnchorAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   foodLevel?: Prisma.IntFieldUpdateOperationsInput | number
   dropSpeedLevel?: Prisma.IntFieldUpdateOperationsInput | number
+  tankExpansions?: Prisma.IntFieldUpdateOperationsInput | number
   Stock?: Prisma.AquariumStockUpdateManyWithoutAquariumNestedInput
   Events?: Prisma.AquariumEventUpdateManyWithoutAquariumNestedInput
   Sets?: Prisma.AquariumSetUpdateManyWithoutAquariumNestedInput
@@ -1632,6 +1685,7 @@ export type AquariumUncheckedUpdateWithoutUserInput = {
   collectAnchorAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   foodLevel?: Prisma.IntFieldUpdateOperationsInput | number
   dropSpeedLevel?: Prisma.IntFieldUpdateOperationsInput | number
+  tankExpansions?: Prisma.IntFieldUpdateOperationsInput | number
   Stock?: Prisma.AquariumStockUncheckedUpdateManyWithoutAquariumNestedInput
   Events?: Prisma.AquariumEventUncheckedUpdateManyWithoutAquariumNestedInput
   Sets?: Prisma.AquariumSetUncheckedUpdateManyWithoutAquariumNestedInput
@@ -1658,6 +1712,7 @@ export type AquariumUncheckedUpdateManyWithoutUserInput = {
   collectAnchorAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   foodLevel?: Prisma.IntFieldUpdateOperationsInput | number
   dropSpeedLevel?: Prisma.IntFieldUpdateOperationsInput | number
+  tankExpansions?: Prisma.IntFieldUpdateOperationsInput | number
 }
 
 
@@ -1747,6 +1802,7 @@ export type AquariumSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs
   collectAnchorAt?: boolean
   foodLevel?: boolean
   dropSpeedLevel?: boolean
+  tankExpansions?: boolean
   User?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   Stock?: boolean | Prisma.Aquarium$StockArgs<ExtArgs>
   Events?: boolean | Prisma.Aquarium$EventsArgs<ExtArgs>
@@ -1778,9 +1834,10 @@ export type AquariumSelectScalar = {
   collectAnchorAt?: boolean
   foodLevel?: boolean
   dropSpeedLevel?: boolean
+  tankExpansions?: boolean
 }
 
-export type AquariumOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "createdAt" | "updatedAt" | "userId" | "slug" | "title" | "coins" | "backgroundKey" | "isPublic" | "lastTickAt" | "setSlotsCap" | "sizeCap" | "debrisLevel" | "lastCleanedAt" | "debrisEverHigh" | "rivalryObserved" | "collectAnchorAt" | "foodLevel" | "dropSpeedLevel", ExtArgs["result"]["aquarium"]>
+export type AquariumOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "createdAt" | "updatedAt" | "userId" | "slug" | "title" | "coins" | "backgroundKey" | "isPublic" | "lastTickAt" | "setSlotsCap" | "sizeCap" | "debrisLevel" | "lastCleanedAt" | "debrisEverHigh" | "rivalryObserved" | "collectAnchorAt" | "foodLevel" | "dropSpeedLevel" | "tankExpansions", ExtArgs["result"]["aquarium"]>
 export type AquariumInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   User?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   Stock?: boolean | Prisma.Aquarium$StockArgs<ExtArgs>
@@ -1869,10 +1926,17 @@ export type $AquariumPayload<ExtArgs extends runtime.Types.Extensions.InternalAr
     collectAnchorAt: Date | null
     /**
      * cthulhuquarium/t-071: coin-bought upgrade levels (aquariumCollect.ts
-     * UPGRADE_CATALOG). Breadth only -- capacity stays milestone-driven.
+     * UPGRADE_CATALOG).
      */
     foodLevel: number
     dropSpeedLevel: number
+    /**
+     * cthulhuquarium/t-081: tank expansions bought with coins (the `room`
+     * upgrade track, aquariumEconomy.ts TANK_EXPANSIONS). Fish room is now
+     * STARTING_FISH_SLOTS + the slots of every expansion bought; sizeCap above
+     * no longer gates fish.
+     */
+    tankExpansions: number
   }, ExtArgs["result"]["aquarium"]>
   composites: {}
 }
@@ -2267,6 +2331,7 @@ export interface AquariumFieldRefs {
   readonly collectAnchorAt: Prisma.FieldRef<"Aquarium", 'DateTime'>
   readonly foodLevel: Prisma.FieldRef<"Aquarium", 'Int'>
   readonly dropSpeedLevel: Prisma.FieldRef<"Aquarium", 'Int'>
+  readonly tankExpansions: Prisma.FieldRef<"Aquarium", 'Int'>
 }
     
 

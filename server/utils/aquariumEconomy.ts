@@ -481,6 +481,51 @@ function idleIncomeBonusFraction(equippedKinds: readonly string[]): number {
 const DEBRIS_SKIMMER_CLEARS_PER_TICK =
   SET_PIECE_CATALOG.debris_skimmer.value ?? 0
 
+// ---------------------------------------------------------------------------
+// Fish room -- economy.yaml `fun_loop` (cthulhuquarium/t-081, LOOP.md). Room
+// counts FISH, not size: every fish (and, until t-082 removes them, every
+// unhatched egg) takes one slot whatever its species size. A new tank holds
+// STARTING_FISH_SLOTS; each tank expansion, bought with coins in order through
+// the `room` upgrade track (aquariumCollect.ts), adds its slots. 12 + 7 x 4 =
+// 40 fish at the top. Silas, 2026-10-10: "we aren't allowing enough fish in a
+// tank" -- the old weighed sizeCap of 10 against sizes 1-10 topped out at 4-5.
+// ---------------------------------------------------------------------------
+
+// fun_loop.starting_fish_slots
+export const STARTING_FISH_SLOTS = 12
+
+export interface TankExpansionConfig {
+  slots: number
+  cost: number
+}
+
+// fun_loop.tank_expansions, in purchase order.
+export const TANK_EXPANSIONS: readonly TankExpansionConfig[] = [
+  { slots: 4, cost: 400 },
+  { slots: 4, cost: 1200 },
+  { slots: 4, cost: 3000 },
+  { slots: 4, cost: 7500 },
+  { slots: 4, cost: 18000 },
+  { slots: 4, cost: 40000 },
+  { slots: 4, cost: 90000 },
+]
+
+// How many fish the tank holds: the starting slots, every expansion bought so
+// far, and the extra_species_slot set piece's flat bonus while equipped.
+export function fishSlotsCap(
+  tankExpansions: number,
+  equippedKinds: readonly string[],
+): number {
+  const bought = Number.isFinite(tankExpansions)
+    ? Math.min(TANK_EXPANSIONS.length, Math.max(0, Math.floor(tankExpansions)))
+    : 0
+  const expansionSlots = TANK_EXPANSIONS.slice(0, bought).reduce(
+    (sum, expansion) => sum + expansion.slots,
+    0,
+  )
+  return effectiveSizeCap(STARTING_FISH_SLOTS + expansionSlots, equippedKinds)
+}
+
 // extra_species_slot (economy.yaml set_pieces.extra_species_slot): a
 // counted number of equipped slots that grant a flat sizeCap bonus each.
 // Duplicates of the same kind aren't offered by the equip flow today (each

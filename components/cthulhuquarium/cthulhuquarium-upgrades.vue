@@ -84,6 +84,7 @@ const tankStore = useCthulhuquariumTankStore()
 const UPGRADE_ART: Record<string, { plate: string; standIn: string }> = {
   food: { plate: 'upgrade-food', standIn: 'set-heavier-feed' },
   dropSpeed: { plate: 'upgrade-drops', standIn: 'set-restless-water' },
+  room: { plate: 'upgrade-room', standIn: 'set-extra-shelf' },
 }
 
 function upgradeArt(track: string): string | null {

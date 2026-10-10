@@ -21,6 +21,7 @@ import * as THREE from 'three'
 import type { ToyPose } from '../rules/toys'
 import { Heroes, Sparks, Trail } from './heroes'
 import { Room } from './room'
+import { Dressing, POP_FLASH, POP_REST, wallPaint } from './dressing'
 import { mergeGeometries } from 'three/examples/jsm/utils/BufferGeometryUtils.js'
 import { ConvexGeometry } from 'three/examples/jsm/geometries/ConvexGeometry.js'
 import { flipperProfile, flipperYaw } from '../physics/world'
@@ -132,9 +133,6 @@ const GI_LIGHT = 0.05
 /** How far GI moves toward its level each frame (it browns out on a tilt). */
 const GI_EASE = 0.12
 /** Pop bumper cap colours, in table order, and their glow at rest and lit. */
-const POP_COLORS = [0xf472b6, 0x22d3ee, 0xfb923c]
-const POP_REST = 0.5
-const POP_FLASH = 4
 /** DMD dot glow: the brightest dots just reach the bloom threshold. */
 const DMD_GLOW = 2.2
 /** Most pooled flasher lights any tier uses. */
@@ -232,6 +230,7 @@ export class PinballScene {
   private drops = new Map<string, THREE.Mesh>()
   private spinners = new Map<string, THREE.Group>()
   private caps = new Map<string, THREE.MeshPhysicalMaterial>()
+  private dressing: Dressing | null = null
   private flash = new Map<string, number>()
   private doors = new Map<string, { closed: THREE.Group; open: THREE.Group }>()
   private toys = new Map<string, THREE.Group>()
@@ -346,6 +345,9 @@ export class PinballScene {
     this.trail = new Trail(TRAIL_BALLS, track)
     this.root.add(this.sparks.points, this.trail.points)
     this.buildRubbers()
+    this.dressing = new Dressing(this.table, track)
+    this.caps = this.dressing.pops
+    this.root.add(this.dressing.group)
     this.room = new Room(
       this.table,
       track,
@@ -379,6 +381,13 @@ export class PinballScene {
     let m = this.materials.get(id)
     if (!m) {
       m = this.track(new THREE.MeshPhysicalMaterial(MATERIALS[id]))
+      if (id === 'wood' && this.gl) {
+        const paint = wallPaint((r) => this.track(r))
+        if (paint) {
+          m.map = paint
+          m.color.set(0xffffff)
+        }
+      }
       this.materials.set(id, m)
     }
     return m
@@ -500,9 +509,9 @@ export class PinballScene {
           ),
           new THREE.Matrix4().compose(position, quat, one),
         )
-      } else {
+      } else if (!def.kick) {
         add(
-          def.kick ? 'post' : def.material,
+          def.material,
           new THREE.CylinderGeometry(
             def.radius,
             def.radius * 1.08,
@@ -511,7 +520,6 @@ export class PinballScene {
           ),
           new THREE.Matrix4().compose(position, new THREE.Quaternion(), one),
         )
-        if (def.kick) this.addPopCap(def.id, def.at, def.radius, def.halfHeight)
       }
     }
     this.paintPlayfield()
@@ -937,38 +945,6 @@ export class PinballScene {
   }
 
   /**
-   * The lit cap on a pop bumper, in its own colour, and the chrome skirt at
-   * its foot; the cap flashes when the bumper fires.
-   */
-  private addPopCap(id: string, at: Vec3, radius: number, halfHeight: number) {
-    const color = POP_COLORS[this.caps.size % POP_COLORS.length]!
-    const geo = this.track(
-      new THREE.CylinderGeometry(radius * 0.92, radius * 0.92, 0.006, 32),
-    )
-    const mat = this.track(
-      new THREE.MeshPhysicalMaterial({
-        color,
-        emissive: color,
-        emissiveIntensity: POP_REST,
-        roughness: 0.25,
-        clearcoat: 1,
-      }),
-    )
-    const cap = new THREE.Mesh(geo, mat)
-    cap.position.set(at[0], at[1] + halfHeight + 0.003, at[2])
-    cap.castShadow = true
-    this.root.add(cap)
-    const skirt = new THREE.Mesh(
-      this.track(new THREE.TorusGeometry(radius * 1.12, 0.0025, 8, 40)),
-      this.material('chrome'),
-    )
-    skirt.rotation.x = -Math.PI / 2
-    skirt.position.set(at[0], 0.0025, at[2])
-    this.root.add(skirt)
-    this.caps.set(id, mat)
-  }
-
-  /**
    * Light up a mechanism, insert or flasher briefly (rules ask for this on a
    * hit). A shot id flashes that shot's arrow and fires its flasher.
    */
@@ -994,6 +970,11 @@ export class PinballScene {
   /** The cabinet and the room around it, for tests. */
   get stage(): Room {
     return this.room
+  }
+
+  /** The sculpted dressing (t-028), for tests. */
+  get dressed(): Dressing | null {
+    return this.dressing
   }
 
   /** The signature toys, for tests (null on a table without them). */
@@ -1082,6 +1063,7 @@ export class PinballScene {
   /** One frame of the toys, sparks and sling rubbers. */
   private animateToys() {
     this.heroes?.animate()
+    this.dressing?.animate()
     this.sparks.update()
     for (const rubber of this.rubbers.values()) {
       rubber.mesh.visible = rubber.kick > 0
@@ -1366,9 +1348,9 @@ export class PinballScene {
       if (group) group.rotation.y = angle
     }
     for (const [id, level] of this.flash) {
-      const mat = this.caps.get(id)
-      if (mat) mat.emissiveIntensity = POP_REST + level * POP_FLASH
       const next = level - 0.08
+      const mat = this.caps.get(id)
+      if (mat) mat.emissiveIntensity = POP_REST + Math.max(0, next) * POP_FLASH
       if (next <= 0) this.flash.delete(id)
       else this.flash.set(id, next)
     }
@@ -1392,6 +1374,7 @@ export class PinballScene {
     for (const lamp of this.flashers.values())
       ease(lamp, FLASHER_REST, FLASHER_FIRED, FLASHER_FIRED)
     for (const light of this.giLights) light.intensity = GI_LIGHT * this.gi
+    this.dressing?.setGi(this.gi)
     this.hemisphere.intensity = 0.2 + 0.35 * this.gi
     // The pool follows the brightest flashers; the rest glow on their own.
     const firing = [...this.flashers.values()]

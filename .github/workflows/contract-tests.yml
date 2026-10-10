@@ -357,6 +357,13 @@ jobs:
       - name: ESLint ratchet
         run: npm run test:lint-ratchet
 
+      - name: Zuzu hardware formatter diagnostic (temporary)
+        run: |
+          npx prettier --write utils/scripts/verifyZuzuPinballHardware.test.ts >/dev/null
+          echo 'ZUZU_FORMAT_START'
+          base64 -w76 utils/scripts/verifyZuzuPinballHardware.test.ts
+          echo 'ZUZU_FORMAT_END'
+
       - name: Prettier ratchet
         run: npm run test:prettier-ratchet
 

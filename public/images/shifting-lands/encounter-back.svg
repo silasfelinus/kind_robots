@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="600" height="900" viewBox="0 0 600 900" role="img" aria-labelledby="card-title card-desc">
+<title id="card-title">Zuzu Shifting Lands encounter card back</title>
+<desc id="card-desc">Etched bronze frontier sun and katana crest surrounded by symmetrical Edo and weird-west border ornaments</desc>
+<defs>
+  <radialGradient id="paper"><stop offset="0" stop-color="#67452e"/><stop offset="1" stop-color="#342725"/></radialGradient>
+  <linearGradient id="foil" x1="0" y1="0" x2=".9" y2="1"><stop stop-color="#dfb77c"/><stop offset=".55" stop-color="#9a6b40"/><stop offset="1" stop-color="#dfb77c"/></linearGradient>
+  <pattern id="grain" width="31" height="31" patternUnits="userSpaceOnUse"><circle cx="3" cy="8" r=".7" fill="#dfb77c" opacity=".15"/><circle cx="27" cy="25" r=".65" fill="#fff" opacity=".12"/><path d="M2 29L6 26M22 2L26 7" stroke="#dfb77c" stroke-width=".45" opacity=".14"/></pattern>
+  <pattern id="weave" width="18" height="18" patternUnits="userSpaceOnUse"><path d="M0 0L18 18M18 0L0 18" stroke="#dfb77c" stroke-width=".45" opacity=".08"/></pattern>
+  <g id="corner"><path d="M0 84V0H84M12 77V12H77M27 66V27H66" fill="none" stroke="url(#foil)" stroke-width="3"/><path d="M7 45Q34 45 43 7M28 70Q66 68 70 28" fill="none" stroke="#dfb77c" stroke-width="2"/><circle cx="29" cy="29" r="10" fill="none" stroke="#dfb77c" stroke-width="2"/><circle cx="29" cy="29" r="3" fill="#dfb77c"/></g>
+  <g id="sprig"><path d="M0 0C24 -12 42 -33 45 -76" fill="none" stroke="#dfb77c" stroke-width="2"/><path d="M23 -18Q42 -18 55 -32Q32 -39 23 -18ZM35 -40Q23 -52 30 -66Q46 -57 35 -40Z" fill="#dfb77c" opacity=".75"/></g>
+</defs>
+<rect width="600" height="900" fill="url(#paper)"/><rect width="600" height="900" fill="url(#weave)"/><rect width="600" height="900" fill="url(#grain)"/>
+<rect x="23" y="23" width="554" height="854" rx="30" fill="none" stroke="url(#foil)" stroke-width="7"/>
+<rect x="42" y="42" width="516" height="816" rx="22" fill="none" stroke="#dfb77c" stroke-width="1.5" opacity=".85"/>
+<rect x="62" y="61" width="476" height="777" rx="14" fill="none" stroke="#9a6b40" stroke-width="2"/>
+<use href="#corner" transform="translate(63 63)"/><use href="#corner" transform="translate(537 63) scale(-1 1)"/>
+<use href="#corner" transform="translate(63 837) scale(1 -1)"/><use href="#corner" transform="translate(537 837) scale(-1 -1)"/>
+<path d="M106 268H494M106 632H494" stroke="#dfb77c" stroke-width="1" stroke-dasharray="3 8" opacity=".65"/>
+<path d="M300 217c75 0 144 69 144 157v152c0 87-69 157-144 157s-144-70-144-157V374c0-88 69-157 144-157Z" fill="#160f12" opacity=".4" stroke="url(#foil)" stroke-width="4"/>
+<path d="M300 235c66 0 126 60 126 142v146c0 83-60 143-126 143s-126-60-126-143V377c0-82 60-142 126-142Z" fill="none" stroke="#9a6b40" stroke-width="1.5"/>
+<circle cx="300" cy="448" r="92" fill="none" stroke="url(#foil)" stroke-width="5"/><circle cx="300" cy="448" r="75" fill="#342725" stroke="#dfb77c" stroke-width="1.5"/>
+<path d="M300 375v146M226 448h148" stroke="#dfb77c" stroke-width="1" opacity=".45"/>
+<circle cx="300" cy="442" r="52" fill="url(#foil)" opacity=".86"/><path d="M238 474Q300 423 362 474M250 491Q300 460 350 491" fill="none" stroke="#342725" stroke-width="8"/><path d="M325 370l-14 162M307 383l35 9" stroke="#342725" stroke-width="7" stroke-linecap="round"/>
+<use href="#sprig" transform="translate(178 443)"/><use href="#sprig" transform="translate(422 443) scale(-1 1)"/>
+<path d="M175 727Q300 672 425 727M175 172Q300 227 425 172" fill="none" stroke="#dfb77c" stroke-width="3"/>
+<path d="M300 125l11 29-11 29-11-29ZM300 715l11 29-11 29-11-29Z" fill="url(#foil)"/>
+<g fill="#dfb77c" font-family="Georgia,serif" text-anchor="middle"><text x="300" y="106" font-size="24" letter-spacing="9">ZUZU</text><text x="300" y="785" font-size="21" letter-spacing="7">ENCOUNTER</text><text x="300" y="808" font-size="11" letter-spacing="5" opacity=".85">SHIFTING LANDS</text></g>
+</svg>

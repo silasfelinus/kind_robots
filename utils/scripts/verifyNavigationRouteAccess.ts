@@ -331,6 +331,28 @@ for (const source of [
   )
 }
 
+for (const [file, source] of [
+  ['workspace-sheet', workspaceSheetSource],
+  [
+    'workspace-header',
+    readFileSync('components/navigation/workspace-header.vue', 'utf8'),
+  ],
+  [
+    'channel-select',
+    readFileSync('components/navigation/channel-select.vue', 'utf8'),
+  ],
+] as const) {
+  assert.ok(
+    source.includes('pageStore.describesPath(route.path)'),
+    `${file} must treat pageStore as stale when it describes another path, not only another channel: moving between two tabs of one channel kept the first tab's tutorial (Silas, 2026-10-10).`,
+  )
+}
+assert.match(
+  readFileSync('stores/pageStore.ts', 'utf8'),
+  /function describesPath\(path: string\): boolean/,
+  'pageStore must expose describesPath for route-staleness checks.',
+)
+
 const adminChannelSource = readFileSync(
   'content/channels/admin/index.md',
   'utf8',

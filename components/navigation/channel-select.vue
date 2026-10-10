@@ -386,6 +386,7 @@ const activeTab = computed<ResolvedTab | null>(() => {
   if (requested) return requested
 
   if (
+    pageStore.describesPath(route.path) &&
     pageStore.resolvedTab &&
     pageStore.resolvedTab.channelKey === channel.channelKey
   ) {

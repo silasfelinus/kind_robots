@@ -430,10 +430,9 @@ const routeLocation = computed(() =>
 )
 
 const routeTabOutrunsPage = computed(() => {
-  const routeChannel = routeLocation.value?.channel
-  if (!routeChannel || !routeLocation.value?.tab) return false
+  if (!routeLocation.value?.tab) return false
 
-  return pageStore.resolvedChannel?.channelKey !== routeChannel.channelKey
+  return !pageStore.describesPath(route.path)
 })
 
 const routeTab = computed(() =>

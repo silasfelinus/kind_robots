@@ -531,6 +531,7 @@ const activeTabKey = computed(() => {
   }
 
   if (
+    pageStore.describesPath(route.path) &&
     pageStore.resolvedTab &&
     pageStore.resolvedTab.channelKey === channel.channelKey
   ) {
@@ -631,18 +632,17 @@ const greeting = computed(() =>
 /*
  * Only content pages call setPage, so on a dedicated page (/admin/worlds/zuzu)
  * pageStore still holds the last content page visited and the header read
- * "Dashboard Room" over an Admin tab. When the stored page belongs to another
- * channel than the route, its room and message are not this page's to show.
+ * "Dashboard Room" over an Admin tab. When the stored page is not the page at
+ * this route -- including another tab of the same channel -- its room and
+ * message are not this page's to show.
  */
-const pageStoreIsStale = computed(() => {
-  const routeChannel = routeChannelLocation.value?.channel
-  const storedChannel = pageStore.resolvedChannel
-  return Boolean(
-    routeChannel &&
-    storedChannel &&
-    routeChannel.channelKey !== storedChannel.channelKey,
-  )
-})
+const pageStoreIsStale = computed(() =>
+  Boolean(
+    routeChannelLocation.value?.channel &&
+    pageStore.currentPage &&
+    !pageStore.describesPath(route.path),
+  ),
+)
 
 const brandLine = computed(() => {
   if (pageStoreIsStale.value) {

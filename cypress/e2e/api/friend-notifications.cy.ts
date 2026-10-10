@@ -35,7 +35,7 @@ type TestUser = {
   token: string
 }
 
-const fallbackApiBase = 'https://kind-robots.vercel.app'
+const fallbackApiBase = `${Cypress.config('baseUrl')}`
 const relationIds = new Set<number>()
 
 let apiBase = fallbackApiBase

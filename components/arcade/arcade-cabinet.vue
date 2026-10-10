@@ -266,7 +266,11 @@ import {
   type DisplayFit,
   type RenderStyle,
 } from '~/utils/arcade/display'
-import { ARCADE_GAMES, findArcadeGame, loadArcadeGame } from '~/utils/arcade/games'
+import {
+  ARCADE_GAMES,
+  findArcadeGame,
+  loadArcadeGame,
+} from '~/utils/arcade/games'
 import {
   ArcadeInput,
   assignPads,

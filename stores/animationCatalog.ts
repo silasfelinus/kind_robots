@@ -768,6 +768,18 @@ export const ANIMATION_EFFECTS = [
     generationSafe: true,
     preferredSurface: 'fullscreen',
   },
+  {
+    id: 'lava-lamp-drift',
+    label: 'Lava Lamp Drift',
+    reveal: 'Glowing wax blobs rise, stretch and sink in a slow lava lamp',
+    icon: 'kind-icon:sparkle',
+    tooltip:
+      'Warm wax blobs drift up and down in a lava lamp 🫧 hover near a blob to make it glow, click to turn up the heat',
+    color: '#ff5fa2',
+    releasedAt: '2026-10-10T08:00:00Z',
+    generationSafe: true,
+    preferredSurface: 'fullscreen',
+  },
 ] as const satisfies readonly AnimationEffectDefinition[]
 
 export type AnimationEffectId = (typeof ANIMATION_EFFECTS)[number]['id']

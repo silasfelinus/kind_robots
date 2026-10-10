@@ -120,7 +120,7 @@ import {
   zoomTarget,
   type Callout,
 } from '~/utils/zuzuShowdown/render'
-import { findFighter } from '~/utils/zuzuShowdown/fighters'
+import { FIGHTERS, findFighter } from '~/utils/zuzuShowdown/fighters'
 import {
   advanceSlowdown,
   advanceSparks,
@@ -155,10 +155,18 @@ import {
 import { introFor } from '~/utils/zuzuShowdown/matchups'
 import {
   VS_SLAM_FRAMES,
+  drawSelectScreen,
   drawVsScreen,
   drawWinScreen,
   vsDuration,
 } from '~/utils/zuzuShowdown/screens'
+import {
+  advanceSelect,
+  newSelect,
+  selectDone,
+  type SelectPress,
+  type SelectState,
+} from '~/utils/zuzuShowdown/select'
 import {
   SPRITE_FIGHTERS,
   SPRITE_ROOT,
@@ -176,7 +184,7 @@ import {
 } from '~/utils/zuzuShowdown/types'
 import { useZuzuShowdownStore } from '~/stores/zuzuShowdownStore'
 
-type StagePhase = 'title' | 'vs' | 'fight' | 'paused' | 'result'
+type StagePhase = 'title' | 'select' | 'vs' | 'fight' | 'paused' | 'result'
 type Direction = 'up' | 'down' | 'left' | 'right'
 
 const RESULT_DELAY = 150
@@ -424,6 +432,9 @@ let training: TrainingState = newTraining()
 let resultCountdown = 0
 // Frames into the VS screen, or into the win screen.
 let screenFrame = 0
+// The character select grid (t-019), and whether the roster change it makes goes straight to the VS screen.
+let select: SelectState = newSelect([], ['', ''])
+let selectedToVs = false
 let loop: FixedLoop | null = null
 let sound: ArcadeSound | null = null
 let soundState: SoundState = newSoundState()
@@ -449,6 +460,44 @@ const knobStyle = computed(() => {
 
 function applyKeyMaps() {
   p1.setKeyMap(store.mode === 'versus' ? P1_KEYS : SOLO_KEYS)
+}
+
+/** The character select grid, its cursors on the current fighters. */
+function openSelect() {
+  select = newSelect(
+    FIGHTERS.map((f) => f.slug),
+    [roster[0].slug, roster[1].slug],
+  )
+  phase.value = 'select'
+}
+
+/** Both picked: the roster takes them (its watcher reloads the art) and the VS screen opens. */
+function confirmSelect() {
+  const picks: [string, string] = [
+    FIGHTERS[select.cursor[0]]!.slug,
+    FIGHTERS[select.cursor[1]]!.slug,
+  ]
+  if (picks[0] === roster[0].slug && picks[1] === roster[1].slug) {
+    startVs()
+    return
+  }
+  selectedToVs = true
+  store.setFighter(0, picks[0])
+  store.setFighter(1, picks[1])
+}
+
+function selectPress(
+  pressed: Partial<Record<FightButton, boolean>>,
+): SelectPress {
+  return {
+    up: pressed.up,
+    down: pressed.down,
+    left: pressed.left,
+    right: pressed.right,
+    lp: pressed.lp,
+    hp: pressed.hp,
+    start: pressed.start,
+  }
 }
 
 /** The VS screen: the fighters slam in and trade their matchup lines, then the fight starts. */
@@ -513,9 +562,30 @@ function tick() {
   const one = p1.poll()
   const two = p2.poll()
   const start = one.pressed.start || two.pressed.start
-  if (phase.value === 'title' || phase.value === 'result') {
+  if (phase.value === 'title') {
+    screenFrame += 1
+    if (start || one.pressed.lp) openSelect()
+    return
+  }
+  if (phase.value === 'result') {
+    // A rematch: the same fighters, straight to the VS screen.
     screenFrame += 1
     if (start || one.pressed.lp) startVs()
+    return
+  }
+  if (phase.value === 'select') {
+    const nothingPicked = !select.picked[0] && !select.picked[1]
+    if (one.pressed.hp && nothingPicked) {
+      phase.value = 'title'
+      return
+    }
+    select = advanceSelect(
+      select,
+      [selectPress(one.pressed), selectPress(two.pressed)],
+      FIGHTERS.length,
+      store.mode === 'versus',
+    )
+    if (selectDone(select)) confirmSelect()
     return
   }
   if (phase.value === 'vs') {
@@ -591,6 +661,18 @@ function render() {
   applyRenderStyle(g, store.renderStyle)
   const sprites = activeSprites()
   const sides = [sprites[roster[0].slug], sprites[roster[1].slug]] as const
+  if (phase.value === 'select') {
+    drawSelectScreen(
+      g,
+      FIGHTERS,
+      sprites,
+      select,
+      store.reducedMotion,
+      store.mode === 'versus',
+      store.mode === 'versus' ? '2P' : store.mode === 'cpu' ? 'CPU' : 'DUMMY',
+    )
+    return
+  }
   if (phase.value === 'vs') {
     drawVsScreen(g, roster, [...sides], screenFrame, store.reducedMotion)
     return
@@ -802,7 +884,10 @@ watch(
     slowdown = null
     stageFx = newStageFx()
     loadArt()
-    phase.value = 'title'
+    if (selectedToVs) {
+      selectedToVs = false
+      startVs()
+    } else phase.value = 'title'
   },
 )
 watch(

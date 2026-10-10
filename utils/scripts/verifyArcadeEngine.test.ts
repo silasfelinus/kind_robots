@@ -84,6 +84,11 @@ import {
   initialShotProgress,
   recognizeShots,
 } from '../arcade/pinball/rules/shots'
+import {
+  CLOUD_TARGETS,
+  RIDGE_VALUES,
+  SKY_LANES,
+} from '../arcade/pinball/rules/ridge'
 import { fitCamera, portraitBlend } from '../arcade/pinball/render/camera'
 import {
   CAMERA_MODES,
@@ -1568,12 +1573,13 @@ async function runPinballSubTable() {
   assert.ok(Math.abs(angles['sub-flipper-left']! - sub.activeAngle) < 1e-6)
   flippers.setFlipper('left', false)
   for (let i = 0; i < 30; i++) flippers.step()
-  flippers.serveBall([roomX - 0.12, 0.0136, -1.2], [0, 0, 0])
+  const fz = sub.pivot[2]
+  flippers.serveBall([roomX - 0.12, 0.0136, fz - 0.09], [0, 0, 0])
   let saved = false
   let flipped = false
   const save = run(flippers, PHYSICS_HZ * 4, (ball) => {
-    if (ball.position[2] > -1.125 && ball.velocity[2] > 0) flipped = true
-    if (flipped && ball.position[2] < -1.2) saved = true
+    if (ball.position[2] > fz - 0.015 && ball.velocity[2] > 0) flipped = true
+    if (flipped && ball.position[2] < fz - 0.09) saved = true
     return flipped && !saved
   })
   assert.ok(saved, 'a room flipper sends the ball back up the room')
@@ -3827,6 +3833,128 @@ async function runPinballStage() {
   assert.equal(liveRenderResources(), resources, 'the room frees its meshes')
 }
 
+/** kind-pinball/t-022: the Ridge, a playfield past the arch. */
+async function runPinballRidge() {
+  const table = AMI_VILLAGE_GREYBOX
+  const floor = table.colliders.find((c) => c.id === 'ridge-floor')
+  assert.ok(floor && floor.kind === 'box', 'the table runs on past the arch')
+  const ridgeTop = floor.at[2] - floor.half[2]
+  const main = table.cameras.find((c) => c.id === 'main')!
+  assert.ok(
+    main.frame.min[2] <= ridgeTop + 0.05,
+    'the whole-table view takes it in',
+  )
+  assert.ok(
+    main.frame.max[2] - main.frame.min[2] > 1.4,
+    'longer than the old one-screen field',
+  )
+  const backbox = table.occluders!.find((o) => o.id === 'backbox')!
+  assert.ok(backbox.at[2] < ridgeTop, 'the backbox stands behind the Ridge')
+  const room = table.zones!.find((z) => z.id === 'sub-table')!
+  assert.ok(room.max[1] < backbox.at[2], 'and the hidden room behind that')
+  const feed = table.scoops.find((sc) => sc.id === 'upper-feed')!
+  assert.equal(feed.subwayTo, 'ridge-entry', 'the upper feed goes up there')
+
+  // Balls kicked onto the Ridge play it and come home through the gate.
+  const entry = table.scoops.find((sc) => sc.id === 'ridge-entry')!
+  let lanes = 0
+  let pops = 0
+  for (const v of [0.6, 0.75, 0.9, 1.05, 1.2]) {
+    const physics = new PinballPhysics(RAPIER, table)
+    physics.serveBall(entry.eject.at, [v, 0, -0.05])
+    let home = false
+    let exit = false
+    for (let i = 0; i < PHYSICS_HZ * 20 && !home; i++) {
+      for (const e of physics.step()) {
+        if (e.type === 'sensor-enter' && SKY_LANES.includes(e.id)) lanes++
+        if (e.type === 'contact' && e.id.startsWith('ridge-pop-')) pops++
+        if (e.type === 'sensor-enter' && e.id === 'ridge-exit') exit = true
+      }
+      const ball = physics.ballViews()[0]
+      if (ball && ball.position[2] > -0.8) home = true
+    }
+    assert.ok(home, `a ball kicked up at ${v} m/s comes home`)
+    assert.ok(exit, 'through the gate')
+    physics.dispose()
+  }
+  assert.ok(lanes >= 5, 'the S-K-Y lanes get made')
+  assert.ok(pops >= 5, 'the pops get hit')
+
+  // The whole trip: the upper feed's hole, the subway, the Ridge.
+  const trip = new PinballPhysics(RAPIER, table)
+  trip.serveBall(feed.at, [0, 0, 0])
+  let up = false
+  for (let i = 0; i < PHYSICS_HZ * 4 && !up; i++) {
+    trip.step()
+    const ball = trip.ballViews()[0]
+    if (ball && ball.position[2] < ridgeTop + 0.1) up = true
+  }
+  assert.ok(up, 'the subway brings the ball up onto the Ridge')
+  trip.dispose()
+
+  // The gate lets nothing up from the village.
+  const gate = new PinballPhysics(RAPIER, table)
+  gate.serveBall([0.02, 0.0136, -0.86], [0, 0, -2.5])
+  let through = false
+  for (let i = 0; i < PHYSICS_HZ; i++) {
+    gate.step()
+    const ball = gate.ballViews()[0]
+    if (ball && ball.position[2] < -0.95) through = true
+  }
+  assert.ok(!through, 'a ball shot at the gate from below bounces off it')
+  gate.dispose()
+
+  // The rules.
+  const sw = (event: SwitchEvent) => (state: PinballRulesState) =>
+    stepRules(state, { type: 'switch', event, tick: 100 })
+  let rules = stepRules(initialRules(3), { type: 'start' }).state
+  const reached = sw({ type: 'capture', id: 'upper-feed', ballId: 1 })(rules)
+  rules = reached.state
+  assert.ok(rules.ridge.up && rules.ridge.visits === 1)
+  assert.ok(
+    reached.effects.some((e) => e.type === 'dmd' && e.text === 'THE RIDGE'),
+  )
+  const lit = lampStates(rules, table).lamps
+  assert.equal(lit['lamp-sky-s'], 'blink', 'the unmade lanes blink up there')
+  const bonus = rules.bonusMultiplier
+  for (const id of SKY_LANES.slice(0, 2))
+    rules = sw({ type: 'sensor-enter', id, ballId: 1 })(rules).state
+  assert.equal(lampStates(rules, table).lamps['lamp-sky-s'], 'on')
+  const sky = sw({ type: 'sensor-enter', id: SKY_LANES[2]!, ballId: 1 })(rules)
+  rules = sky.state
+  assert.equal(rules.bonusMultiplier, bonus + 1, 'SKY HIGH: +1x')
+  assert.deepEqual(rules.ridge.sky, [], 'and the lanes start again')
+  assert.ok(sky.effects.some((e) => e.type === 'dmd' && e.text === 'SKY HIGH'))
+  rules = { ...rules, kickbackLit: false }
+  for (const id of CLOUD_TARGETS)
+    rules = sw({ type: 'contact', id, ballId: 1, impulse: 1 })(rules).state
+  assert.ok(rules.kickbackLit, 'the clouds relight a used kickback')
+  const before = rules.score
+  for (const id of CLOUD_TARGETS)
+    rules = sw({ type: 'contact', id, ballId: 1, impulse: 1 })(rules).state
+  assert.ok(
+    rules.score - before >= RIDGE_VALUES.cloudBurst,
+    'or burst for points when it is lit',
+  )
+  const hits = rules.ridge.hits
+  assert.ok(hits >= 9, 'every switch up there counts toward the run')
+  const runFrom = rules.score
+  rules = sw({ type: 'sensor-enter', id: 'ridge-exit', ballId: 1 })(rules).state
+  assert.equal(
+    rules.score - runFrom,
+    RIDGE_VALUES.runBase + RIDGE_VALUES.runPerHit * hits,
+    'RIDGE RUN pays for the visit',
+  )
+  assert.ok(!rules.ridge.up)
+  const again = rules.score
+  rules = sw({ type: 'sensor-enter', id: 'ridge-exit', ballId: 1 })(rules).state
+  assert.equal(rules.score, again, 'the gate pays once a visit')
+  assert.ok(
+    pinballGuide(new Set(), table).some((page) => page.title === 'THE RIDGE'),
+    'the guide teaches it',
+  )
+}
+
 async function runPinballGuide() {
   // conductor kind-pinball/t-015: the table guide. Every page fits the
   // 360x640 cabinet, the map's numbers match the copy, and the hidden room
@@ -3858,6 +3986,7 @@ async function runPinballGuide() {
       'SHOT MAP',
       'VILLAGES',
       'MULTIBALL',
+      'THE RIDGE',
       'MORE SCORING',
       WIZARD_NAME,
       'MASTERY',
@@ -3868,7 +3997,7 @@ async function runPinballGuide() {
     'nothing gives the hidden room away',
   )
   assert.equal(
-    fresh[5]!.lines.filter((l) => l === '???').length,
+    fresh.at(-1)!.lines.filter((l) => l === '???').length,
     MASTERY_GOALS.filter((g) => g.secret).length,
   )
   // Each village's mode is on the card.
@@ -4220,6 +4349,7 @@ await runPinballDmd()
 await runPinballRules()
 await runPinballSubRules()
 await runPinballMastery()
+await runPinballRidge()
 await runPinballGuide()
 await runPinballToys()
 await runPinballStage()

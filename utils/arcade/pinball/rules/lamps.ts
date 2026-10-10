@@ -19,6 +19,7 @@
 import type { LampLevel, TableDef } from '../types'
 import type { PinballRulesState } from './engine'
 import { ARROW_SHOTS, RAMP_SHOTS, VILLAGES } from './village'
+import { CLOUD_TARGETS, SKY_LANES } from './ridge'
 
 export type LampFrame = {
   lamps: Record<string, LampLevel>
@@ -74,6 +75,19 @@ export function lampStates(
     hot.add(play.skill.target)
   for (const id of hot) set(`arrow-${id}`, 'blink')
   set('lamp-award', play.villages.scoopLit ? 'blink' : 'on')
+  // The Ridge (t-022): its lanes and clouds as they are made; the unmade
+  // ones blink while a ball is up there.
+  const ridge = state.ridge
+  for (const id of SKY_LANES)
+    set(
+      `lamp-${id}`,
+      ridge.sky.includes(id) ? 'on' : ridge.up ? 'blink' : 'off',
+    )
+  for (const id of CLOUD_TARGETS)
+    set(
+      `lamp-${id}`,
+      ridge.clouds.includes(id) ? 'on' : ridge.up ? 'blink' : 'off',
+    )
   if (state.sub.doorOpen) {
     set('arrow-left-orbit', 'blink')
     set('flasher-secret', 'blink')

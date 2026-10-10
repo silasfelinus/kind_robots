@@ -124,7 +124,7 @@
     "test:mana-attribution": "tsx utils/scripts/verifyManaAttribution.test.ts",
     "test:revenue-split": "tsx utils/scripts/verifyRevenueSplit.test.ts",
     "test:aquarium-economy": "tsx utils/scripts/verifyAquariumEconomy.test.ts",
-    "test:arcade-engine": "tsx utils/scripts/verifyArcadeEngine.test.ts",
+    "test:arcade-engine": "tsx utils/scripts/verifyArcadeEngine.test.ts && tsx utils/scripts/verifyZuzuGhostTrailFarm.test.ts",
     "tune:pinball": "tsx utils/scripts/pinballTuning.ts",
     "test:zuzu-gamebook": "tsx utils/scripts/verifyZuzuGamebook.test.ts",
     "test:zuzu-showdown-sim": "tsx utils/scripts/verifyZuzuShowdownSim.test.ts",

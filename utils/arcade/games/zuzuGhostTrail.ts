@@ -66,7 +66,11 @@ export const ENCOUNTER_STEP = 112
 export const ENCOUNTERS_PER_STEP = 2
 export const MAX_ENCOUNTER_CREDITS = 6
 
-export function advanceEncounterBudget(frontier: number, credits: number, x: number) {
+export function advanceEncounterBudget(
+  frontier: number,
+  credits: number,
+  x: number,
+) {
   const reached = Math.max(0, Math.floor((x - 40) / ENCOUNTER_STEP))
   if (reached <= frontier) return { frontier, credits }
   return {

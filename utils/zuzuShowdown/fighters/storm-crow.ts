@@ -22,16 +22,22 @@ const HEIGHT = 100
 const WIDTH = 30
 const NO_HITBOX = { x: 0, y: 0, w: 0, h: 0 }
 
-// LP is a wing buffet; HP a long hooked-blade slash.
+// LP is a wing buffet; HP a long hooked-blade slash. Each box is fitted to
+// his rig's art (conductor tools/rigs/crow.py), so it reaches where the wing,
+// hook or talons are drawn on its active frames.
 const normals = defaultNormals(HEIGHT)
-normals.stand_hp = {
-  ...normals.stand_hp,
-  hitbox: { x: 8, y: 50, w: 44, h: 16 },
+const fit = (id: keyof typeof normals, hitbox: MoveData['hitbox']) => {
+  normals[id] = { ...normals[id], hitbox }
 }
-normals.jump_hp = {
-  ...normals.jump_hp,
-  hitbox: { x: 4, y: 10, w: 40, h: 24 },
-}
+fit('stand_lp', { x: 8, y: 60, w: 30, h: 10 })
+fit('stand_hp', { x: 8, y: 47, w: 36, h: 16 })
+fit('stand_hk', { x: 6, y: 25, w: 34, h: 14 })
+fit('crouch_lp', { x: 8, y: 35, w: 28, h: 10 })
+fit('crouch_hp', { x: 2, y: 40, w: 24, h: 42 })
+fit('crouch_hk', { x: 6, y: 0, w: 32, h: 10 })
+fit('jump_lp', { x: 4, y: 21, w: 28, h: 14 })
+fit('jump_hp', { x: 4, y: 23, w: 28, h: 24 })
+fit('jump_lk', { x: -6, y: 0, w: 36, h: 14 })
 
 // A steep talon dive kick from the air: LK shallow, HK steep. On contact he
 // kicks off and springs back up.

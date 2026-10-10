@@ -29,20 +29,24 @@ const NO_HITBOX = { x: 0, y: 0, w: 0, h: 0 }
 // LP is a snap, HP the big jaw lunge; kicks are tail and claw swipes. Every
 // heavy is slower and soaks one light hit.
 const normals = defaultNormals(HEIGHT)
-// He is long: everything reaches out past his snout.
-const SNOUT = 22
-for (const id of Object.keys(normals) as NormalId[]) {
-  const hitbox = normals[id].hitbox
-  normals[id] = { ...normals[id], hitbox: { ...hitbox, x: hitbox.x + SNOUT } }
+// He is long: everything reaches out past his snout. Each box is fitted to his
+// rig's art (conductor tools/rigs/croc.py), so it reaches where the jaws or
+// claws are drawn on its active frames.
+const fit = (id: NormalId, hitbox: MoveData['hitbox']) => {
+  normals[id] = { ...normals[id], hitbox }
 }
-normals.stand_lp = {
-  ...normals.stand_lp,
-  hitbox: { x: 30, y: 30, w: 24, h: 14 },
-}
-normals.stand_hp = {
-  ...normals.stand_hp,
-  hitbox: { x: 30, y: 22, w: 44, h: 26 },
-}
+fit('stand_lp', { x: 24, y: 38, w: 29, h: 14 })
+fit('stand_hp', { x: 26, y: 38, w: 34, h: 18 })
+fit('stand_lk', { x: 22, y: 16, w: 25, h: 12 })
+fit('stand_hk', { x: 22, y: 24, w: 28, h: 10 })
+fit('crouch_lp', { x: 22, y: 33, w: 29, h: 10 })
+fit('crouch_lk', { x: 22, y: 0, w: 27, h: 10 })
+fit('crouch_hp', { x: 8, y: 43, w: 27, h: 42 })
+fit('crouch_hk', { x: 24, y: 0, w: 29, h: 10 })
+fit('jump_lp', { x: 22, y: 35, w: 31, h: 14 })
+fit('jump_hp', { x: 18, y: 26, w: 33, h: 20 })
+fit('jump_lk', { x: 16, y: 6, w: 29, h: 14 })
+fit('jump_hk', { x: 20, y: 8, w: 29, h: 16 })
 const HEAVIES: NormalId[] = ['stand_hp', 'stand_hk', 'crouch_hp', 'crouch_hk']
 for (const id of HEAVIES) {
   const move = normals[id]

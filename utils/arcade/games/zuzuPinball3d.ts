@@ -11,7 +11,8 @@ export function prepare(): Promise<void> {
 }
 
 const zuzuPinball: ArcadeGameModule = {
-  create: (options) => new PinballRuntime(options, RAPIER, ZUZU_LAST_BELL_GREYBOX),
+  create: (options) =>
+    new PinballRuntime(options, RAPIER, ZUZU_LAST_BELL_GREYBOX),
   guide: () => [
     {
       title: 'THE LAST BELL',

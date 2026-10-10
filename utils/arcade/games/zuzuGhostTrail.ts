@@ -123,6 +123,8 @@ const START_LIVES = 3
 const EXTRA_EVERY = 20_000
 const BOSS_POINTS = 5000
 const BOSS_DYING_TICKS = 70
+/** The clock is topped up to at least this when a boss appears (a long finale needs time). */
+const BOSS_CLOCK = 60 * 240
 /** Zuzu's body: half width, height. */
 const BODY_HW = 5
 const BODY_H = 22
@@ -1198,6 +1200,8 @@ class ZuzuGhostTrail implements ArcadeGameInstance {
     // The arena is the boss's alone.
     this.foes = this.foes.filter((f) => f.x < this.arenaL)
     const def = bossDef(b)
+    // The fight is never lost to a clock run down on the way there.
+    this.timer = Math.max(this.timer, BOSS_CLOCK)
     this.banner = { text: def.name, sub: def.title, ticks: 100 }
     this.sound.play('warn')
   }
@@ -1205,7 +1209,8 @@ class ZuzuGhostTrail implements ArcadeGameInstance {
   private hurtBoss(damage: number, x: number, y: number) {
     const b = this.boss
     if (!b || b.dying > 0) return
-    if (bossDef(b).immune?.(b)) {
+    const def = bossDef(b)
+    if (def.immune?.(b)) {
       this.burst(x, y, 3, '#9ca3af')
       this.sound.play('blip')
       return
@@ -1214,6 +1219,8 @@ class ZuzuGhostTrail implements ArcadeGameInstance {
     b.flash = 6
     this.burst(x, y, 5, '#e5e7eb')
     if (b.hp > 0) return
+    // A two-phase boss may refuse death here and transform instead.
+    if (def.onDefeat?.(b, this.bossCtx())) return
     b.dying = BOSS_DYING_TICKS
     this.bolts = []
     this.foes = []

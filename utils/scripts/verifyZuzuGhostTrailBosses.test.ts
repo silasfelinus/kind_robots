@@ -471,6 +471,6 @@ function checkBoss(spec: BossSpec) {
   assert.ok(run.ticks.some((t) => t.mode === 'land' && t.y === GROUND_Y))
 }
 
-// --- bosses-b: heretic and abbess add their block here -------------------------------------------
+// --- the Bell Heretic and the Abbess are verified in verifyZuzuGhostTrailFinalBosses.test.ts -------
 
 console.log('Ghost Trail bosses: ok')

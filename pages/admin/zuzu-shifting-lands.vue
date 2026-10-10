@@ -9,6 +9,7 @@
     >
       Shifting Lands is still in its private workshop.
     </div>
+    <ShiftingLandsJourneyBoard v-else-if="!legacyMode" @legacy="legacyMode = true" />
     <div
       v-else
       class="kr-scroll mx-auto max-w-[1540px] space-y-5 px-3 py-5 sm:px-6"
@@ -29,6 +30,9 @@
           <NuxtLink class="btn btn-outline btn-sm" to="/admin/worlds/zuzu"
             >World Studio</NuxtLink
           >
+          <button class="btn btn-outline btn-sm" type="button" @click="legacyMode = false">
+            Five-land board
+          </button>
           <button
             class="btn btn-outline btn-sm"
             type="button"
@@ -418,6 +422,7 @@ import { useShiftingLandsStore } from '~/stores/shiftingLandsStore'
 const user = useUserStore()
 const game = useShiftingLandsStore()
 const flipKey = ref(0)
+const legacyMode = ref(false)
 const lands = ['Homestead', 'Crossing', 'Tablelands', 'Caves', 'Verge']
 onMounted(async () => {
   await user.initialize()

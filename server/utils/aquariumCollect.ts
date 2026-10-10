@@ -19,6 +19,7 @@
 // exceed rate x elapsed, however the client lies or chunks its requests.
 
 import type { Rarity } from '~/prisma/generated/prisma/client'
+import { TANK_EXPANSIONS } from './aquariumEconomy'
 
 // ---------------------------------------------------------------------------
 // Coin drops -- economy.yaml `fun_loop`
@@ -137,19 +138,17 @@ export function coinAllowance(input: CoinAllowanceInput): CoinAllowanceResult {
 }
 
 // ---------------------------------------------------------------------------
-// Upgrades -- coins buy breadth, never room.
+// Upgrades -- food, drop speed, and (since t-081) room.
 //
-// Two tracks only: food and drop speed. The brief's third example, "more tank
-// slots", is deliberately NOT a coin upgrade: economy.yaml's `slots` block
-// says capacity growth is "entirely landmark-driven ... never purchased with
-// coins -- coins buy breadth, milestones buy room" (SYSTEMS.md "Two economies,
-// pacing each other"), and the_last_aquarium was designed at +0 capacity
-// specifically so that rule has no exception. The one existing coin-adjacent
-// capacity valve (the extra_species_slot set piece) is already the tuned
-// pressure release; a second one here would bypass the milestone ladder.
+// The DESIGN-BRIEF's "more tank slots" upgrade was held back under v1's
+// "coins buy breadth, milestones buy room" rule. The fun loop reverses that
+// (Silas, 2026-10-10: "we aren't allowing enough fish in a tank"): tank
+// expansions are the mid-game coin sink that keeps more fish -> more coins
+// going. Their prices are an explicit table (aquariumEconomy.ts
+// TANK_EXPANSIONS), not a geometric curve.
 // ---------------------------------------------------------------------------
 
-export type UpgradeTrack = 'food' | 'dropSpeed'
+export type UpgradeTrack = 'food' | 'dropSpeed' | 'room'
 
 export interface UpgradeTrackConfig {
   track: UpgradeTrack
@@ -158,6 +157,8 @@ export interface UpgradeTrackConfig {
   maxLevel: number
   baseCost: number
   costGrowth: number
+  // Explicit per-level prices; when present they win over baseCost/costGrowth.
+  costs?: readonly number[]
 }
 
 // Food: each level cuts feed cost by 15% (max 3 levels = 45% off). Chosen
@@ -195,9 +196,22 @@ export const UPGRADE_CATALOG: Readonly<
     baseCost: 100,
     costGrowth: 2.2,
   },
+  room: {
+    track: 'room',
+    title: 'Bigger tank',
+    description: 'Room for 4 more fish per expansion.',
+    maxLevel: TANK_EXPANSIONS.length,
+    baseCost: TANK_EXPANSIONS[0]?.cost ?? 0,
+    costGrowth: 1,
+    costs: TANK_EXPANSIONS.map((expansion) => expansion.cost),
+  },
 }
 
-export const UPGRADE_TRACKS: readonly UpgradeTrack[] = ['food', 'dropSpeed']
+export const UPGRADE_TRACKS: readonly UpgradeTrack[] = [
+  'room',
+  'dropSpeed',
+  'food',
+]
 
 export function isKnownUpgradeTrack(value: unknown): value is UpgradeTrack {
   return (
@@ -219,6 +233,7 @@ export function upgradeCost(
   const config = UPGRADE_CATALOG[track]
   const level = clampLevel(currentLevel, config.maxLevel)
   if (level >= config.maxLevel) return null
+  if (config.costs) return config.costs[level] ?? null
   return Math.round(config.baseCost * config.costGrowth ** level)
 }
 

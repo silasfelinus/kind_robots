@@ -177,12 +177,11 @@
             </p>
             <div class="mt-auto flex justify-end gap-2">
               <button
-                v-if="!open.currentlyOwned"
                 type="button"
                 class="btn btn-primary btn-sm min-h-11"
                 @click="reorder(open.id)"
               >
-                Re-order
+                {{ open.currentlyOwned ? 'Buy another' : 'Re-order' }}
               </button>
               <button
                 type="button"

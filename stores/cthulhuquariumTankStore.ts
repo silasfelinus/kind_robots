@@ -82,6 +82,8 @@ export interface TankStock {
   // cthulhuquarium/t-080: what each coin this fish drops is worth,
   // server-computed (aquariumCollect.ts coinValueForTier).
   coinValue: number
+  // cthulhuquarium/t-081: what buying another of this species costs.
+  buyCost: number
   Monster: TankMonster
 }
 
@@ -136,12 +138,10 @@ export interface Tank {
   lastTickAt: string | null
   setSlotsCap: number
   sizeCap: number
-  // Server-computed sizeCap + any equipped extra_species_slot bonus
-  // (server/utils/aquariumEconomy.ts's effectiveSizeCap) -- this is what
-  // the unlock panel should check capacity against, not the raw sizeCap.
-  // An unhatched egg's own size is ALSO reserved against this same number
-  // (server-side, before the egg is ever created) -- see occupantSize's own
-  // comment below for why the client mirrors that.
+  // cthulhuquarium/t-081: how many FISH the tank holds (aquariumEconomy.ts
+  // fishSlotsCap: starting slots + bought expansions + any equipped
+  // extra_species_slot bonus). Kept under its old name; it no longer counts
+  // species size. An unhatched egg also takes one slot -- see occupantSize.
   effectiveSizeCap: number
   debrisLevel: number
   lastCleanedAt: string | null
@@ -152,6 +152,7 @@ export interface Tank {
   coinVisibleSeconds: number
   foodLevel: number
   dropSpeedLevel: number
+  tankExpansions: number
   upgrades: TankUpgrade[]
   createdAt: string
   updatedAt: string | null
@@ -622,16 +623,11 @@ export const useCthulhuquariumTankStore = defineStore(
     const stock = computed(() => tank.value?.Stock ?? [])
     const coins = computed(() => tank.value?.coins ?? 0)
     const eggs = computed(() => tank.value?.Eggs ?? [])
-    // Every unhatched egg's size is reserved against the same weighed pool
-    // as owned fish (server/utils/aquarium.ts's currentReservedSize) -- the
-    // client mirrors that here so the shop's disabled/capacity state agrees
-    // with what the server will actually accept, instead of only finding
-    // out on a rejected purchase.
-    const occupantSize = computed(
-      () =>
-        stock.value.reduce((sum, entry) => sum + (entry.Monster.size ?? 1), 0) +
-        eggs.value.reduce((sum, egg) => sum + egg.size, 0),
-    )
+    // cthulhuquarium/t-081: room counts fish, one slot each, plus one per
+    // unhatched egg -- the client mirrors server/utils/aquarium.ts's
+    // currentReservedSize so the shop's disabled/"Tank full" state agrees
+    // with what the server will actually accept.
+    const occupantSize = computed(() => stock.value.length + eggs.value.length)
     // effectiveSizeCap folds in any equipped extra_species_slot bonus; falls
     // back to the raw sizeCap for the brief window before the tank has
     // loaded (tank.value is null) rather than reading 0.
@@ -766,6 +762,9 @@ export const useCthulhuquariumTankStore = defineStore(
     }
 
     async function unlock(monsterId: number): Promise<boolean> {
+      // cthulhuquarium/t-081: buying another of a species already in the tank
+      // is routine -- no reveal dialog or first-unlock story beat for a copy.
+      const isCopy = stock.value.some((entry) => entry.monsterId === monsterId)
       const res = await performFetch<PurchaseResponse>(
         '/api/aquarium/purchase',
         {
@@ -776,8 +775,10 @@ export const useCthulhuquariumTankStore = defineStore(
       if (res.success && res.data) {
         tank.value = res.data.aquarium
         catalog.value = catalog.value.filter((entry) => entry.id !== monsterId)
-        unlockRevealSignal.reveal(res.data.stock)
-        story.queueScene('first_unlock')
+        if (!isCopy) {
+          unlockRevealSignal.reveal(res.data.stock)
+          story.queueScene('first_unlock')
+        }
         story.notifyAction('unlock')
         if (res.data.justCompletedBestiary) announceBestiaryComplete()
         if (res.data.firedMilestones?.length) {

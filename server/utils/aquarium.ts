@@ -25,8 +25,8 @@ import {
   DEBRIS_SPOTLESS_MILESTONE_THRESHOLD,
   DECOR_CATALOG,
   deriveFishRarityTier,
-  effectiveSizeCap,
   eggCatalog,
+  fishSlotsCap,
   eggCost,
   EGG_SIZE_OPTIONS,
   feedCoinRebate,
@@ -224,6 +224,7 @@ const ownedAquariumSelect = {
   lastTickAt: true,
   setSlotsCap: true,
   sizeCap: true,
+  tankExpansions: true,
   debrisLevel: true,
   // cthulhuquarium/t-074: sticky "debris has ever reached
   // DEBRIS_SPOTLESS_MILESTONE_THRESHOLD" flag backing the first_spotless_tank
@@ -283,6 +284,9 @@ type ClientStock = OwnedAquarium['Stock'][number] & {
   // (aquariumCollect.ts coinValueForTier) -- the SAME number coinRatePerSecond
   // accrues, so the "+N" the canvas pops is what the server will pay.
   coinValue: number
+  // cthulhuquarium/t-081: what buying another of this species costs right
+  // now -- the same unlockCost purchaseSpeciesForUser charges.
+  buyCost: number
 }
 
 // cthulhuquarium/t-071: one upgrade track as the shop shows it -- level and
@@ -308,17 +312,31 @@ export interface ClientAquarium extends Omit<OwnedAquarium, 'Stock'> {
   upgrades: ClientUpgrade[]
 }
 
-function upgradeLevel(
-  aquarium: { foodLevel: number; dropSpeedLevel: number },
-  track: UpgradeTrack,
-): number {
-  return track === 'food' ? aquarium.foodLevel : aquarium.dropSpeedLevel
-}
-
-function clientUpgrades(aquarium: {
+type UpgradeLevels = {
   foodLevel: number
   dropSpeedLevel: number
-}): ClientUpgrade[] {
+  tankExpansions: number
+}
+
+function upgradeLevel(aquarium: UpgradeLevels, track: UpgradeTrack): number {
+  if (track === 'food') return aquarium.foodLevel
+  if (track === 'room') return aquarium.tankExpansions
+  return aquarium.dropSpeedLevel
+}
+
+function upgradeLevelPatch(
+  track: UpgradeTrack,
+  level: number,
+): Pick<
+  Prisma.AquariumUpdateManyMutationInput,
+  'foodLevel' | 'dropSpeedLevel' | 'tankExpansions'
+> {
+  if (track === 'food') return { foodLevel: level }
+  if (track === 'room') return { tankExpansions: level }
+  return { dropSpeedLevel: level }
+}
+
+function clientUpgrades(aquarium: UpgradeLevels): ClientUpgrade[] {
   return UPGRADE_TRACKS.map((track) => {
     const config = UPGRADE_CATALOG[track]
     const level = upgradeLevel(aquarium, track)
@@ -336,8 +354,10 @@ function clientUpgrades(aquarium: {
 function toClientAquarium(aquarium: OwnedAquarium): ClientAquarium {
   return {
     ...aquarium,
-    effectiveSizeCap: effectiveSizeCap(
-      aquarium.sizeCap,
+    // cthulhuquarium/t-081: still named effectiveSizeCap for the client,
+    // but it now counts FISH (aquariumEconomy.ts fishSlotsCap), not size.
+    effectiveSizeCap: fishSlotsCap(
+      aquarium.tankExpansions,
       aquarium.Sets.map((set) => set.kind),
     ),
     coinDropSeconds: coinDropSeconds(aquarium.dropSpeedLevel),
@@ -356,6 +376,7 @@ function toClientAquarium(aquarium: OwnedAquarium): ClientAquarium {
           toIndividualStatBlock(stock),
         ),
         coinValue: coinValueForTier(rarity),
+        buyCost: unlockCost(rarity, stock.Monster.unlockCost),
       }
     }),
   }
@@ -368,16 +389,17 @@ function toClientAquarium(aquarium: OwnedAquarium): ClientAquarium {
 // already summed tank.Stock for a capacity check must also sum tank.Eggs
 // (unhatched-only, per ownedEggSelect's own where clause) or a player could
 // bypass the cap entirely by buying eggs first.
+//
+// cthulhuquarium/t-081 (LOOP.md): room counts FISH, not size -- every fish and
+// every unhatched egg takes exactly one slot (FISH_SLOT_SIZE) against
+// fishSlotsCap, whatever its species size.
+const FISH_SLOT_SIZE = 1
+
 function currentReservedSize(tank: {
   Stock: OwnedAquarium['Stock']
   Eggs: OwnedAquarium['Eggs']
 }): number {
-  const stockSize = tank.Stock.reduce(
-    (sum, row) => sum + (row.Monster.size ?? 1),
-    0,
-  )
-  const eggSize = tank.Eggs.reduce((sum, egg) => sum + egg.size, 0)
-  return stockSize + eggSize
+  return (tank.Stock.length + tank.Eggs.length) * FISH_SLOT_SIZE
 }
 
 async function logEvent(
@@ -746,8 +768,8 @@ export async function collectForUser(
 }
 
 // ---------------------------------------------------------------------------
-// Upgrades (cthulhuquarium/t-071) -- food and drop speed only; see
-// aquariumCollect.ts's Upgrades header for why tank slots are not for sale.
+// Upgrades (cthulhuquarium/t-071, t-081) -- food, drop speed, and room (tank
+// expansions); see aquariumCollect.ts's Upgrades header.
 // The level compare-and-set (updateMany where level = current and coins >=
 // price) means a double-click can never buy the same level twice or overdraw.
 // ---------------------------------------------------------------------------
@@ -779,14 +801,11 @@ export async function purchaseUpgradeForUser(
     )
   }
 
-  const levelWhere: Prisma.AquariumWhereInput =
-    track === 'food'
-      ? { foodLevel: currentLevel }
-      : { dropSpeedLevel: currentLevel }
-  const levelData: Prisma.AquariumUpdateManyMutationInput =
-    track === 'food'
-      ? { foodLevel: currentLevel + 1 }
-      : { dropSpeedLevel: currentLevel + 1 }
+  const levelWhere = upgradeLevelPatch(
+    track,
+    currentLevel,
+  ) as Prisma.AquariumWhereInput
+  const levelData = upgradeLevelPatch(track, currentLevel + 1)
 
   const aquarium = await prisma.$transaction(async (tx) => {
     const claimed = await tx.aquarium.updateMany({
@@ -1318,23 +1337,18 @@ export async function purchaseSpeciesForUser(
     )
   }
 
-  const alreadyOwned = tank.Stock.some((row) => row.monsterId === monsterId)
-  if (alreadyOwned) {
-    throw apiError(
-      409,
-      `${monster.name} is already in your tank -- Cthulhuquarium is a collection, not copies of the same fish.`,
-    )
-  }
-
+  // cthulhuquarium/t-081: copies are allowed (LOOP.md -- buying more of a
+  // species you already own is how a tank fills up). The bestiary and its
+  // milestones still count DISTINCT species via the codex below.
   const currentSize = currentReservedSize(tank)
-  const newSize = monster.size ?? 1
+  const newSize = FISH_SLOT_SIZE
   // tank.effectiveSizeCap (aquariumEconomy.ts's effectiveSizeCap) already
   // folds in any equipped extra_species_slot bonus -- see this section's
   // header comment for why that's not a "capacity purchased with coins".
   if (currentSize + newSize > tank.effectiveSizeCap) {
     throw apiError(
       409,
-      `Adding ${monster.name} (size ${newSize}) would exceed your tank's capacity (${currentSize}/${tank.effectiveSizeCap} used).`,
+      `Your tank is full (${currentSize}/${tank.effectiveSizeCap} fish) -- expand it or release a fish to make room for ${monster.name}.`,
     )
   }
 
@@ -1372,11 +1386,10 @@ export async function purchaseSpeciesForUser(
       // a future feature ever lets a species leave the tank and be rebought,
       // firstAcquiredAt keeps the ORIGINAL discovery date (t-024's "cannot
       // be un-collected" applies to the record, not just the count) instead
-      // of a unique-constraint error. Today `alreadyOwned` above already
-      // guarantees this monster has no codex row yet -- there is no
-      // release/sell path -- so this always takes the `create` branch, but
-      // upsert keeps that an invariant of the data rather than of this one
-      // call site.
+      // of a unique-constraint error. Since t-081 allows copies, buying
+      // another of an owned species takes the `update` branch, and
+      // collectedCountAfter below does not move -- the bestiary counts
+      // distinct species, not fish.
       const existingEntry = await tx.aquariumCodexEntry.findUnique({
         where: { userId_monsterId: { userId, monsterId: monster.id } },
         select: { id: true, ...codexBestStatSelect },
@@ -1571,10 +1584,10 @@ export async function purchaseEggForUser(
   // other unhatched egg too), so hatching itself never needs a capacity
   // check at all: the space already exists.
   const currentSize = currentReservedSize(tank)
-  if (currentSize + size > tank.effectiveSizeCap) {
+  if (currentSize + FISH_SLOT_SIZE > tank.effectiveSizeCap) {
     throw apiError(
       409,
-      `A size-${size} egg would exceed your tank's capacity (${currentSize}/${tank.effectiveSizeCap} used) -- the space is reserved the moment you buy it.`,
+      `Your tank is full (${currentSize}/${tank.effectiveSizeCap} fish) -- an egg's slot is reserved the moment you buy it.`,
     )
   }
 
@@ -1598,7 +1611,7 @@ export async function purchaseEggForUser(
         tx,
         tank.id,
         currentSize,
-        currentSize + size,
+        currentSize + FISH_SLOT_SIZE,
         tank.effectiveSizeCap,
       )
       if (fullTankMilestone) firedMilestones.push(fullTankMilestone)
@@ -1656,8 +1669,8 @@ export async function hatchEggForUser(
   // off the shell" decision. size <= egg.size is the whole reason a hatch
   // can never overflow the tank -- the reservation already covers it.
   //
-  // Deliberately NOT filtered against species the player already owns
-  // (contrast purchaseSpeciesForUser's alreadyOwned 409): a duplicate
+  // Deliberately NOT filtered against species the player already owns: a
+  // duplicate
   // individual is a genuinely useful outcome here, not a wasted one --
   // breeding (t-029) requires two individuals of the SAME species, and a
   // hatch is the only route to a second one of an already-owned line base.
@@ -1933,11 +1946,11 @@ export async function breedFishForUser(
   }
 
   const currentSize = currentReservedSize(tank)
-  const offspringSize = monster.size ?? 1
+  const offspringSize = FISH_SLOT_SIZE
   if (currentSize + offspringSize > tank.effectiveSizeCap) {
     throw apiError(
       409,
-      `Breeding would exceed your tank's capacity (${currentSize}/${tank.effectiveSizeCap} used).`,
+      `Breeding would exceed your tank's room (${currentSize}/${tank.effectiveSizeCap} fish).`,
     )
   }
 

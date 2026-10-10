@@ -148,7 +148,7 @@
               {{ tankStore.stock.length }}
             </span>
             <span class="text-xs font-normal opacity-70">
-              {{ tankStore.occupantSize }}/{{ tankStore.sizeCap }} room
+              {{ tankStore.occupantSize }}/{{ tankStore.sizeCap }} fish
             </span>
           </div>
 
@@ -288,6 +288,21 @@
                   @click="tankStore.feed(entry.id)"
                 >
                   Feed
+                </button>
+                <!-- cthulhuquarium/t-081: copies are allowed -- more of a
+                     species you like is how the tank fills up. -->
+                <button
+                  type="button"
+                  class="btn btn-outline btn-xs min-h-11 min-w-11"
+                  :disabled="tankStore.coins < entry.buyCost || !fitsRoom()"
+                  :title="fitsRoom() ? undefined : 'Tank full'"
+                  @click="tankStore.unlock(entry.monsterId)"
+                >
+                  {{
+                    entry.buyCost === 0
+                      ? 'Another'
+                      : `Another (${entry.buyCost})`
+                  }}
                 </button>
                 <!-- Sell (t-030): priced off THIS individual's own rolled
                      stats, never a flat species price -- usually a loss, but
@@ -494,8 +509,8 @@
                 @click="tankStore.unlock(entry.id)"
               >
                 {{
-                  !fitsRoom(entry.size)
-                    ? 'No room'
+                  !fitsRoom()
+                    ? 'Tank full'
                     : entry.cost === 0
                       ? 'Free'
                       : `Unlock (${entry.cost})`
@@ -840,7 +855,7 @@
                   :disabled="!canBuyEgg(entry)"
                   @click="tankStore.purchaseEgg(entry.rarity, entry.size)"
                 >
-                  {{ fitsRoom(entry.size) ? `Buy (${entry.cost})` : 'No room' }}
+                  {{ fitsRoom() ? `Buy (${entry.cost})` : 'Tank full' }}
                 </button>
               </div>
             </div>
@@ -1747,12 +1762,14 @@ const shopRefreshLabel = computed(() => {
 // is printed, so short coins speaks for itself, but a full tank looked like
 // the same greyed-out price (playtest 2026-09-30: 19,720 coins and every
 // Unlock/Buy dead with no word why).
-function fitsRoom(size: number | null | undefined): boolean {
-  return tankStore.occupantSize + (size ?? 1) <= tankStore.sizeCap
+// cthulhuquarium/t-081: every fish (and unhatched egg) takes one slot,
+// whatever its size.
+function fitsRoom(): boolean {
+  return tankStore.occupantSize + 1 <= tankStore.sizeCap
 }
 
 function canUnlock(entry: CatalogEntry): boolean {
-  return tankStore.coins >= entry.cost && fitsRoom(entry.size)
+  return tankStore.coins >= entry.cost && fitsRoom()
 }
 
 // cthulhuquarium/t-055: the currently-armed first parent, if any -- looked
@@ -1788,7 +1805,7 @@ const canConfirmBreed = computed(() => {
   if (!pair) return false
   return (
     tankStore.coins >= pair.a.Monster.breedCost &&
-    tankStore.occupantSize + (pair.a.Monster.size ?? 1) <= tankStore.sizeCap
+    tankStore.occupantSize + 1 <= tankStore.sizeCap
   )
 })
 
@@ -2087,6 +2104,14 @@ function drawSpriteAt(
   context.restore()
 }
 
+// cthulhuquarium/t-081: a tank now holds up to 40 fish, so sprites shrink as
+// it fills -- full size up to the 12 starting slots, about 60% at 40 -- and a
+// crowded tank stays readable instead of a wall of overlapping fish.
+const crowdScale = computed(() => {
+  const count = swimmers.value.length
+  return count <= 12 ? 1 : Math.max(0.6, 1 - (count - 12) * 0.014)
+})
+
 function drawFish(
   context: CanvasRenderingContext2D,
   swimmer: Swimmer,
@@ -2096,7 +2121,7 @@ function drawFish(
 ) {
   const hue = monster.hue ?? hashHue(monster.slug)
   const facing = swimmer.facing
-  const size = (10 + (monster.size ?? 1) * 4) * scale
+  const size = (10 + (monster.size ?? 1) * 4) * scale * crowdScale.value
   // Hungry occupants desaturate and dim rather than vanishing, so a
   // neglected tank reads as neglected at a glance.
   const life = 0.3 + (hunger / 100) * 0.7
@@ -2747,7 +2772,7 @@ function equippedSetId(kind: string): number | null {
 // server will actually accept -- an unhatched egg's own size already
 // counts against tankStore.occupantSize (see that computed's own comment).
 function canBuyEgg(entry: EggCatalogEntry): boolean {
-  return tankStore.coins >= entry.cost && fitsRoom(entry.size)
+  return tankStore.coins >= entry.cost && fitsRoom()
 }
 
 // cthulhuquarium/t-048: both loops pause on a hidden tab and resume cleanly

@@ -2,12 +2,12 @@
 // cypress/e2e/spec.cy.js
 describe('Dev Site Active', () => {
   it('passes', () => {
-    cy.visit('http://kind-robots.vercel.app/')
+    cy.visit('/')
   })
 })
 
-describe('kind-robots.vercel.app  Active', () => {
+describe('Configured test site active', () => {
   it('passes', () => {
-    cy.visit('https://kind-robots.vercel.app/')
+    cy.visit('/')
   })
 })

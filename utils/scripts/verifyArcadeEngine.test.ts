@@ -2854,7 +2854,8 @@ async function runPinballRules() {
   assert.equal(s.play.locks, 0, 'an unlit lock is just a scoop')
   s = lockOne(s)
   assert.equal(s.play.locks, 1)
-  assert.equal(scene('lock')?.text, 'LOCK 1')
+  assert.equal(scene('lock')?.text, 'PACKAGE 1')
+  assert.equal(scene('lock')?.sub, '1 MORE TO SEND')
   s = wait(s, LATER)
   const beforeMultiball = s
   s = lockOne(s)

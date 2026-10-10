@@ -1,9 +1,8 @@
 // /server/api/aquarium/sell.post.ts
 //
-// Sells one individual fish out of the authenticated user's tank back to
-// the shop, priced entirely server-side off that individual's own rolled
-// stats (cthulhuquarium/t-030) -- usually a loss, but a well-bred individual
-// can sell for more than its species' base unlock cost. The species stays
+// Releases one fish out of the authenticated user's tank for a flat half of
+// its species' unlock cost (cthulhuquarium/t-030, t-082 -- LOOP.md: how a
+// full tank trades up to rarer fish). Priced server-side. The species stays
 // re-orderable afterward through the Ichthyonomicon (GET
 // /api/aquarium/bestiary's `currentlyOwned` flag + POST /api/aquarium/purchase)
 // regardless of today's rotating catalog -- selling never touches

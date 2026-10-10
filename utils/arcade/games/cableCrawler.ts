@@ -14,7 +14,25 @@
 // Arrows steer.
 
 import { levelCurve } from '../curve'
-import { drawText } from '../font'
+import { drawText, measureText } from '../font'
+import {
+  INK,
+  RAMPS,
+  type PixelSprite,
+  type Ramp,
+  Sparkles,
+  backdropRng,
+  bandedGradient,
+  bevel,
+  drawSprite,
+  gauge,
+  glow,
+  hudPanel,
+  mix,
+  pixelSprite,
+  rgba,
+  vignette,
+} from '../snes'
 import type {
   ArcadeGameInstance,
   ArcadeGameModule,
@@ -71,6 +89,418 @@ type Floater = { x: number; y: number; text: string; life: number }
 const key = (x: number, y: number) => y * COLS + x
 const START: Cell = { x: Math.floor(COLS / 2), y: ROWS - 2 }
 
+// --- 16-bit art (utils/arcade/snes.ts) -------------------------------------------
+
+/**
+ * Each board's circuit: the wall slabs' ramp, the banded board under them, and the etched
+ * traces. Boards cycle through these, so a new board reads as a new circuit.
+ */
+type BoardTheme = {
+  wall: Ramp
+  floor: readonly string[]
+  trace: string
+  pad: string
+}
+
+function boardTheme(wall: Ramp): BoardTheme {
+  const base = mix(wall[0], RAMPS.night[0], 0.55)
+  return {
+    wall,
+    floor: [
+      mix(wall[0], RAMPS.night[1], 0.2),
+      base,
+      mix(base, RAMPS.night[0], 0.5),
+      RAMPS.night[0],
+    ],
+    trace: mix(wall[1], base, 0.45),
+    pad: mix(wall[2], base, 0.45),
+  }
+}
+
+const THEMES: readonly BoardTheme[] = [
+  boardTheme(RAMPS.teal),
+  boardTheme(RAMPS.purple),
+  boardTheme(RAMPS.sky),
+  boardTheme(RAMPS.leaf),
+]
+
+/** The cable's insulation, top (lit) row to bottom (shadow) row across its 6px width. */
+const TUBE = [
+  RAMPS.steel[3],
+  RAMPS.steel[4],
+  RAMPS.steel[3],
+  RAMPS.sky[3],
+  RAMPS.steel[2],
+  RAMPS.steel[1],
+] as const
+/** The same rows while an energy pulse runs through: the core lights up. */
+const TUBE_LIT = [
+  RAMPS.steel[3],
+  RAMPS.steel[4],
+  RAMPS.sky[4],
+  '#ffffff',
+  RAMPS.sky[3],
+  RAMPS.steel[1],
+] as const
+
+const PLUG_PALETTE = {
+  H: RAMPS.steel[4],
+  L: RAMPS.steel[3],
+  B: RAMPS.steel[2],
+  S: RAMPS.steel[1],
+  k: INK,
+  w: '#ffffff',
+  p: RAMPS.pink[3],
+  r: RAMPS.pink[2],
+  G: RAMPS.gold[2],
+  y: RAMPS.gold[4],
+  d: RAMPS.gold[1],
+  c: RAMPS.teal[4],
+}
+
+/** The plug's 8x8 housing: a little face that chomps (mouth open on the second frame). */
+function plugHousing(open: boolean): string[] {
+  return [
+    '.HHHHHH.',
+    'HLLLLLLB',
+    'HLwkLwkB',
+    'HLkkLkkB',
+    open ? 'HpLkkLpB' : 'HpLLLLpB',
+    open ? 'HLLrrLLB' : 'HLLkkLLB',
+    'BBBBBBBS',
+    '.SSSSSS.',
+  ]
+}
+
+type Facing = 'side' | 'up' | 'down'
+
+/**
+ * The plug head for a facing, its gold prongs pointing the way it crawls. On the chomp frame a
+ * spark jumps between the prong tips. Left is the side art mirrored; nothing is rotated.
+ */
+function plugRows(facing: Facing, open: boolean): string[] {
+  const housing = plugHousing(open)
+  if (facing === 'side') {
+    const prongs = [
+      '...',
+      'Gyy',
+      'Gdd',
+      open ? '..c' : '...',
+      open ? '..c' : '...',
+      'Gyy',
+      'Gdd',
+      '...',
+    ]
+    return housing.map((row, i) => row + prongs[i]!)
+  }
+  const tip = open ? '.ydccyd.' : '.yd..yd.'
+  if (facing === 'up') return [tip, '.yd..yd.', '.GG..GG.', ...housing]
+  return [...housing, '.GG..GG.', '.yd..yd.', tip]
+}
+
+const PLUG: Record<Facing, readonly [PixelSprite, PixelSprite]> = {
+  side: [
+    pixelSprite(plugRows('side', false), PLUG_PALETTE),
+    pixelSprite(plugRows('side', true), PLUG_PALETTE),
+  ],
+  up: [
+    pixelSprite(plugRows('up', false), PLUG_PALETTE),
+    pixelSprite(plugRows('up', true), PLUG_PALETTE),
+  ],
+  down: [
+    pixelSprite(plugRows('down', false), PLUG_PALETTE),
+    pixelSprite(plugRows('down', true), PLUG_PALETTE),
+  ],
+}
+
+/**
+ * The cable's elbow at a bend, for each pair of directions it bends between (`hx` the side its
+ * horizontal run leaves by, `vy` the vertical one). Each pixel takes the shading of the run it
+ * sits nearer, so the lit edge carries round the bend in a mitre, and the outer corner is inked
+ * off to round it.
+ */
+function elbowRows(hx: number, vy: number): string[] {
+  const rows: string[] = []
+  for (let r = 0; r < 6; r++) {
+    let row = ''
+    for (let c = 0; c < 6; c++) {
+      const outer = c === (hx > 0 ? 0 : 5) && r === (vy > 0 ? 0 : 5)
+      const toSide = hx > 0 ? 5 - c : c
+      const toEnd = vy > 0 ? 5 - r : r
+      row += outer ? 'k' : String(toSide < toEnd ? r : c)
+    }
+    rows.push(row)
+  }
+  return rows
+}
+
+function elbowSprites(tube: readonly string[]) {
+  const palette: Record<string, string> = { k: INK }
+  tube.forEach((colour, i) => (palette[String(i)] = colour))
+  const make = (hx: number, vy: number) =>
+    pixelSprite(elbowRows(hx, vy), palette, { outline: null })
+  return {
+    '1,1': make(1, 1),
+    '1,-1': make(1, -1),
+    '-1,1': make(-1, 1),
+    '-1,-1': make(-1, -1),
+  } as Record<string, PixelSprite>
+}
+
+const ELBOWS = elbowSprites(TUBE)
+const ELBOWS_LIT = elbowSprites(TUBE_LIT)
+
+/** A spare cable for the HUD: a tiny plug. */
+const LIFE_SPRITE = pixelSprite(
+  ['.HHH...', 'HLLLBGy', 'HkLkB..', 'HLLLBGy', '.SSS...'],
+  PLUG_PALETTE,
+)
+
+const SPARK_PALETTE = {
+  w: '#ffffff',
+  H: RAMPS.gold[4],
+  Y: RAMPS.gold[3],
+  G: RAMPS.gold[2],
+  d: RAMPS.gold[1],
+}
+/** A spark: a shaded little energy bead, and its twinkle with a white-hot centre. */
+const SPARK_SPRITES = [
+  pixelSprite(['.HY.', 'HwYG', 'YYGd', '.Gd.'], SPARK_PALETTE),
+  pixelSprite(['.HH.', 'HwwY', 'HwYG', '.YG.'], SPARK_PALETTE),
+] as const
+
+const COIN_PALETTE = {
+  ...SPARK_PALETTE,
+  D: RAMPS.gold[0],
+  b: RAMPS.rust[2],
+}
+/** The golden spark: a bolt coin that spins (full face, then edge-on). */
+const GOLD_SPRITES = [
+  pixelSprite(
+    [
+      '..HHYG..',
+      '.HYYwYG.',
+      'HYYwwYGd',
+      'HYwwwwGd',
+      'YGGwwGGd',
+      'YGGwGGdD',
+      '.GGGGdD.',
+      '..dddD..',
+    ],
+    COIN_PALETTE,
+  ),
+  pixelSprite(
+    [
+      '...HY...',
+      '..HYwG..',
+      '..HwwG..',
+      '..YwwG..',
+      '..YwwG..',
+      '..YwGd..',
+      '..GGdD..',
+      '...dD...',
+    ],
+    COIN_PALETTE,
+  ),
+] as const
+
+const glowStamps = new Map<string, HTMLCanvasElement | null>()
+
+/**
+ * A soft additive glow baked once to an offscreen canvas, for lights drawn by the hundred (every
+ * spark, every lit cable segment). Null headless, where the glow is simply skipped.
+ */
+function glowStamp(
+  colour: string,
+  r: number,
+  alpha: number,
+): HTMLCanvasElement | null {
+  const id = `${colour}:${r}:${alpha}`
+  let stamp = glowStamps.get(id)
+  if (stamp === undefined) {
+    stamp = null
+    if (typeof document !== 'undefined') {
+      const size = Math.ceil(r * 8)
+      const canvas = document.createElement('canvas')
+      canvas.width = canvas.height = size
+      const sg = canvas.getContext('2d')
+      if (sg) {
+        const grad = sg.createRadialGradient(
+          size / 2,
+          size / 2,
+          0,
+          size / 2,
+          size / 2,
+          size / 2,
+        )
+        grad.addColorStop(0, rgba(colour, alpha))
+        grad.addColorStop(1, rgba(colour, 0))
+        sg.fillStyle = grad
+        sg.fillRect(0, 0, size, size)
+        stamp = canvas
+      }
+    }
+    glowStamps.set(id, stamp)
+  }
+  return stamp
+}
+
+/** An offscreen canvas for the board, or null headless. */
+function boardCanvas(): HTMLCanvasElement | null {
+  if (typeof document === 'undefined') return null
+  const canvas = document.createElement('canvas')
+  canvas.width = W
+  canvas.height = H
+  return canvas
+}
+
+/**
+ * The static circuit board, painted once per layout: a banded board etched with faint traces
+ * down the middle of every corridor and a solder pad under every spark, shadows the walls cast
+ * down and right, and the walls as raised slabs, lit on their top and left edges and shadowed on
+ * their bottom and right, outlined in ink, with gold pin-one dots like chips on a board.
+ */
+function paintBoard(
+  k: CanvasRenderingContext2D,
+  walls: readonly boolean[],
+  theme: BoardTheme,
+) {
+  const { wall: ramp } = theme
+  const isWall = (x: number, y: number) =>
+    x < 0 || y < 0 || x >= COLS || y >= ROWS || walls[key(x, y)] === true
+  bandedGradient(k, 0, 0, W, HUD_H, [RAMPS.night[2], RAMPS.night[0]], 2)
+  bandedGradient(k, 0, HUD_H, W, ROWS * TILE, theme.floor, 4)
+
+  // Etched traces through every corridor, and a pad on every spark socket.
+  for (let y = 0; y < ROWS; y++)
+    for (let x = 0; x < COLS; x++) {
+      if (isWall(x, y)) continue
+      const cx = x * TILE + TILE / 2
+      const cy = HUD_H + y * TILE + TILE / 2
+      k.fillStyle = theme.trace
+      if (!isWall(x + 1, y)) k.fillRect(cx, cy, TILE, 1)
+      if (!isWall(x, y + 1)) k.fillRect(cx, cy, 1, TILE)
+      if ((x + y) % 2 === 0) {
+        k.fillStyle = theme.pad
+        k.fillRect(cx - 2, cy - 2, 4, 4)
+        k.fillStyle = RAMPS.night[0]
+        k.fillRect(cx - 1, cy - 1, 2, 2)
+      }
+    }
+
+  // Walls cast their shadow down and to the right onto the board.
+  k.fillStyle = rgba(INK, 0.45)
+  for (let y = 0; y < ROWS; y++)
+    for (let x = 0; x < COLS; x++) {
+      if (isWall(x, y)) continue
+      const px = x * TILE
+      const py = HUD_H + y * TILE
+      if (isWall(x, y - 1)) k.fillRect(px, py, TILE, 2)
+      if (isWall(x - 1, y))
+        k.fillRect(
+          px,
+          py + (isWall(x, y - 1) ? 2 : 0),
+          2,
+          TILE - (isWall(x, y - 1) ? 2 : 0),
+        )
+    }
+
+  const face = ramp[2]
+  for (let y = 0; y < ROWS; y++)
+    for (let x = 0; x < COLS; x++) {
+      if (!isWall(x, y)) continue
+      const px = x * TILE
+      const py = HUD_H + y * TILE
+      const up = !isWall(x, y - 1)
+      const down = !isWall(x, y + 1)
+      const left = !isWall(x - 1, y)
+      const right = !isWall(x + 1, y)
+      k.fillStyle = face
+      k.fillRect(px, py, TILE, TILE)
+      // The slab's sides: shadowed below and to the right, lit above and to the left.
+      k.fillStyle = ramp[0]
+      if (down) k.fillRect(px, py + TILE - 3, TILE, 2)
+      k.fillStyle = ramp[1]
+      if (right) k.fillRect(px + TILE - 3, py, 2, TILE - (down ? 3 : 0))
+      if (up) {
+        k.fillStyle = ramp[4]
+        k.fillRect(px, py + 1, TILE, 1)
+        k.fillStyle = ramp[3]
+        k.fillRect(px, py + 2, TILE, 1)
+      }
+      if (left) {
+        k.fillStyle = ramp[3]
+        k.fillRect(
+          px + 1,
+          py + (up ? 1 : 0),
+          1,
+          TILE - (up ? 1 : 0) - (down ? 3 : 0),
+        )
+      }
+      // Concave corners carry the lit edge and the shadow round the bend.
+      if (!up && !left && !isWall(x - 1, y - 1)) {
+        k.fillStyle = ramp[4]
+        k.fillRect(px, py, 2, 1)
+        k.fillRect(px, py, 1, 2)
+      }
+      if (!down && !right && !isWall(x + 1, y + 1)) {
+        k.fillStyle = ramp[0]
+        k.fillRect(px + TILE - 3, py + TILE - 3, 3, 3)
+      }
+      k.fillStyle = INK
+      if (up) k.fillRect(px, py, TILE, 1)
+      if (down) k.fillRect(px, py + TILE - 1, TILE, 1)
+      if (left) k.fillRect(px, py, 1, TILE)
+      if (right) k.fillRect(px + TILE - 1, py, 1, TILE)
+      if (!up && !left && !isWall(x - 1, y - 1)) k.fillRect(px, py, 1, 1)
+      if (!up && !right && !isWall(x + 1, y - 1))
+        k.fillRect(px + TILE - 1, py, 1, 1)
+      if (!down && !left && !isWall(x - 1, y + 1))
+        k.fillRect(px, py + TILE - 1, 1, 1)
+      if (!down && !right && !isWall(x + 1, y + 1))
+        k.fillRect(px + TILE - 1, py + TILE - 1, 1, 1)
+      // Chips stand on silver legs along their left and right sides.
+      const frameCell = x === 0 || y === 0 || x === COLS - 1 || y === ROWS - 1
+      if (!frameCell)
+        for (const ly of [3, 6]) {
+          if (left) {
+            k.fillStyle = RAMPS.steel[3]
+            k.fillRect(px - 1, py + ly, 1, 1)
+            k.fillStyle = RAMPS.steel[1]
+            k.fillRect(px - 1, py + ly + 1, 1, 1)
+          }
+          if (right) {
+            k.fillStyle = RAMPS.steel[2]
+            k.fillRect(px + TILE, py + ly, 1, 1)
+            k.fillStyle = RAMPS.steel[0]
+            k.fillRect(px + TILE, py + ly + 1, 1, 1)
+          }
+        }
+      // Rounded outer corners: a pixel of board shows through.
+      const corner = (cx: number, cy: number) => {
+        k.fillStyle = theme.floor[1]!
+        k.fillRect(cx, cy, 1, 1)
+      }
+      if (up && left) corner(px, py)
+      if (up && right) corner(px + TILE - 1, py)
+      if (down && left) corner(px, py + TILE - 1)
+      if (down && right) corner(px + TILE - 1, py + TILE - 1)
+      // A gold pin-one dot on each chip's top-left cell, and contact pads along the frame.
+      const pinOne = !frameCell && up && left
+      const contact = frameCell && (x * 7 + y * 3) % 5 === 0
+      if (pinOne || contact) {
+        const ox = px + (pinOne ? 3 : 4)
+        const oy = py + (pinOne ? 4 : 4)
+        k.fillStyle = INK
+        k.fillRect(ox, oy, 3, 3)
+        k.fillStyle = RAMPS.gold[2]
+        k.fillRect(ox, oy, 2, 2)
+        k.fillStyle = RAMPS.gold[4]
+        k.fillRect(ox, oy, 1, 1)
+      }
+    }
+}
+
 class CableCrawler implements ArcadeGameInstance {
   score = 0
   level = 1
@@ -101,6 +531,19 @@ class CableCrawler implements ArcadeGameInstance {
   private particles: Particle[] = []
   private floaters: Floater[] = []
   private banner: { text: string; sub?: string; ticks: number } | null = null
+  // Cosmetic sparkles roll their own dice, so the game's seeded rng is untouched.
+  private fx = new Sparkles()
+  /** Small eat sparkles, drawn under the cable so they never wash out the plug's face. */
+  private crumbs = new Sparkles()
+  private fxRng = backdropRng(53)
+  /**
+   * This instance's board, painted once per layout onto one canvas that is reused for every
+   * new board (headless there is no canvas, and the board paints straight onto the frame).
+   */
+  private boardArt: {
+    walls: boolean[]
+    canvas: HTMLCanvasElement | null
+  } | null = null
 
   constructor(options: ArcadeGameOptions) {
     this.rng = options.rng
@@ -282,12 +725,18 @@ class CableCrawler implements ArcadeGameInstance {
       this.grow += GROW
       this.addScore(SPARK_POINTS * this.level, px, py - 8, false)
       this.sound.play('blip')
+      this.crumbs.burst(px, py, this.fxRng, {
+        count: 3,
+        speed: 0.9,
+        colours: [RAMPS.gold[4], RAMPS.gold[3], RAMPS.sky[4]],
+      })
       if (this.sparks.size === 0) this.boardClear()
     }
     if (this.gold && this.gold.k === k) {
       this.gold = null
       this.addScore(GOLD_POINTS * this.level, px, py - 8, true)
       this.burst(px, py, '#fde047', 14)
+      this.fx.burst(px, py, this.fxRng, { count: 16, speed: 2.2 })
       this.sound.play('extra')
     }
   }
@@ -317,6 +766,13 @@ class CableCrawler implements ArcadeGameInstance {
     const bonus = Math.ceil(this.battery / 60) * BATTERY_POINTS * this.level
     this.addScore(bonus, W / 2, H / 2, true)
     this.clear = CLEAR_TICKS
+    for (let i = 0; i < 6; i++)
+      this.fx.burst(
+        TILE * 2 + this.fxRng() * (W - TILE * 4),
+        HUD_H + TILE * 2 + this.fxRng() * (ROWS - 4) * TILE,
+        this.fxRng,
+        { count: 10, speed: 2 },
+      )
     this.sound.play('level')
     this.banner = {
       text: 'BOARD CLEAR!',
@@ -334,6 +790,16 @@ class CableCrawler implements ArcadeGameInstance {
       HUD_H + head.y * TILE + TILE / 2,
       '#f87171',
       18,
+    )
+    this.fx.burst(
+      head.x * TILE + TILE / 2,
+      HUD_H + head.y * TILE + TILE / 2,
+      this.fxRng,
+      {
+        count: 10,
+        speed: 2.4,
+        colours: [RAMPS.teal[4], RAMPS.sky[4], '#ffffff'],
+      },
     )
     this.sound.play('die')
     this.banner = {
@@ -385,6 +851,8 @@ class CableCrawler implements ArcadeGameInstance {
       f.life--
     }
     this.floaters = this.floaters.filter((f) => f.life > 0)
+    this.fx.update()
+    this.crumbs.update()
   }
 
   // --- attract-mode pilot -----------------------------------------------------
@@ -493,159 +961,311 @@ class CableCrawler implements ArcadeGameInstance {
   // --- render -------------------------------------------------------------------
 
   render(g: CanvasRenderingContext2D) {
-    g.fillStyle = '#0b1220'
-    g.fillRect(0, 0, W, H)
-    for (let y = 0; y < ROWS; y++)
-      for (let x = 0; x < COLS; x++) {
-        const px = x * TILE
-        const py = HUD_H + y * TILE
-        if (this.walls[key(x, y)]) {
-          g.fillStyle = '#115e59'
-          g.fillRect(px, py, TILE, TILE)
-          g.fillStyle = '#2dd4bf'
-          if (!this.walls[key(x + 1, y)] || x === COLS - 1)
-            g.fillRect(px + TILE - 1, py, 1, TILE)
-          if (!this.walls[key(x, y + 1)] || y === ROWS - 1)
-            g.fillRect(px, py + TILE - 1, TILE, 1)
-          if ((x * 7 + y * 3) % 5 === 0) {
-            g.fillStyle = '#facc15'
-            g.fillRect(px + 4, py + 4, 2, 2)
-          }
-        } else {
-          g.fillStyle = '#111827'
-          g.fillRect(px + 4, py + 4, 1, 1)
-        }
-      }
-    for (const k of this.sparks) {
-      const px = (k % COLS) * TILE + TILE / 2
-      const py = HUD_H + Math.floor(k / COLS) * TILE + TILE / 2
-      const twinkle = (this.tick + k * 7) % 40 < 20
-      g.fillStyle = twinkle ? '#fde047' : '#facc15'
-      g.fillRect(px - 1, py - 1, 3, 3)
-      if (twinkle) {
-        g.fillStyle = '#fef9c3'
-        g.fillRect(px, py - 3, 1, 7)
-        g.fillRect(px - 3, py, 7, 1)
-      }
+    const theme = THEMES[(this.level - 1) % THEMES.length]!
+    if (!this.boardArt || this.boardArt.walls !== this.walls) {
+      const canvas = boardCanvas()
+      const board = canvas?.getContext('2d')
+      if (canvas && board) paintBoard(board, this.walls, theme)
+      this.boardArt = { walls: this.walls, canvas: board ? canvas : null }
     }
+    if (this.boardArt.canvas) {
+      g.save()
+      g.imageSmoothingEnabled = false
+      g.drawImage(this.boardArt.canvas, 0, 0)
+      g.restore()
+    } else {
+      paintBoard(g, this.walls, theme)
+    }
+    this.renderSparks(g)
     if (
       this.gold &&
       (this.gold.life > 90 || Math.floor(this.gold.life / 6) % 2)
-    ) {
-      const px = (this.gold.k % COLS) * TILE + TILE / 2
-      const py = HUD_H + Math.floor(this.gold.k / COLS) * TILE + TILE / 2
-      g.fillStyle = '#f59e0b'
-      g.beginPath()
-      g.arc(px, py, 4.5, 0, Math.PI * 2)
-      g.fill()
-      g.fillStyle = '#fef3c7'
-      g.fillRect(px - 1, py - 3, 2, 6)
-    }
+    )
+      this.renderGold(g, this.gold.k)
+    this.crumbs.render(g)
     if (this.dead === 0 || Math.floor(this.dead / 5) % 2) this.renderCable(g)
+    // The game's own bursts: hot little sparks drawn as light.
+    g.save()
+    g.globalCompositeOperation = 'lighter'
     for (const p of this.particles) {
-      g.globalAlpha = Math.max(0, p.life / 30)
+      g.globalAlpha = Math.max(0, Math.min(1, p.life / 24))
       g.fillStyle = p.color
-      g.fillRect(p.x - 1, p.y - 1, 2, 2)
+      g.fillRect(Math.round(p.x) - 1, Math.round(p.y) - 1, 2, 2)
+      g.fillStyle = '#ffffff'
+      g.fillRect(Math.round(p.x) - 1, Math.round(p.y) - 1, 1, 1)
     }
-    g.globalAlpha = 1
+    g.restore()
+    this.fx.render(g)
     for (const f of this.floaters)
       drawText(g, f.text, f.x, f.y, {
         align: 'center',
-        color: '#fef9c3',
-        shadow: '#0b1220',
+        color: RAMPS.gold[4],
+        outline: INK,
       })
+    vignette(g, W, H, 0.3)
     this.renderHud(g)
   }
 
+  private centre(k: number) {
+    return {
+      x: (k % COLS) * TILE + TILE / 2,
+      y: HUD_H + Math.floor(k / COLS) * TILE + TILE / 2,
+    }
+  }
+
+  /** Every spark: a baked glow under it, and a twinkle running across the board. */
+  private renderSparks(g: CanvasRenderingContext2D) {
+    const stamp = glowStamp(RAMPS.gold[3], 3, 0.45)
+    if (stamp) {
+      g.save()
+      g.globalCompositeOperation = 'lighter'
+      g.imageSmoothingEnabled = true
+      for (const k of this.sparks) {
+        const { x, y } = this.centre(k)
+        g.drawImage(stamp, x - 6, y - 6, 12, 12)
+      }
+      g.restore()
+    }
+    for (const k of this.sparks) {
+      const { x, y } = this.centre(k)
+      const twinkle = (this.tick + k * 7) % 40 < 8
+      drawSprite(g, SPARK_SPRITES[twinkle ? 1 : 0], x, y)
+      if (twinkle) {
+        g.save()
+        g.globalCompositeOperation = 'lighter'
+        g.fillStyle = rgba(RAMPS.gold[4], 0.8)
+        g.fillRect(x - 4, y, 2, 1)
+        g.fillRect(x + 2, y - 1, 2, 1)
+        g.fillRect(x - 1, y - 4, 1, 2)
+        g.fillRect(x, y + 2, 1, 2)
+        g.restore()
+      }
+    }
+  }
+
+  /** The golden spark: a spinning bolt coin bobbing over its own shadow, in a pulsing glow. */
+  private renderGold(g: CanvasRenderingContext2D, k: number) {
+    const { x, y } = this.centre(k)
+    const pulse = 0.5 + 0.5 * Math.sin(this.tick / 5)
+    const bob = Math.round(Math.sin(this.tick / 9) * 1.5)
+    glow(g, x, y, 11 + pulse * 4, RAMPS.gold[3], 0.45 + pulse * 0.25)
+    g.fillStyle = rgba(INK, 0.45)
+    g.fillRect(x - 3, y + 4, 6, 2)
+    const frame = Math.floor(this.tick / 10) % 4 === 3 ? 1 : 0
+    drawSprite(g, GOLD_SPRITES[frame], x, y - 1 + bob)
+  }
+
+  /**
+   * The cable as a shaded tube built from crisp runs: a drop shadow on the board, an ink
+   * outline, insulation lit along its top and left, an energy pulse lighting the core as it runs
+   * from tail to plug, pink cable ties every few cells, and the plug head sprite for its facing.
+   */
   private renderCable(g: CanvasRenderingContext2D) {
-    const centre = (c: Cell) => ({
+    const pts = this.body.map((c) => ({
       x: c.x * TILE + TILE / 2,
       y: HUD_H + c.y * TILE + TILE / 2,
-    })
-    g.strokeStyle = '#e2e8f0'
-    g.lineWidth = 5
-    g.lineCap = 'round'
-    g.lineJoin = 'round'
-    g.beginPath()
-    this.body.forEach((c, i) => {
-      const p = centre(c)
-      if (i === 0) g.moveTo(p.x, p.y)
-      else g.lineTo(p.x, p.y)
-    })
-    g.stroke()
-    // A coloured stripe and cable ties.
-    g.strokeStyle = '#38bdf8'
-    g.lineWidth = 1
-    g.stroke()
-    this.body.forEach((c, i) => {
-      if (i === 0 || i % 4 !== 0) return
-      const p = centre(c)
-      g.fillStyle = '#f472b6'
-      g.fillRect(p.x - 2, p.y - 2, 4, 4)
-    })
-    // The plug head with its two prongs.
-    const head = centre(this.body[0]!)
-    g.fillStyle = '#94a3b8'
-    g.fillRect(head.x - 4, head.y - 4, 8, 8)
-    g.fillStyle = '#e2e8f0'
-    g.fillRect(head.x - 3, head.y - 3, 6, 6)
-    g.fillStyle = '#fbbf24'
-    const d = this.dir
-    for (const side of [-2, 2]) {
-      const px = head.x + d.dx * 5 + (d.dx === 0 ? side : 0)
-      const py = head.y + d.dy * 5 + (d.dy === 0 ? side : 0)
-      g.fillRect(px - 1, py - 1, 2, 2)
+    }))
+    const n = pts.length
+    const run = (i: number, hw: number, dx = 0, dy = 0) => {
+      const a = pts[i]!
+      const b = pts[Math.min(n - 1, i + 1)]!
+      g.fillRect(
+        Math.min(a.x, b.x) - hw + dx,
+        Math.min(a.y, b.y) - hw + dy,
+        Math.abs(a.x - b.x) + hw * 2,
+        Math.abs(a.y - b.y) + hw * 2,
+      )
     }
-    g.fillStyle = '#0f172a'
-    g.fillRect(head.x - 2, head.y - 1, 1, 1)
-    g.fillRect(head.x + 1, head.y - 1, 1, 1)
+    // A pulse of light runs down the cable from the tail to the plug.
+    const pulseAt = n - 1 - (Math.floor(this.tick / 2) % (n + 10))
+    const lit = (i: number) => i >= pulseAt - 1 && i <= pulseAt + 1
+
+    g.fillStyle = rgba(INK, 0.4)
+    for (let i = 0; i < n; i++) run(i, 3, 2, 2)
+    // A soft glow off the insulation (colour math), stronger where the pulse is.
+    const soft = glowStamp(RAMPS.sky[3], 4, 0.18)
+    const hot = glowStamp(RAMPS.sky[4], 5, 0.5)
+    if (soft && hot) {
+      g.save()
+      g.globalCompositeOperation = 'lighter'
+      g.imageSmoothingEnabled = true
+      for (let i = 0; i < n; i += 2) {
+        const p = pts[i]!
+        g.drawImage(soft, p.x - 12, p.y - 12, 24, 24)
+      }
+      for (let i = 0; i < n; i++) {
+        if (i !== pulseAt) continue
+        const p = pts[i]!
+        g.drawImage(hot, p.x - 16, p.y - 16, 32, 32)
+      }
+      g.restore()
+    }
+    g.fillStyle = INK
+    for (let i = 0; i < n; i++) run(i, 4)
+    // Insulation, row by row: vertical runs first so bends take the lit top edge.
+    const shade = (vertical: boolean) => {
+      for (let i = 0; i < n; i++) {
+        const a = pts[i]!
+        const b = pts[Math.min(n - 1, i + 1)]!
+        if ((a.x === b.x) !== vertical) continue
+        const rows = lit(i) ? TUBE_LIT : TUBE
+        for (let r = 0; r < 6; r++) {
+          g.fillStyle = rows[r]!
+          if (vertical)
+            g.fillRect(
+              a.x - 3 + r,
+              Math.min(a.y, b.y) - 3,
+              1,
+              Math.abs(a.y - b.y) + 6,
+            )
+          else
+            g.fillRect(
+              Math.min(a.x, b.x) - 3,
+              a.y - 3 + r,
+              Math.abs(a.x - b.x) + 6,
+              1,
+            )
+        }
+      }
+    }
+    shade(true)
+    shade(false)
+    // Elbows at the bends, so the shading carries round where two runs meet.
+    for (let i = 1; i < n - 1; i++) {
+      const p = pts[i]!
+      const prev = pts[i - 1]!
+      const next = pts[i + 1]!
+      if (prev.x === next.x || prev.y === next.y) continue
+      const side = prev.y === p.y ? prev : next
+      const end = prev.x === p.x ? prev : next
+      const elbows = lit(i) || lit(i - 1) ? ELBOWS_LIT : ELBOWS
+      const sprite =
+        elbows[`${Math.sign(side.x - p.x)},${Math.sign(end.y - p.y)}`]
+      if (sprite) drawSprite(g, sprite, p.x - 3, p.y - 3, { anchor: 'topleft' })
+    }
+    // Cable ties: pink bands, wrapped round a straight stretch every four cells.
+    for (let i = 4; i < n - 1; i += 4) {
+      const prev = pts[i - 1]!
+      const p = pts[i]!
+      const next = pts[i + 1]!
+      const horizontal = prev.y === p.y && next.y === p.y
+      const vertical = prev.x === p.x && next.x === p.x
+      if (!horizontal && !vertical) continue
+      if (horizontal) {
+        g.fillStyle = INK
+        g.fillRect(p.x - 2, p.y - 4, 4, 8)
+        g.fillStyle = RAMPS.pink[3]
+        g.fillRect(p.x - 1, p.y - 3, 1, 6)
+        g.fillStyle = RAMPS.pink[1]
+        g.fillRect(p.x, p.y - 3, 1, 6)
+        g.fillStyle = RAMPS.pink[4]
+        g.fillRect(p.x - 1, p.y - 2, 1, 1)
+      } else {
+        g.fillStyle = INK
+        g.fillRect(p.x - 4, p.y - 2, 8, 4)
+        g.fillStyle = RAMPS.pink[3]
+        g.fillRect(p.x - 3, p.y - 1, 6, 1)
+        g.fillStyle = RAMPS.pink[1]
+        g.fillRect(p.x - 3, p.y, 6, 1)
+        g.fillStyle = RAMPS.pink[4]
+        g.fillRect(p.x - 2, p.y - 1, 1, 1)
+      }
+    }
+    // The plug head, prongs leading, chomping as it crawls.
+    const head = pts[0]!
+    const d = this.dir
+    const facing: Facing = d.dy < 0 ? 'up' : d.dy > 0 ? 'down' : 'side'
+    const step = levelCurve(this.level, CABLE_CURVES.step)
+    const chomp = this.dead === 0 && this.stepTimer < step / 2 ? 1 : 0
+    const sprite = PLUG[facing][chomp]
+    // Line the 8x8 housing (plus its outline) up on the cell; the prongs stick out ahead.
+    const left =
+      facing === 'side' && d.dx < 0 ? head.x + 5 - sprite.width : head.x - 5
+    const top = facing === 'up' ? head.y + 5 - sprite.height : head.y - 5
+    glow(
+      g,
+      head.x + d.dx * 6,
+      head.y + d.dy * 6,
+      9,
+      RAMPS.teal[3],
+      chomp ? 0.5 : 0.25,
+    )
+    drawSprite(g, sprite, left, top, {
+      anchor: 'topleft',
+      flipX: facing === 'side' && d.dx < 0,
+    })
   }
 
   private renderHud(g: CanvasRenderingContext2D) {
-    const shadow = '#0b1220'
-    g.fillStyle = 'rgba(11, 18, 32, 0.95)'
-    g.fillRect(0, 0, W, HUD_H)
-    drawText(g, String(this.score).padStart(6, '0'), 4, 3, {
+    // Score on the left, high score and board on the right, the battery and spares between.
+    const score = String(this.score).padStart(6, '0')
+    const scoreW = measureText(score, 2) + 12
+    hudPanel(g, 2, 2, scoreW, 20)
+    drawText(g, score, 8, 5, {
       scale: 2,
-      color: '#fde047',
-      shadow,
+      color: RAMPS.gold[3],
+      outline: INK,
     })
-    drawText(g, `HI ${Math.max(this.hiScore, this.score)}`, W - 4, 2, {
+    const hi = `HI ${Math.max(this.hiScore, this.score)}`
+    const board = `BOARD ${this.level}`
+    const rightW = Math.max(measureText(hi), measureText(board)) + 10
+    const rightX = W - 2 - rightW
+    hudPanel(g, rightX, 2, rightW, 20)
+    drawText(g, hi, W - 7, 4, {
       align: 'right',
-      color: '#f9a8d4',
+      color: RAMPS.pink[3],
+      outline: INK,
     })
-    drawText(g, `BOARD ${this.level}`, W - 4, 12, {
+    drawText(g, board, W - 7, 13, {
       align: 'right',
-      color: '#5eead4',
+      color: RAMPS.teal[3],
+      outline: INK,
     })
-    // The battery.
+    // The battery: a gauge with a terminal nub, running green to gold to red, blinking when low.
+    const midX = scoreW + 5
+    const midW = rightX - 3 - midX
+    hudPanel(g, midX, 2, midW, 20, RAMPS.night)
     const frac = this.batteryMax ? this.battery / this.batteryMax : 0
-    g.fillStyle = '#e2e8f0'
-    g.fillRect(88, 5, 52, 12)
-    g.fillRect(140, 8, 3, 6)
-    g.fillStyle = '#0b1220'
-    g.fillRect(89, 6, 50, 10)
-    g.fillStyle = frac > 0.3 ? '#4ade80' : frac > 0.15 ? '#facc15' : '#f87171'
-    g.fillRect(90, 7, 48 * frac, 8)
-    for (let i = 0; i < Math.min(this.lives - 1, 4); i++) {
-      g.fillStyle = '#e2e8f0'
-      g.fillRect(150 + i * 10, 9, 6, 6)
-      g.fillStyle = '#fbbf24'
-      g.fillRect(156 + i * 10, 10, 2, 1)
-      g.fillRect(156 + i * 10, 13, 2, 1)
-    }
+    const ramp =
+      frac > 0.3 ? RAMPS.leaf : frac > 0.15 ? RAMPS.gold : RAMPS.ember
+    const low = frac <= 0.15 && Math.floor(this.tick / 10) % 2 === 0
+    const gaugeX = midX + 6
+    const gaugeW = 36
+    gauge(g, gaugeX, 8, gaugeW, 8, frac, ramp)
+    bevel(g, gaugeX + gaugeW + 1, 10, 3, 4, RAMPS.steel, { depth: 1 })
+    if (low) glow(g, gaugeX + gaugeW / 2, 12, 16, RAMPS.ember[2], 0.45)
+    // Battery segment marks, so the drain reads as cells going flat.
+    g.fillStyle = rgba(INK, 0.55)
+    for (let i = 1; i < 4; i++)
+      g.fillRect(gaugeX + Math.round((gaugeW * i) / 4), 8, 1, 8)
+    const spares = Math.min(this.lives - 1, 4)
+    for (let i = 0; i < spares; i++)
+      drawSprite(g, LIFE_SPRITE, gaugeX + gaugeW + 13 + i * 9, 12)
     if (this.banner) {
+      const bannerW =
+        Math.max(
+          measureText(this.banner.text, 2),
+          this.banner.sub ? measureText(this.banner.sub) : 0,
+        ) + 16
+      hudPanel(
+        g,
+        Math.round(W / 2 - bannerW / 2),
+        90,
+        bannerW,
+        this.banner.sub ? 38 : 26,
+      )
       drawText(g, this.banner.text, W / 2, 96, {
         scale: 2,
         align: 'center',
         color: '#ffffff',
-        shadow,
+        outline: INK,
+        shadow: RAMPS.teal[1],
       })
       if (this.banner.sub)
         drawText(g, this.banner.sub, W / 2, 116, {
           align: 'center',
-          color: '#fef9c3',
-          shadow,
+          color: RAMPS.gold[4],
+          outline: INK,
         })
     }
   }

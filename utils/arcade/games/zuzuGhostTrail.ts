@@ -221,14 +221,14 @@ type Pending = { id: string; member: SquadMember; due: number }
 /** What happens when the card on screen closes. */
 type CardThen = 'play' | 'next' | 'end' | 'choose'
 
-/** The slice's painted worlds; the newer themes borrow the closest until their own art lands. */
+/** Each theme's painted world (stageArt paints all six). */
 const ART_KEY: Record<StageTheme, StageKey> = {
   town: 'town',
   boneyard: 'boneyard',
   waterhole: 'waterhole',
-  stormpass: 'boneyard',
+  stormpass: 'stormpass',
   belltower: 'belltower',
-  abbey: 'belltower',
+  abbey: 'abbey',
 }
 
 const BOSS_COLOR: Record<string, string> = {
@@ -1617,7 +1617,7 @@ class ZuzuGhostTrail implements ArcadeGameInstance {
     const camX = Math.round(this.camX)
     const theme = this.act.theme
     const key = ART_KEY[theme]
-    drawBackdrop(g, key, camX, this.tick)
+    drawBackdrop(g, key, camX, this.tick, this.length)
     g.save()
     g.translate(-camX, 0)
     for (const u of this.act.updrafts ?? [])

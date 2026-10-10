@@ -8,111 +8,1086 @@
 //
 // Pure drawing from the arguments; deterministic; headless-safe (plain canvas calls only).
 
-import { drawText } from '../font'
+import { drawBaked, densityOf } from './bake'
+import { curl, drawBanner, goldGradient, hudText, paintRing } from './hudArt'
+import { FONT_HEIGHT, drawText, measureText } from '../font'
 import { INK, glow, mix, rgba } from '../snes'
 import { drawClod } from './foeArt'
 import type { Bolt } from './foes'
 import type { Block, Hazard, Mover, StageTheme, Updraft } from './world'
 
 type G = CanvasRenderingContext2D
+type Ramp = readonly [string, string, string, string, string]
 
 const W = 320
 const H = 240
 
-/** Each theme's stone: shadow, body, light, and the trim colour. */
-const STONE: Record<StageTheme, [string, string, string, string]> = {
-  town: ['#3a2618', '#6b4a2c', '#a07a45', '#d6b25e'],
-  boneyard: ['#2e2a2a', '#58524c', '#8f877c', '#e7e0cf'],
-  waterhole: ['#1c2e2c', '#3b5650', '#6d8f84', '#a7d3c4'],
-  stormpass: ['#232838', '#454c63', '#7b84a0', '#c7d2fe'],
-  belltower: ['#2b1e2a', '#5a3d4d', '#8e6577', '#f0b77c'],
-  abbey: ['#1d1424', '#3e2a4a', '#6c4f7a', '#e879f9'],
+// --- materials ------------------------------------------------------------------------------------
+
+/** Five-step ramps [ink, shadow, base, light, highlight], matched to stageArt's surfaces. */
+const SANDSTONE: Ramp = ['#1c1218', '#3a2a30', '#5e4a48', '#8a7266', '#b8a08a']
+const SLATE: Ramp = ['#120e1e', '#252038', '#3c3456', '#5c527a', '#8c82aa']
+const RIVERSTONE: Ramp = ['#0e1414', '#1e2c2a', '#3a4a44', '#5e7268', '#94aa9c']
+const GRANITE: Ramp = ['#0c0c1e', '#1c2038', '#30365a', '#4c5680', '#8490ba']
+const MASONRY: Ramp = ['#1c0e16', '#3a2028', '#5c3838', '#8a5a4c', '#bc8c6c']
+const CRYPT: Ramp = ['#0c0610', '#1c1022', '#30203a', '#4c3656', '#7c6080']
+const WOOD: Ramp = ['#1e120c', '#3e2616', '#6a4226', '#9a6a3e', '#d0a068']
+const GREYWOOD: Ramp = ['#16121c', '#2e2832', '#4a4248', '#726666', '#a89c90']
+const DOCK: Ramp = ['#14140e', '#2c2a1c', '#4a442e', '#6e6644', '#9e9468']
+const STORMWOOD: Ramp = ['#120e14', '#2a2228', '#4a3c3a', '#6e5c50', '#a48c74']
+const CRYPTWOOD: Ramp = ['#0e080c', '#22141a', '#3a2626', '#5a3e36', '#8a6450']
+const IRON: Ramp = ['#06060c', '#14141e', '#26263a', '#3e3e58', '#6a6a8a']
+const BRONZE: Ramp = ['#1e1008', '#4a2c12', '#7a5222', '#b08440', '#f0d08a']
+const BONE = '#d8ccb0'
+const ROPE = '#a08a5c'
+const ROPE_DARK = '#4e4030'
+const VIOLET = '#c46cff'
+const RITUAL = '#ff3a5c'
+const EMBER = '#ff7a2a'
+
+type Material = {
+  stone: Ramp
+  wood: Ramp
+  /** Growth on the stone (moss, lichen), or none. */
+  moss: [string, string] | null
+  /** The light catching the edges: moon, storm or candle. */
+  rim: string
+  /** Hangers: chains, or rope in the pass. */
+  rope: boolean
 }
 
-function stoneFor(theme: StageTheme) {
-  return STONE[theme] ?? STONE.town
+const MATERIALS: Record<StageTheme, Material> = {
+  town: {
+    stone: SANDSTONE,
+    wood: WOOD,
+    moss: null,
+    rim: '#fff4dc',
+    rope: false,
+  },
+  boneyard: {
+    stone: SLATE,
+    wood: GREYWOOD,
+    moss: ['#2e4a3c', '#5a8a6a'],
+    rim: '#c8f0e8',
+    rope: false,
+  },
+  waterhole: {
+    stone: RIVERSTONE,
+    wood: DOCK,
+    moss: ['#2f5a2a', '#6aa04a'],
+    rim: '#c8f0e8',
+    rope: true,
+  },
+  stormpass: {
+    stone: GRANITE,
+    wood: STORMWOOD,
+    moss: ['#3a4a48', '#7a948a'],
+    rim: '#c8d0ff',
+    rope: true,
+  },
+  belltower: {
+    stone: MASONRY,
+    wood: WOOD,
+    moss: null,
+    rim: '#ffd8b0',
+    rope: false,
+  },
+  abbey: {
+    stone: CRYPT,
+    wood: CRYPTWOOD,
+    moss: null,
+    rim: '#e0b0ff',
+    rope: false,
+  },
 }
 
-/** A solid block (world space): bevelled stone, a grave, a crate stack, a pillar or a boulder. */
-export function drawBlock(g: G, b: Block, top: number, theme: StageTheme) {
-  const [dark, body, light, trim] = stoneFor(theme)
-  const x = Math.round(b.x)
-  const y = Math.round(top)
+function materialFor(theme: StageTheme): Material {
+  return MATERIALS[theme] ?? MATERIALS.town
+}
+
+/** A deterministic generator for cosmetic layout (never the game's rng). */
+function seeded(seed: number): () => number {
+  let s = seed >>> 0 || 1
+  return () => {
+    s = (s * 1664525 + 1013904223) >>> 0
+    return s / 4294967296
+  }
+}
+
+/** A stable 0..1 hash of an integer (never the game's rng). */
+function hash(n: number): number {
+  let h = Math.imul((n | 0) ^ 0x9e3779b9, 0x85ebca6b)
+  h = Math.imul(h ^ (h >>> 13), 0xc2b2ae35)
+  h ^= h >>> 16
+  return (h >>> 0) / 4294967296
+}
+
+function roundRect(
+  b: G,
+  x: number,
+  y: number,
+  w: number,
+  h: number,
+  r: number,
+) {
+  const k = Math.max(0, Math.min(r, w / 2, h / 2))
+  b.beginPath()
+  b.moveTo(x + k, y)
+  b.lineTo(x + w - k, y)
+  b.arcTo(x + w, y, x + w, y + k, k)
+  b.lineTo(x + w, y + h - k)
+  b.arcTo(x + w, y + h, x + w - k, y + h, k)
+  b.lineTo(x + k, y + h)
+  b.arcTo(x, y + h, x, y + h - k, k)
+  b.lineTo(x, y + k)
+  b.arcTo(x, y, x + k, y, k)
+  b.closePath()
+}
+
+/** One dressed stone, lit from the upper left, ink-edged. */
+function stone(
+  b: G,
+  x: number,
+  y: number,
+  w: number,
+  h: number,
+  ramp: Ramp,
+  r = 1,
+  tone = 0,
+) {
+  if (w <= 0 || h <= 0) return
+  const base =
+    tone === 0
+      ? ramp[2]
+      : mix(ramp[2], tone > 0 ? ramp[3] : ramp[1], Math.min(1, Math.abs(tone)))
+  roundRect(b, x, y, w, h, r)
+  b.fillStyle = base
+  b.fill()
+  b.save()
+  b.clip()
+  b.fillStyle = ramp[1]
+  b.fillRect(x + w * 0.3, y + h - Math.min(1.4, h * 0.3), w, h)
+  b.fillRect(x + w - Math.min(1.2, w * 0.25), y + h * 0.25, 2, h)
+  b.fillStyle = ramp[3]
+  b.fillRect(x, y, w, Math.min(0.9, h * 0.25))
+  b.fillRect(x, y, Math.min(0.8, w * 0.2), h * 0.75)
+  b.fillStyle = rgba(ramp[4], 0.6)
+  b.fillRect(x + 0.6, y + 0.3, Math.min(w * 0.45, 6), 0.5)
+  // Pits and grain in the face, and a chipped corner now and then.
+  const k = Math.round(x * 13 + y * 7 + w * 3)
+  for (let i = 0; i < Math.min(8, (w * h) / 14); i++) {
+    const px = x + 0.8 + hash(k + i * 5) * (w - 1.6)
+    const py = y + 0.8 + hash(k + i * 5 + 1) * (h - 1.6)
+    b.fillStyle =
+      hash(k + i * 5 + 2) < 0.7 ? rgba(ramp[0], 0.45) : rgba(ramp[4], 0.35)
+    b.fillRect(px, py, 0.5 + hash(k + i) * 0.6, 0.45)
+  }
+  if (hash(k + 97) < 0.3 && w > 4 && h > 3) {
+    b.fillStyle = rgba(ramp[0], 0.8)
+    b.beginPath()
+    b.moveTo(x + w, y)
+    b.lineTo(x + w - 1.6, y)
+    b.lineTo(x + w, y + 1.4)
+    b.fill()
+  }
+  b.restore()
+  roundRect(b, x, y, w, h, r)
+  b.strokeStyle = rgba(ramp[0], 0.85)
+  b.lineWidth = 0.45
+  b.stroke()
+}
+
+/** A timber board along x, grain and a lit top. */
+function board(
+  b: G,
+  x: number,
+  y: number,
+  w: number,
+  h: number,
+  ramp: Ramp,
+  seed: number,
+) {
+  const rand = seeded(seed)
+  b.fillStyle = ramp[2]
+  b.fillRect(x, y, w, h)
+  b.fillStyle = ramp[3]
+  b.fillRect(x, y, w, Math.min(0.8, h * 0.3))
+  b.fillStyle = ramp[1]
+  b.fillRect(x, y + h - Math.min(0.8, h * 0.3), w, Math.min(0.8, h * 0.3))
+  b.strokeStyle = rgba(ramp[1], 0.75)
+  b.lineWidth = 0.3
+  for (let i = 0; i < Math.max(1, h / 1.6); i++) {
+    const gy = y + 0.8 + rand() * Math.max(0.1, h - 1.6)
+    const gx = x + rand() * w * 0.5
+    b.beginPath()
+    b.moveTo(gx, gy)
+    b.lineTo(gx + w * (0.3 + rand() * 0.5), gy + (rand() - 0.5) * 0.5)
+    b.stroke()
+  }
+  b.strokeStyle = rgba(ramp[0], 0.9)
+  b.lineWidth = 0.45
+  b.strokeRect(x + 0.2, y + 0.2, w - 0.4, h - 0.4)
+}
+
+/** A chain of links from (x1, y1) to (x2, y2), live or baked. */
+function chainLine(
+  b: G,
+  x1: number,
+  y1: number,
+  x2: number,
+  y2: number,
+  ramp: Ramp = IRON,
+) {
+  const len = Math.hypot(x2 - x1, y2 - y1)
+  const n = Math.max(1, Math.round(len / 1.7))
+  const a = Math.atan2(y2 - y1, x2 - x1)
+  for (let i = 0; i <= n; i++) {
+    const t = i / n
+    b.save()
+    b.translate(x1 + (x2 - x1) * t, y1 + (y2 - y1) * t)
+    b.rotate(a)
+    b.strokeStyle = ramp[0]
+    b.lineWidth = 0.8
+    b.beginPath()
+    if (i % 2) b.ellipse(0, 0, 1, 0.45, 0, 0, Math.PI * 2)
+    else b.ellipse(0, 0, 1, 0.75, 0, 0, Math.PI * 2)
+    b.stroke()
+    b.strokeStyle = ramp[3]
+    b.lineWidth = 0.3
+    b.stroke()
+    b.restore()
+  }
+}
+
+/** A rope from (x1, y1) to (x2, y2): a dark core, a lit twist. */
+function ropeLine(
+  b: G,
+  x1: number,
+  y1: number,
+  x2: number,
+  y2: number,
+  sag = 0,
+) {
+  const mx = (x1 + x2) / 2
+  const my = (y1 + y2) / 2 + sag
+  b.lineCap = 'round'
+  b.strokeStyle = ROPE_DARK
+  b.lineWidth = 1.1
+  b.beginPath()
+  b.moveTo(x1, y1)
+  b.quadraticCurveTo(mx, my, x2, y2)
+  b.stroke()
+  b.strokeStyle = ROPE
+  b.lineWidth = 0.55
+  b.stroke()
+  b.lineCap = 'butt'
+}
+
+/** A small licking flame with its base at (x, y), `s` about 1 for 7 px tall. */
+function flame(
+  g: G,
+  x: number,
+  y: number,
+  s: number,
+  tick: number,
+  hot: string,
+  core = '#fff6c8',
+) {
+  const t = tick / 6
   g.save()
-  g.fillStyle = rgba(INK, 0.35)
-  g.fillRect(x + 2, y + 2, b.w, b.h)
-  if (b.look === 'crate') {
-    g.fillStyle = '#5b3a1e'
-    g.fillRect(x, y, b.w, b.h)
-    g.fillStyle = '#8a5a2b'
-    g.fillRect(x + 1, y + 1, b.w - 2, b.h - 2)
-    g.strokeStyle = '#3a2412'
-    g.lineWidth = 1
-    for (let yy = y + 8; yy < y + b.h; yy += 8) {
-      g.beginPath()
-      g.moveTo(x, yy + 0.5)
-      g.lineTo(x + b.w, yy + 0.5)
-      g.stroke()
-    }
+  g.globalCompositeOperation = 'lighter'
+  for (let i = 0; i < 3; i++) {
+    const h = (7 - i * 2) * s * (0.85 + 0.15 * Math.sin(t + i * 2))
+    const w = (3.2 - i * 0.9) * s
+    const sway = Math.sin(t * 1.3 + i) * 0.8 * s
+    g.fillStyle =
+      i === 0
+        ? rgba(mix(hot, '#2a0010', 0.35), 0.8)
+        : i === 1
+          ? rgba(hot, 0.9)
+          : rgba(core, 0.95)
     g.beginPath()
-    g.moveTo(x + 1, y + 1)
-    g.lineTo(x + b.w - 1, y + b.h - 1)
-    g.stroke()
-  } else if (b.look === 'pillar') {
-    const grad = g.createLinearGradient(x, 0, x + b.w, 0)
-    grad.addColorStop(0, dark)
-    grad.addColorStop(0.35, light)
-    grad.addColorStop(1, dark)
-    g.fillStyle = grad
-    g.fillRect(x + 2, y + 4, b.w - 4, b.h - 4)
-    g.fillStyle = body
-    g.fillRect(x, y, b.w, 5)
-    g.fillRect(x, y + b.h - 4, b.w, 4)
-    g.fillStyle = trim
-    g.fillRect(x, y, b.w, 1)
-  } else if (b.look === 'rock') {
-    g.fillStyle = dark
-    g.beginPath()
-    g.moveTo(x, y + b.h)
-    g.lineTo(x + 2, y + 4)
-    g.lineTo(x + b.w * 0.4, y)
-    g.lineTo(x + b.w - 3, y + 2)
-    g.lineTo(x + b.w, y + b.h)
+    g.moveTo(x - w, y)
+    g.quadraticCurveTo(x - w * 0.9, y - h * 0.5, x + sway, y - h)
+    g.quadraticCurveTo(x + w * 0.9, y - h * 0.5, x + w, y)
     g.closePath()
     g.fill()
-    g.fillStyle = body
-    g.beginPath()
-    g.moveTo(x + 3, y + b.h - 2)
-    g.lineTo(x + 4, y + 5)
-    g.lineTo(x + b.w * 0.4, y + 2)
-    g.lineTo(x + b.w * 0.6, y + b.h * 0.6)
-    g.closePath()
-    g.fill()
-    g.fillStyle = light
-    g.fillRect(x + b.w * 0.4 - 1, y + 1, 4, 1)
-  } else {
-    // Dressed stone (and graves, which the slice's terrain draws when 12x16).
-    g.fillStyle = dark
-    g.fillRect(x, y, b.w, b.h)
-    g.fillStyle = body
-    g.fillRect(x + 1, y + 1, b.w - 2, b.h - 2)
-    g.fillStyle = mix(body, dark, 0.35)
-    for (let yy = y + 8; yy < y + b.h - 1; yy += 8) {
-      g.fillRect(x + 1, yy, b.w - 2, 1)
-      const off = ((yy - y) / 8) % 2 ? 8 : 0
-      for (let xx = x + 4 + off; xx < x + b.w - 2; xx += 16)
-        g.fillRect(xx, yy - 7, 1, 7)
-    }
-    g.fillStyle = light
-    g.fillRect(x + 1, y + 1, b.w - 2, 1)
-    g.fillRect(x + 1, y + 1, 1, b.h - 2)
-    g.fillStyle = trim
-    g.fillRect(x, y, b.w, 1)
   }
   g.restore()
 }
 
-/** A moving platform at its current position (world space). */
+/**
+ * A row of fire tongues from x0 to x1 on `base`, about `height` tall, painted outer to core in
+ * three passes so the tongues merge into one burning shape (not an additive white-out).
+ */
+function fireRow(
+  g: G,
+  x0: number,
+  x1: number,
+  base: number,
+  height: number,
+  tick: number,
+  colours: readonly [string, string, string, string],
+) {
+  const span = Math.max(1, x1 - x0)
+  const n = Math.max(2, Math.round(span / 4.5))
+  const step = span / n
+  g.save()
+  for (let pass = 0; pass < 3; pass++) {
+    g.fillStyle = colours[pass]!
+    g.beginPath()
+    for (let i = 0; i <= n; i++) {
+      const fx = x0 + i * step
+      const k =
+        Math.sin(tick / 5 + i * 2.3) * 0.5 +
+        Math.sin(tick / 3.1 + i * 1.1) * 0.3
+      const hh = height * (0.65 + 0.3 * k + (i % 2) * 0.15) * (1 - pass * 0.3)
+      const ww = step * (0.75 - pass * 0.18)
+      const sway = Math.sin(tick / 7 + i) * 1.2
+      g.moveTo(fx - ww, base)
+      g.quadraticCurveTo(fx - ww * 0.8, base - hh * 0.55, fx + sway, base - hh)
+      g.quadraticCurveTo(fx + ww * 0.8, base - hh * 0.55, fx + ww, base)
+      g.closePath()
+    }
+    g.fill()
+  }
+  // White-hot flecks at the roots.
+  g.fillStyle = colours[3]
+  for (let i = 0; i < n; i++)
+    g.fillRect(
+      x0 + (i + 0.5) * step - 0.6,
+      base - 1.6 - ((tick + i * 3) % 4) * 0.3,
+      1.2,
+      1.2,
+    )
+  g.restore()
+}
+
+// --- blocks -----------------------------------------------------------------------------------------
+
+/** Moss or lichen over a block's top and down its face (inside its box). */
+function growth(b: G, w: number, h: number, m: Material, rand: () => number) {
+  if (!m.moss) return
+  const [dark, light] = m.moss
+  for (let x = 0; x < w; x += 2 + rand() * 5) {
+    if (rand() < 0.4) continue
+    const mw = Math.min(w - x, 2 + rand() * 5)
+    b.fillStyle = dark
+    b.fillRect(x, 0, mw, 1.2)
+    b.fillStyle = light
+    b.fillRect(x + 0.4, 0, mw * 0.6, 0.45)
+    if (rand() < 0.5) {
+      b.fillStyle = dark
+      b.fillRect(x + mw * 0.5, 1.2, 0.6, Math.min(h - 1.5, 1.5 + rand() * 4))
+    }
+  }
+  for (let i = 0; i < (w * h) / 60; i++) {
+    b.fillStyle = rgba(light, 0.35)
+    b.fillRect(rand() * w, 2 + rand() * (h - 3), 1 + rand(), 0.6)
+  }
+}
+
+/** Each world's weathering on a block face (inside its box). */
+function weather(
+  b: G,
+  w: number,
+  h: number,
+  theme: StageTheme,
+  m: Material,
+  floating: boolean,
+  rand: () => number,
+) {
+  if (theme === 'waterhole') {
+    // Damp from the tide line down, algae drips.
+    const damp = b.createLinearGradient(0, h * 0.4, 0, h)
+    damp.addColorStop(0, rgba('#0a2a2a', 0))
+    damp.addColorStop(1, rgba('#0a2a2a', 0.45))
+    b.fillStyle = damp
+    b.fillRect(0, 0, w, h)
+    b.fillStyle = rgba('#2f6a4a', 0.5)
+    for (let i = 0; i < w / 6; i++)
+      b.fillRect(rand() * w, h * 0.5, 0.6, h * (0.2 + rand() * 0.4))
+  } else if (theme === 'stormpass') {
+    // Lichen, a quartz vein, and the lightning's edge on the windward side.
+    b.fillStyle = rgba('#8aa49a', 0.4)
+    for (let i = 0; i < (w * h) / 40; i++)
+      b.fillRect(rand() * w, rand() * h, 0.8 + rand(), 0.6)
+    b.strokeStyle = rgba('#c0c8f0', 0.3)
+    b.lineWidth = 0.4
+    b.beginPath()
+    b.moveTo(0, h * (0.3 + rand() * 0.4))
+    b.lineTo(w * 0.5, h * (0.4 + rand() * 0.3))
+    b.lineTo(w, h * (0.5 + rand() * 0.4))
+    b.stroke()
+    b.fillStyle = rgba(m.rim, 0.45)
+    b.fillRect(0, 0, 0.6, h)
+  } else if (theme === 'town') {
+    // Sand drifted against its foot, wind-pitted faces.
+    if (!floating) {
+      const sand = b.createLinearGradient(0, h - 4, 0, h)
+      sand.addColorStop(0, rgba('#8a6a4a', 0))
+      sand.addColorStop(1, rgba('#8a6a4a', 0.5))
+      b.fillStyle = sand
+      b.fillRect(0, h - 4, w, 4)
+    }
+    b.fillStyle = rgba(SANDSTONE[0], 0.5)
+    for (let i = 0; i < (w * h) / 50; i++)
+      b.fillRect(rand() * w, rand() * h, 0.5, 0.5)
+  } else if (theme === 'belltower') {
+    // Soot climbing from below, and a crack that glows with the heretic's fire.
+    const soot = b.createLinearGradient(0, 0, 0, h)
+    soot.addColorStop(0, rgba(INK, 0))
+    soot.addColorStop(1, rgba(INK, 0.35))
+    b.fillStyle = soot
+    b.fillRect(0, 0, w, h)
+    if (w > 14 && h > 12) {
+      const cx = w * (0.3 + rand() * 0.4)
+      b.strokeStyle = rgba(INK, 0.95)
+      b.lineWidth = 0.6
+      b.beginPath()
+      b.moveTo(cx, h * 0.2)
+      b.lineTo(cx + 2, h * 0.45)
+      b.lineTo(cx - 1, h * 0.7)
+      b.stroke()
+      b.strokeStyle = rgba('#ff5a2a', 0.45)
+      b.lineWidth = 0.3
+      b.stroke()
+    }
+  } else if (theme === 'abbey') {
+    // Wax run down from the top, a sigil cut into a large face.
+    for (let i = 0; i < w / 10; i++) {
+      const wx = 1 + rand() * (w - 3)
+      b.fillStyle = rgba('#d8c8b0', 0.75)
+      b.fillRect(wx, 0, 1.6, 0.7)
+      b.fillRect(wx + 0.3, 0.7, 0.6, 1 + rand() * 3)
+    }
+    if (w >= 18 && h >= 16) {
+      const cx = w / 2
+      const cy = h / 2 + 1
+      const r = Math.min(w, h) * 0.26
+      b.strokeStyle = rgba(INK, 0.85)
+      b.lineWidth = 0.9
+      b.beginPath()
+      b.arc(cx, cy, r, 0, Math.PI * 2)
+      b.stroke()
+      b.strokeStyle = rgba(VIOLET, 0.5)
+      b.lineWidth = 0.4
+      b.beginPath()
+      b.arc(cx, cy, r, 0, Math.PI * 2)
+      for (let i = 0; i <= 5; i++) {
+        const a = -Math.PI / 2 + (i * 4 * Math.PI) / 5
+        const px = cx + Math.cos(a) * r * 0.85
+        const py = cy + Math.sin(a) * r * 0.85
+        if (i) b.lineTo(px, py)
+        else b.moveTo(px, py)
+      }
+      b.stroke()
+    }
+  }
+  if (floating) {
+    // The underside in shadow, roots or drips hanging (all inside the box).
+    const under = b.createLinearGradient(0, h - 3, 0, h)
+    under.addColorStop(0, rgba(INK, 0))
+    under.addColorStop(1, rgba(INK, 0.55))
+    b.fillStyle = under
+    b.fillRect(0, h - 3, w, 3)
+  }
+}
+
+/** Dressed stone in a running bond, course by course. */
+function paintAshlar(b: G, w: number, h: number, m: Material, seed: number) {
+  const rand = seeded(seed)
+  b.fillStyle = m.stone[0]
+  b.fillRect(0, 0, w, h)
+  const rows = Math.max(1, Math.round(h / 8))
+  const course = h / rows
+  for (let row = 0; row < rows; row++) {
+    const yy = row * course
+    let xx = row % 2 ? -(3 + rand() * 6) : 0
+    while (xx < w - 0.2) {
+      const bw = Math.max(5, 8 + rand() * 12)
+      const x0 = Math.max(0, xx)
+      const x1 = Math.min(w, xx + bw)
+      if (w - x1 < 3) {
+        stone(
+          b,
+          x0 + 0.25,
+          yy + 0.25,
+          w - x0 - 0.5,
+          course - 0.5,
+          m.stone,
+          0.8,
+          (rand() - 0.5) * 0.5 + (row === 0 ? 0.3 : 0),
+        )
+        break
+      }
+      stone(
+        b,
+        x0 + 0.25,
+        yy + 0.25,
+        x1 - x0 - 0.5,
+        course - 0.5,
+        m.stone,
+        0.8,
+        (rand() - 0.5) * 0.5 + (row === 0 ? 0.3 : 0),
+      )
+      xx += bw
+    }
+  }
+}
+
+/** A grave in any size: a tomb chest when wide, a headstone slab when tall. */
+function paintGrave(
+  b: G,
+  w: number,
+  h: number,
+  theme: StageTheme,
+  m: Material,
+  seed: number,
+) {
+  const rand = seeded(seed)
+  const r = m.stone
+  b.fillStyle = r[0]
+  b.fillRect(0, 0, w, h)
+  const plinth = Math.min(3, h * 0.2)
+  stone(b, 0, h - plinth, w, plinth, r, 0.5, -0.25)
+  if (w > h * 1.3) {
+    // A tomb chest: lid slab, panelled body, plinth.
+    const lid = Math.min(3.5, h * 0.25)
+    stone(b, 0, 0, w, lid, r, 0.6, 0.35)
+    stone(b, 0.4, lid, w - 0.8, h - lid - plinth, r, 0.4, 0)
+    const panels = Math.max(1, Math.round(w / 16))
+    const pw = (w - 4) / panels
+    for (let i = 0; i < panels; i++) {
+      const px = 2 + i * pw
+      b.fillStyle = r[1]
+      b.fillRect(px + 1, lid + 2, pw - 2, h - lid - plinth - 4)
+      b.fillStyle = rgba(r[3], 0.6)
+      b.fillRect(px + 1, h - plinth - 2.4, pw - 2, 0.4)
+      b.fillRect(px + pw - 1.4, lid + 2, 0.4, h - lid - plinth - 4)
+    }
+    emblem(
+      b,
+      w / 2,
+      lid + (h - lid - plinth) / 2,
+      Math.min(5, (h - lid - plinth) * 0.3),
+      theme,
+      r,
+    )
+  } else {
+    // A headstone: its slab with bevelled shoulders (inside the box), an emblem, an epitaph.
+    stone(b, 0, 0, w, h - plinth + 0.5, r, 1.2, 0.1)
+    b.fillStyle = rgba(r[4], 0.55)
+    b.fillRect(1, 0.6, w - 2, 0.5)
+    emblem(b, w / 2, Math.min(h * 0.32, 7), Math.min(w * 0.3, 5), theme, r)
+    b.fillStyle = rgba(r[0], 0.7)
+    for (let i = 0; i < Math.min(3, (h - plinth - 12) / 2.6); i++) {
+      const lw = w * (0.5 - i * 0.08)
+      b.fillRect(w / 2 - lw / 2, h * 0.55 + i * 2.6, lw, 0.6)
+    }
+  }
+  growth(b, w, h, m, rand)
+  b.strokeStyle = rgba(INK, 0.9)
+  b.lineWidth = 0.6
+  b.strokeRect(0.3, 0.3, w - 0.6, h - 0.6)
+}
+
+/** The carving on a grave: a cross, the pass's crow, the abbey's skull. */
+function emblem(
+  b: G,
+  cx: number,
+  cy: number,
+  s: number,
+  theme: StageTheme,
+  r: Ramp,
+) {
+  if (theme === 'abbey') {
+    b.fillStyle = r[1]
+    b.beginPath()
+    b.arc(cx, cy, s * 0.6, Math.PI, 0)
+    b.lineTo(cx + s * 0.45, cy + s * 0.75)
+    b.lineTo(cx - s * 0.45, cy + s * 0.75)
+    b.closePath()
+    b.fill()
+    b.fillStyle = INK
+    b.fillRect(cx - s * 0.38, cy - s * 0.05, s * 0.28, s * 0.28)
+    b.fillRect(cx + s * 0.1, cy - s * 0.05, s * 0.28, s * 0.28)
+  } else if (theme === 'stormpass') {
+    b.fillStyle = r[1]
+    b.beginPath()
+    b.moveTo(cx - s * 0.8, cy + s * 0.3)
+    b.quadraticCurveTo(cx - s * 0.2, cy - s * 0.6, cx + s * 0.3, cy - s * 0.4)
+    b.lineTo(cx + s * 0.8, cy - s * 0.2)
+    b.lineTo(cx + s * 0.3, cy)
+    b.quadraticCurveTo(cx, cy + s * 0.4, cx - s * 0.8, cy + s * 0.3)
+    b.fill()
+  } else {
+    b.fillStyle = r[1]
+    b.fillRect(cx - s * 0.16, cy - s * 0.8, s * 0.32, s * 1.6)
+    b.fillRect(cx - s * 0.55, cy - s * 0.4, s * 1.1, s * 0.3)
+    b.fillStyle = rgba(r[4], 0.5)
+    b.fillRect(cx - s * 0.16, cy - s * 0.8, s * 0.1, s * 1.6)
+  }
+}
+
+/** Crates stacked to fill the box, roughly 16 px each. */
+function paintCrates(b: G, w: number, h: number, m: Material, seed: number) {
+  const cols = Math.max(1, Math.round(w / 16))
+  const rows = Math.max(1, Math.round(h / 16))
+  const cw = w / cols
+  const ch = h / rows
+  for (let row = 0; row < rows; row++)
+    for (let col = 0; col < cols; col++) {
+      const x = col * cw
+      const y = row * ch
+      const k = seed + row * 13 + col * 7
+      const ramp = m.wood
+      const planks = Math.max(2, Math.round(ch / 5))
+      for (let i = 0; i < planks; i++)
+        board(
+          b,
+          x + 0.4,
+          y + 0.4 + (i * (ch - 0.8)) / planks,
+          cw - 0.8,
+          (ch - 0.8) / planks,
+          ramp,
+          k + i,
+        )
+      b.fillStyle = rgba(INK, 0.3)
+      b.fillRect(x + 2, y + 2, cw - 4, ch - 4)
+      // The X brace.
+      b.save()
+      b.beginPath()
+      b.rect(x + 2, y + 2, cw - 4, ch - 4)
+      b.clip()
+      for (const [x1, y1, x2, y2] of [
+        [x + 2, y + 2.5, x + cw - 2, y + ch - 2.5],
+        [x + 2, y + ch - 2.5, x + cw - 2, y + 2.5],
+      ] as const) {
+        b.strokeStyle = ramp[0]
+        b.lineWidth = 2.6
+        b.beginPath()
+        b.moveTo(x1, y1)
+        b.lineTo(x2, y2)
+        b.stroke()
+        b.strokeStyle = ramp[2]
+        b.lineWidth = 1.8
+        b.stroke()
+        b.strokeStyle = rgba(ramp[3], 0.8)
+        b.lineWidth = 0.4
+        b.stroke()
+        if (hash(k) < 0.5) break
+      }
+      b.restore()
+      // The frame boards and iron corners.
+      board(b, x, y, cw, 2.2, ramp, k + 20)
+      board(b, x, y + ch - 2.2, cw, 2.2, ramp, k + 21)
+      board(b, x, y, 2.2, ch, ramp, k + 22)
+      board(b, x + cw - 2.2, y, 2.2, ch, ramp, k + 23)
+      for (const [cx, cy] of [
+        [x, y],
+        [x + cw - 3, y],
+        [x, y + ch - 3],
+        [x + cw - 3, y + ch - 3],
+      ] as const) {
+        b.fillStyle = IRON[2]
+        b.fillRect(cx, cy, 3, 3)
+        b.fillStyle = IRON[4]
+        b.fillRect(cx + 1.2, cy + 1.2, 0.7, 0.7)
+      }
+      b.strokeStyle = INK
+      b.lineWidth = 0.6
+      b.strokeRect(x + 0.3, y + 0.3, cw - 0.6, ch - 0.6)
+      b.fillStyle = rgba(ramp[4], 0.7)
+      b.fillRect(x + 2.4, y + 0.35, cw - 4.8, 0.45)
+    }
+}
+
+/** A column filling its box: cylinder-shaded fluted shaft, banded capital and base. */
+function paintPillar(
+  b: G,
+  w: number,
+  h: number,
+  theme: StageTheme,
+  m: Material,
+  floating: boolean,
+  seed: number,
+) {
+  const rand = seeded(seed)
+  const r = m.stone
+  const shaft = b.createLinearGradient(0, 0, w, 0)
+  shaft.addColorStop(0, r[1])
+  shaft.addColorStop(0.28, r[3])
+  shaft.addColorStop(0.5, r[2])
+  shaft.addColorStop(0.85, r[1])
+  shaft.addColorStop(1, r[0])
+  b.fillStyle = shaft
+  b.fillRect(0, 0, w, h)
+  // Fluting.
+  for (let fx = 2; fx < w - 1.5; fx += 3) {
+    b.fillStyle = rgba(r[0], 0.45)
+    b.fillRect(fx, 0, 0.6, h)
+    b.fillStyle = rgba(r[4], 0.18)
+    b.fillRect(fx + 0.6, 0, 0.4, h)
+  }
+  // Drum joints.
+  for (let jy = 14 + rand() * 4; jy < h - 6; jy += 12 + rand() * 4) {
+    b.fillStyle = rgba(r[0], 0.8)
+    b.fillRect(0, jy, w, 0.6)
+    b.fillStyle = rgba(r[4], 0.3)
+    b.fillRect(0, jy + 0.6, w, 0.4)
+  }
+  // Capital (and base): an abacus slab over a rounded echinus band.
+  const band = (y: number, hh: number, top: boolean) => {
+    const grad = b.createLinearGradient(0, y, 0, y + hh)
+    grad.addColorStop(0, top ? r[4] : r[2])
+    grad.addColorStop(0.35, r[3])
+    grad.addColorStop(1, r[1])
+    b.fillStyle = grad
+    b.fillRect(0, y, w, hh)
+    b.fillStyle = rgba(INK, 0.7)
+    b.fillRect(0, top ? y + hh * 0.4 : y + hh * 0.55, w, 0.5)
+    b.fillRect(0, top ? y + hh - 0.5 : y, w, 0.5)
+  }
+  const cap = Math.min(6, h * 0.22)
+  band(0, cap, true)
+  if (!floating || h > 16)
+    band(h - Math.min(5, h * 0.18), Math.min(5, h * 0.18), false)
+  if (theme === 'abbey') {
+    // A chain wound round the shaft.
+    for (let cy = cap + 4; cy < h - 8; cy += 10)
+      chainLine(b, 0.5, cy, w - 0.5, cy + 5, IRON)
+  } else if (theme === 'stormpass' || theme === 'waterhole') {
+    // Rope lashings.
+    for (let cy = cap + 6; cy < h - 8; cy += 14) {
+      b.fillStyle = ROPE_DARK
+      b.fillRect(0, cy, w, 2.2)
+      b.fillStyle = ROPE
+      for (let k = 0; k < 3; k++) b.fillRect(0, cy + k * 0.7, w, 0.35)
+    }
+  }
+  growth(b, w, h, m, rand)
+  b.strokeStyle = rgba(INK, 0.9)
+  b.lineWidth = 0.6
+  b.strokeRect(0.3, 0.3, w - 0.6, h - 0.6)
+}
+
+/** A boulder filling its box: faceted, its corners shaded round, a cap of moss or grit. */
+function paintRock(
+  b: G,
+  w: number,
+  h: number,
+  theme: StageTheme,
+  m: Material,
+  seed: number,
+) {
+  const rand = seeded(seed)
+  const r = m.stone
+  b.fillStyle = r[2]
+  b.fillRect(0, 0, w, h)
+  // Facets: big planes, lit toward the upper left.
+  const n = Math.max(3, Math.round((w * h) / 90))
+  for (let i = 0; i < n; i++) {
+    const cx = rand() * w
+    const cy = rand() * h
+    const s = 4 + rand() * Math.min(w, h) * 0.5
+    const lit = (1 - cx / w) * 0.5 + (1 - cy / h) * 0.5
+    b.fillStyle = mix(
+      r[1],
+      r[3],
+      Math.max(0, Math.min(1, lit + (rand() - 0.5) * 0.4)),
+    )
+    b.beginPath()
+    b.moveTo(cx - s * 0.5, cy - s * 0.2)
+    b.lineTo(cx + s * (0.1 + rand() * 0.3), cy - s * 0.5)
+    b.lineTo(cx + s * 0.5, cy + s * 0.15)
+    b.lineTo(cx - s * 0.1, cy + s * 0.5)
+    b.closePath()
+    b.fill()
+    b.strokeStyle = rgba(r[0], 0.4)
+    b.lineWidth = 0.35
+    b.stroke()
+  }
+  // Round it off: shade the corners and the lower right, so the box reads as a stone.
+  const shade = b.createLinearGradient(0, 0, w, h)
+  shade.addColorStop(0, rgba(r[4], 0.18))
+  shade.addColorStop(0.5, rgba(INK, 0))
+  shade.addColorStop(1, rgba(INK, 0.45))
+  b.fillStyle = shade
+  b.fillRect(0, 0, w, h)
+  for (const [cx, cy] of [
+    [0, h],
+    [w, h],
+    [w, 0],
+    [0, 0],
+  ] as const) {
+    const cr = Math.min(w, h) * 0.4
+    const grad = b.createRadialGradient(cx, cy, 0, cx, cy, cr)
+    grad.addColorStop(0, rgba(r[0], 0.85))
+    grad.addColorStop(1, rgba(r[0], 0))
+    b.fillStyle = grad
+    b.fillRect(cx - cr, cy - cr, cr * 2, cr * 2)
+  }
+  // Cracks.
+  b.strokeStyle = rgba(r[0], 0.9)
+  b.lineWidth = 0.5
+  for (let i = 0; i < Math.max(1, w / 14); i++) {
+    let cx = rand() * w
+    let cy = 2 + rand() * h * 0.4
+    b.beginPath()
+    b.moveTo(cx, cy)
+    for (let k = 0; k < 3; k++) {
+      cx += (rand() - 0.5) * 4
+      cy += 2 + rand() * 3
+      b.lineTo(cx, Math.min(h, cy))
+    }
+    b.stroke()
+  }
+  // The top: a lit lip, then grit or moss.
+  b.fillStyle = r[3]
+  b.fillRect(0, 0, w, 1.2)
+  b.fillStyle = rgba(r[4], 0.8)
+  b.fillRect(1, 0, w - 2, 0.45)
+  if (theme === 'boneyard') {
+    b.fillStyle = BONE
+    b.fillRect(w * 0.6, h * 0.55, 3, 0.8)
+    b.beginPath()
+    b.arc(w * 0.6, h * 0.55 + 0.4, 0.7, 0, Math.PI * 2)
+    b.arc(w * 0.6 + 3, h * 0.55 + 0.4, 0.7, 0, Math.PI * 2)
+    b.fill()
+  }
+  growth(b, w, h, m, rand)
+  b.strokeStyle = rgba(INK, 0.85)
+  b.lineWidth = 0.55
+  b.strokeRect(0.3, 0.3, w - 0.6, h - 0.6)
+}
+
+function paintBlock(
+  b: G,
+  look: NonNullable<Block['look']>,
+  w: number,
+  h: number,
+  theme: StageTheme,
+  floating: boolean,
+  seed: number,
+) {
+  const m = materialFor(theme)
+  const rand = seeded(seed + 99)
+  if (look === 'crate') paintCrates(b, w, h, m, seed)
+  else if (look === 'pillar') paintPillar(b, w, h, theme, m, floating, seed)
+  else if (look === 'rock') paintRock(b, w, h, theme, m, seed)
+  else if (look === 'grave') paintGrave(b, w, h, theme, m, seed)
+  else {
+    paintAshlar(b, w, h, m, seed)
+    growth(b, w, h, m, rand)
+    b.strokeStyle = rgba(INK, 0.9)
+    b.lineWidth = 0.6
+    b.strokeRect(0.3, 0.3, w - 0.6, h - 0.6)
+  }
+  if (look !== 'crate') weather(b, w, h, theme, m, floating, rand)
+  // The walkable top always catches the light.
+  b.fillStyle = rgba(m.rim, 0.5)
+  b.fillRect(0.5, 0, w - 1, 0.4)
+}
+
+/**
+ * A solid block (world space) of any size, painted to its look in its world's materials: dressed
+ * stone, a grave (headstone or tomb chest), stacked crates, a column, or a boulder. Its silhouette
+ * is exactly its collision box (x..x+w, top..top+h); a contact shadow falls on the ground beside a
+ * standing block, and a floating one in the bell tower or abbey hangs from chains.
+ */
+export function drawBlock(g: G, b: Block, top: number, theme: StageTheme) {
+  const look = b.look ?? 'stone'
+  const floating = b.y !== undefined
+  const w = Math.max(1, b.w)
+  const h = Math.max(1, b.h)
+  const v = Math.floor(hash(Math.round(b.x) * 7 + Math.round(top) * 3) * 3)
+  const key = MATERIALS[theme] ? theme : 'town'
+  g.save()
+  if (!floating) {
+    // Contact shadow on the ground, falling away from the moon.
+    const sh = g.createLinearGradient(b.x + w, 0, b.x + w + 6, 0)
+    sh.addColorStop(0, rgba(INK, 0.45))
+    sh.addColorStop(1, rgba(INK, 0))
+    g.fillStyle = sh
+    g.fillRect(b.x + w, top + h - 1.5, 6, 1.5)
+  } else if (key === 'abbey' || key === 'belltower') {
+    for (const cx of [b.x + 2.5, b.x + w - 2.5])
+      chainLine(g, cx, Math.min(0, top - 120), cx, top)
+  }
+  drawBaked(
+    g,
+    `gt-block-${key}-${look}-${w}x${h}-${floating ? 'f' : 'g'}-${v}`,
+    b.x,
+    top,
+    w,
+    h,
+    (c) =>
+      paintBlock(
+        c,
+        look,
+        w,
+        h,
+        key,
+        floating,
+        Math.round(w * 31 + h * 17 + v * 101),
+      ),
+  )
+  g.restore()
+}
+
+// --- movers -----------------------------------------------------------------------------------------
+
+/** Each mover look's painted depth below its walkable top. */
+function moverDepth(look: NonNullable<Mover['look']> | 'slab'): number {
+  return look === 'raft'
+    ? 8
+    : look === 'lift'
+      ? 9
+      : look === 'beam'
+        ? 7
+        : look === 'bell'
+          ? 6
+          : 7
+}
+
+function paintMover(
+  b: G,
+  look: NonNullable<Mover['look']> | 'slab',
+  w: number,
+  theme: StageTheme,
+) {
+  const m = materialFor(theme)
+  const d = moverDepth(look)
+  const rand = seeded(w * 13 + look.length * 7)
+  if (look === 'raft') {
+    // Log ends lashed in a row under a plank deck.
+    const logs = Math.max(2, Math.round(w / 6))
+    const lw = w / logs
+    for (let i = 0; i < logs; i++) {
+      const cx = i * lw + lw / 2
+      const cy = 5.2
+      const r = lw / 2 - 0.2
+      b.fillStyle = DOCK[1]
+      b.beginPath()
+      b.ellipse(cx, cy, r, 2.8, 0, 0, Math.PI * 2)
+      b.fill()
+      b.fillStyle = mix(DOCK[3], '#b8a070', 0.4)
+      b.beginPath()
+      b.ellipse(cx - 0.2, cy - 0.2, r * 0.75, 2.1, 0, 0, Math.PI * 2)
+      b.fill()
+      b.strokeStyle = rgba(DOCK[1], 0.8)
+      b.lineWidth = 0.3
+      b.beginPath()
+      b.ellipse(cx - 0.2, cy - 0.2, r * 0.4, 1.1, 0, 0, Math.PI * 2)
+      b.stroke()
+      b.strokeStyle = INK
+      b.lineWidth = 0.45
+      b.beginPath()
+      b.ellipse(cx, cy, r, 2.8, 0, 0, Math.PI * 2)
+      b.stroke()
+    }
+    let x = 0
+    let i = 0
+    while (x < w - 0.1) {
+      const pw = Math.min(w - x, 8 + rand() * 6)
+      board(b, x, 0, pw, 2.4, DOCK, 40 + i)
+      x += pw
+      i++
+    }
+    b.fillStyle = ROPE
+    for (let lx = 3; lx < w - 2; lx += 10) {
+      b.fillRect(lx, 0, 1.2, 7)
+      b.fillStyle = ROPE_DARK
+      b.fillRect(lx + 1.2, 0, 0.4, 7)
+      b.fillStyle = ROPE
+    }
+    // Weed trailing from the logs.
+    b.fillStyle = '#2f5a3a'
+    for (let k = 0; k < w / 8; k++) b.fillRect(rand() * w, 6.5, 0.6, 1.5)
+  } else if (look === 'lift') {
+    // A planked deck in an iron frame, a hanging truss under it.
+    let x = 0
+    let i = 0
+    while (x < w - 0.1) {
+      const pw = Math.min(w - x, 6 + rand() * 5)
+      board(b, x, 0, pw, 3, m.wood, 60 + i)
+      x += pw
+      i++
+    }
+    b.fillStyle = IRON[1]
+    b.fillRect(0, 3, w, 1.6)
+    b.fillStyle = IRON[3]
+    b.fillRect(0, 3, w, 0.4)
+    b.strokeStyle = IRON[1]
+    b.lineWidth = 1
+    b.beginPath()
+    b.moveTo(1, 4.4)
+    b.lineTo(w / 2, d - 0.6)
+    b.lineTo(w - 1, 4.4)
+    b.stroke()
+    b.strokeStyle = IRON[3]
+    b.lineWidth = 0.3
+    b.stroke()
+    b.fillStyle = IRON[2]
+    b.beginPath()
+    b.arc(w / 2, d - 1.2, 1.1, 0, Math.PI * 2)
+    b.fill()
+    for (const cx of [1.5, w - 3]) {
+      b.fillStyle = IRON[2]
+      b.fillRect(cx, 0, 1.6, 4.6)
+      b.fillStyle = IRON[4]
+      b.fillRect(cx + 0.3, 0.6, 0.5, 0.5)
+    }
+  } else if (look === 'beam' || look === 'bell') {
+    // A heavy timber beam with iron straps.
+    const bh = look === 'bell' ? 5 : 6
+    board(b, 0, 0, w, bh, m.wood, 77)
+    b.fillStyle = rgba(m.wood[4], 0.8)
+    b.fillRect(0.5, 0, w - 1, 0.5)
+    for (const sx of [2, w - 5, ...(w > 40 ? [w / 2 - 1.5] : [])]) {
+      b.fillStyle = IRON[1]
+      b.fillRect(sx, 0, 3, bh)
+      b.fillStyle = IRON[3]
+      b.fillRect(sx, 0, 3, 0.4)
+      b.fillStyle = IRON[4]
+      b.fillRect(sx + 1.2, bh / 2 - 0.3, 0.6, 0.6)
+    }
+    b.fillStyle = rgba(INK, 0.5)
+    b.fillRect(0, bh, w, d - bh)
+  } else {
+    // A floating slab of the world's stone.
+    let x = 0
+    while (x < w - 0.1) {
+      const sw = Math.min(w - x, 10 + rand() * 8)
+      stone(
+        b,
+        x + 0.2,
+        0,
+        sw - 0.4,
+        4.4,
+        m.stone,
+        0.8,
+        (rand() - 0.5) * 0.4 + 0.2,
+      )
+      x += sw
+    }
+    x = 0
+    while (x < w - 0.1) {
+      const sw = Math.min(w - x, 6 + rand() * 6)
+      stone(b, x + 0.3, 4.3, sw - 0.6, 2.7, m.stone, 0.6, -0.35)
+      x += sw
+    }
+  }
+  b.fillStyle = rgba(m.rim, 0.55)
+  b.fillRect(0.5, 0, w - 1, 0.35)
+}
+
+/**
+ * A moving platform at its current position (world space): a raft of lashed logs, a rope or chain
+ * lift, a bell hung under a beam, a swinging beam, or a stone slab. Its walkable top is exactly y
+ * from x to x + w; ropes and chains run up off the top of the screen.
+ */
 export function drawMover(
   g: G,
   m: Mover,
@@ -121,68 +1096,106 @@ export function drawMover(
   theme: StageTheme,
   tick: number,
 ) {
-  const [dark, body, light, trim] = stoneFor(theme)
-  const px = Math.round(x)
-  const py = Math.round(y)
+  const key = MATERIALS[theme] ? theme : 'town'
+  const mat = materialFor(key)
+  const look = m.look ?? 'slab'
+  const w = Math.max(4, m.w)
+  const d = moverDepth(look)
   g.save()
-  if (m.look === 'raft') {
-    g.fillStyle = '#4a2f18'
-    g.fillRect(px, py, m.w, 5)
-    g.fillStyle = '#7a5230'
-    for (let i = 0; i < m.w; i += 6) g.fillRect(px + i, py, 5, 4)
-    g.fillStyle = '#a8794a'
-    g.fillRect(px, py, m.w, 1)
-  } else if (m.look === 'bell') {
-    // A bell hung from a beam: the beam is the platform, the bell swings under it.
-    g.strokeStyle = '#2a1d16'
-    g.beginPath()
-    g.moveTo(px + m.w / 2, py)
-    g.lineTo(px + m.w / 2, 0)
-    g.stroke()
-    g.fillStyle = '#4b3220'
-    g.fillRect(px, py, m.w, 4)
-    g.fillStyle = '#7a5230'
-    g.fillRect(px, py, m.w, 1)
-    const sway = Math.sin(tick / 20) * 2
-    const cx = px + m.w / 2 + sway
-    const bell = g.createLinearGradient(cx - 9, 0, cx + 9, 0)
-    bell.addColorStop(0, '#6b4a12')
-    bell.addColorStop(0.4, '#e3b341')
-    bell.addColorStop(1, '#6b4a12')
-    g.fillStyle = bell
-    g.beginPath()
-    g.moveTo(cx - 5, py + 4)
-    g.quadraticCurveTo(cx - 6, py + 14, cx - 10, py + 19)
-    g.lineTo(cx + 10, py + 19)
-    g.quadraticCurveTo(cx + 6, py + 14, cx + 5, py + 4)
-    g.closePath()
-    g.fill()
-  } else {
-    g.fillStyle = rgba(INK, 0.4)
-    g.fillRect(px + 2, py + 3, m.w, 6)
-    g.fillStyle = dark
-    g.fillRect(px, py, m.w, 6)
-    g.fillStyle = body
-    g.fillRect(px + 1, py + 1, m.w - 2, 3)
-    g.fillStyle = light
-    g.fillRect(px + 1, py + 1, m.w - 2, 1)
-    g.fillStyle = trim
-    g.fillRect(px + 2, py + 4, 2, 1)
-    g.fillRect(px + m.w - 4, py + 4, 2, 1)
-    if (m.look === 'lift') {
-      g.strokeStyle = rgba('#d6d3d1', 0.5)
-      g.beginPath()
-      g.moveTo(px + 3.5, py)
-      g.lineTo(px + 3.5, 0)
-      g.moveTo(px + m.w - 3.5, py)
-      g.lineTo(px + m.w - 3.5, 0)
-      g.stroke()
+  // Hangers first, behind the platform.
+  if (look === 'lift' || look === 'beam' || look === 'bell') {
+    const ends =
+      look === 'lift' ? [x + 2.3, x + w - 2.2] : [x + 3.5, x + w - 3.5]
+    for (const hx of ends) {
+      if (mat.rope) ropeLine(g, hx, y + 1, hx, -8)
+      else chainLine(g, hx, y + 1, hx, -8)
     }
+  }
+  if (look === 'raft') {
+    // The raft sits in the water: rings spread from its sides.
+    for (const side of [-1, 1]) {
+      const sx = side < 0 ? x : x + w
+      for (let i = 0; i < 2; i++) {
+        const k = (((tick / 30 + i * 0.5) % 1) + 1) % 1
+        g.strokeStyle = rgba('#c8fff4', 0.5 * (1 - k))
+        g.lineWidth = 0.5
+        g.beginPath()
+        g.ellipse(
+          sx + side * k * 6,
+          y + 7,
+          1 + k * 5,
+          0.6 + k,
+          0,
+          0,
+          Math.PI * 2,
+        )
+        g.stroke()
+      }
+    }
+  }
+  drawBaked(g, `gt-mover-${key}-${look}-${w}`, x, y, w, d, (c) =>
+    paintMover(c, look, w, key),
+  )
+  if (look === 'bell') {
+    // The bell swings under the beam.
+    const swing = Math.sin(tick / 22 + x * 0.01) * 0.2
+    const s = Math.min(22, Math.max(12, w * 0.45))
+    g.save()
+    g.translate(x + w / 2, y + 5)
+    g.rotate(swing)
+    g.fillStyle = IRON[1]
+    g.fillRect(-1.5, 0, 3, 2.5)
+    bigBellLive(g, 0, 2, s)
+    g.restore()
   }
   g.restore()
 }
 
-/** Ground that hurts (world space); `live` false shows a timed hazard cooling (its tell). */
+/** A bronze bell, crown at (cx, top), `s` wide, for the movers. */
+function bigBellLive(g: G, cx: number, top: number, s: number) {
+  const h = s * 1.05
+  g.beginPath()
+  g.moveTo(cx - s * 0.18, top + s * 0.08)
+  g.quadraticCurveTo(cx - s * 0.36, top + h * 0.2, cx - s * 0.36, top + h * 0.6)
+  g.quadraticCurveTo(cx - s * 0.4, top + h * 0.85, cx - s * 0.52, top + h)
+  g.lineTo(cx + s * 0.52, top + h)
+  g.quadraticCurveTo(cx + s * 0.4, top + h * 0.85, cx + s * 0.36, top + h * 0.6)
+  g.quadraticCurveTo(
+    cx + s * 0.36,
+    top + h * 0.2,
+    cx + s * 0.18,
+    top + s * 0.08,
+  )
+  g.closePath()
+  const grad = g.createLinearGradient(cx - s * 0.5, 0, cx + s * 0.5, 0)
+  grad.addColorStop(0, BRONZE[2])
+  grad.addColorStop(0.25, BRONZE[4])
+  grad.addColorStop(0.45, BRONZE[3])
+  grad.addColorStop(1, BRONZE[0])
+  g.fillStyle = grad
+  g.fill()
+  g.strokeStyle = INK
+  g.lineWidth = 0.5
+  g.stroke()
+  g.fillStyle = BRONZE[1]
+  g.fillRect(cx - s * 0.5, top + h - s * 0.1, s, s * 0.1)
+  g.fillStyle = rgba(BRONZE[0], 0.7)
+  g.fillRect(cx - s * 0.36, top + h * 0.3, s * 0.72, 0.6)
+  g.fillRect(cx - s * 0.4, top + h * 0.75, s * 0.8, 0.6)
+  g.fillStyle = IRON[1]
+  g.beginPath()
+  g.arc(cx, top + h + 0.6, s * 0.08, 0, Math.PI * 2)
+  g.fill()
+}
+
+// --- hazards ---------------------------------------------------------------------------------------
+
+/**
+ * Ground that hurts (world space), spanning exactly x..x+w on the ground. `live` is burning or
+ * raised; a timed hazard that is not live is cooling or retracted, and `warm` is the tell that it
+ * is about to ignite: coals flare orange and spit sparks, a ritual circle's runes kindle, spikes
+ * tremble at the lip, all with a pulsing warm glow.
+ */
 export function drawHazard(
   g: G,
   h: Hazard,
@@ -191,61 +1204,326 @@ export function drawHazard(
   warm: boolean,
   tick: number,
 ) {
+  const timed = !!h.period
+  const x = h.x
+  const w = Math.max(2, h.w)
+  const pulse = (Math.sin(tick / 3) + 1) / 2
   g.save()
   if (h.kind === 'spikes') {
-    g.fillStyle = '#d6d3d1'
-    for (let x = h.x; x < h.x + h.w; x += 6) {
+    // Iron spikes in a riveted sill; timed ones sink into it and rise again.
+    const ext =
+      !timed || live ? 1 : warm ? 0.3 + 0.12 * Math.sin(tick * 1.3) : 0.1
+    drawBaked(g, `gt-hazard-sill-${w}`, x, groundY - 2, w, 3, (b) => {
+      b.fillStyle = IRON[1]
+      b.fillRect(0, 0, w, 3)
+      b.fillStyle = IRON[3]
+      b.fillRect(0, 0, w, 0.5)
+      for (let rx = 2; rx < w - 1; rx += 6) {
+        b.fillStyle = IRON[4]
+        b.fillRect(rx, 1.2, 0.7, 0.7)
+      }
+      b.strokeStyle = INK
+      b.lineWidth = 0.4
+      b.strokeRect(0.2, 0.2, w - 0.4, 2.6)
+    })
+    const n = Math.max(1, Math.round(w / 5))
+    const sw = w / n
+    const sh = 9 * ext
+    for (let i = 0; i < n; i++) {
+      const sx = x + i * sw
+      const base = groundY - 2
+      g.fillStyle = IRON[2]
       g.beginPath()
-      g.moveTo(x, groundY)
-      g.lineTo(x + 3, groundY - 8)
-      g.lineTo(x + 6, groundY)
+      g.moveTo(sx + 0.4, base)
+      g.lineTo(sx + sw / 2, base - sh)
+      g.lineTo(sx + sw - 0.4, base)
       g.closePath()
       g.fill()
+      g.fillStyle = IRON[4]
+      g.beginPath()
+      g.moveTo(sx + 0.4, base)
+      g.lineTo(sx + sw / 2, base - sh)
+      g.lineTo(sx + sw / 2, base)
+      g.closePath()
+      g.fill()
+      g.strokeStyle = INK
+      g.lineWidth = 0.45
+      g.beginPath()
+      g.moveTo(sx + 0.4, base)
+      g.lineTo(sx + sw / 2, base - sh)
+      g.lineTo(sx + sw - 0.4, base)
+      g.stroke()
+      // A glint on each point (red-hot in the tell).
+      g.fillStyle =
+        warm && !live
+          ? rgba('#ff8a4a', 0.6 + 0.4 * pulse)
+          : rgba('#ffffff', 0.7)
+      g.fillRect(sx + sw / 2 - 0.4, base - sh, 0.8, 0.8)
     }
-    g.fillStyle = '#78716c'
-    for (let x = h.x; x < h.x + h.w; x += 6)
-      g.fillRect(x + 3, groundY - 6, 1, 6)
-  } else {
-    const hot = h.kind === 'ritual' ? '#e879f9' : '#f97316'
-    const base = h.kind === 'ritual' ? '#581c87' : '#7c2d12'
-    g.fillStyle = base
-    g.fillRect(h.x, groundY - 3, h.w, 3)
-    if (live || warm) {
-      const a = live ? 1 : 0.35 + 0.25 * Math.sin(tick / 3)
-      g.globalAlpha = a
-      for (let x = h.x + 2; x < h.x + h.w - 2; x += 5) {
-        const f = 5 + ((x * 7 + tick) % 9)
-        g.fillStyle = hot
-        g.fillRect(x, groundY - f, 3, f)
-        g.fillStyle = '#fde68a'
-        g.fillRect(x + 1, groundY - f + 2, 1, f - 3)
+    if (warm && !live)
+      glow(g, x + w / 2, groundY - 3, w * 0.5 + 6, EMBER, 0.2 + pulse * 0.2)
+  } else if (h.kind === 'coals') {
+    const heat = !timed || live ? 1 : warm ? 0.55 + pulse * 0.35 : 0.12
+    // A bed of coals in a stone kerb.
+    drawBaked(g, `gt-hazard-coals-${w}`, x, groundY - 5, w, 6, (b) => {
+      b.fillStyle = '#1a1212'
+      b.fillRect(0, 2, w, 4)
+      const rand = seeded(w * 3 + 1)
+      for (let i = 0; i < w / 2.2; i++) {
+        const cx = 1 + rand() * (w - 2)
+        const cy = 2.5 + rand() * 2.2
+        const r = 0.9 + rand() * 1.3
+        b.fillStyle = ['#2a2224', '#3a3034', '#221a1c'][i % 3]!
+        b.beginPath()
+        b.ellipse(cx, cy, r * 1.2, r, 0, 0, Math.PI * 2)
+        b.fill()
+        b.fillStyle = rgba('#6a5a5a', 0.6)
+        b.fillRect(cx - r * 0.6, cy - r * 0.7, r * 0.8, 0.4)
       }
-      g.globalAlpha = 1
-      if (live) glow(g, h.x + h.w / 2, groundY - 4, h.w * 0.6, hot, 0.35)
+      stoneRow(b, w, 4.6, 1.4, MASONRY)
+    })
+    // The coals' glowing cracks.
+    const rand = seeded(w * 3 + 5)
+    g.save()
+    g.globalCompositeOperation = 'lighter'
+    for (let i = 0; i < w / 3; i++) {
+      const cx = x + 1 + rand() * (w - 2)
+      const cy = groundY - 3 + rand() * 2
+      const flick = 0.6 + 0.4 * Math.sin(tick / 4 + i * 1.7)
+      g.fillStyle = rgba(
+        heat > 0.5 ? '#ffb040' : '#c0301a',
+        Math.min(1, heat * flick),
+      )
+      g.fillRect(cx, cy, 1 + rand() * 1.5, 0.5)
     }
+    g.restore()
+    if (heat > 0.2)
+      glow(
+        g,
+        x + w / 2,
+        groundY - 3,
+        w * 0.55 + 8,
+        EMBER,
+        0.25 * heat + (warm && !live ? 0.15 * pulse : 0),
+      )
+    if (!timed || live) {
+      // Flames along the bed.
+      fireRow(g, x + 2, x + w - 2, groundY - 2.5, 13, tick + x, [
+        '#b8281a',
+        '#ff8a2a',
+        '#ffd060',
+        '#fff6d8',
+      ])
+      glow(g, x + w / 2, groundY - 8, w * 0.6 + 10, '#ff8a2a', 0.3)
+    } else if (warm) {
+      // The tell: little tongues licking up, sparks spitting, the air shimmering.
+      for (let fx = x + 4; fx < x + w - 3; fx += 7)
+        flame(g, fx, groundY - 3, 0.5 + 0.25 * pulse, tick + fx * 5, '#ff9a3a')
+      for (let i = 0; i < 6; i++) {
+        const sx = x + ((i * 37 + tick * 0.7) % w)
+        const sy = groundY - 4 - ((tick * 0.8 + i * 9) % 16)
+        g.fillStyle = rgba('#ffd27a', 0.9 - ((tick * 0.8 + i * 9) % 16) / 18)
+        g.fillRect(sx, sy, 0.8, 0.8)
+      }
+      g.strokeStyle = rgba('#ffc890', 0.16)
+      g.lineWidth = 0.4
+      for (let k = 0; k < 3; k++) {
+        const hy = groundY - 8 - k * 4
+        g.beginPath()
+        for (let sx = x; sx <= x + w; sx += 2) {
+          const yy = hy + Math.sin(sx / 3 + tick / 4 + k) * 0.8
+          if (sx === x) g.moveTo(sx, yy)
+          else g.lineTo(sx, yy)
+        }
+        g.stroke()
+      }
+    } else {
+      // Cold: a thread of smoke.
+      for (let i = 0; i < 3; i++) {
+        const sy = (tick * 0.3 + i * 10) % 30
+        g.fillStyle = rgba('#8a8090', 0.25 * (1 - sy / 30))
+        g.beginPath()
+        g.arc(
+          x + w * (0.25 + i * 0.25) + Math.sin(tick / 30 + i) * 2,
+          groundY - 5 - sy,
+          1 + sy / 12,
+          0,
+          Math.PI * 2,
+        )
+        g.fill()
+      }
+    }
+  } else {
+    // The ritual circle: a sigil cut into the floor that kindles, then roars into a fire curtain.
+    const lit = !timed || live
+    const cx = x + w / 2
+    const cy = groundY - 1
+    const rx = w / 2
+    const colour = lit ? RITUAL : warm ? mix(VIOLET, '#ff7a3a', pulse) : VIOLET
+    const alpha = lit ? 0.95 : warm ? 0.55 + 0.4 * pulse : 0.28
+    g.save()
+    g.translate(cx, cy)
+    g.scale(1, 0.28)
+    g.lineWidth = 1.4
+    g.strokeStyle = rgba(INK, 0.8)
+    g.beginPath()
+    g.ellipse(0, 0, rx, rx, 0, 0, Math.PI * 2)
+    g.stroke()
+    g.globalCompositeOperation = 'lighter'
+    g.strokeStyle = rgba(colour, alpha)
+    g.lineWidth = 1
+    g.beginPath()
+    g.ellipse(0, 0, rx - 0.5, rx - 0.5, 0, 0, Math.PI * 2)
+    g.stroke()
+    g.lineWidth = 0.7
+    g.beginPath()
+    for (let i = 0; i <= 5; i++) {
+      const a = tick / 200 - Math.PI / 2 + (i * 4 * Math.PI) / 5
+      const px = Math.cos(a) * rx * 0.82
+      const py = Math.sin(a) * rx * 0.82
+      if (i) g.lineTo(px, py)
+      else g.moveTo(px, py)
+    }
+    g.stroke()
+    // Runes round the ring: in the tell they kindle one by one.
+    const runes = Math.max(6, Math.round(w / 5))
+    const kindled =
+      warm && !lit ? Math.floor((tick / 4) % (runes + 4)) : lit ? runes : 0
+    for (let i = 0; i < runes; i++) {
+      const a = (i / runes) * Math.PI * 2
+      const on = i < kindled
+      g.fillStyle = rgba(on ? '#ffd0a0' : colour, on ? 0.95 : alpha * 0.7)
+      g.fillRect(
+        Math.cos(a) * rx * 0.92 - 0.6,
+        Math.sin(a) * rx * 0.92 - 1.6,
+        1.2,
+        3.2,
+      )
+    }
+    g.restore()
+    if (lit) {
+      // A curtain of violet-crimson fire over the circle.
+      fireRow(g, x + 2, x + w - 2, groundY - 1, 18, tick + x, [
+        '#6a1aa0',
+        '#d02a6a',
+        '#ff7aa0',
+        '#ffe8f4',
+      ])
+      glow(g, cx, groundY - 10, w * 0.6 + 12, RITUAL, 0.3)
+      glow(g, cx, groundY - 4, w * 0.4 + 6, VIOLET, 0.25)
+    } else if (warm) {
+      for (let i = 0; i < 5; i++) {
+        const sx = x + 2 + ((i * 29 + tick * 0.5) % (w - 4))
+        const rise = (tick * 0.9 + i * 11) % 20
+        g.fillStyle = rgba(i % 2 ? '#ff9ab0' : '#e0a0ff', 0.9 * (1 - rise / 20))
+        g.fillRect(sx, groundY - 2 - rise, 0.8, 1.6)
+      }
+      glow(
+        g,
+        cx,
+        groundY - 3,
+        w * 0.5 + 6,
+        mix(VIOLET, EMBER, pulse),
+        0.2 + 0.25 * pulse,
+      )
+    } else glow(g, cx, groundY - 1, w * 0.4, VIOLET, 0.12)
   }
   g.restore()
 }
 
-/** A column of rising air (world space): streaks drifting up. */
+/** A row of small kerb stones along the bottom of a hazard bake. */
+function stoneRow(b: G, w: number, y: number, h: number, ramp: Ramp) {
+  let x = 0
+  let i = 0
+  while (x < w - 0.1) {
+    const sw = Math.min(w - x, 4 + ((i * 7) % 4))
+    stone(b, x + 0.15, y, sw - 0.3, h, ramp, 0.4, (i % 3) * 0.15 - 0.1)
+    x += sw
+    i++
+  }
+}
+
+// --- wind and water ----------------------------------------------------------------------------------
+
+/**
+ * A column of rising air (world space, drawn behind the terrain): a cool shaft of light, wisps
+ * spiralling up, leaves and feathers riding it, and faint chevrons climbing, so it reads as lift.
+ */
 export function drawUpdraft(g: G, u: Updraft, groundY: number, tick: number) {
+  const x = u.x
+  const w = Math.max(4, u.w)
+  const top = u.top
+  const span = Math.max(8, groundY - top)
   g.save()
-  const grad = g.createLinearGradient(0, u.top, 0, groundY)
-  grad.addColorStop(0, rgba('#c7d2fe', 0))
-  grad.addColorStop(1, rgba('#c7d2fe', 0.16))
-  g.fillStyle = grad
-  g.fillRect(u.x, u.top, u.w, groundY - u.top)
-  g.fillStyle = rgba('#e0e7ff', 0.55)
-  for (let i = 0; i < Math.max(3, u.w / 8); i++) {
-    const x = u.x + ((i * 37) % u.w)
-    const span = groundY - u.top
-    const y = groundY - ((tick * 2 + i * 53) % span)
-    g.fillRect(x, y, 1, 6)
+  // The shaft: brightest in its heart and near the ground, fading out at its sides and top.
+  const slices = 10
+  for (let k = 0; k < slices; k++) {
+    const f = (k + 0.5) / slices
+    const a = 0.03 + 0.15 * f * f
+    const sy = top + (k / slices) * span
+    const grad = g.createLinearGradient(x, 0, x + w, 0)
+    grad.addColorStop(0, rgba('#dfe6ff', 0))
+    grad.addColorStop(0.5, rgba('#dfe6ff', a))
+    grad.addColorStop(1, rgba('#dfe6ff', 0))
+    g.fillStyle = grad
+    g.fillRect(x, sy, w, span / slices + 0.5)
   }
+  // Wisps spiralling up.
+  g.lineCap = 'round'
+  const wisps = Math.max(3, Math.round(w / 7))
+  for (let i = 0; i < wisps; i++) {
+    const k = ((tick * 1.6 + i * 53) % span) / span
+    const y = groundY - k * span
+    const sx =
+      x + w * ((i + 0.5) / wisps) + Math.sin(tick / 18 + i * 2) * w * 0.12
+    const a = (1 - Math.abs(k - 0.5) * 2) * 0.55
+    g.strokeStyle = rgba('#eef2ff', a)
+    g.lineWidth = 0.7
+    g.beginPath()
+    g.moveTo(sx, y + 8)
+    g.bezierCurveTo(sx - 2, y + 5, sx + 2, y + 2, sx, y - 2)
+    g.stroke()
+  }
+  // Chevrons climbing the column.
+  for (let i = 0; i < 3; i++) {
+    const k = ((tick * 0.9 + (i * span) / 3) % span) / span
+    const y = groundY - 6 - k * (span - 10)
+    const a = Math.sin(k * Math.PI) * 0.35
+    g.strokeStyle = rgba('#ffffff', a)
+    g.lineWidth = 0.9
+    g.beginPath()
+    g.moveTo(x + w / 2 - 4, y + 3)
+    g.lineTo(x + w / 2, y)
+    g.lineTo(x + w / 2 + 4, y + 3)
+    g.stroke()
+  }
+  // Leaves and feathers riding it.
+  for (let i = 0; i < Math.max(2, Math.round(w / 12)); i++) {
+    const k = ((tick * 1.2 + i * 71) % span) / span
+    const y = groundY - k * span
+    const sx =
+      x + w * (0.2 + 0.6 * hash(i * 7 + 3)) + Math.sin(tick / 12 + i * 3) * 4
+    g.save()
+    g.translate(sx, y)
+    g.rotate(tick / 10 + i)
+    g.fillStyle = rgba(
+      i % 2 ? '#2a2a3e' : '#8a7a4a',
+      0.85 * Math.sin(k * Math.PI),
+    )
+    g.beginPath()
+    g.ellipse(0, 0, 1.8, 0.7, 0, 0, Math.PI * 2)
+    g.fill()
+    g.restore()
+  }
+  g.lineCap = 'butt'
   g.restore()
 }
 
-/** The water line across the screen (world space, caller translated); `warning` ripples it. */
+/**
+ * The tide (world space; the caller has translated by -camX): the water from line `y` down, its
+ * surface rippling, caustics below and foam on top. While `warning` (a rise is coming) the surface
+ * trembles and a bright gold shimmer races along it, with bubbles boiling up: the tell to climb.
+ */
 export function drawWater(
   g: G,
   camX: number,
@@ -253,17 +1531,104 @@ export function drawWater(
   warning: boolean,
   tick: number,
 ) {
+  const top = y
+  const x0 = camX - 8
+  const x1 = camX + W + 8
+  const pulse = (Math.sin(tick / 4) + 1) / 2
+  const amp = warning ? 1.6 + pulse * 0.8 : 1
+  const surf = (sx: number) =>
+    top +
+    Math.sin((sx + tick * 1.2) / 9) * amp * 0.6 +
+    Math.sin((sx - tick * 0.7) / 5.3) * amp * 0.4
   g.save()
-  const top = Math.round(y)
-  const grad = g.createLinearGradient(0, top, 0, H)
-  grad.addColorStop(0, rgba('#2dd4bf', 0.42))
-  grad.addColorStop(1, rgba('#0f3d3e', 0.72))
-  g.fillStyle = grad
-  g.fillRect(camX - 4, top, W + 8, H - top)
-  g.fillStyle = rgba(warning ? '#fde68a' : '#a7f3d0', warning ? 0.9 : 0.6)
-  for (let x = camX - (camX % 8) - 8; x < camX + W + 8; x += 8) {
-    const dy = Math.sin((x + tick * 1.5) / 9) * 1.5
-    g.fillRect(x, top + dy, 5, 1)
+  if (top < H) {
+    // The body of the water.
+    g.beginPath()
+    g.moveTo(x0, H + 2)
+    for (let sx = x0; sx <= x1; sx += 3) g.lineTo(sx, surf(sx))
+    g.lineTo(x1, H + 2)
+    g.closePath()
+    const body = g.createLinearGradient(0, top, 0, Math.max(top + 1, H))
+    body.addColorStop(0, rgba('#2ab8b0', 0.46))
+    body.addColorStop(0.3, rgba('#127070', 0.6))
+    body.addColorStop(1, rgba('#06283a', 0.82))
+    g.fillStyle = body
+    g.fill()
+    // Caustics drifting under the surface.
+    g.save()
+    g.clip()
+    g.strokeStyle = rgba('#9ff8ec', 0.13)
+    g.lineWidth = 0.6
+    for (let row = 0; row < 4; row++) {
+      const cy = top + 6 + row * 7
+      g.beginPath()
+      for (let sx = x0 - (x0 % 6); sx <= x1; sx += 6) {
+        const yy = cy + Math.sin(sx / 7 + tick / 20 + row * 2) * 1.6
+        if (sx === x0 - (x0 % 6)) g.moveTo(sx, yy)
+        else g.lineTo(sx, yy)
+      }
+      g.stroke()
+    }
+    // Motes and silt.
+    for (let i = 0; i < 14; i++) {
+      const mx = camX + ((i * 47 + tick * 0.2) % (W + 16)) - 8
+      const my = top + 4 + ((i * 23 + tick * 0.1) % Math.max(4, H - top))
+      g.fillStyle = rgba('#b8fff4', 0.18)
+      g.fillRect(mx, my, 0.6, 0.6)
+    }
+    g.restore()
+    // The surface: a dark trough line, a lit crest, foam flecks.
+    g.lineWidth = 0.8
+    g.strokeStyle = rgba('#0a3a40', 0.6)
+    g.beginPath()
+    for (let sx = x0; sx <= x1; sx += 2) {
+      if (sx === x0) g.moveTo(sx, surf(sx) + 1.2)
+      else g.lineTo(sx, surf(sx) + 1.2)
+    }
+    g.stroke()
+    g.strokeStyle = rgba('#c8fff4', 0.75)
+    g.lineWidth = 0.6
+    g.beginPath()
+    for (let sx = x0; sx <= x1; sx += 2) {
+      if (sx === x0) g.moveTo(sx, surf(sx))
+      else g.lineTo(sx, surf(sx))
+    }
+    g.stroke()
+    for (let sx = x0 - (x0 % 11); sx < x1; sx += 11) {
+      const drift = (tick * 0.25 + sx * 3) % 11
+      g.fillStyle = rgba('#ffffff', 0.55)
+      g.fillRect(sx + drift, surf(sx + drift) - 0.3, 2.2, 0.6)
+    }
+    if (warning) {
+      // The tell: a gold shimmer racing along the line, the surface glowing, bubbles boiling.
+      g.save()
+      g.globalCompositeOperation = 'lighter'
+      const band = g.createLinearGradient(0, top - 6, 0, top + 6)
+      band.addColorStop(0, rgba('#ffd27a', 0))
+      band.addColorStop(0.5, rgba('#ffd27a', 0.18 + 0.22 * pulse))
+      band.addColorStop(1, rgba('#ffd27a', 0))
+      g.fillStyle = band
+      g.fillRect(x0, top - 6, x1 - x0, 12)
+      for (let i = 0; i < 28; i++) {
+        const sx = camX + hash(i * 13 + Math.floor(tick / 3)) * W
+        const a = hash(i * 7 + Math.floor(tick / 2))
+        g.fillStyle = rgba(a > 0.5 ? '#fff6c8' : '#ffd27a', 0.5 + a * 0.5)
+        g.fillRect(sx - 2, surf(sx) - 0.4, 4, 0.7)
+        if (a > 0.75) g.fillRect(sx - 0.3, surf(sx) - 1.4, 0.6, 2.6)
+      }
+      g.restore()
+      for (let i = 0; i < 12; i++) {
+        const bx = camX + ((i * 31) % W) + Math.sin(tick / 6 + i) * 2
+        const rise = (tick * 0.6 + i * 13) % 26
+        const by = top + 26 - rise
+        if (by < top) continue
+        g.strokeStyle = rgba('#e8fffa', 0.7)
+        g.lineWidth = 0.4
+        g.beginPath()
+        g.arc(bx, by, 0.6 + (i % 3) * 0.3, 0, Math.PI * 2)
+        g.stroke()
+      }
+    }
   }
   g.restore()
 }
@@ -852,59 +2217,352 @@ export type Card = {
   age: number
 }
 
-/** Full-screen title card, story page or credits roll (screen space), over a dimmed scene. */
-export function drawCard(g: G, card: Card) {
+/** The book page every card is lettered on (screen space). */
+const PAGE = { x: 16, y: 34, w: 288, h: 182 }
+const PAGE_M = 5
+const INK_TEXT = '#3a1e10'
+const RUBRIC = '#9a1a24'
+const ULTRAMARINE = '#26307a'
+
+/** Aged vellum with an illuminated border: crimson and ultramarine rules, gold, vines, gems. */
+function paintPage(b: G, w: number, h: number, d: number) {
+  b.translate(PAGE_M, PAGE_M)
+  const vellum = b.createRadialGradient(
+    w * 0.45,
+    h * 0.42,
+    10,
+    w / 2,
+    h / 2,
+    w * 0.68,
+  )
+  vellum.addColorStop(0, '#f4e6c4')
+  vellum.addColorStop(0.55, '#e6cf9e')
+  vellum.addColorStop(1, '#bf9a64')
+  b.fillStyle = vellum
+  b.fillRect(0, 0, w, h)
+  // Fibres, foxing and a darker, handled edge.
+  const rand = seeded(7717)
+  for (let i = 0; i < 420; i++) {
+    b.fillStyle = rgba(i % 3 ? '#8a6a3a' : '#5a3a1a', 0.05 + rand() * 0.12)
+    b.fillRect(rand() * w, rand() * h, 0.5 + rand() * 2.5, 0.35)
+  }
+  for (let i = 0; i < 9; i++) {
+    const fx = rand() * w
+    const fy = rand() * h
+    const fr = 1 + rand() * 3
+    const fox = b.createRadialGradient(fx, fy, 0, fx, fy, fr)
+    fox.addColorStop(0, rgba('#9a6a30', 0.18))
+    fox.addColorStop(1, rgba('#9a6a30', 0))
+    b.fillStyle = fox
+    b.fillRect(fx - fr, fy - fr, fr * 2, fr * 2)
+  }
+  for (const [x0, y0, x1, y1, rx, ry, rw, rh] of [
+    [0, 0, 0, 10, 0, 0, w, 10],
+    [0, h, 0, h - 10, 0, h - 10, w, 10],
+    [0, 0, 10, 0, 0, 0, 10, h],
+    [w, 0, w - 10, 0, w - 10, 0, 10, h],
+  ] as const) {
+    const edge = b.createLinearGradient(x0, y0, x1, y1)
+    edge.addColorStop(0, rgba('#6a4218', 0.45))
+    edge.addColorStop(1, rgba('#6a4218', 0))
+    b.fillStyle = edge
+    b.fillRect(rx, ry, rw, rh)
+  }
+  // The border: crimson, gold and ultramarine rules.
+  b.strokeStyle = RUBRIC
+  b.lineWidth = 1.4
+  b.strokeRect(7, 7, w - 14, h - 14)
+  b.strokeStyle = goldGradient(b, 0, h)
+  b.lineWidth = 0.8
+  b.strokeRect(9.2, 9.2, w - 18.4, h - 18.4)
+  b.strokeStyle = ULTRAMARINE
+  b.lineWidth = 0.9
+  b.strokeRect(10.8, 10.8, w - 21.6, h - 21.6)
+  // A ladder of tiny gold dots between the outer rules, as a scribe would rule them.
+  b.fillStyle = rgba('#c08a2a', 0.8)
+  for (let x = 14; x < w - 14; x += 4) {
+    b.fillRect(x, 4.2, 0.7, 0.7)
+    b.fillRect(x, h - 4.9, 0.7, 0.7)
+  }
+  for (let y = 14; y < h - 14; y += 4) {
+    b.fillRect(4.2, y, 0.7, 0.7)
+    b.fillRect(w - 4.9, y, 0.7, 0.7)
+  }
+  // Vines curling out of each corner: gold stems, green leaves, red berries.
+  const vine = (cx: number, cy: number, sx: 1 | -1, sy: 1 | -1) => {
+    b.save()
+    b.translate(cx, cy)
+    b.scale(sx, sy)
+    b.lineCap = 'round'
+    const stem = () => {
+      b.beginPath()
+      b.moveTo(0, 0)
+      b.bezierCurveTo(10, 1, 18, 6, 26, 4)
+      b.moveTo(0, 0)
+      b.bezierCurveTo(1, 10, 6, 18, 4, 26)
+      b.moveTo(9, 2)
+      b.quadraticCurveTo(12, 8, 8, 10)
+    }
+    stem()
+    b.strokeStyle = rgba(INK, 0.6)
+    b.lineWidth = 1.3
+    b.stroke()
+    stem()
+    b.strokeStyle = goldGradient(b, -2, 12)
+    b.lineWidth = 0.6
+    b.stroke()
+    for (const [lx, ly, a] of [
+      [16, 4.8, -0.5],
+      [22, 5.2, 0.4],
+      [4.8, 16, 1.9],
+      [5.2, 22, 1.2],
+    ] as const) {
+      b.save()
+      b.translate(lx, ly)
+      b.rotate(a)
+      b.fillStyle = '#3a6a3a'
+      b.beginPath()
+      b.ellipse(0, 0, 2.2, 1, 0, 0, Math.PI * 2)
+      b.fill()
+      b.fillStyle = rgba('#8ac07a', 0.8)
+      b.fillRect(-1.2, -0.4, 1.6, 0.35)
+      b.restore()
+    }
+    for (const [bx, by] of [
+      [8, 10],
+      [12, 8.5],
+    ] as const) {
+      b.fillStyle = '#b01a2a'
+      b.beginPath()
+      b.arc(bx, by, 0.9, 0, Math.PI * 2)
+      b.fill()
+      b.fillStyle = rgba('#ffd0c0', 0.8)
+      b.fillRect(bx - 0.5, by - 0.6, 0.4, 0.4)
+    }
+    curl(b, 3.5, 3.5, 2.6, Math.PI * 0.25, Math.PI * 1.7)
+    b.restore()
+  }
+  vine(12, 12, 1, 1)
+  vine(w - 12, 12, -1, 1)
+  vine(12, h - 12, 1, -1)
+  vine(w - 12, h - 12, -1, -1)
+  // The page's gold frame, like the HUD's.
+  paintRing(b, w, h, d, true)
+}
+
+/** A small gold bell, the trail's mark, centred on (x, y). */
+function bellMark(g: G, x: number, y: number, s: number) {
   g.save()
-  const fade = Math.min(1, card.age / 20)
-  g.fillStyle = rgba('#0b0614', 0.86 * fade)
+  g.translate(x, y)
+  g.beginPath()
+  g.moveTo(-s * 0.2, -s * 0.5)
+  g.quadraticCurveTo(-s * 0.42, -s * 0.38, -s * 0.42, 0)
+  g.quadraticCurveTo(-s * 0.45, s * 0.3, -s * 0.6, s * 0.45)
+  g.lineTo(s * 0.6, s * 0.45)
+  g.quadraticCurveTo(s * 0.45, s * 0.3, s * 0.42, 0)
+  g.quadraticCurveTo(s * 0.42, -s * 0.38, s * 0.2, -s * 0.5)
+  g.closePath()
+  g.strokeStyle = INK
+  g.lineWidth = 1.2
+  g.stroke()
+  g.fillStyle = goldGradient(g, -s * 0.5, s * 0.5)
+  g.fill()
+  g.fillStyle = rgba('#fff3c4', 0.8)
+  g.fillRect(-s * 0.28, -s * 0.25, s * 0.1, s * 0.45)
+  g.fillStyle = INK
+  g.beginPath()
+  g.arc(0, s * 0.55, s * 0.12, 0, Math.PI * 2)
+  g.fill()
+  g.restore()
+}
+
+/** A wax seal pressed with the bell, two ribbon tails beneath. */
+function waxSeal(g: G, x: number, y: number) {
+  g.save()
+  for (const [dx, a] of [
+    [-3, 0.35],
+    [3, -0.35],
+  ] as const) {
+    g.save()
+    g.translate(x + dx, y + 4)
+    g.rotate(a)
+    g.fillStyle = '#7a1420'
+    g.beginPath()
+    g.moveTo(-2, 0)
+    g.lineTo(2, 0)
+    g.lineTo(2, 10)
+    g.lineTo(0, 8.5)
+    g.lineTo(-2, 10)
+    g.closePath()
+    g.fill()
+    g.restore()
+  }
+  g.fillStyle = '#5a0c14'
+  g.beginPath()
+  for (let i = 0; i <= 14; i++) {
+    const a = (i / 14) * Math.PI * 2
+    const r = 7.5 + (i % 2) * 0.8
+    g.lineTo(x + Math.cos(a) * r, y + Math.sin(a) * r)
+  }
+  g.closePath()
+  g.fill()
+  const wax = g.createRadialGradient(x - 2, y - 2, 0, x, y, 7)
+  wax.addColorStop(0, '#d0303e')
+  wax.addColorStop(1, '#8a1420')
+  g.fillStyle = wax
+  g.beginPath()
+  g.arc(x, y, 6, 0, Math.PI * 2)
+  g.fill()
+  g.strokeStyle = rgba('#3a0408', 0.7)
+  g.lineWidth = 0.6
+  g.beginPath()
+  g.arc(x, y, 4.6, 0, Math.PI * 2)
+  g.stroke()
+  g.fillStyle = rgba('#3a0408', 0.75)
+  g.beginPath()
+  g.moveTo(x - 1, y - 2.6)
+  g.quadraticCurveTo(x - 2.4, y - 1.6, x - 2.2, y + 0.4)
+  g.lineTo(x - 3, y + 1.8)
+  g.lineTo(x + 3, y + 1.8)
+  g.lineTo(x + 2.2, y + 0.4)
+  g.quadraticCurveTo(x + 2.4, y - 1.6, x + 1, y - 2.6)
+  g.closePath()
+  g.fill()
+  g.fillStyle = rgba('#ffb0b0', 0.5)
+  g.fillRect(x - 3.5, y - 3.6, 2.2, 0.6)
+  g.restore()
+}
+
+/** An illuminated initial: the letter in gold on a crimson and ultramarine square. */
+function dropCap(g: G, ch: string, x: number, y: number) {
+  const s = 20
+  g.save()
+  g.fillStyle = INK
+  g.fillRect(x - 1, y - 1, s + 2, s + 2)
+  g.fillStyle = goldGradient(g, y, y + s)
+  g.fillRect(x, y, s, s)
+  g.fillStyle = RUBRIC
+  g.fillRect(x + 1.5, y + 1.5, s - 3, s - 3)
+  g.fillStyle = ULTRAMARINE
+  g.beginPath()
+  g.moveTo(x + 1.5, y + 1.5)
+  g.lineTo(x + s - 1.5, y + 1.5)
+  g.lineTo(x + 1.5, y + s - 1.5)
+  g.closePath()
+  g.fill()
+  // White filigree in the field.
+  g.strokeStyle = rgba('#f4e6c4', 0.55)
+  g.lineWidth = 0.4
+  for (const [cx, cy] of [
+    [x + 4, y + 4],
+    [x + s - 4, y + s - 4],
+  ] as const) {
+    g.beginPath()
+    g.arc(cx, cy, 1.6, 0, Math.PI * 1.5)
+    g.stroke()
+  }
+  g.restore()
+  hudText(g, ch, x + s / 2, y + (s - FONT_HEIGHT * 2) / 2, {
+    scale: 2,
+    color: ['#fff3c4', '#e0a032'],
+    align: 'center',
+  })
+}
+
+/**
+ * A full-screen card (screen space) over the dimmed scene, lettered on an illuminated book page:
+ * the heading on the HUD's ornate ribbon banner, the body in scribe's ink (its first letter an
+ * illuminated initial), typed out as the page is read. A story page carries a wax seal; the
+ * credits roll up the page, their section heads rubricated in red.
+ */
+export function drawCard(g: G, card: Card) {
+  const age = Math.max(0, card.age)
+  const fade = Math.min(1, age / 20)
+  const rise = (1 - Math.min(1, age / 16)) ** 2 * 8
+  g.save()
+  // Dim the scene and darken its edges, so the page is the only thing lit.
+  g.fillStyle = rgba('#0b0614', 0.8 * fade)
+  g.fillRect(0, 0, W, H)
+  const vig = g.createRadialGradient(W / 2, H / 2, 60, W / 2, H / 2, 210)
+  vig.addColorStop(0, rgba('#000000', 0))
+  vig.addColorStop(1, rgba('#000000', 0.5 * fade))
+  g.fillStyle = vig
   g.fillRect(0, 0, W, H)
   g.globalAlpha = fade
+  g.translate(0, rise)
+  // A soft shadow under the page, then the page.
+  g.fillStyle = rgba('#000000', 0.45)
+  g.fillRect(PAGE.x + 3, PAGE.y + 4, PAGE.w, PAGE.h)
+  const d = densityOf(g)
+  drawBaked(
+    g,
+    `gt-card-page-${PAGE.w}x${PAGE.h}`,
+    PAGE.x - PAGE_M,
+    PAGE.y - PAGE_M,
+    PAGE.w + PAGE_M * 2,
+    PAGE.h + PAGE_M * 2,
+    (b) => paintPage(b, PAGE.w, PAGE.h, d),
+  )
+  bellMark(g, W / 2, PAGE.y + 1, 9)
+  // The heading on the ribbon banner (it unfurls as the page arrives).
+  drawBanner(g, card.heading, card.sub, Math.max(0, age - 6))
+  const bottom = PAGE.y + PAGE.h - 11
   if (card.kind === 'credits') {
-    const y0 = H - card.age * 0.35
-    drawText(g, card.heading, W / 2, y0, {
-      align: 'center',
-      color: '#fde68a',
-      scale: 2,
-    })
+    // The roll: lines rise through a window in the page and fade at its edges.
+    const win0 = card.sub ? 104 : 96
+    const win1 = bottom - 6
+    const y0 = win1 + 4 - age * 0.35
+    g.save()
+    g.beginPath()
+    g.rect(PAGE.x + 12, win0 - 2, PAGE.w - 24, win1 - win0 + 4)
+    g.clip()
     card.lines.forEach((line, i) => {
-      const y = y0 + 34 + i * 12
-      if (y > -10 && y < H + 10)
-        drawText(g, line, W / 2, y, {
-          align: 'center',
-          color:
-            line === line.toUpperCase() && line.length < 28
-              ? '#fbbf24'
-              : '#e7e5e4',
-        })
-    })
-  } else {
-    // A rule frame like a book plate.
-    g.strokeStyle = rgba('#d6b25e', 0.8)
-    g.strokeRect(20.5, 34.5, W - 41, H - 69)
-    g.strokeStyle = rgba('#d6b25e', 0.35)
-    g.strokeRect(24.5, 38.5, W - 49, H - 77)
-    if (card.sub)
-      drawText(g, card.sub, W / 2, 52, { align: 'center', color: '#d6b25e' })
-    drawText(g, card.heading, W / 2, 66, {
-      align: 'center',
-      color: '#fde68a',
-      scale: 2,
-    })
-    const shown = Math.floor(card.age / 2)
-    let budget = shown
-    card.lines.forEach((line, i) => {
-      if (budget <= 0) return
-      const text = line.slice(0, budget)
-      budget -= line.length
-      drawText(g, text, W / 2, 98 + i * 12, {
+      const y = y0 + i * 12
+      if (y < win0 - 10 || y > win1 + 2 || !line) return
+      const a = Math.max(0, Math.min(1, (y - win0) / 12, (win1 - y) / 12))
+      g.globalAlpha = fade * a
+      const head = i === 0 || card.lines[i - 1] === ''
+      drawText(g, line, W / 2, y, {
         align: 'center',
-        color: '#e7e5e4',
+        color: head ? RUBRIC : INK_TEXT,
       })
     })
-    if (card.age > 40 && Math.floor(card.age / 20) % 2 === 0)
-      drawText(g, 'PRESS A', W / 2, H - 50, {
+    // A tailpiece after the last line.
+    const ty = y0 + card.lines.length * 12 + 8
+    if (ty > win0 - 10 && ty < win1 + 10) {
+      g.globalAlpha =
+        fade * Math.max(0, Math.min(1, (ty - win0) / 12, (win1 - ty) / 12))
+      bellMark(g, W / 2, ty, 10)
+      curl(g, W / 2 - 10, ty + 1, 3, 0, Math.PI * 1.6)
+      curl(g, W / 2 + 10, ty + 1, 3, Math.PI, -Math.PI * 1.6)
+    }
+    g.restore()
+  } else {
+    // The body: left-aligned in a centred block, an illuminated initial beside it.
+    const lines = card.lines.slice(0, 6)
+    const first = lines[0] ?? ''
+    const capChar = /^[A-Z]/.test(first) ? first[0]! : ''
+    const indent = capChar ? 26 : 0
+    const widths = lines.map((l, i) =>
+      measureText(i === 0 && capChar ? l.slice(1) : l, 1),
+    )
+    const blockW = indent + Math.max(0, ...widths)
+    const left = Math.round(W / 2 - blockW / 2)
+    const y0 = card.sub ? 112 : 106
+    if (capChar) dropCap(g, capChar, left, y0 - 4)
+    let budget = Math.floor(age / 2)
+    lines.forEach((line, i) => {
+      if (budget <= 0) return
+      const text = i === 0 && capChar ? line.slice(1) : line
+      const shown = text.slice(0, budget)
+      budget -= text.length
+      drawText(g, shown, left + indent, y0 + i * 12, { color: INK_TEXT })
+    })
+    if (card.kind === 'story') waxSeal(g, PAGE.x + PAGE.w - 34, bottom - 18)
+    if (age > 40 && Math.floor(age / 20) % 2 === 0)
+      drawText(g, 'PRESS A', W / 2, bottom - 14, {
         align: 'center',
-        color: '#a8a29e',
+        color: rgba(RUBRIC, 0.85),
       })
   }
   g.restore()

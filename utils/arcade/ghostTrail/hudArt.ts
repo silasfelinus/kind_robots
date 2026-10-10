@@ -312,7 +312,7 @@ function rrect(
   b.closePath()
 }
 
-function goldGradient(
+export function goldGradient(
   b: CanvasRenderingContext2D,
   y0: number,
   y1: number,
@@ -359,7 +359,7 @@ function diamond(
 }
 
 /** A small scroll curl, gold over ink: the frames' corner flourish, curling around (cx, cy). */
-function curl(
+export function curl(
   b: CanvasRenderingContext2D,
   cx: number,
   cy: number,
@@ -396,7 +396,7 @@ function curl(
  * A gold frame's ring around the box (0, 0, w, h): an ink edge outside, a 1 px bevelled gold band,
  * an inner ink hairline (HD), and ornaments; the centre stays clear. Content sits in (1, 1, w-2, h-2).
  */
-function paintRing(
+export function paintRing(
   b: CanvasRenderingContext2D,
   w: number,
   h: number,

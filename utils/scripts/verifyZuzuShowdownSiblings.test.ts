@@ -344,8 +344,15 @@ check(
         ),
       ) as { animations: Record<string, { frames: unknown[] }> }
       assert.ok(sheet.animations.stand?.frames.length, `${style}: stands`)
-      // Every pose puppetPlace can ask for is drawn, or the stand stands in.
-      for (const pose of ['stand', 'duck', 'throw', 'proud', 'wave']) {
+      // Every pose puppetPlace can ask for is drawn.
+      for (const pose of [
+        'stand',
+        'duck',
+        'throw',
+        'proud',
+        'wave',
+        'raspberry',
+      ]) {
         assert.equal(
           sheet.animations[pose]?.frames.length,
           1,

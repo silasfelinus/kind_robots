@@ -213,7 +213,7 @@
                   </p>
                   <p class="mt-1 text-xs opacity-70">Success moves the story forward. Failure costs health. Withdrawing costs a provision or health.</p>
                 </div>
-                <div class="grid gap-2 sm:grid-cols-2">
+                <div class="grid grid-cols-[repeat(auto-fit,minmax(min(100%,170px),1fr))] gap-2">
                   <button type="button" class="btn btn-primary min-h-12" @click="game.resolve('test')">
                     <Icon name="kind-icon:dice" class="size-5" />
                     Roll the check

@@ -4,7 +4,8 @@
 // Every special fires from its fighters.yaml input; Apple Toss spends and
 // regrows the toddler's three apples, Bared Teeth is the anti-air, Big Ears
 // parries a strike, Shield Him armors one hit, Scramble slides under
-// projectiles, the supers, and Abbess's Last Rites flings them.
+// projectiles, the supers, and Abbess's Last Rites flings them. The toddler
+// puppet (t-011) follows his sister's state and is never in harm's way.
 //
 //   npx tsx utils/scripts/verifyZuzuShowdownSiblings.test.ts
 
@@ -25,6 +26,7 @@ import { ABBESS } from '../zuzuShowdown/fighters/abbess'
 import { SIBLINGS } from '../zuzuShowdown/fighters/siblings'
 import { ZUZU } from '../zuzuShowdown/fighters/zuzu'
 import { FIGHTERS } from '../zuzuShowdown/fighters'
+import { SPRITE_PUPPETS, puppetPlace } from '../zuzuShowdown/sprites'
 import {
   SIM_BUTTONS,
   SUB,
@@ -269,6 +271,46 @@ check('Lone Survivor: three bars, HP, the Showdown, 400', () => {
 })
 
 // ---------------------------------------------------------------- fuzz
+
+check('the toddler puppet follows her state, ducking from every hit', () => {
+  assert.equal(SPRITE_PUPPETS[SIBLINGS.slug], 'toddler')
+  const base = createMatch(ROSTER).fighters[0]
+  const at = (over: Partial<typeof base>, context = {}) =>
+    puppetPlace({ ...base, ...over }, context)
+  const attack = (id: string) =>
+    ({ ...base.attack, id, frame: 1 }) as NonNullable<typeof base.attack>
+  assert.equal(at({ action: 'idle' }).pose, 'stand')
+  assert.equal(
+    at({ action: 'attack', attack: attack('apple-toss') }).pose,
+    'throw',
+  )
+  const shoulders = at({ action: 'attack', attack: attack('rain-of-apples') })
+  assert.equal(shoulders.pose, 'throw')
+  assert.ok(shoulders.up > 40, 'Rain of Apples: up on her shoulders')
+  assert.equal(
+    at({ action: 'attack', attack: attack('shield-him') }).pose,
+    'duck',
+  )
+  // Whenever she is struck, blocking, thrown or down, he ducks behind her legs; at a KO she scoops
+  // him up (fighters.yaml children_rules): never a harmed pose.
+  for (const action of [
+    'hitstun',
+    'airhit',
+    'blockstun',
+    'thrown',
+    'knockdown',
+    'wakeup',
+    'ko',
+  ] as const)
+    assert.equal(at({ action }).pose, 'duck', action)
+  assert.equal(at({ action: 'ko' }).front, true, 'KO: held in her arms')
+  assert.equal(at({ action: 'taunt' }).pose, 'raspberry')
+  assert.equal(at({ action: 'victory' }).pose, 'proud')
+  assert.equal(at({ action: 'victory' }, { perfect: true }).pose, 'wave')
+  // In the air he rides her back, rising with her.
+  const jump = at({ action: 'jump', y: 40 * SUB })
+  assert.ok(jump.up >= 40, 'riding her back')
+})
 
 check('the Siblings replay deterministically and keep every invariant', () => {
   for (const [seed, roster] of [

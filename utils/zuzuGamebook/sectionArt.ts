@@ -8,6 +8,13 @@
 import type { ScenePlate } from './art'
 
 export const SECTION_PLATES: Record<string, ScenePlate> = {
+  'a1-bad-ground': {
+    file: 'sections/a1-bad-ground',
+    alt: 'Zuzu lies sprawled on his back in the mud while a grinning crocodile looms over him from the dark.',
+    artImageId: 244399,
+    source: 'Gamebook round 8, gb8-a1-bad-ground-k',
+    fit: 'exact',
+  },
   'a1-bowl-night': {
     file: 'sections/a1-bowl-night',
     alt: 'A cracked grey stone bowl holding a little dark water sits alone on bare ground at night.',
@@ -32,6 +39,13 @@ export const SECTION_PLATES: Record<string, ScenePlate> = {
     fit: 'exact',
     shape: 'square',
   },
+  'a1-eggs-shared': {
+    file: 'sections/a1-eggs-shared',
+    alt: 'Zuzu and the coyote sit facing each other in the dark, three pale eggs set out on a cloth between them.',
+    artImageId: 244401,
+    source: 'Gamebook round 8, gb8-a1-eggs-shared-k',
+    fit: 'exact',
+  },
   'a1-far-bank': {
     file: 'sections/a1-far-bank',
     alt: 'Zuzu, a short grey koala in a rust-brown poncho, orange sash and wide hat, stands alone on a red rock in the desert.',
@@ -48,11 +62,33 @@ export const SECTION_PLATES: Record<string, ScenePlate> = {
     fit: 'exact',
     shape: 'tall',
   },
+  'a1-gun-kept': {
+    file: 'sections/a1-gun-kept',
+    alt: 'Zuzu stands his ground in the dark with a dripping stick in one paw while a snarling coyote in a long coat creeps up beside him.',
+    artImageId: 244400,
+    source: 'Gamebook round 8, gb8-a1-gun-kept-k',
+    fit: 'exact',
+  },
   'a1-gun-returned': {
     file: 'sections/a1-gun-returned',
     alt: 'The coyote stands in the desert in his long coat, revolver in his left hand, his right forearm wrapped in cloth.',
     artImageId: 243628,
     source: 'Gamebook round 6, gb6-a1-gun-returned-2',
+    fit: 'exact',
+    shape: 'tall',
+  },
+  'a1-gun-road': {
+    file: 'sections/a1-gun-road',
+    alt: 'Zuzu walks out of the dark holding a revolver, another lying in the dirt behind him while a shadowed figure watches.',
+    artImageId: 244402,
+    source: 'Gamebook round 8, gb8-a1-gun-road-k',
+    fit: 'exact',
+  },
+  'a1-laid-out': {
+    file: 'sections/a1-laid-out',
+    alt: 'The coyote stands in his long coat among black rocks, a revolver at his side and a cracked bowl at his feet.',
+    artImageId: 244416,
+    source: 'Gamebook round 8, gb8-a1-laid-out-1',
     fit: 'exact',
     shape: 'tall',
   },
@@ -71,11 +107,26 @@ export const SECTION_PLATES: Record<string, ScenePlate> = {
     fit: 'exact',
     shape: 'tall',
   },
+  'a1-reeds': {
+    file: 'sections/a1-reeds',
+    alt: 'Zuzu stands in shallow black water among tall dead reeds, his head lowered under his straw hat.',
+    artImageId: 244398,
+    source: 'Gamebook round 8, gb8-a1-reeds-k',
+    fit: 'exact',
+    shape: 'square',
+  },
   'a1-stones-watch': {
     file: 'sections/a1-stones-watch',
     alt: 'The one-eyed coyote stands knee-deep in a dark pool among red rocks, rings spreading around him, one paw near his revolver.',
     artImageId: 243607,
     source: 'Gamebook round 6, gb6-a1-stones-watch-1',
+    fit: 'exact',
+  },
+  'a1-terrain': {
+    file: 'sections/a1-terrain',
+    alt: 'Zuzu stands small in a thicket of dead reeds while two huge glowing eyes watch him from the blackness above.',
+    artImageId: 244397,
+    source: 'Gamebook round 8, gb8-a1-terrain-k',
     fit: 'exact',
   },
   'a1-the-shot': {
@@ -1347,6 +1398,14 @@ export const SECTION_PLATES: Record<string, ScenePlate> = {
     source: 'Gamebook round 7, gb7-courtyard-1',
     fit: 'exact',
   },
+  'croc-ready': {
+    file: 'sections/croc-ready',
+    alt: 'Zuzu crouches in dark scrub with his katana drawn and raised, ready to strike.',
+    artImageId: 244393,
+    source: 'Gamebook round 8, gb8-croc-ready-k',
+    fit: 'exact',
+    shape: 'tall',
+  },
   'crypt-glimpse': {
     file: 'sections/crypt-glimpse',
     alt: 'A vaulted stone crypt, a dark coiled shape carved or shadowed in the wall behind the altar.',
@@ -1429,6 +1488,14 @@ export const SECTION_PLATES: Record<string, ScenePlate> = {
     fit: 'exact',
     shape: 'square',
   },
+  'hidden-pool': {
+    file: 'sections/hidden-pool',
+    alt: 'Zuzu stands on a rock ledge above a dark pool, looking down at the still water.',
+    artImageId: 244407,
+    source: 'Gamebook round 8, gb8-hidden-pool-1',
+    fit: 'exact',
+    shape: 'tall',
+  },
   'hollow-bell': {
     file: 'sections/hollow-bell',
     alt: 'Zuzu stands in a stone gateway with fire roaring behind him, paper notices pinned to the wall on either side.',
@@ -1467,6 +1534,13 @@ export const SECTION_PLATES: Record<string, ScenePlate> = {
     source: 'Gamebook round 6, gb6-night-watch-1',
     fit: 'exact',
     shape: 'tall',
+  },
+  parting: {
+    file: 'sections/parting',
+    alt: 'Zuzu and a stranger in a long coat and hat walk away from each other across a darkening desert flat.',
+    artImageId: 244394,
+    source: 'Gamebook round 8, gb8-parting-k',
+    fit: 'exact',
   },
   posters: {
     file: 'sections/posters',
@@ -1543,6 +1617,13 @@ export const SECTION_PLATES: Record<string, ScenePlate> = {
     source: 'Gamebook round 7, gb7-take-them-2',
     fit: 'exact',
     shape: 'tall',
+  },
+  'the-crossing': {
+    file: 'sections/the-crossing',
+    alt: 'Zuzu stands on a grey rocky bank above a canyon stream, his poncho drawn about him and his katana at his back.',
+    artImageId: 244406,
+    source: 'Gamebook round 8, gb8-the-crossing-1',
+    fit: 'exact',
   },
   'they-follow': {
     file: 'sections/they-follow',

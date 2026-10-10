@@ -215,7 +215,7 @@
                 </div>
                 <div class="grid gap-2 sm:grid-cols-2">
                   <button type="button" class="btn btn-primary min-h-12" @click="game.resolve('test')">
-                    <Icon name="kind-icon:dice-5" class="size-5" />
+                    <Icon name="kind-icon:dice" class="size-5" />
                     Roll the check
                   </button>
                   <button type="button" class="btn btn-outline min-h-12" @click="game.resolve('withdraw')">

@@ -12,7 +12,7 @@ import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { measureText } from '../arcade/font'
-import { findFighter } from '../zuzuShowdown/fighters'
+import { FIGHTERS, findFighter } from '../zuzuShowdown/fighters'
 import {
   BOSS_INTROS,
   MATCHUPS,
@@ -23,12 +23,22 @@ import {
   VS_FIRST_LINE,
   VS_HOLD_FRAMES,
   VS_LINE_FRAMES,
+  drawSelectScreen,
   drawVsScreen,
   drawWinScreen,
   vsDuration,
   vsLinesShown,
+  selectCard,
   wrapText,
 } from '../zuzuShowdown/screens'
+import {
+  SELECT_COLUMNS,
+  activeSide,
+  advanceSelect,
+  newSelect,
+  selectDone,
+  type SelectPress,
+} from '../zuzuShowdown/select'
 import { VIEW_HEIGHT, VIEW_WIDTH } from '../zuzuShowdown/render'
 import { createMatch } from '../zuzuShowdown/sim'
 import {
@@ -178,6 +188,9 @@ function stubContext() {
     lineTo: record('lineTo'),
     closePath: record('closePath'),
     fill: record('fill'),
+    rect: record('rect'),
+    clip: record('clip'),
+    strokeRect: record('strokeRect'),
   }
   return { g: g as unknown as CanvasRenderingContext2D, calls }
 }
@@ -242,6 +255,75 @@ check('the VS screen draws every frame on screen, with art and without', () => {
     assertOnScreen(calls, 'no art')
   }
 })
+
+check(
+  'character select: cursors wrap, picks lock, one player picks both',
+  () => {
+    const slugs = FIGHTERS.map((f) => f.slug)
+    const n = slugs.length
+    const press = (p: SelectPress): [SelectPress, SelectPress] => [p, {}]
+    let s = newSelect(slugs, ['zuzu', 'coyote-vagrant'])
+    assert.deepEqual(s.cursor, [0, 1], 'on the current fighters')
+    // Left from the first card wraps to the last; up from the top row to the bottom.
+    s = advanceSelect(s, press({ left: true }), n, false)
+    assert.equal(s.cursor[0], n - 1)
+    s = advanceSelect(s, press({ down: true }), n, false)
+    assert.equal(s.cursor[0], (n - 1 + SELECT_COLUMNS) % n)
+    // One player: LP picks their fighter, then the same stick moves the opponent's cursor.
+    s = advanceSelect(s, press({ lp: true }), n, false)
+    assert.ok(s.picked[0] && activeSide(s) === 1)
+    const mine = s.cursor[0]
+    s = advanceSelect(s, press({ right: true }), n, false)
+    assert.equal(s.cursor[0], mine, 'their pick stays put')
+    assert.equal(s.cursor[1], 2)
+    // HP goes back to their own pick; picking twice finishes.
+    s = advanceSelect(s, press({ hp: true }), n, false)
+    assert.ok(!s.picked[0] && !selectDone(s))
+    s = advanceSelect(s, press({ start: true }), n, false)
+    s = advanceSelect(s, press({ lp: true }), n, false)
+    assert.ok(selectDone(s))
+    // Two players: each drives their own cursor at once.
+    let v = newSelect(slugs, ['zuzu', 'zuzu'])
+    v = advanceSelect(v, [{ right: true }, { left: true }], n, true)
+    assert.deepEqual(v.cursor, [1, n - 1])
+    v = advanceSelect(v, [{ lp: true }, {}], n, true)
+    v = advanceSelect(v, [{ right: true }, { lp: true }], n, true)
+    assert.equal(v.cursor[0], 1, 'a picked cursor stays')
+    assert.ok(selectDone(v))
+  },
+)
+
+check(
+  'the select screen draws every fighter on screen, with art and without',
+  () => {
+    for (let i = 0; i < FIGHTERS.length; i += 1) {
+      const card = selectCard(i, FIGHTERS.length)
+      assert.ok(
+        card.x >= 120 && card.x + card.w <= VIEW_WIDTH - 120,
+        'between the fighters',
+      )
+    }
+    for (const art of [sheets, {}]) {
+      for (const twoPlayers of [false, true]) {
+        let s = newSelect(
+          FIGHTERS.map((f) => f.slug),
+          ['zuzu', 'the-siblings'],
+        )
+        for (let t = 0; t < 60; t += 1) {
+          const { g, calls } = stubContext()
+          drawSelectScreen(g, FIGHTERS, art, s, false, twoPlayers, 'CPU')
+          assertOnScreen(calls, `select t${t}`)
+          s = advanceSelect(
+            s,
+            [{ right: t % 7 === 0 }, { left: t % 5 === 0 }],
+            FIGHTERS.length,
+            twoPlayers,
+          )
+        }
+      }
+    }
+  },
+)
 
 check('the win screen draws for P1, P2, a Perfect and a draw', () => {
   const roster: [FighterData, FighterData] = [ZUZU, COYOTE]

@@ -1,7 +1,8 @@
 // /utils/zuzuShowdown/screens.ts
 //
-// Zuzu Showdown taunt screens (conductor zuzu-showdown t-019, first slice): the VS screen before the
-// fight and the win screen after it. The VS screen splits warm and cool, slams both fighters in from
+// Zuzu Showdown taunt screens (conductor zuzu-showdown t-019): the character select grid, the VS
+// screen before the fight and the win screen after it. The select screen stands each side's hovered
+// fighter big at its edge and the roster's busts between them. The VS screen splits warm and cool, slams both fighters in from
 // the sides with a white flash, pops VS, and plays the matchup's intro exchange line by line, each on
 // its speaker's side. The win screen stands the winner in their victory pose (the Perfect pose for a
 // flawless win) and gives their quote to the loser. Until t-008's portraits land, the fighters are
@@ -11,6 +12,7 @@
 import { drawText, measureText } from '../arcade/font'
 import { introFor, winQuote, type MatchupLine } from './matchups'
 import { VIEW_HEIGHT, VIEW_WIDTH } from './render'
+import { SELECT_COLUMNS, activeSide, type SelectState } from './select'
 import { drawSprite, type LoadedSprites } from './sprites'
 import type { FighterData, MatchState } from './types'
 
@@ -77,10 +79,13 @@ function drawFighterBig(
   const sheet = sprites?.sheet
   const name = names.find((n) => sheet?.animations[n]?.frames.length)
   if (!sprites || !sheet || !name) {
-    // No art yet: a silhouette block of the fighter's height.
+    // No art yet: the stand-in figure of the fighter's height, its head in the light colour.
     const h = Math.min(FIGHTER_FLOOR - FIGHTER_TOP, data.hurtStand.h * 1.6)
+    const head = Math.round(h * 0.2)
     g.fillStyle = data.look?.body ?? '#57534e'
-    g.fillRect(x - 20, floor - h, 40, h)
+    g.fillRect(x - 20, floor - h + head, 40, h - head)
+    g.fillStyle = data.look?.light ?? '#a8a29e'
+    g.fillRect(x - head / 2, floor - h, head, head)
     return
   }
   const anim = sheet.animations[name]!
@@ -272,5 +277,187 @@ export function drawWinScreen(
   drawText(g, 'PRESS START FOR A REMATCH', 330, 196, {
     align: 'center',
     color: '#fdba74',
+  })
+}
+
+// ---------------------------------------------------------------- character select
+
+const CARD = 50
+const CARD_GAP = 6
+const GRID_TOP = 64
+const CURSOR_COLOURS: Pair<string> = ['#fb923c', '#38bdf8']
+
+/** Where the roster's `index`-th card sits on the select grid. */
+export function selectCard(
+  index: number,
+  count: number,
+): { x: number; y: number; w: number; h: number } {
+  const columns = Math.min(SELECT_COLUMNS, count)
+  const width = columns * CARD + (columns - 1) * CARD_GAP
+  const left = (VIEW_WIDTH - width) / 2
+  const col = index % SELECT_COLUMNS
+  const row = Math.floor(index / SELECT_COLUMNS)
+  return {
+    x: left + col * (CARD + CARD_GAP),
+    y: GRID_TOP + row * (CARD + CARD_GAP),
+    w: CARD,
+    h: CARD,
+  }
+}
+
+/** A fighter's bust on a card: the idle stance, close in on the head and shoulders. */
+function drawBust(
+  g: G,
+  sprites: LoadedSprites | undefined,
+  data: FighterData,
+  card: { x: number; y: number; w: number; h: number },
+  p2: boolean,
+): void {
+  g.save()
+  g.beginPath()
+  g.rect(card.x, card.y, card.w, card.h)
+  g.clip()
+  const sheet = sprites?.sheet
+  const frame = sheet?.animations.idle?.frames[0]
+  const cx = card.x + card.w / 2
+  if (!sprites || !sheet || !frame) {
+    // No art yet: the stand-in figure's head and shoulders in its colours.
+    g.fillStyle = data.look?.body ?? '#57534e'
+    g.fillRect(cx - 16, card.y + 26, 32, card.h)
+    g.fillStyle = data.look?.light ?? '#a8a29e'
+    g.fillRect(cx - 10, card.y + 8, 20, 18)
+    g.restore()
+    return
+  }
+  // The figure 1.6 cards tall, its feet below the card: the top half shows.
+  const zoom = (card.h * 1.6) / sheet.height
+  g.translate(cx, card.y + card.h * 1.55)
+  g.scale(zoom, zoom)
+  drawSprite(
+    g,
+    p2 && sprites.p2 ? sprites.p2 : sprites.image,
+    frame,
+    sheet.scale,
+    0,
+    0,
+    1,
+  )
+  g.restore()
+}
+
+/**
+ * The character select screen, `t` frames in: each side's hovered fighter big at its edge, the
+ * roster's busts on a grid between them, and the two cursors. `opponentLabel` names P2's cursor
+ * (2P, or CPU / DUMMY for a lone player).
+ */
+export function drawSelectScreen(
+  g: G,
+  fighters: readonly FighterData[],
+  sprites: Partial<Record<string, LoadedSprites>>,
+  state: SelectState,
+  reduced: boolean,
+  twoPlayers: boolean,
+  opponentLabel = '2P',
+): void {
+  g.fillStyle = '#1c1917'
+  g.fillRect(0, 0, VIEW_WIDTH, VIEW_HEIGHT)
+  // Warm and cool washes behind each side's fighter.
+  g.fillStyle = 'rgba(234, 88, 12, 0.22)'
+  g.fillRect(0, 0, 120, VIEW_HEIGHT)
+  g.fillStyle = 'rgba(37, 99, 235, 0.22)'
+  g.fillRect(VIEW_WIDTH - 120, 0, 120, VIEW_HEIGHT)
+
+  drawText(g, 'CHOOSE YOUR FIGHTER', VIEW_WIDTH / 2, 14, {
+    align: 'center',
+    scale: 2,
+    color: '#fdba74',
+    shadow: '#000000',
+  })
+
+  const sides: Pair<FighterData> = [
+    fighters[state.cursor[0]]!,
+    fighters[state.cursor[1]]!,
+  ]
+  const mirror = sides[0].slug === sides[1].slug
+  const idle = ['idle']
+  drawFighterBig(
+    g,
+    sprites[sides[0].slug],
+    sides[0],
+    idle,
+    false,
+    62,
+    236,
+    1,
+    false,
+  )
+  drawFighterBig(
+    g,
+    sprites[sides[1].slug],
+    sides[1],
+    idle,
+    false,
+    VIEW_WIDTH - 62,
+    236,
+    -1,
+    mirror,
+  )
+  sides.forEach((f, side) =>
+    drawText(g, f.name.toUpperCase(), side === 0 ? 62 : VIEW_WIDTH - 62, 242, {
+      align: 'center',
+      color: SIDE_COLOURS[side],
+      shadow: '#000000',
+    }),
+  )
+
+  fighters.forEach((f, index) => {
+    const card = selectCard(index, fighters.length)
+    g.fillStyle = '#292524'
+    g.fillRect(card.x, card.y, card.w, card.h)
+    drawBust(g, sprites[f.slug], f, card, false)
+    g.strokeStyle = '#57534e'
+    g.lineWidth = 1
+    g.strokeRect(card.x + 0.5, card.y + 0.5, card.w - 1, card.h - 1)
+  })
+
+  // The cursors: a frame round each side's card, blinking until it is picked.
+  const blink = reduced || state.frame % 30 < 22
+  const labels: Pair<string> = ['1P', opponentLabel]
+  for (const side of [0, 1] as const) {
+    const picked = state.picked[side]
+    if (!picked && !blink) continue
+    const card = selectCard(state.cursor[side], fighters.length)
+    const shared = state.cursor[0] === state.cursor[1]
+    const inset = shared && side === 1 ? 3 : 0
+    g.strokeStyle = CURSOR_COLOURS[side]
+    g.lineWidth = picked ? 3 : 2
+    g.strokeRect(
+      card.x + inset - 1,
+      card.y + inset - 1,
+      card.w - 2 * inset + 2,
+      card.h - 2 * inset + 2,
+    )
+    drawText(
+      g,
+      picked ? `${labels[side]} OK` : labels[side],
+      side === 0 ? card.x + 2 : card.x + card.w - 2,
+      side === 0 ? card.y + 2 : card.y + card.h - 9,
+      {
+        align: side === 0 ? 'left' : 'right',
+        color: CURSOR_COLOURS[side],
+        shadow: '#000000',
+      },
+    )
+  }
+
+  const prompt = twoPlayers
+    ? 'LP PICKS - HP TAKES IT BACK'
+    : activeSide(state) === 0
+      ? 'PICK YOUR FIGHTER - LP'
+      : `PICK THE OPPONENT - LP (HP GOES BACK)`
+  drawText(g, prompt, VIEW_WIDTH / 2, GRID_TOP + 2 * (CARD + CARD_GAP) + 8, {
+    align: 'center',
+    color: '#fde047',
+    shadow: '#000000',
   })
 }

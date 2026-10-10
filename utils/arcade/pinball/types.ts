@@ -198,6 +198,8 @@ export type SpinnerDef = {
 export type FlipperDef = {
   id: string
   side: 'left' | 'right'
+  /** The zone it plays in (the hidden room, the Ridge); none on the main table. */
+  zone?: string
   pivot: Vec3
   length: number
   /** Radius at the pivot end and at the tip. */

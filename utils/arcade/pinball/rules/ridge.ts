@@ -26,10 +26,12 @@ export type RidgeState = {
   /** A ball is up there now, and the switches it has made on this visit. */
   up: boolean
   hits: number
+  /** Lookouts made this ball (each is worth more). */
+  lookouts: number
 }
 
 export function initialRidge(): RidgeState {
-  return { sky: [], clouds: [], visits: 0, up: false, hits: 0 }
+  return { sky: [], clouds: [], visits: 0, up: false, hits: 0, lookouts: 0 }
 }
 
 export const SKY_LANES = ['sky-s', 'sky-k', 'sky-y']
@@ -43,6 +45,7 @@ export const RIDGE_VALUES = {
   cloudBurst: 150_000,
   runBase: 10_000,
   runPerHit: 5_000,
+  lookout: 50_000,
 } as const
 
 /** The upper feed's subway has brought a ball up onto the Ridge. */
@@ -92,7 +95,30 @@ export function ridgeSwitch(
 
 /** A new ball: nobody is on the Ridge; its lanes and clouds stay lit. */
 export function ridgeNewBall(state: PinballRulesState) {
-  state.ridge = { ...state.ridge, up: false, hits: 0 }
+  state.ridge = { ...state.ridge, up: false, hits: 0, lookouts: 0 }
+}
+
+/**
+ * The Lookout (t-023), the left Ridge flipper's cross shot: points that grow
+ * with each one this ball, and the next unmade S-K-Y lane spotted (so a
+ * third Lookout in a row is a SKY HIGH).
+ */
+export function lookout(state: PinballRulesState, effects: RuleEffect[]) {
+  countHit(state)
+  const made = state.ridge.lookouts + 1
+  state.ridge = { ...state.ridge, lookouts: made }
+  const value = RIDGE_VALUES.lookout * made
+  award(state, value)
+  effects.push({
+    type: 'dmd',
+    text: 'LOOKOUT',
+    sub: made > 1 ? `${made}X` : 'A LANE SPOTTED',
+    ms: 1400,
+    scene: 'jackpot',
+    value,
+  })
+  const next = SKY_LANES.find((id) => !state.ridge.sky.includes(id))
+  if (next) skyLane(state, next, effects)
 }
 
 function countHit(state: PinballRulesState) {

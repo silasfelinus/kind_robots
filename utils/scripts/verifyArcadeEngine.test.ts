@@ -3955,6 +3955,94 @@ async function runPinballRidge() {
   )
 }
 
+/** kind-pinball/t-023: the Ridge's own flippers, and the Lookout they shoot. */
+async function runPinballRidgeFlippers() {
+  const table = AMI_VILLAGE_GREYBOX
+  const pair = table.flippers.filter((f) => f.zone === 'ridge')
+  assert.deepEqual(
+    pair.map((f) => f.side).sort(),
+    ['left', 'right'],
+    'the Ridge has a flipper pair',
+  )
+  assert.ok(
+    table.flippers
+      .filter((f) => f.id.startsWith('sub-'))
+      .every((f) => f.zone === 'sub-table'),
+    "the room's flippers say where they play",
+  )
+  const left = pair.find((f) => f.side === 'left')!
+  const fz = left.pivot[2]
+
+  // Held up, a Ridge flipper sends a ball rolling down onto it back up.
+  const save = new PinballPhysics(RAPIER, table)
+  save.serveBall([left.pivot[0] + 0.02, 0.0136, fz - 0.08], [0, 0, 0])
+  let flipped = false
+  let up = false
+  for (let i = 0; i < PHYSICS_HZ * 3 && !up; i++) {
+    const ball = save.ballViews()[0]
+    if (!ball) break
+    if (!flipped && ball.position[2] > fz - 0.035) {
+      save.setFlipper('left', true)
+      flipped = true
+    }
+    if (flipped && ball.position[2] < fz - 0.15) up = true
+    save.step()
+  }
+  assert.ok(up, 'a Ridge flipper sends the ball back up the Ridge')
+  save.dispose()
+
+  // The left one can make the Lookout from a cradle: release, then flip.
+  let lookout = false
+  for (let delay = 10; delay < 50 && !lookout; delay++) {
+    const p = new PinballPhysics(RAPIER, table)
+    p.setFlipper('left', true)
+    for (let i = 0; i < PHYSICS_HZ / 4; i++) p.step()
+    p.serveBall([left.pivot[0] + 0.018, 0.0136, fz - 0.07], [0, 0, 0])
+    for (let i = 0; i < PHYSICS_HZ * 2.5; i++) p.step()
+    p.setFlipper('left', false)
+    for (let t = 0; t < delay + 240 && !lookout; t++) {
+      if (t === delay) p.setFlipper('left', true)
+      if (t === delay + 15) p.setFlipper('left', false)
+      for (let k = 0; k < 4; k++)
+        for (const e of p.step())
+          if (t >= delay && e.type === 'capture' && e.id === 'lookout')
+            lookout = true
+    }
+    p.dispose()
+  }
+  assert.ok(lookout, 'the left Ridge flipper can make the Lookout')
+
+  // The Lookout's rules: worth more each time, and a lane spotted each time.
+  const capture = (state: PinballRulesState) =>
+    stepRules(state, {
+      type: 'switch',
+      event: { type: 'capture', id: 'lookout', ballId: 1 },
+      tick: 200,
+    })
+  let rules = stepRules(initialRules(3), { type: 'start' }).state
+  rules = stepRules(rules, {
+    type: 'switch',
+    event: { type: 'capture', id: 'upper-feed', ballId: 1 },
+    tick: 100,
+  }).state
+  assert.equal(lampStates(rules, table).lamps['arrow-lookout'], 'blink')
+  const s0 = rules.score
+  rules = capture(rules).state
+  const first = rules.score - s0
+  assert.ok(first >= RIDGE_VALUES.lookout)
+  assert.equal(rules.ridge.sky.length, 1, 'a lane spotted')
+  const s1 = rules.score
+  rules = capture(rules).state
+  assert.ok(rules.score - s1 > first, 'the second is worth more')
+  const bonus = rules.bonusMultiplier
+  const third = capture(rules)
+  rules = third.state
+  assert.equal(rules.bonusMultiplier, bonus + 1, 'three in a row: SKY HIGH')
+  assert.ok(
+    third.effects.some((e) => e.type === 'dmd' && e.text === 'SKY HIGH'),
+  )
+}
+
 async function runPinballGuide() {
   // conductor kind-pinball/t-015: the table guide. Every page fits the
   // 360x640 cabinet, the map's numbers match the copy, and the hidden room
@@ -4350,6 +4438,7 @@ await runPinballRules()
 await runPinballSubRules()
 await runPinballMastery()
 await runPinballRidge()
+await runPinballRidgeFlippers()
 await runPinballGuide()
 await runPinballToys()
 await runPinballStage()

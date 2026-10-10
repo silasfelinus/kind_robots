@@ -53,6 +53,7 @@ import {
 import { VALUES } from './village'
 import {
   initialRidge,
+  lookout,
   reachRidge,
   ridgeNewBall,
   ridgeSwitch,
@@ -274,6 +275,8 @@ export function stepRules(
       leaveRoom(next, sw.id === 'sub-home', tick, effects)
     } else if (sw.id === 'upper-feed') {
       reachRidge(next, effects)
+    } else if (sw.id === 'lookout') {
+      lookout(next, effects)
     }
     effects.push({ type: 'sound', name: 'scoop' })
     return { state: next, effects }

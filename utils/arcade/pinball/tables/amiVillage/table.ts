@@ -245,7 +245,26 @@ function roomFlipper(side: 'left' | 'right'): FlipperDef {
   return {
     id: `sub-flipper-${side}`,
     side,
+    zone: 'sub-table',
     pivot: [ROOM_X + sign * 0.07, 0, ROOM_FLIPPER_Z],
+    length: 0.05,
+    baseRadius: 0.009,
+    tipRadius: 0.0055,
+    restAngle: 0.5,
+    activeAngle: -0.45,
+    strokeMs: 40,
+    returnMs: 80,
+  }
+}
+
+/** One of the Ridge's flippers (t-023), on the same buttons as the rest. */
+function ridgeFlipper(side: 'left' | 'right'): FlipperDef {
+  const sign = side === 'left' ? -1 : 1
+  return {
+    id: `ridge-flipper-${side}`,
+    side,
+    zone: 'ridge',
+    pivot: [RIDGE_X + sign * RIDGE_FLIPPER_DX, 0, RIDGE_FLIPPER_Z],
     length: 0.05,
     baseRadius: 0.009,
     tipRadius: 0.0055,
@@ -482,8 +501,12 @@ const HERO: HeroDef = (() => {
 // in the arch's crown, where it drops back into the village above the pops.
 // The funnel's foot leaves room for the Ridge's own flippers (t-023).
 
-/** Where the funnel walls meet the side rails. */
-const RIDGE_FUNNEL_Z = -1.07
+/** Where the inlane guides meet the side rails. */
+const RIDGE_FUNNEL_Z = -1.13
+/** The Ridge's flippers (t-023): a small pair above the gate, on its centre. */
+const RIDGE_X = (GATE_FROM[0] + GATE_TO[0]) / 2
+const RIDGE_FLIPPER_Z = -1.0
+const RIDGE_FLIPPER_DX = 0.07
 /** The S-K-Y lanes: their dividers' x, and how far down the Ridge they run. */
 const SKY_DIVIDERS = [-0.16, -0.04, 0.08, 0.2]
 const SKY_TOP_Z = UPPER_TOP_Z + 0.04
@@ -494,6 +517,8 @@ const RIDGE_POPS: Array<{ id: string; at: XZ }> = [
   { id: 'ridge-pop-bottom', at: [0.02, UPPER_TOP_Z + 0.26] },
 ]
 const RIDGE_ENTRY: XZ = [-0.215, UPPER_TOP_Z + 0.03]
+/** The Lookout saucer, up the Ridge's right side (t-023). */
+const LOOKOUT: XZ = [0.25, -1.12]
 
 function ridge(): ColliderDef[] {
   const midZ = (UPPER_TOP_Z + TOP_Z) / 2
@@ -526,14 +551,27 @@ function ridge(): ColliderDef[] {
       ],
       { thickness: 0.012 },
     ),
-    // The funnel down to the gate: it seals the corners behind the arch.
-    wall('ridge-funnel-left', [LEFT_X, RIDGE_FUNNEL_Z], GATE_FROM, {
-      material: 'chrome',
-      thickness: 0.004,
-    }),
-    wall('ridge-funnel-right', [RIGHT_X, RIDGE_FUNNEL_Z], GATE_TO, {
-      material: 'chrome',
-      thickness: 0.004,
+    // Inlane guides down to the Ridge's flippers, and under each flipper an
+    // apron down to the gate's edge: together they seal the corners behind
+    // the arch, and a ball past the flippers goes home through the gate.
+    ...(['left', 'right'] as const).flatMap((name): ColliderDef[] => {
+      const sign = name === 'left' ? -1 : 1
+      const pivotX = RIDGE_X + sign * RIDGE_FLIPPER_DX
+      const guideEnd: XZ = [pivotX - sign * 0.006, RIDGE_FLIPPER_Z - 0.004]
+      return [
+        wall(
+          `ridge-inlane-${name}`,
+          [name === 'left' ? LEFT_X : RIGHT_X, RIDGE_FUNNEL_Z],
+          guideEnd,
+          { material: 'chrome', thickness: 0.004 },
+        ),
+        wall(
+          `ridge-apron-${name}`,
+          guideEnd,
+          name === 'left' ? GATE_FROM : GATE_TO,
+          { material: 'chrome', thickness: 0.004 },
+        ),
+      ]
     }),
     // The top corners, cut so a ball cannot sit in them.
     wall(
@@ -843,6 +881,19 @@ const scoops: ScoopDef[] = [
     },
   },
   {
+    // The Ridge's Lookout (t-023), up its right side: the left Ridge flipper's
+    // cross shot. It kicks the ball back down to that flipper.
+    id: 'lookout',
+    at: [LOOKOUT[0], BALL_R, LOOKOUT[1]],
+    radius: 0.016,
+    captureMaxSpeed: 0.8,
+    holdMs: 900,
+    eject: {
+      at: [LOOKOUT[0] - 0.012, BALL_R, LOOKOUT[1] + 0.012],
+      velocity: [-0.45, 0, 0.35],
+    },
+  },
+  {
     // The secret door's hole, under the corner plastic.
     id: 'secret-hole',
     at: [SECRET_HOLE[0], BALL_R, SECRET_HOLE[1]],
@@ -935,6 +986,12 @@ const shots: ShotDef[] = [
     displayName: 'RIGHT ORBIT',
   },
   { id: 'award', kind: 'scoop', sensors: ['award'], displayName: 'AWARD' },
+  {
+    id: 'lookout',
+    kind: 'scoop',
+    sensors: ['lookout'],
+    displayName: 'LOOKOUT',
+  },
   { id: 'secret', kind: 'scoop', sensors: ['secret-hole'], displayName: '???' },
   { id: 'sub-home', kind: 'scoop', sensors: ['sub-home'], displayName: 'HOME' },
 ]
@@ -1014,6 +1071,14 @@ const inserts: InsertDef[] = [
     ),
   ),
   arrow('sub-home', [ROOM_X + 0.12, -1.325 + BACK], AMBER, 'flasher-secret'),
+  arrow(
+    'lookout',
+    [LOOKOUT[0] - 0.035, LOOKOUT[1] + 0.05],
+    YELLOW,
+    'flasher-back-right',
+    -0.5,
+    0.024,
+  ),
   // The Ridge (t-022): a lamp under each S-K-Y lane, one by each cloud.
   ...[0, 1, 2].map((i) =>
     lamp(
@@ -1030,8 +1095,8 @@ const inserts: InsertDef[] = [
 const flashers: FlasherDef[] = [
   { id: 'flasher-left', at: [LEFT_X, WALL_HEIGHT, -0.5], color: 0x67e8f9 },
   { id: 'flasher-right', at: [RIGHT_X, WALL_HEIGHT, -0.5], color: MAGENTA },
-  { id: 'flasher-back-left', at: [-0.07, 0, -0.955], color: YELLOW },
-  { id: 'flasher-back-right', at: [0.07, 0, -0.955], color: AMBER },
+  { id: 'flasher-back-left', at: [-0.07, WALL_HEIGHT, -0.917], color: YELLOW },
+  { id: 'flasher-back-right', at: [0.07, WALL_HEIGHT, -0.926], color: AMBER },
   // On the corner plastic over the secret hole: it flashes while the door is open.
   { id: 'flasher-secret', at: [-0.21, 0.033, -0.87], color: 0xf43f5e },
 ]
@@ -1142,6 +1207,8 @@ export const AMI_VILLAGE_GREYBOX: TableDef = {
     },
     roomFlipper('left'),
     roomFlipper('right'),
+    ridgeFlipper('left'),
+    ridgeFlipper('right'),
   ],
   drops,
   scoops,
@@ -1171,6 +1238,12 @@ export const AMI_VILLAGE_GREYBOX: TableDef = {
   ],
   hero: HERO,
   zones: [
+    {
+      // The Ridge: everything past the arch's crown, short of the backbox.
+      id: 'ridge',
+      min: [LEFT_X, UPPER_TOP_Z - 0.02],
+      max: [RIGHT_X, TOP_Z],
+    },
     {
       id: 'sub-table',
       min: [ROOM_X - ROOM_HALF - 0.03, ROOM_TOP_Z - 0.03],

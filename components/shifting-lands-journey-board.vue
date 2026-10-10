@@ -395,7 +395,11 @@
                   >
                     The encounter
                   </p>
-                  <h3 class="mt-2 font-serif text-2xl font-black sm:text-3xl">
+                  <h3
+                    ref="encounterHeading"
+                    tabindex="-1"
+                    class="mt-2 font-serif text-2xl font-black outline-none focus-visible:ring-2 focus-visible:ring-primary sm:text-3xl"
+                  >
                     {{ game.activeEncounter?.title || game.activeCard.label }}
                   </h3>
                   <p class="mt-3 text-sm leading-relaxed opacity-85">
@@ -422,7 +426,7 @@
                     :key="option.id"
                     type="button"
                     class="group block w-full rounded-xl border border-base-content/20 bg-base-300 p-4 text-left transition-colors hover:border-warning focus-visible:outline focus-visible:outline-4 focus-visible:outline-primary"
-                    @click="game.choose(option.id)"
+                    @click="chooseEncounter(option.id)"
                   >
                     <span class="flex items-start justify-between gap-3">
                       <strong class="text-base group-hover:text-warning">{{
@@ -628,7 +632,11 @@
             >
               The road remembers
             </p>
-            <h3 class="mt-2 font-serif text-xl font-bold">
+            <h3
+              ref="outcomeHeading"
+              tabindex="-1"
+              class="mt-2 font-serif text-xl font-bold outline-none focus-visible:ring-2 focus-visible:ring-primary"
+            >
               {{ lastPlayedTitle }}
             </h3>
             <p class="mt-3 text-sm leading-relaxed">
@@ -963,6 +971,8 @@ const lastPlayedTitle = computed(
     )?.title ?? 'An encounter remembered',
 )
 const dealKey = ref(0)
+const encounterHeading = ref<HTMLElement | null>(null)
+const outcomeHeading = ref<HTMLElement | null>(null)
 const inspectorOpen = ref(false)
 const inspectId = ref<string | null>(null)
 const confirmNew = ref(false)
@@ -1026,7 +1036,10 @@ function openInspector(id: string) {
 async function travel(id: string) {
   if (!game.travel(id)) return
   await nextTick()
-  if (game.state.active) dealKey.value++
+  if (game.state.active) {
+    dealKey.value++
+    encounterHeading.value?.focus()
+  }
 }
 function chooseCard(id: string) {
   if (revealed(id)) openInspector(id)
@@ -1035,7 +1048,15 @@ function chooseCard(id: string) {
 async function drawCard() {
   if (!game.draw()) return
   await nextTick()
-  if (game.state.active) dealKey.value++
+  if (game.state.active) {
+    dealKey.value++
+    encounterHeading.value?.focus()
+  }
+}
+async function chooseEncounter(id: string) {
+  if (!game.choose(id)) return
+  await nextTick()
+  outcomeHeading.value?.focus()
 }
 function inspectLastDiscard() {
   const mostRecent = game.resolved[game.resolved.length - 1]

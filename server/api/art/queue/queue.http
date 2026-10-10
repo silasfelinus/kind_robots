@@ -1,6 +1,6 @@
 @admintoken = {{$dotenv ADMIN_TOKEN}}
 @usertoken = {{$dotenv USER_TOKEN}}
-@host = https://kind-robots.vercel.app
+@host = http://localhost:3000
 
 // @ts-nocheck
 /* eslint-disable */

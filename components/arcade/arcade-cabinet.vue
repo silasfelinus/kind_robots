@@ -721,6 +721,18 @@ function dispatch(event: ArcadeEvent) {
   if (machine.phase !== before) enterPhase(machine.phase)
 }
 
+/** The last progress a game asked to keep, so the store is written only when it changes. */
+let lastSave: unknown = undefined
+
+/** Keep a long game's progress (a real game's only; demos never save). */
+function keepSave(instance: ArcadePlayableInstance | null) {
+  if (!instance || instance === demoGame || !('save' in instance)) return
+  const save = (instance as { save?: unknown }).save
+  if (save === undefined || save === lastSave) return
+  lastSave = save
+  store.recordSave(props.slug, save)
+}
+
 /** Give a new WebGL game the stage canvas and its current size. */
 function adopt<T extends ArcadePlayableInstance>(instance: T): T {
   const stage = stageRef.value
@@ -736,6 +748,7 @@ function retire(instance: ArcadePlayableInstance | null) {
   // Goals earned in a game left unfinished still count.
   if (instance?.mastered?.length)
     store.recordMastery(props.slug, instance.mastered)
+  keepSave(instance)
   if (isWebGLInstance(instance)) instance.dispose()
 }
 
@@ -806,8 +819,10 @@ function startGame() {
       hiScore: hiScore(),
       players: players.value,
       mastery: store.masteryFor(props.slug),
+      resume: store.saveFor(props.slug),
     }),
   )
+  lastSave = undefined
   dispatch({ type: 'start' })
 }
 
@@ -967,6 +982,7 @@ function tick() {
     if (hintLives === null) hintLives = game.lives
     else if (game.lives < hintLives) pinballHints.value = false
     game.update(frames[0]!, frames)
+    keepSave(game)
     if (game.over) {
       if (game.mastered?.length) store.recordMastery(props.slug, game.mastered)
       lastScore = game.score

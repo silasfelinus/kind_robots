@@ -66,7 +66,13 @@ import {
   drawWater,
   type Card,
 } from '../ghostTrail/worldArt'
-import { ACTS, CREDITS, RELIC_COUNT, stageInfo } from '../ghostTrail/campaign'
+import {
+  ACTS,
+  CREDITS,
+  RELIC_COUNT,
+  TRUE_ENDING,
+  stageInfo,
+} from '../ghostTrail/campaign'
 import {
   FOES,
   makeFoe,
@@ -215,7 +221,7 @@ type Flying = {
 }
 type Pending = { id: string; member: SquadMember; due: number }
 /** What happens when the card on screen closes. */
-type CardThen = 'play' | 'next' | 'end'
+type CardThen = 'play' | 'next' | 'end' | 'choose'
 
 /** The slice's painted worlds; the newer themes borrow the closest until their own art lands. */
 const ART_KEY: Record<StageTheme, StageKey> = {
@@ -233,6 +239,59 @@ const BOSS_COLOR: Record<string, string> = {
   matriarch: '#94a3b8',
   heretic: '#f97316',
   abbess: '#e879f9',
+}
+
+/**
+ * A saved run (utils/arcade/saves.ts): where the current act began, never mid-act state, so a reload
+ * replays the act from its start with the score it began with and nothing can be collected twice.
+ * After a game over the save is marked `continued`: the trail and relics are kept, the score is not.
+ */
+export type GhostSave = {
+  v: 1
+  act: string
+  score: number
+  lives: number
+  weapon: Weapon
+  relics: string[]
+  continued: boolean
+  /** New Game+ tier: 1 on a first run; each campaign clear unlocks the next. */
+  tier: number
+}
+
+/** The hardest New Game+ tier. */
+const MAX_TIER = 5
+
+/** A stored save, validated against this build's campaign; null when unusable. */
+export function readSave(raw: unknown): GhostSave | null {
+  if (!raw || typeof raw !== 'object') return null
+  const r = raw as Record<string, unknown>
+  const count = (v: unknown, max: number) =>
+    typeof v === 'number' && Number.isInteger(v) && v >= 0 && v <= max
+  if (r.v !== 1 || typeof r.act !== 'string') return null
+  if (!ACTS.some((a) => a.id === r.act)) return null
+  if (!count(r.score, 99_999_999) || !count(r.lives, 99)) return null
+  if (typeof r.weapon !== 'string' || !(r.weapon in WEAPONS)) return null
+  if (!Array.isArray(r.relics)) return null
+  const known = new Set(ACTS.flatMap((a) => a.secrets.map((x) => x.id)))
+  return {
+    v: 1,
+    act: r.act,
+    score: r.score as number,
+    lives: Math.max(1, r.lives as number),
+    weapon: r.weapon as Weapon,
+    relics: [
+      ...new Set(
+        r.relics.filter(
+          (x): x is string => typeof x === 'string' && known.has(x),
+        ),
+      ),
+    ],
+    continued: r.continued === true,
+    tier:
+      count(r.tier, MAX_TIER) && (r.tier as number) >= 1
+        ? (r.tier as number)
+        : 1,
+  }
 }
 
 const PAINTED_FOES = new Set<FoeKind>(['spirit', 'crow', 'hyena'])
@@ -301,6 +360,12 @@ class ZuzuGhostTrail implements ArcadeGameInstance {
   private bannerSeen: ZuzuGhostTrail['banner'] = null
   private bannerFrom = 0
   private card: (Card & { then: CardThen; max: number }) | null = null
+  /** Progress the cabinet keeps for this player (see GhostSave); demos never save. */
+  save: GhostSave | null = null
+  /** New Game+ tier (1 on a first run): tougher bosses and brisker foes. */
+  private tier = 1
+  /** A saved run offered on the opening card. */
+  private offer: GhostSave | null = null
 
   constructor(options: ArcadeGameOptions) {
     this.rng = options.rng
@@ -308,6 +373,43 @@ class ZuzuGhostTrail implements ArcadeGameInstance {
     this.demo = options.demo
     this.hiScore = options.hiScore
     this.startAct(0)
+    const offer = this.demo ? null : readSave(options.resume)
+    const fresh = offer && offer.act === ACTS[0]!.id && !offer.relics.length
+    if (offer && (!fresh || offer.tier > 1)) {
+      this.offer = offer
+      // Until the player chooses, the stored run stays as it was.
+      this.save = offer
+      const act = ACTS.find((a) => a.id === offer.act)!
+      const plus = offer.tier > 1 ? `NEW GAME+ ${offer.tier - 1}` : null
+      this.showCard({
+        kind: 'title',
+        heading: fresh && plus ? plus : 'CONTINUE?',
+        sub: fresh ? 'THE DEAD STIR AGAIN, STRONGER' : 'THE TRAIL REMEMBERS',
+        lines: [
+          ...(plus && !fresh ? [plus] : []),
+          `STAGE ${act.stage} - ACT ${act.act}: ${act.actName}`,
+          act.stageName,
+          offer.continued
+            ? 'SCORE STARTS AGAIN FROM ZERO'
+            : `SCORE ${offer.score}  LIVES ${offer.lives}`,
+          `${offer.relics.length}/${RELIC_COUNT} RELICS FOUND`,
+          '',
+          'A: CONTINUE     B: NEW RUN',
+        ],
+        then: 'choose',
+      })
+    }
+  }
+
+  /** Pick the saved run back up at the start of its act. */
+  private resumeFrom(s: GhostSave) {
+    this.score = s.continued ? 0 : s.score
+    this.lives = s.continued ? START_LIVES : s.lives
+    this.nextExtra = (Math.floor(this.score / EXTRA_EVERY) + 1) * EXTRA_EVERY
+    this.weapon = s.weapon
+    this.foundSecrets = new Set(s.relics)
+    this.tier = s.tier
+    this.startAct(ACTS.findIndex((a) => a.id === s.act))
   }
 
   // --- the act ------------------------------------------------------------------
@@ -320,8 +422,12 @@ class ZuzuGhostTrail implements ArcadeGameInstance {
     return this.act.length - W + 60
   }
 
+  /** Enemy pace: by stage, then brisker on each New Game+ tier. */
   private get speed() {
-    return curve(this.act.stage, TRAIL_CURVES.enemySpeed)
+    return (
+      curve(this.act.stage, TRAIL_CURVES.enemySpeed) *
+      (1 + (this.tier - 1) * 0.12)
+    )
   }
 
   private startAct(index: number) {
@@ -344,6 +450,17 @@ class ZuzuGhostTrail implements ArcadeGameInstance {
       lines: this.act.intro,
       then: 'play',
     })
+    if (!this.demo)
+      this.save = {
+        v: 1,
+        act: this.act.id,
+        score: this.score,
+        lives: this.lives,
+        weapon: this.weapon,
+        relics: [...this.foundSecrets],
+        continued: false,
+        tier: this.tier,
+      }
   }
 
   /** Back to the last checkpoint: the act's living foes reset; the defeated stay down. */
@@ -378,11 +495,13 @@ class ZuzuGhostTrail implements ArcadeGameInstance {
 
   private showCard(c: Omit<Card, 'age'> & { then: CardThen }) {
     const max =
-      c.kind === 'credits'
-        ? 900 + c.lines.length * 34
-        : this.demo
-          ? 90
-          : CARD_TICKS
+      c.then === 'choose'
+        ? Infinity
+        : c.kind === 'credits'
+          ? 900 + c.lines.length * 34
+          : this.demo
+            ? 90
+            : CARD_TICKS
     this.card = { ...c, age: 0, max }
   }
 
@@ -446,7 +565,7 @@ class ZuzuGhostTrail implements ArcadeGameInstance {
       ...this.foeCtx(),
       arenaL: this.arenaL,
       arenaR: this.length,
-      tier: 1,
+      tier: this.tier,
       summon: (kind, x, y) => {
         if (this.foes.length >= 4) return
         this.foes.push(makeFoe(kind, null, x, y, null, this.foeCtx()))
@@ -463,6 +582,14 @@ class ZuzuGhostTrail implements ArcadeGameInstance {
     if (this.over) return
     const controls = this.demo ? this.demoInput() : input
 
+    if (this.card?.then === 'choose') {
+      this.card.age++
+      if (this.card.age < 20) return
+      if ((controls.pressed.a || controls.pressed.start) && this.offer)
+        this.resumeFrom(this.offer)
+      else if (controls.pressed.b) this.startAct(0)
+      return
+    }
     if (this.card) {
       this.card.age++
       const skip =
@@ -480,6 +607,8 @@ class ZuzuGhostTrail implements ArcadeGameInstance {
         if (this.lives <= 0) {
           this.over = true
           this.banner = { text: 'GAME OVER', ticks: 9999 }
+          // The trail and relics wait for a continue; the score does not.
+          if (this.save) this.save = { ...this.save, continued: true }
         } else this.respawn()
       }
       return
@@ -760,7 +889,8 @@ class ZuzuGhostTrail implements ArcadeGameInstance {
     if (this.encounterCredits <= 0 || this.activeLock()) return
     if (--this.ambientTimer > 0) return
     this.ambientTimer = Math.round(
-      curve(this.act.stage, TRAIL_CURVES.ambientEvery) *
+      (curve(this.act.stage, TRAIL_CURVES.ambientEvery) /
+        (1 + (this.tier - 1) * 0.2)) *
         (0.7 + this.rng() * 0.6),
     )
     const kind =
@@ -1210,11 +1340,32 @@ class ZuzuGhostTrail implements ArcadeGameInstance {
     const stage = stageInfo(this.act.stage)
     if (!next) {
       this.won = true
+      // The clear unlocks the next New Game+ tier: a fresh run, harder, relics to find again.
+      this.save = {
+        v: 1,
+        act: ACTS[0]!.id,
+        score: 0,
+        lives: START_LIVES,
+        weapon: 'kunai',
+        relics: [],
+        continued: false,
+        tier: Math.min(MAX_TIER, this.tier + 1),
+      }
+      const all = this.foundSecrets.size >= RELIC_COUNT
       this.showCard({
         kind: 'credits',
-        heading: 'THE TRAIL ENDS',
+        heading: all ? 'THE TRUE ENDING' : 'THE TRAIL ENDS',
         lines: [
           ...(stage?.outro ?? []),
+          '',
+          ...(all
+            ? TRUE_ENDING
+            : [
+                'EVERY RELIC HOLDS A MEMORY.',
+                'FIND THEM ALL FOR THE TRUE END.',
+              ]),
+          '',
+          'NEW GAME+ UNLOCKED',
           '',
           `RELICS FOUND: ${this.foundSecrets.size}/${RELIC_COUNT}`,
           `FINAL SCORE: ${this.score}`,

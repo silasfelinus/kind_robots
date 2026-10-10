@@ -4,7 +4,8 @@
 import assert from 'node:assert/strict'
 import { mulberry32 } from '../arcade/curve'
 import { emptyInput } from '../arcade/types'
-import { create } from '../arcade/games/zuzuGhostTrail'
+import { create, readSave } from '../arcade/games/zuzuGhostTrail'
+import { sanitizeSaves, withSave } from '../arcade/saves'
 import { ACTS, RELIC_COUNT, STAGES } from '../arcade/ghostTrail/campaign'
 import { FOES } from '../arcade/ghostTrail/foes'
 import { BOSSES } from '../arcade/ghostTrail/bosses'
@@ -144,6 +145,11 @@ run.update(emptyInput())
 assert.equal(run.won, true, 'the last gate is a victory')
 assert.equal(run.over, false, 'the player sees the ending')
 assert.equal(run.card?.kind, 'credits', 'the credits roll')
+assert.equal(
+  (run.card as { heading?: string } | null)?.heading,
+  'THE TRUE ENDING',
+  'every relic found earns the true ending',
+)
 const finalScore = run.score
 for (let i = 0; i < 60 * 60 && !run.over; i++) run.update(emptyInput())
 assert.equal(run.over, true, 'the score screen follows the credits')
@@ -193,6 +199,132 @@ lost.dead = 1
 lost.update(emptyInput())
 assert.equal(lost.over, true)
 assert.equal(lost.won, false, 'defeat never grants a victory')
+
+// --- save and resume ------------------------------------------------------------------------------
+{
+  const fresh = newRun(3) as Run & { save: unknown }
+  const first = readSave(fresh.save)
+  assert.ok(
+    first && first.act === ACTS[0]!.id,
+    'a new run saves at its first act',
+  )
+  // A suspended run resumes at the start of its act with the score it began with.
+  const later = ACTS[Math.min(2, ACTS.length - 1)]!
+  const stored = {
+    v: 1,
+    act: later.id,
+    score: 12_345,
+    lives: 2,
+    weapon: 'kasa',
+    relics: [ACTS[0]!.secrets[0]?.id, 'not-a-relic'],
+    continued: false,
+  }
+  const resumed = create({
+    rng: mulberry32(5),
+    sound: { play: () => {} },
+    demo: false,
+    hiScore: 0,
+    resume: JSON.parse(JSON.stringify(stored)),
+  }) as Run & { save: unknown; weapon: string }
+  assert.equal(resumed.card?.kind, 'title', 'a saved run is offered first')
+  assert.deepEqual(
+    resumed.save,
+    readSave(stored),
+    'the offer leaves the save alone',
+  )
+  const press = emptyInput()
+  press.pressed.a = true
+  for (let i = 0; i < 30 && resumed.actIndex === 0; i++) resumed.update(press)
+  assert.equal(resumed.act.id, later.id, 'continue picks up at the saved act')
+  assert.equal(resumed.score, 12_345)
+  assert.equal(resumed.lives, 2)
+  assert.equal(resumed.weapon, 'kasa')
+  assert.equal(
+    resumed.foundSecrets.size,
+    ACTS[0]!.secrets.length ? 1 : 0,
+    'unknown relics are dropped',
+  )
+  // A game over keeps the trail but marks the save so the score starts again.
+  resumed.card = null
+  resumed.lives = 0
+  resumed.dead = 1
+  resumed.update(emptyInput())
+  const after = readSave(resumed.save)
+  assert.ok(after?.continued, 'a game over leaves a continue')
+  const cont = create({
+    rng: mulberry32(6),
+    sound: { play: () => {} },
+    demo: false,
+    hiScore: 0,
+    resume: after,
+  }) as Run
+  for (let i = 0; i < 30 && cont.actIndex === 0; i++) cont.update(press)
+  assert.equal(cont.act.id, later.id)
+  assert.equal(cont.score, 0, 'a continue never carries the score')
+  assert.equal(cont.lives, 3)
+  // A new run instead.
+  const declined = create({
+    rng: mulberry32(7),
+    sound: { play: () => {} },
+    demo: false,
+    hiScore: 0,
+    resume: stored,
+  }) as Run & { save: unknown }
+  const no = emptyInput()
+  no.pressed.b = true
+  for (let i = 0; i < 30 && declined.card?.kind === 'title'; i++) {
+    declined.update(no)
+    if (readSave(declined.save)?.act === ACTS[0]!.id) break
+  }
+  assert.equal(declined.actIndex, 0, 'B starts a new run')
+  assert.equal(
+    readSave(declined.save)?.act,
+    ACTS[0]!.id,
+    'and replaces the save',
+  )
+  // Junk is ignored; demos never save; the ending unlocks New Game+.
+  for (const junk of [
+    null,
+    7,
+    'x',
+    { v: 2 },
+    { ...stored, act: 'nope' },
+    { ...stored, score: -1 },
+  ])
+    assert.equal(readSave(junk), null)
+  const demo = create({
+    rng: mulberry32(1),
+    sound: { play: () => {} },
+    demo: true,
+    hiScore: 0,
+    resume: stored,
+  }) as Run & { save: unknown }
+  assert.equal(demo.save, null, 'the attract demo never saves')
+  // The clear unlocks New Game+: a fresh, harder run offered next time.
+  const plus = readSave((run as Run & { save: unknown }).save)
+  assert.equal(plus?.tier, 2, 'the ending unlocks New Game+')
+  assert.equal(plus?.act, ACTS[0]!.id)
+  assert.equal(plus?.score, 0)
+  const ng = create({
+    rng: mulberry32(9),
+    sound: { play: () => {} },
+    demo: false,
+    hiScore: 0,
+    resume: plus,
+  }) as Run & { tier: number }
+  assert.equal(ng.card?.kind, 'title', 'New Game+ is offered')
+  for (let i = 0; i < 30 && ng.tier === 1; i++) ng.update(press)
+  assert.equal(ng.tier, 2, 'accepting starts the harder tier')
+  assert.equal(ng.actIndex, 0)
+  // The store helpers keep small JSON per slug.
+  const rec = withSave({}, 'zuzu-ghost-trail', stored)
+  assert.deepEqual(sanitizeSaves(JSON.parse(JSON.stringify(rec))), rec)
+  assert.deepEqual(withSave(rec, 'zuzu-ghost-trail', null), {})
+  assert.deepEqual(
+    withSave({}, 'zuzu-ghost-trail', { big: 'x'.repeat(9000) }),
+    {},
+  )
+}
 
 console.log(
   `Ghost Trail campaign passed: ${ACTS.length} acts, ${RELIC_COUNT} relics`,

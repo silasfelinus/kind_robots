@@ -54,7 +54,11 @@ assert.equal(run.banner?.sub, '4/4 RELICS FOUND')
 const finalScore = game.score
 for (let i = 0; i < 180; i++) game.update(emptyInput())
 assert.equal(run.over, true, 'the score screen follows a three-second victory')
-assert.equal(game.score, finalScore, 'victory cannot repeatedly award stage bonuses')
+assert.equal(
+  game.score,
+  finalScore,
+  'victory cannot repeatedly award stage bonuses',
+)
 
 const defeated = create({
   rng: mulberry32(1),

@@ -47,6 +47,17 @@ assert.ok(
 const flip = asset('../../components/navigation/flip-card.vue')
 assert.match(flip, /revealOnTrigger/)
 assert.match(flip, /flip-card-reveal/)
+assert.match(flip, /@media \(prefers-reduced-motion: reduce\)/)
+assert.match(flip, /is-flipping\.is-revealing/)
+const boardSource = asset('../../components/shifting-lands-journey-board.vue')
+assert.match(boardSource, /ref="encounterHeading"/)
+assert.match(boardSource, /ref="outcomeHeading"/)
+assert.match(boardSource, /tabindex="-1"/)
+assert.match(boardSource, /encounterHeading\.value\?\.focus\(\)/)
+assert.match(boardSource, /outcomeHeading\.value\?\.focus\(\)/)
+assert.match(boardSource, /@click="chooseEncounter\(option\.id\)"/)
+assert.match(boardSource, /if \(!game\.choose\(id\)\) return/)
+assert.doesNotMatch(boardSource, /@(?:done|halfway|start)="game\./)
 assert.match(
   asset('../../components/shifting-lands-journey-board.vue'),
   /:reveal-on-trigger="true"/,

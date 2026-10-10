@@ -13,7 +13,7 @@ describe('Reward Management API Tests', () => {
     })
   })
 
-  const fallbackBaseUrl = 'https://kind-robots.vercel.app/api/rewards'
+  const fallbackBaseUrl = `${Cypress.config('baseUrl')}/api/rewards`
   const invalidToken = 'someInvalidTokenValue'
 
   let baseUrl = fallbackBaseUrl

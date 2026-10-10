@@ -12,6 +12,8 @@ const BALL = 0.0135
 const LEFT = -0.26
 const RIGHT = 0.3
 const SHOOTER_WALL = 0.245
+const SHOOTER_CENTER = (SHOOTER_WALL + RIGHT) / 2
+const SHOOTER_EXIT = -0.59
 const TOP = -0.97
 const BOTTOM = 0.14
 const FLOOR_MID = (TOP + BOTTOM) / 2
@@ -42,8 +44,26 @@ const colliders: ColliderDef[] = [
   wall('bank-left', [LEFT, -0.72], [LEFT, BOTTOM], { thickness: 0.012 }),
   wall('bank-right', [RIGHT, -0.72], [RIGHT, BOTTOM], { thickness: 0.012 }),
   ...walls('abbey-arch', arch, { thickness: 0.009 }),
-  wall('shooter-divider', [SHOOTER_WALL, -0.59], [SHOOTER_WALL, BOTTOM], {
+  // A real one-ball-width launch lane. The return gate is one-way: upward
+  // shots pass, but a returning ball is deflected onto the main playfield.
+  wall('shooter-divider', [SHOOTER_WALL, SHOOTER_EXIT], [SHOOTER_WALL, BOTTOM], {
     thickness: 0.008,
+  }),
+  wall(
+    'shooter-gate',
+    [SHOOTER_WALL, SHOOTER_EXIT],
+    [RIGHT, SHOOTER_EXIT - 0.04],
+    {
+      material: 'chrome',
+      thickness: 0.004,
+      passDir: [0, 0, -1],
+    },
+  ),
+  // Balls sitting on the plunger must not roll through the main drain.
+  wall('plunger-stop', [SHOOTER_WALL, BOTTOM - 0.04], [RIGHT, BOTTOM - 0.04], {
+    material: 'rubber',
+    thickness: 0.008,
+    restitution: 0.2,
   }),
   wall('inlane-left', [-0.24, 0.045], [-0.115, -0.17], {
     material: 'rubber',
@@ -302,7 +322,7 @@ export const ZUZU_LAST_BELL_GREYBOX: TableDef = {
     { id: 'bell-flasher', at: [0, 0.05, -0.79], color: 0xf0ba6c },
   ],
   plunger: {
-    rest: [0.273, BALL + 0.0005, 0.083],
+    rest: [SHOOTER_CENTER, BALL + 0.0005, BOTTOM - 0.04 - BALL - 0.004],
     minSpeed: 1.7,
     maxSpeed: 3.4,
   },

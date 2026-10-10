@@ -30,6 +30,16 @@ normals.stand_hp = {
   hitbox: { x: 8, y: 52, w: 32, h: 12 },
   damage: 66,
 }
+// Her habit keeps her kicks low (t-011: the art has no thigh to lift): HK is a
+// long stamp from under the hem, and the sweep a short one along the floor.
+normals.stand_hk = {
+  ...normals.stand_hk,
+  hitbox: { x: 6, y: 16, w: 36, h: 14 },
+}
+normals.crouch_hk = {
+  ...normals.crouch_hk,
+  hitbox: { x: 6, y: 0, w: 34, h: 10 },
+}
 
 const benediction: MoveData = {
   startup: 14,

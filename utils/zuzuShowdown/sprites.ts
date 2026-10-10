@@ -58,11 +58,18 @@ export type LoadedSprites = {
 export const SPRITE_ROOT = '/zuzu-showdown-sprites'
 
 /** Fighters whose rig has been exported to the game so far. */
-export const SPRITE_FIGHTERS = ['zuzu', 'coyote-vagrant'] as const
+export const SPRITE_FIGHTERS = ['zuzu', 'coyote-vagrant', 'the-abbess'] as const
 
-/** The rig names the Coyote `coyote`; the game's slug is `coyote-vagrant`. */
+/** The rig's short names for fighters whose game slug is longer. */
+const RIG_NAMES: Partial<Record<string, string>> = {
+  'coyote-vagrant': 'coyote',
+  'the-abbess': 'abbess',
+  'the-siblings': 'siblings',
+}
+
+/** The file name the rig gives a fighter's sheets (`coyote` for the game's `coyote-vagrant`). */
 export function spriteFile(slug: string): string {
-  return slug === 'coyote-vagrant' ? 'coyote' : slug
+  return RIG_NAMES[slug] ?? slug
 }
 
 /** A fighter's frame map in a render style. */

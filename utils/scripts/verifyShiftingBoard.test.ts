@@ -25,7 +25,10 @@ assert.match(page, /v-else-if="!legacyMode"/)
 assert.match(page, /ShiftingLandsJourneyBoard/)
 assert.match(page, /@legacy="legacyMode = true"/)
 assert.match(page, /legacyMode = false/)
-assert.equal(existsSync(file('../../pages/play/zuzu-shifting-lands.vue')), false)
+assert.equal(
+  existsSync(file('../../pages/play/zuzu-shifting-lands.vue')),
+  false,
+)
 
 assert.match(board, /NavigationFlipCard/)
 assert.match(board, /<kr-card-flip/)
@@ -34,7 +37,10 @@ assert.match(board, /card-back2\.webp/)
 assert.match(board, /card-back3\.webp/)
 assert.match(board, /v-for="\(card, index\) in game\.locations"/)
 assert.match(board, /game\.reachable\.includes\(card\.id\)/)
-assert.match(board, /:disabled="!revealed\(card\.id\) && !game\.reachable\.includes\(card\.id\)"/)
+assert.match(
+  board,
+  /:disabled="!revealed\(card\.id\) && !game\.reachable\.includes\(card\.id\)"/,
+)
 assert.match(board, /game\.currentLand\.boss/)
 assert.match(board, /game\.confront\('challenge'\)/)
 assert.match(board, /game\.confront\('parley'\)/)
@@ -61,21 +67,37 @@ assert.match(store, /window\.localStorage\.setItem\(SAVE_KEY/)
 assert.equal(JOURNEY_WORLD.lands.length, 5)
 const beginning = newJourney(45)
 assert.equal(reachableLocations(beginning).length, 2)
-const unreachable = beginning.layouts.homestead!.find((id) => !reachableLocations(beginning).includes(id))!
-assert.strictEqual(stepJourney(beginning, { type: 'TRAVEL', locationId: unreachable }), beginning)
+const unreachable = beginning.layouts.homestead!.find(
+  (id) => !reachableLocations(beginning).includes(id),
+)!
+assert.strictEqual(
+  stepJourney(beginning, { type: 'TRAVEL', locationId: unreachable }),
+  beginning,
+)
 
 const chosen = reachableLocations(beginning)[0]!
 const arriving = stepJourney(beginning, { type: 'TRAVEL', locationId: chosen })
 assert.equal(arriving.active, chosen)
 const resolved = stepJourney(arriving, { type: 'RESOLVE', approach: 'test' })
 assert.equal(resolved.resolved.length, 1)
-assert.equal(restoreJourney(JSON.parse(JSON.stringify(resolved))) !== null, true)
-assert.equal(stepJourney(resolved, { type: 'RESOLVE', approach: 'test' }), resolved)
-assert.strictEqual(stepJourney(resolved, { type: 'BOSS', approach: 'challenge' }), resolved)
+assert.equal(
+  restoreJourney(JSON.parse(JSON.stringify(resolved))) !== null,
+  true,
+)
+assert.equal(
+  stepJourney(resolved, { type: 'RESOLVE', approach: 'test' }),
+  resolved,
+)
+assert.strictEqual(
+  stepJourney(resolved, { type: 'BOSS', approach: 'challenge' }),
+  resolved,
+)
 
 let nearBoss: JourneyState = newJourney(14)
 for (let i = 0; i < 3; i++) {
-  const next = reachableLocations(nearBoss).find((id) => !nearBoss.resolved.some((item) => item.locationId === id))!
+  const next = reachableLocations(nearBoss).find(
+    (id) => !nearBoss.resolved.some((item) => item.locationId === id),
+  )!
   nearBoss = stepJourney(nearBoss, { type: 'TRAVEL', locationId: next })
   nearBoss = stepJourney(nearBoss, { type: 'RESOLVE', approach: 'withdraw' })
 }
@@ -83,8 +105,16 @@ assert.equal(nearBoss.phase, 'boss')
 assert.deepEqual(reachableLocations(nearBoss), [])
 assert.equal(nearBoss.resolved.length, 3)
 
-assert.ok(JOURNEY_WORLD.lands.slice(1).every((land) =>
-  land.locations.every((location) => location.art === null)))
-assert.doesNotMatch(JSON.stringify(JOURNEY_WORLD), /canon_motivation|world_mysteries|sacrifice/)
+assert.ok(
+  JOURNEY_WORLD.lands
+    .slice(1)
+    .every((land) => land.locations.every((location) => location.art === null)),
+)
+assert.doesNotMatch(
+  JSON.stringify(JOURNEY_WORLD),
+  /canon_motivation|world_mysteries|sacrifice/,
+)
 
-console.log('Shifting Lands Admin board contract passed: safe card reveals, five-land controls, real reducer integration, legacy save isolation and inspectable history')
+console.log(
+  'Shifting Lands Admin board contract passed: safe card reveals, five-land controls, real reducer integration, legacy save isolation and inspectable history',
+)

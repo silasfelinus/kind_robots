@@ -240,6 +240,13 @@ export type CameraPreset = {
  * (rules/toys.ts) and the ball never touches. They have no colliders, so the
  * physics is the same with them or without.
  */
+/** A generated image, served from /images/, and the table rectangle (x, z) it covers. */
+export type ArtRegion = {
+  src: string
+  min: readonly [number, number]
+  max: readonly [number, number]
+}
+
 /**
  * A paper lantern hung from a pole (t-028): scenery on the rails and the
  * Ridge, with no collider. `at` is the pole's foot; `side` is the way its
@@ -347,11 +354,9 @@ export type TableDef = {
    * or until it loads, the renderer paints the playfield itself.
    */
   art?: {
-    playfield?: {
-      src: string
-      min: readonly [number, number]
-      max: readonly [number, number]
-    }
+    playfield?: ArtRegion
+    /** The Ridge's own painted art (t-027), over the upper playfield's floor. */
+    ridge?: ArtRegion
     /**
      * The machine's room (t-020): the backglass over the DMD, and posters
      * and neighbouring screens from the rest of the arcade.

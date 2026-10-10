@@ -14,7 +14,13 @@
 
 import * as THREE from 'three'
 import { mulberry32 } from '../../curve'
-import type { InsertDef, MaterialId, PostCollider, TableDef } from '../types'
+import type {
+  ArtRegion,
+  InsertDef,
+  MaterialId,
+  PostCollider,
+  TableDef,
+} from '../types'
 
 export const MATERIALS: Record<
   MaterialId,
@@ -196,8 +202,24 @@ export function insertShape(def: InsertDef): THREE.Shape {
   return shape
 }
 
-/** Canvas pixels per metre of playfield. */
-const ART_PX_PER_M = 1240
+/**
+ * Canvas pixels per metre of playfield: about the painted art's own
+ * resolution, so it is not resampled soft (t-027). A device's texture limit
+ * lowers it (artScale).
+ */
+const ART_PX_PER_M = 1750
+
+/** The generated images painted over their regions, as they load. */
+export type ArtImages = {
+  playfield?: CanvasImageSource & { width: number; height: number }
+  ridge?: CanvasImageSource & { width: number; height: number }
+}
+
+/** Pixels per metre for these bounds, kept inside a texture of `maxSize`. */
+export function artScale(bounds: ArtBounds, maxSize = 4096): number {
+  const longest = Math.max(bounds.x1 - bounds.x0, bounds.z1 - bounds.z0)
+  return Math.min(ART_PX_PER_M, Math.floor(maxSize / longest))
+}
 
 function css(color: number, alpha = 1): string {
   const c = new THREE.Color(color)
@@ -213,19 +235,21 @@ function css(color: number, alpha = 1): string {
 export function paintPlayfield(
   table: TableDef,
   bounds: ArtBounds,
-  albedo?: CanvasImageSource,
+  images: ArtImages = {},
+  maxSize = 4096,
 ): HTMLCanvasElement | null {
   if (typeof document === 'undefined') return null
-  const width = Math.round((bounds.x1 - bounds.x0) * ART_PX_PER_M)
-  const height = Math.round((bounds.z1 - bounds.z0) * ART_PX_PER_M)
+  const scale = artScale(bounds, maxSize)
+  const width = Math.round((bounds.x1 - bounds.x0) * scale)
+  const height = Math.round((bounds.z1 - bounds.z0) * scale)
   const canvas = document.createElement('canvas')
   canvas.width = width
   canvas.height = height
   const g = canvas.getContext('2d')
   if (!g) return null
-  const px = (x: number) => (x - bounds.x0) * ART_PX_PER_M
-  const pz = (z: number) => (z - bounds.z0) * ART_PX_PER_M
-  const m = (metres: number) => metres * ART_PX_PER_M
+  const px = (x: number) => (x - bounds.x0) * scale
+  const pz = (z: number) => (z - bounds.z0) * scale
+  const m = (metres: number) => metres * scale
   const rng = mulberry32(1903)
   const room = table.zones?.find((z) => z.id === 'sub-table')
   const roomBottom = room ? room.max[1] : bounds.z0
@@ -317,18 +341,33 @@ export function paintPlayfield(
     }
   }
 
-  // Generated art (t-009), when it has loaded, replaces the painted main
-  // playfield; the engine's own marks still go on top of it, crisp.
-  const art = table.art?.playfield
-  if (albedo && art) {
+  // Generated art (t-009, t-027), as it loads, replaces the painted Ridge
+  // and main playfield; the engine's own marks still go on top, crisp. Each
+  // image is cropped to its region's shape, never stretched.
+  const cover = (
+    image: NonNullable<ArtImages['playfield']>,
+    region: ArtRegion,
+  ) => {
+    const w = m(region.max[0] - region.min[0])
+    const h = m(region.max[1] - region.min[1])
+    const fit = Math.max(w / image.width, h / image.height)
+    const sw = w / fit
+    const sh = h / fit
     g.drawImage(
-      albedo,
-      px(art.min[0]),
-      pz(art.min[1]),
-      m(art.max[0] - art.min[0]),
-      m(art.max[1] - art.min[1]),
+      image,
+      (image.width - sw) / 2,
+      (image.height - sh) / 2,
+      sw,
+      sh,
+      px(region.min[0]),
+      pz(region.min[1]),
+      w,
+      h,
     )
   }
+  if (images.ridge && table.art?.ridge) cover(images.ridge, table.art.ridge)
+  if (images.playfield && table.art?.playfield)
+    cover(images.playfield, table.art.playfield)
 
   // The rainbow band the multiplier lamps sit on.
   const rainbow = (table.inserts ?? []).filter((i) =>

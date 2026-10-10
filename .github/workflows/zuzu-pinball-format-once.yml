@@ -1,0 +1,29 @@
+name: Zuzu Pinball branch formatting
+on:
+  push:
+    branches:
+      - worker/zuzu-pinball-t005-elevated-shots-20261010-f81d
+    paths:
+      - .github/workflows/zuzu-pinball-format-once.yml
+permissions:
+  contents: write
+jobs:
+  format:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+      - run: npm ci --ignore-scripts
+      - run: npx prettier --write utils/arcade/pinball/tables/zuzuLastBell/table.ts utils/scripts/verifyZuzuPinballRamps.test.ts
+      - name: Commit formatting to the source branch
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add utils/arcade/pinball/tables/zuzuLastBell/table.ts utils/scripts/verifyZuzuPinballRamps.test.ts
+          if ! git diff --cached --quiet; then
+            git commit -m "style(zuzu-pinball): apply Prettier to physical ramps and regression tests"
+            git push origin HEAD:worker/zuzu-pinball-t005-elevated-shots-20261010-f81d
+          fi

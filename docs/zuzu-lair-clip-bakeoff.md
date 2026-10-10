@@ -14,10 +14,10 @@ Keep the approved Arthemy Western Art v3.0 still checkpoint fixed. Select four e
 
 Run four fixed source images through these four lanes, preserving the exact source, prompt, negative prompt, seed, crop and output aspect per row:
 
-| Lane         | Selection                                | Role                            |
-| ------------ | ---------------------------------------- | ------------------------------- |
-| ltx-balanced | LTX-2.3 / ltx-12gb-balanced             | Current half-resolution control |
-| ltx-quality  | LTX-2.3 / ltx-full-quality              | Full-resolution quality control |
+| Lane         | Selection                              | Role                            |
+| ------------ | -------------------------------------- | ------------------------------- |
+| ltx-balanced | LTX-2.3 / ltx-12gb-balanced            | Current half-resolution control |
+| ltx-quality  | LTX-2.3 / ltx-full-quality             | Full-resolution quality control |
 | wan-ti2v     | WAN 2.2 TI2V 5B, 768x432, 4 s, 16 FPS  | Consumer-card alternative       |
 | wan-a14b     | WAN 2.2 I2V A14B, 768x432, 4 s, 16 FPS | Two-expert quality alternative  |
 

@@ -346,13 +346,6 @@ jobs:
       - name: ESLint ratchet
         run: npm run test:lint-ratchet
 
-      - name: TEMP Zuzu Lair exact Prettier diagnostic
-        run: |
-          npx prettier --write docs/zuzu-lair-clip-bakeoff.md utils/scripts/buildZuzuLairBakeoffSheet.mjs
-          echo '=== EXACT FORMAT DIFF ==='
-          git diff -- docs/zuzu-lair-clip-bakeoff.md utils/scripts/buildZuzuLairBakeoffSheet.mjs
-          exit 1
-
       - name: Prettier ratchet
         run: npm run test:prettier-ratchet
 

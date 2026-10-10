@@ -3,8 +3,8 @@ import { createLoggedInTestUser } from '../../support/api-auth'
 // cypress/e2e/api/users.cy.ts
 
 describe('User Management API Tests', () => {
-  let baseUrl = 'https://kind-robots.vercel.app/api/users'
-  let authUrl = 'https://kind-robots.vercel.app/api/auth'
+  let baseUrl = `${Cypress.config('baseUrl') || 'http://localhost:3000'}/api/users`
+  let authUrl = `${Cypress.config('baseUrl') || 'http://localhost:3000'}/api/auth`
   let apiKey = ''
 
   let createdUserId: number | undefined
@@ -44,10 +44,10 @@ describe('User Management API Tests', () => {
   before(() => {
     cy.env(['BASE_URL', 'AUTH_URL', 'API_KEY']).then((env) => {
       const rawBaseUrl = String(
-        env.BASE_URL || 'https://kind-robots.vercel.app/api/users',
+        env.BASE_URL || `${Cypress.config('baseUrl') || 'http://localhost:3000'}/api/users`,
       )
       const rawAuthUrl = String(
-        env.AUTH_URL || 'https://kind-robots.vercel.app/api/auth',
+        env.AUTH_URL || `${Cypress.config('baseUrl') || 'http://localhost:3000'}/api/auth`,
       )
 
       baseUrl = rawBaseUrl.replace(/\/+$/, '')

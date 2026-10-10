@@ -8,19 +8,29 @@
 // (no apostrophes or quotes), and at most 34 characters a line.
 
 import type { Act, Stage } from './world'
-import { PROTOTYPE_ACTS } from './acts/prototype'
+import { STAGE_1, STAGE_1_ACTS } from './acts/stage1'
+import { STAGE_2, STAGE_2_ACTS } from './acts/stage2'
+import { STAGE_3, STAGE_3_ACTS } from './acts/stage3'
+import { STAGE_4, STAGE_4_ACTS } from './acts/stage4'
+import { STAGE_5, STAGE_5_ACTS } from './acts/stage5'
+import { STAGE_6, STAGE_6_ACTS } from './acts/stage6'
 
-export const ACTS: Act[] = [...PROTOTYPE_ACTS]
+export const ACTS: Act[] = [
+  ...STAGE_1_ACTS,
+  ...STAGE_2_ACTS,
+  ...STAGE_3_ACTS,
+  ...STAGE_4_ACTS,
+  ...STAGE_5_ACTS,
+  ...STAGE_6_ACTS,
+]
 
 export const STAGES: Stage[] = [
-  { stage: 1, name: 'GHOST TOWN', outro: ['THE TOWN FALLS QUIET BEHIND HIM.'] },
-  { stage: 2, name: 'THE BONE YARD', outro: ['THE BONES LIE STILL AT LAST.'] },
-  {
-    stage: 3,
-    name: 'DROWNED WATERING HOLE',
-    outro: ['THE WATER GOES FLAT AND DARK.'],
-  },
-  { stage: 4, name: 'MISSION BELL TOWER', outro: ['THE BELL HANGS SILENT.'] },
+  STAGE_1,
+  STAGE_2,
+  STAGE_3,
+  STAGE_4,
+  STAGE_5,
+  STAGE_6,
 ]
 
 export const CREDITS: string[] = [

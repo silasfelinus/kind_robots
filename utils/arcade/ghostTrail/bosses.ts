@@ -52,6 +52,16 @@ export type BossDef = {
   update: (b: Boss, ctx: BossCtx) => void
   /** Hits that land while this is true are shrugged off (e.g. the bull mid-charge). */
   immune?: (b: Boss) => boolean
+  /**
+   * Paint the boss (world space; the game has translated by -camX). `face` is the sign toward Zuzu.
+   * Optional while its art is in progress: without it the game draws a stand-in body.
+   */
+  draw?: (
+    g: CanvasRenderingContext2D,
+    b: Boss,
+    tick: number,
+    face: number,
+  ) => void
   /** Contact damage box (half width, height); null while it can't hurt by touch. */
   contact?: (b: Boss) => { hw: number; height: number } | null
 }

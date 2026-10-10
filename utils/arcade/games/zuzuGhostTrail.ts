@@ -1546,6 +1546,11 @@ class ZuzuGhostTrail implements ArcadeGameInstance {
 
   private renderBoss(g: CanvasRenderingContext2D, b: Boss) {
     const face = Math.sign(this.x - b.x) || -1
+    const draw = BOSSES[b.id]?.draw
+    if (draw) {
+      draw(g, b, this.tick, face)
+      return
+    }
     if (b.id === 'devil' || b.id === 'bull') {
       const mode =
         b.id === 'devil'

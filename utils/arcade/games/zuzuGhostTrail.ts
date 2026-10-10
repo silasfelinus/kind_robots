@@ -53,6 +53,7 @@ const KUNAI_SPEED = 4.5
 const INVULN_TICKS = 100
 const DEATH_TICKS = 110
 const CLEAR_TICKS = 160
+const VICTORY_TICKS = 180
 const STAGE_TICKS = 60 * 150
 const START_LIVES = 3
 const EXTRA_EVERY = 20_000
@@ -368,6 +369,7 @@ class ZuzuGhostTrail implements ArcadeGameInstance {
   private checkpoint = 40
   private dead = 0
   private clear = 0
+  private victoryTicks = 0
   private timer = STAGE_TICKS
   private camX = 0
   private foes: Foe[] = []
@@ -450,17 +452,21 @@ class ZuzuGhostTrail implements ArcadeGameInstance {
     this.updateEffects()
     if (this.banner && --this.banner.ticks <= 0) this.banner = null
     if (this.over) return
+    if (this.victoryTicks > 0) {
+      if (--this.victoryTicks === 0) this.over = true
+      return
+    }
     const controls = this.demo ? this.demoInput() : input
 
     if (this.clear > 0) {
       if (--this.clear === 0) {
         if (this.level >= STAGES.length) {
           this.won = true
-          this.over = true
+          this.victoryTicks = VICTORY_TICKS
           this.banner = {
             text: 'PREVIEW CLEARED',
             sub: `${this.foundSecrets.size}/${STAGES.length} RELICS FOUND`,
-            ticks: 9999,
+            ticks: VICTORY_TICKS,
           }
         } else this.startStage(this.level + 1)
       }

@@ -436,6 +436,16 @@ assert.match(
   'Seen-page state must hydrate after mount so the server and client render the same toggle.',
 )
 
+const projectFrontSource = readFileSync(
+  'components/conductor/project-front-page.vue',
+  'utf8',
+)
+assert.equal(
+  /view\.sections|\{\{\s*view\.description\s*\}\}/.test(projectFrontSource),
+  false,
+  'Project front pages must leave description and explainer copy to the tab tutorial rather than stacking intro panels on the page.',
+)
+
 const legacySessionSource = readFileSync(
   'plugins/legacy-guest-session.client.ts',
   'utf8',

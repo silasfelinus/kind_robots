@@ -1,17 +1,9 @@
 <template>
   <section class="flex flex-col gap-4">
-    <header class="kr-toolbar flex flex-wrap items-start justify-between gap-4">
-      <div>
-        <p class="kr-text-eyebrow text-xs tracking-widest text-primary">
-          Forum moderation
-        </p>
-        <p class="kr-text-black-2xl mt-1">Health-claim escalation queue</p>
-        <p class="kr-text-dim-sm mt-1 max-w-2xl">
-          Posts here were auto-hidden because at least two distinct people flagged them as
-          misinformation or unsafe. Restore the post if the flag was wrong, or confirm removal
-          if it should stay down.
-        </p>
-      </div>
+    <header
+      class="kr-panel-flat flex flex-wrap items-center justify-between gap-4 px-4 py-3"
+    >
+      <h2 class="kr-text-black-xl">Health-claim escalation queue</h2>
       <button
         type="button"
         class="kr-btn-ghost"

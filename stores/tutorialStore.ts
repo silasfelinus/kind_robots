@@ -76,7 +76,9 @@ export const useTutorialStore = defineStore('tutorialStore', {
           }
           this.seenPages = next
         }
-      } catch {}
+      } catch {
+        this.seenPages = {}
+      }
 
       this.hydrated = true
     },
@@ -91,7 +93,9 @@ export const useTutorialStore = defineStore('tutorialStore', {
           SEEN_PAGES_STORAGE_KEY,
           JSON.stringify(Object.keys(this.seenPages)),
         )
-      } catch {}
+      } catch {
+        return
+      }
     },
 
     syncToLocalStorage() {
@@ -140,7 +144,9 @@ export const useTutorialStore = defineStore('tutorialStore', {
       this.seenPages = {}
       try {
         window.localStorage.removeItem(SEEN_PAGES_STORAGE_KEY)
-      } catch {}
+      } catch {
+        return
+      }
     },
   },
 })

@@ -1,21 +1,7 @@
 <template>
   <main class="kr-surface h-full min-h-0 overflow-hidden">
     <div class="kr-scroll kr-container-wide space-y-4 p-4 md:p-6">
-      <header
-        class="kr-toolbar flex flex-wrap items-start justify-between gap-4"
-      >
-        <div>
-          <p class="kr-text-eyebrow text-xs tracking-widest text-primary">
-            AMI social pipeline administration
-          </p>
-          <p class="kr-text-black-2xl mt-1">Social post review queue</p>
-          <p class="kr-text-dim-sm mt-1 max-w-2xl">
-            Draft-only. AMI, our labelled-AI fundraiser character, proposes
-            posts from the daily dream/digest cycle. Nothing here posts anywhere
-            -- approving a draft only marks it reviewed. Every draft carries a
-            disclosure label; that is never optional.
-          </p>
-        </div>
+      <header class="kr-toolbar flex flex-wrap items-start justify-end gap-4">
         <button
           type="button"
           class="kr-btn-primary"

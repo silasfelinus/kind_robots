@@ -272,29 +272,8 @@
       </div>
 
       <div
-        class="grid shrink-0 grid-cols-1 gap-3 border-t border-yellow-700/30 bg-base-300/95 px-4 py-3 sm:grid-cols-3"
+        class="shrink-0 border-t border-yellow-700/30 bg-base-300/95 px-4 py-3"
       >
-        <div
-          class="rounded-lg bg-black/60 p-3 text-xs leading-relaxed border border-yellow-600/20"
-        >
-          <div class="mb-1 font-bold text-yellow-300">📜 How to play</div>
-          <p class="text-yellow-50/90">
-            Match pairs to score. Streaks multiply points. Oracle challenges
-            award 3×. Clear each floor for a random dungeon reward.
-          </p>
-        </div>
-
-        <div
-          class="rounded-lg bg-black/60 p-3 text-xs leading-relaxed border border-yellow-600/20"
-        >
-          <div class="mb-1 font-bold text-yellow-300">⚔️ Powerups</div>
-          <ul class="space-y-0.5 text-yellow-50/90">
-            <li>🔦 Lantern — reveal all cards briefly</li>
-            <li>🛡️ Shield — block one mistake</li>
-            <li>👁️ Oracle's Eye — highlight a matching pair</li>
-          </ul>
-        </div>
-
         <div
           class="rounded-lg bg-black/60 p-3 text-xs leading-relaxed border border-yellow-600/20"
         >

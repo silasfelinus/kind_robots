@@ -18,8 +18,9 @@ tutorial:
     land and some get away. Between catches, your advisor brings story cards
     with choices that shape the kingdom. Spend the coins you find in
     the Shop, look up your catches in the Fishopedia, and open Your reign to
-    see how the realm regards you. When an ending is within reach you can take
-    it or keep fishing; How to play explains the basics.
+    see how the realm regards you. Rare catches swing the whole kingdom, and
+    every haul you spend changes the crown you wear. When an ending is within
+    reach you can take it or keep fishing.
 ---
 
 Cast a line, land a catch, and run a seaside kingdom that is still negotiating with the tide.

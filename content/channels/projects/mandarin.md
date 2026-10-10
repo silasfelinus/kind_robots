@@ -14,7 +14,10 @@ sort: 50
 tutorial:
   title: Learn Mandarin one word at a time
   body: >-
-    Press Start learning to begin a session of new and due words. Each word
+    The course teaches what each character is actually doing, which piece
+    carries the meaning, which carries the sound, and which other words are
+    built the same way, and only then asks you to recall it. Press Start
+    learning to begin a session of new and due words. Each word
     shows its pinyin with a Hear it button, how the character was made, the
     parts it is built from, and other words that share its sound. Then you
     say it aloud, press Reveal, and rate yourself Again, Hard, Good or Easy so

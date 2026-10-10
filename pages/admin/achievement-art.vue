@@ -1,19 +1,7 @@
 <template>
   <main class="kr-surface h-full min-h-0 overflow-hidden">
     <div class="kr-scroll kr-container-wide space-y-4 p-4 md:p-6">
-      <header
-        class="kr-toolbar flex flex-wrap items-start justify-between gap-4"
-      >
-        <div>
-          <p class="kr-text-eyebrow text-xs tracking-widest text-primary">
-            Achievement administration
-          </p>
-          <p class="kr-text-black-2xl mt-1">Achievement artwork</p>
-          <p class="kr-text-dim-sm mt-1">
-            Generate, upload, and replace the image attached to each achievement
-            definition.
-          </p>
-        </div>
+      <header class="kr-toolbar flex flex-wrap items-start justify-end gap-4">
         <button
           type="button"
           class="kr-btn-primary"

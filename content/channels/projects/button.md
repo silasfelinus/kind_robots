@@ -18,7 +18,8 @@ tutorial:
     new message and adds to your count on the click leaderboard. As your top
     score climbs, milestones unlock extras, including AMI the butterfly
     mascot at 30 and a theme picker at 40. At 100 presses the page turns into
-    Art Reviewer, where reviewing art earns clicks and karma.
+    Art Reviewer: you have pressed enough, so now you help art find its
+    audience, and every review earns a click and karma.
 ---
 
 The sign says not to press it. People press it anyway.

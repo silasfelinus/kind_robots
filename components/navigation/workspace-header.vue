@@ -792,10 +792,12 @@ function goBack(): void {
 @keyframes tutorial-unseen-pulse {
   0%,
   100% {
-    box-shadow: 0 0 0 0 color-mix(in oklab, var(--color-secondary) 45%, transparent);
+    box-shadow: 0 0 0 0
+      color-mix(in oklab, var(--color-secondary) 45%, transparent);
   }
   50% {
-    box-shadow: 0 0 0 6px color-mix(in oklab, var(--color-secondary) 0%, transparent);
+    box-shadow: 0 0 0 6px
+      color-mix(in oklab, var(--color-secondary) 0%, transparent);
   }
 }
 

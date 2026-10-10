@@ -6,14 +6,6 @@
 -->
 <template>
   <section class="kr-container max-w-2xl flex flex-col gap-4 p-4">
-    <header>
-      <h1 class="kr-text-black-2xl">Shared with me</h1>
-      <p class="kr-text-dim-sm-70">
-        Projects, resources, and packs other people have shared with your
-        account.
-      </p>
-    </header>
-
     <p v-if="grants.loading" class="kr-text-dim-sm-50">Loading…</p>
     <p v-else-if="!activeGrants.length" class="kr-text-dim-sm-50">
       Nothing has been shared with you yet.

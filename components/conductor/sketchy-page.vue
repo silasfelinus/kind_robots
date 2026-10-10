@@ -127,20 +127,6 @@ const config: ProjectFrontConfig = {
   tagline: 'Show up, fill the page, get a little better.',
   description:
     'A drawing-habit studio. Sketchy hands you an assignment and a timer, then offers gentle critique — the low-pressure daily practice that turns "I can\'t draw" into a stack of finished pages.',
-  sections: [
-    {
-      key: 'prompt',
-      title: 'A prompt a day',
-      body: 'Fresh assignments and constraints keep the blank page from winning.',
-      icon: 'kind-icon:pencil',
-    },
-    {
-      key: 'critique',
-      title: 'Kind critique',
-      body: 'Honest, encouraging feedback that helps without stinging.',
-      icon: 'kind-icon:hand-heart',
-    },
-  ],
   deliverables: {
     done: ['Assignment + critique concept', 'Reference imagery'],
     next: ['Daily prompt engine', 'Submission + streak tracking'],

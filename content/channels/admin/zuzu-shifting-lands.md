@@ -5,7 +5,7 @@ tabKey: zuzu-shifting-lands
 label: Shifting Lands
 title: Zuzu · Shifting Lands Workshop
 subtitle: Build and playtest the illustrated narrative board game
-summary: Play the five-land illustrated expedition and revisit the Homestead workshop.
+summary: Play the illustrated five-land journey.
 description: 'Admin-only five-land interactive board with drawn encounter cards, shifting roads, boss trials and an inspectable journey history; the original Homestead workshop remains available.'
 icon: kind-icon:map
 route: /admin/zuzu-shifting-lands

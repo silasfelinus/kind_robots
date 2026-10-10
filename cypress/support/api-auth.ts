@@ -37,7 +37,7 @@ export type CreateLoggedInTestUserOptions = {
   role?: TestUserRole
 }
 
-export const defaultApiBase = 'https://kind-robots.vercel.app/api'
+export const defaultApiBase = `${Cypress.config('baseUrl')}/api`
 export const defaultTestPassword = 'testtest12'
 
 const apiKeyHeaderName = ['x', 'api', 'key'].join('-')

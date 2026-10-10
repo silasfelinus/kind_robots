@@ -5,8 +5,8 @@ tabKey: zuzu-shifting-lands
 label: Shifting Lands
 title: Zuzu · Shifting Lands Workshop
 subtitle: Build and playtest the illustrated narrative board game
-summary: Draw cards in Zuzu's wasteland.
-description: 'Admin-only playable Homestead prototype with illustrated locations, drawn species and role cards, skill checks, and a saved journey.'
+summary: Play the five-land illustrated expedition and revisit the Homestead workshop.
+description: 'Admin-only five-land interactive board with drawn encounter cards, shifting roads, boss trials and an inspectable journey history; the original Homestead workshop remains available.'
 icon: kind-icon:map
 route: /admin/zuzu-shifting-lands
 sort: 125
@@ -14,7 +14,7 @@ requiredRole: ADMIN
 tutorial:
   title: Shifting Lands
   body: >-
-    Playtest the illustrated narrative board game set in Zuzu's wasteland. Explore the Homestead's locations, draw species and role cards, resolve skill checks as encounters come up, and pick your journey back up where you saved it. It stays in Admin until Shifting Lands is ready for public play.
+    Playtest the private five-land illustrated expedition. Draw or choose a reachable road, resolve skill checks, confront major trials, inspect visited cards, and read the journal of changing places. Use Homestead workshop to visit the original separate prototype. This stays in Admin until public play is approved.
 ---
 
-Playtest the Homestead's illustrated board and encounter decks. This development workshop stays in Admin until Shifting Lands is ready for public play.
+Travel through five shifting lands on an illustrated board, or open the original Homestead workshop for the older prototype. The five-land game, companion systems, later-land art and full-save review are still in development; public play is not enabled.

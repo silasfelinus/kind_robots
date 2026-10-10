@@ -356,6 +356,7 @@ export interface BestiaryEntry {
   collected: boolean
   firstAcquiredAt: string | null
   fieldNote: string | null
+  cost: number
   // t-031: distinct from `collected` -- true only while the species has a
   // live AquariumStock row. False after a sell (t-030) even though
   // `collected` stays true forever; when it's false, the panel offers
@@ -568,6 +569,10 @@ export const useCthulhuquariumTankStore = defineStore(
       return coinsEarned
     }
 
+    function dismissError(): void {
+      error.value = ''
+    }
+
     function dismissRareEvent(): void {
       lastRareEvent.value = null
     }
@@ -632,6 +637,7 @@ export const useCthulhuquariumTankStore = defineStore(
     }
 
     async function feed(aquariumStockId: number): Promise<boolean> {
+      error.value = ''
       const res = await performFetch<FeedResponse>('/api/aquarium/feed', {
         method: 'POST',
         body: JSON.stringify({ aquariumStockId }),
@@ -665,6 +671,8 @@ export const useCthulhuquariumTankStore = defineStore(
     }
 
     async function unlock(monsterId: number): Promise<boolean> {
+      error.value = ''
+      await settlePendingCollect()
       // cthulhuquarium/t-081: buying another of a species already in the tank
       // is routine -- no reveal dialog or first-unlock story beat for a copy.
       const isCopy = stock.value.some((entry) => entry.monsterId === monsterId)
@@ -707,6 +715,7 @@ export const useCthulhuquariumTankStore = defineStore(
     // Ichthyonomicon the moment currentlyOwned flips to false, so this
     // refreshes the bestiary the same way unlock() does when it's loaded.
     async function sell(aquariumStockId: number): Promise<boolean> {
+      error.value = ''
       const res = await performFetch<SellResponse>('/api/aquarium/sell', {
         method: 'POST',
         body: JSON.stringify({ aquariumStockId }),
@@ -732,6 +741,7 @@ export const useCthulhuquariumTankStore = defineStore(
     let cleanDebounceTimer: ReturnType<typeof setTimeout> | undefined
 
     async function flushClean(): Promise<void> {
+      error.value = ''
       const clicks = pendingCleanClicks.value
       pendingCleanClicks.value = 0
       if (clicks <= 0) return
@@ -803,9 +813,20 @@ export const useCthulhuquariumTankStore = defineStore(
       void flushCollect()
     }
 
+    // A buy right after tapping coins must count those coins: settle the
+    // debounced collect first so the server sees the same balance the player
+    // was about to see.
+    async function settlePendingCollect(): Promise<void> {
+      if (pendingCollect.value <= 0) return
+      clearTimeout(collectDebounceTimer)
+      await flushCollect()
+    }
+
     async function purchaseUpgrade(track: string): Promise<boolean> {
+      error.value = ''
       upgradePending.value = track
       try {
+        await settlePendingCollect()
         const res = await performFetch<PurchaseUpgradeResponse>(
           '/api/aquarium/upgrade',
           {
@@ -871,6 +892,7 @@ export const useCthulhuquariumTankStore = defineStore(
     }
 
     async function equipSet(kind: string): Promise<boolean> {
+      error.value = ''
       const res = await performFetch<EquipSetResponse>(
         '/api/aquarium/sets/equip',
         {
@@ -888,6 +910,7 @@ export const useCthulhuquariumTankStore = defineStore(
     }
 
     async function unequipSet(aquariumSetId: number): Promise<boolean> {
+      error.value = ''
       const res = await performFetch<UnequipSetResponse>(
         '/api/aquarium/sets/unequip',
         {
@@ -932,6 +955,7 @@ export const useCthulhuquariumTankStore = defineStore(
       x?: number,
       y?: number,
     ): Promise<boolean> {
+      error.value = ''
       const res = await performFetch<PurchaseDecorResponse>(
         '/api/aquarium/decor/purchase',
         {
@@ -953,6 +977,7 @@ export const useCthulhuquariumTankStore = defineStore(
       x: number,
       y: number,
     ): Promise<boolean> {
+      error.value = ''
       const res = await performFetch<MoveDecorResponse>(
         '/api/aquarium/decor/move',
         {
@@ -969,6 +994,7 @@ export const useCthulhuquariumTankStore = defineStore(
     }
 
     async function removeDecor(aquariumDecorId: number): Promise<boolean> {
+      error.value = ''
       const res = await performFetch<RemoveDecorResponse>(
         '/api/aquarium/decor/remove',
         {
@@ -995,6 +1021,7 @@ export const useCthulhuquariumTankStore = defineStore(
     // returned aquarium -- the same "server disposes" pattern as every
     // other mutation in this store.
     async function setVisibility(isPublic: boolean): Promise<boolean> {
+      error.value = ''
       const res = await performFetch<SetVisibilityResponse>(
         '/api/aquarium/visibility',
         {
@@ -1028,6 +1055,7 @@ export const useCthulhuquariumTankStore = defineStore(
     }
 
     async function purchaseFinale(): Promise<boolean> {
+      error.value = ''
       const res = await performFetch<PurchaseFinaleResponse>(
         '/api/aquarium/finale/purchase',
         { method: 'POST' },
@@ -1118,6 +1146,7 @@ export const useCthulhuquariumTankStore = defineStore(
       unlock,
       sell,
       dismissReveal,
+      dismissError,
       dismissRareEvent,
       requestClean,
       flushCleanNow,

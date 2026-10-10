@@ -5,6 +5,8 @@
     slug="cthulhuquarium"
     :fallback="config"
     :show-deliverables="false"
+    :show-intro="false"
+    wide
   >
     <template #interactive>
       <CthulhuquariumPlay />

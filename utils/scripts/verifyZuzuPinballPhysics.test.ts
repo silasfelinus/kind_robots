@@ -2,7 +2,11 @@
 // Zuzu table. This is a geometry harness, not a mocked Arcade rendering test.
 import assert from 'node:assert/strict'
 import RAPIER from '@dimforge/rapier3d-compat'
-import { PinballPhysics, PHYSICS_HZ, livePhysicsWorlds } from '../arcade/pinball/physics/world'
+import {
+  PinballPhysics,
+  PHYSICS_HZ,
+  livePhysicsWorlds,
+} from '../arcade/pinball/physics/world'
 import { ZUZU_LAST_BELL_GREYBOX as table } from '../arcade/pinball/tables/zuzuLastBell/table'
 import type { Vec3 } from '../arcade/pinball/types'
 
@@ -12,7 +16,9 @@ const radius = table.physical.ballRadiusM
 const shooter = table.plunger.rest
 const gate = table.colliders.find((collider) => collider.id === 'shooter-gate')
 const stop = table.colliders.find((collider) => collider.id === 'plunger-stop')
-const divider = table.colliders.find((collider) => collider.id === 'shooter-divider')
+const divider = table.colliders.find(
+  (collider) => collider.id === 'shooter-divider',
+)
 assert.ok(gate?.kind === 'box')
 assert.deepEqual(gate.passDir, [0, 0, -1])
 assert.ok(stop?.kind === 'box')
@@ -22,7 +28,9 @@ assert.ok(table.physical.pitchDeg >= 6 && table.physical.pitchDeg <= 7)
 assert.equal(table.physical.widthM, 0.56)
 assert.equal(radius, 0.0135)
 assert.ok(table.flippers.every((flipper) => flipper.strokeMs <= 25))
-assert.ok(table.flippers.every((flipper) => flipper.returnMs > flipper.strokeMs))
+assert.ok(
+  table.flippers.every((flipper) => flipper.returnMs > flipper.strokeMs),
+)
 
 const run = (steps: number, f: (step: number) => void) => {
   for (let step = 0; step < steps; step++) f(step)
@@ -35,7 +43,11 @@ const run = (steps: number, f: (step: number) => void) => {
   try {
     const id = physics.serveBall()
     run(PHYSICS_HZ * 2, () => physics.step())
-    assert.equal(physics.ballCount, 1, 'unlaunched ball must remain in its lane')
+    assert.equal(
+      physics.ballCount,
+      1,
+      'unlaunched ball must remain in its lane',
+    )
     assert.ok(physics.ballOnPlunger(), 'resting ball remains launchable')
     assert.equal(physics.ballViews()[0]?.id, id)
   } finally {
@@ -51,7 +63,11 @@ for (const power of [0.6, 1]) {
   try {
     const id = physics.serveBall()
     assert.ok(physics.launch(power))
-    assert.equal(physics.launch(power), true, 'launch is allowed while ball is in lane')
+    assert.equal(
+      physics.launch(power),
+      true,
+      'launch is allowed while ball is in lane',
+    )
     let highestZ = Infinity
     let reachedMain = false
     let escapedShooter = false
@@ -68,8 +84,11 @@ for (const power of [0.6, 1]) {
       if (z < -0.15 && x < 0.225) reachedMain = true
     })
     console.log('Zuzu shooter sweep', {
-      power, highestZ: Number(highestZ.toFixed(4)), escapedShooter,
-      reachedMain, drained,
+      power,
+      highestZ: Number(highestZ.toFixed(4)),
+      escapedShooter,
+      reachedMain,
+      drained,
     })
     assert.ok(escapedShooter, `plunge ${power} must pass the upper gate`)
     assert.ok(reachedMain, `plunge ${power} must feed the main field`)
@@ -90,7 +109,8 @@ for (const power of [0.6, 1]) {
     run(8, () => physics.step())
     const flipped = physics.flipperAngles()
     assert.ok(
-      (flipped['zuzu-lower-left'] ?? Infinity) < atRest['zuzu-lower-left']! - 0.3,
+      (flipped['zuzu-lower-left'] ?? Infinity) <
+        atRest['zuzu-lower-left']! - 0.3,
       'left bat must swing with the held left input',
     )
     assert.equal(flipped['zuzu-lower-right'], atRest['zuzu-lower-right'])
@@ -99,7 +119,8 @@ for (const power of [0.6, 1]) {
     run(22, () => physics.step())
     const switched = physics.flipperAngles()
     assert.ok(
-      Math.abs(switched['zuzu-lower-left']! - atRest['zuzu-lower-left']!) < 0.04,
+      Math.abs(switched['zuzu-lower-left']! - atRest['zuzu-lower-left']!) <
+        0.04,
       'left bat returns to rest on release',
     )
     assert.ok(
@@ -134,12 +155,22 @@ for (const power of [0.6, 1]) {
     assert.ok(captured, 'Croc must actually capture a physical ball')
     assert.ok(ejected, 'Croc must safely eject its captive')
     assert.equal(swallowedDrain, false, 'a ball never drains during Croc hold')
-    assert.equal(physics.ballCount, 1, 'Croc catch and release conserves the ball')
+    assert.equal(
+      physics.ballCount,
+      1,
+      'Croc catch and release conserves the ball',
+    )
     assert.equal(physics.ballViews()[0]?.id, id)
   } finally {
     physics.dispose()
   }
 }
 
-assert.equal(livePhysicsWorlds(), 0, 'Zuzu Rapier worlds have no lifecycle leaks')
-console.log('Zuzu physical shooter, lower flippers, trough and Croc transitions verified')
+assert.equal(
+  livePhysicsWorlds(),
+  0,
+  'Zuzu Rapier worlds have no lifecycle leaks',
+)
+console.log(
+  'Zuzu physical shooter, lower flippers, trough and Croc transitions verified',
+)

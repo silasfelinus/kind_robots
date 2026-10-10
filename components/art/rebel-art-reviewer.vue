@@ -53,19 +53,22 @@
         <button
           v-for="entry in ART_REVIEW_RATINGS"
           :key="entry.rating"
-          class="btn btn-primary flex-col h-auto py-3 rounded-2xl"
+          class="btn btn-primary flex-col h-auto min-w-0 px-1 py-3 sm:px-4 rounded-2xl"
           :disabled="store.isSubmitting"
           @click="rate(entry.rating)"
         >
-          <span class="flex">
+          <span class="flex flex-wrap justify-center max-w-full">
             <Icon
               v-for="n in entry.rating"
               :key="n"
               name="ph:star-fill"
-              class="w-4 h-4"
+              class="w-3 h-3 sm:w-4 sm:h-4 shrink-0"
             />
           </span>
-          <span class="text-xs sm:text-sm font-bold">{{ entry.label }}</span>
+          <span
+            class="text-xs sm:text-sm font-bold leading-tight whitespace-normal text-center"
+            >{{ entry.label }}</span
+          >
         </button>
       </div>
 

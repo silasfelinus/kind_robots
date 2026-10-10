@@ -1241,7 +1241,7 @@ export const AMI_VILLAGE_GREYBOX: TableDef = {
         '/images/arcade/games/butterfly-blaster-title.webp',
         '/images/arcade/games/rescue-rally-title.webp',
         '/images/arcade/games/zuzu-ghost-trail-title.webp',
-        '/images/arcade/games/timber-bot-title.webp',
+        '/images/arcade/games/butterfly-joust-title.webp',
         '/images/arcade/games/battery-maze-title.webp',
         '/images/arcade/games/gloom-invaders-title.webp',
         '/images/arcade/games/pipe-pals-title.webp',

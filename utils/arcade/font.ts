@@ -82,6 +82,8 @@ export type TextOptions = {
   align?: 'left' | 'center' | 'right'
   /** Drop-shadow colour, drawn one pixel down and right at the same scale. */
   shadow?: string
+  /** Outline colour, a pixel out on every side: the 16-bit lettering look (utils/arcade/snes.ts). */
+  outline?: string
 }
 
 /** Width in logical pixels of `text` at `scale` (one column gap per glyph). */
@@ -176,6 +178,17 @@ function paintVector(
   g.restore()
 }
 
+const OUTLINE_OFFSETS = [
+  [-1, 0],
+  [1, 0],
+  [0, -1],
+  [0, 1],
+  [-1, -1],
+  [1, -1],
+  [-1, 1],
+  [1, 1],
+] as const
+
 export function drawText(
   g: CanvasRenderingContext2D,
   text: string,
@@ -192,6 +205,11 @@ export function drawText(
         ? x - width
         : x
   const draw = vectorContexts.has(g) ? paintVector : paint
+  if (options.outline) {
+    g.fillStyle = options.outline
+    for (const [dx, dy] of OUTLINE_OFFSETS)
+      draw(g, text, left + dx, y + dy, scale)
+  }
   if (options.shadow) {
     g.fillStyle = options.shadow
     draw(g, text, left + scale, y + scale, scale)

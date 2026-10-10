@@ -398,13 +398,16 @@ import { useShiftingLandsJourneyStore } from '~/stores/shiftingLandsJourneyStore
 
 const emit = defineEmits<{ legacy: [] }>()
 const game = useShiftingLandsJourneyStore()
-const landAtmosphere = computed(() => ({
+const landScenery: Record<string, string> = {
   homestead: '/zuzu-gamebook/scenes/dust-road.webp',
   dustwater: '/zuzu-gamebook/scenes/waterhole.webp',
   tablelands: '/zuzu-gamebook/scenes/canyon.webp',
   cave: '/zuzu-gamebook/scenes/locked-door.webp',
   verge: '/zuzu-gamebook/scenes/bone-valley.webp',
-}[game.currentLand.id] || '/zuzu-gamebook/scenes/dust-road.webp'))
+}
+const landAtmosphere = computed(
+  () => landScenery[game.currentLand.id] ?? landScenery.homestead!,
+)
 const dealKey = ref(0)
 const inspectorOpen = ref(false)
 const inspectId = ref<string | null>(null)

@@ -42,7 +42,9 @@ export function buildSheet(manifest) {
     lanes.length !== 4 ||
     !Array.isArray(clips)
   ) {
-    throw new Error('Expected exactly four scenes, four lanes and a clips array.')
+    throw new Error(
+      'Expected exactly four scenes, four lanes and a clips array.',
+    )
   }
   const sceneIds = new Set(scenes.map((scene) => scene.id))
   const laneIds = new Set(lanes.map((lane) => lane.id))
@@ -73,8 +75,7 @@ export function buildSheet(manifest) {
       const cells = lanes
         .map((lane) => {
           const clip = byCell.get(`${scene.id}/${lane.id}`)
-          if (!clip?.file)
-            return '<td><p class="missing">Not rendered</p></td>'
+          if (!clip?.file) return '<td><p class="missing">Not rendered</p></td>'
           const meta = [
             clip.jobId ? `ArtJob ${clip.jobId}` : 'ArtJob not recorded',
             clip.model || lane.id,

@@ -66,7 +66,8 @@ for (const s of STAGES)
     assert.ok(line.length <= 34, `stage ${s.stage}: "${line}" fits the page`)
   }
 
-type Run = ReturnType<typeof create> & {
+type Run = Omit<ReturnType<typeof create>, 'lives'> & {
+  lives: number
   x: number
   y: number
   vy: number

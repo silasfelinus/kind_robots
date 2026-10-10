@@ -119,7 +119,9 @@ assert.ok(good.flags.includes('coyote-kindness'))
 assert.ok(!good.items.includes('water'))
 assert.equal(initial.items.includes('water'), true, 'transitions are immutable')
 
-const coyote = takeChoice(good, 'defend')
+const ground = takeChoice(good, 'defend')
+assert.equal(ground.sceneId, 'a1-terrain', 'Act I splices the fight ground in')
+const coyote = takeChoice(ground, 'open')
 assert.equal(coyote.sceneId, 'crocodile')
 assert.equal(coyote.battle?.hp, 8)
 assert.equal(
@@ -232,7 +234,8 @@ const hurt = takeChoice(
   { ...startRun(9), sceneId: 'canyon-road', health: 1 },
   'long',
 )
-assert.equal(hurt.sceneId, 'bone-river')
+assert.equal(hurt.sceneId, 'a4-canyon-floor')
+assert.ok(hurt.health >= 1, 'section damage never kills')
 const fall = { ...startRun(9), sceneId: 'bridge-fall', health: 2 }
 assert.ok(fall.health >= 1)
 

@@ -1424,14 +1424,20 @@ function assemble(base: Scene[], acts: Act[]): Scene[] {
       const to = reroute.get(key)
       if (to) {
         // A checked choice routes by success/failure, so a bare reroute of one would silently do nothing.
-        if (choice.check) throw new Error('Reroute a checked choice via #success or #failure: ' + key)
+        if (choice.check)
+          throw new Error(
+            'Reroute a checked choice via #success or #failure: ' + key,
+          )
         used.add(key)
         next = { ...next, to }
       }
       for (const branch of ['success', 'failure'] as const) {
         const target = reroute.get(key + '#' + branch)
         if (!target) continue
-        if (!next.check) throw new Error('Rerouting a check branch on an unchecked choice: ' + key)
+        if (!next.check)
+          throw new Error(
+            'Rerouting a check branch on an unchecked choice: ' + key,
+          )
         used.add(key + '#' + branch)
         next = { ...next, check: { ...next.check, [branch]: target } }
       }

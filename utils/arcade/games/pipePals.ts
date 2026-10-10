@@ -9,7 +9,30 @@
 // and right edges wrap around. A jumps.
 
 import { everyNthLevel, levelCurve } from '../curve'
-import { drawText } from '../font'
+import { drawText, measureText } from '../font'
+import {
+  INK,
+  RAMPS,
+  Sparkles,
+  backdropRng,
+  bandedGradient,
+  bevel,
+  cachedLayer,
+  drawCloud,
+  drawSprite,
+  drawStars,
+  dropShadow,
+  gauge,
+  glow,
+  hudPanel,
+  mix,
+  pixelSprite,
+  rgba,
+  shadedOrb,
+  starField,
+  vignette,
+} from '../snes'
+import type { PixelSprite, Ramp } from '../snes'
 import type {
   ArcadeGameInstance,
   ArcadeGameModule,
@@ -111,6 +134,391 @@ function segmentUnder(
   return null
 }
 
+// --- 16-bit art (utils/arcade/snes.ts) -------------------------------------------
+
+/** The bonus round's full length, for the HUD timer gauge (startPhase sets it). */
+const BONUS_FULL = 60 * 20
+/** Where the city stands: the bottom floor's underside. */
+const GROUND_Y = 310 + THICK
+const MOON = { x: 372, y: 50, r: 12 }
+
+const SKY_STOPS = [
+  RAMPS.night[0],
+  RAMPS.night[1],
+  RAMPS.night[2],
+  mix(RAMPS.night[3], RAMPS.purple[1], 0.5),
+  mix(RAMPS.purple[1], RAMPS.pink[1], 0.55),
+]
+const CITY_FAR = mix(RAMPS.night[2], RAMPS.purple[1], 0.45)
+const CITY_FAR_RIM = mix(CITY_FAR, RAMPS.purple[3], 0.35)
+const CITY_NEAR = mix(RAMPS.night[1], RAMPS.night[0], 0.4)
+const CITY_NEAR_RIM = mix(CITY_NEAR, RAMPS.purple[2], 0.35)
+/** The back plumbing: steel sunk into the dusk, so it reads as scenery, not as floor. */
+const PIPE_DARK = RAMPS.steel.map((c) =>
+  mix(c, RAMPS.night[1], 0.72),
+) as unknown as Ramp
+const DUSK_CLOUD: Ramp = [
+  RAMPS.night[0],
+  RAMPS.night[2],
+  RAMPS.night[3],
+  mix(RAMPS.purple[1], RAMPS.pink[1], 0.4),
+  mix(RAMPS.purple[2], RAMPS.pink[2], 0.3),
+]
+const CLOUDS = [
+  { x: 40, y: 40, size: 11, speed: 0.05 },
+  { x: 300, y: 74, size: 8, speed: 0.08 },
+]
+const STARS = starField(17, 64, W, 190).filter(
+  (s) => Math.hypot(s.x - MOON.x, s.y - MOON.y) > MOON.r + 6,
+)
+
+/** Which ramp step a line across a round pipe takes: lit high on the curve, shadowed below. */
+function pipeShade(f: number): 0 | 1 | 2 | 3 | 4 {
+  if (f < 0.1) return 1
+  if (f < 0.22) return 3
+  if (f < 0.36) return 4
+  if (f < 0.5) return 3
+  if (f < 0.78) return 2
+  if (f < 0.92) return 1
+  return 0
+}
+
+/**
+ * A straight pipe run shaded across its girth: a horizontal run ('rows') shades top to bottom,
+ * a vertical one ('cols') left to right, with an ink outline unless `outline` is null.
+ */
+function pipeRun(
+  g: CanvasRenderingContext2D,
+  x: number,
+  y: number,
+  w: number,
+  h: number,
+  ramp: Ramp,
+  across: 'rows' | 'cols',
+  outline: string | null = INK,
+) {
+  if (outline) {
+    g.fillStyle = outline
+    g.fillRect(x - 1, y - 1, w + 2, h + 2)
+  }
+  const n = across === 'rows' ? h : w
+  for (let i = 0; i < n; i++) {
+    g.fillStyle = ramp[pipeShade((i + 0.5) / n)]
+    if (across === 'rows') g.fillRect(x, y + i, w, 1)
+    else g.fillRect(x + i, y, 1, h)
+  }
+}
+
+/** A side pipe sticking out of the wall: a shaded run, a chrome clamp and a lipped mouth. */
+function wallPipe(
+  g: CanvasRenderingContext2D,
+  mouthX: number,
+  mouthTop: number,
+  mouthH: number,
+  bodyH: number,
+  facing: 1 | -1,
+) {
+  const lipW = 10
+  const bodyTop = mouthTop + Math.round((mouthH - bodyH) / 2)
+  const lipX = facing > 0 ? mouthX - lipW : mouthX
+  const bodyX = facing > 0 ? 0 : mouthX + lipW - 2
+  const bodyW = facing > 0 ? mouthX - lipW + 2 : W - bodyX
+  pipeRun(g, bodyX, bodyTop, bodyW, bodyH, RAMPS.leaf, 'rows')
+  // A chrome clamp bolted round the run.
+  const clampX = facing > 0 ? 5 : W - 9
+  pipeRun(g, clampX, bodyTop - 2, 4, bodyH + 4, RAMPS.steel, 'rows')
+  g.fillStyle = RAMPS.steel[4]
+  g.fillRect(clampX + 1, bodyTop, 1, 1)
+  g.fillRect(clampX + 1, bodyTop + bodyH - 2, 1, 1)
+  // The lip, its lit face toward the room and the dark throat inside.
+  pipeRun(g, lipX, mouthTop, lipW, mouthH, RAMPS.leaf, 'rows')
+  const face = facing > 0 ? lipX + lipW - 1 : lipX
+  g.fillStyle = INK
+  g.fillRect(face - (facing > 0 ? 3 : -1), mouthTop + 3, 3, mouthH - 6)
+  g.fillStyle = RAMPS.leaf[0]
+  g.fillRect(face - (facing > 0 ? 4 : -4), mouthTop + 3, 1, mouthH - 6)
+  g.fillStyle = RAMPS.leaf[4]
+  g.fillRect(facing > 0 ? lipX : lipX + lipW - 1, mouthTop + 2, 1, mouthH - 5)
+}
+
+const BRICK_ROWS = [
+  'HHHHHHHH',
+  'LBBBBBBD',
+  'BBBBBBSD',
+  'SSSSSSSD',
+  'BBDLBBBB',
+  'BBDBBBBB',
+  'SSDSSSSS',
+  'DDDDDDDD',
+]
+function brickTile(ramp: Ramp): PixelSprite {
+  return pixelSprite(
+    BRICK_ROWS,
+    { D: ramp[0], S: ramp[1], B: ramp[2], L: ramp[3], H: ramp[4] },
+    { outline: null },
+  )
+}
+const LEDGE_TILE = brickTile(RAMPS.teal)
+const GROUND_TILE = brickTile(RAMPS.purple)
+
+// The two pals from the Kind Robots logo: the teal cat-eared android (the player) and the
+// pink-haired android girl (she keeps the spare lives in the HUD).
+const TEAL_PALETTE = {
+  h: RAMPS.teal[4],
+  L: RAMPS.teal[3],
+  T: RAMPS.teal[2],
+  t: RAMPS.teal[1],
+  d: RAMPS.teal[0],
+  y: RAMPS.gold[3],
+  Y: RAMPS.gold[2],
+  g: RAMPS.gold[4],
+  p: RAMPS.pink[3],
+  k: INK,
+  w: '#ffffff',
+}
+const TEAL_HEAD = [
+  '..h......h..',
+  '.hL.....hLt.',
+  '.hLTTTTTTLt.',
+  '.LhhLLLLLLt.',
+  'yhLLLLLLLLTy',
+  'YLLLwkLLLwkY',
+  'YLLLkkLLLkkY',
+  '.TLLLLLppLt.',
+  '..tTTTTTTt..',
+]
+const TEAL_BODY = [
+  '...dTTTTd...',
+  '..hLLLLLLTt.',
+  '.hLLgLLLLTTt',
+  '.TLLLLLLLTtt',
+  '.tTTTTTTTTtd',
+  '..dttttttd..',
+]
+const pal = (legs: string[]) =>
+  pixelSprite([...TEAL_HEAD, ...TEAL_BODY, ...legs], TEAL_PALETTE)
+const PLAYER_SPRITES = {
+  stand: pal(['...TL..TL...', '...Tt..Tt...', '...TTt..TTt.']),
+  run: [
+    pal(['..TL....TL..', '.TL......Tt.', 'Tt........TT']),
+    pal(['....TLT.....', '....Tt.Tt...', '...TTt..t...']),
+  ],
+  jump: pal(['...TL.TL....', '..TL...Tt...', '..T.....TTt.']),
+} as const
+const TEAL_FACE = pixelSprite(TEAL_HEAD, TEAL_PALETTE)
+const PINK_FACE = pixelSprite(
+  [
+    '...pPPPPp...',
+    '..pHhhPPPp..',
+    '.pHhPPPPPPp.',
+    '.PHPPPPPPPPp',
+    'PPccccccPPPp',
+    'PPcwkccwkcPp',
+    'PpckkcckkcPp',
+    'pPcqcccqcCPd',
+    'pd.CCCCCC.dp',
+    'd..........d',
+  ],
+  {
+    h: RAMPS.pink[4],
+    H: RAMPS.pink[3],
+    P: RAMPS.pink[2],
+    p: RAMPS.pink[1],
+    d: RAMPS.pink[0],
+    c: RAMPS.cream[3],
+    C: RAMPS.cream[2],
+    q: RAMPS.pink[3],
+    k: INK,
+    w: '#ffffff',
+  },
+)
+
+// Grumpy critters: a shell crawler and a clawed crab bot, two walk frames each, recoloured for
+// rage and for the white flash before a flipped critter rights itself.
+const FLASH: Ramp = ['#6b7a99', '#b4c0d8', '#e6eef8', '#ffffff', '#ffffff']
+const CRAWLER_BODY = [
+  '....HHLLL.......',
+  '..HHLLLLLLB.....',
+  '.HLLSLLLSLLB.kk.',
+  '.LLSSSLSSSLBcccc',
+  'HLLLSLLLSLLBcwkc',
+  'LLLLLLLLLLBBcccC',
+  'SBBBBBBBBBBS.CC.',
+  '.DSSSSSSSSD.....',
+]
+const CRAWLER_LEGS = ['.CC..CC..CC.....', '..CC..CC..CC....'] as const
+const CRAB_BODY = [
+  '.HH..........HH.',
+  'HLLH..w..w..HLLS',
+  'LLLS..k..k..SLLS',
+  '.LS...B..B...SS.',
+  '..S.HHLLLLLL.S..',
+  '...HLLLLLLLLB...',
+  '..HLLSLLLLSLLB..',
+  '..LLLLLLLLLLBB..',
+  '..SBBBBBBBBBBS..',
+  '...DDSSSSSSDD...',
+]
+const CRAB_LEGS = ['..S.S.S..S.S.S..', '.S.S.S....S.S.S.'] as const
+function critterFrames(
+  body: readonly string[],
+  legs: readonly [string, string],
+  ramp: Ramp,
+): readonly [PixelSprite, PixelSprite] {
+  const palette = {
+    D: ramp[0],
+    S: ramp[1],
+    B: ramp[2],
+    L: ramp[3],
+    H: ramp[4],
+    c: RAMPS.cream[3],
+    C: RAMPS.cream[2],
+    k: INK,
+    w: '#ffffff',
+  }
+  return [
+    pixelSprite([...body, legs[0]], palette),
+    pixelSprite([...body, legs[1]], palette),
+  ]
+}
+const CRAWLER_SPRITES = {
+  calm: critterFrames(CRAWLER_BODY, CRAWLER_LEGS, RAMPS.leaf),
+  rage: critterFrames(CRAWLER_BODY, CRAWLER_LEGS, RAMPS.pink),
+  flash: critterFrames(CRAWLER_BODY, CRAWLER_LEGS, FLASH),
+}
+const CRAB_SPRITES = {
+  calm: critterFrames(CRAB_BODY, CRAB_LEGS, RAMPS.rust),
+  angry: critterFrames(CRAB_BODY, CRAB_LEGS, RAMPS.ember),
+  flash: critterFrames(CRAB_BODY, CRAB_LEGS, FLASH),
+}
+
+const COIN_PALETTE = {
+  w: '#ffffff',
+  h: RAMPS.gold[4],
+  Y: RAMPS.gold[3],
+  g: RAMPS.gold[2],
+  d: RAMPS.gold[1],
+}
+/** A spinning coin: face, three-quarter, edge (the three-quarter frame mirrors on the way back). */
+const COIN_SPRITES = [
+  pixelSprite(
+    [
+      '..hYYg..',
+      '.hYYYYg.',
+      'hYYwYYYg',
+      'hYYwYYgd',
+      'hYYwYYgd',
+      'hYYwYYgd',
+      'hYYwYYgd',
+      '.hYYYgd.',
+      '..ggdd..',
+    ],
+    COIN_PALETTE,
+  ),
+  pixelSprite(
+    [
+      '.hYg.',
+      'hYwYg',
+      'hYwgd',
+      'hYwgd',
+      'hYwgd',
+      'hYwgd',
+      'hYwgd',
+      'hYYgd',
+      '.ggd.',
+    ],
+    COIN_PALETTE,
+  ),
+  pixelSprite(
+    ['hd', 'Yd', 'Yd', 'Yd', 'Yd', 'Yd', 'Yd', 'Yd', 'gd'],
+    COIN_PALETTE,
+  ),
+] as const
+
+/** The far city: two rows of towers with lit windows, then the dark plumbing in front. */
+function paintCity(k: CanvasRenderingContext2D) {
+  const rand = backdropRng(41)
+  const towers = (
+    tall: number,
+    least: number,
+    widest: number,
+    fill: string,
+    rim: string,
+    windows: (x: number, w: number, top: number) => void,
+  ) => {
+    for (let x = -6; x < W;) {
+      const w = 12 + Math.floor(rand() * (widest - 12))
+      const h = least + Math.floor(rand() * (tall - least))
+      const top = GROUND_Y - h
+      k.fillStyle = fill
+      k.fillRect(x, top, w, h)
+      k.fillStyle = rim
+      k.fillRect(x, top, w, 1)
+      k.fillRect(x, top, 1, h)
+      if (rand() < 0.35) {
+        k.fillRect(x + Math.floor(w / 2), top - 6, 1, 6)
+      }
+      windows(x, w, top)
+      x += w + 1 + Math.floor(rand() * 5)
+    }
+  }
+  towers(130, 56, 30, CITY_FAR, CITY_FAR_RIM, (x, w, top) => {
+    k.fillStyle = rgba(RAMPS.gold[3], 0.32)
+    for (let wy = top + 4; wy < GROUND_Y - 4; wy += 5)
+      for (let wx = x + 2; wx < x + w - 2; wx += 3)
+        if (rand() < 0.28) k.fillRect(wx, wy, 1, 2)
+  })
+  const neon = [RAMPS.gold[2], RAMPS.teal[3], RAMPS.pink[3]] as const
+  towers(66, 24, 44, CITY_NEAR, CITY_NEAR_RIM, (x, w, top) => {
+    for (let wy = top + 5; wy < GROUND_Y - 6; wy += 7)
+      for (let wx = x + 3; wx < x + w - 4; wx += 6)
+        if (rand() < 0.22) {
+          k.fillStyle = neon[Math.floor(rand() * neon.length)]!
+          k.fillRect(wx, wy, 2, 2)
+        }
+  })
+  // Back plumbing: risers and a header pipe with a valve wheel, sunk into the dusk.
+  for (const x of [92, 346]) {
+    pipeRun(k, x, 128, 10, GROUND_Y - 128, PIPE_DARK, 'cols')
+    pipeRun(k, x - 2, 124, 14, 6, PIPE_DARK, 'cols')
+  }
+  pipeRun(k, 102, 198, 244, 9, PIPE_DARK, 'rows')
+  pipeRun(k, W / 2 - 5, 207, 10, GROUND_Y - 207, PIPE_DARK, 'cols')
+  for (const x of [92, 219, 346]) bevel(k, x - 2, 195, 14, 15, PIPE_DARK)
+  shadedOrb(k, 160, 202, 7, PIPE_DARK)
+  k.fillStyle = PIPE_DARK[0]
+  k.fillRect(153, 201, 15, 2)
+  k.fillRect(159, 195, 2, 15)
+  // The ground under the bottom floor.
+  bandedGradient(
+    k,
+    0,
+    GROUND_Y,
+    W,
+    H - GROUND_Y,
+    [RAMPS.night[2], RAMPS.night[1], RAMPS.night[0]],
+    3,
+  )
+}
+
+/** One floor segment's bricks, clipped to its solid span. */
+function brickRun(
+  g: CanvasRenderingContext2D,
+  s: Segment,
+  from: number,
+  to: number,
+  lift: number,
+) {
+  const tile = s.y === 310 ? GROUND_TILE : LEDGE_TILE
+  g.save()
+  g.beginPath()
+  g.rect(s.x0, s.y - lift - 1, s.x1 - s.x0, THICK + 2)
+  g.clip()
+  for (let x = from; x < to; x += 8)
+    drawSprite(g, tile, x, s.y - lift, { anchor: 'topleft' })
+  g.restore()
+}
+
 class PipePals implements ArcadeGameInstance {
   score = 0
   level = 0
@@ -150,6 +558,9 @@ class PipePals implements ArcadeGameInstance {
   private pilotClimb: { dir: number; targetY: number } | null = null
   private nextExtra = EXTRA_LIFE_AT
   private banner: { text: string; sub?: string; ticks: number } | null = null
+  // Cosmetic sparkles roll their own dice, so the game's seeded rng is untouched.
+  private fx = new Sparkles()
+  private fxRng = backdropRng(53)
 
   constructor(options: ArcadeGameOptions) {
     this.rng = options.rng
@@ -264,6 +675,7 @@ class PipePals implements ArcadeGameInstance {
       this.phaseDelay = 120
       this.sound.play('level')
       this.banner = { text: 'PIPES CLEAR!', ticks: 110 }
+      this.fx.burst(W / 2, 150, this.fxRng, { count: 20, speed: 2.4 })
     }
   }
 
@@ -337,6 +749,11 @@ class PipePals implements ArcadeGameInstance {
   private bumpAt(x: number, floorY: number) {
     this.bump = { x, y: floorY, ticks: BUMP_TICKS }
     this.sound.play('pop')
+    this.fx.burst(x, floorY + THICK, this.fxRng, {
+      count: 4,
+      speed: 0.9,
+      colours: [RAMPS.teal[4], RAMPS.steel[4]],
+    })
     for (const c of this.critters) {
       if (c.kicked || !c.onGround) continue
       if (Math.abs(c.y - floorY) > 2 || Math.abs(c.x - x) > BUMP_REACH) continue
@@ -351,6 +768,10 @@ class PipePals implements ArcadeGameInstance {
         coin.life = 0
         this.addScore(800, coin.x, coin.y)
         this.sound.play('pickup')
+        this.fx.burst(coin.x, coin.y, this.fxRng, {
+          count: 8,
+          colours: [RAMPS.gold[4], RAMPS.gold[3], '#ffffff'],
+        })
       }
     }
   }
@@ -379,6 +800,16 @@ class PipePals implements ArcadeGameInstance {
     this.kindBlockUses--
     this.kindShake = 24
     this.sound.play('boom')
+    this.fx.burst(
+      KIND_BLOCK.x + KIND_BLOCK.w / 2,
+      KIND_BLOCK.y + KIND_BLOCK.h / 2,
+      this.fxRng,
+      {
+        count: 16,
+        speed: 2.2,
+        colours: [RAMPS.pink[3], RAMPS.pink[4], RAMPS.gold[4]],
+      },
+    )
     for (const c of this.critters) {
       if (!c.kicked && c.onGround) this.hitCritter(c)
     }
@@ -454,7 +885,10 @@ class PipePals implements ArcadeGameInstance {
     this.collectCoins()
     if (!this.coins.length || this.bonusRound <= 0) {
       const perfect = !this.coins.length
-      if (perfect) this.addScore(5000, W / 2, 140)
+      if (perfect) {
+        this.addScore(5000, W / 2, 140)
+        this.fx.burst(W / 2, 150, this.fxRng, { count: 24, speed: 2.6 })
+      }
       this.bonusRound = 0
       this.coins = []
       this.phaseDelay = 100
@@ -470,6 +904,10 @@ class PipePals implements ArcadeGameInstance {
         coin.life = 0
         this.addScore(800, coin.x, coin.y)
         this.sound.play('pickup')
+        this.fx.burst(coin.x, coin.y, this.fxRng, {
+          count: 8,
+          colours: [RAMPS.gold[4], RAMPS.gold[3], '#ffffff'],
+        })
       }
     }
     this.coins = this.coins.filter((c) => c.life > 0)
@@ -492,6 +930,7 @@ class PipePals implements ArcadeGameInstance {
         this.addScore(800, c.x, c.y - 14)
         this.sound.play('extra')
         this.burst(c.x, c.y - 6, c.kind === 'crab' ? '#f87171' : '#a3e635')
+        this.fx.burst(c.x, c.y - 6, this.fxRng, { count: 12 })
         // A kicked critter sometimes leaves a coin behind in the pipes.
         if (this.rng() < 0.35) {
           const pipe = TOP_PIPES[Math.floor(this.rng() * 2)]!
@@ -540,6 +979,9 @@ class PipePals implements ArcadeGameInstance {
       this.nextExtra += EXTRA_LIFE_AT
       this.sound.play('extra')
       this.banner = { text: 'EXTRA PAL!', ticks: 90 }
+      this.fx.burst(this.player.x, this.player.y - 10, this.fxRng, {
+        count: 14,
+      })
     }
   }
 
@@ -559,6 +1001,7 @@ class PipePals implements ArcadeGameInstance {
   }
 
   private updateEffects() {
+    this.fx.update()
     for (const s of this.sparks) {
       s.x += s.vx
       s.y += s.vy
@@ -712,213 +1155,273 @@ class PipePals implements ArcadeGameInstance {
     const shake = this.kindShake > 0 ? Math.sin(this.tick * 3) * 2 : 0
     g.save()
     g.translate(0, shake)
-    g.fillStyle = '#0b0620'
+    g.fillStyle = RAMPS.night[0]
     g.fillRect(0, -4, W, H + 8)
-    // Brick wall backdrop.
-    g.fillStyle = '#1e1b4b'
-    for (let y = 20; y < H; y += 16) {
-      for (let x = (y / 16) % 2 ? -12 : 0; x < W; x += 24)
-        g.fillRect(x + 1, y + 1, 22, 14)
-    }
-    this.renderPipes(g)
+    this.renderBackdrop(g)
     this.renderFloors(g)
     this.renderKindBlock(g)
+    const visible =
+      this.alive && !(this.invuln > 0 && Math.floor(this.invuln / 6) % 2 === 0)
+    this.renderShadows(g, visible)
     for (const coin of this.coins) this.renderCoin(g, coin)
     for (const c of this.critters) this.renderCritter(g, c)
-    if (
-      this.alive &&
-      !(this.invuln > 0 && Math.floor(this.invuln / 6) % 2 === 0)
-    ) {
-      this.renderPlayer(g)
-    }
+    // The pipes stand in front, so critters crawl in and out of them.
+    cachedLayer(g, 'pipe-pals-pipes', W, H, (k) => this.paintPipes(k))
+    if (visible) this.renderPlayer(g)
     for (const s of this.sparks) {
+      const x = Math.round(s.x)
+      const y = Math.round(s.y)
       g.globalAlpha = Math.max(0, s.life / 30)
+      g.fillStyle = INK
+      g.fillRect(x - 1, y - 1, 3, 3)
       g.fillStyle = s.color
-      g.fillRect(s.x - 1, s.y - 1, 2, 2)
+      g.fillRect(x - 1, y - 1, 2, 2)
     }
     g.globalAlpha = 1
+    this.fx.render(g)
     for (const f of this.floaters) {
-      drawText(g, f.text, f.x, f.y, { align: 'center', color: '#fde68a' })
+      drawText(g, f.text, f.x, f.y, {
+        align: 'center',
+        color: RAMPS.gold[3],
+        outline: INK,
+      })
     }
     g.restore()
+    vignette(g, W, H, 0.3)
     this.renderHud(g)
   }
 
-  private renderPipes(g: CanvasRenderingContext2D) {
-    g.fillStyle = '#16a34a'
-    for (const pipe of TOP_PIPES) {
-      const x = pipe.dir > 0 ? 0 : W - 32
-      g.fillRect(x, pipe.y - 22, 32, 18)
-      g.fillStyle = '#4ade80'
-      g.fillRect(pipe.dir > 0 ? 28 : W - 32, pipe.y - 26, 4, 26)
-      g.fillStyle = '#16a34a'
+  private renderBackdrop(g: CanvasRenderingContext2D) {
+    // HDMA dusk sky and the moon, painted once.
+    cachedLayer(g, 'pipe-pals-sky', W, H, (k) => {
+      bandedGradient(k, 0, 0, W, GROUND_Y, SKY_STOPS, 4)
+      glow(k, MOON.x, MOON.y, MOON.r * 3.5, RAMPS.cream[3], 0.3)
+      shadedOrb(k, MOON.x, MOON.y, MOON.r, RAMPS.cream, { outline: null })
+      k.fillStyle = RAMPS.cream[1]
+      k.fillRect(MOON.x + 2, MOON.y + 3, 3, 2)
+      k.fillRect(MOON.x - 5, MOON.y + 5, 2, 2)
+      k.fillRect(MOON.x + 5, MOON.y - 3, 2, 1)
+    })
+    drawStars(g, STARS, this.tick, RAMPS.purple)
+    // Smog clouds drifting past at their own speeds: the parallax layer.
+    g.save()
+    g.globalAlpha = 0.35
+    for (const c of CLOUDS) {
+      const x = ((c.x + this.tick * c.speed) % (W + 80)) - 40
+      drawCloud(g, Math.round(x), c.y, c.size, DUSK_CLOUD)
     }
-    // Bottom pipes.
-    g.fillRect(0, 286, 22, 24)
-    g.fillRect(W - 22, 286, 22, 24)
-    g.fillStyle = '#4ade80'
-    g.fillRect(18, 282, 6, 28)
-    g.fillRect(W - 24, 282, 6, 28)
+    g.restore()
+    // The city skyline and the back plumbing, painted once.
+    cachedLayer(g, 'pipe-pals-city', W, H, paintCity)
+  }
+
+  private paintPipes(k: CanvasRenderingContext2D) {
+    // Top pipes: critters drop out of these mouths.
+    wallPipe(k, 34, 61, 28, 18, 1)
+    wallPipe(k, W - 34, 61, 28, 18, -1)
+    // Bottom pipes, sitting on the floor: critters leave through these.
+    wallPipe(k, 26, 284, 26, 18, 1)
+    wallPipe(k, W - 26, 284, 26, 18, -1)
   }
 
   private renderFloors(g: CanvasRenderingContext2D) {
+    // Bevelled bricks at rest, painted once; a bumped stretch is redrawn lifted on top.
+    cachedLayer(g, 'pipe-pals-floors', W, H, (k) => {
+      for (const s of PIPE_LEVELS) {
+        k.fillStyle = INK
+        k.fillRect(s.x0 - 1, s.y - 1, s.x1 - s.x0 + 2, THICK + 2)
+        brickRun(k, s, s.x0, s.x1, 0)
+        // Lit and shadowed end faces.
+        const ramp = s.y === 310 ? RAMPS.purple : RAMPS.teal
+        k.fillStyle = ramp[3]
+        k.fillRect(s.x0, s.y + 1, 1, THICK - 2)
+        k.fillStyle = ramp[0]
+        k.fillRect(s.x1 - 1, s.y + 1, 1, THICK - 1)
+      }
+    })
+    const bump = this.bump
+    if (!bump) return
+    const lift = Math.round(Math.sin((bump.ticks / BUMP_TICKS) * Math.PI) * 5)
     for (const s of PIPE_LEVELS) {
+      if (s.y !== bump.y) continue
       for (let x = s.x0; x < s.x1; x += 8) {
-        let lift = 0
-        if (
-          this.bump &&
-          this.bump.y === s.y &&
-          Math.abs(x + 4 - this.bump.x) < BUMP_REACH
-        ) {
-          lift = Math.sin((this.bump.ticks / BUMP_TICKS) * Math.PI) * 5
-        }
-        g.fillStyle = s.y === 310 ? '#7c3aed' : '#2dd4bf'
-        g.fillRect(x, s.y - lift, 8, THICK)
-        g.fillStyle = s.y === 310 ? '#a78bfa' : '#99f6e4'
-        g.fillRect(x, s.y - lift, 8, 2)
+        if (Math.abs(x + 4 - bump.x) >= BUMP_REACH || lift <= 0) continue
+        g.fillStyle = INK
+        g.fillRect(Math.max(x, s.x0), s.y, Math.min(8, s.x1 - x), THICK)
+        brickRun(g, s, x, x + 8, lift)
       }
     }
+    glow(
+      g,
+      bump.x,
+      bump.y + THICK,
+      16,
+      RAMPS.gold[4],
+      (0.5 * bump.ticks) / BUMP_TICKS,
+    )
   }
 
   private renderKindBlock(g: CanvasRenderingContext2D) {
     if (this.kindBlockUses <= 0) return
     const kb = KIND_BLOCK
     const squash = this.kindShake > 0 ? 3 : 0
-    g.fillStyle = '#ec4899'
-    g.fillRect(kb.x, kb.y + squash, kb.w, kb.h - squash)
-    g.fillStyle = '#fbcfe8'
-    g.fillRect(kb.x + 2, kb.y + 2 + squash, kb.w - 4, 2)
-    drawText(g, '*', kb.x + kb.w / 2, kb.y + 5 + squash, {
+    glow(
+      g,
+      kb.x + kb.w / 2,
+      kb.y + kb.h / 2,
+      28,
+      RAMPS.pink[3],
+      0.28 + 0.1 * Math.sin(this.tick / 10),
+    )
+    bevel(g, kb.x, kb.y + squash, kb.w, kb.h - squash, RAMPS.pink, {
+      depth: 2,
+    })
+    drawText(g, '*', kb.x + kb.w / 2, kb.y + 3 + squash, {
       align: 'center',
       color: '#ffffff',
+      outline: INK,
     })
+    // One gold stud per use left.
     for (let i = 0; i < this.kindBlockUses; i++) {
-      g.fillStyle = '#fde68a'
-      g.fillRect(kb.x + 5 + i * 6, kb.y + kb.h - 3, 3, 2)
+      const x = kb.x + 5 + i * 6
+      const y = kb.y + kb.h - 3
+      g.fillStyle = INK
+      g.fillRect(x - 1, y - 1, 5, 3)
+      g.fillStyle = RAMPS.gold[3]
+      g.fillRect(x, y, 3, 1)
+      g.fillStyle = RAMPS.gold[4]
+      g.fillRect(x, y, 1, 1)
+    }
+  }
+
+  private renderShadows(g: CanvasRenderingContext2D, playerVisible: boolean) {
+    const p = this.player
+    if (playerVisible && p.onGround) dropShadow(g, p.x, p.y, 7, 1.5, 0.4)
+    for (const c of this.critters) {
+      if (c.onGround && !c.kicked) dropShadow(g, c.x, c.y, 8, 1.5, 0.35)
     }
   }
 
   private renderCoin(g: CanvasRenderingContext2D, coin: Coin) {
-    const w = 3 + Math.abs(Math.sin(this.tick / 6)) * 3
-    g.fillStyle = '#facc15'
-    g.beginPath()
-    g.ellipse(coin.x, coin.y, w, 6, 0, 0, Math.PI * 2)
-    g.fill()
-    g.fillStyle = '#fef08a'
-    g.fillRect(coin.x - 1, coin.y - 4, 2, 8)
+    const spin = Math.floor(this.tick / 6) % 4
+    const sprite =
+      spin === 0
+        ? COIN_SPRITES[0]
+        : spin === 2
+          ? COIN_SPRITES[2]
+          : COIN_SPRITES[1]
+    glow(g, coin.x, coin.y, 13, RAMPS.gold[3], 0.4)
+    drawSprite(g, sprite, coin.x, coin.y, { flipX: spin === 3 })
+    // A glint that hops between coins.
+    const twinkle = (this.tick + Math.round(coin.x) * 3) % 48
+    if (twinkle < 8) {
+      const arm = twinkle < 4 ? 2 : 1
+      const x = Math.round(coin.x) + 3
+      const y = Math.round(coin.y) - 4
+      g.fillStyle = '#ffffff'
+      g.fillRect(x - arm, y, arm * 2 + 1, 1)
+      g.fillRect(x, y - arm, 1, arm * 2 + 1)
+    }
   }
 
   private renderPlayer(g: CanvasRenderingContext2D) {
     const p = this.player
-    const step = p.onGround && Math.abs(p.vx) > 0.3 ? Math.floor(p.run) % 2 : 0
-    const x = Math.round(p.x)
-    const y = Math.round(p.y)
-    // Legs, body, head, cat ears, headphones.
-    g.fillStyle = '#0f766e'
-    g.fillRect(x - 4 + step, y - 5, 3, 5)
-    g.fillRect(x + 1 - step, y - 5, 3, 5)
-    g.fillStyle = '#2dd4bf'
-    g.fillRect(x - 5, y - 11, 10, 7)
-    g.fillStyle = '#5eead4'
-    g.beginPath()
-    g.arc(x, y - 14, 4, 0, Math.PI * 2)
-    g.fill()
-    g.fillStyle = '#14b8a6'
-    g.beginPath()
-    g.moveTo(x - 4, y - 16)
-    g.lineTo(x - 3, y - 21)
-    g.lineTo(x - 1, y - 17)
-    g.moveTo(x + 4, y - 16)
-    g.lineTo(x + 3, y - 21)
-    g.lineTo(x + 1, y - 17)
-    g.fill()
-    g.fillStyle = '#facc15'
-    g.fillRect(x - 5, y - 15, 2, 3)
-    g.fillRect(x + 3, y - 15, 2, 3)
-    g.fillStyle = '#1e1b4b'
-    g.fillRect(x + p.face * 1.5 - 0.5, y - 15, 1.5, 1.5)
+    const sprite = !p.onGround
+      ? PLAYER_SPRITES.jump
+      : Math.abs(p.vx) > 0.3
+        ? PLAYER_SPRITES.run[Math.floor(p.run / 1.6) % 2]!
+        : PLAYER_SPRITES.stand
+    drawSprite(g, sprite, p.x, p.y + 1, { anchor: 'feet', flipX: p.face < 0 })
   }
 
   private renderCritter(g: CanvasRenderingContext2D, c: Critter) {
-    const x = Math.round(c.x)
-    const y = Math.round(c.y)
     const upside = c.flipped > 0 || c.kicked
     const warning =
       c.flipped > 0 && c.flipped < 120 && Math.floor(c.flipped / 8) % 2 === 0
-    const shell =
+    const set =
       c.kind === 'crab'
-        ? c.angry
-          ? '#ef4444'
-          : '#fb923c'
-        : c.rage > 0
-          ? '#f472b6'
-          : '#a3e635'
-    g.save()
-    g.translate(x, y - CRITTER_H / 2)
-    if (upside) g.scale(1, -1)
-    g.fillStyle = warning ? '#ffffff' : shell
-    g.beginPath()
-    g.ellipse(0, -1, CRITTER_W / 2, CRITTER_H / 2 - 1, 0, Math.PI, 0)
-    g.fill()
-    g.fillRect(-CRITTER_W / 2, -1, CRITTER_W, 4)
-    g.fillStyle = '#1e1b4b'
-    const legs = Math.floor(this.tick / 6) % 2
-    g.fillRect(-5 + legs, 3, 2, 3)
-    g.fillRect(3 - legs, 3, 2, 3)
-    if (c.kind === 'crab') {
-      g.fillStyle = shell
-      g.fillRect(-9, -3, 3, 3)
-      g.fillRect(6, -3, 3, 3)
+        ? warning
+          ? CRAB_SPRITES.flash
+          : c.angry
+            ? CRAB_SPRITES.angry
+            : CRAB_SPRITES.calm
+        : warning
+          ? CRAWLER_SPRITES.flash
+          : c.rage > 0
+            ? CRAWLER_SPRITES.rage
+            : CRAWLER_SPRITES.calm
+    // Flipped critters kick their legs in the air, twice as fast.
+    const frame = set[Math.floor(this.tick / (upside ? 3 : 6)) % 2]!
+    drawSprite(g, frame, c.x, c.y + 1, {
+      anchor: 'feet',
+      flipX: c.dir < 0,
+      flipY: upside,
+    })
+    if (c.flipped > 0 && !c.kicked) {
+      // Dizzy stars circling a flipped critter: kick it now.
+      for (let i = 0; i < 2; i++) {
+        const a = this.tick / 7 + i * Math.PI
+        const x = Math.round(c.x + Math.cos(a) * 8)
+        const y = Math.round(c.y - 15 + Math.sin(a) * 2)
+        g.fillStyle = INK
+        g.fillRect(x - 1, y - 1, 3, 3)
+        g.fillStyle = i ? RAMPS.gold[4] : RAMPS.teal[4]
+        g.fillRect(x, y, 1, 1)
+      }
     }
-    g.fillStyle = '#fef9c3'
-    g.fillRect(c.dir > 0 ? 2 : -4, -4, 2, 2)
-    g.restore()
   }
 
   private renderHud(g: CanvasRenderingContext2D) {
-    const shadow = '#1e1b4b'
-    drawText(g, String(this.score).padStart(6, '0'), 8, 4, {
+    hudPanel(g, 4, 3, 82, 20)
+    drawText(g, String(this.score).padStart(6, '0'), 10, 6, {
       scale: 2,
-      color: '#2dd4bf',
-      shadow,
+      color: RAMPS.teal[4],
+      shadow: INK,
     })
-    drawText(g, `HI ${Math.max(this.hiScore, this.score)}`, W / 2, 4, {
+    const hi = `HI ${Math.max(this.hiScore, this.score)}`
+    const hiW = measureText(hi, 2) + 14
+    hudPanel(g, Math.round(W / 2 - hiW / 2), 3, hiW, 20)
+    drawText(g, hi, W / 2, 6, {
       scale: 2,
       align: 'center',
-      color: '#fde68a',
-      shadow,
+      color: RAMPS.gold[3],
+      shadow: INK,
     })
-    for (let i = 0; i < Math.min(this.lives, 5); i++) {
-      drawText(g, '*', W - 14 - i * 14, 4, {
-        scale: 2,
-        color: '#2dd4bf',
-        shadow,
-      })
+    // Spare pals, teal and pink in turn.
+    const lives = Math.min(this.lives, 5)
+    if (lives > 0) {
+      hudPanel(g, W - 8 - lives * 16, 3, lives * 16 + 4, 20)
+      for (let i = 0; i < lives; i++) {
+        drawSprite(g, i % 2 ? PINK_FACE : TEAL_FACE, W - 14 - i * 16, 13)
+      }
     }
-    drawText(
-      g,
+    const label =
       this.bonusRound > 0
         ? `BONUS ${Math.ceil(this.bonusRound / 60)}`
-        : `PHASE ${this.level}`,
-      30,
-      H - 12,
-      {
-        color: '#c4b5fd',
-      },
-    )
+        : `PHASE ${this.level}`
+    hudPanel(g, 26, H - 16, measureText(label) + 14, 13)
+    drawText(g, label, 33, H - 13, {
+      color: RAMPS.purple[4],
+      outline: INK,
+    })
+    if (this.bonusRound > 0) {
+      hudPanel(g, W - 112, H - 16, 86, 13)
+      gauge(g, W - 106, H - 12, 74, 5, this.bonusRound / BONUS_FULL, RAMPS.gold)
+    }
     if (this.banner) {
       drawText(g, this.banner.text, W / 2, 140, {
         scale: 3,
         align: 'center',
         color: '#ffffff',
-        shadow: '#15803d',
+        outline: INK,
+        shadow: RAMPS.leaf[1],
       })
       if (this.banner.sub) {
         drawText(g, this.banner.sub, W / 2, 170, {
           scale: 2,
           align: 'center',
-          color: '#fde68a',
-          shadow,
+          color: RAMPS.gold[3],
+          outline: INK,
         })
       }
     }

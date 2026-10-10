@@ -10,7 +10,30 @@
 // hunting -- bonk it from above to pop it. Every fifth wave is a cocoon wave.
 
 import { everyNthLevel, levelCurve } from '../curve'
-import { drawText } from '../font'
+import { drawText, measureText } from '../font'
+import {
+  INK,
+  RAMPS,
+  Sparkles,
+  backdropRng,
+  bandedGradient,
+  cachedLayer,
+  drawCloud,
+  drawRidge,
+  drawSprite,
+  drawStars,
+  dropShadow,
+  glow,
+  hudPanel,
+  mix,
+  pixelSprite,
+  rgba,
+  ridge,
+  starField,
+  vignette,
+  type PixelSprite,
+  type Ramp,
+} from '../snes'
 import type {
   ArcadeGameInstance,
   ArcadeGameModule,
@@ -134,6 +157,459 @@ function onLedge(l: Ledge, x: number): boolean {
   )
 }
 
+// --- 16-bit art (utils/arcade/snes.ts) -------------------------------------------
+
+/** Lay stamps of palette letters over a blank grid, later stamps on top ('.' is clear). */
+function compose(
+  w: number,
+  h: number,
+  stamps: readonly (readonly [number, number, readonly string[]])[],
+): string[] {
+  const grid = Array.from({ length: h }, () => new Array<string>(w).fill('.'))
+  for (const [x, y, rows] of stamps) {
+    rows.forEach((row, dy) => {
+      const line = grid[y + dy]
+      if (!line) return
+      for (let dx = 0; dx < row.length; dx++) {
+        const ch = row[dx]!
+        if (ch !== '.' && x + dx >= 0 && x + dx < w) line[x + dx] = ch
+      }
+    })
+  }
+  return grid.map((line) => line.join(''))
+}
+
+// Butterfly + rider, facing right on a 30x28 grid: (col 15, row 16) is the rider's (x, y), so
+// the mount's feet (row 23) stand on the ledge. Wings: A leading-edge light, B outer band,
+// C middle band, D inner band, E trailing shadow, s eye spot. Mount: h light, m body, M stripe,
+// n shadow, H head, e eye, k antennae. Rider: r light, R base, t shadow, y eye, w glint,
+// S chest, b brow. Lance: L l T.
+const FOREWING_UP = [
+  '...AAAA.......',
+  '..ABBBBA......',
+  '.ABBBBBBA.....',
+  '.ABBsBBBBA....',
+  'ABBsssBBBBA...',
+  'ABBBsBBCCCBA..',
+  'ABBBBCCCCCCBA.',
+  '.EBBCCCCCCCCB.',
+  '.EBCCCCDDDCCB.',
+  '..ECCCDDDDDCB.',
+  '..ECCDDDDDDDC.',
+  '...ECDDDDDDDC.',
+  '....EDDDDDDD..',
+  '.....EDDDDDD..',
+  '......EEDDDD..',
+  '........EEDD..',
+  '.........EDD..',
+  '..........DD..',
+]
+const HINDWING_UP = [
+  '..AAA....',
+  '.ABBBA...',
+  'ABCCCBA..',
+  'ACCsCCBA.',
+  'ECCCCDDB.',
+  '.ECDDDDDA',
+  '..EEDDDDD',
+  '....EEDDD',
+  '......EDD',
+]
+const FOREWING_DOWN = [
+  '...........AA..',
+  '........AABBBA.',
+  '.....AABBBCCCB.',
+  '..AABBBCCCDDDD.',
+  '.ABBsBCCCDDDDD.',
+  'ABBsssCCDDDDD..',
+  'ABBBsCCDDDDE...',
+  '.EBBCCDDDEE....',
+  '..EEBCDEE......',
+  '....EEE........',
+]
+const MOUNT = [
+  '......................k.',
+  '.....................k.k',
+  '....................k...',
+  '...................k....',
+  '..hhhhhhhhhhhhhhhhHHH...',
+  '.hmmMmmMmmMhhhhmmmHHeH..',
+  'hmmMmmMmmMmmmmmmmmHHHH..',
+  '.nnnnnnnnnnnnnnnnnnnn...',
+  '...n.n.n.......n..n.....',
+]
+const PLAYER_RIDER = [
+  '.r...r...',
+  '.rR..rR..',
+  '.rRRRRRr.',
+  'rRRRRRRRt',
+  'rRRRRyyRt',
+  'rRRRRywRt',
+  'rRRRRRRRt',
+  '.tttttttt',
+  '..rRRRRt.',
+  '..rRSSRt.',
+  '..rRSSRRR',
+  '..rRRRRt.',
+  '..tttttt.',
+]
+const MOTH_RIDER = [
+  'k.....k..',
+  '.k...k...',
+  '.rRRRRRr.',
+  'rRRRRRRRt',
+  'rRRRbbbRt',
+  'rRRRRyyRt',
+  'rRRRRRRRt',
+  '.tttttttt',
+  '..rRRRRt.',
+  '..rRSSRt.',
+  '..rRSSRRR',
+  '..rRRRRt.',
+  '..tttttt.',
+]
+const LANCE = ['LLLLLLLLT', 'lllllllT.']
+
+type Frames = readonly [PixelSprite, PixelSprite]
+
+function riderPalette(
+  wing: readonly [string, string, string, string, string, string],
+  body: Ramp,
+  eye: string,
+  chest: string,
+  mount: readonly [string, string, string, string, string, string, string],
+): Record<string, string> {
+  return {
+    A: wing[0],
+    B: wing[1],
+    C: wing[2],
+    D: wing[3],
+    E: wing[4],
+    s: wing[5],
+    h: mount[0],
+    m: mount[1],
+    M: mount[2],
+    n: mount[3],
+    H: mount[4],
+    e: mount[5],
+    k: mount[6],
+    r: body[3],
+    R: body[2],
+    t: body[1],
+    y: eye,
+    w: '#ffffff',
+    S: chest,
+    b: INK,
+    L: RAMPS.steel[4],
+    l: RAMPS.steel[2],
+    T: RAMPS.gold[3],
+  }
+}
+
+/** [wings up, wings down (the near wing sweeps in front of the mount)], facing right. */
+function riderFrames(
+  rider: readonly string[],
+  palette: Record<string, string>,
+): Frames {
+  const up = compose(30, 28, [
+    [0, 11, HINDWING_UP],
+    [3, 1, FOREWING_UP],
+    [3, 15, MOUNT],
+    [12, 6, rider],
+    [20, 15, LANCE],
+  ])
+  const down = compose(30, 28, [
+    [3, 15, MOUNT],
+    [0, 18, FOREWING_DOWN],
+    [12, 6, rider],
+    [20, 15, LANCE],
+  ])
+  return [pixelSprite(up, palette), pixelSprite(down, palette)]
+}
+
+const RAINBOW_WINGS = [
+  RAMPS.pink[4],
+  RAMPS.pink[2],
+  RAMPS.gold[2],
+  RAMPS.teal[2],
+  RAMPS.purple[1],
+  RAMPS.gold[4],
+] as const
+
+const PLAYER_FRAMES = riderFrames(
+  PLAYER_RIDER,
+  riderPalette(RAINBOW_WINGS, RAMPS.teal, RAMPS.gold[4], RAMPS.gold[3], [
+    RAMPS.purple[3],
+    RAMPS.night[3],
+    RAMPS.gold[3],
+    RAMPS.night[1],
+    RAMPS.purple[2],
+    '#ffffff',
+    RAMPS.gold[3],
+  ]),
+)
+
+const MOTH_MOUNT = [
+  RAMPS.night[4],
+  RAMPS.night[2],
+  RAMPS.steel[1],
+  RAMPS.night[0],
+  RAMPS.night[3],
+  RAMPS.ember[3],
+  RAMPS.steel[2],
+] as const
+
+/** Moth riders by tier: drifter (red), hunter (violet), shadow (slate with red eye spots). */
+const RIVAL_FRAMES: readonly Frames[] = [
+  riderFrames(
+    MOTH_RIDER,
+    riderPalette(
+      [
+        RAMPS.rust[4],
+        RAMPS.ember[2],
+        RAMPS.rust[3],
+        RAMPS.ember[1],
+        RAMPS.ember[0],
+        RAMPS.gold[3],
+      ],
+      RAMPS.pink,
+      RAMPS.ember[2],
+      RAMPS.pink[4],
+      MOTH_MOUNT,
+    ),
+  ),
+  riderFrames(
+    MOTH_RIDER,
+    riderPalette(
+      [
+        RAMPS.purple[4],
+        RAMPS.purple[2],
+        RAMPS.purple[3],
+        RAMPS.purple[1],
+        RAMPS.purple[0],
+        RAMPS.pink[3],
+      ],
+      RAMPS.purple,
+      RAMPS.ember[2],
+      RAMPS.purple[4],
+      MOTH_MOUNT,
+    ),
+  ),
+  riderFrames(
+    MOTH_RIDER,
+    riderPalette(
+      [
+        RAMPS.steel[3],
+        RAMPS.steel[1],
+        RAMPS.steel[2],
+        RAMPS.night[2],
+        RAMPS.night[0],
+        RAMPS.ember[2],
+      ],
+      RAMPS.steel,
+      RAMPS.ember[3],
+      RAMPS.steel[4],
+      MOTH_MOUNT,
+    ),
+  ),
+]
+
+/** A little front-view butterfly for the lives box. */
+const LIFE_SPRITE = pixelSprite(
+  [
+    '.AA...AA.',
+    'ABBA.ABBA',
+    'ABCCmCCBA',
+    '.BCDmDCB.',
+    '..DDmDD..',
+    '.EDE.EDE.',
+    '.EE...EE.',
+  ],
+  {
+    A: RAINBOW_WINGS[0],
+    B: RAINBOW_WINGS[1],
+    C: RAINBOW_WINGS[2],
+    D: RAINBOW_WINGS[3],
+    E: RAINBOW_WINGS[4],
+    m: RAMPS.night[3],
+  },
+)
+
+const COCOON_ROWS = [
+  '...cc...',
+  '..hccd..',
+  '.hcCCcd.',
+  '.hccccd.',
+  'hcCCcccd',
+  'hccccccd',
+  'hccCCccd',
+  '.hccccd.',
+  '.hcCCcd.',
+  '..cccd..',
+  '...dd...',
+]
+/** The same cocoon with its top half leaning a pixel right (flip for left): a wiggle, not a rotation. */
+const COCOON_LEAN_ROWS = COCOON_ROWS.map((row, i) =>
+  i < 5 ? `.${row}` : `${row}.`,
+)
+function cocoonSprites(ramp: Ramp): readonly [PixelSprite, PixelSprite] {
+  const palette = { h: ramp[4], c: ramp[3], C: ramp[2], d: ramp[1] }
+  return [
+    pixelSprite(COCOON_ROWS, palette),
+    pixelSprite(COCOON_LEAN_ROWS, palette),
+  ]
+}
+const COCOON_SPRITES = cocoonSprites(RAMPS.leaf)
+const COCOON_WARN_SPRITES = cocoonSprites(RAMPS.gold)
+
+// Dusk: indigo overhead, through violet and magenta, to a gold horizon.
+const SKY_STOPS = [
+  '#0d0a26',
+  RAMPS.night[2],
+  RAMPS.purple[1],
+  '#7a2f8f',
+  RAMPS.pink[1],
+  '#d9466f',
+  RAMPS.rust[3],
+  RAMPS.gold[3],
+] as const
+const SKY_BAND = 4
+
+/** The colour bandedGradient gives the sky at row y, for cutting stripes into the sun. */
+function skyAt(y: number): string {
+  const count = Math.ceil(H / SKY_BAND)
+  const t = Math.floor(y / SKY_BAND) / (count - 1)
+  const at = t * (SKY_STOPS.length - 1)
+  const lo = Math.min(SKY_STOPS.length - 2, Math.floor(at))
+  return mix(SKY_STOPS[lo]!, SKY_STOPS[lo + 1]!, at - lo)
+}
+
+const SUN = { x: 318, y: 284, r: 38 }
+const STARS = starField(17, 46, W, 150)
+const FAR_RIDGE = ridge(23, W, 52)
+const NEAR_RIDGE = ridge(31, W, 30, 3)
+const FAR_FILL = mix(RAMPS.purple[1], RAMPS.pink[1], 0.45)
+const FAR_RIM = mix(RAMPS.pink[1], RAMPS.pink[2], 0.5)
+
+const DUSK_CLOUD: Ramp = ['#2a1650', '#5a2a7a', '#8a3f86', '#c8649a', '#f0a8c8']
+const CLOUDS = (() => {
+  const rand = backdropRng(41)
+  return Array.from({ length: 5 }, (_, i) => ({
+    x: rand() * (W + 80),
+    y: 44 + i * 34 + rand() * 16,
+    size: 7 + Math.round(rand() * 6),
+    speed: 0.04 + rand() * 0.1,
+  }))
+})()
+
+const STORM_RAMP: Ramp = ['#0a0818', '#1a1433', '#2c2650', '#46427a', '#6e6aa4']
+const STORM_FLASH: Ramp = [
+  '#1a1433',
+  '#3b3a6a',
+  '#6a6ea0',
+  '#a8b0dc',
+  '#e6eaff',
+]
+/** drawCloud's puffs, so the storm can wear an ink silhouette under them. */
+const STORM_PUFFS: readonly (readonly [number, number, number])[] = [
+  [-1.1, 0.25, 0.55],
+  [-0.45, -0.15, 0.75],
+  [0.35, -0.3, 0.85],
+  [1.05, 0.15, 0.6],
+  [0, 0.35, 0.7],
+]
+
+/** A storm cloud: drawCloud's shaded puffs over an ink outline, so it reads as an actor. */
+function stormCloud(
+  g: CanvasRenderingContext2D,
+  x: number,
+  y: number,
+  size: number,
+  ramp: Ramp,
+) {
+  g.fillStyle = INK
+  for (const [dx, dy, k] of STORM_PUFFS) {
+    const r = size * k
+    g.beginPath()
+    g.arc(x + dx * size, y + dy * size + r * 0.12, r + 1.5, 0, Math.PI * 2)
+    g.fill()
+  }
+  drawCloud(g, x, y, size, ramp)
+}
+
+/** Chocolate rock under the candy, lit from the upper left. */
+const ROCK = RAMPS.earth
+/** The candy top of every ledge, one row each, frosting first. */
+const CANDY_ROWS = [
+  RAMPS.cream[4],
+  RAMPS.pink[2],
+  RAMPS.gold[2],
+  RAMPS.leaf[3],
+  RAMPS.sky[3],
+  RAMPS.purple[1],
+] as const
+
+/** One floating candy-topped rock: a bevelled rainbow slab over a tapering, jagged underside. */
+function paintLedge(k: CanvasRenderingContext2D, l: Ledge) {
+  const x0 = Math.max(-4, Math.round(l.x0))
+  const x1 = Math.min(W + 4, Math.round(l.x1))
+  const w = x1 - x0
+  if (w <= 0) return
+  const rand = backdropRng(l.y * 31 + 7)
+  const deep = Math.min(11, 3 + Math.floor(w / 20))
+  // Ledges running off screen don't taper on that side: they continue round the wrap.
+  const leftEnd = l.x0 > -4
+  const rightEnd = l.x1 < W + 4
+  const cols: { x: number; d: number; fleck: number }[] = []
+  for (let cx = 0; cx < w; cx += 2) {
+    const fromL = leftEnd ? cx : 99
+    const fromR = rightEnd ? w - cx : 99
+    const taper = Math.min(fromL, fromR) / 2.2
+    const d = Math.max(1, Math.round(Math.min(deep, taper) - rand() * 2.5))
+    cols.push({ x: x0 + cx, d, fleck: rand() })
+  }
+  const under = l.y + THICK
+  k.fillStyle = INK
+  for (const c of cols) k.fillRect(c.x - 1, under, 4, c.d + 1)
+  for (const c of cols) {
+    k.fillStyle = ROCK[1]
+    k.fillRect(c.x, under, 2, c.d)
+    k.fillStyle = ROCK[2]
+    k.fillRect(c.x, under, 2, Math.ceil(c.d * 0.55))
+    k.fillStyle = ROCK[0]
+    k.fillRect(c.x, under + c.d - 1, 2, 1)
+    if (c.fleck < 0.3 && c.d > 3) {
+      k.fillStyle = ROCK[3]
+      k.fillRect(c.x, under + 1 + Math.floor(c.fleck * 6), 1, 1)
+    }
+  }
+  // The slab, with clipped corners at the ends that show.
+  k.fillStyle = INK
+  k.fillRect(x0 - 1, l.y, w + 2, THICK)
+  k.fillRect(x0, l.y - 1, w, THICK + 2)
+  CANDY_ROWS.forEach((colour, i) => {
+    k.fillStyle = colour
+    k.fillRect(x0, l.y + i, w, 1)
+  })
+  // Candy blocks: a lit seam and a shadow seam every 16 pixels.
+  for (let x = x0 + 12; x < x1 - 4; x += 16) {
+    k.fillStyle = rgba(INK, 0.45)
+    k.fillRect(x, l.y + 1, 1, THICK - 2)
+    k.fillStyle = rgba('#ffffff', 0.5)
+    k.fillRect(x + 1, l.y + 1, 1, THICK - 2)
+  }
+  // Frosting drips over the rock.
+  for (let x = x0 + 6; x < x1 - 6; x += 9 + Math.floor(rand() * 14)) {
+    const len = 2 + Math.floor(rand() * 4)
+    k.fillStyle = INK
+    k.fillRect(x - 1, under, 4, len + 1)
+    k.fillStyle = RAMPS.pink[2]
+    k.fillRect(x, under, 2, len)
+    k.fillStyle = RAMPS.pink[3]
+    k.fillRect(x, under, 1, len - 1)
+  }
+}
+
 class ButterflyJoust implements ArcadeGameInstance {
   score = 0
   level = 0
@@ -173,6 +649,9 @@ class ButterflyJoust implements ArcadeGameInstance {
   private overTimer = 0
   private nextExtra = EXTRA_LIFE_EVERY
   private banner: { text: string; sub?: string; ticks: number } | null = null
+  // Cosmetic sparkles roll their own dice, so the game's seeded rng is untouched.
+  private fx = new Sparkles()
+  private fxRng = backdropRng(53)
 
   constructor(options: ArcadeGameOptions) {
     this.rng = options.rng
@@ -468,6 +947,11 @@ class ButterflyJoust implements ArcadeGameInstance {
       if (p.y < s.y - 8 && p.vy > 0) {
         this.addScore(2000, s.x, s.y - 16)
         this.burst(s.x, s.y, 30, '#93c5fd')
+        this.fx.burst(s.x, s.y, this.fxRng, {
+          count: 18,
+          speed: 2.2,
+          colours: [RAMPS.sky[4], RAMPS.gold[4], RAMPS.teal[3]],
+        })
         this.sound.play('boom')
         this.storm = null
         p.vy = -2.5
@@ -504,6 +988,10 @@ class ButterflyJoust implements ArcadeGameInstance {
         let points = Math.min(1000, 250 * this.collected)
         if (!c.ground) points += 500
         this.addScore(points, c.x, c.y - 12)
+        this.fx.burst(c.x, c.y, this.fxRng, {
+          count: 8,
+          colours: [RAMPS.leaf[4], RAMPS.gold[4], RAMPS.pink[3]],
+        })
         this.sound.play('pickup')
       }
     }
@@ -513,6 +1001,7 @@ class ButterflyJoust implements ArcadeGameInstance {
     this.rivals = this.rivals.filter((other) => other !== r)
     this.addScore(TIER_POINTS[r.tier]!, r.x, r.y - 14)
     this.burst(r.x, r.y, 14, TIER_WINGS[r.tier]!)
+    this.fx.burst(r.x, r.y, this.fxRng, { count: 12 })
     this.sound.play('shoot')
     this.player.vy = Math.min(this.player.vy, -1.2)
     this.cocoons.push({
@@ -550,6 +1039,7 @@ class ButterflyJoust implements ArcadeGameInstance {
       this.banner = { text: 'WAVE CLEAR!', ticks: 90 }
     }
     this.sound.play('level')
+    this.fx.burst(this.player.x, this.player.y, this.fxRng, { count: 16 })
     this.storm = null
     this.clearing = 90
   }
@@ -564,6 +1054,7 @@ class ButterflyJoust implements ArcadeGameInstance {
       this.lives++
       this.nextExtra += EXTRA_LIFE_EVERY
       this.sound.play('extra')
+      this.fx.burst(this.player.x, this.player.y, this.fxRng, { count: 14 })
       this.banner = { text: 'EXTRA BUTTERFLY!', ticks: 90 }
     }
   }
@@ -584,6 +1075,7 @@ class ButterflyJoust implements ArcadeGameInstance {
   }
 
   private updateEffects() {
+    this.fx.update()
     for (const s of this.sparks) {
       s.x += s.vx
       s.y += s.vy
@@ -660,7 +1152,7 @@ class ButterflyJoust implements ArcadeGameInstance {
 
   render(g: CanvasRenderingContext2D) {
     this.renderSky(g)
-    for (const l of this.ledges) this.renderLedge(g, l)
+    this.renderLedges(g)
     this.renderPond(g)
     for (const c of this.cocoons)
       this.wrapDraw(c.x, (x) => this.renderCocoon(g, c, x))
@@ -672,19 +1164,20 @@ class ButterflyJoust implements ArcadeGameInstance {
     ) {
       const p = this.player
       this.wrapDraw(p.x, (x) =>
-        this.renderRider(g, x, p.y, p.facing, p.flap, null, '#5eead4'),
+        this.renderRider(g, x, p.y, p.facing, p.flap, p.ground, PLAYER_FRAMES),
       )
     }
     if (this.storm) this.wrapDraw(this.storm.x, (x) => this.renderStorm(g, x))
-    for (const s of this.sparks) {
-      g.globalAlpha = Math.max(0, s.life / 45)
-      g.fillStyle = s.color
-      g.fillRect(s.x - 1, s.y - 1, 2, 2)
-    }
-    g.globalAlpha = 1
+    this.renderSparks(g)
+    this.fx.render(g)
     for (const f of this.floaters) {
-      drawText(g, f.text, f.x, f.y, { align: 'center', color: '#fde68a' })
+      drawText(g, f.text, f.x, f.y, {
+        align: 'center',
+        color: RAMPS.gold[3],
+        outline: INK,
+      })
     }
+    vignette(g, W, H, 0.3)
     this.renderHud(g)
   }
 
@@ -696,53 +1189,125 @@ class ButterflyJoust implements ArcadeGameInstance {
   }
 
   private renderSky(g: CanvasRenderingContext2D) {
-    const sky = g.createLinearGradient(0, 0, 0, H)
-    sky.addColorStop(0, '#1e1b4b')
-    sky.addColorStop(0.7, '#5b21b6')
-    sky.addColorStop(1, '#db2777')
-    g.fillStyle = sky
-    g.fillRect(0, 0, W, H)
-    g.fillStyle = '#fef9c3'
-    for (let i = 0; i < 36; i++) {
-      const x = (i * 89) % W
-      const y = 30 + ((i * 47) % 220)
-      if ((i + Math.floor(this.tick / 25)) % 6) g.fillRect(x, y, 1, 1)
+    // Banded dusk sky with the setting sun, painted once.
+    cachedLayer(g, 'butterfly-joust-sky', W, H, (k) => {
+      bandedGradient(k, 0, 0, W, H, SKY_STOPS, SKY_BAND)
+      glow(k, SUN.x, SUN.y, SUN.r * 2.4, RAMPS.gold[3], 0.35)
+      k.save()
+      k.beginPath()
+      k.arc(SUN.x, SUN.y, SUN.r, 0, Math.PI * 2)
+      k.clip()
+      bandedGradient(
+        k,
+        SUN.x - SUN.r,
+        SUN.y - SUN.r,
+        SUN.r * 2,
+        SUN.r * 2,
+        [RAMPS.gold[4], RAMPS.gold[3], RAMPS.rust[3], RAMPS.ember[2]],
+        3,
+      )
+      // The sunset stripes: the sky showing through ever wider slits.
+      for (let i = 0; i < 6; i++) {
+        const y = SUN.y - 4 + i * 6
+        const h = 1 + Math.floor(i / 2)
+        for (let row = y; row < y + h; row++) {
+          k.fillStyle = skyAt(row)
+          k.fillRect(SUN.x - SUN.r, row, SUN.r * 2, 1)
+        }
+      }
+      k.restore()
+    })
+    drawStars(g, STARS, this.tick, RAMPS.gold)
+    for (const c of CLOUDS) {
+      const x = ((c.x + this.tick * c.speed) % (W + 80)) - 40
+      drawCloud(g, x, c.y, c.size, DUSK_CLOUD)
     }
-    // Soft cloud puffs drifting behind everything.
-    g.fillStyle = 'rgba(244, 114, 182, 0.18)'
-    for (let i = 0; i < 4; i++) {
-      const x = wrapX(i * 130 + this.tick * 0.1)
-      const y = 60 + i * 55
-      g.beginPath()
-      g.ellipse(x, y, 40, 10, 0, 0, Math.PI * 2)
-      g.ellipse(x + 22, y - 6, 24, 9, 0, 0, Math.PI * 2)
-      g.fill()
-    }
+    // Two parallax ridges drifting past the sun.
+    drawRidge(g, FAR_RIDGE, {
+      base: 300,
+      bottom: POND_Y,
+      width: W,
+      offset: this.tick * 0.05,
+      fill: FAR_FILL,
+      rim: FAR_RIM,
+    })
+    drawRidge(g, NEAR_RIDGE, {
+      base: 318,
+      bottom: POND_Y,
+      width: W,
+      offset: this.tick * 0.14,
+      step: 3,
+      fill: RAMPS.night[2],
+      rim: RAMPS.purple[1],
+    })
   }
 
-  private renderLedge(g: CanvasRenderingContext2D, l: Ledge) {
-    const x0 = Math.max(-2, l.x0)
-    const x1 = Math.min(W + 2, l.x1)
-    g.fillStyle = '#6d28d9'
-    g.fillRect(x0, l.y, x1 - x0, THICK)
-    // A rainbow stripe along the top of every ledge.
-    const bands = ['#f87171', '#facc15', '#4ade80', '#38bdf8']
-    bands.forEach((color, i) => {
-      g.fillStyle = color
-      g.fillRect(x0, l.y + i * 1, x1 - x0, 1)
-    })
-    g.fillStyle = '#4c1d95'
-    for (let x = x0 + 4; x < x1 - 4; x += 14) g.fillRect(x, l.y + THICK, 6, 3)
+  private renderLedges(g: CanvasRenderingContext2D) {
+    // The bottom ledge crumbles wave by wave, so its span is part of the key.
+    const bottom = this.ledges[0]!
+    cachedLayer(
+      g,
+      `butterfly-joust-ledges-${bottom.x0}-${bottom.x1}`,
+      W,
+      H,
+      (k) => {
+        for (const l of this.ledges) paintLedge(k, l)
+      },
+    )
   }
 
   private renderPond(g: CanvasRenderingContext2D) {
-    g.fillStyle = '#0c4a6e'
-    g.fillRect(0, POND_Y, W, H - POND_Y)
-    g.fillStyle = '#38bdf8'
-    for (let x = 0; x < W; x += 16) {
-      const y = POND_Y + 2 + Math.sin((x + this.tick) / 10) * 1.5
-      g.fillRect(x + 2, y, 8, 1)
+    bandedGradient(
+      g,
+      0,
+      POND_Y,
+      W,
+      H - POND_Y,
+      [RAMPS.water[2], RAMPS.water[1], RAMPS.water[0]],
+      2,
+    )
+    g.fillStyle = RAMPS.water[3]
+    g.fillRect(0, POND_Y, W, 1)
+    // The sun's glitter path on the water.
+    g.save()
+    g.globalCompositeOperation = 'lighter'
+    for (let i = 0; i < 5; i++) {
+      const y = POND_Y + 2 + i * 2
+      const half = Math.round(
+        SUN.r * 0.5 - i * 3 + Math.sin(this.tick / 9 + i * 1.7) * 3,
+      )
+      g.fillStyle = rgba(RAMPS.gold[3], 0.55 - i * 0.08)
+      g.fillRect(SUN.x - half, y, half * 2, 1)
     }
+    g.restore()
+    for (let x = 0; x < W; x += 16) {
+      const y = Math.round(POND_Y + 3 + Math.sin((x + this.tick) / 10) * 1.5)
+      g.fillStyle = RAMPS.water[4]
+      g.fillRect(x + 2, y, 6, 1)
+      g.fillStyle = RAMPS.water[3]
+      g.fillRect(x + 8, y, 3, 1)
+      g.fillStyle = RAMPS.water[0]
+      g.fillRect(x + 3, y + 1, 7, 1)
+    }
+  }
+
+  /** A shadow on the ledge below a rider, fading as they fly higher above it. */
+  private renderShadow(
+    g: CanvasRenderingContext2D,
+    x: number,
+    y: number,
+    ground: Ledge | null,
+  ) {
+    let top = ground ? ground.y : Infinity
+    if (!ground) {
+      for (const l of this.ledges) {
+        if (l.y >= y + HALF_H && l.y < top && onLedge(l, wrapX(x))) top = l.y
+      }
+    }
+    const gap = top - (y + HALF_H)
+    if (gap > 64) return
+    const k = 1 - gap / 64
+    dropShadow(g, x, top, 4 + 6 * k, 1 + k, 0.4 * k)
   }
 
   private renderRider(
@@ -751,59 +1316,27 @@ class ButterflyJoust implements ArcadeGameInstance {
     y: number,
     facing: number,
     flap: number,
-    wings: string | null,
-    rider: string,
+    ground: Ledge | null,
+    frames: Frames,
+    alpha?: number,
   ) {
     const up = flap > 4 || Math.floor(this.tick / 8) % 2 === 0
-    g.save()
-    g.translate(x, y)
-    g.scale(1.25, 1.25)
-    // Wings: rainbow for you, a tier colour for the moth riders.
-    const wingY = up ? -9 : 1
-    const colors = wings
-      ? [wings, wings, '#1e1b4b']
-      : ['#f472b6', '#facc15', '#38bdf8']
-    g.fillStyle = colors[0]!
-    g.beginPath()
-    g.ellipse(-6, wingY, 7, up ? 7 : 4, -0.4, 0, Math.PI * 2)
-    g.ellipse(6, wingY, 7, up ? 7 : 4, 0.4, 0, Math.PI * 2)
-    g.fill()
-    g.fillStyle = colors[1]!
-    g.beginPath()
-    g.ellipse(-5, wingY + 1, 4, up ? 4 : 2, -0.4, 0, Math.PI * 2)
-    g.ellipse(5, wingY + 1, 4, up ? 4 : 2, 0.4, 0, Math.PI * 2)
-    g.fill()
-    if (!wings) {
-      g.fillStyle = colors[2]!
-      g.fillRect(-7, wingY - 1, 2, 2)
-      g.fillRect(5, wingY - 1, 2, 2)
-    }
-    // Body of the mount.
-    g.fillStyle = '#1e1b4b'
-    g.fillRect(-7, 2, 14, 4)
-    g.fillRect(facing > 0 ? 6 : -9, 0, 3, 3)
-    // Rider with cat ears.
-    g.fillStyle = rider
-    g.fillRect(-3, -8, 7, 10)
-    g.beginPath()
-    g.moveTo(-3, -8)
-    g.lineTo(-2, -12)
-    g.lineTo(0, -8)
-    g.moveTo(1, -8)
-    g.lineTo(3, -12)
-    g.lineTo(4, -8)
-    g.fill()
-    g.fillStyle = wings ? '#fecaca' : '#facc15'
-    g.fillRect(facing > 0 ? 2 : -3, -5, 2, 2)
-    // Lance.
-    g.fillStyle = '#e2e8f0'
-    g.fillRect(facing > 0 ? 3 : -11, -2, 9, 1)
-    g.restore()
+    if (alpha === undefined) this.renderShadow(g, x, y, ground)
+    drawSprite(
+      g,
+      up ? frames[0] : frames[1],
+      Math.round(x) - 16,
+      Math.round(y) - 17,
+      { anchor: 'topleft', flipX: facing < 0, alpha },
+    )
   }
 
   private renderRival(g: CanvasRenderingContext2D, r: Rival, x: number) {
+    let alpha: number | undefined
     if (r.spawn > 0) {
-      g.globalAlpha = 0.3 + 0.3 * Math.sin(this.tick / 3)
+      // Shimmering into the world.
+      alpha = 0.3 + 0.3 * Math.sin(this.tick / 3)
+      glow(g, x, r.y - 4, 22, RAMPS.purple[3], 0.35)
     }
     this.renderRider(
       g,
@@ -811,92 +1344,147 @@ class ButterflyJoust implements ArcadeGameInstance {
       r.y,
       Math.sign(r.vx) || r.dir,
       r.flap,
-      TIER_WINGS[r.tier]!,
-      ['#fda4af', '#c4b5fd', '#94a3b8'][r.tier]!,
+      r.ground,
+      RIVAL_FRAMES[r.tier]!,
+      alpha,
     )
-    g.globalAlpha = 1
   }
 
   private renderCocoon(g: CanvasRenderingContext2D, c: Cocoon, x: number) {
     const wiggle =
-      c.hatch < 120 ? Math.sin(this.tick / (c.hatch < 60 ? 1.5 : 3)) * 0.3 : 0
-    g.save()
-    g.translate(x, c.y)
-    g.rotate(wiggle)
-    g.fillStyle =
-      c.hatch < 60 && Math.floor(this.tick / 5) % 2 ? '#fde68a' : '#d9f99d'
-    g.beginPath()
-    g.ellipse(0, 0, 4, 6, 0, 0, Math.PI * 2)
-    g.fill()
-    g.strokeStyle = '#65a30d'
-    g.lineWidth = 1
-    g.beginPath()
-    g.moveTo(-3, -2)
-    g.lineTo(3, -1)
-    g.moveTo(-3, 2)
-    g.lineTo(3, 3)
-    g.stroke()
-    g.restore()
+      c.hatch < 120 ? Math.sin(this.tick / (c.hatch < 60 ? 1.5 : 3)) : 0
+    const warn = c.hatch < 60 && Math.floor(this.tick / 5) % 2 === 1
+    const sprites = warn ? COCOON_WARN_SPRITES : COCOON_SPRITES
+    if (c.ground) dropShadow(g, x, c.ground.y + 1, 5, 1.5, 0.4)
+    if (c.hatch < 120) {
+      glow(g, x, c.y, 13, warn ? RAMPS.gold[3] : RAMPS.leaf[3], 0.35)
+    }
+    drawSprite(g, Math.abs(wiggle) > 0.35 ? sprites[1] : sprites[0], x, c.y, {
+      flipX: wiggle < 0,
+    })
   }
 
   private renderStorm(g: CanvasRenderingContext2D, x: number) {
     const s = this.storm!
-    g.fillStyle = '#334155'
-    g.beginPath()
-    g.ellipse(x - 10, s.y, 14, 10, 0, 0, Math.PI * 2)
-    g.ellipse(x + 8, s.y - 4, 16, 12, 0, 0, Math.PI * 2)
-    g.ellipse(x + 2, s.y + 4, 18, 8, 0, 0, Math.PI * 2)
-    g.fill()
-    // Angry eyes, and a crackle of lightning every so often.
-    g.fillStyle = '#fde68a'
-    g.fillRect(x - 6, s.y - 3, 3, 2)
-    g.fillRect(x + 4, s.y - 3, 3, 2)
-    if (Math.floor(s.t / 10) % 4 === 0) {
-      g.strokeStyle = '#fde047'
-      g.lineWidth = 2
-      g.beginPath()
-      g.moveTo(x, s.y + 10)
-      g.lineTo(x - 4, s.y + 18)
-      g.lineTo(x + 2, s.y + 18)
-      g.lineTo(x - 3, s.y + 28)
-      g.stroke()
+    const bolt = Math.floor(s.t / 10) % 4 === 0
+    const y = Math.round(s.y)
+    glow(g, x, y, 42, bolt ? RAMPS.gold[3] : RAMPS.purple[2], bolt ? 0.5 : 0.28)
+    // Rain streaking out of its belly.
+    g.fillStyle = rgba(RAMPS.water[3], 0.75)
+    for (let i = 0; i < 7; i++) {
+      const ry = (this.tick * 1.5 + i * 11) % 18
+      g.fillRect(Math.round(x - 18 + i * 6), Math.round(y + 10 + ry), 1, 3)
+    }
+    stormCloud(g, x, y, 14, bolt ? STORM_FLASH : STORM_RAMP)
+    // Angry slanted brows over glowing eyes, and a scowl.
+    const cx = Math.round(x)
+    glow(g, cx, y - 2, 12, RAMPS.gold[3], 0.4)
+    g.fillStyle = INK
+    g.fillRect(cx - 9, y - 5, 5, 4)
+    g.fillRect(cx + 4, y - 5, 5, 4)
+    g.fillRect(cx - 9, y - 8, 2, 1)
+    g.fillRect(cx - 7, y - 7, 2, 1)
+    g.fillRect(cx - 5, y - 6, 2, 1)
+    g.fillRect(cx + 7, y - 8, 2, 1)
+    g.fillRect(cx + 5, y - 7, 2, 1)
+    g.fillRect(cx + 3, y - 6, 2, 1)
+    g.fillRect(cx - 3, y + 3, 6, 1)
+    g.fillRect(cx - 4, y + 4, 1, 1)
+    g.fillRect(cx + 3, y + 4, 1, 1)
+    g.fillStyle = RAMPS.gold[4]
+    g.fillRect(cx - 8, y - 4, 3, 2)
+    g.fillRect(cx + 5, y - 4, 3, 2)
+    g.fillStyle = '#ffffff'
+    g.fillRect(cx - 8, y - 4, 1, 1)
+    g.fillRect(cx + 5, y - 4, 1, 1)
+    if (bolt) {
+      const path: [number, number][] = [
+        [x, y + 10],
+        [x - 4, y + 18],
+        [x + 2, y + 18],
+        [x - 3, y + 28],
+      ]
+      glow(g, x - 1, y + 20, 20, RAMPS.gold[4], 0.7)
+      g.save()
+      g.lineJoin = 'miter'
+      const strokes: [number, string][] = [
+        [4, INK],
+        [2, RAMPS.gold[3]],
+        [1, '#ffffff'],
+      ]
+      for (const [width, colour] of strokes) {
+        g.lineWidth = width
+        g.strokeStyle = colour
+        g.beginPath()
+        path.forEach(([px, py], i) => (i ? g.lineTo(px, py) : g.moveTo(px, py)))
+        g.stroke()
+      }
+      g.restore()
     }
   }
 
+  /** The bonk and splash bursts: additive pixels with a hot white core. */
+  private renderSparks(g: CanvasRenderingContext2D) {
+    g.save()
+    g.globalCompositeOperation = 'lighter'
+    for (const s of this.sparks) {
+      const x = Math.round(s.x)
+      const y = Math.round(s.y)
+      g.globalAlpha = Math.max(0, Math.min(1, s.life / 30))
+      g.fillStyle = s.color
+      g.fillRect(x - 1, y - 1, 2, 2)
+      if (s.life > 18) {
+        g.fillStyle = '#ffffff'
+        g.fillRect(x - 1, y - 1, 1, 1)
+      }
+    }
+    g.restore()
+  }
+
   private renderHud(g: CanvasRenderingContext2D) {
-    const shadow = '#1e1b4b'
-    drawText(g, String(this.score).padStart(6, '0'), 8, 6, {
+    // Everything boxed into the band above the ceiling.
+    hudPanel(g, 4, 3, 84, 21)
+    drawText(g, String(this.score).padStart(6, '0'), 10, 7, {
       scale: 2,
-      color: '#f9a8d4',
-      shadow,
+      color: RAMPS.pink[3],
+      shadow: INK,
     })
-    drawText(g, `HI ${Math.max(this.hiScore, this.score)}`, W / 2, 6, {
+    hudPanel(g, 92, 3, 54, 21, RAMPS.teal)
+    drawText(g, `WAVE ${this.level}`, 119, 10, {
+      align: 'center',
+      color: RAMPS.teal[4],
+      outline: INK,
+    })
+    const hi = `HI ${Math.max(this.hiScore, this.score)}`
+    const hiW = measureText(hi, 2)
+    hudPanel(g, Math.round(W / 2 - hiW / 2 - 6), 3, hiW + 12, 21)
+    drawText(g, hi, W / 2, 7, {
       scale: 2,
       align: 'center',
-      color: '#fde68a',
-      shadow,
+      color: RAMPS.gold[3],
+      shadow: INK,
     })
-    for (let i = 0; i < Math.min(this.lives, 5); i++) {
-      drawText(g, '*', W - 14 - i * 14, 6, {
-        scale: 2,
-        color: '#5eead4',
-        shadow,
-      })
+    const lives = Math.min(this.lives, 5)
+    if (lives > 0) {
+      hudPanel(g, W - 8 - lives * 13, 3, lives * 13 + 4, 21)
+      for (let i = 0; i < lives; i++) {
+        drawSprite(g, LIFE_SPRITE, W - 12 - i * 13, 13)
+      }
     }
-    drawText(g, `WAVE ${this.level}`, 8, H - 10, { color: '#bae6fd' })
     if (this.banner) {
       drawText(g, this.banner.text, W / 2, H / 2 - 60, {
         scale: 3,
         align: 'center',
         color: '#ffffff',
-        shadow: '#9d174d',
+        outline: INK,
+        shadow: RAMPS.pink[1],
       })
       if (this.banner.sub) {
         drawText(g, this.banner.sub, W / 2, H / 2 - 28, {
           scale: 2,
           align: 'center',
-          color: '#fde68a',
-          shadow,
+          color: RAMPS.gold[3],
+          outline: INK,
         })
       }
     }

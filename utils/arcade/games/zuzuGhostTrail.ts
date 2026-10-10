@@ -33,6 +33,32 @@
 
 import { levelCurve } from '../curve'
 import { drawText } from '../font'
+import {
+  drawFlyingKasa,
+  drawFlyingPoncho,
+  drawZuzu,
+  drawZuzuFallen,
+  drawZuzuPortrait,
+} from '../ghostTrail/heroArt'
+import {
+  drawBoss,
+  drawClod,
+  drawFire,
+  drawFoe,
+  drawPickup,
+  drawShot,
+  drawWeaponIcon,
+} from '../ghostTrail/foeArt'
+import { drawBanner, drawHud, hitsFor } from '../ghostTrail/hudArt'
+import {
+  drawBackdrop,
+  drawCheckpoint,
+  drawCrate,
+  drawForeground,
+  drawGate,
+  drawSecret,
+  drawTerrain,
+} from '../ghostTrail/stageArt'
 import type {
   ArcadeGameInstance,
   ArcadeGameModule,
@@ -391,6 +417,9 @@ class ZuzuGhostTrail implements ArcadeGameInstance {
   private particles: Particle[] = []
   private floaters: Floater[] = []
   private banner: { text: string; sub?: string; ticks: number } | null = null
+  /** Render bookkeeping: which banner is up and the tick it appeared (for its unfurl). */
+  private bannerSeen: ZuzuGhostTrail['banner'] = null
+  private bannerFrom = 0
 
   constructor(options: ArcadeGameOptions) {
     this.rng = options.rng
@@ -1353,22 +1382,25 @@ class ZuzuGhostTrail implements ArcadeGameInstance {
   // --- render -------------------------------------------------------------------
 
   render(g: CanvasRenderingContext2D) {
-    this.renderSky(g)
+    const camX = Math.round(this.camX)
+    drawBackdrop(g, this.stage.key, camX, this.tick)
     g.save()
-    g.translate(-Math.round(this.camX), 0)
-    this.renderTown(g)
-    this.renderGround(g)
-    for (const c of this.crates) if (!c.open) this.renderCrate(g, c.x)
+    g.translate(-camX, 0)
+    drawTerrain(g, this.stage, camX, this.tick)
+    drawGate(g, this.stage.key, STAGE_END, this.tick, !this.bossDone)
+    drawCheckpoint(
+      g,
+      this.stage.key,
+      CHECKPOINT_X,
+      this.checkpoint >= CHECKPOINT_X,
+      this.tick,
+    )
+    for (const c of this.crates) if (!c.open) drawCrate(g, c.x, GROUND_Y)
     if (!this.foundSecrets.has(this.stage.key)) this.renderSecret(g)
     for (const p of this.pickups) this.renderPickup(g, p)
     for (const f of this.foes) this.renderFoe(g, f)
     if (this.boss) this.renderBoss(g, this.boss)
-    g.fillStyle = '#7c5a32'
-    for (const c of this.clods) {
-      g.beginPath()
-      g.arc(c.x, c.y, 3, 0, Math.PI * 2)
-      g.fill()
-    }
+    for (const c of this.clods) drawClod(g, c)
     for (const fire of this.fires) this.renderFire(g, fire)
     for (const k of this.shots) this.renderShot(g, k)
     for (const f of this.flying) this.renderFlyingKasa(g, f)
@@ -1383,330 +1415,16 @@ class ZuzuGhostTrail implements ArcadeGameInstance {
     for (const f of this.floaters)
       drawText(g, f.text, f.x, f.y, { align: 'center', color: '#fde68a' })
     g.restore()
+    drawForeground(g, this.stage.key, camX, this.tick, this.stage.ground)
     this.renderHud(g)
   }
 
   private renderSecret(g: CanvasRenderingContext2D) {
-    const { x, y } = this.stage.secret
-    const pulse = (Math.sin(this.tick / 15) + 1) / 2
-    g.save()
-    g.translate(x, y)
-    g.rotate(Math.PI / 4)
-    g.fillStyle = '#0f172a'
-    g.fillRect(-6, -6, 12, 12)
-    g.fillStyle = pulse > 0.5 ? '#7dd3fc' : '#fef3c7'
-    g.fillRect(-4, -4, 8, 8)
-    g.fillStyle = '#fff'
-    g.fillRect(-1, -1, 2, 2)
-    g.restore()
-  }
-
-  private renderSky(g: CanvasRenderingContext2D) {
-    const sky = g.createLinearGradient(0, 0, 0, GROUND_Y)
-    sky.addColorStop(0, this.stage.sky[0])
-    sky.addColorStop(0.65, this.stage.sky[1])
-    sky.addColorStop(1, this.stage.sky[2])
-    g.fillStyle = sky
-    g.fillRect(0, 0, W, H)
-    // A big pale moon, parallax-slow.
-    const mx = 250 - ((this.camX * 0.05) % 400)
-    g.fillStyle = '#e2e8f0'
-    g.beginPath()
-    g.arc(mx, 52, 22, 0, Math.PI * 2)
-    g.fill()
-    g.fillStyle = 'rgba(15, 27, 61, 0.35)'
-    g.beginPath()
-    g.arc(mx + 7, 48, 18, 0, Math.PI * 2)
-    g.fill()
-    // Distant mesas.
-    g.fillStyle = this.stage.mesa
-    for (let i = 0; i < 6; i++) {
-      const x = ((((i * 140 - this.camX * 0.25) % 840) + 840) % 840) - 120
-      g.fillRect(x, 150, 90, 60)
-      g.fillRect(x + 12, 138, 60, 14)
-    }
-  }
-
-  private renderTown(g: CanvasRenderingContext2D) {
-    if (this.stage.key === 'town') this.renderShacks(g)
-    else if (this.stage.key === 'boneyard') this.renderBoneYard(g)
-    else if (this.stage.key === 'waterhole') this.renderWaterHole(g)
-    else this.renderMission(g)
-    this.renderGate(g)
-  }
-
-  private renderBoneYard(g: CanvasRenderingContext2D) {
-    for (let x = 160; x < STAGE_END; x += 300) {
-      // A great ribcage half sunk in the sand.
-      g.strokeStyle = '#d6d3d1'
-      g.lineWidth = 3
-      for (let i = 0; i < 5; i++) {
-        const r = 30 - Math.abs(i - 2) * 5
-        g.beginPath()
-        g.arc(x + i * 14, GROUND_Y, r, Math.PI, Math.PI * 1.5)
-        g.stroke()
-      }
-      g.lineWidth = 4
-      g.beginPath()
-      g.moveTo(x - 4, GROUND_Y - 30)
-      g.lineTo(x + 60, GROUND_Y - 22)
-      g.stroke()
-      // A cow skull on a post, and a saguaro.
-      const px = x + 130
-      g.fillStyle = '#57534e'
-      g.fillRect(px, GROUND_Y - 34, 3, 34)
-      g.fillStyle = '#e7e5e4'
-      g.fillRect(px - 3, GROUND_Y - 42, 9, 7)
-      g.fillRect(px - 8, GROUND_Y - 44, 5, 2)
-      g.fillRect(px + 6, GROUND_Y - 44, 5, 2)
-      g.fillStyle = '#292524'
-      g.fillRect(px - 1, GROUND_Y - 40, 2, 2)
-      g.fillRect(px + 2, GROUND_Y - 40, 2, 2)
-      g.fillStyle = '#3f6212'
-      g.fillRect(x + 200, GROUND_Y - 44, 8, 44)
-      g.fillRect(x + 192, GROUND_Y - 30, 8, 5)
-      g.fillRect(x + 192, GROUND_Y - 38, 4, 10)
-      g.fillRect(x + 208, GROUND_Y - 24, 8, 5)
-      g.fillRect(x + 212, GROUND_Y - 34, 4, 12)
-    }
-  }
-
-  private renderWaterHole(g: CanvasRenderingContext2D) {
-    for (let x = 90; x < STAGE_END; x += 280) {
-      // A drowned, dead tree.
-      g.fillStyle = '#1f2a2e'
-      g.fillRect(x, GROUND_Y - 64, 6, 64)
-      g.strokeStyle = '#1f2a2e'
-      g.lineWidth = 3
-      g.beginPath()
-      g.moveTo(x + 3, GROUND_Y - 44)
-      g.lineTo(x - 14, GROUND_Y - 60)
-      g.moveTo(x + 3, GROUND_Y - 54)
-      g.lineTo(x + 18, GROUND_Y - 74)
-      g.moveTo(x + 12, GROUND_Y - 66)
-      g.lineTo(x + 22, GROUND_Y - 64)
-      g.stroke()
-      // Reeds along the bank.
-      g.fillStyle = '#3f5d3a'
-      for (let i = 0; i < 6; i++)
-        g.fillRect(
-          x + 40 + i * 5,
-          GROUND_Y - 8 - (i % 3) * 3,
-          1,
-          8 + (i % 3) * 3,
-        )
-    }
-    for (let x = 420; x < STAGE_END; x += 700) {
-      // A creaking windmill over the old well.
-      g.strokeStyle = '#334155'
-      g.lineWidth = 2
-      g.beginPath()
-      g.moveTo(x - 12, GROUND_Y)
-      g.lineTo(x, GROUND_Y - 90)
-      g.lineTo(x + 12, GROUND_Y)
-      g.moveTo(x - 8, GROUND_Y - 30)
-      g.lineTo(x + 8, GROUND_Y - 30)
-      g.moveTo(x - 4, GROUND_Y - 60)
-      g.lineTo(x + 4, GROUND_Y - 60)
-      g.stroke()
-      g.lineWidth = 3
-      for (let i = 0; i < 4; i++) {
-        const a = this.tick / 40 + (i * Math.PI) / 2
-        g.beginPath()
-        g.moveTo(x, GROUND_Y - 92)
-        g.lineTo(x + Math.cos(a) * 18, GROUND_Y - 92 + Math.sin(a) * 18)
-        g.stroke()
-      }
-    }
-  }
-
-  private renderMission(g: CanvasRenderingContext2D) {
-    for (let x = 140; x < STAGE_END; x += 260) {
-      // Adobe houses with vigas and dark arched doorways.
-      const h = 40 + ((x / 260) % 2) * 12
-      g.fillStyle = '#b77b4f'
-      g.fillRect(x, GROUND_Y - h, 76, h)
-      g.fillStyle = '#5c3a22'
-      for (let i = 0; i < 5; i++)
-        g.fillRect(x + 6 + i * 15, GROUND_Y - h + 6, 4, 3)
-      g.fillStyle = '#2b1a10'
-      g.fillRect(x + 30, GROUND_Y - 22, 14, 22)
-      g.beginPath()
-      g.arc(x + 37, GROUND_Y - 22, 7, Math.PI, 0)
-      g.fill()
-      g.fillRect(x + 56, GROUND_Y - h + 16, 8, 8)
-    }
-    // The bell tower itself, its bell still swinging.
-    const tx = 2460
-    g.fillStyle = '#c99567'
-    g.fillRect(tx, GROUND_Y - 130, 46, 130)
-    g.fillRect(tx - 4, GROUND_Y - 136, 54, 8)
-    g.beginPath()
-    g.arc(tx + 23, GROUND_Y - 136, 14, Math.PI, 0)
-    g.fill()
-    g.fillStyle = '#2b1a10'
-    g.fillRect(tx + 11, GROUND_Y - 116, 24, 26)
-    g.beginPath()
-    g.arc(tx + 23, GROUND_Y - 116, 12, Math.PI, 0)
-    g.fill()
-    const swing = Math.sin(this.tick / 25) * 4
-    g.fillStyle = '#ca8a04'
-    g.beginPath()
-    g.moveTo(tx + 23 + swing, GROUND_Y - 118)
-    g.lineTo(tx + 31 + swing, GROUND_Y - 98)
-    g.lineTo(tx + 15 + swing, GROUND_Y - 98)
-    g.fill()
-  }
-
-  private renderShacks(g: CanvasRenderingContext2D) {
-    // False-front shacks along the trail, weathered and empty.
-    for (let x = 120; x < STAGE_END; x += 260) {
-      const h = 46 + ((x / 260) % 3) * 10
-      g.fillStyle = '#4a3423'
-      g.fillRect(x, GROUND_Y - h, 70, h)
-      g.fillStyle = '#5c4030'
-      g.fillRect(x - 4, GROUND_Y - h - 12, 78, 14)
-      g.fillStyle = '#1c1410'
-      g.fillRect(x + 10, GROUND_Y - h + 12, 12, 14)
-      g.fillRect(x + 46, GROUND_Y - h + 12, 12, 14)
-      g.fillRect(x + 28, GROUND_Y - 24, 14, 24)
-      // A swinging shutter.
-      g.fillStyle = '#6b4a33'
-      g.fillRect(
-        x + 46 + Math.sin(this.tick / 30 + x) * 2,
-        GROUND_Y - h + 12,
-        4,
-        14,
-      )
-    }
-  }
-
-  private renderGate(g: CanvasRenderingContext2D) {
-    // The mission gate at the trail's end.
-    g.fillStyle = '#d6c7a1'
-    g.fillRect(STAGE_END, GROUND_Y - 70, 12, 70)
-    g.fillRect(STAGE_END + 60, GROUND_Y - 70, 12, 70)
-    g.fillRect(STAGE_END - 4, GROUND_Y - 82, 80, 14)
-    g.fillStyle = '#a16207'
-    g.beginPath()
-    g.arc(STAGE_END + 36, GROUND_Y - 92, 7, Math.PI, 0)
-    g.fill()
-    // Iron bars across the gate until the boss falls.
-    if (!this.bossDone) {
-      g.fillStyle = '#292524'
-      for (let x = STAGE_END + 14; x < STAGE_END + 60; x += 7)
-        g.fillRect(x, GROUND_Y - 68, 3, 68)
-      g.fillRect(STAGE_END + 12, GROUND_Y - 40, 48, 3)
-    }
-    // Checkpoint lantern.
-    g.fillStyle = '#3f2a14'
-    g.fillRect(CHECKPOINT_X, GROUND_Y - 40, 3, 40)
-    g.fillStyle = this.checkpoint >= CHECKPOINT_X ? '#fbbf24' : '#57534e'
-    g.fillRect(CHECKPOINT_X - 3, GROUND_Y - 46, 9, 8)
-  }
-
-  private renderGround(g: CanvasRenderingContext2D) {
-    const [soil, crust, speck] = this.stage.soil
-    if (this.stage.key === 'waterhole') {
-      // Dark water fills every pit.
-      const runs = this.stage.ground
-      for (let i = 0; i < runs.length - 1; i++) {
-        const a = runs[i]![1]
-        const b = runs[i + 1]![0]
-        g.fillStyle = '#1e5a7a'
-        g.fillRect(a, GROUND_Y + 8, b - a, H - GROUND_Y - 8)
-        g.fillStyle = '#7dd3fc'
-        for (let x = a + 4; x < b - 4; x += 12)
-          g.fillRect(x + ((this.tick / 8 + x) % 6), GROUND_Y + 10, 4, 1)
-      }
-    }
-    for (const [a, b] of this.stage.ground) {
-      g.fillStyle = soil
-      g.fillRect(a, GROUND_Y, b - a, H - GROUND_Y)
-      g.fillStyle = crust
-      g.fillRect(a, GROUND_Y, b - a, 3)
-      g.fillStyle = speck
-      for (let x = a + 6; x < b; x += 23)
-        g.fillRect(x, GROUND_Y + 8 + (x % 3) * 4, 3, 2)
-    }
-    for (const b of this.stage.boardwalks) {
-      g.fillStyle = '#6b4a2b'
-      g.fillRect(b.x, b.y, b.w, 5)
-      g.fillStyle = '#3f2a14'
-      g.fillRect(b.x + 4, b.y + 5, 3, GROUND_Y - b.y - 5)
-      g.fillRect(b.x + b.w - 7, b.y + 5, 3, GROUND_Y - b.y - 5)
-      g.fillStyle = '#8b6a43'
-      for (let x = b.x; x < b.x + b.w; x += 8) g.fillRect(x, b.y, 1, 5)
-    }
-    for (const t of this.stage.tombstones) {
-      if (this.stage.key === 'waterhole') {
-        // A mossy boulder.
-        g.fillStyle = '#57534e'
-        g.beginPath()
-        g.ellipse(t, GROUND_Y - 7, 7, 8, 0, 0, Math.PI * 2)
-        g.fill()
-        g.fillStyle = '#4d7c0f'
-        g.fillRect(t - 5, GROUND_Y - 14, 6, 2)
-        continue
-      }
-      if (this.stage.key === 'belltower') {
-        // A tumbled adobe block.
-        g.fillStyle = '#a4683f'
-        g.fillRect(t - 6, GROUND_Y - 16, 12, 16)
-        g.fillStyle = '#c99567'
-        g.fillRect(t - 6, GROUND_Y - 16, 12, 3)
-        continue
-      }
-      g.fillStyle = '#78716c'
-      g.fillRect(t - 6, GROUND_Y - 14, 12, 14)
-      g.beginPath()
-      g.arc(t, GROUND_Y - 14, 6, Math.PI, 0)
-      g.fill()
-      g.fillStyle = '#44403c'
-      g.fillRect(t - 1, GROUND_Y - 16, 2, 8)
-      g.fillRect(t - 3, GROUND_Y - 13, 6, 2)
-    }
-  }
-
-  private renderCrate(g: CanvasRenderingContext2D, x: number) {
-    g.fillStyle = '#92400e'
-    g.fillRect(x - 8, GROUND_Y - 16, 16, 16)
-    g.strokeStyle = '#451a03'
-    g.lineWidth = 1
-    g.strokeRect(x - 7.5, GROUND_Y - 15.5, 15, 15)
-    g.beginPath()
-    g.moveTo(x - 7, GROUND_Y - 15)
-    g.lineTo(x + 7, GROUND_Y - 1)
-    g.stroke()
+    drawSecret(g, this.stage.secret.x, this.stage.secret.y, this.tick)
   }
 
   private renderPickup(g: CanvasRenderingContext2D, p: Pickup) {
-    if (p.life < 90 && Math.floor(this.tick / 5) % 2) return
-    if (p.kind === 'poncho') {
-      g.fillStyle = '#9a3412'
-      g.beginPath()
-      g.moveTo(p.x, p.y - 7)
-      g.lineTo(p.x + 8, p.y + 5)
-      g.lineTo(p.x - 8, p.y + 5)
-      g.fill()
-      g.fillStyle = '#f97316'
-      for (let i = -6; i < 6; i += 4) g.fillRect(p.x + i, p.y + 3, 2, 2)
-    } else if (p.kind === 'nugget' || p.kind === 'coin') {
-      g.fillStyle = p.kind === 'nugget' ? '#facc15' : '#cbd5e1'
-      g.beginPath()
-      g.arc(p.x, p.y, p.kind === 'nugget' ? 4 : 3, 0, Math.PI * 2)
-      g.fill()
-      g.fillStyle = p.kind === 'nugget' ? '#fef9c3' : '#f8fafc'
-      g.fillRect(p.x - 2, p.y - 2, 2, 2)
-    } else {
-      // Gear comes wrapped in a glinting bundle with its icon on the front.
-      g.fillStyle = '#1c1917'
-      g.fillRect(p.x - 7, p.y - 7, 14, 13)
-      g.strokeStyle = Math.floor(this.tick / 8) % 2 ? '#fbbf24' : '#f59e0b'
-      g.lineWidth = 1
-      g.strokeRect(p.x - 6.5, p.y - 6.5, 13, 12)
-      this.renderWeaponIcon(g, p.kind, p.x, p.y)
-    }
+    drawPickup(g, p, this.tick)
   }
 
   private renderWeaponIcon(
@@ -1715,418 +1433,117 @@ class ZuzuGhostTrail implements ArcadeGameInstance {
     x: number,
     y: number,
   ) {
-    if (weapon === 'kunai') {
-      g.fillStyle = '#cbd5e1'
-      g.fillRect(x - 3, y - 1, 7, 2)
-      g.fillStyle = '#7c2d12'
-      g.fillRect(x - 5, y - 1, 3, 2)
-    } else if (weapon === 'shuriken') {
-      g.fillStyle = '#cbd5e1'
-      g.fillRect(x - 4, y - 1, 8, 2)
-      g.fillRect(x - 1, y - 4, 2, 8)
-      g.fillStyle = '#1c1917'
-      g.fillRect(x - 1, y - 1, 1, 1)
-    } else if (weapon === 'kasa') {
-      g.fillStyle = '#d6b25e'
-      g.beginPath()
-      g.moveTo(x - 5, y + 2)
-      g.lineTo(x, y - 3)
-      g.lineTo(x + 5, y + 2)
-      g.fill()
-      g.fillStyle = '#a07d32'
-      g.fillRect(x - 5, y + 2, 10, 1)
-    } else if (weapon === 'lantern') {
-      g.fillStyle = '#7c2d12'
-      g.fillRect(x - 2, y - 4, 4, 1)
-      g.fillStyle = '#fbbf24'
-      g.fillRect(x - 3, y - 3, 6, 6)
-      g.fillStyle = '#f97316'
-      g.fillRect(x - 1, y - 2, 2, 4)
-    } else {
-      g.fillStyle = '#e5e7eb'
-      g.fillRect(x - 4, y - 1, 8, 1)
-      g.fillStyle = '#b91c1c'
-      g.fillRect(x - 6, y - 1, 2, 2)
-      g.fillStyle = '#facc15'
-      g.fillRect(x - 4, y - 2, 1, 3)
-    }
+    drawWeaponIcon(g, weapon, x, y, 12)
   }
 
   private renderShot(g: CanvasRenderingContext2D, k: Shot) {
-    if (k.weapon === 'kunai') {
-      g.fillStyle = '#cbd5e1'
-      g.fillRect(k.x - 4, k.y - 1, 7, 2)
-      g.fillStyle = '#7c2d12'
-      g.fillRect(k.x - (k.vx > 0 ? 6 : -3), k.y - 1, 3, 2)
-    } else if (k.weapon === 'shuriken') {
-      g.fillStyle = '#e2e8f0'
-      if (Math.floor(k.t / 3) % 2) {
-        g.fillRect(k.x - 3, k.y, 7, 1)
-        g.fillRect(k.x, k.y - 3, 1, 7)
-      } else {
-        for (let i = -2; i <= 2; i++) {
-          g.fillRect(k.x + i, k.y + i, 1, 1)
-          g.fillRect(k.x + i, k.y - i, 1, 1)
-        }
-      }
-    } else if (k.weapon === 'kasa') {
-      g.save()
-      g.translate(k.x, k.y)
-      g.scale(1, Math.abs(Math.cos(k.t / 3)) * 0.6 + 0.4)
-      g.fillStyle = '#d6b25e'
-      g.beginPath()
-      g.moveTo(-9, 2)
-      g.lineTo(0, -4)
-      g.lineTo(9, 2)
-      g.fill()
-      g.fillStyle = '#a07d32'
-      g.fillRect(-9, 2, 18, 1)
-      g.restore()
-    } else if (k.weapon === 'lantern') {
-      this.renderWeaponIcon(g, 'lantern', k.x, k.y)
-    } else {
-      // The iai cut: a bright crescent sweeping in front of him.
-      const f = this.facing
-      g.save()
-      g.globalAlpha = Math.max(0.2, k.life / 10)
-      g.strokeStyle = '#e0f2fe'
-      g.lineWidth = 2
-      g.beginPath()
-      const sweep = (10 - k.life) / 10
-      g.arc(
-        this.x + f * 2,
-        this.y - 12,
-        14,
-        f > 0 ? -1.3 + sweep * 0.4 : Math.PI - 1.1 - sweep * 0.4,
-        f > 0 ? 1.1 + sweep * 0.4 : Math.PI + 1.3 - sweep * 0.4,
-      )
-      g.stroke()
-      g.restore()
-    }
+    drawShot(g, { ...k, face: Math.sign(k.vx) || this.facing }, this.tick)
   }
 
   private renderFire(g: CanvasRenderingContext2D, fire: Fire) {
-    const fade = Math.min(1, fire.life / 20)
-    for (let i = -2; i <= 2; i++) {
-      const flick = Math.sin(this.tick / 3 + i * 1.7 + fire.x) * 2
-      const h = (9 + (2 - Math.abs(i)) * 3 + flick) * fade
-      g.fillStyle = '#ea580c'
-      g.beginPath()
-      g.moveTo(fire.x + i * 4 - 3, GROUND_Y)
-      g.lineTo(fire.x + i * 4, GROUND_Y - h)
-      g.lineTo(fire.x + i * 4 + 3, GROUND_Y)
-      g.fill()
-      g.fillStyle = '#fde047'
-      g.fillRect(fire.x + i * 4 - 1, GROUND_Y - h * 0.45, 2, h * 0.45)
-    }
+    drawFire(g, fire, GROUND_Y, this.tick)
   }
 
   private renderFoe(g: CanvasRenderingContext2D, f: Foe) {
-    const x = f.x
-    const y = f.y
-    if (f.kind === 'spirit') {
-      // A restless spirit clawing up out of the dirt: pale, ragged, hollow-eyed.
-      g.save()
-      g.beginPath()
-      g.rect(x - 10, 0, 20, GROUND_Y + 1)
-      g.clip()
-      g.globalAlpha = f.phase === 'sink' ? 0.6 : 0.85
-      g.fillStyle = '#a5f3fc'
-      g.beginPath()
-      g.moveTo(x - 6, y)
-      g.lineTo(x - 6, y - 14)
-      g.arc(x, y - 14, 6, Math.PI, 0)
-      g.lineTo(x + 6, y)
-      g.fill()
-      g.fillStyle = '#164e63'
-      g.fillRect(x - 3, y - 16, 2, 3)
-      g.fillRect(x + 1, y - 16, 2, 3)
-      g.fillRect(x - 1, y - 11, 2, 2)
-      // Reaching arms.
-      g.fillStyle = '#a5f3fc'
-      const reach = Math.sin(f.t / 8) * 2
-      g.fillRect(x + Math.sign(this.x - x) * 6, y - 12 + reach, 5, 2)
-      g.restore()
-      return
-    }
-    if (f.kind === 'crow') {
-      const flap = Math.floor(f.t / 6) % 2
-      g.fillStyle = '#1e293b'
-      g.fillRect(x - 5, y - 3, 10, 6)
-      g.fillStyle = '#334155'
-      g.beginPath()
-      g.moveTo(x - 2, y - 2)
-      g.lineTo(x + 2, y - (flap ? 10 : 2))
-      g.lineTo(x + 6, y - 2)
-      g.fill()
-      g.fillStyle = '#facc15'
-      g.fillRect(x - 8, y - 1, 3, 2)
-      g.fillStyle = '#fef08a'
-      g.fillRect(x - 4, y - 2, 1, 1)
-      if (f.carrying) {
-        // A bundle of gear swinging from its talons.
-        g.fillStyle = '#78350f'
-        g.fillRect(x, y + 3, 1, 3)
-        g.fillStyle = '#d97706'
-        g.fillRect(x - 3, y + 6, 7, 5)
-        g.fillStyle = '#fbbf24'
-        g.fillRect(x - 1, y + 6, 2, 1)
-      }
-      return
-    }
-    // Bone hyena: a skeletal grin on four quick legs.
-    const step = Math.floor(f.t / 5) % 2
-    g.fillStyle = '#e7e5e4'
-    g.fillRect(x - 8, y - 12, 14, 6)
-    g.fillRect(x - 12, y - 15, 6, 6)
-    g.fillStyle = '#44403c'
-    g.fillRect(x - 11, y - 13, 1, 1)
-    g.fillRect(x - 12, y - 11, 4, 1)
-    for (let i = 0; i < 4; i++) g.fillRect(x - 6 + i * 3, y - 11, 1, 4)
-    g.fillStyle = '#e7e5e4'
-    g.fillRect(x - 7, y - 6, 2, 6 - step * 2)
-    g.fillRect(x + 3, y - 6, 2, 4 + step * 2)
-    g.fillRect(x + 6, y - 13, 4, 2)
+    drawFoe(g, { ...f, face: Math.sign(this.x - f.x) || -1 }, this.tick)
   }
 
   private renderBoss(g: CanvasRenderingContext2D, b: Boss) {
-    if (b.dying > 0 && Math.floor(b.dying / 3) % 2) return
-    const x = Math.round(b.x)
-    const y = b.y
-    const white = b.flash > 0
-    if (b.kind === 'devil') {
-      // A whirling funnel of dust, narrow at the ground, with a bull skull in it.
-      for (let i = 0; i < 9; i++) {
-        const h = i * 4
-        const w = 4 + i * 2
-        const sway = Math.sin(b.t / 6 + i * 0.7) * (2 + i * 0.4)
-        g.fillStyle = white ? '#ffffff' : i % 2 ? '#c9a46a' : '#a07a45'
-        g.fillRect(x - w / 2 + sway, y - h - 4, w, 4)
-      }
-      const sx = x + Math.sin(b.t / 6 + 4) * 4
-      g.fillStyle = white ? '#ffffff' : '#f5f5f4'
-      g.fillRect(sx - 4, y - 30, 8, 7)
-      g.fillRect(sx - 9, y - 32, 5, 2)
-      g.fillRect(sx + 4, y - 32, 5, 2)
-      g.fillRect(sx - 10, y - 35, 2, 3)
-      g.fillRect(sx + 8, y - 35, 2, 3)
-      g.fillStyle = '#f97316'
-      g.fillRect(sx - 3, y - 28, 2, 2)
-      g.fillRect(sx + 1, y - 28, 2, 2)
-      return
-    }
-    // The Bone Bull: ribs, four legs, a long-horned skull, eyes hot when it means it.
-    const f =
-      b.mode === 'charge' ? Math.sign(b.vx) : Math.sign(this.x - b.x) || -1
-    const step = b.mode === 'charge' ? Math.floor(b.t / 3) % 2 : 0
-    g.fillStyle = white ? '#ffffff' : '#e7e5e4'
-    g.fillRect(x - 14, y - 22, 24, 3)
-    for (let i = 0; i < 5; i++) g.fillRect(x - 12 + i * 5, y - 20, 2, 9)
-    g.fillRect(x - 14, y - 12, 24, 2)
-    g.fillRect(x - 12, y - 10, 2, 10 - step * 2)
-    g.fillRect(x - 7, y - 10, 2, 8 + step * 2)
-    g.fillRect(x + 3, y - 10, 2, 10 - step * 2)
-    g.fillRect(x + 8, y - 10, 2, 8 + step * 2)
-    const hx = x + f * 15
-    g.fillRect(hx - 4, y - 24, 8, 9)
-    g.fillRect(hx - 9, y - 27, 5, 2)
-    g.fillRect(hx + 4, y - 27, 5, 2)
-    g.fillRect(hx - 10, y - 31, 2, 4)
-    g.fillRect(hx + 8, y - 31, 2, 4)
-    g.fillStyle = b.mode === 'stunned' ? '#57534e' : '#dc2626'
-    g.fillRect(hx - 3, y - 21, 2, 2)
-    g.fillRect(hx + 1, y - 21, 2, 2)
-    if (b.mode === 'stunned') {
-      // Seeing stars.
-      g.fillStyle = '#fde047'
-      for (let i = 0; i < 3; i++) {
-        const a = b.t / 8 + (i * Math.PI * 2) / 3
-        g.fillRect(hx + Math.cos(a) * 8 - 1, y - 36 + Math.sin(a) * 3, 2, 2)
-      }
-    }
+    drawBoss(g, { ...b, face: Math.sign(this.x - b.x) || -1 }, this.tick)
   }
 
   private renderZuzu(g: CanvasRenderingContext2D) {
     if (this.invuln > 0 && Math.floor(this.tick / 4) % 2) return
-    const x = Math.round(this.x)
-    const y = Math.round(this.y)
-    const f = this.facing
-    const step =
-      this.onGround && this.vx !== 0 ? Math.floor(this.walkPhase) % 2 : 0
-    // Short legs in dark brown trousers.
-    g.fillStyle = '#3f2a1d'
-    g.fillRect(x - 4, y - 5, 3, 5 - step)
-    g.fillRect(x + 1, y - 5, 3, 4 + step)
-    // Katana across the back, hilt over the right shoulder.
-    g.fillStyle = '#1c1917'
-    g.fillRect(x - f * 5, y - 22, 2, 6)
-    g.fillStyle = '#b91c1c'
-    g.fillRect(x - f * 5, y - 23, 2, 2)
-    if (this.poncho) {
-      // The rust-brown poncho with orange zigzag trim.
-      g.fillStyle = '#9a3412'
-      g.beginPath()
-      g.moveTo(x, y - 18)
-      g.lineTo(x + 8, y - 4)
-      g.lineTo(x - 8, y - 4)
-      g.fill()
-      g.fillStyle = '#f97316'
-      for (let i = -7; i < 7; i += 3)
-        g.fillRect(x + i, y - 6 + (i % 2 === 0 ? 0 : -1), 2, 1)
-    } else {
-      // Just the dark tunic and orange sash.
-      g.fillStyle = '#1e3a8a'
-      g.fillRect(x - 5, y - 15, 10, 10)
-      g.fillStyle = '#ea580c'
-      g.fillRect(x - 5, y - 9, 10, 2)
-    }
-    // The throwing arm.
-    if (this.throwPose > 0 && this.weapon === 'katana') {
-      // Drawn for the iai cut: arm and blade out front.
-      g.fillStyle = '#9ca3af'
-      g.fillRect(x + f * 5, y - 13, f * 4, 2)
-      g.fillStyle = '#e5e7eb'
-      g.fillRect(x + f * 9, y - 13, f * 9, 1)
-    } else if (this.throwPose > 0) {
-      g.fillStyle = '#9ca3af'
-      g.fillRect(x + f * 5, y - 14, f * 5, 2)
-    }
-    // Koala head: grey, big dark nose, round fuzzy ears.
-    g.fillStyle = '#9ca3af'
-    g.fillRect(x - 5, y - 24, 10, 8)
-    g.fillStyle = '#6b7280'
-    g.fillRect(x - 8, y - 25, 4, 5)
-    g.fillRect(x + 4, y - 25, 4, 5)
-    g.fillStyle = '#d1d5db'
-    g.fillRect(x - 7, y - 24, 2, 3)
-    g.fillRect(x + 5, y - 24, 2, 3)
-    g.fillStyle = '#111827'
-    g.fillRect(x + f * 2 - 1, y - 20, 3, 3)
-    if (this.poncho) {
-      // The wide straw kasa, its brim shading his eyes.
-      g.fillStyle = '#d6b25e'
-      g.beginPath()
-      g.moveTo(x - 11, y - 22)
-      g.lineTo(x, y - 30)
-      g.lineTo(x + 11, y - 22)
-      g.fill()
-      g.fillStyle = '#a07d32'
-      g.fillRect(x - 11, y - 22, 22, 1)
-      g.fillStyle = 'rgba(17, 24, 39, 0.5)'
-      g.fillRect(x - 5, y - 21, 10, 2)
-      // The katana hilt pokes out past the brim, over his right shoulder.
-      g.fillStyle = '#1c1917'
-      g.fillRect(x - f * 10, y - 27, 2, 6)
-      g.fillStyle = '#b91c1c'
-      g.fillRect(x - f * 10, y - 28, 2, 2)
-    } else {
-      // Bare-headed: a serious, level stare.
-      g.fillStyle = '#111827'
-      g.fillRect(x - 3 + f, y - 22, 2, 1)
-      g.fillRect(x + 1 + f, y - 22, 2, 1)
-    }
+    const cut = this.weapon === 'katana'
+    const action =
+      this.throwPose > 0
+        ? cut
+          ? 'cut'
+          : 'throw'
+        : !this.onGround
+          ? this.vy < 0
+            ? 'jump'
+            : 'fall'
+          : this.vx !== 0
+            ? 'walk'
+            : 'idle'
+    drawZuzu(g, {
+      x: this.x,
+      y: this.y,
+      facing: this.facing,
+      poncho: this.poncho,
+      action,
+      walkPhase: this.walkPhase,
+      tick: this.tick,
+      progress:
+        this.throwPose > 0 ? 1 - this.throwPose / (cut ? 12 : 8) : undefined,
+      airborne: !this.onGround,
+    })
   }
 
   private renderFlyingKasa(g: CanvasRenderingContext2D, f: Flying) {
-    g.save()
-    g.translate(f.x, f.y)
-    g.rotate(f.spin)
-    g.fillStyle = '#d6b25e'
-    g.beginPath()
-    g.moveTo(-10, 3)
-    g.lineTo(0, -4)
-    g.lineTo(10, 3)
-    g.fill()
-    g.fillStyle = '#9a3412'
-    g.fillRect(-6, 4, 12, 4)
-    g.restore()
+    drawFlyingPoncho(g, f.x, f.y + 6, f.spin)
+    drawFlyingKasa(g, f.x, f.y, f.spin)
   }
 
   private renderFallen(g: CanvasRenderingContext2D) {
-    // Face down in the dust, still serious about it.
-    const x = Math.round(this.x)
-    const y = Math.min(Math.round(this.y), GROUND_Y)
     if (this.y > GROUND_Y + 4) return
-    g.fillStyle = this.poncho ? '#9a3412' : '#1e3a8a'
-    g.fillRect(x - 9, y - 5, 16, 5)
-    g.fillStyle = '#9ca3af'
-    g.fillRect(x + 6, y - 6, 7, 6)
-    g.fillStyle = '#6b7280'
-    g.fillRect(x + 10, y - 9, 4, 4)
-    g.fillStyle = '#3f2a1d'
-    g.fillRect(x - 13, y - 3, 5, 3)
+    drawZuzuFallen(
+      g,
+      this.x,
+      Math.min(this.y, GROUND_Y),
+      DEATH_TICKS - this.dead,
+      this.poncho,
+    )
   }
 
   private renderHud(g: CanvasRenderingContext2D) {
-    const shadow = '#0f1b3d'
-    g.fillStyle = 'rgba(15, 27, 61, 0.7)'
-    g.fillRect(0, 0, W, 16)
-    drawText(g, String(this.score).padStart(7, '0'), 4, 2, {
-      scale: 2,
-      color: '#fbbf24',
-      shadow,
-    })
-    drawText(g, `HI ${Math.max(this.hiScore, this.score)}`, W - 4, 1, {
-      align: 'right',
-      color: '#fca5a5',
-    })
-    drawText(g, `TRAIL ${this.level}`, W - 4, 9, {
-      align: 'right',
-      color: '#bfdbfe',
-    })
-    const seconds = Math.ceil(this.timer / 60)
-    drawText(g, `TIME ${seconds}`, 100, 1, {
-      color:
-        seconds <= 20 && Math.floor(this.tick / 10) % 2 ? '#ef4444' : '#fde68a',
-    })
-    for (let i = 0; i < Math.min(this.lives - 1, 5); i++) {
-      g.fillStyle = '#d6b25e'
-      g.beginPath()
-      g.moveTo(100 + i * 12, 15)
-      g.lineTo(105 + i * 12, 10)
-      g.lineTo(110 + i * 12, 15)
-      g.fill()
+    const spec = WEAPONS[this.weapon]
+    const b = this.boss && this.boss.dying === 0 ? this.boss : null
+    drawHud(
+      g,
+      {
+        score: this.score,
+        hiScore: Math.max(this.hiScore, this.score),
+        lives: this.lives,
+        hits: hitsFor(this.poncho, this.dead > 0 || this.over),
+        invuln: this.invuln,
+        weapon: this.weapon,
+        weaponLabel: spec.label,
+        shotsMax: spec.max,
+        shotsOut: this.shots.filter((k) => k.weapon === this.weapon).length,
+        cadence: Math.max(
+          0,
+          Math.min(1, 1 - this.throwCooldown / spec.cooldown),
+        ),
+        trail: this.level,
+        stageName: this.stage.name,
+        seconds: Math.ceil(this.timer / 60),
+        progress: Math.max(0, Math.min(1, this.x / STAGE_END)),
+        relics: this.foundSecrets.size,
+        relicsMax: STAGES.length,
+        boss: b && {
+          name: b.kind === 'devil' ? 'THE DUST DEVIL' : 'THE BONE BULL',
+          hp: Math.max(0, b.hp),
+          maxHp: b.maxHp,
+          flash: b.flash,
+        },
+        tick: this.tick,
+      },
+      (h, x, y, w, ht) => drawZuzuPortrait(h, x, y, w, ht, this.poncho),
+      (h, weapon, x, y) => this.renderWeaponIcon(h, weapon as Weapon, x, y),
+    )
+    if (this.banner !== this.bannerSeen) {
+      this.bannerSeen = this.banner
+      this.bannerFrom = this.tick
     }
-    // The gear in hand.
-    g.fillStyle = 'rgba(15, 27, 61, 0.7)'
-    g.fillRect(0, 16, 20 + WEAPONS[this.weapon].label.length * 6, 11)
-    this.renderWeaponIcon(g, this.weapon, 9, 21)
-    drawText(g, WEAPONS[this.weapon].label, 18, 18, { color: '#fde68a' })
-    drawText(g, `RELICS ${this.foundSecrets.size}/${STAGES.length}`, 4, 29, {
-      color: '#7dd3fc',
-    })
-    // Progress along the trail.
-    g.fillStyle = '#1f2937'
-    g.fillRect(170, 6, 60, 3)
-    g.fillStyle = '#fbbf24'
-    g.fillRect(170, 6, Math.min(60, (60 * this.x) / STAGE_END), 3)
-    if (this.boss && this.boss.dying === 0) {
-      const b = this.boss
-      g.fillStyle = 'rgba(15, 27, 61, 0.7)'
-      g.fillRect(W / 2 - 62, 18, 124, 16)
-      drawText(g, b.kind === 'devil' ? 'DUST DEVIL' : 'BONE BULL', W / 2, 19, {
-        align: 'center',
-        color: '#fca5a5',
-      })
-      g.fillStyle = '#1f2937'
-      g.fillRect(W / 2 - 58, 28, 116, 3)
-      g.fillStyle = '#ef4444'
-      g.fillRect(W / 2 - 58, 28, (116 * Math.max(0, b.hp)) / b.maxHp, 3)
-    }
-    if (this.banner) {
-      drawText(g, this.banner.text, W / 2, 70, {
-        scale: 2,
-        align: 'center',
-        color: '#fef3c7',
-        shadow: '#7c2d12',
-      })
-      if (this.banner.sub)
-        drawText(g, this.banner.sub, W / 2, 90, {
-          align: 'center',
-          color: '#fde68a',
-          shadow,
-        })
-    }
+    if (this.banner)
+      drawBanner(
+        g,
+        this.banner.text,
+        this.banner.sub,
+        this.tick - this.bannerFrom,
+      )
   }
 }
 

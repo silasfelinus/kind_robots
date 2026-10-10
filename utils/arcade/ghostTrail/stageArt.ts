@@ -3746,7 +3746,7 @@ function drawLightning(g: Ctx, tick: number) {
   const I =
     lt < 4 ? 1 : lt < 7 ? 0.35 : lt < 11 ? 0.8 : Math.exp(-(lt - 11) / 7) * 0.8
   const bx = 40 + hash(k * 3 + 3) * 240
-  const by = 34
+  const by = 30
   g.save()
   g.globalCompositeOperation = 'lighter'
   // The cloud deck lit from within around the strike.
@@ -3791,7 +3791,7 @@ function drawLightning(g: Ctx, tick: number) {
           if (rand() < 0.6)
             fork(pts[i]![0], pts[i]![1], len * 0.45, w * 0.6, depth - 1)
     }
-    fork(bx, by, 70 + hash(k * 3 + 4) * 40, 0.7, 2)
+    fork(bx, by, 40 + hash(k * 3 + 4) * 22, 0.7, 2)
   }
   g.restore()
 }
@@ -5038,28 +5038,31 @@ function paintObstacle(b: Ctx, key: StageKey, v: number) {
 
 const normalised = new WeakMap<
   ReadonlyArray<readonly [number, number]>,
-  Array<[number, number]>
+  { sig: string; runs: Array<[number, number]> }
 >()
 
-/** Ground runs sorted by x, overlapping or touching runs merged (cached per act's array). */
+/**
+ * Ground runs sorted by x, with overlapping or touching runs merged. Cached per act's array, and
+ * recomputed if that array is edited in place.
+ */
 function runsOf(
   ground: ReadonlyArray<readonly [number, number]>,
 ): Array<[number, number]> {
-  let out = normalised.get(ground)
-  if (!out) {
-    out = []
-    const sorted = ground
-      .filter(([a, b]) => Number.isFinite(a) && Number.isFinite(b) && b > a)
-      .map(([a, b]): [number, number] => [a, b])
-      .sort((p, q) => p[0] - q[0])
-    for (const run of sorted) {
-      const prev = out[out.length - 1]
-      if (prev && run[0] <= prev[1]) prev[1] = Math.max(prev[1], run[1])
-      else out.push(run)
-    }
-    normalised.set(ground, out)
+  const sig = ground.map(([a, b]) => `${a},${b}`).join(';')
+  const hit = normalised.get(ground)
+  if (hit && hit.sig === sig) return hit.runs
+  const runs: Array<[number, number]> = []
+  const sorted = ground
+    .filter(([a, b]) => Number.isFinite(a) && Number.isFinite(b) && b > a)
+    .map(([a, b]): [number, number] => [a, b])
+    .sort((p, q) => p[0] - q[0])
+  for (const run of sorted) {
+    const prev = runs[runs.length - 1]
+    if (prev && run[0] <= prev[1]) prev[1] = Math.max(prev[1], run[1])
+    else runs.push(run)
   }
-  return out
+  normalised.set(ground, { sig, runs })
+  return runs
 }
 
 /**

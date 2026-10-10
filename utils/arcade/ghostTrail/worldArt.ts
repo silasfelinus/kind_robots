@@ -1605,11 +1605,50 @@ export function drawWater(
       g.globalCompositeOperation = 'lighter'
       const band = g.createLinearGradient(0, top - 6, 0, top + 6)
       band.addColorStop(0, rgba('#ffd27a', 0))
-      band.addColorStop(0.5, rgba('#ffd27a', 0.18 + 0.22 * pulse))
+      band.addColorStop(0.5, rgba('#ffd27a', 0.22 + 0.3 * pulse))
       band.addColorStop(1, rgba('#ffd27a', 0))
       g.fillStyle = band
       g.fillRect(x0, top - 6, x1 - x0, 12)
-      for (let i = 0; i < 28; i++) {
+      // Above it, the rise foretold: a gold haze and chevrons climbing out of the water, so the
+      // tell reads even while the tide is still low at the foot of the screen.
+      const reach = 44
+      const haze = g.createLinearGradient(0, top - reach, 0, top)
+      haze.addColorStop(0, rgba('#ffd27a', 0))
+      haze.addColorStop(1, rgba('#ffd27a', 0.1 + 0.14 * pulse))
+      g.fillStyle = haze
+      g.fillRect(x0, top - reach, x1 - x0, reach)
+      g.globalCompositeOperation = 'source-over'
+      g.lineCap = 'round'
+      for (let i = 0; i < 12; i++) {
+        const k = ((tick * 0.55 + i * 29) % reach) / reach
+        const cx = camX + ((i + 0.5) * W) / 12 + Math.sin(tick / 15 + i) * 3
+        const cy = Math.min(top, H) - 3 - k * reach
+        const a = Math.sin(k * Math.PI) * (0.55 + 0.35 * pulse)
+        for (const [colour, lw, alpha] of [
+          [INK, 2.2, a * 0.5],
+          ['#ffe6a0', 1.1, a],
+        ] as const) {
+          g.strokeStyle = rgba(colour, alpha)
+          g.lineWidth = lw
+          g.beginPath()
+          g.moveTo(cx - 4, cy + 3)
+          g.lineTo(cx, cy)
+          g.lineTo(cx + 4, cy + 3)
+          g.stroke()
+        }
+      }
+      g.lineCap = 'butt'
+      g.globalCompositeOperation = 'lighter'
+      // The line itself burns gold, thickening on the beat.
+      g.strokeStyle = rgba('#ffe6a0', 0.45 + 0.45 * pulse)
+      g.lineWidth = 0.8 + pulse * 0.9
+      g.beginPath()
+      for (let sx = x0; sx <= x1; sx += 2) {
+        if (sx === x0) g.moveTo(sx, surf(sx))
+        else g.lineTo(sx, surf(sx))
+      }
+      g.stroke()
+      for (let i = 0; i < 40; i++) {
         const sx = camX + hash(i * 13 + Math.floor(tick / 3)) * W
         const a = hash(i * 7 + Math.floor(tick / 2))
         g.fillStyle = rgba(a > 0.5 ? '#fff6c8' : '#ffd27a', 0.5 + a * 0.5)
@@ -2558,7 +2597,41 @@ export function drawCard(g: G, card: Card) {
       budget -= text.length
       drawText(g, shown, left + indent, y0 + i * 12, { color: INK_TEXT })
     })
-    if (card.kind === 'story') waxSeal(g, PAGE.x + PAGE.w - 34, bottom - 18)
+    // A scribe's divider under the text: a gold rule, a gem, two curls.
+    const total = lines.reduce((n, l) => n + l.length, 0)
+    const ready = Math.max(0, Math.min(1, (age / 2 - total + 8) / 16))
+    if (ready > 0) {
+      const dy = Math.min(bottom - 30, y0 + Math.max(2, lines.length) * 12 + 10)
+      g.save()
+      g.globalAlpha *= ready
+      const half = 56
+      const rule = g.createLinearGradient(W / 2 - half, 0, W / 2 + half, 0)
+      rule.addColorStop(0, rgba('#c08a2a', 0))
+      rule.addColorStop(0.5, rgba('#c08a2a', 0.95))
+      rule.addColorStop(1, rgba('#c08a2a', 0))
+      g.fillStyle = rule
+      g.fillRect(W / 2 - half, dy, half * 2, 0.8)
+      curl(g, W / 2 - 12, dy + 0.4, 3, 0, Math.PI * 1.6)
+      curl(g, W / 2 + 12, dy + 0.4, 3, Math.PI, -Math.PI * 1.6)
+      g.fillStyle = INK
+      g.beginPath()
+      g.moveTo(W / 2, dy - 3.4)
+      g.lineTo(W / 2 + 3.4, dy + 0.4)
+      g.lineTo(W / 2, dy + 4.2)
+      g.lineTo(W / 2 - 3.4, dy + 0.4)
+      g.fill()
+      g.fillStyle = RUBRIC
+      g.beginPath()
+      g.moveTo(W / 2, dy - 2.4)
+      g.lineTo(W / 2 + 2.4, dy + 0.4)
+      g.lineTo(W / 2, dy + 3.2)
+      g.lineTo(W / 2 - 2.4, dy + 0.4)
+      g.fill()
+      g.fillStyle = rgba('#ffd0c0', 0.8)
+      g.fillRect(W / 2 - 1, dy - 1.2, 1, 1)
+      g.restore()
+    }
+    if (card.kind === 'story') waxSeal(g, PAGE.x + PAGE.w - 52, bottom - 16)
     if (age > 40 && Math.floor(age / 20) % 2 === 0)
       drawText(g, 'PRESS A', W / 2, bottom - 14, {
         align: 'center',

@@ -169,6 +169,10 @@ jobs:
         run: npm run test:zuzu-showdown-abbess
       - name: Zuzu Showdown fighter kit (The Siblings)
         run: npm run test:zuzu-showdown-siblings
+      - name: Zuzu Showdown fighter kit (Storm Crow)
+        run: npm run test:zuzu-showdown-storm-crow
+      - name: Zuzu Showdown fighter kit (River Croc)
+        run: npm run test:zuzu-showdown-river-croc
 
       - name: Zuzu Showdown fighter sprites
         run: npm run test:zuzu-showdown-sprites

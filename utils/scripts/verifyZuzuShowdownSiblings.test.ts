@@ -188,7 +188,7 @@ check('Big Ears catches a strike and scratches back', () => {
   assert.equal(s.fighters[1].health, PLACEHOLDER_B.health - 70)
 })
 
-check('Shield Him absorbs a hit with armor', () => {
+check('Shield Him absorbs a hit with armor, at half damage, for meter', () => {
   const charge = [
     ...Array(50).fill(press({ down: true })),
     press({ up: true, lp: true }),
@@ -208,6 +208,13 @@ check('Shield Him absorbs a hit with armor', () => {
     false,
     'she is not staggered',
   )
+  const heavy = moveOf(PLACEHOLDER_B, { id: 'stand_hp', heavy: false })
+  assert.equal(
+    s.fighters[0].health,
+    SIBLINGS.health - Math.trunc(heavy.damage / 2),
+    'half damage through the armor',
+  )
+  assert.ok(s.fighters[0].meter >= 200, 'shielding him builds meter')
 })
 
 check('Scramble slides low for two hits and goes under projectiles', () => {

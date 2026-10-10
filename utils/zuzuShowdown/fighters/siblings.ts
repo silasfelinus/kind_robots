@@ -96,7 +96,8 @@ const bigEars: MoveData = {
   parry: { from: 3, to: 24, damage: 70 },
 }
 
-// She turns her back and wraps around her brother: absorbs one hit.
+// She turns her back and wraps around her brother: absorbs one hit at half
+// damage and builds meter from it.
 const shieldHim: MoveData = {
   startup: 6,
   active: 1,
@@ -108,7 +109,7 @@ const shieldHim: MoveData = {
   hitstop: 0,
   pushback: 0,
   guard: 'mid',
-  armor: { from: 2, to: 34, hits: 1 },
+  armor: { from: 2, to: 34, hits: 1, damagePercent: 50, meter: 200 },
 }
 
 // A low skidding slide ending in a scrappy two-hit claw; under projectiles.

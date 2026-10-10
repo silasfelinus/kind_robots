@@ -153,9 +153,19 @@ export type MoveData = {
     strike?: boolean
     projectile?: boolean
     throw?: boolean
+    /** A low still hits (Submerge: only the eyes and ridge show). */
+    exceptLow?: boolean
   }
   /** Absorbs this many hits during the window (damage still lands). */
-  armor?: FrameWindow & { hits: number }
+  armor?: FrameWindow & {
+    hits: number
+    /** Soaks only light normals (River Croc's heavies). */
+    lightOnly?: boolean
+    /** The share of the damage that lands through it (Shield Him: half). */
+    damagePercent?: number
+    /** Meter gained for each hit soaked (Shield Him). */
+    meter?: number
+  }
   /** A strike landing in the window is caught and answered for `damage`. */
   parry?: FrameWindow & {
     damage: number
@@ -198,6 +208,20 @@ export type MoveData = {
   teleport?: { frame: number; to: 'behind' | 'wall' }
   /** From the active frames, the opponent's projectiles fly at half speed for this long (Vespers). */
   slowProjectiles?: number
+  /** From startup the fighter's body is this box instead (Submerge: flat under the water). */
+  hurtbox?: Box
+  /** On its startup frame the fighter takes off in flight mode for this many frames (Take Wing). */
+  flight?: number
+  /** On contact the attacker pops back up at this speed, sub-pixels per frame (Murder Dive). */
+  bounce?: number
+  /** A command grab that reels the victim in close, standing in this much hitstun, instead of knocking them down (Hook and Reel). */
+  grabStun?: number
+  /** The hitbox stands at the opponent's spot when the move started, not the attacker's (Thunderhead, The Watering Hole). */
+  strikeAt?: 'opponent'
+  /** The defender's red health stops regenerating for this many frames, on hit or block (Bellow). */
+  freezeRed?: number
+  /** From startup, pressing one of these buttons cancels into that special (Submerge into Erupt). */
+  followUp?: { buttons: AttackButton[]; move: string }
 }
 
 /** A command move: a motion plus a button (or Easy Special) runs `move`. */
@@ -210,6 +234,8 @@ export type SpecialMove = {
   move: MoveData
   /** Overrides for the heavy-button version. */
   heavy?: Partial<MoveData>
+  /** Reached only as another move's `followUp`, never from neutral (Erupt). */
+  followUp?: boolean
 }
 
 export type FighterData = {
@@ -300,6 +326,8 @@ export type AttackState = {
   easy: boolean
   /** A dodge or invulnerability already scored READ! against this move. */
   read: boolean
+  /** Where the opponent stood when the move started, for `strikeAt` moves. */
+  targetX?: number
 }
 
 export type ComboState = {
@@ -349,6 +377,10 @@ export type FighterState = {
   blind: number
   /** Frames left in which the opponent's projectiles fly at half speed (Vespers). */
   bell: number
+  /** Frames left in flight mode: no gravity, free movement, attacks at any height (Take Wing). */
+  flight: number
+  /** Frames left in which red health doesn't regenerate (Bellow). */
+  redFreeze: number
   motion: MotionState
   /** Buttons pressed during a freeze, applied on the first free frame. */
   buffer: BufferedButton[]

@@ -344,9 +344,10 @@ export const FOES: Record<FoeKind, FoeDef> = {
   leech: {
     hp: 1,
     points: 150,
-    hw: 6,
-    cy: 4,
-    hh: 6,
+    // A tall-ish box for a low body, so a kunai thrown from standing still finds it.
+    hw: 7,
+    cy: 6,
+    hh: 8,
     spawn: (f) => {
       f.timer = 30
     },

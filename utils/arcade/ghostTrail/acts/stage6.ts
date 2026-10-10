@@ -506,7 +506,7 @@ const bellBeneath: Act = {
   theme: 'abbey',
   length: 9000,
   ground: groundWith(9100, [
-    [1580, 48],
+    [1600, 48],
     [4560, 48],
   ]),
   ledges: [

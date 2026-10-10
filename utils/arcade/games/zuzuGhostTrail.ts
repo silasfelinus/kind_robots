@@ -113,7 +113,9 @@ const H = 240
 const GROUND_Y = 208
 const GRAVITY = 0.3
 const JUMP_VY = -5.4
-const WALK = 1.3
+/** Walk pace (Silas, 2026-10-10: the original 1.3 felt slow over long acts). */
+const WALK = 1.7
+/** A jump's committed sideways speed: every authored gap, updraft and lift is tuned to it. */
 const JUMP_VX = 2
 const KUNAI_SPEED = 4.5
 const INVULN_TICKS = 100
@@ -695,7 +697,7 @@ class ZuzuGhostTrail implements ArcadeGameInstance {
         this.vx = walk
         this.facing = 1
       }
-      if (this.vx !== 0) this.walkPhase += wading ? 0.15 : 0.25
+      if (this.vx !== 0) this.walkPhase += wading ? 0.2 : 0.32
       if (
         input.pressed.up ||
         input.pressed.b ||
@@ -1054,6 +1056,11 @@ class ZuzuGhostTrail implements ArcadeGameInstance {
       f.t++
       const def = FOES[f.kind]
       def.update(f, ctx)
+      // A diving harpy that meets solid rock pulls up: caves and overhangs are real cover.
+      if (f.phase === 'dive' && this.blockedAt(f.x, f.y - def.cy)) {
+        f.phase = 'rest'
+        f.vy = -1.6
+      }
       if (f.y > H + 20) f.hp = -99
       if (f.hp <= 0) continue
       if (def.rises && f.phase === 'rise') continue
@@ -1465,17 +1472,27 @@ class ZuzuGhostTrail implements ArcadeGameInstance {
     const frame: InputFrame = { held, pressed: { ...held } }
     if (this.card) return frame
     if (this.boss && this.boss.dying === 0) return this.pilotBoss(frame)
-    // Hop what comes in low and step out from under what falls, before trading shots.
-    if (this.hopIncoming(frame) || this.dodgeBolts(frame)) return frame
+    // Hop what comes in low, step out from under what falls, and clear a diving harpy's mark,
+    // before trading shots.
+    if (
+      this.hopIncoming(frame) ||
+      this.dodgeBolts(frame) ||
+      this.dodgeDives(frame)
+    )
+      return frame
     // Deal with whatever is closest, facing it.
     const near = this.foes
       .filter((f) => {
         const def = FOES[f.kind]
         // One standing right on top of him can't be faced (he would only turn on the spot): he
         // walks on out of it instead.
+        const dy = f.y - def.cy - (this.y - 12)
+        // A straight throw sails over anything lower (a leech in the mud): he vaults those.
+        const straight = this.weapon === 'kunai' || this.weapon === 'kasa'
         return (
           !(def.rises && f.phase === 'rise') &&
-          Math.abs(f.y - def.cy - (this.y - 12)) < 22 &&
+          Math.abs(dy) < 22 &&
+          (!straight || dy < def.hh + 2) &&
           Math.abs(f.x - this.x) >= 4
         )
       })
@@ -1510,7 +1527,9 @@ class ZuzuGhostTrail implements ArcadeGameInstance {
       !!near &&
       near.x < this.x &&
       ((gap >= reach && !ambush) || (gap <= 30 && this.weapon !== 'katana'))
-    if (near && !cover && gap < (ambush ? W : 110) && !behind) {
+    // Held under the flood, he stops fighting and makes for high ground.
+    const drowning = this.underwater > 20
+    if (near && !cover && !drowning && gap < (ambush ? W : 110) && !behind) {
       const dir = near.x > this.x ? 1 : -1
       // A sister winding up her censer (her tell) sweeps a step in front: back out of it.
       if (near.kind === 'sister' && near.phase === 'aim' && gap < 44) {
@@ -1550,6 +1569,7 @@ class ZuzuGhostTrail implements ArcadeGameInstance {
       (this.weapon !== 'katana' || crate.x - this.x < 24)
     )
       frame.pressed.a = true
+    if (this.pilotTerrain(frame)) return frame
     held.right = true
     if (this.onGround) {
       // Take off close to the edge so the jump clears the whole pit.
@@ -1611,6 +1631,182 @@ class ZuzuGhostTrail implements ArcadeGameInstance {
     return roofed || h.w > 44
   }
 
+  /**
+   * The pilot's read of the trail's moving parts: ride rafts and lifts and step off where they
+   * land, wait at a pit's edge until a jump would land (a mover in reach, an updraft, the water
+   * low enough to jump from), and wait out a flood on a dry perch.
+   */
+  private pilotTerrain(frame: InputFrame): boolean {
+    if (!this.onGround) return false
+    const held = frame.held
+    const movers = this.act.movers ?? []
+    const tide = this.act.tide
+    // Feet at or above `perch` keep his head out of the highest water.
+    const perch = tide ? tide.high + BODY_H - 4 : GROUND_Y
+    const onPerch = !!tide && this.y <= perch
+    const docked = movers.findIndex((m) => {
+      const p = moverAt(m, this.actTick + 1)
+      return (
+        p.x <= this.x + 8 &&
+        p.x + m.w > this.x + 14 &&
+        Math.abs(p.y - this.y) <= 3
+      )
+    })
+    if (this.riding !== null) {
+      const m = movers[this.riding]
+      const ahead = this.floorAt(this.x + 8, this.y - 2)
+      // (a lift tops out a little above its ledge)
+      if (ahead !== null && ahead >= this.y - 2 && ahead <= this.y + 10)
+        held.right = true
+      else {
+        // Hop off only onto footing ahead that is no lower than the mover.
+        const land = this.planJump()
+        if (
+          land &&
+          land.mover !== this.riding &&
+          land.x > this.x + 8 &&
+          land.y <= this.y + 10
+        ) {
+          held.right = true
+          frame.pressed.up = true
+        } else if (m && this.x + 8 < moverAt(m, this.actTick).x + m.w)
+          held.right = true
+      }
+      return true
+    }
+    if (this.floorAt(this.x + 12, this.y - 1) === null) {
+      // At an edge: board a docked mover, or jump only when the jump lands.
+      const land = this.planJump()
+      const safe = !onPerch || (land && land.y <= perch) || this.tideAllows()
+      if (this.foes.some((f) => f.x > this.x && f.x - this.x < 110)) {
+        // Hold at the edge (throwing) while something is charging across it.
+        if (this.throwCooldown === 0) frame.pressed.a = true
+      } else if (docked >= 0 && safe) held.right = true
+      else if (land && safe) {
+        held.right = true
+        frame.pressed.up = true
+      } else if (this.floorAt(this.x + 4, this.y - 1) !== null)
+        held.right = true
+      return true
+    }
+    // On a dry perch with the flood coming: wait it out (or take a raft that is waiting).
+    const next = this.floorAt(this.x + 10, this.y - 2)
+    if (onPerch && next !== null && next > perch && !this.tideAllows()) {
+      if (docked >= 0) held.right = true
+      return true
+    }
+    // Vault, rather than walk into, anything waiting below a drop or too low to throw at.
+    const blocking = this.foes.some((f) => {
+      const def = FOES[f.kind]
+      if (def.flies || f.x < this.x || (def.rises && f.phase === 'rise'))
+        return false
+      const below = f.y > this.y + 8 && f.x - this.x < 48
+      const low =
+        (this.weapon === 'kunai' || this.weapon === 'kasa') &&
+        Math.abs(f.y - this.y) < 4 &&
+        Math.abs(f.y - def.cy - (this.y - 12)) >= def.hh &&
+        f.x - this.x < 30
+      return below || low
+    })
+    const vault = blocking ? this.planJump() : null
+    if (vault && (!onPerch || vault.y <= perch || this.tideAllows())) {
+      held.right = true
+      frame.pressed.up = true
+      return true
+    }
+    return false
+  }
+
+  /** Can the pilot wade from here to the next dry perch before the water closes over his head? */
+  private tideAllows(): boolean {
+    const tide = this.act.tide
+    if (!tide) return true
+    const perch = tide.high + BODY_H - 4
+    const refuge = this.act.blocks
+      .filter((b) => b.x > this.x + 10 && blockTop(b, GROUND_Y) <= perch)
+      .reduce((a, b) => Math.min(a, b.x), this.length)
+    let dry = 0
+    while (
+      dry < tide.period &&
+      tideAt(tide, this.actTick + dry).y >= GROUND_Y - BODY_H + 4
+    )
+      dry++
+    return dry >= (refuge - this.x) / 0.9
+  }
+
+  /** Where a running jump right from here would land (static ground, movers in time, updrafts). */
+  private planJump(): { x: number; y: number; mover: number | null } | null {
+    const water = this.waterY()
+    const wading = water !== null && this.y > water + 6
+    let x = this.x
+    let y = this.y
+    let vy = wading ? JUMP_VY * 0.85 : JUMP_VY
+    for (let t = 1; t < 160; t++) {
+      const prevY = y
+      vy += GRAVITY
+      for (const u of this.act.updrafts ?? [])
+        if (x > u.x && x < u.x + u.w && y > u.top)
+          vy = Math.max(-3.4, vy - u.lift)
+      let nx = x + JUMP_VX
+      for (const b of this.act.blocks) {
+        const top = blockTop(b, GROUND_Y)
+        const bottom = b.y !== undefined ? top + b.h : GROUND_Y + 40
+        if (
+          y > top + 1 &&
+          y - BODY_H < bottom &&
+          nx + BODY_HW > b.x &&
+          nx - BODY_HW < b.x + b.w
+        )
+          nx =
+            x < b.x + b.w / 2
+              ? b.x - BODY_HW - 0.01
+              : b.x + b.w + BODY_HW + 0.01
+      }
+      x = nx
+      y += vy
+      if (vy >= 0) {
+        let land: number | null = null
+        let mover: number | null = null
+        const take = (s: number, m: number | null = null) => {
+          if (land === null || s < land) {
+            land = s
+            mover = m
+          }
+        }
+        for (const l of this.act.ledges)
+          if (x > l.x && x < l.x + l.w && prevY <= l.y && y >= l.y) take(l.y)
+        ;(this.act.movers ?? []).forEach((m, i) => {
+          const p = moverAt(m, this.actTick + t)
+          if (x > p.x && x < p.x + m.w && prevY <= p.y + 3 && y >= p.y)
+            take(p.y, i)
+        })
+        for (const b of this.act.blocks) {
+          const top = blockTop(b, GROUND_Y)
+          if (x > b.x - 3 && x < b.x + b.w + 3 && prevY <= top && y >= top)
+            take(top)
+        }
+        if (y >= GROUND_Y && prevY <= GROUND_Y && this.groundAt(x))
+          take(GROUND_Y)
+        if (land !== null) return { x, y: land, mover }
+      } else
+        for (const b of this.act.blocks) {
+          if (b.y === undefined) continue
+          const bottom = b.y + b.h
+          if (
+            x > b.x - 3 &&
+            x < b.x + b.w + 3 &&
+            prevY - BODY_H >= bottom &&
+            y - BODY_H < bottom
+          ) {
+            y = bottom + BODY_H
+            vy = 0
+          }
+        }
+      if (y > H + 20) return null
+    }
+    return null
+  }
+
   /** Hop bullets and waves coming in low. */
   private hopIncoming(frame: InputFrame): boolean {
     if (!this.onGround) return false
@@ -1636,6 +1832,32 @@ class ZuzuGhostTrail implements ArcadeGameInstance {
       if (back < 0) frame.held.left = true
       else frame.held.right = true
     }
+    return true
+  }
+
+  /** Step out from under a harpy's dive (it strikes where he stood when it screeched). */
+  private dodgeDives(frame: InputFrame): boolean {
+    if (!this.onGround) return false
+    const spots = this.foes
+      .filter(
+        (f) => f.kind === 'harpy' && (f.phase === 'dive' || f.phase === 'aim'),
+      )
+      .map((f) => {
+        if (f.phase === 'aim' || f.vy <= 0) return f.x
+        return f.x + f.vx * Math.max(0, (GROUND_Y - 10 - f.y) / f.vy)
+      })
+      .filter((x) => Math.abs(x - this.x) < 18)
+    if (!spots.length) return false
+    const away = spots.reduce((a, x) => a + x, 0) / spots.length
+    // Away from the strike, unless that is off an edge or against an ambush's wall.
+    const right = this.activeLock() ? this.camX + W - 6 : this.length
+    const footing = (d: number) =>
+      this.floorAt(this.x + d * 14, this.y - 1) !== null
+    let dir = away > this.x ? -1 : 1
+    if (!footing(dir) || (dir > 0 && this.x > right - 20)) dir = -dir
+    if (!footing(dir)) return false
+    if (dir > 0) frame.held.right = true
+    else frame.held.left = true
     return true
   }
 

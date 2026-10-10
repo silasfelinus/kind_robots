@@ -88,3 +88,45 @@ pretending unimplemented resources have been dealt.
 Acceptance for t-015 is code/contract CI and scoped review, **not** proof of
 authenticated, live phone/tablet/desktop screenshots, deployment, or public
 launch. That last gate remains t-018. No `/play` route has been introduced.
+
+## Authored Homestead gameplay: private preview v2
+
+`authoredHomestead.json` is the **allowlisted, developer-spoiler-stripped** selection
+of the canonical Conductor authored pack, `projects/zuzu-shifting-lands/encounters/HOMESTEAD-12.json`.
+Its `sourceSha` pins the Conductor Git blob (do not edit the JSON by hand).
+Every first-land location has four fixed-cast illustrated scene identities with
+two independent authored actions, a skill check, and specific written
+success/failure. Art references remain `null` until approved bespoke per-scene
+art has source-provenance and permissions. Existing Zuzu Gamebook scenery may
+be presented as **clearly provisional** atmospheric art; it is not a fabricated
+portrait of the assigned encounter cast.
+
+`authoredJourney.ts` owns the small, pure v2 adapter that selects and pins one
+seeded authored encounter per Homestead location and records exact choice,
+dice faces, skill/target, outcome text, HP/provision deltas and narrative flags.
+It uses the existing journey engine for safe travel and trial state and replaces
+the legacy no-dice encounter transition *atomically*, without preserving any
+placeholder cost or claiming an extra roll. Prospectively changed tiles record
+their reason; visited locations are never moved or redrawn. All later lands
+retain existing deterministic prototype encounters while their authored packs
+are built; these are labeled as later-land preview rules in the UI.
+
+`stores/shiftingLandsJourneyStore.ts` persists `AuthoredJourneyState` with
+`kr.shiftingLands.authoredJourney.v2`, preserving both the original
+`kr.shiftingLands.homestead.v1` workshop and the earlier unmerged
+`kr.shiftingLands.journey.v1` test save. It validates the version and pinned
+source pack before restoring and never silently applies v2 rules to v1 saves.
+
+`components/navigation/flip-card.vue` now supports opt-in
+`revealOnTrigger`: one back-to-front turn, settling on a **stable readable
+front**, with its original 360-degree default preserved for other consumers.
+The board's saved face remains visible after refresh, and the existing KR
+`kr-card-flip` handles history inspection. Original source-trackable custom
+backs live at `public/images/shifting-lands/encounter-back.svg` and
+`trial-back.svg`; these are functional first-draft graphic assets, not a
+claim of reviewed/generated illustrative ArtImages.
+
+This is an **Admin-only source change**, not a claim of deployed production,
+authenticated screenshots, or public launch. There is no `/play` route.
+Later-land authored prose, per-encounter source-linked art, more detailed
+Reward/companion cards, and public visual approval remain open tasks.

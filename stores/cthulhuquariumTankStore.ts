@@ -276,6 +276,10 @@ interface PurchaseFinaleResponse {
   finaleJustTriggered: boolean
 }
 
+// economy.yaml hunger bands: below 50 a fish slows down, so "hungry" for the
+// Feed button means under 50.
+const HUNGRY_BELOW = 50
+
 // cthulhuquarium/t-080: coins clicked in the tank are batched the same way
 // Clean clicks are (see CLEAN_DEBOUNCE_MS), then credited server-side.
 const COLLECT_DEBOUNCE_MS = 400
@@ -520,6 +524,9 @@ export const useCthulhuquariumTankStore = defineStore(
     const coinVisibleSeconds = computed(
       () => tank.value?.coinVisibleSeconds ?? 0,
     )
+    const hungryCount = computed(
+      () => stock.value.filter((entry) => entry.hunger < HUNGRY_BELOW).length,
+    )
     const hungriest = computed<TankStock | null>(() =>
       stock.value.reduce<TankStock | null>(
         (worst, entry) =>
@@ -636,6 +643,25 @@ export const useCthulhuquariumTankStore = defineStore(
       }
       error.value = res.message || 'Could not feed that occupant.'
       return false
+    }
+
+    // cthulhuquarium/t-083: one tap feeds every fish below the hunger
+    // threshold that slows coin drops (HUNGRY_BELOW). With nobody that hungry
+    // it feeds the single hungriest fish, which keeps the intro's "press Feed"
+    // beat working on a brand-new, full tank. Returns the fed stock ids.
+    async function feedHungry(): Promise<number[]> {
+      const hungry = stock.value.filter((entry) => entry.hunger < HUNGRY_BELOW)
+      const targets = hungry.length
+        ? hungry
+        : hungriest.value
+          ? [hungriest.value]
+          : []
+      const fed: number[] = []
+      for (const entry of targets) {
+        if (!(await feed(entry.id))) break
+        fed.push(entry.id)
+      }
+      return fed
     }
 
     async function unlock(monsterId: number): Promise<boolean> {
@@ -1061,6 +1087,8 @@ export const useCthulhuquariumTankStore = defineStore(
       coinDropSeconds,
       coinVisibleSeconds,
       requestCollect,
+      feedHungry,
+      hungryCount,
       flushCollectNow,
       purchaseUpgrade,
       loading,

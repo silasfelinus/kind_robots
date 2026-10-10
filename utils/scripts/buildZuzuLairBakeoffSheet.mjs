@@ -4,14 +4,29 @@
 import { readFileSync, writeFileSync } from 'node:fs'
 
 const escape = (value) =>
-  String(value ?? '').replace(/[&<>"']/g, (char) => ({
-    '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;',
-  })[char])
+  String(value ?? '').replace(
+    /[&<>"']/g,
+    (char) =>
+      ({
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#39;',
+      })[char],
+  )
 
 function localVideoPath(value) {
-  const file = String(value || '').replaceAll('\\', '/')
-  if (!file || file.startsWith('/') || /(^|\/)\.\.(\/|$)/.test(file) || /^[a-z][a-z0-9+.-]*:/i.test(file)) {
-    throw new Error('Clip paths must be relative local files, not URLs or parent paths.')
+  const file = String(value || '').replaceAll('\\\\', '/')
+  if (
+    !file ||
+    file.startsWith('/') ||
+    /(^|\/)\.\.(\/|$)/.test(file) ||
+    /^[a-z][a-z0-9+.-]*:/i.test(file)
+  ) {
+    throw new Error(
+      'Clip paths must be relative local files, not URLs or parent paths.',
+    )
   }
   return file.split('/').map(encodeURIComponent).join('/')
 }
@@ -20,12 +35,22 @@ export function buildSheet(manifest) {
   const scenes = manifest.scenes
   const lanes = manifest.lanes
   const clips = manifest.clips ?? []
-  if (!Array.isArray(scenes) || scenes.length !== 4 || !Array.isArray(lanes) || lanes.length !== 4 || !Array.isArray(clips)) {
+  if (
+    !Array.isArray(scenes) ||
+    scenes.length !== 4 ||
+    !Array.isArray(lanes) ||
+    lanes.length !== 4 ||
+    !Array.isArray(clips)
+  ) {
     throw new Error('Expected exactly four scenes, four lanes and a clips array.')
   }
   const sceneIds = new Set(scenes.map((scene) => scene.id))
   const laneIds = new Set(lanes.map((lane) => lane.id))
-  if (sceneIds.size !== 4 || laneIds.size !== 4 || [...sceneIds, ...laneIds].some((id) => !id)) {
+  if (
+    sceneIds.size !== 4 ||
+    laneIds.size !== 4 ||
+    [...sceneIds, ...laneIds].some((id) => !id)
+  ) {
     throw new Error('Scene and lane IDs must be non-empty and unique.')
   }
   const byCell = new Map()
@@ -37,22 +62,30 @@ export function buildSheet(manifest) {
     if (byCell.has(key)) throw new Error(`Duplicate clip cell: ${key}`)
     byCell.set(key, clip)
   }
-  const headers = lanes.map((lane) =>
-    `<th scope="col">${escape(lane.label)}<small>${escape(lane.id)}</small></th>`
-  ).join('')
-  const rows = scenes.map((scene) => {
-    const cells = lanes.map((lane) => {
-      const clip = byCell.get(`${scene.id}/${lane.id}`)
-      if (!clip?.file) return '<td><p class="missing">Not rendered</p></td>'
-      const meta = [
-        clip.jobId ? `ArtJob ${clip.jobId}` : 'ArtJob not recorded',
-        clip.model || lane.id,
-        clip.seed == null ? 'seed not recorded' : `seed ${clip.seed}`,
-      ].join(' | ')
-      return `<td><video controls muted playsinline preload="metadata" src="${escape(localVideoPath(clip.file))}"></video><p>${escape(meta)}</p></td>`
-    }).join('')
-    return `<tr><th scope="row">${escape(scene.label)}<small>ArtImage ${escape(scene.artImageId ?? 'unverified')}</small><p>${escape(scene.prompt ?? '')}</p></th>${cells}</tr>`
-  }).join('')
+  const headers = lanes
+    .map(
+      (lane) =>
+        `<th scope="col">${escape(lane.label)}<small>${escape(lane.id)}</small></th>`,
+    )
+    .join('')
+  const rows = scenes
+    .map((scene) => {
+      const cells = lanes
+        .map((lane) => {
+          const clip = byCell.get(`${scene.id}/${lane.id}`)
+          if (!clip?.file)
+            return '<td><p class="missing">Not rendered</p></td>'
+          const meta = [
+            clip.jobId ? `ArtJob ${clip.jobId}` : 'ArtJob not recorded',
+            clip.model || lane.id,
+            clip.seed == null ? 'seed not recorded' : `seed ${clip.seed}`,
+          ].join(' | ')
+          return `<td><video controls muted playsinline preload="metadata" src="${escape(localVideoPath(clip.file))}"></video><p>${escape(meta)}</p></td>`
+        })
+        .join('')
+      return `<tr><th scope="row">${escape(scene.label)}<small>ArtImage ${escape(scene.artImageId ?? 'unverified')}</small><p>${escape(scene.prompt ?? '')}</p></th>${cells}</tr>`
+    })
+    .join('')
   return `<!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width">
 <title>Zuzu Lair clip comparison</title>
@@ -76,9 +109,15 @@ document.getElementById('pause').onclick = () => { videos.forEach(v => v.pause()
 </script></body></html>`
 }
 
-if (process.argv[1]?.endsWith('buildZuzuLairBakeoffSheet.mjs') && process.argv.length > 2) {
+if (
+  process.argv[1]?.endsWith('buildZuzuLairBakeoffSheet.mjs') &&
+  process.argv.length > 2
+) {
   const [source, destination] = process.argv.slice(2)
-  if (!destination) throw new Error('Usage: node buildZuzuLairBakeoffSheet.mjs manifest.json sheet.html')
+  if (!destination)
+    throw new Error(
+      'Usage: node buildZuzuLairBakeoffSheet.mjs manifest.json sheet.html',
+    )
   const manifest = JSON.parse(readFileSync(source, 'utf8'))
   writeFileSync(destination, buildSheet(manifest), 'utf8')
   console.log(`Wrote private comparison sheet to ${destination}`)

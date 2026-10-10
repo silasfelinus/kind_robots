@@ -345,15 +345,28 @@
             >
               Journal
             </h3>
-            <p class="mt-2 text-sm">
-              {{
-                store.run.flags.length
-                  ? store.run.flags
-                      .map((flag) => flag.replace(/-/g, ' '))
-                      .join(' · ')
-                  : 'The road has not yet left its marks.'
-              }}
+            <p v-if="!store.run.flags.length" class="mt-2 text-sm opacity-75">
+              The road has not yet left its marks.
             </p>
+            <template v-else>
+              <p v-if="notes.deeds.length" class="mt-2 text-sm">
+                <span class="opacity-60">Deeds:</span>
+                <template v-for="(deed, i) in notes.deeds" :key="deed.text">
+                  <span v-if="i"> · </span>
+                  <span :class="deed.dark ? 'italic text-error' : ''">{{
+                    deed.text
+                  }}</span>
+                </template>
+              </p>
+              <p v-if="notes.debts.length" class="mt-2 text-sm">
+                <span class="opacity-60">Owed by:</span>
+                {{ notes.debts.join(' · ') }}
+              </p>
+              <p v-if="notes.learned.length" class="mt-2 text-sm">
+                <span class="opacity-60">Learned:</span>
+                {{ notes.learned.join(' · ') }}
+              </p>
+            </template>
             <p class="mt-4 text-xs opacity-60">
               Sections travelled: {{ store.run.visited.length }} · Endings
               discovered: {{ store.discovered.length }}
@@ -375,6 +388,7 @@ import {
   visibleChoices,
 } from '~/utils/zuzuGamebook/adventure'
 import { plate, platePath } from '~/utils/zuzuGamebook/art'
+import { journal } from '~/utils/zuzuGamebook/journal'
 import { useZuzuGamebookStore } from '~/stores/zuzuGamebookStore'
 
 const store = useZuzuGamebookStore()
@@ -382,6 +396,7 @@ const showSheet = ref(false)
 const current = computed(() => scene(store.run.sceneId))
 const art = computed(() => plate(current.value.art))
 const choices = computed(() => visibleChoices(store.run, current.value))
+const notes = computed(() => journal(store.run.flags))
 const moves: { action: BattleAction; label: string; help: string }[] = [
   {
     action: 'strike',

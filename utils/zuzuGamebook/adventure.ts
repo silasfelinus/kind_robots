@@ -13,6 +13,8 @@ export type {
 export { BOOK, SCENE_ORDER } from './book'
 
 const MAX_HEALTH = 12
+const ATTR_MIN = -2
+const ATTR_MAX = 4
 const MAX_RESOLVE = 4
 const SLOTS = 5
 
@@ -43,10 +45,28 @@ export function startRun(seed: number): Run {
   }
 }
 
+/** Honor: deeds recorded as `honor:*` flags (BOOK-ONE-OUTLINE.md §2). */
+export function honor(run: Run): number {
+  return run.flags.filter((flag) => flag.startsWith('honor:')).length
+}
+
+/** Taint: deeds recorded as `taint:*` flags. */
+export function taint(run: Run): number {
+  return run.flags.filter((flag) => flag.startsWith('taint:')).length
+}
+
+function addFlags(flags: string[], more: (string | undefined)[]): void {
+  for (const flag of more) if (flag && !flags.includes(flag)) flags.push(flag)
+}
+
 /** Why a choice cannot be taken right now, or null when it can. */
 export function lockReason(run: Run, choice: Choice): string | null {
   if (choice.needs && !run.flags.includes(choice.needs))
     return choice.hint ?? 'You do not know enough yet.'
+  if (choice.needsHonor && honor(run) < choice.needsHonor)
+    return choice.hint ?? 'Your word does not carry that far yet.'
+  if (choice.needsTaint && taint(run) < choice.needsTaint)
+    return choice.hint ?? 'Something in you would have to change first.'
   if (choice.requires && !run.items.includes(choice.requires))
     return 'Requires: ' + choice.requires
   if (choice.spend && !run.items.includes(choice.spend))
@@ -77,8 +97,17 @@ function roll(seed: number): { seed: number; dice: [number, number] } {
 function applyEffects(run: Run, effects: SceneEffects | undefined): Run {
   if (!effects) return run
   const next = { ...run, items: [...run.items], flags: [...run.flags] }
-  if (effects.flag && !next.flags.includes(effects.flag))
-    next.flags.push(effects.flag)
+  addFlags(next.flags, [effects.flag, ...(effects.flags ?? [])])
+  if (effects.attr) {
+    const { attribute, amount } = effects.attr
+    next.attributes = {
+      ...next.attributes,
+      [attribute]: Math.max(
+        ATTR_MIN,
+        Math.min(ATTR_MAX, next.attributes[attribute] + amount),
+      ),
+    }
+  }
   if (effects.gain && next.items.length < SLOTS) next.items.push(effects.gain)
   if (effects.heal)
     next.health = Math.min(MAX_HEALTH, next.health + effects.heal)
@@ -131,8 +160,7 @@ export function takeChoice(run: Run, id: string): Run {
   }
   if (choice.spend) next.items.splice(next.items.indexOf(choice.spend), 1)
   if (choice.gain && next.items.length < SLOTS) next.items.push(choice.gain)
-  if (choice.flag && !next.flags.includes(choice.flag))
-    next.flags.push(choice.flag)
+  addFlags(next.flags, [choice.flag, ...(choice.flags ?? [])])
   let target = choice.to
   if (choice.check) {
     const result = roll(run.seed)

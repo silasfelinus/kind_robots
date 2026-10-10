@@ -561,6 +561,26 @@
           </section>
 
           <section
+            v-if="game.lastAuthoredOutcome && !game.state.active"
+            class="rounded-2xl border border-warning/40 bg-base-200 p-5 shadow-lg"
+            aria-label="Last encounter outcome"
+            aria-live="polite"
+          >
+            <p class="text-xs font-black uppercase tracking-widest text-warning">The road remembers</p>
+            <h3 class="mt-2 font-serif text-xl font-bold">{{ lastPlayedTitle }}</h3>
+            <p class="mt-3 text-sm leading-relaxed">{{ game.lastAuthoredOutcome.resultText }}</p>
+            <p class="mt-3 text-xs opacity-70">
+              {{ game.lastAuthoredOutcome.roll.dice.join(' + ') }} +
+              {{ game.lastAuthoredOutcome.roll.modifier }} =
+              {{ game.lastAuthoredOutcome.roll.total }} vs
+              {{ game.lastAuthoredOutcome.roll.difficulty }} ·
+              {{ game.lastAuthoredOutcome.roll.success ? 'Success' : 'Failure' }}
+              · HP {{ game.lastAuthoredOutcome.hpChange >= 0 ? '+' : '' }}{{ game.lastAuthoredOutcome.hpChange }}
+              · Provisions {{ game.lastAuthoredOutcome.provisionChange >= 0 ? '+' : '' }}{{ game.lastAuthoredOutcome.provisionChange }}
+            </p>
+          </section>
+
+          <section
             class="rounded-3xl border border-base-content/15 bg-base-200 px-4 py-5 sm:px-6"
             aria-label="Card decks and discards"
           >
@@ -809,7 +829,10 @@
                 <p class="font-bold">
                   Visited on turn {{ inspectedOutcome.turn }}
                 </p>
-                <p class="mt-1">Approach: {{ inspectedOutcome.approach }}</p>
+                <p v-if="game.savedEncounter(inspectId || '')" class="mt-1 leading-relaxed">
+                  {{ game.savedEncounter(inspectId || '')?.resultText }}
+                </p>
+                <p v-else class="mt-1">Approach: {{ inspectedOutcome.approach }}</p>
                 <p v-if="inspectedOutcome.roll">
                   Roll {{ inspectedOutcome.roll.dice.join(' + ') }} +
                   {{ inspectedOutcome.roll.modifier }} =

@@ -21,9 +21,9 @@ const files = (name) => {
   return [full]
 }
 
-const offenders = watched.flatMap(files).filter((file) =>
-  readFileSync(file, 'utf8').includes(oldHost),
-)
+const offenders = watched
+  .flatMap(files)
+  .filter((file) => readFileSync(file, 'utf8').includes(oldHost))
 if (offenders.length) {
   throw new Error(
     'Retired hosting target in runnable tests/examples: ' +
@@ -31,4 +31,4 @@ if (offenders.length) {
   )
 }
 
-process.stdout.write('Cypress and HTTP examples use no retired hosting targets.\\n')
+process.stdout.write('Cypress and HTTP examples use no retired hosting targets.\n')

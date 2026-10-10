@@ -60,6 +60,27 @@ const EXTRA_EVERY = 20_000
 const ARENA_X = STAGE_END - W + 60
 const BOSS_POINTS = 5000
 const BOSS_DYING_TICKS = 70
+// Advancing through a trail earns a finite encounter budget. Camping cannot
+// turn endlessly respawning spirits into unlimited score or extra lives.
+export const ENCOUNTER_STEP = 112
+export const ENCOUNTERS_PER_STEP = 2
+export const MAX_ENCOUNTER_CREDITS = 6
+
+export function advanceEncounterBudget(
+  frontier: number,
+  credits: number,
+  x: number,
+) {
+  const reached = Math.max(0, Math.floor((x - 40) / ENCOUNTER_STEP))
+  if (reached <= frontier) return { frontier, credits }
+  return {
+    frontier: reached,
+    credits: Math.min(
+      MAX_ENCOUNTER_CREDITS,
+      credits + (reached - frontier) * ENCOUNTERS_PER_STEP,
+    ),
+  }
+}
 
 type StageKey = 'town' | 'boneyard' | 'waterhole' | 'belltower'
 type Stage = {
@@ -355,6 +376,8 @@ class ZuzuGhostTrail implements ArcadeGameInstance {
   private spiritTimer = 120
   private crowTimer = 300
   private hyenaTimer = 400
+  private encounterFrontier = 0
+  private encounterCredits = 2
   private nextExtra = EXTRA_EVERY
   private particles: Particle[] = []
   private floaters: Floater[] = []
@@ -378,6 +401,8 @@ class ZuzuGhostTrail implements ArcadeGameInstance {
     this.level = lap
     this.checkpoint = 40
     this.bossDone = false
+    this.encounterFrontier = 0
+    this.encounterCredits = 2
     this.stage = STAGES[(lap - 1) % STAGES.length]!
     this.crates = this.stage.crates.map((c) => ({ ...c, open: false }))
     this.respawn()
@@ -572,6 +597,14 @@ class ZuzuGhostTrail implements ArcadeGameInstance {
 
   private spawnFoes() {
     if (this.boss || this.bossDone) return
+    const budget = advanceEncounterBudget(
+      this.encounterFrontier,
+      this.encounterCredits,
+      this.x,
+    )
+    this.encounterFrontier = budget.frontier
+    this.encounterCredits = budget.credits
+    if (this.encounterCredits <= 0) return
     const speed = levelCurve(this.level, TRAIL_CURVES.enemySpeed)
     if (--this.spiritTimer <= 0) {
       this.spiritTimer = Math.round(
@@ -588,6 +621,7 @@ class ZuzuGhostTrail implements ArcadeGameInstance {
         sx < STAGE_END - 40 &&
         !this.stage.tombstones.some((t) => Math.abs(t - sx) < 14)
       ) {
+        this.encounterCredits--
         this.foes.push({
           kind: 'spirit',
           x: sx,
@@ -602,13 +636,14 @@ class ZuzuGhostTrail implements ArcadeGameInstance {
         })
       }
     }
-    if (--this.crowTimer <= 0) {
+    if (this.encounterCredits > 0 && --this.crowTimer <= 0) {
       this.crowTimer = Math.round(
         levelCurve(this.level, TRAIL_CURVES.crowEvery) *
           this.stage.rates.crow *
           (0.7 + this.rng() * 0.6),
       )
       const y = 70 + this.rng() * 60
+      this.encounterCredits--
       this.foes.push({
         kind: 'crow',
         x: this.camX + W + 10,
@@ -622,7 +657,7 @@ class ZuzuGhostTrail implements ArcadeGameInstance {
         carrying: this.rng() < 0.3,
       })
     }
-    if (--this.hyenaTimer <= 0) {
+    if (this.encounterCredits > 0 && --this.hyenaTimer <= 0) {
       this.hyenaTimer = Math.round(
         levelCurve(this.level, TRAIL_CURVES.hyenaEvery) *
           this.stage.rates.hyena *
@@ -630,6 +665,7 @@ class ZuzuGhostTrail implements ArcadeGameInstance {
       )
       const hx = this.camX + W + 10
       if (this.groundAt(hx)) {
+        this.encounterCredits--
         this.foes.push({
           kind: 'hyena',
           x: hx,

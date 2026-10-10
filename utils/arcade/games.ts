@@ -199,7 +199,6 @@ export const ARCADE_GAMES: ArcadeGameMeta[] = [
       'A  BOTH FLIPPERS',
       'HOLD DOWN, LET GO',
       'UP  NUDGE THE TABLE',
-      'B  CHANGE THE VIEW',
       'SAUCER STARTS A VILLAGE',
       'LOCKS LIGHT MULTIBALL',
       'UPPER FEED: THE RIDGE',

@@ -6,7 +6,7 @@
 // the Abbey upper deck, a sculpted River Croc, crypt and Zuzu-specific rules.
 
 import type { ColliderDef, InsertDef, TableDef, Vec3 } from '../../types'
-import { wall, walls, type XZ } from '../builders'
+import { ramp, wall, walls, type XZ, type XZH } from '../builders'
 
 const BALL = 0.0135
 const LEFT = -0.26
@@ -24,6 +24,59 @@ const arch: XZ[] = Array.from({ length: 25 }, (_, step) => {
   return [0.02 + Math.cos(theta) * 0.28, -0.72 + Math.sin(theta) * 0.25]
 })
 
+// Three distinct steel-ball paths. X/Z are metres, final coordinate is the
+// real elevation of the continuous ramp deck. The village switchback crosses
+// to the right inlane; the Abbey crossover feeds the left; the Bell climbs to
+// the future upper Abbey deck before its temporary right-side gravity return.
+const VILLAGE_SWITCHBACK: XZH[] = [
+  [-0.12, -0.29, 0],
+  [-0.12, -0.39, 0.011],
+  [-0.1, -0.49, 0.033],
+  [-0.09, -0.6, 0.053],
+  [-0.055, -0.7, 0.064],
+  [-0.05, -0.76, 0.065],
+  [0.04, -0.75, 0.064],
+  [0.15, -0.69, 0.062],
+  [0.21, -0.56, 0.052],
+  [0.214, -0.38, 0.046],
+  [0.205, -0.19, 0.034],
+]
+
+const ABBEY_CROSSOVER: XZH[] = [
+  [0.09, -0.29, 0],
+  [0.1, -0.39, 0.035],
+  [0.115, -0.49, 0.08],
+  [0.12, -0.57, 0.122],
+  [0.06, -0.63, 0.135],
+  [-0.08, -0.64, 0.135],
+  [-0.22, -0.63, 0.12],
+  [-0.23, -0.5, 0.085],
+  [-0.228, -0.35, 0.055],
+  [-0.205, -0.19, 0.034],
+]
+
+const BELL_SPIRAL: XZH[] = [
+  [0.015, -0.3, 0],
+  [0.012, -0.4, 0.055],
+  [0.014, -0.51, 0.12],
+  [0.01, -0.61, 0.195],
+  [0, -0.7, 0.235],
+  [-0.005, -0.79, 0.242],
+  [0.06, -0.85, 0.24],
+  [0.15, -0.84, 0.235],
+  [0.18, -0.78, 0.23],
+  [0.2, -0.7, 0.224],
+  [0.23, -0.64, 0.21],
+]
+
+// Keep named paths for deterministic mechanical acceptance tests and for the
+// upper-deck builder to connect the Bell to the raised Abbey without guessing.
+export const ZUZU_RAMP_PATHS = {
+  'village-switchback': VILLAGE_SWITCHBACK,
+  'abbey-crossover': ABBEY_CROSSOVER,
+  'bell-spiral': BELL_SPIRAL,
+} as const
+
 const colliders: ColliderDef[] = [
   {
     kind: 'box',
@@ -36,7 +89,7 @@ const colliders: ColliderDef[] = [
   {
     kind: 'box',
     id: 'zuzu-glass',
-    at: [0.02, 0.12, FLOOR_MID],
+    at: [0.02, 0.31, FLOOR_MID],
     half: [0.3, 0.005, (BOTTOM - TOP) / 2 + 0.02],
     material: 'plastic-clear',
     hidden: true,
@@ -44,6 +97,54 @@ const colliders: ColliderDef[] = [
   wall('bank-left', [LEFT, -0.72], [LEFT, BOTTOM], { thickness: 0.012 }),
   wall('bank-right', [RIGHT, -0.72], [RIGHT, BOTTOM], { thickness: 0.012 }),
   ...walls('abbey-arch', arch, { thickness: 0.009 }),
+  // These are Rapier triangle-mesh floors, rails and clear anti-flyoff roofs,
+  // not painted 2D ribbons. Balls can pass under the elevated crossovers.
+  ...ramp('village-switchback', VILLAGE_SWITCHBACK, {
+    width: 0.039,
+    railHeight: 0.035,
+    cover: [0.1, 0.65],
+  }),
+  ...ramp('abbey-crossover', ABBEY_CROSSOVER, {
+    width: 0.039,
+    railHeight: 0.035,
+    cover: [0.11, 0.65],
+  }),
+  ...ramp('bell-spiral', BELL_SPIRAL, {
+    width: 0.038,
+    railHeight: 0.032,
+    cover: [0.13, 0.48],
+  }),
+  // Raised catch plates at the exits stop a ball from rolling off the cabinet.
+  wall('village-return-stop', [0.185, -0.165], [0.233, -0.165], {
+    base: 0.03,
+    height: 0.04,
+    material: 'plastic-clear',
+  }),
+  wall('abbey-return-stop', [-0.228, -0.165], [-0.181, -0.165], {
+    base: 0.03,
+    height: 0.04,
+    material: 'plastic-clear',
+  }),
+  // Each outer orbit has a dedicated up-table channel and a directional
+  // return vane. The left channel ends before the Croc's mouth approach.
+  wall('left-orbit-guide', [-0.166, -0.68], [-0.166, -0.54], {
+    material: 'chrome',
+    thickness: 0.004,
+  }),
+  wall('right-orbit-guide', [0.16, -0.68], [0.16, -0.54], {
+    material: 'chrome',
+    thickness: 0.004,
+  }),
+  wall('left-orbit-return', [-0.251, -0.35], [-0.215, -0.28], {
+    material: 'chrome',
+    thickness: 0.004,
+    passDir: [0, 0, -1],
+  }),
+  wall('right-orbit-return', [0.24, -0.35], [0.207, -0.28], {
+    material: 'chrome',
+    thickness: 0.004,
+    passDir: [0, 0, -1],
+  }),
   // A real one-ball-width launch lane. The return gate is one-way: upward
   // shots pass, but a returning ball is deflected onto the main playfield.
   wall(
@@ -144,7 +245,7 @@ const inserts: InsertDef[] = [
     shape: 'arrow',
     size: 0.06,
     color: 0xf2bb78,
-    shot: 'bell-lane',
+    shot: 'bell-spiral',
   },
   {
     id: 'left-orbit',
@@ -161,6 +262,22 @@ const inserts: InsertDef[] = [
     size: 0.05,
     color: 0xecc38e,
     shot: 'right-orbit',
+  },
+  {
+    id: 'village-switchback-arrow',
+    at: [-0.12, -0.27],
+    shape: 'arrow',
+    size: 0.045,
+    color: 0x7bdfa3,
+    shot: 'village-switchback',
+  },
+  {
+    id: 'abbey-crossover-arrow',
+    at: [0.15, -0.27],
+    shape: 'arrow',
+    size: 0.045,
+    color: 0xe7a86e,
+    shot: 'abbey-crossover',
   },
   {
     id: 'croc-reward',
@@ -180,7 +297,7 @@ const inserts: InsertDef[] = [
 
 const frame = {
   min: [LEFT - 0.025, 0, TOP - 0.05] as Vec3,
-  max: [RIGHT + 0.025, 0.13, BOTTOM + 0.02] as Vec3,
+  max: [RIGHT + 0.025, 0.33, BOTTOM + 0.02] as Vec3,
 }
 
 export const ZUZU_LAST_BELL_GREYBOX: TableDef = {
@@ -242,6 +359,51 @@ export const ZUZU_LAST_BELL_GREYBOX: TableDef = {
       half: [0.024, 0.02, 0.014],
     },
     { id: 'bell-lane', at: BELL, half: [0.035, 0.04, 0.025] },
+    {
+      id: 'village-entry',
+      at: [-0.12, BALL + 0.011, -0.39],
+      half: [0.02, 0.03, 0.014],
+    },
+    {
+      id: 'village-crest',
+      at: [-0.05, BALL + 0.065, -0.76],
+      half: [0.018, 0.022, 0.017],
+    },
+    {
+      id: 'village-return',
+      at: [0.21, BALL + 0.046, -0.38],
+      half: [0.02, 0.02, 0.018],
+    },
+    {
+      id: 'abbey-entry',
+      at: [0.1, BALL + 0.035, -0.39],
+      half: [0.02, 0.03, 0.015],
+    },
+    {
+      id: 'abbey-crest',
+      at: [-0.08, BALL + 0.135, -0.64],
+      half: [0.019, 0.02, 0.018],
+    },
+    {
+      id: 'abbey-return',
+      at: [-0.228, BALL + 0.055, -0.35],
+      half: [0.022, 0.02, 0.018],
+    },
+    {
+      id: 'bell-entry',
+      at: [0.012, BALL + 0.055, -0.4],
+      half: [0.02, 0.03, 0.018],
+    },
+    {
+      id: 'bell-crest',
+      at: [0.06, BALL + 0.24, -0.85],
+      half: [0.022, 0.02, 0.019],
+    },
+    {
+      id: 'bell-return',
+      at: [0.2, BALL + 0.224, -0.7],
+      half: [0.021, 0.021, 0.019],
+    },
   ],
   flippers: [
     {
@@ -319,6 +481,27 @@ export const ZUZU_LAST_BELL_GREYBOX: TableDef = {
       kind: 'lane',
       sensors: ['bell-lane'],
       displayName: 'ABBEY BELL',
+    },
+    {
+      id: 'village-switchback',
+      kind: 'ramp',
+      sensors: ['village-entry', 'village-crest', 'village-return'],
+      windowTicks: 360,
+      displayName: 'VILLAGE SWITCHBACK',
+    },
+    {
+      id: 'abbey-crossover',
+      kind: 'ramp',
+      sensors: ['abbey-entry', 'abbey-crest', 'abbey-return'],
+      windowTicks: 360,
+      displayName: 'ABBEY CROSSOVER',
+    },
+    {
+      id: 'bell-spiral',
+      kind: 'ramp',
+      sensors: ['bell-entry', 'bell-crest', 'bell-return'],
+      windowTicks: 360,
+      displayName: 'BELL SPIRAL',
     },
   ],
   inserts,

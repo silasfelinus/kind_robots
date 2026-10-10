@@ -4156,6 +4156,16 @@ async function runPinballDressing() {
   scene.setLamps({}, 1)
   for (let i = 0; i < 120; i++) scene.render()
   assert.ok(dressing.lanternGlow > glow * 0.8, 'and they come back')
+  // Lanterns that really light the table, by quality tier (t-030).
+  for (const tier of ['high', 'medium', 'low'] as const) {
+    scene.forceQuality(tier)
+    assert.equal(
+      dressing.practicalsLit,
+      TIER_SETTINGS[tier].practicalLights,
+      `${tier}: its share of practical lanterns`,
+    )
+  }
+  assert.equal(dressing.practicalsLit, 0, 'a phone on low lights none')
   // The dressing is scenery: the table's colliders are untouched by it.
   assert.equal(JSON.stringify(table.colliders), colliders)
   scene.dispose()

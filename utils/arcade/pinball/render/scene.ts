@@ -82,7 +82,7 @@ export const createWebGLRenderer: RendererFactory = (canvas) => {
   })
   renderer.outputColorSpace = THREE.SRGBColorSpace
   renderer.toneMapping = THREE.ACESFilmicToneMapping
-  renderer.toneMappingExposure = 1.05
+  renderer.toneMappingExposure = 1
   renderer.shadowMap.enabled = true
   renderer.shadowMap.type = THREE.PCFShadowMap
   return renderer
@@ -430,7 +430,9 @@ export class PinballScene {
   }
 
   private buildLights() {
-    const key = new THREE.DirectionalLight(0xfff4e0, 1.6)
+    // Softer and warmer than before the painted playfield (t-030): the art
+    // carries its own light, and the lanterns and GI do the rest.
+    const key = new THREE.DirectionalLight(0xffe6c4, 1.15)
     key.position.set(0.3, 1.6, 0.6)
     key.target = this.root
     const cam = key.shadow.camera
@@ -1155,6 +1157,7 @@ export class PinballScene {
       light.visible = i < s.flasherLights
     for (const [i, light] of this.giLights.entries())
       light.visible = i < s.giLights
+    this.dressing?.setPracticals(s.practicalLights)
     this.shadowMaterial.opacity = s.contactShadow
     if (this.gl) {
       if (this.gl.shadowMap.enabled !== shadows) {
@@ -1408,7 +1411,7 @@ export class PinballScene {
     for (const light of this.giLights) light.intensity = GI_LIGHT * this.gi
     this.dressing?.setGi(this.gi)
     this.wireforms?.setGi(this.gi)
-    this.hemisphere.intensity = 0.2 + 0.35 * this.gi
+    this.hemisphere.intensity = 0.14 + 0.26 * this.gi
     // The pool follows the brightest flashers; the rest glow on their own.
     const firing = [...this.flashers.values()]
       .filter((f) => f.material.emissiveIntensity > FLASHER_REST * 2)

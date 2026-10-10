@@ -1,0 +1,34 @@
+name: Zuzu Resource Audit Contract
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'utils/zuzuResourceAudit.ts'
+      - 'utils/scripts/verifyZuzuResourceAudit.test.ts'
+      - 'server/api/worlds/zuzu/resource-audit.get.ts'
+      - 'stores/zuzuWorldStore.ts'
+      - 'pages/admin/worlds/zuzu.vue'
+      - '.github/workflows/zuzu-resource-audit.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'utils/zuzuResourceAudit.ts'
+      - 'utils/scripts/verifyZuzuResourceAudit.test.ts'
+      - 'server/api/worlds/zuzu/resource-audit.get.ts'
+      - 'stores/zuzuWorldStore.ts'
+      - 'pages/admin/worlds/zuzu.vue'
+      - '.github/workflows/zuzu-resource-audit.yml'
+jobs:
+  contract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+      - run: npm ci
+        env:
+          CYPRESS_INSTALL_BINARY: '0'
+      - run: npx tsx utils/scripts/verifyZuzuResourceAudit.test.ts

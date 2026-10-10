@@ -706,7 +706,30 @@ export const COMING_SOON: ComingSoonCabinet[] = []
  * Pinball's 3D rebuild lives here until it replaces the Canvas table
  * (conductor kind-pinball/t-004; the Canvas game is the rollback path).
  */
-export const PREVIEW_GAMES: ArcadeGameMeta[] = []
+export const PREVIEW_GAMES: ArcadeGameMeta[] = [
+  {
+    slug: 'zuzu-pinball',
+    title: 'Zuzu: The Last Bell',
+    riffsOn: 'original multi-level pinball',
+    blurb: 'Private Zuzu pinball physics preview. The separate 3D table has a shootable River Croc capture, Abbey bell lane, two lower flippers and its own score namespace. Ramps, the raised Abbey and Zuzu-specific game rules are being built; this is not the finished FX3-class game.',
+    howTo: [
+      'ARROWS  FLIPPERS',
+      'DOWN  CHARGE PLUNGER',
+      'RELEASE  LAUNCH',
+      'UP  NUDGE',
+      'SHOOT RIVER CROC',
+      'B  CAMERA VIEW',
+    ],
+    width: 288,
+    height: 488,
+    maxPlausibleScore: 0,
+    titleArt: '/images/arcade/games/zuzu-ghost-trail-title.webp',
+    accent: '#c78e62',
+    controls: 'Flippers, plunge, nudge (engineering preview)',
+    renderMode: 'webgl',
+    touchLayout: 'pinball',
+  },
+]
 
 const LOADERS: Record<string, () => Promise<ArcadeGameModule>> = {
   'butterfly-blaster': () => import('./games/butterflyBlaster'),
@@ -723,6 +746,11 @@ const LOADERS: Record<string, () => Promise<ArcadeGameModule>> = {
           return module
         })
       : import('./games/kindPinball'),
+  'zuzu-pinball': () =>
+    import('./games/zuzuPinball3d').then(async (module) => {
+      await module.prepare()
+      return module
+    }),
   'gloom-invaders': () => import('./games/gloomInvaders'),
   'hedgehog-crossing': () => import('./games/hedgehogCrossing'),
   'ribbon-riders': () => import('./games/ribbonRiders'),
@@ -790,7 +818,7 @@ export function loadArcadeGame(slug: string): Promise<ArcadeGameModule> {
 }
 
 export function isPlausibleScore(slug: string, score: unknown): boolean {
-  const game = findArcadeGame(slug)
+  const game = ARCADE_GAMES.find((entry) => entry.slug === slug)
   return (
     Boolean(game) &&
     typeof score === 'number' &&

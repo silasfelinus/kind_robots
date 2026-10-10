@@ -4,7 +4,7 @@ import { createLoggedInTestUser } from '../../support/api-auth'
 /* eslint-disable @typescript-eslint/no-unused-expressions */
 
 describe('Dream and Scenario Facet assignments', () => {
-  const apiBase = 'https://kind-robots.vercel.app/api'
+  const apiBase = `${Cypress.config('baseUrl') || 'http://localhost:3000'}/api`
   const stamp = Date.now()
   const facetSlug = `cowcore-${stamp}`
   const cowAlias = `cow-${stamp}`

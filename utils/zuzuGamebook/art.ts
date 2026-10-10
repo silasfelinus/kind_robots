@@ -17,6 +17,8 @@
  * plates are indexed there in assets/repository-media.json and their ledger in
  * assets/ledger-part-05.json; keep them in step when a plate changes.
  */
+import { SECTION_PLATES } from './sectionArt'
+
 export type ScenePlate = {
   file: string
   alt: string
@@ -436,18 +438,18 @@ export const PLATES: Record<string, ScenePlate> = {
     fit: 'exact',
   },
   wren: {
-    file: 'chapel',
-    alt: 'A plain chapel washed in pale light from tall windows, a bell rope hanging over an altar where something stands shrouded in white cloth.',
-    artImageId: 243317,
-    source: 'Stand-in (chapel) until art round 5 renders this plate',
-    fit: 'stand-in',
+    file: 'wren',
+    alt: 'A young otter novice in a grey habit and white veil stands in a dark doorway clutching a folded note, a candle burning on the table beside her.',
+    artImageId: 243548,
+    source: 'Gamebook round 5, gb5-wren-1',
+    fit: 'exact',
   },
   'rabbit-kit': {
-    file: 'empty-cot',
-    alt: 'A ragged stitched cloth doll with button eyes lies on the pillow of a neatly made cot.',
-    artImageId: 243322,
-    source: 'Stand-in (empty-cot) until art round 5 renders this plate',
-    fit: 'stand-in',
+    file: 'rabbit-kit',
+    alt: 'A small rabbit child in a plain sweater sits very still in a dark doorway, staring out with tired eyes.',
+    artImageId: 243550,
+    source: 'Gamebook round 5, gb5-rabbit-kit-1',
+    fit: 'exact',
   },
   'pilgrim-wagon': {
     file: 'wagon',
@@ -464,18 +466,18 @@ export const PLATES: Record<string, ScenePlate> = {
     fit: 'stand-in',
   },
   'mags-bar': {
-    file: 'posters-boardwalk',
-    alt: 'A dark covered boardwalk stretches away under a single hanging lantern, its plank walls pinned with old yellowed paper notices.',
-    artImageId: 243327,
-    source: 'Stand-in (posters-boardwalk) until art round 5 renders this plate',
-    fit: 'stand-in',
+    file: 'mags-bar',
+    alt: 'A weathered rabbit barkeep with one notched ear leans on her counter in lamplight, bottles and a scattergun on the shelf behind her.',
+    artImageId: 243556,
+    source: 'Gamebook round 5, gb5-mags-bar-1',
+    fit: 'exact',
   },
   'baron-office': {
-    file: 'shuttered-town',
-    alt: 'Zuzu steps out of a lantern-lit timber doorway into the night, kasa low over his eyes, poncho and orange sash, the katana hilt over his right shoulder.',
-    artImageId: 243296,
-    source: 'Stand-in (shuttered-town) until art round 5 renders this plate',
-    fit: 'stand-in',
+    file: 'baron-office',
+    alt: 'A horned water baron in a waistcoat and tie sits on his desk before a map of wells, crystal water jugs beside him.',
+    artImageId: 243558,
+    source: 'Gamebook round 5, gb5-baron-office-1',
+    fit: 'exact',
   },
   'torch-mob': {
     file: 'hollow-bell',
@@ -485,18 +487,18 @@ export const PLATES: Record<string, ScenePlate> = {
     fit: 'stand-in',
   },
   'bounty-badger': {
-    file: 'dust-road',
-    alt: 'A lone twisted tree on a ridge above a winding desert road at dawn, a tiny traveller far below on the trail.',
-    artImageId: 242562,
-    source: 'Stand-in (dust-road) until art round 5 renders this plate',
-    fit: 'stand-in',
+    file: 'bounty-badger',
+    alt: 'A broad bounty hunter in a wide hat, long coat and bandolier stands in a dim street, a rifle over his shoulder.',
+    artImageId: 243562,
+    source: 'Gamebook round 5, gb5-bounty-badger-1',
+    fit: 'exact',
   },
   'shifting-road': {
-    file: 'three-road',
-    alt: 'Three silhouettes walk toward a huge orange sun down a long desert road: Zuzu under his wide hat between two big-eared fennec foxes.',
-    artImageId: 242575,
-    source: 'Stand-in (three-road) until art round 5 renders this plate',
-    fit: 'stand-in',
+    file: 'shifting-road',
+    alt: 'A pale road winds across dark broken ground toward a black spire of rock under a huge full moon.',
+    artImageId: 243564,
+    source: 'Gamebook round 5, gb5-shifting-road-1',
+    fit: 'exact',
   },
   'mob-fire-gate': {
     file: 'mission',
@@ -506,18 +508,18 @@ export const PLATES: Record<string, ScenePlate> = {
     fit: 'stand-in',
   },
   'cellar-cells': {
-    file: 'locked-door',
-    alt: 'A dark timber corridor lit by one wall candle, a heavy door standing ajar onto blackness where two small eyes glint.',
-    artImageId: 243319,
-    source: 'Stand-in (locked-door) until art round 5 renders this plate',
-    fit: 'stand-in',
+    file: 'cellar-cells',
+    alt: 'In a candlelit stone cell, a fox child and a small mouse wait behind iron bars, frightened.',
+    artImageId: 243568,
+    source: 'Gamebook round 5, gb5-cellar-cells-1',
+    fit: 'exact',
   },
   'abbess-knife': {
-    file: 'abbess-crypt',
-    alt: 'The otter abbess stands in a candlelit stone crypt before a bare altar, a small curved dagger in her paw, a huge violet shadow with tentacles rising on the wall behind her.',
-    artImageId: 243304,
-    source: 'Stand-in (abbess-crypt) until art round 5 renders this plate',
-    fit: 'stand-in',
+    file: 'abbess-knife',
+    alt: 'The otter abbess stands in a pitch-dark crypt holding a long curved knife, black candles burning around her feet.',
+    artImageId: 243597,
+    source: 'Gamebook round 5, gb5-abbess-knife-1',
+    fit: 'exact',
   },
   'nuns-kneel': {
     file: 'refectory',
@@ -554,11 +556,11 @@ export function plate(key: string): ScenePlate {
 }
 
 /**
- * The plate a section shows: its own render when one is keyed by the section id (one plate per section,
- * conductor zuzu-gamebook art rounds 6+), else the shared plate its `art` key names.
+ * The plate a section shows: its own render when sectionArt.ts has one (one plate per section, conductor
+ * zuzu-gamebook art rounds 6+), else the shared plate its `art` key names.
  */
 export function sectionPlate(node: { id: string; art: string }): ScenePlate {
-  return PLATES[node.id] ?? plate(node.art)
+  return SECTION_PLATES[node.id] ?? plate(node.art)
 }
 
 /**

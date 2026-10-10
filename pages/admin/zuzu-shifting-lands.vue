@@ -15,7 +15,7 @@
     />
     <div
       v-else
-      class="kr-scroll mx-auto max-w-[1540px] space-y-5 px-3 py-5 sm:px-6"
+      class="kr-scroll mx-auto w-full max-w-[1540px] space-y-5 px-3 py-5 sm:px-6"
     >
       <header class="flex flex-wrap items-end justify-between gap-3">
         <div>

@@ -176,6 +176,23 @@ export const BOSSES: Partial<Record<BossId, BossDef>> = {
   },
 }
 
+// Placeholders until each headline boss's own module lands: the Dust Devil's moves under its name.
+const standIn = (name: string, title: string, hp: number): BossDef => ({
+  ...BOSSES.devil!,
+  name,
+  title,
+  hp,
+})
+BOSSES.marshal ??= standIn('THE GRAVE MARSHAL', 'LAW OF THE DEAD', 22)
+BOSSES.ferryman ??= standIn('THE DROWNED FERRYMAN', 'TOLL OF THE DEEP', 26)
+BOSSES.matriarch ??= standIn(
+  'THE STORM-CROW MATRIARCH',
+  'MOTHER OF THE GALE',
+  28,
+)
+BOSSES.heretic ??= standIn('THE BELL HERETIC', 'HE WHO RANG THE DEAD', 32)
+BOSSES.abbess ??= standIn('THE ABBESS', 'BENEATH THE BELL', 40)
+
 export function makeBoss(
   id: BossId,
   x: number,

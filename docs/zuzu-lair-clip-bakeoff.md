@@ -14,12 +14,12 @@ Keep the approved Arthemy Western Art v3.0 still checkpoint fixed. Select four e
 
 Run four fixed source images through these four lanes, preserving the exact source, prompt, negative prompt, seed, crop and output aspect per row:
 
-| Lane | Selection | Role |
-| --- | --- | --- |
-| ltx-balanced | LTX-2.3 / ltx-12gb-balanced | Current half-resolution control |
-| ltx-quality | LTX-2.3 / ltx-full-quality | Full-resolution quality control |
-| wan-ti2v | WAN 2.2 TI2V 5B, 768x432, 4 s, 16 FPS | Consumer-card alternative |
-| wan-a14b | WAN 2.2 I2V A14B, 768x432, 4 s, 16 FPS | Two-expert quality alternative |
+| Lane         | Selection                              | Role                            |
+| ------------ | -------------------------------------- | ------------------------------- |
+| ltx-balanced | LTX-2.3 / ltx-12gb-balanced            | Current half-resolution control |
+| ltx-quality  | LTX-2.3 / ltx-full-quality             | Full-resolution quality control |
+| wan-ti2v     | WAN 2.2 TI2V 5B, 768x432, 4 s, 16 FPS  | Consumer-card alternative       |
+| wan-a14b     | WAN 2.2 I2V A14B, 768x432, 4 s, 16 FPS | Two-expert quality alternative  |
 
 The existing WAN builder supports an explicit mode, but the enqueue endpoint does not forward a per-request WAN mode. Without that addition, both WAN requests may use the same host default. Do not treat identical-default requests as separate models. Changing the host environment is outside this work.
 
@@ -36,7 +36,14 @@ Present the completed comparison to Silas for a creative lane decision. Retest t
 Copy `docs/zuzu-lair-clip-bakeoff.example.json` to a private working manifest. Replace each null source ID with a verified ArtImage ID, preserve the original motion prompt, and append one `clips` entry per delivered video:
 
 ```json
-{"sceneId":"walk","laneId":"wan-ti2v","file":"clips/walk--wan-ti2v.mp4","jobId":123,"seed":42,"model":"WAN 2.2 TI2V 5B"}
+{
+  "sceneId": "walk",
+  "laneId": "wan-ti2v",
+  "file": "clips/walk--wan-ti2v.mp4",
+  "jobId": 123,
+  "seed": 42,
+  "model": "WAN 2.2 TI2V 5B"
+}
 ```
 
 Run `node utils/scripts/buildZuzuLairBakeoffSheet.mjs manifest.json sheet.html` from the repository root. Keep `sheet.html` next to the `clips/` folder, open it locally, and use Play all to compare columns. Missing cells remain explicitly marked Not rendered; the tool never invents clip results. Paths must be relative local files.

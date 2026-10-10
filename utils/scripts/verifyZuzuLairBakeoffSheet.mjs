@@ -14,7 +14,15 @@ const manifest = {
     { id: 'wan-ti2v', label: 'WAN TI2V' },
     { id: 'wan-a14b', label: 'WAN A14B' },
   ],
-  clips: [{ sceneId: 'walk', laneId: 'wan-ti2v', file: 'clips/a test.mp4', jobId: 42, seed: 123 }],
+  clips: [
+    {
+      sceneId: 'walk',
+      laneId: 'wan-ti2v',
+      file: 'clips/a test.mp4',
+      jobId: 42,
+      seed: 123,
+    },
+  ],
 }
 
 const html = buildSheet(manifest)
@@ -29,8 +37,14 @@ assert.doesNotMatch(html, /<b>Walk<\/b>/)
 
 for (const bad of [
   { ...manifest, clips: [...manifest.clips, manifest.clips[0]] },
-  { ...manifest, clips: [{ sceneId: 'walk', laneId: 'wan-ti2v', file: '../escape.mp4' }] },
-  { ...manifest, clips: [{ sceneId: 'unknown', laneId: 'wan-ti2v', file: 'clip.mp4' }] },
+  {
+    ...manifest,
+    clips: [{ sceneId: 'walk', laneId: 'wan-ti2v', file: '../escape.mp4' }],
+  },
+  {
+    ...manifest,
+    clips: [{ sceneId: 'unknown', laneId: 'wan-ti2v', file: 'clip.mp4' }],
+  },
 ]) {
   assert.throws(() => buildSheet(bad))
 }

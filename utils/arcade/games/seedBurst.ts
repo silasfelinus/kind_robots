@@ -16,7 +16,25 @@
 // Arrows move, A plants a pod.
 
 import { levelCurve } from '../curve'
-import { drawText } from '../font'
+import { drawText, measureText } from '../font'
+import {
+  INK,
+  RAMPS,
+  Sparkles,
+  backdropRng,
+  bandedGradient,
+  bevel,
+  cachedLayer,
+  dropShadow,
+  drawSprite,
+  glow,
+  hudPanel,
+  pixelSprite,
+  rgba,
+  shadedOrb,
+  vignette,
+} from '../snes'
+import type { PixelSprite, Ramp } from '../snes'
 import type {
   ArcadeGameInstance,
   ArcadeGameModule,
@@ -128,6 +146,409 @@ const CORNERS = [
 
 const key = (x: number, y: number) => y * COLS + x
 
+// --- 16-bit art (utils/arcade/snes.ts) -------------------------------------------
+
+/** Cool grey garden stone for the pillars, lit from the upper left. */
+const STONE: Ramp = ['#1e1a30', '#3c3852', '#6a6884', '#a4a2bc', '#e2e0f0']
+/** The seed pod's husk: warm brown into a ripe gold. */
+const SEED: Ramp = ['#3a1a0a', '#6b3a14', '#a8641e', '#e0a040', '#fff0c0']
+const LIME: Ramp = ['#24400a', '#4d7c0f', '#84cc16', '#bef264', '#f7fee7']
+/** Each seat's colour as a ramp, in the order of SEAT_COLORS. */
+const SEAT_RAMPS: readonly Ramp[] = [RAMPS.sky, RAMPS.pink, LIME, RAMPS.gold]
+const BLOOM_RAMPS: readonly Ramp[] = [
+  RAMPS.pink,
+  RAMPS.gold,
+  RAMPS.purple,
+  RAMPS.rust,
+]
+
+/** Three garden looks, taken in turn round by round: spring, deep summer, twilight. */
+const GARDENS: readonly { grass: Ramp; flowers: readonly string[] }[] = [
+  {
+    grass: ['#173f22', '#24602e', '#3a8a3c', '#5aac4c', '#94d470'],
+    flowers: [RAMPS.pink[3], '#ffffff', RAMPS.gold[3]],
+  },
+  {
+    grass: ['#0f3a2e', '#18563c', '#26784a', '#3f9a58', '#7cc884'],
+    flowers: [RAMPS.purple[3], RAMPS.sky[3], '#ffffff'],
+  },
+  {
+    grass: ['#0c2436', '#12384a', '#1a5058', '#276c68', '#4f9a86'],
+    flowers: [RAMPS.teal[4], RAMPS.pink[3], RAMPS.gold[4]],
+  },
+]
+
+/**
+ * A flower as palette rows, shaded per pixel toward the upper-left light: `petals` round petals
+ * of ramp letters (S shadow, B base, L light, H highlight) around a gold eye (c, C).
+ */
+function flowerRows(r: number, petals: number): string[] {
+  const rows: string[] = []
+  for (let y = -r; y <= r; y++) {
+    let row = ''
+    for (let x = -r; x <= r; x++) {
+      let ch = '.'
+      if (Math.hypot(x, y) <= r * 0.34) ch = x + y < 0 ? 'C' : 'c'
+      else {
+        for (let i = 0; i < petals; i++) {
+          const a = (i / petals) * Math.PI * 2 - Math.PI / 2
+          const px = Math.cos(a) * r * 0.55
+          const py = Math.sin(a) * r * 0.55
+          const pr = r * 0.5
+          const d = Math.hypot(x - px, y - py)
+          if (d > pr) continue
+          const lit = -(x - px + (y - py)) / pr / 1.4 + (1 - d / pr) * 0.3
+          ch = lit > 0.5 ? 'H' : lit > 0.05 ? 'L' : lit > -0.45 ? 'B' : 'S'
+        }
+      }
+      row += ch
+    }
+    rows.push(row)
+  }
+  return rows
+}
+
+function flowerSprite(r: number, ramp: Ramp, eye: Ramp = RAMPS.gold) {
+  return pixelSprite(flowerRows(r, 5), {
+    S: ramp[1],
+    B: ramp[2],
+    L: ramp[3],
+    H: ramp[4],
+    c: eye[2],
+    C: eye[4],
+  })
+}
+
+/** Full blooms and the buds they open from, one per bloom colour. */
+const BLOOM_SPRITES = BLOOM_RAMPS.map((ramp) =>
+  flowerSprite(6, ramp, ramp === RAMPS.gold ? RAMPS.rust : RAMPS.gold),
+)
+const BUD_SPRITES = BLOOM_RAMPS.map((ramp) =>
+  flowerSprite(4, ramp, ramp === RAMPS.gold ? RAMPS.rust : RAMPS.gold),
+)
+
+const HEDGE_PALETTE = {
+  H: RAMPS.leaf[4],
+  L: RAMPS.leaf[3],
+  l: RAMPS.leaf[2],
+  d: RAMPS.leaf[1],
+  D: RAMPS.leaf[0],
+  e: RAMPS.earth[3],
+  E: RAMPS.earth[2],
+  q: RAMPS.earth[1],
+  p: RAMPS.pink[3],
+  w: '#ffffff',
+  y: RAMPS.gold[3],
+}
+/**
+ * A hedge's leafy top as palette rows: overlapping clumps, each shaded toward the upper-left
+ * light with a little leaf-texture noise, the lower clumps in front. With `flowers`, a few lit
+ * leaves carry blossoms (p pink, w white, y their gold eyes).
+ */
+function hedgeRows(flowers: boolean): string[] {
+  const clumps: [number, number, number][] = [
+    [7, 3.5, 3.8],
+    [3.5, 5, 3.6],
+    [10.5, 5, 3.6],
+    [2.6, 8, 2.8],
+    [11.4, 8, 2.8],
+    [7, 7, 4.2],
+  ]
+  const rows: string[] = []
+  for (let y = 0; y < 11; y++) {
+    let row = ''
+    for (let x = 0; x < 14; x++) {
+      let ch = '.'
+      for (const [cx, cy, r] of clumps) {
+        const nx = (x + 0.5 - cx) / r
+        const ny = (y + 0.5 - cy) / r
+        const d = Math.hypot(nx, ny)
+        if (d > 1) continue
+        const noise = (((x * 37 + y * 61) ^ (x * y * 13)) % 7) / 7 - 0.45
+        const lit = -(nx + ny) * 0.6 + (1 - d) * 0.2 + noise * 0.35 - 0.12
+        ch =
+          lit > 0.62
+            ? 'H'
+            : lit > 0.25
+              ? 'L'
+              : lit > -0.15
+                ? 'l'
+                : lit > -0.5
+                  ? 'd'
+                  : 'D'
+        if (flowers && lit > 0 && (x * 5 + y * 3) % 11 === 0) ch = 'p'
+        if (flowers && lit > 0 && (x * 7 + y * 2) % 13 === 0) ch = 'w'
+      }
+      row += ch
+    }
+    rows.push(row)
+  }
+  return rows
+}
+const PLANTER = [
+  'eeeeeeeeeeeeee',
+  'EEEEEEEEEEEEEq',
+  'EqEEEEEqEEEEEq',
+  'qqqqqqqqqqqqqq',
+]
+/** Hedge planters: plain, and one in flower (picked per cell so the maze is varied). */
+const HEDGE_SPRITES = [
+  pixelSprite([...hedgeRows(false), ...PLANTER], HEDGE_PALETTE),
+  pixelSprite([...hedgeRows(true), ...PLANTER], HEDGE_PALETTE),
+] as const
+
+const SPROUT_SPRITE = pixelSprite(['LL.LL', 'lLdLl', '..d..'], {
+  L: RAMPS.leaf[3],
+  l: RAMPS.leaf[2],
+  d: RAMPS.leaf[1],
+})
+
+type Face = 'down' | 'up' | 'side'
+
+const HAT = ['....hHHS....', '...hHHHHSs..', '.hHHHHHHHSs.', 'zssssssssssz']
+const HEADS: Record<Face, string[]> = {
+  down: [
+    ...HAT,
+    '..WFFFFFFf..',
+    '..FkFFFFkf..',
+    '..FkFFFFkf..',
+    '..cFFkkFFc..',
+    '...fFFFFf...',
+  ],
+  up: [
+    ...HAT,
+    '..WFFFFFFf..',
+    '..FFFFFFFf..',
+    '..FFFFFFFf..',
+    '..fFFFFFff..',
+    '...ffffff...',
+  ],
+  side: [
+    '...hHHS.....',
+    '..hHHHHSs...',
+    '.hHHHHHHHSss',
+    '.zssssssssss',
+    '..fWFFFFF...',
+    '..fFFFFkF...',
+    '..fFFFFkFF..',
+    '..ffFFFFc...',
+    '...ffFFf....',
+  ],
+}
+const BODIES: Record<Face, string[]> = {
+  down: ['.FSHSSSSSsF.', '.fsSSggSSsf.', '..sSSSSSSs..'],
+  up: ['.FSSSSSSSsF.', '.fsHSSSSHsf.', '..sSSSSSSs..'],
+  side: ['...FHSSSs...', '...fSSgSs...', '...sSSSs....'],
+}
+/** Legs per facing: standing, then two walk frames. */
+const LEGS: Record<Face, [string, string][]> = {
+  down: [
+    ['..ss....ss..', '.eEe....eEe.'],
+    ['.eEe....ss..', '........eEe.'],
+    ['..ss....eEe.', '.eEe........'],
+  ],
+  up: [
+    ['..ss....ss..', '.eEe....eEe.'],
+    ['.eEe....ss..', '........eEe.'],
+    ['..ss....eEe.', '.eEe........'],
+  ],
+  side: [
+    ['....ss......', '...eEEe.....'],
+    ['...s..ss....', '..eE...eEe..'],
+    ['....ss......', '...eEEe.....'],
+  ],
+}
+
+function gardenerPalette(ramp: Ramp): Record<string, string> {
+  return {
+    h: ramp[4],
+    H: ramp[3],
+    S: ramp[2],
+    s: ramp[1],
+    z: ramp[0],
+    W: RAMPS.cream[4],
+    F: RAMPS.cream[3],
+    f: RAMPS.cream[2],
+    k: INK,
+    c: RAMPS.pink[3],
+    g: RAMPS.gold[4],
+    e: RAMPS.earth[1],
+    E: RAMPS.earth[3],
+  }
+}
+
+/** Every seat's gardener: per facing, [standing, step, step] (left is the side frames flipped). */
+const GARDENER_SPRITES = SEAT_RAMPS.map((ramp) => {
+  const palette = gardenerPalette(ramp)
+  const faces = {} as Record<Face, PixelSprite[]>
+  for (const face of ['down', 'up', 'side'] as const)
+    faces[face] = LEGS[face].map((legs) =>
+      pixelSprite([...HEADS[face], ...BODIES[face], ...legs], palette),
+    )
+  return faces
+})
+
+/** Little gardener heads: the team's spares, and each seat's badge. */
+const HEAD_ROWS = [
+  '..hHHS..',
+  '.hHHHHS.',
+  'zssssssz',
+  '.WFFFFf.',
+  '.FkFFkf.',
+  '..fFFf..',
+]
+const SPARE_SPRITE = pixelSprite(HEAD_ROWS, gardenerPalette(RAMPS.teal))
+const SEAT_HEADS = SEAT_RAMPS.map((ramp) =>
+  pixelSprite(HEAD_ROWS, gardenerPalette(ramp)),
+)
+
+function gnatSprites(body: Ramp, wing: Ramp, eye: string) {
+  const palette = {
+    W: wing[4],
+    w: wing[3],
+    H: body[3],
+    D: body[2],
+    d: body[1],
+    y: eye,
+    k: INK,
+  }
+  return [
+    pixelSprite(
+      [
+        'Ww......Ww',
+        'wWw....wWw',
+        '.wWwddwWw.',
+        '..wdHDdw..',
+        '..kkDDkk..',
+        '..DyDDyD..',
+        '..dDDDDd..',
+        '...dkkd...',
+        '....dd....',
+      ],
+      palette,
+    ),
+    pixelSprite(
+      [
+        '..........',
+        '..........',
+        '....dd....',
+        '...dHDd...',
+        'WwkkDDkkWw',
+        'wWDyDDyDWw',
+        '.wdDDDDdw.',
+        '...dkkd...',
+        '....dd....',
+      ],
+      palette,
+    ),
+  ] as const
+}
+const GNAT_SPRITES = gnatSprites(RAMPS.earth, RAMPS.steel, RAMPS.gold[3])
+const GHOST_SPRITES = gnatSprites(RAMPS.purple, RAMPS.pink, RAMPS.teal[4])
+
+const POWER_SPRITES: Record<Power, PixelSprite> = {
+  pod: pixelSprite(
+    [
+      '...LL.LL',
+      '...lLdLl',
+      '.....d..',
+      '..oOOOo.',
+      '.oHOOOOo',
+      '.oOOOOoq',
+      '.qoOOoqq',
+      '..qqqqq.',
+    ],
+    {
+      L: RAMPS.leaf[3],
+      l: RAMPS.leaf[2],
+      d: RAMPS.leaf[1],
+      H: SEED[4],
+      O: SEED[3],
+      o: SEED[2],
+      q: SEED[1],
+    },
+  ),
+  bloom: flowerSprite(4, RAMPS.pink),
+  shoe: pixelSprite(
+    [
+      '......hHs..',
+      'WW....HSs..',
+      'WWw...HSs..',
+      '.Www..HSSs.',
+      '..wwwHSSSSs',
+      '.....zzzzzz',
+    ],
+    {
+      h: RAMPS.sky[4],
+      H: RAMPS.sky[3],
+      S: RAMPS.sky[2],
+      s: RAMPS.sky[1],
+      z: RAMPS.sky[0],
+      W: '#ffffff',
+      w: RAMPS.steel[3],
+    },
+  ),
+}
+
+/** Five-pixel icons for the seat badges: pods, bloom reach, shoe speed. */
+const STAT_ICONS = [
+  pixelSprite(['..L..', '.oHo.', 'oHOOo', 'oOOOq', '.qqq.'], {
+    L: RAMPS.leaf[3],
+    H: SEED[4],
+    O: SEED[3],
+    o: SEED[2],
+    q: SEED[1],
+  }),
+  flowerSprite(2, RAMPS.pink),
+  pixelSprite(['W.Hs.', 'WwHs.', '.HSSs', '.zzzz'], {
+    H: RAMPS.sky[3],
+    S: RAMPS.sky[2],
+    s: RAMPS.sky[1],
+    z: RAMPS.sky[0],
+    W: '#ffffff',
+    w: RAMPS.steel[3],
+  }),
+] as const
+
+/** Butterflies (the gnats' happy ending), two wing frames per colour, keyed by particle colour. */
+const BUTTERFLY_SPRITES = new Map<string, readonly PixelSprite[]>(
+  (
+    [
+      ['#f9a8d4', RAMPS.pink],
+      ['#fde047', RAMPS.gold],
+      ['#c4b5fd', RAMPS.purple],
+    ] as const
+  ).map(([colour, ramp]) => {
+    const palette = { L: ramp[4], B: ramp[3], S: ramp[2], k: INK }
+    return [
+      colour,
+      [
+        pixelSprite(['LB.BL', 'BSkSB', '.SkS.'], palette, { outline: ramp[0] }),
+        pixelSprite(['.LkL.', '.BkB.'], palette, { outline: ramp[0] }),
+      ] as const,
+    ]
+  }),
+)
+const LEAF_COLOUR = '#15803d'
+const LEAF_SPRITE = pixelSprite(['.LH', 'Ll.', 'd..'], {
+  H: RAMPS.leaf[4],
+  L: RAMPS.leaf[3],
+  l: RAMPS.leaf[2],
+  d: RAMPS.leaf[1],
+})
+
+/** Slow cloud shadows drifting over the garden (cosmetic layout, never the game's rng). */
+const CLOUD_SHADOWS = (() => {
+  const rand = backdropRng(53)
+  return Array.from({ length: 3 }, (_, i) => ({
+    x: rand() * W,
+    y: HUD_H + 30 + i * 62 + rand() * 20,
+    rx: 34 + rand() * 18,
+    ry: 14 + rand() * 6,
+    speed: 0.08 + rand() * 0.06,
+  }))
+})()
+
 class SeedBurst implements ArcadeGameInstance {
   score = 0
   level = 1
@@ -152,6 +573,9 @@ class SeedBurst implements ArcadeGameInstance {
   private particles: Particle[] = []
   private floaters: Floater[] = []
   private banner: { text: string; sub?: string; ticks: number } | null = null
+  // Cosmetic sparkles roll their own dice, so the game's seeded rng is untouched.
+  private fx = new Sparkles()
+  private fxRng = backdropRng(83)
 
   constructor(options: ArcadeGameOptions) {
     this.rng = options.rng
@@ -437,6 +861,7 @@ class SeedBurst implements ArcadeGameInstance {
       text: power === 'pod' ? '+POD' : power === 'bloom' ? '+BLOOM' : '+SPEED',
       life: 50,
     })
+    this.fx.burst(px.x, px.y, this.fxRng, { count: 10 })
     this.sound.play('extra')
   }
 
@@ -508,6 +933,10 @@ class SeedBurst implements ArcadeGameInstance {
         const px = this.pixel(gnat)
         this.addScore(points, px.x, px.y - 12)
         this.butterflies(px.x, px.y)
+        this.fx.burst(px.x, px.y, this.fxRng, {
+          count: 10,
+          colours: [RAMPS.pink[3], RAMPS.gold[4], RAMPS.purple[3]],
+        })
         this.sound.play('pop')
       }
       this.gnats = this.gnats.filter((g) => g.speed >= 0)
@@ -610,6 +1039,13 @@ class SeedBurst implements ArcadeGameInstance {
     this.clear = CLEAR_TICKS
     this.pods = []
     this.blooms = []
+    for (let i = 0; i < 6; i++)
+      this.fx.burst(
+        TILE + this.fxRng() * (W - TILE * 2),
+        HUD_H + TILE + this.fxRng() * (H - HUD_H - TILE * 2),
+        this.fxRng,
+        { count: 12, speed: 2 },
+      )
     this.sound.play('level')
     this.banner = {
       text: 'ROUND CLEAR!',
@@ -634,7 +1070,7 @@ class SeedBurst implements ArcadeGameInstance {
         vx: (this.rng() - 0.5) * 2,
         vy: -this.rng() * 1.5,
         life: 24,
-        color: '#15803d',
+        color: LEAF_COLOUR,
       })
   }
 
@@ -678,6 +1114,7 @@ class SeedBurst implements ArcadeGameInstance {
       f.life--
     }
     this.floaters = this.floaters.filter((f) => f.life > 0)
+    this.fx.update()
   }
 
   // --- attract-mode pilot -----------------------------------------------------
@@ -827,209 +1264,441 @@ class SeedBurst implements ArcadeGameInstance {
   // --- render -------------------------------------------------------------------
 
   render(g: CanvasRenderingContext2D) {
-    g.fillStyle = '#14532d'
-    g.fillRect(0, 0, W, H)
-    for (let y = 0; y < ROWS; y++)
-      for (let x = 0; x < COLS; x++) this.renderCell(g, x, y)
+    const garden = (this.level - 1) % GARDENS.length
+    cachedLayer(g, `seed-burst-field-${garden}`, W, H, (k) =>
+      this.paintField(k, GARDENS[garden]!),
+    )
+    this.renderHedges(g)
     for (const [k, power] of this.powers) this.renderPower(g, k, power)
     for (const pod of this.pods) this.renderPod(g, pod)
-    for (const b of this.blooms) this.renderBloom(g, b)
+    this.renderBlooms(g)
+    this.renderCloudShadows(g)
     for (const gnat of this.gnats) this.renderGnat(g, gnat)
     for (const gd of this.gardeners) this.renderGardener(g, gd)
-    for (const p of this.particles) {
-      g.globalAlpha = Math.max(0, p.life / 30)
-      g.fillStyle = p.color
-      g.fillRect(p.x - 1, p.y - 1, 2, 2)
-    }
-    g.globalAlpha = 1
+    this.renderParticles(g)
+    this.fx.render(g)
     for (const f of this.floaters)
       drawText(g, f.text, f.x, f.y, {
         align: 'center',
-        color: '#fef9c3',
-        shadow: '#14532d',
+        color: RAMPS.gold[3],
+        outline: INK,
       })
+    vignette(g, W, H, 0.28)
+    this.renderSeatBadges(g)
+    for (const gd of this.gardeners) this.renderSeatLabel(g, gd)
     this.renderHud(g)
   }
 
-  private renderCell(g: CanvasRenderingContext2D, x: number, y: number) {
-    const px = x * TILE
-    const py = HUD_H + y * TILE
-    const cell = this.grid[key(x, y)]
-    if (cell === WALL) {
-      g.fillStyle = '#78716c'
-      g.fillRect(px, py, TILE, TILE)
-      g.fillStyle = '#a8a29e'
-      g.fillRect(px + 1, py + 1, TILE - 3, 3)
-      g.fillStyle = '#57534e'
-      g.fillRect(px, py + TILE - 2, TILE, 2)
-      return
-    }
-    g.fillStyle = (x + y) % 2 ? '#4d7c0f' : '#3f6212'
-    g.fillRect(px, py, TILE, TILE)
-    if (cell === HEDGE) {
-      g.fillStyle = '#166534'
-      g.fillRect(px + 1, py + 2, TILE - 2, TILE - 3)
-      g.fillStyle = '#22c55e'
-      for (let i = 0; i < 4; i++)
-        g.fillRect(
-          px + 2 + ((i * 5 + y * 3) % 11),
-          py + 3 + ((i * 7 + x) % 9),
-          3,
-          3,
+  /** The static garden: banded grass, stone pillars with lit tops, the brick wall, the HUD bed. */
+  private paintField(
+    k: CanvasRenderingContext2D,
+    garden: (typeof GARDENS)[number],
+  ) {
+    const { grass, flowers } = garden
+    const rand = backdropRng(71)
+    bandedGradient(k, 0, 0, W, HUD_H, [RAMPS.night[2], RAMPS.night[0]], 2)
+    const isWall = (x: number, y: number) =>
+      x <= 0 ||
+      y <= 0 ||
+      x >= COLS - 1 ||
+      y >= ROWS - 1 ||
+      (x % 2 === 0 && y % 2 === 0)
+    for (let y = 0; y < ROWS; y++)
+      for (let x = 0; x < COLS; x++) {
+        const px = x * TILE
+        const py = HUD_H + y * TILE
+        if (isWall(x, y)) continue
+        // Grass in lit bands, a checker of two mowing stripes.
+        const dark = (x + y) % 2 === 1
+        bandedGradient(
+          k,
+          px,
+          py,
+          TILE,
+          TILE,
+          dark
+            ? [grass[2], grass[1], grass[1], grass[0]]
+            : [grass[3], grass[2], grass[2], grass[1]],
+          4,
         )
-      g.fillStyle = '#052e16'
-      g.fillRect(px + 1, py + TILE - 2, TILE - 2, 1)
+        k.fillStyle = dark ? grass[2] : grass[3]
+        k.fillRect(px, py, TILE, 1)
+        for (let i = 0; i < 3; i++) {
+          const tx = px + 2 + Math.floor(rand() * (TILE - 4))
+          const ty = py + 3 + Math.floor(rand() * (TILE - 6))
+          k.fillStyle = grass[4]
+          k.fillRect(tx, ty, 1, 2)
+          k.fillStyle = dark ? grass[3] : grass[4]
+          k.fillRect(tx - 1, ty + 1, 1, 1)
+          k.fillRect(tx + 1, ty + 1, 1, 1)
+        }
+        if (rand() < 0.22) {
+          const fx = px + 3 + Math.floor(rand() * (TILE - 6))
+          const fy = py + 3 + Math.floor(rand() * (TILE - 6))
+          k.fillStyle = flowers[Math.floor(rand() * flowers.length)]!
+          k.fillRect(fx - 1, fy, 3, 1)
+          k.fillRect(fx, fy - 1, 1, 3)
+          k.fillStyle = RAMPS.gold[4]
+          k.fillRect(fx, fy, 1, 1)
+        }
+        // Walls cast their shadow down and to the right, away from the light.
+        k.fillStyle = rgba(INK, 0.4)
+        if (isWall(x, y - 1)) k.fillRect(px, py, TILE, 5)
+        if (isWall(x - 1, y)) k.fillRect(px, py, 4, TILE)
+      }
+    for (let y = 0; y < ROWS; y++)
+      for (let x = 0; x < COLS; x++) {
+        if (!isWall(x, y)) continue
+        const px = x * TILE
+        const py = HUD_H + y * TILE
+        if (x === 0 || y === 0 || x === COLS - 1 || y === ROWS - 1)
+          this.paintBricks(k, px, py, y)
+        else this.paintPillar(k, px, py)
+      }
+    // A lit lip where the wall meets the HUD.
+    k.fillStyle = INK
+    k.fillRect(0, HUD_H - 1, W, 1)
+  }
+
+  private paintBricks(
+    k: CanvasRenderingContext2D,
+    px: number,
+    py: number,
+    row: number,
+  ) {
+    const ramp = RAMPS.earth
+    k.fillStyle = ramp[0]
+    k.fillRect(px, py, TILE, TILE)
+    for (let r = 0; r < 4; r++) {
+      const shift = (r + row) % 2 ? 4 : 0
+      for (let c = -1; c < 2; c++) {
+        const bx = px + c * 8 + shift
+        const left = Math.max(px, bx)
+        const right = Math.min(px + TILE, bx + 8)
+        if (right - left < 2) continue
+        bevel(k, left, py + r * 4, right - left - 1, 3, ramp, {
+          depth: 1,
+          outline: null,
+        })
+      }
     }
+    k.fillStyle = rgba(RAMPS.leaf[2], 0.8)
+    if ((px / TILE + row) % 3 === 0) {
+      k.fillRect(px + 3, py, 3, 1)
+      k.fillRect(px + 4, py + 1, 1, 2)
+    }
+  }
+
+  private paintPillar(k: CanvasRenderingContext2D, px: number, py: number) {
+    // A raised stone block: a bevelled top face over a darker front face.
+    k.fillStyle = INK
+    k.fillRect(px, py, TILE, TILE)
+    k.fillStyle = STONE[1]
+    k.fillRect(px + 1, py + 11, TILE - 2, 4)
+    k.fillStyle = STONE[0]
+    k.fillRect(px + 1, py + 14, TILE - 2, 1)
+    k.fillRect(px + 5, py + 11, 1, 3)
+    k.fillRect(px + 10, py + 11, 1, 3)
+    bevel(k, px + 1, py + 1, TILE - 2, 10, STONE, { depth: 2, outline: null })
+    k.fillStyle = STONE[3]
+    k.fillRect(px + 4, py + 4, 3, 1)
+    k.fillStyle = STONE[1]
+    k.fillRect(px + 9, py + 6, 3, 1)
+    k.fillRect(px + 11, py + 5, 1, 1)
+    k.fillStyle = RAMPS.leaf[2]
+    k.fillRect(px + 1, py + 1, 3, 1)
+    k.fillRect(px + 1, py + 2, 1, 2)
+    k.fillStyle = RAMPS.leaf[3]
+    k.fillRect(px + 2, py + 1, 1, 1)
+  }
+
+  private renderHedges(g: CanvasRenderingContext2D) {
+    // Shadows first, so no hedge's shade falls across its neighbour.
+    g.fillStyle = rgba(INK, 0.35)
+    for (let y = 1; y < ROWS - 1; y++)
+      for (let x = 1; x < COLS - 1; x++) {
+        if (this.grid[key(x, y)] !== HEDGE) continue
+        const px = x * TILE
+        const py = HUD_H + y * TILE
+        if (!this.grid[key(x, y + 1)])
+          g.fillRect(px + 3, py + TILE, TILE - 2, 3)
+        if (!this.grid[key(x + 1, y)])
+          g.fillRect(px + TILE, py + 4, 3, TILE - 4)
+      }
+    for (let y = 1; y < ROWS - 1; y++)
+      for (let x = 1; x < COLS - 1; x++) {
+        if (this.grid[key(x, y)] !== HEDGE) continue
+        const sprite = HEDGE_SPRITES[(x * 7 + y * 3) % 5 === 0 ? 1 : 0]
+        drawSprite(g, sprite, x * TILE + TILE / 2, HUD_H + y * TILE + TILE / 2)
+      }
   }
 
   private renderPower(g: CanvasRenderingContext2D, k: number, power: Power) {
-    const px = (k % COLS) * TILE
-    const py = HUD_H + Math.floor(k / COLS) * TILE
-    const flash = Math.floor(this.tick / 10) % 2
-    g.fillStyle = flash ? '#fef3c7' : '#fde68a'
-    g.fillRect(px + 2, py + 2, TILE - 4, TILE - 4)
-    g.fillStyle = '#78350f'
-    g.fillRect(px + 3, py + 3, TILE - 6, TILE - 6)
-    if (power === 'pod') {
-      g.fillStyle = '#a16207'
-      g.fillRect(px + 6, py + 6, 5, 5)
-      g.fillStyle = '#65a30d'
-      g.fillRect(px + 7, py + 4, 3, 2)
-    } else if (power === 'bloom') {
-      g.fillStyle = '#f472b6'
-      g.fillRect(px + 5, py + 7, 7, 3)
-      g.fillRect(px + 7, py + 5, 3, 7)
-      g.fillStyle = '#fde047'
-      g.fillRect(px + 7, py + 7, 3, 3)
-    } else {
-      g.fillStyle = '#38bdf8'
-      g.fillRect(px + 5, py + 5, 3, 6)
-      g.fillRect(px + 5, py + 9, 7, 3)
+    const cx = (k % COLS) * TILE + TILE / 2
+    const cy = HUD_H + Math.floor(k / COLS) * TILE + TILE / 2
+    const pulse = Math.sin(this.tick / 8)
+    const bob = Math.round(pulse)
+    glow(g, cx, cy, 13, RAMPS.gold[3], 0.4 + 0.2 * pulse)
+    dropShadow(g, cx + 1, cy + 7, 6, 1.5, 0.35)
+    bevel(g, cx - 7, cy - 7 + bob, 14, 13, RAMPS.purple, { depth: 2 })
+    if (Math.floor(this.tick / 10) % 2) {
+      g.fillStyle = RAMPS.gold[4]
+      g.fillRect(cx - 7, cy - 7 + bob, 14, 1)
     }
+    drawSprite(g, POWER_SPRITES[power], cx, cy + bob)
   }
 
   private renderPod(g: CanvasRenderingContext2D, pod: Pod) {
-    const px = pod.x * TILE + TILE / 2
-    const py = HUD_H + pod.y * TILE + TILE / 2
-    const pulse =
-      pod.fuse < 50
-        ? Math.floor(this.tick / 4) % 2
-        : Math.floor(this.tick / 12) % 2
-    g.fillStyle = '#a16207'
-    g.beginPath()
-    g.ellipse(px, py + 1, 5 + pulse, 6, 0, 0, Math.PI * 2)
-    g.fill()
-    g.fillStyle = '#ca8a04'
-    g.fillRect(px - 3, py - 2, 2, 2)
-    g.fillStyle = pod.fuse < 50 && pulse ? '#f87171' : '#65a30d'
-    g.fillRect(px - 1, py - 8, 2, 4)
-    g.fillRect(px + 1, py - 8, 3, 2)
+    const cx = pod.x * TILE + TILE / 2
+    const cy = HUD_H + pod.y * TILE + TILE / 2 + 1
+    const late = pod.fuse < 50
+    const pulse = late
+      ? Math.floor(this.tick / 4) % 2
+      : Math.floor(this.tick / 12) % 2
+    const r = 5 + pulse
+    dropShadow(g, cx + 1, cy + 6, 6, 2, 0.4)
+    if (late) glow(g, cx, cy, 14, RAMPS.ember[2], 0.35 + 0.35 * pulse)
+    else glow(g, cx, cy, 10, RAMPS.gold[3], 0.18)
+    shadedOrb(g, cx, cy, r, late && pulse ? RAMPS.ember : SEED)
+    // Husk seams, so it reads as a seed and not a ball.
+    g.fillStyle = rgba(INK, 0.45)
+    g.fillRect(cx - 1, cy - r + 2, 1, r * 2 - 3)
+    drawSprite(g, SPROUT_SPRITE, cx, cy - r + 1, { anchor: 'feet' })
   }
 
-  private renderBloom(g: CanvasRenderingContext2D, b: Bloom) {
-    const px = b.x * TILE + TILE / 2
-    const py = HUD_H + b.y * TILE + TILE / 2
-    const grow = Math.min(1, (BLOOM_TICKS - b.life + 4) / 8)
-    const colors = ['#f9a8d4', '#fde047', '#c4b5fd', '#fdba74']
-    g.fillStyle = colors[(b.x + b.y) % 4]!
-    for (let i = 0; i < 6; i++) {
-      const a = (i / 6) * Math.PI * 2 + this.tick * 0.05
+  private renderBlooms(g: CanvasRenderingContext2D) {
+    if (!this.blooms.length) return
+    const at = new Set(this.blooms.map((b) => key(b.x, b.y)))
+    // Colour math: the glowing cross of petals the burst throws out.
+    g.save()
+    g.globalCompositeOperation = 'lighter'
+    for (const b of this.blooms) {
+      const cx = b.x * TILE + TILE / 2
+      const cy = HUD_H + b.y * TILE + TILE / 2
+      const ramp = BLOOM_RAMPS[(b.x + b.y) % 4]!
+      const fade = Math.min(1, b.life / 8)
+      g.globalAlpha = 1
+      glow(g, cx, cy, 14, ramp[3], 0.55 * fade)
+      // A white flash the moment the pod pops.
+      if (BLOOM_TICKS - b.life < 4) glow(g, cx, cy, 20, '#ffffff', 0.5)
+      const shimmer = (this.tick + b.x + b.y) % 4 < 2 ? 0 : 2
+      for (const d of DIRS) {
+        if (!at.has(key(b.x + d.dx, b.y + d.dy))) continue
+        for (const [w, colour, a] of [
+          [12 + shimmer, ramp[2], 0.5],
+          [8, ramp[3], 0.65],
+          [4, ramp[4], 0.8],
+          [2, '#ffffff', 0.9],
+        ] as const) {
+          g.globalAlpha = a * fade
+          g.fillStyle = colour
+          if (d.dx)
+            g.fillRect(d.dx > 0 ? cx : cx - TILE / 2, cy - w / 2, TILE / 2, w)
+          else
+            g.fillRect(cx - w / 2, d.dy > 0 ? cy : cy - TILE / 2, w, TILE / 2)
+        }
+      }
+    }
+    g.restore()
+    for (const b of this.blooms) {
+      const cx = b.x * TILE + TILE / 2
+      const cy = HUD_H + b.y * TILE + TILE / 2
+      const age = BLOOM_TICKS - b.life
+      const sprites = age < 5 ? BUD_SPRITES : BLOOM_SPRITES
+      drawSprite(g, sprites[(b.x + b.y) % 4]!, cx, cy, {
+        alpha: Math.min(1, b.life / 6),
+      })
+    }
+  }
+
+  private renderCloudShadows(g: CanvasRenderingContext2D) {
+    g.save()
+    g.beginPath()
+    g.rect(0, HUD_H, W, H - HUD_H)
+    g.clip()
+    g.fillStyle = rgba(INK, 0.1)
+    for (const c of CLOUD_SHADOWS) {
+      const span = W + c.rx * 2
+      const x = ((c.x + this.tick * c.speed) % span) - c.rx
       g.beginPath()
-      g.arc(
-        px + Math.cos(a) * 4 * grow,
-        py + Math.sin(a) * 4 * grow,
-        3.2 * grow,
-        0,
-        Math.PI * 2,
-      )
+      g.ellipse(x, c.y, c.rx, c.ry, 0, 0, Math.PI * 2)
       g.fill()
     }
-    g.fillStyle = '#fef9c3'
-    g.fillRect(px - 2, py - 2, 4, 4)
+    g.restore()
   }
 
   private renderGnat(g: CanvasRenderingContext2D, gnat: Gnat) {
     const { x, y } = this.pixel(gnat)
     const flap = Math.floor(this.tick / 4) % 2
-    g.globalAlpha = gnat.ghost ? 0.7 : 1
-    g.fillStyle = 'rgba(226, 232, 240, 0.8)'
-    g.fillRect(x - 6, y - 4 - flap, 4, 3)
-    g.fillRect(x + 2, y - 4 - flap, 4, 3)
-    g.fillStyle = gnat.ghost ? '#a78bfa' : '#57534e'
-    g.fillRect(x - 3, y - 3, 6, 6)
-    g.fillStyle = '#fef08a'
-    g.fillRect(x - 2, y - 2, 2, 2)
-    g.fillRect(x + 1, y - 2, 2, 2)
-    g.fillStyle = '#1c1917'
-    g.fillRect(x - 2, y + 1, 4, 1)
-    g.globalAlpha = 1
+    const hover = Math.round(Math.sin(this.tick / 9 + gnat.tx) * 1.5) - 3
+    dropShadow(g, x, y + 6, 4, 1.5, 0.35)
+    if (gnat.ghost) glow(g, x, y + hover, 11, RAMPS.purple[3], 0.45)
+    drawSprite(
+      g,
+      (gnat.ghost ? GHOST_SPRITES : GNAT_SPRITES)[flap]!,
+      x,
+      y + hover,
+      { flipX: gnat.dir.dx < 0, alpha: gnat.ghost ? 0.8 : 1 },
+    )
   }
 
   private renderGardener(g: CanvasRenderingContext2D, gd: Gardener) {
     if (gd.down !== 0) return
     if (gd.safe > 0 && Math.floor(gd.safe / 5) % 2) return
     const { x, y } = this.pixel(gd)
-    const step = gd.p > 0 ? Math.floor(this.tick / 6) % 2 : 0
-    g.fillStyle = '#e2e8f0'
-    g.fillRect(x - 5, y - 4, 10, 9)
-    g.fillStyle = SEAT_COLORS[gd.seat]!
-    g.fillRect(x - 6, y - 7, 12, 3)
-    g.fillRect(x - 3, y - 9, 6, 2)
-    g.fillStyle = '#0f172a'
-    const look = gd.facing.dx
-    g.fillRect(x - 3 + look, y - 2, 2, 2)
-    g.fillRect(x + 1 + look, y - 2, 2, 2)
-    g.fillStyle = '#475569'
-    g.fillRect(x - 4, y + 5, 3, 2 + step)
-    g.fillRect(x + 1, y + 5, 3, 3 - step)
-    if (this.gardeners.length > 1)
-      drawText(g, `${gd.seat + 1}`, x, y - 16, {
-        align: 'center',
-        color: SEAT_COLORS[gd.seat]!,
-        shadow: '#052e16',
-      })
+    const face: Face =
+      gd.facing.dy < 0 ? 'up' : gd.facing.dy > 0 ? 'down' : 'side'
+    const pose = gd.p > 0 ? 1 + (Math.floor(this.tick / 6) % 2) : 0
+    dropShadow(g, x, y + 7, 6, 2, 0.4)
+    drawSprite(g, GARDENER_SPRITES[gd.seat]![face][pose]!, x, y + 8, {
+      anchor: 'feet',
+      flipX: gd.facing.dx < 0,
+    })
+  }
+
+  /** Seat numbers over each gardener, drawn after the badges; beside them in the top row. */
+  private renderSeatLabel(g: CanvasRenderingContext2D, gd: Gardener) {
+    if (gd.down !== 0 || this.gardeners.length < 2) return
+    if (gd.safe > 0 && Math.floor(gd.safe / 5) % 2) return
+    const { x, y } = this.pixel(gd)
+    const above = y - 17 >= HUD_H + TILE
+    drawText(g, `${gd.seat + 1}`, above ? x : x + 11, above ? y - 17 : y - 4, {
+      align: 'center',
+      color: SEAT_RAMPS[gd.seat]![3],
+      outline: INK,
+    })
+  }
+
+  private renderParticles(g: CanvasRenderingContext2D) {
+    const flap = Math.floor(this.tick / 5) % 2
+    for (const p of this.particles) {
+      const alpha = Math.max(0, Math.min(1, p.life / 30))
+      const butterfly = BUTTERFLY_SPRITES.get(p.color)
+      if (butterfly) drawSprite(g, butterfly[flap]!, p.x, p.y, { alpha })
+      else if (p.color === LEAF_COLOUR)
+        drawSprite(g, LEAF_SPRITE, p.x, p.y, { alpha, flipX: p.vx < 0 })
+      else {
+        g.save()
+        g.globalCompositeOperation = 'lighter'
+        g.globalAlpha = alpha
+        g.fillStyle = p.color
+        g.fillRect(Math.round(p.x) - 1, Math.round(p.y), 3, 1)
+        g.fillRect(Math.round(p.x), Math.round(p.y) - 1, 1, 3)
+        g.fillStyle = '#ffffff'
+        g.fillRect(Math.round(p.x), Math.round(p.y), 1, 1)
+        g.restore()
+      }
+    }
+  }
+
+  /**
+   * Each gardener's badge sits on the garden wall by their home corner: their hat, then pods,
+   * bloom reach and shoe speed. Greyed while they wait to respawn, OUT when out of the game.
+   */
+  private renderSeatBadges(g: CanvasRenderingContext2D) {
+    const bw = 64
+    for (const gd of this.gardeners) {
+      const corner = CORNERS[gd.seat]!
+      const x = corner.x < COLS / 2 ? 3 : W - 3 - bw
+      const y = corner.y < ROWS / 2 ? HUD_H + 2 : H - TILE + 2
+      g.save()
+      if (gd.down !== 0) g.globalAlpha = 0.55
+      hudPanel(g, x, y, bw, 12, gd.down < 0 ? RAMPS.night : RAMPS.purple)
+      drawSprite(g, SEAT_HEADS[gd.seat]!, x + 7, y + 6)
+      if (gd.down < 0)
+        drawText(g, `${gd.seat + 1}P OUT`, x + 15, y + 3, {
+          color: RAMPS.steel[3],
+          outline: INK,
+        })
+      else {
+        const stats = [
+          gd.pods,
+          gd.range,
+          Math.round((gd.speed - BASE_SPEED) / SHOE_SPEED) + 1,
+        ]
+        stats.forEach((n, i) => {
+          const sx = x + 16 + i * 16
+          drawSprite(g, STAT_ICONS[i]!, sx + 3, y + 6)
+          drawText(g, String(n), sx + 8, y + 3, {
+            color: RAMPS.cream[3],
+            outline: INK,
+          })
+        })
+      }
+      g.restore()
+    }
   }
 
   private renderHud(g: CanvasRenderingContext2D) {
-    const shadow = '#052e16'
-    g.fillStyle = 'rgba(5, 46, 22, 0.92)'
-    g.fillRect(0, 0, W, HUD_H)
-    drawText(g, String(this.score).padStart(6, '0'), 4, 3, {
+    const score = String(this.score).padStart(6, '0')
+    hudPanel(g, 2, 2, measureText(score, 2) + 8, 20, RAMPS.leaf)
+    drawText(g, score, 6, 5, {
       scale: 2,
-      color: '#fde047',
-      shadow,
+      color: RAMPS.gold[4],
+      shadow: INK,
     })
-    drawText(g, `HI ${Math.max(this.hiScore, this.score)}`, W - 4, 2, {
-      align: 'right',
-      color: '#f9a8d4',
-    })
-    drawText(g, `ROUND ${this.level}`, W - 4, 10, {
-      align: 'right',
-      color: '#bef264',
-    })
+    const left = measureText(score, 2) + 12
     const secs = Math.max(0, Math.ceil(this.timer / 60))
-    drawText(g, `TIME ${secs}`, 90, 3, {
-      color: secs <= 20 && this.timer > 0 ? '#fca5a5' : '#e0f2fe',
+    const gnats = `GNATS ${this.gnats.length}`
+    const tw = Math.max(measureText(`TIME ${secs}`), measureText(gnats)) + 8
+    hudPanel(g, left, 2, tw, 20)
+    drawText(g, `TIME ${secs}`, left + 4, 4, {
+      color: secs <= 20 && this.timer > 0 ? RAMPS.ember[3] : RAMPS.sky[4],
+      outline: INK,
     })
-    drawText(g, `GNATS ${this.gnats.length}`, 90, 12, { color: '#d6d3d1' })
-    for (let i = 0; i < Math.min(this.spares, 5); i++) {
-      g.fillStyle = '#e2e8f0'
-      g.fillRect(150 + i * 8, 13, 5, 5)
-      g.fillStyle = '#38bdf8'
-      g.fillRect(149 + i * 8, 12, 7, 2)
+    drawText(g, gnats, left + 4, 13, {
+      color: RAMPS.steel[3],
+      outline: INK,
+    })
+    const hi = `HI ${Math.max(this.hiScore, this.score)}`
+    const round = `ROUND ${this.level}`
+    const rw = Math.max(measureText(hi), measureText(round)) + 8
+    hudPanel(g, W - 2 - rw, 2, rw, 20)
+    drawText(g, hi, W - 6, 4, {
+      align: 'right',
+      color: RAMPS.pink[3],
+      outline: INK,
+    })
+    drawText(g, round, W - 6, 13, {
+      align: 'right',
+      color: LIME[3],
+      outline: INK,
+    })
+    // The team's spares, between the timer and the high score.
+    const sl = left + tw + 2
+    const sw = W - 4 - rw - sl
+    const spares = Math.min(this.spares, 5)
+    if (sw >= 14) {
+      hudPanel(g, sl, 2, sw, 20, RAMPS.teal)
+      const perRow = Math.max(1, Math.floor((sw - 4) / 10))
+      if (spares === 0) drawSprite(g, SPARE_SPRITE, sl + 7, 12, { alpha: 0.3 })
+      for (let i = 0; i < Math.min(spares, perRow * 2); i++)
+        drawSprite(
+          g,
+          SPARE_SPRITE,
+          sl + 7 + (i % perRow) * 10,
+          8 + Math.floor(i / perRow) * 9,
+        )
     }
     if (this.banner) {
+      // A dimmed band behind the banner keeps it legible over the busy garden.
+      g.fillStyle = rgba(INK, 0.5)
+      g.fillRect(0, 86, W, this.banner.sub ? 38 : 26)
+      g.fillStyle = rgba(RAMPS.leaf[3], 0.5)
+      g.fillRect(0, 86, W, 1)
+      g.fillRect(0, this.banner.sub ? 123 : 111, W, 1)
       drawText(g, this.banner.text, W / 2, 92, {
         scale: 2,
         align: 'center',
         color: '#ffffff',
-        shadow: '#052e16',
+        outline: INK,
+        shadow: RAMPS.leaf[1],
       })
       if (this.banner.sub)
         drawText(g, this.banner.sub, W / 2, 112, {
           align: 'center',
-          color: '#fef9c3',
-          shadow: '#052e16',
+          color: RAMPS.gold[3],
+          outline: INK,
         })
     }
   }

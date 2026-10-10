@@ -350,12 +350,6 @@ export const ZUZU_LAST_BELL_GREYBOX: TableDef = {
       displayName: 'RIGHT ORBIT',
     },
     {
-      id: 'abbey-seals',
-      kind: 'target-bank',
-      sensors: ['abbey-seal-1', 'abbey-seal-2', 'abbey-seal-3', 'abbey-seal-4'],
-      displayName: 'ABBEY SEALS',
-    },
-    {
       id: 'relic-spinner',
       kind: 'spinner',
       sensors: ['relic-spinner'],

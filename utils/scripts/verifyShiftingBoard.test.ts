@@ -13,7 +13,7 @@ import {
 const file = (path: string) => fileURLToPath(new URL(path, import.meta.url))
 const read = (path: string) => readFileSync(file(path), 'utf8')
 const page = read('../../pages/admin/zuzu-shifting-lands.vue')
-const board = read('../../components/shifting-lands/journey-board.vue')
+const board = read('../../components/shifting-lands-journey-board.vue')
 const store = read('../../stores/shiftingLandsJourneyStore.ts')
 const legacy = read('../../stores/shiftingLandsStore.ts')
 const channel = read('../../content/channels/admin/zuzu-shifting-lands.md')

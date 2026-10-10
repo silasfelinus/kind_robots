@@ -9,6 +9,9 @@
 
 import type { Bolt, FoeCtx } from './foes'
 import type { BossId, FoeKind } from './world'
+import { FERRYMAN } from './bosses/ferryman'
+import { MARSHAL } from './bosses/marshal'
+import { MATRIARCH } from './bosses/matriarch'
 
 export type Boss = {
   id: BossId
@@ -174,6 +177,10 @@ export const BOSSES: Partial<Record<BossId, BossDef>> = {
     immune: (b) => b.mode === 'charge',
     contact: () => ({ hw: 15, height: 22 }),
   },
+  // The headline bosses, one module each under bosses/.
+  marshal: MARSHAL,
+  ferryman: FERRYMAN,
+  matriarch: MATRIARCH,
 }
 
 // Placeholders until each headline boss's own module lands: the Dust Devil's moves under its name.
@@ -183,13 +190,6 @@ const standIn = (name: string, title: string, hp: number): BossDef => ({
   title,
   hp,
 })
-BOSSES.marshal ??= standIn('THE GRAVE MARSHAL', 'LAW OF THE DEAD', 22)
-BOSSES.ferryman ??= standIn('THE DROWNED FERRYMAN', 'TOLL OF THE DEEP', 26)
-BOSSES.matriarch ??= standIn(
-  'THE STORM-CROW MATRIARCH',
-  'MOTHER OF THE GALE',
-  28,
-)
 BOSSES.heretic ??= standIn('THE BELL HERETIC', 'HE WHO RANG THE DEAD', 32)
 BOSSES.abbess ??= standIn('THE ABBESS', 'BENEATH THE BELL', 40)
 

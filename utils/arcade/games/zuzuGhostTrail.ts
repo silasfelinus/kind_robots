@@ -61,7 +61,6 @@ import {
   drawHazard,
   drawMover,
   drawStandInBoss,
-  drawStandInFoe,
   drawUpdraft,
   drawWater,
   type Card,
@@ -97,7 +96,6 @@ import {
   tideAt,
   type Act,
   type Encounter,
-  type FoeKind,
   type Holding,
   type SquadMember,
   type StageTheme,
@@ -293,8 +291,6 @@ export function readSave(raw: unknown): GhostSave | null {
         : 1,
   }
 }
-
-const PAINTED_FOES = new Set<FoeKind>(['spirit', 'crow', 'hyena'])
 
 class ZuzuGhostTrail implements ArcadeGameInstance {
   score = 0
@@ -1036,7 +1032,14 @@ class ZuzuGhostTrail implements ArcadeGameInstance {
           Math.abs(f.y - fire.y) < 24
         )
           this.strike(f, 1, f.x, fire.y - 10)
-      if (this.boss && Math.abs(this.boss.x - fire.x) < 16)
+      // Only a boss standing in it (a perched or flying boss is out of reach), and more slowly:
+      // a boss shrugs off most of the flame.
+      if (
+        this.boss &&
+        fire.life % 24 === 0 &&
+        Math.abs(this.boss.x - fire.x) < 16 &&
+        Math.abs(this.boss.y - fire.y) < 24
+      )
         this.hurtBoss(1, this.boss.x, fire.y - 10)
     }
     this.fires = this.fires.filter((f) => f.life > 0)
@@ -1674,25 +1677,17 @@ class ZuzuGhostTrail implements ArcadeGameInstance {
   }
 
   private renderFoe(g: CanvasRenderingContext2D, f: Foe) {
-    if (
-      PAINTED_FOES.has(f.kind) &&
-      (f.phase === 'rise' || f.phase === 'walk' || f.phase === 'sink')
-    ) {
-      drawFoe(
-        g,
-        {
-          ...f,
-          kind: f.kind as 'spirit' | 'crow' | 'hyena',
-          phase: f.phase,
-          carrying: !!f.carrying,
-          face: Math.sign(this.x - f.x) || -1,
-        },
-        this.tick,
-      )
-      return
-    }
-    const def = FOES[f.kind]
-    drawStandInFoe(g, { ...f, hw: def.hw, cy: def.cy, hh: def.hh }, this.tick)
+    // The slice's three always turn to Zuzu; the campaign roster faces the way its behaviour set.
+    const slice = f.kind === 'spirit' || f.kind === 'crow' || f.kind === 'hyena'
+    drawFoe(
+      g,
+      {
+        ...f,
+        carrying: !!f.carrying,
+        face: slice ? Math.sign(this.x - f.x) || -1 : f.face,
+      },
+      this.tick,
+    )
   }
 
   private renderBoss(g: CanvasRenderingContext2D, b: Boss) {

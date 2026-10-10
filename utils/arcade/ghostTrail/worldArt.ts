@@ -10,6 +10,7 @@
 
 import { drawText } from '../font'
 import { INK, glow, mix, rgba } from '../snes'
+import { drawClod } from './foeArt'
 import type { Bolt } from './foes'
 import type { Block, Hazard, Mover, StageTheme, Updraft } from './world'
 
@@ -267,94 +268,475 @@ export function drawWater(
   g.restore()
 }
 
-/** A hostile projectile (world space). Pillars glow while arming: their tell. */
+/** A small flame tongue, base at (x, y), for embers and the pillar's crown. */
+function boltFlame(
+  g: G,
+  x: number,
+  y: number,
+  w: number,
+  h: number,
+  lean: number,
+  color: string,
+) {
+  g.fillStyle = color
+  g.beginPath()
+  g.moveTo(x - w, y)
+  g.quadraticCurveTo(x - w, y - h * 0.55, x + lean, y - h)
+  g.quadraticCurveTo(x + w, y - h * 0.55, x + w, y)
+  g.closePath()
+  g.fill()
+}
+
+/**
+ * A hostile projectile (world space). Each wears a dark ink edge, a glow, or both, so it reads on
+ * every backdrop from the moonlit town to the teal waterhole. A pillar shows a pulsing crimson sigil
+ * and a climbing shimmer on the ground while it arms (its tell), then erupts into a column of fire.
+ */
 export function drawBolt(g: G, b: Bolt, tick: number) {
-  g.save()
   const x = b.x
   const y = b.y
+  const dir = Math.sign(b.vx) || 1
+  const TAU = Math.PI * 2
+  g.save()
+  g.lineCap = 'round'
+  g.lineJoin = 'round'
   switch (b.kind) {
-    case 'bullet':
-      g.fillStyle = '#fde68a'
-      g.fillRect(x - 3, y - 1, 6, 2)
-      g.fillStyle = rgba('#fde68a', 0.4)
-      g.fillRect(x - 8 * Math.sign(b.vx || 1), y, 6, 1)
-      break
-    case 'orb':
-      glow(g, x, y, 9, '#67e8f9', 0.5)
-      g.fillStyle = '#cffafe'
+    case 'bullet': {
+      // A tracer streak, a red-hot halo, and an amber slug with a white-hot nose.
+      const tail = g.createLinearGradient(x - dir * 14, 0, x, 0)
+      tail.addColorStop(0, rgba('#f2b52b', 0))
+      tail.addColorStop(1, rgba('#fde68a', 0.75))
+      g.fillStyle = tail
+      g.fillRect(Math.min(x, x - dir * 14), y - 0.7, 14, 1.4)
+      glow(g, x, y, 7, '#e0263a', 0.5)
       g.beginPath()
-      g.arc(x, y, 3, 0, Math.PI * 2)
+      g.ellipse(x, y, 3.2, 1.7, 0, 0, TAU)
+      g.lineWidth = 1
+      g.strokeStyle = INK
+      g.stroke()
+      g.fillStyle = '#f2b52b'
+      g.fill()
+      g.fillStyle = '#fffbe6'
+      g.beginPath()
+      g.ellipse(x + dir * 1, y - 0.3, 1.4, 0.8, 0, 0, TAU)
       g.fill()
       break
-    case 'bone':
+    }
+    case 'orb': {
+      // A spectral orb trailing wisps, a dark rim around a swirling cyan core.
+      const sp = Math.hypot(b.vx, b.vy) || 1
+      for (let i = 1; i <= 3; i++) {
+        const k = i * 2.6
+        g.globalAlpha = 0.5 - i * 0.12
+        g.fillStyle = '#6ff0e0'
+        g.beginPath()
+        g.arc(
+          x - (b.vx / sp) * k + Math.sin(b.t / 4 + i) * 0.8,
+          y - (b.vy / sp) * k + Math.cos(b.t / 4 + i) * 0.8,
+          2.4 - i * 0.5,
+          0,
+          TAU,
+        )
+        g.fill()
+      }
+      g.globalAlpha = 1
+      glow(g, x, y, 11, '#1fa3a8', 0.55)
+      g.beginPath()
+      g.arc(x, y, 3.6, 0, TAU)
+      g.lineWidth = 1
+      g.strokeStyle = '#06283a'
+      g.stroke()
+      const core = g.createRadialGradient(x - 1, y - 1, 0, x, y, 3.6)
+      core.addColorStop(0, '#dcfffa')
+      core.addColorStop(0.5, '#6ff0e0')
+      core.addColorStop(1, '#1fa3a8')
+      g.fillStyle = core
+      g.fill()
+      g.strokeStyle = rgba('#dcfffa', 0.85)
+      g.lineWidth = 0.6
+      g.beginPath()
+      g.arc(x, y, 2.2, b.t / 5, b.t / 5 + 2.2)
+      g.stroke()
+      break
+    }
+    case 'bone': {
+      // A tumbling femur: ink-edged bone, knuckled ends, a faint pale halo.
+      glow(g, x, y, 7, '#e9dcbc', 0.22)
       g.translate(x, y)
       g.rotate(b.t / 4)
-      g.fillStyle = '#f5f5f4'
-      g.fillRect(-4, -1, 8, 2)
-      g.fillRect(-5, -2, 2, 4)
-      g.fillRect(3, -2, 2, 4)
+      const shaft = (w: number, color: string) => {
+        g.beginPath()
+        g.moveTo(-3.4, 0)
+        g.lineTo(3.4, 0)
+        g.lineWidth = w
+        g.strokeStyle = color
+        g.stroke()
+      }
+      shaft(2.6, INK)
+      for (const sx of [-3.8, 3.8])
+        for (const sy of [-1.1, 1.1]) {
+          g.beginPath()
+          g.arc(sx, sy, 1.6, 0, TAU)
+          g.fillStyle = INK
+          g.fill()
+        }
+      shaft(1.5, '#c4ad88')
+      for (const sx of [-3.8, 3.8])
+        for (const sy of [-1.1, 1.1]) {
+          g.beginPath()
+          g.arc(sx, sy, 1.05, 0, TAU)
+          g.fillStyle = sy < 0 ? '#e9dcbc' : '#c4ad88'
+          g.fill()
+        }
+      g.strokeStyle = '#fffaea'
+      g.lineWidth = 0.5
+      g.beginPath()
+      g.moveTo(-3, -0.4)
+      g.lineTo(3, -0.4)
+      g.stroke()
       break
-    case 'feather':
+    }
+    case 'feather': {
+      // A storm-black quill-feather, its edge lit pale so it shows against the night.
+      glow(g, x, y, 7, '#8d93c9', 0.3)
       g.translate(x, y)
       g.rotate(Math.atan2(b.vy, b.vx))
-      g.fillStyle = '#334155'
-      g.fillRect(-5, -1, 10, 2)
-      g.fillStyle = '#94a3b8'
-      g.fillRect(-5, -1, 10, 1)
+      const vane = () => {
+        g.beginPath()
+        g.moveTo(5, 0)
+        g.quadraticCurveTo(1, -2.4, -4, -0.8)
+        g.lineTo(-5.4, 0)
+        g.lineTo(-4, 0.8)
+        g.quadraticCurveTo(1, 2.4, 5, 0)
+        g.closePath()
+      }
+      vane()
+      g.lineWidth = 1.2
+      g.strokeStyle = rgba('#c9cdf0', 0.8)
+      g.stroke()
+      g.fillStyle = '#231f4a'
+      g.fill()
+      g.fillStyle = '#3b3772'
+      g.beginPath()
+      g.moveTo(4.4, -0.2)
+      g.quadraticCurveTo(1, -2, -3.6, -0.6)
+      g.lineTo(-3.6, 0)
+      g.closePath()
+      g.fill()
+      g.strokeStyle = '#c9cdf0'
+      g.lineWidth = 0.5
+      g.beginPath()
+      g.moveTo(-5.8, 0)
+      g.lineTo(5, 0)
+      g.stroke()
       break
-    case 'ember':
-      glow(g, x, y, 8, '#f97316', 0.45)
-      g.fillStyle = (tick + b.t) % 6 < 3 ? '#fdba74' : '#f97316'
-      g.fillRect(
-        x - Math.min(b.hw, 3),
-        y - Math.min(b.hh, 3),
-        Math.min(b.hw, 3) * 2,
-        Math.min(b.hh, 3) * 2,
-      )
+    }
+    case 'ember': {
+      if (b.hw > 4) {
+        // A censer's sweep: a lingering spray of fire across its whole box, dying as it ends.
+        const fade = Math.min(1, b.life / 12)
+        g.globalAlpha = fade
+        glow(g, x, y, b.hw * 1.6, '#fb923c', 0.55)
+        const n = 5
+        for (let i = 0; i < n; i++) {
+          const u = (i + 0.5) / n
+          const fx = x - b.hw + u * b.hw * 2
+          const h =
+            b.hh *
+            (1.2 + Math.sin(u * Math.PI) * 0.8) *
+            (0.85 + Math.sin(b.t / 2 + i * 2) * 0.15)
+          const base = y + b.hh * 0.6
+          const lean = Math.sin(b.t / 3 + i) * 1.2
+          boltFlame(g, fx, base, 2.4, h + 1, lean, rgba(INK, 0.5))
+          boltFlame(g, fx, base, 2, h, lean, '#e0263a')
+          boltFlame(g, fx, base, 1.4, h * 0.7, lean, '#fb923c')
+          boltFlame(g, fx, base, 0.7, h * 0.4, lean, '#fef08a')
+        }
+        for (let i = 0; i < 6; i++) {
+          const p = ((b.t * 1.3 + i * 5) % 18) / 18
+          g.fillStyle = i % 2 ? '#fef08a' : '#fb923c'
+          g.globalAlpha = fade * (1 - p)
+          g.fillRect(
+            x - b.hw + ((i * 7) % (b.hw * 2)),
+            y + b.hh * 0.4 - p * b.hh * 2.4,
+            1,
+            1,
+          )
+        }
+        g.globalAlpha = 1
+        break
+      }
+      // A spitting coal: ink rim, crimson shell, a flickering yellow heart, sparks behind.
+      for (let i = 1; i <= 2; i++) {
+        g.globalAlpha = 0.7 - i * 0.25
+        g.fillStyle = '#fb923c'
+        g.fillRect(x - b.vx * i * 2 - 0.6, y - b.vy * i * 2 - 0.6, 1.2, 1.2)
+      }
+      g.globalAlpha = 1
+      glow(g, x, y, 8, '#fb923c', 0.6)
+      g.beginPath()
+      g.arc(x, y, 2.5, 0, TAU)
+      g.lineWidth = 1
+      g.strokeStyle = INK
+      g.stroke()
+      g.fillStyle = '#e0263a'
+      g.fill()
+      g.fillStyle = '#fb923c'
+      g.beginPath()
+      g.arc(x - 0.3, y - 0.3, 1.6, 0, TAU)
+      g.fill()
+      g.fillStyle = (tick + b.t) % 6 < 3 ? '#fef08a' : '#fffbe6'
+      g.fillRect(x - 0.8, y - 0.9, 1.2, 1.2)
       break
+    }
     case 'pillar': {
+      const base = y + b.hh
       if (b.arm > 0) {
-        const a = 0.3 + 0.4 * ((tick % 8) / 8)
-        g.fillStyle = rgba('#ef4444', a)
-        g.fillRect(x - b.hw, y + b.hh - 3, b.hw * 2, 3)
+        // The tell: a crimson sigil burning into the ground, quickening as it arms, and a
+        // shimmer climbing the column it is about to fill.
+        const k = Math.max(0, Math.min(1, 1 - b.arm / 45))
+        const pulse = 0.5 + 0.5 * Math.sin(tick * (0.35 + k * 0.6))
+        glow(g, x, base - 2, b.hw * 2 + k * 6, '#e0263a', 0.35 + k * 0.35)
+        const col = g.createLinearGradient(0, base - b.hh * 2, 0, base)
+        col.addColorStop(0, rgba('#e0263a', 0))
+        col.addColorStop(
+          1,
+          rgba('#e0263a', 0.15 + k * 0.4 * (0.5 + pulse * 0.5)),
+        )
+        g.fillStyle = col
+        g.fillRect(x - b.hw * 0.8, base - b.hh * 2, b.hw * 1.6, b.hh * 2)
+        g.beginPath()
+        g.ellipse(x, base, b.hw + 2.5, 2.4, 0, 0, TAU)
+        g.lineWidth = 2.2
+        g.strokeStyle = rgba(INK, 0.7)
+        g.stroke()
+        g.fillStyle = rgba('#4a0a14', 0.55)
+        g.fill()
+        g.lineWidth = 1
+        g.strokeStyle = rgba('#ff6a5c', 0.55 + pulse * 0.45)
+        g.stroke()
+        g.beginPath()
+        g.ellipse(
+          x,
+          base,
+          (b.hw + 2.5) * (0.35 + 0.6 * (1 - k)),
+          1.2,
+          0,
+          0,
+          TAU,
+        )
+        g.lineWidth = 0.7
+        g.strokeStyle = rgba('#ffd2c4', 0.4 + pulse * 0.5)
+        g.stroke()
+        // Rune ticks circling the sigil.
+        g.fillStyle = '#ffd2c4'
+        for (let i = 0; i < 4; i++) {
+          const a = tick / 9 + (i * TAU) / 4
+          g.fillRect(
+            x + Math.cos(a) * (b.hw + 2.5) - 0.5,
+            base + Math.sin(a) * 2.4 - 0.5,
+            1,
+            1,
+          )
+        }
+        // Motes rising.
+        for (let i = 0; i < 4; i++) {
+          const p = ((tick * (0.8 + k) + i * 9) % 30) / 30
+          g.globalAlpha = (1 - p) * (0.4 + k * 0.6)
+          g.fillStyle = i % 2 ? '#ff6a5c' : '#ffd2c4'
+          g.fillRect(
+            x - b.hw * 0.6 + ((i * 5) % (b.hw * 1.2)),
+            base - 2 - p * b.hh * 1.6 * (0.4 + k),
+            1,
+            1.4,
+          )
+        }
+        g.globalAlpha = 1
       } else {
-        const grad = g.createLinearGradient(0, y - b.hh, 0, y + b.hh)
-        grad.addColorStop(0, rgba('#fecaca', 0.2))
-        grad.addColorStop(1, '#dc2626')
-        g.fillStyle = grad
-        g.fillRect(x - b.hw, y - b.hh, b.hw * 2, b.hh * 2)
-        glow(g, x, y + b.hh - 4, b.hw * 2, '#ef4444', 0.4)
+        // Erupting: a column of crimson fire, white-hot down its heart, licking flames at its
+        // crown and sparks boiling up inside.
+        const fade = Math.min(1, b.life / 8)
+        const top = y - b.hh
+        const w = b.hw
+        g.globalAlpha = fade
+        glow(g, x, base - 4, w * 2.6, '#e0263a', 0.55)
+        glow(g, x, y, w * 2, '#ff6a5c', 0.3)
+        const sway = (i: number) => Math.sin(b.t / 2 + i * 1.9) * 0.6
+        g.beginPath()
+        g.moveTo(x - w, base)
+        g.lineTo(x - w * 0.85 + sway(1), y)
+        g.lineTo(x - w * 0.7 + sway(2), top + 2)
+        g.lineTo(x + w * 0.7 + sway(3), top + 2)
+        g.lineTo(x + w * 0.85 + sway(4), y)
+        g.lineTo(x + w, base)
+        g.closePath()
+        g.lineWidth = 1.2
+        g.strokeStyle = rgba(INK, 0.7)
+        g.stroke()
+        const fire = g.createLinearGradient(x - w, 0, x + w, 0)
+        fire.addColorStop(0, '#9b1424')
+        fire.addColorStop(0.22, '#e0263a')
+        fire.addColorStop(0.36, '#ff6a5c')
+        fire.addColorStop(0.46, '#fff1e8')
+        fire.addColorStop(0.54, '#fff1e8')
+        fire.addColorStop(0.64, '#ff6a5c')
+        fire.addColorStop(0.78, '#e0263a')
+        fire.addColorStop(1, '#9b1424')
+        g.fillStyle = fire
+        g.fill()
+        for (let i = 0; i < 4; i++) {
+          const fx = x - w * 0.75 + i * w * 0.5
+          const h = 5 + Math.sin(b.t / 2 + i * 2.1) * 2
+          const lean = Math.sin(b.t / 3 + i) * 1.4
+          boltFlame(g, fx, top + 3, w * 0.34, h + 1, lean, rgba(INK, 0.5))
+          boltFlame(g, fx, top + 3, w * 0.3, h, lean, '#e0263a')
+          boltFlame(g, fx, top + 3, w * 0.15, h * 0.6, lean * 0.5, '#ffd2c4')
+        }
+        for (let i = 0; i < 5; i++) {
+          const p = ((b.t * 1.6 + i * 7) % 24) / 24
+          g.fillStyle = i % 2 ? '#fef08a' : '#ffd2c4'
+          g.fillRect(
+            x - w * 0.6 + ((i * 3.7) % (w * 1.2)),
+            base - p * b.hh * 2,
+            1,
+            1.6,
+          )
+        }
+        g.globalAlpha = 1
       }
       break
     }
-    case 'wave':
-      g.fillStyle = rgba('#5eead4', 0.75)
-      g.fillRect(x - b.hw, y - b.hh, b.hw * 2, b.hh * 2)
-      g.fillStyle = '#ccfbf1'
-      g.fillRect(x - b.hw, y - b.hh, b.hw * 2, 2)
-      break
-    case 'chain':
-      g.strokeStyle = '#a8a29e'
-      g.lineWidth = 2
-      g.beginPath()
-      g.moveTo(x - b.hw, y)
-      g.lineTo(x + b.hw, y)
+    case 'wave': {
+      // A rolling wave of water: ink edge, deep teal body shading down, a white foam crest
+      // spilling forward, spray flying off it.
+      const w = b.hw
+      const h = b.hh
+      const lip = dir * w * 0.3
+      const body = () => {
+        g.beginPath()
+        g.moveTo(x - w, y + h)
+        g.quadraticCurveTo(x - w * 0.8, y - h * 0.6, x + lip, y - h)
+        g.quadraticCurveTo(
+          x + dir * w * 0.85,
+          y - h * 0.9,
+          x + dir * w,
+          y - h * 0.2,
+        )
+        g.lineTo(x + w, y + h)
+        g.closePath()
+      }
+      glow(g, x, y, Math.max(w, h) * 1.5, '#5eead4', 0.3)
+      body()
+      g.lineWidth = 1.2
+      g.strokeStyle = INK
       g.stroke()
-      break
-    case 'anchor':
-      g.fillStyle = '#57534e'
-      g.fillRect(x - 2, y - b.hh, 4, b.hh * 2)
-      g.fillRect(x - b.hw, y + b.hh - 3, b.hw * 2, 3)
-      g.fillStyle = '#a8a29e'
-      g.fillRect(x - 1, y - b.hh, 1, b.hh * 2)
-      break
-    default:
-      g.fillStyle = '#7c5a32'
-      g.beginPath()
-      g.arc(x, y, 3, 0, Math.PI * 2)
+      const sea = g.createLinearGradient(0, y - h, 0, y + h)
+      sea.addColorStop(0, '#5eead4')
+      sea.addColorStop(0.45, '#14a3a0')
+      sea.addColorStop(1, '#0b3a4a')
+      g.fillStyle = sea
       g.fill()
-      g.fillStyle = '#a07a45'
-      g.fillRect(x - 1, y - 2, 2, 1)
+      // Darker trough lines inside.
+      g.strokeStyle = rgba('#0b3a4a', 0.8)
+      g.lineWidth = 0.6
+      for (let i = 0; i < 2; i++) {
+        const yy = y + h * (0.1 + i * 0.4)
+        g.beginPath()
+        g.moveTo(x - w * 0.7, yy)
+        g.quadraticCurveTo(x, yy - 1.4, x + w * 0.7, yy)
+        g.stroke()
+      }
+      // The foam crest.
+      g.beginPath()
+      g.moveTo(x - w * 0.55, y - h * 0.35)
+      g.quadraticCurveTo(x - w * 0.2, y - h * 1.05, x + lip, y - h)
+      g.quadraticCurveTo(
+        x + dir * w * 0.85,
+        y - h * 0.9,
+        x + dir * w,
+        y - h * 0.2,
+      )
+      g.lineWidth = 1.6
+      g.strokeStyle = '#e6fffb'
+      g.stroke()
+      g.fillStyle = '#e6fffb'
+      for (let i = 0; i < 4; i++) {
+        const p = ((b.t + i * 5) % 20) / 20
+        g.globalAlpha = 1 - p
+        g.fillRect(
+          x + dir * (w * 0.6 + p * 6) - 0.5,
+          y - h - Math.sin(p * Math.PI) * 4 + i * 0.6,
+          1,
+          1,
+        )
+      }
+      g.globalAlpha = 1
+      break
+    }
+    case 'chain': {
+      // Iron links strung along its length, alternately face-on and edge-on.
+      const n = Math.max(2, Math.round((b.hw * 2) / 2.6))
+      const step = (b.hw * 2) / n
+      for (const pass of [0, 1]) {
+        for (let i = 0; i < n; i++) {
+          const cx = x - b.hw + step * (i + 0.5)
+          const cy = y + Math.sin(b.t / 3 + i * 0.9) * 0.4
+          g.beginPath()
+          if (i % 2) g.ellipse(cx, cy, step * 0.7, 0.55, 0, 0, TAU)
+          else g.ellipse(cx, cy, step * 0.7, 1.5, 0, 0, TAU)
+          if (pass === 0) {
+            g.lineWidth = 2
+            g.strokeStyle = INK
+          } else {
+            g.lineWidth = 0.9
+            g.strokeStyle = i % 2 ? '#6b7a99' : '#b4c0d8'
+          }
+          g.stroke()
+        }
+      }
+      break
+    }
+    case 'anchor': {
+      // A ship's anchor: ring, stock, shank, and two curved arms with flukes, iron with a rust bloom.
+      const top = y - b.hh
+      const foot = y + b.hh
+      const arms = Math.min(b.hw, 7)
+      const shape = (w: number, color: string) => {
+        g.lineWidth = w
+        g.strokeStyle = color
+        g.beginPath()
+        g.arc(x, top + 1.6, 1.6, 0, TAU)
+        g.moveTo(x, top + 3.2)
+        g.lineTo(x, foot - 1)
+        g.moveTo(x - 3.2, top + 5.6)
+        g.lineTo(x + 3.2, top + 5.6)
+        g.moveTo(x - arms, foot - 4.4)
+        g.quadraticCurveTo(x - arms * 0.6, foot + 0.4, x, foot - 1)
+        g.quadraticCurveTo(x + arms * 0.6, foot + 0.4, x + arms, foot - 4.4)
+        g.stroke()
+      }
+      glow(g, x, y, Math.max(b.hw, b.hh) * 1.2, '#b4c0d8', 0.18)
+      shape(3.2, INK)
+      shape(1.8, '#57534e')
+      shape(0.6, '#a8a29e')
+      for (const s of [-1, 1]) {
+        g.beginPath()
+        g.moveTo(x + s * arms, foot - 4.4)
+        g.lineTo(x + s * (arms + 1.6), foot - 5.6)
+        g.lineTo(x + s * (arms - 0.4), foot - 6.4)
+        g.closePath()
+        g.lineWidth = 1
+        g.strokeStyle = INK
+        g.stroke()
+        g.fillStyle = '#7a2c10'
+        g.fill()
+      }
+      break
+    }
+    default:
+      // A clod of grave dirt, painted like the Dust Devil's, with a dusty halo to lift it.
+      glow(g, x, y, 6, '#c9a274', 0.25)
+      drawClod(g, { x, y })
   }
   g.restore()
 }

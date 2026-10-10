@@ -12,6 +12,8 @@ import type { BossId, FoeKind } from './world'
 import { FERRYMAN } from './bosses/ferryman'
 import { MARSHAL } from './bosses/marshal'
 import { MATRIARCH } from './bosses/matriarch'
+import { ABBESS } from './bosses/abbess'
+import { HERETIC } from './bosses/heretic'
 
 export type Boss = {
   id: BossId
@@ -67,6 +69,13 @@ export type BossDef = {
   ) => void
   /** Contact damage box (half width, height); null while it can't hurt by touch. */
   contact?: (b: Boss) => { hw: number; height: number } | null
+  /**
+   * Called when a hit takes it to 0 HP, before the dying sequence. Return true to refuse death and
+   * keep fighting: a two-phase boss transforms here, and must restore `hp` (at once, or over a
+   * warded transformation) and set `maxHp` for its new bar, which the boss bar reads. Omit it, or
+   * return false, to die as usual.
+   */
+  onDefeat?: (b: Boss, ctx: BossCtx) => boolean
 }
 
 const dirTo = (b: Boss, ctx: BossCtx) => Math.sign(ctx.px - b.x) || -1
@@ -183,15 +192,9 @@ export const BOSSES: Partial<Record<BossId, BossDef>> = {
   matriarch: MATRIARCH,
 }
 
-// Placeholders until each headline boss's own module lands: the Dust Devil's moves under its name.
-const standIn = (name: string, title: string, hp: number): BossDef => ({
-  ...BOSSES.devil!,
-  name,
-  title,
-  hp,
-})
-BOSSES.heretic ??= standIn('THE BELL HERETIC', 'HE WHO RANG THE DEAD', 32)
-BOSSES.abbess ??= standIn('THE ABBESS', 'BENEATH THE BELL', 40)
+// The last two headline bosses live in their own modules too.
+BOSSES.heretic = HERETIC
+BOSSES.abbess = ABBESS
 
 export function makeBoss(
   id: BossId,

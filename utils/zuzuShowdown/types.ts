@@ -203,9 +203,10 @@ export type MoveData = {
   passThrough?: FrameWindow
   /**
    * On this move frame the fighter reappears elsewhere, facing the opponent:
-   * `behind` them, or at the far wall beyond them (The Thin Place).
+   * `behind` them, at the far wall beyond them (The Thin Place), or right
+   * `under` them (Sand Burrow).
    */
-  teleport?: { frame: number; to: 'behind' | 'wall' }
+  teleport?: { frame: number; to: 'behind' | 'wall' | 'under' }
   /** From the active frames, the opponent's projectiles fly at half speed for this long (Vespers). */
   slowProjectiles?: number
   /** From startup the fighter's body is this box instead (Submerge: flat under the water). */
@@ -220,8 +221,21 @@ export type MoveData = {
   strikeAt?: 'opponent'
   /** The defender's red health stops regenerating for this many frames, on hit or block (Bellow). */
   freezeRed?: number
-  /** From startup, pressing one of these buttons cancels into that special (Submerge into Erupt). */
-  followUp?: { buttons: AttackButton[]; move: string }
+  /**
+   * From startup, pressing one of these buttons cancels into that special
+   * (Submerge into Erupt); `onHit` only once the move has connected, `motion`
+   * only with the follow-up's own motion too (Hook Lash into Drag).
+   */
+  followUp?: {
+    buttons: AttackButton[]
+    move: string
+    onHit?: boolean
+    motion?: boolean
+  }
+  /** On hit the victim is yanked to this many pixels from the attacker (Drag). */
+  pull?: number
+  /** Meter gained as the active frames begin (Cackle). */
+  meterGain?: number
 }
 
 /** A command move: a motion plus a button (or Easy Special) runs `move`. */

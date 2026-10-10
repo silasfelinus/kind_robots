@@ -1673,25 +1673,132 @@ function drawSummons(
         g.fill()
         break
       }
-      case 'the-murder': {
+      case 'the-murder':
+      case 'last-laugh': {
         if (!front || frame < move.startup) break
         const r = moveRect(f, data, camera)
         if (!r) break
-        // The flock pours across the screen like black rain.
-        g.fillStyle = '#020617'
-        for (let k = 0; k < 110; k += 1) {
-          const lane = (k * 37) % 100
+        // The flock pours across the screen like black rain; for the Last
+        // Laugh, the pack's loping silhouettes, low to the ground.
+        const pack = attack.id === 'last-laugh'
+        g.fillStyle = pack ? '#1c1917' : '#020617'
+        const count = pack ? 26 : 110
+        for (let k = 0; k < count; k += 1) {
+          const lane = pack ? 55 + ((k * 37) % 45) : (k * 37) % 100
           const drift = reducedMotion ? 0 : (frame * 6 + k * 23) % (r.w + 40)
           const bx = f.facing === 1 ? r.x + drift - 20 : r.x + r.w - drift + 20
           const by = r.y + (r.h * lane) / 100
           g.beginPath()
-          g.moveTo(bx - 6, by - 3)
-          g.lineTo(bx, by)
-          g.lineTo(bx + 6, by - 3)
-          g.lineTo(bx, by + 2)
-          g.closePath()
+          if (pack) {
+            // A loping hyena: body, head held low ahead, legs mid-stride.
+            const stride = reducedMotion ? 0 : ((frame + k) % 8) - 4
+            g.ellipse(bx, by, 7, 3, 0, 0, Math.PI * 2)
+            g.ellipse(bx + f.facing * 8, by + 1, 3, 2.5, 0, 0, Math.PI * 2)
+            g.rect(bx - 5 + stride / 2, by + 2, 1.5, 4)
+            g.rect(bx + 4 - stride / 2, by + 2, 1.5, 4)
+          } else {
+            g.moveTo(bx - 6, by - 3)
+            g.lineTo(bx, by)
+            g.lineTo(bx + 6, by - 3)
+            g.lineTo(bx, by + 2)
+            g.closePath()
+          }
           g.fill()
         }
+        break
+      }
+      case 'cackle': {
+        if (
+          !front ||
+          frame < move.startup ||
+          frame > move.startup + move.active
+        )
+          break
+        // Her laugh, bobbing beside her head.
+        const bob = reducedMotion ? 0 : Math.sin(frame / 3) * 2
+        drawText(
+          g,
+          'HA',
+          x + f.facing * 30,
+          FLOOR_Y - data.hurtStand.h + 6 + bob,
+          {
+            align: 'center',
+            color: '#fde68a',
+          },
+        )
+        break
+      }
+      case 'chain-gang': {
+        if (
+          !front ||
+          frame < move.startup ||
+          frame >= move.startup + move.active
+        )
+          break
+        // The chain whirls overhead in a wide circle.
+        const r = moveRect(f, data, camera)
+        if (!r) break
+        const turn = reducedMotion ? 0 : frame / 3
+        g.strokeStyle = '#a8a29e'
+        g.lineWidth = 1.5
+        g.beginPath()
+        g.ellipse(x, FLOOR_Y - r.h * 0.7, r.w / 2, 8, 0, 0, Math.PI * 2)
+        g.stroke()
+        g.fillStyle = '#e7e5e4'
+        g.fillRect(
+          x + Math.cos(turn) * (r.w / 2) - 2,
+          FLOOR_Y - r.h * 0.7 + Math.sin(turn) * 8 - 2,
+          4,
+          4,
+        )
+        break
+      }
+      case 'sand-burrow': {
+        if (!front || frame < move.startup) break
+        // A mound of sand where he went under: only his eyes show.
+        g.fillStyle = '#c2a477'
+        g.beginPath()
+        g.ellipse(x, FLOOR_Y, 26, 7, 0, Math.PI, 0)
+        g.fill()
+        g.fillStyle = '#fef08a'
+        g.fillRect(x + f.facing * 6 - 1, FLOOR_Y - 6, 2, 2)
+        g.fillRect(x + f.facing * 11 - 1, FLOOR_Y - 6, 2, 2)
+        break
+      }
+      case 'rise-from-the-dune':
+      case 'feeding-time': {
+        const end = move.startup + move.active + 20
+        if (frame > end) break
+        const r = moveRect(f, data, camera)
+        if (!r) break
+        if (!front) {
+          // The dune shifts under them before he rises.
+          if (frame < move.startup) {
+            g.fillStyle = 'rgba(194, 164, 119, 0.8)'
+            g.beginPath()
+            g.ellipse(
+              r.x + r.w / 2,
+              FLOOR_Y,
+              18 + 10 * (frame / move.startup),
+              5,
+              0,
+              Math.PI,
+              0,
+            )
+            g.fill()
+          }
+          break
+        }
+        if (frame < move.startup) break
+        // He bursts up out of the sand in a spray.
+        const t = Math.min(1, (frame - move.startup + 2) / 6)
+        g.fillStyle = 'rgba(214, 190, 150, 0.8)'
+        g.beginPath()
+        g.moveTo(r.x - 6, FLOOR_Y)
+        g.lineTo(r.x + r.w / 2, FLOOR_Y - r.h * t)
+        g.lineTo(r.x + r.w + 6, FLOOR_Y)
+        g.closePath()
+        g.fill()
         break
       }
       case 'vespers': {

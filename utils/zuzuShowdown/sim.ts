@@ -690,17 +690,22 @@ function applyMoveVelocity(f: FighterState, move: MoveData): void {
   }
 }
 
-/** Reappear behind the opponent, or at the wall beyond them, facing them. */
+/** Reappear behind the opponent, at the wall beyond them, or under them, facing them. */
 function teleport(
   f: FighterState,
   o: FighterState,
-  to: 'behind' | 'wall',
+  to: 'behind' | 'wall' | 'under',
 ): void {
   const edge = (STAGE_HALF_WIDTH - 24) * SUB
   const dir = o.x >= f.x ? 1 : -1
-  const target = to === 'wall' ? dir * edge : o.x + dir * TELEPORT_GAP * SUB
+  const target =
+    to === 'wall'
+      ? dir * edge
+      : to === 'under'
+        ? o.x
+        : o.x + dir * TELEPORT_GAP * SUB
   f.x = Math.max(-edge, Math.min(edge, target))
-  f.facing = o.x >= f.x ? 1 : -1
+  if (o.x !== f.x) f.facing = o.x > f.x ? 1 : -1
   f.vx = 0
 }
 
@@ -769,6 +774,9 @@ function advanceAttack(
   }
   if (move.slowProjectiles && attack.frame === move.startup) {
     f.bell = move.slowProjectiles
+  }
+  if (move.meterGain && attack.frame === move.startup) {
+    gainMeter(f, move.meterGain)
   }
   if (move.teleport && attack.frame === move.teleport.frame) {
     teleport(f, s.fighters[other(side)], move.teleport.to)
@@ -847,10 +855,29 @@ function think(
     if (
       follow &&
       f.attack.frame >= move.startup &&
+      (!follow.onHit || f.attack.contact) &&
       follow.buttons.some((button) => r.pressed[button])
     ) {
       const special = specialOf(data, follow.move)
-      if (special) {
+      const motionDone =
+        !special ||
+        !follow.motion ||
+        resolveCommand(
+          f.motion,
+          buttonsOf(r.pressed),
+          buttonsOf(r.held),
+          [
+            {
+              id: special.id,
+              motion: special.motion,
+              button: special.button,
+              level: special.level,
+            },
+          ],
+          false,
+          undefined,
+        ) !== null
+      if (special && motionDone) {
         const heavy = r.pressed.hp || r.pressed.hk
         startCommand(s, side, special, heavy, false)
         return
@@ -1443,6 +1470,13 @@ function landHit(s: MatchState, roster: Pair<FighterData>, c: Contact): void {
   if (c.move.freezeRed) d.redFreeze = c.move.freezeRed
   // A hit knocks a flyer out of the sky.
   d.flight = 0
+  if (c.move.pull !== undefined) {
+    // Yanked in to the attacker's feet.
+    const reach =
+      halfWidth(roster[c.attacker]) + halfWidth(dData) + c.move.pull * SUB
+    d.x = a.x + a.facing * reach
+    d.push = 0
+  }
 
   const away: Facing = a.x <= d.x ? 1 : -1
   if (c.move.launcher && d.y === 0) {

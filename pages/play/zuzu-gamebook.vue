@@ -1,28 +1,16 @@
 <template>
   <main class="kr-surface">
     <div class="kr-scroll mx-auto max-w-[1500px] px-3 py-5 sm:px-6 lg:px-10">
-      <div
-        v-if="!userStore.initialized"
-        class="grid min-h-52 place-items-center"
-      >
+      <div v-if="!store.loaded" class="grid min-h-52 place-items-center">
         <span class="kr-spinner-lg-primary" />
       </div>
-      <div
-        v-else-if="!userStore.isAdmin"
-        class="kr-note kr-note-error mx-auto mt-12 max-w-lg p-8 text-center"
-      >
-        <h2 class="text-2xl font-black">The book is still being written</h2>
-        <p class="mt-3">
-          Zuzu’s illustrated gamebook is in its private workshop.
-        </p>
-      </div>
-      <template v-else-if="store.loaded">
+      <template v-else>
         <header class="mb-5 flex flex-wrap items-center justify-between gap-3">
           <div>
             <p
               class="text-xs font-black uppercase tracking-[.3em] text-warning"
             >
-              An illustrated gamebook · Early preview
+              An illustrated gamebook · Book One, still growing
             </p>
             <h2
               class="mt-1 font-serif text-2xl font-black tracking-wide sm:text-4xl"
@@ -388,10 +376,8 @@ import {
 } from '~/utils/zuzuGamebook/adventure'
 import { plate, platePath } from '~/utils/zuzuGamebook/art'
 import { useZuzuGamebookStore } from '~/stores/zuzuGamebookStore'
-import { useUserStore } from '~/stores/userStore'
 
 const store = useZuzuGamebookStore()
-const userStore = useUserStore()
 const showSheet = ref(false)
 const current = computed(() => scene(store.run.sceneId))
 const art = computed(() => plate(current.value.art))

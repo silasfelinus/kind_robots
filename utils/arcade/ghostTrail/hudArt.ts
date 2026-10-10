@@ -948,7 +948,7 @@ function drawTrailPlate(
   cx: number,
   k: ReturnType<typeof scalesFor>,
 ) {
-  const title = `TRAIL ${Math.max(1, Math.floor(s.trail))}`
+  const title = `STAGE ${Math.max(1, Math.floor(s.trail))}`
   const tw = hudText(g, title, cx, 3, {
     scale: 1,
     color: ['#ffffff', '#b9d4ff'],

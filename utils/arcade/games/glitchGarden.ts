@@ -18,6 +18,24 @@
 
 import { levelCurve } from '../curve'
 import { drawText } from '../font'
+import {
+  INK,
+  RAMPS,
+  Sparkles,
+  backdropRng,
+  bandedGradient,
+  bevel,
+  cachedLayer,
+  dropShadow,
+  drawSprite,
+  glow,
+  hudPanel,
+  mix,
+  pixelSprite,
+  rgba,
+  vignette,
+} from '../snes'
+import type { PixelSprite, Ramp } from '../snes'
 import type {
   ArcadeGameInstance,
   ArcadeGameModule,
@@ -90,6 +108,280 @@ const FLOWER_COLORS = [
   '#67e8f9',
 ]
 
+// --- 16-bit art (utils/arcade/snes.ts) -------------------------------------------
+
+const LAWN_TOP = HUD
+const BED_Y = HUD + BED_TOP * CELL
+
+/** The glitch-lamps' magenta, and the HUD's deep hedge green. */
+const FUCHSIA: Ramp = ['#3a0a48', '#7a1a8a', '#c026d3', '#e879f9', '#fdf4ff']
+const HEDGE: Ramp = ['#05140b', '#0b2a17', '#15472a', '#3a8a52', '#a7f3b0']
+
+const LAWN_BANDS = [
+  mix(RAMPS.night[1], RAMPS.leaf[0], 0.35),
+  mix(RAMPS.night[1], RAMPS.leaf[0], 0.7),
+  RAMPS.leaf[0],
+  mix(RAMPS.leaf[0], RAMPS.leaf[1], 0.3),
+]
+const SOIL_BANDS = [RAMPS.earth[1], mix(RAMPS.earth[1], RAMPS.earth[0], 0.7)]
+
+const TUFTS = (() => {
+  const rand = backdropRng(53)
+  return Array.from({ length: 120 }, () => ({
+    x: Math.floor(rand() * W),
+    y: LAWN_TOP + 2 + Math.floor(rand() * (BED_Y - LAWN_TOP - 4)),
+    tall: rand() < 0.35,
+    lean: rand() < 0.5 ? -1 : 1,
+  }))
+})()
+
+const MOSS = (() => {
+  const rand = backdropRng(71)
+  return Array.from({ length: 14 }, () => ({
+    x: Math.floor(rand() * W),
+    y: Math.floor(LAWN_TOP + 10 + rand() * (BED_Y - LAWN_TOP - 20)),
+    rx: 8 + Math.floor(rand() * 14),
+    ry: 4 + Math.floor(rand() * 6),
+  }))
+})()
+
+const PEBBLES = (() => {
+  const rand = backdropRng(61)
+  return Array.from({ length: 46 }, () => ({
+    x: Math.floor(rand() * (W - 3)),
+    y: BED_Y + 3 + Math.floor(rand() * (H - BED_Y - 5)),
+    w: rand() < 0.4 ? 2 : 1,
+  }))
+})()
+
+const FIREFLIES = (() => {
+  const rand = backdropRng(91)
+  return Array.from({ length: 7 }, () => ({
+    x: 16 + rand() * (W - 32),
+    y: LAWN_TOP + 20 + rand() * (BED_Y - LAWN_TOP - 40),
+    phase: rand() * Math.PI * 2,
+  }))
+})()
+
+const LAMP_PALETTE = {
+  H: FUCHSIA[4],
+  L: FUCHSIA[3],
+  P: FUCHSIA[2],
+  p: FUCHSIA[1],
+  d: FUCHSIA[0],
+  c: RAMPS.teal[3],
+  s: RAMPS.cream[3],
+  S: RAMPS.cream[1],
+}
+/** Flickering: the cap lights up a step and the glitch spots go white. */
+const LAMP_FLICKER = {
+  ...LAMP_PALETTE,
+  L: FUCHSIA[4],
+  P: FUCHSIA[3],
+  p: FUCHSIA[2],
+  c: '#ffffff',
+}
+/** One mushroom lamp per hp left (index 1..4): the cap is sprayed away. */
+const LAMP_ROWS: readonly (readonly string[])[] = [
+  [],
+  ['......', '......', '..Lp..', '..dd..', '..sS..', '..sS..'],
+  ['......', '..LP..', '.LcPp.', '.dppd.', '..sS..', '..sS..'],
+  ['.LLP..', 'LHcPp.', 'LPPPcp', 'dpppd.', '..sS..', '..sS..'],
+  ['.LLPP.', 'LHcPPp', 'LPPPcp', 'dpppdd', '..sS..', '..sS..'],
+]
+const LAMP_SPRITES = LAMP_ROWS.map((rows) =>
+  rows.length ? pixelSprite(rows, LAMP_PALETTE) : null,
+)
+const LAMP_FLICKER_SPRITES = LAMP_ROWS.map((rows) =>
+  rows.length ? pixelSprite(rows, LAMP_FLICKER) : null,
+)
+
+/** A sprout keeps one leaf per hp left (index 1..3). */
+const SPROUT_PALETTE = {
+  H: RAMPS.leaf[4],
+  L: RAMPS.leaf[3],
+  l: RAMPS.leaf[2],
+  d: RAMPS.leaf[1],
+  s: RAMPS.leaf[2],
+}
+const SPROUT_SPRITES = [
+  null,
+  pixelSprite(
+    ['......', '......', '..HL..', '..ld..', '..s...', '..s...'],
+    SPROUT_PALETTE,
+  ),
+  pixelSprite(
+    ['......', '..HL..', 'Lld...', '.dsLl.', '..sd..', '..s...'],
+    SPROUT_PALETTE,
+  ),
+  pixelSprite(
+    ['..HL..', '..ld..', 'LLs.Hl', '.dsLld', '..sd..', '..s...'],
+    SPROUT_PALETTE,
+  ),
+] as const
+
+/** A four-petal bloom per flower colour, shaded from its own hue. */
+const FLOWER_SPRITES = new Map<string, PixelSprite>(
+  FLOWER_COLORS.map((c) => [
+    c,
+    pixelSprite(['..HP..', '..Pp..', 'HPyYPp', 'Ppoypd', '..Pp..', '..pd..'], {
+      H: mix(c, '#ffffff', 0.55),
+      P: c,
+      p: mix(c, INK, 0.35),
+      d: mix(c, INK, 0.6),
+      y: RAMPS.gold[3],
+      Y: RAMPS.gold[4],
+      o: RAMPS.gold[2],
+    }),
+  ]),
+)
+
+const rampPalette = (ramp: Ramp) => ({
+  h: ramp[4],
+  L: ramp[3],
+  P: ramp[2],
+  p: ramp[1],
+  d: ramp[0],
+})
+/** Body segments: two crawl frames (the little feet shuffle). */
+const SEGMENT_ROWS = [
+  ['.hLLP.', 'hLLPPp', 'LLPPpp', 'PPPppd', 'Pppddd', '.pddd.', '.p..p.'],
+  ['.hLLP.', 'hLPPPp', 'LLPPpp', 'PPppdd', 'Pppddd', '.pddd.', 'p....p'],
+] as const
+const SEGMENT_SPRITES = SEGMENT_ROWS.map((rows) =>
+  pixelSprite(rows, rampPalette(RAMPS.purple)),
+)
+/** A glitching segment flickers into teal. */
+const GLITCH_SPRITES = SEGMENT_ROWS.map((rows) =>
+  pixelSprite(rows, rampPalette(RAMPS.teal)),
+)
+/** The head faces right (flip it to go left): wiggling antennae and a chomping grin. */
+const HEAD_SPRITES = [
+  [
+    '.a..a.',
+    '.hLLP.',
+    'hLLwkp',
+    'LLPwkp',
+    'PPPPkd',
+    'Ppkkdd',
+    '.pddd.',
+    '.p..p.',
+  ],
+  [
+    'a....a',
+    '.hLLP.',
+    'hLLwkp',
+    'LLPwkp',
+    'PPPPpd',
+    'Pppkkd',
+    '.pddd.',
+    'p....p',
+  ],
+].map((rows) =>
+  pixelSprite(rows, {
+    ...rampPalette(RAMPS.pink),
+    a: RAMPS.gold[3],
+    w: '#ffffff',
+    k: INK,
+  }),
+)
+
+const BEETLE_PALETTE = {
+  h: RAMPS.gold[4],
+  L: RAMPS.gold[3],
+  P: RAMPS.gold[2],
+  p: RAMPS.gold[1],
+  d: RAMPS.gold[0],
+  k: INK,
+  e: RAMPS.ember[3],
+  l: RAMPS.earth[1],
+}
+const BEETLE_BODY = [
+  '.hhLLPpk..',
+  'hLLLLPpkkk',
+  'kkkkkkkkke',
+  'LPPPPppkkk',
+  '.pPppddk..',
+]
+/** The beetle faces right; its legs scuttle in two frames. */
+const BEETLE_SPRITES = [
+  pixelSprite(['.l...l....', ...BEETLE_BODY, '...l...l..'], BEETLE_PALETTE),
+  pixelSprite(['...l...l..', ...BEETLE_BODY, '.l...l....'], BEETLE_PALETTE),
+] as const
+
+const MOTH_PALETTE = {
+  h: RAMPS.purple[4],
+  L: RAMPS.purple[3],
+  P: RAMPS.purple[2],
+  p: RAMPS.purple[1],
+  B: RAMPS.purple[0],
+  b: RAMPS.pink[1],
+  e: RAMPS.gold[3],
+}
+/** Wings out, wings folded. */
+const MOTH_ROWS = [
+  [
+    'hL..b..Lh',
+    'LeL.b.LeL',
+    'LPPpBpPPL',
+    '.pPpBpPp.',
+    '..p.B.p..',
+    '....b....',
+  ],
+  [
+    '...hbh...',
+    '..LeBeL..',
+    '..LPBPL..',
+    '..pPBPp..',
+    '...pBp...',
+    '....b....',
+  ],
+] as const
+const MOTH_SPRITES = MOTH_ROWS.map((rows) => pixelSprite(rows, MOTH_PALETTE))
+/** Sprayed once: it flushes hot pink. */
+const MOTH_HURT_SPRITES = MOTH_ROWS.map((rows) =>
+  pixelSprite(rows, {
+    ...MOTH_PALETTE,
+    h: RAMPS.pink[4],
+    L: RAMPS.pink[3],
+    P: RAMPS.pink[2],
+    p: RAMPS.pink[1],
+    B: RAMPS.pink[0],
+  }),
+)
+
+const SPRAYER_PALETTE = {
+  C: RAMPS.teal[4],
+  s: RAMPS.steel[3],
+  S: RAMPS.steel[2],
+  h: RAMPS.sky[4],
+  T: RAMPS.sky[2],
+  t: RAMPS.sky[1],
+  d: RAMPS.sky[0],
+  y: RAMPS.gold[4],
+  g: RAMPS.steel[1],
+  G: RAMPS.steel[3],
+  k: RAMPS.steel[0],
+}
+const SPRAYER_BODY = [
+  '....C....',
+  '....s....',
+  '...sSs...',
+  '.hhTTTTt.',
+  'hTyTTTyTt',
+  'hTTTTTTTt',
+  '.tttttttd',
+]
+/** The gardening bot: a nozzle up top, lamp eyes, rolling treads. */
+const SPRAYER_SPRITES = [
+  pixelSprite([...SPRAYER_BODY, 'gGgGgGgGg', '.k.k.k.k.'], SPRAYER_PALETTE),
+  pixelSprite([...SPRAYER_BODY, 'GgGgGgGgG', 'k.k.k.k.k'], SPRAYER_PALETTE),
+] as const
+const LIFE_SPRITE = pixelSprite(
+  ['...s...', '.hTTTt.', 'hTyTyTt', '.ttttd.', '.g.g.g.'],
+  SPRAYER_PALETTE,
+)
+
 class GlitchGarden implements ArcadeGameInstance {
   score = 0
   level = 1
@@ -118,6 +410,9 @@ class GlitchGarden implements ArcadeGameInstance {
   private particles: Particle[] = []
   private floaters: Floater[] = []
   private banner: { text: string; sub?: string; ticks: number } | null = null
+  // Cosmetic sparkles roll their own dice, so the game's seeded rng is untouched.
+  private fx = new Sparkles()
+  private fxRng = backdropRng(47)
 
   constructor(options: ArcadeGameOptions) {
     this.rng = options.rng
@@ -285,7 +580,14 @@ class GlitchGarden implements ArcadeGameInstance {
   private water(col: number, row: number, ob: Obstacle) {
     ob.hp--
     this.sound.play('blip')
-    if (ob.hp > 0) return
+    if (ob.hp > 0) {
+      this.fx.burst(col * CELL + 4, HUD + row * CELL + 3, this.fxRng, {
+        count: 3,
+        speed: 0.9,
+        colours: [RAMPS.water[3], RAMPS.water[4], RAMPS.teal[3]],
+      })
+      return
+    }
     this.grid[this.idx(col, row)] = null
     this.flowers.push({
       col,
@@ -299,6 +601,10 @@ class GlitchGarden implements ArcadeGameInstance {
       HUD + row * CELL,
     )
     this.burst(col * CELL + 4, HUD + row * CELL + 4, 4, '#bbf7d0')
+    this.fx.burst(col * CELL + 4, HUD + row * CELL + 4, this.fxRng, {
+      count: 8,
+      colours: [RAMPS.pink[3], RAMPS.gold[4], RAMPS.leaf[3]],
+    })
   }
 
   private hitWorm(x: number, y: number): boolean {
@@ -323,6 +629,10 @@ class GlitchGarden implements ArcadeGameInstance {
       this.grid[this.idx(col, row)] = { hp: SPROUT_HP, kind: 'sprout' }
     this.addScore(k === 0 ? HEAD_POINTS : BODY_POINTS, p.x + 4, p.y)
     this.burst(p.x + 4, p.y + 4, 8, k === 0 ? '#f0abfc' : '#a5f3fc')
+    this.fx.burst(p.x + 4, p.y + 4, this.fxRng, {
+      count: k === 0 ? 12 : 6,
+      colours: [RAMPS.purple[4], RAMPS.teal[3], RAMPS.pink[3]],
+    })
     this.sound.play('pop')
     this.worms = this.worms.filter((o) => o !== w)
     if (k > 0)
@@ -426,6 +736,7 @@ class GlitchGarden implements ArcadeGameInstance {
     const points = gap < 16 ? 900 : gap < 40 ? 600 : 300
     this.addScore(points, b.x, b.y - 8)
     this.burst(b.x, b.y, 12, '#fde047')
+    this.fx.burst(b.x, b.y, this.fxRng, { count: 14, speed: 2 })
     this.sound.play('pop')
     this.beetle = null
     return true
@@ -469,6 +780,10 @@ class GlitchGarden implements ArcadeGameInstance {
     if (m.hp > 0) return true
     this.addScore(MOTH_POINTS, m.x, m.y - 8)
     this.burst(m.x, m.y, 10, '#e9d5ff')
+    this.fx.burst(m.x, m.y, this.fxRng, {
+      count: 12,
+      colours: [RAMPS.purple[4], RAMPS.pink[3], RAMPS.gold[4]],
+    })
     this.sound.play('pop')
     this.moth = null
     return true
@@ -569,6 +884,7 @@ class GlitchGarden implements ArcadeGameInstance {
       p.life--
     }
     this.particles = this.particles.filter((p) => p.life > 0)
+    this.fx.update()
     for (const f of this.floaters) {
       f.y -= 0.4
       f.life--
@@ -629,14 +945,13 @@ class GlitchGarden implements ArcadeGameInstance {
   // --- render -------------------------------------------------------------------
 
   render(g: CanvasRenderingContext2D) {
-    g.fillStyle = '#0a1a0f'
-    g.fillRect(0, 0, W, H)
-    // The flowerbed's soil.
-    g.fillStyle = '#1c1917'
-    g.fillRect(0, HUD + BED_TOP * CELL, W, BED_ROWS * CELL)
-    g.fillStyle = '#292524'
-    for (let x = 0; x < W; x += 6) g.fillRect(x, HUD + BED_TOP * CELL, 3, 1)
-    for (const f of this.flowers) this.renderFlower(g, f)
+    this.renderGarden(g)
+    for (const f of this.flowers) {
+      const sprite = FLOWER_SPRITES.get(f.color)
+      if (sprite)
+        drawSprite(g, sprite, f.col * CELL + 4, HUD + f.row * CELL + 4)
+    }
+    this.renderFireflies(g)
     for (let r = 0; r < ROWS; r++)
       for (let c = 0; c < COLS; c++) {
         const ob = this.at(c, r)
@@ -645,32 +960,91 @@ class GlitchGarden implements ArcadeGameInstance {
     for (const w of this.worms) this.renderWorm(g, w)
     if (this.beetle) this.renderBeetle(g, this.beetle)
     if (this.moth) this.renderMoth(g, this.moth)
-    if (this.beam) {
-      g.fillStyle = '#a5f3fc'
-      g.fillRect(this.beam.x - 1, this.beam.y - 4, 2, 6)
-    }
+    if (this.beam) this.renderBeam(g, this.beam)
     if (this.dead === 0) this.renderSprayer(g)
     for (const p of this.particles) {
       g.globalAlpha = Math.max(0, p.life / 26)
+      g.fillStyle = INK
+      g.fillRect(Math.round(p.x) - 1, Math.round(p.y) - 1, 3, 3)
       g.fillStyle = p.color
-      g.fillRect(p.x - 1, p.y - 1, 2, 2)
+      g.fillRect(Math.round(p.x) - 1, Math.round(p.y) - 1, 2, 2)
     }
     g.globalAlpha = 1
+    this.fx.render(g)
     for (const f of this.floaters)
-      drawText(g, f.text, f.x, f.y, { align: 'center', color: '#fde68a' })
+      drawText(g, f.text, f.x, f.y, {
+        align: 'center',
+        color: RAMPS.gold[3],
+        outline: INK,
+      })
+    vignette(g, W, H, 0.3)
     this.renderHud(g)
   }
 
-  private renderFlower(g: CanvasRenderingContext2D, f: Flower) {
-    const x = f.col * CELL + 4
-    const y = HUD + f.row * CELL + 4
-    g.fillStyle = f.color
-    g.fillRect(x - 3, y - 1, 2, 2)
-    g.fillRect(x + 1, y - 1, 2, 2)
-    g.fillRect(x - 1, y - 3, 2, 2)
-    g.fillRect(x - 1, y + 1, 2, 2)
-    g.fillStyle = '#fde047'
-    g.fillRect(x - 1, y - 1, 2, 2)
+  /** The lawn and the flowerbed, painted once. */
+  private renderGarden(g: CanvasRenderingContext2D) {
+    cachedLayer(g, 'glitch-garden-floor', W, H, (k) => {
+      k.fillStyle = HEDGE[0]
+      k.fillRect(0, 0, W, LAWN_TOP)
+      // A lawn at dusk, banded darker toward the top, mowed in stripes.
+      bandedGradient(k, 0, LAWN_TOP, W, BED_Y - LAWN_TOP, LAWN_BANDS, 8)
+      k.fillStyle = rgba(RAMPS.leaf[2], 0.07)
+      for (let x = 0; x < W; x += CELL * 4)
+        k.fillRect(x, LAWN_TOP, CELL * 2, BED_Y - LAWN_TOP)
+      // The glitch: the garden's cell grid shows through as faint dots.
+      k.fillStyle = rgba(RAMPS.teal[3], 0.16)
+      for (let y = LAWN_TOP + CELL; y < BED_Y; y += CELL)
+        for (let x = CELL; x < W; x += CELL) k.fillRect(x, y, 1, 1)
+      // Mossy shade patches, then grass tufts in a V, lit at the tips.
+      k.fillStyle = rgba(RAMPS.night[0], 0.3)
+      for (const m of MOSS) {
+        for (let y = -m.ry; y <= m.ry; y++)
+          for (let x = -m.rx; x <= m.rx; x++)
+            if ((x + y) % 2 === 0 && (x / m.rx) ** 2 + (y / m.ry) ** 2 < 1)
+              k.fillRect(m.x + x, m.y + y, 1, 1)
+      }
+      for (const t of TUFTS) {
+        k.fillStyle = RAMPS.leaf[1]
+        k.fillRect(t.x, t.y, 1, 2)
+        k.fillRect(t.x - 1, t.y - 1, 1, 2)
+        k.fillRect(t.x + 1, t.y - 1, 1, 2)
+        if (t.tall) {
+          k.fillStyle = mix(RAMPS.leaf[1], RAMPS.leaf[2], 0.6)
+          k.fillRect(t.x + t.lean, t.y - 2, 1, 1)
+        }
+      }
+      // The flowerbed: banded tilled soil, a furrow every row.
+      bandedGradient(k, 0, BED_Y, W, H - BED_Y, SOIL_BANDS, 4)
+      for (let y = BED_Y + CELL - 1; y < H; y += CELL) {
+        k.fillStyle = RAMPS.earth[0]
+        k.fillRect(0, y, W, 1)
+        k.fillStyle = rgba(RAMPS.earth[2], 0.5)
+        for (let x = (y / CELL) % 2 ? 0 : 3; x < W; x += 6)
+          k.fillRect(x, y - 3, 3, 1)
+      }
+      for (const p of PEBBLES) {
+        k.fillStyle = RAMPS.earth[0]
+        k.fillRect(p.x, p.y + 1, p.w + 1, 1)
+        k.fillStyle = RAMPS.earth[3]
+        k.fillRect(p.x, p.y, p.w, 1)
+      }
+      // A bevelled brick edging between the lawn and the bed.
+      for (let x = 0; x < W; x += 12)
+        bevel(k, x + 1, BED_Y - 1, 10, 3, RAMPS.rust, { depth: 1 })
+    })
+  }
+
+  /** Fireflies drifting over the lawn (cosmetic; they follow the clock). */
+  private renderFireflies(g: CanvasRenderingContext2D) {
+    for (const f of FIREFLIES) {
+      const pulse = Math.sin(this.tick / 22 + f.phase)
+      if (pulse < -0.2) continue
+      const x = Math.round(f.x + Math.sin(this.tick / 90 + f.phase) * 14)
+      const y = Math.round(f.y + Math.cos(this.tick / 70 + f.phase * 1.3) * 9)
+      glow(g, x, y, 6, RAMPS.leaf[3], 0.35 * (pulse + 0.2))
+      g.fillStyle = pulse > 0.5 ? RAMPS.gold[4] : RAMPS.leaf[3]
+      g.fillRect(x, y, 1, 1)
+    }
   }
 
   private renderObstacle(
@@ -681,115 +1055,128 @@ class GlitchGarden implements ArcadeGameInstance {
   ) {
     const x = c * CELL
     const y = HUD + r * CELL
+    dropShadow(g, x + 5, y + 7, 3, 1, 0.45)
     if (ob.kind === 'sprout') {
       // A sprout with as many leaves as it has hp left.
-      g.fillStyle = '#4ade80'
-      g.fillRect(x + 3, y + 2, 2, 6)
-      g.fillStyle = '#86efac'
-      for (let i = 0; i < ob.hp; i++)
-        g.fillRect(x + (i % 2 ? 5 : 0), y + 2 + i * 2, 3, 2)
+      const sprite = SPROUT_SPRITES[Math.max(1, Math.min(3, ob.hp))]
+      if (sprite) drawSprite(g, sprite, x, y, { anchor: 'topleft' })
       return
     }
     // A glitchy mushroom lamp: the cap shrinks as it's sprayed.
-    const cap = ob.hp
+    const hp = Math.max(1, Math.min(LAMP_HP, ob.hp))
     const flicker = (c * 7 + r * 3 + Math.floor(this.tick / 6)) % 11 === 0
-    g.fillStyle = flicker ? '#f0abfc' : '#c026d3'
-    g.fillRect(x + 4 - cap, y + 1, cap * 2, 3)
-    g.fillStyle = '#fef3c7'
-    g.fillRect(x + 3, y + 4, 2, 3)
-    if (cap >= 3) {
-      g.fillStyle = '#22d3ee'
-      g.fillRect(x + 2, y + 2, 1, 1)
-      g.fillRect(x + 5, y + 2, 1, 1)
-    }
+    const sprite = (flicker ? LAMP_FLICKER_SPRITES : LAMP_SPRITES)[hp]
+    if (flicker) glow(g, x + 4, y + 3, 9, FUCHSIA[3], 0.5)
+    if (sprite) drawSprite(g, sprite, x, y, { anchor: 'topleft' })
   }
 
   private renderWorm(g: CanvasRenderingContext2D, w: Worm) {
+    const step = Math.floor(this.tick / 6)
     for (let k = w.segments - 1; k >= 0; k--) {
       const p = this.segmentPos(w, k)
       if (p.y < HUD) continue
       const x = p.x
       const y = p.y
-      const glitch = (k + Math.floor(this.tick / 4)) % 5 === 0
-      g.fillStyle = k === 0 ? '#e879f9' : glitch ? '#22d3ee' : '#a855f7'
-      g.fillRect(x + 1, y + 1, 6, 6)
-      g.fillStyle = k === 0 ? '#fdf4ff' : '#d8b4fe'
-      g.fillRect(x + 2, y + 2, 2, 2)
+      const frame = (k + step) % 2
       if (k === 0) {
-        g.fillStyle = '#111827'
-        g.fillRect(x + (w.dx > 0 ? 5 : 1), y + 3, 2, 2)
+        glow(g, x + 4, y + 4, 10, RAMPS.pink[3], 0.35)
+        drawSprite(g, HEAD_SPRITES[frame]!, x, y - 1, {
+          anchor: 'topleft',
+          flipX: w.dx < 0,
+        })
+        continue
       }
+      const glitch = (k + Math.floor(this.tick / 4)) % 5 === 0
+      if (glitch) {
+        // A chromatic tear: a ghost of the segment slips sideways.
+        drawSprite(g, GLITCH_SPRITES[frame]!, x + 2, y, {
+          anchor: 'topleft',
+          alpha: 0.45,
+        })
+      }
+      drawSprite(g, (glitch ? GLITCH_SPRITES : SEGMENT_SPRITES)[frame]!, x, y, {
+        anchor: 'topleft',
+      })
     }
   }
 
   private renderBeetle(g: CanvasRenderingContext2D, b: Beetle) {
-    const leg = Math.floor(this.tick / 4) % 2
-    g.fillStyle = '#ca8a04'
-    g.fillRect(b.x - 4, b.y - 3, 8, 6)
-    g.fillStyle = '#111827'
-    g.fillRect(b.x, b.y - 3, 1, 6)
-    g.fillStyle = '#78350f'
-    for (const s of [-1, 1]) {
-      g.fillRect(b.x + s * 5, b.y - 2 + leg, 2, 1)
-      g.fillRect(b.x + s * 5, b.y + 1 - leg, 2, 1)
-    }
+    const frame = Math.floor(this.tick / 4) % 2
+    dropShadow(g, b.x + 1, b.y + 5, 6, 1.5, 0.45)
+    drawSprite(g, BEETLE_SPRITES[frame]!, b.x, b.y, { flipX: b.vx < 0 })
   }
 
   private renderMoth(g: CanvasRenderingContext2D, m: Moth) {
-    const flap = Math.floor(this.tick / 3) % 2
-    g.fillStyle = '#e9d5ff'
-    g.fillRect(m.x - 4 - flap, m.y - 3, 3, 4)
-    g.fillRect(m.x + 1 + flap, m.y - 3, 3, 4)
-    g.fillStyle = '#6b21a8'
-    g.fillRect(m.x - 1, m.y - 4, 2, 7)
+    const frame = Math.floor(this.tick / 3) % 2
+    // It flies above the garden: a shadow far below and to the side.
+    dropShadow(g, m.x + 4, m.y + 8, 4, 1.5, 0.3)
+    glow(g, m.x, m.y, 10, RAMPS.purple[3], 0.3)
+    const sprites = m.hp > 1 ? MOTH_SPRITES : MOTH_HURT_SPRITES
+    drawSprite(g, sprites[frame]!, m.x, m.y)
+  }
+
+  private renderBeam(
+    g: CanvasRenderingContext2D,
+    beam: { x: number; y: number },
+  ) {
+    const x = Math.round(beam.x)
+    const y = Math.round(beam.y)
+    glow(g, x, y - 1, 8, RAMPS.teal[3], 0.6)
+    g.fillStyle = rgba(RAMPS.teal[3], 0.35)
+    g.fillRect(x - 1, y + 2, 2, 6)
+    g.fillStyle = RAMPS.teal[2]
+    g.fillRect(x - 1, y - 5, 3, 8)
+    g.fillStyle = RAMPS.teal[4]
+    g.fillRect(x, y - 5, 1, 7)
   }
 
   private renderSprayer(g: CanvasRenderingContext2D) {
     const x = Math.round(this.px)
     const y = Math.round(this.py)
     // A little gardening bot with a spray nozzle on top.
-    g.fillStyle = '#0ea5e9'
-    g.fillRect(x - 4, y - 2, 8, 6)
-    g.fillStyle = '#e0f2fe'
-    g.fillRect(x - 1, y - 5, 2, 4)
-    g.fillStyle = '#fde047'
-    g.fillRect(x - 3, y, 2, 2)
-    g.fillRect(x + 1, y, 2, 2)
+    dropShadow(g, x, y + 5, 6, 1.5, 0.45)
+    glow(g, x, y - 5, 5, RAMPS.teal[3], 0.35)
+    const frame = Math.floor(this.tick / 5) % 2
+    drawSprite(g, SPRAYER_SPRITES[frame]!, x, y - 1)
   }
 
   private renderHud(g: CanvasRenderingContext2D) {
-    const shadow = '#052e16'
-    g.fillStyle = '#052e16'
-    g.fillRect(0, 0, W, HUD)
-    drawText(g, String(this.score).padStart(6, '0'), 4, 1, {
+    hudPanel(g, 0, 0, W, HUD - 1, HEDGE)
+    drawText(g, String(this.score).padStart(6, '0'), 4, 0, {
       scale: 2,
-      color: '#fde047',
-      shadow,
+      color: RAMPS.gold[3],
+      shadow: INK,
     })
+    const lives = Math.min(this.lives - 1, 5)
+    if (lives > 0) {
+      g.fillStyle = HEDGE[0]
+      g.fillRect(81, 2, lives * 10 + 3, HUD - 5)
+      for (let i = 0; i < lives; i++)
+        drawSprite(g, LIFE_SPRITE, 83 + i * 10, 4, { anchor: 'topleft' })
+    }
     drawText(g, `HI ${Math.max(this.hiScore, this.score)}`, W - 4, 1, {
       align: 'right',
-      color: '#f9a8d4',
+      color: RAMPS.pink[3],
+      shadow: INK,
     })
-    drawText(g, `WAVE ${this.level}`, W - 4, 9, {
+    drawText(g, `WAVE ${this.level}`, W - 4, 8, {
       align: 'right',
-      color: '#86efac',
+      color: RAMPS.leaf[3],
+      shadow: INK,
     })
-    for (let i = 0; i < Math.min(this.lives - 1, 5); i++) {
-      g.fillStyle = '#0ea5e9'
-      g.fillRect(84 + i * 10, 6, 7, 5)
-    }
     if (this.banner) {
       drawText(g, this.banner.text, W / 2, H / 2 - 20, {
         scale: 2,
         align: 'center',
         color: '#ffffff',
-        shadow: '#7c3aed',
+        outline: INK,
+        shadow: RAMPS.purple[1],
       })
       if (this.banner.sub)
         drawText(g, this.banner.sub, W / 2, H / 2, {
           align: 'center',
-          color: '#fde68a',
-          shadow,
+          color: RAMPS.gold[3],
+          outline: INK,
         })
     }
   }

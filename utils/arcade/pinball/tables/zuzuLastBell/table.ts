@@ -31,9 +31,9 @@ const arch: XZ[] = Array.from({ length: 25 }, (_, step) => {
 const VILLAGE_SWITCHBACK: XZH[] = [
   [-0.12, -0.29, 0],
   [-0.12, -0.39, 0.011],
-  [-0.10, -0.49, 0.033],
-  [-0.09, -0.60, 0.053],
-  [-0.055, -0.70, 0.064],
+  [-0.1, -0.49, 0.033],
+  [-0.09, -0.6, 0.053],
+  [-0.055, -0.7, 0.064],
   [-0.05, -0.76, 0.065],
   [0.04, -0.75, 0.064],
   [0.15, -0.69, 0.062],
@@ -44,28 +44,28 @@ const VILLAGE_SWITCHBACK: XZH[] = [
 
 const ABBEY_CROSSOVER: XZH[] = [
   [0.09, -0.29, 0],
-  [0.10, -0.39, 0.035],
-  [0.115, -0.49, 0.080],
+  [0.1, -0.39, 0.035],
+  [0.115, -0.49, 0.08],
   [0.12, -0.57, 0.122],
   [0.06, -0.63, 0.135],
   [-0.08, -0.64, 0.135],
   [-0.22, -0.63, 0.12],
-  [-0.23, -0.50, 0.085],
+  [-0.23, -0.5, 0.085],
   [-0.228, -0.35, 0.055],
   [-0.205, -0.19, 0.034],
 ]
 
 const BELL_SPIRAL: XZH[] = [
-  [0.015, -0.30, 0],
-  [0.012, -0.40, 0.055],
+  [0.015, -0.3, 0],
+  [0.012, -0.4, 0.055],
   [0.014, -0.51, 0.12],
   [0.01, -0.61, 0.195],
-  [0, -0.70, 0.235],
+  [0, -0.7, 0.235],
   [-0.005, -0.79, 0.242],
   [0.06, -0.85, 0.24],
   [0.15, -0.84, 0.235],
   [0.18, -0.78, 0.23],
-  [0.2, -0.70, 0.224],
+  [0.2, -0.7, 0.224],
   [0.23, -0.64, 0.21],
 ]
 
@@ -102,7 +102,7 @@ const colliders: ColliderDef[] = [
   ...ramp('village-switchback', VILLAGE_SWITCHBACK, {
     width: 0.039,
     railHeight: 0.035,
-    cover: [0.10, 0.65],
+    cover: [0.1, 0.65],
   }),
   ...ramp('abbey-crossover', ABBEY_CROSSOVER, {
     width: 0.039,
@@ -116,24 +116,34 @@ const colliders: ColliderDef[] = [
   }),
   // Raised catch plates at the exits stop a ball from rolling off the cabinet.
   wall('village-return-stop', [0.185, -0.165], [0.233, -0.165], {
-    base: 0.03, height: 0.04, material: 'plastic-clear',
+    base: 0.03,
+    height: 0.04,
+    material: 'plastic-clear',
   }),
   wall('abbey-return-stop', [-0.228, -0.165], [-0.181, -0.165], {
-    base: 0.03, height: 0.04, material: 'plastic-clear',
+    base: 0.03,
+    height: 0.04,
+    material: 'plastic-clear',
   }),
   // Each outer orbit has a dedicated up-table channel and a directional
   // return vane. The left channel ends before the Croc's mouth approach.
   wall('left-orbit-guide', [-0.166, -0.68], [-0.166, -0.54], {
-    material: 'chrome', thickness: 0.004,
+    material: 'chrome',
+    thickness: 0.004,
   }),
   wall('right-orbit-guide', [0.16, -0.68], [0.16, -0.54], {
-    material: 'chrome', thickness: 0.004,
+    material: 'chrome',
+    thickness: 0.004,
   }),
   wall('left-orbit-return', [-0.251, -0.35], [-0.215, -0.28], {
-    material: 'chrome', thickness: 0.004, passDir: [0, 0, -1],
+    material: 'chrome',
+    thickness: 0.004,
+    passDir: [0, 0, -1],
   }),
   wall('right-orbit-return', [0.24, -0.35], [0.207, -0.28], {
-    material: 'chrome', thickness: 0.004, passDir: [0, 0, -1],
+    material: 'chrome',
+    thickness: 0.004,
+    passDir: [0, 0, -1],
   }),
   // A real one-ball-width launch lane. The return gate is one-way: upward
   // shots pass, but a returning ball is deflected onto the main playfield.
@@ -349,15 +359,51 @@ export const ZUZU_LAST_BELL_GREYBOX: TableDef = {
       half: [0.024, 0.02, 0.014],
     },
     { id: 'bell-lane', at: BELL, half: [0.035, 0.04, 0.025] },
-    { id: 'village-entry', at: [-0.12, BALL + 0.011, -0.39], half: [0.02, 0.03, 0.014] },
-    { id: 'village-crest', at: [-0.05, BALL + 0.065, -0.76], half: [0.018, 0.022, 0.017] },
-    { id: 'village-return', at: [0.21, BALL + 0.046, -0.38], half: [0.02, 0.02, 0.018] },
-    { id: 'abbey-entry', at: [0.10, BALL + 0.035, -0.39], half: [0.02, 0.03, 0.015] },
-    { id: 'abbey-crest', at: [-0.08, BALL + 0.135, -0.64], half: [0.019, 0.02, 0.018] },
-    { id: 'abbey-return', at: [-0.228, BALL + 0.055, -0.35], half: [0.022, 0.02, 0.018] },
-    { id: 'bell-entry', at: [0.012, BALL + 0.055, -0.40], half: [0.02, 0.03, 0.018] },
-    { id: 'bell-crest', at: [0.06, BALL + 0.24, -0.85], half: [0.022, 0.02, 0.019] },
-    { id: 'bell-return', at: [0.2, BALL + 0.224, -0.70], half: [0.021, 0.021, 0.019] },
+    {
+      id: 'village-entry',
+      at: [-0.12, BALL + 0.011, -0.39],
+      half: [0.02, 0.03, 0.014],
+    },
+    {
+      id: 'village-crest',
+      at: [-0.05, BALL + 0.065, -0.76],
+      half: [0.018, 0.022, 0.017],
+    },
+    {
+      id: 'village-return',
+      at: [0.21, BALL + 0.046, -0.38],
+      half: [0.02, 0.02, 0.018],
+    },
+    {
+      id: 'abbey-entry',
+      at: [0.1, BALL + 0.035, -0.39],
+      half: [0.02, 0.03, 0.015],
+    },
+    {
+      id: 'abbey-crest',
+      at: [-0.08, BALL + 0.135, -0.64],
+      half: [0.019, 0.02, 0.018],
+    },
+    {
+      id: 'abbey-return',
+      at: [-0.228, BALL + 0.055, -0.35],
+      half: [0.022, 0.02, 0.018],
+    },
+    {
+      id: 'bell-entry',
+      at: [0.012, BALL + 0.055, -0.4],
+      half: [0.02, 0.03, 0.018],
+    },
+    {
+      id: 'bell-crest',
+      at: [0.06, BALL + 0.24, -0.85],
+      half: [0.022, 0.02, 0.019],
+    },
+    {
+      id: 'bell-return',
+      at: [0.2, BALL + 0.224, -0.7],
+      half: [0.021, 0.021, 0.019],
+    },
   ],
   flippers: [
     {

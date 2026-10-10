@@ -1112,57 +1112,36 @@ export const AMI_VILLAGE_GREYBOX: TableDef = {
   },
   cameras: [
     {
+      // The one view (t-026): from behind the flippers, the main field from
+      // just below the flipper tips (the lockdown bar takes the screen's
+      // bottom edge) to past the arch, with headroom at the top for the
+      // DMD on screen. It never follows the ball.
       id: 'main',
-      position: [(LEFT_X + RIGHT_X) / 2, 0.75, 0.55],
+      position: [(LEFT_X + RIGHT_X) / 2, 0.66, 0.68],
       target: [(LEFT_X + RIGHT_X) / 2, 0, -0.4],
       fovDeg: 32,
-      // The whole table, from the apron to the top of the Ridge.
       frame: {
-        min: [LEFT_X - 0.02, 0, UPPER_TOP_Z - 0.04],
-        max: [RIGHT_X + 0.02, 0.03, BOTTOM_Z + 0.02],
+        min: [LEFT_X - 0.02, 0, TOP_Z - 0.12],
+        max: [RIGHT_X + 0.02, 0.03, APRON_TOP_Z + 0.02],
       },
-      // The DMD in the backbox above the arch.
-      include: [
-        [DMD_AT[0] - DMD_WIDTH / 2, DMD_AT[1] + DMD_WIDTH / 8, DMD_AT[2]],
-        [DMD_AT[0] + DMD_WIDTH / 2, DMD_AT[1] + DMD_WIDTH / 8, DMD_AT[2]],
-      ],
       portrait: [(LEFT_X + RIGHT_X) / 2, 1.2, 0.25],
       portraitFovDeg: 36,
     },
-    // Restrained presets (t-010): the same frame from a slightly different
-    // eye, eased into, so the whole field stays on screen.
     {
-      // A ball waiting on the plunger: lean toward the shooter lane.
-      id: 'plunge',
-      position: [(LEFT_X + RIGHT_X) / 2 + 0.14, 0.75, 0.55],
-      target: [(LEFT_X + RIGHT_X) / 2, 0, -0.4],
+      // The Ridge, panned to while every ball is up there.
+      id: 'upper-playfield',
+      position: [
+        (LEFT_X + RIGHT_X) / 2,
+        0.55,
+        (UPPER_TOP_Z + TOP_Z) / 2 + 0.72,
+      ],
+      target: [(LEFT_X + RIGHT_X) / 2, 0, (UPPER_TOP_Z + TOP_Z) / 2],
       fovDeg: 32,
       frame: {
-        min: [LEFT_X - 0.02, 0, UPPER_TOP_Z - 0.04],
-        max: [RIGHT_X + 0.02, 0.03, BOTTOM_Z + 0.02],
+        min: [LEFT_X - 0.02, 0, UPPER_TOP_Z - 0.03],
+        max: [RIGHT_X + 0.02, 0.03, TOP_Z + 0.04],
       },
-      include: [
-        [DMD_AT[0] - DMD_WIDTH / 2, DMD_AT[1] + DMD_WIDTH / 8, DMD_AT[2]],
-        [DMD_AT[0] + DMD_WIDTH / 2, DMD_AT[1] + DMD_WIDTH / 8, DMD_AT[2]],
-      ],
-      portrait: [(LEFT_X + RIGHT_X) / 2 + 0.06, 1.2, 0.25],
-      portraitFovDeg: 36,
-    },
-    {
-      // Multiball and the wizard mode: higher, to keep every ball in view.
-      id: 'multiball',
-      position: [(LEFT_X + RIGHT_X) / 2, 0.95, 0.4],
-      target: [(LEFT_X + RIGHT_X) / 2, 0, -0.4],
-      fovDeg: 32,
-      frame: {
-        min: [LEFT_X - 0.02, 0, UPPER_TOP_Z - 0.04],
-        max: [RIGHT_X + 0.02, 0.03, BOTTOM_Z + 0.02],
-      },
-      include: [
-        [DMD_AT[0] - DMD_WIDTH / 2, DMD_AT[1] + DMD_WIDTH / 8, DMD_AT[2]],
-        [DMD_AT[0] + DMD_WIDTH / 2, DMD_AT[1] + DMD_WIDTH / 8, DMD_AT[2]],
-      ],
-      portrait: [(LEFT_X + RIGHT_X) / 2, 1.3, 0.15],
+      portrait: [(LEFT_X + RIGHT_X) / 2, 1.0, (UPPER_TOP_Z + TOP_Z) / 2 + 0.55],
       portraitFovDeg: 36,
     },
     {

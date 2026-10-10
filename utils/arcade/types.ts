@@ -101,6 +101,11 @@ export type ArcadeGameOptions = {
   players?: number
   /** Mastery goals this player has already earned (announced only when new). */
   mastery?: readonly string[]
+  /**
+   * This game's saved progress on this device (utils/arcade/saves.ts), for a game that keeps one.
+   * Untrusted: the game validates it and offers to continue or ignores it.
+   */
+  resume?: unknown
 }
 
 /** The subset of ArcadeSound a game may call (lets tests pass a stub). */
@@ -113,6 +118,12 @@ export interface ArcadeGameInstance {
   readonly over: boolean
   /** Mastery goals earned this game, for a cabinet with a ladder. */
   readonly mastered?: readonly string[]
+  /**
+   * Progress to keep if the player leaves, for a game with a save (a long campaign): the cabinet
+   * stores it whenever it changes and hands it back as `resume`. null clears it; a game without
+   * saves leaves this undefined.
+   */
+  readonly save?: unknown
   /**
    * Advance one fixed 1/60 s tick. `input` is player 1's; a game seating more
    * players also gets every seated player's frame, player 1 first.

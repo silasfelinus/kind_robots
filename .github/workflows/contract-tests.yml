@@ -144,6 +144,12 @@ jobs:
       - name: Kind Robots Arcade engine
         run: npm run test:arcade-engine
 
+      - name: Zuzu Pinball private 3D preview
+        run: npm run test:zuzu-pinball
+
+      - name: Zuzu Pinball physics and ball transitions
+        run: npm run test:zuzu-pinball-physics
+
       - name: Zuzu gamebook branching and combat
         run: npm run test:zuzu-gamebook
 

@@ -4,6 +4,11 @@
 // painted to the accepted mockups: the spectral bone coyote (skeleton canid in a bowler-brimmed
 // cowboy hat and red bandana, wrapped in a cyan haunt-glow, ember-red eyes), hooded ghosts that
 // claw up out of the dirt, storm crows, the Dust Devil and the Bone Bull, plus Zuzu's thrown gear.
+// The campaign roster (t-015..t-019) joins them in the same hand: the skeleton gunslinger, the
+// komuso ghost monk, the grave ghoul, the drowned, the river leech, the storm harpy, the wind
+// wraith, the bell imp, the flame acolyte, the abbey shade and the censer sister, each with its
+// idle/move cycle, a readable tell pose for its `aim` phase (or its wind-up, for foes with none),
+// its attack, and a facing flip.
 //
 // Everything is drawn in logical units (the 320x240 world) and baked per frame at the context's
 // density through bake.ts, so the HD style gets painted detail and the Pixel style a clean 1x
@@ -16,24 +21,31 @@
 
 import { densityOf, drawBaked } from './bake'
 import { INK, glow, mix, rgba } from '../snes'
+import type { FoeKind } from './world'
 
 type G = CanvasRenderingContext2D
 
 export type FoeArtWeapon = 'kunai' | 'shuriken' | 'kasa' | 'lantern' | 'katana'
 
+/** Every behaviour state a foe can be in (foes.ts `Foe['phase']`); `aim` is always the tell. */
+export type FoeArtPhase =
+  'rise' | 'walk' | 'sink' | 'aim' | 'attack' | 'rest' | 'dive'
+
 export type FoeArtFoe = {
-  kind: 'spirit' | 'crow' | 'hyena'
+  kind: FoeKind
   x: number
   y: number
   vx: number
   vy: number
   hp: number
   t: number
-  phase: 'rise' | 'walk' | 'sink'
+  phase: FoeArtPhase
   baseY: number
   carrying: boolean
-  /** Optional: sign toward Zuzu (spirits reach for him). Defaults to the sign of vx, else left. */
+  /** Optional: which way it looks (-1 or 1). Defaults to the sign of vx, else left. */
   face?: number
+  /** Optional: the behaviour countdown, which times the wind-ups of foes with no `aim` phase. */
+  timer?: number
 }
 
 export type FoeArtBoss = {
@@ -1090,11 +1102,2718 @@ function drawCrow(g: G, f: FoeArtFoe, tick: number) {
     )
 }
 
-/** A foe in world space; (x, y) are its feet (a crow's y is its flight line). */
+// --- the campaign roster: shared pieces ----------------------------------------------------
+//
+// The eleven campaign foes (t-015..t-019) follow the slice's recipe: each pose is painted once
+// per frame into a bake (facing left, feet at the origin, anchored on the canvas centre line so
+// the facing flip mirrors about the feet), and only the live parts (tells, glints, censer swings,
+// drips, smoke) are drawn per frame on top. Every tell is a pose change *and* a light: a reader
+// at 1x sees the silhouette change, and the glow carries it on a busy backdrop.
+
+/** Duster, dusty plum: deep shadow .. moonlit rim. */
+const DUSTER = ['#140c1a', '#2c1b30', '#47293f', '#664057', '#9c7488'] as const
+/** Grave-ash flesh for the ghoul: cold shadow .. bone-lit. */
+const ASH = ['#16101e', '#2f2838', '#524a5a', '#837b80', '#bdb4a6'] as const
+/** Waterlogged flesh, teal. */
+const BLOAT = ['#0a2226', '#164046', '#2c6a64', '#5a9a88', '#a6d4bc'] as const
+const WEED = ['#0c2018', '#173a26', '#2a5e38', '#4f8a4a'] as const
+const RAG = ['#10122a', '#1e2246', '#323a68', '#5a6496'] as const
+/** River leech: wet indigo-black, a plum belly, a cold sheen. */
+const LEECH_SKIN = [
+  '#0a0612',
+  '#181026',
+  '#2a1c40',
+  '#45305e',
+  '#a596cc',
+] as const
+/** The harpy's cold moonlit skin, and her storm-black hair. */
+const SKIN = ['#2a2440', '#544c72', '#8a84a6', '#bdb8cf', '#ecebf6'] as const
+const HAIR = ['#05040e', '#0f0c22', '#1d1940', '#34306a'] as const
+/** The wind wraith: gale-blue spectre. */
+const GALE = ['#0e1230', '#25306a', '#5b6fb4', '#a9c0ec', '#eef6ff'] as const
+const BRONZE = ['#2a160a', '#5e3714', '#9a6526', '#d6a352', '#f8e2a8'] as const
+const IMP_SKIN = [
+  '#25060f',
+  '#541225',
+  '#8a2234',
+  '#c0443e',
+  '#ec8466',
+] as const
+const EMBER = ['#4a0d1a', '#a3172f', '#ef4444', '#fb923c', '#fef08a'] as const
+/** The flame acolyte's robe: rare crimson, kept deep so its hand and fire carry the danger. */
+const ROBE = ['#16040a', '#360a16', '#621222', '#951c2c', '#cf3040'] as const
+/** The abbey shade: a violet-rimmed void. */
+const VOID = ['#05020c', '#120726', '#2a1050', '#8a4ad8', '#e2c4ff'] as const
+const HABIT = ['#0a0816', '#191428', '#2b2342', '#463b62', '#7a6c94'] as const
+
+/** A baked foe pose: `w` x `h` logical px, the feet `ay` px down the canvas centre line. */
+type Box = { w: number; h: number; ay: number }
+
+/** Draw a baked pose with its feet at (x, y), mirrored to face right when `face` > 0. */
+function foeSprite(
+  g: G,
+  key: string,
+  x: number,
+  y: number,
+  box: Box,
+  face: number,
+  paint: (b: G) => void,
+  alpha?: number,
+) {
+  drawBaked(
+    g,
+    `gt-foes-${key}`,
+    x - box.w / 2,
+    y - box.ay,
+    box.w,
+    box.h,
+    (b) => {
+      b.translate(box.w / 2, box.ay)
+      paint(b)
+    },
+    { flipX: face > 0, alpha },
+  )
+}
+
+/** World x of a sprite-local x (sprites are painted facing left). */
+function sideX(x: number, face: number, lx: number): number {
+  return face > 0 ? x - lx : x + lx
+}
+
+/** A polyline limb with an ink edge and round joints. */
+function limb(
+  b: G,
+  pts: readonly number[],
+  w: number,
+  color: string,
+  ink: string | null = INK,
+) {
+  b.lineCap = 'round'
+  b.lineJoin = 'round'
+  b.beginPath()
+  b.moveTo(pts[0] ?? 0, pts[1] ?? 0)
+  for (let i = 2; i < pts.length; i += 2) b.lineTo(pts[i] ?? 0, pts[i + 1] ?? 0)
+  if (ink) {
+    b.lineWidth = w + 1
+    b.strokeStyle = ink
+    b.stroke()
+  }
+  b.lineWidth = w
+  b.strokeStyle = color
+  b.stroke()
+}
+
+/** Two-bone chain from (x, y): angles from straight down, positive swinging forward (-x). */
+function joint2(
+  x: number,
+  y: number,
+  a1: number,
+  l1: number,
+  a2: number,
+  l2: number,
+): [number, number, number, number, number, number] {
+  const kx = x - Math.sin(a1) * l1
+  const ky = y + Math.cos(a1) * l1
+  return [x, y, kx, ky, kx - Math.sin(a2) * l2, ky + Math.cos(a2) * l2]
+}
+
+/** A bone club: a shaft with knuckled ends. */
+function boneClub(b: G, x1: number, y1: number, x2: number, y2: number) {
+  bones(b, [x1, y1, x2, y2], 1.2)
+  const a = Math.atan2(y2 - y1, x2 - x1)
+  const nx = -Math.sin(a) * 0.9
+  const ny = Math.cos(a) * 0.9
+  for (const [x, y] of [
+    [x1, y1],
+    [x2, y2],
+  ] as const) {
+    for (const s of [-1, 1]) {
+      b.beginPath()
+      b.arc(x + nx * s, y + ny * s, 0.95, 0, TAU)
+      inked(b, BONE[3], 0.8)
+    }
+  }
+}
+
+/** A small teardrop flame (local, base at (x, y)), for the acolyte's palm and the imp's ember. */
+function flame(g: G, x: number, y: number, h: number, t: number, hot = false) {
+  const lean = Math.sin(t / 3) * h * 0.12
+  for (const [k, color] of [
+    [1, hot ? EMBER[2] : CRIMSON[2]],
+    [0.68, EMBER[3]],
+    [0.38, EMBER[4]],
+  ] as const) {
+    const hh = h * k * (1 + Math.sin(t / 2.3 + k * 4) * 0.08)
+    const w = h * 0.36 * k
+    g.fillStyle = color
+    g.beginPath()
+    g.moveTo(x - w, y)
+    g.quadraticCurveTo(x - w * 1.1, y - hh * 0.5, x + lean, y - hh)
+    g.quadraticCurveTo(x + w * 1.1, y - hh * 0.5, x + w, y)
+    g.quadraticCurveTo(x, y + w * 0.7, x - w, y)
+    g.fill()
+  }
+}
+
+// --- the skeleton gunslinger ----------------------------------------------------------------
+
+const SLINGER: Box = { w: 44, h: 44, ay: 38 }
+const SLINGER_FRAMES = 6
+type SlingerPose = 'walk' | 'draw' | 'smoke' | 'holster'
+/** Where the revolver's muzzle sits in the draw pose (sprite-local). */
+const SLINGER_MUZZLE: Pt = [-15.8, -16.4]
+
+/** The revolver, painted along -x from its grip at the origin. */
+function revolver(b: G) {
+  // Barrel and frame.
+  seg(b, -1.2, -0.9, -6, -0.9, 1.1, STEEL[2])
+  b.strokeStyle = STEEL[4]
+  b.lineWidth = 0.35
+  b.beginPath()
+  b.moveTo(-1.4, -1.25)
+  b.lineTo(-5.8, -1.25)
+  b.stroke()
+  b.fillStyle = STEEL[3]
+  b.fillRect(-6.2, -1.9, 0.6, 0.6)
+  // Cylinder and hammer.
+  b.beginPath()
+  b.rect(-2.6, -1.9, 2.2, 1.9)
+  inked(b, STEEL[1], 0.8)
+  b.fillStyle = STEEL[3]
+  b.fillRect(-2.4, -1.8, 1.8, 0.45)
+  poly(b, [0, -1.4, 0.9, -2.4, 0.5, -0.8])
+  inked(b, STEEL[1], 0.6)
+  // Ivory grip.
+  b.beginPath()
+  b.moveTo(-0.4, -0.4)
+  b.quadraticCurveTo(0.6, 0.8, 0.4, 2.4)
+  b.lineTo(1.6, 2.2)
+  b.quadraticCurveTo(1.6, 0.4, 0.8, -0.6)
+  b.closePath()
+  inked(b, BONE[3], 0.7)
+}
+
+function paintGunslinger(
+  b: G,
+  pose: SlingerPose,
+  frame: number,
+  hatOn: boolean,
+) {
+  const walking = pose === 'walk'
+  const ph = (frame / SLINGER_FRAMES) * TAU
+  const bob = walking ? -Math.abs(Math.sin(ph)) * 0.6 : 0
+  const ground = -bob
+  b.translate(0, bob)
+  const far = [BONE[0], BONE[1], BONE[1], BONE[2], BONE[3]] as const
+  const legAt = (a: number, lift: number) => {
+    const p = joint2(0.6, -11, a, 5.6, a - lift, 5.4)
+    p[5] = Math.min(ground - 0.6, p[5])
+    return p
+  }
+  const stance: Record<SlingerPose, [number, number]> = {
+    walk: [0, 0],
+    draw: [0.42, -0.34],
+    smoke: [0.42, -0.34],
+    holster: [0.2, -0.16],
+  }
+  const [nearA, farA] = stance[pose]
+  const nearLeg = walking
+    ? legAt(0.5 * Math.sin(ph), Math.max(0, Math.cos(ph)) * 0.9)
+    : legAt(nearA, 0)
+  const farLeg = walking
+    ? legAt(0.5 * Math.sin(ph + Math.PI), Math.max(0, -Math.cos(ph)) * 0.9)
+    : legAt(farA, 0)
+  const boot = (lx: number, ly: number, dim: boolean) => {
+    blob(b, [
+      lx + 0.9,
+      ly - 2.8,
+      lx + 1.4,
+      ly - 0.4,
+      lx + 0.4,
+      ly + 0.6,
+      lx - 2.6,
+      ly + 0.6,
+      lx - 2.8,
+      ly - 0.4,
+      lx - 0.6,
+      ly - 1.4,
+      lx - 0.4,
+      ly - 2.8,
+    ])
+    inked(b, dim ? '#1c1014' : '#3a2220', 1)
+    b.fillStyle = dim ? '#2c1a1a' : '#6a4230'
+    b.fillRect(lx - 0.3, ly - 2.6, 0.9, 1.4)
+    // Spur.
+    b.fillStyle = dim ? AMBER[1] : AMBER[2]
+    b.fillRect(lx + 1.3, ly - 0.9, 0.8, 0.8)
+  }
+  // Far arm, behind everything.
+  const farSh: Pt = [1.6, -19.8]
+  if (pose === 'draw' || pose === 'smoke') {
+    // Fanning the hammer.
+    limb(b, [farSh[0], farSh[1], -2.2, -18, -6.6, -17.4], 2.2, DUSTER[1])
+    b.fillStyle = BONE[2]
+    b.beginPath()
+    b.arc(-7, -17.2, 0.9, 0, TAU)
+    b.fill()
+  } else {
+    const a = walking ? 0.4 * Math.sin(ph) : 0.1
+    const arm = joint2(farSh[0], farSh[1], a, 4.4, a + 0.35, 4)
+    limb(b, arm.slice(0, 4), 2.3, DUSTER[1])
+    bones(b, arm.slice(2), 0.9, far)
+  }
+  // Duster's back panel, flaring behind the legs.
+  const flap = walking ? Math.sin(ph * 2) * 0.8 : pose === 'draw' ? 1.6 : 0.6
+  poly(b, [
+    -2.8,
+    -21,
+    3.4,
+    -21.4,
+    4.4,
+    -13,
+    6.8 + flap,
+    -5,
+    8 + flap * 1.4,
+    -2.4,
+    5.6 + flap,
+    -3.4,
+    3.6 + flap * 0.6,
+    -2.2,
+    1.6,
+    -3.6,
+    0,
+    -11,
+    -2.4,
+    -16,
+  ])
+  inked(b, DUSTER[2], 1.1)
+  b.fillStyle = DUSTER[1]
+  poly(b, [0, -11, 1.6, -3.6, 3.6 + flap * 0.6, -2.2, 3.4, -11])
+  b.fill()
+  b.strokeStyle = DUSTER[4]
+  b.lineWidth = 0.55
+  b.beginPath()
+  b.moveTo(3.2, -21)
+  b.lineTo(4.2, -13)
+  b.lineTo(7.4 + flap * 1.3, -3)
+  b.stroke()
+  b.strokeStyle = DUSTER[0]
+  b.lineWidth = 0.45
+  b.beginPath()
+  b.moveTo(2.4, -12)
+  b.lineTo(4.8 + flap, -3.4)
+  b.stroke()
+  // Legs: bone shins, boots.
+  bones(b, farLeg, 1.1, far)
+  boot(farLeg[4], farLeg[5], true)
+  bones(b, nearLeg, 1.3)
+  boot(nearLeg[4], nearLeg[5], false)
+  // The open coat front: dark lining, and the ribcage inside.
+  poly(b, [-3, -20.4, 1.8, -20.6, 1.4, -11.6, -2, -11.8])
+  b.fillStyle = '#0d0812'
+  b.fill()
+  bones(b, [1, -20.2, 0.6, -15.6, 0.6, -11.8], 0.9)
+  for (let i = 0; i < 4; i++) {
+    const y = -19 + i * 1.7
+    b.beginPath()
+    b.moveTo(0.8, y)
+    b.quadraticCurveTo(-1.6, y - 0.4, -2.6, y + 0.9)
+    b.lineWidth = 1.4
+    b.strokeStyle = INK
+    b.stroke()
+    b.lineWidth = 0.7
+    b.strokeStyle = i < 2 ? BONE[3] : BONE[2]
+    b.stroke()
+  }
+  // Pelvis and gun belt.
+  blob(b, [-1.6, -12.2, 2.6, -12.4, 2.8, -10.2, 0.6, -9.4, -1.8, -10.4])
+  inked(b, BONE[2], 0.9)
+  b.beginPath()
+  b.rect(-2.4, -12.4, 6.4, 1.3)
+  inked(b, '#3a2216', 0.8)
+  b.fillStyle = AMBER[2]
+  for (let i = 0; i < 4; i++) b.fillRect(-0.4 + i * 1.1, -12.1, 0.5, 0.7)
+  b.fillStyle = AMBER[3]
+  b.fillRect(-2.4, -12.4, 1.4, 1.3)
+  // Holster on the near hip, the ivory grip showing when the gun is home.
+  poly(b, [1.4, -11.4, 3.8, -11.4, 4, -6.8, 2.4, -6.2])
+  inked(b, '#4a2a18', 0.9)
+  b.fillStyle = '#6e4228'
+  b.fillRect(1.8, -11, 0.6, 3.8)
+  if (walking) {
+    b.beginPath()
+    b.moveTo(2.4, -11.2)
+    b.quadraticCurveTo(3.6, -12.4, 4.4, -13.4)
+    b.lineWidth = 2
+    b.strokeStyle = INK
+    b.stroke()
+    b.lineWidth = 1.2
+    b.strokeStyle = BONE[3]
+    b.stroke()
+  }
+  // Turned-up collar behind the skull.
+  poly(b, [1.4, -21, 3.6, -24.2, 4.2, -20.6])
+  inked(b, DUSTER[3], 0.9)
+  poly(b, [-3.2, -20.8, -2, -22.4, -1, -20.6])
+  inked(b, DUSTER[3], 0.8)
+  // Skull.
+  b.save()
+  if (pose === 'draw') {
+    b.translate(-0.6, -21.4)
+    b.rotate(-0.08)
+    b.translate(0.6, 21.4)
+  }
+  poly(b, [-4.2, -21.4, -1, -21.2, 0.8, -22, 0.4, -20, -3.6, -20.2])
+  inked(b, BONE[2], 1)
+  blob(
+    b,
+    [
+      -3.4, -24.6, -3, -27, -0.6, -27.8, 1.8, -27, 2.6, -24.6, 1.6, -22.4, -1,
+      -21.6, -3.2, -22.2,
+    ],
+  )
+  inked(b, BONE[3], 1.1)
+  poly(b, [-3, -24, -4.8, -23.2, -4.6, -21.8, -2.4, -21.6])
+  inked(b, BONE[3], 0.9)
+  b.fillStyle = BONE[2]
+  blob(b, [-4.4, -22, -2, -22.4, 1.4, -22.6, 1.2, -23.6, -1.8, -23.2])
+  b.fill()
+  b.fillStyle = BONE[4]
+  blob(b, [-2.6, -26.8, -0.4, -27.4, 1.2, -26.6, -0.8, -25.8])
+  b.fill()
+  b.fillStyle = BONE[4]
+  for (let i = 0; i < 3; i++) b.fillRect(-4.2 + i * 1.1, -21.6, 0.6, 0.7)
+  b.fillStyle = '#1a0a12'
+  ellipsePath(b, -2, -24.2, 1.15, 1.05)
+  b.fill()
+  ellipsePath(b, -4.2, -22.9, 0.4, 0.35)
+  b.fill()
+  b.fillStyle = pose === 'draw' ? CRIMSON[3] : CRIMSON[2]
+  ellipsePath(b, -2.2, -24.2, 0.55, 0.5)
+  b.fill()
+  // The hat: flat-brimmed, pinched, a bone band with amber conchos.
+  if (hatOn) {
+    b.save()
+    b.translate(-0.4, -27)
+    b.rotate(pose === 'draw' ? -0.12 : walking ? Math.sin(ph) * 0.03 : -0.04)
+    poly(
+      b,
+      [-3.4, 0.4, -3, -3.4, -1, -4.2, 0.8, -3.4, 2.6, -4, 3.8, -3, 3.8, 0.4],
+    )
+    inked(b, HAT[2], 1)
+    b.fillStyle = HAT[3]
+    poly(b, [-2.9, 0, -2.6, -3.1, -1.2, -3.8, -0.8, 0])
+    b.fill()
+    b.fillStyle = BONE[2]
+    b.fillRect(-3.4, -1, 7.2, 0.9)
+    b.fillStyle = AMBER[3]
+    b.fillRect(-2.6, -0.9, 0.7, 0.7)
+    b.fillRect(0.2, -0.9, 0.7, 0.7)
+    b.fillRect(2.6, -0.9, 0.7, 0.7)
+    b.beginPath()
+    b.moveTo(-8, 0.2)
+    b.quadraticCurveTo(-3, 1.2, 0, 0.6)
+    b.quadraticCurveTo(4, 0.4, 7.2, -0.6)
+    b.lineTo(7, 0.7)
+    b.quadraticCurveTo(3, 1.8, 0, 1.8)
+    b.quadraticCurveTo(-5, 2.2, -8, 0.2)
+    b.closePath()
+    inked(b, HAT[1], 1)
+    b.strokeStyle = HAT[3]
+    b.lineWidth = 0.45
+    b.beginPath()
+    b.moveTo(-7.2, 0.4)
+    b.quadraticCurveTo(-3, 1.1, 0, 0.7)
+    b.stroke()
+    b.restore()
+  } else {
+    b.strokeStyle = BONE[0]
+    b.lineWidth = 0.4
+    b.beginPath()
+    b.moveTo(0.4, -27.6)
+    b.lineTo(-0.2, -26.2)
+    b.lineTo(0.6, -25.4)
+    b.stroke()
+  }
+  b.restore()
+  // Near arm and the revolver.
+  const sh: Pt = [0.2, -19.6]
+  if (pose === 'draw' || pose === 'smoke') {
+    const hand: Pt = pose === 'draw' ? [-7.6, -15.2] : [-6.4, -17.6]
+    limb(
+      b,
+      [sh[0], sh[1], -3.6, -16.8, hand[0] + 1.6, hand[1] + 0.2],
+      2.4,
+      DUSTER[2],
+    )
+    b.fillStyle = DUSTER[3]
+    b.fillRect(hand[0] + 1, hand[1] - 0.9, 1, 1.9)
+    b.save()
+    b.translate(hand[0], hand[1])
+    if (pose === 'smoke') b.rotate(0.85)
+    b.scale(1.3, 1.3)
+    revolver(b)
+    b.restore()
+    b.fillStyle = BONE[3]
+    b.beginPath()
+    b.arc(hand[0] + 0.4, hand[1] + 0.2, 0.9, 0, TAU)
+    b.fill()
+  } else if (pose === 'holster') {
+    limb(b, [sh[0], sh[1], -1.2, -15.4, -1.8, -12.4], 2.4, DUSTER[2])
+    b.save()
+    b.translate(-2.4, -11.8)
+    b.rotate(-1.2)
+    b.scale(1.3, 1.3)
+    revolver(b)
+    b.restore()
+    b.fillStyle = BONE[3]
+    b.beginPath()
+    b.arc(-2.2, -11.8, 0.9, 0, TAU)
+    b.fill()
+  } else {
+    const a = -0.4 * Math.sin(ph)
+    const arm = joint2(sh[0], sh[1], a, 4.6, a + 0.4, 4.2)
+    const cuff: Pt = [
+      arm[2] + (arm[4] - arm[2]) * 0.45,
+      arm[3] + (arm[5] - arm[3]) * 0.45,
+    ]
+    bones(b, [cuff[0], cuff[1], arm[4], arm[5]], 1)
+    limb(b, [arm[0], arm[1], arm[2], arm[3], cuff[0], cuff[1]], 2.4, DUSTER[2])
+    b.fillStyle = BONE[3]
+    b.beginPath()
+    b.arc(arm[4], arm[5] + 0.3, 0.85, 0, TAU)
+    b.fill()
+  }
+  // Moonlit shoulder.
+  b.strokeStyle = DUSTER[4]
+  b.lineWidth = 0.5
+  b.beginPath()
+  b.moveTo(-2.4, -20.8)
+  b.lineTo(2.8, -21.2)
+  b.stroke()
+}
+
+function drawGunslinger(g: G, f: FoeArtFoe, tick: number) {
+  const face = f.face ?? (Math.sign(f.vx) || -1)
+  const timer = f.timer ?? 0
+  const pose: SlingerPose =
+    f.phase === 'aim'
+      ? 'draw'
+      : f.phase === 'rest'
+        ? timer > 46
+          ? 'smoke'
+          : timer > 24
+            ? 'holster'
+            : 'walk'
+        : 'walk'
+  const moving = Math.abs(f.vx) > 0.05 || f.phase === 'walk'
+  const frame =
+    pose === 'walk' && moving ? Math.floor(f.t / 6) % SLINGER_FRAMES : 0
+  const hatOn = f.hp >= 2
+  const x = snap(g, f.x)
+  const y = snap(g, f.y)
+  groundShadow(g, x, y, 9)
+  foeSprite(
+    g,
+    `slinger-${pose}-${frame}-${hatOn ? 'hat' : 'bare'}`,
+    x,
+    y,
+    SLINGER,
+    face,
+    (b) => paintGunslinger(b, pose, frame, hatOn),
+  )
+  // The ember eye, and the tell: a red glint swelling at the muzzle.
+  const ex = sideX(x, face, -2.2)
+  glow(g, ex, y - 24.2, 2.6, CRIMSON[3], pose === 'draw' ? 0.8 : 0.35)
+  if (pose === 'draw') {
+    const p = 1 - Math.max(0, Math.min(1, timer / 42))
+    const mx = sideX(x, face, SLINGER_MUZZLE[0])
+    const my = y + SLINGER_MUZZLE[1]
+    const pulse = 0.5 + 0.5 * Math.sin(tick / 2.2)
+    glow(g, mx, my, 5 + p * 7, CRIMSON[2], 0.45 + p * 0.4)
+    twinkle(g, mx, my, 1.8 + p * 2.6 + pulse * 0.8, CRIMSON[3])
+    twinkle(g, mx, my, 0.9 + p * 1.2, CRIMSON[4])
+  } else if (pose === 'smoke') {
+    // Smoke curling off the barrel.
+    const mx = sideX(x, face, -9.4)
+    for (let i = 0; i < 3; i++) {
+      const p = ((f.t * 0.7 + i * 8) % 24) / 24
+      puff(
+        g,
+        mx + Math.sin(p * 5 + i) * 1.4,
+        y - 22.6 - p * 9,
+        0.8 + p * 1.8,
+        '#b8b0c8',
+        (1 - p) * 0.55,
+      )
+    }
+  }
+}
+
+// --- the ghost monk (a komuso under his basket hat) ------------------------------------------
+
+const MONK: Box = { w: 40, h: 48, ay: 40 }
+const MONK_FRAMES = 4
+
+function monkRobe(b: G, w: number) {
+  const tat = (i: number) => Math.sin(w + i * 1.9) * 1.1
+  b.beginPath()
+  b.moveTo(-2.6, -21.6)
+  b.lineTo(-5, -20.2)
+  b.quadraticCurveTo(-6.2, -14, -6.6, -6)
+  b.lineTo(-6.8, -2.6 + tat(0))
+  b.lineTo(-4.4, -0.4 + tat(1))
+  b.lineTo(-2.4, -2.6 + tat(2))
+  b.lineTo(-0.2, 2.2 + tat(3))
+  b.lineTo(2, -1.4 + tat(4))
+  b.lineTo(4.4, 1.6 + tat(5))
+  b.lineTo(6.6, -2.4 + tat(6))
+  b.lineTo(8.6, -0.6 + tat(7))
+  b.quadraticCurveTo(6.8, -8, 6.2, -12)
+  b.quadraticCurveTo(5.8, -18, 3.2, -21.4)
+  b.closePath()
+}
+
+function paintMonk(b: G, frame: number, chant: boolean) {
+  const w = (frame / MONK_FRAMES) * TAU
+  // Haunt-glow halo, then the robe fading to nothing at its hem.
+  monkRobe(b, w)
+  b.lineJoin = 'round'
+  b.lineWidth = 4
+  b.strokeStyle = rgba(SPECTRE[3], 0.14)
+  b.stroke()
+  b.lineWidth = 2
+  b.strokeStyle = rgba(SPECTRE[3], 0.24)
+  b.stroke()
+  // A dark edge that fades with the robe, so it holds against the teal waterhole too.
+  const edge = b.createLinearGradient(0, -22, 0, 2)
+  edge.addColorStop(0, rgba(INK, 0.75))
+  edge.addColorStop(0.7, rgba(INK, 0.4))
+  edge.addColorStop(1, rgba(INK, 0))
+  monkRobe(b, w)
+  b.lineWidth = 1.4
+  b.strokeStyle = edge
+  b.stroke()
+  const robe = b.createLinearGradient(0, -22, 0, 2)
+  robe.addColorStop(0, rgba(SPECTRE[2], 0.96))
+  robe.addColorStop(0.5, rgba(SPECTRE[1], 0.88))
+  robe.addColorStop(1, rgba(SPECTRE[1], 0))
+  const rim = b.createLinearGradient(0, -22, 0, 2)
+  rim.addColorStop(0, SPECTRE[4])
+  rim.addColorStop(0.6, rgba(SPECTRE[3], 0.7))
+  rim.addColorStop(1, rgba(SPECTRE[3], 0))
+  monkRobe(b, w)
+  b.fillStyle = robe
+  b.fill()
+  b.lineWidth = 0.7
+  b.strokeStyle = rim
+  b.stroke()
+  // Folds.
+  b.strokeStyle = rgba(SPECTRE[0], 0.6)
+  b.lineWidth = 0.7
+  for (const [x0, x1] of [
+    [-2.6, -3.6],
+    [1.4, 1],
+    [4, 5],
+  ] as const) {
+    b.beginPath()
+    b.moveTo(x0, -12)
+    b.quadraticCurveTo(x0 + 0.8, -6, x1, -1 + Math.sin(w + x0) * 0.8)
+    b.stroke()
+  }
+  // Under-kimono collar, and the plum kesa slung across with its amber ring.
+  poly(b, [-2.8, -21.6, 0.6, -21.8, -1.6, -16.8])
+  b.fillStyle = mix(BONE[3], SPECTRE[3], 0.45)
+  b.fill()
+  poly(b, [1.2, -21.6, 3.8, -21, -4.4, -9.6, -6.4, -10.8])
+  b.fillStyle = rgba(PLUM[3], 0.92)
+  b.fill()
+  b.strokeStyle = rgba(PLUM[0], 0.9)
+  b.lineWidth = 0.5
+  b.stroke()
+  b.strokeStyle = rgba(BONE[3], 0.5)
+  b.lineWidth = 0.35
+  for (let i = 0; i < 4; i++) {
+    const u = 0.15 + i * 0.22
+    b.beginPath()
+    b.moveTo(1.2 + (-6.4 - 1.2) * u, -21.6 + 11.6 * u)
+    b.lineTo(3.8 + (-4.4 - 3.8) * u, -21 + 11.4 * u)
+    b.stroke()
+  }
+  b.beginPath()
+  b.arc(-0.4, -17.6, 1, 0, TAU)
+  b.lineWidth = 0.6
+  b.strokeStyle = AMBER[2]
+  b.stroke()
+  // Sleeves and hands: the shakuhachi held low, or hands raised together in the chant.
+  const hand = mix(BONE[3], SPECTRE[4], 0.5)
+  if (chant) {
+    poly(
+      b,
+      [
+        -0.6, -20.4, -4.6, -23.4, -7.8, -22.6, -7.6, -19.6, -4.2, -16.6, 0.4,
+        -15.6,
+      ],
+    )
+    inked(b, SPECTRE[2], 0.9)
+    b.strokeStyle = SPECTRE[4]
+    b.lineWidth = 0.5
+    b.beginPath()
+    b.moveTo(-0.6, -20.4)
+    b.lineTo(-4.6, -23.4)
+    b.stroke()
+    // Palms pressed, fingers up.
+    poly(b, [-7.4, -22.6, -8.6, -26, -7.6, -26.4, -6.6, -22.8])
+    inked(b, hand, 0.7)
+    // Prayer beads looped from the hands.
+    for (let i = 0; i < 9; i++) {
+      const a = (i / 8) * Math.PI
+      b.fillStyle = i % 4 === 0 ? AMBER[2] : PLUM[3]
+      b.beginPath()
+      b.arc(-7.2 + Math.cos(a) * 1.6, -22 + Math.sin(a) * 3.8, 0.5, 0, TAU)
+      b.fill()
+    }
+  } else {
+    // The flute, from under the basket down past the sleeves.
+    seg(b, -4.6, -22.2, -9.2, -10.6, 1.1, mix(BONE[2], SPECTRE[3], 0.3))
+    b.fillStyle = SPECTRE[0]
+    for (const u of [0.35, 0.55, 0.75]) {
+      b.fillRect(-4.6 - 4.6 * u - 0.3, -22.2 + 11.6 * u - 0.3, 0.6, 0.6)
+    }
+    poly(
+      b,
+      [-0.8, -20.2, -5, -17.4, -7.6, -14.2, -6.2, -11, -3.4, -12.4, 0.2, -15],
+    )
+    inked(b, SPECTRE[2], 0.9)
+    b.strokeStyle = SPECTRE[4]
+    b.lineWidth = 0.5
+    b.beginPath()
+    b.moveTo(-0.8, -20.2)
+    b.lineTo(-5, -17.4)
+    b.stroke()
+    b.fillStyle = hand
+    ellipsePath(b, -6.4, -17.4, 1.1, 0.9)
+    b.fill()
+    ellipsePath(b, -7.6, -14, 1.1, 0.9)
+    b.fill()
+  }
+  // The tengai: a woven basket over the whole head, a mesh slit to see through.
+  const hat = () => {
+    b.beginPath()
+    b.moveTo(-6, -20.6)
+    b.quadraticCurveTo(-6.8, -28.6, -3.6, -32)
+    b.quadraticCurveTo(0, -33.4, 3.6, -32)
+    b.quadraticCurveTo(6.6, -28.4, 5.8, -20.8)
+    b.quadraticCurveTo(0, -19.4, -6, -20.6)
+    b.closePath()
+  }
+  const straw = b.createLinearGradient(-6, 0, 6, 0)
+  straw.addColorStop(0, mix(BONE[3], SPECTRE[3], 0.35))
+  straw.addColorStop(0.6, mix(BONE[2], SPECTRE[2], 0.45))
+  straw.addColorStop(1, mix(BONE[1], SPECTRE[1], 0.5))
+  hat()
+  inked(b, straw, 1.1)
+  b.save()
+  hat()
+  b.clip()
+  b.strokeStyle = rgba(SPECTRE[0], 0.55)
+  b.lineWidth = 0.4
+  for (let i = 0; i < 9; i++) {
+    const y = -32.4 + i * 1.4
+    b.beginPath()
+    b.moveTo(-7, y + 0.4)
+    b.quadraticCurveTo(0, y - 0.6, 7, y + 0.4)
+    b.stroke()
+  }
+  b.strokeStyle = rgba(SPECTRE[4], 0.35)
+  for (let i = 0; i < 8; i++) {
+    const y = -31.7 + i * 1.4
+    for (let j = 0; j < 8; j++) {
+      const x = -5.6 + j * 1.6 + (i % 2) * 0.8
+      b.beginPath()
+      b.moveTo(x, y)
+      b.lineTo(x + 0.6, y + 0.5)
+      b.stroke()
+    }
+  }
+  // Mesh slit and the cold eyes behind it.
+  b.fillStyle = rgba('#031019', 0.9)
+  b.fillRect(-7, -27.2, 4.6, 1.8)
+  b.fillStyle = SPECTRE[4]
+  b.fillRect(-5.2, -26.7, 0.7, 0.6)
+  b.fillRect(-3.6, -26.7, 0.6, 0.6)
+  b.restore()
+  b.strokeStyle = rgba(SPECTRE[4], 0.8)
+  b.lineWidth = 0.6
+  b.beginPath()
+  b.moveTo(-5.4, -24)
+  b.quadraticCurveTo(-5.6, -29.4, -2.8, -31.6)
+  b.stroke()
+}
+
+function drawMonk(g: G, f: FoeArtFoe, tick: number) {
+  const face = f.face ?? (Math.sign(f.vx) || -1)
+  const chant = f.phase === 'aim'
+  const frame = Math.floor(f.t / 8) % MONK_FRAMES
+  const x = snap(g, f.x)
+  const y = snap(g, f.y)
+  const alpha = 0.88 + Math.sin(tick / 13) * 0.06
+  glow(g, x, y - 16, 17, SPECTRE[2], 0.2)
+  foeSprite(
+    g,
+    `monk-${chant ? 'chant' : 'float'}-${frame}`,
+    x,
+    y,
+    MONK,
+    face,
+    (b) => paintMonk(b, frame, chant),
+    alpha,
+  )
+  // Motes shed from the hem.
+  for (let i = 0; i < 3; i++) {
+    const p = ((f.t * 0.5 + i * 11) % 30) / 30
+    puff(
+      g,
+      x + Math.sin(i * 2.1 + p * 4) * 4,
+      y - 2 + p * 9,
+      0.7,
+      SPECTRE[3],
+      (1 - p) * 0.7,
+    )
+  }
+  if (chant) {
+    // The chant: light gathering where the orb will form, a ring closing on it.
+    const p = 1 - Math.max(0, Math.min(1, (f.timer ?? 0) / 36))
+    const ox = x
+    const oy = y - 14
+    glow(g, ox, oy, 8 + p * 10, SPECTRE[3], 0.4 + p * 0.4)
+    g.strokeStyle = rgba(SPECTRE[4], 0.4 + p * 0.5)
+    g.lineWidth = 0.8
+    g.beginPath()
+    g.arc(ox, oy, 3 + (1 - p) * 11, 0, TAU)
+    g.stroke()
+    for (let i = 0; i < 3; i++) {
+      const a = tick / 7 + (i * TAU) / 3
+      const r = 4 + (1 - p) * 8
+      puff(
+        g,
+        ox + Math.cos(a) * r,
+        oy + Math.sin(a) * r * 0.7,
+        0.8,
+        SPECTRE[4],
+        0.9,
+      )
+    }
+    puff(g, ox, oy, 1 + p * 2, SPECTRE[4], 0.5 + p * 0.5)
+    const hx = sideX(x, face, -7.6)
+    glow(g, hx, y - 24, 5, SPECTRE[4], 0.5)
+  }
+}
+
+// --- the grave ghoul -------------------------------------------------------------------------
+
+const GHOUL: Box = { w: 40, h: 36, ay: 31 }
+const GHOUL_FRAMES = 4
+
+function paintGhoul(b: G, windup: boolean, frame: number) {
+  const ph = (frame / GHOUL_FRAMES) * TAU
+  const br = windup ? -0.6 : Math.sin(ph) * 0.5
+  const gnaw = windup ? 0 : Math.max(0, Math.sin(ph * 2)) * 0.6
+  // Far leg and far arm, knuckles down.
+  limb(b, [4.6, -8, 7.6, -3.6, 6.4, -0.4, 4.6, -0.4], 2.1, ASH[1])
+  limb(b, [0.4, -14 + br, -3, -8, -6.4, -0.8], 2, ASH[1])
+  for (const dx of [-1.2, 0, 1.2])
+    seg(b, -6.4, -0.8, -7.6 + dx * 0.6, 0, 0.5, BONE[2], null)
+  // Hunched torso, spine knobs, starved ribs.
+  blob(b, [
+    -4.2,
+    -14.8 + br,
+    -1,
+    -19 + br,
+    3.6,
+    -18.6 + br,
+    6.8,
+    -14.6,
+    6.6,
+    -9.4,
+    3.6,
+    -6.6,
+    -0.6,
+    -7.6,
+    -3.6,
+    -10.6,
+  ])
+  inked(b, ASH[2], 1.1)
+  b.fillStyle = ASH[1]
+  blob(b, [-2.6, -10.4, 0.4, -8, 4, -7.4, 6, -9.6, 3, -10.6, -0.6, -11.6])
+  b.fill()
+  b.strokeStyle = ASH[4]
+  b.lineWidth = 0.55
+  b.beginPath()
+  b.moveTo(-2.6, -16.6 + br)
+  b.quadraticCurveTo(0.6, -19.4 + br, 4.4, -18.2 + br)
+  b.stroke()
+  b.strokeStyle = ASH[0]
+  b.lineWidth = 0.5
+  for (let i = 0; i < 3; i++) {
+    b.beginPath()
+    b.moveTo(0.6 + i * 1.6, -15.4 + br * 0.5)
+    b.quadraticCurveTo(-0.6 + i * 1.6, -12.6, 0.4 + i * 1.5, -10.2)
+    b.stroke()
+  }
+  b.fillStyle = BONE[2]
+  for (let i = 0; i < 5; i++) {
+    const u = i / 4
+    b.beginPath()
+    b.arc(
+      -1.4 + u * 7,
+      -19.2 + br + Math.sin(u * Math.PI) * -0.4 + u * 3.2,
+      0.6,
+      0,
+      TAU,
+    )
+    b.fill()
+  }
+  // Burial rag at the hips.
+  poly(b, [2, -8.8, 7.2, -9.6, 7.8, -5, 6, -3.2, 4.8, -5.6, 3, -3.4, 2.2, -6])
+  inked(b, PLUM[2], 0.9)
+  b.fillStyle = PLUM[3]
+  poly(b, [2.4, -8.6, 5, -9, 4.6, -7.4, 2.6, -7])
+  b.fill()
+  // Near leg, squatting.
+  limb(b, [3, -7.6, -1.4, -4.4, 1.6, -0.5, -0.8, -0.5], 2.4, ASH[2])
+  b.fillStyle = ASH[4]
+  b.beginPath()
+  b.arc(-1.4, -4.6, 0.7, 0, TAU)
+  b.fill()
+  // Head: long bald skull thrust forward, a pointed ear, ember eye.
+  b.save()
+  b.translate(-5.6, -13.6 + br * 0.6)
+  b.rotate(windup ? -0.32 : gnaw * 0.08)
+  b.translate(5.6, 13.6)
+  poly(b, [-4.4, -16.2, -1.2, -19, -3.2, -14.6])
+  inked(b, ASH[2], 0.9)
+  blob(
+    b,
+    [
+      -3, -16.8, -6, -17.4, -8.8, -15.8, -9.8, -13.4, -9, -11.6, -6.2, -11,
+      -3.4, -12, -2.4, -14.4,
+    ],
+  )
+  inked(b, ASH[3], 1.1)
+  b.fillStyle = ASH[4]
+  blob(b, [-4.4, -16.6, -6.6, -16.8, -8, -15.6, -6, -15.6])
+  b.fill()
+  b.fillStyle = ASH[2]
+  blob(b, [-9.2, -12.4, -6.6, -11.4, -3.6, -12.4, -6, -12.8])
+  b.fill()
+  // Brow and the ember eye.
+  b.fillStyle = '#120a14'
+  ellipsePath(b, -7.2, -14.6, 1.2, 0.85, -0.2)
+  b.fill()
+  b.fillStyle = AMBER[3]
+  ellipsePath(b, -7.4, -14.6, 0.65, 0.5)
+  b.fill()
+  b.strokeStyle = ASH[0]
+  b.lineWidth = 0.6
+  b.beginPath()
+  b.moveTo(-8.8, -15.6)
+  b.lineTo(-5.8, -15.6)
+  b.stroke()
+  // Jaw: gnawing, or agape in a snarl.
+  if (windup) {
+    poly(b, [-9.6, -12, -6.4, -11.2, -7.8, -9])
+    b.fillStyle = CRIMSON[0]
+    b.fill()
+    poly(b, [-9.8, -11.6, -6.6, -11, -6.2, -9.6, -8.6, -8.6])
+    b.lineWidth = 0.7
+    b.strokeStyle = INK
+    b.stroke()
+  }
+  b.fillStyle = BONE[4]
+  for (let i = 0; i < 3; i++) {
+    poly(b, [-9.4 + i * 1.1, -12.1, -9 + i * 1.1, -11.1, -8.6 + i * 1.1, -12.1])
+    b.fill()
+  }
+  b.restore()
+  // Near arm: the bone at its teeth, or raised back to throw.
+  if (windup) {
+    limb(b, [-1.2, -14.4, 2.2, -19.4, 1.4, -23.4], 2.1, ASH[2])
+    boneClub(b, -1.4, -26.4, 3.6, -21.6)
+    b.fillStyle = ASH[3]
+    b.beginPath()
+    b.arc(1.4, -23.6, 1.1, 0, TAU)
+    b.fill()
+  } else {
+    limb(b, [-1.6, -13.6 + br, -4.4, -8.6, -8.2, -11.2 + gnaw], 2.1, ASH[2])
+    boneClub(b, -11.6, -12.6 + gnaw, -7, -10.6 + gnaw)
+    b.fillStyle = ASH[3]
+    b.beginPath()
+    b.arc(-8.4, -11.2 + gnaw, 1.1, 0, TAU)
+    b.fill()
+  }
+}
+
+function drawGhoul(g: G, f: FoeArtFoe, tick: number) {
+  const face = f.face ?? (Math.sign(f.vx) || -1)
+  const timer = f.timer ?? 99
+  const windup = f.phase === 'aim' || (timer > 0 && timer <= 16)
+  const frame = windup ? 0 : Math.floor(f.t / 9) % GHOUL_FRAMES
+  const x = snap(g, f.x)
+  const y = snap(g, f.y)
+  groundShadow(g, x + (face > 0 ? -1 : 1), y, 10)
+  foeSprite(g, `ghoul-${windup ? 'windup' : frame}`, x, y, GHOUL, face, (b) =>
+    paintGhoul(b, windup, frame),
+  )
+  const ex = sideX(x, face, windup ? -7.8 : -7.4)
+  const ey = y - (windup ? 15.6 : 14.6)
+  glow(g, ex, ey, windup ? 5 : 2.6, AMBER[2], windup ? 0.8 : 0.4)
+  if (windup) {
+    const bx = sideX(x, face, 1.2)
+    glow(g, bx, y - 24, 6 + Math.sin(tick / 2) * 1.5, BONE[3], 0.35)
+  }
+}
+
+// --- the drowned -----------------------------------------------------------------------------
+
+const DROWNED: Box = { w: 40, h: 46, ay: 38 }
+const DROWNED_FRAMES = 6
+
+function paintDrowned(b: G, frame: number) {
+  const ph = (frame / DROWNED_FRAMES) * TAU
+  const bob = -Math.abs(Math.sin(ph)) * 0.6
+  const sway = Math.sin(ph + 1) * 0.8
+  const reach = Math.sin(ph) * 0.6
+  b.translate(0, bob)
+  const ground = -bob
+  // Far arm reaching, behind everything.
+  limb(b, [0.4, -19.4, -4, -18.6, -8.8, -19.6 + reach], 1.9, BLOAT[1])
+  limb(b, [0.4, -19.4, -3, -18.8], 2.6, RAG[1])
+  for (const d of [-1, 0, 1])
+    seg(
+      b,
+      -8.8,
+      -19.6 + reach,
+      -10,
+      -18.4 + reach + d * 0.8,
+      0.45,
+      BLOAT[2],
+      null,
+    )
+  // Long hair hanging down its back, weed tangled in it.
+  poly(b, [
+    -1.6,
+    -26.6,
+    1.4,
+    -26,
+    2.8,
+    -22,
+    3.4 + sway * 0.4,
+    -15.6,
+    1.6,
+    -17,
+    0.6,
+    -15.2,
+    -0.4,
+    -19,
+  ])
+  inked(b, '#0d1416', 0.9)
+  b.strokeStyle = WEED[2]
+  b.lineWidth = 0.8
+  b.beginPath()
+  b.moveTo(0.6, -25.6)
+  b.quadraticCurveTo(3, -21, 2.6 + sway, -13.6)
+  b.stroke()
+  // Legs: torn trousers to the knee, bare grey-teal shins, splayed feet.
+  const leg = (a: number, lift: number, near: boolean) => {
+    const p = joint2(0.8, -10.6, a, 5.2, a - lift, 5.2)
+    p[5] = Math.min(ground - 0.5, p[5])
+    limb(b, p.slice(2), near ? 1.8 : 1.6, near ? BLOAT[2] : BLOAT[1])
+    limb(
+      b,
+      [p[4], p[5], p[4] - 2.2, p[5] + 0.3],
+      1.3,
+      near ? BLOAT[2] : BLOAT[1],
+    )
+    limb(b, p.slice(0, 4), near ? 3.2 : 2.8, near ? RAG[2] : RAG[1])
+    poly(b, [
+      p[2] - 1.6,
+      p[3] - 0.4,
+      p[2] + 1.6,
+      p[3] - 0.4,
+      p[2] + 0.8,
+      p[3] + 1.4,
+      p[2],
+      p[3] + 0.4,
+      p[2] - 0.8,
+      p[3] + 1.2,
+    ])
+    b.fillStyle = near ? RAG[2] : RAG[1]
+    b.fill()
+  }
+  leg(0.34 * Math.sin(ph + Math.PI), Math.max(0, -Math.cos(ph)) * 0.5, false)
+  leg(0.34 * Math.sin(ph), Math.max(0, Math.cos(ph)) * 0.5, true)
+  // Torso, hunched forward: grey-teal skin under a torn indigo shirt, the bloated belly showing.
+  const torso = [
+    2.2, -21.8, 4, -20.4, 4.4, -15, 3.4, -10, -1.6, -10.2, -3.8, -13, -4.4,
+    -17.2, -3.2, -20.6, -1, -21.8,
+  ]
+  blob(b, torso)
+  inked(b, BLOAT[2], 1.1)
+  b.fillStyle = BLOAT[3]
+  blob(b, [-3.6, -14.4, -1.6, -11.2, 1, -11.6, -0.6, -14])
+  b.fill()
+  poly(
+    b,
+    [
+      -3.8, -20.4, -1, -22, 2.2, -22, 4.2, -20.2, 4.6, -15.4, 3.4, -13.8, 2.4,
+      -15.6, 1.2, -13.4, -0.2, -15.4, -1.8, -14.2, -2.6, -16.2, -4.4, -15.8,
+      -4.6, -18.4,
+    ],
+  )
+  inked(b, RAG[2], 0.9)
+  b.fillStyle = RAG[3]
+  poly(b, [-3.6, -20, -1.2, -21.4, -2.2, -17.6, -4, -17.2])
+  b.fill()
+  b.strokeStyle = RAG[0]
+  b.lineWidth = 0.5
+  b.beginPath()
+  b.moveTo(1.4, -21.4)
+  b.lineTo(0.6, -16.2)
+  b.stroke()
+  // Weed slung over the shoulder, dripping leaves.
+  b.beginPath()
+  b.moveTo(-3.4, -20.6)
+  b.quadraticCurveTo(0.4, -23.2, 3.6, -20.4)
+  b.quadraticCurveTo(5, -16, 4.4 + sway, -11.6)
+  b.lineWidth = 1.5
+  b.strokeStyle = INK
+  b.stroke()
+  b.lineWidth = 1
+  b.strokeStyle = WEED[2]
+  b.stroke()
+  b.fillStyle = WEED[3]
+  for (const [lx, ly, a] of [
+    [-1.8, -21.6, -0.4],
+    [3.8, -19, 1.2],
+    [4.6 + sway, -13.6, 1.5],
+  ] as const) {
+    ellipsePath(b, lx, ly, 1.3, 0.55, a)
+    b.fill()
+  }
+  // The head, hung low and forward: a bloated grey-teal face, a slack black mouth, one
+  // drowned-pale eye under a hank of wet hair.
+  blob(
+    b,
+    [
+      -1.4, -26.4, -4.6, -26.8, -6.8, -24.8, -7, -22.2, -5.8, -20.2, -3.2,
+      -19.8, -1, -21.2, -0.4, -23.8,
+    ],
+  )
+  inked(b, BLOAT[3], 1.1)
+  b.fillStyle = BLOAT[2]
+  blob(b, [-6.6, -22, -5.4, -20.4, -2.8, -20.2, -1.2, -21.8, -3.6, -22.4])
+  b.fill()
+  b.fillStyle = BLOAT[4]
+  blob(b, [-2.2, -26, -4.6, -26.2, -3.4, -25])
+  b.fill()
+  b.fillStyle = '#071416'
+  ellipsePath(b, -5.4, -23.4, 1, 0.9)
+  b.fill()
+  ellipsePath(b, -6, -20.8, 0.8, 1)
+  b.fill()
+  b.fillStyle = SPECTRE[4]
+  b.fillRect(-5.8, -23.7, 0.7, 0.7)
+  // Wet hair plastered over the crown, strands falling across the brow.
+  blob(
+    b,
+    [
+      -0.4, -24.4, -1.4, -27, -4.4, -27.4, -6.8, -25.8, -5.6, -25.2, -3.6,
+      -25.8, -1.6, -24.4,
+    ],
+  )
+  inked(b, '#0d1416', 0.8)
+  b.lineCap = 'round'
+  for (const [x0, x1, y1] of [
+    [-6, -7, -22.6],
+    [-4.6, -4.4, -22.4],
+    [-2.4, -1.6, -21.2],
+  ] as const) {
+    b.beginPath()
+    b.moveTo(x0, -25.8)
+    b.quadraticCurveTo(x0 - 0.6, -24, x1 + sway * 0.2, y1)
+    b.lineWidth = 0.7
+    b.strokeStyle = '#0d1416'
+    b.stroke()
+  }
+  // Near arm reaching, fingers dangling, weed wound at the wrist.
+  limb(b, [-2.4, -19.4, -6.4, -17.8, -10.6, -17 - reach], 2.2, BLOAT[2])
+  limb(b, [-2.4, -19.4, -5, -18.2], 2.9, RAG[2])
+  for (const d of [-1, 0, 1])
+    seg(
+      b,
+      -10.6,
+      -17 - reach,
+      -12,
+      -15.6 - reach + d * 0.9,
+      0.5,
+      BLOAT[3],
+      null,
+    )
+  b.strokeStyle = WEED[3]
+  b.lineWidth = 0.6
+  b.beginPath()
+  b.moveTo(-7.6, -18.2)
+  b.lineTo(-8.4, -16.4)
+  b.quadraticCurveTo(-8.8, -14, -7.8 + sway * 0.4, -12.6)
+  b.stroke()
+}
+
+/** Water breaking open where the drowned haul themselves up. */
+function drawSplash(g: G, x: number, groundY: number, t: number) {
+  g.fillStyle = rgba('#06161c', 0.85)
+  ellipsePath(g, x, groundY, 10, 2)
+  g.fill()
+  g.strokeStyle = rgba(SPECTRE[3], 0.7)
+  g.lineWidth = 0.6
+  for (let i = 0; i < 2; i++) {
+    const p = ((t * 0.8 + i * 14) % 28) / 28
+    g.globalAlpha = 1 - p
+    ellipsePath(g, x, groundY, 6 + p * 8, 1.2 + p * 1.6)
+    g.stroke()
+  }
+  g.globalAlpha = 1
+  for (let i = 0; i < 5; i++) {
+    const p = ((t * 1.1 + i * 7) % 22) / 22
+    const dir = i % 2 ? 1 : -1
+    const dx = dir * (2 + hash(i + 11) * 5) * p * 1.8
+    const dy = -12 * p + 14 * p * p
+    puff(
+      g,
+      x + dx,
+      groundY - 1 + dy,
+      0.8,
+      i % 2 ? SPECTRE[3] : SPECTRE[4],
+      1 - p,
+    )
+  }
+}
+
+function drawDrowned(g: G, f: FoeArtFoe, tick: number) {
+  const face = f.face ?? (Math.sign(f.vx) || -1)
+  const rising = f.phase === 'rise'
+  const frame = rising ? 0 : Math.floor(f.t / 8) % DROWNED_FRAMES
+  const x = snap(g, f.x)
+  const y = snap(g, f.y)
+  const ground = rising ? f.baseY : f.y
+  g.save()
+  g.fillStyle = rgba(SPECTRE[1], 0.3)
+  ellipsePath(g, x, ground, 10, 1.8)
+  g.fill()
+  g.restore()
+  if (rising) drawSplash(g, x, ground, f.t)
+  g.save()
+  g.beginPath()
+  g.rect(x - 24, y - 50, 48, ground + 0.5 - (y - 50))
+  g.clip()
+  glow(g, x, y - 14, 15, SPECTRE[1], 0.18)
+  foeSprite(g, `drowned-${frame}`, x, y, DROWNED, face, (b) =>
+    paintDrowned(b, frame),
+  )
+  g.restore()
+  // The pale eye, and water streaming off its arms.
+  glow(
+    g,
+    sideX(x, face, -5.4),
+    y - 23.4,
+    2.4,
+    SPECTRE[3],
+    0.55 + Math.sin(tick / 9) * 0.1,
+  )
+  if (!rising) {
+    for (let i = 0; i < 3; i++) {
+      const p = ((f.t * 0.9 + i * 9) % 24) / 24
+      const lx = i === 2 ? 4.6 : -10.8 - i * 1.2
+      const ly = i === 2 ? -11.6 : -16
+      g.fillStyle = rgba(SPECTRE[3], 1 - p)
+      g.fillRect(
+        sideX(x, face, lx) - 0.4,
+        y + ly + p * (Math.abs(ly) - 1),
+        0.8,
+        1.2,
+      )
+    }
+  }
+}
+
+// --- the river leech -------------------------------------------------------------------------
+
+const LEECH: Box = { w: 32, h: 26, ay: 19 }
+const LEECH_FRAMES = 4
+type LeechPose = 'crawl' | 'squash' | 'leap' | 'fall'
+
+/** The leech's centreline (head first), as [x, y, radius] samples. */
+function leechSpine(
+  pose: LeechPose,
+  frame: number,
+): Array<[number, number, number]> {
+  const out: Array<[number, number, number]> = []
+  const ph = (frame / LEECH_FRAMES) * TAU
+  const n = 12
+  for (let i = 0; i < n; i++) {
+    const u = i / (n - 1)
+    // Thin sucking head, fat gut, a rounded tail.
+    const fat = 1.1 + 1.7 * Math.pow(Math.sin(Math.PI * u), 0.75) + 0.7 * u
+    if (pose === 'crawl' || pose === 'squash') {
+      const arch = pose === 'squash' ? 0.3 : 0.9 + Math.sin(ph) * 0.9
+      const len = pose === 'squash' ? 13 : 16 - Math.sin(ph) * 1.8
+      const r = fat * (pose === 'squash' ? 1.15 : 1)
+      out.push([-len / 2 + u * len, -r - Math.sin(u * Math.PI) * arch, r])
+    } else if (pose === 'leap') {
+      // Stretched out along the hop, head up and forward.
+      out.push([
+        -7 + u * 14,
+        -11 + u * 8.4 - Math.sin(u * Math.PI) * 1.4,
+        fat * 0.85,
+      ])
+    } else {
+      // Coming down: curled, head dipping to bite.
+      const a = Math.PI * (0.15 + u * 0.8)
+      out.push([
+        -Math.cos(a) * 7,
+        -4.6 - Math.sin(a) * 3.6 + (1 - u) * 1.6,
+        fat * 0.95,
+      ])
+    }
+  }
+  return out
+}
+
+function paintLeech(b: G, pose: LeechPose, frame: number) {
+  const s = leechSpine(pose, frame)
+  const at = (i: number) =>
+    s[Math.max(0, Math.min(s.length - 1, i))] ?? [0, 0, 1]
+  /** Point i pushed off the centreline by k radii (+ toward its back). */
+  const off = (i: number, k: number): [number, number] => {
+    const [x, y, r] = at(i)
+    const [x0, y0] = at(i - 1)
+    const [x1, y1] = at(i + 1)
+    const d = Math.hypot(x1 - x0, y1 - y0) || 1
+    return [x + ((y1 - y0) / d) * r * k, y - ((x1 - x0) / d) * r * k]
+  }
+  const edge = (k: number) => {
+    const pts: number[] = []
+    for (let i = 0; i < s.length; i++) pts.push(...off(i, k))
+    return pts
+  }
+  const reverse = (pts: number[]) => {
+    const out: number[] = []
+    for (let i = pts.length - 2; i >= 0; i -= 2)
+      out.push(pts[i] ?? 0, pts[i + 1] ?? 0)
+    return out
+  }
+  const back = edge(1)
+  const belly = edge(-1)
+  const body = () => {
+    poly(b, [...back, ...reverse(belly)])
+  }
+  // Body: wet plum-black back, a duller belly, a moonlit rim.
+  body()
+  inked(b, LEECH_SKIN[2], 1.2)
+  b.save()
+  body()
+  b.clip()
+  poly(b, [...edge(-0.15), ...reverse(edge(-1.4))])
+  b.fillStyle = LEECH_SKIN[3]
+  b.fill()
+  // Segment rings across the back.
+  b.strokeStyle = LEECH_SKIN[1]
+  b.lineWidth = 0.45
+  for (let i = 1; i < s.length - 1; i++) {
+    const [ax, ay] = off(i, 1.2)
+    const [bx, by] = off(i, -0.1)
+    b.beginPath()
+    b.moveTo(ax, ay)
+    b.lineTo(bx, by)
+    b.stroke()
+  }
+  b.restore()
+  // Two rows of rust-amber spots down the back.
+  for (const k of [0.6, 0.15]) {
+    for (let i = 2; i < s.length - 1; i += 2) {
+      const [x, y] = off(i + (k > 0.5 ? 0 : 1), k)
+      b.fillStyle = k > 0.5 ? AMBER[2] : RUST[2]
+      ellipsePath(b, x, y, 0.65, 0.5)
+      b.fill()
+    }
+  }
+  // Wet gloss along the back.
+  b.strokeStyle = LEECH_SKIN[4]
+  b.lineWidth = 0.5
+  b.beginPath()
+  for (let i = 1; i < 8; i++) {
+    const [x, y] = off(i, 0.86)
+    if (i === 1) b.moveTo(x, y)
+    else b.lineTo(x, y)
+  }
+  b.stroke()
+  // The sucker mouth: a crimson ring of teeth at the head; a tail disc.
+  const [hx, hy, hr] = at(0)
+  const [ax, ay] = at(1)
+  const ha = Math.atan2(hy - ay, hx - ax)
+  const mx = hx + Math.cos(ha) * 0.8
+  const my = hy + Math.sin(ha) * 0.8
+  ellipsePath(b, mx, my, hr * 0.8, hr * 1.25, ha)
+  inked(b, LEECH_SKIN[3], 0.9)
+  b.fillStyle = CRIMSON[1]
+  ellipsePath(
+    b,
+    mx + Math.cos(ha) * 0.3,
+    my + Math.sin(ha) * 0.3,
+    hr * 0.45,
+    hr * 0.85,
+    ha,
+  )
+  b.fill()
+  b.fillStyle = BONE[4]
+  for (let i = 0; i < 3; i++) {
+    const a = ha + Math.PI / 2 + ((i + 0.5) / 3) * Math.PI
+    b.fillRect(
+      mx + Math.cos(a) * hr * 0.55 - 0.2,
+      my + Math.sin(a) * hr * 0.9 - 0.2,
+      0.45,
+      0.45,
+    )
+  }
+  const [tx, ty, tr] = at(s.length - 1)
+  const [px, py] = at(s.length - 2)
+  const ta = Math.atan2(ty - py, tx - px)
+  ellipsePath(
+    b,
+    tx + Math.cos(ta) * 0.6,
+    ty + Math.sin(ta) * 0.6,
+    tr * 0.55,
+    tr * 1.05,
+    ta,
+  )
+  inked(b, LEECH_SKIN[3], 0.9)
+  // Moonlit rim along the back.
+  b.strokeStyle = rgba(LEECH_SKIN[4], 0.8)
+  b.lineWidth = 0.4
+  b.beginPath()
+  for (let i = 0; i < s.length; i++) {
+    const [x, y] = off(i, 1)
+    if (i === 0) b.moveTo(x, y)
+    else b.lineTo(x, y)
+  }
+  b.stroke()
+}
+
+function drawLeech(g: G, f: FoeArtFoe, tick: number) {
+  const face = f.face ?? (Math.sign(f.vx) || -1)
+  const air = Math.abs(f.vy) > 0.01
+  const pose: LeechPose = air
+    ? f.vy < 0
+      ? 'leap'
+      : 'fall'
+    : (f.timer ?? 99) <= 7 || f.phase === 'aim'
+      ? 'squash'
+      : 'crawl'
+  const frame = pose === 'crawl' ? Math.floor(f.t / 7) % LEECH_FRAMES : 0
+  const x = snap(g, f.x)
+  const y = snap(g, f.y)
+  if (!air) groundShadow(g, x, y, 8, 0.4)
+  foeSprite(g, `leech-${pose}-${frame}`, x, y, LEECH, face, (b) =>
+    paintLeech(b, pose, frame),
+  )
+  // A wet glint sliding along its back.
+  const c = (tick + Math.floor(f.x * 3)) % 60
+  if (c < 8 && !air)
+    twinkle(g, sideX(x, face, -3 + c * 0.8), y - 7, 1.4, LEECH_SKIN[4])
+}
+
+// --- the storm harpy -------------------------------------------------------------------------
+
+const HARPY: Box = { w: 60, h: 56, ay: 34 }
+const HARPY_FRAMES = 4
+type HarpyPose = 'fly' | 'screech' | 'dive'
+
+function paintHarpyBundle(b: G) {
+  b.save()
+  b.translate(0.6, 8.8)
+  blob(
+    b,
+    [
+      -3.2, -1, -1.8, -2.6, 0.8, -2.4, 3.2, -2.6, 4.2, -0.4, 3.6, 2.6, 0.6, 3.6,
+      -2.6, 2.6,
+    ],
+  )
+  inked(b, RUST[1], 1)
+  b.fillStyle = RUST[2]
+  blob(b, [-2.4, -1, -0.8, -2, 1.8, -1.8, 1.2, 0.4, -1.6, 0.8])
+  b.fill()
+  poly(b, [-0.6, -2.4, -1.6, -4.4, 0.6, -3.2, 2.2, -4.6, 2, -2.4])
+  inked(b, RUST[2], 0.8)
+  b.fillStyle = AMBER[3]
+  b.fillRect(1.8, 0.4, 1.1, 1.1)
+  b.fillStyle = AMBER[4]
+  b.fillRect(2.1, 0.6, 0.45, 0.45)
+  b.restore()
+}
+
+function paintHarpy(b: G, pose: HarpyPose, frame: number, carrying: boolean) {
+  const flap = [-1.15, -0.35, 0.95, -0.35][frame] ?? 0
+  // The screech throws both wings up into a wide V; the dive folds them back.
+  const nearA = pose === 'screech' ? -0.95 : pose === 'dive' ? 0.18 : flap
+  const farA = pose === 'screech' ? -2.2 : pose === 'dive' ? 0.4 : flap - 0.45
+  const hairSway =
+    pose === 'dive'
+      ? 1.6
+      : pose === 'screech'
+        ? -1.4
+        : Math.sin((frame / HARPY_FRAMES) * TAU) * 0.8
+  const wing = (a: number, near: boolean) => {
+    b.save()
+    b.translate(near ? 1.4 : 2.8, near ? -13.4 : -14.2)
+    b.scale(1.7, 1.7)
+    crowWing(
+      b,
+      a,
+      near
+        ? FEATHER
+        : [FEATHER[0], FEATHER[0], FEATHER[1], FEATHER[2], FEATHER[3]],
+      near,
+    )
+    b.restore()
+  }
+  wing(farA, false)
+  // Storm-black hair streaming back.
+  blob(b, [
+    -4,
+    -21,
+    -1,
+    -22.4,
+    3.4,
+    -21.2,
+    8 + hairSway,
+    -19.6,
+    11.6 + hairSway * 1.4,
+    -16 + hairSway,
+    8.4 + hairSway,
+    -15.4,
+    10 + hairSway * 1.2,
+    -12.2 + hairSway,
+    5.6,
+    -13.4,
+    1.6,
+    -15,
+    -0.6,
+    -18,
+  ])
+  inked(b, HAIR[1], 1)
+  b.strokeStyle = HAIR[3]
+  b.lineWidth = 0.45
+  for (let i = 0; i < 3; i++) {
+    b.beginPath()
+    b.moveTo(-1 + i * 1.2, -21.4 + i * 0.6)
+    b.quadraticCurveTo(
+      4 + i,
+      -20 + i,
+      9 + hairSway + i * 0.4,
+      -17 + hairSway + i * 1.4,
+    )
+    b.stroke()
+  }
+  // Tail fan.
+  poly(
+    b,
+    [
+      2.4, -5.6, 9.4, -6.8, 11.6, -4.6, 9.8, -3.6, 11.2, -1.6, 8.6, -1.2, 2.6,
+      -3,
+    ],
+  )
+  inked(b, FEATHER[1], 1)
+  b.strokeStyle = FEATHER[3]
+  b.lineWidth = 0.4
+  b.beginPath()
+  b.moveTo(3.4, -5)
+  b.lineTo(10.6, -5.2)
+  b.stroke()
+  // Legs: feathered thighs, scaled shanks, talons (gripping a bundle when carrying).
+  const legs: Array<[number, number, number, number]> =
+    pose === 'dive'
+      ? [
+          [0.2, -4.6, -4.4, 0.4],
+          [1.8, -4.4, -3, 1.4],
+        ]
+      : [
+          [0, -4.6, -0.6, 2.6],
+          [1.8, -4.4, 1.6, 2.8],
+        ]
+  for (const [lx, ly, fx, fy] of legs) {
+    limb(b, [lx, ly, (lx + fx) / 2 + 0.4, (ly + fy) / 2], 2.2, FEATHER[2])
+    limb(b, [(lx + fx) / 2 + 0.4, (ly + fy) / 2, fx, fy], 0.9, '#4a4258')
+    for (const [dx, dy] of [
+      [-1.4, 0.8],
+      [-0.2, 1.3],
+      [1, 0.9],
+    ] as const) {
+      b.beginPath()
+      b.moveTo(fx, fy)
+      b.quadraticCurveTo(fx + dx, fy + dy * 0.4, fx + dx * 0.9, fy + dy)
+      b.lineWidth = 0.9
+      b.strokeStyle = INK
+      b.stroke()
+      b.lineWidth = 0.45
+      b.strokeStyle = BONE[3]
+      b.stroke()
+    }
+  }
+  if (carrying) {
+    b.save()
+    if (pose === 'dive') b.translate(-4.4, -5.6)
+    paintHarpyBundle(b)
+    b.restore()
+  }
+  // Body: a feathered bodice, pale skin at the throat.
+  blob(
+    b,
+    [
+      -3, -15, 0.6, -15.8, 3.8, -13.2, 4.2, -7.6, 2.8, -3.4, -0.4, -2.8, -2.6,
+      -6.4, -3.8, -10.8,
+    ],
+  )
+  inked(b, FEATHER[2], 1.1)
+  poly(b, [-3.2, -14.6, -0.6, -15.6, 0, -12.4, -2.8, -11.4])
+  b.fillStyle = SKIN[3]
+  b.fill()
+  b.strokeStyle = FEATHER[3]
+  b.lineWidth = 0.45
+  for (let r = 0; r < 3; r++) {
+    for (let i = 0; i < 3; i++) {
+      b.beginPath()
+      b.arc(
+        -1.6 + i * 1.8 + (r % 2) * 0.9,
+        -10 + r * 2.2,
+        0.9,
+        0.2,
+        Math.PI - 0.2,
+      )
+      b.stroke()
+    }
+  }
+  b.strokeStyle = FEATHER[4]
+  b.lineWidth = 0.5
+  b.beginPath()
+  b.moveTo(0.8, -15.6)
+  b.quadraticCurveTo(3.4, -14, 4, -9)
+  b.stroke()
+  // Head: a gaunt woman's face with a crow's hooked beak-nose, gold storm-eye.
+  b.save()
+  if (pose === 'screech') {
+    b.translate(-2, -16)
+    b.rotate(0.22)
+    b.translate(2, 16)
+  }
+  blob(
+    b,
+    [
+      -0.6, -20.6, -3.2, -20.8, -5, -19, -5.4, -17.4, -4.8, -15.6, -3, -14.6,
+      -1, -15.4, 0, -18,
+    ],
+  )
+  inked(b, SKIN[3], 1.1)
+  b.fillStyle = SKIN[2]
+  blob(b, [-1, -15.4, -3, -14.8, -2.2, -17, -0.2, -17.6])
+  b.fill()
+  b.fillStyle = SKIN[4]
+  blob(b, [-2.6, -20.4, -4.4, -19.2, -3.6, -18.6, -2, -19.6])
+  b.fill()
+  poly(b, [-5, -18.4, -7.4, -17, -5.2, -16.6])
+  inked(b, '#3a3644', 0.8)
+  b.fillStyle = '#ffd75e'
+  ellipsePath(b, -3.6, -18.4, 0.8, 0.55)
+  b.fill()
+  b.fillStyle = INK
+  b.fillRect(-3.95, -18.65, 0.5, 0.5)
+  b.strokeStyle = HAIR[0]
+  b.lineWidth = 0.5
+  b.beginPath()
+  b.moveTo(-4.8, -19.4)
+  b.lineTo(-2.4, -19.2)
+  b.stroke()
+  if (pose === 'screech') {
+    ellipsePath(b, -4.4, -15.4, 1.1, 1.4)
+    b.fillStyle = CRIMSON[0]
+    b.fill()
+    b.lineWidth = 0.5
+    b.strokeStyle = INK
+    b.stroke()
+    b.fillStyle = BONE[4]
+    b.fillRect(-4.9, -16.6, 0.4, 0.5)
+    b.fillRect(-4.1, -16.6, 0.4, 0.5)
+  } else {
+    b.strokeStyle = SKIN[0]
+    b.lineWidth = 0.4
+    b.beginPath()
+    b.moveTo(-4.8, -15.8)
+    b.lineTo(-3.4, -15.6)
+    b.stroke()
+  }
+  // Crown of crow quills.
+  poly(
+    b,
+    [
+      -2.4, -20.6, -3.4, -23.4, -1.4, -21.4, -0.4, -24, 0.2, -21, 1.8, -22.6, 1,
+      -19.8,
+    ],
+  )
+  inked(b, FEATHER[3], 0.8)
+  b.restore()
+  wing(nearA, true)
+}
+
+function drawHarpy(g: G, f: FoeArtFoe, tick: number) {
+  const face = f.face ?? (Math.sign(f.vx) || -1)
+  const pose: HarpyPose =
+    f.phase === 'aim' ? 'screech' : f.phase === 'dive' ? 'dive' : 'fly'
+  const rate = f.phase === 'rest' ? 3 : 5
+  const frame = pose === 'fly' ? Math.floor(f.t / rate) % HARPY_FRAMES : 0
+  const x = snap(g, f.x)
+  const y = snap(g, f.y)
+  const key = `harpy-${pose}-${frame}-${f.carrying ? 'bundle' : 'bare'}`
+  const paint = (b: G) => paintHarpy(b, pose, frame, f.carrying)
+  if (pose === 'dive') {
+    // Stooping along its line of flight, talons first.
+    const dir = Math.sign(f.vx) || face
+    const ang = Math.atan2(f.vy, Math.abs(f.vx) || 0.001)
+    const tilt = Math.max(-1.1, Math.min(1.1, ang)) * 0.85
+    g.save()
+    g.translate(x, y - 8)
+    g.rotate(dir > 0 ? tilt : -tilt)
+    foeSprite(g, key, 0, 8, HARPY, dir, paint)
+    g.restore()
+    for (let i = 1; i <= 3; i++) {
+      g.strokeStyle = rgba(SKIN[4], 0.5 - i * 0.12)
+      g.lineWidth = 0.6
+      g.beginPath()
+      g.moveTo(x - dir * (4 + i * 3), y - 14 + i * 3)
+      g.lineTo(x - dir * (10 + i * 4), y - 18 + i * 3)
+      g.stroke()
+    }
+  } else {
+    foeSprite(g, key, x, y, HARPY, face, paint)
+  }
+  const ex = sideX(x, face, -3.6)
+  if (pose === 'screech') {
+    const p = 1 - Math.max(0, Math.min(1, (f.timer ?? 0) / 28))
+    glow(g, ex, y - 18, 4 + p * 3, CRIMSON[3], 0.75)
+    // The screech: sound rings bursting from the open beak.
+    const mx = sideX(x, face, -6)
+    for (let i = 0; i < 3; i++) {
+      const r = 3 + ((tick * 0.6 + i * 4) % 12)
+      g.strokeStyle = rgba(
+        i % 2 ? SKIN[4] : CRIMSON[3],
+        Math.max(0, 0.85 - r / 15),
+      )
+      g.lineWidth = 0.9
+      g.beginPath()
+      const a0 = face > 0 ? -0.8 : Math.PI - 0.8
+      g.arc(mx, y - 15.5, r, a0, a0 + 1.6)
+      g.stroke()
+    }
+  } else if (pose !== 'dive') {
+    glow(g, ex, y - 18.4, 2.6, '#ffd75e', 0.4)
+  }
+  if (f.carrying && pose !== 'dive')
+    glow(
+      g,
+      sideX(x, face, 1.4),
+      y + 9.6,
+      4.4,
+      AMBER[2],
+      0.3 + Math.sin(tick / 6) * 0.12,
+    )
+}
+
+// --- the wind wraith -------------------------------------------------------------------------
+
+const WRAITH: Box = { w: 64, h: 44, ay: 28 }
+const WRAITH_FRAMES = 6
+
+function paintWraith(b: G, frame: number) {
+  const ph = (frame / WRAITH_FRAMES) * TAU
+  // Streamers trailing behind on the gust, the far ones darker.
+  const ribbon = (i: number, back: boolean) => {
+    const by = -14 + i * 2.4
+    const len = 22 + (i % 3) * 4
+    const top: number[] = []
+    const bottom: number[] = []
+    for (let k = 0; k <= 10; k++) {
+      const u = k / 10
+      const x = -1 + u * len
+      const y =
+        by + Math.sin(u * 5.2 - ph + i * 1.3) * u * 3.4 + u * (i - 2) * 1.6
+      const w = (2.4 - i * 0.15) * Math.pow(1 - u, 0.8) + 0.25
+      top.push(x, y - w)
+      bottom.unshift(x, y + w)
+    }
+    poly(b, [...top, ...bottom])
+    if (back) {
+      b.fillStyle = rgba(GALE[1], 0.75)
+      b.fill()
+      return
+    }
+    const fade = b.createLinearGradient(-1, 0, len, 0)
+    fade.addColorStop(0, rgba(GALE[3], 0.95))
+    fade.addColorStop(0.55, rgba(GALE[2], 0.6))
+    fade.addColorStop(1, rgba(GALE[2], 0))
+    b.fillStyle = fade
+    b.fill()
+    b.strokeStyle = rgba(GALE[4], 0.5)
+    b.lineWidth = 0.35
+    b.beginPath()
+    for (let k = 0; k < top.length; k += 2) {
+      if (k === 0) b.moveTo(top[k] ?? 0, top[k + 1] ?? 0)
+      else if (k < 12) b.lineTo(top[k] ?? 0, top[k + 1] ?? 0)
+    }
+    b.stroke()
+  }
+  for (const i of [1, 3]) {
+    b.save()
+    b.translate(2, -1.6)
+    ribbon(i, true)
+    b.restore()
+  }
+  for (const i of [0, 2, 4]) ribbon(i, false)
+  // Claw-arms raking forward under the cowl.
+  const rake = Math.sin(ph) * 0.8
+  for (const [sx, sy, ex, ey, c] of [
+    [-3, -7, -12.4, -3 + rake, GALE[2]],
+    [-4.6, -8.6, -14, -6.4 - rake, GALE[3]],
+  ] as const) {
+    b.beginPath()
+    b.moveTo(sx, sy - 1.2)
+    b.quadraticCurveTo((sx + ex) / 2, sy - 1.6, ex, ey)
+    b.quadraticCurveTo((sx + ex) / 2, sy + 1, sx, sy + 1.2)
+    b.closePath()
+    inked(b, c, 0.9)
+    for (const d of [-1, 0, 1])
+      seg(b, ex, ey, ex - 2, ey + d * 1.1 + 0.6, 0.45, GALE[4], null)
+  }
+  // The cowl.
+  blob(
+    b,
+    [
+      -12, -12.4, -9.6, -16.8, -4.6, -17.8, 1.6, -16, 7.4, -13.2, 2.6, -9.6, 0,
+      -4.8, -5, -3.6, -10, -5.6,
+    ],
+  )
+  b.lineWidth = 2.4
+  b.strokeStyle = rgba(GALE[3], 0.25)
+  b.stroke()
+  const cowl = b.createLinearGradient(-12, 0, 7, 0)
+  cowl.addColorStop(0, rgba(GALE[3], 0.95))
+  cowl.addColorStop(0.45, rgba(GALE[2], 0.9))
+  cowl.addColorStop(1, rgba(GALE[1], 0.35))
+  inked(b, cowl, 1)
+  b.strokeStyle = rgba(GALE[1], 0.8)
+  b.lineWidth = 0.5
+  b.beginPath()
+  b.moveTo(-4, -15.6)
+  b.quadraticCurveTo(0.4, -13.4, 4.6, -13)
+  b.moveTo(-4.4, -6.4)
+  b.quadraticCurveTo(-1, -7.4, 1.6, -9.6)
+  b.stroke()
+  b.strokeStyle = GALE[4]
+  b.lineWidth = 0.6
+  b.beginPath()
+  b.moveTo(-11, -13.6)
+  b.quadraticCurveTo(-8.6, -17, -4, -17)
+  b.stroke()
+  // The wailing mask: hollow eyes, a long open mouth.
+  blob(
+    b,
+    [
+      -12.6, -11.4, -11.2, -14.4, -7.6, -14.8, -5.6, -12, -6, -8.2, -8.8, -5.6,
+      -11.6, -6.8,
+    ],
+  )
+  inked(b, mix(BONE[3], GALE[4], 0.55), 0.9)
+  b.fillStyle = mix(BONE[2], GALE[3], 0.5)
+  blob(b, [-6, -11.4, -6.2, -8.4, -8.6, -6.2, -7.4, -9])
+  b.fill()
+  b.fillStyle = GALE[0]
+  ellipsePath(b, -10.8, -11.6, 1.05, 1.3, 0.2)
+  b.fill()
+  ellipsePath(b, -8.1, -11.8, 0.9, 1.2, -0.15)
+  b.fill()
+  ellipsePath(b, -9.6, -7.9, 0.9, 1.7)
+  b.fill()
+  b.fillStyle = SPECTRE[4]
+  b.fillRect(-11, -11.8, 0.55, 0.55)
+  b.fillRect(-8.3, -12, 0.5, 0.5)
+}
+
+function drawWraith(g: G, f: FoeArtFoe, tick: number) {
+  const face = f.face ?? (Math.sign(f.vx) || -1)
+  const frame = Math.floor(f.t / 4) % WRAITH_FRAMES
+  const x = snap(g, f.x)
+  const y = snap(g, f.y)
+  glow(g, sideX(x, face, -6), y - 10, 16, GALE[3], 0.22)
+  // Gust lines whipping past behind it.
+  for (let i = 0; i < 3; i++) {
+    const p = ((tick * 1.4 + i * 17) % 40) / 40
+    const lx = -14 + p * 46
+    const len = 7 + i * 2
+    g.strokeStyle = rgba(GALE[4], (1 - p) * 0.55)
+    g.lineWidth = 0.6
+    g.beginPath()
+    g.moveTo(sideX(x, face, lx), y - 18 + i * 7)
+    g.lineTo(sideX(x, face, lx + len), y - 18 + i * 7 + 0.6)
+    g.stroke()
+  }
+  foeSprite(
+    g,
+    `wraith-${frame}`,
+    x,
+    y,
+    WRAITH,
+    face,
+    (b) => paintWraith(b, frame),
+    0.95,
+  )
+  glow(
+    g,
+    sideX(x, face, -9.4),
+    y - 11.8,
+    3.4,
+    SPECTRE[3],
+    0.5 + Math.sin(tick / 5) * 0.12,
+  )
+}
+
+// --- the bell imp ----------------------------------------------------------------------------
+
+const IMP: Box = { w: 32, h: 34, ay: 27 }
+const IMP_FRAMES = 4
+type ImpPose = 'idle' | 'air' | 'windup'
+/** Where the ember sits in the imp's hand while it winds up (sprite-local). */
+const IMP_EMBER: Pt = [2.6, -20]
+
+function paintImp(b: G, pose: ImpPose, frame: number) {
+  const ph = (frame / IMP_FRAMES) * TAU
+  const sq = pose === 'idle' ? Math.sin(ph) * 0.5 : 0
+  const rock =
+    pose === 'air' ? -0.18 : pose === 'windup' ? 0.1 : Math.sin(ph) * 0.07
+  // Tail, behind the bell.
+  b.beginPath()
+  b.moveTo(4, -6)
+  b.quadraticCurveTo(9, -5 + sq, 9.4, -10.4 + sq)
+  b.lineWidth = 1.8
+  b.strokeStyle = INK
+  b.stroke()
+  b.lineWidth = 0.9
+  b.strokeStyle = IMP_SKIN[2]
+  b.stroke()
+  poly(b, [9.4, -12.6 + sq, 10.8, -10 + sq, 8.2, -10.2 + sq])
+  inked(b, EMBER[3], 0.8)
+  // Legs from under the rim.
+  const legs =
+    pose === 'air'
+      ? [
+          [-2, -3.4, -3.6, -1.4],
+          [2, -3.4, 3, -1.2],
+        ]
+      : [
+          [-2, -3, -2.6 - sq * 0.4, -0.4],
+          [2, -3, 2.8 + sq * 0.4, -0.4],
+        ]
+  for (const [x0, y0, x1, y1] of legs) {
+    limb(b, [x0 ?? 0, y0 ?? 0, x1 ?? 0, y1 ?? 0], 1.6, IMP_SKIN[2])
+    limb(
+      b,
+      [x1 ?? 0, y1 ?? 0, (x1 ?? 0) - 1.4, (y1 ?? 0) + 0.2],
+      1,
+      IMP_SKIN[3],
+    )
+  }
+  b.save()
+  b.translate(0, -3 + sq * 0.3)
+  b.rotate(rock)
+  // Far arm.
+  if (pose === 'air') limb(b, [3.6, -7.6, 6.4, -11.4], 1.3, IMP_SKIN[1])
+  else limb(b, [3.8, -6.4, 6, -4.4], 1.3, IMP_SKIN[1])
+  // The bell it wears: bronze, lit from the moon side, two raised rings and a lip.
+  const bell = () => {
+    b.beginPath()
+    b.moveTo(-6.6, 0)
+    b.quadraticCurveTo(-4.4, -1.2, -4, -5)
+    b.quadraticCurveTo(-3.8, -9.6, 0, -9.8)
+    b.quadraticCurveTo(3.8, -9.6, 4, -5)
+    b.quadraticCurveTo(4.4, -1.2, 6.6, 0)
+    b.closePath()
+  }
+  const metal = b.createLinearGradient(-6, 0, 6, 0)
+  metal.addColorStop(0, BRONZE[2])
+  metal.addColorStop(0.3, BRONZE[4])
+  metal.addColorStop(0.5, BRONZE[3])
+  metal.addColorStop(1, BRONZE[1])
+  bell()
+  inked(b, metal, 1.1)
+  for (const [y, w] of [
+    [-7.4, 3.9],
+    [-2.6, 5],
+  ] as const) {
+    b.strokeStyle = BRONZE[1]
+    b.lineWidth = 0.6
+    b.beginPath()
+    b.moveTo(-w, y + 0.4)
+    b.quadraticCurveTo(0, y + 1.2, w, y + 0.4)
+    b.stroke()
+    b.strokeStyle = BRONZE[4]
+    b.lineWidth = 0.35
+    b.beginPath()
+    b.moveTo(-w, y - 0.1)
+    b.quadraticCurveTo(0, y + 0.7, w * 0.4, y + 0.4)
+    b.stroke()
+  }
+  ellipsePath(b, 0, 0, 6.6, 0.9)
+  inked(b, BRONZE[2], 0.8)
+  b.fillStyle = BRONZE[0]
+  ellipsePath(b, 0, 0.3, 5.4, 0.5)
+  b.fill()
+  b.restore()
+  // Head popping out of the crown: crimson, big gold eye, a fanged grin, ember horns.
+  const hy = -12.8 + sq * 0.6
+  poly(b, [1.6, hy - 1.6, 5.2, hy - 3.2, 2.6, hy + 0.4])
+  inked(b, IMP_SKIN[2], 0.8)
+  ellipsePath(b, -0.6, hy, 3.7, 3.3)
+  inked(b, IMP_SKIN[2], 1.1)
+  b.fillStyle = IMP_SKIN[3]
+  blob(b, [-3.6, hy - 1, -2, hy - 3, 0.6, hy - 2.8, -1.4, hy - 1.6])
+  b.fill()
+  b.fillStyle = IMP_SKIN[1]
+  blob(b, [1, hy + 2.6, 2.8, hy + 1, 2.4, hy - 0.8, 0.6, hy + 1])
+  b.fill()
+  for (const [bx, tx, ty] of [
+    [-2, -4.4, -6.4],
+    [1, 2.4, -6.8],
+  ] as const) {
+    b.beginPath()
+    b.moveTo(bx - 1, hy - 2.4)
+    b.quadraticCurveTo(tx - 0.6, hy - 3.6, tx, hy + ty)
+    b.quadraticCurveTo(tx + 1, hy - 3.6, bx + 1.1, hy - 2.6)
+    b.closePath()
+    const horn = b.createLinearGradient(0, hy - 2, 0, hy + ty)
+    horn.addColorStop(0, IMP_SKIN[1])
+    horn.addColorStop(0.55, EMBER[3])
+    horn.addColorStop(1, EMBER[4])
+    inked(b, horn, 0.9)
+  }
+  b.fillStyle = '#ffd75e'
+  ellipsePath(b, -2.2, hy - 0.4, 1.2, 1.05)
+  b.fill()
+  b.fillStyle = INK
+  b.fillRect(-2.6, hy - 1, 0.55, 1.2)
+  poly(b, [-3.8, hy + 1.2, -0.6, hy + 1.6, -1.6, hy + 2.5, -3.4, hy + 2.2])
+  b.fillStyle = '#1a0610'
+  b.fill()
+  b.fillStyle = BONE[4]
+  b.fillRect(-3.4, hy + 1.3, 0.45, 0.6)
+  b.fillRect(-1.6, hy + 1.5, 0.45, 0.6)
+  // Near arm: flung up, cocked back with an ember, or hanging.
+  if (pose === 'air') limb(b, [-3.6, -8.4, -6.2, -12.6], 1.4, IMP_SKIN[2])
+  else if (pose === 'windup')
+    limb(
+      b,
+      [-2.6, -8.6, 0.2, -13.6, IMP_EMBER[0], IMP_EMBER[1] + 1.2],
+      1.4,
+      IMP_SKIN[2],
+    )
+  else limb(b, [-3.8, -7.4 + sq * 0.3, -6.4, -5.4 + sq], 1.4, IMP_SKIN[2])
+}
+
+function drawImp(g: G, f: FoeArtFoe, tick: number) {
+  const face = f.face ?? (Math.sign(f.vx) || -1)
+  const air = Math.abs(f.vy) > 0.01
+  const timer = f.timer ?? 99
+  const pose: ImpPose = air
+    ? 'air'
+    : f.phase === 'aim' || (timer > 0 && timer <= 12)
+      ? 'windup'
+      : 'idle'
+  const frame = pose === 'idle' ? Math.floor(f.t / 6) % IMP_FRAMES : 0
+  const x = snap(g, f.x)
+  const y = snap(g, f.y)
+  if (!air) groundShadow(g, x, y, 7)
+  foeSprite(g, `imp-${pose}-${frame}`, x, y, IMP, face, (b) =>
+    paintImp(b, pose, frame),
+  )
+  // Ember horn tips smoulder.
+  const hy =
+    y -
+    12.8 +
+    (pose === 'idle' ? Math.sin((frame / IMP_FRAMES) * TAU) * 0.3 : 0)
+  const flick = 0.45 + Math.sin(tick / 3 + f.x) * 0.15
+  glow(g, sideX(x, face, -4.4), hy - 6.4, 3, EMBER[3], flick)
+  glow(g, sideX(x, face, 2.4), hy - 6.8, 3, EMBER[3], flick)
+  if (pose === 'windup') {
+    const ex = sideX(x, face, IMP_EMBER[0])
+    const ey = y + IMP_EMBER[1]
+    glow(g, ex, ey, 7, EMBER[2], 0.7)
+    flame(g, ex, ey + 1.4, 4.4, tick, true)
+  }
+}
+
+// --- the flame acolyte -----------------------------------------------------------------------
+
+const ACOLYTE: Box = { w: 40, h: 48, ay: 38 }
+const ACOLYTE_FRAMES = 4
+/** The raised palm (sprite-local). */
+const ACOLYTE_PALM: Pt = [-5.6, -32]
+
+function acolyteRobe(b: G, sw: number) {
+  b.beginPath()
+  b.moveTo(2.4, -28.6)
+  b.quadraticCurveTo(5.4, -26.6, 5, -22.6)
+  b.lineTo(4.8, -19.4)
+  b.quadraticCurveTo(6.4, -10, 7.6 + sw, 0)
+  b.lineTo(4.6 + sw, -1)
+  b.lineTo(2.2 + sw * 0.6, 0.2)
+  b.lineTo(-0.6 + sw * 0.4, -0.8)
+  b.lineTo(-3.4 + sw * 0.5, 0.2)
+  b.lineTo(-7.8 + sw * 0.6, 0)
+  b.quadraticCurveTo(-6.6, -10, -4.8, -19)
+  b.lineTo(-5, -22.4)
+  b.quadraticCurveTo(-4.6, -27.4, 2.4, -28.6)
+  b.closePath()
+}
+
+function paintAcolyte(b: G, raise: boolean, frame: number) {
+  const sw = Math.sin((frame / ACOLYTE_FRAMES) * TAU) * 0.6
+  const robe = b.createLinearGradient(0, -28, 0, 0)
+  robe.addColorStop(0, ROBE[3])
+  robe.addColorStop(0.5, ROBE[2])
+  robe.addColorStop(1, ROBE[1])
+  // Far arm commanding the ground when it calls the pillar.
+  if (raise) {
+    limb(b, [1.6, -18, -3, -15.4, -7.4, -13.2], 2.6, ROBE[1])
+    poly(b, [-7.4, -13.2, -9.6, -12.4, -9.4, -11.4, -7.2, -12])
+    inked(b, CRIMSON[2], 0.6)
+  }
+  acolyteRobe(b, sw)
+  inked(b, robe, 1.1)
+  // Folds, the moonlit hood edge, the amber hem.
+  b.strokeStyle = ROBE[1]
+  b.lineWidth = 0.6
+  for (const [x0, x1] of [
+    [-2.6, -4.6],
+    [1, 0.8],
+    [3.6, 5],
+  ] as const) {
+    b.beginPath()
+    b.moveTo(x0, -16)
+    b.quadraticCurveTo(x0 - 0.4, -8, x1 + sw * 0.5, -1)
+    b.stroke()
+  }
+  b.strokeStyle = ROBE[4]
+  b.lineWidth = 0.6
+  b.beginPath()
+  b.moveTo(-4.4, -23.4)
+  b.quadraticCurveTo(-3.8, -27.4, 2.2, -28.2)
+  b.stroke()
+  b.strokeStyle = AMBER[1]
+  b.lineWidth = 0.9
+  b.beginPath()
+  b.moveTo(-7.4 + sw * 0.6, -1.4)
+  b.quadraticCurveTo(0, -2.4, 7.2 + sw, -1.4)
+  b.stroke()
+  b.fillStyle = AMBER[2]
+  for (let i = 0; i < 6; i++)
+    b.fillRect(-6 + i * 2.3 + sw * 0.5, -2.2, 0.6, 0.6)
+  // Hood opening: darkness and two embers for eyes.
+  b.fillStyle = '#0a0206'
+  ellipsePath(b, -3, -23, 2.1, 2.9, 0.15)
+  b.fill()
+  b.fillStyle = raise ? CRIMSON[3] : AMBER[2]
+  b.fillRect(-4.1, -23.6, 0.8, 0.6)
+  b.fillRect(-2.6, -23.7, 0.7, 0.6)
+  // Rope belt and tassel, a flame sigil stitched at the breast.
+  limb(b, [-5.6, -12.6, 0, -13.2, 5.6, -12.4], 0.7, BONE[2], ROBE[0])
+  limb(b, [-4.2, -12.6, -4.6, -8.4], 0.6, BONE[2], ROBE[0])
+  b.fillStyle = BONE[3]
+  b.fillRect(-5, -8.6, 0.9, 1.1)
+  poly(b, [-0.8, -18.6, 0.2, -16.4, -0.4, -15.4, -1.4, -15.6, -1.8, -16.6])
+  b.fillStyle = AMBER[2]
+  b.fill()
+  // Near arm: hands joined in the sleeves, or one crimson hand thrown up.
+  if (raise) {
+    poly(
+      b,
+      [-1.6, -20, -3.4, -23.4, -6.4, -27, -4.6, -28, -1.2, -24.6, 1, -19.4],
+    )
+    inked(b, ROBE[3], 1)
+    limb(
+      b,
+      [-5.4, -27.4, ACOLYTE_PALM[0], ACOLYTE_PALM[1] + 1.4],
+      1.4,
+      CRIMSON[1],
+    )
+    poly(
+      b,
+      [
+        -6.8, -31.6, -6.6, -34.2, -5.8, -32.4, -5.4, -34.8, -4.8, -32.2, -4,
+        -34, -4.2, -31.4, -5.4, -30.4,
+      ],
+    )
+    inked(b, CRIMSON[2], 0.7)
+  } else {
+    poly(
+      b,
+      [-0.8, -19.4, -4.6, -15.6, -6.8, -13.4, -5, -11.8, -1.6, -13, 1.4, -16],
+    )
+    inked(b, ROBE[3], 1)
+    b.fillStyle = ROBE[0]
+    ellipsePath(b, -6, -12.8, 1, 1.4, 0.6)
+    b.fill()
+  }
+}
+
+function drawAcolyte(g: G, f: FoeArtFoe, tick: number) {
+  const face = f.face ?? (Math.sign(f.vx) || -1)
+  const timer = f.timer ?? 99
+  const raise = f.phase === 'aim' || (timer > 0 && timer <= 24)
+  const frame = Math.floor(f.t / 10) % ACOLYTE_FRAMES
+  const x = snap(g, f.x)
+  const y = snap(g, f.y)
+  groundShadow(g, x, y, 9)
+  foeSprite(
+    g,
+    `acolyte-${raise ? 'raise' : 'still'}-${frame}`,
+    x,
+    y,
+    ACOLYTE,
+    face,
+    (b) => paintAcolyte(b, raise, frame),
+  )
+  const eyes = sideX(x, face, -3.3)
+  glow(
+    g,
+    eyes,
+    y - 23.4,
+    raise ? 4.4 : 2.6,
+    raise ? CRIMSON[3] : AMBER[2],
+    raise ? 0.75 : 0.4,
+  )
+  if (raise) {
+    // The tell: a crimson hand aflame, and a sigil turning above it.
+    const p = f.phase === 'aim' ? 1 : 1 - Math.max(0, timer) / 24
+    const px = sideX(x, face, ACOLYTE_PALM[0])
+    const py = y + ACOLYTE_PALM[1]
+    glow(g, px, py - 2, 8 + p * 6, CRIMSON[2], 0.6 + p * 0.3)
+    flame(g, px, py - 1.6, 5 + p * 3, tick)
+    g.save()
+    g.translate(px, py - 4)
+    g.rotate(tick / 10)
+    g.strokeStyle = rgba(CRIMSON[3], 0.5 + p * 0.4)
+    g.lineWidth = 0.6
+    g.beginPath()
+    g.arc(0, 0, 6 - p * 1.5, 0, TAU)
+    g.stroke()
+    for (let i = 0; i < 6; i++) {
+      const a = (i * TAU) / 6
+      g.beginPath()
+      g.moveTo(Math.cos(a) * (6 - p * 1.5), Math.sin(a) * (6 - p * 1.5))
+      g.lineTo(Math.cos(a) * (7.6 - p * 1.5), Math.sin(a) * (7.6 - p * 1.5))
+      g.stroke()
+    }
+    g.restore()
+  } else {
+    // A small flame cupped at the sleeves.
+    const hx = sideX(x, face, -6.2)
+    glow(g, hx, y - 15, 4.4, EMBER[3], 0.45)
+    flame(g, hx, y - 13.6, 3, tick)
+  }
+}
+
+// --- the abbey shade -------------------------------------------------------------------------
+
+const SHADE: Box = { w: 48, h: 46, ay: 38 }
+const SHADE_FRAMES = 4
+
+function shadePath(b: G, frame: number, lunge: boolean) {
+  const w = (frame / SHADE_FRAMES) * TAU
+  const tw = (i: number) => Math.sin(w + i * 1.7) * 1
+  const lx = lunge ? -3.6 : 0
+  const ly = lunge ? 1.4 : 0
+  const st = lunge ? 3.4 : 0
+  b.beginPath()
+  b.moveTo(0.4 + lx, -27.6 + ly)
+  b.quadraticCurveTo(4.4 + lx, -26.8 + ly, 4.8 + lx * 0.5, -22)
+  b.quadraticCurveTo(5.8, -16, 5.4 + st * 0.4, -9)
+  b.lineTo(7 + st + tw(0), -1.2)
+  b.lineTo(4 + st * 0.7, -3.6)
+  b.lineTo(2.6 + st * 0.8 + tw(1), 1.6)
+  b.lineTo(0.2 + st * 0.5, -2.6)
+  b.lineTo(-1.8 + st * 0.4 + tw(2), 0.8)
+  b.lineTo(-3.4 + st * 0.2, -3.6)
+  b.quadraticCurveTo(-5, -8, -5.2 + lx * 0.4, -14)
+  b.quadraticCurveTo(-5.6 + lx, -18, -4.6 + lx, -21.6 + ly)
+  b.quadraticCurveTo(-4 + lx, -26.4 + ly, 0.4 + lx, -27.6 + ly)
+  b.closePath()
+}
+
+function paintShade(b: G, frame: number, lunge: boolean) {
+  const lx = lunge ? -3.6 : 0
+  const ly = lunge ? 1.4 : 0
+  // Void arms behind the body when lunging (the far one), long claws.
+  const claw = (
+    sx: number,
+    sy: number,
+    ex: number,
+    ey: number,
+    near: boolean,
+  ) => {
+    limb(
+      b,
+      [sx, sy, (sx + ex) / 2, (sy + ey) / 2 + 0.6, ex, ey],
+      near ? 1.6 : 1.4,
+      VOID[1],
+      VOID[3],
+    )
+    for (const d of [-1, 0, 1]) {
+      const cx = ex + (lunge ? -2.6 : -0.8 + d * 0.6)
+      const cy = ey + (lunge ? d * 1.1 : 2.4)
+      seg(b, ex, ey, cx, cy, 0.45, VOID[4], null)
+    }
+  }
+  if (lunge) claw(-1 + lx, -17 + ly, -12.4, -16.6, false)
+  // The silhouette: a soft violet aura, a crisp rim, a void inside full of far stars.
+  shadePath(b, frame, lunge)
+  b.lineJoin = 'round'
+  b.lineWidth = 3.4
+  b.strokeStyle = rgba(VOID[3], 0.22)
+  b.stroke()
+  const inside = b.createLinearGradient(0, -28, 0, 2)
+  inside.addColorStop(0, VOID[1])
+  inside.addColorStop(0.5, VOID[0])
+  inside.addColorStop(1, rgba(VOID[1], 0.55))
+  b.fillStyle = inside
+  b.fill()
+  b.lineWidth = 0.8
+  b.strokeStyle = VOID[3]
+  b.stroke()
+  b.save()
+  shadePath(b, frame, lunge)
+  b.clip()
+  for (let i = 0; i < 14; i++) {
+    const sx = -5 + hash(i * 3.1) * 11
+    const sy = -26 + hash(i * 7.7) * 26
+    b.fillStyle = i % 3 ? rgba(VOID[4], 0.8) : rgba(VOID[3], 0.9)
+    const r = i % 4 ? 0.35 : 0.55
+    b.fillRect(sx - r / 2 + (frame % 2) * 0.1, sy - r / 2, r, r)
+  }
+  // Veil folds catching violet light.
+  b.strokeStyle = rgba(VOID[2], 0.9)
+  b.lineWidth = 0.6
+  b.beginPath()
+  b.moveTo(-2.6 + lx, -22 + ly)
+  b.quadraticCurveTo(-3.6, -14, -2.4, -6)
+  b.moveTo(2.4 + lx * 0.5, -22 + ly)
+  b.quadraticCurveTo(3, -14, 2.2, -5)
+  b.stroke()
+  b.restore()
+  b.strokeStyle = VOID[4]
+  b.lineWidth = 0.55
+  b.beginPath()
+  b.moveTo(-4.2 + lx, -22 + ly)
+  b.quadraticCurveTo(-3.6 + lx, -26.4 + ly, 0.4 + lx, -27.2 + ly)
+  b.stroke()
+  // Hood hollow and the slit eyes.
+  b.fillStyle = '#000000'
+  ellipsePath(b, -2.6 + lx, -21.6 + ly, 2, 2.6, 0.1)
+  b.fill()
+  b.fillStyle = '#f4e8ff'
+  ellipsePath(b, -3.6 + lx, -21.8 + ly, 0.75, 0.3, -0.25)
+  b.fill()
+  ellipsePath(b, -1.8 + lx, -21.9 + ly, 0.65, 0.3, 0.2)
+  b.fill()
+  // Near arm.
+  if (lunge) claw(-3 + lx, -16 + ly, -13.6, -14, true)
+  else claw(-3.4, -17, -6.4, -10.6, true)
+}
+
+function drawShade(g: G, f: FoeArtFoe, tick: number) {
+  const face = f.face ?? (Math.sign(f.vx) || -1)
+  const lunge = f.phase === 'attack'
+  const shimmer = f.phase === 'aim'
+  const frame = Math.floor(f.t / 7) % SHADE_FRAMES
+  const x = snap(g, f.x)
+  const y = snap(g, f.y)
+  const key = `shade-${lunge ? 'lunge' : 'drift'}-${frame}`
+  const paint = (b: G) => paintShade(b, frame, lunge)
+  g.fillStyle = rgba(VOID[3], 0.18)
+  ellipsePath(g, x, y + 1, 8, 1.4)
+  g.fill()
+  glow(g, x, y - 13, 16, VOID[3], shimmer ? 0.35 : 0.2)
+  if (shimmer) {
+    // The tell: it ripples in from nowhere, slices of it sliding into place.
+    const left = Math.max(0, Math.min(1, (f.timer ?? 0) / 32))
+    const amp = 1 + left * 4
+    const alpha = 0.45 + (1 - left) * 0.5
+    for (let i = 0; i < 11; i++) {
+      const top = y - 30 + i * 3
+      g.save()
+      g.beginPath()
+      g.rect(x - 26, top, 52, 3)
+      g.clip()
+      const off = Math.sin(i * 1.3 + tick * 0.7) * amp
+      foeSprite(
+        g,
+        key,
+        x + off,
+        y,
+        SHADE,
+        face,
+        paint,
+        alpha * (0.8 + hash(i + tick) * 0.2),
+      )
+      g.restore()
+    }
+    for (let i = 0; i < 5; i++) {
+      const a = tick / 6 + (i * TAU) / 5
+      const r = 6 + left * 12
+      twinkle(
+        g,
+        x + Math.cos(a) * r,
+        y - 13 + Math.sin(a) * r * 1.1,
+        1.2 + (i % 2) * 0.6,
+        VOID[4],
+      )
+    }
+  } else {
+    if (lunge) {
+      const dir = Math.sign(f.vx) || face
+      for (let i = 2; i >= 1; i--)
+        foeSprite(g, key, x - dir * i * 6, y, SHADE, face, paint, 0.32 / i)
+    }
+    foeSprite(g, key, x, y, SHADE, face, paint)
+  }
+  const ex = sideX(x, face, lunge ? -6.4 : -2.8)
+  glow(
+    g,
+    ex,
+    y - 21.8 + (lunge ? 1.4 : 0),
+    shimmer || lunge ? 4.4 : 3,
+    VOID[4],
+    shimmer || lunge ? 0.75 : 0.45,
+  )
+}
+
+// --- the censer sister -----------------------------------------------------------------------
+
+const SISTER: Box = { w: 40, h: 46, ay: 38 }
+const SISTER_FRAMES = 6
+type SisterArm = 'low' | 'back' | 'fore'
+const SISTER_HAND: Record<SisterArm, Pt> = {
+  low: [-6.4, -14.4],
+  back: [3.6, -21.8],
+  fore: [-8.6, -19.8],
+}
+const CENSER_CHAIN = 8.5
+
+function paintSister(b: G, arm: SisterArm, frame: number) {
+  const ph = (frame / SISTER_FRAMES) * TAU
+  const sw = Math.sin(ph) * 0.7
+  // Veil streaming down her back.
+  poly(b, [
+    1.2,
+    -27,
+    4.8,
+    -24.6,
+    6.6 + sw * 0.5,
+    -16,
+    7.6 + sw,
+    -10.6,
+    4.4,
+    -12.6,
+    2.6,
+    -20,
+  ])
+  inked(b, HABIT[1], 1)
+  // Feet peeking under the hem in turn.
+  for (const [fx, up] of [
+    [-3.8, Math.max(0, Math.sin(ph))],
+    [0.6, Math.max(0, -Math.sin(ph))],
+  ] as const) {
+    ellipsePath(b, fx - up * 1.4, -0.6, 1.8, 0.8)
+    inked(b, '#1a1222', 0.7)
+  }
+  // The habit.
+  const habit = () => {
+    b.beginPath()
+    b.moveTo(-4.4, -19.6)
+    b.quadraticCurveTo(-5.4, -10, -6.8 + sw * 0.4, -0.6)
+    b.lineTo(-2.6 + sw * 0.3, 0)
+    b.lineTo(1.8 + sw * 0.5, -0.4)
+    b.lineTo(6.8 + sw, -0.2)
+    b.quadraticCurveTo(5.6, -10, 4.6, -19.8)
+    b.quadraticCurveTo(0, -21.6, -4.4, -19.6)
+    b.closePath()
+  }
+  const cloth = b.createLinearGradient(-6, 0, 6, 0)
+  cloth.addColorStop(0, HABIT[3])
+  cloth.addColorStop(0.45, HABIT[2])
+  cloth.addColorStop(1, HABIT[1])
+  habit()
+  inked(b, cloth, 1.1)
+  b.strokeStyle = HABIT[0]
+  b.lineWidth = 0.6
+  for (const [x0, x1] of [
+    [-1.6, -3 + sw * 0.4],
+    [2.2, 3.6 + sw * 0.6],
+  ] as const) {
+    b.beginPath()
+    b.moveTo(x0, -15)
+    b.quadraticCurveTo(x0, -7, x1, -0.6)
+    b.stroke()
+  }
+  b.strokeStyle = HABIT[4]
+  b.lineWidth = 0.5
+  b.beginPath()
+  b.moveTo(4.4, -19.4)
+  b.quadraticCurveTo(5.4, -10, 6.4 + sw, -0.6)
+  b.stroke()
+  // Scapular down the front, a rope cincture, the bone rosary and its cross.
+  poly(b, [-3.4, -19.4, -1, -19.8, -1.8, -1, -4.6 + sw * 0.3, -0.6])
+  b.fillStyle = HABIT[1]
+  b.fill()
+  limb(b, [-4.8, -12.6, 0, -13, 4.8, -12.4], 0.6, BONE[1], HABIT[0])
+  b.fillStyle = BONE[3]
+  for (let i = 0; i < 7; i++) {
+    const u = i / 6
+    b.fillRect(
+      -3.4 + Math.sin(u * Math.PI) * -0.8 - 0.3,
+      -19 + u * 8 - 0.3,
+      0.6,
+      0.6,
+    )
+  }
+  b.fillStyle = AMBER[3]
+  b.fillRect(-3.9, -11.4, 0.7, 2.4)
+  b.fillRect(-4.5, -10.8, 1.9, 0.6)
+  // Wimple framing a shadowed face, the black veil over the crown.
+  ellipsePath(b, -1.8, -23.4, 3.5, 3.8)
+  inked(b, BONE[3], 1)
+  b.fillStyle = BONE[2]
+  blob(b, [0.4, -21, 1.6, -23.4, 1, -25.8, 0, -23.6])
+  b.fill()
+  b.fillStyle = '#0e0812'
+  ellipsePath(b, -2.6, -23.2, 2.1, 2.5)
+  b.fill()
+  b.fillStyle = mix(BONE[2], '#0e0812', 0.65)
+  blob(b, [-4.2, -22, -3.2, -20.8, -1.6, -21.2, -2.4, -22])
+  b.fill()
+  b.beginPath()
+  b.moveTo(-5.4, -24.6)
+  b.quadraticCurveTo(-4.2, -28.8, 0.4, -28.6)
+  b.quadraticCurveTo(4.4, -28, 5, -23.4)
+  b.lineTo(1.6, -24.4)
+  b.quadraticCurveTo(-1.6, -26.4, -5.4, -24.6)
+  b.closePath()
+  inked(b, HABIT[1], 1)
+  b.strokeStyle = HABIT[4]
+  b.lineWidth = 0.5
+  b.beginPath()
+  b.moveTo(-4.4, -25.6)
+  b.quadraticCurveTo(-3, -28.2, 0.6, -28.2)
+  b.stroke()
+  // Far hand at the rosary.
+  b.fillStyle = BONE[3]
+  ellipsePath(b, -2.2, -15, 0.9, 0.8)
+  b.fill()
+  // Near arm: a wide sleeve, a pale hand gripping the chain.
+  const [hx, hy] = SISTER_HAND[arm]
+  const sx = -0.6
+  const sy = -19
+  const ex = sx + (hx - sx) * 0.55 + (arm === 'back' ? 0.4 : 0.2)
+  const ey = sy + (hy - sy) * 0.55 + 1.2
+  poly(b, [
+    sx - 1.2,
+    sy - 0.6,
+    ex - 0.4,
+    ey - 1.4,
+    hx + (arm === 'back' ? -0.6 : 0.8),
+    hy - 1,
+    hx + (arm === 'back' ? -0.4 : 1),
+    hy + 1.2,
+    ex + 0.6,
+    ey + 1.6,
+    sx + 1.6,
+    sy + 1.6,
+  ])
+  inked(b, HABIT[2], 1)
+  b.fillStyle = BONE[3]
+  ellipsePath(b, hx, hy, 1, 0.9)
+  b.fill()
+}
+
+function paintCenser(b: G) {
+  b.translate(4, 4)
+  b.scale(0.8, 0.8)
+  // Finial and domed, pierced lid over a banded bronze bowl.
+  b.fillStyle = BRONZE[3]
+  b.fillRect(-0.4, -4.2, 0.8, 1)
+  blob(b, [-2.6, -1.4, -1.6, -3.4, 0, -3.8, 1.6, -3.4, 2.6, -1.4])
+  inked(b, BRONZE[3], 0.9)
+  ellipsePath(b, 0, 0.6, 2.9, 2.4)
+  inked(b, BRONZE[2], 0.9)
+  b.fillStyle = BRONZE[4]
+  ellipsePath(b, -1, -0.4, 1, 0.6, -0.4)
+  b.fill()
+  b.fillStyle = BRONZE[1]
+  b.fillRect(-2.8, -1.2, 5.6, 0.7)
+  b.fillStyle = EMBER[4]
+  for (const [x, y] of [
+    [-1.4, -2.2],
+    [0.4, -2.6],
+    [1.6, -1.8],
+    [-0.6, 1.4],
+    [1.2, 1.2],
+  ] as const)
+    b.fillRect(x - 0.3, y - 0.3, 0.6, 0.6)
+}
+
+function drawSister(g: G, f: FoeArtFoe, tick: number) {
+  const face = f.face ?? (Math.sign(f.vx) || -1)
+  const timer = f.timer ?? 0
+  const windup = f.phase === 'aim'
+  const follow = !windup && timer > 56
+  const arm: SisterArm = windup ? 'back' : follow ? 'fore' : 'low'
+  const moving = Math.abs(f.vx) > 0.05
+  const frame = moving ? Math.floor(f.t / 7) % SISTER_FRAMES : 0
+  const x = snap(g, f.x)
+  const y = snap(g, f.y)
+  groundShadow(g, x, y, 9)
+  foeSprite(g, `sister-${arm}-${frame}`, x, y, SISTER, face, (b) =>
+    paintSister(b, arm, frame),
+  )
+  glow(g, sideX(x, face, -2.5), y - 23.6, 2.4, SPECTRE[3], 0.45)
+  g.fillStyle = SPECTRE[4]
+  g.fillRect(sideX(x, face, -3.3) - 0.35, y - 23.9, 0.7, 0.6)
+  g.fillRect(sideX(x, face, -1.8) - 0.35, y - 23.9, 0.7, 0.6)
+  // The censer on its chain: a lazy pendulum, a wind-up swung back overhead, a sweep forward.
+  const [lhx, lhy] = SISTER_HAND[arm]
+  let th: number
+  let heat = 0
+  if (windup) {
+    const p = 1 - Math.max(0, Math.min(1, timer / 30))
+    th = -(0.7 + p * 2.1)
+    heat = p
+  } else if (follow) {
+    const q = Math.min(1, (70 - timer) / 14)
+    th = 2.1 - q * 1.5
+    heat = 1 - q
+  } else {
+    th = Math.sin(f.t / 11) * 0.45
+  }
+  const lcx = lhx - Math.sin(th) * CENSER_CHAIN
+  const lcy = lhy + Math.cos(th) * CENSER_CHAIN
+  const hx = sideX(x, face, lhx)
+  const hy = y + lhy
+  const cx = sideX(x, face, lcx)
+  const cy = y + lcy
+  // Embers streaming along the arc of the swing.
+  if (heat > 0) {
+    for (let i = 1; i <= 4; i++) {
+      const tt = th + (windup ? 0.32 : -0.32) * i
+      const px = sideX(x, face, lhx - Math.sin(tt) * CENSER_CHAIN)
+      const py = y + lhy + Math.cos(tt) * CENSER_CHAIN
+      puff(
+        g,
+        px,
+        py,
+        1.4 - i * 0.2,
+        i % 2 ? EMBER[3] : EMBER[4],
+        (0.9 - i * 0.18) * heat,
+      )
+    }
+    glow(g, cx, cy, 6 + heat * 4, EMBER[3], 0.25 + heat * 0.35)
+  }
+  g.strokeStyle = INK
+  g.lineWidth = 1.1
+  g.beginPath()
+  g.moveTo(hx, hy)
+  g.lineTo(cx, cy - 2.6)
+  g.stroke()
+  g.strokeStyle = STEEL[2]
+  g.lineWidth = 0.5
+  g.setLineDash([0.8, 0.6])
+  g.stroke()
+  g.setLineDash([])
+  drawBaked(
+    g,
+    'gt-foes-censer',
+    snap(g, cx - 4),
+    snap(g, cy - 4),
+    8,
+    8,
+    paintCenser,
+  )
+  glow(g, cx, cy, 4, AMBER[2], 0.3 + Math.sin(tick / 4) * 0.1)
+  // Incense curling up off it.
+  if (!windup) {
+    for (let i = 0; i < 3; i++) {
+      const p = ((f.t * 0.6 + i * 9) % 27) / 27
+      puff(
+        g,
+        cx + Math.sin(p * 6 + i) * 1.6,
+        cy - 4 - p * 10,
+        0.8 + p * 1.6,
+        '#a89cb8',
+        (1 - p) * 0.45,
+      )
+    }
+  }
+}
+
+/**
+ * A foe in world space; (x, y) are its feet (a flyer's y is its flight line). The slice's three
+ * (spirit, crow, hyena) draw as they always have; the campaign roster reads every phase: walk/idle
+ * cycles, the `aim` tell, attacks and dives, its facing, a harpy's bundle.
+ */
 export function drawFoe(g: G, foe: FoeArtFoe, tick: number) {
-  if (foe.kind === 'spirit') drawGhost(g, foe, tick)
-  else if (foe.kind === 'crow') drawCrow(g, foe, tick)
-  else drawCoyote(g, foe, tick)
+  switch (foe.kind) {
+    case 'spirit':
+      return drawGhost(g, foe, tick)
+    case 'crow':
+      return drawCrow(g, foe, tick)
+    case 'hyena':
+      return drawCoyote(g, foe, tick)
+    case 'gunslinger':
+      return drawGunslinger(g, foe, tick)
+    case 'monk':
+      return drawMonk(g, foe, tick)
+    case 'ghoul':
+      return drawGhoul(g, foe, tick)
+    case 'drowned':
+      return drawDrowned(g, foe, tick)
+    case 'leech':
+      return drawLeech(g, foe, tick)
+    case 'harpy':
+      return drawHarpy(g, foe, tick)
+    case 'wraith':
+      return drawWraith(g, foe, tick)
+    case 'imp':
+      return drawImp(g, foe, tick)
+    case 'acolyte':
+      return drawAcolyte(g, foe, tick)
+    case 'shade':
+      return drawShade(g, foe, tick)
+    case 'sister':
+      return drawSister(g, foe, tick)
+  }
 }
 
 // --- the Dust Devil -------------------------------------------------------------------------

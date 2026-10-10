@@ -566,6 +566,7 @@ function update(b: Boss, ctx: BossCtx) {
         for (const dir of [-1, 1])
           ctx.bolt({
             kind: 'wave',
+            tint: 'violet',
             x: b.x + dir * 14,
             y: ctx.groundY - 7,
             vx: dir * (k === 0 ? 2.1 : 1.9),

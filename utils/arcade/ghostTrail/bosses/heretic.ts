@@ -372,6 +372,7 @@ function shockwave(ctx: BossCtx, x: number) {
   for (const dir of [-1, 1])
     ctx.bolt({
       kind: 'wave',
+      tint: 'crimson',
       x: x + dir * 2,
       y: ctx.groundY - 7,
       vx: dir * WAVE_SPEED,

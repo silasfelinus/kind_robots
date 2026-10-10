@@ -55,6 +55,8 @@ export type Bolt = {
   hw: number
   hh: number
   t: number
+  /** Optional colour for a wave: the Ferryman's water (default), the Heretic's crimson, the Abbess's violet. */
+  tint?: 'crimson' | 'violet'
 }
 
 /** What a foe can see and do each tick. */

@@ -1691,6 +1691,13 @@ function boltFlame(
   g.fill()
 }
 
+/** Wave palettes: halo, crest, body, trough, foam. */
+const WAVE_TINTS = {
+  water: ['#5eead4', '#5eead4', '#14a3a0', '#0b3a4a', '#e6fffb'],
+  crimson: ['#f87171', '#fca5a5', '#dc2626', '#450a0a', '#fff1f2'],
+  violet: ['#e879f9', '#f0abfc', '#a21caf', '#2e1065', '#fdf4ff'],
+} as const
+
 /**
  * A hostile projectile (world space). Each wears a dark ink edge, a glow, or both, so it reads on
  * every backdrop from the moonlit town to the teal waterhole. A pillar shows a pulsing crimson sigil
@@ -2013,6 +2020,7 @@ export function drawBolt(g: G, b: Bolt, tick: number) {
     case 'wave': {
       // A rolling wave of water: ink edge, deep teal body shading down, a white foam crest
       // spilling forward, spray flying off it.
+      const [halo, top, mid, deep, foam] = WAVE_TINTS[b.tint ?? 'water']
       const w = b.hw
       const h = b.hh
       const lip = dir * w * 0.3
@@ -2029,19 +2037,19 @@ export function drawBolt(g: G, b: Bolt, tick: number) {
         g.lineTo(x + w, y + h)
         g.closePath()
       }
-      glow(g, x, y, Math.max(w, h) * 1.5, '#5eead4', 0.3)
+      glow(g, x, y, Math.max(w, h) * 1.5, halo, 0.3)
       body()
       g.lineWidth = 1.2
       g.strokeStyle = INK
       g.stroke()
       const sea = g.createLinearGradient(0, y - h, 0, y + h)
-      sea.addColorStop(0, '#5eead4')
-      sea.addColorStop(0.45, '#14a3a0')
-      sea.addColorStop(1, '#0b3a4a')
+      sea.addColorStop(0, top)
+      sea.addColorStop(0.45, mid)
+      sea.addColorStop(1, deep)
       g.fillStyle = sea
       g.fill()
       // Darker trough lines inside.
-      g.strokeStyle = rgba('#0b3a4a', 0.8)
+      g.strokeStyle = rgba(deep, 0.8)
       g.lineWidth = 0.6
       for (let i = 0; i < 2; i++) {
         const yy = y + h * (0.1 + i * 0.4)
@@ -2061,9 +2069,9 @@ export function drawBolt(g: G, b: Bolt, tick: number) {
         y - h * 0.2,
       )
       g.lineWidth = 1.6
-      g.strokeStyle = '#e6fffb'
+      g.strokeStyle = foam
       g.stroke()
-      g.fillStyle = '#e6fffb'
+      g.fillStyle = foam
       for (let i = 0; i < 4; i++) {
         const p = ((b.t + i * 5) % 20) / 20
         g.globalAlpha = 1 - p

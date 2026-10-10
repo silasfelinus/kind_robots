@@ -29,6 +29,8 @@ export type TierSettings = {
   flasherLights: number
   /** GI point lights along the rails and slings. */
   giLights: number
+  /** Lanterns that really light the table (t-030); the rest only glow. */
+  practicalLights: number
   /** How dark the contact shadow under each ball is. */
   contactShadow: number
   /** Sparks a jackpot burst may throw (t-010). */
@@ -46,6 +48,7 @@ export const TIER_SETTINGS: Record<QualityTier, TierSettings> = {
     samples: 4,
     flasherLights: 4,
     giLights: 4,
+    practicalLights: 6,
     contactShadow: 0.35,
     sparks: 240,
     trail: true,
@@ -58,6 +61,7 @@ export const TIER_SETTINGS: Record<QualityTier, TierSettings> = {
     samples: 2,
     flasherLights: 2,
     giLights: 2,
+    practicalLights: 3,
     contactShadow: 0.5,
     sparks: 120,
     trail: true,
@@ -70,6 +74,7 @@ export const TIER_SETTINGS: Record<QualityTier, TierSettings> = {
     samples: 0,
     flasherLights: 0,
     giLights: 2,
+    practicalLights: 0,
     contactShadow: 0.65,
     sparks: 48,
     trail: false,

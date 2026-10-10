@@ -30,6 +30,14 @@ export const POP_REST = 0.2
 export const POP_FLASH = 4
 /** A lantern's glow at full GI. */
 const LANTERN_GLOW = 2.2
+/**
+ * The warm light a practical lantern throws on the table at full GI, and
+ * how far it reaches (t-030). Only the main field's lanterns carry one, in
+ * an order that spreads a tier's few lights along both rails.
+ */
+const LANTERN_LIGHT = 0.009
+const LANTERN_REACH = 0.22
+const PRACTICAL_ORDER = [0, 3, 4, 1, 2, 5]
 /** A wall gets a trim rail when it is at least this tall. */
 const TRIM_MIN_HEIGHT = 0.015
 
@@ -207,13 +215,17 @@ export function wallPaint(track: Track): THREE.Texture | null {
   return texture
 }
 
-type Lantern = { material: THREE.MeshStandardMaterial }
+type Lantern = {
+  material: THREE.MeshStandardMaterial
+  light: THREE.PointLight | null
+}
 
 export class Dressing {
   readonly group = new THREE.Group()
   /** Each pop's lit body and cap, by pop id: they flash when it fires. */
   readonly pops = new Map<string, THREE.MeshPhysicalMaterial>()
   private lanterns: Lantern[] = []
+  private practicals: THREE.PointLight[] = []
   private gi = 1
   private frame = 0
 
@@ -257,7 +269,19 @@ export class Dressing {
         0.06 * Math.sin(this.frame * 0.21 + i * 1.7) +
         0.04 * Math.sin(this.frame * 0.53 + i * 0.9)
       lantern.material.emissiveIntensity = LANTERN_GLOW * flicker * this.gi
+      if (lantern.light)
+        lantern.light.intensity = LANTERN_LIGHT * flicker * this.gi
     })
+  }
+
+  /** The quality tier's share of lanterns that really light the table. */
+  setPracticals(count: number) {
+    this.practicals.forEach((light, i) => (light.visible = i < count))
+  }
+
+  /** Lanterns lighting the table now (for tests). */
+  get practicalsLit(): number {
+    return this.practicals.filter((light) => light.visible).length
   }
 
   private physical(params: THREE.MeshPhysicalMaterialParameters) {
@@ -531,7 +555,28 @@ export class Dressing {
       const body = new THREE.Mesh(this.track(lathe(shade, 14)), material)
       body.position.set(hangX, bottom, z)
       this.group.add(body)
-      this.lanterns.push({ material })
+      this.lanterns.push({ material, light: null })
+    }
+    for (const index of PRACTICAL_ORDER) {
+      const lantern = this.lanterns[index]
+      const def = defs[index]
+      if (!lantern || !def) continue
+      const light = new THREE.PointLight(
+        def.color ?? 0xff6b3d,
+        LANTERN_LIGHT,
+        LANTERN_REACH,
+        2,
+      )
+      const height = def.height ?? 0.05
+      light.position.set(
+        def.at[0] - 0.02 * (def.side ?? 1),
+        def.at[1] + height - 0.011,
+        def.at[2],
+      )
+      light.visible = false
+      this.group.add(light)
+      lantern.light = light
+      this.practicals.push(light)
     }
     this.addMerged(poles, iron)
     this.addMerged(trims, gold)

@@ -6,8 +6,8 @@ dashboardKey: conductor
 dashboardTab: conductor
 label: Project Placement
 title: Project Placement
-subtitle: Backfill the canonical channel map
-description: Review Project rows and apply the channel, tab, and live URL placement map with a detailed result report.
+subtitle: Write the channel and tab map onto Project records
+description: Apply the canonical channel, tab, and live URL map to existing Project records and read a report of the result.
 icon: kind-icon:map
 route: /project-placement
 sort: 30
@@ -20,7 +20,10 @@ amiTip: That is what responsible danger looks like.
 tutorial:
   title: Project Placement
   body: >-
-    Apply the canonical channel and tab placement map to existing Project records. Review the plan first, then apply it and read the report of every changed, unchanged, or missing slug.
+    A one-off backfill that writes the canonical channel, tab, and live URL map
+    onto existing Project records. Press Load projects, decide whether to tick
+    Overwrite live URLs, then press Apply placements. The report sorts every
+    slug into Updated, Unchanged, Missing, or Failed.
 ---
 
 Apply the canonical navigation placement map to existing Project records and inspect every changed, unchanged, or missing slug.

@@ -7,9 +7,9 @@ dashboardKey: conductor
 dashboardTab: appmaker
 label: AppMaker
 title: AppMaker
-subtitle: Shape an application before building it
-description: Turn project ideas into structured application concepts, surfaces, and implementation plans.
-summary: Plan apps from project ideas.
+subtitle: Start new apps for the agents to scaffold
+description: Request a new app scaffold from the agents and track the apps being built.
+summary: Start and track agent-built apps.
 icon: kind-icon:foundry
 route: /appmaker
 sort: 100
@@ -17,7 +17,11 @@ requiredRole: ADMIN
 tutorial:
   title: AppMaker
   body: >-
-    Turn a project idea into a structured application concept before anything is built: who it is for, the surfaces it needs, and an implementation plan the project pipeline can reason about.
+    Create an app by giving it a name, a slug, and a one-line description. That
+    files a scaffold request, and the app's workspace folder, roadmap, and art
+    prompts appear after the next Worker cycle. Apps already started are listed
+    under Being built, each with Open project and a Graduate button that files a
+    request to move the app into its own repo.
 ---
 
-Draft an application into a shape the project pipeline can actually reason about.
+Request a new app scaffold from the agents and follow the apps they are building.

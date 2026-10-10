@@ -6,9 +6,9 @@ dashboardKey: art
 dashboardTab: coloring
 label: Coloring
 title: Coloring Book
-subtitle: Color generated pages and sampler art
-description: Open a page, fill regions, save palettes, and return to works in progress.
-summary: Color and save art pages.
+subtitle: Pair and finalize coloring book pages
+description: Curate coloring book pages as color and black-and-white pairs, and check the book's production readiness.
+summary: Pair and finalize coloring pages.
 icon: kind-icon:paintbrush
 route: /coloring
 sort: 120
@@ -16,7 +16,12 @@ requiredRole: ADMIN
 tutorial:
   title: Coloring Book
   body: >-
-    Pick a generated page or a sampler, fill regions with color, and save palettes you want to reuse. Unfinished pages wait for you, so you can come back to a work in progress later.
+    Coloring book production. Pick a book and find a page, and each page shows
+    its color and black-and-white candidates side by side. Edit the art prompt,
+    queue New color or New B&W, accept the versions you like, and press Finalize
+    pair when both are right. Production controls & diagnostics, folded below,
+    holds readiness, packaging, covers, queue actions, and history.
+  image: /images/coloring-book/sampler/p03/fillbase.png
 ---
 
-Admin-only coloring tools for AI-generated pages and sampler art.
+Curate coloring book pages as color and black-and-white pairs, then check the book's production readiness.

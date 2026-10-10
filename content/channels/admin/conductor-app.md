@@ -7,9 +7,9 @@ dashboardKey: conductor
 dashboardTab: conductor-app
 label: Conductor App
 title: Conductor App
-subtitle: Steer plans from a mobile client
-description: Review the companion Flutter application for project coordination on the go.
-summary: Review the Conductor mobile app.
+subtitle: Build progress for the Flutter client
+description: Project page and build progress for the Conductor companion app, a Flutter client.
+summary: Track the mobile app build.
 icon: kind-icon:external-link
 route: /conductor-app
 sort: 105
@@ -17,7 +17,9 @@ requiredRole: ADMIN
 tutorial:
   title: Conductor App
   body: >-
-    The companion Flutter app for steering Conductor plans from a phone. Use this page to review what the mobile client shows and how it connects to the same projects and tasks as the Project Planner.
+    The project page for the Conductor companion app, a Flutter client built one
+    roadmap task at a time. Build progress shows how many tasks are done and
+    lists the next ones. The app is not on the App Store or Play Store yet.
 ---
 
-A mobile bridge into Plan and the Conductor workflow.
+The project page and build progress for the Conductor companion app, a Flutter client.

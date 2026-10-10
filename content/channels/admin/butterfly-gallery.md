@@ -4,9 +4,9 @@ channelKey: admin
 tabKey: butterfly-gallery
 label: Butterfly Gallery
 title: Butterfly Gallery
-subtitle: The archive sorting room, in progress
-description: The Butterfly Gallery sorting room. It stays in Admin until its final visual acceptance (conductor butterfly-gallery/t-025), then moves to Play.
-summary: Sort art in the butterfly room.
+subtitle: A sorting room for the private art archive
+description: Sort the private art archive into rating bins, restore, or trash, one image or a batch at a time.
+summary: Sort archive art into bins.
 icon: kind-icon:butterfly
 route: /butterfly-gallery
 sort: 175
@@ -14,7 +14,12 @@ requiredRole: ADMIN
 tutorial:
   title: Butterfly Gallery
   body: >-
-    A sorting room for the art archive, guided by some opinionated butterflies. Sort pieces into the places they belong; the room stays in Admin until it passes its final visual acceptance, then it moves to Play.
+    A sorting room for the private art archive. Pick an image from the pile,
+    check its rating, folder, checkpoint, and collections, then drag or click it
+    onto a preset bin, Restore, or Trash. The 1 to 5 keys sort the selected
+    image into the matching rating bin and Delete trashes it. Filters narrow the
+    pile by prompt, state, rating, match, and trash, and batch mode sorts many
+    images at once.
 ---
 
-Sort the art archive with the help of some opinionated butterflies.
+Sort the private art archive into rating bins, restore images, or move them to the trash.

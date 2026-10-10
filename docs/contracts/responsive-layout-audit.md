@@ -92,7 +92,7 @@ trivially against an error page or a login wall, which is worse than not running
 `--base` takes any URL, so the same command audits production or a preview:
 
 ```bash
-npm run audit:responsive -- --base https://kind-robots.vercel.app
+npm run audit:responsive -- --base https://kindrobots.org
 ```
 
 That is exactly what CI does. Locally, an unseeded database means you are

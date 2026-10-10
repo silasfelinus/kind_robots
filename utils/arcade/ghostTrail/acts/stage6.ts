@@ -235,7 +235,8 @@ const undercroft: Act = {
       at: 6960,
       squad: [
         { kind: 'wraith', x: 7220, y: 160 },
-        { kind: 'sister', x: 7280, delay: 40 },
+        // She comes up from beyond the second pit late, so she never guards its landing.
+        { kind: 'sister', x: 7460, delay: 150 },
       ],
     },
     {

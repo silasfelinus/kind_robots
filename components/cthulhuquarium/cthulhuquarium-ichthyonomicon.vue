@@ -175,10 +175,20 @@
             <div class="mt-auto flex justify-end gap-2">
               <button
                 type="button"
-                class="btn btn-primary btn-sm min-h-11"
+                class="cq-price btn btn-primary btn-sm min-h-11 gap-1"
+                :disabled="tankStore.coins < open.cost || !hasRoom"
+                :title="
+                  !hasRoom
+                    ? 'Tank full'
+                    : tankStore.coins < open.cost
+                      ? `${open.cost - tankStore.coins} more coins needed`
+                      : undefined
+                "
                 @click="reorder(open.id)"
               >
                 {{ open.currentlyOwned ? 'Buy another' : 'Re-order' }}
+                <Icon name="kind-icon:coin" class="size-4 text-warning" />
+                {{ open.cost }}
               </button>
               <button
                 type="button"
@@ -219,6 +229,7 @@ const tankStore = useCthulhuquariumTankStore()
 const filter = ref<(typeof FILTERS)[number]['key']>('all')
 const plateFilter = ref('')
 const open = ref<BestiaryEntry | null>(null)
+const hasRoom = computed(() => tankStore.occupantSize + 1 <= tankStore.sizeCap)
 
 const collectedCount = computed(() => tankStore.bestiaryCollectedCount)
 const totalCount = computed(
@@ -267,6 +278,12 @@ async function reorder(id: number) {
 </script>
 
 <style scoped>
+.cq-price:disabled {
+  opacity: 1;
+  color: color-mix(in oklab, var(--color-base-content) 75%, transparent);
+  background: var(--color-base-200);
+  border-color: var(--color-base-300);
+}
 .cq-silhouette {
   filter: brightness(0) opacity(0.45);
 }

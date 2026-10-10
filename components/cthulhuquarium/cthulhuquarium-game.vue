@@ -35,9 +35,25 @@
         :class="{ 'cq-fullscreen': fullscreen }"
       >
         <cthulhuquarium-dialogue />
-        <p v-if="tankStore.error" class="alert alert-error text-sm">
-          {{ tankStore.error }}
-        </p>
+        <div
+          v-if="tankStore.error"
+          class="pointer-events-none fixed inset-x-0 top-24 z-[70] flex justify-center px-4"
+          role="alert"
+        >
+          <div
+            class="alert alert-error pointer-events-auto max-w-lg text-sm shadow-xl"
+          >
+            <span>{{ tankStore.error }}</span>
+            <button
+              type="button"
+              class="btn btn-ghost btn-xs min-h-11 min-w-11"
+              aria-label="Dismiss"
+              @click="tankStore.dismissError()"
+            >
+              <Icon name="kind-icon:close" class="kr-icon-4" />
+            </button>
+          </div>
+        </div>
 
         <!-- Rare random events (cthulhuquarium/t-016): brief, dry, unsettling
            -- never a jump scare, never explained. A settled tick's own
@@ -1465,6 +1481,20 @@ function scrollToShop() {
 // Fullscreen is the page's own overlay first (it works on phones without the
 // Fullscreen API), with the browser's fullscreen layered on where offered so
 // Esc and the system gesture leave both together.
+const ERROR_TOAST_MS = 7000
+let errorToastTimer: ReturnType<typeof setTimeout> | undefined
+watch(
+  () => tankStore.error,
+  (message) => {
+    clearTimeout(errorToastTimer)
+    if (message)
+      errorToastTimer = setTimeout(
+        () => tankStore.dismissError(),
+        ERROR_TOAST_MS,
+      )
+  },
+)
+
 const fullscreen = ref(false)
 async function toggleFullscreen() {
   const next = !fullscreen.value
@@ -2470,6 +2500,7 @@ onBeforeUnmount(() => {
   document.removeEventListener('pointerdown', resumeSoundOnGesture)
   document.removeEventListener('fullscreenchange', onFullscreenChange)
   document.removeEventListener('keydown', onFullscreenKey)
+  clearTimeout(errorToastTimer)
   if (fullscreen.value && document.fullscreenElement)
     void document.exitFullscreen().catch(() => {})
   stopLoops()

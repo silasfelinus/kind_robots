@@ -30,3 +30,13 @@ Render the 16 baseline cells only after recording four verified source ArtImage 
 For every completed cell, record its ArtJob ID, model, mode, seed, prompt, dimensions, FPS, wall time and verified clip path. A queued job is not a delivered video. Rate each clip 1-5 for character identity, temporal stability, motion readability, camera discipline and overall visual quality. Include failures and VRAM pressure. Do not publish the sheet or any clips.
 
 Present the completed comparison to Silas for a creative lane decision. Retest the still checkpoint (furrytoonmix V3B or Nova Comic) only if all motion lanes remain weak. This task is not complete until the clips and review exist.
+
+## Local comparison sheet
+
+Copy `docs/zuzu-lair-clip-bakeoff.example.json` to a private working manifest. Replace each null source ID with a verified ArtImage ID, preserve the original motion prompt, and append one `clips` entry per delivered video:
+
+```json
+{"sceneId":"walk","laneId":"wan-ti2v","file":"clips/walk--wan-ti2v.mp4","jobId":123,"seed":42,"model":"WAN 2.2 TI2V 5B"}
+```
+
+Run `node utils/scripts/buildZuzuLairBakeoffSheet.mjs manifest.json sheet.html` from the repository root. Keep `sheet.html` next to the `clips/` folder, open it locally, and use Play all to compare columns. Missing cells remain explicitly marked Not rendered; the tool never invents clip results. Paths must be relative local files.

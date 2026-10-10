@@ -23,6 +23,7 @@ import type {
   FlipperDef,
   HeroDef,
   InsertDef,
+  LanternDef,
   MeshCollider,
   ScoopDef,
   SensorDef,
@@ -491,6 +492,25 @@ const HERO: HeroDef = (() => {
     },
   }
 })()
+
+/**
+ * Paper lanterns along the rails and up the Ridge (t-028), each hung out
+ * over the cabinet's side rail so none overhangs a lane.
+ */
+const LANTERN_COLORS = [0xff6b3d, 0xf59e0b, 0xf472b6, 0xef4444]
+const LANTERNS: LanternDef[] = [
+  ...[-0.62, -0.42, -0.22].flatMap((z): LanternDef[] => [
+    { at: [LEFT_X, WALL_HEIGHT, z], side: -1 },
+    { at: [RIGHT_X, WALL_HEIGHT, z], side: 1 },
+  ]),
+  ...[UPPER_TOP_Z + 0.1, UPPER_TOP_Z + 0.3].flatMap((z): LanternDef[] => [
+    { at: [LEFT_X, WALL_HEIGHT, z], side: -1, height: 0.06 },
+    { at: [RIGHT_X, WALL_HEIGHT, z], side: 1, height: 0.06 },
+  ]),
+].map((def, i) => ({
+  ...def,
+  color: LANTERN_COLORS[i % LANTERN_COLORS.length],
+}))
 
 // --- The Ridge, the upper playfield (conductor kind-pinball/t-022) --------
 //
@@ -1216,6 +1236,7 @@ export const AMI_VILLAGE_GREYBOX: TableDef = {
     },
   ],
   hero: HERO,
+  lanterns: LANTERNS,
   zones: [
     {
       // The Ridge: everything past the arch's crown, short of the backbox.

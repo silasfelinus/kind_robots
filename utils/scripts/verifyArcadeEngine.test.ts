@@ -4067,6 +4067,54 @@ async function runPinballCalmCamera() {
   runtime.dispose()
 }
 
+/** kind-pinball/t-028: sculpted, lit toys and scenery; the physics untouched. */
+async function runPinballDressing() {
+  const table = AMI_VILLAGE_GREYBOX
+  const colliders = JSON.stringify(table.colliders)
+  const scene = new PinballScene(table, {} as HTMLCanvasElement, () =>
+    stubRenderer({ disposed: 0, frames: 0 }),
+  )
+  const dressing = scene.dressed!
+  assert.ok(dressing, 'the table is dressed')
+  const pops = table.colliders.filter((c) => c.kind === 'post' && c.kick)
+  assert.ok(pops.length >= 6, 'the village and the Ridge have their pops')
+  assert.deepEqual(
+    [...dressing.pops.keys()].sort(),
+    pops.map((p) => p.id).sort(),
+    'every pop bumper is a lit lantern cap',
+  )
+  assert.equal(dressing.lanternCount, table.lanterns?.length ?? 0)
+  assert.ok(dressing.lanternCount >= 8, 'lanterns line the rails and the Ridge')
+  for (const lantern of table.lanterns ?? []) {
+    const [x] = lantern.at
+    assert.ok(
+      (x < 0 && lantern.side === -1) || (x > 0 && lantern.side === 1),
+      'every lantern hangs out over the rail, never over a lane',
+    )
+  }
+  // A pop that fires flashes its cap, then settles back.
+  const lit = dressing.pops.get(pops[0]!.id)!
+  const rest = lit.emissiveIntensity
+  scene.pulse(pops[0]!.id)
+  scene.sync([], {})
+  assert.ok(lit.emissiveIntensity > rest * 4, 'the cap flashes')
+  for (let i = 0; i < 30; i++) scene.sync([], {})
+  assert.ok(Math.abs(lit.emissiveIntensity - rest) < 1e-6, 'and settles')
+  // The lanterns follow the GI: out in a blackout, back after it.
+  for (let i = 0; i < 30; i++) scene.render()
+  const glow = dressing.lanternGlow
+  assert.ok(glow > 1, 'the lanterns are lit')
+  scene.setLamps({}, 0)
+  for (let i = 0; i < 120; i++) scene.render()
+  assert.ok(dressing.lanternGlow < glow * 0.1, 'a blackout puts them out')
+  scene.setLamps({}, 1)
+  for (let i = 0; i < 120; i++) scene.render()
+  assert.ok(dressing.lanternGlow > glow * 0.8, 'and they come back')
+  // The dressing is scenery: the table's colliders are untouched by it.
+  assert.equal(JSON.stringify(table.colliders), colliders)
+  scene.dispose()
+}
+
 async function runPinballGuide() {
   // conductor kind-pinball/t-015: the table guide. Every page fits the
   // 360x640 cabinet, the map's numbers match the copy, and the hidden room
@@ -4464,6 +4512,7 @@ await runPinballMastery()
 await runPinballRidge()
 await runPinballRidgeFlippers()
 await runPinballCalmCamera()
+await runPinballDressing()
 await runPinballGuide()
 await runPinballToys()
 await runPinballStage()

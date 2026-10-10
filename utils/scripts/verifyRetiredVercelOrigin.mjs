@@ -31,4 +31,6 @@ if (offenders.length) {
   )
 }
 
-process.stdout.write('Cypress and HTTP examples use no retired hosting targets.\n')
+process.stdout.write(
+  'Cypress and HTTP examples use no retired hosting targets.\n',
+)

@@ -45,6 +45,14 @@ export const CREDITS: string[] = [
   'THANK YOU FOR PLAYING',
 ]
 
+/** Shown at the end only when every relic was found: what the relics remember. */
+export const TRUE_ENDING: string[] = [
+  'THE RELICS GROW WARM IN HIS PACK.',
+  'EACH ONE A NAME THE BELL STOLE.',
+  'ZUZU SPEAKS THEM ALOUD, ONE BY ONE,',
+  'AND THE DEAD WALK HOME AT LAST.',
+]
+
 /** Total relics hidden across the book. */
 export const RELIC_COUNT = ACTS.reduce((n, a) => n + a.secrets.length, 0)
 

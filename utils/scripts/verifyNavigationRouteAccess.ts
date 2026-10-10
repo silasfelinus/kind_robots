@@ -10,6 +10,7 @@ import {
   navigationPermissions,
 } from '@/stores/helpers/navigationAccess'
 import { evaluateNavigationRouteAccess } from '@/stores/helpers/navigationRouteAccess'
+import { tutorialPageKey } from '@/stores/tutorialStore'
 
 const items: ChannelContentItem[] = [
   {
@@ -410,6 +411,29 @@ assert.ok(
     "const arcadeActive = computed(() => route.path.startsWith('/play/arcade'))",
   ),
   'The Arcade shortcut must stay active throughout the Arcade route tree.',
+)
+
+assert.equal(tutorialPageKey('play', 'arcade'), 'play/arcade')
+assert.equal(tutorialPageKey('play', ' '), '')
+assert.match(
+  workspaceHeaderSource,
+  /tutorialUnseen[\s\S]*?'tutorial-unseen /,
+  'The tutorial toggle must highlight a page whose tutorial this browser has not opened yet.',
+)
+assert.match(
+  workspaceHeaderSource,
+  /if \(!tab\.tutorial\?\.explicit\) return ''/,
+  'Only pages with authored help may light the unseen-tutorial highlight.',
+)
+assert.match(
+  workspaceHeaderSource,
+  /if \(open && pageKey\) tutorialStore\.markPageSeen\(pageKey\)/,
+  'Opening the workspace sheet on a page must mark its tutorial seen.',
+)
+assert.match(
+  workspaceHeaderSource,
+  /onMounted\(\(\) => tutorialStore\.hydrate\(\)\)/,
+  'Seen-page state must hydrate after mount so the server and client render the same toggle.',
 )
 
 const legacySessionSource = readFileSync(

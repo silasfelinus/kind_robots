@@ -384,33 +384,50 @@
         in #1708 ("fix tutorial header order") and now to the end; both moves
         say the same thing, that it is a utility rather than navigation.
       -->
+      <!--
+        NEW-PAGE HIGHLIGHT. Silas, 2026-10-10: "maybe we can have a highlight
+        option with the tutorial icon if a user hasn't viewed that page
+        before." A page whose tab authors its own tutorial lights this button
+        until the workspace sheet has been open on it once; tutorialStore
+        remembers which pages have been seen, per browser.
+      -->
       <button
         type="button"
         class="btn btn-ghost btn-sm btn-square shrink-0 rounded-xl border border-base-300"
-        :class="
+        :class="[
           workspaceSheetOpen
             ? 'border-primary bg-primary/15 text-primary'
-            : 'bg-base-100'
-        "
+            : tutorialUnseen
+              ? 'tutorial-unseen border-secondary bg-secondary/15 text-secondary'
+              : 'bg-base-100',
+        ]"
         :aria-label="workspaceToggleLabel"
         :title="workspaceToggleLabel"
         :aria-expanded="workspaceSheetOpen"
         @click="navStore.toggleWorkspaceSheet()"
       >
-        <Icon name="kind-icon:question" class="kr-icon-5" />
+        <span class="indicator">
+          <Icon name="kind-icon:question" class="kr-icon-5" />
+          <span
+            v-if="tutorialUnseen && !workspaceSheetOpen"
+            class="indicator-item h-2.5 w-2.5 rounded-full bg-secondary ring-2 ring-base-100"
+            aria-hidden="true"
+          />
+        </span>
       </button>
     </div>
   </header>
 </template>
 
 <script setup lang="ts">
-import { computed, onBeforeUnmount, watch } from 'vue'
+import { computed, onBeforeUnmount, onMounted, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import type { ResolvedTab } from '@/stores/helpers/channelContent'
 import { useArtJobStore } from '@/stores/artJobStore'
 import { useChannelContentStore } from '@/stores/channelContentStore'
 import { useNavStore } from '@/stores/navStore'
 import { usePageStore } from '@/stores/pageStore'
+import { tutorialPageKey, useTutorialStore } from '@/stores/tutorialStore'
 import { useUserStore } from '@/stores/userStore'
 import { tabRouteTarget } from '@/utils/tabNavigation'
 
@@ -481,9 +498,14 @@ const showBackButton = computed(() => navStore.canGoBack)
 
 const workspaceSheetOpen = computed(() => navStore.workspaceSheetOpen)
 
-const workspaceToggleLabel = computed(() =>
-  workspaceSheetOpen.value ? 'Close workspace' : 'Open workspace',
-)
+const tutorialStore = useTutorialStore()
+
+const workspaceToggleLabel = computed(() => {
+  if (workspaceSheetOpen.value) return 'Close workspace'
+  return tutorialUnseen.value
+    ? 'New here? Open the tutorial for this page'
+    : 'Open workspace'
+})
 
 // Lit when you are already in the dungeon, matching how the workspace toggle
 // shows its own open state. startsWith rather than an equality check because
@@ -601,6 +623,26 @@ const activeTabConfig = computed<ResolvedTab>(() => {
     fallbackTab
   )
 })
+
+const activeTutorialPageKey = computed(() => {
+  const tab = activeTabConfig.value
+  if (!tab.tutorial?.explicit) return ''
+  return tutorialPageKey(tab.channelKey, tab.tabKey)
+})
+
+const tutorialUnseen = computed(() =>
+  tutorialStore.isPageUnseen(activeTutorialPageKey.value),
+)
+
+onMounted(() => tutorialStore.hydrate())
+
+watch(
+  () => [workspaceSheetOpen.value, activeTutorialPageKey.value] as const,
+  ([open, pageKey]) => {
+    if (open && pageKey) tutorialStore.markPageSeen(pageKey)
+  },
+  { immediate: true },
+)
 
 const activeTitle = computed(
   () =>
@@ -741,6 +783,25 @@ function goBack(): void {
     min-width: 2.75rem;
     height: 2.75rem;
     min-height: 2.75rem;
+  }
+}
+.tutorial-unseen {
+  animation: tutorial-unseen-pulse 2.4s ease-in-out infinite;
+}
+
+@keyframes tutorial-unseen-pulse {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 color-mix(in oklab, var(--color-secondary) 45%, transparent);
+  }
+  50% {
+    box-shadow: 0 0 0 6px color-mix(in oklab, var(--color-secondary) 0%, transparent);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tutorial-unseen {
+    animation: none;
   }
 }
 </style>

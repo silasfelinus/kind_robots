@@ -3788,6 +3788,45 @@ async function runPinballToys() {
   runtime.dispose()
 }
 
+/** kind-pinball/t-020: the machine stands in a lit room, never a black void. */
+async function runPinballStage() {
+  const table = AMI_VILLAGE_GREYBOX
+  const resources = liveRenderResources()
+  const scene = new PinballScene(table, {} as HTMLCanvasElement, () =>
+    stubRenderer({ disposed: 0, frames: 0 }),
+  )
+  scene.resize(1440, 900, 1)
+  const stage = scene.stage
+  assert.ok(stage.world.children.length > 10, 'the room is furnished')
+  assert.ok(stage.cabinet.children.length > 5, 'the cabinet has a body')
+  assert.ok(stage.backglass?.visible, 'the backglass shows over the DMD')
+  assert.ok(scene.scene.fog, 'the room fades into the dark')
+  // The cabinet's legs stand on the room's floor.
+  let legs = 0
+  stage.world.traverse((node) => {
+    const mesh = node as THREE.Mesh
+    if (!(mesh.geometry instanceof THREE.CylinderGeometry)) return
+    const { height } = mesh.geometry.parameters
+    if (Math.abs(mesh.position.y - height / 2 - -1) < 1e-6) legs++
+  })
+  assert.ok(legs >= 4, 'four legs reach the floor')
+  // The neighbours' spotlights are a high-tier luxury.
+  scene.forceQuality('high')
+  assert.ok(stage.spotsLit > 0, 'spotlit neighbours on the high tier')
+  scene.forceQuality('low')
+  assert.equal(stage.spotsLit, 0, 'none on the low tier')
+  scene.forceQuality(null)
+  // The backglass fades with the backbox when the camera looks into the room.
+  scene.setView('sub-table')
+  for (let i = 0; i < 90; i++) scene.render()
+  assert.ok(!stage.backglass?.visible, 'the backglass gets out of the way')
+  scene.setView('main')
+  for (let i = 0; i < PHYSICS_HZ; i++) scene.render()
+  assert.ok(stage.backglass?.visible, 'and comes back')
+  scene.dispose()
+  assert.equal(liveRenderResources(), resources, 'the room frees its meshes')
+}
+
 async function runPinballGuide() {
   // conductor kind-pinball/t-015: the table guide. Every page fits the
   // 360x640 cabinet, the map's numbers match the copy, and the hidden room
@@ -4183,6 +4222,7 @@ await runPinballSubRules()
 await runPinballMastery()
 await runPinballGuide()
 await runPinballToys()
+await runPinballStage()
 await runPinballTouch()
 await runPinballDevices()
 runPinballAudio()

@@ -12,6 +12,12 @@
       :style="{ '--arcade-accent': meta?.accent ?? '#f472b6' }"
       @contextmenu="onContextMenu"
     >
+      <div
+        v-if="(locked || fullscreen) && meta?.titleArt"
+        class="cabinet-splash"
+        :style="{ backgroundImage: `url(${meta.titleArt})` }"
+        aria-hidden="true"
+      />
       <div class="cabinet-marquee">
         <img
           v-if="marqueeArt"
@@ -1561,6 +1567,7 @@ onBeforeUnmount(() => {
 }
 
 .arcade-cabinet--fullscreen {
+  position: relative;
   width: 100%;
   height: 100%;
   max-width: none;
@@ -1581,6 +1588,7 @@ onBeforeUnmount(() => {
   display: grid;
   place-items: center;
   padding: 0.5rem;
+  background: none;
 }
 
 .arcade-cabinet--fullscreen .cabinet-bezel {
@@ -1590,6 +1598,52 @@ onBeforeUnmount(() => {
 
 .arcade-cabinet--fullscreen .cabinet-panel {
   flex: 0 0 auto;
+}
+
+/* Behind the screen in fullscreen and pinned play: the game's splash art,
+   blurred and dimmed so the screen stays the brightest thing (t-020). The
+   cabinet isolates its stacking, so the splash sits under everything in it. */
+.arcade-cabinet--fullscreen,
+.arcade-cabinet--locked {
+  isolation: isolate;
+  overflow: hidden;
+}
+
+.cabinet-splash {
+  position: absolute;
+  inset: -6%;
+  z-index: -1;
+  background-size: cover;
+  background-position: center;
+  filter: blur(26px) brightness(0.45) saturate(1.3);
+  transform: scale(1.06);
+  pointer-events: none;
+}
+
+.cabinet-splash::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    ellipse at 50% 45%,
+    rgba(5, 3, 15, 0) 30%,
+    rgba(5, 3, 15, 0.7) 85%
+  );
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .cabinet-splash {
+    animation: cabinet-splash-drift 40s ease-in-out infinite alternate;
+  }
+}
+
+@keyframes cabinet-splash-drift {
+  from {
+    transform: scale(1.06) translate(-1%, -1%);
+  }
+  to {
+    transform: scale(1.12) translate(1%, 1%);
+  }
 }
 
 /* Pinned play view on touch devices: the game screen fills the device and owns

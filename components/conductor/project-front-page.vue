@@ -8,156 +8,161 @@
 <template>
   <div class="kr-surface bg-base-200">
     <div class="kr-scroll flex w-full flex-col overscroll-contain">
-    <!-- HERO -->
-    <header class="relative w-full overflow-hidden">
-      <div
-        class="absolute inset-0 bg-gradient-to-br from-primary/25 via-secondary/15 to-accent/20"
-      />
-      <img
-        v-if="!heroFailed"
-        :src="heroSrc"
-        :alt="view.title"
-        class="absolute inset-0 h-full w-full object-cover"
-        @error="onHeroError"
-      />
-      <div
-        class="absolute inset-0 bg-gradient-to-t from-base-200 via-base-200/70 to-transparent"
-      />
-      <div
-        class="relative kr-container flex max-w-5xl flex-col gap-4 px-5 pb-6 pt-16 sm:pt-24"
-      >
-        <div class="flex flex-wrap items-center gap-2">
-          <span
-            v-if="view.icon"
-            class="flex size-11 shrink-0 items-center justify-center rounded-2xl border border-white/20 bg-base-100/70 text-primary shadow-lg backdrop-blur"
+      <!-- HERO -->
+      <header class="relative w-full overflow-hidden">
+        <div
+          class="absolute inset-0 bg-gradient-to-br from-primary/25 via-secondary/15 to-accent/20"
+        />
+        <img
+          v-if="!heroFailed"
+          :src="heroSrc"
+          :alt="view.title"
+          class="absolute inset-0 h-full w-full object-cover"
+          @error="onHeroError"
+        />
+        <div
+          class="absolute inset-0 bg-gradient-to-t from-base-200 via-base-200/70 to-transparent"
+        />
+        <div
+          class="relative kr-container flex max-w-5xl flex-col gap-4 px-5 pb-6 pt-16 sm:pt-24"
+        >
+          <div class="flex flex-wrap items-center gap-2">
+            <span
+              v-if="view.icon"
+              class="flex size-11 shrink-0 items-center justify-center rounded-2xl border border-white/20 bg-base-100/70 text-primary shadow-lg backdrop-blur"
+            >
+              <Icon :name="view.icon" class="kr-icon-6" />
+            </span>
+            <span
+              v-if="statusLabel"
+              class="kr-badge-sm rounded-xl font-semibold"
+              :class="statusBadgeClass"
+              >{{ statusLabel }}</span
+            >
+            <span
+              v-if="view.bridge"
+              class="kr-badge-sm badge-info rounded-xl font-semibold gap-1"
+            >
+              <Icon name="kind-icon:external-link" class="kr-icon-3" />External
+              app
+            </span>
+          </div>
+
+          <p
+            class="text-3xl font-black leading-tight text-base-content sm:text-5xl"
           >
-            <Icon :name="view.icon" class="kr-icon-6" />
-          </span>
-          <span
-            v-if="statusLabel"
-            class="kr-badge-sm rounded-xl font-semibold"
-            :class="statusBadgeClass"
-            >{{ statusLabel }}</span
+            {{ view.title }}
+          </p>
+          <p
+            v-if="view.tagline"
+            class="max-w-2xl text-base font-semibold text-base-content/80 sm:text-lg"
           >
-          <span
-            v-if="view.bridge"
-            class="kr-badge-sm badge-info rounded-xl font-semibold gap-1"
+            {{ view.tagline }}
+          </p>
+
+          <div class="flex flex-wrap items-center gap-2 pt-1">
+            <a
+              v-if="launch"
+              :href="launch.href"
+              :target="launch.external ? '_blank' : undefined"
+              :rel="launch.external ? 'noopener noreferrer' : undefined"
+              class="kr-btn-primary-2xl gap-1.5 sm:btn-md"
+            >
+              <Icon
+                :name="launch.icon || 'kind-icon:sparkles'"
+                class="kr-icon-4"
+              />
+              {{ launch.label }}
+            </a>
+            <a
+              v-for="link in view.links || []"
+              :key="link.label"
+              :href="link.href"
+              :target="link.external ? '_blank' : undefined"
+              :rel="link.external ? 'noopener noreferrer' : undefined"
+              class="btn btn-ghost btn-sm gap-1.5 rounded-2xl border border-base-300 bg-base-100/60 backdrop-blur"
+            >
+              <Icon
+                :name="link.icon || 'kind-icon:external-link'"
+                class="kr-icon-4"
+              />
+              {{ link.label }}
+            </a>
+          </div>
+
+          <!-- Stat strip -->
+          <div
+            v-if="view.stats && view.stats.length"
+            class="mt-1 flex flex-wrap gap-2"
           >
-            <Icon name="kind-icon:external-link" class="kr-icon-3" />External app
-          </span>
+            <div
+              v-for="stat in view.stats"
+              :key="stat.label"
+              class="flex items-center gap-2 kr-panel-flat bg-base-100/70 px-3 py-1.5 backdrop-blur"
+            >
+              <Icon
+                v-if="stat.icon"
+                :name="stat.icon"
+                class="size-4 text-primary/70"
+              />
+              <span class="kr-text-black-sm leading-none text-base-content">{{
+                stat.value
+              }}</span>
+              <span class="kr-text-dim-xs font-semibold">{{ stat.label }}</span>
+            </div>
+          </div>
         </div>
+      </header>
 
-        <p
-          class="text-3xl font-black leading-tight text-base-content sm:text-5xl"
-        >
-          {{ view.title }}
-        </p>
-        <p
-          v-if="view.tagline"
-          class="max-w-2xl text-base font-semibold text-base-content/80 sm:text-lg"
-        >
-          {{ view.tagline }}
-        </p>
+      <div
+        class="kr-container flex flex-col gap-5 px-5 pb-10 pt-5"
+        :class="wide ? 'max-w-7xl' : 'max-w-5xl'"
+      >
+        <!-- Interactive slot — project-specific UI drops in here -->
+        <slot name="interactive" :project="project" />
 
-        <div class="flex flex-wrap items-center gap-2 pt-1">
+        <!-- Gallery strip -->
+        <ProjectGalleryStrip
+          v-if="view.collectionLabel"
+          :collection-label="view.collectionLabel"
+          :title="`${view.title} gallery`"
+        />
+
+        <!-- Deliverables / status -->
+        <ProjectDeliverablesPanel
+          v-if="showDeliverables"
+          :project="project"
+          :fallback="view.deliverables"
+          :goal="view.description"
+        />
+
+        <!-- Bottom launch banner for bridge projects -->
+        <section
+          v-if="view.bridge && launch"
+          class="flex flex-col items-center gap-3 rounded-3xl border border-info/30 bg-info/5 p-6 text-center"
+        >
+          <Icon name="kind-icon:external-link" class="kr-icon-8 text-info/70" />
+          <p class="kr-text-dim-sm-70">
+            This experience lives in its own app. Launch it to dive in.
+          </p>
           <a
-            v-if="launch"
             :href="launch.href"
             :target="launch.external ? '_blank' : undefined"
             :rel="launch.external ? 'noopener noreferrer' : undefined"
-            class="kr-btn-primary-2xl gap-1.5 sm:btn-md"
-          >
-            <Icon :name="launch.icon || 'kind-icon:sparkles'" class="kr-icon-4" />
-            {{ launch.label }}
-          </a>
-          <a
-            v-for="link in view.links || []"
-            :key="link.label"
-            :href="link.href"
-            :target="link.external ? '_blank' : undefined"
-            :rel="link.external ? 'noopener noreferrer' : undefined"
-            class="btn btn-ghost btn-sm gap-1.5 rounded-2xl border border-base-300 bg-base-100/60 backdrop-blur"
+            class="btn btn-info btn-sm gap-1.5 rounded-2xl"
           >
             <Icon
-              :name="link.icon || 'kind-icon:external-link'"
+              :name="launch.icon || 'kind-icon:external-link'"
               class="kr-icon-4"
             />
-            {{ link.label }}
+            {{ launch.label }}
           </a>
-        </div>
+        </section>
 
-        <!-- Stat strip -->
-        <div
-          v-if="view.stats && view.stats.length"
-          class="mt-1 flex flex-wrap gap-2"
-        >
-          <div
-            v-for="stat in view.stats"
-            :key="stat.label"
-            class="flex items-center gap-2 kr-panel-flat bg-base-100/70 px-3 py-1.5 backdrop-blur"
-          >
-            <Icon
-              v-if="stat.icon"
-              :name="stat.icon"
-              class="size-4 text-primary/70"
-            />
-            <span class="kr-text-black-sm leading-none text-base-content">{{
-              stat.value
-            }}</span>
-            <span class="kr-text-dim-xs font-semibold">{{
-              stat.label
-            }}</span>
-          </div>
-        </div>
-      </div>
-    </header>
-
-    <div class="kr-container flex max-w-5xl flex-col gap-5 px-5 pb-10 pt-5">
-      <!-- Interactive slot — project-specific UI drops in here -->
-      <slot name="interactive" :project="project" />
-
-      <!-- Gallery strip -->
-      <ProjectGalleryStrip
-        v-if="view.collectionLabel"
-        :collection-label="view.collectionLabel"
-        :title="`${view.title} gallery`"
-      />
-
-      <!-- Deliverables / status -->
-      <ProjectDeliverablesPanel
-        v-if="showDeliverables"
-        :project="project"
-        :fallback="view.deliverables"
-        :goal="view.description"
-      />
-
-      <!-- Bottom launch banner for bridge projects -->
-      <section
-        v-if="view.bridge && launch"
-        class="flex flex-col items-center gap-3 rounded-3xl border border-info/30 bg-info/5 p-6 text-center"
-      >
-        <Icon name="kind-icon:external-link" class="kr-icon-8 text-info/70" />
-        <p class="kr-text-dim-sm-70">
-          This experience lives in its own app. Launch it to dive in.
-        </p>
-        <a
-          :href="launch.href"
-          :target="launch.external ? '_blank' : undefined"
-          :rel="launch.external ? 'noopener noreferrer' : undefined"
-          class="btn btn-info btn-sm gap-1.5 rounded-2xl"
-        >
-          <Icon
-            :name="launch.icon || 'kind-icon:external-link'"
-            class="kr-icon-4"
-          />
-          {{ launch.label }}
-        </a>
-      </section>
-
-      <!-- Optional closing slot, last inside the scroll (e.g. room for a
+        <!-- Optional closing slot, last inside the scroll (e.g. room for a
            fixed bottom sheet the project's UI opens over the page) -->
-      <slot name="footer" :project="project" />
-    </div>
+        <slot name="footer" :project="project" />
+      </div>
     </div>
   </div>
 </template>
@@ -178,8 +183,10 @@ const props = withDefaults(
     fallback: ProjectFrontConfig
     /** Hide the deliverables panel (e.g. flagship pages render their own). */
     showDeliverables?: boolean
+    /** Let the interactive slot use a wider column. */
+    wide?: boolean
   }>(),
-  { showDeliverables: true },
+  { showDeliverables: true, wide: false },
 )
 
 const projectStore = useProjectStore()

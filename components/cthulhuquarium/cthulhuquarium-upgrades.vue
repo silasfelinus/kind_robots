@@ -18,13 +18,13 @@
         +{{ tankStore.lastCollectCoins }} from coins
       </p>
     </div>
-    <div class="grid grid-cols-[repeat(auto-fit,minmax(15rem,1fr))] gap-2">
+    <div class="flex flex-col gap-1.5">
       <div
         v-for="upgrade in tankStore.upgrades"
         :key="upgrade.track"
-        class="flex overflow-hidden rounded-2xl border border-base-300 bg-base-200"
+        class="flex items-center overflow-hidden rounded-2xl border border-base-300 bg-base-200"
       >
-        <div class="w-28 shrink-0">
+        <div class="w-16 shrink-0 self-stretch">
           <kr-art-plate
             :source="{ imagePath: upgradeArt(upgrade.track) }"
             variant="card"
@@ -35,9 +35,13 @@
             placeholder-icon="kind-icon:sparkles"
           />
         </div>
-        <div class="flex min-w-0 flex-1 flex-col gap-1 p-3">
-          <p class="truncate text-sm font-bold">{{ upgrade.title }}</p>
-          <p class="text-xs opacity-70">{{ upgrade.description }}</p>
+        <div class="flex min-w-0 flex-1 flex-col gap-1 px-2 py-1.5">
+          <p class="truncate text-sm font-bold" :title="upgrade.description">
+            {{ upgrade.title }}
+          </p>
+          <p class="truncate text-xs opacity-70" :title="upgrade.description">
+            {{ upgrade.description }}
+          </p>
           <div
             class="flex gap-1"
             role="meter"
@@ -53,22 +57,22 @@
               :class="pip <= upgrade.level ? 'bg-primary' : 'bg-base-300'"
             />
           </div>
+        </div>
+        <div class="shrink-0 pr-1.5">
           <button
             v-if="upgrade.nextCost !== null"
             type="button"
-            class="btn btn-primary btn-sm mt-auto min-h-11"
+            class="cq-price btn btn-primary btn-sm min-h-11 min-w-20 gap-1"
             :disabled="
               tankStore.coins < upgrade.nextCost ||
               tankStore.upgradePending !== null
             "
             @click="tankStore.purchaseUpgrade(upgrade.track)"
           >
-            <Icon name="kind-icon:coin" class="size-4" />
+            <Icon name="kind-icon:coin" class="size-4 text-warning" />
             {{ upgrade.nextCost }}
           </button>
-          <span v-else class="kr-badge-neutral-xs mt-auto self-start">
-            Fully upgraded
-          </span>
+          <span v-else class="kr-badge-neutral-xs">Maxed</span>
         </div>
       </div>
     </div>
@@ -93,3 +97,12 @@ function upgradeArt(track: string): string | null {
   return plateArt(art.plate) ?? artByName(art.standIn)
 }
 </script>
+
+<style scoped>
+.cq-price:disabled {
+  opacity: 1;
+  color: color-mix(in oklab, var(--color-base-content) 75%, transparent);
+  background: var(--color-base-200);
+  border-color: var(--color-base-300);
+}
+</style>

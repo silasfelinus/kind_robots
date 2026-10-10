@@ -938,6 +938,8 @@ const bestiaryMonsterSelect = {
   tier: true,
   behavior: true,
   hue: true,
+  ...monsterRaritySelect,
+  ...monsterEconomyOverridesSelect,
 } satisfies Prisma.MonsterSelect
 
 type BestiaryMonster = Prisma.MonsterGetPayload<{
@@ -959,6 +961,8 @@ export interface BestiaryEntry {
   collected: boolean
   firstAcquiredAt: string | null
   fieldNote: string | null
+  // What a re-order costs, so the book can print it on the button.
+  cost: number
   // t-031: distinct from `collected` -- true only while a live AquariumStock
   // row exists for this species. False after a sell (t-030) even though
   // `collected` stays true forever; drives the book's re-order affordance.
@@ -1010,6 +1014,7 @@ function toBestiaryEntry(
     collected,
     firstAcquiredAt: firstAcquiredAt ? firstAcquiredAt.toISOString() : null,
     fieldNote: collected ? monster.fieldNote : null,
+    cost: unlockCost(deriveFishRarityTier(monster), monster.unlockCost),
     // Never owned means never bought a live fish either -- collected can
     // still be true here in the future via a non-purchase route (e.g. a
     // hatched offspring), so this doesn't just mirror `collected`.

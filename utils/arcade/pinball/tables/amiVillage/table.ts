@@ -485,6 +485,18 @@ const HERO: HeroDef = (() => {
   return {
     huts,
     beacon: { at: [0, 0.058, LOCK_Z - 0.035] },
+    // The post house over the lock pocket: a roof over its back half (the
+    // mouth stays open) on the pocket's walls, the parcels on their tops.
+    depot: {
+      roof: [0, WALL_HEIGHT + 0.014, LOCK_Z - 0.0145],
+      width: 0.064,
+      depth: 0.03,
+      slots: [
+        [-0.025, WALL_HEIGHT + 0.0055, LOCK_Z + 0.013],
+        [0.025, WALL_HEIGHT + 0.0055, LOCK_Z + 0.013],
+        [-0.025, WALL_HEIGHT + 0.0055, LOCK_Z + 0.027],
+      ],
+    },
     drone: {
       perch: [-0.16, 0.085, TOP_Z + 0.13],
       circle: { at: [cx, 0.09, -0.48], radius: 0.11 },

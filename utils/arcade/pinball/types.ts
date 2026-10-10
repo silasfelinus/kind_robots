@@ -259,6 +259,11 @@ export type HeroDef = {
   beacon: { at: Vec3 }
   /** The net drone: its perch, the loop it flies in multiball, and its drop point. */
   drone: { perch: Vec3; circle: { at: Vec3; radius: number }; deliver: Vec3 }
+  /**
+   * The Care Package Depot over the lock (t-031): the centre of its roof's
+   * eaves, the roof's width and depth, and where each packed parcel sits.
+   */
+  depot?: { roof: Vec3; width: number; depth: number; slots: Vec3[] }
 }
 
 /**

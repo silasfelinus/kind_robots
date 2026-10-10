@@ -7,6 +7,7 @@ import {
   platePath,
   sectionPlate,
 } from '../zuzuGamebook/art'
+import { SECTION_PLATES } from '../zuzuGamebook/sectionArt'
 import { journal } from '../zuzuGamebook/journal'
 import {
   BOOK,
@@ -86,18 +87,36 @@ for (const node of Object.values(BOOK)) {
     node.id + ': wide plates sit above or below the text, tall ones beside it',
   )
 }
-const usedPlates = new Set(
-  Object.values(BOOK).flatMap((node) =>
-    PLATES[node.id] ? [node.art, node.id] : [node.art],
-  ),
-)
+const usedPlates = new Set(Object.values(BOOK).map((node) => node.art))
 for (const key of Object.keys(PLATES)) {
   assert.ok(usedPlates.has(key), 'plate ' + key + ' is not used by any scene')
 }
-for (const file of readdirSync(scenesDir)) {
+for (const file of readdirSync(scenesDir, { withFileTypes: true })) {
+  if (file.isDirectory()) continue
   assert.ok(
-    Object.values(PLATES).some((p) => p.file + '.webp' === file),
-    'stray plate file ' + file,
+    Object.values(PLATES).some((p) => p.file + '.webp' === file.name),
+    'stray plate file ' + file.name,
+  )
+}
+// One plate per section: keyed by a real section id, filed under scenes/sections/, reviewed provenance.
+for (const [id, own] of Object.entries(SECTION_PLATES)) {
+  assert.ok(BOOK[id], 'section plate for unknown section ' + id)
+  assert.equal(
+    own.file,
+    'sections/' + id,
+    id + ': section plates live in scenes/sections/',
+  )
+  assert.equal(own.fit, 'exact', id + ': a section plate depicts its section')
+  assert.ok(
+    own.alt.length > 40 && own.artImageId > 0,
+    id + ': alt text and provenance',
+  )
+}
+const sectionsDir = join(scenesDir, 'sections')
+for (const file of existsSync(sectionsDir) ? readdirSync(sectionsDir) : []) {
+  assert.ok(
+    SECTION_PLATES[file.replace(/\.webp$/, '')],
+    'stray section plate file ' + file,
   )
 }
 

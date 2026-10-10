@@ -158,6 +158,8 @@ import {
   WIZARD_AT,
   WIZARD_NAME,
   RAMP_SHOTS,
+  FIRST_MULTIBALL_LOCKS,
+  LOCKS_FOR_MULTIBALL,
 } from '../arcade/pinball/rules/village'
 import { AMI_VILLAGE_GREYBOX } from '../arcade/pinball/tables/amiVillage/table'
 import type {
@@ -2872,7 +2874,7 @@ async function runPinballRules() {
   assert.equal(s.play.locks, 0, 'an unlit lock is just a scoop')
   s = lockOne(s)
   assert.equal(s.play.locks, 1)
-  assert.equal(scene('lock')?.text, 'LOCK 1')
+  assert.equal(scene('lock')?.text, 'PACKAGE 1', 'the depot packs it')
   s = wait(s, LATER)
   const beforeMultiball = s
   s = lockOne(s)
@@ -2882,7 +2884,7 @@ async function runPinballRules() {
     showTriggers(beforeMultiball, s, 0).some((show) => show.id === 'secret'),
     'multiball starts with a light show',
   )
-  assert.ok(scene('multiball'))
+  assert.equal(scene('multiball')?.sub, 'CARE PACKAGES OUT')
   assert.ok(
     effects.some((e) => e.type === 'add-ball' && e.count === MULTIBALL_ADDS),
     'the runtime is asked for the extra balls',
@@ -2896,7 +2898,7 @@ async function runPinballRules() {
   }
   later = lockOne(later)
   assert.ok(!later.play.multiball.running, 'later ones take three locks')
-  assert.equal(scene('lock')?.sub, 'MULTIBALL IN 1')
+  assert.equal(scene('lock')?.sub, '1 MORE TO SEND')
   // A drain in the multiball ball save comes straight back.
   s = drain(s, 2)
   assert.equal(s.ballsInPlay, 1 + MULTIBALL_ADDS, 'saved')
@@ -4144,6 +4146,68 @@ async function runPinballMetalwork() {
   scene.dispose()
 }
 
+/** kind-pinball/t-031: the Care Package Depot packs locked balls and sends them out. */
+async function runPinballDepot() {
+  const table = AMI_VILLAGE_GREYBOX
+  assert.ok(table.hero?.depot, 'the lock is the Care Package Depot')
+  assert.ok(
+    (table.hero?.depot?.slots.length ?? 0) >= LOCKS_FOR_MULTIBALL,
+    'a parcel slot for every package multiball needs',
+  )
+  const start = () => initialRules(3, 21)
+  // The pose: one package per locked ball; multiball sends them.
+  let s = start()
+  assert.deepEqual(toyPose(s).depot, {
+    packed: 0,
+    needed: FIRST_MULTIBALL_LOCKS,
+    sending: false,
+  })
+  s = { ...s, play: { ...s.play, locks: 1 } }
+  assert.equal(toyPose(s).depot.packed, 1)
+  s = {
+    ...s,
+    play: {
+      ...s.play,
+      locks: 0,
+      multiballs: 1,
+      multiball: { running: true, jackpots: 0, superLit: false },
+    },
+  }
+  assert.deepEqual(toyPose(s).depot, {
+    packed: 0,
+    needed: LOCKS_FOR_MULTIBALL,
+    sending: true,
+  })
+
+  // The toy: parcels pop in as balls lock, then fly to the huts.
+  const scene = new PinballScene(table, {} as HTMLCanvasElement, () =>
+    stubRenderer({ disposed: 0, frames: 0 }),
+  )
+  const toys = scene.heroToys!
+  const base = toyPose(start())
+  const pose = (packed: number, sending: boolean) => ({
+    ...base,
+    depot: { packed, needed: FIRST_MULTIBALL_LOCKS, sending },
+  })
+  scene.setToys(pose(0, false))
+  for (let i = 0; i < 30; i++) scene.render()
+  assert.equal(toys.parcelsWaiting, 0, 'an empty depot')
+  scene.setToys(pose(1, false))
+  for (let i = 0; i < 60; i++) scene.render()
+  assert.equal(toys.parcelsWaiting, 1, 'one package packed')
+  scene.setToys(pose(0, true))
+  scene.render()
+  assert.equal(
+    toys.parcelsFlying,
+    FIRST_MULTIBALL_LOCKS,
+    'multiball sends every package the depot needed',
+  )
+  for (let i = 0; i < 200; i++) scene.render()
+  assert.equal(toys.parcelsFlying, 0, 'every package arrives')
+  assert.equal(toys.parcelsWaiting, 0, 'and the depot is empty again')
+  scene.dispose()
+}
+
 async function runPinballGuide() {
   // conductor kind-pinball/t-015: the table guide. Every page fits the
   // 360x640 cabinet, the map's numbers match the copy, and the hidden room
@@ -4543,6 +4607,7 @@ await runPinballRidgeFlippers()
 await runPinballCalmCamera()
 await runPinballDressing()
 await runPinballMetalwork()
+await runPinballDepot()
 await runPinballGuide()
 await runPinballToys()
 await runPinballStage()

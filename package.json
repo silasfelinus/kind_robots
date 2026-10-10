@@ -126,7 +126,7 @@
     "test:aquarium-economy": "tsx utils/scripts/verifyAquariumEconomy.test.ts",
     "test:zuzu-pinball": "tsx utils/scripts/verifyZuzuPinballPreview.test.ts",
     "test:zuzu-pinball-physics": "tsx utils/scripts/verifyZuzuPinballPhysics.test.ts",
-    "test:arcade-engine": "tsx utils/scripts/verifyArcadeEngine.test.ts && tsx utils/scripts/verifyZuzuGhostTrailFarm.test.ts && tsx utils/scripts/verifyZuzuGhostTrailCampaign.test.ts",
+    "test:arcade-engine": "tsx utils/scripts/verifyArcadeEngine.test.ts && tsx utils/scripts/verifyZuzuGhostTrailFarm.test.ts && tsx utils/scripts/verifyZuzuGhostTrailCampaign.test.ts && tsx utils/scripts/verifyZuzuGhostTrailBosses.test.ts",
     "tune:pinball": "tsx utils/scripts/pinballTuning.ts",
     "test:zuzu-gamebook": "tsx utils/scripts/verifyZuzuGamebook.test.ts",
     "test:zuzu-showdown-sim": "tsx utils/scripts/verifyZuzuShowdownSim.test.ts",

@@ -47,11 +47,19 @@ assert.ok(
   'the unified phone dropdown must render a grouped, directly selectable channel/tab list',
 )
 
+const hasStaticTabWidth =
+  tabSelect.includes('w-[min(18rem,calc(100vw-1rem))]') &&
+  tabSelect.includes('xl:w-[min(22rem,calc(100vw-1rem))]')
+const hasMeasuredTabWidth =
+  tabSelect.includes('width: `${panelWidth}px`') &&
+  tabSelect.includes('maxHeight: `${panelMaxHeight}px`') &&
+  tabSelect.includes('panelWidth.value = Math.min(') &&
+  tabSelect.includes('window.innerWidth - rect.left - VIEWPORT_GUTTER') &&
+  tabSelect.includes('Math.max(1, Math.min(3, fitColumns, neededColumns))')
 assert.ok(
   tabSelect.includes('class="tab-select dropdown dropdown-start min-w-0"') &&
-    tabSelect.includes('w-[min(18rem,calc(100vw-1rem))]') &&
-    tabSelect.includes('xl:w-[min(22rem,calc(100vw-1rem))]'),
-  'the tablet tab menu must open beneath its trigger and stay narrower than the desktop menu',
+    (hasStaticTabWidth || hasMeasuredTabWidth),
+  'tab selector must be an anchored viewport-bounded responsive dropdown',
 )
 assert.equal(
   channelTabList.match(

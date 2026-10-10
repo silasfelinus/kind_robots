@@ -69,6 +69,7 @@ import {
   moveOf,
   projectileBox,
   pushbox,
+  strikeOrigin,
   toWorld,
 } from './sim'
 import {
@@ -991,6 +992,11 @@ export function drawStageArt(
 
 // ---------------------------------------------------------------- fighters
 
+/** A placeholder limb bigger than this (square pixels) is an effect, not a limb. */
+const LIMB_AREA = 60 * 60
+/** A placeholder limb longer than this is drawn as a chain. */
+const LIMB_REACH = 60
+
 function drawFighter(
   g: G,
   f: FighterState,
@@ -1048,13 +1054,24 @@ function drawFighter(
   const crouching =
     f.action === 'crouch' ||
     (f.action === 'attack' && f.attack?.id.startsWith('crouch_') === true)
-  const height = crouching
-    ? data.hurtCrouch.h
-    : f.action === 'jump' || f.action === 'airhit'
-      ? Math.round(standing * 0.8)
-      : standing
+  const sunk = f.attack ? moveOf(data, f.attack) : null
+  const height =
+    sunk?.hurtbox && f.attack && f.attack.frame >= sunk.startup
+      ? sunk.hurtbox.h
+      : crouching
+        ? data.hurtCrouch.h
+        : f.action === 'jump' || f.action === 'airhit'
+          ? Math.round(standing * 0.8)
+          : standing
   const top = floor - height
   const head = Math.max(10, Math.round(width * 0.6))
+  if (height < head) {
+    // Sunk under the water (Submerge): just the ridge of his back.
+    g.fillStyle = colors.dark
+    g.fillRect(x - Math.round(width / 2), top, width, height)
+    g.restore()
+    return
+  }
 
   // Body and head.
   g.fillStyle = colors.dark
@@ -1103,22 +1120,27 @@ function drawFighter(
     g.fillRect(x - Math.round(head / 4), top - 6, Math.round(head / 2), 3)
   }
 
-  // The attacking limb is the live hitbox (or where it will be).
+  // The attacking limb is the live hitbox (or where it will be). Strikes
+  // called down elsewhere and screen-wide supers draw as their own effects
+  // (drawSummons); a long reach is a chain, not a slab.
   if (f.attack) {
     const move = moveOf(data, f.attack)
+    const limb = !move.strikeAt && move.hitbox.w * move.hitbox.h <= LIMB_AREA
     if (
+      limb &&
       move.hitbox.w > 0 &&
       f.attack.frame >= move.startup - 2 &&
       f.attack.frame < move.startup + move.active
     ) {
       const near = move.hitbox.x
       const left = f.facing === 1 ? x + near : x - near - move.hitbox.w
+      const chain = move.hitbox.w > LIMB_REACH
       g.fillStyle = colors.light
       g.fillRect(
         left,
-        floor - move.hitbox.y - move.hitbox.h,
+        floor - move.hitbox.y - (chain ? move.hitbox.h / 2 + 1 : move.hitbox.h),
         move.hitbox.w,
-        move.hitbox.h,
+        chain ? 2 : move.hitbox.h,
       )
     }
   }
@@ -1296,7 +1318,7 @@ function moveRect(
   if (!f.attack) return null
   const move = moveOf(data, f.attack)
   if (move.hitbox.w <= 0 || move.hitbox.h <= 0) return null
-  return rectOf(toWorld(f, move.hitbox), camera)
+  return rectOf(toWorld(strikeOrigin(f, f.attack, move), move.hitbox), camera)
 }
 
 /**
@@ -1554,6 +1576,122 @@ function drawSummons(
             -f.facing,
             sway + k,
           )
+        break
+      }
+      case 'thunderhead':
+      case 'thunderhead-air': {
+        const r = moveRect(f, data, camera)
+        if (!r) break
+        const cx = r.x + r.w / 2
+        const end = move.startup + move.active
+        if (!front && frame < move.startup) {
+          // A storm cloud gathers over the spot, just above head height (the
+          // column's top is under the HUD when the camera zooms): the tell.
+          const t = frame / move.startup
+          const cloud = Math.max(r.y, FLOOR_Y - 110)
+          g.fillStyle = `rgba(148, 163, 184, ${(0.45 + 0.4 * t).toFixed(2)})`
+          g.beginPath()
+          g.ellipse(cx, cloud, 12 + 16 * t, 5 + 4 * t, 0, 0, Math.PI * 2)
+          g.fill()
+          g.fillStyle = `rgba(51, 65, 85, ${(0.5 + 0.4 * t).toFixed(2)})`
+          g.beginPath()
+          g.ellipse(cx, cloud + 3, 10 + 12 * t, 3 + 2 * t, 0, 0, Math.PI)
+          g.fill()
+        }
+        if (front && frame >= move.startup && frame < end + 4) {
+          // The bolt: a jagged white line down the column in a pale glow.
+          const jags = [0, 4, -3, 5, -2, 3, -4, 2, 0]
+          const flip = reducedMotion || frame % 2 === 0 ? 1 : -1
+          const path = () => {
+            g.beginPath()
+            jags.forEach((dx, i) => {
+              const px = cx + dx * flip
+              const py = r.y + (r.h * i) / (jags.length - 1)
+              if (i) g.lineTo(px, py)
+              else g.moveTo(px, py)
+            })
+          }
+          g.strokeStyle = 'rgba(191, 219, 254, 0.5)'
+          g.lineWidth = 5
+          path()
+          g.stroke()
+          g.strokeStyle = '#f8fafc'
+          g.lineWidth = 1.5
+          path()
+          g.stroke()
+        }
+        break
+      }
+      case 'bellow': {
+        if (!front || frame < move.startup || frame > move.startup + 24) break
+        // The roar: arcs spreading from his jaws.
+        const age = frame - move.startup
+        const mouth = x + f.facing * 34
+        g.strokeStyle = `rgba(226, 232, 240, ${(0.7 * (1 - age / 24)).toFixed(2)})`
+        g.lineWidth = 1.5
+        for (const gap of [0, 10, 20]) {
+          const rad = age * 3 + gap
+          const facingAngle = f.facing === 1 ? 0 : Math.PI
+          g.beginPath()
+          g.arc(mouth, FLOOR_Y - 30, rad, facingAngle - 0.7, facingAngle + 0.7)
+          g.stroke()
+        }
+        break
+      }
+      case 'submerge': {
+        if (!front || frame < move.startup) break
+        // Shadow-water around him: only the eyes and the ridge show.
+        g.fillStyle = 'rgba(15, 45, 50, 0.85)'
+        g.beginPath()
+        g.ellipse(x, FLOOR_Y - 1, 40, 5, 0, 0, Math.PI * 2)
+        g.fill()
+        g.fillStyle = '#facc15'
+        g.fillRect(x + f.facing * 14 - 1, FLOOR_Y - 9, 2, 2)
+        g.fillRect(x + f.facing * 20 - 1, FLOOR_Y - 9, 2, 2)
+        break
+      }
+      case 'the-watering-hole': {
+        const end = move.startup + move.active + 30
+        if (frame > end) break
+        if (!front) {
+          // The stage floods to knee height.
+          const rise = Math.min(1, frame / 12) * Math.min(1, (end - frame) / 12)
+          g.fillStyle = `rgba(22, 78, 99, ${(0.55 * rise).toFixed(2)})`
+          g.fillRect(0, FLOOR_Y - 12 * rise, VIEW_WIDTH, 12 * rise + 32)
+          break
+        }
+        const r = moveRect(f, data, camera)
+        if (!r || frame < move.startup) break
+        // He erupts beneath them in a tower of spray.
+        const t = Math.min(1, (frame - move.startup + 2) / 6)
+        g.fillStyle = 'rgba(224, 242, 254, 0.75)'
+        g.beginPath()
+        g.moveTo(r.x - 6, FLOOR_Y)
+        g.lineTo(r.x + r.w / 2, FLOOR_Y - r.h * 1.2 * t)
+        g.lineTo(r.x + r.w + 6, FLOOR_Y)
+        g.closePath()
+        g.fill()
+        break
+      }
+      case 'the-murder': {
+        if (!front || frame < move.startup) break
+        const r = moveRect(f, data, camera)
+        if (!r) break
+        // The flock pours across the screen like black rain.
+        g.fillStyle = '#020617'
+        for (let k = 0; k < 110; k += 1) {
+          const lane = (k * 37) % 100
+          const drift = reducedMotion ? 0 : (frame * 6 + k * 23) % (r.w + 40)
+          const bx = f.facing === 1 ? r.x + drift - 20 : r.x + r.w - drift + 20
+          const by = r.y + (r.h * lane) / 100
+          g.beginPath()
+          g.moveTo(bx - 6, by - 3)
+          g.lineTo(bx, by)
+          g.lineTo(bx + 6, by - 3)
+          g.lineTo(bx, by + 2)
+          g.closePath()
+          g.fill()
+        }
         break
       }
       case 'vespers': {

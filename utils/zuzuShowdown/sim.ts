@@ -20,6 +20,11 @@
 // the strike/grab/guard READ!, counter hits, FIRST ATTACK and REVERSAL, red
 // recoverable health, the three-bar meter, the Combo Breaker, the taunt, and
 // the fling flag for the Siblings.
+//
+// t-016 (Storm Crow and River Croc): flight mode, a dive that bounces off,
+// a grab that reels the victim in, strikes placed at the opponent's spot, a
+// submerged body that only lows can touch with its follow-up, armor that soaks
+// light hits only, and frozen red health.
 
 import {
   EASY_DAMAGE_PERCENT,
@@ -85,6 +90,11 @@ export const AIRHIT_POP = 5 * SUB
 export const AIRHIT_DRIFT = 2 * SUB
 /** A returning boomerang is caught this close (pixels) to its thrower. */
 export const CATCH_RANGE = 16
+/**
+ * A spinning grab passes through up (a 720 twice): for this many frames of the
+ * jump it starts, a finished 360 or 720 still grabs on the ground.
+ */
+const GRAB_LENIENCY = 20
 /** Holding back within this range of an incoming attack guards in place. */
 export const PROXIMITY_GUARD = 140
 
@@ -139,6 +149,11 @@ export const DODGE = {
   },
 } as const
 
+/** Flight mode (Take Wing): speed either way, the height he climbs to, and his ceiling, in pixels. */
+export const FLIGHT_SPEED = 3 * SUB
+export const FLIGHT_HOVER = 40
+export const FLIGHT_CEILING = 150
+
 type Pair<T> = [T, T]
 type Side = 0 | 1
 type HitKind = 'strike' | 'projectile' | 'throw'
@@ -176,6 +191,8 @@ function freshFighter(data: FighterData, side: Side): FighterState {
     ammo: data.ammo ?? 0,
     blind: 0,
     bell: 0,
+    flight: 0,
+    redFreeze: 0,
     motion: emptyMotion(),
     buffer: [],
     prev: neutralInput(),
@@ -317,6 +334,11 @@ const FULLY_INVULNERABLE: ReadonlySet<Action> = new Set([
 /** The body box, or null in states nothing can touch (knockdown, throws ...). */
 export function hurtbox(f: FighterState, data: FighterData): WorldBox | null {
   if (FULLY_INVULNERABLE.has(f.action)) return null
+  if (f.attack) {
+    const move = moveOf(data, f.attack)
+    if (move.hurtbox && f.attack.frame >= move.startup)
+      return toWorld(f, move.hurtbox)
+  }
   if (isAirborne(f)) return toWorld(f, data.hurtAir)
   if (isCrouching(f) || (f.action === 'blockstun' && f.prev.down)) {
     return toWorld(f, data.hurtCrouch)
@@ -329,6 +351,7 @@ function invulnerable(
   f: FighterState,
   data: FighterData,
   kind: HitKind,
+  guard?: MoveData['guard'],
 ): boolean {
   if (FULLY_INVULNERABLE.has(f.action)) return true
   if (f.action === 'dodge') {
@@ -339,7 +362,13 @@ function invulnerable(
   }
   if (f.attack) {
     const invuln = moveOf(data, f.attack).invuln
-    if (invuln && within(invuln, f.attack.frame) && invuln[kind]) return true
+    if (
+      invuln &&
+      within(invuln, f.attack.frame) &&
+      invuln[kind] &&
+      !(invuln.exceptLow && guard === 'low')
+    )
+      return true
   }
   return false
 }
@@ -356,7 +385,20 @@ export function hitbox(f: FighterState, data: FighterData): WorldBox | null {
     return null
   }
   if (move.hitbox.w <= 0 || move.hitbox.h <= 0) return null
-  return toWorld(f, move.hitbox)
+  return toWorld(strikeOrigin(f, attack, move), move.hitbox)
+}
+
+/**
+ * Where a move's hitbox is measured from: the fighter, or for a `strikeAt`
+ * move the floor where the opponent stood when it started.
+ */
+export function strikeOrigin(
+  f: Pick<FighterState, 'x' | 'y' | 'facing'>,
+  attack: Pick<AttackState, 'targetX'>,
+  move: MoveData,
+): Pick<FighterState, 'x' | 'y' | 'facing'> {
+  if (move.strikeAt !== 'opponent' || attack.targetX === undefined) return f
+  return { x: attack.targetX, y: 0, facing: f.facing }
 }
 
 export function pushbox(f: FighterState, data: FighterData): WorldBox {
@@ -538,11 +580,14 @@ function pickCommand(
   r: Read,
   airborne: boolean,
   minLevel: 'special' | 'super',
+  spinsOnly = false,
 ): { special: SpecialMove; heavy: boolean; easy: boolean } | null {
   const f = s.fighters[side]
   const hasProjectile = s.projectiles.some((p) => p.owner === side)
   const allowed = data.specials.filter(
     (special) =>
+      !special.followUp &&
+      (!spinsOnly || special.motion === '360' || special.motion === '720') &&
       (special.air ?? false) === airborne &&
       (minLevel === 'special' || special.level === 'super') &&
       f.meter >= (special.move.meterCost ?? 0) &&
@@ -592,6 +637,7 @@ function startCommand(
     special.heavy && heavy
       ? { ...special.move, ...special.heavy }
       : special.move
+  if (move.strikeAt === 'opponent') f.attack.targetX = s.fighters[other(side)].x
   gainMeter(f, -(move.meterCost ?? 0))
   f.ammo = Math.max(0, f.ammo - (move.ammoCost ?? 0))
   if (special.level === 'super') {
@@ -634,6 +680,8 @@ function comboBreaker(s: MatchState, side: Side): void {
 function applyMoveVelocity(f: FighterState, move: MoveData): void {
   const velocity = move.velocity
   if (!velocity || !f.attack) return
+  // A dive that bounced off keeps the bounce.
+  if (move.bounce && f.attack.contact) return
   if (within(velocity, f.attack.frame)) {
     f.vx = velocity.x * f.facing
     if (velocity.y !== undefined) f.vy = velocity.y
@@ -654,6 +702,40 @@ function teleport(
   f.x = Math.max(-edge, Math.min(edge, target))
   f.facing = o.x >= f.x ? 1 : -1
   f.vx = 0
+}
+
+/** Into the air in flight mode: he climbs to his hover height, then flies freely. */
+function takeWing(f: FighterState, frames: number): void {
+  setAction(f, 'jump')
+  f.attack = null
+  f.flight = frames
+  f.vx = 0
+  f.vy = FLIGHT_SPEED
+  f.airAttackUsed = false
+}
+
+/**
+ * A frame of flight: directions fly him anywhere (up to the ceiling), and
+ * with no direction up he holds his height, rising to it after take-off. An
+ * attack that moves him (a dive) steers itself. He keeps facing the opponent.
+ */
+function fly(
+  f: FighterState,
+  o: FighterState,
+  data: FighterData,
+  r: Read,
+): void {
+  f.flight -= 1
+  if (f.attack && moveOf(data, f.attack).velocity) return
+  if (!f.attack) f.facing = o.x >= f.x ? 1 : -1
+  const forward = f.facing === 1 ? r.held.right : r.held.left
+  const back = f.facing === 1 ? r.held.left : r.held.right
+  const dir = forward && !back ? 1 : back && !forward ? -1 : 0
+  f.vx = dir * FLIGHT_SPEED * f.facing
+  if (r.held.up) f.vy = FLIGHT_SPEED
+  else if (r.held.down) f.vy = -FLIGHT_SPEED
+  else f.vy = f.y < FLIGHT_HOVER * SUB ? FLIGHT_SPEED : 0
+  if (f.y + f.vy > FLIGHT_CEILING * SUB) f.vy = FLIGHT_CEILING * SUB - f.y
 }
 
 /** A seeded aim wobble of up to `spread` pixels either way. */
@@ -690,6 +772,10 @@ function advanceAttack(
   }
   if (move.teleport && attack.frame === move.teleport.frame) {
     teleport(f, s.fighters[other(side)], move.teleport.to)
+  }
+  if (move.flight && attack.frame === move.startup) {
+    takeWing(f, move.flight)
+    return
   }
   const projectile = move.projectile
   if (projectile && attack.frame === projectile.spawnFrame) {
@@ -754,6 +840,24 @@ function think(
     return
   }
 
+  // A move's follow-up (Submerge into Erupt): one of its buttons after startup.
+  if (f.attack) {
+    const move = moveOf(data, f.attack)
+    const follow = move.followUp
+    if (
+      follow &&
+      f.attack.frame >= move.startup &&
+      follow.buttons.some((button) => r.pressed[button])
+    ) {
+      const special = specialOf(data, follow.move)
+      if (special) {
+        const heavy = r.pressed.hp || r.pressed.hk
+        startCommand(s, side, special, heavy, false)
+        return
+      }
+    }
+  }
+
   // Specials and supers: from neutral, from the air, or cancelling a hit.
   const neutralGround = ACTIONABLE.has(f.action)
   // A 360 passes through up: the jump's pre-jump frames still take a ground
@@ -771,6 +875,19 @@ function think(
       neutralGround || preJump || neutralAir ? 'special' : cancel!,
     )
     if (pick) {
+      startCommand(s, side, pick.special, pick.heavy, pick.easy)
+      return
+    }
+  }
+
+  // A spinning grab that passed through up: the jump it started gives way to
+  // the grab, back on the ground.
+  if (f.action === 'jump' && f.frame <= GRAB_LENIENCY && !f.attack) {
+    const pick = pickCommand(s, side, data, r, false, 'special', true)
+    if (pick) {
+      setAction(f, 'idle')
+      f.y = 0
+      f.vy = 0
       startCommand(s, side, pick.special, pick.heavy, pick.easy)
       return
     }
@@ -842,9 +959,12 @@ function think(
       }
       return
     case 'jump': {
+      // In flight he attacks as often as he likes, at any height.
+      const flying = f.flight > 0
+      if (flying) fly(f, o, data, r)
       if (f.attack) {
         advanceAttack(s, side, data, r)
-      } else if (!f.airAttackUsed) {
+      } else if (!f.airAttackUsed || flying) {
         const button = pressedAttack(r)
         if (button) {
           startNormal(f, `jump_${button}`)
@@ -918,11 +1038,12 @@ function physics(f: FighterState, data: FighterData): void {
   f.x += f.vx
   if (isAirborne(f) || f.vy !== 0) {
     f.y += f.vy
-    f.vy -= data.gravity
+    if (f.flight === 0) f.vy -= data.gravity
     if (f.y <= 0) {
       f.y = 0
       f.vy = 0
       f.vx = 0
+      f.flight = 0
       if (f.action === 'airhit') setAction(f, 'knockdown', KNOCKDOWN_FRAMES)
       else if (f.action === 'jump') setAction(f, 'land')
       // Ground moves that rose (an uppercut) finish on the ground; ko and
@@ -1190,6 +1311,8 @@ export function scaledDamage(
   hitIndex: number,
   level: AttackLevel,
 ): number {
+  // A move with no damage (Bellow's roar) stays harmless.
+  if (base <= 0) return 0
   const scale =
     hitIndex <= 2
       ? 100
@@ -1317,6 +1440,9 @@ function landHit(s: MatchState, roster: Pair<FighterData>, c: Contact): void {
   if (c.move.poison)
     d.poison = { left: c.move.poison.frames, every: c.move.poison.every }
   if (c.move.blind) d.blind = c.move.blind
+  if (c.move.freezeRed) d.redFreeze = c.move.freezeRed
+  // A hit knocks a flyer out of the sky.
+  d.flight = 0
 
   const away: Facing = a.x <= d.x ? 1 : -1
   if (c.move.launcher && d.y === 0) {
@@ -1377,7 +1503,15 @@ function commandGrab(
   }
   const dir = a.facing
   d.x = a.x + dir * (halfWidth(roster[c.attacker]) + halfWidth(dData) + 8 * SUB)
-  setAction(d, 'knockdown', KNOCKDOWN_FRAMES)
+  if (c.move.grabStun) {
+    // Reeled in and left standing, close enough to hit again.
+    setAction(d, 'hitstun', c.move.grabStun)
+    d.facing = -dir as Facing
+    d.vx = 0
+    d.push = 0
+  } else {
+    setAction(d, 'knockdown', KNOCKDOWN_FRAMES)
+  }
   s.hitstop = Math.max(s.hitstop, c.move.hitstop)
   s.events.push({ type: 'throw', attacker: c.attacker, damage })
   if (c.move.fling && dData.childGuard) {
@@ -1422,7 +1556,7 @@ function resolveHits(
     const dData = roster[defenderSide]
     const attack = contactAttack(s, c)
 
-    if (invulnerable(d, dData, c.kind)) {
+    if (invulnerable(d, dData, c.kind, c.move.guard)) {
       // The move passes through; its hitbox stays live for later frames.
       if (attack) attack.connected = false
       if (d.action === 'dodge' && c.kind !== 'throw') {
@@ -1450,6 +1584,12 @@ function resolveHits(
       attack.contact = true
       attack.hitCount += 1
       attack.lastHitFrame = attack.frame
+      if (c.move.bounce) {
+        // The dive kicks off them and springs back up.
+        const a = s.fighters[c.attacker]
+        a.vy = c.move.bounce
+        a.vx = -a.facing * 2 * SUB
+      }
     }
 
     // Parry: the defender's parry window catches the strike.
@@ -1491,6 +1631,7 @@ function resolveHits(
         (s.fighters[c.attacker].x <= d.x ? 1 : -1) * c.move.pushback * SUB
       gainMeter(d, BLOCK_METER)
       gainMeter(s.fighters[c.attacker], Math.trunc(c.move.damage / 4))
+      if (c.move.freezeRed) d.redFreeze = c.move.freezeRed
       s.hitstop = Math.max(s.hitstop, c.move.hitstop - 2)
       s.events.push({ type: 'block', attacker: c.attacker, move: c.id, chip })
       markContact()
@@ -1498,14 +1639,23 @@ function resolveHits(
     }
 
     // Armor soaks the hit: the damage lands, the stun doesn't.
+    const light = c.level === 'normal' && /_l[pk]$/.test(c.id)
     if (
       d.attack &&
       dMove?.armor &&
       within(dMove.armor, d.attack.frame) &&
-      d.attack.armorUsed < dMove.armor.hits
+      d.attack.armorUsed < dMove.armor.hits &&
+      (!dMove.armor.lightOnly || light)
     ) {
       d.attack.armorUsed += 1
-      takeDamage(d, dData, c.move.damage, RED_PERCENT)
+      const share = dMove.armor.damagePercent ?? 100
+      takeDamage(
+        d,
+        dData,
+        Math.trunc((c.move.damage * share) / 100),
+        RED_PERCENT,
+      )
+      gainMeter(d, dMove.armor.meter ?? 0)
       s.hitstop = Math.max(s.hitstop, c.move.hitstop)
       s.events.push({ type: 'armor', side: defenderSide })
       markContact()
@@ -1562,6 +1712,7 @@ const NO_REGEN: ReadonlySet<Action> = new Set([
 function tickLife(s: MatchState): void {
   for (const f of s.fighters) {
     f.sinceHit = Math.min(f.sinceHit + 1, 100000)
+    if (f.redFreeze > 0) f.redFreeze -= 1
     if (f.poison.left > 0) {
       f.poison.left -= 1
       // Poison drains as red health and never finishes anyone.
@@ -1573,6 +1724,7 @@ function tickLife(s: MatchState): void {
     }
     if (
       f.red > 0 &&
+      f.redFreeze === 0 &&
       f.sinceHit > REGEN_DELAY &&
       !NO_REGEN.has(f.action) &&
       s.frame % REGEN_EVERY === 0

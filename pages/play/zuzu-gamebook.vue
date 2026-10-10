@@ -5,7 +5,9 @@
         <span class="kr-spinner-lg-primary" />
       </div>
       <template v-else>
-        <header class="mb-5 flex flex-wrap items-center justify-between gap-3">
+        <header
+          class="kr-panel-flat mb-5 flex flex-wrap items-center justify-between gap-3 px-4 py-3"
+        >
           <div>
             <p
               class="text-xs font-black uppercase tracking-[.3em] text-warning"

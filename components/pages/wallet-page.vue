@@ -1,18 +1,5 @@
 <template>
   <div class="kr-unbound kr-container max-w-3xl p-6 space-y-8">
-    <header class="flex items-center gap-3">
-      <span class="kr-icon-tile">
-        <Icon name="kind-icon:money" class="kr-icon-7" />
-      </span>
-      <div>
-        <p class="kr-text-black-2xl tracking-tight">Wallet</p>
-        <p class="kr-text-dim-sm">
-          Your karma and mana balance — earned by contributing, spent to
-          create.
-        </p>
-      </div>
-    </header>
-
     <div
       v-if="userStore.isGuest"
       class="rounded-2xl border border-accent/30 bg-(--kr-surface) p-6 text-center space-y-3"

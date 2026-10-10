@@ -14,7 +14,10 @@ requiredRole: ADMIN
 tutorial:
   title: LoRA Triage
   body: >-
-    A catalog cleanup page for marking every LoRA SFW or NSFW. Filter by base
+    A catalog cleanup page for marking every LoRA SFW or NSFW and saying what
+    each one is for: a character, a style or a setting. The category is what
+    the image generator rolls from, so an unclassified LoRA is one a
+    {character} prompt can never pick. Filter by base
     model, preview state, category, who set the category, and maturity, then
     select a page of cards and use Mark selected SFW, Mark selected NSFW, or a
     bulk category. The toolbar renders missing previews and saves your changes.

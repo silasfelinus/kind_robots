@@ -12,12 +12,6 @@
 
     <section class="arcade-hall-intro">
       <p class="arcade-neon">Kind Robots Arcade</p>
-      <p class="arcade-hall-lede">
-        Free play, forever. Pick a cabinet, watch its attract mode, press start,
-        and put your initials on the board. Every game is an original Kind
-        Robots riff on a golden-age favourite, and it plays with a keyboard, a
-        gamepad or your thumbs.
-      </p>
     </section>
 
     <ul class="arcade-row" aria-label="Cabinets">
@@ -242,12 +236,6 @@ onMounted(async () => {
     0 0 8px #f472b6,
     0 0 22px #a78bfa,
     3px 3px 0 #1e1b4b;
-}
-
-.arcade-hall-lede {
-  margin: 0;
-  color: #e9d5ff;
-  line-height: 1.55;
 }
 
 .arcade-row {

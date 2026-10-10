@@ -118,47 +118,8 @@
         class="kr-container flex flex-col gap-5 px-5 pb-10 pt-5"
         :class="wide ? 'max-w-7xl' : 'max-w-5xl'"
       >
-        <!-- Description -->
-        <section
-          v-if="showIntro && view.description"
-          class="kr-panel rounded-3xl p-5"
-        >
-          <p class="text-sm leading-relaxed text-base-content/80 sm:text-base">
-            {{ view.description }}
-          </p>
-        </section>
-
         <!-- Interactive slot — project-specific UI drops in here -->
         <slot name="interactive" :project="project" />
-
-        <!-- Marketing / explainer sections -->
-        <section
-          v-if="showIntro && view.sections && view.sections.length"
-          class="grid gap-4 sm:grid-cols-2"
-        >
-          <article
-            v-for="block in view.sections"
-            :key="block.key"
-            class="kr-panel flex flex-col gap-2 rounded-3xl p-5"
-          >
-            <div class="flex items-center gap-2">
-              <span
-                class="flex size-9 items-center justify-center rounded-xl bg-primary/12 text-primary"
-              >
-                <Icon
-                  :name="block.icon || 'kind-icon:sparkles'"
-                  class="kr-icon-5"
-                />
-              </span>
-              <h3 class="kr-text-black-base text-base-content">
-                {{ block.title }}
-              </h3>
-            </div>
-            <p class="kr-text-dim-sm-70 leading-relaxed">
-              {{ block.body }}
-            </p>
-          </article>
-        </section>
 
         <!-- Gallery strip -->
         <ProjectGalleryStrip
@@ -222,12 +183,10 @@ const props = withDefaults(
     fallback: ProjectFrontConfig
     /** Hide the deliverables panel (e.g. flagship pages render their own). */
     showDeliverables?: boolean
-    /** Hide the description and explainer sections (a game that should fit one screen). */
-    showIntro?: boolean
     /** Let the interactive slot use a wider column. */
     wide?: boolean
   }>(),
-  { showDeliverables: true, showIntro: true, wide: false },
+  { showDeliverables: true, wide: false },
 )
 
 const projectStore = useProjectStore()
@@ -267,7 +226,6 @@ const view = computed(() => {
     icon: p?.icon || f.icon,
     status: p?.status ?? null,
     links: f.links,
-    sections: f.sections,
     stats: f.stats,
     deliverables: f.deliverables,
     collectionLabel: f.collectionLabel,

@@ -1,6 +1,6 @@
 <template>
   <div
-    class="kr-scroll journey-shell mx-auto max-w-[1650px] space-y-5 px-3 py-5 sm:px-6"
+    class="kr-scroll journey-shell mx-auto w-full max-w-[1650px] space-y-5 px-3 py-5 sm:px-6"
   >
     <header class="flex flex-wrap items-end justify-between gap-3">
       <div>

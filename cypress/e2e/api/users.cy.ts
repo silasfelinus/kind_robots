@@ -3,8 +3,9 @@ import { createLoggedInTestUser } from '../../support/api-auth'
 // cypress/e2e/api/users.cy.ts
 
 describe('User Management API Tests', () => {
-  let baseUrl = `${Cypress.config('baseUrl') || 'http://localhost:3000'}/api/users`
-  let authUrl = `${Cypress.config('baseUrl') || 'http://localhost:3000'}/api/auth`
+  const testBaseUrl = Cypress.config('baseUrl') || 'http://localhost:3000'
+  let baseUrl = `${testBaseUrl}/api/users`
+  let authUrl = `${testBaseUrl}/api/auth`
   let apiKey = ''
 
   let createdUserId: number | undefined
@@ -44,10 +45,10 @@ describe('User Management API Tests', () => {
   before(() => {
     cy.env(['BASE_URL', 'AUTH_URL', 'API_KEY']).then((env) => {
       const rawBaseUrl = String(
-        env.BASE_URL || `${Cypress.config('baseUrl') || 'http://localhost:3000'}/api/users`,
+        env.BASE_URL || `${testBaseUrl}/api/users`,
       )
       const rawAuthUrl = String(
-        env.AUTH_URL || `${Cypress.config('baseUrl') || 'http://localhost:3000'}/api/auth`,
+        env.AUTH_URL || `${testBaseUrl}/api/auth`,
       )
 
       baseUrl = rawBaseUrl.replace(/\/+$/, '')

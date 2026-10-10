@@ -73,6 +73,7 @@ import {
   PinballScene,
   type RendererLike,
 } from '../arcade/pinball/render/scene'
+import { wireformRails } from '../arcade/pinball/render/wireforms'
 import {
   initialRules,
   SECRET_DOOR_STEPS,
@@ -4115,6 +4116,34 @@ async function runPinballDressing() {
   scene.dispose()
 }
 
+/** kind-pinball/t-029: wireform ramps and metalwork; the physics untouched. */
+async function runPinballMetalwork() {
+  const table = AMI_VILLAGE_GREYBOX
+  const colliders = JSON.stringify(table.colliders)
+  const rails = wireformRails(table)
+  for (const ramp of ['left-ramp', 'right-ramp', 'upper-feed'])
+    for (const side of ['l', 'r'])
+      assert.ok(rails.has(`${ramp}-rail-${side}`), `${ramp} is a wireform`)
+  for (const id of rails)
+    assert.ok(
+      table.colliders.some((c) => c.id === id),
+      'the physics keeps every rail it draws as wire',
+    )
+  const scene = new PinballScene(table, {} as HTMLCanvasElement, () =>
+    stubRenderer({ disposed: 0, frames: 0 }),
+  )
+  const metal = scene.metalwork!
+  assert.equal(metal.ramps, rails.size / 2, 'every ramp with rails is wired')
+  for (let i = 0; i < 30; i++) scene.render()
+  const glow = metal.stripGlow
+  assert.ok(glow > 1, 'the floor strips are lit')
+  scene.setLamps({}, 0)
+  for (let i = 0; i < 120; i++) scene.render()
+  assert.ok(metal.stripGlow < glow * 0.1, 'and dim with the GI')
+  assert.equal(JSON.stringify(table.colliders), colliders)
+  scene.dispose()
+}
+
 async function runPinballGuide() {
   // conductor kind-pinball/t-015: the table guide. Every page fits the
   // 360x640 cabinet, the map's numbers match the copy, and the hidden room
@@ -4513,6 +4542,7 @@ await runPinballRidge()
 await runPinballRidgeFlippers()
 await runPinballCalmCamera()
 await runPinballDressing()
+await runPinballMetalwork()
 await runPinballGuide()
 await runPinballToys()
 await runPinballStage()

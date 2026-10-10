@@ -4,7 +4,7 @@ import { createLoggedInTestUser } from '../../support/api-auth'
 /* eslint-disable @typescript-eslint/no-unused-expressions */
 
 describe('First-class Project workspace API', () => {
-  const apiBase = 'https://kind-robots.vercel.app/api'
+  const apiBase = `${Cypress.config('baseUrl')}/api`
   const stamp = Date.now()
   const slug = `cypress-project-workspace-${stamp}`
   let token = ''

@@ -1072,6 +1072,8 @@ const scenes: Scene[] = [
           label: 'Call to the shape keeping pace with you on the ridge.',
           to: 'coyote-return',
           needs: 'coyote-debt',
+          // Act VI: sold to the bounty hunter, he is roped across a mule in Dustwater, not on the ridge.
+          unless: 'bounty-sold',
           hint: 'No one owes you anything out here.',
         },
       ],

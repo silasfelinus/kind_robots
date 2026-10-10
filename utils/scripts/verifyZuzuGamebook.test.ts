@@ -1,7 +1,12 @@
 import assert from 'node:assert/strict'
 import { existsSync, readdirSync } from 'node:fs'
 import { join } from 'node:path'
-import { PLATES, platePath } from '../zuzuGamebook/art'
+import {
+  PLATES,
+  plateLayout,
+  platePath,
+  sectionPlate,
+} from '../zuzuGamebook/art'
 import { journal } from '../zuzuGamebook/journal'
 import {
   BOOK,
@@ -67,8 +72,25 @@ for (const node of Object.values(BOOK)) {
     node.art + ': plate file missing',
   )
   assert.equal(platePath(art), '/zuzu-gamebook/scenes/' + art.file + '.webp')
+  // A section's own plate (keyed by its id, one plate per section) wins over the shared one.
+  const own = sectionPlate(node)
+  assert.ok(
+    existsSync(join(scenesDir, own.file + '.webp')),
+    node.id + ': own plate file missing',
+  )
+  const layout = plateLayout(node.id, own)
+  assert.ok(
+    (own.shape ?? 'wide') === 'wide'
+      ? layout === 'top' || layout === 'bottom'
+      : layout === 'left' || layout === 'right',
+    node.id + ': wide plates sit above or below the text, tall ones beside it',
+  )
 }
-const usedPlates = new Set(Object.values(BOOK).map((node) => node.art))
+const usedPlates = new Set(
+  Object.values(BOOK).flatMap((node) =>
+    PLATES[node.id] ? [node.art, node.id] : [node.art],
+  ),
+)
 for (const key of Object.keys(PLATES)) {
   assert.ok(usedPlates.has(key), 'plate ' + key + ' is not used by any scene')
 }
@@ -259,9 +281,11 @@ assert.equal(
   null,
 )
 assert.ok(lockReason(moral, { ...gated, needsHonor: 0, needsTaint: 2 }))
+assert.ok(lockReason(moral, { ...gated, needsHonor: 0, maxTaint: 0 }))
+assert.equal(lockReason(moral, { ...gated, needsHonor: 0, maxTaint: 1 }), null)
 for (const node of Object.values(BOOK)) {
   for (const choice of node.choices ?? []) {
-    if (choice.needsHonor || choice.needsTaint)
+    if (choice.needsHonor || choice.needsTaint || choice.maxTaint !== undefined)
       assert.ok(
         choice.hint,
         node.id + '/' + choice.id + ' needs a disabled hint',

@@ -14,6 +14,8 @@ export type Choice = {
   /** Minimum Honor / Taint the choice needs; below it the choice shows disabled with `hint`. */
   needsHonor?: number
   needsTaint?: number
+  /** Most Taint the choice allows; above it the choice shows disabled with `hint` (the best ending's clean hands). */
+  maxTaint?: number
   /** A journal flag the choice needs; without it the choice shows disabled with `hint`. */
   needs?: string
   hint?: string

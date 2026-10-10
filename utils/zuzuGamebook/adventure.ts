@@ -67,6 +67,8 @@ export function lockReason(run: Run, choice: Choice): string | null {
     return choice.hint ?? 'Your word does not carry that far yet.'
   if (choice.needsTaint && taint(run) < choice.needsTaint)
     return choice.hint ?? 'Something in you would have to change first.'
+  if (choice.maxTaint !== undefined && taint(run) > choice.maxTaint)
+    return choice.hint ?? 'Your hands are not clean enough for this.'
   if (choice.requires && !run.items.includes(choice.requires))
     return 'Requires: ' + choice.requires
   if (choice.spend && !run.items.includes(choice.spend))

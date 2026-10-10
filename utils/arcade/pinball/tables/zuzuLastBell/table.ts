@@ -46,9 +46,14 @@ const colliders: ColliderDef[] = [
   ...walls('abbey-arch', arch, { thickness: 0.009 }),
   // A real one-ball-width launch lane. The return gate is one-way: upward
   // shots pass, but a returning ball is deflected onto the main playfield.
-  wall('shooter-divider', [SHOOTER_WALL, SHOOTER_EXIT], [SHOOTER_WALL, BOTTOM], {
-    thickness: 0.008,
-  }),
+  wall(
+    'shooter-divider',
+    [SHOOTER_WALL, SHOOTER_EXIT],
+    [SHOOTER_WALL, BOTTOM],
+    {
+      thickness: 0.008,
+    },
+  ),
   wall(
     'shooter-gate',
     [SHOOTER_WALL, SHOOTER_EXIT],

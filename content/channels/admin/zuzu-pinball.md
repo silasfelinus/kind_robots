@@ -5,7 +5,7 @@ tabKey: zuzu-pinball
 label: Zuzu Pinball
 title: Zuzu · The Last Bell
 subtitle: A private playable 3D pinball engineering workshop
-summary: Play and develop a multi-level Zuzu pinball game.
+summary: Playtest Zuzu's 3D pinball table.
 description: "Private pinball greybox of Zuzu's haunted frontier table, with a physics-driven steel ball, River Croc mouth capture, lower flippers and the Abbey bell lane. The complex FX3-grade art and modes are still in production."
 icon: kind-icon:gamepad
 route: /admin/zuzu-pinball

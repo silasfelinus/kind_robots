@@ -29,6 +29,29 @@
 
 import { levelCurve } from '../curve'
 import { drawText } from '../font'
+import {
+  INK,
+  RAMPS,
+  Sparkles,
+  backdropRng,
+  bandedGradient,
+  bevel,
+  cachedLayer,
+  drawSprite,
+  drawStars,
+  dropShadow,
+  gauge,
+  glow,
+  hudPanel,
+  mix,
+  pixelSprite,
+  rgba,
+  shadedOrb,
+  starField,
+  vignette,
+  type PixelSprite,
+  type Ramp,
+} from '../snes'
 import type {
   ArcadeGameInstance,
   ArcadeGameModule,
@@ -59,7 +82,6 @@ const RIDE_TICKS = 50
 const STATION_BASE_SECS = 45
 const SECS_PER_DECK = 24
 const GLOW_TICKS = 150
-const DECK_PANELS = ['#1f2937', '#241a44', '#13293d', '#2a2014']
 
 /** Mops that can share a station, as in the classic. */
 const MAX_PLAYERS = 3
@@ -68,12 +90,6 @@ const SPLIT_HUD = 22
 /** Each strip shows the deck from the ceiling plating to just under the floor. */
 const VIEW_TOP = CEILING - 14
 const VIEW_SPAN = FLOOR + 10 - VIEW_TOP
-/** Each Mop's colours: body, dome. */
-const MOP_COLORS: Array<[string, string]> = [
-  ['#0ea5e9', '#7dd3fc'],
-  ['#ec4899', '#f9a8d4'],
-  ['#16a34a', '#86efac'],
-]
 const SEAT_COLORS = ['#67e8f9', '#f9a8d4', '#bef264']
 
 export const SWEEP_CURVES = {
@@ -199,6 +215,785 @@ function newMop(seat: number): Mop {
   }
 }
 
+// --- 16-bit art (utils/arcade/snes.ts) -------------------------------------------
+
+/** A ramp pulled toward `to` by t: the deck walls are the kit's ramps in shadow. */
+function shade(ramp: Ramp, to: string, t: number): Ramp {
+  return ramp.map((c) => mix(c, to, t)) as unknown as Ramp
+}
+
+/** Every pixel but the ink outline turned `colour`: the hit flash. */
+function silhouette(sprite: PixelSprite, colour = '#ffffff'): PixelSprite {
+  return {
+    width: sprite.width,
+    height: sprite.height,
+    pixels: sprite.pixels.map((p) => (p && p !== INK ? colour : p)),
+  }
+}
+
+const LIME: Ramp = ['#1f3d0a', '#3f6212', '#65a30d', '#a3e635', '#ecfccb']
+const SEAT_RAMPS: readonly Ramp[] = [RAMPS.sky, RAMPS.pink, RAMPS.leaf]
+
+function mopPalette(ramp: Ramp): Record<string, string> {
+  return {
+    a: ramp[0],
+    b: ramp[1],
+    c: ramp[2],
+    d: ramp[3],
+    e: ramp[4],
+    f: mix(ramp[3], '#ffffff', 0.35),
+    g: '#ffffff',
+    q: RAMPS.steel[0],
+    s: RAMPS.steel[1],
+    S: RAMPS.steel[2],
+    t: RAMPS.steel[3],
+    T: RAMPS.steel[4],
+    k: INK,
+    y: RAMPS.gold[3],
+    Y: '#ffffff',
+    L: RAMPS.gold[3],
+    l: RAMPS.gold[2],
+    n: RAMPS.teal[3],
+    w: RAMPS.cream[4],
+    M: RAMPS.cream[3],
+    m: RAMPS.cream[2],
+    o: RAMPS.cream[1],
+    H: RAMPS.earth[3],
+    h: RAMPS.earth[2],
+  }
+}
+
+// Mop faces right; the mop it carries rides on its back, its head a plume
+// above the dome. 22 columns: plume (0-4), body (5-16, x-6..x+6), nozzle
+// (17-20, x+6..x+10, at the beam's height). Standing it is 26 rows tall,
+// crouched 16, as before.
+const MOP_DOMES = [
+  [
+    '.wM.....dfggfd........',
+    'wMMm..dfggffffd.......',
+    'MmMmodfgfffffkkkb.....',
+    '.mmoHdfgffffkyYkb.....',
+    '..oH.cffffffkkkcb.....',
+    '..Hh.bccccccccccb.....',
+  ],
+  [
+    '........dfggfd........',
+    '.wM...dfggffffd.......',
+    'wMMmodfgfffffkkkb.....',
+    'MmmoHdfgffffkyYkb.....',
+    '.ooH.cffffffkkkcb.....',
+    '..Hh.bccccccccccb.....',
+  ],
+]
+const MOP_COLLAR = '...HhqsSTTTTTtSsq.....'
+const MOP_BODY = '.....cdeddccccbba.....'
+const MOP_BODY_H = '....hcdeddccccbba.....'
+const MOP_NOZZLE = [
+  '....hcdeddccccbbatTTt.',
+  '....hcdeddccccbbaSStn.',
+  '.....cdeddccccbbasssq.',
+]
+const MOP_CHEST = [
+  '.....cdTTTTTtcbba.....',
+  '.....cdtSLlSqcbba.....',
+  '.....cdtSllSqcbba.....',
+  '.....cdqqqqqqcbba.....',
+]
+const MOP_HEM = ['.....bcdccccbbbaa.....', '.....abbbbbbbbaaa.....']
+const STAND_BODY = [
+  MOP_BODY_H,
+  MOP_BODY_H,
+  MOP_BODY_H,
+  ...MOP_NOZZLE,
+  ...MOP_CHEST,
+  MOP_BODY,
+  MOP_BODY,
+  MOP_BODY,
+  ...MOP_HEM,
+]
+const CROUCH_BODY = [
+  MOP_BODY_H,
+  MOP_BODY_H,
+  MOP_BODY,
+  '.....cdeddccccbbatTTn.',
+  '.....bcdccccbbbasssq..',
+]
+const MOP_TREADS = [
+  [
+    '....qTTTTTTTTTTTTq....',
+    '....StkSStkSStkSSt....',
+    '....SkTkSkTkSkTkSq....',
+    '....qssssssssssssq....',
+  ],
+  [
+    '....qTTTTTTTTTTTTq....',
+    '....SStkSStkSStkSt....',
+    '....SSkTkSkTkSkTkq....',
+    '....qssssssssssssq....',
+  ],
+]
+
+function mopRows(f: number, body: string[]) {
+  return [...MOP_DOMES[f]!, MOP_COLLAR, ...body, ...MOP_TREADS[f]!]
+}
+
+const MOP_SPRITES = SEAT_RAMPS.map((ramp) => {
+  const palette = mopPalette(ramp)
+  return {
+    stand: [0, 1].map((f) => pixelSprite(mopRows(f, STAND_BODY), palette)),
+    crouch: [0, 1].map((f) => pixelSprite(mopRows(f, CROUCH_BODY), palette)),
+  }
+})
+const MOP_FLASH = {
+  stand: MOP_SPRITES[0]!.stand.map((s) => silhouette(s)),
+  crouch: MOP_SPRITES[0]!.crouch.map((s) => silhouette(s)),
+}
+const SPARE_SPRITE = pixelSprite(
+  ['.dffd.', 'dfgkyk', 'cdccbb', 'cdecba', 'qTTTTq', 'sksksk'],
+  mopPalette(RAMPS.sky),
+)
+
+// --- critters ---------------------------------------------------------------
+
+const ROLLER_PALETTE = {
+  W: '#ffffff',
+  H: LIME[4],
+  L: LIME[3],
+  l: LIME[2],
+  d: LIME[1],
+  D: LIME[0],
+  k: INK,
+  r: RAMPS.ember[2],
+  R: RAMPS.ember[4],
+}
+const ROLLER_SPRITES = {
+  small: [
+    pixelSprite(
+      [
+        '..dlLd...',
+        '.dLHLldd.',
+        'dLHWLdlld',
+        'dLLLdkRkd',
+        'dlLldkrkD',
+        'dlldllldD',
+        '.dDdlldD.',
+        '..DDDDD..',
+      ],
+      ROLLER_PALETTE,
+    ),
+    pixelSprite(
+      [
+        '..ddLl...',
+        '.dLHdLld.',
+        'dLHWdllld',
+        'dLLdlkRkd',
+        'dlLdlkrkD',
+        'dldllldlD',
+        '.dDlldDD.',
+        '..DDDDD..',
+      ],
+      ROLLER_PALETTE,
+    ),
+  ],
+  big: [
+    pixelSprite(
+      [
+        '....dLLLd....',
+        '..dLHHLdld...',
+        '.dLHWHLdlldd.',
+        '.dLHHLdllkkd.',
+        'dLLLLdllkRWkd',
+        'dLLLLdllkRrkd',
+        'dlLLldlllkkdD',
+        'dllldllllddlD',
+        '.dlldlllldllD',
+        '.DdldllldlDD.',
+        '..DDddlldDD..',
+        '....DDDDD....',
+      ],
+      ROLLER_PALETTE,
+    ),
+    pixelSprite(
+      [
+        '....ddLLd....',
+        '..dLHdLLld...',
+        '.dLHWdLlldd..',
+        '.dLHHdlllkkd.',
+        'dLLLdLllkRWkd',
+        'dLLLdlllkRrkd',
+        'dlLLdllllkkdD',
+        'dlldlllldllDD',
+        '.dldllllddlD.',
+        '.DdllllldlDD.',
+        '..DDdlllddD..',
+        '....DDDDD....',
+      ],
+      ROLLER_PALETTE,
+    ),
+  ],
+}
+
+const CRAWLER_PALETTE = {
+  H: RAMPS.purple[4],
+  L: RAMPS.purple[3],
+  l: RAMPS.purple[2],
+  d: RAMPS.purple[1],
+  D: RAMPS.purple[0],
+  k: INK,
+  y: RAMPS.gold[3],
+  W: '#ffffff',
+  p: RAMPS.pink[3],
+}
+const CRAWLER_SPRITES = {
+  small: [
+    pixelSprite(
+      ['.Ll.Ll.LLl..', 'LHlLHlLHHWl.', 'llldlldllyk.', '.dD.dD.dDpdd'],
+      CRAWLER_PALETTE,
+    ),
+    pixelSprite(
+      ['....Ll.LLl..', '.LlLHlLHHWl.', 'LHldlldllyk.', 'ldD.dD.dDpdd'],
+      CRAWLER_PALETTE,
+    ),
+  ],
+  big: [
+    pixelSprite(
+      [
+        '..LL..LL..LLL.....',
+        '.LHHlLHHlLHHLl.LL.',
+        'LHHlLHHllHHlLLHWWl',
+        'lllldllldlllldlykl',
+        'dlldDdlldDdlldllkd',
+        '.dD..dD..dD..dDpdd',
+      ],
+      CRAWLER_PALETTE,
+    ),
+    pixelSprite(
+      [
+        '......LL..LLL.....',
+        '..LLlLHHlLHHLl.LL.',
+        '.LHHlLHHllHHlLLHWWl',
+        'LHHldllldlllldlykl',
+        'llldDdlldDdlldllkd',
+        'dD...dD..dD..dDpdd',
+      ],
+      CRAWLER_PALETTE,
+    ),
+  ],
+}
+
+const BITER_PALETTE = {
+  H: RAMPS.pink[4],
+  L: RAMPS.pink[3],
+  l: RAMPS.pink[2],
+  d: RAMPS.pink[1],
+  D: RAMPS.pink[0],
+  k: INK,
+  y: RAMPS.gold[4],
+  Y: RAMPS.gold[3],
+  W: '#ffffff',
+  m: RAMPS.ember[1],
+  s: RAMPS.purple[1],
+  S: RAMPS.purple[2],
+}
+const BITER_HEAD = [
+  '...dLLLLLd....',
+  '..dLHHLLLlld..',
+  '.dLHLLLLlkyYd.',
+  '.dLLLLLLlkkkd.',
+  'dLLLLllllllld.',
+  'dLLllllllWdWdk',
+  'dLllllllmmmmmk',
+  'dlllllllmmmmmk',
+  'dlllllldWdWdk.',
+  'dllllllddddd..',
+  '.dllllldd.....',
+  '.ddlllldd.....',
+]
+const BITER_LEGS = [
+  ['.dDd...dDd....', '.DD....DD.....', 'DDD...DDD.....'],
+  ['..dDd.dDd.....', '..DD..DD......', '.DDD.DDD......'],
+]
+const BITER_SPIKES = ['..s...s...s...', '.sS..sS..sS...']
+const BITER_SPRITES = {
+  small: BITER_LEGS.map((legs) =>
+    pixelSprite([...BITER_HEAD, ...legs], BITER_PALETTE),
+  ),
+  big: BITER_LEGS.map((legs) =>
+    pixelSprite(
+      [
+        ...BITER_SPIKES,
+        ...BITER_HEAD.map((r) =>
+          r.replace(/l/g, 'd').replace(/L/g, 'l').replace(/H/g, 'L'),
+        ),
+        ...legs,
+      ],
+      BITER_PALETTE,
+    ),
+  ),
+}
+
+const SAC_PALETTE = {
+  W: '#ffffff',
+  H: LIME[4],
+  L: LIME[3],
+  l: LIME[2],
+  d: LIME[1],
+  D: LIME[0],
+  v: RAMPS.leaf[1],
+  e: RAMPS.purple[1],
+  E: RAMPS.purple[2],
+}
+const SAC_TOP = [
+  '....ddddd....',
+  '..ddLLLLldd..',
+  '.dLHHLLLllld.',
+  '.dLHWHLlllld.',
+]
+const SAC_BOTTOM = [
+  'dllvlllllvllD',
+  '.dlllllllvlD.',
+  '.Ddlllllllld.',
+  '..DddllllddD.',
+  '...DDdddddD..',
+  '....DDDDD....',
+]
+const SAC_SPRITES = [
+  pixelSprite(
+    [
+      ...SAC_TOP,
+      'dLLHHLlleelld',
+      'dLLLLlleEEeld',
+      'dLLLlleEEEeld',
+      'dLLllleeEeeld',
+      'dLlllvleeelvd',
+      'dLllvllleellD',
+      ...SAC_BOTTOM,
+    ],
+    SAC_PALETTE,
+  ),
+  pixelSprite(
+    [
+      ...SAC_TOP,
+      'dLLHHLllleeld',
+      'dLLLLlleeEEld',
+      'dLLLllleEEEed',
+      'dLLlllleEeeld',
+      'dLlllvleeelvd',
+      'dLllvlleellID'.replace('I', 'l'),
+      ...SAC_BOTTOM,
+    ],
+    SAC_PALETTE,
+  ),
+] as const
+const SAC_FLASH = silhouette(SAC_SPRITES[0])
+const HUSK_SPRITE = pixelSprite(
+  ['..d.Ld..d...', '.dLdlLd.dLd.', 'dllDdlldDlld'],
+  SAC_PALETTE,
+)
+
+const KIT_SPRITE = pixelSprite(
+  [
+    '...ssss...',
+    '..s....s..',
+    'WWWWWWWWWw',
+    'WWWWggWWWc',
+    'WWWWggWWWc',
+    'WWggggggWc',
+    'WWggggggWc',
+    'WWWWggWWWc',
+    'cccccccccC',
+  ],
+  {
+    s: RAMPS.steel[3],
+    W: RAMPS.cream[4],
+    w: RAMPS.cream[3],
+    c: RAMPS.cream[2],
+    C: RAMPS.cream[1],
+    g: RAMPS.leaf[2],
+  },
+)
+
+const SPIT_SPRITES = [
+  pixelSprite(['.ppP.', 'pPWPp', 'dppPp', '.ddd.'], {
+    W: '#ffffff',
+    P: RAMPS.pink[3],
+    p: '#d946ef',
+    d: RAMPS.purple[1],
+  }),
+  pixelSprite(['..pP..', 'ppPWPp', '.dpPpd', '..dd..'], {
+    W: '#ffffff',
+    P: RAMPS.pink[3],
+    p: '#d946ef',
+    d: RAMPS.purple[1],
+  }),
+] as const
+
+// --- the station ------------------------------------------------------------
+
+/** How a deck looks: its bulkheads, its trim lights, its floor, and the view outside. */
+type DeckLook = {
+  wall: Ramp
+  trim: Ramp
+  floor: Ramp
+  space: readonly string[]
+  planet: Ramp
+  rings: boolean
+}
+const DECK_LOOKS: readonly DeckLook[] = [
+  {
+    wall: shade(RAMPS.steel, RAMPS.night[0], 0.45),
+    trim: RAMPS.teal,
+    floor: shade(RAMPS.steel, RAMPS.night[0], 0.15),
+    space: [RAMPS.night[0], RAMPS.night[1], RAMPS.night[2], RAMPS.purple[1]],
+    planet: RAMPS.rust,
+    rings: true,
+  },
+  {
+    wall: shade(RAMPS.purple, RAMPS.night[0], 0.55),
+    trim: RAMPS.pink,
+    floor: shade(RAMPS.purple, RAMPS.steel[1], 0.55),
+    space: [RAMPS.night[0], RAMPS.night[1], RAMPS.pink[0], RAMPS.night[2]],
+    planet: RAMPS.teal,
+    rings: false,
+  },
+  {
+    wall: shade(RAMPS.water, RAMPS.night[0], 0.55),
+    trim: RAMPS.gold,
+    floor: shade(RAMPS.water, RAMPS.steel[1], 0.55),
+    space: [RAMPS.night[0], RAMPS.sky[0], RAMPS.night[1], RAMPS.water[0]],
+    planet: RAMPS.gold,
+    rings: false,
+  },
+  {
+    wall: shade(RAMPS.earth, RAMPS.night[0], 0.4),
+    trim: RAMPS.leaf,
+    floor: shade(RAMPS.earth, RAMPS.steel[1], 0.5),
+    space: [RAMPS.night[0], RAMPS.night[1], RAMPS.purple[0], RAMPS.night[2]],
+    planet: RAMPS.purple,
+    rings: true,
+  },
+]
+
+/** Lift doors: brushed steel, a shade darker than the frames. */
+const DOOR_RAMP = shade(RAMPS.steel, RAMPS.night[0], 0.2)
+
+/** Sparkle colours: a critter swept, a sac popped, a repair kit taken. */
+const GOOD_SPARKS = [RAMPS.gold[4], RAMPS.teal[3], RAMPS.pink[3]]
+const SAC_SPARKS = [LIME[4], LIME[3], RAMPS.gold[4]]
+const KIT_SPARKS = [RAMPS.leaf[3], '#ffffff', RAMPS.teal[4]]
+
+/** The bulkheads repeat every two panels; space outside repeats every SPACE_W. */
+const TILE_W = 160
+const SPACE_W = 256
+const WINDOW = { x: 12, y: 90, w: 56, h: 42 }
+const PORTHOLE = { x: 120, y: 112, r: 14 }
+const SPACE_STARS = starField(17, 90, SPACE_W, FLOOR - CEILING)
+
+/** A rivet: lit on its upper left, shadowed on its lower right. */
+function rivet(k: CanvasRenderingContext2D, x: number, y: number, ramp: Ramp) {
+  k.fillStyle = ramp[0]
+  k.fillRect(x, y, 2, 2)
+  k.fillStyle = ramp[4]
+  k.fillRect(x, y, 1, 1)
+}
+
+/** A recessed panel: shadow along the top and left, a lit lip along the bottom and right. */
+function inset(
+  k: CanvasRenderingContext2D,
+  x: number,
+  y: number,
+  w: number,
+  h: number,
+  ramp: Ramp,
+) {
+  k.fillStyle = ramp[3]
+  k.fillRect(x, y, w, h)
+  k.fillStyle = ramp[0]
+  k.fillRect(x, y, w - 1, h - 1)
+  k.fillStyle = ramp[1]
+  k.fillRect(x + 1, y + 1, w - 2, h - 2)
+}
+
+/** Space as one window tile: banded dark, a nebula, stars, and a planet. */
+function paintSpace(
+  k: CanvasRenderingContext2D,
+  look: DeckLook,
+  theme: number,
+) {
+  bandedGradient(k, 0, CEILING, SPACE_W, FLOOR - CEILING, look.space, 4)
+  glow(k, 70, 104, 46, look.trim[1], 0.35)
+  glow(k, 40, 124, 28, RAMPS.purple[2], 0.25)
+  k.save()
+  k.translate(0, CEILING)
+  drawStars(k, SPACE_STARS, theme * 40, RAMPS.purple)
+  k.restore()
+  const { planet } = look
+  const x = 186
+  const y = 108 + theme * 3
+  const r = 15
+  glow(k, x, y, r + 12, planet[3], 0.35)
+  const ring = (from: number, to: number) => {
+    k.lineWidth = 2
+    k.strokeStyle = INK
+    k.beginPath()
+    k.ellipse(x, y, r + 11, 4, -0.25, from, to)
+    k.stroke()
+    k.lineWidth = 1
+    k.strokeStyle = look.trim[3]
+    k.beginPath()
+    k.ellipse(x, y, r + 11, 4, -0.25, from, to)
+    k.stroke()
+  }
+  if (look.rings) ring(Math.PI, Math.PI * 2)
+  k.fillStyle = INK
+  k.beginPath()
+  k.arc(x, y, r + 1, 0, Math.PI * 2)
+  k.fill()
+  k.save()
+  k.beginPath()
+  k.arc(x, y, r, 0, Math.PI * 2)
+  k.clip()
+  bandedGradient(
+    k,
+    x - r,
+    y - r,
+    r * 2,
+    r * 2,
+    [planet[4], planet[3], planet[2], planet[3], planet[2], planet[1]],
+    3,
+  )
+  // The night side, in two steps.
+  k.fillStyle = rgba(INK, 0.3)
+  k.beginPath()
+  k.arc(x + r * 0.3, y + r * 0.25, r, 0, Math.PI * 2)
+  k.fill()
+  k.fillStyle = rgba(INK, 0.35)
+  k.beginPath()
+  k.arc(x + r * 0.6, y + r * 0.5, r, 0, Math.PI * 2)
+  k.fill()
+  k.fillStyle = rgba('#ffffff', 0.7)
+  k.fillRect(x - 9, y - 9, 3, 2)
+  k.restore()
+  if (look.rings) ring(0, Math.PI)
+}
+
+/**
+ * Two bulkhead panels of a deck, baked once per look: a ceiling with lamps
+ * pouring light down the struts, a panel with a big window and one with a
+ * porthole over a console, a pipe run, vented kick plates, and the grated
+ * floor. The windows are left clear so space shows through.
+ */
+function paintWall(k: CanvasRenderingContext2D, look: DeckLook) {
+  const { wall, trim, floor } = look
+  const top = CEILING - 14
+  // Ceiling plating, with seams.
+  bandedGradient(k, 0, top, TILE_W, 12, [wall[1], wall[0]], 3)
+  for (let x = 0; x < TILE_W; x += 40) {
+    k.fillStyle = INK
+    k.fillRect(x, top, 1, 12)
+    k.fillStyle = wall[2]
+    k.fillRect(x + 1, top, 1, 12)
+    rivet(k, x + 5, top + 4, wall)
+    rivet(k, x + 33, top + 4, wall)
+  }
+  k.fillStyle = INK
+  k.fillRect(0, CEILING - 3, TILE_W, 1)
+  k.fillStyle = trim[2]
+  k.fillRect(0, CEILING - 2, TILE_W, 1)
+  k.fillStyle = trim[1]
+  k.fillRect(0, CEILING - 1, TILE_W, 1)
+  k.fillStyle = wall[0]
+  k.fillRect(0, CEILING, TILE_W, FLOOR - CEILING)
+  for (const px of [0, 80]) {
+    // The upper panel.
+    bevel(k, px + 6, CEILING + 3, 68, 84, wall)
+    for (const [rx, ry] of [
+      [px + 9, CEILING + 6],
+      [px + 69, CEILING + 6],
+      [px + 9, CEILING + 82],
+      [px + 69, CEILING + 82],
+    ] as const)
+      rivet(k, rx, ry, wall)
+    // The pipe run, lit from above, with clamps.
+    bandedGradient(
+      k,
+      px,
+      CEILING + 90,
+      80,
+      6,
+      [RAMPS.steel[3], RAMPS.steel[2], RAMPS.steel[1], RAMPS.steel[0]],
+      1,
+    )
+    k.fillStyle = RAMPS.steel[4]
+    k.fillRect(px, CEILING + 90, 80, 1)
+    k.fillStyle = INK
+    k.fillRect(px, CEILING + 89, 80, 1)
+    k.fillRect(px, CEILING + 96, 80, 1)
+    bevel(k, px + 20, CEILING + 88, 5, 10, wall, { depth: 1 })
+    bevel(k, px + 60, CEILING + 88, 5, 10, wall, { depth: 1 })
+    k.fillStyle = trim[1]
+    k.fillRect(px, CEILING + 98, 80, 1)
+    // Kick plates with vents.
+    for (const vx of [px + 6, px + 42]) {
+      bevel(k, vx, CEILING + 102, 32, 30, wall, { depth: 1 })
+      for (let i = 0; i < 4; i++) {
+        k.fillStyle = wall[0]
+        k.fillRect(vx + 5, CEILING + 107 + i * 6, 22, 2)
+        k.fillStyle = wall[2]
+        k.fillRect(vx + 5, CEILING + 109 + i * 6, 22, 1)
+      }
+    }
+  }
+  // The window panel: a framed pane with a mullion.
+  const { x: wx, y: wy, w: ww, h: wh } = WINDOW
+  bevel(k, wx - 4, wy - 4, ww + 8, wh + 8, wall, { depth: 2 })
+  inset(k, wx - 1, wy - 1, ww + 2, wh + 2, wall)
+  k.clearRect(wx, wy, ww, wh)
+  k.fillStyle = wall[0]
+  for (const [cx, cy] of [
+    [wx, wy],
+    [wx + ww - 1, wy],
+    [wx, wy + wh - 1],
+    [wx + ww - 1, wy + wh - 1],
+  ] as const)
+    k.fillRect(cx, cy, 1, 1)
+  k.fillStyle = rgba(INK, 0.45)
+  k.fillRect(wx, wy, ww, 2)
+  k.fillStyle = INK
+  k.fillRect(wx + ww / 2 - 2, wy, 4, wh)
+  k.fillStyle = wall[3]
+  k.fillRect(wx + ww / 2 - 1, wy, 1, wh)
+  k.fillStyle = wall[1]
+  k.fillRect(wx + ww / 2, wy, 1, wh)
+  // Glare on the glass.
+  k.fillStyle = rgba('#ffffff', 0.14)
+  for (const gx of [wx + 4, wx + ww / 2 + 4])
+    for (let i = 0; i < 12; i++) {
+      k.fillRect(gx + i, wy + 16 - i, 2, 1)
+      if (i < 6) k.fillRect(gx + i + 6, wy + 16 - i, 1, 1)
+    }
+  // A nameplate under the window.
+  bevel(k, wx + 14, wy + wh + 8, ww - 28, 6, trim, { depth: 1 })
+  k.fillStyle = trim[0]
+  for (let i = 0; i < 5; i++) k.fillRect(wx + 18 + i * 4, wy + wh + 10, 2, 2)
+  // The porthole panel: a riveted ring round a round pane.
+  const { x: hx, y: hy, r } = PORTHOLE
+  const disc = (x: number, y: number, rr: number, colour: string) => {
+    k.fillStyle = colour
+    k.beginPath()
+    k.arc(x, y, rr, 0, Math.PI * 2)
+    k.fill()
+  }
+  disc(hx, hy, r + 6, INK)
+  disc(hx, hy, r + 5, wall[1])
+  disc(hx - 1, hy - 1, r + 4, wall[3])
+  disc(hx, hy, r + 3, wall[2])
+  disc(hx, hy, r + 1, INK)
+  for (let i = 0; i < 8; i++) {
+    const a = (i / 8) * Math.PI * 2 + Math.PI / 8
+    rivet(
+      k,
+      Math.round(hx + Math.cos(a) * (r + 3) - 1),
+      Math.round(hy + Math.sin(a) * (r + 3) - 1),
+      wall,
+    )
+  }
+  k.save()
+  k.globalCompositeOperation = 'destination-out'
+  disc(hx, hy, r, '#000000')
+  k.restore()
+  k.fillStyle = rgba('#ffffff', 0.2)
+  for (let i = 0; i < 6; i++) k.fillRect(hx - 9 + i, hy - 3 - i, 2, 1)
+  // The console under the porthole: a screen of readouts and three lamps.
+  bevel(k, hx - 22, CEILING + 64, 44, 20, wall)
+  k.fillStyle = INK
+  k.fillRect(hx - 19, CEILING + 67, 30, 14)
+  bandedGradient(k, hx - 18, CEILING + 68, 28, 12, [trim[1], trim[0]], 2)
+  k.fillStyle = trim[3]
+  ;[14, 20, 9].forEach((w, row) =>
+    k.fillRect(hx - 16, CEILING + 70 + row * 3, w, 1),
+  )
+  k.fillStyle = rgba(trim[4], 0.25)
+  k.fillRect(hx - 18, CEILING + 68, 28, 1)
+  k.fillStyle = INK
+  for (let i = 0; i < 3; i++) k.fillRect(hx + 13, CEILING + 69 + i * 5, 4, 4)
+  // Struts between panels, wrapping across the tile edge.
+  for (const sx of [0, 80, TILE_W]) {
+    k.fillStyle = INK
+    k.fillRect(sx - 4, CEILING, 8, FLOOR - CEILING)
+    k.fillStyle = wall[2]
+    k.fillRect(sx - 3, CEILING, 6, FLOOR - CEILING)
+    k.fillStyle = wall[3]
+    k.fillRect(sx - 3, CEILING, 1, FLOOR - CEILING)
+    k.fillStyle = wall[1]
+    k.fillRect(sx + 2, CEILING, 1, FLOOR - CEILING)
+    for (let y = CEILING + 10; y < FLOOR; y += 24) rivet(k, sx - 1, y, wall)
+  }
+  // Baseboard.
+  k.fillStyle = wall[1]
+  k.fillRect(0, FLOOR - 3, TILE_W, 2)
+  k.fillStyle = INK
+  k.fillRect(0, FLOOR - 1, TILE_W, 1)
+  // The floor: a lit lip, grating, and the dark under-deck below.
+  k.fillStyle = floor[4]
+  k.fillRect(0, FLOOR, TILE_W, 1)
+  bandedGradient(k, 0, FLOOR + 1, TILE_W, 9, [floor[3], floor[2], floor[1]], 3)
+  for (let x = 0; x < TILE_W; x += 10) {
+    k.fillStyle = INK
+    k.fillRect(x + 2, FLOOR + 5, 6, 2)
+    k.fillStyle = floor[3]
+    k.fillRect(x + 2, FLOOR + 7, 6, 1)
+  }
+  for (let x = 0; x < TILE_W; x += 40) {
+    k.fillStyle = INK
+    k.fillRect(x, FLOOR + 1, 1, 9)
+    rivet(k, x + 3, FLOOR + 2, floor)
+  }
+  k.fillStyle = INK
+  k.fillRect(0, FLOOR + 10, TILE_W, 1)
+  bandedGradient(
+    k,
+    0,
+    FLOOR + 11,
+    TILE_W,
+    H - FLOOR - 11,
+    [floor[1], floor[0], INK],
+    3,
+  )
+  for (let x = 20; x < TILE_W; x += 40) {
+    k.fillStyle = floor[1]
+    k.fillRect(x - 2, FLOOR + 11, 5, H - FLOOR - 11)
+    k.fillStyle = floor[2]
+    k.fillRect(x - 2, FLOOR + 11, 1, H - FLOOR - 11)
+  }
+  for (let x = 0; x < TILE_W; x += 20) {
+    k.fillStyle = trim[3]
+    k.fillRect(x + 9, FLOOR + 20, 2, 1)
+    glow(k, x + 10, FLOOR + 20, 5, trim[2], 0.4)
+  }
+  // Ceiling lamps over the struts, washing light down the wall.
+  for (const lx of [0, 80, TILE_W]) {
+    k.save()
+    k.globalCompositeOperation = 'lighter'
+    const cone = k.createLinearGradient(0, CEILING, 0, CEILING + 110)
+    cone.addColorStop(0, rgba(trim[3], 0.2))
+    cone.addColorStop(1, rgba(trim[3], 0))
+    k.fillStyle = cone
+    k.beginPath()
+    k.moveTo(lx - 6, CEILING)
+    k.lineTo(lx + 6, CEILING)
+    k.lineTo(lx + 30, CEILING + 110)
+    k.lineTo(lx - 30, CEILING + 110)
+    k.closePath()
+    k.fill()
+    k.restore()
+    bevel(k, lx - 8, CEILING - 6, 16, 5, RAMPS.steel, { depth: 1 })
+    k.fillStyle = trim[4]
+    k.fillRect(lx - 6, CEILING - 1, 12, 1)
+    glow(k, lx, CEILING, 10, trim[3], 0.6)
+  }
+}
+
 class StationSweep implements ArcadeGameInstance {
   score = 0
   level = 1
@@ -224,6 +1019,12 @@ class StationSweep implements ArcadeGameInstance {
   private particles: Particle[] = []
   private floaters: Floater[] = []
   private banner: { text: string; sub?: string; ticks: number } | null = null
+  // Cosmetic sparkles, a set per deck, roll their own dice: the seeded rng is untouched.
+  private fx = Array.from(
+    { length: SWEEP_CURVES.decks.limit },
+    () => new Sparkles(),
+  )
+  private fxRng = backdropRng(61)
 
   constructor(options: ArcadeGameOptions) {
     this.rng = options.rng
@@ -614,6 +1415,7 @@ class StationSweep implements ArcadeGameInstance {
     this.critters = this.critters.filter((o) => o !== c)
     this.addScore(POINTS[c.kind] * this.level, c.x, c.y - 20)
     this.burst(c.x, c.y - 6, 10, c.kind === 'biter' ? '#f472b6' : '#a3e635')
+    this.sparkle(c.x, c.y - 6, 8)
     this.sound.play('pop')
   }
 
@@ -621,6 +1423,7 @@ class StationSweep implements ArcadeGameInstance {
     sac.hatches = 0
     this.addScore(200 * this.level, sac.x, FLOOR - 26)
     this.burst(sac.x, FLOOR - 8, 14, '#a3e635')
+    this.sparkle(sac.x, FLOOR - 10, 12, SAC_SPARKS)
     this.sound.play('boom')
     if (this.rng() < 0.25) this.kits.push({ x: sac.x, life: 60 * 10 })
   }
@@ -796,6 +1599,7 @@ class StationSweep implements ArcadeGameInstance {
       if (!m) continue
       k.life = 0
       m.health = Math.min(MAX_HEALTH, m.health + 30)
+      this.sparkle(k.x, FLOOR - 8, 10, KIT_SPARKS)
       this.floaters.push({
         deck: this.curIndex,
         x: k.x,
@@ -889,6 +1693,7 @@ class StationSweep implements ArcadeGameInstance {
       d.clean = true
       const bonus = 1000 * this.level
       this.addScore(bonus, at.x, at.y - 40)
+      for (const dx of [-40, 0, 40]) this.sparkle(at.x + dx, at.y - 30, 12)
       if (this.decks.some((k) => !k.clean)) {
         this.banner = {
           text: 'DECK CLEAN!',
@@ -908,6 +1713,8 @@ class StationSweep implements ArcadeGameInstance {
       Math.round(health) * 10 +
       Math.floor(this.timer / 60) * 10 * this.level
     this.addScore(bonus, at.x, at.y - 50)
+    for (const dx of [-80, -40, 0, 40, 80])
+      this.sparkle(at.x + dx, at.y - 40, 14)
     this.clear = CLEAR_TICKS
     this.banner = {
       text: 'STATION CLEAN!',
@@ -964,7 +1771,18 @@ class StationSweep implements ArcadeGameInstance {
     }
   }
 
+  /** Cosmetic sparkles on the deck being simulated. */
+  private sparkle(
+    x: number,
+    y: number,
+    count: number,
+    colours: readonly string[] = GOOD_SPARKS,
+  ) {
+    this.fx[this.curIndex]?.burst(x, y, this.fxRng, { count, colours })
+  }
+
   private updateEffects() {
+    for (const fx of this.fx) fx.update()
     for (const p of this.particles) {
       p.x += p.vx
       p.y += p.vy
@@ -1070,7 +1888,7 @@ class StationSweep implements ArcadeGameInstance {
   // --- render -------------------------------------------------------------------
 
   render(g: CanvasRenderingContext2D) {
-    g.fillStyle = '#05030d'
+    g.fillStyle = INK
     g.fillRect(0, 0, W, H)
     if (this.duo) {
       this.renderSplit(g)
@@ -1079,28 +1897,52 @@ class StationSweep implements ArcadeGameInstance {
     const me = this.mops[0]!
     g.save()
     g.translate(-Math.round(me.camX), 0)
-    this.renderWorld(g, me.deck)
+    this.renderWorld(g, me.deck, me.camX, W)
     g.restore()
+    vignette(g, W, H, 0.3)
     this.renderHud(g)
   }
 
-  /** Everything on one deck, in world coordinates. */
-  private renderWorld(g: CanvasRenderingContext2D, deck: number) {
+  /** Everything on one deck, in world coordinates; `camX`/`viewW` say what's in view. */
+  private renderWorld(
+    g: CanvasRenderingContext2D,
+    deck: number,
+    camX: number,
+    viewW: number,
+  ) {
     this.use(deck)
-    this.renderDeck(g, deck)
-    for (const lift of LIFTS) this.renderLift(g, lift, deck)
-    for (const sac of this.sacs) this.renderSac(g, sac)
-    for (const k of this.kits) this.renderKit(g, k)
-    for (const c of this.critters) this.renderCritter(g, c)
+    const look = DECK_LOOKS[deck % DECK_LOOKS.length]!
+    const left = camX - 24
+    const right = camX + viewW + 24
+    const inView = (x: number) => x > left && x < right
+    this.renderDeck(g, deck, look, camX, viewW)
+    for (const lift of LIFTS)
+      if (inView(lift)) this.renderLift(g, lift, deck, look)
+    for (const sac of this.sacs) if (inView(sac.x)) this.renderSac(g, sac)
+    for (const k of this.kits) if (inView(k.x)) this.renderKit(g, k)
+    for (const c of this.critters) if (inView(c.x)) this.renderCritter(g, c)
     for (const s of this.spits) {
-      g.fillStyle = '#d946ef'
-      g.fillRect(s.x - 2, s.y - 1, 4, 3)
+      if (!inView(s.x)) continue
+      glow(g, s.x, s.y, 9, RAMPS.pink[2], 0.5)
+      drawSprite(g, SPIT_SPRITES[Math.floor(this.tick / 4) % 2]!, s.x, s.y, {
+        flipX: s.vx < 0,
+      })
     }
     for (const s of this.shots) {
-      g.fillStyle = '#67e8f9'
-      g.fillRect(s.x - 4, s.y - 1, 8, 2)
-      g.fillStyle = '#ecfeff'
-      g.fillRect(s.x - 1, s.y - 1, 3, 2)
+      if (!inView(s.x)) continue
+      const x = Math.round(s.x)
+      const y = Math.round(s.y)
+      const back = s.vx > 0 ? -1 : 1
+      glow(g, x, y, 10, RAMPS.teal[3], 0.55)
+      g.fillStyle = rgba(RAMPS.teal[3], 0.5)
+      g.fillRect(x + back * 9 - 1, y - 1, 2, 1)
+      g.fillRect(x + back * 13, y, 1, 1)
+      g.fillStyle = RAMPS.teal[2]
+      g.fillRect(x - 5, y - 2, 10, 4)
+      g.fillStyle = RAMPS.teal[3]
+      g.fillRect(x - 4, y - 1, 8, 2)
+      g.fillStyle = RAMPS.teal[4]
+      g.fillRect(x - back * 2 - 1, y - 1, 3, 2)
     }
     for (const m of this.mops) {
       if (m.deck !== deck || m.dead > 0 || m.out || this.over) continue
@@ -1110,20 +1952,28 @@ class StationSweep implements ArcadeGameInstance {
       if (!inLift) this.renderMop(g, m)
     }
     for (const p of this.particles) {
-      if (p.deck !== deck) continue
-      g.globalAlpha = Math.max(0, p.life / 30)
+      if (p.deck !== deck || !inView(p.x)) continue
+      g.globalAlpha = Math.max(0, Math.min(1, p.life / 30))
+      g.fillStyle = INK
+      g.fillRect(Math.round(p.x) - 1, Math.round(p.y) - 1, 3, 3)
       g.fillStyle = p.color
-      g.fillRect(p.x - 1, p.y - 1, 2, 2)
+      g.fillRect(Math.round(p.x) - 1, Math.round(p.y) - 1, 2, 2)
     }
     g.globalAlpha = 1
+    this.fx[deck]?.render(g)
     for (const f of this.floaters)
       if (f.deck === deck)
-        drawText(g, f.text, f.x, f.y, { align: 'center', color: '#fde68a' })
+        drawText(g, f.text, f.x, f.y, {
+          align: 'center',
+          color: RAMPS.gold[3],
+          outline: INK,
+        })
   }
 
   /** Split screen: a slim shared HUD, then a strip per Mop, player 1's on top. */
   private renderSplit(g: CanvasRenderingContext2D) {
     const stripH = this.stripH
+    const viewW = this.viewW
     this.mops.forEach((m, i) => {
       const top = SPLIT_HUD + i * stripH
       g.save()
@@ -1131,122 +1981,231 @@ class StationSweep implements ArcadeGameInstance {
       g.rect(0, top, W, stripH)
       g.clip()
       if (m.out) {
-        g.fillStyle = '#0b1026'
-        g.fillRect(0, top, W, stripH)
+        bandedGradient(
+          g,
+          0,
+          top,
+          W,
+          stripH,
+          [RAMPS.night[2], RAMPS.night[1], RAMPS.night[0]],
+          4,
+        )
+        // A dead monitor: faint scanlines across the strip.
+        g.fillStyle = rgba(RAMPS.night[4], 0.18)
+        for (let y = Math.ceil(top); y < top + stripH; y += 3)
+          g.fillRect(0, y, W, 1)
         drawText(g, `${m.seat + 1}P IS OUT`, W / 2, top + stripH / 2 - 8, {
           scale: 2,
           align: 'center',
           color: SEAT_COLORS[m.seat],
+          outline: INK,
         })
         drawText(
           g,
           'A SPARE MOP BRINGS YOU BACK',
           W / 2,
           top + stripH / 2 + 12,
-          {
-            align: 'center',
-            color: '#94a3b8',
-          },
+          { align: 'center', color: RAMPS.steel[3], outline: INK },
         )
       } else {
         g.translate(0, top)
         g.scale(this.stripScale, this.stripScale)
         g.translate(-Math.round(m.camX), -VIEW_TOP)
-        this.renderWorld(g, m.deck)
+        this.renderWorld(g, m.deck, m.camX, viewW)
       }
       g.restore()
       if (!m.out) this.renderViewHud(g, m, top)
     })
-    g.fillStyle = '#334155'
-    for (let i = 1; i < this.mops.length; i++)
-      g.fillRect(0, SPLIT_HUD + i * stripH - 1, W, 2)
+    // Bevelled steel dividers between the strips.
+    for (let i = 1; i < this.mops.length; i++) {
+      const y = Math.round(SPLIT_HUD + i * stripH)
+      g.fillStyle = INK
+      g.fillRect(0, y - 2, W, 4)
+      g.fillStyle = RAMPS.steel[3]
+      g.fillRect(0, y - 1, W, 1)
+      g.fillStyle = RAMPS.steel[1]
+      g.fillRect(0, y, W, 1)
+    }
     this.renderSplitHud(g)
   }
 
   /** Over each view: whose Mop, its charge, its deck, and a map of that deck. */
   private renderViewHud(g: CanvasRenderingContext2D, m: Mop, top: number) {
-    const shadow = '#0b1026'
-    drawText(g, `${m.seat + 1}P`, 4, top + 3, {
+    const y = Math.round(top) + 2
+    hudPanel(g, 2, y, 78, 10, RAMPS.night)
+    drawText(g, `${m.seat + 1}P`, 5, y + 2, {
       color: SEAT_COLORS[m.seat],
-      shadow,
+      outline: INK,
     })
-    g.fillStyle = '#1f2937'
-    g.fillRect(20, top + 4, 60, 4)
     const frac = Math.max(0, m.health) / MAX_HEALTH
-    g.fillStyle = frac > 0.5 ? '#4ade80' : frac > 0.25 ? '#facc15' : '#ef4444'
-    g.fillRect(20, top + 4, 60 * frac, 4)
-    drawText(g, `DECK ${m.deck + 1}`, 86, top + 3, { color: '#bef264', shadow })
-    if (m.dead > 0)
-      drawText(g, 'REBOOTING', W - 6, top + 3, {
+    gauge(g, 20, y + 3, 56, 4, frac, chargeRamp(frac))
+    hudPanel(g, 83, y, 42, 10, RAMPS.night)
+    drawText(g, `DECK ${m.deck + 1}`, 86, y + 2, {
+      color: LIME[3],
+      outline: INK,
+    })
+    hudPanel(g, 128, y, W - 130, 10, RAMPS.night)
+    if (m.dead > 0) {
+      drawText(g, 'REBOOTING', W - 6, y + 2, {
         align: 'right',
-        color: '#fde68a',
-        shadow,
+        color: Math.floor(this.tick / 12) % 2 ? RAMPS.gold[3] : RAMPS.gold[4],
+        outline: INK,
       })
-    const d = this.decks[m.deck]!
-    const mapX = 130
-    const mapW = W - 6 - mapX
-    if (m.dead > 0) return
-    g.fillStyle = '#1e293b'
-    g.fillRect(mapX, top + 4, mapW, 4)
+      return
+    }
+    this.renderRadar(g, 132, y + 3, W - 138, 4, m.deck, m)
+  }
+
+  /** A deck's radar: lift doors, live sacs, critters, and every Mop on it. */
+  private renderRadar(
+    g: CanvasRenderingContext2D,
+    x: number,
+    y: number,
+    w: number,
+    h: number,
+    deck: number,
+    me: Mop,
+  ) {
+    const d = this.decks[deck]!
+    const at = (wx: number) => Math.round(x + (wx / DECK_W) * w)
+    g.fillStyle = INK
+    g.fillRect(x - 1, y - 1, w + 2, h + 2)
+    bandedGradient(g, x, y, w, h, [RAMPS.night[0], RAMPS.night[1]], 1)
+    // What this view can see, as a faint bracket.
+    const span = Math.max(4, Math.round((this.viewW / DECK_W) * w))
+    g.fillStyle = rgba(RAMPS.teal[3], 0.18)
+    g.fillRect(at(me.camX), y, span, h)
+    g.fillStyle = RAMPS.steel[2]
+    for (const lift of LIFTS) g.fillRect(at(lift) - 1, y, 3, 1)
     for (const s of d.sacs) {
       if (s.hatches <= 0 || (!s.ceiling && s.hp <= 0)) continue
-      g.fillStyle = '#84cc16'
-      g.fillRect(
-        mapX + (s.x / DECK_W) * mapW - 1,
-        top + (s.ceiling ? 4 : 6),
-        2,
-        2,
-      )
+      g.fillStyle = LIME[3]
+      g.fillRect(at(s.x) - 1, s.ceiling ? y : y + h - 2, 2, 2)
     }
-    for (const c of d.critters) {
-      g.fillStyle = '#f472b6'
-      g.fillRect(mapX + (c.x / DECK_W) * mapW, top + 5, 1, 2)
-    }
+    g.fillStyle = RAMPS.pink[3]
+    for (const c of d.critters) g.fillRect(at(c.x), y + 1, 1, h - 2)
     for (const o of this.mops) {
-      if (o.deck !== m.deck || o.out) continue
+      if (o.deck !== deck || o.out) continue
+      g.fillStyle = INK
+      g.fillRect(at(o.x) - 2, y - 2, 5, h + 4)
       g.fillStyle = SEAT_COLORS[o.seat]!
-      g.fillRect(mapX + (o.x / DECK_W) * mapW - 1, top + 3, 3, 6)
+      g.fillRect(at(o.x) - 1, y - 1, 3, h + 2)
     }
   }
 
   private renderSplitHud(g: CanvasRenderingContext2D) {
-    const shadow = '#0b1026'
-    g.fillStyle = '#0b1026'
-    g.fillRect(0, 0, W, SPLIT_HUD)
-    drawText(g, String(this.score).padStart(7, '0'), 4, 4, {
+    bandedGradient(
+      g,
+      0,
+      0,
+      W,
+      SPLIT_HUD,
+      [RAMPS.night[2], RAMPS.night[1], RAMPS.night[0]],
+      2,
+    )
+    g.fillStyle = INK
+    g.fillRect(0, SPLIT_HUD - 1, W, 1)
+    hudPanel(g, 2, 2, 88, 18)
+    drawText(g, String(this.score).padStart(7, '0'), 5, 4, {
       scale: 2,
-      color: '#67e8f9',
-      shadow,
+      color: RAMPS.teal[4],
+      shadow: INK,
     })
+    hudPanel(g, 93, 2, 66, 18)
+    this.renderClock(g, 102, 11, 6)
     const secs = Math.max(0, Math.ceil(this.timer / 60))
-    drawText(g, `TIME ${secs}`, 96, 3, {
-      color:
-        secs <= 20 && Math.floor(this.tick / 10) % 2 ? '#ef4444' : '#fde68a',
+    drawText(g, `TIME ${secs}`, 111, 3, {
+      color: this.clockColour(secs),
+      outline: INK,
     })
-    for (let i = 0; i < Math.min(this.spares, 5); i++) {
-      g.fillStyle = '#0ea5e9'
-      g.fillRect(96 + i * 9, 13, 6, 6)
-    }
-    drawText(g, `HI ${Math.max(this.hiScore, this.score)}`, W - 4, 3, {
-      align: 'right',
-      color: '#f9a8d4',
-    })
-    drawText(g, `STATION ${this.level}`, W - 4, 13, {
-      align: 'right',
-      color: '#bef264',
-    })
+    for (let i = 0; i < Math.min(this.spares, 5); i++)
+      drawSprite(g, SPARE_SPRITE, 110 + i * 8, 12, { anchor: 'topleft' })
     // The station, top deck first: clean green, dirty red, and who's on each.
+    const n = this.decks.length
+    hudPanel(g, 162, 2, n * 12 + 6, 18)
     this.decks.forEach((d, i) => {
-      const bx = 160 + i * 13
-      g.fillStyle = d.clean ? '#22c55e' : '#be123c'
-      g.fillRect(bx, 3, 10, 7)
+      const bx = 166 + i * 12
+      this.renderDeckBox(g, bx, 5, d.clean, false)
       for (const m of this.mops) {
         if (m.out || m.deck !== i) continue
+        g.fillStyle = INK
+        g.fillRect(bx + m.seat * 3, 13, 4, 4)
         g.fillStyle = SEAT_COLORS[m.seat]!
-        g.fillRect(bx + m.seat * 4, 12, 3, 3)
+        g.fillRect(bx + m.seat * 3, 13, 3, 3)
       }
     })
+    hudPanel(g, 236, 2, 82, 18)
+    drawText(g, `HI ${Math.max(this.hiScore, this.score)}`, W - 6, 4, {
+      align: 'right',
+      color: RAMPS.pink[3],
+      outline: INK,
+    })
+    drawText(g, `STATION ${this.level}`, W - 6, 12, {
+      align: 'right',
+      color: LIME[3],
+      outline: INK,
+    })
     this.renderBanner(g, H / 2 - 10)
+  }
+
+  /** One deck on the station map: a lit green block once clean, red until then. */
+  private renderDeckBox(
+    g: CanvasRenderingContext2D,
+    x: number,
+    y: number,
+    clean: boolean,
+    current: boolean,
+  ) {
+    if (current) {
+      glow(g, x + 5, y + 3, 10, RAMPS.teal[3], 0.5)
+      g.fillStyle = RAMPS.teal[3]
+      g.fillRect(x - 2, y - 2, 14, 11)
+    }
+    bevel(g, x, y, 10, 7, clean ? RAMPS.leaf : RAMPS.ember, { depth: 1 })
+  }
+
+  /** The station clock: a steel dial whose hand sweeps once a minute. */
+  private renderClock(
+    g: CanvasRenderingContext2D,
+    x: number,
+    y: number,
+    r: number,
+  ) {
+    const secs = Math.max(0, this.timer / 60)
+    const urgent = secs <= 20
+    if (urgent) glow(g, x, y, r + 8, RAMPS.ember[2], 0.5)
+    shadedOrb(g, x, y, r, urgent ? RAMPS.ember : RAMPS.steel, { glint: false })
+    g.fillStyle = RAMPS.cream[4]
+    g.beginPath()
+    g.arc(x, y, r - 2, 0, Math.PI * 2)
+    g.fill()
+    g.fillStyle = RAMPS.steel[2]
+    for (let i = 0; i < 4; i++) {
+      const a = (i * Math.PI) / 2
+      g.fillRect(
+        Math.round(x + Math.cos(a) * (r - 3)),
+        Math.round(y + Math.sin(a) * (r - 3)),
+        1,
+        1,
+      )
+    }
+    const a = -Math.PI / 2 - (secs / 60) * Math.PI * 2
+    g.fillStyle = INK
+    for (let s = 0; s <= r - 2; s++)
+      g.fillRect(
+        Math.round(x + Math.cos(a) * s),
+        Math.round(y + Math.sin(a) * s),
+        1,
+        1,
+      )
+    g.fillStyle = RAMPS.ember[2]
+    g.fillRect(Math.round(x), Math.round(y), 1, 1)
+  }
+
+  private clockColour(secs: number): string {
+    return secs <= 20 && Math.floor(this.tick / 10) % 2
+      ? RAMPS.ember[2]
+      : RAMPS.gold[3]
   }
 
   private renderBanner(g: CanvasRenderingContext2D, y: number) {
@@ -1255,57 +2214,84 @@ class StationSweep implements ArcadeGameInstance {
       scale: 2,
       align: 'center',
       color: '#ffffff',
-      shadow: '#7c3aed',
+      outline: INK,
+      shadow: RAMPS.purple[2],
     })
     if (this.banner.sub)
       drawText(g, this.banner.sub, W / 2, y + 20, {
         align: 'center',
-        color: '#fde68a',
-        shadow: '#0b1026',
+        color: RAMPS.gold[3],
+        outline: INK,
       })
   }
 
-  private renderDeck(g: CanvasRenderingContext2D, deck: number) {
-    // Ceiling and floor plating, wall panels with portholes onto space.
-    g.fillStyle = '#1e293b'
-    g.fillRect(0, CEILING - 14, DECK_W, 14)
-    g.fillRect(0, FLOOR, DECK_W, H - FLOOR)
-    g.fillStyle = '#334155'
-    g.fillRect(0, CEILING - 2, DECK_W, 2)
-    g.fillRect(0, FLOOR, DECK_W, 3)
-    g.fillStyle = '#111827'
-    g.fillRect(0, CEILING, DECK_W, FLOOR - CEILING)
-    for (let x = 0; x < DECK_W; x += 80) {
-      g.fillStyle = DECK_PANELS[deck % DECK_PANELS.length]!
-      g.fillRect(x + 2, CEILING + 4, 76, FLOOR - CEILING - 8)
-      g.fillStyle = '#0b1026'
-      g.beginPath()
-      g.arc(x + 40, CEILING + 46, 14, 0, Math.PI * 2)
-      g.fill()
-      g.fillStyle = '#e0e7ff'
-      g.fillRect(x + 34 + ((x / 80) % 3) * 4, CEILING + 40, 1, 1)
-      g.fillRect(x + 44, CEILING + 50 - ((x / 80) % 2) * 5, 1, 1)
-      g.strokeStyle = '#475569'
-      g.lineWidth = 2
-      g.beginPath()
-      g.arc(x + 40, CEILING + 46, 14, 0, Math.PI * 2)
-      g.stroke()
-      // Pipes and a blinking console light.
-      g.fillStyle = '#374151'
-      g.fillRect(x, CEILING + 92, 80, 3)
-      g.fillStyle =
-        (x / 80 + Math.floor(this.tick / 30)) % 3 === 0 ? '#22c55e' : '#14532d'
-      g.fillRect(x + 64, CEILING + 80, 4, 3)
+  /**
+   * The deck: space through the windows (scrolling slower than the deck, and
+   * drifting as the station turns), then the bulkheads, both baked once per
+   * deck look and tiled across the view, then the console lights and the
+   * deck's number by each lift.
+   */
+  private renderDeck(
+    g: CanvasRenderingContext2D,
+    deck: number,
+    look: DeckLook,
+    camX: number,
+    viewW: number,
+  ) {
+    const theme = deck % DECK_LOOKS.length
+    const drift = camX * 0.3 + this.tick * 0.05
+    const shift = ((drift % SPACE_W) + SPACE_W) % SPACE_W
+    for (let x = camX - shift; x < camX + viewW; x += SPACE_W) {
+      g.save()
+      g.translate(Math.round(x), 0)
+      cachedLayer(g, `station-sweep-space-${theme}`, SPACE_W, H, (k) =>
+        paintSpace(k, look, theme),
+      )
+      g.restore()
     }
-    // Floor grating.
-    g.fillStyle = '#0f172a'
-    for (let x = 0; x < DECK_W; x += 10) g.fillRect(x, FLOOR + 6, 6, 2)
+    const first = Math.floor(camX / TILE_W) * TILE_W
+    for (let x = first; x < camX + viewW; x += TILE_W) {
+      g.save()
+      g.translate(x, 0)
+      cachedLayer(g, `station-sweep-wall-${theme}`, TILE_W, H, (k) =>
+        paintWall(k, look),
+      )
+      g.restore()
+      // The console under each porthole: one light awake at a time.
+      const lit = (x / TILE_W + Math.floor(this.tick / 30)) % 3
+      for (let i = 0; i < 3; i++) {
+        const lx = x + 80 + 54
+        const ly = 140 + i * 5
+        g.fillStyle = i === lit ? look.trim[4] : look.trim[0]
+        g.fillRect(lx, ly, 2, 2)
+        if (i === lit) glow(g, lx + 1, ly + 1, 6, look.trim[3], 0.6)
+      }
+      // A cursor blinking on the console screen.
+      if (Math.floor(this.tick / 20) % 2) {
+        g.fillStyle = look.trim[3]
+        g.fillRect(x + 80 + 37, 148, 3, 1)
+      }
+    }
+    // The deck's number by each lift (the split screen's strips say it already).
+    if (!this.duo)
+      for (const lift of LIFTS) {
+        if (lift < camX - 40 || lift > camX + viewW + 40) continue
+        hudPanel(g, lift - 22, 71, 44, 11, look.wall)
+        drawText(g, `DECK ${deck + 1}`, lift, 73, {
+          align: 'center',
+          color: look.trim[3],
+          outline: INK,
+        })
+      }
   }
 
-  private renderLift(g: CanvasRenderingContext2D, x: number, deck: number) {
+  private renderLift(
+    g: CanvasRenderingContext2D,
+    x: number,
+    deck: number,
+    look: DeckLook,
+  ) {
     const top = CEILING + 34
-    g.fillStyle = '#0f172a'
-    g.fillRect(x - 16, top - 4, 32, FLOOR - top + 4)
     // The doors slide open while a Mop steps in or out.
     const rider = this.mops.find(
       (m) => m.ride && m.deck === deck && Math.abs(m.x - x) < 2,
@@ -1315,60 +2301,135 @@ class StationSweep implements ArcadeGameInstance {
       ? Math.max(0, Math.min(1, Math.abs(t - RIDE_TICKS / 2) / 10 - 1))
       : 0
     const gap = Math.round(open * 12)
-    g.fillStyle = '#64748b'
-    g.fillRect(x - 13, top, 13 - gap, FLOOR - top)
-    g.fillRect(x + gap, top, 13 - gap, FLOOR - top)
-    g.fillStyle = '#94a3b8'
-    g.fillRect(x - 13, top, 13 - gap, 2)
-    g.fillRect(x + gap, top, 13 - gap, 2)
+    // The shaft's housing: a dark recess under a hazard-striped lintel.
+    g.fillStyle = INK
+    g.fillRect(x - 21, top - 21, 42, FLOOR - top + 21)
+    g.fillStyle = look.wall[0]
+    g.fillRect(x - 20, top - 20, 40, FLOOR - top + 20)
+    g.fillStyle = INK
+    g.fillRect(x - 20, top - 20, 40, 3)
+    g.fillStyle = RAMPS.gold[2]
+    for (let row = 0; row < 3; row++)
+      for (let i = -row; i < 40; i += 6) {
+        const from = Math.max(0, i)
+        const to = Math.min(40, i + 3)
+        if (to > from) g.fillRect(x - 20 + from, top - 20 + row, to - from, 1)
+      }
+    // Frame posts and the header that carries the arrows.
+    bevel(g, x - 17, top - 2, 4, FLOOR - top + 2, RAMPS.steel, { depth: 1 })
+    bevel(g, x + 13, top - 2, 4, FLOOR - top + 2, RAMPS.steel, { depth: 1 })
+    bevel(g, x - 13, top - 17, 26, 15, RAMPS.steel)
+    // The car: lit from its ceiling, with a handrail.
+    bandedGradient(
+      g,
+      x - 13,
+      top,
+      26,
+      FLOOR - top,
+      [look.trim[2], look.wall[2], look.wall[1], look.wall[0]],
+      6,
+    )
+    g.fillStyle = look.trim[4]
+    g.fillRect(x - 8, top, 16, 1)
+    g.fillStyle = RAMPS.steel[3]
+    g.fillRect(x - 13, top + 52, 26, 1)
+    g.fillStyle = RAMPS.steel[1]
+    g.fillRect(x - 13, top + 53, 26, 1)
+    if (gap > 0) glow(g, x, top + 10, 18, look.trim[3], 0.35 * open)
+    // Doors: bevelled steel with a porthole each and a lit stripe.
+    const door = (dx: number, w: number, side: -1 | 1) => {
+      if (w <= 0) return
+      bevel(g, dx, top, w, FLOOR - top, DOOR_RAMP, {
+        depth: 1,
+        outline: null,
+      })
+      g.fillStyle = INK
+      g.fillRect(side < 0 ? dx + w - 1 : dx, top, 1, FLOOR - top)
+      g.fillStyle = look.trim[2]
+      g.fillRect(dx, top + 44, w, 2)
+      g.fillStyle = look.trim[4]
+      g.fillRect(dx, top + 44, w, 1)
+      const wx = side < 0 ? dx + w - 8 : dx + 3
+      if (wx >= dx && wx + 5 <= dx + w) {
+        g.fillStyle = INK
+        g.fillRect(wx, top + 10, 5, 14)
+        g.fillStyle = look.wall[0]
+        g.fillRect(wx + 1, top + 11, 3, 12)
+        g.fillStyle = rgba('#ffffff', 0.35)
+        g.fillRect(wx + 1, top + 11, 1, 4)
+      }
+    }
+    door(x - 13, 13 - gap, -1)
+    door(x + gap, 13 - gap, 1)
+    g.fillStyle = INK
+    g.fillRect(x - 13, top - 1, 26, 1)
     if (rider && open < 1) {
-      g.fillStyle = '#7dd3fc'
-      g.fillRect(x - 1, top + 6 + ((this.tick * 2) % 40), 2, 6)
+      // Riding: a light runs down the door seam.
+      const ly = top + 6 + ((this.tick * 2) % 40)
+      glow(g, x, ly + 3, 9, RAMPS.sky[3], 0.7)
+      g.fillStyle = RAMPS.sky[4]
+      g.fillRect(x - 1, ly, 2, 6)
     }
     // Arrows: lime toward a deck still dirty, grey toward a clean one.
     const arrow = (to: number, up: boolean) => {
-      const d = this.decks[to]
-      if (!d) return
-      g.fillStyle = d.clean ? '#475569' : '#a3e635'
       const ay = up ? top - 14 : top - 7
-      g.beginPath()
-      g.moveTo(x + (up ? -5 : -5), ay + (up ? 5 : 0))
-      g.lineTo(x + 5, ay + (up ? 5 : 0))
-      g.lineTo(x, ay + (up ? 0 : 5))
-      g.fill()
+      const d = this.decks[to]
+      const colour = !d ? RAMPS.steel[0] : d.clean ? RAMPS.steel[2] : LIME[3]
+      if (d && !d.clean)
+        glow(g, x, ay + 2, 9, LIME[3], 0.4 + 0.2 * Math.sin(this.tick / 8))
+      for (let i = 0; i < 4; i++) {
+        const row = up ? i : 3 - i
+        g.fillStyle = INK
+        g.fillRect(x - row - 1, ay + i, row * 2 + 3, 1)
+        g.fillStyle = i === (up ? 1 : 2) && d && !d.clean ? LIME[4] : colour
+        g.fillRect(x - row, ay + i, row * 2 + 1, 1)
+      }
     }
     arrow(deck - 1, true)
     arrow(deck + 1, false)
+    // The pad Mop stands on to ride: it lights when someone is on it.
+    const onPad = this.mops.some(
+      (m) =>
+        m.deck === deck &&
+        !m.out &&
+        m.dead === 0 &&
+        Math.abs(m.x - x) < 10 &&
+        m.y >= FLOOR,
+    )
+    bevel(g, x - 15, FLOOR, 30, 4, RAMPS.gold, { depth: 1 })
+    for (let i = 0; i < 5; i++) {
+      g.fillStyle = INK
+      g.fillRect(x - 13 + i * 6, FLOOR + 1, 3, 2)
+    }
+    if (onPad) {
+      glow(g, x, FLOOR, 24, look.trim[3], 0.35 + 0.15 * Math.sin(this.tick / 5))
+      g.fillStyle = look.trim[4]
+      g.fillRect(x - 15, FLOOR, 30, 1)
+    }
   }
 
   private renderSac(g: CanvasRenderingContext2D, sac: Sac) {
     const spent = sac.hatches <= 0 || (!sac.ceiling && sac.hp <= 0)
-    const wobble = Math.sin(this.tick / 12 + sac.x) * 1
-    const y = sac.ceiling ? CEILING + 6 : FLOOR - 8
     if (spent) {
-      g.fillStyle = '#3f6212'
-      g.fillRect(sac.x - 6, sac.ceiling ? CEILING : FLOOR - 3, 12, 3)
+      drawSprite(g, HUSK_SPRITE, sac.x, sac.ceiling ? CEILING + 2 : FLOOR - 2, {
+        flipY: sac.ceiling,
+      })
       return
     }
-    g.fillStyle = sac.pulse > 0 ? '#ffffff' : '#65a30d'
-    g.beginPath()
-    g.ellipse(sac.x, y, 7 + wobble, 9 - wobble, 0, 0, Math.PI * 2)
-    g.fill()
-    g.fillStyle = '#a3e635'
-    g.beginPath()
-    g.ellipse(sac.x - 2, y - 2, 2.5, 3.5, 0, 0, Math.PI * 2)
-    g.fill()
-    g.fillStyle = '#365314'
-    g.fillRect(sac.x - 1, y + 1, 2, 2)
+    const wobble = Math.sin(this.tick / 12 + sac.x)
+    const y = sac.ceiling ? CEILING + 6 : FLOOR - 8
+    glow(g, sac.x, y, 16, LIME[3], 0.2 + 0.1 * wobble)
+    const sprite = sac.pulse > 0 ? SAC_FLASH : SAC_SPRITES[wobble > 0 ? 1 : 0]
+    if (!sac.ceiling) dropShadow(g, sac.x, FLOOR, 8, 2, 0.4)
+    drawSprite(g, sprite, sac.x, y, { flipY: sac.ceiling })
   }
 
   private renderKit(g: CanvasRenderingContext2D, k: Kit) {
     if (k.life < 90 && Math.floor(this.tick / 5) % 2) return
-    g.fillStyle = '#f8fafc'
-    g.fillRect(k.x - 5, FLOOR - 9, 10, 8)
-    g.fillStyle = '#22c55e'
-    g.fillRect(k.x - 1, FLOOR - 8, 2, 6)
-    g.fillRect(k.x - 3, FLOOR - 6, 6, 2)
+    const bob = Math.round(Math.sin(this.tick / 10) * 1)
+    glow(g, k.x, FLOOR - 6, 14, RAMPS.leaf[3], 0.45)
+    dropShadow(g, k.x, FLOOR, 6, 1.5, 0.4)
+    drawSprite(g, KIT_SPRITE, k.x, FLOOR - 1 + bob, { anchor: 'feet' })
   }
 
   private renderCritter(g: CanvasRenderingContext2D, c: Critter) {
@@ -1379,159 +2440,147 @@ class StationSweep implements ArcadeGameInstance {
       !c.big &&
       (c.kind !== 'crawler' || (!c.onCeiling && !c.clinging)) &&
       c.t > after - GLOW_TICKS
-    if (growing && Math.floor(this.tick / 6) % 2) {
-      // About to grow: a pulsing halo.
-      g.fillStyle = 'rgba(240, 171, 252, 0.45)'
-      g.beginPath()
-      g.arc(x, y - 5, 9, 0, Math.PI * 2)
-      g.fill()
+    const h = this.critterHeight(c)
+    if (growing) {
+      // About to grow: a pulsing halo, and in the last moments it flickers big.
+      const beat = Math.floor(this.tick / 6) % 2
+      glow(g, x, y - h / 2, 14, RAMPS.pink[3], beat ? 0.7 : 0.35)
     }
+    const big = c.big || (growing && c.t > after - 30 && this.tick % 8 < 4)
+    const size = big ? 'big' : 'small'
+    const grounded = y >= FLOOR - 1
     if (c.kind === 'roller') {
       const spin = Math.floor(c.t / 4) % 2
-      g.fillStyle = '#84cc16'
-      g.beginPath()
-      g.arc(x, y - (c.big ? 6 : 4), c.big ? 6 : 4, 0, Math.PI * 2)
-      g.fill()
-      g.fillStyle = '#ecfccb'
-      g.fillRect(x - 2 + spin * 2, y - (c.big ? 9 : 6), 2, 2)
+      dropShadow(g, x, FLOOR, big ? 7 : 5, 1.5, 0.4)
+      drawSprite(g, ROLLER_SPRITES[size][spin]!, x, y + 1, {
+        anchor: 'feet',
+        flipX: c.vx < 0,
+      })
       return
     }
     if (c.kind === 'crawler') {
       // A wriggly glitch grub; upside down while it rides the ceiling.
-      const flip = c.onCeiling ? -1 : 1
-      g.fillStyle = c.big ? '#a855f7' : '#c084fc'
-      const seg = c.big ? 6 : 4
-      for (let i = 0; i < seg; i++) {
-        const wig = Math.sin(c.t / 5 + i) * 1
-        const tall = c.big ? 6 : 4
+      const frame = CRAWLER_SPRITES[size][Math.floor(c.t / 5) % 2]!
+      const toward = Math.sign((this.nearest(x)?.x ?? x + 1) - x) || 1
+      if (c.onCeiling) {
+        g.fillStyle = rgba(RAMPS.purple[4], 0.5)
         g.fillRect(
-          x - seg * 1.5 + i * 3,
-          y - tall * flip + wig - (flip > 0 ? 0 : tall),
-          3,
-          tall,
+          Math.round(x),
+          CEILING,
+          1,
+          Math.max(0, Math.round(y) - CEILING),
         )
+        drawSprite(g, frame, x, y - 1, {
+          anchor: 'topleft',
+          flipY: true,
+          flipX: toward < 0,
+        })
+        return
       }
-      g.fillStyle = '#f5f3ff'
-      g.fillRect(x + 4, y - 4 * flip - (flip > 0 ? 0 : 4), 2, 2)
+      if (grounded) dropShadow(g, x, FLOOR, big ? 9 : 6, 1.5, 0.35)
+      drawSprite(g, frame, x, y + 1, {
+        anchor: 'feet',
+        flipX: (c.clinging ? c.clinging.facing : c.vx || toward) < 0,
+      })
       return
     }
-    // Biter: a hunched glitch beast with a big jaw.
-    const bob = Math.floor(c.t / 10) % 2
-    if (c.big) {
-      // Grown: a ridge of spikes along its back.
-      g.fillStyle = '#831843'
-      for (let i = 0; i < 3; i++) {
-        g.beginPath()
-        g.moveTo(x - 6 + i * 5, y - 15 + bob)
-        g.lineTo(x - 4 + i * 5, y - 21 + bob)
-        g.lineTo(x - 2 + i * 5, y - 15 + bob)
-        g.fill()
-      }
-    }
-    g.fillStyle = c.big ? '#be185d' : '#db2777'
-    g.fillRect(x - 7, y - 16 + bob, 14, 14)
-    g.fillStyle = '#9d174d'
-    g.fillRect(x - 6, y - 4, 3, 4)
-    g.fillRect(x + 3, y - 4, 3, 4)
+    // Biter: a hunched glitch beast with a big jaw, facing its prey.
     const face = Math.sign((this.nearest(x)?.x ?? x + 1) - x) || 1
-    g.fillStyle = '#fef3c7'
-    g.fillRect(x + face * 3 - 1, y - 13 + bob, 3, 3)
-    g.fillStyle = '#ffffff'
-    for (let i = 0; i < 3; i++)
-      g.fillRect(x + face * 2 + i * 2 * face - 1, y - 7 + bob, 1, 2)
+    dropShadow(g, x, FLOOR, big ? 9 : 8, 2, 0.4)
+    drawSprite(g, BITER_SPRITES[size][Math.floor(c.t / 10) % 2]!, x, y + 1, {
+      anchor: 'feet',
+      flipX: face < 0,
+    })
   }
 
   private renderMop(g: CanvasRenderingContext2D, m: Mop) {
     const x = Math.round(m.x)
     const y = Math.round(m.y)
-    const f = m.facing
-    const tall = m.crouch ? 10 : 20
     const flash = m.hurt > 0 && Math.floor(this.tick / 2) % 2
-    const [body, dome] = MOP_COLORS[m.seat] ?? MOP_COLORS[0]!
-    // Treads, a round body, a dome head with one big eye, and the sweeper nozzle.
-    g.fillStyle = '#1f2937'
-    g.fillRect(x - 7, y - 4, 14, 4)
-    g.fillStyle = '#374151'
-    for (let i = 0; i < 4; i++)
-      g.fillRect(x - 6 + i * 4 + (Math.floor(m.walkPhase) % 2), y - 3, 2, 2)
-    g.fillStyle = flash ? '#ffffff' : body
-    g.fillRect(x - 6, y - tall, 12, tall - 4)
-    g.fillStyle = flash ? '#ffffff' : dome
-    g.beginPath()
-    g.arc(x, y - tall, 6, Math.PI, 0)
-    g.fill()
-    g.fillStyle = '#0f172a'
-    g.fillRect(x + f * 2 - 2, y - tall - 3, 4, 3)
-    g.fillStyle = '#fde047'
-    g.fillRect(x + f * 2 - 1, y - tall - 2, 2, 1)
-    const gunY = m.crouch ? y - 5 : y - 15
-    g.fillStyle = '#e5e7eb'
-    g.fillRect(f > 0 ? x + 5 : x - 10, gunY - 1, 5, 3)
+    const lift = Math.max(0, FLOOR - y)
+    dropShadow(g, x, FLOOR, Math.max(4, 9 - lift / 6), 2, 0.45)
+    const frame = Math.floor(m.walkPhase) % 2
+    const set = flash ? MOP_FLASH : (MOP_SPRITES[m.seat] ?? MOP_SPRITES[0]!)
+    const sprite = (m.crouch ? set.crouch : set.stand)[frame]!
+    drawSprite(g, sprite, x, y + 1, { anchor: 'feet', flipX: m.facing < 0 })
+    // The sweeper nozzle flares as it fires.
+    if (m.fireCooldown > FIRE_COOLDOWN - 3) {
+      const gunY = m.crouch ? y - 5 : y - 15
+      const nx = x + m.facing * 10
+      glow(g, nx, gunY, 9, RAMPS.teal[3], 0.8)
+      g.fillStyle = RAMPS.teal[4]
+      g.fillRect(nx - 1, gunY - 1, 2, 2)
+    }
   }
 
   private renderHud(g: CanvasRenderingContext2D) {
-    const shadow = '#0b1026'
     const me = this.mops[0]!
-    g.fillStyle = '#0b1026'
-    g.fillRect(0, 0, W, 50)
-    drawText(g, String(this.score).padStart(7, '0'), 6, 6, {
+    // The console the HUD sits in, with a lit lip along the deck.
+    bandedGradient(
+      g,
+      0,
+      0,
+      W,
+      55,
+      [RAMPS.night[2], RAMPS.night[1], RAMPS.night[0]],
+      3,
+    )
+    g.fillStyle = RAMPS.steel[2]
+    g.fillRect(0, 53, W, 1)
+    g.fillStyle = INK
+    g.fillRect(0, 54, W, 2)
+    hudPanel(g, 4, 3, 92, 20)
+    drawText(g, String(this.score).padStart(7, '0'), 9, 6, {
       scale: 2,
-      color: '#67e8f9',
-      shadow,
+      color: RAMPS.teal[4],
+      shadow: INK,
     })
-    drawText(g, `HI ${Math.max(this.hiScore, this.score)}`, W - 6, 4, {
-      align: 'right',
-      color: '#f9a8d4',
-    })
-    drawText(g, `STATION ${this.level}  DECK ${me.deck + 1}`, W - 6, 13, {
-      align: 'right',
-      color: '#bef264',
-    })
-    // The station, top deck first: clean decks green, dirty ones red, Mop's outlined.
-    this.decks.forEach((d, i) => {
-      const bx = W - 6 - (this.decks.length - i) * 12
-      g.fillStyle = d.clean ? '#22c55e' : '#be123c'
-      g.fillRect(bx, 26, 10, 7)
-      if (i === me.deck) {
-        g.strokeStyle = '#67e8f9'
-        g.lineWidth = 1
-        g.strokeRect(bx - 0.5, 25.5, 11, 8)
-      }
-    })
+    hudPanel(g, 100, 3, 74, 20)
+    this.renderClock(g, 112, 13, 7)
     const secs = Math.max(0, Math.ceil(this.timer / 60))
-    drawText(g, `TIME ${secs}`, 100, 8, {
-      color:
-        secs <= 20 && Math.floor(this.tick / 10) % 2 ? '#ef4444' : '#fde68a',
+    drawText(g, `TIME ${secs}`, 124, 9, {
+      color: this.clockColour(secs),
+      outline: INK,
     })
-    drawText(g, 'CHARGE', 6, 26, { color: '#bbf7d0' })
-    g.fillStyle = '#1f2937'
-    g.fillRect(48, 27, 90, 5)
+    hudPanel(g, 178, 3, 138, 20)
+    drawText(g, `HI ${Math.max(this.hiScore, this.score)}`, W - 9, 5, {
+      align: 'right',
+      color: RAMPS.pink[3],
+      outline: INK,
+    })
+    drawText(g, `STATION ${this.level}  DECK ${me.deck + 1}`, W - 9, 14, {
+      align: 'right',
+      color: LIME[3],
+      outline: INK,
+    })
+    hudPanel(g, 4, 26, 142, 13)
+    drawText(g, 'CHARGE', 9, 29, { color: RAMPS.leaf[4], outline: INK })
     const frac = Math.max(0, me.health) / MAX_HEALTH
-    g.fillStyle = frac > 0.5 ? '#4ade80' : frac > 0.25 ? '#facc15' : '#ef4444'
-    g.fillRect(48, 27, 90 * frac, 5)
-    for (let i = 0; i < Math.min(this.spares, 5); i++) {
-      g.fillStyle = '#0ea5e9'
-      g.fillRect(150 + i * 10, 26, 7, 7)
+    gauge(g, 50, 29, 90, 6, frac, chargeRamp(frac))
+    const spares = Math.min(this.spares, 5)
+    if (spares > 0) {
+      hudPanel(g, 150, 26, spares * 10 + 6, 13)
+      for (let i = 0; i < spares; i++)
+        drawSprite(g, SPARE_SPRITE, 153 + i * 10, 29, { anchor: 'topleft' })
     }
+    // The station, top deck first: clean decks green, dirty ones red, Mop's lit.
+    const n = this.decks.length
+    hudPanel(g, W - 10 - n * 13, 26, n * 13 + 6, 13)
+    this.decks.forEach((d, i) => {
+      const bx = W - 6 - (n - i) * 13
+      this.renderDeckBox(g, bx, 29, d.clean, i === me.deck)
+    })
     // Deck map: sacs left (green), critters (pink), Mop (cyan).
     this.use(me.deck)
-    const mapX = 6
-    const mapW = W - 12
-    g.fillStyle = '#1e293b'
-    g.fillRect(mapX, 40, mapW, 4)
-    for (const s of this.sacs) {
-      if (s.hatches <= 0 || (!s.ceiling && s.hp <= 0)) continue
-      g.fillStyle = '#84cc16'
-      g.fillRect(mapX + (s.x / DECK_W) * mapW - 1, s.ceiling ? 40 : 42, 2, 2)
-    }
-    for (const c of this.critters) {
-      g.fillStyle = '#f472b6'
-      g.fillRect(mapX + (c.x / DECK_W) * mapW, 41, 1, 2)
-    }
-    g.fillStyle = '#67e8f9'
-    g.fillRect(mapX + (me.x / DECK_W) * mapW - 1, 39, 3, 6)
+    hudPanel(g, 4, 42, W - 8, 10)
+    this.renderRadar(g, 8, 45, W - 16, 4, me.deck, me)
     this.renderBanner(g, 110)
   }
+}
+
+/** The charge gauge's colour: green while healthy, gold when low, red near empty. */
+function chargeRamp(frac: number): Ramp {
+  return frac > 0.5 ? RAMPS.leaf : frac > 0.25 ? RAMPS.gold : RAMPS.ember
 }
 
 const stationSweep: ArcadeGameModule = {

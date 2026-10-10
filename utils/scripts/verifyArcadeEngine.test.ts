@@ -92,12 +92,6 @@ import {
 } from '../arcade/pinball/rules/ridge'
 import { fitCamera, portraitBlend } from '../arcade/pinball/render/camera'
 import {
-  CAMERA_MODES,
-  CameraFollow,
-  isCameraMode,
-  nextCameraMode,
-} from '../arcade/pinball/render/cameraMode'
-import {
   QualityGovernor,
   TIER_SETTINGS,
 } from '../arcade/pinball/render/quality'
@@ -119,11 +113,7 @@ import {
   type DmdSceneId,
 } from '../arcade/pinball/dmdQueue'
 import { drawDmd, fitScale, formatScore } from '../arcade/pinball/dmdScenes'
-import {
-  cameraPresetFor,
-  cameraViewFor,
-  PinballRuntime,
-} from '../arcade/pinball/runtime'
+import { cameraViewFor, PinballRuntime } from '../arcade/pinball/runtime'
 import { aimedShot, delaysFor } from '../arcade/pinball/tuning/aim'
 import { BOT_SKILLS, PinballBot } from '../arcade/pinball/tuning/bot'
 import { playGame, summarize } from './pinballTuning'
@@ -1716,6 +1706,12 @@ async function runPinballSubTable() {
     'main',
     'a ball still on the main table keeps the camera there',
   )
+  assert.equal(cameraViewFor([ballAt('ridge')]), 'upper-playfield')
+  assert.equal(
+    cameraViewFor([ballAt('ridge'), ballAt()]),
+    'main',
+    'a ball on the main field keeps the camera on the flippers',
+  )
   const runtime = new PinballRuntime(
     { rng: mulberry32(3), sound: { play: () => {} }, demo: false, hiScore: 0 },
     RAPIER,
@@ -2316,100 +2312,6 @@ async function runPinballRender() {
   assert.equal(portraitBlend(0.4), 1)
   assert.equal(portraitBlend(1.6), 0)
 
-  // Camera views (kind-pinball/t-021): the player's modes cycle, the full
-  // table hands framing to the preset, and the close views are eased and
-  // never lose a ball -- a ball anywhere, rising up the table or sitting
-  // by the flippers, is always inside the frame.
-  assert.deepEqual([...CAMERA_MODES], ['dynamic', 'flippers', 'full'])
-  assert.equal(nextCameraMode('full'), 'dynamic')
-  assert.ok(isCameraMode('flippers') && !isCameraMode('bogus'))
-  const ballAt = (x: number, z: number, id = 1) =>
-    ({
-      id,
-      position: [x, 0.0135, z],
-      rotation: [0, 0, 0, 1],
-      velocity: [0, 0, 0],
-      speed: 0,
-      captured: false,
-    }) as const
-  const mainBox = table.cameras.find((c) => c.id === 'main')!.frame
-  assert.equal(
-    new CameraFollow(table).step('full', [ballAt(0, -0.5)]),
-    null,
-    'the full table is the preset framing',
-  )
-  for (const mode of ['dynamic', 'flippers'] as const) {
-    const follow = new CameraFollow(table)
-    let last: number | null = null
-    let narrowest = Infinity
-    // Up the table and back down, along a diagonal.
-    const path: Array<[number, number]> = []
-    for (let i = 0; i <= 240; i++) {
-      const u = i <= 120 ? i / 120 : (240 - i) / 120
-      path.push([
-        -0.2 + 0.45 * u,
-        mainBox.max[2] - u * (mainBox.max[2] - mainBox.min[2] - 0.05),
-      ])
-    }
-    for (const [x, z] of path) {
-      const shot = follow.step(mode, [ballAt(x, z)])!
-      assert.ok(shot, `${mode}: a close shot`)
-      const { min, max } = shot.frame
-      assert.ok(
-        x >= min[0] && x <= max[0] && z >= min[2] && z <= max[2],
-        `${mode}: the ball (${x.toFixed(2)}, ${z.toFixed(2)}) is in frame`,
-      )
-      assert.ok(
-        min[0] >= mainBox.min[0] - 1e-9 && max[2] <= mainBox.max[2] + 1e-9,
-        `${mode}: the frame stays on the table`,
-      )
-      narrowest = Math.min(narrowest, max[0] - min[0])
-      const centre = (min[2] + max[2]) / 2
-      if (last !== null && Math.abs(z - path[0]![1]) < 0.01)
-        assert.ok(Math.abs(centre - last) < 0.2, `${mode}: no jump`)
-      last = centre
-    }
-    assert.ok(
-      narrowest < mainBox.max[0] - mainBox.min[0] - 0.01,
-      `${mode}: closer than the whole table`,
-    )
-  }
-  {
-    // Settled on the flippers, then a ball up the table pulls the view up.
-    const follow = new CameraFollow(table)
-    const down = [ballAt(0, 0.08)]
-    let shot = follow.step('dynamic', down)!
-    for (let i = 0; i < 200; i++) shot = follow.step('dynamic', down)!
-    const flipperZ = table.flippers[0]!.pivot[2]
-    assert.ok(
-      shot.frame.min[2] < flipperZ && shot.frame.max[2] > flipperZ,
-      'settled on the flippers',
-    )
-    for (let i = 0; i < 200; i++)
-      shot = follow.step('dynamic', [ballAt(0, -0.7)])!
-    assert.ok(shot.frame.max[2] < flipperZ, 'follows a high ball up the table')
-    // Eased back to the whole table: the framing returns to the preset.
-    let out: unknown = shot
-    for (let i = 0; i < 400 && out; i++)
-      out = follow.step('full', [ballAt(0, -0.7)])
-    assert.equal(out, null, 'full table hands the camera back to the preset')
-    // Balls too far apart for a close view: the whole table.
-    const wide = new CameraFollow(table)
-    let spread = wide.step('dynamic', [
-      ballAt(-0.2, -0.8, 1),
-      ballAt(0.2, 0.1, 2),
-    ])!
-    for (let i = 0; i < 300; i++)
-      spread = wide.step('dynamic', [
-        ballAt(-0.2, -0.8, 1),
-        ballAt(0.2, 0.1, 2),
-      ])!
-    assert.ok(
-      spread.frame.max[2] - spread.frame.min[2] > 0.85,
-      'multiball spread frames the whole table',
-    )
-  }
-
   // Quality tiers come from measured frame time, step down while slow, and
   // never climb back to a tier that failed.
   const governor = new QualityGovernor('high')
@@ -2806,12 +2708,16 @@ async function runPinballDmd() {
   )
   runtime.dispose()
 
-  // The table puts the DMD in the backbox, and the main camera keeps it on
-  // screen at every aspect.
+  // The table puts the DMD in the backbox. The view from the flippers
+  // (t-026) leaves the backbox out of frame, so the scene shows the same
+  // picture across the top of the screen instead.
   const panel = table.dmd
   assert.ok(panel, 'Table 1 has a DMD')
   const main = table.cameras.find((c) => c.id === 'main')!
-  assert.ok((main.include ?? []).length >= 2, 'the camera frames the DMD')
+  assert.ok(
+    main.frame.min[2] > panel.at[2],
+    'the view from the flippers stops short of the backbox',
+  )
 }
 
 async function runPinballRules() {
@@ -3718,20 +3624,12 @@ async function runPinballToys() {
   const drained = feed(s, { type: 'capture', id: 'sub-drain', ballId: 1 })
   assert.ok(!delivered(s, drained), 'past the flippers: no delivery')
 
-  // The camera presets: restrained, and every one but the room's frames
-  // the whole field.
-  const r = start()
-  assert.equal(cameraPresetFor('sub-table', multiball, false), 'sub-table')
-  assert.equal(cameraPresetFor('main', multiball, true), 'multiball')
-  assert.equal(cameraPresetFor('main', wizard, false), 'multiball')
-  assert.equal(cameraPresetFor('main', r, true), 'plunge')
-  assert.equal(cameraPresetFor('main', r, false), 'main')
-  const main = table.cameras.find((c) => c.id === 'main')!
-  for (const id of ['plunge', 'multiball'] as const) {
-    const preset = table.cameras.find((c) => c.id === id)!
-    assert.deepEqual(preset.frame, main.frame, `${id} frames the whole field`)
-    assert.deepEqual(preset.target, main.target)
-  }
+  // The views (t-026): one from the flippers, and the bonus areas' views.
+  assert.deepEqual(
+    table.cameras.map((c) => c.id).sort(),
+    ['main', 'sub-table', 'upper-playfield'],
+    'no plunge or multiball leans',
+  )
 
   // The scene: the toys follow the pose; the moments play out and settle.
   const scene = new PinballScene(table, {} as HTMLCanvasElement, () =>
@@ -3805,8 +3703,8 @@ async function runPinballToys() {
   runtime.update(emptyInput())
   assert.equal(
     inner.scene.cameraView,
-    'plunge',
-    'a new ball on the plunger leans the camera to the lane',
+    'main',
+    'a new ball on the plunger: the camera stays on the flippers',
   )
   runtime.dispose()
 }
@@ -3857,13 +3755,14 @@ async function runPinballRidge() {
   assert.ok(floor && floor.kind === 'box', 'the table runs on past the arch')
   const ridgeTop = floor.at[2] - floor.half[2]
   const main = table.cameras.find((c) => c.id === 'main')!
+  const ridgeView = table.cameras.find((c) => c.id === 'upper-playfield')!
   assert.ok(
-    main.frame.min[2] <= ridgeTop + 0.05,
-    'the whole-table view takes it in',
+    ridgeView.frame.min[2] <= ridgeTop + 0.05,
+    'the Ridge has its own view',
   )
   assert.ok(
-    main.frame.max[2] - main.frame.min[2] > 1.4,
-    'longer than the old one-screen field',
+    main.frame.max[2] - ridgeView.frame.min[2] > 1.4,
+    'the table is longer than one screen',
   )
   const backbox = table.occluders!.find((o) => o.id === 'backbox')!
   assert.ok(backbox.at[2] < ridgeTop, 'the backbox stands behind the Ridge')
@@ -4058,6 +3957,88 @@ async function runPinballRidgeFlippers() {
   assert.ok(
     third.effects.some((e) => e.type === 'dmd' && e.text === 'SKY HIGH'),
   )
+}
+
+/** kind-pinball/t-026: one calm camera; a single pan to a bonus area and back. */
+async function runPinballCalmCamera() {
+  const table = AMI_VILLAGE_GREYBOX
+  const scene = new PinballScene(table, {} as HTMLCanvasElement, () =>
+    stubRenderer({ disposed: 0, frames: 0 }),
+  )
+  scene.resize(1440, 900, 1)
+  scene.render()
+  const home = scene.camera.position.clone()
+  const ball = (x: number, z: number): BallView => ({
+    id: 1,
+    position: [x, 0.0135, z],
+    rotation: [0, 0, 0, 1],
+    velocity: [0, 0, 1],
+    speed: 1,
+    captured: false,
+  })
+  // The ball races round the main field; the camera does not move at all.
+  for (let i = 0; i < 300; i++) {
+    const t = i / 60
+    scene.sync([ball(0.2 * Math.sin(t * 3), -0.45 + 0.4 * Math.cos(t * 2))], {})
+    scene.render()
+    assert.ok(
+      scene.camera.position.distanceTo(home) === 0,
+      'the camera never follows the ball',
+    )
+  }
+  // To the Ridge: one pan, then still.
+  const moves = (frames: number) => {
+    let moved = 0
+    let last = scene.camera.position.clone()
+    for (let i = 0; i < frames; i++) {
+      scene.render()
+      if (scene.camera.position.distanceTo(last) > 1e-9) moved++
+      last = scene.camera.position.clone()
+    }
+    return moved
+  }
+  scene.setView('upper-playfield')
+  assert.ok(scene.panning)
+  const there = moves(200)
+  assert.ok(there > 40 && there < 70, `one pan of about a second (${there})`)
+  assert.ok(!scene.panning)
+  const ridge = scene.camera.position.clone()
+  assert.ok(ridge.distanceTo(home) > 0.2, 'the camera went up to the Ridge')
+  scene.setView('upper-playfield')
+  assert.equal(moves(60), 0, 'the same view again: no move')
+  assert.ok(scene.stage.backglass?.visible, 'the backbox stays for the Ridge')
+  // And back: one pan home.
+  scene.setView('main')
+  const back = moves(200)
+  assert.ok(back > 40 && back < 70, `one pan back (${back})`)
+  assert.ok(scene.camera.position.distanceTo(home) < 1e-9, 'home exactly')
+  scene.dispose()
+
+  // The runtime pans to the Ridge when the ball is up there.
+  const runtime = new PinballRuntime(
+    { rng: mulberry32(3), sound: { play: () => {} }, demo: false, hiScore: 0 },
+    RAPIER,
+    table,
+    () => stubRenderer({ disposed: 0, frames: 0 }),
+  )
+  runtime.mount({} as HTMLCanvasElement)
+  const inner = runtime as unknown as {
+    scene: PinballScene
+    physics: PinballPhysics
+  }
+  runtime.update(emptyInput())
+  assert.equal(inner.scene.cameraView, 'main', 'a new ball: the flippers')
+  const real = inner.physics.ballViews.bind(inner.physics)
+  inner.physics.ballViews = () =>
+    real().map((b) => ({ ...b, zone: 'ridge', position: [0, 0.0135, -1.1] }))
+  runtime.update(emptyInput())
+  assert.equal(
+    inner.scene.cameraView,
+    'upper-playfield',
+    'every ball on the Ridge: the camera goes up there',
+  )
+  inner.physics.ballViews = real
+  runtime.dispose()
 }
 
 async function runPinballGuide() {
@@ -4456,6 +4437,7 @@ await runPinballSubRules()
 await runPinballMastery()
 await runPinballRidge()
 await runPinballRidgeFlippers()
+await runPinballCalmCamera()
 await runPinballGuide()
 await runPinballToys()
 await runPinballStage()

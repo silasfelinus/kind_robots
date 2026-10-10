@@ -38,7 +38,6 @@ import type {
 } from '../types'
 import { DMD_COLS, DMD_ROWS } from '../dmd'
 import { fitCamera, type Framing } from './camera'
-import type { FollowShot } from './cameraMode'
 import { createDmdCanvas, paintDmd } from './dmdTexture'
 import {
   artBounds,
@@ -102,10 +101,13 @@ const RUBBER_DECAY = 0.12
 
 /** How far a drop target travels toward down or up each frame (0..1). */
 const DROP_TRAVEL = 0.4
-/** How far the camera moves toward its preset each frame (0..1). */
-const CAMERA_EASE = 0.08
-/** ...and toward a followed frame, which already eases itself (cameraMode.ts). */
-const FOLLOW_EASE = 0.3
+/**
+ * A pan to or from a bonus area (t-026): this many frames, eased in and out.
+ * Otherwise the camera never moves.
+ */
+const PAN_FRAMES = 54
+/** The on-screen DMD's distance in front of the eye. */
+const HUD_DEPTH = 0.1
 /** How far a lamp moves toward its level each frame: a bulb's warm-up. */
 const LAMP_EASE = 0.35
 /** Insert glow when off (the plastic still shows), on, and at a flash peak. */
@@ -262,6 +264,8 @@ export class PinballScene {
     mesh: THREE.Mesh
     material: THREE.MeshPhysicalMaterial
     fadeFor: CameraPresetId
+    /** How far it has faded (0..1), stepped with the pan. */
+    faded: number
   }> = []
   /** The DMD panel, its canvas and the last framebuffer painted on it. */
   private dmd: {
@@ -278,8 +282,11 @@ export class PinballScene {
   private aimed = false
   private aspect = 9 / 16
   private framings = new Map<CameraPresetId, Framing>()
-  /** The close shot the player's camera view asks for, if any (t-021). */
-  private follow: FollowShot | null = null
+  /** The pan under way: where it set off from, and how far along (0..1). */
+  private pan: { eye: THREE.Vector3; look: THREE.Vector3; t: number } | null =
+    null
+  /** The DMD on screen while the backbox's is out of view (t-026). */
+  private hud: THREE.Object3D | null = null
   /** World up as seen from the pitched table. */
   private up: THREE.Vector3
   private size = { width: 0, height: 0, dpr: 1 }
@@ -722,7 +729,13 @@ export class PinballScene {
       // Faded, it must not keep shading the area it hides.
       mesh.castShadow = false
       this.root.add(mesh)
-      this.occluders.push({ id: def.id, mesh, material, fadeFor: def.fadeFor })
+      this.occluders.push({
+        id: def.id,
+        mesh,
+        material,
+        fadeFor: def.fadeFor,
+        faded: 0,
+      })
     }
   }
 
@@ -869,6 +882,42 @@ export class PinballScene {
     group.add(bezel, panel, glass)
     this.root.add(group)
     this.dmd = { group, canvas, texture, occluder: def.occluder, shown: blank }
+    // The same picture across the top of the screen, for the views that
+    // leave the backbox out of frame.
+    const hud = new THREE.Group()
+    const screen = new THREE.Mesh(
+      this.track(new THREE.PlaneGeometry(1, 0.25)),
+      this.track(
+        new THREE.MeshBasicMaterial({
+          map: texture,
+          color: new THREE.Color(1.8, 1.8, 1.8),
+          toneMapped: false,
+          depthTest: false,
+          depthWrite: false,
+          fog: false,
+        }),
+      ),
+    )
+    screen.renderOrder = 11
+    const hudBezel = new THREE.Mesh(
+      this.track(new THREE.PlaneGeometry(1.03, 0.28)),
+      this.track(
+        new THREE.MeshBasicMaterial({
+          color: 0x050407,
+          transparent: true,
+          opacity: 0.9,
+          depthTest: false,
+          depthWrite: false,
+          fog: false,
+        }),
+      ),
+    )
+    hudBezel.renderOrder = 10
+    hud.add(hudBezel, screen)
+    hud.visible = false
+    this.camera.add(hud)
+    this.scene.add(this.camera)
+    this.hud = hud
   }
 
   /** Show a DMD frame (the 128x32 framebuffer); repaints only on change. */
@@ -1153,43 +1202,45 @@ export class PinballScene {
     this.camera.aspect = this.aspect
     this.camera.updateProjectionMatrix()
     this.camera.lookAt(this.root.localToWorld(this.look.clone()))
+    this.camera.updateMatrixWorld()
+    this.placeHud()
   }
 
-  /** Ease toward a camera preset (the sub-table while every ball is there). */
-  setView(id: CameraPresetId) {
-    if (this.table.cameras.some((c) => c.id === id)) this.view = id
+  /** The on-screen DMD shows while the backbox's is hidden or out of frame. */
+  private placeHud() {
+    const hud = this.hud
+    const dmd = this.dmd
+    if (!hud || !dmd) return
+    const at = dmd.group
+      .getWorldPosition(new THREE.Vector3())
+      .project(this.camera)
+    const inFrame =
+      dmd.group.visible && Math.abs(at.x) <= 0.95 && Math.abs(at.y) <= 0.95
+    hud.visible = !inFrame
+    const h = 2 * HUD_DEPTH * Math.tan((this.camera.fov * Math.PI) / 360)
+    const width = Math.min(h * this.aspect * 0.9, h * 0.45)
+    hud.scale.setScalar(width)
+    hud.position.set(0, h / 2 - width * 0.14 - h * 0.012, -HUD_DEPTH)
+  }
+
+  /** The on-screen DMD is showing, for tests (never without a real renderer). */
+  get hudShown(): boolean {
+    return !!this.hud?.visible
   }
 
   /**
-   * Frame a box on the table instead of the main preset (the player's
-   * dynamic and flipper views); null returns to the preset. The sub-table
-   * view ignores it.
+   * Go to a view (t-026): one pan there from wherever the camera is, then
+   * it holds still. The same view again changes nothing.
    */
-  setFollow(shot: FollowShot | null) {
-    this.follow = shot
+  setView(id: CameraPresetId) {
+    if (id === this.view || !this.table.cameras.some((c) => c.id === id)) return
+    this.view = id
+    this.pan = { eye: this.eye.clone(), look: this.look.clone(), t: 0 }
   }
 
-  /** The framing the camera is heading for: a followed shot or the preset. */
-  private goal(): { framing: Framing; ease: number } {
-    if (this.follow && this.view !== 'sub-table') {
-      const main = this.preset('main')
-      const lower = (p: Vec3): Vec3 => {
-        const t = main.target
-        return [p[0], t[1] + (p[1] - t[1]) * this.follow!.lift, p[2]]
-      }
-      const shot: CameraPreset = {
-        ...main,
-        position: lower(main.position),
-        portrait: main.portrait && lower(main.portrait),
-        frame: this.follow.frame,
-        include: undefined,
-      }
-      return {
-        framing: fitCamera(shot, this.aspect, this.up),
-        ease: FOLLOW_EASE,
-      }
-    }
-    return { framing: this.framing(this.view), ease: CAMERA_EASE }
+  /** A pan is under way, for tests. */
+  get panning(): boolean {
+    return this.pan !== null
   }
 
   /** The preset the camera is easing toward. */
@@ -1198,19 +1249,31 @@ export class PinballScene {
   }
 
   /**
-   * Move the camera one frame toward its preset, and fade any occluder that
-   * stands in front of the area it is visiting.
+   * One frame of the camera: still on its view, or a step of the pan to it;
+   * an occluder in front of the view's area fades with the pan.
    */
   private easeCamera() {
-    const { framing, ease } = this.goal()
-    this.eye.lerp(framing.eye, ease)
-    this.look.lerp(framing.target, ease)
+    const goal = this.framing(this.view)
+    const pan = this.pan
+    if (pan) {
+      pan.t = Math.min(1, pan.t + 1 / PAN_FRAMES)
+      const k = pan.t * pan.t * (3 - 2 * pan.t)
+      this.eye.lerpVectors(pan.eye, goal.eye, k)
+      this.look.lerpVectors(pan.look, goal.target, k)
+      if (pan.t >= 1) this.pan = null
+    } else {
+      this.eye.copy(goal.eye)
+      this.look.copy(goal.target)
+    }
     this.placeCamera()
-    const home = this.framing('main').target
     for (const occluder of this.occluders) {
-      const away = this.framing(occluder.fadeFor).target
-      const span = home.distanceTo(away) || 1
-      const t = Math.min(1, Math.max(0, 1 - this.look.distanceTo(away) / span))
+      const want = this.view === occluder.fadeFor ? 1 : 0
+      const step = 1 / PAN_FRAMES
+      occluder.faded = Math.min(
+        1,
+        Math.max(0, occluder.faded + Math.sign(want - occluder.faded) * step),
+      )
+      const t = occluder.faded * occluder.faded * (3 - 2 * occluder.faded)
       occluder.material.opacity = 1 - t
       occluder.material.depthWrite = t < 0.5
       // Gone, not just clear: a faded lid still catches the key light's

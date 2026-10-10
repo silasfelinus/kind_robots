@@ -49,14 +49,6 @@ import {
   showTriggers,
   type LightShow,
 } from './rules/lightShows'
-import {
-  CAMERA_MODE_LABELS,
-  CameraFollow,
-  DEFAULT_CAMERA_MODE,
-  isCameraMode,
-  nextCameraMode,
-  type CameraMode,
-} from './render/cameraMode'
 import type { CameraPresetId, RuleEffect, TableDef } from './types'
 
 const STEPS_PER_TICK = PHYSICS_HZ / 60
@@ -78,46 +70,15 @@ const AUTO_LAUNCH_TICKS = 30
 const SKILL_PULSE_TICKS = 24
 
 /**
- * The camera preset the balls call for: the sub-table's only while every
- * ball on the table is in there, so a ball on the main table is never off
- * screen.
+ * The view the balls call for (t-026): the one from the flippers, unless
+ * every ball on the table is in a bonus area (the hidden room, the Ridge),
+ * so a ball on the main field is never off screen.
  */
 export function cameraViewFor(balls: BallView[]): CameraPresetId {
-  return balls.length > 0 && balls.every((b) => b.zone === 'sub-table')
-    ? 'sub-table'
-    : 'main'
-}
-
-/**
- * The camera preset for the moment (t-010): the room's while every ball is
- * in it; a higher eye through multiball and the wizard mode, so every ball
- * stays in view; a lean toward the shooter lane while a lone ball waits on
- * the plunger; the main view otherwise. All but the room's frame the whole
- * field, and the scene eases between them.
- */
-export function cameraPresetFor(
-  view: CameraPresetId,
-  rules: PinballRulesState,
-  onPlunger: boolean,
-): CameraPresetId {
-  if (view === 'sub-table') return view
-  if (rules.play.multiball.running || rules.play.wizard.running)
-    return 'multiball'
-  if (onPlunger && rules.ballsInPlay <= 1) return 'plunge'
+  if (!balls.length) return 'main'
+  if (balls.every((b) => b.zone === 'sub-table')) return 'sub-table'
+  if (balls.every((b) => b.zone === 'ridge')) return 'upper-playfield'
   return 'main'
-}
-
-/** Where the player's camera view is remembered between games. */
-export const CAMERA_MODE_KEY = 'kind-pinball-camera-mode'
-
-function savedCameraMode(): CameraMode {
-  try {
-    const saved = globalThis.localStorage?.getItem(CAMERA_MODE_KEY)
-    if (isCameraMode(saved)) return saved
-  } catch {
-    // Storage blocked: the default view.
-  }
-  return DEFAULT_CAMERA_MODE
 }
 
 /** A sling kicker's switch: its rubber flexes when it fires. */
@@ -129,8 +90,6 @@ export class PinballRuntime implements ArcadeWebGLGameInstance {
 
   private physics: PinballPhysics
   /** The player's camera view (b / the VIEW chip cycles it) and its follower. */
-  private cameraMode: CameraMode = DEFAULT_CAMERA_MODE
-  private follow: CameraFollow
   private rules: PinballRulesState
   private scene: PinballScene | null = null
   private mixer: PinballMixer
@@ -183,30 +142,6 @@ export class PinballRuntime implements ArcadeWebGLGameInstance {
     this.physics = new PinballPhysics(R, table)
     this.rules = initialRules(table.balls, Math.floor(this.rng() * 0x100000000))
     this.apply({ type: 'start' })
-    this.follow = new CameraFollow(table)
-    if (!this.demo) this.cameraMode = savedCameraMode()
-  }
-
-  /** The camera view in force (dynamic, flippers or full table). */
-  get cameraViewMode(): CameraMode {
-    return this.cameraMode
-  }
-
-  /** Pick a camera view and remember it for this player. */
-  setCameraViewMode(mode: CameraMode, announce = true) {
-    this.cameraMode = mode
-    try {
-      globalThis.localStorage?.setItem(CAMERA_MODE_KEY, mode)
-    } catch {
-      // Not remembered; it still applies to this game.
-    }
-    if (announce) {
-      this.dmdQueue.push({
-        scene: 'message',
-        text: CAMERA_MODE_LABELS[mode],
-        ms: 1200,
-      })
-    }
   }
 
   /** The attract demo plays the rules but never scores. */
@@ -282,20 +217,7 @@ export class PinballRuntime implements ArcadeWebGLGameInstance {
     this.apply({ type: 'tick', tick: this.steps })
     this.unstick({ left, right })
     this.music()
-    if (controls.pressed.b && !this.demo) {
-      this.setCameraViewMode(nextCameraMode(this.cameraMode))
-    }
-    const view = cameraPresetFor(
-      this.view(),
-      this.rules,
-      this.physics.ballOnPlunger(),
-    )
-    this.scene?.setView(view)
-    this.scene?.setFollow(
-      view === 'sub-table'
-        ? null
-        : this.follow.step(this.cameraMode, this.physics.ballViews()),
-    )
+    this.scene?.setView(this.view())
     this.lamps()
     this.dmdQueue.tick(TICK_MS)
     this.drawDmd()

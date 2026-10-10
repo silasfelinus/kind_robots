@@ -139,6 +139,7 @@
     "test:zuzu-showdown-river-croc": "tsx utils/scripts/verifyZuzuShowdownRiverCroc.test.ts",
     "test:zuzu-showdown-hyena": "tsx utils/scripts/verifyZuzuShowdownHyena.test.ts",
     "test:zuzu-showdown-komodo": "tsx utils/scripts/verifyZuzuShowdownKomodo.test.ts",
+    "test:zuzu-showdown-witch": "tsx utils/scripts/verifyZuzuShowdownWitch.test.ts",
     "test:zuzu-showdown-sprites": "tsx utils/scripts/verifyZuzuShowdownSprites.test.ts",
     "test:zuzu-showdown-cpu": "tsx utils/scripts/verifyZuzuShowdownCpu.test.ts",
     "test:zuzu-showdown-screens": "tsx utils/scripts/verifyZuzuShowdownScreens.test.ts",

@@ -171,6 +171,8 @@ export type MoveData = {
     damage: number
     /** Which guards it catches (default all): Play Dead loses to lows. */
     guards?: Guard[]
+    /** Meter banked for each catch (Bargain: half a bar). */
+    meter?: number
   }
   /** A command grab: the hitbox grabs, ignores guard, and can't be teched. */
   grab?: boolean

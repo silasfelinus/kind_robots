@@ -162,6 +162,8 @@ import {
 import {
   SPRITE_FIGHTERS,
   SPRITE_ROOT,
+  SPRITE_PUPPETS,
+  puppetKey,
   spriteSheetFile,
   type LoadedSprites,
   type SpriteSheet,
@@ -197,32 +199,50 @@ function loadImage(src: string): Promise<HTMLImageElement | null> {
   })
 }
 
+/** Load one sheet (a fighter's, or its puppet's) into the style's set under `key`. */
+async function loadSheet(style: RenderStyle, key: string, file: string) {
+  const load = `${style}:${key}`
+  if (spriteLoads.has(load)) return
+  spriteLoads.add(load)
+  try {
+    const response = await fetch(`${SPRITE_ROOT}/${file}`)
+    if (!response.ok) return
+    const sheet = (await response.json()) as SpriteSheet
+    const [image, p2] = await Promise.all([
+      loadImage(`${SPRITE_ROOT}/${sheet.atlas}`),
+      sheet.atlas_p2
+        ? loadImage(`${SPRITE_ROOT}/${sheet.atlas_p2}`)
+        : Promise.resolve(null),
+    ])
+    if (image) spriteSets[style][key] = { sheet, image, p2 }
+    recolourP2()
+  } catch {
+    // Missing art is not an error: the placeholder fighter still plays, and the next ask retries.
+    spriteLoads.delete(load)
+  }
+}
+
 async function loadSprites(style: RenderStyle, slugs: readonly string[]) {
   const rigged: readonly string[] = SPRITE_FIGHTERS
   await Promise.all(
-    slugs.map(async (slug) => {
-      const key = `${style}:${slug}`
-      if (!rigged.includes(slug) || spriteLoads.has(key)) return
-      spriteLoads.add(key)
-      try {
-        const response = await fetch(
-          `${SPRITE_ROOT}/${spriteSheetFile(slug, style)}`,
-        )
-        if (!response.ok) return
-        const sheet = (await response.json()) as SpriteSheet
-        const [image, p2] = await Promise.all([
-          loadImage(`${SPRITE_ROOT}/${sheet.atlas}`),
-          sheet.atlas_p2
-            ? loadImage(`${SPRITE_ROOT}/${sheet.atlas_p2}`)
-            : Promise.resolve(null),
-        ])
-        if (image) spriteSets[style][slug] = { sheet, image, p2 }
-        recolourP2()
-      } catch {
-        // Missing art is not an error: the placeholder fighter still plays, and the next ask retries.
-        spriteLoads.delete(key)
-      }
-    }),
+    slugs
+      .filter((slug) => rigged.includes(slug))
+      .flatMap((slug) => {
+        const puppet = SPRITE_PUPPETS[slug]
+        return [
+          loadSheet(style, slug, spriteSheetFile(slug, style)),
+          // The Siblings' toddler (t-011) comes with his sister.
+          ...(puppet
+            ? [
+                loadSheet(
+                  style,
+                  puppetKey(slug),
+                  spriteSheetFile(puppet, style),
+                ),
+              ]
+            : []),
+        ]
+      }),
   )
 }
 
@@ -246,14 +266,16 @@ function recolouredAtlas(
 /** In a mirror match, give the loaded HD art its P2 colours (once, off the frame that asked). */
 function recolourP2() {
   if (roster[0].slug !== roster[1].slug) return
-  const set = spriteSets.hd[roster[1].slug]
-  const rules = set?.sheet.p2_rules
-  if (!set || set.p2 || !rules?.length) return
-  if (!(set.image instanceof HTMLImageElement)) return
-  const image = set.image
-  window.setTimeout(() => {
-    if (!set.p2) set.p2 = recolouredAtlas(image, rules)
-  }, 0)
+  for (const key of [roster[1].slug, puppetKey(roster[1].slug)]) {
+    const set = spriteSets.hd[key]
+    const rules = set?.sheet.p2_rules
+    if (!set || set.p2 || !rules?.length) continue
+    if (!(set.image instanceof HTMLImageElement)) continue
+    const image = set.image
+    window.setTimeout(() => {
+      if (!set.p2) set.p2 = recolouredAtlas(image, rules)
+    }, 0)
+  }
 }
 
 /** The art to draw: the style's where it has loaded, pixel art where it hasn't. */

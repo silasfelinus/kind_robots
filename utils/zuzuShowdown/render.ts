@@ -21,6 +21,8 @@ import { SPARK_PALETTES, SPARK_PIXELS, sparkFrame, type Spark } from './effects'
 import {
   drawSprite,
   pickSprite,
+  puppetKey,
+  puppetPlace,
   type LoadedSprites,
   type SpriteContext,
 } from './sprites'
@@ -1134,6 +1136,40 @@ function drawFighter(
   g.restore()
 }
 
+/**
+ * A fighter's puppet (the Siblings' toddler, t-011), in its pose for her state: behind her, or (`front`)
+ * before her. Only drawn from its art; with none loaded there is nothing to draw, and it never has a box.
+ */
+function drawPuppet(
+  g: G,
+  f: FighterState,
+  side: 0 | 1,
+  camera: number,
+  mirror: boolean,
+  sprites: LoadedSprites | undefined,
+  context: SpriteContext,
+  front: boolean,
+): void {
+  if (!sprites) return
+  const place = puppetPlace(f, context)
+  if (place.front !== front) return
+  const anim =
+    sprites.sheet.animations[place.pose] ?? sprites.sheet.animations.stand
+  const art = anim?.frames[0]
+  if (!art) return
+  const image = mirror && side === 1 && sprites.p2 ? sprites.p2 : sprites.image
+  const x = screenX(f.x, camera) - f.facing * place.back
+  drawSprite(
+    g,
+    image,
+    art,
+    sprites.sheet.scale,
+    x,
+    FLOOR_Y - place.up,
+    f.facing,
+  )
+}
+
 // What each fighter throws, drawn in game pixels on the projectile's box (its centre and facing).
 const STRAW = '#d9b66a'
 const STRAW_DARK = '#a7823e'
@@ -1810,21 +1846,29 @@ export function drawMatch(
   // The fighter who is attacking draws in front.
   const order: Array<0 | 1> =
     s.fighters[1].attack && !s.fighters[0].attack ? [0, 1] : [1, 0]
-  for (const side of order)
+  const mirror = roster[0].slug === roster[1].slug
+  for (const side of order) {
+    const f = s.fighters[side]
+    const slug = roster[side].slug
+    const context: SpriteContext = {
+      intro: s.phase === 'intro' ? s.phaseFrame : undefined,
+      perfect: f.health >= roster[side].health,
+    }
+    const puppet = options.sprites?.[puppetKey(slug)]
+    drawPuppet(g, f, side, camera, mirror, puppet, context, false)
     drawFighter(
       g,
-      s.fighters[side],
+      f,
       roster[side],
       side,
       camera,
       s.frame,
-      roster[0].slug === roster[1].slug,
-      options.sprites?.[roster[side].slug],
-      {
-        intro: s.phase === 'intro' ? s.phaseFrame : undefined,
-        perfect: s.fighters[side].health >= roster[side].health,
-      },
+      mirror,
+      options.sprites?.[slug],
+      context,
     )
+    drawPuppet(g, f, side, camera, mirror, puppet, context, true)
+  }
   drawSummons(g, s, roster, camera, options.reducedMotion, true)
   drawProjectiles(g, s, roster, camera, s.frame)
   if (options.sparks)

@@ -8,7 +8,7 @@
 
 import type { RenderStyle } from '../arcade/display'
 import type { P2Rule } from './recolour'
-import type { FighterState } from './types'
+import { SUB, type FighterState } from './types'
 
 export type SpriteFrame = {
   x: number
@@ -58,16 +58,121 @@ export type LoadedSprites = {
 export const SPRITE_ROOT = '/zuzu-showdown-sprites'
 
 /** Fighters whose rig has been exported to the game so far. */
-export const SPRITE_FIGHTERS = ['zuzu', 'coyote-vagrant'] as const
+export const SPRITE_FIGHTERS = [
+  'zuzu',
+  'coyote-vagrant',
+  'the-abbess',
+  'the-siblings',
+] as const
 
-/** The rig names the Coyote `coyote`; the game's slug is `coyote-vagrant`. */
+/** The rig's short names for fighters whose game slug is longer. */
+const RIG_NAMES: Partial<Record<string, string>> = {
+  'coyote-vagrant': 'coyote',
+  'the-abbess': 'abbess',
+  'the-siblings': 'siblings',
+}
+
+/** The file name the rig gives a fighter's sheets (`coyote` for the game's `coyote-vagrant`). */
 export function spriteFile(slug: string): string {
-  return slug === 'coyote-vagrant' ? 'coyote' : slug
+  return RIG_NAMES[slug] ?? slug
 }
 
 /** A fighter's frame map in a render style. */
 export function spriteSheetFile(slug: string, style: RenderStyle): string {
   return `${spriteFile(slug)}-${style}.json`
+}
+
+// ---------------------------------------------------------------- puppets
+//
+// A puppet is drawn with its fighter from its own pose sheet, keyed to the fighter's state: the Siblings'
+// toddler (t-011), who is never a hurtbox (fighters.yaml children_rules). His sheet is a rig frame map
+// whose animations are his poses, one frame each.
+
+/** Fighters who bring a puppet, and its sheet's file name. */
+export const SPRITE_PUPPETS: Partial<Record<string, string>> = {
+  'the-siblings': 'toddler',
+}
+
+/** Where a fighter's puppet sheet sits among the loaded sprites. */
+export function puppetKey(slug: string): string {
+  return `${slug}:puppet`
+}
+
+export type PuppetPose =
+  'stand' | 'duck' | 'throw' | 'proud' | 'wave' | 'raspberry'
+
+/**
+ * The puppet's pose and spot: `back` game pixels behind the fighter (toward her back), `up` above the
+ * floor, drawn behind her or (`front`) before her.
+ */
+export type PuppetPlace = {
+  pose: PuppetPose
+  back: number
+  up: number
+  front: boolean
+}
+
+/** A step behind her, toddling: where he stands when nothing calls him. */
+const TODDLE = 17
+
+/** What the toddler does, and where, from his sister's state (fighters.yaml's Siblings). */
+export function puppetPlace(
+  f: FighterState,
+  context: SpriteContext = {},
+): PuppetPlace {
+  const behind = (pose: PuppetPose, back = TODDLE): PuppetPlace => ({
+    pose,
+    back,
+    up: 0,
+    front: false,
+  })
+  // Off the ground he rides her back.
+  const riding: PuppetPlace = {
+    pose: 'stand',
+    back: 9,
+    up: Math.round(f.y / SUB) + 34,
+    front: false,
+  }
+  if (context.intro !== undefined && f.action === 'idle')
+    // He peeks out from behind her; she pushes him back.
+    return behind('stand', context.intro < 50 ? 6 : TODDLE)
+  switch (f.action) {
+    case 'attack':
+      switch (f.attack?.id) {
+        case 'apple-toss':
+          return behind('throw', 12)
+        case 'rain-of-apples':
+          // Up on her shoulders, hurling.
+          return { pose: 'throw', back: 6, up: 48, front: true }
+        case 'shield-him':
+          // She turns her back and wraps around him.
+          return behind('duck', 6)
+        default:
+          return f.attack?.id.startsWith('jump_') ? riding : behind('stand')
+      }
+    case 'prejump':
+    case 'jump':
+      return riding
+    case 'hitstun':
+    case 'airhit':
+    case 'blockstun':
+    case 'thrown':
+    case 'knockdown':
+    case 'wakeup':
+    case 'tech':
+    case 'breakout':
+      // He ducks behind her legs.
+      return behind('duck', 10)
+    case 'ko':
+      // She scoops him up to run: held close.
+      return { pose: 'duck', back: -2, up: 16, front: true }
+    case 'taunt':
+      return behind('raspberry', 12)
+    case 'victory':
+      return context.perfect ? behind('wave') : behind('proud', 12)
+    default:
+      return behind('stand')
+  }
 }
 
 const SIM_FPS = 60

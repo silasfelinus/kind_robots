@@ -33,12 +33,15 @@
 <template>
   <div class="tab-select dropdown dropdown-start min-w-0">
     <button
+      ref="trigger"
       tabindex="0"
       type="button"
       class="flex h-full min-h-10 w-full min-w-0 items-center gap-2 rounded-r-xl px-2 text-left transition hover:bg-base-200 xl:gap-2.5 xl:px-3"
       :title="`Change tab — currently ${activeTab?.label || 'none'}`"
       :aria-label="`Change tab — currently ${activeTab?.label || 'none'}`"
       aria-haspopup="menu"
+      @click="measurePanel"
+      @focus="measurePanel"
     >
       <span
         class="kr-icon-8 flex shrink-0 items-center justify-center rounded-lg border border-base-300/70 bg-base-200 sm:h-9 sm:w-9 xl:h-10 xl:w-10"
@@ -67,7 +70,11 @@
 
     <div
       tabindex="0"
-      class="dropdown-content z-120 mt-2 w-[min(18rem,calc(100vw-1rem))] max-h-[min(70vh,32rem)] overflow-y-auto kr-panel-flat p-2 shadow-2xl xl:w-[min(22rem,calc(100vw-1rem))]"
+      class="dropdown-content z-120 mt-2 overflow-y-auto kr-panel-flat p-2 shadow-2xl"
+      :style="{
+        width: `${panelWidth}px`,
+        maxHeight: `${panelMaxHeight}px`,
+      }"
       :aria-label="`${channel.label} tabs`"
     >
       <!--
@@ -98,6 +105,7 @@
         :active-channel-key="channel.channelKey"
         :active-tab-key="activeTabKey"
         :columns="1"
+        :tab-columns="tabColumns"
         @select="emit('select', $event)"
       />
     </div>
@@ -105,7 +113,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 import type {
   ResolvedChannel,
   ResolvedTab,
@@ -117,6 +125,52 @@ const props = defineProps<{
 }>()
 
 const emit = defineEmits<{ select: [tab: ResolvedTab] }>()
+
+/*
+ * USE THE ROOM THAT IS THERE. Silas, 2026-10-09: "we are condensing the list
+ * of tabs on nav even when there's plenty of room." The panel was a fixed
+ * 18-22rem column capped at 32rem tall, so Play's fifteen tabs scrolled inside
+ * a sliver beside an empty desktop. It now measures the space right of and
+ * below this control each time it opens: up to three columns of tabs, as tall
+ * as the viewport allows, and still one column where a phone-sized gap is all
+ * there is.
+ */
+const COLUMN_WIDTH = 288
+const PANEL_PADDING = 16
+const VIEWPORT_GUTTER = 12
+const MIN_TABS_PER_COLUMN = 5
+
+const trigger = ref<HTMLElement | null>(null)
+const tabColumns = ref<1 | 2 | 3>(1)
+const panelWidth = ref(COLUMN_WIDTH + PANEL_PADDING)
+const panelMaxHeight = ref(512)
+
+function measurePanel(): void {
+  const element = trigger.value
+  if (!element || typeof window === 'undefined') return
+
+  const rect = element.getBoundingClientRect()
+  const viewportBottom = window.visualViewport
+    ? window.visualViewport.offsetTop + window.visualViewport.height
+    : window.innerHeight
+  const availableWidth = window.innerWidth - rect.left - VIEWPORT_GUTTER
+  const fitColumns = Math.floor((availableWidth - PANEL_PADDING) / COLUMN_WIDTH)
+  const neededColumns = Math.ceil(
+    props.channel.tabs.length / MIN_TABS_PER_COLUMN,
+  )
+  const columns = Math.max(1, Math.min(3, fitColumns, neededColumns)) as
+    1 | 2 | 3
+
+  tabColumns.value = columns
+  panelWidth.value = Math.min(
+    columns * COLUMN_WIDTH + PANEL_PADDING,
+    Math.max(availableWidth, 0),
+  )
+  panelMaxHeight.value = Math.max(
+    240,
+    Math.floor(viewportBottom - rect.bottom - VIEWPORT_GUTTER - 8),
+  )
+}
 
 const activeTab = computed(
   () =>

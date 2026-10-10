@@ -20,8 +20,8 @@
         {{ group.label }}
       </p>
 
-      <ul class="menu w-full flex-nowrap gap-1 p-0">
-        <li v-for="tab in group.tabs" :key="tab.tabKey">
+      <ul class="menu w-full gap-1 p-0" :class="tabListClass">
+        <li v-for="tab in group.tabs" :key="tab.tabKey" class="min-w-0">
           <button
             type="button"
             class="flex min-h-11 w-full items-center gap-2 rounded-xl text-left"
@@ -162,15 +162,23 @@ const props = withDefaults(
     activeChannelKey?: string
     activeTabKey?: string
     columns?: 1 | 2
+    tabColumns?: 1 | 2 | 3
     resetSubtabsToken?: number
   }>(),
   {
     activeChannelKey: '',
     activeTabKey: '',
     columns: 1,
+    tabColumns: 1,
     resetSubtabsToken: 0,
   },
 )
+
+const TAB_LIST_CLASSES = {
+  1: 'flex-nowrap',
+  2: 'grid grid-cols-2',
+  3: 'grid grid-cols-3',
+} as const
 
 const emit = defineEmits<{
   select: [tab: ResolvedTab]
@@ -181,6 +189,9 @@ const groups = computed(() => channelTabGroups(props.channel))
 const effectiveColumns = computed<1 | 2>(() => {
   return props.columns === 2 && groups.value.length > 1 ? 2 : 1
 })
+const tabListClass = computed(
+  () => TAB_LIST_CLASSES[effectiveColumns.value === 2 ? 1 : props.tabColumns],
+)
 
 function subtabsFor(tab: ResolvedTab): ResolvedTab[] {
   return navigationSubtabs(props.channel, tab)

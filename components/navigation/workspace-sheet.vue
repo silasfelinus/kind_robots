@@ -1,7 +1,48 @@
 <!-- /components/navigation/workspace-sheet.vue -->
 <template>
   <aside class="flex min-h-0 flex-col gap-4 overflow-y-auto p-1">
-    <div class="overflow-hidden kr-panel p-0">
+    <section v-if="pageTutorial" class="overflow-hidden kr-panel p-0">
+      <div class="relative overflow-hidden bg-base-300">
+        <img
+          v-if="pageTutorial.image"
+          :src="pageTutorial.image"
+          :alt="`${pageTutorial.title} tutorial illustration`"
+          class="block h-auto w-full"
+        />
+
+        <div
+          v-else
+          class="flex aspect-4/3 w-full items-center justify-center p-6"
+        >
+          <Icon :name="pageTutorialIcon" class="h-16 w-16 text-primary/25" />
+        </div>
+
+        <div class="absolute bottom-0 left-0 right-0 p-4 sm:p-5">
+          <p
+            class="kr-text-black-sm inline-flex max-w-full items-center gap-2 rounded-full border border-primary/20 bg-base-100/85 px-3 py-1 uppercase tracking-widest text-primary shadow-sm backdrop-blur"
+          >
+            <Icon :name="pageTutorialIcon" class="kr-icon-4 shrink-0" />
+            <span class="truncate">{{ pageTutorialLabel }}</span>
+          </p>
+        </div>
+      </div>
+
+      <div class="flex flex-col gap-3 p-4 sm:p-5">
+        <h2
+          class="text-3xl font-black leading-none tracking-tight text-base-content sm:text-4xl"
+        >
+          {{ pageTutorial.title }}
+        </h2>
+
+        <p
+          class="text-base font-semibold leading-relaxed text-base-content/75 sm:text-lg"
+        >
+          {{ pageTutorial.body }}
+        </p>
+      </div>
+    </section>
+
+    <div v-else class="overflow-hidden kr-panel p-0">
       <div
         class="relative overflow-hidden bg-base-300"
         :class="{ 'aspect-4/3': !imagePath }"
@@ -74,7 +115,7 @@
           <span
             class="kr-text-eyebrow kr-text-dim-sm-70 tracking-widest"
           >
-            {{ showTutorial ? 'Hide tutorial' : 'Show tutorial' }}
+            {{ tutorialToggleLabel }}
           </span>
         </span>
         <Icon
@@ -88,7 +129,7 @@
       <tutorial-flyer
         v-if="showTutorial"
         :channel="tutorialChannelKey"
-        :tab="tutorialTabKey || undefined"
+        :tab="pageTutorial ? undefined : tutorialTabKey || undefined"
         inline
       />
     </template>
@@ -445,6 +486,47 @@ const tutorialTabKey = computed(() => {
   }
 
   return tutorialLocation.value?.tab?.tabKey || ''
+})
+
+/*
+ * THE PAGE'S OWN HELP IS THE SHEET. Silas, 2026-10-09: "since most of our
+ * tutorial pages will be focused on a single tab, we don't need the intro image
+ * and then the toggle to show the tutorial, we should just show the tutorial
+ * image and then info for that page." So on an ordinary page the sheet opens
+ * on the active tab's tutorial image and copy, and the channel's conceptual
+ * tutorial moves behind the toggle as "About <channel>". Builders and sheets a
+ * page set deliberately (a chosen Scenario, artwork) keep their own card.
+ */
+const pageTutorial = computed(() => {
+  if (isBuilder.value) return null
+
+  const source = sheetStore.override?.source || ''
+  if (sheetStore.override && !source.startsWith('dashboard-tab')) return null
+
+  return tutorialLocation.value?.tab?.tutorial ?? null
+})
+
+const pageTutorialIcon = computed(
+  () =>
+    tutorialLocation.value?.tab?.icon ||
+    tutorialLocation.value?.channel?.icon ||
+    'kind-icon:info',
+)
+
+const pageTutorialLabel = computed(
+  () =>
+    tutorialLocation.value?.tab?.label ||
+    tutorialLocation.value?.channel?.label ||
+    '',
+)
+
+const tutorialToggleLabel = computed(() => {
+  if (pageTutorial.value) {
+    const channelLabel = tutorialLocation.value?.channel?.label
+    return channelLabel ? `About ${channelLabel}` : 'About this area'
+  }
+
+  return showTutorial.value ? 'Hide tutorial' : 'Show tutorial'
 })
 
 const isBuilder = computed(() => {

@@ -54,3 +54,37 @@ The v1 encounter effects are provisional and purposely conservative. Named
 Rewards, companion stats, complex noncombat trials and game-specific boss
 outcomes belong to tasks t-008, t-010 and t-011. No inference provider can
 mutate this reducer's state.
+
+## Admin board integration (t-015)
+
+`/admin/zuzu-shifting-lands` now opens `components/shifting-lands/journey-board.vue`
+by default; the original Homestead prototype remains available through the
+Homestead workshop switch. Only administrators see either workshop.
+
+The new private board is a store-driven view of the deterministic journey
+reducer. `stores/shiftingLandsJourneyStore.ts` is the one session/persistence
+owner: actions dispatch to the pure engine; failed/duplicate actions leave
+the state untouched. The board never changes HP, location history, dice,
+decks, or boss outcomes in animation callbacks. `NavigationFlipCard`
+provides the deal spin; the saved reducer state determines face-up vs
+face-down cards after refresh. `kr-card-flip` provides persistent,
+keyboard-dismissible inspection of recorded locations. The draw pile
+selects the next legal unresolved reachable tile; the discard pile and
+history gallery inspect past visits without rerolling.
+
+The new preview uses `kr.shiftingLands.journey.v1` for its own local save,
+leaving `kr.shiftingLands.homestead.v1` intact. The resume guard rejects
+mismatched source-blob hashes and malformed state. This is local preview
+persistence, **not** the robust, audited cross-device save/replay migration
+owned by t-009.
+
+Four Homestead plates are tied to source-verified scene files. The later
+lands use separate, clearly labeled **provisional ambient plates** from
+existing Zuzu Gamebook art, not manufactured location-specific ArtImages.
+Later-land dedicated illustration and live resource linkage remain t-013.
+The reward/companion decks are intentionally marked upcoming rather than
+pretending unimplemented resources have been dealt.
+
+Acceptance for t-015 is code/contract CI and scoped review, **not** proof of
+authenticated, live phone/tablet/desktop screenshots, deployment, or public
+launch. That last gate remains t-018. No `/play` route has been introduced.

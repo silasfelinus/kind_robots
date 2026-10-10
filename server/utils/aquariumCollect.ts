@@ -1,197 +1,139 @@
 // /server/utils/aquariumCollect.ts
 //
-// Click-for-coins collectibles and the coin-bought upgrade track
-// (cthulhuquarium/t-071) -- DESIGN-BRIEF "MVP scope" items 2 ("Click drifting
-// collectibles for coins") and 4 ("Spend coins on upgrades"). Pure math only,
-// same discipline as aquariumEconomy.ts: no prisma, no Nuxt/H3, unit-tested by
+// Click-for-coins and the coin-bought upgrade track. Pure math only, same
+// discipline as aquariumEconomy.ts: no prisma, no Nuxt/H3, unit-tested by
 // utils/scripts/verifyAquariumCollect.test.ts (`npm run test:aquarium-collect`).
 //
-// SERVER-AUTHORITATIVE by construction. The client only ever reports how many
-// shed scales it clicked; the server credits at most what the elapsed time
-// since the tank's collect anchor could have spawned (collectAllowance below),
-// never more than COLLECT_MAX_BANKED at once, never more than
-// COLLECT_MAX_PER_REQUEST per call, valued off the tank's CURRENT production
-// as the server computes it (tankProductionPerTick). A client that lies about
-// `count` can only ever claim scales the clock already owed it.
+// The fun loop (cthulhuquarium/t-080, conductor projects/cthulhuquarium/
+// LOOP.md and economy.yaml `fun_loop`): EVERY fed fish drops a coin on its own
+// timer, worth a fixed amount for its rarity, so coin income grows with the
+// number of fish -- more fish, more coins, more fish. This replaced t-071's
+// single tank-wide shed scale (one every 15 s however many fish you had),
+// which Silas found left "nothing really to do".
 //
-// Numbers are v1 estimates tied to conductor projects/cthulhuquarium/
-// ECONOMY.md, which does not yet carry a click-income section -- economy.yaml
-// only says coins are "earned by producing and clicking". Mirror them into
-// economy.yaml on the next balance pass (same hand-sync discipline as
-// aquariumEconomy.ts's header comment).
+// SERVER-AUTHORITATIVE by construction. The client reports the total VALUE of
+// the coins it clicked. The server accrues value from the tank's collect
+// anchor at the tank's current drop rate (coinRatePerSecond), credits at most
+// what the clock owed (coinAllowance), and never looks further back than
+// COIN_BANK_SECONDS. Over any span of time the credited total can never
+// exceed rate x elapsed, however the client lies or chunks its requests.
 
 import type { Rarity } from '~/prisma/generated/prisma/client'
-import { evaluateRivalry } from './aquariumRivalry'
-import {
-  debrisMultiplier,
-  effectiveTickSeconds,
-  hungerMultiplier,
-  incomePerTick,
-  OFFLINE_INCOME_RATE_MULTIPLIER,
-  TICK_SECONDS,
-} from './aquariumEconomy'
 
 // ---------------------------------------------------------------------------
-// Collectibles
+// Coin drops -- economy.yaml `fun_loop`
 // ---------------------------------------------------------------------------
 
-// One scale sheds every 15s at drop-speed level 0 = 4 per TICK_SECONDS (60s).
-export const COLLECT_BASE_SPAWN_SECONDS = 15
+// fun_loop.coin_drop_seconds_per_fish: each fish drops one coin this often at
+// drop-speed level 0.
+export const COIN_DROP_SECONDS_PER_FISH = 15
 
-// Each scale is worth a quarter of one tick's gross production. At base speed
-// a player who catches every scale earns 4 x 0.25 = 1.0x gross per minute on
-// top of settleTick's 0.5x (OFFLINE_INCOME_RATE_MULTIPLIER), so an attentive
-// player runs at 1.5x gross against an idle tank's 0.5x -- the same 3.0x
-// active-vs-idle gap ECONOMY.md's two-hour simulation measured and accepted
-// ("3.0x net worth by minute 120"), rather than a new, larger one.
-export const COLLECT_VALUE_FRACTION_OF_TICK = 0.25
-
-// Floor: any tank that is producing at all pays at least 1 coin per scale, so
-// a single free-starter fish (gross 1/tick -> 0.25/scale) still pays for
-// clicking. Only applies while production > 0 -- a tank whose fish are all
-// starving (hunger 0) sheds nothing worth collecting, which keeps feeding the
-// thing that matters. Early game this makes clicking up to ~9x idle for one
-// COMMON; the gap converges to the 3x above once gross production reaches
-// 1 / COLLECT_VALUE_FRACTION_OF_TICK = 4 coins/tick (e.g. two UNCOMMONs).
-export const COLLECT_MIN_COINS_PER_SCALE = 1
-
-// Cap: scales that nobody clicks pile up at the surface, at most this many.
-// This is what keeps collecting an ACTIVE channel -- a closed tank banks at
-// most 8 scales (~2 minutes of base spawns), never hours, so offline income
-// stays entirely settleTick's capped 0.5x path.
-export const COLLECT_MAX_BANKED = 8
-
-// Per-call max: the store batches a click spree into one request (same
-// debounce idea as flushClean). Equal to the bank cap, so one request can
-// always drain everything the server would credit anyway.
-export const COLLECT_MAX_PER_REQUEST = COLLECT_MAX_BANKED
-
-export interface CollectFishState {
-  id: number
-  rarity: Rarity
-  hunger: number
-  yieldPerTick?: number | null
-  tickIntervalSeconds?: number | null
-  slug?: string | null
-  dietRole?: string | null
-  schoolRole?: string | null
+// fun_loop.coin_value_by_tier: what one dropped coin is worth. At one coin per
+// 15 s that is 12 / 32 / 80 / 200 / 500 / 1200 coins per fish-minute, against
+// settleTick's passive 0.5 / 1.5 / 4 / ... -- clicking is the game.
+export const COIN_VALUE_BY_TIER: Readonly<Record<Rarity, number>> = {
+  COMMON: 3,
+  UNCOMMON: 8,
+  RARE: 20,
+  EPIC: 50,
+  LEGENDARY: 125,
+  MYTHIC: 300,
 }
 
-// Gross production of ONE tick at the tank's current state -- the exact
-// per-fish formula settleTick's loop body uses (tier/override yield x rate
-// scale x hunger band x debris band x rivalry), without the loop, hunger
-// decay, or OFFLINE_INCOME_RATE_MULTIPLIER discount.
-export function tankProductionPerTick(
-  fish: readonly CollectFishState[],
-  debrisLevel: number,
-  equippedSetKinds: readonly string[] = [],
-): number {
-  const rivalry = evaluateRivalry(
-    fish.map((entry) => ({
-      id: entry.id,
-      slug: entry.slug ?? `__no-slug-${entry.id}`,
-      dietRole: entry.dietRole,
-      schoolRole: entry.schoolRole,
-    })),
-    equippedSetKinds.includes('peace_ward'),
-  )
-  const debrisMult = debrisMultiplier(debrisLevel)
-  return fish.reduce((sum, entry) => {
-    const rateScale =
-      TICK_SECONDS / effectiveTickSeconds(entry.tickIntervalSeconds)
-    return (
-      sum +
-      incomePerTick(entry.rarity, entry.yieldPerTick) *
-        rateScale *
-        hungerMultiplier(entry.hunger) *
-        debrisMult *
-        (rivalry.multiplierByFishId.get(entry.id) ?? 1)
-    )
-  }, 0)
+// fun_loop.coin_visible_seconds: a coin drifts down, rests on the gravel, then
+// fades. The canvas removes it after this long.
+export const COIN_VISIBLE_SECONDS = 12
+
+// How far back the server accrues. A coin can be clicked up to
+// COIN_VISIBLE_SECONDS after it drops, and a fish's next coin can be up to one
+// drop interval away, so a one-fish tank still gets paid the full value of
+// the single coin on screen. Anything older has faded.
+export const COIN_BANK_SECONDS =
+  COIN_DROP_SECONDS_PER_FISH + COIN_VISIBLE_SECONDS
+
+// Hard ceiling on one request's claim: well above a full 40-fish MYTHIC
+// tank's whole bank. Rejects absurd bodies before any math runs.
+export const COIN_MAX_CLAIM_PER_REQUEST = 500_000
+
+export function coinValueForTier(rarity: Rarity): number {
+  return COIN_VALUE_BY_TIER[rarity] ?? COIN_VALUE_BY_TIER.COMMON
 }
 
-export function coinsPerScale(productionPerTick: number): number {
-  if (!(productionPerTick > 0)) return 0
-  return Math.max(
-    COLLECT_MIN_COINS_PER_SCALE,
-    productionPerTick * COLLECT_VALUE_FRACTION_OF_TICK,
-  )
-}
-
-export function collectSpawnSeconds(dropSpeedLevel: number): number {
+export function coinDropSeconds(dropSpeedLevel: number): number {
   return (
-    COLLECT_BASE_SPAWN_SECONDS /
+    COIN_DROP_SECONDS_PER_FISH /
     (1 +
       DROP_SPEED_SPAWN_BONUS_PER_LEVEL *
         clampLevel(dropSpeedLevel, DROP_SPEED_MAX_LEVEL))
   )
 }
 
-export interface CollectAllowanceInput {
-  // Aquarium.collectAnchorAt: the moment scales started accumulating from.
-  // null (never collected) is treated as a full bank.
-  anchorAt: Date | null
-  now: Date
-  dropSpeedLevel: number
-  requested: number
+export interface CoinFishState {
+  rarity: Rarity
+  hunger: number
 }
 
-export interface CollectAllowanceResult {
+// Coins per second the whole tank drops right now. A starving fish (hunger 0)
+// drops nothing -- the one rule a player sees: fed fish drop coins. Hunger
+// does not otherwise scale coin value, and debris/rivalry no longer touch
+// coin drops at all (they still shape settleTick's passive income).
+export function coinRatePerSecond(
+  fish: readonly CoinFishState[],
+  dropSpeedLevel: number,
+): number {
+  const interval = coinDropSeconds(dropSpeedLevel)
+  return fish.reduce(
+    (sum, entry) =>
+      entry.hunger > 0 ? sum + coinValueForTier(entry.rarity) / interval : sum,
+    0,
+  )
+}
+
+export interface CoinAllowanceInput {
+  // Aquarium.collectAnchorAt: the moment value started accruing from. null
+  // (never collected) is treated as a full bank.
+  anchorAt: Date | null
+  now: Date
+  ratePerSecond: number
+  claimed: number
+}
+
+export interface CoinAllowanceResult {
   available: number
   credited: number
   newAnchorAt: Date
 }
 
-// How many scales this call may credit, and where the anchor moves to. The
-// anchor never lags `now` by more than COLLECT_MAX_BANKED spawns (anything
-// older is forfeited, like settleTick's accrual cap), and advances by exactly
-// `credited` spawn intervals -- so uncollected scales stay claimable and a
-// burst of tiny requests can never claim more than one large one.
-export function collectAllowance(
-  input: CollectAllowanceInput,
-): CollectAllowanceResult {
-  const spawnMs = collectSpawnSeconds(input.dropSpeedLevel) * 1000
+// How many coins this call may credit, and where the anchor moves to. The
+// anchor never lags `now` by more than COIN_BANK_SECONDS (older value is
+// forfeited, like settleTick's accrual cap) and advances by exactly the time
+// it took to accrue what was credited -- so unclaimed value stays claimable
+// and many small requests can never claim more than one large one.
+export function coinAllowance(input: CoinAllowanceInput): CoinAllowanceResult {
   const nowMs = input.now.getTime()
-  const oldestMs = nowMs - COLLECT_MAX_BANKED * spawnMs
+  const rate = Number.isFinite(input.ratePerSecond)
+    ? Math.max(0, input.ratePerSecond)
+    : 0
+  if (rate <= 0) {
+    return { available: 0, credited: 0, newAnchorAt: input.now }
+  }
+  const oldestMs = nowMs - COIN_BANK_SECONDS * 1000
   const anchorMs = Math.min(
     nowMs,
     Math.max(oldestMs, input.anchorAt ? input.anchorAt.getTime() : oldestMs),
   )
-  const available = Math.min(
-    COLLECT_MAX_BANKED,
-    Math.floor((nowMs - anchorMs) / spawnMs),
-  )
-  const requested = Number.isFinite(input.requested)
-    ? Math.max(0, Math.floor(input.requested))
+  // The epsilon absorbs float error (0.2 coins/s x 15 s = 2.9999...), so an
+  // honest click of a coin the clock fully owed is never floored away.
+  const available = Math.floor((rate * (nowMs - anchorMs)) / 1000 + 1e-6)
+  const claimed = Number.isFinite(input.claimed)
+    ? Math.max(0, Math.floor(input.claimed))
     : 0
-  const credited = Math.min(available, requested, COLLECT_MAX_PER_REQUEST)
+  const credited = Math.min(available, claimed, COIN_MAX_CLAIM_PER_REQUEST)
   return {
     available,
     credited,
-    newAnchorAt: new Date(anchorMs + credited * spawnMs),
+    newAnchorAt: new Date(anchorMs + (credited / rate) * 1000),
   }
-}
-
-// Floored like settleTick: a fractional remainder is only ever lost, never
-// fabricated, however the client chunks its requests.
-export function collectCoins(
-  credited: number,
-  productionPerTick: number,
-): number {
-  if (credited <= 0) return 0
-  return Math.floor(credited * coinsPerScale(productionPerTick))
-}
-
-// Reference ratio for the comment above: active (all scales caught) vs idle
-// gross income per minute at a given drop-speed level, for a tank past the
-// floor. Exported for the test only.
-export function activeToIdleIncomeRatio(dropSpeedLevel: number): number {
-  const scalesPerTick = TICK_SECONDS / collectSpawnSeconds(dropSpeedLevel)
-  return (
-    (OFFLINE_INCOME_RATE_MULTIPLIER +
-      scalesPerTick * COLLECT_VALUE_FRACTION_OF_TICK) /
-    OFFLINE_INCOME_RATE_MULTIPLIER
-  )
 }
 
 // ---------------------------------------------------------------------------
@@ -225,9 +167,8 @@ export interface UpgradeTrackConfig {
 export const FOOD_DISCOUNT_PER_LEVEL = 0.15
 export const FOOD_MAX_LEVEL = 3
 
-// Drop speed: each level adds 25% spawn rate (max 4 levels = 2x, one scale
-// every 7.5s). At max level a perfect clicker reaches 1.5x -> 2.5x gross, i.e.
-// 5x idle -- bought, and bounded by the same COLLECT_MAX_BANKED.
+// Drop speed: each level adds 25% to every fish's drop rate (max 4 levels =
+// 2x, one coin per fish every 7.5 s).
 export const DROP_SPEED_SPAWN_BONUS_PER_LEVEL = 0.25
 export const DROP_SPEED_MAX_LEVEL = 4
 
@@ -249,7 +190,7 @@ export const UPGRADE_CATALOG: Readonly<
   dropSpeed: {
     track: 'dropSpeed',
     title: 'Faster shedding',
-    description: 'Scales drift up 25% more often per level.',
+    description: 'Every fish drops coins 25% more often per level.',
     maxLevel: DROP_SPEED_MAX_LEVEL,
     baseCost: 100,
     costGrowth: 2.2,

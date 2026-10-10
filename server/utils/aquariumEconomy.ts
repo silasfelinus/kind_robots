@@ -31,12 +31,13 @@ import { CTHULHUQUARIUM_BACKGROUND_UNLOCKS } from './cthulhuquariumBackgrounds.g
 // economy.yaml: economy.tick_seconds
 export const TICK_SECONDS = 60
 
-// economy.yaml: currency.starting_coins (the canon's economy/balance.yaml
-// carries the same 25). A new tank used to open with 0 coins, and a fresh
-// fish starts full, so the intro's "press Feed" beat failed with "your tank
-// only has 0" and a brand-new player could only skip out of the tutorial.
-// New tanks only; existing ones keep what they hold.
-export const STARTING_COINS = 25
+// economy.yaml: fun_loop.starting_coins (cthulhuquarium/t-080; was
+// currency.starting_coins 25). With a COMMON at 50 and the free starter
+// dropping a 3-coin coin every 15 s, the second fish is about a minute of
+// clicking away. A new tank used to open with 0 coins, and a fresh fish
+// starts full, so the intro's "press Feed" beat failed with "your tank only
+// has 0". New tanks only; existing ones keep what they hold.
+export const STARTING_COINS = 40
 
 // ---------------------------------------------------------------------------
 // Rarity tiers -- economy.yaml `rarity_tiers`
@@ -165,19 +166,26 @@ export function hungerMultiplier(hunger: number): number {
 }
 
 export const FEED_RESTORES_HUNGER_TO = 100
-export const FEED_COST_FACTOR_OF_UNLOCK_COST = 0.2
+// economy.yaml: fun_loop.feed_cost_factor_of_unlock_cost (cthulhuquarium/
+// t-080; was hunger.feed.cost_factor_of_unlock_cost 0.2). Feeding is a cheap
+// click, not a tax: a COMMON costs 1 coin, a RARE 15.
+export const FEED_COST_FACTOR_OF_UNLOCK_COST = 0.02
 
 // Feed cost scales with the fish's own unlock-cost curve ("the food is
 // alive" -- feeding a MYTHIC costs more than feeding a COMMON). Rounded to
-// the nearest coin: cost = round(unlockCost * factor). `unlockCostOverride`
+// the nearest coin, never below 1: cost = max(1, round(unlockCost *
+// factor)). `unlockCostOverride`
 // is Monster.unlockCost, threaded through so a per-species unlock override
 // also reshapes its feed cost instead of silently ignoring it.
 export function feedCost(
   rarity: Rarity,
   unlockCostOverride?: number | null,
 ): number {
-  return Math.round(
-    unlockCost(rarity, unlockCostOverride) * FEED_COST_FACTOR_OF_UNLOCK_COST,
+  return Math.max(
+    1,
+    Math.round(
+      unlockCost(rarity, unlockCostOverride) * FEED_COST_FACTOR_OF_UNLOCK_COST,
+    ),
   )
 }
 

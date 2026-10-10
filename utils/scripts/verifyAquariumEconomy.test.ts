@@ -156,11 +156,13 @@ assert.equal(
 
 console.log('✅ debrisMultiplier: all four bands correct, never floors to zero')
 
-// --- feedCost: cost_factor_of_unlock_cost * unlockCost, rounded ------------
+// --- feedCost: fun_loop.feed_cost_factor_of_unlock_cost * unlockCost, -----
+// rounded, never below 1 (cthulhuquarium/t-080)
 
-assert.equal(feedCost('COMMON'), 10, 'round(50 * 0.2) = 10')
-assert.equal(feedCost('MYTHIC'), 10000, 'round(50000 * 0.2) = 10000')
-assert.equal(feedCost('RARE'), 150, 'round(750 * 0.2) = 150')
+assert.equal(feedCost('COMMON'), 1, 'round(50 * 0.02) = 1')
+assert.equal(feedCost('MYTHIC'), 1000, 'round(50000 * 0.02) = 1000')
+assert.equal(feedCost('RARE'), 15, 'round(750 * 0.02) = 15')
+assert.equal(feedCost('COMMON', 10), 1, 'never free: max(1, round(0.2))')
 
 console.log('✅ feedCost: scales with unlock cost, rounded correctly')
 
@@ -192,13 +194,13 @@ assert.equal(effectiveTickSeconds(30), 30)
 // never drift apart just because one is overridden and the other isn't.
 assert.equal(
   feedCost('COMMON', null),
-  10,
-  'round(50 * 0.2) unaffected by a null override',
+  1,
+  'round(50 * 0.02) unaffected by a null override',
 )
 assert.equal(
   feedCost('COMMON', 1000),
-  200,
-  'round(1000 * 0.2) = 200 -- feed cost follows the overridden unlock cost',
+  20,
+  'round(1000 * 0.02) = 20 -- feed cost follows the overridden unlock cost',
 )
 
 console.log(

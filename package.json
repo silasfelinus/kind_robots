@@ -216,7 +216,7 @@
     "generate": "nuxi prepare && nuxi generate",
     "preview": "nuxi preview",
     "lint": "npm run lint:js && npm run lint:prettier",
-    "lint:js": "eslint .",
+    "lint:js": "node utils/scripts/verifyRetiredVercelOrigin.mjs && eslint .",
     "lint:prettier": "prettier --check .",
     "prettier": "prettier --write .",
     "lintfix": "eslint --fix . && prettier --write .",

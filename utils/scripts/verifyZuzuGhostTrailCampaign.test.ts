@@ -47,12 +47,13 @@ for (const [index, secret] of locations.entries()) {
 assert.equal(run.foundSecrets.size, 4)
 run.clear = 1
 game.update(emptyInput())
-assert.equal(run.over, true, 'the last available stage ends the preview')
 assert.equal(run.won, true, 'the last gate is a victory, not a death')
+assert.equal(run.over, false, 'the player sees the victory interlude')
 assert.equal(run.banner?.text, 'PREVIEW CLEARED')
 assert.equal(run.banner?.sub, '4/4 RELICS FOUND')
 const finalScore = game.score
-for (let i = 0; i < 5; i++) game.update(emptyInput())
+for (let i = 0; i < 180; i++) game.update(emptyInput())
+assert.equal(run.over, true, 'the score screen follows a three-second victory')
 assert.equal(game.score, finalScore, 'victory cannot repeatedly award stage bonuses')
 
 const defeated = create({

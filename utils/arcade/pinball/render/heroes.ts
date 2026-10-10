@@ -104,6 +104,42 @@ function wingArt(track: Track): THREE.Texture | null {
   return texture
 }
 
+/** Frames a care package takes to fly from the depot to its hut. */
+const PARCEL_FLIGHT = 80
+/** Frames between one package leaving and the next. */
+const PARCEL_STAGGER = 14
+/** How high a package arcs over the table on its way, metres. */
+const PARCEL_ARC = 0.12
+/** A hut's window flare as a package lands at its door. */
+const PARCEL_ARRIVAL_GLOW = 5
+
+type Parcel = {
+  group: THREE.Group
+  slot: THREE.Vector3
+  /** Frames into its flight; negative while it waits its turn, 0 at rest. */
+  flight: number
+  hut: number
+  shown: number
+}
+
+/** A parcel: kraft card with a ribbon round it in a village colour. */
+function buildParcel(
+  box: THREE.BoxGeometry,
+  ribbon: THREE.BoxGeometry,
+  card: THREE.Material,
+  tie: THREE.Material,
+): THREE.Group {
+  const group = new THREE.Group()
+  const body = new THREE.Mesh(box, card)
+  body.castShadow = true
+  const across = new THREE.Mesh(ribbon, tie)
+  const along = new THREE.Mesh(ribbon, tie)
+  along.rotation.y = Math.PI / 2
+  group.add(body, across, along)
+  group.scale.setScalar(0)
+  return group
+}
+
 export class Heroes {
   readonly group = new THREE.Group()
   private def: HeroDef
@@ -124,6 +160,8 @@ export class Heroes {
   /** Frames into a delivery flight; 0 when the drone is not delivering. */
   private delivering = 0
   private dronePosition = new THREE.Vector3()
+  private parcels: Parcel[] = []
+  private sending = false
 
   constructor(def: HeroDef, track: Track) {
     this.def = def
@@ -133,6 +171,7 @@ export class Heroes {
     this.headMaterial = head.material
     this.beacon = head.beacon
     this.beaconMaterial = head.beaconMaterial
+    this.buildDepot(track)
     this.drone = this.buildDrone(track)
     this.dronePosition.set(...def.drone.perch)
     this.drone.position.copy(this.dronePosition)
@@ -448,6 +487,91 @@ export class Heroes {
     return drone
   }
 
+  /**
+   * The Care Package Depot (t-031): a little post house over the lock, its
+   * roof on the pocket's walls under AMI, and a parcel for every package
+   * slot (shown as balls are locked).
+   */
+  private buildDepot(track: Track) {
+    const def = this.def.depot
+    if (!def) return
+    const wood = track(
+      new THREE.MeshStandardMaterial({ color: 0x7c4a2a, roughness: 0.75 }),
+    )
+    const tiles = track(
+      new THREE.MeshStandardMaterial({
+        color: 0x0f766e,
+        roughness: 0.55,
+        side: THREE.DoubleSide,
+      }),
+    )
+    const [x, y, z] = def.roof
+    const half = def.width / 2
+    const pitch = 0.009
+    for (const side of [-1, 1]) {
+      const slope = Math.hypot(def.depth / 2, pitch)
+      const plane = new THREE.Mesh(
+        track(new THREE.PlaneGeometry(def.width, slope)),
+        tiles,
+      )
+      plane.rotation.x = -Math.PI / 2 + side * Math.atan2(pitch, def.depth / 2)
+      plane.position.set(x, y + pitch / 2, z + (side * def.depth) / 4)
+      plane.castShadow = true
+      this.group.add(plane)
+    }
+    const postGeo = track(new THREE.CylinderGeometry(0.0018, 0.0018, 0.016, 8))
+    for (const px of [-half + 0.006, half - 0.006])
+      for (const pz of [z - def.depth / 2 + 0.003, z + def.depth / 2 - 0.003]) {
+        const post = new THREE.Mesh(postGeo, wood)
+        post.position.set(x + px, y - 0.008, pz)
+        this.group.add(post)
+      }
+    const ridge = new THREE.Mesh(
+      track(new THREE.CylinderGeometry(0.0015, 0.0015, def.width, 8)),
+      wood,
+    )
+    ridge.rotation.z = Math.PI / 2
+    ridge.position.set(x, y + pitch, z)
+    this.group.add(ridge)
+    const box = track(new THREE.BoxGeometry(0.011, 0.009, 0.011))
+    const ribbon = track(new THREE.BoxGeometry(0.0118, 0.0094, 0.0024))
+    const card = track(
+      new THREE.MeshStandardMaterial({ color: 0xc8955a, roughness: 0.85 }),
+    )
+    const ties = [0xf472b6, 0x22d3ee, 0xfacc15].map((color) =>
+      track(
+        new THREE.MeshStandardMaterial({
+          color,
+          emissive: color,
+          emissiveIntensity: 0.35,
+          roughness: 0.4,
+        }),
+      ),
+    )
+    def.slots.forEach((at, i) => {
+      const group = buildParcel(box, ribbon, card, ties[i % ties.length]!)
+      const slot = new THREE.Vector3(...at)
+      group.position.copy(slot)
+      this.group.add(group)
+      this.parcels.push({
+        group,
+        slot,
+        flight: 0,
+        hut: (i * 2 + 1) % Math.max(1, this.def.huts.length),
+        shown: 0,
+      })
+    })
+  }
+
+  /** Packages on the depot now, and in the air (for tests). */
+  get parcelsWaiting(): number {
+    return this.parcels.filter((p) => p.flight === 0 && p.shown > 0.5).length
+  }
+
+  get parcelsFlying(): number {
+    return this.parcels.filter((p) => p.flight !== 0).length
+  }
+
   /** What the rules say the toys show now. */
   setPose(pose: ToyPose) {
     this.pose = pose
@@ -508,6 +632,56 @@ export class Heroes {
     this.head.position.y =
       this.def.beacon.at[1] + Math.sin(this.frame * 0.05) * 0.0008
     this.animateDrone()
+    this.animateDepot()
+  }
+
+  /**
+   * Packed parcels pop in on the depot; when multiball starts every one the
+   * depot needed is sent, one after another, to a hut whose window flares
+   * as it lands.
+   */
+  private animateDepot() {
+    const depot = this.pose?.depot
+    if (!depot || !this.parcels.length) return
+    if (depot.sending && !this.sending) {
+      const count = Math.min(depot.needed, this.parcels.length)
+      for (let i = 0; i < count; i++) {
+        const parcel = this.parcels[i]!
+        parcel.flight = i === 0 ? 1 : -i * PARCEL_STAGGER
+        parcel.shown = 1
+      }
+    }
+    this.sending = depot.sending
+    this.parcels.forEach((parcel, i) => {
+      if (parcel.flight < 0) {
+        parcel.flight++
+        if (parcel.flight === 0) parcel.flight = 1
+      } else if (parcel.flight > 0) {
+        parcel.flight++
+      }
+      if (parcel.flight > 0) {
+        const t = Math.min(1, parcel.flight / PARCEL_FLIGHT)
+        const hut = this.def.huts[parcel.hut]
+        const to = hut ? new THREE.Vector3(...hut.at) : parcel.slot
+        parcel.group.position.lerpVectors(parcel.slot, to, t)
+        parcel.group.position.y += 4 * t * (1 - t) * PARCEL_ARC
+        parcel.group.rotation.y += 0.12
+        if (t >= 1) {
+          parcel.flight = 0
+          parcel.shown = 0
+          parcel.group.position.copy(parcel.slot)
+          parcel.group.rotation.y = 0
+          const window = this.huts[parcel.hut]
+          if (window) window.glow = PARCEL_ARRIVAL_GLOW
+        }
+      } else if (parcel.flight === 0) {
+        const want = !depot.sending && i < depot.packed ? 1 : 0
+        parcel.shown += (want - parcel.shown) * GLOW_EASE * 1.5
+        if (Math.abs(want - parcel.shown) < 0.01) parcel.shown = want
+      }
+      parcel.group.scale.setScalar(parcel.flight !== 0 ? 1 : parcel.shown)
+      parcel.group.visible = parcel.flight !== 0 || parcel.shown > 0.01
+    })
   }
 
   private animateDrone() {

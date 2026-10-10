@@ -9,7 +9,30 @@
 // eyes home to the charging dock.
 
 import { everyNthLevel, levelCurve } from '../curve'
-import { drawText } from '../font'
+import { drawText, measureText } from '../font'
+import {
+  INK,
+  RAMPS,
+  Sparkles,
+  backdropRng,
+  bandedGradient,
+  bevel,
+  cachedLayer,
+  drawSprite,
+  drawRidge,
+  drawStars,
+  dropShadow,
+  gauge,
+  glow,
+  hudPanel,
+  mix,
+  pixelSprite,
+  rgba,
+  ridge,
+  starField,
+  vignette,
+} from '../snes'
+import type { PixelSprite, Ramp } from '../snes'
 import type {
   ArcadeGameInstance,
   ArcadeGameModule,
@@ -105,6 +128,885 @@ type Gremlin = {
   releaseAt: number
 }
 
+// --- 16-bit art (utils/arcade/snes.ts) -------------------------------------------
+
+type Pt = readonly [number, number]
+type Face = 'side' | 'up' | 'down'
+
+/** Rows of palette letters from a per-pixel painter ('.' is clear). */
+function raster(
+  w: number,
+  h: number,
+  paint: (x: number, y: number) => string,
+): string[] {
+  return Array.from({ length: h }, (_, y) =>
+    Array.from({ length: w }, (_, x) => paint(x, y)).join(''),
+  )
+}
+
+function inTriangle(px: number, py: number, a: Pt, b: Pt, c: Pt): boolean {
+  const side = (p: Pt, q: Pt) =>
+    (px - q[0]) * (p[1] - q[1]) - (p[0] - q[0]) * (py - q[1])
+  const d1 = side(a, b)
+  const d2 = side(b, c)
+  const d3 = side(c, a)
+  const neg = d1 < 0 || d2 < 0 || d3 < 0
+  const pos = d1 > 0 || d2 > 0 || d3 > 0
+  return !(neg && pos)
+}
+
+function inPolygon(px: number, py: number, pts: readonly Pt[]): boolean {
+  let inside = false
+  for (let i = 0, j = pts.length - 1; i < pts.length; j = i++) {
+    const [xi, yi] = pts[i]!
+    const [xj, yj] = pts[j]!
+    if (yi > py !== yj > py && px < ((xj - xi) * (py - yi)) / (yj - yi) + xi)
+      inside = !inside
+  }
+  return inside
+}
+
+function nearSegment(px: number, py: number, a: Pt, b: Pt, r: number) {
+  const vx = b[0] - a[0]
+  const vy = b[1] - a[1]
+  const t = Math.max(
+    0,
+    Math.min(1, ((px - a[0]) * vx + (py - a[1]) * vy) / (vx * vx + vy * vy)),
+  )
+  return Math.hypot(px - a[0] - vx * t, py - a[1] - vy * t) <= r
+}
+
+/** The ramp as palette letters '0' (deep shadow) to '4' (highlight). */
+function rampPalette(ramp: Ramp): Record<string, string> {
+  return { 0: ramp[0], 1: ramp[1], 2: ramp[2], 3: ramp[3], 4: ramp[4] }
+}
+
+/** A sphere lit from the upper left, as a ramp letter, for normal (nx, ny). */
+function sphereShade(nx: number, ny: number): string {
+  const nz = Math.sqrt(Math.max(0, 1 - nx * nx - ny * ny))
+  const l = nx * -0.45 + ny * -0.6 + nz * 0.66
+  return l > 0.95 ? '4' : l > 0.76 ? '3' : l > 0.42 ? '2' : l > 0.06 ? '1' : '0'
+}
+
+/**
+ * A flat shape shaded across from the upper-left light, with a lit rim on its top and left
+ * edges and a shadowed rim on its bottom and right; `extra` paints details over it.
+ */
+function litRows(
+  w: number,
+  h: number,
+  inside: (x: number, y: number) => boolean,
+  extra?: (x: number, y: number) => string | null,
+): string[] {
+  const cx = (w - 1) / 2
+  const cy = (h - 1) / 2
+  const reach = Math.max(w, h) / 2
+  const at = (x: number, y: number) =>
+    x >= 0 && y >= 0 && x < w && y < h && inside(x, y)
+  return raster(w, h, (x, y) => {
+    if (!at(x, y)) return '.'
+    const detail = extra?.(x, y)
+    if (detail) return detail
+    const u = ((x - cx) * 0.6 + (y - cy) * 0.8) / reach
+    let s = u < -0.45 ? 3 : u < 0.35 ? 2 : 1
+    if (!at(x, y - 1) || !at(x - 1, y)) s = Math.min(4, s + 1)
+    else if (!at(x, y + 1) || !at(x + 1, y)) s = Math.max(0, s - 1)
+    return String(s)
+  })
+}
+
+const FACE_ANGLE: Record<Face, number> = {
+  side: 0,
+  up: -Math.PI / 2,
+  down: Math.PI / 2,
+}
+
+/**
+ * The robot from the title art: a round teal bot with cat ears, its chomping mouth a wedge
+ * `open` radians either side of where it faces. Rendered per facing, never rotated, so the
+ * ears stay upright. `k` scales it down for the lives icon.
+ */
+function robotRows(face: Face, open: number, k = 1): string[] {
+  const w = Math.round(15 * k)
+  const r = 6.4 * k
+  const cx = Math.floor(w / 2)
+  const cy = Math.round(9 * k)
+  const h = cy + Math.floor(r) + 1
+  const ear: [Pt, Pt, Pt] = [
+    [-5.6 * k, -2.4 * k],
+    [-4.6 * k, -9.4 * k],
+    [-0.6 * k, -5.2 * k],
+  ]
+  const inner: [Pt, Pt, Pt] = [
+    [-4.6 * k, -3.8 * k],
+    [-4.3 * k, -7.6 * k],
+    [-2 * k, -5 * k],
+  ]
+  const eyes: Pt[] =
+    k < 0.8
+      ? [[1, -2]]
+      : face === 'side'
+        ? [[0, -4]]
+        : face === 'up'
+          ? [
+              [-4, -1],
+              [3, -1],
+            ]
+          : [
+              [-4, -4],
+              [3, -4],
+            ]
+  const eyeSize = k < 0.8 ? 1 : 2
+  return raster(w, h, (x, y) => {
+    const dx = x - cx
+    const dy = y - cy
+    const d = Math.hypot(dx, dy)
+    if (d <= r) {
+      if (open > 0 && d > 0.4) {
+        const a = Math.atan2(dy, dx) - FACE_ANGLE[face]
+        if (Math.abs(Math.atan2(Math.sin(a), Math.cos(a))) < open) return '.'
+      }
+      for (const [ex, ey] of eyes) {
+        if (dx >= ex && dx < ex + eyeSize && dy >= ey && dy < ey + eyeSize)
+          return eyeSize > 1 && dx === ex && dy === ey ? 'w' : 'k'
+      }
+      return sphereShade(dx / r, dy / r)
+    }
+    for (const side of [1, -1] as const) {
+      const ex = dx * side
+      if (inTriangle(ex, dy, ...inner)) return 'p'
+      if (inTriangle(ex, dy, ...ear)) return side === 1 ? '3' : '2'
+    }
+    return '.'
+  })
+}
+
+const ROBOT_PALETTE = {
+  ...rampPalette(RAMPS.teal),
+  k: INK,
+  w: '#ffffff',
+  p: RAMPS.pink[3],
+}
+
+/** Mouth frames per facing: shut, half, wide (the left-facing ones are flips of 'side'). */
+const ROBOT_FRAMES: Record<Face, readonly PixelSprite[]> = {
+  side: [0.08, 0.38, 0.72].map((o) =>
+    pixelSprite(robotRows('side', o), ROBOT_PALETTE),
+  ),
+  up: [0.08, 0.38, 0.72].map((o) =>
+    pixelSprite(robotRows('up', o), ROBOT_PALETTE),
+  ),
+  down: [0.08, 0.38, 0.72].map((o) =>
+    pixelSprite(robotRows('down', o), ROBOT_PALETTE),
+  ),
+}
+
+/** Losing a life: the mouth opens all the way round until only the ears are left. */
+const ROBOT_DEATH = Array.from({ length: 8 }, (_, i) =>
+  pixelSprite(robotRows('up', 0.9 + (i / 7) * 2.3), ROBOT_PALETTE),
+)
+
+const LIFE_SPRITE = pixelSprite(robotRows('side', 0.38, 0.6), ROBOT_PALETTE)
+
+type GremlinPose = {
+  eyes: Face | 'shut'
+  step: 0 | 1
+  droop: boolean
+  /** Just the eyes (a rebooting gremlin). */
+  only?: boolean
+}
+
+/**
+ * A glitch gremlin, after the title art: big pointed bat ears, a round furry body with a cream
+ * belly, stubby stepping feet and a flicking tail trailing to the left (flip to face left). Each
+ * personality wears its own crest: the chaser a spiky tuft, the ambusher a swept forelock and a
+ * bandit mask, the flanker an antenna, the wanderer a little flower. Eyes look where it heads;
+ * 'shut' is the sleepy face; `only` keeps just the eyes of a rebooting gremlin heading home.
+ */
+function gremlinRows(kind: Personality, pose: GremlinPose): string[] {
+  const cx = 8
+  const cy = 9
+  const r = 6.5
+  const tip: Pt = pose.droop ? [-8.6, -3.2] : [-8.2, -8.4]
+  const ear: [Pt, Pt, Pt] = [[-2.4, -4.6], tip, [-5.6, -0.6]]
+  const inner: [Pt, Pt, Pt] = [
+    [-3.2, -3.9],
+    [tip[0] + 1.6, tip[1] + (pose.droop ? 0.6 : 1.8)],
+    [-5.2, -1.6],
+  ]
+  const tail: [Pt, Pt] = [
+    [-5.5, 2],
+    [-8, pose.step ? -1.5 : 0.8],
+  ]
+  const eyeCols = [-4, -3, -2, 2, 3, 4]
+  const pupilCols = pose.eyes === 'side' ? [-3, -2, 3, 4] : [-3, -2, 2, 3]
+  const pupilRows = pose.eyes === 'up' ? [-3, -2] : [-2, -1]
+  const brows: Pt[] = [
+    [-4, -5],
+    [-3, -4],
+    [-2, -4],
+    [4, -5],
+    [3, -4],
+    [2, -4],
+  ]
+  const crest = (dx: number, dy: number): string | null => {
+    switch (kind) {
+      case 'chaser':
+        if (inTriangle(dx, dy, [-2.8, -5], [-1.4, -9.6], [0.2, -5])) return '3'
+        if (inTriangle(dx, dy, [-0.2, -5], [1.6, -9.6], [2.8, -5])) return '2'
+        return null
+      case 'ambusher':
+        return inTriangle(dx, dy, [-2.6, -5.4], [4.6, -9.4], [2.6, -4.6])
+          ? '3'
+          : null
+      case 'flanker':
+        if (dx === 0 && (dy === -6 || dy === -7)) return '1'
+        if ((dy === -8 && Math.abs(dx) <= 1) || (dx === 0 && dy === -9))
+          return dx === -1 || dy === -9 ? 'y' : 'x'
+        return null
+      case 'wanderer':
+        if (dx === 0 && (dy === -6 || dy === -7)) return '1'
+        if (dx === 0 && dy === -8) return 'y'
+        if ((dy === -8 && Math.abs(dx) === 1) || (dx === 0 && dy === -9))
+          return 'x'
+        return null
+    }
+  }
+  return raster(17, 17, (x, y) => {
+    const dx = x - cx
+    const dy = y - cy
+    const inEye = eyeCols.includes(dx) && dy >= -3 && dy <= -1
+    if (pose.only) {
+      if (!inEye) return '.'
+      return pupilCols.includes(dx) && pupilRows.includes(dy) ? 'k' : 'w'
+    }
+    // Stubby feet, one lifted in turn.
+    const leftUp = pose.step === 1
+    const footRows = (up: boolean) => (up ? [5, 6] : [6, 7])
+    if (dx >= -4 && dx <= -2 && footRows(leftUp).includes(dy))
+      return dy === footRows(leftUp)[0] ? '1' : '0'
+    if (dx >= 2 && dx <= 4 && footRows(!leftUp).includes(dy))
+      return dy === footRows(!leftUp)[0] ? '1' : '0'
+    const d = Math.hypot(dx, dy)
+    if (d <= r) {
+      if (inEye) {
+        if (pose.eyes === 'shut')
+          return dy === -2 ? 'z' : sphereShade(dx / r, dy / r)
+        return pupilCols.includes(dx) && pupilRows.includes(dy) ? 'k' : 'w'
+      }
+      if (
+        pose.eyes !== 'shut' &&
+        brows.some(([bx, by]) => bx === dx && by === dy)
+      )
+        return 'k'
+      if ((dx / 3.4) ** 2 + ((dy - 2.6) / 2.5) ** 2 <= 1)
+        return dy <= 3 ? 'c' : 'd'
+      if (kind === 'ambusher' && dy >= -3 && dy <= -1) return '0'
+      return sphereShade(dx / r, dy / r)
+    }
+    const c = crest(dx, dy)
+    if (c) return c
+    for (const side of [1, -1] as const) {
+      const ex = dx * side
+      if (inTriangle(ex, dy, ...inner)) return 'i'
+      if (inTriangle(ex, dy, ...ear)) return side === 1 ? '3' : '2'
+    }
+    if (nearSegment(dx, dy, tail[0], tail[1], 0.75))
+      return Math.hypot(dx - tail[1][0], dy - tail[1][1]) < 1 ? '2' : '1'
+    return '.'
+  })
+}
+
+const GREMLIN_LOOKS: Record<Personality, { ramp: Ramp; accent: string }> = {
+  chaser: { ramp: RAMPS.pink, accent: RAMPS.pink[4] },
+  ambusher: { ramp: RAMPS.rust, accent: RAMPS.gold[3] },
+  flanker: { ramp: RAMPS.water, accent: RAMPS.gold[3] },
+  wanderer: { ramp: RAMPS.leaf, accent: RAMPS.pink[3] },
+}
+
+function gremlinPalette(
+  ramp: Ramp,
+  belly: readonly [string, string],
+  inner: string,
+  accent: string,
+  lid: string,
+) {
+  return {
+    ...rampPalette(ramp),
+    c: belly[0],
+    d: belly[1],
+    i: inner,
+    w: '#ffffff',
+    k: INK,
+    x: accent,
+    y: RAMPS.gold[4],
+    z: lid,
+  }
+}
+
+type GremlinArt = {
+  normal: Record<Face, readonly [PixelSprite, PixelSprite]>
+  sleepy: readonly [PixelSprite, PixelSprite]
+  flash: readonly [PixelSprite, PixelSprite]
+}
+
+function gremlinArt(kind: Personality): GremlinArt {
+  const { ramp, accent } = GREMLIN_LOOKS[kind]
+  const awake = gremlinPalette(
+    ramp,
+    [RAMPS.cream[3], RAMPS.cream[2]],
+    RAMPS.gold[3],
+    accent,
+    INK,
+  )
+  const sleepy = gremlinPalette(
+    RAMPS.sky,
+    [RAMPS.sky[4], RAMPS.sky[3]],
+    RAMPS.sky[3],
+    RAMPS.sky[4],
+    INK,
+  )
+  const flash = gremlinPalette(
+    RAMPS.steel,
+    [RAMPS.cream[4], RAMPS.cream[3]],
+    RAMPS.pink[3],
+    RAMPS.pink[3],
+    RAMPS.ember[2],
+  )
+  const pair = (
+    eyes: GremlinPose['eyes'],
+    droop: boolean,
+    palette: Record<string, string>,
+  ) =>
+    [0, 1].map((step) =>
+      pixelSprite(
+        gremlinRows(kind, { eyes, step: step as 0 | 1, droop }),
+        palette,
+      ),
+    ) as unknown as readonly [PixelSprite, PixelSprite]
+  return {
+    normal: {
+      side: pair('side', false, awake),
+      up: pair('up', false, awake),
+      down: pair('down', false, awake),
+    },
+    sleepy: pair('shut', true, sleepy),
+    flash: pair('shut', true, flash),
+  }
+}
+
+const GREMLIN_ART: Record<Personality, GremlinArt> = {
+  chaser: gremlinArt('chaser'),
+  ambusher: gremlinArt('ambusher'),
+  flanker: gremlinArt('flanker'),
+  wanderer: gremlinArt('wanderer'),
+}
+
+/** A rebooting gremlin is only its eyes, heading home. */
+const EYES_ONLY: Record<Face, PixelSprite> = {
+  side: pixelSprite(
+    gremlinRows('chaser', { eyes: 'side', step: 0, droop: false, only: true }),
+    { w: '#ffffff', k: INK },
+  ),
+  up: pixelSprite(
+    gremlinRows('chaser', { eyes: 'up', step: 0, droop: false, only: true }),
+    { w: '#ffffff', k: INK },
+  ),
+  down: pixelSprite(
+    gremlinRows('chaser', { eyes: 'down', step: 0, droop: false, only: true }),
+    { w: '#ffffff', k: INK },
+  ),
+}
+
+const SLEEP_Z = pixelSprite(['zzzz', '..z.', '.z..', 'zzzz'], {
+  z: RAMPS.sky[4],
+})
+
+const SPARK_SPRITE = pixelSprite(
+  ['.y.', 'yWy', '.y.'],
+  { y: RAMPS.gold[3], W: RAMPS.gold[4] },
+  { outline: RAMPS.gold[0] },
+)
+const SPARK_TWINKLE = pixelSprite(
+  ['..y..', '.yWy.', 'yWWWy', '.yWy.', '..y..'],
+  { y: RAMPS.gold[3], W: '#ffffff' },
+  { outline: RAMPS.gold[1] },
+)
+
+const CELL_ROWS = [
+  '..tTs..',
+  '.HLLLB.',
+  'HLLLyBD',
+  'HLLyLBD',
+  'HLyyyBD',
+  'HLLyLBD',
+  'HLyLLBD',
+  'HLLLLBD',
+  'HBBBBBD',
+  '.DDDDD.',
+]
+const CELL_TERMINAL = {
+  t: RAMPS.steel[4],
+  T: RAMPS.steel[3],
+  s: RAMPS.steel[2],
+}
+/** The power cell, charged (bright bolt) and between blinks (dim bolt). */
+const CELL_SPRITES = [
+  pixelSprite(CELL_ROWS, {
+    ...CELL_TERMINAL,
+    H: RAMPS.leaf[4],
+    L: RAMPS.leaf[3],
+    B: RAMPS.leaf[2],
+    D: RAMPS.leaf[1],
+    y: RAMPS.gold[4],
+  }),
+  pixelSprite(CELL_ROWS, {
+    ...CELL_TERMINAL,
+    H: RAMPS.leaf[3],
+    L: RAMPS.leaf[2],
+    B: RAMPS.leaf[1],
+    D: RAMPS.leaf[0],
+    y: RAMPS.gold[1],
+  }),
+] as const
+
+const centred = (w: number, h: number, x: number, y: number): Pt => [
+  x + 0.5 - w / 2,
+  y + 0.5 - h / 2,
+]
+
+const STAR_POINTS: Pt[] = Array.from({ length: 10 }, (_, i) => {
+  const a = (i / 10) * Math.PI * 2 - Math.PI / 2
+  const radius = i % 2 ? 2.4 : 5.6
+  return [5.5 + Math.cos(a) * radius, 5.8 + Math.sin(a) * radius]
+})
+
+/** One sprite per prize in BONUSES order. */
+const BONUS_SPRITES: readonly PixelSprite[] = [
+  // GEAR
+  pixelSprite(
+    litRows(11, 11, (x, y) => {
+      const [dx, dy] = centred(11, 11, x, y)
+      const d = Math.hypot(dx, dy)
+      const a = Math.atan2(dy, dx)
+      return d >= 1.4 && (d <= 3.6 || (d <= 5.4 && Math.cos(a * 8) > 0.3))
+    }),
+    rampPalette(RAMPS.steel),
+  ),
+  // OIL CAN
+  pixelSprite(
+    litRows(
+      11,
+      10,
+      (x, y) =>
+        (x >= 1 && x <= 7 && y >= 4) ||
+        (x >= 3 && x <= 5 && y >= 2 && y <= 3) ||
+        (x >= 8 && y >= 12 - x && y <= 13 - x),
+      (x, y) => (x >= 2 && x <= 6 && (y === 6 || y === 7) ? 'x' : null),
+    ),
+    { ...rampPalette(RAMPS.gold), x: RAMPS.ember[2] },
+  ),
+  // FLOWER
+  pixelSprite(
+    litRows(
+      11,
+      11,
+      (x, y) => {
+        const [dx, dy] = centred(11, 11, x, y)
+        if (Math.hypot(dx, dy) <= 1.8) return true
+        for (let i = 0; i < 5; i++) {
+          const a = (i / 5) * Math.PI * 2 - Math.PI / 2
+          if (Math.hypot(dx - Math.cos(a) * 2.9, dy - Math.sin(a) * 2.9) <= 2.1)
+            return true
+        }
+        return false
+      },
+      (x, y) => {
+        const [dx, dy] = centred(11, 11, x, y)
+        const d = Math.hypot(dx, dy)
+        return d <= 1.8 ? (dx + dy < -0.5 ? 'Y' : 'y') : null
+      },
+    ),
+    { ...rampPalette(RAMPS.pink), y: RAMPS.gold[3], Y: RAMPS.gold[4] },
+  ),
+  // BOLT
+  pixelSprite(
+    litRows(11, 11, (x, y) =>
+      inPolygon(x + 0.5, y + 0.5, [
+        [5.5, 0],
+        [10.5, 0],
+        [6.5, 4.5],
+        [9.8, 4.5],
+        [2, 11],
+        [4.5, 6],
+        [1.2, 6],
+      ]),
+    ),
+    rampPalette(RAMPS.gold),
+  ),
+  // STAR
+  pixelSprite(
+    litRows(11, 11, (x, y) => inPolygon(x + 0.5, y + 0.5, STAR_POINTS)),
+    rampPalette(RAMPS.gold),
+  ),
+  // HEART
+  pixelSprite(
+    litRows(11, 10, (x, y) => {
+      const X = (x + 0.5 - 5.5) / 4.8
+      const Y = -(y + 0.5 - 4.6) / 4.6
+      return (X * X + Y * Y - 1) ** 3 - X * X * Y ** 3 <= 0
+    }),
+    rampPalette(RAMPS.ember),
+  ),
+  // RAINBOW
+  pixelSprite(
+    litRows(
+      13,
+      7,
+      (x, y) => {
+        const d = Math.hypot(x + 0.5 - 6.5, y + 0.5 - 7.2)
+        return d >= 2.2 && d <= 6.7
+      },
+      (x, y) => {
+        const d = Math.hypot(x + 0.5 - 6.5, y + 0.5 - 7.2)
+        return 'abcde'[Math.min(4, Math.floor((6.7 - d) / 0.9))] ?? null
+      },
+    ),
+    {
+      a: RAMPS.ember[2],
+      b: RAMPS.gold[3],
+      c: RAMPS.leaf[3],
+      d: RAMPS.sky[3],
+      e: RAMPS.purple[3],
+    },
+  ),
+  // CROWN
+  pixelSprite(
+    litRows(
+      11,
+      9,
+      (x, y) =>
+        inPolygon(x + 0.5, y + 0.5, [
+          [0.2, 1.5],
+          [3, 4.6],
+          [5.5, 0],
+          [8, 4.6],
+          [10.8, 1.5],
+          [10, 9],
+          [1, 9],
+        ]),
+      (x, y) =>
+        y === 6 && x === 5 ? 'x' : y === 6 && (x === 2 || x === 8) ? 't' : null,
+    ),
+    { ...rampPalette(RAMPS.gold), x: RAMPS.pink[2], t: RAMPS.teal[3] },
+  ),
+]
+
+type WallTheme = { ramp: Ramp; neon: string; trace: string; face?: string }
+
+/** The maze's colours change every level, so a long run doesn't look like one screen. */
+const WALL_THEMES: readonly WallTheme[] = [
+  {
+    ramp: RAMPS.purple,
+    neon: RAMPS.teal[3],
+    trace: mix(RAMPS.night[2], RAMPS.purple[1], 0.35),
+  },
+  {
+    ramp: RAMPS.sky,
+    neon: RAMPS.pink[3],
+    trace: mix(RAMPS.night[2], RAMPS.sky[1], 0.35),
+  },
+  {
+    ramp: RAMPS.pink,
+    neon: RAMPS.gold[3],
+    trace: mix(RAMPS.night[2], RAMPS.pink[1], 0.35),
+  },
+]
+/** The maze flashing white and gold when it's charged. */
+const FLASH_THEME: WallTheme = {
+  ramp: RAMPS.steel,
+  face: RAMPS.steel[3],
+  neon: RAMPS.gold[3],
+  trace: mix(RAMPS.night[2], RAMPS.gold[1], 0.35),
+}
+
+const FLOOR_BANDS = [
+  RAMPS.night[0],
+  RAMPS.night[1],
+  mix(RAMPS.night[1], RAMPS.night[2], 0.6),
+  RAMPS.night[1],
+  RAMPS.night[0],
+]
+
+const BREAK_STARS = starField(17, 60, W, TOP + 9 * TILE - 50)
+const BREAK_FAR = ridge(23, W, 46)
+const BREAK_NEAR = ridge(31, W, 24, 6)
+
+const glowStamps = new Map<string, HTMLCanvasElement | null>()
+
+/**
+ * A soft additive glow baked once to an offscreen canvas (4x supersampled, so it stays smooth
+ * in HD), for lights drawn by the hundred, like the sparks. Null headless.
+ */
+function glowStamp(
+  colour: string,
+  r: number,
+  alpha: number,
+): HTMLCanvasElement | null {
+  const key = `${colour}:${r}:${alpha}`
+  let stamp = glowStamps.get(key)
+  if (stamp === undefined) {
+    stamp = null
+    if (typeof document !== 'undefined') {
+      const size = Math.ceil(r * 8)
+      const canvas = document.createElement('canvas')
+      canvas.width = canvas.height = size
+      const sg = canvas.getContext('2d')
+      if (sg) {
+        const grad = sg.createRadialGradient(
+          size / 2,
+          size / 2,
+          0,
+          size / 2,
+          size / 2,
+          size / 2,
+        )
+        grad.addColorStop(0, rgba(colour, alpha))
+        grad.addColorStop(1, rgba(colour, 0))
+        sg.fillStyle = grad
+        sg.fillRect(0, 0, size, size)
+        stamp = canvas
+      }
+    }
+    glowStamps.set(key, stamp)
+  }
+  return stamp
+}
+
+function isFloor(x: number, y: number) {
+  const cell = BATTERY_MAZE[y]?.[x]
+  return cell !== undefined && cell !== '#'
+}
+
+function isTrace(x: number, y: number) {
+  const cell = BATTERY_MAZE[y]?.[x]
+  return cell === '.' || cell === 'o' || cell === ' ' || cell === 'P'
+}
+
+/**
+ * The whole static maze, painted once per theme: a banded floor etched with faint circuit
+ * traces between the spark sockets, neon light spilling off the walls, and the walls as raised
+ * slabs, lit on their top and left edges and shadowed on their bottom and right, outlined in
+ * ink. Then the charging dock with its pads, the pink dock door, and the tunnel mouths.
+ */
+function paintBoard(k: CanvasRenderingContext2D, theme: WallTheme) {
+  const { ramp, neon } = theme
+  const mazeBottom = TOP + ROWS * TILE
+  bandedGradient(k, 0, TOP, W, ROWS * TILE, FLOOR_BANDS, 2)
+  bandedGradient(k, 0, 0, W, TOP, [RAMPS.night[2], RAMPS.night[0]], 2)
+  bandedGradient(
+    k,
+    0,
+    mazeBottom,
+    W,
+    H - mazeBottom,
+    [RAMPS.night[0], RAMPS.night[2]],
+    2,
+  )
+
+  const pad = mix(theme.trace, ramp[2], 0.25)
+  const face = theme.face ?? mix(ramp[1], RAMPS.night[1], 0.4)
+  for (let y = 0; y < ROWS; y++) {
+    for (let x = 0; x < COLS; x++) {
+      if (!isTrace(x, y)) continue
+      const cx = x * TILE + TILE / 2
+      const cy = TOP + y * TILE + TILE / 2
+      k.fillStyle = theme.trace
+      if (isTrace(x + 1, y)) k.fillRect(cx, cy, TILE, 1)
+      if (isTrace(x, y + 1)) k.fillRect(cx, cy, 1, TILE)
+      k.fillStyle = pad
+      k.fillRect(cx - 1, cy - 1, 3, 3)
+      k.fillStyle = RAMPS.night[0]
+      k.fillRect(cx, cy, 1, 1)
+    }
+  }
+
+  // Neon spill on the floor along every wall edge (colour math: it adds light).
+  k.save()
+  k.globalCompositeOperation = 'lighter'
+  for (let y = 0; y < ROWS; y++) {
+    for (let x = 0; x < COLS; x++) {
+      if (isFloor(x, y)) continue
+      const px = x * TILE
+      const py = TOP + y * TILE
+      const spill = (sx: number, sy: number, horizontal: boolean) => {
+        k.fillStyle = rgba(neon, 0.3)
+        if (horizontal) k.fillRect(px, sy, TILE, 1)
+        else k.fillRect(sx, py, 1, TILE)
+        k.fillStyle = rgba(neon, 0.12)
+        if (horizontal) k.fillRect(px, sy + (sy < py ? -2 : 1), TILE, 2)
+        else k.fillRect(sx + (sx < px ? -2 : 1), py, 2, TILE)
+      }
+      if (isFloor(x, y - 1)) spill(0, py - 1, true)
+      if (isFloor(x, y + 1)) spill(0, py + TILE, true)
+      if (x > 0 && isFloor(x - 1, y)) spill(px - 1, 0, false)
+      if (x < COLS - 1 && isFloor(x + 1, y)) spill(px + TILE, 0, false)
+    }
+  }
+  k.restore()
+
+  for (let y = 0; y < ROWS; y++) {
+    for (let x = 0; x < COLS; x++) {
+      if (isFloor(x, y)) continue
+      const px = x * TILE
+      const py = TOP + y * TILE
+      const up = isFloor(x, y - 1)
+      const down = isFloor(x, y + 1)
+      const left = x > 0 && isFloor(x - 1, y)
+      const right = x < COLS - 1 && isFloor(x + 1, y)
+      k.fillStyle = face
+      k.fillRect(px, py, TILE, TILE)
+      // A rivet on the face of each solid block's tile, every other tile.
+      if (!up && !down && !left && !right && (x + y) % 2 === 0) {
+        k.fillStyle = ramp[0]
+        k.fillRect(px + 7, py + 7, 2, 2)
+        k.fillStyle = ramp[2]
+        k.fillRect(px + 6, py + 6, 2, 2)
+      }
+      k.fillStyle = ramp[0]
+      if (down) k.fillRect(px, py + TILE - 3, TILE, 2)
+      if (right) k.fillRect(px + TILE - 3, py, 2, TILE)
+      if (up) {
+        k.fillStyle = ramp[4]
+        k.fillRect(px, py + 1, TILE, 1)
+        k.fillStyle = ramp[3]
+        k.fillRect(px, py + 2, TILE, 1)
+      }
+      if (left) {
+        k.fillStyle = ramp[3]
+        k.fillRect(px + 1, py + (up ? 2 : 0), 1, TILE - (up ? 2 : 0))
+        k.fillStyle = ramp[2]
+        k.fillRect(px + 2, py + (up ? 3 : 0), 1, TILE - (up ? 3 : 0))
+      }
+      // Concave corners: carry the lit bevel round the inside bend.
+      if (!up && !left && isFloor(x - 1, y - 1) && x > 0) {
+        k.fillStyle = ramp[3]
+        k.fillRect(px, py, 2, 2)
+      }
+      if (!down && !right && isFloor(x + 1, y + 1) && x < COLS - 1) {
+        k.fillStyle = ramp[0]
+        k.fillRect(px + TILE - 3, py + TILE - 3, 3, 3)
+        k.fillStyle = INK
+        k.fillRect(px + TILE - 1, py + TILE - 1, 1, 1)
+      }
+      k.fillStyle = INK
+      if (up) k.fillRect(px, py, TILE, 1)
+      if (down) k.fillRect(px, py + TILE - 1, TILE, 1)
+      if (left) k.fillRect(px, py, 1, TILE)
+      if (right) k.fillRect(px + TILE - 1, py, 1, TILE)
+      if (!up && !left && isFloor(x - 1, y - 1) && x > 0)
+        k.fillRect(px, py, 1, 1)
+      if (!up && !right && isFloor(x + 1, y - 1) && x < COLS - 1)
+        k.fillRect(px + TILE - 1, py, 1, 1)
+      if (!down && !left && isFloor(x - 1, y + 1) && x > 0)
+        k.fillRect(px, py + TILE - 1, 1, 1)
+      // Rounded outer corners.
+      const corner = (cx: number, cy: number, ix: number, iy: number) => {
+        k.fillStyle = FLOOR_BANDS[2]!
+        k.fillRect(cx, cy, 1, 1)
+        k.fillStyle = INK
+        k.fillRect(ix, iy, 1, 1)
+      }
+      if (up && left) corner(px, py, px + 1, py + 1)
+      if (up && right) corner(px + TILE - 1, py, px + TILE - 2, py + 1)
+      if (down && left) corner(px, py + TILE - 1, px + 1, py + TILE - 2)
+      if (down && right)
+        corner(px + TILE - 1, py + TILE - 1, px + TILE - 2, py + TILE - 2)
+    }
+  }
+
+  // The charging dock: a recessed bay with a gold charging pad under each gremlin.
+  const bayY = TOP + DOCK_HOME.y * TILE
+  bevel(k, 9 * TILE + 1, bayY + 1, 5 * TILE - 2, TILE - 2, RAMPS.night, {
+    depth: 1,
+  })
+  for (let x = 10; x <= 12; x++) {
+    bevel(k, x * TILE + 3, bayY + TILE - 5, TILE - 6, 3, RAMPS.gold, {
+      depth: 1,
+    })
+  }
+  bevel(
+    k,
+    DOOR.x * TILE,
+    TOP + DOOR.y * TILE + TILE / 2 - 2,
+    TILE,
+    4,
+    RAMPS.pink,
+    { depth: 1 },
+  )
+
+  // Tunnel mouths fade into the dark.
+  const ty = TOP + TUNNEL_ROW * TILE
+  for (const [from, to] of [
+    [0, TILE * 2.5],
+    [W, W - TILE * 2.5],
+  ] as const) {
+    const grad = k.createLinearGradient(from, 0, to, 0)
+    grad.addColorStop(0, rgba(INK, 0.95))
+    grad.addColorStop(1, rgba(INK, 0))
+    k.fillStyle = grad
+    k.fillRect(Math.min(from, to), ty, TILE * 2.5, TILE)
+  }
+}
+
+/** The coffee-break stage: a banded night sky over a bevelled tile floor. */
+function paintBreak(k: CanvasRenderingContext2D) {
+  bandedGradient(
+    k,
+    0,
+    0,
+    W,
+    H,
+    [RAMPS.night[0], RAMPS.night[2], RAMPS.purple[1], RAMPS.night[1]],
+    4,
+  )
+  const floorY = TOP + 10 * TILE - 4
+  // Far-off charging towers, then nearer hills, in front of the sky.
+  drawRidge(k, BREAK_FAR, {
+    base: floorY,
+    bottom: floorY,
+    width: W,
+    fill: mix(RAMPS.night[3], RAMPS.purple[1], 0.3),
+    rim: RAMPS.purple[2],
+  })
+  drawRidge(k, BREAK_NEAR, {
+    base: floorY,
+    bottom: floorY,
+    width: W,
+    step: 6,
+    fill: RAMPS.night[2],
+    rim: RAMPS.purple[1],
+  })
+  for (let x = 0; x < W; x += TILE) {
+    bevel(k, x + 1, floorY + 1, TILE - 2, TILE - 2, RAMPS.purple, {
+      outline: null,
+    })
+  }
+  bandedGradient(
+    k,
+    0,
+    floorY + TILE,
+    W,
+    H - floorY - TILE,
+    [RAMPS.night[2], RAMPS.night[0]],
+    3,
+  )
+}
+
+const SPARK_COLOURS = [RAMPS.gold[4], RAMPS.gold[3], '#ffffff']
+const CELL_COLOURS = [RAMPS.leaf[3], RAMPS.leaf[4], RAMPS.gold[4]]
+const ROBOT_SPARKS = [RAMPS.teal[3], RAMPS.teal[4], RAMPS.pink[3]]
+
 function isWall(x: number, y: number): boolean {
   const row = BATTERY_MAZE[y]
   if (!row) return true
@@ -163,6 +1065,9 @@ class BatteryMaze implements ArcadeGameInstance {
   private intermission = 0
   private nextExtra = EXTRA_LIFE_AT
   private banner: { text: string; ticks: number } | null = null
+  // Cosmetic sparkles roll their own dice, so the game's seeded rng is untouched.
+  private fx = new Sparkles()
+  private fxRng = backdropRng(41)
 
   constructor(options: ArcadeGameOptions) {
     this.rng = options.rng
@@ -223,6 +1128,7 @@ class BatteryMaze implements ArcadeGameInstance {
 
   update(input: InputFrame) {
     this.tick++
+    this.fx.update()
     if (this.banner && --this.banner.ticks <= 0) this.banner = null
     for (const f of this.floaters) {
       f.y -= 0.03
@@ -236,6 +1142,14 @@ class BatteryMaze implements ArcadeGameInstance {
       return
     }
     if (this.clearing > 0) {
+      if (this.clearing % 16 === 0) {
+        this.fx.burst(
+          TILE + this.fxRng() * (W - TILE * 2),
+          TOP + TILE + this.fxRng() * (ROWS - 2) * TILE,
+          this.fxRng,
+          { count: 12, speed: 2 },
+        )
+      }
       if (--this.clearing === 0) {
         if (everyNthLevel(this.level, 3)) this.intermission = 300
         else this.startLevel(this.level + 1)
@@ -250,6 +1164,9 @@ class BatteryMaze implements ArcadeGameInstance {
         } else {
           this.resetActors()
         }
+      }
+      if (this.dying === 30) {
+        this.sparkle(this.robot.x, this.robot.y, 16, ROBOT_SPARKS, 2)
       }
       return
     }
@@ -364,11 +1281,13 @@ class BatteryMaze implements ArcadeGameInstance {
     if (this.sparks.delete(key)) {
       this.addScore(10)
       this.eaten++
+      this.sparkle(this.robot.x, this.robot.y, 3, SPARK_COLOURS, 0.8)
       if (this.tick % 2 === 0) this.sound.play('blip')
     } else if (this.cells.delete(key)) {
       this.addScore(50)
       this.eaten++
       this.sound.play('pickup')
+      this.sparkle(this.robot.x, this.robot.y, 14, CELL_COLOURS, 1.8)
       this.chain = 0
       this.sleepyTimer = Math.round(
         levelCurve(this.level, MAZE_CURVES.sleepyTicks),
@@ -397,6 +1316,7 @@ class BatteryMaze implements ArcadeGameInstance {
     ) {
       const prize = BONUSES[this.bonus.kind]!
       this.addScore(prize.points, BONUS_SPOT.x, BONUS_SPOT.y)
+      this.sparkle(BONUS_SPOT.x, BONUS_SPOT.y, 18, undefined, 2)
       this.sound.play('extra')
       this.bonus = null
     }
@@ -512,6 +1432,11 @@ class BatteryMaze implements ArcadeGameInstance {
           this.addScore(points, g.x, g.y)
           g.state = 'eyes'
           g.sleepy = false
+          this.sparkle(g.x, g.y, 16, [
+            GREMLIN_LOOKS[g.name].ramp[3],
+            RAMPS.sky[4],
+            '#ffffff',
+          ])
           this.sound.play('pop')
           this.pause = 30
         } else {
@@ -524,6 +1449,24 @@ class BatteryMaze implements ArcadeGameInstance {
     }
   }
 
+  /** A cosmetic sparkle burst at tile (tx, ty). */
+  private sparkle(
+    tx: number,
+    ty: number,
+    count: number,
+    colours?: readonly string[],
+    speed = 1.6,
+  ) {
+    const x = tx * TILE + TILE / 2
+    const y = TOP + ty * TILE + TILE / 2
+    this.fx.burst(
+      x,
+      y,
+      this.fxRng,
+      colours ? { count, colours, speed } : { count, speed },
+    )
+  }
+
   private addScore(points: number, x?: number, y?: number) {
     if (this.demo) return
     this.score += points
@@ -534,6 +1477,7 @@ class BatteryMaze implements ArcadeGameInstance {
       this.lives++
       this.nextExtra += EXTRA_LIFE_AT * 2
       this.sound.play('extra')
+      this.sparkle(this.robot.x, this.robot.y, 20, ROBOT_SPARKS, 2.2)
       this.banner = { text: 'EXTRA ROBOT!', ticks: 90 }
     }
   }
@@ -634,306 +1578,197 @@ class BatteryMaze implements ArcadeGameInstance {
   // --- render ----------------------------------------------------------------------
 
   render(g: CanvasRenderingContext2D) {
-    g.fillStyle = '#0b0620'
-    g.fillRect(0, 0, W, H)
     if (this.intermission > 0) {
       this.renderIntermission(g)
+      this.fx.render(g)
+      vignette(g, W, H, 0.3)
       this.renderHud(g)
       return
     }
     const flash = this.clearing > 0 && Math.floor(this.clearing / 12) % 2 === 0
-    this.renderWalls(
+    const themeIndex = (this.level - 1) % WALL_THEMES.length
+    cachedLayer(
       g,
-      flash ? '#f5f3ff' : '#8b5cf6',
-      flash ? '#fde68a' : '#22d3ee',
+      flash ? 'battery-maze-board-flash' : `battery-maze-board-${themeIndex}`,
+      W,
+      H,
+      (k) => paintBoard(k, flash ? FLASH_THEME : WALL_THEMES[themeIndex]!),
     )
-    g.fillStyle = '#fde68a'
-    for (const key of this.sparks) {
-      const [x, y] = key.split(',').map(Number) as [number, number]
-      g.fillRect(
-        x * TILE + TILE / 2 - 1.5,
-        TOP + y * TILE + TILE / 2 - 1.5,
-        3,
-        3,
-      )
-    }
-    if (Math.floor(this.tick / 15) % 2 === 0 || this.pause > 0) {
-      for (const key of this.cells) {
-        const [x, y] = key.split(',').map(Number) as [number, number]
-        this.renderBattery(g, x * TILE + TILE / 2, TOP + y * TILE + TILE / 2)
-      }
-    }
-    // Dock door.
-    g.fillStyle = '#f9a8d4'
-    g.fillRect(DOOR.x * TILE, TOP + DOOR.y * TILE + TILE / 2 - 1, TILE, 2)
+    this.renderSparks(g)
+    this.renderCells(g)
     if (this.bonus) this.renderBonus(g, this.bonus.kind)
     if (!(this.dying > 0 && this.dying < 70)) {
       for (const gremlin of this.gremlins) this.renderGremlin(g, gremlin)
     }
     this.renderRobot(g)
+    this.fx.render(g)
     for (const f of this.floaters) {
       drawText(g, f.text, f.x * TILE + TILE / 2, TOP + f.y * TILE, {
         align: 'center',
-        color: '#22d3ee',
+        color: RAMPS.teal[3],
+        outline: INK,
       })
     }
+    vignette(g, W, H, 0.28)
     this.renderHud(g)
   }
 
-  private renderWalls(g: CanvasRenderingContext2D, edge: string, glow: string) {
-    g.fillStyle = '#1e1b4b'
-    for (let y = 0; y < ROWS; y++) {
-      for (let x = 0; x < COLS; x++) {
-        if (BATTERY_MAZE[y]![x] === '#')
-          g.fillRect(x * TILE, TOP + y * TILE, TILE, TILE)
-      }
+  /** The sparks are live (they get eaten): a baked glow under each, and a twinkle now and then. */
+  private renderSparks(g: CanvasRenderingContext2D) {
+    const spots: Array<[number, number, boolean]> = []
+    for (const key of this.sparks) {
+      const [x, y] = key.split(',').map(Number) as [number, number]
+      const twinkle = (x * 7 + y * 13 + Math.floor(this.tick / 5)) % 29 === 0
+      spots.push([x * TILE + TILE / 2, TOP + y * TILE + TILE / 2, twinkle])
     }
-    // Neon outline wherever a wall meets an open tile.
-    g.lineWidth = 2
-    g.strokeStyle = edge
-    g.beginPath()
-    for (let y = 0; y < ROWS; y++) {
-      for (let x = 0; x < COLS; x++) {
-        if (BATTERY_MAZE[y]![x] !== '#') continue
-        const px = x * TILE
-        const py = TOP + y * TILE
-        const open = (dx: number, dy: number) => {
-          const row = BATTERY_MAZE[y + dy]
-          return (
-            row !== undefined &&
-            x + dx >= 0 &&
-            x + dx < COLS &&
-            row[x + dx] !== '#'
-          )
-        }
-        if (open(0, -1)) {
-          g.moveTo(px, py + 1)
-          g.lineTo(px + TILE, py + 1)
-        }
-        if (open(0, 1)) {
-          g.moveTo(px, py + TILE - 1)
-          g.lineTo(px + TILE, py + TILE - 1)
-        }
-        if (open(-1, 0)) {
-          g.moveTo(px + 1, py)
-          g.lineTo(px + 1, py + TILE)
-        }
-        if (open(1, 0)) {
-          g.moveTo(px + TILE - 1, py)
-          g.lineTo(px + TILE - 1, py + TILE)
-        }
-      }
+    const stamp = glowStamp(RAMPS.gold[3], 5, 0.3)
+    if (stamp) {
+      g.save()
+      g.globalCompositeOperation = 'lighter'
+      g.imageSmoothingEnabled = true
+      for (const [x, y] of spots) g.drawImage(stamp, x - 5, y - 5, 10, 10)
+      g.restore()
     }
-    g.stroke()
-    g.strokeStyle = glow
-    g.globalAlpha = 0.25
-    g.lineWidth = 4
-    g.stroke()
-    g.globalAlpha = 1
+    for (const [x, y, twinkle] of spots) {
+      drawSprite(g, twinkle ? SPARK_TWINKLE : SPARK_SPRITE, x, y)
+    }
   }
 
-  private renderBattery(g: CanvasRenderingContext2D, cx: number, cy: number) {
-    g.fillStyle = '#4ade80'
-    g.fillRect(cx - 3, cy - 5, 6, 10)
-    g.fillRect(cx - 1.5, cy - 7, 3, 2)
-    g.fillStyle = '#0b0620'
-    g.fillRect(cx - 2, cy - 4, 4, 2)
-    g.fillStyle = '#fde68a'
-    g.fillRect(cx - 1, cy - 1, 2, 4)
+  /** Power cells pulse with a green glow; the bolt blinks between charged and dim. */
+  private renderCells(g: CanvasRenderingContext2D) {
+    const lit = Math.floor(this.tick / 15) % 2 === 0 || this.pause > 0
+    const pulse = 0.5 + 0.5 * Math.sin(this.tick / 7)
+    for (const key of this.cells) {
+      const [x, y] = key.split(',').map(Number) as [number, number]
+      const cx = x * TILE + TILE / 2
+      const cy = TOP + y * TILE + TILE / 2
+      glow(g, cx, cy, 9 + pulse * 5, RAMPS.leaf[3], 0.3 + 0.35 * pulse)
+      drawSprite(g, CELL_SPRITES[lit ? 0 : 1], cx, cy)
+    }
   }
 
   private renderBonus(g: CanvasRenderingContext2D, kind: number) {
-    const prize = BONUSES[kind]!
+    const sprite = BONUS_SPRITES[kind]!
     const cx = BONUS_SPOT.x * TILE + TILE / 2
     const cy = TOP + BONUS_SPOT.y * TILE + TILE / 2
-    const pulse = 5 + Math.sin(this.tick / 6)
-    g.fillStyle = prize.color
-    g.beginPath()
-    for (let i = 0; i < 10; i++) {
-      const a = (i / 10) * Math.PI * 2 - Math.PI / 2
-      const radius = i % 2 ? pulse * 0.5 : pulse
-      g.lineTo(cx + Math.cos(a) * radius, cy + Math.sin(a) * radius)
-    }
-    g.closePath()
-    g.fill()
+    const bob = Math.round(Math.sin(this.tick / 8) * 1.5)
+    glow(g, cx, cy, 12 + Math.sin(this.tick / 6) * 2, BONUSES[kind]!.color, 0.5)
+    dropShadow(g, cx, cy + 7, 5, 1.5, 0.4)
+    drawSprite(g, sprite, cx, cy - 1 + bob)
+  }
+
+  /** The robot sprite for a facing and mouth phase, centred on its body at (cx, cy). */
+  private drawRobot(
+    g: CanvasRenderingContext2D,
+    cx: number,
+    cy: number,
+    dir: Dir,
+    mouth: number,
+    scale = 1,
+  ) {
+    const open = 0.15 + Math.abs(Math.sin(mouth)) * 0.55
+    const frame = open < 0.3 ? 0 : open < 0.52 ? 1 : 2
+    const face: Face = dir.y < 0 ? 'up' : dir.y > 0 ? 'down' : 'side'
+    drawSprite(g, ROBOT_FRAMES[face][frame]!, cx, cy - 1.5 * scale, {
+      flipX: dir.x < 0,
+      scale,
+    })
   }
 
   private renderRobot(g: CanvasRenderingContext2D) {
     const r = this.robot
     const cx = r.x * TILE + TILE / 2
     const cy = TOP + r.y * TILE + TILE / 2
-    const dying = this.dying > 0 ? Math.max(0, (this.dying - 30) / 80) : 1
-    if (dying <= 0) return
-    const radius = 6 * dying
-    g.save()
-    g.translate(cx, cy)
-    const angle = Math.atan2(r.dir.y, r.dir.x)
-    // Cat ears (from the logo) stay upright.
-    g.fillStyle = '#14b8a6'
-    g.beginPath()
-    g.moveTo(-5 * dying, -3 * dying)
-    g.lineTo(-4 * dying, -9 * dying)
-    g.lineTo(-1 * dying, -5 * dying)
-    g.moveTo(5 * dying, -3 * dying)
-    g.lineTo(4 * dying, -9 * dying)
-    g.lineTo(1 * dying, -5 * dying)
-    g.fill()
-    g.rotate(angle)
-    const open =
-      this.dying > 0 ? 0.2 : 0.15 + Math.abs(Math.sin(r.mouth)) * 0.55
-    g.fillStyle = '#2dd4bf'
-    g.beginPath()
-    g.moveTo(0, 0)
-    g.arc(0, 0, radius, open, Math.PI * 2 - open)
-    g.closePath()
-    g.fill()
-    g.fillStyle = '#fde68a'
-    g.beginPath()
-    g.arc(-1, -3 * dying, 1.5 * dying, 0, Math.PI * 2)
-    g.fill()
-    g.restore()
+    if (this.dying > 0) {
+      if (this.dying <= 30) return
+      const p = 1 - (this.dying - 30) / 80
+      if (p < 0.15) {
+        this.drawRobot(g, cx, cy, r.dir, 0)
+        return
+      }
+      const i = Math.min(
+        ROBOT_DEATH.length - 1,
+        Math.floor(((p - 0.15) / 0.85) * ROBOT_DEATH.length),
+      )
+      glow(g, cx, cy, 10 + p * 8, RAMPS.teal[3], 0.5 * (1 - p))
+      drawSprite(g, ROBOT_DEATH[i]!, cx, cy - 1.5)
+      return
+    }
+    glow(g, cx, cy, 11, RAMPS.teal[3], 0.22)
+    dropShadow(g, cx + 1, cy + 7, 5, 1.6, 0.4)
+    this.drawRobot(g, cx, cy, r.dir, r.mouth)
   }
 
   /**
-   * A glitch gremlin, after the title art: big pointed bat ears, a spiky tuft,
-   * a round furry body with a cream belly, stubby walking feet and a flicking
-   * tail. Sleepy gremlins go blue with droopy ears and shut eyes; a rebooting
-   * gremlin is just its eyes (and a faint outline of its ears) heading home.
+   * A glitch gremlin sprite: its personality's colours and crest, eyes looking where it
+   * heads, feet stepping. Sleepy gremlins go blue with droopy ears, shut eyes and a drifting z
+   * (flashing white near the end); a rebooting gremlin is just its eyes over a faint ghost.
    */
-  private renderGremlin(g: CanvasRenderingContext2D, gremlin: Gremlin) {
+  private renderGremlin(
+    g: CanvasRenderingContext2D,
+    gremlin: Gremlin,
+    scale = 1,
+  ) {
     const cx = gremlin.x * TILE + TILE / 2
     const cy = TOP + gremlin.y * TILE + TILE / 2
+    const art = GREMLIN_ART[gremlin.name]
+    const look = gremlin.dir
+    const face: Face = look.y < 0 ? 'up' : look.y > 0 ? 'down' : 'side'
+    const flipX = look.x < 0
+    const step = Math.floor(this.tick / 6) % 2
+    const y = cy - scale
+
+    if (gremlin.state === 'eyes') {
+      glow(g, cx, cy - 2, 8, RAMPS.sky[3], 0.35)
+      drawSprite(g, art.normal.side[0], cx, y, { flipX, scale, alpha: 0.18 })
+      drawSprite(g, EYES_ONLY[face], cx, y, {
+        flipX: flipX && face === 'side',
+        scale,
+      })
+      return
+    }
     const flashing =
       gremlin.sleepy &&
       this.sleepyTimer < 120 &&
       Math.floor(this.sleepyTimer / 12) % 2 === 0
-    const look = gremlin.dir
-    const step = Math.floor(this.tick / 6) % 2
-    const droop = gremlin.sleepy ? 3 : 0
-
-    if (gremlin.state === 'eyes') {
-      g.strokeStyle = 'rgba(224, 231, 255, 0.45)'
-      g.lineWidth = 1
-      g.beginPath()
-      g.moveTo(cx - 3, cy - 4)
-      g.lineTo(cx - 8, cy - 8)
-      g.lineTo(cx - 5, cy - 2)
-      g.moveTo(cx + 3, cy - 4)
-      g.lineTo(cx + 8, cy - 8)
-      g.lineTo(cx + 5, cy - 2)
-      g.stroke()
-    } else {
-      const body = gremlin.sleepy
-        ? flashing
-          ? '#f5f3ff'
-          : '#3b82f6'
-        : gremlin.color
-      g.fillStyle = body
-      // Tail, flicking out behind the way it's heading.
-      const tx = cx - (look.x || (step ? 1 : -1)) * 6
-      const ty = cy + 2 - look.y * 3
-      g.beginPath()
-      g.moveTo(cx, cy + 2)
-      g.lineTo(tx, ty + (step ? -2 : 0))
-      g.lineTo(tx + (look.x ? 0 : 1), ty + 2)
-      g.closePath()
-      g.fill()
-      // Big pointed bat ears (they droop when sleepy).
-      g.beginPath()
-      g.moveTo(cx - 3, cy - 4)
-      g.lineTo(cx - 9, cy - 8 + droop * 2)
-      g.lineTo(cx - 5, cy - 1)
-      g.closePath()
-      g.moveTo(cx + 3, cy - 4)
-      g.lineTo(cx + 9, cy - 8 + droop * 2)
-      g.lineTo(cx + 5, cy - 1)
-      g.closePath()
-      g.fill()
-      // Spiky tuft on top.
-      g.beginPath()
-      g.moveTo(cx - 3, cy - 4)
-      g.lineTo(cx - 1, cy - 8 + droop)
-      g.lineTo(cx, cy - 5)
-      g.lineTo(cx + 2, cy - 8 + droop)
-      g.lineTo(cx + 3, cy - 4)
-      g.closePath()
-      g.fill()
-      // Round furry body.
-      g.beginPath()
-      g.arc(cx, cy, 5, 0, Math.PI * 2)
-      g.fill()
-      // Stubby feet, stepping in turn.
-      g.fillRect(cx - 4, cy + 4 - (step ? 1 : 0), 3, 2)
-      g.fillRect(cx + 1, cy + 4 - (step ? 0 : 1), 3, 2)
-      // Inner ears and cream belly.
-      g.fillStyle = gremlin.sleepy ? '#93c5fd' : '#fde68a'
-      g.globalAlpha = 0.75
-      g.beginPath()
-      g.moveTo(cx - 4, cy - 3)
-      g.lineTo(cx - 7, cy - 6 + droop * 2)
-      g.lineTo(cx - 5, cy - 2)
-      g.closePath()
-      g.moveTo(cx + 4, cy - 3)
-      g.lineTo(cx + 7, cy - 6 + droop * 2)
-      g.lineTo(cx + 5, cy - 2)
-      g.closePath()
-      g.fill()
-      g.globalAlpha = 1
-      g.fillStyle = gremlin.sleepy ? '#bfdbfe' : '#fef3c7'
-      g.beginPath()
-      g.ellipse(cx, cy + 2, 3, 2.2, 0, 0, Math.PI * 2)
-      g.fill()
-    }
-
-    if (gremlin.sleepy && gremlin.state !== 'eyes') {
-      // Shut eyes and a drifting z.
-      g.fillStyle = flashing ? '#ef4444' : '#1e1b4b'
-      g.fillRect(cx - 4, cy - 2, 3, 1)
-      g.fillRect(cx + 1, cy - 2, 3, 1)
-      if (Math.floor(this.tick / 20) % 2 === 0) {
-        g.fillStyle = '#e0e7ff'
-        g.fillRect(cx + 5, cy - 12, 5, 1)
-        g.fillRect(cx + 8, cy - 11, 1, 1)
-        g.fillRect(cx + 7, cy - 10, 1, 1)
-        g.fillRect(cx + 6, cy - 9, 1, 1)
-        g.fillRect(cx + 5, cy - 8, 5, 1)
-      }
-      return
-    }
-    // Big glaring eyes looking where it's going, with grumpy brows.
-    g.fillStyle = '#ffffff'
-    g.fillRect(cx - 4, cy - 3, 3, 3)
-    g.fillRect(cx + 1, cy - 3, 3, 3)
-    g.fillStyle = '#1e1b4b'
-    g.fillRect(cx - 3 + look.x * 0.8, cy - 2 + look.y * 0.8, 1.5, 1.5)
-    g.fillRect(cx + 2 + look.x * 0.8, cy - 2 + look.y * 0.8, 1.5, 1.5)
-    if (gremlin.state !== 'eyes') {
-      g.fillRect(cx - 5, cy - 4, 2, 1)
-      g.fillRect(cx - 3, cy - 3.5, 2, 1)
-      g.fillRect(cx + 1, cy - 3.5, 2, 1)
-      g.fillRect(cx + 3, cy - 4, 2, 1)
+    const sprite = gremlin.sleepy
+      ? (flashing ? art.flash : art.sleepy)[step]!
+      : art.normal[face][step]!
+    dropShadow(g, cx, cy + 8 * scale, 6 * scale, 1.8 * scale, 0.4)
+    drawSprite(g, sprite, cx, y, { flipX, scale })
+    if (gremlin.sleepy) {
+      const drift = (this.tick % 40) / 40
+      drawSprite(
+        g,
+        SLEEP_Z,
+        cx + (7 + drift * 3) * scale,
+        cy - (10 + drift * 5) * scale,
+        { scale, alpha: 1 - drift * 0.7 },
+      )
     }
   }
 
   private renderIntermission(g: CanvasRenderingContext2D) {
+    cachedLayer(g, 'battery-maze-break', W, H, paintBreak)
+    drawStars(g, BREAK_STARS, this.tick)
     const t = 300 - this.intermission
     const half = t < 150
-    const y = TOP + 9 * TILE
-    drawText(g, 'COFFEE BREAK', W / 2, TOP + 40, {
+    const laneY = TOP + 9 * TILE + TILE / 2
+    hudPanel(g, W / 2 - 84, TOP + 32, 168, 26, RAMPS.purple)
+    drawText(g, 'COFFEE BREAK', W / 2, TOP + 38, {
       scale: 2,
       align: 'center',
-      color: '#fde68a',
+      color: RAMPS.gold[3],
+      outline: INK,
     })
+    const chaser = this.gremlins[0]!
     if (half) {
       const x = W + 20 - t * 2.4
-      this.robot.x = (x - TILE / 2) / TILE
-      this.robot.y = 9
-      this.robot.dir = LEFT
-      this.robot.mouth = t / 4
-      this.renderRobot(g)
+      dropShadow(g, x + 1, laneY + 7, 5, 1.6, 0.4)
+      this.drawRobot(g, x, laneY, LEFT, t / 4)
       this.renderGremlin(g, {
-        ...this.gremlins[0]!,
-        x: (x + 30) / TILE,
+        ...chaser,
+        x: (x + 30 - TILE / 2) / TILE,
         y: 9,
         dir: LEFT,
         sleepy: false,
@@ -942,48 +1777,92 @@ class BatteryMaze implements ArcadeGameInstance {
     } else {
       const x = -20 + (t - 150) * 2.4
       this.renderGremlin(g, {
-        ...this.gremlins[0]!,
-        x: x / TILE,
+        ...chaser,
+        x: (x - TILE / 2) / TILE,
         y: 9,
         dir: RIGHT,
         sleepy: true,
         state: 'roaming',
       })
-      g.fillStyle = '#2dd4bf'
-      g.beginPath()
-      g.arc(x - 34, y + TILE / 2, 18, 0.3, Math.PI * 2 - 0.3)
-      g.lineTo(x - 34, y + TILE / 2)
-      g.fill()
+      const bigY = laneY + TILE / 2 - 13
+      glow(g, x - 34, bigY, 30, RAMPS.teal[3], 0.3)
+      dropShadow(g, x - 34, laneY + 8, 18, 3, 0.4)
+      this.drawRobot(g, x - 34, bigY, RIGHT, t / 4, 3)
     }
   }
 
   private renderHud(g: CanvasRenderingContext2D) {
-    const shadow = '#1e1b4b'
-    drawText(g, String(this.score).padStart(6, '0'), 6, 6, {
+    // Score and high score in framed boxes along the top.
+    const score = String(this.score).padStart(6, '0')
+    hudPanel(g, 3, 2, measureText(score, 2) + 12, 20)
+    drawText(g, score, 9, 5, {
       scale: 2,
-      color: '#2dd4bf',
-      shadow,
+      color: RAMPS.teal[3],
+      outline: INK,
     })
-    drawText(g, `HI ${Math.max(this.hiScore, this.score)}`, W - 6, 6, {
+    const hi = `HI ${Math.max(this.hiScore, this.score)}`
+    const hiW = measureText(hi, 2) + 12
+    hudPanel(g, W - 3 - hiW, 2, hiW, 20)
+    drawText(g, hi, W - 9, 5, {
       scale: 2,
       align: 'right',
-      color: '#fde68a',
-      shadow,
+      color: RAMPS.gold[3],
+      outline: INK,
     })
-    const bottom = TOP + ROWS * TILE + 7
-    for (let i = 0; i < Math.min(this.lives, 5); i++) {
-      drawText(g, '*', 6 + i * 12, bottom, { color: '#2dd4bf' })
+
+    // Along the bottom: spare robots, the maze's charge (or the sleepy timer), and the level.
+    const panelY = TOP + ROWS * TILE + 4
+    const textY = panelY + 4
+    const lives = Math.min(this.lives, 5)
+    if (lives > 0) {
+      hudPanel(g, 3, panelY, lives * 12 + 6, 15)
+      for (let i = 0; i < lives; i++) {
+        drawSprite(g, LIFE_SPRITE, 12 + i * 12, panelY + 7)
+      }
     }
-    drawText(g, `LEVEL ${this.level}`, W - 6, bottom, {
+    const level = `LEVEL ${this.level}`
+    const levelW = measureText(level) + 12
+    hudPanel(g, W - 3 - levelW, panelY, levelW, 15)
+    drawText(g, level, W - 9, textY, {
       align: 'right',
-      color: '#c4b5fd',
+      color: RAMPS.purple[3],
+      outline: INK,
     })
+    const left = 76
+    const right = W - 3 - levelW - 6
+    if (right - left > 80) {
+      hudPanel(g, left, panelY, right - left, 15)
+      const sleepy = this.sleepyTimer > 0
+      const total = this.totalSparks || 1
+      const amount = sleepy
+        ? this.sleepyTimer /
+          Math.max(
+            1,
+            Math.round(levelCurve(this.level, MAZE_CURVES.sleepyTicks)),
+          )
+        : (total - this.sparks.size - this.cells.size) / total
+      drawText(g, sleepy ? 'SLEEPY' : 'CHARGE', left + 6, textY, {
+        color: sleepy ? RAMPS.sky[4] : RAMPS.gold[4],
+        outline: INK,
+      })
+      gauge(
+        g,
+        left + 48,
+        textY,
+        right - left - 54,
+        7,
+        amount,
+        sleepy ? RAMPS.sky : RAMPS.gold,
+      )
+    }
+
     if (this.banner) {
       drawText(g, this.banner.text, W / 2, TOP + 12.5 * TILE, {
         scale: 2,
         align: 'center',
-        color: '#fde68a',
-        shadow: '#db2777',
+        color: RAMPS.gold[4],
+        outline: INK,
+        shadow: RAMPS.pink[1],
       })
     }
   }

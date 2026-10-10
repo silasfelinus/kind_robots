@@ -7,7 +7,27 @@
 // Moving aims; A fires; holding B strafes (keeps the aim while you move).
 
 import { levelCurve } from '../curve'
-import { drawText } from '../font'
+import { drawText, measureText } from '../font'
+import {
+  INK,
+  RAMPS,
+  Sparkles,
+  backdropRng,
+  bandedGradient,
+  bevel,
+  cachedLayer,
+  dropShadow,
+  drawSprite,
+  gauge,
+  glow,
+  hudPanel,
+  mix,
+  pixelSprite,
+  rgba,
+  shadedOrb,
+  vignette,
+} from '../snes'
+import type { PixelSprite, Ramp } from '../snes'
 import type {
   ArcadeGameInstance,
   ArcadeGameModule,
@@ -112,6 +132,361 @@ const SHIRTS = [
 ]
 const SKINS = ['#fde7d6', '#f1c27d', '#c68642', '#8d5524', '#5c3a21']
 
+// --- 16-bit art (utils/arcade/snes.ts) -------------------------------------------
+
+const TILE = 24
+const ARENA_W = ARENA.right - ARENA.left
+const ARENA_H = ARENA.bottom - ARENA.top
+
+/** Glitch goo: a lime ramp the kit lacks. */
+const LIME: Ramp = ['#1a2e05', '#365314', '#65a30d', '#a3e635', '#ecfccb']
+
+/** Each wave lays a different floor: [band dark, band light], seam light, emblem ramp. */
+const FLOOR_THEMES: ReadonlyArray<{
+  bands: readonly [string, string]
+  seam: string
+  accent: Ramp
+}> = [
+  {
+    bands: [RAMPS.night[1], RAMPS.night[3]],
+    seam: RAMPS.purple[3],
+    accent: RAMPS.teal,
+  },
+  {
+    bands: ['#08202c', '#14485a'],
+    seam: RAMPS.teal[3],
+    accent: RAMPS.pink,
+  },
+  {
+    bands: ['#220c2c', '#4a1c54'],
+    seam: RAMPS.pink[3],
+    accent: RAMPS.gold,
+  },
+]
+
+const HERO_PALETTE = {
+  A: RAMPS.gold[3],
+  a: RAMPS.teal[1],
+  P: RAMPS.pink[3],
+  p: RAMPS.pink[2],
+  q: RAMPS.pink[1],
+  F: '#fde7d6',
+  f: RAMPS.cream[2],
+  c: RAMPS.pink[2],
+  k: INK,
+  w: '#ffffff',
+  H: RAMPS.teal[4],
+  T: RAMPS.teal[2],
+  t: RAMPS.teal[1],
+  d: RAMPS.teal[0],
+  g: RAMPS.gold[3],
+  s: RAMPS.steel[3],
+  S: RAMPS.steel[1],
+}
+const HERO_FRONT_TOP = [
+  '..A....A..',
+  '..a....a..',
+  '.pPPppPPp.',
+  'pPPPPPPPPq',
+  'pPFFFFFFPq',
+  'pFkwFFkwFq',
+  'qFkkFFkkFq',
+  '.qcFFFFcq.',
+  '...fFFf...',
+  '..tTTTTd..',
+  '.HTTggTTd.',
+  'HTTTggTTtd',
+  'FtTTTTTTdF',
+  '..tTTTTd..',
+]
+const HERO_BACK_TOP = [
+  '..A....A..',
+  '..a....a..',
+  '.pPPppPPp.',
+  'pPPPPPPPPq',
+  'pPPPPPPPPq',
+  'pPPpPPpPPq',
+  'qpPPPPPPpq',
+  '.qpPPPPpq.',
+  '...qppq...',
+  '..tTTTTd..',
+  '.HTsSSsTd.',
+  'HTTsSgsTtd',
+  'FtTsSSsTdF',
+  '..tTTTTd..',
+]
+const HERO_SIDE_TOP = [
+  '....A.....',
+  '....a.....',
+  '..pPPPp...',
+  '.pPPPPPPp.',
+  'pPPPPFFFF.',
+  'pPPPFFFkw.',
+  'qPPPFFFkk.',
+  '.qqPFFFFc.',
+  '...qfFFf..',
+  '....tTTd..',
+  '...HTTgTd.',
+  '...HTTTTFg',
+  '...tTTTd..',
+  '....tTTd..',
+]
+const FRONT_LEGS = [
+  ['..ss..ss..', '..SS..ss..', '......SS..'],
+  ['..ss..ss..', '..ss..SS..', '..SS......'],
+] as const
+const SIDE_LEGS = [
+  ['....s.s...', '...s...s..', '..SS...SS.'],
+  ['....ss....', '....ss....', '....SSS...'],
+] as const
+const heroFrames = (
+  top: readonly string[],
+  legs: readonly (readonly string[])[],
+) =>
+  [
+    pixelSprite([...top, ...legs[0]!], HERO_PALETTE),
+    pixelSprite([...top, ...legs[1]!], HERO_PALETTE),
+  ] as const
+const HERO_SPRITES = {
+  front: heroFrames(HERO_FRONT_TOP, FRONT_LEGS),
+  back: heroFrames(HERO_BACK_TOP, FRONT_LEGS),
+  side: heroFrames(HERO_SIDE_TOP, SIDE_LEGS),
+}
+
+const DRONE_PALETTE = {
+  R: RAMPS.ember[3],
+  h: RAMPS.purple[4],
+  H: RAMPS.purple[3],
+  P: RAMPS.purple[2],
+  p: RAMPS.purple[1],
+  d: RAMPS.purple[0],
+  k: INK,
+  r: RAMPS.ember[2],
+  c: RAMPS.teal[3],
+}
+const DRONE_TOP = [
+  '.....RR.....',
+  '.....pp.....',
+  '..hHHHHHHp..',
+  '.hHPPPcPPPp.',
+  '.HPkkkkkkPp.',
+  '.HPkRrrrRkp.',
+  '.HPkkkkkkPp.',
+  '.pPPPPPPPpd.',
+  '..pppppddd..',
+]
+const DRONE_SPRITES = [
+  pixelSprite([...DRONE_TOP, '..pd....pd..', '.dd......dd.'], DRONE_PALETTE),
+  pixelSprite([...DRONE_TOP, '...pd..pd...', '...dd..dd...'], DRONE_PALETTE),
+] as const
+
+/** A drone after the beam reboots it: same chassis, friendly green, happy eyes. */
+const FREED_SPRITES = [0, 1].map((frame) =>
+  pixelSprite(
+    [
+      '.....YY.....',
+      '.....ll.....',
+      '..hHHHHHHl..',
+      '.hHLLLLLLLl.',
+      '.HLkkkkkkLl.',
+      '.HLkYkkYkLl.',
+      '.HLkkYYkkLl.',
+      '.lLLLLLLLld.',
+      '..llllllld..',
+      frame ? '...y....y...' : '....y..y....',
+    ],
+    {
+      Y: RAMPS.gold[4],
+      y: RAMPS.gold[3],
+      h: RAMPS.leaf[4],
+      H: RAMPS.leaf[3],
+      L: RAMPS.leaf[2],
+      l: RAMPS.leaf[1],
+      d: RAMPS.leaf[0],
+      k: INK,
+    },
+  ),
+)
+
+const SEEKER_PALETTE = {
+  h: RAMPS.pink[4],
+  H: RAMPS.pink[3],
+  r: RAMPS.pink[2],
+  d: RAMPS.pink[1],
+  w: '#ffffff',
+}
+const SEEKER_SPRITES = [
+  pixelSprite(
+    [
+      '...h...',
+      '..hHr..',
+      '.hHwrr.',
+      'hHwrrrd',
+      '.rrrrd.',
+      '..rdd..',
+      '...d...',
+    ],
+    SEEKER_PALETTE,
+  ),
+  pixelSprite(
+    [
+      '...h...',
+      '..hrr..',
+      '.hrHrr.',
+      'hrHwHrd',
+      '.rrHrd.',
+      '..rdd..',
+      '...d...',
+    ],
+    SEEKER_PALETTE,
+  ),
+] as const
+
+/** Top-down tank, treads above and below; three tread frames so they roll. */
+const TANK_SPRITES = [0, 1, 2].map((frame) => {
+  const tread = (row: number) =>
+    Array.from({ length: 22 }, (_, i) =>
+      (i + row + 3 - frame) % 3 === 0 ? 't' : 'T',
+    ).join('')
+  return pixelSprite(
+    [
+      tread(0),
+      tread(1),
+      tread(0),
+      '.hHHHHHHHHHHHHHHHHHHs.',
+      '.HSSSSSSSSSSSSSSSSSSd.',
+      '.HSSkkkkkkkkkkkkkkSSd.',
+      '.HSSkkkkkkkkkkkkkkSSd.',
+      '.HSSkkkkkkkkkkkkkkSSd.',
+      '.HSSSSSSSSSSSSSSSSSSd.',
+      '.dddddddddddddddddddd.',
+      tread(0),
+      tread(1),
+      tread(0),
+    ],
+    {
+      h: RAMPS.steel[4],
+      H: RAMPS.steel[3],
+      S: RAMPS.steel[2],
+      s: RAMPS.steel[1],
+      d: RAMPS.steel[1],
+      T: RAMPS.steel[1],
+      t: RAMPS.steel[0],
+      k: INK,
+    },
+  )
+})
+
+const HAIRS = ['#3b2417', '#6b3a1e', '#1f1a2e', '#b45309', '#f5d0a0']
+/** Every shirt and skin pairing, two walk frames each, baked once. */
+const PEOPLE = new Map<string, readonly [PixelSprite, PixelSprite]>()
+SHIRTS.forEach((shirt, si) =>
+  SKINS.forEach((skin, ki) => {
+    const top = [
+      '..hhh..',
+      '.hhhhh.',
+      '.hSkSk.',
+      '.hSSSS.',
+      '..sSs..',
+      '.CCCCc.',
+      'CCCCCcc',
+      'SCCCCcS',
+      '.CCCcc.',
+    ]
+    const palette = {
+      h: HAIRS[(si + ki) % HAIRS.length]!,
+      S: skin,
+      s: mix(skin, INK, 0.3),
+      k: INK,
+      C: shirt,
+      c: mix(shirt, INK, 0.35),
+      b: RAMPS.sky[1],
+      B: RAMPS.sky[0],
+    }
+    PEOPLE.set(`${shirt}|${skin}`, [
+      pixelSprite([...top, '.bb.bB.', '.B...B.'], palette),
+      pixelSprite([...top, '..bbB..', '..BB...'], palette),
+    ])
+  }),
+)
+
+const CAT_PALETTE = {
+  H: RAMPS.gold[3],
+  G: RAMPS.gold[2],
+  s: RAMPS.rust[2],
+  d: RAMPS.gold[1],
+  k: INK,
+  p: RAMPS.pink[3],
+}
+const CAT_TOP = [
+  '.......G.G.',
+  'G......GGGG',
+  'G......GkGk',
+  '.G.....GGpG',
+  '.GHHHHHHGd.',
+  '..GsGsGGGd.',
+  '..ddddddd..',
+]
+const CAT_SPRITES = [
+  pixelSprite([...CAT_TOP, '..d.d..d.d.'], CAT_PALETTE),
+  pixelSprite([...CAT_TOP, '...d.d..d.d'], CAT_PALETTE),
+] as const
+
+const DOG_PALETTE = {
+  W: RAMPS.cream[3],
+  w: RAMPS.cream[2],
+  c: RAMPS.cream[1],
+  e: RAMPS.earth[2],
+  b: RAMPS.earth[3],
+  k: INK,
+}
+const DOG_TOP = [
+  '........WWW.',
+  'w......eWkWW',
+  'w......eWWWk',
+  '.wWWWWWWWWW.',
+  '.WWWbbWWWWc.',
+  '.ccccccccc..',
+]
+const DOG_SPRITES = [
+  pixelSprite([...DOG_TOP, '.c.c....c.c.'], DOG_PALETTE),
+  pixelSprite([...DOG_TOP, '..c.c..c.c..'], DOG_PALETTE),
+] as const
+
+const BOT_PALETTE = {
+  Y: RAMPS.gold[3],
+  a: RAMPS.steel[3],
+  h: RAMPS.sky[4],
+  H: RAMPS.sky[3],
+  S: RAMPS.sky[2],
+  s: RAMPS.sky[1],
+  d: RAMPS.sky[0],
+  k: INK,
+}
+const BOT_TOP = [
+  '...Y...',
+  '...a...',
+  '.hHHHs.',
+  'hHYHYSd',
+  'HSSSSSd',
+  '.sSSSd.',
+]
+const BOT_SPRITES = [
+  pixelSprite([...BOT_TOP, '.d...d.', '.k...k.'], BOT_PALETTE),
+  pixelSprite([...BOT_TOP, '..d.d..', '..k.k..'], BOT_PALETTE),
+] as const
+
+const HEART_PALETTE = { P: RAMPS.pink[2], H: RAMPS.pink[4], p: RAMPS.pink[1] }
+const HEART_SPRITE = pixelSprite(
+  ['.PP.PP.', 'PHPPPPp', 'PPPPPPp', '.PPPPp.', '..PPp..', '...p...'],
+  HEART_PALETTE,
+)
+/** The little "help!" heart that blinks over anyone waiting for rescue. */
+const HELP_SPRITE = pixelSprite(
+  ['HP.Pp', 'PPPPp', '.PPp.', '..p..'],
+  HEART_PALETTE,
+)
+
 function clampToArena(o: { x: number; y: number }, r: number) {
   o.x = Math.min(ARENA.right - r, Math.max(ARENA.left + r, o.x))
   o.y = Math.min(ARENA.bottom - r, Math.max(ARENA.top + r, o.y))
@@ -149,6 +524,10 @@ class RescueRally implements ArcadeGameInstance {
   private waveDelay = 0
   private banner: { text: string; sub?: string; ticks: number } | null = null
   private overTimer = 0
+  // Cosmetic sparkles and rescue rings roll their own dice, so the seeded rng is untouched.
+  private fx = new Sparkles()
+  private fxRng = backdropRng(41)
+  private rings: Array<{ x: number; y: number; life: number }> = []
 
   constructor(options: ArcadeGameOptions) {
     this.rng = options.rng
@@ -410,6 +789,11 @@ class RescueRally implements ArcadeGameInstance {
       this.burst(foe.x, foe.y, foe.kind === 'drone' ? 8 : 16, foe.kind)
       if (foe.kind === 'drone' || foe.kind === 'tank') {
         this.freed.push({ x: foe.x, y: foe.y, life: 60 })
+        this.fx.burst(foe.x, foe.y, this.fxRng, {
+          count: 6,
+          speed: 1.2,
+          colours: [RAMPS.leaf[3], RAMPS.teal[3], RAMPS.gold[4]],
+        })
       }
       this.sound.play(foe.kind === 'spawner' ? 'boom' : 'pop')
     }
@@ -424,6 +808,8 @@ class RescueRally implements ArcadeGameInstance {
         this.addScore(points, r.x, r.y, '#86efac')
         this.multiplier = Math.min(RESCUE_CAP, this.multiplier + 1)
         this.sound.play('pickup')
+        this.fx.burst(r.x, r.y - 4, this.fxRng, { count: 14, speed: 1.8 })
+        this.rings.push({ x: r.x, y: r.y, life: 24 })
       }
     }
 
@@ -513,6 +899,9 @@ class RescueRally implements ArcadeGameInstance {
       f.life--
     }
     this.freed = this.freed.filter((f) => f.life > 0)
+    this.fx.update()
+    for (const r of this.rings) r.life--
+    this.rings = this.rings.filter((r) => r.life > 0)
   }
 
   // --- attract-mode pilot --------------------------------------------------------
@@ -580,204 +969,477 @@ class RescueRally implements ArcadeGameInstance {
   // --- render ------------------------------------------------------------------------
 
   render(g: CanvasRenderingContext2D) {
-    g.fillStyle = '#0b0620'
-    g.fillRect(0, 0, W, H)
     this.renderArena(g)
     for (const f of this.foes) if (f.kind === 'puddle') this.renderPuddle(g, f)
     for (const r of this.rescuees) this.renderRescuee(g, r)
     for (const f of this.freed) this.renderFreed(g, f)
     for (const f of this.foes) if (f.kind !== 'puddle') this.renderFoe(g, f)
-    g.fillStyle = '#fde68a'
-    for (const s of this.shots) {
-      g.fillStyle = 'rgba(244, 114, 182, 0.35)'
-      g.fillRect(s.x - s.vx * 0.6 - 1.5, s.y - s.vy * 0.6 - 1.5, 3, 3)
-      g.fillStyle = '#fde68a'
-      g.fillRect(s.x - 1.5, s.y - 1.5, 3, 3)
-    }
+    this.renderShots(g)
+    g.save()
+    g.globalCompositeOperation = 'lighter'
     for (const s of this.sparks) {
-      g.globalAlpha = Math.max(0, s.life / s.max)
+      const t = Math.max(0, s.life / s.max)
+      const size = t > 0.5 ? 2 : 1
+      g.globalAlpha = Math.min(1, t * 1.6)
       g.fillStyle = s.color
-      g.fillRect(s.x - 1, s.y - 1, 2, 2)
+      g.fillRect(Math.round(s.x) - 1, Math.round(s.y) - 1, size + 1, size + 1)
+      if (size > 1) {
+        g.fillStyle = '#ffffff'
+        g.fillRect(Math.round(s.x), Math.round(s.y), 1, 1)
+      }
     }
-    g.globalAlpha = 1
+    g.restore()
     if (
       this.alive &&
       !(this.invuln > 0 && Math.floor(this.invuln / 5) % 2 === 0)
     ) {
       this.renderHero(g)
     }
+    this.renderRings(g)
+    this.fx.render(g)
     for (const f of this.floaters) {
-      drawText(g, f.text, f.x, f.y, { align: 'center', color: f.color })
+      drawText(g, f.text, f.x, f.y, {
+        align: 'center',
+        color: f.color,
+        outline: INK,
+      })
     }
+    vignette(g, W, H, 0.3)
     this.renderHud(g)
   }
 
   private renderArena(g: CanvasRenderingContext2D) {
-    g.strokeStyle = 'rgba(167, 139, 250, 0.12)'
-    g.lineWidth = 1
-    g.beginPath()
-    for (let x = ARENA.left; x <= ARENA.right; x += 24) {
-      g.moveTo(x, ARENA.top)
-      g.lineTo(x, ARENA.bottom)
-    }
-    for (let y = ARENA.top; y <= ARENA.bottom; y += 24) {
-      g.moveTo(ARENA.left, y)
-      g.lineTo(ARENA.right, y)
-    }
-    g.stroke()
+    const theme = (Math.max(1, this.level) - 1) % FLOOR_THEMES.length
+    const look = FLOOR_THEMES[theme]!
+    // Plated walls, a raised bevelled rim and a tiled floor, painted once per theme.
+    cachedLayer(g, `rescue-rally-arena-${theme}`, W, H, (k) => {
+      bandedGradient(
+        k,
+        0,
+        0,
+        W,
+        H,
+        [RAMPS.night[0], RAMPS.night[1], RAMPS.night[0]],
+        4,
+      )
+      // Wall plating seams and rivets in the margins around the arena.
+      for (let y = 0; y < H; y += TILE) {
+        k.fillStyle = INK
+        k.fillRect(0, y, ARENA.left - 4, 1)
+        k.fillRect(ARENA.right + 4, y, W - ARENA.right - 4, 1)
+        k.fillStyle = RAMPS.night[3]
+        k.fillRect(0, y + 1, ARENA.left - 4, 1)
+        k.fillRect(ARENA.right + 4, y + 1, W - ARENA.right - 4, 1)
+        k.fillStyle = RAMPS.steel[1]
+        k.fillRect(3, y + 12, 2, 2)
+        k.fillRect(W - 5, y + 12, 2, 2)
+        k.fillStyle = RAMPS.steel[3]
+        k.fillRect(3, y + 12, 1, 1)
+        k.fillRect(W - 5, y + 12, 1, 1)
+      }
+      // The raised rim: lit on the top and left, shadowed bottom and right.
+      bevel(
+        k,
+        ARENA.left - 4,
+        ARENA.top - 4,
+        ARENA_W + 8,
+        ARENA_H + 8,
+        RAMPS.purple,
+        { depth: 2 },
+      )
+      k.fillStyle = INK
+      k.fillRect(ARENA.left - 1, ARENA.top - 1, ARENA_W + 2, ARENA_H + 2)
+      // The floor: HDMA bands, lighter under the overhead lamps in the middle.
+      bandedGradient(k, ARENA.left, ARENA.top, ARENA_W, ARENA_H, [
+        look.bands[0],
+        look.bands[1],
+        mix(look.bands[0], look.bands[1], 0.4),
+        look.bands[0],
+      ])
+      for (let ty = 0, j = 0; ty < ARENA_H; ty += TILE, j++) {
+        for (let tx = 0, i = 0; tx < ARENA_W; tx += TILE, i++) {
+          const x = ARENA.left + tx
+          const y = ARENA.top + ty
+          const w = Math.min(TILE, ARENA_W - tx)
+          const h = Math.min(TILE, ARENA_H - ty)
+          if ((i + j) % 2) {
+            k.fillStyle = rgba(INK, 0.16)
+            k.fillRect(x, y, w, h)
+          }
+          k.fillStyle = rgba(look.seam, 0.2)
+          k.fillRect(x, y, w, 1)
+          k.fillRect(x, y, 1, h)
+          k.fillStyle = rgba(INK, 0.45)
+          k.fillRect(x, y + h - 1, w, 1)
+          k.fillRect(x + w - 1, y, 1, h)
+          k.fillStyle = rgba(look.seam, 0.45)
+          k.fillRect(x + 1, y + 1, 1, 1)
+        }
+      }
+      // Floor furniture: vent grilles and little lamp panels, laid out by a fixed seed.
+      const rand = backdropRng(97 + theme)
+      for (let n = 0; n < 16; n++) {
+        const tx = ARENA.left + Math.floor(rand() * 19) * TILE
+        const ty = ARENA.top + Math.floor(rand() * 13) * TILE
+        if (n % 3 === 0) {
+          // A recessed floor lamp, dim so it never reads as a pickup.
+          const lamp: Ramp = [
+            INK,
+            look.accent[0],
+            look.accent[1],
+            look.accent[2],
+            look.accent[3],
+          ]
+          bevel(k, tx + 8, ty + 8, 8, 8, RAMPS.steel, {
+            depth: 1,
+            outline: INK,
+          })
+          bevel(k, tx + 10, ty + 10, 4, 4, lamp, { depth: 1, outline: null })
+          glow(k, tx + 12, ty + 12, 9, look.accent[2], 0.12)
+        } else {
+          for (let v = 0; v < 3; v++) {
+            k.fillStyle = rgba(INK, 0.6)
+            k.fillRect(tx + 5, ty + 7 + v * 4, 14, 2)
+            k.fillStyle = rgba(look.seam, 0.25)
+            k.fillRect(tx + 5, ty + 9 + v * 4, 14, 1)
+          }
+        }
+      }
+      // Hazard stripes in the four corners.
+      for (const [cx, cy] of [
+        [ARENA.left, ARENA.top],
+        [ARENA.right - TILE, ARENA.top],
+        [ARENA.left, ARENA.bottom - TILE],
+        [ARENA.right - TILE, ARENA.bottom - TILE],
+      ] as const) {
+        k.save()
+        k.beginPath()
+        k.rect(cx + 3, cy + 3, TILE - 6, TILE - 6)
+        k.clip()
+        for (let s = -TILE; s < TILE; s += 6) {
+          k.fillStyle = rgba(RAMPS.gold[2], 0.35)
+          k.beginPath()
+          k.moveTo(cx + s, cy + TILE)
+          k.lineTo(cx + s + 3, cy + TILE)
+          k.lineTo(cx + s + 3 + TILE, cy)
+          k.lineTo(cx + s + TILE, cy)
+          k.fill()
+        }
+        k.restore()
+      }
+      // The Kind Robots heart emblem painted on the middle of the floor.
+      const cx = ARENA.left + ARENA_W / 2
+      const cy = ARENA.top + ARENA_H / 2
+      k.lineWidth = 3
+      k.strokeStyle = rgba(look.accent[2], 0.2)
+      k.beginPath()
+      k.arc(cx, cy, 44, 0, Math.PI * 2)
+      k.stroke()
+      k.lineWidth = 1
+      k.strokeStyle = rgba(look.accent[3], 0.2)
+      k.beginPath()
+      k.arc(cx, cy, 38, 0, Math.PI * 2)
+      k.stroke()
+      const heart = (size: number) => {
+        k.beginPath()
+        k.moveTo(cx, cy + size * 0.9)
+        k.bezierCurveTo(
+          cx - size * 1.4,
+          cy - size * 0.1,
+          cx - size * 0.7,
+          cy - size * 1.1,
+          cx,
+          cy - size * 0.4,
+        )
+        k.bezierCurveTo(
+          cx + size * 0.7,
+          cy - size * 1.1,
+          cx + size * 1.4,
+          cy - size * 0.1,
+          cx,
+          cy + size * 0.9,
+        )
+        k.closePath()
+      }
+      heart(24)
+      k.fillStyle = rgba(look.accent[1], 0.22)
+      k.fill()
+      k.lineWidth = 2
+      k.strokeStyle = rgba(look.accent[3], 0.22)
+      k.stroke()
+      // Ambient occlusion where the floor meets the rim, light catching the far lip.
+      k.fillStyle = rgba(INK, 0.5)
+      k.fillRect(ARENA.left, ARENA.top, ARENA_W, 3)
+      k.fillRect(ARENA.left, ARENA.top, 3, ARENA_H)
+      k.fillStyle = rgba(INK, 0.25)
+      k.fillRect(ARENA.left, ARENA.top + 3, ARENA_W, 3)
+      k.fillRect(ARENA.left + 3, ARENA.top, 3, ARENA_H)
+      k.fillStyle = rgba(look.seam, 0.3)
+      k.fillRect(ARENA.left, ARENA.bottom - 1, ARENA_W, 1)
+      k.fillRect(ARENA.right - 1, ARENA.top, 1, ARENA_H)
+    })
+    // The rim's inner edge breathes teal, and chase lights run around it.
     const pulse = 0.6 + 0.4 * Math.sin(this.tick / 20)
-    g.strokeStyle = `rgba(45, 212, 191, ${pulse})`
-    g.lineWidth = 2
-    g.strokeRect(
-      ARENA.left,
-      ARENA.top,
-      ARENA.right - ARENA.left,
-      ARENA.bottom - ARENA.top,
-    )
-    g.strokeStyle = 'rgba(244, 114, 182, 0.4)'
-    g.lineWidth = 4
-    g.strokeRect(
-      ARENA.left - 3,
-      ARENA.top - 3,
-      ARENA.right - ARENA.left + 6,
-      ARENA.bottom - ARENA.top + 6,
-    )
+    g.fillStyle = rgba(RAMPS.teal[3], 0.55 * pulse)
+    g.fillRect(ARENA.left - 1, ARENA.top - 1, ARENA_W + 2, 1)
+    g.fillRect(ARENA.left - 1, ARENA.bottom, ARENA_W + 2, 1)
+    g.fillRect(ARENA.left - 1, ARENA.top, 1, ARENA_H)
+    g.fillRect(ARENA.right, ARENA.top, 1, ARENA_H)
+    const chase = Math.floor(this.tick / 6)
+    const light = (x: number, y: number, i: number) => {
+      const lit = (i + chase) % 4 === 0
+      g.fillStyle = INK
+      g.fillRect(x - 1, y - 1, 3, 3)
+      g.fillStyle = lit
+        ? i % 2
+          ? RAMPS.pink[4]
+          : RAMPS.teal[4]
+        : i % 2
+          ? RAMPS.pink[1]
+          : RAMPS.teal[1]
+      g.fillRect(x, y, 1, 1)
+      if (lit) glow(g, x, y, 6, i % 2 ? RAMPS.pink[3] : RAMPS.teal[3], 0.6)
+    }
+    let i = 0
+    for (let x = ARENA.left + TILE / 2; x < ARENA.right; x += TILE, i++) {
+      light(x, ARENA.top - 3, i)
+      light(ARENA.right + ARENA.left - x, ARENA.bottom + 2, i)
+    }
+    for (let y = ARENA.top + TILE / 2; y < ARENA.bottom; y += TILE, i++) {
+      light(ARENA.right + 2, y, i)
+      light(ARENA.left - 3, ARENA.bottom + ARENA.top - y, i)
+    }
   }
 
   private renderHero(g: CanvasRenderingContext2D) {
     const p = this.player
-    const bob = Math.sin(p.walk) * 1
+    const bob = Math.sin(p.walk) > 0.5 ? -1 : 0
+    const frame = Math.floor(p.walk / 1.2) % 2
+    // Facing comes from the aim; pixel sprites flip, never rotate.
+    const vertical = Math.abs(p.aimY) > Math.abs(p.aimX) * 1.2
+    const set = vertical
+      ? p.aimY > 0
+        ? HERO_SPRITES.front
+        : HERO_SPRITES.back
+      : HERO_SPRITES.side
+    glow(g, p.x, p.y + 4, 26, RAMPS.teal[3], 0.16)
+    dropShadow(g, p.x, p.y + 8, 6, 2, 0.4)
+    drawSprite(g, set[frame ? 1 : 0], p.x, p.y + 8 + bob, {
+      anchor: 'feet',
+      flipX: !vertical && p.aimX < 0,
+    })
+    // The beam emitter's aim pip.
+    const ax = Math.round(p.x + p.aimX * 12)
+    const ay = Math.round(p.y + p.aimY * 12)
+    glow(g, ax, ay, 5, RAMPS.gold[3], 0.6)
+    g.fillStyle = RAMPS.gold[3]
+    g.fillRect(ax - 1, ay, 3, 1)
+    g.fillRect(ax, ay - 1, 1, 3)
+    g.fillStyle = '#ffffff'
+    g.fillRect(ax, ay, 1, 1)
+  }
+
+  private renderShots(g: CanvasRenderingContext2D) {
+    if (!this.shots.length) return
+    for (const s of this.shots) glow(g, s.x, s.y, 9, RAMPS.pink[3], 0.5)
     g.save()
-    g.translate(p.x, p.y + bob)
-    g.fillStyle = '#2dd4bf'
-    g.fillRect(-3, -1, 6, 7)
-    g.fillStyle = '#fde7d6'
-    g.beginPath()
-    g.arc(0, -4, 3, 0, Math.PI * 2)
-    g.fill()
-    g.fillStyle = '#f472b6'
-    g.beginPath()
-    g.arc(-2, -6, 2.6, 0, Math.PI * 2)
-    g.arc(2, -6, 2.6, 0, Math.PI * 2)
-    g.fill()
-    g.fillStyle = '#14b8a6'
-    g.beginPath()
-    g.moveTo(-4, -7)
-    g.lineTo(-3, -11)
-    g.lineTo(-1, -8)
-    g.moveTo(4, -7)
-    g.lineTo(3, -11)
-    g.lineTo(1, -8)
-    g.fill()
+    g.globalCompositeOperation = 'lighter'
+    g.lineCap = 'round'
+    for (const s of this.shots) {
+      const tx = s.x - s.vx * 1.6
+      const ty = s.y - s.vy * 1.6
+      g.strokeStyle = rgba(RAMPS.pink[2], 0.6)
+      g.lineWidth = 4
+      g.beginPath()
+      g.moveTo(tx, ty)
+      g.lineTo(s.x, s.y)
+      g.stroke()
+      g.strokeStyle = RAMPS.gold[3]
+      g.lineWidth = 2
+      g.beginPath()
+      g.moveTo(s.x - s.vx * 0.9, s.y - s.vy * 0.9)
+      g.lineTo(s.x, s.y)
+      g.stroke()
+    }
     g.restore()
-    g.strokeStyle = 'rgba(253, 230, 138, 0.8)'
-    g.lineWidth = 1
-    g.beginPath()
-    g.moveTo(p.x + p.aimX * 7, p.y + p.aimY * 7)
-    g.lineTo(p.x + p.aimX * 11, p.y + p.aimY * 11)
-    g.stroke()
+    g.fillStyle = '#ffffff'
+    for (const s of this.shots) {
+      g.fillRect(Math.round(s.x) - 1, Math.round(s.y) - 1, 2, 2)
+    }
   }
 
   private renderFoe(g: CanvasRenderingContext2D, f: Foe) {
     switch (f.kind) {
       case 'drone': {
         const step = f.timer % 12 < 7 ? 1 : 0
-        g.fillStyle = '#7c3aed'
-        g.fillRect(f.x - 5, f.y - 5 + step, 10, 9)
-        g.fillStyle = '#ef4444'
-        g.fillRect(f.x - 4, f.y - 3 + step, 8, 2)
-        g.fillStyle = '#c4b5fd'
-        g.fillRect(f.x - 1, f.y - 8 + step, 2, 3)
+        const sprite = DRONE_SPRITES[step]
+        dropShadow(g, f.x, f.y + 7, 6, 1.8, 0.35)
+        drawSprite(g, sprite, f.x, f.y + step)
+        // Every so often the glitch tears a scanline sideways.
+        const glitch = (this.tick + Math.floor(f.seed * 13)) % 53
+        if (glitch < 3) {
+          const band = Math.round(f.y) - 3 + glitch * 2
+          g.save()
+          g.beginPath()
+          g.rect(f.x - 9, band, 18, 2)
+          g.clip()
+          drawSprite(g, sprite, f.x + (glitch % 2 ? 3 : -3), f.y + step)
+          g.restore()
+          g.fillStyle = rgba(RAMPS.teal[3], 0.85)
+          g.fillRect(Math.round(f.x) - 9, band, 2, 1)
+          g.fillStyle = rgba(RAMPS.ember[2], 0.85)
+          g.fillRect(Math.round(f.x) + 7, band + 1, 2, 1)
+        }
         break
       }
-      case 'seeker':
-        g.fillStyle = '#fb7185'
-        g.beginPath()
-        g.moveTo(f.x, f.y - 5)
-        g.lineTo(f.x + 4, f.y)
-        g.lineTo(f.x, f.y + 5)
-        g.lineTo(f.x - 4, f.y)
-        g.closePath()
-        g.fill()
-        break
-      case 'tank':
-        g.fillStyle = '#64748b'
-        g.fillRect(f.x - 10, f.y - 8, 20, 16)
-        g.fillStyle = '#334155'
-        g.fillRect(f.x - 11, f.y - 9, 22, 4)
-        g.fillRect(f.x - 11, f.y + 5, 22, 4)
-        g.fillStyle = f.hp <= 2 ? '#fbbf24' : '#ef4444'
-        g.fillRect(f.x - 5, f.y - 2, 10, 3)
-        break
-      case 'spawner': {
-        const pulse = 9 + Math.sin(f.timer / 8) * 1.5
-        g.fillStyle = 'rgba(192, 132, 252, 0.3)'
-        g.beginPath()
-        g.arc(f.x, f.y, pulse + 3, 0, Math.PI * 2)
-        g.fill()
-        g.fillStyle = '#a855f7'
-        g.beginPath()
-        g.moveTo(f.x, f.y - pulse)
-        g.lineTo(f.x + pulse, f.y)
-        g.lineTo(f.x, f.y + pulse)
-        g.lineTo(f.x - pulse, f.y)
-        g.closePath()
-        g.fill()
-        g.fillStyle = '#fde68a'
-        g.fillRect(f.x - 1.5, f.y - 1.5, 3, 3)
+      case 'seeker': {
+        const sprite = SEEKER_SPRITES[Math.floor(this.tick / 4) % 2 ? 1 : 0]
+        glow(g, f.x, f.y, 9, RAMPS.pink[3], 0.45)
+        drawSprite(g, sprite, f.x - f.vx * 3, f.y - f.vy * 3, { alpha: 0.35 })
+        dropShadow(g, f.x, f.y + 7, 3, 1, 0.3)
+        drawSprite(g, sprite, f.x, f.y)
         break
       }
+      case 'tank': {
+        const sprite = TANK_SPRITES[Math.floor(this.tick / 5) % 3]!
+        dropShadow(g, f.x, f.y + 8, 12, 2.5, 0.4)
+        drawSprite(g, sprite, f.x, f.y)
+        // A scanning eye in the visor slot: red while healthy, gold when it is nearly rebooted.
+        const eye = f.hp <= 2 ? RAMPS.gold : RAMPS.ember
+        const ex = Math.round(f.x + Math.sin(this.tick / 14 + f.seed) * 4)
+        const ey = Math.round(f.y)
+        glow(g, ex, ey, 9, eye[3], 0.55)
+        g.fillStyle = eye[2]
+        g.fillRect(ex - 3, ey - 1, 6, 3)
+        g.fillStyle = eye[4]
+        g.fillRect(ex - 1, ey - 1, 2, 1)
+        break
+      }
+      case 'spawner':
+        this.renderSpawner(g, f)
+        break
       case 'puddle':
         break
     }
   }
 
+  private renderSpawner(g: CanvasRenderingContext2D, f: Foe) {
+    // It throbs, so it is a shaded vector gem rather than a pixel sprite.
+    const r = 9 + Math.sin(f.timer / 8) * 1.5
+    const x = f.x
+    const y = f.y
+    const ramp = RAMPS.purple
+    glow(g, x, y, r + 12, ramp[3], 0.45)
+    dropShadow(g, x, y + 13, 7, 2, 0.3)
+    const diamond = (k: number, colour: string) => {
+      g.fillStyle = colour
+      g.beginPath()
+      g.moveTo(x, y - k)
+      g.lineTo(x + k, y)
+      g.lineTo(x, y + k)
+      g.lineTo(x - k, y)
+      g.closePath()
+      g.fill()
+    }
+    diamond(r + 1.5, INK)
+    diamond(r, ramp[2])
+    // Lit upper-left facet, shadowed lower-right facet.
+    g.fillStyle = ramp[3]
+    g.beginPath()
+    g.moveTo(x, y - r)
+    g.lineTo(x - r, y)
+    g.lineTo(x, y)
+    g.closePath()
+    g.fill()
+    g.fillStyle = ramp[1]
+    g.beginPath()
+    g.moveTo(x, y + r)
+    g.lineTo(x + r, y)
+    g.lineTo(x, y)
+    g.closePath()
+    g.fill()
+    g.fillStyle = ramp[0]
+    g.beginPath()
+    g.moveTo(x, y + r)
+    g.lineTo(x + r * 0.5, y + r * 0.5)
+    g.lineTo(x, y + r * 0.6)
+    g.closePath()
+    g.fill()
+    g.fillStyle = ramp[4]
+    g.fillRect(Math.round(x - r * 0.5), Math.round(y - r * 0.5), 2, 1)
+    shadedOrb(g, x, y, 2.5, RAMPS.gold)
+    glow(g, x, y, 6, RAMPS.gold[3], 0.5)
+    // Glitch shards orbit it.
+    for (let i = 0; i < 3; i++) {
+      const a = f.timer / 14 + (i * Math.PI * 2) / 3
+      const ox = Math.round(x + Math.cos(a) * (r + 6))
+      const oy = Math.round(y + Math.sin(a) * (r + 6))
+      g.fillStyle = INK
+      g.fillRect(ox - 1, oy - 1, 3, 3)
+      g.fillStyle = i % 2 ? RAMPS.teal[3] : RAMPS.ember[3]
+      g.fillRect(ox, oy, 1, 1)
+    }
+  }
+
   private renderPuddle(g: CanvasRenderingContext2D, f: Foe) {
     const on = (this.tick + f.seed * 10) % 30 < 20
-    g.fillStyle = on ? '#84cc16' : '#365314'
-    g.fillRect(f.x - 5, f.y - 5, 10, 10)
-    g.fillStyle = '#0b0620'
-    g.fillRect(f.x - 2, f.y - 2, 4, 4)
+    const x = f.x
+    const y = f.y
+    const ramp = on ? LIME : ([INK, LIME[0], LIME[1], LIME[2], LIME[3]] as Ramp)
+    const blob = (dx: number, dy: number, rx: number, ry: number) => {
+      g.beginPath()
+      g.ellipse(x + dx, y + dy, rx, ry, 0, 0, Math.PI * 2)
+      g.fill()
+    }
+    if (on) glow(g, x, y, 13, LIME[3], 0.3)
+    g.fillStyle = INK
+    blob(0, 0, 8, 6)
+    g.fillStyle = ramp[1]
+    blob(0, 0, 7, 5)
+    g.fillStyle = ramp[2]
+    blob(-1, -0.5, 5.5, 3.5)
+    g.fillStyle = ramp[3]
+    blob(-2, -1.5, 2.5, 1.5)
+    g.fillStyle = INK
+    blob(1, 1, 2.5, 1.5)
+    // Bubbles pop on the surface while it is live.
+    if (on) {
+      const b = Math.floor((this.tick + f.seed * 7) / 5) % 4
+      g.fillStyle = LIME[4]
+      g.fillRect(Math.round(x) - 4 + b * 2, Math.round(y) - 2 + (b % 2), 1, 1)
+      g.fillStyle = LIME[3]
+      g.fillRect(Math.round(x) + 3 - b, Math.round(y) + 2, 1, 1)
+    }
   }
 
   private renderRescuee(g: CanvasRenderingContext2D, r: Rescuee) {
     const bob = Math.abs(Math.sin(this.tick / 6 + r.x)) * 1.2
     const x = r.x
     const y = r.y - bob
+    const frame = Math.floor(this.tick / 7 + (r.vy > 0 ? 1 : 0)) % 2
+    let sprites: readonly PixelSprite[]
     switch (r.kind) {
       case 'person':
-        g.fillStyle = r.color
-        g.fillRect(x - 3, y - 1, 6, 7)
-        g.fillStyle = r.skin
-        g.beginPath()
-        g.arc(x, y - 4, 3, 0, Math.PI * 2)
-        g.fill()
+        sprites = PEOPLE.get(`${r.color}|${r.skin}`)!
         break
       case 'cat':
-        g.fillStyle = '#f59e0b'
-        g.fillRect(x - 4, y - 1, 8, 4)
-        g.beginPath()
-        g.moveTo(x + 2, y - 1)
-        g.lineTo(x + 3, y - 5)
-        g.lineTo(x + 5, y - 1)
-        g.fill()
+        sprites = CAT_SPRITES
         break
       case 'dog':
-        g.fillStyle = '#d6d3d1'
-        g.fillRect(x - 5, y - 2, 9, 5)
-        g.fillStyle = '#78716c'
-        g.fillRect(x + 3, y - 4, 3, 3)
+        sprites = DOG_SPRITES
         break
       case 'bot':
-        g.fillStyle = '#38bdf8'
-        g.fillRect(x - 3, y - 4, 6, 7)
-        g.fillStyle = '#fde68a'
-        g.fillRect(x - 2, y - 2, 1, 1)
-        g.fillRect(x + 1, y - 2, 1, 1)
+        sprites = BOT_SPRITES
         break
     }
+    dropShadow(g, r.x, r.y + 6, 5, 1.5, 0.35)
+    drawSprite(g, sprites[frame]!, x, y + 6, {
+      anchor: 'feet',
+      flipX: r.vx < 0,
+    })
     if (Math.floor(this.tick / 20) % 2 === 0) {
-      drawText(g, '*', x, y - 14, { align: 'center', color: '#f9a8d4' })
+      glow(g, x, y - 14, 6, RAMPS.pink[3], 0.45)
+      drawSprite(g, HELP_SPRITE, x, y - 14)
     }
   }
 
@@ -785,54 +1447,97 @@ class RescueRally implements ArcadeGameInstance {
     g: CanvasRenderingContext2D,
     f: { x: number; y: number; life: number },
   ) {
-    g.globalAlpha = Math.max(0, f.life / 60)
-    g.fillStyle = '#4ade80'
-    g.fillRect(f.x - 4, f.y - 4, 8, 8)
-    g.fillStyle = '#0b0620'
-    g.fillRect(f.x - 2, f.y - 2, 1, 1)
-    g.fillRect(f.x + 1, f.y - 2, 1, 1)
-    g.fillRect(f.x - 2, f.y + 1, 4, 1)
-    g.globalAlpha = 1
+    const fade = Math.max(0, f.life / 60)
+    glow(g, f.x, f.y, 12, RAMPS.leaf[3], 0.45 * fade)
+    drawSprite(g, FREED_SPRITES[Math.floor(f.life / 4) % 2]!, f.x, f.y, {
+      alpha: fade,
+    })
+  }
+
+  private renderRings(g: CanvasRenderingContext2D) {
+    if (!this.rings.length) return
+    g.save()
+    g.globalCompositeOperation = 'lighter'
+    for (const r of this.rings) {
+      const t = 1 - r.life / 24
+      g.globalAlpha = 1 - t
+      g.strokeStyle = RAMPS.leaf[3]
+      g.lineWidth = 2
+      g.beginPath()
+      g.arc(r.x, r.y, 4 + t * 20, 0, Math.PI * 2)
+      g.stroke()
+      g.strokeStyle = RAMPS.gold[4]
+      g.lineWidth = 1
+      g.beginPath()
+      g.arc(r.x, r.y, 2 + t * 12, 0, Math.PI * 2)
+      g.stroke()
+    }
+    g.restore()
   }
 
   private renderHud(g: CanvasRenderingContext2D) {
-    const shadow = '#1e1b4b'
-    drawText(g, String(this.score).padStart(7, '0'), 12, 8, {
+    // Score, high score and lives sit in boxes in the strip above the rim.
+    hudPanel(g, 4, 3, 96, 18)
+    drawText(g, String(this.score).padStart(7, '0'), 11, 5, {
       scale: 2,
-      color: '#2dd4bf',
-      shadow,
+      color: RAMPS.teal[4],
+      shadow: INK,
     })
-    drawText(g, `HI ${Math.max(this.hiScore, this.score)}`, W / 2, 8, {
+    const hi = `HI ${Math.max(this.hiScore, this.score)}`
+    const hiW = measureText(hi, 2) + 14
+    hudPanel(g, Math.round(W / 2 - hiW / 2), 3, hiW, 18)
+    drawText(g, hi, W / 2, 5, {
       scale: 2,
       align: 'center',
-      color: '#fde68a',
-      shadow,
+      color: RAMPS.gold[3],
+      shadow: INK,
     })
-    for (let i = 0; i < Math.min(this.lives, 6); i++) {
-      drawText(g, '*', W - 18 - i * 14, 8, {
-        scale: 2,
-        color: '#f472b6',
-        shadow,
-      })
+    const lives = Math.min(this.lives, 6)
+    if (lives > 0) {
+      const w = lives * 17 + 5
+      hudPanel(g, W - 4 - w, 3, w, 18)
+      for (let i = 0; i < lives; i++) {
+        drawSprite(g, HEART_SPRITE, W - 15 - i * 17, 12, { scale: 2 })
+      }
     }
-    drawText(g, `WAVE ${this.level}`, 14, H - 11, { color: '#c4b5fd' })
-    drawText(g, `RESCUE X${this.multiplier}`, W - 14, H - 11, {
-      align: 'right',
-      color: '#86efac',
+    // Wave and the rescue multiplier sit in boxes below the rim.
+    const wave = `WAVE ${this.level}`
+    hudPanel(g, 4, H - 13, measureText(wave) + 14, 11)
+    drawText(g, wave, 11, H - 10, {
+      color: RAMPS.purple[4],
+      outline: INK,
     })
+    const rescue = `RESCUE X${this.multiplier}`
+    const rescueW = measureText(rescue)
+    const panelW = rescueW + 74
+    hudPanel(g, W - 4 - panelW, H - 13, panelW, 11)
+    drawText(g, rescue, W - 4 - panelW + 7, H - 10, {
+      color: RAMPS.leaf[3],
+      outline: INK,
+    })
+    gauge(
+      g,
+      W - 63,
+      H - 10,
+      52,
+      6,
+      this.multiplier / RESCUE_CAP,
+      this.multiplier >= RESCUE_CAP ? RAMPS.gold : RAMPS.leaf,
+    )
     if (this.banner) {
       drawText(g, this.banner.text, W / 2, H / 2 - 28, {
         scale: 3,
         align: 'center',
         color: '#ffffff',
-        shadow: '#db2777',
+        outline: INK,
+        shadow: RAMPS.pink[1],
       })
       if (this.banner.sub) {
         drawText(g, this.banner.sub, W / 2, H / 2 + 4, {
           scale: 2,
           align: 'center',
-          color: '#86efac',
-          shadow,
+          color: RAMPS.leaf[3],
+          outline: INK,
         })
       }
     }

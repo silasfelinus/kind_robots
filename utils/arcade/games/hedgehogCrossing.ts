@@ -14,6 +14,30 @@
 
 import { levelCurve } from '../curve'
 import { drawText } from '../font'
+import {
+  INK,
+  RAMPS,
+  Sparkles,
+  backdropRng,
+  bandedGradient,
+  bevel,
+  cachedLayer,
+  drawRidge,
+  drawSprite,
+  drawStars,
+  dropShadow,
+  gauge,
+  glow,
+  hudPanel,
+  mix,
+  pixelSprite,
+  rgba,
+  ridge,
+  shadedOrb,
+  starField,
+  vignette,
+} from '../snes'
+import type { PixelSprite, Ramp } from '../snes'
 import type {
   ArcadeGameInstance,
   ArcadeGameModule,
@@ -198,6 +222,486 @@ function isRoad(row: number): boolean {
   return row >= 7 && row <= 11
 }
 
+// --- 16-bit art (utils/arcade/snes.ts) -------------------------------------------
+
+type Facing = 'up' | 'down' | 'left' | 'right'
+
+/** A ramp as the palette digits '0' (deep shadow) to '4' (highlight), plus extra letters. */
+function rampPalette(
+  ramp: Ramp,
+  extra: Record<string, string> = {},
+): Record<string, string> {
+  return {
+    '0': ramp[0],
+    '1': ramp[1],
+    '2': ramp[2],
+    '3': ramp[3],
+    '4': ramp[4],
+    ...extra,
+  }
+}
+
+/** The ramp step (0..4) a surface facing (nx, ny) catches, lit from the upper left. */
+function litStep(nx: number, ny: number, base: number, spread = 1.6): number {
+  const light = -(nx * 0.6 + ny * 0.8)
+  return Math.max(0, Math.min(4, Math.round(base + light * spread)))
+}
+
+/** Sprite rows painted by a function of each pixel: the procedural sprites below. */
+function paintRows(
+  w: number,
+  h: number,
+  paint: (x: number, y: number) => string | null,
+): string[] {
+  const rows: string[] = []
+  for (let y = 0; y < h; y++) {
+    let row = ''
+    for (let x = 0; x < w; x++) row += paint(x, y) ?? '.'
+    rows.push(row)
+  }
+  return rows
+}
+
+const FACING_DIRS: Record<Facing, readonly [number, number]> = {
+  up: [0, -1],
+  down: [0, 1],
+  left: [-1, 0],
+  right: [1, 0],
+}
+
+const HOG_PALETTE = rampPalette(RAMPS.earth, {
+  b: RAMPS.cream[1],
+  c: RAMPS.cream[2],
+  C: RAMPS.cream[3],
+  W: RAMPS.cream[4],
+  p: RAMPS.pink[3],
+  k: INK,
+})
+
+/**
+ * A hedgehog seen from above, built per heading so the light stays on the upper left (a
+ * baked frame per facing, never a rotated sprite): quilled back, cream face, little feet.
+ */
+function hedgehogRows(facing: Facing, pose: 'stand' | 'hop' | 'sleep') {
+  const [dx, dy] = FACING_DIRS[facing]
+  const c = 7
+  const reach = pose === 'hop' ? 6.6 : 6
+  const front = pose === 'hop' ? 3 : 2
+  const back = pose === 'hop' ? -5 : -4
+  return paintRows(15, 15, (x, y) => {
+    const ox = x - c
+    const oy = y - c
+    // f runs along the heading, s across it.
+    const f = dx * ox + dy * oy
+    const s = -dy * ox + dx * oy
+    const head = ((f - 4) / 3.1) ** 2 + (s / 3) ** 2
+    if (head <= 1 && f >= 2) {
+      if (f === 7 && s === 0) return 'k'
+      if (f === 5 && Math.abs(s) === 1) return pose === 'sleep' ? 'b' : 'k'
+      if (f === 4 && Math.abs(s) === 2) return 'p'
+      const step = litStep((x - (c + dx * 4)) / 3, (y - (c + dy * 4)) / 3, 2.4)
+      return step <= 1 ? 'b' : step === 2 ? 'c' : step === 3 ? 'C' : 'W'
+    }
+    const body = ((f + 1) / reach) ** 2 + (s / 6) ** 2
+    if (body <= 1) {
+      // Quills laid back in chevrons: pale tips, dark roots.
+      const base = Math.min(
+        3,
+        litStep((x - c + dx) / 6, (y - c + dy) / 6, 1.7, 1.4),
+      )
+      const quill = (((f + Math.abs(s)) % 3) + 3) % 3
+      if (quill === 0) return String(Math.min(4, base + 2))
+      if (quill === 1) return String(Math.max(0, base - 1))
+      return String(base)
+    }
+    if (
+      pose !== 'sleep' &&
+      Math.abs(s) === 6 &&
+      (f === front || f === front - 1 || f === back || f === back + 1)
+    )
+      return 'b'
+    if (body <= 1.3 && f <= 0 && (f + Math.abs(s)) % 3 === 0) return '0'
+    return null
+  })
+}
+
+const HOG_SPRITES = Object.fromEntries(
+  (['up', 'down', 'left', 'right'] as const).map((facing) => [
+    facing,
+    [
+      pixelSprite(hedgehogRows(facing, 'stand'), HOG_PALETTE),
+      pixelSprite(hedgehogRows(facing, 'hop'), HOG_PALETTE),
+    ] as const,
+  ]),
+) as Record<Facing, readonly [PixelSprite, PixelSprite]>
+
+const HOG_SLEEP = pixelSprite(hedgehogRows('down', 'sleep'), HOG_PALETTE)
+
+const TURTLE_PALETTE = rampPalette(RAMPS.leaf, {
+  s: RAMPS.teal[2],
+  S: RAMPS.teal[3],
+  k: INK,
+  a: mix(RAMPS.leaf[1], RAMPS.water[1], 0.6),
+  A: mix(RAMPS.leaf[2], RAMPS.water[2], 0.6),
+})
+
+/** A paddling turtle facing right: a shaded, plated shell, head, tail and four flippers. */
+function turtleRows(pose: 0 | 1 | 'sink') {
+  const cx = 7
+  const cy = 6
+  const sink = pose === 'sink'
+  return paintRows(17, 13, (x, y) => {
+    const nx = (x - cx) / 5.6
+    const ny = (y - cy) / 5.2
+    const d = nx * nx + ny * ny
+    if (d <= 1) {
+      const step = litStep(nx, ny, 2.2, 1.8)
+      if (d > 0.7) return sink ? 'a' : step >= 3 ? '2' : '1'
+      if (d < 0.16) return sink ? 'A' : step >= 3 ? '4' : '3'
+      const frac = (((Math.atan2(ny, nx) / (Math.PI / 3)) % 1) + 1) % 1
+      if (d < 0.28 || frac < 0.14 || frac > 0.86) return sink ? 'a' : '1'
+      return sink ? (step >= 3 ? 'A' : 'a') : step >= 3 ? '3' : '2'
+    }
+    if (sink) return null
+    if (((x - 13.6) / 2.4) ** 2 + ((y - cy) / 2) ** 2 <= 1)
+      return x === 14 && y === cy - 1 ? 'k' : y < cy ? 'S' : 's'
+    if (x === 0 && y === cy) return 's'
+    const fore = pose === 0 ? [10, 11] : [8, 9]
+    const hind = pose === 0 ? [2, 3] : [3, 4]
+    if ((y <= 1 || y >= 11) && fore.includes(x)) return y <= 1 ? 'S' : 's'
+    if ((y === 1 || y === 2 || y === 10 || y === 11) && hind.includes(x))
+      return y <= 2 ? 'S' : 's'
+    return null
+  })
+}
+
+const TURTLE_SPRITES = [
+  pixelSprite(turtleRows(0), TURTLE_PALETTE),
+  pixelSprite(turtleRows(1), TURTLE_PALETTE),
+] as const
+const TURTLE_SINKING = pixelSprite(turtleRows('sink'), TURTLE_PALETTE, {
+  outline: RAMPS.water[0],
+})
+
+const LOG_PALETTE = rampPalette(RAMPS.earth, {
+  r: RAMPS.gold[1],
+  y: RAMPS.gold[2],
+  Y: RAMPS.gold[3],
+  m: RAMPS.leaf[2],
+  M: RAMPS.leaf[3],
+})
+
+/** A floating log `len` tiles long: bark lit along its top, grooves, knots, moss, a ringed cut end. */
+function logRows(len: number) {
+  const w = len * TILE - 2
+  const rand = backdropRng(70 + len)
+  const grooves = Array.from({ length: len * 3 }, () => ({
+    x: 2 + Math.floor(rand() * (w - 14)),
+    y: 3 + Math.floor(rand() * 6),
+    l: 4 + Math.floor(rand() * 9),
+  }))
+  const knots = Array.from({ length: len }, () => ({
+    x: 5 + Math.floor(rand() * (w - 16)),
+    y: 3 + Math.floor(rand() * 5),
+  }))
+  const moss = Array.from({ length: len * 2 }, () =>
+    Math.floor(2 + rand() * (w - 10)),
+  )
+  return paintRows(w, 12, (x, y) => {
+    if (x >= w - 4) {
+      const ex = (x - (w - 4)) / 3.5
+      const ey = (y - 5.5) / 6
+      const r = Math.sqrt(ex * ex + ey * ey)
+      if (r > 1) return null
+      return r < 0.25
+        ? 'r'
+        : r < 0.5
+          ? 'Y'
+          : r < 0.65
+            ? 'y'
+            : r < 0.85
+              ? 'Y'
+              : 'r'
+    }
+    if (x === 0 && (y < 2 || y > 9)) return null
+    if (x === 1 && (y === 0 || y === 11)) return null
+    if (
+      y <= 1 &&
+      moss.some((m) => x === m || x === m + 1 || (y === 1 && x === m + 2))
+    )
+      return y === 0 ? 'M' : 'm'
+    let step = y <= 2 ? 3 : y <= 6 ? 2 : y <= 9 ? 1 : 0
+    if (y === 1 && x % 7 === 3) step = 4
+    if (x < 2) step--
+    for (const gr of grooves) {
+      if (x < gr.x || x >= gr.x + gr.l) continue
+      if (y === gr.y) step--
+      else if (y === gr.y + 1) step++
+    }
+    for (const k of knots) {
+      if (Math.abs(x - k.x) > 1) continue
+      if (y === k.y) return x === k.x ? '0' : '1'
+      if (y === k.y + 1 && x === k.x) return '3'
+    }
+    return String(Math.max(0, Math.min(4, step)))
+  })
+}
+
+const LOG_SPRITES = [1, 2, 3, 4, 5, 6].map((len) =>
+  pixelSprite(logRows(len), LOG_PALETTE),
+)
+
+function vehiclePalette(ramp: Ramp) {
+  return rampPalette(ramp, {
+    G: RAMPS.sky[4],
+    g: RAMPS.sky[3],
+    q: RAMPS.sky[1],
+    e: RAMPS.teal[4],
+    y: RAMPS.gold[4],
+    Y: RAMPS.gold[3],
+    t: RAMPS.steel[0],
+    T: RAMPS.steel[3],
+    k: INK,
+    a: RAMPS.steel[3],
+    p: RAMPS.pink[3],
+    W: RAMPS.cream[4],
+  })
+}
+
+/** Robot traffic, side on and facing right: a bubble-top car with a robot at the wheel. */
+const CAR_ROWS = [
+  '.......p..........',
+  '.......a..........',
+  '.....3444443......',
+  '....3GGgq3gq3.....',
+  '...43Geq33gqq3....',
+  '.444444444444443..',
+  '43333333333333332y',
+  '43222222222222221y',
+  '3222222222222222Y.',
+  '.21tTt11111tTt11..',
+  '...TkT.....TkT....',
+  '...ttt.....ttt....',
+]
+
+const RACER_ROWS = [
+  '.43...............',
+  '.433......443.....',
+  '.4333....4GGq3....',
+  '.444444444444444..',
+  '4YYYYYYYYYYYYYY43y',
+  '322222222222222221',
+  '.21tTt1111111tTt1.',
+  '...TkT.......TkT..',
+  '...ttt.......ttt..',
+]
+
+const TRACTOR_ROWS = [
+  '..........T.......',
+  '...33333..a.......',
+  '...4GGq3..a.......',
+  '...4Geq3..2.......',
+  '...4ggq3444443....',
+  '..44444444444443..',
+  '..43333333333e332.',
+  '..432222222222yy2.',
+  'tttt22222222222221',
+  'tTTTt11111111ttt1.',
+  'TTkTT........TkT..',
+  'tTTTt........ttt..',
+  '.ttt..............',
+]
+
+/** A two-tile robot bus: passenger windows (some with robots aboard), a door, a striped side. */
+function busRows() {
+  const w = 38
+  return paintRows(w, 13, (x, y) => {
+    for (const cx of [7, 29]) {
+      const dx = Math.abs(x - cx)
+      if (y >= 10 && dx <= 2) {
+        if (y === 11 && dx === 0) return 'k'
+        return dx <= 1 && y === 11 ? 'T' : y === 12 && dx === 2 ? null : 't'
+      }
+    }
+    if (y >= 10) return null
+    if ((x === 0 || x === w - 1) && (y === 0 || y === 9)) return null
+    if (x === w - 1) return y === 7 || y === 8 ? 'y' : '2'
+    if (y === 0) return '4'
+    if (y >= 2 && y <= 5) {
+      if (x >= 34) return y === 2 || x === 34 ? 'G' : 'g'
+      if (x >= 30 && x <= 32) return y === 2 && x === 30 ? 'G' : 'q'
+      const seg = (x - 3) % 6
+      if (x >= 3 && x < 29 && seg < 4) {
+        if (y === 5) return 'q'
+        if (y === 3 && seg === 2 && (x - 3) % 12 < 6) return 'e'
+        return seg === 0 || y === 2 ? 'G' : 'g'
+      }
+    }
+    if (x >= 30 && x <= 32 && y >= 6) return x === 30 ? '2' : '1'
+    if (x === 0) return '1'
+    if (y === 1 || y === 6) return '3'
+    if (y === 7) return 'W'
+    if (y === 8) return '2'
+    return '1'
+  })
+}
+
+const LANE_RAMPS: Record<number, Ramp> = {
+  11: RAMPS.pink,
+  10: RAMPS.gold,
+  9: RAMPS.sky,
+  8: RAMPS.ember,
+  7: RAMPS.teal,
+}
+
+const VEHICLE_ROWS: Record<LaneKind, readonly string[]> = {
+  car: CAR_ROWS,
+  racer: RACER_ROWS,
+  tractor: TRACTOR_ROWS,
+  bus: busRows(),
+  log: [],
+  turtles: [],
+}
+
+/** One vehicle sprite per road lane, painted in that lane's ramp. */
+const VEHICLE_SPRITES: Record<number, PixelSprite> = Object.fromEntries(
+  LANES.filter((l) => isRoad(l.row)).map((l) => [
+    l.row,
+    pixelSprite(
+      VEHICLE_ROWS[l.kind],
+      vehiclePalette(LANE_RAMPS[l.row] ?? RAMPS.steel),
+    ),
+  ]),
+)
+
+const FOX_PALETTE = rampPalette(RAMPS.rust, {
+  n: RAMPS.pink[2],
+  w: RAMPS.cream[3],
+  W: '#ffffff',
+  k: INK,
+})
+
+/** The fox, snoozing face-out of a burrow; frame 1 flicks an ear. */
+function foxRows(frame: 0 | 1) {
+  return paintRows(15, 12, (x, y) => {
+    for (const [ex, side] of [
+      [2.5, -1],
+      [11.5, 1],
+    ] as const) {
+      const yy = y - (frame === 1 && side > 0 ? 1 : 0)
+      const reach = yy * 0.55 + 0.5
+      if (yy >= 0 && yy <= 4 && Math.abs(x - ex) <= reach) {
+        if (yy >= 2 && Math.abs(x - ex) <= reach - 1.1) return 'n'
+        return x < ex ? '3' : '2'
+      }
+    }
+    const hx = (x - 7) / 7.4
+    const hy = (y - 6.8) / 4.6
+    if (hx * hx + hy * hy > 1) return null
+    if (y === 6 && (x === 3 || x === 4 || x === 10 || x === 11)) return 'k'
+    const mx = (x - 7) / 3.6
+    const my = (y - 9.2) / 2.4
+    if (mx * mx + my * my <= 1) {
+      if (y === 8 && x >= 6 && x <= 8) return 'k'
+      return my < 0 && mx < 0.3 ? 'W' : 'w'
+    }
+    if (y >= 9 && Math.abs(x - 7) >= 5) return 'w'
+    return String(litStep(hx, hy, 2.2, 1.6))
+  })
+}
+
+const FOX_SPRITES = [
+  pixelSprite(foxRows(0), FOX_PALETTE),
+  pixelSprite(foxRows(1), FOX_PALETTE),
+] as const
+
+const LADYBUG_PALETTE = {
+  h: RAMPS.steel[0],
+  w: '#ffffff',
+  r: RAMPS.ember[1],
+  R: RAMPS.ember[2],
+  L: RAMPS.ember[3],
+  X: RAMPS.ember[4],
+  q: rgba(RAMPS.sky[4], 0.7),
+}
+const LADYBUG_SPRITES = [
+  pixelSprite(
+    [
+      '...hwhwh...',
+      '..rLLhRRr..',
+      '.rLXLhRhRr.',
+      '.rLhLhRRRr.',
+      '.rRRRhRhRr.',
+      '.rRhRhRRrr.',
+      '..rRRhRrr..',
+      '...rrhrr...',
+    ],
+    LADYBUG_PALETTE,
+  ),
+  pixelSprite(
+    [
+      '...hwhwh...',
+      'qrLLqhqRRrq',
+      'rLXLqhqRhRr',
+      'rLhLqhqRRRr',
+      'rRRRqhqRhRr',
+      'qrRhqhqRrrq',
+      '.qrr.h.rrq.',
+      '.....h.....',
+    ],
+    LADYBUG_PALETTE,
+  ),
+] as const
+
+const DIZZY_STAR = pixelSprite(['..y..', '.yYy.', 'yYWYy', '.yYy.', '..y..'], {
+  y: RAMPS.gold[2],
+  Y: RAMPS.gold[3],
+  W: RAMPS.gold[4],
+})
+
+const WATER_BANDS = [
+  RAMPS.water[0],
+  RAMPS.water[1],
+  mix(RAMPS.water[1], RAMPS.water[2], 0.6),
+  RAMPS.water[1],
+  mix(RAMPS.water[1], RAMPS.water[2], 0.4),
+  RAMPS.water[1],
+]
+const ASPHALT_BANDS = [
+  mix(RAMPS.steel[1], RAMPS.night[2], 0.35),
+  mix(RAMPS.steel[0], RAMPS.steel[1], 0.45),
+  RAMPS.steel[0],
+  mix(RAMPS.steel[0], RAMPS.night[0], 0.4),
+]
+const SKY_BANDS = [
+  RAMPS.night[0],
+  RAMPS.night[2],
+  RAMPS.purple[1],
+  mix(RAMPS.purple[1], RAMPS.pink[1], 0.6),
+  RAMPS.pink[1],
+]
+const FLOWER_COLOURS = [
+  RAMPS.pink[3],
+  RAMPS.gold[3],
+  RAMPS.teal[3],
+  RAMPS.cream[4],
+]
+const FAR_HILLS = ridge(5, W, 9, 4)
+const NEAR_HILLS = ridge(9, W, 6, 2)
+const SKY_STARS = starField(23, 18, W, 12)
+/** Moving glints on the creek: one row of them per creek lane. */
+const SHIMMER = (() => {
+  const rand = backdropRng(31)
+  return Array.from({ length: 30 }, (_, i) => ({
+    row: 1 + (i % 5),
+    x: rand() * (W + 40),
+    y: 3 + Math.floor(rand() * 14),
+    w: 3 + Math.floor(rand() * 6),
+    speed: 0.15 + rand() * 0.25,
+    phase: rand() * Math.PI * 2,
+  }))
+})()
+
 class HedgehogCrossing implements ArcadeGameInstance {
   score = 0
   level = 1
@@ -231,6 +735,9 @@ class HedgehogCrossing implements ArcadeGameInstance {
   private particles: Particle[] = []
   private floaters: Floater[] = []
   private banner: { text: string; sub?: string; ticks: number } | null = null
+  /** Cosmetic sparkles, on their own rng so the game's stays seeded. */
+  private fx = new Sparkles()
+  private fxRng = backdropRng(37)
 
   constructor(options: ArcadeGameOptions) {
     this.rng = options.rng
@@ -427,12 +934,21 @@ class HedgehogCrossing implements ArcadeGameInstance {
     if (this.ladybug?.burrow === burrow) {
       this.ladybug = null
       this.addScore(LADYBUG_POINTS, burrowX(burrow), rowY(1))
+      this.fx.burst(burrowX(burrow), rowY(0) + 12, this.fxRng, {
+        count: 14,
+        colours: [RAMPS.pink[3], RAMPS.ember[3], RAMPS.gold[4]],
+        speed: 2.2,
+      })
       this.sound.play('pickup')
     }
     this.burst(burrowX(burrow), rowY(0) + 10, 10, '#fde68a')
+    this.fx.burst(burrowX(burrow), rowY(0) + 10, this.fxRng, { count: 12 })
     this.sound.play('extra')
     if (this.home.every(Boolean)) {
       this.addScore(FAMILY_BONUS, W / 2, rowY(6))
+      for (let i = 0; i < BURROWS; i++) {
+        this.fx.burst(burrowX(i), rowY(0) + 10, this.fxRng, { count: 10 })
+      }
       this.banner = {
         text: 'FAMILY HOME!',
         sub: 'EVERY HEDGEHOG IS SAFE',
@@ -535,6 +1051,7 @@ class HedgehogCrossing implements ArcadeGameInstance {
   }
 
   private updateEffects() {
+    this.fx.update()
     for (const p of this.particles) {
       p.x += p.vx
       p.y += p.vy
@@ -667,98 +1184,289 @@ class HedgehogCrossing implements ArcadeGameInstance {
 
   render(g: CanvasRenderingContext2D) {
     this.renderGround(g)
+    this.renderCreek(g)
     for (const lane of this.lanes) this.renderLane(g, lane)
-    this.renderHedge(g)
+    this.renderBurrows(g)
     if (this.dead === 0 && !this.over && this.levelClear === 0) {
       this.renderHedgehog(g)
-    } else if (this.dead > 0 && this.deathKind === 'bonk') {
-      // Dizzy stars circle the spot.
-      const y = rowY(this.row) + TILE / 2
-      for (let i = 0; i < 3; i++) {
-        const a = this.tick / 6 + (i * Math.PI * 2) / 3
-        g.fillStyle = '#fde68a'
-        g.fillRect(this.hx + Math.cos(a) * 8 - 1, y - 6 + Math.sin(a) * 3, 3, 3)
-      }
+    } else if (this.dead > 0) {
+      this.renderMishap(g)
     }
     for (const p of this.particles) {
       g.globalAlpha = Math.max(0, p.life / 30)
+      g.fillStyle = INK
+      g.fillRect(Math.round(p.x) - 1, Math.round(p.y) - 1, 3, 3)
       g.fillStyle = p.color
-      g.fillRect(p.x - 1, p.y - 1, 2, 2)
+      g.fillRect(Math.round(p.x) - 1, Math.round(p.y) - 1, 2, 2)
     }
     g.globalAlpha = 1
+    this.fx.render(g)
     for (const f of this.floaters) {
-      drawText(g, f.text, f.x, f.y, { align: 'center', color: '#fde68a' })
+      drawText(g, f.text, f.x, f.y, {
+        align: 'center',
+        color: RAMPS.gold[3],
+        outline: INK,
+      })
     }
+    vignette(g, W, H, 0.28)
     this.renderHud(g)
   }
 
   private renderGround(g: CanvasRenderingContext2D) {
-    g.fillStyle = '#0b1026'
-    g.fillRect(0, 0, W, H)
-    // The creek.
-    g.fillStyle = '#1e3a8a'
-    g.fillRect(0, rowY(1), W, TILE * 5)
-    g.fillStyle = '#3b82f6'
-    for (let row = 1; row <= 5; row++) {
-      for (let i = 0; i < 6; i++) {
-        const x =
-          (i * 53 + this.tick * 0.3 * (row % 2 ? 1 : -1) + row * 17) % (W + 20)
-        g.fillRect(
-          ((x + W + 20) % (W + 20)) - 10,
-          rowY(row) + 6 + (i % 2) * 8,
-          8,
+    // Everything that never moves, painted once: dusk sky and hills, the hedge and its
+    // burrows, the creek bed, the meadow verges, the kerbs and the asphalt.
+    cachedLayer(g, 'hedgehog-crossing-ground', W, H, (k) => {
+      const rand = backdropRng(17)
+      // Dusk sky over two ranges of hills, a moon between the HUD boxes.
+      bandedGradient(k, 0, 0, W, TOP, SKY_BANDS, 2)
+      glow(k, 150, 11, 16, RAMPS.cream[3], 0.35)
+      shadedOrb(k, 150, 11, 5, RAMPS.cream, { outline: null })
+      drawRidge(k, FAR_HILLS, {
+        base: TOP,
+        bottom: TOP,
+        width: W,
+        fill: mix(RAMPS.night[3], RAMPS.leaf[0], 0.5),
+        rim: RAMPS.night[4],
+      })
+      drawRidge(k, NEAR_HILLS, {
+        base: TOP + 1,
+        bottom: TOP,
+        width: W,
+        step: 2,
+        fill: RAMPS.leaf[0],
+        rim: RAMPS.leaf[1],
+      })
+      // The hedge: two rows of shaded leafy bumps.
+      const hedgeY = rowY(0)
+      k.fillStyle = RAMPS.leaf[1]
+      k.fillRect(0, hedgeY, W, TILE)
+      for (const [row, top, ramp] of [
+        [0, hedgeY + 1, RAMPS.leaf],
+        [1, hedgeY + 12, RAMPS.leaf],
+      ] as const) {
+        for (let x = -4 - row * 4; x < W + 8; x += 9) {
+          const bx = x + Math.floor(rand() * 3)
+          const by = top + Math.floor(rand() * 3)
+          const r = 6 - row
+          k.fillStyle = INK
+          k.beginPath()
+          k.arc(bx, by, r + 1, 0, Math.PI * 2)
+          k.fill()
+          for (const [dx, dy, kk, step] of [
+            [0, 0, 1, 1],
+            [-1, -1, 0.75, 2],
+            [-2, -2, 0.4, 3 - row],
+          ] as const) {
+            k.fillStyle = ramp[step]!
+            k.beginPath()
+            k.arc(bx + dx, by + dy, r * kk, 0, Math.PI * 2)
+            k.fill()
+          }
+        }
+      }
+      for (let i = 0; i < 70; i++) {
+        k.fillStyle = rand() < 0.5 ? RAMPS.leaf[4] : RAMPS.leaf[3]
+        k.fillRect(
+          Math.floor(rand() * W),
+          hedgeY - 4 + Math.floor(rand() * 20),
+          1,
           1,
         )
       }
-    }
-    // Median meadow and start lawn.
-    for (const row of [MEDIAN_ROW, START_ROW]) {
-      g.fillStyle = row === MEDIAN_ROW ? '#4c1d95' : '#166534'
-      g.fillRect(0, rowY(row), W, TILE)
-      for (let i = 0; i < 14; i++) {
-        g.fillStyle = ['#f9a8d4', '#fde68a', '#a5f3fc'][i % 3]!
-        g.fillRect(
-          8 + i * 20 + (row % 3) * 3,
-          rowY(row) + 4 + ((i * 7) % 11),
-          2,
-          2,
+      // Burrows: an earthen arch, lit on the upper left, round a dark hole.
+      for (let i = 0; i < BURROWS; i++) {
+        const bx = burrowX(i)
+        const by = hedgeY + 12
+        const arch = (dx: number, dy: number, r: number, depth: number) => {
+          k.beginPath()
+          k.arc(bx + dx, by + dy, r, Math.PI, 0)
+          k.fill()
+          k.fillRect(bx + dx - r, by + dy, r * 2, depth)
+        }
+        k.fillStyle = INK
+        arch(0, 0, 11.5, 8)
+        k.fillStyle = RAMPS.earth[1]
+        arch(0, 0, 10.5, 8)
+        k.fillStyle = RAMPS.earth[3]
+        arch(-1, -1, 9.5, 2)
+        k.fillStyle = RAMPS.earth[2]
+        arch(0, 0, 9, 8)
+        k.fillStyle = INK
+        arch(0, 1, 7.5, 7)
+        k.fillStyle = RAMPS.night[0]
+        arch(0, 2, 6.5, 6)
+        k.fillStyle = RAMPS.earth[1]
+        k.fillRect(bx - 7, hedgeY + TILE - 2, 14, 2)
+      }
+      // The creek bed in HDMA bands, ripples, and the hedge's shadow on the water.
+      bandedGradient(k, 0, rowY(1), W, TILE * 5, WATER_BANDS, 4)
+      for (let i = 0; i < 46; i++) {
+        k.fillStyle = rand() < 0.6 ? RAMPS.water[0] : RAMPS.water[2]
+        k.fillRect(
+          Math.floor(rand() * W),
+          rowY(1) + 3 + Math.floor(rand() * (TILE * 5 - 6)),
+          3 + Math.floor(rand() * 6),
+          1,
         )
       }
+      k.fillStyle = rgba(INK, 0.45)
+      k.fillRect(0, rowY(1), W, 2)
+      k.fillStyle = rgba(INK, 0.2)
+      k.fillRect(0, rowY(1) + 2, W, 2)
+      // Meadow verges: the median between road and creek, and the start lawn.
+      this.paintVerge(k, MEDIAN_ROW, rand)
+      this.paintVerge(k, START_ROW, rand)
+      // The road: asphalt lanes, shaded, speckled, with tyre-worn tracks.
+      for (let row = 7; row <= 11; row++) {
+        const y = rowY(row)
+        bandedGradient(k, 0, y, W, TILE, ASPHALT_BANDS, 2)
+        k.fillStyle = rgba(INK, 0.22)
+        k.fillRect(0, y + 5, W, 2)
+        k.fillRect(0, y + 14, W, 2)
+        for (let i = 0; i < 40; i++) {
+          k.fillStyle = rand() < 0.5 ? RAMPS.steel[1] : RAMPS.night[0]
+          k.fillRect(
+            Math.floor(rand() * W),
+            y + Math.floor(rand() * TILE),
+            1,
+            1,
+          )
+        }
+      }
+      // Dashed lane markings, raised paint with a lit top edge.
+      for (let row = 8; row <= 11; row++) {
+        for (let x = 4; x < W; x += 24) {
+          k.fillStyle = INK
+          k.fillRect(x - 1, rowY(row) - 2, 14, 4)
+          k.fillStyle = RAMPS.cream[4]
+          k.fillRect(x, rowY(row) - 1, 12, 1)
+          k.fillStyle = RAMPS.cream[1]
+          k.fillRect(x, rowY(row), 12, 1)
+        }
+      }
+      // Kerbstones along both edges of the road.
+      for (const ky of [rowY(7) - 4, rowY(START_ROW)]) {
+        for (let x = 0, i = 0; x < W; x += 12, i++) {
+          bevel(k, x, ky, 11, 3, i % 2 ? RAMPS.cream : RAMPS.steel, {
+            depth: 1,
+          })
+        }
+      }
+      // Rich soil under the start lawn, where the HUD sits.
+      bandedGradient(
+        k,
+        0,
+        rowY(START_ROW + 1),
+        W,
+        H - rowY(START_ROW + 1),
+        [RAMPS.earth[1], RAMPS.earth[0], RAMPS.night[0]],
+        2,
+      )
+    })
+  }
+
+  /** A grass verge: banded turf, a sandy lip by the creek, tufts and little flowers. */
+  private paintVerge(
+    k: CanvasRenderingContext2D,
+    row: number,
+    rand: () => number,
+  ) {
+    const y = rowY(row)
+    bandedGradient(
+      k,
+      0,
+      y,
+      W,
+      TILE,
+      [RAMPS.leaf[3], RAMPS.leaf[2], RAMPS.leaf[2], RAMPS.leaf[1]],
+      2,
+    )
+    if (row === MEDIAN_ROW) {
+      k.fillStyle = INK
+      k.fillRect(0, y, W, 1)
+      k.fillStyle = RAMPS.earth[3]
+      k.fillRect(0, y + 1, W, 1)
+      k.fillStyle = RAMPS.earth[2]
+      k.fillRect(0, y + 2, W, 1)
     }
-    // The road.
-    g.fillStyle = '#1f2937'
-    g.fillRect(0, rowY(7), W, TILE * 5)
-    g.fillStyle = '#6b7280'
-    for (let row = 8; row <= 11; row++) {
-      for (let x = 4; x < W; x += 24) g.fillRect(x, rowY(row) - 1, 12, 1)
+    for (let i = 0; i < 60; i++) {
+      const x = Math.floor(rand() * W)
+      const ty = y + 4 + Math.floor(rand() * (TILE - 7))
+      k.fillStyle = RAMPS.leaf[1]
+      k.fillRect(x, ty + 1, 1, 2)
+      k.fillStyle = rand() < 0.3 ? RAMPS.leaf[4] : RAMPS.leaf[3]
+      k.fillRect(x + 1, ty, 1, 2)
     }
+    for (let i = 0; i < 14; i++) {
+      const x = 8 + i * 20 + (row % 3) * 3
+      const fy = y + 5 + ((i * 7) % 9)
+      k.fillStyle = INK
+      k.fillRect(x - 1, fy - 2, 3, 5)
+      k.fillRect(x - 2, fy - 1, 5, 3)
+      k.fillStyle = FLOWER_COLOURS[i % FLOWER_COLOURS.length]!
+      k.fillRect(x, fy - 1, 1, 3)
+      k.fillRect(x - 1, fy, 3, 1)
+      k.fillStyle = RAMPS.gold[4]
+      k.fillRect(x, fy, 1, 1)
+    }
+  }
+
+  private renderCreek(g: CanvasRenderingContext2D) {
+    // Light dancing on the water, drifting with each lane's current.
+    for (const s of SHIMMER) {
+      const lane = this.laneAt(s.row)
+      const drift =
+        (lane?.vx ?? 0) * 0.5 + (lane && lane.vx < 0 ? -s.speed : s.speed)
+      const span = W + 40
+      const x = ((((s.x + this.tick * drift) % span) + span) % span) - 20
+      const flash = Math.sin(this.tick / 14 + s.phase)
+      if (flash < -0.4) continue
+      g.fillStyle = flash > 0.7 ? RAMPS.water[4] : RAMPS.water[3]
+      g.fillRect(Math.round(x), rowY(s.row) + s.y, s.w, 1)
+    }
+    drawStars(g, SKY_STARS, this.tick, RAMPS.purple)
   }
 
   private renderLane(g: CanvasRenderingContext2D, lane: Lane) {
     const y = rowY(lane.row)
     for (const t of lane.things) {
-      const x = t.x
       const w = t.len * TILE
       switch (lane.kind) {
         case 'log':
-          g.fillStyle = '#78350f'
-          g.fillRect(x, y + 3, w, TILE - 6)
-          g.fillStyle = '#b45309'
-          g.fillRect(x + 2, y + 4, w - 4, 3)
-          g.fillStyle = '#fcd34d'
-          g.beginPath()
-          g.arc(x + w - 3, y + TILE / 2, 4, 0, Math.PI * 2)
-          g.fill()
-          g.fillStyle = '#92400e'
-          g.fillRect(x + w - 4, y + TILE / 2 - 1, 2, 2)
+          this.renderLog(g, lane, t, y, w)
           break
         case 'turtles':
           this.renderTurtles(g, t, y, lane.dir)
           break
         default:
-          this.renderVehicle(g, lane, x, y, w)
+          this.renderVehicle(g, lane, t.x, y, w)
       }
     }
+  }
+
+  private renderLog(
+    g: CanvasRenderingContext2D,
+    lane: Lane,
+    t: Thing,
+    y: number,
+    w: number,
+  ) {
+    const x = Math.round(t.x)
+    // A dark wake under the log, foam curling off its leading end.
+    g.fillStyle = rgba(INK, 0.32)
+    g.fillRect(x + 3, y + 15, w - 4, 3)
+    const sprite = LOG_SPRITES[t.len - 1] ?? LOG_SPRITES[2]!
+    drawSprite(g, sprite, x, y + 3, {
+      anchor: 'topleft',
+      flipX: lane.dir < 0,
+    })
+    const nose = lane.dir > 0 ? x + w + 1 : x - 3
+    const f = Math.floor(this.tick / 8) % 2
+    g.fillStyle = RAMPS.water[4]
+    g.fillRect(nose, y + 5 + f * 2, 2, 1)
+    g.fillRect(nose + lane.dir, y + 12 - f * 2, 2, 1)
+    g.fillStyle = RAMPS.water[3]
+    g.fillRect(nose + lane.dir * 2, y + 8 + f, 1, 1)
   }
 
   private renderTurtles(
@@ -767,40 +1475,44 @@ class HedgehogCrossing implements ArcadeGameInstance {
     y: number,
     dir: 1 | -1,
   ) {
+    const cy = y + TILE / 2
     if (this.submerged(t)) {
-      g.strokeStyle = '#93c5fd'
+      // Rings and bubbles where the turtles went down.
+      g.save()
       g.lineWidth = 1
       for (let i = 0; i < t.len; i++) {
+        const cx = Math.round(t.x + i * TILE + TILE / 2)
+        const grow = ((this.tick + i * 7) % 24) / 24
+        g.strokeStyle = rgba(RAMPS.water[4], 0.7 * (1 - grow))
         g.beginPath()
-        g.arc(
-          t.x + i * TILE + TILE / 2,
-          y + TILE / 2,
-          5 + (this.tick % 20) / 6,
-          0,
-          Math.PI * 2,
-        )
+        g.ellipse(cx, cy, 4 + grow * 5, 2 + grow * 3, 0, 0, Math.PI * 2)
         g.stroke()
+        g.fillStyle = RAMPS.water[4]
+        const b = Math.floor(this.tick / 10 + i) % 3
+        g.fillRect(cx - 2 + b * 2, cy - 2 - b, 1, 1)
       }
+      g.restore()
       return
     }
     const phase = t.dive < 0 ? -1 : (this.tick + t.dive) % DIVE_PERIOD
     const warning = phase >= DIVE_WARN && phase < DIVE_DOWN
-    g.globalAlpha = warning && Math.floor(this.tick / 6) % 2 === 0 ? 0.55 : 1
+    const surfacing = phase >= DIVE_UP && phase < DIVE_UP + 14
+    const sinking =
+      surfacing || (warning && Math.floor(this.tick / 6) % 2 === 0)
     for (let i = 0; i < t.len; i++) {
       const cx = t.x + i * TILE + TILE / 2
-      const cy = y + TILE / 2
-      g.fillStyle = '#86efac'
-      g.fillRect(cx + dir * 7 - 2, cy - 2, 4, 4)
-      g.fillStyle = '#15803d'
+      g.fillStyle = rgba(RAMPS.water[0], 0.45)
       g.beginPath()
-      g.arc(cx, cy, 7, 0, Math.PI * 2)
+      g.ellipse(cx + 1, cy + 3, 7, 3, 0, 0, Math.PI * 2)
       g.fill()
-      g.fillStyle = '#4ade80'
-      g.fillRect(cx - 3, cy - 3, 6, 6)
-      g.fillStyle = '#166534'
-      g.fillRect(cx - 1, cy - 3, 2, 6)
+      const paddle = Math.floor((this.tick + i * 5) / 10) % 2
+      const sprite = sinking
+        ? TURTLE_SINKING
+        : paddle
+          ? TURTLE_SPRITES[1]
+          : TURTLE_SPRITES[0]
+      drawSprite(g, sprite, cx, cy, { flipX: dir < 0 })
     }
-    g.globalAlpha = 1
   }
 
   private renderVehicle(
@@ -810,188 +1522,174 @@ class HedgehogCrossing implements ArcadeGameInstance {
     y: number,
     w: number,
   ) {
-    const front = lane.dir > 0 ? x + w - 4 : x + 1
-    // Wheels.
-    g.fillStyle = '#0f172a'
-    g.fillRect(x + 2, y + 2, 5, 3)
-    g.fillRect(x + w - 7, y + 2, 5, 3)
-    g.fillRect(x + 2, y + TILE - 5, 5, 3)
-    g.fillRect(x + w - 7, y + TILE - 5, 5, 3)
-    g.fillStyle = lane.color
-    if (lane.kind === 'tractor') {
-      g.fillRect(x + 3, y + 5, w - 6, TILE - 10)
-      g.fillStyle = '#0f172a'
-      g.fillRect(lane.dir > 0 ? x + 2 : x + w - 9, y + 1, 7, TILE - 2)
-    } else {
-      g.fillRect(x + 1, y + 4, w - 2, TILE - 8)
-    }
-    if (lane.kind === 'bus') {
-      g.fillStyle = '#ccfbf1'
-      for (let wx = x + 6; wx < x + w - 8; wx += 8) g.fillRect(wx, y + 7, 5, 3)
-    }
+    const sprite = VEHICLE_SPRITES[lane.row]
+    if (!sprite) return
+    const cx = x + w / 2
+    dropShadow(g, cx + 1, y + TILE - 4, w / 2 - 1, 2.5, 0.45)
     if (lane.kind === 'racer') {
-      g.fillStyle = '#fecdd3'
+      // Speed streaks trailing the racer.
+      g.fillStyle = rgba(RAMPS.pink[4], 0.7)
       for (let i = 1; i <= 3; i++) {
         g.fillRect(
-          lane.dir > 0 ? x - i * 5 : x + w + i * 5 - 3,
-          y + 6 + i * 2,
-          3,
+          Math.round(lane.dir > 0 ? x - i * 6 : x + w + i * 6 - 4),
+          y + 7 + i * 3,
+          4,
           1,
         )
       }
     }
-    // A friendly robot eye on the front, and an antenna.
-    g.fillStyle = '#fef9c3'
-    g.fillRect(front, y + TILE / 2 - 2, 3, 3)
-    g.fillStyle = '#e5e7eb'
-    g.fillRect(x + w / 2, y + 2, 1, 3)
+    drawSprite(g, sprite, cx, y + TILE - 3, {
+      anchor: 'feet',
+      flipX: lane.dir < 0,
+    })
+    // Headlamps: the robots' eyes light the road ahead.
+    const front = lane.dir > 0 ? x + w + 2 : x - 2
+    glow(g, front, y + 10, 7, RAMPS.gold[3], 0.3)
   }
 
-  private renderHedge(g: CanvasRenderingContext2D) {
-    const y = rowY(0)
-    g.fillStyle = '#14532d'
-    g.fillRect(0, y, W, TILE)
-    g.fillStyle = '#166534'
-    for (let x = 0; x < W; x += 10) {
-      g.beginPath()
-      g.arc(x + 5, y + 3, 6, 0, Math.PI * 2)
-      g.fill()
-    }
+  private renderBurrows(g: CanvasRenderingContext2D) {
+    const y = rowY(0) + 12
     for (let i = 0; i < BURROWS; i++) {
       const bx = burrowX(i)
-      g.fillStyle = '#3f2a14'
+      if (this.home[i]) {
+        glow(g, bx, y + 2, 14, RAMPS.gold[3], 0.35)
+        drawSprite(g, HOG_SLEEP, bx, y + 3)
+        if (Math.floor(this.tick / 30) % 2 === 0) {
+          drawText(g, 'z', bx + 8, y - 10, {
+            color: '#e0e7ff',
+            outline: INK,
+          })
+        }
+      }
+      if (this.fox?.burrow === i) {
+        const frame = Math.floor(this.tick / 40) % 4 === 3 ? 1 : 0
+        drawSprite(g, FOX_SPRITES[frame], bx, y + 1)
+        drawText(g, 'Z', bx + 9, y - 12, {
+          color: RAMPS.rust[3],
+          outline: INK,
+        })
+      }
+      if (this.ladybug?.burrow === i) {
+        glow(
+          g,
+          bx,
+          y + 2,
+          13,
+          RAMPS.pink[3],
+          0.4 + 0.2 * Math.sin(this.tick / 8),
+        )
+        const frame = Math.floor(this.tick / 12) % 3 === 2 ? 1 : 0
+        drawSprite(g, LADYBUG_SPRITES[frame], bx, y + 2)
+      }
+    }
+  }
+
+  private renderMishap(g: CanvasRenderingContext2D) {
+    const y = rowY(this.row) + TILE / 2
+    const t = DEATH_TICKS - this.dead
+    if (this.deathKind === 'bonk') {
+      // Dizzy stars circle the spot.
+      for (let i = 0; i < 3; i++) {
+        const a = this.tick / 6 + (i * Math.PI * 2) / 3
+        drawSprite(
+          g,
+          DIZZY_STAR,
+          this.hx + Math.cos(a) * 9,
+          y - 5 + Math.sin(a) * 3,
+        )
+      }
+      return
+    }
+    // Splash rings spreading where the hedgehog went in.
+    g.save()
+    g.lineWidth = 1
+    for (const lag of [0, 10]) {
+      const r = Math.max(0, t - lag) * 0.35
+      if (r <= 0) continue
+      g.strokeStyle = rgba(RAMPS.water[4], Math.max(0, 0.8 - r / 20))
       g.beginPath()
-      g.arc(bx, y + 12, 10, Math.PI, 0)
-      g.fill()
-      g.fillRect(bx - 10, y + 12, 20, 8)
-      if (this.home[i]) this.renderSleeper(g, bx, y + 12)
-      if (this.fox?.burrow === i) this.renderFox(g, bx, y + 12)
-      if (this.ladybug?.burrow === i) this.renderLadybug(g, bx, y + 12)
+      g.ellipse(Math.round(this.hx), y, r + 2, (r + 2) * 0.5, 0, 0, Math.PI * 2)
+      g.stroke()
     }
-  }
-
-  private renderSleeper(g: CanvasRenderingContext2D, x: number, y: number) {
-    g.fillStyle = '#78350f'
-    g.beginPath()
-    g.arc(x, y + 2, 7, 0, Math.PI * 2)
-    g.fill()
-    g.fillStyle = '#fde68a'
-    g.fillRect(x - 2, y + 2, 4, 3)
-    if (Math.floor(this.tick / 30) % 2 === 0) {
-      drawText(g, 'z', x + 8, y - 10, { color: '#e0e7ff' })
-    }
-  }
-
-  private renderFox(g: CanvasRenderingContext2D, x: number, y: number) {
-    g.fillStyle = '#ea580c'
-    g.beginPath()
-    g.moveTo(x - 8, y - 6)
-    g.lineTo(x - 4, y - 1)
-    g.lineTo(x + 4, y - 1)
-    g.lineTo(x + 8, y - 6)
-    g.lineTo(x + 7, y + 4)
-    g.lineTo(x, y + 8)
-    g.lineTo(x - 7, y + 4)
-    g.fill()
-    g.fillStyle = '#fff7ed'
-    g.fillRect(x - 3, y + 4, 6, 3)
-    g.fillStyle = '#0f172a'
-    g.fillRect(x - 4, y + 1, 3, 1)
-    g.fillRect(x + 1, y + 1, 3, 1)
-    g.fillRect(x - 1, y + 6, 2, 2)
-    drawText(g, 'Z', x + 9, y - 12, { color: '#fdba74' })
-  }
-
-  private renderLadybug(g: CanvasRenderingContext2D, x: number, y: number) {
-    g.fillStyle = '#dc2626'
-    g.beginPath()
-    g.arc(x, y + 2, 5, 0, Math.PI * 2)
-    g.fill()
-    g.fillStyle = '#0f172a'
-    g.fillRect(x - 1, y - 3, 2, 10)
-    g.fillRect(x - 3, y, 2, 2)
-    g.fillRect(x + 2, y + 3, 2, 2)
-    g.fillRect(x - 2, y - 5, 4, 3)
+    g.restore()
   }
 
   private renderHedgehog(g: CanvasRenderingContext2D) {
     const hop = this.hop
-    const lift = hop ? Math.sin((hop.t / HOP_TICKS) * Math.PI) * 4 : 0
-    const row = hop
-      ? hop.fromRow + (hop.toRow - hop.fromRow) * (hop.t / HOP_TICKS)
-      : this.row
+    const f = hop ? hop.t / HOP_TICKS : 0
+    const lift = hop ? Math.sin(f * Math.PI) * 4 : 0
+    const row = hop ? hop.fromRow + (hop.toRow - hop.fromRow) * f : this.row
     const x = this.hx
-    const y = rowY(row) + TILE / 2 - lift
-    const look = {
-      up: [0, -1],
-      down: [0, 1],
-      left: [-1, 0],
-      right: [1, 0],
-    }[this.facing]
-    // Spikes all round the back, a soft face toward where it's going.
-    g.fillStyle = '#451a03'
-    for (let i = 0; i < 10; i++) {
-      const a = (i / 10) * Math.PI * 2
-      g.fillRect(x + Math.cos(a) * 7 - 1.5, y + Math.sin(a) * 7 - 1.5, 3, 3)
-    }
-    g.fillStyle = '#92400e'
-    g.beginPath()
-    g.arc(x, y, 6.5, 0, Math.PI * 2)
-    g.fill()
-    const fx = x + look[0]! * 4
-    const fy = y + look[1]! * 4
-    g.fillStyle = '#fde68a'
-    g.beginPath()
-    g.arc(fx, fy, 3.5, 0, Math.PI * 2)
-    g.fill()
-    g.fillStyle = '#0f172a'
-    g.fillRect(fx + look[0]! * 3 - 1, fy + look[1]! * 3 - 1, 2, 2)
+    const ground = rowY(row) + TILE / 2
+    dropShadow(g, x + 1, ground + 6, 6 - lift * 0.4, 2, 0.45 - lift * 0.04)
+    const frames = HOG_SPRITES[this.facing]
+    drawSprite(g, hop ? frames[1] : frames[0], x, ground - lift)
   }
 
   private renderHud(g: CanvasRenderingContext2D) {
-    const shadow = '#1e1b4b'
-    drawText(g, String(this.score).padStart(6, '0'), 6, 6, {
+    // Score on the left, high score and level on the right; the moon shows between.
+    hudPanel(g, 3, 3, 84, 22, RAMPS.leaf)
+    drawText(g, String(this.score).padStart(6, '0'), 9, 7, {
       scale: 2,
-      color: '#86efac',
-      shadow,
+      color: RAMPS.leaf[4],
+      shadow: INK,
     })
-    drawText(g, `HI ${Math.max(this.hiScore, this.score)}`, W - 6, 6, {
+    hudPanel(g, W - 79, 3, 76, 22)
+    drawText(g, `HI ${Math.max(this.hiScore, this.score)}`, W - 8, 6, {
       align: 'right',
-      color: '#f9a8d4',
-      shadow,
+      color: RAMPS.pink[3],
+      outline: INK,
     })
-    drawText(g, `LEVEL ${this.level}`, W - 6, 15, {
+    drawText(g, `LEVEL ${this.level}`, W - 8, 15, {
       align: 'right',
-      color: '#fde68a',
+      color: RAMPS.gold[3],
+      outline: INK,
     })
+    // Spare hedgehogs waiting on the lawn.
     const base = rowY(START_ROW + 1)
+    hudPanel(g, 3, base + 4, 102, 24, RAMPS.earth)
     for (let i = 0; i < Math.min(this.lives - 1, 6); i++) {
-      g.fillStyle = '#92400e'
-      g.beginPath()
-      g.arc(10 + i * 12, base + 9, 4, 0, Math.PI * 2)
-      g.fill()
-      g.fillStyle = '#fde68a'
-      g.fillRect(12 + i * 12, base + 8, 2, 2)
+      drawSprite(g, HOG_SPRITES.right[0], 13 + i * 16, base + 16)
     }
-    // The time bar: green to red as the hedgehog dawdles.
+    // The time bar, a gauge that runs green to gold to red as the hedgehog dawdles.
     const frac = Math.max(0, this.time / TIME_TICKS)
-    g.fillStyle = '#1f2937'
-    g.fillRect(90, base + 6, W - 130, 6)
-    g.fillStyle = frac > 0.33 ? '#4ade80' : frac > 0.15 ? '#facc15' : '#ef4444'
-    g.fillRect(90, base + 6, (W - 130) * frac, 6)
-    drawText(g, 'TIME', W - 6, base + 6, { align: 'right', color: '#bbf7d0' })
+    hudPanel(g, 110, base + 4, W - 113, 24, RAMPS.leaf)
+    drawText(g, 'TIME', 117, base + 12, {
+      color: RAMPS.leaf[4],
+      outline: INK,
+    })
+    const gx = 146
+    const gw = W - 10 - gx
+    const ramp =
+      frac > 0.33 ? RAMPS.leaf : frac > 0.15 ? RAMPS.gold : RAMPS.ember
+    if (frac <= 0.15) {
+      glow(
+        g,
+        gx + gw * frac,
+        base + 16,
+        12,
+        RAMPS.ember[3],
+        0.3 + 0.3 * Math.sin(this.tick / 4),
+      )
+    }
+    gauge(g, gx, base + 12, gw, 8, frac, ramp)
+    g.fillStyle = rgba(INK, 0.5)
+    for (let i = 1; i < 6; i++) {
+      g.fillRect(gx + Math.round((gw * i) / 6), base + 12, 1, 8)
+    }
     if (this.banner) {
       drawText(g, this.banner.text, W / 2, rowY(MEDIAN_ROW) + 3, {
         scale: 2,
         align: 'center',
         color: '#ffffff',
-        shadow: '#7c3aed',
+        outline: INK,
+        shadow: RAMPS.purple[1],
       })
       if (this.banner.sub) {
         drawText(g, this.banner.sub, W / 2, rowY(MEDIAN_ROW) + 22, {
           align: 'center',
-          color: '#fde68a',
-          shadow,
+          color: RAMPS.gold[3],
+          outline: INK,
         })
       }
     }

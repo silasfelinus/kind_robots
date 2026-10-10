@@ -96,6 +96,7 @@ import {
   tideAt,
   type Act,
   type Encounter,
+  type Hazard,
   type Holding,
   type SquadMember,
   type StageTheme,
@@ -1457,7 +1458,8 @@ class ZuzuGhostTrail implements ArcadeGameInstance {
     const frame: InputFrame = { held, pressed: { ...held } }
     if (this.card) return frame
     if (this.boss && this.boss.dying === 0) return this.pilotBoss(frame)
-    if (this.hopIncoming(frame)) return frame
+    // Hop what comes in low and step out from under what falls, before trading shots.
+    if (this.hopIncoming(frame) || this.dodgeBolts(frame)) return frame
     // Deal with whatever is closest, facing it.
     const near = this.foes
       .filter((f) => {
@@ -1478,11 +1480,12 @@ class ZuzuGhostTrail implements ArcadeGameInstance {
           b.x + b.w > Math.min(near.x, this.x) &&
           b.x < Math.max(near.x, this.x) &&
           blockTop(b, GROUND_Y) < this.y - 6 &&
-          // The grave a ghoul squats on is its perch, not cover.
-          !(near.x >= b.x - 2 && near.x <= b.x + b.w + 2),
+          // The grave a ghoul squats on is its perch, not cover; a tunnel roof overhead is no
+          // cover either: only stone down at throwing height.
+          !(near.x >= b.x - 2 && near.x <= b.x + b.w + 2) &&
+          (b.y === undefined || b.y + b.h > this.y - 12),
       )
-    // Only what the weapon can reach is fought where it stands; a foe further off that holds its
-    // ground (a gunslinger's standoff, a ghoul at its grave) is closed on by walking on.
+    // Only what the weapon can reach is fought where it stands; the iai cut only reaches a step.
     const reach =
       this.weapon === 'katana'
         ? 24
@@ -1491,16 +1494,29 @@ class ZuzuGhostTrail implements ArcadeGameInstance {
           : this.weapon === 'kasa'
             ? 84
             : 110
-    if (near && !cover && Math.abs(near.x - this.x) < reach) {
+    const gap = near ? Math.abs(near.x - this.x) : 999
+    // An ambush holds him in the room until the squad is down: hunt it anywhere on screen.
+    const ambush = !!this.activeLock()
+    // A foe behind him that keeps its distance is left behind, and one at his heels (too close for
+    // a throw to land) is stepped away from before he turns on it.
+    const behind =
+      !!near &&
+      near.x < this.x &&
+      ((gap >= reach && !ambush) || (gap <= 30 && this.weapon !== 'katana'))
+    if (near && !cover && gap < (ambush ? W : 110) && !behind) {
       const dir = near.x > this.x ? 1 : -1
+      // A sister winding up her censer (her tell) sweeps a step in front: back out of it.
+      if (near.kind === 'sister' && near.phase === 'aim' && gap < 44) {
+        if (dir > 0) held.left = true
+        else held.right = true
+        return frame
+      }
       if (dir !== this.facing && this.onGround) {
         if (dir > 0) held.right = true
         else held.left = true
         return frame
       }
-      // The iai cut only reaches a step ahead: hold still and let it come.
-      const gap = Math.abs(near.x - this.x)
-      if (this.throwCooldown === 0) {
+      if (this.throwCooldown === 0 && gap < reach) {
         frame.pressed.a = true
         // A foe up on a grave or a step sits above a straight throw: hop as he throws.
         const def = FOES[near.kind]
@@ -1508,9 +1524,14 @@ class ZuzuGhostTrail implements ArcadeGameInstance {
         if (above && this.onGround && this.weapon !== 'katana')
           frame.pressed.up = true
       }
-      if (gap > 30 || this.weapon === 'katana') return frame
+      // Out of reach of a foe that holds its ground (a ghoul, an acolyte): close in.
+      if (gap < reach) {
+        if (gap > 30 || this.weapon === 'katana') return frame
+      } else if (dir < 0) {
+        held.left = true
+        return frame
+      }
     }
-    if (this.dodgeBolts(frame)) return frame
     // Break crates on the way.
     const crate = this.crates.find(
       (c) => !c.open && c.x > this.x && c.x - this.x < 90,
@@ -1533,18 +1554,32 @@ class ZuzuGhostTrail implements ArcadeGameInstance {
           blockTop(b, GROUND_Y) < this.y - 1 &&
           (b.y === undefined || b.y + b.h > this.y - BODY_H),
       )
+      // Fire on a beat that cannot be hopped (under a low roof, or too wide) is walked through
+      // in its cool spell: wait at its edge until it has just died down.
+      const timed = (this.act.hazards ?? []).find(
+        (h) => h.x - this.x > 0 && h.x - this.x < 20 && this.walkThrough(h),
+      )
+      if (timed) {
+        const phase = this.actTick % timed.period!
+        const cool = phase < timed.on! ? 0 : timed.period! - phase
+        if (cool < (timed.x + timed.w - this.x + 4) / WALK) {
+          held.right = false
+          return frame
+        }
+      }
       const hazard = (this.act.hazards ?? []).some(
-        (h) => h.x - this.x > 0 && h.x - this.x < 14,
+        (h) => h.x - this.x > 0 && h.x - this.x < 14 && !this.walkThrough(h),
       )
       const crateAhead = this.crates.some(
         (c) => !c.open && c.x - this.x > 0 && c.x - this.x < 16,
       )
       // Hold at a pit's edge (throwing) while something is charging across it (not a foe that
-      // only stands its ground over there, which would hold him forever).
+      // only stands its ground over there, which would hold him forever); the iai cut cannot
+      // reach across, so with it he jumps and meets them.
       const charging = this.foes.some(
         (f) => f.x > this.x && f.x - this.x < 110 && f.vx < 0,
       )
-      if (pit && charging) {
+      if (pit && charging && this.weapon !== 'katana') {
         held.right = false
         if (this.throwCooldown === 0) frame.pressed.a = true
         return frame
@@ -1555,10 +1590,24 @@ class ZuzuGhostTrail implements ArcadeGameInstance {
     return frame
   }
 
+  /** Timed fire the pilot walks through on its cool beat: roofed over or too wide to hop. */
+  private walkThrough(h: Hazard): boolean {
+    if (!h.period || !h.on) return false
+    if ((h.period - h.on) * WALK < h.w + 30) return false
+    const roofed = this.act.blocks.some(
+      (b) =>
+        b.y !== undefined &&
+        b.x < h.x + h.w &&
+        b.x + b.w > h.x &&
+        b.y + b.h > GROUND_Y - 80,
+    )
+    return roofed || h.w > 44
+  }
+
   /** Hop bullets and waves coming in low. */
   private hopIncoming(frame: InputFrame): boolean {
     if (!this.onGround) return false
-    const incoming = this.bolts.some(
+    const incoming = this.bolts.find(
       (k) =>
         k.grav === 0 &&
         k.vx !== 0 &&
@@ -1567,8 +1616,20 @@ class ZuzuGhostTrail implements ArcadeGameInstance {
         k.y + k.hh > this.y - BODY_H &&
         k.y - k.hh < this.y,
     )
-    if (incoming) frame.pressed.up = true
-    return incoming
+    if (!incoming) return false
+    frame.pressed.up = true
+    // A slow orb is still there when a hop straight up comes down: hop away from it, if there
+    // is ground to land on.
+    const back = incoming.x > this.x ? -1 : 1
+    if (
+      Math.abs(incoming.vx) < 2 &&
+      this.groundAt(this.x + back * 60) &&
+      this.groundAt(this.x + back * 76)
+    ) {
+      if (back < 0) frame.held.left = true
+      else frame.held.right = true
+    }
+    return true
   }
 
   /** Step out from under anything falling on him. */

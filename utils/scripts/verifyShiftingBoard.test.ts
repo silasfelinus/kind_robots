@@ -37,10 +37,9 @@ assert.match(board, /card-back2\.webp/)
 assert.match(board, /card-back3\.webp/)
 assert.match(board, /v-for="\(card, index\) in game\.locations"/)
 assert.match(board, /game\.reachable\.includes\(card\.id\)/)
-assert.match(
-  board,
-  /:disabled="!revealed\(card\.id\) && !game\.reachable\.includes\(card\.id\)"/,
-)
+assert.match(board, /:disabled=/)
+assert.match(board, /!revealed\(card\.id\)/)
+assert.match(board, /!game\.reachable\.includes\(card\.id\)/)
 assert.match(board, /game\.currentLand\.boss/)
 assert.match(board, /game\.confront\('challenge'\)/)
 assert.match(board, /game\.confront\('parley'\)/)

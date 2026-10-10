@@ -1032,7 +1032,14 @@ class ZuzuGhostTrail implements ArcadeGameInstance {
           Math.abs(f.y - fire.y) < 24
         )
           this.strike(f, 1, f.x, fire.y - 10)
-      if (this.boss && Math.abs(this.boss.x - fire.x) < 16)
+      // Only a boss standing in it (a perched or flying boss is out of reach), and more slowly:
+      // a boss shrugs off most of the flame.
+      if (
+        this.boss &&
+        fire.life % 24 === 0 &&
+        Math.abs(this.boss.x - fire.x) < 16 &&
+        Math.abs(this.boss.y - fire.y) < 24
+      )
         this.hurtBoss(1, this.boss.x, fire.y - 10)
     }
     this.fires = this.fires.filter((f) => f.life > 0)

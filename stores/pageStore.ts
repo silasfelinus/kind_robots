@@ -341,6 +341,23 @@ export const usePageStore = defineStore('pageStore', () => {
     }
   }
 
+  /*
+   * Whether the stored page is the one at `path`. Only content pages call
+   * setPage, so after moving to a dedicated page (/butterfly-gallery,
+   * /admin/worlds/zuzu) this store still describes the last content page --
+   * possibly another tab in the SAME channel, which is why a channel check
+   * was not enough (Silas, 2026-10-10: "when i change to a new tab in a
+   * channel, the tutorial doesn't change"). [...slug].vue stores the route
+   * path with trailing slashes trimmed, so compare on that shape.
+   */
+  function describesPath(path: string): boolean {
+    const stored = currentPage.value?.path
+    if (!stored) return false
+
+    const normalize = (value: string) => value.replace(/\/+$/, '') || '/'
+    return normalize(stored) === normalize(path)
+  }
+
   function clearPage(): void {
     const navStore = useNavStore()
 
@@ -432,6 +449,7 @@ export const usePageStore = defineStore('pageStore', () => {
     activeTabKey,
 
     setPage,
+    describesPath,
     clearPage,
     resetPage,
     setLoading,

@@ -10,6 +10,8 @@
 //   npx tsx utils/scripts/verifyZuzuShowdownSiblings.test.ts
 
 import assert from 'node:assert/strict'
+import { readFileSync } from 'node:fs'
+import { join } from 'node:path'
 import { mulberry32 } from '../arcade/curve'
 import { parseNotation, type Dir } from '../zuzuShowdown/motion'
 import {
@@ -325,6 +327,41 @@ check('the toddler puppet follows her state, ducking from every hit', () => {
   const jump = at({ action: 'jump', y: 40 * SUB })
   assert.ok(jump.up >= 40, 'riding her back')
 })
+
+check(
+  "the toddler's pose sheet ships every pose he takes (or the stand)",
+  () => {
+    for (const style of ['pixel', 'hd'] as const) {
+      const sheet = JSON.parse(
+        readFileSync(
+          join(
+            process.cwd(),
+            'public',
+            'zuzu-showdown-sprites',
+            `toddler-${style}.json`,
+          ),
+          'utf8',
+        ),
+      ) as { animations: Record<string, { frames: unknown[] }> }
+      assert.ok(sheet.animations.stand?.frames.length, `${style}: stands`)
+      // Every pose puppetPlace can ask for is drawn.
+      for (const pose of [
+        'stand',
+        'duck',
+        'throw',
+        'proud',
+        'wave',
+        'raspberry',
+      ]) {
+        assert.equal(
+          sheet.animations[pose]?.frames.length,
+          1,
+          `${style} ${pose}`,
+        )
+      }
+    }
+  },
+)
 
 check('KO is never a death: she scoops him up and runs off-screen', () => {
   // A beat on one knee, then she runs; he rides in her arms.

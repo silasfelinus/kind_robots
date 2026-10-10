@@ -15,7 +15,7 @@
         class="flex items-center gap-1 text-xs opacity-70"
       >
         <Icon name="kind-icon:coin" class="size-3 text-warning" />
-        +{{ tankStore.lastCollectCoins }} from scales
+        +{{ tankStore.lastCollectCoins }} from coins
       </p>
     </div>
     <div class="grid grid-cols-[repeat(auto-fit,minmax(15rem,1fr))] gap-2">
@@ -84,6 +84,7 @@ const tankStore = useCthulhuquariumTankStore()
 const UPGRADE_ART: Record<string, { plate: string; standIn: string }> = {
   food: { plate: 'upgrade-food', standIn: 'set-heavier-feed' },
   dropSpeed: { plate: 'upgrade-drops', standIn: 'set-restless-water' },
+  room: { plate: 'upgrade-room', standIn: 'set-extra-shelf' },
 }
 
 function upgradeArt(track: string): string | null {

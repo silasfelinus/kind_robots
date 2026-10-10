@@ -1,0 +1,115 @@
+{
+  "fighter": "toddler",
+  "style": "hd",
+  "scale": 3,
+  "height": 48,
+  "atlas": "toddler-hd.webp",
+  "atlas_p2": null,
+  "p2_rules": [
+    {
+      "hue": [18, 44],
+      "sat_min": 0.3,
+      "val_min": 0.35,
+      "shift": -14,
+      "sat": 1.35
+    }
+  ],
+  "animations": {
+    "stand": {
+      "fps": 1,
+      "loop": false,
+      "frames": [
+        {
+          "x": 0,
+          "y": 0,
+          "w": 73,
+          "h": 146,
+          "anchor": {
+            "x": 39,
+            "y": 146
+          }
+        }
+      ]
+    },
+    "duck": {
+      "fps": 1,
+      "loop": false,
+      "frames": [
+        {
+          "x": 73,
+          "y": 0,
+          "w": 84,
+          "h": 110,
+          "anchor": {
+            "x": 42,
+            "y": 110
+          }
+        }
+      ]
+    },
+    "throw": {
+      "fps": 1,
+      "loop": false,
+      "frames": [
+        {
+          "x": 157,
+          "y": 0,
+          "w": 99,
+          "h": 145,
+          "anchor": {
+            "x": 52,
+            "y": 145
+          }
+        }
+      ]
+    },
+    "proud": {
+      "fps": 1,
+      "loop": false,
+      "frames": [
+        {
+          "x": 256,
+          "y": 0,
+          "w": 89,
+          "h": 146,
+          "anchor": {
+            "x": 46,
+            "y": 146
+          }
+        }
+      ]
+    },
+    "wave": {
+      "fps": 1,
+      "loop": false,
+      "frames": [
+        {
+          "x": 345,
+          "y": 0,
+          "w": 94,
+          "h": 147,
+          "anchor": {
+            "x": 47,
+            "y": 147
+          }
+        }
+      ]
+    },
+    "raspberry": {
+      "fps": 1,
+      "loop": false,
+      "frames": [
+        {
+          "x": 439,
+          "y": 0,
+          "w": 97,
+          "h": 140,
+          "anchor": {
+            "x": 48,
+            "y": 140
+          }
+        }
+      ]
+    }
+  }
+}

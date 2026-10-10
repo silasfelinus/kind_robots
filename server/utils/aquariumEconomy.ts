@@ -31,12 +31,13 @@ import { CTHULHUQUARIUM_BACKGROUND_UNLOCKS } from './cthulhuquariumBackgrounds.g
 // economy.yaml: economy.tick_seconds
 export const TICK_SECONDS = 60
 
-// economy.yaml: currency.starting_coins (the canon's economy/balance.yaml
-// carries the same 25). A new tank used to open with 0 coins, and a fresh
-// fish starts full, so the intro's "press Feed" beat failed with "your tank
-// only has 0" and a brand-new player could only skip out of the tutorial.
-// New tanks only; existing ones keep what they hold.
-export const STARTING_COINS = 25
+// economy.yaml: fun_loop.starting_coins (cthulhuquarium/t-080; was
+// currency.starting_coins 25). With a COMMON at 50 and the free starter
+// dropping a 3-coin coin every 15 s, the second fish is about a minute of
+// clicking away. A new tank used to open with 0 coins, and a fresh fish
+// starts full, so the intro's "press Feed" beat failed with "your tank only
+// has 0". New tanks only; existing ones keep what they hold.
+export const STARTING_COINS = 40
 
 // ---------------------------------------------------------------------------
 // Rarity tiers -- economy.yaml `rarity_tiers`
@@ -165,19 +166,26 @@ export function hungerMultiplier(hunger: number): number {
 }
 
 export const FEED_RESTORES_HUNGER_TO = 100
-export const FEED_COST_FACTOR_OF_UNLOCK_COST = 0.2
+// economy.yaml: fun_loop.feed_cost_factor_of_unlock_cost (cthulhuquarium/
+// t-080; was hunger.feed.cost_factor_of_unlock_cost 0.2). Feeding is a cheap
+// click, not a tax: a COMMON costs 1 coin, a RARE 15.
+export const FEED_COST_FACTOR_OF_UNLOCK_COST = 0.02
 
 // Feed cost scales with the fish's own unlock-cost curve ("the food is
 // alive" -- feeding a MYTHIC costs more than feeding a COMMON). Rounded to
-// the nearest coin: cost = round(unlockCost * factor). `unlockCostOverride`
+// the nearest coin, never below 1: cost = max(1, round(unlockCost *
+// factor)). `unlockCostOverride`
 // is Monster.unlockCost, threaded through so a per-species unlock override
 // also reshapes its feed cost instead of silently ignoring it.
 export function feedCost(
   rarity: Rarity,
   unlockCostOverride?: number | null,
 ): number {
-  return Math.round(
-    unlockCost(rarity, unlockCostOverride) * FEED_COST_FACTOR_OF_UNLOCK_COST,
+  return Math.max(
+    1,
+    Math.round(
+      unlockCost(rarity, unlockCostOverride) * FEED_COST_FACTOR_OF_UNLOCK_COST,
+    ),
   )
 }
 
@@ -472,6 +480,51 @@ function idleIncomeBonusFraction(equippedKinds: readonly string[]): number {
 // apart inside this file the way the YAML warns about across files.
 const DEBRIS_SKIMMER_CLEARS_PER_TICK =
   SET_PIECE_CATALOG.debris_skimmer.value ?? 0
+
+// ---------------------------------------------------------------------------
+// Fish room -- economy.yaml `fun_loop` (cthulhuquarium/t-081, LOOP.md). Room
+// counts FISH, not size: every fish (and, until t-082 removes them, every
+// unhatched egg) takes one slot whatever its species size. A new tank holds
+// STARTING_FISH_SLOTS; each tank expansion, bought with coins in order through
+// the `room` upgrade track (aquariumCollect.ts), adds its slots. 12 + 7 x 4 =
+// 40 fish at the top. Silas, 2026-10-10: "we aren't allowing enough fish in a
+// tank" -- the old weighed sizeCap of 10 against sizes 1-10 topped out at 4-5.
+// ---------------------------------------------------------------------------
+
+// fun_loop.starting_fish_slots
+export const STARTING_FISH_SLOTS = 12
+
+export interface TankExpansionConfig {
+  slots: number
+  cost: number
+}
+
+// fun_loop.tank_expansions, in purchase order.
+export const TANK_EXPANSIONS: readonly TankExpansionConfig[] = [
+  { slots: 4, cost: 400 },
+  { slots: 4, cost: 1200 },
+  { slots: 4, cost: 3000 },
+  { slots: 4, cost: 7500 },
+  { slots: 4, cost: 18000 },
+  { slots: 4, cost: 40000 },
+  { slots: 4, cost: 90000 },
+]
+
+// How many fish the tank holds: the starting slots, every expansion bought so
+// far, and the extra_species_slot set piece's flat bonus while equipped.
+export function fishSlotsCap(
+  tankExpansions: number,
+  equippedKinds: readonly string[],
+): number {
+  const bought = Number.isFinite(tankExpansions)
+    ? Math.min(TANK_EXPANSIONS.length, Math.max(0, Math.floor(tankExpansions)))
+    : 0
+  const expansionSlots = TANK_EXPANSIONS.slice(0, bought).reduce(
+    (sum, expansion) => sum + expansion.slots,
+    0,
+  )
+  return effectiveSizeCap(STARTING_FISH_SLOTS + expansionSlots, equippedKinds)
+}
 
 // extra_species_slot (economy.yaml set_pieces.extra_species_slot): a
 // counted number of equipped slots that grant a flat sizeCap bonus each.

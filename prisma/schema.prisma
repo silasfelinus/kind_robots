@@ -2547,9 +2547,14 @@ model Aquarium {
   /// null = never collected.
   collectAnchorAt DateTime?
   /// cthulhuquarium/t-071: coin-bought upgrade levels (aquariumCollect.ts
-  /// UPGRADE_CATALOG). Breadth only -- capacity stays milestone-driven.
+  /// UPGRADE_CATALOG).
   foodLevel       Int            @default(0)
   dropSpeedLevel  Int            @default(0)
+  /// cthulhuquarium/t-081: tank expansions bought with coins (the `room`
+  /// upgrade track, aquariumEconomy.ts TANK_EXPANSIONS). Fish room is now
+  /// STARTING_FISH_SLOTS + the slots of every expansion bought; sizeCap above
+  /// no longer gates fish.
+  tankExpansions  Int            @default(0)
   User           User            @relation(fields: [userId], references: [id], onDelete: Cascade)
   Stock          AquariumStock[]
   Events         AquariumEvent[]

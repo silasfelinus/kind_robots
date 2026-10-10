@@ -1462,9 +1462,12 @@ class ZuzuGhostTrail implements ArcadeGameInstance {
     const near = this.foes
       .filter((f) => {
         const def = FOES[f.kind]
+        // One standing right on top of him can't be faced (he would only turn on the spot): he
+        // walks on out of it instead.
         return (
           !(def.rises && f.phase === 'rise') &&
-          Math.abs(f.y - def.cy - (this.y - 12)) < 22
+          Math.abs(f.y - def.cy - (this.y - 12)) < 22 &&
+          Math.abs(f.x - this.x) >= 4
         )
       })
       .sort((a, b) => Math.abs(a.x - this.x) - Math.abs(b.x - this.x))[0]
@@ -1474,9 +1477,21 @@ class ZuzuGhostTrail implements ArcadeGameInstance {
         (b) =>
           b.x + b.w > Math.min(near.x, this.x) &&
           b.x < Math.max(near.x, this.x) &&
-          blockTop(b, GROUND_Y) < this.y - 6,
+          blockTop(b, GROUND_Y) < this.y - 6 &&
+          // The grave a ghoul squats on is its perch, not cover.
+          !(near.x >= b.x - 2 && near.x <= b.x + b.w + 2),
       )
-    if (near && !cover && Math.abs(near.x - this.x) < 110) {
+    // Only what the weapon can reach is fought where it stands; a foe further off that holds its
+    // ground (a gunslinger's standoff, a ghoul at its grave) is closed on by walking on.
+    const reach =
+      this.weapon === 'katana'
+        ? 24
+        : this.weapon === 'lantern'
+          ? 80
+          : this.weapon === 'kasa'
+            ? 84
+            : 110
+    if (near && !cover && Math.abs(near.x - this.x) < reach) {
       const dir = near.x > this.x ? 1 : -1
       if (dir !== this.facing && this.onGround) {
         if (dir > 0) held.right = true
@@ -1484,10 +1499,15 @@ class ZuzuGhostTrail implements ArcadeGameInstance {
         return frame
       }
       // The iai cut only reaches a step ahead: hold still and let it come.
-      const reach =
-        this.weapon === 'katana' ? 24 : this.weapon === 'lantern' ? 80 : 110
       const gap = Math.abs(near.x - this.x)
-      if (this.throwCooldown === 0 && gap < reach) frame.pressed.a = true
+      if (this.throwCooldown === 0) {
+        frame.pressed.a = true
+        // A foe up on a grave or a step sits above a straight throw: hop as he throws.
+        const def = FOES[near.kind]
+        const above = this.y - 12 - (near.y - def.cy) > def.hh - 2
+        if (above && this.onGround && this.weapon !== 'katana')
+          frame.pressed.up = true
+      }
       if (gap > 30 || this.weapon === 'katana') return frame
     }
     if (this.dodgeBolts(frame)) return frame
@@ -1519,8 +1539,11 @@ class ZuzuGhostTrail implements ArcadeGameInstance {
       const crateAhead = this.crates.some(
         (c) => !c.open && c.x - this.x > 0 && c.x - this.x < 16,
       )
-      // Hold at a pit's edge (throwing) while something is charging across it.
-      const charging = this.foes.some((f) => f.x > this.x && f.x - this.x < 110)
+      // Hold at a pit's edge (throwing) while something is charging across it (not a foe that
+      // only stands its ground over there, which would hold him forever).
+      const charging = this.foes.some(
+        (f) => f.x > this.x && f.x - this.x < 110 && f.vx < 0,
+      )
       if (pit && charging) {
         held.right = false
         if (this.throwCooldown === 0) frame.pressed.a = true

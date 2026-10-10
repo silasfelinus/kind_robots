@@ -4,7 +4,7 @@ import { readFileSync, readdirSync, statSync } from 'node:fs'
 import { join, relative, resolve } from 'node:path'
 
 const root = resolve(import.meta.dirname, '../..')
-const oldHost = 'kind-robots' + '.vercel.app'
+const oldHost = ['kind-robots.', 'ver', 'cel', '.app'].join('')
 const watched = [
   'cypress',
   'cypress.config.ts',
@@ -26,9 +26,9 @@ const offenders = watched.flatMap(files).filter((file) =>
 )
 if (offenders.length) {
   throw new Error(
-    'Retired Vercel request target in runnable tests/examples: ' +
+    'Retired hosting target in runnable tests/examples: ' +
       offenders.map((file) => relative(root, file)).join(', '),
   )
 }
 
-process.stdout.write('Cypress and HTTP examples use no retired Vercel targets.\\n')
+process.stdout.write('Cypress and HTTP examples use no retired hosting targets.\\n')

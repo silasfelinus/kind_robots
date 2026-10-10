@@ -356,8 +356,15 @@ for (const file of adminTabFiles) {
   )
 }
 assert.ok(
-  workspaceSheetSource.includes(':tab="tutorialTabKey || undefined"'),
-  'Workspace tutorials must pass the active modern tab into the tutorial flyer.',
+  workspaceSheetSource.includes(
+    ':tab="pageTutorial ? undefined : tutorialTabKey || undefined"',
+  ),
+  'Workspace tutorials must pass the active modern tab into the tutorial flyer unless the sheet already leads with that page tutorial.',
+)
+assert.match(
+  workspaceSheetSource,
+  /<section v-if="pageTutorial"[\s\S]*?pageTutorial\.image[\s\S]*?pageTutorial\.body/,
+  'An ordinary page must open the workspace sheet on its own tutorial image and copy, not on an intro card behind a toggle.',
 )
 
 const tutorialFlyerSource = readFileSync(

@@ -53,6 +53,7 @@ const KUNAI_SPEED = 4.5
 const INVULN_TICKS = 100
 const DEATH_TICKS = 110
 const CLEAR_TICKS = 160
+const VICTORY_TICKS = 180
 const STAGE_TICKS = 60 * 150
 const START_LIVES = 3
 const EXTRA_EVERY = 20_000
@@ -96,6 +97,7 @@ type Stage = {
   crates: Array<{ x: number; holds: Holding }>
   /** Spawn-interval multipliers: below 1, that foe comes more often. */
   rates: { spirit: number; crow: number; hyena: number }
+  secret: { x: number; y: number }
   sky: [string, string, string]
   mesa: string
   soil: [string, string, string]
@@ -134,6 +136,7 @@ const STAGES: Stage[] = [
       { x: 3340, holds: 'nugget' },
     ],
     rates: { spirit: 1, crow: 1, hyena: 1 },
+    secret: { x: 346, y: 150 },
     sky: ['#0f1b3d', '#3b4a7a', '#b8743a'],
     mesa: '#2a2350',
     soil: ['#7c5a32', '#a07a45', '#5c4026'],
@@ -167,6 +170,7 @@ const STAGES: Stage[] = [
       { x: 3340, holds: 'nugget' },
     ],
     rates: { spirit: 0.9, crow: 1.2, hyena: 1.1 },
+    secret: { x: 295, y: 146 },
     sky: ['#1a0f2e', '#5b3a6e', '#c2703d'],
     mesa: '#3b2448',
     soil: ['#a8916a', '#d6c7a1', '#8a7552'],
@@ -202,6 +206,7 @@ const STAGES: Stage[] = [
       { x: 3340, holds: 'nugget' },
     ],
     rates: { spirit: 1.2, crow: 0.7, hyena: 1.2 },
+    secret: { x: 608, y: 148 },
     sky: ['#04161f', '#16445a', '#4f8a8b'],
     mesa: '#0f2f3d',
     soil: ['#4a3b2a', '#6b5a3e', '#2f2519'],
@@ -236,6 +241,7 @@ const STAGES: Stage[] = [
       { x: 3340, holds: 'nugget' },
     ],
     rates: { spirit: 1.1, crow: 1, hyena: 0.7 },
+    secret: { x: 394, y: 144 },
     sky: ['#2a0f1f', '#7a2f3b', '#e08a4f'],
     mesa: '#4a1f2a',
     soil: ['#9a6a45', '#c08a5a', '#6b4a30'],
@@ -339,6 +345,7 @@ class ZuzuGhostTrail implements ArcadeGameInstance {
   level = 1
   lives = START_LIVES
   over = false
+  won = false
 
   private rng: () => number
   private sound: ArcadeGameOptions['sound']
@@ -362,6 +369,7 @@ class ZuzuGhostTrail implements ArcadeGameInstance {
   private checkpoint = 40
   private dead = 0
   private clear = 0
+  private victoryTicks = 0
   private timer = STAGE_TICKS
   private camX = 0
   private foes: Foe[] = []
@@ -378,6 +386,7 @@ class ZuzuGhostTrail implements ArcadeGameInstance {
   private hyenaTimer = 400
   private encounterFrontier = 0
   private encounterCredits = 2
+  private foundSecrets = new Set<StageKey>()
   private nextExtra = EXTRA_EVERY
   private particles: Particle[] = []
   private floaters: Floater[] = []
@@ -443,10 +452,24 @@ class ZuzuGhostTrail implements ArcadeGameInstance {
     this.updateEffects()
     if (this.banner && --this.banner.ticks <= 0) this.banner = null
     if (this.over) return
+    if (this.victoryTicks > 0) {
+      if (--this.victoryTicks === 0) this.over = true
+      return
+    }
     const controls = this.demo ? this.demoInput() : input
 
     if (this.clear > 0) {
-      if (--this.clear === 0) this.startStage(this.level + 1)
+      if (--this.clear === 0) {
+        if (this.level >= STAGES.length) {
+          this.won = true
+          this.victoryTicks = VICTORY_TICKS
+          this.banner = {
+            text: 'PREVIEW CLEARED',
+            sub: `${this.foundSecrets.size}/${STAGES.length} RELICS FOUND`,
+            ticks: VICTORY_TICKS,
+          }
+        } else this.startStage(this.level + 1)
+      }
       return
     }
     if (this.dead > 0) {
@@ -471,6 +494,7 @@ class ZuzuGhostTrail implements ArcadeGameInstance {
 
     this.move(controls)
     if (this.dead > 0) return
+    this.collectSecret()
     if (controls.pressed.a || (controls.held.a && this.throwCooldown === 0))
       this.throw()
     this.spawnFoes()
@@ -1119,6 +1143,21 @@ class ZuzuGhostTrail implements ArcadeGameInstance {
       this.banner = { text, sub: 'BACK TO THE CHECKPOINT', ticks: 90 }
   }
 
+  private collectSecret() {
+    if (this.foundSecrets.has(this.stage.key)) return
+    const { x, y } = this.stage.secret
+    if (Math.abs(this.x - x) >= 12 || Math.abs(this.y - 14 - y) >= 13) return
+    this.foundSecrets.add(this.stage.key)
+    this.addScore(800, x, y)
+    this.banner = {
+      text: 'HIDDEN RELIC',
+      sub: `${this.foundSecrets.size}/${STAGES.length} DISCOVERED`,
+      ticks: 110,
+    }
+    this.burst(x, y, 18, '#7dd3fc')
+    this.sound.play('extra')
+  }
+
   private stageClear() {
     const timeBonus = Math.floor(this.timer / 60) * 50
     const bonus = 5000 * this.level + timeBonus
@@ -1320,6 +1359,7 @@ class ZuzuGhostTrail implements ArcadeGameInstance {
     this.renderTown(g)
     this.renderGround(g)
     for (const c of this.crates) if (!c.open) this.renderCrate(g, c.x)
+    if (!this.foundSecrets.has(this.stage.key)) this.renderSecret(g)
     for (const p of this.pickups) this.renderPickup(g, p)
     for (const f of this.foes) this.renderFoe(g, f)
     if (this.boss) this.renderBoss(g, this.boss)
@@ -1344,6 +1384,21 @@ class ZuzuGhostTrail implements ArcadeGameInstance {
       drawText(g, f.text, f.x, f.y, { align: 'center', color: '#fde68a' })
     g.restore()
     this.renderHud(g)
+  }
+
+  private renderSecret(g: CanvasRenderingContext2D) {
+    const { x, y } = this.stage.secret
+    const pulse = (Math.sin(this.tick / 15) + 1) / 2
+    g.save()
+    g.translate(x, y)
+    g.rotate(Math.PI / 4)
+    g.fillStyle = '#0f172a'
+    g.fillRect(-6, -6, 12, 12)
+    g.fillStyle = pulse > 0.5 ? '#7dd3fc' : '#fef3c7'
+    g.fillRect(-4, -4, 8, 8)
+    g.fillStyle = '#fff'
+    g.fillRect(-1, -1, 2, 2)
+    g.restore()
   }
 
   private renderSky(g: CanvasRenderingContext2D) {
@@ -2037,6 +2092,9 @@ class ZuzuGhostTrail implements ArcadeGameInstance {
     g.fillRect(0, 16, 20 + WEAPONS[this.weapon].label.length * 6, 11)
     this.renderWeaponIcon(g, this.weapon, 9, 21)
     drawText(g, WEAPONS[this.weapon].label, 18, 18, { color: '#fde68a' })
+    drawText(g, `RELICS ${this.foundSecrets.size}/${STAGES.length}`, 4, 29, {
+      color: '#7dd3fc',
+    })
     // Progress along the trail.
     g.fillStyle = '#1f2937'
     g.fillRect(170, 6, 60, 3)

@@ -1,5 +1,5 @@
 <template>
-  <div class="kr-scroll mx-auto max-w-[1650px] space-y-5 px-3 py-5 sm:px-6">
+  <div class="kr-scroll journey-shell mx-auto max-w-[1650px] space-y-5 px-3 py-5 sm:px-6">
     <header class="flex flex-wrap items-end justify-between gap-3">
       <div>
         <p class="text-xs font-black uppercase tracking-[.25em] text-warning">
@@ -86,7 +86,7 @@
         </div>
       </section>
 
-      <div class="grid items-start gap-4 xl:grid-cols-[minmax(0,1fr)_300px]">
+      <div class="journey-layout items-start gap-4">
         <div class="min-w-0 space-y-5">
           <section class="space-y-3" aria-label="The illustrated travel board">
             <div class="flex flex-wrap items-end justify-between gap-2">
@@ -98,7 +98,7 @@
               </div>
               <span class="badge badge-outline">{{ game.resolved.length }} / 3 visited</span>
             </div>
-            <div class="grid grid-cols-2 gap-2 sm:grid-cols-4 sm:gap-4">
+            <div class="grid grid-cols-[repeat(auto-fit,minmax(min(100%,145px),1fr))] gap-3">
               <div
                 v-for="(card, index) in game.locations"
                 :key="card.id"
@@ -182,7 +182,7 @@
           </section>
 
           <section class="overflow-hidden rounded-3xl border border-base-content/15 bg-base-200 shadow-xl" aria-label="Current encounter">
-            <div v-if="game.activeCard" class="grid gap-0 lg:grid-cols-[minmax(0,1.2fr)_minmax(260px,1fr)]">
+            <div v-if="game.activeCard" class="encounter-grid gap-0">
               <div class="relative aspect-[4/3] overflow-hidden bg-base-300 lg:aspect-auto lg:min-h-[420px]">
                 <NavigationFlipCard :trigger-key="dealKey" :duration-ms="650" radius="0">
                   <template #front>
@@ -224,7 +224,7 @@
                 </div>
               </div>
             </div>
-            <div v-else-if="game.bossReady" class="grid lg:grid-cols-[minmax(0,1.2fr)_minmax(260px,1fr)]">
+            <div v-else-if="game.bossReady" class="encounter-grid">
               <div class="relative min-h-72 overflow-hidden bg-base-300 lg:min-h-[420px]">
                 <img v-if="game.currentLand.boss.art" :src="game.currentLand.boss.art" :alt="game.currentLand.boss.label" class="absolute inset-0 size-full object-cover" />
                 <div v-else class="absolute inset-0">
@@ -250,7 +250,7 @@
                 </button>
               </div>
             </div>
-            <div v-else-if="game.finished" class="grid min-h-80 items-center gap-4 p-8 md:grid-cols-[minmax(0,1fr)_minmax(260px,1fr)]">
+            <div v-else-if="game.finished" class="encounter-grid min-h-80 items-center gap-4 p-8">
               <img src="/zuzu-gamebook/scenes/zuzu-alone.webp" alt="Zuzu the ronin at journey's end" class="max-h-80 w-full rounded-2xl object-cover" />
               <div>
                 <p class="text-xs font-bold uppercase tracking-[.25em] text-warning">Journey complete</p>
@@ -260,7 +260,7 @@
                 <button type="button" class="btn btn-primary mt-4" @click="confirmNew = true">Begin another journey</button>
               </div>
             </div>
-            <div v-else class="grid min-h-80 gap-0 md:grid-cols-[minmax(0,1.15fr)_minmax(260px,1fr)]">
+            <div v-else class="encounter-grid min-h-80 gap-0">
               <img src="/zuzu-gamebook/scenes/dust-road.webp" alt="A dusty crossroads in Zuzu's frontier" class="h-72 w-full object-cover md:h-full" />
               <div class="flex flex-col justify-center gap-4 p-5 sm:p-7">
                 <p class="text-xs font-bold uppercase tracking-[.25em] text-warning">Choose your next road</p>
@@ -305,7 +305,7 @@
           <section v-if="visitedCards.length" class="rounded-2xl border border-base-content/15 bg-base-200 p-4 sm:p-5" aria-label="Discovered locations">
             <details>
               <summary class="cursor-pointer font-serif text-lg font-black">Your discovered trail · {{ visitedCards.length }} places</summary>
-              <div class="mt-4 grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-5">
+              <div class="mt-4 grid grid-cols-[repeat(auto-fit,minmax(min(100%,125px),1fr))] gap-2">
                 <button
                   v-for="card in visitedCards"
                   :key="card.id"
@@ -476,3 +476,24 @@ function startOver() {
 }
 onMounted(() => game.initialize())
 </script>
+
+<style scoped>
+.journey-shell {
+  container-type: inline-size;
+}
+.journey-layout,
+.encounter-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+}
+@container (min-width: 47rem) {
+  .encounter-grid {
+    grid-template-columns: minmax(0, 1.15fr) minmax(260px, 1fr);
+  }
+}
+@container (min-width: 70rem) {
+  .journey-layout {
+    grid-template-columns: minmax(0, 1fr) 300px;
+  }
+}
+</style>

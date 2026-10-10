@@ -4,24 +4,17 @@ channelKey: admin
 tabKey: zuzu-shifting-lands
 label: Shifting Lands
 title: Zuzu · Shifting Lands Workshop
-subtitle: Playtest the Homestead card-game prototype
-summary: Playtest the Shifting Lands prototype.
-description: Playtest the Homestead prototype by drawing encounter cards, making skill checks, and facing the Abbess.
+subtitle: Build and playtest the illustrated narrative board game
+summary: Play the illustrated five-land journey.
+description: 'Admin-only five-land interactive board with drawn encounter cards, shifting roads, boss trials and an inspectable journey history; the original Homestead workshop remains available.'
 icon: kind-icon:map
-image: /zuzu-gamebook/scenes/three-road.webp
 route: /admin/zuzu-shifting-lands
 sort: 125
 requiredRole: ADMIN
 tutorial:
   title: Shifting Lands
   body: >-
-    A playable prototype of the Shifting Lands card game, set at the Homestead.
-    Tap the encounter deck to draw a card with its own species and role, then
-    choose Observe or Bargain to make a skill check. Clear the encounters to
-    unlock the Abbess, whom you can confront or escape wounded. Health,
-    provisions, and the travel journal track the run, it saves in this browser,
-    and New journey starts over.
-  image: /zuzu-gamebook/scenes/three-road.webp
+    Playtest the private five-land illustrated expedition. Draw or choose a reachable road, resolve skill checks, confront major trials, inspect visited cards, and read the journal of changing places. Use Homestead workshop to visit the original separate prototype. This stays in Admin until public play is approved.
 ---
 
-Playtest the Homestead's illustrated board and encounter decks. This development workshop stays in Admin until Shifting Lands is ready for public play.
+Travel through five shifting lands on an illustrated board, or open the original Homestead workshop for the older prototype. The five-land game, companion systems, later-land art and full-save review are still in development; public play is not enabled.

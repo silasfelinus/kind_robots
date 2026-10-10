@@ -8,7 +8,7 @@
     <div
       ref="cardRef"
       class="flip-card-inner"
-      :class="{ 'is-flipping': isFlipping }"
+      :class="{ 'is-flipping': isFlipping, 'is-revealing': props.revealOnTrigger }"
     >
       <div class="flip-card-face flip-card-front">
         <slot name="front" />
@@ -32,6 +32,7 @@ const props = withDefaults(
     radius?: string
     scale?: number
     disabled?: boolean
+    revealOnTrigger?: boolean
   }>(),
   {
     triggerKey: 0,
@@ -39,6 +40,7 @@ const props = withDefaults(
     radius: '1.75rem',
     scale: 1.06,
     disabled: false,
+    revealOnTrigger: false,
   },
 )
 
@@ -90,9 +92,12 @@ async function play(): Promise<void> {
     emit('start')
   }, 20)
 
-  halfwayTimer = setTimeout(() => {
-    emit('halfway')
-  }, Math.round(props.durationMs / 2))
+  halfwayTimer = setTimeout(
+    () => {
+      emit('halfway')
+    },
+    Math.round(props.durationMs / 2),
+  )
 
   doneTimer = setTimeout(() => {
     isFlipping.value = false
@@ -150,6 +155,22 @@ defineExpose({
 
 .flip-card-inner.is-flipping {
   animation: flip-card-spin var(--flip-duration) cubic-bezier(0.4, 0.1, 0.2, 1);
+}
+
+@keyframes flip-card-reveal {
+  0% {
+    transform: rotateY(180deg) scale(1);
+  }
+  50% {
+    transform: rotateY(270deg) scale(var(--flip-scale));
+  }
+  100% {
+    transform: rotateY(360deg) scale(1);
+  }
+}
+
+.flip-card-inner.is-flipping.is-revealing {
+  animation-name: flip-card-reveal;
 }
 
 @keyframes flip-card-spin {

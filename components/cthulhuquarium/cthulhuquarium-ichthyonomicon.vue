@@ -169,9 +169,6 @@
                 >size {{ open.size }}</span
               >
             </div>
-            <p v-if="open.bestStats" class="text-xs opacity-70">
-              Best seen: {{ formatBestStats(open.bestStats) }}
-            </p>
             <p v-if="open.firstAcquiredAt" class="text-xs italic opacity-60">
               First recorded {{ recordedOn(open.firstAcquiredAt) }}
             </p>
@@ -209,11 +206,7 @@ import {
 } from '@/stores/cthulhuquariumTankStore'
 import { artForSpecies, portraitFor } from '~/utils/cthulhuquariumArt'
 import { spriteForSpecies } from '~/utils/cthulhuquariumSprites'
-import {
-  PLATE_LINEAGES,
-  formatBestStats,
-  plateFor,
-} from '~/utils/cthulhuquariumBook'
+import { PLATE_LINEAGES, plateFor } from '~/utils/cthulhuquariumBook'
 import { CTHULHUQUARIUM_VOICES } from '~/utils/cthulhuquariumCanon.generated'
 
 const FILTERS = [

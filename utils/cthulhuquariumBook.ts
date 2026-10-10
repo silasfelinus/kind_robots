@@ -3,8 +3,7 @@
 // The Ichthyonomicon's vocabulary: which lineage each plate comes from (the
 // canon's ART-DIRECTION.md "The eight plates" -- the book is a scrapbook
 // assembled over eighty years, and each species was recorded in whatever
-// medium existed when it was found), and the compact stat line the book and
-// the tank cards share.
+// medium existed when it was found).
 
 import { CTHULHUQUARIUM_PLATES } from './cthulhuquariumCanon.generated'
 
@@ -31,30 +30,4 @@ export function plateFor(
   const key = slug ? CTHULHUQUARIUM_PLATES[slug] : undefined
   const lineage = key ? PLATE_LINEAGES[key] : undefined
   return key && lineage ? { key, ...lineage } : null
-}
-
-export type StatBlock = {
-  charm: number | null
-  empathy: number | null
-  grace: number | null
-  luck: number | null
-  might: number | null
-  wits: number | null
-}
-
-const STAT_LABELS: Record<keyof StatBlock, string> = {
-  charm: 'CHA',
-  empathy: 'EMP',
-  grace: 'GRA',
-  luck: 'LUC',
-  might: 'MGT',
-  wits: 'WIT',
-}
-
-/** "CHA 3 · GRA 5": only the stats that were ever recorded. */
-export function formatBestStats(stats: StatBlock): string {
-  return (Object.keys(STAT_LABELS) as Array<keyof StatBlock>)
-    .filter((key) => stats[key] != null)
-    .map((key) => `${STAT_LABELS[key]} ${stats[key]}`)
-    .join(' · ')
 }

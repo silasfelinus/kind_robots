@@ -47,11 +47,6 @@ export interface TankMonster {
   luck: string
   might: string
   wits: string
-  // cthulhuquarium/t-055: what breeding two owned individuals of this
-  // species costs, server-computed (aquariumEconomy.ts's breedCost) off
-  // this same rarity/unlockCost -- never re-derived client-side, same
-  // "server disposes" discipline as every other price in this store.
-  breedCost: number
 }
 
 export interface TankStock {
@@ -61,23 +56,9 @@ export interface TankStock {
   hunger: number
   mood: string | null
   placedAt: string
-  // cthulhuquarium/t-055/t-029: hidden rolled individual stats and
-  // parentage. Null until rolled -- every individual placed before t-029
-  // shipped has null stats and no parents. Read-only here (breed() sends
-  // parent ids, never these stats); a future stat display is the only
-  // thing waiting on this, not this task's own breeding action.
-  statCharm: number | null
-  statEmpathy: number | null
-  statGrace: number | null
-  statLuck: number | null
-  statMight: number | null
-  statWits: number | null
-  parentAId: number | null
-  parentBId: number | null
-  // cthulhuquarium/t-062: what selling THIS individual would pay right now,
-  // server-computed (aquariumEconomy.ts's sellPrice) off its own rolled
-  // stats -- same "server disposes" discipline as breedCost above, shown
-  // next to the Sell action so the player sees the payout before clicking.
+  // cthulhuquarium/t-082: what releasing this fish pays -- a flat half of its
+  // species' unlock cost (aquariumEconomy.ts releasePrice), shown on the
+  // Release button so the player sees the payout before clicking.
   sellPrice: number
   // cthulhuquarium/t-080: what each coin this fish drops is worth,
   // server-computed (aquariumCollect.ts coinValueForTier).
@@ -106,17 +87,6 @@ export interface TankDecor {
   zIndex: number
 }
 
-// cthulhuquarium/t-041: one purchased-but-not-yet-hatched egg, as returned
-// in Tank.Eggs and by the /api/aquarium/eggs endpoints. Never includes an
-// already-hatched egg -- the server's ownedEggSelect filters those out,
-// since a hatched egg's outcome already lives on a TankStock row.
-export interface TankEgg {
-  id: number
-  rarity: string
-  size: number
-  purchasedAt: string
-}
-
 // cthulhuquarium/t-071: one coin upgrade track as returned in Tank.upgrades.
 // nextCost is null once the track is maxed.
 export interface TankUpgrade {
@@ -141,7 +111,7 @@ export interface Tank {
   // cthulhuquarium/t-081: how many FISH the tank holds (aquariumEconomy.ts
   // fishSlotsCap: starting slots + bought expansions + any equipped
   // extra_species_slot bonus). Kept under its old name; it no longer counts
-  // species size. An unhatched egg also takes one slot -- see occupantSize.
+  // species size.
   effectiveSizeCap: number
   debrisLevel: number
   lastCleanedAt: string | null
@@ -159,7 +129,6 @@ export interface Tank {
   Stock: TankStock[]
   Sets: TankSet[]
   Decor: TankDecor[]
-  Eggs: TankEgg[]
 }
 
 // cthulhuquarium/t-026: one catalog entry from GET /api/aquarium/sets,
@@ -307,65 +276,8 @@ interface PurchaseFinaleResponse {
   finaleJustTriggered: boolean
 }
 
-// cthulhuquarium/t-041: one catalog entry from GET /api/aquarium/eggs,
-// static config (aquariumEconomy.ts's eggCatalog()) -- one row per
-// rarity+size combination, both dials kept independent per the task's own
-// design note.
-export interface EggCatalogEntry {
-  rarity: string
-  size: number
-  cost: number
-  title: string
-  description: string
-  icon: string
-}
-
-interface EggCatalogResponse {
-  catalog: EggCatalogEntry[]
-  eggs: TankEgg[]
-}
-
-interface PurchaseEggResponse {
-  aquarium: Tank
-  egg: TankEgg
-  cost: number
-  // cthulhuquarium/t-074: an egg reserves its size at purchase, so
-  // first_full_tank can fire here rather than at hatch -- at most one entry.
-  firedMilestones: FiredMilestone[]
-}
-
-interface HatchEggResponse {
-  aquarium: Tank
-  stock: TankStock
-  justCompletedBestiary: boolean
-  firedMilestones: FiredMilestone[]
-}
-
-// cthulhuquarium/t-055: breed.post.ts's response shape. `evolved` mirrors
-// server/utils/aquarium.ts's BreedResult -- true only when the offspring's
-// rolled stats qualified for the parent species' secret BREEDING evolution,
-// in which case `stock` is already the evolved species, not the parents'
-// own (see breedFishForUser's own comment).
-interface BreedResponse {
-  aquarium: Tank
-  stock: TankStock
-  cost: number
-  evolved: boolean
-  justCompletedBestiary: boolean
-  firedMilestones: FiredMilestone[]
-}
-
-// The breed reveal beat, same "the one moment this is legitimately known
-// client-side" shape as revealedUnlock/revealedHatch -- `evolved` is carried
-// alongside the stock so the dialog can tell "a normal offspring" from "a
-// secret evolution" apart without re-deriving it from the parent species.
-export interface RevealedBreed {
-  stock: TankStock
-  evolved: boolean
-}
-
-// cthulhuquarium/t-071: shed scales clicked in the tank are batched the same
-// way Clean clicks are (see CLEAN_DEBOUNCE_MS), then credited server-side.
+// cthulhuquarium/t-080: coins clicked in the tank are batched the same way
+// Clean clicks are (see CLEAN_DEBOUNCE_MS), then credited server-side.
 const COLLECT_DEBOUNCE_MS = 400
 
 interface CollectResponse {
@@ -425,15 +337,6 @@ interface SellResponse {
 // an uncollected one is only ever known by name and shows as a silhouette in
 // the panel -- the server never sends its fieldNote or art paths (same "the
 // server disposes" discipline as CatalogEntry above).
-export interface BestiaryStatBlock {
-  charm: number | null
-  empathy: number | null
-  grace: number | null
-  luck: number | null
-  might: number | null
-  wits: number | null
-}
-
 export interface BestiaryEntry {
   id: number
   name: string
@@ -454,9 +357,6 @@ export interface BestiaryEntry {
   // `collected` stays true forever; when it's false, the panel offers
   // re-order instead of "not yet observed."
   currentlyOwned: boolean
-  // t-031: the book's best-individual-seen record. Null until
-  // cthulhuquarium/t-029 (genetics) starts rolling individual stats.
-  bestStats: BestiaryStatBlock | null
 }
 
 interface BestiaryResponse {
@@ -598,36 +498,13 @@ export const useCthulhuquariumTankStore = defineStore(
     const finaleRevealSignal = useOneShotFlag()
     const finaleJustTriggered = finaleRevealSignal.flag
 
-    // cthulhuquarium/t-041's egg catalog. Loaded lazily, same
-    // collapsed-panel-until-opened pattern as sets/decor above -- it never
-    // rotates, so there's nothing time-sensitive about deferring it.
-    const eggCatalog = ref<EggCatalogEntry[]>([])
-    const eggCatalogLoading = ref(false)
-    // The just-hatched individual, same "the one moment this is legitimately
-    // known client-side" shape as revealedUnlock -- the game component
-    // watches this to show the hatch reveal, then clears it via
-    // dismissHatchReveal(). A hatch must never be silent (the task's own
-    // "ONE THING THAT MUST NOT HAPPEN" adjacent rule): this ref is that beat.
-    // Built on useOneShotReveal() (t-060), same primitive as revealedUnlock.
-    const hatchRevealSignal = useOneShotReveal<TankStock>()
-    const revealedHatch = hatchRevealSignal.value
-
-    // cthulhuquarium/t-055: the just-bred offspring, same "the one moment
-    // this is legitimately known client-side" shape as revealedHatch above
-    // -- the game component watches this to show the breed reveal, then
-    // clears it via dismissBreedReveal(). Built on useOneShotReveal() (t-060),
-    // same primitive as revealedUnlock/revealedHatch.
-    const breedRevealSignal = useOneShotReveal<RevealedBreed>()
-    const revealedBreed = breedRevealSignal.value
-
     const stock = computed(() => tank.value?.Stock ?? [])
     const coins = computed(() => tank.value?.coins ?? 0)
-    const eggs = computed(() => tank.value?.Eggs ?? [])
-    // cthulhuquarium/t-081: room counts fish, one slot each, plus one per
-    // unhatched egg -- the client mirrors server/utils/aquarium.ts's
+    // cthulhuquarium/t-081: room counts fish, one slot each -- the client
+    // mirrors server/utils/aquarium.ts's
     // currentReservedSize so the shop's disabled/"Tank full" state agrees
     // with what the server will actually accept.
-    const occupantSize = computed(() => stock.value.length + eggs.value.length)
+    const occupantSize = computed(() => stock.value.length)
     // effectiveSizeCap folds in any equipped extra_species_slot bonus; falls
     // back to the raw sizeCap for the brief window before the tank has
     // loaded (tank.value is null) rather than reading 0.
@@ -1144,97 +1021,6 @@ export const useCthulhuquariumTankStore = defineStore(
     }
 
     // cthulhuquarium/t-041: lazy-loaded, same pattern as loadSets/loadDecor.
-    async function loadEggCatalog(): Promise<void> {
-      eggCatalogLoading.value = true
-      try {
-        const res = await performFetch<EggCatalogResponse>('/api/aquarium/eggs')
-        if (res.success && res.data) eggCatalog.value = res.data.catalog
-      } finally {
-        eggCatalogLoading.value = false
-      }
-    }
-
-    async function purchaseEgg(rarity: string, size: number): Promise<boolean> {
-      const res = await performFetch<PurchaseEggResponse>(
-        '/api/aquarium/eggs/purchase',
-        { method: 'POST', body: JSON.stringify({ rarity, size }) },
-      )
-      if (res.success && res.data) {
-        tank.value = res.data.aquarium
-        if (res.data.firedMilestones?.length) {
-          announceMilestones(...res.data.firedMilestones)
-        }
-        return true
-      }
-      error.value = res.message || 'Could not buy that egg.'
-      return false
-    }
-
-    // The hatch beat: consumes the egg, adds the resolved individual, and
-    // shows it via revealedHatch -- see that ref's own comment for why this
-    // can never be silent. Refreshes the bestiary the same way unlock()
-    // does when it's already loaded, since a hatch can land on a species
-    // the book hasn't seen yet.
-    async function hatchEgg(aquariumEggId: number): Promise<boolean> {
-      const res = await performFetch<HatchEggResponse>(
-        '/api/aquarium/eggs/hatch',
-        { method: 'POST', body: JSON.stringify({ aquariumEggId }) },
-      )
-      if (res.success && res.data) {
-        tank.value = res.data.aquarium
-        hatchRevealSignal.reveal(res.data.stock)
-        story.queueScene('first_hatch')
-        if (res.data.justCompletedBestiary) announceBestiaryComplete()
-        if (res.data.firedMilestones?.length) {
-          announceMilestones(...res.data.firedMilestones)
-        }
-        if (bestiary.value.length > 0) await loadBestiary()
-        return true
-      }
-      error.value = res.message || 'Could not hatch that egg.'
-      return false
-    }
-
-    function dismissHatchReveal(): void {
-      hatchRevealSignal.dismiss()
-    }
-
-    // cthulhuquarium/t-055: breeds two owned individuals of the same
-    // species into a new offspring. Neither parent is consumed or modified
-    // -- see server/utils/aquarium.ts's breedFishForUser for the full price/
-    // capacity/ownership checks, all enforced server-side same as every
-    // other action here. Refreshes the bestiary the same way unlock()/
-    // hatchEgg() do, since a breed can land on a species the book hasn't
-    // seen yet (most notably a secret evolution's own species).
-    async function breed(
-      parentAId: number,
-      parentBId: number,
-    ): Promise<boolean> {
-      const res = await performFetch<BreedResponse>('/api/aquarium/breed', {
-        method: 'POST',
-        body: JSON.stringify({ parentAId, parentBId }),
-      })
-      if (res.success && res.data) {
-        tank.value = res.data.aquarium
-        breedRevealSignal.reveal({
-          stock: res.data.stock,
-          evolved: res.data.evolved,
-        })
-        story.queueScene('first_breed')
-        if (res.data.justCompletedBestiary) announceBestiaryComplete()
-        if (res.data.firedMilestones?.length) {
-          announceMilestones(...res.data.firedMilestones)
-        }
-        if (bestiary.value.length > 0) await loadBestiary()
-        return true
-      }
-      error.value = res.message || 'Could not breed those two.'
-      return false
-    }
-
-    function dismissBreedReveal(): void {
-      breedRevealSignal.dismiss()
-    }
 
     // Charlotte and Wilbur wait their turn: a scene's beat is held (not
     // skipped -- a scene is only marked seen when its last beat is) while the
@@ -1248,8 +1034,6 @@ export const useCthulhuquariumTankStore = defineStore(
         !!story.activeBeat.value &&
         !useIntroStore().isOpen &&
         !revealedUnlock.value &&
-        !revealedHatch.value &&
-        !revealedBreed.value &&
         !bestiaryJustCompleted.value &&
         !finaleJustTriggered.value &&
         offlineEarnings.value <= 0,
@@ -1330,17 +1114,6 @@ export const useCthulhuquariumTankStore = defineStore(
       loadFinaleStatus,
       purchaseFinale,
       dismissFinaleReveal,
-      eggs,
-      eggCatalog,
-      eggCatalogLoading,
-      revealedHatch,
-      loadEggCatalog,
-      purchaseEgg,
-      hatchEgg,
-      dismissHatchReveal,
-      revealedBreed,
-      breed,
-      dismissBreedReveal,
     }
   },
 )

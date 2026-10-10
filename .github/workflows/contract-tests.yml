@@ -349,16 +349,6 @@ jobs:
       - name: ESLint ratchet
         run: npm run test:lint-ratchet
 
-      - name: Zuzu pinball formatter diagnostic (temporary, removed before merge)
-        run: |
-          files=(components/arcade/arcade-cabinet.vue pages/admin/zuzu-pinball.vue utils/arcade/games.ts utils/arcade/games/zuzuPinball3d.ts utils/arcade/pinball/tables/zuzuLastBell/table.ts utils/scripts/verifyZuzuPinballPreview.test.ts)
-          npx prettier --write "${files[@]}" >/dev/null
-          for file in "${files[@]}"; do
-            echo "FORMAT_START:$file"
-            base64 -w76 "$file"
-            echo "FORMAT_END:$file"
-          done
-
       - name: Prettier ratchet
         run: npm run test:prettier-ratchet
 

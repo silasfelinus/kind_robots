@@ -1,18 +1,18 @@
 // /server/api/aquarium/collect.post.ts
 //
-// Credits shed scales the player clicked in the tank (cthulhuquarium/t-071,
-// DESIGN-BRIEF MVP item 2: "Click drifting collectibles for coins").
+// Credits the coins the player clicked in the tank (cthulhuquarium/t-080,
+// conductor projects/cthulhuquarium/LOOP.md: every fed fish drops coins).
 //
-// Body: { count: number } -- how many scales the client says it clicked. The
-// server credits at most what the elapsed time since the tank's collect
-// anchor could have spawned (server/utils/aquariumCollect.ts
-// collectAllowance), valued off the tank's current production. A client can
-// never mint coins by inflating `count`.
+// Body: { value: number } -- the total value of the coins the client says it
+// clicked. The server credits at most what the tank's drop rate accrued since
+// its collect anchor (server/utils/aquariumCollect.ts coinAllowance). A
+// client can never mint coins by inflating `value`.
 
 import { defineEventHandler, readBody, createError } from 'h3'
 import { errorHandler } from '../../utils/error'
 import { requireApiUser } from '../../utils/authGuard'
 import { collectForUser } from '../../utils/aquarium'
+import { COIN_MAX_CLAIM_PER_REQUEST } from '../../utils/aquariumCollect'
 
 export default defineEventHandler(async (event) => {
   let response
@@ -20,15 +20,19 @@ export default defineEventHandler(async (event) => {
   try {
     const { user } = await requireApiUser(event)
     const body = await readBody(event).catch(() => null)
-    const count = Number(body?.count)
-    if (!Number.isInteger(count) || count <= 0) {
+    const value = Number(body?.value)
+    if (
+      !Number.isInteger(value) ||
+      value <= 0 ||
+      value > COIN_MAX_CLAIM_PER_REQUEST
+    ) {
       throw createError({
         statusCode: 400,
-        message: 'count must be a positive integer.',
+        message: `value must be a whole number of coins between 1 and ${COIN_MAX_CLAIM_PER_REQUEST}.`,
       })
     }
 
-    const result = await collectForUser(user.id, user.username, count)
+    const result = await collectForUser(user.id, user.username, value)
 
     response = {
       success: true,

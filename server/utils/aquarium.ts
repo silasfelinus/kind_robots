@@ -72,12 +72,12 @@ import {
   rivalryMilestoneState,
 } from './aquariumRivalryMilestone'
 import {
-  collectAllowance,
-  collectCoins,
-  collectSpawnSeconds,
-  COLLECT_MAX_BANKED,
+  coinAllowance,
+  coinDropSeconds,
+  coinRatePerSecond,
+  coinValueForTier,
+  COIN_VISIBLE_SECONDS,
   discountedFeedCost,
-  tankProductionPerTick,
   UPGRADE_CATALOG,
   UPGRADE_TRACKS,
   upgradeCost,
@@ -279,6 +279,10 @@ export type OwnedAquarium = Prisma.AquariumGetPayload<{
 type ClientStock = OwnedAquarium['Stock'][number] & {
   Monster: OwnedAquarium['Stock'][number]['Monster'] & { breedCost: number }
   sellPrice: number
+  // cthulhuquarium/t-080: what each coin this fish drops is worth
+  // (aquariumCollect.ts coinValueForTier) -- the SAME number coinRatePerSecond
+  // accrues, so the "+N" the canvas pops is what the server will pay.
+  coinValue: number
 }
 
 // cthulhuquarium/t-071: one upgrade track as the shop shows it -- level and
@@ -296,11 +300,11 @@ export interface ClientUpgrade {
 export interface ClientAquarium extends Omit<OwnedAquarium, 'Stock'> {
   effectiveSizeCap: number
   Stock: ClientStock[]
-  // cthulhuquarium/t-071: how often the canvas should shed a scale, and the
-  // most it should show at once -- the SAME numbers collectForUser credits
-  // against, so what the player sees drifting is what the server will pay.
-  collectSpawnSeconds: number
-  collectMaxBanked: number
+  // cthulhuquarium/t-080: how often EACH fish drops a coin, and how long a
+  // coin stays clickable -- the SAME numbers collectForUser accrues against,
+  // so what the player sees falling is what the server will pay.
+  coinDropSeconds: number
+  coinVisibleSeconds: number
   upgrades: ClientUpgrade[]
 }
 
@@ -336,8 +340,8 @@ function toClientAquarium(aquarium: OwnedAquarium): ClientAquarium {
       aquarium.sizeCap,
       aquarium.Sets.map((set) => set.kind),
     ),
-    collectSpawnSeconds: collectSpawnSeconds(aquarium.dropSpeedLevel),
-    collectMaxBanked: COLLECT_MAX_BANKED,
+    coinDropSeconds: coinDropSeconds(aquarium.dropSpeedLevel),
+    coinVisibleSeconds: COIN_VISIBLE_SECONDS,
     upgrades: clientUpgrades(aquarium),
     Stock: aquarium.Stock.map((stock) => {
       const rarity = deriveFishRarityTier(stock.Monster)
@@ -351,6 +355,7 @@ function toClientAquarium(aquarium: OwnedAquarium): ClientAquarium {
           unlockCost(rarity, stock.Monster.unlockCost),
           toIndividualStatBlock(stock),
         ),
+        coinValue: coinValueForTier(rarity),
       }
     }),
   }
@@ -668,53 +673,44 @@ export async function feedFishForUser(
 }
 
 // ---------------------------------------------------------------------------
-// Collect -- click-for-coins shed scales (cthulhuquarium/t-071). The client
-// reports only how many scales it clicked; collectAllowance decides how many
-// the clock actually owed, and tankProductionPerTick prices them off the
-// tank's current state. The anchor compare-and-set (updateMany on the
-// previous collectAnchorAt) makes two racing requests unable to both spend
-// the same bank: the loser updates 0 rows and credits nothing.
+// Collect -- click-for-coins (cthulhuquarium/t-080, LOOP.md). Every fed fish
+// drops coins on its own timer; the client reports the total value of the
+// coins it clicked, coinAllowance decides how much the clock actually owed at
+// the tank's current drop rate, and the anchor compare-and-set (updateMany on
+// the previous collectAnchorAt) makes two racing requests unable to both spend
+// the same accrual: the loser updates 0 rows and credits nothing.
 // ---------------------------------------------------------------------------
 
 export interface CollectResult {
   aquarium: ClientAquarium
-  requested: number
-  credited: number
+  claimed: number
   coinsEarned: number
 }
 
 export async function collectForUser(
   userId: number,
   username: string,
-  requested: number,
+  claimed: number,
 ): Promise<CollectResult> {
   const tank = await getOrCreateTankForUser(userId, username)
-  const allowance = collectAllowance({
+  const allowance = coinAllowance({
     anchorAt: tank.collectAnchorAt,
     now: new Date(),
-    dropSpeedLevel: tank.dropSpeedLevel,
-    requested,
+    ratePerSecond: coinRatePerSecond(
+      tank.Stock.map((stock) => ({
+        rarity: deriveFishRarityTier(stock.Monster),
+        hunger: stock.hunger,
+      })),
+      tank.dropSpeedLevel,
+    ),
+    claimed,
   })
 
   if (allowance.credited <= 0) {
-    return { aquarium: tank, requested, credited: 0, coinsEarned: 0 }
+    return { aquarium: tank, claimed, coinsEarned: 0 }
   }
 
-  const production = tankProductionPerTick(
-    tank.Stock.map((stock) => ({
-      id: stock.id,
-      rarity: deriveFishRarityTier(stock.Monster),
-      hunger: stock.hunger,
-      yieldPerTick: stock.Monster.yieldPerTick,
-      tickIntervalSeconds: stock.Monster.tickIntervalSeconds,
-      slug: stock.Monster.slug,
-      dietRole: stock.Monster.dietRole,
-      schoolRole: stock.Monster.schoolRole,
-    })),
-    tank.debrisLevel,
-    tank.Sets.map((set) => set.kind),
-  )
-  const coinsEarned = collectCoins(allowance.credited, production)
+  const coinsEarned = allowance.credited
 
   const aquarium = await prisma.$transaction(async (tx) => {
     const claimed = await tx.aquarium.updateMany({
@@ -727,8 +723,7 @@ export async function collectForUser(
     if (claimed.count === 0) return null
 
     await logEvent(tx, tank.id, 'collect', {
-      requested,
-      credited: allowance.credited,
+      claimed,
       coinsEarned,
     })
 
@@ -740,13 +735,12 @@ export async function collectForUser(
 
   if (!aquarium) {
     const fresh = await getOrCreateTankForUser(userId, username)
-    return { aquarium: fresh, requested, credited: 0, coinsEarned: 0 }
+    return { aquarium: fresh, claimed, coinsEarned: 0 }
   }
 
   return {
     aquarium: toClientAquarium(aquarium),
-    requested,
-    credited: allowance.credited,
+    claimed,
     coinsEarned,
   }
 }

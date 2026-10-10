@@ -79,6 +79,9 @@ export interface TankStock {
   // stats -- same "server disposes" discipline as breedCost above, shown
   // next to the Sell action so the player sees the payout before clicking.
   sellPrice: number
+  // cthulhuquarium/t-080: what each coin this fish drops is worth,
+  // server-computed (aquariumCollect.ts coinValueForTier).
+  coinValue: number
   Monster: TankMonster
 }
 
@@ -142,10 +145,11 @@ export interface Tank {
   effectiveSizeCap: number
   debrisLevel: number
   lastCleanedAt: string | null
-  // cthulhuquarium/t-071: server-computed shed-scale cadence and bank cap
-  // (server/utils/aquariumCollect.ts) plus the coin upgrade track.
-  collectSpawnSeconds: number
-  collectMaxBanked: number
+  // cthulhuquarium/t-080: server-computed per-fish coin cadence and how long
+  // a dropped coin stays clickable (server/utils/aquariumCollect.ts), plus
+  // the coin upgrade track.
+  coinDropSeconds: number
+  coinVisibleSeconds: number
   foodLevel: number
   dropSpeedLevel: number
   upgrades: TankUpgrade[]
@@ -365,8 +369,7 @@ const COLLECT_DEBOUNCE_MS = 400
 
 interface CollectResponse {
   aquarium: Tank
-  requested: number
-  credited: number
+  claimed: number
   coinsEarned: number
 }
 
@@ -640,10 +643,10 @@ export const useCthulhuquariumTankStore = defineStore(
     const placedDecor = computed(() => tank.value?.Decor ?? [])
     const debrisLevel = computed(() => tank.value?.debrisLevel ?? 0)
     const upgrades = computed(() => tank.value?.upgrades ?? [])
-    const collectSpawnSeconds = computed(
-      () => tank.value?.collectSpawnSeconds ?? 0,
+    const coinDropSeconds = computed(() => tank.value?.coinDropSeconds ?? 0)
+    const coinVisibleSeconds = computed(
+      () => tank.value?.coinVisibleSeconds ?? 0,
     )
-    const collectMaxBanked = computed(() => tank.value?.collectMaxBanked ?? 0)
     const hungriest = computed<TankStock | null>(() =>
       stock.value.reduce<TankStock | null>(
         (worst, entry) =>
@@ -860,29 +863,31 @@ export const useCthulhuquariumTankStore = defineStore(
       void flushClean()
     }
 
-    // cthulhuquarium/t-071: click-for-coins. requestCollect() queues one
-    // clicked scale; the debounced flush reports the count and the server
-    // decides what it was actually worth (collectAllowance/collectCoins).
+    // cthulhuquarium/t-080: click-for-coins. requestCollect(value) queues one
+    // clicked coin; the debounced flush reports the total value and the
+    // server credits at most what the tank's drop rate accrued
+    // (aquariumCollect.ts coinAllowance).
     let collectDebounceTimer: ReturnType<typeof setTimeout> | undefined
 
     async function flushCollect(): Promise<void> {
-      const count = pendingCollect.value
+      const value = pendingCollect.value
       pendingCollect.value = 0
-      if (count <= 0) return
+      if (value <= 0) return
       const res = await performFetch<CollectResponse>('/api/aquarium/collect', {
         method: 'POST',
-        body: JSON.stringify({ count }),
+        body: JSON.stringify({ value }),
       })
       if (res.success && res.data) {
         tank.value = res.data.aquarium
         lastCollectCoins.value = res.data.coinsEarned
       } else {
-        error.value = res.message || 'Could not collect those scales.'
+        error.value = res.message || 'Could not collect those coins.'
       }
     }
 
-    function requestCollect(): void {
-      pendingCollect.value += 1
+    function requestCollect(value: number): void {
+      if (!(value > 0)) return
+      pendingCollect.value += Math.round(value)
       clearTimeout(collectDebounceTimer)
       collectDebounceTimer = setTimeout(() => {
         void flushCollect()
@@ -1268,8 +1273,8 @@ export const useCthulhuquariumTankStore = defineStore(
       lastCollectCoins,
       upgradePending,
       upgrades,
-      collectSpawnSeconds,
-      collectMaxBanked,
+      coinDropSeconds,
+      coinVisibleSeconds,
       requestCollect,
       flushCollectNow,
       purchaseUpgrade,

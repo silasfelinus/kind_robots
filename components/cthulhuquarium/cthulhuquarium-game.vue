@@ -6,12 +6,13 @@
      number, it only renders what the store last loaded and asks the store
      to feed/unlock/settle.
 
-     Shed scales (cthulhuquarium/t-071, DESIGN-BRIEF MVP item 2): fish shed a
-     scale every tank.collectSpawnSeconds; scales drift up and wait at the
-     surface (at most tank.collectMaxBanked). Clicking one queues it with the
-     store's requestCollect(); the server credits only what the elapsed time
-     could have spawned (server/utils/aquariumCollect.ts), so the canvas
-     never decides what a scale is worth.
+     Coin drops (cthulhuquarium/t-080, conductor LOOP.md): every fed fish
+     drops a coin every tank.coinDropSeconds on its own timer, worth its
+     stock row's coinValue. Coins sink to the gravel, rest, and fade after
+     tank.coinVisibleSeconds. Clicking one queues its value with the store's
+     requestCollect(); the server credits at most what the tank's drop rate
+     accrued (server/utils/aquariumCollect.ts coinAllowance), so the canvas
+     never decides what the player is paid.
 
      Fish render as real art where a species has a delivered plate
      (cthulhuquarium/t-070, following t-065's bestiary/catalog delivery --
@@ -121,7 +122,7 @@
           class="block aspect-[16/9] w-full cursor-pointer touch-none"
           :width="STAGE_WIDTH * RENDER_SCALE"
           :height="STAGE_HEIGHT * RENDER_SCALE"
-          aria-label="Aquarium tank. Tap drifting coins to collect them, tap near a fish to startle it, or drag a placed decoration to move it."
+          aria-label="Aquarium tank. Every fed fish drops coins; tap them to collect them, tap near a fish to startle it, or drag a placed decoration to move it."
           @pointerdown="onCanvasPointerDown"
           @pointermove="onCanvasPointerMove"
           @pointerup="onCanvasPointerUp"
@@ -1410,8 +1411,14 @@ const STAGE_HEIGHT = 360
 // and art draw sharp on a 2x display.
 const RENDER_SCALE = 2
 
-const MOTE_RADIUS = 9
-const SCALE_SURFACE_Y = 22
+// cthulhuquarium/t-080 coins: sink speed (stage px/s), where they come to
+// rest, how long the fade-out takes, and the most drawn at once (oldest go
+// first) so a 40-fish tank stays smooth on a phone.
+const COIN_SINK_SPEED = 34
+const COIN_REST_Y = STAGE_HEIGHT - 18
+const COIN_FADE_SECONDS = 1.5
+const COIN_MAX_ON_SCREEN = 90
+const COIN_POP_SECONDS = 0.9
 const FOOD_FALL_SPEED = 70
 
 type BehaviorProfile = {
@@ -1520,9 +1527,9 @@ const SWIM_SPEED_MULTIPLIER = 1.4
 // t-026 made the two economically identical but only idle_hoarder is a pure
 // stat, and Silas's own note on roaming_collector asked for it to "visibly
 // move around the tank... it is a thing to watch." This sprite is that
-// visual and nothing else: it drifts. Since t-071 the drifting scales are
-// real click income, so it leaves them alone -- its bonus is already paid by
-// settleTick, and eating a scale would take a coin from the player.
+// visual and nothing else: it drifts. Dropped coins are real click income
+// (t-080), so it leaves them alone -- its bonus is already paid by
+// settleTick, and sweeping a coin would take it from the player.
 const ROAMING_COLLECTOR_SET_KIND = 'roaming_collector'
 const COLLECTOR_SPEED = 30
 
@@ -1544,7 +1551,21 @@ type Swimmer = SwimState & {
   profile: BehaviorProfile
 }
 
-type Mote = { x: number; y: number; drift: number }
+/* A dropped coin (t-080). `age` counts up from the drop; the coin is removed
+   at tank.coinVisibleSeconds. `radius` and `hue` are fixed at drop time from
+   its value, so a rarer fish's coin is visibly bigger and differently struck. */
+type Coin = {
+  x: number
+  y: number
+  drift: number
+  value: number
+  radius: number
+  hue: number
+  age: number
+  spin: number
+}
+/* The "+N" that floats up from a collected coin. */
+type CoinPop = { x: number; y: number; text: string; age: number }
 /* The roaming_collector automaton (t-049). `collectFlash` counts down from 1
    after it dismisses a mote, driving a brief pulse in drawCollector -- purely
    decorative, never read anywhere else. */
@@ -1664,7 +1685,13 @@ const offlineDurationLabel = computed(() => {
 })
 
 const swimmers = ref<Swimmer[]>([])
-const motes = ref<Mote[]>([])
+// Coins, their "+N" pops and each fish's coin timer are plain (non-reactive)
+// state: only the canvas reads them, every frame, so Vue proxies would be
+// pure overhead in a 40-fish tank.
+let coins: Coin[] = []
+let coinPops: CoinPop[] = []
+// Seconds until each fish's next coin, keyed by stock id.
+const coinTimers = new Map<number, number>()
 const feed = ref<FeedCreature[]>([])
 const collector = ref<Collector | null>(null)
 const showBestiary = ref(false)
@@ -1698,7 +1725,6 @@ const roamingCollectorEquipped = computed(() =>
 
 let frame = 0
 let lastFrameAt = 0
-let scaleClock = 0
 let pollTimer: ReturnType<typeof setInterval> | null = null
 
 // cthulhuquarium/t-057: bumped alongside pollTick's own 20s cadence (see
@@ -1810,49 +1836,77 @@ function spawnSwimmer(stock: TankStock): Swimmer {
 const ambience = createAmbience(STAGE_WIDTH, STAGE_HEIGHT)
 let huntClock = 20
 
-// A shed scale: a nacreous fan that turns slowly as it rises, catching the
-// light in a travelling glint so it reads as something worth tapping.
-function drawScale(
+// A dropped coin: a struck disc that turns as it sinks, catching the light
+// in a travelling glint so it reads as something worth tapping. Common coins
+// are gold; rarer fish strike stranger metals.
+function coinHue(value: number): number {
+  if (value >= 300) return 105
+  if (value >= 125) return 350
+  if (value >= 50) return 275
+  if (value >= 20) return 175
+  return 45
+}
+
+function coinRadius(value: number): number {
+  return 6 + Math.min(6, Math.log2(Math.max(1, value / 3)) * 1.1)
+}
+
+function drawCoin(
   context: CanvasRenderingContext2D,
-  x: number,
-  y: number,
-  index: number,
+  coin: Coin,
+  visibleSeconds: number,
 ) {
-  const time = performance.now() / 1000
-  const turn = Math.sin(time * 1.6 + index * 1.7)
-  const r = MOTE_RADIUS
+  const remaining = visibleSeconds - coin.age
+  const alpha =
+    remaining < COIN_FADE_SECONDS
+      ? Math.max(0, remaining / COIN_FADE_SECONDS)
+      : 1
+  if (alpha <= 0) return
+  const r = coin.radius
+  const resting = coin.y >= COIN_REST_Y
+  const turn = resting ? 1 : Math.abs(Math.cos(coin.spin))
   context.save()
-  context.translate(x, y)
-  context.rotate(Math.sin(time * 0.7 + index) * 0.5)
-  context.scale(0.55 + Math.abs(turn) * 0.45, 1)
-  const hue = (time * 40 + index * 57) % 360
-  const nacre = context.createLinearGradient(-r, -r, r, r)
-  nacre.addColorStop(0, `hsla(${hue}, 70%, 82%, 0.95)`)
-  nacre.addColorStop(0.5, 'rgba(255, 246, 220, 0.95)')
-  nacre.addColorStop(1, `hsla(${(hue + 120) % 360}, 60%, 78%, 0.95)`)
-  context.fillStyle = nacre
+  context.globalAlpha = alpha
+  context.translate(coin.x, coin.y)
+  context.scale(0.35 + turn * 0.65, 1)
+  const face = context.createRadialGradient(-r * 0.3, -r * 0.3, 1, 0, 0, r)
+  face.addColorStop(0, `hsla(${coin.hue}, 90%, 86%, 1)`)
+  face.addColorStop(0.6, `hsla(${coin.hue}, 75%, 58%, 1)`)
+  face.addColorStop(1, `hsla(${coin.hue}, 70%, 34%, 1)`)
+  context.fillStyle = face
   context.beginPath()
-  context.moveTo(0, r * 1.05)
-  context.quadraticCurveTo(-r * 1.2, r * 0.2, -r * 0.75, -r * 0.7)
-  context.quadraticCurveTo(0, -r * 1.25, r * 0.75, -r * 0.7)
-  context.quadraticCurveTo(r * 1.2, r * 0.2, 0, r * 1.05)
+  context.arc(0, 0, r, 0, Math.PI * 2)
   context.fill()
-  context.strokeStyle = 'rgba(120, 100, 70, 0.45)'
-  context.lineWidth = 0.8
+  context.strokeStyle = `hsla(${coin.hue}, 60%, 22%, 0.9)`
+  context.lineWidth = 1.2
   context.stroke()
-  context.strokeStyle = 'rgba(255, 255, 255, 0.5)'
-  for (const arc of [0.35, 0.65]) {
+  context.strokeStyle = `hsla(${coin.hue}, 80%, 88%, 0.7)`
+  context.lineWidth = 0.8
+  context.beginPath()
+  context.arc(0, 0, r * 0.62, 0, Math.PI * 2)
+  context.stroke()
+  const glint = ((performance.now() / 1000) * 0.9 + coin.spin * 0.13) % 1
+  if (glint < 0.2) {
+    context.fillStyle = `rgba(255, 255, 255, ${0.95 - glint * 4})`
     context.beginPath()
-    context.arc(0, r * 1.05, r * 1.6 * arc, -Math.PI * 0.72, -Math.PI * 0.28)
-    context.stroke()
-  }
-  const glint = (time * 0.8 + index * 0.37) % 1
-  if (glint < 0.18) {
-    context.fillStyle = `rgba(255, 255, 255, ${0.9 - glint * 4})`
-    context.beginPath()
-    context.arc(-r * 0.3, -r * 0.35, r * 0.28, 0, Math.PI * 2)
+    context.arc(-r * 0.35, -r * 0.4, r * 0.3, 0, Math.PI * 2)
     context.fill()
   }
+  context.restore()
+}
+
+function drawCoinPop(context: CanvasRenderingContext2D, pop: CoinPop) {
+  const t = pop.age / COIN_POP_SECONDS
+  context.save()
+  context.globalAlpha = Math.max(0, 1 - t)
+  context.font = 'bold 15px Georgia, serif'
+  context.textAlign = 'center'
+  context.lineWidth = 3
+  context.strokeStyle = 'rgba(30, 20, 10, 0.85)'
+  context.fillStyle = 'rgb(255, 226, 120)'
+  const y = pop.y - t * 26
+  context.strokeText(pop.text, pop.x, y)
+  context.fillText(pop.text, pop.x, y)
   context.restore()
 }
 
@@ -2175,7 +2229,7 @@ function decorTitle(kind: string): string {
 // Radius (canvas-space, at STAGE_WIDTH scale) used to hit-test an existing
 // placed decor icon for dragging -- roughly matches the glyph's own drawn
 // size (28px font) plus a little slack, same touchHitRadius scaling as
-// motes get for their own hit test.
+// coins get for their own hit test.
 const DECOR_HIT_RADIUS = 20
 
 // Which decor item is mid-drag, if any, and where the pointer currently is
@@ -2346,9 +2400,10 @@ function render(context: CanvasRenderingContext2D) {
     drawFish(context, swimmer, entry.hunger, entry.Monster)
   }
 
-  for (const [index, mote] of motes.value.entries()) {
-    drawScale(context, mote.x, mote.y, index)
+  for (const coin of coins) {
+    drawCoin(context, coin, tankStore.coinVisibleSeconds)
   }
+  for (const pop of coinPops) drawCoinPop(context, pop)
 
   if (collector.value) drawCollector(context, collector.value)
 
@@ -2399,22 +2454,7 @@ function step(delta: number) {
     return !eaten && creature.y < STAGE_HEIGHT - 8
   })
 
-  for (const mote of motes.value) {
-    if (mote.y <= SCALE_SURFACE_Y) continue
-    mote.y = Math.max(SCALE_SURFACE_Y, mote.y - 26 * delta)
-    mote.x = Math.min(
-      STAGE_WIDTH - 20,
-      Math.max(20, mote.x + mote.drift * delta),
-    )
-  }
-  scaleClock += delta
-  if (
-    tankStore.collectSpawnSeconds > 0 &&
-    scaleClock >= tankStore.collectSpawnSeconds
-  ) {
-    scaleClock = 0
-    if (motes.value.length < tankStore.collectMaxBanked) spawnScale()
-  }
+  stepCoins(delta)
 
   stepCollector(delta)
 }
@@ -2456,15 +2496,65 @@ function loop(timestamp: number) {
   frame = window.requestAnimationFrame(loop)
 }
 
-function spawnScale() {
-  const shedder =
-    swimmers.value[Math.floor(Math.random() * swimmers.value.length)]
-  if (!shedder) return
-  motes.value.push({
-    x: shedder.x,
-    y: shedder.y,
-    drift: (Math.random() - 0.5) * 14,
+// Every fed fish runs its own coin timer (t-080). A new fish starts at a
+// random point in its cycle so a freshly stocked tank doesn't rain coins in
+// lockstep; a starving fish (hunger 0) holds its timer and drops nothing.
+function stepCoins(delta: number) {
+  const interval = tankStore.coinDropSeconds
+  const visible = tankStore.coinVisibleSeconds
+  const present = new Set<number>()
+  if (interval > 0) {
+    for (const swimmer of swimmers.value) {
+      present.add(swimmer.stockId)
+      const entry = stockFor(swimmer)
+      if (!entry || entry.hunger <= 0 || !(entry.coinValue > 0)) continue
+      let timer = coinTimers.get(swimmer.stockId)
+      if (timer === undefined) timer = 0.4 + Math.random() * interval
+      timer -= delta
+      if (timer <= 0) {
+        spawnCoin(swimmer, entry.coinValue)
+        timer += interval
+      }
+      coinTimers.set(swimmer.stockId, timer)
+    }
+  }
+  for (const id of coinTimers.keys()) {
+    if (!present.has(id)) coinTimers.delete(id)
+  }
+
+  for (const coin of coins) {
+    coin.age += delta
+    if (coin.y < COIN_REST_Y) {
+      coin.y = Math.min(COIN_REST_Y, coin.y + COIN_SINK_SPEED * delta)
+      coin.spin += delta * 4
+      coin.x = Math.min(
+        STAGE_WIDTH - 14,
+        Math.max(14, coin.x + coin.drift * delta),
+      )
+    }
+  }
+  if (visible > 0) {
+    coins = coins.filter((coin) => coin.age < visible)
+  }
+
+  for (const pop of coinPops) pop.age += delta
+  coinPops = coinPops.filter((pop) => pop.age < COIN_POP_SECONDS)
+}
+
+function spawnCoin(swimmer: Swimmer, value: number) {
+  coins.push({
+    x: swimmer.x,
+    y: Math.min(swimmer.y + 6, COIN_REST_Y),
+    drift: (Math.random() - 0.5) * 12,
+    value,
+    radius: coinRadius(value),
+    hue: coinHue(value),
+    age: 0,
+    spin: Math.random() * Math.PI * 2,
   })
+  if (coins.length > COIN_MAX_ON_SCREEN) {
+    coins.splice(0, coins.length - COIN_MAX_ON_SCREEN)
+  }
 }
 
 // cthulhuquarium/t-017: the canvas now handles three distinct gestures
@@ -2474,8 +2564,7 @@ function spawnScale() {
 //      here, then clears the pending choice (see the placement banner).
 //   2. the tap lands on an already-placed decor icon: start a drag, tracked
 //      through pointermove and committed on pointerup via moveDecor.
-//   3. neither of the above: fall back to the original behavior, dismissing
-//      a tapped coin mote.
+//   3. neither of the above: collect a tapped coin (t-080).
 function onCanvasPointerDown(event: PointerEvent) {
   const coords = stageCoordsFromEvent(event)
   if (!coords) return
@@ -2511,18 +2600,32 @@ function onCanvasPointerDown(event: PointerEvent) {
   // radius (never the drawn dot) so the actual tap target stays thumb-sized
   // regardless of viewport width.
   const bounds = canvasRef.value?.getBoundingClientRect()
-  const hitRadius = touchHitRadius(
-    MOTE_RADIUS + 8,
-    STAGE_WIDTH,
-    bounds?.width ?? STAGE_WIDTH,
-  )
-  const index = motes.value.findIndex(
-    (mote) => Math.hypot(mote.x - coords.x, mote.y - coords.y) <= hitRadius,
-  )
-  if (index !== -1) {
-    motes.value.splice(index, 1)
-    tankStore.requestCollect()
-    tankSound.chime()
+  let bestIndex = -1
+  let bestDistance = Number.POSITIVE_INFINITY
+  for (const [index, coin] of coins.entries()) {
+    const hitRadius = touchHitRadius(
+      coin.radius + 8,
+      STAGE_WIDTH,
+      bounds?.width ?? STAGE_WIDTH,
+    )
+    const distance = Math.hypot(coin.x - coords.x, coin.y - coords.y)
+    if (distance <= hitRadius && distance < bestDistance) {
+      bestIndex = index
+      bestDistance = distance
+    }
+  }
+  if (bestIndex !== -1) {
+    const [coin] = coins.splice(bestIndex, 1)
+    if (coin) {
+      tankStore.requestCollect(coin.value)
+      coinPops.push({
+        x: coin.x,
+        y: coin.y - coin.radius,
+        text: `+${coin.value}`,
+        age: 0,
+      })
+      tankSound.chime()
+    }
   }
 }
 

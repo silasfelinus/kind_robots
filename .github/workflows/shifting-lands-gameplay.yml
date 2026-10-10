@@ -7,10 +7,13 @@ on:
     paths:
       - 'utils/shiftingLands/**'
       - 'stores/shiftingLandsStore.ts'
+      - 'stores/shiftingLandsJourneyStore.ts'
+      - 'components/shifting-lands-journey-board.vue'
       - 'pages/admin/zuzu-shifting-lands.vue'
       - 'content/channels/admin/zuzu-shifting-lands.md'
       - 'utils/scripts/verifyShiftingLands.test.ts'
       - 'utils/scripts/verifyShiftingJourney.test.ts'
+      - 'utils/scripts/verifyShiftingBoard.test.ts'
       - 'utils/scripts/importShiftingLandsWorld.mjs'
       - '.github/workflows/shifting-lands-gameplay.yml'
   push:
@@ -18,10 +21,13 @@ on:
     paths:
       - 'utils/shiftingLands/**'
       - 'stores/shiftingLandsStore.ts'
+      - 'stores/shiftingLandsJourneyStore.ts'
+      - 'components/shifting-lands-journey-board.vue'
       - 'pages/admin/zuzu-shifting-lands.vue'
       - 'content/channels/admin/zuzu-shifting-lands.md'
       - 'utils/scripts/verifyShiftingLands.test.ts'
       - 'utils/scripts/verifyShiftingJourney.test.ts'
+      - 'utils/scripts/verifyShiftingBoard.test.ts'
       - 'utils/scripts/importShiftingLandsWorld.mjs'
       - '.github/workflows/shifting-lands-gameplay.yml'
 jobs:
@@ -39,3 +45,4 @@ jobs:
           CYPRESS_INSTALL_BINARY: '0'
       - run: npx tsx utils/scripts/verifyShiftingLands.test.ts
       - run: npx tsx utils/scripts/verifyShiftingJourney.test.ts
+      - run: npx tsx utils/scripts/verifyShiftingBoard.test.ts

@@ -32,14 +32,12 @@
       </div>
 
       <div ref="wrapRef" class="cabinet-screen-wrap">
-        <div class="cabinet-bezel" :style="{ maxWidth: screenMaxWidth }">
-          <div
-            ref="screenRef"
-            class="cabinet-screen"
-            :style="{
-              aspectRatio: `${meta?.width ?? 4} / ${meta?.height ?? 3}`,
-            }"
-          >
+        <div
+          class="cabinet-bezel"
+          :class="{ 'cabinet-bezel--fill': fillsScreen }"
+          :style="{ maxWidth: screenMaxWidth }"
+        >
+          <div ref="screenRef" class="cabinet-screen" :style="screenStyle">
             <canvas
               v-if="isWebGLCabinet"
               ref="stageRef"
@@ -321,6 +319,8 @@ const screenRef = ref<HTMLDivElement | null>(null)
 const wrapRef = ref<HTMLDivElement | null>(null)
 /** Bezel width (px) that fits the space actually left for the screen while locked. */
 const fittedWidth = ref(0)
+/** The measured height a full-screen 3D cabinet's screen takes (0: the meta's aspect). */
+const fittedHeight = ref(0)
 const canvasRef = ref<HTMLCanvasElement | null>(null)
 const stageRef = ref<HTMLCanvasElement | null>(null)
 const phase = ref<ArcadePhase>('title')
@@ -344,7 +344,17 @@ const canvasStyle = computed<CSSProperties>(() => {
   const info = meta.value
   const shown = fit.value
   const base = { imageRendering: shown.rendering }
-  if (!info || !shown.cssWidth || renderStyle.value === 'hd') return base
+  if (!info || !shown.cssWidth) return base
+  if (fillsScreen.value)
+    return {
+      ...base,
+      position: 'absolute',
+      inset: '0',
+      margin: 'auto',
+      width: `${shown.cssWidth}px`,
+      height: `${(shown.cssWidth * info.height) / info.width}px`,
+    }
+  if (renderStyle.value === 'hd') return base
   return {
     ...base,
     position: 'absolute',
@@ -470,11 +480,29 @@ const screenMaxWidth = computed(() => {
   return `min(100%, calc(62svh * ${ratio.toFixed(4)}))`
 })
 
+/**
+ * Fullscreen or pinned, a 3D cabinet's screen takes the whole play area at
+ * any shape (kind-pinball/t-025): the table's camera fits the playfield and
+ * the room around the machine fills the rest, as on a console pinball game.
+ * Its 2D layer (attract, pause, guide) keeps the meta's shape, centred.
+ */
+const fillsScreen = computed(
+  () => isWebGLCabinet.value && (locked.value || fullscreen.value),
+)
+
+const screenStyle = computed<CSSProperties>(() =>
+  fillsScreen.value && fittedHeight.value > 0
+    ? // The splash shows round the attract screens until the 3D stage draws.
+      { height: `${fittedHeight.value}px`, background: 'transparent' }
+    : { aspectRatio: `${meta.value?.width ?? 4} / ${meta.value?.height ?? 3}` },
+)
+
 /** Size the bezel to the largest screen that fits the measured play area. */
 function fitScreen() {
   const wrap = wrapRef.value
   if ((!locked.value && !fullscreen.value) || !wrap) {
     fittedWidth.value = 0
+    fittedHeight.value = 0
     return
   }
   const style = getComputedStyle(wrap)
@@ -487,6 +515,12 @@ function fitScreen() {
     parseFloat(style.paddingTop) -
     parseFloat(style.paddingBottom)
   if (width <= 0 || height <= 0) return
+  if (fillsScreen.value) {
+    fittedWidth.value = Math.floor(width)
+    fittedHeight.value = Math.floor(height)
+    return
+  }
+  fittedHeight.value = 0
   // The locked bezel has no padding: the screen gets the whole wrap.
   const ratio = (meta.value?.width ?? 4) / (meta.value?.height ?? 3)
   fittedWidth.value = Math.max(0, Math.floor(Math.min(width, height * ratio)))
@@ -1367,10 +1401,15 @@ function resizeCanvas() {
   if (!canvas || !screen) return
   const rect = screen.getBoundingClientRect()
   const info = meta.value
+  const ratio = (info?.width ?? 4) / (info?.height ?? 3)
   const next = fitDisplay({
     width: info?.width ?? 4,
     height: info?.height ?? 3,
-    available: rect.width,
+    // A full-screen 3D cabinet's 2D layer is the largest box of its own
+    // shape inside the screen.
+    available: fillsScreen.value
+      ? Math.min(rect.width, rect.height * ratio)
+      : rect.width,
     dpr: window.devicePixelRatio || 1,
     // A 3D cabinet's 2D layer sits over the full-size stage, so it always fills the screen.
     style: isWebGLCabinet.value ? 'hd' : renderStyle.value,
@@ -1509,6 +1548,10 @@ watch(fullscreen, () => {
   void nextTick(fitScreen)
 })
 
+watch(fillsScreen, () => {
+  void nextTick(resizeCanvas)
+})
+
 watch(locked, (on) => {
   setPageLock(on)
   // Locking swaps the settings panel for the overlay and back, so the button
@@ -1607,6 +1650,11 @@ onBeforeUnmount(() => {
 .arcade-cabinet--locked {
   isolation: isolate;
   overflow: hidden;
+}
+
+.cabinet-bezel--fill {
+  background: none;
+  box-shadow: none;
 }
 
 .cabinet-splash {

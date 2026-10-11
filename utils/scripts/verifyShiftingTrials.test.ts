@@ -156,7 +156,7 @@ let reachedFive = 0
 let bossSuccess = 0
 let bossFailure = 0
 let evidenceAttempt = 0
-let usedLand = new Set<string>()
+const usedLand = new Set<string>()
 for (let seed = 1; seed <= 260; seed++) {
   let ledger: JourneyLedgerV5 = newJourneyLedgerV5(seed)
   for (let move = 0; move < 160; move++) {

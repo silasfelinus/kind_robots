@@ -13,7 +13,12 @@ import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { MUSIC_BEDS, PINBALL_CUES } from '../arcade/pinball/audio/catalog'
 import { PinballMixer } from '../arcade/pinball/audio/mixer'
-import { advanceClock, MAX_TICKS_PER_FRAME, TICK_MS } from '../arcade/loop'
+import {
+  advanceClock,
+  MAX_TICKS_PER_FRAME,
+  startFixedLoop,
+  TICK_MS,
+} from '../arcade/loop'
 import { everyNthLevel, levelCurve, mulberry32 } from '../arcade/curve'
 import {
   assignPads,
@@ -195,6 +200,32 @@ import {
   )
   assert.equal(asleep.accumulator, 0)
   assert.equal(advanceClock(0, -50).ticks, 0, 'clock never runs backwards')
+
+  // A frame that throws never ends the loop (the tablet freeze, 2026-10-11):
+  // the error goes to the handler and the next frame still runs.
+  const queued: Array<(now: number) => void> = []
+  const g = globalThis as {
+    requestAnimationFrame?: (cb: (now: number) => void) => number
+    cancelAnimationFrame?: (handle: number) => void
+  }
+  const saved = [g.requestAnimationFrame, g.cancelAnimationFrame] as const
+  g.requestAnimationFrame = (cb) => queued.push(cb)
+  g.cancelAnimationFrame = () => {}
+  let renders = 0
+  const errors: unknown[] = []
+  const loop = startFixedLoop(
+    () => {},
+    () => {
+      renders++
+      if (renders === 2) throw new Error('boom')
+    },
+    (error) => errors.push(error),
+  )
+  for (let frame = 1; frame <= 5; frame++) queued.shift()!(frame * TICK_MS)
+  loop.stop()
+  ;[g.requestAnimationFrame, g.cancelAnimationFrame] = saved
+  assert.equal(errors.length, 1, 'the failed frame is reported')
+  assert.equal(renders, 5, 'and every frame after it still runs')
 }
 
 // --- curves and rng ----------------------------------------------------------
@@ -2368,6 +2399,19 @@ async function runPinballRender() {
   assert.deepEqual(feed(30, 400), ['medium', 'low'], 'slow frames step down')
   assert.deepEqual(feed(16.7, 3000), [], 'a failed tier is not retried')
   assert.deepEqual(feed(5000, 400), [], 'stalls (a hidden tab) are not frames')
+  // A device whose every frame is slow is not stalling: it steps down at
+  // once, long before an average window fills (a tablet stuck at high
+  // dropped every 300 ms frame as a "stall" and never stepped down).
+  const drowning = new QualityGovernor('high')
+  const drops: string[] = []
+  for (let i = 0; i < 25; i++) {
+    const tier = drowning.sample(300)
+    if (tier) drops.push(tier)
+  }
+  assert.deepEqual(drops, ['medium', 'low'], 'a drowning device steps down')
+  const lone = new QualityGovernor('high')
+  for (let i = 0; i < 600; i++) lone.sample(i % 120 === 60 ? 5000 : 16.7)
+  assert.equal(lone.tier, 'high', 'a lone long gap is still a stall')
   const recovering = new QualityGovernor('high')
   for (let i = 0; i < 400; i++) recovering.sample(19)
   assert.equal(recovering.tier, 'high', 'just under 50 FPS is not slow')

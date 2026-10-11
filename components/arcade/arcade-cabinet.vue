@@ -57,7 +57,9 @@
               @pointerdown="onScreenPointer"
             />
             <div v-if="crt" class="cabinet-crt" aria-hidden="true" />
-            <p v-if="loadError" class="cabinet-error">{{ loadError }}</p>
+            <p v-if="loadError || snag" class="cabinet-error">
+              {{ loadError || snag }}
+            </p>
           </div>
         </div>
       </div>
@@ -86,6 +88,29 @@
         >
           <span aria-hidden="true">❚❚</span>
         </button>
+        <!-- Always on screen while locked: the way out, and fullscreen. -->
+        <div class="cabinet-corner-chips">
+          <button
+            type="button"
+            class="cabinet-corner-chip"
+            aria-label="Leave the game (pauses it)"
+            title="Leave"
+            @click="leaveGame"
+          >
+            <span aria-hidden="true">✕</span>
+          </button>
+          <button
+            v-if="canFullscreen"
+            type="button"
+            class="cabinet-corner-chip"
+            :aria-label="fullscreen ? 'Exit fullscreen' : 'Fullscreen'"
+            :aria-pressed="fullscreen"
+            :title="fullscreen ? 'Exit fullscreen' : 'Fullscreen'"
+            @click="toggleFullscreen"
+          >
+            <span aria-hidden="true">{{ fullscreen ? '⤡' : '⤢' }}</span>
+          </button>
+        </div>
         <div
           v-for="seat in pinballPad ? [] : seatList"
           :key="seat"
@@ -399,6 +424,8 @@ const seatLimit = computed(() =>
     : Math.min(maxPlayers.value, 2 + padCount.value),
 )
 const loadError = ref('')
+/** A frame that threw (the loop carries on): said once, cleared on resume. */
+const snag = ref('')
 const marqueeArt = ref('/images/arcade/cabinet-marquee.webp')
 
 let machine = initialArcadeState()
@@ -534,22 +561,66 @@ function fitScreen() {
   fittedWidth.value = Math.max(0, Math.floor(Math.min(width, height * ratio)))
 }
 
+// Safari before 16.4 (older iPads) has only the webkit-prefixed API.
+type WebkitDocument = Document & {
+  webkitFullscreenElement?: Element | null
+  webkitFullscreenEnabled?: boolean
+  webkitExitFullscreen?: () => Promise<void> | void
+}
+type WebkitElement = HTMLElement & {
+  webkitRequestFullscreen?: () => Promise<void> | void
+}
+
+function fullscreenElement(): Element | null {
+  const doc = document as WebkitDocument
+  return doc.fullscreenElement ?? doc.webkitFullscreenElement ?? null
+}
+
+/** Whether this browser can put the cabinet fullscreen (iPhones cannot). */
+const canFullscreen = ref(false)
+
 function syncFullscreen() {
-  fullscreen.value = document.fullscreenElement === cabinetRef.value
+  fullscreen.value = fullscreenElement() === cabinetRef.value
   void nextTick(fitScreen)
 }
 
 async function toggleFullscreen() {
-  const cabinet = cabinetRef.value
+  const cabinet = cabinetRef.value as WebkitElement | null
   if (!cabinet) return
+  const doc = document as WebkitDocument
   try {
-    if (document.fullscreenElement === cabinet) {
-      await document.exitFullscreen()
-    } else if (!document.fullscreenElement) {
-      await cabinet.requestFullscreen()
+    if (fullscreenElement() === cabinet) {
+      if (doc.exitFullscreen) await doc.exitFullscreen()
+      else await doc.webkitExitFullscreen?.()
+    } else if (!fullscreenElement()) {
+      if (cabinet.requestFullscreen) await cabinet.requestFullscreen()
+      else await cabinet.webkitRequestFullscreen?.()
     }
   } catch {
-    fullscreen.value = document.fullscreenElement === cabinet
+    fullscreen.value = fullscreenElement() === cabinet
+  }
+}
+
+/** The way out of locked touch play: pause (which unlocks) and leave fullscreen. */
+function leaveGame() {
+  if (machine.phase === 'playing') togglePause()
+  if (fullscreenElement() === cabinetRef.value) void toggleFullscreen()
+}
+
+/**
+ * A frame threw. The loop carries on (utils/arcade/loop.ts); a game in play
+ * pauses, so the page is back and the player can resume or leave, and the
+ * screen says what happened instead of freezing silently.
+ */
+let loopErrors = 0
+function onLoopError(error: unknown) {
+  loopErrors++
+  if (loopErrors <= 3) console.error('[arcade] a frame failed', error)
+  if (machine.phase === 'playing') {
+    dispatch({ type: 'pause' })
+    snag.value = 'Something went wrong, so the game paused. Resume to play on.'
+  } else if (machine.phase !== 'paused') {
+    snag.value = 'Something went wrong. Reload the page if this sticks.'
   }
 }
 
@@ -826,6 +897,7 @@ function enterPhase(next: ArcadePhase) {
 }
 
 function startGame() {
+  snag.value = ''
   if (!gameModule) return
   hintLives = null
   unlockArcadeAudio()
@@ -899,7 +971,10 @@ function stepGuide(frame: InputFrame) {
 function togglePause() {
   unlockArcadeAudio()
   if (machine.phase === 'playing') dispatch({ type: 'pause' })
-  else if (machine.phase === 'paused') dispatch({ type: 'resume' })
+  else if (machine.phase === 'paused') {
+    snag.value = ''
+    dispatch({ type: 'resume' })
+  }
 }
 
 function readSavedInitials(): string[] {
@@ -1575,7 +1650,12 @@ onMounted(() => {
   wrapObserver = new ResizeObserver(fitScreen)
   if (wrapRef.value) wrapObserver.observe(wrapRef.value)
   void boot()
-  loop = startFixedLoop(tick, render)
+  const doc = document as WebkitDocument
+  canFullscreen.value = Boolean(
+    doc.fullscreenEnabled ?? doc.webkitFullscreenEnabled,
+  )
+  document.addEventListener('webkitfullscreenchange', syncFullscreen)
+  loop = startFixedLoop(tick, render, onLoopError)
 })
 
 watch(
@@ -1615,8 +1695,8 @@ onBeforeUnmount(() => {
   window.removeEventListener('online', onOnline)
   document.removeEventListener('visibilitychange', onVisibility)
   document.removeEventListener('fullscreenchange', syncFullscreen)
-  if (document.fullscreenElement === cabinetRef.value)
-    void document.exitFullscreen()
+  document.removeEventListener('webkitfullscreenchange', syncFullscreen)
+  if (fullscreenElement() === cabinetRef.value) void toggleFullscreen()
   resizeObserver?.disconnect()
   wrapObserver?.disconnect()
   sound?.dispose()
@@ -1859,6 +1939,29 @@ onBeforeUnmount(() => {
 .cabinet-overlay .cabinet-ball:active {
   transform: scale(0.94);
   box-shadow: none;
+}
+
+/* Top left, always: leave the game, and fullscreen where the browser can. */
+.cabinet-corner-chips {
+  top: max(0.6rem, env(safe-area-inset-top));
+  left: max(0.6rem, env(safe-area-inset-left));
+  display: flex;
+  gap: 0.5rem;
+}
+
+.cabinet-corner-chip {
+  display: grid;
+  place-items: center;
+  width: 2.6rem;
+  height: 2.6rem;
+  border-radius: 9999px;
+  background: rgba(15, 10, 46, 0.5);
+  border: 2px solid rgba(253, 230, 138, 0.5);
+  color: #fde68a;
+  font-size: 1.05rem;
+  line-height: 1;
+  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
 }
 
 .cabinet-pause-chip {

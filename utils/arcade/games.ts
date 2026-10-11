@@ -711,6 +711,34 @@ export const PREVIEW_GAMES: ArcadeGameMeta[] = [
   },
 ]
 
+/**
+ * Scored games that are not hall cabinets: each lives on its own page and posts to the arcade
+ * leaderboard under its slug, but stays out of the hall and the hall of fame until it is listed. Zuzu
+ * Showdown's Arcade mode (conductor zuzu-showdown t-021) is here until Silas's verdict (t-025).
+ */
+export const UNLISTED_SCORED_GAMES: ArcadeGameMeta[] = [
+  {
+    slug: 'zuzu-showdown',
+    title: 'Zuzu Showdown',
+    riffsOn: 'Street Fighter II',
+    blurb:
+      'A 2D fighter of the Shifting Lands. Climb the Arcade ladder against every fighter, your rival and the Swamp Witch, then face The Thing Behind the Door.',
+    howTo: [
+      'ARROWS  MOVE',
+      'U I  PUNCHES',
+      'J K  KICKS',
+      'BEAT EVERY FIGHTER',
+      'THEN THE DOOR',
+    ],
+    width: 480,
+    height: 270,
+    maxPlausibleScore: 50_000_000,
+    titleArt: '/zuzu-showdown-portraits/zuzu-vs-hd.webp',
+    accent: '#fb923c',
+    controls: 'Move, two punches, two kicks, dodge',
+  },
+]
+
 const LOADERS: Record<string, () => Promise<ArcadeGameModule>> = {
   'butterfly-blaster': () => import('./games/butterflyBlaster'),
   'battery-maze': () => import('./games/batteryMaze'),
@@ -784,7 +812,8 @@ export function overrideWebGLSupport(value: boolean | null) {
 export function findArcadeGame(slug: string): ArcadeGameMeta | undefined {
   const game =
     ARCADE_GAMES.find((g) => g.slug === slug) ??
-    PREVIEW_GAMES.find((g) => g.slug === slug)
+    PREVIEW_GAMES.find((g) => g.slug === slug) ??
+    UNLISTED_SCORED_GAMES.find((g) => g.slug === slug)
   if (game?.renderMode === 'webgl' && game.fallback && !canRenderWebGL())
     return game.fallback
   return game
@@ -797,7 +826,9 @@ export function loadArcadeGame(slug: string): Promise<ArcadeGameModule> {
 }
 
 export function isPlausibleScore(slug: string, score: unknown): boolean {
-  const game = ARCADE_GAMES.find((entry) => entry.slug === slug)
+  const game =
+    ARCADE_GAMES.find((entry) => entry.slug === slug) ??
+    UNLISTED_SCORED_GAMES.find((entry) => entry.slug === slug)
   return (
     Boolean(game) &&
     typeof score === 'number' &&

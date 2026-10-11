@@ -141,7 +141,12 @@ import {
   type StageManifest,
   type StageSlug,
 } from '~/utils/zuzuShowdown/stages'
-import { cpuInput, newCpu, type CpuState } from '~/utils/zuzuShowdown/cpu'
+import {
+  cpuInput,
+  newCpu,
+  type CpuLevel,
+  type CpuState,
+} from '~/utils/zuzuShowdown/cpu'
 import {
   applyTrainingRules,
   drawTraining,
@@ -190,8 +195,49 @@ import {
   type MatchState,
 } from '~/utils/zuzuShowdown/types'
 import { useZuzuShowdownStore } from '~/stores/zuzuShowdownStore'
+import { useArcadeStore } from '~/stores/arcadeStore'
+import {
+  ARCADE_GAME_SLUG,
+  DIFFICULTY_MULTIPLIER,
+  ENDINGS,
+  advanceInitials,
+  arcadeLadder,
+  fightBonus,
+  initialsDone,
+  initialsText,
+  newArcadeScore,
+  newInitials,
+  rungLevel,
+  scoreStep,
+  type ArcadeScore,
+  type InitialsEntry,
+} from '~/utils/zuzuShowdown/arcade'
+import {
+  CONTINUE_SECONDS,
+  ENDING_STILL_FRAMES,
+  LADDER_FRAMES,
+  drawArcadeHud,
+  drawContinueScreen,
+  drawEndingScreen,
+  drawInitialsScreen,
+  drawLadderScreen,
+  endingStill,
+  endingUrl,
+  shippedEndings,
+  type LoadedEndings,
+} from '~/utils/zuzuShowdown/arcadeScreens'
 
-type StagePhase = 'title' | 'select' | 'vs' | 'fight' | 'paused' | 'result'
+type StagePhase =
+  | 'title'
+  | 'select'
+  | 'vs'
+  | 'fight'
+  | 'paused'
+  | 'result'
+  | 'ladder'
+  | 'continue'
+  | 'ending'
+  | 'initials'
 type Direction = 'up' | 'down' | 'left' | 'right'
 
 const RESULT_DELAY = 150
@@ -476,6 +522,19 @@ let screenFrame = 0
 // The character select grid (t-019), and whether the roster change it makes goes straight to the VS screen.
 let select: SelectState = newSelect([], ['', ''])
 let selectedToVs = false
+// Arcade (t-021): the climb under way, its score, and the initials being entered at its end.
+type ArcadeRun = {
+  player: string
+  ladder: string[]
+  rung: number
+  start: CpuLevel
+  score: ArcadeScore
+  cleared: boolean
+}
+let arcade: ArcadeRun | null = null
+let initials: InitialsEntry = newInitials()
+const endingSets: Record<RenderStyle, LoadedEndings> = { pixel: {}, hd: {} }
+const arcadeStore = useArcadeStore()
 let loop: FixedLoop | null = null
 let sound: ArcadeSound | null = null
 let soundState: SoundState = newSoundState()
@@ -541,6 +600,105 @@ function selectPress(
   }
 }
 
+/** Arcade: a new climb for `player`, from the CPU level picked on the page. */
+function startArcade(player: string) {
+  arcade = {
+    player,
+    ladder: arcadeLadder(
+      player,
+      FIGHTERS.map((f) => f.slug),
+      Math.floor(Math.random() * 0xffffffff),
+    ),
+    rung: 0,
+    start: store.cpuLevel,
+    score: newArcadeScore(),
+    cleared: false,
+  }
+  openLadder()
+}
+
+/** The climb so far, before the next fight (or, at the top, the ending). */
+function openLadder() {
+  if (!arcade) return
+  if (arcade.rung >= arcade.ladder.length) {
+    arcade.cleared = true
+    startEnding()
+    return
+  }
+  roster = [
+    findFighter(arcade.player),
+    findFighter(arcade.ladder[arcade.rung]!),
+  ]
+  match = createMatch(roster)
+  zoom = zoomTarget(match, roster)
+  loadArt()
+  screenFrame = 0
+  phase.value = 'ladder'
+}
+
+/** After a fight's win screen: up the ladder on a win, the continue countdown on anything else. */
+function finishArcadeFight() {
+  if (!arcade) return
+  if (match.winner === 0) {
+    arcade.score = fightBonus(
+      arcade.score,
+      arcade.rung,
+      DIFFICULTY_MULTIPLIER[arcade.start],
+    )
+    arcade.rung += 1
+    openLadder()
+    return
+  }
+  screenFrame = 0
+  phase.value = 'continue'
+}
+
+/** The ending: the fighter's stills, loading in the background while the first fades in. */
+function startEnding() {
+  if (!arcade) return
+  const shipped = shippedEndings()
+  for (const style of ['pixel', store.renderStyle] as const) {
+    for (const { file: still } of ENDINGS[arcade.player] ?? []) {
+      if (!shipped.includes(still) || endingSets[style][still]) continue
+      void loadImage(endingUrl(still, style)).then((image) => {
+        if (image) endingSets[style][still] = image
+      })
+    }
+  }
+  screenFrame = 0
+  phase.value = 'ending'
+}
+
+function activeEndings(): LoadedEndings {
+  return { ...endingSets.pixel, ...endingSets[store.renderStyle] }
+}
+
+/** The run is over: initials for a score worth keeping, the title otherwise. */
+function endArcadeRun() {
+  if (arcade && arcade.score.total > 0) {
+    initials = newInitials(arcadeStore.savedInitials)
+    screenFrame = 0
+    phase.value = 'initials'
+    return
+  }
+  arcade = null
+  phase.value = 'title'
+}
+
+function submitArcadeScore() {
+  if (!arcade) return
+  const name = initialsText(initials)
+  arcadeStore.rememberInitials(name)
+  void arcadeStore.submitScore({
+    game: ARCADE_GAME_SLUG,
+    initials: name,
+    score: Math.floor(arcade.score.total),
+    level: Math.max(1, arcade.score.fights),
+  })
+  arcade = null
+  phase.value = 'title'
+}
+
 /** The VS screen: the fighters slam in and trade their matchup lines, then the fight starts. */
 function startVs() {
   // Training goes straight to the fight.
@@ -563,7 +721,10 @@ function startMatch() {
   slowdown = null
   zoom = zoomTarget(match, roster)
   stageFx = advanceStageFx(newStageFx(), match.events)
-  cpu = newCpu(store.cpuLevel, Math.floor(Math.random() * 0xffffffff))
+  const level = arcade
+    ? rungLevel(arcade.start, arcade.rung, arcade.ladder.length)
+    : store.cpuLevel
+  cpu = newCpu(level, Math.floor(Math.random() * 0xffffffff))
   resultCountdown = RESULT_DELAY
   phase.value = 'fight'
   // The round's opening sounds (the Hollow Bell toll) come from the new match's own events.
@@ -609,9 +770,41 @@ function tick() {
     return
   }
   if (phase.value === 'result') {
-    // A rematch: the same fighters, straight to the VS screen.
+    // A rematch: the same fighters, straight to the VS screen. In Arcade, the climb goes on.
     screenFrame += 1
+    if (arcade) {
+      if ((start || one.pressed.lp) && screenFrame > 30) finishArcadeFight()
+      else if (screenFrame >= 300) finishArcadeFight()
+      return
+    }
     if (start || one.pressed.lp) startVs()
+    return
+  }
+  if (phase.value === 'ladder') {
+    screenFrame += 1
+    const skip = (start || one.pressed.lp) && screenFrame > 20
+    if (skip || screenFrame >= LADDER_FRAMES) startVs()
+    return
+  }
+  if (phase.value === 'continue') {
+    screenFrame += 1
+    if (arcade && (start || one.pressed.lp)) {
+      arcade.score = newArcadeScore()
+      startVs()
+    } else if (screenFrame >= (CONTINUE_SECONDS + 1) * 60) endArcadeRun()
+    return
+  }
+  if (phase.value === 'ending') {
+    screenFrame += 1
+    if ((start || one.pressed.lp) && screenFrame > 20)
+      screenFrame = (endingStill(screenFrame) + 1) * ENDING_STILL_FRAMES
+    if (endingStill(screenFrame) >= 2) endArcadeRun()
+    return
+  }
+  if (phase.value === 'initials') {
+    screenFrame += 1
+    initials = advanceInitials(initials, selectPress(one.pressed))
+    if (initialsDone(initials)) submitArcadeScore()
     return
   }
   if (phase.value === 'select') {
@@ -626,6 +819,10 @@ function tick() {
       FIGHTERS.length,
       store.mode === 'versus',
     )
+    if (store.mode === 'arcade' && select.picked[0]) {
+      startArcade(FIGHTERS[select.cursor[0]]!.slug)
+      return
+    }
     if (selectDone(select)) confirmSelect()
     return
   }
@@ -651,7 +848,7 @@ function tick() {
   const first = toSimInput(one.held)
   let second = neutralInput()
   if (store.mode === 'versus') second = toSimInput(two.held)
-  else if (store.mode === 'cpu') {
+  else if (store.mode === 'cpu' || arcade) {
     const turn = cpuInput(cpu, match, 1, roster)
     cpu = turn.cpu
     second = turn.input
@@ -665,6 +862,15 @@ function tick() {
     second.special = false
   }
   match = step(match, [first, second], roster)
+  if (arcade)
+    arcade.score = scoreStep(
+      arcade.score,
+      match.events,
+      match,
+      0,
+      roster[0].health,
+      DIFFICULTY_MULTIPLIER[arcade.start],
+    )
   if (store.mode === 'dummy') {
     applyTrainingRules(match, roster, {
       infiniteMeter: store.infiniteMeter,
@@ -711,8 +917,43 @@ function render() {
       select,
       store.reducedMotion,
       store.mode === 'versus',
-      store.mode === 'versus' ? '2P' : store.mode === 'cpu' ? 'CPU' : 'DUMMY',
+      store.mode === 'versus' ? '2P' : store.mode === 'dummy' ? 'DUMMY' : 'CPU',
       portraits,
+    )
+    return
+  }
+  if (phase.value === 'ladder' && arcade) {
+    drawLadderScreen(
+      g,
+      roster[0],
+      arcade.ladder.map(findFighter),
+      arcade.rung,
+      arcade.score,
+      portraits,
+      screenFrame,
+      store.reducedMotion,
+    )
+    return
+  }
+  if (phase.value === 'ending' && arcade) {
+    drawEndingScreen(
+      g,
+      findFighter(arcade.player),
+      activeEndings(),
+      portraits,
+      screenFrame,
+      store.reducedMotion,
+    )
+    return
+  }
+  if (phase.value === 'initials' && arcade) {
+    drawInitialsScreen(
+      g,
+      arcade.score,
+      initials,
+      arcade.cleared,
+      screenFrame,
+      store.reducedMotion,
     )
     return
   }
@@ -742,6 +983,8 @@ function render() {
     (phase.value === 'fight' || phase.value === 'paused')
   )
     drawTraining(g, training, VIEW_WIDTH)
+  if (arcade && phase.value !== 'title')
+    drawArcadeHud(g, arcade.score, arcade.rung, arcade.ladder.length + 1)
   const flash = koFlash(slowdown, store.reducedMotion)
   if (flash > 0) {
     g.fillStyle = `rgba(255, 255, 255, ${(0.7 * flash).toFixed(2)})`
@@ -760,10 +1003,14 @@ function render() {
             ? '2 PLAYERS'
             : store.mode === 'cpu'
               ? `P1 VS CPU (${store.cpuLevel.toUpperCase()})`
-              : 'P1 VS TRAINING DUMMY',
+              : store.mode === 'arcade'
+                ? `ARCADE (${store.cpuLevel.toUpperCase()})`
+                : 'P1 VS TRAINING DUMMY',
       },
       { text: 'PRESS START OR LP', scale: 2, color: '#fde047' },
     ])
+  } else if (phase.value === 'continue' && arcade) {
+    drawContinueScreen(g, arcade.score, screenFrame)
   } else if (phase.value === 'paused') {
     drawCard(g, [
       { text: 'PAUSED', scale: 3 },
@@ -910,7 +1157,16 @@ watch(locked, (on) => {
   if (!on) releaseDpad()
 })
 
-watch(() => store.mode, applyKeyMaps)
+watch(
+  () => store.mode,
+  () => {
+    applyKeyMaps()
+    if (arcade) {
+      arcade = null
+      phase.value = 'title'
+    }
+  },
+)
 // Training's position reset: the fighters go back to the centre or a corner, the readouts clear.
 watch(
   () => store.reset.count,

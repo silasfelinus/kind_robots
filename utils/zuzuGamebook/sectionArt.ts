@@ -10,9 +10,9 @@ import type { ScenePlate } from './art'
 export const SECTION_PLATES: Record<string, ScenePlate> = {
   'a1-bad-ground': {
     file: 'sections/a1-bad-ground',
-    alt: 'Zuzu lies sprawled on his back in the mud while a grinning crocodile looms over him from the dark.',
-    artImageId: 244399,
-    source: 'Gamebook round 8, gb8-a1-bad-ground-k',
+    alt: 'A crocodile heaves out of churned mud under a pale sun, jaws open.',
+    artImageId: 244998,
+    source: 'Gamebook round 10, gb10-a1-bad-ground-1',
     fit: 'exact',
   },
   'a1-black-stones': {
@@ -22,6 +22,14 @@ export const SECTION_PLATES: Record<string, ScenePlate> = {
     source: 'Gamebook round 8, gb8h-a1-black-stones-1',
     fit: 'exact',
   },
+  'a1-bowl-bones': {
+    file: 'sections/a1-bowl-bones',
+    alt: 'A cracked stone bowl sits in shallow, rippling water.',
+    artImageId: 244934,
+    source: 'Gamebook round 10, gb10-a1-bowl-bones-1',
+    fit: 'exact',
+    shape: 'square',
+  },
   'a1-bowl-night': {
     file: 'sections/a1-bowl-night',
     alt: 'A cracked grey stone bowl holding a little dark water sits alone on bare ground at night.',
@@ -29,6 +37,13 @@ export const SECTION_PLATES: Record<string, ScenePlate> = {
     source: 'Gamebook round 6, gb6-a1-bowl-night-1',
     fit: 'exact',
     shape: 'square',
+  },
+  'a1-downwind': {
+    file: 'sections/a1-downwind',
+    alt: 'A crocodile wades through dark shallows among dry reeds as the sun sets behind it.',
+    artImageId: 244936,
+    source: 'Gamebook round 10, gb10-a1-downwind-1',
+    fit: 'exact',
   },
   'a1-downwind-fail': {
     file: 'sections/a1-downwind-fail',
@@ -156,10 +171,11 @@ export const SECTION_PLATES: Record<string, ScenePlate> = {
   },
   'a1-terrain': {
     file: 'sections/a1-terrain',
-    alt: 'Zuzu stands small in a thicket of dead reeds while two huge glowing eyes watch him from the blackness above.',
-    artImageId: 244397,
-    source: 'Gamebook round 8, gb8-a1-terrain-k',
+    alt: 'Zuzu stands in still water among reeds, his katana lowered, watching.',
+    artImageId: 244996,
+    source: 'Gamebook round 10, gb10-a1-terrain-1',
     fit: 'exact',
+    shape: 'tall',
   },
   'a1-the-shot': {
     file: 'sections/a1-the-shot',
@@ -614,6 +630,14 @@ export const SECTION_PLATES: Record<string, ScenePlate> = {
     fit: 'exact',
     shape: 'square',
   },
+  'a3-tracks-end': {
+    file: 'sections/a3-tracks-end',
+    alt: 'A line of faint footprints crosses red dunes at sunset and fades out in the sand.',
+    artImageId: 244945,
+    source: 'Gamebook round 10, gb10-a3-tracks-end-2',
+    fit: 'exact',
+    shape: 'tall',
+  },
   'a3-tracks-lost': {
     file: 'sections/a3-tracks-lost',
     alt: 'Zuzu stands small on a desert road at sunset, red cliffs rising behind him.',
@@ -812,6 +836,13 @@ export const SECTION_PLATES: Record<string, ScenePlate> = {
     source: 'Gamebook round 6, gb6-a4-well-paid-1',
     fit: 'exact',
     shape: 'tall',
+  },
+  'a4-well-robbed': {
+    file: 'sections/a4-well-robbed',
+    alt: 'A lone fire burns in an empty desert camp at dusk, pots tipped over beside it.',
+    artImageId: 244951,
+    source: 'Gamebook round 10, gb10-a4-well-robbed-2',
+    fit: 'exact',
   },
   'a4-well-scout': {
     file: 'sections/a4-well-scout',
@@ -1036,6 +1067,14 @@ export const SECTION_PLATES: Record<string, ScenePlate> = {
     fit: 'exact',
     shape: 'square',
   },
+  'a5-pilgrim-freed': {
+    file: 'sections/a5-pilgrim-freed',
+    alt: 'A dented metal canteen on its chain lies in the sand beside a letter sealed with red wax.',
+    artImageId: 244960,
+    source: 'Gamebook round 10, gb10-a5-pilgrim-freed-1',
+    fit: 'exact',
+    shape: 'square',
+  },
   'a5-rags-burned': {
     file: 'sections/a5-rags-burned',
     alt: 'The fennec girl huddles in a doorway in a plain white dress, arms wrapped around her knees.',
@@ -1104,6 +1143,13 @@ export const SECTION_PLATES: Record<string, ScenePlate> = {
     fit: 'exact',
     shape: 'square',
   },
+  'a5-wagon-road': {
+    file: 'sections/a5-wagon-road',
+    alt: 'A covered wagon with a white cloth hanging from its hoop stands on a desert road, a watchtower behind it.',
+    artImageId: 244959,
+    source: 'Gamebook round 10, gb10-a5-wagon-road-2',
+    fit: 'exact',
+  },
   'a5-wall': {
     file: 'sections/a5-wall',
     alt: 'Zuzu stands in a muddy pit at dusk, his poncho and wide straw hat dark against the hills.',
@@ -1132,6 +1178,14 @@ export const SECTION_PLATES: Record<string, ScenePlate> = {
     alt: 'An empty bare room with plank walls, a small figure watching through the high window.',
     artImageId: 243953,
     source: 'Gamebook round 7, gb7-a5-wren-taken-1',
+    fit: 'exact',
+    shape: 'tall',
+  },
+  'a5-wren-talk': {
+    file: 'sections/a5-wren-talk',
+    alt: 'An iron-bound door at the end of a stone chapel passage, lit by a single candle and two candlesticks.',
+    artImageId: 244957,
+    source: 'Gamebook round 10, gb10-a5-wren-talk-2',
     fit: 'exact',
     shape: 'tall',
   },
@@ -1189,6 +1243,13 @@ export const SECTION_PLATES: Record<string, ScenePlate> = {
     source: 'Gamebook round 9, gb9-a6-badger-stand-2',
     fit: 'exact',
     shape: 'tall',
+  },
+  'a6-beaten': {
+    file: 'sections/a6-beaten',
+    alt: 'A shed with its door hanging open at night, a wheelbarrow inside and a trough by the step.',
+    artImageId: 244966,
+    source: 'Gamebook round 10, gb10-a6-beaten-1',
+    fit: 'exact',
   },
   'a6-bowl-given': {
     file: 'sections/a6-bowl-given',
@@ -1312,6 +1373,13 @@ export const SECTION_PLATES: Record<string, ScenePlate> = {
     source: 'Gamebook round 7, gb7-a6-pilgrim-girl-1',
     fit: 'exact',
   },
+  'a6-riot': {
+    file: 'sections/a6-riot',
+    alt: 'A cracked window over a wooden floor strewn with debris, a fallen lantern still burning.',
+    artImageId: 244969,
+    source: 'Gamebook round 10, gb10-a6-riot-2',
+    fit: 'exact',
+  },
   'a6-riot-let': {
     file: 'sections/a6-riot-let',
     alt: 'A silver horn cap lies in the dust beside a line of footprints.',
@@ -1334,6 +1402,14 @@ export const SECTION_PLATES: Record<string, ScenePlate> = {
     artImageId: 244035,
     source: 'Gamebook round 7, gb7-a6-vane-1',
     fit: 'exact',
+  },
+  'a6-vane-begs': {
+    file: 'sections/a6-vane-begs',
+    alt: 'An empty wooden office at night: a desk, a chair and a hanging lamp, dark windows on either side.',
+    artImageId: 244965,
+    source: 'Gamebook round 10, gb10-a6-vane-begs-2',
+    fit: 'exact',
+    shape: 'tall',
   },
   'a6-vane-bound': {
     file: 'sections/a6-vane-bound',
@@ -1412,6 +1488,14 @@ export const SECTION_PLATES: Record<string, ScenePlate> = {
     fit: 'exact',
     shape: 'square',
   },
+  'a7-feather-road': {
+    file: 'sections/a7-feather-road',
+    alt: 'A black crow stands on a moonlit road between leaning fence posts.',
+    artImageId: 244975,
+    source: 'Gamebook round 10, gb10-a7-feather-road-2',
+    fit: 'exact',
+    shape: 'tall',
+  },
   'a7-first-mile': {
     file: 'sections/a7-first-mile',
     alt: 'A straight dark road runs between bare trees toward a far rider under a pale moon.',
@@ -1455,6 +1539,13 @@ export const SECTION_PLATES: Record<string, ScenePlate> = {
     source: 'Gamebook round 7, gb7-a7-lost-2',
     fit: 'exact',
     shape: 'square',
+  },
+  'a7-raider-road': {
+    file: 'sections/a7-raider-road',
+    alt: 'A desert road runs at night toward a distant mission tower under a dark moon.',
+    artImageId: 244976,
+    source: 'Gamebook round 10, gb10-a7-raider-road-1',
+    fit: 'exact',
   },
   'a7-road-shifts': {
     file: 'sections/a7-road-shifts',
@@ -1859,6 +1950,14 @@ export const SECTION_PLATES: Record<string, ScenePlate> = {
     fit: 'exact',
     shape: 'tall',
   },
+  'a9-beside': {
+    file: 'sections/a9-beside',
+    alt: 'A knife lies beside a small fire burning on a stone step.',
+    artImageId: 244993,
+    source: 'Gamebook round 10, gb10-a9-beside-2',
+    fit: 'exact',
+    shape: 'square',
+  },
   'a9-bury': {
     file: 'sections/a9-bury',
     alt: 'Zuzu, in his wide straw hat, stands in a dark stone archway with the fennec girl in her pale dress at his side.',
@@ -2031,6 +2130,14 @@ export const SECTION_PLATES: Record<string, ScenePlate> = {
     fit: 'exact',
     shape: 'tall',
   },
+  'a9-spared': {
+    file: 'sections/a9-spared',
+    alt: 'A stone gateway stands open in the desert, a wet path running out through it.',
+    artImageId: 244990,
+    source: 'Gamebook round 10, gb10-a9-spared-1',
+    fit: 'exact',
+    shape: 'tall',
+  },
   'a9-thrown': {
     file: 'sections/a9-thrown',
     alt: 'A shadowy beast with glowing eyes looms in a crypt arch beside a guttering candle, a dagger on the floor.',
@@ -2190,6 +2297,14 @@ export const SECTION_PLATES: Record<string, ScenePlate> = {
     source: 'Gamebook round 9, gb9-coyote-2',
     fit: 'exact',
   },
+  'coyote-return': {
+    file: 'sections/coyote-return',
+    alt: 'A one-eyed coyote in a long riding coat and battered hat stands on a ridge under a full moon.',
+    artImageId: 244972,
+    source: 'Gamebook round 10, gb10-coyote-return-1',
+    fit: 'exact',
+    shape: 'tall',
+  },
   'croc-ready': {
     file: 'sections/croc-ready',
     alt: 'Zuzu stands his ground in his zigzag poncho and straw hat, katana raised over his shoulder.',
@@ -2302,6 +2417,13 @@ export const SECTION_PLATES: Record<string, ScenePlate> = {
     source: 'Gamebook round 9, gb9-ending-seal-1',
     fit: 'exact',
     shape: 'tall',
+  },
+  'ending-three': {
+    file: 'sections/ending-three',
+    alt: 'Zuzu walks toward us down a dusty road between ruined columns, smoke rising behind the hills.',
+    artImageId: 244994,
+    source: 'Gamebook round 10, gb10-ending-three-1',
+    fit: 'exact',
   },
   'ending-warning': {
     file: 'sections/ending-warning',
@@ -2492,6 +2614,14 @@ export const SECTION_PLATES: Record<string, ScenePlate> = {
     fit: 'exact',
     shape: 'square',
   },
+  'sister-saves': {
+    file: 'sections/sister-saves',
+    alt: 'A dagger lies on flagstones beside a guttering candle in a dark room.',
+    artImageId: 244983,
+    source: 'Gamebook round 10, gb10-sister-saves-2',
+    fit: 'exact',
+    shape: 'square',
+  },
   'sister-trust': {
     file: 'sections/sister-trust',
     alt: 'Zuzu sits cross-legged in the ash, his wide hat shading his eyes, as a small fennec settles in close in front of him.',
@@ -2514,6 +2644,13 @@ export const SECTION_PLATES: Record<string, ScenePlate> = {
     source: 'Gamebook round 6, gb6-standoff-2',
     fit: 'exact',
     shape: 'square',
+  },
+  supper: {
+    file: 'sections/supper',
+    alt: 'A wooden bowl of steaming stew with bread rolls sits on a table in warm evening light.',
+    artImageId: 244954,
+    source: 'Gamebook round 10, gb10-supper-1',
+    fit: 'exact',
   },
   survivors: {
     file: 'sections/survivors',

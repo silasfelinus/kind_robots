@@ -11,9 +11,21 @@ import type { PixelSprite, Ramp } from '../snes'
 import type { RescueeKind } from './family'
 
 /** Glitch goo: a lime ramp the kit lacks. */
-export const LIME: Ramp = ['#1a2e05', '#365314', '#65a30d', '#a3e635', '#ecfccb']
+export const LIME: Ramp = [
+  '#1a2e05',
+  '#365314',
+  '#65a30d',
+  '#a3e635',
+  '#ecfccb',
+]
 /** The glitch's own colour, what a hypno's swirl and a glitched friend's tint are made of. */
-export const GLITCH: Ramp = ['#2a0838', '#5b1470', '#a21caf', '#e879f9', '#fae8ff']
+export const GLITCH: Ramp = [
+  '#2a0838',
+  '#5b1470',
+  '#a21caf',
+  '#e879f9',
+  '#fae8ff',
+]
 
 // --- the hero --------------------------------------------------------------------------------------
 

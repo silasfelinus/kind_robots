@@ -77,7 +77,7 @@ export const NEON_PLAZA: readonly WaveScript[] = [
   {
     name: 'FIRST SHUFFLE',
     hint: 'BEAM THE DRONES, GRAB THE FAMILY',
-    groups: [{ kind: 'drone', count: 12, from: 'edges' }],
+    groups: [{ kind: 'drone', count: 19, from: 'edges' }],
     puddles: 2,
     family: { count: 5, at: 'scatter' },
     beacon: TOP_PAD,
@@ -86,7 +86,7 @@ export const NEON_PLAZA: readonly WaveScript[] = [
     name: 'SEEKER SPRING',
     hint: 'POP SPAWNERS BEFORE THEY HATCH',
     groups: [
-      { kind: 'drone', count: 12, from: 'edges' },
+      { kind: 'drone', count: 19, from: 'edges' },
       { kind: 'spawner', count: 2, from: 'corners' },
     ],
     puddles: 3,
@@ -98,8 +98,8 @@ export const NEON_PLAZA: readonly WaveScript[] = [
     hint: 'THREAD THE SHAPES, FREE THE FAMILY',
     signature: true,
     groups: [
-      { kind: 'drone', count: 12, from: 'ring' },
-      { kind: 'drone', count: 6, from: 'vents', at: 420 },
+      { kind: 'drone', count: 19, from: 'ring' },
+      { kind: 'drone', count: 10, from: 'vents', at: 420 },
       { kind: 'spawner', count: 1, from: 'top' },
     ],
     pylons: [
@@ -117,7 +117,7 @@ export const NEON_PLAZA: readonly WaveScript[] = [
     hint: 'STEER THE STOMPERS FROM THE FAMILY',
     groups: [
       { kind: 'stomper', count: 2, from: 'corners' },
-      { kind: 'drone', count: 12, from: 'edges' },
+      { kind: 'drone', count: 19, from: 'edges' },
       { kind: 'tank', count: 1, from: 'bottom' },
     ],
     family: { count: 7, at: 'scatter' },
@@ -127,7 +127,7 @@ export const NEON_PLAZA: readonly WaveScript[] = [
     name: 'K-I-N-D',
     hint: 'SPELL IT OUT',
     groups: [
-      { kind: 'drone', count: 14, from: 'edges' },
+      { kind: 'drone', count: 22, from: 'edges' },
       { kind: 'tank', count: 2, from: 'corners' },
       { kind: 'stomper', count: 1, from: 'top' },
     ],
@@ -141,8 +141,15 @@ export const NEON_PLAZA: readonly WaveScript[] = [
     name: 'VENT RUSH',
     hint: 'WATCH THE VENTS',
     groups: [
-      { kind: 'drone', count: 8, from: 'edges' },
-      { kind: 'drone', count: 6, from: 'vents', at: 240, times: 3, every: 300 },
+      { kind: 'drone', count: 13, from: 'edges' },
+      {
+        kind: 'drone',
+        count: 10,
+        from: 'vents',
+        at: 240,
+        times: 3,
+        every: 300,
+      },
       { kind: 'spawner', count: 2, from: 'scatter' },
       { kind: 'stomper', count: 1, from: 'corners' },
     ],
@@ -154,7 +161,7 @@ export const NEON_PLAZA: readonly WaveScript[] = [
     name: 'CORNER SQUEEZE',
     hint: 'THE CORNERS ARE COMING',
     groups: [
-      { kind: 'drone', count: 16, from: 'corners' },
+      { kind: 'drone', count: 26, from: 'corners' },
       { kind: 'spawner', count: 2, from: 'edges' },
       { kind: 'tank', count: 2, from: 'top' },
       { kind: 'stomper', count: 1, from: 'bottom' },
@@ -171,13 +178,13 @@ export const NEON_PLAZA: readonly WaveScript[] = [
     hint: 'FOUR STOMPERS. SAVE WHO YOU CAN',
     groups: [
       { kind: 'stomper', count: 4, from: 'corners', fixed: true },
-      { kind: 'drone', count: 18, from: 'edges' },
+      { kind: 'drone', count: 29, from: 'edges' },
       { kind: 'spawner', count: 1, from: 'scatter' },
       { kind: 'tank', count: 2, from: 'vents', at: 600 },
     ],
     pylons: [{ shape: 'star', x: CX, y: CY }],
     family: { count: 9, at: 'ring' },
-    beacon: { x: CX, y: CY },
+    beacon: LEFT_PAD,
     hero: { x: CX, y: CY + 70 },
   },
 ]
@@ -189,7 +196,7 @@ export const TOY_FACTORY: readonly WaveScript[] = [
     hint: 'A HYPNO HUNTS THE FAMILY',
     groups: [
       { kind: 'hypno', count: 1, from: 'top' },
-      { kind: 'drone', count: 12, from: 'edges' },
+      { kind: 'drone', count: 19, from: 'edges' },
     ],
     family: { count: 7, at: 'scatter' },
     beacon: BOTTOM_PAD,
@@ -199,7 +206,7 @@ export const TOY_FACTORY: readonly WaveScript[] = [
     hint: 'SPARKERS FLASH, THEN FIRE',
     groups: [
       { kind: 'sparker', count: 2, from: 'corners' },
-      { kind: 'drone', count: 12, from: 'edges' },
+      { kind: 'drone', count: 19, from: 'edges' },
     ],
     puddles: 3,
     family: { count: 6, at: 'scatter' },
@@ -211,8 +218,8 @@ export const TOY_FACTORY: readonly WaveScript[] = [
     signature: true,
     groups: [
       { kind: 'hypno', count: 3, from: 'edges', fixed: true },
-      { kind: 'drone', count: 8, from: 'corners' },
-      { kind: 'drone', count: 6, from: 'vents', at: 480 },
+      { kind: 'drone', count: 13, from: 'corners' },
+      { kind: 'drone', count: 10, from: 'vents', at: 480 },
     ],
     family: { count: 12, at: 'center' },
     beacon: LEFT_PAD,
@@ -224,7 +231,7 @@ export const TOY_FACTORY: readonly WaveScript[] = [
     groups: [
       { kind: 'sparker', count: 3, from: 'edges' },
       { kind: 'tank', count: 2, from: 'corners' },
-      { kind: 'drone', count: 12, from: 'ring' },
+      { kind: 'drone', count: 19, from: 'ring' },
       { kind: 'stomper', count: 1, from: 'top' },
     ],
     family: { count: 7, at: 'scatter' },
@@ -236,7 +243,7 @@ export const TOY_FACTORY: readonly WaveScript[] = [
     groups: [
       { kind: 'hypno', count: 2, from: 'corners' },
       { kind: 'sparker', count: 2, from: 'top' },
-      { kind: 'drone', count: 12, from: 'ring' },
+      { kind: 'drone', count: 19, from: 'ring' },
     ],
     pylons: [
       { shape: 'star', x: 110, y: 110 },
@@ -249,8 +256,15 @@ export const TOY_FACTORY: readonly WaveScript[] = [
     name: 'NIGHT SHIFT',
     hint: 'THE VENTS KEEP COMING',
     groups: [
-      { kind: 'drone', count: 10, from: 'edges' },
-      { kind: 'drone', count: 6, from: 'vents', at: 300, times: 2, every: 360 },
+      { kind: 'drone', count: 16, from: 'edges' },
+      {
+        kind: 'drone',
+        count: 10,
+        from: 'vents',
+        at: 300,
+        times: 2,
+        every: 360,
+      },
       { kind: 'hypno', count: 2, from: 'vents', at: 600 },
       { kind: 'sparker', count: 2, from: 'corners' },
       { kind: 'spawner', count: 1, from: 'scatter' },
@@ -268,7 +282,7 @@ export const TOY_FACTORY: readonly WaveScript[] = [
       { kind: 'sparker', count: 2, from: 'edges' },
       { kind: 'spawner', count: 2, from: 'scatter' },
       { kind: 'tank', count: 2, from: 'bottom' },
-      { kind: 'drone', count: 14, from: 'ring' },
+      { kind: 'drone', count: 22, from: 'ring' },
     ],
     pylons: kindWord(CX, 86, 10),
     family: { count: 9, at: 'scatter' },
@@ -281,8 +295,8 @@ export const TOY_FACTORY: readonly WaveScript[] = [
       { kind: 'stomper', count: 3, from: 'corners', fixed: true },
       { kind: 'hypno', count: 3, from: 'edges' },
       { kind: 'sparker', count: 3, from: 'ring' },
-      { kind: 'drone', count: 16, from: 'edges' },
-      { kind: 'drone', count: 6, from: 'vents', at: 600 },
+      { kind: 'drone', count: 26, from: 'edges' },
+      { kind: 'drone', count: 10, from: 'vents', at: 600 },
     ],
     pylons: [
       { shape: 'heart', x: 100, y: CY },
@@ -293,12 +307,15 @@ export const TOY_FACTORY: readonly WaveScript[] = [
   },
 ]
 
-export const RALLY_WAVES: readonly WaveScript[] = [...NEON_PLAZA, ...TOY_FACTORY]
+export const RALLY_WAVES: readonly WaveScript[] = [
+  ...NEON_PLAZA,
+  ...TOY_FACTORY,
+]
 
 /** Each loop round the rally, every group grows by this much (fixed groups never do). */
-export const LOOP_GROWTH = 0.25
+export const LOOP_GROWTH = 0.35
 /** ...up to this many times its written size. */
-export const LOOP_GROWTH_CAP = 2.5
+export const LOOP_GROWTH_CAP = 3
 
 /** The script for global wave `n` (1-based), and which loop round the rally it is on. */
 export function waveAt(n: number): { script: WaveScript; loop: number } {

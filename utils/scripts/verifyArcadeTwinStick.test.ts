@@ -168,7 +168,7 @@ const close = (a: number, b: number) => Math.abs(a - b) < 1e-9
   const twin = ARCADE_GAMES.filter((game) => game.twinStick)
   assert.deepEqual(
     twin.map((game) => game.slug),
-    ['prize-show-panic'],
+    ['rescue-rally', 'prize-show-panic'],
     'every other cabinet keeps its controls',
   )
   // Twin-stick is solo only: a cabinet that seats more (Prize Show Panic's co-op) turns the second

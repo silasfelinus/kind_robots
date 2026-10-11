@@ -107,7 +107,7 @@ export const FOES: Record<FoeKind, FoeSpec> = {
   },
   hypno: {
     name: 'HYPNO',
-    hp: 2,
+    hp: 3,
     points: 400,
     radius: 9,
     hostile: true,
@@ -158,14 +158,19 @@ export type Foe = {
 
 /** Difficulty by global wave number: each keeps rising to the end of the campaign. */
 export const FOE_CURVES = {
-  droneSpeed: { start: 0.55, step: 0.025, limit: 1.4 },
+  droneSpeed: { start: 0.65, step: 0.04, limit: 1.6 },
   seekerPull: { start: 0.22, step: 0.004, limit: 0.36 },
   spawnEvery: { start: 240, step: -4, limit: 90 },
-  sparkEvery: { start: 170, step: -2.5, limit: 80 },
+  sparkEvery: { start: 150, step: -3, limit: 60 },
   sparkSpeed: { start: 2.3, step: 0.03, limit: 3.5 },
-  hypnoSpeed: { start: 0.6, step: 0.01, limit: 1.05 },
+  hypnoSpeed: { start: 0.75, step: 0.01, limit: 1.15 },
   stomperSpeed: { start: 0.45, step: 0.008, limit: 0.8 },
 } as const
+
+/** The longest-running wave moves its walkers this much faster than at the start. */
+export const RUSH_MAX = 2
+/** Ticks for a wave to reach full rush. */
+export const RUSH_TICKS = 60 * 30
 
 /** A sparker's flash: this many ticks of warning before every spark. */
 export const SPARK_TELL = 36
@@ -183,6 +188,11 @@ export type FoeWorld = {
   rng: () => number
   /** Global wave number, for the curves. */
   heat: number
+  /**
+   * How long the wave has run, as a speed-up (1 at the start, up to RUSH_MAX): as in the classic,
+   * the walkers hurry the longer a hero dawdles.
+   */
+  rush: number
   /** The nearest hero still standing, or null. */
   hero(from: Point): Quarry | null
   /** The nearest rescuee a hypno could glitch or a stomper could bonk, or null. */
@@ -198,11 +208,7 @@ export type FoeWorld = {
   sound(name: ArcadeSoundName): void
 }
 
-export function newFoe(
-  kind: FoeKind,
-  at: Point,
-  rng: () => number,
-): Foe {
+export function newFoe(kind: FoeKind, at: Point, rng: () => number): Foe {
   return {
     kind,
     x: at.x,
@@ -226,7 +232,7 @@ export function stepFoe(f: Foe, w: FoeWorld) {
   switch (f.kind) {
     case 'drone': {
       // Shuffle toward the hero in little steps, like a wind-up toy.
-      const speed = heatCurve(w, FOE_CURVES.droneSpeed)
+      const speed = heatCurve(w, FOE_CURVES.droneSpeed) * w.rush
       if (f.timer % 12 === 0) {
         const u = hero ? toward(f, hero) : toward(f, { x: CX, y: CY })
         const jitter = (w.rng() - 0.5) * 0.6
@@ -240,7 +246,7 @@ export function stepFoe(f: Foe, w: FoeWorld) {
       break
     }
     case 'seeker': {
-      const pull = heatCurve(w, FOE_CURVES.seekerPull)
+      const pull = heatCurve(w, FOE_CURVES.seekerPull) * Math.sqrt(w.rush)
       const u = hero ? toward(f, hero) : { x: 0, y: 0 }
       f.vx = f.vx * 0.94 + u.x * pull
       f.vy = f.vy * 0.94 + u.y * pull
@@ -250,7 +256,7 @@ export function stepFoe(f: Foe, w: FoeWorld) {
     }
     case 'tank': {
       const u = hero ? toward(f, hero) : { x: 0, y: 0 }
-      const speed = heatCurve(w, FOE_CURVES.droneSpeed) * 0.45
+      const speed = heatCurve(w, FOE_CURVES.droneSpeed) * 0.45 * w.rush
       f.x += u.x * speed
       f.y += u.y * speed
       break
@@ -295,7 +301,8 @@ function stepStomper(f: Foe, w: FoeWorld, hero: Quarry | null) {
   if (f.mode === 0 && f.clock === 0) f.clock = STOMP_WALK
   if (--f.clock <= 0) {
     f.mode = f.mode === 0 ? 1 : 0
-    f.clock = f.mode === 1 ? STOMP_REWIND : STOMP_WALK + Math.floor(w.rng() * 40)
+    f.clock =
+      f.mode === 1 ? STOMP_REWIND : STOMP_WALK + Math.floor(w.rng() * 40)
     if (f.mode === 1) w.sound('blip')
   }
   if (f.mode === 1) return
@@ -316,7 +323,7 @@ function stepStomper(f: Foe, w: FoeWorld, hero: Quarry | null) {
 
 /** The hypno hunts the family; after glitching one it stands in a trance, then hunts again. */
 function stepHypno(f: Foe, w: FoeWorld, hero: Quarry | null) {
-  const speed = heatCurve(w, FOE_CURVES.hypnoSpeed)
+  const speed = heatCurve(w, FOE_CURVES.hypnoSpeed) * Math.sqrt(w.rush)
   if (f.mode === 1) {
     if (--f.clock <= 0) f.mode = 0
     return
@@ -391,8 +398,14 @@ export function leadShot(from: Point, target: Quarry, speed: number): Point {
   for (let i = 0; i < 2; i++) {
     const t = dist(from, aim) / speed
     aim = {
-      x: Math.min(ARENA.right - 6, Math.max(ARENA.left + 6, target.x + target.vx * t)),
-      y: Math.min(ARENA.bottom - 6, Math.max(ARENA.top + 6, target.y + target.vy * t)),
+      x: Math.min(
+        ARENA.right - 6,
+        Math.max(ARENA.left + 6, target.x + target.vx * t),
+      ),
+      y: Math.min(
+        ARENA.bottom - 6,
+        Math.max(ARENA.top + 6, target.y + target.vy * t),
+      ),
     }
   }
   return toward(from, aim)

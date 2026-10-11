@@ -40,7 +40,7 @@ import {
   shadedOrb,
   vignette,
 } from '../snes'
-import type { PixelSprite, Ramp } from '../snes'
+import type { Ramp } from '../snes'
 import type {
   ArcadeGameInstance,
   ArcadeGameModule,
@@ -84,19 +84,17 @@ import {
   RESCUEE_RADIUS,
   stepRescuee,
 } from '../rescueRally/family'
-import type {
-  FamilyWorld,
-  Rescuee,
-  RescueeKind,
-} from '../rescueRally/family'
+import type { FamilyWorld, Rescuee, RescueeKind } from '../rescueRally/family'
 import { pylonSpots } from '../rescueRally/pylons'
-import { FOES, STOMP_REWIND, newFoe, stepFoe } from '../rescueRally/roster'
-import type {
-  Foe,
-  FoeKind,
-  FoeWorld,
-  Quarry,
+import {
+  FOES,
+  RUSH_MAX,
+  RUSH_TICKS,
+  STOMP_REWIND,
+  newFoe,
+  stepFoe,
 } from '../rescueRally/roster'
+import type { Foe, FoeKind, FoeWorld, Quarry } from '../rescueRally/roster'
 import { groupSize, waveAt } from '../rescueRally/waves'
 import type { Entry, WaveScript } from '../rescueRally/waves'
 
@@ -229,7 +227,13 @@ const HOUSE_SPRITE = pixelSprite(
 )
 
 /** A rescuee's starting look, rolled on the game's rng. */
-const KIND_CYCLE: readonly RescueeKind[] = ['person', 'person', 'cat', 'dog', 'bot']
+const KIND_CYCLE: readonly RescueeKind[] = [
+  'person',
+  'person',
+  'cat',
+  'dog',
+  'bot',
+]
 
 class RescueRally implements ArcadeGameInstance {
   score = 0
@@ -271,6 +275,8 @@ class RescueRally implements ArcadeGameInstance {
   private rings: Array<{ x: number; y: number; life: number; color: string }> =
     []
   private foeWorld: FoeWorld
+  /** The pilot's second stick, held between looks. */
+  private pilotAim: Point | null = null
   private familyWorld: FamilyWorld
 
   constructor(options: ArcadeGameOptions) {
@@ -325,6 +331,7 @@ class RescueRally implements ArcadeGameInstance {
     return {
       rng: () => this.rng(),
       heat: 1,
+      rush: 1,
       hero: (from) => {
         const h = this.nearestHero(from)
         return h ? ({ x: h.x, y: h.y, vx: h.vx, vy: h.vy } as Quarry) : null
@@ -513,8 +520,8 @@ class RescueRally implements ArcadeGameInstance {
       case 'ring': {
         const a = (i / n) * Math.PI * 2 + jitter(0.3)
         p = {
-          x: hero.x + Math.cos(a) * 150,
-          y: hero.y + Math.sin(a) * 120,
+          x: hero.x + Math.cos(a) * 135,
+          y: hero.y + Math.sin(a) * 110,
         }
         break
       }
@@ -573,7 +580,8 @@ class RescueRally implements ArcadeGameInstance {
           p.x < ARENA.right - 8 &&
           p.y > ARENA.top + 8 &&
           p.y < ARENA.bottom - 8
-        if (inside && dist(p, start) > 26) this.foes.push(newFoe('pylon', p, this.rng))
+        if (inside && dist(p, start) > 26)
+          this.foes.push(newFoe('pylon', p, this.rng))
       }
     }
     for (let i = 0; i < (script.puddles ?? 0); i++)
@@ -679,6 +687,8 @@ class RescueRally implements ArcadeGameInstance {
     const controls = this.demo ? this.demoInput() : input
     for (const h of this.heroes) this.stepHero(h, controls)
     this.waveTick++
+    this.foeWorld.rush =
+      1 + (RUSH_MAX - 1) * Math.min(1, this.waveTick / RUSH_TICKS)
     this.arrive()
     for (let i = 0; i < this.foes.length; i++)
       stepFoe(this.foes[i]!, this.foeWorld)
@@ -762,7 +772,11 @@ class RescueRally implements ArcadeGameInstance {
     h.gathering = input.held.b
     if (h.fireCooldown > 0) h.fireCooldown--
     const mine = this.shots.reduce((n, s) => n + (s.seat === h.seat ? 1 : 0), 0)
-    if ((input.held.a || h.aiming) && h.fireCooldown === 0 && mine < MAX_SHOTS) {
+    if (
+      (input.held.a || h.aiming) &&
+      h.fireCooldown === 0 &&
+      mine < MAX_SHOTS
+    ) {
       this.shots.push({
         x: h.x + h.aimX * 10,
         y: h.y - 4 + h.aimY * 10,
@@ -856,7 +870,9 @@ class RescueRally implements ArcadeGameInstance {
           (f) => dist(f, h) < FOES[f.kind].radius + HERO_RADIUS - 2,
         ) ||
         this.family.some(
-          (r) => r.state === 'glitched' && dist(r, h) < RESCUEE_RADIUS + HERO_RADIUS - 2,
+          (r) =>
+            r.state === 'glitched' &&
+            dist(r, h) < RESCUEE_RADIUS + HERO_RADIUS - 2,
         ) ||
         this.bolts.some((b) => dist(b, h) < BOLT_RADIUS + HERO_RADIUS - 2)
       if (touched) this.loseLife(h)
@@ -1039,7 +1055,12 @@ class RescueRally implements ArcadeGameInstance {
     }
   }
 
-  private burst(x: number, y: number, count: number, colors: readonly string[]) {
+  private burst(
+    x: number,
+    y: number,
+    count: number,
+    colors: readonly string[],
+  ) {
     for (let i = 0; i < count; i++) {
       const a = this.fxRng() * Math.PI * 2
       const s = 0.5 + this.fxRng() * 2.2
@@ -1153,13 +1174,11 @@ class RescueRally implements ArcadeGameInstance {
         (best, p) => (!best || dist(p, h) < dist(best, h) ? p : best),
         null,
       )
-    let goal: Point | null = null
     const banking =
       this.beacon &&
       parade.length > 0 &&
       (parade.length >= PARADE_MAX || !waiting.length)
-    if (banking) goal = this.beacon
-    else goal = nearest(waiting)
+    const goal: Point | null = banking ? this.beacon : nearest(waiting)
     // Lead a parade whenever there's a pad to walk it to.
     held.b = !!this.beacon && parade.length < PARADE_MAX
     if (goal) {
@@ -1204,10 +1223,12 @@ class RescueRally implements ArcadeGameInstance {
         if (onSegment(f, h, goal, 14)) consider(f, 1)
       }
     }
-    if (target) {
+    // Like a person, it settles on a target for a few ticks before it looks again.
+    if (target && (this.tick % 6 === 0 || !this.pilotAim)) {
       const u = toward(h, target as Point)
-      frame.aim = { x: u.x, y: u.y }
-    }
+      this.pilotAim = { x: u.x, y: u.y }
+    } else if (!target) this.pilotAim = null
+    if (this.pilotAim) frame.aim = { ...this.pilotAim }
     return frame
   }
 
@@ -1528,7 +1549,15 @@ class RescueRally implements ArcadeGameInstance {
         g.strokeStyle = RAMPS.gold[3]
         g.lineWidth = 1
         g.beginPath()
-        g.ellipse(b.x, b.y - t * 18, BEACON_RADIUS * (1 - t * 0.3), 6, 0, 0, Math.PI * 2)
+        g.ellipse(
+          b.x,
+          b.y - t * 18,
+          BEACON_RADIUS * (1 - t * 0.3),
+          6,
+          0,
+          0,
+          Math.PI * 2,
+        )
         g.stroke()
       }
       g.restore()
@@ -1611,7 +1640,10 @@ class RescueRally implements ArcadeGameInstance {
       g.moveTo(b.x, b.y)
       for (let k = 1; k <= 3; k++) {
         const zig = ((b.life + k) % 2 ? 1 : -1) * 2
-        g.lineTo(b.x - b.vx * k * 1.6 - b.vy * zig * 0.4, b.y - b.vy * k * 1.6 + b.vx * zig * 0.4)
+        g.lineTo(
+          b.x - b.vx * k * 1.6 - b.vy * zig * 0.4,
+          b.y - b.vy * k * 1.6 + b.vx * zig * 0.4,
+        )
       }
       g.stroke()
       shadedOrb(g, b.x, b.y, BOLT_RADIUS, RAMPS.gold, { glint: false })
@@ -1656,10 +1688,11 @@ class RescueRally implements ArcadeGameInstance {
         const sprite = TANK_SPRITES[Math.floor(this.tick / 5) % 3]!
         dropShadow(g, f.x, f.y + 10, 15, 3, 0.4)
         drawSprite(g, sprite, f.x, f.y)
-        // A scanning eye in the visor slot: red while healthy, gold when it is nearly rebooted.
+        // The turret dome, and a scanning eye across it: red while healthy, gold when nearly rebooted.
+        shadedOrb(g, f.x, f.y - 2, 6, RAMPS.steel)
         const eye = f.hp <= 2 ? RAMPS.gold : RAMPS.ember
-        const ex = Math.round(f.x + Math.sin(this.tick / 14 + f.seed) * 6)
-        const ey = Math.round(f.y)
+        const ex = Math.round(f.x + Math.sin(this.tick / 14 + f.seed) * 3)
+        const ey = Math.round(f.y - 2)
         glow(g, ex, ey, 10, eye[3], 0.55)
         g.fillStyle = eye[2]
         g.fillRect(ex - 3, ey - 1, 7, 3)
@@ -1681,7 +1714,14 @@ class RescueRally implements ArcadeGameInstance {
         const on = flashing && Math.floor(this.tick / 3) % 2 === 0
         dropShadow(g, f.x, f.y + 9, 7, 2, 0.35)
         const hover = Math.round(Math.sin(this.tick / 9 + f.seed) * 1.5)
-        glow(g, f.x, f.y - 9 + hover, flashing ? 22 : 9, RAMPS.gold[3], flashing ? 0.8 : 0.4)
+        glow(
+          g,
+          f.x,
+          f.y - 9 + hover,
+          flashing ? 22 : 9,
+          RAMPS.gold[3],
+          flashing ? 0.8 : 0.4,
+        )
         drawSprite(g, SPARKER_SPRITE, f.x, f.y + hover)
         if (on) {
           // The tell: the coil flares white and crackles.
@@ -1778,7 +1818,10 @@ class RescueRally implements ArcadeGameInstance {
       }
     } else if (beat === 0 || beat === 10) {
       // A stomp puffs dust off the floor.
-      this.burst(x + (beat ? 5 : -5), y + 12, 2, [RAMPS.steel[3], RAMPS.steel[2]])
+      this.burst(x + (beat ? 5 : -5), y + 12, 2, [
+        RAMPS.steel[3],
+        RAMPS.steel[2],
+      ])
     }
   }
 
@@ -1834,7 +1877,7 @@ class RescueRally implements ArcadeGameInstance {
       const ey = y + 1
       g.fillStyle = '#ffffff'
       g.fillRect(ex - 2, ey - 2, 5, 5)
-      const a = this.tick / 5 * side
+      const a = (this.tick / 5) * side
       g.fillStyle = GLITCH[2]
       for (let k = 0; k < 3; k++) {
         const r = 0.6 + k * 0.7
@@ -1949,7 +1992,9 @@ class RescueRally implements ArcadeGameInstance {
     dropShadow(g, r.x, r.y + 8, 6, 1.8, 0.35)
     const jolt =
       r.state === 'glitched' && (this.tick + r.id * 7) % 41 < 3
-        ? (this.tick % 2 ? 2 : -2)
+        ? this.tick % 2
+          ? 2
+          : -2
         : 0
     drawSprite(g, sprite, x + jolt, y + 8, {
       anchor: 'feet',

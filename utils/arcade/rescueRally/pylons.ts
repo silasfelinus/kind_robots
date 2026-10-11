@@ -23,14 +23,7 @@ export type PylonShape =
 export const PYLON_SPACING = 14
 
 export const PYLON_SHAPES: Record<PylonShape, readonly string[]> = {
-  heart: [
-    '.XX.XX.',
-    'X..X..X',
-    'X.....X',
-    '.X...X.',
-    '..X.X..',
-    '...X...',
-  ],
+  heart: ['.XX.XX.', 'X..X..X', 'X.....X', '.X...X.', '..X.X..', '...X...'],
   star: [
     '...X...',
     '...X...',
@@ -93,11 +86,7 @@ export function pylonSpots(place: PylonPlacement): Point[] {
 }
 
 /** The four letters across a row, centred on (x, y). */
-export function kindWord(
-  x: number,
-  y: number,
-  spacing = 12,
-): PylonPlacement[] {
+export function kindWord(x: number, y: number, spacing = 12): PylonPlacement[] {
   const letters: PylonShape[] = ['k', 'i', 'n', 'd']
   const widths = letters.map(
     (l) => Math.max(...PYLON_SHAPES[l].map((r) => r.length)) * spacing,

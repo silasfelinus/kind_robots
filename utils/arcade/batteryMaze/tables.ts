@@ -139,7 +139,9 @@ export const REWIRE_FLIPS = 3
 // --- power-ups (slice 2, t-040) -------------------------------------------------------
 
 /** Power-ups roll out of the dock now and then. */
-export type PowerUpKind = 'magnet' | 'turbo' | 'decoy' | 'freeze'
+/** The four that roll out anywhere, and the two board tools (Greenhouse, Arcade). */
+export type PowerUpKind =
+  'magnet' | 'turbo' | 'decoy' | 'freeze' | 'can' | 'lamp'
 
 export const POWER_UPS: Record<
   PowerUpKind,
@@ -149,8 +151,19 @@ export const POWER_UPS: Record<
   turbo: { name: 'TURBO WHEELS', ticks: 60 * 6, about: '+25% SPEED' },
   decoy: { name: 'DECOY BOT', ticks: 60 * 8, about: 'GREMLINS CHASE IT' },
   freeze: { name: 'FREEZE POP', ticks: 60 * 4, about: 'GREMLINS FREEZE' },
+  can: { name: 'WATERING CAN', ticks: 60 * 8, about: 'THE VINES WITHER' },
+  lamp: { name: 'LAMP', ticks: 60 * 10, about: 'A BIGGER LIGHT' },
 }
-export const POWER_UP_KINDS = Object.keys(POWER_UPS) as PowerUpKind[]
+export const POWER_UP_KINDS: readonly PowerUpKind[] = [
+  'magnet',
+  'turbo',
+  'decoy',
+  'freeze',
+]
+/** A board's own tool rolls out this often, against the other four. */
+export const TOOL_CHANCE = 0.45
+/** Overclocked (New Game+) plays every maze this much hotter: the late tables from the start. */
+export const OVERCLOCKED_HEAT = 14
 /** The first power-up rolls out this far into a maze, then one every `every` ticks. */
 export const POWER_UP_ROLL = { first: 60 * 15, every: 60 * 24, wander: 60 * 8 }
 /** A magnet pulls sparks from this many tiles away. */

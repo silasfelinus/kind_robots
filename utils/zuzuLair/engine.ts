@@ -45,8 +45,12 @@ export function windowFor(
   return [node.window[0], node.window[1] + extra]
 }
 
-export function startRun(chapter: LairChapter, difficulty: LairDifficulty): LairRun {
+export function startRun(
+  chapter: LairChapter,
+  difficulty: LairDifficulty,
+): LairRun {
   const first = chapter.nodes[0]
+  if (!first) throw new Error(`zuzuLair: ${chapter.id} has no nodes`)
   return {
     chapter,
     difficulty,
@@ -94,7 +98,10 @@ function succeed(run: LairRun, moment: LairNode, at: number): LairRun {
 
 function finish(run: LairRun): LairRun {
   const noDeath = run.deaths === 0 ? NO_DEATH_BONUS : 0
-  const time = Math.max(0, TIME_BONUS_MAX - Math.floor(run.elapsed) * TIME_BONUS_PER_SECOND)
+  const time = Math.max(
+    0,
+    TIME_BONUS_MAX - Math.floor(run.elapsed) * TIME_BONUS_PER_SECOND,
+  )
   return {
     ...run,
     phase: 'complete',
@@ -117,7 +124,11 @@ function advance(run: LairRun, dt: number): LairRun {
   let cur = run
   let left = dt
   // a large dt can cross several clip boundaries; walk them one at a time
-  for (let guard = 0; left > 1e-9 && guard < 64 && cur.phase === 'playing'; guard++) {
+  for (
+    let guard = 0;
+    left > 1e-9 && guard < 64 && cur.phase === 'playing';
+    guard++
+  ) {
     const node = nodeById(cur.chapter, cur.node)
     let step = Math.min(left, node.seconds - cur.t)
     if (node.kind === 'moment') {
@@ -136,7 +147,10 @@ function advance(run: LairRun, dt: number): LairRun {
     if (cur.t < node.seconds - 1e-9) continue
     if (node.kind === 'closing') return finish(cur)
     if (node.kind === 'death') {
-      cur = cur.lives === 0 ? { ...cur, phase: 'gameover' } : enter(cur, node.retry as string)
+      cur =
+        cur.lives === 0
+          ? { ...cur, phase: 'gameover' }
+          : enter(cur, node.retry as string)
     } else {
       cur = enter(cur, node.next as string)
     }
@@ -173,12 +187,15 @@ export function validateChapter(chapter: LairChapter): string[] {
   const reached = new Set<string>()
   const edge = (from: string, to: string | undefined, field: string) => {
     if (!to) return errors.push(`${from}: missing ${field}`)
-    if (!ids.has(to)) return errors.push(`${from}: ${field} -> unknown node "${to}"`)
+    if (!ids.has(to))
+      return errors.push(`${from}: ${field} -> unknown node "${to}"`)
     reached.add(to)
   }
   chapter.nodes.forEach((n, i) => {
-    if (n.seconds < 2 || n.seconds > 5) errors.push(`${n.id}: seconds ${n.seconds} outside 2-5`)
-    if (i === 0 && n.kind !== 'opening') errors.push(`${n.id}: first node must be the opening`)
+    if (n.seconds < 2 || n.seconds > 5)
+      errors.push(`${n.id}: seconds ${n.seconds} outside 2-5`)
+    if (i === 0 && n.kind !== 'opening')
+      errors.push(`${n.id}: first node must be the opening`)
     if (n.kind === 'opening' || n.kind === 'success') edge(n.id, n.next, 'next')
     if (n.kind === 'death') edge(n.id, n.retry, 'retry')
     if (n.kind === 'moment') {
@@ -189,7 +206,8 @@ export function validateChapter(chapter: LairChapter): string[] {
       else {
         const [a, b] = n.window
         if (a < 0 || b <= a) errors.push(`${n.id}: bad window [${a}, ${b}]`)
-        if (b + chapter.assistExtra > n.seconds) errors.push(`${n.id}: Assist window runs past the clip`)
+        if (b + chapter.assistExtra > n.seconds)
+          errors.push(`${n.id}: Assist window runs past the clip`)
       }
     }
   })

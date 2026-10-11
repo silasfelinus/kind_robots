@@ -19,9 +19,15 @@ import {
   validateChapter,
   windowFor,
 } from '../zuzuLair/engine'
-import type { LairAction, LairChapter, LairDifficulty, LairRun } from '../zuzuLair/types'
+import type {
+  LairAction,
+  LairChapter,
+  LairDifficulty,
+  LairRun,
+} from '../zuzuLair/types'
 
-const run = (r: LairRun, ...actions: LairAction[]) => actions.reduce(lairReducer, r)
+const run = (r: LairRun, ...actions: LairAction[]) =>
+  actions.reduce(lairReducer, r)
 const tick = (dt: number): LairAction => ({ type: 'tick', dt })
 /** Advance to `t` seconds into the current clip (the run must be at t = 0 or earlier). */
 const to = (r: LairRun, t: number) => lairReducer(r, tick(t - r.t))
@@ -35,20 +41,45 @@ const bad = (mutate: (c: LairChapter) => void): string[] => {
   mutate(c)
   return validateChapter(c)
 }
-assert.ok(bad((c) => { c.nodes[1].success = 'nowhere' }).some((e) => e.includes('unknown node')))
-assert.ok(bad((c) => { c.nodes.push({ id: 'lost', kind: 'success', seconds: 3, next: 'closing' }) })
-  .some((e) => e.includes('orphan')))
-assert.ok(bad((c) => { c.nodes[1].window = [2.2, 4.0] }).some((e) => e.includes('past the clip')))
-assert.ok(bad((c) => { c.nodes[1].seconds = 9 }).some((e) => e.includes('outside 2-5')))
-assert.ok(bad((c) => { delete c.nodes[1].expect }).some((e) => e.includes('needs expect')))
+assert.ok(
+  bad((c) => {
+    c.nodes[1]!.success = 'nowhere'
+  }).some((e) => e.includes('unknown node')),
+)
+assert.ok(
+  bad((c) => {
+    c.nodes.push({ id: 'lost', kind: 'success', seconds: 3, next: 'closing' })
+  }).some((e) => e.includes('orphan')),
+)
+assert.ok(
+  bad((c) => {
+    c.nodes[1]!.window = [2.2, 4.0]
+  }).some((e) => e.includes('past the clip')),
+)
+assert.ok(
+  bad((c) => {
+    c.nodes[1]!.seconds = 9
+  }).some((e) => e.includes('outside 2-5')),
+)
+assert.ok(
+  bad((c) => {
+    delete c.nodes[1]!.expect
+  }).some((e) => e.includes('needs expect')),
+)
 
 // -- difficulty windows -------------------------------------------------------------------
 const bridge = nodeById(CHAPTER_1, 'm1-bridge')
 assert.deepEqual(windowFor(CHAPTER_1, bridge, 'classic'), [2.2, 3.0])
-assert.deepEqual(windowFor(CHAPTER_1, bridge, 'assist'), [2.2, 3.0 + CHAPTER_1.assistExtra])
+assert.deepEqual(windowFor(CHAPTER_1, bridge, 'assist'), [
+  2.2,
+  3.0 + CHAPTER_1.assistExtra,
+])
 
 // -- a perfect run ------------------------------------------------------------------------
-function perfect(difficulty: LairDifficulty, pressAt: 'open' | 'close'): LairRun {
+function perfect(
+  difficulty: LairDifficulty,
+  pressAt: 'open' | 'close',
+): LairRun {
   let r = startRun(CHAPTER_1, difficulty)
   r = to(r, 5) // opening ends -> first moment
   for (const m of moments) {
@@ -56,7 +87,11 @@ function perfect(difficulty: LairDifficulty, pressAt: 'open' | 'close'): LairRun
     const [open, close] = windowFor(CHAPTER_1, m, difficulty)
     r = to(r, pressAt === 'open' ? open : close)
     r = run(r, { type: 'press', button: m.expect! })
-    assert.equal(r.node, m.success, `${m.id}: right press plays the success clip`)
+    assert.equal(
+      r.node,
+      m.success,
+      `${m.id}: right press plays the success clip`,
+    )
     r = to(r, 3) // success clip ends -> next
   }
   assert.equal(r.node, 'closing')
@@ -71,12 +106,17 @@ assert.equal(fast.bonus?.noDeath, NO_DEATH_BONUS)
 assert.ok((fast.bonus?.time ?? 0) > 0, 'time bonus awarded')
 assert.equal(
   fast.score,
-  moments.length * (POINTS_BASE + POINTS_SPEED) + NO_DEATH_BONUS + (fast.bonus?.time ?? 0),
+  moments.length * (POINTS_BASE + POINTS_SPEED) +
+    NO_DEATH_BONUS +
+    (fast.bonus?.time ?? 0),
   'pressing at the window open scores the maximum',
 )
 const slow = perfect('classic', 'close')
-assert.equal(slow.score - (slow.bonus?.time ?? 0) - NO_DEATH_BONUS, moments.length * POINTS_BASE,
-  'pressing at the window close scores the base only')
+assert.equal(
+  slow.score - (slow.bonus?.time ?? 0) - NO_DEATH_BONUS,
+  moments.length * POINTS_BASE,
+  'pressing at the window close scores the base only',
+)
 assert.ok(fast.score > slow.score, 'earlier in the window scores more')
 assert.equal(perfect('assist', 'open').phase, 'complete')
 
@@ -87,7 +127,11 @@ run(frozen, tick(6), { type: 'press', button: 'up' })
 assert.equal(JSON.stringify(frozen), snapshot, 'reducer is pure')
 
 // -- inputs outside a moment are ignored ---------------------------------------------------
-const idle = run(startRun(CHAPTER_1, 'classic'), { type: 'press', button: 'up' }, tick(1))
+const idle = run(
+  startRun(CHAPTER_1, 'classic'),
+  { type: 'press', button: 'up' },
+  tick(1),
+)
 assert.equal(idle.node, 'opening')
 assert.equal(idle.deaths, 0)
 assert.equal(lairReducer(startRun(CHAPTER_1, 'classic'), tick(0)).t, 0)
@@ -107,7 +151,10 @@ assert.equal(r.t, 0)
 r = to(atBridge('classic'), 3.4) // sits past the Classic close (3.0) without pressing
 assert.equal(r.node, 'm1-bridge-death', 'timeout kills')
 assert.equal(r.deaths, 1)
-assert.ok(Math.abs(r.t - 0.4) < 1e-6, 'a miss is judged at the window close, the rest plays the death clip')
+assert.ok(
+  Math.abs(r.t - 0.4) < 1e-6,
+  'a miss is judged at the window close, the rest plays the death clip',
+)
 
 r = run(atBridge('classic'), { type: 'press', button: 'up' }) // before the window opens
 assert.equal(r.node, 'm1-bridge-death', 'Classic: an early press is wrong')
@@ -119,7 +166,11 @@ assert.equal(r.deaths, 0)
 r = to(atBridge('assist'), 3.5) // past the Classic close, inside the Assist close
 assert.equal(r.node, 'm1-bridge', 'Assist: the window is wider')
 r = run(r, { type: 'press', button: 'up' })
-assert.equal(r.node, 'm1-bridge-ok', 'Assist: a late-but-in-window press succeeds')
+assert.equal(
+  r.node,
+  'm1-bridge-ok',
+  'Assist: a late-but-in-window press succeeds',
+)
 r = run(to(atBridge('classic'), 3.5)) // Classic: already dead by then
 assert.equal(r.node, 'm1-bridge-death')
 
@@ -137,7 +188,11 @@ assert.equal(go.phase, 'gameover')
 assert.equal(go.lives, 0)
 assert.equal(go.deaths, 3)
 assert.equal(lairReducer(go, tick(3)), go, 'a finished run ignores ticks')
-assert.equal(lairReducer(go, { type: 'press', button: 'up' }), go, 'and presses')
+assert.equal(
+  lairReducer(go, { type: 'press', button: 'up' }),
+  go,
+  'and presses',
+)
 
 // score something first, then die out in a later moment and continue there
 let scored = to(atBridge('classic'), 2.2)
@@ -152,9 +207,17 @@ assert.equal(cont.phase, 'playing')
 assert.equal(cont.node, 'm2-scorpion', 'continue resumes at the last moment')
 assert.equal(cont.t, 0)
 assert.equal(cont.lives, CHAPTER_1.lives)
-assert.equal(cont.score, Math.floor(before * CONTINUE_KEEP), 'continue costs score')
+assert.equal(
+  cont.score,
+  Math.floor(before * CONTINUE_KEEP),
+  'continue costs score',
+)
 assert.equal(cont.continues, 1)
-assert.equal(lairReducer(cont, { type: 'continue' }), cont, 'continue only works from game over')
+assert.equal(
+  lairReducer(cont, { type: 'continue' }),
+  cont,
+  'continue only works from game over',
+)
 
 // a continued run cannot take the no-death bonus
 let again = cont

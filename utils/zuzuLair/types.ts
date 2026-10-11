@@ -3,7 +3,8 @@
 // Zuzu's Lair (conductor zuzu-lair): the scene-graph and run types. Framework-free, no DOM.
 
 export type LairButton = 'up' | 'down' | 'left' | 'right' | 'sword'
-export type LairNodeKind = 'opening' | 'moment' | 'success' | 'death' | 'closing'
+export type LairNodeKind =
+  'opening' | 'moment' | 'success' | 'death' | 'closing'
 export type LairDifficulty = 'classic' | 'assist'
 
 export interface LairNode {

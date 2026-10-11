@@ -107,7 +107,10 @@
                 <p
                   class="mt-4 max-w-3xl font-serif text-lg leading-[1.75] text-base-content xl:text-xl"
                 >
-                  {{ current.text }}
+                  <template v-for="(part, i) in prose" :key="i">
+                    <em v-if="part.em">{{ part.text }}</em>
+                    <template v-else>{{ part.text }}</template>
+                  </template>
                 </p>
                 <p
                   v-if="art.fit === 'stand-in'"
@@ -418,6 +421,7 @@ import {
   sectionPlate,
 } from '~/utils/zuzuGamebook/art'
 import { journal } from '~/utils/zuzuGamebook/journal'
+import { emphasis } from '~/utils/zuzuGamebook/prose'
 import { useZuzuGamebookStore } from '~/stores/zuzuGamebookStore'
 
 const store = useZuzuGamebookStore()
@@ -445,6 +449,7 @@ const frameClass = computed(() =>
       ? 'lg:w-full lg:h-[min(100cqh,128cqw)]'
       : 'lg:w-full lg:h-[min(100cqh,100cqw)]',
 )
+const prose = computed(() => emphasis(current.value.text))
 const choices = computed(() => visibleChoices(store.run, current.value))
 const notes = computed(() => journal(store.run.flags))
 const moves: { action: BattleAction; label: string; help: string }[] = [

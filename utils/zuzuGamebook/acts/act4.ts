@@ -437,7 +437,7 @@ export const ACT_IV: Act = {
     s(
       'a4-raider-kits',
       CH.IV,
-      'In the Rocks',
+      'Three Kits',
       'raider-kits',
       'You climb the long way round the bowl, keeping low. Halfway up, in a crack too narrow for a grown jackal, you find three kits pressed together, all ears and ribs. Beside them stands a stoppered clay jar. You lift it: water, nearly full. Their mother has been going thirsty to fill it. The smallest kit looks at you without fear, because nothing has yet taught him any. Down at the well, Hollis has started to look for you.',
       {
@@ -504,7 +504,7 @@ export const ACT_IV: Act = {
     s(
       'a4-wide-berth',
       CH.IV,
-      'The Long Way Round',
+      'A Wide Berth',
       'dust-road',
       'You turn from the well and take the children the long way round the bowl, through rock that holds the heat like an oven. They drink from what you carry, or from what you can wring out of a barrel cactus with your knife; you take nothing yourself. By evening your tongue is a stone in your mouth and the world tilts when you stand. Behind you the jackals do not follow. Ahead, a smudge of smoke on the flat: half a roof, a fence, a waystation.',
       {

@@ -763,7 +763,7 @@ const SURPRISE_GUESTS: RoomScript = {
   type: 'ambush',
   title: 'SURPRISE GUESTS',
   tagline: 'EVERY DOOR AT ONCE!',
-  seconds: 45,
+  seconds: 55,
   danger: 3,
   reward: 'toaster',
   waves: [
@@ -771,7 +771,7 @@ const SURPRISE_GUESTS: RoomScript = {
     { at: s(10), kind: 'bouncer', count: 1, doors: 'all' },
     { at: s(18), kind: 'grabber', count: 2, doors: 'all' },
     { at: s(26), kind: 'conga', count: 5, doors: 'behind' },
-    { at: s(28), kind: 'mascot', count: 1, doors: 'far', fixed: true },
+    { at: s(20), kind: 'mascot', count: 1, doors: 'far', fixed: true },
   ],
   encore: [
     {

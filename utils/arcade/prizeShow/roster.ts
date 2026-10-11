@@ -9,6 +9,7 @@
 // Every new crasher shows its move before it makes it (the tell column) and has a way to beat it
 // (the answer column). Cartoon rules: nobody is hurt, crashers get cheered up and dance off.
 
+import type { ArcadeSoundName } from '../sound'
 import type { Side } from './season'
 import {
   BOTTOM,
@@ -134,7 +135,7 @@ export const ROSTER: Record<CrasherKind, RosterEntry> = {
   },
   mascot: {
     name: 'MASCOT',
-    hp: 24,
+    hp: 16,
     points: 2500,
     episode: 1,
     tell: 'stamps its feet before a charge',
@@ -325,7 +326,7 @@ export interface CrasherWorld {
   remove(c: Crasher): void
   puff(x: number, y: number, colour: string, count: number): void
   say(text: string, x: number, y: number): void
-  play(sound: string): void
+  play(sound: ArcadeSoundName): void
 }
 
 const TAU = Math.PI * 2
@@ -396,7 +397,7 @@ export const TELLS = {
   droneLength: 240,
   mascotWalk: 100,
   mascotStamp: 45,
-  mascotStun: 70,
+  mascotStun: 100,
   craneCharge: 42,
   chefEvery: 130,
   chefWindup: 30,

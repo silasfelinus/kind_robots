@@ -96,7 +96,6 @@ import {
 import {
   ROSTER,
   TELLS,
-  beamHits,
   burstPopper,
   craneCharging,
   deflects,
@@ -375,6 +374,12 @@ function hitBox(c: Crasher): [number, number] {
   }
 }
 
+/** The sprite view for an aim: side-on unless it points mostly up or down. */
+function viewOf(aim: Dir): View {
+  if (Math.abs(aim.x) > Math.abs(aim.y) * 0.5) return 'side'
+  return aim.y < 0 ? 'back' : 'front'
+}
+
 function isPower(kind: PrizeKind): kind is PowerKind {
   return kind in POWERS
 }
@@ -543,6 +548,79 @@ const HERO_SPRITES: Record<View, readonly PixelSprite[]> = {
     pixelSprite([...HERO_SIDE, ...legs], HERO_PALETTE),
   ),
 }
+// The mirror clone: Sparkle in glitchy purple and teal. The cutout: Sparkle printed on cardboard.
+const CLONE_PALETTE = {
+  ...HERO_PALETTE,
+  h: RAMPS.purple[4],
+  H: RAMPS.purple[3],
+  G: RAMPS.purple[2],
+  g: RAMPS.purple[1],
+  d: RAMPS.purple[0],
+  F: RAMPS.teal[3],
+  f: RAMPS.teal[2],
+  p: RAMPS.teal[3],
+  P: RAMPS.teal[2],
+  q: RAMPS.teal[1],
+}
+const CLONE_SPRITES: Record<View, readonly PixelSprite[]> = {
+  front: FRONT_LEGS.map((legs) =>
+    pixelSprite([...HERO_FRONT, ...legs], CLONE_PALETTE),
+  ),
+  back: FRONT_LEGS.map((legs) =>
+    pixelSprite([...HERO_BACK, ...legs], CLONE_PALETTE),
+  ),
+  side: SIDE_LEGS.map((legs) =>
+    pixelSprite([...HERO_SIDE, ...legs], CLONE_PALETTE),
+  ),
+}
+const CARDBOARD: Record<string, string> = {
+  ...Object.fromEntries(
+    Object.keys(HERO_PALETTE).map((key) => [key, RAMPS.earth[3]]),
+  ),
+  h: RAMPS.earth[4],
+  H: RAMPS.earth[4],
+  g: RAMPS.earth[2],
+  d: RAMPS.earth[2],
+  t: RAMPS.earth[2],
+  q: RAMPS.earth[2],
+  k: INK,
+  p: RAMPS.pink[2],
+}
+const CUTOUT_SPRITE = pixelSprite(
+  [...HERO_FRONT, '...dd..dd...', '...dd..dd...'],
+  CARDBOARD,
+)
+const CASE_SPRITE = pixelSprite(CASE_ROWS, {
+  '0': RAMPS.night[0],
+  '1': RAMPS.steel[1],
+  '3': RAMPS.steel[3],
+  '4': RAMPS.steel[2],
+  K: INK,
+  y: RAMPS.gold[3],
+})
+const PIE_SPRITE = pixelSprite(['.FWWF.', 'FWWWWF', 'MFFFFM', '.MmmM.'], {
+  W: RAMPS.cream[4],
+  F: RAMPS.cream[3],
+  M: RAMPS.earth[3],
+  m: RAMPS.earth[2],
+})
+const POPPER_SPRITE = pixelSprite(
+  ['....y', '..ypy', '.PPp.', 'PPp..', 'Pp...'],
+  {
+    y: RAMPS.gold[4],
+    p: RAMPS.pink[3],
+    P: RAMPS.pink[2],
+  },
+)
+const MIC_SPRITE = pixelSprite(
+  ['.343.', '34443', '43434', '34443', '.343.', '..1..', '..1..', '.111.'],
+  {
+    '1': RAMPS.steel[1],
+    '3': RAMPS.steel[3],
+    '4': RAMPS.steel[4],
+  },
+)
+
 const LIFE_ROWS = ['...p...', '.hhhhh.', 'hGFFFGg', 'hGkFkGg', 'gGGGGGd']
 const LIFE_SPRITE = pixelSprite(LIFE_ROWS, HERO_PALETTE)
 const LIFE_EMPTY = pixelSprite(
@@ -1328,8 +1406,10 @@ class PrizeShowPanic implements ArcadeGameInstance {
     return Math.min(CRASHER_TOP_SPEED, speed)
   }
 
+  /** A stagehand's mine: never in a doorway, so every exit stays reachable. */
   private layMine(kind: 'cushion' | 'peel', x: number, y: number): boolean {
     if (this.mines.length >= 14) return false
+    if (DOORS.some((d) => Math.hypot(d.x - x, d.y - y) < 30)) return false
     this.mines.push({ kind, x: clampX(x, 10), y: clampY(y, 10), fuse: 0 })
     return true
   }
@@ -3079,17 +3159,57 @@ class PrizeShowPanic implements ArcadeGameInstance {
       }
       return frame
     }
-    const threats: Array<{ x: number; y: number; r: number }> = [
-      ...this.crashers.map((c) => ({ x: c.x, y: c.y, r: 50 })),
-      ...this.streamers.map((s) => ({ x: s.x, y: s.y, r: 18 })),
-    ]
+    const threats: Array<{ x: number; y: number; r: number }> = []
+    for (const c of this.crashers) {
+      if (!touches(c)) continue
+      const r =
+        c.kind === 'mascot'
+          ? c.mode >= 1 && c.mode <= 2
+            ? 80
+            : 60
+          : c.kind === 'meatball' && c.mode === 1
+            ? 64
+            : 50
+      threats.push({ x: c.x, y: c.y, r })
+    }
+    for (const st of this.streamers) threats.push({ x: st.x, y: st.y, r: 18 })
     if (this.boss) threats.push({ x: this.boss.x, y: this.boss.y, r: 56 })
+    const leavingNow = this.exitsOpen && this.cleared
     for (const m of this.mines)
       threats.push({
         x: m.x,
         y: m.y,
-        r: m.fuse > 0 ? CUSHION_BLAST + 16 : m.kind === 'cushion' ? 15 : 12,
+        r:
+          m.fuse > 0
+            ? CUSHION_BLAST + 16
+            : leavingNow
+              ? 10
+              : m.kind === 'cushion'
+                ? 15
+                : 12,
       })
+    for (const lob of this.lobs)
+      if (lob.kind === 'pie') threats.push({ x: lob.x1, y: lob.y1, r: 22 })
+    for (const boom of this.booms)
+      if (this.boomTell(boom) !== null)
+        threats.push({ x: boom.x, y: boom.y, r: BOOM_REACH + 14 })
+    for (const c of this.crashers) {
+      if (c.kind === 'diver' && c.mode === 1)
+        threats.push({ x: c.tx, y: c.ty, r: TELLS.diverRing + 14 })
+      if (c.kind === 'drone' && c.mode >= 1) {
+        // Step off the drone's locked line.
+        const a = Math.atan2(c.ty - c.y, c.tx - c.x)
+        const along = Math.max(
+          0,
+          (this.px - c.x) * Math.cos(a) + (this.py - c.y) * Math.sin(a),
+        )
+        threats.push({
+          x: c.x + Math.cos(a) * along,
+          y: c.y + Math.sin(a) * along,
+          r: 20,
+        })
+      }
+    }
     for (const b of this.beams) {
       const { angle, hot, warming } = this.beamState(b)
       if (!hot && !warming) continue
@@ -3112,13 +3232,13 @@ class PrizeShowPanic implements ArcadeGameInstance {
       }
     }
     // Sidestep anything thrown this way, off the line it is flying along.
-    for (const s of this.streamers) {
-      const rx = this.px - s.x
-      const ry = this.py - s.y
+    for (const st of this.streamers) {
+      const rx = this.px - st.x
+      const ry = this.py - st.y
       if (Math.hypot(rx, ry) > 80) continue
-      const speed = Math.hypot(s.vx, s.vy) || 1
-      const ux = s.vx / speed
-      const uy = s.vy / speed
+      const speed = Math.hypot(st.vx, st.vy) || 1
+      const ux = st.vx / speed
+      const uy = st.vy / speed
       if (rx * ux + ry * uy < 0) continue
       const off = ry * ux - rx * uy
       if (Math.abs(off) > 12) continue
@@ -3126,6 +3246,23 @@ class PrizeShowPanic implements ArcadeGameInstance {
       const push = 2 * (1 - Math.abs(off) / 12)
       mx += -uy * side * push
       my += ux * side * push
+    }
+    // A charging mascot or a rolling meatball can't be outrun: step out of its line.
+    for (const c of this.crashers) {
+      const charging =
+        (c.kind === 'mascot' && c.mode >= 1 && c.mode <= 2) ||
+        (c.kind === 'meatball' && c.mode === 1)
+      if (!charging) continue
+      const ux = c.kind === 'meatball' ? Math.sign(c.vx) : Math.cos(c.face)
+      const uy = c.kind === 'meatball' ? Math.sign(c.vy) : Math.sin(c.face)
+      const rx = this.px - c.x
+      const ry = this.py - c.y
+      if (rx * ux + ry * uy < 0 || Math.hypot(rx, ry) > 140) continue
+      const off = ry * ux - rx * uy
+      if (Math.abs(off) > 22) continue
+      const side = off >= 0 ? 1 : -1
+      mx += -uy * side * 2.5
+      my += ux * side * 2.5
     }
     // While dodging, keep off the walls so a corner never pins the pilot.
     if (Math.abs(mx) + Math.abs(my) > 0.5) {
@@ -3148,6 +3285,11 @@ class PrizeShowPanic implements ArcadeGameInstance {
     if (goal && Math.abs(mx) + Math.abs(my) < 0.5) {
       mx = goal.x - this.px
       my = goal.y - this.py
+    } else if (goal && leaving) {
+      // Heading out: keep pulling for the door while stepping round trouble.
+      const d = Math.hypot(goal.x - this.px, goal.y - this.py) || 1
+      mx += ((goal.x - this.px) / d) * 0.8
+      my += ((goal.y - this.py) / d) * 0.8
     }
     // Drift back toward the middle when nothing else calls.
     if (Math.abs(mx) + Math.abs(my) < 0.3) {
@@ -3159,8 +3301,7 @@ class PrizeShowPanic implements ArcadeGameInstance {
     if (my < -0.2) held.up = true
     if (my > 0.2) held.down = true
     const target = [
-      ...this.crashers,
-      ...this.cameras,
+      ...this.crashers.filter(shootable),
       ...(this.boss ? [this.boss] : []),
     ].sort(
       (a, b) =>
@@ -3168,15 +3309,10 @@ class PrizeShowPanic implements ArcadeGameInstance {
         Math.hypot(b.x - this.px, b.y - this.py),
     )[0]
     if (target) {
-      // Point the cannon (it locks while B is held) and spray.
-      const a = Math.atan2(target.y - this.py, target.x - this.px)
-      const f = Math.round(a / (Math.PI / 4))
-      this.aim = {
-        x: Math.round(Math.cos((f * Math.PI) / 4)),
-        y: Math.round(Math.sin((f * Math.PI) / 4)),
-      }
-      held.b = true
-      held.a = true
+      // Twin-stick: the second stick points at the target and Sparkle sprays.
+      const ty = 'z' in target ? target.y - target.z : target.y
+      const a = Math.atan2(ty - this.py, target.x - this.px)
+      frame.aim = { x: Math.cos(a), y: Math.sin(a) }
     }
     return frame
   }
@@ -3197,20 +3333,29 @@ class PrizeShowPanic implements ArcadeGameInstance {
     this.renderCrack(g)
     if (this.exitsOpen)
       for (const exit of this.exits) this.renderExitArrows(g, exit)
+    this.renderSlicks(g)
     this.renderMines(g)
     this.renderShadows(g)
+    this.renderBoomShadows(g)
     this.renderPedestals(g)
     for (const p of this.prizes) this.renderPrize(g, p)
     this.renderTickets(g)
+    this.renderDecoy(g)
     if (this.boss) this.renderBoss(g, this.boss)
+    for (const box of this.cases)
+      drawSprite(g, CASE_SPRITE, Math.round(box.x), Math.round(box.y))
     const crowd = [...this.crashers].sort((a, b) => a.y - b.y)
     for (const c of crowd) this.renderCrasher(g, c)
     for (const d of this.dancers) this.renderDancer(g, d)
-    this.renderCameras(g)
     if (!dark) this.renderBeams(g)
+    this.renderDroneBeams(g)
     this.renderStreamers(g)
     this.renderShots(g)
+    this.renderGlitter(g)
     if (this.dead === 0 && !this.over) this.renderSparkle(g)
+    this.renderOrbiters(g)
+    this.renderLobs(g)
+    this.renderBoomMics(g)
     this.renderConfetti(g)
     this.fx.render(g)
     this.renderTosses(g)
@@ -3689,51 +3834,6 @@ class PrizeShowPanic implements ArcadeGameInstance {
     }
   }
 
-  /** The camera wall: each camera's lens glows red and its aim line shows while it charges. */
-  private renderCameras(g: CanvasRenderingContext2D) {
-    for (const cam of this.cameras) {
-      const charging = this.cameraCharging(cam)
-      if (charging) {
-        const c = (this.roomTick + cam.offset) % cam.every
-        const k = (c - (cam.every - CAMERA_CHARGE)) / CAMERA_CHARGE
-        glow(g, cam.x, cam.y, 10 + k * 10, RAMPS.ember[3], 0.35 + k * 0.4)
-        // A dotted line to where the flash is going.
-        const dx = cam.tx - cam.x
-        const dy = cam.ty - cam.y
-        const len = Math.hypot(dx, dy) || 1
-        g.fillStyle = rgba(RAMPS.ember[3], 0.35 + k * 0.5)
-        for (let d = 12; d < len; d += 7) {
-          if (Math.floor((d + this.tick) / 7) % 2) continue
-          g.fillRect(
-            Math.round(cam.x + (dx / len) * d),
-            Math.round(cam.y + (dy / len) * d),
-            2,
-            2,
-          )
-        }
-      }
-      const sideways = cam.side % 2 === 1
-      const sprite = sideways
-        ? charging
-          ? CAMERA_SPRITES.sideHot
-          : CAMERA_SPRITES.side
-        : charging
-          ? CAMERA_SPRITES.downHot
-          : CAMERA_SPRITES.down
-      const sx = cam.x + (cam.side === 1 ? 1 : cam.side === 3 ? -1 : 0)
-      const sy = cam.y + (cam.side === 0 ? -1 : cam.side === 2 ? 1 : 0)
-      drawSprite(g, sprite, sx, sy, {
-        flipX: cam.side === 1,
-        flipY: cam.side === 2,
-      })
-      // The tally light: red while live.
-      if (charging && Math.floor(this.tick / 4) % 2 === 0) {
-        g.fillStyle = RAMPS.ember[4]
-        g.fillRect(Math.round(sx) - 2, Math.round(sy) - 2, 2, 2)
-      }
-    }
-  }
-
   /** The light rig: hot beams glare in stepped bands; a warming beam flickers its outline. */
   private renderBeams(g: CanvasRenderingContext2D) {
     if (!this.beams.length) return
@@ -3802,31 +3902,273 @@ class PrizeShowPanic implements ArcadeGameInstance {
     for (const p of this.prizes)
       if (!p.pedestal) dropShadow(g, p.x, p.y + 6, 6, 1.6, 0.35)
     if (this.boss) dropShadow(g, this.boss.x, this.boss.y + 21, 44, 5, 0.4)
-    for (const c of this.crashers)
-      dropShadow(g, c.x, c.y + 7, c.kind === 'bouncer' ? 6 : 5, 1.6, 0.35)
+    for (const box of this.cases)
+      dropShadow(g, box.x + 1, box.y + 7, 12, 2.2, 0.4)
+    for (const c of this.crashers) {
+      if (c.kind === 'crane') continue
+      const size =
+        c.kind === 'mascot'
+          ? 13
+          : c.kind === 'tank'
+            ? 10
+            : c.kind === 'bouncer'
+              ? 6
+              : 5
+      const high = c.z > 0 ? Math.max(0.35, 1 - c.z / 60) : 1
+      dropShadow(g, c.x, c.y + 7, size * high, 1.6 * high, 0.35 * high)
+      if (c.kind === 'diver' && c.mode === 1) {
+        // Where the diver will land: a shadow that grows as it falls (the tell).
+        const u = Math.min(1, c.clock / TELLS.diverFlight)
+        dropShadow(g, c.tx, c.ty + 7, 6 + u * 10, 2 + u * 3, 0.25 + u * 0.35)
+        g.strokeStyle = rgba(RAMPS.ember[3], 0.4 + u * 0.5)
+        g.lineWidth = 1
+        g.beginPath()
+        g.ellipse(
+          c.tx,
+          c.ty + 7,
+          TELLS.diverRing,
+          TELLS.diverRing * 0.6,
+          0,
+          0,
+          Math.PI * 2,
+        )
+        g.stroke()
+      }
+    }
     for (const d of this.dancers)
       dropShadow(g, d.x, d.y + 7, 4, 1.4, 0.3 * Math.min(1, d.life / 25))
-    if (this.dead === 0 && !this.over)
+    if (this.dead === 0 && !this.over && this.lifted === 0)
       dropShadow(g, this.px, this.py + 8, 6, 1.8, 0.4)
   }
 
+  /** Pie cream (slippery) and foam (slows crashers) on the floor. */
+  private renderSlicks(g: CanvasRenderingContext2D) {
+    for (const s of this.slicks) {
+      const fade = Math.min(1, s.life / 60)
+      const cream = s.kind === 'cream'
+      const base = cream ? RAMPS.cream[3] : RAMPS.water[3]
+      const top = cream ? RAMPS.cream[4] : RAMPS.water[4]
+      g.fillStyle = rgba(base, 0.55 * fade)
+      g.beginPath()
+      g.ellipse(s.x, s.y + 4, s.r, s.r * 0.55, 0, 0, Math.PI * 2)
+      g.fill()
+      g.fillStyle = rgba(top, 0.7 * fade)
+      for (let i = 0; i < 4; i++) {
+        const a = i * 1.7 + s.x
+        g.beginPath()
+        g.ellipse(
+          s.x + Math.cos(a) * s.r * 0.5,
+          s.y + 4 + Math.sin(a) * s.r * 0.25,
+          s.r * 0.3,
+          s.r * 0.18,
+          0,
+          0,
+          Math.PI * 2,
+        )
+        g.fill()
+      }
+    }
+  }
+
+  /** A boom mic's tell: its shadow grows on the floor where it will swoop. */
+  private renderBoomShadows(g: CanvasRenderingContext2D) {
+    for (const boom of this.booms) {
+      const u = this.boomTell(boom)
+      if (u === null) continue
+      dropShadow(g, boom.x, boom.y + 6, 6 + u * 10, 2 + u * 4, 0.3 + u * 0.4)
+      g.fillStyle = rgba(
+        RAMPS.ember[3],
+        0.5 + 0.4 * (Math.floor(this.tick / 4) % 2),
+      )
+      for (let i = 0; i < 12; i++) {
+        const a = (i / 12) * Math.PI * 2 + this.tick / 18
+        g.fillRect(
+          Math.round(boom.x + Math.cos(a) * BOOM_REACH),
+          Math.round(boom.y + 6 + Math.sin(a) * BOOM_REACH * 0.6),
+          2,
+          1,
+        )
+      }
+    }
+  }
+
+  /** The boom mics on their cables: lowering during the tell, carrying Sparkle while she's up. */
+  private renderBoomMics(g: CanvasRenderingContext2D) {
+    for (const boom of this.booms) {
+      const u = this.boomTell(boom)
+      if (u === null) continue
+      const y = TOP + (boom.y - 14 - TOP) * u * u
+      g.fillStyle = RAMPS.steel[1]
+      g.fillRect(Math.round(boom.x), HUD, 1, Math.max(0, Math.round(y) - HUD))
+      drawSprite(g, MIC_SPRITE, boom.x, y, { flipY: true })
+    }
+    if (this.lifted > 0) {
+      const up = Math.sin((1 - this.lifted / BOOM_LIFT) * Math.PI) * 40
+      const y = this.py - up
+      g.fillStyle = RAMPS.steel[1]
+      g.fillRect(
+        Math.round(this.px),
+        HUD,
+        1,
+        Math.max(0, Math.round(y - 22 - HUD)),
+      )
+      drawSprite(g, MIC_SPRITE, this.px, y - 18, { flipY: true })
+    }
+  }
+
+  /** The cardboard cutout the crowd chases. */
+  private renderDecoy(g: CanvasRenderingContext2D) {
+    const d = this.decoy
+    if (!d) return
+    if (d.life < 90 && Math.floor(this.tick / 4) % 2) return
+    dropShadow(g, d.x, d.y + 8, 6, 1.8, 0.4)
+    g.fillStyle = RAMPS.earth[1]
+    g.fillRect(Math.round(d.x) + 3, Math.round(d.y) + 2, 2, 7)
+    drawSprite(g, CUTOUT_SPRITE, d.x, d.y + 8, { anchor: 'feet' })
+    gauge(
+      g,
+      Math.round(d.x) - 8,
+      Math.round(d.y) - 14,
+      16,
+      2,
+      d.hp / ARSENAL.cutoutHp,
+      RAMPS.earth,
+    )
+  }
+
+  /** Pies and party poppers in flight, each over a landing shadow (the pie's is the tell). */
+  private renderLobs(g: CanvasRenderingContext2D) {
+    for (const lob of this.lobs) {
+      const u = lob.t / lob.dur
+      const x = lob.x0 + (lob.x1 - lob.x0) * u
+      const y = lob.y0 + (lob.y1 - lob.y0) * u - Math.sin(u * Math.PI) * 42
+      dropShadow(g, lob.x1, lob.y1 + 4, 3 + u * 6, 1 + u * 2, 0.25 + u * 0.35)
+      if (lob.kind === 'pie') {
+        g.strokeStyle = rgba(RAMPS.cream[4], 0.35 + u * 0.5)
+        g.lineWidth = 1
+        g.beginPath()
+        g.ellipse(lob.x1, lob.y1 + 4, 10, 6, 0, 0, Math.PI * 2)
+        g.stroke()
+        drawSprite(g, PIE_SPRITE, x, y)
+      } else {
+        glow(g, x, y, 8, RAMPS.pink[3], 0.4)
+        drawSprite(g, POPPER_SPRITE, x, y, { flipX: lob.x1 < lob.x0 })
+      }
+    }
+  }
+
+  /** Streamer orbiters: two gold ribbons circling Sparkle. */
+  private renderOrbiters(g: CanvasRenderingContext2D) {
+    const spots = this.orbiterSpots()
+    if (!spots.length) return
+    const fading = this.powers.orbiters < 120 && Math.floor(this.tick / 4) % 2
+    if (fading) return
+    for (const o of spots) {
+      glow(g, o.x, o.y, 8, RAMPS.gold[3], 0.45)
+      drawSprite(g, STREAMER_SPRITES[1]!, o.x, o.y)
+    }
+  }
+
+  /** Glitter laser lines: a white core in a pink haze, glinting along its length. */
+  private renderGlitter(g: CanvasRenderingContext2D) {
+    if (!this.glitter.length) return
+    g.save()
+    g.globalCompositeOperation = 'lighter'
+    for (const l of this.glitter) {
+      const a = l.life / ARSENAL.laserShow
+      for (const [w, colour, alpha] of [
+        [5, RAMPS.pink[3], 0.35],
+        [3, RAMPS.cream[4], 0.6],
+        [1, '#ffffff', 0.9],
+      ] as const) {
+        g.strokeStyle = rgba(colour, alpha * a)
+        g.lineWidth = w
+        g.beginPath()
+        g.moveTo(l.x0, l.y0)
+        g.lineTo(l.x1, l.y1)
+        g.stroke()
+      }
+      g.fillStyle = '#ffffff'
+      const len = Math.hypot(l.x1 - l.x0, l.y1 - l.y0)
+      for (let d = (this.tick * 3) % 14; d < len; d += 14) {
+        const u = d / (len || 1)
+        g.fillRect(
+          Math.round(l.x0 + (l.x1 - l.x0) * u) - 1,
+          Math.round(l.y0 + (l.y1 - l.y0) * u),
+          3,
+          1,
+        )
+      }
+    }
+    g.restore()
+  }
+
+  /** Spotlight drones: a dotted lock line (the tell), then a hot beam down it. */
+  private renderDroneBeams(g: CanvasRenderingContext2D) {
+    for (const c of this.crashers) {
+      if (c.kind !== 'drone' || c.mode === 0) continue
+      const x = c.x
+      const y = c.y - c.z
+      const a = Math.atan2(c.ty - c.y, c.tx - c.x)
+      const dx = Math.cos(a)
+      const dy = Math.sin(a)
+      if (c.mode === 1) {
+        const k = c.clock / TELLS.droneLock
+        g.fillStyle = rgba(RAMPS.ember[3], 0.35 + k * 0.55)
+        for (let d = 8; d < TELLS.droneLength; d += 6) {
+          if (Math.floor((d + this.tick) / 6) % 2) continue
+          const px = x + dx * d
+          const py = c.y + dy * d
+          if (px < LEFT || px > RIGHT || py < TOP || py > BOTTOM) break
+          g.fillRect(Math.round(px), Math.round(py), 2, 2)
+        }
+        g.strokeStyle = rgba(RAMPS.ember[3], 0.8)
+        g.lineWidth = 1
+        g.strokeRect(Math.round(c.tx) - 5.5, Math.round(c.ty) - 5.5, 11, 11)
+        continue
+      }
+      g.save()
+      g.beginPath()
+      g.rect(LEFT, TOP, RIGHT - LEFT, BOTTOM - TOP)
+      g.clip()
+      g.globalCompositeOperation = 'lighter'
+      for (const [w, colour, alpha] of [
+        [9, RAMPS.gold[3], 0.25],
+        [5, RAMPS.gold[4], 0.45],
+        [2, '#ffffff', 0.85],
+      ] as const) {
+        g.strokeStyle = rgba(colour, alpha)
+        g.lineWidth = w
+        g.beginPath()
+        g.moveTo(x, y)
+        g.lineTo(c.x + dx * TELLS.droneLength, c.y + dy * TELLS.droneLength)
+        g.stroke()
+      }
+      g.restore()
+    }
+  }
+
   private renderSparkle(g: CanvasRenderingContext2D) {
-    if (this.invuln > 0 && Math.floor(this.tick / 4) % 2) return
+    if (this.invuln > 0 && this.lifted === 0 && Math.floor(this.tick / 4) % 2)
+      return
     const x = Math.round(this.px)
-    const y = Math.round(this.py)
-    const view: View =
-      this.aim.x !== 0 ? 'side' : this.aim.y < 0 ? 'back' : 'front'
+    const up = this.lifted
+      ? Math.sin((1 - this.lifted / BOOM_LIFT) * Math.PI) * 40
+      : 0
+    const y = Math.round(this.py - up)
+    const view = viewOf(this.aim)
     const pace = Math.floor(this.stride / 7) % 2
     const frame = this.striding ? 1 + pace : 0
     // The confetti cannon sits on Sparkle's aim; behind when aiming away from us.
     const cannon = () => {
       const mx = x + this.aim.x * 8
       const my = y - 1 + this.aim.y * 7
-      const cool = this.rapid > 0 ? RAPID_COOLDOWN : FIRE_COOLDOWN
+      const cool = this.powers.rapid > 0 ? RAPID_COOLDOWN : FIRE_COOLDOWN
       if (this.fireCooldown >= cool - 1) glow(g, mx, my, 9, RAMPS.pink[3], 0.7)
       shadedOrb(g, mx, my, 2.5, RAMPS.pink)
     }
     if (this.aim.y < 0) cannon()
+    if (this.powers.skates > 0) glow(g, x, y + 7, 8, RAMPS.leaf[3], 0.35)
     drawSprite(g, HERO_SPRITES[view][frame]!, x, y + 8 - (frame ? pace : 0), {
       anchor: 'feet',
       flipX: this.aim.x < 0,
@@ -3843,10 +4185,8 @@ class PrizeShowPanic implements ArcadeGameInstance {
           1,
         )
     }
-    if (
-      this.shield > 0 &&
-      !(this.shield < 120 && Math.floor(this.tick / 4) % 2)
-    ) {
+    const shield = this.powers.shield
+    if (shield > 0 && !(shield < 120 && Math.floor(this.tick / 4) % 2)) {
       glow(g, x, y - 1, 15, RAMPS.teal[3], 0.3)
       g.lineWidth = 1
       g.strokeStyle = rgba(RAMPS.teal[3], 0.85)
@@ -3871,24 +4211,313 @@ class PrizeShowPanic implements ArcadeGameInstance {
   }
 
   private renderCrasher(g: CanvasRenderingContext2D, c: Crasher) {
+    if (c.kind === 'crane') {
+      this.renderCrane(g, c)
+      return
+    }
+    if (c.kind === 'clone') {
+      this.renderClone(g, c)
+      return
+    }
     const look = CRASHER_LOOKS.get(c.color) ?? FALLBACK_LOOK
+    const frames = look[c.kind] ?? look.grabber!
     let frame = Math.floor(c.t / 8) % 2
     let lift = Math.round(Math.abs(Math.sin(c.t / 5)))
     let flip = this.px < c.x
-    if (c.kind === 'bouncer') {
-      lift = Math.round(Math.sin(((c.t % 20) / 20) * Math.PI) * 4)
-      frame = lift === 0 ? 1 : 0
-      flip = c.vx < 0
-    } else if (c.kind === 'conga') {
-      frame = Math.floor(c.t / 10) % 2
-      if (c.leader) flip = c.leader.x < c.x
-    } else if (c.kind === 'thrower') {
-      frame = c.t % 90 < 12 ? 1 : 0
+    let shake = 0
+    switch (c.kind) {
+      case 'bouncer':
+        lift = Math.round(Math.sin(((c.t % 20) / 20) * Math.PI) * 4)
+        frame = lift === 0 ? 1 : 0
+        flip = c.vx < 0
+        break
+      case 'conga':
+        frame = Math.floor(c.t / 10) % 2
+        if (c.leader) flip = c.leader.x < c.x
+        break
+      case 'thrower':
+        frame = c.t % 90 < 12 ? 1 : 0
+        break
+      case 'popper':
+        lift = 3 + Math.round(Math.sin(c.t / 9) * 2)
+        frame = Math.floor(c.t / 14) % 2
+        if (c.mode === 1) shake = Math.floor(c.clock / 2) % 2 ? 1 : -1
+        break
+      case 'tank':
+      case 'mascot':
+      case 'roadie':
+        flip = Math.cos(c.face) < 0
+        frame = Math.floor(c.t / (c.kind === 'tank' ? 5 : 9)) % 2
+        lift = c.kind === 'tank' ? 0 : lift
+        if (c.kind === 'mascot' && c.mode === 1)
+          shake = Math.floor(c.clock / 3) % 2 ? 1 : -1
+        if (c.kind === 'mascot' && c.mode === 2) frame = Math.floor(c.t / 4) % 2
+        break
+      case 'stagehand':
+        if (c.mode === 1) lift = -2
+        break
+      case 'drone':
+      case 'saucer':
+        lift = Math.round(c.z + Math.sin(c.t / 10) * 2)
+        frame = Math.floor(c.t / (c.kind === 'drone' ? 3 : 8)) % 2
+        flip = c.kind === 'drone' ? this.px < c.x : false
+        break
+      case 'chef':
+      case 'heckler':
+        frame = c.mode === 1 ? 1 : Math.floor(c.t / 12) % 2 ? 0 : 0
+        break
+      case 'timer':
+        frame = Math.floor(c.t / 10) % 2
+        break
+      case 'meatball':
+        lift = 0
+        frame = Math.floor(c.t / (c.mode === 1 ? 3 : 10)) % 2
+        flip = c.mode === 1 ? c.vx < 0 || c.vy < 0 : Math.cos(c.face) < 0
+        if (c.mode === 0) shake = Math.floor(c.clock / 2) % 2 ? 1 : 0
+        break
+      case 'diver':
+        lift = Math.round(c.z) + (c.z > 0 ? 0 : lift)
+        frame = c.z > 2 ? 1 : 0
+        break
+      case 'fluffball': {
+        const swelling = c.clock > TELLS.fluffEvery
+        frame = Math.floor(c.t / (swelling ? 3 : 7)) % 2
+        break
+      }
     }
-    drawSprite(g, look[c.kind][frame]!, c.x, c.y + 7 - lift, {
+    const x = Math.round(c.x) + shake
+    const y = Math.round(c.y) + 7 - lift
+    if (c.kind === 'popper' && c.mode === 1) {
+      const k = c.clock / TELLS.popperSwell
+      glow(g, x, y - 12, 10 + k * 10, RAMPS.pink[3], 0.4 + k * 0.4)
+    }
+    drawSprite(g, frames[frame]!, x, y, {
       anchor: 'feet',
       flipX: flip,
+      alpha:
+        c.kind === 'popper' && c.mode === 1 && Math.floor(c.clock / 3) % 2
+          ? 0.6
+          : 1,
     })
+    this.renderTell(g, c, x, y)
+  }
+
+  /** What a crasher shows before it acts, drawn over it. */
+  private renderTell(
+    g: CanvasRenderingContext2D,
+    c: Crasher,
+    x: number,
+    y: number,
+  ) {
+    const bang = (top: number, colour: string) => {
+      if (Math.floor(this.tick / 4) % 2) return
+      drawText(g, '!', x, top, { align: 'center', color: colour, outline: INK })
+    }
+    if (c.pumped > 0 && Math.floor(this.tick / 6) % 2 === 0) {
+      // Heckled: little anger marks over its head.
+      g.fillStyle = RAMPS.ember[3]
+      g.fillRect(x + 4, y - 22, 3, 1)
+      g.fillRect(x + 5, y - 23, 1, 3)
+    }
+    if (c.slow > 0) {
+      g.fillStyle = rgba(RAMPS.water[4], 0.7)
+      g.fillRect(x - 5, y - 2, 10, 2)
+    }
+    switch (c.kind) {
+      case 'tank': {
+        if (c.mode !== 1) break
+        const k = c.clock / TELLS.tankCharge
+        glow(
+          g,
+          x + Math.cos(c.face) * 9,
+          y - 9 + Math.sin(c.face) * 4,
+          6 + k * 8,
+          RAMPS.sky[3],
+          0.4 + k * 0.5,
+        )
+        break
+      }
+      case 'stagehand':
+        if (c.mode === 1) bang(y - 30, RAMPS.pink[3])
+        break
+      case 'mascot':
+        if (c.mode === 1) bang(y - 40, RAMPS.ember[3])
+        if (c.mode === 3) {
+          for (let i = 0; i < 3; i++) {
+            const a = this.tick / 8 + (i * Math.PI * 2) / 3
+            g.fillStyle = RAMPS.gold[4]
+            g.fillRect(
+              Math.round(x + Math.cos(a) * 10),
+              Math.round(y - 30 + Math.sin(a) * 3),
+              2,
+              2,
+            )
+          }
+        }
+        gauge(g, x - 12, y - 34, 24, 2, c.hp / c.maxHp, RAMPS.ember)
+        break
+      case 'chef':
+        if (c.mode === 1)
+          drawSprite(g, PIE_SPRITE, x, y - 26 - Math.min(4, c.clock / 6))
+        break
+      case 'timer': {
+        // The dial's hand sweeps round; the last two seconds it flashes.
+        const left = TELLS.timerFuse - c.clock
+        const a = -Math.PI / 2 + (c.clock / TELLS.timerFuse) * Math.PI * 2
+        const cx = x
+        const cy = y - 9
+        if (left < 120 && Math.floor(this.tick / 5) % 2)
+          glow(g, cx, cy, 12, RAMPS.ember[3], 0.6)
+        g.fillStyle = RAMPS.ember[2]
+        for (let r = 1; r <= 2; r++)
+          g.fillRect(
+            Math.round(cx + Math.cos(a) * r),
+            Math.round(cy + Math.sin(a) * r),
+            1,
+            1,
+          )
+        break
+      }
+      case 'heckler':
+        if (c.mode === 1) {
+          bang(y - 30, RAMPS.gold[4])
+          g.strokeStyle = rgba(RAMPS.gold[4], 0.6)
+          g.lineWidth = 1
+          for (let r = 1; r <= 2; r++) {
+            g.beginPath()
+            g.arc(x + 9, y - 12, 4 * r + (this.tick % 8) / 2, -0.7, 0.7)
+            g.stroke()
+          }
+        }
+        break
+      case 'saucer': {
+        const prize = c.prize
+        if (c.mode !== 1 || !prize) break
+        // The tractor beam: a pale cone from the saucer down to the prize it is lifting.
+        g.save()
+        g.globalCompositeOperation = 'lighter'
+        g.fillStyle = rgba(RAMPS.sky[3], 0.22 + 0.08 * Math.sin(this.tick / 3))
+        g.beginPath()
+        g.moveTo(x - 4, y - 8)
+        g.lineTo(x + 4, y - 8)
+        g.lineTo(prize.x + 9, prize.y + 6)
+        g.lineTo(prize.x - 9, prize.y + 6)
+        g.closePath()
+        g.fill()
+        g.restore()
+        break
+      }
+      case 'meatball':
+        if (c.mode === 0 && c.clock % 6 < 3) {
+          g.fillStyle = rgba(RAMPS.earth[3], 0.8)
+          const back = Math.cos(c.face) > 0 ? -1 : 1
+          g.fillRect(x + back * 9, y - 3, 3, 1)
+          g.fillRect(x + back * 11, y - 5, 2, 1)
+        }
+        break
+      case 'fluffball':
+        if (c.clock > TELLS.fluffEvery) glow(g, x, y - 6, 9, RAMPS.pink[3], 0.4)
+        break
+    }
+  }
+
+  /** A camera crane on the wall: the lens glows red and an aim line shows while it charges. */
+  private renderCrane(g: CanvasRenderingContext2D, c: Crasher) {
+    const charging = !this.cleared && craneCharging(c, this.roomTick)
+    if (charging) {
+      const k =
+        (((this.roomTick + c.offset) % c.every) -
+          (c.every - TELLS.craneCharge)) /
+        TELLS.craneCharge
+      glow(g, c.x, c.y, 10 + k * 10, RAMPS.ember[3], 0.35 + k * 0.4)
+      const dx = c.tx - c.x
+      const dy = c.ty - c.y
+      const len = Math.hypot(dx, dy) || 1
+      g.fillStyle = rgba(RAMPS.ember[3], 0.35 + k * 0.5)
+      for (let d = 12; d < len; d += 7) {
+        if (Math.floor((d + this.tick) / 7) % 2) continue
+        g.fillRect(
+          Math.round(c.x + (dx / len) * d),
+          Math.round(c.y + (dy / len) * d),
+          2,
+          2,
+        )
+      }
+    }
+    // The crane arm it hangs from, along the wall.
+    const along = c.side % 2 === 0
+    g.fillStyle = INK
+    if (along)
+      g.fillRect(
+        Math.round(c.x) - 7,
+        Math.round(c.y) - (c.side === 0 ? 6 : -4),
+        14,
+        3,
+      )
+    else
+      g.fillRect(
+        Math.round(c.x) - (c.side === 3 ? 6 : -4),
+        Math.round(c.y) - 7,
+        3,
+        14,
+      )
+    g.fillStyle = RAMPS.gold[2]
+    if (along)
+      g.fillRect(
+        Math.round(c.x) - 6,
+        Math.round(c.y) - (c.side === 0 ? 5 : -5),
+        12,
+        1,
+      )
+    else
+      g.fillRect(
+        Math.round(c.x) - (c.side === 3 ? 5 : -5),
+        Math.round(c.y) - 6,
+        1,
+        12,
+      )
+    const sideways = c.side % 2 === 1
+    const sprite = sideways
+      ? charging
+        ? CAMERA_SPRITES.sideHot
+        : CAMERA_SPRITES.side
+      : charging
+        ? CAMERA_SPRITES.downHot
+        : CAMERA_SPRITES.down
+    const sx = c.x + (c.side === 1 ? 1 : c.side === 3 ? -1 : 0)
+    const sy = c.y + (c.side === 0 ? -1 : c.side === 2 ? 1 : 0)
+    drawSprite(g, sprite, sx, sy, {
+      flipX: c.side === 1,
+      flipY: c.side === 2,
+    })
+    if (charging && Math.floor(this.tick / 4) % 2 === 0) {
+      g.fillStyle = RAMPS.ember[4]
+      g.fillRect(Math.round(sx) - 2, Math.round(sy) - 2, 2, 2)
+    }
+  }
+
+  /** The mirror clone: Sparkle in glitch colours, with a scanline flicker. */
+  private renderClone(g: CanvasRenderingContext2D, c: Crasher) {
+    const moving = Math.abs(c.vx) + Math.abs(c.vy) > 0.1
+    const aim = moving ? { x: c.vx, y: c.vy } : { x: 0, y: 1 }
+    const view = viewOf(aim)
+    const frame = moving ? 1 + (Math.floor(c.t / 7) % 2) : 0
+    const glitch = Math.floor(this.tick / 3) % 7 === 0 ? 1 : 0
+    glow(g, c.x, c.y, 12, RAMPS.purple[3], 0.3)
+    drawSprite(
+      g,
+      CLONE_SPRITES[view][frame]!,
+      Math.round(c.x) + glitch,
+      Math.round(c.y) + 8,
+      {
+        anchor: 'feet',
+        flipX: aim.x < 0,
+        alpha: 0.85,
+      },
+    )
+    g.fillStyle = rgba(RAMPS.teal[4], 0.35)
+    const line = Math.round(c.y) - 6 + (this.tick % 14)
+    g.fillRect(Math.round(c.x) - 6, line, 12, 1)
   }
 
   private renderDancer(g: CanvasRenderingContext2D, d: Dancer) {
@@ -3914,17 +4543,25 @@ class PrizeShowPanic implements ArcadeGameInstance {
       streamer: RAMPS.pink[3],
       flash: RAMPS.gold[4],
       spark: RAMPS.ember[3],
+      shard: RAMPS.pink[3],
+      bubble: RAMPS.water[3],
     }
     g.save()
     g.globalCompositeOperation = 'lighter'
     g.globalAlpha = 0.25
     for (const s of this.streamers)
-      if (s.style === 'streamer') halo(g, s.x, s.y, 4, halos[s.style])
+      if (s.style === 'streamer' || s.style === 'shard')
+        halo(g, s.x, s.y, 4, halos[s.style])
     g.restore()
     for (const s of this.streamers)
-      if (s.style !== 'streamer') glow(g, s.x, s.y, 9, halos[s.style], 0.55)
+      if (s.style === 'flash' || s.style === 'spark')
+        glow(g, s.x, s.y, 9, halos[s.style], 0.55)
     const flutter = Math.floor(this.tick / 4) % 2
     for (const s of this.streamers) {
+      if (s.style === 'bubble') {
+        shadedOrb(g, s.x, s.y, 3, RAMPS.water, { outline: RAMPS.water[1] })
+        continue
+      }
       const sprite =
         s.style === 'flash'
           ? FLASH_SPRITES[flutter]!
@@ -3945,6 +4582,21 @@ class PrizeShowPanic implements ArcadeGameInstance {
     for (const s of this.shots) halo(g, s.x, s.y, 3, colour(s))
     g.restore()
     for (const s of this.shots) {
+      if (s.kind === 'rocket') {
+        // A bubble rocket: a heavy water bubble trailing smaller ones.
+        glow(g, s.x, s.y, 9, RAMPS.water[3], 0.45)
+        for (let k = 1; k <= 3; k++)
+          shadedOrb(
+            g,
+            s.x - s.vx * k * 2.2,
+            s.y - s.vy * k * 2.2,
+            2 - k * 0.4,
+            RAMPS.water,
+            { outline: null, glint: false },
+          )
+        shadedOrb(g, s.x, s.y, 3.5, RAMPS.water)
+        continue
+      }
       const sprites = SHOT_SPRITES.get(colour(s))!
       drawSprite(g, sprites[(spin + s.hue) % 2]!, s.x, s.y)
     }
@@ -4043,7 +4695,7 @@ class PrizeShowPanic implements ArcadeGameInstance {
     if (!p.pedestal && p.life < 90 && Math.floor(this.tick / 5) % 2) return
     const bob = Math.round(Math.sin((this.tick + p.x) / 9) * 1.5)
     const x = p.x
-    const y = p.y - 1 + bob - (p.pedestal ? 4 : 0)
+    const y = p.y - 1 + bob - (p.pedestal ? 4 : 0) - (p.lift || 0) * 26
     glow(
       g,
       p.x,
@@ -4064,8 +4716,8 @@ class PrizeShowPanic implements ArcadeGameInstance {
         drawSprite(g, CAR_SPRITE, x, y)
         break
       default:
-        shadedOrb(g, x, y, 5.5, POWER_RAMPS[p.kind])
-        drawText(g, p.kind[0]!.toUpperCase(), x + 1, y - 3, {
+        shadedOrb(g, x, y, 5.5, POWERS[p.kind].ramp)
+        drawText(g, POWERS[p.kind].letter, x + 1, y - 3, {
           align: 'center',
           color: INK,
         })
@@ -4094,13 +4746,8 @@ class PrizeShowPanic implements ArcadeGameInstance {
       g.ellipse(toss.x1, toss.y1 + 5, 7, 3, 0, 0, Math.PI * 2)
       g.stroke()
       dropShadow(g, toss.x1, toss.y1 + 5, 3 + u * 4, 1 + u, 0.35)
-      if (toss.kind === 'cash') drawSprite(g, CASH_SPRITE, x, y)
-      else if (
-        toss.kind === 'spread' ||
-        toss.kind === 'rapid' ||
-        toss.kind === 'shield'
-      )
-        shadedOrb(g, x, y, 4.5, POWER_RAMPS[toss.kind])
+      if (isPower(toss.kind)) shadedOrb(g, x, y, 4.5, POWERS[toss.kind].ramp)
+      else drawSprite(g, CASH_SPRITE, x, y)
     }
   }
 
@@ -4239,6 +4886,41 @@ class PrizeShowPanic implements ArcadeGameInstance {
       })
   }
 
+  /** The power-up that loads the cannon, if any (the laser beats rockets beats foam). */
+  private cannon(): PowerKind | null {
+    const p = this.powers
+    return p.laser > 0
+      ? 'laser'
+      : p.rockets > 0
+        ? 'rockets'
+        : p.foamgun > 0
+          ? 'foamgun'
+          : null
+  }
+
+  /**
+   * Every live power-up gets a chip on the top wall, either side of the door: its letter and a
+   * draining gauge, blinking in its last two seconds.
+   */
+  private renderPowerChips(g: CanvasRenderingContext2D) {
+    const live = POWER_KINDS.filter((kind) => this.powers[kind] > 0)
+    live.forEach((kind, i) => {
+      const x = i < 5 ? 12 + i * 25 : CX + DOOR + 6 + (i - 5) * 25
+      const y = HUD + 1
+      const left = this.powers[kind]
+      const power = POWERS[kind]
+      if (left < 120 && Math.floor(this.tick / 5) % 2) return
+      g.fillStyle = INK
+      g.fillRect(x - 1, y - 1, 25, 10)
+      g.fillStyle = power.ramp[0]
+      g.fillRect(x, y, 23, 8)
+      g.fillStyle = power.ramp[2]
+      g.fillRect(x, y, 23, 1)
+      drawText(g, power.letter, x + 2, y + 1, { color: power.ramp[4] })
+      gauge(g, x + 9, y + 3, 12, 2, left / power.cap, power.ramp)
+    })
+  }
+
   private renderHud(g: CanvasRenderingContext2D) {
     // Score.
     hudPanel(g, 2, 1, 90, 15)
@@ -4247,19 +4929,17 @@ class PrizeShowPanic implements ArcadeGameInstance {
       color: RAMPS.gold[3],
       shadow: INK,
     })
-    // Power-ups: lit with a draining gauge while they last.
+    // The cannon: what it is loaded with now (confetti, rockets, the laser or foam).
     hudPanel(g, 96, 1, 26, 15)
-    const powers = [
-      ['S', this.spread, POWER_TICKS, RAMPS.purple],
-      ['R', this.rapid, POWER_TICKS, RAMPS.rust],
-      ['D', this.shield, SHIELD_TICKS, RAMPS.teal],
-    ] as const
-    powers.forEach(([letter, left, full, ramp], i) => {
-      const px = 98 + i * 8
-      if (left > 0) drawText(g, letter, px, 3, { color: ramp[3], outline: INK })
-      else drawText(g, letter, px, 3, { color: RAMPS.night[3] })
-      gauge(g, px, 12, 5, 2, left / full, ramp)
+    const gun = this.cannon()
+    const gunRamp = gun ? POWERS[gun].ramp : RAMPS.pink
+    if (this.fireCooldown > 0) glow(g, 109, 8, 9, gunRamp[3], 0.4)
+    shadedOrb(g, 109, 8, 5, gunRamp)
+    drawText(g, gun ? POWERS[gun].letter : '*', 110, 5, {
+      align: 'center',
+      color: INK,
     })
+    this.renderPowerChips(g)
     // The host's countdown.
     const tx = 126
     hudPanel(g, tx, 1, 60, 15)

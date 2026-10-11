@@ -165,6 +165,9 @@ jobs:
       - name: Zuzu Pinball River Croc
         run: npm run test:zuzu-pinball-croc
 
+      - name: Zuzu Pinball Watering Hole and Death Roll
+        run: npm run test:zuzu-pinball-watering-hole
+
       - name: Zuzu gamebook branching and combat
         run: npm run test:zuzu-gamebook
 

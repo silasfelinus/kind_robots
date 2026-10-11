@@ -342,6 +342,21 @@ const inserts: InsertDef[] = [
     color: 0xc4a2f8,
     shot: 'relic-spinner',
   },
+  // The waterline LEDs (t-016): lit while his jaws are open, all of them
+  // astir in the Watering Hole, flashing when an orbit has lit the mouth.
+  ...(
+    [
+      [CROC[0] - 0.045, -0.4],
+      [CROC[0] + 0.045, -0.4],
+      [CROC[0], -0.33],
+    ] as const
+  ).map((at, i): InsertDef => ({
+    id: `waterline-${i + 1}`,
+    at: [at[0], at[1]],
+    shape: 'circle',
+    size: 0.014,
+    color: 0x3fbfb0,
+  })),
   {
     id: 'croc-reward',
     at: [-0.1, -0.24],

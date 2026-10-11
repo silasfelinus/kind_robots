@@ -1053,9 +1053,10 @@ const landScenery: Record<string, string> = {
 const landAtmosphere = computed(
   () => landScenery[game.currentLand.id] ?? landScenery.homestead!,
 )
-const lastTrialBossName = computed(() =>
-  game.world.lands.find((land) => land.id === game.lastTrialOutcome?.landId)?.boss
-    .label ?? 'A trial remembered',
+const lastTrialBossName = computed(
+  () =>
+    game.world.lands.find((land) => land.id === game.lastTrialOutcome?.landId)
+      ?.boss.label ?? 'A trial remembered',
 )
 const lastPlayedTitle = computed(
   () =>

@@ -47,6 +47,18 @@ export type Physics =
     }
   /** Side view: the bubble floats up by itself and steering down costs effort. */
   | { kind: 'buoyancy'; lift: number; downEffort: number; floor: number }
+  /**
+   * A birdbath's ripples: the bubble is pushed out from (cx, cy) in waves, as
+   * strong as the game's wave phase (it passes that as `spin`, 0..1).
+   */
+  | {
+      kind: 'ripple'
+      cx: number
+      cy: number
+      r: number
+      strength: number
+      period: number
+    }
   /** Horizontal belts between `top` and `bottom`, alternating direction. */
   | {
       kind: 'conveyor'
@@ -57,8 +69,9 @@ export type Physics =
     }
 
 export type BasinShape =
-  'oval' | 'double' | 'tub' | 'drum' | 'tank' | 'conveyor'
-export type BasinLook = 'steel' | 'enamel' | 'drum' | 'glass' | 'bay'
+  'oval' | 'double' | 'tub' | 'drum' | 'tank' | 'conveyor' | 'bowl'
+export type BasinLook =
+  'steel' | 'enamel' | 'drum' | 'glass' | 'bay' | 'stone' | 'palace'
 
 export type BasinDef = {
   id: string
@@ -240,6 +253,13 @@ export function flowAt(
         y: (dx / d) * k + (dy / d) * out,
       }
     }
+    case 'ripple': {
+      const dx = x - p.cx
+      const dy = y - p.cy
+      const d = Math.hypot(dx, dy) || 1
+      const k = p.strength * spin * (0.3 + 0.7 * Math.min(1, d / p.r))
+      return { x: (dx / d) * k, y: (dy / d) * k }
+    }
     case 'buoyancy':
       return { x: 0, y: -p.lift * (0.7 + stage * 0.1) }
     case 'conveyor':
@@ -373,6 +393,52 @@ const CONVEYOR: BasinDef = {
   grip: 1,
 }
 
+const BIRDBATH: BasinDef = {
+  id: 'birdbath',
+  name: 'THE BIRDBATH',
+  shape: 'bowl',
+  look: 'stone',
+  prims: [{ kind: 'ellipse', cx: 210, cy: 196, rx: 178, ry: 132 }],
+  drain: { x: 210, y: 196 },
+  start: { x: 210, y: 290 },
+  physics: {
+    kind: 'ripple',
+    cx: 210,
+    cy: 196,
+    r: 178,
+    strength: 0.045,
+    period: 170,
+  },
+  friction: 0.966,
+  grip: 1,
+}
+
+const FOUNTAIN: BasinDef = {
+  id: 'fountain',
+  name: 'THE TOWN FOUNTAIN',
+  shape: 'bowl',
+  look: 'stone',
+  prims: [{ kind: 'ellipse', cx: 210, cy: 196, rx: 184, ry: 138 }],
+  drain: { x: 210, y: 196 },
+  start: { x: 210, y: 300 },
+  physics: { kind: 'still' },
+  friction: 0.965,
+  grip: 1,
+}
+
+const PALACE: BasinDef = {
+  id: 'palace',
+  name: 'THE BUBBLE BATH PALACE',
+  shape: 'tub',
+  look: 'palace',
+  prims: [{ kind: 'rect', x: 26, y: 56, w: 368, h: 272, r: 70 }],
+  drain: { x: 210, y: 192 },
+  start: { x: 210, y: 290 },
+  physics: { kind: 'still' },
+  friction: 0.968,
+  grip: 1,
+}
+
 export const BASINS = {
   oval: KITCHEN_OVAL,
   double: DOUBLE_SINK,
@@ -380,6 +446,9 @@ export const BASINS = {
   drum: DRUM,
   tank: TANK,
   conveyor: CONVEYOR,
+  birdbath: BIRDBATH,
+  fountain: FOUNTAIN,
+  palace: PALACE,
 } as const satisfies Record<string, BasinDef>
 
 export type BasinId = keyof typeof BASINS

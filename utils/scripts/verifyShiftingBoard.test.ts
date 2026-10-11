@@ -16,7 +16,7 @@ const page = read('../../pages/admin/zuzu-shifting-lands.vue')
 const board = read('../../components/shifting-lands-journey-board.vue')
 const store = read('../../stores/shiftingLandsJourneyStore.ts')
 const legacy = read('../../stores/shiftingLandsStore.ts')
-const channel = read('../../content/channels/admin/zuzu-shifting-lands.md')
+const channel = read('../../content/channels/projects/zuzu-shifting-lands.md')
 
 assert.match(channel, /requiredRole: ADMIN/)
 assert.match(channel, /route: \/admin\/zuzu-shifting-lands/)

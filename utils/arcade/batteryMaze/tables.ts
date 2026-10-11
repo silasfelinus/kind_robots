@@ -135,3 +135,24 @@ export const PRIZE_AT = [0.3, 0.68] as const
 
 /** Rewire flips per maze; a power cell tops them back up. */
 export const REWIRE_FLIPS = 3
+
+// --- power-ups (slice 2, t-040) -------------------------------------------------------
+
+/** Power-ups roll out of the dock now and then. */
+export type PowerUpKind = 'magnet' | 'turbo' | 'decoy' | 'freeze'
+
+export const POWER_UPS: Record<
+  PowerUpKind,
+  { name: string; ticks: number; about: string }
+> = {
+  magnet: { name: 'MAGNET', ticks: 60 * 8, about: 'SPARKS FLY TO YOU' },
+  turbo: { name: 'TURBO WHEELS', ticks: 60 * 6, about: '+25% SPEED' },
+  decoy: { name: 'DECOY BOT', ticks: 60 * 8, about: 'GREMLINS CHASE IT' },
+  freeze: { name: 'FREEZE POP', ticks: 60 * 4, about: 'GREMLINS FREEZE' },
+}
+export const POWER_UP_KINDS = Object.keys(POWER_UPS) as PowerUpKind[]
+/** The first power-up rolls out this far into a maze, then one every `every` ticks. */
+export const POWER_UP_ROLL = { first: 60 * 15, every: 60 * 24, wander: 60 * 8 }
+/** A magnet pulls sparks from this many tiles away. */
+export const MAGNET_RANGE = 3
+export const TURBO_BOOST = 1.25

@@ -22,10 +22,22 @@ export type GlitchKind =
   | 'spill'
   | 'bug'
   | 'mimic'
+  | 'worm'
+  | 'bluescreen'
+  | 'blinker'
+  | 'wizard'
 
 /** What a generator looks like: each glitch kind comes out of its own machine. */
 export type GeneratorLook =
-  'cabinet' | 'feeder' | 'router' | 'reel' | 'urn' | 'nest' | 'vending'
+  | 'cabinet'
+  | 'feeder'
+  | 'router'
+  | 'reel'
+  | 'urn'
+  | 'nest'
+  | 'vending'
+  | 'arcade'
+  | 'antenna'
 
 export type RosterEntry = {
   name: string
@@ -170,7 +182,76 @@ export const ROSTER: Record<GlitchKind, RosterEntry> = {
     every: 4,
     most: 12,
   },
+  worm: {
+    name: 'WORM',
+    hp: 3,
+    tierHp: 2,
+    points: 80,
+    speed: 0.85,
+    debut: 9,
+    tell: 'a segmented trail',
+    answer: 'spark the head. a hit mid-body splits it into glitches',
+    look: 'reel',
+    every: 3,
+    most: 2,
+  },
+  blinker: {
+    name: 'BLINKER',
+    hp: 1,
+    tierHp: 1,
+    points: 40,
+    speed: 1.1,
+    debut: 10,
+    tell: 'a flicker on the beat',
+    answer: 'a pulse shows it, and a sage pulse stuns it',
+    look: 'arcade',
+    every: 2.4,
+    most: 3,
+  },
+  wizard: {
+    name: 'POP-UP WIZARD',
+    hp: 2,
+    tierHp: 2,
+    points: 80,
+    speed: 0,
+    debut: 11,
+    tell: 'sparkles where it will appear',
+    answer: 'spark the sparkle',
+    look: 'antenna',
+    every: 2.5,
+    most: 2,
+  },
+  bluescreen: {
+    name: 'BIG BLUESCREEN',
+    hp: 30,
+    tierHp: 10,
+    points: 2500,
+    speed: 0.32,
+    debut: 99,
+    tell: 'fills with blue before it breathes static',
+    answer: 'circle round it. best with every bot sparking',
+    look: 'cabinet',
+    every: 99,
+    most: 1,
+  },
 }
+
+/** How often a blinker shows itself (one blink a beat), and how long a pulse's light shows it. */
+export const BLINK_BEAT = 30
+export const BLINK_SHOWN = 3
+export const PULSE_SHOWS = 5 * 60
+/** A pop-up wizard's teleport: the sparkles where it will appear, and its volleys before it goes. */
+export const WIZARD_TELL = 50
+export const WIZARD_VOLLEYS = 2
+
+/** Segments a worm trails (by its generator's tier), and the gap between them. */
+export const WORM_SEGMENTS = [5, 6, 8] as const
+export const WORM_GAP = 6
+/** The Big Bluescreen's breath: its wind-up, how long it breathes, its reach and its spread. */
+export const BLUE_TELL = 50
+export const BLUE_BREATH = 45
+export const BLUE_REACH = 92
+export const BLUE_SPREAD = 0.62
 
 export const GLITCH_KINDS = Object.keys(ROSTER) as GlitchKind[]
 
@@ -229,6 +310,13 @@ export type Glitch = {
   flash: number
   /** A mimic that has been seen blinking: the pilot (and a sharp eye) knows it now. */
   seen: boolean
+  /** A worm's segments, head first after the head itself. */
+  body?: Array<{ x: number; y: number }>
+  /** Ticks a pulse's light keeps a blinker in view, and ticks it is stunned for. */
+  shown?: number
+  stun?: number
+  /** A ghost the Attract Mode projected: half as tough, and it never turns helper. */
+  ghost?: boolean
 }
 
 /** A bot as the glitches see it. */
@@ -270,6 +358,8 @@ export interface GlitchWorld {
   digest(g: Glitch): void
   /** The glitch tells the room what it is about to do. */
   tell(g: Glitch): void
+  /** The Big Bluescreen's static breath along (dx, dy) this tick. */
+  breathe(g: Glitch, dx: number, dy: number): void
   play(name: ArcadeSoundName): void
 }
 
@@ -297,6 +387,11 @@ function tierSpeed(g: Glitch): number {
 /** One tick of a glitch's own rules. */
 export function steerGlitch(w: GlitchWorld, g: Glitch) {
   if (g.flash > 0) g.flash--
+  if (g.shown) g.shown--
+  if (g.stun) {
+    g.stun--
+    return
+  }
   const speed = w.speed * ROSTER[g.kind].speed * tierSpeed(g)
   switch (g.kind) {
     case 'glitch':
@@ -316,6 +411,14 @@ export function steerGlitch(w: GlitchWorld, g: Glitch) {
       return spill(w, g)
     case 'mimic':
       return mimic(w, g, speed)
+    case 'worm':
+      return worm(w, g, speed)
+    case 'bluescreen':
+      return bluescreen(w, g, speed)
+    case 'blinker':
+      return homeAndCling(w, g, speed)
+    case 'wizard':
+      return wizard(w, g)
   }
 }
 
@@ -543,6 +646,101 @@ function mimic(w: GlitchWorld, g: Glitch, speed: number) {
   w.move(g, ux * speed, uy * speed)
 }
 
+/** The worm's head homes and bites; its segments follow the head's trail at a fixed gap. */
+function worm(w: GlitchWorld, g: Glitch, speed: number) {
+  homeAndCling(w, g, speed)
+  let lead = { x: g.x, y: g.y }
+  for (const seg of g.body ?? []) {
+    const dx = seg.x - lead.x
+    const dy = seg.y - lead.y
+    const d = Math.hypot(dx, dy)
+    if (d > WORM_GAP) {
+      seg.x = lead.x + (dx / d) * WORM_GAP
+      seg.y = lead.y + (dy / d) * WORM_GAP
+    }
+    lead = seg
+  }
+}
+
+/**
+ * The Big Bluescreen lumbers after the bots; in reach it fills with blue (its tell), breathes a cone
+ * of static the way it faced, then rests.
+ */
+function bluescreen(w: GlitchWorld, g: Glitch, speed: number) {
+  if (g.state === 'windup') {
+    if (--g.t > 0) return
+    g.state = 'inhale'
+    g.t = BLUE_BREATH
+    return
+  }
+  if (g.state === 'inhale') {
+    w.breathe(g, g.vx, g.vy)
+    if (--g.t > 0) return
+    g.state = 'rest'
+    g.t = 70
+    return
+  }
+  if (g.state === 'rest') {
+    if (--g.t <= 0) g.state = 'walk'
+    return
+  }
+  const p = w.prey(g)
+  if (!p) return
+  const { d, ux, uy } = towards(g, p)
+  if (d < BLUE_REACH - 20 && w.clear(g.x, g.y, p.x, p.y)) {
+    g.state = 'windup'
+    g.t = BLUE_TELL
+    g.vx = ux
+    g.vy = uy
+    w.tell(g)
+    return
+  }
+  w.move(g, ux * speed, uy * speed)
+}
+
+/**
+ * The pop-up wizard stands and fires three ways; after a couple of volleys it vanishes and sparkles
+ * where it will appear next (its tell, and its weak spot: the sparkle can be sparked).
+ */
+function wizard(w: GlitchWorld, g: Glitch) {
+  if (g.state === 'windup') {
+    if (--g.t > 0) return
+    g.state = 'walk'
+    g.t = 24
+    return
+  }
+  const p = w.prey(g)
+  if (!p) return
+  if (--g.t > 0) return
+  const { d, ux, uy } = towards(g, p)
+  if (g.cling >= WIZARD_VOLLEYS || d > 16 * 9) {
+    // Off it goes: somewhere open in a ring round its prey.
+    g.cling = 0
+    for (let i = 0; i < 16; i++) {
+      const a = w.rng() * Math.PI * 2
+      const r = 48 + w.rng() * 48
+      const x = p.x + Math.cos(a) * r
+      const y = p.y + Math.sin(a) * r
+      if (!w.open(x - 5, y - 5) || !w.open(x + 5, y + 5)) continue
+      if (!w.open(x + 5, y - 5) || !w.open(x - 5, y + 5)) continue
+      g.x = x
+      g.y = y
+      break
+    }
+    g.state = 'windup'
+    g.t = WIZARD_TELL
+    w.tell(g)
+    return
+  }
+  g.cling++
+  g.t = 100 - 15 * (g.tier - 1)
+  if (!w.clear(g.x, g.y, p.x, p.y)) return
+  const base = Math.atan2(uy, ux)
+  for (const off of [-0.38, 0, 0.38])
+    w.bolt(g, Math.cos(base + off), Math.sin(base + off))
+  w.play('shoot')
+}
+
 /** A newly released glitch of this kind. */
 export function newGlitch(
   kind: GlitchKind,
@@ -567,7 +765,7 @@ export function newGlitch(
     cling: 0,
     wobble,
     t:
-      kind === 'popup'
+      kind === 'popup' || kind === 'wizard'
         ? 90
         : kind === 'mimic'
           ? 60 + Math.floor(wobble * 20)
@@ -578,5 +776,12 @@ export function newGlitch(
     gen,
     flash: 0,
     seen: false,
+    body:
+      kind === 'worm'
+        ? Array.from({ length: WORM_SEGMENTS[tier - 1] ?? 5 }, (_, i) => ({
+            x,
+            y: y + (i + 1) * 0.5,
+          }))
+        : undefined,
   }
 }

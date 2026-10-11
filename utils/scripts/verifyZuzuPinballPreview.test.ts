@@ -27,7 +27,7 @@ assert.equal(findArcadeGame('zuzu-pinball')?.renderMode, 'webgl')
 assert.equal(isPlausibleScore('zuzu-pinball', 5000), false)
 assert.equal(isPlausibleScore('kind-pinball', 5000), true)
 
-const tab = read('../../content/channels/admin/zuzu-pinball.md')
+const tab = read('../../content/channels/projects/zuzu-pinball.md')
 assert.match(tab, /requiredRole: ADMIN/)
 assert.match(tab, /route: \/admin\/zuzu-pinball/)
 assert.match(read('../../pages/admin/zuzu-pinball.vue'), /user\.isAdmin/)

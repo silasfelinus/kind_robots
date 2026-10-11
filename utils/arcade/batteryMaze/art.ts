@@ -10,6 +10,7 @@ import {
   bandedGradient,
   bevel,
   drawRidge,
+  drawSprite,
   glow,
   mix,
   pixelSprite,
@@ -21,6 +22,7 @@ import type { PixelSprite, Ramp } from '../snes'
 import { MAZE_COLS, MAZE_ROWS } from './mazes'
 import type { Maze, Tile } from './mazes'
 import type { GremlinKind } from './roster'
+import type { PowerUpKind } from './tables'
 
 export const COLS = MAZE_COLS
 export const ROWS = MAZE_ROWS
@@ -227,7 +229,7 @@ type GremlinPose = {
  * bandit mask, the flanker an antenna, the wanderer a little flower. Eyes look where it heads;
  * 'shut' is the sleepy face; `only` keeps just the eyes of a rebooting gremlin heading home.
  */
-function gremlinRows(kind: GremlinKind, pose: GremlinPose): string[] {
+function gremlinRows(kind: GremlinKind | 'mama', pose: GremlinPose): string[] {
   const cx = 8
   const cy = 9
   const r = 6.5
@@ -274,6 +276,31 @@ function gremlinRows(kind: GremlinKind, pose: GremlinPose): string[] {
         if ((dy === -8 && Math.abs(dx) === 1) || (dx === 0 && dy === -9))
           return 'x'
         return null
+      case 'sprinter':
+        // A racing fin swept back over its head.
+        if (inTriangle(dx, dy, [-3.4, -5], [-6.4, -9.2], [1.4, -5.2]))
+          return dy < -7 ? 'x' : '3'
+        return null
+      case 'snacker':
+        // A slice of toast balanced on its head.
+        if (dx >= -2 && dx <= 2 && dy >= -10 && dy <= -6) {
+          const crust = Math.abs(dx) === 2 || dy === -10 || dy === -6
+          if (crust && Math.abs(dx) === 2 && (dy === -10 || dy === -6))
+            return null
+          return crust ? 'x' : 'y'
+        }
+        return null
+      case 'baby':
+        if (dx === 0 && dy === -6) return '1'
+        if ((dx === 0 || dx === 1) && dy === -7) return 'x'
+        return null
+      case 'mama':
+        // A big hair bow.
+        if (dx === 0 && dy === -6) return 'y'
+        if (inTriangle(dx, dy, [0, -6.5], [-4.6, -9.4], [-4.6, -4.4]))
+          return 'x'
+        if (inTriangle(dx, dy, [0, -6.5], [4.6, -9.4], [4.6, -4.4])) return 'x'
+        return null
     }
   }
   return raster(17, 17, (x, y) => {
@@ -312,6 +339,7 @@ function gremlinRows(kind: GremlinKind, pose: GremlinPose): string[] {
       if ((dx / 3.4) ** 2 + ((dy - 2.6) / 2.5) ** 2 <= 1)
         return dy <= 3 ? 'c' : 'd'
       if (kind === 'ambusher' && dy >= -3 && dy <= -1) return '0'
+      if (kind === 'sprinter' && dy === 0 && Math.abs(dx) >= 4) return 'x'
       return sphereShade(dx / r, dy / r)
     }
     const c = crest(dx, dy)
@@ -328,13 +356,17 @@ function gremlinRows(kind: GremlinKind, pose: GremlinPose): string[] {
 }
 
 export const GREMLIN_LOOKS: Record<
-  GremlinKind,
+  GremlinKind | 'mama',
   { ramp: Ramp; accent: string }
 > = {
   chaser: { ramp: RAMPS.pink, accent: RAMPS.pink[4] },
   ambusher: { ramp: RAMPS.rust, accent: RAMPS.gold[3] },
   flanker: { ramp: RAMPS.water, accent: RAMPS.gold[3] },
   wanderer: { ramp: RAMPS.leaf, accent: RAMPS.pink[3] },
+  sprinter: { ramp: RAMPS.gold, accent: RAMPS.ember[2] },
+  snacker: { ramp: RAMPS.earth, accent: RAMPS.rust[2] },
+  baby: { ramp: RAMPS.purple, accent: RAMPS.pink[3] },
+  mama: { ramp: RAMPS.purple, accent: RAMPS.pink[3] },
 }
 
 function gremlinPalette(
@@ -363,9 +395,11 @@ export type GremlinArt = {
   flash: readonly [PixelSprite, PixelSprite]
   /** Rebooted into a friendly bot riding the Friend Train. */
   friend: readonly [PixelSprite, PixelSprite]
+  /** Overclocked red (a crumb snacker that has eaten its fill). */
+  hot: Record<Face, readonly [PixelSprite, PixelSprite]>
 }
 
-function gremlinArt(kind: GremlinKind): GremlinArt {
+function gremlinArt(kind: GremlinKind | 'mama'): GremlinArt {
   const { ramp, accent } = GREMLIN_LOOKS[kind]
   const awake = gremlinPalette(
     ramp,
@@ -395,6 +429,13 @@ function gremlinArt(kind: GremlinKind): GremlinArt {
     RAMPS.teal[3],
     INK,
   )
+  const hot = gremlinPalette(
+    RAMPS.ember,
+    [RAMPS.gold[3], RAMPS.gold[2]],
+    RAMPS.gold[4],
+    RAMPS.gold[3],
+    INK,
+  )
   const pair = (
     eyes: GremlinPose['eyes'],
     droop: boolean,
@@ -415,6 +456,11 @@ function gremlinArt(kind: GremlinKind): GremlinArt {
     sleepy: pair('shut', true, sleepy),
     flash: pair('shut', true, flash),
     friend: pair('happy', false, friend),
+    hot: {
+      side: pair('side', false, hot),
+      up: pair('up', false, hot),
+      down: pair('down', false, hot),
+    },
   }
 }
 
@@ -423,7 +469,13 @@ export const GREMLIN_ART: Record<GremlinKind, GremlinArt> = {
   ambusher: gremlinArt('ambusher'),
   flanker: gremlinArt('flanker'),
   wanderer: gremlinArt('wanderer'),
+  sprinter: gremlinArt('sprinter'),
+  snacker: gremlinArt('snacker'),
+  baby: gremlinArt('baby'),
 }
+
+/** Gremlin Mama, drawn at twice the size: she is two tiles across. */
+export const MAMA_ART: GremlinArt = gremlinArt('mama')
 
 /** A rebooting gremlin is only its eyes, heading home. */
 export const EYES_ONLY: Record<Face, PixelSprite> = {
@@ -687,6 +739,36 @@ export type WallTheme = {
   neon: string
   trace: string
   face?: string
+  /** The floor's bands (the night floor when absent). */
+  floor?: readonly string[]
+  /** What is etched on the walls' faces. */
+  pattern?: 'rivets' | 'coils'
+}
+
+/** A board's look as a wall theme (boards.ts BoardLook). */
+export function boardTheme(look: {
+  wall: keyof typeof RAMPS
+  neon: keyof typeof RAMPS
+  floor?: keyof typeof RAMPS
+  pattern: 'rivets' | 'coils'
+}): WallTheme {
+  const ramp = RAMPS[look.wall]
+  const floor = look.floor ? RAMPS[look.floor] : null
+  return {
+    ramp,
+    neon: RAMPS[look.neon][3],
+    trace: mix(RAMPS.night[2], ramp[1], 0.35),
+    floor: floor
+      ? [
+          mix(RAMPS.night[0], floor[0], 0.5),
+          mix(RAMPS.night[1], floor[0], 0.6),
+          mix(RAMPS.night[1], floor[1], 0.45),
+          mix(RAMPS.night[1], floor[0], 0.6),
+          mix(RAMPS.night[0], floor[0], 0.5),
+        ]
+      : undefined,
+    pattern: look.pattern,
+  }
 }
 
 /** The maze's colours change every level, so a long run doesn't look like one screen. */
@@ -768,7 +850,21 @@ export function glowStamp(
   return stamp
 }
 
-const TRACE = new Set(['.', 'o', ' ', 'P', 's', 'a', 'b'])
+const TRACE = new Set([
+  '.',
+  'o',
+  ' ',
+  'P',
+  's',
+  'a',
+  'b',
+  't',
+  'T',
+  '<',
+  '>',
+  '^',
+  'v',
+])
 
 /**
  * The whole static maze, painted once per theme: a banded floor etched with faint circuit
@@ -789,7 +885,8 @@ export function paintBoard(
   }
   const isTrace = (x: number, y: number) => TRACE.has(maze.rows[y]?.[x] ?? '#')
   const mazeBottom = TOP + ROWS * TILE
-  bandedGradient(k, 0, TOP, W, ROWS * TILE, FLOOR_BANDS, 2)
+  const floorBands = theme.floor ?? FLOOR_BANDS
+  bandedGradient(k, 0, TOP, W, ROWS * TILE, floorBands, 2)
   bandedGradient(k, 0, 0, W, TOP, [RAMPS.night[2], RAMPS.night[0]], 2)
   bandedGradient(
     k,
@@ -855,10 +952,18 @@ export function paintBoard(
       k.fillRect(px, py, TILE, TILE)
       // A rivet on the face of each solid block's tile, every other tile.
       if (!up && !down && !left && !right && (x + y) % 2 === 0) {
-        k.fillStyle = ramp[0]
-        k.fillRect(px + 7, py + 7, 2, 2)
-        k.fillStyle = ramp[2]
-        k.fillRect(px + 6, py + 6, 2, 2)
+        if (theme.pattern === 'coils') {
+          // A glowing heating coil across the block.
+          k.fillStyle = ramp[0]
+          k.fillRect(px, py + 6, TILE, 3)
+          k.fillStyle = RAMPS.ember[3]
+          for (let i = 0; i < TILE; i += 4) k.fillRect(px + i, py + 7, 2, 1)
+        } else {
+          k.fillStyle = ramp[0]
+          k.fillRect(px + 7, py + 7, 2, 2)
+          k.fillStyle = ramp[2]
+          k.fillRect(px + 6, py + 6, 2, 2)
+        }
       }
       k.fillStyle = ramp[0]
       if (down) k.fillRect(px, py + TILE - 3, TILE, 2)
@@ -899,7 +1004,7 @@ export function paintBoard(
         k.fillRect(px, py + TILE - 1, 1, 1)
       // Rounded outer corners.
       const corner = (cx: number, cy: number, ix: number, iy: number) => {
-        k.fillStyle = FLOOR_BANDS[2]!
+        k.fillStyle = floorBands[2]!
         k.fillRect(cx, cy, 1, 1)
         k.fillStyle = INK
         k.fillRect(ix, iy, 1, 1)
@@ -1072,3 +1177,175 @@ export function drawSwitch(
   g.fillStyle = armed ? RAMPS.gold[4] : RAMPS.steel[1]
   g.fillRect(cx + lean * 2 - (lean < 0 ? 1 : 0), cy - 5, 2, 2)
 }
+
+// --- slice 2: the Toaster Works, power-ups, bolts --------------------------------------------
+
+/** A conveyor's chevrons, scrolling the way it carries. */
+export function drawConveyor(
+  g: CanvasRenderingContext2D,
+  at: Tile,
+  dir: Tile,
+  tick: number,
+) {
+  const px = at.x * TILE
+  const py = TOP + at.y * TILE
+  g.fillStyle = rgba(RAMPS.steel[1], 0.55)
+  if (dir.x) g.fillRect(px, py + 3, TILE, TILE - 6)
+  else g.fillRect(px + 3, py, TILE - 6, TILE)
+  const shift = Math.floor(tick / 4) % 7
+  g.fillStyle = rgba(RAMPS.gold[3], 0.6)
+  for (let i = -1; i < 2; i++) {
+    const o = i * 7 + shift
+    if (o < 0 || o > TILE - 3) continue
+    // A little chevron pointing along `dir`.
+    for (let k = 0; k < 3; k++) {
+      const along = dir.x > 0 || dir.y > 0 ? o + k : TILE - 1 - o - k
+      const spread = 2 - k
+      if (dir.x) {
+        g.fillRect(px + along, py + TILE / 2 - 1 - spread, 1, 1)
+        g.fillRect(px + along, py + TILE / 2 + spread, 1, 1)
+      } else {
+        g.fillRect(px + TILE / 2 - 1 - spread, py + along, 1, 1)
+        g.fillRect(px + TILE / 2 + spread, py + along, 1, 1)
+      }
+    }
+  }
+}
+
+const TOAST_ROWS = [
+  '.cccccc.',
+  'cbbbbbbc',
+  'cbtttbbc',
+  'cbbbbtbc',
+  'cbbbbbbc',
+  'cbbbbbbc',
+  '.cccccc.',
+]
+const TOAST = pixelSprite(TOAST_ROWS, {
+  c: RAMPS.rust[1],
+  b: RAMPS.gold[3],
+  t: RAMPS.gold[4],
+})
+/** A golden "big prize" toast for Breakfast Rush. */
+const PRIZE_TOAST = pixelSprite(TOAST_ROWS, {
+  c: RAMPS.gold[2],
+  b: RAMPS.gold[4],
+  t: '#ffffff',
+})
+
+/**
+ * A toaster slot: a dark slit in the floor that glows before its toast pops up, and the toast
+ * itself, standing up and blocking the corridor.
+ */
+export function drawToastSlot(
+  g: CanvasRenderingContext2D,
+  at: Tile,
+  state: 'down' | 'tell' | 'up',
+  tick: number,
+  prize = false,
+) {
+  const cx = at.x * TILE + TILE / 2
+  const cy = TOP + at.y * TILE + TILE / 2
+  if (state === 'up') {
+    glow(
+      g,
+      cx,
+      cy,
+      12,
+      prize ? RAMPS.gold[4] : RAMPS.ember[3],
+      prize ? 0.7 : 0.35,
+    )
+    drawSprite(g, prize ? PRIZE_TOAST : TOAST, cx, cy - 1)
+    return
+  }
+  g.fillStyle = INK
+  g.fillRect(cx - 5, cy - 1, 10, 3)
+  g.fillStyle =
+    state === 'tell' && Math.floor(tick / 5) % 2 === 0
+      ? RAMPS.ember[3]
+      : RAMPS.rust[1]
+  g.fillRect(cx - 4, cy, 8, 1)
+  if (state === 'tell') glow(g, cx, cy, 10, RAMPS.ember[3], 0.45)
+}
+
+export const POWER_UP_SPRITES: Record<PowerUpKind, PixelSprite> = {
+  magnet: pixelSprite(
+    [
+      'rr...rr',
+      'rr...rr',
+      'rr...rr',
+      'rr...rr',
+      'rrr.rrr',
+      '.rrrrr.',
+      '..rrr..',
+    ].map((r, y) => (y < 2 ? r.replace(/r/g, 's') : r)),
+    { r: RAMPS.ember[2], s: RAMPS.steel[4] },
+  ),
+  turbo: pixelSprite(
+    [
+      '..yyy..',
+      '.y...y.',
+      'y..k..y',
+      'y.kkk.y',
+      'y..k..y',
+      '.y...y.',
+      '..yyy..',
+    ],
+    { y: RAMPS.sky[3], k: RAMPS.steel[4] },
+  ),
+  decoy: pixelSprite(
+    [
+      '.b...b.',
+      '.bb.bb.',
+      'bbbbbbb',
+      'bkbbbkb',
+      'bbbbbbb',
+      'bbmmmbb',
+      '.bbbbb.',
+    ],
+    { b: RAMPS.earth[3], k: INK, m: RAMPS.earth[1] },
+  ),
+  freeze: pixelSprite(
+    ['.iii.', 'iwiii', 'iwiii', 'iiiii', 'iiiii', '.iii.', '..s..', '..s..'],
+    { i: RAMPS.sky[3], w: '#ffffff', s: RAMPS.cream[2] },
+  ),
+}
+
+/** The cardboard robot the Decoy Bot leaves behind. */
+export const DECOY_SPRITE = pixelSprite(robotRows('side', 0.08), {
+  ...rampPalette(RAMPS.earth),
+  k: INK,
+  w: RAMPS.cream[3],
+  p: RAMPS.earth[2],
+})
+
+/** A golden bolt, the secret of each board. */
+export const GOLDEN_BOLT = pixelSprite(
+  litRows(
+    13,
+    17,
+    (x, y) =>
+      inPolygon(x + 0.5, y + 0.5, [
+        [6.5, 0],
+        [12.5, 0],
+        [7.6, 6.8],
+        [11.6, 6.8],
+        [2.4, 17],
+        [5.2, 9],
+        [1, 9],
+      ]),
+    (x, y) => ((x + y) % 7 === 0 && y > 1 && y < 15 ? 'w' : null),
+  ),
+  {
+    ...rampPalette(RAMPS.gold),
+    0: RAMPS.gold[2],
+    1: RAMPS.gold[3],
+    w: '#ffffff',
+  },
+  { outline: RAMPS.ember[1] },
+)
+
+/** The little bolt the Charging Bay takes in trade. */
+export const BOLT_ICON = pixelSprite(['..yy', '.yy.', 'yyyy', '.yy.', 'yy..'], {
+  y: RAMPS.gold[3],
+})

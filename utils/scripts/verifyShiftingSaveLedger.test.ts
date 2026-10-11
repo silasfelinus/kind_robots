@@ -120,10 +120,17 @@ assert.equal(
   null,
 )
 assert.equal(
-  restoreJourneyLedger({ ...chosen, actions: Array(1201).fill(chosen.actions[0]) }),
+  restoreJourneyLedger({
+    ...chosen,
+    actions: Array(1201).fill(chosen.actions[0]),
+  }),
   null,
 )
-assert.deepEqual(restoreJourneyLedger(json(chosen)), chosen, 'bad saves cannot poison a good replay')
+assert.deepEqual(
+  restoreJourneyLedger(json(chosen)),
+  chosen,
+  'bad saves cannot poison a good replay',
+)
 
 const legacyFresh = newAuthoredJourney(31)
 const legacyRoute = reachableLocations(legacyFresh.journey)[0]!
@@ -150,7 +157,10 @@ assert.deepEqual(
 assert.equal(migrateJourneyLedger({ ...legacyResolved, packSha: 'fake' }), null)
 assert.equal(migrateJourneyLedger({ ...legacyResolved, version: 17 }), null)
 const legacyNext = reachableLocations(migrated.current.journey).find(
-  (id) => !migrated.current.journey.resolved.some((result) => result.locationId === id),
+  (id) =>
+    !migrated.current.journey.resolved.some(
+      (result) => result.locationId === id,
+    ),
 )
 if (legacyNext) {
   const resumed = stepJourneyLedger(migrated, {
@@ -167,7 +177,8 @@ for (let seed = 1; seed <= 1200 && !rewarded; seed++) {
   const fresh = newJourneyLedger(seed)
   for (const id of reachableLocations(fresh.current.journey)) {
     const opened = stepJourneyLedger(fresh, { type: 'TRAVEL', locationId: id })
-    if (activeAuthoredEncounter(opened.current)?.id !== 'scarecrows-lantern') continue
+    if (activeAuthoredEncounter(opened.current)?.id !== 'scarecrows-lantern')
+      continue
     const outcome = stepJourneyLedger(opened, {
       type: 'CHOOSE',
       choiceId: 'cut-the-line',
@@ -178,21 +189,38 @@ for (let seed = 1; seed <= 1200 && !rewarded; seed++) {
     }
   }
 }
-assert.ok(rewarded, 'an authored ration reward should be earnable with a seeded run')
+assert.ok(
+  rewarded,
+  'an authored ration reward should be earnable with a seeded run',
+)
 const sheet = journeyCharacterSheet(rewarded!.current, rewarded!.usedRewards)
-assert.ok(sheet.inventory.some((item) => item.id === 'recovered-rations' && item.available))
+assert.ok(
+  sheet.inventory.some(
+    (item) => item.id === 'recovered-rations' && item.available,
+  ),
+)
 const spent = stepJourneyLedger(rewarded!, {
   type: 'USE_REWARD',
   rewardId: 'recovered-rations',
 })
 assert.notStrictEqual(spent, rewarded)
 assert.deepEqual(spent.usedRewards, ['recovered-rations'])
-assert.equal(spent.current.journey.provisions, rewarded!.current.journey.provisions + 2)
+assert.equal(
+  spent.current.journey.provisions,
+  rewarded!.current.journey.provisions + 2,
+)
 assert.equal(spent.current.journey.turn, rewarded!.current.journey.turn + 1)
-assert.equal(journeyCharacterSheet(spent.current, spent.usedRewards).inventory[0]?.available, false)
+assert.equal(
+  journeyCharacterSheet(spent.current, spent.usedRewards).inventory[0]
+    ?.available,
+  false,
+)
 assert.deepEqual(restoreJourneyLedger(json(spent)), spent)
 assert.strictEqual(
-  stepJourneyLedger(spent, { type: 'USE_REWARD', rewardId: 'recovered-rations' }),
+  stepJourneyLedger(spent, {
+    type: 'USE_REWARD',
+    rewardId: 'recovered-rations',
+  }),
   spent,
   'already spent reward is never consumed twice',
 )

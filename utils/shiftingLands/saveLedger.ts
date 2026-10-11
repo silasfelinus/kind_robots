@@ -6,14 +6,10 @@ import {
   type AuthoredJourneyState,
 } from './authoredJourney'
 import { JOURNEY_WORLD } from './journey'
-import {
-  canUseJourneyReward,
-  journeyCharacterSheet,
-} from './progression'
+import { canUseJourneyReward, journeyCharacterSheet } from './progression'
 
 export type JourneyLedgerAction =
-  | AuthoredAction
-  | { type: 'USE_REWARD'; rewardId: string }
+  AuthoredAction | { type: 'USE_REWARD'; rewardId: string }
 
 export type JourneyLedger = {
   version: 3
@@ -29,8 +25,16 @@ export type JourneyLedger = {
 const MAX_ACTIONS = 1200
 const MAX_SAVE_SIZE = 500_000
 const REWARD_EFFECTS = {
-  'willow-bark-dose': { hp: 2, provisions: 0, text: 'Zuzu takes a measured dose of willow bark.' },
-  'recovered-rations': { hp: 0, provisions: 2, text: 'Zuzu opens the recovered rations for the road.' },
+  'willow-bark-dose': {
+    hp: 2,
+    provisions: 0,
+    text: 'Zuzu takes a measured dose of willow bark.',
+  },
+  'recovered-rations': {
+    hp: 0,
+    provisions: 2,
+    text: 'Zuzu opens the recovered rations for the road.',
+  },
 } as const
 
 const sourceIsCurrent = (s: JourneyLedger): boolean =>
@@ -38,7 +42,8 @@ const sourceIsCurrent = (s: JourneyLedger): boolean =>
   s.packSha === newAuthoredJourney(s.seed).packSha
 
 const isSeed = (seed: unknown): seed is number =>
-  Number.isSafeInteger(seed) && (seed as number) >= 1 &&
+  Number.isSafeInteger(seed) &&
+  (seed as number) >= 1 &&
   (seed as number) <= 0xffffffff
 
 export function newJourneyLedger(seed: number): JourneyLedger {
@@ -58,9 +63,7 @@ export function newJourneyLedger(seed: number): JourneyLedger {
 // Preserve existing V2 visits, dice and identities without inventing a history
 // that the old format never recorded. Subsequent V3 events are replay-verified
 // from this explicitly marked checkpoint, not silently retroactively rescored.
-export function migrateJourneyLedger(
-  legacy: unknown,
-): JourneyLedger | null {
+export function migrateJourneyLedger(legacy: unknown): JourneyLedger | null {
   const checkpoint = restoreAuthoredJourney(legacy)
   if (!checkpoint || !isSeed(checkpoint.journey.seed)) return null
   const fresh = newJourneyLedger(checkpoint.journey.seed)
@@ -81,12 +84,16 @@ function useReward(
     current.journey.phase === 'retired' ||
     current.journey.phase === 'complete' ||
     !Object.hasOwn(REWARD_EFFECTS, rewardId)
-  ) return null
+  )
+    return null
   const sheet = journeyCharacterSheet(current, usedRewards)
   if (!canUseJourneyReward(sheet, rewardId, usedRewards)) return null
   const effect = REWARD_EFFECTS[rewardId as keyof typeof REWARD_EFFECTS]
   const hp = Math.min(8, current.journey.hp + effect.hp)
-  const provisions = Math.min(30, current.journey.provisions + effect.provisions)
+  const provisions = Math.min(
+    30,
+    current.journey.provisions + effect.provisions,
+  )
   if (hp === current.journey.hp && provisions === current.journey.provisions)
     return null
   const turn = current.journey.turn + 1
@@ -144,9 +151,7 @@ export function stepJourneyLedger(
   }
 }
 
-export function replayJourneyLedger(
-  value: unknown,
-): JourneyLedger | null {
+export function replayJourneyLedger(value: unknown): JourneyLedger | null {
   if (!value || typeof value !== 'object') return null
   const saved = value as Partial<JourneyLedger>
   if (
@@ -158,7 +163,8 @@ export function replayJourneyLedger(
     !saved.current ||
     !saved.manifestBlobSha ||
     !saved.packSha
-  ) return null
+  )
+    return null
   const original = newJourneyLedger(saved.seed)
   if (!sourceIsCurrent(saved as JourneyLedger)) return null
   let current = original.current
@@ -179,14 +185,16 @@ export function replayJourneyLedger(
     if (
       JSON.stringify(current) !== JSON.stringify(saved.current) ||
       JSON.stringify(usedRewards) !== JSON.stringify(saved.usedRewards)
-    ) return null
+    )
+      return null
   } catch {
     return null
   }
   // Return the canonical replay rather than caller-owned mutable objects.
   return {
     ...original,
-    legacyCheckpoint: saved.legacyCheckpoint === null ? null : currentCheckpoint(saved),
+    legacyCheckpoint:
+      saved.legacyCheckpoint === null ? null : currentCheckpoint(saved),
     actions: saved.actions.map((action) => ({ ...action })),
     current,
     usedRewards,

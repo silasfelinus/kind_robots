@@ -11,6 +11,10 @@ import type { LampLevel, TableDef } from '../../types'
 import type { LampFrame } from '../../rules/lamps'
 import { CHAPTERS, litShots, RELICS_FOR_CRYPT, SEAL_COUNT } from './chapters'
 import type { ZuzuRulesState } from './rules'
+import { STIR_SHOTS, wateringHoleRunning } from './wateringHole'
+
+/** The waterline LEDs ringing the Croc's pool. */
+export const WATERLINE_LAMPS = ['waterline-1', 'waterline-2', 'waterline-3']
 
 /** The story track's seal lamps, one per chapter. */
 export const SEAL_LAMPS = CHAPTERS.map((_, i) => `seal-${i + 1}`)
@@ -31,6 +35,11 @@ export function zuzuLamps(state: ZuzuRulesState, table: TableDef): LampFrame {
     run ? litShots(CHAPTERS[story.chapter]!, story.progress, run.rove) : [],
   )
   if (state.croc.extraBallLit) hot.add('croc-mouth')
+  // The Watering Hole: the orbits stir the water, then the mouth is lit.
+  const hole = state.wateringHole
+  const watering = wateringHoleRunning(hole)
+  if (watering && hole.lit) hot.add('croc-mouth')
+  else if (watering) for (const shot of STIR_SHOTS) hot.add(shot)
   const mortuaryOpen = story.mortuaryLit && !run
   if (mortuaryOpen) hot.add('mortuary')
   for (const insert of table.inserts ?? []) {
@@ -54,6 +63,15 @@ export function zuzuLamps(state: ZuzuRulesState, table: TableDef): LampFrame {
   set('relic-lamp', seals >= SEAL_COUNT ? 'blink' : 'off')
   set('kickback-lamp', state.kickbackLit ? 'on' : 'off')
   set('croc-reward', state.croc.extraBallLit ? 'blink' : 'off')
+  for (const id of WATERLINE_LAMPS)
+    set(
+      id,
+      watering && (hole.lit || cycle === 'death-roll')
+        ? 'blink'
+        : watering || cycle === 'open'
+          ? 'on'
+          : 'off',
+    )
   set('shoot-again', state.extraBalls > 0 ? 'on' : 'off')
   set('crypt-seal', state.relics >= RELICS_FOR_CRYPT ? 'blink' : 'off')
   set(

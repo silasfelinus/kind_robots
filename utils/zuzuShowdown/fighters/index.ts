@@ -7,7 +7,7 @@
 // Zuzu vs the Coyote, the rivals of Book One's chapter 1, is the default
 // matchup.
 
-import type { Motion } from '../motion'
+import type { EasySlot, Motion } from '../motion'
 import type { FighterData } from '../types'
 import { ABBESS } from './abbess'
 import { COYOTE } from './coyote'
@@ -56,6 +56,25 @@ export type MoveListRow = {
   name: string
   input: string
   note: string
+  /** The Easy Specials shortcut (Special + a direction), when it has one. */
+  easy: string
+}
+
+const EASY_LABELS: Record<EasySlot | 'super', string> = {
+  neutral: 'Special',
+  forward: 'Special + →',
+  back: 'Special + ←',
+  down: 'Special + ↓',
+  up: 'Special + ↑',
+  super: 'hold HP or HK + Special',
+}
+
+/** The Easy Specials slot that fires `id`, as a player would press it. */
+function easyInput(data: FighterData, id: string): string {
+  const slot = (
+    Object.keys(EASY_LABELS) as Array<keyof typeof EASY_LABELS>
+  ).find((key) => data.easy?.[key] === id)
+  return slot ? EASY_LABELS[slot] : ''
 }
 
 /** 'hook-and-reel' -> 'Hook And Reel'. */
@@ -86,6 +105,12 @@ export function moveList(data: FighterData): MoveListRow[] {
     const input = source
       ? `${source.move.followUp!.buttons.map((b) => b.toUpperCase()).join('/')} during ${titleOf(source.id)}`
       : `${MOTION_LABELS[special.motion]} + ${special.button}`
-    return { id: special.id, name, input, note }
+    return {
+      id: special.id,
+      name,
+      input,
+      note,
+      easy: easyInput(data, special.id),
+    }
   })
 }

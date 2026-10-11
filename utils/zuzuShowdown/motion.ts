@@ -20,7 +20,7 @@ import type { Facing, SimInput } from './types'
 export type Dir = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9
 
 /** Frames of direction history kept (the 720 needs the longest window). */
-export const HISTORY_FRAMES = 64
+export const HISTORY_FRAMES = 112
 /** A button may come this many frames after the motion's last direction. */
 export const LENIENCY = 10
 /** Frames a charge direction must be held. */
@@ -121,6 +121,9 @@ export function pushDir(m: MotionState, dir: Dir): MotionState {
   return { dirs, backCharge, downCharge, backRelease, downRelease }
 }
 
+// Windows fit a relaxed keyboard pace, each key held about 6 frames (100ms):
+// the long motions (half circles, supers, rotations) scale with their length
+// rather than sharing one stick-speed window.
 type Sequence = { steps: ReadonlyArray<ReadonlySet<Dir>>; window: number }
 
 const SEQUENCES: Record<
@@ -131,10 +134,10 @@ const SEQUENCES: Record<
   qcb: { steps: [set(2), set(1), set(4)], window: 15 },
   // 623, or the 323 shortcut.
   dp: { steps: [set(6, 3), set(2), set(3)], window: 15 },
-  hcb: { steps: [set(6), set(3, 2), set(2, 1), set(4)], window: 25 },
+  hcb: { steps: [set(6), set(3, 2), set(2, 1), set(4)], window: 40 },
   dd: { steps: [DOWN, NOT_DOWN, DOWN], window: 15 },
-  qcf2: { steps: [set(2), set(3), set(6), set(2), set(3), set(6)], window: 30 },
-  qcb2: { steps: [set(2), set(1), set(4), set(2), set(1), set(4)], window: 30 },
+  qcf2: { steps: [set(2), set(3), set(6), set(2), set(3), set(6)], window: 48 },
+  qcb2: { steps: [set(2), set(1), set(4), set(2), set(1), set(4)], window: 48 },
 }
 
 /**
@@ -193,7 +196,7 @@ function matchCharge(
 export function matches(m: MotionState, motion: Motion): boolean {
   switch (motion) {
     case '360':
-      return matchRotation(m.dirs, 30, 1)
+      return matchRotation(m.dirs, 56, 1)
     case '720':
       return matchRotation(m.dirs, HISTORY_FRAMES, 2)
     case 'chargeBF':

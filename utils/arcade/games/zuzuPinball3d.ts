@@ -28,7 +28,7 @@ const zuzuPinball: ArcadeGameModule = {
         'DOWN = HOLD PLUNGER',
         'RELEASE TO LAUNCH',
         'UP = NUDGE',
-        'B = CAMERA VIEW',
+        'HOLD B: UPPER ONLY',
       ],
       scale: 1,
     },

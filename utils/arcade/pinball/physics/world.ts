@@ -556,9 +556,18 @@ export class PinballPhysics {
     }
   }
 
-  setFlipper(side: 'left' | 'right', up: boolean) {
-    for (const flipper of this.flippers)
-      if (flipper.def.side === side) flipper.up = up
+  /** Raise or drop a side's flippers: all of them, or one tier only. */
+  setFlipper(side: 'left' | 'right', up: boolean, tier?: 'lower' | 'upper') {
+    for (const flipper of this.flippers) {
+      if (flipper.def.side !== side) continue
+      if (tier && (tier === 'upper') !== !!flipper.def.upper) continue
+      flipper.up = up
+    }
+  }
+
+  /** The table has upper flippers a player may work on their own. */
+  get hasUpperFlippers(): boolean {
+    return this.flippers.some((f) => f.def.upper)
   }
 
   /** Raise every target in a drop bank (a mechanism the rules ask for). */

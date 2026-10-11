@@ -78,15 +78,18 @@
                 plunge into the Mortuary is the skill shot.
               </p>
               <p class="text-sm leading-relaxed opacity-85">
-                Next: a raised Abbey with independently controlled upper
-                flippers and the hidden undercrypt.
+                The Bell spiral climbs to the raised Abbey deck, where two upper
+                flippers ring its three hollow bells; they flip with the lower
+                pair, or alone while you hold B (Shift). Next: the hidden
+                undercrypt.
               </p>
             </section>
             <section class="kr-panel space-y-3 p-5">
               <h3 class="font-serif text-xl font-bold">Plunge and play</h3>
               <p class="text-sm">
                 Left and right arrows flip. Hold Down, then release for the
-                plunger. Up nudges; B changes the camera.
+                plunger. Up nudges; hold B (Shift) to flip the Abbey's upper
+                flippers alone.
               </p>
               <p class="text-xs opacity-70">
                 Scoring and leaderboards are deliberately disabled for the

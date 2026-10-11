@@ -126,6 +126,8 @@ export type ZuzuRulesState = CoreRulesState & {
   /** The Citadel lock and its ball ledger (multiball.ts). */
   citadel: Citadel
   multiball: Multiball
+  /** The Abbey deck's hollow bells rung this round, and full tolls. */
+  abbey: { bells: string[]; tolls: number }
   /** Storm Crow is ready once the seals break; both orbits start it. */
   storm: { ready: boolean; orbits: string[] }
   /** The Croc's Watering Hole mini-mode (wateringHole.ts). */
@@ -145,6 +147,10 @@ export type ZuzuRulesState = CoreRulesState & {
 }
 
 export const SEAL_BANK = 'abbey-seals'
+/** The Abbey deck (t-006): its hollow bells and the exit hole. */
+export const ABBEY_BELL = 'abbey-bell-'
+export const ABBEY_BELL_COUNT = 3
+export const ABBEY_EXIT = 'abbey-exit'
 export const MAX_MULTIPLIER = 6
 /** Ramps and orbits this close together build a combo. */
 export const COMBO_STEPS = PHYSICS_HZ * 3
@@ -178,6 +184,9 @@ export const VALUES = {
   bonusSpin: 300,
   bonusSeal: 25_000,
   bonusJackpot: 50_000,
+  abbeyBell: 25_000,
+  abbeyToll: 250_000,
+  abbeyExit: 5_000,
   citadel: 10_000,
 }
 
@@ -217,6 +226,7 @@ export function initialZuzuRules(balls: number, seed = 1): ZuzuRulesState {
     citadel: initialCitadel(),
     multiball: initialMultiball(),
     storm: { ready: false, orbits: [] },
+    abbey: { bells: [], tolls: 0 },
     wateringHole: initialWateringHole(),
     extraBalls: 0,
     relics: 0,
@@ -283,6 +293,7 @@ export function stepZuzuRules(
       } else {
         effects.push({ type: 'sound', name: 'scoop' })
         if (sw.id === CITADEL) citadel(next, sw.ballId, at, effects)
+        if (sw.id === ABBEY_EXIT) award(next, VALUES.abbeyExit)
       }
       break
     case 'eject':
@@ -312,6 +323,8 @@ export function stepZuzuRules(
     case 'contact':
       if (sw.id === RELIC) {
         if (sw.impulse >= RELIC_MIN_SPEED) relic(next, effects)
+      } else if (sw.id.startsWith(ABBEY_BELL)) {
+        abbeyBell(next, sw.id, effects)
       } else if (sw.id.startsWith('marsh-pop-')) {
         award(next, VALUES.pop)
         effects.push(
@@ -761,6 +774,41 @@ function croc(state: ZuzuRulesState, effects: RuleEffect[], quiet = false) {
     sub: lights ? 'EXTRA BALL IS LIT' : `RIVER CROC ${swallows}`,
     ms: 1400,
   })
+}
+
+/**
+ * A hollow bell on the Abbey deck rung by an upper flipper's shot. All three
+ * toll together: a big award, and the Mortuary opens for the next chapter.
+ */
+function abbeyBell(state: ZuzuRulesState, id: string, effects: RuleEffect[]) {
+  if (state.tilted) return
+  const round = state.story.round
+  award(state, VALUES.abbeyBell * round)
+  effects.push(
+    { type: 'sound', name: 'secret-tease' },
+    { type: 'mechanism', id, action: 'flash' },
+  )
+  const bells = state.abbey.bells.includes(id)
+    ? state.abbey.bells
+    : [...state.abbey.bells, id]
+  if (bells.length < ABBEY_BELL_COUNT) {
+    state.abbey = { ...state.abbey, bells }
+    effects.push({
+      type: 'dmd',
+      text: 'A HOLLOW BELL',
+      sub: `${bells.length} OF ${ABBEY_BELL_COUNT}`,
+      ms: 1000,
+    })
+    return
+  }
+  state.abbey = { bells: [], tolls: state.abbey.tolls + 1 }
+  const value = VALUES.abbeyToll * round
+  award(state, value)
+  effects.push(
+    { type: 'sound', name: 'mode-complete' },
+    { type: 'dmd', text: 'THE BELLS TOLL', ms: 1800, scene: 'jackpot', value },
+  )
+  lightMortuary(state, effects, 'THE ABBEY ANSWERS')
 }
 
 /** The Village ramp lights the Citadel for the next lock. */

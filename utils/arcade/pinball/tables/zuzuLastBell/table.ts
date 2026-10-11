@@ -39,10 +39,127 @@ const arch: XZ[] = Array.from({ length: 25 }, (_, step) => {
   return [0.02 + Math.cos(theta) * 0.28, -0.72 + Math.sin(theta) * 0.25]
 })
 
+// The Abbey (t-006): a clear raised deck on the right, level with the Bell
+// spiral's end, so the spiral's ball rolls out onto it instead of off the
+// cabinet. Two small upper flippers at its foot shoot at three hollow
+// bells along its top; a ball past them drops into the exit hole and goes
+// by subway to the right inlane. The deck is clear acrylic: the right orbit,
+// the shooter lane and the Mortuary's approach stay in sight beneath it.
+export const DECK_Y = 0.21
+export const DECK = { left: 0.115, right: 0.29, top: -0.645, front: -0.418 }
+/** Where the spiral comes onto the deck, through a gap in its top wall. */
+const DECK_MOUTH = { from: 0.205, to: 0.255 }
+const UPPER_FLIPPER = { z: -0.47, left: 0.147, right: 0.258, length: 0.04 }
+const DECK_EXIT: Vec3 = [
+  (UPPER_FLIPPER.left + UPPER_FLIPPER.right) / 2,
+  DECK_Y + BALL,
+  -0.432,
+]
+/** The three hollow bells along the deck's top, left of the spiral's mouth. */
+export const ABBEY_BELLS = [0.135, 0.16, 0.185].map((x, i) => ({
+  id: `abbey-bell-${i + 1}`,
+  x,
+}))
+
+function abbeyDeck(): ColliderDef[] {
+  const deck = { base: DECK_Y, height: 0.03 }
+  const guide = { ...deck, material: 'chrome' as const, thickness: 0.004 }
+  return [
+    {
+      kind: 'box',
+      id: 'abbey-deck',
+      at: [
+        (DECK.left + DECK.right) / 2,
+        DECK_Y - 0.005,
+        (DECK.top + DECK.front) / 2,
+      ],
+      half: [
+        (DECK.right - DECK.left) / 2 + 0.004,
+        0.005,
+        (DECK.front - DECK.top) / 2 + 0.004,
+      ],
+      material: 'plastic-clear',
+      restitution: 0.18,
+    },
+    wall('abbey-wall-left', [DECK.left, DECK.top], [DECK.left, DECK.front], {
+      ...deck,
+      thickness: 0.006,
+    }),
+    wall('abbey-wall-right', [DECK.right, DECK.top], [DECK.right, DECK.front], {
+      ...deck,
+      thickness: 0.006,
+    }),
+    wall(
+      'abbey-wall-top-left',
+      [DECK.left, DECK.top],
+      [DECK_MOUTH.from, DECK.top],
+      {
+        ...deck,
+        thickness: 0.006,
+      },
+    ),
+    wall(
+      'abbey-wall-top-right',
+      [DECK_MOUTH.to, DECK.top],
+      [DECK.right, DECK.top],
+      {
+        ...deck,
+        thickness: 0.006,
+      },
+    ),
+    wall(
+      'abbey-wall-front',
+      [DECK.left, DECK.front],
+      [DECK.right, DECK.front],
+      {
+        ...deck,
+        thickness: 0.006,
+      },
+    ),
+    // Inlane guides from the side walls to the flipper pivots, and under
+    // each flipper an apron to the exit hole: the deck's only way out.
+    ...(['left', 'right'] as const).flatMap((side): ColliderDef[] => {
+      const s = side === 'left' ? -1 : 1
+      const pivot = UPPER_FLIPPER[side]
+      const end: XZ = [pivot - s * 0.006, UPPER_FLIPPER.z - 0.004]
+      return [
+        wall(
+          `abbey-inlane-${side}`,
+          [side === 'left' ? DECK.left : DECK.right, UPPER_FLIPPER.z - 0.06],
+          end,
+          guide,
+        ),
+        wall(
+          `abbey-apron-${side}`,
+          end,
+          [DECK_EXIT[0] - s * 0.02, DECK.front],
+          guide,
+        ),
+      ]
+    }),
+  ]
+}
+
+function upperFlipper(side: 'left' | 'right') {
+  return {
+    id: `abbey-flipper-${side}`,
+    side,
+    upper: true,
+    pivot: [UPPER_FLIPPER[side], DECK_Y, UPPER_FLIPPER.z] as Vec3,
+    length: UPPER_FLIPPER.length,
+    baseRadius: 0.009,
+    tipRadius: 0.005,
+    restAngle: 0.5,
+    activeAngle: -0.46,
+    strokeMs: 18,
+    returnMs: 60,
+  }
+}
+
 // Three distinct steel-ball paths. X/Z are metres, final coordinate is the
 // real elevation of the continuous ramp deck. The village switchback crosses
 // to the right inlane; the Abbey crossover feeds the left; the Bell climbs to
-// the future upper Abbey deck before its temporary right-side gravity return.
+// raised Abbey deck (t-006) on the right.
 const VILLAGE_SWITCHBACK: XZH[] = [
   [-0.12, -0.29, 0],
   [-0.12, -0.39, 0.011],
@@ -174,6 +291,7 @@ const colliders: ColliderDef[] = [
       material: 'plastic-clear',
     },
   ),
+  ...abbeyDeck(),
   // Raised catch plates at the exits stop a ball from rolling off the cabinet.
   wall('village-return-stop', [0.163, -0.165], [0.203, -0.165], {
     base: 0.03,
@@ -594,16 +712,29 @@ export const ZUZU_LAST_BELL_GREYBOX: TableDef = {
       strokeMs: 20,
       returnMs: 70,
     },
+    upperFlipper('left'),
+    upperFlipper('right'),
   ],
   // The four Abbey seals stand in line in the channel between the Village and
   // Bell ramps: each one knocked down bares the next, so the bank asks for
   // four straight shots instead of sitting across every ramp's mouth.
-  drops: [-0.31, -0.335, -0.36, -0.385].map((z, i) => ({
-    id: `abbey-seal-${i + 1}`,
-    bank: 'abbey-seals',
-    at: [SEAL_X, 0.019, z] as Vec3,
-    half: [0.012, 0.022, 0.004] as Vec3,
-  })),
+  drops: [
+    ...[-0.31, -0.335, -0.36, -0.385].map((z, i) => ({
+      id: `abbey-seal-${i + 1}`,
+      bank: 'abbey-seals',
+      at: [SEAL_X, 0.019, z] as Vec3,
+      half: [0.012, 0.022, 0.004] as Vec3,
+    })),
+    // The Abbey's hollow bells (t-006): standups along the deck's top wall,
+    // faced to the upper flippers; each hit rings, none ever drops.
+    ...ABBEY_BELLS.map((bell) => ({
+      id: bell.id,
+      bank: 'abbey-bells',
+      at: [bell.x, DECK_Y + 0.019, DECK.top + 0.008] as Vec3,
+      half: [0.01, 0.019, 0.004] as Vec3,
+      standup: true,
+    })),
+  ],
   spinners: [
     {
       id: 'relic-spinner',
@@ -651,6 +782,17 @@ export const ZUZU_LAST_BELL_GREYBOX: TableDef = {
         velocity: [0, 0, 0.3],
       },
       lock: { slots: CITADEL_SLOTS, releaseGapMs: 700 },
+    },
+    {
+      // The Abbey deck's exit: a hole between the upper flippers, and a
+      // subway to the right inlane, as the Croc spits.
+      id: 'abbey-exit',
+      at: DECK_EXIT,
+      radius: 0.018,
+      captureMaxSpeed: Number.POSITIVE_INFINITY,
+      holdMs: 300,
+      hidden: true,
+      eject: { at: [0.181, BALL + 0.005, -0.2], velocity: [0, 0, 0.3] },
     },
   ],
   shots: [

@@ -233,6 +233,11 @@ export type FlipperDef = {
   side: 'left' | 'right'
   /** The zone it plays in (the hidden room, the Ridge); none on the main table. */
   zone?: string
+  /**
+   * An upper flipper on a raised deck (Zuzu's Abbey, t-006): it follows the
+   * lower buttons, or flips alone while the player holds B (Shift).
+   */
+  upper?: boolean
   pivot: Vec3
   length: number
   /** Radius at the pivot end and at the tip. */

@@ -700,14 +700,14 @@ export const PREVIEW_GAMES: ArcadeGameMeta[] = [
     title: 'Zuzu: The Last Bell',
     riffsOn: 'original multi-level pinball',
     blurb:
-      'Private Zuzu pinball physics preview. The separate 3D table has a shootable River Croc capture, Abbey bell lane, two lower flippers and its own score namespace. Ramps, the raised Abbey and Zuzu-specific game rules are being built; this is not the finished FX3-class game.',
+      'Private Zuzu pinball preview. The 3D table has three ramps, two orbits, the River Croc, the Citadel lock and three multiballs, a raised Abbey deck with its own upper flippers, and its own score namespace. It is still being built; this is not the finished FX3-class game.',
     howTo: [
       'ARROWS  FLIPPERS',
       'DOWN  CHARGE PLUNGER',
       'RELEASE  LAUNCH',
       'UP  NUDGE',
       'SHOOT RIVER CROC',
-      'B  CAMERA VIEW',
+      'HOLD B  UPPER ONLY',
     ],
     width: 288,
     height: 488,

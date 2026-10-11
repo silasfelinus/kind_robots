@@ -10,13 +10,21 @@ import { emptyInput } from '../arcade/types'
 
 await RAPIER.init()
 
-assert.equal(table.drops.length, 4)
+const seals = table.drops.filter((target) => target.bank === 'abbey-seals')
 assert.deepEqual(
-  table.drops.map((target) => target.id),
+  seals.map((target) => target.id),
   ['abbey-seal-1', 'abbey-seal-2', 'abbey-seal-3', 'abbey-seal-4'],
 )
-assert.ok(table.drops.every((target) => target.bank === 'abbey-seals'))
-assert.equal(new Set(table.drops.map((target) => target.id)).size, 4)
+assert.ok(
+  seals.every((target) => !target.standup),
+  'the seals drop',
+)
+// The Abbey deck's hollow bells (t-006) are standups: they ring, never drop.
+const bells = table.drops.filter((target) => target.bank === 'abbey-bells')
+assert.equal(bells.length, 3)
+assert.ok(bells.every((target) => target.standup))
+assert.equal(seals.length + bells.length, table.drops.length)
+assert.equal(new Set(table.drops.map((target) => target.id)).size, 7)
 assert.equal(
   table.spinners.filter((item) => item.id === 'relic-spinner').length,
   1,

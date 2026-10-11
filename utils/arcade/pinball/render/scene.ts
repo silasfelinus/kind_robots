@@ -210,6 +210,22 @@ function batOutline(
   ])
 }
 
+/** The display margin a backbox DMD must clear to count as readable (NDC). */
+const DMD_FRAME = 0.96
+
+/**
+ * Whether every point (projected, normalized device coordinates) is on
+ * screen, in front of the camera and inside the margin.
+ */
+export function fitsFrame(
+  points: ReadonlyArray<{ x: number; y: number; z: number }>,
+  margin = DMD_FRAME,
+): boolean {
+  return points.every(
+    (p) => Math.abs(p.x) <= margin && Math.abs(p.y) <= margin && p.z < 1,
+  )
+}
+
 /**
  * Touch devices (phones, tablets) start a tier down: their screens are dense
  * and their GPUs share power with everything else, and climbing up after ten
@@ -311,6 +327,8 @@ export class PinballScene {
     texture: THREE.CanvasTexture
     occluder?: string
     shown: Uint8Array
+    /** The glass's width and height, metres. */
+    size: { width: number; height: number }
   } | null = null
   private view: CameraPresetId = 'main'
   /** The camera's current eye and look target, in table space (eased). */
@@ -948,7 +966,14 @@ export class PinballScene {
     glass.position.z = 0.002
     group.add(bezel, panel, glass)
     this.root.add(group)
-    this.dmd = { group, canvas, texture, occluder: def.occluder, shown: blank }
+    this.dmd = {
+      group,
+      canvas,
+      texture,
+      occluder: def.occluder,
+      shown: blank,
+      size: { width: w, height: h },
+    }
     // The same picture across the top of the screen, for the views that
     // leave the backbox out of frame.
     const hud = new THREE.Group()
@@ -959,6 +984,11 @@ export class PinballScene {
           map: texture,
           color: new THREE.Color(1.8, 1.8, 1.8),
           toneMapped: false,
+          // In the transparent pass with the highest render order, so it
+          // draws after everything: as an opaque mesh the backbox's fading
+          // glass and occluder drew over it, and on a tablet the score read
+          // dim and doubled behind them (2026-10-11).
+          transparent: true,
           depthTest: false,
           depthWrite: false,
           fog: false,
@@ -971,8 +1001,9 @@ export class PinballScene {
       this.track(
         new THREE.MeshBasicMaterial({
           color: 0x050407,
+          // Solid, so the backbox it covers never shows through.
           transparent: true,
-          opacity: 0.9,
+          opacity: 1,
           depthTest: false,
           depthWrite: false,
           fog: false,
@@ -1273,16 +1304,29 @@ export class PinballScene {
     const hud = this.hud
     const dmd = this.dmd
     if (!hud || !dmd) return
-    const at = dmd.group
-      .getWorldPosition(new THREE.Vector3())
-      .project(this.camera)
-    const inFrame =
-      dmd.group.visible && Math.abs(at.x) <= 0.95 && Math.abs(at.y) <= 0.95
-    hud.visible = !inFrame
+    // The whole glass must be on screen: on a tall tablet its centre was in
+    // frame while the top of the screen cut off its digits (Silas,
+    // 2026-10-11), and the HUD stayed hidden.
+    const { width, height } = dmd.size
+    dmd.group.updateMatrixWorld()
+    const corners = [
+      [-1, -1],
+      [1, -1],
+      [-1, 1],
+      [1, 1],
+    ].map(([sx, sy]) =>
+      dmd.group
+        .localToWorld(
+          new THREE.Vector3((sx! * width) / 2, (sy! * height) / 2, 0),
+        )
+        .project(this.camera),
+    )
+    hud.visible = !(dmd.group.visible && fitsFrame(corners))
     const h = 2 * HUD_DEPTH * Math.tan((this.camera.fov * Math.PI) / 360)
-    const width = Math.min(h * this.aspect * 0.9, h * 0.45)
-    hud.scale.setScalar(width)
-    hud.position.set(0, h / 2 - width * 0.14 - h * 0.012, -HUD_DEPTH)
+    const across = Math.min(h * this.aspect * 0.9, h * 0.45)
+    hud.scale.setScalar(across)
+    // Flush with the top, so a backbox cut off behind it never peeks out above.
+    hud.position.set(0, h / 2 - across * 0.14, -HUD_DEPTH)
   }
 
   /** The on-screen DMD is showing, for tests (never without a real renderer). */

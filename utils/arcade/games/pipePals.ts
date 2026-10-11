@@ -81,6 +81,7 @@ import type {
   ArcadeGameOptions,
   InputFrame,
 } from '../types'
+import { emptyInput } from '../types'
 
 const W = 448
 const H = 336
@@ -157,6 +158,8 @@ type Critter = {
   dir: number
   onGround: boolean
   flipped: number
+  /** The pal who last flipped or kicked it (Versus steals, chain credit). */
+  by?: number
   /** Crab bots after their first bump. */
   angry: boolean
   /** Shell knights still wearing their shell. */
@@ -408,42 +411,85 @@ const TEAL_BODY = [
   '.tTTTTTTTTTTTTtd',
   '..dtttttttttttd.',
 ]
+// The pink pal: pink hair, a cream face and a purple suit.
+const PINK_PALETTE = {
+  A: RAMPS.pink[4],
+  B: RAMPS.pink[3],
+  D: RAMPS.pink[2],
+  E: RAMPS.pink[1],
+  c: RAMPS.cream[3],
+  C: RAMPS.cream[2],
+  q: RAMPS.pink[3],
+  h: RAMPS.purple[4],
+  L: RAMPS.purple[3],
+  T: RAMPS.purple[2],
+  t: RAMPS.purple[1],
+  d: RAMPS.purple[0],
+  g: RAMPS.gold[4],
+  k: INK,
+  w: '#ffffff',
+}
+const PINK_HEAD = [
+  '....ABBBBBBA....',
+  '..ABBDDDDDDBBA..',
+  '.ABDDDDDDDDDDBA.',
+  'ABDDccccccccDDBE',
+  'BDDccccccccccDDE',
+  'BDccwkccccwkccDE',
+  'BDcckkcccckkccDE',
+  'DDcqccccccccqcDE',
+  'DEcccccqqcccccEE',
+  'EE.CCCCCCCCCC.EE',
+  'E..............E',
+]
 const pal = (legs: string[]) =>
   pixelSprite([...TEAL_HEAD, ...TEAL_BODY, ...legs], TEAL_PALETTE)
-const PLAYER_SPRITES = {
-  stand: pal([
+const pinkPal = (legs: string[]) =>
+  pixelSprite([...PINK_HEAD, ...TEAL_BODY, ...legs], PINK_PALETTE)
+const PAL_LEGS = {
+  stand: [
     '....TL....TL....',
     '....TL....TL....',
     '....Tt....Tt....',
     '...TTt...TTt....',
-  ]),
+  ],
   run: [
-    pal([
+    [
       '...TL......TL...',
       '..TL........Tt..',
       '.TL..........Tt.',
       'TTt..........TTt',
-    ]),
-    pal([
+    ],
+    [
       '.....TL..TL.....',
       '.....Tt..Tt.....',
       '....TTt...Tt....',
       '..........TTt...',
-    ]),
-    pal([
+    ],
+    [
       '......TLTL......',
       '......TtTt......',
       '.....TTtTt......',
       '.........TTt....',
-    ]),
+    ],
   ],
-  jump: pal([
+  jump: [
     '...TL....TL.....',
     '..TL......Tt....',
     '.TL........TTt..',
     '.T..............',
-  ]),
-} as const
+  ],
+}
+const PLAYER_SPRITES = {
+  stand: pal(PAL_LEGS.stand),
+  run: PAL_LEGS.run.map(pal),
+  jump: pal(PAL_LEGS.jump),
+}
+const PINK_SPRITES = {
+  stand: pinkPal(PAL_LEGS.stand),
+  run: PAL_LEGS.run.map(pinkPal),
+  jump: pinkPal(PAL_LEGS.jump),
+}
 const TEAL_FACE = pixelSprite(
   [
     '..h......h..',
@@ -1275,6 +1321,12 @@ export type PipeSave = {
   valves: string[]
   kindMax: number
   continued: boolean
+  /** Medals per phase, keyed `district:phase`: 1 Clean Sweep, 2 Chain Master, 4 Swift Fix. */
+  medals?: Record<string, number>
+  /** Best Time Trial per district, in ticks. */
+  times?: Record<string, number>
+  /** How many districts the campaign has reached (Time Trial and Versus pick from these). */
+  reached?: number
 }
 
 /** A stored save, checked against this build; null when unusable. */
@@ -1304,8 +1356,134 @@ export function readPipeSave(raw: unknown): PipeSave | null {
     ],
     kindMax: Math.max(KIND_BLOCK_USES, r.kindMax as number),
     continued: r.continued === true,
+    medals: readTable(
+      r.medals,
+      (k) => {
+        const [id = '', phase = ''] = k.split(':')
+        return (ids.has(id) || id === GOLDEN_MAIN.id) && /^[1-5]$/.test(phase)
+      },
+      7,
+    ),
+    times: readTable(r.times, (k) => ids.has(k), 60 * 60 * 600),
+    reached: count(r.reached, DISTRICTS.length) ? (r.reached as number) : 1,
   }
 }
+
+/** A small table of whole numbers from a save, keeping only the keys and values that make sense. */
+function readTable(
+  raw: unknown,
+  keyOk: (key: string) => boolean,
+  max: number,
+): Record<string, number> {
+  const out: Record<string, number> = {}
+  if (!raw || typeof raw !== 'object') return out
+  for (const [k, v] of Object.entries(raw as Record<string, unknown>))
+    if (
+      keyOk(k) &&
+      typeof v === 'number' &&
+      Number.isInteger(v) &&
+      v > 0 &&
+      v <= max
+    )
+      out[k] = v
+  return out
+}
+
+/** A district name cut back to whole words that fit the medal board. */
+function shortName(name: string, max = 18): string {
+  let out = ''
+  for (const word of name.split(' ')) {
+    const next = out ? `${out} ${word}` : word
+    if (next.length > max) break
+    out = next
+  }
+  return out
+}
+
+/** Minutes and seconds for a count of ticks. */
+function clock(ticks: number): string {
+  const s = Math.floor(ticks / 60)
+  return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`
+}
+
+// --- the two pals, the modes and the medals ---------------------------------------------
+
+type PalKind = 'teal' | 'pink'
+type PalBody = {
+  x: number
+  y: number
+  vx: number
+  vy: number
+  onGround: boolean
+  face: number
+  run: number
+}
+/** Everything one pal carries: two of these play side by side in co-op and Versus. */
+type Pal = {
+  kind: PalKind
+  body: PalBody
+  alive: boolean
+  respawn: number
+  invuln: number
+  tool: { kind: ToolKind; ticks: number; charges: number } | null
+  heldSock: SockColour | null
+  wasOnGround: boolean
+  pilotClimb: { dir: number; targetY: number } | null
+  /** Bonked by the other pal's bump: dizzy for this many ticks. */
+  stun: number
+  /** This pal's own tally (Versus). */
+  points: number
+}
+function newPal(kind: PalKind): Pal {
+  return {
+    kind,
+    body: { x: W / 2, y: 310, vx: 0, vy: 0, onGround: true, face: 1, run: 0 },
+    alive: true,
+    respawn: 0,
+    invuln: 0,
+    tool: null,
+    heldSock: null,
+    wasOnGround: true,
+    pilotClimb: null,
+    stun: 0,
+    points: 0,
+  }
+}
+/** The pink pal jumps higher and hangs in the air; the teal pal's bump reaches further. */
+const PINK_JUMP = -7.3
+const PINK_FLOAT = 0.86
+const TEAL_REACH = 1.3
+const STEAL_BONUS = 500
+const VERSUS_FALL = 1500
+const TRIAL_FALL_TICKS = 5 * 60
+const BONK_TICKS = 40
+
+type Mode = 'campaign' | 'overtime' | 'trial' | 'versus'
+const MODES: ReadonlyArray<{ id: Mode; name: string; about: string }> = [
+  { id: 'campaign', name: 'CAMPAIGN', about: 'THREE SHIFTS, EIGHT DISTRICTS' },
+  {
+    id: 'overtime',
+    name: 'OVERTIME',
+    about: 'ENDLESS SCORE ATTACK, NO BREAKS',
+  },
+  { id: 'trial', name: 'TIME TRIAL', about: 'ONE DISTRICT AGAINST THE CLOCK' },
+  { id: 'versus', name: 'VERSUS', about: 'ONE DISTRICT, MOST POINTS WINS' },
+]
+const MEDALS = [
+  { bit: 1, name: 'CLEAN SWEEP', short: 'CLEAN' },
+  { bit: 2, name: 'CHAIN MASTER', short: 'CHAIN' },
+  { bit: 4, name: 'SWIFT FIX', short: 'SWIFT' },
+] as const
+const MEDAL_CHAIN = 4
+const MEDAL_COINS = 2
+/** Swift Fix par: forty seconds plus six per critter in the phase. */
+function phasePar(critters: number): number {
+  return 60 * (40 + 6 * critters)
+}
+/** Every phase that can earn medals: the eight districts and the Golden Main, five phases each. */
+const MEDAL_DISTRICTS = [...DISTRICTS, GOLDEN_MAIN]
+const MEDALS_TOTAL =
+  MEDAL_DISTRICTS.length * PHASES_PER_DISTRICT * MEDALS.length
 const ICICLE_GROW = 420
 const ICICLE_SHAKE = 70
 const VENT_PERIOD = 200
@@ -1349,18 +1527,29 @@ class PipePals implements ArcadeGameInstance {
   private hiScore: number
 
   private tick = 0
-  private player = {
-    x: W / 2,
-    y: 310,
-    vx: 0,
-    vy: 0,
-    onGround: true,
-    face: 1,
-    run: 0,
-  }
-  private alive = true
-  private respawn = 0
-  private invuln = 0
+  // The pals: one, or two side by side. Per-pal code acts for `cur`, through the accessors below.
+  private pals: Pal[] = [newPal('teal')]
+  private cur = 0
+  private seats = 1
+  private mode: Mode = 'campaign'
+  /** The mode menu, before a real game starts. */
+  private menu: {
+    row: number
+    mode: number
+    pal: number
+    district: number
+    board: boolean
+  } | null = null
+  /** The Time Trial or Versus result card. */
+  private result: { t: number; title: string; lines: string[] } | null = null
+  private trialTicks = 0
+  private medals: Record<string, number> = {}
+  private times: Record<string, number> = {}
+  private reached = 1
+  // Medal bookkeeping for the phase in play.
+  private phaseFell = false
+  private phaseChain = 0
+  private phaseCount = 0
   // The campaign: which district, which step of it, and how many laps of the city.
   private districtIndex = 0
   private district: District = DISTRICTS[0]!
@@ -1374,7 +1563,6 @@ class PipePals implements ArcadeGameInstance {
   private frozen = new Map<Segment, number>()
   /** Crumble ledges: landings so far, and how long until a fallen one rebuilds. */
   private crumbles = new Map<Segment, { landings: number; down: number }>()
-  private wasOnGround = true
   private icicles: Icicle[] = []
   private cuckooTimer = 0
   // Swing Shift special phases.
@@ -1429,7 +1617,6 @@ class PipePals implements ArcadeGameInstance {
     null
   private coins: Coin[] = []
   private pickups: Pickup[] = []
-  private tool: { kind: ToolKind; ticks: number; charges: number } | null = null
   private bubbles: Bubble[] = []
   private embers: Ember[] = []
   private sparkTimer = 0
@@ -1444,7 +1631,6 @@ class PipePals implements ArcadeGameInstance {
   private socks: LooseSock[] = []
   private socksDropped = 0
   private sockTimer = 0
-  private heldSock: SockColour | null = null
   private pairs = 0
   // Boss and bonus.
   private boss: Boss | null = null
@@ -1459,24 +1645,284 @@ class PipePals implements ArcadeGameInstance {
   private floaters: Floater[] = []
   private phaseDelay = 0
   private overTimer = 0
-  private pilotClimb: { dir: number; targetY: number } | null = null
   private nextExtra = EXTRA_LIFE_AT
   private banner: { text: string; sub?: string; ticks: number } | null = null
   // Cosmetic sparkles roll their own dice, so the game's seeded rng is untouched.
   private fx = new Sparkles()
   private fxRng = backdropRng(53)
 
+  private get pal(): Pal {
+    return this.pals[this.cur]!
+  }
+  private get player(): PalBody {
+    return this.pal.body
+  }
+  private get alive(): boolean {
+    return this.pal.alive
+  }
+  private set alive(v: boolean) {
+    this.pal.alive = v
+  }
+  private get respawn(): number {
+    return this.pal.respawn
+  }
+  private set respawn(v: number) {
+    this.pal.respawn = v
+  }
+  private get invuln(): number {
+    return this.pal.invuln
+  }
+  private set invuln(v: number) {
+    this.pal.invuln = v
+  }
+  private get tool(): Pal['tool'] {
+    return this.pal.tool
+  }
+  private set tool(v: Pal['tool']) {
+    this.pal.tool = v
+  }
+  private get heldSock(): SockColour | null {
+    return this.pal.heldSock
+  }
+  private set heldSock(v: SockColour | null) {
+    this.pal.heldSock = v
+  }
+  private get wasOnGround(): boolean {
+    return this.pal.wasOnGround
+  }
+  private set wasOnGround(v: boolean) {
+    this.pal.wasOnGround = v
+  }
+  private get pilotClimb(): Pal['pilotClimb'] {
+    return this.pal.pilotClimb
+  }
+  private set pilotClimb(v: Pal['pilotClimb']) {
+    this.pal.pilotClimb = v
+  }
+
+  /** Run `fn` for each pal still in play, as the current pal; the first pal in play is current after. */
+  private eachPal(fn: (i: number) => void) {
+    this.pals.forEach((pal, i) => {
+      if (!pal.alive) return
+      this.cur = i
+      fn(i)
+    })
+    this.focus()
+  }
+
+  /** The first pal in play (embers hunt it, the flush chases it). */
+  private focus() {
+    const i = this.pals.findIndex((p) => p.alive)
+    this.cur = Math.max(0, i)
+  }
+
+  private anyAlive(): boolean {
+    return this.pals.some((p) => p.alive)
+  }
+
+  /** The bodies of the pals in play. */
+  private bodies(): PalBody[] {
+    return this.pals.filter((p) => p.alive).map((p) => p.body)
+  }
+
+  /** Whether any pal in play touches this spot; that pal becomes current. */
+  private touchingAnyPal(x: number, y: number, rx: number, ry: number) {
+    for (let i = 0; i < this.pals.length; i++) {
+      if (!this.pals[i]!.alive) continue
+      this.cur = i
+      if (this.touchingPlayer(x, y, rx, ry)) return true
+    }
+    this.focus()
+    return false
+  }
+
+  /** Where each pal starts a step: one in the middle, or two either side of it. */
+  private palHome(i: number): number {
+    return this.pals.length === 1 ? W / 2 : W / 2 + (i === 0 ? -28 : 28)
+  }
+
   constructor(options: ArcadeGameOptions) {
     this.rng = options.rng
     this.sound = options.sound
     this.demo = options.demo
     this.hiScore = options.hiScore
-    this.beginDistrict(0)
-    const offer = this.demo ? null : readPipeSave(options.resume)
-    if (offer && offer.district > 0) {
-      this.offer = offer
-      this.save = offer
+    this.seats = Math.max(1, Math.min(2, options.players ?? 1))
+    if (this.seats === 2) {
+      this.pals = [newPal('teal'), newPal('pink')]
+      this.lives = START_LIVES * 2
     }
+    const stored = this.demo ? null : readPipeSave(options.resume)
+    if (stored) {
+      this.medals = { ...stored.medals }
+      this.times = { ...stored.times }
+      this.reached = stored.reached ?? 1
+    }
+    this.beginDistrict(0)
+    if (stored && stored.district > 0) {
+      this.offer = stored
+      this.save = stored
+    } else if (!this.demo) {
+      this.openMenu()
+    }
+  }
+
+  private openMenu() {
+    this.menu = { row: 0, mode: 0, pal: 0, district: 0, board: false }
+  }
+
+  private modes() {
+    return MODES.filter((m) => m.id !== 'versus' || this.seats > 1)
+  }
+
+  private menuRows(): Array<'mode' | 'pal' | 'district'> {
+    const mode = this.modes()[this.menu?.mode ?? 0]!.id
+    const rows: Array<'mode' | 'pal' | 'district'> = ['mode']
+    if (this.seats === 1) rows.push('pal')
+    if (mode === 'trial' || mode === 'versus') rows.push('district')
+    return rows
+  }
+
+  /** Districts Time Trial and Versus can pick: the ones the campaign has reached. */
+  private openDistricts(): number {
+    return Math.max(1, Math.min(DISTRICTS.length, this.reached))
+  }
+
+  private updateMenu(input: InputFrame) {
+    const m = this.menu!
+    if (input.pressed.b) {
+      m.board = !m.board
+      this.sound.play('blip')
+      return
+    }
+    if (m.board) {
+      if (input.pressed.a || input.pressed.start) m.board = false
+      return
+    }
+    const rows = this.menuRows()
+    m.row = Math.min(m.row, rows.length - 1)
+    if (input.pressed.up) m.row = (m.row + rows.length - 1) % rows.length
+    if (input.pressed.down) m.row = (m.row + 1) % rows.length
+    const step = input.pressed.left ? -1 : input.pressed.right ? 1 : 0
+    if (step) {
+      const row = rows[m.row]
+      const wrap = (v: number, n: number) => (v + n) % n
+      if (row === 'mode') m.mode = wrap(m.mode + step, this.modes().length)
+      else if (row === 'pal') m.pal = 1 - m.pal
+      else m.district = wrap(m.district + step, this.openDistricts())
+      this.sound.play('blip')
+    }
+    if (input.pressed.a || input.pressed.start) this.startMode()
+  }
+
+  private startMode() {
+    const m = this.menu!
+    this.menu = null
+    this.mode = this.modes()[m.mode]!.id
+    if (this.seats === 1) this.pals[0]!.kind = m.pal ? 'pink' : 'teal'
+    this.sound.play('level')
+    if (this.mode === 'campaign') return
+    this.level = 0
+    this.trialTicks = 0
+    // Overtime starts a lap up, with no Workshop or endings between districts.
+    this.beginDistrict(
+      this.mode === 'overtime'
+        ? DISTRICTS.length
+        : Math.min(m.district, this.openDistricts() - 1),
+    )
+  }
+
+  /** The steps a mode plays: Overtime skips the breaks; Time Trial and Versus play the board. */
+  private modeSteps(steps: Step[]): Step[] {
+    if (this.mode === 'campaign') return steps
+    if (this.mode === 'overtime')
+      return steps.filter((s) => s.kind !== 'workshop' && s.kind !== 'ending')
+    return steps.filter((s) => s.kind === 'phase' || s.kind === 'boss')
+  }
+
+  /** The end of a Time Trial or a Versus match: the result card, then the game is over. */
+  private finishMatch() {
+    const d = this.district
+    let lines: string[]
+    if (this.mode === 'trial') {
+      const t = this.trialTicks
+      const best = this.times[d.id]
+      if (!best || t < best) this.times[d.id] = t
+      this.addScore(Math.max(0, 900 - Math.floor(t / 60)) * 100, W / 2, 150)
+      lines = [
+        `TIME ${clock(t)}`,
+        !best || t < best ? 'A NEW BEST TIME!' : `BEST ${clock(best)}`,
+      ]
+    } else {
+      const [a, b] = this.pals as [Pal, Pal]
+      lines = [
+        a.points === b.points
+          ? 'A DEAD HEAT!'
+          : `${a.points > b.points ? 'TEAL' : 'PINK'} PAL WINS!`,
+        `TEAL ${a.points}   PINK ${b.points}`,
+      ]
+    }
+    this.persist()
+    this.critters = []
+    this.embers = []
+    this.sound.play('level')
+    this.result = { t: 0, title: d.name, lines }
+  }
+
+  /** Keep the medals, best times and districts reached, whatever the mode. */
+  private persist() {
+    if (this.demo) return
+    const base: PipeSave = this.save ?? {
+      v: 1,
+      district: 0,
+      score: 0,
+      lives: START_LIVES,
+      wallet: 0,
+      valves: [],
+      kindMax: KIND_BLOCK_USES,
+      continued: false,
+    }
+    this.save = {
+      ...base,
+      medals: { ...this.medals },
+      times: { ...this.times },
+      reached: this.reached,
+    }
+  }
+
+  /** Medals for a cleared phase: Clean Sweep, Chain Master and Swift Fix. */
+  private awardMedals(phase: number) {
+    if (this.demo) return
+    const key = `${this.district.id}:${phase}`
+    const earned =
+      (this.phaseFell ? 0 : 1) |
+      (this.phaseChain >= MEDAL_CHAIN ? 2 : 0) |
+      (this.phaseTicks <= phasePar(this.phaseCount) ? 4 : 0)
+    if (!earned) return
+    const had = this.medals[key] ?? 0
+    const fresh = MEDALS.filter((m) => earned & m.bit & ~had).length
+    this.medals[key] = had | earned
+    if (this.banner)
+      this.banner.sub = `MEDALS: ${MEDALS.filter((m) => earned & m.bit)
+        .map((m) => m.short)
+        .join(' ')}`
+    if (fresh) {
+      this.wallet += fresh * MEDAL_COINS
+      this.floaters.push({
+        x: W / 2,
+        y: 214,
+        text: `NEW MEDAL${fresh > 1 ? 'S' : ''} +${fresh * MEDAL_COINS} COINS`,
+        life: 90,
+      })
+    }
+    this.persist()
+  }
+
+  /** How many medals have been earned, all told or of one kind. */
+  private medalCount(bit = 7): number {
+    let n = 0
+    for (const v of Object.values(this.medals))
+      for (const m of MEDALS) if (bit & m.bit && v & m.bit) n++
+    return n
   }
 
   /** Pick a saved run back up at the start of its district. */
@@ -1494,7 +1940,7 @@ class PipePals implements ArcadeGameInstance {
 
   /** Remember the run at this district's start (a real game only). */
   private keep() {
-    if (this.demo || this.inGolden) return
+    if (this.demo || this.inGolden || this.mode !== 'campaign') return
     this.save = {
       v: 1,
       district: this.districtIndex,
@@ -1504,6 +1950,9 @@ class PipePals implements ArcadeGameInstance {
       valves: [...this.valves],
       kindMax: this.kindMax,
       continued: false,
+      medals: { ...this.medals },
+      times: { ...this.times },
+      reached: this.reached,
     }
   }
 
@@ -1528,10 +1977,15 @@ class PipePals implements ArcadeGameInstance {
     this.districtIndex = index
     this.district = district
     this.lap = lap
-    this.steps = districtSteps(district)
+    this.steps = this.modeSteps(districtSteps(district))
     this.stepIndex = 0
     this.vines = new Map()
     this.kindBlockUses = this.kindMax
+    if (this.mode === 'campaign' && !this.demo)
+      this.reached = Math.max(
+        this.reached,
+        Math.min(DISTRICTS.length, index + 1),
+      )
     this.lucky = this.luckyNext
     this.luckyNext = false
     this.hintActive = this.hintNext
@@ -1540,12 +1994,14 @@ class PipePals implements ArcadeGameInstance {
     this.inGolden = false
     this.startStep()
     this.keep()
-    if (this.startTool) {
-      this.tool = {
-        kind: this.startTool,
-        ticks: TOOL_TICKS * 2,
-        charges: this.startTool === 'wand' ? WAND_CHARGES : 0,
-      }
+    const startTool = this.startTool
+    if (startTool) {
+      for (const pal of this.pals)
+        pal.tool = {
+          kind: startTool,
+          ticks: TOOL_TICKS * 2,
+          charges: startTool === 'wand' ? WAND_CHARGES : 0,
+        }
       this.startTool = null
     }
   }
@@ -1553,6 +2009,12 @@ class PipePals implements ArcadeGameInstance {
   private advance() {
     this.stepIndex++
     if (this.stepIndex >= this.steps.length) {
+      if (this.mode === 'trial' || this.mode === 'versus') {
+        // The board stays on its last step behind the result card.
+        this.stepIndex = this.steps.length - 1
+        this.finishMatch()
+        return
+      }
       this.beginDistrict(this.districtIndex + 1)
       return
     }
@@ -1625,13 +2087,15 @@ class PipePals implements ArcadeGameInstance {
     this.chain = 0
     this.chainTimer = 0
     this.phaseTicks = 0
-    Object.assign(this.player, {
-      x: W / 2,
-      y: 310,
-      vx: 0,
-      vy: 0,
-      onGround: true,
-    })
+    this.pals.forEach((pal, i) =>
+      Object.assign(pal.body, {
+        x: this.palHome(i),
+        y: 310,
+        vx: 0,
+        vy: 0,
+        onGround: true,
+      }),
+    )
     this.frozen = new Map()
     this.crumbles = new Map()
     this.cuckooTimer = 600
@@ -1689,7 +2153,10 @@ class PipePals implements ArcadeGameInstance {
     this.lurkerTimer = Math.round(
       levelCurve(this.heat(), PIPE_CURVES.lurkerAfter),
     )
-    this.invuln = 90
+    for (const pal of this.pals) pal.invuln = 90
+    this.phaseFell = false
+    this.phaseChain = 0
+    this.phaseCount = this.queue.length
     this.banner = { text: `PHASE ${d.number}-${phase}`, sub, ticks: 120 }
   }
 
@@ -1739,7 +2206,7 @@ class PipePals implements ArcadeGameInstance {
     } else {
       this.socksDropped = 0
       this.sockTimer = 90
-      this.heldSock = null
+      for (const pal of this.pals) pal.heldSock = null
       this.pairs = 0
     }
   }
@@ -1805,7 +2272,7 @@ class PipePals implements ArcadeGameInstance {
       rolls: 0,
     }
     this.bossTimer = 240
-    this.invuln = 120
+    for (const pal of this.pals) pal.invuln = 120
     this.banner = {
       text: 'THE BIG SHELL',
       sub: 'TIP IT WITH THREE BUMPS, THEN KICK',
@@ -1949,13 +2416,14 @@ class PipePals implements ArcadeGameInstance {
 
   /** Lifts and gear ledges glide; whoever stands on them rides along. Conveyors carry riders. */
   private moveLift() {
-    const p = this.player
+    const bodies = this.bodies()
     ;(this.district.lifts ?? []).forEach((lift, i) => {
       const before = this.liftLefts[i] ?? liftX(lift, this.tick - 1)
       const dx = liftX(lift, this.tick) - before
       const riding = (x: number, y: number) =>
         Math.abs(y - lift.y) < 1 && x >= before - 4 && x <= before + lift.w + 4
-      if (p.onGround && riding(p.x, p.y)) p.x = wrapX(p.x + dx)
+      for (const p of bodies)
+        if (p.onGround && riding(p.x, p.y)) p.x = wrapX(p.x + dx)
       for (const c of this.critters)
         if (c.onGround && !c.kicked && riding(c.x, c.y)) c.x += dx
     })
@@ -1963,7 +2431,8 @@ class PipePals implements ArcadeGameInstance {
       if (seg.kind !== 'conveyor' || !seg.dir) continue
       const on = (x: number, y: number) =>
         Math.abs(y - seg.y) < 1 && x > seg.x0 && x < seg.x1
-      if (p.onGround && on(p.x, p.y)) p.x = wrapX(p.x + seg.dir)
+      for (const p of bodies)
+        if (p.onGround && on(p.x, p.y)) p.x = wrapX(p.x + seg.dir)
       for (const c of this.critters)
         if (c.onGround && !c.kicked && c.flipped > 0 && on(c.x, c.y))
           c.x += seg.dir
@@ -1974,6 +2443,10 @@ class PipePals implements ArcadeGameInstance {
   private updateCrumbles() {
     for (const c of this.crumbles.values())
       if (c.down > 0 && --c.down === 0) c.landings = 0
+    this.eachPal(() => this.landOnCrumble())
+  }
+
+  private landOnCrumble() {
     const p = this.player
     if (p.onGround && !this.wasOnGround) {
       const seg = segmentUnder(this.boardNow, p.x, PLAYER_W, p.y, 1)
@@ -1996,17 +2469,17 @@ class PipePals implements ArcadeGameInstance {
 
   /** Vines sag under a pal who lingers, then droop away for a moment. */
   private updateVines() {
-    const p = this.player
+    const bodies = this.bodies()
     this.district.segments.forEach((s, i) => {
       if (s.kind !== 'vine') return
       const v = this.vines.get(i) ?? { sag: 0, down: 0 }
       if (v.down > 0) {
         v.down--
       } else if (
-        p.onGround &&
-        Math.abs(p.y - s.y) < 1 &&
-        p.x > s.x0 &&
-        p.x < s.x1
+        bodies.some(
+          (p) =>
+            p.onGround && Math.abs(p.y - s.y) < 1 && p.x > s.x0 && p.x < s.x1,
+        )
       ) {
         v.sag++
         if (v.sag >= 100) {
@@ -2044,7 +2517,13 @@ class PipePals implements ArcadeGameInstance {
 
   // --- update -------------------------------------------------------------------
 
-  update(input: InputFrame) {
+  update(input: InputFrame, players?: InputFrame[]) {
+    this.play(input, players)
+    // Between ticks the first pal is current (tests and the pilot read it).
+    this.cur = 0
+  }
+
+  private play(input: InputFrame, players?: InputFrame[]) {
     this.tick++
     this.updateEffects()
     if (this.banner && --this.banner.ticks <= 0) this.banner = null
@@ -2052,7 +2531,7 @@ class PipePals implements ArcadeGameInstance {
     if (this.bump && --this.bump.ticks <= 0) this.bump = null
     if (this.chainTimer > 0 && --this.chainTimer === 0) this.chain = 0
     if (this.over) return
-    if (this.lives <= 0 && !this.alive) {
+    if (this.lives <= 0 && !this.anyAlive()) {
       if (++this.overTimer > 100) this.over = true
       return
     }
@@ -2062,10 +2541,25 @@ class PipePals implements ArcadeGameInstance {
         this.offer = null
         this.resumeFrom(s)
       } else if (input.pressed.b) {
+        // A new run: the medals and best times stay, the campaign starts over.
         this.offer = null
         this.save = null
         this.keep()
+        this.openMenu()
       }
+      return
+    }
+    if (this.menu) {
+      this.updateMenu(input)
+      return
+    }
+    if (this.result) {
+      this.result.t++
+      if (
+        this.result.t > 60 * 12 ||
+        (this.result.t > 90 && (input.pressed.a || input.pressed.start))
+      )
+        this.over = true
       return
     }
     if (this.ending) {
@@ -2099,19 +2593,33 @@ class PipePals implements ArcadeGameInstance {
       if (--this.phaseDelay === 0) this.advance()
       return
     }
-    if (!this.alive) {
+    // A felled pal waits out its respawn; while every pal is down the board holds still.
+    this.pals.forEach((pal, i) => {
+      if (pal.alive || this.lives <= 0) return
+      this.cur = i
       if (--this.respawn <= 0) this.revive()
-      return
-    }
+    })
+    if (!this.anyAlive()) return
+    this.focus()
 
-    const controls = this.demo ? this.demoInput() : input
+    const frames = this.demo
+      ? [this.demoInput()]
+      : players?.length && this.pals.length > 1
+        ? players
+        : [input]
+    if (this.mode === 'trial') this.trialTicks++
     this.updateWater()
     this.moveLift()
     this.updateVines()
     this.updateCrumbles()
     this.refreshBoard()
-    this.movePlayer(controls)
-    this.updateTool(controls)
+    this.eachPal((i) => {
+      const pal = this.pal
+      const controls =
+        pal.stun > 0 ? (pal.stun--, emptyInput()) : (frames[i] ?? emptyInput())
+      this.movePlayer(controls)
+      this.updateTool(controls)
+    })
     this.updateVents()
     if (this.bonusRound > 0) {
       this.updateBonus()
@@ -2138,7 +2646,7 @@ class PipePals implements ArcadeGameInstance {
     this.updateNight()
     this.moveCoins()
     this.updateSpecial()
-    this.collide()
+    this.eachPal(() => this.collide())
     if (step.kind !== 'phase') return
     const left = this.critters.filter((c) => !c.kicked)
     if (!this.queue.length && left.length === 1 && !left[0]!.rush) {
@@ -2162,6 +2670,7 @@ class PipePals implements ArcadeGameInstance {
       this.sound.play('level')
       this.banner = { text: 'PIPES CLEAR!', ticks: 110 }
       this.fx.burst(W / 2, 150, this.fxRng, { count: 20, speed: 2.4 })
+      this.awardMedals(step.phase)
       if (step.phase === SPECIAL_PHASE) this.finishSpecial()
     }
   }
@@ -2188,12 +2697,15 @@ class PipePals implements ArcadeGameInstance {
     const wet = this.underwater(p.y - PLAYER_H / 2)
     const runMax = wet ? RUN_MAX * 0.65 : RUN_MAX
     p.vx = Math.max(-runMax, Math.min(runMax, p.vx))
+    const pink = this.pal.kind === 'pink'
     if ((input.pressed.a || input.pressed.up) && p.onGround) {
-      p.vy = wet ? -4.8 : JUMP_SPEED
+      p.vy = wet ? -4.8 : pink ? PINK_JUMP : JUMP_SPEED
       p.onGround = false
       this.sound.play('blip')
     }
-    p.vy += wet ? GRAVITY * 0.55 : GRAVITY
+    // The pink pal hangs in the air on the way up and at the top of a jump.
+    const float = pink && p.vy < 1.5 ? PINK_FLOAT : 1
+    p.vy += (wet ? GRAVITY * 0.55 : GRAVITY) * float
     if (wet) p.vy = Math.min(p.vy, 2.2)
     const headBefore = p.y - PLAYER_H
     p.x = wrapX(p.x + p.vx)
@@ -2253,7 +2765,10 @@ class PipePals implements ArcadeGameInstance {
 
   /** How far a bump reaches along the floor: the Wide Wrench triples it. */
   private bumpReach(): number {
-    return this.tool?.kind === 'wrench' ? BUMP_REACH * 3 : BUMP_REACH
+    if (this.tool?.kind === 'wrench') return BUMP_REACH * 3
+    return this.pal.kind === 'teal'
+      ? Math.round(BUMP_REACH * TEAL_REACH)
+      : BUMP_REACH
   }
 
   private bumpAt(x: number, floorY: number) {
@@ -2268,8 +2783,19 @@ class PipePals implements ArcadeGameInstance {
     for (const c of [...this.critters]) {
       if (c.kicked || !c.onGround || c.trapped > 0) continue
       if (Math.abs(c.y - floorY) > 2 || Math.abs(c.x - x) > reach) continue
+      c.by = this.cur
       this.hitCritter(c)
     }
+    // A bump under the other pal bonks it into the air, dizzy for a moment.
+    this.pals.forEach((other, i) => {
+      const o = other.body
+      if (i === this.cur || !other.alive || !o.onGround) return
+      if (Math.abs(o.y - floorY) > 2 || Math.abs(o.x - x) > reach) return
+      o.vy = -4.5
+      o.onGround = false
+      other.stun = BONK_TICKS
+      this.floaters.push({ x: o.x, y: o.y - 34, text: 'BONK!', life: 40 })
+    })
     // Embers resting on or just above this ledge are snuffed from below.
     for (const e of this.embers) {
       if (e.life <= 0 || e.tell > 0) continue
@@ -2798,7 +3324,11 @@ class PipePals implements ArcadeGameInstance {
         if (Math.abs(o.y - c.y) > 2 || Math.abs(o.x - c.x) > CRITTER_W - 4)
           continue
         if (o.flipped > 0) {
+          // A bowled critter's kick counts for the pal who kicked the bowler.
+          const was = this.cur
+          if (c.by !== undefined && this.pals[c.by]) this.cur = c.by
           this.kick(o, Math.sign(c.vx) || 1)
+          this.cur = was
         } else {
           this.hitCritter(o)
           c.slide = 0
@@ -2816,6 +3346,13 @@ class PipePals implements ArcadeGameInstance {
   }
 
   private kick(c: Critter, dir: number) {
+    // Versus: kicking a critter the other pal flipped steals it.
+    if (this.mode === 'versus' && c.by !== undefined && c.by !== this.cur) {
+      this.pal.points += STEAL_BONUS
+      this.floaters.push({ x: c.x, y: c.y - 38, text: 'STEAL!', life: 50 })
+      this.sound.play('pickup')
+    }
+    c.by = this.cur
     const grounded = c.onGround && c.trapped === 0
     c.kicked = true
     c.flipped = 0
@@ -2827,6 +3364,7 @@ class PipePals implements ArcadeGameInstance {
     this.chain = this.chainTimer > 0 ? this.chain + 1 : 1
     this.chainTimer = CHAIN_WINDOW
     this.bestChain = Math.max(this.bestChain, this.chain)
+    this.phaseChain = Math.max(this.phaseChain, this.chain)
     if (this.king?.phase === 2) this.king.kicksLeft--
     this.addScore(chainPoints(this.chain), c.x, c.y - 14)
     if (this.chain > 1) {
@@ -3095,20 +3633,20 @@ class PipePals implements ArcadeGameInstance {
   // --- special phases ---------------------------------------------------------------
 
   private updateSpecial() {
-    const p = this.player
     for (const leak of this.leaks) {
       if (leak.sealed) continue
       leak.t++
       // A spray knocks a pal sideways; it never hurts.
-      if (
-        this.spraying(leak) &&
-        Math.abs(p.x - leak.x) < 10 &&
-        p.y <= leak.y + 1 &&
-        p.y > leak.y - 44
-      ) {
-        p.vx = (p.x >= leak.x ? 1 : -1) * 3.2
-        if (this.tick % 12 === 0) this.sound.play('blip')
-      }
+      if (!this.spraying(leak)) continue
+      for (const p of this.bodies())
+        if (
+          Math.abs(p.x - leak.x) < 10 &&
+          p.y <= leak.y + 1 &&
+          p.y > leak.y - 44
+        ) {
+          p.vx = (p.x >= leak.x ? 1 : -1) * 3.2
+          if (this.tick % 12 === 0) this.sound.play('blip')
+        }
     }
     for (const gauge of this.gauges) {
       if (gauge.burst) continue
@@ -3131,7 +3669,7 @@ class PipePals implements ArcadeGameInstance {
         s.t++
         continue
       }
-      if (this.touchingPlayer(s.x, s.y - 8, 12, 16)) {
+      if (this.touchingAnyPal(s.x, s.y - 8, 12, 16)) {
         s.state = 'rescued'
         this.addScore(500, s.x, s.y - 20)
         this.sound.play('pickup')
@@ -3181,7 +3719,7 @@ class PipePals implements ArcadeGameInstance {
       for (const sock of this.socks) {
         this.fall(sock)
         if (sock.life !== Infinity) sock.life--
-        if (!this.touchingPlayer(sock.x, sock.y, 11, 16)) continue
+        if (!this.touchingAnyPal(sock.x, sock.y, 11, 16)) continue
         sock.life = 0
         if (this.heldSock === sock.colour) {
           this.pairs++
@@ -3268,16 +3806,17 @@ class PipePals implements ArcadeGameInstance {
   /** Steam vents puff on a beat: whoever stands in the puff is thrown upward. */
   private updateVents() {
     const vents = this.district.vents ?? []
-    const p = this.player
+    const bodies = this.bodies()
     vents.forEach((vent, i) => {
       if (!this.ventPuffing(vent, i)) return
       const inPuff = (x: number, y: number) =>
         Math.abs(x - vent.x) < 11 && y <= vent.y + 1 && y > vent.y - 40
-      if (inPuff(p.x, p.y) && p.vy >= 0) {
-        p.vy = -8.2
-        p.onGround = false
-        this.sound.play('blip')
-      }
+      for (const p of bodies)
+        if (inPuff(p.x, p.y) && p.vy >= 0) {
+          p.vy = -8.2
+          p.onGround = false
+          this.sound.play('blip')
+        }
       for (const c of this.critters)
         if (!c.kicked && c.trapped === 0 && c.onGround && inPuff(c.x, c.y)) {
           c.vy = -5.5
@@ -3287,15 +3826,16 @@ class PipePals implements ArcadeGameInstance {
     // A burst gauge vents steam on its spot until the phase ends.
     for (const gauge of this.gauges) {
       if (!gauge.burst) continue
-      if (
-        Math.abs(p.x - gauge.x) < 11 &&
-        p.y <= gauge.y + 1 &&
-        p.y > gauge.y - 40 &&
-        p.vy >= 0
-      ) {
-        p.vy = -7
-        p.onGround = false
-      }
+      for (const p of bodies)
+        if (
+          Math.abs(p.x - gauge.x) < 11 &&
+          p.y <= gauge.y + 1 &&
+          p.y > gauge.y - 40 &&
+          p.vy >= 0
+        ) {
+          p.vy = -7
+          p.onGround = false
+        }
     }
   }
 
@@ -3324,7 +3864,7 @@ class PipePals implements ArcadeGameInstance {
       flash: 0,
       spawnT: 120,
     }
-    this.invuln = 120
+    for (const pal of this.pals) pal.invuln = 120
     this.banner = {
       text: 'THE THERMOSTAT',
       sub: 'BUMP THE LEDGE ITS NEEDLE LIGHTS',
@@ -3572,7 +4112,7 @@ class PipePals implements ArcadeGameInstance {
       flash: 0,
       t: 0,
     }
-    this.invuln = 120
+    for (const pal of this.pals) pal.invuln = 120
     this.banner = {
       text: 'THE CLOG KING',
       sub: 'BUMP ITS PLATES LOOSE',
@@ -3916,7 +4456,7 @@ class PipePals implements ArcadeGameInstance {
       }
     }
     this.moveCoins()
-    this.collectCoins()
+    this.eachPal(() => this.collectCoins())
     const done = this.bonusFeed === 0 && !this.coins.length
     if (done || this.bonusRound <= 0) {
       const perfect = this.bonusGot >= this.bonusTotal
@@ -4091,13 +4631,30 @@ class PipePals implements ArcadeGameInstance {
 
   private loseLife() {
     this.alive = false
-    this.lives--
+    this.phaseFell = true
+    const p = this.player
+    // Time Trial and Versus never run out of pals: a fall costs time, or points.
+    if (this.mode === 'trial') {
+      this.trialTicks += TRIAL_FALL_TICKS
+      this.floaters.push({ x: p.x, y: p.y - 30, text: '+5 SECONDS', life: 60 })
+    } else if (this.mode === 'versus') {
+      this.pal.points = Math.max(0, this.pal.points - VERSUS_FALL)
+      this.floaters.push({
+        x: p.x,
+        y: p.y - 30,
+        text: `-${VERSUS_FALL}`,
+        life: 60,
+      })
+    } else {
+      this.lives = Math.max(0, this.lives - 1)
+    }
     this.respawn = 110
     this.tool = null
+    this.pal.stun = 0
     this.chain = 0
-    this.burst(this.player.x, this.player.y - 8, '#2dd4bf')
+    this.burst(p.x, p.y - 8, this.pal.kind === 'pink' ? '#f472b6' : '#2dd4bf')
     this.sound.play('die')
-    if (this.lives <= 0) {
+    if (this.lives <= 0 && !this.anyAlive()) {
       this.banner = { text: 'GAME OVER', ticks: 9999 }
       if (this.save) this.save = { ...this.save, continued: true }
     }
@@ -4105,7 +4662,7 @@ class PipePals implements ArcadeGameInstance {
 
   private revive() {
     Object.assign(this.player, {
-      x: W / 2,
+      x: this.palHome(this.cur),
       y: 112,
       vx: 0,
       vy: 0,
@@ -4118,6 +4675,7 @@ class PipePals implements ArcadeGameInstance {
   }
 
   private addScore(points: number, x: number, y: number) {
+    this.pal.points += points
     if (this.demo) return
     this.score += points
     this.floaters.push({ x, y, text: String(points), life: 45 })
@@ -4269,6 +4827,11 @@ class PipePals implements ArcadeGameInstance {
 
   private demoInput(): InputFrame {
     if (this.workshop) return this.workshopPilot()
+    if (this.menu || this.offer || this.result) {
+      const frame = emptyInput()
+      frame.pressed.a = this.tick % 30 === 0
+      return frame
+    }
     const held = {
       up: false,
       down: false,
@@ -4516,9 +5079,7 @@ class PipePals implements ArcadeGameInstance {
     this.renderNightProps(g)
     this.renderKindBlock(g)
     this.renderSpecial(g)
-    const visible =
-      this.alive && !(this.invuln > 0 && Math.floor(this.invuln / 6) % 2 === 0)
-    this.renderShadows(g, visible)
+    this.renderShadows(g)
     for (const coin of this.coins) this.renderCoin(g, coin)
     for (const tool of this.pickups) this.renderPickup(g, tool)
     for (const sock of this.socks)
@@ -4532,7 +5093,11 @@ class PipePals implements ArcadeGameInstance {
     if (this.king) this.renderKing(g, this.king)
     for (const j of this.jellies) this.renderJelly(g, j)
     if (this.eel) this.renderEel(g, this.eel)
-    if (visible) this.renderPlayer(g)
+    this.pals.forEach((_, i) => {
+      this.cur = i
+      if (this.palVisible()) this.renderPlayer(g)
+    })
+    this.cur = 0
     this.renderWater(g)
     for (const s of this.sparks) {
       const x = Math.round(s.x)
@@ -4556,8 +5121,12 @@ class PipePals implements ArcadeGameInstance {
     if (this.district.dark && !this.flashing()) this.renderDark(g)
     vignette(g, W, H, 0.3)
     this.renderHud(g)
-    if (this.cardTicks > 0) this.renderCard(g)
+    if (this.cardTicks > 0 && !this.menu) this.renderCard(g)
     if (this.ending) this.renderEnding(g, this.ending)
+    if (this.result) this.renderResult(g, this.result)
+    if (this.menu)
+      if (this.menu.board) this.renderMedalBoard(g)
+      else this.renderMenu(g, this.menu)
     if (this.offer) this.renderOffer(g, this.offer)
   }
 
@@ -5319,8 +5888,11 @@ class PipePals implements ArcadeGameInstance {
 
   /** The dark board: black, with light pools round the pal and every lit lamp. */
   private renderDark(g: CanvasRenderingContext2D) {
-    const p = this.player
-    const lights: Array<[number, number, number]> = [[p.x, p.y - 12, 54]]
+    const lights: Array<[number, number, number]> = this.bodies().map((p) => [
+      p.x,
+      p.y - 12,
+      54,
+    ])
     for (const lamp of this.lamps)
       if (lamp.lit) lights.push([lamp.x, lamp.y - 25, 64])
     for (const e of this.embers) if (e.tell === 0) lights.push([e.x, e.y, 22])
@@ -5577,9 +6149,20 @@ class PipePals implements ArcadeGameInstance {
     }
   }
 
-  private renderShadows(g: CanvasRenderingContext2D, playerVisible: boolean) {
-    const p = this.player
-    if (playerVisible && p.onGround) dropShadow(g, p.x, p.y, 9, 1.5, 0.4)
+  /** The current pal is in play and not mid-blink. */
+  private palVisible(): boolean {
+    return (
+      this.alive && !(this.invuln > 0 && Math.floor(this.invuln / 6) % 2 === 0)
+    )
+  }
+
+  private renderShadows(g: CanvasRenderingContext2D) {
+    this.pals.forEach((pal, i) => {
+      this.cur = i
+      const p = pal.body
+      if (this.palVisible() && p.onGround) dropShadow(g, p.x, p.y, 9, 1.5, 0.4)
+    })
+    this.cur = 0
     for (const c of this.critters) {
       if (c.onGround && !c.kicked) dropShadow(g, c.x, c.y, 10, 1.5, 0.35)
     }
@@ -5611,14 +6194,222 @@ class PipePals implements ArcadeGameInstance {
 
   private renderPlayer(g: CanvasRenderingContext2D) {
     const p = this.player
+    const set = this.pal.kind === 'pink' ? PINK_SPRITES : PLAYER_SPRITES
     const sprite = !p.onGround
-      ? PLAYER_SPRITES.jump
+      ? set.jump
       : Math.abs(p.vx) > 0.3
-        ? PLAYER_SPRITES.run[Math.floor(p.run / 1.6) % 3]!
-        : PLAYER_SPRITES.stand
+        ? set.run[Math.floor(p.run / 1.6) % 3]!
+        : set.stand
     drawSprite(g, sprite, p.x, p.y + 1, { anchor: 'feet', flipX: p.face < 0 })
     if (this.heldSock)
       this.renderSock(g, p.x - p.face * 9, p.y - PLAYER_H + 4, this.heldSock)
+    // Bonked by the other pal: dizzy stars.
+    if (this.pal.stun > 0)
+      for (let i = 0; i < 3; i++) {
+        const a = this.tick / 6 + (i * Math.PI * 2) / 3
+        const x = Math.round(p.x + Math.cos(a) * 10)
+        const y = Math.round(p.y - PLAYER_H - 4 + Math.sin(a) * 3)
+        g.fillStyle = INK
+        g.fillRect(x - 1, y - 1, 3, 3)
+        g.fillStyle = RAMPS.gold[4]
+        g.fillRect(x, y, 1, 1)
+      }
+    // Two pals: a little marker over each, so each player can find theirs.
+    if (this.pals.length > 1) {
+      const x = Math.round(p.x)
+      const y = Math.round(p.y - PLAYER_H - 10)
+      g.fillStyle = INK
+      g.fillRect(x - 3, y - 1, 7, 4)
+      g.fillStyle = this.pal.kind === 'pink' ? RAMPS.pink[3] : RAMPS.teal[3]
+      g.fillRect(x - 2, y, 5, 1)
+      g.fillRect(x - 1, y + 1, 3, 1)
+      g.fillRect(x, y + 2, 1, 1)
+    }
+  }
+
+  /** The mode menu: mode, pal (solo) and district (Time Trial, Versus); B shows the medal board. */
+  private renderMenu(
+    g: CanvasRenderingContext2D,
+    m: NonNullable<PipePals['menu']>,
+  ) {
+    g.save()
+    g.fillStyle = rgba(INK, 0.72)
+    g.fillRect(0, 0, W, H)
+    g.restore()
+    hudPanel(g, 48, 46, W - 96, 236)
+    drawText(g, 'PIPE PALS', W / 2, 58, {
+      scale: 3,
+      align: 'center',
+      color: RAMPS.teal[4],
+      outline: INK,
+    })
+    drawText(
+      g,
+      this.seats > 1 ? 'TWO PALS: TEAL AND PINK' : 'ONE PAL',
+      W / 2,
+      86,
+      { align: 'center', color: RAMPS.pink[3], outline: INK },
+    )
+    const modes = this.modes()
+    const mode = modes[m.mode]!
+    const rows = this.menuRows()
+    const value = (row: 'mode' | 'pal' | 'district') => {
+      if (row === 'mode') return mode.name
+      if (row === 'pal') return m.pal ? 'PINK PAL' : 'TEAL PAL'
+      const d = DISTRICTS[Math.min(m.district, this.openDistricts() - 1)]!
+      return `${d.number}. ${d.name}`
+    }
+    const about = (row: 'mode' | 'pal' | 'district') => {
+      if (row === 'mode') return mode.about
+      if (row === 'pal')
+        return m.pal ? 'JUMPS HIGHER AND FLOATS' : 'BUMPS REACH FURTHER'
+      const d = DISTRICTS[Math.min(m.district, this.openDistricts() - 1)]!
+      const best = this.times[d.id]
+      return mode.id === 'trial' && best
+        ? `BEST TIME ${clock(best)}`
+        : `${this.openDistricts()} OF ${DISTRICTS.length} OPEN`
+    }
+    rows.forEach((row, i) => {
+      const y = 106 + i * 46
+      const on = i === m.row
+      if (on) glow(g, W / 2, y + 12, 90, RAMPS.gold[4], 0.18)
+      drawText(
+        g,
+        row === 'mode' ? 'MODE' : row === 'pal' ? 'PAL' : 'DISTRICT',
+        76,
+        y,
+        {
+          color: RAMPS.steel[3],
+          outline: INK,
+        },
+      )
+      drawText(
+        g,
+        `${on ? '< ' : ''}${value(row)}${on ? ' >' : ''}`,
+        W / 2,
+        y + 12,
+        {
+          scale: on ? 2 : 1,
+          align: 'center',
+          color: on ? RAMPS.gold[3] : '#ffffff',
+          outline: INK,
+        },
+      )
+      drawText(g, about(row), W / 2, y + 31, {
+        align: 'center',
+        color: RAMPS.teal[3],
+        outline: INK,
+      })
+    })
+    if (this.seats === 1)
+      drawSprite(
+        g,
+        m.pal ? PINK_SPRITES.stand : PLAYER_SPRITES.stand,
+        W - 82,
+        150,
+        { anchor: 'feet' },
+      )
+    drawText(
+      g,
+      `MEDALS ${this.medalCount()}/${MEDALS_TOTAL}   B: MEDAL BOARD`,
+      W / 2,
+      244,
+      { align: 'center', color: RAMPS.gold[4], outline: INK },
+    )
+    drawText(g, 'A TO START', W / 2, 262, {
+      align: 'center',
+      color: Math.floor(this.tick / 20) % 2 ? '#ffffff' : RAMPS.steel[3],
+      outline: INK,
+    })
+  }
+
+  /** Every phase's three medals: Clean Sweep, Chain Master, Swift Fix. */
+  private renderMedalBoard(g: CanvasRenderingContext2D) {
+    g.save()
+    g.fillStyle = rgba(INK, 0.85)
+    g.fillRect(0, 0, W, H)
+    g.restore()
+    hudPanel(g, 20, 8, W - 40, H - 16)
+    drawText(g, 'MEDAL BOARD', W / 2, 16, {
+      scale: 2,
+      align: 'center',
+      color: RAMPS.gold[3],
+      outline: INK,
+    })
+    const colours = [RAMPS.teal, RAMPS.gold, RAMPS.pink] as const
+    MEDALS.forEach((medal, i) => {
+      const x = 44 + i * 132
+      shadedOrb(g, x, 44, 4, colours[i]!)
+      drawText(g, `${medal.name} ${this.medalCount(medal.bit)}`, x + 8, 40, {
+        color: '#ffffff',
+        outline: INK,
+      })
+    })
+    for (let ph = 1; ph <= PHASES_PER_DISTRICT; ph++)
+      drawText(g, `${ph}`, 210 + (ph - 1) * 42, 58, {
+        align: 'center',
+        color: RAMPS.steel[3],
+        outline: INK,
+      })
+    MEDAL_DISTRICTS.forEach((d, row) => {
+      const y = 72 + row * 26
+      const secret = d.id === 'golden' && !this.goldenSeen()
+      drawText(g, secret ? '???' : shortName(d.name), 32, y, {
+        color: row < this.reached || !secret ? RAMPS.teal[3] : RAMPS.night[4],
+        outline: INK,
+      })
+      for (let ph = 1; ph <= PHASES_PER_DISTRICT; ph++) {
+        const got = this.medals[`${d.id}:${ph}`] ?? 0
+        MEDALS.forEach((medal, i) => {
+          const x = 198 + (ph - 1) * 42 + i * 12
+          if (got & medal.bit) shadedOrb(g, x, y + 4, 4, colours[i]!)
+          else {
+            g.fillStyle = RAMPS.night[2]
+            g.fillRect(x - 2, y + 2, 5, 5)
+          }
+        })
+      }
+    })
+    drawText(g, 'A OR B: BACK', W / 2, H - 22, {
+      align: 'center',
+      color: RAMPS.steel[3],
+      outline: INK,
+    })
+  }
+
+  private goldenSeen(): boolean {
+    return Object.keys(this.medals).some((k) => k.startsWith('golden:'))
+  }
+
+  /** The Time Trial or Versus result. */
+  private renderResult(
+    g: CanvasRenderingContext2D,
+    r: { t: number; title: string; lines: string[] },
+  ) {
+    g.save()
+    g.fillStyle = rgba(INK, Math.min(0.8, r.t / 30))
+    g.fillRect(0, 0, W, H)
+    g.restore()
+    hudPanel(g, 64, 100, W - 128, 130)
+    drawText(g, this.mode === 'trial' ? 'TIME TRIAL' : 'VERSUS', W / 2, 112, {
+      scale: 2,
+      align: 'center',
+      color: RAMPS.gold[3],
+      outline: INK,
+    })
+    drawText(g, r.title, W / 2, 140, {
+      align: 'center',
+      color: RAMPS.teal[3],
+      outline: INK,
+    })
+    r.lines.forEach((line, i) =>
+      drawText(g, line, W / 2, 160 + i * 22, {
+        scale: i === 0 ? 2 : 1,
+        align: 'center',
+        color: i === 0 ? '#ffffff' : RAMPS.pink[3],
+        outline: INK,
+      }),
+    )
   }
 
   /** The district title card. */
@@ -5704,6 +6495,13 @@ class PipePals implements ArcadeGameInstance {
       const got = i < DISTRICTS.length && this.valves.includes(DISTRICTS[i]!.id)
       shadedOrb(g, W - 104 + i * 9, 74, 3, got ? RAMPS.gold : RAMPS.night)
     }
+    drawText(
+      g,
+      `MEDALS  ${MEDALS.map((m) => `${m.name} ${this.medalCount(m.bit)}`).join('  ')}`,
+      W / 2,
+      88,
+      { align: 'center', color: RAMPS.pink[3], outline: INK },
+    )
     SHOP_ITEMS.forEach((entry, i) => {
       const y = 100 + i * 34
       const selected = i === w.cursor
@@ -5884,8 +6682,11 @@ class PipePals implements ArcadeGameInstance {
       color: RAMPS.gold[3],
       shadow: INK,
     })
-    // Spare pals, teal and pink in turn.
-    const lives = Math.min(this.lives, 5)
+    // Spare pals, teal and pink in turn (Time Trial and Versus never run out).
+    const lives =
+      this.mode === 'trial' || this.mode === 'versus'
+        ? 0
+        : Math.min(this.lives, 5)
     if (lives > 0) {
       hudPanel(g, W - 8 - lives * 16, 3, lives * 16 + 4, 20)
       for (let i = 0; i < lives; i++) {
@@ -5942,18 +6743,45 @@ class PipePals implements ArcadeGameInstance {
       hudPanel(g, W - 112, H - 16, 86, 13)
       gauge(g, W - 106, H - 12, 74, 5, this.bonusRound / BONUS_FULL, RAMPS.gold)
     }
-    // The tool in hand, its time left, and the wand's bubbles.
-    const tool = this.tool
-    if (tool && this.bonusRound === 0) {
-      hudPanel(g, W - 130, H - 18, 104, 15)
-      drawSprite(g, TOOL_SPRITES[tool.kind], W - 120, H - 10)
+    // The tool in each pal's hand, its time left, and the wand's bubbles (pal 2's sits up top).
+    this.pals.forEach((pal, i) => {
+      const tool = pal.tool
+      if (!tool || this.bonusRound > 0) return
+      const y = i === 0 ? H - 18 : 42
+      hudPanel(g, W - 130, y, 104, 15)
+      drawSprite(g, TOOL_SPRITES[tool.kind], W - 120, y + 8)
       const full = tool.kind === 'wand' ? TOOL_TICKS * 2 : TOOL_TICKS
-      gauge(g, W - 108, H - 13, 52, 5, tool.ticks / full, RAMPS.teal)
+      gauge(
+        g,
+        W - 108,
+        y + 5,
+        52,
+        5,
+        tool.ticks / full,
+        pal.kind === 'pink' ? RAMPS.pink : RAMPS.teal,
+      )
       if (tool.kind === 'wand')
-        drawText(g, `B x${tool.charges}`, W - 52, H - 14, {
+        drawText(g, `B x${tool.charges}`, W - 52, y + 4, {
           color: RAMPS.water[3],
           outline: INK,
         })
+    })
+    if (this.mode === 'versus') {
+      const [a, b] = this.pals as [Pal, Pal]
+      hudPanel(g, 4, 40, 120, 24)
+      drawText(g, `TEAL ${a.points}`, 10, 43, {
+        color: RAMPS.teal[4],
+        outline: INK,
+      })
+      drawText(g, `PINK ${b.points}`, 10, 53, {
+        color: RAMPS.pink[3],
+        outline: INK,
+      })
+    }
+    if (this.mode === 'trial') {
+      const text = clock(this.trialTicks)
+      hudPanel(g, 4, 40, measureText(text, 2) + 14, 20)
+      drawText(g, text, 10, 43, { scale: 2, color: '#ffffff', shadow: INK })
     }
     if (this.chain > 1 && this.chainTimer > 0) {
       drawText(g, `CHAIN ${this.chain}`, W / 2, 28, {

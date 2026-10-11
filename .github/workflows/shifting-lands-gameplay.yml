@@ -9,6 +9,7 @@ on:
       - 'stores/shiftingLandsStore.ts'
       - 'stores/shiftingLandsJourneyStore.ts'
       - 'components/shifting-lands-journey-board.vue'
+      - 'components/shifting-lands-character-rail.vue'
       - 'components/navigation/flip-card.vue'
       - 'public/images/shifting-lands/**'
       - 'pages/admin/zuzu-shifting-lands.vue'
@@ -21,6 +22,7 @@ on:
       - 'utils/scripts/verifyShiftingSaveLedger.test.ts'
       - 'utils/scripts/verifyShiftingV4.test.ts'
       - 'utils/scripts/verifyShiftingTrials.test.ts'
+      - 'utils/scripts/verifyShiftingCharacterRail.test.ts'
       - 'utils/scripts/importShiftingLandsWorld.mjs'
       - '.github/workflows/shifting-lands-gameplay.yml'
   push:
@@ -30,6 +32,7 @@ on:
       - 'stores/shiftingLandsStore.ts'
       - 'stores/shiftingLandsJourneyStore.ts'
       - 'components/shifting-lands-journey-board.vue'
+      - 'components/shifting-lands-character-rail.vue'
       - 'components/navigation/flip-card.vue'
       - 'public/images/shifting-lands/**'
       - 'pages/admin/zuzu-shifting-lands.vue'
@@ -42,6 +45,7 @@ on:
       - 'utils/scripts/verifyShiftingSaveLedger.test.ts'
       - 'utils/scripts/verifyShiftingV4.test.ts'
       - 'utils/scripts/verifyShiftingTrials.test.ts'
+      - 'utils/scripts/verifyShiftingCharacterRail.test.ts'
       - 'utils/scripts/importShiftingLandsWorld.mjs'
       - '.github/workflows/shifting-lands-gameplay.yml'
 jobs:
@@ -65,3 +69,4 @@ jobs:
       - run: npx tsx utils/scripts/verifyShiftingSaveLedger.test.ts
       - run: npx tsx utils/scripts/verifyShiftingV4.test.ts
       - run: npx tsx utils/scripts/verifyShiftingTrials.test.ts
+      - run: npx tsx utils/scripts/verifyShiftingCharacterRail.test.ts

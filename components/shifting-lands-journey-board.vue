@@ -1,6 +1,7 @@
 <template>
   <div
     class="kr-scroll journey-shell mx-auto w-full max-w-[1650px] space-y-5 px-3 py-5 sm:px-6"
+    :class="{ 'journey-reduced-motion': reducedMotion }"
   >
     <header class="flex flex-wrap items-end justify-between gap-3">
       <div>
@@ -349,7 +350,7 @@
                 <NavigationFlipCard
                   :trigger-key="dealKey"
                   :reveal-on-trigger="true"
-                  :duration-ms="650"
+                  :duration-ms="reducedMotion ? 0 : 650"
                   radius="0"
                 >
                   <template #front>
@@ -477,7 +478,7 @@
                     <button
                       type="button"
                       class="btn btn-primary min-h-12"
-                      @click="game.resolve('test')"
+                      @click="resolveWithCue('test')"
                     >
                       <Icon name="kind-icon:dice" class="size-5" /> Roll the
                       check
@@ -485,7 +486,7 @@
                     <button
                       type="button"
                       class="btn btn-outline min-h-12"
-                      @click="game.resolve('withdraw')"
+                      @click="resolveWithCue('withdraw')"
                     >
                       Withdraw
                     </button>
@@ -543,7 +544,7 @@
                       type="button"
                       class="block w-full rounded-xl border border-base-content/20 bg-base-300 p-4 text-left transition-colors hover:border-warning focus-visible:outline focus-visible:outline-4 focus-visible:outline-primary disabled:cursor-not-allowed disabled:opacity-55"
                       :disabled="!game.canTrial(choice.id)"
-                      @click="game.attemptTrial(choice.id)"
+                      @click="attemptTrialWithCue(choice.id)"
                     >
                       <span class="block font-bold">{{ choice.label }}</span>
                       <span class="mt-1 block text-sm opacity-80">{{
@@ -600,7 +601,7 @@
                   <button
                     type="button"
                     class="btn btn-primary min-h-12"
-                    @click="game.confront('challenge')"
+                    @click="confrontWithCue('challenge')"
                   >
                     Challenge · Steel +3 · target {{ 9 + game.state.landIndex }}
                   </button>
@@ -608,7 +609,7 @@
                     type="button"
                     class="btn btn-outline min-h-12"
                     :disabled="game.state.provisions < 1"
-                    @click="game.confront('parley')"
+                    @click="confrontWithCue('parley')"
                   >
                     Parley · Bearing +2 · 1 provision
                   </button>
@@ -859,37 +860,40 @@
         </div>
 
         <aside class="space-y-4">
+          <ShiftingLandsCharacterRail
+            :sheet="game.characterSheet"
+            :seed="game.state.seed"
+            :phase="game.state.phase"
+            @use-reward="useEarnedReward"
+          />
           <section
-            class="overflow-hidden rounded-2xl border border-base-content/15 bg-base-200"
+            class="rounded-2xl border border-base-content/15 bg-base-200 p-4"
+            aria-label="Animation and dice sound settings"
           >
-            <img
-              src="/zuzu-gamebook/scenes/zuzu-alone.webp"
-              alt="Zuzu, the grey koala ronin"
-              class="aspect-[16/9] w-full object-cover"
-            />
-            <div class="space-y-3 p-4">
-              <h3 class="font-serif text-xl font-black">Zuzu · The Ronin</h3>
-              <div class="flex justify-between text-sm">
-                <span>Health</span><strong>{{ game.state.hp }} / 8</strong>
-              </div>
-              <progress
-                class="progress progress-error w-full"
-                :value="game.state.hp"
-                max="8"
-                :aria-label="'Health ' + game.state.hp + ' out of eight'"
-              />
-              <div class="flex justify-between text-sm">
-                <span>Provisions</span
-                ><strong>{{ game.state.provisions }}</strong>
-              </div>
-              <div class="flex justify-between text-sm">
-                <span>Encounters</span
-                ><strong>{{ game.state.resolved.length }} / 15</strong>
-              </div>
-              <div class="flex justify-between text-sm">
-                <span>Seed</span
-                ><code class="text-xs">{{ game.state.seed }}</code>
-              </div>
+            <h3 class="font-serif text-lg font-black">Presentation</h3>
+            <p class="mt-1 text-xs opacity-65">
+              Display preferences only. These never change dice, actions, or
+              saved results.
+            </p>
+            <div class="mt-3 flex flex-wrap gap-2">
+              <button
+                type="button"
+                class="btn btn-sm"
+                :class="reducedMotion ? 'btn-outline' : 'btn-primary'"
+                :aria-pressed="!reducedMotion"
+                @click="setReducedMotion(!reducedMotion)"
+              >
+                {{ reducedMotion ? 'Reduced motion' : 'Card motion on' }}
+              </button>
+              <button
+                type="button"
+                class="btn btn-sm"
+                :class="soundEnabled ? 'btn-primary' : 'btn-outline'"
+                :aria-pressed="soundEnabled"
+                @click="setSoundEnabled(!soundEnabled)"
+              >
+                {{ soundEnabled ? 'Dice sound on' : 'Dice sound muted' }}
+              </button>
             </div>
           </section>
           <section
@@ -902,7 +906,11 @@
             >
               Last dice roll
             </p>
-            <p class="mt-2 font-serif text-3xl font-black">
+            <p
+              :key="rollEffectKey"
+              class="mt-2 font-serif text-3xl font-black"
+              :class="reducedMotion ? '' : 'journey-dice-reveal'"
+            >
               {{ game.state.lastRoll.dice.join(' + ') }}
             </p>
             <p class="text-sm opacity-80">
@@ -928,13 +936,32 @@
             <p class="text-xs opacity-65">
               Your past roads stay written, even when the landscape shifts.
             </p>
+            <div
+              class="mt-3 flex flex-wrap gap-1"
+              role="group"
+              aria-label="Journal filters"
+            >
+              <button
+                v-for="filter in journalFilters"
+                :key="filter.value"
+                type="button"
+                class="btn btn-xs"
+                :class="
+                  journalFilter === filter.value ? 'btn-primary' : 'btn-ghost'
+                "
+                :aria-pressed="journalFilter === filter.value"
+                @click="journalFilter = filter.value"
+              >
+                {{ filter.label }}
+              </button>
+            </div>
             <ol
               class="mt-4 max-h-80 space-y-3 overflow-y-auto pr-1 text-sm"
               aria-label="Chronological journey events"
             >
               <li
-                v-for="(item, index) in [...game.state.journal].reverse()"
-                :key="game.state.journal.length - index"
+                v-for="(item, index) in visibleJournal"
+                :key="item.turn + '-' + index + '-' + item.kind"
                 class="border-l-2 border-primary/50 pl-3"
               >
                 <span
@@ -944,12 +971,14 @@
                 <p class="mt-1">{{ item.text }}</p>
               </li>
             </ol>
+            <p v-if="!visibleJournal.length" class="mt-3 text-xs opacity-65">
+              Nothing recorded in this category yet.
+            </p>
           </section>
           <p class="text-xs opacity-65">
-            Private rules preview. Land-specific art for later chapters,
-            companions, richer encounter decks, and public release remain
-            separate milestones. No generated lore can change the recorded
-            rules.
+            Private rules preview. Character contacts are not recruited
+            traveling companions. Custom art, live companion mechanics, and
+            public release remain separate milestones.
           </p>
         </aside>
       </div>
@@ -1040,6 +1069,15 @@
 import { computed, nextTick, onMounted, ref } from 'vue'
 import { useShiftingLandsJourneyStore } from '~/stores/shiftingLandsJourneyStore'
 import { findFiveLandCard } from '~/utils/shiftingLands/authoredFiveLands'
+import type {
+  BossApproach,
+  EncounterApproach,
+} from '~/utils/shiftingLands/journey'
+import ShiftingLandsCharacterRail from '~/components/shifting-lands-character-rail.vue'
+import {
+  readShiftingLandsPresentation,
+  writeShiftingLandsPresentation,
+} from '~/utils/shiftingLands/presentationPreferences'
 
 const emit = defineEmits<{ legacy: [] }>()
 const game = useShiftingLandsJourneyStore()
@@ -1069,6 +1107,25 @@ const outcomeHeading = ref<HTMLElement | null>(null)
 const inspectorOpen = ref(false)
 const inspectId = ref<string | null>(null)
 const confirmNew = ref(false)
+const reducedMotion = ref(true)
+const soundEnabled = ref(false)
+const rollEffectKey = ref(0)
+type JournalFilter = 'all' | 'encounter' | 'boss' | 'shift'
+const journalFilter = ref<JournalFilter>('all')
+const journalFilters: Array<{ value: JournalFilter; label: string }> = [
+  { value: 'all', label: 'All' },
+  { value: 'encounter', label: 'Encounters' },
+  { value: 'boss', label: 'Trials' },
+  { value: 'shift', label: 'Shifts' },
+]
+const visibleJournal = computed(() =>
+  [...game.state.journal]
+    .filter(
+      (item) =>
+        journalFilter.value === 'all' || item.kind === journalFilter.value,
+    )
+    .reverse(),
+)
 
 const canDraw = computed(
   () =>
@@ -1148,8 +1205,60 @@ async function drawCard() {
 }
 async function chooseEncounter(id: string) {
   if (!game.choose(id)) return
+  cueDiceResult()
   await nextTick()
   outcomeHeading.value?.focus()
+}
+function attemptTrialWithCue(id: string) {
+  if (game.attemptTrial(id)) cueDiceResult()
+}
+function resolveWithCue(approach: EncounterApproach) {
+  if (game.resolve(approach) && approach === 'test') cueDiceResult()
+}
+function confrontWithCue(approach: BossApproach) {
+  if (game.confront(approach) && approach !== 'retreat') cueDiceResult()
+}
+function useEarnedReward(id: string) {
+  game.useReward(id)
+}
+function persistPresentation() {
+  writeShiftingLandsPresentation({
+    reducedMotion: reducedMotion.value,
+    soundEnabled: soundEnabled.value,
+  })
+}
+function setReducedMotion(value: boolean) {
+  reducedMotion.value = value
+  persistPresentation()
+}
+function setSoundEnabled(value: boolean) {
+  soundEnabled.value = value
+  persistPresentation()
+}
+function cueDiceResult() {
+  rollEffectKey.value++
+  if (!soundEnabled.value || !import.meta.client) return
+  // User-initiated, low-volume dice cue. No automatic background playback.
+  try {
+    const audio = new AudioContext()
+    const oscillator = audio.createOscillator()
+    const volume = audio.createGain()
+    oscillator.type = 'triangle'
+    oscillator.frequency.setValueAtTime(325, audio.currentTime)
+    oscillator.frequency.exponentialRampToValueAtTime(
+      210,
+      audio.currentTime + 0.12,
+    )
+    volume.gain.setValueAtTime(0.025, audio.currentTime)
+    volume.gain.exponentialRampToValueAtTime(0.001, audio.currentTime + 0.14)
+    oscillator.connect(volume)
+    volume.connect(audio.destination)
+    oscillator.onended = () => void audio.close()
+    oscillator.start()
+    oscillator.stop(audio.currentTime + 0.15)
+  } catch {
+    // Audio support is optional, not a gameplay dependency.
+  }
 }
 function inspectLastDiscard() {
   const mostRecent = game.resolved[game.resolved.length - 1]
@@ -1161,10 +1270,38 @@ function startOver() {
   inspectorOpen.value = false
   dealKey.value = 0
 }
-onMounted(() => game.initialize())
+onMounted(() => {
+  game.initialize()
+  const settings = readShiftingLandsPresentation()
+  reducedMotion.value = settings.reducedMotion
+  soundEnabled.value = settings.soundEnabled
+})
 </script>
 
 <style scoped>
+@keyframes shifting-dice-settle {
+  from {
+    transform: translateY(-9px) rotate(-3deg);
+    opacity: 0.55;
+  }
+  to {
+    transform: translateY(0) rotate(0);
+    opacity: 1;
+  }
+}
+.journey-dice-reveal {
+  animation: shifting-dice-settle 260ms ease-out;
+}
+.journey-reduced-motion :deep(*) {
+  animation-duration: 0.01ms !important;
+  transition-duration: 0.01ms !important;
+  scroll-behavior: auto !important;
+}
+@media (prefers-reduced-motion: reduce) {
+  .journey-dice-reveal {
+    animation: none;
+  }
+}
 .journey-shell {
   container-type: inline-size;
 }

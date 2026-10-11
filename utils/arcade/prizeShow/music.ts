@@ -13,6 +13,7 @@
 //   Boss              a minor-key drive for the big set pieces.
 //   Finale            the host's own act: the boss theme, brighter and faster.
 //   Ending            the studio theme, slow and warm, under the credits.
+//   Jingle            the commercial breaks' bouncy sponsor tune.
 
 import type { MusicLoop } from '../sound'
 import { CONCERT_BEAT } from './season'
@@ -299,6 +300,42 @@ const ENDING: MusicLoop = {
   ],
 }
 
+/** The commercial breaks' jingle: a bright, bouncy sponsor tune. */
+const JINGLE: MusicLoop = {
+  bpm: 140,
+  tracks: [
+    {
+      type: 'triangle',
+      vol: 0.07,
+      steps: bars(
+        oompah('C3', 'G3'),
+        oompah('F2', 'C3'),
+        oompah('G2', 'D3'),
+        oompah('C3', 'G3'),
+        oompah('C3', 'G3'),
+        oompah('A2', 'E3'),
+        oompah('D3', 'A3'),
+        oompah('G2', 'D3'),
+      ),
+    },
+    {
+      type: 'square',
+      vol: 0.024,
+      steps: bars(
+        'C6 . G5 . E5 . G5 .',
+        'A5 - - . F5 . A5 .',
+        'B5 . G5 . D6 - B5 .',
+        'C6 - - - . . . .',
+        'E6 . C6 . G5 . C6 .',
+        'A5 . C6 . E6 - C6 .',
+        'D6 . B5 . A5 . F#5 .',
+        'G5 - - - . . . .',
+      ),
+    },
+    { noise: true, vol: 0.02, steps: eight('x . x . x . x x') },
+  ],
+}
+
 /** Each set's loop. */
 export const SET_MUSIC: Record<SetId, MusicLoop> = {
   studio: STUDIO,
@@ -310,6 +347,7 @@ export const SET_MUSIC: Record<SetId, MusicLoop> = {
 export const BOSS_MUSIC = BOSS
 export const FINALE_MUSIC = FINALE
 export const ENDING_MUSIC = ENDING
+export const JINGLE_MUSIC = JINGLE
 
 export const ALL_MUSIC: readonly MusicLoop[] = [
   STUDIO,
@@ -319,4 +357,5 @@ export const ALL_MUSIC: readonly MusicLoop[] = [
   BOSS,
   FINALE,
   ENDING,
+  JINGLE,
 ]

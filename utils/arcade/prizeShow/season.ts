@@ -295,6 +295,8 @@ export type RoomScript = {
   set?: SetId
   /** Low gravity: Sparkle drifts on her momentum. */
   lowGravity?: boolean
+  /** Not a room at all: a commercial break's mini-game (prizeShow/commercials.ts). */
+  commercial?: boolean
 }
 
 /** The concert's tempo: 120 beats a minute, a beat every 30 ticks (its music loop matches). */
@@ -2521,20 +2523,14 @@ const LIVE_CONCERT: RoomScript = {
 const COMMERCIAL_BREAK: RoomScript = {
   type: 'vault',
   title: 'COMMERCIALS!',
-  tagline: "WE'LL BE RIGHT BACK. GRAB IT!",
+  tagline: "WE'LL BE RIGHT BACK. PLAY ALONG!",
   seconds: 15,
   danger: 1,
   reward: 'car',
   closes: true,
   set: 'studio',
+  commercial: true,
   waves: [],
-  props: [
-    { kind: 'pedestal', x: 92, y: 60, prize: 'car' },
-    { kind: 'pedestal', x: 228, y: 60, prize: 'toaster' },
-    { kind: 'pedestal', x: 92, y: 196, prize: 'shield' },
-    { kind: 'pedestal', x: 228, y: 196, prize: 'toaster' },
-    { kind: 'pedestal', x: 160, y: 128, prize: 'cash' },
-  ],
 }
 
 const LIVE_GALAXY: RoomScript = {

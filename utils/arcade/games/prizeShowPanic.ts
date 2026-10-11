@@ -38,6 +38,15 @@
 // audience); either ending rolls the credits (prizeShow/credits.ts) and the season reruns, harder.
 // The show is saved at each episode start (`save`) and offered back on the opening card.
 //
+// Depth slice 6 (t-033) adds four contestants (prizeShow/contestants.ts: Sparkle, Zippy, Boomer and
+// Glimmer, each with her own colours and feel), picked on a card at the start, and co-op for up to
+// four through the cabinet's `players` frames: each seat plays a contestant (the state below that
+// reads as Sparkle's is the current contestant's), the crowd goes after whoever is nearest, a hit
+// knocks one down for a moment from a shared pool of lives, and a bigger team meets more crashers
+// and tougher bosses and shares its points. Twin-stick stays solo: co-op seats aim the way they
+// move, or lock it with B. Between episodes, and halfway through the Live Finale, a commercial break
+// (prizeShow/commercials.ts) plays one of four mini-games for prizes.
+//
 // The arrows move (eight ways) and A fires confetti the way Sparkle faces.
 // Hold B to lock the aim while moving, the single-stick stand-in for the
 // classic's twin sticks: strafe one way, spray another. With a second stick
@@ -67,6 +76,7 @@ import {
   vignette,
 } from '../snes'
 import type { PixelSprite, Ramp } from '../snes'
+import { emptyInput } from '../types'
 import type {
   ArcadeGameInstance,
   ArcadeGameModule,
@@ -169,6 +179,7 @@ import {
   BOSS_MUSIC,
   ENDING_MUSIC,
   FINALE_MUSIC,
+  JINGLE_MUSIC,
   SET_MUSIC,
 } from '../prizeShow/music'
 import {
@@ -178,6 +189,21 @@ import {
   creditLines,
 } from '../prizeShow/credits'
 import type { EndingKind } from '../prizeShow/credits'
+import {
+  CONTESTANTS,
+  CONTESTANT_IDS,
+  SEAT_COLOURS,
+} from '../prizeShow/contestants'
+import type { ContestantId } from '../prizeShow/contestants'
+import {
+  BREAK_ORDER,
+  breakDone,
+  breakPilot,
+  newBreak,
+  renderBreak,
+  updateBreak,
+} from '../prizeShow/commercials'
+import type { BreakState } from '../prizeShow/commercials'
 import { renderSeasonMap } from '../prizeShow/mapScreen'
 import type { MapOption } from '../prizeShow/mapScreen'
 import {
@@ -312,6 +338,69 @@ export const PANIC_CURVES = {
 } as const
 
 type Dir = { x: number; y: number }
+
+/** One contestant on the floor: who she is, and everything about her that is hers alone. */
+type Contestant = {
+  seat: number
+  who: ContestantId
+  px: number
+  py: number
+  /** Momentum, used when the floor is slippery (Foam Party, cream, low gravity) or a peel slides her. */
+  vx: number
+  vy: number
+  slip: number
+  aim: Dir
+  /** A second stick is aiming this tick (twin-stick): she sprays where it points. */
+  aiming: boolean
+  /** Whether the stick aimed last tick (the map reads a flick of it as a d-pad press). */
+  aimedBefore: boolean
+  fireCooldown: number
+  popperClock: number
+  /** Ticks a boom mic still holds her up in the air. */
+  lifted: number
+  /** Her recent footsteps, newest last (a mirror clone replays them a beat late). */
+  trail: Point[]
+  invuln: number
+  /** Walk-cycle bookkeeping (cosmetic). */
+  stride: number
+  striding: boolean
+  /** Ticks left on each power-up: several run at once, and pickups stack up to a cap. */
+  powers: Record<PowerKind, number>
+  /** In co-op: ticks until she is back on set after a hit (0 in play, -1 out of the show). */
+  down: number
+  /** Glimmer's own shield: up, or ticks until it recharges. */
+  guard: boolean
+  guardClock: number
+}
+
+function newContestant(seat: number, who: ContestantId): Contestant {
+  return {
+    seat,
+    who,
+    px: CX,
+    py: CY + 30,
+    vx: 0,
+    vy: 0,
+    slip: 0,
+    aim: { x: 0, y: -1 },
+    aiming: false,
+    aimedBefore: false,
+    fireCooldown: 0,
+    popperClock: 0,
+    lifted: 0,
+    trail: [],
+    invuln: INVULN_TICKS,
+    stride: 0,
+    striding: false,
+    powers: Object.fromEntries(POWER_KINDS.map((kind) => [kind, 0])) as Record<
+      PowerKind,
+      number
+    >,
+    down: 0,
+    guard: CONTESTANTS[who].recharge > 0,
+    guardClock: 0,
+  }
+}
 type Kind = CrasherKind
 type Dancer = { x: number; y: number; vx: number; life: number; color: string }
 type Shot = {
@@ -733,17 +822,53 @@ const SIDE_LEGS = [
   ['.....SS.....', '....ttt.....'],
 ] as const
 type View = 'front' | 'back' | 'side'
-const HERO_SPRITES: Record<View, readonly PixelSprite[]> = {
-  front: FRONT_LEGS.map((legs) =>
-    pixelSprite([...HERO_FRONT, ...legs], HERO_PALETTE),
-  ),
-  back: FRONT_LEGS.map((legs) =>
-    pixelSprite([...HERO_BACK, ...legs], HERO_PALETTE),
-  ),
-  side: SIDE_LEGS.map((legs) =>
-    pixelSprite([...HERO_SIDE, ...legs], HERO_PALETTE),
-  ),
+function heroSprites(
+  palette: Record<string, string>,
+): Record<View, readonly PixelSprite[]> {
+  return {
+    front: FRONT_LEGS.map((legs) =>
+      pixelSprite([...HERO_FRONT, ...legs], palette),
+    ),
+    back: FRONT_LEGS.map((legs) =>
+      pixelSprite([...HERO_BACK, ...legs], palette),
+    ),
+    side: SIDE_LEGS.map((legs) =>
+      pixelSprite([...HERO_SIDE, ...legs], palette),
+    ),
+  }
 }
+/** Each contestant is Sparkle's frame in her own colours (prizeShow/contestants.ts). */
+const CONTESTANT_SPRITES = Object.fromEntries(
+  CONTESTANT_IDS.map((id) => {
+    const kit = CONTESTANTS[id]
+    return [
+      id,
+      heroSprites({
+        ...HERO_PALETTE,
+        h: kit.body[0],
+        H: kit.body[1],
+        G: kit.body[2],
+        g: kit.body[3],
+        d: kit.body[4],
+        p: kit.antenna[0],
+        P: kit.antenna[1],
+        q: kit.antenna[2],
+        c: kit.light,
+      }),
+    ]
+  }),
+) as Record<ContestantId, Record<View, readonly PixelSprite[]>>
+/** Co-op: each extra contestant brings this share more crashers a wave, and more boss health. */
+const COOP_CROWD = 0.4
+const COOP_BOSS = 0.6
+/** ...and the points are shared: each extra contestant divides them by this much more. */
+const COOP_SHARE = 0.5
+/** The registry's maxPlausibleScore (under the leaderboard's Int column): no score goes past it. */
+const SCORE_CEILING = 250_000_000
+/** The season airs this many times (the first run and three reruns), then the series ends. */
+const SERIES_LOOPS = 4
+/** How long the pick card waits before the seats left choosing are given their cursor's pick. */
+const PICK_AUTO = 60 * 15
 // The mirror clone: Sparkle in glitchy purple and teal. The cutout: Sparkle printed on cardboard.
 const CLONE_PALETTE = {
   ...HERO_PALETTE,
@@ -1530,30 +1655,16 @@ class PrizeShowPanic implements ArcadeGameInstance {
   private hiScore: number
 
   private tick = 0
-  private px = CX
-  private py = CY + 30
-  /** Sparkle's momentum, used when the floor is slippery (Foam Party) or a peel sends her sliding. */
-  private vx = 0
-  private vy = 0
-  private slip = 0
-  private aim: Dir = { x: 0, y: -1 }
-  /** A second stick is aiming this tick (twin-stick): Sparkle sprays where it points. */
-  private aiming = false
-  /** Whether the stick aimed last tick (the map reads a flick of it as a d-pad press). */
-  private aimedBefore = false
-  private fireCooldown = 0
-  /** Ticks left on each power-up: several run at once, and pickups stack up to a cap. */
-  powers = Object.fromEntries(POWER_KINDS.map((kind) => [kind, 0])) as Record<
-    PowerKind,
-    number
-  >
-  private popperClock = 0
+  /**
+   * Everyone seated (one contestant each, up to four), and whose turn it is: while the game works
+   * through a contestant, `px`, `aim`, `powers` and the rest below are hers.
+   */
+  private team: Contestant[] = [newContestant(0, 'sparkle')]
+  private cur: Contestant = this.team[0]!
+  /** The contestant pick card at the start of a show (a seat's cursor and whether she is set). */
+  picking: { cursor: number[]; locked: boolean[]; ticks: number } | null = null
   private glitter: Glitter[] = []
   private decoy: Decoy | null = null
-  /** Ticks a boom mic still holds Sparkle up in the air. */
-  private lifted = 0
-  /** Sparkle's recent footsteps, newest last (the mirror clone replays them a beat late). */
-  private trail: Point[] = []
 
   // The broadcast (t-028): ratings, cheer chains, the host's cut-ins, the haul and the swap.
   ratings: number = RATINGS.start
@@ -1594,7 +1705,6 @@ class PrizeShowPanic implements ArcadeGameInstance {
   private overTicks = 0
   /** The host's own dice: which line, and whether LENS chimes in (never the game's rng). */
   private hostRng: () => number
-  private invuln = INVULN_TICKS
   private shots: Shot[] = []
   private crashers: Crasher[] = []
   private dancers: Dancer[] = []
@@ -1607,6 +1717,10 @@ class PrizeShowPanic implements ArcadeGameInstance {
   private particles: Particle[] = []
   private floaters: Floater[] = []
   private banner: { text: string; sub?: string; ticks: number } | null = null
+
+  /** A commercial break on the air (a mini-game), and what comes after it. */
+  commercial: { state: BreakState; then: 'episode' | 'map' } | null = null
+  private breaksAired = 0
 
   // How the season ends: the Grand Prize Vault (for ten golden tickets), the ending, the credits.
   private inVault = false
@@ -1678,10 +1792,7 @@ class PrizeShowPanic implements ArcadeGameInstance {
   private tosses: Toss[] = []
   private nextToss = 0
 
-  // Cosmetic only: walk-cycle bookkeeping and sparkles with their own dice, so the
-  // game's seeded rng is untouched.
-  private stride = 0
-  private striding = false
+  // Cosmetic only: sparkles with their own dice, so the game's seeded rng is untouched.
   private fx = new Sparkles()
   private fxRng = backdropRng(47)
   /** What the roster's crashers may ask of the room (prizeShow/roster.ts). */
@@ -1693,6 +1804,7 @@ class PrizeShowPanic implements ArcadeGameInstance {
   get music(): MusicLoop | null {
     if (this.demo || this.over) return null
     if (this.ending) return ENDING_MUSIC
+    if (this.commercial) return JINGLE_MUSIC
     return this.musicNow
   }
 
@@ -1703,9 +1815,17 @@ class PrizeShowPanic implements ArcadeGameInstance {
     this.hiScore = options.hiScore
     // The host's own dice, seeded once from the game's: each show sounds different, replays alike.
     this.hostRng = backdropRng(Math.floor(this.rng() * 2 ** 31))
+    // Up to four seats, a contestant each (the pick card lets them choose); one shared pool of lives.
+    const seats = Math.max(1, Math.min(4, Math.floor(options.players ?? 1)))
+    this.team = Array.from({ length: seats }, (_, i) =>
+      newContestant(i, CONTESTANT_IDS[i]!),
+    )
+    this.cur = this.team[0]!
+    this.lives = START_LIVES + seats - 1
     this.world = this.makeWorld()
     this.bossWorld = this.makeBossWorld()
     this.beginEpisode(0)
+    if (!this.demo) this.openPick()
     const offer = this.demo ? null : readSave(options.resume)
     if (offer && (offer.episode > 0 || offer.loop > 1 || offer.cleared)) {
       // Until the player chooses, the stored show stays as it was.
@@ -1715,6 +1835,145 @@ class PrizeShowPanic implements ArcadeGameInstance {
       this.cutIn = null
       this.cutQueue = []
     }
+  }
+
+  // The current contestant's own state, read and written as if it were the game's.
+  private get px(): number {
+    return this.cur.px
+  }
+  private set px(v: number) {
+    this.cur.px = v
+  }
+  private get py(): number {
+    return this.cur.py
+  }
+  private set py(v: number) {
+    this.cur.py = v
+  }
+  private get vx(): number {
+    return this.cur.vx
+  }
+  private set vx(v: number) {
+    this.cur.vx = v
+  }
+  private get vy(): number {
+    return this.cur.vy
+  }
+  private set vy(v: number) {
+    this.cur.vy = v
+  }
+  private get slip(): number {
+    return this.cur.slip
+  }
+  private set slip(v: number) {
+    this.cur.slip = v
+  }
+  private get aim(): Dir {
+    return this.cur.aim
+  }
+  private set aim(v: Dir) {
+    this.cur.aim = v
+  }
+  private get aiming(): boolean {
+    return this.cur.aiming
+  }
+  private set aiming(v: boolean) {
+    this.cur.aiming = v
+  }
+  private get aimedBefore(): boolean {
+    return this.cur.aimedBefore
+  }
+  private set aimedBefore(v: boolean) {
+    this.cur.aimedBefore = v
+  }
+  private get fireCooldown(): number {
+    return this.cur.fireCooldown
+  }
+  private set fireCooldown(v: number) {
+    this.cur.fireCooldown = v
+  }
+  private get popperClock(): number {
+    return this.cur.popperClock
+  }
+  private set popperClock(v: number) {
+    this.cur.popperClock = v
+  }
+  private get lifted(): number {
+    return this.cur.lifted
+  }
+  private set lifted(v: number) {
+    this.cur.lifted = v
+  }
+  private get trail(): Point[] {
+    return this.cur.trail
+  }
+  private set trail(v: Point[]) {
+    this.cur.trail = v
+  }
+  private get invuln(): number {
+    return this.cur.invuln
+  }
+  private set invuln(v: number) {
+    this.cur.invuln = v
+  }
+  private get stride(): number {
+    return this.cur.stride
+  }
+  private set stride(v: number) {
+    this.cur.stride = v
+  }
+  private get striding(): boolean {
+    return this.cur.striding
+  }
+  private set striding(v: boolean) {
+    this.cur.striding = v
+  }
+  get powers(): Record<PowerKind, number> {
+    return this.cur.powers
+  }
+  set powers(v: Record<PowerKind, number>) {
+    this.cur.powers = v
+  }
+
+  /** How many more crashers a wave brings with more contestants seated. */
+  private crowdFactor(): number {
+    return 1 + COOP_CROWD * (this.team.length - 1)
+  }
+
+  /** Contestants in play right now (not knocked down, not out of the show). */
+  private inPlay(): Contestant[] {
+    return this.team.filter((c) => c.down === 0)
+  }
+
+  /** The first contestant in play (the one the map, the pilot and the HUD follow). */
+  private lead(): Contestant {
+    return this.team.find((c) => c.down === 0) ?? this.team[0]!
+  }
+
+  /** The contestant in play nearest (x, y): who a crasher or a boss goes after. */
+  private nearestTo(x: number, y: number): Contestant {
+    let best = this.lead()
+    let bestD = Infinity
+    for (const c of this.team) {
+      if (c.down !== 0) continue
+      const d = Math.hypot(c.px - x, c.py - y)
+      if (d < bestD) {
+        bestD = d
+        best = c
+      }
+    }
+    return best
+  }
+
+  /** Run `fn` as each contestant in play in turn (then back to whoever was current). */
+  private eachContestant(fn: (c: Contestant) => void) {
+    const keep = this.cur
+    for (const c of this.team) {
+      if (c.down !== 0) continue
+      this.cur = c
+      fn(c)
+    }
+    this.cur = keep
   }
 
   private makeWorld(): CrasherWorld {
@@ -1778,9 +2037,10 @@ class PrizeShowPanic implements ArcadeGameInstance {
         this.rings.push(newRing(x, y, max, speed, gap)),
       spawn: (kind, x, y) => this.makeCrasher(kind, x, y),
       crowd: () => this.crashers,
-      hurt: (x, y, r, why) => {
-        if (this.lifted === 0 && this.touching(x, y, r)) this.loseLife(why)
-      },
+      hurt: (x, y, r, why) =>
+        this.eachContestant(() => {
+          if (this.lifted === 0 && this.touching(x, y, r)) this.loseLife(why)
+        }),
       announce: (text, sub) => {
         this.banner = { text, sub, ticks: 90 }
       },
@@ -1803,6 +2063,122 @@ class PrizeShowPanic implements ArcadeGameInstance {
           color: CONFETTI[Math.floor(this.fxRng() * CONFETTI.length)]!,
         }),
     }
+  }
+
+  /** The contestant pick card: each seat chooses who to play (no two the same). */
+  private openPick() {
+    this.picking = {
+      cursor: this.team.map((_, i) => i),
+      locked: this.team.map(() => false),
+      ticks: 0,
+    }
+    this.cutIn = null
+    this.cutQueue = []
+  }
+
+  private updatePick(inputs: readonly InputFrame[]) {
+    const p = this.picking!
+    p.ticks++
+    if (p.ticks < 15) return
+    const n = CONTESTANT_IDS.length
+    const taken = (pick: number, seat: number) =>
+      p.cursor.some((c, i) => i !== seat && p.locked[i] && c === pick)
+    this.team.forEach((_, seat) => {
+      if (p.locked[seat]) return
+      const f = inputs[seat] ?? emptyInput()
+      const step = f.pressed.left ? -1 : f.pressed.right ? 1 : 0
+      if (step) {
+        let next = p.cursor[seat]!
+        for (let k = 0; k < n; k++) {
+          next = (next + step + n) % n
+          if (!taken(next, seat)) break
+        }
+        p.cursor[seat] = next
+        this.sound.play('blip')
+      }
+      if ((f.pressed.a || f.pressed.start) && !taken(p.cursor[seat]!, seat)) {
+        p.locked[seat] = true
+        this.sound.play('pickup')
+      }
+    })
+    if (!p.locked.every(Boolean) && p.ticks < PICK_AUTO) return
+    // Everyone set (or time's up): a seat still choosing takes the next one free from its cursor.
+    this.team.forEach((c, seat) => {
+      let pick = p.cursor[seat]!
+      for (let k = 0; k < n && taken(pick, seat); k++) pick = (pick + 1) % n
+      p.cursor[seat] = pick
+      p.locked[seat] = true
+      c.who = CONTESTANT_IDS[pick]!
+      c.guard = CONTESTANTS[c.who].recharge > 0
+    })
+    this.picking = null
+    this.sound.play('start')
+    this.say('room-start')
+  }
+
+  private renderPick(g: CanvasRenderingContext2D) {
+    const p = this.picking!
+    this.renderStudio(g)
+    g.fillStyle = rgba(INK, 0.66)
+    g.fillRect(0, 0, W, H)
+    drawText(
+      g,
+      this.team.length > 1 ? 'PICK YOUR CONTESTANTS' : 'PICK YOUR CONTESTANT',
+      CX,
+      22,
+      { align: 'center', scale: 2, color: '#ffffff', outline: INK },
+    )
+    CONTESTANT_IDS.forEach((id, i) => {
+      const kit = CONTESTANTS[id]
+      const x = 46 + i * 76
+      const seats = p.cursor.flatMap((c, seat) => (c === i ? [seat] : []))
+      const lit = seats.length > 0
+      hudPanel(g, x - 34, 50, 68, 150, lit ? RAMPS.purple : RAMPS.night)
+      // A podium, and the contestant bobbing on it (front view, mid-stride when chosen).
+      bevel(g, x - 18, 138, 36, 8, RAMPS.gold)
+      const bob = lit ? Math.round(Math.sin((this.tick + i * 9) / 7) * 2) : 0
+      const frame = lit ? 1 + (Math.floor(this.tick / 10) % 2) : 0
+      drawSprite(g, CONTESTANT_SPRITES[id].front[frame]!, x, 138 + bob, {
+        anchor: 'feet',
+        scale: 3,
+        alpha: lit ? 1 : 0.55,
+      })
+      drawText(g, kit.name, x, 152, {
+        align: 'center',
+        color: lit ? RAMPS.gold[4] : RAMPS.cream[2],
+        outline: INK,
+      })
+      kit.blurb.forEach((line, k) =>
+        drawText(g, line, x, 164 + k * 9, {
+          align: 'center',
+          color: RAMPS.cream[3],
+          shadow: INK,
+        }),
+      )
+      seats.forEach((seat, k) => {
+        const colour = SEAT_COLOURS[seat]!
+        g.strokeStyle = colour
+        g.lineWidth = p.locked[seat] ? 2 : 1
+        g.strokeRect(x - 33.5 + k * 2, 50.5 + k * 2, 67 - k * 4, 149 - k * 4)
+        drawText(
+          g,
+          p.locked[seat] ? `P${seat + 1} READY` : `P${seat + 1}`,
+          x,
+          56 + k * 9,
+          {
+            align: 'center',
+            color: colour,
+            outline: INK,
+          },
+        )
+      })
+    })
+    const blink = Math.floor(this.tick / 20) % 2
+    drawText(g, 'LEFT/RIGHT CHOOSE   A READY', CX, 212, {
+      align: 'center',
+      color: blink ? RAMPS.gold[4] : RAMPS.gold[3],
+      outline: INK,
+    })
   }
 
   /** Keep the show as it stands at an episode's start (a real game only; demos never save). */
@@ -2092,7 +2468,8 @@ class PrizeShowPanic implements ArcadeGameInstance {
     // Every episode opens from the wings: the map's left edge.
     this.enterRoom(this.episode.start, 3)
     if (this.perks.power)
-      this.powers[this.perks.power] = POWERS[this.perks.power].ticks
+      for (const c of this.team)
+        c.powers[this.perks.power] = POWERS[this.perks.power].ticks
     this.banner = {
       text: this.episode.title,
       sub: `EPISODE ${this.episode.number}: ${this.episode.subtitle}`,
@@ -2110,6 +2487,7 @@ class PrizeShowPanic implements ArcadeGameInstance {
   }
 
   private enterRoom(id: string, entry: Side) {
+    this.commercial = null
     this.roomId = id
     this.secretId = null
     this.route.push(id)
@@ -2118,6 +2496,7 @@ class PrizeShowPanic implements ArcadeGameInstance {
     this.modifier = this.modifierFor(id)
     this.level = ++this.studios
     this.startRoom()
+    if (this.script.commercial) this.openCommercial('map')
   }
 
   private enterSecret(id: string, entry: Side) {
@@ -2259,7 +2638,9 @@ class PrizeShowPanic implements ArcadeGameInstance {
       this.buy(SWAP_OFFERS[swap.cursor]!.id)
     if (done && swap.ticks > 20) {
       this.swap = null
-      this.finishEpisode()
+      if (this.episodeIndex + 1 < this.season.length)
+        this.openCommercial('episode')
+      else this.finishEpisode()
     }
   }
 
@@ -2291,6 +2672,72 @@ class PrizeShowPanic implements ArcadeGameInstance {
     if (id === 'secret') this.perks.secret = true
     this.swap!.bought.push(id)
     this.sound.play('extra')
+  }
+
+  /** A word from our sponsors: a mini-game (they take turns), paying out in prizes. */
+  private openCommercial(then: 'episode' | 'map') {
+    const kind = BREAK_ORDER[this.breaksAired % BREAK_ORDER.length]!
+    this.breaksAired++
+    this.commercial = {
+      state: newBreak(kind, this.rng, this.team.length),
+      then,
+    }
+    this.banner = null
+    this.cutQueue = []
+    this.speak('host', "WE'LL BE RIGHT BACK... AFTER YOU PLAY THIS!")
+    this.sound.play('level')
+  }
+
+  private updateCommercial(inputs: readonly InputFrame[]) {
+    const c = this.commercial!
+    for (const ev of updateBreak(c.state, inputs, this.rng)) {
+      const x = ev.x ?? CX
+      const y = ev.y ?? CY
+      if (ev.prize) {
+        this.wallet[ev.prize]++
+        this.seasonWon[ev.prize]++
+        this.haul++
+        this.addScore(PRIZE_POINTS[ev.prize], x, y)
+        this.floaters.push({
+          x,
+          y: y - 12,
+          text: PRIZE_NAMES[ev.prize],
+          life: 45,
+        })
+        this.fx.burst(x, y, this.fxRng, { count: 10 })
+      }
+      if (ev.points) this.addScore(ev.points, x, y)
+      if (ev.text) this.floaters.push({ x, y, text: ev.text, life: 35 })
+      if (ev.sound) this.sound.play(ev.sound)
+    }
+    if (!breakDone(c.state)) return
+    this.commercial = null
+    if (c.then === 'episode') this.finishEpisode()
+    else this.openMap(null)
+  }
+
+  /** A contestant drawn into a commercial (her own sprite, her seat's marker in co-op). */
+  private drawSeat(
+    g: CanvasRenderingContext2D,
+    seat: number,
+    x: number,
+    y: number,
+    face: 1 | -1,
+    moving: boolean,
+  ) {
+    const c = this.team[seat]!
+    const frame = moving ? 1 + (Math.floor(this.tick / 7) % 2) : 0
+    dropShadow(g, x, y, 7, 2, 0.4)
+    drawSprite(g, CONTESTANT_SPRITES[c.who].side[frame]!, x, y, {
+      anchor: 'feet',
+      flipX: face < 0,
+    })
+    if (this.team.length > 1)
+      drawText(g, `P${seat + 1}`, x, y - 26, {
+        align: 'center',
+        color: SEAT_COLOURS[seat]!,
+        outline: INK,
+      })
   }
 
   private finishEpisode() {
@@ -2368,6 +2815,27 @@ class PrizeShowPanic implements ArcadeGameInstance {
     }
     const rolled = (e.ticks - hold) * PrizeShowPanic.CREDIT_SPEED
     if (rolled >= this.creditsHeight() || (pressed && e.ticks > hold + 60)) {
+      if (this.loop >= SERIES_LOOPS) {
+        // The last rerun is done: that's the series. The show ends on a high.
+        this.ending = null
+        this.over = true
+        this.finalRows = seasonRows(
+          this.seasonWon,
+          this.tickets.length,
+          this.bestChain,
+        )
+        this.banner = {
+          text: "THAT'S THE SERIES!",
+          sub: 'THANKS FOR WATCHING',
+          ticks: 600,
+        }
+        this.speak(
+          'host',
+          "THAT'S THE SERIES, FOLKS. YOU WERE THE BEST CONTESTANTS WE EVER HAD.",
+        )
+        if (this.save) this.save = { ...this.save, continued: true }
+        return
+      }
       // The show goes on: a rerun of the season, harder.
       this.ending = null
       this.inVault = false
@@ -2422,9 +2890,8 @@ class PrizeShowPanic implements ArcadeGameInstance {
     }))
     this.nextToss = 150
     if (this.has('sudden-death')) this.powers.shield = 0
-    const entry = DOORS[this.entryDoor]!
-    this.px = entry.x + (CX - entry.x) * 0.25
-    this.py = entry.y + (CY - entry.y) * 0.25
+    this.placeTeam()
+    this.cur = this.lead()
 
     this.mines = []
     this.beams = []
@@ -2522,7 +2989,7 @@ class PrizeShowPanic implements ArcadeGameInstance {
     if (script.boss) {
       this.boss = newBoss(
         script.boss,
-        t.bossHp,
+        t.bossHp * (1 + COOP_BOSS * (this.team.length - 1)),
         !this.secretId && this.roomId === this.episode.finale,
       )
       this.banner = {
@@ -2608,7 +3075,7 @@ class PrizeShowPanic implements ArcadeGameInstance {
 
   // --- update ------------------------------------------------------------------
 
-  update(input: InputFrame) {
+  update(input: InputFrame, players?: InputFrame[]) {
     this.tick++
     this.updateEffects()
     if (this.banner && --this.banner.ticks <= 0) this.banner = null
@@ -2629,8 +3096,25 @@ class PrizeShowPanic implements ArcadeGameInstance {
       this.updateChoice(controls)
       return
     }
+    if (this.picking) {
+      this.updatePick(
+        players?.length ? [controls, ...players.slice(1)] : [controls],
+      )
+      return
+    }
     if (this.ending) {
       this.updateEnding(controls)
+      return
+    }
+    if (this.commercial) {
+      const state = this.commercial.state
+      this.updateCommercial(
+        this.demo
+          ? state.seats.map((_, i) => breakPilot(state, i))
+          : players?.length
+            ? [controls, ...players.slice(1)]
+            : [controls],
+      )
       return
     }
     if (this.map) {
@@ -2669,41 +3153,36 @@ class PrizeShowPanic implements ArcadeGameInstance {
       return
     }
 
-    if (this.invuln > 0) this.invuln--
-    for (const kind of POWER_KINDS)
-      if (this.powers[kind] > 0) this.powers[kind]--
     this.roomTick++
     if (--this.roomTimer <= 0) {
       if (this.script.closes) this.closeSet()
-      else this.loseLife("TIME'S UP!")
+      else this.timeUp()
       return
     }
-    this.trail.push({ x: this.px, y: this.py })
-    if (this.trail.length > HISTORY) this.trail.shift()
     this.updateShow()
     if (!this.lowTimeSaid && !this.script.closes && this.roomTimer <= 600) {
       this.lowTimeSaid = true
       this.say('low-time')
     }
-
-    const fromX = this.px
-    const fromY = this.py
-    if (this.fireCooldown > 0) this.fireCooldown--
-    if (this.lifted > 0) {
-      this.updateLift()
-    } else {
-      this.move(controls, stick)
-      this.carry()
-      this.aiming = stick !== null
-      if (stick) {
-        const len = Math.hypot(stick.x, stick.y)
-        this.aim = { x: stick.x / len, y: stick.y / len }
+    // Each contestant takes her turn: her own frame (seat 1's is the cabinet's), her own moves.
+    this.team.forEach((c, i) => {
+      this.cur = c
+      if (c.down !== 0) {
+        this.updateDown(c)
+        return
       }
-      if ((controls.held.a || this.aiming) && this.fireCooldown === 0)
-        this.fire()
-    }
-    this.striding = this.px !== fromX || this.py !== fromY
-    if (this.striding) this.stride++
+      if (i === 0) {
+        this.stepContestant(controls, stick)
+        return
+      }
+      const frame = players?.[i] ?? emptyInput()
+      const aim =
+        frame.aim && Math.hypot(frame.aim.x, frame.aim.y) >= AIM_MIN
+          ? frame.aim
+          : null
+      this.stepContestant(frame, aim)
+    })
+    this.cur = this.lead()
     this.spawnWaves()
     this.updateShots()
     this.updateCrashers()
@@ -2721,6 +3200,116 @@ class PrizeShowPanic implements ArcadeGameInstance {
     this.updateTosses()
     this.checkClear()
     this.checkExit()
+  }
+
+  /** One contestant's turn: her timers, then the boom mic's lift or her own moves and spray. */
+  private stepContestant(controls: InputFrame, stick: Dir | null) {
+    const c = this.cur
+    if (c.invuln > 0) c.invuln--
+    for (const kind of POWER_KINDS) if (c.powers[kind] > 0) c.powers[kind]--
+    if (c.popperClock > 0) c.popperClock--
+    // Glimmer's own shield recharges a while after it pops.
+    const kit = CONTESTANTS[c.who]
+    if (kit.recharge > 0 && !c.guard && --c.guardClock <= 0) {
+      c.guard = true
+      this.floaters.push({ x: c.px, y: c.py - 16, text: 'GUARD UP!', life: 30 })
+    }
+    c.trail.push({ x: c.px, y: c.py })
+    if (c.trail.length > HISTORY) c.trail.shift()
+    const fromX = c.px
+    const fromY = c.py
+    if (c.fireCooldown > 0) c.fireCooldown--
+    if (c.lifted > 0) {
+      this.updateLift()
+    } else {
+      this.move(controls, stick)
+      this.carry()
+      this.warp()
+      c.aiming = stick !== null
+      if (stick) {
+        const len = Math.hypot(stick.x, stick.y)
+        c.aim = { x: stick.x / len, y: stick.y / len }
+      }
+      if ((controls.held.a || c.aiming) && c.fireCooldown === 0) this.fire()
+    }
+    c.striding = c.px !== fromX || c.py !== fromY
+    if (c.striding) c.stride++
+  }
+
+  /** Teleport doors: step into one and come out of the other (her turn; a short cool-down). */
+  private warp() {
+    if (this.warpClock > 0) this.warpClock--
+    else if (this.lifted === 0)
+      for (const w of this.warps) {
+        const from = Math.hypot(this.px - w.x1, this.py - w.y1) < 9
+        const to = Math.hypot(this.px - w.x2, this.py - w.y2) < 9
+        if (!from && !to) continue
+        this.burst(this.px, this.py, 8, RAMPS.teal[4])
+        this.px = from ? w.x2 : w.x1
+        this.py = from ? w.y2 : w.y1
+        this.warpClock = 50
+        this.burst(this.px, this.py, 8, RAMPS.teal[4])
+        this.sound.play('blip')
+        break
+      }
+  }
+
+  /** A knocked-down contestant (co-op) is back on set after a moment, safe for a while. */
+  private updateDown(c: Contestant) {
+    if (c.down <= 0 || --c.down > 0) return
+    const spot = this.safeSpot()
+    Object.assign(c, {
+      px: spot.x,
+      py: spot.y,
+      vx: 0,
+      vy: 0,
+      slip: 0,
+      lifted: 0,
+      trail: [],
+      invuln: INVULN_TICKS,
+    })
+    this.floaters.push({ x: c.px, y: c.py - 16, text: 'BACK IN!', life: 40 })
+    this.sound.play('start')
+  }
+
+  /** The countdown ran out: it costs the team a contestant and the room starts again. */
+  private timeUp() {
+    if (this.team.length === 1) {
+      this.loseLife("TIME'S UP!")
+      return
+    }
+    if (this.dead > 0) return
+    this.hit = true
+    this.lives = Math.max(0, this.lives - 1)
+    this.dead = DEATH_TICKS
+    this.banner = { text: "TIME'S UP!", ticks: 80 }
+    this.sound.play('die')
+    if (this.lives > 0) this.say('death')
+  }
+
+  /** Placing everyone at the door they came in by, side by side (a new room, or a restart). */
+  private placeTeam() {
+    const entry = DOORS[this.entryDoor]!
+    const bx = entry.x + (CX - entry.x) * 0.25
+    const by = entry.y + (CY - entry.y) * 0.25
+    const across = this.entryDoor % 2 === 0
+    const offsets = [0, 14, -14, 28]
+    this.team.forEach((c, i) => {
+      // A contestant who was out comes back if the team has lives to spare.
+      if (c.down !== 0 && (c.down > 0 || this.lives > 0)) c.down = 0
+      Object.assign(c, {
+        px: bx + (across ? offsets[i]! : 0),
+        py: by + (across ? 0 : offsets[i]!),
+        vx: 0,
+        vy: 0,
+        slip: 0,
+        lifted: 0,
+        trail: [],
+        invuln: INVULN_TICKS,
+      })
+      c.powers.cutout = 0
+      if (this.has('sudden-death')) c.powers.shield = 0
+    })
   }
 
   /** Where Sparkle goes once the transition ends. */
@@ -2744,7 +3333,10 @@ class PrizeShowPanic implements ArcadeGameInstance {
     // Holding B locks the aim so Sparkle can strafe; a second stick aims on its own.
     if ((dx || dy) && !input.held.b && !stick) this.aim = { x: dx, y: dy }
     const len = Math.hypot(dx, dy) || 1
-    const speed = SPEED * (this.powers.skates > 0 ? ARSENAL.skateSpeed : 1)
+    const speed =
+      SPEED *
+      CONTESTANTS[this.cur.who].speed *
+      (this.powers.skates > 0 ? ARSENAL.skateSpeed : 1)
     let mx = (dx / len) * speed
     let my = (dy / len) * speed
     if (this.slip > 0) {
@@ -2860,17 +3452,24 @@ class PrizeShowPanic implements ArcadeGameInstance {
 
   private fire() {
     const p = this.powers
+    const kit = CONTESTANTS[this.cur.who]
     const rocket = p.rockets > 0
     const laser = p.laser > 0
-    this.fireCooldown = laser
-      ? ARSENAL.laserCooldown
-      : rocket
-        ? ARSENAL.rocketCooldown
-        : p.rapid > 0
-          ? RAPID_COOLDOWN
-          : FIRE_COOLDOWN
+    this.fireCooldown = Math.round(
+      (laser
+        ? ARSENAL.laserCooldown
+        : rocket
+          ? ARSENAL.rocketCooldown
+          : p.rapid > 0
+            ? RAPID_COOLDOWN
+            : FIRE_COOLDOWN) * kit.cooldown,
+    )
     const base = Math.atan2(this.aim.y, this.aim.x)
-    const angles = p.spread > 0 ? [base - 0.25, base, base + 0.25] : [base]
+    // Her own spray (Boomer's is three wide), opened up by the spread power (Zippy's stays narrow).
+    const own =
+      kit.shots === 3 ? [base - kit.spread, base, base + kit.spread] : [base]
+    const fan = this.cur.who === 'zippy' ? 0.12 : 0.25
+    const angles = p.spread > 0 ? [base - fan, ...own, base + fan] : own
     for (const a of angles) {
       if (laser) {
         this.fireLaser(a)
@@ -2886,7 +3485,7 @@ class PrizeShowPanic implements ArcadeGameInstance {
         hue: Math.floor(this.rng() * CONFETTI.length),
         kind: rocket ? 'rocket' : 'confetti',
         foamy: p.foamgun > 0,
-        damage: rocket ? ARSENAL.rocketDamage : 1,
+        damage: (rocket ? ARSENAL.rocketDamage : 1) * kit.damage,
         pierce: rocket ? ARSENAL.rocketPierce : 0,
         hits: [],
       })
@@ -3058,7 +3657,10 @@ class PrizeShowPanic implements ArcadeGameInstance {
     } else {
       sides = doorSides(wave.doors, this.entryDoor)
     }
-    const count = waveCount(wave, this.loop)
+    // More hands on stage, more crashers through the doors (a mini-boss stays one).
+    const count = wave.fixed
+      ? waveCount(wave, this.loop)
+      : Math.round(waveCount(wave, this.loop) * this.crowdFactor())
     for (const side of sides) {
       const door = DOORS[side]!
       this.spawned[wave.kind] += count
@@ -3313,9 +3915,11 @@ class PrizeShowPanic implements ArcadeGameInstance {
 
   private updateCrashers() {
     const foam = this.has('foam')
-    const goal = this.chase()
     for (const c of [...this.crashers]) {
       if (!this.crashers.includes(c)) continue
+      // Each crasher goes after the contestant nearest it (the world's player() is her now).
+      this.cur = this.nearestTo(c.x, c.y)
+      const goal = this.chase()
       c.t++
       if (FOUNDERS.has(c.kind)) {
         if (c.slow > 0) c.slow--
@@ -3334,11 +3938,14 @@ class PrizeShowPanic implements ArcadeGameInstance {
         c.t % 15 === 0
       )
         d.hp--
-      if (touches(c) && this.touching(c.x, c.y, reachOf(c))) {
-        this.loseLife(BUMP_LINES[c.kind] ?? 'MOBBED!')
-        return
-      }
+      if (touches(c))
+        this.eachContestant(() => {
+          if (this.touching(c.x, c.y, reachOf(c)))
+            this.loseLife(BUMP_LINES[c.kind] ?? 'MOBBED!')
+        })
+      if (this.dead > 0) break
     }
+    this.cur = this.lead()
   }
 
   /** The four founding crashers: grabbers, bouncers, conga lines and throwers. */
@@ -3417,28 +4024,34 @@ class PrizeShowPanic implements ArcadeGameInstance {
   private updateMines() {
     for (const m of this.mines) {
       if (m.kind === 'peel') {
-        if (this.slip === 0 && this.touching(m.x, m.y, 7)) {
-          m.fuse = -1
-          const len = Math.hypot(this.vx, this.vy)
-          const dx = len > 0.2 ? this.vx / len : this.aim.x
-          const dy = len > 0.2 ? this.vy / len : this.aim.y
-          const n = Math.hypot(dx, dy) || 1
-          this.vx = (dx / n) * 2.6
-          this.vy = (dy / n) * 2.6
-          this.slip = SLIP_TICKS
-          this.floaters.push({
-            x: this.px,
-            y: this.py - 16,
-            text: 'WHOA!',
-            life: 40,
-          })
-          this.sound.play('blip')
+        for (const c of this.inPlay()) {
+          this.cur = c
+          if (m.fuse !== -1 && this.slip === 0 && this.touching(m.x, m.y, 7)) {
+            m.fuse = -1
+            const len = Math.hypot(this.vx, this.vy)
+            const dx = len > 0.2 ? this.vx / len : this.aim.x
+            const dy = len > 0.2 ? this.vy / len : this.aim.y
+            const n = Math.hypot(dx, dy) || 1
+            this.vx = (dx / n) * 2.6
+            this.vy = (dy / n) * 2.6
+            this.slip = SLIP_TICKS
+            this.floaters.push({
+              x: this.px,
+              y: this.py - 16,
+              text: 'WHOA!',
+              life: 40,
+            })
+            this.sound.play('blip')
+          }
         }
+        this.cur = this.lead()
         continue
       }
       if (m.fuse === 0) {
         const stepped =
-          this.touching(m.x, m.y, 8) ||
+          this.inPlay().some(
+            (c) => Math.abs(m.x - c.px) < 8 && Math.abs(m.y - c.py) < 8,
+          ) ||
           this.crashers.some(
             (c) =>
               touches(c) &&
@@ -3465,8 +4078,10 @@ class PrizeShowPanic implements ArcadeGameInstance {
       this.sound.play('pop')
       for (const c of [...this.crashers])
         if (Math.hypot(c.x - m.x, c.y - m.y) < CUSHION_BLAST) this.cheer(c)
-      if (Math.hypot(this.px - m.x, this.py - m.y) < CUSHION_BLAST)
-        this.loseLife('WHOOPEE!')
+      this.eachContestant(() => {
+        if (Math.hypot(this.px - m.x, this.py - m.y) < CUSHION_BLAST)
+          this.loseLife('WHOOPEE!')
+      })
     }
     this.mines = this.mines.filter((m) => m.fuse >= 0)
   }
@@ -3512,8 +4127,15 @@ class PrizeShowPanic implements ArcadeGameInstance {
     for (const b of this.beams) {
       const { angle, hot } = this.beamState(b)
       if (!hot) continue
-      const { along, across, half } = this.beamReach(b, angle, this.px, this.py)
-      if (along > 6 && across < half - 1) this.loseLife('IN THE SPOTLIGHT!')
+      this.eachContestant(() => {
+        const { along, across, half } = this.beamReach(
+          b,
+          angle,
+          this.px,
+          this.py,
+        )
+        if (along > 6 && across < half - 1) this.loseLife('IN THE SPOTLIGHT!')
+      })
     }
   }
 
@@ -3526,14 +4148,12 @@ class PrizeShowPanic implements ArcadeGameInstance {
   private updateHazards() {
     const tick = this.roomTick
     const beat = this.beat()
-    const grounded = this.lifted === 0
     for (const p of this.plates)
-      if (
-        grounded &&
-        plateState(p, tick).state === 'hot' &&
-        onPlate(p, this.px, this.py + 3)
-      )
-        this.loseLife('SIZZLED!')
+      if (plateState(p, tick).state === 'hot')
+        this.eachContestant(() => {
+          if (this.lifted === 0 && onPlate(p, this.px, this.py + 3))
+            this.loseLife('SIZZLED!')
+        })
     for (const f of this.flours) driftFlour(f, tick)
     for (const sp of this.speakers) {
       if (!speakerFires(sp, tick, beat)) continue
@@ -3551,27 +4171,14 @@ class PrizeShowPanic implements ArcadeGameInstance {
     }
     for (const ring of this.rings) {
       ring.r += ring.speed
-      if (grounded && ringHits(ring, this.px, this.py))
-        this.loseLife(
-          ring.gap === null ? 'KNOCKED FLAT!' : 'BLOWN AWAY BY THE BASS!',
-        )
+      this.eachContestant(() => {
+        if (this.lifted === 0 && ringHits(ring, this.px, this.py))
+          this.loseLife(
+            ring.gap === null ? 'KNOCKED FLAT!' : 'BLOWN AWAY BY THE BASS!',
+          )
+      })
     }
     this.rings = this.rings.filter((ring) => ring.r < ring.max)
-    // Teleport doors: step into one and come out of the other.
-    if (this.warpClock > 0) this.warpClock--
-    else if (grounded)
-      for (const w of this.warps) {
-        const from = Math.hypot(this.px - w.x1, this.py - w.y1) < 9
-        const to = Math.hypot(this.px - w.x2, this.py - w.y2) < 9
-        if (!from && !to) continue
-        this.burst(this.px, this.py, 8, RAMPS.teal[4])
-        this.px = from ? w.x2 : w.x1
-        this.py = from ? w.y2 : w.y1
-        this.warpClock = 50
-        this.burst(this.px, this.py, 8, RAMPS.teal[4])
-        this.sound.play('blip')
-        break
-      }
     // The hub soaks up streamers; the ring carries the crowd and pushes them off the hub.
     if (this.turntable) {
       for (const st of this.streamers) if (this.inHub(st.x, st.y)) st.life = 0
@@ -3607,15 +4214,26 @@ class PrizeShowPanic implements ArcadeGameInstance {
       s.life--
       if (s.x < LEFT || s.x > RIGHT || s.y < TOP || s.y > BOTTOM) s.life = 0
       if (s.life > 0 && this.inCase(s.x, s.y)) s.life = 0
-      if (s.life > 0 && this.lifted === 0 && this.touching(s.x, s.y, 4)) {
+      if (s.life <= 0) continue
+      const hit = this.inPlay().find(
+        (c) =>
+          c.lifted === 0 &&
+          Math.abs(s.x - c.px) < 4 &&
+          Math.abs(s.y - c.py) < 4,
+      )
+      const grazed = this.inPlay().find(
+        (c) =>
+          c.invuln === 0 &&
+          Math.abs(s.x - c.px) < 11 &&
+          Math.abs(s.y - c.py) < 11,
+      )
+      if (hit) {
         s.life = 0
+        this.cur = hit
         this.loseLife(SHOT_LINES[s.style])
-      } else if (
-        s.life > 0 &&
-        !s.grazed &&
-        this.invuln === 0 &&
-        this.touching(s.x, s.y, 11)
-      ) {
+        this.cur = this.lead()
+      } else if (grazed && !s.grazed) {
+        this.cur = grazed
         // A near miss: the crowd gasps, the ratings like it.
         s.grazed = true
         this.rate(RATINGS.nearMiss)
@@ -3626,6 +4244,7 @@ class PrizeShowPanic implements ArcadeGameInstance {
           life: 30,
         })
         this.say('near-miss')
+        this.cur = this.lead()
       }
     }
     this.streamers = this.streamers.filter((s) => s.life > 0)
@@ -3648,8 +4267,10 @@ class PrizeShowPanic implements ArcadeGameInstance {
       })
       this.addSlick(lob.x1, lob.y1, 'cream')
       this.sound.play('pop')
-      if (Math.hypot(this.px - lob.x1, this.py - lob.y1) < 10)
-        this.loseLife('PIED!')
+      this.eachContestant(() => {
+        if (Math.hypot(this.px - lob.x1, this.py - lob.y1) < 10)
+          this.loseLife('PIED!')
+      })
     }
     this.lobs = this.lobs.filter((lob) => lob.t < lob.dur)
   }
@@ -3697,10 +4318,13 @@ class PrizeShowPanic implements ArcadeGameInstance {
           this.floaters.push({ x: c.x, y: c.y - 14, text: 'WHEE!', life: 35 })
         }
       }
-      if (
-        this.lifted === 0 &&
-        Math.hypot(this.px - boom.x, this.py - boom.y) < BOOM_REACH
-      ) {
+      for (const c of this.inPlay()) {
+        this.cur = c
+        if (
+          this.lifted !== 0 ||
+          Math.hypot(this.px - boom.x, this.py - boom.y) >= BOOM_REACH
+        )
+          continue
         this.lifted = BOOM_LIFT
         this.invuln = Math.max(this.invuln, BOOM_LIFT + 40)
         this.floaters.push({
@@ -3711,6 +4335,7 @@ class PrizeShowPanic implements ArcadeGameInstance {
         })
         this.sound.play('blip')
       }
+      this.cur = this.lead()
     }
   }
 
@@ -3777,10 +4402,11 @@ class PrizeShowPanic implements ArcadeGameInstance {
 
   /** Orbiters, glitter, popper cadence and the cardboard cutout. */
   private updateArsenal() {
-    if (this.popperClock > 0) this.popperClock--
     for (const g of this.glitter) g.life--
     this.glitter = this.glitter.filter((g) => g.life > 0)
-    for (const o of this.orbiterSpots()) {
+    const spots: Point[] = []
+    this.eachContestant(() => spots.push(...this.orbiterSpots()))
+    for (const o of spots) {
       for (const c of [...this.crashers]) {
         if (!shootable(c) || c.t % ARSENAL.orbitEvery !== 0) continue
         if (Math.hypot(c.x - o.x, c.y - c.z - o.y) < ARSENAL.orbitReach + 4) {
@@ -3812,7 +4438,11 @@ class PrizeShowPanic implements ArcadeGameInstance {
   // --- the parade float -----------------------------------------------------------
 
   private updateBoss() {
-    if (this.boss) runBoss(this.boss, this.bossWorld)
+    if (!this.boss) return
+    // The boss goes after whoever is nearest; its blows land on whoever they reach.
+    this.cur = this.nearestTo(this.boss.x, this.boss.y)
+    runBoss(this.boss, this.bossWorld)
+    this.cur = this.lead()
   }
 
   /** Ticks until the float's candles fire (they flare for a moment first). */
@@ -3859,7 +4489,11 @@ class PrizeShowPanic implements ArcadeGameInstance {
         if (this.script.challenge === 'all-prizes') this.prizeMissed = true
         continue
       }
-      if (!this.touching(p.x, p.y, 9)) continue
+      const taker = this.inPlay().find(
+        (c) => Math.abs(p.x - c.px) < 9 && Math.abs(p.y - c.py) < 9,
+      )
+      if (!taker) continue
+      this.cur = taker
       p.life = -1
       for (const c of this.crashers) if (c.prize === p) c.prize = null
       this.addScore(
@@ -3894,6 +4528,7 @@ class PrizeShowPanic implements ArcadeGameInstance {
       this.sound.play('pickup')
     }
     this.prizes = this.prizes.filter((p) => p.life > 0)
+    this.cur = this.lead()
   }
 
   /** A cardboard Sparkle where she stands: the crowd goes after it instead. */
@@ -3909,8 +4544,10 @@ class PrizeShowPanic implements ArcadeGameInstance {
 
   private updatePickups() {
     for (const t of this.pickups) {
-      if (!this.touching(t.x, t.y, 10)) continue
-      this.collectTicket(t)
+      const near = this.inPlay().some(
+        (c) => Math.abs(t.x - c.px) < 10 && Math.abs(t.y - c.py) < 10,
+      )
+      if (near) this.collectTicket(t)
     }
   }
 
@@ -3978,6 +4615,9 @@ class PrizeShowPanic implements ArcadeGameInstance {
     if (!this.wavesDone() || this.crashers.length || this.boss) return
     this.cleared = true
     this.streamers = []
+    // The stage crew wheels the roadies' flight cases off, so no door is left walled in.
+    for (const box of this.cases) this.burst(box.x, box.y, 6, RAMPS.steel[3])
+    this.cases = []
     const script = this.script
     if (!this.hit && !script.closes) {
       this.rate(RATINGS.noDamageClear)
@@ -4050,8 +4690,14 @@ class PrizeShowPanic implements ArcadeGameInstance {
   private checkExit() {
     if (!this.exitsOpen || this.transition > 0) return
     for (const exit of this.exits) {
-      if (Math.hypot(exit.x - this.px, exit.y - this.py) >= 16) continue
+      // Any contestant through a door takes the whole team with her.
+      const out = this.inPlay().find(
+        (c) => Math.hypot(exit.x - c.px, exit.y - c.py) < 16,
+      )
+      if (!out) continue
+      this.cur = out
       this.leave(exit)
+      this.cur = this.lead()
       return
     }
   }
@@ -4090,7 +4736,8 @@ class PrizeShowPanic implements ArcadeGameInstance {
   }
 
   private loseLife(text: string) {
-    if (this.invuln > 0 || this.dead > 0) return
+    const who = this.cur
+    if (who.invuln > 0 || this.dead > 0 || who.down !== 0) return
     this.hit = true
     this.rate(RATINGS.hit)
     this.chain = 0
@@ -4107,6 +4754,32 @@ class PrizeShowPanic implements ArcadeGameInstance {
       this.sound.play('warn')
       return
     }
+    if (who.guard) {
+      // Glimmer's own shield takes the hit, then recharges.
+      who.guard = false
+      who.guardClock = CONTESTANTS[who.who].recharge
+      who.invuln = 60
+      this.burst(who.px, who.py, 10, RAMPS.purple[3])
+      this.floaters.push({
+        x: who.px,
+        y: who.py - 16,
+        text: 'GUARD!',
+        life: 30,
+      })
+      this.sound.play('warn')
+      return
+    }
+    if (this.team.length > 1) {
+      // Co-op: she is down for a moment (back if the team has lives), and the show goes on.
+      this.lives = Math.max(0, this.lives - 1)
+      who.down = this.lives > 0 ? DEATH_TICKS : -1
+      this.burst(who.px, who.py, 18, '#fde68a')
+      this.sound.play('die')
+      this.banner = { text: `${CONTESTANTS[who.who].name}: ${text}`, ticks: 80 }
+      if (!this.inPlay().length) this.dead = DEATH_TICKS
+      else this.say('death')
+      return
+    }
     this.lives--
     this.dead = DEATH_TICKS
     this.burst(this.px, this.py, 18, '#fde68a')
@@ -4121,8 +4794,10 @@ class PrizeShowPanic implements ArcadeGameInstance {
 
   private addScore(points: number, x: number, y: number) {
     if (this.demo) return
-    this.score += points
-    this.floaters.push({ x, y, text: String(points), life: 40 })
+    // A team shares the points it earns (a fair leaderboard), and no score passes the ceiling.
+    const share = Math.round(points / (1 + COOP_SHARE * (this.team.length - 1)))
+    this.score = Math.min(SCORE_CEILING, this.score + share)
+    this.floaters.push({ x, y, text: String(share), life: 40 })
     if (this.score >= this.nextExtra) {
       if (this.lives < MAX_EARNED_LIVES) this.lives++
       // Each extra contestant takes longer to earn: 50k, 150k, 350k, 750k...
@@ -4204,6 +4879,11 @@ class PrizeShowPanic implements ArcadeGameInstance {
       start: false,
     }
     const frame: InputFrame = { held, pressed: { ...held } }
+    if (this.picking) {
+      frame.pressed.a = this.picking.ticks % 30 === 29
+      return frame
+    }
+    if (this.commercial) return breakPilot(this.commercial.state, this.cur.seat)
     if (this.ending) {
       // Let the ending play, then skip the credits along.
       frame.pressed.a = this.ending.ticks % 240 === 239
@@ -4290,6 +4970,8 @@ class PrizeShowPanic implements ArcadeGameInstance {
         threats.push({ x: pit.x, y: pit.y, r: pit.r + 8 })
     if (this.turntable)
       threats.push({ x: CX, y: CY, r: this.turntable.inner + 8 })
+    // Flight cases are solid: step round them rather than push into one.
+    for (const box of this.cases) threats.push({ x: box.x, y: box.y, r: 18 })
     // Heading for a door, a teleport door would only send it back across the room.
     if (leavingNow)
       for (const w of this.warps)
@@ -4414,10 +5096,16 @@ class PrizeShowPanic implements ArcadeGameInstance {
       mx = goal.x - this.px
       my = goal.y - this.py
     } else if (goal && leaving) {
-      // Heading out: keep pulling for the door while stepping round trouble.
+      // Heading out: keep pulling for the door while stepping round trouble; the last few steps
+      // straight through it (the wall it is in is no reason to back off).
       const d = Math.hypot(goal.x - this.px, goal.y - this.py) || 1
-      mx += ((goal.x - this.px) / d) * 0.8
-      my += ((goal.y - this.py) / d) * 0.8
+      if (d < 36) {
+        mx = goal.x - this.px
+        my = goal.y - this.py
+      } else {
+        mx += ((goal.x - this.px) / d) * 0.8
+        my += ((goal.y - this.py) / d) * 0.8
+      }
     }
     // An armoured front turns confetti: circle round to its back while nothing else calls.
     const plated = this.crashers.find(
@@ -4474,8 +5162,31 @@ class PrizeShowPanic implements ArcadeGameInstance {
       this.renderChoice(g)
       return
     }
+    if (this.picking) {
+      this.renderPick(g)
+      this.renderCutIn(g)
+      return
+    }
     if (this.ending) {
       this.renderEnding(g)
+      this.renderCutIn(g)
+      return
+    }
+    if (this.commercial) {
+      renderBreak(
+        g,
+        this.commercial.state,
+        this.tick,
+        (k, seat, x, y, face, moving) =>
+          this.drawSeat(k, seat, x, y, face, moving),
+      )
+      this.fx.render(g)
+      for (const f of this.floaters)
+        drawText(g, f.text, f.x, f.y, {
+          align: 'center',
+          color: RAMPS.gold[3],
+          outline: INK,
+        })
       this.renderCutIn(g)
       return
     }
@@ -4525,8 +5236,9 @@ class PrizeShowPanic implements ArcadeGameInstance {
     this.renderStreamers(g)
     this.renderShots(g)
     this.renderGlitter(g)
-    if (this.dead === 0 && !this.over) this.renderSparkle(g)
-    this.renderOrbiters(g)
+    if (this.dead === 0 && !this.over)
+      this.eachContestant(() => this.renderSparkle(g))
+    this.eachContestant(() => this.renderOrbiters(g))
     this.renderLobs(g)
     this.renderBoomMics(g)
     this.renderConfetti(g)
@@ -5335,8 +6047,10 @@ class PrizeShowPanic implements ArcadeGameInstance {
     }
     for (const d of this.dancers)
       dropShadow(g, d.x, d.y + 7, 4, 1.4, 0.3 * Math.min(1, d.life / 25))
-    if (this.dead === 0 && !this.over && this.lifted === 0)
-      dropShadow(g, this.px, this.py + 8, 6, 1.8, 0.4)
+    if (this.dead === 0 && !this.over)
+      this.eachContestant(() => {
+        if (this.lifted === 0) dropShadow(g, this.px, this.py + 8, 6, 1.8, 0.4)
+      })
   }
 
   /** The set's floor hazards: counters, hot plates, mosh pits and speaker stacks. */
@@ -5858,7 +6572,8 @@ class PrizeShowPanic implements ArcadeGameInstance {
     }
     if (this.aim.y < 0) cannon()
     if (this.powers.skates > 0) glow(g, x, y + 7, 8, RAMPS.leaf[3], 0.35)
-    drawSprite(g, HERO_SPRITES[view][frame]!, x, y + 8 - (frame ? pace : 0), {
+    const sprites = CONTESTANT_SPRITES[this.cur.who]
+    drawSprite(g, sprites[view][frame]!, x, y + 8 - (frame ? pace : 0), {
       anchor: 'feet',
       flipX: this.aim.x < 0,
     })
@@ -5874,6 +6589,20 @@ class PrizeShowPanic implements ArcadeGameInstance {
           1,
         )
     }
+    if (this.cur.guard) {
+      // Glimmer's own shield: a faint lilac ring while it is up.
+      g.strokeStyle = rgba(RAMPS.purple[3], 0.55)
+      g.lineWidth = 1
+      g.beginPath()
+      g.arc(x, y - 1, 12, 0, Math.PI * 2)
+      g.stroke()
+    }
+    if (this.team.length > 1)
+      drawText(g, `P${this.cur.seat + 1}`, x, y - 22, {
+        align: 'center',
+        color: SEAT_COLOURS[this.cur.seat]!,
+        outline: INK,
+      })
     const shield = this.powers.shield
     if (shield > 0 && !(shield < 120 && Math.floor(this.tick / 4) % 2)) {
       glow(g, x, y - 1, 15, RAMPS.teal[3], 0.3)
@@ -6929,11 +7658,20 @@ class PrizeShowPanic implements ArcadeGameInstance {
   private renderHud(g: CanvasRenderingContext2D) {
     // Score.
     hudPanel(g, 2, 1, 90, 15)
-    drawText(g, String(this.score).padStart(7, '0'), 6, 2, {
-      scale: 2,
-      color: RAMPS.gold[3],
-      shadow: INK,
-    })
+    const digits = String(this.score).padStart(7, '0')
+    if (digits.length <= 7)
+      drawText(g, digits, 6, 2, {
+        scale: 2,
+        color: RAMPS.gold[3],
+        shadow: INK,
+      })
+    else
+      // Past ten million it drops to the small font, so it still fits its panel.
+      drawText(g, digits, 47, 5, {
+        align: 'center',
+        color: RAMPS.gold[3],
+        shadow: INK,
+      })
     // The cannon: what it is loaded with now (confetti, rockets, the laser or foam).
     hudPanel(g, 96, 1, 26, 15)
     const gun = this.cannon()

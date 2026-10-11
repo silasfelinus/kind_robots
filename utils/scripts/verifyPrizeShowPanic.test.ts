@@ -69,6 +69,7 @@ type Boss = Point & {
   finale: boolean
 }
 type Inner = {
+  picking: unknown
   score: number
   level: number
   lives: number
@@ -138,13 +139,22 @@ const DOORS: Point[] = [
   { x: 10, y: 128 },
 ]
 
+/** Past the contestant pick card (each seat takes the contestant under its cursor). */
+function skipPick(g: { picking: unknown; update(input: InputFrame): void }) {
+  if (!g.picking) return
+  ;(g.picking as { ticks: number }).ticks = 1e9
+  g.update(emptyInput())
+}
+
 function fresh(seed = 3, demo = false): Inner {
-  return create({
+  const g = create({
     rng: mulberry32(seed),
     sound: { play: () => {} },
     demo,
     hiScore: 0,
   }) as unknown as Inner
+  skipPick(g)
+  return g
 }
 
 /** A room entered from `entry`, with its modifier pinned (null: none). */
@@ -849,8 +859,13 @@ for (const ep of SEASON) {
     safeTick(f)
   }
   assert.ok(f.tally, 'the wrap opens the prize tally')
-  for (let t = 0; t < 2000 && f.episodeIndex === 0; t++) f.update(emptyInput())
-  assert.equal(f.episodeIndex, 1, 'and after the tally and the swap, episode 2')
+  // The tally, the swap, a commercial break (a mini-game), then episode 2.
+  for (let t = 0; t < 8000 && f.episodeIndex === 0; t++) f.update(emptyInput())
+  assert.equal(
+    f.episodeIndex,
+    1,
+    'and after the tally, the swap and a break, episode 2',
+  )
   assert.equal(f.roomId, SEASON[1]!.start)
   assert.equal(f.loop, 1)
   // After the Live Finale (without ten tickets): the ending, the credits, then a rerun.

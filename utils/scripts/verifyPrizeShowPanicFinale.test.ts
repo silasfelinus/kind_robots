@@ -56,6 +56,7 @@ type Shot = Point & {
   hits: unknown[]
 }
 type Inner = {
+  picking: unknown
   score: number
   level: number
   lives: number
@@ -107,14 +108,23 @@ type Inner = {
   removeCrasher(c: Crasher): void
 }
 
+/** Past the contestant pick card (each seat takes the contestant under its cursor). */
+function skipPick(g: { picking: unknown; update(input: InputFrame): void }) {
+  if (!g.picking) return
+  ;(g.picking as { ticks: number }).ticks = 1e9
+  g.update(emptyInput())
+}
+
 function fresh(seed = 3, demo = false, resume?: unknown): Inner {
-  return create({
+  const g = create({
     rng: mulberry32(seed),
     sound: { play: () => {} },
     demo,
     hiScore: 0,
     resume,
   }) as unknown as Inner
+  skipPick(g)
+  return g
 }
 
 /** A room of episode `episode` (0-based) with its own script stopped, so tests count their own. */

@@ -467,18 +467,20 @@ function walk(game: Game, from: Tile, to: Tile): number {
   assert.equal(game.prize, null, 'no prize before the maze is under way')
   game.eaten = Math.ceil(game.totalSparks * 0.3)
   game.rollPrize()
-  const p = game.prize!
+  const roaming = () => (game as Game).prize
+  const p = roaming()!
   assert.ok(p, 'a prize rolls in')
   assert.equal(p.kind, 1, 'the heat-2 prize')
   assert.ok([5, 15].includes(p.y) && (p.x === 0 || p.x === 22), 'from a tunnel')
   const start = { x: p.x, y: p.y }
   Object.assign(game.robot, { x: 11, y: 11 })
   for (let i = 0; i < 120; i++) game.movePrize()
+  const moved = roaming()!
   assert.ok(
-    game.prize && (game.prize.x !== start.x || game.prize.y !== start.y),
+    moved && (moved.x !== start.x || moved.y !== start.y),
     'it wanders into the maze',
   )
-  Object.assign(game.robot, { x: game.prize.x, y: game.prize.y })
+  Object.assign(game.robot, { x: moved.x, y: moved.y })
   const score = game.score
   game.movePrize()
   assert.equal(game.score - score, PRIZES[1]!.points, 'caught')

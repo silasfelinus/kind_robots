@@ -36,15 +36,16 @@ export type MapPoint = { x: number; y: number }
 /** A named place on the map, by stage. */
 export type MapPlace = MapPoint & { name: string }
 
+// Pinned to the painted map's landmarks (conductor art/T029-WORLD-MAP.yaml wasteland-map-3, krea2).
 export const PLACES: Record<string, MapPlace> = {
-  'hollow-bell': { name: 'HOLLOW BELL', x: 0.17, y: 0.46 },
-  'lone-apple-tree': { name: 'LONE APPLE TREE', x: 0.1, y: 0.22 },
-  'the-mission': { name: 'THE MISSION', x: 0.27, y: 0.74 },
-  'watering-hole': { name: 'THE WATERING HOLE', x: 0.48, y: 0.5 },
-  'storm-canyon': { name: 'STORM CANYON', x: 0.68, y: 0.18 },
-  'bone-yard': { name: 'BONE YARD', x: 0.78, y: 0.5 },
-  'the-dunes': { name: 'THE DUNES', x: 0.68, y: 0.78 },
-  'the-thin-place': { name: 'THE THIN PLACE', x: 0.92, y: 0.3 },
+  'hollow-bell': { name: 'HOLLOW BELL', x: 0.12, y: 0.41 },
+  'lone-apple-tree': { name: 'LONE APPLE TREE', x: 0.13, y: 0.19 },
+  'the-mission': { name: 'THE MISSION', x: 0.18, y: 0.69 },
+  'watering-hole': { name: 'THE WATERING HOLE', x: 0.42, y: 0.47 },
+  'storm-canyon': { name: 'STORM CANYON', x: 0.63, y: 0.22 },
+  'bone-yard': { name: 'BONE YARD', x: 0.81, y: 0.5 },
+  'the-dunes': { name: 'THE DUNES', x: 0.67, y: 0.8 },
+  'the-thin-place': { name: 'THE THIN PLACE', x: 0.95, y: 0.26 },
 }
 
 /**
@@ -56,8 +57,8 @@ export const HOMES: Record<string, MapPoint> = {
   'the-siblings': PLACES['lone-apple-tree']!,
   'the-abbess': PLACES['the-mission']!,
   'river-croc': PLACES['watering-hole']!,
-  'coyote-vagrant': { x: 0.39, y: 0.6 },
-  'swamp-witch': { x: 0.58, y: 0.61 },
+  'coyote-vagrant': { x: 0.35, y: 0.54 },
+  'swamp-witch': { x: 0.55, y: 0.47 },
   'storm-crow': PLACES['storm-canyon']!,
   'hyena-matriarch': PLACES['bone-yard']!,
   'old-komodo': PLACES['the-dunes']!,

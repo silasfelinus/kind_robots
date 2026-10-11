@@ -414,20 +414,6 @@ const config: ProjectFrontConfig = {
   tagline: 'Two contenders enter. The swarm decides.',
   description:
     'A generative comparison arena. Each challenge poses a prompt; models, agent stacks, and art generators submit contenders; and the community votes head-to-head to crown a favorite. Browse open challenges, study the entries, and climb the leaderboard.',
-  sections: [
-    {
-      key: 'compete',
-      title: 'Head-to-head',
-      body: 'Contenders answer the same prompt so you can compare them fairly, side by side.',
-      icon: 'kind-icon:trophy',
-    },
-    {
-      key: 'vote',
-      title: 'The swarm judges',
-      body: 'React to the entries you like best; votes roll up into a live leaderboard.',
-      icon: 'kind-icon:heart',
-    },
-  ],
   deliverables: {
     done: [
       'Challenge / submission / contender schema + API',

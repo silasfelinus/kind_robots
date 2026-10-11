@@ -1,22 +1,7 @@
 <template>
   <main class="kr-surface h-full min-h-0 overflow-hidden">
     <div class="kr-scroll kr-container-wide space-y-4 p-4 md:p-6">
-      <header
-        class="kr-toolbar flex flex-wrap items-start justify-between gap-4"
-      >
-        <div>
-          <p class="kr-text-eyebrow text-xs tracking-widest text-primary">
-            Temporary catalog cleanup
-          </p>
-          <div class="kr-text-black-2xl mt-1">LoRA triage</div>
-          <p class="kr-text-dim-sm mt-1 max-w-3xl">
-            Confirm LoRAs as SFW or NSFW, and say what each one is FOR — a
-            character, a style, a setting. The category is what the image
-            generator rolls from, so an unclassified LoRA is one
-            <span class="font-mono">{character}</span> can never pick. Save both
-            in one pass; progress stays in this browser until then.
-          </p>
-        </div>
+      <header class="kr-toolbar flex flex-wrap items-start justify-end gap-4">
 
         <div class="flex flex-wrap items-center gap-2">
           <button

@@ -1,5 +1,12 @@
 import { defineStore } from 'pinia'
 import { journeyCharacterSheet } from '~/utils/shiftingLands/progression'
+import {
+  migrateJourneyLedger,
+  newJourneyLedger,
+  restoreJourneyLedger,
+  stepJourneyLedger,
+  type JourneyLedgerAction,
+} from '~/utils/shiftingLands/saveLedger'
 import { computed, ref } from 'vue'
 import {
   JOURNEY_WORLD,
@@ -10,21 +17,20 @@ import {
 import {
   activeAuthoredEncounter,
   authoredOutcomeForLocation,
-  newAuthoredJourney,
-  restoreAuthoredJourney,
-  stepAuthoredJourney,
-  type AuthoredAction,
-  type AuthoredJourneyState,
 } from '~/utils/shiftingLands/authoredJourney'
 
-const SAVE_KEY = 'kr.shiftingLands.authoredJourney.v2'
+const SAVE_KEY = 'kr.shiftingLands.journeyLedger.v3'
+const LEGACY_SAVE_KEY = 'kr.shiftingLands.authoredJourney.v2'
 
 export const useShiftingLandsJourneyStore = defineStore(
   'shiftingLandsJourney',
   () => {
-    const session = ref<AuthoredJourneyState>(newAuthoredJourney(20261009))
+    const ledger = ref(newJourneyLedger(20261009))
+    const session = computed(() => ledger.value.current)
     const state = computed(() => session.value.journey)
-    const characterSheet = computed(() => journeyCharacterSheet(session.value))
+    const characterSheet = computed(() =>
+      journeyCharacterSheet(session.value, ledger.value.usedRewards),
+    )
     const loaded = ref(false)
     const restoreWarning = ref(false)
     const currentLand = computed(
@@ -79,10 +85,21 @@ export const useShiftingLandsJourneyStore = defineStore(
       if (!import.meta.client) return
       try {
         const saved = window.localStorage.getItem(SAVE_KEY)
-        if (!saved) return
-        const restored = restoreAuthoredJourney(JSON.parse(saved))
-        if (restored) session.value = restored
-        else restoreWarning.value = true
+        if (saved !== null) {
+          const restored = restoreJourneyLedger(JSON.parse(saved))
+          if (restored) ledger.value = restored
+          else restoreWarning.value = true
+          return
+        }
+        const legacy = window.localStorage.getItem(LEGACY_SAVE_KEY)
+        if (legacy === null) return
+        const migrated = migrateJourneyLedger(JSON.parse(legacy))
+        if (!migrated) {
+          restoreWarning.value = true
+          return
+        }
+        ledger.value = migrated
+        persist()
       } catch {
         restoreWarning.value = true
       }
@@ -90,16 +107,16 @@ export const useShiftingLandsJourneyStore = defineStore(
     function persist() {
       if (!import.meta.client) return
       try {
-        window.localStorage.setItem(SAVE_KEY, JSON.stringify(session.value))
+        window.localStorage.setItem(SAVE_KEY, JSON.stringify(ledger.value))
       } catch {
         restoreWarning.value = true
       }
     }
-    function dispatch(action: AuthoredAction): boolean {
+    function dispatch(action: JourneyLedgerAction): boolean {
       if (!loaded.value) return false
-      const next = stepAuthoredJourney(session.value, action)
-      if (next === session.value) return false
-      session.value = next
+      const next = stepJourneyLedger(ledger.value, action)
+      if (next === ledger.value) return false
+      ledger.value = next
       restoreWarning.value = false
       persist()
       return true
@@ -122,13 +139,17 @@ export const useShiftingLandsJourneyStore = defineStore(
     function confront(approach: BossApproach) {
       return dispatch({ type: 'BOSS', approach })
     }
+    function useReward(rewardId: string) {
+      return dispatch({ type: 'USE_REWARD', rewardId })
+    }
     function fresh() {
       if (!loaded.value) return
-      session.value = newAuthoredJourney(Date.now() % 2147483647)
+      ledger.value = newJourneyLedger(Date.now() % 2147483647)
       restoreWarning.value = false
       persist()
     }
     return {
+      ledger,
       session,
       state,
       characterSheet,
@@ -153,6 +174,7 @@ export const useShiftingLandsJourneyStore = defineStore(
       travel,
       draw,
       choose,
+      useReward,
       resolve,
       confront,
       fresh,

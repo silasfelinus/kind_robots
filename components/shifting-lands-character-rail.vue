@@ -9,7 +9,9 @@
         alt="Zuzu the grey koala ronin on the frontier"
         class="aspect-[16/9] w-full object-cover"
       />
-      <div class="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/85 to-transparent px-4 pb-3 pt-10 text-white">
+      <div
+        class="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/85 to-transparent px-4 pb-3 pt-10 text-white"
+      >
         <p class="text-[10px] font-black uppercase tracking-[.22em] opacity-80">
           The traveling ronin
         </p>
@@ -37,11 +39,18 @@
       </div>
       <div class="flex justify-between gap-2 text-xs opacity-75">
         <span>{{ sheet.resolvedEncounters }} / 15 encounters</span>
-        <span>Seed <code>{{ seed }}</code></span>
+        <span
+          >Seed <code>{{ seed }}</code></span
+        >
       </div>
 
-      <details class="group rounded-xl border border-base-content/15 bg-base-300/60" open>
-        <summary class="cursor-pointer px-3 py-3 text-sm font-black focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary">
+      <details
+        class="group rounded-xl border border-base-content/15 bg-base-300/60"
+        open
+      >
+        <summary
+          class="cursor-pointer px-3 py-3 text-sm font-black focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary"
+        >
           <span class="inline-flex items-center gap-2">
             <Icon name="kind-icon:dice" class="size-4 text-warning" />
             Skills and techniques
@@ -84,11 +93,20 @@
         </p>
       </details>
 
-      <details class="group rounded-xl border border-base-content/15 bg-base-300/60" open>
-        <summary class="cursor-pointer px-3 py-3 text-sm font-black focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary">
+      <details
+        class="group rounded-xl border border-base-content/15 bg-base-300/60"
+        open
+      >
+        <summary
+          class="cursor-pointer px-3 py-3 text-sm font-black focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary"
+        >
           <span class="inline-flex items-center gap-2">
             <Icon name="kind-icon:bag" class="size-4 text-warning" />
-            Inventory · {{ sheet.inventory.filter((item) => item.available).length }} available
+            Inventory ·
+            {{
+              sheet.inventory.filter((item) => item.available).length
+            }}
+            available
           </span>
         </summary>
         <div class="space-y-2 border-t border-base-content/10 px-3 py-3">
@@ -105,7 +123,11 @@
                 {{ item.name }}
               </p>
               <p class="mt-1 opacity-65">
-                {{ item.kind === 'evidence' ? 'Evidence · kept as a clue' : rewardDescription(item.id) }}
+                {{
+                  item.kind === 'evidence'
+                    ? 'Evidence · kept as a clue'
+                    : rewardDescription(item.id)
+                }}
               </p>
               <p v-if="!item.available" class="mt-1 font-bold opacity-65">
                 Already used
@@ -132,8 +154,12 @@
         </div>
       </details>
 
-      <details class="group rounded-xl border border-base-content/15 bg-base-300/60">
-        <summary class="cursor-pointer px-3 py-3 text-sm font-black focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary">
+      <details
+        class="group rounded-xl border border-base-content/15 bg-base-300/60"
+      >
+        <summary
+          class="cursor-pointer px-3 py-3 text-sm font-black focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary"
+        >
           <span class="inline-flex items-center gap-2">
             <Icon name="kind-icon:users" class="size-4 text-warning" />
             Allies and contacts · {{ sheet.relationships.length }}
@@ -141,8 +167,9 @@
         </summary>
         <div class="space-y-2 border-t border-base-content/10 px-3 py-3">
           <p class="text-[11px] leading-relaxed opacity-65">
-            People met along the road are not automatically traveling companions.
-            Only relationships earned in your recorded encounters appear here.
+            People met along the road are not automatically traveling
+            companions. Only relationships earned in your recorded encounters
+            appear here.
           </p>
           <p
             v-if="!sheet.relationships.length"
@@ -158,13 +185,22 @@
             <div>
               <p class="font-bold">{{ contact.name }}</p>
               <p class="mt-0.5 opacity-60">
-                {{ contact.traveling ? 'Traveling companion' : 'Contact · not traveling' }}
+                {{
+                  contact.traveling
+                    ? 'Traveling companion'
+                    : 'Contact · not traveling'
+                }}
               </p>
             </div>
             <span
               class="badge badge-sm"
-              :class="contact.disposition === 'trusted' ? 'badge-success' : 'badge-warning'"
-            >{{ contact.disposition }}</span>
+              :class="
+                contact.disposition === 'trusted'
+                  ? 'badge-success'
+                  : 'badge-warning'
+              "
+              >{{ contact.disposition }}</span
+            >
           </div>
         </div>
       </details>
@@ -173,7 +209,10 @@
 </template>
 
 <script setup lang="ts">
-import { canUseJourneyReward, type JourneyCharacterSheet } from '~/utils/shiftingLands/progression'
+import {
+  canUseJourneyReward,
+  type JourneyCharacterSheet,
+} from '~/utils/shiftingLands/progression'
 import type { Skill } from '~/utils/shiftingLands/journey'
 
 const props = defineProps<{
@@ -193,12 +232,14 @@ const skillNames: readonly Skill[] = [
 ]
 function rewardDescription(id: string): string {
   if (id === 'willow-bark-dose') return 'Medicine · restores up to 2 health'
-  if (id === 'recovered-rations') return 'Supplies · restores up to 2 provisions'
+  if (id === 'recovered-rations')
+    return 'Supplies · restores up to 2 provisions'
   return 'Earned supply'
 }
 function canUse(id: string): boolean {
   if (['complete', 'fallen', 'retired'].includes(props.phase)) return false
-  if (id === 'willow-bark-dose' && props.sheet.hp >= props.sheet.maxHp) return false
+  if (id === 'willow-bark-dose' && props.sheet.hp >= props.sheet.maxHp)
+    return false
   if (id === 'recovered-rations' && props.sheet.provisions >= 30) return false
   return canUseJourneyReward(props.sheet, id)
 }

@@ -872,7 +872,8 @@
           >
             <h3 class="font-serif text-lg font-black">Presentation</h3>
             <p class="mt-1 text-xs opacity-65">
-              Display preferences only. These never change dice, actions, or saved results.
+              Display preferences only. These never change dice, actions, or
+              saved results.
             </p>
             <div class="mt-3 flex flex-wrap gap-2">
               <button
@@ -935,13 +936,19 @@
             <p class="text-xs opacity-65">
               Your past roads stay written, even when the landscape shifts.
             </p>
-            <div class="mt-3 flex flex-wrap gap-1" role="group" aria-label="Journal filters">
+            <div
+              class="mt-3 flex flex-wrap gap-1"
+              role="group"
+              aria-label="Journal filters"
+            >
               <button
                 v-for="filter in journalFilters"
                 :key="filter.value"
                 type="button"
                 class="btn btn-xs"
-                :class="journalFilter === filter.value ? 'btn-primary' : 'btn-ghost'"
+                :class="
+                  journalFilter === filter.value ? 'btn-primary' : 'btn-ghost'
+                "
                 :aria-pressed="journalFilter === filter.value"
                 @click="journalFilter = filter.value"
               >
@@ -1062,7 +1069,10 @@
 import { computed, nextTick, onMounted, ref } from 'vue'
 import { useShiftingLandsJourneyStore } from '~/stores/shiftingLandsJourneyStore'
 import { findFiveLandCard } from '~/utils/shiftingLands/authoredFiveLands'
-import type { BossApproach, EncounterApproach } from '~/utils/shiftingLands/journey'
+import type {
+  BossApproach,
+  EncounterApproach,
+} from '~/utils/shiftingLands/journey'
 import ShiftingLandsCharacterRail from '~/components/shifting-lands-character-rail.vue'
 
 const emit = defineEmits<{ legacy: [] }>()
@@ -1106,7 +1116,10 @@ const journalFilters: Array<{ value: JournalFilter; label: string }> = [
 ]
 const visibleJournal = computed(() =>
   [...game.state.journal]
-    .filter((item) => journalFilter.value === 'all' || item.kind === journalFilter.value)
+    .filter(
+      (item) =>
+        journalFilter.value === 'all' || item.kind === journalFilter.value,
+    )
     .reverse(),
 )
 const PRESENTATION_KEY = 'kr.shiftingLands.presentation.v1'
@@ -1237,7 +1250,10 @@ function cueDiceResult() {
     const volume = audio.createGain()
     oscillator.type = 'triangle'
     oscillator.frequency.setValueAtTime(325, audio.currentTime)
-    oscillator.frequency.exponentialRampToValueAtTime(210, audio.currentTime + 0.12)
+    oscillator.frequency.exponentialRampToValueAtTime(
+      210,
+      audio.currentTime + 0.12,
+    )
     volume.gain.setValueAtTime(0.025, audio.currentTime)
     volume.gain.exponentialRampToValueAtTime(0.001, audio.currentTime + 0.14)
     oscillator.connect(volume)
@@ -1262,7 +1278,9 @@ function startOver() {
 onMounted(() => {
   game.initialize()
   if (!import.meta.client) return
-  reducedMotion.value = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+  reducedMotion.value = window.matchMedia(
+    '(prefers-reduced-motion: reduce)',
+  ).matches
   try {
     const stored = window.localStorage.getItem(PRESENTATION_KEY)
     if (!stored) return

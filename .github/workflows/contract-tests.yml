@@ -198,6 +198,9 @@ jobs:
       - name: Zuzu Showdown taunt screens
         run: npm run test:zuzu-showdown-screens
 
+      - name: Zuzu Showdown Arcade mode
+        run: npm run test:zuzu-showdown-arcade
+
       - name: Zuzu Showdown stages
         run: npm run test:zuzu-showdown-stages
 

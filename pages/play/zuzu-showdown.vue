@@ -59,6 +59,13 @@
               </option>
               <option value="dummy">Training dummy</option>
               <option value="versus">Player 2</option>
+              <option
+                v-for="level in CPU_LEVELS"
+                :key="`arcade-${level}`"
+                :value="`arcade:${level}`"
+              >
+                Arcade · {{ CPU_LEVEL_NAMES[level] }}
+              </option>
             </select>
           </label>
           <label class="flex items-center gap-2 text-sm">
@@ -256,14 +263,17 @@ const CPU_LEVEL_NAMES: Record<CpuLevel, string> = {
 }
 
 const opponentValue = computed(() =>
-  store.mode === 'cpu' ? `cpu:${store.cpuLevel}` : store.mode,
+  store.mode === 'cpu' || store.mode === 'arcade'
+    ? `${store.mode}:${store.cpuLevel}`
+    : store.mode,
 )
 
 function onMode(event: Event) {
   const value = (event.target as HTMLSelectElement).value
-  if (value.startsWith('cpu:')) {
-    store.setCpuLevel(value.slice(4) as CpuLevel)
-    store.setMode('cpu')
+  const [mode, level] = value.split(':')
+  if (level && (mode === 'cpu' || mode === 'arcade')) {
+    store.setCpuLevel(level as CpuLevel)
+    store.setMode(mode)
   } else store.setMode(value === 'versus' ? 'versus' : 'dummy')
 }
 

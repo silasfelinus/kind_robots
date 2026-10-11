@@ -16,8 +16,11 @@ import {
   type TrainingPlace,
 } from '~/utils/zuzuShowdown/training'
 
-/** P2 is a CPU opponent, a second player, or the training dummy. */
-export type ShowdownMode = 'cpu' | 'versus' | 'dummy'
+/**
+ * P2 is a CPU opponent, a second player, or the training dummy; or Arcade (t-021), where P1 climbs a
+ * ladder of CPU fights that starts at the CPU's level.
+ */
+export type ShowdownMode = 'cpu' | 'versus' | 'dummy' | 'arcade'
 
 type ShowdownPrefs = {
   /** PREFS_VERSION when written; older saves predate today's defaults. */
@@ -94,7 +97,11 @@ export const useZuzuShowdownStore = defineStore('zuzuShowdownStore', () => {
     easySpecials.value = prefs.easySpecials ?? options.coarsePointer
     showBoxes.value = prefs.showBoxes === true
     mode.value =
-      prefs.mode === 'versus' || prefs.mode === 'dummy' ? prefs.mode : 'cpu'
+      prefs.mode === 'versus' ||
+      prefs.mode === 'dummy' ||
+      prefs.mode === 'arcade'
+        ? prefs.mode
+        : 'cpu'
     cpuLevel.value =
       prefs.cpuLevel && CPU_LEVELS.includes(prefs.cpuLevel)
         ? prefs.cpuLevel

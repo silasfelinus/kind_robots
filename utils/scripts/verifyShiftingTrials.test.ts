@@ -9,7 +9,10 @@ import {
 } from '../shiftingLands/authoredBosses'
 import { activeFiveLandEncounter } from '../shiftingLands/authoredFiveLands'
 import { JOURNEY_WORLD, reachableLocations } from '../shiftingLands/journey'
-import { newJourneyLedgerV4, restoreJourneyLedgerV4 } from '../shiftingLands/saveLedgerV4'
+import {
+  newJourneyLedgerV4,
+  restoreJourneyLedgerV4,
+} from '../shiftingLands/saveLedgerV4'
 import {
   newJourneyLedgerV5,
   restoreJourneyLedgerV5,
@@ -20,7 +23,9 @@ import {
 
 const clone = <T>(value: T): T => JSON.parse(JSON.stringify(value))
 const file = (path: string) => fileURLToPath(new URL(path, import.meta.url))
-const bossSource = JSON.parse(readFileSync(file('../shiftingLands/authoredTrials.json'), 'utf8'))
+const bossSource = JSON.parse(
+  readFileSync(file('../shiftingLands/authoredTrials.json'), 'utf8'),
+)
 assert.equal(TRIAL_SOURCE_VERSION, 1)
 assert.equal(TRIAL_SOURCE_SHA.length, 40)
 assert.equal(AUTHORED_TRIALS.length, 5)
@@ -31,30 +36,43 @@ assert.deepEqual(
 for (const trial of AUTHORED_TRIALS) {
   assert.equal(trial.art, null)
   assert.ok(trial.flavor.length >= 110)
-  assert.deepEqual(trial.choices.map((choice) => choice.id), ['confront', 'parley', 'evidence'])
+  assert.deepEqual(
+    trial.choices.map((choice) => choice.id),
+    ['confront', 'parley', 'evidence'],
+  )
   assert.equal(new Set(trial.choices.map((choice) => choice.id)).size, 3)
-  assert.ok(trial.choices.every((choice) =>
-    choice.target >= 7 &&
-    choice.target <= 13 &&
-    choice.success.length >= 65 &&
-    choice.failure.length >= 65 &&
-    choice.success !== choice.failure &&
-    Number.isInteger(choice.cost) &&
-    choice.cost >= 0 &&
-    choice.cost <= 1,
-  ))
+  assert.ok(
+    trial.choices.every(
+      (choice) =>
+        choice.target >= 7 &&
+        choice.target <= 13 &&
+        choice.success.length >= 65 &&
+        choice.failure.length >= 65 &&
+        choice.success !== choice.failure &&
+        Number.isInteger(choice.cost) &&
+        choice.cost >= 0 &&
+        choice.cost <= 1,
+    ),
+  )
   assert.equal(trial.choices[0]!.requiredAnyFlags.length, 0)
   assert.equal(trial.choices[1]!.requiredAnyFlags.length, 0)
   assert.ok(trial.choices[2]!.requiredAnyFlags.length >= 3)
   assert.equal(canChooseTrial(trial.choices[2]!, [], 30), false)
   assert.equal(
-    canChooseTrial(trial.choices[2]!, [trial.choices[2]!.requiredAnyFlags[0]!], 30),
+    canChooseTrial(
+      trial.choices[2]!,
+      [trial.choices[2]!.requiredAnyFlags[0]!],
+      30,
+    ),
     true,
   )
   assert.equal(canChooseTrial(trial.choices[1]!, [], 0), false)
   assert.equal(canChooseTrial(trial.choices[0]!, [], 0), true)
 }
-assert.equal(AUTHORED_TRIALS.some((trial) => 'editorialNote' in trial), false)
+assert.equal(
+  AUTHORED_TRIALS.some((trial) => 'editorialNote' in trial),
+  false,
+)
 assert.match(bossSource.trials[0].editorialNote, /cosmic entity/)
 assert.doesNotMatch(
   AUTHORED_TRIALS[0]!.flavor,
@@ -72,16 +90,39 @@ assert.equal(restoreJourneyLedgerV4(clone(initial)), null)
 assert.equal(restoreJourneyLedgerV5(clone(old)), null)
 assert.equal(restoreJourneyLedgerV5({ ...initial, trialSha: 'wrong' }), null)
 assert.equal(restoreJourneyLedgerV5({ ...initial, worldSha: 'wrong' }), null)
-assert.equal(restoreJourneyLedgerV5({ ...initial, usedRewards: ['invented'] }), null)
-assert.equal(restoreJourneyLedgerV5({ ...initial, trialResults: [{ invented: true }] }), null)
-assert.equal(restoreJourneyLedgerV5({ ...initial, current: { ...initial.current, flags: ['invented'] } }), null)
-assert.equal(restoreJourneyLedgerV5({
-  ...initial, actions: [{ type: 'TRIAL', choiceId: 'confront' }],
-}), null)
-assert.equal(restoreJourneyLedgerV5({
-  ...initial, actions: [{ type: 'BOSS', approach: 'challenge' }],
-}), null)
-assert.strictEqual(stepJourneyLedgerV5(initial, { type: 'TRIAL', choiceId: 'confront' }), initial)
+assert.equal(
+  restoreJourneyLedgerV5({ ...initial, usedRewards: ['invented'] }),
+  null,
+)
+assert.equal(
+  restoreJourneyLedgerV5({ ...initial, trialResults: [{ invented: true }] }),
+  null,
+)
+assert.equal(
+  restoreJourneyLedgerV5({
+    ...initial,
+    current: { ...initial.current, flags: ['invented'] },
+  }),
+  null,
+)
+assert.equal(
+  restoreJourneyLedgerV5({
+    ...initial,
+    actions: [{ type: 'TRIAL', choiceId: 'confront' }],
+  }),
+  null,
+)
+assert.equal(
+  restoreJourneyLedgerV5({
+    ...initial,
+    actions: [{ type: 'BOSS', approach: 'challenge' }],
+  }),
+  null,
+)
+assert.strictEqual(
+  stepJourneyLedgerV5(initial, { type: 'TRIAL', choiceId: 'confront' }),
+  initial,
+)
 assert.strictEqual(stepJourneyLedgerV5(initial, { type: 'RETREAT' }), initial)
 
 let reachedFive = 0
@@ -95,16 +136,26 @@ for (let seed = 1; seed <= 260; seed++) {
     const state = ledger.current.journey
     const land = JOURNEY_WORLD.lands[state.landIndex]!
     usedLand.add(land.id)
-    if (state.phase === 'complete' || state.phase === 'fallen' || state.phase === 'retired') break
+    if (
+      state.phase === 'complete' ||
+      state.phase === 'fallen' ||
+      state.phase === 'retired'
+    )
+      break
     if (state.phase === 'boss') {
       const trial = trialForLand(land.id)!
-      const evidence = trial.choices.find((choice) =>
-        choice.id === 'evidence' && canChooseTrial(choice, ledger.current.flags, state.provisions),
+      const evidence = trial.choices.find(
+        (choice) =>
+          choice.id === 'evidence' &&
+          canChooseTrial(choice, ledger.current.flags, state.provisions),
       )
       const choice = evidence ?? trial.choices[0]!
       if (evidence) evidenceAttempt++
       const before = ledger
-      const next = stepJourneyLedgerV5(before, { type: 'TRIAL', choiceId: choice.id })
+      const next = stepJourneyLedgerV5(before, {
+        type: 'TRIAL',
+        choiceId: choice.id,
+      })
       assert.notStrictEqual(next, before)
       assert.equal(next.trialResults.length, before.trialResults.length + 1)
       const last = next.trialResults.at(-1)!
@@ -112,17 +163,27 @@ for (let seed = 1; seed <= 260; seed++) {
       assert.equal(last.choiceId, choice.id)
       assert.equal(last.bossId, land.boss.id)
       assert.equal(last.roll.dice.length, 2)
-      assert.equal(last.roll.total,
-        last.roll.dice[0] + last.roll.dice[1] + last.roll.modifier)
+      assert.equal(
+        last.roll.total,
+        last.roll.dice[0] + last.roll.dice[1] + last.roll.modifier,
+      )
       assert.equal(last.roll.difficulty, choice.target)
-      assert.equal(last.resultText,
-        last.roll.success ? choice.success : choice.failure)
+      assert.equal(
+        last.resultText,
+        last.roll.success ? choice.success : choice.failure,
+      )
       if (last.roll.success) {
         bossSuccess++
-        assert.equal(next.current.journey.bosses.length, before.current.journey.bosses.length + 1)
+        assert.equal(
+          next.current.journey.bosses.length,
+          before.current.journey.bosses.length + 1,
+        )
       } else {
         bossFailure++
-        assert.equal(next.current.journey.bosses.length, before.current.journey.bosses.length)
+        assert.equal(
+          next.current.journey.bosses.length,
+          before.current.journey.bosses.length,
+        )
       }
       assert.strictEqual(
         stepJourneyLedgerV5(next, { type: 'TRIAL', choiceId: 'invalid' }),
@@ -135,9 +196,13 @@ for (let seed = 1; seed <= 260; seed++) {
       const encounter = activeFiveLandEncounter(ledger.current)
       assert.ok(encounter)
       const choice = [...encounter!.choices].sort(
-        (a, b) => a.roll.target - a.roll.modifier - b.roll.target + b.roll.modifier,
+        (a, b) =>
+          a.roll.target - a.roll.modifier - b.roll.target + b.roll.modifier,
       )[0]!
-      const next = stepJourneyLedgerV5(ledger, { type: 'CHOOSE', choiceId: choice.id })
+      const next = stepJourneyLedgerV5(ledger, {
+        type: 'CHOOSE',
+        choiceId: choice.id,
+      })
       assert.notStrictEqual(next, ledger)
       ledger = next
       continue
@@ -146,7 +211,10 @@ for (let seed = 1; seed <= 260; seed++) {
       (id) => !state.resolved.some((entry) => entry.locationId === id),
     )
     assert.ok(locationId)
-    const next = stepJourneyLedgerV5(ledger, { type: 'TRAVEL', locationId: locationId! })
+    const next = stepJourneyLedgerV5(ledger, {
+      type: 'TRAVEL',
+      locationId: locationId!,
+    })
     assert.notStrictEqual(next, ledger)
     ledger = next
   }
@@ -166,6 +234,11 @@ for (let seed = 1; seed <= 260; seed++) {
 assert.ok(bossSuccess > 60)
 assert.ok(bossFailure > 30)
 assert.ok(evidenceAttempt > 0, 'clue-earned trial path must be reachable')
-assert.ok(reachedFive > 0, 'at least one seeded expedition clears all five trials')
+assert.ok(
+  reachedFive > 0,
+  'at least one seeded expedition clears all five trials',
+)
 assert.deepEqual(usedLand, new Set(JOURNEY_WORLD.lands.map((land) => land.id)))
-console.log('Shifting Lands authored trials: five distinct bosses, clue gating, alternatives, failed/successful dice, V4 isolation and V5 replay verified')
+console.log(
+  'Shifting Lands authored trials: five distinct bosses, clue gating, alternatives, failed/successful dice, V4 isolation and V5 replay verified',
+)

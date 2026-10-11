@@ -4,12 +4,13 @@ import {
   type AuthoredJourneyState,
 } from './authoredJourney'
 import { LATER_LAND_PACK } from './authoredFiveLands'
-import { retireAuthoredTrial, stepAuthoredTrial, type TrialResult } from './authoredBosses'
-import { JOURNEY_WORLD } from './journey'
 import {
-  newJourneyLedgerV4,
-  stepJourneyLedgerV4,
-} from './saveLedgerV4'
+  retireAuthoredTrial,
+  stepAuthoredTrial,
+  type TrialResult,
+} from './authoredBosses'
+import { JOURNEY_WORLD } from './journey'
+import { newJourneyLedgerV4, stepJourneyLedgerV4 } from './saveLedgerV4'
 import type { JourneyLedgerAction } from './saveLedger'
 
 export type JourneyActionV5 =
@@ -140,7 +141,8 @@ export function restoreJourneyLedgerV5(value: unknown): JourneyLedgerV5 | null {
     !Array.isArray(saved.usedRewards) ||
     !Array.isArray(saved.trialResults) ||
     !saved.current
-  ) return null
+  )
+    return null
   try {
     if (JSON.stringify(value).length > MAX_SAVE_SIZE) return null
     let current = newAuthoredJourney(saved.seed)
@@ -157,7 +159,8 @@ export function restoreJourneyLedgerV5(value: unknown): JourneyLedgerV5 | null {
       JSON.stringify(current) !== JSON.stringify(saved.current) ||
       JSON.stringify(usedRewards) !== JSON.stringify(saved.usedRewards) ||
       JSON.stringify(trialResults) !== JSON.stringify(saved.trialResults)
-    ) return null
+    )
+      return null
     return {
       ...newJourneyLedgerV5(saved.seed),
       actions: saved.actions.map((action) => ({ ...action })),

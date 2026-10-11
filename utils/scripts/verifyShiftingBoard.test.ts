@@ -59,11 +59,20 @@ assert.match(store, /restoreJourneyLedgerV4\(JSON\.parse\(savedV4\)\)/)
 assert.match(store, /restoreJourneyLedger\(JSON\.parse\(savedV3\)\)/)
 assert.match(store, /migrateJourneyLedger\(JSON\.parse\(legacy\)\)/)
 assert.match(store, /if \(next === ledger\.value\) return false/)
-assert.match(store, /stepJourneyLedger\(active, action as JourneyLedgerAction\)/)
-assert.match(store, /stepJourneyLedgerV4\(active, action as JourneyLedgerAction\)/)
+assert.match(
+  store,
+  /stepJourneyLedger\(active, action as JourneyLedgerAction\)/,
+)
+assert.match(
+  store,
+  /stepJourneyLedgerV4\(active, action as JourneyLedgerAction\)/,
+)
 assert.match(store, /stepJourneyLedgerV5\(active, action\)/)
 assert.match(store, /const SAVE_KEY = 'kr\.shiftingLands\.journeyLedger\.v5'/)
-assert.match(store, /const LEGACY_V4_SAVE_KEY = 'kr\.shiftingLands\.journeyLedger\.v4'/)
+assert.match(
+  store,
+  /const LEGACY_V4_SAVE_KEY = 'kr\.shiftingLands\.journeyLedger\.v4'/,
+)
 assert.match(
   store,
   /const LEGACY_V3_SAVE_KEY = 'kr\.shiftingLands\.journeyLedger\.v3'/,
@@ -82,10 +91,7 @@ assert.match(legacy, /const SAVE_KEY = 'kr\.shiftingLands\.homestead\.v1'/)
 assert.match(store, /if \(!loaded\.value\) return false/)
 assert.match(store, /if \(!import\.meta\.client\) return/)
 assert.match(store, /window\.localStorage\.setItem\(key/)
-assert.match(
-  store,
-  /const key = ledger\.value\.version === 5/,
-)
+assert.match(store, /const key = ledger\.value\.version === 5/)
 assert.match(store, /if \(savedV3 !== null\) \{/)
 assert.match(board, /findFiveLandCard/)
 assert.match(board, /v-for="choice in game\.currentTrial\.choices"/)

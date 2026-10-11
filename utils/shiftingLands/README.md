@@ -170,7 +170,7 @@ invalid trial choices. **Existing V4, V3, and V2 journeys continue with
 their original reducers and storage keys**, including all original
 generic boss checks. No old roll or boss result is retroactively
 rescored. A malformed newer save never silently falls back to stale
-older state; *New journey* deliberately starts the new rules.
+older state; _New journey_ deliberately starts the new rules.
 
 `npx tsx utils/scripts/verifyShiftingTrials.test.ts` covers seeded
 five-land playthroughs, clue paths, failure and victory, invalid

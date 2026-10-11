@@ -8,7 +8,10 @@ import {
   type JourneyLedger,
 } from '~/utils/shiftingLands/saveLedger'
 import { activeFiveLandEncounter } from '~/utils/shiftingLands/authoredFiveLands'
-import { trialForLand, canChooseTrial } from '~/utils/shiftingLands/authoredBosses'
+import {
+  trialForLand,
+  canChooseTrial,
+} from '~/utils/shiftingLands/authoredBosses'
 import {
   newJourneyLedgerV5,
   restoreJourneyLedgerV5,
@@ -88,8 +91,13 @@ export const useShiftingLandsJourneyStore = defineStore(
     )
     const lastTrialOutcome = computed(() => trialResults.value.at(-1) ?? null)
     const canTrial = (choiceId: string): boolean => {
-      const choice = currentTrial.value?.choices.find((item) => item.id === choiceId)
-      return !!choice && canChooseTrial(choice, session.value.flags, state.value.provisions)
+      const choice = currentTrial.value?.choices.find(
+        (item) => item.id === choiceId,
+      )
+      return (
+        !!choice &&
+        canChooseTrial(choice, session.value.flags, state.value.provisions)
+      )
     }
     const currentShift = computed(
       () =>
@@ -154,11 +162,12 @@ export const useShiftingLandsJourneyStore = defineStore(
     function persist() {
       if (!import.meta.client) return
       try {
-        const key = ledger.value.version === 5
-          ? SAVE_KEY
-          : ledger.value.version === 4
-            ? LEGACY_V4_SAVE_KEY
-            : LEGACY_V3_SAVE_KEY
+        const key =
+          ledger.value.version === 5
+            ? SAVE_KEY
+            : ledger.value.version === 4
+              ? LEGACY_V4_SAVE_KEY
+              : LEGACY_V3_SAVE_KEY
         window.localStorage.setItem(key, JSON.stringify(ledger.value))
       } catch {
         restoreWarning.value = true
@@ -167,13 +176,17 @@ export const useShiftingLandsJourneyStore = defineStore(
     function dispatch(action: JourneyActionV5): boolean {
       if (!loaded.value) return false
       const active = ledger.value
-      if (active.version !== 5 && (action.type === 'TRIAL' || action.type === 'RETREAT'))
+      if (
+        active.version !== 5 &&
+        (action.type === 'TRIAL' || action.type === 'RETREAT')
+      )
         return false
-      const next = active.version === 5
-        ? stepJourneyLedgerV5(active, action)
-        : active.version === 4
-          ? stepJourneyLedgerV4(active, action as JourneyLedgerAction)
-          : stepJourneyLedger(active, action as JourneyLedgerAction)
+      const next =
+        active.version === 5
+          ? stepJourneyLedgerV5(active, action)
+          : active.version === 4
+            ? stepJourneyLedgerV4(active, action as JourneyLedgerAction)
+            : stepJourneyLedger(active, action as JourneyLedgerAction)
       if (next === ledger.value) return false
       ledger.value = next
       restoreWarning.value = false

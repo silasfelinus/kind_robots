@@ -92,7 +92,10 @@ export function stepAuthoredTrial(
 
   const [first, left] = random(state.rngState)
   const [second, right] = random(first)
-  const dice: [number, number] = [Math.floor(left * 6) + 1, Math.floor(right * 6) + 1]
+  const dice: [number, number] = [
+    Math.floor(left * 6) + 1,
+    Math.floor(right * 6) + 1,
+  ]
   const modifier = SKILLS[choice.skill]
   const total = dice[0] + dice[1] + modifier
   const roll: JourneyRoll = {
@@ -116,9 +119,19 @@ export function stepAuthoredTrial(
       kind: 'boss',
       landId: land.id,
       text:
-        trial!.title + ': ' + choice.label + '. ' +
-        dice.join(' + ') + ' + ' + modifier + ' = ' + total +
-        ' versus ' + choice.target + '. ' + text,
+        trial!.title +
+        ': ' +
+        choice.label +
+        '. ' +
+        dice.join(' + ') +
+        ' + ' +
+        modifier +
+        ' = ' +
+        total +
+        ' versus ' +
+        choice.target +
+        '. ' +
+        text,
     },
   ]
   const outcome: TrialResult = {
@@ -174,7 +187,8 @@ export function stepAuthoredTrial(
       turn,
       kind: 'start',
       landId: JOURNEY_WORLD.lands[state.landIndex + 1]!.id,
-      text: 'Zuzu enters ' + JOURNEY_WORLD.lands[state.landIndex + 1]!.name + '.',
+      text:
+        'Zuzu enters ' + JOURNEY_WORLD.lands[state.landIndex + 1]!.name + '.',
     })
   return {
     journey: {

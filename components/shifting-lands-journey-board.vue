@@ -527,12 +527,14 @@
               </div>
               <div class="flex flex-col justify-center gap-4 p-5 sm:p-7">
                 <p class="text-sm leading-relaxed">
-                  {{ game.currentTrial?.flavor || game.currentLand.boss.teaser }}
+                  {{
+                    game.currentTrial?.flavor || game.currentLand.boss.teaser
+                  }}
                 </p>
                 <template v-if="game.currentTrial">
                   <p class="text-xs opacity-70">
-                    The three roads are behind you. Choose how Zuzu faces the gate.
-                    Earned clues can reveal a third path.
+                    The three roads are behind you. Choose how Zuzu faces the
+                    gate. Earned clues can reveal a third path.
                   </p>
                   <div class="space-y-2" aria-label="Authored trial approaches">
                     <button
@@ -544,13 +546,23 @@
                       @click="game.attemptTrial(choice.id)"
                     >
                       <span class="block font-bold">{{ choice.label }}</span>
-                      <span class="mt-1 block text-sm opacity-80">{{ choice.intent }}</span>
+                      <span class="mt-1 block text-sm opacity-80">{{
+                        choice.intent
+                      }}</span>
                       <span class="mt-1 block text-xs font-semibold opacity-75">
-                        {{ choice.skill }} · 2d6 + skill · target {{ choice.target }}
-                        <template v-if="choice.cost"> · {{ choice.cost }} provision</template>
+                        {{ choice.skill }} · 2d6 + skill · target
+                        {{ choice.target }}
+                        <template v-if="choice.cost">
+                          · {{ choice.cost }} provision</template
+                        >
                         <template
-                          v-if="choice.requiredAnyFlags.length && !game.canTrial(choice.id)"
-                        > · Requires discovered evidence</template>
+                          v-if="
+                            choice.requiredAnyFlags.length &&
+                            !game.canTrial(choice.id)
+                          "
+                        >
+                          · Requires discovered evidence</template
+                        >
                       </span>
                     </button>
                   </div>
@@ -561,7 +573,11 @@
                     aria-live="polite"
                   >
                     <p class="font-serif font-bold">
-                      {{ game.lastTrialOutcome.roll.success ? 'Trial passed' : 'Trial repelled' }}
+                      {{
+                        game.lastTrialOutcome.roll.success
+                          ? 'Trial passed'
+                          : 'Trial repelled'
+                      }}
                     </p>
                     <p class="mt-2 text-sm leading-relaxed">
                       {{ game.lastTrialOutcome.resultText }}
@@ -571,8 +587,8 @@
                       {{ game.lastTrialOutcome.roll.modifier }} =
                       {{ game.lastTrialOutcome.roll.total }} vs
                       {{ game.lastTrialOutcome.roll.difficulty }}
-                      · HP {{ game.lastTrialOutcome.hpChange }}
-                      · Provisions {{ game.lastTrialOutcome.provisionChange }}
+                      · HP {{ game.lastTrialOutcome.hpChange }} · Provisions
+                      {{ game.lastTrialOutcome.provisionChange }}
                     </p>
                   </div>
                 </template>
@@ -713,16 +729,24 @@
             aria-live="polite"
           >
             <p class="text-xs font-bold uppercase tracking-widest text-warning">
-              Major trial · {{ game.lastTrialOutcome.roll.success ? 'Passed' : 'Repelled' }}
+              Major trial ·
+              {{ game.lastTrialOutcome.roll.success ? 'Passed' : 'Repelled' }}
             </p>
             <h3 class="mt-2 font-serif text-xl font-bold">
-              {{ game.world.lands.find((land) => land.id === game.lastTrialOutcome.landId)?.boss.label }}
+              {{
+                game.world.lands.find(
+                  (land) => land.id === game.lastTrialOutcome.landId,
+                )?.boss.label
+              }}
             </h3>
-            <p class="mt-3 text-sm leading-relaxed">{{ game.lastTrialOutcome.resultText }}</p>
+            <p class="mt-3 text-sm leading-relaxed">
+              {{ game.lastTrialOutcome.resultText }}
+            </p>
             <p class="mt-3 text-xs opacity-70">
               {{ game.lastTrialOutcome.roll.dice.join(' + ') }} +
               {{ game.lastTrialOutcome.roll.modifier }} =
-              {{ game.lastTrialOutcome.roll.total }} vs {{ game.lastTrialOutcome.roll.difficulty }}
+              {{ game.lastTrialOutcome.roll.total }} vs
+              {{ game.lastTrialOutcome.roll.difficulty }}
             </p>
           </section>
 

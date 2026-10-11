@@ -402,7 +402,12 @@ export class PinballScene {
       this.root.add(this.heroes.group)
     }
     for (const def of this.table.animatronics ?? []) {
-      const toy = new CrocToy(def, track)
+      const toy = new CrocToy(def, track, {
+        reducedMotion:
+          typeof window !== 'undefined' &&
+          typeof window.matchMedia === 'function' &&
+          window.matchMedia('(prefers-reduced-motion: reduce)').matches,
+      })
       this.animatronics.set(def.id, toy)
       this.root.add(toy.group)
     }

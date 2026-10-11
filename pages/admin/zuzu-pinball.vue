@@ -69,13 +69,14 @@
                 again; knock down all four Abbey seals to raise the bonus
                 multiplier and bare the captive relic ball behind them, whose
                 strikes raise it again. The River Croc always pays, and his
-                fifth swallow lights an extra ball. A soft plunge into the
+                fifth swallow lights an extra ball. Feed him during Homestead to
+                open the Watering Hole, where an orbit lights his mouth for a
+                Death Roll jackpot that grows each time. A soft plunge into the
                 Mortuary is the skill shot.
               </p>
               <p class="text-sm leading-relaxed opacity-85">
                 Next: a raised Abbey with independently controlled upper
-                flippers, multiball, a sculpted snapping Croc jaw with Death
-                Roll jackpots, and the hidden undercrypt.
+                flippers, multiball, and the hidden undercrypt.
               </p>
             </section>
             <section class="kr-panel space-y-3 p-5">

@@ -424,10 +424,15 @@ for (const { slug, from, to, route } of navigationMoves) {
     tab.includes(`${newline}route: ${route}${newline}`),
     `${slug} must preserve its working route`,
   )
-  assert.ok(
-    tab.includes(`${newline}requiredRole: ADMIN${newline}`),
-    `${slug} must preserve admin-only access`,
-  )
+  if (slug === 'zuzu-showdown') {
+    // Showdown separately launched publicly under #3549; never re-gate it.
+    assert.ok(!tab.includes(`${newline}requiredRole: ADMIN${newline}`))
+  } else {
+    assert.ok(
+      tab.includes(`${newline}requiredRole: ADMIN${newline}`),
+      `${slug} must preserve admin-only access`,
+    )
+  }
   assert.equal(existsSync(`content/channels/${from}/${slug}.md`), false)
   assert.deepEqual(PROJECT_PLACEMENTS[slug], {
     channelKey: to,
@@ -437,7 +442,7 @@ for (const { slug, from, to, route } of navigationMoves) {
 }
 for (const path of [
   'content/brainstorm.md',
-  'content/plan/projects/ruler-hooked.md',
+  'content/admin/ruler-hooked.md',
 ]) {
   assert.ok(
     readFileSync(path, 'utf8').includes(`${newline}channelKey: admin${newline}`),

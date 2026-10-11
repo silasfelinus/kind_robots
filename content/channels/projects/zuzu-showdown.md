@@ -4,22 +4,24 @@ channelKey: projects
 tabKey: zuzu-showdown
 label: Zuzu Showdown
 title: Zuzu Showdown
-subtitle: The fighting game, playable while it is built
-summary: Play the fighting game prototype.
-description: A 2D fighting game set in Zuzu's world, admin only while it is being built.
+subtitle: A 2D fighter of the Shifting Lands
+summary: Nine fighters and a Story mode.
+description: "A 2D fighting game set in Zuzu's world: nine fighters, a Story mode across the wasteland map to The Thing Behind the Door, versus, CPU and training. Free, with keyboard, gamepad and touch controls."
 icon: kind-icon:swords
+image: /zuzu-showdown-portraits/zuzu-vs-hd.webp
 route: /play/zuzu-showdown
-sort: 128
-requiredRole: ADMIN
+sort: 120
 tutorial:
   title: Zuzu Showdown
   body: >-
-    The 2D fighting game, playable here while it is built. Pick fighters for
-    Player 1 and Player 2 from Zuzu, Coyote Vagrant, The Abbess, and The
-    Siblings, and fight a training dummy or a second player. Options switch the
-    art style, easy specials, sound, and hitbox display, and the Training panel
-    adds infinite meter, health refills, and position resets. The controls and
-    each fighter's move list are printed below the stage.
+    Pick a fighter and an opponent: the CPU at four levels, a second player,
+    the training dummy, or Story mode, which travels the wasteland map to fight
+    every fighter, your rival and the Swamp Witch before The Thing Behind the
+    Door. On a keyboard, WASD moves, U and I punch, J and K kick, Space dodges
+    and Enter pauses; the pause screen lists your fighter's moves. Turn on Easy
+    Specials to fire specials with the special button and a direction; touch
+    screens have them on, with on-screen buttons. Story scores go on the
+    Arcade leaderboard.
 ---
 
-The Zuzu Showdown workshop: the fight engine with Zuzu, Coyote Vagrant, The Abbess, and The Siblings, plus a training panel.
+Nine fighters of the Shifting Lands, from Zuzu the koala ronin to the Swamp Witch, and a Story mode that crosses the wasteland to The Thing Behind the Door.

@@ -531,7 +531,7 @@ function tick(
   }
   const shown = Math.ceil((run.until - at) / PHYSICS_HZ)
   const moves = def.style === 'roving' && at - run.movedAt >= ROVE_STEPS
-  if (shown === run.shown && !moves) return { state, effects: [] }
+  if (shown === run.shown && !moves) return { state, effects }
   const next = {
     ...state,
     story: {

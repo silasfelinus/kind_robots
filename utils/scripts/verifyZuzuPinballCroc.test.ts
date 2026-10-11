@@ -126,6 +126,32 @@ const toMouth = (): [Vec3, Vec3] => [
   }
 }
 
+// Mid-chapter, too: the jaws open again while a chapter's timer is running
+// (a quiet tick, one that changes no countdown, still carries the jaw).
+{
+  const c = new Croc()
+  try {
+    const run = { until: 1e9, shown: 0, rove: 0, movedAt: 0, total: 0 }
+    // Balls to spare, so a later drain never ends the chapter early.
+    c.state = { ...c.state, ballsInPlay: 9, story: { ...c.state.story, run } }
+    c.physics.serveBall(...toMouth())
+    let reopened = false
+    for (let i = 0; i < PHYSICS_HZ * 6 && !reopened; i++) {
+      c.run(1)
+      reopened = c.captures === 1 && c.phase === 'open'
+    }
+    assert.ok(reopened, 'the cycle comes round during a chapter')
+    assert.ok(c.state.story.run, 'the chapter is still being told')
+    assert.equal(
+      c.physics.doorStates()[CROC_JAW],
+      true,
+      'his jaws open again mid-chapter',
+    )
+  } finally {
+    c.dispose()
+  }
+}
+
 // While his jaws are shut, the teeth turn a ball away: no second capture.
 {
   const c = new Croc()

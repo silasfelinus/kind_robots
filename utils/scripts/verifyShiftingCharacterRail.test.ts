@@ -63,7 +63,7 @@ assert.match(
 )
 assert.match(
   preferences,
-  /window\.matchMedia\(\s*'\(prefers-reduced-motion: reduce\)'\)/,
+  /window\.matchMedia\(\s*'\(prefers-reduced-motion: reduce\)',?\s*\)/,
 )
 assert.match(board, /readShiftingLandsPresentation\(\)/)
 assert.match(board, /writeShiftingLandsPresentation\(\{/)

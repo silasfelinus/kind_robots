@@ -2,23 +2,32 @@
 //
 // Kindness Gauntlet -- the Kind Robots Arcade's Gauntlet II riff (conductor
 // kr-arcade/t-009 game factory: procedurally built floors, all four classes,
-// keys with locked doors, and same-device co-op). A repair bot explores a
-// glitchy old server dungeon floor by floor: wrench sparks fix the glitches
+// keys with locked doors, and same-device co-op; depth pass t-051..t-054,
+// depth-pass/CABINETS.md section 5, "The Deep Archive"). A repair bot explores
+// a glitchy old server dungeon floor by floor: wrench sparks fix the glitches
 // that swarm out of broken generators, shut the generators down, free the bots
 // trapped in cages, and find the stairs down.
 //
 // Up to four can play on one device, each picking a different bot. They share
-// one screen (nobody can wander off it), one key ring and one score; each has
-// a battery of their own. A bot whose battery runs flat stops where it stands
-// until its partner rolls up and shares a charge, and a flat bot comes back
-// with a little charge on the next floor. The run ends when every bot is flat.
-// Bots chase the nearest partner's glitches together; generators wake for any.
+// one screen (nobody can wander off it), one key ring and one team score (each
+// seat keeps its own tally too); each has a battery of their own. A bot whose
+// battery runs flat stops where it stands until its partner rolls up and
+// shares a charge, or sparks it full of charge; a flat bot comes back with a
+// little charge on the next floor. The run ends when every bot is flat.
 //
 // Four bots to choose from, after the classic's four heroes: Hugs (power: big
-// sparks that hit generators twice and pass through a glitch), Fix (armor:
-// clinging glitches drain the least), Sage (magic: three pulses, and each one
-// jolts the generators on screen too) and Zip (speed: the fastest wheels and
-// quickest sparks).
+// sparks that hit twice and pass through a glitch), Fix (armor: clinging
+// glitches drain the least), Sage (magic: three pulses, and each one jolts the
+// generators on screen too) and Zip (speed: the fastest wheels and quickest
+// sparks).
+//
+// The menagerie (kindnessGauntlet/roster.ts): nine glitch kinds, each released
+// by a generator of its own in three tiers, each with a tell and an answer.
+// Kindness is a mechanic: a spark that hits a partner shares charge instead of
+// hurting, and the Hug Token draws every glitch on the floor to whoever holds
+// it (double points; pass it by touch, or carry it into a generator to
+// overload it). The Old Mainframe comments on everything from the corner
+// (kindnessGauntlet/voice.ts), and she minds her snacks: sparks break them.
 //
 // From floor 2 a locked door cuts the way to the stairs. A key waits on the
 // near side; keys carry over between floors, and walking into a door with one
@@ -57,6 +66,40 @@ import type {
   ArcadeGameOptions,
   InputFrame,
 } from '../types'
+import {
+  IMP_TELL,
+  MIMIC_BLINK,
+  POPUP_TELL,
+  ROSTER,
+  type Glitch,
+  type GlitchKind,
+  type GlitchWorld,
+  type Prey,
+  type Tier,
+  debutOn,
+  kindsUpTo,
+  newGlitch,
+  steerGlitch,
+} from '../kindnessGauntlet/roster'
+import {
+  GENERATOR_SPRITES,
+  GLITCH_FLASH,
+  GLITCH_FRAMES,
+  GLITCH_GHOSTS,
+  GLITCH_PALETTE,
+  IMP_INHALE,
+  LOOT_SACK,
+  SNACK_SPRITE,
+  TIER_COLOURS,
+  raster,
+} from '../kindnessGauntlet/rosterArt'
+import {
+  CUE_PRIORITY,
+  MAINFRAME_FACE,
+  type VoiceCue,
+  mainframeBleeps,
+  voiceLine,
+} from '../kindnessGauntlet/voice'
 
 const T = 16
 const MW = 40
@@ -71,13 +114,11 @@ const SPARK_SPEED = 4
 const SPARK_LIFE = 45
 const SELECT_TICKS = 60 * 15
 const MAX_BATTERY = 300
-const DRAIN_TICKS = 45
-const CLING_TICKS = 20
+const DRAIN_TICKS = 40
 const SNACK_CHARGE = 40
 const GLITCH_RANGE = T * 14
 const EXIT_TICKS = 120
 
-const GLITCH_POINTS = 10
 const GENERATOR_POINTS = 100
 const RESCUE_POINTS = 250
 const DOOR_POINTS = 100
@@ -95,17 +136,36 @@ const LEASH_Y = VIEW_H - 40
 const SEAT_COLORS = ['#fde047', '#f9a8d4', '#67e8f9', '#bef264']
 /** Where each player's select cursor starts: Fix, Zip, Hugs, Sage. */
 const START_CHOICE = [1, 3, 0, 2]
+/** Charge a spark moves from its thrower to the partner it hits. */
+export const SPARK_SHARE = 5
+/** A battery under this warns the Mainframe; above REARM she will warn again. */
+const LOW_BATTERY = 75
+const LOW_REARM = 120
+/** How long the Hug Token waits before it can change hands again. */
+const TOKEN_PASS_TICKS = 90
+/** A pop-up's packet: ticks in the air and the splash it lands with. */
+const PACKET_TICKS = 54
+const PACKET_SPLASH = 13
+const BOLT_SPEED = 1.7
+/** How long a pulse leaves a coffee spill dry. */
+export const DRY_TICKS = 5 * 60
+const VOICE_TICKS = 150
+const INTRO_TICKS = 240
 
 export const GAUNTLET_CURVES = {
   generators: { start: 3, step: 0.6, limit: 7 },
+  /** A generator's hits per tier: every hit (or two, deeper down) drops it a tier. */
   generatorHp: { start: 3, step: 0.34, limit: 6 },
-  spawnEvery: { start: 150, step: -12, limit: 50 },
-  glitchSpeed: { start: 0.6, step: 0.07, limit: 1.35 },
+  spawnEvery: { start: 132, step: -10, limit: 50 },
+  glitchSpeed: { start: 0.62, step: 0.07, limit: 1.35 },
   /** Battery a clinging glitch drains each bite. */
-  clingCost: { start: 3, step: 0.5, limit: 9 },
-  glitchCap: { start: 10, step: 2, limit: 26 },
+  clingCost: { start: 4, step: 0.5, limit: 10 },
+  glitchCap: { start: 12, step: 2, limit: 28 },
   snacks: { start: 4, step: -0.34, limit: 1 },
   cages: { start: 1, step: 0.5, limit: 3 },
+  /** The chance a generator is tier 2 or better, and tier 3. */
+  tier2: { start: 0.7, step: 0.03, limit: 0.9 },
+  tier3: { start: 0.25, step: 0.04, limit: 0.6 },
 } as const
 
 type BotClass = 'hugs' | 'fix' | 'sage' | 'zip'
@@ -189,12 +249,41 @@ const CLASS_ORDER: BotClass[] = ['hugs', 'fix', 'sage', 'zip']
 type Room = { x: number; y: number; w: number; h: number }
 type Thing = { x: number; y: number }
 type Generator = Thing & {
+  id: number
+  /** The glitch kind it releases. */
+  kind: GlitchKind
+  /** Its tier now (each tier's worth of hits drops it one), and the tier it started at. */
+  tier: Tier
+  topTier: Tier
+  /** Hits per tier. */
+  per: number
   hp: number
   maxHp: number
   timer: number
   flash: number
 }
-type Glitch = Thing & { cling: number; wobble: number }
+/** A pop-up's packet arcing over the racks, or a firewall imp's slow straight spark. */
+type Shot =
+  | {
+      kind: 'packet'
+      x0: number
+      y0: number
+      x: number
+      y: number
+      t: number
+      tier: Tier
+    }
+  | { kind: 'bolt'; x: number; y: number; vx: number; vy: number; life: number }
+/** The Hug Token: a bouncing heart that draws every glitch to whoever holds it. */
+type Token = {
+  x: number
+  y: number
+  vx: number
+  vy: number
+  /** The seat holding it, or -1 while it bounces loose. */
+  holder: number
+  wait: number
+}
 type Spark = Thing & {
   vx: number
   vy: number
@@ -203,6 +292,8 @@ type Spark = Thing & {
   pierce: number
   /** The hero who threw it. */
   owner: Hero
+  /** Glitches it has already hit (a piercing spark hits each once). */
+  hit: number[]
 }
 /** One player's bot. */
 type Hero = {
@@ -219,8 +310,16 @@ type Hero = {
   pulses: number
   /** Battery ran out: stopped until a partner shares a charge. */
   flat: boolean
+  /** This seat's own tally (the team score is everyone's together). */
+  points: number
+  /** The Mainframe has said this bot is low (rearmed once it charges back up). */
+  warned: boolean
 }
-type Item = Thing & { kind: 'snack' | 'pulse' | 'cage' | 'key' }
+type Item = Thing & {
+  kind: 'snack' | 'pulse' | 'cage' | 'key'
+  /** A snack a mimic just turned into: sparks pass over it for this many ticks. */
+  safe?: number
+}
 type Door = { tiles: number[]; open: boolean }
 type Particle = {
   x: number
@@ -231,6 +330,25 @@ type Particle = {
   color: string
 }
 type Floater = { x: number; y: number; text: string; life: number }
+
+/** `text` broken into lines of at most `width` characters, at the spaces. */
+function wrapWords(text: string, width: number): string[] {
+  const out: string[] = []
+  let line = ''
+  for (const word of text.split(' ')) {
+    if (line && line.length + 1 + word.length > width) {
+      out.push(line)
+      line = word
+    } else line = line ? `${line} ${word}` : word
+  }
+  if (line) out.push(line)
+  return out
+}
+
+/** How close a spark must pass to hit a glitch of this kind. */
+function hitRadius(kind: GlitchKind): number {
+  return kind === 'brute' ? 9 : kind === 'bug' ? 5 : 7
+}
 
 /** Eight facings, clockwise from up. */
 const FACE_X = [0, 1, 1, 1, 0, -1, -1, -1]
@@ -263,6 +381,8 @@ function newHero(seat: number): Hero {
     battery: MAX_BATTERY,
     pulses: 1,
     flat: false,
+    points: 0,
+    warned: false,
   }
 }
 
@@ -460,97 +580,6 @@ const FLAT_SPRITE = pixelSprite(
   },
 )
 
-const GLITCH_PALETTE = {
-  d: '#3b0a45',
-  s: '#86198f',
-  b: '#d946ef',
-  l: '#f0abfc',
-  h: '#fdf4ff',
-  c: '#22d3ee',
-  C: '#a5f3fc',
-  w: '#ffffff',
-  k: INK,
-}
-const GLITCH_ROWS = [
-  [
-    '..sbbbs..',
-    '.sblhlbs.',
-    'sbllbbbbs',
-    'bwwbbwwbs',
-    'bwkbbwkbs',
-    'sbbbbbbbc',
-    'sbkbkbkbs',
-    '.sbsbsbs.',
-    '..s.s.s..',
-  ],
-  [
-    '..sbbbs..',
-    '.sblhlbs.',
-    'sbllbbbbs',
-    'bwwbbwwbC',
-    'bkwbbkwbs',
-    'Csbbbbbbb',
-    'sbkbkbkbs',
-    '.sbs.sbs.',
-    '.s..s..s.',
-  ],
-] as const
-const GLITCH_SPRITES = GLITCH_ROWS.map((rows) =>
-  pixelSprite(rows, GLITCH_PALETTE),
-)
-/** The cyan ghost each glitch smears beside itself (chromatic split). */
-const GLITCH_GHOSTS = GLITCH_ROWS.map((rows) =>
-  pixelSprite(
-    rows,
-    Object.fromEntries(
-      Object.keys(GLITCH_PALETTE).map((key) => [key, RAMPS.teal[3]]),
-    ),
-    { outline: null },
-  ),
-)
-
-/** Rows of palette letters from a per-pixel painter ('.' is clear). */
-function raster(
-  w: number,
-  h: number,
-  paint: (x: number, y: number) => string,
-): string[] {
-  return Array.from({ length: h }, (_, y) =>
-    Array.from({ length: w }, (_, x) => paint(x, y)).join(''),
-  )
-}
-
-/** A glitch generator: a battered steel cabinet with a static-filled screen and a vent. */
-const GENERATOR_ROWS = raster(14, 14, (x, y) => {
-  const edge = (x === 0 || x === 13) && (y === 0 || y === 13)
-  if (edge) return '.'
-  if (y === 13 || x === 13) return '0'
-  if (y === 12 || x === 12) return '1'
-  if (y === 0 || x === 0) return '4'
-  if (y === 1 || x === 1) return '3'
-  if (y >= 2 && y <= 7 && x >= 2 && x <= 11) return 'k'
-  if ((y === 9 || y === 10) && x >= 3 && x <= 10 && x % 2 === 1) return 'v'
-  return '2'
-})
-const GENERATOR_SPRITE = pixelSprite(GENERATOR_ROWS, {
-  0: RAMPS.steel[0],
-  1: RAMPS.steel[1],
-  2: RAMPS.steel[2],
-  3: RAMPS.steel[3],
-  4: RAMPS.steel[4],
-  k: INK,
-  v: RAMPS.night[0],
-})
-const GENERATOR_FLASH = pixelSprite(GENERATOR_ROWS, {
-  0: '#ffffff',
-  1: '#ffffff',
-  2: '#ffffff',
-  3: '#ffffff',
-  4: '#ffffff',
-  k: RAMPS.pink[4],
-  v: '#ffffff',
-})
-
 const PINK_PALETTE = {
   h: RAMPS.pink[4],
   P: RAMPS.pink[3],
@@ -564,29 +593,6 @@ const GOLD_PALETTE = {
   o: RAMPS.gold[2],
   O: RAMPS.gold[1],
 }
-
-/** A frosted donut snack with sprinkles. */
-const SNACK_SPRITE = pixelSprite(
-  [
-    '..hhPPPp..',
-    '.hPtPPwPp.',
-    'hPPPppPyPq',
-    'PwPp..qPPq',
-    'gPPq..qPtq',
-    'ogPPqqPPqO',
-    '.oggqqqgO.',
-    '..OooooO..',
-  ],
-  {
-    ...PINK_PALETTE,
-    t: RAMPS.teal[3],
-    w: '#ffffff',
-    y: RAMPS.gold[4],
-    g: RAMPS.gold[3],
-    o: RAMPS.gold[2],
-    O: RAMPS.gold[1],
-  },
-)
 
 const KEY_SPRITE = pixelSprite(
   ['.yGg.......', 'yG.gGGGGGGg', 'Gg.oooooooo', '.go....oo.o', '.......O..O'],
@@ -1086,6 +1092,24 @@ class KindnessGauntlet implements ArcadeGameInstance {
   private strides: number[] = []
   /** Where the last kindness pulse went off. */
   private pulseAt: Thing = { x: 0, y: 0 }
+  /** Packets and imp sparks in flight. */
+  private shots: Shot[] = []
+  private token: Token | null = null
+  /** Each tile's walking distance to the stairs (what a fleeing pickpocket follows). */
+  private toExit: Int16Array = new Int16Array(MW * MH)
+  private nextId = 1
+  /** What the Mainframe is saying, the line count (lines rotate) and when each cue last spoke. */
+  private voice: { text: string; cue: VoiceCue; ticks: number } | null = null
+  private lines = 0
+  private saidAt: Partial<Record<VoiceCue, number>> = {}
+  /** A new glitch kind's introduction card. */
+  private intro: { kind: GlitchKind; ticks: number } | null = null
+  /** The key on this floor has been pointed out. */
+  private keySpotted = false
+  private world: GlitchWorld
+  /** The attract pilot's last resting spot, and how long it has stood there. */
+  private pilotAt: Thing = { x: 0, y: 0 }
+  private pilotStill = 0
 
   constructor(options: ArcadeGameOptions) {
     this.rng = options.rng
@@ -1096,6 +1120,7 @@ class KindnessGauntlet implements ArcadeGameInstance {
       ? 1
       : Math.max(1, Math.min(MAX_PLAYERS, Math.round(options.players ?? 1)))
     this.heroes = Array.from({ length: seats }, (_, seat) => newHero(seat))
+    this.world = this.makeWorld()
     this.buildFloor(1)
     // The attract pilot picks a bot at random and skips the selection screen.
     if (this.demo) {
@@ -1289,18 +1314,11 @@ class KindnessGauntlet implements ArcadeGameInstance {
     }
     this.generators = []
     this.items = []
-    const hp = Math.round(levelCurve(floor, GAUNTLET_CURVES.generatorHp))
-    for (const s of spots(
-      Math.round(levelCurve(floor, GAUNTLET_CURVES.generators)),
-    )) {
-      this.generators.push({
-        ...s,
-        hp,
-        maxHp: hp,
-        timer: 60 + Math.floor(this.rng() * 90),
-        flash: 0,
-      })
-    }
+    this.glitches = []
+    this.placeGenerators(
+      spots(Math.round(levelCurve(floor, GAUNTLET_CURVES.generators))),
+      floor,
+    )
     for (const s of spots(
       Math.round(levelCurve(floor, GAUNTLET_CURVES.snacks)),
     )) {
@@ -1328,13 +1346,99 @@ class KindnessGauntlet implements ArcadeGameInstance {
       this.items.push({ x, y, kind: 'key' })
       break
     }
-    this.glitches = []
+    // Mimic snacks hide among the real ones from the floor they debut on.
+    const mimics = floor >= ROSTER.mimic.debut ? 1 + (floor >= 9 ? 1 : 0) : 0
+    for (const s of spots(mimics))
+      this.glitches.push(
+        newGlitch('mimic', s.x, s.y, 1, this.nextId++, -1, this.rng() * 6),
+      )
+    // The Hug Token bounces loose on every floor from the second.
+    this.token = null
+    if (floor >= 2)
+      for (const s of spots(1)) {
+        const a = this.rng() * Math.PI * 2
+        this.token = {
+          x: s.x,
+          y: s.y,
+          vx: Math.cos(a) * 0.5,
+          vy: Math.sin(a) * 0.5,
+          holder: -1,
+          wait: 0,
+        }
+      }
     this.sparks = []
+    this.shots = []
     this.leaving = 0
     this.path = []
+    this.keySpotted = false
+    this.mapExit()
     this.reveal()
     this.lives = this.standing.length
-    this.banner = { text: `FLOOR ${floor}`, sub: 'FIX THE GLITCHES', ticks: 90 }
+    const debut = debutOn(floor)
+    this.banner = {
+      text: `FLOOR ${floor}`,
+      sub: debut ? `NEW: ${ROSTER[debut].name}` : 'FIX THE GLITCHES',
+      ticks: 90,
+    }
+    this.intro = debut ? { kind: debut, ticks: INTRO_TICKS } : null
+    if (floor > 1) this.say(debut ? 'new-glitch' : 'floor')
+  }
+
+  /**
+   * Generators for these spots: on a kind's debut floor the first releases it, and the rest are
+   * drawn from every kind met so far (plain glitch cabinets three times as often). Each is tier 1
+   * to 3, and every tier's worth of hits drops it one.
+   */
+  private placeGenerators(at: Thing[], floor: number) {
+    const debut = debutOn(floor)
+    const pool = kindsUpTo(floor)
+    const weights = pool.map((k) => (k === 'glitch' ? 3 : 1))
+    const total = weights.reduce((a, b) => a + b, 0)
+    const per = Math.max(
+      1,
+      Math.round(levelCurve(floor, GAUNTLET_CURVES.generatorHp) / 3),
+    )
+    at.forEach((s, i) => {
+      let kind: GlitchKind = pool[0]!
+      if (i === 0 && debut) kind = debut
+      else {
+        let roll = this.rng() * total
+        for (let k = 0; k < pool.length; k++) {
+          roll -= weights[k]!
+          if (roll < 0) {
+            kind = pool[k]!
+            break
+          }
+        }
+      }
+      const roll = this.rng()
+      const tier: Tier =
+        roll < levelCurve(floor, GAUNTLET_CURVES.tier3)
+          ? 3
+          : roll < levelCurve(floor, GAUNTLET_CURVES.tier2)
+            ? 2
+            : 1
+      this.generators.push({
+        ...s,
+        id: this.nextId++,
+        kind,
+        tier,
+        topTier: tier,
+        per,
+        hp: tier * per,
+        maxHp: tier * per,
+        timer: 60 + Math.floor(this.rng() * 90),
+        flash: 0,
+      })
+    })
+  }
+
+  /** Walking distance to the stairs from every tile (doors closed count as racks). */
+  private mapExit() {
+    this.toExit = this.distances(
+      Math.floor(this.exit.x / T),
+      Math.floor(this.exit.y / T),
+    )
   }
 
   /**
@@ -1424,10 +1528,11 @@ class KindnessGauntlet implements ArcadeGameInstance {
       this.keys--
       door.open = true
       for (const t of door.tiles) this.walls[t] = OPEN
+      this.mapExit()
       const t0 = door.tiles[0]!
       const dx = (t0 % MW) * T + T / 2
       const dy = Math.floor(t0 / MW) * T + T / 2
-      this.addScore(DOOR_POINTS, dx, dy - 12)
+      this.addScore(DOOR_POINTS, dx, dy - 12, hero)
       this.burst(dx, dy, 12, '#fbbf24')
       this.sparkle(dx, dy, 12)
       this.sound.play('pickup')
@@ -1482,6 +1587,8 @@ class KindnessGauntlet implements ArcadeGameInstance {
     this.tick++
     this.updateEffects()
     if (this.banner && --this.banner.ticks <= 0) this.banner = null
+    if (this.voice && --this.voice.ticks <= 0) this.voice = null
+    if (this.intro && --this.intro.ticks <= 0) this.intro = null
     if (this.over) return
     const frames = this.demo ? [this.demoInput()] : (players ?? [input])
     if (this.selecting > 0) {
@@ -1515,15 +1622,18 @@ class KindnessGauntlet implements ArcadeGameInstance {
     this.updateSparks()
     this.updateGenerators()
     this.updateGlitches()
+    this.updateShots()
+    this.updateToken()
     this.pickUp()
     this.reveal()
+    this.watchBatteries()
 
     const atExit = this.standing.find(
       (h) => Math.hypot(this.exit.x - h.x, this.exit.y - h.y) < 10,
     )
     if (atExit) {
       const bonus = FLOOR_POINTS + 100 * this.level
-      this.addScore(bonus, atExit.x, atExit.y - 16)
+      this.addScore(bonus, atExit.x, atExit.y - 16, atExit)
       this.leaving = EXIT_TICKS
       this.banner = {
         text: 'DOWN THE STAIRS!',
@@ -1531,6 +1641,7 @@ class KindnessGauntlet implements ArcadeGameInstance {
         ticks: EXIT_TICKS,
       }
       this.sound.play('level')
+      this.say('stairs')
     }
     for (const hero of this.standing) {
       if (hero.battery > 0) continue
@@ -1538,20 +1649,57 @@ class KindnessGauntlet implements ArcadeGameInstance {
       hero.flat = true
       this.burst(hero.x, hero.y, 10, '#94a3b8')
       this.sound.play('die')
-      if (this.standing.length)
+      if (this.standing.length) {
         this.banner = {
           text: `${this.specOf(hero).name} IS FLAT`,
           sub: 'ROLL OVER AND SHARE A CHARGE',
           ticks: 120,
         }
+        this.say('flat', this.specOf(hero).name)
+      }
     }
     this.lives = this.standing.length
     if (!this.standing.length) {
       this.over = true
       this.banner = { text: 'BATTERY FLAT', sub: 'GAME OVER', ticks: 9999 }
+      this.say('game-over')
       return
     }
     this.followCamera()
+  }
+
+  /** The Mainframe speaks: a more important line cuts in, and each cue keeps a little quiet after. */
+  private say(cue: VoiceCue, bot = '') {
+    const urgent = CUE_PRIORITY[cue] >= 4
+    const last = this.saidAt[cue]
+    if (!urgent && last !== undefined && this.tick - last < 60 * 8) return
+    if (
+      this.voice &&
+      this.voice.ticks > 40 &&
+      CUE_PRIORITY[this.voice.cue] > CUE_PRIORITY[cue]
+    )
+      return
+    const text = voiceLine(cue, this.lines++, bot)
+    this.voice = { text, cue, ticks: VOICE_TICKS }
+    this.saidAt[cue] = this.tick
+    if (!this.demo) this.sound.playNotes?.(mainframeBleeps(text))
+  }
+
+  /** The Mainframe warns when a bot runs low, and when a key comes into view. */
+  private watchBatteries() {
+    for (const hero of this.standing) {
+      if (!hero.warned && hero.battery < LOW_BATTERY) {
+        hero.warned = true
+        this.say('low', this.specOf(hero).name)
+      } else if (hero.warned && hero.battery > LOW_REARM) hero.warned = false
+    }
+    if (
+      !this.keySpotted &&
+      this.items.some((i) => i.kind === 'key' && this.visible(i))
+    ) {
+      this.keySpotted = true
+      this.say('key-near')
+    }
   }
 
   /** Centre the one shared screen on the bots still rolling. */
@@ -1589,8 +1737,9 @@ class KindnessGauntlet implements ArcadeGameInstance {
       )
       if (!helper) continue
       helper.battery -= SHARE_CHARGE
-      flat.battery = SHARE_CHARGE
+      flat.battery = Math.max(flat.battery, SHARE_CHARGE)
       flat.flat = false
+      this.say('revive', this.specOf(flat).name)
       this.floaters.push({
         x: flat.x,
         y: flat.y - 12,
@@ -1666,23 +1815,35 @@ class KindnessGauntlet implements ArcadeGameInstance {
       life: SPARK_LIFE,
       pierce: spec.power - 1,
       owner: hero,
+      hit: [],
     })
     this.sound.play('shoot')
   }
 
-  /** A kindness pulse fixes every glitch on screen. */
+  /**
+   * A kindness pulse fixes every glitch on screen, dries the coffee spills, and fizzles the packets
+   * and imp sparks in the air; Sage's also jolts the generators on screen.
+   */
   private pulse(hero: Hero) {
     if (hero.pulses <= 0) return
     hero.pulses--
     this.pulseFlash = 20
     this.pulseAt = { x: hero.x, y: hero.y }
     this.sparkle(hero.x, hero.y, 16, [RAMPS.pink[3], RAMPS.pink[4], '#ffffff'])
-    const onScreen = this.glitches.filter((g) => this.visible(g))
-    for (const g of onScreen) this.fixGlitch(g)
+    for (const g of this.glitches.filter((g) => this.visible(g))) {
+      if (ROSTER[g.kind].unfixable) {
+        if (g.state === 'dry') continue
+        g.state = 'dry'
+        g.t = DRY_TICKS
+        this.addScore(ROSTER[g.kind].points, g.x, g.y - 8, hero)
+        this.say('spill-dry')
+      } else this.fixGlitch(g, hero)
+    }
+    this.shots = this.shots.filter((s) => !this.visible(s))
     const magic = this.specOf(hero).magic
     if (magic > 0)
       for (const gen of this.generators.filter((g) => this.visible(g)))
-        this.damageGenerator(gen, magic)
+        this.damageGenerator(gen, magic, hero)
     this.sound.play('extra')
   }
 
@@ -1695,6 +1856,16 @@ class KindnessGauntlet implements ArcadeGameInstance {
     )
   }
 
+  /** No rack between two points (sampled every few pixels). */
+  private lineClear(ax: number, ay: number, bx: number, by: number): boolean {
+    const steps = Math.ceil(Math.hypot(bx - ax, by - ay) / 4)
+    for (let i = 1; i < steps; i++) {
+      const t = i / steps
+      if (this.solid(ax + (bx - ax) * t, ay + (by - ay) * t)) return false
+    }
+    return true
+  }
+
   private updateSparks() {
     for (const s of this.sparks) {
       s.x += s.vx
@@ -1702,12 +1873,48 @@ class KindnessGauntlet implements ArcadeGameInstance {
       s.life--
       if (this.solid(s.x, s.y)) s.life = 0
       if (s.life <= 0) continue
+      const power = this.specOf(s.owner).power
       const glitch = this.glitches.find(
-        (g) => Math.hypot(g.x - s.x, g.y - s.y) < 7,
+        (g) =>
+          !ROSTER[g.kind].unfixable &&
+          !s.hit.includes(g.id) &&
+          Math.hypot(g.x - s.x, g.y - s.y) < hitRadius(g.kind),
       )
       if (glitch) {
-        this.fixGlitch(glitch)
+        s.hit.push(glitch.id)
+        this.hurtGlitch(glitch, power, s.owner)
         if (s.pierce-- <= 0) s.life = 0
+        continue
+      }
+      // Kindness is a mechanic: a spark that reaches a partner shares charge with them.
+      const mate = this.heroes.find(
+        (h) => h !== s.owner && Math.hypot(h.x - s.x, h.y - s.y) < 7,
+      )
+      if (mate) {
+        s.life = 0
+        this.sparkShare(s.owner, mate)
+        continue
+      }
+      const snack = this.items.find(
+        (i) =>
+          i.kind === 'snack' &&
+          !i.safe &&
+          Math.abs(i.x - s.x) < 6 &&
+          Math.abs(i.y - s.y) < 6,
+      )
+      if (snack) {
+        s.life = 0
+        this.items = this.items.filter((i) => i !== snack)
+        this.burst(snack.x, snack.y, 10, RAMPS.pink[3])
+        this.burst(snack.x, snack.y, 6, RAMPS.gold[3])
+        this.floaters.push({
+          x: snack.x,
+          y: snack.y - 10,
+          text: 'CRUMBS!',
+          life: 40,
+        })
+        this.sound.play('pop')
+        this.say('snack-sparked')
         continue
       }
       const gen = this.generators.find(
@@ -1715,34 +1922,109 @@ class KindnessGauntlet implements ArcadeGameInstance {
       )
       if (gen) {
         s.life = 0
-        this.damageGenerator(gen, this.specOf(s.owner).power)
+        this.damageGenerator(gen, power, s.owner)
       }
     }
     this.sparks = this.sparks.filter((s) => s.life > 0)
   }
 
-  private damageGenerator(gen: Generator, damage: number) {
+  /** A spark lands on a partner: a little of the thrower's charge, never harm. */
+  private sparkShare(from: Hero, to: Hero) {
+    if (from.flat || from.battery <= SPARK_SHARE + 10) return
+    from.battery -= SPARK_SHARE
+    to.battery = Math.min(MAX_BATTERY, to.battery + SPARK_SHARE)
+    this.floaters.push({
+      x: to.x,
+      y: to.y - 14,
+      text: `+${SPARK_SHARE}`,
+      life: 30,
+    })
+    this.sparkle(to.x, to.y, 5, [RAMPS.leaf[3], RAMPS.leaf[4], '#ffffff'])
+    if (to.flat && to.battery >= SHARE_CHARGE) {
+      to.flat = false
+      this.burst(to.x, to.y, 12, '#bbf7d0')
+      this.sound.play('extra')
+      this.say('revive', this.specOf(to).name)
+    } else {
+      this.sound.play('pickup')
+      this.say('share')
+    }
+  }
+
+  private hurtGlitch(g: Glitch, damage: number, by: Hero) {
+    g.hp -= damage
+    g.flash = 6
+    if (g.hp <= 0) this.fixGlitch(g, by)
+    else this.sound.play('blip')
+  }
+
+  private damageGenerator(gen: Generator, damage: number, by?: Hero) {
     gen.hp -= damage
     gen.flash = 6
+    gen.tier = Math.max(1, Math.min(3, Math.ceil(gen.hp / gen.per))) as Tier
     this.sound.play('blip')
     if (gen.hp > 0) return
     this.generators = this.generators.filter((g) => g !== gen)
-    this.addScore(GENERATOR_POINTS * this.level, gen.x, gen.y - 12)
+    this.addScore(this.generatorPoints(gen), gen.x, gen.y - 12, by)
     this.burst(gen.x, gen.y, 14, '#a5f3fc')
     this.sparkle(gen.x, gen.y, 14, [RAMPS.teal[3], RAMPS.teal[4], '#ffffff'])
     this.sound.play('boom')
+    this.say('generator')
   }
 
-  private fixGlitch(g: Glitch) {
+  /** A generator's worth: the floor's base, half again for each tier it started above the first. */
+  private generatorPoints(gen: Generator): number {
+    return Math.round(
+      GENERATOR_POINTS * this.level * (1 + 0.5 * (gen.topTier - 1)),
+    )
+  }
+
+  /** Carried into a generator, the Hug Token overloads it at once, for double its worth. */
+  private overload(gen: Generator, hero: Hero) {
+    this.generators = this.generators.filter((g) => g !== gen)
+    this.token = null
+    this.addScore(this.generatorPoints(gen) * 2, gen.x, gen.y - 12, hero)
+    this.burst(gen.x, gen.y, 20, RAMPS.pink[3])
+    this.sparkle(gen.x, gen.y, 24, [RAMPS.pink[3], RAMPS.pink[4], '#ffffff'])
+    this.pulseFlash = 12
+    this.pulseAt = { x: gen.x, y: gen.y }
+    this.sound.play('boom')
+    this.say('overload')
+  }
+
+  /** A fixed glitch reboots: it drops what it stole, and a mimic turns into a real snack. */
+  private fixGlitch(g: Glitch, by?: Hero) {
     this.glitches = this.glitches.filter((other) => other !== g)
-    this.addScore(GLITCH_POINTS, g.x, g.y - 8)
-    this.burst(g.x, g.y, 5, '#f0abfc')
-    this.sparkle(g.x, g.y, 4, [RAMPS.pink[3], RAMPS.teal[3], '#ffffff'])
+    const doubled = by && this.tokenHolder() === by ? 2 : 1
+    this.addScore(ROSTER[g.kind].points * g.tier * doubled, g.x, g.y - 8, by)
+    if (g.loot) {
+      if (g.loot.kind === 'charge') {
+        const owner = this.heroes[g.from] ?? by
+        if (owner) {
+          owner.battery = Math.min(MAX_BATTERY, owner.battery + g.loot.amount)
+          this.floaters.push({
+            x: owner.x,
+            y: owner.y - 14,
+            text: `+${g.loot.amount}`,
+            life: 40,
+          })
+        }
+      } else this.items.push({ x: g.x, y: g.y, kind: g.loot.kind })
+      this.say('loot-back')
+    }
+    if (g.kind === 'mimic')
+      this.items.push({ x: g.x, y: g.y, kind: 'snack', safe: 45 })
+    this.burst(g.x, g.y, g.kind === 'bug' ? 2 : 5, '#f0abfc')
+    this.sparkle(g.x, g.y, g.kind === 'bug' ? 2 : 4, [
+      RAMPS.pink[3],
+      RAMPS.teal[3],
+      '#ffffff',
+    ])
     this.sound.play('pop')
   }
 
   private updateGenerators() {
-    const every = Math.round(levelCurve(this.level, GAUNTLET_CURVES.spawnEvery))
+    const every = levelCurve(this.level, GAUNTLET_CURVES.spawnEvery)
     const cap = Math.round(levelCurve(this.level, GAUNTLET_CURVES.glitchCap))
     for (const gen of this.generators) {
       if (gen.flash > 0) gen.flash--
@@ -1751,8 +2033,14 @@ class KindnessGauntlet implements ArcadeGameInstance {
       )
       if (!near) continue
       if (--gen.timer > 0) continue
-      gen.timer = every
+      const entry = ROSTER[gen.kind]
+      gen.timer = Math.round(every * entry.every)
       if (this.glitches.length >= cap) continue
+      const mine = this.glitches.filter((g) => g.gen === gen.id).length
+      if (mine >= entry.most) continue
+      // A swarm comes out all at once: six bugs, eight from tier 2, ten from tier 3.
+      const count =
+        gen.kind === 'bug' ? Math.min(entry.most - mine, 4 + 2 * gen.tier) : 1
       // Glitches leak out of a free side of the generator.
       for (const [dx, dy] of [
         [0, 1],
@@ -1762,47 +2050,296 @@ class KindnessGauntlet implements ArcadeGameInstance {
       ] as const) {
         const x = gen.x + dx * T
         const y = gen.y + dy * T
-        if (!this.boxHits(x, y, HALF)) {
-          this.glitches.push({ x, y, cling: 0, wobble: this.rng() * 6 })
-          break
+        if (this.boxHits(x, y, HALF)) continue
+        for (let i = 0; i < count; i++) {
+          const spread = count > 1 ? 5 : 0
+          this.glitches.push(
+            newGlitch(
+              gen.kind,
+              x + (this.rng() - 0.5) * spread,
+              y + (this.rng() - 0.5) * spread,
+              gen.tier,
+              this.nextId++,
+              gen.id,
+              this.rng() * 6,
+            ),
+          )
         }
+        if (gen.kind === 'bug') this.say('swarm')
+        break
       }
     }
   }
 
   private updateGlitches() {
-    const speed = levelCurve(this.level, GAUNTLET_CURVES.glitchSpeed)
-    for (const g of this.glitches) {
-      // Each glitch goes for the nearest bot still rolling.
-      const prey = this.nearestStanding(g)
-      if (!prey) continue
-      const dx = prey.x - g.x
-      const dy = prey.y - g.y
-      const d = Math.hypot(dx, dy)
-      if (d > GLITCH_RANGE) continue
-      if (d < 9) {
-        // Clinging on: drains that bot's battery.
-        if (--g.cling <= 0) {
-          g.cling = CLING_TICKS
-          prey.battery -= Math.round(
-            levelCurve(this.level, GAUNTLET_CURVES.clingCost) *
-              this.specOf(prey).armor,
-          )
-          this.sound.play('warn')
-        }
+    for (const g of [...this.glitches]) steerGlitch(this.world, g)
+  }
+
+  /** The bot holding the Hug Token (while it rolls). */
+  private tokenHolder(): Hero | undefined {
+    const seat = this.token?.holder ?? -1
+    const hero = seat >= 0 ? this.heroes[seat] : undefined
+    return hero && !hero.flat ? hero : undefined
+  }
+
+  /** Every glitch on the floor goes for the Token's holder; otherwise the nearest bot in range. */
+  private preyFor(g: Glitch): Prey | null {
+    const holder = this.tokenHolder()
+    if (holder) return holder
+    const prey = this.nearestStanding(g)
+    if (!prey) return null
+    return Math.hypot(prey.x - g.x, prey.y - g.y) <= GLITCH_RANGE ? prey : null
+  }
+
+  /** What a glitch can sense and do here (kindnessGauntlet/roster.ts steers them through it). */
+  private makeWorld(): GlitchWorld {
+    // eslint-disable-next-line @typescript-eslint/no-this-alias
+    const game = this
+    return {
+      get tick() {
+        return game.tick
+      },
+      get speed() {
+        return levelCurve(game.level, GAUNTLET_CURVES.glitchSpeed)
+      },
+      get bite() {
+        return levelCurve(game.level, GAUNTLET_CURVES.clingCost)
+      },
+      rng: () => game.rng(),
+      prey: (g) => game.preyFor(g),
+      nearest: (g) => game.nearestStanding(g) ?? null,
+      move: (g, vx, vy) => {
+        const half = g.kind === 'bug' ? 2 : g.kind === 'brute' ? 5 : 4
+        const to = game.slide(g.x, g.y, vx, vy, half)
+        const full = to.x === g.x + vx && to.y === g.y + vy
+        g.x = to.x
+        g.y = to.y
+        return full
+      },
+      open: (x, y) => !game.solid(x, y),
+      clear: (ax, ay, bx, by) => game.lineClear(ax, ay, bx, by),
+      toStairs: (g) => game.stepToStairs(g),
+      atStairs: (g) => Math.hypot(game.exit.x - g.x, game.exit.y - g.y) < 10,
+      drain: (p, amount) => game.drain(game.heroes[p.seat]!, amount),
+      shove: (p, dx, dy) => game.shove(game.heroes[p.seat]!, dx, dy),
+      steal: (g, p) => game.steal(g, game.heroes[p.seat]!),
+      lob: (g, tx, ty) =>
+        game.shots.push({
+          kind: 'packet',
+          x0: g.x,
+          y0: g.y,
+          x: tx,
+          y: ty,
+          t: 0,
+          tier: g.tier,
+        }),
+      bolt: (g, dx, dy) =>
+        game.shots.push({
+          kind: 'bolt',
+          x: g.x + dx * 6,
+          y: g.y + dy * 6,
+          vx: dx * BOLT_SPEED,
+          vy: dy * BOLT_SPEED,
+          life: 150,
+        }),
+      escape: (g) => game.escape(g),
+      digest: (g) => {
+        g.loot = null
+        g.cling = 180
+        game.say('digested')
+      },
+      tell: (g) => {
+        if (g.kind === 'mimic') game.say('mimic')
+        else if (g.kind !== 'brute') game.sound.play('blip')
+      },
+      play: (name) => game.sound.play(name),
+    }
+  }
+
+  /** One step downhill toward the stairs, or null when there or cut off from them. */
+  private stepToStairs(g: Glitch): { x: number; y: number } | null {
+    const tx = Math.floor(g.x / T)
+    const ty = Math.floor(g.y / T)
+    const d = this.toExit[this.idx(tx, ty)] ?? -1
+    if (d <= 0) return null
+    for (const [dx, dy] of [
+      [1, 0],
+      [-1, 0],
+      [0, 1],
+      [0, -1],
+    ] as const) {
+      if (this.toExit[this.idx(tx + dx, ty + dy)] !== d - 1) continue
+      const cx = (tx + dx) * T + T / 2 - g.x
+      const cy = (ty + dy) * T + T / 2 - g.y
+      const len = Math.hypot(cx, cy) || 1
+      return { x: cx / len, y: cy / len }
+    }
+    return null
+  }
+
+  /** Charge a glitch takes from a bot, through the bot's armour. */
+  private drain(hero: Hero, amount: number) {
+    if (hero.flat) return
+    hero.battery -= Math.max(1, Math.round(amount * this.specOf(hero).armor))
+  }
+
+  /** A brute's shove: a tile back along (dx, dy), stopped by the racks. */
+  private shove(hero: Hero, dx: number, dy: number) {
+    for (let i = 0; i < 8; i++) {
+      const to = this.slide(hero.x, hero.y, dx * 2, dy * 2, HALF)
+      hero.x = to.x
+      hero.y = to.y
+    }
+    this.burst(hero.x, hero.y, 6, RAMPS.steel[3])
+  }
+
+  /** A pickpocket takes a key, else a pulse, else a little charge; a leech takes charge. */
+  private steal(g: Glitch, hero: Hero) {
+    g.from = hero.seat
+    const name = this.specOf(hero).name
+    if (g.kind === 'pickpocket' && this.keys > 0) {
+      this.keys--
+      g.loot = { kind: 'key' }
+      this.say('key-stolen')
+    } else if (g.kind === 'pickpocket' && hero.pulses > 0) {
+      hero.pulses--
+      g.loot = { kind: 'pulse' }
+      this.say('pulse-stolen')
+    } else {
+      const amount = Math.max(
+        0,
+        Math.min(g.kind === 'leech' ? 35 : 20, hero.battery - 1),
+      )
+      hero.battery -= amount
+      g.loot = { kind: 'charge', amount }
+      this.say('charge-stolen', name)
+    }
+    this.floaters.push({ x: hero.x, y: hero.y - 14, text: 'STOLEN!', life: 40 })
+    this.sound.play('warn')
+  }
+
+  /**
+   * A pickpocket gets away down the stairs. A stolen key that was the only way on turns up again
+   * (the Mainframe finds a spare) somewhere the team can reach.
+   */
+  private escape(g: Glitch) {
+    this.glitches = this.glitches.filter((o) => o !== g)
+    this.sparkle(g.x, g.y, 8, [RAMPS.purple[3], RAMPS.purple[4]])
+    this.say('escaped')
+    if (g.loot?.kind !== 'key' || !this.doors.some((d) => !d.open)) return
+    const lead = this.standing[0] ?? this.lead
+    const dist = this.distances(Math.floor(lead.x / T), Math.floor(lead.y / T))
+    const far: number[] = []
+    dist.forEach((d, i) => {
+      if (d > 6) far.push(i)
+    })
+    if (!far.length) return
+    const at = far[Math.floor(this.rng() * far.length)]!
+    this.items.push({
+      x: (at % MW) * T + T / 2,
+      y: Math.floor(at / MW) * T + T / 2,
+      kind: 'key',
+    })
+    this.keySpotted = false
+  }
+
+  /** Packets land with a splash; imp sparks fly straight until a rack or a bot stops them. */
+  private updateShots() {
+    for (const shot of this.shots) {
+      if (shot.kind === 'packet') {
+        if (++shot.t < PACKET_TICKS) continue
+        for (const h of this.standing)
+          if (Math.hypot(h.x - shot.x, h.y - shot.y) < PACKET_SPLASH)
+            this.drain(h, 10 + 3 * shot.tier)
+        this.burst(shot.x, shot.y, 8, RAMPS.leaf[3])
+        this.sound.play('pop')
         continue
       }
-      const jitter = Math.sin(this.tick / 9 + g.wobble) * 0.3
-      const to = this.slide(
-        g.x,
-        g.y,
-        (dx / d) * speed + jitter,
-        (dy / d) * speed - jitter,
-        4,
+      shot.x += shot.vx
+      shot.y += shot.vy
+      shot.life--
+      if (this.solid(shot.x, shot.y)) {
+        shot.life = 0
+        continue
+      }
+      const hit = this.standing.find(
+        (h) => Math.hypot(h.x - shot.x, h.y - shot.y) < 7,
       )
-      g.x = to.x
-      g.y = to.y
+      if (hit) {
+        shot.life = 0
+        this.drain(hit, 12)
+        this.burst(shot.x, shot.y, 6, RAMPS.ember[3])
+        this.sound.play('warn')
+      }
     }
+    this.shots = this.shots.filter((s) =>
+      s.kind === 'packet' ? s.t < PACKET_TICKS : s.life > 0,
+    )
+  }
+
+  /**
+   * The Hug Token bounces loose until a bot rolls into it. Whoever holds it draws every glitch on
+   * the floor and earns double for each one fixed; a touch passes it to a partner, and carried into
+   * a generator it overloads it. A bot going flat drops it.
+   */
+  private updateToken() {
+    const t = this.token
+    if (!t) return
+    if (t.wait > 0) t.wait--
+    if (t.holder >= 0) {
+      const h = this.heroes[t.holder]!
+      if (h.flat) {
+        const a = this.rng() * Math.PI * 2
+        Object.assign(t, {
+          holder: -1,
+          wait: 60,
+          x: h.x,
+          y: h.y,
+          vx: Math.cos(a) * 0.5,
+          vy: Math.sin(a) * 0.5,
+        })
+        this.say('token-dropped')
+        return
+      }
+      t.x = h.x
+      t.y = h.y
+      const gen = this.generators.find(
+        (g) => Math.abs(g.x - h.x) < 15 && Math.abs(g.y - h.y) < 15,
+      )
+      if (gen) {
+        this.overload(gen, h)
+        return
+      }
+      if (t.wait > 0) return
+      const mate = this.standing.find(
+        (o) => o !== h && Math.hypot(o.x - h.x, o.y - h.y) < 13,
+      )
+      if (!mate) return
+      t.holder = mate.seat
+      t.wait = TOKEN_PASS_TICKS
+      this.sparkle(mate.x, mate.y, 10, [
+        RAMPS.pink[3],
+        RAMPS.pink[4],
+        '#ffffff',
+      ])
+      this.sound.play('pickup')
+      this.say('token-passed', this.specOf(mate).name)
+      return
+    }
+    if (this.boxHits(t.x + t.vx, t.y, 4)) t.vx = -t.vx
+    else t.x += t.vx
+    if (this.boxHits(t.x, t.y + t.vy, 4)) t.vy = -t.vy
+    else t.y += t.vy
+    if (t.wait > 0) return
+    const taker = this.standing.find(
+      (h) => Math.hypot(h.x - t.x, h.y - t.y) < 11,
+    )
+    if (!taker) return
+    t.holder = taker.seat
+    t.wait = TOKEN_PASS_TICKS
+    this.sparkle(t.x, t.y, 12, [RAMPS.pink[3], RAMPS.pink[4], '#ffffff'])
+    this.sound.play('extra')
+    this.say('token-taken', this.specOf(taker).name)
   }
 
   private nearestStanding(t: Thing): Hero | undefined {
@@ -1819,6 +2356,7 @@ class KindnessGauntlet implements ArcadeGameInstance {
   }
 
   private pickUp() {
+    for (const item of this.items) if (item.safe) item.safe--
     for (const item of [...this.items]) {
       const hero = this.standing.find(
         (h) => Math.hypot(item.x - h.x, item.y - h.y) <= 10,
@@ -1857,7 +2395,7 @@ class KindnessGauntlet implements ArcadeGameInstance {
         this.sound.play('pickup')
       } else {
         this.rescued++
-        this.addScore(RESCUE_POINTS * this.level, item.x, item.y - 10)
+        this.addScore(RESCUE_POINTS * this.level, item.x, item.y - 10, hero)
         this.burst(item.x, item.y, 12, '#fde68a')
         this.sparkle(item.x, item.y, 16)
         this.banner = { text: 'BOT RESCUED!', ticks: 60 }
@@ -1868,9 +2406,11 @@ class KindnessGauntlet implements ArcadeGameInstance {
 
   // --- scoring and effects ----------------------------------------------------
 
-  private addScore(points: number, x: number, y: number) {
+  /** Points for the team, and for the seat that earned them. */
+  private addScore(points: number, x: number, y: number, by?: Hero) {
     if (this.demo) return
     this.score += points
+    if (by) by.points += points
     this.floaters.push({ x, y, text: String(points), life: 40 })
   }
 
@@ -1916,6 +2456,80 @@ class KindnessGauntlet implements ArcadeGameInstance {
 
   // --- attract-mode pilot -----------------------------------------------------
 
+  /** Hold the arrows for one of the eight facings toward (dx, dy). */
+  private steerTo(held: InputFrame['held'], dx: number, dy: number) {
+    const ang = Math.atan2(dy, dx)
+    const f = (Math.round((ang + Math.PI / 2) / (Math.PI / 4)) + 8) % 8
+    if (FACE_X[f]! < 0) held.left = true
+    if (FACE_X[f]! > 0) held.right = true
+    if (FACE_Y[f]! < 0) held.up = true
+    if (FACE_Y[f]! > 0) held.down = true
+  }
+
+  /** Something about to land on the pilot, and which way is away from it. */
+  private danger(me: Hero): { x: number; y: number } | null {
+    for (const s of this.shots) {
+      if (s.kind === 'packet') {
+        if (
+          s.t > PACKET_TICKS - 34 &&
+          Math.hypot(s.x - me.x, s.y - me.y) < PACKET_SPLASH + 6
+        )
+          return { x: me.x - s.x || 1, y: me.y - s.y }
+      } else if (
+        Math.hypot(s.x - me.x, s.y - me.y) < 40 &&
+        (me.x - s.x) * s.vx + (me.y - s.y) * s.vy > 0 &&
+        (s.vx ? Math.abs(s.y - me.y) < 8 : Math.abs(s.x - me.x) < 8)
+      )
+        // Step off its line, not along it.
+        return this.offLine(me, s.x, s.y, s.vx !== 0)
+    }
+    for (const g of this.glitches) {
+      const dx = me.x - g.x
+      const dy = me.y - g.y
+      if (g.kind === 'brute' && g.state === 'windup' && Math.hypot(dx, dy) < 28)
+        return { x: dx, y: dy }
+      if (
+        g.kind === 'imp' &&
+        g.state === 'inhale' &&
+        Math.hypot(dx, dy) < 16 * 8 &&
+        (g.vx ? Math.abs(dy) < 8 : Math.abs(dx) < 8)
+      )
+        return this.offLine(me, g.x, g.y, g.vx !== 0)
+      if (g.kind === 'spill' && g.state !== 'dry' && Math.hypot(dx, dy) < 18)
+        return { x: dx, y: dy }
+    }
+    return null
+  }
+
+  /**
+   * Off a straight line of fire through (x, y): to whichever side the pilot's route goes next, so
+   * it crosses the line instead of dithering on its edge.
+   */
+  private offLine(
+    me: Hero,
+    x: number,
+    y: number,
+    across: boolean,
+  ): { x: number; y: number } {
+    const next = this.path[0]
+    if (across) {
+      const side = next ? next.y * T + T / 2 - y : me.y - y
+      return { x: 0, y: side >= 0 ? 1 : -1 }
+    }
+    const side = next ? next.x * T + T / 2 - x : me.x - x
+    return { x: side >= 0 ? 1 : -1, y: 0 }
+  }
+
+  /** What the pilot will spark: glitches it can fix (a mimic once it has given itself away). */
+  private pilotTargets(holding: boolean): Thing[] {
+    const glitches = this.glitches.filter(
+      (g) =>
+        !ROSTER[g.kind].unfixable &&
+        (g.kind !== 'mimic' || g.seen || g.state === 'awake'),
+    )
+    return holding ? glitches : [...glitches, ...this.generators]
+  }
+
   private demoInput(): InputFrame {
     const held = {
       up: false,
@@ -1932,36 +2546,51 @@ class KindnessGauntlet implements ArcadeGameInstance {
       return frame
     }
     const me = this.lead
+    // Something about to land: step clear first.
+    const away = this.danger(me)
+    if (away) {
+      this.steerTo(held, away.x, away.y)
+      return frame
+    }
     // Swamped: use a pulse (Sage, with pulses to spare, uses them sooner).
     const close = this.glitches.filter(
-      (g) => Math.hypot(g.x - me.x, g.y - me.y) < 40,
+      (g) =>
+        !ROSTER[g.kind].unfixable &&
+        g.kind !== 'mimic' &&
+        Math.hypot(g.x - me.x, g.y - me.y) < 40,
     )
     if (close.length >= (me.pulses > 1 ? 3 : 5) && me.pulses > 0) {
       frame.pressed.b = true
       return frame
     }
-    // Something to fix nearby: face it and spark it.
-    const targets: Thing[] = [...this.glitches, ...this.generators]
-    const aim = targets
-      .filter(
-        (t) => Math.hypot(t.x - me.x, t.y - me.y) < 90 && this.clearShot(t),
-      )
+    // Something to fix nearby: face it and spark it (a thief carrying loot from further off).
+    // A pilot rooted to one spot for four seconds gives up aiming and walks on for two.
+    if (Math.hypot(me.x - this.pilotAt.x, me.y - this.pilotAt.y) > 6) {
+      this.pilotAt = { x: me.x, y: me.y }
+      this.pilotStill = 0
+    } else if (++this.pilotStill > 240) {
+      this.pilotStill = -120
+      this.path = []
+    }
+    const holding = this.tokenHolder() === me
+    const aim = (this.pilotStill < 0 ? [] : this.pilotTargets(holding))
+      .filter((t) => {
+        const loot = 'loot' in t && (t as Glitch).loot
+        const reach = loot ? 150 : 90
+        return Math.hypot(t.x - me.x, t.y - me.y) < reach && this.clearShot(t)
+      })
       .sort(
         (a, b) =>
           Math.hypot(a.x - me.x, a.y - me.y) -
           Math.hypot(b.x - me.x, b.y - me.y),
       )[0]
     if (aim) {
-      const ang = Math.atan2(aim.y - me.y, aim.x - me.x)
-      const f = (Math.round((ang + Math.PI / 2) / (Math.PI / 4)) + 8) % 8
-      if (FACE_X[f]! < 0) held.left = true
-      if (FACE_X[f]! > 0) held.right = true
-      if (FACE_Y[f]! < 0) held.up = true
-      if (FACE_Y[f]! > 0) held.down = true
+      this.steerTo(held, aim.x - me.x, aim.y - me.y)
       held.a = true
       return frame
     }
-    // Otherwise walk the path to the next goal: snacks when low, cages, generators, then the stairs.
+    // Otherwise walk the path to the next goal: snacks when low, the loose token, cages,
+    // generators (to overload them, holding the token), then the stairs.
     if (--this.pathTimer <= 0 || this.path.length === 0) {
       this.pathTimer = 30
       this.path = this.planPath()
@@ -1981,7 +2610,10 @@ class KindnessGauntlet implements ArcadeGameInstance {
     return frame
   }
 
-  /** A straight, unblocked spark line to the target along one of the eight facings. */
+  /**
+   * A straight, unblocked spark line to the target along one of the eight facings, that breaks
+   * no snack and sparks no partner on the way.
+   */
   private clearShot(t: Thing): boolean {
     // Replay the spark's exact flight along the nearest of the eight facings:
     // sampling the line instead can step over a wall corner the spark clips.
@@ -1997,7 +2629,22 @@ class KindnessGauntlet implements ArcadeGameInstance {
       x += (fx / len) * SPARK_SPEED
       y += (fy / len) * SPARK_SPEED
       if (this.solid(x, y)) return false
-      if (Math.abs(t.x - x) < 6 && Math.abs(t.y - y) < 6) return true
+      const glitch = 'kind' in t && 'hp' in t && 'wobble' in t
+      if (
+        glitch
+          ? Math.hypot(t.x - x, t.y - y) < hitRadius((t as Glitch).kind) - 1
+          : Math.abs(t.x - x) < 6 && Math.abs(t.y - y) < 6
+      )
+        return true
+      if (
+        this.items.some(
+          (s) =>
+            s.kind === 'snack' &&
+            Math.abs(s.x - x) < 6 &&
+            Math.abs(s.y - y) < 6,
+        )
+      )
+        return false
     }
     return false
   }
@@ -2006,15 +2653,33 @@ class KindnessGauntlet implements ArcadeGameInstance {
     const sx = Math.floor(this.lead.x / T)
     const sy = Math.floor(this.lead.y / T)
     const dist = this.distances(sx, sy, this.keys > 0)
-    const goals: Thing[] =
-      this.lead.battery < 120
-        ? this.items.filter((i) => i.kind === 'snack')
-        : [...this.items.filter((i) => i.kind !== 'snack'), ...this.generators]
-    const pool = goals.length ? goals : [this.exit]
+    const holding = this.tokenHolder() === this.lead
+    const loose =
+      this.token && this.token.holder < 0 && this.lead.battery >= 120
+        ? [this.token]
+        : []
+    const reach = (t: Thing) =>
+      dist[this.idx(Math.floor(t.x / T), Math.floor(t.y / T))]!
+    const open = (list: Thing[]) => list.filter((t) => reach(t) >= 0)
+    const usual = open([
+      ...loose,
+      ...this.items.filter((i) => i.kind !== 'snack'),
+      ...this.generators,
+    ])
+    const snacks = open(this.items.filter((i) => i.kind === 'snack'))
+    const gens = open(this.generators)
+    const pool =
+      this.lead.battery < 120 && snacks.length
+        ? snacks
+        : holding && gens.length
+          ? gens
+          : usual.length
+            ? usual
+            : [this.exit]
     let best: Thing | null = null
     let bestD = Infinity
     for (const g of pool) {
-      const d = dist[this.idx(Math.floor(g.x / T), Math.floor(g.y / T))]!
+      const d = reach(g)
       if (d >= 0 && d < bestD) {
         bestD = d
         best = g
@@ -2076,11 +2741,16 @@ class KindnessGauntlet implements ArcadeGameInstance {
     this.renderLeds(g, x0, y0, x1, y1)
     this.renderDoors(g)
     this.renderExit(g)
-    for (const item of this.items) this.renderItem(g, item)
-    for (const gen of this.generators) this.renderGenerator(g, gen)
-    for (const gl of this.glitches) this.renderGlitch(g, gl)
+    for (const gl of this.glitches)
+      if (gl.kind === 'spill' && this.lit(gl)) this.renderSpill(g, gl)
+    for (const item of this.items) if (this.lit(item)) this.renderItem(g, item)
+    for (const gen of this.generators)
+      if (this.lit(gen)) this.renderGenerator(g, gen)
+    for (const gl of this.glitches) if (this.lit(gl)) this.renderGlitch(g, gl)
+    this.renderShots(g)
     this.renderSparks(g)
     this.renderHeroes(g)
+    this.renderToken(g)
     this.renderZaps(g)
     for (const p of this.particles) {
       g.globalAlpha = Math.max(0, Math.min(1, p.life / 16))
@@ -2102,6 +2772,9 @@ class KindnessGauntlet implements ArcadeGameInstance {
     g.restore()
     vignette(g, W, H, 0.3)
     this.renderHud(g)
+    this.renderIntro(g)
+    this.renderTally(g)
+    this.renderVoice(g)
   }
 
   /** The floor plan's cache key: its rack layout (doors count as floor) and its theme. */
@@ -2283,16 +2956,22 @@ class KindnessGauntlet implements ArcadeGameInstance {
     }
   }
 
-  /** A glitch generator: glowing hotter as its next glitch is due, static on its screen. */
+  /**
+   * A generator, in its kind's own machine: glowing hotter as its next glitch is due, its warning
+   * lamp blinking faster, and its tier (three lamps; tier 3 releases the toughest) underneath.
+   */
   private renderGenerator(g: CanvasRenderingContext2D, gen: Generator) {
     const x = Math.round(gen.x)
     const y = Math.round(gen.y)
+    const look = ROSTER[gen.kind].look
+    const art = GENERATOR_SPRITES[look]
     const due = 1 - Math.min(1, gen.timer / 90)
     const throb = 0.5 + 0.5 * Math.sin(this.tick / (8 - due * 5))
-    glow(g, x, y, 16 + throb * 4, GLITCH_PALETTE.b, 0.22 + 0.3 * due * throb)
+    const hot = TIER_COLOURS[gen.tier - 1]!
+    glow(g, x, y, 16 + throb * 4, GLITCH_PALETTE.b, 0.2 + 0.3 * due * throb)
     dropShadow(g, x, y + 8, 8, 2, 0.45)
-    drawSprite(g, gen.flash > 0 ? GENERATOR_FLASH : GENERATOR_SPRITE, x, y)
-    if (gen.flash <= 0) {
+    drawSprite(g, gen.flash > 0 ? art.flash : art.sprite, x, y)
+    if (gen.flash <= 0 && look === 'cabinet') {
       for (let i = 0; i < 6; i++) {
         g.fillStyle =
           (this.tick + i * 3) % 5 < 2 ? GLITCH_PALETTE.l : GLITCH_PALETTE.c
@@ -2305,39 +2984,219 @@ class KindnessGauntlet implements ArcadeGameInstance {
       }
       g.fillStyle = rgba(RAMPS.teal[3], 0.35)
       g.fillRect(x - 5, y - 5 + (Math.floor(this.tick / 3) % 6), 10, 1)
+    } else if (gen.flash <= 0 && look === 'reel') {
+      // The reel turns.
+      const a = this.tick / 12
+      g.fillStyle = RAMPS.cream[4]
+      g.fillRect(
+        Math.round(x + Math.cos(a) * 3) - 1,
+        Math.round(y - 1 + Math.sin(a) * 3),
+        1,
+        1,
+      )
+    } else if (gen.flash <= 0 && look === 'urn' && this.tick % 40 < 20) {
+      g.fillStyle = RAMPS.earth[2]
+      g.fillRect(x + 5, y + 4 + ((this.tick / 4) % 4), 1, 1)
     }
     // The warning lamp on top blinks faster as a glitch gets ready.
     const lit = Math.floor(this.tick / (12 - due * 8)) % 2 === 0
     g.fillStyle = INK
-    g.fillRect(x - 3, y - 10, 6, 3)
+    g.fillRect(x - 3, y - 11, 6, 3)
     g.fillStyle = lit ? RAMPS.ember[3] : RAMPS.ember[1]
-    g.fillRect(x - 2, y - 9, 4, 2)
+    g.fillRect(x - 2, y - 10, 4, 2)
     g.fillStyle = lit ? RAMPS.ember[4] : RAMPS.ember[2]
-    g.fillRect(x - 2, y - 9, 2, 1)
-    if (lit) glow(g, x, y - 8, 7, RAMPS.ember[2], 0.6)
-    const hp = gen.hp / gen.maxHp
-    gauge(
-      g,
-      x - 7,
-      y + 10,
-      14,
-      2,
-      hp,
-      hp > 0.5 ? RAMPS.leaf : hp > 0.25 ? RAMPS.gold : RAMPS.ember,
-    )
+    g.fillRect(x - 2, y - 10, 2, 1)
+    if (lit) glow(g, x, y - 9, 7, RAMPS.ember[2], 0.6)
+    // Tier lamps under it: lit up to its tier.
+    g.fillStyle = INK
+    g.fillRect(x - 6, y + 9, 13, 4)
+    for (let i = 0; i < 3; i++) {
+      g.fillStyle = i < gen.tier ? hot : RAMPS.night[2]
+      g.fillRect(x - 5 + i * 4, y + 10, 3, 2)
+    }
   }
 
-  private renderGlitch(g: CanvasRenderingContext2D, gl: Glitch) {
-    const shift = (Math.floor(this.tick / 3 + gl.wobble) % 3) - 1
-    const frame = Math.floor(this.tick / 8 + gl.wobble) % 2
+  /** Is this spot explored? Glitches and goodies in the dark stay hidden. */
+  private lit(t: Thing): boolean {
+    return !!this.seen[this.idx(Math.floor(t.x / T), Math.floor(t.y / T))]
+  }
+
+  /** A coffee spill: a brown puddle with ripples (its tell), or a dry stain under a pulse. */
+  private renderSpill(g: CanvasRenderingContext2D, gl: Glitch) {
     const x = Math.round(gl.x)
     const y = Math.round(gl.y)
-    dropShadow(g, x, y + 5, 4, 1.4, 0.4)
+    const dry = gl.state === 'dry'
+    const ramp = RAMPS.earth
     g.save()
-    g.globalCompositeOperation = 'lighter'
-    drawSprite(g, GLITCH_GHOSTS[frame]!, x - shift * 2, y, { alpha: 0.45 })
+    g.globalAlpha = dry ? 0.45 : 0.9
+    g.fillStyle = ramp[0]
+    g.beginPath()
+    g.ellipse(x, y + 1, 10, 6, 0, 0, Math.PI * 2)
+    g.fill()
+    g.fillStyle = dry ? ramp[1] : ramp[2]
+    g.beginPath()
+    g.ellipse(x - 1, y, 8, 4.5, 0, 0, Math.PI * 2)
+    g.fill()
+    if (!dry) {
+      g.fillStyle = ramp[3]
+      g.fillRect(x - 5, y - 2, 3, 1)
+      g.fillStyle = '#ffffff'
+      g.fillRect(x - 4, y - 2, 1, 1)
+      const r = 2 + ((this.tick / 6 + gl.wobble * 3) % 7)
+      g.strokeStyle = rgba(ramp[4], 0.6 * (1 - r / 9))
+      g.lineWidth = 1
+      g.beginPath()
+      g.ellipse(x, y, r * 1.3, r * 0.7, 0, 0, Math.PI * 2)
+      g.stroke()
+    } else {
+      // Drying: a little timer of steam.
+      const left = gl.t / DRY_TICKS
+      g.globalAlpha = 1
+      gauge(g, x - 6, y + 7, 12, 2, left, RAMPS.sky)
+    }
     g.restore()
-    drawSprite(g, GLITCH_SPRITES[frame]!, x + shift, y)
+  }
+
+  /** Each glitch kind in its own sprite, wearing its tell when it is about to act. */
+  private renderGlitch(g: CanvasRenderingContext2D, gl: Glitch) {
+    if (gl.kind === 'spill') return
+    const frame = Math.floor(this.tick / 8 + gl.wobble) % 2
+    let x = Math.round(gl.x)
+    const y = Math.round(gl.y)
+    const frames = gl.flash > 0 ? GLITCH_FLASH[gl.kind] : GLITCH_FRAMES[gl.kind]
+    if (gl.kind === 'bug') {
+      dropShadow(g, x, y + 3, 2, 1, 0.35)
+      drawSprite(
+        g,
+        frames[Math.floor(this.tick / 2 + gl.wobble) % 2]!,
+        x,
+        y - 2,
+      )
+      return
+    }
+    if (gl.tier === 3) glow(g, x, y, 11, RAMPS.ember[3], 0.28)
+    dropShadow(g, x, y + 6, 5, 1.5, 0.4)
+    if (gl.kind === 'glitch') {
+      const shift = (Math.floor(this.tick / 3 + gl.wobble) % 3) - 1
+      g.save()
+      g.globalCompositeOperation = 'lighter'
+      drawSprite(g, GLITCH_GHOSTS[frame]!, x - shift * 2, y, { alpha: 0.45 })
+      g.restore()
+      drawSprite(g, frames[frame]!, x + shift, y)
+      return
+    }
+    if (gl.kind === 'mimic') {
+      // A snack, unless it is blinking (its tell) or awake and snapping.
+      const bob = Math.round(Math.sin(this.tick / 10 + x * 0.1) * 1.2)
+      const pose = gl.state === 'awake' ? 2 : gl.t <= MIMIC_BLINK ? 1 : 0
+      drawSprite(g, frames[pose]!, x, y - 1 + (gl.state === 'awake' ? 0 : bob))
+      return
+    }
+    if (gl.kind === 'brute' && gl.state === 'windup') {
+      // Stomping: it shakes and kicks up dust.
+      x += this.tick % 4 < 2 ? -1 : 1
+      g.fillStyle = rgba(RAMPS.steel[3], 0.7)
+      g.fillRect(x - 8, y + 6, 3, 1)
+      g.fillRect(x + 6, y + 6, 3, 1)
+    }
+    const pose =
+      gl.kind === 'brute' ? (gl.state === 'windup' ? 1 : frame) : frame
+    if (gl.kind === 'imp' && gl.state === 'inhale') {
+      glow(g, x, y, 10 + (IMP_TELL - gl.t) / 3, RAMPS.ember[4], 0.55)
+      drawSprite(g, gl.flash > 0 ? frames[0]! : IMP_INHALE, x, y)
+    } else drawSprite(g, frames[pose]!, x, y)
+    if (gl.kind === 'popup' && gl.t <= POPUP_TELL && gl.t > 0) {
+      // The pop-up's "!" as it winds up a lob.
+      if (Math.floor(this.tick / 5) % 2 === 0)
+        drawText(g, '!', x, y - 16, {
+          align: 'center',
+          color: RAMPS.gold[4],
+          outline: INK,
+        })
+    }
+    if (gl.kind === 'leech') {
+      // The battery on its back glows while it carries stolen charge.
+      if (gl.loot)
+        glow(
+          g,
+          x + 1,
+          y - 1,
+          7,
+          RAMPS.gold[4],
+          0.4 + 0.2 * Math.sin(this.tick / 4),
+        )
+    }
+    if (gl.kind === 'pickpocket' && gl.loot)
+      drawSprite(g, LOOT_SACK, x + 6, y + 2)
+    if (gl.maxHp > 1 && gl.hp < gl.maxHp)
+      gauge(g, x - 5, y - 11, 10, 2, gl.hp / gl.maxHp, RAMPS.pink)
+  }
+
+  /** Packets in the air over a growing landing ring (their tell), and imp sparks. */
+  private renderShots(g: CanvasRenderingContext2D) {
+    for (const s of this.shots) {
+      if (s.kind === 'packet') {
+        const f = s.t / PACKET_TICKS
+        const r = PACKET_SPLASH * (0.4 + 0.6 * f)
+        g.strokeStyle = rgba(RAMPS.leaf[3], 0.4 + 0.5 * f)
+        g.lineWidth = 1
+        g.beginPath()
+        g.ellipse(s.x, s.y + 2, r, r * 0.55, 0, 0, Math.PI * 2)
+        g.stroke()
+        const px = s.x0 + (s.x - s.x0) * f
+        const py = s.y0 + (s.y - s.y0) * f - Math.sin(f * Math.PI) * 30
+        dropShadow(
+          g,
+          s.x0 + (s.x - s.x0) * f,
+          s.y0 + (s.y - s.y0) * f + 3,
+          3,
+          1,
+          0.35,
+        )
+        g.fillStyle = INK
+        g.fillRect(Math.round(px) - 3, Math.round(py) - 3, 6, 6)
+        g.fillStyle = RAMPS.leaf[3]
+        g.fillRect(Math.round(px) - 2, Math.round(py) - 2, 4, 4)
+        g.fillStyle = RAMPS.leaf[4]
+        g.fillRect(Math.round(px) - 2, Math.round(py) - 2, 2, 1)
+        continue
+      }
+      glow(g, s.x, s.y, 8, RAMPS.ember[3], 0.6)
+      g.fillStyle = RAMPS.ember[2]
+      g.fillRect(
+        Math.round(s.x - s.vx * 2) - 1,
+        Math.round(s.y - s.vy * 2) - 1,
+        2,
+        2,
+      )
+      g.fillStyle = RAMPS.ember[4]
+      g.fillRect(Math.round(s.x) - 2, Math.round(s.y) - 2, 4, 4)
+      g.fillStyle = '#ffffff'
+      g.fillRect(Math.round(s.x) - 1, Math.round(s.y) - 1, 2, 2)
+    }
+  }
+
+  /** The Hug Token: a bouncing heart, or riding over its holder's head in a pink halo. */
+  private renderToken(g: CanvasRenderingContext2D) {
+    const t = this.token
+    if (!t) return
+    const held = t.holder >= 0
+    if (!held && !this.lit(t)) return
+    const bounce = Math.abs(Math.sin(this.tick / 9)) * (held ? 2 : 5)
+    // Held, it rides on the holder's shoulder, clear of the seat tag over its head.
+    const x = Math.round(t.x + (held ? 10 : 0))
+    const y = Math.round(t.y - (held ? 10 : 2) - bounce)
+    glow(g, x, y, 12 + Math.sin(this.tick / 6) * 2, RAMPS.pink[3], 0.55)
+    if (held) {
+      g.strokeStyle = rgba(RAMPS.pink[3], 0.6)
+      g.lineWidth = 1
+      g.beginPath()
+      g.ellipse(t.x, t.y + 7, 10, 4, 0, 0, Math.PI * 2)
+      g.stroke()
+    } else dropShadow(g, x, Math.round(t.y) + 6, 4, 1.4, 0.4)
+    drawSprite(g, HEART_SPRITE, x, y)
+    g.fillStyle = '#ffffff'
+    if (this.tick % 30 < 6) g.fillRect(x - 2, y - 2, 1, 1)
   }
 
   /** Wrench sparks: a hot glow, a trail in the thrower's colour, and a twinkling star. */
@@ -2438,7 +3297,8 @@ class KindnessGauntlet implements ArcadeGameInstance {
     g.save()
     g.globalCompositeOperation = 'lighter'
     for (const gl of this.glitches) {
-      const prey = this.nearestStanding(gl)
+      if (gl.kind !== 'glitch' && gl.kind !== 'bug') continue
+      const prey = this.preyFor(gl)
       if (!prey || Math.hypot(prey.x - gl.x, prey.y - gl.y) >= 9) continue
       const flick = (this.tick + Math.floor(gl.wobble * 5)) % 3
       const mx = (gl.x + prey.x) / 2 + (flick - 1) * 2
@@ -2598,6 +3458,100 @@ class KindnessGauntlet implements ArcadeGameInstance {
       outline: INK,
     })
     vignette(g, W, H, 0.3)
+  }
+
+  /** A new glitch kind's card: what it looks like, its tell and its answer. */
+  private renderIntro(g: CanvasRenderingContext2D) {
+    if (!this.intro || this.banner) return
+    const kind = this.intro.kind
+    const e = ROSTER[kind]
+    const lines = [
+      ...wrapWords(`TELL: ${e.tell}`, 40),
+      ...wrapWords(`ANSWER: ${e.answer}`, 40),
+    ]
+    const h = 26 + lines.length * 9
+    const top = H - 24 - h
+    const fade = Math.min(1, this.intro.ticks / 20)
+    g.save()
+    g.globalAlpha = fade
+    hudPanel(g, 6, top, W - 12, h, RAMPS.night)
+    const frames = GLITCH_FRAMES[kind]
+    if (kind === 'spill')
+      this.renderSpill(g, {
+        ...this.glitches[0]!,
+        kind,
+        x: 28,
+        y: top + h / 2,
+        state: 'walk',
+        wobble: 0,
+      })
+    else
+      drawSprite(
+        g,
+        frames[Math.floor(this.tick / 10) % Math.min(2, frames.length)]!,
+        28,
+        top + h / 2,
+        { scale: 2 },
+      )
+    drawText(g, `NEW GLITCH: ${e.name}`, 50, top + 5, {
+      color: RAMPS.gold[4],
+      outline: INK,
+    })
+    lines.forEach((line, i) => {
+      drawText(g, line, 50, top + 18 + i * 9, {
+        color:
+          line.startsWith('ANSWER') || i >= lines.length - 1
+            ? RAMPS.leaf[4]
+            : RAMPS.steel[4],
+        outline: INK,
+      })
+    })
+    g.restore()
+  }
+
+  /** Each seat's own score, on the floor-clear and game-over screens (co-op only). */
+  private renderTally(g: CanvasRenderingContext2D) {
+    if (this.heroes.length < 2 || !(this.leaving > 0 || this.over)) return
+    const rows = this.heroes
+    const h = 6 + rows.length * 10
+    const w = 150
+    const left = W / 2 - w / 2
+    hudPanel(g, left, 124, w, h, RAMPS.night)
+    for (const hero of rows) {
+      const y = 127 + hero.seat * 10
+      drawText(g, `${hero.seat + 1}P ${this.specOf(hero).name}`, left + 6, y, {
+        color: SEAT_COLORS[hero.seat],
+        outline: INK,
+      })
+      drawText(g, String(hero.points), left + w - 6, y, {
+        align: 'right',
+        color: RAMPS.gold[4],
+        outline: INK,
+      })
+    }
+  }
+
+  /** The Mainframe at the foot of the screen: her face, talking, and what she says. */
+  private renderVoice(g: CanvasRenderingContext2D) {
+    const v = this.voice
+    if (!v) return
+    const top = H - 21
+    const slide = Math.min(1, (VOICE_TICKS - v.ticks) / 8, v.ticks / 8)
+    g.save()
+    g.globalAlpha = slide
+    hudPanel(
+      g,
+      2,
+      top,
+      Math.min(W - 4, measureText(v.text) + 32),
+      19,
+      RAMPS.purple,
+    )
+    const talking =
+      v.ticks > VOICE_TICKS - 50 && Math.floor(this.tick / 5) % 2 === 0
+    drawSprite(g, MAINFRAME_FACE[talking ? 1 : 0]!, 13, top + 10)
+    drawText(g, v.text, 26, top + 6, { color: RAMPS.cream[3], outline: INK })
+    g.restore()
   }
 
   // --- HUD ---------------------------------------------------------------------

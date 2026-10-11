@@ -37,13 +37,9 @@ assert.doesNotMatch(
   /canon_motivation|world_mysteries|developer_note|locked_character_id/,
 )
 assert.ok(
-  asset('../../public/images/shifting-lands/encounter-back.svg').includes(
-    'ENCOUNTER',
-  ),
+  asset('../../public/shifting-lands/encounter-back.svg').includes('ENCOUNTER'),
 )
-assert.ok(
-  asset('../../public/images/shifting-lands/trial-back.svg').includes('TRIAL'),
-)
+assert.ok(asset('../../public/shifting-lands/trial-back.svg').includes('TRIAL'))
 const flip = asset('../../components/navigation/flip-card.vue')
 assert.match(flip, /revealOnTrigger/)
 assert.match(flip, /flip-card-reveal/)

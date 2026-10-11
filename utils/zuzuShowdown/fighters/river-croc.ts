@@ -46,7 +46,7 @@ fit('crouch_hk', { x: 24, y: 0, w: 29, h: 10 })
 fit('jump_lp', { x: 22, y: 35, w: 31, h: 14 })
 fit('jump_hp', { x: 18, y: 26, w: 33, h: 20 })
 fit('jump_lk', { x: 16, y: 6, w: 29, h: 14 })
-fit('jump_hk', { x: 20, y: 8, w: 29, h: 16 })
+fit('jump_hk', { x: 20, y: 8, w: 22, h: 16 })
 const HEAVIES: NormalId[] = ['stand_hp', 'stand_hk', 'crouch_hp', 'crouch_hk']
 for (const id of HEAVIES) {
   const move = normals[id]
@@ -248,7 +248,7 @@ const specials: SpecialMove[] = [
 export const RIVER_CROC: FighterData = {
   slug: 'river-croc',
   name: 'River Croc',
-  health: 1100,
+  health: 1050,
   walkForward: Math.round(1.1 * SUB),
   walkBack: SUB,
   jumpVelocity: 7 * SUB,

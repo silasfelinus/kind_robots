@@ -340,6 +340,31 @@ console.log(
   )
   assert.deepEqual(selectComicCastLoras(kreaLane, 'zuzu'), [])
 
+  const solo = normalizeComicLanes([
+    {
+      ...arthemy,
+      castLoras: [
+        { ...cast[0], stacks: false },
+        cast[1],
+        { key: 'sister', resourceId: 4583, match: ['sister'] },
+      ],
+    },
+  ]).lanes[0]!
+  assert.equal(solo.castLoras?.[0]?.stacks, false, 'stacks: false survives')
+  assert.equal(solo.castLoras?.[1]?.stacks, undefined)
+  assert.deepEqual(
+    selectComicCastLoras(solo, 'the koala bandages the coyote'),
+    [],
+    'a non-stacking character in company gets no LoRAs',
+  )
+  assert.deepEqual(selectComicCastLoras(solo, 'zuzu alone'), [
+    { resourceId: 4593, strength: 0.8 },
+  ])
+  assert.deepEqual(selectComicCastLoras(solo, 'the coyote and the sister'), [
+    { resourceId: 4578, strength: 0.52 },
+    { resourceId: 4583, strength: 0.6 },
+  ])
+
   const body = buildComicLaneEnqueueBody(
     withCast,
     {

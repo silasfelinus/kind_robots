@@ -131,7 +131,7 @@ check(
     }
     assert.ok(FIGHTERS.includes(COYOTE))
     assert.deepEqual(DEFAULT_FIGHTERS, ['zuzu', 'coyote-vagrant'])
-    assert.equal(COYOTE.health, 950)
+    assert.equal(COYOTE.health, 1000)
   },
 )
 
@@ -257,7 +257,7 @@ check('Play Dead counters a strike, but a low or a grab gets him', () => {
     log,
   )
   assert.ok(log.some((e) => e.type === 'parry' && e.side === 0))
-  assert.equal(s.fighters[1].health, PLACEHOLDER_B.health - 90)
+  assert.equal(s.fighters[1].health, PLACEHOLDER_B.health - 110)
   // A low kick hits the "corpse".
   const low: SimEvent[] = []
   play(

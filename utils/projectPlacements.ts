@@ -123,6 +123,13 @@ export const PROJECT_PLACEMENTS: Record<string, ProjectPlacement> = {
     tabKey: 'zuzu-lair',
     route: '/play/zuzu-lair',
   },
+  // Out of Admin on 2026-10-11 (Silas: "If it's ready for prime time, it can
+  // move to the Play and out of admin"), after the t-024 balance pass.
+  'zuzu-showdown': {
+    channelKey: 'projects',
+    tabKey: 'zuzu-showdown',
+    route: '/play/zuzu-showdown',
+  },
   'media-watchlist': {
     channelKey: 'admin',
     tabKey: 'watchlist',
@@ -133,10 +140,12 @@ export const PROJECT_PLACEMENTS: Record<string, ProjectPlacement> = {
     tabKey: 'projects',
     route: '/plan/projects/coat-dance',
   },
+  // Moved to Admin on 2026-10-11 (Silas: "move the ruler is hooked to admin,
+  // it's not ready for prime time"); /plan/projects/ruler-hooked redirects.
   'ruler-hooked': {
-    channelKey: 'projects',
+    channelKey: 'admin',
     tabKey: 'ruler-hooked',
-    route: '/plan/projects/ruler-hooked',
+    route: '/admin/ruler-hooked',
   },
   'tzaddik-gallery': {
     channelKey: 'projects',

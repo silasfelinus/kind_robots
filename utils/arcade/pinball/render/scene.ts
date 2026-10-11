@@ -20,6 +20,8 @@
 import * as THREE from 'three'
 import type { ToyPose } from '../rules/toys'
 import { Heroes, Sparks, Trail } from './heroes'
+import { CrocToy } from './croc'
+import type { AnimatronicPose } from '../rules/ruleset'
 import { Room } from './room'
 import { Dressing, POP_FLASH, POP_REST, wallPaint } from './dressing'
 import { Wireforms, wireformRails } from './wireforms'
@@ -288,6 +290,8 @@ export class PinballScene {
   private toys = new Map<string, THREE.Group>()
   /** The signature toys (t-010), the jackpot sparks and the ball trail. */
   private heroes: Heroes | null = null
+  /** Animatronic toys by id (the River Croc). */
+  private animatronics = new Map<string, CrocToy>()
   /** The cabinet body and the room around it (t-020). */
   private room: Room
   private sparks: Sparks
@@ -396,6 +400,16 @@ export class PinballScene {
     if (this.table.hero) {
       this.heroes = new Heroes(this.table.hero, track)
       this.root.add(this.heroes.group)
+    }
+    for (const def of this.table.animatronics ?? []) {
+      const toy = new CrocToy(def, track, {
+        reducedMotion:
+          typeof window !== 'undefined' &&
+          typeof window.matchMedia === 'function' &&
+          window.matchMedia('(prefers-reduced-motion: reduce)').matches,
+      })
+      this.animatronics.set(def.id, toy)
+      this.root.add(toy.group)
     }
     this.sparks = new Sparks(SPARK_CAPACITY, track)
     this.trail = new Trail(TRAIL_BALLS, track)
@@ -1056,6 +1070,17 @@ export class PinballScene {
     this.heroes?.setPose(pose)
   }
 
+  /** Pose the animatronic toys (the rules' phase for each, by id). */
+  setAnimatronics(poses: Record<string, AnimatronicPose>) {
+    for (const [id, pose] of Object.entries(poses))
+      this.animatronics.get(id)?.setPose(pose)
+  }
+
+  /** An animatronic toy, for tests. */
+  animatronic(id: string): CrocToy | undefined {
+    return this.animatronics.get(id)
+  }
+
   /** The drone's delivery flight: all three nets brought home. */
   deliver() {
     this.heroes?.deliver()
@@ -1167,6 +1192,7 @@ export class PinballScene {
   /** One frame of the toys, sparks and sling rubbers. */
   private animateToys() {
     this.heroes?.animate()
+    for (const toy of this.animatronics.values()) toy.animate()
     this.dressing?.animate()
     this.sparks.update()
     for (const rubber of this.rubbers.values()) {

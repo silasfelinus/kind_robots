@@ -342,6 +342,21 @@ const inserts: InsertDef[] = [
     color: 0xc4a2f8,
     shot: 'relic-spinner',
   },
+  // The waterline LEDs (t-016): lit while his jaws are open, all of them
+  // astir in the Watering Hole, flashing when an orbit has lit the mouth.
+  ...(
+    [
+      [CROC[0] - 0.045, -0.4],
+      [CROC[0] + 0.045, -0.4],
+      [CROC[0], -0.33],
+    ] as const
+  ).map((at, i): InsertDef => ({
+    id: `waterline-${i + 1}`,
+    at: [at[0], at[1]],
+    shape: 'circle',
+    size: 0.014,
+    color: 0x3fbfb0,
+  })),
   {
     id: 'croc-reward',
     at: [-0.1, -0.24],
@@ -658,6 +673,31 @@ export const ZUZU_LAST_BELL_GREYBOX: TableDef = {
       color: 0x56d7cb,
     },
     { id: 'bell-flasher', at: [0, 0.05, -0.79], color: 0xf0ba6c },
+  ],
+  // The River Croc's jaw: open, the mouth takes the ball; shut (while he
+  // holds one, rolls, spits and sinks), an unseen gate across the jaws turns
+  // every other ball away, so the mouth never takes two.
+  doors: [
+    {
+      id: 'croc-jaw',
+      startsOpen: true,
+      closed: [
+        wall(
+          'croc-jaw-gate',
+          [CROC[0] - 0.021, CROC[1] + 0.024],
+          [CROC[0] + 0.021, CROC[1] + 0.024],
+          { material: 'plastic-clear', thickness: 0.006, hidden: true },
+        ),
+      ],
+      open: [],
+    },
+  ],
+  animatronics: [
+    {
+      id: 'river-croc',
+      kind: 'river-croc',
+      at: [CROC[0], 0, CROC[1] - 0.004],
+    },
   ],
   captives: [
     { id: 'relic-captive', at: [SEAL_X, BALL + 0.0005, RELIC_MOUTH - 0.013] },

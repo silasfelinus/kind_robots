@@ -129,7 +129,7 @@ check(
     const rise = OLD_KOMODO.specials.find((s) => s.id === 'rise-from-the-dune')!
     assert.equal(rise.followUp, true, 'any P while burrowed')
     assert.ok(FIGHTERS.includes(OLD_KOMODO))
-    assert.equal(OLD_KOMODO.health, 1150)
+    assert.equal(OLD_KOMODO.health, 950)
   },
 )
 
@@ -269,7 +269,7 @@ check('Slow Hunger: three poisoned bites a light hit cannot stop', () => {
   assert.ok(s.fighters[1].poison.left > 0, 'poisoned')
   const hunger = moveOf(OLD_KOMODO, { id: 'slow-hunger', heavy: false })
   assert.equal(hunger.hits, 3)
-  assert.ok(Math.abs(hunger.hits! * hunger.damage - 260) <= 1, '260 in all')
+  assert.ok(Math.abs(hunger.hits! * hunger.damage - 225) <= 1, '225 in all')
 })
 
 check('Feeding Time: three bars, the Showdown, under them anywhere', () => {

@@ -8,7 +8,7 @@
 import { createError } from 'h3'
 import prisma from './prisma'
 import {
-  ARCADE_GAMES,
+  HALL_GAMES,
   findArcadeGame,
   isPlausibleScore,
 } from '~/utils/arcade/games'
@@ -138,9 +138,9 @@ export async function arcadeRankOf(
 const ARCADE_HALL_SIZE = 3
 
 /**
- * The global hall of fame: every registered cabinet's top scores, today's
- * best and how many scores it has on the board. New cabinets join it
- * automatically when they are added to ARCADE_GAMES.
+ * The global hall of fame: every registered cabinet's (and linked game's) top
+ * scores, today's best and how many scores it has on the board. New ones join
+ * it automatically when they are added to ARCADE_GAMES or LINKED_GAMES.
  */
 export async function readArcadeHallOfFame(): Promise<HallOfFameEntry[]> {
   const dayStart = arcadeDayStart()
@@ -150,7 +150,7 @@ export async function readArcadeHallOfFame(): Promise<HallOfFameEntry[]> {
   })
   const plays = new Map(counts.map((row) => [row.gameSlug, row._count._all]))
   return Promise.all(
-    ARCADE_GAMES.map(async (game) => {
+    HALL_GAMES.map(async (game) => {
       const [top, today] = await Promise.all([
         prisma.arcadeScore.findMany({
           where: { gameSlug: game.slug },

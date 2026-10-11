@@ -1,0 +1,38 @@
+name: Tablet Navigation Audit
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'components/navigation/**'
+      - 'utils/scripts/auditTabletNavigation.mjs'
+      - 'utils/scripts/auditTabletNavigation.test.mjs'
+      - '.github/workflows/tablet-navigation-audit.yml'
+  workflow_dispatch:
+
+concurrency:
+  group: tablet-navigation-audit-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  tablet-navigation:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+      - name: Install dependencies
+        run: npm ci
+        env:
+          CYPRESS_INSTALL_BINARY: '0'
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+      - name: Verify geometry decisions
+        run: node --test utils/scripts/auditTabletNavigation.test.mjs
+      - name: Audit production navigation with this fixture
+        run: npm run audit:tablet-nav -- --base https://kindrobots.org

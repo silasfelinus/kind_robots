@@ -37,6 +37,9 @@ jobs:
         env:
           CYPRESS_INSTALL_BINARY: '0'
 
+      - name: Tablet navigation audit contract
+        run: node --test utils/scripts/auditTabletNavigation.test.mjs
+
       - name: Solitaire engine contract
         run: npm run test:solitaire-engine
 
@@ -158,6 +161,12 @@ jobs:
 
       - name: Zuzu Pinball rules, chapters and seals
         run: npm run test:zuzu-pinball-rules
+
+      - name: Zuzu Pinball River Croc
+        run: npm run test:zuzu-pinball-croc
+
+      - name: Zuzu Pinball Watering Hole and Death Roll
+        run: npm run test:zuzu-pinball-watering-hole
 
       - name: Zuzu gamebook branching and combat
         run: npm run test:zuzu-gamebook

@@ -134,7 +134,7 @@ check(
       assert.equal(parsed.button, special.button, special.id)
     }
     assert.ok(FIGHTERS.includes(SWAMP_WITCH))
-    assert.equal(SWAMP_WITCH.health, 950)
+    assert.equal(SWAMP_WITCH.health, 900)
     assert.equal(SWAMP_WITCH.hurtStand.h, 120)
   },
 )

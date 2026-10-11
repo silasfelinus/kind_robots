@@ -28,6 +28,8 @@ export type FoeKind =
   | 'hypno'
   | 'sparker'
   | 'pylon'
+  | 'windup'
+  | 'crate'
 
 export type FoeSpec = {
   name: string
@@ -39,6 +41,10 @@ export type FoeSpec = {
   hostile: boolean
   /** How far a beam hit shoves it (px). */
   shove: number
+  /** Touching it costs nothing (a crate), though it may still block the way. */
+  harmless?: boolean
+  /** A box nobody walks through: the hero, the family and the walkers are pushed off it. */
+  solid?: boolean
   /** What it shows before it acts, and how to beat it (the table guide's columns). */
   tell: string
   answer: string
@@ -134,6 +140,28 @@ export const FOES: Record<FoeKind, FoeSpec> = {
     shove: 0,
     tell: 'static posts, in shapes',
     answer: 'thread it, or pop a gap',
+  },
+  windup: {
+    name: 'LITTLE WIND-UP',
+    hp: 1,
+    points: 50,
+    radius: 6,
+    hostile: true,
+    shove: 0,
+    tell: 'scuttles straight, then turns',
+    answer: 'step off its line',
+  },
+  crate: {
+    name: 'CRATE',
+    hp: 3,
+    points: 50,
+    radius: 7,
+    hostile: false,
+    shove: 0,
+    harmless: true,
+    solid: true,
+    tell: 'stacked toy crates',
+    answer: 'cover from sparks; break for a prize',
   },
 }
 
@@ -279,8 +307,26 @@ export function stepFoe(f: Foe, w: FoeWorld) {
     case 'sparker':
       stepSparker(f, w, hero)
       break
+    case 'windup': {
+      // A little wind-up toy: it scuttles straight, then turns toward the hero and goes again.
+      if (f.clock <= 0) {
+        const u = hero ? toward(f, hero) : toward(f, { x: CX, y: CY })
+        const swerve = (w.rng() - 0.5) * 1.2
+        const speed = 1.5 * Math.sqrt(w.rush)
+        f.vx = (u.x * Math.cos(swerve) - u.y * Math.sin(swerve)) * speed
+        f.vy = (u.y * Math.cos(swerve) + u.x * Math.sin(swerve)) * speed
+        f.clock = 40 + Math.floor(w.rng() * 40)
+      }
+      f.clock--
+      f.x += f.vx
+      f.y += f.vy
+      if (f.x < ARENA.left + 8 || f.x > ARENA.right - 8) f.vx *= -1
+      if (f.y < ARENA.top + 8 || f.y > ARENA.bottom - 8) f.vy *= -1
+      break
+    }
     case 'puddle':
     case 'pylon':
+    case 'crate':
       break
   }
   if (f.pushX || f.pushY) {
@@ -355,7 +401,9 @@ function stepHypno(f: Foe, w: FoeWorld, hero: Quarry | null) {
  * spark at where the hero will be if it keeps going the same way.
  */
 function stepSparker(f: Foe, w: FoeWorld, hero: Quarry | null) {
-  const every = Math.round(heatCurve(w, FOE_CURVES.sparkEvery))
+  const every = Math.round(
+    heatCurve(w, FOE_CURVES.sparkEvery) / Math.sqrt(w.rush),
+  )
   if (f.clock === 0) f.clock = SPARK_TELL + 30 + Math.floor(w.rng() * every)
   if (hero) {
     const d = dist(f, hero)

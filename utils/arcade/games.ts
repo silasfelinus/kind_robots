@@ -165,6 +165,7 @@ export const ARCADE_GAMES: ArcadeGameMeta[] = [
     titleArt: '/images/arcade/games/butterfly-joust-title.webp',
     accent: '#f9a8d4',
     controls: 'Flap, steer, joust',
+    maxPlayers: 4,
   },
   {
     // The 3D table (conductor kind-pinball/t-024): Three.js and Rapier, the

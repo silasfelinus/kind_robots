@@ -1,21 +1,35 @@
 // /utils/zuzuShowdown/arcadeScreens.ts
 //
-// Zuzu Showdown Arcade mode's own screens (conductor zuzu-showdown t-021): the ladder between fights,
-// the continue countdown after a loss, the ending, the initials entry and the score in the corner of a
-// fight. The ladder shows the climb as a row of busts, the fights won dimmed and ticked, the next one
-// framed, and a door at the end. The ending shows its two stills with a line under each; a still not yet
-// drawn falls back to the fighter's victory portrait. Reduced motion skips the fades.
+// Zuzu Showdown Story mode's own screens (conductor zuzu-showdown t-021, the map t-029): the journey
+// between fights, the continue countdown after a loss, the ending, the initials entry and the score in
+// the corner of a fight. Between fights the wasteland map fills the screen and the next leg of the
+// journey draws itself in red, the challenger's token riding it to the next opponent's ground, every
+// beaten opponent crossed off (worldMap.ts). The ending shows its two stills with a line under each; a
+// still not yet drawn falls back to the fighter's victory portrait. Reduced motion skips the fades and
+// shows each route already drawn.
 
 import type { RenderStyle } from '../arcade/display'
 import { drawText } from '../arcade/font'
 import shipped from './endings.json'
 import {
+  BOSS_SLUG,
   ENDINGS,
   initialsText,
   type ArcadeScore,
   type InitialsEntry,
 } from './arcade'
 import { drawPortrait, type LoadedPortraits } from './portraits'
+import {
+  PLACES,
+  drawCrossedOff,
+  drawRoute,
+  drawToken,
+  drawWorldMap,
+  homeOf,
+  mapToScreen,
+  routePoint,
+  type MapPoint,
+} from './worldMap'
 import { VIEW_HEIGHT, VIEW_WIDTH } from './render'
 import { wrapText } from './screens'
 import type { FighterData } from './types'
@@ -31,10 +45,6 @@ export const LADDER_FRAMES = 150
 /** Seconds the continue countdown runs. */
 export const CONTINUE_SECONDS = 9
 
-const SLOT = 40
-const SLOT_GAP = 6
-const SLOT_TOP = 104
-
 /** A number with thousands separators, in the pixel font's characters. */
 export function formatScore(score: number): string {
   return Math.floor(score)
@@ -42,129 +52,131 @@ export function formatScore(score: number): string {
     .replace(/\B(?=(\d{3})+(?!\d))/g, ',')
 }
 
-/** Where the `index`-th of `count` ladder slots sits. */
-export function ladderSlot(
-  index: number,
-  count: number,
-): { x: number; y: number; w: number; h: number } {
-  const width = count * SLOT + (count - 1) * SLOT_GAP
-  const left = Math.round((VIEW_WIDTH - width) / 2)
-  return { x: left + index * (SLOT + SLOT_GAP), y: SLOT_TOP, w: SLOT, h: SLOT }
-}
+/** Frames the route takes to draw itself to the next fight. */
+export const ROUTE_FRAMES = 90
 
-function drawDoor(g: G, slot: { x: number; y: number; w: number; h: number }) {
-  g.fillStyle = '#0b0614'
-  g.fillRect(slot.x, slot.y, slot.w, slot.h)
-  g.fillStyle = '#3b2a1a'
-  g.fillRect(slot.x + 10, slot.y + 4, slot.w - 20, slot.h - 4)
-  g.fillStyle = '#facc15'
-  g.fillRect(slot.x + slot.w / 2 - 3, slot.y + 16, 6, 3)
-  g.fillStyle = '#000000'
-  g.fillRect(slot.x + slot.w / 2 - 1, slot.y + 16, 2, 3)
+/** Where the climb stands before `rung`: the challenger's home, then each beaten opponent's ground. */
+export function travelLeg(
+  player: string,
+  ladder: readonly string[],
+  rung: number,
+): { from: MapPoint; to: MapPoint } {
+  const from = rung === 0 ? homeOf(player) : homeOf(ladder[rung - 1]!)
+  const to = rung < ladder.length ? homeOf(ladder[rung]!) : homeOf(BOSS_SLUG)
+  return { from, to }
 }
 
 /**
- * The climb: `ladder` is the opponents in order, `rung` the next fight (0-based; the ladder's length
- * is the door). `t` counts frames on the screen. At the door, `doorLine` is what the challenger says
- * to it (matchups.yaml boss lines; the Thing answers with nothing).
+ * Story mode between fights: the wasteland, the road already travelled in faded red with each beaten
+ * opponent crossed off, and the next leg drawing itself as the challenger's token rides it to the next
+ * opponent's ground (the Thin Place at the end). `t` counts frames on the screen. At the door,
+ * `doorLine` is what the challenger says to it (matchups.yaml boss lines; the Thing answers with
+ * nothing).
  */
-export function drawLadderScreen(
+export function drawTravelScreen(
   g: G,
   player: FighterData,
   ladder: readonly FighterData[],
   rung: number,
   score: ArcadeScore,
   portraits: LoadedPortraits | undefined,
+  mapArt: CanvasImageSource | undefined,
   t: number,
   reduced: boolean,
   doorLine?: string,
 ): void {
-  g.fillStyle = '#120c18'
-  g.fillRect(0, 0, VIEW_WIDTH, VIEW_HEIGHT)
-  drawText(g, 'ARCADE', VIEW_WIDTH / 2, 18, {
-    align: 'center',
-    scale: 3,
-    color: '#fdba74',
-    shadow: '#000000',
-  })
-  drawText(g, player.name.toUpperCase(), VIEW_WIDTH / 2, 52, {
-    align: 'center',
-    color: '#fde68a',
-    shadow: '#000000',
-  })
-  const count = ladder.length + 1
-  for (let i = 0; i < count; i += 1) {
-    const slot = ladderSlot(i, count)
-    g.fillStyle = '#000000'
-    g.fillRect(slot.x - 1, slot.y - 1, slot.w + 2, slot.h + 2)
-    if (i < ladder.length) {
-      g.save()
-      g.beginPath()
-      g.rect(slot.x, slot.y, slot.w, slot.h)
-      g.clip()
-      g.fillStyle = '#1c1917'
-      g.fillRect(slot.x, slot.y, slot.w, slot.h)
-      const drawn = drawPortrait(
-        g,
-        portraits,
-        ladder[i]!.slug,
-        'bust',
-        slot.x + slot.w / 2,
-        slot.y + slot.h,
-        false,
-        slot.w / 50,
-      )
-      if (!drawn) {
-        g.fillStyle = ladder[i]!.look?.body ?? '#57534e'
-        g.fillRect(slot.x + 10, slot.y + 8, slot.w - 20, slot.h - 8)
-      }
-      if (i < rung) {
-        g.fillStyle = 'rgba(0, 0, 0, 0.6)'
-        g.fillRect(slot.x, slot.y, slot.w, slot.h)
-      }
-      g.restore()
-      if (i < rung)
-        drawText(g, 'OK', slot.x + slot.w / 2, slot.y + slot.h / 2 - 4, {
-          align: 'center',
-          color: '#86efac',
-          shadow: '#000000',
-        })
-    } else drawDoor(g, slot)
-    if (i === rung && (reduced || t % 30 < 22)) {
-      g.strokeStyle = '#fb923c'
-      g.lineWidth = 2
-      g.strokeRect(slot.x - 2, slot.y - 2, slot.w + 4, slot.h + 4)
-    }
+  const r = { x: 0, y: 0, w: VIEW_WIDTH, h: VIEW_HEIGHT }
+  drawWorldMap(g, r, mapArt, true)
+  const slugs = ladder.map((f) => f.slug)
+  // The road so far, faded.
+  let at = homeOf(player.slug)
+  for (let i = 0; i < Math.min(rung, slugs.length); i += 1) {
+    const next = homeOf(slugs[i]!)
+    drawRoute(g, r, at, next, 1, false)
+    at = next
   }
-  const next =
-    rung < ladder.length
-      ? `NEXT: ${ladder[rung]!.name.toUpperCase()}`
-      : 'NEXT: THE THING BEHIND THE DOOR'
-  drawText(g, next, VIEW_WIDTH / 2, SLOT_TOP + SLOT + 22, {
-    align: 'center',
-    color: '#ffffff',
+  // Opponents still ahead wait small and dim at home; the beaten are crossed off.
+  slugs.forEach((slug, i) => {
+    const p = mapToScreen(homeOf(slug), r)
+    if (i < rung) drawCrossedOff(g, p.x, p.y, 10)
+    else if (i > rung) {
+      g.save()
+      g.globalAlpha = 0.65
+      drawToken(g, portraits, slug, p.x, p.y, 14, '#78716c')
+      g.restore()
+    }
+  })
+  const { from, to } = travelLeg(player.slug, slugs, rung)
+  const progress = reduced
+    ? 1
+    : Math.min(1, Math.max(0, (t - 10) / ROUTE_FRAMES))
+  // The next opponent (or the door) waits at the end of the leg, ringed.
+  const dest = mapToScreen(to, r)
+  const pulse = reduced ? 0 : Math.round(Math.sin(t / 6) * 2)
+  if (rung < slugs.length)
+    drawToken(g, portraits, slugs[rung]!, dest.x, dest.y, 24 + pulse, '#fb923c')
+  else {
+    g.strokeStyle = '#a855f7'
+    g.lineWidth = 2
+    g.beginPath()
+    g.arc(dest.x, dest.y - 4, 13 + pulse, 0, Math.PI * 2)
+    g.stroke()
+  }
+  drawRoute(g, r, from, to, progress, true)
+  // The rider pulls up just short, so the opponent waiting there stays in sight.
+  const rider = mapToScreen(routePoint(from, to, progress * 0.86), r)
+  drawToken(g, portraits, player.slug, rider.x, rider.y, 22, '#fde68a')
+
+  // The header and footer bands.
+  g.fillStyle = 'rgba(28, 25, 23, 0.82)'
+  g.fillRect(0, 0, VIEW_WIDTH, 20)
+  g.fillRect(0, VIEW_HEIGHT - 34, VIEW_WIDTH, 34)
+  const count = slugs.length + 1
+  drawText(g, `STORY - ${player.name.toUpperCase()}`, 6, 6, {
+    color: '#fdba74',
     shadow: '#000000',
   })
   drawText(
     g,
-    `FIGHT ${Math.min(rung + 1, count)} OF ${count}`,
-    VIEW_WIDTH / 2,
-    SLOT_TOP + SLOT + 38,
-    { align: 'center', color: '#d6d3d1' },
+    `FIGHT ${Math.min(rung + 1, count)} OF ${count}   ${formatScore(score.total)}`,
+    VIEW_WIDTH - 6,
+    6,
+    { align: 'right', color: '#fde047', shadow: '#000000' },
   )
-  if (doorLine)
-    wrapText(doorLine, VIEW_WIDTH - 60, 1).forEach((line, i) =>
-      drawText(g, line, VIEW_WIDTH / 2, SLOT_TOP + SLOT + 60 + i * 12, {
-        align: 'center',
-        color: '#e9d5ff',
-        shadow: '#000000',
-      }),
-    )
-  drawText(g, `SCORE ${formatScore(score.total)}`, VIEW_WIDTH / 2, 236, {
+  const next =
+    rung < slugs.length
+      ? `NEXT: ${ladder[rung]!.name.toUpperCase()}`
+      : 'NEXT: THE THING BEHIND THE DOOR'
+  drawText(g, next, VIEW_WIDTH / 2, VIEW_HEIGHT - 30, {
     align: 'center',
-    color: '#fde047',
+    color: '#ffffff',
     shadow: '#000000',
   })
+  const line = doorLine ?? placeNameAt(to)
+  if (line)
+    wrapText(line, VIEW_WIDTH - 40, 1)
+      .slice(0, 1)
+      .forEach((text) =>
+        drawText(g, text, VIEW_WIDTH / 2, VIEW_HEIGHT - 16, {
+          align: 'center',
+          color: doorLine ? '#e9d5ff' : '#d6d3d1',
+          shadow: '#000000',
+        }),
+      )
+}
+
+/** The named place at (or nearest) a point, for the travel screen's footer. */
+function placeNameAt(p: MapPoint): string {
+  let best = ''
+  let bestD = Infinity
+  for (const place of Object.values(PLACES)) {
+    const d = (place.x - p.x) ** 2 + (place.y - p.y) ** 2
+    if (d < bestD) {
+      bestD = d
+      best = place.name
+    }
+  }
+  return bestD < 1e-4 ? best : `NEAR ${best}`
 }
 
 /** After a loss: the countdown, with `t` frames gone. */

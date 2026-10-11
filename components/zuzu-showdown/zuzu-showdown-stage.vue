@@ -196,6 +196,7 @@ import {
 } from '~/utils/zuzuShowdown/types'
 import { useZuzuShowdownStore } from '~/stores/zuzuShowdownStore'
 import { useArcadeStore } from '~/stores/arcadeStore'
+import { mapArtShipped, mapArtUrl } from '~/utils/zuzuShowdown/worldMap'
 import {
   BOSS,
   bossInput,
@@ -234,7 +235,7 @@ import {
   drawContinueScreen,
   drawEndingScreen,
   drawInitialsScreen,
-  drawLadderScreen,
+  drawTravelScreen,
   endingStill,
   endingUrl,
   shippedEndings,
@@ -463,6 +464,8 @@ function loadArt() {
   const slug = stageFor(roster)
   void loadStage(slug, 'pixel')
   void loadPortraits('pixel')
+  loadMapArt('pixel')
+  loadMapArt(store.renderStyle)
   if (store.renderStyle !== 'pixel') {
     void loadPortraits(store.renderStyle)
     void loadStage(slug, store.renderStyle)
@@ -548,6 +551,21 @@ type ArcadeRun = {
 let arcade: ArcadeRun | null = null
 let initials: InitialsEntry = newInitials()
 const endingSets: Record<RenderStyle, LoadedEndings> = { pixel: {}, hd: {} }
+// The painted wasteland (t-029), once it has shipped; the ink map draws until then.
+const mapArt: Partial<Record<RenderStyle, HTMLImageElement>> = {}
+const mapLoads = new Set<RenderStyle>()
+
+function loadMapArt(style: RenderStyle) {
+  if (!mapArtShipped() || mapLoads.has(style)) return
+  mapLoads.add(style)
+  void loadImage(mapArtUrl(style)).then((image) => {
+    if (image) mapArt[style] = image
+  })
+}
+
+function activeMapArt(): CanvasImageSource | undefined {
+  return mapArt[store.renderStyle] ?? mapArt.pixel
+}
 // The Thing Behind the Door (t-021): its AI, and its layers per render style.
 let boss: BossState = newBoss(1)
 const bossSets: Record<RenderStyle, LoadedBossArt> = { pixel: {}, hd: {} }
@@ -969,17 +987,20 @@ function render() {
       store.mode === 'versus',
       store.mode === 'versus' ? '2P' : store.mode === 'dummy' ? 'DUMMY' : 'CPU',
       portraits,
+      activeMapArt(),
+      store.mode === 'arcade',
     )
     return
   }
   if (phase.value === 'ladder' && arcade) {
-    drawLadderScreen(
+    drawTravelScreen(
       g,
       roster[0],
       arcade.ladder.map(findFighter),
       arcade.rung,
       arcade.score,
       portraits,
+      activeMapArt(),
       screenFrame,
       store.reducedMotion,
       arcade.rung === arcade.ladder.length
@@ -1058,7 +1079,7 @@ function render() {
             : store.mode === 'cpu'
               ? `P1 VS CPU (${store.cpuLevel.toUpperCase()})`
               : store.mode === 'arcade'
-                ? `ARCADE (${store.cpuLevel.toUpperCase()})`
+                ? `STORY (${store.cpuLevel.toUpperCase()})`
                 : 'P1 VS TRAINING DUMMY',
       },
       { text: 'PRESS START OR LP', scale: 2, color: '#fde047' },

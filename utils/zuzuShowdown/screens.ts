@@ -13,6 +13,15 @@
 import { drawText, measureText } from '../arcade/font'
 import { introFor, winQuote, type MatchupLine } from './matchups'
 import { drawPortrait, type LoadedPortraits } from './portraits'
+import {
+  drawRoute,
+  drawToken,
+  drawWorldMap,
+  homeOf,
+  mapToScreen,
+  type MapPoint,
+} from './worldMap'
+import { BOSS_SLUG } from './arcade'
 import { VIEW_HEIGHT, VIEW_WIDTH } from './render'
 import { SELECT_COLUMNS, activeSide, type SelectState } from './select'
 import { drawSprite, type LoadedSprites } from './sprites'
@@ -335,15 +344,53 @@ export function drawWinScreen(
 
 // ---------------------------------------------------------------- character select
 
-const CARD = 50
-const CARD_GAP = 6
-const GRID_TOP = 64
+const CARD = 36
+const CARD_GAP = 4
+const GRID_TOP = 32
 const CURSOR_COLOURS: Pair<string> = ['#fb923c', '#38bdf8']
 
-/** Where the select prompt sits: under the last row, however many the roster fills (the Swamp Witch
- * started a third). */
-export function selectPromptY(count: number): number {
-  return GRID_TOP + Math.ceil(count / SELECT_COLUMNS) * (CARD + CARD_GAP) + 4
+/** Where the select prompt sits: along the bottom, under the map. */
+export function selectPromptY(_count: number): number {
+  return VIEW_HEIGHT - 14
+}
+
+/**
+ * The wasteland under the grid (t-029), between the two fighters: each side's home pinned on it and
+ * the road between them inked in red.
+ */
+export function selectMapRect(count: number): {
+  x: number
+  y: number
+  w: number
+  h: number
+} {
+  const top =
+    GRID_TOP + Math.ceil(count / SELECT_COLUMNS) * (CARD + CARD_GAP) + 2
+  const h = selectPromptY(count) - 6 - top
+  const w = Math.round((h * 16) / 9)
+  return { x: Math.round((VIEW_WIDTH - w) / 2), y: top, w, h }
+}
+
+/** Story's far panel: a lone door in starry dark, its yellow eye opening and closing. */
+function drawDoorPanel(g: G, frame: number, reduced: boolean): void {
+  const cx = VIEW_WIDTH - 62
+  g.fillStyle = 'rgba(30, 16, 48, 0.85)'
+  g.fillRect(VIEW_WIDTH - 120, 0, 120, VIEW_HEIGHT)
+  g.fillStyle = '#e9d5ff'
+  for (let i = 0; i < 18; i += 1) {
+    const x = VIEW_WIDTH - 116 + ((i * 37) % 112)
+    const y = 20 + ((i * 53) % 200)
+    g.fillRect(x, y, 1, 1)
+  }
+  g.fillStyle = '#3b2a1a'
+  g.fillRect(cx - 26, 110, 52, 126)
+  g.fillStyle = '#0b0614'
+  g.fillRect(cx - 21, 115, 42, 121)
+  const open = reduced ? 1 : Math.abs(Math.sin(frame / 40))
+  g.fillStyle = '#facc15'
+  g.fillRect(cx - 9, 160 - 3 * open, 18, Math.max(1, 6 * open))
+  g.fillStyle = '#000000'
+  g.fillRect(cx - 1, 160 - 3 * open, 2, Math.max(1, 6 * open))
 }
 
 /** Where the roster's `index`-th card sits on the select grid. */
@@ -386,6 +433,8 @@ function drawBust(
       'bust',
       card.x + card.w / 2,
       card.y + card.h,
+      false,
+      card.w / 50,
     )
   ) {
     g.restore()
@@ -433,6 +482,8 @@ export function drawSelectScreen(
   twoPlayers: boolean,
   opponentLabel = '2P',
   portraits?: LoadedPortraits,
+  mapArt?: CanvasImageSource,
+  story = false,
 ): void {
   g.fillStyle = '#1c1917'
   g.fillRect(0, 0, VIEW_WIDTH, VIEW_HEIGHT)
@@ -442,7 +493,7 @@ export function drawSelectScreen(
   g.fillStyle = 'rgba(37, 99, 235, 0.22)'
   g.fillRect(VIEW_WIDTH - 120, 0, 120, VIEW_HEIGHT)
 
-  drawText(g, 'CHOOSE YOUR FIGHTER', VIEW_WIDTH / 2, 14, {
+  drawText(g, 'CHOOSE YOUR FIGHTER', VIEW_WIDTH / 2, 8, {
     align: 'center',
     scale: 2,
     color: '#fdba74',
@@ -466,24 +517,45 @@ export function drawSelectScreen(
     1,
     false,
   )
-  drawFighterBig(
-    g,
-    sprites[sides[1].slug],
-    sides[1],
-    idle,
-    false,
-    VIEW_WIDTH - 62,
-    236,
-    -1,
-    mirror,
-  )
+  // In Story the far side is no fighter but where the road ends: the door, its eye watching.
+  if (story) drawDoorPanel(g, state.frame, reduced)
+  else
+    drawFighterBig(
+      g,
+      sprites[sides[1].slug],
+      sides[1],
+      idle,
+      false,
+      VIEW_WIDTH - 62,
+      236,
+      -1,
+      mirror,
+    )
   sides.forEach((f, side) =>
-    drawText(g, f.name.toUpperCase(), side === 0 ? 62 : VIEW_WIDTH - 62, 242, {
-      align: 'center',
-      color: SIDE_COLOURS[side],
-      shadow: '#000000',
-    }),
+    drawText(
+      g,
+      side === 1 && story ? 'THE DOOR' : f.name.toUpperCase(),
+      side === 0 ? 62 : VIEW_WIDTH - 62,
+      242,
+      {
+        align: 'center',
+        color: SIDE_COLOURS[side],
+        shadow: '#000000',
+      },
+    ),
   )
+
+  const map = selectMapRect(fighters.length)
+  drawWorldMap(g, map, mapArt, false)
+  const homes: Pair<MapPoint> = [homeOf(sides[0].slug), homeOf(sides[1].slug)]
+  const destination = story ? homeOf(BOSS_SLUG) : homes[1]
+  drawRoute(g, map, homes[0], destination, 1, true)
+  if (!story) {
+    const p2 = mapToScreen(homes[1], map)
+    drawToken(g, portraits, sides[1].slug, p2.x, p2.y, 16, CURSOR_COLOURS[1])
+  }
+  const p1 = mapToScreen(homes[0], map)
+  drawToken(g, portraits, sides[0].slug, p1.x, p1.y, 16, CURSOR_COLOURS[0])
 
   fighters.forEach((f, index) => {
     const card = selectCard(index, fighters.length)
@@ -501,6 +573,7 @@ export function drawSelectScreen(
   for (const side of [0, 1] as const) {
     const picked = state.picked[side]
     if (!picked && !blink) continue
+    if (side === 1 && story) continue
     const card = selectCard(state.cursor[side], fighters.length)
     const shared = state.cursor[0] === state.cursor[1]
     const inset = shared && side === 1 ? 3 : 0

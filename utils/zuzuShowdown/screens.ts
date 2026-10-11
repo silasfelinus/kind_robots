@@ -5,12 +5,14 @@
 // fighter big at its edge and the roster's busts between them. The VS screen splits warm and cool, slams both fighters in from
 // the sides with a white flash, pops VS, and plays the matchup's intro exchange line by line, each on
 // its speaker's side. The win screen stands the winner in their victory pose (the Perfect pose for a
-// flawless win) and gives their quote to the loser. Until t-008's portraits land, the fighters are
-// their own sprites, enlarged. Reduced motion skips the slide and the flash and shows every line at
-// once.
+// flawless win) and gives their quote to the loser. The fighters are their t-008 portraits (portraits.ts):
+// the select cards their busts, the VS screen their half-body slams, the win screen the winner's victory
+// portrait and the loser's beaten one; any portrait not yet drawn falls back to the fighter's own
+// sprite, enlarged. Reduced motion skips the slide and the flash and shows every line at once.
 
 import { drawText, measureText } from '../arcade/font'
 import { introFor, winQuote, type MatchupLine } from './matchups'
+import { drawPortrait, type LoadedPortraits } from './portraits'
 import { VIEW_HEIGHT, VIEW_WIDTH } from './render'
 import { SELECT_COLUMNS, activeSide, type SelectState } from './select'
 import { drawSprite, type LoadedSprites } from './sprites'
@@ -116,6 +118,7 @@ export function drawVsScreen(
   sprites: Pair<LoadedSprites | undefined>,
   t: number,
   reduced: boolean,
+  portraits?: LoadedPortraits,
 ): void {
   const mirror = roster[0].slug === roster[1].slug
   // Two halves, warm and cool, split on a slant.
@@ -132,30 +135,52 @@ export function drawVsScreen(
 
   const slide = reduced ? 1 : Math.min(1, t / VS_SLAM_FRAMES)
   const travel = (1 - slide) * 220
-  // The plain stance: an intro animation can start somewhere else (the Coyote under his bedroll).
+  // The half-body portraits slam in, P2's turned to face P1; without one, the plain stance (an intro
+  // animation can start somewhere else: the Coyote under his bedroll).
   const idle = ['idle']
-  drawFighterBig(
-    g,
-    sprites[0],
-    roster[0],
-    idle,
-    false,
-    120 - travel,
-    FIGHTER_FLOOR,
-    1,
-    false,
+  if (
+    !drawPortrait(
+      g,
+      portraits,
+      roster[0].slug,
+      'vs',
+      120 - travel,
+      FIGHTER_FLOOR,
+    )
   )
-  drawFighterBig(
-    g,
-    sprites[1],
-    roster[1],
-    idle,
-    false,
-    360 + travel,
-    FIGHTER_FLOOR,
-    -1,
-    mirror,
+    drawFighterBig(
+      g,
+      sprites[0],
+      roster[0],
+      idle,
+      false,
+      120 - travel,
+      FIGHTER_FLOOR,
+      1,
+      false,
+    )
+  if (
+    !drawPortrait(
+      g,
+      portraits,
+      roster[1].slug,
+      'vs',
+      360 + travel,
+      FIGHTER_FLOOR,
+      true,
+    )
   )
+    drawFighterBig(
+      g,
+      sprites[1],
+      roster[1],
+      idle,
+      false,
+      360 + travel,
+      FIGHTER_FLOOR,
+      -1,
+      mirror,
+    )
   roster.forEach((f, side) =>
     drawText(
       g,
@@ -212,6 +237,7 @@ export function drawWinScreen(
   sprites: Pair<LoadedSprites | undefined>,
   t: number,
   reduced: boolean,
+  portraits?: LoadedPortraits,
 ): void {
   g.fillStyle = 'rgba(0, 0, 0, 0.7)'
   g.fillRect(0, 0, VIEW_WIDTH, VIEW_HEIGHT)
@@ -233,16 +259,28 @@ export function drawWinScreen(
     : ['victory_button', 'victory', 'taunt']
   const mirror = roster[0].slug === roster[1].slug
   const rise = reduced ? 0 : Math.max(0, 12 - t)
-  drawFighterBig(
+  if (!drawPortrait(g, portraits, w.slug, 'victory', 120, FIGHTER_FLOOR + rise))
+    drawFighterBig(
+      g,
+      sprites[winner],
+      w,
+      poses,
+      true,
+      120,
+      FIGHTER_FLOOR + rise,
+      1,
+      mirror && winner === 1,
+    )
+  // The loser, small at the edge: their beaten portrait (never hurt, for the Siblings).
+  drawPortrait(
     g,
-    sprites[winner],
-    w,
-    poses,
+    portraits,
+    roster[loser].slug,
+    'beaten',
+    VIEW_WIDTH - 30,
+    VIEW_HEIGHT - 6,
     true,
-    120,
-    FIGHTER_FLOOR + rise,
-    1,
-    mirror && winner === 1,
+    0.45,
   )
 
   drawText(g, `P${winner + 1} WINS`, 330, 36, {
@@ -287,6 +325,12 @@ const CARD_GAP = 6
 const GRID_TOP = 64
 const CURSOR_COLOURS: Pair<string> = ['#fb923c', '#38bdf8']
 
+/** Where the select prompt sits: under the last row, however many the roster fills (the Swamp Witch
+ * started a third). */
+export function selectPromptY(count: number): number {
+  return GRID_TOP + Math.ceil(count / SELECT_COLUMNS) * (CARD + CARD_GAP) + 4
+}
+
 /** Where the roster's `index`-th card sits on the select grid. */
 export function selectCard(
   index: number,
@@ -312,11 +356,26 @@ function drawBust(
   data: FighterData,
   card: { x: number; y: number; w: number; h: number },
   p2: boolean,
+  portraits?: LoadedPortraits,
 ): void {
   g.save()
   g.beginPath()
   g.rect(card.x, card.y, card.w, card.h)
   g.clip()
+  // The bust portrait fills the card when it has been drawn.
+  if (
+    drawPortrait(
+      g,
+      portraits,
+      data.slug,
+      'bust',
+      card.x + card.w / 2,
+      card.y + card.h,
+    )
+  ) {
+    g.restore()
+    return
+  }
   const sheet = sprites?.sheet
   const frame = sheet?.animations.idle?.frames[0]
   const cx = card.x + card.w / 2
@@ -358,6 +417,7 @@ export function drawSelectScreen(
   reduced: boolean,
   twoPlayers: boolean,
   opponentLabel = '2P',
+  portraits?: LoadedPortraits,
 ): void {
   g.fillStyle = '#1c1917'
   g.fillRect(0, 0, VIEW_WIDTH, VIEW_HEIGHT)
@@ -414,7 +474,7 @@ export function drawSelectScreen(
     const card = selectCard(index, fighters.length)
     g.fillStyle = '#292524'
     g.fillRect(card.x, card.y, card.w, card.h)
-    drawBust(g, sprites[f.slug], f, card, false)
+    drawBust(g, sprites[f.slug], f, card, false, portraits)
     g.strokeStyle = '#57534e'
     g.lineWidth = 1
     g.strokeRect(card.x + 0.5, card.y + 0.5, card.w - 1, card.h - 1)
@@ -455,7 +515,7 @@ export function drawSelectScreen(
     : activeSide(state) === 0
       ? 'PICK YOUR FIGHTER - LP'
       : `PICK THE OPPONENT - LP (HP GOES BACK)`
-  drawText(g, prompt, VIEW_WIDTH / 2, GRID_TOP + 2 * (CARD + CARD_GAP) + 8, {
+  drawText(g, prompt, VIEW_WIDTH / 2, selectPromptY(fighters.length), {
     align: 'center',
     color: '#fde047',
     shadow: '#000000',

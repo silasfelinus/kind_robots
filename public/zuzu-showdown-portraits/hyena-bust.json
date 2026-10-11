@@ -1,0 +1,10 @@
+{
+  "fighter": "hyena-matriarch",
+  "kind": "bust",
+  "w": 50,
+  "h": 50,
+  "hd_scale": 4,
+  "art_image_id": 244382,
+  "ledger_key": "hyena-bust",
+  "mirrored": false
+}

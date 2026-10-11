@@ -314,6 +314,7 @@ import {
   type ArcadePhase,
 } from '~/utils/arcade/machine'
 import {
+  asMusicLoop,
   createArcadeSound,
   type ArcadeSound,
   type MusicLoop,
@@ -803,7 +804,7 @@ let musicNow: MusicLoop | null = null
 function syncMusic(instance: ArcadePlayableInstance | null) {
   const music =
     instance && instance === game && !instance.over && 'music' in instance
-      ? ((instance as { music?: MusicLoop | null }).music ?? null)
+      ? asMusicLoop((instance as { music?: unknown }).music)
       : null
   if (music === musicNow) return
   musicNow = music

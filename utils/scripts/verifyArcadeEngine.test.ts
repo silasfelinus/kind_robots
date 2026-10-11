@@ -124,6 +124,7 @@ import {
 } from '../arcade/pinball/dmdQueue'
 import { drawDmd, fitScale, formatScore } from '../arcade/pinball/dmdScenes'
 import { cameraViewFor, PinballRuntime } from '../arcade/pinball/runtime'
+import { asMusicLoop } from '../arcade/sound'
 import { aimedShot, delaysFor } from '../arcade/pinball/tuning/aim'
 import { BOT_SKILLS, PinballBot } from '../arcade/pinball/tuning/bot'
 import { playGame, summarize } from './pinballTuning'
@@ -1326,6 +1327,17 @@ async function runPinballFeel() {
         e.type === 'mechanism' && e.id === 'flippers' && e.action === 'enable',
     ),
   )
+  // The cabinet plays a game's `music` as a MusicLoop. The runtime has none:
+  // its old private music() method read as one and froze the table on the
+  // first tick of play (Silas, tablet, 2026-10-11).
+  assert.equal(
+    asMusicLoop(() => {}),
+    null,
+    'a method is not music',
+  )
+  assert.equal(asMusicLoop({ bpm: 120 }), null, 'nor is a loop with no tracks')
+  const tune = { bpm: 120, tracks: [] }
+  assert.equal(asMusicLoop(tune), tune)
   // In the runtime, a tilted machine's flippers will not rise.
   const tilted = new PinballRuntime(
     { rng: mulberry32(8), sound: { play: () => {} }, demo: false, hiScore: 0 },
@@ -1337,6 +1349,15 @@ async function runPinballFeel() {
     physics: PinballPhysics
     rules: PinballRulesState
   }
+  assert.equal(
+    asMusicLoop((tilted as unknown as { music?: unknown }).music),
+    null,
+    'the pinball runtime hands the cabinet no music to play',
+  )
+  assert.ok(
+    !('music' in tilted),
+    'nothing on the runtime is named music (the cabinet reads that name)',
+  )
   inner.rules = { ...inner.rules, tilted: true }
   const hold = emptyInput()
   hold.held.left = true

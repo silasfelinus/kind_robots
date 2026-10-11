@@ -216,7 +216,7 @@ export class PinballRuntime implements ArcadeWebGLGameInstance {
     }
     this.apply({ type: 'tick', tick: this.steps })
     this.unstick({ left, right })
-    this.music()
+    this.playMusicBed()
     this.scene?.setView(this.view())
     this.lamps()
     this.dmdQueue.tick(TICK_MS)
@@ -239,8 +239,12 @@ export class PinballRuntime implements ArcadeWebGLGameInstance {
     )
   }
 
-  /** Play the music the rules call for; a bed that could not start yet is retried. */
-  private music() {
+  /**
+   * Play the music the rules call for; a bed that could not start yet is
+   * retried. Not named `music`: the cabinet reads a game's `music` property
+   * as its MusicLoop (2026-10-11: a method by that name froze the table).
+   */
+  private playMusicBed() {
     const bed = this.demo ? null : musicFor(this.rules)
     if (bed === this.bed) return
     if (!bed) {

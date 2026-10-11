@@ -27,6 +27,7 @@ import {
   type Feed,
   type FlipperSide,
 } from '../arcade/pinball/tuning/aim'
+import { ZUZU_RULESET } from '../arcade/pinball/tables/zuzuLastBell/rules'
 import { BOT_SKILLS, PinballBot } from '../arcade/pinball/tuning/bot'
 import type { RendererLike } from '../arcade/pinball/render/scene'
 import type { SwitchEvent } from '../arcade/pinball/types'
@@ -237,6 +238,7 @@ for (const side of ['left', 'right'] as const) {
         RAPIER,
         table,
         headless,
+        ZUZU_RULESET,
       )
       const inner = runtime as unknown as {
         physics: PinballPhysics

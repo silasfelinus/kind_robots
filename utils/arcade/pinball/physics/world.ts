@@ -215,6 +215,8 @@ export class PinballPhysics {
   private spinnerHandles = new Set<number>()
   private spin = new Map<string, { angle: number; rate: number }>()
   private holds: Hold[] = []
+  /** Balls parked in each scoop's physical lock, by scoop id. */
+  private locked = new Map<string, LiveBall[]>()
   /** The scoop each ball is sitting in, if any. */
   private inScoop = new Map<LiveBall, ScoopDef>()
   /** Ball velocities by body handle, captured before each step for the gate hook. */
@@ -906,6 +908,57 @@ export class PinballPhysics {
     return this.balls.length
   }
 
+  /**
+   * Lock the balls held in a lock scoop: each is parked in the next free
+   * slot and stays there, out of play, until releaseLocked. Returns how many
+   * were locked; a ball with no free slot (or a scoop with no lock) is left
+   * to its ordinary hold and kick-out, which the rules read as a virtual lock.
+   */
+  lockHeld(id: string): number {
+    const scoop = this.table.scoops.find((s) => s.id === id)
+    if (!scoop?.lock) return 0
+    const parked = this.locked.get(id) ?? []
+    let count = 0
+    for (const hold of [...this.holds]) {
+      if (hold.scoop.id !== id) continue
+      const slot = scoop.lock.slots[parked.length]
+      if (!slot) break
+      this.holds.splice(this.holds.indexOf(hold), 1)
+      hold.ball.body.setTranslation(
+        { x: slot[0], y: slot[1], z: slot[2] },
+        true,
+      )
+      parked.push(hold.ball)
+      count++
+    }
+    this.locked.set(id, parked)
+    return count
+  }
+
+  /** Release a scoop's locked balls: they kick out one by one. */
+  releaseLocked(id: string): number {
+    const scoop = this.table.scoops.find((s) => s.id === id)
+    const parked = this.locked.get(id) ?? []
+    if (!scoop || !parked.length) return 0
+    const gap = Math.round(
+      ((scoop.lock?.releaseGapMs ?? 600) / 1000) * PHYSICS_HZ,
+    )
+    parked.forEach((ball, i) =>
+      this.holds.push({
+        ball,
+        scoop,
+        releaseStep: this.stepCount + 1 + i * gap,
+      }),
+    )
+    this.locked.set(id, [])
+    return parked.length
+  }
+
+  /** Balls parked in a scoop's physical lock. */
+  lockedBalls(id: string): number {
+    return this.locked.get(id)?.length ?? 0
+  }
+
   dispose() {
     if (this.disposed) return
     this.disposed = true
@@ -916,6 +969,7 @@ export class PinballPhysics {
     this.flippers = []
     this.drops = []
     this.holds = []
+    this.locked.clear()
     liveWorlds--
   }
 }

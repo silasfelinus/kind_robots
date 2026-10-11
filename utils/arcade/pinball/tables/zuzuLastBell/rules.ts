@@ -10,7 +10,8 @@
 // shot; ramps and orbits in quick succession build a combo; the end of each
 // ball counts a bonus; a match at the end can earn one more ball.
 //
-// Multiball (t-009), the undercrypt (t-010) and the Croc's Death Roll
+// The Citadel locks balls for Harvest Moon, the three-ball multiball
+// (multiball.ts, t-009). The undercrypt (t-010) and the Croc's Death Roll
 // (t-016) build on this state; nothing here blocks flipping.
 
 import { PHYSICS_HZ } from '../../clock'
@@ -44,6 +45,20 @@ import {
   type CrocCycle,
 } from './croc'
 import { zuzuLamps } from './lamps'
+import {
+  CITADEL,
+  endMultiball,
+  harvestShot,
+  initialCitadel,
+  initialMultiball,
+  LOCK_LIGHTER,
+  lockBall,
+  lockFellBack,
+  MULTIBALL_VALUES,
+  startHarvest,
+  type Citadel,
+  type Multiball,
+} from './multiball'
 
 /** A chapter being told. */
 export type ChapterRun = {
@@ -91,6 +106,9 @@ export type ZuzuRulesState = CoreRulesState & {
     /** His animatronic cycle; the jaw gate follows it (croc.ts). */
     cycle: CrocCycle
   }
+  /** The Citadel lock and its ball ledger (multiball.ts). */
+  citadel: Citadel
+  multiball: Multiball
   extraBalls: number
   /** Strikes on the captive relic ball this game: the undercrypt's key. */
   relics: number
@@ -101,6 +119,7 @@ export type ZuzuRulesState = CoreRulesState & {
     spins: number
     seals: number
     relics: number
+    jackpots: number
   }
 }
 
@@ -137,6 +156,8 @@ export const VALUES = {
   bonusCroc: 20_000,
   bonusSpin: 300,
   bonusSeal: 25_000,
+  bonusJackpot: 50_000,
+  citadel: 10_000,
 }
 
 export function initialZuzuRules(balls: number, seed = 1): ZuzuRulesState {
@@ -172,9 +193,18 @@ export function initialZuzuRules(balls: number, seed = 1): ZuzuRulesState {
       extraBallGiven: false,
       cycle: initialCroc(),
     },
+    citadel: initialCitadel(),
+    multiball: initialMultiball(),
     extraBalls: 0,
     relics: 0,
-    thisBall: { shots: 0, crocs: 0, spins: 0, seals: 0, relics: 0 },
+    thisBall: {
+      shots: 0,
+      crocs: 0,
+      spins: 0,
+      seals: 0,
+      relics: 0,
+      jackpots: 0,
+    },
   }
 }
 
@@ -226,12 +256,20 @@ export function stepZuzuRules(
       if (sw.id === CROC_MOUTH) {
         next.croc = { ...next.croc, cycle: crocCaptured(at, effects) }
         croc(next, effects)
-      }
+      } else if (sw.id === CITADEL) citadel(next, sw.ballId, at, effects)
       break
     case 'eject':
       effects.push({ type: 'sound', name: 'kickout' })
       if (sw.id === CROC_MOUTH)
         next.croc = { ...next.croc, cycle: crocEjected(at) }
+      if (sw.id === CITADEL) {
+        // A lock the machine could not hold: counted, and back in play.
+        const healed = lockFellBack(next.citadel, sw.ballId)
+        if (healed) {
+          next.citadel = healed
+          next.ballsInPlay += 1
+        }
+      }
       break
     case 'spin':
       award(next, VALUES.spin)
@@ -296,6 +334,8 @@ function shot(
   )
   if (skillShot(state, id, at, effects)) return
   if (comboEligible) combo(state, at, effects)
+  harvest(state, id, comboEligible, effects)
+  if (id === LOCK_LIGHTER) lightLock(state, effects)
   if (chapterShot(state, id, at, effects)) return
   if (id === 'mortuary') return mortuary(state, at, effects)
   if (id === 'bell-lane') return bell(state, effects)
@@ -635,6 +675,64 @@ function croc(state: ZuzuRulesState, effects: RuleEffect[]) {
   })
 }
 
+/** The Village ramp lights the Citadel for the next lock. */
+function lightLock(state: ZuzuRulesState, effects: RuleEffect[]) {
+  if (state.citadel.lit || state.multiball.kind || state.tilted) return
+  state.citadel = { ...state.citadel, lit: true }
+  award(state, MULTIBALL_VALUES.lockLit * state.story.round)
+  effects.push({
+    type: 'dmd',
+    text: 'LOCK IS LIT',
+    sub: 'THE CITADEL',
+    ms: 1400,
+  })
+}
+
+/**
+ * A ball dropped into the Citadel: locked when a lock is lit (the third
+ * starts Harvest Moon), otherwise a small award as the saucer kicks it out.
+ */
+function citadel(
+  state: ZuzuRulesState,
+  ballId: number,
+  at: number,
+  effects: RuleEffect[],
+) {
+  const round = state.story.round
+  if (!state.citadel.lit || state.multiball.kind || state.tilted) {
+    award(state, VALUES.citadel * round)
+    return
+  }
+  const r = lockBall(state.citadel, ballId, state.ballsInPlay, round, effects)
+  state.citadel = r.citadel
+  award(state, r.points)
+  if (!r.start) return
+  state.ballsInPlay += r.start.released + r.start.served
+  state.multiball = startHarvest(at, effects)
+}
+
+/** A shot during a multiball: its jackpots and super jackpot. */
+function harvest(
+  state: ZuzuRulesState,
+  id: string,
+  comboEligible: boolean,
+  effects: RuleEffect[],
+) {
+  if (state.tilted) return
+  const inCombo = comboEligible && state.combo.count > 0
+  const r = harvestShot(
+    state.multiball,
+    id,
+    inCombo,
+    state.story.round,
+    effects,
+  )
+  if (!r) return
+  state.multiball = r.mb
+  award(state, r.points)
+  state.thisBall = { ...state.thisBall, jackpots: state.thisBall.jackpots + 1 }
+}
+
 /** A ball drained: saved, another of the same ball, the next, or game over. */
 function drain(
   state: ZuzuRulesState,
@@ -642,7 +740,21 @@ function drain(
   effects: RuleEffect[],
 ): { state: ZuzuRulesState; effects: RuleEffect[] } {
   if (state.ballsInPlay > 1) {
+    // The multiball's ball save gives a ball back at the start.
+    if (
+      state.multiball.kind &&
+      at < state.multiball.saveUntil &&
+      !state.tilted
+    ) {
+      effects.push(
+        { type: 'add-ball', count: 1 },
+        { type: 'dmd', text: 'BALL SAVED', ms: 1200 },
+      )
+      return { state, effects }
+    }
     state.ballsInPlay -= 1
+    if (state.ballsInPlay === 1)
+      state.multiball = endMultiball(state.multiball, effects)
     return { state, effects }
   }
   if (at < state.ballSave.until && !state.tilted) {
@@ -670,6 +782,9 @@ function drain(
       if (match(state, effects)) {
         lives = 1
       } else {
+        // The Citadel lets its locked balls go back to the trough.
+        if (state.citadel.locked.length)
+          effects.push({ type: 'mechanism', id: CITADEL, action: 'release' })
         effects.push(
           { type: 'dmd', text: 'GAME OVER', ms: 4000, scene: 'game-over' },
           { type: 'game-over' },
@@ -712,7 +827,15 @@ function drain(
       skill: { armed: true, until: Number.POSITIVE_INFINITY },
       ballSave: { armed: true, until: Number.NEGATIVE_INFINITY },
       combo: { count: 0, at: Number.NEGATIVE_INFINITY },
-      thisBall: { shots: 0, crocs: 0, spins: 0, seals: 0, relics: 0 },
+      multiball: initialMultiball(),
+      thisBall: {
+        shots: 0,
+        crocs: 0,
+        spins: 0,
+        seals: 0,
+        relics: 0,
+        jackpots: 0,
+      },
     },
     effects,
   }
@@ -727,6 +850,7 @@ function bonus(state: ZuzuRulesState, effects: RuleEffect[]) {
     { label: 'RELIC', value: b.spins * VALUES.bonusSpin },
     { label: 'SEALS', value: b.seals * VALUES.bonusSeal },
     { label: 'RELICS', value: b.relics * VALUES.bonusRelic },
+    { label: 'JACKPOTS', value: b.jackpots * VALUES.bonusJackpot },
   ].filter((item) => item.value > 0)
   if (!items.length) return
   const total =
@@ -772,6 +896,13 @@ function zuzuShows(
     shows.push({ id: 'secret', start: at })
   if (after.story.sealed > before.story.sealed)
     shows.push({ id: 'jackpot', start: at })
+  if (after.multiball.kind && !before.multiball.kind)
+    shows.push({ id: 'secret', start: at })
+  if (
+    after.multiball.supers > before.multiball.supers ||
+    after.multiball.jackpots > before.multiball.jackpots
+  )
+    shows.push({ id: 'jackpot', start: at })
   if (before.kickbackLit && !after.kickbackLit && !after.tilted)
     shows.push({ id: 'kickback', start: at })
   if (after.lives < before.lives && !after.over)
@@ -787,7 +918,13 @@ export const ZUZU_RULESET: PinballRuleset<ZuzuRulesState> = {
   lamps: zuzuLamps,
   shows: zuzuShows,
   music: (state) =>
-    state.over || state.tilted || !state.story.run ? null : 'mode',
+    state.over || state.tilted
+      ? null
+      : state.multiball.kind
+        ? 'multiball'
+        : state.story.run
+          ? 'mode'
+          : null,
   animatronics: (state, step) => ({
     [CROC_TOY]: {
       phase: state.croc.cycle.phase,

@@ -54,6 +54,17 @@ const zuzuPinball: ArcadeGameModule = {
       ],
       scale: 1,
     },
+    {
+      title: 'HARVEST MOON',
+      lines: [
+        'VILLAGE RAMP LIGHTS LOCK',
+        'BELL LANE: THE CITADEL',
+        'LOCK 3 FOR MULTIBALL',
+        'RAMPS TRADE JACKPOTS',
+        'ORBIT COMBO: SUPER',
+      ],
+      scale: 1,
+    },
   ],
 }
 

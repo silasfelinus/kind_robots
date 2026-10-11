@@ -162,6 +162,9 @@ jobs:
       - name: Zuzu Pinball River Croc
         run: npm run test:zuzu-pinball-croc
 
+      - name: Zuzu Pinball Citadel lock and Harvest Moon multiball
+        run: npm run test:zuzu-pinball-multiball
+
       - name: Zuzu gamebook branching and combat
         run: npm run test:zuzu-gamebook
 

@@ -11,6 +11,13 @@ import type { LampLevel, TableDef } from '../../types'
 import type { LampFrame } from '../../rules/lamps'
 import { CHAPTERS, litShots, RELICS_FOR_CRYPT, SEAL_COUNT } from './chapters'
 import type { ZuzuRulesState } from './rules'
+import { LOCKS_FOR_HARVEST, locksMade, SUPER_SHOTS } from './multiball'
+
+/** The Citadel's lock lamps, one per lock. */
+export const CITADEL_LAMPS = Array.from(
+  { length: LOCKS_FOR_HARVEST },
+  (_, i) => `citadel-${i + 1}`,
+)
 
 /** The story track's seal lamps, one per chapter. */
 export const SEAL_LAMPS = CHAPTERS.map((_, i) => `seal-${i + 1}`)
@@ -31,6 +38,12 @@ export function zuzuLamps(state: ZuzuRulesState, table: TableDef): LampFrame {
     run ? litShots(CHAPTERS[story.chapter]!, story.progress, run.rove) : [],
   )
   if (state.croc.extraBallLit) hot.add('croc-mouth')
+  // Multiball: the lit jackpot ramp, and the orbits once the super is lit.
+  const mb = state.multiball
+  if (mb.kind) {
+    hot.add(mb.lit)
+    if (mb.superLit) for (const shot of SUPER_SHOTS) hot.add(shot)
+  }
   const mortuaryOpen = story.mortuaryLit && !run
   if (mortuaryOpen) hot.add('mortuary')
   for (const insert of table.inserts ?? []) {
@@ -54,6 +67,18 @@ export function zuzuLamps(state: ZuzuRulesState, table: TableDef): LampFrame {
   set('relic-lamp', seals >= SEAL_COUNT ? 'blink' : 'off')
   set('kickback-lamp', state.kickbackLit ? 'on' : 'off')
   set('croc-reward', state.croc.extraBallLit ? 'blink' : 'off')
+  const locks = locksMade(state.citadel)
+  for (const [i, id] of CITADEL_LAMPS.entries())
+    set(
+      id,
+      mb.kind
+        ? 'blink'
+        : i < locks
+          ? 'on'
+          : i === locks && state.citadel.lit
+            ? 'blink'
+            : 'off',
+    )
   set('shoot-again', state.extraBalls > 0 ? 'on' : 'off')
   set('crypt-seal', state.relics >= RELICS_FOR_CRYPT ? 'blink' : 'off')
   set(

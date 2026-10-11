@@ -484,6 +484,8 @@ export class PinballRuntime<
         if (effect.action === 'fire') this.physics.fireKicker(effect.id)
         if (effect.action === 'open') this.physics.setDoor(effect.id, true)
         if (effect.action === 'close') this.physics.setDoor(effect.id, false)
+        if (effect.action === 'lock') this.physics.lockHeld(effect.id)
+        if (effect.action === 'release') this.physics.releaseLocked(effect.id)
         break
       default:
         break

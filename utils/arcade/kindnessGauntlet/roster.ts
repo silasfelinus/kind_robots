@@ -24,10 +24,20 @@ export type GlitchKind =
   | 'mimic'
   | 'worm'
   | 'bluescreen'
+  | 'blinker'
+  | 'wizard'
 
 /** What a generator looks like: each glitch kind comes out of its own machine. */
 export type GeneratorLook =
-  'cabinet' | 'feeder' | 'router' | 'reel' | 'urn' | 'nest' | 'vending'
+  | 'cabinet'
+  | 'feeder'
+  | 'router'
+  | 'reel'
+  | 'urn'
+  | 'nest'
+  | 'vending'
+  | 'arcade'
+  | 'antenna'
 
 export type RosterEntry = {
   name: string
@@ -185,6 +195,32 @@ export const ROSTER: Record<GlitchKind, RosterEntry> = {
     every: 3,
     most: 2,
   },
+  blinker: {
+    name: 'BLINKER',
+    hp: 1,
+    tierHp: 1,
+    points: 40,
+    speed: 1.1,
+    debut: 10,
+    tell: 'a flicker on the beat',
+    answer: 'a pulse shows it, and a sage pulse stuns it',
+    look: 'arcade',
+    every: 2.4,
+    most: 3,
+  },
+  wizard: {
+    name: 'POP-UP WIZARD',
+    hp: 2,
+    tierHp: 2,
+    points: 80,
+    speed: 0,
+    debut: 11,
+    tell: 'sparkles where it will appear',
+    answer: 'spark the sparkle',
+    look: 'antenna',
+    every: 2.5,
+    most: 2,
+  },
   bluescreen: {
     name: 'BIG BLUESCREEN',
     hp: 30,
@@ -199,6 +235,14 @@ export const ROSTER: Record<GlitchKind, RosterEntry> = {
     most: 1,
   },
 }
+
+/** How often a blinker shows itself (one blink a beat), and how long a pulse's light shows it. */
+export const BLINK_BEAT = 30
+export const BLINK_SHOWN = 3
+export const PULSE_SHOWS = 5 * 60
+/** A pop-up wizard's teleport: the sparkles where it will appear, and its volleys before it goes. */
+export const WIZARD_TELL = 50
+export const WIZARD_VOLLEYS = 2
 
 /** Segments a worm trails (by its generator's tier), and the gap between them. */
 export const WORM_SEGMENTS = [5, 6, 8] as const
@@ -268,6 +312,11 @@ export type Glitch = {
   seen: boolean
   /** A worm's segments, head first after the head itself. */
   body?: Array<{ x: number; y: number }>
+  /** Ticks a pulse's light keeps a blinker in view, and ticks it is stunned for. */
+  shown?: number
+  stun?: number
+  /** A ghost the Attract Mode projected: half as tough, and it never turns helper. */
+  ghost?: boolean
 }
 
 /** A bot as the glitches see it. */
@@ -338,6 +387,11 @@ function tierSpeed(g: Glitch): number {
 /** One tick of a glitch's own rules. */
 export function steerGlitch(w: GlitchWorld, g: Glitch) {
   if (g.flash > 0) g.flash--
+  if (g.shown) g.shown--
+  if (g.stun) {
+    g.stun--
+    return
+  }
   const speed = w.speed * ROSTER[g.kind].speed * tierSpeed(g)
   switch (g.kind) {
     case 'glitch':
@@ -361,6 +415,10 @@ export function steerGlitch(w: GlitchWorld, g: Glitch) {
       return worm(w, g, speed)
     case 'bluescreen':
       return bluescreen(w, g, speed)
+    case 'blinker':
+      return homeAndCling(w, g, speed)
+    case 'wizard':
+      return wizard(w, g)
   }
 }
 
@@ -640,6 +698,49 @@ function bluescreen(w: GlitchWorld, g: Glitch, speed: number) {
   w.move(g, ux * speed, uy * speed)
 }
 
+/**
+ * The pop-up wizard stands and fires three ways; after a couple of volleys it vanishes and sparkles
+ * where it will appear next (its tell, and its weak spot: the sparkle can be sparked).
+ */
+function wizard(w: GlitchWorld, g: Glitch) {
+  if (g.state === 'windup') {
+    if (--g.t > 0) return
+    g.state = 'walk'
+    g.t = 24
+    return
+  }
+  const p = w.prey(g)
+  if (!p) return
+  if (--g.t > 0) return
+  const { d, ux, uy } = towards(g, p)
+  if (g.cling >= WIZARD_VOLLEYS || d > 16 * 9) {
+    // Off it goes: somewhere open in a ring round its prey.
+    g.cling = 0
+    for (let i = 0; i < 16; i++) {
+      const a = w.rng() * Math.PI * 2
+      const r = 48 + w.rng() * 48
+      const x = p.x + Math.cos(a) * r
+      const y = p.y + Math.sin(a) * r
+      if (!w.open(x - 5, y - 5) || !w.open(x + 5, y + 5)) continue
+      if (!w.open(x + 5, y - 5) || !w.open(x - 5, y + 5)) continue
+      g.x = x
+      g.y = y
+      break
+    }
+    g.state = 'windup'
+    g.t = WIZARD_TELL
+    w.tell(g)
+    return
+  }
+  g.cling++
+  g.t = 100 - 15 * (g.tier - 1)
+  if (!w.clear(g.x, g.y, p.x, p.y)) return
+  const base = Math.atan2(uy, ux)
+  for (const off of [-0.38, 0, 0.38])
+    w.bolt(g, Math.cos(base + off), Math.sin(base + off))
+  w.play('shoot')
+}
+
 /** A newly released glitch of this kind. */
 export function newGlitch(
   kind: GlitchKind,
@@ -664,7 +765,7 @@ export function newGlitch(
     cling: 0,
     wobble,
     t:
-      kind === 'popup'
+      kind === 'popup' || kind === 'wizard'
         ? 90
         : kind === 'mimic'
           ? 60 + Math.floor(wobble * 20)

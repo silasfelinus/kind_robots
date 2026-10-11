@@ -315,7 +315,11 @@ type Hero = {
   /** The Mainframe has said this bot is low (rearmed once it charges back up). */
   warned: boolean
 }
-type Item = Thing & { kind: 'snack' | 'pulse' | 'cage' | 'key' }
+type Item = Thing & {
+  kind: 'snack' | 'pulse' | 'cage' | 'key'
+  /** A snack a mimic just turned into: sparks pass over it for this many ticks. */
+  safe?: number
+}
 type Door = { tiles: number[]; open: boolean }
 type Particle = {
   x: number
@@ -1894,6 +1898,7 @@ class KindnessGauntlet implements ArcadeGameInstance {
       const snack = this.items.find(
         (i) =>
           i.kind === 'snack' &&
+          !i.safe &&
           Math.abs(i.x - s.x) < 6 &&
           Math.abs(i.y - s.y) < 6,
       )
@@ -2007,7 +2012,8 @@ class KindnessGauntlet implements ArcadeGameInstance {
       } else this.items.push({ x: g.x, y: g.y, kind: g.loot.kind })
       this.say('loot-back')
     }
-    if (g.kind === 'mimic') this.items.push({ x: g.x, y: g.y, kind: 'snack' })
+    if (g.kind === 'mimic')
+      this.items.push({ x: g.x, y: g.y, kind: 'snack', safe: 45 })
     this.burst(g.x, g.y, g.kind === 'bug' ? 2 : 5, '#f0abfc')
     this.sparkle(g.x, g.y, g.kind === 'bug' ? 2 : 4, [
       RAMPS.pink[3],
@@ -2350,6 +2356,7 @@ class KindnessGauntlet implements ArcadeGameInstance {
   }
 
   private pickUp() {
+    for (const item of this.items) if (item.safe) item.safe--
     for (const item of [...this.items]) {
       const hero = this.standing.find(
         (h) => Math.hypot(item.x - h.x, item.y - h.y) <= 10,
@@ -3176,8 +3183,9 @@ class KindnessGauntlet implements ArcadeGameInstance {
     const held = t.holder >= 0
     if (!held && !this.lit(t)) return
     const bounce = Math.abs(Math.sin(this.tick / 9)) * (held ? 2 : 5)
-    const x = Math.round(t.x)
-    const y = Math.round(t.y - (held ? 18 : 2) - bounce)
+    // Held, it rides on the holder's shoulder, clear of the seat tag over its head.
+    const x = Math.round(t.x + (held ? 10 : 0))
+    const y = Math.round(t.y - (held ? 10 : 2) - bounce)
     glow(g, x, y, 12 + Math.sin(this.tick / 6) * 2, RAMPS.pink[3], 0.55)
     if (held) {
       g.strokeStyle = rgba(RAMPS.pink[3], 0.6)
@@ -3531,7 +3539,14 @@ class KindnessGauntlet implements ArcadeGameInstance {
     const slide = Math.min(1, (VOICE_TICKS - v.ticks) / 8, v.ticks / 8)
     g.save()
     g.globalAlpha = slide
-    hudPanel(g, 2, top, W - 4, 19, RAMPS.purple)
+    hudPanel(
+      g,
+      2,
+      top,
+      Math.min(W - 4, measureText(v.text) + 32),
+      19,
+      RAMPS.purple,
+    )
     const talking =
       v.ticks > VOICE_TICKS - 50 && Math.floor(this.tick / 5) % 2 === 0
     drawSprite(g, MAINFRAME_FACE[talking ? 1 : 0]!, 13, top + 10)

@@ -154,7 +154,7 @@ const idx = (tx: number, ty: number) => ty * 40 + tx
 // --- the floors: two wings of six floors, a Lost & Found and a Guardian each -----------------------
 
 {
-  assert.equal(WINGS.length, 4)
+  assert.equal(WINGS.length, 5)
   for (const wing of WINGS) {
     assert.equal(wing.floors.length, FLOORS_PER_WING)
     assert.equal(

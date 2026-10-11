@@ -100,6 +100,7 @@ export const ARCADE_GAMES: ArcadeGameMeta[] = [
     titleArt: '/images/arcade/games/rescue-rally-title.webp',
     accent: '#22d3ee',
     controls: 'Move to aim, beam, strafe',
+    twinStick: true,
   },
   {
     slug: 'sink-suds',

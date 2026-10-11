@@ -106,6 +106,12 @@ type Heard = { notes: Note[][]; plays: string[] }
 
 /** Past the contestant pick card (each seat takes the contestant under its cursor). */
 function skipPick(g: { picking: unknown; update(input: InputFrame): void }) {
+  // Past the mode card first (left alone, it takes the Season).
+  const menu = (g as unknown as { menu: { ticks: number } | null }).menu
+  if (menu) {
+    menu.ticks = 1e9
+    g.update(emptyInput())
+  }
   if (!g.picking) return
   ;(g.picking as { ticks: number }).ticks = 1e9
   g.update(emptyInput())

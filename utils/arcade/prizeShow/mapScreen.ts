@@ -25,6 +25,7 @@ import {
   REWARD_ICONS,
   TICKET_ICON,
 } from './art'
+import { MEDALS, MEDAL_IDS, drawMedal } from './modes'
 import { ICON_LABEL, MODIFIERS, ROOM_ICON, roomById } from './season'
 import type { Episode, MapIcon, MapRoom, ModifierId, Side } from './season'
 
@@ -44,6 +45,12 @@ export type MapView = {
   secrets: readonly string[]
   marker: PixelSprite
   tick: number
+  /** Top right: RERUN n (the default on later loops), or the Marathon's pace. */
+  tag?: string
+  /** The Marathon: rooms cleared so far, shown where the tickets would be. */
+  rooms?: number
+  /** Medals won per room (prizeShow/modes.ts), drawn on each tile's top edge. */
+  medals?: Readonly<Record<string, number>>
 }
 
 const W = 320
@@ -176,11 +183,13 @@ export function renderSeasonMap(g: CanvasRenderingContext2D, view: MapView) {
   }
 
   // Title card.
-  const billing = episode.vault
-    ? 'BONUS ROUND'
-    : episode.live
-      ? 'LIVE!'
-      : `EPISODE ${episode.number}`
+  const billing =
+    episode.billing ??
+    (episode.vault
+      ? 'BONUS ROUND'
+      : episode.live
+        ? 'LIVE!'
+        : `EPISODE ${episode.number}`)
   drawText(g, `${billing}  ${episode.subtitle}`, 10, 6, {
     color: RAMPS.gold[3],
     shadow: INK,
@@ -191,20 +200,29 @@ export function renderSeasonMap(g: CanvasRenderingContext2D, view: MapView) {
     outline: INK,
     shadow: RAMPS.purple[1],
   })
-  if (view.loop > 1)
-    drawText(g, `RERUN ${view.loop - 1}`, W - 10, 6, {
+  const tag = view.tag ?? (view.loop > 1 ? `RERUN ${view.loop - 1}` : '')
+  if (tag)
+    drawText(g, tag, W - 10, 6, {
       align: 'right',
       color: RAMPS.pink[3],
       shadow: INK,
     })
-  const ticketText = `${view.tickets}/${view.ticketsTotal}`
-  const tx = W - 10 - measureText(ticketText)
-  drawSprite(g, TICKET_ICON, tx - 7, 22)
-  drawText(g, ticketText, W - 10, 19, {
-    align: 'right',
-    color: RAMPS.gold[4],
-    outline: INK,
-  })
+  if (view.rooms !== undefined) {
+    drawText(g, `ROOMS ${view.rooms}`, W - 10, 19, {
+      align: 'right',
+      color: RAMPS.teal[4],
+      outline: INK,
+    })
+  } else {
+    const ticketText = `${view.tickets}/${view.ticketsTotal}`
+    const tx = W - 10 - measureText(ticketText)
+    drawSprite(g, TICKET_ICON, tx - 7, 22)
+    drawText(g, ticketText, W - 10, 19, {
+      align: 'right',
+      color: RAMPS.gold[4],
+      outline: INK,
+    })
+  }
 
   const visited = new Set(view.visited)
   const current = roomById(episode, view.current)
@@ -256,6 +274,23 @@ export function renderSeasonMap(g: CanvasRenderingContext2D, view: MapView) {
     if (view.secrets.includes(room.id)) {
       drawSprite(g, MAP_ICONS.secret, r.x + r.w - 2, r.y + 2)
     }
+    // The room's medals, like gems set in the frame (only once one has been won): on its top
+    // edge, or its foot when the MID / FINALE label sits over it.
+    const won = view.medals?.[room.id] ?? 0
+    const labelled =
+      (room.id === episode.midBoss || room.id === episode.finale) &&
+      !episode.rooms.some((o) => o.col === room.col && o.row === room.row - 1)
+    if (won)
+      MEDAL_IDS.forEach((id, k) =>
+        drawMedal(
+          g,
+          r.x + r.w / 2 - 6 + k * 6,
+          labelled ? r.y + r.h + 1 : r.y + 1,
+          id,
+          (won & MEDALS[id].bit) !== 0,
+          2,
+        ),
+      )
     const option = view.options.find((o) => o.id === room.id)
     if (option?.modifier) {
       // A pink badge: this door comes with a twist.

@@ -110,6 +110,12 @@ type Inner = {
 
 /** Past the contestant pick card (each seat takes the contestant under its cursor). */
 function skipPick(g: { picking: unknown; update(input: InputFrame): void }) {
+  // Past the mode card first (left alone, it takes the Season).
+  const menu = (g as unknown as { menu: { ticks: number } | null }).menu
+  if (menu) {
+    menu.ticks = 1e9
+    g.update(emptyInput())
+  }
   if (!g.picking) return
   ;(g.picking as { ticks: number }).ticks = 1e9
   g.update(emptyInput())
@@ -653,6 +659,8 @@ const g2d = stubContext()
   const n = fresh(6, false, kept)
   for (let t = 0; t < 30; t++) n.update(emptyInput())
   n.update(press('b'))
+  assert.ok((n as unknown as { menu: unknown }).menu, 'then the mode card')
+  skipPick(n)
   assert.equal(n.episodeIndex, 0)
   assert.equal(n.save!.episode, 0)
   assert.equal(n.score, 0)
@@ -683,7 +691,10 @@ const g2d = stubContext()
   for (const bad of [
     null,
     'save',
-    { ...kept, v: 2 },
+    { ...kept, v: 3 },
+    { ...kept, medals: { 'no-such-room': 1 } },
+    { ...kept, medals: { 'opening-act': 8 } },
+    { ...kept, marathon: -1 },
     { ...kept, episode: 9 },
     { ...kept, lives: 0 },
     { ...kept, score: -1 },

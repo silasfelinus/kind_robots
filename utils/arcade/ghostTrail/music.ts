@@ -429,6 +429,21 @@ export const SFX = {
     { freq: 400, to: 120, dur: 0.5, noise: true, vol: 0.05 },
     { freq: 300, to: 180, dur: 0.4, type: 'sine', vol: 0.04, at: 0.1 },
   ],
+  /**
+   * Lightning gathering over a column (played as its tell begins): a dry crackle building for the
+   * tell's two-thirds of a second, then the crack as the bolt lands and the thunder rolling after.
+   */
+  thunder: [
+    { freq: 1, dur: 0.04, noise: true, vol: 0.02 },
+    { freq: 1, dur: 0.04, noise: true, vol: 0.03, at: 0.2 },
+    { freq: 1, dur: 0.05, noise: true, vol: 0.035, at: 0.35 },
+    { freq: 1, dur: 0.05, noise: true, vol: 0.045, at: 0.47 },
+    { freq: 1, dur: 0.04, noise: true, vol: 0.05, at: 0.57 },
+    { freq: 1, dur: 0.24, noise: true, vol: 0.16, at: 0.66 },
+    { freq: 1, dur: 0.9, noise: true, vol: 0.04, at: 0.74 },
+    { freq: 72, to: 38, dur: 1.3, type: 'triangle', vol: 0.11, at: 0.68 },
+    { freq: 49, to: 31, dur: 1.0, type: 'sawtooth', vol: 0.035, at: 0.7 },
+  ],
 } satisfies Record<string, Note[]>
 
 export type SfxName = keyof typeof SFX

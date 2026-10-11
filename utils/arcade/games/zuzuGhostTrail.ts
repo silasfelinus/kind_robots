@@ -58,10 +58,12 @@ import {
 } from '../ghostTrail/stageArt'
 import {
   drawBlock,
+  drawCliffFace,
   drawBolt,
   drawCage,
   drawCard,
   drawHazard,
+  drawLightning,
   drawMover,
   drawStandInBoss,
   drawTowerInterior,
@@ -97,6 +99,8 @@ import {
   ferryAt,
   groundAt,
   hazardLive,
+  LIGHTNING_TELL,
+  lightningTell,
   memberId,
   moverAt,
   tideAt,
@@ -1133,12 +1137,23 @@ class ZuzuGhostTrail implements ArcadeGameInstance {
   }
 
   private updateHazards() {
-    if (!this.onGround || this.y < GROUND_Y - 1) return
-    for (const h of this.act.hazards ?? [])
+    const grounded = this.onGround && this.y >= GROUND_Y - 1
+    for (const h of this.act.hazards ?? []) {
+      // Lightning gathers over its column with a crackle: heard only while the column is in view.
+      if (
+        h.kind === 'lightning' &&
+        this.actTick % h.period! === h.period! - LIGHTNING_TELL &&
+        h.x + h.w > this.camX - 20 &&
+        h.x < this.camX + W + 20
+      )
+        this.sfx('thunder', 'warn')
+      // Ground fire burns only underfoot; a lightning strike finds him at any height in its column.
+      if (!grounded && h.kind !== 'lightning') continue
       if (this.x > h.x && this.x < h.x + h.w && hazardLive(h, this.actTick)) {
         this.hit()
         return
       }
+    }
   }
 
   private throw() {
@@ -1845,6 +1860,7 @@ class ZuzuGhostTrail implements ArcadeGameInstance {
     // Hop what comes in low, step out from under what falls, and clear a diving harpy's mark,
     // before trading shots.
     if (
+      this.dodgeLightning(frame) ||
       this.hopIncoming(frame) ||
       this.dodgeBolts(frame) ||
       this.dodgeDives(frame)
@@ -1990,6 +2006,8 @@ class ZuzuGhostTrail implements ArcadeGameInstance {
   /** Timed fire the pilot walks through on its cool beat: roofed over or too wide to hop. */
   private walkThrough(h: Hazard): boolean {
     if (!h.period || !h.on) return false
+    // Lightning finds him at any height: never hopped, always crossed between strikes.
+    if (h.kind === 'lightning') return true
     if ((h.period - h.on) * WALK < h.w + 30) return false
     const roofed = this.act.blocks.some(
       (b) =>
@@ -2227,7 +2245,7 @@ class ZuzuGhostTrail implements ArcadeGameInstance {
       )
       .map((f) => {
         if (f.phase === 'aim' || f.vy <= 0) return f.x
-        return f.x + f.vx * Math.max(0, (GROUND_Y - 10 - f.y) / f.vy)
+        return f.x + f.vx * Math.max(0, (this.y - 10 - f.y) / f.vy)
       })
       .filter((x) => Math.abs(x - this.x) < 18)
     if (!spots.length) return false
@@ -2238,6 +2256,28 @@ class ZuzuGhostTrail implements ArcadeGameInstance {
       this.floorAt(this.x + d * 14, this.y - 1) !== null
     let dir = away > this.x ? -1 : 1
     if (!footing(dir) || (dir > 0 && this.x > right - 20)) dir = -dir
+    if (!footing(dir)) return false
+    if (dir > 0) frame.held.right = true
+    else frame.held.left = true
+    return true
+  }
+
+  /** Step out of a lightning column once its sky darkens (by the nearer side with footing). */
+  private dodgeLightning(frame: InputFrame): boolean {
+    if (!this.onGround) return false
+    const h = (this.act.hazards ?? []).find(
+      (h) =>
+        h.kind === 'lightning' &&
+        this.x > h.x - 2 &&
+        this.x < h.x + h.w + 2 &&
+        (hazardLive(h, this.actTick) ||
+          lightningTell(h, this.actTick) !== null),
+    )
+    if (!h) return false
+    const footing = (d: number) =>
+      this.floorAt(this.x + d * 8, this.y - 1) !== null
+    let dir = h.x + h.w - this.x <= this.x - h.x ? 1 : -1
+    if (!footing(dir)) dir = -dir
     if (!footing(dir)) return false
     if (dir > 0) frame.held.right = true
     else frame.held.left = true
@@ -2316,17 +2356,40 @@ class ZuzuGhostTrail implements ArcadeGameInstance {
     drawBackdrop(g, key, camX, this.tick, this.length)
     g.save()
     const camY = Math.round(this.camY)
-    // Up a tower, the town fades behind the tower's own walls.
-    drawTowerInterior(g, camX, camY, Math.min(1, -camY / 120), this.tick)
+    // Up a tower, the town fades behind the tower's own walls; up the pass, behind the canyon's.
+    const climb = Math.min(1, -camY / 120)
+    if (theme === 'stormpass') drawCliffFace(g, camX, camY, climb, this.tick)
+    else drawTowerInterior(g, camX, camY, climb, this.tick)
     g.translate(-camX, -camY)
-    for (const u of this.act.updrafts ?? [])
-      drawUpdraft(g, u, GROUND_Y, this.tick)
+    for (const u of this.act.updrafts ?? []) {
+      // Up a climb, wind that rises off a floor is drawn from that floor, not the ground line.
+      const under = this.act.vertical
+        ? this.floorsUnder(u.x, u.x + u.w, u.top, GROUND_Y)
+        : []
+      drawUpdraft(g, u, under.length ? Math.min(...under) : GROUND_Y, this.tick)
+    }
     drawTerrain(g, this.terrain, camX, this.tick)
     for (const b of this.act.blocks)
       if (!isGrave(b) && b.x + b.w > camX - 8 && b.x < camX + W + 8)
         drawBlock(g, b, blockTop(b, GROUND_Y), theme)
     for (const h of this.act.hazards ?? []) {
       if (h.x + h.w < camX - 8 || h.x > camX + W + 8) continue
+      if (h.kind === 'lightning') {
+        drawLightning(
+          g,
+          h,
+          camY,
+          Math.min(GROUND_Y, camY + H),
+          this.floorsUnder(h.x, h.x + h.w, camY, camY + H),
+          {
+            tell: lightningTell(h, this.actTick),
+            since: this.actTick % h.period!,
+            on: h.on!,
+          },
+          this.tick,
+        )
+        continue
+      }
       const live = hazardLive(h, this.actTick)
       const warm =
         !live && !!h.period && h.period - (this.actTick % h.period) < 40
@@ -2395,6 +2458,16 @@ class ZuzuGhostTrail implements ArcadeGameInstance {
     for (const f of this.floaters)
       drawText(g, f.text, f.x, f.y, { align: 'center', color: '#fde68a' })
     g.restore()
+    // A strike in view flashes the whole sky for a moment.
+    const flash = (this.act.hazards ?? []).reduce((a, h) => {
+      if (h.kind !== 'lightning' || h.x + h.w < camX || h.x > camX + W) return a
+      const since = this.actTick % h.period!
+      return since < 4 ? Math.max(a, 0.16 * (1 - since / 4)) : a
+    }, 0)
+    if (flash > 0 && this.dead === 0) {
+      g.fillStyle = `rgba(220, 228, 255, ${flash})`
+      g.fillRect(0, 0, W, H)
+    }
     // The low foreground strip belongs to the ground line: it fades away as the view climbs.
     if (camY > -40) {
       g.globalAlpha = 1 + camY / 40
@@ -2403,6 +2476,21 @@ class ZuzuGhostTrail implements ArcadeGameInstance {
     }
     this.renderHud(g)
     if (this.card) drawCard(g, this.card)
+  }
+
+  /** The tops of the floors (ground, ledges, blocks) under any of x0..x1 that lie between y0 and y1. */
+  private floorsUnder(x0: number, x1: number, y0: number, y1: number) {
+    const cx = (x0 + x1) / 2
+    const tops = [
+      ...this.act.ledges
+        .filter((l) => l.x < x1 && l.x + l.w > x0)
+        .map((l) => l.y),
+      ...this.act.blocks
+        .filter((b) => b.x < x1 && b.x + b.w > x0)
+        .map((b) => blockTop(b, GROUND_Y)),
+      ...(this.groundAt(cx) ? [GROUND_Y] : []),
+    ]
+    return tops.filter((y) => y >= y0 && y <= y1)
   }
 
   /** Draw ground-line art (a gate, a checkpoint lantern) standing on whatever floor is at x. */

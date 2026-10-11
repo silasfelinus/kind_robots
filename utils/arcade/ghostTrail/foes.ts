@@ -379,7 +379,10 @@ export const FOES: Record<FoeKind, FoeDef> = {
       if (f.phase === 'dive') {
         f.x += f.vx
         f.y += f.vy
-        if (f.y >= ctx.groundY - 10 || f.t - f.timer > 90) {
+        // It pulls up at the ground line, or a little below Zuzu's feet when he is high above it
+        // (up a cliff it would otherwise plunge on into the void).
+        const floor = Math.min(ctx.groundY, ctx.py + 36)
+        if (f.y >= floor - 10 || f.t - f.timer > 90) {
           f.phase = 'rest'
           f.vy = -1.6
         }
@@ -409,7 +412,12 @@ export const FOES: Record<FoeKind, FoeDef> = {
           f.phase = 'dive'
           f.timer = f.t
         }
-      } else if (--f.timer <= 0 && Math.abs(ctx.px - f.x) < 90) {
+      } else if (
+        --f.timer <= 0 &&
+        Math.abs(ctx.px - f.x) < 90 &&
+        // (It only ever dives down: one he has climbed above waits.)
+        ctx.py > f.y + 16
+      ) {
         f.phase = 'aim'
         f.timer = 28
         ctx.sound('warn')

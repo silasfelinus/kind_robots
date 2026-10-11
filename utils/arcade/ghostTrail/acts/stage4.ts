@@ -15,13 +15,19 @@
 //   Act 2, THE CANOPY: boughs over a broken floor, a cave cache tucked under a cliff (the way in faces
 //     back down the trail), a canopy shortcut over a field of pits and a hyena pack, a rope ferry, and
 //     the Dust Devil waiting in the clearing at the end.
-//   Act 3, THE AERIE: the high crags. Wider gulfs, a gondola between two crags, the nesting cliffs,
+//   Act 3, THE CLIFF ROAD (acts/cliff.ts): the climb up the canyon wall, a vertical act.
+//   Act 4, THE AERIE: the high crags. Wider gulfs, a gondola between two crags, the nesting cliffs,
 //     and the Storm-Crow Matriarch on the summit.
+//
+// Lightning keeps time on the open trail: the sky darkens over a column (a crackle, a faint guide
+// line) for a beat before the bolt strikes, and it strikes at any height. It stands only on open
+// stretches, never where a jump, a lift or the wind sets him down.
 //
 // Foes: crows, harpies, wind wraiths, hyenas, and a few gunslingers posted on ledges and clifftops.
 
 import type { Act, Stage } from '../world'
 import { groundWithPits } from './build34'
+import { CLIFF_ROAD } from './cliff'
 
 const STAGE_NAME = 'STORM CROW PASS'
 
@@ -96,6 +102,12 @@ const s4a1: Act = {
     { x: 1640, w: 60, top: 96, lift: 0.26 },
     { x: 2700, w: 70, top: 96, lift: 0.26 },
     { x: 4500, w: 160, top: 60, lift: 0.26 },
+  ],
+  hazards: [
+    // Lightning on the open trail, clear of every landing: wait for the strike, then cross.
+    { x: 1990, w: 40, kind: 'lightning', period: 220, on: 16 },
+    { x: 3920, w: 40, kind: 'lightning', period: 200, on: 16 },
+    { x: 5200, w: 40, kind: 'lightning', period: 240, on: 16 },
   ],
   crates: [
     { x: 220, holds: 'gear' },
@@ -314,6 +326,12 @@ const s4a2: Act = {
     // Across the gulf.
     { x: 3960, w: 140, top: 60, lift: 0.26 },
   ],
+  hazards: [
+    { x: 1250, w: 40, kind: 'lightning', period: 230, on: 16 },
+    { x: 3620, w: 40, kind: 'lightning', period: 210, on: 16 },
+    { x: 4590, w: 40, kind: 'lightning', period: 250, on: 16 },
+    { x: 5730, w: 40, kind: 'lightning', period: 220, on: 16 },
+  ],
   crates: [
     { x: 260, holds: 'gear' },
     { x: 1200, holds: 'nugget' },
@@ -469,7 +487,7 @@ const S4A3_LENGTH = 6000
 const s4a3: Act = {
   id: 's4a3',
   stage: 4,
-  act: 3,
+  act: 4,
   stageName: STAGE_NAME,
   actName: 'THE AERIE',
   theme: 'stormpass',
@@ -515,6 +533,13 @@ const s4a3: Act = {
     { x: 1400, w: 200, top: 60, lift: 0.26 },
     { x: 3590, w: 80, top: 96, lift: 0.26 },
     { x: 3900, w: 220, top: 60, lift: 0.26 },
+  ],
+  hazards: [
+    { x: 1780, w: 40, kind: 'lightning', period: 220, on: 16 },
+    // Between the nesting roofs: shelter from the harpies, or cross on the beat.
+    { x: 2840, w: 40, kind: 'lightning', period: 200, on: 16 },
+    { x: 4600, w: 40, kind: 'lightning', period: 240, on: 16 },
+    { x: 5480, w: 40, kind: 'lightning', period: 210, on: 16 },
   ],
   crates: [
     { x: 300, holds: 'gear' },
@@ -641,4 +666,4 @@ const s4a3: Act = {
   ],
 }
 
-export const STAGE_4_ACTS: Act[] = [s4a1, s4a2, s4a3]
+export const STAGE_4_ACTS: Act[] = [s4a1, s4a2, CLIFF_ROAD, s4a3]

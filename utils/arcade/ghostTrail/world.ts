@@ -77,15 +77,22 @@ export type Mover = {
   gift?: Holding
 }
 
-/** Ground that hurts: spikes and bone spurs, braziers' coals, the abbey's ritual fire. */
+/**
+ * Ground that hurts: spikes and bone spurs, braziers' coals, the abbey's ritual fire. Lightning
+ * (Storm Crow Pass) is a strike column instead: it always runs on a beat (`period`/`on`), shows its
+ * tell for LIGHTNING_TELL ticks before each strike, and hurts at any height inside x..x+w.
+ */
 export type Hazard = {
   x: number
   w: number
-  kind: 'spikes' | 'coals' | 'ritual'
+  kind: 'spikes' | 'coals' | 'ritual' | 'lightning'
   /** For timed hazards: active for `on` of every `period` ticks. */
   period?: number
   on?: number
 }
+
+/** How long lightning's tell (the sky darkening over its column) runs before each strike. */
+export const LIGHTNING_TELL = 40
 
 /** A column of rising air (Storm Crow Pass): airborne Zuzu is lifted while inside it. */
 export type Updraft = { x: number; w: number; top: number; lift: number }
@@ -224,6 +231,14 @@ export function blockTop(b: Block, groundY: number): number {
 export function hazardLive(h: Hazard, tick: number): boolean {
   if (!h.period || !h.on) return true
   return tick % h.period < h.on
+}
+
+/** Lightning's tell, 0 (just begun) to 1 (about to strike), or null outside it. */
+export function lightningTell(h: Hazard, tick: number): number | null {
+  if (h.kind !== 'lightning' || !h.period || !h.on) return null
+  const left = h.period - (tick % h.period)
+  if (tick % h.period < h.on || left > LIGHTNING_TELL) return null
+  return 1 - left / LIGHTNING_TELL
 }
 
 /** The tide's water line at `tick` (y; larger is lower), and whether a rise is coming. */

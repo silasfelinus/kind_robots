@@ -67,6 +67,7 @@ type Inner = {
   decoy: (Point & { hp: number; life: number }) | null
   map: { options: Array<{ side: Side }>; cursor: number; ticks: number } | null
   rng: () => number
+  twistClock: number
   update(input: InputFrame): void
   render(g: CanvasRenderingContext2D): void
   enterRoom(id: string, entry: Side): void
@@ -104,6 +105,8 @@ function stage(id = 'opening-act', entry: Side = 2, seed = 3): Inner {
   g.mines = []
   g.px = 160
   g.py = 200
+  // No producer's plot twists in a staged room: each test counts its own crashers.
+  g.twistClock = 1e9
   return g
 }
 

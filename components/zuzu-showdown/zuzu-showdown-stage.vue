@@ -178,6 +178,13 @@ import {
 } from '~/utils/zuzuShowdown/sprites'
 import { recolourPixels, type P2Rule } from '~/utils/zuzuShowdown/recolour'
 import {
+  PORTRAIT_KINDS,
+  portraitFighters,
+  portraitInfo,
+  portraitUrl,
+  type LoadedPortraits,
+} from '~/utils/zuzuShowdown/portraits'
+import {
   neutralInput,
   type FighterData,
   type MatchState,
@@ -252,6 +259,38 @@ async function loadSprites(style: RenderStyle, slugs: readonly string[]) {
         ]
       }),
   )
+}
+
+// Portraits (t-008) per render style: small enough to load every fighter's up front, pixel first; the
+// screens draw the sprite for any not yet arrived.
+const portraitSets: Record<RenderStyle, LoadedPortraits> = { pixel: {}, hd: {} }
+const portraitLoads = new Set<RenderStyle>()
+
+async function loadPortraits(style: RenderStyle) {
+  if (portraitLoads.has(style)) return
+  portraitLoads.add(style)
+  await Promise.all(
+    portraitFighters().flatMap((slug) =>
+      PORTRAIT_KINDS.map(async (kind) => {
+        const info = portraitInfo(slug, kind)
+        if (!info) return
+        const image = await loadImage(portraitUrl(info, style))
+        if (image) (portraitSets[style][slug] ??= {})[kind] = image
+      }),
+    ),
+  )
+}
+
+/** The portraits to draw: the style's where they have loaded, pixel ones where they haven't. */
+function activePortraits(): LoadedPortraits {
+  if (store.renderStyle === 'pixel') return portraitSets.pixel
+  const out: LoadedPortraits = {}
+  for (const slug of portraitFighters())
+    out[slug] = {
+      ...portraitSets.pixel[slug],
+      ...portraitSets[store.renderStyle][slug],
+    }
+  return out
 }
 
 /** P2's colours made from the atlas by the sheet's rules (HD ships no P2 atlas). */
@@ -363,7 +402,9 @@ async function loadStage(slug: StageSlug, style: RenderStyle) {
 function loadArt() {
   const slug = stageFor(roster)
   void loadStage(slug, 'pixel')
+  void loadPortraits('pixel')
   if (store.renderStyle !== 'pixel') {
+    void loadPortraits(store.renderStyle)
     void loadStage(slug, store.renderStyle)
     void loadSprites(store.renderStyle, [roster[0].slug, roster[1].slug])
     recolourP2()
@@ -661,6 +702,7 @@ function render() {
   applyRenderStyle(g, store.renderStyle)
   const sprites = activeSprites()
   const sides = [sprites[roster[0].slug], sprites[roster[1].slug]] as const
+  const portraits = activePortraits()
   if (phase.value === 'select') {
     drawSelectScreen(
       g,
@@ -670,11 +712,19 @@ function render() {
       store.reducedMotion,
       store.mode === 'versus',
       store.mode === 'versus' ? '2P' : store.mode === 'cpu' ? 'CPU' : 'DUMMY',
+      portraits,
     )
     return
   }
   if (phase.value === 'vs') {
-    drawVsScreen(g, roster, [...sides], screenFrame, store.reducedMotion)
+    drawVsScreen(
+      g,
+      roster,
+      [...sides],
+      screenFrame,
+      store.reducedMotion,
+      portraits,
+    )
     return
   }
   drawMatch(g, match, roster, callouts, {
@@ -727,6 +777,7 @@ function render() {
       [...sides],
       screenFrame,
       store.reducedMotion,
+      portraits,
     )
   }
 }

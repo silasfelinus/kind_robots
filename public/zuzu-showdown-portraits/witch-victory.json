@@ -1,0 +1,10 @@
+{
+  "fighter": "swamp-witch",
+  "kind": "victory",
+  "w": 104,
+  "h": 152,
+  "hd_scale": 4,
+  "art_image_id": 244677,
+  "ledger_key": "witch-victory",
+  "mirrored": false
+}

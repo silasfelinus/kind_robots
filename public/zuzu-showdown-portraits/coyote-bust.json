@@ -1,0 +1,10 @@
+{
+  "fighter": "coyote-vagrant",
+  "kind": "bust",
+  "w": 50,
+  "h": 50,
+  "hd_scale": 4,
+  "art_image_id": 244331,
+  "ledger_key": "coyote-bust",
+  "mirrored": false
+}

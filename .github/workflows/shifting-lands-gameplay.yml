@@ -20,6 +20,7 @@ on:
       - 'utils/scripts/verifyShiftingProgression.test.ts'
       - 'utils/scripts/verifyShiftingSaveLedger.test.ts'
       - 'utils/scripts/verifyShiftingV4.test.ts'
+      - 'utils/scripts/verifyShiftingTrials.test.ts'
       - 'utils/scripts/importShiftingLandsWorld.mjs'
       - '.github/workflows/shifting-lands-gameplay.yml'
   push:
@@ -40,6 +41,7 @@ on:
       - 'utils/scripts/verifyShiftingProgression.test.ts'
       - 'utils/scripts/verifyShiftingSaveLedger.test.ts'
       - 'utils/scripts/verifyShiftingV4.test.ts'
+      - 'utils/scripts/verifyShiftingTrials.test.ts'
       - 'utils/scripts/importShiftingLandsWorld.mjs'
       - '.github/workflows/shifting-lands-gameplay.yml'
 jobs:
@@ -62,3 +64,4 @@ jobs:
       - run: npx tsx utils/scripts/verifyShiftingProgression.test.ts
       - run: npx tsx utils/scripts/verifyShiftingSaveLedger.test.ts
       - run: npx tsx utils/scripts/verifyShiftingV4.test.ts
+      - run: npx tsx utils/scripts/verifyShiftingTrials.test.ts

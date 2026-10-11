@@ -609,3 +609,76 @@ export function drawSelectScreen(
     shadow: '#000000',
   })
 }
+
+// ------------------------------------------------------------ pause
+
+/** One line of the pause screen's move list (fighters/index.ts moveList). */
+export type PauseMove = {
+  name: string
+  input: string
+  note: string
+  easy: string
+}
+
+/** Moves every fighter shares, after their own. */
+const SHARED_MOVES: PauseMove[] = [
+  { name: 'Throw', input: 'LP + LK', note: 'up close', easy: '' },
+  { name: 'Launcher', input: '↓ + HK', note: 'hold ↑ to chase', easy: '' },
+]
+
+/** Left edges of the input, name and Easy Specials columns. */
+export const PAUSE_COLUMNS = [12, 167, 346] as const
+export const PAUSE_ROWS_TOP = 52
+export const PAUSE_ROW_STEP = 12
+
+/**
+ * The pause screen: the fighter's moves, read mid-fight without leaving it.
+ * Inputs face right; the Easy Specials column shows only while they are on.
+ */
+export function drawPauseScreen(
+  g: G,
+  fighterName: string,
+  moves: readonly PauseMove[],
+  easy: boolean,
+): void {
+  g.fillStyle = 'rgba(0, 0, 0, 0.78)'
+  g.fillRect(0, 0, VIEW_WIDTH, VIEW_HEIGHT)
+  drawText(g, 'PAUSED', VIEW_WIDTH / 2, 10, {
+    align: 'center',
+    scale: 2,
+    color: '#ffffff',
+    shadow: '#000000',
+  })
+  drawText(g, `${fighterName.toUpperCase()} MOVES`, VIEW_WIDTH / 2, 34, {
+    align: 'center',
+    color: '#fdba74',
+  })
+  const [inputX, nameX, easyX] = PAUSE_COLUMNS
+  let y = PAUSE_ROWS_TOP
+  for (const move of pauseLines(moves)) {
+    drawText(g, move.input, inputX, y, { color: '#fde047' })
+    drawText(g, pauseName(move), nameX, y, { color: '#ffffff' })
+    if (easy && move.easy)
+      drawText(g, pauseEasy(move.easy), easyX, y, { color: '#86efac' })
+    y += PAUSE_ROW_STEP
+  }
+  drawText(g, 'PRESS START TO FIGHT ON', VIEW_WIDTH / 2, VIEW_HEIGHT - 16, {
+    align: 'center',
+    color: '#fde047',
+  })
+}
+
+/** A move's name with its note, as the pause screen writes it. */
+export function pauseName(move: PauseMove): string {
+  return move.note ? `${move.name} (${move.note})` : move.name
+}
+
+/** The Easy Specials label, shortened to fit its column. */
+export function pauseEasy(label: string): string {
+  return label.replace(/Special/g, 'SP')
+}
+
+/** Every line the pause screen draws for these moves, shared ones included. */
+export function pauseLines(moves: readonly PauseMove[]): PauseMove[] {
+  return [...moves, ...SHARED_MOVES]
+}

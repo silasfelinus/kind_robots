@@ -120,7 +120,7 @@ import {
   zoomTarget,
   type Callout,
 } from '~/utils/zuzuShowdown/render'
-import { FIGHTERS, findFighter } from '~/utils/zuzuShowdown/fighters'
+import { FIGHTERS, findFighter, moveList } from '~/utils/zuzuShowdown/fighters'
 import {
   advanceSlowdown,
   advanceSparks,
@@ -162,6 +162,7 @@ import {
   VS_SLAM_FRAMES,
   drawSelectScreen,
   drawVsScreen,
+  drawPauseScreen,
   drawWinScreen,
   vsDuration,
 } from '~/utils/zuzuShowdown/screens'
@@ -1087,10 +1088,7 @@ function render() {
   } else if (phase.value === 'continue' && arcade) {
     drawContinueScreen(g, arcade.score, screenFrame)
   } else if (phase.value === 'paused') {
-    drawCard(g, [
-      { text: 'PAUSED', scale: 3 },
-      { text: 'PRESS START', color: '#fde047' },
-    ])
+    drawPauseScreen(g, roster[0].name, moveList(roster[0]), store.easySpecials)
   } else if (phase.value === 'result' && bossFight()) {
     drawCard(
       g,

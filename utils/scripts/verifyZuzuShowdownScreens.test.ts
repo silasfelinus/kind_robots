@@ -14,8 +14,8 @@
 import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
-import { measureText } from '../arcade/font'
-import { FIGHTERS, findFighter } from '../zuzuShowdown/fighters'
+import { glyphFor, measureText } from '../arcade/font'
+import { FIGHTERS, findFighter, moveList } from '../zuzuShowdown/fighters'
 import {
   BOSS_INTROS,
   MATCHUPS,
@@ -34,6 +34,12 @@ import {
   selectCard,
   selectPromptY,
   wrapText,
+  PAUSE_COLUMNS,
+  PAUSE_ROWS_TOP,
+  PAUSE_ROW_STEP,
+  pauseEasy,
+  pauseLines,
+  pauseName,
 } from '../zuzuShowdown/screens'
 import {
   SELECT_COLUMNS,
@@ -500,6 +506,34 @@ check('the screens draw portraits where loaded, sprites where not', () => {
   // Each card's bust is scaled to the card; the map's two tokens are smaller still.
   const card = selectCard(0, FIGHTERS.length)
   assert.equal(sized(select.calls, card.w, card.h), FIGHTERS.length, 'busts')
+})
+
+check('every pause move list fits its columns, in glyphs the font has', () => {
+  const [inputX, nameX, easyX] = PAUSE_COLUMNS
+  const GAP = 6
+  for (const fighter of FIGHTERS) {
+    const lines = pauseLines(moveList(fighter))
+    const bottom = PAUSE_ROWS_TOP + lines.length * PAUSE_ROW_STEP
+    assert.ok(bottom <= VIEW_HEIGHT - 22, `${fighter.slug}: ${bottom}`)
+    for (const line of lines) {
+      const cells: Array<[string, number]> = [
+        [line.input, nameX - inputX - GAP],
+        [pauseName(line), easyX - nameX - GAP],
+        [pauseEasy(line.easy), VIEW_WIDTH - easyX - GAP],
+      ]
+      for (const [text, room] of cells) {
+        assert.ok(
+          measureText(text) <= room,
+          `${fighter.slug}: "${text}" is ${measureText(text)}px, room ${room}`,
+        )
+        for (const char of text.toUpperCase())
+          assert.ok(
+            char === '?' || glyphFor(char) !== glyphFor('?'),
+            `${fighter.slug}: no glyph for "${char}" in "${text}"`,
+          )
+      }
+    }
+  }
 })
 
 console.log(`verifyZuzuShowdownScreens: ${passed} checks passed`)

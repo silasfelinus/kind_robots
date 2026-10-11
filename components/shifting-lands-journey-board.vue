@@ -527,27 +527,76 @@
               </div>
               <div class="flex flex-col justify-center gap-4 p-5 sm:p-7">
                 <p class="text-sm leading-relaxed">
-                  {{ game.currentLand.boss.teaser }}
+                  {{ game.currentTrial?.flavor || game.currentLand.boss.teaser }}
                 </p>
-                <p class="text-xs opacity-70">
-                  All three locations are resolved. You may fight, seek terms,
-                  or end this expedition.
-                </p>
-                <button
-                  type="button"
-                  class="btn btn-primary min-h-12"
-                  @click="game.confront('challenge')"
-                >
-                  Challenge · Steel +3 · target {{ 9 + game.state.landIndex }}
-                </button>
-                <button
-                  type="button"
-                  class="btn btn-outline min-h-12"
-                  :disabled="game.state.provisions < 1"
-                  @click="game.confront('parley')"
-                >
-                  Parley · Bearing +2 · 1 provision
-                </button>
+                <template v-if="game.currentTrial">
+                  <p class="text-xs opacity-70">
+                    The three roads are behind you. Choose how Zuzu faces the gate.
+                    Earned clues can reveal a third path.
+                  </p>
+                  <div class="space-y-2" aria-label="Authored trial approaches">
+                    <button
+                      v-for="choice in game.currentTrial.choices"
+                      :key="choice.id"
+                      type="button"
+                      class="block w-full rounded-xl border border-base-content/20 bg-base-300 p-4 text-left transition-colors hover:border-warning focus-visible:outline focus-visible:outline-4 focus-visible:outline-primary disabled:cursor-not-allowed disabled:opacity-55"
+                      :disabled="!game.canTrial(choice.id)"
+                      @click="game.attemptTrial(choice.id)"
+                    >
+                      <span class="block font-bold">{{ choice.label }}</span>
+                      <span class="mt-1 block text-sm opacity-80">{{ choice.intent }}</span>
+                      <span class="mt-1 block text-xs font-semibold opacity-75">
+                        {{ choice.skill }} · 2d6 + skill · target {{ choice.target }}
+                        <template v-if="choice.cost"> · {{ choice.cost }} provision</template>
+                        <template
+                          v-if="choice.requiredAnyFlags.length && !game.canTrial(choice.id)"
+                        > · Requires discovered evidence</template>
+                      </span>
+                    </button>
+                  </div>
+                  <div
+                    v-if="game.lastTrialOutcome?.landId === game.currentLand.id"
+                    class="rounded-xl border border-warning/40 bg-base-300 p-4"
+                    role="status"
+                    aria-live="polite"
+                  >
+                    <p class="font-serif font-bold">
+                      {{ game.lastTrialOutcome.roll.success ? 'Trial passed' : 'Trial repelled' }}
+                    </p>
+                    <p class="mt-2 text-sm leading-relaxed">
+                      {{ game.lastTrialOutcome.resultText }}
+                    </p>
+                    <p class="mt-2 text-xs opacity-75">
+                      {{ game.lastTrialOutcome.roll.dice.join(' + ') }} +
+                      {{ game.lastTrialOutcome.roll.modifier }} =
+                      {{ game.lastTrialOutcome.roll.total }} vs
+                      {{ game.lastTrialOutcome.roll.difficulty }}
+                      · HP {{ game.lastTrialOutcome.hpChange }}
+                      · Provisions {{ game.lastTrialOutcome.provisionChange }}
+                    </p>
+                  </div>
+                </template>
+                <template v-else>
+                  <p class="text-xs opacity-70">
+                    All three locations are resolved. You may fight, seek terms,
+                    or end this expedition.
+                  </p>
+                  <button
+                    type="button"
+                    class="btn btn-primary min-h-12"
+                    @click="game.confront('challenge')"
+                  >
+                    Challenge · Steel +3 · target {{ 9 + game.state.landIndex }}
+                  </button>
+                  <button
+                    type="button"
+                    class="btn btn-outline min-h-12"
+                    :disabled="game.state.provisions < 1"
+                    @click="game.confront('parley')"
+                  >
+                    Parley · Bearing +2 · 1 provision
+                  </button>
+                </template>
                 <button
                   type="button"
                   class="btn btn-ghost min-h-12"

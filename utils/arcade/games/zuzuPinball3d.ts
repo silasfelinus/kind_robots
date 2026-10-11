@@ -54,6 +54,17 @@ const zuzuPinball: ArcadeGameModule = {
       ],
       scale: 1,
     },
+    {
+      title: 'WATERING HOLE',
+      lines: [
+        'FEED HIM IN HOMESTEAD',
+        'THE COYOTE COMES TO DRINK',
+        'ORBIT, THEN FEED THE CROC',
+        'DEATH ROLL JACKPOT',
+        'EACH ONE BIGGER, QUICKER',
+      ],
+      scale: 1,
+    },
   ],
 }
 

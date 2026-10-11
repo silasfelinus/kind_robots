@@ -1999,7 +1999,8 @@ class BatteryMaze implements ArcadeGameInstance {
       extra.add(`${this.goldenBolt.at.x},${this.goldenBolt.at.y}`)
     const mama = this.mama
     if (!mama) return { extra, only: null, flip: false }
-    const tiles = (list: Tile[]) => new Set(list.map((t) => `${t.x},${t.y}`))
+    const tiles = (list: readonly Tile[]) =>
+      new Set(list.map((t) => `${t.x},${t.y}`))
     const mx = Math.round(mama.x)
     const my = Math.round(mama.y)
     if (mama.bumpable) {

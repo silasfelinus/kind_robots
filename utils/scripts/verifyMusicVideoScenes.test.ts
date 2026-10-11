@@ -238,6 +238,34 @@ console.log(
     'nsfw, human',
     'series negatives still apply',
   )
+  assert.equal(
+    comic.loras,
+    undefined,
+    'no character LoRAs on a lane without any',
+  )
+
+  // comic-creator t-016: the series lane's character LoRAs follow the scene prompt,
+  // and the video's own LoRA ids ride in the same list at full strength.
+  const castLane = {
+    ...lane,
+    castLoras: [
+      { key: 'zuzu', resourceId: 4593, trigger: 'zuzukoala', match: ['koala'] },
+    ],
+  }
+  const cast = musicVideoStillBody(zuzu, scene, {
+    projectSlug: 'music-video',
+    lane: castLane,
+  })
+  assert.deepEqual(cast.loras, [
+    { resourceId: 4593, strength: 0.8 },
+    { resourceId: 5, strength: 1 },
+  ])
+  const empty = musicVideoStillBody(
+    { ...zuzu, settings: { ...zuzu.settings, styleBible: 'koala country' } },
+    { prompt: 'an empty desert road' },
+    { projectSlug: 'music-video', lane: castLane },
+  )
+  assert.equal(empty.loras, undefined, 'the style bible never adds a character')
   assert.equal(comic.isPublic, false)
   assert.equal(comic.projectSlug, 'comic-film')
   assert.equal(comic.designer, 'Music Video')

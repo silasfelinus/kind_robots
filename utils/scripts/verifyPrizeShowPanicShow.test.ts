@@ -44,6 +44,7 @@ import type { PowerKind } from '../arcade/prizeShow/arsenal'
 
 type Point = { x: number; y: number }
 type Inner = {
+  picking: unknown
   score: number
   level: number
   lives: number
@@ -53,6 +54,7 @@ type Inner = {
   invuln: number
   loop: number
   episodeIndex: number
+  commercial: unknown
   roomTick: number
   roomTimer: number
   cleared: boolean
@@ -102,6 +104,13 @@ type Inner = {
 
 type Heard = { notes: Note[][]; plays: string[] }
 
+/** Past the contestant pick card (each seat takes the contestant under its cursor). */
+function skipPick(g: { picking: unknown; update(input: InputFrame): void }) {
+  if (!g.picking) return
+  ;(g.picking as { ticks: number }).ticks = 1e9
+  g.update(emptyInput())
+}
+
 function fresh(seed = 3, withNotes = true): Inner & { heard: Heard } {
   const heard: Heard = { notes: [], plays: [] }
   const sound = withNotes
@@ -117,6 +126,7 @@ function fresh(seed = 3, withNotes = true): Inner & { heard: Heard } {
     hiScore: 0,
   }) as unknown as Inner & { heard: Heard }
   g.heard = heard
+  skipPick(g)
   return g
 }
 
@@ -510,7 +520,9 @@ const g2d = stubContext()
   g.update(press('down'))
   g.update(press('a'))
   assert.equal(g.swap, null, 'DONE moves the show on')
-  assert.equal(g.episodeIndex, 1, 'to episode 2')
+  assert.ok(g.commercial, 'to a commercial break')
+  for (let t = 0; t < 6000 && g.commercial; t++) g.update(emptyInput())
+  assert.equal(g.episodeIndex, 1, 'then episode 2')
   assert.ok(g.powers[perks.power!] > 0, 'the episode opens with the power-up')
   assert.ok(
     g.roomTimer > 40 * 60 * 0.9 + 9 * 60,

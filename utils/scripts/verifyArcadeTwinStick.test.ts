@@ -2,6 +2,7 @@
 // readers in utils/arcade/input.ts (right stick, aim keys, touch stick), how ButtonInput carries it
 // only while a cabinet has aiming on, and that every cabinet but the twin-stick one is untouched.
 import assert from 'node:assert/strict'
+import { readFileSync } from 'node:fs'
 import { ARCADE_GAMES } from '../arcade/games'
 import {
   AIM_DEADZONE,
@@ -170,8 +171,17 @@ const close = (a: number, b: number) => Math.abs(a - b) < 1e-9
     ['prize-show-panic'],
     'every other cabinet keeps its controls',
   )
-  for (const game of twin)
-    assert.ok((game.maxPlayers ?? 1) === 1, 'twin-stick cabinets seat one')
+  // Twin-stick is solo only: a cabinet that seats more (Prize Show Panic's co-op) turns the second
+  // stick off whenever more than one is seated, and the seats aim the way they move (or B-lock).
+  const cabinet = readFileSync(
+    new URL('../../components/arcade/arcade-cabinet.vue', import.meta.url),
+    'utf8',
+  )
+  assert.match(
+    cabinet,
+    /const twinStick = computed\(\s*\(\) => meta\.value\?\.twinStick === true && !duo\.value/,
+    'the cabinet aims with a second stick for one seat only',
+  )
 }
 
 console.log('verifyArcadeTwinStick: ok')

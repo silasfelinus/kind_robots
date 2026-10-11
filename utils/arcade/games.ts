@@ -346,6 +346,7 @@ export const ARCADE_GAMES: ArcadeGameMeta[] = [
     accent: '#e879f9',
     controls: 'Move, spray, aim with a second stick',
     twinStick: true,
+    maxPlayers: 4,
   },
   {
     slug: 'zuzu-ghost-trail',

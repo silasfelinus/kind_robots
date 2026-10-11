@@ -60,7 +60,16 @@ assert.ok(table.colliders.some((collider) => collider.id === 'zuzu-playfield'))
 assert.ok(!table.colliders.some((collider) => collider.id.includes('ami')))
 assert.equal(
   table.art?.room?.backglass,
+  '/images/pinball/zuzu-last-bell-backglass.webp',
+)
+assert.equal(
+  table.art?.room?.backglassFallback,
   '/images/arcade/games/zuzu-ghost-trail-title.webp',
+  'the Zuzu title art stands in until the backglass loads',
+)
+assert.equal(
+  table.art?.playfield?.src,
+  '/images/pinball/zuzu-last-bell-playfield-painted.webp',
 )
 
 const module = await loadArcadeGame('zuzu-pinball')

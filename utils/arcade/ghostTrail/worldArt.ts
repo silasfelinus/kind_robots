@@ -1934,6 +1934,8 @@ export function drawHazard(
   warm: boolean,
   tick: number,
 ) {
+  // (Lightning is a strike column the height of the view: drawLightning.)
+  if (h.kind === 'lightning') return
   const timed = !!h.period
   const x = h.x
   const w = Math.max(2, h.w)
@@ -2246,6 +2248,241 @@ export function drawUpdraft(g: G, u: Updraft, groundY: number, tick: number) {
     g.restore()
   }
   g.lineCap = 'butt'
+  g.restore()
+}
+
+/** Where lightning stands in its beat, for drawing it. */
+export type LightningState = {
+  /** 0..1 through the tell (the sky darkening over the column), or null outside it. */
+  tell: number | null
+  /** Ticks since the bolt landed: under `on` it is striking; just after, it smoulders. */
+  since: number
+  on: number
+}
+
+/** A jagged bolt from `top` down to `bottom`, wandering within [x0, x1]. */
+function boltPath(
+  x0: number,
+  x1: number,
+  top: number,
+  bottom: number,
+  seed: number,
+): Array<[number, number]> {
+  const rand = seeded(seed)
+  const pts: Array<[number, number]> = []
+  let x = x0 + (x1 - x0) * (0.3 + 0.4 * rand())
+  for (let y = top; y < bottom; y += 7 + rand() * 9) {
+    pts.push([x, y])
+    x = Math.max(x0, Math.min(x1, x + (rand() - 0.5) * 14))
+  }
+  pts.push([x, bottom])
+  return pts
+}
+
+function strokePath(g: G, pts: Array<[number, number]>) {
+  g.beginPath()
+  pts.forEach(([px, py], i) => (i ? g.lineTo(px, py) : g.moveTo(px, py)))
+  g.stroke()
+}
+
+/**
+ * Storm Crow Pass's lightning (world space): a strike column from the sky (`top`, the top of the
+ * view) down to the lowest floor in view, or to `bottom` over the drop. The tell is the sky over the column darkening into a knot of cloud that
+ * flickers, a faint dashed guide line down the column with crackle running along it, and the floors
+ * in the column (`floors`, their tops) marked by a cold glow. Then the bolt: a forked white-blue
+ * spine the height of the view, the column lit, sparks thrown up where it meets each floor; after
+ * it, a scorch that smoulders for a moment.
+ */
+export function drawLightning(
+  g: G,
+  h: Hazard,
+  top: number,
+  bottom: number,
+  floors: number[],
+  s: LightningState,
+  tick: number,
+) {
+  const x = h.x
+  const w = Math.max(6, h.w)
+  const cx = x + w / 2
+  // Everything runs down to the lowest floor in view (or out of the view, over the drop).
+  const foot = floors.length ? Math.max(...floors) : bottom
+  const span = Math.max(8, foot - top)
+  const striking = s.since < s.on
+  g.save()
+  if (s.tell !== null) {
+    const t = s.tell
+    // The sky darkens over the column: deepest up in the cloud, feathered at its sides.
+    const slices = 8
+    for (let k = 0; k < slices; k++) {
+      const f = k / slices
+      const a = (0.18 + 0.5 * t) * (1 - f * 0.7)
+      const grad = g.createLinearGradient(x - 10, 0, x + w + 10, 0)
+      grad.addColorStop(0, rgba('#05060f', 0))
+      grad.addColorStop(0.22, rgba('#05060f', a))
+      grad.addColorStop(0.78, rgba('#05060f', a))
+      grad.addColorStop(1, rgba('#05060f', 0))
+      g.fillStyle = grad
+      g.fillRect(x - 10, top + f * span, w + 20, span / slices + 0.5)
+    }
+    // The faint guide line, dashes running down toward the strike.
+    g.strokeStyle = rgba('#c8d0ff', 0.12 + 0.4 * t)
+    g.lineWidth = 0.8
+    const dash = 7
+    const off = (tick * 1.5) % dash
+    g.beginPath()
+    for (let y = top + 30 + off; y < foot; y += dash) {
+      g.moveTo(cx, y)
+      g.lineTo(cx, Math.min(foot, y + 3))
+    }
+    g.stroke()
+    // Crackle: short live forks along the line, more of them as the strike nears.
+    const rand = seeded(Math.floor(tick / 2) * 97 + x)
+    const sparks = 1 + Math.floor(t * 6)
+    g.lineCap = 'round'
+    for (let i = 0; i < sparks; i++) {
+      const sy = top + 30 + rand() * (span - 34)
+      let sx = cx + (rand() - 0.5) * w * 0.5
+      let yy = sy
+      g.strokeStyle = rgba(i % 2 ? '#a8b8ff' : '#f0f4ff', 0.5 + 0.5 * t)
+      g.lineWidth = 0.7
+      g.beginPath()
+      g.moveTo(sx, yy)
+      for (let j = 0; j < 3; j++) {
+        sx += (rand() - 0.5) * 6
+        yy += 1 + rand() * 3
+        g.lineTo(sx, yy)
+      }
+      g.stroke()
+    }
+    // The floors it will strike: a cold glow gathering on each.
+    for (const fy of floors) {
+      glow(g, cx, fy - 2, w * 0.5 + 6, '#7a8cff', 0.12 + 0.3 * t)
+      g.fillStyle = rgba('#c8d0ff', 0.25 + 0.5 * t)
+      g.fillRect(x + 2, fy - 1, 3, 1)
+      g.fillRect(x + w - 5, fy - 1, 3, 1)
+    }
+  }
+  // The storm knot over the column: a churning cloud, lit from below and from within.
+  const gather = striking ? 1 : (s.tell ?? 0)
+  if (gather > 0) {
+    const cy = top + 44
+    const rand = seeded(x * 13 + 5)
+    const puffs: Array<[number, number, number]> = []
+    for (let i = 0; i < 7; i++) {
+      const ox = (rand() - 0.5) * (w + 34) + Math.sin(tick / 20 + i) * 2
+      const oy = (rand() - 0.5) * 10
+      const r = (11 + rand() * 8) * (0.75 + 0.35 * gather)
+      puffs.push([cx + ox, cy + oy, r])
+    }
+    for (const [px, py, r] of puffs) {
+      g.fillStyle = rgba('#8a9cff', 0.1 + 0.4 * gather)
+      g.beginPath()
+      g.ellipse(px, py + 1.5, r * 1.3, r * 0.55, 0, 0, Math.PI * 2)
+      g.fill()
+    }
+    for (const [i, [px, py, r]] of puffs.entries()) {
+      g.fillStyle = rgba(i % 2 ? '#0c0d1c' : '#141730', 0.6 + 0.35 * gather)
+      g.beginPath()
+      g.ellipse(px, py, r * 1.3, r * 0.5, 0, 0, Math.PI * 2)
+      g.fill()
+    }
+    const flick = hash(Math.floor(tick / 3) * 31 + x)
+    if (striking || flick < 0.25 + 0.5 * gather)
+      glow(
+        g,
+        cx + (flick - 0.5) * w,
+        cy,
+        18 + 12 * gather,
+        '#c8d0ff',
+        0.25 + 0.4 * gather,
+      )
+  }
+  if (striking) {
+    const k = s.since / Math.max(1, s.on)
+    const fade = 1 - k * 0.6
+    // The column floods with cold light.
+    const lit = g.createLinearGradient(x - 8, 0, x + w + 8, 0)
+    lit.addColorStop(0, rgba('#a8b8ff', 0))
+    lit.addColorStop(0.5, rgba('#c8d0ff', 0.28 * fade))
+    lit.addColorStop(1, rgba('#a8b8ff', 0))
+    g.fillStyle = lit
+    g.fillRect(x - 8, top, w + 16, Math.max(8, foot - top))
+    // The bolt (it re-forks every couple of ticks), with a fork or two off it.
+    const seed = Math.floor(tick / 2) * 131 + x * 7
+    const spine = boltPath(x + 2, x + w - 2, top + 40, foot, seed)
+    const rand = seeded(seed + 3)
+    const forks: Array<Array<[number, number]>> = []
+    for (let i = 0; i < 3; i++) {
+      const from = spine[1 + Math.floor(rand() * (spine.length - 2))]
+      if (!from) continue
+      const dir = rand() < 0.5 ? -1 : 1
+      const len = 3 + Math.floor(rand() * 3)
+      const fork: Array<[number, number]> = [from]
+      let [fx, fy] = from
+      for (let j = 0; j < len; j++) {
+        fx += dir * (3 + rand() * 5)
+        fy = Math.min(foot - 1, fy + 4 + rand() * 6)
+        fork.push([fx, fy])
+      }
+      forks.push(fork)
+    }
+    g.lineCap = 'round'
+    g.lineJoin = 'round'
+    g.globalCompositeOperation = 'lighter'
+    for (const [lw, colour, a] of [
+      [6, '#5a6cff', 0.3],
+      [2.6, '#a8b8ff', 0.8],
+    ] as const) {
+      g.strokeStyle = rgba(colour, a * fade)
+      g.lineWidth = lw
+      strokePath(g, spine)
+      g.lineWidth = lw * 0.5
+      for (const f of forks) strokePath(g, f)
+    }
+    g.globalCompositeOperation = 'source-over'
+    g.strokeStyle = rgba('#ffffff', fade)
+    g.lineWidth = 1.1
+    strokePath(g, spine)
+    g.lineWidth = 0.6
+    for (const f of forks) strokePath(g, f)
+    // Where it meets each floor: a white flare and sparks thrown up.
+    for (const fy of floors) {
+      glow(g, cx, fy - 3, w * 0.6 + 14, '#c8d0ff', 0.7 * fade)
+      g.fillStyle = rgba('#ffffff', 0.9 * fade)
+      g.beginPath()
+      g.ellipse(cx, fy - 1, w * 0.45, 2.2, 0, 0, Math.PI * 2)
+      g.fill()
+      const sp = seeded(Math.floor(tick / 2) * 17 + Math.round(fy))
+      for (let i = 0; i < 8; i++) {
+        const a = Math.PI + sp() * Math.PI
+        const r = 3 + (s.since % 6) * 2 + sp() * 6
+        g.fillStyle = rgba(i % 2 ? '#fff6d8' : '#c8d0ff', fade)
+        g.fillRect(cx + Math.cos(a) * r, fy - 2 + Math.sin(a) * r * 0.8, 1, 1)
+      }
+    }
+  } else if (s.since < s.on + 30) {
+    // The scorch smoulders: a dull glow on each floor and smoke curling off it.
+    const k = (s.since - s.on) / 30
+    for (const fy of floors) {
+      glow(g, cx, fy - 1, w * 0.4 + 6, '#8a6cff', 0.45 * (1 - k))
+      for (let i = 0; i < 3; i++) {
+        const rise = k * 16 + i * 4
+        g.fillStyle = rgba('#8a8ca8', 0.3 * (1 - k))
+        g.beginPath()
+        g.arc(
+          cx + (i - 1) * w * 0.25 + Math.sin(tick / 9 + i) * 2,
+          fy - 3 - rise,
+          1.2 + rise / 8,
+          0,
+          Math.PI * 2,
+        )
+        g.fill()
+      }
+    }
+  }
+  g.lineCap = 'butt'
+  g.lineJoin = 'miter'
   g.restore()
 }
 
@@ -3471,5 +3708,220 @@ export function drawTowerInterior(
     g.lineTo(x + sway, H)
     g.stroke()
   }
+  g.restore()
+}
+
+/** A positive modulo (screen wrapping for parallax layers). */
+function wrap(v: number, m: number): number {
+  return ((v % m) + m) % m
+}
+
+/** Rock strata: bands of `tones`, `band` px apart, anchored so band 0 sits at screen y `oy`. */
+function strata(
+  g: G,
+  x: number,
+  y: number,
+  w: number,
+  h: number,
+  oy: number,
+  band: number,
+  tones: readonly string[],
+  seed: number,
+) {
+  const first = Math.floor((y - oy) / band)
+  const last = Math.ceil((y + h - oy) / band)
+  for (let i = first; i <= last; i++) {
+    const by = oy + i * band
+    const top = Math.max(y, by)
+    const bottom = Math.min(
+      y + h,
+      by + band * (0.55 + 0.45 * hash(i * 7 + seed)),
+    )
+    if (bottom <= top) continue
+    g.fillStyle = tones[Math.floor(hash(i * 13 + seed) * tones.length)]!
+    g.fillRect(x, top, w, bottom - top)
+    // A worn lip of paler rock along some courses.
+    if (hash(i * 3 + seed) > 0.6 && by >= y) {
+      g.fillStyle = rgba('#7a84b8', 0.12)
+      g.fillRect(x, by, w, 0.6)
+    }
+  }
+}
+
+/**
+ * The canyon wall in a storm (screen space, over the backdrop): for Storm Crow Pass's climb, in
+ * place of the bell tower's interior. As the view climbs (`camY` below 0) the painted pass fades
+ * behind a storm sky with clouds that light from within, the far wall of the canyon in banded rock
+ * sinking away below (you rise past its rim and see the far mesas), the near face of the cliff in
+ * dark strata buttresses, and slanting rain. `rise` 0..1 fades it in.
+ */
+export function drawCliffFace(
+  g: G,
+  camX: number,
+  camY: number,
+  rise: number,
+  tick: number,
+) {
+  if (rise <= 0) return
+  const up = -camY
+  g.save()
+  g.globalAlpha = rise
+  // The storm sky, darkest overhead.
+  const sky = g.createLinearGradient(0, 0, 0, H)
+  sky.addColorStop(0, '#0a0b1a')
+  sky.addColorStop(0.5, '#1e2244')
+  sky.addColorStop(1, '#3a3f6e')
+  g.fillStyle = sky
+  g.fillRect(0, 0, W, H)
+  // A sheet of light inside the clouds now and then.
+  const flick = hash(Math.floor(tick / 5) * 3 + 11)
+  if (flick > 0.9)
+    glow(g, 40 + hash(Math.floor(tick / 5)) * 240, 36, 90, '#8a9cff', 0.22)
+  // The far mesas, then the far wall of the canyon: each sinks as he climbs past its rim.
+  const ridge = (
+    base: number,
+    p: number,
+    amp: number,
+    tones: readonly string[],
+    seed: number,
+  ) => {
+    const ox = camX * p
+    const pts: Array<[number, number]> = []
+    for (let x = -8; x <= W + 8; x += 4) {
+      const wx = x + ox
+      const y =
+        base +
+        amp * Math.sin(wx / 61 + seed) +
+        amp * 0.5 * Math.sin(wx / 23 + seed * 2) +
+        amp * 0.12 * (hash(Math.floor(wx / 4) + seed * 1000) - 0.5)
+      pts.push([x, Math.round(y / 2) * 2])
+    }
+    g.save()
+    g.beginPath()
+    g.moveTo(-8, H)
+    for (const [x, y] of pts) g.lineTo(x, y)
+    g.lineTo(W + 8, H)
+    g.closePath()
+    g.fillStyle = tones[0]!
+    g.fill()
+    g.clip()
+    const top = Math.min(...pts.map(([, y]) => y))
+    strata(g, -8, top, W + 16, H - top, base, 7, tones, seed)
+    g.restore()
+    // Haze pooling below the rim.
+    const haze = g.createLinearGradient(0, base - 10, 0, base + 40)
+    haze.addColorStop(0, rgba('#8890c0', 0))
+    haze.addColorStop(0.4, rgba('#8890c0', 0.12))
+    haze.addColorStop(1, rgba('#8890c0', 0))
+    g.fillStyle = haze
+    g.fillRect(0, base - 10, W, 50)
+  }
+  ridge(
+    118 + up * 0.06,
+    0.06,
+    10,
+    ['#262a4c', '#2a2e52', '#2e3256', '#2a2440'],
+    3,
+  )
+  ridge(
+    92 + up * 0.17,
+    0.16,
+    16,
+    ['#1a1d36', '#20243f', '#272b4c', '#241f38', '#2c3054'],
+    7,
+  )
+  // Storm clouds rolling along the top of the sky.
+  for (let i = 0; i < 14; i++) {
+    const cx = wrap(i * 41 - camX * 0.05 - tick * 0.06, W + 120) - 60
+    const cy = 10 + hash(i * 5 + 1) * 34 + up * 0.02
+    const r = 22 + hash(i * 3 + 2) * 24
+    g.fillStyle = i % 3 ? '#11132a' : '#181b36'
+    g.beginPath()
+    g.ellipse(cx, cy, r * 1.4, r * 0.5, 0, 0, Math.PI * 2)
+    g.fill()
+    g.fillStyle = rgba('#4c5680', 0.25)
+    g.fillRect(cx - r * 0.7, cy + r * 0.38, r * 1.4, 0.8)
+  }
+  // The near face: buttresses of banded rock, the wall he is climbing.
+  const P = 0.55
+  const spacing = 150
+  const oy = up * P
+  const r0 = Math.floor(-oy / 9) - 1
+  const r1 = r0 + Math.ceil(H / 9) + 3
+  const first = Math.floor((camX * P - 150) / spacing)
+  for (let n = first; n <= first + 4; n++) {
+    const bw = 64 + hash(n * 11 + 2) * 46
+    const bx = n * spacing - camX * P + hash(n * 5 + 9) * 30
+    if (bx > W + 4 || bx + bw < -4) continue
+    g.save()
+    // A ragged outline: each course of rock juts a little.
+    g.beginPath()
+    for (let r = r0; r <= r1; r++) {
+      const jut = (hash(n * 97 + r) - 0.5) * 6
+      if (r === r0) g.moveTo(bx + jut, oy + r * 9)
+      else g.lineTo(bx + jut, oy + r * 9)
+    }
+    for (let r = r1; r >= r0; r--)
+      g.lineTo(bx + bw + (hash(n * 89 + r + 500) - 0.5) * 6, oy + r * 9)
+    g.closePath()
+    g.fillStyle = '#121528'
+    g.fill()
+    g.clip()
+    strata(
+      g,
+      bx - 6,
+      0,
+      bw + 12,
+      H,
+      oy,
+      9,
+      ['#14172c', '#1b1e38', '#222644', '#1e1a32', '#262a48'],
+      n * 31 + 1,
+    )
+    // Shade on the left, storm light down the right edge.
+    const shade = g.createLinearGradient(bx, 0, bx + bw, 0)
+    shade.addColorStop(0, rgba('#05060e', 0.45))
+    shade.addColorStop(0.6, rgba('#05060e', 0))
+    shade.addColorStop(1, rgba('#9aa6e8', 0.12))
+    g.fillStyle = shade
+    g.fillRect(bx - 6, 0, bw + 12, H)
+    // Cracks, and a tuft or two of scrub clinging on.
+    const cr = seeded(n * 71 + 3)
+    g.strokeStyle = rgba('#05060e', 0.6)
+    g.lineWidth = 0.7
+    for (let i = 0; i < 3; i++) {
+      let x = bx + 8 + cr() * (bw - 16)
+      let y = wrap(cr() * 400 + oy, 400) - 80
+      g.beginPath()
+      g.moveTo(x, y)
+      for (let j = 0; j < 6; j++) {
+        x += (cr() - 0.5) * 6
+        y += 6 + cr() * 8
+        g.lineTo(x, y)
+      }
+      g.stroke()
+    }
+    for (let i = 0; i < 2; i++) {
+      const tx = bx + 6 + cr() * (bw - 12)
+      const ty = wrap(cr() * 300 + oy, 300) - 30
+      g.fillStyle = '#26302c'
+      g.fillRect(tx - 3, ty, 7, 2)
+      g.fillStyle = '#3c4a40'
+      g.fillRect(tx - 2, ty - 2, 2, 2)
+      g.fillRect(tx + 1, ty - 3, 2, 3)
+    }
+    g.restore()
+  }
+  // Rain slanting down across everything.
+  g.strokeStyle = rgba('#b4c0f0', 0.22)
+  g.lineWidth = 0.6
+  g.beginPath()
+  for (let i = 0; i < 80; i++) {
+    const x = wrap(hash(i) * 400 - tick * 2.4 - camX * 0.9, W + 40) - 20
+    const y = wrap(hash(i + 300) * 300 + tick * 7.5 + up * 0.9, H + 30) - 15
+    g.moveTo(x, y)
+    g.lineTo(x - 2.6, y + 8)
+  }
+  g.stroke()
   g.restore()
 }

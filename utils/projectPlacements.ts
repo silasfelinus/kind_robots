@@ -113,11 +113,6 @@ export const PROJECT_PLACEMENTS: Record<string, ProjectPlacement> = {
     tabKey: 'arcade',
     route: '/play/arcade',
   },
-  'brainstorm': {
-    channelKey: 'admin',
-    tabKey: 'brainstorm',
-    route: '/brainstorm',
-  },
   'zuzu-shifting-lands': {
     channelKey: 'projects',
     tabKey: 'zuzu-shifting-lands',
@@ -209,7 +204,7 @@ export const PROJECT_PLACEMENTS: Record<string, ProjectPlacement> = {
     route: '/academy',
   },
   brainstorm: {
-    channelKey: 'projects',
+    channelKey: 'admin',
     tabKey: 'brainstorm',
     route: '/brainstorm',
   },

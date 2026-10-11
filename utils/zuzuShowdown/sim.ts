@@ -47,6 +47,7 @@ import {
   type BufferedButton,
   type Facing,
   type FighterData,
+  type FighterPhase,
   type FighterState,
   type FrameWindow,
   type MatchState,
@@ -165,8 +166,9 @@ const within = (window: FrameWindow, frame: number) =>
 // ---------------------------------------------------------------- setup
 
 function freshFighter(data: FighterData, side: Side): FighterState {
+  const start = data.startX ?? START_OFFSET
   return {
-    x: (side === 0 ? -START_OFFSET : START_OFFSET) * SUB,
+    x: (side === 0 ? -start : start) * SUB,
     y: 0,
     vx: 0,
     vy: 0,
@@ -332,6 +334,27 @@ const FULLY_INVULNERABLE: ReadonlySet<Action> = new Set([
 ])
 
 /** The body box, or null in states nothing can touch (knockdown, throws ...). */
+/**
+ * How many of the fighter's phases (FighterData `phases`, the boss's) its health has fallen into: 0
+ * before the first, and the phase in force is `phases[n - 1]`.
+ */
+export function phaseIndex(health: number, data: FighterData): number {
+  const phases = data.phases ?? []
+  let n = 0
+  for (const phase of phases) {
+    if (health * 100 < phase.below * data.health) n += 1
+  }
+  return n
+}
+
+function activePhase(
+  f: FighterState,
+  data: FighterData,
+): FighterPhase | undefined {
+  const n = phaseIndex(f.health, data)
+  return n > 0 ? data.phases?.[n - 1] : undefined
+}
+
 export function hurtbox(f: FighterState, data: FighterData): WorldBox | null {
   if (FULLY_INVULNERABLE.has(f.action)) return null
   if (f.attack) {
@@ -339,6 +362,8 @@ export function hurtbox(f: FighterState, data: FighterData): WorldBox | null {
     if (move.hurtbox && f.attack.frame >= move.startup)
       return toWorld(f, move.hurtbox)
   }
+  const phase = activePhase(f, data)
+  if (phase?.hurtStand) return toWorld(f, phase.hurtStand)
   if (isAirborne(f)) return toWorld(f, data.hurtAir)
   if (isCrouching(f) || (f.action === 'blockstun' && f.prev.down)) {
     return toWorld(f, data.hurtCrouch)
@@ -1089,7 +1114,11 @@ function clampToStage(s: MatchState, roster: Pair<FighterData>): void {
       f.x = clamped
       // Pushback that can't move the defender into the wall moves the
       // attacker back instead (the corner rule).
-      if (f.push !== 0 && Math.sign(f.push) === Math.sign(overflow)) {
+      if (
+        f.push !== 0 &&
+        Math.sign(f.push) === Math.sign(overflow) &&
+        !roster[other(side)].immovable
+      ) {
         const o = s.fighters[other(side)]
         o.x -= overflow
         f.push = 0
@@ -1141,6 +1170,19 @@ function separate(
   const aLeft = a.x < b.x || (a.x === b.x && a.facing === 1)
   const overlap = aLeft ? pa.right - pb.left : pb.right - pa.left
   if (overlap <= 0) return
+  const still: Side | null = roster[0].immovable
+    ? 0
+    : roster[1].immovable
+      ? 1
+      : null
+  if (still !== null) {
+    // The boss gives no ground: the other fighter takes the whole overlap.
+    const mover = s.fighters[other(still)]
+    const moverLeft = still === 1 ? aLeft : !aLeft
+    mover.x += moverLeft ? -overlap : overlap
+    clampToStage(s, roster)
+    return
+  }
   const half = Math.trunc(overlap / 2)
   if (aLeft) {
     a.x -= half
@@ -1207,7 +1249,12 @@ function inThrowRange(
 }
 
 function grabbable(d: FighterState, data: FighterData): boolean {
-  return THROWABLE.has(d.action) && d.y === 0 && !invulnerable(d, data, 'throw')
+  return (
+    !data.immovable &&
+    THROWABLE.has(d.action) &&
+    d.y === 0 &&
+    !invulnerable(d, data, 'throw')
+  )
 }
 
 function startTech(s: MatchState, attacker: Side): void {
@@ -1453,6 +1500,8 @@ function landHit(s: MatchState, roster: Pair<FighterData>, c: Contact): void {
   let damage = scaledDamage(c.move.damage, index, c.level)
   if (c.easy) damage = Math.trunc((damage * EASY_DAMAGE_PERCENT) / 100)
   if (counter) damage = Math.trunc((damage * COUNTER_DAMAGE_PERCENT) / 100)
+  const taken = activePhase(d, dData)?.damageTaken
+  if (taken !== undefined) damage = Math.trunc((damage * taken) / 100)
   takeDamage(d, dData, damage, RED_PERCENT)
   d.combo.hits = index
   d.combo.damage += damage
@@ -1470,7 +1519,7 @@ function landHit(s: MatchState, roster: Pair<FighterData>, c: Contact): void {
   if (c.move.freezeRed) d.redFreeze = c.move.freezeRed
   // A hit knocks a flyer out of the sky.
   d.flight = 0
-  if (c.move.pull !== undefined) {
+  if (c.move.pull !== undefined && !dData.immovable) {
     // Yanked in to the attacker's feet.
     const reach =
       halfWidth(roster[c.attacker]) + halfWidth(dData) + c.move.pull * SUB
@@ -1479,7 +1528,9 @@ function landHit(s: MatchState, roster: Pair<FighterData>, c: Contact): void {
   }
 
   const away: Facing = a.x <= d.x ? 1 : -1
-  if (c.move.launcher && d.y === 0) {
+  if (dData.immovable) {
+    // The boss only takes the damage: no stun, no knockdown, no push.
+  } else if (c.move.launcher && d.y === 0) {
     setAction(d, 'airhit')
     d.vy = LAUNCH_POP
     d.vx = 0
@@ -1815,7 +1866,13 @@ function checkRoundEnd(s: MatchState, roster: Pair<FighterData>): void {
 
 function nextRoundOrOver(s: MatchState, roster: Pair<FighterData>): void {
   const [w0, w1] = s.wins
-  if (w0 >= ROUNDS_TO_WIN || w1 >= ROUNDS_TO_WIN || s.round >= MAX_ROUNDS) {
+  const single = roster[0].singleRound || roster[1].singleRound
+  if (
+    single ||
+    w0 >= ROUNDS_TO_WIN ||
+    w1 >= ROUNDS_TO_WIN ||
+    s.round >= MAX_ROUNDS
+  ) {
     s.phase = 'over'
     s.phaseFrame = 0
     s.winner = w0 === w1 ? 'draw' : w0 > w1 ? 0 : 1

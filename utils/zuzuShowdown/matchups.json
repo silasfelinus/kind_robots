@@ -624,6 +624,162 @@
       "win": {
         "old-komodo": "Mm. Two naps. Now one."
       }
+    },
+    {
+      "pair": ["zuzu", "swamp-witch"],
+      "intro": [
+        {
+          "speaker": "swamp-witch",
+          "line": "Such a quiet little bear. What would you trade for words?"
+        },
+        {
+          "speaker": "zuzu",
+          "line": "..."
+        },
+        {
+          "speaker": "swamp-witch",
+          "line": "Nothing? Oh, I like you."
+        }
+      ],
+      "win": {
+        "zuzu": "Go home.",
+        "swamp-witch": "Keep your silence, then. I took your shadow."
+      }
+    },
+    {
+      "pair": ["coyote-vagrant", "swamp-witch"],
+      "intro": [
+        {
+          "speaker": "swamp-witch",
+          "line": "I can grow that hand back, sweetling. For a price."
+        },
+        {
+          "speaker": "coyote-vagrant",
+          "line": "Lady, I seen what you are under that shawl."
+        }
+      ],
+      "win": {
+        "coyote-vagrant": "Keep your deals. I kinda like the knife.",
+        "swamp-witch": "Next time, take the bargain."
+      }
+    },
+    {
+      "pair": ["the-abbess", "swamp-witch"],
+      "intro": [
+        {
+          "speaker": "the-abbess",
+          "line": "You. You wear Its face like a stolen habit."
+        },
+        {
+          "speaker": "swamp-witch",
+          "line": "And you pray at a door you never dared open."
+        }
+      ],
+      "win": {
+        "the-abbess": "Kneel, child. The door is mine to keep.",
+        "swamp-witch": "We heard every prayer, abbess. We laughed."
+      }
+    },
+    {
+      "pair": ["the-siblings", "swamp-witch"],
+      "intro": [
+        {
+          "speaker": "swamp-witch",
+          "line": "Two little foxes, all alone. Want a sweet?"
+        },
+        {
+          "speaker": "the-siblings",
+          "line": "No! We don't take things from you."
+        }
+      ],
+      "win": {
+        "the-siblings": "Stay in your swamp!",
+        "swamp-witch": "Clever girl. Run along, and keep him close."
+      }
+    },
+    {
+      "pair": ["storm-crow", "swamp-witch"],
+      "intro": [
+        {
+          "speaker": "storm-crow",
+          "line": "The sky's mine, swamp hag. Stay down in the mud."
+        },
+        {
+          "speaker": "swamp-witch",
+          "line": "Every storm ends in a puddle, birdie."
+        }
+      ],
+      "win": {
+        "storm-crow": "Lightning beats leeches. Every time.",
+        "swamp-witch": "Pretty feathers. I'll keep one."
+      }
+    },
+    {
+      "pair": ["river-croc", "swamp-witch"],
+      "intro": [
+        {
+          "speaker": "river-croc",
+          "line": "grrrRRR."
+        },
+        {
+          "speaker": "swamp-witch",
+          "line": "Oh, hush. I knew this water before you did."
+        }
+      ],
+      "win": {
+        "river-croc": "HSSSSSSS!",
+        "swamp-witch": "Good boy. Back under you go."
+      }
+    },
+    {
+      "pair": ["hyena-matriarch", "swamp-witch"],
+      "intro": [
+        {
+          "speaker": "hyena-matriarch",
+          "line": "Heh. What's the joke under that hood?"
+        },
+        {
+          "speaker": "swamp-witch",
+          "line": "You are, dearest. You just haven't heard it."
+        }
+      ],
+      "win": {
+        "hyena-matriarch": "Hah! Wrong face, witch. Try another.",
+        "swamp-witch": "Laugh now. We'll be laughing later."
+      }
+    },
+    {
+      "pair": ["old-komodo", "swamp-witch"],
+      "intro": [
+        {
+          "speaker": "old-komodo",
+          "line": "Mm. You smell like the deep places."
+        },
+        {
+          "speaker": "swamp-witch",
+          "line": "And you smell like old bones and patience."
+        }
+      ],
+      "win": {
+        "old-komodo": "Mm. Not hungry for you. Too strange.",
+        "swamp-witch": "Sleep, old one. We'll wake you when it's time."
+      }
+    },
+    {
+      "pair": ["swamp-witch", "swamp-witch"],
+      "intro": [
+        {
+          "speaker": "swamp-witch",
+          "line": "Oh. Are we two again? It does that."
+        },
+        {
+          "speaker": "swamp-witch",
+          "line": "Only one of us goes home, dear."
+        }
+      ],
+      "win": {
+        "swamp-witch": "There. Back to one. Much tidier."
+      }
     }
   ],
   "boss": {
@@ -634,6 +790,7 @@
     "storm-crow": "Even the storm won't go near that thing.",
     "river-croc": "HSSSSSSS.",
     "hyena-matriarch": "Heh... heh. Okay, that one's not funny.",
-    "old-komodo": "I have eaten many things. Not that."
+    "old-komodo": "I have eaten many things. Not that.",
+    "swamp-witch": "Oh, don't be shy. It's only the rest of me."
   }
 }

@@ -1,7 +1,8 @@
 // /utils/scripts/verifyZuzuShowdownScreens.test.ts
 //
 // Zuzu Showdown taunt screens (conductor zuzu-showdown t-019): the matchup lines ported from
-// conductor's matchups.yaml are complete (36 intros, 64 win quotes, the boss lines), each intro is
+// conductor's matchups.yaml are complete (an intro for every pair and mirror on the roster, a win
+// quote each way, the boss lines), each intro is
 // oriented to the side that speaks it (mirrors alternate), the VS screen plays its lines on schedule
 // and shows them all at once under reduced motion, quotes wrap inside their column, and both the VS
 // screen and the win screen draw every frame at finite, on-screen coordinates for every outcome. The
@@ -74,21 +75,16 @@ function check(name: string, fn: () => void): void {
 
 const ZUZU = findFighter('zuzu')
 const COYOTE = findFighter('coyote-vagrant')
-const ROSTER_SLUGS = [
-  'zuzu',
-  'coyote-vagrant',
-  'the-abbess',
-  'the-siblings',
-  'storm-crow',
-  'river-croc',
-  'hyena-matriarch',
-  'old-komodo',
-]
+// Every fighter on the select screen: the Swamp Witch's lines went missing from the port once, when
+// this list was written out by hand and she was not on it.
+const ROSTER_SLUGS = FIGHTERS.map((f) => f.slug)
+const PAIRS = (ROSTER_SLUGS.length * (ROSTER_SLUGS.length + 1)) / 2
+const QUOTES = ROSTER_SLUGS.length * ROSTER_SLUGS.length
 
 check(
-  'the ported lines are complete: 36 intros, 64 win quotes, the boss',
+  'the ported lines are complete: an intro per pair and mirror, a win quote each way, the boss',
   () => {
-    assert.equal(MATCHUPS.length, 36)
+    assert.equal(MATCHUPS.length, PAIRS)
     let quotes = 0
     for (let i = 0; i < ROSTER_SLUGS.length; i += 1) {
       for (let j = i; j < ROSTER_SLUGS.length; j += 1) {
@@ -108,7 +104,7 @@ check(
         }
       }
     }
-    assert.equal(quotes, 64)
+    assert.equal(quotes, QUOTES)
     for (const slug of ROSTER_SLUGS)
       assert.ok(BOSS_INTROS[slug], `boss ${slug}`)
     const json = JSON.parse(

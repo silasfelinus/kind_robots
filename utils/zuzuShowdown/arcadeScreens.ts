@@ -65,7 +65,8 @@ function drawDoor(g: G, slot: { x: number; y: number; w: number; h: number }) {
 
 /**
  * The climb: `ladder` is the opponents in order, `rung` the next fight (0-based; the ladder's length
- * is the door). `t` counts frames on the screen.
+ * is the door). `t` counts frames on the screen. At the door, `doorLine` is what the challenger says
+ * to it (matchups.yaml boss lines; the Thing answers with nothing).
  */
 export function drawLadderScreen(
   g: G,
@@ -76,6 +77,7 @@ export function drawLadderScreen(
   portraits: LoadedPortraits | undefined,
   t: number,
   reduced: boolean,
+  doorLine?: string,
 ): void {
   g.fillStyle = '#120c18'
   g.fillRect(0, 0, VIEW_WIDTH, VIEW_HEIGHT)
@@ -150,6 +152,14 @@ export function drawLadderScreen(
     SLOT_TOP + SLOT + 38,
     { align: 'center', color: '#d6d3d1' },
   )
+  if (doorLine)
+    wrapText(doorLine, VIEW_WIDTH - 60, 1).forEach((line, i) =>
+      drawText(g, line, VIEW_WIDTH / 2, SLOT_TOP + SLOT + 60 + i * 12, {
+        align: 'center',
+        color: '#e9d5ff',
+        shadow: '#000000',
+      }),
+    )
   drawText(g, `SCORE ${formatScore(score.total)}`, VIEW_WIDTH / 2, 236, {
     align: 'center',
     color: '#fde047',

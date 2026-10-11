@@ -201,6 +201,9 @@ jobs:
       - name: Zuzu Showdown Arcade mode
         run: npm run test:zuzu-showdown-arcade
 
+      - name: Zuzu Showdown arcade boss (The Thing Behind the Door)
+        run: npm run test:zuzu-showdown-boss
+
       - name: Zuzu Showdown stages
         run: npm run test:zuzu-showdown-stages
 

@@ -157,7 +157,7 @@ import {
   trainingMatch,
   type TrainingState,
 } from '~/utils/zuzuShowdown/training'
-import { introFor } from '~/utils/zuzuShowdown/matchups'
+import { BOSS_INTROS, introFor } from '~/utils/zuzuShowdown/matchups'
 import {
   VS_SLAM_FRAMES,
   drawSelectScreen,
@@ -197,9 +197,23 @@ import {
 import { useZuzuShowdownStore } from '~/stores/zuzuShowdownStore'
 import { useArcadeStore } from '~/stores/arcadeStore'
 import {
+  BOSS,
+  bossInput,
+  newBoss,
+  type BossState,
+} from '~/utils/zuzuShowdown/boss'
+import {
+  BOSS_LAYERS,
+  bossLayerUrl,
+  bossPainter,
+  type LoadedBossArt,
+} from '~/utils/zuzuShowdown/bossArt'
+import {
   ARCADE_GAME_SLUG,
+  BOSS_SLUG,
   DIFFICULTY_MULTIPLIER,
   ENDINGS,
+  SCORE,
   advanceInitials,
   arcadeLadder,
   fightBonus,
@@ -534,6 +548,29 @@ type ArcadeRun = {
 let arcade: ArcadeRun | null = null
 let initials: InitialsEntry = newInitials()
 const endingSets: Record<RenderStyle, LoadedEndings> = { pixel: {}, hd: {} }
+// The Thing Behind the Door (t-021): its AI, and its layers per render style.
+let boss: BossState = newBoss(1)
+const bossSets: Record<RenderStyle, LoadedBossArt> = { pixel: {}, hd: {} }
+const bossLoads = new Set<RenderStyle>()
+const painters = {
+  [BOSS_SLUG]: bossPainter(BOSS, () => ({
+    ...bossSets.pixel,
+    ...bossSets[store.renderStyle],
+  })),
+}
+
+function loadBossArt(style: RenderStyle) {
+  if (bossLoads.has(style)) return
+  bossLoads.add(style)
+  for (const name of BOSS_LAYERS)
+    void loadImage(bossLayerUrl(name, style)).then((image) => {
+      if (image) bossSets[style][name] = image
+    })
+}
+
+function bossFight(): boolean {
+  return roster[1].slug === BOSS_SLUG
+}
 const arcadeStore = useArcadeStore()
 let loop: FixedLoop | null = null
 let sound: ArcadeSound | null = null
@@ -620,15 +657,20 @@ function startArcade(player: string) {
 /** The climb so far, before the next fight (or, at the top, the ending). */
 function openLadder() {
   if (!arcade) return
-  if (arcade.rung >= arcade.ladder.length) {
+  if (arcade.rung > arcade.ladder.length) {
     arcade.cleared = true
     startEnding()
     return
   }
+  const atDoor = arcade.rung === arcade.ladder.length
   roster = [
     findFighter(arcade.player),
-    findFighter(arcade.ladder[arcade.rung]!),
+    atDoor ? BOSS : findFighter(arcade.ladder[arcade.rung]!),
   ]
+  if (atDoor) {
+    loadBossArt('pixel')
+    loadBossArt(store.renderStyle)
+  }
   match = createMatch(roster)
   zoom = zoomTarget(match, roster)
   loadArt()
@@ -645,6 +687,8 @@ function finishArcadeFight() {
       arcade.rung,
       DIFFICULTY_MULTIPLIER[arcade.start],
     )
+    if (bossFight())
+      arcade.score.total += SCORE.boss * DIFFICULTY_MULTIPLIER[arcade.start]
     arcade.rung += 1
     openLadder()
     return
@@ -701,8 +745,8 @@ function submitArcadeScore() {
 
 /** The VS screen: the fighters slam in and trade their matchup lines, then the fight starts. */
 function startVs() {
-  // Training goes straight to the fight.
-  if (store.mode === 'dummy') {
+  // Training goes straight to the fight, and so does the door (it has no portrait to slam in).
+  if (store.mode === 'dummy' || bossFight()) {
     startMatch()
     return
   }
@@ -725,6 +769,7 @@ function startMatch() {
     ? rungLevel(arcade.start, arcade.rung, arcade.ladder.length)
     : store.cpuLevel
   cpu = newCpu(level, Math.floor(Math.random() * 0xffffffff))
+  boss = newBoss(Math.floor(Math.random() * 0xffffffff))
   resultCountdown = RESULT_DELAY
   phase.value = 'fight'
   // The round's opening sounds (the Hollow Bell toll) come from the new match's own events.
@@ -848,7 +893,11 @@ function tick() {
   const first = toSimInput(one.held)
   let second = neutralInput()
   if (store.mode === 'versus') second = toSimInput(two.held)
-  else if (store.mode === 'cpu' || arcade) {
+  else if (bossFight()) {
+    const turn = bossInput(boss, match, 1)
+    boss = turn.boss
+    second = turn.input
+  } else if (store.mode === 'cpu' || arcade) {
     const turn = cpuInput(cpu, match, 1, roster)
     cpu = turn.cpu
     second = turn.input
@@ -859,7 +908,8 @@ function tick() {
   }
   if (!store.easySpecials) {
     first.special = false
-    second.special = false
+    // The door fights only with its Easy Specials.
+    if (!bossFight()) second.special = false
   }
   match = step(match, [first, second], roster)
   if (arcade)
@@ -932,6 +982,9 @@ function render() {
       portraits,
       screenFrame,
       store.reducedMotion,
+      arcade.rung === arcade.ladder.length
+        ? BOSS_INTROS[arcade.player]
+        : undefined,
     )
     return
   }
@@ -977,6 +1030,7 @@ function render() {
     stageFx,
     style: store.renderStyle,
     zoom,
+    painters,
   })
   if (
     store.mode === 'dummy' &&
@@ -1016,6 +1070,19 @@ function render() {
       { text: 'PAUSED', scale: 3 },
       { text: 'PRESS START', color: '#fde047' },
     ])
+  } else if (phase.value === 'result' && bossFight()) {
+    drawCard(
+      g,
+      match.winner === 0
+        ? [
+            { text: 'THE DOOR IS SHUT', scale: 3, color: '#86efac' },
+            { text: 'THE THIN PLACE GOES QUIET', color: '#e9d5ff' },
+          ]
+        : [
+            { text: 'THE DOOR STAYS OPEN', scale: 3, color: '#c084fc' },
+            { text: 'SOMETHING WATCHES FROM IT', color: '#e9d5ff' },
+          ],
+    )
   } else if (phase.value === 'result') {
     drawWinScreen(
       g,

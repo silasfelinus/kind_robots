@@ -244,7 +244,6 @@ onMounted(async () => {
     3px 3px 0 #1e1b4b;
 }
 
-
 .arcade-row {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(min(100%, 15rem), 1fr));

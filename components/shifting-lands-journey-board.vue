@@ -733,11 +733,7 @@
               {{ game.lastTrialOutcome.roll.success ? 'Passed' : 'Repelled' }}
             </p>
             <h3 class="mt-2 font-serif text-xl font-bold">
-              {{
-                game.world.lands.find(
-                  (land) => land.id === game.lastTrialOutcome.landId,
-                )?.boss.label
-              }}
+              {{ lastTrialBossName }}
             </h3>
             <p class="mt-3 text-sm leading-relaxed">
               {{ game.lastTrialOutcome.resultText }}
@@ -1056,6 +1052,10 @@ const landScenery: Record<string, string> = {
 }
 const landAtmosphere = computed(
   () => landScenery[game.currentLand.id] ?? landScenery.homestead!,
+)
+const lastTrialBossName = computed(() =>
+  game.world.lands.find((land) => land.id === game.lastTrialOutcome?.landId)?.boss
+    .label ?? 'A trial remembered',
 )
 const lastPlayedTitle = computed(
   () =>

@@ -8,14 +8,20 @@
 // authored episode the season loops with harder curves (LOOP_CURVES) and rolled room modifiers, so a
 // run still ends.
 //
+// Crashers come from the roster (roster.ts) and power-ups from the arsenal (arsenal.ts). Kinds that
+// belong to episodes 2-4 debut in Opening Night's Encore loops (`encore` waves) until those episodes
+// are authored.
+//
 // Card text is drawn in the arcade's pixel font: capitals, digits and . , ! ? - + = : / ( ) ' only.
 
 import { levelCurve } from '../curve'
 import type { CurveSpec } from '../curve'
+import type { PowerKind } from './arsenal'
+import { CRASHER_KINDS } from './roster'
+import type { CrasherKind } from './roster'
 
-export type CrasherKind = 'grabber' | 'bouncer' | 'conga' | 'thrower'
-export type PrizeKind =
-  'cash' | 'toaster' | 'car' | 'spread' | 'rapid' | 'shield'
+export type { CrasherKind } from './roster'
+export type PrizeKind = 'cash' | 'toaster' | 'car' | PowerKind
 
 /** Door sides, clockwise from the top: 0 top, 1 right, 2 bottom, 3 left. */
 export type Side = 0 | 1 | 2 | 3
@@ -86,7 +92,12 @@ export type Wave = {
   times?: number
   /** ...this many ticks apart. */
   every?: number
+  /** A mini-boss: later loops never bring more of them. */
+  fixed?: boolean
 }
+
+/** Waves a room adds from a given loop on (the later episodes' crashers, debuting in Encores). */
+export type Encore = { loop: number; waves: readonly Wave[] }
 
 /**
  * A spotlight on the rig: each beat it swings (dark) to its next mark across `swing`, shows where it
@@ -108,6 +119,7 @@ export type Prop =
   | { kind: 'cushion' | 'peel'; x: number; y: number }
   | BeamProp
   | {
+      /** A camera crane on the wall: a crasher that must be cut like the rest. */
       kind: 'camera'
       /** Which wall, relative to the entry, like a wave's doors. */
       wall: 'far' | 'flanks'
@@ -117,6 +129,12 @@ export type Prop =
       offset: number
     }
   | { kind: 'pedestal'; x: number; y: number; prize: PrizeKind }
+  | {
+      /** A boom mic: drops on Sparkle's spot after a shadow tells it, and lifts her away a moment. */
+      kind: 'boom'
+      every: number
+      offset: number
+    }
   | { kind: 'ticket'; x: number; y: number; id: string }
   | {
       kind: 'crack'
@@ -154,6 +172,8 @@ export type RoomScript = {
   danger: 1 | 2 | 3 | 4 | 5
   reward: Reward
   waves: readonly Wave[]
+  /** More waves on later loops. */
+  encore?: readonly Encore[]
   props?: readonly Prop[]
   /** Sponsor challenge: what earns the golden ticket `ticket`. */
   challenge?: 'no-hit' | 'all-prizes'
@@ -355,18 +375,31 @@ export function doorSides(pick: DoorPick, entry: Side): Side[] {
   }
 }
 
+/** A room's waves at a loop: its own, and every encore wave that has come in by then. */
+export function wavesAt(script: RoomScript, loop = 1): Wave[] {
+  return [
+    ...script.waves,
+    ...(script.encore ?? [])
+      .filter((encore) => encore.loop <= loop)
+      .flatMap((encore) => encore.waves),
+  ]
+}
+
+/** No crashers yet, of every kind. */
+export function noCrashers(): Record<CrasherKind, number> {
+  return Object.fromEntries(CRASHER_KINDS.map((kind) => [kind, 0])) as Record<
+    CrasherKind,
+    number
+  >
+}
+
 /** Crashers a room's script brings on at a loop, by kind (what the game must spawn). */
 export function declaredCrashers(
   script: RoomScript,
   loop = 1,
 ): Record<CrasherKind, number> {
-  const out: Record<CrasherKind, number> = {
-    grabber: 0,
-    bouncer: 0,
-    conga: 0,
-    thrower: 0,
-  }
-  for (const wave of script.waves)
+  const out = noCrashers()
+  for (const wave of wavesAt(script, loop))
     out[wave.kind] +=
       waveCount(wave, loop) *
       doorSides(wave.doors, 2).length *
@@ -374,8 +407,9 @@ export function declaredCrashers(
   return out
 }
 
-/** Crashers per door in a wave, scaled for the loop. */
+/** Crashers per door in a wave, scaled for the loop (a mini-boss never multiplies). */
 export function waveCount(wave: Wave, loop: number): number {
+  if (wave.fixed) return wave.count
   return Math.max(1, Math.round(wave.count * loopTuning(loop).count))
 }
 
@@ -416,7 +450,15 @@ const OPENING_ACT: RoomScript = {
       times: 3,
       every: s(4),
     },
+    { at: s(18), kind: 'popper', count: 1, doors: 'far' },
     { at: s(26), kind: 'grabber', count: 2, doors: 'flanks' },
+  ],
+  encore: [
+    { loop: 2, waves: [{ at: s(9), kind: 'chef', count: 1, doors: 'far' }] },
+    {
+      loop: 4,
+      waves: [{ at: s(15), kind: 'fluffball', count: 2, doors: 'flanks' }],
+    },
   ],
 }
 
@@ -441,6 +483,13 @@ const WARM_UP_CROWD: RoomScript = {
     { at: s(24), kind: 'bouncer', count: 1, doors: 'far' },
     { at: s(27), kind: 'grabber', count: 3, doors: 'flanks' },
   ],
+  encore: [
+    { loop: 2, waves: [{ at: s(8), kind: 'timer', count: 1, doors: 'far' }] },
+    {
+      loop: 4,
+      waves: [{ at: s(20), kind: 'fluffball', count: 3, doors: 'far' }],
+    },
+  ],
 }
 
 const WHOOPEE_ALLEY: RoomScript = {
@@ -454,6 +503,7 @@ const WHOOPEE_ALLEY: RoomScript = {
   waves: [
     { at: s(2), kind: 'grabber', count: 3, doors: 'far' },
     { at: s(7), kind: 'grabber', count: 3, doors: 'flanks' },
+    { at: s(10), kind: 'stagehand', count: 1, doors: 'flanks' },
     { at: s(12), kind: 'bouncer', count: 1, doors: 'flanks' },
     {
       at: s(18),
@@ -464,6 +514,9 @@ const WHOOPEE_ALLEY: RoomScript = {
       every: s(6),
     },
     { at: s(30), kind: 'grabber', count: 3, doors: 'flanks' },
+  ],
+  encore: [
+    { loop: 3, waves: [{ at: s(14), kind: 'roadie', count: 1, doors: 'far' }] },
   ],
   props: [
     { kind: 'cushion', x: 64, y: 58 },
@@ -492,6 +545,7 @@ const SPOTLIGHT_DANCE: RoomScript = {
   waves: [
     { at: s(2), kind: 'grabber', count: 3, doors: 'far' },
     { at: s(8), kind: 'conga', count: 5, doors: 'far' },
+    { at: s(12), kind: 'drone', count: 1, doors: 'far' },
     { at: s(15), kind: 'grabber', count: 3, doors: 'flanks' },
     {
       at: s(22),
@@ -502,6 +556,9 @@ const SPOTLIGHT_DANCE: RoomScript = {
       every: s(4),
     },
     { at: s(31), kind: 'grabber', count: 3, doors: 'far' },
+  ],
+  encore: [
+    { loop: 4, waves: [{ at: s(16), kind: 'clone', count: 1, doors: 'far' }] },
   ],
   props: [
     {
@@ -557,7 +614,14 @@ const LIGHTNING_ROUND: RoomScript = {
       times: 3,
       every: s(2.5),
     },
+    { at: s(5), kind: 'popper', count: 1, doors: 'flanks' },
     { at: s(13), kind: 'bouncer', count: 1, doors: 'flanks' },
+  ],
+  encore: [
+    {
+      loop: 2,
+      waves: [{ at: s(8), kind: 'meatball', count: 1, doors: 'far' }],
+    },
   ],
   props: [{ kind: 'crack', side: 2, at: 92, secret: 'backstage' }],
 }
@@ -571,13 +635,21 @@ const THE_SHOWCASE: RoomScript = {
   reward: 'ticket',
   closes: true,
   waves: [],
+  encore: [
+    {
+      loop: 4,
+      waves: [
+        { at: s(2), kind: 'saucer', count: 1, doors: 'far', fixed: true },
+      ],
+    },
+  ],
   props: [
     { kind: 'pedestal', x: 268, y: 58, prize: 'car' },
     { kind: 'pedestal', x: 92, y: 58, prize: 'toaster' },
     { kind: 'pedestal', x: 92, y: 198, prize: 'toaster' },
     { kind: 'pedestal', x: 268, y: 198, prize: 'cash' },
     { kind: 'pedestal', x: 214, y: 128, prize: 'cash' },
-    { kind: 'pedestal', x: 160, y: 96, prize: 'spread' },
+    { kind: 'pedestal', x: 160, y: 96, prize: 'orbiters' },
     { kind: 'ticket', x: 34, y: 128, id: 'e1-showcase' },
   ],
 }
@@ -622,6 +694,12 @@ const STUDIO_CAMERAS: RoomScript = {
     },
     { at: s(28), kind: 'thrower', count: 1, doors: 'flanks' },
   ],
+  encore: [
+    {
+      loop: 3,
+      waves: [{ at: s(12), kind: 'roadie', count: 1, doors: 'flanks' }],
+    },
+  ],
   props: [
     { kind: 'camera', wall: 'far', at: -0.85, every: 150, offset: 0 },
     { kind: 'camera', wall: 'far', at: -0.4, every: 150, offset: 50 },
@@ -644,6 +722,14 @@ const CONGA_LINE: RoomScript = {
     { at: s(21), kind: 'conga', count: 10, doors: 'far' },
     { at: s(29), kind: 'conga', count: 5, doors: 'flanks' },
   ],
+  encore: [
+    {
+      loop: 2,
+      waves: [{ at: s(16), kind: 'meatball', count: 1, doors: 'flanks' }],
+    },
+    { loop: 3, waves: [{ at: s(6), kind: 'heckler', count: 1, doors: 'far' }] },
+  ],
+  props: [{ kind: 'boom', every: 420, offset: 200 }],
 }
 
 const SPONSOR_SPOTLIGHT: RoomScript = {
@@ -661,7 +747,15 @@ const SPONSOR_SPOTLIGHT: RoomScript = {
     { at: s(12), kind: 'thrower', count: 1, doors: 'far' },
     { at: s(17), kind: 'conga', count: 6, doors: 'any' },
     { at: s(25), kind: 'grabber', count: 3, doors: 'flanks' },
+    { at: s(20), kind: 'tank', count: 1, doors: 'far', fixed: true },
     { at: s(31), kind: 'thrower', count: 1, doors: 'flanks' },
+  ],
+  encore: [
+    {
+      loop: 2,
+      waves: [{ at: s(10), kind: 'chef', count: 1, doors: 'flanks' }],
+    },
+    { loop: 4, waves: [{ at: s(14), kind: 'clone', count: 1, doors: 'far' }] },
   ],
 }
 
@@ -669,7 +763,7 @@ const SURPRISE_GUESTS: RoomScript = {
   type: 'ambush',
   title: 'SURPRISE GUESTS',
   tagline: 'EVERY DOOR AT ONCE!',
-  seconds: 45,
+  seconds: 55,
   danger: 3,
   reward: 'toaster',
   waves: [
@@ -677,6 +771,13 @@ const SURPRISE_GUESTS: RoomScript = {
     { at: s(10), kind: 'bouncer', count: 1, doors: 'all' },
     { at: s(18), kind: 'grabber', count: 2, doors: 'all' },
     { at: s(26), kind: 'conga', count: 5, doors: 'behind' },
+    { at: s(20), kind: 'mascot', count: 1, doors: 'far', fixed: true },
+  ],
+  encore: [
+    {
+      loop: 3,
+      waves: [{ at: s(12), kind: 'diver', count: 1, doors: 'flanks' }],
+    },
   ],
 }
 
@@ -693,8 +794,16 @@ const BUBBLE_BASH: RoomScript = {
     { at: s(8), kind: 'bouncer', count: 1, doors: 'flanks' },
     { at: s(14), kind: 'conga', count: 6, doors: 'far' },
     { at: s(21), kind: 'thrower', count: 1, doors: 'any' },
+    { at: s(18), kind: 'tank', count: 1, doors: 'far', fixed: true },
     { at: s(27), kind: 'grabber', count: 3, doors: 'flanks' },
   ],
+  encore: [
+    {
+      loop: 3,
+      waves: [{ at: s(10), kind: 'heckler', count: 1, doors: 'flanks' }],
+    },
+  ],
+  props: [{ kind: 'boom', every: 480, offset: 120 }],
 }
 
 const GRAND_FINALE: RoomScript = {
@@ -709,6 +818,7 @@ const GRAND_FINALE: RoomScript = {
     { at: s(30), kind: 'bouncer', count: 1, doors: 'flanks' },
     { at: s(45), kind: 'grabber', count: 2, doors: 'flanks' },
   ],
+  props: [{ kind: 'boom', every: 520, offset: 100 }],
   boss: {
     hp: 110,
     phase2At: 0.5,
@@ -728,6 +838,14 @@ const BACKSTAGE: RoomScript = {
   waves: [
     { at: s(3), kind: 'grabber', count: 2, doors: 'far' },
     { at: s(8), kind: 'grabber', count: 2, doors: 'flanks' },
+  ],
+  encore: [
+    {
+      loop: 4,
+      waves: [
+        { at: s(2), kind: 'saucer', count: 1, doors: 'far', fixed: true },
+      ],
+    },
   ],
   props: [
     { kind: 'pedestal', x: 80, y: 64, prize: 'car' },

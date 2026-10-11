@@ -28,7 +28,16 @@ export type InputFrame = {
    * a game that has one (Kind Pinball's touch layout); absent otherwise.
    */
   plunger?: number
+  /**
+   * Where a twin-stick game's second stick points, each axis -1..1 and at most length 1: the
+   * gamepad's right stick, the on-screen aim stick, or the arrows of a split keyboard. Only a
+   * cabinet whose game sets `twinStick` ever fills it, and only while something aims.
+   */
+  aim?: AimVector
 }
+
+/** A twin-stick aim (utils/arcade/input.ts). */
+export type AimVector = { x: number; y: number }
 
 /**
  * How a cabinet draws. Every classic cabinet is 'canvas2d' (the default): it
@@ -89,6 +98,11 @@ export type ArcadeGameMeta = {
    * plays ('pinball': utils/arcade/pinballTouch.ts).
    */
   touchLayout?: 'pinball'
+  /**
+   * The game reads InputFrame.aim (twin-stick): while it plays the cabinet aims with the right
+   * stick, an on-screen aim stick, or the arrows (moving on WASD). Solo cabinets only.
+   */
+  twinStick?: boolean
 }
 
 export type ArcadeGameOptions = {

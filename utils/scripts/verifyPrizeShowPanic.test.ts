@@ -6,6 +6,7 @@ import { mulberry32 } from '../arcade/curve'
 import { ARCADE_GAMES } from '../arcade/games'
 import { emptyInput } from '../arcade/types'
 import type { InputFrame } from '../arcade/types'
+import type { PowerKind } from '../arcade/prizeShow/arsenal'
 import { create, PANIC_CURVES } from '../arcade/games/prizeShowPanic'
 import {
   EPISODE_1,
@@ -37,7 +38,25 @@ import type {
 } from '../arcade/prizeShow/season'
 
 type Point = { x: number; y: number }
-type Crasher = Point & { kind: CrasherKind; hp: number; vx: number }
+type Crasher = Point & {
+  kind: CrasherKind
+  hp: number
+  maxHp: number
+  vx: number
+  vy: number
+  t: number
+  z: number
+  mode: number
+  clock: number
+  face: number
+  side: Side
+  tx: number
+  ty: number
+  slow: number
+  pumped: number
+  extra: boolean
+  prize: (Point & { lift: number }) | null
+}
 type Exit = Point & { side: Side; to: string; kind: 'door' | 'secret' | 'back' }
 type Streamer = Point & { vx: number; vy: number; style: string }
 type Beam = Point & { base: number; swing: number; on: number; off: number }
@@ -58,7 +77,7 @@ type Inner = {
   py: number
   vx: number
   slip: number
-  shield: number
+  powers: Record<PowerKind, number>
   invuln: number
   hit: boolean
   loop: number
@@ -77,14 +96,13 @@ type Inner = {
   spawned: Record<CrasherKind, number>
   mines: Array<Point & { kind: 'cushion' | 'peel'; fuse: number }>
   beams: Beam[]
-  cameras: Array<Point & { side: Side; hp: number }>
   pickups: Array<Point & { id: string }>
   crack: (Point & { hp: number; side: Side }) | null
   prizes: Array<Point & { kind: PrizeKind; life: number; pedestal?: boolean }>
   tosses: unknown[]
   crashers: Crasher[]
   streamers: Streamer[]
-  shots: Array<Point & { vx: number; vy: number; life: number; hue: number }>
+  shots: Shot[]
   boss: Boss | null
   exits: Exit[]
   exitsOpen: boolean
@@ -146,6 +164,35 @@ function hold(g: Inner) {
       left: 1,
     },
   ]
+}
+
+type Shot = Point & {
+  vx: number
+  vy: number
+  life: number
+  hue: number
+  kind: 'confetti' | 'rocket'
+  foamy: boolean
+  damage: number
+  pierce: number
+  hits: unknown[]
+}
+
+/** A confetti shot parked at (x, y): it lands on whatever is there next tick. */
+function shot(x: number, y: number, vx = 0, vy = 0): Shot {
+  return {
+    x,
+    y,
+    vx,
+    vy,
+    life: 5,
+    hue: 0,
+    kind: 'confetti',
+    foamy: false,
+    damage: 1,
+    pierce: 0,
+    hits: [],
+  }
 }
 
 function tick(g: Inner, n = 1, input: InputFrame = emptyInput()) {
@@ -493,7 +540,7 @@ const g2d = stubContext()
   const r = stage('whoopee-alley', 2)
   hold(r)
   const c4 = r.mines.find((m) => m.kind === 'cushion')!
-  r.shots.push({ x: c4.x, y: c4.y, vx: 0, vy: 0, life: 5, hue: 0 })
+  r.shots.push(shot(c4.x, c4.y))
   safeTick(r)
   assert.ok(c4.fuse > 0, 'a shot sets a cushion off')
 
@@ -571,18 +618,20 @@ const g2d = stubContext()
   }
 }
 
-// Camera wall: turrets along the far wall fire flashbulbs at a locked aim; confetti breaks them.
+// Camera wall: camera cranes along the far wall fire flashbulbs at a locked aim; confetti cuts them,
+// and the room isn't clear until they are.
 {
+  const cranes = (g: Inner) => g.crashers.filter((c) => c.kind === 'crane')
   const g = stage('studio-cameras', 2)
   hold(g)
-  assert.equal(g.cameras.length, 4)
+  assert.equal(cranes(g).length, 4)
   assert.ok(
-    g.cameras.every((c) => c.side === 0),
+    cranes(g).every((c) => c.side === 0),
     'the far wall from the entry',
   )
   const side = stage('studio-cameras', 1)
   assert.ok(
-    side.cameras.every((c) => c.side === 3),
+    cranes(side).every((c) => c.side === 3),
     'it follows the entry',
   )
   g.px = 160
@@ -596,14 +645,19 @@ const g2d = stubContext()
   }
   assert.ok(flash, 'a camera fires a flash')
   assert.ok(flash!.vy > 0, 'aimed into the room at Sparkle')
-  const cam = g.cameras[0]!
+  const cam = cranes(g)[0]!
   const score = g.score
   for (let i = 0; i < 4; i++) {
-    g.shots.push({ x: cam.x, y: cam.y + 2, vx: 0, vy: 0, life: 5, hue: 0 })
+    g.shots.push(shot(cam.x, cam.y + 2))
     safeTick(g)
   }
-  assert.equal(g.cameras.length, 3, 'four hits break a camera')
+  assert.equal(cranes(g).length, 3, 'four hits cut a camera')
   assert.ok(g.score >= score + 300)
+  const wall = stage('studio-cameras', 2)
+  wall.waves.forEach((w) => (w.left = 0))
+  wall.crashers = wall.crashers.filter((c) => c.kind === 'crane')
+  safeTick(wall, 5)
+  assert.ok(!wall.cleared, 'live cameras keep the room from clearing')
 }
 
 // Speed round: short clock, every drop comes in pairs.
@@ -706,14 +760,7 @@ const g2d = stubContext()
   const g = stage('lightning-round', 3)
   assert.ok(g.crack, 'the speed round has a cracked wall')
   for (let i = 0; i < 6; i++) {
-    g.shots.push({
-      x: g.crack!.x,
-      y: g.crack!.y - 4,
-      vx: 0,
-      vy: 0,
-      life: 5,
-      hue: 0,
-    })
+    g.shots.push(shot(g.crack!.x, g.crack!.y - 4))
     safeTick(g)
   }
   assert.equal(g.crack!.hp, 0, 'confetti breaks it')
@@ -755,12 +802,12 @@ const g2d = stubContext()
   }
   const half = Math.ceil(boss.maxHp / 2)
   boss.hp = half + 1
-  g.shots.push({ x: boss.x, y: boss.y, vx: 0, vy: 0, life: 5, hue: 0 })
+  g.shots.push(shot(boss.x, boss.y))
   safeTick(g)
   assert.equal(boss.phase, 2, 'at half health the candles light')
   assert.ok(boss.shift > 0)
   const hp = boss.hp
-  g.shots.push({ x: boss.x, y: boss.y, vx: 0, vy: 0, life: 5, hue: 0 })
+  g.shots.push(shot(boss.x, boss.y))
   safeTick(g)
   assert.equal(boss.hp, hp, 'it shrugs off confetti while they catch')
   assert.ok(Math.abs(boss.vx) > speed, 'and rolls faster after')
@@ -779,7 +826,7 @@ const g2d = stubContext()
   f.waves.forEach((w) => (w.left = 0))
   f.crashers = []
   f.boss!.hp = 1
-  f.shots.push({ x: f.boss!.x, y: f.boss!.y, vx: 0, vy: 0, life: 5, hue: 0 })
+  f.shots.push(shot(f.boss!.x, f.boss!.y))
   safeTick(f)
   assert.equal(f.boss, null)
   f.crashers = []
@@ -898,7 +945,7 @@ const g2d = stubContext()
   // Sudden Death: shields don't help, shields become cash, a clean clear pays a jackpot.
   const sd = stage('opening-act', 2, 'sudden-death')
   hold(sd)
-  sd.shield = 300
+  sd.powers.shield = 300
   sd.invuln = 0
   const lives = sd.lives
   sd.makeCrasher('grabber', sd.px, sd.py)
@@ -1035,7 +1082,7 @@ const g2d = stubContext()
 // --- the registry and the curves ------------------------------------------------------------------
 {
   const meta = ARCADE_GAMES.find((m) => m.slug === 'prize-show-panic')!
-  assert.ok(meta.howTo.some((line) => line.includes('MAP')))
+  assert.ok(meta.howTo.some((line) => line.includes('DOORS')))
   assert.ok(meta.howTo.some((line) => line.includes('TICKET')))
   assert.ok(meta.maxPlausibleScore >= 20_000_000)
   for (const key of Object.keys(LOOP_CURVES) as (keyof typeof LOOP_CURVES)[]) {

@@ -13,10 +13,16 @@
 // its finale too; past half health its cake's candles light and fire volleys of sparks. After the
 // last authored episode the season loops with harder curves and rolled room modifiers.
 //
+// Depth slice 2 (t-027) fills the studio: nineteen kinds of crasher (prizeShow/roster.ts, each with a
+// tell and an answer), ten power-ups that stack with their own HUD timers (prizeShow/arsenal.ts), a
+// boom mic that swoops down on a shadow, and true twin-stick aim.
+//
 // The arrows move (eight ways) and A fires confetti the way Sparkle faces.
 // Hold B to lock the aim while moving, the single-stick stand-in for the
-// classic's twin sticks: strafe one way, spray another. On the map the
-// arrows pick a door and A goes through it.
+// classic's twin sticks: strafe one way, spray another. With a second stick
+// (the right stick, the on-screen aim stick, or the arrows while WASD moves)
+// Sparkle sprays wherever it points. On the map the arrows pick a door and
+// A goes through it.
 
 import { levelCurve } from '../curve'
 import { drawText, measureText } from '../font'
@@ -61,6 +67,14 @@ import {
   TICKET_SPRITE,
   audienceSprites,
 } from '../prizeShow/art'
+import {
+  ARSENAL,
+  POWER_KINDS,
+  POWERS,
+  powerFromRoll,
+  stackPower,
+} from '../prizeShow/arsenal'
+import type { PowerKind } from '../prizeShow/arsenal'
 import { renderSeasonMap } from '../prizeShow/mapScreen'
 import type { MapOption } from '../prizeShow/mapScreen'
 import {
@@ -73,12 +87,52 @@ import {
   doorSides,
   exitsOf,
   loopTuning,
+  noCrashers,
   rollModifier,
   roomById,
   waveCount,
+  wavesAt,
 } from '../prizeShow/season'
+import {
+  ROSTER,
+  TELLS,
+  burstPopper,
+  craneCharging,
+  deflects,
+  mountCrane,
+  newCrasher,
+  reachOf,
+  shootable,
+  touches,
+  updateCrasher,
+} from '../prizeShow/roster'
 import type {
+  Crasher,
   CrasherKind,
+  CrasherWorld,
+  FlightCase,
+  ShotStyle,
+} from '../prizeShow/roster'
+import { CASE_ROWS, ROSTER_EXTRAS, ROSTER_ROWS } from '../prizeShow/rosterArt'
+import {
+  BOTTOM,
+  CX,
+  CY,
+  DOOR,
+  DOORS,
+  H,
+  HUD,
+  LEFT,
+  RIGHT,
+  SPEED,
+  TOP,
+  W,
+  WALL,
+  clampX,
+  clampY,
+} from '../prizeShow/stage'
+import type { Point } from '../prizeShow/stage'
+import type {
   Episode,
   LoopTuning,
   ModifierId,
@@ -88,27 +142,12 @@ import type {
   Wave,
 } from '../prizeShow/season'
 
-const W = 320
-const H = 240
-const HUD = 16
-const WALL = 10
-const LEFT = WALL
-const RIGHT = W - WALL
-const TOP = HUD + WALL
-const BOTTOM = H - WALL
-const DOOR = 18
-const CX = W / 2
-const CY = (TOP + BOTTOM) / 2
-
-const SPEED = 1.6
 const CRASHER_TOP_SPEED = SPEED * 0.95
 const HALF = 5
 const SHOT_SPEED = 4.5
 const SHOT_LIFE = 50
-const FIRE_COOLDOWN = 7
-const RAPID_COOLDOWN = 4
-const POWER_TICKS = 60 * 10
-const SHIELD_TICKS = 60 * 8
+const FIRE_COOLDOWN = ARSENAL.cooldown
+const RAPID_COOLDOWN = ARSENAL.rapidCooldown
 const START_LIVES = 3
 const EXTRA_EVERY = 50_000
 const DEATH_TICKS = 100
@@ -123,8 +162,8 @@ const TICKET_POINTS = 5000
 const CUSHION_FUSE = 30
 const CUSHION_BLAST = 22
 const SLIP_TICKS = 36
-const CAMERA_CHARGE = 42
-const CAMERA_HP = 4
+/** Below this a stick's push doesn't aim. */
+const AIM_MIN = 0.3
 const CANDLE_CHARGE = 34
 const PHASE_SHIFT = 50
 /** The light rig steps across the floor on the beat: each lamp's marks, -1..1 of its swing. */
@@ -132,6 +171,18 @@ const BEAM_STEPS = [-1, -0.5, 0, 0.5, 1, 0.5, 0, -0.5] as const
 /** Ticks a lamp shows its next mark before it lights, and how far a hot beam drifts. */
 const BEAM_TELL = 40
 const BEAM_DRIFT = 0.1
+/** A boom mic shows its shadow this long, then holds Sparkle up this long. */
+const BOOM_TELL = 70
+const BOOM_LIFT = 60
+const BOOM_REACH = 14
+/** Cream from a pie, and foam from the foam cannon, stay on the floor this long. */
+const CREAM_LIFE = 420
+const CREAM_RADIUS = 16
+/** How far back Sparkle's footsteps are kept (the mirror clone's beat and then some). */
+const HISTORY = 64
+/** A flight case's half size. */
+const CASE_HALF_W = 11
+const CASE_HALF_H = 6
 
 export const PANIC_CURVES = {
   /** Crasher walking speed by studio (rooms played this run). */
@@ -140,18 +191,6 @@ export const PANIC_CURVES = {
 
 type Dir = { x: number; y: number }
 type Kind = CrasherKind
-type Crasher = {
-  kind: Kind
-  x: number
-  y: number
-  vx: number
-  vy: number
-  hp: number
-  t: number
-  /** Conga dancers follow the one in front. */
-  leader: Crasher | null
-  color: string
-}
 type Dancer = { x: number; y: number; vx: number; life: number; color: string }
 type Shot = {
   x: number
@@ -160,15 +199,24 @@ type Shot = {
   vy: number
   life: number
   hue: number
+  /** Confetti, or a heavy bubble rocket. */
+  kind: 'confetti' | 'rocket'
+  /** Fired from the foam cannon: it slows what it hits and foams the floor. */
+  foamy: boolean
+  damage: number
+  /** Crashers a rocket can still punch through. */
+  pierce: number
+  /** Who it has already hit (a rocket never hits the same crasher twice). */
+  hits: Crasher[]
 }
-/** Thrown at Sparkle: a thrower's streamer, a camera's flashbulb, or a candle spark. */
+/** Thrown at Sparkle: streamers, flashbulbs, candle sparks, popper shards and tank bubbles. */
 type Streamer = {
   x: number
   y: number
   vx: number
   vy: number
   life: number
-  style: 'streamer' | 'flash' | 'spark'
+  style: ShotStyle
 }
 type Prize = {
   x: number
@@ -177,6 +225,8 @@ type Prize = {
   life: number
   /** Set out on a pedestal: it waits for the whole room. */
   pedestal?: boolean
+  /** How far a saucer's beam has it lifted (0..1). */
+  lift: number
 }
 type Boss = {
   x: number
@@ -209,17 +259,6 @@ type Beam = {
   off: number
   offset: number
 }
-type Camera = {
-  x: number
-  y: number
-  side: Side
-  every: number
-  offset: number
-  hp: number
-  /** Where the flash is going, locked as the charge starts. */
-  tx: number
-  ty: number
-}
 type TicketPickup = { x: number; y: number; id: string }
 type Crack = { side: Side; x: number; y: number; hp: number; secret: string }
 /** An open way out of the room: a door to a map neighbour, the way back, or a broken wall. */
@@ -240,6 +279,30 @@ type Toss = {
   dur: number
   kind: PrizeKind
 }
+/** Lobbed in an arc: a chef's pie, or one of Sparkle's party poppers. */
+type Lob = {
+  x0: number
+  y0: number
+  x1: number
+  y1: number
+  t: number
+  dur: number
+  kind: 'pie' | 'popper'
+}
+/** Something on the floor: cream from a pie (slippery), or foam (slows crashers). */
+type Slick = {
+  x: number
+  y: number
+  r: number
+  life: number
+  kind: 'cream' | 'foam'
+}
+/** A boom mic on the rig: every `every` ticks it swoops on where Sparkle was. */
+type Boom = { every: number; offset: number; x: number; y: number }
+/** A glitter laser's line, shown for a few ticks. */
+type Glitter = { x0: number; y0: number; x1: number; y1: number; life: number }
+/** Sparkle's cardboard cutout: the crowd chases it until it is worn out. */
+type Decoy = { x: number; y: number; hp: number; life: number }
 type Particle = {
   x: number
   y: number
@@ -267,27 +330,59 @@ const CONFETTI = [
   '#a78bfa',
   '#fb923c',
 ]
-const PRIZE_POINTS: Record<PrizeKind, number> = {
+const PRIZE_POINTS = {
   cash: 500,
   toaster: 1000,
   car: 5000,
-  spread: 250,
-  rapid: 250,
-  shield: 250,
+  ...Object.fromEntries(POWER_KINDS.map((kind) => [kind, 250])),
+} as Record<PrizeKind, number>
+
+/** The four crashers that move in this file; the rest move in prizeShow/roster.ts. */
+const FOUNDERS = new Set<Kind>(['grabber', 'bouncer', 'conga', 'thrower'])
+
+/** What the host says when Sparkle bumps into one. */
+const BUMP_LINES: Partial<Record<Kind, string>> = {
+  mascot: 'BELLY BOUNCED!',
+  meatball: 'ROLLED OVER!',
+  clone: 'COPYCATTED!',
+  fluffball: 'FLUFFED!',
+  tank: 'SWEPT UP!',
 }
-const KIND_POINTS: Record<Kind, number> = {
-  grabber: 100,
-  bouncer: 150,
-  conga: 75,
-  thrower: 250,
+
+const SHOT_LINES: Record<ShotStyle, string> = {
+  streamer: 'TANGLED!',
+  flash: 'FLASHED!',
+  spark: 'SPARKLED!',
+  shard: 'POPPED!',
+  bubble: 'BUBBLED!',
 }
-/** The four doors, by side: where crashers come in and the exit opens. */
-const DOORS: Array<{ x: number; y: number; side: number }> = [
-  { x: CX, y: TOP, side: 0 },
-  { x: RIGHT, y: CY, side: 1 },
-  { x: CX, y: BOTTOM, side: 2 },
-  { x: LEFT, y: CY, side: 3 },
-]
+
+/** Half width and height a shot has to land inside to hit. */
+function hitBox(c: Crasher): [number, number] {
+  switch (c.kind) {
+    case 'mascot':
+      return [13, 16]
+    case 'tank':
+      return [10, 9]
+    case 'crane':
+    case 'saucer':
+      return [9, 8]
+    case 'fluffball':
+      return [6, 6]
+    default:
+      return [7, 8]
+  }
+}
+
+/** The sprite view for an aim: side-on unless it points mostly up or down. */
+function viewOf(aim: Dir): View {
+  if (Math.abs(aim.x) > Math.abs(aim.y) * 0.5) return 'side'
+  return aim.y < 0 ? 'back' : 'front'
+}
+
+function isPower(kind: PrizeKind): kind is PowerKind {
+  return kind in POWERS
+}
 
 // --- 16-bit art (utils/arcade/snes.ts) -------------------------------------------
 
@@ -453,6 +548,79 @@ const HERO_SPRITES: Record<View, readonly PixelSprite[]> = {
     pixelSprite([...HERO_SIDE, ...legs], HERO_PALETTE),
   ),
 }
+// The mirror clone: Sparkle in glitchy purple and teal. The cutout: Sparkle printed on cardboard.
+const CLONE_PALETTE = {
+  ...HERO_PALETTE,
+  h: RAMPS.purple[4],
+  H: RAMPS.purple[3],
+  G: RAMPS.purple[2],
+  g: RAMPS.purple[1],
+  d: RAMPS.purple[0],
+  F: RAMPS.teal[3],
+  f: RAMPS.teal[2],
+  p: RAMPS.teal[3],
+  P: RAMPS.teal[2],
+  q: RAMPS.teal[1],
+}
+const CLONE_SPRITES: Record<View, readonly PixelSprite[]> = {
+  front: FRONT_LEGS.map((legs) =>
+    pixelSprite([...HERO_FRONT, ...legs], CLONE_PALETTE),
+  ),
+  back: FRONT_LEGS.map((legs) =>
+    pixelSprite([...HERO_BACK, ...legs], CLONE_PALETTE),
+  ),
+  side: SIDE_LEGS.map((legs) =>
+    pixelSprite([...HERO_SIDE, ...legs], CLONE_PALETTE),
+  ),
+}
+const CARDBOARD: Record<string, string> = {
+  ...Object.fromEntries(
+    Object.keys(HERO_PALETTE).map((key) => [key, RAMPS.earth[3]]),
+  ),
+  h: RAMPS.earth[4],
+  H: RAMPS.earth[4],
+  g: RAMPS.earth[2],
+  d: RAMPS.earth[2],
+  t: RAMPS.earth[2],
+  q: RAMPS.earth[2],
+  k: INK,
+  p: RAMPS.pink[2],
+}
+const CUTOUT_SPRITE = pixelSprite(
+  [...HERO_FRONT, '...dd..dd...', '...dd..dd...'],
+  CARDBOARD,
+)
+const CASE_SPRITE = pixelSprite(CASE_ROWS, {
+  '0': RAMPS.night[0],
+  '1': RAMPS.steel[1],
+  '3': RAMPS.steel[3],
+  '4': RAMPS.steel[2],
+  K: INK,
+  y: RAMPS.gold[3],
+})
+const PIE_SPRITE = pixelSprite(['.FWWF.', 'FWWWWF', 'MFFFFM', '.MmmM.'], {
+  W: RAMPS.cream[4],
+  F: RAMPS.cream[3],
+  M: RAMPS.earth[3],
+  m: RAMPS.earth[2],
+})
+const POPPER_SPRITE = pixelSprite(
+  ['....y', '..ypy', '.PPp.', 'PPp..', 'Pp...'],
+  {
+    y: RAMPS.gold[4],
+    p: RAMPS.pink[3],
+    P: RAMPS.pink[2],
+  },
+)
+const MIC_SPRITE = pixelSprite(
+  ['.343.', '34443', '43434', '34443', '.343.', '..1..', '..1..', '.111.'],
+  {
+    '1': RAMPS.steel[1],
+    '3': RAMPS.steel[3],
+    '4': RAMPS.steel[4],
+  },
+)
+
 const LIFE_ROWS = ['...p...', '.hhhhh.', 'hGFFFGg', 'hGkFkGg', 'gGGGGGd']
 const LIFE_SPRITE = pixelSprite(LIFE_ROWS, HERO_PALETTE)
 const LIFE_EMPTY = pixelSprite(
@@ -497,6 +665,7 @@ function crasherPalette(ramp: Ramp): Record<string, string> {
     Y: RAMPS.gold[1],
     r: RAMPS.ember[2],
     R: RAMPS.pink[3],
+    ...ROSTER_EXTRAS,
   }
 }
 
@@ -661,7 +830,9 @@ function bouncerRows(squash: boolean): string[] {
   ])
 }
 
-type CrasherLook = Record<Kind | 'dancer', readonly PixelSprite[]>
+type CrasherLook = Partial<Record<Kind, readonly PixelSprite[]>> & {
+  dancer: readonly PixelSprite[]
+}
 function crasherLook(hex: string): CrasherLook {
   const palette = crasherPalette(tintOf(hex))
   const make = (
@@ -676,6 +847,12 @@ function crasherLook(hex: string): CrasherLook {
       pixelSprite(bouncerRows(squash), palette),
     ),
     dancer: DANCER_FRAMES.map((rows) => pixelSprite(rows, palette)),
+    ...Object.fromEntries(
+      Object.entries(ROSTER_ROWS).map(([kind, frames]) => [
+        kind,
+        frames.map((rows) => pixelSprite(rows, palette)),
+      ]),
+    ),
   }
 }
 const CRASHER_LOOKS = new Map(CONFETTI.map((hex) => [hex, crasherLook(hex)]))
@@ -707,19 +884,14 @@ const STREAMER_SPRITES = [
   }),
 ] as const
 
-const POWER_RAMPS: Record<'spread' | 'rapid' | 'shield', Ramp> = {
-  spread: RAMPS.purple,
-  rapid: RAMPS.rust,
-  shield: RAMPS.teal,
-}
-const PRIZE_GLOW: Record<PrizeKind, string> = {
+const PRIZE_GLOW = {
   cash: RAMPS.leaf[3],
   toaster: RAMPS.steel[4],
   car: RAMPS.ember[3],
-  spread: RAMPS.purple[3],
-  rapid: RAMPS.rust[3],
-  shield: RAMPS.teal[3],
-}
+  ...Object.fromEntries(
+    POWER_KINDS.map((kind) => [kind, POWERS[kind].ramp[3]]),
+  ),
+} as Record<PrizeKind, string>
 
 const CHEVRON_UP_ROWS = ['..a..', '.aba.', 'ab.ba', 'b...b']
 const CHEVRON_PALETTE = { a: RAMPS.leaf[4], b: RAMPS.leaf[3] }
@@ -1071,10 +1243,23 @@ class PrizeShowPanic implements ArcadeGameInstance {
   private vy = 0
   private slip = 0
   private aim: Dir = { x: 0, y: -1 }
+  /** A second stick is aiming this tick (twin-stick): Sparkle sprays where it points. */
+  private aiming = false
+  /** Whether the stick aimed last tick (the map reads a flick of it as a d-pad press). */
+  private aimedBefore = false
   private fireCooldown = 0
-  private spread = 0
-  private rapid = 0
-  private shield = 0
+  /** Ticks left on each power-up: several run at once, and pickups stack up to a cap. */
+  powers = Object.fromEntries(POWER_KINDS.map((kind) => [kind, 0])) as Record<
+    PowerKind,
+    number
+  >
+  private popperClock = 0
+  private glitter: Glitter[] = []
+  private decoy: Decoy | null = null
+  /** Ticks a boom mic still holds Sparkle up in the air. */
+  private lifted = 0
+  /** Sparkle's recent footsteps, newest last (the mirror clone replays them a beat late). */
+  private trail: Point[] = []
   private invuln = INVULN_TICKS
   private shots: Shot[] = []
   private crashers: Crasher[] = []
@@ -1116,15 +1301,13 @@ class PrizeShowPanic implements ArcadeGameInstance {
   private roomTimer = 0
   private waves: Array<{ wave: Wave; at: number; left: number }> = []
   /** Crashers the room's script has brought on so far, by kind. */
-  spawned: Record<Kind, number> = {
-    grabber: 0,
-    bouncer: 0,
-    conga: 0,
-    thrower: 0,
-  }
+  spawned: Record<Kind, number> = noCrashers()
   private mines: Mine[] = []
   private beams: Beam[] = []
-  private cameras: Camera[] = []
+  private booms: Boom[] = []
+  private cases: FlightCase[] = []
+  private lobs: Lob[] = []
+  private slicks: Slick[] = []
   private pickups: TicketPickup[] = []
   private crack: Crack | null = null
   private exits: RoomExit[] = []
@@ -1141,13 +1324,125 @@ class PrizeShowPanic implements ArcadeGameInstance {
   private striding = false
   private fx = new Sparkles()
   private fxRng = backdropRng(47)
+  /** What the roster's crashers may ask of the room (prizeShow/roster.ts). */
+  private world: CrasherWorld
 
   constructor(options: ArcadeGameOptions) {
     this.rng = options.rng
     this.sound = options.sound
     this.demo = options.demo
     this.hiScore = options.hiScore
+    this.world = this.makeWorld()
     this.beginEpisode(0)
+  }
+
+  private makeWorld(): CrasherWorld {
+    return {
+      rng: () => this.rng(),
+      roomTick: () => this.roomTick,
+      player: () => ({ x: this.px, y: this.py }),
+      chase: () => this.chase(),
+      history: (ago) => this.history(ago),
+      pace: (c) => this.pace(c),
+      crowd: () => this.crashers,
+      spawn: (kind, x, y) => this.makeCrasher(kind, x, y),
+      fire: (x, y, angle, speed, style) => {
+        this.streamers.push({
+          x,
+          y,
+          vx: Math.cos(angle) * speed,
+          vy: Math.sin(angle) * speed,
+          life: style === 'bubble' ? 200 : 170,
+          style,
+        })
+      },
+      lobPie: (x, y, tx, ty, ticks) => {
+        this.lobs.push({
+          x0: x,
+          y0: y,
+          x1: clampX(tx, 8),
+          y1: clampY(ty, 8),
+          t: 0,
+          dur: ticks,
+          kind: 'pie',
+        })
+      },
+      layMine: (kind, x, y) => this.layMine(kind, x, y),
+      hurt: (why) => this.loseLife(why),
+      freePrize: (x, y) => this.freePrize(x, y),
+      steal: (prize) => this.steal(prize),
+      addCase: (x, y) => {
+        const box: FlightCase = { x, y, vx: 0, vy: 0, pushed: true }
+        this.cases.push(box)
+        return box
+      },
+      remove: (c) => this.removeCrasher(c),
+      puff: (x, y, colour, count) => this.burst(x, y, count, colour),
+      say: (text, x, y) => this.floaters.push({ x, y, text, life: 40 }),
+      play: (sound) => this.sound.play(sound),
+    }
+  }
+
+  /** Who the crowd chases: Sparkle, or her cardboard cutout while it stands. */
+  private chase(): Point {
+    return this.decoy
+      ? { x: this.decoy.x, y: this.decoy.y }
+      : { x: this.px, y: this.py }
+  }
+
+  /** Sparkle's position `ago` ticks back. */
+  private history(ago: number): Point {
+    return (
+      this.trail[this.trail.length - 1 - ago] ??
+      this.trail[0] ?? { x: this.px, y: this.py }
+    )
+  }
+
+  /** One crasher's pace: the room's, sped up by a heckler, slowed by foam, never Sparkle's. */
+  private pace(c: Crasher): number {
+    let speed = this.crasherSpeed()
+    if (c.pumped > 0) speed *= 1.4
+    if (c.slow > 0) speed *= 0.5
+    return Math.min(CRASHER_TOP_SPEED, speed)
+  }
+
+  /** A stagehand's mine: never in a doorway, so every exit stays reachable. */
+  private layMine(kind: 'cushion' | 'peel', x: number, y: number): boolean {
+    if (this.mines.length >= 14) return false
+    if (DOORS.some((d) => Math.hypot(d.x - x, d.y - y) < 30)) return false
+    this.mines.push({ kind, x: clampX(x, 10), y: clampY(y, 10), fuse: 0 })
+    return true
+  }
+
+  /** The prize nearest (x, y) that no saucer is already beaming up. */
+  private freePrize(x: number, y: number): Prize | null {
+    let best: Prize | null = null
+    let bestD = Infinity
+    for (const p of this.prizes) {
+      if (p.lift > 0 || this.crashers.some((c) => c.prize === p)) continue
+      const d = Math.hypot(p.x - x, p.y - y)
+      if (d < bestD) {
+        bestD = d
+        best = p
+      }
+    }
+    return best
+  }
+
+  private steal(prize: Point) {
+    const before = this.prizes.length
+    this.prizes = this.prizes.filter((p) => p !== prize)
+    if (this.prizes.length === before) return
+    if (this.script.challenge === 'all-prizes') this.prizeMissed = true
+    this.burst(prize.x, prize.y - 20, 8, RAMPS.sky[3])
+    this.sound.play('warn')
+  }
+
+  /** Off the set without a cheer (a popper that burst, a hatched timer, a mic's passenger). */
+  private removeCrasher(c: Crasher) {
+    this.crashers = this.crashers.filter((other) => other !== c)
+    for (const other of this.crashers)
+      if (other.leader === c) other.leader = c.leader
   }
 
   private get episode(): Episode {
@@ -1220,11 +1515,16 @@ class PrizeShowPanic implements ArcadeGameInstance {
     this.banner = null
   }
 
-  private updateMap(input: InputFrame) {
+  private updateMap(input: InputFrame, flick: Dir | null = null) {
     const map = this.map!
     map.ticks++
     if (map.ticks < MAP_SETTLE) return
-    const pressed = input.pressed
+    const pressed = { ...input.pressed }
+    if (flick) {
+      if (Math.abs(flick.x) > Math.abs(flick.y))
+        pressed[flick.x > 0 ? 'right' : 'left'] = true
+      else pressed[flick.y > 0 ? 'down' : 'up'] = true
+    }
     const sides: [keyof InputFrame['pressed'], Side][] = [
       ['up', 0],
       ['right', 1],
@@ -1287,22 +1587,30 @@ class PrizeShowPanic implements ArcadeGameInstance {
     this.roomTicks = Math.round(script.seconds * 60 * t.clock)
     this.roomTimer = this.roomTicks
     this.invuln = INVULN_TICKS
-    this.spawned = { grabber: 0, bouncer: 0, conga: 0, thrower: 0 }
+    this.spawned = noCrashers()
+    this.lobs = []
+    this.slicks = []
+    this.cases = []
+    this.glitter = []
+    this.decoy = null
+    this.powers.cutout = 0
+    this.lifted = 0
+    this.trail = []
     const pace = t.waveTime * (double ? 0.75 : 1)
-    this.waves = script.waves.map((wave) => ({
+    this.waves = wavesAt(script, this.loop).map((wave) => ({
       wave,
       at: Math.round(wave.at * pace),
       left: wave.times ?? 1,
     }))
     this.nextToss = 150
-    if (this.has('sudden-death')) this.shield = 0
+    if (this.has('sudden-death')) this.powers.shield = 0
     const entry = DOORS[this.entryDoor]!
     this.px = entry.x + (CX - entry.x) * 0.25
     this.py = entry.y + (CY - entry.y) * 0.25
 
     this.mines = []
     this.beams = []
-    this.cameras = []
+    this.booms = []
     this.pickups = []
     this.crack = null
     const flankSide = [1, 3].map((k) => ((this.entryDoor + k) % 4) as Side)
@@ -1321,17 +1629,18 @@ class PrizeShowPanic implements ArcadeGameInstance {
             prop.wall === 'far'
               ? (((this.entryDoor + 2) % 4) as Side)
               : flankSide[flank++ % 2]!
-          this.cameras.push({
-            ...wallSpot(side, prop.at),
-            side,
-            every: prop.every,
-            offset: prop.offset,
-            hp: CAMERA_HP,
-            tx: CX,
-            ty: CY,
-          })
+          const crane = this.makeCrasher('crane', CX, CY)
+          mountCrane(crane, side, prop.at, prop.every, prop.offset)
           break
         }
+        case 'boom':
+          this.booms.push({
+            every: prop.every,
+            offset: prop.offset,
+            x: CX,
+            y: CY,
+          })
+          break
         case 'pedestal':
           this.prizes.push({
             x: prop.x,
@@ -1339,6 +1648,7 @@ class PrizeShowPanic implements ArcadeGameInstance {
             kind: this.prizeFor(prop.prize),
             life: PRIZE_LIFE,
             pedestal: true,
+            lift: 0,
           })
           break
         case 'ticket':
@@ -1443,9 +1753,15 @@ class PrizeShowPanic implements ArcadeGameInstance {
     if (this.banner && --this.banner.ticks <= 0) this.banner = null
     if (this.over) return
     const controls = this.demo ? this.demoInput() : input
+    const stick =
+      controls.aim && Math.hypot(controls.aim.x, controls.aim.y) >= AIM_MIN
+        ? controls.aim
+        : null
+    const flicked = stick !== null && !this.aimedBefore
+    this.aimedBefore = stick !== null
 
     if (this.map) {
-      this.updateMap(controls)
+      this.updateMap(controls, flicked ? stick : null)
       return
     }
     if (this.transition > 0) {
@@ -1469,31 +1785,45 @@ class PrizeShowPanic implements ArcadeGameInstance {
     }
 
     if (this.invuln > 0) this.invuln--
-    if (this.spread > 0) this.spread--
-    if (this.rapid > 0) this.rapid--
-    if (this.shield > 0) this.shield--
+    for (const kind of POWER_KINDS)
+      if (this.powers[kind] > 0) this.powers[kind]--
     this.roomTick++
     if (--this.roomTimer <= 0) {
       if (this.script.closes) this.closeSet()
       else this.loseLife("TIME'S UP!")
       return
     }
+    this.trail.push({ x: this.px, y: this.py })
+    if (this.trail.length > HISTORY) this.trail.shift()
 
     const fromX = this.px
     const fromY = this.py
-    this.move(controls)
+    if (this.fireCooldown > 0) this.fireCooldown--
+    if (this.lifted > 0) {
+      this.updateLift()
+    } else {
+      this.move(controls, stick)
+      this.aiming = stick !== null
+      if (stick) {
+        const len = Math.hypot(stick.x, stick.y)
+        this.aim = { x: stick.x / len, y: stick.y / len }
+      }
+      if ((controls.held.a || this.aiming) && this.fireCooldown === 0)
+        this.fire()
+    }
     this.striding = this.px !== fromX || this.py !== fromY
     if (this.striding) this.stride++
-    if (this.fireCooldown > 0) this.fireCooldown--
-    if (controls.held.a && this.fireCooldown === 0) this.fire()
     this.spawnWaves()
     this.updateShots()
     this.updateCrashers()
     this.updateMines()
     this.updateBeams()
-    this.updateCameras()
     this.updateBoss()
     this.updateStreamers()
+    this.updateLobs()
+    this.updateSlicks()
+    this.updateBooms()
+    this.updateArsenal()
     this.updatePrizes()
     this.updatePickups()
     this.updateTosses()
@@ -1512,24 +1842,25 @@ class PrizeShowPanic implements ArcadeGameInstance {
     else this.finishEpisode()
   }
 
-  private move(input: InputFrame) {
+  private move(input: InputFrame, stick: Dir | null = null) {
     let dx = 0
     let dy = 0
     if (input.held.left) dx -= 1
     if (input.held.right) dx += 1
     if (input.held.up) dy -= 1
     if (input.held.down) dy += 1
-    // Holding B locks the aim so Sparkle can strafe.
-    if ((dx || dy) && !input.held.b) this.aim = { x: dx, y: dy }
+    // Holding B locks the aim so Sparkle can strafe; a second stick aims on its own.
+    if ((dx || dy) && !input.held.b && !stick) this.aim = { x: dx, y: dy }
     const len = Math.hypot(dx, dy) || 1
-    let mx = (dx / len) * SPEED
-    let my = (dy / len) * SPEED
+    const speed = SPEED * (this.powers.skates > 0 ? ARSENAL.skateSpeed : 1)
+    let mx = (dx / len) * speed
+    let my = (dy / len) * speed
     if (this.slip > 0) {
       // On a banana peel: no steering until she stops sliding.
       this.slip--
       mx = this.vx
       my = this.vy
-    } else if (this.has('foam')) {
+    } else if (this.has('foam') || this.inCream()) {
       this.vx += (mx - this.vx) * (dx || dy ? 0.06 : 0.025)
       this.vy += (my - this.vy) * (dx || dy ? 0.06 : 0.025)
       mx = this.vx
@@ -1544,23 +1875,202 @@ class PrizeShowPanic implements ArcadeGameInstance {
     if (ny !== this.py + my) this.vy = 0
     this.px = nx
     this.py = ny
+    this.bumpCases()
+  }
+
+  /** Standing in pie cream: as slippery as a foam party. */
+  private inCream(): boolean {
+    return this.slicks.some(
+      (s) =>
+        s.kind === 'cream' && Math.hypot(s.x - this.px, s.y - this.py) < s.r,
+    )
+  }
+
+  /** Flight cases are solid: Sparkle is pushed out of any she walks (or is shoved) into. */
+  private bumpCases() {
+    for (const box of this.cases) {
+      const ox = CASE_HALF_W + HALF - Math.abs(this.px - box.x)
+      const oy = CASE_HALF_H + HALF - Math.abs(this.py - box.y)
+      if (ox <= 0 || oy <= 0) continue
+      if (ox < oy) this.px += this.px < box.x ? -ox : ox
+      else this.py += this.py < box.y ? -oy : oy
+      this.px = Math.max(LEFT + HALF, Math.min(RIGHT - HALF, this.px))
+      this.py = Math.max(TOP + HALF, Math.min(BOTTOM - HALF, this.py))
+    }
+  }
+
+  /** Is (x, y) inside a flight case? (it stops confetti and streamers alike) */
+  private inCase(x: number, y: number): boolean {
+    return this.cases.some(
+      (box) =>
+        Math.abs(x - box.x) < CASE_HALF_W && Math.abs(y - box.y) < CASE_HALF_H,
+    )
   }
 
   private fire() {
-    this.fireCooldown = this.rapid > 0 ? RAPID_COOLDOWN : FIRE_COOLDOWN
+    const p = this.powers
+    const rocket = p.rockets > 0
+    const laser = p.laser > 0
+    this.fireCooldown = laser
+      ? ARSENAL.laserCooldown
+      : rocket
+        ? ARSENAL.rocketCooldown
+        : p.rapid > 0
+          ? RAPID_COOLDOWN
+          : FIRE_COOLDOWN
     const base = Math.atan2(this.aim.y, this.aim.x)
-    const angles = this.spread > 0 ? [base - 0.25, base, base + 0.25] : [base]
+    const angles = p.spread > 0 ? [base - 0.25, base, base + 0.25] : [base]
     for (const a of angles) {
+      if (laser) {
+        this.fireLaser(a)
+        continue
+      }
+      const speed = rocket ? ARSENAL.rocketSpeed : SHOT_SPEED
       this.shots.push({
         x: this.px + Math.cos(a) * 7,
         y: this.py + Math.sin(a) * 7,
-        vx: Math.cos(a) * SHOT_SPEED,
-        vy: Math.sin(a) * SHOT_SPEED,
-        life: SHOT_LIFE,
+        vx: Math.cos(a) * speed,
+        vy: Math.sin(a) * speed,
+        life: rocket ? 100 : SHOT_LIFE,
         hue: Math.floor(this.rng() * CONFETTI.length),
+        kind: rocket ? 'rocket' : 'confetti',
+        foamy: p.foamgun > 0,
+        damage: rocket ? ARSENAL.rocketDamage : 1,
+        pierce: rocket ? ARSENAL.rocketPierce : 0,
+        hits: [],
       })
     }
-    if (this.tick % 3 === 0) this.sound.play('shoot')
+    if (p.poppers > 0 && this.popperClock <= 0) {
+      this.lobPopper(base)
+      this.popperClock = ARSENAL.popperEvery
+    }
+    if (this.tick % 3 === 0) this.sound.play(laser ? 'blip' : 'shoot')
+  }
+
+  /** The glitter laser: a line to the wall that cheers everything along it (cases stop it). */
+  private fireLaser(angle: number) {
+    const dx = Math.cos(angle)
+    const dy = Math.sin(angle)
+    const x0 = this.px + dx * 6
+    const y0 = this.py + dy * 6
+    const struck = new Set<Crasher>()
+    let x1 = x0
+    let y1 = y0
+    let bossHit = false
+    for (let d = 0; d < 400; d += 3) {
+      const x = x0 + dx * d
+      const y = y0 + dy * d
+      if (x < LEFT || x > RIGHT || y < TOP || y > BOTTOM || this.inCase(x, y))
+        break
+      x1 = x
+      y1 = y
+      let stop = false
+      for (const c of this.crashers) {
+        if (struck.has(c) || !shootable(c)) continue
+        const [hw, hh] = hitBox(c)
+        if (
+          Math.abs(c.x - x) > hw + ARSENAL.laserHalf ||
+          Math.abs(c.y - c.z - y) > hh + ARSENAL.laserHalf
+        )
+          continue
+        struck.add(c)
+        if (deflects(c, dx, dy)) stop = true
+      }
+      const b = this.boss
+      if (b && !bossHit && Math.abs(b.x - x) < 40 && Math.abs(b.y - y) < 18) {
+        bossHit = true
+        this.damageBoss(1)
+        stop = true
+      }
+      for (const st of this.streamers)
+        if (Math.abs(st.x - x) < 5 && Math.abs(st.y - y) < 5) st.life = 0
+      if (stop) break
+    }
+    for (const c of struck) {
+      if (!this.crashers.includes(c)) continue
+      this.burst(c.x, c.y - c.z, 3, RAMPS.cream[4])
+      this.hitCrasher(c, 1, dx, dy, this.powers.foamgun > 0)
+    }
+    this.glitter.push({ x0, y0, x1, y1, life: ARSENAL.laserShow })
+  }
+
+  /** A party popper, lobbed ahead along the aim. */
+  private lobPopper(angle: number) {
+    this.lobs.push({
+      x0: this.px,
+      y0: this.py - 6,
+      x1: clampX(this.px + Math.cos(angle) * ARSENAL.popperRange, 8),
+      y1: clampY(this.py + Math.sin(angle) * ARSENAL.popperRange, 8),
+      t: 0,
+      dur: ARSENAL.popperFlight,
+      kind: 'popper',
+    })
+  }
+
+  /** A popper lands: confetti over everyone close (plates don't help against it from above). */
+  private popperBlast(x: number, y: number) {
+    for (let i = 0; i < 4; i++) this.burst(x, y, 6, CONFETTI[i]!)
+    this.fx.burst(x, y, this.fxRng, { count: 12, speed: 2.2 })
+    this.floaters.push({ x, y: y - 10, text: 'POP!', life: 30 })
+    this.sound.play('pop')
+    for (const c of [...this.crashers]) {
+      if (!shootable(c)) continue
+      if (Math.hypot(c.x - x, c.y - y) < ARSENAL.popperBlast)
+        this.hitCrasher(c, ARSENAL.popperDamage, 0, 0, false)
+    }
+    const b = this.boss
+    if (b && Math.abs(b.x - x) < 44 && Math.abs(b.y - y) < 26)
+      this.damageBoss(ARSENAL.popperDamage)
+    for (const m of this.mines)
+      if (
+        m.kind === 'cushion' &&
+        m.fuse === 0 &&
+        Math.hypot(m.x - x, m.y - y) < ARSENAL.popperBlast
+      )
+        m.fuse = 12
+  }
+
+  /**
+   * Confetti lands on a crasher: a plate turns it (false), otherwise it counts, double on a
+   * dizzy mascot, and foam slows it and foams the floor under it.
+   */
+  private hitCrasher(
+    c: Crasher,
+    damage: number,
+    vx: number,
+    vy: number,
+    foamy: boolean,
+  ): boolean {
+    if (deflects(c, vx, vy)) {
+      this.burst(
+        c.x + Math.cos(c.face) * 9,
+        c.y + Math.sin(c.face) * 6,
+        2,
+        RAMPS.steel[4],
+      )
+      if (this.tick % 10 === 0) {
+        this.floaters.push({ x: c.x, y: c.y - 16, text: 'CLANG!', life: 24 })
+        this.sound.play('blip')
+      }
+      return false
+    }
+    if (foamy) {
+      c.slow = ARSENAL.foamSlow
+      this.addSlick(c.x, c.y + 4, 'foam')
+    }
+    c.hp -= c.kind === 'mascot' && c.mode === 3 ? damage * 2 : damage
+    if (c.hp <= 0) this.cheer(c)
+    return true
+  }
+
+  private damageBoss(damage: number) {
+    const b = this.boss
+    if (!b || b.shift > 0) return
+    b.hp -= damage
+    b.flash = 4
+    if (b.phase === 1 && b.hp <= Math.ceil(b.maxHp * b.phase2At))
+      this.lightCandles(b)
+    if (b.hp <= 0) this.bossDown()
   }
 
   /** The script's waves: each comes through its doors on its tick. */
@@ -1604,6 +2114,12 @@ class PrizeShowPanic implements ArcadeGameInstance {
             door.y + (this.rng() - 0.5) * 16,
           )
         }
+      } else if (wave.kind === 'crane') {
+        for (let i = 0; i < count; i++) {
+          const c = this.makeCrasher('crane', door.x, door.y)
+          const at = count === 1 ? 0.6 : -0.8 + (1.6 * i) / (count - 1)
+          mountCrane(c, side, at, 150, i * 37)
+        }
       } else {
         for (let i = 0; i < count; i++)
           this.makeCrasher(
@@ -1614,20 +2130,26 @@ class PrizeShowPanic implements ArcadeGameInstance {
       }
     }
     if (wave.doors === 'all') this.sound.play('warn')
+    if (wave.kind === 'mascot') {
+      this.banner = {
+        text: 'MASCOT!',
+        sub: 'DODGE THE CHARGE, HIT ITS BACK',
+        ticks: 100,
+      }
+      this.sound.play('warn')
+    }
   }
 
   private makeCrasher(kind: Kind, x: number, y: number): Crasher {
     const a = Math.atan2(CY - y, CX - x) + (this.rng() - 0.5)
-    const c: Crasher = {
-      kind,
-      x: Math.max(LEFT + 4, Math.min(RIGHT - 4, x)),
-      y: Math.max(TOP + 4, Math.min(BOTTOM - 4, y)),
-      vx: kind === 'bouncer' ? Math.cos(a) * 1.4 : 0,
-      vy: kind === 'bouncer' ? Math.sin(a) * 1.4 : 0,
-      hp: kind === 'thrower' ? 3 : kind === 'bouncer' ? 2 : 1,
-      t: Math.floor(this.rng() * 60),
-      leader: null,
-      color: CONFETTI[Math.floor(this.rng() * CONFETTI.length)]!,
+    const c = newCrasher(kind, x, y, CONFETTI[0]!, Math.floor(this.rng() * 60))
+    c.color = CONFETTI[Math.floor(this.rng() * CONFETTI.length)]!
+    if (kind === 'bouncer') {
+      c.vx = Math.cos(a) * 1.4
+      c.vy = Math.sin(a) * 1.4
+    }
+    if (kind === 'mascot') {
+      c.hp = c.maxHp = Math.round(ROSTER.mascot.hp * this.tuning.bossHp)
     }
     this.crashers.push(c)
     return c
@@ -1651,22 +2173,25 @@ class PrizeShowPanic implements ArcadeGameInstance {
       }
       if (s.x < LEFT || s.x > RIGHT || s.y < TOP || s.y > BOTTOM) s.life = 0
       if (s.life <= 0) continue
-      const hit = this.crashers.find(
-        (c) => Math.abs(c.x - s.x) < 7 && Math.abs(c.y - s.y) < 8,
-      )
-      if (hit) {
+      if (this.inCase(s.x, s.y)) {
+        // Flight cases are cover: confetti thuds against them.
         s.life = 0
-        this.burst(s.x, s.y, 3, CONFETTI[s.hue]!)
-        if (--hit.hp <= 0) this.cheer(hit)
+        this.burst(s.x, s.y, 2, RAMPS.steel[3])
         continue
       }
-      const cam = this.cameras.find(
-        (c) => Math.abs(c.x - s.x) < 9 && Math.abs(c.y - s.y) < 9,
-      )
-      if (cam) {
-        s.life = 0
-        this.burst(s.x, s.y, 2, CONFETTI[s.hue]!)
-        if (--cam.hp <= 0) this.breakCamera(cam)
+      const hit = this.crashers.find((c) => {
+        if (!shootable(c) || s.hits.includes(c)) return false
+        const [hw, hh] = hitBox(c)
+        return Math.abs(c.x - s.x) < hw && Math.abs(c.y - c.z - s.y) < hh
+      })
+      if (hit) {
+        this.burst(s.x, s.y, 3, CONFETTI[s.hue]!)
+        const landed = this.hitCrasher(hit, s.damage, s.vx, s.vy, s.foamy)
+        if (!landed || s.pierce <= 0) s.life = 0
+        else {
+          s.pierce--
+          s.hits.push(hit)
+        }
         continue
       }
       const mine = this.mines.find(
@@ -1686,12 +2211,7 @@ class PrizeShowPanic implements ArcadeGameInstance {
       if (b && Math.abs(b.x - s.x) < 40 && Math.abs(b.y - s.y) < 18) {
         s.life = 0
         this.burst(s.x, s.y, 2, CONFETTI[s.hue]!)
-        if (b.shift > 0) continue
-        b.hp--
-        b.flash = 4
-        if (b.phase === 1 && b.hp <= Math.ceil(b.maxHp * b.phase2At))
-          this.lightCandles(b)
-        if (b.hp <= 0) this.bossDown()
+        this.damageBoss(s.damage)
         continue
       }
       // Confetti knocks streamers out of the air too.
@@ -1700,7 +2220,7 @@ class PrizeShowPanic implements ArcadeGameInstance {
       )
       if (streamer) {
         streamer.life = 0
-        s.life = 0
+        if (s.kind !== 'rocket') s.life = 0
       }
     }
     this.shots = this.shots.filter((s) => s.life > 0)
@@ -1726,23 +2246,41 @@ class PrizeShowPanic implements ArcadeGameInstance {
 
   /** Confetti'd: the crasher gets happy and dances off the set. */
   private cheer(c: Crasher) {
-    this.crashers = this.crashers.filter((other) => other !== c)
-    for (const other of this.crashers)
-      if (other.leader === c) other.leader = c.leader
-    this.dancers.push({
-      x: c.x,
-      y: c.y,
-      vx: this.rng() < 0.5 ? -1.2 : 1.2,
-      life: 50,
-      color: c.color,
-    })
+    if (!this.crashers.includes(c)) return
+    this.removeCrasher(c)
+    if (c.kind === 'popper') burstPopper(c, this.world)
+    if (c.flightCase) c.flightCase.pushed = false
+    if (c.prize) {
+      c.prize.lift = 0
+      c.prize = null
+    }
+    if (c.kind === 'crane') {
+      this.floaters.push({ x: c.x, y: c.y + 14, text: 'CUT!', life: 40 })
+      this.burst(c.x, c.y, 12, RAMPS.sky[3])
+    } else {
+      this.dancers.push({
+        x: c.x,
+        y: c.y,
+        vx: this.rng() < 0.5 ? -1.2 : 1.2,
+        life: 50,
+        color: c.color,
+      })
+    }
     this.addScore(
-      KIND_POINTS[c.kind] * Math.ceil(this.level / 2),
+      ROSTER[c.kind].points * Math.ceil(this.level / 2),
       c.x,
       c.y - 10,
     )
     this.burst(c.x, c.y, 8, c.color)
     this.fx.burst(c.x, c.y - 4, this.fxRng, { count: 6 })
+    if (c.kind === 'mascot') {
+      for (let i = 0; i < 3; i++)
+        this.fx.burst(c.x + (i - 1) * 12, c.y - 8, this.fxRng, {
+          count: 12,
+          speed: 2.2,
+        })
+      this.banner = { text: 'MASCOT CHEERED!', ticks: 90 }
+    }
     this.sound.play('pop')
     const rate =
       (this.script.dropRate ?? DROP_RATE) * (this.has('double-time') ? 2 : 1)
@@ -1757,20 +2295,17 @@ class PrizeShowPanic implements ArcadeGameInstance {
     const kind: PrizeKind =
       roll < 0.35
         ? 'cash'
-        : roll < 0.55
+        : roll < 0.53
           ? 'toaster'
-          : roll < 0.62
+          : roll < 0.6
             ? 'car'
-            : roll < 0.76
-              ? 'spread'
-              : roll < 0.9
-                ? 'rapid'
-                : 'shield'
+            : powerFromRoll((roll - 0.6) / 0.4)
     this.prizes.push({
       x: Math.max(LEFT + 8, Math.min(RIGHT - 8, x)),
       y: Math.max(TOP + 8, Math.min(BOTTOM - 8, y)),
       kind: this.prizeFor(kind),
       life: PRIZE_LIFE,
+      lift: 0,
     })
   }
 
@@ -1786,67 +2321,90 @@ class PrizeShowPanic implements ArcadeGameInstance {
   }
 
   private updateCrashers() {
-    const speed = this.crasherSpeed()
     const foam = this.has('foam')
-    for (const c of this.crashers) {
+    const goal = this.chase()
+    for (const c of [...this.crashers]) {
+      if (!this.crashers.includes(c)) continue
       c.t++
-      let mx = 0
-      let my = 0
-      if (c.kind === 'grabber') {
-        const dx = this.px - c.x
-        const dy = this.py - c.y
-        const d = Math.hypot(dx, dy) || 1
-        mx = (dx / d) * speed + Math.sin(c.t / 7) * 0.3
-        my = (dy / d) * speed
-      } else if (c.kind === 'bouncer') {
-        c.x += c.vx
-        c.y += c.vy
-        if (c.x < LEFT + 6 || c.x > RIGHT - 6) c.vx = -c.vx
-        if (c.y < TOP + 6 || c.y > BOTTOM - 6) c.vy = -c.vy
-      } else if (c.kind === 'conga') {
-        if (c.leader) {
-          const dx = c.leader.x - c.x
-          const dy = c.leader.y - c.y
-          const d = Math.hypot(dx, dy) || 1
-          if (d > 11) {
-            mx = (dx / d) * speed * 1.3
-            my = (dy / d) * speed * 1.3
-          }
-        } else {
-          // The head of the line weaves toward Sparkle.
-          const a =
-            Math.atan2(this.py - c.y, this.px - c.x) + Math.sin(c.t / 20) * 0.9
-          mx = Math.cos(a) * speed * 1.1
-          my = Math.sin(a) * speed * 1.1
-        }
+      if (FOUNDERS.has(c.kind)) {
+        if (c.slow > 0) c.slow--
+        if (c.pumped > 0) c.pumped--
+        this.moveFounder(c, goal, foam)
       } else {
-        // Throwers keep their distance and fling streamers.
-        const dx = this.px - c.x
-        const dy = this.py - c.y
-        const d = Math.hypot(dx, dy) || 1
-        const away = d < 70 ? -1 : d > 110 ? 1 : 0
-        mx = (dx / d) * speed * 0.6 * away + Math.cos(c.t / 30) * 0.4
-        my = (dy / d) * speed * 0.6 * away + Math.sin(c.t / 30) * 0.4
-        if (c.t % 90 === 0) this.throwStreamer(c.x, c.y)
+        updateCrasher(c, this.world)
+        if (!this.crashers.includes(c)) continue
       }
-      if (c.kind !== 'bouncer') {
-        if (foam) {
-          // Foam Party: crashers skid too, slow to turn and slow to stop.
-          c.vx += (mx - c.vx) * 0.07
-          c.vy += (my - c.vy) * 0.07
-          mx = c.vx
-          my = c.vy
-        }
-        c.x += mx
-        c.y += my
-      }
-      c.x = Math.max(LEFT + 4, Math.min(RIGHT - 4, c.x))
-      c.y = Math.max(TOP + 4, Math.min(BOTTOM - 4, c.y))
-      if (this.touching(c.x, c.y, 8)) {
-        this.loseLife('MOBBED!')
+      const d = this.decoy
+      if (
+        d &&
+        touches(c) &&
+        Math.abs(c.x - d.x) < 9 &&
+        Math.abs(c.y - d.y) < 9 &&
+        c.t % 15 === 0
+      )
+        d.hp--
+      if (touches(c) && this.touching(c.x, c.y, reachOf(c))) {
+        this.loseLife(BUMP_LINES[c.kind] ?? 'MOBBED!')
         return
       }
     }
+  }
+
+  /** The four founding crashers: grabbers, bouncers, conga lines and throwers. */
+  private moveFounder(c: Crasher, goal: Point, foam: boolean) {
+    const speed = this.pace(c)
+    let mx = 0
+    let my = 0
+    if (c.kind === 'grabber') {
+      const dx = goal.x - c.x
+      const dy = goal.y - c.y
+      const d = Math.hypot(dx, dy) || 1
+      mx = (dx / d) * speed + Math.sin(c.t / 7) * 0.3
+      my = (dy / d) * speed
+    } else if (c.kind === 'bouncer') {
+      c.x += c.vx
+      c.y += c.vy
+      if (c.x < LEFT + 6 || c.x > RIGHT - 6) c.vx = -c.vx
+      if (c.y < TOP + 6 || c.y > BOTTOM - 6) c.vy = -c.vy
+    } else if (c.kind === 'conga') {
+      if (c.leader) {
+        const dx = c.leader.x - c.x
+        const dy = c.leader.y - c.y
+        const d = Math.hypot(dx, dy) || 1
+        if (d > 11) {
+          mx = (dx / d) * speed * 1.3
+          my = (dy / d) * speed * 1.3
+        }
+      } else {
+        // The head of the line weaves toward Sparkle.
+        const a =
+          Math.atan2(goal.y - c.y, goal.x - c.x) + Math.sin(c.t / 20) * 0.9
+        mx = Math.cos(a) * speed * 1.1
+        my = Math.sin(a) * speed * 1.1
+      }
+    } else {
+      // Throwers keep their distance and fling streamers.
+      const dx = goal.x - c.x
+      const dy = goal.y - c.y
+      const d = Math.hypot(dx, dy) || 1
+      const away = d < 70 ? -1 : d > 110 ? 1 : 0
+      mx = (dx / d) * speed * 0.6 * away + Math.cos(c.t / 30) * 0.4
+      my = (dy / d) * speed * 0.6 * away + Math.sin(c.t / 30) * 0.4
+      if (c.t % 90 === 0) this.throwStreamer(c.x, c.y)
+    }
+    if (c.kind !== 'bouncer') {
+      if (foam) {
+        // Foam Party: crashers skid too, slow to turn and slow to stop.
+        c.vx += (mx - c.vx) * 0.07
+        c.vy += (my - c.vy) * 0.07
+        mx = c.vx
+        my = c.vy
+      }
+      c.x += mx
+      c.y += my
+    }
+    c.x = clampX(c.x)
+    c.y = clampY(c.y)
   }
 
   private throwStreamer(x: number, y: number) {
@@ -1892,7 +2450,9 @@ class PrizeShowPanic implements ArcadeGameInstance {
           this.touching(m.x, m.y, 8) ||
           this.crashers.some(
             (c) =>
+              touches(c) &&
               c.kind !== 'bouncer' &&
+              c.kind !== 'stagehand' &&
               Math.abs(c.x - m.x) < 7 &&
               Math.abs(c.y - m.y) < 6,
           )
@@ -1966,61 +2526,197 @@ class PrizeShowPanic implements ArcadeGameInstance {
     }
   }
 
-  private updateCameras() {
-    if (this.cleared) return
-    for (const cam of this.cameras) {
-      const c = (this.roomTick + cam.offset) % cam.every
-      if (c === cam.every - CAMERA_CHARGE) {
-        cam.tx = this.px
-        cam.ty = this.py
-      }
-      if (c !== cam.every - 1) continue
-      const a = Math.atan2(cam.ty - cam.y, cam.tx - cam.x)
-      this.streamers.push({
-        x: cam.x,
-        y: cam.y,
-        vx: Math.cos(a) * 2.4,
-        vy: Math.sin(a) * 2.4,
-        life: 150,
-        style: 'flash',
-      })
-      this.sound.play('blip')
-    }
-  }
-
-  /** Whether a camera is charging a flash (its lens glows and its aim line shows). */
-  cameraCharging(cam: Camera): boolean {
-    if (this.cleared) return false
-    const c = (this.roomTick + cam.offset) % cam.every
-    return c >= cam.every - CAMERA_CHARGE
-  }
-
-  private breakCamera(cam: Camera) {
-    this.cameras = this.cameras.filter((c) => c !== cam)
-    this.addScore(300, cam.x, cam.y + 10)
-    this.burst(cam.x, cam.y, 12, RAMPS.sky[3])
-    this.floaters.push({ x: cam.x, y: cam.y + 14, text: 'CUT!', life: 40 })
-    this.sound.play('pop')
-  }
-
   private updateStreamers() {
     for (const s of this.streamers) {
       s.x += s.vx
       s.y += s.vy
       s.life--
       if (s.x < LEFT || s.x > RIGHT || s.y < TOP || s.y > BOTTOM) s.life = 0
-      if (s.life > 0 && this.touching(s.x, s.y, 4)) {
+      if (s.life > 0 && this.inCase(s.x, s.y)) s.life = 0
+      if (s.life > 0 && this.lifted === 0 && this.touching(s.x, s.y, 4)) {
         s.life = 0
-        this.loseLife(
-          s.style === 'flash'
-            ? 'FLASHED!'
-            : s.style === 'spark'
-              ? 'SPARKLED!'
-              : 'TANGLED!',
-        )
+        this.loseLife(SHOT_LINES[s.style])
       }
     }
     this.streamers = this.streamers.filter((s) => s.life > 0)
+  }
+
+  /** Pies and party poppers in the air: each lands where its shadow said. */
+  private updateLobs() {
+    for (const lob of this.lobs) {
+      if (++lob.t < lob.dur) continue
+      if (lob.kind === 'popper') {
+        this.popperBlast(lob.x1, lob.y1)
+        continue
+      }
+      this.burst(lob.x1, lob.y1, 10, RAMPS.cream[4])
+      this.floaters.push({
+        x: lob.x1,
+        y: lob.y1 - 10,
+        text: 'SPLAT!',
+        life: 35,
+      })
+      this.addSlick(lob.x1, lob.y1, 'cream')
+      this.sound.play('pop')
+      if (Math.hypot(this.px - lob.x1, this.py - lob.y1) < 10)
+        this.loseLife('PIED!')
+    }
+    this.lobs = this.lobs.filter((lob) => lob.t < lob.dur)
+  }
+
+  private addSlick(x: number, y: number, kind: Slick['kind']) {
+    const cream = kind === 'cream'
+    this.slicks.push({
+      x,
+      y,
+      r: cream ? CREAM_RADIUS : ARSENAL.foamRadius,
+      life: cream ? CREAM_LIFE : ARSENAL.foamLife,
+      kind,
+    })
+    if (this.slicks.length > 24) this.slicks.shift()
+  }
+
+  /** Foam on the floor slows any crasher wading through it. */
+  private updateSlicks() {
+    for (const s of this.slicks) {
+      s.life--
+      if (s.kind !== 'foam') continue
+      for (const c of this.crashers)
+        if (Math.hypot(c.x - s.x, c.y - s.y) < s.r)
+          c.slow = Math.max(c.slow, 20)
+    }
+    this.slicks = this.slicks.filter((s) => s.life > 0)
+  }
+
+  /** Boom mics: a shadow on Sparkle's spot, then the mic swoops and lifts whoever is under it. */
+  private updateBooms() {
+    if (this.cleared) return
+    for (const boom of this.booms) {
+      const k = (this.roomTick + boom.offset) % boom.every
+      if (k === boom.every - BOOM_TELL) {
+        boom.x = this.px
+        boom.y = this.py
+        this.sound.play('warn')
+      }
+      if (k !== boom.every - 1) continue
+      this.burst(boom.x, boom.y, 6, RAMPS.steel[3])
+      for (const c of [...this.crashers]) {
+        if (!touches(c) || c.kind === 'mascot') continue
+        if (Math.hypot(c.x - boom.x, c.y - boom.y) < BOOM_REACH) {
+          this.removeCrasher(c)
+          this.floaters.push({ x: c.x, y: c.y - 14, text: 'WHEE!', life: 35 })
+        }
+      }
+      if (
+        this.lifted === 0 &&
+        Math.hypot(this.px - boom.x, this.py - boom.y) < BOOM_REACH
+      ) {
+        this.lifted = BOOM_LIFT
+        this.invuln = Math.max(this.invuln, BOOM_LIFT + 40)
+        this.floaters.push({
+          x: this.px,
+          y: this.py - 18,
+          text: 'UP YOU GO!',
+          life: 45,
+        })
+        this.sound.play('blip')
+      }
+    }
+  }
+
+  /** The boom mic boom's tell: where it will swoop, and how close it is (0..1), or null. */
+  boomTell(boom: Boom): number | null {
+    if (this.cleared) return null
+    const k = (this.roomTick + boom.offset) % boom.every
+    if (k < boom.every - BOOM_TELL) return null
+    return (k - (boom.every - BOOM_TELL)) / BOOM_TELL
+  }
+
+  /** Held up by a boom mic: no moving or spraying, then set down somewhere clear. */
+  private updateLift() {
+    if (--this.lifted > 0) return
+    const spot = this.safeSpot()
+    this.px = spot.x
+    this.py = spot.y
+    this.vx = 0
+    this.vy = 0
+    this.slip = 0
+    this.floaters.push({
+      x: this.px,
+      y: this.py - 16,
+      text: 'BACK ON SET!',
+      life: 40,
+    })
+  }
+
+  /** The open spot on the floor farthest from the crowd. */
+  private safeSpot(): Point {
+    const spots: Point[] = [
+      { x: CX, y: CY },
+      { x: CX - 80, y: CY - 50 },
+      { x: CX + 80, y: CY - 50 },
+      { x: CX - 80, y: CY + 50 },
+      { x: CX + 80, y: CY + 50 },
+    ]
+    let best = spots[0]!
+    let bestD = -1
+    for (const spot of spots) {
+      const near = Math.min(
+        999,
+        ...this.crashers.map((c) => Math.hypot(c.x - spot.x, c.y - spot.y)),
+      )
+      if (near > bestD) {
+        bestD = near
+        best = spot
+      }
+    }
+    return best
+  }
+
+  /** The two streamer orbiters' positions this tick. */
+  orbiterSpots(): Point[] {
+    if (this.powers.orbiters <= 0) return []
+    return [0, 1].map((k) => {
+      const a = this.tick * 0.12 + k * Math.PI
+      return {
+        x: this.px + Math.cos(a) * ARSENAL.orbitRadius,
+        y: this.py - 2 + Math.sin(a) * ARSENAL.orbitRadius * 0.8,
+      }
+    })
+  }
+
+  /** Orbiters, glitter, popper cadence and the cardboard cutout. */
+  private updateArsenal() {
+    if (this.popperClock > 0) this.popperClock--
+    for (const g of this.glitter) g.life--
+    this.glitter = this.glitter.filter((g) => g.life > 0)
+    for (const o of this.orbiterSpots()) {
+      for (const c of [...this.crashers]) {
+        if (!shootable(c) || c.t % ARSENAL.orbitEvery !== 0) continue
+        if (Math.hypot(c.x - o.x, c.y - c.z - o.y) < ARSENAL.orbitReach + 4) {
+          this.burst(o.x, o.y, 2, RAMPS.gold[4])
+          this.hitCrasher(c, 1, 0, 0, false)
+        }
+      }
+      for (const st of this.streamers)
+        if (Math.hypot(st.x - o.x, st.y - o.y) < 6) st.life = 0
+    }
+    const d = this.decoy
+    if (d) {
+      d.life--
+      this.powers.cutout = Math.max(0, d.life)
+      if (d.life <= 0 || d.hp <= 0) {
+        this.decoy = null
+        this.powers.cutout = 0
+        this.burst(d.x, d.y, 10, RAMPS.earth[3])
+        this.floaters.push({
+          x: d.x,
+          y: d.y - 16,
+          text: 'FOOLED YA!',
+          life: 40,
+        })
+      }
+    }
   }
 
   // --- the parade float -----------------------------------------------------------
@@ -2136,12 +2832,14 @@ class PrizeShowPanic implements ArcadeGameInstance {
       }
       if (!this.touching(p.x, p.y, 9)) continue
       p.life = -1
+      for (const c of this.crashers) if (c.prize === p) c.prize = null
       this.addScore(PRIZE_POINTS[p.kind] * double, p.x, p.y - 10)
-      if (p.kind === 'spread') this.spread = POWER_TICKS
-      if (p.kind === 'rapid') this.rapid = POWER_TICKS
-      if (p.kind === 'shield') this.shield = SHIELD_TICKS
-      if (p.kind === 'cash' || p.kind === 'toaster' || p.kind === 'car')
+      if (isPower(p.kind)) {
+        this.powers[p.kind] = stackPower(p.kind, this.powers[p.kind])
+        if (p.kind === 'cutout') this.placeDecoy()
+      } else {
         this.haul += double
+      }
       this.fx.burst(p.x, p.y, this.fxRng, {
         count: 12,
         colours: [RAMPS.gold[4], RAMPS.gold[3], RAMPS.cream[4]],
@@ -2155,6 +2853,17 @@ class PrizeShowPanic implements ArcadeGameInstance {
       this.sound.play('pickup')
     }
     this.prizes = this.prizes.filter((p) => p.life > 0)
+  }
+
+  /** A cardboard Sparkle where she stands: the crowd goes after it instead. */
+  private placeDecoy() {
+    this.decoy = {
+      x: this.px,
+      y: this.py,
+      hp: ARSENAL.cutoutHp,
+      life: POWERS.cutout.ticks,
+    }
+    this.powers.cutout = POWERS.cutout.ticks
   }
 
   private updatePickups() {
@@ -2191,14 +2900,7 @@ class PrizeShowPanic implements ArcadeGameInstance {
     ) {
       this.nextToss = this.roomTick + 220 + Math.floor(this.rng() * 160)
       const pick = this.rng()
-      const kind: PrizeKind =
-        pick < 0.3
-          ? 'spread'
-          : pick < 0.6
-            ? 'rapid'
-            : pick < 0.8
-              ? 'shield'
-              : 'cash'
+      const kind: PrizeKind = pick < 0.8 ? powerFromRoll(pick / 0.8) : 'cash'
       const x0 = LEFT + 30 + this.rng() * (RIGHT - LEFT - 60)
       this.tosses.push({
         x0,
@@ -2218,6 +2920,7 @@ class PrizeShowPanic implements ArcadeGameInstance {
         y: toss.y1,
         kind: toss.kind,
         life: PRIZE_LIFE,
+        lift: 0,
       })
     }
     this.tosses = this.tosses.filter((toss) => toss.t < toss.dur)
@@ -2337,9 +3040,9 @@ class PrizeShowPanic implements ArcadeGameInstance {
   private loseLife(text: string) {
     if (this.invuln > 0 || this.dead > 0) return
     this.hit = true
-    if (this.shield > 0 && !this.has('sudden-death')) {
+    if (this.powers.shield > 0 && !this.has('sudden-death')) {
       // The shield pops instead.
-      this.shield = 0
+      this.powers.shield = 0
       this.invuln = 60
       this.burst(this.px, this.py, 10, '#a5f3fc')
       this.fx.burst(this.px, this.py, this.fxRng, {
@@ -2456,17 +3159,57 @@ class PrizeShowPanic implements ArcadeGameInstance {
       }
       return frame
     }
-    const threats: Array<{ x: number; y: number; r: number }> = [
-      ...this.crashers.map((c) => ({ x: c.x, y: c.y, r: 50 })),
-      ...this.streamers.map((s) => ({ x: s.x, y: s.y, r: 18 })),
-    ]
+    const threats: Array<{ x: number; y: number; r: number }> = []
+    for (const c of this.crashers) {
+      if (!touches(c)) continue
+      const r =
+        c.kind === 'mascot'
+          ? c.mode >= 1 && c.mode <= 2
+            ? 80
+            : 60
+          : c.kind === 'meatball' && c.mode === 1
+            ? 64
+            : 50
+      threats.push({ x: c.x, y: c.y, r })
+    }
+    for (const st of this.streamers) threats.push({ x: st.x, y: st.y, r: 18 })
     if (this.boss) threats.push({ x: this.boss.x, y: this.boss.y, r: 56 })
+    const leavingNow = this.exitsOpen && this.cleared
     for (const m of this.mines)
       threats.push({
         x: m.x,
         y: m.y,
-        r: m.fuse > 0 ? CUSHION_BLAST + 16 : m.kind === 'cushion' ? 15 : 12,
+        r:
+          m.fuse > 0
+            ? CUSHION_BLAST + 16
+            : leavingNow
+              ? 10
+              : m.kind === 'cushion'
+                ? 15
+                : 12,
       })
+    for (const lob of this.lobs)
+      if (lob.kind === 'pie') threats.push({ x: lob.x1, y: lob.y1, r: 22 })
+    for (const boom of this.booms)
+      if (this.boomTell(boom) !== null)
+        threats.push({ x: boom.x, y: boom.y, r: BOOM_REACH + 14 })
+    for (const c of this.crashers) {
+      if (c.kind === 'diver' && c.mode === 1)
+        threats.push({ x: c.tx, y: c.ty, r: TELLS.diverRing + 14 })
+      if (c.kind === 'drone' && c.mode >= 1) {
+        // Step off the drone's locked line.
+        const a = Math.atan2(c.ty - c.y, c.tx - c.x)
+        const along = Math.max(
+          0,
+          (this.px - c.x) * Math.cos(a) + (this.py - c.y) * Math.sin(a),
+        )
+        threats.push({
+          x: c.x + Math.cos(a) * along,
+          y: c.y + Math.sin(a) * along,
+          r: 20,
+        })
+      }
+    }
     for (const b of this.beams) {
       const { angle, hot, warming } = this.beamState(b)
       if (!hot && !warming) continue
@@ -2489,13 +3232,13 @@ class PrizeShowPanic implements ArcadeGameInstance {
       }
     }
     // Sidestep anything thrown this way, off the line it is flying along.
-    for (const s of this.streamers) {
-      const rx = this.px - s.x
-      const ry = this.py - s.y
+    for (const st of this.streamers) {
+      const rx = this.px - st.x
+      const ry = this.py - st.y
       if (Math.hypot(rx, ry) > 80) continue
-      const speed = Math.hypot(s.vx, s.vy) || 1
-      const ux = s.vx / speed
-      const uy = s.vy / speed
+      const speed = Math.hypot(st.vx, st.vy) || 1
+      const ux = st.vx / speed
+      const uy = st.vy / speed
       if (rx * ux + ry * uy < 0) continue
       const off = ry * ux - rx * uy
       if (Math.abs(off) > 12) continue
@@ -2503,6 +3246,23 @@ class PrizeShowPanic implements ArcadeGameInstance {
       const push = 2 * (1 - Math.abs(off) / 12)
       mx += -uy * side * push
       my += ux * side * push
+    }
+    // A charging mascot or a rolling meatball can't be outrun: step out of its line.
+    for (const c of this.crashers) {
+      const charging =
+        (c.kind === 'mascot' && c.mode >= 1 && c.mode <= 2) ||
+        (c.kind === 'meatball' && c.mode === 1)
+      if (!charging) continue
+      const ux = c.kind === 'meatball' ? Math.sign(c.vx) : Math.cos(c.face)
+      const uy = c.kind === 'meatball' ? Math.sign(c.vy) : Math.sin(c.face)
+      const rx = this.px - c.x
+      const ry = this.py - c.y
+      if (rx * ux + ry * uy < 0 || Math.hypot(rx, ry) > 140) continue
+      const off = ry * ux - rx * uy
+      if (Math.abs(off) > 22) continue
+      const side = off >= 0 ? 1 : -1
+      mx += -uy * side * 2.5
+      my += ux * side * 2.5
     }
     // While dodging, keep off the walls so a corner never pins the pilot.
     if (Math.abs(mx) + Math.abs(my) > 0.5) {
@@ -2525,6 +3285,11 @@ class PrizeShowPanic implements ArcadeGameInstance {
     if (goal && Math.abs(mx) + Math.abs(my) < 0.5) {
       mx = goal.x - this.px
       my = goal.y - this.py
+    } else if (goal && leaving) {
+      // Heading out: keep pulling for the door while stepping round trouble.
+      const d = Math.hypot(goal.x - this.px, goal.y - this.py) || 1
+      mx += ((goal.x - this.px) / d) * 0.8
+      my += ((goal.y - this.py) / d) * 0.8
     }
     // Drift back toward the middle when nothing else calls.
     if (Math.abs(mx) + Math.abs(my) < 0.3) {
@@ -2536,8 +3301,7 @@ class PrizeShowPanic implements ArcadeGameInstance {
     if (my < -0.2) held.up = true
     if (my > 0.2) held.down = true
     const target = [
-      ...this.crashers,
-      ...this.cameras,
+      ...this.crashers.filter(shootable),
       ...(this.boss ? [this.boss] : []),
     ].sort(
       (a, b) =>
@@ -2545,15 +3309,10 @@ class PrizeShowPanic implements ArcadeGameInstance {
         Math.hypot(b.x - this.px, b.y - this.py),
     )[0]
     if (target) {
-      // Point the cannon (it locks while B is held) and spray.
-      const a = Math.atan2(target.y - this.py, target.x - this.px)
-      const f = Math.round(a / (Math.PI / 4))
-      this.aim = {
-        x: Math.round(Math.cos((f * Math.PI) / 4)),
-        y: Math.round(Math.sin((f * Math.PI) / 4)),
-      }
-      held.b = true
-      held.a = true
+      // Twin-stick: the second stick points at the target and Sparkle sprays.
+      const ty = 'z' in target ? target.y - target.z : target.y
+      const a = Math.atan2(ty - this.py, target.x - this.px)
+      frame.aim = { x: Math.cos(a), y: Math.sin(a) }
     }
     return frame
   }
@@ -2574,20 +3333,29 @@ class PrizeShowPanic implements ArcadeGameInstance {
     this.renderCrack(g)
     if (this.exitsOpen)
       for (const exit of this.exits) this.renderExitArrows(g, exit)
+    this.renderSlicks(g)
     this.renderMines(g)
     this.renderShadows(g)
+    this.renderBoomShadows(g)
     this.renderPedestals(g)
     for (const p of this.prizes) this.renderPrize(g, p)
     this.renderTickets(g)
+    this.renderDecoy(g)
     if (this.boss) this.renderBoss(g, this.boss)
+    for (const box of this.cases)
+      drawSprite(g, CASE_SPRITE, Math.round(box.x), Math.round(box.y))
     const crowd = [...this.crashers].sort((a, b) => a.y - b.y)
     for (const c of crowd) this.renderCrasher(g, c)
     for (const d of this.dancers) this.renderDancer(g, d)
-    this.renderCameras(g)
     if (!dark) this.renderBeams(g)
+    this.renderDroneBeams(g)
     this.renderStreamers(g)
     this.renderShots(g)
+    this.renderGlitter(g)
     if (this.dead === 0 && !this.over) this.renderSparkle(g)
+    this.renderOrbiters(g)
+    this.renderLobs(g)
+    this.renderBoomMics(g)
     this.renderConfetti(g)
     this.fx.render(g)
     this.renderTosses(g)
@@ -3066,51 +3834,6 @@ class PrizeShowPanic implements ArcadeGameInstance {
     }
   }
 
-  /** The camera wall: each camera's lens glows red and its aim line shows while it charges. */
-  private renderCameras(g: CanvasRenderingContext2D) {
-    for (const cam of this.cameras) {
-      const charging = this.cameraCharging(cam)
-      if (charging) {
-        const c = (this.roomTick + cam.offset) % cam.every
-        const k = (c - (cam.every - CAMERA_CHARGE)) / CAMERA_CHARGE
-        glow(g, cam.x, cam.y, 10 + k * 10, RAMPS.ember[3], 0.35 + k * 0.4)
-        // A dotted line to where the flash is going.
-        const dx = cam.tx - cam.x
-        const dy = cam.ty - cam.y
-        const len = Math.hypot(dx, dy) || 1
-        g.fillStyle = rgba(RAMPS.ember[3], 0.35 + k * 0.5)
-        for (let d = 12; d < len; d += 7) {
-          if (Math.floor((d + this.tick) / 7) % 2) continue
-          g.fillRect(
-            Math.round(cam.x + (dx / len) * d),
-            Math.round(cam.y + (dy / len) * d),
-            2,
-            2,
-          )
-        }
-      }
-      const sideways = cam.side % 2 === 1
-      const sprite = sideways
-        ? charging
-          ? CAMERA_SPRITES.sideHot
-          : CAMERA_SPRITES.side
-        : charging
-          ? CAMERA_SPRITES.downHot
-          : CAMERA_SPRITES.down
-      const sx = cam.x + (cam.side === 1 ? 1 : cam.side === 3 ? -1 : 0)
-      const sy = cam.y + (cam.side === 0 ? -1 : cam.side === 2 ? 1 : 0)
-      drawSprite(g, sprite, sx, sy, {
-        flipX: cam.side === 1,
-        flipY: cam.side === 2,
-      })
-      // The tally light: red while live.
-      if (charging && Math.floor(this.tick / 4) % 2 === 0) {
-        g.fillStyle = RAMPS.ember[4]
-        g.fillRect(Math.round(sx) - 2, Math.round(sy) - 2, 2, 2)
-      }
-    }
-  }
-
   /** The light rig: hot beams glare in stepped bands; a warming beam flickers its outline. */
   private renderBeams(g: CanvasRenderingContext2D) {
     if (!this.beams.length) return
@@ -3179,31 +3902,273 @@ class PrizeShowPanic implements ArcadeGameInstance {
     for (const p of this.prizes)
       if (!p.pedestal) dropShadow(g, p.x, p.y + 6, 6, 1.6, 0.35)
     if (this.boss) dropShadow(g, this.boss.x, this.boss.y + 21, 44, 5, 0.4)
-    for (const c of this.crashers)
-      dropShadow(g, c.x, c.y + 7, c.kind === 'bouncer' ? 6 : 5, 1.6, 0.35)
+    for (const box of this.cases)
+      dropShadow(g, box.x + 1, box.y + 7, 12, 2.2, 0.4)
+    for (const c of this.crashers) {
+      if (c.kind === 'crane') continue
+      const size =
+        c.kind === 'mascot'
+          ? 13
+          : c.kind === 'tank'
+            ? 10
+            : c.kind === 'bouncer'
+              ? 6
+              : 5
+      const high = c.z > 0 ? Math.max(0.35, 1 - c.z / 60) : 1
+      dropShadow(g, c.x, c.y + 7, size * high, 1.6 * high, 0.35 * high)
+      if (c.kind === 'diver' && c.mode === 1) {
+        // Where the diver will land: a shadow that grows as it falls (the tell).
+        const u = Math.min(1, c.clock / TELLS.diverFlight)
+        dropShadow(g, c.tx, c.ty + 7, 6 + u * 10, 2 + u * 3, 0.25 + u * 0.35)
+        g.strokeStyle = rgba(RAMPS.ember[3], 0.4 + u * 0.5)
+        g.lineWidth = 1
+        g.beginPath()
+        g.ellipse(
+          c.tx,
+          c.ty + 7,
+          TELLS.diverRing,
+          TELLS.diverRing * 0.6,
+          0,
+          0,
+          Math.PI * 2,
+        )
+        g.stroke()
+      }
+    }
     for (const d of this.dancers)
       dropShadow(g, d.x, d.y + 7, 4, 1.4, 0.3 * Math.min(1, d.life / 25))
-    if (this.dead === 0 && !this.over)
+    if (this.dead === 0 && !this.over && this.lifted === 0)
       dropShadow(g, this.px, this.py + 8, 6, 1.8, 0.4)
   }
 
+  /** Pie cream (slippery) and foam (slows crashers) on the floor. */
+  private renderSlicks(g: CanvasRenderingContext2D) {
+    for (const s of this.slicks) {
+      const fade = Math.min(1, s.life / 60)
+      const cream = s.kind === 'cream'
+      const base = cream ? RAMPS.cream[3] : RAMPS.water[3]
+      const top = cream ? RAMPS.cream[4] : RAMPS.water[4]
+      g.fillStyle = rgba(base, 0.55 * fade)
+      g.beginPath()
+      g.ellipse(s.x, s.y + 4, s.r, s.r * 0.55, 0, 0, Math.PI * 2)
+      g.fill()
+      g.fillStyle = rgba(top, 0.7 * fade)
+      for (let i = 0; i < 4; i++) {
+        const a = i * 1.7 + s.x
+        g.beginPath()
+        g.ellipse(
+          s.x + Math.cos(a) * s.r * 0.5,
+          s.y + 4 + Math.sin(a) * s.r * 0.25,
+          s.r * 0.3,
+          s.r * 0.18,
+          0,
+          0,
+          Math.PI * 2,
+        )
+        g.fill()
+      }
+    }
+  }
+
+  /** A boom mic's tell: its shadow grows on the floor where it will swoop. */
+  private renderBoomShadows(g: CanvasRenderingContext2D) {
+    for (const boom of this.booms) {
+      const u = this.boomTell(boom)
+      if (u === null) continue
+      dropShadow(g, boom.x, boom.y + 6, 6 + u * 10, 2 + u * 4, 0.3 + u * 0.4)
+      g.fillStyle = rgba(
+        RAMPS.ember[3],
+        0.5 + 0.4 * (Math.floor(this.tick / 4) % 2),
+      )
+      for (let i = 0; i < 12; i++) {
+        const a = (i / 12) * Math.PI * 2 + this.tick / 18
+        g.fillRect(
+          Math.round(boom.x + Math.cos(a) * BOOM_REACH),
+          Math.round(boom.y + 6 + Math.sin(a) * BOOM_REACH * 0.6),
+          2,
+          1,
+        )
+      }
+    }
+  }
+
+  /** The boom mics on their cables: lowering during the tell, carrying Sparkle while she's up. */
+  private renderBoomMics(g: CanvasRenderingContext2D) {
+    for (const boom of this.booms) {
+      const u = this.boomTell(boom)
+      if (u === null) continue
+      const y = TOP + (boom.y - 14 - TOP) * u * u
+      g.fillStyle = RAMPS.steel[1]
+      g.fillRect(Math.round(boom.x), HUD, 1, Math.max(0, Math.round(y) - HUD))
+      drawSprite(g, MIC_SPRITE, boom.x, y, { flipY: true })
+    }
+    if (this.lifted > 0) {
+      const up = Math.sin((1 - this.lifted / BOOM_LIFT) * Math.PI) * 40
+      const y = this.py - up
+      g.fillStyle = RAMPS.steel[1]
+      g.fillRect(
+        Math.round(this.px),
+        HUD,
+        1,
+        Math.max(0, Math.round(y - 22 - HUD)),
+      )
+      drawSprite(g, MIC_SPRITE, this.px, y - 18, { flipY: true })
+    }
+  }
+
+  /** The cardboard cutout the crowd chases. */
+  private renderDecoy(g: CanvasRenderingContext2D) {
+    const d = this.decoy
+    if (!d) return
+    if (d.life < 90 && Math.floor(this.tick / 4) % 2) return
+    dropShadow(g, d.x, d.y + 8, 6, 1.8, 0.4)
+    g.fillStyle = RAMPS.earth[1]
+    g.fillRect(Math.round(d.x) + 3, Math.round(d.y) + 2, 2, 7)
+    drawSprite(g, CUTOUT_SPRITE, d.x, d.y + 8, { anchor: 'feet' })
+    gauge(
+      g,
+      Math.round(d.x) - 8,
+      Math.round(d.y) - 14,
+      16,
+      2,
+      d.hp / ARSENAL.cutoutHp,
+      RAMPS.earth,
+    )
+  }
+
+  /** Pies and party poppers in flight, each over a landing shadow (the pie's is the tell). */
+  private renderLobs(g: CanvasRenderingContext2D) {
+    for (const lob of this.lobs) {
+      const u = lob.t / lob.dur
+      const x = lob.x0 + (lob.x1 - lob.x0) * u
+      const y = lob.y0 + (lob.y1 - lob.y0) * u - Math.sin(u * Math.PI) * 42
+      dropShadow(g, lob.x1, lob.y1 + 4, 3 + u * 6, 1 + u * 2, 0.25 + u * 0.35)
+      if (lob.kind === 'pie') {
+        g.strokeStyle = rgba(RAMPS.cream[4], 0.35 + u * 0.5)
+        g.lineWidth = 1
+        g.beginPath()
+        g.ellipse(lob.x1, lob.y1 + 4, 10, 6, 0, 0, Math.PI * 2)
+        g.stroke()
+        drawSprite(g, PIE_SPRITE, x, y)
+      } else {
+        glow(g, x, y, 8, RAMPS.pink[3], 0.4)
+        drawSprite(g, POPPER_SPRITE, x, y, { flipX: lob.x1 < lob.x0 })
+      }
+    }
+  }
+
+  /** Streamer orbiters: two gold ribbons circling Sparkle. */
+  private renderOrbiters(g: CanvasRenderingContext2D) {
+    const spots = this.orbiterSpots()
+    if (!spots.length) return
+    const fading = this.powers.orbiters < 120 && Math.floor(this.tick / 4) % 2
+    if (fading) return
+    for (const o of spots) {
+      glow(g, o.x, o.y, 8, RAMPS.gold[3], 0.45)
+      drawSprite(g, STREAMER_SPRITES[1]!, o.x, o.y)
+    }
+  }
+
+  /** Glitter laser lines: a white core in a pink haze, glinting along its length. */
+  private renderGlitter(g: CanvasRenderingContext2D) {
+    if (!this.glitter.length) return
+    g.save()
+    g.globalCompositeOperation = 'lighter'
+    for (const l of this.glitter) {
+      const a = l.life / ARSENAL.laserShow
+      for (const [w, colour, alpha] of [
+        [5, RAMPS.pink[3], 0.35],
+        [3, RAMPS.cream[4], 0.6],
+        [1, '#ffffff', 0.9],
+      ] as const) {
+        g.strokeStyle = rgba(colour, alpha * a)
+        g.lineWidth = w
+        g.beginPath()
+        g.moveTo(l.x0, l.y0)
+        g.lineTo(l.x1, l.y1)
+        g.stroke()
+      }
+      g.fillStyle = '#ffffff'
+      const len = Math.hypot(l.x1 - l.x0, l.y1 - l.y0)
+      for (let d = (this.tick * 3) % 14; d < len; d += 14) {
+        const u = d / (len || 1)
+        g.fillRect(
+          Math.round(l.x0 + (l.x1 - l.x0) * u) - 1,
+          Math.round(l.y0 + (l.y1 - l.y0) * u),
+          3,
+          1,
+        )
+      }
+    }
+    g.restore()
+  }
+
+  /** Spotlight drones: a dotted lock line (the tell), then a hot beam down it. */
+  private renderDroneBeams(g: CanvasRenderingContext2D) {
+    for (const c of this.crashers) {
+      if (c.kind !== 'drone' || c.mode === 0) continue
+      const x = c.x
+      const y = c.y - c.z
+      const a = Math.atan2(c.ty - c.y, c.tx - c.x)
+      const dx = Math.cos(a)
+      const dy = Math.sin(a)
+      if (c.mode === 1) {
+        const k = c.clock / TELLS.droneLock
+        g.fillStyle = rgba(RAMPS.ember[3], 0.35 + k * 0.55)
+        for (let d = 8; d < TELLS.droneLength; d += 6) {
+          if (Math.floor((d + this.tick) / 6) % 2) continue
+          const px = x + dx * d
+          const py = c.y + dy * d
+          if (px < LEFT || px > RIGHT || py < TOP || py > BOTTOM) break
+          g.fillRect(Math.round(px), Math.round(py), 2, 2)
+        }
+        g.strokeStyle = rgba(RAMPS.ember[3], 0.8)
+        g.lineWidth = 1
+        g.strokeRect(Math.round(c.tx) - 5.5, Math.round(c.ty) - 5.5, 11, 11)
+        continue
+      }
+      g.save()
+      g.beginPath()
+      g.rect(LEFT, TOP, RIGHT - LEFT, BOTTOM - TOP)
+      g.clip()
+      g.globalCompositeOperation = 'lighter'
+      for (const [w, colour, alpha] of [
+        [9, RAMPS.gold[3], 0.25],
+        [5, RAMPS.gold[4], 0.45],
+        [2, '#ffffff', 0.85],
+      ] as const) {
+        g.strokeStyle = rgba(colour, alpha)
+        g.lineWidth = w
+        g.beginPath()
+        g.moveTo(x, y)
+        g.lineTo(c.x + dx * TELLS.droneLength, c.y + dy * TELLS.droneLength)
+        g.stroke()
+      }
+      g.restore()
+    }
+  }
+
   private renderSparkle(g: CanvasRenderingContext2D) {
-    if (this.invuln > 0 && Math.floor(this.tick / 4) % 2) return
+    if (this.invuln > 0 && this.lifted === 0 && Math.floor(this.tick / 4) % 2)
+      return
     const x = Math.round(this.px)
-    const y = Math.round(this.py)
-    const view: View =
-      this.aim.x !== 0 ? 'side' : this.aim.y < 0 ? 'back' : 'front'
+    const up = this.lifted
+      ? Math.sin((1 - this.lifted / BOOM_LIFT) * Math.PI) * 40
+      : 0
+    const y = Math.round(this.py - up)
+    const view = viewOf(this.aim)
     const pace = Math.floor(this.stride / 7) % 2
     const frame = this.striding ? 1 + pace : 0
     // The confetti cannon sits on Sparkle's aim; behind when aiming away from us.
     const cannon = () => {
       const mx = x + this.aim.x * 8
       const my = y - 1 + this.aim.y * 7
-      const cool = this.rapid > 0 ? RAPID_COOLDOWN : FIRE_COOLDOWN
+      const cool = this.powers.rapid > 0 ? RAPID_COOLDOWN : FIRE_COOLDOWN
       if (this.fireCooldown >= cool - 1) glow(g, mx, my, 9, RAMPS.pink[3], 0.7)
       shadedOrb(g, mx, my, 2.5, RAMPS.pink)
     }
     if (this.aim.y < 0) cannon()
+    if (this.powers.skates > 0) glow(g, x, y + 7, 8, RAMPS.leaf[3], 0.35)
     drawSprite(g, HERO_SPRITES[view][frame]!, x, y + 8 - (frame ? pace : 0), {
       anchor: 'feet',
       flipX: this.aim.x < 0,
@@ -3220,10 +4185,8 @@ class PrizeShowPanic implements ArcadeGameInstance {
           1,
         )
     }
-    if (
-      this.shield > 0 &&
-      !(this.shield < 120 && Math.floor(this.tick / 4) % 2)
-    ) {
+    const shield = this.powers.shield
+    if (shield > 0 && !(shield < 120 && Math.floor(this.tick / 4) % 2)) {
       glow(g, x, y - 1, 15, RAMPS.teal[3], 0.3)
       g.lineWidth = 1
       g.strokeStyle = rgba(RAMPS.teal[3], 0.85)
@@ -3248,24 +4211,313 @@ class PrizeShowPanic implements ArcadeGameInstance {
   }
 
   private renderCrasher(g: CanvasRenderingContext2D, c: Crasher) {
+    if (c.kind === 'crane') {
+      this.renderCrane(g, c)
+      return
+    }
+    if (c.kind === 'clone') {
+      this.renderClone(g, c)
+      return
+    }
     const look = CRASHER_LOOKS.get(c.color) ?? FALLBACK_LOOK
+    const frames = look[c.kind] ?? look.grabber!
     let frame = Math.floor(c.t / 8) % 2
     let lift = Math.round(Math.abs(Math.sin(c.t / 5)))
     let flip = this.px < c.x
-    if (c.kind === 'bouncer') {
-      lift = Math.round(Math.sin(((c.t % 20) / 20) * Math.PI) * 4)
-      frame = lift === 0 ? 1 : 0
-      flip = c.vx < 0
-    } else if (c.kind === 'conga') {
-      frame = Math.floor(c.t / 10) % 2
-      if (c.leader) flip = c.leader.x < c.x
-    } else if (c.kind === 'thrower') {
-      frame = c.t % 90 < 12 ? 1 : 0
+    let shake = 0
+    switch (c.kind) {
+      case 'bouncer':
+        lift = Math.round(Math.sin(((c.t % 20) / 20) * Math.PI) * 4)
+        frame = lift === 0 ? 1 : 0
+        flip = c.vx < 0
+        break
+      case 'conga':
+        frame = Math.floor(c.t / 10) % 2
+        if (c.leader) flip = c.leader.x < c.x
+        break
+      case 'thrower':
+        frame = c.t % 90 < 12 ? 1 : 0
+        break
+      case 'popper':
+        lift = 3 + Math.round(Math.sin(c.t / 9) * 2)
+        frame = Math.floor(c.t / 14) % 2
+        if (c.mode === 1) shake = Math.floor(c.clock / 2) % 2 ? 1 : -1
+        break
+      case 'tank':
+      case 'mascot':
+      case 'roadie':
+        flip = Math.cos(c.face) < 0
+        frame = Math.floor(c.t / (c.kind === 'tank' ? 5 : 9)) % 2
+        lift = c.kind === 'tank' ? 0 : lift
+        if (c.kind === 'mascot' && c.mode === 1)
+          shake = Math.floor(c.clock / 3) % 2 ? 1 : -1
+        if (c.kind === 'mascot' && c.mode === 2) frame = Math.floor(c.t / 4) % 2
+        break
+      case 'stagehand':
+        if (c.mode === 1) lift = -2
+        break
+      case 'drone':
+      case 'saucer':
+        lift = Math.round(c.z + Math.sin(c.t / 10) * 2)
+        frame = Math.floor(c.t / (c.kind === 'drone' ? 3 : 8)) % 2
+        flip = c.kind === 'drone' ? this.px < c.x : false
+        break
+      case 'chef':
+      case 'heckler':
+        frame = c.mode === 1 ? 1 : Math.floor(c.t / 12) % 2 ? 0 : 0
+        break
+      case 'timer':
+        frame = Math.floor(c.t / 10) % 2
+        break
+      case 'meatball':
+        lift = 0
+        frame = Math.floor(c.t / (c.mode === 1 ? 3 : 10)) % 2
+        flip = c.mode === 1 ? c.vx < 0 || c.vy < 0 : Math.cos(c.face) < 0
+        if (c.mode === 0) shake = Math.floor(c.clock / 2) % 2 ? 1 : 0
+        break
+      case 'diver':
+        lift = Math.round(c.z) + (c.z > 0 ? 0 : lift)
+        frame = c.z > 2 ? 1 : 0
+        break
+      case 'fluffball': {
+        const swelling = c.clock > TELLS.fluffEvery
+        frame = Math.floor(c.t / (swelling ? 3 : 7)) % 2
+        break
+      }
     }
-    drawSprite(g, look[c.kind][frame]!, c.x, c.y + 7 - lift, {
+    const x = Math.round(c.x) + shake
+    const y = Math.round(c.y) + 7 - lift
+    if (c.kind === 'popper' && c.mode === 1) {
+      const k = c.clock / TELLS.popperSwell
+      glow(g, x, y - 12, 10 + k * 10, RAMPS.pink[3], 0.4 + k * 0.4)
+    }
+    drawSprite(g, frames[frame]!, x, y, {
       anchor: 'feet',
       flipX: flip,
+      alpha:
+        c.kind === 'popper' && c.mode === 1 && Math.floor(c.clock / 3) % 2
+          ? 0.6
+          : 1,
     })
+    this.renderTell(g, c, x, y)
+  }
+
+  /** What a crasher shows before it acts, drawn over it. */
+  private renderTell(
+    g: CanvasRenderingContext2D,
+    c: Crasher,
+    x: number,
+    y: number,
+  ) {
+    const bang = (top: number, colour: string) => {
+      if (Math.floor(this.tick / 4) % 2) return
+      drawText(g, '!', x, top, { align: 'center', color: colour, outline: INK })
+    }
+    if (c.pumped > 0 && Math.floor(this.tick / 6) % 2 === 0) {
+      // Heckled: little anger marks over its head.
+      g.fillStyle = RAMPS.ember[3]
+      g.fillRect(x + 4, y - 22, 3, 1)
+      g.fillRect(x + 5, y - 23, 1, 3)
+    }
+    if (c.slow > 0) {
+      g.fillStyle = rgba(RAMPS.water[4], 0.7)
+      g.fillRect(x - 5, y - 2, 10, 2)
+    }
+    switch (c.kind) {
+      case 'tank': {
+        if (c.mode !== 1) break
+        const k = c.clock / TELLS.tankCharge
+        glow(
+          g,
+          x + Math.cos(c.face) * 9,
+          y - 9 + Math.sin(c.face) * 4,
+          6 + k * 8,
+          RAMPS.sky[3],
+          0.4 + k * 0.5,
+        )
+        break
+      }
+      case 'stagehand':
+        if (c.mode === 1) bang(y - 30, RAMPS.pink[3])
+        break
+      case 'mascot':
+        if (c.mode === 1) bang(y - 40, RAMPS.ember[3])
+        if (c.mode === 3) {
+          for (let i = 0; i < 3; i++) {
+            const a = this.tick / 8 + (i * Math.PI * 2) / 3
+            g.fillStyle = RAMPS.gold[4]
+            g.fillRect(
+              Math.round(x + Math.cos(a) * 10),
+              Math.round(y - 30 + Math.sin(a) * 3),
+              2,
+              2,
+            )
+          }
+        }
+        gauge(g, x - 12, y - 34, 24, 2, c.hp / c.maxHp, RAMPS.ember)
+        break
+      case 'chef':
+        if (c.mode === 1)
+          drawSprite(g, PIE_SPRITE, x, y - 26 - Math.min(4, c.clock / 6))
+        break
+      case 'timer': {
+        // The dial's hand sweeps round; the last two seconds it flashes.
+        const left = TELLS.timerFuse - c.clock
+        const a = -Math.PI / 2 + (c.clock / TELLS.timerFuse) * Math.PI * 2
+        const cx = x
+        const cy = y - 9
+        if (left < 120 && Math.floor(this.tick / 5) % 2)
+          glow(g, cx, cy, 12, RAMPS.ember[3], 0.6)
+        g.fillStyle = RAMPS.ember[2]
+        for (let r = 1; r <= 2; r++)
+          g.fillRect(
+            Math.round(cx + Math.cos(a) * r),
+            Math.round(cy + Math.sin(a) * r),
+            1,
+            1,
+          )
+        break
+      }
+      case 'heckler':
+        if (c.mode === 1) {
+          bang(y - 30, RAMPS.gold[4])
+          g.strokeStyle = rgba(RAMPS.gold[4], 0.6)
+          g.lineWidth = 1
+          for (let r = 1; r <= 2; r++) {
+            g.beginPath()
+            g.arc(x + 9, y - 12, 4 * r + (this.tick % 8) / 2, -0.7, 0.7)
+            g.stroke()
+          }
+        }
+        break
+      case 'saucer': {
+        const prize = c.prize
+        if (c.mode !== 1 || !prize) break
+        // The tractor beam: a pale cone from the saucer down to the prize it is lifting.
+        g.save()
+        g.globalCompositeOperation = 'lighter'
+        g.fillStyle = rgba(RAMPS.sky[3], 0.22 + 0.08 * Math.sin(this.tick / 3))
+        g.beginPath()
+        g.moveTo(x - 4, y - 8)
+        g.lineTo(x + 4, y - 8)
+        g.lineTo(prize.x + 9, prize.y + 6)
+        g.lineTo(prize.x - 9, prize.y + 6)
+        g.closePath()
+        g.fill()
+        g.restore()
+        break
+      }
+      case 'meatball':
+        if (c.mode === 0 && c.clock % 6 < 3) {
+          g.fillStyle = rgba(RAMPS.earth[3], 0.8)
+          const back = Math.cos(c.face) > 0 ? -1 : 1
+          g.fillRect(x + back * 9, y - 3, 3, 1)
+          g.fillRect(x + back * 11, y - 5, 2, 1)
+        }
+        break
+      case 'fluffball':
+        if (c.clock > TELLS.fluffEvery) glow(g, x, y - 6, 9, RAMPS.pink[3], 0.4)
+        break
+    }
+  }
+
+  /** A camera crane on the wall: the lens glows red and an aim line shows while it charges. */
+  private renderCrane(g: CanvasRenderingContext2D, c: Crasher) {
+    const charging = !this.cleared && craneCharging(c, this.roomTick)
+    if (charging) {
+      const k =
+        (((this.roomTick + c.offset) % c.every) -
+          (c.every - TELLS.craneCharge)) /
+        TELLS.craneCharge
+      glow(g, c.x, c.y, 10 + k * 10, RAMPS.ember[3], 0.35 + k * 0.4)
+      const dx = c.tx - c.x
+      const dy = c.ty - c.y
+      const len = Math.hypot(dx, dy) || 1
+      g.fillStyle = rgba(RAMPS.ember[3], 0.35 + k * 0.5)
+      for (let d = 12; d < len; d += 7) {
+        if (Math.floor((d + this.tick) / 7) % 2) continue
+        g.fillRect(
+          Math.round(c.x + (dx / len) * d),
+          Math.round(c.y + (dy / len) * d),
+          2,
+          2,
+        )
+      }
+    }
+    // The crane arm it hangs from, along the wall.
+    const along = c.side % 2 === 0
+    g.fillStyle = INK
+    if (along)
+      g.fillRect(
+        Math.round(c.x) - 7,
+        Math.round(c.y) - (c.side === 0 ? 6 : -4),
+        14,
+        3,
+      )
+    else
+      g.fillRect(
+        Math.round(c.x) - (c.side === 3 ? 6 : -4),
+        Math.round(c.y) - 7,
+        3,
+        14,
+      )
+    g.fillStyle = RAMPS.gold[2]
+    if (along)
+      g.fillRect(
+        Math.round(c.x) - 6,
+        Math.round(c.y) - (c.side === 0 ? 5 : -5),
+        12,
+        1,
+      )
+    else
+      g.fillRect(
+        Math.round(c.x) - (c.side === 3 ? 5 : -5),
+        Math.round(c.y) - 6,
+        1,
+        12,
+      )
+    const sideways = c.side % 2 === 1
+    const sprite = sideways
+      ? charging
+        ? CAMERA_SPRITES.sideHot
+        : CAMERA_SPRITES.side
+      : charging
+        ? CAMERA_SPRITES.downHot
+        : CAMERA_SPRITES.down
+    const sx = c.x + (c.side === 1 ? 1 : c.side === 3 ? -1 : 0)
+    const sy = c.y + (c.side === 0 ? -1 : c.side === 2 ? 1 : 0)
+    drawSprite(g, sprite, sx, sy, {
+      flipX: c.side === 1,
+      flipY: c.side === 2,
+    })
+    if (charging && Math.floor(this.tick / 4) % 2 === 0) {
+      g.fillStyle = RAMPS.ember[4]
+      g.fillRect(Math.round(sx) - 2, Math.round(sy) - 2, 2, 2)
+    }
+  }
+
+  /** The mirror clone: Sparkle in glitch colours, with a scanline flicker. */
+  private renderClone(g: CanvasRenderingContext2D, c: Crasher) {
+    const moving = Math.abs(c.vx) + Math.abs(c.vy) > 0.1
+    const aim = moving ? { x: c.vx, y: c.vy } : { x: 0, y: 1 }
+    const view = viewOf(aim)
+    const frame = moving ? 1 + (Math.floor(c.t / 7) % 2) : 0
+    const glitch = Math.floor(this.tick / 3) % 7 === 0 ? 1 : 0
+    glow(g, c.x, c.y, 12, RAMPS.purple[3], 0.3)
+    drawSprite(
+      g,
+      CLONE_SPRITES[view][frame]!,
+      Math.round(c.x) + glitch,
+      Math.round(c.y) + 8,
+      {
+        anchor: 'feet',
+        flipX: aim.x < 0,
+        alpha: 0.85,
+      },
+    )
+    g.fillStyle = rgba(RAMPS.teal[4], 0.35)
+    const line = Math.round(c.y) - 6 + (this.tick % 14)
+    g.fillRect(Math.round(c.x) - 6, line, 12, 1)
   }
 
   private renderDancer(g: CanvasRenderingContext2D, d: Dancer) {
@@ -3291,17 +4543,25 @@ class PrizeShowPanic implements ArcadeGameInstance {
       streamer: RAMPS.pink[3],
       flash: RAMPS.gold[4],
       spark: RAMPS.ember[3],
+      shard: RAMPS.pink[3],
+      bubble: RAMPS.water[3],
     }
     g.save()
     g.globalCompositeOperation = 'lighter'
     g.globalAlpha = 0.25
     for (const s of this.streamers)
-      if (s.style === 'streamer') halo(g, s.x, s.y, 4, halos[s.style])
+      if (s.style === 'streamer' || s.style === 'shard')
+        halo(g, s.x, s.y, 4, halos[s.style])
     g.restore()
     for (const s of this.streamers)
-      if (s.style !== 'streamer') glow(g, s.x, s.y, 9, halos[s.style], 0.55)
+      if (s.style === 'flash' || s.style === 'spark')
+        glow(g, s.x, s.y, 9, halos[s.style], 0.55)
     const flutter = Math.floor(this.tick / 4) % 2
     for (const s of this.streamers) {
+      if (s.style === 'bubble') {
+        shadedOrb(g, s.x, s.y, 3, RAMPS.water, { outline: RAMPS.water[1] })
+        continue
+      }
       const sprite =
         s.style === 'flash'
           ? FLASH_SPRITES[flutter]!
@@ -3322,6 +4582,21 @@ class PrizeShowPanic implements ArcadeGameInstance {
     for (const s of this.shots) halo(g, s.x, s.y, 3, colour(s))
     g.restore()
     for (const s of this.shots) {
+      if (s.kind === 'rocket') {
+        // A bubble rocket: a heavy water bubble trailing smaller ones.
+        glow(g, s.x, s.y, 9, RAMPS.water[3], 0.45)
+        for (let k = 1; k <= 3; k++)
+          shadedOrb(
+            g,
+            s.x - s.vx * k * 2.2,
+            s.y - s.vy * k * 2.2,
+            2 - k * 0.4,
+            RAMPS.water,
+            { outline: null, glint: false },
+          )
+        shadedOrb(g, s.x, s.y, 3.5, RAMPS.water)
+        continue
+      }
       const sprites = SHOT_SPRITES.get(colour(s))!
       drawSprite(g, sprites[(spin + s.hue) % 2]!, s.x, s.y)
     }
@@ -3420,7 +4695,7 @@ class PrizeShowPanic implements ArcadeGameInstance {
     if (!p.pedestal && p.life < 90 && Math.floor(this.tick / 5) % 2) return
     const bob = Math.round(Math.sin((this.tick + p.x) / 9) * 1.5)
     const x = p.x
-    const y = p.y - 1 + bob - (p.pedestal ? 4 : 0)
+    const y = p.y - 1 + bob - (p.pedestal ? 4 : 0) - (p.lift || 0) * 26
     glow(
       g,
       p.x,
@@ -3441,8 +4716,8 @@ class PrizeShowPanic implements ArcadeGameInstance {
         drawSprite(g, CAR_SPRITE, x, y)
         break
       default:
-        shadedOrb(g, x, y, 5.5, POWER_RAMPS[p.kind])
-        drawText(g, p.kind[0]!.toUpperCase(), x + 1, y - 3, {
+        shadedOrb(g, x, y, 5.5, POWERS[p.kind].ramp)
+        drawText(g, POWERS[p.kind].letter, x + 1, y - 3, {
           align: 'center',
           color: INK,
         })
@@ -3471,13 +4746,8 @@ class PrizeShowPanic implements ArcadeGameInstance {
       g.ellipse(toss.x1, toss.y1 + 5, 7, 3, 0, 0, Math.PI * 2)
       g.stroke()
       dropShadow(g, toss.x1, toss.y1 + 5, 3 + u * 4, 1 + u, 0.35)
-      if (toss.kind === 'cash') drawSprite(g, CASH_SPRITE, x, y)
-      else if (
-        toss.kind === 'spread' ||
-        toss.kind === 'rapid' ||
-        toss.kind === 'shield'
-      )
-        shadedOrb(g, x, y, 4.5, POWER_RAMPS[toss.kind])
+      if (isPower(toss.kind)) shadedOrb(g, x, y, 4.5, POWERS[toss.kind].ramp)
+      else drawSprite(g, CASH_SPRITE, x, y)
     }
   }
 
@@ -3616,6 +4886,41 @@ class PrizeShowPanic implements ArcadeGameInstance {
       })
   }
 
+  /** The power-up that loads the cannon, if any (the laser beats rockets beats foam). */
+  private cannon(): PowerKind | null {
+    const p = this.powers
+    return p.laser > 0
+      ? 'laser'
+      : p.rockets > 0
+        ? 'rockets'
+        : p.foamgun > 0
+          ? 'foamgun'
+          : null
+  }
+
+  /**
+   * Every live power-up gets a chip on the top wall, either side of the door: its letter and a
+   * draining gauge, blinking in its last two seconds.
+   */
+  private renderPowerChips(g: CanvasRenderingContext2D) {
+    const live = POWER_KINDS.filter((kind) => this.powers[kind] > 0)
+    live.forEach((kind, i) => {
+      const x = i < 5 ? 12 + i * 25 : CX + DOOR + 6 + (i - 5) * 25
+      const y = HUD + 1
+      const left = this.powers[kind]
+      const power = POWERS[kind]
+      if (left < 120 && Math.floor(this.tick / 5) % 2) return
+      g.fillStyle = INK
+      g.fillRect(x - 1, y - 1, 25, 10)
+      g.fillStyle = power.ramp[0]
+      g.fillRect(x, y, 23, 8)
+      g.fillStyle = power.ramp[2]
+      g.fillRect(x, y, 23, 1)
+      drawText(g, power.letter, x + 2, y + 1, { color: power.ramp[4] })
+      gauge(g, x + 9, y + 3, 12, 2, left / power.cap, power.ramp)
+    })
+  }
+
   private renderHud(g: CanvasRenderingContext2D) {
     // Score.
     hudPanel(g, 2, 1, 90, 15)
@@ -3624,19 +4929,17 @@ class PrizeShowPanic implements ArcadeGameInstance {
       color: RAMPS.gold[3],
       shadow: INK,
     })
-    // Power-ups: lit with a draining gauge while they last.
+    // The cannon: what it is loaded with now (confetti, rockets, the laser or foam).
     hudPanel(g, 96, 1, 26, 15)
-    const powers = [
-      ['S', this.spread, POWER_TICKS, RAMPS.purple],
-      ['R', this.rapid, POWER_TICKS, RAMPS.rust],
-      ['D', this.shield, SHIELD_TICKS, RAMPS.teal],
-    ] as const
-    powers.forEach(([letter, left, full, ramp], i) => {
-      const px = 98 + i * 8
-      if (left > 0) drawText(g, letter, px, 3, { color: ramp[3], outline: INK })
-      else drawText(g, letter, px, 3, { color: RAMPS.night[3] })
-      gauge(g, px, 12, 5, 2, left / full, ramp)
+    const gun = this.cannon()
+    const gunRamp = gun ? POWERS[gun].ramp : RAMPS.pink
+    if (this.fireCooldown > 0) glow(g, 109, 8, 9, gunRamp[3], 0.4)
+    shadedOrb(g, 109, 8, 5, gunRamp)
+    drawText(g, gun ? POWERS[gun].letter : '*', 110, 5, {
+      align: 'center',
+      color: INK,
     })
+    this.renderPowerChips(g)
     // The host's countdown.
     const tx = 126
     hudPanel(g, tx, 1, 60, 15)
@@ -3717,25 +5020,14 @@ class PrizeShowPanic implements ArcadeGameInstance {
   }
 }
 
-/** Where a wall camera hangs: `at` -1..1 along its wall, either side of the door, just inside. */
-function wallSpot(side: Side, at: number): { x: number; y: number } {
-  const door = DOORS[side]!
-  const along = side % 2 === 0
-  const half = along ? (RIGHT - LEFT) / 2 : (BOTTOM - TOP) / 2
-  const reach = DOOR + 12 + Math.abs(at) * (half - DOOR - 26)
-  const off = Math.sign(at) * reach
-  if (along) return { x: door.x + off, y: side === 0 ? TOP + 5 : BOTTOM - 5 }
-  return { x: side === 3 ? LEFT + 5 : RIGHT - 5, y: door.y + off }
-}
-
-const PRIZE_NAMES: Record<PrizeKind, string> = {
+const PRIZE_NAMES = {
   cash: 'CASH!',
   toaster: 'A TOASTER!',
   car: 'A NEW CAR!',
-  spread: 'SPREAD SHOT!',
-  rapid: 'RAPID FIRE!',
-  shield: 'SHIELD!',
-}
+  ...Object.fromEntries(
+    POWER_KINDS.map((kind) => [kind, `${POWERS[kind].name}!`]),
+  ),
+} as Record<PrizeKind, string>
 
 const prizeShowPanic: ArcadeGameModule = {
   create: (options) => new PrizeShowPanic(options),

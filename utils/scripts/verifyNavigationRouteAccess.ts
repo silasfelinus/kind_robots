@@ -367,13 +367,48 @@ for (const key of ['art', 'projects', 'studios', 'people', 'shelf']) {
 }
 
 const navigationMoves = [
-  { slug: 'zuzu-lair', from: 'projects', to: 'admin', route: '/play/zuzu-lair' },
-  { slug: 'tzaddik-gallery', from: 'projects', to: 'admin', route: '/tzaddik-gallery' },
-  { slug: 'ruler-hooked', from: 'projects', to: 'admin', route: '/plan/projects/ruler-hooked' },
-  { slug: 'brainstorm', from: 'projects', to: 'admin', route: '/brainstorm' },
-  { slug: 'zuzu-shifting-lands', from: 'admin', to: 'projects', route: '/admin/zuzu-shifting-lands' },
-  { slug: 'zuzu-pinball', from: 'admin', to: 'projects', route: '/admin/zuzu-pinball' },
-  { slug: 'zuzu-showdown', from: 'admin', to: 'projects', route: '/play/zuzu-showdown' },
+  {
+    slug: 'zuzu-lair',
+    from: 'projects',
+    to: 'admin',
+    route: '/play/zuzu-lair',
+  },
+  {
+    slug: 'tzaddik-gallery',
+    from: 'projects',
+    to: 'admin',
+    route: '/tzaddik-gallery',
+  },
+  {
+    slug: 'ruler-hooked',
+    from: 'projects',
+    to: 'admin',
+    route: '/plan/projects/ruler-hooked',
+  },
+  {
+    slug: 'brainstorm',
+    from: 'projects',
+    to: 'admin',
+    route: '/brainstorm',
+  },
+  {
+    slug: 'zuzu-shifting-lands',
+    from: 'admin',
+    to: 'projects',
+    route: '/admin/zuzu-shifting-lands',
+  },
+  {
+    slug: 'zuzu-pinball',
+    from: 'admin',
+    to: 'projects',
+    route: '/admin/zuzu-pinball',
+  },
+  {
+    slug: 'zuzu-showdown',
+    from: 'admin',
+    to: 'projects',
+    route: '/play/zuzu-showdown',
+  },
 ] as const
 
 const newline = String.fromCharCode(10)
@@ -381,9 +416,18 @@ const newline = String.fromCharCode(10)
 for (const { slug, from, to, route } of navigationMoves) {
   const relocated = `content/channels/${to}/${slug}.md`
   const tab = readFileSync(relocated, 'utf8')
-  assert.ok(tab.includes(`${newline}channelKey: ${to}${newline}`), `${slug} must live in ${to}`)
-  assert.ok(tab.includes(`${newline}route: ${route}${newline}`), `${slug} must preserve its working route`)
-  assert.ok(tab.includes(`${newline}requiredRole: ADMIN${newline}`), `${slug} must preserve admin-only access`)
+  assert.ok(
+    tab.includes(`${newline}channelKey: ${to}${newline}`),
+    `${slug} must live in ${to}`,
+  )
+  assert.ok(
+    tab.includes(`${newline}route: ${route}${newline}`),
+    `${slug} must preserve its working route`,
+  )
+  assert.ok(
+    tab.includes(`${newline}requiredRole: ADMIN${newline}`),
+    `${slug} must preserve admin-only access`,
+  )
   assert.equal(existsSync(`content/channels/${from}/${slug}.md`), false)
   assert.deepEqual(PROJECT_PLACEMENTS[slug], {
     channelKey: to,
@@ -391,8 +435,13 @@ for (const { slug, from, to, route } of navigationMoves) {
     route,
   })
 }
-for (const path of ['content/brainstorm.md', 'content/plan/projects/ruler-hooked.md']) {
-  assert.ok(readFileSync(path, 'utf8').includes(`${newline}channelKey: admin${newline}`))
+for (const path of [
+  'content/brainstorm.md',
+  'content/plan/projects/ruler-hooked.md',
+]) {
+  assert.ok(
+    readFileSync(path, 'utf8').includes(`${newline}channelKey: admin${newline}`),
+  )
 }
 
 const adminTabFiles = readdirSync('content/channels/admin').filter(

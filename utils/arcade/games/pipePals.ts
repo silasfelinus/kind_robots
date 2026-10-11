@@ -17,6 +17,7 @@
 import { levelCurve } from '../curve'
 import {
   DISTRICTS,
+  GOLDEN_MAIN,
   LEAKS,
   PHASES_PER_DISTRICT,
   SEEDLINGS,
@@ -44,8 +45,11 @@ import {
   paintBoiler,
   paintClock,
   paintCold,
+  paintFlooded,
+  paintGolden,
   paintGreenhouse,
   paintLaundry,
+  paintStorm,
 } from '../pipePals/scenes'
 import { drawText, measureText } from '../font'
 import {
@@ -208,6 +212,7 @@ const CRITTER_NAMES: Record<Kind, string> = {
   frost: 'FROST BOT',
   snowball: 'SNOWBALL',
   gearbug: 'GEAR BUG',
+  beetle: 'GREASE BEETLE',
 }
 type Bubble = { x: number; y: number; vx: number; vy: number; life: number }
 /** An ember spark bounces across the board; a lurker ember slides along one floor. */
@@ -742,6 +747,19 @@ const GEARBUG_BODY = [
   '.DSSSSSSSSSSD....',
 ]
 
+// The Night Shift's grease beetle: a glossy black-purple shell that skids when flipped.
+const BEETLE_BODY = [
+  '.....HLLLLH.........',
+  '...HLLwLLLLLB.......',
+  '..HLLLLLLLLLLB......',
+  '.HLLLLSLLSLLLLB..kk.',
+  '.LLLLSSLLSSLLLB.cccc',
+  'HLLLLLLSSLLLLLBcwkcc',
+  'LLLLLLLSSLLLLBBccccC',
+  'SBBBBBBBBBBBBBS.cC..',
+  '.DSSSSSSSSSSSD......',
+]
+
 const CRITTER_LOOKS: Record<Kind | 'bare', KindLook> = {
   crawler: kindLook(CRAWLER_BODY, CRAWLER_LEGS, [
     RAMPS.leaf,
@@ -787,6 +805,11 @@ const CRITTER_LOOKS: Record<Kind | 'bare', KindLook> = {
     RAMPS.water,
     RAMPS.water,
     RAMPS.water,
+  ]),
+  beetle: kindLook(BEETLE_BODY, CRAWLER_LEGS, [
+    RAMPS.purple,
+    RAMPS.night,
+    RAMPS.ember,
   ]),
   bare: kindLook(BARE_BODY, CRAWLER_LEGS, [
     RAMPS.pink,
@@ -1194,6 +1217,95 @@ type Thermostat = {
   spawnT: number
 }
 const THERMO = { x: W / 2, y: 70, r: 24 }
+/** No water: the surface sits below the board. */
+const DRY = 999
+type Eel = {
+  side: 0 | 1
+  state: 'tell' | 'out' | 'hold' | 'back'
+  t: number
+  len: number
+}
+type Jelly = { x: number; y: number; t: number }
+type Platform = Segment & { life: number }
+type Lamp = Spot & { lit: boolean }
+type Mimic = Spot & { t: number; stunned: number }
+type KingSeg = { x: number; y: number; cracked: boolean; dents: number }
+type Plate = {
+  x: number
+  y: number
+  vx: number
+  vy: number
+  state: 'loose' | 'flying' | 'in'
+}
+type ClogKing = {
+  phase: 1 | 2 | 3
+  head: {
+    x: number
+    y: number
+    vx: number
+    vy: number
+    dir: number
+    onGround: boolean
+  }
+  trail: Array<{ x: number; y: number }>
+  segs: KingSeg[]
+  plates: Plate[]
+  kicksLeft: number
+  coreHits: number
+  spawnT: number
+  flash: number
+  t: number
+}
+const KING_SEGS = 6
+const KING_GAP = 13
+/** The main pipe's junction, high above the top gap, where the King coils in phase 3. */
+const CORE = { x: W / 2, y: 70 }
+const FLUSH_TICKS = 60 * 22
+const HATCH = { x: 40, y: 112 }
+/**
+ * A saved run (utils/arcade/saves.ts): the district reached, with what was earned on the way. A run
+ * picked up after a game over keeps the district, valves and upgrades, never the score.
+ */
+export type PipeSave = {
+  v: 1
+  district: number
+  score: number
+  lives: number
+  wallet: number
+  valves: string[]
+  kindMax: number
+  continued: boolean
+}
+
+/** A stored save, checked against this build; null when unusable. */
+export function readPipeSave(raw: unknown): PipeSave | null {
+  if (!raw || typeof raw !== 'object') return null
+  const r = raw as Record<string, unknown>
+  const count = (v: unknown, max: number) =>
+    typeof v === 'number' && Number.isInteger(v) && v >= 0 && v <= max
+  if (r.v !== 1) return null
+  if (!count(r.district, 200) || !count(r.score, 99_999_999)) return null
+  if (!count(r.lives, 99) || !count(r.wallet, 99_999) || !count(r.kindMax, 4))
+    return null
+  if (!Array.isArray(r.valves)) return null
+  const ids = new Set(DISTRICTS.map((d) => d.id))
+  return {
+    v: 1,
+    district: r.district as number,
+    score: r.score as number,
+    lives: Math.max(1, r.lives as number),
+    wallet: r.wallet as number,
+    valves: [
+      ...new Set(
+        r.valves.filter(
+          (v): v is string => typeof v === 'string' && ids.has(v),
+        ),
+      ),
+    ],
+    kindMax: Math.max(KIND_BLOCK_USES, r.kindMax as number),
+    continued: r.continued === true,
+  }
+}
 const ICICLE_GROW = 420
 const ICICLE_SHAKE = 70
 const VENT_PERIOD = 200
@@ -1272,6 +1384,30 @@ class PipePals implements ArcadeGameInstance {
   private route = -1
   private bestChain = 0
   private thermo: Thermostat | null = null
+  // Night Shift.
+  private waterY = DRY
+  private pumpNext = 0
+  private pumpsDone = false
+  private flooded = false
+  private eel: Eel | null = null
+  private eelTimer = 0
+  private jellies: Jelly[] = []
+  private jellyTimer = 0
+  private platforms: Platform[] = []
+  private lamps: Lamp[] = []
+  private lightning = 0
+  private slicks = new Map<Segment, number>()
+  private mimics: Mimic[] = []
+  private king: ClogKing | null = null
+  private flush = 0
+  private ending: { t: number; trueEnding: boolean } | null = null
+  private goldenDone = false
+  private inGolden = false
+  private overtime = 0
+  /** A saved run waiting on CONTINUE (A) or NEW RUN (B). */
+  private offer: PipeSave | null = null
+  /** Progress the cabinet keeps for this player (demos never save). */
+  save: PipeSave | null = null
   private cardTicks = 0
   // Workshop economy, golden valves and the KIND block.
   private wallet = 0
@@ -1336,6 +1472,39 @@ class PipePals implements ArcadeGameInstance {
     this.demo = options.demo
     this.hiScore = options.hiScore
     this.beginDistrict(0)
+    const offer = this.demo ? null : readPipeSave(options.resume)
+    if (offer && offer.district > 0) {
+      this.offer = offer
+      this.save = offer
+    }
+  }
+
+  /** Pick a saved run back up at the start of its district. */
+  private resumeFrom(s: PipeSave) {
+    this.score = s.continued ? 0 : s.score
+    this.lives = s.continued ? START_LIVES : s.lives
+    this.nextExtra =
+      (Math.floor(this.score / EXTRA_LIFE_AT) + 1) * EXTRA_LIFE_AT
+    this.wallet = s.wallet
+    this.valves = [...s.valves]
+    this.kindMax = s.kindMax
+    this.level = Math.max(0, s.district * 7 - 1)
+    this.beginDistrict(s.district)
+  }
+
+  /** Remember the run at this district's start (a real game only). */
+  private keep() {
+    if (this.demo || this.inGolden) return
+    this.save = {
+      v: 1,
+      district: this.districtIndex,
+      score: this.score,
+      lives: Math.max(1, this.lives),
+      wallet: this.wallet,
+      valves: [...this.valves],
+      kindMax: this.kindMax,
+      continued: false,
+    }
   }
 
   // --- the campaign ---------------------------------------------------------------
@@ -1368,7 +1537,9 @@ class PipePals implements ArcadeGameInstance {
     this.hintActive = this.hintNext
     this.hintNext = false
     this.cardTicks = 170
+    this.inGolden = false
     this.startStep()
+    this.keep()
     if (this.startTool) {
       this.tool = {
         kind: this.startTool,
@@ -1381,14 +1552,41 @@ class PipePals implements ArcadeGameInstance {
 
   private advance() {
     this.stepIndex++
-    if (this.stepIndex >= this.steps.length)
+    if (this.stepIndex >= this.steps.length) {
       this.beginDistrict(this.districtIndex + 1)
-    else this.startStep()
+      return
+    }
+    // All eight golden valves turn the finale's ending into the way to the Golden Main.
+    const next = this.step()
+    if (
+      next.kind === 'ending' &&
+      !next.trueEnding &&
+      !this.goldenDone &&
+      DISTRICTS.every((d) => this.valves.includes(d.id))
+    ) {
+      this.beginGolden()
+      return
+    }
+    this.startStep()
+  }
+
+  /** The secret ninth district. Its own steps end with the true ending, then the run laps on. */
+  private beginGolden() {
+    this.goldenDone = true
+    this.inGolden = true
+    this.district = GOLDEN_MAIN
+    this.steps = districtSteps(GOLDEN_MAIN)
+    this.stepIndex = 0
+    this.vines = new Map()
+    this.kindBlockUses = this.kindMax
+    this.lucky = true
+    this.cardTicks = 200
+    this.startStep()
   }
 
   private startStep() {
     const step = this.step()
-    if (step.kind !== 'workshop') this.level++
+    if (step.kind !== 'workshop' && step.kind !== 'ending') this.level++
     this.critters = []
     this.queue = []
     this.coins = []
@@ -1405,6 +1603,21 @@ class PipePals implements ArcadeGameInstance {
     this.bestChain = 0
     this.icicles = []
     this.thermo = null
+    this.king = null
+    this.flush = 0
+    this.eel = null
+    this.eelTimer = 360
+    this.jellies = []
+    this.jellyTimer = 200
+    this.platforms = []
+    this.mimics = []
+    this.slicks = new Map()
+    this.pumpNext = 0
+    this.pumpsDone = false
+    this.flooded = false
+    this.waterY = DRY
+    this.lamps = (this.district.lamps ?? []).map((l) => ({ ...l, lit: true }))
+    this.lightning = 240
     this.boss = null
     this.workshop = null
     this.bonusRound = 0
@@ -1426,6 +1639,7 @@ class PipePals implements ArcadeGameInstance {
     if (step.kind === 'phase') this.startPhase(step.phase)
     else if (step.kind === 'boss') this.startBoss()
     else if (step.kind === 'bonus') this.startBonus()
+    else if (step.kind === 'ending') this.startEnding(step.trueEnding)
     else this.startWorkshop()
   }
 
@@ -1459,6 +1673,15 @@ class PipePals implements ArcadeGameInstance {
       vy: 0,
       t: 0,
     }))
+    if (d.mimicsFrom && phase >= d.mimicsFrom) {
+      // Mimic coins sit on three ledges, looking like any other coin.
+      const ledges = d.segments.filter((s) => s.y < 310)
+      this.mimics = [0, 1, 2].map((i) => {
+        const s = ledges[Math.floor(this.rng() * ledges.length)]!
+        const x = Math.round(s.x0 + 12 + this.rng() * (s.x1 - s.x0 - 24))
+        return { x, y: s.y, t: i * 60, stunned: 0 }
+      })
+    }
     this.releaseTimer = 60
     this.sparkTimer = Math.round(
       levelCurve(this.heat(), PIPE_CURVES.sparkEvery) / 2,
@@ -1503,6 +1726,12 @@ class PipePals implements ArcadeGameInstance {
         rate: 1 / (1100 - i * 110),
         burst: false,
       }))
+    } else if (special === 'pump-station') {
+      this.pumpNext = 0
+      this.pumpsDone = false
+      this.flooded = false
+    } else if (special === 'lights-out') {
+      for (const lamp of this.lamps) lamp.lit = false
     } else if (special === 'valve-routing') {
       this.wheels = [...(this.district.spots ?? [])]
       this.route = 0
@@ -1526,6 +1755,9 @@ class PipePals implements ArcadeGameInstance {
     if (special === 'pressure-valves')
       return this.gauges.filter((g) => !g.burst).length
     if (special === 'valve-routing') return this.bestChain
+    if (special === 'pump-station')
+      return this.pumpsDone && !this.flooded ? 3 : this.pumpNext
+    if (special === 'lights-out') return this.lamps.filter((l) => l.lit).length
     return this.pairs
   }
 
@@ -1548,6 +1780,10 @@ class PipePals implements ArcadeGameInstance {
   private startBoss() {
     if (this.district.boss === 'thermostat') {
       this.startThermostat()
+      return
+    }
+    if (this.district.boss === 'clog-king') {
+      this.startKing()
       return
     }
     const seg = this.bossLedges()[0]!
@@ -1589,7 +1825,26 @@ class PipePals implements ArcadeGameInstance {
     const twist = this.district.bonus
     this.bonusRound = BONUS_FULL
     this.bonusGot = 0
-    if (twist === 'static' || twist === 'ice' || twist === 'gears') {
+    if (twist === 'skill') {
+      // Coins hung under the ledges: jump into them from below.
+      for (const s of this.district.segments.slice(1))
+        for (let x = s.x0 + 22; x < s.x1 - 12; x += 40)
+          this.coins.push({
+            x,
+            y: s.y + THICK + 10,
+            vx: 0,
+            vy: 0,
+            life: Infinity,
+            float: 0,
+          })
+      this.bonusTotal = this.coins.length
+      this.bonusFeed = 0
+    } else if (
+      twist === 'static' ||
+      twist === 'ice' ||
+      twist === 'gears' ||
+      twist === 'underwater'
+    ) {
       for (const s of this.district.segments.slice(1)) {
         for (let x = s.x0 + 20; x < s.x1 - 10; x += 44) {
           this.coins.push({ x, y: s.y - 10, vx: 0, vy: 0, life: Infinity })
@@ -1620,6 +1875,8 @@ class PipePals implements ArcadeGameInstance {
       sprinkler: 'COINS FROM THE SPRINKLERS',
       bubbles: 'COINS RIDING THE SUDS',
       ice: 'EVERY FLOOR IS ICE',
+      underwater: 'COINS UNDER THE FLOOD',
+      skill: 'COINS UNDER THE LEDGES',
       steam: 'COINS ON THE STEAM',
       gears: 'COINS ON THE GEARS',
     }[twist]
@@ -1686,6 +1943,7 @@ class PipePals implements ArcadeGameInstance {
         kind: lift.kind,
       })
     })
+    for (const pl of this.platforms) board.push(pl)
     this.boardNow = board
   }
 
@@ -1776,6 +2034,7 @@ class PipePals implements ArcadeGameInstance {
     if (
       s.kind === 'ice' ||
       (original && (this.frozen.get(original) ?? 0) > 0) ||
+      (original && (this.slicks.get(original) ?? 0) > 0) ||
       (this.bonusRound > 0 && this.district.bonus === 'ice') ||
       this.thermo?.mode === 'freeze'
     )
@@ -1795,6 +2054,35 @@ class PipePals implements ArcadeGameInstance {
     if (this.over) return
     if (this.lives <= 0 && !this.alive) {
       if (++this.overTimer > 100) this.over = true
+      return
+    }
+    if (this.offer) {
+      if (input.pressed.a || input.pressed.start) {
+        const s = this.offer
+        this.offer = null
+        this.resumeFrom(s)
+      } else if (input.pressed.b) {
+        this.offer = null
+        this.save = null
+        this.keep()
+      }
+      return
+    }
+    if (this.ending) {
+      this.ending.t++
+      const skip =
+        !this.demo &&
+        this.ending.t > 120 &&
+        (input.pressed.a || input.pressed.start)
+      if (
+        skip ||
+        this.ending.t > 60 * 16 ||
+        (this.demo && this.ending.t > 240)
+      ) {
+        this.ending = null
+        this.overtime++
+        this.advance()
+      }
       return
     }
     if (this.workshop) {
@@ -1817,6 +2105,7 @@ class PipePals implements ArcadeGameInstance {
     }
 
     const controls = this.demo ? this.demoInput() : input
+    this.updateWater()
     this.moveLift()
     this.updateVines()
     this.updateCrumbles()
@@ -1833,6 +2122,7 @@ class PipePals implements ArcadeGameInstance {
     if (step.kind === 'boss') {
       this.bossReinforcements()
       this.updateThermostat()
+      this.updateKing()
     } else if (this.queue.length && --this.releaseTimer <= 0) {
       this.release()
       this.releaseTimer = Math.round(
@@ -1845,6 +2135,7 @@ class PipePals implements ArcadeGameInstance {
     this.moveBubbles()
     this.moveEmbers()
     this.moveIcicles()
+    this.updateNight()
     this.moveCoins()
     this.updateSpecial()
     this.collide()
@@ -1894,13 +2185,16 @@ class PipePals implements ArcadeGameInstance {
       p.vx *=
         footing === 'ice' ? 0.985 : footing === 'soap' ? 0.96 : RUN_FRICTION
     }
-    p.vx = Math.max(-RUN_MAX, Math.min(RUN_MAX, p.vx))
+    const wet = this.underwater(p.y - PLAYER_H / 2)
+    const runMax = wet ? RUN_MAX * 0.65 : RUN_MAX
+    p.vx = Math.max(-runMax, Math.min(runMax, p.vx))
     if ((input.pressed.a || input.pressed.up) && p.onGround) {
-      p.vy = JUMP_SPEED
+      p.vy = wet ? -4.8 : JUMP_SPEED
       p.onGround = false
       this.sound.play('blip')
     }
-    p.vy += GRAVITY
+    p.vy += wet ? GRAVITY * 0.55 : GRAVITY
+    if (wet) p.vy = Math.min(p.vy, 2.2)
     const headBefore = p.y - PLAYER_H
     p.x = wrapX(p.x + p.vx)
     p.y += p.vy
@@ -2051,6 +2345,129 @@ class PipePals implements ArcadeGameInstance {
       const seg = this.thermoLedges()[th.target]
       if (seg && seg.y === floorY && x > seg.x0 - 8 && x < seg.x1 + 8)
         this.hitThermostat()
+    }
+    // Pump Station: the buttons, in order.
+    const step = this.step()
+    if (
+      step.kind === 'phase' &&
+      step.phase === SPECIAL_PHASE &&
+      this.district.special === 'pump-station' &&
+      !this.pumpsDone
+    ) {
+      ;(this.district.spots ?? []).forEach((spot, i) => {
+        if (spot.y !== floorY || Math.abs(spot.x - x) > reach) return
+        if (i === this.pumpNext) {
+          this.pumpNext++
+          this.addScore(800, spot.x, spot.y - 24)
+          this.sound.play('extra')
+          if (this.pumpNext >= 3) {
+            this.pumpsDone = true
+            this.addScore(3000, W / 2, 120)
+            this.banner = {
+              text: 'PUMPS ON!',
+              sub: 'THE FLOOD DRAINS',
+              ticks: 100,
+            }
+          }
+        } else if (i > this.pumpNext) {
+          this.pumpNext = 0
+          this.floaters.push({
+            x: spot.x,
+            y: spot.y - 26,
+            text: 'WRONG ORDER',
+            life: 60,
+          })
+          this.sound.play('warn')
+        }
+      })
+    }
+    for (const lamp of this.lamps) {
+      if (lamp.lit || lamp.y !== floorY || Math.abs(lamp.x - x) > reach)
+        continue
+      lamp.lit = true
+      this.addScore(800, lamp.x, lamp.y - 30)
+      this.sound.play('extra')
+      this.fx.burst(lamp.x, lamp.y - 20, this.fxRng, {
+        count: 10,
+        colours: [RAMPS.gold[4], RAMPS.cream[4]],
+      })
+    }
+    const eel = this.eel
+    if (
+      eel &&
+      eel.state !== 'tell' &&
+      eel.state !== 'back' &&
+      floorY === 112 &&
+      (eel.side === 0 ? x < 100 : x > W - 100)
+    ) {
+      eel.state = 'back'
+      this.addScore(500, eel.side === 0 ? 50 : W - 50, 90)
+      this.sound.play('pop')
+    }
+    for (const j of this.jellies) {
+      const above = floorY - j.y
+      if (above < -4 || above > 34 || Math.abs(j.x - x) > reach + 6) continue
+      // Popped from below, a jelly leaves a bubble you can stand on for a while.
+      j.t = -1
+      this.platforms.push({
+        x0: j.x - 22,
+        x1: j.x + 22,
+        y: Math.round(j.y),
+        kind: 'soap',
+        life: 240,
+      })
+      this.addScore(400, j.x, j.y - 12)
+      this.sound.play('pop')
+    }
+    this.jellies = this.jellies.filter((j) => j.t >= 0)
+    for (const m of this.mimics) {
+      if (m.stunned || m.y !== floorY || Math.abs(m.x - x) > reach) continue
+      m.stunned = 1
+      this.wallet++
+      this.addScore(800, m.x, m.y - 20)
+      this.floaters.push({ x: m.x, y: m.y - 34, text: 'GOTCHA', life: 50 })
+      this.sound.play('extra')
+    }
+    this.mimics = this.mimics.filter((m) => !m.stunned)
+    const king = this.king
+    if (king && king.phase === 1) {
+      // One plate per bump: the nearest uncracked segment over this stretch of ledge.
+      const seg = king.segs
+        .filter(
+          (sg) =>
+            !sg.cracked &&
+            Math.abs(sg.y - floorY) <= 2 &&
+            Math.abs(sg.x - x) <= reach,
+        )
+        .sort((a, b) => Math.abs(a.x - x) - Math.abs(b.x - x))[0]
+      if (seg && ++seg.dents < 2) {
+        // The first bump dents a plate; the second knocks it loose.
+        king.flash = 6
+        this.sound.play('pop')
+      } else if (seg) {
+        seg.cracked = true
+        king.flash = 10
+        king.plates.push({
+          x: seg.x,
+          y: seg.y - 12,
+          vx: 0,
+          vy: -2.5,
+          state: 'loose',
+        })
+        this.addScore(1500, seg.x, seg.y - 26)
+        this.sound.play('boom')
+      }
+      if (king.segs.every((sg) => sg.cracked)) {
+        king.phase = 2
+        king.kicksLeft = 6
+        king.spawnT = 60
+        king.t = 0
+        this.banner = {
+          text: "IT'S SHEDDING!",
+          sub: 'KICK SIX OF ITS CRITTERS',
+          ticks: 120,
+        }
+      }
     }
     // A soapy ledge blows a bubble up from the bump.
     const ledge = segmentUnder(this.boardNow, x, 1, floorY, 1)
@@ -2205,6 +2622,18 @@ class PipePals implements ArcadeGameInstance {
         }
         continue
       }
+      if (c.flipped > 0 && this.underwater(c.y - 2)) {
+        // A flipped critter underwater bobs up off its ledge; at the surface it rights itself.
+        c.y -= 0.45
+        c.onGround = false
+        c.vy = 0
+        if (!this.underwater(c.y - 2)) {
+          c.flipped = 0
+          c.tier = Math.min(2, c.tier + 1) as Tier
+          this.sound.play('warn')
+        }
+        continue
+      }
       if (c.flipped > 0) {
         c.flipped--
         if (c.flipped === 0) {
@@ -2269,6 +2698,19 @@ class PipePals implements ArcadeGameInstance {
       }
       if (c.kind === 'snowball' && c.flipped === 0)
         c.size = Math.min(14, c.size + 0.008 * TIER_SPEED[c.tier])
+      if (c.kind === 'beetle' && c.onGround && !c.kicked) {
+        const seg = this.district.segments.find(
+          (o) => Math.abs(o.y - c.y) < 1 && c.x > o.x0 && c.x < o.x1,
+        )
+        if (c.flipped > 0) {
+          // A flipped grease beetle skids along on its back: harder to catch.
+          const nx = c.x + c.dir * 0.55
+          if (seg && nx > seg.x0 + 4 && nx < seg.x1 - 4) c.x = nx
+          else c.dir = -c.dir
+        } else if (seg && seg.y < 310) {
+          this.slicks.set(seg, 420)
+        }
+      }
       if (c.kind === 'frost' && c.onGround && c.flipped === 0) {
         // Frost bots ice over the ledge they walk, and re-ice any thawing block.
         const seg = this.district.segments.find(
@@ -2385,6 +2827,7 @@ class PipePals implements ArcadeGameInstance {
     this.chain = this.chainTimer > 0 ? this.chain + 1 : 1
     this.chainTimer = CHAIN_WINDOW
     this.bestChain = Math.max(this.bestChain, this.chain)
+    if (this.king?.phase === 2) this.king.kicksLeft--
     this.addScore(chainPoints(this.chain), c.x, c.y - 14)
     if (this.chain > 1) {
       this.floaters.push({
@@ -2634,6 +3077,7 @@ class PipePals implements ArcadeGameInstance {
       }
       e.life--
       e.x += e.vx
+      if (e.kind !== 'cuckoo' && this.underwater(e.y)) e.life = 0
       if (e.kind === 'spark') {
         e.y += e.vy
         if (e.x < 8 || e.x > W - 8) e.vx = -e.vx
@@ -2980,6 +3424,352 @@ class PipePals implements ArcadeGameInstance {
     this.phaseDelay = 180
   }
 
+  // --- the Night Shift -----------------------------------------------------------------
+
+  private underwater(y: number): boolean {
+    return y > this.waterY
+  }
+
+  /** Where the flood stands: the tide's cycle, Pump Station's rising flood, or the flush. */
+  private updateWater() {
+    if (this.flush > 0) {
+      this.waterY = 334 - (1 - this.flush / FLUSH_TICKS) * 236
+      return
+    }
+    if (this.king) return
+    const w = this.district.water
+    if (!w) {
+      this.waterY = DRY
+      return
+    }
+    const step = this.step()
+    if (step.kind === 'bonus') {
+      this.waterY = this.district.bonus === 'underwater' ? w.high : w.low
+      return
+    }
+    if (
+      step.kind === 'phase' &&
+      step.phase === SPECIAL_PHASE &&
+      this.district.special === 'pump-station'
+    ) {
+      if (this.pumpsDone) this.waterY = Math.min(w.low, this.waterY + 0.6)
+      else {
+        this.waterY = Math.max(130, w.low - this.phaseTicks * 0.045)
+        if (this.waterY <= 130 && !this.flooded) {
+          this.flooded = true
+          this.banner = {
+            text: 'FLOODED!',
+            sub: 'TOO LATE FOR THE VALVE',
+            ticks: 90,
+          }
+        }
+      }
+      return
+    }
+    // The tide: low, rising, high, draining, low.
+    const f = (this.phaseTicks % w.period) / w.period
+    const ease = (t: number) => 0.5 - 0.5 * Math.cos(Math.PI * t)
+    const span = w.low - w.high
+    this.waterY =
+      f < 0.3
+        ? w.low
+        : f < 0.5
+          ? w.low - span * ease((f - 0.3) / 0.2)
+          : f < 0.7
+            ? w.high
+            : f < 0.9
+              ? w.high + span * ease((f - 0.7) / 0.2)
+              : w.low
+    if (Math.abs(f - 0.26) < 0.5 / w.period)
+      this.banner = { text: 'THE TIDE IS COMING IN', ticks: 80 }
+  }
+
+  /** Eels, jellies, bubble platforms, lightning, slicks and mimic coins. */
+  private updateNight() {
+    const d = this.district
+    const step = this.step()
+    if (d.eels && step.kind === 'phase') {
+      if (!this.eel && --this.eelTimer <= 0) {
+        this.eelTimer = 60 * 7
+        this.eel = {
+          side: this.rng() < 0.5 ? 0 : 1,
+          state: 'tell',
+          t: 60,
+          len: 0,
+        }
+        this.sound.play('warn')
+      }
+      const eel = this.eel
+      if (eel) {
+        if (eel.state === 'tell' && --eel.t <= 0) eel.state = 'out'
+        else if (eel.state === 'out') {
+          eel.len = Math.min(96, eel.len + 4)
+          if (eel.len >= 96) Object.assign(eel, { state: 'hold', t: 70 })
+        } else if (eel.state === 'hold' && --eel.t <= 0) eel.state = 'back'
+        else if (eel.state === 'back') {
+          eel.len -= 5
+          if (eel.len <= 0) this.eel = null
+        }
+      }
+    }
+    if (d.jellies && step.kind === 'phase' && this.waterY < 300) {
+      if (--this.jellyTimer <= 0 && this.jellies.length < 3) {
+        this.jellyTimer = 60 * 6
+        this.jellies.push({
+          x: 40 + Math.floor(this.rng() * (W - 80)),
+          y: 304,
+          t: 0,
+        })
+      }
+    }
+    for (const j of this.jellies) {
+      j.t++
+      j.y -= 0.35
+      j.x += Math.sin(j.t / 20) * 0.5
+      if (j.y < this.waterY + 4) j.t = -1
+    }
+    this.jellies = this.jellies.filter((j) => j.t >= 0)
+    for (const pl of this.platforms) pl.life--
+    this.platforms = this.platforms.filter((pl) => pl.life > 0)
+    if (d.dark && --this.lightning <= 0)
+      this.lightning = 60 * 7 + Math.floor(this.rng() * 120)
+    if (d.dark && this.lightning === 40)
+      this.kindShake = Math.max(this.kindShake, 8)
+    for (const [seg, t] of this.slicks)
+      if (t <= 1) this.slicks.delete(seg)
+      else this.slicks.set(seg, t - 1)
+    for (const m of this.mimics) m.t++
+  }
+
+  /** Lightning lights the whole dark board for a moment. */
+  private flashing(): boolean {
+    return this.district.dark === true && this.lightning > 60 * 7 + 110
+  }
+
+  /** A mimic blinks every few seconds: the only tell it isn't a real coin. */
+  private mimicBlinking(m: Mimic): boolean {
+    return m.t % 150 > 118
+  }
+
+  // --- the Clog King and the flush ------------------------------------------------------
+
+  private startKing() {
+    const pipe = TOP_PIPES[0]!
+    this.king = {
+      phase: 1,
+      head: { x: pipe.x, y: pipe.y, vx: 0, vy: 0, dir: 1, onGround: false },
+      trail: [],
+      segs: Array.from({ length: KING_SEGS }, () => ({
+        x: pipe.x,
+        y: pipe.y,
+        cracked: false,
+        dents: 0,
+      })),
+      plates: [],
+      kicksLeft: 6,
+      coreHits: 0,
+      spawnT: 120,
+      flash: 0,
+      t: 0,
+    }
+    this.invuln = 120
+    this.banner = {
+      text: 'THE CLOG KING',
+      sub: 'BUMP ITS PLATES LOOSE',
+      ticks: 170,
+    }
+    this.sound.play('warn')
+  }
+
+  private updateKing() {
+    const k = this.king
+    if (!k) {
+      if (this.flush > 0) this.updateFlush()
+      return
+    }
+    k.t++
+    if (k.flash > 0) k.flash--
+    if (k.phase < 3) {
+      // It crawls the plumbing like a giant critter: ledges, gaps, pipes.
+      const h = k.head
+      h.vx = h.dir * (k.phase === 1 ? 1.0 : 1.35)
+      h.vy += GRAVITY
+      h.x += h.vx
+      h.y += h.vy
+      h.onGround = false
+      if (h.vy >= 0) {
+        const s = segmentUnder(
+          this.boardNow,
+          h.x,
+          20,
+          h.y,
+          Math.max(4, h.vy + 1),
+        )
+        if (s && h.y - h.vy <= s.y + 1) {
+          h.y = s.y
+          h.vy = 0
+          h.onGround = true
+        }
+      }
+      if (h.y >= 280 && (h.x < 6 || h.x > W - 6)) {
+        const pipe = h.x < 6 ? TOP_PIPES[1]! : TOP_PIPES[0]!
+        Object.assign(h, { x: pipe.x, y: pipe.y, vy: 0, dir: pipe.dir })
+        k.trail = []
+      }
+      h.x = wrapX(h.x)
+      k.trail.unshift({ x: h.x, y: h.y })
+      k.trail.length = Math.min(k.trail.length, KING_SEGS * KING_GAP + 2)
+      k.segs.forEach((seg, i) => {
+        const at =
+          k.trail[Math.min(k.trail.length - 1, (i + 1) * KING_GAP)] ?? h
+        seg.x = at.x
+        seg.y = at.y
+      })
+    }
+    if (k.phase === 2) {
+      this.waterY = Math.max(258, 334 - k.t * 0.03)
+      if (--k.spawnT <= 0) {
+        k.spawnT = 200
+        const kinds = [
+          ...new Set(DISTRICTS.flatMap((d) => d.roster.map((r) => r.kind))),
+        ]
+        if (this.critters.filter((c) => !c.kicked).length < 4) {
+          this.queue.push(kinds[Math.floor(this.rng() * kinds.length)]!)
+          this.release()
+        }
+      }
+      if (k.kicksLeft <= 0) {
+        k.phase = 3
+        k.t = 0
+        this.waterY = DRY
+        this.banner = {
+          text: 'IT WRAPS THE MAIN',
+          sub: 'KICK THE PLATES INTO ITS CORE',
+          ticks: 140,
+        }
+        // Any plate lost off the board comes back out of the pipes.
+        while (
+          k.plates.filter((pl) => pl.state === 'loose').length + k.coreHits <
+          KING_SEGS
+        ) {
+          const pipe = TOP_PIPES[k.plates.length % 2]!
+          k.plates.push({
+            x: pipe.x,
+            y: pipe.y,
+            vx: pipe.dir * 1.2,
+            vy: 0,
+            state: 'loose',
+          })
+        }
+      }
+    }
+    if (k.phase === 3) {
+      // Coiled round the main pipe: its body circles the core.
+      k.segs.forEach((seg, i) => {
+        const a = k.t / 50 + (i * Math.PI * 2) / KING_SEGS
+        seg.x = CORE.x + Math.cos(a) * 26
+        seg.y = CORE.y + 9 + Math.sin(a) * 14
+      })
+      Object.assign(k.head, { x: CORE.x, y: CORE.y - 18 })
+      if (k.t % 180 === 0) {
+        const a = this.rng() * Math.PI * 2
+        this.embers.push({
+          kind: 'spark',
+          x: CORE.x,
+          y: CORE.y,
+          vx: Math.cos(a) * 1.2,
+          vy: Math.sin(a) * 1.2,
+          life: 60 * 8,
+          tell: 20,
+        })
+      }
+    }
+    for (const plate of k.plates) {
+      if (plate.state === 'loose') {
+        plate.vy += GRAVITY
+        plate.y += plate.vy
+        plate.x = wrapX(plate.x + plate.vx)
+        const s = segmentUnder(
+          this.boardNow,
+          plate.x,
+          10,
+          plate.y,
+          Math.max(4, plate.vy + 1),
+        )
+        if (s && plate.vy >= 0) {
+          plate.y = s.y
+          plate.vy = 0
+          plate.vx *= 0.8
+        }
+        if (plate.y > H + 10) {
+          const pipe = TOP_PIPES[0]!
+          Object.assign(plate, { x: pipe.x, y: pipe.y, vx: 1.2, vy: 0 })
+        }
+      } else if (plate.state === 'flying') {
+        plate.x += plate.vx
+        plate.y += plate.vy
+        if (Math.hypot(plate.x - CORE.x, plate.y - CORE.y) < 10) {
+          plate.state = 'in'
+          k.coreHits++
+          k.flash = 14
+          this.kindShake = 10
+          this.addScore(2000, CORE.x, CORE.y - 30)
+          this.sound.play('boom')
+          this.fx.burst(CORE.x, CORE.y, this.fxRng, { count: 16, speed: 2.4 })
+        }
+      }
+    }
+    if (k.phase === 3 && k.coreHits >= KING_SEGS) this.startFlush()
+  }
+
+  /** The Clog King is cleared and the drain finally runs: climb for the hatch before the water. */
+  private startFlush() {
+    this.king = null
+    this.addScore(30_000, CORE.x, CORE.y)
+    for (const c of this.critters) {
+      if (c.kicked) continue
+      c.kicked = true
+      c.slide = 0
+      c.vy = -4
+    }
+    this.embers = []
+    this.flush = FLUSH_TICKS
+    this.banner = {
+      text: 'THE DRAIN IS FLUSHING!',
+      sub: 'CLIMB FOR THE ROOF HATCH',
+      ticks: 150,
+    }
+    this.sound.play('level')
+  }
+
+  private updateFlush() {
+    if (--this.flush <= 0 || this.waterY < this.player.y - PLAYER_H)
+      this.endFlush(false)
+  }
+
+  private endFlush(made: boolean) {
+    const left = Math.ceil(this.flush / 60)
+    this.flush = 0
+    const bonus = made ? 20_000 + left * 500 : 5000
+    this.addScore(bonus, this.player.x, this.player.y - 30)
+    this.banner = made
+      ? { text: 'OUT THE HATCH!', sub: `FLUSH BONUS ${bonus}`, ticks: 160 }
+      : { text: 'SWEPT UP SAFE', sub: `FLUSH BONUS ${bonus}`, ticks: 160 }
+    this.fx.burst(this.player.x, this.player.y - 20, this.fxRng, {
+      count: 30,
+      speed: 3,
+    })
+    this.sound.play('extra')
+    this.waterY = DRY
+    this.phaseDelay = 170
+  }
+
+  private startEnding(trueEnding: boolean) {
+    this.ending = { t: 0, trueEnding }
+    this.addScore(trueEnding ? 100_000 : 50_000, W / 2, 160)
+    this.sound.play('level')
+  }
+
   private spraying(leak: Leak): boolean {
     return !leak.sealed && leak.t % 150 < 64
   }
@@ -3221,7 +4011,67 @@ class PipePals implements ArcadeGameInstance {
         }
       }
     }
+    const king = this.king
+    if (king) {
+      for (const plate of king.plates) {
+        if (
+          plate.state !== 'loose' ||
+          !this.touchingPlayer(plate.x, plate.y, 12, 16)
+        )
+          continue
+        // Kicked into the glowing core (phase 3), or knocked about before then.
+        if (king.phase === 3) {
+          plate.state = 'flying'
+          const d = Math.hypot(CORE.x - plate.x, CORE.y - plate.y) || 1
+          plate.vx = ((CORE.x - plate.x) / d) * 5
+          plate.vy = ((CORE.y - plate.y) / d) * 5
+          this.sound.play('shoot')
+        }
+      }
+    }
+    if (
+      this.flush > 0 &&
+      Math.abs(p.x - HATCH.x) < 16 &&
+      Math.abs(p.y - HATCH.y) < 2
+    ) {
+      this.endFlush(true)
+      return
+    }
     if (this.invuln > 0) return
+    if (king) {
+      const parts =
+        king.phase === 3
+          ? king.segs
+          : [
+              { ...king.head, cracked: false },
+              ...king.segs.filter((sg) => !sg.cracked),
+            ]
+      for (const part of parts)
+        if (this.touchingPlayer(part.x, part.y - 9, 13, 18)) {
+          this.loseLife()
+          return
+        }
+    }
+    const eel = this.eel
+    if (eel && eel.len > 6) {
+      const x0 = eel.side === 0 ? 30 : W - 30 - eel.len
+      const x1 = eel.side === 0 ? 30 + eel.len : W - 30
+      if (p.x > x0 && p.x < x1 && p.y > 92 && p.y - PLAYER_H < 108) {
+        this.loseLife()
+        return
+      }
+    }
+    for (const j of this.jellies)
+      if (this.touchingPlayer(j.x, j.y, 9, 14)) {
+        this.loseLife()
+        return
+      }
+    for (const m of this.mimics)
+      if (this.touchingPlayer(m.x, m.y - 8, 9, 14)) {
+        this.floaters.push({ x: m.x, y: m.y - 30, text: 'CHOMP!', life: 50 })
+        this.loseLife()
+        return
+      }
     for (const ice of this.icicles) {
       if (ice.state !== 'fall') continue
       if (this.touchingPlayer(ice.x, ice.fy + 6, 8, 16)) {
@@ -3247,7 +4097,10 @@ class PipePals implements ArcadeGameInstance {
     this.chain = 0
     this.burst(this.player.x, this.player.y - 8, '#2dd4bf')
     this.sound.play('die')
-    if (this.lives <= 0) this.banner = { text: 'GAME OVER', ticks: 9999 }
+    if (this.lives <= 0) {
+      this.banner = { text: 'GAME OVER', ticks: 9999 }
+      if (this.save) this.save = { ...this.save, continued: true }
+    }
   }
 
   private revive() {
@@ -3483,6 +4336,16 @@ class PipePals implements ArcadeGameInstance {
       else held.right = true
       return frame
     }
+    // Jellies, an eel's strike and mimic coins: keep clear.
+    const hazard =
+      this.jellies.find(
+        (j) => Math.abs(j.x - p.x) < 30 && Math.abs(j.y - (p.y - 11)) < 30,
+      ) ?? this.mimics.find((m) => Math.abs(m.x - p.x) < 22 && m.y === myFloor)
+    if (hazard && this.invuln <= 0) {
+      if (hazard.x > p.x) held.left = true
+      else held.right = true
+      return frame
+    }
     // An ember close by: step away from it.
     const ember = this.embers.find(
       (e) =>
@@ -3509,8 +4372,18 @@ class PipePals implements ArcadeGameInstance {
     const keen = this.phaseTicks < 60 * 45
     const th = this.thermo
     const thermoSeg = th ? this.thermoLedges()[th.target] : undefined
+    const step = this.step()
+    const pumpSpot =
+      step.kind === 'phase' &&
+      step.phase === SPECIAL_PHASE &&
+      this.district.special === 'pump-station' &&
+      !this.pumpsDone
+        ? this.district.spots?.[this.pumpNext]
+        : undefined
     const prop = keen
-      ? (this.leaks.find((l) => !l.sealed) ??
+      ? (pumpSpot ??
+        this.lamps.find((l) => !l.lit) ??
+        this.leaks.find((l) => !l.sealed) ??
         this.blocks.find((b) => !b.freed) ??
         this.gauges
           .filter((gg) => !gg.burst && gg.p > 0.45)
@@ -3524,7 +4397,26 @@ class PipePals implements ArcadeGameInstance {
     let goalFloor: number | null = null
     let goalX = p.x
     let jumpWhenUnder = false
-    if (thermoSeg && th && th.targetT < 80) {
+    const king = this.king
+    const kingSeg =
+      king?.phase === 1
+        ? king.segs.find((sg) => !sg.cracked && sg.y < 300)
+        : undefined
+    const plate =
+      king?.phase === 3
+        ? king.plates.find((pl) => pl.state === 'loose')
+        : undefined
+    if (this.flush > 0) {
+      goalFloor = HATCH.y
+      goalX = HATCH.x
+    } else if (plate) {
+      goalFloor = this.floorOf(plate.y)
+      goalX = plate.x
+    } else if (kingSeg) {
+      goalFloor = kingSeg.y + 66
+      goalX = kingSeg.x
+      jumpWhenUnder = true
+    } else if (thermoSeg && th && th.targetT < 80) {
       goalFloor = thermoSeg.y + 66
       goalX = Math.max(thermoSeg.x0 + 10, Math.min(thermoSeg.x1 - 10, p.x))
       jumpWhenUnder = th.targetT <= THERMO_ARMED
@@ -3563,7 +4455,7 @@ class PipePals implements ArcadeGameInstance {
     }
     if (goalFloor === myFloor) {
       // Another ledge on this row: drop off toward it and climb back up beside it.
-      const mine = segmentUnder(this.boardNow, p.x, 1, myFloor, 1)
+      const mine = segmentUnder(this.boardNow, p.x, PLAYER_W, myFloor, 1)
       const theirs = segmentUnder(this.boardNow, goalX, 1, goalFloor, 1)
       if (mine && theirs && mine !== theirs && myFloor < 310) {
         this.steerToward(frame, goalX, 1)
@@ -3590,8 +4482,8 @@ class PipePals implements ArcadeGameInstance {
       }
       return frame
     }
-    // Descend: walk off the nearer interior edge of this floor.
-    const seg = segmentUnder(this.boardNow, p.x, 1, myFloor, 1)
+    // Descend: walk off the nearer interior edge of this floor (a pal on the very lip still counts).
+    const seg = segmentUnder(this.boardNow, p.x, PLAYER_W, myFloor, 1)
     if (seg) {
       const edges = [
         seg.x0 > 0 ? seg.x0 - 12 : null,
@@ -3619,7 +4511,9 @@ class PipePals implements ArcadeGameInstance {
     g.fillRect(0, -4, W, H + 8)
     this.renderBackdrop(g)
     if (this.thermo) this.renderThermostat(g, this.thermo)
+    if (this.king?.phase === 3) this.renderCore(g, this.king)
     this.renderFloors(g)
+    this.renderNightProps(g)
     this.renderKindBlock(g)
     this.renderSpecial(g)
     const visible =
@@ -3635,7 +4529,11 @@ class PipePals implements ArcadeGameInstance {
     cachedLayer(g, 'pipe-pals-pipes', W, H, (k) => this.paintPipes(k))
     for (const e of this.embers) this.renderEmber(g, e)
     for (const b of this.bubbles) this.renderBubble(g, b.x, b.y, 7)
+    if (this.king) this.renderKing(g, this.king)
+    for (const j of this.jellies) this.renderJelly(g, j)
+    if (this.eel) this.renderEel(g, this.eel)
     if (visible) this.renderPlayer(g)
+    this.renderWater(g)
     for (const s of this.sparks) {
       const x = Math.round(s.x)
       const y = Math.round(s.y)
@@ -3655,13 +4553,51 @@ class PipePals implements ArcadeGameInstance {
       })
     }
     g.restore()
+    if (this.district.dark && !this.flashing()) this.renderDark(g)
     vignette(g, W, H, 0.3)
     this.renderHud(g)
     if (this.cardTicks > 0) this.renderCard(g)
+    if (this.ending) this.renderEnding(g, this.ending)
+    if (this.offer) this.renderOffer(g, this.offer)
   }
 
   private renderBackdrop(g: CanvasRenderingContext2D) {
     const scene = this.district.scene
+    if (scene === 'flooded') {
+      cachedLayer(g, 'pipe-pals-flooded', W, H, paintFlooded)
+      return
+    }
+    if (scene === 'storm') {
+      cachedLayer(g, 'pipe-pals-storm', W, H, paintStorm)
+      // Rain slanting through.
+      g.fillStyle = rgba(RAMPS.sky[3], 0.35)
+      for (let i = 0; i < 40; i++) {
+        const x = ((i * 37 + this.tick * 2) % (W + 40)) - 20
+        const y = (i * 53 + this.tick * 6) % 300
+        g.fillRect(Math.round(x), Math.round(y), 1, 4)
+      }
+      return
+    }
+    if (scene === 'golden') {
+      cachedLayer(g, 'pipe-pals-golden', W, H, paintGolden)
+      // Rainbow fountains along the back.
+      const rainbow = [
+        RAMPS.pink[3],
+        RAMPS.gold[3],
+        RAMPS.leaf[3],
+        RAMPS.sky[3],
+        RAMPS.purple[3],
+      ]
+      for (const fx of [70, 224, 378])
+        for (let i = 0; i < 14; i++) {
+          const t = (this.tick * 0.03 + i / 14) % 1
+          const x = fx + Math.sin(i * 1.7) * 18 * t
+          const y = 300 - 120 * (4 * t * (1 - t))
+          g.fillStyle = rainbow[i % rainbow.length]!
+          g.fillRect(Math.round(x), Math.round(y), 2, 2)
+        }
+      return
+    }
     if (scene === 'cold') {
       cachedLayer(g, 'pipe-pals-cold', W, H, paintCold)
       // Snow drifting down in the cold-room air.
@@ -4153,6 +5089,365 @@ class PipePals implements ArcadeGameInstance {
     g.fillRect(px - 3, py - 2, 5, 1)
   }
 
+  /** The flood: a translucent body of water with a rippling, lit surface. */
+  private renderWater(g: CanvasRenderingContext2D) {
+    if (this.waterY >= H) return
+    const top = Math.round(this.waterY)
+    g.fillStyle = rgba(RAMPS.water[1], 0.38)
+    g.fillRect(0, top, W, H - top)
+    for (let x = 0; x < W; x += 4) {
+      const wave = Math.round(Math.sin((x + this.tick * 1.5) / 14) * 1.5)
+      g.fillStyle = rgba(RAMPS.water[4], 0.7)
+      g.fillRect(x, top + wave, 3, 1)
+    }
+    // Air bubbles rising through it.
+    g.fillStyle = rgba('#ffffff', 0.5)
+    for (let i = 0; i < 12; i++) {
+      const x = (i * 41 + Math.sin(this.tick / 20 + i) * 4 + W) % W
+      const span = Math.max(1, H - top)
+      const y = H - ((this.tick * 0.7 + i * 29) % span)
+      if (y > top + 3) g.fillRect(Math.round(x), Math.round(y), 2, 2)
+    }
+  }
+
+  /** Pump buttons, lamps, mimic coins, slicks and bubble platforms. */
+  private renderNightProps(g: CanvasRenderingContext2D) {
+    const step = this.step()
+    if (
+      step.kind === 'phase' &&
+      step.phase === SPECIAL_PHASE &&
+      this.district.special === 'pump-station'
+    )
+      (this.district.spots ?? []).forEach((spot, i) => {
+        const done = i < this.pumpNext || this.pumpsDone
+        const next = i === this.pumpNext && !this.pumpsDone
+        bevel(
+          g,
+          spot.x - 9,
+          spot.y - 14,
+          18,
+          14,
+          done ? RAMPS.leaf : next ? RAMPS.gold : RAMPS.steel,
+        )
+        drawText(g, String(i + 1), spot.x, spot.y - 12, {
+          align: 'center',
+          color: '#ffffff',
+          outline: INK,
+        })
+        if (next)
+          glow(
+            g,
+            spot.x,
+            spot.y - 7,
+            18,
+            RAMPS.gold[4],
+            0.35 + 0.15 * Math.sin(this.tick / 5),
+          )
+      })
+    for (const [seg, t] of this.slicks) {
+      g.fillStyle = rgba(RAMPS.purple[1], Math.min(0.7, t / 200))
+      g.fillRect(seg.x0, seg.y - 2, seg.x1 - seg.x0, 3)
+      g.fillStyle = rgba(RAMPS.purple[4], 0.5)
+      for (let x = seg.x0 + 7; x < seg.x1; x += 19)
+        g.fillRect(x, seg.y - 2, 3, 1)
+    }
+    for (const pl of this.platforms) {
+      const fade = pl.life < 60 && Math.floor(pl.life / 5) % 2 === 0
+      if (fade) continue
+      for (let x = pl.x0 + 6; x < pl.x1; x += 10)
+        this.renderBubble(g, x, pl.y + 2, 5)
+    }
+    for (const lamp of this.lamps) {
+      g.fillStyle = INK
+      g.fillRect(lamp.x - 1, lamp.y - 22, 3, 22)
+      g.fillStyle = RAMPS.steel[2]
+      g.fillRect(lamp.x, lamp.y - 22, 1, 22)
+      shadedOrb(g, lamp.x, lamp.y - 25, 4, lamp.lit ? RAMPS.gold : RAMPS.night)
+      if (lamp.lit) glow(g, lamp.x, lamp.y - 25, 16, RAMPS.gold[4], 0.5)
+    }
+    for (const m of this.mimics) {
+      const blink = this.mimicBlinking(m)
+      const spin = Math.floor(this.tick / 6) % 4
+      glow(g, m.x, m.y - 8, 13, RAMPS.gold[3], 0.4)
+      drawSprite(
+        g,
+        COIN_SPRITES[spin === 2 ? 2 : spin === 0 ? 0 : 1],
+        m.x,
+        m.y - 8,
+      )
+      if (blink) {
+        // The tell: a little eye opens on the coin's face.
+        g.fillStyle = INK
+        g.fillRect(m.x - 2, m.y - 10, 4, 3)
+        g.fillStyle = '#ffffff'
+        g.fillRect(m.x - 1, m.y - 10, 1, 1)
+      }
+    }
+    if (this.flush > 0) {
+      // The roof hatch.
+      bevel(g, HATCH.x - 12, HATCH.y - 6, 24, 6, RAMPS.leaf)
+      glow(
+        g,
+        HATCH.x,
+        HATCH.y - 8,
+        22,
+        RAMPS.leaf[4],
+        0.4 + 0.2 * Math.sin(this.tick / 4),
+      )
+      drawText(g, 'HATCH', HATCH.x, HATCH.y - 18, {
+        align: 'center',
+        color: RAMPS.leaf[4],
+        outline: INK,
+      })
+    }
+  }
+
+  private renderJelly(g: CanvasRenderingContext2D, j: Jelly) {
+    const x = Math.round(j.x)
+    const y = Math.round(j.y)
+    g.save()
+    g.globalAlpha = 0.85
+    shadedOrb(g, x, y, 7, RAMPS.pink)
+    g.restore()
+    g.fillStyle = RAMPS.pink[2]
+    for (let i = -1; i <= 1; i++) {
+      const sway = Math.round(Math.sin((this.tick + i * 20) / 8))
+      g.fillRect(x + i * 4 + sway, y + 6, 1, 5)
+    }
+    g.fillStyle = INK
+    g.fillRect(x - 3, y - 1, 1, 2)
+    g.fillRect(x + 2, y - 1, 1, 2)
+  }
+
+  /** A pipe eel striking out of a top pipe; its eyes glow in the pipe mouth first. */
+  private renderEel(g: CanvasRenderingContext2D, eel: Eel) {
+    const dir = eel.side === 0 ? 1 : -1
+    const mouth = eel.side === 0 ? 34 : W - 34
+    if (eel.state === 'tell') {
+      if (Math.floor(eel.t / 6) % 2 === 0) {
+        g.fillStyle = RAMPS.gold[4]
+        g.fillRect(mouth - dir * 6, 72, 2, 2)
+        g.fillRect(mouth - dir * 6, 78, 2, 2)
+      }
+      return
+    }
+    const y = 100
+    for (let i = 0; i < eel.len; i += 3) {
+      const x = mouth + dir * i
+      const wob = Math.round(Math.sin((i + this.tick * 2) / 8) * 2)
+      g.fillStyle = INK
+      g.fillRect(x - 1, y - 5 + wob, 4, 10)
+      g.fillStyle = i % 9 < 3 ? RAMPS.leaf[2] : RAMPS.leaf[3]
+      g.fillRect(x, y - 4 + wob, 3, 8)
+    }
+    const hx = mouth + dir * eel.len
+    shadedOrb(g, hx, y, 6, RAMPS.leaf)
+    g.fillStyle = RAMPS.gold[4]
+    g.fillRect(hx + dir * 2 - 1, y - 3, 2, 2)
+  }
+
+  /** The Clog King: a chain of junk-ball segments led by a grumpy head. */
+  private renderKing(g: CanvasRenderingContext2D, k: ClogKing) {
+    const flash = k.flash > 0 && k.flash % 4 < 2
+    for (let i = k.segs.length - 1; i >= 0; i--) {
+      const seg = k.segs[i]!
+      const ramp = flash ? RAMPS.cream : seg.cracked ? RAMPS.night : RAMPS.earth
+      shadedOrb(g, Math.round(seg.x), Math.round(seg.y - 10), 10, ramp)
+      if (!seg.cracked) {
+        // Its plate: a bolted steel scale on each segment.
+        bevel(
+          g,
+          Math.round(seg.x) - 6,
+          Math.round(seg.y) - 19,
+          12,
+          6,
+          RAMPS.steel,
+        )
+      } else {
+        g.fillStyle = RAMPS.ember[3]
+        g.fillRect(Math.round(seg.x) - 2, Math.round(seg.y) - 12, 4, 3)
+      }
+    }
+    if (k.phase < 3) {
+      const h = k.head
+      shadedOrb(
+        g,
+        Math.round(h.x),
+        Math.round(h.y - 12),
+        12,
+        flash ? RAMPS.cream : RAMPS.rust,
+      )
+      g.fillStyle = INK
+      g.fillRect(Math.round(h.x) + h.dir * 3 - 2, Math.round(h.y) - 17, 3, 3)
+      g.fillRect(Math.round(h.x) + h.dir * 7 - 2, Math.round(h.y) - 17, 3, 3)
+      g.fillRect(Math.round(h.x) + h.dir * 2 - 3, Math.round(h.y) - 9, 9, 2)
+      // A crown of bent pipes.
+      g.fillStyle = RAMPS.gold[3]
+      for (const dx of [-6, 0, 6])
+        g.fillRect(Math.round(h.x) + dx - 1, Math.round(h.y) - 28, 3, 5)
+    }
+    for (const plate of k.plates) {
+      if (plate.state === 'in') continue
+      bevel(
+        g,
+        Math.round(plate.x) - 6,
+        Math.round(plate.y) - 6,
+        12,
+        6,
+        RAMPS.steel,
+      )
+      if (k.phase === 3 && plate.state === 'loose')
+        glow(g, plate.x, plate.y - 3, 14, RAMPS.gold[4], 0.4)
+    }
+  }
+
+  /** Phase 3: the glowing core where the plates go back in. */
+  private renderCore(g: CanvasRenderingContext2D, k: ClogKing) {
+    const pulse = 0.4 + 0.2 * Math.sin(this.tick / 5)
+    glow(g, CORE.x, CORE.y, 40, RAMPS.ember[3], k.flash ? 0.8 : pulse)
+    shadedOrb(g, CORE.x, CORE.y, 12, RAMPS.ember)
+    gauge(
+      g,
+      CORE.x - 30,
+      CORE.y - 40,
+      60,
+      4,
+      1 - k.coreHits / KING_SEGS,
+      RAMPS.ember,
+    )
+  }
+
+  /** The dark board: black, with light pools round the pal and every lit lamp. */
+  private renderDark(g: CanvasRenderingContext2D) {
+    const p = this.player
+    const lights: Array<[number, number, number]> = [[p.x, p.y - 12, 54]]
+    for (const lamp of this.lamps)
+      if (lamp.lit) lights.push([lamp.x, lamp.y - 25, 64])
+    for (const e of this.embers) if (e.tell === 0) lights.push([e.x, e.y, 22])
+    for (const [alpha, grow] of [
+      [0.5, 1.3],
+      [0.5, 1],
+    ] as const) {
+      g.save()
+      g.fillStyle = rgba(INK, alpha)
+      g.beginPath()
+      g.rect(0, 0, W, H)
+      for (const [x, y, r] of lights) {
+        g.moveTo(x + r * grow, y)
+        g.arc(x, y, r * grow, 0, Math.PI * 2, true)
+      }
+      g.fill('evenodd')
+      g.restore()
+    }
+    if (this.lightning < 40 && this.lightning > 0 && this.lightning % 10 < 3) {
+      g.fillStyle = rgba('#ffffff', 0.08)
+      g.fillRect(0, 0, W, H)
+    }
+  }
+
+  private renderEnding(
+    g: CanvasRenderingContext2D,
+    e: { t: number; trueEnding: boolean },
+  ) {
+    g.save()
+    g.fillStyle = rgba(INK, Math.min(0.85, e.t / 40))
+    g.fillRect(0, 0, W, H)
+    g.restore()
+    const lines = e.trueEnding
+      ? [
+          'EVERY FOUNTAIN IN THE CITY',
+          'RUNS RAINBOW WATER',
+          '',
+          'ALL EIGHT GOLDEN VALVES',
+          'THE TRUE ENDING',
+        ]
+      : [
+          "THE CITY'S WATER RUNS CLEAN",
+          'THE CLOG KING IS CLEARED',
+          '',
+          `GOLDEN VALVES ${this.valves.length}/8`,
+          this.valves.length >= 8 ? '' : 'FIND THEM ALL FOR THE GOLDEN MAIN',
+        ]
+    drawText(g, 'PIPE PALS', W / 2, 60, {
+      scale: 3,
+      align: 'center',
+      color: RAMPS.teal[4],
+      outline: INK,
+    })
+    lines.forEach((line, i) =>
+      drawText(g, line, W / 2, 120 + i * 18, {
+        align: 'center',
+        color: i < 2 ? RAMPS.gold[4] : RAMPS.cream[4],
+        outline: INK,
+      }),
+    )
+    drawText(g, `SCORE ${this.score}`, W / 2, 230, {
+      scale: 2,
+      align: 'center',
+      color: RAMPS.gold[3],
+      outline: INK,
+    })
+    drawText(g, 'THE NIGHT SHIFT OVERTIME STARTS NEXT', W / 2, 270, {
+      align: 'center',
+      color: RAMPS.purple[3],
+      outline: INK,
+    })
+    if (e.t > 120)
+      drawText(g, 'PRESS A', W / 2, 296, {
+        align: 'center',
+        color: RAMPS.steel[3],
+        outline: INK,
+      })
+    drawSprite(
+      g,
+      PLAYER_SPRITES.run[Math.floor(e.t / 8) % 3]!,
+      ((e.t * 1.5) % (W + 40)) - 20,
+      330,
+      { anchor: 'feet' },
+    )
+  }
+
+  private renderOffer(g: CanvasRenderingContext2D, o: PipeSave) {
+    g.save()
+    g.fillStyle = rgba(INK, 0.8)
+    g.fillRect(0, 0, W, H)
+    g.restore()
+    hudPanel(g, 64, 90, W - 128, 150)
+    const d = districtAt(o.district).district
+    drawText(g, 'CONTINUE?', W / 2, 104, {
+      scale: 2,
+      align: 'center',
+      color: RAMPS.gold[3],
+      outline: INK,
+    })
+    drawText(g, `DISTRICT ${d.number}: ${d.name}`, W / 2, 140, {
+      align: 'center',
+      color: '#ffffff',
+      outline: INK,
+    })
+    drawText(
+      g,
+      o.continued
+        ? 'SCORE STARTS AGAIN FROM ZERO'
+        : `SCORE ${o.score}   PALS ${o.lives}`,
+      W / 2,
+      160,
+      { align: 'center', color: RAMPS.teal[3], outline: INK },
+    )
+    drawText(
+      g,
+      `GOLDEN VALVES ${o.valves.length}/8   COINS ${o.wallet}`,
+      W / 2,
+      178,
+      { align: 'center', color: RAMPS.gold[4], outline: INK },
+    )
+    drawText(g, 'A: CONTINUE     B: NEW RUN', W / 2, 212, {
+      align: 'center',
+      color: RAMPS.steel[3],
+      outline: INK,
+    })
+  }
+
   /** The Thermostat: a great dial, blue for freeze and red for heat, its needle on a ledge. */
   private renderThermostat(g: CanvasRenderingContext2D, t: Thermostat) {
     const ledges = this.thermoLedges()
@@ -4604,7 +5899,11 @@ class PipePals implements ArcadeGameInstance {
         : step.kind === 'boss'
           ? this.district.boss === 'thermostat'
             ? 'THERMOSTAT'
-            : 'BIG SHELL'
+            : this.district.boss === 'clog-king'
+              ? this.flush > 0
+                ? `FLUSH ${Math.ceil(this.flush / 60)}`
+                : 'CLOG KING'
+              : 'BIG SHELL'
           : step.kind === 'phase'
             ? `PHASE ${this.district.number}-${step.phase}`
             : 'WORKSHOP'

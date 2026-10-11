@@ -21,6 +21,7 @@ import {
   SHOP_ITEMS,
   SPECIAL_PHASE,
   districtSteps,
+  GOLDEN_MAIN,
 } from '../arcade/pipePals/districts'
 
 type Critter = {
@@ -121,6 +122,31 @@ type Inner = {
   route: number
   bestChain: number
   thermo: { hp: number; target: number; targetT: number; mode: string } | null
+  waterY: number
+  pumpNext: number
+  pumpsDone: boolean
+  flooded: boolean
+  eel: { side: number; state: string; t: number; len: number } | null
+  jellies: Array<{ x: number; y: number; t: number }>
+  platforms: Array<{ x0: number; x1: number; y: number; life: number }>
+  lamps: Array<{ x: number; y: number; lit: boolean }>
+  slicks: Map<unknown, number>
+  mimics: Array<{ x: number; y: number; t: number; stunned: number }>
+  king: {
+    phase: number
+    segs: Array<{ x: number; y: number; cracked: boolean; dents: number }>
+    plates: Array<{ x: number; y: number; state: string }>
+    kicksLeft: number
+    coreHits: number
+  } | null
+  flush: number
+  ending: { t: number; trueEnding: boolean } | null
+  inGolden: boolean
+  offer: unknown
+  save: { district: number; score: number; continued: boolean } | null
+  lap: number
+  phaseTicks: number
+  kick(c: unknown, dir: number): void
   tick: number
   liftLefts: number[]
   release(): void
@@ -198,8 +224,24 @@ function press(button: keyof InputFrame['held']): InputFrame {
 
 // --- pure rules ---------------------------------------------------------------------------
 
-const [rooftop, greenhouse, suds, cold, boiler, clock] = DISTRICTS
-assert.equal(DISTRICTS.length, 6, 'the Day and Swing Shifts: six districts')
+const [rooftop, greenhouse, suds, cold, boiler, clock, flooded, storm] =
+  DISTRICTS
+assert.equal(DISTRICTS.length, 8, 'three shifts: eight districts')
+assert.equal(rosterFor(storm!, 1).debut, 'beetle')
+assert.deepEqual(
+  districtSteps(storm!)
+    .slice(-4)
+    .map((s) => s.kind),
+  ['boss', 'bonus', 'ending', 'workshop'],
+  'the Clog King, a bonus, then the ending',
+)
+assert.deepEqual(
+  districtSteps(GOLDEN_MAIN).slice(-2),
+  [{ kind: 'ending', trueEnding: true }, { kind: 'workshop' }],
+  'the Golden Main ends in the true ending',
+)
+assert.ok(flooded!.water && flooded!.eels && flooded!.jellies)
+assert.ok(storm!.dark && storm!.lamps!.length === 4)
 assert.equal(rosterFor(cold!, 1).debut, 'frost')
 assert.equal(rosterFor(cold!, 2).debut, 'snowball')
 assert.equal(rosterFor(clock!, 1).debut, 'gearbug')
@@ -210,14 +252,18 @@ assert.equal(
 )
 for (const d of DISTRICTS) {
   // Every special prop and vent stands on a ledge that a pal can bump from the row below.
-  for (const spot of [...(d.spots ?? []), ...(d.icicles ?? [])]) {
+  for (const spot of [
+    ...(d.spots ?? []),
+    ...(d.icicles ?? []),
+    ...(d.lamps ?? []),
+  ]) {
     assert.ok(
       d.segments.some(
         (s) => s.y === spot.y && s.x0 <= spot.x && s.x1 >= spot.x,
       ),
       `${d.id}: a ledge under the prop at ${spot.x},${spot.y}`,
     )
-    if (d.spots?.includes(spot))
+    if (d.spots?.includes(spot) || d.lamps?.includes(spot))
       assert.ok(
         d.segments.some(
           (s) => s.y === spot.y + 66 && s.x0 <= spot.x && s.x1 >= spot.x,
@@ -243,7 +289,10 @@ for (const d of DISTRICTS) {
     PHASES_PER_DISTRICT,
   )
   assert.equal(steps.at(-1)!.kind, 'workshop', `${d.id} ends at the Workshop`)
-  assert.equal(steps.at(-2)!.kind, 'bonus')
+  assert.ok(
+    steps.some((s) => s.kind === 'bonus'),
+    `${d.id} has a bonus round`,
+  )
   // Every board: a full floor, ledges under both top pipes, a gap over the KIND block.
   assert.ok(d.segments.some((s) => s.y === 310 && s.x0 === 0 && s.x1 === 448))
   for (const x of [18, 430])
@@ -885,6 +934,213 @@ function swing(index: number, step = 0): Inner {
   const rx = rider.x
   for (let t = 0; t < 40; t++) gears.update(emptyInput())
   assert.ok(rider.x !== rx, 'gears bonus: coins ride the gear ledges')
+}
+
+// --- the Night Shift ---------------------------------------------------------------------------
+
+{
+  // Flooded Mains: the tide rises and falls; underwater a pal is slow and floaty.
+  const g = swing(6)
+  const w = flooded!.water!
+  g.phaseTicks = Math.round(w.period * 0.6)
+  g.update(emptyInput())
+  assert.ok(Math.abs(g.waterY - w.high) < 1, 'the tide comes in')
+  g.phaseTicks = 1
+  g.update(emptyInput())
+  assert.ok(g.waterY >= w.low - 1, 'and goes out')
+
+  // A flipped critter underwater bobs up and rights itself at the surface.
+  const h = swing(6)
+  h.phaseTicks = Math.round(w.period * 0.5) + 1
+  const bob = critter('crawler', 120, 244, { flipped: 500 })
+  h.critters = [bob, critter('crawler', 40, 112)]
+  const y0 = bob.y
+  for (let t = 0; t < 30; t++) h.update(emptyInput())
+  assert.ok(bob.y < y0 - 5, 'a flipped critter floats up off its ledge')
+  for (let t = 0; t < 120 && bob.flipped > 0; t++) h.update(emptyInput())
+  assert.equal(bob.flipped, 0, 'and rights itself at the surface')
+}
+
+{
+  // Pump Station: 1-2-3 in order drains the flood; out of order starts over.
+  const g = swing(6, SPECIAL_PHASE - 1)
+  const spots = flooded!.spots!
+  g.bumpAt(spots[1]!.x, spots[1]!.y)
+  assert.equal(g.pumpNext, 0, 'out of order does nothing')
+  g.bumpAt(spots[0]!.x, spots[0]!.y)
+  g.bumpAt(spots[2]!.x, spots[2]!.y)
+  assert.equal(g.pumpNext, 0, 'a wrong button starts over')
+  for (const spot of spots) g.bumpAt(spot.x, spot.y)
+  assert.ok(g.pumpsDone, 'in order, the pumps come on')
+  const late = swing(6, SPECIAL_PHASE - 1)
+  late.phaseTicks = 60 * 90
+  late.update(emptyInput())
+  assert.ok(late.flooded, 'left too long, the board floods')
+}
+
+{
+  // Eels strike from the top pipes; a bump on the ledge by the pipe sends one back.
+  const g = swing(6)
+  g.eel = { side: 0, state: 'hold', t: 50, len: 96 }
+  g.bumpAt(50, 112)
+  assert.equal(g.eel!.state, 'back', 'a bump by the pipe sends the eel back')
+  const h = swing(6)
+  h.invuln = 0
+  h.eel = { side: 0, state: 'hold', t: 50, len: 96 }
+  Object.assign(h.player, { x: 60, y: 112, vx: 0, vy: 0, onGround: true })
+  const lives = h.lives
+  h.update(emptyInput())
+  assert.equal(h.lives, lives - 1, 'an eel strike fells a pal on the top ledge')
+
+  // Jellies pop into bubble platforms.
+  const j = swing(6)
+  j.jellies = [{ x: 120, y: 230, t: 5 }]
+  j.bumpAt(120, 244)
+  assert.equal(j.jellies.length, 0)
+  assert.equal(j.platforms.length, 1, 'a popped jelly leaves a bubble platform')
+}
+
+{
+  // Storm Drain: lamps relit by bumps (Lights Out), beetles grease ledges, mimics bite.
+  const g = swing(7, SPECIAL_PHASE - 1)
+  assert.ok(
+    g.lamps.every((l) => !l.lit),
+    'Lights Out starts in the dark',
+  )
+  for (const lamp of [...g.lamps]) g.bumpAt(lamp.x, lamp.y)
+  assert.ok(
+    g.lamps.every((l) => l.lit),
+    'a bump from below relights a lamp',
+  )
+
+  const b = swing(7)
+  const beetle = critter('beetle', 100, 244, { dir: 1 })
+  b.critters = [beetle, critter('crawler', 40, 112)]
+  for (let t = 0; t < 5; t++) b.update(emptyInput())
+  assert.ok(b.slicks.size > 0, 'a grease beetle leaves a slick')
+  b.bumpAt(beetle.x, 244)
+  const x0 = beetle.x
+  for (let t = 0; t < 20; t++) b.update(emptyInput())
+  assert.ok(
+    beetle.flipped > 0 && Math.abs(beetle.x - x0) > 3,
+    'a flipped beetle skids along',
+  )
+
+  const m = swing(7, 1)
+  m.invuln = 0
+  m.mimics = [{ x: 200, y: 310, t: 0, stunned: 0 }]
+  Object.assign(m.player, { x: 200, y: 310, vx: 0, vy: 0, onGround: true })
+  const lives = m.lives
+  m.update(emptyInput())
+  assert.equal(m.lives, lives - 1, 'grab a mimic coin and it bites')
+  const n = swing(7, 1)
+  n.mimics = [{ x: 120, y: 244, t: 0, stunned: 0 }]
+  n.bumpAt(120, 244)
+  assert.equal(n.mimics.length, 0, 'a bump from below clears a mimic')
+}
+
+{
+  // The Clog King: crack its six plates, kick six of its critters, kick the plates into its core,
+  // then race the flush to the roof hatch.
+  const g = fresh(3, 7)
+  while (!g.king) g.advance()
+  g.cardTicks = 0
+  g.invuln = 100_000
+  const k = g.king!
+  for (const seg of k.segs) Object.assign(seg, { x: seg.x, y: 244 })
+  k.segs.forEach((seg, i) => Object.assign(seg, { x: 40 + i * 20 }))
+  for (const seg of [...k.segs]) {
+    g.bumpAt(seg.x, 244)
+    assert.ok(!seg.cracked, 'the first bump only dents a plate')
+    g.bumpAt(seg.x, 244)
+  }
+  assert.ok(
+    k.segs.every((s) => s.cracked),
+    'bumps crack every plate',
+  )
+  assert.equal(k.phase, 2, 'then it sheds critters')
+  for (let i = 0; i < 6; i++)
+    g.kick(critter('crawler', 300, 310, { flipped: 100 }), 1)
+  g.update(emptyInput())
+  assert.equal(k.phase, 3, 'six kicks and it coils round the main')
+  for (const plate of k.plates) {
+    Object.assign(g.player, {
+      x: plate.x,
+      y: plate.y,
+      vx: 0,
+      vy: 0,
+      onGround: true,
+    })
+    g.update(emptyInput())
+  }
+  for (let t = 0; t < 120 && g.king; t++) g.update(emptyInput())
+  assert.equal(g.king, null, 'six plates into the core beat the Clog King')
+  assert.ok(g.flush > 0, 'and the flush begins')
+  Object.assign(g.player, { x: 40, y: 112, vx: 0, vy: 0, onGround: true })
+  g.update(emptyInput())
+  assert.equal(g.flush, 0, 'reaching the hatch ends the flush')
+  assert.ok(g.phaseDelay > 0)
+}
+
+{
+  // The ending, then Night Shift Overtime; with all eight valves, the Golden Main first.
+  const g = fresh(3, 7)
+  while (
+    g.stepIndex < districtSteps(storm!).findIndex((s) => s.kind === 'ending')
+  )
+    g.advance()
+  assert.ok(
+    g.ending && !g.ending.trueEnding,
+    'the Clog King leads to the ending',
+  )
+  g.ending!.t = 60 * 17
+  g.update(emptyInput())
+  assert.equal(g.ending, null)
+  assert.ok(g.workshop, 'then the Workshop, and Overtime')
+
+  const gold = fresh(3, 7)
+  gold.valves = DISTRICTS.map((d) => d.id)
+  while (!gold.inGolden) gold.advance()
+  assert.equal(
+    gold.district.id,
+    'golden',
+    'all eight valves open the Golden Main',
+  )
+  while (!gold.ending) gold.advance()
+  assert.ok(gold.ending!.trueEnding, 'the Golden Main ends in the true ending')
+}
+
+{
+  // Saves: each district start is kept; a new game offers to continue.
+  const g = fresh(3, 4)
+  assert.equal(g.save?.district, 4, 'the run is saved at the district start')
+  const resumed = create({
+    rng: mulberry32(9),
+    sound: quiet,
+    demo: false,
+    hiScore: 0,
+    resume: g.save,
+  }) as unknown as Inner
+  assert.ok(resumed.offer, 'a saved run is offered')
+  resumed.update(press('a'))
+  assert.equal(resumed.district.id, 'boiler', 'CONTINUE picks the run back up')
+  const fresher = create({
+    rng: mulberry32(9),
+    sound: quiet,
+    demo: false,
+    hiScore: 0,
+    resume: g.save,
+  }) as unknown as Inner
+  fresher.update(press('b'))
+  assert.equal(fresher.district.id, 'rooftop', 'NEW RUN starts over')
+  const demo = create({
+    rng: mulberry32(9),
+    sound: quiet,
+    demo: true,
+    hiScore: 0,
+    resume: g.save,
+  }) as unknown as Inner
+  assert.equal(demo.offer, null, 'demos never offer a save')
 }
 
 // --- seeded runs repeat exactly, and the pilot keeps playing ---------------------------------

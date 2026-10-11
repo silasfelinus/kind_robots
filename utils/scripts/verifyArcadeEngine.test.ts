@@ -74,6 +74,7 @@ import {
   type BallView,
 } from '../arcade/pinball/physics/world'
 import {
+  fitsFrame,
   liveRenderResources,
   PinballScene,
   type RendererLike,
@@ -2402,6 +2403,15 @@ async function runPinballRender() {
     elevation(390 / 844) > elevation(1280 / 800) + 0.15,
     'a phone looks down on the table more steeply than a desktop',
   )
+  // The on-screen DMD shows unless the whole backbox glass is in frame: on a
+  // tall tablet its centre was on screen while its top was cut off.
+  const corner = (x: number, y: number) => ({ x, y, z: 0.5 })
+  assert.ok(fitsFrame([corner(-0.5, 0.8), corner(0.5, 0.9)]))
+  assert.ok(
+    !fitsFrame([corner(-0.5, 0.8), corner(0.5, 1.04)]),
+    'a glass cut off at the top is not readable',
+  )
+  assert.ok(!fitsFrame([{ x: 0, y: 0, z: 1.2 }]), 'nor one behind the camera')
   assert.equal(portraitBlend(0.4), 1)
   assert.equal(portraitBlend(1.6), 0)
 

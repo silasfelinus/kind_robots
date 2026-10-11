@@ -707,6 +707,26 @@
           </section>
 
           <section
+            v-if="game.lastTrialOutcome && !game.bossReady"
+            class="rounded-2xl border border-warning/40 bg-base-200 p-5 shadow-lg"
+            aria-label="Latest major trial result"
+            aria-live="polite"
+          >
+            <p class="text-xs font-bold uppercase tracking-widest text-warning">
+              Major trial · {{ game.lastTrialOutcome.roll.success ? 'Passed' : 'Repelled' }}
+            </p>
+            <h3 class="mt-2 font-serif text-xl font-bold">
+              {{ game.world.lands.find((land) => land.id === game.lastTrialOutcome.landId)?.boss.label }}
+            </h3>
+            <p class="mt-3 text-sm leading-relaxed">{{ game.lastTrialOutcome.resultText }}</p>
+            <p class="mt-3 text-xs opacity-70">
+              {{ game.lastTrialOutcome.roll.dice.join(' + ') }} +
+              {{ game.lastTrialOutcome.roll.modifier }} =
+              {{ game.lastTrialOutcome.roll.total }} vs {{ game.lastTrialOutcome.roll.difficulty }}
+            </p>
+          </section>
+
+          <section
             class="rounded-3xl border border-base-content/15 bg-base-200 px-4 py-5 sm:px-6"
             aria-label="Card decks and discards"
           >

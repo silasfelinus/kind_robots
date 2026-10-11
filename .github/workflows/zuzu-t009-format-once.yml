@@ -1,0 +1,31 @@
+name: One-shot Shifting Lands V3 formatter
+on:
+  push:
+    branches:
+      - worker/zuzu-shifting-lands-t009-save-replay-20261011-9c42
+    paths:
+      - .github/workflows/zuzu-t009-format-once.yml
+permissions:
+  contents: write
+jobs:
+  format:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: worker/zuzu-shifting-lands-t009-save-replay-20261011-9c42
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+      - run: npm ci --ignore-scripts
+        env:
+          CYPRESS_INSTALL_BINARY: '0'
+      - name: Format V3 sources and remove this one-shot workflow
+        run: |
+          npx prettier --write utils/shiftingLands/saveLedger.ts utils/shiftingLands/progression.ts stores/shiftingLandsJourneyStore.ts utils/scripts/verifyShiftingSaveLedger.test.ts
+          git rm .github/workflows/zuzu-t009-format-once.yml
+          git add utils/shiftingLands/saveLedger.ts utils/shiftingLands/progression.ts stores/shiftingLandsJourneyStore.ts utils/scripts/verifyShiftingSaveLedger.test.ts
+          git -c user.name='github-actions[bot]' -c user.email='41898282+github-actions[bot]@users.noreply.github.com' commit -m 'style(shifting-lands): format V3 save ledger and tests'
+          git push origin HEAD:refs/heads/worker/zuzu-shifting-lands-t009-save-replay-20261011-9c42

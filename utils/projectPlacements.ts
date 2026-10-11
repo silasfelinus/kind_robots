@@ -118,6 +118,11 @@ export const PROJECT_PLACEMENTS: Record<string, ProjectPlacement> = {
     tabKey: 'zuzu-gamebook',
     route: '/play/zuzu-gamebook',
   },
+  'zuzu-lair': {
+    channelKey: 'projects',
+    tabKey: 'zuzu-lair',
+    route: '/play/zuzu-lair',
+  },
   'media-watchlist': {
     channelKey: 'admin',
     tabKey: 'watchlist',

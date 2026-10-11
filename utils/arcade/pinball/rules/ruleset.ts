@@ -22,6 +22,9 @@ import { goalsMet, MASTERY_GOALS, masteryEffects } from './mastery'
 import { musicFor } from './subTable'
 import { delivered, toyPose, type ToyPose } from './toys'
 
+/** An animatronic's phase, and how long it has been in it (seconds). */
+export type AnimatronicPose = { phase: string; age: number }
+
 /** What the runtime reads from any table's rules state. */
 export type CoreRulesState = {
   score: number
@@ -57,6 +60,8 @@ export type PinballRuleset<S extends CoreRulesState = CoreRulesState> = {
     pose(state: S): ToyPose
     delivered(before: S, after: S): boolean
   }
+  /** Animatronic toys' poses by id, at physics step `step`. */
+  animatronics?(state: S, step: number): Record<string, AnimatronicPose>
   /** Mastery goals, when the table has them. */
   mastery?: {
     goals: readonly ArcadeMasteryGoal[]

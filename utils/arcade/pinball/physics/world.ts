@@ -390,6 +390,7 @@ export class PinballPhysics {
     }
     for (const collider of door.open) collider.setEnabled(false)
     this.doors.set(def.id, door)
+    if (def.startsOpen) this.setDoor(def.id, true)
   }
 
   private addToy(def: ToyDef) {

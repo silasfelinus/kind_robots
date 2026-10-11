@@ -19,6 +19,7 @@ const board = read('../../components/shifting-lands-journey-board.vue')
 const rail = read('../../components/shifting-lands-character-rail.vue')
 const store = read('../../stores/shiftingLandsJourneyStore.ts')
 const workflow = read('../../.github/workflows/shifting-lands-gameplay.yml')
+const preferences = read('../shiftingLands/presentationPreferences.ts')
 const clone = <T>(value: T): T => JSON.parse(JSON.stringify(value))
 
 // The compact, image-forward rail must be grounded in the replay-verified
@@ -56,11 +57,14 @@ assert.match(workflow, /verifyShiftingCharacterRail\.test\.ts/)
 // Display-only settings cannot alter the ledger or import gameplay rules.
 // Muting never blocks choices or changes the seeded RNG. Motion settings
 // respect system preferences, and audio requires a user-initiated roll.
-assert.match(board, /PRESENTATION_KEY = 'kr\.shiftingLands\.presentation\.v1'/)
+assert.match(preferences, /PRESENTATION_KEY = 'kr\.shiftingLands\.presentation\.v1'/)
 assert.match(
-  board,
-  /window\.matchMedia\(\s*'\(prefers-reduced-motion: reduce\)',?\s*\)/,
+  preferences,
+  /window\.matchMedia\(\s*'\(prefers-reduced-motion: reduce\)'\)/,
 )
+assert.match(board, /readShiftingLandsPresentation\(\)/)
+assert.match(board, /writeShiftingLandsPresentation\(\{/)
+assert.doesNotMatch(board, /\b(?:localStorage|\$fetch|fetch\()\b/)
 assert.match(board, /:duration-ms="reducedMotion \? 0 : 650"/)
 assert.match(board, /:aria-pressed="!reducedMotion"/)
 assert.match(board, /:aria-pressed="soundEnabled"/)

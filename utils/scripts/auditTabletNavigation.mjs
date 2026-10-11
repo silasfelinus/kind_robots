@@ -1,4 +1,4 @@
-import { fileURLToPath } from "node:url";
+import { fileURLToPath } from 'node:url'
 
 /**
  * Tablet navigation fixture (interface-vision/t-140).
@@ -27,88 +27,88 @@ import { fileURLToPath } from "node:url";
  * Do not pipe it in CI -- that replaces the exit status.
  */
 
-const args = process.argv.slice(2);
+const args = process.argv.slice(2)
 const flag = (name, fallback) => {
-  const i = args.indexOf(`--${name}`);
-  return i === -1 || !args[i + 1] ? fallback : args[i + 1];
-};
+  const i = args.indexOf(`--${name}`)
+  return i === -1 || !args[i + 1] ? fallback : args[i + 1]
+}
 
-const BASE = flag("base", process.env.AUDIT_BASE || "http://127.0.0.1:3000");
-const ROUTES = flag("routes", "/art,/play/arcade,/dreams")
-  .split(",")
+const BASE = flag('base', process.env.AUDIT_BASE || 'http://127.0.0.1:3000')
+const ROUTES = flag('routes', '/art,/play/arcade,/dreams')
+  .split(',')
   .map((r) => r.trim())
-  .filter(Boolean);
-const COLUMN_WIDTH = 288;
-const PANEL_PADDING = 16;
-const VIEWPORT_GUTTER = 12;
-const ANCHOR_TOLERANCE_PX = 4;
-const ROW_MAX_PX = 64;
+  .filter(Boolean)
+const COLUMN_WIDTH = 288
+const PANEL_PADDING = 16
+const VIEWPORT_GUTTER = 12
+const ANCHOR_TOLERANCE_PX = 4
+const ROW_MAX_PX = 64
 
 const VIEWPORTS = [
-  { name: "ipad-portrait", width: 820, height: 1180 },
-  { name: "ipad-landscape", width: 1180, height: 820 },
-];
+  { name: 'ipad-portrait', width: 820, height: 1180 },
+  { name: 'ipad-landscape', width: 1180, height: 820 },
+]
 
 /** Pure decision logic, exported by shape so it can be unit-checked. */
 export function judge(m, vw) {
-  const problems = [];
+  const problems = []
   if (Math.abs(m.menu.left - m.trigger.left) > ANCHOR_TOLERANCE_PX) {
     problems.push(
       `ANCHOR menu left ${m.menu.left} vs trigger left ${m.trigger.left}`,
-    );
+    )
   }
-  const available = Math.max(0, vw - m.trigger.left - VIEWPORT_GUTTER);
-  const columns = m.columns;
+  const available = Math.max(0, vw - m.trigger.left - VIEWPORT_GUTTER)
+  const columns = m.columns
   if (!Number.isInteger(columns) || columns < 1 || columns > 3) {
-    problems.push(`COLUMNS invalid column count ${columns}`);
+    problems.push(`COLUMNS invalid column count ${columns}`)
   } else {
     const expectedWidth = Math.min(
       columns * COLUMN_WIDTH + PANEL_PADDING,
       available,
-    );
+    )
     if (Math.abs(m.menu.width - expectedWidth) > 2) {
       problems.push(
         `WIDTH ${m.menu.width}px vs ${expectedWidth}px for ${columns} column(s)`,
-      );
+      )
     }
     if (columns > 1 && columns * COLUMN_WIDTH + PANEL_PADDING > available + 1) {
-      problems.push(`COLUMNS ${columns} columns do not fit in ${available}px`);
+      problems.push(`COLUMNS ${columns} columns do not fit in ${available}px`)
     }
   }
   if (m.menu.left < 0 || m.menu.right > vw) {
-    problems.push(`INSIDE menu spans ${m.menu.left}..${m.menu.right} of ${vw}`);
+    problems.push(`INSIDE menu spans ${m.menu.left}..${m.menu.right} of ${vw}`)
   }
-  if (!m.rows) problems.push("DENSITY no rows found in the open menu");
+  if (!m.rows) problems.push('DENSITY no rows found in the open menu')
   if (m.tallRows.length) {
     problems.push(
-      `DENSITY ${m.tallRows.length} row(s) taller than ${ROW_MAX_PX}px: ${m.tallRows.join(" | ")}`,
-    );
+      `DENSITY ${m.tallRows.length} row(s) taller than ${ROW_MAX_PX}px: ${m.tallRows.join(' | ')}`,
+    )
   }
-  return problems;
+  return problems
 }
 
 function measure(rowMax) {
-  const root = document.querySelector(".tab-select");
-  const trigger = root?.querySelector("button");
-  const menu = root?.querySelector(".dropdown-content");
-  if (!root || !trigger || !menu) return null;
+  const root = document.querySelector('.tab-select')
+  const trigger = root?.querySelector('button')
+  const menu = root?.querySelector('.dropdown-content')
+  if (!root || !trigger || !menu) return null
   const box = (el) => {
-    const r = el.getBoundingClientRect();
+    const r = el.getBoundingClientRect()
     return {
       left: Math.round(r.left),
       right: Math.round(r.right),
       width: Math.round(r.width),
-    };
-  };
-  const rows = [...menu.querySelectorAll("li button")].filter(
+    }
+  }
+  const rows = [...menu.querySelectorAll('li button')].filter(
     (b) => b.getBoundingClientRect().height > 0,
-  );
-  const list = menu.querySelector("section > ul");
-  const listStyle = list ? getComputedStyle(list) : null;
+  )
+  const list = menu.querySelector('section > ul')
+  const listStyle = list ? getComputedStyle(list) : null
   const columns =
-    listStyle?.display === "grid"
-      ? listStyle.gridTemplateColumns.split(" ").filter(Boolean).length
-      : 1;
+    listStyle?.display === 'grid'
+      ? listStyle.gridTemplateColumns.split(' ').filter(Boolean).length
+      : 1
   return {
     columns,
     trigger: box(trigger),
@@ -118,91 +118,89 @@ function measure(rowMax) {
       .filter((b) => b.getBoundingClientRect().height > rowMax)
       .map(
         (b) =>
-          `${(b.textContent || "").trim().replace(/\s+/g, " ").slice(0, 40)} (${Math.round(b.getBoundingClientRect().height)}px)`,
+          `${(b.textContent || '').trim().replace(/\s+/g, ' ').slice(0, 40)} (${Math.round(b.getBoundingClientRect().height)}px)`,
       ),
-  };
+  }
 }
 
 async function main() {
-  let chromium;
+  let chromium
   try {
-    ({ chromium } = await import("playwright"));
+    ;({ chromium } = await import('playwright'))
   } catch {
-    console.error("❌ playwright not installed.");
-    process.exitCode = 2;
-    return;
+    console.error('❌ playwright not installed.')
+    process.exitCode = 2
+    return
   }
 
   // Behind a TLS-intercepting egress proxy (Claude Code cloud sandboxes), set
   // AUDIT_VIA_PROXY=1 to route through it and tolerate its CA.
-  const viaProxy = process.env.AUDIT_VIA_PROXY === "1";
+  const viaProxy = process.env.AUDIT_VIA_PROXY === '1'
   const browser = await chromium.launch({
     executablePath: process.env.CHROMIUM_PATH || undefined,
     args: viaProxy
-      ? ["--no-sandbox", "--ignore-certificate-errors", "--disable-http2"]
-      : ["--no-sandbox"],
+      ? ['--no-sandbox', '--ignore-certificate-errors', '--disable-http2']
+      : ['--no-sandbox'],
     proxy: viaProxy ? { server: process.env.HTTPS_PROXY } : undefined,
-  });
+  })
 
-  let failures = 0;
+  let failures = 0
   for (const vp of VIEWPORTS) {
     const ctx = await browser.newContext({
       viewport: { width: vp.width, height: vp.height },
       isMobile: true,
       hasTouch: true,
       ignoreHTTPSErrors: viaProxy,
-    });
+    })
     for (const route of ROUTES) {
-      const label = `${vp.name.padEnd(15)} ${route.padEnd(16)}`;
-      const page = await ctx.newPage();
-      let loaded = true;
+      const label = `${vp.name.padEnd(15)} ${route.padEnd(16)}`
+      const page = await ctx.newPage()
+      let loaded = true
       await page
-        .goto(BASE + route, { waitUntil: "networkidle", timeout: 90000 })
+        .goto(BASE + route, { waitUntil: 'networkidle', timeout: 90000 })
         .catch(() => {
-          loaded = false;
-        });
-      await page.waitForTimeout(7000); // let the startup splash clear
-      let m = null;
+          loaded = false
+        })
+      await page.waitForTimeout(7000) // let the startup splash clear
+      let m = null
       if (loaded) {
         await page
-          .locator(".tab-select > button")
+          .locator('.tab-select > button')
           .first()
           .click({ timeout: 10000 })
-          .catch(() => {});
-        await page.waitForTimeout(400);
-        m = await page.evaluate(measure, ROW_MAX_PX).catch(() => null);
+          .catch(() => {})
+        await page.waitForTimeout(400)
+        m = await page.evaluate(measure, ROW_MAX_PX).catch(() => null)
       }
       if (!loaded || !m) {
-        failures += 1;
+        failures += 1
         console.log(
-          `${label} ❌ ${loaded ? "tab menu not found" : "navigation failed"} -- nothing measured`,
-        );
+          `${label} ❌ ${loaded ? 'tab menu not found' : 'navigation failed'} -- nothing measured`,
+        )
       } else {
-        const problems = judge(m, vp.width);
+        const problems = judge(m, vp.width)
         if (problems.length) {
-          failures += 1;
-          console.log(`${label} ❌`);
-          for (const p of problems) console.log(`         ${p}`);
+          failures += 1
+          console.log(`${label} ❌`)
+          for (const p of problems) console.log(`         ${p}`)
         } else {
-          console.log(`${label} ✅ menu ${m.menu.width}px, ${m.rows} rows`);
+          console.log(`${label} ✅ menu ${m.menu.width}px, ${m.rows} rows`)
         }
       }
-      await page.close();
+      await page.close()
     }
-    await ctx.close();
+    await ctx.close()
   }
-  await browser.close();
+  await browser.close()
 
   if (failures) {
-    console.error(`\n❌ ${failures} tablet navigation defect(s).`);
-    process.exitCode = 1;
-    return;
+    console.error(`\n❌ ${failures} tablet navigation defect(s).`)
+    process.exitCode = 1
+    return
   }
-  console.log(
-    "\n✅ Tablet navigation menu is anchored, adaptive, and compact.",
-  );
+  console.log('\n✅ Tablet navigation menu is anchored, adaptive, and compact.')
 }
 
 if (process.argv[1] && fileURLToPath(import.meta.url) === process.argv[1]) {
-  await main();
+  await main()
 }

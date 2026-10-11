@@ -252,7 +252,7 @@ function rival(g: Inner, kind: string, x: number, y: number): Rival {
   assert.equal(p.bestCombo, 3)
   // Landing banks it.
   g.cocoons = []
-  g.addRival(0, 9999)
+  g.addRival('drifter', 9999)
   place(p, 224, 196 - 8 - 2)
   p.vy = 1
   for (let t = 0; t < 10 && p.combo.bonks; t++) g.update(idle())

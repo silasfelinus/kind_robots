@@ -1,0 +1,31 @@
+name: One-shot Shifting Lands preference formatter
+on:
+  push:
+    branches:
+      - worker/zuzu-shifting-lands-t016-character-rail-20261011-a71c
+    paths:
+      - .github/workflows/zuzu-t016-pref-format-once.yml
+permissions:
+  contents: write
+jobs:
+  format:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: worker/zuzu-shifting-lands-t016-character-rail-20261011-a71c
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+      - run: npm ci --ignore-scripts
+        env:
+          CYPRESS_INSTALL_BINARY: '0'
+      - name: Format scoped files and remove one-shot workflow
+        run: |
+          npx prettier --write components/shifting-lands-journey-board.vue utils/shiftingLands/presentationPreferences.ts utils/scripts/verifyShiftingCharacterRail.test.ts
+          git rm .github/workflows/zuzu-t016-pref-format-once.yml
+          git add components/shifting-lands-journey-board.vue utils/shiftingLands/presentationPreferences.ts utils/scripts/verifyShiftingCharacterRail.test.ts
+          git -c user.name='github-actions[bot]' -c user.email='41898282+github-actions[bot]@users.noreply.github.com' commit -m 'style(shifting-lands): format storage helper isolation'
+          git push origin HEAD:refs/heads/worker/zuzu-shifting-lands-t016-character-rail-20261011-a71c

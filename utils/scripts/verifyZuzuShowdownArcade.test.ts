@@ -14,6 +14,7 @@ import { ARCADE_GAMES, findArcadeGame, isPlausibleScore } from '../arcade/games'
 import { measureText } from '../arcade/font'
 import {
   ARCADE_GAME_SLUG,
+  BOSS_SLUG,
   AVATAR_SLUG,
   DIFFICULTY_MULTIPLIER,
   ENDINGS,
@@ -37,12 +38,13 @@ import {
   drawContinueScreen,
   drawEndingScreen,
   drawInitialsScreen,
-  drawLadderScreen,
+  drawTravelScreen,
   endingStill,
   formatScore,
-  ladderSlot,
+  travelLeg,
 } from '../zuzuShowdown/arcadeScreens'
 import { CPU_LEVELS } from '../zuzuShowdown/cpu'
+import { homeOf, routePoint } from '../zuzuShowdown/worldMap'
 import { FIGHTERS, findFighter } from '../zuzuShowdown/fighters'
 import { VIEW_HEIGHT, VIEW_WIDTH } from '../zuzuShowdown/render'
 import { FPS, createMatch } from '../zuzuShowdown/sim'
@@ -317,6 +319,34 @@ check('it posts to the leaderboard but stays out of the hall', () => {
   )
 })
 
+check('the journey runs home to home and ends at the Thin Place', () => {
+  for (const player of SLUGS) {
+    const home = homeOf(player)
+    assert.ok(home.x > 0 && home.x < 1 && home.y > 0 && home.y < 1, player)
+    const ladder = arcadeLadder(player, SLUGS, 5)
+    let at = home
+    for (let rung = 0; rung <= ladder.length; rung += 1) {
+      const leg = travelLeg(player, ladder, rung)
+      assert.deepEqual(
+        leg.from,
+        at,
+        `${player} leg ${rung} starts where it stood`,
+      )
+      at = leg.to
+    }
+    assert.deepEqual(at, homeOf(BOSS_SLUG), `${player} ends at the door`)
+  }
+  // Every fighter has a place of their own on the map.
+  const keys = SLUGS.map((slug) => JSON.stringify(homeOf(slug)))
+  assert.equal(new Set(keys).size, SLUGS.length, 'distinct homes')
+  // Routes start and end on their pins.
+  const a = homeOf('zuzu')
+  const b = homeOf('old-komodo')
+  assert.deepEqual(routePoint(a, b, 0), { x: a.x, y: a.y })
+  const end = routePoint(a, b, 1)
+  assert.ok(Math.abs(end.x - b.x) < 1e-9 && Math.abs(end.y - b.y) < 1e-9)
+})
+
 // ---------------------------------------------------------------- drawing
 
 type Call = { op: string; args: number[] }
@@ -347,6 +377,14 @@ function stubContext() {
     rect: record('rect'),
     clip: record('clip'),
     strokeRect: record('strokeRect'),
+    arc: record('arc'),
+    ellipse: record('ellipse'),
+    stroke: record('stroke'),
+    moveTo: record('moveTo'),
+    lineTo: record('lineTo'),
+    closePath: record('closePath'),
+    setLineDash: record('setLineDash'),
+    fill: record('fill'),
   }
   return { g: g as unknown as CanvasRenderingContext2D, calls }
 }
@@ -369,23 +407,28 @@ check('the arcade screens draw on screen', () => {
   for (const player of SLUGS) {
     const ladder = arcadeLadder(player, SLUGS, 9).map(findFighter)
     for (let rung = 0; rung <= ladder.length; rung += 1) {
-      const { g, calls } = stubContext()
-      drawLadderScreen(
-        g,
-        findFighter(player),
-        ladder,
-        rung,
-        score,
-        undefined,
-        rung * 7,
-        false,
-      )
-      assertOnScreen(calls, `ladder ${player} ${rung}`)
+      for (const [t, reduced] of [
+        [0, false],
+        [50, false],
+        [200, false],
+        [0, true],
+      ] as const) {
+        const { g, calls } = stubContext()
+        drawTravelScreen(
+          g,
+          findFighter(player),
+          ladder,
+          rung,
+          score,
+          undefined,
+          undefined,
+          t,
+          reduced,
+          rung === ladder.length ? 'A line to the door.' : undefined,
+        )
+        assertOnScreen(calls, `travel ${player} ${rung} t${t}`)
+      }
     }
-    const last = ladderSlot(ladder.length, ladder.length + 1)
-    assert.ok(
-      last.x + last.w <= VIEW_WIDTH && ladderSlot(0, ladder.length + 1).x >= 0,
-    )
     for (const t of [0, 10, ENDING_STILL_FRAMES, 2 * ENDING_STILL_FRAMES - 1]) {
       const { g, calls } = stubContext()
       drawEndingScreen(g, findFighter(player), undefined, undefined, t, false)

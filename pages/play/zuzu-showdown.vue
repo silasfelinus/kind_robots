@@ -64,7 +64,7 @@
                 :key="`arcade-${level}`"
                 :value="`arcade:${level}`"
               >
-                Arcade · {{ CPU_LEVEL_NAMES[level] }}
+                Story · {{ CPU_LEVEL_NAMES[level] }}
               </option>
             </select>
           </label>

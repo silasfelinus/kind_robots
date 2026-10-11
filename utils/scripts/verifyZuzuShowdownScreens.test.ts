@@ -199,6 +199,10 @@ function stubContext() {
     rect: record('rect'),
     clip: record('clip'),
     strokeRect: record('strokeRect'),
+    arc: record('arc'),
+    ellipse: record('ellipse'),
+    stroke: record('stroke'),
+    setLineDash: record('setLineDash'),
   }
   return { g: g as unknown as CanvasRenderingContext2D, calls }
 }
@@ -493,8 +497,9 @@ check('the screens draw portraits where loaded, sprites where not', () => {
     portraits,
   )
   assertOnScreen(select.calls, 'select portraits')
-  const bust = portraitInfo('zuzu', 'bust')!
-  assert.equal(sized(select.calls, bust.w, bust.h), FIGHTERS.length, 'busts')
+  // Each card's bust is scaled to the card; the map's two tokens are smaller still.
+  const card = selectCard(0, FIGHTERS.length)
+  assert.equal(sized(select.calls, card.w, card.h), FIGHTERS.length, 'busts')
 })
 
 console.log(`verifyZuzuShowdownScreens: ${passed} checks passed`)

@@ -503,7 +503,7 @@ export function updateCrasher(c: Crasher, w: CrasherWorld) {
     }
     case 'tank': {
       // Grinds round to face Sparkle; its wand glows, then a fan of bubbles.
-      c.face = turn(c.face, toward(c, goal), 0.025)
+      c.face = turn(c.face, toward(c, goal), 0.02)
       if (c.mode === 0) {
         step(c, c.face, speed * 0.45)
         if (c.clock >= TELLS.tankEvery) setMode(c, 1)

@@ -286,12 +286,12 @@ export const LOOP_CURVES = {
   /** Crasher speed factor. */
   speed: { start: 1, step: 0.15, limit: 1.75 },
   /** Crashers per door factor. */
-  count: { start: 1, step: 0.35, limit: 2.5 },
+  count: { start: 1, step: 0.35, limit: 5 },
   /** Waves arrive sooner. */
   waveTime: { start: 1, step: -0.1, limit: 0.6 },
   /** Less time on the clock. */
   clock: { start: 1, step: -0.08, limit: 0.62 },
-  bossHp: { start: 1, step: 0.6, limit: 4 },
+  bossHp: { start: 1, step: 0.6, limit: 8 },
   /** Chance a room rolls a modifier. */
   modifierChance: { start: 0, step: 0.45, limit: 0.85 },
 } as const satisfies Record<string, CurveSpec>

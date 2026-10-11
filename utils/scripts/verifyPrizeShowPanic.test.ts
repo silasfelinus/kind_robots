@@ -114,6 +114,8 @@ type Inner = {
     ticks: number
   } | null
   rng: () => number
+  tally: unknown
+  ratings: number
   update(input: InputFrame): void
   render(g: CanvasRenderingContext2D): void
   enterRoom(id: string, entry: Side): void
@@ -830,11 +832,13 @@ const g2d = stubContext()
   safeTick(f)
   assert.equal(f.boss, null)
   f.crashers = []
-  for (let t = 0; t < 200 && f.loop === 1; t++) {
+  for (let t = 0; t < 200 && !f.tally; t++) {
     f.crashers = []
     safeTick(f)
   }
-  assert.equal(f.loop, 2, 'the season loops')
+  assert.ok(f.tally, 'the wrap opens the prize tally')
+  for (let t = 0; t < 2000 && f.loop === 1; t++) f.update(emptyInput())
+  assert.equal(f.loop, 2, 'and after the tally and the swap, the season loops')
   assert.equal(f.roomId, EPISODE_1.start)
   assert.ok(f.tuning.speed > 1, 'with harder curves')
   const hard = stage('grand-finale', 3)
@@ -920,6 +924,7 @@ const g2d = stubContext()
   late.tuning = loopTuning(9)
   assert.ok(late.crasherSpeed() < 1.6, 'never faster than Sparkle')
   hold(fast)
+  fast.ratings = 0
   fast.prizes.push({ x: fast.px, y: fast.py, kind: 'cash', life: 100 })
   const before = fast.score
   safeTick(fast)

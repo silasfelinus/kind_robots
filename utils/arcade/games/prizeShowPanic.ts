@@ -17,6 +17,13 @@
 // tell and an answer), ten power-ups that stack with their own HUD timers (prizeShow/arsenal.ts), a
 // boom mic that swoops down on a shadow, and true twin-stick aim.
 //
+// Depth slice 3 (t-028) makes it a broadcast (prizeShow/broadcast.ts): TINSEL the host and LENS the
+// co-host cut in with original lines in bleep-speak, a ratings meter on the right wall rises with
+// style and drains when idle or hit (four tiers, each a bigger score multiplier; Prime Time drops a
+// sponsor's care package, Off Air brings a plot twist), cheer chains build a multiplier the host
+// counts out, and between episodes the haul is tallied and can be traded at the Prize Swap. An
+// APPLAUSE sign lights on the left wall and the studio audience cheers along the bottom.
+//
 // The arrows move (eight ways) and A fires confetti the way Sparkle faces.
 // Hold B to lock the aim while moving, the single-stick stand-in for the
 // classic's twin sticks: strafe one way, spray another. With a second stick
@@ -75,6 +82,40 @@ import {
   stackPower,
 } from '../prizeShow/arsenal'
 import type { PowerKind } from '../prizeShow/arsenal'
+import {
+  CHAIN_WINDOW,
+  CLOCK_BONUS_CAP,
+  COHOST_FROM_LOOP,
+  COHOST_LINES,
+  COHOST_NAME,
+  HOST_LINES,
+  HOST_NAME,
+  RATINGS,
+  STARTING_POWERS,
+  SWAP_OFFERS,
+  TIERS,
+  affordable,
+  bleepSpeak,
+  chainMilestone,
+  chainMultiplier,
+  emptyWallet,
+  seasonRows,
+  tallyRows,
+  tierOf,
+  wrapLine,
+} from '../prizeShow/broadcast'
+import type {
+  Cue,
+  SwapId,
+  TallyRow,
+  Voice,
+  Wallet,
+} from '../prizeShow/broadcast'
+import {
+  COHOST_PORTRAIT,
+  HOST_PORTRAIT,
+  PACKAGE_SPRITE,
+} from '../prizeShow/hostArt'
 import { renderSeasonMap } from '../prizeShow/mapScreen'
 import type { MapOption } from '../prizeShow/mapScreen'
 import {
@@ -149,6 +190,9 @@ const SHOT_LIFE = 50
 const FIRE_COOLDOWN = ARSENAL.cooldown
 const RAPID_COOLDOWN = ARSENAL.rapidCooldown
 const START_LIVES = 3
+/** Points never buy past this many contestants; the Prize Swap never past MAX_LIVES. */
+const MAX_EARNED_LIVES = 6
+const MAX_LIVES = 9
 const EXTRA_EVERY = 50_000
 const DEATH_TICKS = 100
 const TRANSITION_TICKS = 70
@@ -180,6 +224,12 @@ const CREAM_LIFE = 420
 const CREAM_RADIUS = 16
 /** How far back Sparkle's footsteps are kept (the mirror clone's beat and then some). */
 const HISTORY = 64
+/** A host cut-in stays this long; ordinary cues wait this long after the last one. */
+const CUT_TICKS = 150
+const CUT_GAP = 240
+/** Each tally row counts up for this long; the Prize Swap waits this long before moving on. */
+const TALLY_ROW = 36
+const SWAP_AUTO = 60 * 15
 /** A flight case's half size. */
 const CASE_HALF_W = 11
 const CASE_HALF_H = 6
@@ -217,6 +267,8 @@ type Streamer = {
   vy: number
   life: number
   style: ShotStyle
+  /** Already counted as a near miss. */
+  grazed?: boolean
 }
 type Prize = {
   x: number
@@ -336,6 +388,21 @@ const PRIZE_POINTS = {
   car: 5000,
   ...Object.fromEntries(POWER_KINDS.map((kind) => [kind, 250])),
 } as Record<PrizeKind, number>
+
+const DIM_RAMP: Ramp = [
+  RAMPS.night[0],
+  RAMPS.night[1],
+  RAMPS.night[2],
+  RAMPS.night[3],
+  RAMPS.night[4],
+]
+const CHECK_TICK = pixelSprite(
+  ['.....l', '....lL', 'l..lL.', 'LllL..', '.LL...'],
+  {
+    l: RAMPS.leaf[4],
+    L: RAMPS.leaf[3],
+  },
+)
 
 /** The four crashers that move in this file; the rest move in prizeShow/roster.ts. */
 const FOUNDERS = new Set<Kind>(['grabber', 'bouncer', 'conga', 'thrower'])
@@ -1260,6 +1327,46 @@ class PrizeShowPanic implements ArcadeGameInstance {
   private lifted = 0
   /** Sparkle's recent footsteps, newest last (the mirror clone replays them a beat late). */
   private trail: Point[] = []
+
+  // The broadcast (t-028): ratings, cheer chains, the host's cut-ins, the haul and the swap.
+  ratings: number = RATINGS.start
+  private peakTier = tierOf(RATINGS.start)
+  chain = 0
+  private chainClock = 0
+  bestChain = 0
+  private sinceCheer = 0
+  private packageClock = 0
+  private twistClock = 0
+  /** Prizes won this episode and all season, and the ones still in hand for the Prize Swap. */
+  episodeWon: Wallet = emptyWallet()
+  seasonWon: Wallet = emptyWallet()
+  wallet: Wallet = emptyWallet()
+  private episodeTickets = 0
+  /** The host (or co-host) on screen, and who is waiting to speak next. */
+  cutIn: { voice: Voice; text: string; ticks: number } | null = null
+  private cutQueue: Array<{ voice: Voice; text: string }> = []
+  private cutGap = 0
+  private lowTimeSaid = false
+  private riskyRoute = false
+  /** Ticks left on the APPLAUSE sign, the audience's cheer and a camera flash. */
+  private applause = 0
+  private audienceCheer = 0
+  private camFlash = 0
+  private packages: Array<{ x: number; y: number; landY: number }> = []
+  /** Between episodes: the tally counting up, then the Prize Swap. */
+  tally: { rows: TallyRow[]; ticks: number; paid: number } | null = null
+  swap: { cursor: number; ticks: number; bought: SwapId[] } | null = null
+  /** What the last Prize Swap bought for this episode. */
+  perks: { clock: number; power: PowerKind | null; secret: boolean } = {
+    clock: 0,
+    power: null,
+    secret: false,
+  }
+  /** The season haul shown on the game-over screen. */
+  private finalRows: TallyRow[] | null = null
+  private overTicks = 0
+  /** The host's own dice: which line, and whether LENS chimes in (never the game's rng). */
+  private hostRng: () => number
   private invuln = INVULN_TICKS
   private shots: Shot[] = []
   private crashers: Crasher[] = []
@@ -1332,6 +1439,8 @@ class PrizeShowPanic implements ArcadeGameInstance {
     this.sound = options.sound
     this.demo = options.demo
     this.hiScore = options.hiScore
+    // The host's own dice, seeded once from the game's: each show sounds different, replays alike.
+    this.hostRng = backdropRng(Math.floor(this.rng() * 2 ** 31))
     this.world = this.makeWorld()
     this.beginEpisode(0)
   }
@@ -1381,6 +1490,147 @@ class PrizeShowPanic implements ArcadeGameInstance {
       say: (text, x, y) => this.floaters.push({ x, y, text, life: 40 }),
       play: (sound) => this.sound.play(sound),
     }
+  }
+
+  /** The host says something about `cue` (big moments jump the queue; the rest wait their turn). */
+  private say(cue: Cue, text?: string) {
+    const urgent =
+      cue === 'death' ||
+      cue === 'boss-intro' ||
+      cue === 'wrap' ||
+      cue === 'game-over' ||
+      cue === 'room-start' ||
+      cue === 'risky-route' ||
+      cue === 'chain'
+    if (!urgent && (this.cutGap > 0 || this.cutIn)) return
+    const lines = HOST_LINES[cue]
+    const line = text ?? lines[Math.floor(this.hostRng() * lines.length)]!
+    if (urgent) this.cutQueue = []
+    this.speak('host', line)
+    this.cutGap = CUT_GAP
+    if (this.loop >= COHOST_FROM_LOOP && this.hostRng() < 0.35) {
+      const reply =
+        COHOST_LINES[Math.floor(this.hostRng() * COHOST_LINES.length)]!
+      this.cutQueue.push({ voice: 'cohost', text: reply })
+    }
+  }
+
+  private speak(voice: Voice, text: string) {
+    this.cutIn = { voice, text, ticks: CUT_TICKS }
+    // Bleep-speak through the cabinet's own notes, or a plain blip where there are none.
+    if (this.sound.playNotes) this.sound.playNotes(bleepSpeak(text, voice))
+    else this.sound.play('blip')
+  }
+
+  /** Cut-ins run out and the next speaker steps up. */
+  private updateCutIns() {
+    if (this.cutGap > 0) this.cutGap--
+    if (this.cutIn && --this.cutIn.ticks <= 0) this.cutIn = null
+    if (!this.cutIn && this.cutQueue.length) {
+      const next = this.cutQueue.shift()!
+      this.speak(next.voice, next.text)
+    }
+  }
+
+  // --- the ratings meter and cheer chains ---------------------------------------------
+
+  /** The score multiplier: the ratings tier's, times the cheer chain's. */
+  multiplier(withChain = true): number {
+    const tier = TIERS[tierOf(this.ratings)]!.multiplier
+    return tier * (withChain ? chainMultiplier(this.chain) : 1)
+  }
+
+  /** Move the meter; crossing into Prime Time or down to Off Air gets the host talking. */
+  private rate(delta: number) {
+    const before = tierOf(this.ratings)
+    this.ratings = Math.max(0, Math.min(RATINGS.max, this.ratings + delta))
+    const after = tierOf(this.ratings)
+    this.peakTier = Math.max(this.peakTier, after)
+    if (after === before) return
+    if (after === TIERS.length - 1) {
+      this.say('prime-time')
+      this.audienceCheer = 90
+    } else if (after === 0) {
+      this.say('off-air')
+    }
+    this.floaters.push({
+      x: RIGHT - 40,
+      y: TOP + 14,
+      text: TIERS[after]!.name,
+      life: 50,
+    })
+  }
+
+  /** Every tick of play: idle drains the meter, chains time out, sponsors and producers act. */
+  private updateShow() {
+    this.sinceCheer++
+    if (this.sinceCheer > RATINGS.idleAfter) this.rate(-RATINGS.idleDrain)
+    if (this.chainClock > 0 && --this.chainClock === 0) this.chain = 0
+    if (this.applause > 0) this.applause--
+    if (this.audienceCheer > 0) this.audienceCheer--
+    if (this.camFlash > 0) this.camFlash--
+    if (this.packageClock > 0) this.packageClock--
+    if (this.twistClock > 0) this.twistClock--
+    const tier = tierOf(this.ratings)
+    if (tier === TIERS.length - 1 && this.packageClock === 0 && !this.cleared) {
+      // Prime Time: the sponsors drop a care package.
+      this.packageClock = 1e9
+      const x = LEFT + 40 + this.rng() * (RIGHT - LEFT - 80)
+      const landY = TOP + 50 + this.rng() * (BOTTOM - TOP - 100)
+      this.packages.push({ x, y: TOP - 10, landY })
+      this.sound.play('extra')
+    }
+    if (
+      tier === 0 &&
+      this.twistClock === 0 &&
+      !this.cleared &&
+      !this.script.closes &&
+      this.roomTick > RATINGS.twistGrace
+    )
+      this.plotTwist()
+    for (const pack of this.packages) {
+      pack.y += 1.4
+      if (pack.y < pack.landY) continue
+      this.burst(pack.x, pack.y, 12, RAMPS.gold[3])
+      this.floaters.push({
+        x: pack.x,
+        y: pack.y - 12,
+        text: 'CARE PACKAGE!',
+        life: 45,
+      })
+      for (let i = 0; i < 3; i++)
+        this.prizes.push({
+          x: clampX(pack.x + (i - 1) * 16, 8),
+          y: clampY(pack.landY, 8),
+          kind: this.prizeFor(i === 1 ? 'cash' : powerFromRoll(this.rng())),
+          life: PRIZE_LIFE,
+          lift: 0,
+        })
+    }
+    this.packages = this.packages.filter((pack) => pack.y < pack.landY)
+  }
+
+  /** Off Air: the producer throws in a twist to win the viewers back. */
+  private plotTwist() {
+    this.twistClock = RATINGS.twistEvery
+    const roll = this.rng()
+    const far = DOORS[(this.entryDoor + 2) % 4]!
+    let sub: string
+    if (roll < 0.4) {
+      for (const door of DOORS) {
+        if (door.side === this.entryDoor) continue
+        this.makeCrasher('grabber', door.x, door.y).extra = true
+      }
+      sub = 'SURPRISE GUESTS AT EVERY DOOR'
+    } else if (roll < 0.7) {
+      this.makeCrasher('drone', far.x, far.y).extra = true
+      sub = 'A SPOTLIGHT DRONE JOINS THE SHOW'
+    } else {
+      this.makeCrasher('stagehand', far.x, far.y).extra = true
+      sub = 'A STAGEHAND RE-DRESSES THE SET'
+    }
+    this.banner = { text: 'PLOT TWIST!', sub, ticks: 100 }
+    this.sound.play('warn')
   }
 
   /** Who the crowd chases: Sparkle, or her cardboard cutout while it stands. */
@@ -1459,8 +1709,13 @@ class PrizeShowPanic implements ArcadeGameInstance {
     this.episodeIndex = index
     this.route = []
     this.modifiers.clear()
+    this.episodeWon = emptyWallet()
+    this.episodeTickets = 0
+    this.peakTier = tierOf(this.ratings)
     // Every episode opens from the wings: the map's left edge.
     this.enterRoom(this.episode.start, 3)
+    if (this.perks.power)
+      this.powers[this.perks.power] = POWERS[this.perks.power].ticks
     this.banner = {
       text: this.episode.title,
       sub: `EPISODE ${this.episode.number}: ${this.episode.subtitle}`,
@@ -1542,10 +1797,121 @@ class PrizeShowPanic implements ArcadeGameInstance {
     }
     if (pressed.a || pressed.start || map.ticks >= MAP_AUTO) {
       const option = map.options[map.cursor]!
+      this.riskyRoute = this.isRichPick(map.options, map.cursor)
       this.map = null
       this.sound.play('level')
       this.enterRoom(option.id, ((option.side + 2) % 4) as Side)
     }
+  }
+
+  /** Did Sparkle take the riskier, richer of two doors? */
+  private isRichPick(options: readonly { id: string }[], cursor: number) {
+    if (options.length < 2) return false
+    const pick = roomById(this.episode, options[cursor]!.id).script
+    return options.every((o, i) => {
+      if (i === cursor) return true
+      const other = roomById(this.episode, o.id).script
+      return pick.danger > other.danger
+    })
+  }
+
+  /** The episode's haul counts up, row by row, with a tick a count. */
+  private openTally() {
+    this.tally = {
+      rows: tallyRows(
+        this.episodeWon,
+        this.episodeTickets,
+        this.peakTier,
+        this.loop,
+      ),
+      ticks: 0,
+      paid: 0,
+    }
+    this.banner = null
+    this.sound.play('level')
+  }
+
+  private updateTally(input: InputFrame) {
+    const tally = this.tally!
+    tally.ticks++
+    const counted = Math.floor(tally.ticks / TALLY_ROW)
+    if (tally.ticks % 4 === 0 && counted < tally.rows.length)
+      this.sound.play('blip')
+    // Each row pays as it finishes counting (A finishes them all at once).
+    const skip = input.pressed.a || input.pressed.start
+    const done = skip ? tally.rows.length : Math.min(tally.rows.length, counted)
+    while (tally.paid < done) {
+      const row = tally.rows[tally.paid]!
+      if (row.points) this.addScore(row.points, CX, 60 + tally.paid * 22)
+      tally.paid++
+      this.sound.play('pickup')
+    }
+    if (skip) tally.ticks = Math.max(tally.ticks, tally.rows.length * TALLY_ROW)
+    const finished = tally.ticks >= tally.rows.length * TALLY_ROW + 90
+    if (
+      finished ||
+      (skip && tally.ticks > tally.rows.length * TALLY_ROW + 20)
+    ) {
+      this.tally = null
+      this.openSwap()
+    }
+  }
+
+  /** The Prize Swap: prizes in hand trade for help in the next episode. */
+  private openSwap() {
+    this.perks = { clock: 0, power: null, secret: false }
+    this.swap = { cursor: 0, ticks: 0, bought: [] }
+  }
+
+  private updateSwap(input: InputFrame, flick: Dir | null) {
+    const swap = this.swap!
+    swap.ticks++
+    const rows = SWAP_OFFERS.length + 1
+    const up = input.pressed.up || (flick !== null && flick.y < -0.5)
+    const down = input.pressed.down || (flick !== null && flick.y > 0.5)
+    if (up) swap.cursor = (swap.cursor + rows - 1) % rows
+    if (down) swap.cursor = (swap.cursor + 1) % rows
+    if (up || down) this.sound.play('blip')
+    const done =
+      input.pressed.start ||
+      swap.ticks >= SWAP_AUTO ||
+      (input.pressed.a && swap.cursor === SWAP_OFFERS.length)
+    if (input.pressed.a && swap.cursor < SWAP_OFFERS.length && swap.ticks > 20)
+      this.buy(SWAP_OFFERS[swap.cursor]!.id)
+    if (done && swap.ticks > 20) {
+      this.swap = null
+      this.finishEpisode()
+    }
+  }
+
+  /** Can this swap be made now (affordable, and not already maxed out)? */
+  canBuy(id: SwapId): boolean {
+    const offer = SWAP_OFFERS.find((o) => o.id === id)!
+    if (!affordable(offer, this.wallet, this.tickets.length)) return false
+    if (id === 'power') return this.perks.power === null
+    if (id === 'secret') return !this.perks.secret
+    if (id === 'clock') return this.perks.clock < CLOCK_BONUS_CAP
+    return this.lives < MAX_LIVES
+  }
+
+  private buy(id: SwapId) {
+    if (!this.canBuy(id)) {
+      this.sound.play('warn')
+      return
+    }
+    const offer = SWAP_OFFERS.find((o) => o.id === id)!
+    this.wallet.cash -= offer.cost.cash ?? 0
+    this.wallet.toaster -= offer.cost.toaster ?? 0
+    this.wallet.car -= offer.cost.car ?? 0
+    if (offer.cost.ticket) this.tickets.pop()
+    if (id === 'contestant') this.lives++
+    if (id === 'power')
+      this.perks.power =
+        STARTING_POWERS[Math.floor(this.rng() * STARTING_POWERS.length)]!
+    if (id === 'clock') this.perks.clock += 5
+    if (id === 'secret') this.perks.secret = true
+    this.swap!.bought.push(id)
+    this.sound.play('extra')
   }
 
   private finishEpisode() {
@@ -1699,6 +2065,17 @@ class PrizeShowPanic implements ArcadeGameInstance {
       this.banner = { text: mod.title, sub: mod.tagline, ticks: 110 }
     }
     if (script.closes) this.openExits()
+    this.lowTimeSaid = false
+    this.packages = []
+    // One care package a room at most: Prime Time is a treat, not a supply line.
+    this.packageClock = RATINGS.packageEvery / 3
+    this.roomTicks += this.perks.clock * 60
+    this.roomTimer = this.roomTicks
+    if (this.perks.secret && this.crack) this.crack.hp = 0
+    if (script.boss) this.say('boss-intro')
+    else if (this.riskyRoute) this.say('risky-route')
+    else this.say('room-start')
+    this.riskyRoute = false
   }
 
   /** Sudden Death has no shields: they come out as cash. */
@@ -1751,7 +2128,11 @@ class PrizeShowPanic implements ArcadeGameInstance {
     this.tick++
     this.updateEffects()
     if (this.banner && --this.banner.ticks <= 0) this.banner = null
-    if (this.over) return
+    this.updateCutIns()
+    if (this.over) {
+      this.overTicks++
+      return
+    }
     const controls = this.demo ? this.demoInput() : input
     const stick =
       controls.aim && Math.hypot(controls.aim.x, controls.aim.y) >= AIM_MIN
@@ -1764,6 +2145,14 @@ class PrizeShowPanic implements ArcadeGameInstance {
       this.updateMap(controls, flicked ? stick : null)
       return
     }
+    if (this.tally) {
+      this.updateTally(controls)
+      return
+    }
+    if (this.swap) {
+      this.updateSwap(controls, flicked ? stick : null)
+      return
+    }
     if (this.transition > 0) {
       if (--this.transition === 0) this.follow()
       return
@@ -1772,11 +2161,13 @@ class PrizeShowPanic implements ArcadeGameInstance {
       if (--this.dead === 0) {
         if (this.lives <= 0) {
           this.over = true
-          this.banner = {
-            text: 'GAME OVER',
-            sub: `PRIZES WON ${this.haul}`,
-            ticks: 9999,
-          }
+          this.banner = null
+          this.finalRows = seasonRows(
+            this.seasonWon,
+            this.tickets.length,
+            this.bestChain,
+          )
+          this.say('game-over')
         } else {
           this.startRoom()
         }
@@ -1795,6 +2186,11 @@ class PrizeShowPanic implements ArcadeGameInstance {
     }
     this.trail.push({ x: this.px, y: this.py })
     if (this.trail.length > HISTORY) this.trail.shift()
+    this.updateShow()
+    if (!this.lowTimeSaid && !this.script.closes && this.roomTimer <= 600) {
+      this.lowTimeSaid = true
+      this.say('low-time')
+    }
 
     const fromX = this.px
     const fromY = this.py
@@ -1839,7 +2235,7 @@ class PrizeShowPanic implements ArcadeGameInstance {
     if (next.to === 'map') this.openMap(next.side)
     else if (next.to === 'secret')
       this.enterSecret(next.id, ((next.side + 2) % 4) as Side)
-    else this.finishEpisode()
+    else this.openTally()
   }
 
   private move(input: InputFrame, stick: Dir | null = null) {
@@ -2068,6 +2464,7 @@ class PrizeShowPanic implements ArcadeGameInstance {
     if (!b || b.shift > 0) return
     b.hp -= damage
     b.flash = 4
+    this.camFlash = 4
     if (b.phase === 1 && b.hp <= Math.ceil(b.maxHp * b.phase2At))
       this.lightCandles(b)
     if (b.hp <= 0) this.bossDown()
@@ -2266,8 +2663,31 @@ class PrizeShowPanic implements ArcadeGameInstance {
         color: c.color,
       })
     }
+    this.chain = this.chainClock > 0 ? this.chain + 1 : 1
+    this.chainClock = CHAIN_WINDOW
+    this.bestChain = Math.max(this.bestChain, this.chain)
+    this.sinceCheer = 0
+    this.applause = 30
+    this.rate(RATINGS.cheer)
+    if (chainMilestone(this.chain)) {
+      // The host counts the chain out.
+      this.rate(RATINGS.chainStep)
+      this.audienceCheer = Math.max(this.audienceCheer, 50)
+      this.floaters.push({
+        x: c.x,
+        y: c.y - 22,
+        text: `${this.chain} CHAIN! X${chainMultiplier(this.chain)}`,
+        life: 50,
+      })
+      this.say(
+        'chain',
+        `${this.chain} IN A ROW! X${chainMultiplier(this.chain)}!`,
+      )
+    }
     this.addScore(
-      ROSTER[c.kind].points * Math.ceil(this.level / 2),
+      Math.round(
+        ROSTER[c.kind].points * Math.ceil(this.level / 2) * this.multiplier(),
+      ),
       c.x,
       c.y - 10,
     )
@@ -2536,6 +2956,22 @@ class PrizeShowPanic implements ArcadeGameInstance {
       if (s.life > 0 && this.lifted === 0 && this.touching(s.x, s.y, 4)) {
         s.life = 0
         this.loseLife(SHOT_LINES[s.style])
+      } else if (
+        s.life > 0 &&
+        !s.grazed &&
+        this.invuln === 0 &&
+        this.touching(s.x, s.y, 11)
+      ) {
+        // A near miss: the crowd gasps, the ratings like it.
+        s.grazed = true
+        this.rate(RATINGS.nearMiss)
+        this.floaters.push({
+          x: this.px,
+          y: this.py - 16,
+          text: 'CLOSE!',
+          life: 30,
+        })
+        this.say('near-miss')
       }
     }
     this.streamers = this.streamers.filter((s) => s.life > 0)
@@ -2833,12 +3269,24 @@ class PrizeShowPanic implements ArcadeGameInstance {
       if (!this.touching(p.x, p.y, 9)) continue
       p.life = -1
       for (const c of this.crashers) if (c.prize === p) c.prize = null
-      this.addScore(PRIZE_POINTS[p.kind] * double, p.x, p.y - 10)
+      this.addScore(
+        Math.round(PRIZE_POINTS[p.kind] * double * this.multiplier(false)),
+        p.x,
+        p.y - 10,
+      )
+      this.rate(RATINGS.prize)
       if (isPower(p.kind)) {
         this.powers[p.kind] = stackPower(p.kind, this.powers[p.kind])
         if (p.kind === 'cutout') this.placeDecoy()
       } else {
         this.haul += double
+        this.wallet[p.kind] += double
+        this.episodeWon[p.kind] += double
+        this.seasonWon[p.kind] += double
+        if (p.kind === 'car') {
+          this.say('big-prize')
+          this.audienceCheer = Math.max(this.audienceCheer, 60)
+        }
       }
       this.fx.burst(p.x, p.y, this.fxRng, {
         count: 12,
@@ -2876,7 +3324,11 @@ class PrizeShowPanic implements ArcadeGameInstance {
   private collectTicket(t: TicketPickup) {
     this.pickups = this.pickups.filter((other) => other !== t)
     if (!this.tickets.includes(t.id)) this.tickets.push(t.id)
+    this.episodeTickets++
     this.addScore(TICKET_POINTS, t.x, t.y - 12)
+    this.rate(RATINGS.ticket)
+    this.say('ticket')
+    this.audienceCheer = Math.max(this.audienceCheer, 60)
     this.banner = {
       text: 'GOLDEN TICKET!',
       sub: `${this.tickets.length} OF ${SEASON_TICKETS}`,
@@ -2934,6 +3386,13 @@ class PrizeShowPanic implements ArcadeGameInstance {
     this.cleared = true
     this.streamers = []
     const script = this.script
+    if (!this.hit && !script.closes) {
+      this.rate(RATINGS.noDamageClear)
+      this.say('no-damage')
+    } else if (!script.closes) {
+      this.say('clear')
+    }
+    this.audienceCheer = Math.max(this.audienceCheer, 60)
     if (!script.closes) {
       this.openExits()
       this.banner = { text: 'ROOM CLEAR!', sub: 'PICK A DOOR', ticks: 80 }
@@ -2981,14 +3440,14 @@ class PrizeShowPanic implements ArcadeGameInstance {
       }
     }
     if (!this.secretId && this.exits.length === 0) {
-      // The finale is down: the episode is a wrap.
-      const bonus = 20_000 * this.loop
-      this.addScore(bonus, CX, CY)
+      // The finale is down: the episode is a wrap, and the haul is counted next.
       this.banner = {
         text: "THAT'S A WRAP!",
-        sub: `EPISODE ${this.episode.number} BONUS ${bonus}`,
+        sub: `EPISODE ${this.episode.number}: ${this.episode.title}`,
         ticks: EPISODE_TICKS,
       }
+      this.say('wrap')
+      this.audienceCheer = EPISODE_TICKS
       this.next = { to: 'episode' }
       this.transition = EPISODE_TICKS
       this.sound.play('level')
@@ -3040,6 +3499,9 @@ class PrizeShowPanic implements ArcadeGameInstance {
   private loseLife(text: string) {
     if (this.invuln > 0 || this.dead > 0) return
     this.hit = true
+    this.rate(RATINGS.hit)
+    this.chain = 0
+    this.chainClock = 0
     if (this.powers.shield > 0 && !this.has('sudden-death')) {
       // The shield pops instead.
       this.powers.shield = 0
@@ -3056,7 +3518,10 @@ class PrizeShowPanic implements ArcadeGameInstance {
     this.dead = DEATH_TICKS
     this.burst(this.px, this.py, 18, '#fde68a')
     this.sound.play('die')
-    if (this.lives > 0) this.banner = { text, ticks: 80 }
+    if (this.lives > 0) {
+      this.banner = { text, ticks: 80 }
+      this.say('death')
+    }
   }
 
   // --- scoring and effects ----------------------------------------------------
@@ -3066,7 +3531,7 @@ class PrizeShowPanic implements ArcadeGameInstance {
     this.score += points
     this.floaters.push({ x, y, text: String(points), life: 40 })
     if (this.score >= this.nextExtra) {
-      this.lives++
+      if (this.lives < MAX_EARNED_LIVES) this.lives++
       // Each extra contestant takes longer to earn: 50k, 150k, 350k, 750k...
       this.nextExtra = this.nextExtra * 2 + EXTRA_EVERY
       this.banner = { text: 'EXTRA CONTESTANT!', ticks: 90 }
@@ -3146,6 +3611,25 @@ class PrizeShowPanic implements ArcadeGameInstance {
       start: false,
     }
     const frame: InputFrame = { held, pressed: { ...held } }
+    if (this.tally) {
+      // Watch the haul count up for a moment, then skip on.
+      frame.pressed.a = this.tally.ticks > 120 && this.tally.ticks % 30 === 0
+      return frame
+    }
+    if (this.swap) {
+      // Trade what it can (a contestant, a power-up, clock time), then DONE.
+      const swap = this.swap
+      if (swap.ticks < 30 || swap.ticks % 15 !== 0) return frame
+      const want = (['contestant', 'power', 'clock'] as const).find((id) =>
+        this.canBuy(id),
+      )
+      const target = want
+        ? SWAP_OFFERS.findIndex((o) => o.id === want)
+        : SWAP_OFFERS.length
+      if (swap.cursor !== target) frame.pressed.down = true
+      else frame.pressed.a = true
+      return frame
+    }
     if (this.map) {
       // On the map: walk the cursor to the pick, then press A.
       const map = this.map
@@ -3175,19 +3659,15 @@ class PrizeShowPanic implements ArcadeGameInstance {
     for (const st of this.streamers) threats.push({ x: st.x, y: st.y, r: 18 })
     if (this.boss) threats.push({ x: this.boss.x, y: this.boss.y, r: 56 })
     const leavingNow = this.exitsOpen && this.cleared
-    for (const m of this.mines)
+    for (const m of this.mines) {
+      // Heading out of a cleared room, only an armed cushion is worth a detour.
+      if (leavingNow && m.fuse === 0) continue
       threats.push({
         x: m.x,
         y: m.y,
-        r:
-          m.fuse > 0
-            ? CUSHION_BLAST + 16
-            : leavingNow
-              ? 10
-              : m.kind === 'cushion'
-                ? 15
-                : 12,
+        r: m.fuse > 0 ? CUSHION_BLAST + 16 : m.kind === 'cushion' ? 15 : 12,
       })
+    }
     for (const lob of this.lobs)
       if (lob.kind === 'pie') threats.push({ x: lob.x1, y: lob.y1, r: 22 })
     for (const boom of this.booms)
@@ -3291,6 +3771,23 @@ class PrizeShowPanic implements ArcadeGameInstance {
       mx += ((goal.x - this.px) / d) * 0.8
       my += ((goal.y - this.py) / d) * 0.8
     }
+    // An armoured front turns confetti: circle round to its back while nothing else calls.
+    const plated = this.crashers.find(
+      (c) =>
+        (c.kind === 'tank' || (c.kind === 'mascot' && c.mode === 0)) &&
+        Math.hypot(c.x - this.px, c.y - this.py) < 140,
+    )
+    if (plated && !leaving && Math.abs(mx) + Math.abs(my) < 0.5) {
+      const bx = clampX(plated.x - Math.cos(plated.face) * 55, 20)
+      const by = clampY(plated.y - Math.sin(plated.face) * 55, 20)
+      const rx = this.px - plated.x
+      const ry = this.py - plated.y
+      // Go round, not through: step sideways first when it is between here and its back.
+      const side =
+        rx * Math.sin(plated.face) - ry * Math.cos(plated.face) >= 0 ? 1 : -1
+      mx = (bx - this.px) * 0.05 + Math.sin(plated.face) * side
+      my = (by - this.py) * 0.05 - Math.cos(plated.face) * side
+    }
     // Drift back toward the middle when nothing else calls.
     if (Math.abs(mx) + Math.abs(my) < 0.3) {
       mx = (CX - this.px) * 0.02
@@ -3322,6 +3819,16 @@ class PrizeShowPanic implements ArcadeGameInstance {
   render(g: CanvasRenderingContext2D) {
     if (this.map) {
       this.renderMap(g)
+      this.renderCutIn(g)
+      return
+    }
+    if (this.tally || this.swap) {
+      this.renderStudio(g)
+      g.fillStyle = rgba(INK, 0.72)
+      g.fillRect(0, 0, W, H)
+      if (this.tally) this.renderTally(g)
+      else this.renderSwap(g)
+      this.renderCutIn(g)
       return
     }
     const dark = this.has('lights-out')
@@ -3365,7 +3872,17 @@ class PrizeShowPanic implements ArcadeGameInstance {
       this.renderEyes(g)
     }
     if (this.has('confetti-storm')) this.renderStorm(g)
-    if (this.has('audience')) this.renderAudience(g)
+    for (const pack of this.packages) {
+      dropShadow(g, pack.x, pack.landY + 6, 7, 2, 0.4)
+      drawSprite(g, PACKAGE_SPRITE, pack.x, pack.y)
+    }
+    this.renderAudience(g)
+    this.renderApplause(g)
+    this.renderRatings(g)
+    if (this.camFlash > 0) {
+      g.fillStyle = rgba('#ffffff', 0.05 * this.camFlash)
+      g.fillRect(LEFT, TOP, RIGHT - LEFT, BOTTOM - TOP)
+    }
     for (const f of this.floaters) {
       drawText(g, f.text, f.x, f.y, {
         align: 'center',
@@ -3376,6 +3893,8 @@ class PrizeShowPanic implements ArcadeGameInstance {
     if (this.has('sudden-death')) this.renderSuddenDeath(g)
     vignette(g, W, H, 0.28)
     this.renderHud(g)
+    this.renderCutIn(g)
+    if (this.over) this.renderGameOver(g)
   }
 
   private renderMap(g: CanvasRenderingContext2D) {
@@ -4847,16 +5366,327 @@ class PrizeShowPanic implements ArcadeGameInstance {
     }
   }
 
-  /** Audience Participation: the front row cheers over the bottom wall. */
+  /** The studio audience over the bottom wall: bobbing along, arms up on big moments. */
   private renderAudience(g: CanvasRenderingContext2D) {
+    const cheering = this.audienceCheer > 0 || this.has('audience')
     for (let i = 0, x = 16; x < W - 10; i++, x += 12) {
       if (Math.abs(x - CX) < DOOR + 6) continue
       const sprites = CROWD[i % CROWD.length]!
-      const up = Math.floor((this.tick + i * 7) / 14) % 3 === 0
+      const beat = Math.floor((this.tick + i * 7) / (cheering ? 7 : 20)) % 3
+      const up = cheering ? beat !== 2 : beat === 0 && i % 4 === 0
       drawSprite(g, sprites[up ? 1 : 0]!, x, H + 2 - (up ? 2 : 0), {
         anchor: 'feet',
       })
+      if (this.camFlash > 0 && i % 5 === this.tick % 5)
+        glow(g, x, H - 4, 8, '#ffffff', 0.7)
     }
+  }
+
+  /** The APPLAUSE sign down the left wall: it lights up whenever a crasher is cheered. */
+  private renderApplause(g: CanvasRenderingContext2D) {
+    const lit = this.applause > 0 && Math.floor(this.applause / 4) % 2 === 0
+    const top = TOP + 4
+    g.fillStyle = INK
+    g.fillRect(1, top - 2, 8, 'APPLAUSE'.length * 8 + 3)
+    g.fillStyle = lit ? RAMPS.ember[1] : RAMPS.night[1]
+    g.fillRect(2, top - 1, 6, 'APPLAUSE'.length * 8 + 1)
+    if (lit) glow(g, 5, top + 30, 26, RAMPS.ember[3], 0.35)
+    'APPLAUSE'.split('').forEach((letter, i) => {
+      drawText(g, letter, 3, top + i * 8, {
+        color: lit ? RAMPS.gold[4] : RAMPS.ember[1],
+      })
+    })
+  }
+
+  /** The ratings meter up the right wall: a thermometer, tier marks, and the tier's colour. */
+  private renderRatings(g: CanvasRenderingContext2D) {
+    const x = RIGHT + 2
+    const top = TOP + 4
+    const height = CY - DOOR - 10 - top
+    const tier = TIERS[tierOf(this.ratings)]!
+    g.fillStyle = INK
+    g.fillRect(x - 1, top - 1, 8, height + 2)
+    g.fillStyle = RAMPS.night[1]
+    g.fillRect(x, top, 6, height)
+    const fill = Math.round((height * this.ratings) / RATINGS.max)
+    const ramp = tintOf(tier.colour)
+    bandedGradient(
+      g,
+      x,
+      top + height - fill,
+      6,
+      fill,
+      [ramp[3], ramp[2], ramp[1]],
+      2,
+    )
+    g.fillStyle = rgba('#ffffff', 0.5)
+    g.fillRect(x + 1, top + height - fill, 1, fill)
+    for (const t of TIERS.slice(1)) {
+      const y = top + height - Math.round((height * t.from) / RATINGS.max)
+      g.fillStyle = INK
+      g.fillRect(x - 1, y, 3, 1)
+      g.fillRect(x + 4, y, 3, 1)
+    }
+    if (tierOf(this.ratings) === TIERS.length - 1)
+      glow(
+        g,
+        x + 3,
+        top + 6,
+        12,
+        tier.colour,
+        0.4 + 0.2 * Math.sin(this.tick / 6),
+      )
+  }
+
+  /** The host (or LENS) cuts in at the bottom of the screen with a speech panel. */
+  private renderCutIn(g: CanvasRenderingContext2D) {
+    const cut = this.cutIn
+    if (!cut) return
+    const age = CUT_TICKS - cut.ticks
+    const slide = Math.min(1, age / 8, cut.ticks / 8)
+    const host = cut.voice === 'host'
+    const rows = wrapLine(cut.text, 28)
+    const width = 44 + Math.max(...rows.map((r) => measureText(r))) + 8
+    const height = 38
+    const y = BOTTOM - height - 4
+    const x = host
+      ? Math.round(LEFT + 2 - (1 - slide) * (width + 20))
+      : Math.round(RIGHT - 2 - width + (1 - slide) * (width + 20))
+    hudPanel(g, x, y, width, height, host ? RAMPS.purple : RAMPS.teal)
+    // The portrait in its own little monitor.
+    g.fillStyle = INK
+    g.fillRect(x + 3, y + 3, 36, height - 6)
+    bandedGradient(
+      g,
+      x + 4,
+      y + 4,
+      34,
+      height - 8,
+      [RAMPS.night[2], RAMPS.night[0]],
+      3,
+    )
+    const talking = age < CUT_TICKS - 40 && Math.floor(age / 6) % 2 === 1
+    const portrait = host ? HOST_PORTRAIT : COHOST_PORTRAIT
+    drawSprite(g, portrait[talking ? 1 : 0]!, x + 21, y + height / 2 + 1)
+    drawText(g, host ? HOST_NAME : COHOST_NAME, x + 44, y + 4, {
+      color: host ? RAMPS.gold[4] : RAMPS.teal[4],
+      outline: INK,
+    })
+    rows.slice(0, 3).forEach((row, i) => {
+      drawText(g, row, x + 44, y + 14 + i * 8, {
+        color: '#ffffff',
+        shadow: INK,
+      })
+    })
+  }
+
+  /** A tally row's icon. */
+  private tallyIcon(
+    g: CanvasRenderingContext2D,
+    icon: TallyRow['icon'],
+    x: number,
+    y: number,
+  ) {
+    switch (icon) {
+      case 'cash':
+        drawSprite(g, CASH_SPRITE, x, y)
+        break
+      case 'toaster':
+        drawSprite(g, TOASTER_SPRITE, x, y)
+        break
+      case 'car':
+        drawSprite(g, CAR_SPRITE, x, y)
+        break
+      case 'ticket':
+        drawSprite(g, TICKET_SPRITE, x, y)
+        break
+      case 'ratings':
+        shadedOrb(g, x, y, 5, tintOf(TIERS[this.peakTier]!.colour))
+        break
+      case 'chain':
+        shadedOrb(g, x, y, 5, RAMPS.pink)
+        break
+      case 'bonus':
+        glow(g, x, y, 10, RAMPS.gold[3], 0.5)
+        starPath(g, x, y, 7, 3)
+        g.fillStyle = RAMPS.gold[3]
+        g.fill()
+        break
+    }
+  }
+
+  /** Rows counting up one after another, `progress` rows' worth so far. */
+  private renderRows(
+    g: CanvasRenderingContext2D,
+    rows: readonly TallyRow[],
+    progress: number,
+    top: number,
+  ) {
+    rows.forEach((row, i) => {
+      if (progress < i) return
+      const y = top + i * 22
+      const k = Math.min(1, progress - i)
+      const count = Math.floor(row.count * k)
+      bevel(g, 30, y - 8, W - 60, 18, RAMPS.purple, { depth: 1 })
+      this.tallyIcon(g, row.icon, 48, y + 1)
+      drawText(g, row.label, 66, y - 2, { color: '#ffffff', shadow: INK })
+      if (row.icon !== 'ratings' && row.icon !== 'bonus')
+        drawText(g, `X ${count}`, 200, y - 2, {
+          align: 'right',
+          color: RAMPS.gold[4],
+          shadow: INK,
+        })
+      if (row.points)
+        drawText(g, String(Math.floor(row.points * k)), W - 38, y - 2, {
+          align: 'right',
+          color: k >= 1 ? RAMPS.leaf[4] : RAMPS.cream[3],
+          shadow: INK,
+        })
+    })
+  }
+
+  /** Between episodes: the haul counted up row by row. */
+  private renderTally(g: CanvasRenderingContext2D) {
+    const tally = this.tally!
+    drawText(g, 'THE HAUL', CX, 12, {
+      scale: 2,
+      align: 'center',
+      color: RAMPS.gold[4],
+      outline: INK,
+      shadow: RAMPS.purple[1],
+    })
+    drawText(
+      g,
+      `EPISODE ${this.episode.number}: ${this.episode.title}`,
+      CX,
+      32,
+      {
+        align: 'center',
+        color: RAMPS.cream[3],
+        shadow: INK,
+      },
+    )
+    this.renderRows(g, tally.rows, tally.ticks / TALLY_ROW, 54)
+    drawText(g, `SCORE ${this.score}`, CX, H - 50, {
+      scale: 2,
+      align: 'center',
+      color: '#ffffff',
+      outline: INK,
+    })
+    if (Math.floor(this.tick / 20) % 2)
+      drawText(g, 'A  SKIP', CX, H - 30, {
+        align: 'center',
+        color: RAMPS.gold[3],
+      })
+  }
+
+  /** The Prize Swap: what's in hand, and what it trades for. */
+  private renderSwap(g: CanvasRenderingContext2D) {
+    const swap = this.swap!
+    drawText(g, 'PRIZE SWAP', CX, 10, {
+      scale: 2,
+      align: 'center',
+      color: RAMPS.gold[4],
+      outline: INK,
+      shadow: RAMPS.purple[1],
+    })
+    // In hand.
+    const hand: Array<[TallyRow['icon'], number]> = [
+      ['cash', this.wallet.cash],
+      ['toaster', this.wallet.toaster],
+      ['car', this.wallet.car],
+      ['ticket', this.tickets.length],
+    ]
+    hudPanel(g, 30, 30, W - 60, 22)
+    hand.forEach(([icon, n], i) => {
+      const x = 52 + i * 66
+      this.tallyIcon(g, icon, x, 41)
+      drawText(g, `X${n}`, x + 14, 38, { color: '#ffffff', shadow: INK })
+    })
+    const offers = [...SWAP_OFFERS, null]
+    offers.forEach((offer, i) => {
+      const y = 62 + i * 30
+      const chosen = i === swap.cursor
+      const ok = offer ? this.canBuy(offer.id) : true
+      if (chosen) glow(g, CX, y + 11, 90, RAMPS.leaf[3], 0.25)
+      bevel(
+        g,
+        30,
+        y,
+        W - 60,
+        24,
+        chosen ? RAMPS.leaf : ok ? RAMPS.purple : DIM_RAMP,
+        {
+          depth: 1,
+        },
+      )
+      if (!offer) {
+        drawText(g, 'DONE: ON WITH THE SHOW', CX, y + 9, {
+          align: 'center',
+          color: '#ffffff',
+          shadow: INK,
+        })
+        return
+      }
+      drawText(g, offer.title, 40, y + 4, {
+        color: ok ? '#ffffff' : RAMPS.night[4],
+        shadow: INK,
+      })
+      drawText(g, offer.blurb, 40, y + 14, {
+        color: ok ? RAMPS.cream[3] : RAMPS.night[4],
+      })
+      const [icon, n] = (
+        Object.entries(offer.cost) as Array<[TallyRow['icon'], number]>
+      )[0]!
+      this.tallyIcon(g, icon, W - 70, y + 12)
+      drawText(g, `X${n}`, W - 56, y + 9, {
+        color: ok ? RAMPS.gold[4] : RAMPS.night[4],
+        shadow: INK,
+      })
+      const times = swap.bought.filter((b) => b === offer.id).length
+      if (times) drawSprite(g, CHECK_TICK, W - 38, y + 12)
+    })
+    const perks: string[] = []
+    if (this.perks.power)
+      perks.push(`START WITH ${POWERS[this.perks.power].name}`)
+    if (this.perks.clock) perks.push(`+${this.perks.clock}S CLOCK`)
+    if (this.perks.secret) perks.push('A SECRET REVEALED')
+    drawText(g, perks.join('  ') || 'ARROWS PICK  A TRADE', CX, H - 14, {
+      align: 'center',
+      color: RAMPS.teal[4],
+      shadow: INK,
+    })
+  }
+
+  /** Game over: the season's haul counts up, the way the episodes' did. */
+  private renderGameOver(g: CanvasRenderingContext2D) {
+    g.fillStyle = rgba(INK, Math.min(0.75, this.overTicks / 60))
+    g.fillRect(0, 0, W, H)
+    drawText(g, 'GAME OVER', CX, 16, {
+      scale: 2,
+      align: 'center',
+      color: '#ffffff',
+      outline: INK,
+      shadow: RAMPS.purple[1],
+    })
+    drawText(g, 'THE SEASON HAUL', CX, 36, {
+      align: 'center',
+      color: RAMPS.gold[3],
+      shadow: INK,
+    })
+    if (this.finalRows)
+      this.renderRows(
+        g,
+        this.finalRows,
+        Math.max(0, (this.overTicks - 40) / 30),
+        58,
+      )
+    drawText(g, `FINAL SCORE ${this.score}`, CX, H - 34, {
+      scale: 2,
+      align: 'center',
+      color: RAMPS.gold[4],
+      outline: INK,
+    })
   }
 
   /** Sudden Death: the set's edge pulses red. */
@@ -5011,9 +5841,16 @@ class PrizeShowPanic implements ArcadeGameInstance {
         failed ? RAMPS.night[4] : RAMPS.gold[4],
       ])
     }
+    const tier = TIERS[tierOf(this.ratings)]!
+    tags.push([`${tier.name} X${tier.multiplier}`, tier.colour])
+    if (this.chain >= 3)
+      tags.push([
+        `CHAIN ${this.chain}  X${chainMultiplier(this.chain)}`,
+        RAMPS.pink[3],
+      ])
     let ty = TOP + 3
     for (const [text, colour] of tags) {
-      drawText(g, text, LEFT + 4, ty, { color: colour, outline: INK })
+      drawText(g, text, LEFT + 6, ty, { color: colour, outline: INK })
       ty += 9
     }
     this.renderBanner(g)

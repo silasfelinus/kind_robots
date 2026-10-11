@@ -309,6 +309,82 @@ const GLITCH_ROWS = [
   ],
 ] as const
 
+const TAPE = {
+  d: RAMPS.earth[0],
+  s: RAMPS.earth[1],
+  b: RAMPS.earth[2],
+  l: RAMPS.earth[3],
+  h: RAMPS.cream[3],
+  w: '#ffffff',
+  k: INK,
+  r: RAMPS.rust[3],
+}
+const WORM_HEAD_ROWS = [
+  [
+    '..sbbbs..',
+    '.sblllbs.',
+    'sbwkblwkb',
+    'sbkkbbkkb',
+    'sbbbbbbbs',
+    '.sbrrrbs.',
+    '..sbbbs..',
+  ],
+  [
+    '..sbbbs..',
+    '.sblllbs.',
+    'sbkwblkwb',
+    'sbkkbbkkb',
+    'sbbbbbbbs',
+    '.sbbrbbs.',
+    '..sbbbs..',
+  ],
+]
+/** A worm segment: a little reel of tape. */
+export const WORM_SEGMENT = pixelSprite(
+  ['.sbbs.', 'sbhlbs', 'blkkhb', 'bhkklb', 'sblhbs', '.sbbs.'],
+  TAPE,
+)
+
+const SCREEN = {
+  c: RAMPS.steel[1],
+  C: RAMPS.steel[2],
+  L: RAMPS.steel[3],
+  H: RAMPS.steel[4],
+  b: RAMPS.sky[1],
+  B: RAMPS.sky[2],
+  l: RAMPS.sky[3],
+  w: '#ffffff',
+  k: INK,
+  s: RAMPS.night[1],
+}
+/** The Big Bluescreen: a hulking old monitor showing a sad blue face, on stubby legs. */
+function bluescreenRows(fill: boolean): string[] {
+  return raster(30, 24, (x, y) => {
+    if (y >= 21) return x === 6 || x === 7 || x === 22 || x === 23 ? 'c' : '.'
+    const edge = (x === 0 || x === 29) && (y === 0 || y === 20)
+    if (edge) return '.'
+    if (y === 0 || x === 0) return 'H'
+    if (y === 20 || x === 29) return 'c'
+    if (y === 1 || x === 1) return 'L'
+    if (y === 19 || x === 28) return 'C'
+    if (y === 18 && x > 3 && x < 26) return x % 3 ? 'C' : 'k'
+    if (x < 3 || x > 26 || y < 3 || y > 16) return 'C'
+    // The screen: blue, a frowning face, scanlines (all paler while it fills to breathe).
+    const eye =
+      (y === 7 || y === 8) && (x === 10 || x === 11 || x === 18 || x === 19)
+    if (eye) return 'w'
+    const mouth =
+      (y === 12 && x >= 11 && x <= 18) || (y === 13 && (x === 10 || x === 19))
+    if (mouth) return 'w'
+    if (y % 3 === 0) return fill ? 'l' : 'b'
+    return fill ? 'l' : 'B'
+  })
+}
+const BLUESCREEN_FRAMES = [
+  pixelSprite(bluescreenRows(false), SCREEN),
+  pixelSprite(bluescreenRows(true), SCREEN),
+]
+
 /** Each kind's two walk frames. */
 export const GLITCH_FRAMES: Record<GlitchKind, readonly PixelSprite[]> = {
   glitch: GLITCH_ROWS.map((r) => pixelSprite(r, PLAIN_GLITCH)),
@@ -320,6 +396,8 @@ export const GLITCH_FRAMES: Record<GlitchKind, readonly PixelSprite[]> = {
   spill: [],
   bug: BUG_ROWS.map((r) => pixelSprite(r, BUG)),
   mimic: MIMIC_SPRITES,
+  worm: WORM_HEAD_ROWS.map((r) => pixelSprite(r, TAPE)),
+  bluescreen: BLUESCREEN_FRAMES,
 }
 
 /** The cyan ghost the plain glitch smears beside itself (chromatic split). */

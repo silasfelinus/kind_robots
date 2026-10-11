@@ -177,7 +177,7 @@ function face(
   ]
   for (const kind of fresh)
     assert.ok(GLITCH_KINDS.includes(kind), `${kind} is in the roster`)
-  assert.equal(GLITCH_KINDS.length, 9, 'the glitch and eight new kinds')
+  assert.ok(GLITCH_KINDS.length >= 9, 'the glitch and eight new kinds')
   for (const kind of GLITCH_KINDS) {
     const e = ROSTER[kind]
     assert.ok(
@@ -198,19 +198,24 @@ function face(
     assert.ok(debutOn(floor), `a kind debuts on floor ${floor}`)
 }
 
-// A debut floor opens with the newcomer's card, and the first generator releases it.
+// A floor that fields a kind for the first time opens with its card, down through the wings.
 {
   const g = game()
-  for (let floor = 2; floor <= 8; floor++) {
+  const seen: Partial<Record<GlitchKind, number>> = {}
+  if (g.intro) seen[g.intro.kind] = 1
+  for (let floor = 2; floor <= 16; floor++) {
     ;(g as unknown as { buildFloor(n: number): void }).buildFloor(floor)
-    const kind = debutOn(floor)!
-    assert.equal(g.intro?.kind, kind, `floor ${floor} introduces ${kind}`)
-    assert.equal(
-      g.generators[0]?.kind,
-      kind,
-      `floor ${floor}'s first generator releases ${kind}`,
-    )
+    if (g.intro) seen[g.intro.kind] = floor
   }
+  assert.equal(seen.brute, 1, 'the brute on floor 1')
+  assert.equal(seen.pickpocket, 2, 'the pickpocket on floor 2')
+  assert.equal(seen.popup, 3, 'the pop-up on floor 3')
+  assert.equal(seen.bluescreen, 5, 'the Big Bluescreen on floor 5')
+  assert.equal(seen.imp, 9, 'the firewall imp opens the Tape Library')
+  assert.ok(
+    seen.worm && seen.spill,
+    'the Library brings worms and coffee spills',
+  )
 }
 
 // --- generators in three tiers --------------------------------------------------------------

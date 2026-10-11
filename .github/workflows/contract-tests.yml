@@ -159,6 +159,9 @@ jobs:
       - name: Zuzu Pinball rules, chapters and seals
         run: npm run test:zuzu-pinball-rules
 
+      - name: Zuzu Pinball River Croc
+        run: npm run test:zuzu-pinball-croc
+
       - name: Zuzu gamebook branching and combat
         run: npm run test:zuzu-gamebook
 

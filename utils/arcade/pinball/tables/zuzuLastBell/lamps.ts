@@ -39,6 +39,9 @@ export function zuzuLamps(state: ZuzuRulesState, table: TableDef): LampFrame {
       set(insert.id, mortuaryOpen ? 'blink' : 'off')
     else set(insert.id, hot.has(insert.shot) ? 'blink' : 'on')
   }
+  // The Croc's arrow is lit only while his jaws are open to take the ball.
+  const cycle = state.croc.cycle.phase
+  if (cycle !== 'open') set('river-croc-mouth', 'off')
   for (const [i, id] of SEAL_LAMPS.entries())
     set(
       id,
@@ -53,7 +56,10 @@ export function zuzuLamps(state: ZuzuRulesState, table: TableDef): LampFrame {
   set('croc-reward', state.croc.extraBallLit ? 'blink' : 'off')
   set('shoot-again', state.extraBalls > 0 ? 'on' : 'off')
   set('crypt-seal', state.relics >= RELICS_FOR_CRYPT ? 'blink' : 'off')
-  set('croc-flasher', hot.has('croc-mouth') ? 'blink' : 'off')
+  set(
+    'croc-flasher',
+    cycle === 'death-roll' || hot.has('croc-mouth') ? 'blink' : 'off',
+  )
   set(
     'bell-flasher',
     hot.has('bell-spiral') || (!run && !story.mortuaryLit) ? 'blink' : 'off',

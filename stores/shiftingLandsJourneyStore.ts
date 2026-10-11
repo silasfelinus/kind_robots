@@ -2,11 +2,18 @@ import { defineStore } from 'pinia'
 import { journeyCharacterSheet } from '~/utils/shiftingLands/progression'
 import {
   migrateJourneyLedger,
-  newJourneyLedger,
   restoreJourneyLedger,
   stepJourneyLedger,
   type JourneyLedgerAction,
+  type JourneyLedger,
 } from '~/utils/shiftingLands/saveLedger'
+import { activeFiveLandEncounter } from '~/utils/shiftingLands/authoredFiveLands'
+import {
+  newJourneyLedgerV4,
+  restoreJourneyLedgerV4,
+  stepJourneyLedgerV4,
+  type JourneyLedgerV4,
+} from '~/utils/shiftingLands/saveLedgerV4'
 import { computed, ref } from 'vue'
 import {
   JOURNEY_WORLD,
@@ -19,13 +26,16 @@ import {
   authoredOutcomeForLocation,
 } from '~/utils/shiftingLands/authoredJourney'
 
-const SAVE_KEY = 'kr.shiftingLands.journeyLedger.v3'
+const SAVE_KEY = 'kr.shiftingLands.journeyLedger.v4'
+const LEGACY_V3_SAVE_KEY = 'kr.shiftingLands.journeyLedger.v3'
 const LEGACY_SAVE_KEY = 'kr.shiftingLands.authoredJourney.v2'
 
 export const useShiftingLandsJourneyStore = defineStore(
   'shiftingLandsJourney',
   () => {
-    const ledger = ref(newJourneyLedger(20261009))
+    const ledger = ref<JourneyLedger | JourneyLedgerV4>(
+      newJourneyLedgerV4(20261011),
+    )
     const session = computed(() => ledger.value.current)
     const state = computed(() => session.value.journey)
     const characterSheet = computed(() =>
@@ -53,7 +63,9 @@ export const useShiftingLandsJourneyStore = defineStore(
         locations.value.find((card) => card.id === state.value.active) ?? null,
     )
     const activeEncounter = computed(() =>
-      activeAuthoredEncounter(session.value),
+      ledger.value.version === 4
+        ? activeFiveLandEncounter(session.value)
+        : activeAuthoredEncounter(session.value),
     )
     const lastAuthoredOutcome = computed(
       () => session.value.outcomes[session.value.outcomes.length - 1] ?? null,
@@ -86,7 +98,14 @@ export const useShiftingLandsJourneyStore = defineStore(
       try {
         const saved = window.localStorage.getItem(SAVE_KEY)
         if (saved !== null) {
-          const restored = restoreJourneyLedger(JSON.parse(saved))
+          const restored = restoreJourneyLedgerV4(JSON.parse(saved))
+          if (restored) ledger.value = restored
+          else restoreWarning.value = true
+          return
+        }
+        const savedV3 = window.localStorage.getItem(LEGACY_V3_SAVE_KEY)
+        if (savedV3 !== null) {
+          const restored = restoreJourneyLedger(JSON.parse(savedV3))
           if (restored) ledger.value = restored
           else restoreWarning.value = true
           return
@@ -107,14 +126,18 @@ export const useShiftingLandsJourneyStore = defineStore(
     function persist() {
       if (!import.meta.client) return
       try {
-        window.localStorage.setItem(SAVE_KEY, JSON.stringify(ledger.value))
+        const key = ledger.value.version === 4 ? SAVE_KEY : LEGACY_V3_SAVE_KEY
+        window.localStorage.setItem(key, JSON.stringify(ledger.value))
       } catch {
         restoreWarning.value = true
       }
     }
     function dispatch(action: JourneyLedgerAction): boolean {
       if (!loaded.value) return false
-      const next = stepJourneyLedger(ledger.value, action)
+      const next =
+        ledger.value.version === 4
+          ? stepJourneyLedgerV4(ledger.value, action)
+          : stepJourneyLedger(ledger.value, action)
       if (next === ledger.value) return false
       ledger.value = next
       restoreWarning.value = false
@@ -144,7 +167,7 @@ export const useShiftingLandsJourneyStore = defineStore(
     }
     function fresh() {
       if (!loaded.value) return
-      ledger.value = newJourneyLedger(Date.now() % 2147483647)
+      ledger.value = newJourneyLedgerV4(Date.now() % 2147483647)
       restoreWarning.value = false
       persist()
     }

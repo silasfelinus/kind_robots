@@ -102,3 +102,41 @@ Verify with:
 ```sh
 npx tsx utils/scripts/verifyShiftingSaveLedger.test.ts
 ```
+
+## V4: authored fixed-cast encounters in all five lands
+
+`authoredLaterLands.json` is a player-safe import from the four source-authoring
+packs in Conductor, with each upstream Git blob SHA pinned in `sources`. It
+contains 36 additional encounter cards at the twelve later-land locations,
+each with whole-card identity, two authored 2d6 choices and separate written
+outcomes. Developer notes, prospective art briefs, species/job randomization
+and imaginary live ArtImage IDs are not imported. Face art remains pending,
+with the existing private board's explicit provisional-art label.
+
+New private expeditions save to `kr.shiftingLands.journeyLedger.v4`; V4
+records player actions and source revisions and strictly replays both dice
+and the chosen encounter, effects, prospective map shifts, boss gates,
+history and spent Rewards before accepting a restored save. The V4 reducer
+only changes the later four lands. Homestead's existing authored source and
+mechanics stay intact. The V4 branch prohibits legacy prototype `RESOLVE`
+actions, so new later-land visits always offer two explicit authored
+choices, and a revisit never draws a new scene.
+
+**Compatibility boundary:** An existing V3 save remains a V3 run with the
+original V3 reducer and its older prototype rules for the later lands.
+V3/old-V2 saves are restored unchanged from their original localStorage
+keys; the new V4 key takes precedence if present. A V4 restore failure
+does not silently fall back to an earlier save or reroll lost decisions.
+Selecting _New journey_ deliberately begins a V4 run while leaving the
+old saved data untouched. Neither rule set rescales historic dice or
+converts a prototype outcome into an authored one.
+
+Validation: `npx tsx utils/scripts/verifyShiftingV4.test.ts` includes
+seeded five-land playthroughs, deterministic replay, encounter source
+integrity, source-hash and save-tampering rejection, V3 isolation,
+outcome/flag history, no double resolution and causal map changes.
+
+Boss-specific story alternatives, bespoke scene image production and the
+visible companion/inventory controls remain separate tasks. Production
+deployment and public route approval have not occurred as part of this
+source implementation.

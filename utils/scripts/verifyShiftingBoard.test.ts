@@ -54,11 +54,17 @@ assert.match(board, /focus-visible:/)
 assert.match(board, /onMounted\(\(\) => game\.initialize\(\)\)/)
 assert.doesNotMatch(board, /\b(?:localStorage|\$fetch|fetch\()\b/)
 
-assert.match(store, /restoreJourneyLedger\(JSON\.parse\(saved\)\)/)
+assert.match(store, /restoreJourneyLedgerV4\(JSON\.parse\(saved\)\)/)
+assert.match(store, /restoreJourneyLedger\(JSON\.parse\(savedV3\)\)/)
 assert.match(store, /migrateJourneyLedger\(JSON\.parse\(legacy\)\)/)
 assert.match(store, /if \(next === ledger\.value\) return false/)
 assert.match(store, /stepJourneyLedger\(ledger\.value, action\)/)
-assert.match(store, /const SAVE_KEY = 'kr\.shiftingLands\.journeyLedger\.v3'/)
+assert.match(store, /stepJourneyLedgerV4\(ledger\.value, action\)/)
+assert.match(store, /const SAVE_KEY = 'kr\.shiftingLands\.journeyLedger\.v4'/)
+assert.match(
+  store,
+  /const LEGACY_V3_SAVE_KEY = 'kr\.shiftingLands\.journeyLedger\.v3'/,
+)
 assert.match(
   store,
   /const LEGACY_SAVE_KEY = 'kr\.shiftingLands\.authoredJourney\.v2'/,
@@ -72,7 +78,13 @@ assert.match(store, /useReward\(rewardId: string\)/)
 assert.match(legacy, /const SAVE_KEY = 'kr\.shiftingLands\.homestead\.v1'/)
 assert.match(store, /if \(!loaded\.value\) return false/)
 assert.match(store, /if \(!import\.meta\.client\) return/)
-assert.match(store, /window\.localStorage\.setItem\(SAVE_KEY/)
+assert.match(store, /window\.localStorage\.setItem\(key/)
+assert.match(
+  store,
+  /const key = ledger\.value\.version === 4 \? SAVE_KEY : LEGACY_V3_SAVE_KEY/,
+)
+assert.match(store, /if \(savedV3 !== null\) \{/)
+assert.match(board, /findFiveLandCard/)
 
 assert.equal(JOURNEY_WORLD.lands.length, 5)
 const beginning = newJourney(45)

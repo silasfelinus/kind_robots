@@ -5,7 +5,7 @@ label: Play
 title: Play
 room: The Workshop
 subtitle: Make things, practice, and play games
-description: Make images and video, brainstorm ideas, practice singing and Mandarin, or play arcade cabinets, card dungeons, and other games, many built by the Kind Robots agents.
+description: Make images and video, practice singing and Mandarin, or play arcade cabinets, card dungeons, and other games, many built by the Kind Robots agents.
 icon: kind-icon:blueprint
 image: /images/arcade/arcade-hall-backdrop.webp
 route: /art
@@ -32,9 +32,8 @@ tutorial:
         Art opens on the Image Generator: pick a recipe, write a prompt and
         press Generate, then find the results in the Gallery. Video Gen turns a
         still image into a short animated clip. Music Video shows finished
-        videos and lets you remix one into your own draft. Brainstorm produces
-        batches of ideas or art prompts and can send the ones you keep
-        straight to image generation. Generating costs mana, so sign in first.
+        videos and lets you remix one into your own draft. Generating costs mana,
+        so sign in first.
       image: /images/art/generate.webp
     - key: learn
       title: Practice singing and Mandarin
@@ -52,9 +51,9 @@ tutorial:
         The Arcade is a hall of free cabinets, each an original game based on a
         classic, with worldwide high-score boards and no account needed. Memory
         Dungeon is a card-matching game with lives, power-ups and floors to
-        clear. The Ruler Is Hooked has you fishing for your kingdom between
-        royal decisions. Zuzu Gamebook is an illustrated adventure with
-        choices, dice rolls and several endings.
+        clear. Zuzu Gamebook is an illustrated adventure with choices, dice
+        rolls and several endings. Administrators can also find in-development
+        Zuzu playtests in this menu.
       image: /images/background/memorydungeon.webp
     - key: toys
       title: Try the toys and the gallery
@@ -62,9 +61,8 @@ tutorial:
         Rebel Button is a button you are told not to press; each press changes
         its message and adds to a click leaderboard. Cthulhuquarium is an idle
         aquarium where you collect coins, feed and breed strange creatures, and
-        decorate the tank once you sign in. Tzaddikim is a sourced gallery of
-        people worth celebrating, where signed-in visitors can nominate and
-        react.
+        decorate the tank once you sign in. Other experiments and creative toys are also available
+        from this menu.
       image: /images/channels/play/aquarium.webp
 # Stage 3 backdrop art, resolved by slug via /api/art/backdrop/<page>-<variant>.
 # The route finds the completed ArtJob for this page and redirects to its

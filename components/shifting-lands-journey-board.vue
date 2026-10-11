@@ -1074,6 +1074,7 @@ import type {
   EncounterApproach,
 } from '~/utils/shiftingLands/journey'
 import ShiftingLandsCharacterRail from '~/components/shifting-lands-character-rail.vue'
+import { readShiftingLandsPresentation, writeShiftingLandsPresentation } from '~/utils/shiftingLands/presentationPreferences'
 
 const emit = defineEmits<{ legacy: [] }>()
 const game = useShiftingLandsJourneyStore()
@@ -1122,7 +1123,6 @@ const visibleJournal = computed(() =>
     )
     .reverse(),
 )
-const PRESENTATION_KEY = 'kr.shiftingLands.presentation.v1'
 
 const canDraw = computed(
   () =>
@@ -1219,18 +1219,10 @@ function useEarnedReward(id: string) {
   game.useReward(id)
 }
 function persistPresentation() {
-  if (!import.meta.client) return
-  try {
-    window.localStorage.setItem(
-      PRESENTATION_KEY,
-      JSON.stringify({
-        reducedMotion: reducedMotion.value,
-        soundEnabled: soundEnabled.value,
-      }),
-    )
-  } catch {
-    // Presentation preferences never affect saved game integrity.
-  }
+  writeShiftingLandsPresentation({
+    reducedMotion: reducedMotion.value,
+    soundEnabled: soundEnabled.value,
+  })
 }
 function setReducedMotion(value: boolean) {
   reducedMotion.value = value
@@ -1277,24 +1269,9 @@ function startOver() {
 }
 onMounted(() => {
   game.initialize()
-  if (!import.meta.client) return
-  reducedMotion.value = window.matchMedia(
-    '(prefers-reduced-motion: reduce)',
-  ).matches
-  try {
-    const stored = window.localStorage.getItem(PRESENTATION_KEY)
-    if (!stored) return
-    const settings = JSON.parse(stored) as {
-      reducedMotion?: unknown
-      soundEnabled?: unknown
-    }
-    if (typeof settings.reducedMotion === 'boolean')
-      reducedMotion.value = settings.reducedMotion
-    if (typeof settings.soundEnabled === 'boolean')
-      soundEnabled.value = settings.soundEnabled
-  } catch {
-    // Corrupted presentation settings must not interrupt game initialization.
-  }
+  const settings = readShiftingLandsPresentation()
+  reducedMotion.value = settings.reducedMotion
+  soundEnabled.value = settings.soundEnabled
 })
 </script>
 

@@ -280,6 +280,22 @@ const inserts: InsertDef[] = [
     shot: 'abbey-crossover',
   },
   {
+    id: 'abbey-seals',
+    at: [-0.02, -0.23],
+    shape: 'rect',
+    size: 0.15,
+    depth: 0.025,
+    color: 0xe9a56b,
+  },
+  {
+    id: 'relic-lane',
+    at: [0.115, -0.23],
+    shape: 'arrow',
+    size: 0.05,
+    color: 0xc4a2f8,
+    shot: 'relic-spinner',
+  },
+  {
     id: 'croc-reward',
     at: [-0.1, -0.24],
     shape: 'circle',
@@ -431,8 +447,27 @@ export const ZUZU_LAST_BELL_GREYBOX: TableDef = {
       returnMs: 70,
     },
   ],
-  drops: [],
-  spinners: [],
+  drops: [-0.095, -0.045, 0.005, 0.055].map((x, i) => ({
+    id: `abbey-seal-${i + 1}`,
+    bank: 'abbey-seals',
+    at: [x, 0.019, -0.29] as Vec3,
+    half: [0.015, 0.022, 0.004] as Vec3,
+  })),
+  spinners: [
+    {
+      id: 'relic-spinner',
+      at: [0.115, BALL + 0.008, -0.33],
+      half: [0.012, 0.022, 0.004],
+    },
+  ],
+  kickers: [
+    {
+      id: 'kickback',
+      at: [-0.235, BALL, 0.038],
+      half: [0.018, 0.015, 0.016],
+      velocity: [0, 0, -3.2],
+    },
+  ],
   scoops: [
     {
       id: 'croc-mouth',
@@ -475,6 +510,12 @@ export const ZUZU_LAST_BELL_GREYBOX: TableDef = {
       kind: 'orbit',
       sensors: ['right-orbit-low', 'right-orbit-high'],
       displayName: 'RIGHT ORBIT',
+    },
+    {
+      id: 'relic-spinner',
+      kind: 'spinner',
+      sensors: ['relic-spinner'],
+      displayName: 'RELIC SPINNER',
     },
     {
       id: 'bell-lane',

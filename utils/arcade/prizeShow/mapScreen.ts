@@ -176,7 +176,12 @@ export function renderSeasonMap(g: CanvasRenderingContext2D, view: MapView) {
   }
 
   // Title card.
-  drawText(g, `EPISODE ${episode.number}  ${episode.subtitle}`, 10, 6, {
+  const billing = episode.vault
+    ? 'BONUS ROUND'
+    : episode.live
+      ? 'LIVE!'
+      : `EPISODE ${episode.number}`
+  drawText(g, `${billing}  ${episode.subtitle}`, 10, 6, {
     color: RAMPS.gold[3],
     shadow: INK,
   })
@@ -187,7 +192,7 @@ export function renderSeasonMap(g: CanvasRenderingContext2D, view: MapView) {
     shadow: RAMPS.purple[1],
   })
   if (view.loop > 1)
-    drawText(g, `ENCORE ${view.loop}`, W - 10, 6, {
+    drawText(g, `RERUN ${view.loop - 1}`, W - 10, 6, {
       align: 'right',
       color: RAMPS.pink[3],
       shadow: INK,
@@ -267,11 +272,15 @@ export function renderSeasonMap(g: CanvasRenderingContext2D, view: MapView) {
       g.strokeRect(r.x - 1.5, r.y - 1.5, r.w + 3, r.h + 3)
     }
     if (room.id === episode.midBoss || room.id === episode.finale) {
+      // Over the tile, or under it when another room sits just above.
+      const above = episode.rooms.some(
+        (o) => o.col === room.col && o.row === room.row - 1,
+      )
       drawText(
         g,
         room.id === episode.finale ? 'FINALE' : 'MID',
         r.x + r.w / 2,
-        r.y - 9,
+        above ? r.y + r.h + 2 : r.y - 9,
         {
           align: 'center',
           color: RAMPS.purple[3],

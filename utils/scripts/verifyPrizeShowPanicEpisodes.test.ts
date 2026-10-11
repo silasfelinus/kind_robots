@@ -191,11 +191,17 @@ const g2d = stubContext()
 {
   assert.deepEqual(
     SEASON.map((ep) => ep.title),
-    ['OPENING NIGHT', 'COOKING SHOWDOWN', 'COUNTDOWN CONCERT'],
+    [
+      'OPENING NIGHT',
+      'COOKING SHOWDOWN',
+      'COUNTDOWN CONCERT',
+      'GALAXY PARADE',
+      'THE LIVE FINALE',
+    ],
   )
   assert.deepEqual(
     SEASON.map((ep) => ep.set),
-    ['studio', 'kitchen', 'concert'],
+    ['studio', 'kitchen', 'concert', 'galaxy', 'studio'],
   )
   const bosses = (ep: typeof EPISODE_1) => [
     roomById(ep, ep.midBoss).script.boss!.kind,
@@ -205,10 +211,12 @@ const g2d = stubContext()
   assert.deepEqual(bosses(EPISODE_2), ['piecart', 'souffle'])
   assert.deepEqual(bosses(EPISODE_3), ['mosh', 'jumbotron'])
   for (const ep of SEASON)
-    for (const room of [roomById(ep, ep.midBoss), roomById(ep, ep.finale)])
+    for (const id of [ep.midBoss, ep.finale].filter(Boolean)) {
+      const room = roomById(ep, id)
       assert.ok(room.script.boss!.line.length > 10, `${room.id}: an intro line`)
+    }
   const ids = seasonTickets()
-  assert.equal(new Set(ids).size, 9, 'three golden tickets in each episode')
+  assert.equal(new Set(ids).size, 12, 'three golden tickets in each episode')
   // Each set's hazards are on its own soundstage.
   const kinds = (ep: typeof EPISODE_1) =>
     new Set(
@@ -683,12 +691,12 @@ const g2d = stubContext()
   hit(g, -1)
   assert.equal(g.boss, null)
   g.waves = []
-  for (let t = 0; t < 4000 && g.loop === 1; t++) {
+  for (let t = 0; t < 4000 && g.episodeIndex === 2; t++) {
     g.crashers = []
     safe(g)
   }
-  assert.equal(g.loop, 2, 'after Countdown Concert, the encore')
-  assert.equal(g.episodeIndex, 0)
+  assert.equal(g.episodeIndex, 3, 'after Countdown Concert, Galaxy Parade')
+  assert.equal(g.loop, 1)
 }
 
 // --- a campaign through all three episodes ------------------------------------------------------------------
@@ -720,12 +728,17 @@ const g2d = stubContext()
   const a = play(1)
   assert.deepEqual(a.trace, play(1).trace, 'the season replays exactly')
   assert.notDeepEqual(a.trace, play(2).trace, 'and seeds differ')
-  assert.deepEqual(
-    [...a.sets].sort(),
-    ['concert', 'kitchen', 'studio'],
-    'every set',
-  )
-  assert.equal(a.bosses.size, 6, `every boss (${[...a.bosses].join(', ')})`)
+  for (const set of ['studio', 'kitchen', 'concert'])
+    assert.ok(a.sets.has(set), `the ${set} set`)
+  for (const kind of [
+    'float',
+    'wobble',
+    'piecart',
+    'souffle',
+    'mosh',
+    'jumbotron',
+  ] as const)
+    assert.ok(a.bosses.has(kind), `the ${kind} (${[...a.bosses].join(', ')})`)
   assert.equal(a.g.score, 0, 'and the attract demo still never scores')
 }
 

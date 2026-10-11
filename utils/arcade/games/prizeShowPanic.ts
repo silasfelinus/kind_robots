@@ -31,6 +31,13 @@
 // Wobble now closes Opening Night, then the Pie Cart and the Souffle Supreme, the Mosh Mascot and
 // the Jumbotron. LENS the co-host joins on episode 3.
 //
+// Depth slice 5 (t-032) finishes the season: episode 4, Galaxy Parade (low gravity, a turning ring
+// round a solid hub, teleport doors; the Mothership and the Conga Dragon), then the Live Finale, one
+// long run through every set to the host's own Prize Machine (a wheel of acts, then a dance-off).
+// Ten golden tickets open the Grand Prize Vault and the true ending (every crasher joins the studio
+// audience); either ending rolls the credits (prizeShow/credits.ts) and the season reruns, harder.
+// The show is saved at each episode start (`save`) and offered back on the opening card.
+//
 // The arrows move (eight ways) and A fires confetti the way Sparkle faces.
 // Hold B to lock the aim while moving, the single-stick stand-in for the
 // classic's twin sticks: strafe one way, spray another. With a second stick
@@ -134,7 +141,7 @@ import {
   newBoss,
   updateBoss as runBoss,
 } from '../prizeShow/bosses'
-import type { Boss, BossWorld } from '../prizeShow/bosses'
+import type { Boss, BossPrize, BossWorld } from '../prizeShow/bosses'
 import { renderBoss as drawBoss } from '../prizeShow/bossArt'
 import {
   FLOUR,
@@ -158,18 +165,33 @@ import {
   speakerUntil,
 } from '../prizeShow/hazards'
 import type { Flour, Pit, Ring } from '../prizeShow/hazards'
-import { BOSS_MUSIC, SET_MUSIC } from '../prizeShow/music'
+import {
+  BOSS_MUSIC,
+  ENDING_MUSIC,
+  FINALE_MUSIC,
+  SET_MUSIC,
+} from '../prizeShow/music'
+import {
+  ENDINGS,
+  ENDING_LINES,
+  VAULT_CHEERS,
+  creditLines,
+} from '../prizeShow/credits'
+import type { EndingKind } from '../prizeShow/credits'
 import { renderSeasonMap } from '../prizeShow/mapScreen'
 import type { MapOption } from '../prizeShow/mapScreen'
 import {
   CONCERT_BEAT,
   DROP_RATE,
   MODIFIERS,
+  PRIZE_VAULT,
+  VAULT_TICKETS,
   REWARD_RANK,
   ROOM_ICON,
   SEASON,
   SEASON_TICKETS,
   doorSides,
+  seasonTickets,
   exitsOf,
   loopTuning,
   noCrashers,
@@ -179,6 +201,7 @@ import {
   wavesAt,
 } from '../prizeShow/season'
 import {
+  CRASHER_KINDS,
   ROSTER,
   TELLS,
   burstPopper,
@@ -224,6 +247,8 @@ import type {
   HotPlateProp,
   SetId,
   SpeakerProp,
+  TurntableProp,
+  WarpProp,
   LoopTuning,
   ModifierId,
   PrizeKind,
@@ -396,6 +421,78 @@ type Particle = {
   color: string
 }
 type Floater = { x: number; y: number; text: string; life: number }
+/** A show kept at an episode's start (ArcadeGameInstance.save), and handed back as `resume`. */
+export type PrizeSave = {
+  v: 1
+  /** The episode to pick up at the start of (an index into SEASON). */
+  episode: number
+  loop: number
+  score: number
+  lives: number
+  studios: number
+  tickets: string[]
+  wallet: Wallet
+  won: Wallet
+  bestChain: number
+  /** The season has been cleared at least once. */
+  cleared: boolean
+  /** The run it came from ended: picking it up again starts the score from zero. */
+  continued: boolean
+}
+
+const isCount = (v: unknown, max: number): v is number =>
+  typeof v === 'number' && Number.isInteger(v) && v >= 0 && v <= max
+
+function readWallet(v: unknown): Wallet | null {
+  if (!v || typeof v !== 'object') return null
+  const w = v as Record<string, unknown>
+  return isCount(w.cash, 9999) &&
+    isCount(w.toaster, 9999) &&
+    isCount(w.car, 9999)
+    ? { cash: w.cash, toaster: w.toaster, car: w.car }
+    : null
+}
+
+/** A stored save, checked against this season; null when it is not one we can use. */
+export function readSave(raw: unknown): PrizeSave | null {
+  if (!raw || typeof raw !== 'object') return null
+  const v = raw as Record<string, unknown>
+  if (v.v !== 1) return null
+  if (!isCount(v.episode, SEASON.length - 1)) return null
+  if (!isCount(v.loop, 99) || v.loop < 1) return null
+  if (!isCount(v.score, 250_000_000)) return null
+  if (!isCount(v.lives, MAX_LIVES) || v.lives < 1) return null
+  if (!isCount(v.studios, 100_000) || !isCount(v.bestChain, 100_000))
+    return null
+  if (typeof v.cleared !== 'boolean' || typeof v.continued !== 'boolean')
+    return null
+  const known = new Set(seasonTickets())
+  if (
+    !Array.isArray(v.tickets) ||
+    v.tickets.length > known.size ||
+    !v.tickets.every((t) => typeof t === 'string' && known.has(t)) ||
+    new Set(v.tickets).size !== v.tickets.length
+  )
+    return null
+  const wallet = readWallet(v.wallet)
+  const won = readWallet(v.won)
+  if (!wallet || !won) return null
+  return {
+    v: 1,
+    episode: v.episode,
+    loop: v.loop,
+    score: v.score,
+    lives: v.lives,
+    studios: v.studios,
+    tickets: [...(v.tickets as string[])],
+    wallet,
+    won,
+    bestChain: v.bestChain,
+    cleared: v.cleared,
+    continued: v.continued,
+  }
+}
+
 type MapState = {
   options: MapOption[]
   cursor: number
@@ -1219,9 +1316,9 @@ type SetStyle = {
   lookOf: Partial<Record<RoomScript['type'], number>>
   cycle: number
   tile: number
-  mark: 'star' | 'plate' | 'stage'
+  mark: 'star' | 'plate' | 'stage' | 'pad'
   marquee: Ramp
-  trim: 'bulbs' | 'tiles' | 'grilles'
+  trim: 'bulbs' | 'tiles' | 'grilles' | 'stars'
 }
 const SETS: Record<SetId, SetStyle> = {
   // Opening Night: the game show's glossy tiles, a star on the floor and gold marquee bulbs.
@@ -1292,6 +1389,31 @@ const SETS: Record<SetId, SetStyle> = {
     mark: 'stage',
     marquee: RAMPS.pink,
     trim: 'grilles',
+  },
+  // Galaxy Parade: dark deck plates, a landing pad on the floor, starlit walls and teal lights.
+  galaxy: {
+    looks: [
+      studioLook(RAMPS.night, RAMPS.steel, RAMPS.teal[3]),
+      studioLook(RAMPS.sky, RAMPS.night, RAMPS.teal[4]),
+      studioLook(RAMPS.purple, RAMPS.steel, RAMPS.pink[3]),
+      studioLook(RAMPS.night, RAMPS.purple, RAMPS.ember[3]),
+      studioLook(RAMPS.gold, RAMPS.night, RAMPS.gold[4]),
+      studioLook(RAMPS.steel, RAMPS.teal, RAMPS.cream[4]),
+      studioLook(RAMPS.water, RAMPS.night, RAMPS.teal[3]),
+    ],
+    lookOf: {
+      boss: 3,
+      vault: 4,
+      secret: 5,
+      ring: 6,
+      warp: 2,
+      sponsor: 4,
+    },
+    cycle: 2,
+    tile: 16,
+    mark: 'pad',
+    marquee: RAMPS.teal,
+    trim: 'stars',
   },
 }
 const CROWD_COLOURS = [
@@ -1486,6 +1608,17 @@ class PrizeShowPanic implements ArcadeGameInstance {
   private floaters: Floater[] = []
   private banner: { text: string; sub?: string; ticks: number } | null = null
 
+  // How the season ends: the Grand Prize Vault (for ten golden tickets), the ending, the credits.
+  private inVault = false
+  ending: { kind: EndingKind; ticks: number; crowd: Crasher[] } | null = null
+  /** The season has been cleared (kept in the save: it unlocks reruns). */
+  seasonCleared = false
+  /** Progress kept at each episode start (the cabinet stores it); demos never save. */
+  save: PrizeSave | null = null
+  /** A saved show offered on the opening card, until the player chooses. */
+  private offer: PrizeSave | null = null
+  private choosing = 0
+
   // The season: where Sparkle is on which episode's map, and what she carries between rooms.
   private season: readonly Episode[] = SEASON
   private episodeIndex = 0
@@ -1530,6 +1663,11 @@ class PrizeShowPanic implements ArcadeGameInstance {
   private speakers: SpeakerProp[] = []
   private rings: Ring[] = []
   private pits: Pit[] = []
+  // The galaxy's floor: the turning ring round its hub, and teleport doors (with a cool-down, so
+  // Sparkle doesn't bounce straight back).
+  private turntable: TurntableProp | null = null
+  private warps: WarpProp[] = []
+  private warpClock = 0
   /** The loop the cabinet should be playing (a concert room restarts it, so the beat lines up). */
   private musicNow: MusicLoop | null = null
   private exits: RoomExit[] = []
@@ -1554,6 +1692,7 @@ class PrizeShowPanic implements ArcadeGameInstance {
   /** The set's loop (the boss theme on a boss stage); none in the attract demo or after the show. */
   get music(): MusicLoop | null {
     if (this.demo || this.over) return null
+    if (this.ending) return ENDING_MUSIC
     return this.musicNow
   }
 
@@ -1567,6 +1706,15 @@ class PrizeShowPanic implements ArcadeGameInstance {
     this.world = this.makeWorld()
     this.bossWorld = this.makeBossWorld()
     this.beginEpisode(0)
+    const offer = this.demo ? null : readSave(options.resume)
+    if (offer && (offer.episode > 0 || offer.loop > 1 || offer.cleared)) {
+      // Until the player chooses, the stored show stays as it was.
+      this.offer = offer
+      this.save = offer
+      this.choosing = 1
+      this.cutIn = null
+      this.cutQueue = []
+    }
   }
 
   private makeWorld(): CrasherWorld {
@@ -1638,6 +1786,81 @@ class PrizeShowPanic implements ArcadeGameInstance {
       },
       puff: (x, y, colour, count) => this.burst(x, y, count, colour),
       play: (sound) => this.sound.play(sound),
+      prizes: () => this.prizes.filter((p) => p.life > 0),
+      takePrize: (p: BossPrize) => {
+        const prize = p as Prize
+        if (prize.pedestal && this.script.challenge === 'all-prizes')
+          this.prizeMissed = true
+        this.prizes = this.prizes.filter((q) => q !== prize)
+      },
+      dropPrize: (x, y) => this.dropPrize(x, y),
+      dance: (x, y) =>
+        this.dancers.push({
+          x,
+          y,
+          vx: this.fxRng() < 0.5 ? -1 : 1,
+          life: 60,
+          color: CONFETTI[Math.floor(this.fxRng() * CONFETTI.length)]!,
+        }),
+    }
+  }
+
+  /** Keep the show as it stands at an episode's start (a real game only; demos never save). */
+  private keep() {
+    if (this.demo || this.offer) return
+    this.save = {
+      v: 1,
+      episode: this.episodeIndex,
+      loop: this.loop,
+      score: this.score,
+      lives: Math.max(1, Math.min(MAX_LIVES, this.lives)),
+      studios: this.studios,
+      tickets: [...this.tickets],
+      wallet: { ...this.wallet },
+      won: { ...this.seasonWon },
+      bestChain: this.bestChain,
+      cleared: this.seasonCleared,
+      continued: false,
+    }
+  }
+
+  /** Pick a saved show back up at the start of its episode. */
+  private resumeFrom(s: PrizeSave) {
+    this.offer = null
+    this.choosing = 0
+    this.score = s.continued ? 0 : s.score
+    this.lives = s.continued ? START_LIVES : s.lives
+    this.nextExtra = EXTRA_EVERY
+    while (this.nextExtra <= this.score)
+      this.nextExtra = this.nextExtra * 2 + EXTRA_EVERY
+    this.studios = s.studios
+    this.tickets = [...s.tickets]
+    this.wallet = { ...s.wallet }
+    this.seasonWon = { ...s.won }
+    this.bestChain = s.bestChain
+    this.seasonCleared = s.cleared
+    this.loop = s.loop
+    this.tuning = loopTuning(this.loop)
+    this.beginEpisode(s.episode)
+    this.banner = {
+      text: 'WELCOME BACK!',
+      sub: `EPISODE ${this.episode.number}: ${this.episode.title}`,
+      ticks: 120,
+    }
+  }
+
+  /** The opening card: carry on from the saved episode (A), or a new show (B). */
+  private updateChoice(input: InputFrame) {
+    this.choosing++
+    if (this.choosing < 20) return
+    if (input.pressed.a || input.pressed.start) {
+      this.resumeFrom(this.offer!)
+      this.sound.play('start')
+    } else if (input.pressed.b) {
+      this.offer = null
+      this.choosing = 0
+      this.keep()
+      this.say('room-start')
     }
   }
 
@@ -1652,7 +1875,10 @@ class PrizeShowPanic implements ArcadeGameInstance {
       cue === 'risky-route' ||
       cue === 'chain'
     if (!urgent && (this.cutGap > 0 || this.cutIn)) return
-    const lines = HOST_LINES[cue]
+    const lines =
+      this.inVault && cue !== 'death' && cue !== 'game-over'
+        ? VAULT_CHEERS
+        : HOST_LINES[cue]
     const line = text ?? lines[Math.floor(this.hostRng() * lines.length)]!
     if (urgent) this.cutQueue = []
     this.speak('host', line)
@@ -1846,7 +2072,7 @@ class PrizeShowPanic implements ArcadeGameInstance {
   }
 
   private get episode(): Episode {
-    return this.season[this.episodeIndex]!
+    return this.inVault ? PRIZE_VAULT : this.season[this.episodeIndex]!
   }
 
   private has(mod: ModifierId): boolean {
@@ -1857,6 +2083,7 @@ class PrizeShowPanic implements ArcadeGameInstance {
 
   private beginEpisode(index: number) {
     this.episodeIndex = index
+    if (!this.inVault) this.keep()
     this.route = []
     this.modifiers.clear()
     this.episodeWon = emptyWallet()
@@ -2003,7 +2230,9 @@ class PrizeShowPanic implements ArcadeGameInstance {
       (skip && tally.ticks > tally.rows.length * TALLY_ROW + 20)
     ) {
       this.tally = null
-      this.openSwap()
+      // Out of the Vault there is nothing left to buy: straight to the ending.
+      if (this.inVault) this.finishEpisode()
+      else this.openSwap()
     }
   }
 
@@ -2065,18 +2294,91 @@ class PrizeShowPanic implements ArcadeGameInstance {
   }
 
   private finishEpisode() {
+    if (this.inVault) {
+      // Out of the Vault with the grand prize: the true ending (still on the Vault's set).
+      this.openEnding('true')
+      return
+    }
     if (this.episodeIndex + 1 < this.season.length) {
       this.beginEpisode(this.episodeIndex + 1)
       return
     }
-    // The authored season is over: the show goes round again, harder.
-    this.loop++
-    this.tuning = loopTuning(this.loop)
-    this.beginEpisode(0)
-    this.banner = {
-      text: `ENCORE ${this.loop}!`,
-      sub: 'THE CROWD WANTS MORE',
-      ticks: 120,
+    // The Live Finale is won. Ten golden tickets open the Grand Prize Vault first.
+    if (this.tickets.length >= VAULT_TICKETS) {
+      this.inVault = true
+      this.beginEpisode(this.episodeIndex)
+      this.banner = {
+        text: 'THE GRAND PRIZE VAULT!',
+        sub: `${this.tickets.length} GOLDEN TICKETS OPEN THE DOORS`,
+        ticks: 150,
+      }
+      return
+    }
+    this.openEnding('show')
+  }
+
+  /** The season is cleared: the ending, then the credits, then a rerun. */
+  private openEnding(kind: EndingKind) {
+    this.seasonCleared = true
+    const bonus = (kind === 'true' ? 500_000 : 250_000) * this.loop
+    this.addScore(bonus, CX, CY)
+    this.ending = {
+      kind,
+      ticks: 0,
+      crowd: kind === 'true' ? this.joinedCrowd() : [],
+    }
+    this.banner = null
+    this.cutQueue = []
+    this.speak('host', ENDING_LINES[kind])
+    this.audienceCheer = 240
+    this.sound.play('level')
+  }
+
+  /** The party crashers, one of every kind, in the studio audience (the true ending). */
+  private joinedCrowd(): Crasher[] {
+    return CRASHER_KINDS.filter((kind) => kind !== 'crane').map((kind, i) => {
+      const c = newCrasher(
+        kind,
+        24 + i * 16.5,
+        BOTTOM - 14 - (i % 2) * 10,
+        CONFETTI[i % CONFETTI.length]!,
+        i * 7,
+      )
+      c.color = CONFETTI[i % CONFETTI.length]!
+      return c
+    })
+  }
+
+  /** Ticks the ending card holds before the credits roll, and how fast they roll. */
+  private static readonly ENDING_HOLD = 360
+  private static readonly CREDIT_SPEED = 0.5
+
+  private creditsHeight(): number {
+    return creditLines(this.ending!.kind).length * 12 + H
+  }
+
+  private updateEnding(input: InputFrame) {
+    const e = this.ending!
+    e.ticks++
+    const hold = PrizeShowPanic.ENDING_HOLD
+    const pressed = input.pressed.a || input.pressed.start
+    if (e.ticks < hold) {
+      if (pressed && e.ticks > 60) e.ticks = hold
+      return
+    }
+    const rolled = (e.ticks - hold) * PrizeShowPanic.CREDIT_SPEED
+    if (rolled >= this.creditsHeight() || (pressed && e.ticks > hold + 60)) {
+      // The show goes on: a rerun of the season, harder.
+      this.ending = null
+      this.inVault = false
+      this.loop++
+      this.tuning = loopTuning(this.loop)
+      this.beginEpisode(0)
+      this.banner = {
+        text: `RERUN ${this.loop - 1}!`,
+        sub: 'THE SEASON AGAIN, HARDER',
+        ticks: 140,
+      }
     }
   }
 
@@ -2135,6 +2437,9 @@ class PrizeShowPanic implements ArcadeGameInstance {
     this.speakers = []
     this.rings = []
     this.pits = []
+    this.turntable = null
+    this.warps = []
+    this.warpClock = 0
     const flankSide = [1, 3].map((k) => ((this.entryDoor + k) % 4) as Side)
     let flank = 0
     for (const prop of script.props ?? []) {
@@ -2192,6 +2497,12 @@ class PrizeShowPanic implements ArcadeGameInstance {
         case 'mosh':
           this.pits.push({ x: prop.x, y: prop.y, r: prop.r, spin: prop.spin })
           break
+        case 'turntable':
+          this.turntable = prop
+          break
+        case 'warp':
+          this.warps.push(prop)
+          break
         case 'crack': {
           const door = DOORS[prop.side]!
           const along = prop.side % 2 === 0
@@ -2228,7 +2539,12 @@ class PrizeShowPanic implements ArcadeGameInstance {
     }
     if (script.closes) this.openExits()
     // The set's loop, or the boss theme; a room on the beat starts its loop with the room.
-    const loop = script.boss ? BOSS_MUSIC : SET_MUSIC[this.episode.set]
+    const loop =
+      script.boss?.kind === 'machine'
+        ? FINALE_MUSIC
+        : script.boss
+          ? BOSS_MUSIC
+          : SET_MUSIC[this.roomSet()]
     this.musicNow = script.beat && !script.boss ? { ...loop } : loop
     this.lowTimeSaid = false
     this.packages = []
@@ -2309,6 +2625,14 @@ class PrizeShowPanic implements ArcadeGameInstance {
     const flicked = stick !== null && !this.aimedBefore
     this.aimedBefore = stick !== null
 
+    if (this.choosing) {
+      this.updateChoice(controls)
+      return
+    }
+    if (this.ending) {
+      this.updateEnding(controls)
+      return
+    }
     if (this.map) {
       this.updateMap(controls, flicked ? stick : null)
       return
@@ -2336,6 +2660,8 @@ class PrizeShowPanic implements ArcadeGameInstance {
             this.bestChain,
           )
           this.say('game-over')
+          // A save from this run can be picked up again, but its score starts over.
+          if (this.save) this.save = { ...this.save, continued: true }
         } else {
           this.startRoom()
         }
@@ -2426,6 +2752,12 @@ class PrizeShowPanic implements ArcadeGameInstance {
       this.slip--
       mx = this.vx
       my = this.vy
+    } else if (this.script.lowGravity) {
+      // Low gravity: she drifts on her momentum and steers slowly.
+      this.vx += (mx - this.vx) * (dx || dy ? 0.045 : 0.008)
+      this.vy += (my - this.vy) * (dx || dy ? 0.045 : 0.008)
+      mx = this.vx
+      my = this.vy
     } else if (this.has('foam') || this.inCream()) {
       this.vx += (mx - this.vx) * (dx || dy ? 0.06 : 0.025)
       this.vy += (my - this.vy) * (dx || dy ? 0.06 : 0.025)
@@ -2444,7 +2776,7 @@ class PrizeShowPanic implements ArcadeGameInstance {
     this.bumpCases()
   }
 
-  /** Counters carry Sparkle along and mosh pits swirl her round. */
+  /** Counters, mosh pits and the turning ring move Sparkle; the ring's hub is solid. */
   private carry() {
     const belt = beltPush(this.belts, this.px, this.py + 3)
     const pit = pitShove(
@@ -2454,16 +2786,47 @@ class PrizeShowPanic implements ArcadeGameInstance {
       this.roomTick,
       this.beat(),
     )
-    if (!belt.x && !belt.y && !pit.x && !pit.y) return
-    this.px = Math.max(
-      LEFT + HALF,
-      Math.min(RIGHT - HALF, this.px + belt.x + pit.x),
-    )
-    this.py = Math.max(
-      TOP + HALF,
-      Math.min(BOTTOM - HALF, this.py + belt.y + pit.y),
-    )
+    const ring = this.turnPush(this.px, this.py)
+    const dx = belt.x + pit.x + ring.x
+    const dy = belt.y + pit.y + ring.y
+    if (dx || dy) {
+      this.px = Math.max(LEFT + HALF, Math.min(RIGHT - HALF, this.px + dx))
+      this.py = Math.max(TOP + HALF, Math.min(BOTTOM - HALF, this.py + dy))
+    }
+    const hub = this.outOfHub(this.px, this.py, HALF)
+    this.px = hub.x
+    this.py = hub.y
     this.bumpCases()
+  }
+
+  /** How far the turning ring carries something at (x, y) this tick (round the middle). */
+  private turnPush(x: number, y: number): Point {
+    const t = this.turntable
+    if (!t) return { x: 0, y: 0 }
+    const dx = x - CX
+    const dy = y - CY
+    const r = Math.hypot(dx, dy)
+    if (r < t.inner || r > t.outer) return { x: 0, y: 0 }
+    return { x: -dy * t.spin, y: dx * t.spin }
+  }
+
+  /** (x, y) pushed out of the ring's solid hub (radius `pad` for whoever is standing there). */
+  private outOfHub(x: number, y: number, pad = 0): Point {
+    const t = this.turntable
+    if (!t) return { x, y }
+    const dx = x - CX
+    const dy = y - CY
+    const r = Math.hypot(dx, dy)
+    const hub = t.inner - 6 + pad
+    if (r >= hub) return { x, y }
+    const a = r > 0.001 ? Math.atan2(dy, dx) : Math.PI / 2
+    return { x: CX + Math.cos(a) * hub, y: CY + Math.sin(a) * hub }
+  }
+
+  /** Is (x, y) inside the hub (it stops confetti and streamers)? */
+  private inHub(x: number, y: number): boolean {
+    const t = this.turntable
+    return !!t && Math.hypot(x - CX, y - CY) < t.inner - 6
   }
 
   /** Standing in pie cream: as slippery as a foam party. */
@@ -2763,6 +3126,10 @@ class PrizeShowPanic implements ArcadeGameInstance {
       for (const f of this.flours)
         if (inFlour(f, s.x, s.y))
           f.density = Math.max(0, f.density - FLOUR.thin)
+      if (this.inHub(s.x, s.y)) {
+        s.life = 0
+        continue
+      }
       const crack = this.crack
       if (
         crack &&
@@ -3190,6 +3557,32 @@ class PrizeShowPanic implements ArcadeGameInstance {
         )
     }
     this.rings = this.rings.filter((ring) => ring.r < ring.max)
+    // Teleport doors: step into one and come out of the other.
+    if (this.warpClock > 0) this.warpClock--
+    else if (grounded)
+      for (const w of this.warps) {
+        const from = Math.hypot(this.px - w.x1, this.py - w.y1) < 9
+        const to = Math.hypot(this.px - w.x2, this.py - w.y2) < 9
+        if (!from && !to) continue
+        this.burst(this.px, this.py, 8, RAMPS.teal[4])
+        this.px = from ? w.x2 : w.x1
+        this.py = from ? w.y2 : w.y1
+        this.warpClock = 50
+        this.burst(this.px, this.py, 8, RAMPS.teal[4])
+        this.sound.play('blip')
+        break
+      }
+    // The hub soaks up streamers; the ring carries the crowd and pushes them off the hub.
+    if (this.turntable) {
+      for (const st of this.streamers) if (this.inHub(st.x, st.y)) st.life = 0
+      for (const c of this.crashers) {
+        if (c.kind === 'crane' || c.z > 2) continue
+        const push = this.turnPush(c.x, c.y)
+        const out = this.outOfHub(c.x + push.x, c.y + push.y, 4)
+        c.x = out.x
+        c.y = out.y
+      }
+    }
     // The counters and the pits move the crowd (and loose prizes) as well.
     if (!this.belts.length && !this.pits.length) return
     for (const c of this.crashers) {
@@ -3448,6 +3841,12 @@ class PrizeShowPanic implements ArcadeGameInstance {
     this.sound.play('level')
     for (let i = 0; i < 3; i++)
       this.dropPrize(clampX(b.x + (i - 1) * 24, 12), clampY(b.y + 20, 12))
+    // Everything the Mothership beamed up rains back down.
+    for (let i = 0; i < b.hold; i++)
+      this.dropPrize(
+        clampX(b.x + (i - (b.hold - 1) / 2) * 18, 12),
+        clampY(b.y + 40 + (i % 2) * 14, 12),
+      )
   }
 
   // --- prizes, tickets and the audience ---------------------------------------------
@@ -3805,6 +4204,11 @@ class PrizeShowPanic implements ArcadeGameInstance {
       start: false,
     }
     const frame: InputFrame = { held, pressed: { ...held } }
+    if (this.ending) {
+      // Let the ending play, then skip the credits along.
+      frame.pressed.a = this.ending.ticks % 240 === 239
+      return frame
+    }
     if (this.tally) {
       // Watch the haul count up for a moment, then skip on.
       frame.pressed.a = this.tally.ticks > 120 && this.tally.ticks % 30 === 0
@@ -3838,7 +4242,8 @@ class PrizeShowPanic implements ArcadeGameInstance {
       return frame
     }
     const threats: Array<{ x: number; y: number; r: number }> = []
-    const slippery = this.has('foam') || this.inCream()
+    const slippery =
+      this.has('foam') || this.inCream() || !!this.script.lowGravity
     for (const c of this.crashers) {
       if (!touches(c)) continue
       const r =
@@ -3883,6 +4288,12 @@ class PrizeShowPanic implements ArcadeGameInstance {
     if (!leavingNow)
       for (const pit of this.pits)
         threats.push({ x: pit.x, y: pit.y, r: pit.r + 8 })
+    if (this.turntable)
+      threats.push({ x: CX, y: CY, r: this.turntable.inner + 8 })
+    // Heading for a door, a teleport door would only send it back across the room.
+    if (leavingNow)
+      for (const w of this.warps)
+        threats.push({ x: w.x1, y: w.y1, r: 16 }, { x: w.x2, y: w.y2, r: 16 })
     for (const m of this.mines) {
       // Heading out of a cleared room, only an armed cushion is worth a detour.
       if (leavingNow && m.fuse === 0) continue
@@ -4058,6 +4469,16 @@ class PrizeShowPanic implements ArcadeGameInstance {
   // --- render -------------------------------------------------------------------
 
   render(g: CanvasRenderingContext2D) {
+    if (this.choosing) {
+      this.renderStudio(g)
+      this.renderChoice(g)
+      return
+    }
+    if (this.ending) {
+      this.renderEnding(g)
+      this.renderCutIn(g)
+      return
+    }
     if (this.map) {
       this.renderMap(g)
       this.renderCutIn(g)
@@ -4142,6 +4563,119 @@ class PrizeShowPanic implements ArcadeGameInstance {
     if (this.over) this.renderGameOver(g)
   }
 
+  /** The opening card for a saved show: carry on, or start over. */
+  private renderChoice(g: CanvasRenderingContext2D) {
+    const o = this.offer!
+    g.fillStyle = rgba(INK, 0.72)
+    g.fillRect(0, 0, W, H)
+    hudPanel(g, 40, 50, W - 80, 140)
+    const ep = SEASON[o.episode]!
+    drawText(g, 'CONTINUE THE SHOW?', CX, 60, {
+      align: 'center',
+      scale: 2,
+      color: '#ffffff',
+      outline: INK,
+    })
+    const lines = [
+      `EPISODE ${ep.number}: ${ep.title}`,
+      o.loop > 1 ? `RERUN ${o.loop - 1}` : ep.subtitle,
+      o.continued
+        ? 'SCORE STARTS AGAIN FROM ZERO'
+        : `SCORE ${o.score}  LIVES ${o.lives}`,
+      `GOLDEN TICKETS ${o.tickets.length}/${SEASON_TICKETS}`,
+      o.cleared ? 'SEASON CLEARED' : '',
+    ]
+    lines.forEach((line, i) =>
+      drawText(g, line, CX, 88 + i * 14, {
+        align: 'center',
+        color: i === 0 ? RAMPS.gold[4] : RAMPS.cream[3],
+        shadow: INK,
+      }),
+    )
+    const blink = Math.floor(this.tick / 20) % 2
+    drawText(g, 'A: CONTINUE     B: NEW SHOW', CX, 172, {
+      align: 'center',
+      color: blink ? RAMPS.gold[4] : RAMPS.gold[3],
+      outline: INK,
+    })
+  }
+
+  /** The season's end: the ending card, then the credits rolling over the studio. */
+  private renderEnding(g: CanvasRenderingContext2D) {
+    const e = this.ending!
+    this.renderStudio(g)
+    this.renderSpotlights(g)
+    this.renderMarquee(g)
+    this.fx.render(g)
+    // The true ending: every kind of party crasher has joined the studio audience.
+    for (const [i, c] of e.crowd.entries()) {
+      const hop = Math.round(Math.abs(Math.sin((this.tick + i * 9) / 10)) * 3)
+      const y = c.y
+      c.y = y - hop
+      c.t = this.tick + i * 7
+      this.renderCrasher(g, c)
+      c.y = y
+    }
+    this.renderAudience(g)
+    this.renderApplause(g)
+    g.fillStyle = rgba(INK, 0.55)
+    g.fillRect(0, HUD, W, (e.crowd.length ? BOTTOM - 30 : BOTTOM) - HUD)
+    const hold = PrizeShowPanic.ENDING_HOLD
+    if (e.ticks < hold) {
+      const card = ENDINGS[e.kind]
+      drawText(g, card.title, CX, 50, {
+        align: 'center',
+        scale: 2,
+        color: RAMPS.gold[4],
+        outline: INK,
+      })
+      card.lines.forEach((line, i) =>
+        drawText(g, line, CX, 84 + i * 13, {
+          align: 'center',
+          color: RAMPS.cream[4],
+          shadow: INK,
+        }),
+      )
+      if (e.kind === 'show')
+        drawText(
+          g,
+          `YOU HOLD ${this.tickets.length} OF ${VAULT_TICKETS}`,
+          CX,
+          172,
+          {
+            align: 'center',
+            color: RAMPS.gold[3],
+            outline: INK,
+          },
+        )
+      if (e.ticks % 12 === 0)
+        this.fx.burst(
+          LEFT + this.fxRng() * (RIGHT - LEFT),
+          TOP + 20,
+          this.fxRng,
+          { count: 8 },
+        )
+    } else {
+      const rolled = (e.ticks - hold) * PrizeShowPanic.CREDIT_SPEED
+      g.save()
+      g.beginPath()
+      g.rect(0, TOP, W, (e.crowd.length ? BOTTOM - 34 : BOTTOM) - TOP)
+      g.clip()
+      creditLines(e.kind).forEach((line, i) => {
+        const y = Math.round(H - rolled + i * 12)
+        if (y < HUD - 10 || y > H) return
+        const heading = line.startsWith('*')
+        drawText(g, heading ? line.slice(1) : line, CX, y, {
+          align: 'center',
+          color: heading ? RAMPS.gold[3] : RAMPS.cream[4],
+          outline: INK,
+        })
+      })
+      g.restore()
+    }
+    this.renderHud(g)
+  }
+
   private renderMap(g: CanvasRenderingContext2D) {
     const map = this.map!
     renderSeasonMap(g, {
@@ -4161,8 +4695,13 @@ class PrizeShowPanic implements ArcadeGameInstance {
     if (this.banner) this.renderBanner(g)
   }
 
+  /** The set this room is on: its episode's, unless the room borrows another's (the finale). */
+  private roomSet(): SetId {
+    return this.script.set ?? this.episode.set
+  }
+
   private setStyle(): SetStyle {
-    return SETS[this.episode.set]
+    return SETS[this.roomSet()]
   }
 
   private studioIndex(): number {
@@ -4179,158 +4718,187 @@ class PrizeShowPanic implements ArcadeGameInstance {
     const look = style.looks[theme]!
     const tile = style.tile
     // Floor, walls and bulb sockets are painted once per studio look.
-    cachedLayer(
-      g,
-      `prize-show-panic-${this.episode.set}-${theme}`,
-      W,
-      H,
-      (k) => {
-        k.fillStyle = INK
-        k.fillRect(0, 0, W, H)
-        bandedGradient(k, 0, 0, W, HUD, [RAMPS.night[2], RAMPS.night[0]], 2)
-        k.save()
-        k.beginPath()
-        k.rect(LEFT, TOP, RIGHT - LEFT, BOTTOM - TOP)
-        k.clip()
-        // Glossy bevelled tiles in a checkerboard, each with a glint of studio light.
-        k.fillStyle = look.tileB[0]
-        k.fillRect(LEFT, TOP, RIGHT - LEFT, BOTTOM - TOP)
-        for (let y = 0; y < BOTTOM; y += tile) {
-          for (let x = 0; x < RIGHT; x += tile) {
-            if (y + tile <= TOP || x + tile <= LEFT) continue
-            const ramp = (x / tile + y / tile) % 2 ? look.tileB : look.tileA
-            bevel(k, x + 1, y + 1, tile - 2, tile - 2, ramp, {
-              depth: 1,
-              outline: null,
-            })
-            k.fillStyle = rgba(ramp[4], 0.5)
-            for (let i = 0; i < tile / 4; i++)
-              k.fillRect(x + 3 + i, y + tile / 2 - 1 - i, 2, 1)
-          }
+    cachedLayer(g, `prize-show-panic-${this.roomSet()}-${theme}`, W, H, (k) => {
+      k.fillStyle = INK
+      k.fillRect(0, 0, W, H)
+      bandedGradient(k, 0, 0, W, HUD, [RAMPS.night[2], RAMPS.night[0]], 2)
+      k.save()
+      k.beginPath()
+      k.rect(LEFT, TOP, RIGHT - LEFT, BOTTOM - TOP)
+      k.clip()
+      // Glossy bevelled tiles in a checkerboard, each with a glint of studio light.
+      k.fillStyle = look.tileB[0]
+      k.fillRect(LEFT, TOP, RIGHT - LEFT, BOTTOM - TOP)
+      for (let y = 0; y < BOTTOM; y += tile) {
+        for (let x = 0; x < RIGHT; x += tile) {
+          if (y + tile <= TOP || x + tile <= LEFT) continue
+          const ramp = (x / tile + y / tile) % 2 ? look.tileB : look.tileA
+          bevel(k, x + 1, y + 1, tile - 2, tile - 2, ramp, {
+            depth: 1,
+            outline: null,
+          })
+          k.fillStyle = rgba(ramp[4], 0.5)
+          for (let i = 0; i < tile / 4; i++)
+            k.fillRect(x + 3 + i, y + tile / 2 - 1 - i, 2, 1)
         }
-        if (style.mark === 'plate') {
-          // The kitchen's big serving plate in the middle of the floor.
-          for (const [rx, a] of [
-            [70, 0.12],
-            [62, 0.1],
-            [40, 0.14],
-          ] as const) {
-            k.fillStyle = rgba(look.mark, a)
-            k.beginPath()
-            k.ellipse(CX, CY, rx, rx * 0.6, 0, 0, Math.PI * 2)
-            k.fill()
-          }
-        } else {
-          // The show's star painted on the middle of the stage (the concert's taped in a circle).
-          k.fillStyle = rgba(look.mark, 0.14)
-          starPath(k, CX, CY, 52, 22)
-          k.fill()
-          k.fillStyle = rgba(look.mark, 0.16)
-          starPath(k, CX, CY, 34, 14)
-          k.fill()
-          if (style.mark === 'stage') {
-            k.strokeStyle = rgba(RAMPS.gold[3], 0.3)
-            k.lineWidth = 2
-            k.beginPath()
-            k.ellipse(CX, CY, 74, 48, 0, 0, Math.PI * 2)
-            k.stroke()
-            for (const [x, y] of [
-              [LEFT + 62, TOP + 34],
-              [RIGHT - 62, TOP + 34],
-              [LEFT + 62, BOTTOM - 34],
-              [RIGHT - 62, BOTTOM - 34],
-            ] as const) {
-              k.fillStyle = rgba(RAMPS.gold[3], 0.35)
-              k.fillRect(x - 5, y - 1, 10, 2)
-              k.fillRect(x - 1, y - 5, 2, 10)
-            }
-          }
+      }
+      if (style.mark === 'pad') {
+        // A landing pad: rings and four chevrons pointing in.
+        k.strokeStyle = rgba(look.mark, 0.3)
+        k.lineWidth = 2
+        for (const r of [66, 44]) {
+          k.beginPath()
+          k.ellipse(CX, CY, r, r * 0.65, 0, 0, Math.PI * 2)
+          k.stroke()
         }
-        // Spotlight pools in stepped bands: one big one on the star, one per corner.
-        k.globalCompositeOperation = 'lighter'
-        const pool = (
-          x: number,
-          y: number,
-          rx: number,
-          ry: number,
-          a: number,
-        ) => {
-          for (let b = 0; b < 4; b++) {
-            k.fillStyle = rgba(look.pool, a)
-            k.beginPath()
-            k.ellipse(x, y, rx * (1 - b * 0.22), ry * (1 - b * 0.22), 0, 0, 7)
-            k.fill()
-          }
-        }
-        pool(CX, CY, 96, 64, 0.045)
-        for (const [x, y] of [
-          [LEFT + 44, TOP + 30],
-          [RIGHT - 44, TOP + 30],
-          [LEFT + 44, BOTTOM - 30],
-          [RIGHT - 44, BOTTOM - 30],
-        ] as const)
-          pool(x, y, 40, 24, 0.03)
-        k.globalCompositeOperation = 'source-over'
-        // HDMA falloff: the floor darkens in bands toward the walls.
-        for (let i = 0; i < 6; i++) {
-          k.fillStyle = rgba(INK, 0.3 - i * 0.05)
-          k.fillRect(LEFT, TOP + i * 4, RIGHT - LEFT, 4)
-          k.fillRect(LEFT, BOTTOM - (i + 1) * 4, RIGHT - LEFT, 4)
-          k.fillRect(LEFT + i * 4, TOP, 4, BOTTOM - TOP)
-          k.fillRect(RIGHT - (i + 1) * 4, TOP, 4, BOTTOM - TOP)
-        }
-        k.restore()
-        // Bevelled walls with a recessed marquee channel, gold posts at the corners.
-        const wall = look.wall
-        bevel(k, 1, HUD + 1, WALL - 2, H - HUD - 2, wall)
-        bevel(k, RIGHT + 1, HUD + 1, WALL - 2, H - HUD - 2, wall)
-        bevel(k, 1, HUD + 1, W - 2, WALL - 2, wall)
-        bevel(k, 1, BOTTOM + 1, W - 2, WALL - 2, wall)
-        k.fillStyle = wall[0]
-        k.fillRect(WALL, HUD + 3, W - WALL * 2, 4)
-        k.fillRect(WALL, BOTTOM + 3, W - WALL * 2, 4)
-        k.fillRect(3, TOP, 4, BOTTOM - TOP)
-        k.fillRect(RIGHT + 3, TOP, 4, BOTTOM - TOP)
-        if (style.trim === 'tiles') {
-          // A tiled kitchen backsplash: grout lines on every wall.
-          k.fillStyle = rgba('#ffffff', 0.18)
-          for (let x = 0; x < W; x += 5) {
-            k.fillRect(x, HUD + 1, 1, WALL - 2)
-            k.fillRect(x, BOTTOM + 1, 1, WALL - 2)
-          }
-          for (let y = HUD; y < H; y += 5) {
-            k.fillRect(1, y, WALL - 2, 1)
-            k.fillRect(RIGHT + 1, y, WALL - 2, 1)
-          }
-        } else if (style.trim === 'grilles') {
-          // Speaker grilles all round the concert stage.
-          k.fillStyle = rgba(INK, 0.55)
-          for (let x = 2; x < W - 2; x += 3)
-            for (const y of [HUD + 2, HUD + 6, BOTTOM + 2, BOTTOM + 6])
-              k.fillRect(x, y, 1, 1)
-          for (let y = HUD + 2; y < H - 2; y += 3)
-            for (const x of [2, 6, RIGHT + 2, RIGHT + 6]) k.fillRect(x, y, 1, 1)
-        }
-        for (const b of BULBS) {
-          k.fillStyle = INK
-          k.fillRect(b.x - 1, b.y - 1, 4, 4)
-          k.fillStyle = RAMPS.gold[1]
-          k.fillRect(b.x, b.y, 2, 2)
-          k.fillStyle = RAMPS.gold[2]
-          k.fillRect(b.x, b.y, 1, 1)
-        }
-        for (const [x, y] of [
-          [1, HUD + 1],
-          [RIGHT + 1, HUD + 1],
-          [1, BOTTOM + 1],
-          [RIGHT + 1, BOTTOM + 1],
+        k.fillStyle = rgba(look.mark, 0.35)
+        for (const [dx, dy] of [
+          [-1, 0],
+          [1, 0],
+          [0, -1],
+          [0, 1],
         ] as const) {
-          bevel(k, x, y, WALL - 2, WALL - 2, RAMPS.gold)
-          k.fillStyle = RAMPS.gold[4]
-          k.fillRect(x + 3, y + 3, 2, 2)
+          const x = CX + dx * 54
+          const y = CY + dy * 36
+          k.fillRect(x - 3, y - 3, 6, 6)
         }
-      },
-    )
+      } else if (style.mark === 'plate') {
+        // The kitchen's big serving plate in the middle of the floor.
+        for (const [rx, a] of [
+          [70, 0.12],
+          [62, 0.1],
+          [40, 0.14],
+        ] as const) {
+          k.fillStyle = rgba(look.mark, a)
+          k.beginPath()
+          k.ellipse(CX, CY, rx, rx * 0.6, 0, 0, Math.PI * 2)
+          k.fill()
+        }
+      } else {
+        // The show's star painted on the middle of the stage (the concert's taped in a circle).
+        k.fillStyle = rgba(look.mark, 0.14)
+        starPath(k, CX, CY, 52, 22)
+        k.fill()
+        k.fillStyle = rgba(look.mark, 0.16)
+        starPath(k, CX, CY, 34, 14)
+        k.fill()
+        if (style.mark === 'stage') {
+          k.strokeStyle = rgba(RAMPS.gold[3], 0.3)
+          k.lineWidth = 2
+          k.beginPath()
+          k.ellipse(CX, CY, 74, 48, 0, 0, Math.PI * 2)
+          k.stroke()
+          for (const [x, y] of [
+            [LEFT + 62, TOP + 34],
+            [RIGHT - 62, TOP + 34],
+            [LEFT + 62, BOTTOM - 34],
+            [RIGHT - 62, BOTTOM - 34],
+          ] as const) {
+            k.fillStyle = rgba(RAMPS.gold[3], 0.35)
+            k.fillRect(x - 5, y - 1, 10, 2)
+            k.fillRect(x - 1, y - 5, 2, 10)
+          }
+        }
+      }
+      // Spotlight pools in stepped bands: one big one on the star, one per corner.
+      k.globalCompositeOperation = 'lighter'
+      const pool = (
+        x: number,
+        y: number,
+        rx: number,
+        ry: number,
+        a: number,
+      ) => {
+        for (let b = 0; b < 4; b++) {
+          k.fillStyle = rgba(look.pool, a)
+          k.beginPath()
+          k.ellipse(x, y, rx * (1 - b * 0.22), ry * (1 - b * 0.22), 0, 0, 7)
+          k.fill()
+        }
+      }
+      pool(CX, CY, 96, 64, 0.045)
+      for (const [x, y] of [
+        [LEFT + 44, TOP + 30],
+        [RIGHT - 44, TOP + 30],
+        [LEFT + 44, BOTTOM - 30],
+        [RIGHT - 44, BOTTOM - 30],
+      ] as const)
+        pool(x, y, 40, 24, 0.03)
+      k.globalCompositeOperation = 'source-over'
+      // HDMA falloff: the floor darkens in bands toward the walls.
+      for (let i = 0; i < 6; i++) {
+        k.fillStyle = rgba(INK, 0.3 - i * 0.05)
+        k.fillRect(LEFT, TOP + i * 4, RIGHT - LEFT, 4)
+        k.fillRect(LEFT, BOTTOM - (i + 1) * 4, RIGHT - LEFT, 4)
+        k.fillRect(LEFT + i * 4, TOP, 4, BOTTOM - TOP)
+        k.fillRect(RIGHT - (i + 1) * 4, TOP, 4, BOTTOM - TOP)
+      }
+      k.restore()
+      // Bevelled walls with a recessed marquee channel, gold posts at the corners.
+      const wall = look.wall
+      bevel(k, 1, HUD + 1, WALL - 2, H - HUD - 2, wall)
+      bevel(k, RIGHT + 1, HUD + 1, WALL - 2, H - HUD - 2, wall)
+      bevel(k, 1, HUD + 1, W - 2, WALL - 2, wall)
+      bevel(k, 1, BOTTOM + 1, W - 2, WALL - 2, wall)
+      k.fillStyle = wall[0]
+      k.fillRect(WALL, HUD + 3, W - WALL * 2, 4)
+      k.fillRect(WALL, BOTTOM + 3, W - WALL * 2, 4)
+      k.fillRect(3, TOP, 4, BOTTOM - TOP)
+      k.fillRect(RIGHT + 3, TOP, 4, BOTTOM - TOP)
+      if (style.trim === 'tiles') {
+        // A tiled kitchen backsplash: grout lines on every wall.
+        k.fillStyle = rgba('#ffffff', 0.18)
+        for (let x = 0; x < W; x += 5) {
+          k.fillRect(x, HUD + 1, 1, WALL - 2)
+          k.fillRect(x, BOTTOM + 1, 1, WALL - 2)
+        }
+        for (let y = HUD; y < H; y += 5) {
+          k.fillRect(1, y, WALL - 2, 1)
+          k.fillRect(RIGHT + 1, y, WALL - 2, 1)
+        }
+      } else if (style.trim === 'stars') {
+        // Starlight in the walls: a scatter of tiny lights (laid out once, never the game's dice).
+        const dice = backdropRng(613)
+        for (let i = 0; i < 90; i++) {
+          const along = dice()
+          const side = Math.floor(dice() * 4)
+          const x =
+            side % 2 ? (side === 1 ? RIGHT + 2 : 2) + dice() * 6 : along * W
+          const y =
+            side % 2
+              ? HUD + along * (H - HUD)
+              : (side === 0 ? HUD + 2 : BOTTOM + 2) + dice() * 6
+          k.fillStyle = dice() < 0.3 ? RAMPS.teal[4] : rgba('#ffffff', 0.7)
+          k.fillRect(Math.round(x), Math.round(y), 1, 1)
+        }
+      } else if (style.trim === 'grilles') {
+        // Speaker grilles all round the concert stage.
+        k.fillStyle = rgba(INK, 0.55)
+        for (let x = 2; x < W - 2; x += 3)
+          for (const y of [HUD + 2, HUD + 6, BOTTOM + 2, BOTTOM + 6])
+            k.fillRect(x, y, 1, 1)
+        for (let y = HUD + 2; y < H - 2; y += 3)
+          for (const x of [2, 6, RIGHT + 2, RIGHT + 6]) k.fillRect(x, y, 1, 1)
+      }
+      for (const b of BULBS) {
+        k.fillStyle = INK
+        k.fillRect(b.x - 1, b.y - 1, 4, 4)
+        k.fillStyle = RAMPS.gold[1]
+        k.fillRect(b.x, b.y, 2, 2)
+        k.fillStyle = RAMPS.gold[2]
+        k.fillRect(b.x, b.y, 1, 1)
+      }
+      for (const [x, y] of [
+        [1, HUD + 1],
+        [RIGHT + 1, HUD + 1],
+        [1, BOTTOM + 1],
+        [RIGHT + 1, BOTTOM + 1],
+      ] as const) {
+        bevel(k, x, y, WALL - 2, WALL - 2, RAMPS.gold)
+        k.fillStyle = RAMPS.gold[4]
+        k.fillRect(x + 3, y + 3, 2, 2)
+      }
+    })
   }
 
   /** The two follow-spots' centres this tick (also the only light in Lights Out). */
@@ -4855,6 +5423,50 @@ class PrizeShowPanic implements ArcadeGameInstance {
         }
       }
     }
+    if (this.turntable) this.renderTurntable(g, this.turntable)
+    for (const w of this.warps) {
+      // Two door frames with a swirling portal in each (dim while it recharges).
+      const ready = this.warpClock === 0
+      for (const [x, y] of [
+        [w.x1, w.y1],
+        [w.x2, w.y2],
+      ] as const) {
+        bevel(g, x - 8, y - 11, 16, 20, RAMPS.steel, { depth: 1 })
+        g.fillStyle = RAMPS.night[0]
+        g.fillRect(x - 6, y - 9, 12, 16)
+        for (let i = 0; i < 3; i++) {
+          const k = (this.tick / 25 + i / 3) % 1
+          g.strokeStyle = rgba(
+            i % 2 ? RAMPS.purple[3] : RAMPS.teal[3],
+            (ready ? 0.9 : 0.35) * (1 - k),
+          )
+          g.lineWidth = 1
+          g.beginPath()
+          g.ellipse(
+            x,
+            y - 1,
+            5 * (1 - k) + 1,
+            7 * (1 - k) + 1,
+            0,
+            0,
+            Math.PI * 2,
+          )
+          g.stroke()
+        }
+        if (ready) glow(g, x, y - 1, 10, RAMPS.teal[3], 0.25)
+      }
+    }
+    if (this.script.lowGravity) {
+      // Motes drifting up through the low gravity (cosmetic, from the tick alone).
+      for (let i = 0; i < 18; i++) {
+        const x = LEFT + ((i * 53 + 17) % (RIGHT - LEFT))
+        const y =
+          BOTTOM -
+          ((this.tick * (0.2 + (i % 3) * 0.1) + i * 31) % (BOTTOM - TOP))
+        g.fillStyle = rgba(i % 4 ? '#ffffff' : RAMPS.teal[4], 0.35)
+        g.fillRect(Math.round(x), Math.round(y), 1, 1)
+      }
+    }
     for (const sp of this.speakers) {
       // A speaker stack: two cones that pump just before each thump.
       const until = speakerUntil(sp, tick, this.beat())
@@ -4870,6 +5482,62 @@ class PrizeShowPanic implements ArcadeGameInstance {
       if (until <= RING.speakerTell)
         glow(g, sp.x, sp.y, 16, RAMPS.pink[3], 0.25 + 0.35 * (pump - 1))
     }
+  }
+
+  /** The galaxy's turning ring: lit panels going round, and the solid hub in the middle. */
+  private renderTurntable(g: CanvasRenderingContext2D, t: TurntableProp) {
+    const turn = this.roomTick * t.spin
+    const n = 16
+    g.save()
+    g.translate(CX, CY)
+    g.scale(1, 0.8)
+    g.fillStyle = INK
+    g.beginPath()
+    g.arc(0, 0, t.outer + 1, 0, Math.PI * 2)
+    g.fill()
+    for (let i = 0; i < n; i++) {
+      const a0 = turn + (i / n) * Math.PI * 2
+      g.fillStyle = i % 2 ? RAMPS.night[2] : RAMPS.night[3]
+      g.beginPath()
+      g.arc(0, 0, t.outer, a0, a0 + (Math.PI * 2) / n)
+      g.arc(0, 0, t.inner, a0 + (Math.PI * 2) / n, a0, true)
+      g.closePath()
+      g.fill()
+      // A running light on the rim of every other panel.
+      if (i % 2 === 0) {
+        g.fillStyle =
+          (i / 2 + Math.floor(this.tick / 8)) % 4 === 0
+            ? RAMPS.teal[4]
+            : RAMPS.teal[1]
+        g.fillRect(
+          Math.cos(a0) * (t.outer - 4) - 1,
+          Math.sin(a0) * (t.outer - 4) - 1,
+          3,
+          3,
+        )
+      }
+    }
+    g.strokeStyle = rgba(RAMPS.teal[3], 0.7)
+    g.lineWidth = 1
+    for (const r of [t.outer, t.inner]) {
+      g.beginPath()
+      g.arc(0, 0, r, 0, Math.PI * 2)
+      g.stroke()
+    }
+    g.restore()
+    // The hub: a solid column with a broadcast mast on top.
+    const hub = t.inner - 6
+    shadedOrb(g, CX, CY, hub, RAMPS.steel)
+    g.fillStyle = INK
+    g.fillRect(CX - 1, CY - hub - 10, 3, 12)
+    glow(
+      g,
+      CX,
+      CY - hub - 10,
+      6,
+      RAMPS.ember[3],
+      0.4 + 0.4 * (Math.floor(this.tick / 15) % 2),
+    )
   }
 
   /** A conveyor counter: a steel bed with chevrons rolling the way it carries. */
@@ -6334,7 +7002,9 @@ class PrizeShowPanic implements ArcadeGameInstance {
       color: RAMPS.teal[3],
       shadow: INK,
     })
-    // The room's modifier and sponsor challenge, tagged on the floor's top edge.
+    // The room's modifier and sponsor challenge, tagged on the floor's top edge (not over the
+    // ending and its credits).
+    if (this.ending) return
     const tags: Array<[string, string]> = []
     if (this.modifier)
       tags.push([MODIFIERS[this.modifier].title, RAMPS.pink[3]])

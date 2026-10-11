@@ -6,7 +6,7 @@
     <header class="flex flex-wrap items-end justify-between gap-3">
       <div>
         <p class="text-xs font-black uppercase tracking-[.25em] text-warning">
-          Private expedition · Interactive board preview
+          Admin playtest · Five-land expedition
         </p>
         <h1 class="mt-1 font-serif text-3xl font-black sm:text-5xl">
           Zuzu: Shifting Lands
@@ -82,7 +82,7 @@
       >
         <img
           :src="landAtmosphere"
-          alt="Existing Zuzu Gamebook atmosphere plate, not a location-specific illustration"
+          :alt="game.currentLand.name + ' landscape'"
           class="absolute inset-0 size-full object-cover object-center opacity-60"
         />
         <div
@@ -217,28 +217,14 @@
                 >
                   <div class="relative aspect-[2/3] bg-base-300">
                     <img
-                      v-if="revealed(card.id) && card.art"
-                      :src="card.art"
+                      v-if="revealed(card.id)"
+                      :src="game.roadArt(card.id)"
                       :alt="card.label"
                       class="size-full object-cover"
                     />
-                    <div
-                      v-else-if="revealed(card.id)"
-                      class="relative size-full overflow-hidden bg-base-300"
-                    >
-                      <img
-                        :src="landAtmosphere"
-                        alt="Provisional atmosphere from existing Zuzu art"
-                        class="size-full object-cover opacity-70"
-                      />
-                      <span
-                        class="absolute left-2 top-2 rounded bg-base-300/90 px-2 py-1 text-[10px] font-bold"
-                        >Scene art pending</span
-                      >
-                    </div>
                     <img
                       v-else
-                      src="/images/shifting-lands/encounter-back.svg"
+                      src="/shifting-lands/encounter-back.svg"
                       alt=""
                       class="size-full object-cover"
                     />
@@ -280,23 +266,14 @@
               >
                 <div class="relative aspect-[2/3]">
                   <img
-                    v-if="
-                      (game.bossReady || bossCleared) &&
-                      game.currentLand.boss.art
-                    "
-                    :src="game.currentLand.boss.art"
+                    v-if="game.bossReady || bossCleared"
+                    :src="game.bossArt"
                     :alt="game.currentLand.boss.label"
                     class="size-full object-cover"
                   />
-                  <div
-                    v-else-if="game.bossReady || bossCleared"
-                    class="grid size-full place-items-center bg-gradient-to-br from-base-300 to-base-200"
-                  >
-                    <Icon name="kind-icon:swords" class="size-14 opacity-40" />
-                  </div>
                   <img
                     v-else
-                    src="/images/shifting-lands/trial-back.svg"
+                    src="/shifting-lands/trial-back.svg"
                     alt="Sealed boss card"
                     class="size-full object-cover"
                   />
@@ -355,30 +332,16 @@
                 >
                   <template #front>
                     <img
-                      v-if="game.activeEncounter?.art || game.activeCard.art"
-                      :src="
-                        game.activeEncounter?.art || game.activeCard.art || ''
-                      "
+                      :src="game.activeArt"
                       :alt="
                         game.activeEncounter?.title || game.activeCard.label
                       "
                       class="size-full object-cover"
                     />
-                    <div v-else class="relative size-full">
-                      <img
-                        :src="landAtmosphere"
-                        alt="Provisional Zuzu atmosphere artwork"
-                        class="size-full object-cover"
-                      />
-                      <span
-                        class="absolute bottom-3 right-3 rounded bg-black/75 px-3 py-1 text-xs font-bold text-white"
-                        >Location art pending</span
-                      >
-                    </div>
                   </template>
                   <template #back>
                     <img
-                      src="/images/shifting-lands/encounter-back.svg"
+                      src="/shifting-lands/encounter-back.svg"
                       alt=""
                       class="size-full object-cover"
                     />
@@ -457,7 +420,7 @@
                     <p
                       class="text-xs font-black uppercase tracking-widest opacity-65"
                     >
-                      Later-land preview rules
+                      Original expedition rules
                     </p>
                     <p class="mt-2">
                       <strong class="capitalize">{{
@@ -468,8 +431,8 @@
                       2d6 + skill
                     </p>
                     <p class="mt-1 text-xs opacity-70">
-                      The later-land authored content pass is still pending.
-                      This route uses the existing deterministic check.
+                      This saved journey began before authored encounters. Start
+                      a new journey to play the authored cards.
                     </p>
                   </div>
                   <div
@@ -499,22 +462,10 @@
                 class="relative min-h-72 overflow-hidden bg-base-300 lg:min-h-[420px]"
               >
                 <img
-                  v-if="game.currentLand.boss.art"
-                  :src="game.currentLand.boss.art"
+                  :src="game.bossArt"
                   :alt="game.currentLand.boss.label"
                   class="absolute inset-0 size-full object-cover"
                 />
-                <div v-else class="absolute inset-0">
-                  <img
-                    :src="landAtmosphere"
-                    alt="Provisional Zuzu landscape artwork"
-                    class="size-full object-cover opacity-80"
-                  />
-                  <Icon
-                    name="kind-icon:swords"
-                    class="absolute left-4 top-4 size-12 text-white drop-shadow-lg"
-                  />
-                </div>
                 <div
                   class="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/90 to-transparent p-6 text-white"
                 >
@@ -659,8 +610,8 @@
             </div>
             <div v-else class="encounter-grid min-h-80 gap-0">
               <img
-                src="/zuzu-gamebook/scenes/dust-road.webp"
-                alt="A dusty crossroads in Zuzu's frontier"
+                :src="landAtmosphere"
+                :alt="game.currentLand.name + ' crossroads'"
                 class="h-72 w-full object-cover md:h-full"
               />
               <div class="flex flex-col justify-center gap-4 p-5 sm:p-7">
@@ -768,12 +719,12 @@
                 >
                   <span class="relative block h-24 w-16">
                     <img
-                      src="/images/shifting-lands/encounter-back.svg"
+                      src="/shifting-lands/encounter-back.svg"
                       alt=""
                       class="absolute left-0 top-0 h-24 w-16 rotate-[-8deg] rounded-md object-cover shadow-lg"
                     />
                     <img
-                      src="/images/shifting-lands/encounter-back.svg"
+                      src="/shifting-lands/encounter-back.svg"
                       alt=""
                       class="absolute left-1 top-0 h-24 w-16 rotate-[5deg] rounded-md object-cover shadow-lg motion-safe:group-hover:-translate-y-2"
                     />
@@ -792,7 +743,7 @@
                 >
                   <span class="relative block h-24 w-16">
                     <img
-                      src="/images/shifting-lands/encounter-back.svg"
+                      src="/shifting-lands/encounter-back.svg"
                       alt=""
                       class="absolute left-0 top-0 h-24 w-16 rotate-[-3deg] rounded-md object-cover opacity-85 shadow-lg"
                     />
@@ -804,15 +755,26 @@
                   <span class="text-xs font-bold">Discard</span>
                 </button>
                 <div
-                  class="flex flex-col items-center gap-1 opacity-60"
-                  aria-label="Future reward deck, not active yet"
+                  class="flex flex-col items-center gap-1"
+                  :aria-label="
+                    game.characterSheet.inventory.length + ' earned rewards'
+                  "
                 >
-                  <img
-                    src="/images/adventure/card/card-back4.webp"
-                    alt=""
-                    class="h-24 w-16 rounded-md object-cover shadow-md"
-                  />
-                  <span class="text-xs">Rewards · later</span>
+                  <span class="relative block h-24 w-16">
+                    <img
+                      src="/shifting-lands/trial-back.svg"
+                      alt=""
+                      class="h-24 w-16 rounded-md object-cover shadow-md"
+                      :class="
+                        game.characterSheet.inventory.length ? '' : 'opacity-50'
+                      "
+                    />
+                    <span
+                      class="absolute -right-2 -top-2 badge badge-primary z-10"
+                      >{{ game.characterSheet.inventory.length }}</span
+                    >
+                  </span>
+                  <span class="text-xs font-bold">Rewards</span>
                 </div>
               </div>
             </div>
@@ -838,14 +800,10 @@
                   @click="openInspector(card.id)"
                 >
                   <img
-                    v-if="card.art"
                     :src="card.art"
                     :alt="card.label"
                     class="aspect-[4/3] w-full object-cover"
                   />
-                  <div v-else class="grid aspect-[4/3] place-items-center">
-                    <Icon name="kind-icon:map" class="size-8 opacity-40" />
-                  </div>
                   <span class="block truncate px-2 py-2 text-xs font-bold">{{
                     card.label
                   }}</span>
@@ -976,9 +934,9 @@
             </p>
           </section>
           <p class="text-xs opacity-65">
-            Private rules preview. Character contacts are not recruited
-            traveling companions. Custom art, live companion mechanics, and
-            public release remain separate milestones.
+            Card faces use existing Zuzu artwork until each encounter gets its
+            own painting. People met on the road are contacts, not traveling
+            companions.
           </p>
         </aside>
       </div>
@@ -994,14 +952,10 @@
           <article v-if="inspectedCard" class="bg-base-200">
             <div class="relative h-56 bg-base-300 sm:h-72">
               <img
-                v-if="inspectedCard.art"
-                :src="inspectedCard.art"
+                :src="game.playedArt(inspectedCard.id)"
                 :alt="inspectedCard.label"
                 class="size-full object-cover"
               />
-              <div v-else class="grid size-full place-items-center">
-                <Icon name="kind-icon:map" class="size-16 opacity-35" />
-              </div>
             </div>
             <div class="space-y-4 p-5 sm:p-7">
               <div>
@@ -1081,16 +1035,7 @@ import {
 
 const emit = defineEmits<{ legacy: [] }>()
 const game = useShiftingLandsJourneyStore()
-const landScenery: Record<string, string> = {
-  homestead: '/zuzu-gamebook/scenes/dust-road.webp',
-  dustwater: '/zuzu-gamebook/scenes/waterhole.webp',
-  tablelands: '/zuzu-gamebook/scenes/canyon.webp',
-  cave: '/zuzu-gamebook/scenes/locked-door.webp',
-  verge: '/zuzu-gamebook/scenes/bone-valley.webp',
-}
-const landAtmosphere = computed(
-  () => landScenery[game.currentLand.id] ?? landScenery.homestead!,
-)
+const landAtmosphere = computed(() => game.landArt)
 const lastTrialBossName = computed(
   () =>
     game.world.lands.find((land) => land.id === game.lastTrialOutcome?.landId)
@@ -1158,7 +1103,7 @@ const visitedCards = computed(() => {
     id: string
     label: string
     land: string
-    art: string | null
+    art: string
   }> = []
   for (const land of game.world.lands)
     for (const card of land.locations)
@@ -1167,7 +1112,7 @@ const visitedCards = computed(() => {
           id: card.id,
           label: card.label,
           land: land.name,
-          art: card.art,
+          art: game.playedArt(card.id),
         })
   return cards
 })

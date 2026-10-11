@@ -103,9 +103,7 @@
           <span class="inline-flex items-center gap-2">
             <Icon name="kind-icon:bag" class="size-4 text-warning" />
             Inventory ·
-            {{
-              sheet.inventory.filter((item) => item.available).length
-            }}
+            {{ sheet.inventory.filter((item) => item.available).length }}
             available
           </span>
         </summary>

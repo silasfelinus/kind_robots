@@ -19,6 +19,8 @@ const BOTTOM = 0.14
 const FLOOR_MID = (TOP + BOTTOM) / 2
 const BELL: Vec3 = [0, BALL, -0.79]
 const SEAL_X = -0.054
+/** The mouth of the captive relic ball's lane, behind the last seal. */
+const RELIC_MOUTH = -0.405
 // The River Croc's mouth, on the left bank beside the left orbit lane.
 const CROC: XZ = [-0.172, -0.47]
 
@@ -236,6 +238,27 @@ const colliders: ColliderDef[] = [
     material: 'rubber',
     kick: 2.4,
   },
+  // The relic's lane, in line behind the Abbey seals: a short pocket whose
+  // mouth posts hold the captive ball in but leave it standing proud, so a
+  // ball up the channel strikes it once the seals are down.
+  ...walls(
+    'relic-lane',
+    [
+      [SEAL_X - 0.0185, RELIC_MOUTH],
+      [SEAL_X - 0.0185, RELIC_MOUTH - 0.065],
+      [SEAL_X + 0.0185, RELIC_MOUTH - 0.065],
+      [SEAL_X + 0.0185, RELIC_MOUTH],
+    ],
+    { material: 'chrome', thickness: 0.006 },
+  ),
+  ...[-1, 1].map((side): ColliderDef => ({
+    kind: 'post',
+    id: `relic-mouth-${side < 0 ? 'l' : 'r'}`,
+    at: [SEAL_X + side * 0.014, 0.02, RELIC_MOUTH],
+    radius: 0.004,
+    halfHeight: 0.02,
+    material: 'post',
+  })),
   {
     kind: 'post',
     id: 'croc-mouth-guide',
@@ -338,6 +361,13 @@ const inserts: InsertDef[] = [
 // The story track: one seal lamp per chapter, the bonus multiplier under it,
 // and the lamps for the kickback and a ball to shoot again.
 const storyLamps: InsertDef[] = [
+  {
+    id: 'relic-lamp',
+    at: [SEAL_X, RELIC_MOUTH - 0.045],
+    shape: 'circle',
+    size: 0.018,
+    color: 0xc4a2f8,
+  },
   ...[-0.07, -0.035, 0, 0.035, 0.07].map((x, i): InsertDef => ({
     id: `seal-${i + 1}`,
     at: [x, -0.205],
@@ -628,6 +658,9 @@ export const ZUZU_LAST_BELL_GREYBOX: TableDef = {
       color: 0x56d7cb,
     },
     { id: 'bell-flasher', at: [0, 0.05, -0.79], color: 0xf0ba6c },
+  ],
+  captives: [
+    { id: 'relic-captive', at: [SEAL_X, BALL + 0.0005, RELIC_MOUTH - 0.013] },
   ],
   plunger: {
     rest: [SHOOTER_CENTER, BALL + 0.0005, BOTTOM - 0.04 - BALL - 0.004],

@@ -22,6 +22,7 @@ import {
   CHAPTERS,
   hitValue,
   litShots,
+  RELICS_FOR_CRYPT,
   ROVE_STEPS,
   sealValue,
 } from '../arcade/pinball/tables/zuzuLastBell/chapters'
@@ -32,6 +33,8 @@ import {
 import {
   BALL_SAVE_STEPS,
   CROC_EXTRA_BALL_AT,
+  RELIC,
+  RELIC_MIN_SPEED,
   SEAL_BANK,
   SKILL_STEPS,
   ZUZU_RULESET,
@@ -126,6 +129,8 @@ for (const id of [
   'mortuary-arrow',
   'croc-reward',
   'abbey-seals',
+  'relic-lamp',
+  'crypt-seal',
 ])
   assert.ok(insertIds.has(id), `the table has the ${id} lamp`)
 assert.ok(table.sensors.some((s) => s.id === 'shooter-exit'))
@@ -308,7 +313,10 @@ for (const def of CHAPTERS) {
 }
 
 // The Abbey seals: four down raise the multiplier, relight the kickback and
-// open the Mortuary.
+// open the Mortuary. They stay down for the rest of the ball, baring the
+// relic (raising a target under a ball in the channel would trap it); each
+// relic strike then raises the multiplier again, to its cap. The bank rises
+// for the next ball.
 {
   const g = new Game()
   g.state = {
@@ -324,17 +332,41 @@ for (const def of CHAPTERS) {
   assert.equal(g.state.kickbackLit, true)
   assert.equal(g.state.story.mortuaryLit, true)
   assert.ok(
-    g.effects.some(
+    !g.effects.some(
       (e) =>
         e.type === 'mechanism' && e.id === SEAL_BANK && e.action === 'reset',
     ),
+    'the bank stays down mid-ball',
+  )
+  assert.equal(g.state.sealsDown.length, 4)
+  assert.equal(lamps(g)['relic-lamp'], 'blink', 'the relic is bared')
+  // A soft touch on the relic is not a strike.
+  g.sw({ type: 'contact', id: RELIC, impulse: RELIC_MIN_SPEED / 2 })
+  assert.equal(g.state.relics, 0)
+  for (let k = 0; k < 8; k++) g.sw({ type: 'contact', id: RELIC, impulse: 1 })
+  assert.equal(g.state.bonusMultiplier, 6, 'relic strikes raise it to the cap')
+  assert.equal(g.state.relics, 8)
+  assert.equal(lamps(g)['crypt-seal'], 'blink', 'the crypt stirs')
+  g.at += BALL_SAVE_STEPS * 2
+  const fx = g.drain()
+  assert.ok(
+    fx.some(
+      (e) =>
+        e.type === 'mechanism' && e.id === SEAL_BANK && e.action === 'reset',
+    ),
+    'the seals rise for the next ball',
   )
   assert.deepEqual(g.state.sealsDown, [])
-  // The multiplier tops out.
-  for (let k = 0; k < 8; k++)
-    for (let i = 1; i <= 4; i++)
-      g.sw({ type: 'drop', id: `abbey-seal-${i}`, bank: SEAL_BANK })
-  assert.equal(g.state.bonusMultiplier, 6)
+  assert.equal(g.state.bonusMultiplier, 1)
+  assert.equal(g.state.relics, 8, 'relics are kept for the crypt')
+}
+// Relic strikes with the seals still up just count toward the crypt.
+{
+  const g = new Game()
+  for (let k = 0; k < RELICS_FOR_CRYPT; k++)
+    g.sw({ type: 'contact', id: RELIC, impulse: 1 })
+  assert.equal(g.state.bonusMultiplier, 1)
+  assert.ok(g.dmd().some((e) => e.sub === 'THE CRYPT STIRS'))
 }
 
 // Kickback: fires once, unlit after.

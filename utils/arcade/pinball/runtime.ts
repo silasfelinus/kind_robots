@@ -538,7 +538,8 @@ export class PinballRuntime<
 
   render() {
     if (this.disposed || !this.scene) return
-    this.scene.sync(this.physics.ballViews(), this.physics.flipperAngles(), {
+    const balls = [...this.physics.ballViews(), ...this.physics.captiveViews()]
+    this.scene.sync(balls, this.physics.flipperAngles(), {
       drops: this.physics.dropStates(),
       spinners: this.physics.spinnerAngles(),
       doors: this.physics.doorStates(),

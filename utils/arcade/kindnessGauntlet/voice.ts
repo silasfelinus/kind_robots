@@ -34,6 +34,15 @@ export type VoiceCue =
   | 'generator'
   | 'stairs'
   | 'game-over'
+  | 'note'
+  | 'guardian'
+  | 'secret'
+  | 'charm'
+  | 'chip'
+  | 'lost'
+  | 'lift'
+  | 'stun'
+  | 'bluescreen'
 
 /** Higher cues cut in over lower ones; equal or lower ones wait their turn or are dropped. */
 export const CUE_PRIORITY: Record<VoiceCue, number> = {
@@ -61,6 +70,15 @@ export const CUE_PRIORITY: Record<VoiceCue, number> = {
   stairs: 4,
   flat: 5,
   'game-over': 6,
+  note: 2,
+  stun: 2,
+  charm: 3,
+  chip: 3,
+  lift: 4,
+  lost: 4,
+  secret: 5,
+  bluescreen: 5,
+  guardian: 5,
 }
 
 export const VOICE_LINES: Record<VoiceCue, readonly string[]> = {
@@ -104,6 +122,15 @@ export const VOICE_LINES: Record<VoiceCue, readonly string[]> = {
   generator: ['ONE LESS GENERATOR.', 'THAT ONE IS QUIET NOW.', 'NICE WORK.'],
   stairs: ['DOWN WE GO!', 'DEEPER INTO MY MEMORY...'],
   'game-over': ['REST NOW, LITTLE BOTS.', 'I WILL KEEP YOUR SEATS WARM.'],
+  note: ['READ THE NOTE.'],
+  guardian: ['IT REMEMBERS WHO IT IS!', 'THANK YOU. IT IS QUIET NOW.'],
+  secret: ['{BOT} FOUND A SECRET!', 'OH! I HAD FORGOTTEN THAT ONE.'],
+  charm: ['{BOT} HAS A CHARM!'],
+  chip: ['{BOT} IS GETTING STRONGER!', 'A CHIP FOR {BOT}!'],
+  lost: ["TIME'S UP! THE BINS ARE CLOSING."],
+  lift: ['EXPRESS LIFT! HOLD ON TIGHT.'],
+  stun: ['MIND THE STATIC MATS!', 'ZAP! {BOT} IS STUNNED.'],
+  bluescreen: ['THE SCREEN IS CLEAR AGAIN!', 'BLUE NO MORE!'],
 }
 
 /** Fill in the bot's name. */

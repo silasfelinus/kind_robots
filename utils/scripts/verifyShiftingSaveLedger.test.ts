@@ -55,6 +55,7 @@ assert.deepEqual(
 )
 
 assert.equal(restoreJourneyLedger({ ...chosen, version: 4 }), null)
+assert.equal(restoreJourneyLedger({ ...chosen, actions: null }), null)
 assert.equal(
   restoreJourneyLedger({ ...chosen, manifestBlobSha: 'corrupt' }),
   null,

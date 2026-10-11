@@ -270,4 +270,32 @@ check('every level beats a training dummy', () => {
   }
 })
 
+check(
+  'the CPU throws a command grab only from where it reaches, and taunts only from afar (t-024)',
+  () => {
+    // Bone Crusher reaches 46 pixels; Cackle builds meter and hits nothing.
+    const hyena = findFighter('hyena-matriarch')
+    const roster: [FighterData, FighterData] = [hyena, ZUZU]
+    for (let seed = 1; seed <= 6; seed += 1) {
+      let s = fightAt(roster, 120)
+      let cpu = newCpu('showdown', seed)
+      for (let i = 0; i < 600; i += 1) {
+        const gap = Math.abs(s.fighters[0].x - s.fighters[1].x) / SUB
+        assert.equal(gap, 120)
+        const turn = cpuInput(cpu, s, 0, roster)
+        cpu = turn.cpu
+        s = step(s, [turn.input, N], roster)
+        // Both held mid-stage, 120 pixels apart: the grab never reaches.
+        s.fighters[0].x = -60 * SUB
+        s.fighters[1].x = 60 * SUB
+        for (const e of s.events) {
+          if (e.type !== 'special') continue
+          assert.notEqual(e.move, 'bone-crusher', `grabbed from ${gap}px`)
+          assert.notEqual(e.move, 'cackle', `taunted from ${gap}px`)
+        }
+      }
+    }
+  },
+)
+
 console.log(`verifyZuzuShowdownCpu: ${passed} checks passed`)

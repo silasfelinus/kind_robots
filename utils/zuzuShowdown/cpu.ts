@@ -361,6 +361,33 @@ function specialsOf(
   )
 }
 
+/** Pixels a body's front edge sits ahead of its centre (most hurtboxes are 34 wide). */
+const BODY_HALF = 17
+
+/** Whether a command grab reaches the opponent from `gap` pixels, centre to centre. */
+function grabReaches(sp: SpecialMove, gap: number): boolean {
+  const { hitbox } = sp.move
+  return hitbox.x + hitbox.w + BODY_HALF >= gap
+}
+
+/**
+ * The specials worth throwing out at `gap`: not a projectile (those are for the
+ * far range), not a meter-building taunt (it hands over a free hit up close),
+ * not a parry (that is the guard), and a command grab only when it reaches.
+ * Balance pass (t-024): the CPU used to pick Bone Crusher or Pick Pocket from
+ * across the screen, and Cackle at arm's length, and lose a turn every time.
+ */
+function pokesAt(data: FighterData, gap: number): SpecialMove[] {
+  return specialsOf(data, 'special').filter(
+    (sp) =>
+      !sp.move.projectile &&
+      !sp.move.meterGain &&
+      !sp.move.parry &&
+      !sp.move.reload &&
+      (!sp.move.grab || grabReaches(sp, gap)),
+  )
+}
+
 type Decision = {
   plan: SimInput[]
   wait: number
@@ -411,14 +438,28 @@ function decide(
   }
 
   if (gap > 170) {
-    // Far: a projectile if the kit has one, else close the distance.
-    const shots = specialsOf(data, 'special').filter((sp) => sp.move.projectile)
+    // Far: a projectile if the kit has one (and the ammo for it), a taunt
+    // that builds meter while it is safe, else close the distance.
+    const shots = specialsOf(data, 'special').filter(
+      (sp) => sp.move.projectile && (sp.move.ammoCost ?? 0) <= me.ammo,
+    )
     if (shots.length && roll() < spec.specials) {
       const frames = specialFrames(
         shots[Math.floor(roll() * shots.length)]!,
         facing,
       )
       if (frames) return done([...frames, ...idle(16)])
+    }
+    // Out of bullets with room to breathe: reload.
+    const reloads = specialsOf(data, 'special').filter((sp) => sp.move.reload)
+    if (reloads.length && me.ammo === 0) {
+      const frames = specialFrames(reloads[0]!, facing)
+      if (frames) return done([...frames, ...idle(8)])
+    }
+    const taunts = specialsOf(data, 'special').filter((sp) => sp.move.meterGain)
+    if (taunts.length && roll() < spec.specials * 0.5) {
+      const frames = specialFrames(taunts[0]!, facing)
+      if (frames) return done([...frames, ...idle(8)])
     }
     return done(hold(6, facing, 16 + Math.floor(roll() * 20)))
   }
@@ -446,9 +487,7 @@ function decide(
       return done([press(5, facing, 'hk'), ...idle(18)])
     }
     if (r < spec.aggression) {
-      const specials = specialsOf(data, 'special').filter(
-        (sp) => !sp.move.projectile,
-      )
+      const specials = pokesAt(data, gap)
       if (specials.length && roll() < spec.specials) {
         const frames = specialFrames(
           specials[Math.floor(roll() * specials.length)]!,
@@ -465,7 +504,20 @@ function decide(
   // Close: the triangle.
   const w = triangleWeights(cpu.level, cpu.habits)
   const r = roll()
-  if (r < w.grab) return done([press(5, facing, 'lp', 'lk'), ...idle(10)])
+  if (r < w.grab) {
+    // A command grab when the kit has one in reach, else the plain throw.
+    const grabs = specialsOf(data, 'special').filter(
+      (sp) => sp.move.grab && grabReaches(sp, gap),
+    )
+    if (grabs.length && roll() < spec.specials) {
+      const frames = specialFrames(
+        grabs[Math.floor(roll() * grabs.length)]!,
+        facing,
+      )
+      if (frames) return done([...frames, ...idle(10)])
+    }
+    return done([press(5, facing, 'lp', 'lk'), ...idle(10)])
+  }
   if (r < w.grab + w.guard) {
     const parries = specialsOf(data, 'special').filter((sp) => sp.move.parry)
     if (parries.length && roll() < spec.specials) {

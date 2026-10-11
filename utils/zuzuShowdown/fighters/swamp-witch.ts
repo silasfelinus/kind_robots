@@ -43,7 +43,7 @@ fit('crouch_hk', { x: 6, y: 0, w: 58, h: 10 })
 fit('jump_lp', { x: 4, y: 37, w: 22, h: 14 })
 fit('jump_hp', { x: 4, y: 28, w: 30, h: 20 })
 fit('jump_lk', { x: -6, y: 7, w: 54, h: 14 })
-fit('jump_hk', { x: 2, y: 3, w: 57, h: 16 })
+fit('jump_hk', { x: 2, y: 3, w: 48, h: 16 })
 
 // The leech: 60 health over five seconds, all of it red.
 const LEECH = { frames: 300, every: 5 }
@@ -241,7 +241,7 @@ const specials: SpecialMove[] = [
 export const SWAMP_WITCH: FighterData = {
   slug: 'swamp-witch',
   name: 'The Swamp Witch',
-  health: 950,
+  health: 900,
   walkForward: Math.round(1.5 * SUB),
   walkBack: Math.round(1.3 * SUB),
   jumpVelocity: 8 * SUB,

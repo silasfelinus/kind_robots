@@ -11,7 +11,8 @@
 // The soap shot traps any pest marked trappable; a trapped pest drifts to the
 // drain for TRAP_POINTS x the chain it was caught on.
 
-export type PestKind = 'mite' | 'brush' | 'sponge' | 'gremlin'
+export type PestKind =
+  'mite' | 'brush' | 'sponge' | 'gremlin' | 'slug' | 'loofah' | 'minibrush'
 
 export type Touch = 'hit' | 'soak' | 'deadly'
 
@@ -29,6 +30,10 @@ export type PestRule = {
   cleans: number
   /** It eats crumbs and grease, racing the bubble for food. */
   eatsMess: boolean
+  /** A trapped one pays this many times the usual trap points. */
+  trapBonus?: number
+  /** Left out of the table guide (a boss's spawn). */
+  hidden?: boolean
   /** What warns you, and what to do about it (the table guide). */
   tell: string
   answer: string
@@ -80,7 +85,49 @@ export const PESTS: Record<PestKind, PestRule> = {
     tell: 'THE DRAIN GURGLES FIRST',
     answer: 'DO NOT LOITER OVER THE DRAIN',
   },
+  slug: {
+    name: 'SCUM SLUG',
+    radius: 6,
+    touch: 'hit',
+    edibleFrom: 4,
+    points: 150,
+    trappable: true,
+    cleans: 0,
+    eatsMess: false,
+    tell: 'A STICKY TRAIL',
+    answer: 'DO NOT CROSS THE TRAIL',
+  },
+  loofah: {
+    name: 'LOOFAH',
+    radius: 15,
+    touch: 'soak',
+    points: 0,
+    trappable: true,
+    trapBonus: 3,
+    cleans: 15,
+    eatsMess: true,
+    tell: 'BIG AND SLOW',
+    answer: 'GO ROUND, OR TRAP IT FOR X3',
+  },
+  minibrush: {
+    name: 'MINI BRUSH',
+    radius: 6,
+    touch: 'hit',
+    edibleFrom: 5,
+    points: 200,
+    trappable: true,
+    cleans: 6,
+    eatsMess: true,
+    hidden: true,
+    tell: 'SHED BY THE BIG BRUSH',
+    answer: 'A FULL BUBBLE SWALLOWS THEM',
+  },
 }
+
+/** A scum slug's trail stays sticky this long. */
+export const TRAIL_TICKS = 60 * 7
+/** Velocity kept each tick while the bubble is stuck in slug trail. */
+export const TRAIL_DRAG = 0.86
 
 /** Base points for a trapped pest reaching the drain, times the chain it was caught on. */
 export const TRAP_POINTS = 300

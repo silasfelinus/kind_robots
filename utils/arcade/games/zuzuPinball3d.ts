@@ -49,6 +49,7 @@ const zuzuPinball: ArcadeGameModule = {
         'THE RIVER CROC ALWAYS PAYS',
         'FIVE SWALLOWS: EXTRA BALL',
         'ABBEY SEALS: BONUS X',
+        'SEALS DOWN: STRIKE THE RELIC',
         'RAMPS AND ORBITS COMBO',
       ],
       scale: 1,

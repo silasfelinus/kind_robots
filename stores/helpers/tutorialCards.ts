@@ -575,7 +575,7 @@ const tutorialRouteMap = {
     '/plan/wonderlab',
     '/play/screenfx',
     '/plan/watchlist',
-    '/plan/projects/ruler-hooked',
+    '/admin/ruler-hooked',
     '/plan/voice-lab',
     '/plan/projects/sketchy',
   ],

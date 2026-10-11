@@ -383,7 +383,7 @@ const navigationMoves = [
     slug: 'ruler-hooked',
     from: 'projects',
     to: 'admin',
-    route: '/plan/projects/ruler-hooked',
+    route: '/admin/ruler-hooked',
   },
   {
     slug: 'brainstorm',

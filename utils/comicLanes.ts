@@ -58,6 +58,12 @@ export type ComicCastLora = {
   match: string[]
   /** Strength when this is the only character LoRA in the render. Default 0.8. */
   strength?: number | null
+  /**
+   * false: this LoRA fuses with any second one (Zuzu drew two koalas and lent the
+   * fennec his hat in zuzu-gamebook ROUND-12), so a render naming this character
+   * alongside another gets no character LoRAs at all.
+   */
+  stacks?: boolean | null
 }
 
 export const COMIC_CAST_LORA_DEFAULT_STRENGTH = 0.8
@@ -298,6 +304,7 @@ export function normalizeComicCastLoras(raw: unknown): ComicCastLora[] {
       ...(Number.isFinite(strength) && strength > 0 && strength <= 2
         ? { strength }
         : {}),
+      ...(record.stacks === false ? { stacks: false } : {}),
     })
     if (out.length >= 12) break
   }
@@ -315,6 +322,8 @@ function mentions(text: string, term: string): boolean {
  * The lane's character LoRAs whose character the text names, as /api/art/enqueue
  * `loras`. One character gets its full strength; two or more each get
  * COMIC_CAST_LORA_SHARED_SCALE of it, so their looks don't bleed together.
+ * A character marked `stacks: false` sharing the frame means none: the prompt
+ * carries the scene, as it did before the LoRAs.
  */
 export function selectComicCastLoras(
   lane: Pick<ComicLane, 'engine' | 'castLoras'>,
@@ -330,6 +339,7 @@ export function selectComicCastLoras(
       ),
     )
     .slice(0, COMIC_CAST_LORA_MAX_PER_RENDER)
+  if (hits.length > 1 && hits.some((cast) => cast.stacks === false)) return []
   const scale = hits.length > 1 ? COMIC_CAST_LORA_SHARED_SCALE : 1
   return hits.map((cast) => ({
     resourceId: cast.resourceId,

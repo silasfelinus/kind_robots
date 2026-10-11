@@ -148,10 +148,12 @@ export const PROJECT_PLACEMENTS: Record<string, ProjectPlacement> = {
     tabKey: 'projects',
     route: '/plan/projects/coat-dance',
   },
+  // Moved to Admin on 2026-10-11 (Silas: "move the ruler is hooked to admin,
+  // it's not ready for prime time"); /plan/projects/ruler-hooked redirects.
   'ruler-hooked': {
     channelKey: 'admin',
     tabKey: 'ruler-hooked',
-    route: '/plan/projects/ruler-hooked',
+    route: '/admin/ruler-hooked',
   },
   'tzaddik-gallery': {
     channelKey: 'admin',

@@ -181,3 +181,42 @@ out of scope.
 
 The three boss approaches remain character decisions: a species or faction never
 by itself unlocks, blocks, or determines the outcome of a route.
+
+## Illustrated character rail and presentation controls (t-016)
+
+The private Shifting Lands board now uses
+`components/shifting-lands-character-rail.vue` to display the derived
+`journeyCharacterSheet` alongside the artwork. It shows health,
+provisions, six skill ratings, bounded earned techniques, injury
+conditions, source-earned supplies/evidence, and named contact bonds.
+This is **not** a separate mutable character profile: it reads the
+same replay-verified game store as the encounter reader.
+
+- Each supply or medicine button dispatches the existing
+  `USE_REWARD` event, which applies its bounded effect only if actually
+  earned and useful, persists it in the versioned save, and refuses
+  duplicate consumption. Evidence stays non-consumable.
+- Contacts accurately distinguish trusted or wary relationships; the
+  current authored rewards do not recruit any traveling companions.
+  New companion gameplay requires explicit authored onboarding and a
+  separately versioned rules contract, not labeling a stranger as
+  traveling.
+- Dice sound is **muted by default** and only plays when the user
+  explicitly enables it and initiates a roll. The short cue uses the
+  browser's Web Audio API without fetching audio or contacting a
+  service. The motion toggle affects card reveal and dice animations;
+  the device's reduced-motion setting is honored when there is no
+  saved user preference.
+- Motion and sound preferences live in their own local browser
+  `kr.shiftingLands.presentation.v1` key. They never change the RNG,
+  success target, action ledger, or evidence. Journal filters likewise
+  only change which recorded events are displayed.
+
+Run `npx tsx utils/scripts/verifyShiftingCharacterRail.test.ts` to
+verify the board wiring, preference guards, replayed one-use rewards,
+and the refusal to invent companions or re-score old dice. The
+existing five-land/boss and old-save tests run alongside it.
+
+This implementation is an admin-only source change. The bespoke
+character/companion illustration campaign, authenticated live visual
+vetting and public launch are separate tasks.

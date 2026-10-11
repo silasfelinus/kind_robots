@@ -1,11 +1,12 @@
 <template>
   <div
     class="kr-scroll journey-shell mx-auto w-full max-w-[1650px] space-y-5 px-3 py-5 sm:px-6"
+    :class="{ 'journey-reduced-motion': reducedMotion }"
   >
     <header class="flex flex-wrap items-end justify-between gap-3">
       <div>
         <p class="text-xs font-black uppercase tracking-[.25em] text-warning">
-          Private expedition · Interactive board preview
+          Admin playtest · Five-land expedition
         </p>
         <h1 class="mt-1 font-serif text-3xl font-black sm:text-5xl">
           Zuzu: Shifting Lands
@@ -81,7 +82,7 @@
       >
         <img
           :src="landAtmosphere"
-          alt="Existing Zuzu Gamebook atmosphere plate, not a location-specific illustration"
+          :alt="game.currentLand.name + ' landscape'"
           class="absolute inset-0 size-full object-cover object-center opacity-60"
         />
         <div
@@ -216,28 +217,14 @@
                 >
                   <div class="relative aspect-[2/3] bg-base-300">
                     <img
-                      v-if="revealed(card.id) && card.art"
-                      :src="card.art"
+                      v-if="revealed(card.id)"
+                      :src="game.roadArt(card.id)"
                       :alt="card.label"
                       class="size-full object-cover"
                     />
-                    <div
-                      v-else-if="revealed(card.id)"
-                      class="relative size-full overflow-hidden bg-base-300"
-                    >
-                      <img
-                        :src="landAtmosphere"
-                        alt="Provisional atmosphere from existing Zuzu art"
-                        class="size-full object-cover opacity-70"
-                      />
-                      <span
-                        class="absolute left-2 top-2 rounded bg-base-300/90 px-2 py-1 text-[10px] font-bold"
-                        >Scene art pending</span
-                      >
-                    </div>
                     <img
                       v-else
-                      src="/images/shifting-lands/encounter-back.svg"
+                      src="/shifting-lands/encounter-back.svg"
                       alt=""
                       class="size-full object-cover"
                     />
@@ -279,23 +266,14 @@
               >
                 <div class="relative aspect-[2/3]">
                   <img
-                    v-if="
-                      (game.bossReady || bossCleared) &&
-                      game.currentLand.boss.art
-                    "
-                    :src="game.currentLand.boss.art"
+                    v-if="game.bossReady || bossCleared"
+                    :src="game.bossArt"
                     :alt="game.currentLand.boss.label"
                     class="size-full object-cover"
                   />
-                  <div
-                    v-else-if="game.bossReady || bossCleared"
-                    class="grid size-full place-items-center bg-gradient-to-br from-base-300 to-base-200"
-                  >
-                    <Icon name="kind-icon:swords" class="size-14 opacity-40" />
-                  </div>
                   <img
                     v-else
-                    src="/images/shifting-lands/trial-back.svg"
+                    src="/shifting-lands/trial-back.svg"
                     alt="Sealed boss card"
                     class="size-full object-cover"
                   />
@@ -346,43 +324,31 @@
               <div
                 class="relative aspect-[4/3] overflow-hidden bg-base-300 lg:aspect-auto lg:min-h-[420px]"
               >
-                <NavigationFlipCard
-                  :trigger-key="dealKey"
-                  :reveal-on-trigger="true"
-                  :duration-ms="650"
-                  radius="0"
-                >
-                  <template #front>
-                    <img
-                      v-if="game.activeEncounter?.art || game.activeCard.art"
-                      :src="
-                        game.activeEncounter?.art || game.activeCard.art || ''
-                      "
-                      :alt="
-                        game.activeEncounter?.title || game.activeCard.label
-                      "
-                      class="size-full object-cover"
-                    />
-                    <div v-else class="relative size-full">
+                <div class="absolute inset-0">
+                  <FlipCard
+                    :trigger-key="dealKey"
+                    :reveal-on-trigger="true"
+                    :duration-ms="reducedMotion ? 0 : 650"
+                    radius="0"
+                  >
+                    <template #front>
                       <img
-                        :src="landAtmosphere"
-                        alt="Provisional Zuzu atmosphere artwork"
+                        :src="game.activeArt"
+                        :alt="
+                          game.activeEncounter?.title || game.activeCard.label
+                        "
                         class="size-full object-cover"
                       />
-                      <span
-                        class="absolute bottom-3 right-3 rounded bg-black/75 px-3 py-1 text-xs font-bold text-white"
-                        >Location art pending</span
-                      >
-                    </div>
-                  </template>
-                  <template #back>
-                    <img
-                      src="/images/shifting-lands/encounter-back.svg"
-                      alt=""
-                      class="size-full object-cover"
-                    />
-                  </template>
-                </NavigationFlipCard>
+                    </template>
+                    <template #back>
+                      <img
+                        src="/shifting-lands/encounter-back.svg"
+                        alt=""
+                        class="size-full object-cover"
+                      />
+                    </template>
+                  </FlipCard>
+                </div>
                 <span
                   class="absolute bottom-3 left-3 rounded-full bg-black/80 px-3 py-1 text-xs font-bold text-white"
                   >Encounter drawn</span
@@ -456,7 +422,7 @@
                     <p
                       class="text-xs font-black uppercase tracking-widest opacity-65"
                     >
-                      Later-land preview rules
+                      Original expedition rules
                     </p>
                     <p class="mt-2">
                       <strong class="capitalize">{{
@@ -467,8 +433,8 @@
                       2d6 + skill
                     </p>
                     <p class="mt-1 text-xs opacity-70">
-                      The later-land authored content pass is still pending.
-                      This route uses the existing deterministic check.
+                      This saved journey began before authored encounters. Start
+                      a new journey to play the authored cards.
                     </p>
                   </div>
                   <div
@@ -477,7 +443,7 @@
                     <button
                       type="button"
                       class="btn btn-primary min-h-12"
-                      @click="game.resolve('test')"
+                      @click="resolveWithCue('test')"
                     >
                       <Icon name="kind-icon:dice" class="size-5" /> Roll the
                       check
@@ -485,7 +451,7 @@
                     <button
                       type="button"
                       class="btn btn-outline min-h-12"
-                      @click="game.resolve('withdraw')"
+                      @click="resolveWithCue('withdraw')"
                     >
                       Withdraw
                     </button>
@@ -498,22 +464,10 @@
                 class="relative min-h-72 overflow-hidden bg-base-300 lg:min-h-[420px]"
               >
                 <img
-                  v-if="game.currentLand.boss.art"
-                  :src="game.currentLand.boss.art"
+                  :src="game.bossArt"
                   :alt="game.currentLand.boss.label"
                   class="absolute inset-0 size-full object-cover"
                 />
-                <div v-else class="absolute inset-0">
-                  <img
-                    :src="landAtmosphere"
-                    alt="Provisional Zuzu landscape artwork"
-                    class="size-full object-cover opacity-80"
-                  />
-                  <Icon
-                    name="kind-icon:swords"
-                    class="absolute left-4 top-4 size-12 text-white drop-shadow-lg"
-                  />
-                </div>
                 <div
                   class="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/90 to-transparent p-6 text-white"
                 >
@@ -543,7 +497,7 @@
                       type="button"
                       class="block w-full rounded-xl border border-base-content/20 bg-base-300 p-4 text-left transition-colors hover:border-warning focus-visible:outline focus-visible:outline-4 focus-visible:outline-primary disabled:cursor-not-allowed disabled:opacity-55"
                       :disabled="!game.canTrial(choice.id)"
-                      @click="game.attemptTrial(choice.id)"
+                      @click="attemptTrialWithCue(choice.id)"
                     >
                       <span class="block font-bold">{{ choice.label }}</span>
                       <span class="mt-1 block text-sm opacity-80">{{
@@ -600,7 +554,7 @@
                   <button
                     type="button"
                     class="btn btn-primary min-h-12"
-                    @click="game.confront('challenge')"
+                    @click="confrontWithCue('challenge')"
                   >
                     Challenge · Steel +3 · target {{ 9 + game.state.landIndex }}
                   </button>
@@ -608,7 +562,7 @@
                     type="button"
                     class="btn btn-outline min-h-12"
                     :disabled="game.state.provisions < 1"
-                    @click="game.confront('parley')"
+                    @click="confrontWithCue('parley')"
                   >
                     Parley · Bearing +2 · 1 provision
                   </button>
@@ -658,8 +612,8 @@
             </div>
             <div v-else class="encounter-grid min-h-80 gap-0">
               <img
-                src="/zuzu-gamebook/scenes/dust-road.webp"
-                alt="A dusty crossroads in Zuzu's frontier"
+                :src="landAtmosphere"
+                :alt="game.currentLand.name + ' crossroads'"
                 class="h-72 w-full object-cover md:h-full"
               />
               <div class="flex flex-col justify-center gap-4 p-5 sm:p-7">
@@ -767,12 +721,12 @@
                 >
                   <span class="relative block h-24 w-16">
                     <img
-                      src="/images/shifting-lands/encounter-back.svg"
+                      src="/shifting-lands/encounter-back.svg"
                       alt=""
                       class="absolute left-0 top-0 h-24 w-16 rotate-[-8deg] rounded-md object-cover shadow-lg"
                     />
                     <img
-                      src="/images/shifting-lands/encounter-back.svg"
+                      src="/shifting-lands/encounter-back.svg"
                       alt=""
                       class="absolute left-1 top-0 h-24 w-16 rotate-[5deg] rounded-md object-cover shadow-lg motion-safe:group-hover:-translate-y-2"
                     />
@@ -791,7 +745,7 @@
                 >
                   <span class="relative block h-24 w-16">
                     <img
-                      src="/images/shifting-lands/encounter-back.svg"
+                      src="/shifting-lands/encounter-back.svg"
                       alt=""
                       class="absolute left-0 top-0 h-24 w-16 rotate-[-3deg] rounded-md object-cover opacity-85 shadow-lg"
                     />
@@ -803,15 +757,26 @@
                   <span class="text-xs font-bold">Discard</span>
                 </button>
                 <div
-                  class="flex flex-col items-center gap-1 opacity-60"
-                  aria-label="Future reward deck, not active yet"
+                  class="flex flex-col items-center gap-1"
+                  :aria-label="
+                    game.characterSheet.inventory.length + ' earned rewards'
+                  "
                 >
-                  <img
-                    src="/images/adventure/card/card-back4.webp"
-                    alt=""
-                    class="h-24 w-16 rounded-md object-cover shadow-md"
-                  />
-                  <span class="text-xs">Rewards · later</span>
+                  <span class="relative block h-24 w-16">
+                    <img
+                      src="/shifting-lands/trial-back.svg"
+                      alt=""
+                      class="h-24 w-16 rounded-md object-cover shadow-md"
+                      :class="
+                        game.characterSheet.inventory.length ? '' : 'opacity-50'
+                      "
+                    />
+                    <span
+                      class="absolute -right-2 -top-2 badge badge-primary z-10"
+                      >{{ game.characterSheet.inventory.length }}</span
+                    >
+                  </span>
+                  <span class="text-xs font-bold">Rewards</span>
                 </div>
               </div>
             </div>
@@ -837,14 +802,10 @@
                   @click="openInspector(card.id)"
                 >
                   <img
-                    v-if="card.art"
                     :src="card.art"
                     :alt="card.label"
                     class="aspect-[4/3] w-full object-cover"
                   />
-                  <div v-else class="grid aspect-[4/3] place-items-center">
-                    <Icon name="kind-icon:map" class="size-8 opacity-40" />
-                  </div>
                   <span class="block truncate px-2 py-2 text-xs font-bold">{{
                     card.label
                   }}</span>
@@ -859,37 +820,40 @@
         </div>
 
         <aside class="space-y-4">
+          <ShiftingLandsCharacterRail
+            :sheet="game.characterSheet"
+            :seed="game.state.seed"
+            :phase="game.state.phase"
+            @use-reward="useEarnedReward"
+          />
           <section
-            class="overflow-hidden rounded-2xl border border-base-content/15 bg-base-200"
+            class="rounded-2xl border border-base-content/15 bg-base-200 p-4"
+            aria-label="Animation and dice sound settings"
           >
-            <img
-              src="/zuzu-gamebook/scenes/zuzu-alone.webp"
-              alt="Zuzu, the grey koala ronin"
-              class="aspect-[16/9] w-full object-cover"
-            />
-            <div class="space-y-3 p-4">
-              <h3 class="font-serif text-xl font-black">Zuzu · The Ronin</h3>
-              <div class="flex justify-between text-sm">
-                <span>Health</span><strong>{{ game.state.hp }} / 8</strong>
-              </div>
-              <progress
-                class="progress progress-error w-full"
-                :value="game.state.hp"
-                max="8"
-                :aria-label="'Health ' + game.state.hp + ' out of eight'"
-              />
-              <div class="flex justify-between text-sm">
-                <span>Provisions</span
-                ><strong>{{ game.state.provisions }}</strong>
-              </div>
-              <div class="flex justify-between text-sm">
-                <span>Encounters</span
-                ><strong>{{ game.state.resolved.length }} / 15</strong>
-              </div>
-              <div class="flex justify-between text-sm">
-                <span>Seed</span
-                ><code class="text-xs">{{ game.state.seed }}</code>
-              </div>
+            <h3 class="font-serif text-lg font-black">Presentation</h3>
+            <p class="mt-1 text-xs opacity-65">
+              Display preferences only. These never change dice, actions, or
+              saved results.
+            </p>
+            <div class="mt-3 flex flex-wrap gap-2">
+              <button
+                type="button"
+                class="btn btn-sm"
+                :class="reducedMotion ? 'btn-outline' : 'btn-primary'"
+                :aria-pressed="!reducedMotion"
+                @click="setReducedMotion(!reducedMotion)"
+              >
+                {{ reducedMotion ? 'Reduced motion' : 'Card motion on' }}
+              </button>
+              <button
+                type="button"
+                class="btn btn-sm"
+                :class="soundEnabled ? 'btn-primary' : 'btn-outline'"
+                :aria-pressed="soundEnabled"
+                @click="setSoundEnabled(!soundEnabled)"
+              >
+                {{ soundEnabled ? 'Dice sound on' : 'Dice sound muted' }}
+              </button>
             </div>
           </section>
           <section
@@ -902,7 +866,11 @@
             >
               Last dice roll
             </p>
-            <p class="mt-2 font-serif text-3xl font-black">
+            <p
+              :key="rollEffectKey"
+              class="mt-2 font-serif text-3xl font-black"
+              :class="reducedMotion ? '' : 'journey-dice-reveal'"
+            >
               {{ game.state.lastRoll.dice.join(' + ') }}
             </p>
             <p class="text-sm opacity-80">
@@ -928,13 +896,32 @@
             <p class="text-xs opacity-65">
               Your past roads stay written, even when the landscape shifts.
             </p>
+            <div
+              class="mt-3 flex flex-wrap gap-1"
+              role="group"
+              aria-label="Journal filters"
+            >
+              <button
+                v-for="filter in journalFilters"
+                :key="filter.value"
+                type="button"
+                class="btn btn-xs"
+                :class="
+                  journalFilter === filter.value ? 'btn-primary' : 'btn-ghost'
+                "
+                :aria-pressed="journalFilter === filter.value"
+                @click="journalFilter = filter.value"
+              >
+                {{ filter.label }}
+              </button>
+            </div>
             <ol
               class="mt-4 max-h-80 space-y-3 overflow-y-auto pr-1 text-sm"
               aria-label="Chronological journey events"
             >
               <li
-                v-for="(item, index) in [...game.state.journal].reverse()"
-                :key="game.state.journal.length - index"
+                v-for="(item, index) in visibleJournal"
+                :key="item.turn + '-' + index + '-' + item.kind"
                 class="border-l-2 border-primary/50 pl-3"
               >
                 <span
@@ -944,12 +931,14 @@
                 <p class="mt-1">{{ item.text }}</p>
               </li>
             </ol>
+            <p v-if="!visibleJournal.length" class="mt-3 text-xs opacity-65">
+              Nothing recorded in this category yet.
+            </p>
           </section>
           <p class="text-xs opacity-65">
-            Private rules preview. Land-specific art for later chapters,
-            companions, richer encounter decks, and public release remain
-            separate milestones. No generated lore can change the recorded
-            rules.
+            Card faces use existing Zuzu artwork until each encounter gets its
+            own painting. People met on the road are contacts, not traveling
+            companions.
           </p>
         </aside>
       </div>
@@ -965,14 +954,10 @@
           <article v-if="inspectedCard" class="bg-base-200">
             <div class="relative h-56 bg-base-300 sm:h-72">
               <img
-                v-if="inspectedCard.art"
-                :src="inspectedCard.art"
+                :src="game.playedArt(inspectedCard.id)"
                 :alt="inspectedCard.label"
                 class="size-full object-cover"
               />
-              <div v-else class="grid size-full place-items-center">
-                <Icon name="kind-icon:map" class="size-16 opacity-35" />
-              </div>
             </div>
             <div class="space-y-4 p-5 sm:p-7">
               <div>
@@ -1040,19 +1025,19 @@
 import { computed, nextTick, onMounted, ref } from 'vue'
 import { useShiftingLandsJourneyStore } from '~/stores/shiftingLandsJourneyStore'
 import { findFiveLandCard } from '~/utils/shiftingLands/authoredFiveLands'
+import type {
+  BossApproach,
+  EncounterApproach,
+} from '~/utils/shiftingLands/journey'
+import ShiftingLandsCharacterRail from '~/components/shifting-lands-character-rail.vue'
+import {
+  readShiftingLandsPresentation,
+  writeShiftingLandsPresentation,
+} from '~/utils/shiftingLands/presentationPreferences'
 
 const emit = defineEmits<{ legacy: [] }>()
 const game = useShiftingLandsJourneyStore()
-const landScenery: Record<string, string> = {
-  homestead: '/zuzu-gamebook/scenes/dust-road.webp',
-  dustwater: '/zuzu-gamebook/scenes/waterhole.webp',
-  tablelands: '/zuzu-gamebook/scenes/canyon.webp',
-  cave: '/zuzu-gamebook/scenes/locked-door.webp',
-  verge: '/zuzu-gamebook/scenes/bone-valley.webp',
-}
-const landAtmosphere = computed(
-  () => landScenery[game.currentLand.id] ?? landScenery.homestead!,
-)
+const landAtmosphere = computed(() => game.landArt)
 const lastTrialBossName = computed(
   () =>
     game.world.lands.find((land) => land.id === game.lastTrialOutcome?.landId)
@@ -1069,6 +1054,25 @@ const outcomeHeading = ref<HTMLElement | null>(null)
 const inspectorOpen = ref(false)
 const inspectId = ref<string | null>(null)
 const confirmNew = ref(false)
+const reducedMotion = ref(true)
+const soundEnabled = ref(false)
+const rollEffectKey = ref(0)
+type JournalFilter = 'all' | 'encounter' | 'boss' | 'shift'
+const journalFilter = ref<JournalFilter>('all')
+const journalFilters: Array<{ value: JournalFilter; label: string }> = [
+  { value: 'all', label: 'All' },
+  { value: 'encounter', label: 'Encounters' },
+  { value: 'boss', label: 'Trials' },
+  { value: 'shift', label: 'Shifts' },
+]
+const visibleJournal = computed(() =>
+  [...game.state.journal]
+    .filter(
+      (item) =>
+        journalFilter.value === 'all' || item.kind === journalFilter.value,
+    )
+    .reverse(),
+)
 
 const canDraw = computed(
   () =>
@@ -1101,7 +1105,7 @@ const visitedCards = computed(() => {
     id: string
     label: string
     land: string
-    art: string | null
+    art: string
   }> = []
   for (const land of game.world.lands)
     for (const card of land.locations)
@@ -1110,7 +1114,7 @@ const visitedCards = computed(() => {
           id: card.id,
           label: card.label,
           land: land.name,
-          art: card.art,
+          art: game.playedArt(card.id),
         })
   return cards
 })
@@ -1148,8 +1152,60 @@ async function drawCard() {
 }
 async function chooseEncounter(id: string) {
   if (!game.choose(id)) return
+  cueDiceResult()
   await nextTick()
   outcomeHeading.value?.focus()
+}
+function attemptTrialWithCue(id: string) {
+  if (game.attemptTrial(id)) cueDiceResult()
+}
+function resolveWithCue(approach: EncounterApproach) {
+  if (game.resolve(approach) && approach === 'test') cueDiceResult()
+}
+function confrontWithCue(approach: BossApproach) {
+  if (game.confront(approach) && approach !== 'retreat') cueDiceResult()
+}
+function useEarnedReward(id: string) {
+  game.useReward(id)
+}
+function persistPresentation() {
+  writeShiftingLandsPresentation({
+    reducedMotion: reducedMotion.value,
+    soundEnabled: soundEnabled.value,
+  })
+}
+function setReducedMotion(value: boolean) {
+  reducedMotion.value = value
+  persistPresentation()
+}
+function setSoundEnabled(value: boolean) {
+  soundEnabled.value = value
+  persistPresentation()
+}
+function cueDiceResult() {
+  rollEffectKey.value++
+  if (!soundEnabled.value || !import.meta.client) return
+  // User-initiated, low-volume dice cue. No automatic background playback.
+  try {
+    const audio = new AudioContext()
+    const oscillator = audio.createOscillator()
+    const volume = audio.createGain()
+    oscillator.type = 'triangle'
+    oscillator.frequency.setValueAtTime(325, audio.currentTime)
+    oscillator.frequency.exponentialRampToValueAtTime(
+      210,
+      audio.currentTime + 0.12,
+    )
+    volume.gain.setValueAtTime(0.025, audio.currentTime)
+    volume.gain.exponentialRampToValueAtTime(0.001, audio.currentTime + 0.14)
+    oscillator.connect(volume)
+    volume.connect(audio.destination)
+    oscillator.onended = () => void audio.close()
+    oscillator.start()
+    oscillator.stop(audio.currentTime + 0.15)
+  } catch {
+    // Audio support is optional, not a gameplay dependency.
+  }
 }
 function inspectLastDiscard() {
   const mostRecent = game.resolved[game.resolved.length - 1]
@@ -1161,10 +1217,38 @@ function startOver() {
   inspectorOpen.value = false
   dealKey.value = 0
 }
-onMounted(() => game.initialize())
+onMounted(() => {
+  game.initialize()
+  const settings = readShiftingLandsPresentation()
+  reducedMotion.value = settings.reducedMotion
+  soundEnabled.value = settings.soundEnabled
+})
 </script>
 
 <style scoped>
+@keyframes shifting-dice-settle {
+  from {
+    transform: translateY(-9px) rotate(-3deg);
+    opacity: 0.55;
+  }
+  to {
+    transform: translateY(0) rotate(0);
+    opacity: 1;
+  }
+}
+.journey-dice-reveal {
+  animation: shifting-dice-settle 260ms ease-out;
+}
+.journey-reduced-motion :deep(*) {
+  animation-duration: 0.01ms !important;
+  transition-duration: 0.01ms !important;
+  scroll-behavior: auto !important;
+}
+@media (prefers-reduced-motion: reduce) {
+  .journey-dice-reveal {
+    animation: none;
+  }
+}
 .journey-shell {
   container-type: inline-size;
 }

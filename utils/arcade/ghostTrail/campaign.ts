@@ -91,6 +91,16 @@ export const TRUE_ENDING: string[] = [
   'AND THE DEAD WALK HOME AT LAST.',
 ]
 
+/**
+ * Shown on the ending page after the Stage 6 outro when the novice in the abbey cage was freed
+ * (s6a1's captive; the rescue is kept with the run's relics).
+ */
+export const RESCUE_ENDING: string[] = [
+  'THE NOVICE FROM THE CAGE WAITS',
+  'AT THE GATE TO WALK OUT WITH HIM.',
+  'ZUZU SLOWS HIS PACE TO MATCH.',
+]
+
 /** Total relics hidden across the book. */
 export const RELIC_COUNT = ACTS.reduce((n, a) => n + a.secrets.length, 0)
 

@@ -9,6 +9,9 @@
 // has a stable id. A member that is put down stays down for the rest of the run, through deaths and
 // checkpoint retries, so nothing can be farmed by dying or standing still.
 //
+// Two pieces are neither foe nor scenery: a ferry (Stage 3's River Croc, a mover that waits for Zuzu
+// and may only surface once a squad is down) and a captive (Stage 6's caged novice, an optional rescue).
+//
 // Everything here is plain data plus pure helpers, so tests and bots can read a stage without a canvas.
 
 /** Which painted world an act is drawn in (stageArt themes). */
@@ -59,7 +62,19 @@ export type Mover = {
   dy: number
   period: number
   phase?: number
-  look?: 'raft' | 'lift' | 'bell' | 'beam'
+  look?: 'raft' | 'lift' | 'bell' | 'beam' | 'croc'
+  /**
+   * A ferry (the River Croc) does not shuttle on a clock: it waits at its near bank (x, y) until
+   * Zuzu boards, then crosses by (dx, dy) over `period` ticks and waits at the far bank, and the
+   * same back. See ferryAt.
+   */
+  ferry?: boolean
+  /** It surfaces only once this encounter's squad is down (the squad that was bothering him). */
+  needs?: string
+  /** The banner when it surfaces. */
+  hello?: string
+  /** Left on the far bank the first time it carries Zuzu across (once a run). */
+  gift?: Holding
 }
 
 /** Ground that hurts: spikes and bone spurs, braziers' coals, the abbey's ritual fire. */
@@ -144,6 +159,24 @@ export type Act = {
   intro: string[]
   /** A climb: the view scrolls up with Zuzu, and the tower's walls replace the far town. */
   vertical?: boolean
+  /** An optional rescue (Stage 6). */
+  captive?: Captive
+}
+
+/**
+ * A prisoner in a hanging cage (the abbey's novice), off the main path. Any weapon breaks the lock;
+ * that springs the `ambush` encounter, and once that squad is down the prisoner is free. A rescue is
+ * kept with the run's relics and changes the ending page.
+ */
+export type Captive = {
+  id: string
+  /** The cage's centre, and the bottom of its floor plate; its chain runs up off the screen. */
+  x: number
+  y: number
+  /** The encounter the broken lock springs (it never springs while the cage is locked). */
+  ambush: string
+  /** The banner when the prisoner is freed. */
+  name: string
 }
 
 export type Stage = {
@@ -165,6 +198,21 @@ export function moverAt(m: Mover, tick: number): { x: number; y: number } {
   const t = (((tick / m.period + (m.phase ?? 0)) % 1) + 1) % 1
   const s = (1 - Math.cos(t * Math.PI * 2)) / 2
   return { x: m.x + m.dx * s, y: m.y + m.dy * s }
+}
+
+/**
+ * A ferry's place: docked at `side` (0 = its near bank at (x, y), 1 = the far bank), or `elapsed`
+ * ticks into the crossing that leaves `side` (null while docked). It eases off and in.
+ */
+export function ferryAt(
+  m: Mover,
+  side: 0 | 1,
+  elapsed: number | null,
+): { x: number; y: number } {
+  const k = elapsed === null ? 0 : Math.max(0, Math.min(1, elapsed / m.period))
+  const s = (1 - Math.cos(k * Math.PI)) / 2
+  const t = side === 0 ? s : 1 - s
+  return { x: m.x + m.dx * t, y: m.y + m.dy * t }
 }
 
 /** The top of a block. */

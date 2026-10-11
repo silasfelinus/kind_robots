@@ -32,7 +32,10 @@ const ritual = (x: number, w: number, period: number, on: number) =>
 
 // --- Act 1: the undercroft ------------------------------------------------------------------
 // Teaches the abbey: three ritual tunnels (wait out the fire under the roof, or climb onto the
-// roof for the high road), sisters and shades, and two held rooms. Relics on both roofs.
+// roof for the high road), sisters and shades, and two held rooms. Relics on both roofs. Past the
+// novices' hall, up a floating stair off the main road, a novice hangs in a cage: break its lock
+// with any weapon and put down the ambush it was bait for, and the novice goes free (an optional
+// rescue, kept with the relics, that adds a page to the ending).
 const undercroft: Act = {
   id: 's6a1',
   stage: 6,
@@ -56,6 +59,10 @@ const undercroft: Act = {
   ],
   blocks: [
     roof(760, 520, 140),
+    // The stair up to the cage loft (floating stone, walked under on the road below).
+    { x: 2790, y: 172, w: 36, h: 12 },
+    { x: 2846, y: 140, w: 36, h: 12 },
+    { x: 2902, y: 108, w: 56, h: 14 },
     roof(3300, 700, 140),
     ...steps(4950, [24, 48, 72], 36),
     { x: 5058, w: 160, h: 88 },
@@ -133,6 +140,20 @@ const undercroft: Act = {
         { kind: 'sister', x: 2680, delay: 40 },
         { kind: 'shade', x: 2700, y: 200, delay: 90 },
         { kind: 'acolyte', x: 2740, delay: 150 },
+      ],
+    },
+    // The cage was bait: the lock breaking springs them (never before; see `captive`).
+    {
+      id: 'cage-bait',
+      at: 2780,
+      lock: room(2760, 360),
+      title: 'THE CAGE WAS BAIT',
+      squad: [
+        { kind: 'shade', x: 3040, y: 110 },
+        { kind: 'wraith', x: 3110, y: 96, delay: 30 },
+        { kind: 'sister', x: 2870, y: 208, delay: 60 },
+        { kind: 'sister', x: 3070, y: 208, delay: 100, drops: 'heart' },
+        { kind: 'shade', x: 2800, y: 190, delay: 140 },
       ],
     },
     {
@@ -255,6 +276,14 @@ const undercroft: Act = {
     { id: 's6a1-letter', x: 1250, y: 126, name: 'A NOVICE LETTER' },
     { id: 's6a1-vow', x: 3896, y: 86, name: 'THE FIRST VOW' },
   ],
+  // The novice who wrote the letter, hung in a cage off the end of the loft.
+  captive: {
+    id: 's6a1-novice',
+    x: 2990,
+    y: 112,
+    ambush: 'cage-bait',
+    name: 'THE NOVICE IS FREE',
+  },
   ambient: ['wraith'],
   seconds: 420,
   intro: [

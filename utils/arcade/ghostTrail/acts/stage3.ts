@@ -11,12 +11,16 @@
 //     first flood, and old jetties on stilts above the flats (the dry high road, and a relic).
 //   Act 2, THE SUNKEN CHAPEL: a higher, faster flood. Rafts: ferries across deep pools and ferries
 //     between banks over the flooded flats. The chapel roof is the dry road; beneath it, a crypt
-//     passage that can only be walked at low tide holds the chalice and two crates.
+//     passage that can only be walked at low tide holds the chalice and two crates. Past the
+//     graveyard, the croc pool: a channel too wide to jump, crossed by old jetties up high, or, once
+//     the squad on the bank is put down, on the back of the River Croc (a ferry that waits for
+//     Zuzu, keeps him above the flood, and leaves him a nugget from the riverbed the first time).
 //   Act 3, THE FERRY CROSSING: a short run for the ferry landing. Fast tides that never close over
 //     his head but slow him and shorten his jump, so the channels must be taken while it is down.
 //     The Drowned Ferryman waits on the landing.
 //
-// Foes: the drowned, leeches, crows, spirits and a few ghost monks. The River Croc is not a foe here.
+// Foes: the drowned, leeches, crows, spirits and a few ghost monks. The River Croc is not a foe here:
+// he is a cameo and a conditional ally (CAMPAIGN-BLUEPRINT.md), never hurt and never hurting.
 
 import type { Act, Stage } from '../world'
 import { groundWithPits } from './build34'
@@ -238,11 +242,17 @@ const s3a2: Act = {
     // The first deep pool (a raft), the font pool below the nave (a raft), the graveyard ditch.
     [800, 120],
     [3860, 140],
+    // The croc pool: too wide to jump.
+    [5360, 220],
     [5840, 52],
   ]),
   ledges: [
     // The bell loft above the chapel roof.
     { x: 3150, y: 104, w: 64 },
+    // The old jetties over the croc pool (the high road), clear of the croc even in a flood.
+    { x: 5380, y: 166, w: 40 },
+    { x: 5456, y: 150, w: 40 },
+    { x: 5530, y: 166, w: 36 },
   ],
   blocks: [
     { x: 280, w: 60, h: 30, look: 'rock' },
@@ -263,8 +273,8 @@ const s3a2: Act = {
     { x: 4400, w: 60, h: 32, look: 'rock' },
     { x: 4560, w: 140, h: 40, look: 'stone' },
     { x: 5000, w: 160, h: 40, look: 'stone' },
-    { x: 5300, w: 60, h: 30, look: 'rock' },
-    { x: 5480, w: 60, h: 30, look: 'rock' },
+    // A rock on the croc pool bank, above the flood.
+    { x: 5270, w: 44, h: 30, look: 'rock' },
     { x: 6050, w: 60, h: 30, look: 'rock' },
     { x: 6300, w: 200, h: 40, look: 'stone' },
     { x: 6720, w: 60, h: 30, look: 'rock' },
@@ -295,6 +305,21 @@ const s3a2: Act = {
       period: 520,
       phase: 0.3,
       look: 'raft',
+    },
+    // The River Croc: he surfaces at the near bank of the croc pool once the squad bothering him
+    // is down, waits for Zuzu to climb on, and carries him across.
+    {
+      x: 5352,
+      y: 208,
+      w: 72,
+      dx: 156,
+      dy: 0,
+      period: 200,
+      look: 'croc',
+      ferry: true,
+      needs: 'croc-pool',
+      hello: 'RIVER CROC!',
+      gift: 'nugget',
     },
   ],
   tide: { low: 232, high: 164, period: 1380 },
@@ -410,6 +435,16 @@ const s3a2: Act = {
         { kind: 'crow', x: 5300, y: 120 },
         { kind: 'crow', x: 5340, y: 150, delay: 30 },
         { kind: 'crow', x: 5380, y: 110, delay: 60, drops: 'gear' },
+      ],
+    },
+    // The squad on the croc pool bank: the croc keeps his head down until they are gone.
+    {
+      id: 'croc-pool',
+      at: 5180,
+      squad: [
+        { kind: 'drowned', x: 5336 },
+        { kind: 'leech', x: 5240, delay: 20 },
+        { kind: 'drowned', x: 5200, delay: 60 },
       ],
     },
     {

@@ -20,7 +20,9 @@
 // a stable id and, once put down, stays down for the run, through deaths and checkpoint retries, so
 // nothing can be farmed. A thin ambient trickle is earned only by forward progress (the encounter
 // budget below). Foes (ghostTrail/foes.ts) and bosses (ghostTrail/bosses.ts) all telegraph: a tell,
-// an active window, a recovery to punish.
+// an active window, a recovery to punish. Two friends wait along the way: the River Croc, a ferry who
+// surfaces once the squad bothering him is down, and the abbey's caged novice, freed by breaking the
+// lock and surviving the ambush it was bait for (kept with the relics; it adds to the ending page).
 //
 // Zuzu's canon (CAST-PICKS.md, VIDEO-GUARDRAILS.md): short and stocky, rust-brown poncho with orange
 // zigzag trim, a wide straw kasa that shades his eyes, the katana across his back with the hilt over
@@ -57,6 +59,7 @@ import {
 import {
   drawBlock,
   drawBolt,
+  drawCage,
   drawCard,
   drawHazard,
   drawMover,
@@ -70,6 +73,7 @@ import {
   ACTS,
   CREDITS,
   RELIC_COUNT,
+  RESCUE_ENDING,
   TRUE_ENDING,
   stageInfo,
 } from '../ghostTrail/campaign'
@@ -90,12 +94,14 @@ import {
 } from '../ghostTrail/bosses'
 import {
   blockTop,
+  ferryAt,
   groundAt,
   hazardLive,
   memberId,
   moverAt,
   tideAt,
   type Act,
+  type Captive,
   type Encounter,
   type Hazard,
   type Holding,
@@ -144,6 +150,12 @@ const BODY_H = 22
 const BREATH_TICKS = 150
 /** A title card and a story page close themselves after this long. */
 const CARD_TICKS = 420
+/** A ferry pushes off this long after Zuzu boards, and floats up to FERRY_FLOAT px on a flood. */
+const FERRY_WAIT = 24
+const FERRY_FLOAT = 30
+/** A hanging cage's half width and height (its lock is anywhere on the front). */
+const CAGE_HW = 15
+const CAGE_H = 40
 
 /** Ambient pressure is budgeted by forward progress, so standing still can never farm. */
 export const ENCOUNTER_STEP = 112
@@ -311,7 +323,13 @@ export function readSave(raw: unknown): GhostSave | null {
   if (!count(r.score, 99_999_999) || !count(r.lives, 99)) return null
   if (typeof r.weapon !== 'string' || !(r.weapon in WEAPONS)) return null
   if (!Array.isArray(r.relics)) return null
-  const known = new Set(ACTS.flatMap((a) => a.secrets.map((x) => x.id)))
+  const known = new Set(
+    ACTS.flatMap((a) => [
+      ...a.secrets.map((x) => x.id),
+      // A rescue is kept with the relics (it is not one, and never counts toward RELIC_COUNT).
+      ...(a.captive ? [a.captive.id] : []),
+    ]),
+  )
   return {
     v: 1,
     act: r.act,
@@ -403,6 +421,17 @@ class ZuzuGhostTrail implements ArcadeGameInstance {
   private triggered = new Set<string>()
   private pending: Pending[] = []
   private foundSecrets = new Set<string>()
+  /** Captives freed this run (saved with the relics), and cages whose lock is already broken. */
+  private rescued = new Set<string>()
+  private unlocked = new Set<string>()
+  /** Each ferry's bank and the tick it pushed off (null: docked), for this attempt at the act. */
+  private ferries: Array<{ side: 0 | 1; left: number | null }> = []
+  /** Ferries up in this attempt (the tick each surfaced); and, run-wide, hellos and gifts given. */
+  private risen = new Map<number, number>()
+  private greeted = new Set<string>()
+  /** Squad members lost to a pit or the river in this attempt (not put down, but gone). */
+  private lost = new Set<string>()
+  private gifted = new Set<string>()
   private nextExtra = EXTRA_EVERY
   private particles: Particle[] = []
   private floaters: Floater[] = []
@@ -454,7 +483,7 @@ class ZuzuGhostTrail implements ArcadeGameInstance {
           offer.continued
             ? 'SCORE STARTS AGAIN FROM ZERO'
             : `SCORE ${offer.score}  LIVES ${offer.lives}`,
-          `${offer.relics.length}/${RELIC_COUNT} RELICS FOUND`,
+          `${relicsIn(offer.relics).length}/${RELIC_COUNT} RELICS FOUND`,
           '',
           'A: CONTINUE     B: NEW RUN',
         ],
@@ -469,7 +498,8 @@ class ZuzuGhostTrail implements ArcadeGameInstance {
     this.lives = s.continued ? START_LIVES : s.lives
     this.nextExtra = (Math.floor(this.score / EXTRA_EVERY) + 1) * EXTRA_EVERY
     this.weapon = s.weapon
-    this.foundSecrets = new Set(s.relics)
+    this.foundSecrets = new Set(relicsIn(s.relics))
+    this.rescued = new Set(s.relics.filter((id) => CAPTIVE_IDS.has(id)))
     this.tier = s.tier
     this.startAct(ACTS.findIndex((a) => a.id === s.act))
     // Back at the checkpoint, with what was already done there still done.
@@ -513,7 +543,7 @@ class ZuzuGhostTrail implements ArcadeGameInstance {
       score: this.score,
       lives: Math.max(1, this.lives),
       weapon: this.weapon,
-      relics: [...this.foundSecrets],
+      relics: [...this.foundSecrets, ...this.rescued],
       continued: false,
       tier: this.tier,
       checkpoint: this.checkpoint,
@@ -588,6 +618,10 @@ class ZuzuGhostTrail implements ArcadeGameInstance {
     this.pickups = []
     this.pending = []
     this.ambientTimer = 200
+    // Ferries wait at their near banks again (and surface again once their squad is down).
+    this.ferries = (this.act.movers ?? []).map(() => ({ side: 0, left: null }))
+    this.risen = new Map()
+    this.lost = new Set()
     // Squads behind the checkpoint are forgiven; those ahead wait with whoever is left of them.
     this.triggered = new Set(
       this.act.encounters
@@ -767,6 +801,7 @@ class ZuzuGhostTrail implements ArcadeGameInstance {
       return
     }
 
+    this.updateFerries()
     this.move(controls)
     if (this.dead > 0) return
     this.collectSecret()
@@ -782,6 +817,7 @@ class ZuzuGhostTrail implements ArcadeGameInstance {
     this.updateBoss()
     this.updateHazards()
     if (this.dead > 0) return
+    this.updateCaptive()
 
     for (const c of this.act.checkpoints) {
       if (c > this.checkpoint && this.x > c) {
@@ -819,24 +855,148 @@ class ZuzuGhostTrail implements ArcadeGameInstance {
   private activeLock(): Encounter['lock'] | null {
     for (const e of this.act.encounters) {
       if (!e.lock || !this.triggered.has(e.id)) continue
-      const prefix = `${this.act.id}/${e.id}/`
-      const alive =
-        this.foes.some((f) => f.id?.startsWith(prefix)) ||
-        this.pending.some((p) => p.id.startsWith(prefix))
-      if (alive) return e.lock
+      if (this.squadAlive(e)) return e.lock
     }
     return null
+  }
+
+  /** Is any of this encounter's squad on the field or still on its way? */
+  private squadAlive(e: Encounter): boolean {
+    const prefix = `${this.act.id}/${e.id}/`
+    return (
+      this.foes.some((f) => f.id?.startsWith(prefix)) ||
+      this.pending.some((p) => p.id.startsWith(prefix))
+    )
+  }
+
+  /**
+   * Is this encounter's squad down? Cleared: every member put down (or lost to a pit). Otherwise,
+   * unless `cleared` is asked for, a squad that has sprung with none of it left on the field.
+   */
+  private squadDown(id: string, cleared = false): boolean {
+    const e = this.act.encounters.find((x) => x.id === id)
+    if (!e) return true
+    const gone = e.squad.every((_, i) => {
+      const member = memberId(this.act, e, i)
+      return this.defeated.has(member) || this.lost.has(member)
+    })
+    if (gone || cleared) return gone
+    return this.triggered.has(e.id) && !this.squadAlive(e)
+  }
+
+  // --- ferries (the River Croc) ------------------------------------------------------
+
+  /** Where mover i stands at `tick`; null while a ferry has not surfaced. */
+  private moverPos(i: number, tick: number): { x: number; y: number } | null {
+    const m = this.act.movers?.[i]
+    if (!m) return null
+    if (!m.ferry) return moverAt(m, tick)
+    if (!this.risen.has(i)) return null
+    const f = this.ferries[i] ?? { side: 0, left: null }
+    const p = ferryAt(
+      m,
+      f.side,
+      f.left === null ? null : tick - f.left - FERRY_WAIT,
+    )
+    // He keeps his back above a flood, rising with it (a little).
+    if (this.act.tide) {
+      const water = tideAt(this.act.tide, tick).y
+      p.y = Math.max(p.y - FERRY_FLOAT, Math.min(p.y, water - 1))
+    }
+    return p
+  }
+
+  /** A ferry surfaces once its squad is down, and docks when a crossing is done. */
+  private updateFerries() {
+    ;(this.act.movers ?? []).forEach((m, i) => {
+      if (!m.ferry) return
+      const key = `${this.act.id}/${i}`
+      if (!this.risen.has(i) && (!m.needs || this.squadDown(m.needs, true))) {
+        this.risen.set(i, this.actTick)
+        if (m.hello && !this.greeted.has(key)) {
+          this.greeted.add(key)
+          this.banner = {
+            text: m.hello,
+            sub: 'A FRIEND IN THE FLOOD',
+            ticks: 110,
+          }
+          this.sfx('relic', 'extra')
+        }
+      }
+      const f = this.ferries[i]
+      if (!f || f.left === null) return
+      if (this.actTick - f.left - FERRY_WAIT < m.period) return
+      f.side = f.side === 0 ? 1 : 0
+      f.left = null
+      // The first time he brings Zuzu over, he leaves him something from the riverbed.
+      if (
+        f.side === 1 &&
+        m.gift &&
+        this.riding === i &&
+        !this.gifted.has(key)
+      ) {
+        this.gifted.add(key)
+        const holds = m.gift === 'heart' ? 'poncho' : m.gift
+        this.drop(
+          holds === 'gear' ? this.otherWeapon() : holds,
+          m.x + m.dx + m.w + 12,
+          m.y + m.dy - 12,
+        )
+      }
+    })
+  }
+
+  /** Zuzu stepped onto mover i: a docked ferry pushes off. */
+  private boarded(i: number) {
+    const f = this.ferries[i]
+    if (this.act.movers?.[i]?.ferry && f && f.left === null)
+      f.left = this.actTick
+  }
+
+  // --- the captive (the abbey's novice) ------------------------------------------------
+
+  private cageHit(k: Shot, cut: boolean): boolean {
+    const c = this.act.captive
+    if (!c || this.unlocked.has(c.id) || this.rescued.has(c.id)) return false
+    return (
+      Math.abs(k.x - c.x) < CAGE_HW + (cut ? IAI.hw : 1) &&
+      k.y + (cut ? IAI.hh : 0) > c.y - CAGE_H &&
+      k.y - (cut ? IAI.hh : 0) < c.y
+    )
+  }
+
+  private breakLock(c: Captive) {
+    this.unlocked.add(c.id)
+    this.burst(c.x, c.y - 12, 12, '#d6b25e')
+    this.sfx('cut', 'boom')
+  }
+
+  /** Once the ambush the lock sprang is down, the captive is free (kept with the run). */
+  private updateCaptive() {
+    const c = this.act.captive
+    if (!c || !this.unlocked.has(c.id) || this.rescued.has(c.id)) return
+    if (!this.triggered.has(c.ambush) || !this.squadDown(c.ambush)) return
+    this.rescued.add(c.id)
+    this.addScore(2000, c.x, c.y - 40)
+    this.banner = {
+      text: c.name,
+      sub: 'THE NOVICE RUNS FOR THE GATE',
+      ticks: 120,
+    }
+    this.burst(c.x, c.y - 14, 18, '#e7e5e4')
+    this.sfx('relic', 'extra')
+    this.keep()
   }
 
   private move(input: InputFrame) {
     const water = this.waterY()
     const wading = water !== null && this.y > water + 6
+    const wasRiding = this.riding
     // Riding a mover: it carries him.
     if (this.riding !== null && this.onGround) {
-      const m = this.act.movers?.[this.riding]
-      if (m) {
-        const now = moverAt(m, this.actTick)
-        const was = moverAt(m, this.actTick - 1)
+      const now = this.moverPos(this.riding, this.actTick)
+      const was = this.moverPos(this.riding, this.actTick - 1)
+      if (now && was) {
         this.x += now.x - was.x
         this.y += now.y - was.y
       }
@@ -914,8 +1074,9 @@ class ZuzuGhostTrail implements ArcadeGameInstance {
         if (this.x > l.x && this.x < l.x + l.w && prevY <= l.y && this.y >= l.y)
           take(l.y)
       ;(this.act.movers ?? []).forEach((m, i) => {
-        const p = moverAt(m, this.actTick)
+        const p = this.moverPos(i, this.actTick)
         if (
+          p &&
           this.x > p.x &&
           this.x < p.x + m.w &&
           prevY <= p.y + 3 &&
@@ -940,6 +1101,7 @@ class ZuzuGhostTrail implements ArcadeGameInstance {
         this.vy = 0
         this.onGround = true
         this.riding = mover
+        if (mover !== null && mover !== wasRiding) this.boarded(mover)
       }
     } else {
       // Bonk on the underside of a floating block.
@@ -1015,8 +1177,11 @@ class ZuzuGhostTrail implements ArcadeGameInstance {
 
   /** Squads spring when Zuzu reaches them; members already put down this run stay down. */
   private springEncounters() {
+    const cage = this.act.captive
     for (const e of this.act.encounters) {
       if (this.triggered.has(e.id) || this.x < e.at) continue
+      // A cage's ambush only springs once its lock is broken.
+      if (cage && e.id === cage.ambush && !this.unlocked.has(cage.id)) continue
       this.triggered.add(e.id)
       let fresh = 0
       e.squad.forEach((member, i) => {
@@ -1183,6 +1348,10 @@ class ZuzuGhostTrail implements ArcadeGameInstance {
         if (!pierce) k.life = 0
         this.openCrate(crate)
       }
+      if (this.act.captive && this.cageHit(k, cut)) {
+        if (!pierce) k.life = 0
+        this.breakLock(this.act.captive)
+      }
     }
     this.shots = this.shots.filter(
       (k) => k.life > 0 && Math.abs(k.x - this.x) < W,
@@ -1250,7 +1419,10 @@ class ZuzuGhostTrail implements ArcadeGameInstance {
         f.phase = 'rest'
         f.vy = -1.6
       }
-      if (f.y > H + 20) f.hp = -99
+      if (f.y > H + 20) {
+        f.hp = -99
+        if (f.id) this.lost.add(f.id)
+      }
       if (f.hp <= 0) continue
       if (def.rises && f.phase === 'rise') continue
       if (
@@ -1570,6 +1742,8 @@ class ZuzuGhostTrail implements ArcadeGameInstance {
         heading: all ? 'THE TRUE ENDING' : 'THE TRAIL ENDS',
         lines: [
           ...(stage?.outro ?? []),
+          // The novice freed from the abbey cage walks out with him.
+          ...(this.rescued.size ? ['', ...RESCUE_ENDING] : []),
           '',
           ...(all
             ? TRUE_ENDING
@@ -1840,15 +2014,23 @@ class ZuzuGhostTrail implements ArcadeGameInstance {
     // Feet at or above `perch` keep his head out of the highest water.
     const perch = tide ? tide.high + BODY_H - 4 : GROUND_Y
     const onPerch = !!tide && this.y <= perch
-    const docked = movers.findIndex((m) => {
-      const p = moverAt(m, this.actTick + 1)
+    const docked = movers.findIndex((m, i) => {
+      const p = this.moverPos(i, this.actTick + 1)
       return (
+        !!p &&
         p.x <= this.x + 8 &&
         p.x + m.w > this.x + 14 &&
         Math.abs(p.y - this.y) <= 3
       )
     })
     if (this.riding !== null) {
+      // On a ferry under way, sit tight until it docks.
+      if (
+        movers[this.riding]?.ferry &&
+        this.ferries[this.riding]?.left !== null
+      )
+        return true
+      const at = this.moverPos(this.riding, this.actTick)
       const m = movers[this.riding]
       const ahead = this.floorAt(this.x + 8, this.y - 2)
       // (a lift tops out a little above its ledge)
@@ -1865,8 +2047,7 @@ class ZuzuGhostTrail implements ArcadeGameInstance {
         ) {
           held.right = true
           frame.pressed.up = true
-        } else if (m && this.x + 8 < moverAt(m, this.actTick).x + m.w)
-          held.right = true
+        } else if (m && at && this.x + 8 < at.x + m.w) held.right = true
       }
       return true
     }
@@ -1918,8 +2099,14 @@ class ZuzuGhostTrail implements ArcadeGameInstance {
     const tide = this.act.tide
     if (!tide) return true
     const perch = tide.high + BODY_H - 4
-    const refuge = this.act.blocks
-      .filter((b) => b.x > this.x + 10 && blockTop(b, GROUND_Y) <= perch)
+    // Dry stone ahead, or a jetty over a channel (the croc pool's high road).
+    const refuge = [
+      ...this.act.blocks.map((b) => ({ x: b.x, top: blockTop(b, GROUND_Y) })),
+      ...this.act.ledges
+        .filter((l) => !this.groundAt(l.x + l.w / 2))
+        .map((l) => ({ x: l.x, top: l.y })),
+    ]
+      .filter((b) => b.x > this.x + 10 && b.top <= perch)
       .reduce((a, b) => Math.min(a, b.x), this.length)
     let dry = 0
     while (
@@ -1972,8 +2159,8 @@ class ZuzuGhostTrail implements ArcadeGameInstance {
         for (const l of this.act.ledges)
           if (x > l.x && x < l.x + l.w && prevY <= l.y && y >= l.y) take(l.y)
         ;(this.act.movers ?? []).forEach((m, i) => {
-          const p = moverAt(m, this.actTick + t)
-          if (x > p.x && x < p.x + m.w && prevY <= p.y + 3 && y >= p.y)
+          const p = this.moverPos(i, this.actTick + t)
+          if (p && x > p.x && x < p.x + m.w && prevY <= p.y + 3 && y >= p.y)
             take(p.y, i)
         })
         for (const b of this.act.blocks) {
@@ -2145,11 +2332,31 @@ class ZuzuGhostTrail implements ArcadeGameInstance {
         !live && !!h.period && h.period - (this.actTick % h.period) < 40
       drawHazard(g, h, GROUND_Y, live, warm, this.tick)
     }
-    for (const m of this.act.movers ?? []) {
-      const p = moverAt(m, this.actTick)
-      if (p.x + m.w > camX - 8 && p.x < camX + W + 8)
-        drawMover(g, m, p.x, p.y, theme, this.tick)
-    }
+    ;(this.act.movers ?? []).forEach((m, i) => {
+      const p = this.moverPos(i, this.actTick) ?? { x: m.x, y: m.y }
+      if (p.x + m.w < camX - 40 || p.x > camX + W + 40) return
+      const rose = this.risen.get(i)
+      const f = this.ferries[i]
+      drawMover(g, m, p.x, p.y, theme, this.tick, {
+        rise: rose === undefined ? 0 : Math.min(1, (this.actTick - rose) / 40),
+        face: f?.side === 1 ? -1 : 1,
+        swimming: !!f && f.left !== null && this.actTick - f.left > FERRY_WAIT,
+      })
+    })
+    const cage = this.act.captive
+    if (cage && cage.x > camX - 30 && cage.x < camX + W + 30)
+      drawCage(
+        g,
+        cage.x,
+        cage.y,
+        this.rescued.has(cage.id)
+          ? 'empty'
+          : this.unlocked.has(cage.id)
+            ? 'open'
+            : 'locked',
+        this.tick,
+        camY,
+      )
     this.atFloor(g, this.length + 30, () =>
       drawGate(g, key, this.length, this.tick, !this.bossDone),
     )
@@ -2335,6 +2542,16 @@ class ZuzuGhostTrail implements ArcadeGameInstance {
         this.tick - this.bannerFrom,
       )
   }
+}
+
+/** Every captive's id (a rescue is saved with the relics but is not one). */
+const CAPTIVE_IDS = new Set(
+  ACTS.flatMap((a) => (a.captive ? [a.captive.id] : [])),
+)
+
+/** The relics among a save's ids. */
+function relicsIn(ids: string[]): string[] {
+  return ids.filter((id) => !CAPTIVE_IDS.has(id))
 }
 
 function bossDef(b: Boss): BossDef {

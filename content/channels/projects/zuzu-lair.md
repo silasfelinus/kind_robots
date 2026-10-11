@@ -6,7 +6,7 @@ label: Zuzu's Lair
 title: Zuzu's Lair
 subtitle: A quick-time animated adventure
 summary: Press the right button in time.
-description: "A quick-time animated adventure starring Zuzu the koala ronin. Press the right direction in the window and the story goes on; miss and a life is lost. Free, with flash assist, on-screen buttons and sound."
+description: 'A quick-time animated adventure starring Zuzu the koala ronin. Press the right direction in the window and the story goes on; miss and a life is lost. Free, with flash assist, on-screen buttons and sound.'
 icon: kind-icon:swords
 image: /zuzu-showdown-portraits/zuzu-vs-hd.webp
 route: /play/zuzu-lair

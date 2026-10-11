@@ -740,6 +740,20 @@ export const UNLISTED_SCORED_GAMES: ArcadeGameMeta[] = [
     accent: '#fb923c',
     controls: 'Move, two punches, two kicks, dodge',
   },
+  {
+    slug: 'zuzu-lair',
+    title: "Zuzu's Lair",
+    riffsOn: "Dragon's Lair",
+    blurb:
+      'A quick-time animated adventure. Press the right direction in time and Zuzu lives on; miss and a life is lost.',
+    howTo: ['ARROWS  DIRECTION', 'SPACE  SWORD', 'PRESS IN THE WINDOW'],
+    width: 480,
+    height: 270,
+    maxPlausibleScore: 100_000,
+    titleArt: '/zuzu-showdown-portraits/zuzu-vs-hd.webp',
+    accent: '#fb923c',
+    controls: 'Four directions and the sword',
+  },
 ]
 
 const LOADERS: Record<string, () => Promise<ArcadeGameModule>> = {

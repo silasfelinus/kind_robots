@@ -146,11 +146,11 @@ const page = readFileSync(
   'utf8',
 )
 const channel = readFileSync(
-  toPath('../../content/channels/admin/zuzu-shifting-lands.md'),
+  toPath('../../content/channels/projects/zuzu-shifting-lands.md'),
   'utf8',
 )
 const world = readFileSync(toPath('../zuzuWorld.ts'), 'utf8')
-assert.match(channel, /channelKey: admin/)
+assert.match(channel, /channelKey: projects/)
 assert.match(channel, /route: \/admin\/zuzu-shifting-lands/)
 assert.match(channel, /requiredRole: ADMIN/)
 assert.doesNotMatch(channel, /navigation: false/)
@@ -166,9 +166,9 @@ assert.equal(
   false,
 )
 assert.equal(
-  existsSync(toPath('../../content/channels/projects/zuzu-shifting-lands.md')),
+  existsSync(toPath('../../content/channels/admin/zuzu-shifting-lands.md')),
   false,
 )
 console.log(
-  'Shifting Lands admin-route, independent Facet and saved-roll contracts passed',
+  'Shifting Lands Play-tab, admin-route, independent Facet and saved-roll contracts passed',
 )

@@ -34,6 +34,15 @@ import {
   sealValue,
   type ChapterProgress,
 } from './chapters'
+import {
+  advanceCroc,
+  CROC_MOUTH,
+  CROC_TOY,
+  crocCaptured,
+  crocEjected,
+  initialCroc,
+  type CrocCycle,
+} from './croc'
 import { zuzuLamps } from './lamps'
 
 /** A chapter being told. */
@@ -75,7 +84,13 @@ export type ZuzuRulesState = CoreRulesState & {
   skill: { armed: boolean; until: number }
   ballSave: { armed: boolean; until: number }
   combo: { count: number; at: number }
-  croc: { swallows: number; extraBallLit: boolean; extraBallGiven: boolean }
+  croc: {
+    swallows: number
+    extraBallLit: boolean
+    extraBallGiven: boolean
+    /** His animatronic cycle; the jaw gate follows it (croc.ts). */
+    cycle: CrocCycle
+  }
   extraBalls: number
   /** Strikes on the captive relic ball this game: the undercrypt's key. */
   relics: number
@@ -151,7 +166,12 @@ export function initialZuzuRules(balls: number, seed = 1): ZuzuRulesState {
     skill: { armed: true, until: Number.POSITIVE_INFINITY },
     ballSave: { armed: true, until: Number.NEGATIVE_INFINITY },
     combo: { count: 0, at: Number.NEGATIVE_INFINITY },
-    croc: { swallows: 0, extraBallLit: false, extraBallGiven: false },
+    croc: {
+      swallows: 0,
+      extraBallLit: false,
+      extraBallGiven: false,
+      cycle: initialCroc(),
+    },
     extraBalls: 0,
     relics: 0,
     thisBall: { shots: 0, crocs: 0, spins: 0, seals: 0, relics: 0 },
@@ -203,10 +223,15 @@ export function stepZuzuRules(
       break
     case 'capture':
       effects.push({ type: 'sound', name: 'scoop' })
-      if (sw.id === 'croc-mouth') croc(next, effects)
+      if (sw.id === CROC_MOUTH) {
+        next.croc = { ...next.croc, cycle: crocCaptured(at, effects) }
+        croc(next, effects)
+      }
       break
     case 'eject':
       effects.push({ type: 'sound', name: 'kickout' })
+      if (sw.id === CROC_MOUTH)
+        next.croc = { ...next.croc, cycle: crocEjected(at) }
       break
     case 'spin':
       award(next, VALUES.spin)
@@ -481,11 +506,14 @@ function tick(
   state: ZuzuRulesState,
   at: number,
 ): { state: ZuzuRulesState; effects: RuleEffect[] } {
+  const effects: RuleEffect[] = []
   if (state.skill.armed && at > state.skill.until)
     state = { ...state, skill: { armed: false, until: at } }
+  const cycle = advanceCroc(state.croc.cycle, at, effects)
+  if (cycle !== state.croc.cycle)
+    state = { ...state, croc: { ...state.croc, cycle } }
   const run = state.story.run
-  if (!run) return { state, effects: [] }
-  const effects: RuleEffect[] = []
+  if (!run) return { state, effects }
   const def = CHAPTERS[state.story.chapter]!
   if (at >= run.until) {
     const next = { ...state, story: { ...state.story, run: null } }
@@ -584,7 +612,12 @@ function croc(state: ZuzuRulesState, effects: RuleEffect[]) {
   state.thisBall = { ...state.thisBall, crocs: state.thisBall.crocs + 1 }
   award(state, VALUES.crocSpit * state.story.round)
   if (croc.extraBallLit) {
-    state.croc = { swallows, extraBallLit: false, extraBallGiven: true }
+    state.croc = {
+      ...croc,
+      swallows,
+      extraBallLit: false,
+      extraBallGiven: true,
+    }
     state.extraBalls += 1
     effects.push(
       { type: 'sound', name: 'extra-ball' },
@@ -755,6 +788,12 @@ export const ZUZU_RULESET: PinballRuleset<ZuzuRulesState> = {
   shows: zuzuShows,
   music: (state) =>
     state.over || state.tilted || !state.story.run ? null : 'mode',
+  animatronics: (state, step) => ({
+    [CROC_TOY]: {
+      phase: state.croc.cycle.phase,
+      age: Math.max(0, step - state.croc.cycle.since) / PHYSICS_HZ,
+    },
+  }),
   skillTarget: (state) =>
     state.skill.armed && state.skill.until !== Number.NEGATIVE_INFINITY
       ? 'mortuary'

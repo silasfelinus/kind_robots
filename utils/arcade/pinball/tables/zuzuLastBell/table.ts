@@ -659,6 +659,31 @@ export const ZUZU_LAST_BELL_GREYBOX: TableDef = {
     },
     { id: 'bell-flasher', at: [0, 0.05, -0.79], color: 0xf0ba6c },
   ],
+  // The River Croc's jaw: open, the mouth takes the ball; shut (while he
+  // holds one, rolls, spits and sinks), an unseen gate across the jaws turns
+  // every other ball away, so the mouth never takes two.
+  doors: [
+    {
+      id: 'croc-jaw',
+      startsOpen: true,
+      closed: [
+        wall(
+          'croc-jaw-gate',
+          [CROC[0] - 0.021, CROC[1] + 0.024],
+          [CROC[0] + 0.021, CROC[1] + 0.024],
+          { material: 'plastic-clear', thickness: 0.006, hidden: true },
+        ),
+      ],
+      open: [],
+    },
+  ],
+  animatronics: [
+    {
+      id: 'river-croc',
+      kind: 'river-croc',
+      at: [CROC[0], 0, CROC[1] - 0.004],
+    },
+  ],
   captives: [
     { id: 'relic-captive', at: [SEAL_X, BALL + 0.0005, RELIC_MOUTH - 0.013] },
   ],

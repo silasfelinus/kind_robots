@@ -57,7 +57,10 @@ assert.match(workflow, /verifyShiftingCharacterRail\.test\.ts/)
 // Display-only settings cannot alter the ledger or import gameplay rules.
 // Muting never blocks choices or changes the seeded RNG. Motion settings
 // respect system preferences, and audio requires a user-initiated roll.
-assert.match(preferences, /PRESENTATION_KEY = 'kr\.shiftingLands\.presentation\.v1'/)
+assert.match(
+  preferences,
+  /PRESENTATION_KEY = 'kr\.shiftingLands\.presentation\.v1'/,
+)
 assert.match(
   preferences,
   /window\.matchMedia\(\s*'\(prefers-reduced-motion: reduce\)'\)/,

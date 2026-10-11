@@ -1074,7 +1074,10 @@ import type {
   EncounterApproach,
 } from '~/utils/shiftingLands/journey'
 import ShiftingLandsCharacterRail from '~/components/shifting-lands-character-rail.vue'
-import { readShiftingLandsPresentation, writeShiftingLandsPresentation } from '~/utils/shiftingLands/presentationPreferences'
+import {
+  readShiftingLandsPresentation,
+  writeShiftingLandsPresentation,
+} from '~/utils/shiftingLands/presentationPreferences'
 
 const emit = defineEmits<{ legacy: [] }>()
 const game = useShiftingLandsJourneyStore()

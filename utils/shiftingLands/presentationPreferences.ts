@@ -12,19 +12,21 @@ export function readShiftingLandsPresentation(): ShiftingLandsPresentationPrefer
     return { reducedMotion: true, soundEnabled: false }
   let reducedMotion = false
   try {
-    reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    reducedMotion = window.matchMedia(
+      '(prefers-reduced-motion: reduce)',
+    ).matches
     const stored = window.localStorage.getItem(PRESENTATION_KEY)
     if (!stored) return { reducedMotion, soundEnabled: false }
-    const parsed = JSON.parse(stored) as Partial<ShiftingLandsPresentationPreferences>
+    const parsed = JSON.parse(
+      stored,
+    ) as Partial<ShiftingLandsPresentationPreferences>
     return {
       reducedMotion:
         typeof parsed.reducedMotion === 'boolean'
           ? parsed.reducedMotion
           : reducedMotion,
       soundEnabled:
-        typeof parsed.soundEnabled === 'boolean'
-          ? parsed.soundEnabled
-          : false,
+        typeof parsed.soundEnabled === 'boolean' ? parsed.soundEnabled : false,
     }
   } catch {
     return { reducedMotion, soundEnabled: false }

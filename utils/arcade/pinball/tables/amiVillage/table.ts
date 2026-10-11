@@ -1269,7 +1269,8 @@ export const AMI_VILLAGE_GREYBOX: TableDef = {
     // Rendered by a durable ArtJob from conductor's art-prompts.yaml
     // (kind-pinball/t-009), to the playfield rectangle below.
     room: {
-      backglass: '/images/arcade/games/kind-pinball-title.webp',
+      backglass: '/images/pinball/ami-village-backglass.webp',
+      backglassFallback: '/images/arcade/games/kind-pinball-title.webp',
       posters: [
         '/images/arcade/games/butterfly-blaster-title.webp',
         '/images/arcade/games/rescue-rally-title.webp',

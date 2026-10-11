@@ -64,7 +64,11 @@ export class Room {
     table: TableDef,
     track: Track,
     pitch: number,
-    art: { backglass?: string; posters?: readonly string[] } = {},
+    art: {
+      backglass?: string
+      backglassFallback?: string
+      posters?: readonly string[]
+    } = {},
   ) {
     this.track = track
     this.loader =
@@ -74,29 +78,57 @@ export class Room {
     const back = b.z0 - 0.02
     const left = b.x0 - SIDE_THICK / 2
     const right = b.x1 + SIDE_THICK / 2
-    this.buildCabinet(b, front, back, left, right)
-    this.backglass = this.buildBackglass(table, b, art.backglass)
+    this.buildCabinet(b, front, back, left, right, art.backglass)
+    this.backglass = this.buildBackglass(
+      table,
+      b,
+      art.backglass,
+      art.backglassFallback,
+    )
     this.buildLegs(pitch, front, back, left, right)
     this.buildRoom(art.posters ?? [], tableToWorld([0, 0, b.z0], pitch).z)
   }
 
   /** A texture loaded from the site's images (none in tests); fit to cover. */
-  private image(src: string, aspect: number): THREE.Texture | null {
+  private image(
+    src: string,
+    aspect: number,
+    fallback?: string,
+    onLoad?: (texture: THREE.Texture) => void,
+  ): THREE.Texture | null {
     if (!this.loader) return null
+    // Cover the face: crop the image's longer side to the face's shape.
+    const cover = (t: THREE.Texture) => {
+      const img = t.image as { width: number; height: number }
+      if (!img?.width) return
+      const ratio = img.width / img.height / aspect
+      if (ratio > 1) {
+        t.repeat.set(1 / ratio, 1)
+        t.offset.set((1 - 1 / ratio) / 2, 0)
+      } else {
+        t.repeat.set(1, ratio)
+        t.offset.set(0, (1 - ratio) / 2)
+      }
+    }
+    const loader = this.loader
     const texture = this.track(
-      this.loader.load(src, (t) => {
-        const img = t.image as { width: number; height: number }
-        if (!img?.width) return
-        // Cover the face: crop the image's longer side to the face's shape.
-        const ratio = img.width / img.height / aspect
-        if (ratio > 1) {
-          t.repeat.set(1 / ratio, 1)
-          t.offset.set((1 - 1 / ratio) / 2, 0)
-        } else {
-          t.repeat.set(1, ratio)
-          t.offset.set(0, (1 - ratio) / 2)
-        }
-      }),
+      loader.load(
+        src,
+        (t) => {
+          cover(t)
+          onLoad?.(t)
+        },
+        undefined,
+        () => {
+          if (!fallback) return
+          loader.load(fallback, (backup) => {
+            texture.image = backup.image
+            texture.needsUpdate = true
+            cover(texture)
+            backup.dispose()
+          })
+        },
+      ),
     )
     texture.colorSpace = THREE.SRGBColorSpace
     return texture
@@ -154,6 +186,7 @@ export class Room {
     back: number,
     left: number,
     right: number,
+    painted?: string,
   ) {
     const length = front - back
     const height = CABINET_BELOW + CABINET_ABOVE
@@ -190,7 +223,23 @@ export class Room {
       )
       rail.position.set(x, CABINET_ABOVE + 0.004, (front + back) / 2)
       this.cabinet.add(rail)
+      // Chrome corner armour at each end of the side's top edge (t-030).
+      for (const z of [front - 0.03, back + 0.03]) {
+        const armour = new THREE.Mesh(
+          this.track(new THREE.BoxGeometry(SIDE_THICK + 0.008, 0.06, 0.06)),
+          trim,
+        )
+        armour.position.set(x, CABINET_ABOVE - 0.026, z)
+        this.cabinet.add(armour)
+      }
     }
+    // The side art echoes the backglass once its painting loads (t-030),
+    // as on a real machine; until then the painted night village stands.
+    if (painted)
+      this.image(painted, length / height, undefined, (texture) => {
+        paint.map = texture
+        paint.needsUpdate = true
+      })
     const width = right - left + SIDE_THICK * 2
     // The lockdown bar over the front of the glass.
     const bar = new THREE.Mesh(
@@ -247,6 +296,7 @@ export class Room {
     table: TableDef,
     b: { x0: number; x1: number },
     src?: string,
+    fallback?: string,
   ): THREE.Mesh | null {
     const backbox = table.occluders?.find((o) => o.id === 'backbox')
     const dmd = table.dmd
@@ -257,7 +307,7 @@ export class Room {
     const height = top - bottom - 0.012
     if (height <= 0.02) return null
     const face = backbox.at[2] + backbox.half[2] + 0.002
-    const map = src ? this.image(src, width / height) : null
+    const map = src ? this.image(src, width / height, fallback) : null
     const glass = new THREE.Mesh(
       this.track(new THREE.PlaneGeometry(width, height)),
       this.track(

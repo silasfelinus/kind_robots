@@ -4166,6 +4166,17 @@ async function runPinballDressing() {
     )
   }
   assert.equal(dressing.practicalsLit, 0, 'a phone on low lights none')
+  // The apron carries its painted plate, just above the trim (t-030).
+  const plate = table.trim?.find((c) => c.id === 'apron-plate')
+  assert.ok(dressing.apronPlate && plate && plate.kind === 'box')
+  if (dressing.apronPlate && plate && plate.kind === 'box')
+    assert.ok(
+      dressing.apronPlate.position.y > plate.at[1] + plate.half[1],
+      'the plate sits on the apron, not inside it',
+    )
+  // The backglass waits on its painting with the title art behind it.
+  assert.ok(table.art?.room?.backglass?.startsWith('/images/'))
+  assert.ok(table.art?.room?.backglassFallback?.startsWith('/images/'))
   // The dressing is scenery: the table's colliders are untouched by it.
   assert.equal(JSON.stringify(table.colliders), colliders)
   scene.dispose()

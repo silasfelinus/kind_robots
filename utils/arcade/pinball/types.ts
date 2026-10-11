@@ -361,7 +361,12 @@ export type TableDef = {
      * The machine's room (t-020): the backglass over the DMD, and posters
      * and neighbouring screens from the rest of the arcade.
      */
-    room?: { backglass?: string; posters?: readonly string[] }
+    room?: {
+      backglass?: string
+      /** Shown while `backglass` is missing (t-030: the art is generated). */
+      backglassFallback?: string
+      posters?: readonly string[]
+    }
   }
   /**
    * The DMD in the backbox (t-006): the centre of its glass, facing the

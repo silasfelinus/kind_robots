@@ -1,6 +1,7 @@
 <template>
   <div
     class="kr-scroll journey-shell mx-auto w-full max-w-[1650px] space-y-5 px-3 py-5 sm:px-6"
+    :class="{ 'journey-reduced-motion': reducedMotion }"
   >
     <header class="flex flex-wrap items-end justify-between gap-3">
       <div>
@@ -1292,6 +1293,11 @@ onMounted(() => {
 }
 .journey-dice-reveal {
   animation: shifting-dice-settle 260ms ease-out;
+}
+.journey-reduced-motion :deep(*) {
+  animation-duration: 0.01ms !important;
+  transition-duration: 0.01ms !important;
+  scroll-behavior: auto !important;
 }
 @media (prefers-reduced-motion: reduce) {
   .journey-dice-reveal {

@@ -10,8 +10,12 @@
 // shot; ramps and orbits in quick succession build a combo; the end of each
 // ball counts a bonus; a match at the end can earn one more ball.
 //
-// Multiball (t-009), the undercrypt (t-010) and the Croc's Death Roll
-// (t-016) build on this state; nothing here blocks flipping.
+// A swallow during Homestead opens the Watering Hole (wateringHole.ts),
+// where an orbit lights the Croc for the Death Roll jackpot (t-016). The
+// Citadel locks balls for Harvest Moon, the three-ball multiball; the
+// broken Abbey seals and both orbits start Storm Crow, four balls; and the
+// fifth story seal starts The Last Bell, six (multiball.ts, t-009). The undercrypt (t-010) builds on this state;
+// nothing here blocks flipping.
 
 import { PHYSICS_HZ } from '../../clock'
 import type { RuleEffect } from '../../types'
@@ -44,6 +48,34 @@ import {
   type CrocCycle,
 } from './croc'
 import { zuzuLamps } from './lamps'
+import {
+  CITADEL,
+  endMultiball,
+  multiballShot,
+  initialCitadel,
+  initialMultiball,
+  LOCK_LIGHTER,
+  lockBall,
+  lockFellBack,
+  MULTIBALL_VALUES,
+  startHarvest,
+  startMultiball,
+  STORM_ORBITS,
+  type Citadel,
+  type Multiball,
+} from './multiball'
+import {
+  advanceWateringHole,
+  closeWateringHole,
+  initialWateringHole,
+  openWateringHole,
+  STIR_SHOTS,
+  stirWater,
+  WATERING_HOLE_CHAPTER,
+  wateringHoleRunning,
+  wateringSwallow,
+  type WateringHole,
+} from './wateringHole'
 
 /** A chapter being told. */
 export type ChapterRun = {
@@ -91,6 +123,13 @@ export type ZuzuRulesState = CoreRulesState & {
     /** His animatronic cycle; the jaw gate follows it (croc.ts). */
     cycle: CrocCycle
   }
+  /** The Citadel lock and its ball ledger (multiball.ts). */
+  citadel: Citadel
+  multiball: Multiball
+  /** Storm Crow is ready once the seals break; both orbits start it. */
+  storm: { ready: boolean; orbits: string[] }
+  /** The Croc's Watering Hole mini-mode (wateringHole.ts). */
+  wateringHole: WateringHole
   extraBalls: number
   /** Strikes on the captive relic ball this game: the undercrypt's key. */
   relics: number
@@ -101,6 +140,7 @@ export type ZuzuRulesState = CoreRulesState & {
     spins: number
     seals: number
     relics: number
+    jackpots: number
   }
 }
 
@@ -137,6 +177,8 @@ export const VALUES = {
   bonusCroc: 20_000,
   bonusSpin: 300,
   bonusSeal: 25_000,
+  bonusJackpot: 50_000,
+  citadel: 10_000,
 }
 
 export function initialZuzuRules(balls: number, seed = 1): ZuzuRulesState {
@@ -172,9 +214,20 @@ export function initialZuzuRules(balls: number, seed = 1): ZuzuRulesState {
       extraBallGiven: false,
       cycle: initialCroc(),
     },
+    citadel: initialCitadel(),
+    multiball: initialMultiball(),
+    storm: { ready: false, orbits: [] },
+    wateringHole: initialWateringHole(),
     extraBalls: 0,
     relics: 0,
-    thisBall: { shots: 0, crocs: 0, spins: 0, seals: 0, relics: 0 },
+    thisBall: {
+      shots: 0,
+      crocs: 0,
+      spins: 0,
+      seals: 0,
+      relics: 0,
+      jackpots: 0,
+    },
   }
 }
 
@@ -222,16 +275,30 @@ export function stepZuzuRules(
       if (sw.bank === SEAL_BANK) seal(next, sw.id, effects)
       break
     case 'capture':
-      effects.push({ type: 'sound', name: 'scoop' })
       if (sw.id === CROC_MOUTH) {
+        effects.push({ type: 'sound', name: 'jaw-snap' })
         next.croc = { ...next.croc, cycle: crocCaptured(at, effects) }
-        croc(next, effects)
+        // The chapter as it stood before this swallow counted toward it.
+        swallow(next, homestead(state), at, effects)
+      } else {
+        effects.push({ type: 'sound', name: 'scoop' })
+        if (sw.id === CITADEL) citadel(next, sw.ballId, at, effects)
       }
       break
     case 'eject':
       effects.push({ type: 'sound', name: 'kickout' })
-      if (sw.id === CROC_MOUTH)
+      if (sw.id === CROC_MOUTH) {
+        effects.push({ type: 'sound', name: 'water-spray' })
         next.croc = { ...next.croc, cycle: crocEjected(at) }
+      }
+      if (sw.id === CITADEL) {
+        // A lock the machine could not hold: counted, and back in play.
+        const healed = lockFellBack(next.citadel, sw.ballId)
+        if (healed) {
+          next.citadel = healed
+          next.ballsInPlay += 1
+        }
+      }
       break
     case 'spin':
       award(next, VALUES.spin)
@@ -296,6 +363,10 @@ function shot(
   )
   if (skillShot(state, id, at, effects)) return
   if (comboEligible) combo(state, at, effects)
+  harvest(state, id, comboEligible, effects)
+  if (STORM_ORBITS.includes(id)) stormOrbit(state, id, at, effects)
+  if (id === LOCK_LIGHTER) lightLock(state, effects)
+  if (STIR_SHOTS.includes(id)) stir(state, at, effects)
   if (chapterShot(state, id, at, effects)) return
   if (id === 'mortuary') return mortuary(state, at, effects)
   if (id === 'bell-lane') return bell(state, effects)
@@ -438,13 +509,13 @@ function chapterShot(
     { type: 'sound', name: 'mode-shot' },
     { type: 'dmd', text: label(id), ms: 1000, scene: 'jackpot', value },
   )
-  if (progress.hits >= def.need) sealChapter(state, effects)
+  if (progress.hits >= def.need) sealChapter(state, at, effects)
   else effects.push(timer(state))
   return true
 }
 
 /** A chapter told to its end: one of the five seals breaks. */
-function sealChapter(state: ZuzuRulesState, effects: RuleEffect[]) {
+function sealChapter(state: ZuzuRulesState, at: number, effects: RuleEffect[]) {
   const story = state.story
   const value = sealValue(story.chapter, story.round)
   award(state, value)
@@ -477,6 +548,8 @@ function sealChapter(state: ZuzuRulesState, effects: RuleEffect[]) {
       value: total,
     },
   )
+  // The fifth seal rings The Last Bell: the six-ball wizard multiball.
+  if (last && !state.tilted) start(state, 'last-bell', at, effects)
   if (last)
     effects.push({
       type: 'dmd',
@@ -512,6 +585,8 @@ function tick(
   const cycle = advanceCroc(state.croc.cycle, at, effects)
   if (cycle !== state.croc.cycle)
     state = { ...state, croc: { ...state.croc, cycle } }
+  const hole = advanceWateringHole(state.wateringHole, at, effects)
+  if (hole !== state.wateringHole) state = { ...state, wateringHole: hole }
   const run = state.story.run
   if (!run) return { state, effects }
   const def = CHAPTERS[state.story.chapter]!
@@ -570,6 +645,15 @@ function seal(state: ZuzuRulesState, id: string, effects: RuleEffect[]) {
     effects.push({ type: 'dmd', text: 'KICKBACK LIT', ms: 1200 })
   }
   lightMortuary(state, effects, 'THE SEALS GIVE WAY')
+  if (!state.storm.ready && !state.multiball.kind && !state.tilted) {
+    state.storm = { ready: true, orbits: [] }
+    effects.push({
+      type: 'dmd',
+      text: 'STORM CROW READY',
+      sub: 'SHOOT BOTH ORBITS',
+      ms: 1600,
+    })
+  }
 }
 
 /** One more on the bonus multiplier, to its cap; the DMD line saying so. */
@@ -605,8 +689,51 @@ function relic(state: ZuzuRulesState, effects: RuleEffect[]) {
   )
 }
 
-/** The River Croc swallowed a ball: he always pays, and spits it back. */
-function croc(state: ZuzuRulesState, effects: RuleEffect[]) {
+/** Homestead is being told: a swallow opens the Watering Hole. */
+function homestead(state: ZuzuRulesState): boolean {
+  const story = state.story
+  return !!story.run && CHAPTERS[story.chapter]?.id === WATERING_HOLE_CHAPTER
+}
+
+/**
+ * A ball in the Croc's jaws: the Watering Hole's Death Roll or spit-back
+ * while it runs, his own count and extra ball always, and a swallow during
+ * Homestead opens the Watering Hole.
+ */
+function swallow(
+  state: ZuzuRulesState,
+  inHomestead: boolean,
+  at: number,
+  effects: RuleEffect[],
+) {
+  const round = state.story.round
+  if (state.tilted) return croc(state, effects)
+  if (wateringHoleRunning(state.wateringHole)) {
+    const r = wateringSwallow(state.wateringHole, round, effects)
+    state.wateringHole = r.hole
+    award(state, r.points)
+    return croc(state, effects, true)
+  }
+  croc(state, effects)
+  if (!inHomestead) return
+  const r = openWateringHole(at, round, effects)
+  state.wateringHole = r.hole
+  award(state, r.points)
+}
+
+/** An orbit while the Watering Hole runs: the mouth lights for a Death Roll. */
+function stir(state: ZuzuRulesState, at: number, effects: RuleEffect[]) {
+  if (state.tilted || !wateringHoleRunning(state.wateringHole)) return
+  const r = stirWater(state.wateringHole, at, state.story.round, effects)
+  state.wateringHole = r.hole
+  award(state, r.points)
+}
+
+/**
+ * The River Croc swallowed a ball: he always pays, and spits it back.
+ * `quiet` leaves the DMD to the Watering Hole unless the extra ball lights.
+ */
+function croc(state: ZuzuRulesState, effects: RuleEffect[], quiet = false) {
   const croc = state.croc
   const swallows = croc.swallows + 1
   state.thisBall = { ...state.thisBall, crocs: state.thisBall.crocs + 1 }
@@ -627,12 +754,110 @@ function croc(state: ZuzuRulesState, effects: RuleEffect[]) {
   }
   const lights = swallows >= CROC_EXTRA_BALL_AT && !croc.extraBallGiven
   state.croc = { ...croc, swallows, extraBallLit: lights }
+  if (quiet && !lights) return
   effects.push({
     type: 'dmd',
     text: 'SPIT OUT',
     sub: lights ? 'EXTRA BALL IS LIT' : `RIVER CROC ${swallows}`,
     ms: 1400,
   })
+}
+
+/** The Village ramp lights the Citadel for the next lock. */
+function lightLock(state: ZuzuRulesState, effects: RuleEffect[]) {
+  if (state.citadel.lit || state.multiball.kind || state.tilted) return
+  state.citadel = { ...state.citadel, lit: true }
+  award(state, MULTIBALL_VALUES.lockLit * state.story.round)
+  effects.push({
+    type: 'dmd',
+    text: 'LOCK IS LIT',
+    sub: 'THE CITADEL',
+    ms: 1400,
+  })
+}
+
+/**
+ * A ball dropped into the Citadel: locked when a lock is lit (the third
+ * starts Harvest Moon), otherwise a small award as the saucer kicks it out.
+ */
+function citadel(
+  state: ZuzuRulesState,
+  ballId: number,
+  at: number,
+  effects: RuleEffect[],
+) {
+  const round = state.story.round
+  if (!state.citadel.lit || state.multiball.kind || state.tilted) {
+    award(state, VALUES.citadel * round)
+    return
+  }
+  const r = lockBall(state.citadel, ballId, state.ballsInPlay, round, effects)
+  state.citadel = r.citadel
+  award(state, r.points)
+  if (!r.start) return
+  state.ballsInPlay += r.start.released + r.start.served
+  state.multiball = startHarvest(at, effects)
+}
+
+/** A shot during a multiball: its jackpots and super jackpot. */
+function harvest(
+  state: ZuzuRulesState,
+  id: string,
+  comboEligible: boolean,
+  effects: RuleEffect[],
+) {
+  if (state.tilted) return
+  const inCombo = comboEligible && state.combo.count > 0
+  const r = multiballShot(
+    state.multiball,
+    id,
+    inCombo,
+    state.story.round,
+    effects,
+  )
+  if (!r) return
+  state.multiball = r.mb
+  award(state, r.points)
+  state.thisBall = { ...state.thisBall, jackpots: state.thisBall.jackpots + 1 }
+}
+
+/** Storm Crow's orbits: once the seals are broken, both start it. */
+function stormOrbit(
+  state: ZuzuRulesState,
+  id: string,
+  at: number,
+  effects: RuleEffect[],
+) {
+  const storm = state.storm
+  if (!storm.ready || state.multiball.kind || state.tilted) return
+  const orbits = storm.orbits.includes(id)
+    ? storm.orbits
+    : [...storm.orbits, id]
+  if (orbits.length < STORM_ORBITS.length) {
+    state.storm = { ...storm, orbits }
+    effects.push({
+      type: 'dmd',
+      text: 'THE CROWS GATHER',
+      sub: 'NOW THE OTHER ORBIT',
+      ms: 1400,
+    })
+    return
+  }
+  state.storm = { ready: false, orbits: [] }
+  start(state, 'storm', at, effects)
+}
+
+/** Storm Crow or The Last Bell begins. */
+function start(
+  state: ZuzuRulesState,
+  kind: 'storm' | 'last-bell',
+  at: number,
+  effects: RuleEffect[],
+) {
+  const r = startMultiball(kind, at, state.ballsInPlay, state.citadel, effects)
+  state.multiball = r.mb
+  state.citadel = r.citadel
+  state.ballsInPlay = r.ballsInPlay
 }
 
 /** A ball drained: saved, another of the same ball, the next, or game over. */
@@ -642,7 +867,21 @@ function drain(
   effects: RuleEffect[],
 ): { state: ZuzuRulesState; effects: RuleEffect[] } {
   if (state.ballsInPlay > 1) {
+    // The multiball's ball save gives a ball back at the start.
+    if (
+      state.multiball.kind &&
+      at < state.multiball.saveUntil &&
+      !state.tilted
+    ) {
+      effects.push(
+        { type: 'add-ball', count: 1 },
+        { type: 'dmd', text: 'BALL SAVED', ms: 1200 },
+      )
+      return { state, effects }
+    }
     state.ballsInPlay -= 1
+    if (state.ballsInPlay === 1)
+      state.multiball = endMultiball(state.multiball, effects)
     return { state, effects }
   }
   if (at < state.ballSave.until && !state.tilted) {
@@ -658,6 +897,7 @@ function drain(
     state.story = { ...state.story, run: null }
     effects.push({ type: 'dmd-clear', scene: 'mode-timer' })
   }
+  state.wateringHole = closeWateringHole(state.wateringHole, effects)
   if (!state.tilted) bonus(state, effects)
   let { ball, lives } = state
   const extra = state.extraBalls > 0
@@ -670,6 +910,9 @@ function drain(
       if (match(state, effects)) {
         lives = 1
       } else {
+        // The Citadel lets its locked balls go back to the trough.
+        if (state.citadel.locked.length)
+          effects.push({ type: 'mechanism', id: CITADEL, action: 'release' })
         effects.push(
           { type: 'dmd', text: 'GAME OVER', ms: 4000, scene: 'game-over' },
           { type: 'game-over' },
@@ -712,7 +955,15 @@ function drain(
       skill: { armed: true, until: Number.POSITIVE_INFINITY },
       ballSave: { armed: true, until: Number.NEGATIVE_INFINITY },
       combo: { count: 0, at: Number.NEGATIVE_INFINITY },
-      thisBall: { shots: 0, crocs: 0, spins: 0, seals: 0, relics: 0 },
+      multiball: initialMultiball(),
+      thisBall: {
+        shots: 0,
+        crocs: 0,
+        spins: 0,
+        seals: 0,
+        relics: 0,
+        jackpots: 0,
+      },
     },
     effects,
   }
@@ -727,6 +978,7 @@ function bonus(state: ZuzuRulesState, effects: RuleEffect[]) {
     { label: 'RELIC', value: b.spins * VALUES.bonusSpin },
     { label: 'SEALS', value: b.seals * VALUES.bonusSeal },
     { label: 'RELICS', value: b.relics * VALUES.bonusRelic },
+    { label: 'JACKPOTS', value: b.jackpots * VALUES.bonusJackpot },
   ].filter((item) => item.value > 0)
   if (!items.length) return
   const total =
@@ -772,6 +1024,20 @@ function zuzuShows(
     shows.push({ id: 'secret', start: at })
   if (after.story.sealed > before.story.sealed)
     shows.push({ id: 'jackpot', start: at })
+  if (after.multiball.kind && !before.multiball.kind)
+    shows.push({ id: 'secret', start: at })
+  if (
+    after.multiball.supers > before.multiball.supers ||
+    after.multiball.jackpots > before.multiball.jackpots
+  )
+    shows.push({ id: 'jackpot', start: at })
+  if (after.wateringHole.rolls > before.wateringHole.rolls)
+    shows.push({ id: 'jackpot', start: at })
+  if (
+    wateringHoleRunning(after.wateringHole) &&
+    !wateringHoleRunning(before.wateringHole)
+  )
+    shows.push({ id: 'secret', start: at })
   if (before.kickbackLit && !after.kickbackLit && !after.tilted)
     shows.push({ id: 'kickback', start: at })
   if (after.lives < before.lives && !after.over)
@@ -787,13 +1053,28 @@ export const ZUZU_RULESET: PinballRuleset<ZuzuRulesState> = {
   lamps: zuzuLamps,
   shows: zuzuShows,
   music: (state) =>
-    state.over || state.tilted || !state.story.run ? null : 'mode',
-  animatronics: (state, step) => ({
-    [CROC_TOY]: {
-      phase: state.croc.cycle.phase,
-      age: Math.max(0, step - state.croc.cycle.since) / PHYSICS_HZ,
-    },
-  }),
+    state.over || state.tilted
+      ? null
+      : state.multiball.kind
+        ? 'multiball'
+        : state.story.run || wateringHoleRunning(state.wateringHole)
+          ? 'mode'
+          : null,
+  animatronics: (state, step) => {
+    const hole = state.wateringHole
+    return {
+      [CROC_TOY]: {
+        phase: state.croc.cycle.phase,
+        age: Math.max(0, step - state.croc.cycle.since) / PHYSICS_HZ,
+        // The waterline: astir in the Watering Hole, hungry when lit.
+        cue: hole.lit
+          ? 'hungry'
+          : wateringHoleRunning(hole)
+            ? 'watering-hole'
+            : undefined,
+      },
+    }
+  },
   skillTarget: (state) =>
     state.skill.armed && state.skill.until !== Number.NEGATIVE_INFINITY
       ? 'mortuary'

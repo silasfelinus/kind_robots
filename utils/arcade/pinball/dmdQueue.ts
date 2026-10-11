@@ -27,6 +27,7 @@ export type DmdSceneId =
   | 'wizard'
   | 'jackpot'
   | 'super-jackpot'
+  | 'death-roll'
   | 'mode-timer'
   | 'tilt-warning'
   | 'tilt'
@@ -75,6 +76,8 @@ export const DMD_SCENES: Record<DmdSceneId, DmdSceneSpec> = {
   wizard: { priority: 75, durationMs: 3000, minMs: 1500 },
   jackpot: { priority: 80, durationMs: 2000, minMs: 600 },
   'super-jackpot': { priority: 85, durationMs: 2500, minMs: 800 },
+  /** Zuzu's River Croc closing on the ball, close up (t-016). */
+  'death-roll': { priority: 82, durationMs: 2400, minMs: 900 },
   'mode-timer': {
     priority: 90,
     durationMs: PERSISTENT,

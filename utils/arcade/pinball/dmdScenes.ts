@@ -96,6 +96,22 @@ function padlock(dmd: Dmd, x: number, y: number) {
   dmd.rect(x + 5, y + 9, 1, 3, 0)
 }
 
+/** Jaws that meet in the middle of the display: `gap` dots apart. */
+function jaws(dmd: Dmd, gap: number, level: DmdLevel = 2) {
+  const mid = DMD_ROWS / 2
+  const upper = Math.round(mid - gap / 2)
+  const lower = Math.round(mid + gap / 2)
+  for (let x = 0; x < DMD_COLS; x++) {
+    // Teeth: a saw edge, the lower row offset half a tooth from the upper.
+    const up = 3 - Math.abs((x % 8) - 4) * 0.75
+    const down = 3 - Math.abs(((x + 4) % 8) - 4) * 0.75
+    for (let y = 0; y < upper - 3 + up; y++) dmd.dot(x, y, level)
+    for (let y = lower + 3 - down; y < DMD_ROWS; y++) dmd.dot(x, y, level)
+  }
+  // His eye, on the upper jaw.
+  dmd.rect(DMD_COLS - 22, Math.max(1, upper - 12), 3, 2, 3)
+}
+
 /** Count a value up from zero over `ms`. */
 function countUp(value: number, elapsed: number, ms: number): number {
   return Math.round(value * Math.min(1, elapsed / ms))
@@ -248,6 +264,23 @@ export function drawDmd(
       small(dmd, formatScore(countUp(value, t, 700)), 23, 3)
       // The classic flash: the whole display inverts on the beat.
       if (t < 800 && Math.floor(t / 100) % 2 === 0) dmd.invert()
+      break
+    }
+    case 'death-roll': {
+      // The mouth close up: the jaws shut on the ball, then the award
+      // between the teeth. One flash at the bite, no strobe.
+      if (t < 600) {
+        const gap = Math.max(0, 22 * (1 - t / 500))
+        for (let y = -4; y <= 4; y++)
+          for (let x = -4; x <= 4; x++)
+            if (x * x + y * y <= 16) dmd.dot(DMD_COLS / 2 + x, 16 + y, 3)
+        jaws(dmd, gap)
+        if (t >= 480) dmd.invert()
+        break
+      }
+      jaws(dmd, 26, 1)
+      headline(dmd, text || 'DEATH ROLL', 5, { max: 2 })
+      small(dmd, formatScore(countUp(value, t - 600, 700)), 20, 3)
       break
     }
     case 'mode-timer': {

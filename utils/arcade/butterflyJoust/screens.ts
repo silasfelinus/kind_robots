@@ -1,0 +1,273 @@
+// /utils/arcade/butterflyJoust/screens.ts
+//
+// Butterfly Joust's cards (conductor kr-arcade/t-048): the mode card, an arena's title card, the
+// Wing Garden between arenas, a champion's health bar and the versus result. Each draws from a
+// plain view the game hands it.
+
+import { drawText } from '../font'
+import {
+  INK,
+  RAMPS,
+  bandedGradient,
+  drawSprite,
+  gauge,
+  glow,
+  hudPanel,
+  rgba,
+  shadedOrb,
+} from '../snes'
+import { LIFE_SPRITE, seatFrames, type WingSet } from './art'
+import { H, W } from './field'
+
+export type MenuRow = { name: string; about: string }
+
+/** The mode card: the tourney, the Classic Pond, versus, or a saved run to continue. */
+export function drawMenu(
+  g: CanvasRenderingContext2D,
+  view: {
+    title: string
+    subtitle: string
+    rows: readonly MenuRow[]
+    pick: number
+    tick: number
+  },
+) {
+  g.fillStyle = rgba(INK, 0.72)
+  g.fillRect(0, 0, W, H)
+  const rows = view.rows.length
+  const top = 64
+  const height = 96 + rows * 38
+  hudPanel(g, 60, top, W - 120, height)
+  drawText(g, view.title, W / 2, top + 14, {
+    scale: 3,
+    align: 'center',
+    color: '#ffffff',
+    outline: INK,
+    shadow: RAMPS.pink[1],
+  })
+  drawText(g, view.subtitle, W / 2, top + 44, {
+    scale: 2,
+    align: 'center',
+    color: RAMPS.teal[4],
+    outline: INK,
+  })
+  view.rows.forEach((row, i) => {
+    const y = top + 72 + i * 38
+    const on = i === view.pick
+    if (on) hudPanel(g, 84, y - 6, W - 168, 34, RAMPS.pink)
+    drawText(g, on ? `< ${row.name} >` : row.name, W / 2, y, {
+      scale: 2,
+      align: 'center',
+      color: on ? '#ffffff' : RAMPS.steel[3],
+      outline: INK,
+    })
+    drawText(g, row.about, W / 2, y + 17, {
+      align: 'center',
+      color: on ? RAMPS.gold[4] : RAMPS.steel[2],
+      outline: INK,
+    })
+  })
+  drawText(g, 'UP/DOWN TO PICK, A TO START', W / 2, top + height - 16, {
+    align: 'center',
+    color: RAMPS.gold[3],
+    outline: INK,
+  })
+}
+
+/** An arena's title card as it opens. */
+export function drawArenaCard(
+  g: CanvasRenderingContext2D,
+  view: { number: number; name: string; intro: string; lap: number; t: number },
+) {
+  const k = Math.min(1, view.t / 20)
+  g.fillStyle = rgba(INK, 0.55 * k)
+  g.fillRect(0, 96, W, 120)
+  g.fillStyle = rgba(RAMPS.gold[3], 0.8 * k)
+  g.fillRect(0, 96, W, 1)
+  g.fillRect(0, 215, W, 1)
+  drawText(
+    g,
+    view.lap > 0
+      ? `ARENA ${view.number}  -  LAP ${view.lap + 1}`
+      : `ARENA ${view.number}`,
+    W / 2,
+    108,
+    { scale: 2, align: 'center', color: RAMPS.gold[4], outline: INK },
+  )
+  drawText(g, view.name, W / 2, 136, {
+    scale: 4,
+    align: 'center',
+    color: '#ffffff',
+    outline: INK,
+    shadow: RAMPS.pink[1],
+  })
+  drawText(g, view.intro, W / 2, 182, {
+    scale: 2,
+    align: 'center',
+    color: RAMPS.teal[4],
+    outline: INK,
+  })
+}
+
+/** A champion's name and health across the top of the arena. */
+export function drawChampionBar(
+  g: CanvasRenderingContext2D,
+  name: string,
+  hp: number,
+  max: number,
+) {
+  hudPanel(g, 120, 28, W - 240, 20, RAMPS.ember)
+  drawText(g, name, W / 2, 31, {
+    align: 'center',
+    color: '#ffffff',
+    outline: INK,
+  })
+  gauge(g, 132, 41, W - 264, 3, hp / max, RAMPS.gold)
+}
+
+export type GardenRow = {
+  name: string
+  about: string
+  /** What it costs now (null: owned, or not for sale). */
+  price: number | null
+  /** What the row's button does now. */
+  action: string
+  affordable: boolean
+}
+
+/** The Wing Garden: a flower bower where pollen buys spare butterflies, upgrades and wings. */
+export function drawGarden(
+  g: CanvasRenderingContext2D,
+  view: {
+    pollen: number
+    lives: number
+    rows: readonly GardenRow[]
+    pick: number
+    wear: WingSet
+    next: string
+    tick: number
+  },
+) {
+  bandedGradient(
+    g,
+    0,
+    0,
+    W,
+    H,
+    ['#2a1a4a', '#4c2a6e', '#7a3d7e', '#b4588a', '#e88aa0', '#f8c8a8'],
+    4,
+  )
+  // Hanging wisteria and a ring of flowers round the bower.
+  for (let i = 0; i < 24; i++) {
+    const x = 8 + i * 19
+    const len = 20 + ((i * 37) % 26)
+    for (let j = 0; j < len; j += 5) {
+      g.fillStyle = j % 10 ? RAMPS.purple[3] : RAMPS.purple[2]
+      g.fillRect(x + Math.round(Math.sin((j + i) / 4) * 2), j, 4, 4)
+    }
+  }
+  for (let i = 0; i < 18; i++) {
+    const x = 12 + i * 25
+    const y = H - 18 - ((i * 13) % 10)
+    const sway = Math.sin(view.tick / 30 + i) * 2
+    g.fillStyle = RAMPS.leaf[2]
+    g.fillRect(x, y, 2, H - y)
+    shadedOrb(
+      g,
+      x + 1 + sway,
+      y - 3,
+      5,
+      i % 3 === 0 ? RAMPS.pink : i % 3 === 1 ? RAMPS.gold : RAMPS.sky,
+    )
+  }
+  drawText(g, 'THE WING GARDEN', W / 2, 40, {
+    scale: 3,
+    align: 'center',
+    color: '#ffffff',
+    outline: INK,
+    shadow: RAMPS.purple[1],
+  })
+  drawText(g, `NEXT: ${view.next}`, W / 2, 70, {
+    align: 'center',
+    color: RAMPS.teal[4],
+    outline: INK,
+  })
+  // The pollen purse and the butterflies in hand.
+  hudPanel(g, 24, 86, 128, 46, RAMPS.gold)
+  glow(g, 42, 109, 12, RAMPS.gold[4], 0.5)
+  shadedOrb(g, 42, 109, 6, RAMPS.gold)
+  drawText(g, String(view.pollen), 56, 98, {
+    scale: 2,
+    color: '#ffffff',
+    outline: INK,
+  })
+  drawText(g, 'POLLEN', 56, 118, { color: RAMPS.gold[4], outline: INK })
+  hudPanel(g, 24, 140, 128, 26, RAMPS.teal)
+  const shown = Math.min(view.lives, 7)
+  for (let i = 0; i < shown; i++) drawSprite(g, LIFE_SPRITE, 38 + i * 15, 153)
+  // The robot showing off the wings it wears.
+  const frames = seatFrames(0, view.wear)
+  glow(g, 88, 214, 44, RAMPS.pink[3], 0.35)
+  drawSprite(g, frames[Math.floor(view.tick / 10) % 2]!, 88, 212, {
+    scale: 2,
+  })
+  drawText(g, view.wear.toUpperCase(), 88, 250, {
+    align: 'center',
+    color: RAMPS.pink[4],
+    outline: INK,
+  })
+  // The wares.
+  view.rows.forEach((row, i) => {
+    const y = 82 + i * 26
+    const on = i === view.pick
+    hudPanel(g, 168, y, W - 190, 24, on ? RAMPS.pink : RAMPS.purple)
+    drawText(g, row.name, 176, y + 4, {
+      color: on ? '#ffffff' : row.affordable ? RAMPS.steel[4] : RAMPS.steel[2],
+      outline: INK,
+    })
+    drawText(g, row.about, 176, y + 14, {
+      color: on ? RAMPS.gold[4] : RAMPS.steel[3],
+      outline: INK,
+    })
+    const tag = row.price === null ? row.action : `${row.price}`
+    drawText(g, tag, W - 30, y + 8, {
+      align: 'right',
+      color:
+        row.price === null
+          ? RAMPS.teal[4]
+          : row.affordable
+            ? RAMPS.gold[4]
+            : RAMPS.ember[3],
+      outline: INK,
+    })
+  })
+  drawText(g, 'UP/DOWN TO BROWSE, A TO PICK', W / 2, H - 42, {
+    align: 'center',
+    color: '#ffffff',
+    outline: INK,
+  })
+}
+
+/** The versus result. */
+export function drawResult(
+  g: CanvasRenderingContext2D,
+  lines: readonly string[],
+) {
+  g.fillStyle = rgba(INK, 0.7)
+  g.fillRect(0, 0, W, H)
+  hudPanel(g, 70, 96, W - 140, 130, RAMPS.pink)
+  drawText(g, 'TIME!', W / 2, 110, {
+    scale: 3,
+    align: 'center',
+    color: '#ffffff',
+    outline: INK,
+  })
+  lines.forEach((line, i) => {
+    drawText(g, line, W / 2, 152 + i * 28, {
+      scale: 2,
+      align: 'center',
+      color: i === 0 ? RAMPS.gold[4] : RAMPS.teal[4],
+      outline: INK,
+    })
+  })
+}

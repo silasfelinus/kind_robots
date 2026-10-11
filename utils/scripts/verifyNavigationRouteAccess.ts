@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict'
-import { readdirSync, readFileSync } from 'node:fs'
+import { existsSync, readdirSync, readFileSync } from 'node:fs'
 import {
   filterChannelsByRole,
   resolveChannels,
@@ -10,6 +10,7 @@ import {
   navigationPermissions,
 } from '@/stores/helpers/navigationAccess'
 import { evaluateNavigationRouteAccess } from '@/stores/helpers/navigationRouteAccess'
+import { PROJECT_PLACEMENTS } from '@/utils/projectPlacements'
 
 const items: ChannelContentItem[] = [
   {
@@ -362,6 +363,89 @@ for (const key of ['art', 'projects', 'studios', 'people', 'shelf']) {
     adminChannelSource,
     new RegExp(`\\n\\s{4}- key:\\s*${key}\\n`),
     `Admin conceptual tutorial must keep the "${key}" section.`,
+  )
+}
+
+const navigationMoves = [
+  {
+    slug: 'zuzu-lair',
+    from: 'projects',
+    to: 'admin',
+    route: '/play/zuzu-lair',
+  },
+  {
+    slug: 'tzaddik-gallery',
+    from: 'projects',
+    to: 'admin',
+    route: '/tzaddik-gallery',
+  },
+  {
+    slug: 'ruler-hooked',
+    from: 'projects',
+    to: 'admin',
+    route: '/admin/ruler-hooked',
+  },
+  {
+    slug: 'brainstorm',
+    from: 'projects',
+    to: 'admin',
+    route: '/brainstorm',
+  },
+  {
+    slug: 'zuzu-shifting-lands',
+    from: 'admin',
+    to: 'projects',
+    route: '/admin/zuzu-shifting-lands',
+  },
+  {
+    slug: 'zuzu-pinball',
+    from: 'admin',
+    to: 'projects',
+    route: '/admin/zuzu-pinball',
+  },
+  {
+    slug: 'zuzu-showdown',
+    from: 'admin',
+    to: 'projects',
+    route: '/play/zuzu-showdown',
+  },
+] as const
+
+const newline = String.fromCharCode(10)
+
+for (const { slug, from, to, route } of navigationMoves) {
+  const relocated = `content/channels/${to}/${slug}.md`
+  const tab = readFileSync(relocated, 'utf8')
+  assert.ok(
+    tab.includes(`${newline}channelKey: ${to}${newline}`),
+    `${slug} must live in ${to}`,
+  )
+  assert.ok(
+    tab.includes(`${newline}route: ${route}${newline}`),
+    `${slug} must preserve its working route`,
+  )
+  if (slug === 'zuzu-showdown') {
+    // Showdown separately launched publicly under #3549; never re-gate it.
+    assert.ok(!tab.includes(`${newline}requiredRole: ADMIN${newline}`))
+  } else {
+    assert.ok(
+      tab.includes(`${newline}requiredRole: ADMIN${newline}`),
+      `${slug} must preserve admin-only access`,
+    )
+  }
+  assert.equal(existsSync(`content/channels/${from}/${slug}.md`), false)
+  assert.deepEqual(PROJECT_PLACEMENTS[slug], {
+    channelKey: to,
+    tabKey: slug,
+    route,
+  })
+}
+for (const path of [
+  'content/brainstorm.md',
+  'content/admin/ruler-hooked.md',
+]) {
+  assert.ok(
+    readFileSync(path, 'utf8').includes(`${newline}channelKey: admin${newline}`),
   )
 }
 

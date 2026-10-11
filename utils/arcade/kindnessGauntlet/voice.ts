@@ -34,6 +34,21 @@ export type VoiceCue =
   | 'generator'
   | 'stairs'
   | 'game-over'
+  | 'note'
+  | 'guardian'
+  | 'secret'
+  | 'charm'
+  | 'chip'
+  | 'lost'
+  | 'lift'
+  | 'stun'
+  | 'bluescreen'
+  | 'fake'
+  | 'trap'
+  | 'cloud'
+  | 'helper'
+  | 'memory'
+  | 'dance'
 
 /** Higher cues cut in over lower ones; equal or lower ones wait their turn or are dropped. */
 export const CUE_PRIORITY: Record<VoiceCue, number> = {
@@ -61,6 +76,21 @@ export const CUE_PRIORITY: Record<VoiceCue, number> = {
   stairs: 4,
   flat: 5,
   'game-over': 6,
+  note: 2,
+  stun: 2,
+  charm: 3,
+  chip: 3,
+  lift: 4,
+  lost: 4,
+  secret: 5,
+  bluescreen: 5,
+  guardian: 5,
+  fake: 3,
+  trap: 3,
+  cloud: 2,
+  helper: 2,
+  memory: 6,
+  dance: 2,
 }
 
 export const VOICE_LINES: Record<VoiceCue, readonly string[]> = {
@@ -104,7 +134,31 @@ export const VOICE_LINES: Record<VoiceCue, readonly string[]> = {
   generator: ['ONE LESS GENERATOR.', 'THAT ONE IS QUIET NOW.', 'NICE WORK.'],
   stairs: ['DOWN WE GO!', 'DEEPER INTO MY MEMORY...'],
   'game-over': ['REST NOW, LITTLE BOTS.', 'I WILL KEEP YOUR SEATS WARM.'],
+  note: ['READ THE NOTE.'],
+  guardian: ['IT REMEMBERS WHO IT IS!', 'THANK YOU. IT IS QUIET NOW.'],
+  secret: ['{BOT} FOUND A SECRET!', 'OH! I HAD FORGOTTEN THAT ONE.'],
+  charm: ['{BOT} HAS A CHARM!'],
+  chip: ['{BOT} IS GETTING STRONGER!', 'A CHIP FOR {BOT}!'],
+  lost: ["TIME'S UP! THE BINS ARE CLOSING."],
+  lift: ['EXPRESS LIFT! HOLD ON TIGHT.'],
+  stun: ['MIND THE STATIC MATS!', 'ZAP! {BOT} IS STUNNED.'],
+  bluescreen: ['THE SCREEN IS CLEAR AGAIN!', 'BLUE NO MORE!'],
+  fake: ['THOSE STAIRS WERE PAINTED ON!', 'MADE YOU LOOK!'],
+  trap: ['SOMETHING OPENED SOMEWHERE.', 'A WALL JUST LIFTED!'],
+  cloud: ['MIND THE CLOUDS, THEY COME AND GO.'],
+  helper: ['IT WANTS TO HELP {BOT} NOW!', 'A NEW FRIEND FOR {BOT}!'],
+  memory: ['I REMEMBER!'],
+  dance: ['STAY OFF THE LIT TILES!', '{BOT} MISSED THE BEAT!'],
 }
+
+/** What the Old Mainframe remembers as each wing's Memory Card comes home. */
+export const MEMORY_LINES: readonly string[] = [
+  'I REMEMBER MY FIRST PUNCH CARD!',
+  'I REMEMBER THE TAPES SPINNING ALL NIGHT.',
+  'I REMEMBER THE KIDS AND THEIR HIGH SCORES.',
+  'I REMEMBER THE SKY THROUGH THE SKYLIGHT.',
+  'I REMEMBER... EVERYTHING.',
+]
 
 /** Fill in the bot's name. */
 export function voiceLine(cue: VoiceCue, index: number, bot = ''): string {

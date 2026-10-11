@@ -175,6 +175,7 @@ function verifiedResult(
   const effect = outcome.roll?.success ? choice.success : choice.failure
   return (
     card.locationId === outcome.locationId &&
+    state.drawn[outcome.locationId] === card.id &&
     committed.approach === 'test' &&
     committed.turn === outcome.turn &&
     committed.roll?.total === outcome.roll?.total &&

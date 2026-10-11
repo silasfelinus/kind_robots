@@ -54,13 +54,16 @@ assert.match(board, /focus-visible:/)
 assert.match(board, /onMounted\(\(\) => game\.initialize\(\)\)/)
 assert.doesNotMatch(board, /\b(?:localStorage|\$fetch|fetch\()\b/)
 
-assert.match(store, /restoreJourneyLedgerV4\(JSON\.parse\(saved\)\)/)
+assert.match(store, /restoreJourneyLedgerV5\(JSON\.parse\(saved\)\)/)
+assert.match(store, /restoreJourneyLedgerV4\(JSON\.parse\(savedV4\)\)/)
 assert.match(store, /restoreJourneyLedger\(JSON\.parse\(savedV3\)\)/)
 assert.match(store, /migrateJourneyLedger\(JSON\.parse\(legacy\)\)/)
 assert.match(store, /if \(next === ledger\.value\) return false/)
-assert.match(store, /stepJourneyLedger\(ledger\.value, action\)/)
-assert.match(store, /stepJourneyLedgerV4\(ledger\.value, action\)/)
-assert.match(store, /const SAVE_KEY = 'kr\.shiftingLands\.journeyLedger\.v4'/)
+assert.match(store, /stepJourneyLedger\(active, action as JourneyLedgerAction\)/)
+assert.match(store, /stepJourneyLedgerV4\(active, action as JourneyLedgerAction\)/)
+assert.match(store, /stepJourneyLedgerV5\(active, action\)/)
+assert.match(store, /const SAVE_KEY = 'kr\.shiftingLands\.journeyLedger\.v5'/)
+assert.match(store, /const LEGACY_V4_SAVE_KEY = 'kr\.shiftingLands\.journeyLedger\.v4'/)
 assert.match(
   store,
   /const LEGACY_V3_SAVE_KEY = 'kr\.shiftingLands\.journeyLedger\.v3'/,
@@ -81,10 +84,15 @@ assert.match(store, /if \(!import\.meta\.client\) return/)
 assert.match(store, /window\.localStorage\.setItem\(key/)
 assert.match(
   store,
-  /const key = ledger\.value\.version === 4 \? SAVE_KEY : LEGACY_V3_SAVE_KEY/,
+  /const key = ledger\.value\.version === 5/,
 )
 assert.match(store, /if \(savedV3 !== null\) \{/)
 assert.match(board, /findFiveLandCard/)
+assert.match(board, /v-for="choice in game\.currentTrial\.choices"/)
+assert.match(board, /game\.attemptTrial\(choice\.id\)/)
+assert.match(board, /game\.lastTrialOutcome\.resultText/)
+assert.match(store, /if \(savedV4 !== null\) \{/)
+assert.match(store, /attemptTrial\(choiceId: string\)/)
 
 assert.equal(JOURNEY_WORLD.lands.length, 5)
 const beginning = newJourney(45)

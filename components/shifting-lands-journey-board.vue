@@ -950,7 +950,7 @@
 <script setup lang="ts">
 import { computed, nextTick, onMounted, ref } from 'vue'
 import { useShiftingLandsJourneyStore } from '~/stores/shiftingLandsJourneyStore'
-import { AUTHORED_PACK } from '~/utils/shiftingLands/authoredJourney'
+import { findFiveLandCard } from '~/utils/shiftingLands/authoredFiveLands'
 
 const emit = defineEmits<{ legacy: [] }>()
 const game = useShiftingLandsJourneyStore()
@@ -966,9 +966,8 @@ const landAtmosphere = computed(
 )
 const lastPlayedTitle = computed(
   () =>
-    AUTHORED_PACK.encounters.find(
-      (e) => e.id === game.lastAuthoredOutcome?.encounterId,
-    )?.title ?? 'An encounter remembered',
+    findFiveLandCard(game.lastAuthoredOutcome?.encounterId ?? '')?.title ??
+    'An encounter remembered',
 )
 const dealKey = ref(0)
 const encounterHeading = ref<HTMLElement | null>(null)

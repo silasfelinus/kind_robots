@@ -212,6 +212,12 @@ export type ScoopDef = {
   subwayTo?: string
   /** Not drawn: a hole under a plastic, or a kicker the ball arrives by. */
   hidden?: boolean
+  /**
+   * A physical ball lock (Zuzu's Citadel, t-009): a held ball the rules lock
+   * is parked in the next free slot, out of play, until the rules release
+   * the lock; released balls kick out one by one, `releaseGapMs` apart.
+   */
+  lock?: { slots: Vec3[]; releaseGapMs?: number }
 }
 
 /** A spinner: a sensor gate across a lane that spins when the ball passes. */

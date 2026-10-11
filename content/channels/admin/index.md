@@ -49,8 +49,8 @@ tutorial:
       body: >-
         Zuzu World is one archive of Zuzu art that any production can link to. Comic
         Studio is where you pitch to the Editor, compare panel renders, and lay out
-        pages. Zuzu Showdown is the fighting game, Shifting Lands is the Homestead
-        card-game prototype, and Butterfly Gallery sorts the private art archive
+        pages. Zuzu Showdown is the fighting game, Shifting Lands is the five-land
+        illustrated board game, and Butterfly Gallery sorts the private art archive
         into bins. They stay admin-only while they are built, so expect them to
         change between visits.
       image: /zuzu-gamebook/scenes/zuzu-fire.webp

@@ -100,6 +100,7 @@ export const ARCADE_GAMES: ArcadeGameMeta[] = [
     titleArt: '/images/arcade/games/rescue-rally-title.webp',
     accent: '#22d3ee',
     controls: 'Move to aim, beam, strafe',
+    twinStick: true,
   },
   {
     slug: 'sink-suds',
@@ -721,30 +722,10 @@ export const PREVIEW_GAMES: ArcadeGameMeta[] = [
 
 /**
  * Scored games that are not hall cabinets: each lives on its own page and posts to the arcade
- * leaderboard under its slug, but stays out of the hall and the hall of fame until it is listed. Zuzu
- * Showdown's Arcade mode (conductor zuzu-showdown t-021) is here until Silas's verdict (t-025).
+ * leaderboard under its slug, but stays out of the hall and the hall of fame until it is listed
+ * (then it moves to LINKED_GAMES).
  */
 export const UNLISTED_SCORED_GAMES: ArcadeGameMeta[] = [
-  {
-    slug: 'zuzu-showdown',
-    title: 'Zuzu Showdown',
-    riffsOn: 'Street Fighter II',
-    blurb:
-      'A 2D fighter of the Shifting Lands. Climb the Arcade ladder against every fighter, your rival and the Swamp Witch, then face The Thing Behind the Door.',
-    howTo: [
-      'ARROWS  MOVE',
-      'U I  PUNCHES',
-      'J K  KICKS',
-      'BEAT EVERY FIGHTER',
-      'THEN THE DOOR',
-    ],
-    width: 480,
-    height: 270,
-    maxPlausibleScore: 50_000_000,
-    titleArt: '/zuzu-showdown-portraits/zuzu-vs-hd.webp',
-    accent: '#fb923c',
-    controls: 'Move, two punches, two kicks, dodge',
-  },
   {
     slug: 'zuzu-lair',
     title: "Zuzu's Lair",
@@ -828,6 +809,38 @@ export function overrideWebGLSupport(value: boolean | null) {
 }
 
 /**
+ * Scored games with a page of their own that the hall lists beside its cabinets: the tile and the
+ * hall-of-fame card link to `route`. Zuzu Showdown joined on 2026-10-11 (conductor zuzu-showdown
+ * t-025: Silas, "If it's ready for prime time, it can move to the Play and out of admin").
+ */
+export const LINKED_GAMES: ArcadeGameMeta[] = [
+  {
+    slug: 'zuzu-showdown',
+    title: 'Zuzu Showdown',
+    riffsOn: 'Street Fighter II',
+    blurb:
+      'A 2D fighter of the Shifting Lands. Nine fighters; Story mode climbs past every one of them, your rival and the Swamp Witch, to The Thing Behind the Door.',
+    howTo: [
+      'ARROWS  MOVE',
+      'U I  PUNCHES',
+      'J K  KICKS',
+      'BEAT EVERY FIGHTER',
+      'THEN THE DOOR',
+    ],
+    width: 480,
+    height: 270,
+    maxPlausibleScore: 50_000_000,
+    titleArt: '/zuzu-showdown-portraits/zuzu-vs-hd.webp',
+    route: '/play/zuzu-showdown',
+    accent: '#fb923c',
+    controls: 'Move, two punches, two kicks, dodge',
+  },
+]
+
+/** Everything the hall shows and the hall of fame ranks: the cabinets, then the linked games. */
+export const HALL_GAMES: ArcadeGameMeta[] = [...ARCADE_GAMES, ...LINKED_GAMES]
+
+/**
  * A cabinet by slug, as this device will play it: a WebGL cabinet's
  * fallback where WebGL is missing.
  */
@@ -835,6 +848,7 @@ export function findArcadeGame(slug: string): ArcadeGameMeta | undefined {
   const game =
     ARCADE_GAMES.find((g) => g.slug === slug) ??
     PREVIEW_GAMES.find((g) => g.slug === slug) ??
+    LINKED_GAMES.find((g) => g.slug === slug) ??
     UNLISTED_SCORED_GAMES.find((g) => g.slug === slug)
   if (game?.renderMode === 'webgl' && game.fallback && !canRenderWebGL())
     return game.fallback
@@ -850,6 +864,7 @@ export function loadArcadeGame(slug: string): Promise<ArcadeGameModule> {
 export function isPlausibleScore(slug: string, score: unknown): boolean {
   const game =
     ARCADE_GAMES.find((entry) => entry.slug === slug) ??
+    LINKED_GAMES.find((entry) => entry.slug === slug) ??
     UNLISTED_SCORED_GAMES.find((entry) => entry.slug === slug)
   return (
     Boolean(game) &&

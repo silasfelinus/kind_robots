@@ -335,6 +335,47 @@ const inserts: InsertDef[] = [
   },
 ]
 
+// The story track: one seal lamp per chapter, the bonus multiplier under it,
+// and the lamps for the kickback and a ball to shoot again.
+const storyLamps: InsertDef[] = [
+  ...[-0.07, -0.035, 0, 0.035, 0.07].map((x, i): InsertDef => ({
+    id: `seal-${i + 1}`,
+    at: [x, -0.205],
+    shape: 'circle',
+    size: 0.02,
+    color: [0xe9a56b, 0x7fb6e8, 0xd9c27a, 0xf0e2c8, 0xd95f4e][i]!,
+  })),
+  ...[2, 3, 4, 5].map((n, i): InsertDef => ({
+    id: `bonus-${n}x`,
+    at: [-0.0525 + i * 0.035, -0.17],
+    shape: 'circle',
+    size: 0.016,
+    color: 0xf2bb78,
+  })),
+  {
+    id: 'shoot-again',
+    at: [0, -0.135],
+    shape: 'circle',
+    size: 0.022,
+    color: 0xf5f0e6,
+  },
+  {
+    id: 'kickback-lamp',
+    at: [-0.2325, -0.02],
+    shape: 'circle',
+    size: 0.016,
+    color: 0xd95f4e,
+  },
+  {
+    id: 'mortuary-arrow',
+    at: [0.172, -0.36],
+    shape: 'arrow',
+    size: 0.035,
+    color: 0xc9b6f0,
+    shot: 'mortuary',
+  },
+]
+
 const frame = {
   min: [LEFT - 0.025, 0, TOP - 0.05] as Vec3,
   max: [RIGHT + 0.025, 0.33, BOTTOM + 0.02] as Vec3,
@@ -378,6 +419,12 @@ export const ZUZU_LAST_BELL_GREYBOX: TableDef = {
   ],
   colliders,
   sensors: [
+    // The ball leaving the shooter lane: the plunge, for the skill shot.
+    {
+      id: 'shooter-exit',
+      at: [SHOOTER_CENTER, BALL, -0.5],
+      half: [0.02, 0.02, 0.012],
+    },
     {
       id: 'left-orbit-low',
       at: [-0.236, BALL, -0.6],
@@ -573,7 +620,7 @@ export const ZUZU_LAST_BELL_GREYBOX: TableDef = {
       displayName: 'BELL SPIRAL',
     },
   ],
-  inserts,
+  inserts: [...inserts, ...storyLamps],
   flashers: [
     {
       id: 'croc-flasher',

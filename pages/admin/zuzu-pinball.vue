@@ -58,21 +58,23 @@
               <p
                 class="text-xs font-bold uppercase tracking-widest text-warning"
               >
-                Current slice · playable physics greybox
+                Current slice · playable table, Zuzu's own rules
               </p>
               <h3 class="font-serif text-xl font-bold">Under construction</h3>
               <p class="text-sm leading-relaxed opacity-85">
-                Every shot on the table, the three ramps, both orbits, the River
-                Croc's mouth, the Mortuary, the Bell lane and the relic spinner,
-                is made by a real flip on the real physics. Inlanes feed the
-                flippers, the slingshots kick, and the four Abbey seals stand in
-                line between the Village and Bell ramps. The shared AMI scoring
-                rules are temporary, not Zuzu's final game system.
+                Every shot on the table is made by a real flip on the real
+                physics. The Mortuary tells the story's five chapters in order,
+                Homestead in Ash to The Last Bell, and each one finished breaks
+                a seal on the track. Ring the bell lane to open the Mortuary
+                again; knock down all four Abbey seals to raise the bonus
+                multiplier. The River Croc always pays, and his fifth swallow
+                lights an extra ball. A soft plunge into the Mortuary is the
+                skill shot.
               </p>
               <p class="text-sm leading-relaxed opacity-85">
                 Next: a raised Abbey with independently controlled upper
-                flippers, a sculpted snapping Croc jaw, Zuzu's own modes and
-                Death Roll jackpots, and the hidden undercrypt.
+                flippers, multiball, a sculpted snapping Croc jaw with Death
+                Roll jackpots, and the hidden undercrypt.
               </p>
             </section>
             <section class="kr-panel space-y-3 p-5">

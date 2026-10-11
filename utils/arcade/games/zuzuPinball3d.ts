@@ -1,6 +1,7 @@
 import RAPIER from '@dimforge/rapier3d-compat'
 import type { ArcadeGameModule } from '../types'
 import { PinballRuntime } from '../pinball/runtime'
+import { ZUZU_RULESET } from '../pinball/tables/zuzuLastBell/rules'
 import { ZUZU_LAST_BELL_GREYBOX } from '../pinball/tables/zuzuLastBell/table'
 
 let ready: Promise<void> | null = null
@@ -12,12 +13,17 @@ export function prepare(): Promise<void> {
 
 const zuzuPinball: ArcadeGameModule = {
   create: (options) =>
-    new PinballRuntime(options, RAPIER, ZUZU_LAST_BELL_GREYBOX),
+    new PinballRuntime(
+      options,
+      RAPIER,
+      ZUZU_LAST_BELL_GREYBOX,
+      undefined,
+      ZUZU_RULESET,
+    ),
   guide: () => [
     {
       title: 'THE LAST BELL',
       lines: [
-        'PRIVATE ENGINEERING TABLE',
         'ARROWS = FLIPPERS',
         'DOWN = HOLD PLUNGER',
         'RELEASE TO LAUNCH',
@@ -27,14 +33,23 @@ const zuzuPinball: ArcadeGameModule = {
       scale: 1,
     },
     {
-      title: 'THE WATER HAS TEETH',
+      title: 'FIVE SEALS',
       lines: [
-        'LEFT BANK: RIVER CROC',
-        'AIM INTO THE OPEN MOUTH',
-        'CAPTURE THEN SAFE EJECT',
-        'CENTER: ABBEY BELL',
-        'THIS IS PHYSICS GREYBOX',
-        'RULES AND ART IN PROGRESS',
+        'MORTUARY TELLS A CHAPTER',
+        'HIT ITS BLINKING SHOTS',
+        'FINISH ONE TO BREAK A SEAL',
+        'BELL LANE REOPENS IT',
+        'SOFT PLUNGE: SKILL SHOT',
+      ],
+      scale: 1,
+    },
+    {
+      title: 'RIVER CROC',
+      lines: [
+        'THE RIVER CROC ALWAYS PAYS',
+        'FIVE SWALLOWS: EXTRA BALL',
+        'ABBEY SEALS: BONUS X',
+        'RAMPS AND ORBITS COMBO',
       ],
       scale: 1,
     },

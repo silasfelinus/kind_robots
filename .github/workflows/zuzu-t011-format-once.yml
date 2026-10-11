@@ -1,0 +1,31 @@
+name: One-shot Shifting Lands authored trial formatter
+on:
+  push:
+    branches:
+      - worker/zuzu-shifting-lands-t011-authored-trials-20261011-b58c
+    paths:
+      - .github/workflows/zuzu-t011-format-once.yml
+permissions:
+  contents: write
+jobs:
+  format:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: worker/zuzu-shifting-lands-t011-authored-trials-20261011-b58c
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+      - run: npm ci --ignore-scripts
+        env:
+          CYPRESS_INSTALL_BINARY: '0'
+      - name: Format scoped files and remove temporary workflow
+        run: |
+          npx prettier --write utils/shiftingLands/authoredTrials.json utils/shiftingLands/authoredBosses.ts utils/shiftingLands/saveLedgerV5.ts utils/shiftingLands/README.md utils/scripts/verifyShiftingTrials.test.ts utils/scripts/verifyShiftingBoard.test.ts stores/shiftingLandsJourneyStore.ts components/shifting-lands-journey-board.vue
+          git rm .github/workflows/zuzu-t011-format-once.yml
+          git add utils/shiftingLands/authoredTrials.json utils/shiftingLands/authoredBosses.ts utils/shiftingLands/saveLedgerV5.ts utils/shiftingLands/README.md utils/scripts/verifyShiftingTrials.test.ts utils/scripts/verifyShiftingBoard.test.ts stores/shiftingLandsJourneyStore.ts components/shifting-lands-journey-board.vue
+          git -c user.name='github-actions[bot]' -c user.email='41898282+github-actions[bot]@users.noreply.github.com' commit -m 'style(shifting-lands): format authored boss trial changes'
+          git push origin HEAD:refs/heads/worker/zuzu-shifting-lands-t011-authored-trials-20261011-b58c

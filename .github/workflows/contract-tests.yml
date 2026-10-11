@@ -171,6 +171,9 @@ jobs:
       - name: Zuzu Pinball Citadel lock and Harvest Moon multiball
         run: npm run test:zuzu-pinball-multiball
 
+      - name: Zuzu Pinball raised Abbey deck and upper flippers
+        run: npm run test:zuzu-pinball-abbey
+
       - name: Zuzu gamebook branching and combat
         run: npm run test:zuzu-gamebook
 

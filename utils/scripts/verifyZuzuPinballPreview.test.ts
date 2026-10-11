@@ -39,10 +39,20 @@ const table = ZUZU_LAST_BELL_GREYBOX
 assert.equal(table.id, 'zuzu-last-bell-greybox')
 assert.notEqual(table.id, 'ami-village-greybox')
 assert.equal(table.physical.widthM, 0.56)
-assert.equal(table.flippers.length, 2)
+// Four flippers across two elevations: the lower pair and the Abbey deck's.
+assert.equal(table.flippers.length, 4)
 assert.deepEqual(
-  table.flippers.map((flipper) => flipper.side),
-  ['left', 'right'],
+  table.flippers.map((flipper) => [flipper.side, !!flipper.upper]),
+  [
+    ['left', false],
+    ['right', false],
+    ['left', true],
+    ['right', true],
+  ],
+)
+assert.ok(
+  table.flippers.filter((f) => f.upper).every((f) => f.pivot[1] > 0.15),
+  'the upper pair stands on the raised deck',
 )
 assert.ok(table.sensors.some((sensor) => sensor.id === 'bell-lane'))
 assert.deepEqual(

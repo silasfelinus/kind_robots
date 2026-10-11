@@ -71,3 +71,33 @@ spent-item and technique-modified roll events before the board enables them.
 
 Run `npx tsx utils/scripts/verifyShiftingProgression.test.ts` for the focused
 progression and anti-farming contract.
+
+## V3 durable replay ledger
+
+The private board now persists `kr.shiftingLands.journeyLedger.v3`.
+`saveLedger.ts` stores the original seed, source hashes, ordered player
+commands, spent reward IDs and the current authored V2 rules snapshot.
+On restore it replays every command against the pinned authored pack and
+checks the exact resulting state, including both dice, selected card identity,
+route mutations, journal, boss outcomes and inventory use. Invalid or
+duplicate actions, out-of-date sources and mismatched snapshots are rejected.
+
+An existing `kr.shiftingLands.authoredJourney.v2` save is migrated only if
+no V3 save exists. The old V2 data is preserved as an explicitly marked
+checkpoint because V2 did **not** record every earlier player command.
+Every subsequent V3 action is strictly replay-verified from that checkpoint.
+The original V2 localStorage key is left untouched. A corrupted V3 record
+never falls back to an older V2 copy, which could otherwise restore spent
+rewards. Use *New journey* to clear a rejected V3 in the private preview.
+
+`USE_REWARD` is a deterministic action (currently a healing willow-bark
+dose or recovered rations), gated on the specific previously earned item,
+available capacity and no earlier use. Replayed actions cannot spend the
+same item twice. The existing V2 roll formula remains unchanged so saved
+encounters are never retroactively rerolled. Applying newly learned skill
+bonuses to live checks requires a separately versioned authored roll contract.
+
+Verify with:
+```sh
+npx tsx utils/scripts/verifyShiftingSaveLedger.test.ts
+```

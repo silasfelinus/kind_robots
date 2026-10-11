@@ -4,7 +4,7 @@
 // A game is metadata (which the server and the hall can read without touching
 // a canvas) plus a lazily imported module that creates playable instances.
 
-import type { ArcadeSound } from './sound'
+import type { ArcadeSound, MusicLoop } from './sound'
 
 export type ArcadeButton =
   'up' | 'down' | 'left' | 'right' | 'a' | 'b' | 'start'
@@ -108,8 +108,12 @@ export type ArcadeGameOptions = {
   resume?: unknown
 }
 
-/** The subset of ArcadeSound a game may call (lets tests pass a stub). */
-export type ArcadeSoundLike = Pick<ArcadeSound, 'play'>
+/**
+ * The subset of ArcadeSound a game may call (lets tests pass a stub): the shared presets, and
+ * optionally its own notes (a stub may leave `playNotes` out, so games must fall back to `play`).
+ */
+export type ArcadeSoundLike = Pick<ArcadeSound, 'play'> &
+  Partial<Pick<ArcadeSound, 'playNotes'>>
 
 export interface ArcadeGameInstance {
   readonly score: number
@@ -124,6 +128,12 @@ export interface ArcadeGameInstance {
    * saves leaves this undefined.
    */
   readonly save?: unknown
+  /**
+   * The music loop this game wants playing now, for a game with a score (Ghost Trail's stage,
+   * boss and ending themes): the cabinet starts it when the reference changes and stops it on
+   * null, on game over and when the game leaves. Return the same object while it should go on.
+   */
+  readonly music?: MusicLoop | null
   /**
    * Advance one fixed 1/60 s tick. `input` is player 1's; a game seating more
    * players also gets every seated player's frame, player 1 first.

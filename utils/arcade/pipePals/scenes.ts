@@ -64,6 +64,27 @@ export const SCENE_SKY: Record<SceneId, readonly string[]> = {
     mix(RAMPS.earth[1], RAMPS.gold[1], 0.4),
     mix(RAMPS.gold[1], RAMPS.earth[2], 0.5),
   ],
+  flooded: [
+    mix(RAMPS.water[0], RAMPS.night[0], 0.5),
+    RAMPS.water[0],
+    mix(RAMPS.water[1], RAMPS.night[2], 0.5),
+    mix(RAMPS.water[1], RAMPS.teal[1], 0.5),
+    mix(RAMPS.teal[1], RAMPS.water[2], 0.5),
+  ],
+  storm: [
+    RAMPS.night[0],
+    RAMPS.night[0],
+    RAMPS.night[1],
+    mix(RAMPS.night[1], RAMPS.purple[0], 0.5),
+    mix(RAMPS.night[2], RAMPS.purple[1], 0.4),
+  ],
+  golden: [
+    mix(RAMPS.gold[1], RAMPS.purple[1], 0.5),
+    mix(RAMPS.gold[1], RAMPS.pink[1], 0.4),
+    mix(RAMPS.gold[2], RAMPS.pink[2], 0.4),
+    RAMPS.gold[2],
+    mix(RAMPS.gold[3], RAMPS.cream[3], 0.5),
+  ],
 }
 
 /** The greenhouse: glass roof panes, hanging baskets, potted palms and a sprinkler header. */
@@ -377,6 +398,100 @@ export function paintClock(k: CanvasRenderingContext2D) {
     W,
     H - GROUND_Y,
     [RAMPS.steel[1], RAMPS.steel[0], INK],
+    3,
+  )
+}
+
+/** Flooded mains: big round culverts, dripping pipes and a waterline stain. */
+export function paintFlooded(k: CanvasRenderingContext2D) {
+  bandedGradient(k, 0, 0, W, GROUND_Y, SCENE_SKY.flooded, 4)
+  const concrete: Ramp = [
+    mix(RAMPS.steel[0], RAMPS.water[0], 0.5),
+    mix(RAMPS.steel[1], RAMPS.water[0], 0.5),
+    mix(RAMPS.steel[1], RAMPS.water[1], 0.4),
+    mix(RAMPS.steel[2], RAMPS.water[1], 0.4),
+    mix(RAMPS.steel[3], RAMPS.water[2], 0.4),
+  ]
+  for (const [cx, cy, r] of [
+    [90, 200, 64],
+    [358, 210, 70],
+  ] as const) {
+    shadedOrb(k, cx, cy, r, concrete, { outline: INK })
+    k.fillStyle = mix(RAMPS.night[0], RAMPS.water[0], 0.4)
+    k.beginPath()
+    k.arc(cx, cy, r - 12, 0, Math.PI * 2)
+    k.fill()
+  }
+  // A waterline stain where the floods reach.
+  k.fillStyle = rgba(RAMPS.water[3], 0.18)
+  k.fillRect(0, 222, W, 4)
+  for (let x = 20; x < W; x += 60) {
+    k.fillStyle = rgba(RAMPS.water[4], 0.25)
+    k.fillRect(x, 40, 1, 90)
+  }
+  bandedGradient(
+    k,
+    0,
+    GROUND_Y,
+    W,
+    H - GROUND_Y,
+    [RAMPS.steel[1], RAMPS.steel[0], INK],
+    3,
+  )
+}
+
+/** The storm drain at midnight: brick tunnel, a grate letting in the night sky. */
+export function paintStorm(k: CanvasRenderingContext2D) {
+  const rand = backdropRng(131)
+  bandedGradient(k, 0, 0, W, GROUND_Y, SCENE_SKY.storm, 4)
+  const brick = mix(RAMPS.night[2], RAMPS.purple[0], 0.4)
+  for (let y = 10; y < GROUND_Y; y += 10)
+    for (let x = (y / 10) % 2 ? 0 : 12; x < W; x += 24) {
+      k.fillStyle = brick
+      k.fillRect(x, y, 22, 8)
+    }
+  // The street grate up top, with a sliver of sky and rain.
+  bevel(k, W / 2 - 60, 0, 120, 30, RAMPS.steel)
+  k.fillStyle = RAMPS.night[0]
+  for (let x = W / 2 - 54; x < W / 2 + 54; x += 8) k.fillRect(x, 4, 4, 22)
+  for (let i = 0; i < 12; i++) {
+    k.fillStyle = rgba(RAMPS.purple[3], 0.3 + rand() * 0.3)
+    k.fillRect(Math.round(rand() * W), Math.round(40 + rand() * 260), 1, 1)
+  }
+  bandedGradient(
+    k,
+    0,
+    GROUND_Y,
+    W,
+    H - GROUND_Y,
+    [RAMPS.night[2], RAMPS.night[1], INK],
+    3,
+  )
+}
+
+/** The Golden Main: a glowing gold skyline under a sunrise sky. */
+export function paintGolden(k: CanvasRenderingContext2D) {
+  const rand = backdropRng(149)
+  bandedGradient(k, 0, 0, W, GROUND_Y, SCENE_SKY.golden, 4)
+  glow(k, W / 2, 60, 120, RAMPS.cream[4], 0.35)
+  for (let x = -6; x < W;) {
+    const w = 14 + Math.floor(rand() * 26)
+    const h = 40 + Math.floor(rand() * 120)
+    k.fillStyle = mix(RAMPS.gold[1], RAMPS.purple[1], 0.35)
+    k.fillRect(x, GROUND_Y - h, w, h)
+    k.fillStyle = rgba(RAMPS.gold[4], 0.5)
+    for (let wy = GROUND_Y - h + 4; wy < GROUND_Y - 4; wy += 6)
+      for (let wx = x + 2; wx < x + w - 2; wx += 4)
+        if (rand() < 0.3) k.fillRect(wx, wy, 1, 2)
+    x += w + 2
+  }
+  bandedGradient(
+    k,
+    0,
+    GROUND_Y,
+    W,
+    H - GROUND_Y,
+    [RAMPS.gold[1], RAMPS.gold[0], INK],
     3,
   )
 }

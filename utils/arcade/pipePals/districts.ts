@@ -50,6 +50,7 @@ export type Kind =
   | 'frost'
   | 'snowball'
   | 'gearbug'
+  | 'beetle'
 export type SpecialKind =
   | 'first-fix'
   | 'seedling-rescue'
@@ -57,11 +58,28 @@ export type SpecialKind =
   | 'thaw-run'
   | 'pressure-valves'
   | 'valve-routing'
+  | 'pump-station'
+  | 'lights-out'
 export type BonusTwist =
-  'static' | 'sprinkler' | 'bubbles' | 'ice' | 'steam' | 'gears'
+  | 'static'
+  | 'sprinkler'
+  | 'bubbles'
+  | 'ice'
+  | 'steam'
+  | 'gears'
+  | 'underwater'
+  | 'skill'
 export type SceneId =
-  'city' | 'greenhouse' | 'laundry' | 'cold' | 'boiler' | 'clock'
-export type BossId = 'big-shell' | 'thermostat'
+  | 'city'
+  | 'greenhouse'
+  | 'laundry'
+  | 'cold'
+  | 'boiler'
+  | 'clock'
+  | 'flooded'
+  | 'storm'
+  | 'golden'
+export type BossId = 'big-shell' | 'thermostat' | 'clog-king'
 
 export type District = {
   id: string
@@ -81,6 +99,18 @@ export type District = {
   spots?: Spot[]
   /** Ember sparks come this much more often here. */
   emberRate?: number
+  /** Flood water rising and draining on a cycle (y of the surface, low and high). */
+  water?: { low: number; high: number; period: number }
+  /** Pipe eels strike out of the top pipes. */
+  eels?: boolean
+  /** Bubble jellies drift up from the flooded floor. */
+  jellies?: boolean
+  /** A dark board: only lamps, the pal's own glow and lightning light it. */
+  dark?: boolean
+  /** Lamps on ledges (the dark board's light pools). */
+  lamps?: Spot[]
+  /** Mimic coins sit among the ledges from this phase on. */
+  mimicsFrom?: number
   /** Under a gap in the 244 row, so a pal can bump it from the floor. */
   kindBlock: { x: number; y: number }
   /** `from` is the phase within the district (1..5) a kind first appears. */
@@ -322,12 +352,131 @@ export const DISTRICTS: readonly District[] = [
     ledge: 'gold',
     ground: 'steel',
   },
+  {
+    id: 'flooded',
+    number: 7,
+    shift: 3,
+    name: 'FLOODED MAINS',
+    tagline: 'THE TIDE COMES IN. KICK THEM BEFORE THEY FLOAT.',
+    segments: [
+      FLOOR,
+      { x0: 0, x1: 170, y: 244 },
+      { x0: 278, x1: W, y: 244 },
+      { x0: 0, x1: 100, y: 178 },
+      { x0: 140, x1: 308, y: 178 },
+      { x0: 348, x1: W, y: 178 },
+      { x0: 0, x1: 170, y: 112 },
+      { x0: 278, x1: W, y: 112 },
+    ],
+    water: { low: 334, high: 222, period: 60 * 21 },
+    eels: true,
+    jellies: true,
+    // Pump buttons for Pump Station, pressed 1-2-3.
+    spots: [
+      { x: 80, y: 244 },
+      { x: 296, y: 178 },
+      { x: 400, y: 112 },
+    ],
+    kindBlock: { x: W / 2 - 12, y: 262 },
+    roster: [
+      { kind: 'crawler', from: 1, weight: 2 },
+      { kind: 'crab', from: 1, weight: 1 },
+      { kind: 'knight', from: 1, weight: 1 },
+      { kind: 'flea', from: 1, weight: 1 },
+      { kind: 'gearbug', from: 2, weight: 1 },
+    ],
+    special: 'pump-station',
+    bonus: 'underwater',
+    scene: 'flooded',
+    ledge: 'water',
+    ground: 'steel',
+  },
+  {
+    id: 'storm',
+    number: 8,
+    shift: 3,
+    name: 'STORM DRAIN AT MIDNIGHT',
+    tagline: 'TRUST THE LAMPS. WATCH FOR THE LIGHTNING.',
+    segments: [
+      FLOOR,
+      { x0: 0, x1: 160, y: 244 },
+      { x0: 288, x1: W, y: 244 },
+      { x0: 0, x1: 96, y: 178 },
+      { x0: 140, x1: 308, y: 178 },
+      { x0: 352, x1: W, y: 178 },
+      { x0: 0, x1: 176, y: 112 },
+      { x0: 272, x1: W, y: 112 },
+    ],
+    dark: true,
+    lamps: [
+      { x: 60, y: 244 },
+      { x: 400, y: 244 },
+      { x: 150, y: 178 },
+      { x: 420, y: 112 },
+    ],
+    mimicsFrom: 2,
+    kindBlock: { x: W / 2 - 12, y: 262 },
+    roster: [
+      { kind: 'crawler', from: 1, weight: 2 },
+      { kind: 'crab', from: 1, weight: 1 },
+      { kind: 'knight', from: 1, weight: 1 },
+      { kind: 'moth', from: 1, weight: 1 },
+      { kind: 'gearbug', from: 1, weight: 1 },
+      { kind: 'beetle', from: 1, weight: 3 },
+    ],
+    special: 'lights-out',
+    bonus: 'skill',
+    boss: 'clog-king',
+    scene: 'storm',
+    ledge: 'purple',
+    ground: 'night',
+  },
 ]
+
+/**
+ * The secret ninth district: a golden mirror of the rooftop, opened by all eight golden valves. Every
+ * critter, the fastest pace, coins everywhere, and the true ending after it.
+ */
+export const GOLDEN_MAIN: District = {
+  id: 'golden',
+  number: 9,
+  shift: 3,
+  name: 'THE GOLDEN MAIN',
+  tagline: 'ALL EIGHT VALVES TURNED. THE CITY GLOWS.',
+  segments: [
+    FLOOR,
+    { x0: 0, x1: 170, y: 244 },
+    { x0: 278, x1: W, y: 244 },
+    { x0: 0, x1: 92, y: 178 },
+    { x0: 138, x1: 310, y: 178 },
+    { x0: 356, x1: W, y: 178 },
+    { x0: 0, x1: 176, y: 112 },
+    { x0: 272, x1: W, y: 112 },
+  ].map((s) => ({ ...s, x0: W - s.x1, x1: W - s.x0 })),
+  kindBlock: { x: W / 2 - 12, y: 262 },
+  roster: [
+    { kind: 'crawler', from: 1, weight: 2 },
+    { kind: 'crab', from: 1, weight: 2 },
+    { kind: 'flea', from: 1, weight: 1 },
+    { kind: 'knight', from: 1, weight: 1 },
+    { kind: 'moth', from: 1, weight: 1 },
+    { kind: 'puppet', from: 1, weight: 1 },
+    { kind: 'frost', from: 1, weight: 1 },
+    { kind: 'gearbug', from: 1, weight: 1 },
+    { kind: 'beetle', from: 1, weight: 1 },
+  ],
+  special: 'first-fix',
+  bonus: 'static',
+  scene: 'golden',
+  ledge: 'gold',
+  ground: 'gold',
+}
 
 export type Step =
   | { kind: 'phase'; phase: number }
   | { kind: 'boss'; boss: BossId }
   | { kind: 'bonus' }
+  | { kind: 'ending'; trueEnding: boolean }
   | { kind: 'workshop' }
 
 /** A district's running order: five phases, its boss if it has one, its bonus round, the Workshop. */
@@ -336,7 +485,11 @@ export function districtSteps(d: District): Step[] {
   for (let p = 1; p <= PHASES_PER_DISTRICT; p++)
     steps.push({ kind: 'phase', phase: p })
   if (d.boss) steps.push({ kind: 'boss', boss: d.boss })
-  steps.push({ kind: 'bonus' }, { kind: 'workshop' })
+  steps.push({ kind: 'bonus' })
+  // The campaign ends after the Night Shift's finale (or, for the true ending, the Golden Main).
+  if (d.boss === 'clog-king' || d.id === 'golden')
+    steps.push({ kind: 'ending', trueEnding: d.id === 'golden' })
+  steps.push({ kind: 'workshop' })
   return steps
 }
 
@@ -434,6 +587,12 @@ export const VALVE_TESTS: Record<
     short: 'GAUGES OK',
   },
   'valve-routing': { goal: 4, label: 'BOWL A CHAIN OF 4', short: 'BEST CHAIN' },
+  'pump-station': {
+    goal: 3,
+    label: 'PUMP 1-2-3 BEFORE THE FLOOD',
+    short: 'PUMPS',
+  },
+  'lights-out': { goal: 4, label: 'RELIGHT ALL 4 LAMPS', short: 'LIT' },
 }
 
 /** Leaky joints for First Fix: on ledges, away from the pipes. */

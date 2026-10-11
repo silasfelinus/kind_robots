@@ -96,7 +96,7 @@ export const ARCADE_GAMES: ArcadeGameMeta[] = [
     ],
     width: 480,
     height: 360,
-    maxPlausibleScore: 5_000_000,
+    maxPlausibleScore: 20_000_000,
     titleArt: '/images/arcade/games/rescue-rally-title.webp',
     accent: '#22d3ee',
     controls: 'Move to aim, beam, strafe',

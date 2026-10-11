@@ -536,3 +536,50 @@ export const HELP_SPRITE = pixelSprite(
   ['HP.Pp', 'PPPPp', '.PPp.', '..p..'],
   HEART_PALETTE,
 )
+
+/** A little wind-up toy from the Big Wind-Up's hatch: tin body, key on top. */
+export const WINDUP_SPRITES = [0, 1].map((frame) =>
+  pixelSprite(
+    [
+      frame ? '...YYYY...' : '....YY....',
+      '....yy....',
+      '..hHHHHs..',
+      '.hHkHHkHs.',
+      '.HHHHHHHd.',
+      '.HHmmmmHd.',
+      '..dHHHHd..',
+      frame ? '..d....d..' : '...d..d...',
+    ],
+    {
+      Y: RAMPS.gold[3],
+      y: RAMPS.gold[1],
+      h: RAMPS.rust[4],
+      H: RAMPS.rust[3],
+      s: RAMPS.rust[2],
+      d: RAMPS.rust[1],
+      m: RAMPS.rust[1],
+      k: INK,
+    },
+  ),
+)
+
+/** A Reboot Squad bot: a small friendly drone that orbits the hero. */
+export const SQUAD_SPRITE = pixelSprite(
+  [
+    '....Y....',
+    '..hHHHs..',
+    '.hHkLkHs.',
+    '.HLLLLLd.',
+    '..dLLLd..',
+    '...d.d...',
+  ],
+  {
+    Y: RAMPS.gold[4],
+    h: RAMPS.leaf[4],
+    H: RAMPS.leaf[3],
+    L: RAMPS.leaf[2],
+    s: RAMPS.leaf[1],
+    d: RAMPS.leaf[0],
+    k: INK,
+  },
+)

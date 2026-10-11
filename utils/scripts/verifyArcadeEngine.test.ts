@@ -4206,7 +4206,139 @@ async function runPinballMetalwork() {
   scene.setLamps({}, 0)
   for (let i = 0; i < 120; i++) scene.render()
   assert.ok(metal.stripGlow < glow * 0.1, 'and dim with the GI')
+  // t-033: every chrome lane guide on the playfield stands on stand-offs.
+  const guides = table.colliders.filter(
+    (c) =>
+      c.kind === 'box' &&
+      c.material === 'chrome' &&
+      !c.hidden &&
+      c.at[1] + c.half[1] < 0.03,
+  )
+  assert.ok(
+    metal.standoffs >= guides.length * 2,
+    `both ends of every lane guide are bolted down (${metal.standoffs})`,
+  )
   assert.equal(JSON.stringify(table.colliders), colliders)
+  scene.dispose()
+}
+
+/** kind-pinball/t-033: a run of chevrons into every shot, lit by its rules. */
+async function runPinballChevrons() {
+  const table = AMI_VILLAGE_GREYBOX
+  const inserts = table.inserts ?? []
+  const arrows = inserts.filter((i) => i.shape === 'arrow' && i.shot)
+  const mainShots = [
+    'left-orbit',
+    'left-ramp',
+    'upper-feed',
+    'lock',
+    'spinner',
+    'right-ramp',
+    'right-orbit',
+  ]
+  assert.equal(
+    inserts.filter((i) => i.ladder?.shot === 'right-ramp').length,
+    0,
+    "the award saucer sits in the right ramp's lane, so it has no run",
+  )
+  for (const shot of mainShots.filter((s) => s !== 'right-ramp')) {
+    const run = inserts.filter((i) => i.ladder?.shot === shot)
+    assert.equal(run.length, 3, `${shot} has a run of three chevrons`)
+    const head = arrows.find((a) => a.shot === shot)!
+    for (const chevron of run) {
+      assert.equal(chevron.shape, 'chevron')
+      assert.equal(chevron.color, head.color, 'in its shot colour')
+      assert.equal(chevron.shot, undefined, 'the arrow still names the shot')
+      assert.ok(chevron.at[1] > head.at[1], 'down the table from its arrow')
+    }
+    // Nearest the arrow is the last step.
+    const near = (step: number) => {
+      const c = run.find((r) => r.ladder!.step === step)!
+      return Math.hypot(c.at[0] - head.at[0], c.at[1] - head.at[1])
+    }
+    assert.ok(near(2) < near(1) && near(1) < near(0), `${shot}'s run leads in`)
+  }
+  // No chevron sits on another insert, a saucer or a post.
+  const chevrons = inserts.filter((i) => i.shape === 'chevron')
+  for (const a of chevrons) {
+    for (const scoop of table.scoops)
+      assert.ok(
+        Math.hypot(a.at[0] - scoop.at[0], a.at[1] - scoop.at[2]) >
+          scoop.radius + a.size,
+        `${a.id} is clear of the ${scoop.id} saucer`,
+      )
+    for (const post of table.colliders)
+      if (post.kind === 'post')
+        assert.ok(
+          Math.hypot(a.at[0] - post.at[0], a.at[1] - post.at[2]) >
+            post.radius + a.size,
+          `${a.id} is clear of ${post.id}`,
+        )
+  }
+  for (const a of chevrons)
+    for (const b of inserts)
+      if (a !== b)
+        assert.ok(
+          Math.hypot(a.at[0] - b.at[0], a.at[1] - b.at[1]) >
+            (a.size + b.size) * 0.45,
+          `${a.id} is clear of ${b.id}`,
+        )
+
+  // The rules: dark with the arrow, filled per shot made, blinking with it.
+  const base = initialRules(table.balls)
+  const run = (state: PinballRulesState, shot: string) => {
+    const lamps = lampStates(state, table).lamps
+    return [1, 2, 3].map((i) => lamps[`chevron-${shot}-${i}`])
+  }
+  assert.deepEqual(run(base, 'left-ramp'), ['off', 'off', 'off'])
+  const made = { ...base, shotsMade: { 'left-ramp': 2 } }
+  assert.deepEqual(
+    run(made, 'left-ramp'),
+    ['on', 'on', 'off'],
+    'the run fills as the shot is made',
+  )
+  assert.deepEqual(run(made, 'left-orbit'), ['off', 'off', 'off'])
+  assert.deepEqual(
+    run({ ...made, shotsMade: { 'left-orbit': 9 } }, 'left-orbit'),
+    ['on', 'on', 'on'],
+    'and stays full',
+  )
+  assert.deepEqual(
+    run({ ...made, shotsMade: { lock: 3 } }, 'lock'),
+    ['off', 'off', 'off'],
+    'an unlit arrow keeps its run dark',
+  )
+  const wizard = {
+    ...base,
+    play: { ...base.play, wizard: { ...base.play.wizard, running: true } },
+  }
+  assert.deepEqual(
+    run(wizard, 'spinner'),
+    ['blink', 'blink', 'blink'],
+    'a shot worth going for chases its run',
+  )
+  assert.ok(
+    run({ ...made, tilted: true }, 'left-ramp').every((l) => l === 'off'),
+    'a tilt puts the runs out',
+  )
+
+  // The renderer chases a blinking run toward its arrow, one at a time.
+  const scene = new PinballScene(table, {} as HTMLCanvasElement, () =>
+    stubRenderer({ disposed: 0, frames: 0 }),
+  )
+  scene.setLamps(lampStates(wizard, table).lamps, 1)
+  const order: number[] = []
+  for (let f = 0; f < 60; f++) {
+    scene.render()
+    const glow = [1, 2, 3].map((i) => scene.insertGlow(`chevron-spinner-${i}`))
+    const brightest = glow.indexOf(Math.max(...glow)) + 1
+    if (Math.max(...glow) > 0.5 && order.at(-1) !== brightest)
+      order.push(brightest)
+  }
+  assert.ok(
+    order.join('').includes('123'),
+    `the chase runs toward the arrow (${order.join('')})`,
+  )
   scene.dispose()
 }
 
@@ -4671,6 +4803,7 @@ await runPinballRidgeFlippers()
 await runPinballCalmCamera()
 await runPinballDressing()
 await runPinballMetalwork()
+await runPinballChevrons()
 await runPinballDepot()
 await runPinballGuide()
 await runPinballToys()

@@ -4,7 +4,9 @@
 // real machine builds them, in place of the solid chrome sheets the physics
 // uses for their side rails. Each rail is two chrome wires on uprights, cross
 // ties run under the clear floor, and a lit strip edges the floor. The lane
-// guides get a rounded chrome bead along their tops so they catch the light.
+// guides get a rounded chrome bead along their tops so they catch the light,
+// and each stands on hex stand-offs capped with domed screw heads at its
+// ends, and along it every so often when it is long (t-033).
 // Everything here is scenery: the colliders are the table's own, unchanged.
 //
 // Every geometry, material and texture goes through the scene's track(), so
@@ -39,6 +41,15 @@ const UPRIGHT_EVERY = 4
 const TIE_EVERY = 6
 /** The light strips' glow at full GI. */
 const STRIP_GLOW = 1.8
+/** A lane guide's hex stand-off and its screw head (t-033), metres. */
+const STANDOFF_RADIUS = 0.0036
+const SCREW_RADIUS = 0.003
+/** The stand-off rises this far above the guide's top, past its bead. */
+const STANDOFF_COLLAR = 0.0022
+/** A long guide gets another stand-off about this often along it. */
+const STANDOFF_EVERY = 0.09
+/** Guides higher than this off the playfield are caps and roofs, not guides. */
+const GUIDE_TOP = 0.03
 
 type Pt = THREE.Vector3
 
@@ -81,6 +92,7 @@ export class Wireforms {
   readonly group = new THREE.Group()
   private strips: THREE.MeshStandardMaterial | null = null
   private rampCount = 0
+  private standoffCount = 0
 
   constructor(
     private table: TableDef,
@@ -88,6 +100,12 @@ export class Wireforms {
   ) {
     this.buildRamps()
     this.buildBeads()
+    this.buildStandoffs()
+  }
+
+  /** How many stand-offs hold the lane guides down (for tests). */
+  get standoffs(): number {
+    return this.standoffCount
   }
 
   /** How many ramps are drawn as wireforms (for tests). */
@@ -204,6 +222,60 @@ export class Wireforms {
     this.addMerged(beads, this.track(new THREE.MeshPhysicalMaterial(CHROME)))
   }
 
+  /**
+   * Hex stand-offs with domed chrome screw heads (t-033): at both ends of
+   * every chrome lane guide on the playfield, and along the long ones.
+   */
+  private buildStandoffs() {
+    const guides = [...this.table.colliders, ...(this.table.trim ?? [])].filter(
+      (c): c is BoxCollider =>
+        c.kind === 'box' &&
+        c.material === 'chrome' &&
+        !c.hidden &&
+        !c.quat &&
+        c.at[1] + c.half[1] < GUIDE_TOP,
+    )
+    const nuts: THREE.BufferGeometry[] = []
+    const heads: THREE.BufferGeometry[] = []
+    for (const def of guides) {
+      const length = def.half[0] * 2
+      const top = def.at[1] + def.half[1]
+      const spans = Math.max(1, Math.round(length / STANDOFF_EVERY))
+      const yaw = def.yaw ?? 0
+      for (let i = 0; i <= spans; i++) {
+        // Along the guide's own length (its local x), turned by its yaw.
+        const along = -def.half[0] + (length * i) / spans
+        const x = def.at[0] + Math.cos(yaw) * along
+        const z = def.at[2] - Math.sin(yaw) * along
+        const height = top + STANDOFF_COLLAR
+        const nut = new THREE.CylinderGeometry(
+          STANDOFF_RADIUS,
+          STANDOFF_RADIUS,
+          height,
+          6,
+        )
+        nut.rotateY(yaw)
+        nut.translate(x, height / 2, z)
+        nuts.push(nut)
+        const head = new THREE.SphereGeometry(
+          SCREW_RADIUS,
+          10,
+          5,
+          0,
+          Math.PI * 2,
+          0,
+          Math.PI / 2,
+        )
+        head.scale(1, 0.6, 1)
+        head.translate(x, height, z)
+        heads.push(head)
+        this.standoffCount++
+      }
+    }
+    this.addMerged(nuts, this.track(new THREE.MeshPhysicalMaterial(STEEL)))
+    this.addMerged(heads, this.track(new THREE.MeshPhysicalMaterial(CHROME)))
+  }
+
   private addMerged(parts: THREE.BufferGeometry[], material: THREE.Material) {
     if (!parts.length) return
     const merged = mergeGeometries(parts, false)
@@ -213,6 +285,14 @@ export class Wireforms {
     mesh.castShadow = true
     this.group.add(mesh)
   }
+}
+
+/** Brushed steel for the stand-offs: darker and softer than the chrome. */
+const STEEL: THREE.MeshPhysicalMaterialParameters = {
+  color: 0xa7adb6,
+  roughness: 0.38,
+  metalness: 1,
+  envMapIntensity: 0.9,
 }
 
 /** Polished chrome, a touch brighter in the room than sheet chrome. */

@@ -181,6 +181,16 @@ export function insertShape(def: InsertDef): THREE.Shape {
   const s = def.size
   if (def.shape === 'circle') {
     shape.absarc(0, 0, s / 2, 0, Math.PI * 2, false)
+  } else if (def.shape === 'chevron') {
+    // A V pointing up the table, its arms a band of even depth.
+    const w = s * 1.3
+    const k = s * 0.42
+    shape.moveTo(0, s / 2)
+    shape.lineTo(w / 2, -s / 2 + k)
+    shape.lineTo(w / 2, -s / 2)
+    shape.lineTo(0, s / 2 - k)
+    shape.lineTo(-w / 2, -s / 2)
+    shape.lineTo(-w / 2, -s / 2 + k)
   } else if (def.shape === 'rect') {
     const d = def.depth ?? s / 2
     shape.moveTo(-s / 2, -d / 2)

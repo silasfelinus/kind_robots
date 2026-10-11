@@ -1,19 +1,27 @@
-// Pipe Pals depth slice 1 (conductor kr-arcade/t-023): recovery tiers, the last-critter rush,
-// kick chains, kick bowling, walkers turning round, the shell knight, spring fleas, ember
-// hazards, the tool belt and the KIND block refill, each pinned on a staged board.
+// Pipe Pals depth pass (conductor kr-arcade/t-023, t-024). Slice 1: recovery tiers, the
+// last-critter rush, kick chains, kick bowling, walkers turning round, the shell knight, spring
+// fleas, ember hazards and the tool belt. Slice 2: the Day Shift districts (boards, rosters,
+// vines, the lift, soap), the special phases and golden valves, the bonus twists, the lint moth
+// and sock puppet, the Big Shell and the Workshop. Each rule is pinned on a staged board.
 import assert from 'node:assert/strict'
 import { mulberry32 } from '../arcade/curve'
 import { emptyInput } from '../arcade/types'
 import type { InputFrame } from '../arcade/types'
 import {
   CHAIN_POINTS,
+  DISTRICTS,
   chainPoints,
   create,
-  PIPE_ROSTER,
   rosterFor,
   walkersMeet,
 } from '../arcade/games/pipePals'
 import type { Kind, ToolKind } from '../arcade/games/pipePals'
+import {
+  PHASES_PER_DISTRICT,
+  SHOP_ITEMS,
+  SPECIAL_PHASE,
+  districtSteps,
+} from '../arcade/pipePals/districts'
 
 type Critter = {
   kind: Kind
@@ -34,6 +42,15 @@ type Critter = {
   hop: number
   squash: number
   trapped: number
+  flying: boolean
+}
+type Boss = {
+  x: number
+  y: number
+  hp: number
+  state: string
+  tipHits: number
+  seg: { x0: number; x1: number; y: number }
 }
 type Inner = {
   score: number
@@ -42,7 +59,7 @@ type Inner = {
   over: boolean
   critters: Critter[]
   queue: Kind[]
-  coins: unknown[]
+  coins: Array<{ x: number; y: number; float?: number }>
   pickups: Array<{ x: number; y: number; kind: ToolKind; life: number }>
   embers: Array<{
     kind: string
@@ -51,13 +68,32 @@ type Inner = {
     life: number
     tell: number
   }>
-  bubbles: unknown[]
+  bubbles: Array<{ x: number; y: number; vy: number }>
   tool: { kind: ToolKind; ticks: number; charges: number } | null
   chain: number
   kicks: number
   kindBlockUses: number
+  kindMax: number
   invuln: number
   phaseDelay: number
+  cardTicks: number
+  wallet: number
+  valves: string[]
+  stepIndex: number
+  districtIndex: number
+  district: { id: string; number: number }
+  boss: Boss | null
+  workshop: { cursor: number; t: number; bought: string[] } | null
+  leaks: Array<{ x: number; y: number; sealed: boolean; t: number }>
+  seedlings: Array<{ x: number; y: number; state: string }>
+  socks: Array<{ x: number; y: number; colour: string; life: number }>
+  heldSock: string | null
+  pairs: number
+  bonusRound: number
+  bonusFeed: number
+  bonusTotal: number
+  vines: Map<number, { sag: number; down: number }>
+  boardNow: Array<{ x0: number; x1: number; y: number; kind?: string }>
   player: {
     x: number
     y: number
@@ -70,22 +106,32 @@ type Inner = {
   bumpAt(x: number, floorY: number): void
   moveCritters(): void
   startPhase(phase: number): void
+  beginDistrict(index: number): void
+  advance(): void
   demoInput(): InputFrame
+  refreshBoard(): void
 }
 
-function fresh(seed = 3): Inner {
-  const game = create({
+const quiet = { play: () => {} }
+function game(seed = 3): Inner {
+  return create({
     rng: mulberry32(seed),
-    sound: { play: () => {} },
+    sound: quiet,
     demo: false,
     hiScore: 0,
   }) as unknown as Inner
-  // Stage the board by hand: no queue, no hazards, a pal who can't be hurt.
-  game.queue = []
-  game.critters = []
-  game.embers = []
-  game.invuln = 100_000
-  return game
+}
+
+/** A game on a district's board with nothing in play and a pal who can't be hurt. */
+function fresh(seed = 3, district = 0): Inner {
+  const g = game(seed)
+  if (district) g.beginDistrict(district)
+  g.cardTicks = 0
+  g.queue = []
+  g.critters = []
+  g.embers = []
+  g.invuln = 100_000
+  return g
 }
 
 function critter(
@@ -113,20 +159,58 @@ function critter(
     hop: 40,
     squash: 0,
     trapped: 0,
+    flying: false,
     ...extra,
   }
 }
 
+function press(button: keyof InputFrame['held']): InputFrame {
+  const f = emptyInput()
+  f.held[button] = true
+  f.pressed[button] = true
+  return f
+}
+
 // --- pure rules ---------------------------------------------------------------------------
 
-assert.deepEqual(rosterFor(1), { kinds: ['crawler'], debut: 'crawler' })
-assert.equal(rosterFor(2).debut, 'flea', 'spring fleas debut in phase 2')
-assert.equal(rosterFor(3).debut, 'crab')
-assert.equal(rosterFor(4).debut, 'knight')
-assert.equal(rosterFor(9).debut, null)
-assert.deepEqual(
-  rosterFor(9).kinds,
-  PIPE_ROSTER.map((r) => r.kind),
+const [rooftop, greenhouse, suds] = DISTRICTS
+assert.equal(DISTRICTS.length, 3, 'the Day Shift: three districts')
+assert.deepEqual(rosterFor(rooftop!, 1), {
+  kinds: ['crawler'],
+  debut: 'crawler',
+})
+assert.equal(rosterFor(rooftop!, 2).debut, 'crab')
+assert.equal(rosterFor(greenhouse!, 1).debut, 'flea')
+assert.equal(rosterFor(greenhouse!, 2).debut, 'knight')
+assert.equal(rosterFor(suds!, 1).debut, 'moth')
+assert.equal(rosterFor(suds!, 2).debut, 'puppet')
+assert.equal(rosterFor(suds!, 4).debut, null)
+for (const d of DISTRICTS) {
+  const steps = districtSteps(d)
+  assert.equal(
+    steps.filter((s) => s.kind === 'phase').length,
+    PHASES_PER_DISTRICT,
+  )
+  assert.equal(steps.at(-1)!.kind, 'workshop', `${d.id} ends at the Workshop`)
+  assert.equal(steps.at(-2)!.kind, 'bonus')
+  // Every board: a full floor, ledges under both top pipes, a gap over the KIND block.
+  assert.ok(d.segments.some((s) => s.y === 310 && s.x0 === 0 && s.x1 === 448))
+  for (const x of [18, 430])
+    assert.ok(
+      d.segments.some((s) => s.y === 112 && s.x0 <= x && s.x1 >= x),
+      `${d.id}: a ledge under the pipe at ${x}`,
+    )
+  assert.ok(
+    !d.segments.some(
+      (s) => s.y === 244 && s.x1 > d.kindBlock.x && s.x0 < d.kindBlock.x + 24,
+    ),
+    `${d.id}: the KIND block sits under a gap`,
+  )
+}
+assert.equal(
+  districtSteps(suds!).at(-3)!.kind,
+  'boss',
+  'the Big Shell ends the Day Shift',
 )
 assert.deepEqual(
   [1, 2, 3, 4, 5, 6].map(chainPoints),
@@ -144,27 +228,43 @@ assert.ok(
   'other floor',
 )
 
-// --- the newcomer leads its debut phase ---------------------------------------------------
+// --- the campaign runs in order --------------------------------------------------------------
 
 {
-  const game = create({
-    rng: mulberry32(5),
-    sound: { play: () => {} },
-    demo: false,
-    hiScore: 0,
-  }) as unknown as Inner
-  game.startPhase(4)
-  assert.equal(game.queue[0], 'knight', 'phase 4 opens with a shell knight')
+  const g = game()
+  assert.equal(g.level, 1, 'games start on level 1')
+  assert.equal(g.district.id, 'rooftop')
+  assert.ok(g.cardTicks > 0, 'a district opens on its title card')
+  g.update(press('a'))
+  assert.equal(g.cardTicks, 0, 'A skips the card')
+  for (let i = 1; i < PHASES_PER_DISTRICT; i++) g.advance()
+  assert.equal(g.level, PHASES_PER_DISTRICT)
+  g.advance()
+  assert.ok(g.bonusRound > 0, 'the bonus round follows the fifth phase')
+  g.advance()
+  assert.ok(g.workshop, 'then the Workshop')
+  const levelAtShop = g.level
+  g.workshop!.t = 30
+  g.workshop!.cursor = SHOP_ITEMS.findIndex((s) => s.item === 'done')
+  g.update(press('a'))
+  assert.equal(g.workshop, null)
+  assert.equal(
+    g.district.id,
+    'greenhouse',
+    'BACK TO WORK opens the next district',
+  )
+  assert.equal(g.level, levelAtShop + 1)
+  assert.equal(g.queue[0], 'flea', 'the greenhouse opens with its newcomer')
 }
 
 // --- walkers turn round when they meet ----------------------------------------------------
 
 {
-  const game = fresh()
+  const g = fresh()
   const a = critter('crawler', 200, 310, { dir: 1 })
   const b = critter('crawler', 214, 310, { dir: -1 })
-  game.critters = [a, b]
-  game.moveCritters()
+  g.critters = [a, b]
+  g.moveCritters()
   assert.equal(a.dir, -1)
   assert.equal(b.dir, 1)
 }
@@ -172,96 +272,113 @@ assert.ok(
 // --- tiers and the last-critter rush -------------------------------------------------------
 
 {
-  const game = fresh()
+  const g = fresh()
   const c = critter('crawler', 200, 310, { flipped: 1 })
   const other = critter('crawler', 400, 244)
-  game.critters = [c, other]
-  game.moveCritters()
+  g.critters = [c, other]
+  g.moveCritters()
   assert.equal(c.tier, 1, 'a recovered critter comes back cross')
-  game.player.x = 40
-  game.player.y = 112
+  g.player.x = 40
+  g.player.y = 112
   other.kicked = true
   other.y = 1000
-  game.update(emptyInput())
+  g.update(emptyInput())
   assert.ok(c.rush, 'the last critter of a phase sprints')
   assert.equal(c.tier, 2, 'and turns furious')
 }
 
-// --- shell knights lose their armour first; fleas only flip when landed -------------------
+// --- shell knights, fleas, lint moths and sock puppets --------------------------------------
 
 {
-  const game = fresh()
-  const knight = critter('knight', 200, 244)
-  game.critters = [knight]
-  game.bumpAt(200, 244)
+  const g = fresh()
+  const knight = critter('knight', 120, 244)
+  g.critters = [knight]
+  g.bumpAt(120, 244)
   assert.equal(knight.armored, false, 'the first bump knocks the armour off')
   assert.equal(knight.flipped, 0)
   knight.onGround = true
-  game.bumpAt(200, 244)
+  g.bumpAt(120, 244)
   assert.ok(knight.flipped > 0, 'the second bump flips the bare knight')
 
-  const flea = critter('flea', 300, 244, { onGround: false })
-  game.critters = [flea]
-  game.bumpAt(300, 244)
+  const flea = critter('flea', 340, 244, { onGround: false })
+  g.critters = [flea]
+  g.bumpAt(340, 244)
   assert.equal(flea.flipped, 0, 'a flea in mid-hop shrugs off a bump')
   flea.onGround = true
-  game.bumpAt(300, 244)
+  g.bumpAt(340, 244)
   assert.ok(flea.flipped > 0, 'a landed flea flips')
+
+  const moth = critter('moth', 340, 244, { flying: true, onGround: true })
+  g.critters = [moth]
+  g.bumpAt(340, 244)
+  assert.equal(moth.flipped, 0, 'a lint moth on the wing shrugs off a bump')
+  moth.flying = false
+  g.bumpAt(340, 244)
+  assert.ok(moth.flipped > 0, 'a resting moth flips')
+
+  const puppet = critter('puppet', 340, 244)
+  g.critters = [puppet]
+  g.bumpAt(340, 244)
+  const socks = g.critters.filter((c) => c.kind === 'sock')
+  assert.equal(socks.length, 2, 'a sock puppet comes apart into two socks')
+  assert.ok(
+    socks.every((s) => s.flipped > 0),
+    'both socks land flipped',
+  )
+  assert.ok(puppet.kicked, 'the puppet itself is gone')
 }
 
 // --- kick bowling and chains ----------------------------------------------------------------
 
 {
-  const game = fresh()
-  // Two flipped crawlers in a row on the bottom floor; the pal kicks the first to the right.
+  const g = fresh()
   const first = critter('crawler', 200, 310, { flipped: 500 })
   const second = critter('crawler', 240, 310, { flipped: 500 })
-  game.critters = [first, second]
-  Object.assign(game.player, { x: 192, y: 310, face: 1, onGround: true })
-  const before = game.score
-  for (let t = 0; t < 30; t++) game.update(emptyInput())
+  g.critters = [first, second]
+  Object.assign(g.player, { x: 192, y: 310, face: 1, onGround: true })
+  const before = g.score
+  const wallet = g.wallet
+  for (let t = 0; t < 30; t++) g.update(emptyInput())
   assert.ok(first.kicked, 'touching a flipped critter kicks it')
   assert.ok(
     second.kicked,
     'the kicked shell bowls the next flipped critter along',
   )
-  assert.equal(game.chain, 2)
+  assert.equal(g.chain, 2)
   assert.ok(
-    game.score - before >= CHAIN_POINTS[0] + CHAIN_POINTS[1],
+    g.score - before >= CHAIN_POINTS[0] + CHAIN_POINTS[1],
     'the second kick in the chain pays more',
   )
-  assert.equal(
-    game.coins.length >= 2,
-    true,
+  assert.ok(
+    g.coins.length + (g.wallet - wallet) >= 2,
     'every kick sends a coin out of a pipe',
   )
 
-  // An upright critter stops the shell and is flipped by it.
-  const game2 = fresh()
+  const g2 = fresh()
   const shell = critter('crawler', 200, 310, { flipped: 500 })
   const upright = critter('crawler', 236, 310, { dir: 1 })
-  game2.critters = [shell, upright]
-  Object.assign(game2.player, { x: 192, y: 310, face: 1, onGround: true })
-  for (let t = 0; t < 30; t++) game2.update(emptyInput())
+  g2.critters = [shell, upright]
+  Object.assign(g2.player, { x: 192, y: 310, face: 1, onGround: true })
+  for (let t = 0; t < 30; t++) g2.update(emptyInput())
   assert.ok(
     upright.flipped > 0 && !upright.kicked,
     'a bowled shell flips an upright critter',
   )
 }
 
-// --- embers are snuffed from below ----------------------------------------------------------
+// --- embers -------------------------------------------------------------------------------
 
 {
-  const game = fresh()
-  game.embers = [{ kind: 'spark', x: 120, y: 236, life: 500, tell: 0 }]
-  game.bumpAt(120, 244)
+  const g = fresh()
+  g.embers = [{ kind: 'spark', x: 120, y: 236, life: 500, tell: 0 }]
+  g.bumpAt(120, 244)
   assert.equal(
-    game.embers[0]!.life,
+    g.embers[0]!.life,
     0,
     'bumping the ledge under an ember snuffs it',
   )
-  // A pal who lingers is hunted by a lurker ember (phase 2 on).
   const lingering = fresh()
+  lingering.level = 2
   lingering.startPhase(2)
   lingering.queue = ['crawler']
   lingering.invuln = 100_000
@@ -276,12 +393,12 @@ assert.ok(
 // --- the tool belt --------------------------------------------------------------------------
 
 {
-  const game = fresh()
-  game.critters = [critter('crawler', 120, 244), critter('crawler', 180, 244)]
-  game.tool = { kind: 'wrench', ticks: 600, charges: 0 }
-  game.bumpAt(150, 244)
+  const g = fresh()
+  g.critters = [critter('crawler', 100, 244), critter('crawler', 160, 244)]
+  g.tool = { kind: 'wrench', ticks: 600, charges: 0 }
+  g.bumpAt(130, 244)
   assert.ok(
-    game.critters.every((c) => c.flipped > 0),
+    g.critters.every((c) => c.flipped > 0),
     'the Wide Wrench bumps a whole stretch of ledge',
   )
 
@@ -290,15 +407,11 @@ assert.ok(
   wand.critters = [walker, critter('crawler', 40, 112)]
   Object.assign(wand.player, { x: 200, y: 310, face: 1, onGround: true })
   wand.tool = { kind: 'wand', ticks: 600, charges: 3 }
-  const blow = emptyInput()
-  blow.held.b = true
-  blow.pressed.b = true
-  wand.update(blow)
+  wand.update(press('b'))
   assert.equal(wand.tool?.charges, 2)
   for (let t = 0; t < 20 && walker.trapped === 0; t++) wand.update(emptyInput())
   assert.ok(walker.trapped > 0, 'a wand bubble traps a walker')
 
-  // Every sixth kick rolls a tool out of a pipe.
   const kicker = fresh()
   kicker.kicks = 5
   kicker.critters = [
@@ -310,42 +423,206 @@ assert.ok(
   assert.equal(kicker.pickups.length, 1, 'the sixth kick rolls out a tool')
 }
 
-// --- the KIND block refills every fifth phase ----------------------------------------------
+// --- district boards: vines sag, the lift carries, soap blows bubbles ------------------------
 
 {
-  const game = fresh()
-  game.kindBlockUses = 0
-  game.startPhase(6)
-  assert.equal(game.kindBlockUses, 3)
-  game.kindBlockUses = 1
-  game.startPhase(7)
-  assert.equal(game.kindBlockUses, 1)
+  const g = fresh(3, 1)
+  assert.equal(g.district.id, 'greenhouse')
+  g.critters = [critter('crawler', 40, 112)]
+  const vine = g.boardNow.find((s) => s.kind === 'vine' && s.y === 244)!
+  Object.assign(g.player, {
+    x: vine.x0 + 30,
+    y: 244,
+    vx: 0,
+    vy: 0,
+    onGround: true,
+  })
+  let fell = false
+  for (let t = 0; t < 200 && !fell; t++) {
+    g.update(emptyInput())
+    fell = g.player.y > 250
+  }
+  assert.ok(fell, 'a pal who lingers on a vine drops through it')
+
+  const lifted = fresh(3, 1)
+  lifted.critters = [critter('crawler', 40, 112)]
+  lifted.refreshBoard()
+  const lift = lifted.boardNow.at(-1)!
+  Object.assign(lifted.player, {
+    x: (lift.x0 + lift.x1) / 2,
+    y: lift.y,
+    vx: 0,
+    vy: 0,
+    onGround: true,
+  })
+  const x0 = lifted.player.x
+  for (let t = 0; t < 90; t++) lifted.update(emptyInput())
+  assert.ok(Math.abs(lifted.player.x - x0) > 5, 'the lift carries its rider')
+  assert.equal(lifted.player.y, lift.y, 'and the rider stays on it')
+
+  const soapy = fresh(3, 2)
+  assert.equal(soapy.district.id, 'suds')
+  soapy.bumpAt(100, 244)
+  assert.ok(
+    soapy.bubbles.some((b) => b.vy < 0),
+    'a bump under a soapy ledge blows a bubble up',
+  )
+}
+
+// --- special phases and golden valves ---------------------------------------------------------
+
+{
+  // First Fix: knock all three leaky joints shut for the valve.
+  const g = fresh()
+  for (let i = 1; i < SPECIAL_PHASE; i++) g.advance()
+  g.cardTicks = 0
+  g.invuln = 100_000
+  assert.equal(g.leaks.length, 3)
+  for (const leak of [...g.leaks]) g.bumpAt(leak.x, leak.y)
+  assert.ok(g.leaks.every((l) => l.sealed))
+  g.queue = []
+  g.critters = [critter('crawler', 200, 310, { kicked: true, y: 1000 })]
+  Object.assign(g.player, { x: 40, y: 112, onGround: true })
+  g.update(emptyInput())
+  assert.ok(
+    g.valves.includes('rooftop'),
+    'a perfect First Fix earns the golden valve',
+  )
+
+  // Seedling Rescue: touch to rescue; a walker tramples one.
+  const s = fresh(3, 1)
+  for (let i = 1; i < SPECIAL_PHASE; i++) s.advance()
+  s.cardTicks = 0
+  s.invuln = 100_000
+  s.queue = []
+  const pot = s.seedlings[0]!
+  const doomed = s.seedlings[1]!
+  s.critters = [critter('crawler', doomed.x - 4, doomed.y, { dir: 1 })]
+  Object.assign(s.player, { x: pot.x, y: pot.y, vx: 0, vy: 0, onGround: true })
+  s.update(emptyInput())
+  assert.equal(pot.state, 'rescued', 'touching a seedling rescues it')
+  assert.equal(doomed.state, 'trampled', 'a walker tramples a seedling')
+
+  // Lost Socks: a matching pair counts; an odd sock replaces the one held.
+  const k = fresh(3, 2)
+  for (let i = 1; i < SPECIAL_PHASE; i++) k.advance()
+  k.cardTicks = 0
+  k.invuln = 100_000
+  k.queue = []
+  k.critters = [critter('crawler', 40, 112)]
+  Object.assign(k.player, { x: 200, y: 310, vx: 0, vy: 0, onGround: true })
+  k.socks = [
+    { x: 200, y: 304, vx: 0, vy: 0, colour: 'pink', life: 500 } as never,
+  ]
+  k.update(emptyInput())
+  assert.equal(k.heldSock, 'pink')
+  k.socks = [
+    { x: 200, y: 304, vx: 0, vy: 0, colour: 'pink', life: 500 } as never,
+  ]
+  k.update(emptyInput())
+  assert.equal(k.pairs, 1, 'two pink socks make a pair')
+  assert.equal(k.heldSock, null)
+}
+
+// --- bonus twists ---------------------------------------------------------------------------
+
+{
+  for (const [index, twist] of [
+    [1, 'sprinkler'],
+    [2, 'bubbles'],
+  ] as const) {
+    const g = fresh(3, index)
+    while (g.bonusRound === 0) g.advance()
+    g.cardTicks = 0
+    assert.equal(g.bonusTotal, 24, `${twist}: 24 coins fed in`)
+    for (let t = 0; t < 80; t++) g.update(emptyInput())
+    const drifting = g.coins.filter((c) => c.float !== undefined)
+    assert.ok(drifting.length > 0, `${twist}: coins drift in`)
+    if (twist === 'bubbles')
+      assert.ok(
+        drifting.every((c) => c.float! < 0),
+        'bubble coins rise',
+      )
+  }
+}
+
+// --- the Big Shell ---------------------------------------------------------------------------
+
+{
+  const g = fresh(3, 2)
+  while (!g.boss) g.advance()
+  g.cardTicks = 0
+  g.invuln = 100_000
+  const b = g.boss!
+  // Let it land.
+  for (let t = 0; t < 200 && b.state === 'leap'; t++) g.update(emptyInput())
+  assert.equal(b.state, 'walk', 'the Big Shell lands on a ledge')
+  Object.assign(g.player, { x: 40, y: 310, onGround: true })
+  for (let i = 0; i < 3; i++) g.bumpAt(b.x, b.y)
+  assert.equal(b.state, 'tipped', 'three bumps under it tip it over')
+  g.invuln = 0
+  Object.assign(g.player, { x: b.x, y: b.y, vx: 0, vy: 0, onGround: true })
+  g.update(emptyInput())
+  assert.equal(b.hp, 2, 'a kick to the tipped shell takes a hit point')
+  // Two more tip-and-kicks beat it.
+  for (let round = 0; round < 2; round++) {
+    b.state = 'walk'
+    b.y = b.seg.y
+    for (let i = 0; i < 3; i++) g.bumpAt(b.x, b.y)
+    g.invuln = 0
+    Object.assign(g.player, { x: b.x, y: b.y, vx: 0, vy: 0, onGround: true })
+    g.update(emptyInput())
+  }
+  assert.equal(g.boss, null, 'three kicks beat the Big Shell')
+  assert.ok(g.phaseDelay > 0, 'and the run moves on')
+}
+
+// --- the Workshop ---------------------------------------------------------------------------
+
+{
+  const g = fresh()
+  while (!g.workshop) g.advance()
+  g.wallet = 100
+  const lives = g.lives
+  g.workshop!.t = 30
+  g.workshop!.cursor = SHOP_ITEMS.findIndex((s) => s.item === 'pal')
+  g.update(press('a'))
+  assert.equal(g.lives, lives + 1, 'an extra pal')
+  assert.ok(g.wallet < 100, 'paid for in coins')
+  const left = g.wallet
+  g.update(press('a'))
+  assert.equal(g.wallet, left, 'each item once per visit')
+  g.workshop!.cursor = SHOP_ITEMS.findIndex((s) => s.item === 'kind')
+  g.update(press('a'))
+  assert.equal(g.kindMax, 4)
+  g.workshop!.cursor = SHOP_ITEMS.findIndex((s) => s.item === 'done')
+  g.update(press('a'))
+  assert.equal(
+    g.kindBlockUses,
+    4,
+    'the next district starts with four KIND charges',
+  )
 }
 
 // --- seeded runs repeat exactly, and the pilot keeps playing ---------------------------------
 
 function pilotRun(seed: number, minutes: number, endless: boolean) {
-  const game = create({
-    rng: mulberry32(seed),
-    sound: { play: () => {} },
-    demo: false,
-    hiScore: 0,
-  }) as unknown as Inner
-  for (let t = 0; t < 60 * 60 * minutes && !game.over; t++) {
-    if (endless) game.lives = 9
-    game.update(game.demoInput())
+  const g = game(seed)
+  for (let t = 0; t < 60 * 60 * minutes && !g.over; t++) {
+    if (endless) g.lives = 9
+    g.update(g.demoInput())
   }
-  return game
+  return g
 }
 const a = pilotRun(4, 3, false)
 const b = pilotRun(4, 3, false)
 assert.equal(a.score, b.score, 'a seed replays tick for tick')
 assert.equal(a.level, b.level)
 for (const seed of [1, 2, 3]) {
-  const run = pilotRun(seed, 8, true)
+  const run = pilotRun(seed, 12, true)
   assert.ok(
-    run.level >= 5,
-    `seed ${seed}: the pilot clears phases (reached ${run.level})`,
+    run.level >= 7,
+    `seed ${seed}: the pilot works through the districts (reached ${run.level})`,
   )
   assert.ok(Number.isFinite(run.score) && run.score > 0)
 }

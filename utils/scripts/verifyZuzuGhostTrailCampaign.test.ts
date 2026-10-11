@@ -68,6 +68,7 @@ for (const s of STAGES)
   }
 
 type Run = Omit<ReturnType<typeof create>, 'lives'> & {
+  camX: number
   lives: number
   x: number
   y: number
@@ -197,8 +198,167 @@ skipCard(lost)
 lost.lives = 0
 lost.dead = 1
 lost.update(emptyInput())
-assert.equal(lost.over, true)
+assert.equal(lost.over, false, 'a game over offers a continue first')
+assert.equal((lost.card as { then?: string } | null)?.then, 'revive')
+const rest = emptyInput()
+rest.pressed.b = true
+for (let i = 0; i < 40 && !lost.over; i++) lost.update(rest)
+assert.equal(lost.over, true, 'declining the continue ends the game')
 assert.equal(lost.won, false, 'defeat never grants a victory')
+
+// --- a continue gets up again at the last checkpoint, with the trail as it was -----------------------
+{
+  const r = newRun(12)
+  skipCard(r)
+  const act = r.act
+  const cp = act.checkpoints.filter((c) => c > 40)[1]!
+  r.x = cp + 2
+  r.update(emptyInput())
+  assert.equal(r.checkpoint, cp, 'walking past a checkpoint lights it')
+  const score = r.score
+  r.lives = 0
+  r.dead = 1
+  r.update(emptyInput())
+  const up = emptyInput()
+  up.pressed.a = true
+  for (let i = 0; i < 40 && r.card; i++) r.update(up)
+  assert.equal(r.card, null)
+  assert.equal(r.over, false, 'continuing keeps the run going')
+  assert.equal(r.lives, 3, 'with fresh lives')
+  assert.equal(r.x, cp, 'from the last checkpoint, not the start of the act')
+  assert.equal(
+    r.score,
+    score,
+    'the score stands (the dead it earned stay down)',
+  )
+  // Ignoring the prompt ends the game after its countdown.
+  r.lives = 0
+  r.dead = 1
+  r.update(emptyInput())
+  for (let i = 0; i < 60 * 11 && !r.over; i++) r.update(emptyInput())
+  assert.equal(r.over, true, 'an ignored continue runs out')
+}
+
+// --- a reload resumes at the last checkpoint, with what was done there still done ----------------------
+{
+  const r = newRun(14) as Run & { save: unknown }
+  skipCard(r)
+  const act = r.act
+  const enc = act.encounters[0]!
+  const gone = memberId(act, enc, 0)
+  r.defeated.add(gone)
+  const cp = act.checkpoints.filter((c) => c > 40)[1]!
+  r.x = cp + 2
+  r.update(emptyInput())
+  const saved = readSave(r.save)
+  assert.equal(saved?.checkpoint, cp, 'reaching a checkpoint saves it')
+  assert.ok(saved?.down?.includes(gone), 'and the squad members already down')
+  const back = create({
+    rng: mulberry32(15),
+    sound: { play: () => {} },
+    demo: false,
+    hiScore: 0,
+    resume: JSON.parse(JSON.stringify(r.save)),
+  }) as Run
+  const yes = emptyInput()
+  yes.pressed.a = true
+  for (let i = 0; i < 30 && back.card?.kind === 'title' && back.x !== cp; i++)
+    back.update(yes)
+  assert.equal(back.x, cp, 'continue picks up at the checkpoint')
+  assert.ok(back.defeated.has(gone), 'the dead stay down after a reload')
+}
+
+// --- the iai cut: a lunge, a great crescent that hits everything in it, and cuts shots ------------------
+{
+  const r = newRun(16) as Run & {
+    weapon: string
+    poncho: boolean
+    bolts: Array<Record<string, unknown>>
+    foes: Array<Record<string, unknown>>
+  }
+  skipCard(r)
+  r.weapon = 'katana'
+  r.invuln = 0
+  const x0 = 300
+  r.x = x0
+  r.camX = 180
+  r.foes = []
+  const ghost = (x: number, y: number) => ({
+    kind: 'spirit',
+    id: null,
+    x,
+    y,
+    vx: 0,
+    vy: 0,
+    hp: 3,
+    t: 0,
+    phase: 'walk',
+    baseY: y,
+    carrying: null,
+    timer: 0,
+    face: -1,
+  })
+  r.foes.push(ghost(x0 + 34, 208), ghost(x0 + 50, 208))
+  r.bolts = [
+    {
+      kind: 'bullet',
+      x: x0 + 30,
+      y: 194,
+      vx: -2.6,
+      vy: 0,
+      grav: 0,
+      life: 80,
+      arm: 0,
+      hw: 4,
+      hh: 2,
+      t: 0,
+    },
+  ]
+  const cut = emptyInput()
+  cut.pressed.a = true
+  r.update(cut)
+  for (let i = 0; i < 8; i++) r.update(emptyInput())
+  assert.equal(
+    r.foes.length,
+    0,
+    'one cut fells two foes (3 damage each) across its whole crescent',
+  )
+  assert.equal(
+    r.bolts.length,
+    0,
+    'the edge cuts an incoming bullet out of the air',
+  )
+  assert.ok(r.x > x0 + 8, 'the quick-draw lunges him forward')
+  assert.equal(r.poncho, true, 'and he takes no hit through the stroke')
+}
+
+// --- checkpoints are close together and every boss fight restarts at its gate ----------------------
+for (const act of ACTS) {
+  const end = act.boss ? act.length - 260 : act.length
+  const cps = [40, ...act.checkpoints.filter((c) => c > 40)].sort(
+    (a, b) => a - b,
+  )
+  cps.forEach((c, i) => {
+    const gap = (cps[i + 1] ?? end) - c
+    assert.ok(
+      gap <= 1400,
+      `${act.id}: checkpoint ${c} is ${gap} px from the next (max 1400)`,
+    )
+  })
+}
+{
+  const bossAct = ACTS.findIndex((a) => a.boss)
+  const r = newRun(13)
+  r.startAct(bossAct)
+  skipCard(r)
+  r.x = r.act.length - 190
+  r.camX = r.act.length - 260
+  r.update(emptyInput())
+  assert.ok(
+    r.checkpoint >= r.act.length - 260,
+    'reaching the arena lights its gate',
+  )
+}
 
 // --- save and resume ------------------------------------------------------------------------------
 {
@@ -244,11 +404,12 @@ assert.equal(lost.won, false, 'defeat never grants a victory')
     ACTS[0]!.secrets.length ? 1 : 0,
     'unknown relics are dropped',
   )
-  // A game over keeps the trail but marks the save so the score starts again.
+  // A game over the player declines keeps the trail but marks the save so the score starts again.
   resumed.card = null
   resumed.lives = 0
   resumed.dead = 1
   resumed.update(emptyInput())
+  for (let i = 0; i < 40 && !resumed.over; i++) resumed.update(rest)
   const after = readSave(resumed.save)
   assert.ok(after?.continued, 'a game over leaves a continue')
   const cont = create({

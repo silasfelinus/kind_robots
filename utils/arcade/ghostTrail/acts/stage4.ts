@@ -221,7 +221,7 @@ const s4a1: Act = {
       ],
     },
   ],
-  checkpoints: [2240, 4320],
+  checkpoints: [40, 1160, 2240, 3280, 4320, 5360],
   secrets: [
     { id: 's4a1-storm-feather', x: 3070, y: 86, name: 'THE STORM FEATHER' },
   ],
@@ -447,7 +447,7 @@ const s4a2: Act = {
       ],
     },
   ],
-  checkpoints: [2240, 5150],
+  checkpoints: [40, 1140, 2240, 3540, 4350, 5150],
   secrets: [
     { id: 's4a2-miners-lamp', x: 1700, y: 192, name: 'THE MINERS LAMP' },
   ],
@@ -626,7 +626,7 @@ const s4a3: Act = {
       ],
     },
   ],
-  checkpoints: [2620, 4560],
+  checkpoints: [40, 1330, 2620, 3570, 4560],
   secrets: [
     { id: 's4a3-crown-of-quills', x: 3710, y: 90, name: 'THE CROWN OF QUILLS' },
   ],

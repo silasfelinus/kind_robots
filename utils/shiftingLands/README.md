@@ -1,9 +1,9 @@
 # Zuzu: Shifting Lands journey engine
 
 Pure rules owner: `utils/shiftingLands/journey.ts`. This is the new, **separate**
-five-land engine, not an implicit migration of the existing Homestead v2 local
-save. The latter remains in `homestead.ts` until task t-009 installs a deliberate
-save upgrade and task t-015 wires the visual card board.
+five-land engine, separate from the earlier Homestead v1 prototype in
+`homestead.ts`. The illustrated five-land board uses the authored journey
+reducer plus the V3 replay ledger below, without rewriting older saves.
 
 ## Geography source
 

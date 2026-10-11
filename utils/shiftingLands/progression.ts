@@ -56,7 +56,10 @@ const BASE_SKILLS: Record<Skill, number> = {
   insight: 2,
 }
 
-type EarnedReward = Omit<JourneyInventoryItem, 'sourceEncounterId' | 'available'>
+type EarnedReward = Omit<
+  JourneyInventoryItem,
+  'sourceEncounterId' | 'available'
+>
 type EarnedTechnique = Omit<JourneyTechnique, 'sourceEncounterId'>
 type EarnedCondition = Omit<JourneyCondition, 'sourceEncounterId'>
 type EarnedRelationship = Omit<JourneyRelationship, 'sourceEncounterId'>
@@ -78,25 +81,41 @@ const RULES: ProgressionRule[] = [
     encounterId: 'scarecrows-lantern',
     choiceId: 'cut-the-line',
     success: true,
-    item: { id: 'recovered-rations', name: 'Recovered ration pouch', kind: 'supply' },
+    item: {
+      id: 'recovered-rations',
+      name: 'Recovered ration pouch',
+      kind: 'supply',
+    },
   },
   {
     encounterId: 'a-cup-offered',
     choiceId: 'ask-ingredients',
     success: true,
-    item: { id: 'willow-bark-dose', name: 'Wrapped willow-bark dose', kind: 'medicine' },
+    item: {
+      id: 'willow-bark-dose',
+      name: 'Wrapped willow-bark dose',
+      kind: 'medicine',
+    },
   },
   {
     encounterId: 'a-cup-offered',
     choiceId: 'drink-first',
     success: true,
-    item: { id: 'willow-bark-dose', name: 'Second herbal dose', kind: 'medicine' },
+    item: {
+      id: 'willow-bark-dose',
+      name: 'Second herbal dose',
+      kind: 'medicine',
+    },
   },
   {
     encounterId: 'the-locked-dormitory',
     choiceId: 'search-lock',
     success: true,
-    item: { id: 'ribbon-evidence', name: 'Ribbon from the dormitory hinge', kind: 'evidence' },
+    item: {
+      id: 'ribbon-evidence',
+      name: 'Ribbon from the dormitory hinge',
+      kind: 'evidence',
+    },
   },
   {
     encounterId: 'the-orchard-debt',
@@ -120,7 +139,11 @@ const RULES: ProgressionRule[] = [
     encounterId: 'a-cup-offered',
     choiceId: 'drink-first',
     success: false,
-    condition: { id: 'herbal-dizziness', name: 'Herbal dizziness', penaltySkill: 'awareness' },
+    condition: {
+      id: 'herbal-dizziness',
+      name: 'Herbal dizziness',
+      penaltySkill: 'awareness',
+    },
   },
   {
     encounterId: 'family-at-the-fence',
@@ -167,7 +190,9 @@ function verifiedResult(
   const card = AUTHORED_PACK.encounters.find(
     (encounter) => encounter.id === outcome.encounterId,
   )
-  const choice = card?.choices.find((candidate) => candidate.id === outcome.choiceId)
+  const choice = card?.choices.find(
+    (candidate) => candidate.id === outcome.choiceId,
+  )
   const committed = state.journey.resolved.find(
     (result) => result.locationId === outcome.locationId,
   )
@@ -185,7 +210,9 @@ function verifiedResult(
     outcome.resultText === effect.text &&
     Array.isArray(outcome.flags) &&
     outcome.flags.length === effect.add_flags.length &&
-    [...outcome.flags].sort().every((flag, index) => flag === [...effect.add_flags].sort()[index])
+    [...outcome.flags]
+      .sort()
+      .every((flag, index) => flag === [...effect.add_flags].sort()[index])
   )
 }
 
@@ -203,14 +230,16 @@ export function journeyCharacterSheet(
     if (
       seenLocations.has(outcome.locationId) ||
       !verifiedResult(state, outcome)
-    ) continue
+    )
+      continue
     seenLocations.add(outcome.locationId)
     for (const rule of RULES) {
       if (
         rule.encounterId !== outcome.encounterId ||
         rule.choiceId !== outcome.choiceId ||
         rule.success !== outcome.roll.success
-      ) continue
+      )
+        continue
       if (rule.item && !seenRewards.has(rule.item.id)) {
         inventory.push({
           ...rule.item,
@@ -219,12 +248,30 @@ export function journeyCharacterSheet(
         })
         seenRewards.add(rule.item.id)
       }
-      if (rule.technique && !techniques.some((item) => item.id === rule.technique!.id))
-        techniques.push({ ...rule.technique, sourceEncounterId: outcome.encounterId })
-      if (rule.condition && !conditions.some((item) => item.id === rule.condition!.id))
-        conditions.push({ ...rule.condition, sourceEncounterId: outcome.encounterId })
-      if (rule.relationship && !relationships.some((item) => item.id === rule.relationship!.id))
-        relationships.push({ ...rule.relationship, sourceEncounterId: outcome.encounterId })
+      if (
+        rule.technique &&
+        !techniques.some((item) => item.id === rule.technique!.id)
+      )
+        techniques.push({
+          ...rule.technique,
+          sourceEncounterId: outcome.encounterId,
+        })
+      if (
+        rule.condition &&
+        !conditions.some((item) => item.id === rule.condition!.id)
+      )
+        conditions.push({
+          ...rule.condition,
+          sourceEncounterId: outcome.encounterId,
+        })
+      if (
+        rule.relationship &&
+        !relationships.some((item) => item.id === rule.relationship!.id)
+      )
+        relationships.push({
+          ...rule.relationship,
+          sourceEncounterId: outcome.encounterId,
+        })
     }
   }
 
@@ -255,10 +302,13 @@ export function canUseJourneyReward(
   rewardId: string,
   alreadyUsed: readonly string[] = [],
 ): boolean {
-  return !alreadyUsed.includes(rewardId) &&
-    sheet.inventory.some((item) =>
-      item.id === rewardId && item.available && item.kind !== 'evidence',
+  return (
+    !alreadyUsed.includes(rewardId) &&
+    sheet.inventory.some(
+      (item) =>
+        item.id === rewardId && item.available && item.kind !== 'evidence',
     )
+  )
 }
 
 // Pure preview of a check. Existing v2 encounter saves keep their recorded
@@ -277,7 +327,8 @@ export function checkJourneySkill(
     target > 30 ||
     dice.length !== 2 ||
     dice.some((die) => !Number.isInteger(die) || die < 1 || die > 6)
-  ) return null
+  )
+    return null
   const modifier = sheet.skills[skill]
   const total = dice[0] + dice[1] + modifier
   return { total, modifier, success: total >= target }

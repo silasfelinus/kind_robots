@@ -6,7 +6,11 @@ import {
   type AuthoredJourneyState,
   type AuthoredResult,
 } from '../shiftingLands/authoredJourney'
-import { reachableLocations, type JourneyRoll, type Skill } from '../shiftingLands/journey'
+import {
+  reachableLocations,
+  type JourneyRoll,
+  type Skill,
+} from '../shiftingLands/journey'
 import {
   canUseJourneyReward,
   checkJourneySkill,
@@ -94,8 +98,18 @@ assert.equal(checkJourneySkill(start, 'steel', 11, [3, 4])?.success, false)
 assert.equal(checkJourneySkill(start, 'steel', 8, [0, 7]), null)
 assert.equal(checkJourneySkill(start, 'steel', 80, [3, 3]), null)
 
-const repaired = withCommittedOutcome(initial, 'the-orchard-debt', 'brace-axle', true)
-const trained = withCommittedOutcome(repaired, 'rope-at-dawn', 'tie-new-knot', true)
+const repaired = withCommittedOutcome(
+  initial,
+  'the-orchard-debt',
+  'brace-axle',
+  true,
+)
+const trained = withCommittedOutcome(
+  repaired,
+  'rope-at-dawn',
+  'tie-new-knot',
+  true,
+)
 const trainedSheet = journeyCharacterSheet(trained)
 assert.equal(trainedSheet.techniques.length, 2)
 assert.equal(trainedSheet.skills.wits, 3, 'two lessons grant at most +1')
@@ -103,7 +117,12 @@ assert.equal(trainedSheet.skills.steel, 3)
 assert.equal(checkJourneySkill(trainedSheet, 'wits', 10, [3, 4])?.success, true)
 assert.equal(trainedSheet.resolvedEncounters, 2)
 
-const herbal = withCommittedOutcome(initial, 'a-cup-offered', 'ask-ingredients', true)
+const herbal = withCommittedOutcome(
+  initial,
+  'a-cup-offered',
+  'ask-ingredients',
+  true,
+)
 const herbalSheet = journeyCharacterSheet(herbal)
 assert.equal(herbalSheet.inventory[0]?.id, 'willow-bark-dose')
 assert.equal(herbalSheet.inventory[0]?.kind, 'medicine')
@@ -115,20 +134,54 @@ assert.equal(
 )
 assert.equal(canUseJourneyReward(herbalSheet, 'unearned-reward'), false)
 
-const ribbon = withCommittedOutcome(initial, 'the-locked-dormitory', 'search-lock', true)
+const ribbon = withCommittedOutcome(
+  initial,
+  'the-locked-dormitory',
+  'search-lock',
+  true,
+)
 const ribbonSheet = journeyCharacterSheet(ribbon)
 assert.equal(ribbonSheet.inventory[0]?.id, 'ribbon-evidence')
-assert.equal(canUseJourneyReward(ribbonSheet, 'ribbon-evidence'), false, 'evidence is not a consumable')
-assert.equal(ribbonSheet.relationships.length, 0, 'encounter cast is not automatically a companion')
+assert.equal(
+  canUseJourneyReward(ribbonSheet, 'ribbon-evidence'),
+  false,
+  'evidence is not a consumable',
+)
+assert.equal(
+  ribbonSheet.relationships.length,
+  0,
+  'encounter cast is not automatically a companion',
+)
 
-const welcomed = withCommittedOutcome(initial, 'family-at-the-fence', 'honor-guest', true)
+const welcomed = withCommittedOutcome(
+  initial,
+  'family-at-the-fence',
+  'honor-guest',
+  true,
+)
 const welcomeSheet = journeyCharacterSheet(welcomed)
-assert.deepEqual(welcomeSheet.relationships.map((relation) => relation.disposition), ['trusted'])
+assert.deepEqual(
+  welcomeSheet.relationships.map((relation) => relation.disposition),
+  ['trusted'],
+)
 assert.equal(welcomeSheet.relationships[0]?.traveling, false)
-const excluded = withCommittedOutcome(initial, 'family-at-the-fence', 'honor-guest', false)
-assert.equal(journeyCharacterSheet(excluded).relationships[0]?.disposition, 'wary')
+const excluded = withCommittedOutcome(
+  initial,
+  'family-at-the-fence',
+  'honor-guest',
+  false,
+)
+assert.equal(
+  journeyCharacterSheet(excluded).relationships[0]?.disposition,
+  'wary',
+)
 
-const injury = withCommittedOutcome(initial, 'rope-at-dawn', 'take-the-rope', false)
+const injury = withCommittedOutcome(
+  initial,
+  'rope-at-dawn',
+  'take-the-rope',
+  false,
+)
 assert.equal(journeyCharacterSheet(injury).conditions[0]?.id, 'rope-burn')
 assert.equal(journeyCharacterSheet(injury).skills.steel, 2)
 
@@ -136,11 +189,20 @@ const repeated = {
   ...herbal,
   outcomes: [...herbal.outcomes, herbal.outcomes[0]!],
 }
-assert.equal(journeyCharacterSheet(repeated).inventory.length, 1, 'one location cannot farm items')
+assert.equal(
+  journeyCharacterSheet(repeated).inventory.length,
+  1,
+  'one location cannot farm items',
+)
 
 const forgedProse = {
   ...herbal,
-  outcomes: [{ ...herbal.outcomes[0]!, resultText: 'Someone gave Zuzu all their treasure.' }],
+  outcomes: [
+    {
+      ...herbal.outcomes[0]!,
+      resultText: 'Someone gave Zuzu all their treasure.',
+    },
+  ],
 }
 assert.deepEqual(journeyCharacterSheet(forgedProse).inventory, [])
 const forgedFlags = {
@@ -161,11 +223,19 @@ const first = reachableLocations(actual.journey)[0]!
 actual = stepAuthoredJourney(actual, { type: 'TRAVEL', locationId: first })
 const drawnId = actual.drawn[first]!
 const selected = AUTHORED_PACK.encounters.find((item) => item.id === drawnId)!
-actual = stepAuthoredJourney(actual, { type: 'CHOOSE', choiceId: selected.choices[0]!.id })
+actual = stepAuthoredJourney(actual, {
+  type: 'CHOOSE',
+  choiceId: selected.choices[0]!.id,
+})
 const liveSheet = journeyCharacterSheet(actual)
 assert.equal(liveSheet.resolvedEncounters, 1)
 assert.equal(liveSheet.hp, actual.journey.hp)
 assert.equal(liveSheet.provisions, actual.journey.provisions)
-assert.equal(liveSheet.inventory.every((item) => item.sourceEncounterId === drawnId), true)
+assert.equal(
+  liveSheet.inventory.every((item) => item.sourceEncounterId === drawnId),
+  true,
+)
 
-console.log('Shifting Lands progression contract passed: authored rewards, bounded skills, conditions, bonds, dice and no farming')
+console.log(
+  'Shifting Lands progression contract passed: authored rewards, bounded skills, conditions, bonds, dice and no farming',
+)

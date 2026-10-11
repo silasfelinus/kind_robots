@@ -696,6 +696,17 @@ export const ZUZU_LAST_BELL_GREYBOX: TableDef = {
   balls: 3,
   dmd: { at: [0.02, 0.2, -1.04], width: 0.3 },
   art: {
-    room: { backglass: '/images/arcade/games/zuzu-ghost-trail-title.webp' },
+    // Rendered by durable ArtJobs from conductor's art-prompts.yaml
+    // (zuzu-pinball/t-011): the painted playfield over the whole table
+    // rectangle, and the backglass over the DMD.
+    playfield: {
+      src: '/images/pinball/zuzu-last-bell-playfield-painted.webp',
+      min: [LEFT - 0.02, TOP - 0.05],
+      max: [RIGHT + 0.02, BOTTOM + 0.05],
+    },
+    room: {
+      backglass: '/images/pinball/zuzu-last-bell-backglass.webp',
+      backglassFallback: '/images/arcade/games/zuzu-ghost-trail-title.webp',
+    },
   },
 }

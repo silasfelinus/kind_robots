@@ -168,6 +168,11 @@
       "file": "siblings-victory",
       "h": 152,
       "w": 104
+    },
+    "vs": {
+      "file": "siblings-vs",
+      "h": 152,
+      "w": 104
     }
   },
   "zuzu": {

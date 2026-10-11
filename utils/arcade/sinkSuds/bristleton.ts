@@ -14,6 +14,10 @@
 
 import { INK, RAMPS, bevel, mix, rgba, shadedOrb } from '../snes'
 import type { Point } from './basins'
+import { segDist } from './boss'
+import type { BossBody, BossHost, SudsBoss } from './boss'
+
+export type { BossBody, BossHost }
 
 export const BOSS_HP = 3
 /** Brush length, pivot (handle end) to bristle tip. */
@@ -25,31 +29,6 @@ export const HANDLE_ZONE = 26
 export const BRISTLE_FROM = 0.42
 export const BUMP_POINTS = 2_000
 export const DEFEAT_POINTS = 10_000
-
-export type BossBody = {
-  x: number
-  y: number
-  vx: number
-  vy: number
-  stage: number
-  alive: boolean
-  invuln: number
-}
-
-/** What the boss needs from the game. */
-export interface BossHost {
-  rng(): number
-  radiusOf(b: BossBody): number
-  /** A bristle bonk (or a suds ring) on the bubble. */
-  hit(b: BossBody, from: Point, soak?: boolean): void
-  /** A bump on the handle landed: the game scores it and shrinks the bubble. */
-  bumped(b: BossBody, at: Point): void
-  shed(at: Point): void
-  dropCrumbs(at: Point, count: number): void
-  sound(name: 'warn' | 'boom' | 'pop' | 'blip'): void
-  /** Live mini-brushes, so it sheds no more than a few. */
-  minis(): number
-}
 
 type Sweep = { pivot: Point; a0: number; a1: number }
 
@@ -79,24 +58,15 @@ export const RING_GAP = 0.8
 const SPIN_SPEED = 0.034
 const CENTRE = { x: 220, y: 192 }
 
-function segDist(p: Point, a: Point, b: Point) {
-  const dx = b.x - a.x
-  const dy = b.y - a.y
-  const len2 = dx * dx + dy * dy || 1
-  const t = Math.max(
-    0,
-    Math.min(1, ((p.x - a.x) * dx + (p.y - a.y) * dy) / len2),
-  )
-  return { d: Math.hypot(p.x - a.x - dx * t, p.y - a.y - dy * t), t }
-}
-
 function wrap(a: number) {
   while (a > Math.PI) a -= Math.PI * 2
   while (a < -Math.PI) a += Math.PI * 2
   return a
 }
 
-export class Bristleton {
+export class Bristleton implements SudsBoss {
+  readonly name = 'BRISTLETON'
+  readonly maxHp = BOSS_HP
   hp = BOSS_HP
   phase: 1 | 2 | 3 = 1
   state: State = 'move'
@@ -195,7 +165,8 @@ export class Bristleton {
         if (this.t <= 0) {
           this.state = 'rest'
           this.t = timing.rest
-          if (this.phase === 3 && host.minis() < 4) host.shed(this.head)
+          if (this.phase === 3 && host.living('minibrush').length < 2)
+            host.spawn('minibrush', this.head)
         }
         return
       }
@@ -270,7 +241,7 @@ export class Bristleton {
         const off = Math.abs(wrap(a - ring.gap))
         if (off < RING_GAP || Math.abs(off - Math.PI) < RING_GAP) continue
         // Suds rings soak rather than pop.
-        host.hit(b, { x: ring.x, y: ring.y }, true)
+        host.hurt(b, { x: ring.x, y: ring.y }, 'soak')
       }
     }
     this.rings = this.rings.filter((r) => r.r < 300)
@@ -301,12 +272,13 @@ export class Bristleton {
       return
     }
     const spinning = this.phase === 2 && this.state === 'spin'
-    if (t >= BRISTLE_FROM || spinning) {
+    // Gliding to its next spot it only shoves: the bristles bonk when they sweep or spin.
+    if ((t >= BRISTLE_FROM || spinning) && this.state !== 'move') {
       if (b.invuln > 0) {
         shove()
         return
       }
-      host.hit(b, this.pivot)
+      host.hurt(b, this.pivot, 'hit')
       shove()
       return
     }
@@ -359,6 +331,19 @@ export class Bristleton {
           y: CENTRE.y + Math.sin(a) * BRUSH_LEN * 0.4,
         })
     return out
+  }
+
+  get hint() {
+    if (this.defeated) return ''
+    if (this.phase === 2)
+      return this.state === 'dizzy'
+        ? 'DIZZY! BUMP THE HANDLE'
+        : 'SLIP THROUGH THE GAPS'
+    return 'FULL SIZE: BUMP THE HANDLE'
+  }
+
+  goal(b: BossBody, r: number): Point | null {
+    return b.stage >= 5 ? this.bumpSpot(r) : null
   }
 
   /** Where a full bubble should go to bump the handle, if it can now. */

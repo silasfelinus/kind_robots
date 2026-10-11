@@ -85,7 +85,7 @@ assert.equal(
       outcomes: [
         {
           ...chosen.current.outcomes[0]!,
-          roll: { ...chosen.current.outcomes[0]!.roll, dice: [6, 6] },
+          roll: { ...chosen.current.outcomes[0]!.roll, dice: [7, 0] },
         },
       ],
     },

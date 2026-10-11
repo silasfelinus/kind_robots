@@ -52,6 +52,7 @@ type Inner = {
   reached: number
   stepIndex: number
   inEndless: boolean
+  room: { id: string } | null
   update(input: InputFrame, players?: InputFrame[]): void
   radiusOf(b: Bubble): number
 }

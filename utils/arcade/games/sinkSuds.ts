@@ -3658,6 +3658,11 @@ class SinkSuds implements ArcadeGameInstance {
       start: false,
     }
     const frame: InputFrame = { held, pressed: { ...held } }
+    // On the menu or a result card, the pilot just presses on.
+    if (this.menu || this.result) {
+      frame.pressed.a = this.tick % 30 === 0
+      return frame
+    }
     if (this.shop) return this.shopPilot()
     const b = this.bubble
     if (!b.alive) return frame

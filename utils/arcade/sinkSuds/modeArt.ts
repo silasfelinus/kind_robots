@@ -4,6 +4,7 @@
 
 import { drawText } from '../font'
 import { INK, RAMPS, hudPanel, rgba, shadedOrb } from '../snes'
+import type { Ramp } from '../snes'
 import { W, H } from './basins'
 import { MEDAL, SEAT_COLOURS } from './modes'
 import type { ModeDef } from './modes'
@@ -127,7 +128,7 @@ export function renderBoard(
     drawText(g, row.name, 36, y, { color: '#ffffff', outline: INK })
     row.medals.forEach((bits, b) => {
       const x = x0 + b * 52
-      const kinds: Array<[number, typeof RAMPS.gold]> = [
+      const kinds: Array<[number, Ramp]> = [
         [MEDAL.squeaky, RAMPS.gold],
         [MEDAL.noPop, RAMPS.teal],
         [MEDAL.quick, RAMPS.pink],
@@ -144,7 +145,7 @@ export function renderBoard(
     })
   })
   const legend = 76 + rows.length * 30 + 6
-  const items: Array<[string, typeof RAMPS.gold]> = [
+  const items: Array<[string, Ramp]> = [
     ['SQUEAKY CLEAN', RAMPS.gold],
     ['NO POP', RAMPS.teal],
     ['QUICK RINSE', RAMPS.pink],

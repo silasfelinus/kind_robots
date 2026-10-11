@@ -1,4 +1,5 @@
 import { defineStore } from 'pinia'
+import { journeyCharacterSheet } from '~/utils/shiftingLands/progression'
 import { computed, ref } from 'vue'
 import {
   JOURNEY_WORLD,
@@ -23,6 +24,7 @@ export const useShiftingLandsJourneyStore = defineStore(
   () => {
     const session = ref<AuthoredJourneyState>(newAuthoredJourney(20261009))
     const state = computed(() => session.value.journey)
+    const characterSheet = computed(() => journeyCharacterSheet(session.value))
     const loaded = ref(false)
     const restoreWarning = ref(false)
     const currentLand = computed(
@@ -129,6 +131,7 @@ export const useShiftingLandsJourneyStore = defineStore(
     return {
       session,
       state,
+      characterSheet,
       loaded,
       restoreWarning,
       currentLand,

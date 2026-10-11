@@ -54,3 +54,20 @@ The v1 encounter effects are provisional and purposely conservative. Named
 Rewards, companion stats, complex noncombat trials and game-specific boss
 outcomes belong to tasks t-008, t-010 and t-011. No inference provider can
 mutate this reducer's state.
+
+## Derived character progression
+
+`progression.ts` projects a character sheet from saved, source-verified authored
+encounter outcomes. Skills, earned techniques, inventory, injuries and named
+relationships come from the committed encounter/choice rather than arbitrary
+flags or independently rolled cast. Duplicate visits cannot award an item twice.
+The Store exposes this derived sheet for the later character rail.
+
+Existing v2 saves and already-recorded 2d6 results remain unchanged. The
+`checkJourneySkill` and `canUseJourneyReward` pure helpers define bounded
+future checks and consumable eligibility, but do not silently rescore a saved
+run or persist item use. Task t-009 must version and replay-validate new
+spent-item and technique-modified roll events before the board enables them.
+
+Run `npx tsx utils/scripts/verifyShiftingProgression.test.ts` for the focused
+progression and anti-farming contract.

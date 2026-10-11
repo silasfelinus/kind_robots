@@ -5,7 +5,8 @@ on:
     branches: [main]
     paths:
       - 'components/navigation/**'
-      - 'utils/scripts/auditTabletNavigation*'
+      - 'utils/scripts/auditTabletNavigation.mjs'
+      - 'utils/scripts/auditTabletNavigation.test.mjs'
       - '.github/workflows/tablet-navigation-audit.yml'
   workflow_dispatch:
 

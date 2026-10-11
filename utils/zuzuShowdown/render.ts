@@ -1258,6 +1258,40 @@ function drawThrown(
   g.translate(cx, cy)
   g.lineJoin = 'round'
   switch (p.move) {
+    case 'beam': {
+      // The Thing's eye-beam: a hot yellow streak with a violet fringe, trailing back toward the door.
+      const half = r.w / 2
+      const tail = 18
+      g.fillStyle = 'rgba(168, 85, 247, 0.55)'
+      g.beginPath()
+      g.ellipse(
+        -dir * (tail / 2),
+        0,
+        half + tail / 2,
+        r.h / 2 + 2,
+        0,
+        0,
+        Math.PI * 2,
+      )
+      g.fill()
+      g.fillStyle = '#facc15'
+      g.beginPath()
+      g.ellipse(
+        -dir * (tail / 3),
+        0,
+        half + tail / 3,
+        r.h / 2 - 1,
+        0,
+        0,
+        Math.PI * 2,
+      )
+      g.fill()
+      g.fillStyle = '#fef9c3'
+      g.beginPath()
+      g.ellipse(0, 0, half - 3, Math.max(1, r.h / 2 - 3), 0, 0, Math.PI * 2)
+      g.fill()
+      break
+    }
     case 'kasa-toss': {
       // Zuzu's straw kasa, skimming flat and spinning: the band's highlight swings round the crown.
       const half = r.w / 2

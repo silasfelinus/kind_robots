@@ -1,7 +1,6 @@
 import later from './authoredLaterLands.json'
 import {
   AUTHORED_PACK,
-  activeAuthoredEncounter,
   stepAuthoredJourney,
   type AuthoredAction,
   type AuthoredEncounter,

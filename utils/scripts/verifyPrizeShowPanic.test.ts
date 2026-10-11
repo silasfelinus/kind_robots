@@ -122,6 +122,7 @@ type Inner = {
   enterRoom(id: string, entry: Side): void
   startRoom(): void
   finishEpisode(): void
+  ending: unknown
   beamState(b: Beam): { angle: number; hot: boolean; warming: boolean }
   candleClock(b: Boss): number
   crasherSpeed(): number
@@ -267,7 +268,9 @@ const g2d = stubContext()
 // --- the season map ----------------------------------------------------------------------------
 assert.equal(SEASON[0], EPISODE_1, 'Opening Night opens the season')
 for (const ep of SEASON) {
-  assert.ok(ep.rooms.length >= 12 && ep.rooms.length <= 14, '12-14 rooms')
+  // An episode is a map of 12-14 rooms; the Live Finale is one long run of fewer.
+  if (ep.live) assert.ok(ep.rooms.length >= 5, 'a long run')
+  else assert.ok(ep.rooms.length >= 12 && ep.rooms.length <= 14, '12-14 rooms')
   const ids = new Set(ep.rooms.map((r) => r.id))
   assert.equal(ids.size, ep.rooms.length, 'room ids are unique')
   const cells = new Set(ep.rooms.map((r) => `${r.col},${r.row}`))
@@ -287,7 +290,7 @@ for (const ep of SEASON) {
       assert.ok(room.exits.length > 0, `${room.id} has a way on`)
   }
   assert.deepEqual(roomById(ep, ep.finale).exits, [], 'the finale ends it')
-  assert.equal(roomById(ep, ep.midBoss).script.type, 'boss')
+  if (ep.midBoss) assert.equal(roomById(ep, ep.midBoss).script.type, 'boss')
   assert.equal(roomById(ep, ep.finale).script.type, 'boss')
 
   // Every room is reachable from the start, and every room still reaches the finale (no dead
@@ -313,7 +316,8 @@ for (const ep of SEASON) {
 
   // Safe and rich, side by side, at every fork.
   const forks = ep.rooms.filter((r) => r.exits.length > 1)
-  assert.ok(forks.length >= 2, 'at least two forks in the episode')
+  if (ep.live) assert.equal(forks.length, 0, 'one long run, no forks')
+  else assert.ok(forks.length >= 2, 'at least two forks in the episode')
   for (const fork of forks) {
     const scripts = fork.exits.map((id) => roomById(ep, id).script)
     const pair = scripts.some((safe) =>
@@ -326,9 +330,11 @@ for (const ep of SEASON) {
     assert.ok(pair, `${fork.id}: a safe door and a rich door`)
   }
   // The mid-boss splits the episode: both halves offer a fork before it and after it.
-  const mid = roomById(ep, ep.midBoss)
-  assert.ok(mid.exits.length > 1, 'a fork after the mid-boss')
-  assert.ok(roomById(ep, ep.start).exits.length > 1, 'a fork from the start')
+  if (!ep.live) {
+    const mid = roomById(ep, ep.midBoss)
+    assert.ok(mid.exits.length > 1, 'a fork after the mid-boss')
+    assert.ok(roomById(ep, ep.start).exits.length > 1, 'a fork from the start')
+  }
 
   // All ten room types are authored in Opening Night (the secret room off the map), plus the
   // bosses; every episode has its own secret, vault and sponsor challenge.
@@ -349,7 +355,10 @@ for (const ep of SEASON) {
     'secret',
     'boss',
   ] as RoomType[])
-    if (ep === EPISODE_1 || ['vault', 'sponsor', 'secret'].includes(type))
+    if (
+      ep === EPISODE_1 ||
+      (!ep.live && ['vault', 'sponsor', 'secret'].includes(type))
+    )
       assert.ok(types.has(type), `episode ${ep.number} has a ${type} room`)
   for (const room of ep.rooms)
     for (const prop of room.script.props ?? [])
@@ -844,10 +853,13 @@ for (const ep of SEASON) {
   assert.equal(f.episodeIndex, 1, 'and after the tally and the swap, episode 2')
   assert.equal(f.roomId, SEASON[1]!.start)
   assert.equal(f.loop, 1)
-  // After the last authored episode, the season goes round again.
+  // After the Live Finale (without ten tickets): the ending, the credits, then a rerun.
   f.episodeIndex = SEASON.length - 1
+  f.tickets = []
   f.finishEpisode()
-  assert.equal(f.loop, 2, 'the season loops')
+  assert.ok(f.ending, 'the season ends')
+  for (let t = 0; t < 20_000 && f.ending; t++) f.update(emptyInput())
+  assert.equal(f.loop, 2, 'and the season reruns')
   assert.equal(f.roomId, EPISODE_1.start)
   assert.ok(f.tuning.speed > 1, 'with harder curves')
   const hard = stage('grand-finale', 3)
@@ -998,7 +1010,11 @@ for (const ep of SEASON) {
 {
   const ids = seasonTickets()
   assert.deepEqual(new Set(ids).size, ids.length, 'ticket ids are unique')
-  assert.equal(ids.length, SEASON.length * 3, 'three hide in each episode')
+  assert.equal(
+    ids.length,
+    SEASON_TICKETS,
+    'three hide in each of the four episodes',
+  )
   assert.equal(SEASON_TICKETS, 12)
   assert.equal(VAULT_TICKETS, 10)
   const g = stage('the-showcase', 0)

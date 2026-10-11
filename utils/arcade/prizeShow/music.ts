@@ -9,7 +9,10 @@
 //   Cooking Showdown  a swung kitchen shuffle, all plinks and pans.
 //   Countdown Concert four-on-the-floor at exactly 120 bpm: a beat every 30 ticks, the same beat
 //                     the concert's speakers, strobes and mosh pits keep (season.ts CONCERT_BEAT).
+//   Galaxy Parade     slow arpeggios floating over a held bass.
 //   Boss              a minor-key drive for the big set pieces.
+//   Finale            the host's own act: the boss theme, brighter and faster.
+//   Ending            the studio theme, slow and warm, under the credits.
 
 import type { MusicLoop } from '../sound'
 import { CONCERT_BEAT } from './season'
@@ -172,13 +175,148 @@ const BOSS: MusicLoop = {
   ],
 }
 
+/** Arpeggios climbing over a held root: a slow, floaty bar. */
+const arp = (a: string, b: string, c: string, d: string) =>
+  `${a} ${b} ${c} ${d} ${c} ${b} ${a} ${b}`
+
+const GALAXY: MusicLoop = {
+  bpm: 100,
+  tracks: [
+    {
+      type: 'triangle',
+      vol: 0.07,
+      steps: bars(
+        'D2 - - - - - - -',
+        'D2 - - - - - - -',
+        'Bb1 - - - - - - -',
+        'C2 - - - - - - -',
+        'D2 - - - - - - -',
+        'D2 - - - - - - -',
+        'G1 - - - - - - -',
+        'A1 - - - A1 - - -',
+      ),
+    },
+    {
+      type: 'sine',
+      vol: 0.035,
+      steps: bars(
+        arp('D4', 'F4', 'A4', 'D5'),
+        arp('D4', 'F4', 'A4', 'E5'),
+        arp('Bb3', 'D4', 'F4', 'Bb4'),
+        arp('C4', 'E4', 'G4', 'C5'),
+        arp('D4', 'F4', 'A4', 'D5'),
+        arp('D4', 'G4', 'Bb4', 'D5'),
+        arp('G3', 'Bb3', 'D4', 'G4'),
+        arp('A3', 'C#4', 'E4', 'A4'),
+      ),
+    },
+    {
+      type: 'square',
+      vol: 0.02,
+      steps: bars(
+        'A5 - - - - - . .',
+        'C6 - - - Bb5 - A5 -',
+        'F5 - - - - - . .',
+        'G5 - - - E5 - C5 -',
+        'A5 - - - - - D6 -',
+        'D6 - C6 - Bb5 - A5 -',
+        'G5 - - - - - Bb5 -',
+        'A5 - - - - - - .',
+      ),
+    },
+    { noise: true, vol: 0.012, steps: eight('. . x . . . x .') },
+  ],
+}
+
+/** The Live Finale's main stage: the boss theme, brighter and faster, for the host's own act. */
+const FINALE: MusicLoop = {
+  bpm: 152,
+  tracks: [
+    {
+      type: 'triangle',
+      vol: 0.075,
+      steps: bars(
+        'C3 C3 . C3 G2 . C3 .',
+        'Bb2 Bb2 . Bb2 F2 . Bb2 .',
+        'Ab2 Ab2 . Ab2 Eb3 . Ab2 .',
+        'G2 G2 . G2 D3 . G2 .',
+        'C3 C3 . C3 G2 . C3 .',
+        'Bb2 Bb2 . Bb2 F2 . Bb2 .',
+        'Ab2 Ab2 . Ab2 C3 . Eb3 .',
+        'G2 . G2 . B2 . D3 .',
+      ),
+    },
+    {
+      type: 'square',
+      vol: 0.026,
+      steps: bars(
+        'G5 - Eb5 - C5 - Eb5 -',
+        'F5 - D5 - Bb4 - D5 -',
+        'Eb5 - C5 - Ab4 - C5 -',
+        'D5 - B4 - G4 - B4 -',
+        'G5 - Eb5 - C6 - G5 -',
+        'F5 - D5 - Bb5 - F5 -',
+        'Eb5 - Ab5 - C6 - Eb6 -',
+        'D6 - - - B5 - - .',
+      ),
+    },
+    { noise: true, vol: 0.028, steps: eight('x . x . x x x .') },
+  ],
+}
+
+/** The ending and the credits: the studio theme, slow and warm. */
+const ENDING: MusicLoop = {
+  bpm: 92,
+  tracks: [
+    {
+      type: 'triangle',
+      vol: 0.07,
+      steps: bars(
+        walk('C3', 'G2', 'C3'),
+        walk('F2', 'C3', 'F3'),
+        walk('A2', 'E3', 'A3'),
+        walk('G2', 'D3', 'G3'),
+        walk('C3', 'G2', 'C3'),
+        walk('F2', 'C3', 'F3'),
+        walk('G2', 'D3', 'G3'),
+        walk('C3', 'G2', 'C3'),
+      ),
+    },
+    {
+      type: 'sine',
+      vol: 0.04,
+      steps: bars(
+        'E5 - - - G5 - - -',
+        'A5 - - - C6 - - -',
+        'C6 - B5 - A5 - - -',
+        'G5 - - - - - - -',
+        'E5 - - - G5 - - -',
+        'A5 - - - F5 - - -',
+        'D5 - - - B4 - D5 -',
+        'C5 - - - - - - .',
+      ),
+    },
+  ],
+}
+
 /** Each set's loop. */
 export const SET_MUSIC: Record<SetId, MusicLoop> = {
   studio: STUDIO,
   kitchen: KITCHEN,
   concert: CONCERT,
+  galaxy: GALAXY,
 }
 
 export const BOSS_MUSIC = BOSS
+export const FINALE_MUSIC = FINALE
+export const ENDING_MUSIC = ENDING
 
-export const ALL_MUSIC: readonly MusicLoop[] = [STUDIO, KITCHEN, CONCERT, BOSS]
+export const ALL_MUSIC: readonly MusicLoop[] = [
+  STUDIO,
+  KITCHEN,
+  CONCERT,
+  GALAXY,
+  BOSS,
+  FINALE,
+  ENDING,
+]

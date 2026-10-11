@@ -1,7 +1,7 @@
 // /utils/arcade/prizeShow/bossArt.ts
 //
 // How the bosses of episodes 1-3 look (conductor kr-arcade t-029; the Parade Float keeps its own
-// sprites in games/prizeShowPanic.ts). Bosses are big, so most of each is built from the 16-bit
+// sprites in games/prizeShowPanic.ts), episode 4 and the Live Finale. Bosses are big, so most of each is built from the 16-bit
 // kit's shaded orbs and bevels rather than one huge sprite: the Big Wobble is literally balloons,
 // the Souffle a dome of shaded crust in a fluted dish. The faces, cupcakes and the cart are pixel
 // sprites. Every tell is drawn here: the Wobble's raised arm over its slam spot and its hop's
@@ -22,9 +22,19 @@ import {
   shadedOrb,
 } from '../snes'
 import type { Ramp } from '../snes'
-import { BOSS, liveParts, screenSpot } from './bosses'
+import {
+  ACT_TITLES,
+  BOSS,
+  DANCE_MOVES,
+  MACHINE_ACTS,
+  beamsHot,
+  liveParts,
+  machineBeams,
+  screenSpot,
+} from './bosses'
 import type { Boss, BossPart } from './bosses'
-import { BOTTOM, CX, TOP } from './stage'
+import { HOST_PORTRAIT } from './hostArt'
+import { BOTTOM, CX, LEFT, RIGHT, TOP } from './stage'
 
 const FLASH: Ramp = ['#f0ebff', '#ffffff', '#ffffff', '#ffffff', '#ffffff']
 
@@ -562,7 +572,372 @@ function renderJumbotron(g: CanvasRenderingContext2D, b: Boss, tick: number) {
   healthBar(g, b)
 }
 
-/** Draws a boss of episodes 1-3 (not the Parade Float, which the game draws itself). */
+// --- the Mothership -------------------------------------------------------------------------------
+
+function renderMothership(g: CanvasRenderingContext2D, b: Boss, tick: number) {
+  const stunned = b.mode === 2
+  const tilt = stunned ? Math.sin(tick / 6) * 2 : 0
+  // The tractor beam: a pale column from the emitter down to the prize it has hold of.
+  if (b.prize && b.mode === 1) {
+    const warming = b.clock > 0
+    const y0 = b.y + 18
+    const y1 = b.prize.y - b.prize.lift * 26
+    g.save()
+    g.globalCompositeOperation = 'lighter'
+    g.fillStyle = rgba(
+      RAMPS.teal[3],
+      warming ? 0.08 + 0.1 * (Math.floor(tick / 3) % 2) : 0.22,
+    )
+    g.beginPath()
+    g.moveTo(b.x - 5, y0)
+    g.lineTo(b.x + 5, y0)
+    g.lineTo(b.prize.x + 12, y1 + 6)
+    g.lineTo(b.prize.x - 12, y1 + 6)
+    g.closePath()
+    g.fill()
+    g.restore()
+    for (let i = 0; i < 4; i++) {
+      const k = (tick / 20 + i / 4) % 1
+      g.fillStyle = rgba(RAMPS.teal[4], 0.6 * (1 - k))
+      g.fillRect(
+        Math.round(b.prize.x + (b.x - b.prize.x) * k) - 1,
+        Math.round(y1 + (y0 - y1) * k),
+        3,
+        1,
+      )
+    }
+  }
+  dropShadow(g, b.x, b.y + 60, 40, 6, 0.25)
+  const hull = b.flash > 0 ? FLASH : RAMPS.purple
+  // The hull: a wide disc of bands, a ring of running lights, a glass dome on top.
+  g.save()
+  g.translate(b.x, b.y)
+  g.rotate((tilt * Math.PI) / 180)
+  g.fillStyle = INK
+  g.beginPath()
+  g.ellipse(0, 0, 47, 14, 0, 0, Math.PI * 2)
+  g.fill()
+  for (const [rx, ry, i] of [
+    [46, 13, 1],
+    [42, 10, 2],
+    [36, 7, 3],
+  ] as const) {
+    g.fillStyle = hull[i]
+    g.beginPath()
+    g.ellipse(0, -1, rx, ry, 0, 0, Math.PI * 2)
+    g.fill()
+  }
+  shadedOrb(g, 0, -9, 13, b.flash > 0 ? FLASH : RAMPS.teal)
+  for (let i = 0; i < 10; i++) {
+    const a = (i / 10) * Math.PI * 2 + tick / 30
+    const lx = Math.cos(a) * 40
+    const ly = Math.sin(a) * 8 + 3
+    if (Math.sin(a) < -0.2) continue
+    const on = !stunned && (i + Math.floor(tick / 6)) % 3 === 0
+    g.fillStyle = on ? RAMPS.gold[4] : RAMPS.purple[1]
+    g.fillRect(Math.round(lx) - 1, Math.round(ly) - 1, 3, 2)
+  }
+  g.restore()
+  // The emitter dish underneath (gone dark while it is broken).
+  const emitter = b.parts[0]
+  if (emitter && !emitter.gone) {
+    bevel(g, Math.round(b.x - 7), Math.round(b.y + 12), 14, 7, RAMPS.steel, {
+      depth: 1,
+    })
+    glow(
+      g,
+      b.x,
+      b.y + 18,
+      8,
+      RAMPS.teal[3],
+      0.4 + 0.3 * (Math.floor(tick / 5) % 2),
+    )
+  } else {
+    g.fillStyle = INK
+    g.fillRect(Math.round(b.x - 6), Math.round(b.y + 12), 12, 5)
+  }
+  if (stunned)
+    drawText(g, 'STUNNED!', b.x, b.y - 30, {
+      align: 'center',
+      color: RAMPS.leaf[4],
+      outline: INK,
+    })
+  if (b.hold > 0)
+    drawText(g, `HOLD ${b.hold}`, b.x, b.y + 22, {
+      align: 'center',
+      color: RAMPS.gold[4],
+      outline: INK,
+    })
+  healthBar(g, b)
+}
+
+// --- the Conga Dragon ---------------------------------------------------------------------------
+
+const DRAGON_FACE = pixelSprite(
+  ['.ww..ww.', 'wkkw.wkk', '.ww..ww.', '........', '.mmmmmm.'],
+  { w: '#ffffff', k: INK, m: RAMPS.ember[2] },
+  { outline: null },
+)
+const SEGMENT_RAMPS = [
+  RAMPS.pink,
+  RAMPS.teal,
+  RAMPS.gold,
+  RAMPS.purple,
+] as const
+
+function renderDragon(g: CanvasRenderingContext2D, b: Boss, tick: number) {
+  const segs = liveParts(b, 'segment')
+  // Tail first, so each segment sits over the one behind it.
+  for (let i = segs.length - 1; i >= 0; i--) {
+    const seg = segs[i]!
+    const idx = b.parts.indexOf(seg)
+    dropShadow(g, seg.x, seg.y + 8, 7, 2, 0.3)
+    // A dancer's feet under each segment of the costume, stepping in time.
+    const step = (tick / 6 + idx) % 2 < 1 ? 1 : -1
+    g.fillStyle = INK
+    g.fillRect(Math.round(seg.x) - 4, Math.round(seg.y) + 4 + step, 2, 3)
+    g.fillRect(Math.round(seg.x) + 2, Math.round(seg.y) + 4 - step, 2, 3)
+    const ramp =
+      b.flash > 0 ? FLASH : SEGMENT_RAMPS[idx % SEGMENT_RAMPS.length]!
+    shadedOrb(g, seg.x, seg.y, 7, seg.hp < seg.maxHp ? RAMPS.ember : ramp)
+    // A frill along its back.
+    g.fillStyle = RAMPS.gold[3]
+    g.fillRect(Math.round(seg.x) - 1, Math.round(seg.y) - 9, 2, 3)
+  }
+  dropShadow(g, b.x, b.y + 11, 12, 3, 0.35)
+  const armoured = segs.length > BOSS.dragon.armour
+  const head = b.flash > 0 ? FLASH : armoured ? RAMPS.ember : RAMPS.gold
+  shadedOrb(g, b.x, b.y, 11, head)
+  // Horns and a party crest.
+  g.fillStyle = INK
+  g.fillRect(Math.round(b.x) - 9, Math.round(b.y) - 13, 4, 6)
+  g.fillRect(Math.round(b.x) + 5, Math.round(b.y) - 13, 4, 6)
+  g.fillStyle = RAMPS.cream[4]
+  g.fillRect(Math.round(b.x) - 8, Math.round(b.y) - 12, 2, 4)
+  g.fillRect(Math.round(b.x) + 6, Math.round(b.y) - 12, 2, 4)
+  drawSprite(g, DRAGON_FACE, b.x + Math.sign(b.vx) * 2, b.y + 1)
+  if (armoured) {
+    // Gilded plates: confetti glances off until the tail is short.
+    g.strokeStyle = rgba(RAMPS.gold[4], 0.8)
+    g.lineWidth = 1
+    g.beginPath()
+    g.arc(b.x, b.y, 13, Math.PI * 1.1, Math.PI * 1.9)
+    g.stroke()
+  }
+  // The breath's tell: embers gathering at the snout.
+  if (b.clock < 30)
+    glow(
+      g,
+      b.x + b.vx * 8,
+      b.y + b.vy * 8 + 3,
+      6 + (30 - b.clock) / 3,
+      RAMPS.ember[3],
+      0.6,
+    )
+  healthBar(g, b)
+}
+
+// --- the Prize Machine --------------------------------------------------------------------------
+
+const WHEEL_RAMPS = [
+  RAMPS.pink,
+  RAMPS.gold,
+  RAMPS.teal,
+  RAMPS.purple,
+  RAMPS.leaf,
+  RAMPS.sky,
+] as const
+
+/** The host's TV head and a dancing body under it. */
+function renderHost(
+  g: CanvasRenderingContext2D,
+  x: number,
+  y: number,
+  tick: number,
+  flash: boolean,
+  pose: number,
+) {
+  const frame = HOST_PORTRAIT[Math.floor(tick / 8) % HOST_PORTRAIT.length]!
+  // Legs, then the portrait (head and jacket) on top.
+  g.fillStyle = INK
+  g.fillRect(Math.round(x) - 5, Math.round(y) - 1, 4, 9 + pose)
+  g.fillRect(Math.round(x) + 1, Math.round(y) - 1, 4, 9 - pose)
+  g.fillStyle = RAMPS.purple[2]
+  g.fillRect(Math.round(x) - 4, Math.round(y), 2, 7 + pose)
+  g.fillRect(Math.round(x) + 2, Math.round(y), 2, 7 - pose)
+  drawSprite(g, frame, x, y, { anchor: 'feet' })
+  if (flash) glow(g, x, y - 12, 14, '#ffffff', 0.6)
+}
+
+function renderMachine(g: CanvasRenderingContext2D, b: Boss, tick: number) {
+  const cfg = BOSS.machine
+  const n = MACHINE_ACTS.length
+  if (b.mode === 1 && MACHINE_ACTS[b.face] === 'lights') {
+    // The lighting act: two spotlights swinging from the hub; faint while they warm, then hot.
+    const hot = beamsHot(b)
+    g.save()
+    g.beginPath()
+    g.rect(LEFT, TOP, RIGHT - LEFT, BOTTOM - TOP)
+    g.clip()
+    g.globalCompositeOperation = 'lighter'
+    for (const angle of machineBeams(b)) {
+      g.fillStyle = rgba(hot ? RAMPS.gold[4] : RAMPS.gold[2], hot ? 0.35 : 0.12)
+      g.beginPath()
+      g.moveTo(b.x, b.y)
+      g.lineTo(
+        b.x + Math.cos(angle - 0.03) * 240,
+        b.y + Math.sin(angle - 0.03) * 240,
+      )
+      g.lineTo(
+        b.x + Math.cos(angle + 0.03) * 240,
+        b.y + Math.sin(angle + 0.03) * 240,
+      )
+      g.closePath()
+      g.fill()
+    }
+    g.restore()
+  }
+  if (b.mode <= 2) {
+    const broken = b.mode === 2
+    const wy = broken ? b.fromY : b.y
+    // The stand and the wheel: six coloured slices, the hub, a pointer at the top.
+    bevel(g, Math.round(b.x - 4), Math.round(wy), 8, 30, RAMPS.steel)
+    g.fillStyle = INK
+    g.beginPath()
+    g.arc(b.x, wy, cfg.r + 2, 0, Math.PI * 2)
+    g.fill()
+    for (let i = 0; i < n; i++) {
+      const a0 = b.angle + (i / n) * Math.PI * 2 - Math.PI / 2 - Math.PI / n
+      const ramp = broken && i % 2 ? RAMPS.night : WHEEL_RAMPS[i]!
+      g.fillStyle = ramp[i === b.face && b.mode === 1 ? 3 : 2]
+      g.beginPath()
+      g.moveTo(b.x, wy)
+      g.arc(b.x, wy, cfg.r, a0, a0 + (Math.PI * 2) / n)
+      g.closePath()
+      g.fill()
+      // A bulb at the rim of each slice.
+      const mid = a0 + Math.PI / n
+      g.fillStyle =
+        (Math.floor(tick / 5) + i) % 2 ? RAMPS.gold[4] : RAMPS.gold[2]
+      g.fillRect(
+        Math.round(b.x + Math.cos(mid) * (cfg.r - 4)) - 1,
+        Math.round(wy + Math.sin(mid) * (cfg.r - 4)) - 1,
+        3,
+        3,
+      )
+    }
+    if (b.mode === 0) {
+      // Spinning blur.
+      g.strokeStyle = rgba('#ffffff', 0.25)
+      g.lineWidth = 2
+      g.beginPath()
+      g.arc(b.x, wy, cfg.r - 8, b.angle, b.angle + 2)
+      g.stroke()
+    }
+    const open = b.mode === 1
+    shadedOrb(
+      g,
+      b.x,
+      wy,
+      10,
+      b.flash > 0 ? FLASH : open ? RAMPS.gold : RAMPS.steel,
+    )
+    if (open)
+      glow(
+        g,
+        b.x,
+        wy,
+        18,
+        RAMPS.gold[3],
+        0.3 + 0.2 * (Math.floor(tick / 6) % 2),
+      )
+    // The pointer, and the host riding the top of the wheel.
+    g.fillStyle = INK
+    g.beginPath()
+    g.moveTo(b.x - 5, wy - cfg.r - 6)
+    g.lineTo(b.x + 5, wy - cfg.r - 6)
+    g.lineTo(b.x, wy - cfg.r + 2)
+    g.closePath()
+    g.fill()
+    if (!broken)
+      renderHost(
+        g,
+        b.x,
+        wy - cfg.r - 6,
+        tick,
+        b.flash > 0,
+        Math.round(Math.sin(tick / 8)),
+      )
+    // What the act is, and what the wheel says is next.
+    const label =
+      b.mode === 1
+        ? ACT_TITLES[MACHINE_ACTS[b.face]!]
+        : b.mode === 0
+          ? 'SPINNING...'
+          : ''
+    if (label)
+      drawText(g, label, b.x + cfg.r + 8, wy - 12, {
+        color: RAMPS.gold[4],
+        outline: INK,
+      })
+    if (!broken && b.next >= 0)
+      drawText(
+        g,
+        `NEXT: ${MACHINE_ACTS[b.next]!.toUpperCase()}`,
+        b.x + cfg.r + 8,
+        wy - 2,
+        {
+          color: RAMPS.cream[3],
+          outline: INK,
+        },
+      )
+  }
+  if (b.mode >= 2) {
+    // The host on the floor (or mid-leap), dancing.
+    const move = DANCE_MOVES[b.move]!
+    dropShadow(g, b.x, b.y + 8, 9, 3, 0.4)
+    if (b.mode === 3 && b.tell > 0) {
+      if (move === 'slide') {
+        // A dashed arrow along the slide to come.
+        g.strokeStyle = rgba(RAMPS.ember[3], 0.8)
+        g.lineWidth = 2
+        g.setLineDash([4, 4])
+        g.beginPath()
+        g.moveTo(b.x, b.y)
+        g.lineTo(b.aimX, b.aimY)
+        g.stroke()
+        g.setLineDash([])
+      } else if (move === 'stomp') {
+        dropShadow(
+          g,
+          b.aimX,
+          b.aimY,
+          16,
+          6,
+          0.3 + 0.4 * (1 - b.tell / cfg.moveTell),
+        )
+      } else {
+        for (let i = 0; i < 6; i++) {
+          const a = (i / 6) * Math.PI * 2 + tick / 6
+          g.fillStyle = RAMPS.gold[4]
+          g.fillRect(
+            Math.round(b.x + Math.cos(a) * 14),
+            Math.round(b.y - 10 + Math.sin(a) * 6),
+            2,
+            2,
+          )
+        }
+      }
+    }
+    if (move === 'stomp' && b.mode === 3 && b.tell === 0 && b.clock > 0)
+      dropShadow(g, b.aimX, b.aimY, 16, 6, 0.5)
+    const pose = b.tell > 0 ? Math.round(Math.sin(tick / 3) * 2) : 0
+    renderHost(g, b.x, b.y - b.z + 6, tick, b.flash > 0, pose)
+  }
+  healthBar(g, b)
+}
+
+/** Draws a boss (not the Parade Float, which the game draws itself). */
 export function renderBoss(g: CanvasRenderingContext2D, b: Boss, tick: number) {
   switch (b.kind) {
     case 'wobble':
@@ -575,6 +950,12 @@ export function renderBoss(g: CanvasRenderingContext2D, b: Boss, tick: number) {
       return renderMosh(g, b, tick)
     case 'jumbotron':
       return renderJumbotron(g, b, tick)
+    case 'mothership':
+      return renderMothership(g, b, tick)
+    case 'dragon':
+      return renderDragon(g, b, tick)
+    case 'machine':
+      return renderMachine(g, b, tick)
     case 'float':
       return
   }

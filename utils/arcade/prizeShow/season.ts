@@ -3,14 +3,14 @@
 // Prize Show Panic's broadcast season (conductor kr-arcade t-026, depth-pass/ASSESSMENT.md section 2).
 // The season is data: episodes are maps of rooms on a grid, every room runs a script (which doors
 // open when, which crashers come through, what props sit on the floor), and the game in
-// games/prizeShowPanic.ts only plays what is written here. Episodes 1-3 are authored (Opening Night,
-// Cooking Showdown, Countdown Concert, each on its own set with its own hazards and bosses); episode
-// 4 and the Live Finale are appended to SEASON by a later slice. After the last authored episode the
-// season loops with harder curves (LOOP_CURVES) and rolled room modifiers, so a run still ends.
+// games/prizeShowPanic.ts only plays what is written here. Four episodes (Opening Night, Cooking
+// Showdown, Countdown Concert, Galaxy Parade), each on its own set with its own hazards and bosses,
+// then the Live Finale, one long run through every set to the host's own Prize Machine. Ten golden
+// tickets open the Grand Prize Vault after it (PRIZE_VAULT, off the season's running order). After a
+// clear the season reruns with harder curves (LOOP_CURVES) and rolled room modifiers, so a run ends.
 //
 // Crashers come from the roster (roster.ts), power-ups from the arsenal (arsenal.ts) and bosses from
-// bosses.ts. Opening Night's `encore` waves remix later episodes' crashers into its rooms on later
-// loops (the Galaxy kinds debut there until episode 4 is authored).
+// bosses.ts. Opening Night's `encore` waves remix later episodes' crashers into its rooms on reruns.
 //
 // Card text is drawn in the arcade's pixel font: capitals, digits and . , ! ? - + = : / ( ) ' only.
 
@@ -45,6 +45,9 @@ export type RoomType =
   | 'flour'
   | 'speakers'
   | 'moshpit'
+  // The galaxy's: a turning ring of floor round a hub, and teleport doors.
+  | 'ring'
+  | 'warp'
 
 /** What the map says a door leads to. */
 export type MapIcon = 'swarm' | 'vault' | 'trap' | 'sponsor' | 'boss' | 'secret'
@@ -62,6 +65,8 @@ export const ROOM_ICON: Record<RoomType, MapIcon> = {
   flour: 'trap',
   speakers: 'trap',
   moshpit: 'trap',
+  ring: 'trap',
+  warp: 'trap',
   vault: 'vault',
   sponsor: 'sponsor',
   secret: 'secret',
@@ -161,6 +166,28 @@ export type Prop =
   | { kind: 'flour'; x: number; y: number; r: number; drift: number }
   | SpeakerProp
   | { kind: 'mosh'; x: number; y: number; r: number; spin: 1 | -1 }
+  | TurntableProp
+  | WarpProp
+
+/**
+ * The galaxy's turning ring: the floor between `inner` and `outer` from the middle of the set turns
+ * (`spin` radians a tick, + clockwise) and carries whoever stands on it; inside it a solid hub.
+ */
+export type TurntableProp = {
+  kind: 'turntable'
+  inner: number
+  outer: number
+  spin: number
+}
+
+/** A pair of teleport doors: step into one and come out of the other. */
+export type WarpProp = {
+  kind: 'warp'
+  x1: number
+  y1: number
+  x2: number
+  y2: number
+}
 
 /**
  * A hot plate on the kitchen floor (x, y its top-left corner, w by h): cold, then it glows (the
@@ -196,11 +223,19 @@ export type SpeakerProp = {
 }
 
 /** The look and sound of an episode's soundstage. */
-export type SetId = 'studio' | 'kitchen' | 'concert'
+export type SetId = 'studio' | 'kitchen' | 'concert' | 'galaxy'
 
 /** Who a boss room brings on (prizeShow/bosses.ts). */
 export type BossKind =
-  'float' | 'wobble' | 'piecart' | 'souffle' | 'mosh' | 'jumbotron'
+  | 'float'
+  | 'wobble'
+  | 'piecart'
+  | 'souffle'
+  | 'mosh'
+  | 'jumbotron'
+  | 'mothership'
+  | 'dragon'
+  | 'machine'
 
 export type ModifierId =
   | 'lights-out'
@@ -256,6 +291,10 @@ export type RoomScript = {
   beat?: number
   /** The lights strobe on the beat: dark between flashes. */
   strobe?: boolean
+  /** A room on another episode's set (the Live Finale and the Vault remix every set). */
+  set?: SetId
+  /** Low gravity: Sparkle drifts on her momentum. */
+  lowGravity?: boolean
 }
 
 /** The concert's tempo: 120 beats a minute, a beat every 30 ticks (its music loop matches). */
@@ -278,11 +317,16 @@ export type Episode = {
   cols: number
   rows: number
   start: string
+  /** The mid-boss's room ('' for none: the Live Finale is one long run). */
   midBoss: string
   finale: string
   rooms: readonly MapRoom[]
   /** Off-map rooms behind cracked walls, by id. */
   secrets: Readonly<Record<string, RoomScript>>
+  /** One long run of rooms with no forks (the Live Finale, the Grand Prize Vault). */
+  live?: boolean
+  /** The Grand Prize Vault: only for ten golden tickets, and the host cheers for Sparkle. */
+  vault?: boolean
 }
 
 /** Golden tickets hidden across the whole season, and how many open the Grand Prize Vault. */
@@ -351,15 +395,16 @@ const STEADY: readonly RoomType[] = ['vault', 'secret', 'boss']
 
 /** How each pass round the season gets harder (loop 1 is the authored show). */
 export const LOOP_CURVES = {
+  // A pass is the whole season now (43 rooms), so each rerun steps up a long way.
   /** Crasher speed factor. */
-  speed: { start: 1, step: 0.15, limit: 1.75 },
+  speed: { start: 1, step: 0.25, limit: 1.75 },
   /** Crashers per door factor. */
-  count: { start: 1, step: 0.35, limit: 5 },
+  count: { start: 1, step: 0.6, limit: 5 },
   /** Waves arrive sooner. */
-  waveTime: { start: 1, step: -0.1, limit: 0.6 },
+  waveTime: { start: 1, step: -0.15, limit: 0.6 },
   /** Less time on the clock. */
-  clock: { start: 1, step: -0.08, limit: 0.62 },
-  bossHp: { start: 1, step: 0.6, limit: 8 },
+  clock: { start: 1, step: -0.12, limit: 0.62 },
+  bossHp: { start: 1, step: 1, limit: 8 },
   /** Chance a room rolls a modifier. */
   modifierChance: { start: 0, step: 0.45, limit: 0.85 },
 } as const satisfies Record<string, CurveSpec>
@@ -804,7 +849,7 @@ const CONGA_LINE: RoomScript = {
 
 const SPONSOR_SPOTLIGHT: RoomScript = {
   type: 'sponsor',
-  title: 'SPONSOR SPOTLIGHT',
+  title: 'SPONSOR SPOT',
   tagline: 'NO HITS WINS A GOLDEN TICKET',
   seconds: 50,
   danger: 4,
@@ -1175,7 +1220,7 @@ const THE_CONVEYOR: RoomScript = {
 const FLOUR_POWER: RoomScript = {
   type: 'flour',
   title: 'FLOUR POWER',
-  tagline: "WHO'S HIDING IN THE CLOUD? ...AND WHAT'S THAT CRACK?",
+  tagline: "WHO'S IN THE CLOUD? A CRACK?",
   seconds: 45,
   danger: 2,
   reward: 'cash',
@@ -1293,7 +1338,7 @@ const THE_DISH_PIT: RoomScript = {
 const BAKE_OFF: RoomScript = {
   type: 'sponsor',
   title: 'THE BAKE-OFF',
-  tagline: 'GRAB EVERY PRIZE FOR A GOLDEN TICKET',
+  tagline: 'EVERY PRIZE WINS A GOLDEN TICKET',
   seconds: 50,
   danger: 4,
   reward: 'ticket',
@@ -1585,7 +1630,7 @@ const FRONT_ROW: RoomScript = {
 const MERCH_STAND: RoomScript = {
   type: 'swarm',
   title: 'MERCH STAND',
-  tagline: 'THE SAFE ROUTE. MIND THE HECKLERS',
+  tagline: 'SAFE ROUTE. MIND THE HECKLERS',
   seconds: 45,
   danger: 1,
   reward: 'cash',
@@ -1650,7 +1695,7 @@ const STROBE_STORM: RoomScript = {
 const THE_PIT: RoomScript = {
   type: 'moshpit',
   title: 'THE PIT',
-  tagline: "DON'T GET SWEPT UP. ...IS THAT A CRACK?",
+  tagline: "DON'T GET SWEPT UP. A CRACK?",
   seconds: 45,
   danger: 2,
   reward: 'cash',
@@ -1679,7 +1724,7 @@ const THE_PIT: RoomScript = {
 const GOLD_RECORDS: RoomScript = {
   type: 'vault',
   title: 'GOLD RECORDS',
-  tagline: 'GRAB THE PLATINUM BEFORE THE CURTAIN',
+  tagline: 'GRAB THE PLATINUM, QUICK!',
   seconds: 12,
   danger: 1,
   reward: 'ticket',
@@ -1760,7 +1805,7 @@ const ENCORE_CONGA: RoomScript = {
 const SPONSOR_SOLO: RoomScript = {
   type: 'sponsor',
   title: 'SPONSOR SOLO',
-  tagline: 'PLAY IT CLEAN: NO HITS, ONE TICKET',
+  tagline: 'NO HITS WINS A GOLDEN TICKET',
   seconds: 50,
   danger: 4,
   reward: 'ticket',
@@ -1979,8 +2024,846 @@ export const EPISODE_3: Episode = {
   secrets: { 'green-room': GREEN_ROOM },
 }
 
-/** The season in broadcast order. Episode 4 and the Live Finale are appended by a later slice. */
-export const SEASON: readonly Episode[] = [EPISODE_1, EPISODE_2, EPISODE_3]
+// --- Episode 4: Galaxy Parade ---------------------------------------------------------------
+//
+//            col 0            col 1             col 2              col 3            col 4
+//   row 0    ZERO G      ->   THE RING          ORBIT RUSH    ->   SPACEWALK
+//              ^                  v                 ^                 v
+//   row 1    LAUNCH PAD       STAR VAULT   ->   MOTHERSHIP         STAR PARADE ->   CONGA DRAGON
+//              v                  ^                 v                 ^
+//   row 2    CREW DECK   ->   TELEPORT HALL     COMET CONGA   ->   MIRROR MAZE
+//
+// The sci-fi soundstage: low-gravity rooms where Sparkle drifts on her momentum, a ring of floor
+// that turns round a solid hub, and teleport doors. A cracked wall in the Teleport Hall hides the
+// Airlock.
+
+/** A pair of teleport doors. */
+const warp = (x1: number, y1: number, x2: number, y2: number) =>
+  ({ kind: 'warp', x1, y1, x2, y2 }) as const
+
+const LAUNCH_PAD: RoomScript = {
+  type: 'swarm',
+  title: 'LAUNCH PAD',
+  tagline: 'TEN, NINE, EIGHT... GO!',
+  seconds: 45,
+  danger: 2,
+  reward: 'cash',
+  waves: [
+    { at: s(1), kind: 'grabber', count: 3, doors: 'far' },
+    { at: s(6), kind: 'drone', count: 1, doors: 'far' },
+    { at: s(10), kind: 'grabber', count: 2, doors: 'flanks' },
+    { at: s(15), kind: 'fluffball', count: 2, doors: 'any' },
+    {
+      at: s(19),
+      kind: 'grabber',
+      count: 3,
+      doors: 'any',
+      times: 2,
+      every: s(4),
+    },
+  ],
+}
+
+const ZERO_G: RoomScript = {
+  type: 'swarm',
+  title: 'ZERO G',
+  tagline: 'MIND YOUR MOMENTUM',
+  seconds: 50,
+  danger: 3,
+  reward: 'toaster',
+  dropRate: 0.18,
+  lowGravity: true,
+  waves: [
+    { at: s(2), kind: 'grabber', count: 3, doors: 'far' },
+    { at: s(7), kind: 'bouncer', count: 1, doors: 'flanks' },
+    { at: s(12), kind: 'drone', count: 1, doors: 'far' },
+    { at: s(17), kind: 'fluffball', count: 2, doors: 'flanks' },
+    { at: s(23), kind: 'grabber', count: 3, doors: 'any' },
+  ],
+}
+
+const CREW_DECK: RoomScript = {
+  type: 'swarm',
+  title: 'CREW DECK',
+  tagline: 'THE SAFE ROUTE. MIND THE FLUFF',
+  seconds: 45,
+  danger: 1,
+  reward: 'cash',
+  waves: [
+    { at: s(1), kind: 'grabber', count: 3, doors: 'far' },
+    { at: s(6), kind: 'fluffball', count: 2, doors: 'far' },
+    { at: s(11), kind: 'grabber', count: 2, doors: 'flanks' },
+    {
+      at: s(15),
+      kind: 'grabber',
+      count: 2,
+      doors: 'any',
+      times: 3,
+      every: s(4),
+    },
+    { at: s(26), kind: 'bouncer', count: 1, doors: 'flanks' },
+  ],
+}
+
+const THE_RING: RoomScript = {
+  type: 'ring',
+  title: 'THE RING',
+  tagline: 'THE FLOOR GOES ROUND AND ROUND',
+  seconds: 50,
+  danger: 3,
+  reward: 'car',
+  dropRate: 0.16,
+  waves: [
+    { at: s(2), kind: 'grabber', count: 3, doors: 'far' },
+    { at: s(7), kind: 'drone', count: 1, doors: 'flanks' },
+    { at: s(12), kind: 'clone', count: 1, doors: 'far', fixed: true },
+    { at: s(17), kind: 'grabber', count: 3, doors: 'flanks' },
+    { at: s(24), kind: 'fluffball', count: 2, doors: 'any' },
+  ],
+  props: [{ kind: 'turntable', inner: 24, outer: 92, spin: 0.006 }],
+}
+
+const TELEPORT_HALL: RoomScript = {
+  type: 'warp',
+  title: 'TELEPORT HALL',
+  tagline: 'STEP IN, STEP OUT. A CRACK?',
+  seconds: 45,
+  danger: 2,
+  reward: 'cash',
+  waves: [
+    { at: s(2), kind: 'grabber', count: 3, doors: 'far' },
+    { at: s(7), kind: 'grabber', count: 2, doors: 'flanks' },
+    { at: s(12), kind: 'saucer', count: 1, doors: 'far', fixed: true },
+    {
+      at: s(16),
+      kind: 'grabber',
+      count: 3,
+      doors: 'any',
+      times: 2,
+      every: s(5),
+    },
+  ],
+  props: [
+    warp(64, 64, 256, 192),
+    warp(256, 64, 64, 192),
+    { kind: 'pedestal', x: 160, y: 72, prize: 'toaster' },
+    { kind: 'crack', side: 2, at: -96, secret: 'airlock' },
+  ],
+}
+
+const STAR_VAULT: RoomScript = {
+  type: 'vault',
+  title: 'STAR VAULT',
+  tagline: 'PRIZES FROM ANOTHER WORLD!',
+  seconds: 12,
+  danger: 1,
+  reward: 'ticket',
+  closes: true,
+  lowGravity: true,
+  waves: [],
+  props: [
+    { kind: 'pedestal', x: 92, y: 60, prize: 'car' },
+    { kind: 'pedestal', x: 228, y: 60, prize: 'toaster' },
+    { kind: 'pedestal', x: 92, y: 196, prize: 'cash' },
+    { kind: 'pedestal', x: 228, y: 196, prize: 'toaster' },
+    { kind: 'pedestal', x: 160, y: 96, prize: 'skates' },
+    { kind: 'ticket', x: 160, y: 168, id: 'e4-stars' },
+  ],
+}
+
+const MOTHERSHIP: RoomScript = {
+  type: 'boss',
+  title: 'THE MOTHERSHIP',
+  tagline: 'IT WANTS OUR PRIZES',
+  seconds: 90,
+  danger: 4,
+  reward: 'car',
+  waves: [
+    { at: s(25), kind: 'grabber', count: 2, doors: 'flanks' },
+    { at: s(50), kind: 'grabber', count: 2, doors: 'flanks' },
+  ],
+  props: [
+    { kind: 'pedestal', x: 72, y: 160, prize: 'car' },
+    { kind: 'pedestal', x: 248, y: 160, prize: 'toaster' },
+    { kind: 'pedestal', x: 160, y: 196, prize: 'cash' },
+  ],
+  boss: {
+    kind: 'mothership',
+    hp: 80,
+    phase2At: 0.5,
+    title: 'THE MOTHERSHIP!',
+    sub: 'BREAK THE BEAM, WIN IT BACK',
+    line: "TONIGHT'S SPONSOR IS FROM OUTER SPACE, AND IT WANTS THE PRIZES BACK.",
+  },
+}
+
+const ORBIT_RUSH: RoomScript = {
+  type: 'speed',
+  title: 'ORBIT RUSH',
+  tagline: 'FAST, FLOATY, DOUBLE PRIZES',
+  seconds: 30,
+  danger: 3,
+  reward: 'toaster',
+  dropRate: 0.2,
+  doubleDrops: true,
+  lowGravity: true,
+  waves: [
+    { at: s(1), kind: 'grabber', count: 3, doors: 'far' },
+    { at: s(3), kind: 'grabber', count: 3, doors: 'flanks' },
+    {
+      at: s(6),
+      kind: 'grabber',
+      count: 3,
+      doors: 'any',
+      times: 3,
+      every: s(2.5),
+    },
+    { at: s(9), kind: 'drone', count: 1, doors: 'far' },
+  ],
+}
+
+const COMET_CONGA: RoomScript = {
+  type: 'conga',
+  title: 'COMET CONGA',
+  tagline: 'LONG TAILS, FAST FEET',
+  seconds: 45,
+  danger: 2,
+  reward: 'cash',
+  pace: 1.25,
+  waves: [
+    { at: s(1), kind: 'conga', count: 8, doors: 'far' },
+    { at: s(9), kind: 'conga', count: 7, doors: 'flanks' },
+    { at: s(15), kind: 'fluffball', count: 2, doors: 'far' },
+    { at: s(21), kind: 'conga', count: 10, doors: 'far' },
+  ],
+  props: [warp(96, 64, 224, 192)],
+}
+
+const SPACEWALK: RoomScript = {
+  type: 'sponsor',
+  title: 'SPACEWALK',
+  tagline: 'NO HITS WINS A GOLDEN TICKET',
+  seconds: 50,
+  danger: 4,
+  reward: 'ticket',
+  challenge: 'no-hit',
+  ticket: 'e4-spacewalk',
+  lowGravity: true,
+  waves: [
+    { at: s(2), kind: 'grabber', count: 3, doors: 'far' },
+    { at: s(7), kind: 'drone', count: 1, doors: 'flanks' },
+    { at: s(12), kind: 'clone', count: 1, doors: 'far', fixed: true },
+    { at: s(17), kind: 'grabber', count: 3, doors: 'any' },
+    { at: s(23), kind: 'fluffball', count: 2, doors: 'flanks' },
+  ],
+}
+
+const MIRROR_MAZE: RoomScript = {
+  type: 'ambush',
+  title: 'MIRROR MAZE',
+  tagline: 'EVERY DOOR. ONE OF THEM IS YOU',
+  seconds: 50,
+  danger: 3,
+  reward: 'toaster',
+  waves: [
+    { at: s(2), kind: 'grabber', count: 2, doors: 'all' },
+    { at: s(8), kind: 'clone', count: 1, doors: 'far', fixed: true },
+    { at: s(14), kind: 'grabber', count: 2, doors: 'all' },
+    { at: s(20), kind: 'drone', count: 1, doors: 'flanks' },
+    { at: s(26), kind: 'fluffball', count: 1, doors: 'all' },
+  ],
+  props: [warp(80, 80, 240, 176)],
+}
+
+const STAR_PARADE: RoomScript = {
+  type: 'ring',
+  title: 'STAR PARADE',
+  tagline: 'THE RING, THE DOORS, THE WORKS',
+  seconds: 55,
+  danger: 4,
+  reward: 'car',
+  dropRate: 0.16,
+  waves: [
+    { at: s(2), kind: 'grabber', count: 3, doors: 'far' },
+    { at: s(7), kind: 'saucer', count: 1, doors: 'flanks', fixed: true },
+    { at: s(12), kind: 'drone', count: 1, doors: 'far' },
+    { at: s(17), kind: 'conga', count: 6, doors: 'flanks' },
+    { at: s(23), kind: 'clone', count: 1, doors: 'far', fixed: true },
+    { at: s(28), kind: 'grabber', count: 3, doors: 'any' },
+  ],
+  props: [
+    { kind: 'turntable', inner: 22, outer: 70, spin: -0.008 },
+    warp(40, 48, 280, 208),
+    { kind: 'pedestal', x: 260, y: 56, prize: 'cash' },
+  ],
+}
+
+const CONGA_DRAGON: RoomScript = {
+  type: 'boss',
+  title: 'CONGA DRAGON',
+  tagline: 'A PARADE WITH A HEAD ON IT',
+  seconds: 110,
+  danger: 5,
+  reward: 'car',
+  lowGravity: true,
+  waves: [
+    { at: s(30), kind: 'fluffball', count: 1, doors: 'flanks' },
+    { at: s(60), kind: 'grabber', count: 2, doors: 'flanks' },
+  ],
+  boss: {
+    kind: 'dragon',
+    hp: 80,
+    phase2At: 0.5,
+    title: 'THE CONGA DRAGON!',
+    sub: 'CONFETTI IT DOWN TO THE HEAD',
+    line: "IT'S A PARADE. IT'S A DRAGON. IT'S A PARADE DRAGON, AND IT IS RUNNING LATE.",
+  },
+}
+
+const AIRLOCK: RoomScript = {
+  type: 'secret',
+  title: 'THE AIRLOCK',
+  tagline: 'A SECRET ROOM IN SPACE!',
+  seconds: 18,
+  danger: 1,
+  reward: 'ticket',
+  closes: true,
+  lowGravity: true,
+  waves: [
+    { at: s(3), kind: 'grabber', count: 2, doors: 'far' },
+    { at: s(8), kind: 'fluffball', count: 1, doors: 'flanks' },
+  ],
+  props: [
+    { kind: 'pedestal', x: 80, y: 64, prize: 'car' },
+    { kind: 'pedestal', x: 240, y: 64, prize: 'orbiters' },
+    { kind: 'pedestal', x: 80, y: 192, prize: 'toaster' },
+    { kind: 'pedestal', x: 240, y: 192, prize: 'cash' },
+    { kind: 'ticket', x: 160, y: 80, id: 'e4-airlock' },
+  ],
+}
+
+export const EPISODE_4: Episode = {
+  number: 4,
+  title: 'GALAXY PARADE',
+  subtitle: 'THE SCI-FI SOUNDSTAGE',
+  set: 'galaxy',
+  cols: 5,
+  rows: 3,
+  start: 'launch-pad',
+  midBoss: 'mothership',
+  finale: 'conga-dragon',
+  rooms: [
+    {
+      id: 'launch-pad',
+      col: 0,
+      row: 1,
+      script: LAUNCH_PAD,
+      exits: ['zero-g', 'crew-deck'],
+    },
+    { id: 'zero-g', col: 0, row: 0, script: ZERO_G, exits: ['the-ring'] },
+    {
+      id: 'crew-deck',
+      col: 0,
+      row: 2,
+      script: CREW_DECK,
+      exits: ['teleport-hall'],
+    },
+    {
+      id: 'the-ring',
+      col: 1,
+      row: 0,
+      script: THE_RING,
+      exits: ['star-vault'],
+    },
+    {
+      id: 'teleport-hall',
+      col: 1,
+      row: 2,
+      script: TELEPORT_HALL,
+      exits: ['star-vault'],
+    },
+    {
+      id: 'star-vault',
+      col: 1,
+      row: 1,
+      script: STAR_VAULT,
+      exits: ['mothership'],
+    },
+    {
+      id: 'mothership',
+      col: 2,
+      row: 1,
+      script: MOTHERSHIP,
+      exits: ['orbit-rush', 'comet-conga'],
+    },
+    {
+      id: 'orbit-rush',
+      col: 2,
+      row: 0,
+      script: ORBIT_RUSH,
+      exits: ['spacewalk'],
+    },
+    {
+      id: 'comet-conga',
+      col: 2,
+      row: 2,
+      script: COMET_CONGA,
+      exits: ['mirror-maze'],
+    },
+    {
+      id: 'spacewalk',
+      col: 3,
+      row: 0,
+      script: SPACEWALK,
+      exits: ['star-parade'],
+    },
+    {
+      id: 'mirror-maze',
+      col: 3,
+      row: 2,
+      script: MIRROR_MAZE,
+      exits: ['star-parade'],
+    },
+    {
+      id: 'star-parade',
+      col: 3,
+      row: 1,
+      script: STAR_PARADE,
+      exits: ['conga-dragon'],
+    },
+    {
+      id: 'conga-dragon',
+      col: 4,
+      row: 1,
+      script: CONGA_DRAGON,
+      exits: [],
+    },
+  ],
+  secrets: { airlock: AIRLOCK },
+}
+
+// --- The Live Finale -----------------------------------------------------------------------
+//
+//            col 0          col 1          col 2          col 3              col 4
+//   row 0    LIVE!     ->   KITCHEN   ->   CONCERT   ->   COMMERCIALS   ->   GALAXY
+//                                                                             v
+//   row 1                                  PRIZE MACHINE <-  ALL AT ONCE
+//
+// One long run with no forks, remixing every set (each room on its own episode's set), a
+// commercial break halfway, then the main stage: the host's own Prize Machine.
+
+const LIVE_OPEN: RoomScript = {
+  type: 'swarm',
+  title: 'WE ARE LIVE!',
+  tagline: 'THE SEASON FINALE STARTS NOW',
+  seconds: 50,
+  danger: 3,
+  reward: 'cash',
+  set: 'studio',
+  waves: [
+    { at: s(1), kind: 'grabber', count: 3, doors: 'far' },
+    { at: s(5), kind: 'popper', count: 1, doors: 'flanks' },
+    { at: s(9), kind: 'thrower', count: 1, doors: 'far' },
+    { at: s(13), kind: 'stagehand', count: 1, doors: 'flanks' },
+    { at: s(18), kind: 'conga', count: 7, doors: 'far' },
+    { at: s(24), kind: 'grabber', count: 3, doors: 'any' },
+  ],
+  props: [{ kind: 'camera', wall: 'far', at: 0.7, every: 160, offset: 40 }],
+}
+
+const LIVE_KITCHEN: RoomScript = {
+  type: 'hotplates',
+  title: 'KITCHEN, LIVE',
+  tagline: 'BACK ON THE HOT PLATES',
+  seconds: 50,
+  danger: 3,
+  reward: 'toaster',
+  set: 'kitchen',
+  waves: [
+    { at: s(2), kind: 'grabber', count: 3, doors: 'far' },
+    { at: s(6), kind: 'chef', count: 1, doors: 'flanks' },
+    { at: s(11), kind: 'meatball', count: 1, doors: 'far' },
+    { at: s(16), kind: 'timer', count: 1, doors: 'any' },
+    { at: s(22), kind: 'grabber', count: 3, doors: 'flanks' },
+  ],
+  props: [
+    plate(4, 4, 240, 0),
+    plate(14, 4, 240, 120),
+    plate(9, 10, 240, 60),
+    { kind: 'belt', x: 48, y: 120, w: 64, h: 16, dir: 1 },
+    { kind: 'belt', x: 208, y: 120, w: 64, h: 16, dir: 3 },
+  ],
+}
+
+const LIVE_CONCERT: RoomScript = {
+  type: 'speakers',
+  title: 'CONCERT, LIVE',
+  tagline: 'ONE MORE SONG FOR THE CROWD',
+  seconds: 50,
+  danger: 3,
+  reward: 'car',
+  set: 'concert',
+  beat: CONCERT_BEAT,
+  waves: [
+    { at: s(2), kind: 'grabber', count: 3, doors: 'far' },
+    { at: s(6), kind: 'roadie', count: 1, doors: 'flanks' },
+    { at: s(11), kind: 'diver', count: 1, doors: 'far' },
+    { at: s(16), kind: 'heckler', count: 1, doors: 'any' },
+    { at: s(22), kind: 'grabber', count: 3, doors: 'flanks' },
+  ],
+  props: [
+    speaker(0, 8, 0),
+    speaker(1, 8, 4),
+    { kind: 'mosh', x: 160, y: 128, r: 26, spin: 1 },
+  ],
+}
+
+const COMMERCIAL_BREAK: RoomScript = {
+  type: 'vault',
+  title: 'COMMERCIALS!',
+  tagline: "WE'LL BE RIGHT BACK. GRAB IT!",
+  seconds: 15,
+  danger: 1,
+  reward: 'car',
+  closes: true,
+  set: 'studio',
+  waves: [],
+  props: [
+    { kind: 'pedestal', x: 92, y: 60, prize: 'car' },
+    { kind: 'pedestal', x: 228, y: 60, prize: 'toaster' },
+    { kind: 'pedestal', x: 92, y: 196, prize: 'shield' },
+    { kind: 'pedestal', x: 228, y: 196, prize: 'toaster' },
+    { kind: 'pedestal', x: 160, y: 128, prize: 'cash' },
+  ],
+}
+
+const LIVE_GALAXY: RoomScript = {
+  type: 'ring',
+  title: 'GALAXY, LIVE',
+  tagline: 'ROUND THE RING ONE LAST TIME',
+  seconds: 50,
+  danger: 4,
+  reward: 'toaster',
+  set: 'galaxy',
+  lowGravity: true,
+  waves: [
+    { at: s(2), kind: 'grabber', count: 3, doors: 'far' },
+    { at: s(7), kind: 'drone', count: 1, doors: 'flanks' },
+    { at: s(12), kind: 'clone', count: 1, doors: 'far', fixed: true },
+    { at: s(17), kind: 'fluffball', count: 2, doors: 'any' },
+    { at: s(23), kind: 'grabber', count: 3, doors: 'flanks' },
+  ],
+  props: [{ kind: 'turntable', inner: 24, outer: 84, spin: 0.007 }],
+}
+
+const EVERYTHING_AT_ONCE: RoomScript = {
+  type: 'ambush',
+  title: 'ALL AT ONCE',
+  tagline: 'EVERY SET, EVERY CRASHER',
+  seconds: 60,
+  danger: 5,
+  reward: 'car',
+  set: 'studio',
+  waves: [
+    { at: s(2), kind: 'grabber', count: 2, doors: 'all' },
+    { at: s(7), kind: 'chef', count: 1, doors: 'far' },
+    { at: s(11), kind: 'heckler', count: 1, doors: 'flanks' },
+    { at: s(15), kind: 'grabber', count: 2, doors: 'all' },
+    { at: s(20), kind: 'drone', count: 1, doors: 'far' },
+    { at: s(25), kind: 'mascot', count: 1, doors: 'far', fixed: true },
+    { at: s(31), kind: 'grabber', count: 2, doors: 'all' },
+  ],
+  props: [
+    { kind: 'cushion', x: 80, y: 80 },
+    { kind: 'cushion', x: 240, y: 176 },
+    { kind: 'peel', x: 240, y: 80 },
+    { kind: 'peel', x: 80, y: 176 },
+    plate(9, 3, 260, 0),
+    { kind: 'boom', every: 480, offset: 200 },
+  ],
+}
+
+const PRIZE_MACHINE: RoomScript = {
+  type: 'boss',
+  title: 'PRIZE MACHINE',
+  tagline: 'THE HOST TAKES THE STAGE',
+  seconds: 140,
+  danger: 5,
+  reward: 'car',
+  set: 'studio',
+  waves: [
+    { at: s(40), kind: 'grabber', count: 2, doors: 'flanks' },
+    { at: s(80), kind: 'grabber', count: 2, doors: 'flanks' },
+  ],
+  boss: {
+    kind: 'machine',
+    hp: 180,
+    phase2At: 0.34,
+    title: 'THE PRIZE MACHINE!',
+    sub: 'EVERY SPIN A NEW ACT',
+    line: "AND NOW, LIVE ON STAGE: ME! ON A WHEEL! LET'S SPIN!",
+  },
+}
+
+export const LIVE_FINALE: Episode = {
+  number: 5,
+  title: 'THE LIVE FINALE',
+  subtitle: 'EVERY SET, ONE NIGHT',
+  set: 'studio',
+  cols: 5,
+  rows: 2,
+  start: 'live-open',
+  midBoss: '',
+  finale: 'prize-machine',
+  live: true,
+  rooms: [
+    {
+      id: 'live-open',
+      col: 0,
+      row: 0,
+      script: LIVE_OPEN,
+      exits: ['live-kitchen'],
+    },
+    {
+      id: 'live-kitchen',
+      col: 1,
+      row: 0,
+      script: LIVE_KITCHEN,
+      exits: ['live-concert'],
+    },
+    {
+      id: 'live-concert',
+      col: 2,
+      row: 0,
+      script: LIVE_CONCERT,
+      exits: ['commercial-break'],
+    },
+    {
+      id: 'commercial-break',
+      col: 3,
+      row: 0,
+      script: COMMERCIAL_BREAK,
+      exits: ['live-galaxy'],
+    },
+    {
+      id: 'live-galaxy',
+      col: 4,
+      row: 0,
+      script: LIVE_GALAXY,
+      exits: ['everything-at-once'],
+    },
+    {
+      id: 'everything-at-once',
+      col: 4,
+      row: 1,
+      script: EVERYTHING_AT_ONCE,
+      exits: ['prize-machine'],
+    },
+    {
+      id: 'prize-machine',
+      col: 3,
+      row: 1,
+      script: PRIZE_MACHINE,
+      exits: [],
+    },
+  ],
+  secrets: {},
+}
+
+// --- The Grand Prize Vault ------------------------------------------------------------------
+//
+//   VAULT DOORS -> HOT VAULT -> LOUD VAULT -> FLOATING VAULT -> THE GRAND PRIZE
+//
+// Only for a contestant holding ten golden tickets once the finale is won: a gauntlet of every set,
+// the host cheering for Sparkle this time, and the true ending.
+
+const VAULT_DOORS: RoomScript = {
+  type: 'swarm',
+  title: 'THE VAULT DOORS',
+  tagline: 'TEN TICKETS. THE DOORS ARE OPEN',
+  seconds: 50,
+  danger: 4,
+  reward: 'car',
+  set: 'studio',
+  waves: [
+    { at: s(1), kind: 'grabber', count: 3, doors: 'far' },
+    { at: s(5), kind: 'tank', count: 1, doors: 'far', fixed: true },
+    { at: s(9), kind: 'popper', count: 1, doors: 'flanks' },
+    { at: s(14), kind: 'stagehand', count: 1, doors: 'any' },
+    { at: s(19), kind: 'grabber', count: 3, doors: 'flanks' },
+  ],
+  props: [
+    {
+      kind: 'beam',
+      x: 160,
+      y: 26,
+      base: Math.PI / 2,
+      swing: 0.8,
+      on: 100,
+      off: 80,
+      offset: 0,
+    },
+  ],
+}
+
+const HOT_VAULT: RoomScript = {
+  type: 'hotplates',
+  title: 'THE HOT VAULT',
+  tagline: 'EVERY PLATE ON FULL',
+  seconds: 50,
+  danger: 4,
+  reward: 'car',
+  set: 'kitchen',
+  waves: [
+    { at: s(2), kind: 'chef', count: 1, doors: 'far' },
+    { at: s(6), kind: 'grabber', count: 3, doors: 'flanks' },
+    { at: s(11), kind: 'timer', count: 1, doors: 'any' },
+    { at: s(16), kind: 'meatball', count: 1, doors: 'far' },
+    { at: s(21), kind: 'grabber', count: 3, doors: 'any' },
+  ],
+  props: [
+    plate(3, 3, 220, 0),
+    plate(15, 3, 220, 110),
+    plate(3, 10, 220, 55),
+    plate(15, 10, 220, 165),
+    { kind: 'flour', x: 160, y: 128, r: 26, drift: 1 },
+  ],
+}
+
+const LOUD_VAULT: RoomScript = {
+  type: 'speakers',
+  title: 'THE LOUD VAULT',
+  tagline: 'THE BASS IS ON YOUR SIDE. MOSTLY',
+  seconds: 50,
+  danger: 4,
+  reward: 'car',
+  set: 'concert',
+  beat: CONCERT_BEAT,
+  strobe: true,
+  waves: [
+    { at: s(2), kind: 'grabber', count: 3, doors: 'far' },
+    { at: s(6), kind: 'heckler', count: 1, doors: 'flanks' },
+    { at: s(11), kind: 'diver', count: 1, doors: 'far' },
+    { at: s(16), kind: 'roadie', count: 1, doors: 'any' },
+    { at: s(21), kind: 'grabber', count: 3, doors: 'flanks' },
+  ],
+  props: [
+    speaker(0, 8, 0),
+    speaker(1, 8, 2),
+    speaker(2, 8, 4),
+    speaker(3, 8, 6),
+  ],
+}
+
+const FLOATING_VAULT: RoomScript = {
+  type: 'warp',
+  title: 'FLOATING VAULT',
+  tagline: 'NO GRAVITY, NO LIMITS',
+  seconds: 50,
+  danger: 4,
+  reward: 'car',
+  set: 'galaxy',
+  lowGravity: true,
+  waves: [
+    { at: s(2), kind: 'grabber', count: 3, doors: 'far' },
+    { at: s(6), kind: 'drone', count: 1, doors: 'flanks' },
+    { at: s(11), kind: 'clone', count: 1, doors: 'far', fixed: true },
+    { at: s(16), kind: 'saucer', count: 1, doors: 'any', fixed: true },
+    { at: s(21), kind: 'fluffball', count: 2, doors: 'flanks' },
+  ],
+  props: [
+    warp(64, 64, 256, 192),
+    warp(256, 64, 64, 192),
+    { kind: 'pedestal', x: 160, y: 72, prize: 'car' },
+  ],
+}
+
+const GRAND_PRIZE: RoomScript = {
+  type: 'ambush',
+  title: 'THE GRAND PRIZE',
+  tagline: 'EVERY CRASHER, ONE LAST TIME',
+  seconds: 70,
+  danger: 5,
+  reward: 'car',
+  set: 'studio',
+  waves: [
+    { at: s(2), kind: 'grabber', count: 2, doors: 'all' },
+    { at: s(6), kind: 'bouncer', count: 1, doors: 'flanks' },
+    { at: s(10), kind: 'conga', count: 6, doors: 'far' },
+    { at: s(14), kind: 'chef', count: 1, doors: 'flanks' },
+    { at: s(18), kind: 'heckler', count: 1, doors: 'far' },
+    { at: s(22), kind: 'drone', count: 1, doors: 'flanks' },
+    { at: s(26), kind: 'mascot', count: 1, doors: 'far', fixed: true },
+    { at: s(32), kind: 'grabber', count: 2, doors: 'all' },
+  ],
+  props: [
+    { kind: 'pedestal', x: 60, y: 60, prize: 'car' },
+    { kind: 'pedestal', x: 260, y: 60, prize: 'car' },
+    { kind: 'pedestal', x: 60, y: 196, prize: 'car' },
+    { kind: 'pedestal', x: 260, y: 196, prize: 'car' },
+  ],
+}
+
+export const PRIZE_VAULT: Episode = {
+  number: 6,
+  title: 'THE GRAND PRIZE VAULT',
+  subtitle: 'TEN GOLDEN TICKETS',
+  set: 'studio',
+  cols: 5,
+  rows: 1,
+  start: 'vault-doors',
+  midBoss: '',
+  finale: 'grand-prize',
+  live: true,
+  vault: true,
+  rooms: [
+    {
+      id: 'vault-doors',
+      col: 0,
+      row: 0,
+      script: VAULT_DOORS,
+      exits: ['hot-vault'],
+    },
+    {
+      id: 'hot-vault',
+      col: 1,
+      row: 0,
+      script: HOT_VAULT,
+      exits: ['loud-vault'],
+    },
+    {
+      id: 'loud-vault',
+      col: 2,
+      row: 0,
+      script: LOUD_VAULT,
+      exits: ['floating-vault'],
+    },
+    {
+      id: 'floating-vault',
+      col: 3,
+      row: 0,
+      script: FLOATING_VAULT,
+      exits: ['grand-prize'],
+    },
+    {
+      id: 'grand-prize',
+      col: 4,
+      row: 0,
+      script: GRAND_PRIZE,
+      exits: [],
+    },
+  ],
+  secrets: {},
+}
+
+/** The season in broadcast order: four episodes and the Live Finale (the Vault is off the air). */
+export const SEASON: readonly Episode[] = [
+  EPISODE_1,
+  EPISODE_2,
+  EPISODE_3,
+  EPISODE_4,
+  LIVE_FINALE,
+]
 
 /** Every golden ticket the authored season places, by id. */
 export function seasonTickets(season: readonly Episode[] = SEASON): string[] {

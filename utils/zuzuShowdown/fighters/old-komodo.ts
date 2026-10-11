@@ -30,10 +30,21 @@ const VENOM = { frames: 360, every: 20 }
 // LP is a staff jab, HP an overhead staff smash. Every heavy is slower and
 // soaks one hit, light or heavy.
 const normals = defaultNormals(HEIGHT)
-normals.stand_hp = {
-  ...normals.stand_hp,
-  hitbox: { x: 10, y: 50, w: 50, h: 50 },
+// Each box is fitted to his rig's art (conductor tools/rigs/komodo.py), so it
+// reaches where the staff or claws are drawn on its active frames.
+const fit = (id: NormalId, hitbox: MoveData['hitbox']) => {
+  normals[id] = { ...normals[id], hitbox }
 }
+fit('stand_lp', { x: 8, y: 72, w: 34, h: 10 })
+fit('stand_hp', { x: 10, y: 50, w: 35, h: 32 })
+fit('stand_lk', { x: 6, y: 30, w: 44, h: 12 })
+fit('crouch_lp', { x: 8, y: 42, w: 33, h: 10 })
+fit('crouch_lk', { x: 6, y: 0, w: 47, h: 10 })
+fit('crouch_hp', { x: 2, y: 40, w: 24, h: 56 })
+fit('jump_lp', { x: 4, y: 40, w: 38, h: 14 })
+fit('jump_hp', { x: 4, y: 24, w: 22, h: 20 })
+fit('jump_lk', { x: -6, y: 23, w: 55, h: 14 })
+fit('jump_hk', { x: 2, y: 19, w: 49, h: 16 })
 const HEAVIES: NormalId[] = [
   'stand_hp',
   'stand_hk',

@@ -385,6 +385,72 @@ const BLUESCREEN_FRAMES = [
   pixelSprite(bluescreenRows(true), SCREEN),
 ]
 
+const NEON = {
+  d: RAMPS.purple[0],
+  s: RAMPS.purple[1],
+  b: RAMPS.purple[2],
+  l: RAMPS.pink[3],
+  c: RAMPS.teal[3],
+  w: '#ffffff',
+  k: INK,
+}
+/** The blinker: a little ghost of an old sprite, all scanlines. */
+const BLINKER_ROWS = [
+  [
+    '..sbbbs..',
+    '.sbcbcbs.',
+    'sbwkbwkbs',
+    'sbbbbbbbs',
+    'scbcbcbcs',
+    'sbbbbbbbs',
+    '.s.s.s.s.',
+  ],
+  [
+    '..sbbbs..',
+    '.sbcbcbs.',
+    'sbkwbkwbs',
+    'sbbbbbbbs',
+    'sbcbcbcbs',
+    'sbbbbbbbs',
+    's.s.s.s.s',
+  ],
+]
+const WIZARD = {
+  d: RAMPS.purple[1],
+  s: RAMPS.purple[2],
+  b: RAMPS.sky[2],
+  l: RAMPS.sky[3],
+  y: RAMPS.gold[4],
+  w: '#ffffff',
+  k: INK,
+  a: RAMPS.steel[3],
+}
+/** The pop-up wizard: a router in a pointed hat, its antenna a wand. */
+const WIZARD_ROWS = [
+  [
+    '....y....',
+    '...sds...',
+    '..sddds..',
+    '.sdyddds.',
+    'sssssssss',
+    '.bwkbwkb.',
+    '.blbbblb.',
+    '.bbbbbbb.',
+    '..a...a..',
+  ],
+  [
+    '....w....',
+    '...sds...',
+    '..sddds..',
+    '.sdddyds.',
+    'sssssssss',
+    '.bkwbkwb.',
+    '.blbbblb.',
+    '.bbbbbbb.',
+    '..a...a..',
+  ],
+]
+
 /** Each kind's two walk frames. */
 export const GLITCH_FRAMES: Record<GlitchKind, readonly PixelSprite[]> = {
   glitch: GLITCH_ROWS.map((r) => pixelSprite(r, PLAIN_GLITCH)),
@@ -398,6 +464,8 @@ export const GLITCH_FRAMES: Record<GlitchKind, readonly PixelSprite[]> = {
   mimic: MIMIC_SPRITES,
   worm: WORM_HEAD_ROWS.map((r) => pixelSprite(r, TAPE)),
   bluescreen: BLUESCREEN_FRAMES,
+  blinker: BLINKER_ROWS.map((r) => pixelSprite(r, NEON)),
+  wizard: WIZARD_ROWS.map((r) => pixelSprite(r, WIZARD)),
 }
 
 /** The cyan ghost the plain glitch smears beside itself (chromatic split). */
@@ -530,6 +598,27 @@ const LOOK_ROWS: Record<GeneratorLook, string[]> = {
     if ((x + y * 3) % 5 === 0 && y > 2 && y < 12 && x > 1 && x < 12) return 'k'
     return y % 3 === 0 ? 'c' : '2'
   }),
+  // An old arcade cabinet: a marquee, a glowing screen and a control panel.
+  arcade: raster(14, 14, (x, y) => {
+    if (y === 0) return x >= 2 && x <= 11 ? 'c' : '.'
+    const s = shell(x, y, 14, 14)
+    if (s) return s
+    if (y >= 2 && y <= 6 && x >= 3 && x <= 10) return (x + y) % 2 ? 'k' : 'v'
+    if (y === 8 && x >= 2 && x <= 11) return '4'
+    if (y === 9 && (x === 4 || x === 9)) return 'c'
+    return '2'
+  }),
+  // A broadcast mast: a lattice tower with a blinking tip.
+  antenna: raster(14, 14, (x, y) => {
+    if (y === 0) return x === 6 || x === 7 ? 'c' : '.'
+    if (y < 10) {
+      const half = 1 + Math.floor(y / 3)
+      if (Math.abs(x - 6.5) > half) return '.'
+      return (x + y) % 3 === 0 ? 'k' : Math.abs(x - 6.5) > half - 1 ? '3' : '1'
+    }
+    const s = shell(x, y - 10, 14, 4)
+    return s ?? '2'
+  }),
   // A snack vending machine: a tall glass front full of snacks, and a coin slot.
   vending: raster(14, 14, (x, y) => {
     const s = shell(x, y, 14, 14)
@@ -583,6 +672,18 @@ const LOOK_PALETTE: Record<GeneratorLook, Record<string, string>> = {
     v: RAMPS.gold[3],
     c: RAMPS.gold[4],
   },
+  arcade: {
+    ...rampKeys(RAMPS.purple),
+    k: INK,
+    v: RAMPS.teal[3],
+    c: RAMPS.pink[3],
+  },
+  antenna: {
+    ...rampKeys(RAMPS.steel),
+    k: INK,
+    v: RAMPS.night[0],
+    c: RAMPS.ember[3],
+  },
 }
 
 function rampKeys(ramp: readonly string[]): Record<string, string> {
@@ -608,6 +709,8 @@ export const LOOK_SCREEN: Record<
   urn: null,
   nest: null,
   vending: null,
+  arcade: null,
+  antenna: null,
 }
 
 /** The three tiers' lamp colours: tier 3 releases the toughest. */

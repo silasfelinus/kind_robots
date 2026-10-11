@@ -86,6 +86,15 @@ export const CHAPTERS: readonly ChapterDef[] = [
   },
 ]
 
+/**
+ * Strikes on the captive relic ball that wake the crypt under the Abbey: the
+ * hidden undercrypt (t-010) opens on it.
+ */
+export const RELICS_FOR_CRYPT = 3
+
+/** The Abbey seal drop targets; all down bares the relic. */
+export const SEAL_COUNT = 4
+
 /** A roving chapter's lit shot moves on this often (physics steps). */
 export const ROVE_STEPS = PHYSICS_HZ * 4
 

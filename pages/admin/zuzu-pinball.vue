@@ -67,9 +67,10 @@
                 Homestead in Ash to The Last Bell, and each one finished breaks
                 a seal on the track. Ring the bell lane to open the Mortuary
                 again; knock down all four Abbey seals to raise the bonus
-                multiplier. The River Croc always pays, and his fifth swallow
-                lights an extra ball. A soft plunge into the Mortuary is the
-                skill shot.
+                multiplier and bare the captive relic ball behind them, whose
+                strikes raise it again. The River Croc always pays, and his
+                fifth swallow lights an extra ball. A soft plunge into the
+                Mortuary is the skill shot.
               </p>
               <p class="text-sm leading-relaxed opacity-85">
                 Next: a raised Abbey with independently controlled upper

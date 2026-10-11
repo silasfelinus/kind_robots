@@ -9,7 +9,7 @@
 
 import type { LampLevel, TableDef } from '../../types'
 import type { LampFrame } from '../../rules/lamps'
-import { CHAPTERS, litShots } from './chapters'
+import { CHAPTERS, litShots, RELICS_FOR_CRYPT, SEAL_COUNT } from './chapters'
 import type { ZuzuRulesState } from './rules'
 
 /** The story track's seal lamps, one per chapter. */
@@ -48,9 +48,11 @@ export function zuzuLamps(state: ZuzuRulesState, table: TableDef): LampFrame {
     set(id, state.bonusMultiplier >= i + 2 ? 'on' : 'off')
   const seals = state.sealsDown.length
   set('abbey-seals', seals >= 3 ? 'blink' : seals > 0 ? 'on' : 'off')
+  set('relic-lamp', seals >= SEAL_COUNT ? 'blink' : 'off')
   set('kickback-lamp', state.kickbackLit ? 'on' : 'off')
   set('croc-reward', state.croc.extraBallLit ? 'blink' : 'off')
   set('shoot-again', state.extraBalls > 0 ? 'on' : 'off')
+  set('crypt-seal', state.relics >= RELICS_FOR_CRYPT ? 'blink' : 'off')
   set('croc-flasher', hot.has('croc-mouth') ? 'blink' : 'off')
   set(
     'bell-flasher',

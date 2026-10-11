@@ -28,7 +28,9 @@ import {
   CHAPTERS,
   hitValue,
   litShots,
+  RELICS_FOR_CRYPT,
   ROVE_STEPS,
+  SEAL_COUNT,
   sealValue,
   type ChapterProgress,
 } from './chapters'
@@ -75,12 +77,19 @@ export type ZuzuRulesState = CoreRulesState & {
   combo: { count: number; at: number }
   croc: { swallows: number; extraBallLit: boolean; extraBallGiven: boolean }
   extraBalls: number
+  /** Strikes on the captive relic ball this game: the undercrypt's key. */
+  relics: number
   /** This ball's counts, for its bonus. */
-  thisBall: { shots: number; crocs: number; spins: number; seals: number }
+  thisBall: {
+    shots: number
+    crocs: number
+    spins: number
+    seals: number
+    relics: number
+  }
 }
 
 export const SEAL_BANK = 'abbey-seals'
-export const SEAL_COUNT = 4
 export const MAX_MULTIPLIER = 6
 /** Ramps and orbits this close together build a combo. */
 export const COMBO_STEPS = PHYSICS_HZ * 3
@@ -90,6 +99,9 @@ export const SKILL_STEPS = PHYSICS_HZ * 5
 export const BALL_SAVE_STEPS = PHYSICS_HZ * 8
 /** The Croc's swallows that light an extra ball in his mouth. */
 export const CROC_EXTRA_BALL_AT = 5
+/** The captive relic ball, and how hard it must be struck to count. */
+export const RELIC = 'relic-captive'
+export const RELIC_MIN_SPEED = 0.3
 
 export const VALUES = {
   skillShot: 500_000,
@@ -104,6 +116,8 @@ export const VALUES = {
   pop: 3_000,
   sling: 500,
   spin: 1_000,
+  relic: 75_000,
+  bonusRelic: 15_000,
   bonusShot: 5_000,
   bonusCroc: 20_000,
   bonusSpin: 300,
@@ -139,7 +153,8 @@ export function initialZuzuRules(balls: number, seed = 1): ZuzuRulesState {
     combo: { count: 0, at: Number.NEGATIVE_INFINITY },
     croc: { swallows: 0, extraBallLit: false, extraBallGiven: false },
     extraBalls: 0,
-    thisBall: { shots: 0, crocs: 0, spins: 0, seals: 0 },
+    relics: 0,
+    thisBall: { shots: 0, crocs: 0, spins: 0, seals: 0, relics: 0 },
   }
 }
 
@@ -203,7 +218,9 @@ export function stepZuzuRules(
       else if (sw.id === 'kickback') kickback(next, effects)
       break
     case 'contact':
-      if (sw.id.startsWith('marsh-pop-')) {
+      if (sw.id === RELIC) {
+        if (sw.impulse >= RELIC_MIN_SPEED) relic(next, effects)
+      } else if (sw.id.startsWith('marsh-pop-')) {
         award(next, VALUES.pop)
         effects.push(
           { type: 'sound', name: 'pop' },
@@ -511,25 +528,53 @@ function seal(state: ZuzuRulesState, id: string, effects: RuleEffect[]) {
   state.sealsDown = down
   effects.push({ type: 'sound', name: 'drop' })
   if (down.length < SEAL_COUNT) return
-  state.sealsDown = []
+  // The seals stay down, baring the relic, until the next ball: raising a
+  // target under a ball in the channel would trap it for good.
   award(state, VALUES.sealsComplete * state.story.round)
-  const multiplier = Math.min(MAX_MULTIPLIER, state.bonusMultiplier + 1)
-  const raised = multiplier > state.bonusMultiplier
-  state.bonusMultiplier = multiplier
-  effects.push(
-    { type: 'mechanism', id: SEAL_BANK, action: 'reset' },
-    {
-      type: 'dmd',
-      text: 'ABBEY SEALS BROKEN',
-      sub: raised ? `BONUS X ${multiplier}` : 'BONUS MAXED',
-      ms: 1600,
-    },
-  )
+  effects.push({
+    type: 'dmd',
+    text: 'ABBEY SEALS BROKEN',
+    sub: raiseMultiplier(state),
+    ms: 1600,
+  })
   if (!state.kickbackLit) {
     state.kickbackLit = true
     effects.push({ type: 'dmd', text: 'KICKBACK LIT', ms: 1200 })
   }
   lightMortuary(state, effects, 'THE SEALS GIVE WAY')
+}
+
+/** One more on the bonus multiplier, to its cap; the DMD line saying so. */
+function raiseMultiplier(state: ZuzuRulesState): string {
+  if (state.bonusMultiplier >= MAX_MULTIPLIER) return 'BONUS MAXED'
+  state.bonusMultiplier += 1
+  return `BONUS X ${state.bonusMultiplier}`
+}
+
+/**
+ * The captive relic ball struck: an ancient thing stirs under the Abbey. With
+ * the seals broken, each strike also raises the bonus multiplier.
+ */
+function relic(state: ZuzuRulesState, effects: RuleEffect[]) {
+  const relics = state.relics + 1
+  state.relics = relics
+  state.thisBall = { ...state.thisBall, relics: state.thisBall.relics + 1 }
+  award(state, VALUES.relic * state.story.round)
+  effects.push(
+    { type: 'sound', name: 'secret-tease' },
+    { type: 'mechanism', id: RELIC, action: 'flash' },
+    {
+      type: 'dmd',
+      text: 'RELIC STRUCK',
+      sub:
+        relics === RELICS_FOR_CRYPT
+          ? 'THE CRYPT STIRS'
+          : state.sealsDown.length >= SEAL_COUNT
+            ? raiseMultiplier(state)
+            : `${relics} ${relics === 1 ? 'RELIC' : 'RELICS'}`,
+      ms: 1400,
+    },
+  )
 }
 
 /** The River Croc swallowed a ball: he always pays, and spits it back. */
@@ -634,7 +679,7 @@ function drain(
       skill: { armed: true, until: Number.POSITIVE_INFINITY },
       ballSave: { armed: true, until: Number.NEGATIVE_INFINITY },
       combo: { count: 0, at: Number.NEGATIVE_INFINITY },
-      thisBall: { shots: 0, crocs: 0, spins: 0, seals: 0 },
+      thisBall: { shots: 0, crocs: 0, spins: 0, seals: 0, relics: 0 },
     },
     effects,
   }
@@ -648,6 +693,7 @@ function bonus(state: ZuzuRulesState, effects: RuleEffect[]) {
     { label: 'RIVER CROC', value: b.crocs * VALUES.bonusCroc },
     { label: 'RELIC', value: b.spins * VALUES.bonusSpin },
     { label: 'SEALS', value: b.seals * VALUES.bonusSeal },
+    { label: 'RELICS', value: b.relics * VALUES.bonusRelic },
   ].filter((item) => item.value > 0)
   if (!items.length) return
   const total =

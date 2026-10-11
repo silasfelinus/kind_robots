@@ -138,6 +138,18 @@ export type ToyDef = {
 }
 
 /**
+ * A captive ball (Zuzu t-007): a steel ball held in a short lane of its own,
+ * which the ball in play strikes. It moves and collides like any ball but is
+ * never in play: it does not drain, count or trip switches; striking it is a
+ * contact switch named by its id.
+ */
+export type CaptiveBallDef = {
+  id: string
+  /** Where it rests. */
+  at: Vec3
+}
+
+/**
  * A kicker under a lane: a sensor box the rules can fire, sending any ball in
  * it off at `velocity` (the outlane kickback).
  */
@@ -365,6 +377,7 @@ export type TableDef = {
   doors?: DoorDef[]
   kickers?: KickerDef[]
   toys?: ToyDef[]
+  captives?: CaptiveBallDef[]
   /** The signature toys (t-010), drawn from the rules' state. */
   hero?: HeroDef
   lanterns?: LanternDef[]

@@ -218,6 +218,7 @@ function verifiedResult(
 
 export function journeyCharacterSheet(
   state: AuthoredJourneyState,
+  spentRewards: readonly string[] = [],
 ): JourneyCharacterSheet {
   const inventory: JourneyInventoryItem[] = []
   const techniques: JourneyTechnique[] = []
@@ -244,7 +245,7 @@ export function journeyCharacterSheet(
         inventory.push({
           ...rule.item,
           sourceEncounterId: outcome.encounterId,
-          available: true,
+          available: !spentRewards.includes(rule.item.id),
         })
         seenRewards.add(rule.item.id)
       }

@@ -15,8 +15,16 @@ export const PHASES_PER_DISTRICT = 5
 /** The district's special objective phase. */
 export const SPECIAL_PHASE = 3
 
-export type LedgeKind = 'brick' | 'vine' | 'soap'
-export type Segment = { x0: number; x1: number; y: number; kind?: LedgeKind }
+export type LedgeKind =
+  'brick' | 'vine' | 'soap' | 'ice' | 'crumble' | 'conveyor' | 'gear'
+export type Segment = {
+  x0: number
+  y: number
+  x1: number
+  kind?: LedgeKind
+  /** Conveyors carry riders this way (px per tick). */
+  dir?: number
+}
 /** A ledge that glides back and forth between minX and maxX (its left edge). */
 export type Lift = {
   y: number
@@ -24,14 +32,36 @@ export type Lift = {
   maxX: number
   w: number
   period: number
+  kind?: LedgeKind
+  /** Where in its swing it starts, 0..1. */
+  phase?: number
 }
+/** A spot on a ledge (y is the ledge top), for vents, icicles and special-phase props. */
+export type Spot = { x: number; y: number }
 
 export type Kind =
-  'crawler' | 'crab' | 'flea' | 'knight' | 'moth' | 'puppet' | 'sock'
-export type SpecialKind = 'first-fix' | 'seedling-rescue' | 'lost-socks'
-export type BonusTwist = 'static' | 'sprinkler' | 'bubbles'
-export type SceneId = 'city' | 'greenhouse' | 'laundry'
-export type BossId = 'big-shell'
+  | 'crawler'
+  | 'crab'
+  | 'flea'
+  | 'knight'
+  | 'moth'
+  | 'puppet'
+  | 'sock'
+  | 'frost'
+  | 'snowball'
+  | 'gearbug'
+export type SpecialKind =
+  | 'first-fix'
+  | 'seedling-rescue'
+  | 'lost-socks'
+  | 'thaw-run'
+  | 'pressure-valves'
+  | 'valve-routing'
+export type BonusTwist =
+  'static' | 'sprinkler' | 'bubbles' | 'ice' | 'steam' | 'gears'
+export type SceneId =
+  'city' | 'greenhouse' | 'laundry' | 'cold' | 'boiler' | 'clock'
+export type BossId = 'big-shell' | 'thermostat'
 
 export type District = {
   id: string
@@ -40,7 +70,17 @@ export type District = {
   name: string
   tagline: string
   segments: Segment[]
-  lift?: Lift
+  lifts?: Lift[]
+  /** Steam vents on ledge tops: they launch whoever stands in the puff. */
+  vents?: Spot[]
+  /** Where icicles grow, under these ledge spots. */
+  icicles?: Spot[]
+  /** The cuckoo pops out of the clock on the hour. */
+  cuckoo?: boolean
+  /** Props for the special phase (leaks, blocks, gauges, wheels...). */
+  spots?: Spot[]
+  /** Ember sparks come this much more often here. */
+  emberRate?: number
   /** Under a gap in the 244 row, so a pal can bump it from the floor. */
   kindBlock: { x: number; y: number }
   /** `from` is the phase within the district (1..5) a kind first appears. */
@@ -100,7 +140,7 @@ export const DISTRICTS: readonly District[] = [
       { x0: 298, x1: W, y: 112, kind: 'vine' },
     ],
     // A glass-house trolley that ferries pals across the top gap.
-    lift: { y: 112, minX: 150, maxX: 234, w: 64, period: 60 * 6 },
+    lifts: [{ y: 112, minX: 150, maxX: 234, w: 64, period: 60 * 6 }],
     kindBlock: { x: W / 2 - 12, y: 262 },
     roster: [
       { kind: 'crawler', from: 1, weight: 3 },
@@ -144,6 +184,142 @@ export const DISTRICTS: readonly District[] = [
     boss: 'big-shell',
     scene: 'laundry',
     ledge: 'sky',
+    ground: 'steel',
+  },
+  {
+    id: 'cold',
+    number: 4,
+    shift: 2,
+    name: 'COLD STORAGE',
+    tagline: 'EVERY LEDGE IS ICE. SLOW DOWN EARLY.',
+    segments: [
+      FLOOR,
+      { x0: 0, x1: 170, y: 244, kind: 'ice' },
+      { x0: 278, x1: W, y: 244, kind: 'ice' },
+      { x0: 0, x1: 96, y: 178, kind: 'ice' },
+      { x0: 140, x1: 308, y: 178, kind: 'ice' },
+      { x0: 352, x1: W, y: 178, kind: 'ice' },
+      { x0: 0, x1: 160, y: 112, kind: 'ice' },
+      { x0: 288, x1: W, y: 112, kind: 'ice' },
+    ],
+    icicles: [
+      { x: 60, y: 178 },
+      { x: 224, y: 178 },
+      { x: 400, y: 178 },
+      { x: 100, y: 112 },
+      { x: 340, y: 112 },
+    ],
+    // Frozen robots for Thaw Run, each on a ledge with a ledge below it.
+    spots: [
+      { x: 120, y: 244 },
+      { x: 300, y: 178 },
+      { x: 400, y: 112 },
+    ],
+    kindBlock: { x: W / 2 - 12, y: 262 },
+    roster: [
+      { kind: 'crawler', from: 1, weight: 2 },
+      { kind: 'crab', from: 1, weight: 1 },
+      { kind: 'knight', from: 1, weight: 1 },
+      { kind: 'frost', from: 1, weight: 2 },
+      { kind: 'snowball', from: 2, weight: 2 },
+    ],
+    special: 'thaw-run',
+    bonus: 'ice',
+    scene: 'cold',
+    ledge: 'water',
+    ground: 'steel',
+  },
+  {
+    id: 'boiler',
+    number: 5,
+    shift: 2,
+    name: 'BOILER WORKS',
+    tagline: 'THE VENTS PUFF ON THE BEAT. RIDE THEM.',
+    segments: [
+      FLOOR,
+      { x0: 0, x1: 170, y: 244 },
+      { x0: 278, x1: W, y: 244 },
+      { x0: 0, x1: 110, y: 178 },
+      { x0: 150, x1: 298, y: 178, kind: 'crumble' },
+      { x0: 338, x1: W, y: 178 },
+      { x0: 0, x1: 170, y: 112 },
+      { x0: 278, x1: W, y: 112 },
+    ],
+    vents: [
+      { x: 190, y: 310 },
+      { x: 258, y: 310 },
+      { x: 60, y: 178 },
+      { x: 390, y: 178 },
+    ],
+    // Pressure gauges for Pressure Valves.
+    spots: [
+      { x: 90, y: 244 },
+      { x: 360, y: 244 },
+      { x: 100, y: 178 },
+      { x: 80, y: 112 },
+    ],
+    emberRate: 1.5,
+    kindBlock: { x: W / 2 - 12, y: 262 },
+    roster: [
+      { kind: 'crawler', from: 1, weight: 2 },
+      { kind: 'crab', from: 1, weight: 2 },
+      { kind: 'flea', from: 1, weight: 1 },
+      { kind: 'moth', from: 1, weight: 1 },
+      { kind: 'frost', from: 2, weight: 1 },
+    ],
+    special: 'pressure-valves',
+    bonus: 'steam',
+    scene: 'boiler',
+    ledge: 'rust',
+    ground: 'earth',
+  },
+  {
+    id: 'clock',
+    number: 6,
+    shift: 2,
+    name: 'CLOCKWORK WATER TOWER',
+    tagline: 'THE GEARS NEVER STOP. NEITHER DO YOU.',
+    segments: [
+      FLOOR,
+      { x0: 0, x1: 150, y: 244, kind: 'conveyor', dir: 0.6 },
+      { x0: 298, x1: W, y: 244, kind: 'conveyor', dir: -0.6 },
+      { x0: 0, x1: 100, y: 178 },
+      { x0: 140, x1: 308, y: 178 },
+      { x0: 348, x1: W, y: 178 },
+      { x0: 0, x1: 170, y: 112 },
+      { x0: 278, x1: W, y: 112 },
+    ],
+    lifts: [
+      { y: 244, minX: 150, maxX: 234, w: 64, period: 60 * 5, kind: 'gear' },
+      {
+        y: 112,
+        minX: 170,
+        maxX: 214,
+        w: 64,
+        period: 60 * 4,
+        kind: 'gear',
+        phase: 0.5,
+      },
+    ],
+    cuckoo: true,
+    // Route wheels for Valve Routing: bump one to switch the pipe critters use.
+    spots: [
+      { x: 60, y: 178 },
+      { x: 390, y: 178 },
+    ],
+    kindBlock: { x: W / 2 - 12, y: 262 },
+    roster: [
+      { kind: 'crawler', from: 1, weight: 2 },
+      { kind: 'knight', from: 1, weight: 1 },
+      { kind: 'puppet', from: 1, weight: 1 },
+      { kind: 'gearbug', from: 1, weight: 3 },
+      { kind: 'snowball', from: 3, weight: 1 },
+    ],
+    special: 'valve-routing',
+    bonus: 'gears',
+    boss: 'thermostat',
+    scene: 'clock',
+    ledge: 'gold',
     ground: 'steel',
   },
 ]
@@ -194,7 +370,8 @@ export function districtAt(index: number): { district: District; lap: number } {
 
 /** The lift's left edge at a tick: an eased back-and-forth glide. */
 export function liftX(lift: Lift, tick: number): number {
-  const f = 0.5 - 0.5 * Math.cos((2 * Math.PI * tick) / lift.period)
+  const f =
+    0.5 - 0.5 * Math.cos(2 * Math.PI * (tick / lift.period + (lift.phase ?? 0)))
   return lift.minX + (lift.maxX - lift.minX) * f
 }
 
@@ -243,12 +420,21 @@ export function shopPrice(base: number, shift: number, lap: number): number {
 // --- special phases -----------------------------------------------------------------------
 
 /** What a perfect special phase needs, for the golden valve (a hint eases it by one). */
-export const VALVE_TESTS: Record<SpecialKind, { goal: number; label: string }> =
-  {
-    'first-fix': { goal: 3, label: 'SEAL ALL 3 LEAKS' },
-    'seedling-rescue': { goal: 4, label: 'RESCUE 4 SEEDLINGS' },
-    'lost-socks': { goal: 3, label: 'MATCH 3 SOCK PAIRS' },
-  }
+export const VALVE_TESTS: Record<
+  SpecialKind,
+  { goal: number; label: string; short: string }
+> = {
+  'first-fix': { goal: 3, label: 'SEAL ALL 3 LEAKS', short: 'SEALED' },
+  'seedling-rescue': { goal: 4, label: 'RESCUE 4 SEEDLINGS', short: 'SAVED' },
+  'lost-socks': { goal: 3, label: 'MATCH 3 SOCK PAIRS', short: 'PAIRS' },
+  'thaw-run': { goal: 3, label: 'FREE ALL 3 FROZEN PALS', short: 'FREED' },
+  'pressure-valves': {
+    goal: 4,
+    label: 'LET NO GAUGE BURST',
+    short: 'GAUGES OK',
+  },
+  'valve-routing': { goal: 4, label: 'BOWL A CHAIN OF 4', short: 'BEST CHAIN' },
+}
 
 /** Leaky joints for First Fix: on ledges, away from the pipes. */
 export const LEAKS: ReadonlyArray<{ x: number; y: number }> = [

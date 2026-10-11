@@ -43,6 +43,8 @@ type Critter = {
   squash: number
   trapped: number
   flying: boolean
+  size: number
+  mode: number
 }
 type Boss = {
   x: number
@@ -102,6 +104,27 @@ type Inner = {
     face: number
     onGround: boolean
   }
+  frozen: Map<unknown, number>
+  crumbles: Map<unknown, { landings: number; down: number }>
+  icicles: Array<{
+    x: number
+    y: number
+    grow: number
+    state: string
+    fy: number
+    vy: number
+    t: number
+  }>
+  blocks: Array<{ x: number; y: number; hits: number; freed: boolean }>
+  gauges: Array<{ x: number; y: number; p: number; burst: boolean }>
+  wheels: Array<{ x: number; y: number }>
+  route: number
+  bestChain: number
+  thermo: { hp: number; target: number; targetT: number; mode: string } | null
+  tick: number
+  liftLefts: number[]
+  release(): void
+  thermoLedges(): Array<{ x0: number; x1: number; y: number }>
   update(input: InputFrame): void
   bumpAt(x: number, floorY: number): void
   moveCritters(): void
@@ -160,6 +183,8 @@ function critter(
     squash: 0,
     trapped: 0,
     flying: false,
+    size: 6,
+    mode: 0,
     ...extra,
   }
 }
@@ -173,8 +198,34 @@ function press(button: keyof InputFrame['held']): InputFrame {
 
 // --- pure rules ---------------------------------------------------------------------------
 
-const [rooftop, greenhouse, suds] = DISTRICTS
-assert.equal(DISTRICTS.length, 3, 'the Day Shift: three districts')
+const [rooftop, greenhouse, suds, cold, boiler, clock] = DISTRICTS
+assert.equal(DISTRICTS.length, 6, 'the Day and Swing Shifts: six districts')
+assert.equal(rosterFor(cold!, 1).debut, 'frost')
+assert.equal(rosterFor(cold!, 2).debut, 'snowball')
+assert.equal(rosterFor(clock!, 1).debut, 'gearbug')
+assert.equal(
+  districtSteps(clock!).at(-3)!.kind,
+  'boss',
+  'the Thermostat ends the Swing Shift',
+)
+for (const d of DISTRICTS) {
+  // Every special prop and vent stands on a ledge that a pal can bump from the row below.
+  for (const spot of [...(d.spots ?? []), ...(d.icicles ?? [])]) {
+    assert.ok(
+      d.segments.some(
+        (s) => s.y === spot.y && s.x0 <= spot.x && s.x1 >= spot.x,
+      ),
+      `${d.id}: a ledge under the prop at ${spot.x},${spot.y}`,
+    )
+    if (d.spots?.includes(spot))
+      assert.ok(
+        d.segments.some(
+          (s) => s.y === spot.y + 66 && s.x0 <= spot.x && s.x1 >= spot.x,
+        ),
+        `${d.id}: a ledge to bump the prop at ${spot.x},${spot.y} from`,
+      )
+  }
+}
 assert.deepEqual(rosterFor(rooftop!, 1), {
   kinds: ['crawler'],
   debut: 'crawler',
@@ -602,6 +653,238 @@ assert.ok(
     4,
     'the next district starts with four KIND charges',
   )
+}
+
+// --- the Swing Shift ----------------------------------------------------------------------------
+
+function swing(index: number, step = 0): Inner {
+  const g = fresh(3, index)
+  for (let i = 0; i < step; i++) g.advance()
+  g.cardTicks = 0
+  g.invuln = 100_000
+  g.queue = []
+  g.critters = [critter('crawler', 40, 112)]
+  g.embers = []
+  return g
+}
+
+{
+  // Ice: a pal coasts much further before stopping.
+  const slide = (index: number) => {
+    const g = swing(index)
+    g.icicles = []
+    Object.assign(g.player, {
+      x: 40,
+      y: 244,
+      vx: 2.1,
+      vy: 0,
+      onGround: true,
+      face: 1,
+    })
+    const x0 = g.player.x
+    for (let t = 0; t < 60; t++) g.update(emptyInput())
+    return g.player.x - x0
+  }
+  assert.ok(slide(3) > slide(0) * 2, 'Cold Storage ice: a pal slides on')
+
+  // Frost bots: they ice the ledge they walk, and one bump shatters them.
+  const g = swing(3)
+  g.icicles = []
+  const frost = critter('frost', 100, 244, { dir: 1 })
+  g.critters.push(frost)
+  for (let t = 0; t < 5; t++) g.update(emptyInput())
+  assert.ok(
+    [...g.frozen.values()].some((v) => v > 0),
+    'a frost bot ices its ledge',
+  )
+  g.bumpAt(frost.x, 244)
+  assert.ok(frost.kicked, 'one bump shatters a frost bot')
+
+  // Snowballs: shatter while small, shrug off a bump once grown.
+  const small = critter('snowball', 120, 244, { size: 7 })
+  const big = critter('snowball', 380, 244, { size: 13 })
+  g.critters = [small, big, critter('crawler', 40, 112)]
+  g.bumpAt(120, 244)
+  g.bumpAt(380, 244)
+  assert.ok(small.kicked, 'a small snowball shatters')
+  assert.ok(!big.kicked, 'a big one is too big')
+}
+
+{
+  // Gear bugs only flip while paused.
+  const g = swing(5)
+  const bug = critter('gearbug', 60, 244, { mode: 0 })
+  g.critters = [bug]
+  g.bumpAt(60, 244)
+  assert.equal(bug.flipped, 0, 'a winding gear bug shrugs off a bump')
+  bug.mode = 1
+  bug.onGround = true
+  g.bumpAt(60, 244)
+  assert.ok(bug.flipped > 0, 'a paused gear bug flips')
+}
+
+{
+  // Icicles grow, shake, fall; a falling one fells a pal; a bump shatters one early.
+  const g = swing(3)
+  const ice = g.icicles[0]!
+  assert.ok(ice, 'Cold Storage grows icicles')
+  ice.grow = 410
+  for (let t = 0; t < 20; t++) g.update(emptyInput())
+  assert.equal(ice.state, 'shake', 'a grown icicle shakes first (the tell)')
+  for (let t = 0; t < 80 && ice.state === 'shake'; t++) g.update(emptyInput())
+  assert.equal(ice.state, 'fall')
+  g.invuln = 0
+  Object.assign(g.player, {
+    x: ice.x,
+    y: ice.y + 66,
+    vx: 0,
+    vy: 0,
+    onGround: true,
+  })
+  const lives = g.lives
+  for (let t = 0; t < 60 && g.lives === lives; t++) g.update(emptyInput())
+  assert.equal(g.lives, lives - 1, 'a falling icicle fells a pal underneath')
+
+  const h = swing(3)
+  const early = h.icicles[1]!
+  early.grow = 300
+  h.bumpAt(early.x, early.y)
+  assert.equal(early.state, 'gone', 'a bump shatters a growing icicle')
+}
+
+{
+  // Boiler Works: vents launch, the crumble ledge gives way, embers come thicker.
+  const g = swing(4)
+  const vent = boiler!.vents![0]!
+  Object.assign(g.player, {
+    x: vent.x,
+    y: vent.y,
+    vx: 0,
+    vy: 0,
+    onGround: true,
+  })
+  let launched = false
+  for (let t = 0; t < 220 && !launched; t++) {
+    Object.assign(g.player, { x: vent.x })
+    g.update(emptyInput())
+    launched = g.player.vy < -4
+  }
+  assert.ok(launched, 'a vent puff throws a pal upward')
+
+  const c = swing(4)
+  const crumble = boiler!.segments.find((s) => s.kind === 'crumble')!
+  for (let i = 0; i < 3; i++) {
+    Object.assign(c.player, {
+      x: (crumble.x0 + crumble.x1) / 2,
+      y: crumble.y - 20,
+      vx: 0,
+      vy: 1,
+      onGround: false,
+    })
+    for (let t = 0; t < 20; t++) c.update(emptyInput())
+  }
+  assert.ok(
+    (c.crumbles.get(crumble)?.down ?? 0) > 0,
+    'the crumble ledge falls after three landings',
+  )
+}
+
+{
+  // The clock: conveyors carry riders, the cuckoo comes out on the hour.
+  const g = swing(5)
+  const belt = clock!.segments.find((s) => s.kind === 'conveyor')!
+  Object.assign(g.player, {
+    x: belt.x0 + 30,
+    y: belt.y,
+    vx: 0,
+    vy: 0,
+    onGround: true,
+  })
+  const x0 = g.player.x
+  for (let t = 0; t < 60; t++) g.update(emptyInput())
+  assert.ok(Math.abs(g.player.x - x0) > 15, 'a conveyor carries a standing pal')
+  let cuckoo = false
+  for (let t = 0; t < 60 * 15 && !cuckoo; t++) {
+    g.update(emptyInput())
+    cuckoo = g.embers.some((e) => e.kind === 'cuckoo')
+  }
+  assert.ok(cuckoo, 'the cuckoo swoops out of the clock')
+}
+
+{
+  // Thaw Run: three bumps free a pal; Pressure Valves: bumps vent, neglect bursts.
+  const g = swing(3, SPECIAL_PHASE - 1)
+  assert.equal(g.blocks.length, 3)
+  for (const b of g.blocks) for (let i = 0; i < 3; i++) g.bumpAt(b.x, b.y)
+  assert.ok(
+    g.blocks.every((b) => b.freed),
+    'three bumps free each frozen pal',
+  )
+
+  const p = swing(4, SPECIAL_PHASE - 1)
+  assert.equal(p.gauges.length, 4)
+  p.gauges[0]!.p = 0.9
+  p.bumpAt(p.gauges[0]!.x, p.gauges[0]!.y)
+  assert.equal(p.gauges[0]!.p, 0, 'a bump vents a gauge')
+  p.gauges[1]!.p = 0.999
+  p.update(emptyInput())
+  assert.ok(p.gauges[1]!.burst, 'a neglected gauge bursts')
+
+  // Valve Routing: a wheel switches the pipe critters use.
+  const r = swing(5, SPECIAL_PHASE - 1)
+  assert.equal(r.route, 0)
+  r.bumpAt(r.wheels[0]!.x, r.wheels[0]!.y)
+  assert.equal(r.route, 1)
+  r.queue = ['crawler']
+  r.release()
+  assert.ok(r.critters.at(-1)!.x > 400, 'released through the right pipe')
+}
+
+{
+  // The Thermostat: bump the ledge its needle lights while it glows.
+  const g = fresh(3, 5)
+  while (!g.thermo) g.advance()
+  g.cardTicks = 0
+  g.invuln = 100_000
+  const t = g.thermo!
+  assert.equal(t.hp, 9)
+  const seg = g.thermoLedges()[t.target]!
+  t.targetT = 200
+  g.bumpAt((seg.x0 + seg.x1) / 2, seg.y)
+  assert.equal(t.hp, 9, 'a bump before the needle glows does nothing')
+  t.targetT = 10
+  g.bumpAt((seg.x0 + seg.x1) / 2, seg.y)
+  assert.equal(t.hp, 8, 'a bump under the lit ledge lands')
+  for (let i = 0; i < 8; i++) {
+    const th = g.thermo!
+    th.targetT = 10
+    const s2 = g.thermoLedges()[th.target]!
+    g.bumpAt((s2.x0 + s2.x1) / 2, s2.y)
+  }
+  assert.equal(g.thermo, null, 'nine hits fix the Thermostat')
+  assert.ok(g.phaseDelay > 0)
+}
+
+{
+  // Swing Shift bonus twists.
+  const ice = fresh(3, 3)
+  while (ice.bonusRound === 0) ice.advance()
+  assert.ok(ice.coins.length > 10, 'ice bonus: coins on every ledge')
+  const steam = fresh(3, 4)
+  while (steam.bonusRound === 0) steam.advance()
+  steam.cardTicks = 0
+  for (let t = 0; t < 40; t++) steam.update(emptyInput())
+  assert.ok(
+    steam.coins.some((c) => (c as unknown as { vy: number }).vy < 0),
+    'steam bonus: coins thrown up from vents',
+  )
+  const gears = fresh(3, 5)
+  while (gears.bonusRound === 0) gears.advance()
+  gears.cardTicks = 0
+  const rider = gears.coins.find((c) => (c as { ride?: unknown }).ride)!
+  const rx = rider.x
+  for (let t = 0; t < 40; t++) gears.update(emptyInput())
+  assert.ok(rider.x !== rx, 'gears bonus: coins ride the gear ledges')
 }
 
 // --- seeded runs repeat exactly, and the pilot keeps playing ---------------------------------

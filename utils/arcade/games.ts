@@ -127,7 +127,7 @@ export const ARCADE_GAMES: ArcadeGameMeta[] = [
     title: 'Pipe Pals',
     riffsOn: 'Mario Bros.',
     blurb:
-      'Grumpy critters are crawling out of the Kind Robots plumbing. Bump the floor under one to flip it, then tap it to send it bowling along the ledge, taking any other flipped critter with it. Crab bots take two bumps, shell knights lose their armour first, spring fleas only flip when they land, and ember sparks are snuffed from below. Tools roll out of the pipes and the KIND block flips the whole floor. Work the Day Shift district by district (the rooftop reservoir, the greenhouse with its sagging vines, the bubbling laundry), each with its own special job and bonus round, spend your coins in the Workshop, and topple the Big Shell.',
+      'Grumpy critters are crawling out of the Kind Robots plumbing. Bump the floor under one to flip it, then tap it to send it bowling along the ledge, taking any other flipped critter with it. Crab bots take two bumps, shell knights lose their armour first, spring fleas only flip when they land, and ember sparks are snuffed from below. Tools roll out of the pipes and the KIND block flips the whole floor. Work the city district by district: the Day Shift (a rooftop reservoir, a greenhouse of sagging vines, a bubbling laundry) ends with the Big Shell, and the Swing Shift (icy cold storage, a boiler works of steam vents, a clockwork water tower) ends with the Thermostat. Every district has its own special job and bonus round, and the Workshop turns your coins into upgrades.',
     howTo: [
       'RUN, A TO JUMP',
       'BUMP FLOORS FROM BELOW',

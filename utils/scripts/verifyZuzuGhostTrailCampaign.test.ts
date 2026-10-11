@@ -1,6 +1,7 @@
 // Ghost Trail's campaign contract (conductor kr-arcade t-015): the book of acts is well formed, every
 // relic is reachable, encounters are finite (a defeated squad member never returns, through deaths
-// and checkpoint retries), and the last act ends in the credits, not a death.
+// and checkpoint retries), and the last act ends in the credits, not a death. The River Croc ferries
+// only once his squad is down, and the abbey's caged novice can be freed, saved and remembered.
 import assert from 'node:assert/strict'
 import { mulberry32 } from '../arcade/curve'
 import { emptyInput } from '../arcade/types'
@@ -13,7 +14,12 @@ import {
   ENDING_MUSIC,
   STAGE_MUSIC,
 } from '../arcade/ghostTrail/music'
-import { ACTS, RELIC_COUNT, STAGES } from '../arcade/ghostTrail/campaign'
+import {
+  ACTS,
+  RELIC_COUNT,
+  RESCUE_ENDING,
+  STAGES,
+} from '../arcade/ghostTrail/campaign'
 import { FOES } from '../arcade/ghostTrail/foes'
 import { BOSSES } from '../arcade/ghostTrail/bosses'
 import { groundAt, memberId } from '../arcade/ghostTrail/world'
@@ -338,6 +344,237 @@ assert.equal(lost.won, false, 'defeat never grants a victory')
   )
   assert.ok(r.x > x0 + 8, 'the quick-draw lunges him forward')
   assert.equal(r.poncho, true, 'and he takes no hit through the stroke')
+}
+
+// --- the River Croc: a conditional ally who ferries Zuzu over the croc pool ---------------------------
+{
+  type Ferry = Run & {
+    riding: number | null
+    onGround: boolean
+    poncho: boolean
+    camX: number
+    actTick: number
+    pending: unknown[]
+    bolts: unknown[]
+    risen: Map<number, number>
+    ferries: Array<{ side: 0 | 1; left: number | null }>
+    pickups: Array<{ kind: string }>
+    moverPos: (i: number, tick: number) => { x: number; y: number } | null
+  }
+  const index = ACTS.findIndex((a) => a.movers?.some((m) => m.look === 'croc'))
+  assert.ok(index >= 0, 'the River Croc swims somewhere in the book')
+  const act = ACTS[index]!
+  assert.equal(act.stage, 3, 'in the Drowned Watering Hole')
+  const ci = act.movers!.findIndex((m) => m.look === 'croc')
+  const croc = act.movers![ci]!
+  assert.ok(croc.ferry && croc.needs, 'he is a ferry with a condition')
+  const squad = act.encounters.find((e) => e.id === croc.needs)!
+  assert.ok(squad, 'the squad he waits on is in his act')
+  assert.ok(
+    !groundAt(act, croc.x + croc.w / 2) &&
+      !groundAt(act, croc.x + croc.dx + croc.w / 2),
+    'he swims a channel',
+  )
+  const r = newRun(31) as Ferry
+  r.startAct(index)
+  skipCard(r)
+  // Up on the bank by the pool: the squad that bothers him springs, and he stays under.
+  const calm = () => {
+    r.invuln = 99999
+    r.bolts = []
+  }
+  // From the last checkpoint before the pool (the squads behind it are forgiven).
+  r.checkpoint = Math.max(...act.checkpoints.filter((c) => c < squad.at))
+  r.respawn()
+  r.x = croc.x - 4
+  r.y = 208
+  r.camX = r.x - 120
+  for (let i = 0; i < 90; i++) {
+    calm()
+    r.update(emptyInput())
+  }
+  r.x = croc.x - 4
+  r.y = 208
+  assert.ok(
+    r.foes.some((f) => f.id?.startsWith(`${act.id}/${squad.id}/`)),
+    'the squad on the bank is up',
+  )
+  assert.equal(r.moverPos(ci, r.actTick), null, 'and the croc stays under')
+  // Put the squad down (not all of it yet): still under.
+  const down = (n: number) => {
+    for (let k = 0; k < n; k++) {
+      const id = memberId(act, squad, k)
+      r.defeated.add(id)
+      r.foes = r.foes.filter((f) => f.id !== id)
+    }
+  }
+  down(squad.squad.length - 1)
+  calm()
+  r.update(emptyInput())
+  assert.equal(r.risen.has(ci), false, 'one left standing keeps him under')
+  down(squad.squad.length)
+  r.pending = []
+  calm()
+  r.update(emptyInput())
+  assert.ok(r.risen.has(ci), 'with the squad down, he surfaces')
+  assert.equal(r.banner?.text, croc.hello, 'with a banner')
+  // Walk onto his back: he waits a beat, then carries Zuzu across.
+  r.x = croc.x - 4
+  r.y = 208
+  r.vy = 0
+  const right = emptyInput()
+  right.held.right = true
+  for (let i = 0; i < 20 && r.riding !== ci; i++) {
+    calm()
+    r.update(right)
+  }
+  assert.equal(r.riding, ci, 'Zuzu boards the croc')
+  assert.notEqual(r.ferries[ci]!.left, null, 'and he pushes off')
+  const lives = r.lives
+  for (let i = 0; i < croc.period + 60; i++) {
+    calm()
+    r.foes = []
+    r.update(emptyInput())
+    assert.equal(r.riding, ci, 'he carries Zuzu the whole way')
+    assert.ok(r.y <= 208.5, 'above the water')
+  }
+  assert.equal(r.ferries[ci]!.side, 1, 'and docks at the far bank')
+  assert.ok(r.x > croc.x + croc.dx, 'with Zuzu across the pool')
+  assert.ok(
+    r.pickups.some((p) => p.kind === croc.gift),
+    'leaving him a gift from the riverbed',
+  )
+  for (let i = 0; i < 60; i++) {
+    calm()
+    r.foes = []
+    r.update(right)
+  }
+  assert.ok(
+    groundAt(act, r.x) && r.y === 208 && r.onGround,
+    'Zuzu steps off onto the far bank',
+  )
+  assert.equal(r.lives, lives, 'the croc never hurts him')
+  assert.equal(r.dead, 0)
+}
+
+// --- the abbey cage: break the lock, survive the ambush, and the novice walks out with Zuzu ----------
+{
+  type Cage = Run & {
+    weapon: string
+    facing: number
+    onGround: boolean
+    save: unknown
+    pending: Array<{ id: string }>
+    rescued: Set<string>
+    unlocked: Set<string>
+    triggered: Set<string>
+  }
+  const index = ACTS.findIndex((a) => a.captive)
+  assert.ok(index >= 0, 'a captive waits somewhere in the book')
+  const act = ACTS[index]!
+  assert.equal(act.stage, 6, 'in the abbey')
+  const cage = act.captive!
+  const ambush = act.encounters.find((e) => e.id === cage.ambush)!
+  assert.ok(ambush, 'the ambush is in the same act')
+  for (const line of [cage.name, ...RESCUE_ENDING]) {
+    assert.match(line, FONT, `rescue text fits the font: ${line}`)
+    assert.ok(line.length <= 34, `"${line}" fits the page`)
+  }
+  assert.ok(!groundAt(act, cage.x) || cage.y < 150, 'the cage hangs high')
+  const prefix = `${act.id}/${ambush.id}/`
+  const hitLock = (weapon: string, seed: number) => {
+    const r = newRun(seed) as Cage
+    r.startAct(index)
+    skipCard(r)
+    // The held rooms on the way are cleared already.
+    for (const e of act.encounters)
+      if (e.lock && e.at < ambush.at)
+        e.squad.forEach((_, k) => r.defeated.add(memberId(act, e, k)))
+    // On the road below, the ambush never springs while the cage is locked.
+    r.x = ambush.at + 30
+    r.camX = r.x - 120
+    for (let i = 0; i < 30; i++) {
+      r.invuln = 99999
+      r.update(emptyInput())
+    }
+    assert.ok(
+      !r.triggered.has(ambush.id) &&
+        !r.foes.some((f) => f.id?.startsWith(prefix)),
+      'a locked cage springs nothing',
+    )
+    // Up on the loft beside it: any weapon breaks the lock.
+    const loft = act.blocks.find(
+      (b) => b.y !== undefined && b.x + b.w < cage.x && b.x + b.w > cage.x - 40,
+    )!
+    assert.ok(loft, 'a loft stands beside the cage')
+    r.x = loft.x + loft.w - 6
+    r.y = loft.y!
+    r.vy = 0
+    r.facing = 1
+    r.weapon = weapon
+    const a = emptyInput()
+    a.pressed.a = true
+    r.update(a)
+    for (let i = 0; i < 20 && !r.unlocked.has(cage.id); i++) {
+      r.invuln = 99999
+      r.update(emptyInput())
+    }
+    assert.ok(r.unlocked.has(cage.id), `the ${weapon} breaks the lock`)
+    return r
+  }
+  hitLock('katana', 41)
+  const r = hitLock('kunai', 42)
+  r.invuln = 99999
+  r.update(emptyInput())
+  assert.ok(r.triggered.has(ambush.id), 'the broken lock springs the ambush')
+  assert.equal(r.banner?.text, ambush.title)
+  assert.equal(r.rescued.has(cage.id), false, 'not free while it stands')
+  for (let i = 0; i < 200; i++) {
+    r.invuln = 99999
+    r.update(emptyInput())
+  }
+  ambush.squad.forEach((_, k) => r.defeated.add(memberId(act, ambush, k)))
+  r.foes = r.foes.filter((f) => !f.id?.startsWith(prefix))
+  r.pending = r.pending.filter((p) => !p.id.startsWith(prefix))
+  r.update(emptyInput())
+  assert.ok(r.rescued.has(cage.id), 'with the ambush down, the novice is free')
+  assert.equal(r.banner?.text, cage.name)
+  assert.ok(!r.foundSecrets.has(cage.id), 'a rescue is not a relic')
+  const saved = readSave(r.save)
+  assert.ok(saved?.relics.includes(cage.id), 'the rescue is saved')
+  // It survives a reload.
+  const back = create({
+    rng: mulberry32(43),
+    sound: { play: () => {} },
+    demo: false,
+    hiScore: 0,
+    resume: JSON.parse(JSON.stringify(r.save)),
+  }) as Cage
+  const yes = emptyInput()
+  yes.pressed.a = true
+  for (let i = 0; i < 30 && back.act.id !== act.id; i++) back.update(yes)
+  assert.equal(back.act.id, act.id)
+  assert.ok(back.rescued.has(cage.id), 'the novice stays free after a reload')
+  assert.equal(back.foundSecrets.size, 0, 'and is not counted as a relic')
+  // The ending page remembers the novice; without the rescue it does not.
+  const ending = (x: Cage) => {
+    x.startAct(ACTS.length - 1)
+    skipCard(x)
+    x.clear = 1
+    x.update(emptyInput())
+    return (x.card as { lines?: string[] } | null)?.lines ?? []
+  }
+  const lines = ending(back)
+  assert.ok(lines.includes(RESCUE_ENDING[0]!), 'the novice walks out with him')
+  const outro = STAGES.find((s) => s.stage === 6)!.outro
+  assert.ok(
+    lines.indexOf(RESCUE_ENDING[0]!) > lines.indexOf(outro.at(-1)!),
+    'after the stage page',
+  )
+  assert.ok(
+    !ending(newRun(44) as Cage).includes(RESCUE_ENDING[0]!),
+    'no novice without the rescue',
+  )
 }
 
 // --- the score: every loop parses with its voices in step; the music follows the game ---------------

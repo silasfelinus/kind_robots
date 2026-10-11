@@ -2,7 +2,8 @@
 //
 // Zuzu: Ghost Trail's campaign pieces that the slice's art modules don't draw yet (conductor kr-arcade
 // t-015): solid blocks of any size, moving platforms, ground hazards, updraft columns, the tide, the
-// hostile bolts, the act title cards and story pages, and the credits. Also the stand-in bodies for
+// hostile bolts, the act title cards and story pages, and the credits; the River Croc (a ferry mover)
+// and the abbey's hanging cage. Also the stand-in bodies for
 // foes and bosses whose dedicated art has not landed: each still reads its state (its tell glows) so
 // the game is playable while the roster's portraits are painted.
 //
@@ -939,7 +940,9 @@ export function drawBlock(g: G, b: Block, top: number, theme: StageTheme) {
 // --- movers -----------------------------------------------------------------------------------------
 
 /** Each mover look's painted depth below its walkable top. */
-function moverDepth(look: NonNullable<Mover['look']> | 'slab'): number {
+function moverDepth(
+  look: Exclude<NonNullable<Mover['look']>, 'croc'> | 'slab',
+): number {
   return look === 'raft'
     ? 8
     : look === 'lift'
@@ -953,7 +956,7 @@ function moverDepth(look: NonNullable<Mover['look']> | 'slab'): number {
 
 function paintMover(
   b: G,
-  look: NonNullable<Mover['look']> | 'slab',
+  look: Exclude<NonNullable<Mover['look']>, 'croc'> | 'slab',
   w: number,
   theme: StageTheme,
 ) {
@@ -1085,7 +1088,8 @@ function paintMover(
 
 /**
  * A moving platform at its current position (world space): a raft of lashed logs, a rope or chain
- * lift, a bell hung under a beam, a swinging beam, or a stone slab. Its walkable top is exactly y
+ * lift, a bell hung under a beam, a swinging beam, a stone slab, or the River Croc (`state` says
+ * how far he has surfaced, which way he faces and whether he is swimming). Its walkable top is exactly y
  * from x to x + w; ropes and chains run up off the top of the screen.
  */
 export function drawMover(
@@ -1095,7 +1099,12 @@ export function drawMover(
   y: number,
   theme: StageTheme,
   tick: number,
+  state: MoverState = {},
 ) {
+  if (m.look === 'croc') {
+    drawCroc(g, x, y, Math.max(24, m.w), tick, state)
+    return
+  }
   const key = MATERIALS[theme] ? theme : 'town'
   const mat = materialFor(key)
   const look = m.look ?? 'slab'
@@ -1186,6 +1195,727 @@ function bigBellLive(g: G, cx: number, top: number, s: number) {
   g.beginPath()
   g.arc(cx, top + h + 0.6, s * 0.08, 0, Math.PI * 2)
   g.fill()
+}
+
+// --- the River Croc (Stage 3's ferry) and the abbey cage (Stage 6's captive) ------------------------
+
+/** A ferry's live state for drawing: how far it has surfaced, which way it faces, under way. */
+export type MoverState = { rise?: number; face?: 1 | -1; swimming?: boolean }
+
+/** The croc's hide [ink, shadow, base, light, highlight], a pale belly, and his eyes. */
+const CROC: Ramp = ['#0a1410', '#1c3a1e', '#386a2e', '#64a044', '#b4dc7c']
+const CROC_BELLY = '#e2d6a0'
+const CROC_EYE = '#ffd23c'
+/** His painted saddle: the river folk's ochre and red bands across his back. */
+const CROC_PAINT = ['#d0762a', '#f0c050', '#b83a2c'] as const
+/** Where the pits' water stands below the walk line (stageArt drawPit). */
+const CROC_WATERLINE = 8
+/** The croc bake's box: from this far above his walk line, this tall. */
+const CROC_ABOVE = 12
+const CROC_TALL = 30
+
+/** The croc's back line (local y, 0 = his walk line) at u = 0 (tail tip) .. 1 (snout tip). */
+function crocBack(u: number): number {
+  if (u < 0.3) return 5.4 - Math.pow(u / 0.3, 0.7) * 5.2
+  if (u < 0.68) return 0.2 - Math.sin(((u - 0.3) / 0.38) * Math.PI) * 0.8
+  if (u < 0.78) return 0.2 - ((u - 0.68) / 0.1) * 1.4
+  return -1.2 + Math.pow((u - 0.78) / 0.22, 1.4) * 3.4
+}
+
+/** His belly line above the water (local y) at u. */
+function crocBelly(u: number): number {
+  if (u < 0.3) return CROC_WATERLINE + 0.5
+  if (u > 0.78) return 4.4 + (1 - u) * 6
+  return CROC_WATERLINE + 1.2
+}
+
+/** The River Croc facing right, his walk line at local y = CROC_ABOVE (baked; see drawCroc). */
+function paintCroc(b: G, w: number) {
+  const top = CROC_ABOVE
+  const wl = top + CROC_WATERLINE
+  const at = (u: number) => u * w
+  const back = (u: number) => top + crocBack(u)
+  // Under the water: his bulk and his legs, seen dim through it.
+  b.fillStyle = rgba(CROC[1], 0.7)
+  b.beginPath()
+  b.ellipse(at(0.5), wl + 2.5, w * 0.3, 5.5, 0, 0, Math.PI * 2)
+  b.fill()
+  for (const [u, s] of [
+    [0.32, -1],
+    [0.66, 1],
+  ] as const) {
+    b.fillStyle = rgba(CROC[1], 0.65)
+    b.beginPath()
+    b.moveTo(at(u) - 2.5, wl + 2)
+    b.lineTo(at(u) + 2.5, wl + 2)
+    b.lineTo(at(u) + s * 4 + 2, wl + 8)
+    b.lineTo(at(u) + s * 4 - 2, wl + 8.6)
+    b.fill()
+    // Webbed toes.
+    b.fillStyle = rgba(CROC[2], 0.6)
+    for (let t = -1; t <= 1; t++)
+      b.fillRect(at(u) + s * 4 + t * 1.4 - 0.5, wl + 8.2, 1, 1.6)
+  }
+  // A front leg up at the waterline, the elbow out: he is paddling.
+  b.fillStyle = CROC[2]
+  b.beginPath()
+  b.moveTo(at(0.64), wl - 3)
+  b.quadraticCurveTo(at(0.7) + 1, wl - 2, at(0.7) + 2, wl + 1.5)
+  b.lineTo(at(0.66), wl + 1.5)
+  b.closePath()
+  b.fill()
+  b.strokeStyle = rgba(CROC[0], 0.8)
+  b.lineWidth = 0.5
+  b.stroke()
+  // The silhouette above the waterline: tail, body and head along the back line.
+  const outline = () => {
+    b.beginPath()
+    b.moveTo(0, back(0) + 0.6)
+    for (let i = 1; i <= 48; i++) b.lineTo(at(i / 48), back(i / 48))
+    // The snout's round tip, then back along the jaw and belly.
+    b.quadraticCurveTo(w + 0.8, back(1) + 1.6, w - 0.4, top + 4.6)
+    for (let i = 48; i >= 0; i--) b.lineTo(at(i / 48), top + crocBelly(i / 48))
+    b.closePath()
+  }
+  outline()
+  const hide = b.createLinearGradient(0, top - 2, 0, wl + 1)
+  hide.addColorStop(0, CROC[3])
+  hide.addColorStop(0.35, CROC[2])
+  hide.addColorStop(1, CROC[1])
+  b.fillStyle = hide
+  b.fill()
+  b.save()
+  outline()
+  b.clip()
+  // His pale belly scales along the waterline, ribbed.
+  const belly = b.createLinearGradient(0, wl - 2.4, 0, wl + 1)
+  belly.addColorStop(0, rgba(CROC_BELLY, 0))
+  belly.addColorStop(0.5, rgba(CROC_BELLY, 0.65))
+  belly.addColorStop(1, rgba(CROC_BELLY, 0.8))
+  b.fillStyle = belly
+  b.fillRect(at(0.26), wl - 2.4, at(0.56), 3.6)
+  b.fillStyle = rgba('#7a6a40', 0.5)
+  for (let u = 0.3; u < 0.8; u += 0.03) b.fillRect(at(u), wl - 1.4, 0.4, 2.6)
+  // Flank scales: rows of rounded plates, each lit on top and shaded under.
+  for (let row = 0; row < 3; row++) {
+    for (let u = 0.03 + (row % 2) * 0.018; u < 0.8; u += 0.036) {
+      const y = back(u) + 1.8 + row * 1.9
+      if (y > wl - 2.6) continue
+      const pw = at(0.028)
+      b.fillStyle = rgba(CROC[0], 0.45)
+      b.fillRect(at(u), y + 1.1, pw, 0.45)
+      b.fillStyle = rgba(CROC[4], 0.28)
+      b.fillRect(at(u) + 0.3, y, pw - 0.6, 0.4)
+    }
+  }
+  // His saddle cloth: a rust blanket over the broad of his back, where a rider stands, with the
+  // orange zigzag of Zuzu's own poncho woven along its hem.
+  const s0 = at(0.37)
+  const s1 = at(0.63)
+  const hem = top + 5.2
+  b.fillStyle = CROC_PAINT[0]
+  b.beginPath()
+  b.moveTo(s0, back(0.37) - 0.4)
+  b.lineTo(s1, back(0.63) - 0.4)
+  b.lineTo(s1 + 0.6, hem)
+  b.lineTo(s0 - 0.6, hem)
+  b.closePath()
+  b.fill()
+  b.fillStyle = rgba('#ffffff', 0.25)
+  b.fillRect(s0, top - 1, s1 - s0, 0.6)
+  b.fillStyle = CROC_PAINT[2]
+  b.fillRect(s0 - 0.6, hem - 2.6, s1 - s0 + 1.2, 2.6)
+  b.strokeStyle = CROC_PAINT[1]
+  b.lineWidth = 0.55
+  b.beginPath()
+  for (let i = 0, zx = s0; zx <= s1 + 0.1; zx += 1.4, i++)
+    if (i === 0) b.moveTo(zx, hem - 2.2)
+    else b.lineTo(zx, i % 2 ? hem - 0.6 : hem - 2.2)
+  b.stroke()
+  b.fillStyle = rgba(CROC[0], 0.5)
+  b.fillRect(s0 - 0.6, hem - 0.3, s1 - s0 + 1.2, 0.5)
+  b.fillRect(s1 - 0.4, top - 1, 0.6, hem - top + 1)
+  // Tassels at its corners.
+  b.fillStyle = CROC_PAINT[1]
+  for (const tx of [s0 - 0.6, s1]) b.fillRect(tx, hem, 0.7, 1.6)
+  // The jaw: a long dark line from the snout back under the eye, curling up into a smile.
+  b.strokeStyle = CROC[0]
+  b.lineWidth = 0.7
+  b.beginPath()
+  b.moveTo(w - 0.8, top + 3.4)
+  b.quadraticCurveTo(at(0.88), top + 4.6, at(0.8), top + 4.2)
+  b.quadraticCurveTo(at(0.765), top + 3.9, at(0.77), top + 2.6)
+  b.stroke()
+  // A row of small white teeth peeking over the lip.
+  b.fillStyle = '#fbf6e4'
+  for (let u = 0.815; u < 0.985; u += 0.035) {
+    const ty = top + 3.6 + (u - 0.8) * 4
+    b.beginPath()
+    b.moveTo(at(u), ty)
+    b.lineTo(at(u) + 0.55, ty + 1.2)
+    b.lineTo(at(u) + 1.1, ty)
+    b.fill()
+  }
+  // The lit top of the head and snout, and the moon down his back.
+  b.fillStyle = rgba(CROC[4], 0.7)
+  for (let u = 0.8; u < 0.98; u += 0.01)
+    b.fillRect(at(u), back(u) + 0.2, at(0.012), 0.6)
+  b.fillStyle = rgba('#d8fff0', 0.55)
+  for (let u = 0.06; u < 0.78; u += 0.01)
+    b.fillRect(at(u), back(u) + 0.1, at(0.012), 0.45)
+  b.restore()
+  outline()
+  b.strokeStyle = INK
+  b.lineWidth = 0.6
+  b.stroke()
+
+  // Scutes: a double row of ridged plates down the back, a single tall crest down the tail.
+  for (let u = 0.03; u < 0.74; u += 0.032) {
+    const y = back(u)
+    const tail = u < 0.3
+    const tall = tail ? 1.8 + (u / 0.3) * 0.6 : 1.2
+    for (const off of tail ? [0] : [-0.8, 1.2]) {
+      const sx = at(u) + off
+      b.fillStyle = CROC[1]
+      b.beginPath()
+      b.moveTo(sx - 1.1, y + 0.6)
+      b.lineTo(sx, y - tall)
+      b.lineTo(sx + 1.3, y + 0.6)
+      b.fill()
+      b.strokeStyle = rgba(INK, 0.8)
+      b.lineWidth = 0.35
+      b.stroke()
+      b.fillStyle = CROC[4]
+      b.fillRect(sx - 0.55, y - tall + 0.7, 0.5, tall * 0.55)
+    }
+  }
+  // Nostrils on a knob at the snout tip.
+  const nx = w - 3
+  const ny = back(0.96) - 0.2
+  b.fillStyle = CROC[3]
+  b.beginPath()
+  b.ellipse(nx, ny, 2.2, 1.4, 0, Math.PI, 0)
+  b.fill()
+  b.strokeStyle = INK
+  b.lineWidth = 0.4
+  b.stroke()
+  b.fillStyle = CROC[0]
+  b.fillRect(nx - 1.4, ny - 0.8, 0.8, 0.6)
+  b.fillRect(nx + 0.4, ny - 0.8, 0.8, 0.6)
+  // The eye: a big dome on the head, a gold iris, a soft slit, a sleepy lid. Kind, unhurried.
+  const ex = at(0.76)
+  const ey = top - 4.6
+  b.fillStyle = CROC[2]
+  b.beginPath()
+  b.ellipse(ex, ey + 1.6, 4.2, 4, 0, Math.PI, 0)
+  b.lineTo(ex + 4.2, top + 1)
+  b.lineTo(ex - 4.2, top + 1)
+  b.fill()
+  b.strokeStyle = INK
+  b.lineWidth = 0.55
+  b.beginPath()
+  b.ellipse(ex, ey + 1.6, 4.2, 4, 0, Math.PI, 0)
+  b.stroke()
+  b.fillStyle = '#fff6d0'
+  b.beginPath()
+  b.ellipse(ex + 0.6, ey + 1, 2.7, 2.3, 0, 0, Math.PI * 2)
+  b.fill()
+  b.fillStyle = CROC_EYE
+  b.beginPath()
+  b.ellipse(ex + 0.9, ey + 1.1, 2.2, 2, 0, 0, Math.PI * 2)
+  b.fill()
+  b.fillStyle = '#c88a1c'
+  b.fillRect(ex - 0.6, ey + 2.2, 3, 0.7)
+  b.fillStyle = CROC[0]
+  b.fillRect(ex + 0.7, ey - 0.6, 0.9, 3.4)
+  b.fillStyle = '#ffffff'
+  b.fillRect(ex - 0.4, ey - 0.1, 0.9, 0.9)
+  // The lid over the top of the eye.
+  b.fillStyle = CROC[3]
+  b.beginPath()
+  b.ellipse(ex + 0.4, ey - 0.2, 3.2, 1.7, 0, Math.PI, 0)
+  b.fill()
+  b.strokeStyle = CROC[0]
+  b.lineWidth = 0.5
+  b.beginPath()
+  b.moveTo(ex - 2.8, ey - 0.1)
+  b.quadraticCurveTo(ex + 0.4, ey + 0.9, ex + 3.6, ey - 0.1)
+  b.stroke()
+  b.fillStyle = rgba(CROC[4], 0.9)
+  b.fillRect(ex - 1.8, ey - 1.6, 2.6, 0.5)
+  // The waterline lapping his flank.
+  b.fillStyle = rgba('#5fd0cc', 0.85)
+  b.fillRect(0, wl - 0.2, w, 0.8)
+  b.fillStyle = rgba('#d4fff6', 0.7)
+  for (let u = 0.05; u < 1; u += 0.12) b.fillRect(at(u), wl - 0.4, 2.4, 0.5)
+}
+
+/** Only his eyes and nostrils above the water: waiting, wary of the squad on the bank. */
+function crocPeek(g: G, x: number, y: number, w: number, tick: number) {
+  const wl = y + CROC_WATERLINE
+  const ex = x + w * 0.76
+  const bob = Math.sin(tick / 18) * 0.5
+  // His long shadow under the water.
+  g.fillStyle = rgba(CROC[0], 0.45)
+  g.beginPath()
+  g.ellipse(x + w * 0.5, wl + 4, w * 0.46, 3.4, 0, 0, Math.PI * 2)
+  g.fill()
+  // One wary eye above the water, and the knob of his nostrils.
+  g.fillStyle = CROC[2]
+  g.beginPath()
+  g.ellipse(ex, wl + bob, 3.6, 3.2, 0, Math.PI, 0)
+  g.fill()
+  g.strokeStyle = INK
+  g.lineWidth = 0.5
+  g.stroke()
+  g.fillStyle = CROC_EYE
+  g.beginPath()
+  g.ellipse(ex + 0.6, wl - 1 + bob, 1.9, 1.3, 0, 0, Math.PI * 2)
+  g.fill()
+  g.fillStyle = CROC[0]
+  g.fillRect(ex + 0.5, wl - 2.2 + bob, 0.8, 2.4)
+  g.fillStyle = '#ffffff'
+  g.fillRect(ex - 0.6, wl - 1.8 + bob, 0.7, 0.7)
+  g.fillStyle = CROC[3]
+  g.beginPath()
+  g.ellipse(ex + 0.3, wl - 2 + bob, 2.8, 1.2, 0, Math.PI, 0)
+  g.fill()
+  g.fillStyle = CROC[3]
+  g.beginPath()
+  g.ellipse(x + w - 3, wl + bob, 2.2, 1.3, 0, Math.PI, 0)
+  g.fill()
+  g.fillStyle = CROC[0]
+  g.fillRect(x + w - 4, wl - 0.8 + bob, 0.7, 0.5)
+  g.fillRect(x + w - 2.6, wl - 0.8 + bob, 0.7, 0.5)
+  // Bubbles from under the water, and rings round his eye.
+  for (let i = 0; i < 3; i++) {
+    const k = (((tick / 50 + i / 3) % 1) + 1) % 1
+    g.strokeStyle = rgba('#e8fffa', 0.7 * (1 - k))
+    g.lineWidth = 0.45
+    g.beginPath()
+    g.arc(
+      x + w * (0.3 + i * 0.12),
+      wl + 3 - k * 3.4,
+      0.6 + k * 0.5,
+      0,
+      Math.PI * 2,
+    )
+    g.stroke()
+  }
+  for (let i = 0; i < 2; i++) {
+    const k = (((tick / 70 + i * 0.5) % 1) + 1) % 1
+    g.strokeStyle = rgba('#c8fff4', 0.55 * (1 - k))
+    g.lineWidth = 0.5
+    g.beginPath()
+    g.ellipse(ex, wl + 0.4, 4 + k * 8, 0.7 + k * 1.2, 0, 0, Math.PI * 2)
+    g.stroke()
+  }
+}
+
+/**
+ * The River Croc (a ferry mover, Stage 3): a big, friendly, painted crocodile carrying a rider on
+ * his back, his eyes up above the water and a slow bob. His walkable back is exactly y from x to
+ * x + w. Before he surfaces (rise 0) only his eyes show; as he rises he lifts out of the water.
+ */
+function drawCroc(
+  g: G,
+  x: number,
+  y: number,
+  w: number,
+  tick: number,
+  s: MoverState,
+) {
+  const rise = s.rise ?? 1
+  const face = s.face ?? 1
+  if (rise <= 0) {
+    crocPeek(g, x, y, w, tick)
+    return
+  }
+  const bob = Math.sin(tick / 22 + x * 0.02) * 0.6
+  const sink = (1 - rise) * (CROC_WATERLINE + 2)
+  const wl = y + CROC_WATERLINE
+  g.save()
+  // Rings spread from his flanks; a wake behind him when he swims.
+  for (const side of [-1, 1]) {
+    const sx = side < 0 ? x : x + w
+    for (let i = 0; i < 2; i++) {
+      const k = (((tick / 34 + i * 0.5) % 1) + 1) % 1
+      g.strokeStyle = rgba('#c8fff4', 0.45 * (1 - k))
+      g.lineWidth = 0.5
+      g.beginPath()
+      g.ellipse(
+        sx + side * k * 7,
+        wl + 0.6,
+        1 + k * 6,
+        0.6 + k,
+        0,
+        0,
+        Math.PI * 2,
+      )
+      g.stroke()
+    }
+  }
+  if (s.swimming) {
+    const tail = face > 0 ? x : x + w
+    g.strokeStyle = rgba('#d4fff6', 0.6)
+    g.lineWidth = 0.6
+    for (let i = 0; i < 3; i++) {
+      const k = (((tick / 16 + i / 3) % 1) + 1) % 1
+      const back = -face * (4 + k * 22)
+      g.globalAlpha = 1 - k
+      g.beginPath()
+      g.moveTo(tail + back, wl + 0.4 - k * 1.4)
+      g.lineTo(tail + back - face * 3, wl + 0.4 - k * 1.4)
+      g.moveTo(tail + back, wl + 1.2 + k * 1.4)
+      g.lineTo(tail + back - face * 3, wl + 1.2 + k * 1.4)
+      g.stroke()
+    }
+    g.globalAlpha = 1
+    // A bow wave at his snout.
+    const nose = face > 0 ? x + w : x
+    g.fillStyle = rgba('#e8fffa', 0.7)
+    g.fillRect(nose + (face > 0 ? 0 : -3), wl - 0.6, 3, 0.8)
+  }
+  if (sink > 0) {
+    // Rising: only what is above the water shows.
+    g.beginPath()
+    g.rect(x - 4, y - 20, w + 8, CROC_WATERLINE + 20 + 6 - sink * 0.4)
+    g.clip()
+  }
+  drawBaked(
+    g,
+    `gt-croc-${Math.round(w)}`,
+    x,
+    y - CROC_ABOVE + bob + sink,
+    w,
+    CROC_TALL,
+    (c) => paintCroc(c, w),
+    { flipX: face < 0 },
+  )
+  // A slow blink now and then.
+  const blink = tick % 260 < 8
+  if (blink && sink < 2) {
+    const ex = face > 0 ? x + w * 0.775 : x + w * 0.225
+    g.fillStyle = CROC[3]
+    g.beginPath()
+    g.ellipse(ex + face * 0.4, y - 1.8 + bob + sink, 2, 1.7, 0, 0, Math.PI * 2)
+    g.fill()
+    g.fillStyle = CROC[0]
+    g.fillRect(ex - 1.6, y - 1.2 + bob + sink, 3.6, 0.45)
+  }
+  if (rise < 1) {
+    // Water sheeting off him as he comes up.
+    for (let i = 0; i < 8; i++) {
+      const k = hash(i * 31 + Math.floor(tick / 3))
+      g.fillStyle = rgba('#e8fffa', 0.8 * (1 - rise))
+      g.fillRect(
+        x + k * w,
+        wl - 2 - hash(i * 7 + tick) * 6 * (1 - rise),
+        0.7,
+        1.4,
+      )
+    }
+  }
+  g.restore()
+}
+
+// --- the cage ---------------------------------------------------------------------------------------
+
+const CAGE_W = 30
+const CAGE_TALL = 42
+/** The bake's width: the cage, and room on the right for its door to swing open. */
+const CAGE_BOX = CAGE_W + 12
+
+/** The captive novice's oatmeal habit [ink, shadow, base, light, highlight]. */
+const HABIT: Ramp = ['#1a1418', '#5a5050', '#8e8478', '#bab0a0', '#e6dece']
+
+/** A hooded novice kneeling, centred at cx with knees on the floor at y, `s` times life size. */
+function paintNovice(b: G, cx: number, y: number, s: number) {
+  b.save()
+  b.translate(cx, y)
+  b.scale(s, s)
+  const robe = () => {
+    b.beginPath()
+    b.moveTo(-6.5, 0)
+    b.quadraticCurveTo(-6.5, -9, -3, -12.5)
+    b.lineTo(3, -12.5)
+    b.quadraticCurveTo(6.5, -9, 7, 0)
+    b.closePath()
+  }
+  // Robe: a bell of cloth, kneeling.
+  robe()
+  b.fillStyle = HABIT[2]
+  b.fill()
+  b.fillStyle = HABIT[1]
+  b.fillRect(2.4, -10, 4, 10)
+  b.fillStyle = HABIT[3]
+  b.fillRect(-5.6, -8.5, 1.4, 8)
+  b.fillStyle = HABIT[4]
+  b.fillRect(-5.2, -7.5, 0.5, 5)
+  // Folds.
+  b.strokeStyle = rgba(HABIT[0], 0.55)
+  b.lineWidth = 0.45
+  for (const dx of [-2.6, 0.4, 3.2]) {
+    b.beginPath()
+    b.moveTo(dx, -9.5)
+    b.lineTo(dx * 1.3, -0.5)
+    b.stroke()
+  }
+  robe()
+  b.strokeStyle = HABIT[0]
+  b.lineWidth = 0.5
+  b.stroke()
+  // A rope cincture, its end hanging, and a little wooden cross.
+  b.fillStyle = '#c8a868'
+  b.fillRect(-5, -8, 10, 0.9)
+  b.fillRect(1.6, -7.4, 0.7, 4)
+  b.fillStyle = '#8a5a30'
+  b.fillRect(-1.6, -7, 0.7, 2.6)
+  b.fillRect(-2.3, -6.3, 2.1, 0.6)
+  // The hood: a rounded cowl with a deep shadow for a face.
+  b.fillStyle = HABIT[2]
+  b.beginPath()
+  b.ellipse(0, -15.5, 4.8, 5, 0, 0, Math.PI * 2)
+  b.fill()
+  b.fillStyle = HABIT[3]
+  b.beginPath()
+  b.ellipse(-1.6, -17.6, 2.2, 2, -0.4, 0, Math.PI * 2)
+  b.fill()
+  b.fillStyle = HABIT[0]
+  b.beginPath()
+  b.ellipse(0.8, -14.8, 2.9, 3.1, 0, 0, Math.PI * 2)
+  b.fill()
+  // A pale little face in the shadow, two wide eyes looking out.
+  b.fillStyle = '#ecd6be'
+  b.beginPath()
+  b.ellipse(1.1, -14.4, 1.9, 2.2, 0, 0, Math.PI * 2)
+  b.fill()
+  b.fillStyle = '#2a1a24'
+  b.fillRect(0.1, -15.1, 0.7, 1)
+  b.fillRect(1.9, -15.1, 0.7, 1)
+  b.fillStyle = '#ffffff'
+  b.fillRect(0.2, -15.1, 0.3, 0.3)
+  b.fillRect(2, -15.1, 0.3, 0.3)
+  b.strokeStyle = HABIT[0]
+  b.lineWidth = 0.5
+  b.beginPath()
+  b.ellipse(0, -15.5, 4.8, 5, 0, 0, Math.PI * 2)
+  b.stroke()
+  // Hands up on the bars.
+  b.fillStyle = '#ecd6be'
+  b.fillRect(5, -11.4, 1.8, 1.6)
+  b.fillRect(-6.8, -11, 1.8, 1.6)
+  b.restore()
+}
+
+/** A hanging iron cage, `state` locked (the novice inside), open (the lock broken) or empty. */
+function paintCage(b: G, state: 'locked' | 'open' | 'empty') {
+  const w = CAGE_W
+  const cx = w / 2
+  const top = 5
+  const floor = CAGE_TALL - 3.5
+  const mid = top + (floor - top) * 0.55
+  const bars = 8
+  const barX = (i: number) => 2 + (i * (w - 4)) / (bars - 1)
+  const shut = state === 'locked'
+  // The back bars, in the dark, and the dim inside.
+  b.fillStyle = rgba(INK, 0.5)
+  b.fillRect(2, top + 4, w - 4, floor - top - 4)
+  for (let i = 0; i < bars; i++) {
+    b.fillStyle = IRON[1]
+    b.fillRect(barX(i) + 1.8, top + 3, 0.8, floor - top - 3)
+  }
+  if (state !== 'empty') {
+    // A candle's warmth behind the novice, so the prisoner reads through the bars.
+    const warm = b.createRadialGradient(cx, floor - 10, 0, cx, floor - 10, 14)
+    warm.addColorStop(0, rgba('#ffb060', 0.55))
+    warm.addColorStop(1, rgba('#ffb060', 0))
+    b.fillStyle = warm
+    b.fillRect(2, top + 4, w - 4, floor - top - 4)
+    paintNovice(b, cx - 1, floor, 1.25)
+  } else {
+    // Left behind: a broken rope cincture on the floor.
+    b.strokeStyle = '#c8a868'
+    b.lineWidth = 0.8
+    b.beginPath()
+    b.moveTo(cx - 6, floor - 0.6)
+    b.quadraticCurveTo(cx - 2, floor - 2.4, cx + 3, floor - 0.6)
+    b.stroke()
+  }
+  // The dome, its ribs and its ring.
+  b.fillStyle = IRON[2]
+  b.beginPath()
+  b.moveTo(0.6, top + 4.4)
+  b.quadraticCurveTo(cx, top - 5, w - 0.6, top + 4.4)
+  b.lineTo(w - 0.6, top + 6)
+  b.quadraticCurveTo(cx, top - 3.2, 0.6, top + 6)
+  b.closePath()
+  b.fill()
+  b.strokeStyle = INK
+  b.lineWidth = 0.4
+  b.stroke()
+  for (let i = 1; i < bars - 1; i++) {
+    b.strokeStyle = IRON[1]
+    b.lineWidth = 0.6
+    b.beginPath()
+    b.moveTo(barX(i), top + 4.6)
+    b.quadraticCurveTo(barX(i) + (cx - barX(i)) * 0.4, top, cx, top - 1.6)
+    b.stroke()
+  }
+  b.strokeStyle = IRON[4]
+  b.lineWidth = 0.45
+  b.beginPath()
+  b.moveTo(2, top + 4)
+  b.quadraticCurveTo(cx - 3, top - 2.8, cx, top - 0.4)
+  b.stroke()
+  b.strokeStyle = IRON[0]
+  b.lineWidth = 1.3
+  b.beginPath()
+  b.arc(cx, top - 2.6, 2.1, 0, Math.PI * 2)
+  b.stroke()
+  b.strokeStyle = IRON[3]
+  b.lineWidth = 0.45
+  b.stroke()
+  // The front bars: the door is the right three, hinged on the right-hand post.
+  const bar = (bx: number, y0: number, y1: number) => {
+    b.fillStyle = IRON[0]
+    b.fillRect(bx - 0.7, y0, 1.5, y1 - y0)
+    b.fillStyle = IRON[2]
+    b.fillRect(bx - 0.5, y0, 1, y1 - y0)
+    b.fillStyle = IRON[4]
+    b.fillRect(bx - 0.5, y0, 0.35, y1 - y0)
+  }
+  for (let i = 0; i < bars; i++)
+    if (shut || i < 5 || i === bars - 1) bar(barX(i), top + 4, floor)
+  // Bands round the cage and the floor plate.
+  const band = (y0: number, x0: number, x1: number) => {
+    b.fillStyle = IRON[0]
+    b.fillRect(x0, y0 - 0.7, x1 - x0, 2)
+    b.fillStyle = IRON[3]
+    b.fillRect(x0, y0 - 0.7, x1 - x0, 0.55)
+    b.fillStyle = IRON[4]
+    for (let rx = x0 + 1.5; rx < x1; rx += 3.6)
+      b.fillRect(rx, y0 + 0.3, 0.5, 0.5)
+  }
+  band(top + 4.6, 0.6, w - 0.6)
+  band(mid, 0.6, shut ? w - 0.6 : barX(4) + 1)
+  if (!shut) band(mid, barX(bars - 1) - 1, w - 0.6)
+  b.fillStyle = IRON[1]
+  b.fillRect(0, floor, w, 3.5)
+  b.fillStyle = IRON[3]
+  b.fillRect(0, floor, w, 0.7)
+  b.fillStyle = IRON[0]
+  b.fillRect(0, floor + 2.8, w, 0.7)
+  b.strokeStyle = INK
+  b.lineWidth = 0.4
+  b.strokeRect(0, floor, w, 3.5)
+  b.fillStyle = IRON[4]
+  for (let rx = 1.8; rx < w; rx += 4) b.fillRect(rx, floor + 1.4, 0.6, 0.6)
+  if (shut) {
+    // The padlock, hung on the door's clasp.
+    const lx = barX(4) + 1.6
+    const ly = mid + 1.4
+    b.strokeStyle = IRON[3]
+    b.lineWidth = 0.9
+    b.beginPath()
+    b.arc(lx, ly, 1.8, Math.PI, 0)
+    b.stroke()
+    b.fillStyle = BRONZE[2]
+    b.fillRect(lx - 2.6, ly, 5.2, 4.2)
+    b.fillStyle = BRONZE[4]
+    b.fillRect(lx - 2.6, ly, 5.2, 0.7)
+    b.fillRect(lx - 2.6, ly, 0.6, 4.2)
+    b.fillStyle = BRONZE[0]
+    b.beginPath()
+    b.arc(lx, ly + 1.7, 0.6, 0, Math.PI * 2)
+    b.fill()
+    b.fillRect(lx - 0.3, ly + 1.8, 0.6, 1.4)
+    b.strokeStyle = INK
+    b.lineWidth = 0.45
+    b.strokeRect(lx - 2.6, ly, 5.2, 4.2)
+  } else {
+    // The door swung out on its hinge, seen edge-on: a foreshortened panel of three bars.
+    const hx = barX(bars - 1)
+    const reach = 10
+    const y0 = top + 4
+    const y1 = floor
+    for (const k of [0.33, 0.66, 1]) {
+      const px = hx + reach * k
+      const pt = y0 + 2.2 * k
+      const pb = y1 - 2.2 * k
+      b.fillStyle = IRON[0]
+      b.fillRect(px - 0.7, pt, 1.5, pb - pt)
+      b.fillStyle = IRON[3]
+      b.fillRect(px - 0.4, pt, 0.45, pb - pt)
+    }
+    for (const [ya, yb] of [
+      [y0, y0 + 2.2],
+      [mid, mid],
+      [y1 - 1, y1 - 3.2],
+    ] as const) {
+      b.strokeStyle = IRON[0]
+      b.lineWidth = 1.6
+      b.beginPath()
+      b.moveTo(hx, ya)
+      b.lineTo(hx + reach, yb)
+      b.stroke()
+      b.strokeStyle = IRON[3]
+      b.lineWidth = 0.45
+      b.stroke()
+    }
+    // The snapped clasp, and the padlock lying on the floor plate.
+    b.fillStyle = IRON[3]
+    b.fillRect(barX(4) + 0.6, mid - 0.6, 1.6, 1.2)
+    b.fillStyle = BRONZE[1]
+    b.fillRect(barX(2), floor - 2.6, 4, 2.6)
+    b.fillStyle = BRONZE[3]
+    b.fillRect(barX(2), floor - 2.6, 4, 0.5)
+    b.strokeStyle = IRON[3]
+    b.lineWidth = 0.7
+    b.beginPath()
+    b.arc(barX(2) + 3.6, floor - 2.6, 1.4, Math.PI * 1.1, Math.PI * 1.9)
+    b.stroke()
+  }
+  // Candlelight catching the left edges.
+  b.fillStyle = rgba('#f4b860', 0.45)
+  b.fillRect(0.6, top + 5, 0.5, floor - top - 5)
+  b.fillRect(0.6, floor, w * 0.4, 0.4)
+}
+
+/**
+ * The abbey's hanging cage (Stage 6's captive): an iron cage on a chain, its floor plate's bottom at
+ * (x, y), a hooded novice inside while it is locked or opened (its door swung wide), empty once the
+ * novice is free. It sways a little on its chain, which runs up off the top of the view (`camY` is
+ * the view's top).
+ */
+export function drawCage(
+  g: G,
+  x: number,
+  y: number,
+  state: 'locked' | 'open' | 'empty',
+  tick: number,
+  camY = 0,
+) {
+  const pivotY = y - CAGE_TALL + 2
+  const sway =
+    Math.sin(tick / 47 + x * 0.01) * (state === 'empty' ? 0.05 : 0.025)
+  g.save()
+  chainLine(g, x, camY - 8, x, pivotY)
+  g.translate(x, pivotY)
+  g.rotate(sway)
+  // A warm glow under a prisoner, a cold one once the cage is empty.
+  glow(
+    g,
+    0,
+    CAGE_TALL / 2,
+    26,
+    state === 'empty' ? '#b8a0ff' : '#ffb870',
+    state === 'empty' ? 0.14 : 0.24,
+  )
+  drawBaked(g, `gt-cage-${state}`, -CAGE_W / 2, -2, CAGE_BOX, CAGE_TALL, (c) =>
+    paintCage(c, state),
+  )
+  g.restore()
 }
 
 // --- hazards ---------------------------------------------------------------------------------------

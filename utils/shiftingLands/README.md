@@ -140,3 +140,41 @@ Boss-specific story alternatives, bespoke scene image production and the
 visible companion/inventory controls remain separate tasks. Production
 deployment and public route approval have not occurred as part of this
 source implementation.
+
+## V5: five authored major trials
+
+Every new expedition now faces one scripted major trial after completing
+three locations per land. The five trial records in `authoredTrials.json`
+are tied to the fixed World v2 boss IDs and supply atmosphere, three clear
+approaches, outcome prose, and original design-only art status. They are
+reviewed gameplay scenarios, not claims that individual boss illustrations
+have been generated. The Abbess's editorial note records her canonical
+ritual motives, but this developer-only knowledge is **not** sent to the
+visible trial reader. The source also does not resolve the world's lost
+human-history mystery.
+
+The player can always make a physical confrontation with a 2d6 skill
+check. A second nonviolent bargain costs one provision and uses a different
+skill/target. A third evidence-led option unlocks only when its named
+earlier encounter outcome flag was actually earned; flags cannot be
+invented by revisiting or refreshing. Every attempt spends a turn and
+stores its choice, exact dice, outcome text, injuries, and supply changes.
+A failed trial leaves the gate active with a real HP cost; Zuzu can try
+again if alive. Successful trials unlock the next land, or complete the
+fifth chapter. Retreat is always available.
+
+The **V5 ledger** uses a separate `kr.shiftingLands.journeyLedger.v5`
+browser key, pins the boss authoring source revision, replays every
+action, and rejects altered flags, dice, story outcomes, saved HP, or
+invalid trial choices. **Existing V4, V3, and V2 journeys continue with
+their original reducers and storage keys**, including all original
+generic boss checks. No old roll or boss result is retroactively
+rescored. A malformed newer save never silently falls back to stale
+older state; *New journey* deliberately starts the new rules.
+
+`npx tsx utils/scripts/verifyShiftingTrials.test.ts` covers seeded
+five-land playthroughs, clue paths, failure and victory, invalid
+and tampered saves, legacy V4 compatibility, and checks the developer
+lore never appears in the visible scene DTO. The separate human-gated
+public release, bespoke boss illustrations, and live deployment remain
+out of scope.

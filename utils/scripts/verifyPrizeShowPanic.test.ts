@@ -81,6 +81,7 @@ type Inner = {
   invuln: number
   hit: boolean
   loop: number
+  episodeIndex: number
   tuning: ReturnType<typeof loopTuning>
   roomId: string
   secretId: string | null
@@ -120,6 +121,7 @@ type Inner = {
   render(g: CanvasRenderingContext2D): void
   enterRoom(id: string, entry: Side): void
   startRoom(): void
+  finishEpisode(): void
   beamState(b: Beam): { angle: number; hot: boolean; warming: boolean }
   candleClock(b: Boss): number
   crasherSpeed(): number
@@ -263,9 +265,8 @@ function stubContext(): CanvasRenderingContext2D {
 const g2d = stubContext()
 
 // --- the season map ----------------------------------------------------------------------------
-{
-  const ep = EPISODE_1
-  assert.equal(SEASON[0], ep, 'Opening Night opens the season')
+assert.equal(SEASON[0], EPISODE_1, 'Opening Night opens the season')
+for (const ep of SEASON) {
   assert.ok(ep.rooms.length >= 12 && ep.rooms.length <= 14, '12-14 rooms')
   const ids = new Set(ep.rooms.map((r) => r.id))
   assert.equal(ids.size, ep.rooms.length, 'room ids are unique')
@@ -329,7 +330,8 @@ const g2d = stubContext()
   assert.ok(mid.exits.length > 1, 'a fork after the mid-boss')
   assert.ok(roomById(ep, ep.start).exits.length > 1, 'a fork from the start')
 
-  // All ten room types are authored (the secret room off the map), plus the bosses.
+  // All ten room types are authored in Opening Night (the secret room off the map), plus the
+  // bosses; every episode has its own secret, vault and sponsor challenge.
   const types = new Set<RoomType>([
     ...ep.rooms.map((r) => r.script.type),
     ...Object.values(ep.secrets).map((s) => s.type),
@@ -347,7 +349,8 @@ const g2d = stubContext()
     'secret',
     'boss',
   ] as RoomType[])
-    assert.ok(types.has(type), `episode 1 has a ${type} room`)
+    if (ep === EPISODE_1 || ['vault', 'sponsor', 'secret'].includes(type))
+      assert.ok(types.has(type), `episode ${ep.number} has a ${type} room`)
   for (const room of ep.rooms)
     for (const prop of room.script.props ?? [])
       if (prop.kind === 'crack')
@@ -837,8 +840,14 @@ const g2d = stubContext()
     safeTick(f)
   }
   assert.ok(f.tally, 'the wrap opens the prize tally')
-  for (let t = 0; t < 2000 && f.loop === 1; t++) f.update(emptyInput())
-  assert.equal(f.loop, 2, 'and after the tally and the swap, the season loops')
+  for (let t = 0; t < 2000 && f.episodeIndex === 0; t++) f.update(emptyInput())
+  assert.equal(f.episodeIndex, 1, 'and after the tally and the swap, episode 2')
+  assert.equal(f.roomId, SEASON[1]!.start)
+  assert.equal(f.loop, 1)
+  // After the last authored episode, the season goes round again.
+  f.episodeIndex = SEASON.length - 1
+  f.finishEpisode()
+  assert.equal(f.loop, 2, 'the season loops')
   assert.equal(f.roomId, EPISODE_1.start)
   assert.ok(f.tuning.speed > 1, 'with harder curves')
   const hard = stage('grand-finale', 3)
@@ -989,7 +998,7 @@ const g2d = stubContext()
 {
   const ids = seasonTickets()
   assert.deepEqual(new Set(ids).size, ids.length, 'ticket ids are unique')
-  assert.equal(ids.length, 3, 'three hide in Opening Night')
+  assert.equal(ids.length, SEASON.length * 3, 'three hide in each episode')
   assert.equal(SEASON_TICKETS, 12)
   assert.equal(VAULT_TICKETS, 10)
   const g = stage('the-showcase', 0)
@@ -1059,8 +1068,14 @@ const g2d = stubContext()
     best = Math.max(best, g.level)
   }
   assert.ok(best >= 12, `the pilot gets through ${best} studios`)
+  // Up is the rich lane and down the safe one, in every episode.
+  const rows = new Set(
+    SEASON.flatMap((ep) => ep.rooms)
+      .filter((r) => visited.has(r.id))
+      .map((r) => r.row),
+  )
   assert.ok(
-    visited.has('whoopee-alley') && visited.has('warm-up-crowd'),
+    rows.has(0) && rows.has(2),
     'it takes the rich lane and the safe lane',
   )
 
@@ -1073,10 +1088,11 @@ const g2d = stubContext()
   }
   assert.ok(scripted.over, 'a scripted run ends')
   assert.ok(scripted.score > 0 && scripted.score <= meta.maxPlausibleScore)
+  // A skilled run is long (the season is meant to take an hour or more to clear), never endless.
   for (const seed of [1, 2]) {
     const real = fresh(seed)
     let ticks = 0
-    for (; ticks < 60 * 60 * 45 && !real.over; ticks++)
+    for (; ticks < 60 * 60 * 75 && !real.over; ticks++)
       real.update(real.demoInput())
     assert.ok(real.over, `seed ${seed}: even the pilot's run ends`)
     assert.ok(real.score <= meta.maxPlausibleScore)

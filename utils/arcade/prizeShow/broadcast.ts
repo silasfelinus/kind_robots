@@ -145,8 +145,8 @@ export const BORROWED_PHRASES: readonly string[] = [
   'GOOD LUCK',
 ]
 
-/** The loop LENS joins on (stands in for episode 3 until it is authored). */
-export const COHOST_FROM_LOOP = 3
+/** The episode LENS joins on (Countdown Concert); every encore loop has both voices. */
+export const COHOST_FROM_EPISODE = 3
 
 /** A line wrapped into rows of at most `width` characters on word breaks. */
 export function wrapLine(text: string, width = 26): string[] {

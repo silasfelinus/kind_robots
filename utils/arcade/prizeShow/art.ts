@@ -438,6 +438,63 @@ export const MAP_ICONS = {
     ],
     ICON_PALETTE,
   ),
+  /** A hot plate: a stove ring glowing red. */
+  hotplate: pixelSprite(
+    [
+      '..rRRRr...',
+      '.R2222R...',
+      'rR2RR2Rr..',
+      'R2R..R2R..',
+      'rR2RR2Rr..',
+      '.R2222R...',
+      '..rRRRr...',
+    ],
+    ICON_PALETTE,
+  ),
+  /** A conveyor counter: chevrons rolling along a belt. */
+  belt: pixelSprite(
+    [
+      '1111111111',
+      '1yy.yy.yy1',
+      '1.yy.yy.y1',
+      '1yy.yy.yy1',
+      '1111111111',
+      '.k......k.',
+    ],
+    ICON_PALETTE,
+  ),
+  /** A flour cloud. */
+  flour: pixelSprite(
+    ['...ww.....', '.wwccw.ww.', 'wcccccwccw', 'cccCcccccc', '.CCcCCCCc.'],
+    ICON_PALETTE,
+  ),
+  /** A speaker stack. */
+  speaker: pixelSprite(
+    [
+      '2222222.',
+      '21kkk12.',
+      '2k111k2.',
+      '21kkk12.',
+      '2222222.',
+      '21kkk12.',
+      '2k111k2.',
+      '21kkk12.',
+      '2222222.',
+    ],
+    ICON_PALETTE,
+  ),
+  /** A mosh pit: arrows chasing round a circle. */
+  mosh: pixelSprite(
+    [
+      '..PPPP....',
+      '.P....Pp..',
+      'P......P..',
+      'P......p..',
+      'pP....P...',
+      '..pPPP....',
+    ],
+    ICON_PALETTE,
+  ),
   secret: pixelSprite(
     [
       '..vvvv..',

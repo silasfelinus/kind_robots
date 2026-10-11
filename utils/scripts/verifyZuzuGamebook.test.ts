@@ -79,12 +79,11 @@ for (const node of Object.values(BOOK)) {
     existsSync(join(scenesDir, own.file + '.webp')),
     node.id + ': own plate file missing',
   )
-  const layout = plateLayout(node.id, own)
-  assert.ok(
-    (own.shape ?? 'wide') === 'wide'
-      ? layout === 'top' || layout === 'bottom'
-      : layout === 'left' || layout === 'right',
-    node.id + ': wide plates sit above or below the text, tall ones beside it',
+  assert.equal(
+    plateLayout(own),
+    (own.shape ?? 'wide') === 'wide' ? 'top' : 'right',
+    node.id +
+      ': wide plates sit above the text, tall and square ones to its right',
   )
 }
 const usedPlates = new Set(Object.values(BOOK).map((node) => node.art))

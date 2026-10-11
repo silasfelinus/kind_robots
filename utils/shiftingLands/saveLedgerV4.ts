@@ -3,10 +3,7 @@ import {
   newAuthoredJourney,
   type AuthoredJourneyState,
 } from './authoredJourney'
-import {
-  LATER_LAND_PACK,
-  stepFiveLandJourney,
-} from './authoredFiveLands'
+import { LATER_LAND_PACK, stepFiveLandJourney } from './authoredFiveLands'
 import { JOURNEY_WORLD } from './journey'
 import {
   newJourneyLedger,
@@ -88,9 +85,7 @@ export function stepJourneyLedgerV4(
   }
 }
 
-export function restoreJourneyLedgerV4(
-  value: unknown,
-): JourneyLedgerV4 | null {
+export function restoreJourneyLedgerV4(value: unknown): JourneyLedgerV4 | null {
   if (!value || typeof value !== 'object') return null
   const saved = value as Partial<JourneyLedgerV4>
   if (
@@ -104,7 +99,8 @@ export function restoreJourneyLedgerV4(
     saved.actions.length > MAX_ACTIONS ||
     !Array.isArray(saved.usedRewards) ||
     !saved.current
-  ) return null
+  )
+    return null
   try {
     if (JSON.stringify(value).length > MAX_SAVE_SIZE) return null
     let current = newAuthoredJourney(saved.seed)
@@ -118,7 +114,8 @@ export function restoreJourneyLedgerV4(
     if (
       JSON.stringify(current) !== JSON.stringify(saved.current) ||
       JSON.stringify(usedRewards) !== JSON.stringify(saved.usedRewards)
-    ) return null
+    )
+      return null
     return {
       ...newJourneyLedgerV4(saved.seed),
       actions: saved.actions.map((action) => ({ ...action })),

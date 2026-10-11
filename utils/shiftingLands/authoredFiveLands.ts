@@ -29,7 +29,12 @@ export const FIVE_LAND_CARDS: readonly AuthoredEncounter[] = [
   ...LATER_LAND_PACK.encounters,
 ]
 const cards = new Map(FIVE_LAND_CARDS.map((card) => [card.id, card]))
-const locations = new Map(LATER_LAND_PACK.locations.map((place) => [place.location_id, place.encounter_ids]))
+const locations = new Map(
+  LATER_LAND_PACK.locations.map((place) => [
+    place.location_id,
+    place.encounter_ids,
+  ]),
+)
 const BASE_SKILLS: Record<Skill, number> = {
   steel: 3,
   awareness: 2,
@@ -61,7 +66,9 @@ export function activeFiveLandEncounter(
 function fixedDraw(seed: number, locationId: string): AuthoredEncounter | null {
   const ids = locations.get(locationId)
   if (!ids) return null
-  const eligible = ids.map((id) => cards.get(id)).filter((c): c is AuthoredEncounter => !!c)
+  const eligible = ids
+    .map((id) => cards.get(id))
+    .filter((c): c is AuthoredEncounter => !!c)
   if (!eligible.length) return null
   let hash = (seed ^ 2166136261) >>> 0
   for (const character of locationId)
@@ -84,8 +91,7 @@ export function stepFiveLandJourney(
   action: AuthoredAction,
 ): AuthoredJourneyState {
   const land = JOURNEY_WORLD.lands[state.journey.landIndex]!
-  if (land.id === 'homestead')
-    return stepAuthoredJourney(state, action)
+  if (land.id === 'homestead') return stepAuthoredJourney(state, action)
   if (action.type === 'TRAVEL') {
     const traveled = stepAuthoredJourney(state, action)
     if (traveled === state || !traveled.journey.active) return traveled
@@ -97,8 +103,7 @@ export function stepFiveLandJourney(
       drawn: { ...traveled.drawn, [locationId]: fixed.id },
     }
   }
-  if (action.type === 'BOSS')
-    return stepAuthoredJourney(state, action)
+  if (action.type === 'BOSS') return stepAuthoredJourney(state, action)
   // Old prototype RESOLVE is not a legal V4 encounter action.
   if (action.type !== 'CHOOSE') return state
 
@@ -109,7 +114,8 @@ export function stepFiveLandJourney(
     !choice ||
     encounter.locationId !== state.journey.active ||
     state.outcomes.some((item) => item.locationId === encounter.locationId)
-  ) return state
+  )
+    return state
 
   const before = state.journey
   const [first, a] = random(state.drawRng)
@@ -155,9 +161,19 @@ export function stepFiveLandJourney(
       kind: 'encounter',
       landId: land.id,
       text:
-        encounter.title + ': ' + choice.label + '. ' +
-        dice.join(' + ') + ' + ' + modifier + ' = ' + total +
-        ' vs ' + choice.roll.target + '. ' + consequence.text,
+        encounter.title +
+        ': ' +
+        choice.label +
+        '. ' +
+        dice.join(' + ') +
+        ' + ' +
+        modifier +
+        ' = ' +
+        total +
+        ' vs ' +
+        choice.roll.target +
+        '. ' +
+        consequence.text,
     },
   ]
   const layouts = { ...advanced.layouts }
@@ -187,7 +203,8 @@ export function stepFiveLandJourney(
     shifts.push(shift)
     journal.push({ turn, kind: 'shift', landId: land.id, text: reason })
   }
-  const phase = hp === 0 ? 'fallen' : remaining.length === 0 ? 'boss' : 'explore'
+  const phase =
+    hp === 0 ? 'fallen' : remaining.length === 0 ? 'boss' : 'explore'
   if (phase === 'boss')
     journal.push({
       turn,
@@ -236,21 +253,31 @@ export function stepFiveLandJourney(
 
 export function validateLaterLandContent(): string[] {
   const errors: string[] = []
-  if (LATER_LAND_PACK.schemaVersion !== 1 || LATER_LAND_PACK.encounters.length !== 36)
+  if (
+    LATER_LAND_PACK.schemaVersion !== 1 ||
+    LATER_LAND_PACK.encounters.length !== 36
+  )
     errors.push('Later-land schema/version/card count mismatch')
-  if (LATER_LAND_PACK.sources.length !== 4 ||
-    LATER_LAND_PACK.sources.some((source) =>
-      !/^[0-9a-f]{40}$/.test(source.blobSha),
-    )) errors.push('Missing pinned Conductor source sha')
+  if (
+    LATER_LAND_PACK.sources.length !== 4 ||
+    LATER_LAND_PACK.sources.some(
+      (source) => !/^[0-9a-f]{40}$/.test(source.blobSha),
+    )
+  )
+    errors.push('Missing pinned Conductor source sha')
   if (LATER_LAND_PACK.locations.length !== 12)
     errors.push('Missing later-land location pools')
   const knownLocations = new Set(
-    JOURNEY_WORLD.lands.slice(1).flatMap((land) => land.locations.map((loc) => loc.id)),
+    JOURNEY_WORLD.lands
+      .slice(1)
+      .flatMap((land) => land.locations.map((loc) => loc.id)),
   )
   const encountered = new Set<string>()
   for (const place of LATER_LAND_PACK.locations) {
-    if (!knownLocations.has(place.location_id) ||
-      place.encounter_ids.length !== 3)
+    if (
+      !knownLocations.has(place.location_id) ||
+      place.encounter_ids.length !== 3
+    )
       errors.push('Bad location pool: ' + place.location_id)
     for (const id of place.encounter_ids) {
       const card = findFiveLandCard(id)
@@ -262,16 +289,20 @@ export function validateLaterLandContent(): string[] {
   if (encountered.size !== 36)
     errors.push('Missing or repeated later-land encounter IDs')
   for (const card of LATER_LAND_PACK.encounters) {
-    if (!encountered.has(card.id) ||
+    if (
+      !encountered.has(card.id) ||
       card.art !== null ||
       card.choices.length < 2 ||
       card.flavor.length < 90 ||
-      card.choices.some((choice) =>
-        choice.id.length === 0 ||
-        choice.success.text === choice.failure.text ||
-        choice.success.text.length < 30 ||
-        choice.failure.text.length < 30,
-      )) errors.push('Invalid authored card: ' + card.id)
+      card.choices.some(
+        (choice) =>
+          choice.id.length === 0 ||
+          choice.success.text === choice.failure.text ||
+          choice.success.text.length < 30 ||
+          choice.failure.text.length < 30,
+      )
+    )
+      errors.push('Invalid authored card: ' + card.id)
   }
   return errors
 }

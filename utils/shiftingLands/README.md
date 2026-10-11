@@ -127,7 +127,7 @@ original V3 reducer and its older prototype rules for the later lands.
 V3/old-V2 saves are restored unchanged from their original localStorage
 keys; the new V4 key takes precedence if present. A V4 restore failure
 does not silently fall back to an earlier save or reroll lost decisions.
-Selecting *New journey* deliberately begins a V4 run while leaving the
+Selecting _New journey_ deliberately begins a V4 run while leaving the
 old saved data untouched. Neither rule set rescales historic dice or
 converts a prototype outcome into an authored one.
 

@@ -7,9 +7,7 @@ import {
   type JourneyLedgerAction,
   type JourneyLedger,
 } from '~/utils/shiftingLands/saveLedger'
-import {
-  activeFiveLandEncounter,
-} from '~/utils/shiftingLands/authoredFiveLands'
+import { activeFiveLandEncounter } from '~/utils/shiftingLands/authoredFiveLands'
 import {
   newJourneyLedgerV4,
   restoreJourneyLedgerV4,
@@ -136,9 +134,10 @@ export const useShiftingLandsJourneyStore = defineStore(
     }
     function dispatch(action: JourneyLedgerAction): boolean {
       if (!loaded.value) return false
-      const next = ledger.value.version === 4
-        ? stepJourneyLedgerV4(ledger.value, action)
-        : stepJourneyLedger(ledger.value, action)
+      const next =
+        ledger.value.version === 4
+          ? stepJourneyLedgerV4(ledger.value, action)
+          : stepJourneyLedger(ledger.value, action)
       if (next === ledger.value) return false
       ledger.value = next
       restoreWarning.value = false

@@ -139,18 +139,14 @@
             "text": "Zuzu anchors the rope and brings the passengers across in order, earning a packet of river cakes.",
             "hp_delta": 0,
             "provisions_delta": 1,
-            "add_flags": [
-              "lanterns-on-the-raft-1-success"
-            ],
+            "add_flags": ["lanterns-on-the-raft-1-success"],
             "map_effect": "none"
           },
           "failure": {
             "text": "The rope slips and scalds his palms; the family reaches shore, but Zuzu must cross alone in darkness.",
             "hp_delta": -1,
             "provisions_delta": 0,
-            "add_flags": [
-              "lanterns-on-the-raft-1-failure"
-            ],
+            "add_flags": ["lanterns-on-the-raft-1-failure"],
             "map_effect": "none"
           }
         },
@@ -168,18 +164,14 @@
             "text": "The ferryman explains that a submerged channel opens only when the current stills; Zuzu remembers the safer approach.",
             "hp_delta": 0,
             "provisions_delta": 0,
-            "add_flags": [
-              "lanterns-on-the-raft-2-success"
-            ],
+            "add_flags": ["lanterns-on-the-raft-2-success"],
             "map_effect": "none"
           },
           "failure": {
             "text": "The ferryman mistakes the question for mockery and pushes off, leaving Zuzu on the wrong bank.",
             "hp_delta": -1,
             "provisions_delta": 0,
-            "add_flags": [
-              "lanterns-on-the-raft-2-failure"
-            ],
+            "add_flags": ["lanterns-on-the-raft-2-failure"],
             "map_effect": "none"
           }
         }
@@ -207,18 +199,14 @@
             "text": "The registrar shows the crossed-out entries: lost crossings were recorded as debts, and she erases Zuzu's name.",
             "hp_delta": 0,
             "provisions_delta": 0,
-            "add_flags": [
-              "toll-of-two-names-1-success"
-            ],
+            "add_flags": ["toll-of-two-names-1-success"],
             "map_effect": "none"
           },
           "failure": {
             "text": "The registrar summons guards; Zuzu backs away before they can close the gate, battered by the crush.",
             "hp_delta": -2,
             "provisions_delta": 0,
-            "add_flags": [
-              "toll-of-two-names-1-failure"
-            ],
+            "add_flags": ["toll-of-two-names-1-failure"],
             "map_effect": "none"
           }
         },
@@ -236,18 +224,14 @@
             "text": "Zuzu memorizes the altered dates and slips through the line with an answer to one old disappearance.",
             "hp_delta": 0,
             "provisions_delta": 0,
-            "add_flags": [
-              "toll-of-two-names-2-success"
-            ],
+            "add_flags": ["toll-of-two-names-2-success"],
             "map_effect": "none"
           },
           "failure": {
             "text": "His sleeve catches a wax seal, alerting the guards; the crowd scatters and Zuzu loses his rations.",
             "hp_delta": -1,
             "provisions_delta": -1,
-            "add_flags": [
-              "toll-of-two-names-2-failure"
-            ],
+            "add_flags": ["toll-of-two-names-2-failure"],
             "map_effect": "none"
           }
         }
@@ -275,18 +259,14 @@
             "text": "The skiff takes the current cleanly and the boatwright gives Zuzu a reliable route through the shallows.",
             "hp_delta": 0,
             "provisions_delta": 1,
-            "add_flags": [
-              "the-boat-that-waits-1-success"
-            ],
+            "add_flags": ["the-boat-that-waits-1-success"],
             "map_effect": "none"
           },
           "failure": {
             "text": "A hidden crack splits the timber under strain, striking Zuzu's ankle as the skiff drifts away.",
             "hp_delta": -1,
             "provisions_delta": 0,
-            "add_flags": [
-              "the-boat-that-waits-1-failure"
-            ],
+            "add_flags": ["the-boat-that-waits-1-failure"],
             "map_effect": "none"
           }
         },
@@ -304,18 +284,14 @@
             "text": "The absent owner's sister arrives and offers testimony about the missing river patrol instead of a fare.",
             "hp_delta": 0,
             "provisions_delta": 0,
-            "add_flags": [
-              "the-boat-that-waits-2-success"
-            ],
+            "add_flags": ["the-boat-that-waits-2-success"],
             "map_effect": "none"
           },
           "failure": {
             "text": "Night falls without an answer; Zuzu's vigil costs a meal and reveals only a second unused rope.",
             "hp_delta": 0,
             "provisions_delta": -1,
-            "add_flags": [
-              "the-boat-that-waits-2-failure"
-            ],
+            "add_flags": ["the-boat-that-waits-2-failure"],
             "map_effect": "none"
           }
         }
@@ -343,18 +319,14 @@
             "text": "Zuzu finds a stone hidden inside the brass weight; the merchant restores the fair measure to everyone.",
             "hp_delta": 0,
             "provisions_delta": 1,
-            "add_flags": [
-              "weighed-in-salt-1-success"
-            ],
+            "add_flags": ["weighed-in-salt-1-success"],
             "map_effect": "none"
           },
           "failure": {
             "text": "The merchant's hired hands throw Zuzu into a stack of crates before the cheating can be proved.",
             "hp_delta": -1,
             "provisions_delta": 0,
-            "add_flags": [
-              "weighed-in-salt-1-failure"
-            ],
+            "add_flags": ["weighed-in-salt-1-failure"],
             "map_effect": "none"
           }
         },
@@ -372,18 +344,14 @@
             "text": "A calm bargain earns a sealed crossing voucher without surrendering the last provisions.",
             "hp_delta": 0,
             "provisions_delta": 0,
-            "add_flags": [
-              "weighed-in-salt-2-success"
-            ],
+            "add_flags": ["weighed-in-salt-2-success"],
             "map_effect": "none"
           },
           "failure": {
             "text": "The merchant takes a double measure and leaves Zuzu short of food for the coming trail.",
             "hp_delta": 0,
             "provisions_delta": -1,
-            "add_flags": [
-              "weighed-in-salt-2-failure"
-            ],
+            "add_flags": ["weighed-in-salt-2-failure"],
             "map_effect": "none"
           }
         }
@@ -411,18 +379,14 @@
             "text": "The erased riverbend lines up with a surviving stone marker, giving Zuzu a safer trail.",
             "hp_delta": 0,
             "provisions_delta": 1,
-            "add_flags": [
-              "the-mended-compass-1-success"
-            ],
+            "add_flags": ["the-mended-compass-1-success"],
             "map_effect": "none"
           },
           "failure": {
             "text": "Zuzu trusts the neat chart, only to discover its bridge washed away; the detour costs daylight and strength.",
             "hp_delta": -1,
             "provisions_delta": 0,
-            "add_flags": [
-              "the-mended-compass-1-failure"
-            ],
+            "add_flags": ["the-mended-compass-1-failure"],
             "map_effect": "none"
           }
         },
@@ -440,18 +404,14 @@
             "text": "The needle steadies, and the cartographer shares a packet of trail markers with her thanks.",
             "hp_delta": 0,
             "provisions_delta": 0,
-            "add_flags": [
-              "the-mended-compass-2-success"
-            ],
+            "add_flags": ["the-mended-compass-2-success"],
             "map_effect": "none"
           },
           "failure": {
             "text": "A magnet hidden in the table skews the reading; Zuzu leaves with an unreliable bearing.",
             "hp_delta": 0,
             "provisions_delta": -1,
-            "add_flags": [
-              "the-mended-compass-2-failure"
-            ],
+            "add_flags": ["the-mended-compass-2-failure"],
             "map_effect": "none"
           }
         }
@@ -479,18 +439,14 @@
             "text": "The cook reveals an honest back route and sends Zuzu onward with bread wrapped in cloth.",
             "hp_delta": 0,
             "provisions_delta": 1,
-            "add_flags": [
-              "three-cups-on-the-table-1-success"
-            ],
+            "add_flags": ["three-cups-on-the-table-1-success"],
             "map_effect": "none"
           },
           "failure": {
             "text": "The armed patrons take offense and overturn the table, leaving a bruised Zuzu to gather the scraps.",
             "hp_delta": -1,
             "provisions_delta": 0,
-            "add_flags": [
-              "three-cups-on-the-table-1-failure"
-            ],
+            "add_flags": ["three-cups-on-the-table-1-failure"],
             "map_effect": "none"
           }
         },
@@ -508,18 +464,14 @@
             "text": "Their account of a vanished caravan contradicts the cook's, exposing a false checkpoint downriver.",
             "hp_delta": 0,
             "provisions_delta": 0,
-            "add_flags": [
-              "three-cups-on-the-table-2-success"
-            ],
+            "add_flags": ["three-cups-on-the-table-2-success"],
             "map_effect": "none"
           },
           "failure": {
             "text": "A patron spits a warning and draws a knife; Zuzu escapes but loses precious time.",
             "hp_delta": -1,
             "provisions_delta": 0,
-            "add_flags": [
-              "three-cups-on-the-table-2-failure"
-            ],
+            "add_flags": ["three-cups-on-the-table-2-failure"],
             "map_effect": "none"
           }
         }
@@ -547,18 +499,14 @@
             "text": "The prints lead to a concealed spillway, and Zuzu marks the safe stone route before the water returns.",
             "hp_delta": 0,
             "provisions_delta": 0,
-            "add_flags": [
-              "footprints-in-the-silt-1-success"
-            ],
+            "add_flags": ["footprints-in-the-silt-1-success"],
             "map_effect": "recorded-prospective-shift"
           },
           "failure": {
             "text": "The ground gives way under a salt crust; Zuzu claws clear with a scraped shoulder.",
             "hp_delta": -2,
             "provisions_delta": 0,
-            "add_flags": [
-              "footprints-in-the-silt-1-failure"
-            ],
+            "add_flags": ["footprints-in-the-silt-1-failure"],
             "map_effect": "none"
           }
         },
@@ -576,18 +524,14 @@
             "text": "Together they anchor the stakes, and the surveyor shares a water skin and a practical warning.",
             "hp_delta": 0,
             "provisions_delta": 1,
-            "add_flags": [
-              "footprints-in-the-silt-2-success"
-            ],
+            "add_flags": ["footprints-in-the-silt-2-success"],
             "map_effect": "none"
           },
           "failure": {
             "text": "A sudden current tears away the rope; the tools are lost and Zuzu leaves soaked and aching.",
             "hp_delta": -1,
             "provisions_delta": 0,
-            "add_flags": [
-              "footprints-in-the-silt-2-failure"
-            ],
+            "add_flags": ["footprints-in-the-silt-2-failure"],
             "map_effect": "none"
           }
         }
@@ -615,18 +559,14 @@
             "text": "Zuzu finds stable braces beneath the bleached beams and reaches the opposite bank before dusk.",
             "hp_delta": 0,
             "provisions_delta": 0,
-            "add_flags": [
-              "a-road-of-bones-1-success"
-            ],
+            "add_flags": ["a-road-of-bones-1-success"],
             "map_effect": "none"
           },
           "failure": {
             "text": "A rotten beam splits; his fall leaves him bruised and forces a longer approach through the salt flats.",
             "hp_delta": -2,
             "provisions_delta": 0,
-            "add_flags": [
-              "a-road-of-bones-1-failure"
-            ],
+            "add_flags": ["a-road-of-bones-1-failure"],
             "map_effect": "none"
           }
         },
@@ -644,18 +584,14 @@
             "text": "The guide admits which sections she reinforced and leads Zuzu safely across for a modest exchange.",
             "hp_delta": 0,
             "provisions_delta": -1,
-            "add_flags": [
-              "a-road-of-bones-2-success"
-            ],
+            "add_flags": ["a-road-of-bones-2-success"],
             "map_effect": "none"
           },
           "failure": {
             "text": "She vanishes with the advance provisions, leaving Zuzu to find his own difficult route.",
             "hp_delta": -1,
             "provisions_delta": -1,
-            "add_flags": [
-              "a-road-of-bones-2-failure"
-            ],
+            "add_flags": ["a-road-of-bones-2-failure"],
             "map_effect": "none"
           }
         }
@@ -683,18 +619,14 @@
             "text": "Zuzu hears water beneath the sand and finds a shallow drinking pool beyond the musician's stone.",
             "hp_delta": 0,
             "provisions_delta": 1,
-            "add_flags": [
-              "the-reed-music-1-success"
-            ],
+            "add_flags": ["the-reed-music-1-success"],
             "map_effect": "none"
           },
           "failure": {
             "text": "The rising wind drowns the warning notes; he wanders into a gritty gust that steals his breath.",
             "hp_delta": -1,
             "provisions_delta": 0,
-            "add_flags": [
-              "the-reed-music-1-failure"
-            ],
+            "add_flags": ["the-reed-music-1-failure"],
             "map_effect": "none"
           }
         },
@@ -712,18 +644,14 @@
             "text": "The musician answers with a second melody and shows a path that avoids the worst of the crossing.",
             "hp_delta": 0,
             "provisions_delta": 0,
-            "add_flags": [
-              "the-reed-music-2-success"
-            ],
+            "add_flags": ["the-reed-music-2-success"],
             "map_effect": "none"
           },
           "failure": {
             "text": "The song attracts a patrol; Zuzu is forced to hide until the heat drains his remaining strength.",
             "hp_delta": -1,
             "provisions_delta": 0,
-            "add_flags": [
-              "the-reed-music-2-failure"
-            ],
+            "add_flags": ["the-reed-music-2-failure"],
             "map_effect": "none"
           }
         }
@@ -751,18 +679,14 @@
             "text": "Zuzu wedges a support beneath the cracked shelf and earns a safe passage and a mason's flask.",
             "hp_delta": 0,
             "provisions_delta": 1,
-            "add_flags": [
-              "hammer-under-the-stone-1-success"
-            ],
+            "add_flags": ["hammer-under-the-stone-1-success"],
             "map_effect": "none"
           },
           "failure": {
             "text": "The stone slips before the brace holds, bruising Zuzu's ribs and burying the easy road.",
             "hp_delta": -2,
             "provisions_delta": 0,
-            "add_flags": [
-              "hammer-under-the-stone-1-failure"
-            ],
+            "add_flags": ["hammer-under-the-stone-1-failure"],
             "map_effect": "none"
           }
         },
@@ -780,18 +704,14 @@
             "text": "Chisel marks point toward a hidden side tunnel, revealing that the recent work was deliberate.",
             "hp_delta": 0,
             "provisions_delta": 0,
-            "add_flags": [
-              "hammer-under-the-stone-2-success"
-            ],
+            "add_flags": ["hammer-under-the-stone-2-success"],
             "map_effect": "none"
           },
           "failure": {
             "text": "Loose shale gives away Zuzu's position to unseen miners, forcing a painful retreat.",
             "hp_delta": -1,
             "provisions_delta": 0,
-            "add_flags": [
-              "hammer-under-the-stone-2-failure"
-            ],
+            "add_flags": ["hammer-under-the-stone-2-failure"],
             "map_effect": "none"
           }
         }
@@ -819,18 +739,14 @@
             "text": "The accountant relents and shows Zuzu the tunnel where the missing workers last reported.",
             "hp_delta": 0,
             "provisions_delta": 0,
-            "add_flags": [
-              "the-empty-pay-cart-1-success"
-            ],
+            "add_flags": ["the-empty-pay-cart-1-success"],
             "map_effect": "none"
           },
           "failure": {
             "text": "The accountant signals unseen guards; Zuzu escapes through falling stone at the cost of strength.",
             "hp_delta": -2,
             "provisions_delta": 0,
-            "add_flags": [
-              "the-empty-pay-cart-1-failure"
-            ],
+            "add_flags": ["the-empty-pay-cart-1-failure"],
             "map_effect": "none"
           }
         },
@@ -848,18 +764,14 @@
             "text": "Surviving workers gather, recognize their names, and reclaim the cart and its supplies.",
             "hp_delta": 0,
             "provisions_delta": 1,
-            "add_flags": [
-              "the-empty-pay-cart-2-success"
-            ],
+            "add_flags": ["the-empty-pay-cart-2-success"],
             "map_effect": "none"
           },
           "failure": {
             "text": "The ledger is snatched away and Zuzu is driven into a narrow, dangerous cut.",
             "hp_delta": -1,
             "provisions_delta": 0,
-            "add_flags": [
-              "the-empty-pay-cart-2-failure"
-            ],
+            "add_flags": ["the-empty-pay-cart-2-failure"],
             "map_effect": "none"
           }
         }
@@ -887,18 +799,14 @@
             "text": "Zuzu eases a blunt shard free, and the collector marks a sheltered exit in gratitude.",
             "hp_delta": 0,
             "provisions_delta": 1,
-            "add_flags": [
-              "the-glass-vein-1-success"
-            ],
+            "add_flags": ["the-glass-vein-1-success"],
             "map_effect": "none"
           },
           "failure": {
             "text": "The brittle seam fractures; shards scatter against Zuzu's forearms before he can withdraw.",
             "hp_delta": -1,
             "provisions_delta": 0,
-            "add_flags": [
-              "the-glass-vein-1-failure"
-            ],
+            "add_flags": ["the-glass-vein-1-failure"],
             "map_effect": "none"
           }
         },
@@ -916,18 +824,14 @@
             "text": "They move the tray without breaking a piece and share a meal beyond the quarry rim.",
             "hp_delta": 0,
             "provisions_delta": 1,
-            "add_flags": [
-              "the-glass-vein-2-success"
-            ],
+            "add_flags": ["the-glass-vein-2-success"],
             "map_effect": "none"
           },
           "failure": {
             "text": "A strap snaps on the climb, leaving Zuzu sore from saving the heavy tray.",
             "hp_delta": -1,
             "provisions_delta": 0,
-            "add_flags": [
-              "the-glass-vein-2-failure"
-            ],
+            "add_flags": ["the-glass-vein-2-failure"],
             "map_effect": "none"
           }
         }
@@ -955,18 +859,14 @@
             "text": "The caravan heeds Zuzu, and the scout leads everyone around the crumbling shelf.",
             "hp_delta": 0,
             "provisions_delta": 0,
-            "add_flags": [
-              "the-watchful-overhang-1-success"
-            ],
+            "add_flags": ["the-watchful-overhang-1-success"],
             "map_effect": "none"
           },
           "failure": {
             "text": "His warning comes too late; flying gravel bruises him as he shields the last traveler.",
             "hp_delta": -2,
             "provisions_delta": 0,
-            "add_flags": [
-              "the-watchful-overhang-1-failure"
-            ],
+            "add_flags": ["the-watchful-overhang-1-failure"],
             "map_effect": "none"
           }
         },
@@ -984,18 +884,14 @@
             "text": "Zuzu spots the hollow stone beneath the path and marks each safe foothold for those behind.",
             "hp_delta": 0,
             "provisions_delta": 0,
-            "add_flags": [
-              "the-watchful-overhang-2-success"
-            ],
+            "add_flags": ["the-watchful-overhang-2-success"],
             "map_effect": "recorded-prospective-shift"
           },
           "failure": {
             "text": "A loose slab pitches him toward the ravine; the rope catches him but tears his hands.",
             "hp_delta": -2,
             "provisions_delta": 0,
-            "add_flags": [
-              "the-watchful-overhang-2-failure"
-            ],
+            "add_flags": ["the-watchful-overhang-2-failure"],
             "map_effect": "none"
           }
         }
@@ -1023,18 +919,14 @@
             "text": "The knots describe an alternate bridge, and the captain shares her last trail ration.",
             "hp_delta": 0,
             "provisions_delta": 1,
-            "add_flags": [
-              "the-banner-in-the-wind-1-success"
-            ],
+            "add_flags": ["the-banner-in-the-wind-1-success"],
             "map_effect": "none"
           },
           "failure": {
             "text": "The wind twists the fabric into nonsense and Zuzu takes a long, exhausting detour.",
             "hp_delta": -1,
             "provisions_delta": 0,
-            "add_flags": [
-              "the-banner-in-the-wind-1-failure"
-            ],
+            "add_flags": ["the-banner-in-the-wind-1-failure"],
             "map_effect": "none"
           }
         },
@@ -1052,18 +944,14 @@
             "text": "Zuzu finds the missing courier alive beneath the span and helps her climb to safety.",
             "hp_delta": 0,
             "provisions_delta": 0,
-            "add_flags": [
-              "the-banner-in-the-wind-2-success"
-            ],
+            "add_flags": ["the-banner-in-the-wind-2-success"],
             "map_effect": "none"
           },
           "failure": {
             "text": "A false foothold sends Zuzu sliding into a thicket of thorns above the riverbed.",
             "hp_delta": -2,
             "provisions_delta": 0,
-            "add_flags": [
-              "the-banner-in-the-wind-2-failure"
-            ],
+            "add_flags": ["the-banner-in-the-wind-2-failure"],
             "map_effect": "none"
           }
         }
@@ -1091,18 +979,14 @@
             "text": "Zuzu cuts the rope without striking her, and the shaken enforcer abandons the extortion.",
             "hp_delta": 0,
             "provisions_delta": 0,
-            "add_flags": [
-              "the-toll-without-a-keeper-1-success"
-            ],
+            "add_flags": ["the-toll-without-a-keeper-1-success"],
             "map_effect": "none"
           },
           "failure": {
             "text": "The enforcer's hidden partner catches Zuzu off guard, and he retreats bruised.",
             "hp_delta": -2,
             "provisions_delta": 0,
-            "add_flags": [
-              "the-toll-without-a-keeper-1-failure"
-            ],
+            "add_flags": ["the-toll-without-a-keeper-1-failure"],
             "map_effect": "none"
           }
         },
@@ -1120,18 +1004,14 @@
             "text": "She accepts provisions for a reliable warning about the trail ahead and lets the party pass.",
             "hp_delta": 0,
             "provisions_delta": -1,
-            "add_flags": [
-              "the-toll-without-a-keeper-2-success"
-            ],
+            "add_flags": ["the-toll-without-a-keeper-2-success"],
             "map_effect": "none"
           },
           "failure": {
             "text": "She takes the payment and sends Zuzu toward a dead-end ledge.",
             "hp_delta": -1,
             "provisions_delta": -1,
-            "add_flags": [
-              "the-toll-without-a-keeper-2-failure"
-            ],
+            "add_flags": ["the-toll-without-a-keeper-2-failure"],
             "map_effect": "none"
           }
         }
@@ -1159,18 +1039,14 @@
             "text": "Zuzu notices the missing traveler left by choice, and the host shares a quiet meal and the safer road.",
             "hp_delta": 0,
             "provisions_delta": 1,
-            "add_flags": [
-              "one-place-by-the-fire-1-success"
-            ],
+            "add_flags": ["one-place-by-the-fire-1-success"],
             "map_effect": "none"
           },
           "failure": {
             "text": "An argument erupts over the unspoken rule, and Zuzu loses sleep keeping watch.",
             "hp_delta": -1,
             "provisions_delta": 0,
-            "add_flags": [
-              "one-place-by-the-fire-1-failure"
-            ],
+            "add_flags": ["one-place-by-the-fire-1-failure"],
             "map_effect": "none"
           }
         },
@@ -1188,18 +1064,14 @@
             "text": "The host tells the truth about a vanished guide and gives Zuzu a route around the gorge.",
             "hp_delta": 0,
             "provisions_delta": 0,
-            "add_flags": [
-              "one-place-by-the-fire-2-success"
-            ],
+            "add_flags": ["one-place-by-the-fire-2-success"],
             "map_effect": "none"
           },
           "failure": {
             "text": "The question divides the camp; Zuzu leaves hungry under hostile stares.",
             "hp_delta": 0,
             "provisions_delta": -1,
-            "add_flags": [
-              "one-place-by-the-fire-2-failure"
-            ],
+            "add_flags": ["one-place-by-the-fire-2-failure"],
             "map_effect": "none"
           }
         }
@@ -1227,18 +1099,14 @@
             "text": "Zuzu lifts the fragment intact and learns which canyon path was deliberately mislabeled.",
             "hp_delta": 0,
             "provisions_delta": 0,
-            "add_flags": [
-              "the-map-in-ashes-1-success"
-            ],
+            "add_flags": ["the-map-in-ashes-1-success"],
             "map_effect": "none"
           },
           "failure": {
             "text": "Hot embers burn his wrist, and the important corner collapses into ash.",
             "hp_delta": -1,
             "provisions_delta": 0,
-            "add_flags": [
-              "the-map-in-ashes-1-failure"
-            ],
+            "add_flags": ["the-map-in-ashes-1-failure"],
             "map_effect": "none"
           }
         },
@@ -1256,18 +1124,14 @@
             "text": "The archivist admits her fear and shares an untouched chart with the safe camp marked.",
             "hp_delta": 0,
             "provisions_delta": 1,
-            "add_flags": [
-              "the-map-in-ashes-2-success"
-            ],
+            "add_flags": ["the-map-in-ashes-2-success"],
             "map_effect": "none"
           },
           "failure": {
             "text": "She refuses and throws the rest into the fire, leaving Zuzu without guidance.",
             "hp_delta": 0,
             "provisions_delta": 0,
-            "add_flags": [
-              "the-map-in-ashes-2-failure"
-            ],
+            "add_flags": ["the-map-in-ashes-2-failure"],
             "map_effect": "none"
           }
         }
@@ -1295,18 +1159,14 @@
             "text": "Zuzu catches a creeping thief before the supplies vanish and earns the sentry's respect.",
             "hp_delta": 0,
             "provisions_delta": 1,
-            "add_flags": [
-              "the-night-watch-debt-1-success"
-            ],
+            "add_flags": ["the-night-watch-debt-1-success"],
             "map_effect": "none"
           },
           "failure": {
             "text": "Exhaustion blurs the darkness; thieves steal the camp's food while Zuzu fights to stay upright.",
             "hp_delta": -1,
             "provisions_delta": -1,
-            "add_flags": [
-              "the-night-watch-debt-1-failure"
-            ],
+            "add_flags": ["the-night-watch-debt-1-failure"],
             "map_effect": "none"
           }
         },
@@ -1324,18 +1184,14 @@
             "text": "The tracks reveal a harmless lost pilgrim, whom Zuzu guides back before panic spreads.",
             "hp_delta": 0,
             "provisions_delta": 0,
-            "add_flags": [
-              "the-night-watch-debt-2-success"
-            ],
+            "add_flags": ["the-night-watch-debt-2-success"],
             "map_effect": "none"
           },
           "failure": {
             "text": "Zuzu mistakes echoes for steps, wandering into a cold gully until morning.",
             "hp_delta": -1,
             "provisions_delta": 0,
-            "add_flags": [
-              "the-night-watch-debt-2-failure"
-            ],
+            "add_flags": ["the-night-watch-debt-2-failure"],
             "map_effect": "none"
           }
         }
@@ -1363,18 +1219,14 @@
             "text": "The storm-reader accepts Zuzu's name and gives him a chalk sign for a safe entrance.",
             "hp_delta": 0,
             "provisions_delta": 0,
-            "add_flags": [
-              "feathers-in-the-draft-1-success"
-            ],
+            "add_flags": ["feathers-in-the-draft-1-success"],
             "map_effect": "none"
           },
           "failure": {
             "text": "His answer echoes from three passages at once, drawing him into a cold pocket where he loses strength.",
             "hp_delta": -1,
             "provisions_delta": 0,
-            "add_flags": [
-              "feathers-in-the-draft-1-failure"
-            ],
+            "add_flags": ["feathers-in-the-draft-1-failure"],
             "map_effect": "none"
           }
         },
@@ -1392,18 +1244,14 @@
             "text": "Zuzu locates a narrow vent that explains the echo and marks a practical route below.",
             "hp_delta": 0,
             "provisions_delta": 0,
-            "add_flags": [
-              "feathers-in-the-draft-2-success"
-            ],
+            "add_flags": ["feathers-in-the-draft-2-success"],
             "map_effect": "none"
           },
           "failure": {
             "text": "The draft blows out his lantern, and sharp stone punishes his hurried descent.",
             "hp_delta": -2,
             "provisions_delta": 0,
-            "add_flags": [
-              "feathers-in-the-draft-2-failure"
-            ],
+            "add_flags": ["feathers-in-the-draft-2-failure"],
             "map_effect": "none"
           }
         }
@@ -1431,18 +1279,14 @@
             "text": "Zuzu finds the hidden third lamp and exposes a staged ambush without drawing his blade.",
             "hp_delta": 0,
             "provisions_delta": 0,
-            "add_flags": [
-              "the-third-shadow-1-success"
-            ],
+            "add_flags": ["the-third-shadow-1-success"],
             "map_effect": "none"
           },
           "failure": {
             "text": "He looks toward the wrong shadow, and a trapper's cord cuts his shoulder as he escapes.",
             "hp_delta": -2,
             "provisions_delta": 0,
-            "add_flags": [
-              "the-third-shadow-1-failure"
-            ],
+            "add_flags": ["the-third-shadow-1-failure"],
             "map_effect": "none"
           }
         },
@@ -1460,18 +1304,14 @@
             "text": "The guide abandons the trick and reveals a genuine lower corridor in exchange for mercy.",
             "hp_delta": 0,
             "provisions_delta": 0,
-            "add_flags": [
-              "the-third-shadow-2-success"
-            ],
+            "add_flags": ["the-third-shadow-2-success"],
             "map_effect": "none"
           },
           "failure": {
             "text": "Her accomplices block the gate; Zuzu fights free and loses his spare food.",
             "hp_delta": -1,
             "provisions_delta": -1,
-            "add_flags": [
-              "the-third-shadow-2-failure"
-            ],
+            "add_flags": ["the-third-shadow-2-failure"],
             "map_effect": "none"
           }
         }
@@ -1499,18 +1339,14 @@
             "text": "Zuzu bears the chest into shelter and receives a bandage and a careful map of the dry passage.",
             "hp_delta": 0,
             "provisions_delta": 1,
-            "add_flags": [
-              "shelter-for-the-storm-1-success"
-            ],
+            "add_flags": ["shelter-for-the-storm-1-success"],
             "map_effect": "none"
           },
           "failure": {
             "text": "The chest slips on wet stone, bruising his knee before he can lift it again.",
             "hp_delta": -1,
             "provisions_delta": 0,
-            "add_flags": [
-              "shelter-for-the-storm-1-failure"
-            ],
+            "add_flags": ["shelter-for-the-storm-1-failure"],
             "map_effect": "none"
           }
         },
@@ -1528,18 +1364,14 @@
             "text": "The travelers follow his calm directions into shelter and share provisions in thanks.",
             "hp_delta": 0,
             "provisions_delta": 1,
-            "add_flags": [
-              "shelter-for-the-storm-2-success"
-            ],
+            "add_flags": ["shelter-for-the-storm-2-success"],
             "map_effect": "none"
           },
           "failure": {
             "text": "Panic scatters the group; Zuzu spends a cold hour searching the slope and loses a meal.",
             "hp_delta": 0,
             "provisions_delta": -1,
-            "add_flags": [
-              "shelter-for-the-storm-2-failure"
-            ],
+            "add_flags": ["shelter-for-the-storm-2-failure"],
             "map_effect": "none"
           }
         }
@@ -1567,18 +1399,14 @@
             "text": "Zuzu notices an identical tear in the pouch and one miner's sleeve, securing a fair division.",
             "hp_delta": 0,
             "provisions_delta": 0,
-            "add_flags": [
-              "the-candle-court-1-success"
-            ],
+            "add_flags": ["the-candle-court-1-success"],
             "map_effect": "none"
           },
           "failure": {
             "text": "He mistakes rehearsed testimony for fact and earns the wrath of the wronged miner.",
             "hp_delta": -1,
             "provisions_delta": 0,
-            "add_flags": [
-              "the-candle-court-1-failure"
-            ],
+            "add_flags": ["the-candle-court-1-failure"],
             "map_effect": "none"
           }
         },
@@ -1596,18 +1424,14 @@
             "text": "Both miners accept a witnessed bargain, and the adjudicator grants passage without a debt.",
             "hp_delta": 0,
             "provisions_delta": 0,
-            "add_flags": [
-              "the-candle-court-2-success"
-            ],
+            "add_flags": ["the-candle-court-2-success"],
             "map_effect": "none"
           },
           "failure": {
             "text": "The miners refuse compromise and the hearing drags through the night, costing Zuzu food.",
             "hp_delta": 0,
             "provisions_delta": -1,
-            "add_flags": [
-              "the-candle-court-2-failure"
-            ],
+            "add_flags": ["the-candle-court-2-failure"],
             "map_effect": "none"
           }
         }
@@ -1635,18 +1459,14 @@
             "text": "Zuzu opens the vent without disturbing the seal, and the mason offers a useful route onward.",
             "hp_delta": 0,
             "provisions_delta": 1,
-            "add_flags": [
-              "salt-on-the-threshold-1-success"
-            ],
+            "add_flags": ["salt-on-the-threshold-1-success"],
             "map_effect": "none"
           },
           "failure": {
             "text": "The seal breaks under the chisel, filling the room with stinging dust before he can withdraw.",
             "hp_delta": -2,
             "provisions_delta": 0,
-            "add_flags": [
-              "salt-on-the-threshold-1-failure"
-            ],
+            "add_flags": ["salt-on-the-threshold-1-failure"],
             "map_effect": "none"
           }
         },
@@ -1664,18 +1484,14 @@
             "text": "A faint mineral odor confirms the warning, and Zuzu finds a clean bypass along the upper shelf.",
             "hp_delta": 0,
             "provisions_delta": 0,
-            "add_flags": [
-              "salt-on-the-threshold-2-success"
-            ],
+            "add_flags": ["salt-on-the-threshold-2-success"],
             "map_effect": "none"
           },
           "failure": {
             "text": "His test is too slow and the chalked passage floods with dust, leaving him coughing.",
             "hp_delta": -1,
             "provisions_delta": 0,
-            "add_flags": [
-              "salt-on-the-threshold-2-failure"
-            ],
+            "add_flags": ["salt-on-the-threshold-2-failure"],
             "map_effect": "none"
           }
         }
@@ -1703,18 +1519,14 @@
             "text": "Zuzu steadies the guardian long enough for him to remember who bound the charm and open the safe way.",
             "hp_delta": 0,
             "provisions_delta": 0,
-            "add_flags": [
-              "the-forgotten-pledge-1-success"
-            ],
+            "add_flags": ["the-forgotten-pledge-1-success"],
             "map_effect": "none"
           },
           "failure": {
             "text": "The binding surges through the chamber; Zuzu survives the guardian's involuntary blow but limps onward.",
             "hp_delta": -2,
             "provisions_delta": 0,
-            "add_flags": [
-              "the-forgotten-pledge-1-failure"
-            ],
+            "add_flags": ["the-forgotten-pledge-1-failure"],
             "map_effect": "none"
           }
         },
@@ -1732,18 +1544,14 @@
             "text": "Zuzu spots a removable fastening and frees the guardian without demanding payment.",
             "hp_delta": 0,
             "provisions_delta": 0,
-            "add_flags": [
-              "the-forgotten-pledge-2-success"
-            ],
+            "add_flags": ["the-forgotten-pledge-2-success"],
             "map_effect": "none"
           },
           "failure": {
             "text": "A false clasp snaps shut, and Zuzu takes a painful shock before breaking away.",
             "hp_delta": -2,
             "provisions_delta": 0,
-            "add_flags": [
-              "the-forgotten-pledge-2-failure"
-            ],
+            "add_flags": ["the-forgotten-pledge-2-failure"],
             "map_effect": "none"
           }
         }
@@ -1771,18 +1579,14 @@
             "text": "Zuzu identifies the stable arch by its old fracture and records the new arrangement for return.",
             "hp_delta": 0,
             "provisions_delta": 0,
-            "add_flags": [
-              "three-doors-no-hinges-1-success"
-            ],
+            "add_flags": ["three-doors-no-hinges-1-success"],
             "map_effect": "recorded-prospective-shift"
           },
           "failure": {
             "text": "The chain snags beneath a moving slab, and Zuzu escapes the narrowing corridor with bruises.",
             "hp_delta": -2,
             "provisions_delta": 0,
-            "add_flags": [
-              "three-doors-no-hinges-1-failure"
-            ],
+            "add_flags": ["three-doors-no-hinges-1-failure"],
             "map_effect": "none"
           }
         },
@@ -1800,18 +1604,14 @@
             "text": "The architect sends a novice with Zuzu, ensuring neither can later deny which passage was chosen.",
             "hp_delta": 0,
             "provisions_delta": 0,
-            "add_flags": [
-              "three-doors-no-hinges-2-success"
-            ],
+            "add_flags": ["three-doors-no-hinges-2-success"],
             "map_effect": "none"
           },
           "failure": {
             "text": "Her apprentice refuses; Zuzu must choose alone and sacrifices a night's rest to the maze.",
             "hp_delta": -1,
             "provisions_delta": 0,
-            "add_flags": [
-              "three-doors-no-hinges-2-failure"
-            ],
+            "add_flags": ["three-doors-no-hinges-2-failure"],
             "map_effect": "none"
           }
         }
@@ -1839,18 +1639,14 @@
             "text": "Zuzu finds the thin rock at the real source and leads the courier into open air.",
             "hp_delta": 0,
             "provisions_delta": 0,
-            "add_flags": [
-              "voices-across-the-rock-1-success"
-            ],
+            "add_flags": ["voices-across-the-rock-1-success"],
             "map_effect": "none"
           },
           "failure": {
             "text": "The false echo draws him into falling grit and leaves him with a painful scrape.",
             "hp_delta": -1,
             "provisions_delta": 0,
-            "add_flags": [
-              "voices-across-the-rock-1-failure"
-            ],
+            "add_flags": ["voices-across-the-rock-1-failure"],
             "map_effect": "none"
           }
         },
@@ -1868,18 +1664,14 @@
             "text": "The courier follows deliberate taps through the branching corridors and shares a spare meal.",
             "hp_delta": 0,
             "provisions_delta": 1,
-            "add_flags": [
-              "voices-across-the-rock-2-success"
-            ],
+            "add_flags": ["voices-across-the-rock-2-success"],
             "map_effect": "none"
           },
           "failure": {
             "text": "The signal is drowned by thunder, and Zuzu spends his provisions keeping the search alive.",
             "hp_delta": 0,
             "provisions_delta": -1,
-            "add_flags": [
-              "voices-across-the-rock-2-failure"
-            ],
+            "add_flags": ["voices-across-the-rock-2-failure"],
             "map_effect": "none"
           }
         }
@@ -1907,18 +1699,14 @@
             "text": "Zuzu braces the flask in a leather cradle; the pilgrim recovers and points out an unguarded tunnel.",
             "hp_delta": 0,
             "provisions_delta": 0,
-            "add_flags": [
-              "the-red-vial-1-success"
-            ],
+            "add_flags": ["the-red-vial-1-success"],
             "map_effect": "none"
           },
           "failure": {
             "text": "The vial nearly shatters, and the pilgrim shoves Zuzu away in panicked self-defense.",
             "hp_delta": -2,
             "provisions_delta": 0,
-            "add_flags": [
-              "the-red-vial-1-failure"
-            ],
+            "add_flags": ["the-red-vial-1-failure"],
             "map_effect": "none"
           }
         },
@@ -1936,18 +1724,14 @@
             "text": "Zuzu recognizes a practical counter-sign among the scratches and gives the pilgrim a safer ritual to attempt.",
             "hp_delta": 0,
             "provisions_delta": 0,
-            "add_flags": [
-              "the-red-vial-2-success"
-            ],
+            "add_flags": ["the-red-vial-2-success"],
             "map_effect": "none"
           },
           "failure": {
             "text": "The pilgrim mistakes the question for an accusation, and the encounter ends in a desperate struggle.",
             "hp_delta": -2,
             "provisions_delta": 0,
-            "add_flags": [
-              "the-red-vial-2-failure"
-            ],
+            "add_flags": ["the-red-vial-2-failure"],
             "map_effect": "none"
           }
         }
@@ -1975,18 +1759,14 @@
             "text": "Zuzu traces a safe detour and signals the caravan before the fissure opens.",
             "hp_delta": 0,
             "provisions_delta": 0,
-            "add_flags": [
-              "the-cooling-stones-1-success"
-            ],
+            "add_flags": ["the-cooling-stones-1-success"],
             "map_effect": "recorded-prospective-shift"
           },
           "failure": {
             "text": "The road parts beneath his boots and cuts his leg before he can retreat.",
             "hp_delta": -2,
             "provisions_delta": 0,
-            "add_flags": [
-              "the-cooling-stones-1-failure"
-            ],
+            "add_flags": ["the-cooling-stones-1-failure"],
             "map_effect": "none"
           }
         },
@@ -2004,18 +1784,14 @@
             "text": "Together they place sturdy slabs over the gap and share water in the renewed shade.",
             "hp_delta": 0,
             "provisions_delta": 1,
-            "add_flags": [
-              "the-cooling-stones-2-success"
-            ],
+            "add_flags": ["the-cooling-stones-2-success"],
             "map_effect": "none"
           },
           "failure": {
             "text": "The slabs shift under their weight, forcing a painful climb and wasting the day's supplies.",
             "hp_delta": -2,
             "provisions_delta": -1,
-            "add_flags": [
-              "the-cooling-stones-2-failure"
-            ],
+            "add_flags": ["the-cooling-stones-2-failure"],
             "map_effect": "none"
           }
         }
@@ -2043,18 +1819,14 @@
             "text": "Zuzu finds a map reference among the letters, not an answer to the world's older mysteries.",
             "hp_delta": 0,
             "provisions_delta": 0,
-            "add_flags": [
-              "mirror-in-the-ash-1-success"
-            ],
+            "add_flags": ["mirror-in-the-ash-1-success"],
             "map_effect": "none"
           },
           "failure": {
             "text": "Wind tears the letters apart before Zuzu can put them in order, leaving him exposed on the ridge.",
             "hp_delta": -1,
             "provisions_delta": 0,
-            "add_flags": [
-              "mirror-in-the-ash-1-failure"
-            ],
+            "add_flags": ["mirror-in-the-ash-1-failure"],
             "map_effect": "none"
           }
         },
@@ -2072,18 +1844,14 @@
             "text": "The scavenger accepts his honest recollection and points out a sheltered route past the ruins.",
             "hp_delta": 0,
             "provisions_delta": 0,
-            "add_flags": [
-              "mirror-in-the-ash-2-success"
-            ],
+            "add_flags": ["mirror-in-the-ash-2-success"],
             "map_effect": "none"
           },
           "failure": {
             "text": "The exchange shakes him with grief and distraction; he stumbles onward exhausted.",
             "hp_delta": -2,
             "provisions_delta": 0,
-            "add_flags": [
-              "mirror-in-the-ash-2-failure"
-            ],
+            "add_flags": ["mirror-in-the-ash-2-failure"],
             "map_effect": "none"
           }
         }
@@ -2111,18 +1879,14 @@
             "text": "Zuzu clears the damaged valve, and the ranger sounds a warning that opens the road.",
             "hp_delta": 0,
             "provisions_delta": 0,
-            "add_flags": [
-              "ashes-at-the-border-1-success"
-            ],
+            "add_flags": ["ashes-at-the-border-1-success"],
             "map_effect": "none"
           },
           "failure": {
             "text": "The horn breaks further in his hands and the stranded ranger demands compensation he cannot pay.",
             "hp_delta": 0,
             "provisions_delta": -1,
-            "add_flags": [
-              "ashes-at-the-border-1-failure"
-            ],
+            "add_flags": ["ashes-at-the-border-1-failure"],
             "map_effect": "none"
           }
         },
@@ -2140,18 +1904,14 @@
             "text": "From the tower Zuzu spots an approaching dust front and guides the ranger to safety.",
             "hp_delta": 0,
             "provisions_delta": 0,
-            "add_flags": [
-              "ashes-at-the-border-2-success"
-            ],
+            "add_flags": ["ashes-at-the-border-2-success"],
             "map_effect": "none"
           },
           "failure": {
             "text": "The stairs crumble under him, and he escapes the falling stones bruised and coughing.",
             "hp_delta": -2,
             "provisions_delta": 0,
-            "add_flags": [
-              "ashes-at-the-border-2-failure"
-            ],
+            "add_flags": ["ashes-at-the-border-2-failure"],
             "map_effect": "none"
           }
         }
@@ -2179,18 +1939,14 @@
             "text": "Zuzu follows quiet calls into the dark and returns with the missing refugees.",
             "hp_delta": 0,
             "provisions_delta": 1,
-            "add_flags": [
-              "the-last-watchfire-1-success"
-            ],
+            "add_flags": ["the-last-watchfire-1-success"],
             "map_effect": "none"
           },
           "failure": {
             "text": "He reaches the ravine too late and returns shaken and scraped by the narrow path.",
             "hp_delta": -2,
             "provisions_delta": 0,
-            "add_flags": [
-              "the-last-watchfire-1-failure"
-            ],
+            "add_flags": ["the-last-watchfire-1-failure"],
             "map_effect": "none"
           }
         },
@@ -2208,18 +1964,14 @@
             "text": "The camp accepts a fair division of duty, and fresh guards bring food from the stores.",
             "hp_delta": 0,
             "provisions_delta": 1,
-            "add_flags": [
-              "the-last-watchfire-2-success"
-            ],
+            "add_flags": ["the-last-watchfire-2-success"],
             "map_effect": "none"
           },
           "failure": {
             "text": "Distrust splits the patrol and Zuzu is sent away before a new watch can be arranged.",
             "hp_delta": 0,
             "provisions_delta": -1,
-            "add_flags": [
-              "the-last-watchfire-2-failure"
-            ],
+            "add_flags": ["the-last-watchfire-2-failure"],
             "map_effect": "none"
           }
         }
@@ -2247,18 +1999,14 @@
             "text": "Zuzu discovers spoiled herbs rather than a plague, and the clean supplies are recovered safely.",
             "hp_delta": 0,
             "provisions_delta": 1,
-            "add_flags": [
-              "the-closed-infirmary-1-success"
-            ],
+            "add_flags": ["the-closed-infirmary-1-success"],
             "map_effect": "none"
           },
           "failure": {
             "text": "He forces the door too quickly and inhales bitter fumes that leave him weak.",
             "hp_delta": -2,
             "provisions_delta": 0,
-            "add_flags": [
-              "the-closed-infirmary-1-failure"
-            ],
+            "add_flags": ["the-closed-infirmary-1-failure"],
             "map_effect": "none"
           }
         },
@@ -2276,18 +2024,14 @@
             "text": "The guards help carry fresh supplies to the wounded instead of breaking the door.",
             "hp_delta": 0,
             "provisions_delta": 0,
-            "add_flags": [
-              "the-closed-infirmary-2-success"
-            ],
+            "add_flags": ["the-closed-infirmary-2-success"],
             "map_effect": "none"
           },
           "failure": {
             "text": "The crowd panics and overturns the wagon; Zuzu takes a blow in the crush.",
             "hp_delta": -1,
             "provisions_delta": 0,
-            "add_flags": [
-              "the-closed-infirmary-2-failure"
-            ],
+            "add_flags": ["the-closed-infirmary-2-failure"],
             "map_effect": "none"
           }
         }
@@ -2315,18 +2059,14 @@
             "text": "Zuzu learns the relic's location and persuades the commander to loosen the binding under supervision.",
             "hp_delta": 0,
             "provisions_delta": 0,
-            "add_flags": [
-              "the-prisoner-of-dusk-1-success"
-            ],
+            "add_flags": ["the-prisoner-of-dusk-1-success"],
             "map_effect": "none"
           },
           "failure": {
             "text": "The scout loses control of his voice and the frightened guards strike before Zuzu can intervene.",
             "hp_delta": -2,
             "provisions_delta": 0,
-            "add_flags": [
-              "the-prisoner-of-dusk-1-failure"
-            ],
+            "add_flags": ["the-prisoner-of-dusk-1-failure"],
             "map_effect": "none"
           }
         },
@@ -2344,18 +2084,14 @@
             "text": "Zuzu rebuilds the damaged clasp without harming the captive, buying time for a healer.",
             "hp_delta": 0,
             "provisions_delta": 0,
-            "add_flags": [
-              "the-prisoner-of-dusk-2-success"
-            ],
+            "add_flags": ["the-prisoner-of-dusk-2-success"],
             "map_effect": "none"
           },
           "failure": {
             "text": "The clasp burns through his glove and the camp drives him away from the prisoner.",
             "hp_delta": -2,
             "provisions_delta": 0,
-            "add_flags": [
-              "the-prisoner-of-dusk-2-failure"
-            ],
+            "add_flags": ["the-prisoner-of-dusk-2-failure"],
             "map_effect": "none"
           }
         }
@@ -2383,18 +2119,14 @@
             "text": "Zuzu identifies a recurring mark that aligns the gate with the path he actually walked.",
             "hp_delta": 0,
             "provisions_delta": 0,
-            "add_flags": [
-              "the-key-with-no-door-1-success"
-            ],
+            "add_flags": ["the-key-with-no-door-1-success"],
             "map_effect": "none"
           },
           "failure": {
             "text": "The pattern vanishes beneath his rubbing, and the archivist sends him toward a dangerous side passage.",
             "hp_delta": -2,
             "provisions_delta": 0,
-            "add_flags": [
-              "the-key-with-no-door-1-failure"
-            ],
+            "add_flags": ["the-key-with-no-door-1-failure"],
             "map_effect": "none"
           }
         },
@@ -2412,18 +2144,14 @@
             "text": "The archivist admits she does not know its makers but shows how to approach the gate safely.",
             "hp_delta": 0,
             "provisions_delta": 0,
-            "add_flags": [
-              "the-key-with-no-door-2-success"
-            ],
+            "add_flags": ["the-key-with-no-door-2-success"],
             "map_effect": "none"
           },
           "failure": {
             "text": "She hears accusation in his question and closes the audience, leaving him without supplies.",
             "hp_delta": 0,
             "provisions_delta": -1,
-            "add_flags": [
-              "the-key-with-no-door-2-failure"
-            ],
+            "add_flags": ["the-key-with-no-door-2-failure"],
             "map_effect": "none"
           }
         }
@@ -2451,18 +2179,14 @@
             "text": "Zuzu accepts the burden without opening the seal, and the messenger shares the final safe directions.",
             "hp_delta": 0,
             "provisions_delta": 1,
-            "add_flags": [
-              "a-promise-kept-1-success"
-            ],
+            "add_flags": ["a-promise-kept-1-success"],
             "map_effect": "none"
           },
           "failure": {
             "text": "The weight of another promise distracts him; a misstep costs him strength in the narrow pass.",
             "hp_delta": -1,
             "provisions_delta": 0,
-            "add_flags": [
-              "a-promise-kept-1-failure"
-            ],
+            "add_flags": ["a-promise-kept-1-failure"],
             "map_effect": "none"
           }
         },
@@ -2480,18 +2204,14 @@
             "text": "They find a sign left by the recipient and follow a more certain road to the threshold.",
             "hp_delta": 0,
             "provisions_delta": 0,
-            "add_flags": [
-              "a-promise-kept-2-success"
-            ],
+            "add_flags": ["a-promise-kept-2-success"],
             "map_effect": "none"
           },
           "failure": {
             "text": "The search yields only old tracks, and the delay consumes their last meal.",
             "hp_delta": 0,
             "provisions_delta": -1,
-            "add_flags": [
-              "a-promise-kept-2-failure"
-            ],
+            "add_flags": ["a-promise-kept-2-failure"],
             "map_effect": "none"
           }
         }
@@ -2519,18 +2239,14 @@
             "text": "Zuzu refuses to surrender his judgment and finds an unbound route around the negotiator's seal.",
             "hp_delta": 0,
             "provisions_delta": 0,
-            "add_flags": [
-              "the-price-of-silence-1-success"
-            ],
+            "add_flags": ["the-price-of-silence-1-success"],
             "map_effect": "none"
           },
           "failure": {
             "text": "The negotiator closes the direct gate and Zuzu must climb a razor-edged ridge to continue.",
             "hp_delta": -2,
             "provisions_delta": 0,
-            "add_flags": [
-              "the-price-of-silence-1-failure"
-            ],
+            "add_flags": ["the-price-of-silence-1-failure"],
             "map_effect": "none"
           }
         },
@@ -2548,18 +2264,14 @@
             "text": "The negotiator admits the price is obedience, not coin; Zuzu walks away with the truth intact.",
             "hp_delta": 0,
             "provisions_delta": 0,
-            "add_flags": [
-              "the-price-of-silence-2-success"
-            ],
+            "add_flags": ["the-price-of-silence-2-success"],
             "map_effect": "none"
           },
           "failure": {
             "text": "She answers in riddles until dusk, leaving him hungry and dangerously exposed.",
             "hp_delta": 0,
             "provisions_delta": -1,
-            "add_flags": [
-              "the-price-of-silence-2-failure"
-            ],
+            "add_flags": ["the-price-of-silence-2-failure"],
             "map_effect": "none"
           }
         }

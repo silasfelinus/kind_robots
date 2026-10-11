@@ -1,0 +1,239 @@
+{
+  "schemaVersion": 1,
+  "worldSource": "worlds/zuzu/WORLD-GUIDE.md",
+  "trials": [
+    {
+      "landId": "homestead",
+      "title": "The Abbess's Open Door",
+      "flavor": "The mission doors open without a knock. The Abbess stands beneath a carved lintel, offering warm bread while the corridor behind her stays locked. Zuzu has heard enough inconsistent accounts to know that kindness alone cannot explain the empty beds. He must decide what evidence, courage, or restraint will open the way.",
+      "art": null,
+      "choices": [
+        {
+          "id": "confront",
+          "label": "Stand between the Abbess and the dormitory",
+          "intent": "Challenge the convent guards without harming those seeking shelter.",
+          "skill": "steel",
+          "target": 11,
+          "cost": 0,
+          "requiredAnyFlags": [],
+          "success": "Zuzu turns aside the guards' blades and opens the barred corridor. The Abbess withdraws, but her authority over the refuge is broken.",
+          "failure": "The guards drive Zuzu into the courtyard; he escapes wounded, with the children still beyond reach."
+        },
+        {
+          "id": "parley",
+          "label": "Demand sanctuary under witness",
+          "intent": "Call the townsfolk to witness the refuge's obligations rather than start a battle.",
+          "skill": "bearing",
+          "target": 9,
+          "cost": 1,
+          "requiredAnyFlags": [],
+          "success": "Witnesses demand an accounting; under their gaze the Abbess lets Zuzu pass to the locked wing.",
+          "failure": "Her hospitality becomes a public accusation against Zuzu. The crowd disperses, and he pays dearly for the failed appeal."
+        },
+        {
+          "id": "evidence",
+          "label": "Present the evidence of the missing",
+          "intent": "Use the clues gathered around the refuge to expose a contradiction in the Abbess's story.",
+          "skill": "insight",
+          "target": 8,
+          "cost": 0,
+          "requiredAnyFlags": [
+            "dormitory-ribbon-evidence",
+            "dormitory-room-number",
+            "bell-physical-evidence",
+            "bell-clapper-removed",
+            "gate-one-way-tracks",
+            "refuge-locked-door-clue"
+          ],
+          "success": "The evidence cannot be dismissed as rumor. The Abbess's mask falters, and Zuzu secures an exit for the hidden captives.",
+          "failure": "She twists the fragment into an accusation against the witnesses; Zuzu retreats battered but keeps the evidence safe."
+        }
+      ],
+      "editorialNote": "She has long been abducting children for sacrificial rites meant to nourish and summon a cosmic entity; this canonical motive is editorial-only and not delivered to the player in the initial scene."
+    },
+    {
+      "landId": "dustwater",
+      "title": "The Crossing Gate",
+      "flavor": "A flood gate hangs above the crossing on chains darkened by years of river salt. Its keeper controls both the safe channel and the toll book, claiming that no one may cross while the current changes. Zuzu can hear trapped boats beyond the dam, and the mechanism begins to shudder.",
+      "art": null,
+      "choices": [
+        {
+          "id": "confront",
+          "label": "Raise the jammed gate",
+          "intent": "Take the counterweight by force to release the trapped boats.",
+          "skill": "steel",
+          "target": 10,
+          "cost": 0,
+          "requiredAnyFlags": [],
+          "success": "Zuzu braces the wheel and raises the gate before the chains part. Travelers reach the far bank safely.",
+          "failure": "The counterweight snaps back. Zuzu falls against the flooded stone and must retreat to regain strength."
+        },
+        {
+          "id": "parley",
+          "label": "Broker a witnessed crossing",
+          "intent": "Persuade the keeper and boat crews to share the risk and sign a fair crossing agreement.",
+          "skill": "bearing",
+          "target": 9,
+          "cost": 1,
+          "requiredAnyFlags": [],
+          "success": "The keeper accepts a public bargain, and a joint crew opens a measured channel.",
+          "failure": "The proposed bargain collapses. The keeper demands compensation, and Zuzu is turned back from the water."
+        },
+        {
+          "id": "evidence",
+          "label": "Prove the hidden safe channel",
+          "intent": "Use an earlier chart, marker or ferryman's testimony to guide a passage without violence.",
+          "skill": "wits",
+          "target": 8,
+          "cost": 0,
+          "requiredAnyFlags": [
+            "the-mended-compass-1-success",
+            "footprints-in-the-silt-1-success",
+            "lanterns-on-the-raft-2-success"
+          ],
+          "success": "The channel Zuzu marked still flows beneath the eastern pier. The boats pass without a toll or broken chain.",
+          "failure": "The old reading is incomplete, and the current sweeps Zuzu onto dangerous rocks before he can signal the others."
+        }
+      ],
+      "editorialNote": "No invented ultimate cause of the river's shifting geography; the gate keeper's present toll dispute is local."
+    },
+    {
+      "landId": "tablelands",
+      "title": "The Canyon Warden",
+      "flavor": "Where two canyon roads meet, a masked warden stands before the last bridge. Their watchfires burn behind stone parapets, and a storm begins to hide the narrow path. The warden says the crossing is closed until every traveler can be accounted for. Zuzu knows not all the missing are dead.",
+      "art": null,
+      "choices": [
+        {
+          "id": "confront",
+          "label": "Break the barricade",
+          "intent": "Overcome the warden's armed escorts and keep the path open for the caravan.",
+          "skill": "steel",
+          "target": 11,
+          "cost": 0,
+          "requiredAnyFlags": [],
+          "success": "Zuzu disarms the escorts and forces an opening without destroying the bridge.",
+          "failure": "A coordinated shield wall drives him down the rocky approach, leaving him bruised and turned away."
+        },
+        {
+          "id": "parley",
+          "label": "Offer a watch oath",
+          "intent": "Bind Zuzu and the warden to a witnessed duty of safe passage instead of a fight.",
+          "skill": "bearing",
+          "target": 10,
+          "cost": 1,
+          "requiredAnyFlags": [],
+          "success": "The warden accepts the vow and posts two scouts to guide the vulnerable caravan through.",
+          "failure": "The warden demands more assurance than Zuzu can offer; the negotiation ends in an exhausting retreat."
+        },
+        {
+          "id": "evidence",
+          "label": "Reveal the safe alternate bridge",
+          "intent": "Use a discovered courier signal, maps or shifted ledge to outmaneuver the blockade.",
+          "skill": "awareness",
+          "target": 8,
+          "cost": 0,
+          "requiredAnyFlags": [
+            "the-banner-in-the-wind-1-success",
+            "the-map-in-ashes-2-success",
+            "the-watchful-overhang-1-success"
+          ],
+          "success": "Zuzu identifies the old signal route and leads the stranded travelers around the guarded span.",
+          "failure": "The signal is misread in the storm, and Zuzu narrowly escapes a falling shelf of stone."
+        }
+      ],
+      "editorialNote": "Warden is an office and individual, not a species/occupation random roll. No innate evil."
+    },
+    {
+      "landId": "cave",
+      "title": "The Deep-Cave Judgement",
+      "flavor": "A ring of blue candle flames surrounds a stone court. The Storm-Crow adjudicators wait in silence while a bound guardian trembles in the threshold. Every entrance bears a different version of an oath, and the court will not let Zuzu depart until one account is accepted.",
+      "art": null,
+      "choices": [
+        {
+          "id": "confront",
+          "label": "Defend the captive against the court",
+          "intent": "Disarm the court's sentries long enough to break the guardian's circle.",
+          "skill": "steel",
+          "target": 12,
+          "cost": 0,
+          "requiredAnyFlags": [],
+          "success": "Zuzu holds the sentries at bay while the chalk circle is broken; the guardian is freed.",
+          "failure": "The candle flames flare, and Zuzu is beaten back by the court's disciplined guards."
+        },
+        {
+          "id": "parley",
+          "label": "Accept a binding testimony",
+          "intent": "Offer Zuzu's own sworn account to the court as a nonviolent settlement.",
+          "skill": "resolve",
+          "target": 10,
+          "cost": 1,
+          "requiredAnyFlags": [],
+          "success": "The adjudicators accept an honest witness and release the bound guardian under supervised terms.",
+          "failure": "A word in the oath is wrong. The court rejects the bargain and the backlash leaves Zuzu shaken."
+        },
+        {
+          "id": "evidence",
+          "label": "Expose the false oath",
+          "intent": "Compare collected court records and broken charms to reveal the false wording of the binding.",
+          "skill": "insight",
+          "target": 9,
+          "cost": 0,
+          "requiredAnyFlags": [
+            "the-candle-court-1-success",
+            "the-forgotten-pledge-2-success",
+            "three-doors-no-hinges-1-success"
+          ],
+          "success": "The missing line becomes visible beneath the wax. The court recognizes its mistake and lifts the binding.",
+          "failure": "The inscription refuses his reading; a surge of ritual force drives Zuzu from the chamber."
+        }
+      ],
+      "editorialNote": "Witches may practice protective, dangerous or transactional magic. The guardian's imposed binding is not explained by his species."
+    },
+    {
+      "landId": "verge",
+      "title": "Beyond the Verge",
+      "flavor": "At the final threshold, a silent negotiator holds a stone key against a door without hinges. Each traveler is offered an easy passage in exchange for obedience and silence. The road behind Zuzu is crowded with the promises he has chosen to keep; no answer about the ancient world is offered here.",
+      "art": null,
+      "choices": [
+        {
+          "id": "confront",
+          "label": "Cut the seal without accepting its terms",
+          "intent": "Force the physical gate while refusing the negotiator's demand for obedience.",
+          "skill": "steel",
+          "target": 13,
+          "cost": 0,
+          "requiredAnyFlags": [],
+          "success": "The seal fractures under Zuzu's blade. The road beyond lies open, but its deepest secrets remain unanswered.",
+          "failure": "The threshold throws him onto sharp obsidian; Zuzu withdraws bleeding, still refusing the oath."
+        },
+        {
+          "id": "parley",
+          "label": "Renounce the demand for silence",
+          "intent": "Hold to a samurai's word without trading away the testimony of those he met.",
+          "skill": "resolve",
+          "target": 11,
+          "cost": 1,
+          "requiredAnyFlags": [],
+          "success": "The negotiator cannot bind an oath freely refused. Zuzu passes under his own terms.",
+          "failure": "The gate seems to close around every spoken word; Zuzu must retreat and gather his strength."
+        },
+        {
+          "id": "evidence",
+          "label": "Read the unbroken promise",
+          "intent": "Use the evidence of earlier witnesses to find the gate's overlooked lawful exception.",
+          "skill": "insight",
+          "target": 10,
+          "cost": 0,
+          "requiredAnyFlags": [
+            "the-key-with-no-door-1-success",
+            "a-promise-kept-2-success",
+            "the-price-of-silence-2-success"
+          ],
+          "success": "An old mark grants passage to those carrying another's unbroken promise. The negotiator steps aside.",
+          "failure": "The inscription is too damaged to rely upon, and its false passage cuts Zuzu off from the safe road."
+        }
+      ],
+      "editorialNote": "Do not resolve the past-human catastrophe or the origin of the cosmic entity in this alternate board game finale."
+    }
+  ]
+}

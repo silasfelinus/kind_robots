@@ -1,0 +1,10 @@
+{
+  "fighter": "storm-crow",
+  "kind": "beaten",
+  "w": 104,
+  "h": 152,
+  "hd_scale": 4,
+  "art_image_id": 244377,
+  "ledger_key": "crow-beaten",
+  "mirrored": false
+}

@@ -10,7 +10,7 @@
 // screens.ts drawSelectScreen.
 
 /** Fighters per row on the select grid. */
-export const SELECT_COLUMNS = 4
+export const SELECT_COLUMNS = 3
 
 export type SelectPress = Partial<
   Record<'up' | 'down' | 'left' | 'right' | 'lp' | 'hp' | 'start', boolean>

@@ -19,6 +19,29 @@
 
 import { levelCurve } from '../curve'
 import { drawText } from '../font'
+import {
+  INK,
+  RAMPS,
+  Sparkles,
+  backdropRng,
+  bandedGradient,
+  cachedLayer,
+  drawRidge,
+  drawSprite,
+  drawStars,
+  dropShadow,
+  gauge,
+  glow,
+  hudPanel,
+  mix,
+  pixelSprite,
+  rgba,
+  ridge,
+  shadedOrb,
+  starField,
+  vignette,
+} from '../snes'
+import type { PixelSprite, Ramp } from '../snes'
 import type {
   ArcadeGameInstance,
   ArcadeGameModule,
@@ -129,6 +152,389 @@ function cubeTop(r: number, c: number): { x: number; y: number } {
   return { x: APEX_X + (c - r / 2) * CUBE_W, y: APEX_Y + r * ROW_H }
 }
 
+// --- 16-bit art (utils/arcade/snes.ts) -------------------------------------------
+
+/** A five-step ramp around `base`: cool deep shadows, warm creamy lights. */
+function rampOf(base: string): Ramp {
+  return [
+    mix(base, '#0c0628', 0.62),
+    mix(base, '#1c0e48', 0.32),
+    base,
+    mix(base, '#fff3d6', 0.42),
+    mix(base, '#ffffff', 0.76),
+  ]
+}
+
+/** Ramp letters for the top ('0'-'4'), the lit left side ('a'-'e') and the shaded right ('v'-'z'). */
+function cubePalette(top: Ramp, left: Ramp, right: Ramp) {
+  const out: Record<string, string> = {}
+  for (let i = 0; i < 5; i++) {
+    out[String(i)] = top[i]!
+    out['abcde'[i]!] = left[i]!
+    out['vwxyz'[i]!] = right[i]!
+  }
+  return out
+}
+
+/**
+ * An isometric cube as sprite rows, `w` wide with a `faceH` diamond on top and `sideH` sides:
+ * a glossy top lit from the upper left with a bevelled rim, a lit left side and a shaded right,
+ * each with an engraved inset panel when `detail` is on.
+ */
+function cubeRows(w: number, faceH: number, sideH: number, detail: boolean) {
+  const half = w / 2
+  const top = faceH / 2
+  const rows: string[] = []
+  for (let py = 0; py < faceH + sideH; py++) {
+    let row = ''
+    for (let px = 0; px < w; px++) {
+      const fx = px + 0.5 - half
+      const fy = py + 0.5 - top
+      const dither = (px + py) % 2 ? 0.07 : -0.07
+      const u = fx / half
+      const v = fy / top
+      const d = Math.abs(u) + Math.abs(v)
+      if (d <= 1) {
+        // The top face: rim, gloss spot, then a lit-to-shadow sweep.
+        if (d > 0.84) row += v < 0 ? (u <= 0 ? '4' : '3') : '1'
+        else if (detail && (u + 0.3) ** 2 / 0.05 + (v + 0.3) ** 2 / 0.1 < 1)
+          row += '4'
+        else {
+          const s = u * 0.4 + v * 0.6 + dither
+          row += s < -0.38 ? '3' : s > 0.4 ? '1' : '2'
+        }
+        continue
+      }
+      const edge = top - Math.abs(fx) / 2
+      const below = fy - edge
+      const above = edge + sideH - fy
+      if (fy < 0 || above < 0) {
+        row += '.'
+        continue
+      }
+      const inner = Math.abs(fx)
+      const outer = half - Math.abs(fx)
+      const left = fx < 0
+      // A recessed panel set into each side: shadowed lip at the top and outer edge, lit lip
+      // at the bottom and inner edge, its floor a step darker than the frame round it.
+      const panel =
+        detail && below > 3 && above > 2.5 && inner > 2.5 && outer > 2.5
+      let k: number
+      if (below <= 1) k = left ? 4 : 3
+      else if (above <= 1) k = 0
+      else if (left && inner < 1) k = 3
+      else if (panel && (below <= 4 || outer <= 3.5)) k = 0
+      else if (panel && (above <= 3.5 || inner <= 3.5)) k = left ? 3 : 2
+      else if (panel) k = 1
+      else if (detail) k = left ? 2 : 1
+      else k = (left ? 3 : 2) - (below + dither * 8 < 4 ? 0 : 1)
+      row += (left ? 'abcde' : 'vwxyz')[k]!
+    }
+    rows.push(row)
+  }
+  return rows
+}
+
+const CUBE_ROWS = cubeRows(CUBE_W, FACE_H, SIDE_H, true)
+
+/** Per colour scheme: a cube per paint state (start, halfway, target). */
+const CUBE_SPRITES = SCHEMES.map((s) => {
+  const left = rampOf(s.left)
+  const right = rampOf(s.right)
+  return [s.start, s.mid, s.target].map((top) =>
+    pixelSprite(CUBE_ROWS, cubePalette(rampOf(top), left, right)),
+  )
+})
+
+/** A little target cube for the HUD. */
+const MINI_CUBES = SCHEMES.map((s) =>
+  pixelSprite(
+    cubeRows(14, 8, 6, false),
+    cubePalette(rampOf(s.target), rampOf(s.left), rampOf(s.right)),
+  ),
+)
+
+/** A white top face, added over a tile as it changes colour. */
+const TOP_FLASH = pixelSprite(
+  cubeRows(CUBE_W, FACE_H, 0, false).map((r) => r.replace(/[0-4]/g, 'w')),
+  { w: '#ffffff' },
+  { outline: null },
+)
+
+/** The escape disc: a spinning rainbow platter, four frames, with a rim underneath. */
+const DISC_RAMPS = [RAMPS.ember, RAMPS.gold, RAMPS.leaf, RAMPS.sky] as const
+const DISC_SPRITES = [0, 1, 2, 3].map((frame) => {
+  const palette: Record<string, string> = { h: '#ffffff', H: RAMPS.gold[4] }
+  DISC_RAMPS.forEach((ramp, i) =>
+    ramp.forEach((c, k) => (palette[String.fromCharCode(65 + i * 5 + k)] = c)),
+  )
+  const inside = (fx: number, fy: number) =>
+    (fx / 8.5) ** 2 + (fy / 3.6) ** 2 <= 1
+  const rows: string[] = []
+  for (let py = 0; py < 9; py++) {
+    let row = ''
+    for (let px = 0; px < 17; px++) {
+      const fx = px - 8
+      const fy = py - 3
+      const top = inside(fx, fy)
+      const rim = !top && fy > 0 && inside(fx, fy - 2)
+      if (!top && !rim) {
+        row += '.'
+        continue
+      }
+      if (top && Math.abs(fx) <= 1 && Math.abs(fy) <= 0) {
+        row += fx < 0 ? 'h' : 'H'
+        continue
+      }
+      const sector = Math.floor(
+        ((Math.atan2(fy * 2.4, fx) + Math.PI) / (Math.PI * 2)) * 8,
+      )
+      const band = (sector + frame) % 4
+      const shade = rim
+        ? inside(fx, fy - 1)
+          ? 1
+          : 0
+        : !inside(fx, fy - 1)
+          ? 4
+          : fy < 0
+            ? 3
+            : 2
+      row += String.fromCharCode(65 + band * 5 + shade)
+    }
+    rows.push(row)
+  }
+  return pixelSprite(rows, palette)
+})
+
+/** A sphere lit from the upper left, as ramp letters '0'-'4'. */
+function orbRows(w: number, h: number): string[] {
+  const rows: string[] = []
+  for (let py = 0; py < h; py++) {
+    let row = ''
+    for (let px = 0; px < w; px++) {
+      const nx = (px + 0.5 - w / 2) / (w / 2)
+      const ny = (py + 0.5 - h / 2) / (h / 2)
+      const rr = nx * nx + ny * ny
+      if (rr > 1) {
+        row += '.'
+        continue
+      }
+      const l = nx * -0.5 + ny * -0.6 + Math.sqrt(1 - rr) * 0.62
+      row +=
+        l > 0.9 ? '4' : l > 0.62 ? '3' : l > 0.2 ? '2' : l > -0.2 ? '1' : '0'
+    }
+    rows.push(row)
+  }
+  return rows
+}
+
+/** `rows` with `art` laid over it at (x, y); '.' in the art leaves the row alone. */
+function stamp(rows: readonly string[], x: number, y: number, art: string[]) {
+  const out = [...rows]
+  art.forEach((line, dy) => {
+    const row = out[y + dy]
+    if (row === undefined) return
+    let next = ''
+    for (let i = 0; i < row.length; i++) {
+      const ch = line[i - x]
+      next += ch && ch !== '.' && i >= x ? ch : row[i]!
+    }
+    out[y + dy] = next
+  })
+  return out
+}
+
+function rampPalette(ramp: Ramp): Record<string, string> {
+  return { 0: ramp[0], 1: ramp[1], 2: ramp[2], 3: ramp[3], 4: ramp[4] }
+}
+
+/** Gumballs per kind: round in the air, squashed as they land. */
+const GUMBALL_LOOKS = {
+  gumball: { ramp: RAMPS.ember, eyes: false },
+  purple: { ramp: RAMPS.purple, eyes: true },
+  green: { ramp: RAMPS.leaf, eyes: false },
+} as const
+const GUMBALL_SPRITES = Object.fromEntries(
+  Object.entries(GUMBALL_LOOKS).map(([kind, look]) => {
+    const palette = { ...rampPalette(look.ramp), w: '#ffffff', k: INK }
+    const round = orbRows(10, 10)
+    const squash = orbRows(12, 8)
+    return [
+      kind,
+      [
+        pixelSprite(
+          look.eyes ? stamp(round, 3, 3, ['wk.wk', 'kk.kk']) : round,
+          palette,
+        ),
+        pixelSprite(
+          look.eyes ? stamp(squash, 4, 2, ['wk.wk', 'kk.kk']) : squash,
+          palette,
+        ),
+      ],
+    ]
+  }),
+) as Record<'gumball' | 'purple' | 'green', [PixelSprite, PixelSprite]>
+
+/** Pip: a round tangerine pixel-bot with a snorkel nose and big purple sneakers. */
+const PIP_RAMP: Ramp = ['#4a1606', '#9a3a0c', '#f07a1f', '#ffb15e', '#fff1d0']
+const PIP_PALETTE = {
+  d: PIP_RAMP[0],
+  o: PIP_RAMP[1],
+  O: PIP_RAMP[2],
+  L: PIP_RAMP[3],
+  H: PIP_RAMP[4],
+  N: '#ffe0b0',
+  n: RAMPS.rust[3],
+  s: RAMPS.rust[2],
+  w: '#ffffff',
+  k: INK,
+  c: RAMPS.pink[3],
+  F: RAMPS.purple[3],
+  f: RAMPS.purple[2],
+  g: RAMPS.purple[1],
+}
+const PIP_FRONT = [
+  '....OOOOO.......',
+  '..OLLLOOOOO.....',
+  '.OLHwwwOwwwo....',
+  '.OLHwkkOwkko....',
+  'OLLLwkkOwkkoo...',
+  'OLLOwwwOwwwoNN..',
+  'OOOOOOOOOOOnNNNk',
+  'oOcOOOOOOcOosss.',
+  'oOOOOOOOOOOo....',
+  '.ooOOOOOOOoo....',
+  '..oooooooood....',
+  '....ddddd.......',
+]
+const PIP_BACK = [
+  '....OOOOO.......',
+  '..OLLLOOOOO.....',
+  '.OLHHLOOOOOoNn..',
+  '.OLHLOOOOOOoNNs.',
+  'OLLLOOOOOOOoss..',
+  'OLLOOOOOOOOOo...',
+  'Ooooooooooooo...',
+  'oOLOOOOOOOOOo...',
+  'oOOOOOOOOOOo....',
+  '.ooOOOOOOOoo....',
+  '..oooooooood....',
+  '....ddddd.......',
+]
+const PIP_STAND = ['....d.....d.....', '..fFFFf.fFFFf...', '..ggggg.ggggg...']
+const PIP_HOP = [
+  '....d.....d.....',
+  '....d.....d.....',
+  '...fFf...fFf....',
+  '...ggg...ggg....',
+]
+const pad = (rows: string[]) => rows.map((r) => `...${r}`)
+/** [front, back] x [stand, hop], all facing right. */
+const PIP_SPRITES = [PIP_FRONT, PIP_BACK].map((body) =>
+  [PIP_STAND, PIP_HOP].map((legs) =>
+    pixelSprite(pad([...body, ...legs]), PIP_PALETTE),
+  ),
+)
+const PIP_LIFE = pixelSprite(
+  [
+    '..OOOO...',
+    '.OLHOOO..',
+    'OLwkOwkON',
+    'OOOOOOOnn',
+    '.oOOOOo..',
+    '..dddd...',
+  ],
+  PIP_PALETTE,
+)
+
+/** Boing: a grumpy purple head on a steel spring, coiled on the ground, sprung in the air. */
+const BOING_PALETTE = {
+  ...rampPalette(RAMPS.purple),
+  w: '#ffffff',
+  k: INK,
+  h: RAMPS.steel[4],
+  S: RAMPS.steel[3],
+  s: RAMPS.steel[2],
+  t: RAMPS.steel[1],
+}
+const BOING_HEAD = [
+  '...23332...',
+  '..2344322..',
+  '.2kk332kk1.',
+  '.23wk2kw21.',
+  '2332w2w2221',
+  '22222222211',
+  '.12kkkkk21.',
+  '..1111111..',
+]
+const BOING_SPRITES = [
+  [
+    ...BOING_HEAD,
+    '...hSSs....',
+    '..tsssst...',
+    '...hSSs....',
+    '..tsssst...',
+    '..ttttttt..',
+  ],
+  [
+    ...BOING_HEAD,
+    '....hSs....',
+    '.....sSs...',
+    '....hSs....',
+    '.....sSs...',
+    '....hSs....',
+    '.....sSs...',
+    '...ttttt...',
+  ],
+].map((rows) => pixelSprite(rows, BOING_PALETTE))
+
+/** The repaint gremlin, per scheme (its brush is dipped in the start colour), two steps. */
+const GREMLIN_BODY = [
+  '.2333332......',
+  '23443332......',
+  '24wk3wk31.....',
+  '23ww3ww31.....',
+  '233kwkw31..pBB',
+  '1222222hhhhBBb',
+  '.1111111...Bb.',
+]
+const GREMLIN_SPRITES = SCHEMES.map((s) => {
+  const brush = rampOf(s.start)
+  const palette = {
+    ...rampPalette(RAMPS.leaf),
+    w: '#ffffff',
+    k: INK,
+    h: RAMPS.earth[3],
+    p: brush[4],
+    B: brush[2],
+    b: brush[1],
+  }
+  return [
+    [...GREMLIN_BODY, '.0..0.........'],
+    [...GREMLIN_BODY, '..0..0........'],
+  ].map((rows) => pixelSprite(rows, palette))
+})
+
+/** Which way a hopper faces: away from the screen on an upward hop, flipped for leftward. */
+function facing(h: Hopper): { back: boolean; left: boolean } {
+  const dr = h.r - h.fr
+  return { back: dr < 0 && h.fr >= 0, left: h.c - h.fc - dr / 2 < 0 }
+}
+
+const SKY_STARS = starField(41, 46, W, 200)
+const DUST = starField(43, 22, W, 200)
+const FAR_CRAGS = ridge(17, W, 22, 4)
+const NEAR_CRAGS = ridge(23, W, 14, 4)
+const NEBULA = (() => {
+  const rand = backdropRng(31)
+  return Array.from({ length: 7 }, () => ({
+    x: 20 + rand() * (W - 40),
+    y: 40 + rand() * 120,
+    rx: 30 + rand() * 50,
+    ry: 10 + rand() * 18,
+  }))
+})()
+
 class PixelHop implements ArcadeGameInstance {
   score = 0
   level = 1
@@ -157,6 +563,11 @@ class PixelHop implements ArcadeGameInstance {
   private particles: Particle[] = []
   private floaters: Floater[] = []
   private banner: { text: string; sub?: string; ticks: number } | null = null
+  // Cosmetic sparkles roll their own dice, so the game's seeded rng is untouched.
+  private fx = new Sparkles()
+  private fxRng = backdropRng(47)
+  /** When each tile last changed colour, for its flash ("r,c" -> tick). */
+  private flashes = new Map<string, number>()
 
   constructor(options: ArcadeGameOptions) {
     this.rng = options.rng
@@ -312,6 +723,8 @@ class PixelHop implements ArcadeGameInstance {
     if (disc) {
       disc.used = true
       this.riding = { t: 90, side, row: disc.row }
+      const spot = this.discPos(side, disc.row)
+      this.fx.burst(spot.x, spot.y, this.fxRng, { count: 8 })
       this.sound.play('extra')
       // Boing, hot on your heels, boings straight off after you.
       for (const e of this.enemies) {
@@ -320,6 +733,7 @@ class PixelHop implements ArcadeGameInstance {
           e.falling = 50
           const at = cubeTop(e.r, e.c)
           this.addScore(BOING_LURE_POINTS, at.x, at.y - 20)
+          this.fx.burst(at.x, at.y - 12, this.fxRng, { count: 12 })
           this.banner = { text: 'BOING BOINGED OFF!', ticks: 70 }
         }
       }
@@ -338,6 +752,7 @@ class PixelHop implements ArcadeGameInstance {
     else if (rule.flips) next = rule.hops === 1 ? 0 : 1
     if (next !== tile) {
       this.paint[r]![c] = next
+      this.tileFx(r, c, next > tile, next === 2)
       if (next > tile) {
         const at = cubeTop(r, c)
         this.addScore(PAINT_POINTS, at.x, at.y - 14)
@@ -352,6 +767,11 @@ class PixelHop implements ArcadeGameInstance {
     this.addScore(bonus + unused * 50, W / 2, 120)
     this.clear = ROUND_CLEAR_TICKS
     this.enemies = []
+    for (let r = 0; r < ROWS; r += 2)
+      for (let c = 0; c <= r; c++) {
+        const at = cubeTop(r, c)
+        this.fx.burst(at.x, at.y, this.fxRng, { count: 3 })
+      }
     this.banner = {
       text: 'PYRAMID PAINTED!',
       sub: `BONUS ${bonus}${unused ? `  DISCS ${unused * 50}` : ''}`,
@@ -449,8 +869,10 @@ class PixelHop implements ArcadeGameInstance {
       this.burst(cubeTop(e.r, e.c).x, cubeTop(e.r, e.c).y, 10, '#c084fc')
       this.sound.play('warn')
     }
-    if (e.kind === 'gremlin' && this.paint[e.r]![e.c]! > 0)
+    if (e.kind === 'gremlin' && this.paint[e.r]![e.c]! > 0) {
       this.paint[e.r]![e.c]!--
+      this.tileFx(e.r, e.c, false, false)
+    }
   }
 
   private collide() {
@@ -466,11 +888,16 @@ class PixelHop implements ArcadeGameInstance {
         this.freeze = FREEZE_TICKS
         this.addScore(FREEZE_POINTS, at.x, at.y - 16)
         this.banner = { text: 'FREEZE!', ticks: 60 }
+        this.fx.burst(at.x, at.y - 6, this.fxRng, {
+          count: 10,
+          colours: [RAMPS.water[4], RAMPS.water[3], '#ffffff'],
+        })
         this.sound.play('pickup')
       } else if (e.kind === 'gremlin') {
         this.enemies = this.enemies.filter((o) => o !== e)
         this.addScore(GREMLIN_POINTS, at.x, at.y - 16)
         this.burst(at.x, at.y, 10, '#86efac')
+        this.fx.burst(at.x, at.y - 6, this.fxRng, { count: 8 })
         this.sound.play('pop')
       } else if (this.freeze === 0) {
         this.lose(e.kind === 'boing' ? 'BOING GOT YOU' : 'BONKED')
@@ -534,6 +961,7 @@ class PixelHop implements ArcadeGameInstance {
   }
 
   private updateEffects() {
+    this.fx.update()
     for (const p of this.particles) {
       p.x += p.vx
       p.y += p.vy
@@ -639,15 +1067,7 @@ class PixelHop implements ArcadeGameInstance {
   // --- render -------------------------------------------------------------------
 
   render(g: CanvasRenderingContext2D) {
-    g.fillStyle = '#0b0a1f'
-    g.fillRect(0, 0, W, H)
-    // Twinkling pixels in the background.
-    for (let i = 0; i < 30; i++) {
-      const x = (i * 53) % W
-      const y = (i * 37) % H
-      g.fillStyle = (i + Math.floor(this.tick / 20)) % 5 ? '#312e81' : '#a5b4fc'
-      g.fillRect(x, y, 1, 1)
-    }
+    this.renderSky(g)
     for (let r = 0; r < ROWS; r++)
       for (let c = 0; c <= r; c++) this.renderCube(g, r, c)
     for (const d of this.discs)
@@ -656,60 +1076,148 @@ class PixelHop implements ArcadeGameInstance {
     const drawn: Array<{ y: number; draw: () => void }> = []
     for (const e of this.enemies) {
       const at = this.pos(e)
+      this.renderShadow(g, e)
       drawn.push({ y: at.y, draw: () => this.renderEnemy(g, e, at) })
     }
     if (!this.riding && this.dead === 0) {
       const at = this.pos(this.me)
+      this.renderShadow(g, this.me)
       drawn.push({ y: at.y, draw: () => this.renderMe(g, at) })
     }
     // Things lower on the pyramid draw last (in front).
     for (const d of drawn.sort((a, b) => a.y - b.y)) d.draw()
     for (const p of this.particles) {
       g.globalAlpha = Math.max(0, p.life / 30)
+      g.fillStyle = INK
+      g.fillRect(Math.round(p.x) - 1, Math.round(p.y) - 1, 3, 3)
       g.fillStyle = p.color
-      g.fillRect(p.x - 1, p.y - 1, 2, 2)
+      g.fillRect(Math.round(p.x) - 1, Math.round(p.y) - 1, 2, 2)
     }
     g.globalAlpha = 1
+    this.fx.render(g)
     for (const f of this.floaters)
-      drawText(g, f.text, f.x, f.y, { align: 'center', color: '#fde68a' })
-    if (this.freeze > 0 && Math.floor(this.tick / 8) % 2) {
-      g.fillStyle = 'rgba(165, 243, 252, 0.08)'
+      drawText(g, f.text, f.x, f.y, {
+        align: 'center',
+        color: RAMPS.gold[3],
+        outline: INK,
+      })
+    if (this.freeze > 0) {
+      // Frost: an icy wash that flickers as the freeze runs out.
+      const fading = this.freeze < 60 && Math.floor(this.tick / 6) % 2
+      g.fillStyle = rgba(RAMPS.water[4], fading ? 0.04 : 0.1)
       g.fillRect(0, 0, W, H)
     }
+    vignette(g, W, H, 0.4)
     this.renderHud(g)
+  }
+
+  private renderSky(g: CanvasRenderingContext2D) {
+    const index = (this.round - 1) % SCHEMES.length
+    const s = this.scheme
+    // Deep space in HDMA bands, tinted by the round, with nebula, a moon and a ringed planet.
+    cachedLayer(g, `pixel-hop-sky-${index}`, W, H, (k) => {
+      bandedGradient(
+        k,
+        0,
+        0,
+        W,
+        H,
+        [
+          RAMPS.night[0],
+          RAMPS.night[1],
+          mix(RAMPS.night[2], s.left, 0.25),
+          mix(RAMPS.night[3], s.left, 0.45),
+        ],
+        6,
+      )
+      for (const n of NEBULA) {
+        k.fillStyle = rgba(mix(s.mid, RAMPS.night[3], 0.5), 0.07)
+        for (const grow of [1, 0.7, 0.4]) {
+          k.beginPath()
+          k.ellipse(n.x, n.y, n.rx * grow, n.ry * grow, -0.25, 0, Math.PI * 2)
+          k.fill()
+        }
+      }
+      // A distant moon, upper left, and a ringed planet, upper right.
+      shadedOrb(k, 26, 66, 8, RAMPS.steel, { outline: RAMPS.night[0] })
+      k.fillStyle = rgba(RAMPS.night[0], 0.75)
+      k.beginPath()
+      k.arc(30, 63, 7, 0, Math.PI * 2)
+      k.fill()
+      const ring = rampOf(s.target)
+      k.lineWidth = 2
+      k.strokeStyle = ring[1]
+      k.beginPath()
+      k.ellipse(232, 62, 22, 5, -0.3, Math.PI, Math.PI * 2)
+      k.stroke()
+      shadedOrb(k, 232, 62, 12, rampOf(s.start), {
+        outline: RAMPS.night[0],
+      })
+      k.strokeStyle = ring[3]
+      k.beginPath()
+      k.ellipse(232, 62, 22, 5, -0.3, 0, Math.PI)
+      k.stroke()
+      // The pyramid's own light on the space behind it.
+      glow(k, APEX_X, 130, 120, s.target, 0.12)
+    })
+    drawStars(g, SKY_STARS, this.tick, RAMPS.purple)
+    // Space dust drifting past, nearer, so a touch faster and brighter.
+    const drift = (this.tick * 0.2) % W
+    g.save()
+    for (const shift of [-drift, W - drift]) {
+      g.translate(shift, 0)
+      drawStars(g, DUST, this.tick + 40, RAMPS.sky)
+      g.translate(-shift, 0)
+    }
+    g.restore()
+    // Two ranges of floating crags far below, the nearer one sliding faster.
+    drawRidge(g, FAR_CRAGS, {
+      base: H - 18,
+      bottom: H,
+      width: W,
+      offset: this.tick * 0.12,
+      fill: mix(RAMPS.night[2], s.left, 0.35),
+      rim: mix(RAMPS.night[4], s.left, 0.35),
+    })
+    drawRidge(g, NEAR_CRAGS, {
+      base: H - 4,
+      bottom: H,
+      width: W,
+      offset: this.tick * 0.3,
+      fill: RAMPS.night[1],
+      rim: RAMPS.night[3],
+    })
   }
 
   private renderCube(g: CanvasRenderingContext2D, r: number, c: number) {
     const { x, y } = cubeTop(r, c)
-    const s = this.scheme
-    const half = CUBE_W / 2
+    const index = (this.round - 1) % SCHEMES.length
     const tile = this.paint[r]![c]!
-    // Top face.
-    g.fillStyle = tile === 2 ? s.target : tile === 1 ? s.mid : s.start
-    g.beginPath()
-    g.moveTo(x, y - FACE_H / 2)
-    g.lineTo(x + half, y)
-    g.lineTo(x, y + FACE_H / 2)
-    g.lineTo(x - half, y)
-    g.closePath()
-    g.fill()
-    // Left and right sides.
-    g.fillStyle = s.left
-    g.beginPath()
-    g.moveTo(x - half, y)
-    g.lineTo(x, y + FACE_H / 2)
-    g.lineTo(x, y + FACE_H / 2 + SIDE_H)
-    g.lineTo(x - half, y + SIDE_H)
-    g.closePath()
-    g.fill()
-    g.fillStyle = s.right
-    g.beginPath()
-    g.moveTo(x + half, y)
-    g.lineTo(x, y + FACE_H / 2)
-    g.lineTo(x, y + FACE_H / 2 + SIDE_H)
-    g.lineTo(x + half, y + SIDE_H)
-    g.closePath()
-    g.fill()
+    const left = x - CUBE_W / 2 - 1
+    const top = y - FACE_H / 2 - 1
+    drawSprite(g, CUBE_SPRITES[index]![tile]!, left, top, {
+      anchor: 'topleft',
+    })
+    // A fresh coat flashes white and fades into its new ramp.
+    const since = this.tick - (this.flashes.get(`${r},${c}`) ?? -99)
+    let shine = since < 14 ? 1 - since / 14 : 0
+    // Done tiles catch a glint sweeping across the pyramid now and then
+    // (the whole pyramid strobes when it is finished).
+    if (this.clear > 0) {
+      if ((r + c + Math.floor(this.tick / 4)) % 4 === 0) shine = 0.7
+    } else if (tile === 2) {
+      const sweep = ((this.tick % 200) / 200) * (W + 160) - 80
+      shine = Math.max(shine, 0.4 - Math.abs(x + y * 0.5 - sweep) / 30)
+    }
+    if (shine > 0) {
+      g.save()
+      g.globalCompositeOperation = 'lighter'
+      drawSprite(g, TOP_FLASH, left + 1, top + 1, {
+        anchor: 'topleft',
+        alpha: shine * 0.8,
+      })
+      g.restore()
+    }
   }
 
   private discPos(side: -1 | 1, row: number) {
@@ -721,28 +1229,25 @@ class PixelHop implements ArcadeGameInstance {
     g: CanvasRenderingContext2D,
     side: -1 | 1,
     row: number,
-    glow: boolean,
+    lit: boolean,
   ) {
     const { x, y } = this.discPos(side, row)
-    this.drawDisc(g, x, y, glow)
+    this.drawDisc(g, x, y, lit)
   }
 
   private drawDisc(
     g: CanvasRenderingContext2D,
     x: number,
     y: number,
-    glow: boolean,
+    lit: boolean,
   ) {
-    const colors = ['#f87171', '#facc15', '#4ade80', '#38bdf8']
-    g.fillStyle = colors[Math.floor(this.tick / 5) % colors.length]!
-    g.beginPath()
-    g.ellipse(x, y, 8, 3, 0, 0, Math.PI * 2)
-    g.fill()
-    if (glow) {
-      g.strokeStyle = '#ffffff'
-      g.lineWidth = 1
-      g.stroke()
-    }
+    const frame = Math.floor(this.tick / 5) % DISC_SPRITES.length
+    const hue = DISC_RAMPS[frame]!
+    glow(g, x, y + 1, lit ? 20 : 13, hue[3], lit ? 0.6 : 0.35)
+    // It hovers: a little bob over its own faint shadow.
+    const bob = Math.round(Math.sin(this.tick / 9 + x) * 1)
+    if (!lit) dropShadow(g, x, y + 7, 6, 1.5, 0.3)
+    drawSprite(g, DISC_SPRITES[frame]!, x, y + 1 + bob)
   }
 
   private renderRide(g: CanvasRenderingContext2D) {
@@ -750,31 +1255,55 @@ class PixelHop implements ArcadeGameInstance {
     const from = this.discPos(ride.side, ride.row)
     const to = { x: APEX_X, y: APEX_Y - 26 }
     const t = 1 - ride.t / 90
+    // A comet trail of fading afterimages back down the path.
+    g.save()
+    g.globalCompositeOperation = 'lighter'
+    for (let i = 1; i <= 5; i++) {
+      const tt = Math.max(0, t - i * 0.03)
+      const tx = from.x + (to.x - from.x) * tt
+      const ty = from.y + (to.y - from.y) * tt
+      g.fillStyle = rgba(DISC_RAMPS[(i + this.tick) % 4]![3], 0.5 - i * 0.08)
+      g.fillRect(Math.round(tx) - 6 + i, Math.round(ty) + 1, 12 - i * 2, 2)
+    }
+    g.restore()
     const x = from.x + (to.x - from.x) * t
     const y = from.y + (to.y - from.y) * t
     this.drawDisc(g, x, y, true)
     this.renderMe(g, { x, y: y - 2 })
   }
 
+  /** A soft shadow on the tile under a hopper, smaller the higher it hops. */
+  private renderShadow(g: CanvasRenderingContext2D, h: Hopper) {
+    if (h.falling > 0) return
+    const to = cubeTop(h.r, h.c)
+    let x = to.x
+    let y = to.y
+    let lift = 0
+    if (h.hop > 0) {
+      const t = 1 - h.hop / HOP_TICKS
+      if (h.fr < 0) lift = (1 - t) * 50 + Math.sin(t * Math.PI) * 14
+      else {
+        // Hopping off the edge: no tile to land the shadow on past halfway.
+        if (!onPyramid(h.r, h.c) && t > 0.5) return
+        const from = cubeTop(h.fr, h.fc)
+        x = from.x + (to.x - from.x) * t
+        y = from.y + (to.y - from.y) * t
+        lift = Math.sin(t * Math.PI) * 14
+      }
+    } else if (!onPyramid(h.r, h.c)) return
+    const k = Math.max(0.35, 1 - lift / 40)
+    dropShadow(g, x, y + 1, 7 * k, 2.5 * k, 0.45 * k)
+  }
+
   private renderMe(g: CanvasRenderingContext2D, at: { x: number; y: number }) {
-    const x = Math.round(at.x)
-    const y = Math.round(at.y) - 4
-    // Pip: a round orange pixel-bot with a snorkel nose and big feet.
-    g.fillStyle = '#7c2d12'
-    g.fillRect(x - 5, y + 2, 4, 2)
-    g.fillRect(x + 1, y + 2, 4, 2)
-    g.fillStyle = '#fb923c'
-    g.beginPath()
-    g.arc(x, y - 4, 6, 0, Math.PI * 2)
-    g.fill()
-    g.fillStyle = '#fdba74'
-    g.fillRect(x + 3, y - 5, 5, 3)
-    g.fillStyle = '#ffffff'
-    g.fillRect(x - 3, y - 8, 3, 3)
-    g.fillRect(x + 1, y - 8, 3, 3)
-    g.fillStyle = '#111827'
-    g.fillRect(x - 2, y - 7, 1, 1)
-    g.fillRect(x + 2, y - 7, 1, 1)
+    const me = this.me
+    const face = facing(me)
+    const airborne = me.hop > 0 || me.falling > 0
+    const sprite = PIP_SPRITES[face.back ? 1 : 0]![airborne ? 1 : 0]!
+    drawSprite(g, sprite, at.x + (face.left ? -2 : 2), at.y + 2, {
+      anchor: 'feet',
+      flipX: face.left,
+    })
   }
 
   private renderEnemy(
@@ -782,88 +1311,112 @@ class PixelHop implements ArcadeGameInstance {
     e: Enemy,
     at: { x: number; y: number },
   ) {
-    const x = Math.round(at.x)
-    const y = Math.round(at.y) - 4
+    const face = facing(e)
+    const airborne = e.hop > 0 || e.falling > 0
+    const every = Math.round(levelCurve(this.round, HOP_CURVES.enemyHop))
+    const landing =
+      !airborne && (e.wait > every - 5 || this.freeze > 0 || this.dead > 0)
+    const x = at.x
+    const y = at.y + 1
+    let sprite: PixelSprite
     if (e.kind === 'boing') {
-      // Boing: a coiled spring with a grumpy purple head.
-      g.fillStyle = '#a855f7'
-      for (let i = 0; i < 4; i++) g.fillRect(x - 3 + (i % 2), y - i * 3, 6, 2)
-      g.beginPath()
-      g.arc(x, y - 14, 5, 0, Math.PI * 2)
-      g.fill()
-      g.fillStyle = '#ffffff'
-      g.fillRect(x - 3, y - 16, 2, 2)
-      g.fillRect(x + 1, y - 16, 2, 2)
-      g.fillStyle = '#3b0764'
-      g.fillRect(x - 3, y - 18, 6, 1)
-      return
+      sprite = BOING_SPRITES[airborne ? 1 : 0]!
+    } else if (e.kind === 'gremlin') {
+      const index = (this.round - 1) % SCHEMES.length
+      sprite =
+        GREMLIN_SPRITES[index]![airborne ? Math.floor(this.tick / 4) % 2 : 0]!
+    } else {
+      if (e.kind === 'green')
+        glow(
+          g,
+          x,
+          y - 5,
+          12,
+          RAMPS.leaf[3],
+          0.3 + 0.15 * Math.sin(this.tick / 5),
+        )
+      sprite = GUMBALL_SPRITES[e.kind][landing ? 1 : 0]
     }
-    if (e.kind === 'gremlin') {
-      // The repaint gremlin, dragging a little brush.
-      g.fillStyle = '#22c55e'
-      g.fillRect(x - 4, y - 8, 8, 8)
-      g.fillStyle = '#bbf7d0'
-      g.fillRect(x - 3, y - 7, 2, 2)
-      g.fillRect(x + 1, y - 7, 2, 2)
-      g.fillStyle = '#a16207'
-      g.fillRect(x + 4, y - 4, 4, 1)
-      g.fillStyle = this.scheme.start
-      g.fillRect(x + 7, y - 5, 2, 3)
-      return
+    drawSprite(g, sprite, x, y, { anchor: 'feet', flipX: face.left })
+    if (this.freeze > 0) {
+      // Frozen solid: an icy sheen over the sprite.
+      g.save()
+      g.globalCompositeOperation = 'lighter'
+      drawSprite(g, sprite, x, y, {
+        anchor: 'feet',
+        flipX: face.left,
+        alpha: 0.35,
+      })
+      g.restore()
+      g.fillStyle = RAMPS.water[4]
+      if (Math.floor(this.tick / 10 + e.c) % 3 === 0)
+        g.fillRect(Math.round(x) + 2, Math.round(y) - sprite.height + 2, 1, 1)
     }
-    const color =
-      e.kind === 'purple'
-        ? '#a855f7'
-        : e.kind === 'green'
-          ? '#4ade80'
-          : '#ef4444'
-    g.fillStyle = color
-    g.beginPath()
-    g.arc(x, y - 4, 4, 0, Math.PI * 2)
-    g.fill()
-    g.fillStyle = 'rgba(255, 255, 255, 0.7)'
-    g.fillRect(x - 2, y - 6, 2, 2)
   }
 
   private renderHud(g: CanvasRenderingContext2D) {
-    const shadow = '#1e1b4b'
-    drawText(g, String(this.score).padStart(6, '0'), 4, 3, {
+    const index = (this.round - 1) % SCHEMES.length
+    // Score, and the colour to paint, in one box at the upper left.
+    hudPanel(g, 4, 3, 82, 36)
+    drawText(g, String(this.score).padStart(6, '0'), 9, 6, {
       scale: 2,
-      color: '#fde047',
-      shadow,
+      color: RAMPS.gold[3],
+      shadow: INK,
     })
-    drawText(g, `HI ${Math.max(this.hiScore, this.score)}`, W - 4, 2, {
+    drawText(g, 'PAINT', 9, 26, { color: RAMPS.teal[4], outline: INK })
+    const pulse = 0.5 + 0.5 * Math.sin(this.tick / 10)
+    glow(g, 50, 28, 9, this.scheme.target, 0.25 + 0.25 * pulse)
+    drawSprite(g, MINI_CUBES[index]!, 50, 29)
+    // Hi score, level and spare hoppers at the upper right.
+    hudPanel(g, W - 84, 3, 80, 36)
+    drawText(g, `HI ${Math.max(this.hiScore, this.score)}`, W - 9, 7, {
       align: 'right',
-      color: '#f9a8d4',
+      color: RAMPS.pink[3],
+      outline: INK,
     })
-    drawText(g, `LEVEL ${this.level}`, W - 4, 10, {
+    drawText(g, `LEVEL ${this.level}`, W - 9, 17, {
       align: 'right',
-      color: '#a5f3fc',
+      color: RAMPS.teal[3],
+      outline: INK,
     })
-    // The target colour, so you know what to paint.
-    drawText(g, 'PAINT', 4, 20, { color: '#e5e7eb' })
-    g.fillStyle = this.scheme.target
-    g.fillRect(36, 20, 10, 6)
-    for (let i = 0; i < Math.min(this.lives - 1, 5); i++) {
-      g.fillStyle = '#fb923c'
-      g.beginPath()
-      g.arc(W - 10 - i * 10, 24, 3, 0, Math.PI * 2)
-      g.fill()
+    for (let i = 0; i < Math.min(this.lives - 1, 5); i++)
+      drawSprite(g, PIP_LIFE, W - 15 - i * 12, 31)
+    // Freeze time left, while it lasts.
+    if (this.freeze > 0) {
+      hudPanel(g, 4, H - 17, 68, 13)
+      drawText(g, 'ICE', 9, H - 14, { color: RAMPS.water[4], outline: INK })
+      gauge(g, 30, H - 13, 37, 5, this.freeze / FREEZE_TICKS, RAMPS.water)
     }
     if (this.banner) {
       drawText(g, this.banner.text, W / 2, H - 44, {
         scale: 2,
         align: 'center',
         color: '#ffffff',
-        shadow: '#7c3aed',
+        outline: INK,
+        shadow: RAMPS.purple[1],
       })
       if (this.banner.sub)
         drawText(g, this.banner.sub, W / 2, H - 24, {
           align: 'center',
-          color: '#fde68a',
-          shadow,
+          color: RAMPS.gold[3],
+          outline: INK,
         })
     }
+  }
+
+  // --- cosmetic effects (never touch the game's rng) ------------------------------
+
+  /** A tile changed colour: flash it, and sparkle in the new colour when it went the right way. */
+  private tileFx(r: number, c: number, better: boolean, done: boolean) {
+    this.flashes.set(`${r},${c}`, this.tick)
+    if (!better) return
+    const at = cubeTop(r, c)
+    const ramp = rampOf(done ? this.scheme.target : this.scheme.mid)
+    this.fx.burst(at.x, at.y, this.fxRng, {
+      count: done ? 9 : 5,
+      colours: [ramp[3], ramp[4], RAMPS.gold[4]],
+      speed: done ? 1.5 : 1,
+    })
   }
 }
 

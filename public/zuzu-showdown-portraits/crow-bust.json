@@ -1,0 +1,10 @@
+{
+  "fighter": "storm-crow",
+  "kind": "bust",
+  "w": 50,
+  "h": 50,
+  "hd_scale": 4,
+  "art_image_id": 244651,
+  "ledger_key": "crow-bust",
+  "mirrored": false
+}

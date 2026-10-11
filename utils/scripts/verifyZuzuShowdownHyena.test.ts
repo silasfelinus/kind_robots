@@ -130,7 +130,7 @@ check(
     const drag = HYENA_MATRIARCH.specials.find((s) => s.id === 'drag')!
     assert.ok(drag.followUp && drag.motion === 'qcf' && drag.button === 'P')
     assert.ok(FIGHTERS.includes(HYENA_MATRIARCH))
-    assert.equal(HYENA_MATRIARCH.health, 1000)
+    assert.equal(HYENA_MATRIARCH.health, 1100)
   },
 )
 

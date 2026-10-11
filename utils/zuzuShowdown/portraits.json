@@ -1,0 +1,200 @@
+{
+  "coyote-vagrant": {
+    "beaten": {
+      "file": "coyote-beaten",
+      "h": 152,
+      "w": 104
+    },
+    "bust": {
+      "file": "coyote-bust",
+      "h": 50,
+      "w": 50
+    },
+    "victory": {
+      "file": "coyote-victory",
+      "h": 152,
+      "w": 104
+    },
+    "vs": {
+      "file": "coyote-vs",
+      "h": 152,
+      "w": 104
+    }
+  },
+  "hyena-matriarch": {
+    "beaten": {
+      "file": "hyena-beaten",
+      "h": 152,
+      "w": 104
+    },
+    "bust": {
+      "file": "hyena-bust",
+      "h": 50,
+      "w": 50
+    },
+    "victory": {
+      "file": "hyena-victory",
+      "h": 152,
+      "w": 104
+    },
+    "vs": {
+      "file": "hyena-vs",
+      "h": 152,
+      "w": 104
+    }
+  },
+  "old-komodo": {
+    "beaten": {
+      "file": "komodo-beaten",
+      "h": 152,
+      "w": 104
+    },
+    "bust": {
+      "file": "komodo-bust",
+      "h": 50,
+      "w": 50
+    },
+    "victory": {
+      "file": "komodo-victory",
+      "h": 152,
+      "w": 104
+    },
+    "vs": {
+      "file": "komodo-vs",
+      "h": 152,
+      "w": 104
+    }
+  },
+  "river-croc": {
+    "beaten": {
+      "file": "croc-beaten",
+      "h": 152,
+      "w": 104
+    },
+    "bust": {
+      "file": "croc-bust",
+      "h": 50,
+      "w": 50
+    },
+    "victory": {
+      "file": "croc-victory",
+      "h": 152,
+      "w": 104
+    },
+    "vs": {
+      "file": "croc-vs",
+      "h": 152,
+      "w": 104
+    }
+  },
+  "storm-crow": {
+    "beaten": {
+      "file": "crow-beaten",
+      "h": 152,
+      "w": 104
+    },
+    "bust": {
+      "file": "crow-bust",
+      "h": 50,
+      "w": 50
+    },
+    "victory": {
+      "file": "crow-victory",
+      "h": 152,
+      "w": 104
+    },
+    "vs": {
+      "file": "crow-vs",
+      "h": 152,
+      "w": 104
+    }
+  },
+  "swamp-witch": {
+    "beaten": {
+      "file": "witch-beaten",
+      "h": 152,
+      "w": 104
+    },
+    "bust": {
+      "file": "witch-bust",
+      "h": 50,
+      "w": 50
+    },
+    "victory": {
+      "file": "witch-victory",
+      "h": 152,
+      "w": 104
+    },
+    "vs": {
+      "file": "witch-vs",
+      "h": 152,
+      "w": 104
+    }
+  },
+  "the-abbess": {
+    "beaten": {
+      "file": "abbess-beaten",
+      "h": 152,
+      "w": 104
+    },
+    "bust": {
+      "file": "abbess-bust",
+      "h": 50,
+      "w": 50
+    },
+    "victory": {
+      "file": "abbess-victory",
+      "h": 152,
+      "w": 104
+    },
+    "vs": {
+      "file": "abbess-vs",
+      "h": 152,
+      "w": 104
+    }
+  },
+  "the-siblings": {
+    "beaten": {
+      "file": "siblings-beaten",
+      "h": 152,
+      "w": 104
+    },
+    "bust": {
+      "file": "siblings-bust",
+      "h": 50,
+      "w": 50
+    },
+    "victory": {
+      "file": "siblings-victory",
+      "h": 152,
+      "w": 104
+    },
+    "vs": {
+      "file": "siblings-vs",
+      "h": 152,
+      "w": 104
+    }
+  },
+  "zuzu": {
+    "beaten": {
+      "file": "zuzu-beaten",
+      "h": 152,
+      "w": 104
+    },
+    "bust": {
+      "file": "zuzu-bust",
+      "h": 50,
+      "w": 50
+    },
+    "victory": {
+      "file": "zuzu-victory",
+      "h": 152,
+      "w": 104
+    },
+    "vs": {
+      "file": "zuzu-vs",
+      "h": 152,
+      "w": 104
+    }
+  }
+}

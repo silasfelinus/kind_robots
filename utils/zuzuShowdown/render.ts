@@ -108,7 +108,17 @@ export type RenderOptions = {
   style?: RenderStyle
   /** The camera's zoom (advanceZoom toward zoomTarget); 1, the whole stage, when left out. */
   zoom?: number
+  /** Fighters drawn by their own painter instead of sprites, by slug (the arcade boss, bossArt.ts). */
+  painters?: Partial<Record<string, FighterPainter>>
 }
+
+/** Draws a fighter in place of its sprite, in the fight's coordinates (under the camera's zoom). */
+export type FighterPainter = (
+  g: G,
+  s: MatchState,
+  side: 0 | 1,
+  camera: number,
+) => void
 
 /** Set a context up for a render style: image filtering and the HUD font. */
 export function applyRenderStyle(g: G, style: RenderStyle = 'pixel'): void {
@@ -1248,6 +1258,40 @@ function drawThrown(
   g.translate(cx, cy)
   g.lineJoin = 'round'
   switch (p.move) {
+    case 'beam': {
+      // The Thing's eye-beam: a hot yellow streak with a violet fringe, trailing back toward the door.
+      const half = r.w / 2
+      const tail = 18
+      g.fillStyle = 'rgba(168, 85, 247, 0.55)'
+      g.beginPath()
+      g.ellipse(
+        -dir * (tail / 2),
+        0,
+        half + tail / 2,
+        r.h / 2 + 2,
+        0,
+        0,
+        Math.PI * 2,
+      )
+      g.fill()
+      g.fillStyle = '#facc15'
+      g.beginPath()
+      g.ellipse(
+        -dir * (tail / 3),
+        0,
+        half + tail / 3,
+        r.h / 2 - 1,
+        0,
+        0,
+        Math.PI * 2,
+      )
+      g.fill()
+      g.fillStyle = '#fef9c3'
+      g.beginPath()
+      g.ellipse(0, 0, half - 3, Math.max(1, r.h / 2 - 3), 0, 0, Math.PI * 2)
+      g.fill()
+      break
+    }
     case 'kasa-toss': {
       // Zuzu's straw kasa, skimming flat and spinning: the band's highlight swings round the crown.
       const half = r.w / 2
@@ -2134,6 +2178,11 @@ export function drawMatch(
       ? fleeingPose(s.fighters[side], s.fighters[side === 0 ? 1 : 0], fled)
       : s.fighters[side]
     const slug = roster[side].slug
+    const painter = options.painters?.[slug]
+    if (painter) {
+      painter(g, s, side, camera)
+      continue
+    }
     const context: SpriteContext = {
       intro: s.phase === 'intro' ? s.phaseFrame : undefined,
       perfect: f.health >= roster[side].health,

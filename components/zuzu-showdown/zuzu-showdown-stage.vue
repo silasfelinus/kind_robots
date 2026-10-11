@@ -120,7 +120,7 @@ import {
   zoomTarget,
   type Callout,
 } from '~/utils/zuzuShowdown/render'
-import { FIGHTERS, findFighter } from '~/utils/zuzuShowdown/fighters'
+import { FIGHTERS, findFighter, moveList } from '~/utils/zuzuShowdown/fighters'
 import {
   advanceSlowdown,
   advanceSparks,
@@ -141,7 +141,12 @@ import {
   type StageManifest,
   type StageSlug,
 } from '~/utils/zuzuShowdown/stages'
-import { cpuInput, newCpu, type CpuState } from '~/utils/zuzuShowdown/cpu'
+import {
+  cpuInput,
+  newCpu,
+  type CpuLevel,
+  type CpuState,
+} from '~/utils/zuzuShowdown/cpu'
 import {
   applyTrainingRules,
   drawTraining,
@@ -152,11 +157,12 @@ import {
   trainingMatch,
   type TrainingState,
 } from '~/utils/zuzuShowdown/training'
-import { introFor } from '~/utils/zuzuShowdown/matchups'
+import { BOSS_INTROS, introFor } from '~/utils/zuzuShowdown/matchups'
 import {
   VS_SLAM_FRAMES,
   drawSelectScreen,
   drawVsScreen,
+  drawPauseScreen,
   drawWinScreen,
   vsDuration,
 } from '~/utils/zuzuShowdown/screens'
@@ -178,13 +184,76 @@ import {
 } from '~/utils/zuzuShowdown/sprites'
 import { recolourPixels, type P2Rule } from '~/utils/zuzuShowdown/recolour'
 import {
+  PORTRAIT_KINDS,
+  portraitFighters,
+  portraitInfo,
+  portraitUrl,
+  type LoadedPortraits,
+} from '~/utils/zuzuShowdown/portraits'
+import {
   neutralInput,
   type FighterData,
   type MatchState,
 } from '~/utils/zuzuShowdown/types'
 import { useZuzuShowdownStore } from '~/stores/zuzuShowdownStore'
+import { useArcadeStore } from '~/stores/arcadeStore'
+import { mapArtShipped, mapArtUrl } from '~/utils/zuzuShowdown/worldMap'
+import {
+  BOSS,
+  bossInput,
+  newBoss,
+  type BossState,
+} from '~/utils/zuzuShowdown/boss'
+import {
+  BOSS_LAYERS,
+  bossLayerUrl,
+  bossPainter,
+  type LoadedBossArt,
+} from '~/utils/zuzuShowdown/bossArt'
+import {
+  ARCADE_GAME_SLUG,
+  BOSS_SLUG,
+  DIFFICULTY_MULTIPLIER,
+  ENDINGS,
+  SCORE,
+  advanceInitials,
+  arcadeLadder,
+  fightBonus,
+  initialsDone,
+  initialsText,
+  newArcadeScore,
+  newInitials,
+  rungLevel,
+  scoreStep,
+  type ArcadeScore,
+  type InitialsEntry,
+} from '~/utils/zuzuShowdown/arcade'
+import {
+  CONTINUE_SECONDS,
+  ENDING_STILL_FRAMES,
+  LADDER_FRAMES,
+  drawArcadeHud,
+  drawContinueScreen,
+  drawEndingScreen,
+  drawInitialsScreen,
+  drawTravelScreen,
+  endingStill,
+  endingUrl,
+  shippedEndings,
+  type LoadedEndings,
+} from '~/utils/zuzuShowdown/arcadeScreens'
 
-type StagePhase = 'title' | 'select' | 'vs' | 'fight' | 'paused' | 'result'
+type StagePhase =
+  | 'title'
+  | 'select'
+  | 'vs'
+  | 'fight'
+  | 'paused'
+  | 'result'
+  | 'ladder'
+  | 'continue'
+  | 'ending'
+  | 'initials'
 type Direction = 'up' | 'down' | 'left' | 'right'
 
 const RESULT_DELAY = 150
@@ -252,6 +321,38 @@ async function loadSprites(style: RenderStyle, slugs: readonly string[]) {
         ]
       }),
   )
+}
+
+// Portraits (t-008) per render style: small enough to load every fighter's up front, pixel first; the
+// screens draw the sprite for any not yet arrived.
+const portraitSets: Record<RenderStyle, LoadedPortraits> = { pixel: {}, hd: {} }
+const portraitLoads = new Set<RenderStyle>()
+
+async function loadPortraits(style: RenderStyle) {
+  if (portraitLoads.has(style)) return
+  portraitLoads.add(style)
+  await Promise.all(
+    portraitFighters().flatMap((slug) =>
+      PORTRAIT_KINDS.map(async (kind) => {
+        const info = portraitInfo(slug, kind)
+        if (!info) return
+        const image = await loadImage(portraitUrl(info, style))
+        if (image) (portraitSets[style][slug] ??= {})[kind] = image
+      }),
+    ),
+  )
+}
+
+/** The portraits to draw: the style's where they have loaded, pixel ones where they haven't. */
+function activePortraits(): LoadedPortraits {
+  if (store.renderStyle === 'pixel') return portraitSets.pixel
+  const out: LoadedPortraits = {}
+  for (const slug of portraitFighters())
+    out[slug] = {
+      ...portraitSets.pixel[slug],
+      ...portraitSets[store.renderStyle][slug],
+    }
+  return out
 }
 
 /** P2's colours made from the atlas by the sheet's rules (HD ships no P2 atlas). */
@@ -363,7 +464,11 @@ async function loadStage(slug: StageSlug, style: RenderStyle) {
 function loadArt() {
   const slug = stageFor(roster)
   void loadStage(slug, 'pixel')
+  void loadPortraits('pixel')
+  loadMapArt('pixel')
+  loadMapArt(store.renderStyle)
   if (store.renderStyle !== 'pixel') {
+    void loadPortraits(store.renderStyle)
     void loadStage(slug, store.renderStyle)
     void loadSprites(store.renderStyle, [roster[0].slug, roster[1].slug])
     recolourP2()
@@ -435,6 +540,57 @@ let screenFrame = 0
 // The character select grid (t-019), and whether the roster change it makes goes straight to the VS screen.
 let select: SelectState = newSelect([], ['', ''])
 let selectedToVs = false
+// Arcade (t-021): the climb under way, its score, and the initials being entered at its end.
+type ArcadeRun = {
+  player: string
+  ladder: string[]
+  rung: number
+  start: CpuLevel
+  score: ArcadeScore
+  cleared: boolean
+}
+let arcade: ArcadeRun | null = null
+let initials: InitialsEntry = newInitials()
+const endingSets: Record<RenderStyle, LoadedEndings> = { pixel: {}, hd: {} }
+// The painted wasteland (t-029), once it has shipped; the ink map draws until then.
+const mapArt: Partial<Record<RenderStyle, HTMLImageElement>> = {}
+const mapLoads = new Set<RenderStyle>()
+
+function loadMapArt(style: RenderStyle) {
+  if (!mapArtShipped() || mapLoads.has(style)) return
+  mapLoads.add(style)
+  void loadImage(mapArtUrl(style)).then((image) => {
+    if (image) mapArt[style] = image
+  })
+}
+
+function activeMapArt(): CanvasImageSource | undefined {
+  return mapArt[store.renderStyle] ?? mapArt.pixel
+}
+// The Thing Behind the Door (t-021): its AI, and its layers per render style.
+let boss: BossState = newBoss(1)
+const bossSets: Record<RenderStyle, LoadedBossArt> = { pixel: {}, hd: {} }
+const bossLoads = new Set<RenderStyle>()
+const painters = {
+  [BOSS_SLUG]: bossPainter(BOSS, () => ({
+    ...bossSets.pixel,
+    ...bossSets[store.renderStyle],
+  })),
+}
+
+function loadBossArt(style: RenderStyle) {
+  if (bossLoads.has(style)) return
+  bossLoads.add(style)
+  for (const name of BOSS_LAYERS)
+    void loadImage(bossLayerUrl(name, style)).then((image) => {
+      if (image) bossSets[style][name] = image
+    })
+}
+
+function bossFight(): boolean {
+  return roster[1].slug === BOSS_SLUG
+}
+const arcadeStore = useArcadeStore()
 let loop: FixedLoop | null = null
 let sound: ArcadeSound | null = null
 let soundState: SoundState = newSoundState()
@@ -500,10 +656,116 @@ function selectPress(
   }
 }
 
+/** Arcade: a new climb for `player`, from the CPU level picked on the page. */
+function startArcade(player: string) {
+  arcade = {
+    player,
+    ladder: arcadeLadder(
+      player,
+      FIGHTERS.map((f) => f.slug),
+      Math.floor(Math.random() * 0xffffffff),
+    ),
+    rung: 0,
+    start: store.cpuLevel,
+    score: newArcadeScore(),
+    cleared: false,
+  }
+  openLadder()
+}
+
+/** The climb so far, before the next fight (or, at the top, the ending). */
+function openLadder() {
+  if (!arcade) return
+  if (arcade.rung > arcade.ladder.length) {
+    arcade.cleared = true
+    startEnding()
+    return
+  }
+  const atDoor = arcade.rung === arcade.ladder.length
+  roster = [
+    findFighter(arcade.player),
+    atDoor ? BOSS : findFighter(arcade.ladder[arcade.rung]!),
+  ]
+  if (atDoor) {
+    loadBossArt('pixel')
+    loadBossArt(store.renderStyle)
+  }
+  match = createMatch(roster)
+  zoom = zoomTarget(match, roster)
+  loadArt()
+  screenFrame = 0
+  phase.value = 'ladder'
+}
+
+/** After a fight's win screen: up the ladder on a win, the continue countdown on anything else. */
+function finishArcadeFight() {
+  if (!arcade) return
+  if (match.winner === 0) {
+    arcade.score = fightBonus(
+      arcade.score,
+      arcade.rung,
+      DIFFICULTY_MULTIPLIER[arcade.start],
+    )
+    if (bossFight())
+      arcade.score.total += SCORE.boss * DIFFICULTY_MULTIPLIER[arcade.start]
+    arcade.rung += 1
+    openLadder()
+    return
+  }
+  screenFrame = 0
+  phase.value = 'continue'
+}
+
+/** The ending: the fighter's stills, loading in the background while the first fades in. */
+function startEnding() {
+  if (!arcade) return
+  const shipped = shippedEndings()
+  for (const style of ['pixel', store.renderStyle] as const) {
+    for (const { file: still } of ENDINGS[arcade.player] ?? []) {
+      if (!shipped.includes(still) || endingSets[style][still]) continue
+      void loadImage(endingUrl(still, style)).then((image) => {
+        if (image) endingSets[style][still] = image
+      })
+    }
+  }
+  screenFrame = 0
+  phase.value = 'ending'
+}
+
+function activeEndings(): LoadedEndings {
+  return { ...endingSets.pixel, ...endingSets[store.renderStyle] }
+}
+
+/** The run is over: initials for a score worth keeping, the title otherwise. */
+function endArcadeRun() {
+  if (arcade && arcade.score.total > 0) {
+    initials = newInitials(arcadeStore.savedInitials)
+    screenFrame = 0
+    phase.value = 'initials'
+    return
+  }
+  arcade = null
+  phase.value = 'title'
+}
+
+function submitArcadeScore() {
+  if (!arcade) return
+  const name = initialsText(initials)
+  arcadeStore.rememberInitials(name)
+  void arcadeStore.submitScore({
+    game: ARCADE_GAME_SLUG,
+    initials: name,
+    score: Math.floor(arcade.score.total),
+    level: Math.max(1, arcade.score.fights),
+  })
+  arcade = null
+  phase.value = 'title'
+}
+
 /** The VS screen: the fighters slam in and trade their matchup lines, then the fight starts. */
 function startVs() {
-  // Training goes straight to the fight.
-  if (store.mode === 'dummy') {
+  // Training goes straight to the fight, and so does the door (it has no portrait to slam in).
+  if (store.mode === 'dummy' || bossFight()) {
     startMatch()
     return
   }
@@ -522,7 +784,11 @@ function startMatch() {
   slowdown = null
   zoom = zoomTarget(match, roster)
   stageFx = advanceStageFx(newStageFx(), match.events)
-  cpu = newCpu(store.cpuLevel, Math.floor(Math.random() * 0xffffffff))
+  const level = arcade
+    ? rungLevel(arcade.start, arcade.rung, arcade.ladder.length)
+    : store.cpuLevel
+  cpu = newCpu(level, Math.floor(Math.random() * 0xffffffff))
+  boss = newBoss(Math.floor(Math.random() * 0xffffffff))
   resultCountdown = RESULT_DELAY
   phase.value = 'fight'
   // The round's opening sounds (the Hollow Bell toll) come from the new match's own events.
@@ -568,9 +834,41 @@ function tick() {
     return
   }
   if (phase.value === 'result') {
-    // A rematch: the same fighters, straight to the VS screen.
+    // A rematch: the same fighters, straight to the VS screen. In Arcade, the climb goes on.
     screenFrame += 1
+    if (arcade) {
+      if ((start || one.pressed.lp) && screenFrame > 30) finishArcadeFight()
+      else if (screenFrame >= 300) finishArcadeFight()
+      return
+    }
     if (start || one.pressed.lp) startVs()
+    return
+  }
+  if (phase.value === 'ladder') {
+    screenFrame += 1
+    const skip = (start || one.pressed.lp) && screenFrame > 20
+    if (skip || screenFrame >= LADDER_FRAMES) startVs()
+    return
+  }
+  if (phase.value === 'continue') {
+    screenFrame += 1
+    if (arcade && (start || one.pressed.lp)) {
+      arcade.score = newArcadeScore()
+      startVs()
+    } else if (screenFrame >= (CONTINUE_SECONDS + 1) * 60) endArcadeRun()
+    return
+  }
+  if (phase.value === 'ending') {
+    screenFrame += 1
+    if ((start || one.pressed.lp) && screenFrame > 20)
+      screenFrame = (endingStill(screenFrame) + 1) * ENDING_STILL_FRAMES
+    if (endingStill(screenFrame) >= 2) endArcadeRun()
+    return
+  }
+  if (phase.value === 'initials') {
+    screenFrame += 1
+    initials = advanceInitials(initials, selectPress(one.pressed))
+    if (initialsDone(initials)) submitArcadeScore()
     return
   }
   if (phase.value === 'select') {
@@ -585,6 +883,10 @@ function tick() {
       FIGHTERS.length,
       store.mode === 'versus',
     )
+    if (store.mode === 'arcade' && select.picked[0]) {
+      startArcade(FIGHTERS[select.cursor[0]]!.slug)
+      return
+    }
     if (selectDone(select)) confirmSelect()
     return
   }
@@ -610,7 +912,11 @@ function tick() {
   const first = toSimInput(one.held)
   let second = neutralInput()
   if (store.mode === 'versus') second = toSimInput(two.held)
-  else if (store.mode === 'cpu') {
+  else if (bossFight()) {
+    const turn = bossInput(boss, match, 1)
+    boss = turn.boss
+    second = turn.input
+  } else if (store.mode === 'cpu' || arcade) {
     const turn = cpuInput(cpu, match, 1, roster)
     cpu = turn.cpu
     second = turn.input
@@ -621,9 +927,19 @@ function tick() {
   }
   if (!store.easySpecials) {
     first.special = false
-    second.special = false
+    // The door fights only with its Easy Specials.
+    if (!bossFight()) second.special = false
   }
   match = step(match, [first, second], roster)
+  if (arcade)
+    arcade.score = scoreStep(
+      arcade.score,
+      match.events,
+      match,
+      0,
+      roster[0].health,
+      DIFFICULTY_MULTIPLIER[arcade.start],
+    )
   if (store.mode === 'dummy') {
     applyTrainingRules(match, roster, {
       infiniteMeter: store.infiniteMeter,
@@ -661,6 +977,7 @@ function render() {
   applyRenderStyle(g, store.renderStyle)
   const sprites = activeSprites()
   const sides = [sprites[roster[0].slug], sprites[roster[1].slug]] as const
+  const portraits = activePortraits()
   if (phase.value === 'select') {
     drawSelectScreen(
       g,
@@ -669,12 +986,61 @@ function render() {
       select,
       store.reducedMotion,
       store.mode === 'versus',
-      store.mode === 'versus' ? '2P' : store.mode === 'cpu' ? 'CPU' : 'DUMMY',
+      store.mode === 'versus' ? '2P' : store.mode === 'dummy' ? 'DUMMY' : 'CPU',
+      portraits,
+      activeMapArt(),
+      store.mode === 'arcade',
+    )
+    return
+  }
+  if (phase.value === 'ladder' && arcade) {
+    drawTravelScreen(
+      g,
+      roster[0],
+      arcade.ladder.map(findFighter),
+      arcade.rung,
+      arcade.score,
+      portraits,
+      activeMapArt(),
+      screenFrame,
+      store.reducedMotion,
+      arcade.rung === arcade.ladder.length
+        ? BOSS_INTROS[arcade.player]
+        : undefined,
+    )
+    return
+  }
+  if (phase.value === 'ending' && arcade) {
+    drawEndingScreen(
+      g,
+      findFighter(arcade.player),
+      activeEndings(),
+      portraits,
+      screenFrame,
+      store.reducedMotion,
+    )
+    return
+  }
+  if (phase.value === 'initials' && arcade) {
+    drawInitialsScreen(
+      g,
+      arcade.score,
+      initials,
+      arcade.cleared,
+      screenFrame,
+      store.reducedMotion,
     )
     return
   }
   if (phase.value === 'vs') {
-    drawVsScreen(g, roster, [...sides], screenFrame, store.reducedMotion)
+    drawVsScreen(
+      g,
+      roster,
+      [...sides],
+      screenFrame,
+      store.reducedMotion,
+      portraits,
+    )
     return
   }
   drawMatch(g, match, roster, callouts, {
@@ -686,12 +1052,15 @@ function render() {
     stageFx,
     style: store.renderStyle,
     zoom,
+    painters,
   })
   if (
     store.mode === 'dummy' &&
     (phase.value === 'fight' || phase.value === 'paused')
   )
     drawTraining(g, training, VIEW_WIDTH)
+  if (arcade && phase.value !== 'title')
+    drawArcadeHud(g, arcade.score, arcade.rung, arcade.ladder.length + 1)
   const flash = koFlash(slowdown, store.reducedMotion)
   if (flash > 0) {
     g.fillStyle = `rgba(255, 255, 255, ${(0.7 * flash).toFixed(2)})`
@@ -710,15 +1079,29 @@ function render() {
             ? '2 PLAYERS'
             : store.mode === 'cpu'
               ? `P1 VS CPU (${store.cpuLevel.toUpperCase()})`
-              : 'P1 VS TRAINING DUMMY',
+              : store.mode === 'arcade'
+                ? `STORY (${store.cpuLevel.toUpperCase()})`
+                : 'P1 VS TRAINING DUMMY',
       },
       { text: 'PRESS START OR LP', scale: 2, color: '#fde047' },
     ])
+  } else if (phase.value === 'continue' && arcade) {
+    drawContinueScreen(g, arcade.score, screenFrame)
   } else if (phase.value === 'paused') {
-    drawCard(g, [
-      { text: 'PAUSED', scale: 3 },
-      { text: 'PRESS START', color: '#fde047' },
-    ])
+    drawPauseScreen(g, roster[0].name, moveList(roster[0]), store.easySpecials)
+  } else if (phase.value === 'result' && bossFight()) {
+    drawCard(
+      g,
+      match.winner === 0
+        ? [
+            { text: 'THE DOOR IS SHUT', scale: 3, color: '#86efac' },
+            { text: 'THE THIN PLACE GOES QUIET', color: '#e9d5ff' },
+          ]
+        : [
+            { text: 'THE DOOR STAYS OPEN', scale: 3, color: '#c084fc' },
+            { text: 'SOMETHING WATCHES FROM IT', color: '#e9d5ff' },
+          ],
+    )
   } else if (phase.value === 'result') {
     drawWinScreen(
       g,
@@ -727,6 +1110,7 @@ function render() {
       [...sides],
       screenFrame,
       store.reducedMotion,
+      portraits,
     )
   }
 }
@@ -809,6 +1193,14 @@ function fitCanvas() {
       available,
       Math.floor((box.clientHeight * VIEW_WIDTH) / VIEW_HEIGHT),
     )
+  // A phone held sideways mid-fight (t-024 device pass): the fight fills the
+  // height and the touch controls float over its lower corners, so nothing
+  // scrolls off the screen.
+  if (locked.value && window.innerWidth > window.innerHeight)
+    available = Math.min(
+      available,
+      Math.floor(((window.innerHeight - 16) * VIEW_WIDTH) / VIEW_HEIGHT),
+    )
   fit.value = fitDisplay({
     width: VIEW_WIDTH,
     height: VIEW_HEIGHT,
@@ -857,9 +1249,19 @@ function syncFullscreen() {
 watch(locked, (on) => {
   setPageLock(on)
   if (!on) releaseDpad()
+  void nextTick(fitCanvas)
 })
 
-watch(() => store.mode, applyKeyMaps)
+watch(
+  () => store.mode,
+  () => {
+    applyKeyMaps()
+    if (arcade) {
+      arcade = null
+      phase.value = 'title'
+    }
+  },
+)
 // Training's position reset: the fighters go back to the centre or a corner, the readouts clear.
 watch(
   () => store.reset.count,
@@ -979,6 +1381,30 @@ onBeforeUnmount(() => {
 .showdown-bar {
   display: flex;
   justify-content: flex-end;
+}
+
+/* A phone held sideways mid-fight: the fight fills the height (fitCanvas) and the pad and buttons
+   float over its lower corners instead of stacking below it, off the screen. */
+@media (orientation: landscape) and (max-height: 600px) {
+  .showdown-stage--locked .showdown-touch {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0.5rem;
+    padding: 0 1rem;
+    pointer-events: none;
+  }
+
+  .showdown-stage--locked .showdown-touch > * {
+    pointer-events: auto;
+    opacity: 0.85;
+  }
+
+  .showdown-stage--locked .showdown-bar {
+    position: fixed;
+    top: 0.5rem;
+    right: 0.5rem;
+  }
 }
 
 /* Fullscreen: the fight takes the whole screen, centred on black, the bar and any touch controls

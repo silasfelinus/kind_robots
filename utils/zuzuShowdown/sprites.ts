@@ -63,6 +63,11 @@ export const SPRITE_FIGHTERS = [
   'coyote-vagrant',
   'the-abbess',
   'the-siblings',
+  'storm-crow',
+  'river-croc',
+  'hyena-matriarch',
+  'old-komodo',
+  'swamp-witch',
 ] as const
 
 /** The rig's short names for fighters whose game slug is longer. */
@@ -70,6 +75,11 @@ const RIG_NAMES: Partial<Record<string, string>> = {
   'coyote-vagrant': 'coyote',
   'the-abbess': 'abbess',
   'the-siblings': 'siblings',
+  'storm-crow': 'crow',
+  'river-croc': 'croc',
+  'hyena-matriarch': 'hyena',
+  'old-komodo': 'komodo',
+  'swamp-witch': 'witch',
 }
 
 /** The file name the rig gives a fighter's sheets (`coyote` for the game's `coyote-vagrant`). */

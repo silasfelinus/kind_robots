@@ -262,7 +262,7 @@ export default defineNuxtConfig({
       // full reload/open of a URL that has been fully loaded before.
       runtimeCaching: [
         {
-          urlPattern: /^https?:\/\/[^/]+\/plan\/projects\/ruler-hooked\/?$/,
+          urlPattern: /^https?:\/\/[^/]+\/admin\/ruler-hooked\/?$/,
           handler: 'NetworkFirst',
           options: {
             cacheName: 'ruler-hooked-document',
@@ -378,6 +378,11 @@ export default defineNuxtConfig({
     '/taskmaster': { redirect: { to: '/storybook', statusCode: 301 } },
     '/admin/music-video': {
       redirect: { to: '/play/music-video', statusCode: 301 },
+    },
+    // The Ruler Is Hooked went to Admin until it launches (2026-10-11); 302,
+    // since it will move again to /play when it is ready.
+    '/plan/projects/ruler-hooked': {
+      redirect: { to: '/admin/ruler-hooked', statusCode: 302 },
     },
   },
 

@@ -37,7 +37,15 @@ import {
   toSimInput,
   type FightButton,
 } from '../zuzuShowdown/input'
-import { SIM_BUTTONS, neutralInput } from '../zuzuShowdown/types'
+import { FIGHTERS, moveList } from '../zuzuShowdown/fighters'
+import { INTRO_FRAMES, METER_MAX, createMatch, step } from '../zuzuShowdown/sim'
+import {
+  SIM_BUTTONS,
+  SUB,
+  neutralInput,
+  type FighterData,
+  type SimInput,
+} from '../zuzuShowdown/types'
 
 let passed = 0
 function check(name: string, fn: () => void): void {
@@ -445,5 +453,124 @@ check(
     assert.equal(sim.lp, true)
   },
 )
+
+// ------------------------------------------------------- keyboard pace
+
+/** A key held this many frames (100ms) is a relaxed keyboard pace. */
+const KEYBOARD_HOLD = 6
+
+type Held = Partial<Pick<SimInput, 'up' | 'down' | 'left' | 'right'>>
+const R: Held = { right: true }
+const L: Held = { left: true }
+const DN: Held = { down: true }
+const UP: Held = { up: true }
+const DR: Held = { down: true, right: true }
+const DL: Held = { down: true, left: true }
+const UL: Held = { up: true, left: true }
+const UR: Held = { up: true, right: true }
+const ROLL: Held[] = [R, DR, DN, DL, L, UL, UP, UR]
+
+/** The keys a keyboard player walks through for a motion, facing right. */
+function keyboardMotion(motion: Motion): Array<[Held, number]> {
+  const each = (keys: Held[]): Array<[Held, number]> =>
+    keys.map((key) => [key, KEYBOARD_HOLD])
+  switch (motion) {
+    case 'qcf':
+      return each([DN, DR, R])
+    case 'qcb':
+      return each([DN, DL, L])
+    case 'dp':
+      return each([R, DN, DR])
+    case 'hcb':
+      return each([R, DR, DN, DL, L])
+    case '360':
+      return each(ROLL)
+    case '720':
+      return each([...ROLL, ...ROLL])
+    case 'qcf2':
+      return each([DN, DR, R, DN, DR, R])
+    case 'qcb2':
+      return each([DN, DL, L, DN, DL, L])
+    case 'chargeBF':
+      return [
+        [L, CHARGE_FRAMES + 5],
+        [R, 1],
+      ]
+    case 'chargeDU':
+      return [
+        [DN, CHARGE_FRAMES + 5],
+        [UP, 1],
+      ]
+    case 'dd':
+      return each([DN, {}, DN])
+  }
+}
+
+const KEYBOARD_BUTTONS: Record<string, Partial<SimInput>> = {
+  P: { lp: true },
+  K: { lk: true },
+  D: { dodge: true },
+  LP: { lp: true },
+  HP: { hp: true },
+  LK: { lk: true },
+  HK: { hk: true },
+  PP: { lp: true, hp: true },
+  KK: { lk: true, hk: true },
+}
+
+check(
+  'every grounded special comes out at a relaxed keyboard pace (100ms a key)',
+  () => {
+    const missed: string[] = []
+    for (const fighter of FIGHTERS) {
+      for (const special of fighter.specials) {
+        if (special.followUp || special.air) continue
+        const roster: [FighterData, FighterData] = [fighter, FIGHTERS[0]!]
+        let s = createMatch(roster)
+        for (let i = 0; i < INTRO_FRAMES + 5; i += 1)
+          s = step(s, [neutralInput(), neutralInput()], roster)
+        s.fighters[0].meter = METER_MAX
+        s.fighters[0].ammo = 99
+        s.fighters[1].x = s.fighters[0].x + 200 * SUB
+        const inputs: SimInput[] = []
+        for (const [keys, frames] of keyboardMotion(special.motion))
+          for (let i = 0; i < frames; i += 1)
+            inputs.push({ ...neutralInput(), ...keys })
+        // The button lands with the last direction still held, the way a
+        // keyboard player rolls into it.
+        const last = inputs[inputs.length - 1] ?? neutralInput()
+        const button = KEYBOARD_BUTTONS[special.button]
+        assert.ok(button, `${fighter.slug} ${special.id}: ${special.button}`)
+        inputs.push({ ...last, ...button })
+        for (let i = 0; i < 6; i += 1) inputs.push(neutralInput())
+        let came = false
+        for (const input of inputs) {
+          s = step(s, [input, neutralInput()], roster)
+          came ||= s.events.some(
+            (e) =>
+              (e.type === 'special' || e.type === 'super') &&
+              e.move === special.id,
+          )
+        }
+        if (!came) missed.push(`${fighter.slug} ${special.id}`)
+      }
+    }
+    assert.deepEqual(missed, [])
+  },
+)
+
+check('the move list names every Easy Specials shortcut', () => {
+  for (const fighter of FIGHTERS) {
+    const rows = moveList(fighter)
+    for (const id of Object.values(fighter.easy ?? {})) {
+      const row = rows.find((r) => r.id === id)
+      assert.ok(row?.easy, `${fighter.slug} ${id} has no Easy label`)
+    }
+    assert.equal(
+      rows.find((r) => r.id === fighter.easy?.forward)?.easy ?? 'Special + →',
+      'Special + →',
+    )
+  }
+})
 
 console.log(`verifyZuzuShowdownInput: ${passed} checks passed`)

@@ -30,7 +30,7 @@ assert.equal(
   false,
 )
 
-assert.match(board, /NavigationFlipCard/)
+assert.match(board, /<FlipCard\b/)
 assert.match(board, /<kr-card-flip/)
 assert.match(board, /encounter-back\.svg/)
 assert.match(board, /trial-back\.svg/)
@@ -41,27 +41,66 @@ assert.match(board, /:disabled=/)
 assert.match(board, /!revealed\(card\.id\)/)
 assert.match(board, /!game\.reachable\.includes\(card\.id\)/)
 assert.match(board, /game\.currentLand\.boss/)
-assert.match(board, /game\.confront\('challenge'\)/)
-assert.match(board, /game\.confront\('parley'\)/)
+assert.match(board, /confrontWithCue\('challenge'\)/)
+assert.match(board, /confrontWithCue\('parley'\)/)
 assert.match(board, /game\.confront\('retreat'\)/)
-assert.match(board, /@click="game\.resolve\('test'\)"/)
-assert.match(board, /@click="game\.resolve\('withdraw'\)"/)
+assert.match(board, /@click="resolveWithCue\('test'\)"/)
+assert.match(board, /@click="resolveWithCue\('withdraw'\)"/)
 assert.match(board, /v-for="card in visitedCards"/)
 assert.match(board, /game\.currentShift\.reason/)
 assert.match(board, /game\.state\.journal/)
 assert.match(board, /aria-label=/)
 assert.match(board, /focus-visible:/)
-assert.match(board, /onMounted\(\(\) => game\.initialize\(\)\)/)
+assert.match(board, /onMounted\(\(\) => \{/)
+assert.match(board, /game\.initialize\(\)/)
 assert.doesNotMatch(board, /\b(?:localStorage|\$fetch|fetch\()\b/)
 
-assert.match(store, /restoreAuthoredJourney\(JSON\.parse\(saved\)\)/)
-assert.match(store, /if \(next === session\.value\) return false/)
-assert.match(store, /stepAuthoredJourney\(session\.value, action\)/)
-assert.match(store, /const SAVE_KEY = 'kr\.shiftingLands\.authoredJourney\.v2'/)
+assert.match(store, /restoreJourneyLedgerV5\(JSON\.parse\(saved\)\)/)
+assert.match(store, /restoreJourneyLedgerV4\(JSON\.parse\(savedV4\)\)/)
+assert.match(store, /restoreJourneyLedger\(JSON\.parse\(savedV3\)\)/)
+assert.match(store, /migrateJourneyLedger\(JSON\.parse\(legacy\)\)/)
+assert.match(store, /if \(next === ledger\.value\) return false/)
+assert.match(
+  store,
+  /stepJourneyLedger\(active, action as JourneyLedgerAction\)/,
+)
+assert.match(
+  store,
+  /stepJourneyLedgerV4\(active, action as JourneyLedgerAction\)/,
+)
+assert.match(store, /stepJourneyLedgerV5\(active, action\)/)
+assert.match(store, /const SAVE_KEY = 'kr\.shiftingLands\.journeyLedger\.v5'/)
+assert.match(
+  store,
+  /const LEGACY_V4_SAVE_KEY = 'kr\.shiftingLands\.journeyLedger\.v4'/,
+)
+assert.match(
+  store,
+  /const LEGACY_V3_SAVE_KEY = 'kr\.shiftingLands\.journeyLedger\.v3'/,
+)
+assert.match(
+  store,
+  /const LEGACY_SAVE_KEY = 'kr\.shiftingLands\.authoredJourney\.v2'/,
+)
+assert.match(store, /if \(saved !== null\) \{/)
+assert.match(store, /if \(restored\) ledger\.value = restored/)
+assert.match(store, /else restoreWarning\.value = true/)
+assert.match(store, /if \(legacy === null\) return/)
+assert.match(store, /persist\(\)/)
+assert.match(store, /useReward\(rewardId: string\)/)
 assert.match(legacy, /const SAVE_KEY = 'kr\.shiftingLands\.homestead\.v1'/)
 assert.match(store, /if \(!loaded\.value\) return false/)
 assert.match(store, /if \(!import\.meta\.client\) return/)
-assert.match(store, /window\.localStorage\.setItem\(SAVE_KEY/)
+assert.match(store, /window\.localStorage\.setItem\(key/)
+assert.match(store, /const key =\s+ledger\.value\.version === 5/)
+assert.match(store, /if \(savedV3 !== null\) \{/)
+assert.match(board, /findFiveLandCard/)
+assert.match(board, /v-for="choice in game\.currentTrial\.choices"/)
+assert.match(board, /attemptTrialWithCue\(choice\.id\)/)
+assert.match(board, /if \(game\.attemptTrial\(id\)\) cueDiceResult\(\)/)
+assert.match(board, /game\.lastTrialOutcome\.resultText/)
+assert.match(store, /if \(savedV4 !== null\) \{/)
+assert.match(store, /attemptTrial\(choiceId: string\)/)
 
 assert.equal(JOURNEY_WORLD.lands.length, 5)
 const beginning = newJourney(45)

@@ -1,0 +1,10 @@
+{
+  "fighter": "swamp-witch",
+  "kind": "beaten",
+  "w": 104,
+  "h": 152,
+  "hd_scale": 4,
+  "art_image_id": 244678,
+  "ledger_key": "witch-beaten",
+  "mirrored": false
+}

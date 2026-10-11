@@ -25,6 +25,12 @@ import {
   sanitizeMastery,
   type MasteryRecord,
 } from '~/utils/arcade/mastery'
+import {
+  SAVES_KEY,
+  sanitizeSaves,
+  withSave,
+  type SaveRecord,
+} from '~/utils/arcade/saves'
 
 export type ArcadeBoardRange = 'all' | 'today'
 
@@ -118,6 +124,22 @@ function readMastery(): MasteryRecord {
   }
 }
 
+function readSaves(): SaveRecord {
+  try {
+    return sanitizeSaves(JSON.parse(localStorage.getItem(SAVES_KEY) ?? '{}'))
+  } catch {
+    return {}
+  }
+}
+
+function writeSaves(record: SaveRecord) {
+  try {
+    localStorage.setItem(SAVES_KEY, JSON.stringify(record))
+  } catch {
+    // Blocked storage: progress lasts for this visit only.
+  }
+}
+
 function writeMastery(record: MasteryRecord) {
   try {
     localStorage.setItem(MASTERY_KEY, JSON.stringify(record))
@@ -151,6 +173,8 @@ export const useArcadeStore = defineStore('arcadeStore', () => {
   const seatedPlayers = ref<Record<string, number>>({})
   /** Mastery goals this device's player has earned, by game slug. */
   const mastery = ref<MasteryRecord>({})
+  /** Each long cabinet's saved progress on this device, by game slug. */
+  const saves = ref<SaveRecord>({})
   /** Scores waiting in this browser to reach the global board. */
   const pendingCount = ref(0)
   const hallOfFame = ref<HallOfFameEntry[]>([])
@@ -210,8 +234,22 @@ export const useArcadeStore = defineStore('arcadeStore', () => {
     writeMastery(next)
   }
 
+  /** A game's saved progress on this device, if any. */
+  function saveFor(game: string): unknown {
+    return saves.value[game]
+  }
+
+  /** Keep (or, with null, clear) a game's saved progress. */
+  function recordSave(game: string, save: unknown) {
+    const next = withSave(saves.value, game, save)
+    if (next === saves.value) return
+    saves.value = next
+    writeSaves(next)
+  }
+
   function loadPreferences(prefersReducedMotion: boolean) {
     mastery.value = readMastery()
+    saves.value = readSaves()
     const prefs = readPrefs()
     muted.value = prefs.muted === true
     crt.value = prefs.crt ?? !prefersReducedMotion
@@ -382,6 +420,8 @@ export const useArcadeStore = defineStore('arcadeStore', () => {
     mastery,
     masteryFor,
     recordMastery,
+    saveFor,
+    recordSave,
     playersFor,
     setPlayers,
     board,

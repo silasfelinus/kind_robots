@@ -1,0 +1,10 @@
+{
+  "fighter": "swamp-witch",
+  "kind": "bust",
+  "w": 50,
+  "h": 50,
+  "hd_scale": 4,
+  "art_image_id": 244675,
+  "ledger_key": "witch-bust",
+  "mirrored": false
+}

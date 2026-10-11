@@ -26,9 +26,15 @@ export function advanceClock(
 
 export type FixedLoop = { stop: () => void }
 
+/**
+ * Run `tick` at 60 Hz and `render` once a frame. A frame that throws is
+ * handed to `onError` and the loop carries on: before, one exception ended
+ * the animation frame chain and the cabinet froze with no way to tell why.
+ */
 export function startFixedLoop(
   tick: () => void,
   render: () => void,
+  onError: (error: unknown) => void = (error) => console.error(error),
 ): FixedLoop {
   let running = true
   let last = performance.now()
@@ -36,12 +42,17 @@ export function startFixedLoop(
   let handle = 0
   const frame = (now: number) => {
     if (!running) return
+    // Ask for the next frame first, so nothing below can end the chain.
+    handle = requestAnimationFrame(frame)
     const step = advanceClock(accumulator, now - last)
     last = now
     accumulator = step.accumulator
-    for (let i = 0; i < step.ticks; i++) tick()
-    render()
-    handle = requestAnimationFrame(frame)
+    try {
+      for (let i = 0; i < step.ticks; i++) tick()
+      render()
+    } catch (error) {
+      onError(error)
+    }
   }
   handle = requestAnimationFrame(frame)
   return {

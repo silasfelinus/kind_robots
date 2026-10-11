@@ -57,7 +57,9 @@
               @pointerdown="onScreenPointer"
             />
             <div v-if="crt" class="cabinet-crt" aria-hidden="true" />
-            <p v-if="loadError" class="cabinet-error">{{ loadError }}</p>
+            <p v-if="loadError || snag" class="cabinet-error">
+              {{ loadError || snag }}
+            </p>
           </div>
         </div>
       </div>
@@ -67,7 +69,7 @@
         class="cabinet-overlay"
         :class="[
           `cabinet-overlay--seats-${players}`,
-          { 'cabinet-overlay--duo': duo },
+          { 'cabinet-overlay--duo': duo, 'cabinet-overlay--twin': aiming },
         ]"
         aria-label="Touch controls"
       >
@@ -86,6 +88,29 @@
         >
           <span aria-hidden="true">❚❚</span>
         </button>
+        <!-- Always on screen while locked: the way out, and fullscreen. -->
+        <div class="cabinet-corner-chips">
+          <button
+            type="button"
+            class="cabinet-corner-chip"
+            aria-label="Leave the game (pauses it)"
+            title="Leave"
+            @click="leaveGame"
+          >
+            <span aria-hidden="true">✕</span>
+          </button>
+          <button
+            v-if="canFullscreen"
+            type="button"
+            class="cabinet-corner-chip"
+            :aria-label="fullscreen ? 'Exit fullscreen' : 'Fullscreen'"
+            :aria-pressed="fullscreen"
+            :title="fullscreen ? 'Exit fullscreen' : 'Fullscreen'"
+            @click="toggleFullscreen"
+          >
+            <span aria-hidden="true">{{ fullscreen ? '⤡' : '⤢' }}</span>
+          </button>
+        </div>
         <div
           v-for="seat in pinballPad ? [] : seatList"
           :key="seat"
@@ -142,6 +167,26 @@
               A
             </button>
           </div>
+          <div
+            v-if="aiming && seat === 0"
+            :ref="setAimRef"
+            class="cabinet-aim"
+            role="group"
+            aria-label="Aim stick"
+            @pointerdown.prevent="onAim"
+            @pointermove.prevent="onAim"
+            @pointerup.prevent="releaseAim"
+            @pointercancel="releaseAim"
+            @lostpointercapture="releaseAim"
+          >
+            <span
+              class="cabinet-aim-knob"
+              :style="{
+                transform: `translate(${aimKnob.x * 60}%, ${aimKnob.y * 60}%)`,
+              }"
+              aria-hidden="true"
+            />
+          </div>
           <span v-if="duo" class="cabinet-seat-tag" aria-hidden="true">
             {{ seat + 1 }}P
           </span>
@@ -157,6 +202,10 @@
             &nbsp;·&nbsp;
           </template>
           Enter = Start · P pauses · a gamepad each works too
+        </p>
+        <p v-else-if="!touchControls && twinStick" class="cabinet-hint">
+          WASD move · arrows aim and spray · Space or Z = A · X or Shift = B ·
+          Enter = Start · P pauses · gamepads: right stick aims
         </p>
         <p v-else-if="!touchControls" class="cabinet-hint">
           Arrows or WASD move · Space or Z = A · X or Shift = B · Enter = Start
@@ -266,7 +315,11 @@ import {
   type DisplayFit,
   type RenderStyle,
 } from '~/utils/arcade/display'
-import { findArcadeGame, loadArcadeGame } from '~/utils/arcade/games'
+import {
+  ARCADE_GAMES,
+  findArcadeGame,
+  loadArcadeGame,
+} from '~/utils/arcade/games'
 import {
   ArcadeInput,
   assignPads,
@@ -274,6 +327,8 @@ import {
   KEY_MAP,
   P1_KEYS,
   P2_KEYS,
+  stickAim,
+  TWIN_KEYS,
 } from '~/utils/arcade/input'
 import { startFixedLoop, TICK_MS, type FixedLoop } from '~/utils/arcade/loop'
 import {
@@ -284,7 +339,12 @@ import {
   type ArcadeEvent,
   type ArcadePhase,
 } from '~/utils/arcade/machine'
-import { createArcadeSound, type ArcadeSound } from '~/utils/arcade/sound'
+import {
+  asMusicLoop,
+  createArcadeSound,
+  type ArcadeSound,
+  type MusicLoop,
+} from '~/utils/arcade/sound'
 import { setGamePageLock } from '~/utils/arcade/pageLock'
 import { drawText, lineStep, measureText } from '~/utils/arcade/font'
 import { mulberry32 } from '~/utils/arcade/curve'
@@ -375,6 +435,10 @@ const maxPlayers = computed(() =>
   Math.min(MAX_SEATS, meta.value?.maxPlayers ?? 1),
 )
 const duo = computed(() => players.value > 1)
+/** A twin-stick game played solo (t-027): the arrows, the right stick or a touch stick aim. */
+const twinStick = computed(() => meta.value?.twinStick === true && !duo.value)
+/** Aiming is live only while such a game plays, so menus keep the arrows. */
+const aiming = computed(() => twinStick.value && phase.value === 'playing')
 const seatList = computed(() =>
   Array.from({ length: players.value }, (_, seat) => seat),
 )
@@ -391,6 +455,8 @@ const seatLimit = computed(() =>
     : Math.min(maxPlayers.value, 2 + padCount.value),
 )
 const loadError = ref('')
+/** A frame that threw (the loop carries on): said once, cleared on resume. */
+const snag = ref('')
 const marqueeArt = ref('/images/arcade/cabinet-marquee.webp')
 
 let machine = initialArcadeState()
@@ -526,22 +592,66 @@ function fitScreen() {
   fittedWidth.value = Math.max(0, Math.floor(Math.min(width, height * ratio)))
 }
 
+// Safari before 16.4 (older iPads) has only the webkit-prefixed API.
+type WebkitDocument = Document & {
+  webkitFullscreenElement?: Element | null
+  webkitFullscreenEnabled?: boolean
+  webkitExitFullscreen?: () => Promise<void> | void
+}
+type WebkitElement = HTMLElement & {
+  webkitRequestFullscreen?: () => Promise<void> | void
+}
+
+function fullscreenElement(): Element | null {
+  const doc = document as WebkitDocument
+  return doc.fullscreenElement ?? doc.webkitFullscreenElement ?? null
+}
+
+/** Whether this browser can put the cabinet fullscreen (iPhones cannot). */
+const canFullscreen = ref(false)
+
 function syncFullscreen() {
-  fullscreen.value = document.fullscreenElement === cabinetRef.value
+  fullscreen.value = fullscreenElement() === cabinetRef.value
   void nextTick(fitScreen)
 }
 
 async function toggleFullscreen() {
-  const cabinet = cabinetRef.value
+  const cabinet = cabinetRef.value as WebkitElement | null
   if (!cabinet) return
+  const doc = document as WebkitDocument
   try {
-    if (document.fullscreenElement === cabinet) {
-      await document.exitFullscreen()
-    } else if (!document.fullscreenElement) {
-      await cabinet.requestFullscreen()
+    if (fullscreenElement() === cabinet) {
+      if (doc.exitFullscreen) await doc.exitFullscreen()
+      else await doc.webkitExitFullscreen?.()
+    } else if (!fullscreenElement()) {
+      if (cabinet.requestFullscreen) await cabinet.requestFullscreen()
+      else await cabinet.webkitRequestFullscreen?.()
     }
   } catch {
-    fullscreen.value = document.fullscreenElement === cabinet
+    fullscreen.value = fullscreenElement() === cabinet
+  }
+}
+
+/** The way out of locked touch play: pause (which unlocks) and leave fullscreen. */
+function leaveGame() {
+  if (machine.phase === 'playing') togglePause()
+  if (fullscreenElement() === cabinetRef.value) void toggleFullscreen()
+}
+
+/**
+ * A frame threw. The loop carries on (utils/arcade/loop.ts); a game in play
+ * pauses, so the page is back and the player can resume or leave, and the
+ * screen says what happened instead of freezing silently.
+ */
+let loopErrors = 0
+function onLoopError(error: unknown) {
+  loopErrors++
+  if (loopErrors <= 3) console.error('[arcade] a frame failed', error)
+  if (machine.phase === 'playing') {
+    dispatch({ type: 'pause' })
+    snag.value = 'Something went wrong, so the game paused. Resume to play on.'
+  } else if (machine.phase !== 'paused') {
+    snag.value = 'Something went wrong. Reload the page if this sticks.'
   }
 }
 
@@ -624,8 +734,48 @@ function setDpad(next: Record<DpadDirection, boolean>, seat = 0) {
   dpadHeld.value[seat] = next
 }
 
+let aimEl: HTMLElement | null = null
+let aimPointer: number | null = null
+
+function setAimRef(el: unknown) {
+  aimEl = el instanceof HTMLElement ? el : null
+}
+/** Where the aim stick's knob sits (-1..1 each way), for drawing it. */
+const aimKnob = ref({ x: 0, y: 0 })
+
+/** A finger on the aim stick: its offset from the centre is the aim. */
+function onAim(event: PointerEvent) {
+  const pad = aimEl
+  if (!pad) return
+  if (event.type === 'pointerdown') {
+    aimPointer = event.pointerId
+    capture(pad, event.pointerId)
+    unlockArcadeAudio()
+  } else if (event.pointerId !== aimPointer) {
+    return
+  }
+  const rect = pad.getBoundingClientRect()
+  const dx = (event.clientX - (rect.left + rect.width / 2)) / (rect.width / 2)
+  const dy = (event.clientY - (rect.top + rect.height / 2)) / (rect.height / 2)
+  const aim = stickAim(dx, dy)
+  aimKnob.value = aim ?? { x: 0, y: 0 }
+  input.setAimTouch(aim)
+}
+
+function releaseAim() {
+  aimPointer = null
+  aimKnob.value = { x: 0, y: 0 }
+  input.setAimTouch(null)
+}
+
+/** Seat 1's keys: the split board while a twin-stick game plays, else the usual map. */
+function seatOneKeys() {
+  return duo.value ? P1_KEYS : aiming.value ? TWIN_KEYS : KEY_MAP
+}
+
 /** Let go of every touch control on every seat. */
 function releaseTouch() {
+  releaseAim()
   pinballPadRef.value?.release()
   pinballPull.value = null
   for (let seat = 0; seat < MAX_SEATS; seat++) {
@@ -681,7 +831,7 @@ function applySeats() {
     : keepPads(padSlots, pads, players.value)
   const slots = padSlots
   input.setPadIndex(slots[0] ?? null)
-  input.setKeyMap(duo.value ? P1_KEYS : KEY_MAP)
+  input.setKeyMap(seatOneKeys())
   inputs.forEach((seatIn, seat) => {
     if (seat === 0) return
     if (seat < players.value) {
@@ -717,6 +867,33 @@ function dispatch(event: ArcadeEvent) {
   if (machine.phase !== before) enterPhase(machine.phase)
 }
 
+/** The music loop now playing for the real game, so it is restarted only when it changes. */
+let musicNow: MusicLoop | null = null
+
+/** Follow the real game's music (a demo plays silent; a finished game stops it). */
+function syncMusic(instance: ArcadePlayableInstance | null) {
+  const music =
+    instance && instance === game && !instance.over && 'music' in instance
+      ? asMusicLoop((instance as { music?: unknown }).music)
+      : null
+  if (music === musicNow) return
+  musicNow = music
+  if (music) sound?.startMusic(music)
+  else sound?.stopMusic()
+}
+
+/** The last progress a game asked to keep, so the store is written only when it changes. */
+let lastSave: unknown = undefined
+
+/** Keep a long game's progress (a real game's only; demos never save). */
+function keepSave(instance: ArcadePlayableInstance | null) {
+  if (!instance || instance === demoGame || !('save' in instance)) return
+  const save = (instance as { save?: unknown }).save
+  if (save === undefined || save === lastSave) return
+  lastSave = save
+  store.recordSave(props.slug, save)
+}
+
 /** Give a new WebGL game the stage canvas and its current size. */
 function adopt<T extends ArcadePlayableInstance>(instance: T): T {
   const stage = stageRef.value
@@ -732,6 +909,11 @@ function retire(instance: ArcadePlayableInstance | null) {
   // Goals earned in a game left unfinished still count.
   if (instance?.mastered?.length)
     store.recordMastery(props.slug, instance.mastered)
+  keepSave(instance)
+  if (instance && instance === game) {
+    musicNow = null
+    sound?.stopMusic()
+  }
   if (isWebGLInstance(instance)) instance.dispose()
 }
 
@@ -786,6 +968,7 @@ function enterPhase(next: ArcadePhase) {
 }
 
 function startGame() {
+  snag.value = ''
   if (!gameModule) return
   hintLives = null
   unlockArcadeAudio()
@@ -802,8 +985,10 @@ function startGame() {
       hiScore: hiScore(),
       players: players.value,
       mastery: store.masteryFor(props.slug),
+      resume: store.saveFor(props.slug),
     }),
   )
+  lastSave = undefined
   dispatch({ type: 'start' })
 }
 
@@ -857,7 +1042,10 @@ function stepGuide(frame: InputFrame) {
 function togglePause() {
   unlockArcadeAudio()
   if (machine.phase === 'playing') dispatch({ type: 'pause' })
-  else if (machine.phase === 'paused') dispatch({ type: 'resume' })
+  else if (machine.phase === 'paused') {
+    snag.value = ''
+    dispatch({ type: 'resume' })
+  }
 }
 
 function readSavedInitials(): string[] {
@@ -963,11 +1151,15 @@ function tick() {
     if (hintLives === null) hintLives = game.lives
     else if (game.lives < hintLives) pinballHints.value = false
     game.update(frames[0]!, frames)
+    keepSave(game)
+    syncMusic(game)
     if (game.over) {
       if (game.mastered?.length) store.recordMastery(props.slug, game.mastered)
       lastScore = game.score
       lastLevel = game.level
-      qualifies = qualifiesForBoard(lastScore, board.value)
+      qualifies =
+        ARCADE_GAMES.some((entry) => entry.slug === props.slug) &&
+        qualifiesForBoard(lastScore, board.value)
       emit('scored', lastScore)
       dispatch({ type: 'gameOver' })
     }
@@ -1529,7 +1721,12 @@ onMounted(() => {
   wrapObserver = new ResizeObserver(fitScreen)
   if (wrapRef.value) wrapObserver.observe(wrapRef.value)
   void boot()
-  loop = startFixedLoop(tick, render)
+  const doc = document as WebkitDocument
+  canFullscreen.value = Boolean(
+    doc.fullscreenEnabled ?? doc.webkitFullscreenEnabled,
+  )
+  document.addEventListener('webkitfullscreenchange', syncFullscreen)
+  loop = startFixedLoop(tick, render, onLoopError)
 })
 
 watch(
@@ -1542,6 +1739,12 @@ watch(
 watch(players, () => {
   releaseTouch()
   applySeats()
+})
+
+watch(aiming, (on) => {
+  releaseAim()
+  input.setAiming(on)
+  input.setKeyMap(seatOneKeys())
 })
 
 watch(fullscreen, () => {
@@ -1569,8 +1772,8 @@ onBeforeUnmount(() => {
   window.removeEventListener('online', onOnline)
   document.removeEventListener('visibilitychange', onVisibility)
   document.removeEventListener('fullscreenchange', syncFullscreen)
-  if (document.fullscreenElement === cabinetRef.value)
-    void document.exitFullscreen()
+  document.removeEventListener('webkitfullscreenchange', syncFullscreen)
+  if (fullscreenElement() === cabinetRef.value) void toggleFullscreen()
   resizeObserver?.disconnect()
   wrapObserver?.disconnect()
   sound?.dispose()
@@ -1815,6 +2018,29 @@ onBeforeUnmount(() => {
   box-shadow: none;
 }
 
+/* Top left, always: leave the game, and fullscreen where the browser can. */
+.cabinet-corner-chips {
+  top: max(0.6rem, env(safe-area-inset-top));
+  left: max(0.6rem, env(safe-area-inset-left));
+  display: flex;
+  gap: 0.5rem;
+}
+
+.cabinet-corner-chip {
+  display: grid;
+  place-items: center;
+  width: 2.6rem;
+  height: 2.6rem;
+  border-radius: 9999px;
+  background: rgba(15, 10, 46, 0.5);
+  border: 2px solid rgba(253, 230, 138, 0.5);
+  color: #fde68a;
+  font-size: 1.05rem;
+  line-height: 1;
+  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
+}
+
 .cabinet-pause-chip {
   top: max(0.6rem, env(safe-area-inset-top));
   right: max(0.6rem, env(safe-area-inset-right));
@@ -1860,6 +2086,50 @@ onBeforeUnmount(() => {
 
 .cabinet-overlay--duo .cabinet-buttons {
   gap: 0.5rem;
+}
+
+/* Twin-stick (t-027): the aim stick takes the right thumb; A and B sit above it. */
+.cabinet-overlay .cabinet-aim {
+  right: max(1rem, env(safe-area-inset-right));
+  bottom: max(1rem, env(safe-area-inset-bottom));
+  width: calc(var(--key) * 3);
+  height: calc(var(--key) * 3);
+  display: grid;
+  place-items: center;
+  border-radius: 9999px;
+  border: 2px solid rgba(253, 230, 138, 0.5);
+  background: radial-gradient(
+    circle,
+    rgba(236, 72, 153, 0.25),
+    rgba(15, 10, 46, 0.42) 70%
+  );
+  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
+  touch-action: none;
+  user-select: none;
+}
+
+.cabinet-aim-knob {
+  width: 40%;
+  height: 40%;
+  border-radius: 9999px;
+  background: rgba(236, 72, 153, 0.6);
+  border: 2px solid rgba(255, 255, 255, 0.6);
+  pointer-events: none;
+}
+
+.cabinet-overlay--twin .cabinet-buttons {
+  bottom: calc(max(1rem, env(safe-area-inset-bottom)) + var(--key) * 3.3);
+  gap: 0.5rem;
+}
+
+.cabinet-overlay--twin .cabinet-ball {
+  width: var(--key);
+  height: var(--key);
+}
+
+.cabinet-overlay--twin .cabinet-ball-a {
+  margin-bottom: 0;
 }
 
 .cabinet-overlay--duo .cabinet-ball {

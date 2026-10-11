@@ -37,6 +37,9 @@ jobs:
         env:
           CYPRESS_INSTALL_BINARY: '0'
 
+      - name: Tablet navigation audit contract
+        run: node --test utils/scripts/auditTabletNavigation.test.mjs
+
       - name: Solitaire engine contract
         run: npm run test:solitaire-engine
 
@@ -144,6 +147,27 @@ jobs:
       - name: Kind Robots Arcade engine
         run: npm run test:arcade-engine
 
+      - name: Zuzu Pinball private 3D preview
+        run: npm run test:zuzu-pinball
+
+      - name: Zuzu Pinball mechanical hardware
+        run: npm run test:zuzu-pinball-hardware
+
+      - name: Zuzu Pinball physics and ball transitions
+        run: npm run test:zuzu-pinball-physics
+
+      - name: Zuzu Pinball shots from real flips
+        run: npm run test:zuzu-pinball-shots
+
+      - name: Zuzu Pinball rules, chapters and seals
+        run: npm run test:zuzu-pinball-rules
+
+      - name: Zuzu Pinball River Croc
+        run: npm run test:zuzu-pinball-croc
+
+      - name: Zuzu Pinball Watering Hole and Death Roll
+        run: npm run test:zuzu-pinball-watering-hole
+
       - name: Zuzu gamebook branching and combat
         run: npm run test:zuzu-gamebook
 
@@ -162,6 +186,9 @@ jobs:
       - name: Zuzu Showdown fighter kit (Zuzu)
         run: npm run test:zuzu-showdown-zuzu
 
+      - name: Zuzu Lair QTE engine
+        run: npm run test:zuzu-lair
+
       - name: Zuzu Showdown fighter kit (Coyote Vagrant)
         run: npm run test:zuzu-showdown-coyote
 
@@ -177,6 +204,8 @@ jobs:
         run: npm run test:zuzu-showdown-hyena
       - name: Zuzu Showdown fighter kit (Old Komodo)
         run: npm run test:zuzu-showdown-komodo
+      - name: Zuzu Showdown fighter kit (The Swamp Witch)
+        run: npm run test:zuzu-showdown-witch
 
       - name: Zuzu Showdown fighter sprites
         run: npm run test:zuzu-showdown-sprites
@@ -186,6 +215,12 @@ jobs:
 
       - name: Zuzu Showdown taunt screens
         run: npm run test:zuzu-showdown-screens
+
+      - name: Zuzu Showdown Arcade mode
+        run: npm run test:zuzu-showdown-arcade
+
+      - name: Zuzu Showdown arcade boss (The Thing Behind the Door)
+        run: npm run test:zuzu-showdown-boss
 
       - name: Zuzu Showdown stages
         run: npm run test:zuzu-showdown-stages

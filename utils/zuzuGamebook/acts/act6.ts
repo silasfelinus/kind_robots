@@ -58,7 +58,7 @@ export const ACT_VI: Act = {
     s(
       'a6-kasa',
       CH.VI,
-      'Hat in Hand',
+      'Before the Wall',
       'names-wall',
       'You untie your kasa and hold it against your chest, and stand before the wall the way you stood before the dead of your own country. Nobody here does this. A man crossing the street stops to stare. The mouse girl watches you a long time before she speaks. "That one\'s Tam," she says, touching the sheet she guards. "He\'s six. Mister Vane\'s wagon took him to the sisters, to be fed. Ma says he\'s fat now." She takes a stub of chalk from her pocket and, very carefully, draws a little round hat in the corner of her brother\'s notice. "So he knows somebody stopped," she says. Her name is Pip. She does not ask yours.',
       {
@@ -299,7 +299,7 @@ export const ACT_VI: Act = {
     s(
       'a6-pilgrim-girl',
       CH.VI,
-      'One, as Agreed',
+      'Sweet-Sleep',
       'mags-bar',
       'Mags takes one look at the bundle on your back and comes round the bar faster than you have seen anyone move in this town. She lays the field mouse girl on a folded apron, lifts one eyelid, smells her breath, and her face goes hard. "Sweet-sleep. They dose them so they don\'t fuss." You lay the black-wax letter beside the girl. Mags reads the front, Mr G. Vane, Dustwater, One, as agreed, and then she reads it again. "He told us they were fed," she says. "He walked one through the market every spring, washed and combed, so we\'d all see." She covers the girl with her own shawl. "She stays with me. Nobody takes her anywhere."',
       {
@@ -381,7 +381,7 @@ export const ACT_VI: Act = {
     s(
       'a6-coyote-roped',
       CH.VI,
-      'Fair Trade',
+      'Across the Mule',
       'bounty-badger',
       "The mule comes in at a walk with the badger at its head. Across its back, roped at the ankles and at the one wrist, hangs the coyote. His right sleeve hangs empty. Townsfolk come out onto the boardwalks to look; a child points. As the mule passes under the lantern the coyote lifts his head, and his one eye finds you at once, standing in the doorway with the badger's water at your hip. He does not curse you. He looks at you the way he looked at the iron in the shallows, as if adding something up, and then he lets his head hang again. Pell touches his hat to you as he goes by.",
       {

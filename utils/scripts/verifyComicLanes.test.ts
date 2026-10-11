@@ -20,6 +20,7 @@ import {
   normalizeComicLanes,
   orderComicLanes,
   parseComicLanes,
+  selectComicCastLoras,
 } from '../comicLanes.js'
 
 {
@@ -279,4 +280,118 @@ console.log('✅ exactly one active lane is primary, and Arthemy is the default'
 }
 console.log(
   '✅ a lane can carry an author sampler, steps and cfg, and NoobAI gets the Illustrious profile',
+)
+
+{
+  // Character LoRAs (comic-creator t-016): survive normalization on SDXL-family lanes,
+  // ride only when the slot names the character, and share strength when two meet.
+  const cast = [
+    {
+      key: 'zuzu',
+      resourceId: 4593,
+      trigger: 'zuzukoala',
+      match: ['zuzu', 'koala'],
+    },
+    {
+      key: 'coyote',
+      resourceId: 4578,
+      trigger: 'zkacoyote',
+      match: ['coyote'],
+      strength: 0.7,
+    },
+    { key: 'junk', resourceId: -1, match: ['x'] },
+  ]
+  const arthemy = DEFAULT_COMIC_LANES.find((lane) => lane.key === 'il-arthemy')!
+  const krea = DEFAULT_COMIC_LANES.find((lane) => lane.engine === 'krea2')!
+  const { lanes, errors } = normalizeComicLanes([
+    { ...arthemy, castLoras: cast },
+    { ...krea, castLoras: cast },
+  ])
+  assert.deepEqual(errors, [])
+  const withCast = lanes[0]!
+  const kreaLane = lanes[1]!
+  assert.equal(withCast.castLoras?.length, 2, 'invalid entries are dropped')
+  assert.equal(
+    kreaLane.castLoras,
+    undefined,
+    'only SDXL-family lanes keep character LoRAs',
+  )
+
+  assert.deepEqual(selectComicCastLoras(withCast, 'a desert road at dusk'), [])
+  assert.deepEqual(selectComicCastLoras(withCast, 'Zuzu walks alone'), [
+    { resourceId: 4593, strength: 0.8 },
+  ])
+  assert.deepEqual(
+    selectComicCastLoras(withCast, 'koala-sized hat'),
+    [{ resourceId: 4593, strength: 0.8 }],
+    'a hyphen is a word boundary',
+  )
+  assert.deepEqual(
+    selectComicCastLoras(withCast, 'coyotes'),
+    [],
+    'whole words only',
+  )
+  assert.deepEqual(
+    selectComicCastLoras(withCast, 'the koala bandages the coyote'),
+    [
+      { resourceId: 4593, strength: 0.6 },
+      { resourceId: 4578, strength: 0.52 },
+    ],
+  )
+  assert.deepEqual(selectComicCastLoras(kreaLane, 'zuzu'), [])
+
+  const solo = normalizeComicLanes([
+    {
+      ...arthemy,
+      castLoras: [
+        { ...cast[0], stacks: false },
+        cast[1],
+        { key: 'sister', resourceId: 4583, match: ['sister'] },
+      ],
+    },
+  ]).lanes[0]!
+  assert.equal(solo.castLoras?.[0]?.stacks, false, 'stacks: false survives')
+  assert.equal(solo.castLoras?.[1]?.stacks, undefined)
+  assert.deepEqual(
+    selectComicCastLoras(solo, 'the koala bandages the coyote'),
+    [],
+    'a non-stacking character in company gets no LoRAs',
+  )
+  assert.deepEqual(selectComicCastLoras(solo, 'zuzu alone'), [
+    { resourceId: 4593, strength: 0.8 },
+  ])
+  assert.deepEqual(selectComicCastLoras(solo, 'the coyote and the sister'), [
+    { resourceId: 4578, strength: 0.52 },
+    { resourceId: 4583, strength: 0.6 },
+  ])
+
+  const body = buildComicLaneEnqueueBody(
+    withCast,
+    {
+      promptTags: 'anthro koala, standing',
+      aspect: 'portrait',
+    },
+    { styleTags: 'coyote country' },
+  )
+  assert.deepEqual(
+    body.loras,
+    [{ resourceId: 4593, strength: 0.8 }],
+    'series style never adds a character',
+  )
+  const plain = buildComicLaneEnqueueBody(withCast, {
+    promptTags: 'empty desert',
+  })
+  assert.equal(plain.loras, undefined)
+  const explicit = buildComicLaneEnqueueBody(withCast, {
+    promptTags: 'anthro koala',
+    castText: 'the coyote alone',
+  })
+  assert.deepEqual(
+    explicit.loras,
+    [{ resourceId: 4578, strength: 0.7 }],
+    'castText decides who is in it',
+  )
+}
+console.log(
+  '✅ character LoRAs ride only on the renders that name their character',
 )

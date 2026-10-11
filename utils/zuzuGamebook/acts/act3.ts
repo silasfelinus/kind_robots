@@ -487,7 +487,7 @@ export const ACT_III: Act = {
     s(
       'a3-fever-bandage',
       CH.III,
-      'Clean Linen',
+      'The Splinter',
       'fever',
       'You hold his foot to the firelight. The cut is small and deep and angry, with something dark still in it. You warm the point of a thorn in the flame and work the splinter out while the sister holds his shoulders and stares at your paws as if she could stop them by looking. Then you bind the foot in your linen, the clean roll you were saving for your own blood. By the next noon the fever has broken. Whatever cuts you between here and the end of this road, you will bleed on it.',
       {
@@ -567,7 +567,7 @@ export const ACT_III: Act = {
     s(
       'a3-one-fire',
       CH.III,
-      'One Fire',
+      'Across the Fire',
       'camp',
       'You lift a paw and beckon, once. The sister stares. Then she comes, slowly, with her brother and an armful of thorn, and sits down across the fire from you with the flames between you like a fence. The toddler crawls halfway round to look at your hat and falls asleep against your knee. She lets him. Late in the night, staring into the coals, she speaks to you for the first time. "You walk too fast," she says. You think about that for a long while. In the morning you walk slower.',
       {

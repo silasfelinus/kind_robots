@@ -201,6 +201,8 @@ export class PinballPhysics {
   private drops: LiveDrop[] = []
   private doors = new Map<string, LiveDoor>()
   private toys: LiveToy[] = []
+  /** Captive balls: real balls in lanes of their own, never in play. */
+  private captives: { id: number; body: RAPIER.RigidBody }[] = []
   /** Collider handle -> table id, for switch events. */
   private names = new Map<number, string>()
   private kicks = new Map<number, number>()
@@ -278,6 +280,12 @@ export class PinballPhysics {
       this.sensorHandles.add(collider.handle)
     }
     for (const def of table.toys ?? []) this.addToy(def)
+    for (const [i, def] of (table.captives ?? []).entries()) {
+      const { body, collider } = this.addBall(def.at)
+      collider.setActiveEvents(R.ActiveEvents.COLLISION_EVENTS)
+      this.names.set(collider.handle, def.id)
+      this.captives.push({ id: -(i + 1), body })
+    }
     this.hooks = {
       filterContactPair: (c1, c2, b1, b2) => {
         const mouth = this.mouths.get(c1) ?? this.mouths.get(c2)
@@ -382,6 +390,7 @@ export class PinballPhysics {
     }
     for (const collider of door.open) collider.setEnabled(false)
     this.doors.set(def.id, door)
+    if (def.startsOpen) this.setDoor(def.id, true)
   }
 
   private addToy(def: ToyDef) {
@@ -473,6 +482,16 @@ export class PinballPhysics {
 
   /** Put a new ball on the plunger (or anywhere, for tests). Returns its id. */
   serveBall(at: Vec3 = this.table.plunger.rest, velocity?: Vec3): number {
+    const { body, collider } = this.addBall(at)
+    if (velocity)
+      body.setLinvel({ x: velocity[0], y: velocity[1], z: velocity[2] }, true)
+    const id = this.nextBallId++
+    this.balls.push({ id, body, collider, captured: false, scoopCooldown: 0 })
+    return id
+  }
+
+  /** A steel ball body and collider at `at`. */
+  private addBall(at: Vec3) {
     const R = this.R
     const radius = this.table.physical.ballRadiusM
     const body = this.world.createRigidBody(
@@ -483,8 +502,6 @@ export class PinballPhysics {
         .setLinearDamping(0.05)
         .setAngularDamping(0.3),
     )
-    if (velocity)
-      body.setLinvel({ x: velocity[0], y: velocity[1], z: velocity[2] }, true)
     const collider = this.world.createCollider(
       R.ColliderDesc.ball(radius)
         .setDensity(BALL_DENSITY)
@@ -492,9 +509,7 @@ export class PinballPhysics {
         .setFriction(0.25),
       body,
     )
-    const id = this.nextBallId++
-    this.balls.push({ id, body, collider, captured: false, scoopCooldown: 0 })
-    return id
+    return { body, collider }
   }
 
   /** Fire the plunger: launch any ball resting in the shooter lane up-table. */
@@ -819,6 +834,23 @@ export class PinballPhysics {
     this.balls = this.balls.filter((b) => b !== ball)
   }
 
+  /** The captive balls, for drawing (negative ids; never balls in play). */
+  captiveViews(): BallView[] {
+    return this.captives.map(({ id, body }) => {
+      const t = body.translation()
+      const r = body.rotation()
+      const v = body.linvel()
+      return {
+        id,
+        position: [t.x, t.y, t.z],
+        rotation: [r.x, r.y, r.z, r.w],
+        velocity: [v.x, v.y, v.z],
+        speed: Math.hypot(v.x, v.z),
+        captured: false,
+      }
+    })
+  }
+
   ballViews(): BallView[] {
     return this.balls.map((ball) => {
       const t = ball.body.translation()
@@ -880,6 +912,7 @@ export class PinballPhysics {
     this.events.free()
     this.world.free()
     this.balls = []
+    this.captives = []
     this.flippers = []
     this.drops = []
     this.holds = []

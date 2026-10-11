@@ -15,7 +15,7 @@
     />
     <div
       v-else
-      class="kr-scroll mx-auto max-w-[1540px] space-y-5 px-3 py-5 sm:px-6"
+      class="kr-scroll mx-auto w-full max-w-[1540px] space-y-5 px-3 py-5 sm:px-6"
     >
       <header
         class="kr-panel-flat flex flex-wrap items-end justify-between gap-3 px-4 py-3"
@@ -208,7 +208,7 @@
                 class="grid gap-3 sm:grid-cols-[125px_1fr]"
               >
                 <div class="aspect-[2/3] overflow-hidden rounded-xl">
-                  <NavigationFlipCard :trigger-key="flipKey" :duration-ms="580">
+                  <FlipCard :trigger-key="flipKey" :duration-ms="580">
                     <template #front
                       ><img
                         :src="game.activeCard.art"
@@ -221,7 +221,7 @@
                         alt=""
                         class="size-full object-cover"
                     /></template>
-                  </NavigationFlipCard>
+                  </FlipCard>
                 </div>
                 <div class="space-y-2">
                   <p class="text-xs font-bold uppercase text-warning">

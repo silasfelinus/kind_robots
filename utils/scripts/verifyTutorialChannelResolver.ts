@@ -78,7 +78,7 @@ import { resolveTutorialChannelFromRoute } from '@/stores/helpers/tutorialCards'
     '/plan/wonderlab',
     '/play/screenfx',
     '/plan/watchlist',
-    '/plan/projects/ruler-hooked',
+    '/admin/ruler-hooked',
     '/plan/voice-lab',
   ]
 

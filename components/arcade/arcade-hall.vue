@@ -17,7 +17,7 @@
     <ul class="arcade-row" aria-label="Cabinets">
       <li v-for="game in games" :key="game.slug">
         <NuxtLink
-          :to="`/play/arcade?game=${game.slug}`"
+          :to="hallLink(game)"
           class="arcade-mini"
           :style="{ '--arcade-accent': game.accent }"
         >
@@ -84,7 +84,7 @@
       <ol class="arcade-fame-grid">
         <li v-for="game in games" :key="game.slug" class="arcade-fame-card">
           <NuxtLink
-            :to="`/play/arcade?game=${game.slug}`"
+            :to="hallLink(game)"
             class="arcade-fame-game"
             :style="{ '--arcade-accent': game.accent }"
           >
@@ -138,17 +138,23 @@
 
 import { onMounted, reactive, ref } from 'vue'
 import { useArcadeStore } from '@/stores/arcadeStore'
-import { ARCADE_GAMES, COMING_SOON } from '~/utils/arcade/games'
+import { COMING_SOON, HALL_GAMES } from '~/utils/arcade/games'
 import { formatChampion } from '~/utils/arcade/leaderboard'
+import type { ArcadeGameMeta } from '~/utils/arcade/types'
 
 const store = useArcadeStore()
-const games = ARCADE_GAMES
+const games = HALL_GAMES
 const comingSoon = COMING_SOON
 const backdrop = ref('/images/arcade/arcade-hall-backdrop.webp')
 // '' = use the game's own art, 'fallback' = it 404'd so show the arcade
 // splash, 'none' = the splash failed too.
 const brokenArt = reactive<Record<string, '' | 'fallback' | 'none'>>({})
 const FALLBACK_ART = '/images/arcade/arcade-attract-splash.webp'
+
+/** A cabinet opens in the arcade player; a linked game on its own page. */
+function hallLink(game: ArcadeGameMeta) {
+  return game.route ?? `/play/arcade?game=${game.slug}`
+}
 
 function onArtError(slug: string) {
   brokenArt[slug] = brokenArt[slug] ? 'none' : 'fallback'
@@ -237,6 +243,7 @@ onMounted(async () => {
     0 0 22px #a78bfa,
     3px 3px 0 #1e1b4b;
 }
+
 
 .arcade-row {
   display: grid;

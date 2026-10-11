@@ -86,7 +86,7 @@ export const ACT_I: Act = {
     s(
       'a1-laid-out',
       CH.I,
-      'Hat in Hand',
+      'The Smallest Last',
       'bowl-bones',
       'You lift the bones out one at a time and lay them in a row on the dry stone, the smallest last, the bowl at the head of them. Then you take off your kasa and stand. It is not much. It is what there is. Across the water the coyote has stopped drinking to watch a stranger bury nobody. After a long moment he takes off his own battered hat. Behind you the water makes a sound like a held breath let go, and you are standing bareheaded with your back to it.',
       {

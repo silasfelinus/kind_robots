@@ -30,23 +30,18 @@ import {
   type RendererFactory,
 } from './render/scene'
 import type { QualityTier } from './render/quality'
+import type { PinballRulesState, RulesEvent } from './rules/engine'
 import {
-  initialRules,
-  stepRules,
-  type PinballRulesState,
-  type RulesEvent,
-} from './rules/engine'
-import { lampStates } from './rules/lamps'
-import { goalsMet, MASTERY_GOALS, masteryEffects } from './rules/mastery'
+  AMI_RULESET,
+  type CoreRulesState,
+  type PinballRuleset,
+} from './rules/ruleset'
 import { partsComplete } from '../mastery'
-import { musicFor } from './rules/subTable'
-import { delivered, toyPose } from './rules/toys'
 import type { PinballMusicBed } from './audio/catalog'
 import {
   applyShows,
   attractShow,
   liveShows,
-  showTriggers,
   type LightShow,
 } from './rules/lightShows'
 import type { CameraPresetId, RuleEffect, TableDef } from './types'
@@ -84,13 +79,17 @@ export function cameraViewFor(balls: BallView[]): CameraPresetId {
 /** A sling kicker's switch: its rubber flexes when it fires. */
 const SLING_KICKER = /^sling-.+-kicker$/
 
-export class PinballRuntime implements ArcadeWebGLGameInstance {
+export class PinballRuntime<
+  S extends CoreRulesState = PinballRulesState,
+> implements ArcadeWebGLGameInstance {
   readonly renderMode = 'webgl' as const
   readonly level = 1
 
   private physics: PinballPhysics
   /** The player's camera view (b / the VIEW chip cycles it) and its follower. */
-  private rules: PinballRulesState
+  private rules: S
+  /** The table's rules: AMI Village Rescue's unless the table brings its own. */
+  private ruleset: PinballRuleset<S>
   private scene: PinballScene | null = null
   private mixer: PinballMixer
   private rng: () => number
@@ -132,6 +131,7 @@ export class PinballRuntime implements ArcadeWebGLGameInstance {
     R: RapierModule,
     table: TableDef,
     factory: RendererFactory = createWebGLRenderer,
+    ruleset: PinballRuleset<S> = AMI_RULESET as unknown as PinballRuleset<S>,
   ) {
     this.rng = options.rng
     this.demo = options.demo
@@ -140,7 +140,11 @@ export class PinballRuntime implements ArcadeWebGLGameInstance {
     this.earnedBefore = new Set(options.mastery ?? [])
     this.mixer = new PinballMixer(options.sound)
     this.physics = new PinballPhysics(R, table)
-    this.rules = initialRules(table.balls, Math.floor(this.rng() * 0x100000000))
+    this.ruleset = ruleset
+    this.rules = ruleset.initial(
+      table.balls,
+      Math.floor(this.rng() * 0x100000000),
+    )
     this.apply({ type: 'start' })
   }
 
@@ -216,7 +220,7 @@ export class PinballRuntime implements ArcadeWebGLGameInstance {
     }
     this.apply({ type: 'tick', tick: this.steps })
     this.unstick({ left, right })
-    this.music()
+    this.playMusicBed()
     this.scene?.setView(this.view())
     this.lamps()
     this.dmdQueue.tick(TICK_MS)
@@ -239,9 +243,13 @@ export class PinballRuntime implements ArcadeWebGLGameInstance {
     )
   }
 
-  /** Play the music the rules call for; a bed that could not start yet is retried. */
-  private music() {
-    const bed = this.demo ? null : musicFor(this.rules)
+  /**
+   * Play the music the rules call for; a bed that could not start yet is
+   * retried. Not named `music`: the cabinet reads a game's `music` property
+   * as its MusicLoop (2026-10-11: a method by that name froze the table).
+   */
+  private playMusicBed() {
+    const bed = this.demo ? null : this.ruleset.music(this.rules)
     if (bed === this.bed) return
     if (!bed) {
       this.mixer.stopMusic()
@@ -258,12 +266,19 @@ export class PinballRuntime implements ArcadeWebGLGameInstance {
     this.shows = liveShows(this.shows, this.tick)
     const frame = this.demo
       ? attractShow(table, this.tick)
-      : applyShows(lampStates(this.rules, table), this.shows, table, this.tick)
+      : applyShows(
+          this.ruleset.lamps(this.rules, table),
+          this.shows,
+          table,
+          this.tick,
+        )
     this.scene.setLamps(frame.lamps, frame.gi)
+    const poses = this.ruleset.animatronics?.(this.rules, this.steps)
+    if (poses) this.scene.setAnimatronics(poses)
     // The skill shot's arrow flashes until the first shot after the plunge.
-    const skill = this.rules.play.skill
-    if (!this.demo && skill.armed && this.tick % SKILL_PULSE_TICKS === 0)
-      this.scene.pulse(skill.target)
+    const skill = this.ruleset.skillTarget(this.rules)
+    if (!this.demo && skill && this.tick % SKILL_PULSE_TICKS === 0)
+      this.scene.pulse(skill)
   }
 
   /** Pin the renderer's quality tier (screenshots, tests); null measures again. */
@@ -370,16 +385,18 @@ export class PinballRuntime implements ArcadeWebGLGameInstance {
   }
 
   private apply(event: RulesEvent) {
-    const { state, effects } = stepRules(this.rules, event, {
+    const { state, effects } = this.ruleset.step(this.rules, event, {
       shots: this.physics.table.shots,
     })
     // A made shot flashes its arrow and fires its flasher.
     for (const [shot, made] of Object.entries(state.shotsMade)) {
       if (made > (this.rules.shotsMade[shot] ?? 0)) this.scene?.pulse(shot)
     }
-    this.shows.push(...showTriggers(this.rules, state, this.tick))
+    this.shows.push(...this.ruleset.shows(this.rules, state, this.tick))
     this.toys(event, state, effects)
-    const goals = this.demo ? [] : goalsMet(this.rules, state, effects)
+    const mastery = this.ruleset.mastery
+    const goals =
+      this.demo || !mastery ? [] : mastery.met(this.rules, state, effects)
     this.rules = state
     for (const effect of effects) this.effect(effect)
     for (const goal of goals) this.master(goal)
@@ -391,15 +408,14 @@ export class PinballRuntime implements ArcadeWebGLGameInstance {
    * scored it (or the beacon, for the lock's super jackpot), and a sling
    * rubber's flex when its kicker fires.
    */
-  private toys(
-    event: RulesEvent,
-    state: PinballRulesState,
-    effects: RuleEffect[],
-  ) {
+  private toys(event: RulesEvent, state: S, effects: RuleEffect[]) {
     const scene = this.scene
     if (!scene) return
-    scene.setToys(toyPose(state))
-    if (delivered(this.rules, state)) scene.deliver()
+    const toys = this.ruleset.toys
+    if (toys) {
+      scene.setToys(toys.pose(state))
+      if (toys.delivered(this.rules, state)) scene.deliver()
+    }
     if (
       event.type === 'switch' &&
       event.event.type === 'contact' &&
@@ -424,13 +440,14 @@ export class PinballRuntime implements ArcadeWebGLGameInstance {
    * new to the player. The part that completes a goal earns the goal too.
    */
   private master(goal: string) {
-    if (this.earnedNow.includes(goal)) return
+    const mastery = this.ruleset.mastery
+    if (!mastery || this.earnedNow.includes(goal)) return
     this.earnedNow.push(goal)
     if (this.earnedBefore.has(goal)) return
     const earned = new Set([...this.earnedBefore, ...this.earnedNow])
-    const rungs = MASTERY_GOALS.filter((g) => earned.has(g.id)).length
-    for (const effect of masteryEffects(goal, rungs)) this.effect(effect)
-    for (const done of partsComplete(MASTERY_GOALS, earned)) this.master(done)
+    const rungs = mastery.goals.filter((g) => earned.has(g.id)).length
+    for (const effect of mastery.effects(goal, rungs)) this.effect(effect)
+    for (const done of partsComplete(mastery.goals, earned)) this.master(done)
   }
 
   private effect(effect: RuleEffect) {
@@ -523,7 +540,8 @@ export class PinballRuntime implements ArcadeWebGLGameInstance {
 
   render() {
     if (this.disposed || !this.scene) return
-    this.scene.sync(this.physics.ballViews(), this.physics.flipperAngles(), {
+    const balls = [...this.physics.ballViews(), ...this.physics.captiveViews()]
+    this.scene.sync(balls, this.physics.flipperAngles(), {
       drops: this.physics.dropStates(),
       spinners: this.physics.spinnerAngles(),
       doors: this.physics.doorStates(),

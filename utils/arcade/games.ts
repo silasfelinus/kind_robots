@@ -100,6 +100,7 @@ export const ARCADE_GAMES: ArcadeGameMeta[] = [
     titleArt: '/images/arcade/games/rescue-rally-title.webp',
     accent: '#22d3ee',
     controls: 'Move to aim, beam, strafe',
+    twinStick: true,
   },
   {
     slug: 'sink-suds',
@@ -127,21 +128,23 @@ export const ARCADE_GAMES: ArcadeGameMeta[] = [
     title: 'Pipe Pals',
     riffsOn: 'Mario Bros.',
     blurb:
-      'Grumpy critters are crawling out of the Kind Robots plumbing. Bump the floor under one to flip it, then tap it to send it home. Crab bots take two bumps, the KIND block flips the whole floor, and every fourth pipe is a bonus coin round.',
+      'Grumpy critters are crawling out of the Kind Robots plumbing. Bump the floor under one to flip it, then tap it to send it bowling along the ledge, taking any other flipped critter with it. Crab bots take two bumps, shell knights lose their armour first, spring fleas only flip when they land, and ember sparks are snuffed from below. Tools roll out of the pipes and the KIND block flips the whole floor. Work the city district by district: the Day Shift (a rooftop reservoir, a greenhouse of sagging vines, a bubbling laundry) ends with the Big Shell, the Swing Shift (icy cold storage, a boiler works of steam vents, a clockwork water tower) ends with the Thermostat, and the Night Shift (tidal flooded mains, a storm drain lit only by lamps and lightning) ends with the Clog King and a race up the flushing drain. Every district has its own special job and bonus round, the Workshop turns coins into upgrades, progress saves at each district, and eight golden valves open a secret ninth district and the true ending. Play the teal pal (longer bumps) or the pink pal (higher, floatier jumps), or seat two players for same-device co-op or a Versus match full of bump-steals. Overtime is the endless score attack, Time Trial races the clock district by district, and every phase holds three medals: Clean Sweep, Chain Master and Swift Fix.',
     howTo: [
-      'RUN LEFT AND RIGHT',
-      'A  JUMP',
+      'RUN, A TO JUMP',
       'BUMP FLOORS FROM BELOW',
       'TOUCH FLIPPED CRITTERS',
-      'CRABS NEED TWO BUMPS',
-      'KIND BLOCK FLIPS ALL',
+      'KICKS BOWL AND CHAIN',
+      'SNUFF EMBERS FROM BELOW',
+      'B BLOWS WAND BUBBLES',
+      'TWO PLAYERS: CO-OP OR VERSUS',
     ],
     width: 448,
     height: 336,
-    maxPlausibleScore: 2_000_000,
+    maxPlausibleScore: 5_000_000,
     titleArt: '/images/arcade/games/pipe-pals-title.webp',
     accent: '#4ade80',
     controls: 'Run, jump, bump',
+    maxPlayers: 2,
   },
   {
     slug: 'butterfly-joust',
@@ -163,6 +166,7 @@ export const ARCADE_GAMES: ArcadeGameMeta[] = [
     titleArt: '/images/arcade/games/butterfly-joust-title.webp',
     accent: '#f9a8d4',
     controls: 'Flap, steer, joust',
+    maxPlayers: 4,
   },
   {
     // The 3D table (conductor kind-pinball/t-024): Three.js and Rapier, the
@@ -326,35 +330,41 @@ export const ARCADE_GAMES: ArcadeGameMeta[] = [
     title: 'Prize Show Panic',
     riffsOn: 'Smash TV',
     blurb:
-      "A robot game show where the studio floods with party crashers. Spray the confetti cannon and the crashers get happy and dance off the set, grab the prizes that drop, and reach the exit before the host's countdown runs out. Every fourth studio ends with a parade float.",
+      "A robot game show, broadcast as a season. Each episode is a map of studio rooms, and between rooms the map shows where every door leads (a swarm, a prize vault, a trap or a sponsor challenge) with its danger and its prize, so you pick the safe route or the rich one. Every room runs its own script: crashers pour in through the doors on cue, whoopee cushions and banana peels lie on the floor, spotlight beams step across the stage on the beat, and a wall of studio cameras fires flashbulbs. Spray the confetti cannon and the crashers get happy and dance off the set, grab the prizes, and reach a door before the host's countdown runs out. Golden tickets hide in the prize vault, in a sponsor's no-hit challenge and behind a cracked wall. Four episodes, each on its own set with its own mid-boss and boss, then a Live Finale. Opening Night is the game show: the Parade Float (past half health its cake's candles light and fire sparks), then the Big Wobble, a giant inflatable whose every arm and leg is its own target. Cooking Showdown is the kitchen, with hot plates that glow and then sizzle, conveyor counters and flour clouds: the Pie Cart circles the room lobbing pies, and the Souffle Supreme rises out of reach and falls open, then splits into cupcakes that re-form if you leave them. Countdown Concert moves to the beat, with speaker stacks thumping out bass rings (slip through the gap), strobes and mosh pits: the Mosh Mascot crowd-surfs until you clear its crowd, and the Jumbotron's face hops screen to screen until you crack the screens and corner it. Galaxy Parade floats in low gravity, round a turning ring and through teleport doors: the Mothership beams your prizes away until you break its beam, and the Conga Dragon sheds dancing segments as it speeds up. The Live Finale runs through every set to the host's own Prize Machine, a wheel of acts that ends in a dance-off. Ten golden tickets open the Grand Prize Vault and the true ending; then the credits roll and the season reruns, harder. Progress is saved at the start of every episode. Nineteen kinds of party crasher each show their move before they make it: balloon poppers, sweeper tanks with armoured fronts, stagehands laying mines, spotlight drones, a charging mascot, camera cranes, pie chefs, egg-timer bots, meatball rollers, roadies with flight cases, stage divers, hecklers, saucer cams, mirror clones and fluffballs. Ten power-ups stack with their own timers, from party poppers, bubble rockets and a glitter laser to streamer orbiters, roller skates, a foam cannon and a cardboard cutout of you. Aim with a second stick (the right stick, the on-screen aim stick, or the arrows while WASD moves), or hold B to lock your aim. TINSEL the host cuts in with a line for every big moment (and LENS, the dry camera bot, joins for the concert), a ratings meter rises with style and drains when you idle or get hit, from Off Air to Prime Time, where every tier multiplies the score, and quick cheers chain into a bigger multiplier. Between episodes the haul is tallied and the Prize Swap trades cars, toasters, cash and golden tickets for an extra contestant, a starting power-up, more time or a secret. Later loops roll room twists: Lights Out, Foam Party, Confetti Storm, Double Time, Audience Participation and Sudden Death. Pick your contestant: Sparkle the all-rounder, quick Zippy, Boomer with her slow, heavy cannon, or Glimmer with a shield that heals itself, and up to four can play at once on one shared pool of lives (in co-op each seat aims the way it moves, or holds B to lock its aim). Between episodes come the commercial breaks, four mini-games that pay out in prizes: spin the wheel, catch the prizes falling from the rafters, dodge the pies, and call higher or lower on the price cards. Clearing the season unlocks Rerun, New Game+ with every room's script remixed (other crashers, other doors, the floor flipped) and more twists, and episode select. Marathon is the leaderboard's main event: endless legs of rooms drawn from the whole season, a safe lane and a rich lane round the track to a boss, a step harder every two legs. Every room has three medals to win, Flawless (no hit), Full Haul (every prize grabbed, none lost) and Prime Time (out of the room at Prime Time), and the medal board keeps them all, episode by episode.",
     howTo: [
-      'ARROWS  MOVE',
-      'A  CONFETTI CANNON',
-      'HOLD B  LOCK YOUR AIM',
-      'GRAB THE PRIZES',
+      'WASD OR STICK  MOVE',
+      'ARROWS OR 2ND STICK  AIM',
+      'A SPRAY, HOLD B LOCK AIM',
+      'PICK SAFE OR RICH DOORS',
       'BEAT THE COUNTDOWN',
+      'FIND THE GOLDEN TICKETS',
+      'EARN 3 MEDALS PER ROOM',
+      'MARATHON: GO THE DISTANCE',
     ],
     width: 320,
     height: 240,
-    maxPlausibleScore: 20_000_000,
+    maxPlausibleScore: 250_000_000,
     titleArt: '/images/arcade/games/prize-show-panic-title.webp',
     accent: '#e879f9',
-    controls: 'Move, spray, lock aim',
+    controls: 'Move, spray, aim with a second stick',
+    twinStick: true,
+    maxPlayers: 4,
   },
   {
     slug: 'zuzu-ghost-trail',
     title: 'Zuzu: Ghost Trail',
     riffsOn: "Ghosts 'n Goblins",
     blurb:
-      'Zuzu, the koala ronin, walks four haunted weird-west trails (a ghost town at dusk, the bone yard, a drowned watering hole and the old bell tower), throwing kunai at restless spirits clawing up from the dirt, storm crows and bone hyenas. The first hit knocks his poncho and kasa off; a second sends him back to the checkpoint. Crates and the bundles some crows carry hold new gear: three-way shuriken, a boomerang kasa, a lantern that leaves a ground fire, or the short, strong iai cut. At the mission gate a boss from the thin places blocks the way: the whirling Dust Devil or the charging Bone Bull. Jumps are committed once he leaves the ground.',
+      'Zuzu, the koala ronin, walks a haunted weird-west trail toward the mission bell that is waking the dead: six stages of hand-built acts, from a ghost town at dusk through the bone yard, a drowned watering hole whose tide rises and falls, Storm Crow Pass, the mission bell tower and the abbey beneath it. Every squad of the dead is placed by hand and stays down once beaten; every one of the six bosses (the Grave Marshal, the Bone Bull, the Drowned Ferryman, the Storm-Crow Matriarch, the Bell Heretic and the Abbess) shows its attacks before they land. The first hit knocks his poncho and kasa off; a second sends him back to the checkpoint. Crates and carried bundles hold new gear: three-way shuriken, a boomerang kasa, a lantern that leaves a ground fire, or the short, strong iai cut. Relics hide off the beaten path, and finding them all earns the true ending. Progress saves at every act, and a clear unlocks New Game+.',
     howTo: [
       'LEFT/RIGHT  WALK',
       'UP OR B  JUMP',
       'A  THROW OR CUT',
       'ONE HIT LOSES THE PONCHO',
       'BREAK CRATES FOR A NEW ONE',
-      'CROWS AND CRATES HOLD GEAR',
-      'A BOSS GUARDS THE GATE',
+      'WATCH FOR EACH ATTACK TELL',
+      'SIX STAGES, SIX BOSSES',
+      'PROGRESS SAVES EACH ACT',
     ],
     width: 320,
     height: 240,
@@ -684,7 +694,53 @@ export const COMING_SOON: ComingSoonCabinet[] = []
  * Pinball's 3D rebuild lives here until it replaces the Canvas table
  * (conductor kind-pinball/t-004; the Canvas game is the rollback path).
  */
-export const PREVIEW_GAMES: ArcadeGameMeta[] = []
+export const PREVIEW_GAMES: ArcadeGameMeta[] = [
+  {
+    slug: 'zuzu-pinball',
+    title: 'Zuzu: The Last Bell',
+    riffsOn: 'original multi-level pinball',
+    blurb:
+      'Private Zuzu pinball physics preview. The separate 3D table has a shootable River Croc capture, Abbey bell lane, two lower flippers and its own score namespace. Ramps, the raised Abbey and Zuzu-specific game rules are being built; this is not the finished FX3-class game.',
+    howTo: [
+      'ARROWS  FLIPPERS',
+      'DOWN  CHARGE PLUNGER',
+      'RELEASE  LAUNCH',
+      'UP  NUDGE',
+      'SHOOT RIVER CROC',
+      'B  CAMERA VIEW',
+    ],
+    width: 288,
+    height: 488,
+    maxPlausibleScore: 0,
+    titleArt: '/images/arcade/games/zuzu-ghost-trail-title.webp',
+    accent: '#c78e62',
+    controls: 'Flippers, plunge, nudge (engineering preview)',
+    renderMode: 'webgl',
+    touchLayout: 'pinball',
+  },
+]
+
+/**
+ * Scored games that are not hall cabinets: each lives on its own page and posts to the arcade
+ * leaderboard under its slug, but stays out of the hall and the hall of fame until it is listed
+ * (then it moves to LINKED_GAMES).
+ */
+export const UNLISTED_SCORED_GAMES: ArcadeGameMeta[] = [
+  {
+    slug: 'zuzu-lair',
+    title: "Zuzu's Lair",
+    riffsOn: "Dragon's Lair",
+    blurb:
+      'A quick-time animated adventure. Press the right direction in time and Zuzu lives on; miss and a life is lost.',
+    howTo: ['ARROWS  DIRECTION', 'SPACE  SWORD', 'PRESS IN THE WINDOW'],
+    width: 480,
+    height: 270,
+    maxPlausibleScore: 100_000,
+    titleArt: '/zuzu-showdown-portraits/zuzu-vs-hd.webp',
+    accent: '#fb923c',
+    controls: 'Four directions and the sword',
+  },
+]
 
 const LOADERS: Record<string, () => Promise<ArcadeGameModule>> = {
   'butterfly-blaster': () => import('./games/butterflyBlaster'),
@@ -700,6 +756,11 @@ const LOADERS: Record<string, () => Promise<ArcadeGameModule>> = {
           return module
         })
       : import('./games/kindPinball'),
+  'zuzu-pinball': () =>
+    import('./games/zuzuPinball3d').then(async (module) => {
+      await module.prepare()
+      return module
+    }),
   'gloom-invaders': () => import('./games/gloomInvaders'),
   'hedgehog-crossing': () => import('./games/hedgehogCrossing'),
   'ribbon-riders': () => import('./games/ribbonRiders'),
@@ -748,13 +809,47 @@ export function overrideWebGLSupport(value: boolean | null) {
 }
 
 /**
+ * Scored games with a page of their own that the hall lists beside its cabinets: the tile and the
+ * hall-of-fame card link to `route`. Zuzu Showdown joined on 2026-10-11 (conductor zuzu-showdown
+ * t-025: Silas, "If it's ready for prime time, it can move to the Play and out of admin").
+ */
+export const LINKED_GAMES: ArcadeGameMeta[] = [
+  {
+    slug: 'zuzu-showdown',
+    title: 'Zuzu Showdown',
+    riffsOn: 'Street Fighter II',
+    blurb:
+      'A 2D fighter of the Shifting Lands. Nine fighters; Story mode climbs past every one of them, your rival and the Swamp Witch, to The Thing Behind the Door.',
+    howTo: [
+      'ARROWS  MOVE',
+      'U I  PUNCHES',
+      'J K  KICKS',
+      'BEAT EVERY FIGHTER',
+      'THEN THE DOOR',
+    ],
+    width: 480,
+    height: 270,
+    maxPlausibleScore: 50_000_000,
+    titleArt: '/zuzu-showdown-portraits/zuzu-vs-hd.webp',
+    route: '/play/zuzu-showdown',
+    accent: '#fb923c',
+    controls: 'Move, two punches, two kicks, dodge',
+  },
+]
+
+/** Everything the hall shows and the hall of fame ranks: the cabinets, then the linked games. */
+export const HALL_GAMES: ArcadeGameMeta[] = [...ARCADE_GAMES, ...LINKED_GAMES]
+
+/**
  * A cabinet by slug, as this device will play it: a WebGL cabinet's
  * fallback where WebGL is missing.
  */
 export function findArcadeGame(slug: string): ArcadeGameMeta | undefined {
   const game =
     ARCADE_GAMES.find((g) => g.slug === slug) ??
-    PREVIEW_GAMES.find((g) => g.slug === slug)
+    PREVIEW_GAMES.find((g) => g.slug === slug) ??
+    LINKED_GAMES.find((g) => g.slug === slug) ??
+    UNLISTED_SCORED_GAMES.find((g) => g.slug === slug)
   if (game?.renderMode === 'webgl' && game.fallback && !canRenderWebGL())
     return game.fallback
   return game
@@ -767,7 +862,10 @@ export function loadArcadeGame(slug: string): Promise<ArcadeGameModule> {
 }
 
 export function isPlausibleScore(slug: string, score: unknown): boolean {
-  const game = findArcadeGame(slug)
+  const game =
+    ARCADE_GAMES.find((entry) => entry.slug === slug) ??
+    LINKED_GAMES.find((entry) => entry.slug === slug) ??
+    UNLISTED_SCORED_GAMES.find((entry) => entry.slug === slug)
   return (
     Boolean(game) &&
     typeof score === 'number' &&

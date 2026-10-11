@@ -22,21 +22,29 @@ const HEIGHT = 104
 const WIDTH = 34
 const NO_HITBOX = { x: 0, y: 0, w: 0, h: 0 }
 
-// LP is a backhand; HP a chain-wrapped fist with a little more reach.
+// LP is a backhand; HP a chain-wrapped fist with a little more reach. The
+// rest are fitted to her rig's art (conductor tools/rigs/hyena.py), so each
+// box reaches where the claws, fist or boot are drawn on its active frames.
 const normals = defaultNormals(HEIGHT)
-normals.stand_hp = {
-  ...normals.stand_hp,
-  hitbox: { x: 8, y: 56, w: 40, h: 16 },
+const fit = (id: keyof typeof normals, hitbox: MoveData['hitbox']) => {
+  normals[id] = { ...normals[id], hitbox }
 }
+fit('stand_hp', { x: 8, y: 56, w: 40, h: 14 })
+fit('stand_hk', { x: 6, y: 30, w: 40, h: 14 })
+fit('crouch_hp', { x: 2, y: 47, w: 24, h: 52 })
+fit('crouch_hk', { x: 6, y: 0, w: 36, h: 10 })
+fit('jump_lp', { x: 4, y: 42, w: 22, h: 14 })
+fit('jump_hp', { x: 4, y: 14, w: 26, h: 20 })
+fit('jump_lk', { x: -6, y: 0, w: 36, h: 14 })
 
 // The chain and hook lash out straight (LP) or rising at an angle (HP). On a
 // hit, QCF+P again Drags them in.
 const hookLash: MoveData = {
-  startup: 12,
+  startup: 10,
   active: 4,
   recovery: 22,
-  hitbox: { x: 20, y: 50, w: 96, h: 14 },
-  damage: 80,
+  hitbox: { x: 20, y: 34, w: 96, h: 26 },
+  damage: 100,
   chip: 8,
   hitstun: 24,
   blockstun: 12,
@@ -82,7 +90,7 @@ const scavengersRush: MoveData = {
   active: 18,
   recovery: 16,
   hitbox: { x: 10, y: 0, w: 36, h: 40 },
-  damage: 45,
+  damage: 60,
   chip: 4,
   hitstun: 16,
   blockstun: 10,
@@ -99,7 +107,7 @@ const scavengersRush: MoveData = {
 const boneCrusher: MoveData = {
   startup: 5,
   active: 2,
-  recovery: 30,
+  recovery: 24,
   hitbox: { x: 16, y: 0, w: 30, h: 90 },
   damage: 150,
   hitstun: 0,
@@ -209,7 +217,7 @@ const specials: SpecialMove[] = [
 export const HYENA_MATRIARCH: FighterData = {
   slug: 'hyena-matriarch',
   name: 'The Hyena Matriarch',
-  health: 1000,
+  health: 1100,
   walkForward: 2 * SUB,
   walkBack: Math.round(1.6 * SUB),
   jumpVelocity: 9 * SUB,

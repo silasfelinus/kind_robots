@@ -24,6 +24,7 @@ import type {
   HeroDef,
   InsertDef,
   LanternDef,
+  SceneryDef,
   MeshCollider,
   ScoopDef,
   SensorDef,
@@ -36,6 +37,7 @@ import {
   mirror,
   mirror3,
   ramp,
+  slingCap,
   wall,
   walls,
   WALL_HEIGHT,
@@ -317,37 +319,6 @@ function side(name: 'left' | 'right'): ColliderDef[] {
   return out
 }
 
-/** The sling plastic's height at its edges, and at its peak. */
-const SLING_CAP_EDGE = 0.03
-const SLING_CAP_PEAK = 0.038
-
-/**
- * The plastic over a slingshot: a shallow pitched roof over the triangle, so
- * a ball dropped off a ramp's return rolls off into the inlane or onto the
- * playfield instead of falling inside the sling and wedging there for good
- * (found by the attract soak, t-012). Its edges sit above a ball rolling
- * against the sling, so the kicker plays as before.
- */
-function slingCap(id: string, corners: [XZ, XZ, XZ]): ColliderDef {
-  const cx = corners.reduce((a, c) => a + c[0], 0) / 3
-  const cz = corners.reduce((a, c) => a + c[1], 0) / 3
-  const vertices = [
-    ...corners.flatMap(([x, z]) => [x, SLING_CAP_EDGE, z]),
-    cx,
-    SLING_CAP_PEAK,
-    cz,
-  ]
-  const indices: number[] = []
-  for (let i = 0; i < 3; i++) {
-    const j = (i + 1) % 3
-    const [a, b] = [corners[i]!, corners[j]!]
-    // Wind each face so its normal points up (the mirrored side flips it).
-    const up = (b[0] - a[0]) * (cz - a[1]) - (b[1] - a[1]) * (cx - a[0]) < 0
-    indices.push(...(up ? [i, j, 3] : [j, i, 3]))
-  }
-  return { kind: 'mesh', id, vertices, indices, material: 'plastic-clear' }
-}
-
 /**
  * A clear roof spanning the tops of the facing rails of two ramps, between two
  * depths. Both rails climb with their ramps, so the roof slopes down toward
@@ -523,6 +494,53 @@ const LANTERNS: LanternDef[] = [
   ...def,
   color: LANTERN_COLORS[i % LANTERN_COLORS.length],
 }))
+
+// The village's sculpted scenery (t-034): two clusters of cottages, blossom
+// trees, fences, barrels and crates behind the arch at the Ridge's foot, a
+// tree in each of the Ridge's lower corners, and a flower bush on each sling
+// plastic. All of it stands where no ball can reach; the tests prove it.
+const SCENERY: SceneryDef[] = [
+  // Behind the arch, left: the village's west end.
+  { kind: 'cottage', at: [-0.205, 0, -0.958], yaw: 0.25 },
+  { kind: 'cottage', at: [-0.135, 0, -0.988], yaw: -0.1 },
+  { kind: 'tree', at: [-0.238, 0, -1.0] },
+  { kind: 'tree', at: [-0.085, 0, -0.958] },
+  { kind: 'tree', at: [-0.172, 0, -1.04], scale: 0.9, tier: 'medium' },
+  {
+    kind: 'fence',
+    at: [-0.165, 0, -0.93],
+    yaw: 0.15,
+    length: 0.05,
+    tier: 'medium',
+  },
+  { kind: 'barrel', at: [-0.104, 0, -1.003], tier: 'high' },
+  { kind: 'barrel', at: [-0.096, 0, -1.011], tier: 'high' },
+  { kind: 'crate', at: [-0.112, 0, -1.016], yaw: 0.4, tier: 'high' },
+  { kind: 'bush', at: [-0.178, 0, -0.995], tier: 'high' },
+  // Behind the arch, right: past the huts.
+  { kind: 'cottage', at: [0.13, 0, -0.978], yaw: -0.1 },
+  { kind: 'cottage', at: [0.245, 0, -0.942], yaw: -0.45 },
+  { kind: 'tree', at: [0.19, 0, -0.958] },
+  { kind: 'tree', at: [0.28, 0, -0.995] },
+  { kind: 'tree', at: [0.108, 0, -1.008], scale: 0.85, tier: 'medium' },
+  { kind: 'tree', at: [0.205, 0, -1.03], scale: 0.9, tier: 'medium' },
+  {
+    kind: 'fence',
+    at: [0.168, 0, -1.0],
+    yaw: 0.1,
+    length: 0.04,
+    tier: 'medium',
+  },
+  { kind: 'barrel', at: [0.276, 0, -0.958], tier: 'high' },
+  { kind: 'crate', at: [0.268, 0, -0.968], yaw: -0.3, tier: 'high' },
+  { kind: 'bush', at: [0.158, 0, -0.948], tier: 'high' },
+  // The Ridge's lower corners, under its lanterns.
+  { kind: 'tree', at: [-0.236, 0, -1.085], scale: 0.8, tier: 'medium' },
+  { kind: 'tree', at: [0.276, 0, -1.085], scale: 0.8, tier: 'medium' },
+  // A flower bush on each sling plastic.
+  { kind: 'bush', at: [-0.152, 0.041, -0.158], scale: 1.4, tier: 'high' },
+  { kind: 'bush', at: [0.152, 0.041, -0.158], scale: 1.4, tier: 'high' },
+]
 
 // --- The Ridge, the upper playfield (conductor kind-pinball/t-022) --------
 //
@@ -1064,15 +1082,54 @@ function arrow(
   }
 }
 
+/** Chevrons in each shot's run, and how far apart they sit (t-033). */
+const CHEVRONS = 3
+const CHEVRON_SIZE = 0.014
+const CHEVRON_GAP = 0.015
+/** From the arrow's tail to the nearest chevron's centre. */
+const CHEVRON_LEAD = 0.01
+
+/**
+ * The run of chevrons leading into a shot (t-033), down the table from its
+ * arrow along the way the arrow points: flat lamps under the clear coat, so
+ * the ball rolls over them as it rolls over the arrow. A run that would cross
+ * a saucer is left out (the award saucer sits in the right ramp's lane, and
+ * its own lamp lights the way there).
+ */
+function chevronRun(arrowDef: InsertDef): InsertDef[] {
+  const yaw = arrowDef.yaw ?? 0
+  const shot = arrowDef.shot!
+  const run = Array.from({ length: CHEVRONS }, (_, i): InsertDef => {
+    const back =
+      arrowDef.size / 2 + CHEVRON_LEAD + CHEVRON_GAP * (CHEVRONS - 1 - i)
+    return {
+      id: `chevron-${shot}-${i + 1}`,
+      at: [
+        arrowDef.at[0] + Math.sin(yaw) * back,
+        arrowDef.at[1] + Math.cos(yaw) * back,
+      ],
+      shape: 'chevron',
+      size: CHEVRON_SIZE,
+      yaw,
+      color: arrowDef.color,
+      ladder: { shot, step: i, of: CHEVRONS },
+    }
+  })
+  const onSaucer = run.some((c) =>
+    scoops.some(
+      (s) =>
+        Math.hypot(c.at[0] - s.at[0], c.at[1] - s.at[2]) <
+        s.radius + CHEVRON_SIZE,
+    ),
+  )
+  return onSaucer ? [] : run
+}
+
 function lamp(id: string, at: XZ, color: number, size = 0.012): InsertDef {
   return { id, at, shape: 'circle', size, color }
 }
 
-// The lamp matrix (t-019): an arrow in front of every shot's mouth, pointing
-// the way in, in its shot's colour; lamps for the A-M-I targets, the award
-// saucer and the kickback; the rainbow across the lower playfield that
-// counts the bonus multiplier; and the room's N-E-T and HOME lamps.
-const inserts: InsertDef[] = [
+const shotArrows: InsertDef[] = [
   arrow('left-orbit', [-0.19, -0.31], CYAN, 'flasher-left', 0.35),
   arrow('left-ramp', [-0.128, -0.287], MAGENTA, 'flasher-left', 0.19),
   arrow('upper-feed', [-0.064, -0.312], YELLOW, 'flasher-back-left', 0.13),
@@ -1080,6 +1137,16 @@ const inserts: InsertDef[] = [
   arrow('spinner', [0.0675, -0.3], CYAN, 'flasher-back-right', 0, 0.026),
   arrow('right-ramp', [0.128, -0.287], MAGENTA, 'flasher-right', -0.19),
   arrow('right-orbit', [0.19, -0.31], YELLOW, 'flasher-right', -0.35),
+]
+
+// The lamp matrix (t-019): an arrow in front of every shot's mouth, pointing
+// the way in, in its shot's colour, and behind each a run of chevrons (t-033)
+// that fills as the shot is made; lamps for the A-M-I targets, the award
+// saucer and the kickback; the rainbow across the lower playfield that
+// counts the bonus multiplier; and the room's N-E-T and HOME lamps.
+const inserts: InsertDef[] = [
+  ...shotArrows,
+  ...shotArrows.flatMap(chevronRun),
   { ...lamp('lamp-award', [0.12, -0.212], 0xfde68a, 0.018), shot: 'award' },
   ...['a', 'm', 'i'].map((letter, i) =>
     lamp(`lamp-drop-${letter}`, [-0.021 + i * 0.021, -0.284], 0xe0f2fe, 0.01),
@@ -1249,6 +1316,7 @@ export const AMI_VILLAGE_GREYBOX: TableDef = {
   ],
   hero: HERO,
   lanterns: LANTERNS,
+  scenery: SCENERY,
   zones: [
     {
       // The Ridge: everything past the arch's crown, short of the backbox.
@@ -1269,7 +1337,8 @@ export const AMI_VILLAGE_GREYBOX: TableDef = {
     // Rendered by a durable ArtJob from conductor's art-prompts.yaml
     // (kind-pinball/t-009), to the playfield rectangle below.
     room: {
-      backglass: '/images/arcade/games/kind-pinball-title.webp',
+      backglass: '/images/pinball/ami-village-backglass.webp',
+      backglassFallback: '/images/arcade/games/kind-pinball-title.webp',
       posters: [
         '/images/arcade/games/butterfly-blaster-title.webp',
         '/images/arcade/games/rescue-rally-title.webp',
@@ -1282,9 +1351,15 @@ export const AMI_VILLAGE_GREYBOX: TableDef = {
       ],
     },
     playfield: {
-      src: '/images/pinball/ami-village-playfield.webp',
+      src: '/images/pinball/ami-village-playfield-painted.webp',
       min: [LEFT_X - 0.02, TOP_Z - 0.05],
       max: [RIGHT_X + 0.02, BOTTOM_Z + 0.05],
+    },
+    // The Ridge's floor, up to where the main field's art begins.
+    ridge: {
+      src: '/images/pinball/ami-village-ridge-painted.webp',
+      min: [LEFT_X - 0.02, UPPER_TOP_Z - 0.06],
+      max: [RIGHT_X + 0.02, TOP_Z - 0.05],
     },
   },
   trim: [

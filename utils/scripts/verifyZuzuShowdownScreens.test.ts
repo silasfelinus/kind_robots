@@ -1,18 +1,21 @@
 // /utils/scripts/verifyZuzuShowdownScreens.test.ts
 //
 // Zuzu Showdown taunt screens (conductor zuzu-showdown t-019): the matchup lines ported from
-// conductor's matchups.yaml are complete (36 intros, 64 win quotes, the boss lines), each intro is
+// conductor's matchups.yaml are complete (an intro for every pair and mirror on the roster, a win
+// quote each way, the boss lines), each intro is
 // oriented to the side that speaks it (mirrors alternate), the VS screen plays its lines on schedule
 // and shows them all at once under reduced motion, quotes wrap inside their column, and both the VS
-// screen and the win screen draw every frame at finite, on-screen coordinates for every outcome.
+// screen and the win screen draw every frame at finite, on-screen coordinates for every outcome. The
+// t-008 portraits are indexed for real fighters, ship in both render styles at their indexed size, and
+// the screens draw them where they have loaded and the sprites where they haven't.
 //
 //   npx tsx utils/scripts/verifyZuzuShowdownScreens.test.ts
 
 import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
-import { measureText } from '../arcade/font'
-import { FIGHTERS, findFighter } from '../zuzuShowdown/fighters'
+import { glyphFor, measureText } from '../arcade/font'
+import { FIGHTERS, findFighter, moveList } from '../zuzuShowdown/fighters'
 import {
   BOSS_INTROS,
   MATCHUPS,
@@ -29,7 +32,14 @@ import {
   vsDuration,
   vsLinesShown,
   selectCard,
+  selectPromptY,
   wrapText,
+  PAUSE_COLUMNS,
+  PAUSE_ROWS_TOP,
+  PAUSE_ROW_STEP,
+  pauseEasy,
+  pauseLines,
+  pauseName,
 } from '../zuzuShowdown/screens'
 import {
   SELECT_COLUMNS,
@@ -48,6 +58,15 @@ import {
   type SpriteSheet,
 } from '../zuzuShowdown/sprites'
 import type { FighterData, MatchState } from '../zuzuShowdown/types'
+import {
+  PORTRAIT_KINDS,
+  PORTRAIT_ROOT,
+  P2_PORTRAIT_FILTER,
+  portraitFighters,
+  portraitInfo,
+  portraitUrl,
+  type LoadedPortraits,
+} from '../zuzuShowdown/portraits'
 
 let passed = 0
 function check(name: string, fn: () => void): void {
@@ -62,21 +81,16 @@ function check(name: string, fn: () => void): void {
 
 const ZUZU = findFighter('zuzu')
 const COYOTE = findFighter('coyote-vagrant')
-const ROSTER_SLUGS = [
-  'zuzu',
-  'coyote-vagrant',
-  'the-abbess',
-  'the-siblings',
-  'storm-crow',
-  'river-croc',
-  'hyena-matriarch',
-  'old-komodo',
-]
+// Every fighter on the select screen: the Swamp Witch's lines went missing from the port once, when
+// this list was written out by hand and she was not on it.
+const ROSTER_SLUGS = FIGHTERS.map((f) => f.slug)
+const PAIRS = (ROSTER_SLUGS.length * (ROSTER_SLUGS.length + 1)) / 2
+const QUOTES = ROSTER_SLUGS.length * ROSTER_SLUGS.length
 
 check(
-  'the ported lines are complete: 36 intros, 64 win quotes, the boss',
+  'the ported lines are complete: an intro per pair and mirror, a win quote each way, the boss',
   () => {
-    assert.equal(MATCHUPS.length, 36)
+    assert.equal(MATCHUPS.length, PAIRS)
     let quotes = 0
     for (let i = 0; i < ROSTER_SLUGS.length; i += 1) {
       for (let j = i; j < ROSTER_SLUGS.length; j += 1) {
@@ -96,7 +110,7 @@ check(
         }
       }
     }
-    assert.equal(quotes, 64)
+    assert.equal(quotes, QUOTES)
     for (const slug of ROSTER_SLUGS)
       assert.ok(BOSS_INTROS[slug], `boss ${slug}`)
     const json = JSON.parse(
@@ -191,6 +205,10 @@ function stubContext() {
     rect: record('rect'),
     clip: record('clip'),
     strokeRect: record('strokeRect'),
+    arc: record('arc'),
+    ellipse: record('ellipse'),
+    stroke: record('stroke'),
+    setLineDash: record('setLineDash'),
   }
   return { g: g as unknown as CanvasRenderingContext2D, calls }
 }
@@ -302,7 +320,13 @@ check(
         card.x >= 120 && card.x + card.w <= VIEW_WIDTH - 120,
         'between the fighters',
       )
+      assert.ok(
+        card.y + card.h < selectPromptY(FIGHTERS.length),
+        'prompt below',
+      )
     }
+    // The prompt (one 8px line) stays on screen.
+    assert.ok(selectPromptY(FIGHTERS.length) + 8 <= VIEW_HEIGHT)
     for (const art of [sheets, {}]) {
       for (const twoPlayers of [false, true]) {
         let s = newSelect(
@@ -356,6 +380,158 @@ check('the win screen draws for P1, P2, a Perfect and a draw', () => {
       const { g, calls } = stubContext()
       drawWinScreen(g, s, roster, art, t, false)
       assertOnScreen(calls, `win ${String(s.winner)} t${t}`)
+    }
+  }
+})
+
+// ---------------------------------------------------------------- portraits
+
+const publicFile = (url: string) => join(process.cwd(), 'public', url)
+
+check(
+  'every portrait is a fighter’s and ships in both styles at its size',
+  () => {
+    const slugs = FIGHTERS.map((f) => f.slug)
+    let count = 0
+    for (const slug of portraitFighters()) {
+      assert.ok(slugs.includes(slug), `${slug} is a fighter`)
+      for (const kind of PORTRAIT_KINDS) {
+        const info = portraitInfo(slug, kind)
+        if (!info) continue
+        count += 1
+        const png = readFileSync(publicFile(portraitUrl(info, 'pixel')))
+        // The PNG header's IHDR carries the size at bytes 16-23.
+        assert.equal(png.readUInt32BE(16), info.w, `${info.file} width`)
+        assert.equal(png.readUInt32BE(20), info.h, `${info.file} height`)
+        const webp = readFileSync(publicFile(portraitUrl(info, 'hd')))
+        assert.equal(webp.toString('ascii', 8, 12), 'WEBP', info.file)
+        assert.ok(portraitUrl(info, 'hd').startsWith(PORTRAIT_ROOT))
+      }
+    }
+    // Every fighter on the select screen has a bust card; most of the 36 are drawn.
+    for (const slug of slugs)
+      assert.ok(portraitInfo(slug, 'bust'), `${slug} bust`)
+    assert.ok(count >= 30, `${count} portraits`)
+  },
+)
+
+check('the screens draw portraits where loaded, sprites where not', () => {
+  const image = {} as CanvasImageSource
+  const portraits: LoadedPortraits = Object.fromEntries(
+    portraitFighters().map((slug) => [
+      slug,
+      Object.fromEntries(
+        PORTRAIT_KINDS.filter((k) => portraitInfo(slug, k)).map((k) => [
+          k,
+          image,
+        ]),
+      ),
+    ]),
+  )
+  const roster: [FighterData, FighterData] = [ZUZU, COYOTE]
+  const sized = (calls: Call[], w: number, h: number) =>
+    calls.filter(
+      (c) =>
+        c.op === 'drawImage' &&
+        c.args.length === 4 &&
+        Math.abs(c.args[2]! - w) < 0.01 &&
+        Math.abs(c.args[3]! - h) < 0.01,
+    ).length
+  const vs = portraitInfo('zuzu', 'vs')!
+  const both = stubContext()
+  drawVsScreen(both.g, roster, [undefined, undefined], 30, false, portraits)
+  assertOnScreen(both.calls, 'vs portraits')
+  assert.equal(sized(both.calls, vs.w, vs.h), 2, 'both VS portraits')
+  // A fighter with no portrait loaded falls back to the sprite.
+  const half = stubContext()
+  drawVsScreen(
+    half.g,
+    roster,
+    [sheets.zuzu, sheets['coyote-vagrant']],
+    30,
+    false,
+    {
+      zuzu: portraits.zuzu,
+    },
+  )
+  assert.equal(sized(half.calls, vs.w, vs.h), 1, 'one VS portrait')
+  assert.ok(half.calls.filter((c) => c.op === 'drawImage').length > 1)
+
+  // A mirror match: P2's portrait (only P2's) turns to P2's colours.
+  const mirror = stubContext()
+  const filters: string[] = []
+  const g = mirror.g as unknown as {
+    filter: string
+    drawImage: (...args: unknown[]) => void
+  }
+  g.filter = 'none'
+  g.drawImage = (...args: unknown[]) => {
+    if (args.length === 5) filters.push(g.filter)
+  }
+  const twins: [FighterData, FighterData] = [ZUZU, ZUZU]
+  drawVsScreen(mirror.g, twins, [undefined, undefined], 30, false, portraits)
+  assert.deepEqual(filters, ['none', P2_PORTRAIT_FILTER], 'P2 recoloured')
+
+  const s = createMatch(roster)
+  s.phase = 'over'
+  s.winner = 0
+  s.fighters[0].health = 10
+  const win = stubContext()
+  drawWinScreen(win.g, s, roster, [undefined, undefined], 30, false, portraits)
+  assertOnScreen(win.calls, 'win portraits')
+  const victory = portraitInfo('zuzu', 'victory')!
+  const beaten = portraitInfo('coyote-vagrant', 'beaten')!
+  assert.equal(sized(win.calls, victory.w, victory.h), 1, 'victory portrait')
+  assert.equal(
+    sized(win.calls, beaten.w * 0.45, beaten.h * 0.45),
+    1,
+    'beaten portrait',
+  )
+
+  const select = stubContext()
+  drawSelectScreen(
+    select.g,
+    FIGHTERS,
+    {},
+    newSelect(
+      FIGHTERS.map((f) => f.slug),
+      ['zuzu', 'coyote-vagrant'],
+    ),
+    false,
+    false,
+    'CPU',
+    portraits,
+  )
+  assertOnScreen(select.calls, 'select portraits')
+  // Each card's bust is scaled to the card; the map's two tokens are smaller still.
+  const card = selectCard(0, FIGHTERS.length)
+  assert.equal(sized(select.calls, card.w, card.h), FIGHTERS.length, 'busts')
+})
+
+check('every pause move list fits its columns, in glyphs the font has', () => {
+  const [inputX, nameX, easyX] = PAUSE_COLUMNS
+  const GAP = 6
+  for (const fighter of FIGHTERS) {
+    const lines = pauseLines(moveList(fighter))
+    const bottom = PAUSE_ROWS_TOP + lines.length * PAUSE_ROW_STEP
+    assert.ok(bottom <= VIEW_HEIGHT - 22, `${fighter.slug}: ${bottom}`)
+    for (const line of lines) {
+      const cells: Array<[string, number]> = [
+        [line.input, nameX - inputX - GAP],
+        [pauseName(line), easyX - nameX - GAP],
+        [pauseEasy(line.easy), VIEW_WIDTH - easyX - GAP],
+      ]
+      for (const [text, room] of cells) {
+        assert.ok(
+          measureText(text) <= room,
+          `${fighter.slug}: "${text}" is ${measureText(text)}px, room ${room}`,
+        )
+        for (const char of text.toUpperCase())
+          assert.ok(
+            char === '?' || glyphFor(char) !== glyphFor('?'),
+            `${fighter.slug}: no glyph for "${char}" in "${text}"`,
+          )
+      }
     }
   }
 })

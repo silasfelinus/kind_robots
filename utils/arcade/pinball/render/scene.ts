@@ -20,9 +20,12 @@
 import * as THREE from 'three'
 import type { ToyPose } from '../rules/toys'
 import { Heroes, Sparks, Trail } from './heroes'
+import { CrocToy } from './croc'
+import type { AnimatronicPose } from '../rules/ruleset'
 import { Room } from './room'
 import { Dressing, POP_FLASH, POP_REST, wallPaint } from './dressing'
 import { Wireforms, wireformRails } from './wireforms'
+import { Scenery } from './scenery'
 import { mergeGeometries } from 'three/examples/jsm/utils/BufferGeometryUtils.js'
 import { ConvexGeometry } from 'three/examples/jsm/geometries/ConvexGeometry.js'
 import { flipperProfile, flipperYaw } from '../physics/world'
@@ -51,6 +54,7 @@ import {
   insertShape,
   MATERIALS,
   paintPlayfield,
+  type ArtImages,
   planarUVs,
 } from './materials'
 import { createPostChain, type PostChain } from './post'
@@ -81,7 +85,7 @@ export const createWebGLRenderer: RendererFactory = (canvas) => {
   })
   renderer.outputColorSpace = THREE.SRGBColorSpace
   renderer.toneMapping = THREE.ACESFilmicToneMapping
-  renderer.toneMappingExposure = 1.05
+  renderer.toneMappingExposure = 1
   renderer.shadowMap.enabled = true
   renderer.shadowMap.type = THREE.PCFShadowMap
   return renderer
@@ -123,6 +127,8 @@ const FLASHER_FIRED = 2.4
 const PULSE_DECAY = 0.07
 /** Frames per half-cycle of a blinking lamp (~3.75 Hz at 60 FPS). */
 const BLINK_FRAMES = 8
+/** Frames each chevron of a blinking run stays lit as the chase passes. */
+const CHASE_FRAMES = 5
 /** A pooled flasher light's intensity at full fire. */
 const FLASHER_LIGHT = 0.12
 const FLASHER_REACH = 0.45
@@ -206,12 +212,43 @@ function batOutline(
   ])
 }
 
+/** The display margin a backbox DMD must clear to count as readable (NDC). */
+const DMD_FRAME = 0.96
+
+/**
+ * Whether every point (projected, normalized device coordinates) is on
+ * screen, in front of the camera and inside the margin.
+ */
+export function fitsFrame(
+  points: ReadonlyArray<{ x: number; y: number; z: number }>,
+  margin = DMD_FRAME,
+): boolean {
+  return points.every(
+    (p) => Math.abs(p.x) <= margin && Math.abs(p.y) <= margin && p.z < 1,
+  )
+}
+
+/**
+ * Touch devices (phones, tablets) start a tier down: their screens are dense
+ * and their GPUs share power with everything else, and climbing up after ten
+ * smooth seconds costs far less than a first minute of crawling frames.
+ */
+function startingTier(): QualityTier {
+  const coarse =
+    typeof window !== 'undefined' &&
+    typeof window.matchMedia === 'function' &&
+    window.matchMedia('(pointer: coarse)').matches
+  return coarse ? 'medium' : 'high'
+}
+
 type Lamp = {
   material: THREE.MeshStandardMaterial
   level: LampLevel
   /** Current glow, eased toward the level's. */
   glow: number
   pulse: number
+  /** A chevron's place in its run (t-033): blinking, the run chases. */
+  ladder?: { step: number; of: number }
 }
 
 type Flasher = Lamp & { position: THREE.Vector3; color: THREE.Color }
@@ -247,11 +284,14 @@ export class PinballScene {
   private caps = new Map<string, THREE.MeshPhysicalMaterial>()
   private dressing: Dressing | null = null
   private wireforms: Wireforms | null = null
+  private scenery: Scenery | null = null
   private flash = new Map<string, number>()
   private doors = new Map<string, { closed: THREE.Group; open: THREE.Group }>()
   private toys = new Map<string, THREE.Group>()
   /** The signature toys (t-010), the jackpot sparks and the ball trail. */
   private heroes: Heroes | null = null
+  /** Animatronic toys by id (the River Croc). */
+  private animatronics = new Map<string, CrocToy>()
   /** The cabinet body and the room around it (t-020). */
   private room: Room
   private sparks: Sparks
@@ -265,6 +305,8 @@ export class PinballScene {
   private flashers = new Map<string, Flasher>()
   /** Insert ids by the shot they point at, and that shot's flasher. */
   private shotLamps = new Map<string, { insert: string; flasher?: string }>()
+  /** Each shot's run of chevrons (t-033), flashed with its arrow. */
+  private shotRuns = new Map<string, string[]>()
   private flasherLights: THREE.PointLight[] = []
   private giLights: THREE.PointLight[] = []
   private hemisphere: THREE.HemisphereLight
@@ -289,6 +331,8 @@ export class PinballScene {
     texture: THREE.CanvasTexture
     occluder?: string
     shown: Uint8Array
+    /** The glass's width and height, metres. */
+    size: { width: number; height: number }
   } | null = null
   private view: CameraPresetId = 'main'
   /** The camera's current eye and look target, in table space (eased). */
@@ -305,8 +349,8 @@ export class PinballScene {
   /** World up as seen from the pitched table. */
   private up: THREE.Vector3
   private size = { width: 0, height: 0, dpr: 1 }
-  private governor = new QualityGovernor('high')
-  private settings: TierSettings = TIER_SETTINGS.high
+  private governor = new QualityGovernor(startingTier())
+  private settings: TierSettings = TIER_SETTINGS[this.governor.tier]
   private lastFrameAt = 0
   private albedoLoaded = false
   private disposed = false
@@ -357,6 +401,16 @@ export class PinballScene {
       this.heroes = new Heroes(this.table.hero, track)
       this.root.add(this.heroes.group)
     }
+    for (const def of this.table.animatronics ?? []) {
+      const toy = new CrocToy(def, track, {
+        reducedMotion:
+          typeof window !== 'undefined' &&
+          typeof window.matchMedia === 'function' &&
+          window.matchMedia('(prefers-reduced-motion: reduce)').matches,
+      })
+      this.animatronics.set(def.id, toy)
+      this.root.add(toy.group)
+    }
     this.sparks = new Sparks(SPARK_CAPACITY, track)
     this.trail = new Trail(TRAIL_BALLS, track)
     this.root.add(this.sparks.points, this.trail.points)
@@ -366,6 +420,9 @@ export class PinballScene {
     this.root.add(this.dressing.group)
     this.wireforms = new Wireforms(this.table, track)
     this.root.add(this.wireforms.group)
+    this.scenery = new Scenery(this.table, track)
+    this.root.add(this.scenery.group)
+    this.staticCasters.push(...this.scenery.casters)
     this.room = new Room(
       this.table,
       track,
@@ -429,7 +486,9 @@ export class PinballScene {
   }
 
   private buildLights() {
-    const key = new THREE.DirectionalLight(0xfff4e0, 1.6)
+    // Softer and warmer than before the painted playfield (t-030): the art
+    // carries its own light, and the lanterns and GI do the rest.
+    const key = new THREE.DirectionalLight(0xffe6c4, 1.15)
     key.position.set(0.3, 1.6, 0.6)
     key.target = this.root
     const cam = key.shadow.camera
@@ -590,7 +649,8 @@ export class PinballScene {
   private paintPlayfield() {
     if (!this.gl) return
     const bounds = artBounds(this.table)
-    const canvas = paintPlayfield(this.table, bounds)
+    const maxSize = Math.min(4096, this.gl.capabilities.maxTextureSize)
+    const canvas = paintPlayfield(this.table, bounds, {}, maxSize)
     if (!canvas) return
     const art = this.track(new THREE.CanvasTexture(canvas))
     art.colorSpace = THREE.SRGBColorSpace
@@ -598,19 +658,24 @@ export class PinballScene {
     const playfield = this.material('playfield')
     playfield.map = art
     playfield.color.set(0xffffff)
-    const src = this.table.art?.playfield?.src
-    if (!src || typeof Image === 'undefined') return
-    const image = new Image()
-    image.decoding = 'async'
-    image.onload = () => {
-      if (this.disposed) return
-      const painted = paintPlayfield(this.table, bounds, image)
-      if (!painted) return
-      art.image = painted
-      art.needsUpdate = true
-      this.albedoLoaded = true
+    if (typeof Image === 'undefined') return
+    const images: ArtImages = {}
+    for (const key of ['playfield', 'ridge'] as const) {
+      const src = this.table.art?.[key]?.src
+      if (!src) continue
+      const image = new Image()
+      image.decoding = 'async'
+      image.onload = () => {
+        if (this.disposed) return
+        images[key] = image
+        const painted = paintPlayfield(this.table, bounds, images, maxSize)
+        if (!painted) return
+        art.image = painted
+        art.needsUpdate = true
+        if (key === 'playfield') this.albedoLoaded = true
+      }
+      image.src = src
     }
-    image.src = src
   }
 
   /** The generated playfield art has loaded and is on the table. */
@@ -793,9 +858,15 @@ export class PinballScene {
         level: 'off',
         glow: INSERT_OFF,
         pulse: 0,
+        ladder: def.ladder,
       })
       if (def.shot)
         this.shotLamps.set(def.shot, { insert: def.id, flasher: def.flasher })
+      if (def.ladder)
+        this.shotRuns.set(def.ladder.shot, [
+          ...(this.shotRuns.get(def.ladder.shot) ?? []),
+          def.id,
+        ])
     }
     const dome = this.track(
       new THREE.SphereGeometry(0.011, 24, 12, 0, Math.PI * 2, 0, Math.PI / 2),
@@ -909,7 +980,14 @@ export class PinballScene {
     glass.position.z = 0.002
     group.add(bezel, panel, glass)
     this.root.add(group)
-    this.dmd = { group, canvas, texture, occluder: def.occluder, shown: blank }
+    this.dmd = {
+      group,
+      canvas,
+      texture,
+      occluder: def.occluder,
+      shown: blank,
+      size: { width: w, height: h },
+    }
     // The same picture across the top of the screen, for the views that
     // leave the backbox out of frame.
     const hud = new THREE.Group()
@@ -920,6 +998,11 @@ export class PinballScene {
           map: texture,
           color: new THREE.Color(1.8, 1.8, 1.8),
           toneMapped: false,
+          // In the transparent pass with the highest render order, so it
+          // draws after everything: as an opaque mesh the backbox's fading
+          // glass and occluder drew over it, and on a tablet the score read
+          // dim and doubled behind them (2026-10-11).
+          transparent: true,
           depthTest: false,
           depthWrite: false,
           fog: false,
@@ -932,8 +1015,9 @@ export class PinballScene {
       this.track(
         new THREE.MeshBasicMaterial({
           color: 0x050407,
+          // Solid, so the backbox it covers never shows through.
           transparent: true,
-          opacity: 0.9,
+          opacity: 1,
           depthTest: false,
           depthWrite: false,
           fog: false,
@@ -975,11 +1059,26 @@ export class PinballScene {
     if (insert) insert.pulse = 1
     const flasher = this.flashers.get(shot?.flasher ?? id)
     if (flasher) flasher.pulse = 1
+    for (const chevron of this.shotRuns.get(id) ?? []) {
+      const lamp = this.inserts.get(chevron)
+      if (lamp) lamp.pulse = 1
+    }
   }
 
   /** What the signature toys show, from the rules (rules/toys.ts). */
   setToys(pose: ToyPose) {
     this.heroes?.setPose(pose)
+  }
+
+  /** Pose the animatronic toys (the rules' phase for each, by id). */
+  setAnimatronics(poses: Record<string, AnimatronicPose>) {
+    for (const [id, pose] of Object.entries(poses))
+      this.animatronics.get(id)?.setPose(pose)
+  }
+
+  /** An animatronic toy, for tests. */
+  animatronic(id: string): CrocToy | undefined {
+    return this.animatronics.get(id)
   }
 
   /** The drone's delivery flight: all three nets brought home. */
@@ -1000,6 +1099,11 @@ export class PinballScene {
   /** The ramp metalwork (t-029), for tests. */
   get metalwork(): Wireforms | null {
     return this.wireforms
+  }
+
+  /** The village's sculpted scenery (t-034). */
+  get village(): Scenery | null {
+    return this.scenery
   }
 
   /** The signature toys, for tests (null on a table without them). */
@@ -1088,6 +1192,7 @@ export class PinballScene {
   /** One frame of the toys, sparks and sling rubbers. */
   private animateToys() {
     this.heroes?.animate()
+    for (const toy of this.animatronics.values()) toy.animate()
     this.dressing?.animate()
     this.sparks.update()
     for (const rubber of this.rubbers.values()) {
@@ -1106,6 +1211,11 @@ export class PinballScene {
       if (lamp) lamp.level = level
     }
     this.giTarget = gi
+  }
+
+  /** An insert's glow now (for tests). */
+  insertGlow(id: string): number {
+    return this.inserts.get(id)?.material.emissiveIntensity ?? 0
   }
 
   /** The level each lamp is set to (for tests). */
@@ -1148,6 +1258,8 @@ export class PinballScene {
       light.visible = i < s.flasherLights
     for (const [i, light] of this.giLights.entries())
       light.visible = i < s.giLights
+    this.dressing?.setPracticals(s.practicalLights)
+    this.scenery?.setTier(this.governor.tier)
     this.shadowMaterial.opacity = s.contactShadow
     if (this.gl) {
       if (this.gl.shadowMap.enabled !== shadows) {
@@ -1218,16 +1330,29 @@ export class PinballScene {
     const hud = this.hud
     const dmd = this.dmd
     if (!hud || !dmd) return
-    const at = dmd.group
-      .getWorldPosition(new THREE.Vector3())
-      .project(this.camera)
-    const inFrame =
-      dmd.group.visible && Math.abs(at.x) <= 0.95 && Math.abs(at.y) <= 0.95
-    hud.visible = !inFrame
+    // The whole glass must be on screen: on a tall tablet its centre was in
+    // frame while the top of the screen cut off its digits (Silas,
+    // 2026-10-11), and the HUD stayed hidden.
+    const { width, height } = dmd.size
+    dmd.group.updateMatrixWorld()
+    const corners = [
+      [-1, -1],
+      [1, -1],
+      [-1, 1],
+      [1, 1],
+    ].map(([sx, sy]) =>
+      dmd.group
+        .localToWorld(
+          new THREE.Vector3((sx! * width) / 2, (sy! * height) / 2, 0),
+        )
+        .project(this.camera),
+    )
+    hud.visible = !(dmd.group.visible && fitsFrame(corners))
     const h = 2 * HUD_DEPTH * Math.tan((this.camera.fov * Math.PI) / 360)
-    const width = Math.min(h * this.aspect * 0.9, h * 0.45)
-    hud.scale.setScalar(width)
-    hud.position.set(0, h / 2 - width * 0.14 - h * 0.012, -HUD_DEPTH)
+    const across = Math.min(h * this.aspect * 0.9, h * 0.45)
+    hud.scale.setScalar(across)
+    // Flush with the top, so a backbox cut off behind it never peeks out above.
+    hud.position.set(0, h / 2 - across * 0.14, -HUD_DEPTH)
   }
 
   /** The on-screen DMD is showing, for tests (never without a real renderer). */
@@ -1385,9 +1510,14 @@ export class PinballScene {
   private animateLamps() {
     this.frame++
     const blinkOn = Math.floor(this.frame / BLINK_FRAMES) % 2 === 0
+    const chase = Math.floor(this.frame / CHASE_FRAMES)
+    const blinking = (lamp: Lamp) =>
+      lamp.ladder ? chase % (lamp.ladder.of + 1) === lamp.ladder.step : blinkOn
     const ease = (lamp: Lamp, off: number, on: number, peak: number) => {
       const lit =
-        lamp.level === 'on' || (lamp.level === 'blink' && blinkOn) ? on : off
+        lamp.level === 'on' || (lamp.level === 'blink' && blinking(lamp))
+          ? on
+          : off
       lamp.glow += (lit - lamp.glow) * LAMP_EASE
       lamp.pulse = Math.max(0, lamp.pulse - PULSE_DECAY)
       lamp.material.emissiveIntensity =
@@ -1401,7 +1531,8 @@ export class PinballScene {
     for (const light of this.giLights) light.intensity = GI_LIGHT * this.gi
     this.dressing?.setGi(this.gi)
     this.wireforms?.setGi(this.gi)
-    this.hemisphere.intensity = 0.2 + 0.35 * this.gi
+    this.scenery?.setGi(this.gi)
+    this.hemisphere.intensity = 0.14 + 0.26 * this.gi
     // The pool follows the brightest flashers; the rest glow on their own.
     const firing = [...this.flashers.values()]
       .filter((f) => f.material.emissiveIntensity > FLASHER_REST * 2)

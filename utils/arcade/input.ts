@@ -8,8 +8,19 @@
 // two players (Zuzu Showdown) reuses the same keyboard, touch, tap and gamepad
 // handling with its own key map and pad reader. ArcadeInput is the cabinet's
 // seven-button instance.
+//
+// Twin-stick aim (conductor kr-arcade t-027): a cabinet whose game sets
+// `twinStick` turns aiming on while it plays, and each frame then carries an
+// optional `aim` vector from the gamepad's right stick, the on-screen aim
+// stick, or a split keyboard (move on WASD, aim on the arrows). With aiming
+// off (every other cabinet) frames are exactly as before.
 
-import { ARCADE_BUTTONS, type ArcadeButton, type InputFrame } from './types'
+import {
+  ARCADE_BUTTONS,
+  type AimVector,
+  type ArcadeButton,
+  type InputFrame,
+} from './types'
 
 export const KEY_MAP: Record<string, ArcadeButton> = {
   ArrowUp: 'up',
@@ -131,6 +142,72 @@ export function readGamepad(
   }
 }
 
+/** Below this a stick's push is drift, not aim. */
+export const AIM_DEADZONE = 0.3
+
+/** A stick's axes as an aim: null inside the dead zone, length clamped to 1 (pure). */
+export function stickAim(
+  x: number,
+  y: number,
+  deadzone = AIM_DEADZONE,
+): AimVector | null {
+  const length = Math.hypot(x, y)
+  if (!(length > deadzone)) return null
+  const k = Math.min(1, length) / length
+  return { x: x * k, y: y * k }
+}
+
+/** A standard-mapping gamepad's right stick (axes 2 and 3) as an aim, or null. */
+export function readAimStick(pad: Pick<Gamepad, 'axes'>): AimVector | null {
+  return stickAim(pad.axes[2] ?? 0, pad.axes[3] ?? 0)
+}
+
+export type AimKey = 'up' | 'down' | 'left' | 'right'
+
+/** Split keyboard for a twin-stick game: move on WASD... */
+export const TWIN_KEYS: Record<string, ArcadeButton> = {
+  KeyW: 'up',
+  KeyS: 'down',
+  KeyA: 'left',
+  KeyD: 'right',
+  Space: 'a',
+  KeyZ: 'a',
+  KeyJ: 'a',
+  KeyX: 'b',
+  KeyK: 'b',
+  ShiftLeft: 'b',
+  ShiftRight: 'b',
+  Enter: 'start',
+  NumpadEnter: 'start',
+}
+
+/** ...and aim on the arrows. */
+export const AIM_KEYS: Record<string, AimKey> = {
+  ArrowUp: 'up',
+  ArrowDown: 'down',
+  ArrowLeft: 'left',
+  ArrowRight: 'right',
+}
+
+/** Aim keys held as an eight-way unit aim, or null (pure). */
+export function aimFromKeys(
+  held: Partial<Record<AimKey, boolean>>,
+): AimVector | null {
+  const x = (held.right ? 1 : 0) - (held.left ? 1 : 0)
+  const y = (held.down ? 1 : 0) - (held.up ? 1 : 0)
+  if (!x && !y) return null
+  const length = Math.hypot(x, y)
+  return { x: x / length, y: y / length }
+}
+
+/** The live aim from several sources: the first that aims wins (touch, then pads, then keys). */
+export function combineAim(
+  sources: ReadonlyArray<AimVector | null | undefined>,
+): AimVector | null {
+  for (const aim of sources) if (aim) return aim
+  return null
+}
+
 /** Fold the raw sources into one frame, deriving edges from the last frame. */
 export function combineButtons<B extends string>(
   buttons: readonly B[],
@@ -166,6 +243,13 @@ export type ButtonInputOptions<B extends string> = {
   passThrough?: readonly B[]
 }
 
+/** A frame of buttons, with a twin-stick aim while aiming is on and something aims. */
+export type ButtonFrame<B extends string> = {
+  held: Record<B, boolean>
+  pressed: Record<B, boolean>
+  aim?: AimVector
+}
+
 export class ButtonInput<B extends string> {
   private keys: Partial<Record<B, boolean>> = {}
   private touch: Partial<Record<B, boolean>> = {}
@@ -175,12 +259,33 @@ export class ButtonInput<B extends string> {
   private target: Window | null = null
   /** While typing initials, letter and digit keys are text, not buttons. */
   typing = false
+  /** Twin-stick aiming: off unless the cabinet's game asks for it. */
+  private aiming = false
+  private aimKeyMap: Record<string, AimKey> = {}
+  private aimKeys: Partial<Record<AimKey, boolean>> = {}
+  private aimTouch: AimVector | null = null
 
   constructor(private options: ButtonInputOptions<B>) {}
 
   /** Read only this gamepad slot (null: every pad, -1: none). */
   setPadIndex(padIndex: number | null) {
     this.options = { ...this.options, padIndex }
+  }
+
+  /**
+   * Turn twin-stick aiming on (with the keys that aim) or off. Off, poll() never reports an aim
+   * and the aim keys are ordinary keys again.
+   */
+  setAiming(on: boolean, aimKeys: Record<string, AimKey> = AIM_KEYS) {
+    this.aiming = on
+    this.aimKeyMap = on ? aimKeys : {}
+    this.aimKeys = {}
+    if (!on) this.aimTouch = null
+  }
+
+  /** The on-screen aim stick's vector (null when no finger is on it). */
+  setAimTouch(aim: AimVector | null) {
+    this.aimTouch = this.aiming ? aim : null
   }
 
   /** Swap the key bindings (remapping) and drop anything held. */
@@ -190,6 +295,12 @@ export class ButtonInput<B extends string> {
   }
 
   private onKeyDown = (event: KeyboardEvent) => {
+    const aimKey = this.aimKeyMap[event.code]
+    if (aimKey && !(event.target instanceof HTMLInputElement)) {
+      event.preventDefault()
+      this.aimKeys[aimKey] = true
+      return
+    }
     const button = this.options.keyMap[event.code]
     if (!button) return
     if (event.target instanceof HTMLInputElement) return
@@ -208,6 +319,11 @@ export class ButtonInput<B extends string> {
   }
 
   private onKeyUp = (event: KeyboardEvent) => {
+    const aimKey = this.aimKeyMap[event.code]
+    if (aimKey) {
+      this.aimKeys[aimKey] = false
+      return
+    }
     const button = this.options.keyMap[event.code]
     if (!button) return
     this.keys[button] = false
@@ -216,6 +332,8 @@ export class ButtonInput<B extends string> {
   private onBlur = () => {
     this.keys = {}
     this.touch = {}
+    this.aimKeys = {}
+    this.aimTouch = null
   }
 
   attach(target: Window = window) {
@@ -242,14 +360,17 @@ export class ButtonInput<B extends string> {
     this.keys = {}
     this.touch = {}
     this.taps = {}
+    this.aimKeys = {}
+    this.aimTouch = null
   }
 
-  poll(): { held: Record<B, boolean>; pressed: Record<B, boolean> } {
+  poll(): ButtonFrame<B> {
     const sources: Array<Partial<Record<B, boolean>>> = [
       this.keys,
       this.touch,
       this.taps,
     ]
+    const sticks: Array<AimVector | null> = []
     if (typeof navigator !== 'undefined' && navigator.getGamepads) {
       const slot = this.options.padIndex ?? null
       const pads = navigator.getGamepads()
@@ -257,12 +378,25 @@ export class ButtonInput<B extends string> {
         const pad = pads[index]
         if (pad && (slot === null || slot === index)) {
           sources.push(this.options.readPad(pad))
+          if (this.aiming) sticks.push(readAimStick(pad))
         }
       }
     }
-    const frame = combineButtons(this.options.buttons, this.last, sources)
+    const frame: ButtonFrame<B> = combineButtons(
+      this.options.buttons,
+      this.last,
+      sources,
+    )
     this.last = frame.held
     this.taps = {}
+    if (this.aiming) {
+      const aim = combineAim([
+        this.aimTouch,
+        ...sticks,
+        aimFromKeys(this.aimKeys),
+      ])
+      if (aim) frame.aim = aim
+    }
     return frame
   }
 }

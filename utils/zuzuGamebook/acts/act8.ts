@@ -439,7 +439,7 @@ export const ACT_VIII: Act = {
     s(
       'a8-jailer-feather',
       CH.VIII,
-      'Through the Feather',
+      'A Girl in a Borrowed Habit',
       'cellar-cells',
       'You hold the black feather to your eye and the candle goes thin and blue. Through it the sleeping nun is not asleep. She is a girl in a borrowed habit, holding very still with her eyes shut because she heard the door, and she is so frightened that her face is almost clear, like paper held up to a lamp. There is nothing hungry in her at all. Only fear, and under the fear, shame. When you lower the feather she opens her eyes, unhooks the keys and puts them into your paw. Then she runs, barefoot, the other way.',
       {
@@ -522,7 +522,7 @@ export const ACT_VIII: Act = {
     s(
       'a8-cells-gone',
       CH.VIII,
-      'Gone',
+      'Empty Cells',
       'empty-cot',
       'The low doors stand open. The bolts are drawn. In the cells there is nobody: bowls licked clean, a blanket folded very neatly, a small shoe on its side, and in the candle dust on the floor the prints of soft sandals and smaller bare feet going out by the far stair, toward the yard and whatever waits beyond it. While you were at the altar somebody came down here. You do not know who, or where they went, or whether the children went willingly. You will not know tonight.',
       {
@@ -948,7 +948,7 @@ export const ACT_VIII: Act = {
     s(
       'a8-refused',
       CH.VIII,
-      'No',
+      'Nothing to Say',
       'kneeling-blade',
       'You step between the dark and the altar, and you say nothing, because there is nothing to say to it. The road of light hangs a moment longer, the bell in the valley still about to ring. Then it goes out, and you are standing in a cold stone room that smells of candle smoke, a long way from home, with the way back exactly as far as it was before. Behind you the toddler sighs in his sleep. The voice does not argue. It only goes quiet, like something that has all the time in the world.',
       {

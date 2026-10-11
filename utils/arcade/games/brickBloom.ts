@@ -17,6 +17,29 @@
 
 import { levelCurve } from '../curve'
 import { drawText } from '../font'
+import {
+  INK,
+  RAMPS,
+  Sparkles,
+  backdropRng,
+  bandedGradient,
+  bevel,
+  cachedLayer,
+  drawRidge,
+  drawSprite,
+  drawStars,
+  dropShadow,
+  gauge,
+  glow,
+  hudPanel,
+  mix,
+  pixelSprite,
+  rgba,
+  ridge,
+  starField,
+  vignette,
+} from '../snes'
+import type { PixelSprite, Ramp } from '../snes'
 import type {
   ArcadeGameInstance,
   ArcadeGameModule,
@@ -131,6 +154,461 @@ const PATTERNS: Array<(c: number, r: number) => boolean> = [
   (c, r) => r % 2 === 0 && c % 4 !== 3,
 ]
 
+// --- 16-bit art (utils/arcade/snes.ts) -------------------------------------------
+
+/** A five-step ramp around one colour: inked shadows below it, white-lit steps above. */
+function rampOf(base: string): Ramp {
+  return [
+    mix(base, INK, 0.68),
+    mix(base, INK, 0.36),
+    mix(base, base, 0),
+    mix(base, '#ffffff', 0.42),
+    mix(base, '#ffffff', 0.8),
+  ]
+}
+
+const ROW_RAMPS = ROW_COLORS.map(rampOf)
+const SEED_RAMPS = Object.fromEntries(
+  Object.entries(SEED_COLORS).map(([k, c]) => [k, rampOf(c)]),
+) as Record<Seed, Ramp>
+
+const CRATE_W = Math.round(BRICK_W) - 2
+const CRATE_H = BRICK_H - 2
+
+/**
+ * A glossy crate: a lit top edge and a specular glint, a pale gloss band over the base face,
+ * a shadowed lower lip and a slat seam down the middle (bolted crates get rivets instead).
+ */
+function crateSprite(
+  ramp: Ramp,
+  kind: 'crate' | 'bolt' | 'flash',
+): PixelSprite {
+  const w = CRATE_W
+  const h = CRATE_H
+  const seam = w >> 1
+  const rows: string[] = []
+  for (let y = 0; y < h; y++) {
+    let row = ''
+    for (let x = 0; x < w; x++) {
+      const left = x === 0
+      const right = x === w - 1
+      let ch: string
+      if (y === 0) ch = right ? 'L' : 'H'
+      else if (y === h - 1) ch = left ? 'S' : 'D'
+      else if (y === h - 2) ch = left ? 'B' : 'S'
+      else if (left) ch = y <= 2 ? 'H' : 'L'
+      else if (right) ch = 'S'
+      else if (y === 1 && x <= 2) ch = 'W'
+      else if (y <= 2) ch = 'L'
+      else ch = 'B'
+      if (kind === 'crate' && y >= 2 && y <= h - 3) {
+        if (x === seam) ch = 'S'
+        if (x === seam + 1) ch = 'L'
+      }
+      if (kind === 'bolt' && y >= 3 && y <= 4) {
+        for (const r of [3, w - 5]) {
+          if (x === r) ch = y === 3 ? 'W' : 'S'
+          if (x === r + 1) ch = 'D'
+        }
+      }
+      row += ch
+    }
+    rows.push(row)
+  }
+  return pixelSprite(rows, {
+    W: '#ffffff',
+    H: ramp[4],
+    L: ramp[3],
+    B: ramp[2],
+    S: ramp[1],
+    D: ramp[0],
+  })
+}
+
+const CRATE_SPRITES = ROW_RAMPS.map((r) => crateSprite(r, 'crate'))
+const BOLT_SPRITE = crateSprite(RAMPS.steel, 'bolt')
+const FLASH_SPRITE = crateSprite(RAMPS.cream, 'flash')
+
+/**
+ * The paddle bot: a lit tray with pink bumper caps and an inked visor with two shining eyes
+ * (closed in the blink frame). Built per width, since the wide seed swaps in a longer tray.
+ */
+function paddleSprite(w: number, body: Ramp, blink: boolean): PixelSprite {
+  const c = w / 2
+  const rows: string[] = []
+  for (let y = 0; y < PADDLE_H; y++) {
+    let row = ''
+    for (let x = 0; x < w; x++) {
+      const edge = x === 0 || x === w - 1
+      if (edge && (y === 0 || y === PADDLE_H - 1)) {
+        row += '.'
+        continue
+      }
+      const v = x - c
+      if ((y === 2 || y === 3) && v >= -5 && v < 5) {
+        const eye = (v >= -3 && v <= -2) || (v >= 1 && v <= 2)
+        if (eye && (y === 3 || !blink))
+          row += y === 2 && (v === -3 || v === 1) ? 'w' : 'y'
+        else row += 'k'
+        continue
+      }
+      const cap = x < 4 || x >= w - 4
+      let ch: string
+      if (y === 0) ch = 'H'
+      else if (y === PADDLE_H - 1) ch = 'D'
+      else if (y === PADDLE_H - 2) ch = x === 0 ? 'B' : 'S'
+      else if (x === 0) ch = y === 1 ? 'H' : 'L'
+      else if (x === w - 1) ch = 'S'
+      else if (y === 1) ch = x >= 5 && x <= 8 ? 'H' : 'L'
+      else ch = x === 4 || x === w - 5 ? 'S' : 'B'
+      row += cap ? ch.toLowerCase() : ch
+    }
+    rows.push(row)
+  }
+  return pixelSprite(rows, {
+    H: body[4],
+    L: body[3],
+    B: body[2],
+    S: body[1],
+    D: body[0],
+    h: RAMPS.pink[4],
+    l: RAMPS.pink[3],
+    b: RAMPS.pink[2],
+    s: RAMPS.pink[1],
+    d: RAMPS.pink[0],
+    k: INK,
+    y: RAMPS.gold[3],
+    w: '#ffffff',
+  })
+}
+
+function paddleSet(w: number) {
+  return {
+    sky: [paddleSprite(w, RAMPS.sky, false), paddleSprite(w, RAMPS.sky, true)],
+    leaf: [
+      paddleSprite(w, RAMPS.leaf, false),
+      paddleSprite(w, RAMPS.leaf, true),
+    ],
+  } as const
+}
+
+const PADDLE_SPRITES = { normal: paddleSet(PADDLE_W), wide: paddleSet(WIDE_W) }
+
+const LIFE_SPRITE = pixelSprite(['hLLLLLLLs', 'pBkykykBs', 'pSSSSSSSd'], {
+  h: RAMPS.pink[4],
+  p: RAMPS.pink[2],
+  s: RAMPS.pink[1],
+  d: RAMPS.pink[0],
+  L: RAMPS.sky[3],
+  B: RAMPS.sky[2],
+  S: RAMPS.sky[1],
+  k: INK,
+  y: RAMPS.gold[3],
+})
+
+/** The pollen ball: lit from the upper left, its spore speckles shifting as it spins. */
+const BALL_PALETTE = {
+  W: '#ffffff',
+  Y: RAMPS.gold[3],
+  y: RAMPS.gold[2],
+  d: RAMPS.gold[1],
+}
+const BALL_SPRITES = [
+  pixelSprite(['.YYy.', 'YWYyy', 'YYydy', 'ydyyd', '.ydd.'], BALL_PALETTE),
+  pixelSprite(['.YYy.', 'YWyYy', 'YYyyy', 'yyydd', '.dyd.'], BALL_PALETTE),
+] as const
+
+/** Bud, half-open and full bloom, per flower colour. */
+function flowerSprites(colour: string): readonly PixelSprite[] {
+  const ramp = rampOf(colour)
+  const palette = {
+    H: ramp[4],
+    P: ramp[2],
+    p: ramp[1],
+    C: RAMPS.gold[4],
+    c: RAMPS.gold[3],
+    o: RAMPS.gold[1],
+    g: RAMPS.leaf[1],
+    G: RAMPS.leaf[3],
+  }
+  return [
+    pixelSprite(['..H..', '.HPp.', '.Ppp.', '.gGg.', '..g..'], palette),
+    pixelSprite(['.H.P.', 'HPCPp', '.Ppp.', '.gGg.', '..g..'], palette),
+    pixelSprite(
+      [
+        '.HP.HP.',
+        'HPPpPPp',
+        '.pCCcp.',
+        'HPCcoPp',
+        '.pcoop.',
+        'HPPpPPp',
+        '.Pp.pp.',
+      ],
+      palette,
+    ),
+  ]
+}
+
+const FLOWER_SPRITES: Record<string, readonly PixelSprite[]> =
+  Object.fromEntries(FLOWER_COLORS.map((c) => [c, flowerSprites(c)]))
+
+const SPROUT_SPRITE = pixelSprite(['G.G', 'gGg', '.g.', '.d.'], {
+  G: RAMPS.leaf[3],
+  g: RAMPS.leaf[2],
+  d: RAMPS.leaf[1],
+})
+
+const LEAF_SPRITE = pixelSprite(['.GG', 'Ggd', 'gd.'], {
+  G: RAMPS.leaf[3],
+  g: RAMPS.leaf[2],
+  d: RAMPS.leaf[1],
+})
+
+/** A seed capsule, rolling: its dark seam band steps across as it falls. */
+function capsuleSprite(ramp: Ramp, frame: number): PixelSprite {
+  const w = 15
+  const h = 9
+  const band = frame ? 9 : 4
+  const rows: string[] = []
+  for (let y = 0; y < h; y++) {
+    const trim = y === 0 || y === h - 1 ? 2 : y === 1 || y === h - 2 ? 1 : 0
+    let row = ''
+    for (let x = 0; x < w; x++) {
+      if (x < trim || x >= w - trim) {
+        row += '.'
+        continue
+      }
+      let ch =
+        y <= 1
+          ? 'H'
+          : y === 2
+            ? 'L'
+            : y >= h - 2
+              ? 'D'
+              : y === h - 3
+                ? 'S'
+                : 'B'
+      if (x === trim && y > 1 && y < h - 2) ch = 'L'
+      if (x === w - 1 - trim && y > 1) ch = 'S'
+      if ((x === band || x === band + 1) && y > 1 && y < h - 2) ch = 'S'
+      row += ch
+    }
+    rows.push(row)
+  }
+  return pixelSprite(rows, {
+    H: ramp[4],
+    L: ramp[3],
+    B: ramp[2],
+    S: ramp[1],
+    D: ramp[0],
+  })
+}
+
+function capsuleFrames(kind: Seed): readonly PixelSprite[] {
+  return [
+    capsuleSprite(SEED_RAMPS[kind], 0),
+    capsuleSprite(SEED_RAMPS[kind], 1),
+  ]
+}
+
+const CAPSULE_SPRITES: Record<Seed, readonly PixelSprite[]> = {
+  W: capsuleFrames('W'),
+  S: capsuleFrames('S'),
+  M: capsuleFrames('M'),
+  C: capsuleFrames('C'),
+  '+': capsuleFrames('+'),
+}
+
+const GLOOM: Ramp = ['#1a1430', '#3a3058', '#5a5080', '#8a82ae', '#c8c2e0']
+const GLOOM_FRAYED: Ramp = [
+  '#2a2244',
+  '#4a4068',
+  '#6e6490',
+  '#a098c0',
+  '#dcd6f0',
+]
+
+type Theme = {
+  sky: readonly string[]
+  frame: string
+  far: string
+  farRim: string
+  near: string
+  nearRim: string
+  stars: boolean
+}
+
+/** One greenhouse sky per stage, cycling: dusk, moonlight, dawn, and a teal glasshouse night. */
+const THEMES: readonly Theme[] = [
+  {
+    sky: ['#120f33', '#24124f', '#43246e', '#6b2f78', '#8f3a72'],
+    frame: '#2c2350',
+    far: '#2a2a52',
+    farRim: '#4a3f7a',
+    near: RAMPS.leaf[0],
+    nearRim: RAMPS.leaf[1],
+    stars: true,
+  },
+  {
+    sky: [RAMPS.night[0], RAMPS.night[1], RAMPS.night[2], '#1f3a6e', '#2b5a8a'],
+    frame: '#1c2a4e',
+    far: '#16305a',
+    farRim: '#2f5a8a',
+    near: '#0f3326',
+    nearRim: RAMPS.leaf[1],
+    stars: true,
+  },
+  {
+    sky: ['#24124f', '#4c2a99', '#8a3a8a', '#b84a6e', '#d8685a'],
+    frame: '#3a2266',
+    far: '#4a2458',
+    farRim: '#7a3a6e',
+    near: RAMPS.leaf[0],
+    nearRim: RAMPS.leaf[1],
+    stars: false,
+  },
+  {
+    sky: [RAMPS.night[0], RAMPS.teal[0], '#0f4f5a', '#127070', '#1a8a80'],
+    frame: '#0c2e3a',
+    far: '#0c3a44',
+    farRim: '#1a6a6a',
+    near: '#0c2a20',
+    nearRim: RAMPS.leaf[1],
+    stars: false,
+  },
+]
+
+const STARS = starField(13, 46, W, 150)
+const FAR_RIDGE = ridge(17, W, 30, 4)
+const NEAR_RIDGE = ridge(23, W, 12, 3)
+const HEDGE_FLECKS = (() => {
+  const rand = backdropRng(19)
+  return Array.from({ length: 70 }, () => ({
+    x: Math.floor(rand() * W),
+    y: 286 + Math.floor(rand() * 20),
+  }))
+})()
+const FIREFLIES = (() => {
+  const rand = backdropRng(37)
+  return Array.from({ length: 6 }, () => ({
+    x: 24 + rand() * (W - 48),
+    y: 236 + rand() * 40,
+    phase: rand() * Math.PI * 2,
+    speed: 0.6 + rand() * 0.6,
+  }))
+})()
+const SOIL_TOP = 306
+const PANE_X = [LEFT, 68, 128, 188, RIGHT]
+const PANE_Y = [TOP, 170, 230, 270]
+
+/** The greenhouse: banded sky through the glass, hills, a hedge, the soil bed and the trellis. */
+function paintGarden(k: CanvasRenderingContext2D, t: Theme) {
+  bandedGradient(k, 0, TOP, W, H - TOP, t.sky, 6)
+  if (t.stars) {
+    k.save()
+    k.translate(0, TOP)
+    drawStars(k, STARS, 0, RAMPS.purple)
+    k.restore()
+  }
+  drawRidge(k, FAR_RIDGE, {
+    base: 272,
+    bottom: H,
+    width: W,
+    fill: t.far,
+    rim: t.farRim,
+  })
+  // Glazing bars and the sheen on each pane of glass.
+  for (let i = 1; i < PANE_X.length - 1; i++) {
+    const x = PANE_X[i]!
+    k.fillStyle = t.frame
+    k.fillRect(x - 1, TOP, 3, 280 - TOP)
+    k.fillStyle = rgba(RAMPS.steel[4], 0.14)
+    k.fillRect(x - 1, TOP, 1, 280 - TOP)
+  }
+  for (let j = 1; j < PANE_Y.length - 1; j++) {
+    const y = PANE_Y[j]!
+    k.fillStyle = t.frame
+    k.fillRect(LEFT, y - 1, RIGHT - LEFT, 3)
+    k.fillStyle = rgba(RAMPS.steel[4], 0.14)
+    k.fillRect(LEFT, y - 1, RIGHT - LEFT, 1)
+  }
+  k.fillStyle = rgba('#ffffff', 0.06)
+  for (let i = 0; i < PANE_X.length - 1; i++) {
+    for (let j = 0; j < PANE_Y.length - 1; j++) {
+      const px = PANE_X[i]! + 8
+      const py = PANE_Y[j]! + 26
+      for (let s = 0; s < 18; s++) {
+        k.fillRect(px + s, py - s, 3, 1)
+        if (s < 10) k.fillRect(px + s + 8, py - s, 1, 1)
+      }
+    }
+  }
+  // The hedge, flecked with lit leaves.
+  drawRidge(k, NEAR_RIDGE, {
+    base: 298,
+    bottom: H,
+    width: W,
+    step: 3,
+    fill: t.near,
+    rim: t.nearRim,
+  })
+  k.fillStyle = t.nearRim
+  for (const f of HEDGE_FLECKS) k.fillRect(f.x, f.y, 2, 1)
+  // The soil bed, furrowed, with sprouts and a few early blooms.
+  bandedGradient(
+    k,
+    0,
+    SOIL_TOP,
+    W,
+    H - SOIL_TOP,
+    [RAMPS.earth[2], RAMPS.earth[1], RAMPS.earth[0]],
+    3,
+  )
+  k.fillStyle = RAMPS.earth[3]
+  k.fillRect(0, SOIL_TOP, W, 1)
+  for (let x = 4; x < W; x += 8) {
+    k.fillStyle = RAMPS.earth[0]
+    k.fillRect(x, SOIL_TOP + 5 + ((x >> 3) % 2) * 5, 4, 1)
+    k.fillStyle = RAMPS.earth[3]
+    k.fillRect(x + 1, SOIL_TOP + 4 + ((x >> 3) % 2) * 5, 2, 1)
+  }
+  for (let i = 0, x = 18; x < W - 12; i++, x += 19) {
+    const sprite =
+      i % 3 === 1
+        ? FLOWER_SPRITES[FLOWER_COLORS[i % FLOWER_COLORS.length]!]![2]!
+        : SPROUT_SPRITE
+    drawSprite(k, sprite, x, SOIL_TOP + 2, { anchor: 'feet' })
+  }
+  // Trellis posts with climbing ivy, and the roof beam with ivy hanging from it.
+  for (const x of [1, RIGHT + 1]) {
+    bevel(k, x, TOP - 3, LEFT - 2, H, RAMPS.earth, { depth: 1 })
+    k.fillStyle = RAMPS.earth[0]
+    for (let y = TOP + 4; y < H; y += 10) k.fillRect(x, y, LEFT - 2, 1)
+  }
+  for (let y = TOP + 6, i = 0; y < H - 8; y += 14, i++) {
+    drawSprite(k, LEAF_SPRITE, i % 2 ? 3 : 5, y, { flipX: i % 2 === 1 })
+    drawSprite(k, LEAF_SPRITE, RIGHT + (i % 2 ? 5 : 3), y + 7, {
+      flipX: i % 2 === 0,
+    })
+  }
+  bandedGradient(
+    k,
+    0,
+    0,
+    W,
+    TOP - 4,
+    [RAMPS.night[2], RAMPS.night[1], RAMPS.night[0]],
+    2,
+  )
+  bevel(k, 0, TOP - 4, W, 3, RAMPS.earth, { depth: 1 })
+  for (const x of [30, 92, 160, 222]) {
+    for (let i = 0; i < 3; i++)
+      drawSprite(k, LEAF_SPRITE, x + (i % 2) * 3, TOP + 1 + i * 4, {
+        flipX: i % 2 === 1,
+      })
+  }
+}
+
 class BrickBloom implements ArcadeGameInstance {
   score = 0
   level = 1
@@ -161,6 +639,10 @@ class BrickBloom implements ArcadeGameInstance {
   private particles: Particle[] = []
   private floaters: Floater[] = []
   private banner: { text: string; sub?: string; ticks: number } | null = null
+  // Cosmetic only: sparkles on their own rng, and each ball's recent path for its trail.
+  private fx = new Sparkles()
+  private fxRng = backdropRng(43)
+  private trails = new Map<Ball, { x: number; y: number }[]>()
 
   constructor(options: ArcadeGameOptions) {
     this.rng = options.rng
@@ -431,6 +913,12 @@ class BrickBloom implements ArcadeGameInstance {
     const points = (ROWS - b.row) * 10 * b.maxHp
     this.addScore(points, cx, cy - 4)
     this.burst(cx, cy, 6, ROW_COLORS[b.row]!)
+    const ramp = ROW_RAMPS[b.row]!
+    this.fx.burst(cx, cy, this.fxRng, {
+      count: 7,
+      colours: [ramp[4], ramp[3], RAMPS.gold[4]],
+      speed: 1.4,
+    })
     // A flower blooms where the crate was and floats away.
     this.flowers.push({
       x: cx,
@@ -476,6 +964,10 @@ class BrickBloom implements ArcadeGameInstance {
   private power(kind: Seed) {
     this.addScore(50, this.paddleX, PADDLE_Y - 12)
     this.sound.play('pickup')
+    this.fx.burst(this.paddleX, PADDLE_Y - 2, this.fxRng, {
+      count: 10,
+      colours: [SEED_RAMPS[kind][4], SEED_RAMPS[kind][3], RAMPS.gold[4]],
+    })
     const label: Record<Seed, string> = {
       W: 'WIDE!',
       S: 'STICKY!',
@@ -533,6 +1025,7 @@ class BrickBloom implements ArcadeGameInstance {
     this.puffs = this.puffs.filter((p) => p !== puff)
     this.addScore(100 * this.level, puff.x, puff.y - 8)
     this.burst(puff.x, puff.y, 12, '#c4b5fd')
+    this.fx.burst(puff.x, puff.y, this.fxRng, { count: 14, speed: 2 })
     this.sound.play('pop')
   }
 
@@ -595,6 +1088,27 @@ class BrickBloom implements ArcadeGameInstance {
   }
 
   private updateEffects() {
+    this.fx.update()
+    // A stage in bloom keeps sparkling until the next one starts.
+    if (this.clear > 0 && this.tick % 8 === 0)
+      this.fx.burst(
+        LEFT + 16 + this.fxRng() * (RIGHT - LEFT - 32),
+        BRICK_TOP + this.fxRng() * ROWS * BRICK_H,
+        this.fxRng,
+        { count: 6 },
+      )
+    for (const ball of this.balls) {
+      if (ball.stuck !== null) {
+        this.trails.delete(ball)
+        continue
+      }
+      const trail = this.trails.get(ball) ?? []
+      trail.push({ x: ball.x, y: ball.y })
+      if (trail.length > 6) trail.shift()
+      this.trails.set(ball, trail)
+    }
+    for (const ball of this.trails.keys())
+      if (!this.balls.includes(ball)) this.trails.delete(ball)
     for (const p of this.particles) {
       p.x += p.vx
       p.y += p.vy
@@ -665,164 +1179,263 @@ class BrickBloom implements ArcadeGameInstance {
   // --- render -------------------------------------------------------------------
 
   render(g: CanvasRenderingContext2D) {
-    const bg = g.createLinearGradient(0, 0, 0, H)
-    bg.addColorStop(0, '#1e1b4b')
-    bg.addColorStop(1, '#0f172a')
-    g.fillStyle = bg
-    g.fillRect(0, 0, W, H)
-    // Garden trellis walls.
-    g.fillStyle = '#3f6212'
-    g.fillRect(0, TOP - 4, LEFT, H)
-    g.fillRect(RIGHT, TOP - 4, W - RIGHT, H)
-    g.fillRect(0, TOP - 4, W, 4)
-    g.fillStyle = '#65a30d'
-    for (let y = TOP; y < H; y += 12) {
-      g.fillRect(2, y, 4, 2)
-      g.fillRect(RIGHT + 2, y + 6, 4, 2)
-    }
-    for (const b of this.bricks) this.renderBrick(g, b)
+    this.renderGarden(g)
+    this.renderWall(g)
     for (const f of this.flowers) this.renderFlower(g, f)
     for (const p of this.puffs) this.renderPuff(g, p)
     for (const d of this.drops) this.renderDrop(g, d)
     this.renderPaddle(g)
-    for (const ball of this.balls) {
-      g.fillStyle = '#fef08a'
-      g.beginPath()
-      g.arc(ball.x, ball.y, BALL_R, 0, Math.PI * 2)
-      g.fill()
-      g.fillStyle = '#ffffff'
-      g.fillRect(ball.x - 1, ball.y - 1.5, 1, 1)
-    }
+    for (const ball of this.balls) this.renderBall(g, ball)
     for (const p of this.particles) {
       g.globalAlpha = Math.max(0, p.life / 26)
+      const x = Math.round(p.x) - 1
+      const y = Math.round(p.y) - 1
+      g.fillStyle = INK
+      g.fillRect(x - 1, y - 1, 4, 4)
       g.fillStyle = p.color
-      g.fillRect(p.x - 1, p.y - 1, 2, 2)
+      g.fillRect(x, y, 2, 2)
+      g.fillStyle = '#ffffff'
+      g.fillRect(x, y, 1, 1)
     }
     g.globalAlpha = 1
+    this.fx.render(g)
     for (const f of this.floaters)
-      drawText(g, f.text, f.x, f.y, { align: 'center', color: '#fde68a' })
+      drawText(g, f.text, f.x, f.y, {
+        align: 'center',
+        color: RAMPS.gold[3],
+        outline: INK,
+      })
+    vignette(g, W, H, 0.28)
     this.renderHud(g)
+  }
+
+  private renderGarden(g: CanvasRenderingContext2D) {
+    const theme = (this.level - 1) % THEMES.length
+    cachedLayer(g, `brick-bloom-garden-${theme}`, W, H, (k) =>
+      paintGarden(k, THEMES[theme]!),
+    )
+    // Fireflies drifting over the hedge.
+    for (const f of FIREFLIES) {
+      const t = (this.tick / 60) * f.speed + f.phase
+      const x = Math.round(f.x + Math.sin(t) * 18)
+      const y = Math.round(f.y + Math.cos(t * 1.3) * 10)
+      const lit = 0.5 + 0.5 * Math.sin(t * 3)
+      glow(g, x, y, 7, RAMPS.leaf[4], 0.35 * lit)
+      g.fillStyle = lit > 0.4 ? RAMPS.gold[4] : RAMPS.leaf[3]
+      g.fillRect(x, y, 1, 1)
+    }
+  }
+
+  private renderWall(g: CanvasRenderingContext2D) {
+    // Every crate casts a shadow onto the glass behind it.
+    g.fillStyle = rgba(INK, 0.4)
+    for (const b of this.bricks) {
+      const r = this.brickRect(b)
+      g.fillRect(Math.round(r.x) + 3, r.y + 4, CRATE_W, CRATE_H)
+    }
+    for (const b of this.bricks) this.renderBrick(g, b)
   }
 
   private renderBrick(g: CanvasRenderingContext2D, b: Brick) {
     const r = this.brickRect(b)
     const x = Math.round(r.x) + 1
     const y = r.y + 1
-    const w = Math.round(r.w) - 2
-    const h = r.h - 2
-    if (b.bolt) {
-      g.fillStyle = b.flash ? '#ffffff' : '#64748b'
-      g.fillRect(x, y, w, h)
-      g.fillStyle = '#334155'
-      g.fillRect(x + 3, y + 3, 2, 2)
-      g.fillRect(x + w - 5, y + 3, 2, 2)
-      return
-    }
-    g.fillStyle = b.flash ? '#ffffff' : ROW_COLORS[b.row]!
-    g.fillRect(x, y, w, h)
-    // Crate slats, and cracks as it weakens.
-    g.fillStyle = 'rgba(0, 0, 0, 0.25)'
-    g.fillRect(x, y + h - 2, w, 2)
-    g.fillRect(x + Math.floor(w / 2), y, 1, h)
+    const sprite = b.flash
+      ? FLASH_SPRITE
+      : b.bolt
+        ? BOLT_SPRITE
+        : CRATE_SPRITES[b.row]!
+    drawSprite(g, sprite, x - 1, y - 1, { anchor: 'topleft' })
+    if (b.bolt || b.flash) return
+    // Cracks as it weakens, and gold studs for the hits it has left.
+    const w = CRATE_W
     if (b.hp < b.maxHp) {
-      g.fillStyle = 'rgba(0, 0, 0, 0.5)'
-      g.fillRect(x + 3, y + 2, 4, 1)
-      g.fillRect(x + 6, y + 3, 1, 3)
+      g.fillStyle = INK
+      g.fillRect(x + 3, y + 2, 3, 1)
+      g.fillRect(x + 5, y + 3, 1, 2)
+      g.fillRect(x + 6, y + 5, 2, 1)
+      if (b.maxHp - b.hp >= 2) {
+        g.fillRect(x + w - 6, y + 3, 2, 1)
+        g.fillRect(x + w - 7, y + 4, 1, 2)
+      }
     }
     if (b.maxHp > 1) {
-      g.fillStyle = 'rgba(255, 255, 255, 0.5)'
-      for (let i = 0; i < b.hp; i++) g.fillRect(x + w - 3 - i * 3, y + 1, 2, 2)
+      for (let i = 0; i < b.hp; i++) {
+        const px = x + w - 4 - i * 3
+        g.fillStyle = RAMPS.gold[0]
+        g.fillRect(px + 1, y + 3, 2, 2)
+        g.fillStyle = RAMPS.gold[3]
+        g.fillRect(px, y + 2, 2, 2)
+        g.fillStyle = RAMPS.gold[4]
+        g.fillRect(px, y + 2, 1, 1)
+      }
     }
   }
 
   private renderFlower(g: CanvasRenderingContext2D, f: Flower) {
-    g.globalAlpha = Math.min(1, f.life / 30)
-    g.fillStyle = f.color
-    for (let i = 0; i < 5; i++) {
-      const a = (i / 5) * Math.PI * 2 + f.life / 20
-      g.fillRect(f.x + Math.cos(a) * 3 - 1, f.y + Math.sin(a) * 3 - 1, 2, 2)
-    }
-    g.fillStyle = '#fde047'
-    g.fillRect(f.x - 1, f.y - 1, 2, 2)
-    g.globalAlpha = 1
+    const frames = FLOWER_SPRITES[f.color]
+    if (!frames) return
+    const stage = f.life > 60 ? 0 : f.life > 50 ? 1 : 2
+    const alpha = Math.min(1, f.life / 30)
+    const x = f.x + Math.round(Math.sin((f.life + f.x) / 9))
+    if (stage === 2) glow(g, x, f.y, 9, f.color, 0.3 * alpha)
+    drawSprite(g, frames[stage]!, x, f.y, { alpha })
   }
 
   private renderPuff(g: CanvasRenderingContext2D, p: Puff) {
-    g.fillStyle = p.hp > 1 ? '#475569' : '#64748b'
+    const ramp = p.hp > 1 ? GLOOM : GLOOM_FRAYED
+    const wob = Math.sin(this.tick / 8 + p.x * 0.1) * 0.6
+    const lobes: [number, number, number][] = [
+      [-4, 0, 5 + wob],
+      [4, 0, 5 - wob],
+      [0, -3, 6],
+    ]
+    // A gloomy shade around it, then lobes shaded from ink up toward the light.
+    g.fillStyle = rgba(INK, 0.22)
     g.beginPath()
-    g.arc(p.x - 4, p.y, 5, 0, Math.PI * 2)
-    g.arc(p.x + 4, p.y, 5, 0, Math.PI * 2)
-    g.arc(p.x, p.y - 3, 6, 0, Math.PI * 2)
+    g.ellipse(p.x, p.y, 15, 12, 0, 0, Math.PI * 2)
     g.fill()
-    // A grumpy face.
-    g.fillStyle = '#e2e8f0'
-    g.fillRect(p.x - 3, p.y - 3, 2, 1)
-    g.fillRect(p.x + 1, p.y - 3, 2, 1)
-    g.fillRect(p.x - 2, p.y + 1, 4, 1)
+    const passes: [string, number, number, number][] = [
+      [INK, 0, 0, 1],
+      [ramp[1], 0, 0, 0],
+      [ramp[2], -0.8, -1, -1.2],
+      [ramp[3], -1.8, -2.2, -3],
+    ]
+    for (const [colour, dx, dy, dr] of passes) {
+      g.fillStyle = colour
+      g.beginPath()
+      for (const [lx, ly, lr] of lobes) {
+        g.moveTo(p.x + lx + dx + lr + dr, p.y + ly + dy)
+        g.arc(
+          p.x + lx + dx,
+          p.y + ly + dy,
+          Math.max(1, lr + dr),
+          0,
+          Math.PI * 2,
+        )
+      }
+      g.fill()
+    }
+    // A grumpy face: scowling brows, shiny eyes, a frown.
+    const x = Math.round(p.x)
+    const y = Math.round(p.y)
+    g.fillStyle = INK
+    g.fillRect(x - 5, y - 6, 2, 1)
+    g.fillRect(x - 3, y - 5, 2, 1)
+    g.fillRect(x + 1, y - 5, 2, 1)
+    g.fillRect(x + 3, y - 6, 2, 1)
+    g.fillRect(x - 4, y - 4, 3, 3)
+    g.fillRect(x + 1, y - 4, 3, 3)
+    g.fillRect(x - 2, y + 1, 4, 1)
+    g.fillRect(x - 3, y + 2, 1, 1)
+    g.fillRect(x + 2, y + 2, 1, 1)
+    g.fillStyle = RAMPS.ember[3]
+    g.fillRect(x - 3, y - 3, 1, 1)
+    g.fillRect(x + 2, y - 3, 1, 1)
+    g.fillStyle = '#ffffff'
+    g.fillRect(x - 4, y - 4, 1, 1)
+    g.fillRect(x + 1, y - 4, 1, 1)
   }
 
   private renderDrop(g: CanvasRenderingContext2D, d: Drop) {
-    g.fillStyle = SEED_COLORS[d.kind]
-    g.beginPath()
-    g.ellipse(d.x, d.y, 6, 4, 0, 0, Math.PI * 2)
-    g.fill()
-    drawText(g, d.kind, d.x, d.y - 3, { align: 'center', color: '#1e1b4b' })
+    glow(g, d.x, d.y, 11, SEED_COLORS[d.kind], 0.4)
+    const frame = Math.floor((this.tick + d.x) / 8) % 2
+    drawSprite(g, CAPSULE_SPRITES[d.kind][frame]!, d.x, d.y)
+    drawText(g, d.kind, d.x + 1, d.y - 3, { align: 'center', color: INK })
   }
 
   private renderPaddle(g: CanvasRenderingContext2D) {
     if (this.lost > 0 && Math.floor(this.tick / 6) % 2) return
     const w = this.paddleW
     const x = Math.round(this.paddleX - w / 2)
-    // A paddle bot: a rounded tray with a cheerful visor.
-    g.fillStyle = this.sticky > 0 ? '#4ade80' : '#38bdf8'
-    g.fillRect(x + 2, PADDLE_Y, w - 4, PADDLE_H)
-    g.fillRect(x, PADDLE_Y + 1, w, PADDLE_H - 2)
-    g.fillStyle = '#e0f2fe'
-    g.fillRect(x + 4, PADDLE_Y + 1, w - 8, 1)
-    g.fillStyle = '#0f172a'
-    g.fillRect(Math.round(this.paddleX) - 5, PADDLE_Y + 2, 10, 2)
-    g.fillStyle = '#fde047'
-    g.fillRect(Math.round(this.paddleX) - 3, PADDLE_Y + 2, 2, 2)
-    g.fillRect(Math.round(this.paddleX) + 1, PADDLE_Y + 2, 2, 2)
+    dropShadow(g, this.paddleX, SOIL_TOP + 3, w / 2, 2.5, 0.4)
+    // Hover jets under each bumper cap.
+    const jet = 2 + (Math.floor(this.tick / 3) % 2)
+    for (const jx of [x + 1, x + w - 3]) {
+      glow(g, jx + 1, PADDLE_Y + PADDLE_H + 2, 6, RAMPS.ember[3], 0.45)
+      g.fillStyle = RAMPS.ember[2]
+      g.fillRect(jx, PADDLE_Y + PADDLE_H, 2, jet + 1)
+      g.fillStyle = RAMPS.gold[4]
+      g.fillRect(jx, PADDLE_Y + PADDLE_H, 2, jet - 1)
+    }
+    const set = w === WIDE_W ? PADDLE_SPRITES.wide : PADDLE_SPRITES.normal
+    const frames = this.sticky > 0 ? set.leaf : set.sky
+    const blink = this.tick % 150 < 7 ? 1 : 0
+    drawSprite(g, frames[blink], x - 1, PADDLE_Y - 1, { anchor: 'topleft' })
+    if (this.sticky > 0)
+      glow(g, this.paddleX, PADDLE_Y, w / 2, RAMPS.leaf[3], 0.2)
+  }
+
+  private renderBall(g: CanvasRenderingContext2D, ball: Ball) {
+    const colour = this.calm > 0 ? SEED_COLORS.C : RAMPS.gold[3]
+    const trail = this.trails.get(ball)
+    if (trail) {
+      g.save()
+      g.globalCompositeOperation = 'lighter'
+      trail.forEach((p, i) => {
+        const t = (i + 1) / (trail.length + 1)
+        const s = 1 + Math.round(t * 2)
+        g.globalAlpha = t * 0.7
+        g.fillStyle = mix(RAMPS.pink[2], colour, t)
+        g.fillRect(Math.round(p.x - s / 2), Math.round(p.y - s / 2), s, s)
+      })
+      g.restore()
+    }
+    glow(g, ball.x, ball.y, 10, colour, 0.5)
+    const frame = Math.floor(this.tick / 5) % 2
+    drawSprite(g, BALL_SPRITES[frame]!, ball.x, ball.y)
   }
 
   private renderHud(g: CanvasRenderingContext2D) {
-    const shadow = '#1e1b4b'
-    drawText(g, String(this.score).padStart(6, '0'), 6, 4, {
+    hudPanel(g, 3, 2, 78, 18)
+    drawText(g, String(this.score).padStart(6, '0'), 8, 4, {
       scale: 2,
-      color: '#fde047',
-      shadow,
+      color: RAMPS.gold[3],
+      shadow: INK,
     })
-    drawText(g, `HI ${Math.max(this.hiScore, this.score)}`, W - 6, 3, {
+    hudPanel(g, W - 66, 2, 63, 18)
+    drawText(g, `HI ${Math.max(this.hiScore, this.score)}`, W - 7, 3, {
       align: 'right',
-      color: '#f9a8d4',
+      color: RAMPS.pink[3],
+      shadow: INK,
     })
-    drawText(g, `STAGE ${this.level}`, W - 6, 12, {
+    drawText(g, `STAGE ${this.level}`, W - 7, 11, {
       align: 'right',
-      color: '#a5f3fc',
+      color: RAMPS.teal[3],
+      shadow: INK,
     })
-    for (let i = 0; i < Math.min(this.lives - 1, 5); i++) {
-      g.fillStyle = '#38bdf8'
-      g.fillRect(96 + i * 12, 8, 9, 3)
+    // Spare paddles, then the seeds still working and how long each has left.
+    const spares = Math.max(0, Math.min(this.lives - 1, 5))
+    const powers: [Seed, number][] = []
+    if (this.wide > 0) powers.push(['W', this.wide])
+    if (this.sticky > 0) powers.push(['S', this.sticky])
+    if (this.calm > 0) powers.push(['C', this.calm])
+    if (spares || powers.length) {
+      hudPanel(g, 86, 2, 100, 18)
+      for (let i = 0; i < spares; i++)
+        drawSprite(g, LIFE_SPRITE, 91 + i * 13, 4, { anchor: 'topleft' })
+      powers.forEach(([kind, left], i) => {
+        const px = 91 + i * 31
+        drawText(g, kind, px, 12, {
+          color: SEED_RAMPS[kind][3],
+          outline: INK,
+        })
+        gauge(g, px + 8, 14, 18, 3, left / POWER_TICKS, SEED_RAMPS[kind])
+      })
     }
-    const powers: string[] = []
-    if (this.wide > 0) powers.push('W')
-    if (this.sticky > 0) powers.push('S')
-    if (this.calm > 0) powers.push('C')
-    if (powers.length)
-      drawText(g, powers.join(' '), 96, 14, { color: '#86efac' })
     if (this.banner) {
       drawText(g, this.banner.text, W / 2, 200, {
         scale: 2,
         align: 'center',
         color: '#ffffff',
-        shadow: '#7c3aed',
+        outline: INK,
+        shadow: RAMPS.purple[1],
       })
       if (this.banner.sub)
         drawText(g, this.banner.sub, W / 2, 220, {
           align: 'center',
-          color: '#fde68a',
-          shadow,
+          color: RAMPS.gold[3],
+          outline: INK,
         })
     }
   }

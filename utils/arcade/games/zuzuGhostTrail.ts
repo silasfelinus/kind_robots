@@ -1,38 +1,126 @@
 // /utils/arcade/games/zuzuGhostTrail.ts
 //
-// Zuzu: Ghost Trail -- the Kind Robots Arcade's Ghosts 'n Goblins riff
-// (conductor kr-arcade/t-009 game factory, all four slices: the poncho rule,
-// throwables and pickups, bosses, and stage progression through four trails). Zuzu, the koala ronin, walks a haunted weird-west trail
-// through a ghost town at dusk, throwing kunai at restless spirits that claw
-// up out of the dirt, storm crows and bone hyenas.
+// Zuzu: Ghost Trail -- the Kind Robots Arcade's Ghosts 'n Goblins riff (conductor kr-arcade t-009 game
+// factory; the campaign, t-015..t-020 and ghost-trail/CAMPAIGN-BLUEPRINT.md). Zuzu, the koala ronin,
+// walks a haunted weird-west trail, a book of stages, each two or three authored acts, each guarded at
+// its end by a boss from the thin places.
 //
-// The poncho rule, as in the classic: the first hit knocks Zuzu's poncho and
-// kasa off, leaving him in his tunic; a second hit sends him back to the last
-// checkpoint. Crates along the trail hide a fresh poncho. Jumps are committed
-// once he leaves the ground. Left/right walk, Up or B jumps, A throws kunai.
+// The poncho rule, as in the classic: the first hit knocks Zuzu's poncho and kasa off, leaving him in
+// his tunic; a second hit sends him back to the last checkpoint. Crates hide a fresh poncho. Jumps are
+// committed once he leaves the ground. Left/right walk, Up or B jumps, A throws.
 //
-// Gear, as in the classic's weapon pickups: crates and the bundles some crows
-// carry hold a new throwable, and picking one up replaces the current one.
-// Shuriken fly three ways, the spare kasa boomerangs back through everything
-// in its path, a lantern lobs and leaves a ground fire that even catches
-// spirits still in the dirt, and the iai cut is a short, strong katana slash.
+// Gear, as in the classic's weapon pickups: crates and the bundles some flyers carry hold a new
+// throwable, and picking one up replaces the current one. Shuriken fly three ways, the spare kasa
+// boomerangs back through everything in its path, a lantern lobs and leaves a ground fire that even
+// catches spirits still in the dirt, and the iai cut is a short, strong katana slash.
 //
-// The trails run in turn and then loop, harder each time: the Ghost Town,
-// the Bone Yard (more spirits), the Drowned Watering Hole (water in every pit,
-// more crows) and the Bell Tower (bone hyenas on the prowl).
+// The trail is authored, not generated (ghostTrail/world.ts, campaign.ts, acts/): each act's ground and
+// pits, ledges, solid blocks, moving platforms, hazards, updrafts and tide, its crates and relics, its
+// checkpoints, and the squads waiting along it. A squad appears when Zuzu reaches it; every member has
+// a stable id and, once put down, stays down for the run, through deaths and checkpoint retries, so
+// nothing can be farmed. A thin ambient trickle is earned only by forward progress (the encounter
+// budget below). Foes (ghostTrail/foes.ts) and bosses (ghostTrail/bosses.ts) all telegraph: a tell,
+// an active window, a recovery to punish. Two friends wait along the way: the River Croc, a ferry who
+// surfaces once the squad bothering him is down, and the abbey's caged novice, freed by breaking the
+// lock and surviving the ambush it was bait for (kept with the relics; it adds to the ending page).
 //
-// Bosses from the thin places guard the mission gate: the arena locks, the
-// gate stays barred, and the boss alternates by trail. The Dust Devil whirls
-// back and forth flinging dust clods; the Bone Bull paws, charges (jump it;
-// its charge shrugs off hits) and staggers when it slams the arena wall.
-//
-// Zuzu's canon (CAST-PICKS.md, VIDEO-GUARDRAILS.md): short and stocky,
-// rust-brown poncho with orange zigzag trim, a wide straw kasa that shades his
-// eyes, the katana across his back with the hilt over his right shoulder, and
-// never a smile.
+// Zuzu's canon (CAST-PICKS.md, VIDEO-GUARDRAILS.md): short and stocky, rust-brown poncho with orange
+// zigzag trim, a wide straw kasa that shades his eyes, the katana across his back with the hilt over
+// his right shoulder, and never a smile.
 
-import { levelCurve } from '../curve'
 import { drawText } from '../font'
+import {
+  drawFlyingKasa,
+  drawFlyingPoncho,
+  drawZuzu,
+  drawZuzuFallen,
+  drawZuzuPortrait,
+} from '../ghostTrail/heroArt'
+import {
+  drawBoss,
+  drawFire,
+  drawFoe,
+  drawPickup,
+  drawShot,
+  drawWeaponIcon,
+} from '../ghostTrail/foeArt'
+import { drawBanner, drawHud, hitsFor } from '../ghostTrail/hudArt'
+import {
+  drawBackdrop,
+  drawCheckpoint,
+  drawCrate,
+  drawForeground,
+  drawGate,
+  drawSecret,
+  drawTerrain,
+  type StageKey,
+  type TerrainStage,
+} from '../ghostTrail/stageArt'
+import {
+  drawBlock,
+  drawCliffFace,
+  drawBolt,
+  drawCage,
+  drawCard,
+  drawHazard,
+  drawLightning,
+  drawMover,
+  drawStandInBoss,
+  drawTowerInterior,
+  drawUpdraft,
+  drawWater,
+  type Card,
+} from '../ghostTrail/worldArt'
+import {
+  ACTS,
+  CREDITS,
+  RELIC_COUNT,
+  RESCUE_ENDING,
+  TRUE_ENDING,
+  stageInfo,
+} from '../ghostTrail/campaign'
+import {
+  FOES,
+  makeFoe,
+  stepBolt,
+  type Bolt,
+  type Foe,
+  type FoeCtx,
+} from '../ghostTrail/foes'
+import {
+  BOSSES,
+  makeBoss,
+  type Boss,
+  type BossCtx,
+  type BossDef,
+} from '../ghostTrail/bosses'
+import {
+  blockTop,
+  ferryAt,
+  groundAt,
+  hazardLive,
+  LIGHTNING_TELL,
+  lightningTell,
+  memberId,
+  moverAt,
+  tideAt,
+  type Act,
+  type Captive,
+  type Encounter,
+  type Hazard,
+  type Holding,
+  type SquadMember,
+  type StageTheme,
+} from '../ghostTrail/world'
+import {
+  BOSS_MUSIC,
+  ENDING_MUSIC,
+  FINALE_MUSIC,
+  SFX,
+  STAGE_MUSIC,
+  type SfxName,
+} from '../ghostTrail/music'
+import type { MusicLoop } from '../sound'
 import type {
   ArcadeGameInstance,
   ArcadeGameModule,
@@ -43,25 +131,37 @@ import type {
 const W = 320
 const H = 240
 const GROUND_Y = 208
-const STAGE_END = 3520
-const CHECKPOINT_X = 1800
 const GRAVITY = 0.3
 const JUMP_VY = -5.4
-const WALK = 1.3
+/** Walk pace (Silas, 2026-10-10: the original 1.3 felt slow over long acts). */
+const WALK = 1.7
+/** A jump's committed sideways speed: every authored gap, updraft and lift is tuned to it. */
 const JUMP_VX = 2
 const KUNAI_SPEED = 4.5
 const INVULN_TICKS = 100
 const DEATH_TICKS = 110
 const CLEAR_TICKS = 160
-const STAGE_TICKS = 60 * 150
 const START_LIVES = 3
 const EXTRA_EVERY = 20_000
-/** The boss arena: the last screen, with the barred mission gate in view. */
-const ARENA_X = STAGE_END - W + 60
 const BOSS_POINTS = 5000
 const BOSS_DYING_TICKS = 70
-// Advancing through a trail earns a finite encounter budget. Camping cannot
-// turn endlessly respawning spirits into unlimited score or extra lives.
+/** The clock is topped up to at least this when a boss appears (a long finale needs time). */
+const BOSS_CLOCK = 60 * 240
+/** Zuzu's body: half width, height. */
+const BODY_HW = 5
+const BODY_H = 22
+/** Ticks Zuzu can stay under the tide before it costs him a hit. */
+const BREATH_TICKS = 150
+/** A title card and a story page close themselves after this long. */
+const CARD_TICKS = 420
+/** A ferry pushes off this long after Zuzu boards, and floats up to FERRY_FLOAT px on a flood. */
+const FERRY_WAIT = 24
+const FERRY_FLOAT = 30
+/** A hanging cage's half width and height (its lock is anywhere on the front). */
+const CAGE_HW = 15
+const CAGE_H = 40
+
+/** Ambient pressure is budgeted by forward progress, so standing still can never farm. */
 export const ENCOUNTER_STEP = 112
 export const ENCOUNTERS_PER_STEP = 2
 export const MAX_ENCOUNTER_CREDITS = 6
@@ -70,7 +170,7 @@ export function advanceEncounterBudget(
   frontier: number,
   credits: number,
   x: number,
-) {
+): { frontier: number; credits: number } {
   const reached = Math.max(0, Math.floor((x - 40) / ENCOUNTER_STEP))
   if (reached <= frontier) return { frontier, credits }
   return {
@@ -82,165 +182,19 @@ export function advanceEncounterBudget(
   }
 }
 
-type StageKey = 'town' | 'boneyard' | 'waterhole' | 'belltower'
-type Stage = {
-  key: StageKey
-  name: string
-  /** Solid ground runs, with pits between them. */
-  ground: Array<[number, number]>
-  /** Raised ledges you can land on from above (and jump up through). */
-  boardwalks: Array<{ x: number; y: number; w: number }>
-  /** Solid blocks (tombstones, rocks, adobe): jump over them. */
-  tombstones: number[]
-  /** Crates: any weapon breaks them open. 'gear' is a weapon other than the one in hand. */
-  crates: Array<{ x: number; holds: Holding }>
-  /** Spawn-interval multipliers: below 1, that foe comes more often. */
-  rates: { spirit: number; crow: number; hyena: number }
-  sky: [string, string, string]
-  mesa: string
-  soil: [string, string, string]
+/** Enemy pace by stage: a little brisker through the book, never a twitch test. */
+export const TRAIL_CURVES = {
+  enemySpeed: { start: 1, step: 0.06, limit: 1.3 },
+  ambientEvery: { start: 260, step: -15, limit: 170 },
 }
 
-/** Every trail keeps the checkpoint at CHECKPOINT_X and open ground through the arena. */
-const STAGES: Stage[] = [
-  {
-    key: 'town',
-    name: 'GHOST TOWN',
-    ground: [
-      [0, 620],
-      [664, 1160],
-      [1204, 1720],
-      [1764, 2420],
-      [2466, 2920],
-      [2964, 3700],
-    ],
-    boardwalks: [
-      { x: 300, y: 164, w: 96 },
-      { x: 900, y: 156, w: 80 },
-      { x: 1380, y: 148, w: 112 },
-      { x: 2000, y: 160, w: 120 },
-      { x: 2590, y: 152, w: 96 },
-      { x: 3120, y: 156, w: 104 },
-    ],
-    tombstones: [452, 1010, 1600, 2210, 2760, 3130],
-    crates: [
-      { x: 560, holds: 'gear' },
-      { x: 820, holds: 'nugget' },
-      { x: 1300, holds: 'gear' },
-      { x: 1930, holds: 'poncho' },
-      { x: 2340, holds: 'gear' },
-      { x: 2700, holds: 'poncho' },
-      { x: 3050, holds: 'gear' },
-      { x: 3340, holds: 'nugget' },
-    ],
-    rates: { spirit: 1, crow: 1, hyena: 1 },
-    sky: ['#0f1b3d', '#3b4a7a', '#b8743a'],
-    mesa: '#2a2350',
-    soil: ['#7c5a32', '#a07a45', '#5c4026'],
-  },
-  {
-    key: 'boneyard',
-    name: 'THE BONE YARD',
-    ground: [
-      [0, 520],
-      [564, 1100],
-      [1144, 1540],
-      [1584, 2300],
-      [2344, 2860],
-      [2904, 3700],
-    ],
-    boardwalks: [
-      { x: 250, y: 160, w: 90 },
-      { x: 1200, y: 150, w: 100 },
-      { x: 1900, y: 156, w: 110 },
-      { x: 2560, y: 150, w: 90 },
-    ],
-    tombstones: [380, 760, 980, 1300, 1700, 2050, 2500, 2700, 3100],
-    crates: [
-      { x: 440, holds: 'gear' },
-      { x: 860, holds: 'nugget' },
-      { x: 1380, holds: 'gear' },
-      { x: 1950, holds: 'poncho' },
-      { x: 2200, holds: 'gear' },
-      { x: 2620, holds: 'poncho' },
-      { x: 3000, holds: 'gear' },
-      { x: 3340, holds: 'nugget' },
-    ],
-    rates: { spirit: 0.9, crow: 1.2, hyena: 1.1 },
-    sky: ['#1a0f2e', '#5b3a6e', '#c2703d'],
-    mesa: '#3b2448',
-    soil: ['#a8916a', '#d6c7a1', '#8a7552'],
-  },
-  {
-    key: 'waterhole',
-    name: 'DROWNED WATERING HOLE',
-    ground: [
-      [0, 460],
-      [504, 900],
-      [944, 1320],
-      [1364, 1740],
-      [1784, 2200],
-      [2244, 2620],
-      [2664, 3000],
-      [3044, 3700],
-    ],
-    boardwalks: [
-      { x: 560, y: 162, w: 100 },
-      { x: 1420, y: 152, w: 96 },
-      { x: 2300, y: 158, w: 110 },
-      { x: 2700, y: 150, w: 90 },
-    ],
-    tombstones: [300, 700, 1150, 1500, 2000, 2450, 2850, 3150],
-    crates: [
-      { x: 620, holds: 'gear' },
-      { x: 820, holds: 'nugget' },
-      { x: 1240, holds: 'gear' },
-      { x: 1900, holds: 'poncho' },
-      { x: 2100, holds: 'gear' },
-      { x: 2520, holds: 'poncho' },
-      { x: 2930, holds: 'gear' },
-      { x: 3340, holds: 'nugget' },
-    ],
-    rates: { spirit: 1.2, crow: 0.7, hyena: 1.2 },
-    sky: ['#04161f', '#16445a', '#4f8a8b'],
-    mesa: '#0f2f3d',
-    soil: ['#4a3b2a', '#6b5a3e', '#2f2519'],
-  },
-  {
-    key: 'belltower',
-    name: 'THE BELL TOWER',
-    ground: [
-      [0, 700],
-      [744, 1240],
-      [1284, 1700],
-      [1744, 2480],
-      [2524, 3000],
-      [3044, 3700],
-    ],
-    boardwalks: [
-      { x: 350, y: 158, w: 110 },
-      { x: 820, y: 150, w: 110 },
-      { x: 1350, y: 146, w: 120 },
-      { x: 1950, y: 152, w: 120 },
-      { x: 2600, y: 150, w: 110 },
-    ],
-    tombstones: [520, 1000, 1500, 2100, 2350, 2800, 3150],
-    crates: [
-      { x: 460, holds: 'gear' },
-      { x: 880, holds: 'nugget' },
-      { x: 1150, holds: 'gear' },
-      { x: 1900, holds: 'poncho' },
-      { x: 2250, holds: 'gear' },
-      { x: 2700, holds: 'poncho' },
-      { x: 2940, holds: 'gear' },
-      { x: 3340, holds: 'nugget' },
-    ],
-    rates: { spirit: 1.1, crow: 1, hyena: 0.7 },
-    sky: ['#2a0f1f', '#7a2f3b', '#e08a4f'],
-    mesa: '#4a1f2a',
-    soil: ['#9a6a45', '#c08a5a', '#6b4a30'],
-  },
-]
+function curve(
+  stage: number,
+  c: { start: number; step: number; limit: number },
+) {
+  const v = c.start + (Math.max(1, stage) - 1) * c.step
+  return c.step < 0 ? Math.max(c.limit, v) : Math.min(c.limit, v)
+}
 
 type Weapon = 'kunai' | 'shuriken' | 'kasa' | 'lantern' | 'katana'
 const WEAPONS: Record<
@@ -251,35 +205,30 @@ const WEAPONS: Record<
   shuriken: { label: 'SHURIKEN', cooldown: 22, max: 3, damage: 1 },
   kasa: { label: 'KASA', cooldown: 20, max: 2, damage: 1 },
   lantern: { label: 'LANTERN', cooldown: 24, max: 2, damage: 2 },
-  katana: { label: 'IAI CUT', cooldown: 30, max: 1, damage: 2 },
+  katana: { label: 'IAI CUT', cooldown: 26, max: 1, damage: 3 },
 }
 const WEAPON_LIST = Object.keys(WEAPONS) as Weapon[]
 const FIRE_TICKS = 70
+/**
+ * The iai cut (Silas, 2026-10-11: it "needs to have something going for it"): a quick-draw lunge and
+ * a great crescent that hits everything in front of him hard, cuts hostile shots out of the air, and
+ * guards him through the stroke. The kunai stays the safe ranged pick; the cut is the brave one.
+ */
+const IAI = {
+  /** Lunge: ticks and speed of the step-in. */
+  lungeTicks: 7,
+  lungeSpeed: 3.2,
+  /** The crescent's centre ahead of him, and its half extents. */
+  ahead: 20,
+  hw: 22,
+  hh: 18,
+  /** Frames the edge bites (the rest is follow-through). */
+  active: 6,
+  /** Guarded through the stroke. */
+  guard: 12,
+}
 const MAX_FIRES = 2
 
-export const TRAIL_CURVES = {
-  spiritEvery: { start: 150, step: -15, limit: 60 },
-  crowEvery: { start: 420, step: -40, limit: 160 },
-  hyenaEvery: { start: 520, step: -50, limit: 200 },
-  enemySpeed: { start: 1, step: 0.12, limit: 1.7 },
-} as const
-
-type Holding = 'poncho' | 'nugget' | 'gear'
-type Kind = 'spirit' | 'crow' | 'hyena'
-type Foe = {
-  kind: Kind
-  x: number
-  y: number
-  vx: number
-  vy: number
-  hp: number
-  t: number
-  /** Spirits rise out of the dirt, walk, then sink back. */
-  phase: 'rise' | 'walk' | 'sink'
-  baseY: number
-  /** Some crows carry a bundle of gear and drop it when struck. */
-  carrying: boolean
-}
 type Shot = {
   weapon: Weapon
   x: number
@@ -288,26 +237,10 @@ type Shot = {
   vy: number
   life: number
   t: number
-  /** Piercing weapons (kasa, iai cut) strike each foe (and the boss) once. */
+  /** Everything this throw has already struck (a kasa or a cut passes through, but hits each once). */
   struck: Array<Foe | Boss>
 }
-type Fire = { x: number; life: number }
-type BossKind = 'devil' | 'bull'
-type Boss = {
-  kind: BossKind
-  x: number
-  y: number
-  vx: number
-  hp: number
-  maxHp: number
-  t: number
-  flash: number
-  /** The Dust Devil drifts; the Bone Bull paws (its tell), charges, then staggers. */
-  mode: 'drift' | 'paw' | 'charge' | 'stunned'
-  timer: number
-  dying: number
-}
-type Clod = { x: number; y: number; vx: number; vy: number }
+type Fire = { x: number; y: number; life: number }
 type Crate = { x: number; holds: Holding; open: boolean }
 type Pickup = {
   x: number
@@ -333,12 +266,113 @@ type Flying = {
   spin: number
   life: number
 }
+type Pending = { id: string; member: SquadMember; due: number }
+/** What happens when the card on screen closes. */
+type CardThen = 'play' | 'next' | 'end' | 'choose' | 'revive'
+
+/** Each theme's painted world (stageArt paints all six). */
+const ART_KEY: Record<StageTheme, StageKey> = {
+  town: 'town',
+  boneyard: 'boneyard',
+  waterhole: 'waterhole',
+  stormpass: 'stormpass',
+  belltower: 'belltower',
+  abbey: 'abbey',
+}
+
+const BOSS_COLOR: Record<string, string> = {
+  marshal: '#fbbf24',
+  ferryman: '#2dd4bf',
+  matriarch: '#94a3b8',
+  heretic: '#f97316',
+  abbess: '#e879f9',
+}
+
+/**
+ * A saved run (utils/arcade/saves.ts): the last checkpoint reached, with the score, lives and gear at
+ * that moment and the act's squad members already put down and crates already opened, so a reload
+ * picks up at the checkpoint and nothing can be collected twice. After a game over the player declines
+ * to continue, the save is marked `continued`: the trail and relics are kept, the score is not.
+ */
+export type GhostSave = {
+  v: 1
+  act: string
+  score: number
+  lives: number
+  weapon: Weapon
+  relics: string[]
+  continued: boolean
+  /** New Game+ tier: 1 on a first run; each campaign clear unlocks the next. */
+  tier: number
+  /** The checkpoint reached in the act (40 = its start). */
+  checkpoint?: number
+  /** Squad members of this act already put down. */
+  down?: string[]
+  /** Crates of this act already broken (indices). */
+  opened?: number[]
+}
+
+/** The hardest New Game+ tier. */
+const MAX_TIER = 5
+
+/** A stored save, validated against this build's campaign; null when unusable. */
+export function readSave(raw: unknown): GhostSave | null {
+  if (!raw || typeof raw !== 'object') return null
+  const r = raw as Record<string, unknown>
+  const count = (v: unknown, max: number) =>
+    typeof v === 'number' && Number.isInteger(v) && v >= 0 && v <= max
+  if (r.v !== 1 || typeof r.act !== 'string') return null
+  const act = ACTS.find((a) => a.id === r.act)
+  if (!act) return null
+  if (!count(r.score, 99_999_999) || !count(r.lives, 99)) return null
+  if (typeof r.weapon !== 'string' || !(r.weapon in WEAPONS)) return null
+  if (!Array.isArray(r.relics)) return null
+  const known = new Set(
+    ACTS.flatMap((a) => [
+      ...a.secrets.map((x) => x.id),
+      // A rescue is kept with the relics (it is not one, and never counts toward RELIC_COUNT).
+      ...(a.captive ? [a.captive.id] : []),
+    ]),
+  )
+  return {
+    v: 1,
+    act: r.act,
+    score: r.score as number,
+    lives: Math.max(1, r.lives as number),
+    weapon: r.weapon as Weapon,
+    relics: [
+      ...new Set(
+        r.relics.filter(
+          (x): x is string => typeof x === 'string' && known.has(x),
+        ),
+      ),
+    ],
+    continued: r.continued === true,
+    tier:
+      count(r.tier, MAX_TIER) && (r.tier as number) >= 1
+        ? (r.tier as number)
+        : 1,
+    checkpoint: act.checkpoints.includes(r.checkpoint as number)
+      ? (r.checkpoint as number)
+      : 40,
+    down: Array.isArray(r.down)
+      ? r.down.filter(
+          (x): x is string =>
+            typeof x === 'string' && x.startsWith(`${act.id}/`),
+        )
+      : [],
+    opened: Array.isArray(r.opened)
+      ? r.opened.filter((i): i is number => count(i, act.crates.length - 1))
+      : [],
+  }
+}
 
 class ZuzuGhostTrail implements ArcadeGameInstance {
   score = 0
   level = 1
   lives = START_LIVES
   over = false
+  won = false
 
   private rng: () => number
   private sound: ArcadeGameOptions['sound']
@@ -346,94 +380,346 @@ class ZuzuGhostTrail implements ArcadeGameInstance {
   private hiScore: number
 
   private tick = 0
+  /** Ticks since the act began (movers, hazards and the tide run on it). */
+  private actTick = 0
+  private actIndex = 0
+  private act: Act = ACTS[0]!
+  private terrain: TerrainStage = terrainOf(ACTS[0]!)
   private x = 40
   private y = GROUND_Y
   private vx = 0
   private vy = 0
   private onGround = true
+  /** The mover he is standing on, if any. */
+  private riding: number | null = null
   private facing: 1 | -1 = 1
   private poncho = true
-  private stage: Stage = STAGES[0]!
   private weapon: Weapon = 'kunai'
   private invuln = 0
   private throwCooldown = 0
   private throwPose = 0
   private walkPhase = 0
+  private underwater = 0
   private checkpoint = 40
   private dead = 0
   private clear = 0
-  private timer = STAGE_TICKS
+  private timer = 0
   private camX = 0
+  /** Vertical scroll (0 at ground level; negative looks up a tower). */
+  private camY = 0
   private foes: Foe[] = []
   private shots: Shot[] = []
   private fires: Fire[] = []
   private boss: Boss | null = null
   private bossDone = false
-  private clods: Clod[] = []
+  private bolts: Bolt[] = []
   private crates: Crate[] = []
   private pickups: Pickup[] = []
   private flying: Flying[] = []
-  private spiritTimer = 120
-  private crowTimer = 300
-  private hyenaTimer = 400
+  private ambientTimer = 200
   private encounterFrontier = 0
   private encounterCredits = 2
+  /** Squad members put down this run: they never come back. */
+  private defeated = new Set<string>()
+  /** Encounters already sprung in this attempt at the act. */
+  private triggered = new Set<string>()
+  private pending: Pending[] = []
+  private foundSecrets = new Set<string>()
+  /** Captives freed this run (saved with the relics), and cages whose lock is already broken. */
+  private rescued = new Set<string>()
+  private unlocked = new Set<string>()
+  /** Each ferry's bank and the tick it pushed off (null: docked), for this attempt at the act. */
+  private ferries: Array<{ side: 0 | 1; left: number | null }> = []
+  /** Ferries up in this attempt (the tick each surfaced); and, run-wide, hellos and gifts given. */
+  private risen = new Map<number, number>()
+  private greeted = new Set<string>()
+  /** Squad members lost to a pit or the river in this attempt (not put down, but gone). */
+  private lost = new Set<string>()
+  private gifted = new Set<string>()
   private nextExtra = EXTRA_EVERY
   private particles: Particle[] = []
   private floaters: Floater[] = []
   private banner: { text: string; sub?: string; ticks: number } | null = null
+  /** Render bookkeeping: which banner is up and the tick it appeared (for its unfurl). */
+  private bannerSeen: ZuzuGhostTrail['banner'] = null
+  private bannerFrom = 0
+  private card: (Card & { then: CardThen; max: number }) | null = null
+  /** Progress the cabinet keeps for this player (see GhostSave); demos never save. */
+  save: GhostSave | null = null
+  /** The tide's warning was already sounded this cycle. */
+  private tideWarned = false
+  /** The iai cut's step-in and guard, in ticks left. */
+  private lunge = 0
+  private guard = 0
+  /** Continues taken after a game over this run. */
+  private continues = 0
+  /** New Game+ tier (1 on a first run): tougher bosses and brisker foes. */
+  private tier = 1
+  /** A saved run offered on the opening card. */
+  private offer: GhostSave | null = null
 
   constructor(options: ArcadeGameOptions) {
     this.rng = options.rng
     this.sound = options.sound
     this.demo = options.demo
     this.hiScore = options.hiScore
-    this.startStage(1)
-  }
-
-  private groundAt(x: number): boolean {
-    return this.stage.ground.some(([a, b]) => x >= a && x <= b)
-  }
-
-  // --- stage ---------------------------------------------------------------------
-
-  private startStage(lap: number) {
-    this.level = lap
-    this.checkpoint = 40
-    this.bossDone = false
-    this.encounterFrontier = 0
-    this.encounterCredits = 2
-    this.stage = STAGES[(lap - 1) % STAGES.length]!
-    this.crates = this.stage.crates.map((c) => ({ ...c, open: false }))
-    this.respawn()
-    this.banner = {
-      text: this.stage.name,
-      sub: lap > 1 ? `TRAIL ${lap}` : 'THE TRAIL BEGINS',
-      ticks: 110,
+    this.startAct(0)
+    const offer = this.demo ? null : readSave(options.resume)
+    const fresh =
+      offer &&
+      offer.act === ACTS[0]!.id &&
+      !offer.relics.length &&
+      (offer.checkpoint ?? 40) <= 40
+    if (offer && (!fresh || offer.tier > 1)) {
+      this.offer = offer
+      // Until the player chooses, the stored run stays as it was.
+      this.save = offer
+      const act = ACTS.find((a) => a.id === offer.act)!
+      const plus = offer.tier > 1 ? `NEW GAME+ ${offer.tier - 1}` : null
+      this.showCard({
+        kind: 'title',
+        heading: fresh && plus ? plus : 'CONTINUE?',
+        sub: fresh ? 'THE DEAD STIR AGAIN, STRONGER' : 'THE TRAIL REMEMBERS',
+        lines: [
+          ...(plus && !fresh ? [plus] : []),
+          `STAGE ${act.stage} - ACT ${act.act}: ${act.actName}`,
+          act.stageName,
+          offer.continued
+            ? 'SCORE STARTS AGAIN FROM ZERO'
+            : `SCORE ${offer.score}  LIVES ${offer.lives}`,
+          `${relicsIn(offer.relics).length}/${RELIC_COUNT} RELICS FOUND`,
+          '',
+          'A: CONTINUE     B: NEW RUN',
+        ],
+        then: 'choose',
+      })
     }
   }
 
+  /** Pick the saved run back up at the start of its act. */
+  private resumeFrom(s: GhostSave) {
+    this.score = s.continued ? 0 : s.score
+    this.lives = s.continued ? START_LIVES : s.lives
+    this.nextExtra = (Math.floor(this.score / EXTRA_EVERY) + 1) * EXTRA_EVERY
+    this.weapon = s.weapon
+    this.foundSecrets = new Set(relicsIn(s.relics))
+    this.rescued = new Set(s.relics.filter((id) => CAPTIVE_IDS.has(id)))
+    this.tier = s.tier
+    this.startAct(ACTS.findIndex((a) => a.id === s.act))
+    // Back at the checkpoint, with what was already done there still done.
+    for (const id of s.down ?? []) this.defeated.add(id)
+    for (const i of s.opened ?? [])
+      if (this.crates[i]) this.crates[i]!.open = true
+    if (s.checkpoint && s.checkpoint > 40) {
+      this.checkpoint = s.checkpoint
+      this.respawn()
+    }
+    this.keep()
+  }
+
+  /** One of Ghost Trail's own sounds, or a shared preset where the cabinet only offers those. */
+  private sfx(
+    name: SfxName,
+    fallback?: Parameters<ArcadeGameOptions['sound']['play']>[0],
+  ) {
+    if (this.sound.playNotes) this.sound.playNotes(SFX[name])
+    else if (fallback) this.sound.play(fallback)
+  }
+
+  /** The score for this moment: the world's theme, a boss's, the finale, or the ending. */
+  get music(): MusicLoop | null {
+    if (this.demo || this.over) return null
+    if (this.card?.kind === 'credits') return ENDING_MUSIC
+    if (this.card?.then === 'revive' || this.card?.then === 'choose')
+      return null
+    if (this.boss && this.boss.dying === 0)
+      return this.boss.id === 'abbess' ? FINALE_MUSIC : BOSS_MUSIC
+    return STAGE_MUSIC[this.act.theme]
+  }
+
+  /** Remember the run as it stands at this checkpoint (a real game only; demos never save). */
+  private keep() {
+    if (this.demo) return
+    const prefix = `${this.act.id}/`
+    this.save = {
+      v: 1,
+      act: this.act.id,
+      score: this.score,
+      lives: Math.max(1, this.lives),
+      weapon: this.weapon,
+      relics: [...this.foundSecrets, ...this.rescued],
+      continued: false,
+      tier: this.tier,
+      checkpoint: this.checkpoint,
+      down: [...this.defeated].filter((id) => id.startsWith(prefix)),
+      opened: this.crates.flatMap((c, i) => (c.open ? [i] : [])),
+    }
+  }
+
+  // --- the act ------------------------------------------------------------------
+
+  private get length() {
+    return this.act.length
+  }
+
+  private get arenaL() {
+    return this.act.length - W + 60
+  }
+
+  /** Enemy pace: by stage, then brisker on each New Game+ tier. */
+  private get speed() {
+    return (
+      curve(this.act.stage, TRAIL_CURVES.enemySpeed) *
+      (1 + (this.tier - 1) * 0.12)
+    )
+  }
+
+  private startAct(index: number) {
+    this.actIndex = index
+    this.act = ACTS[index]!
+    this.terrain = terrainOf(this.act)
+    this.level = this.act.stage
+    this.actTick = 0
+    this.clear = 0
+    this.checkpoint = 40
+    this.bossDone = !this.act.boss
+    this.encounterFrontier = 0
+    this.encounterCredits = 2
+    this.crates = this.act.crates.map((c) => ({ ...c, open: false }))
+    this.respawn()
+    this.showCard({
+      kind: 'title',
+      heading: this.act.stageName,
+      sub: `STAGE ${this.act.stage}  -  ACT ${this.act.act}: ${this.act.actName}`,
+      lines: this.act.intro,
+      then: 'play',
+    })
+    this.keep()
+  }
+
+  /** Back to the last checkpoint: the act's living foes reset; the defeated stay down. */
   private respawn() {
     this.x = this.checkpoint
-    // The camera comes back with him (it also bounds how far back he can walk).
     this.camX = Math.max(0, this.x - 120)
-    this.y = GROUND_Y
+    this.y = this.standAt(this.x)
+    this.camY = this.act.vertical ? Math.min(0, Math.round(this.y - 150)) : 0
     this.vx = 0
     this.vy = 0
     this.onGround = true
+    this.riding = null
     this.facing = 1
     this.poncho = true
     this.invuln = INVULN_TICKS
-    this.timer = STAGE_TICKS
+    this.lunge = 0
+    this.guard = 0
+    this.underwater = 0
+    this.timer = this.act.seconds * 60
     this.foes = []
     this.shots = []
     this.fires = []
     this.boss = null
-    this.clods = []
+    this.bolts = []
     this.pickups = []
-    this.spiritTimer = 120
-    this.crowTimer = 300
-    this.hyenaTimer = 400
+    this.pending = []
+    this.ambientTimer = 200
+    // Ferries wait at their near banks again (and surface again once their squad is down).
+    this.ferries = (this.act.movers ?? []).map(() => ({ side: 0, left: null }))
+    this.risen = new Map()
+    this.lost = new Set()
+    // Squads behind the checkpoint are forgiven; those ahead wait with whoever is left of them.
+    this.triggered = new Set(
+      this.act.encounters
+        .filter((e) => e.at < this.checkpoint)
+        .map((e) => e.id),
+    )
+  }
+
+  private showCard(c: Omit<Card, 'age'> & { then: CardThen }) {
+    const max =
+      c.then === 'choose'
+        ? Infinity
+        : c.then === 'revive'
+          ? 60 * 10
+          : c.kind === 'credits'
+            ? 900 + c.lines.length * 34
+            : this.demo
+              ? 90
+              : CARD_TICKS
+    this.card = { ...c, age: 0, max }
+  }
+
+  private closeCard() {
+    const then = this.card?.then
+    this.card = null
+    if (then === 'next') this.startAct(this.actIndex + 1)
+    else if (then === 'end') this.over = true
+  }
+
+  // --- the world's surfaces ---------------------------------------------------------
+
+  private groundAt(x: number): boolean {
+    return groundAt(this.act, x)
+  }
+
+  /** The highest standing surface at x at or below `y` (ledge, block top or ground), else null. */
+  private floorAt(x: number, y: number): number | null {
+    let best: number | null = null
+    const take = (s: number) => {
+      if (s >= y - 1 && (best === null || s < best)) best = s
+    }
+    for (const l of this.act.ledges) if (x > l.x && x < l.x + l.w) take(l.y)
+    for (const b of this.act.blocks)
+      if (x >= b.x - 2 && x <= b.x + b.w + 2) take(blockTop(b, GROUND_Y))
+    if (this.groundAt(x)) take(GROUND_Y)
+    return best
+  }
+
+  /** Where a checkpoint (or gate) stands: the ground, or up a tower the floor over the void there. */
+  private standAt(x: number): number {
+    if (this.groundAt(x)) return GROUND_Y
+    return this.floorAt(x, -9999) ?? GROUND_Y
+  }
+
+  /** Is (x, y) inside a solid block? */
+  private blockedAt(x: number, y: number): boolean {
+    return this.act.blocks.some((b) => {
+      const top = blockTop(b, GROUND_Y)
+      const bottom = b.y !== undefined ? top + b.h : GROUND_Y
+      return x > b.x && x < b.x + b.w && y > top && y < bottom
+    })
+  }
+
+  private waterY(): number | null {
+    return this.act.tide ? tideAt(this.act.tide, this.actTick).y : null
+  }
+
+  private foeCtx(): FoeCtx {
+    return {
+      px: this.x,
+      py: this.y,
+      groundY: GROUND_Y,
+      speed: this.speed,
+      rng: this.rng,
+      groundAt: (x) => this.groundAt(x),
+      floorAt: (x, y) => this.floorAt(x, y),
+      blockedAt: (x, y) => this.blockedAt(x, y),
+      waterY: this.waterY(),
+      bolt: (b) => this.bolts.push({ ...b, t: 0 }),
+      sound: (name) => this.sound.play(name as never),
+    }
+  }
+
+  private bossCtx(): BossCtx {
+    return {
+      ...this.foeCtx(),
+      arenaL: this.arenaL,
+      arenaR: this.length,
+      tier: this.tier,
+      summon: (kind, x, y) => {
+        if (this.foes.length >= 4) return
+        this.foes.push(makeFoe(kind, null, x, y, null, this.foeCtx()))
+      },
+    }
   }
 
   // --- update ------------------------------------------------------------------
@@ -445,22 +731,72 @@ class ZuzuGhostTrail implements ArcadeGameInstance {
     if (this.over) return
     const controls = this.demo ? this.demoInput() : input
 
+    if (this.card?.then === 'revive') {
+      const c = this.card
+      c.age++
+      c.lines[0] = `CONTINUE?  ${Math.max(0, Math.ceil((c.max - c.age) / 60))}`
+      if (c.age >= 30 && (controls.pressed.a || controls.pressed.start)) {
+        // Get up again at the last checkpoint: fresh lives, the trail as it was.
+        this.card = null
+        this.continues++
+        this.lives = START_LIVES
+        this.respawn()
+        this.banner = { text: 'BACK ON THE TRAIL', ticks: 80 }
+        this.sound.play('start')
+      } else if ((c.age >= 30 && controls.pressed.b) || c.age >= c.max) {
+        this.card = null
+        this.gameOver()
+      }
+      return
+    }
+    if (this.card?.then === 'choose') {
+      this.card.age++
+      if (this.card.age < 20) return
+      if ((controls.pressed.a || controls.pressed.start) && this.offer)
+        this.resumeFrom(this.offer)
+      else if (controls.pressed.b) this.startAct(0)
+      return
+    }
+    if (this.card) {
+      this.card.age++
+      const skip =
+        this.card.age > 30 &&
+        (controls.pressed.a || controls.pressed.start || controls.pressed.b)
+      if (skip || this.card.age >= this.card.max) this.closeCard()
+      return
+    }
     if (this.clear > 0) {
-      if (--this.clear === 0) this.startStage(this.level + 1)
+      if (--this.clear === 0) this.advance()
       return
     }
     if (this.dead > 0) {
       if (--this.dead === 0) {
         if (this.lives <= 0) {
-          this.over = true
-          this.banner = { text: 'GAME OVER', ticks: 9999 }
-        } else {
-          this.respawn()
-        }
+          if (this.demo) this.gameOver()
+          else
+            this.showCard({
+              kind: 'title',
+              heading: 'GAME OVER',
+              sub: 'THE TRAIL IS NOT DONE WITH HIM',
+              lines: [
+                'CONTINUE?',
+                'FROM THE LAST CHECKPOINT',
+                '',
+                'A: GET UP AGAIN     B: REST',
+              ],
+              then: 'revive',
+            })
+        } else this.respawn()
       }
       return
     }
 
+    this.actTick++
+    if (this.act.tide) {
+      const warning = tideAt(this.act.tide, this.actTick).warning
+      if (warning && !this.tideWarned) this.sfx('tide')
+      this.tideWarned = warning
+    }
     if (this.invuln > 0) this.invuln--
     if (this.throwCooldown > 0) this.throwCooldown--
     if (this.throwPose > 0) this.throwPose--
@@ -469,103 +805,355 @@ class ZuzuGhostTrail implements ArcadeGameInstance {
       return
     }
 
+    this.updateFerries()
     this.move(controls)
     if (this.dead > 0) return
+    this.collectSecret()
     if (controls.pressed.a || (controls.held.a && this.throwCooldown === 0))
       this.throw()
-    this.spawnFoes()
+    this.springEncounters()
+    this.spawnAmbient()
     this.updateShots()
     this.updateFires()
     this.updateFoes()
+    this.updateBolts()
     this.updatePickups()
     this.updateBoss()
+    this.updateHazards()
+    if (this.dead > 0) return
+    this.updateCaptive()
 
-    if (this.x > CHECKPOINT_X && this.checkpoint < CHECKPOINT_X) {
-      this.checkpoint = CHECKPOINT_X
-      this.banner = { text: 'CHECKPOINT', ticks: 70 }
-      this.sound.play('pickup')
+    for (const c of this.act.checkpoints) {
+      if (c > this.checkpoint && this.x > c) {
+        this.checkpoint = c
+        this.banner = { text: 'CHECKPOINT', ticks: 70 }
+        this.sfx('checkpoint', 'pickup')
+        this.keep()
+      }
     }
-    if (this.x >= STAGE_END && this.bossDone) this.stageClear()
-    if (this.boss) this.camX += (ARENA_X - this.camX) * 0.15
-    else this.camX = Math.max(0, Math.min(STAGE_END + 80 - W, this.x - 120))
+    if (this.x >= this.length && this.bossDone) this.actClear()
+    this.moveCamera()
+  }
+
+  private gameOver() {
+    this.over = true
+    this.banner = { text: 'GAME OVER', ticks: 9999 }
+    // The trail and relics wait for a later continue; the score does not.
+    if (this.save) this.save = { ...this.save, continued: true }
+  }
+
+  private moveCamera() {
+    // Up a tower the view climbs with him (it never looks below the ground line).
+    const wantY = this.act.vertical ? Math.min(0, Math.round(this.y - 150)) : 0
+    this.camY += (wantY - this.camY) * 0.12
+    if (Math.abs(wantY - this.camY) < 0.5) this.camY = wantY
+    const lock = this.activeLock()
+    if (this.boss) this.camX += (this.arenaL - this.camX) * 0.15
+    else if (lock) {
+      const want = Math.max(lock.from, Math.min(lock.to - W, this.x - 120))
+      this.camX += (want - this.camX) * 0.2
+    } else this.camX = Math.max(0, Math.min(this.length + 80 - W, this.x - 120))
+  }
+
+  /** An ambush holds the camera until its squad is down. */
+  private activeLock(): Encounter['lock'] | null {
+    for (const e of this.act.encounters) {
+      if (!e.lock || !this.triggered.has(e.id)) continue
+      if (this.squadAlive(e)) return e.lock
+    }
+    return null
+  }
+
+  /** Is any of this encounter's squad on the field or still on its way? */
+  private squadAlive(e: Encounter): boolean {
+    const prefix = `${this.act.id}/${e.id}/`
+    return (
+      this.foes.some((f) => f.id?.startsWith(prefix)) ||
+      this.pending.some((p) => p.id.startsWith(prefix))
+    )
+  }
+
+  /**
+   * Is this encounter's squad down? Cleared: every member put down (or lost to a pit). Otherwise,
+   * unless `cleared` is asked for, a squad that has sprung with none of it left on the field.
+   */
+  private squadDown(id: string, cleared = false): boolean {
+    const e = this.act.encounters.find((x) => x.id === id)
+    if (!e) return true
+    const gone = e.squad.every((_, i) => {
+      const member = memberId(this.act, e, i)
+      return this.defeated.has(member) || this.lost.has(member)
+    })
+    if (gone || cleared) return gone
+    return this.triggered.has(e.id) && !this.squadAlive(e)
+  }
+
+  // --- ferries (the River Croc) ------------------------------------------------------
+
+  /** Where mover i stands at `tick`; null while a ferry has not surfaced. */
+  private moverPos(i: number, tick: number): { x: number; y: number } | null {
+    const m = this.act.movers?.[i]
+    if (!m) return null
+    if (!m.ferry) return moverAt(m, tick)
+    if (!this.risen.has(i)) return null
+    const f = this.ferries[i] ?? { side: 0, left: null }
+    const p = ferryAt(
+      m,
+      f.side,
+      f.left === null ? null : tick - f.left - FERRY_WAIT,
+    )
+    // He keeps his back above a flood, rising with it (a little).
+    if (this.act.tide) {
+      const water = tideAt(this.act.tide, tick).y
+      p.y = Math.max(p.y - FERRY_FLOAT, Math.min(p.y, water - 1))
+    }
+    return p
+  }
+
+  /** A ferry surfaces once its squad is down, and docks when a crossing is done. */
+  private updateFerries() {
+    ;(this.act.movers ?? []).forEach((m, i) => {
+      if (!m.ferry) return
+      const key = `${this.act.id}/${i}`
+      if (!this.risen.has(i) && (!m.needs || this.squadDown(m.needs, true))) {
+        this.risen.set(i, this.actTick)
+        if (m.hello && !this.greeted.has(key)) {
+          this.greeted.add(key)
+          this.banner = {
+            text: m.hello,
+            sub: 'A FRIEND IN THE FLOOD',
+            ticks: 110,
+          }
+          this.sfx('relic', 'extra')
+        }
+      }
+      const f = this.ferries[i]
+      if (!f || f.left === null) return
+      if (this.actTick - f.left - FERRY_WAIT < m.period) return
+      f.side = f.side === 0 ? 1 : 0
+      f.left = null
+      // The first time he brings Zuzu over, he leaves him something from the riverbed.
+      if (
+        f.side === 1 &&
+        m.gift &&
+        this.riding === i &&
+        !this.gifted.has(key)
+      ) {
+        this.gifted.add(key)
+        const holds = m.gift === 'heart' ? 'poncho' : m.gift
+        this.drop(
+          holds === 'gear' ? this.otherWeapon() : holds,
+          m.x + m.dx + m.w + 12,
+          m.y + m.dy - 12,
+        )
+      }
+    })
+  }
+
+  /** Zuzu stepped onto mover i: a docked ferry pushes off. */
+  private boarded(i: number) {
+    const f = this.ferries[i]
+    if (this.act.movers?.[i]?.ferry && f && f.left === null)
+      f.left = this.actTick
+  }
+
+  // --- the captive (the abbey's novice) ------------------------------------------------
+
+  private cageHit(k: Shot, cut: boolean): boolean {
+    const c = this.act.captive
+    if (!c || this.unlocked.has(c.id) || this.rescued.has(c.id)) return false
+    return (
+      Math.abs(k.x - c.x) < CAGE_HW + (cut ? IAI.hw : 1) &&
+      k.y + (cut ? IAI.hh : 0) > c.y - CAGE_H &&
+      k.y - (cut ? IAI.hh : 0) < c.y
+    )
+  }
+
+  private breakLock(c: Captive) {
+    this.unlocked.add(c.id)
+    this.burst(c.x, c.y - 12, 12, '#d6b25e')
+    this.sfx('cut', 'boom')
+  }
+
+  /** Once the ambush the lock sprang is down, the captive is free (kept with the run). */
+  private updateCaptive() {
+    const c = this.act.captive
+    if (!c || !this.unlocked.has(c.id) || this.rescued.has(c.id)) return
+    if (!this.triggered.has(c.ambush) || !this.squadDown(c.ambush)) return
+    this.rescued.add(c.id)
+    this.addScore(2000, c.x, c.y - 40)
+    this.banner = {
+      text: c.name,
+      sub: 'THE NOVICE RUNS FOR THE GATE',
+      ticks: 120,
+    }
+    this.burst(c.x, c.y - 14, 18, '#e7e5e4')
+    this.sfx('relic', 'extra')
+    this.keep()
   }
 
   private move(input: InputFrame) {
-    if (this.onGround) {
+    const water = this.waterY()
+    const wading = water !== null && this.y > water + 6
+    const wasRiding = this.riding
+    // Riding a mover: it carries him.
+    if (this.riding !== null && this.onGround) {
+      const now = this.moverPos(this.riding, this.actTick)
+      const was = this.moverPos(this.riding, this.actTick - 1)
+      if (now && was) {
+        this.x += now.x - was.x
+        this.y += now.y - was.y
+      }
+    }
+    if (this.lunge > 0) this.lunge--
+    if (this.guard > 0) this.guard--
+    if (this.onGround && this.lunge > 0) {
+      // The quick-draw step-in: never off a ledge or into a pit.
+      const ahead = this.x + this.facing * 10
+      const floor = this.floorAt(ahead, this.y - 1)
+      this.vx =
+        floor !== null && Math.abs(floor - this.y) < 2
+          ? this.facing * IAI.lungeSpeed
+          : 0
+    } else if (this.onGround) {
+      const walk = wading ? WALK * 0.6 : WALK
       this.vx = 0
       if (input.held.left) {
-        this.vx = -WALK
+        this.vx = -walk
         this.facing = -1
       }
       if (input.held.right) {
-        this.vx = WALK
+        this.vx = walk
         this.facing = 1
       }
-      if (this.vx !== 0) this.walkPhase += 0.25
+      if (this.vx !== 0) this.walkPhase += wading ? 0.2 : 0.32
       if (
         input.pressed.up ||
         input.pressed.b ||
         ((input.held.up || input.held.b) && this.onGround)
       ) {
         // A committed jump, as in the classic: no steering once in the air.
-        this.vy = JUMP_VY
+        this.vy = wading ? JUMP_VY * 0.85 : JUMP_VY
         this.vx = this.vx === 0 ? 0 : Math.sign(this.vx) * JUMP_VX
         this.onGround = false
+        this.riding = null
         this.sound.play('blip')
       }
     }
     const prevY = this.y
     this.vy += GRAVITY
+    if (!this.onGround)
+      for (const u of this.act.updrafts ?? [])
+        if (this.x > u.x && this.x < u.x + u.w && this.y > u.top)
+          this.vy = Math.max(-3.4, this.vy - u.lift)
     let nx = this.x + this.vx
-    // Tombstones stop him at their faces.
-    for (const t of this.stage.tombstones) {
-      const overlapY = this.y > GROUND_Y - 16
-      if (overlapY && nx + 5 > t - 6 && nx - 5 < t + 6) {
-        nx = this.x < t ? t - 11 : t + 11
-      }
+    // Blocks stop him at their faces.
+    for (const b of this.act.blocks) {
+      const top = blockTop(b, GROUND_Y)
+      const bottom = b.y !== undefined ? top + b.h : GROUND_Y + 40
+      if (this.y > top + 1 && this.y - BODY_H < bottom)
+        if (nx + BODY_HW > b.x && nx - BODY_HW < b.x + b.w)
+          nx =
+            this.x < b.x + b.w / 2
+              ? b.x - BODY_HW - 0.01
+              : b.x + b.w + BODY_HW + 0.01
     }
-    // The gate stays barred until the boss falls.
-    const gate = this.bossDone ? STAGE_END + 40 : STAGE_END - 12
-    this.x = Math.max(this.camX + 6, Math.min(gate, nx))
+    // The gate stays barred until the boss falls; an ambush holds him on screen.
+    const gate = this.bossDone ? this.length + 40 : this.length - 12
+    const right = this.activeLock() ? Math.min(gate, this.camX + W - 6) : gate
+    this.x = Math.max(this.camX + 6, Math.min(right, nx))
     this.y += this.vy
     this.onGround = false
+    this.riding = null
     if (this.vy >= 0) {
-      // Land on a boardwalk from above, a tombstone top, or the ground.
-      for (const b of this.stage.boardwalks) {
-        if (
-          this.x > b.x &&
-          this.x < b.x + b.w &&
-          prevY <= b.y &&
-          this.y >= b.y
-        ) {
-          this.y = b.y
-          this.vy = 0
-          this.onGround = true
+      let land: number | null = null
+      let mover: number | null = null
+      const take = (s: number, m: number | null = null) => {
+        if (land === null || s < land) {
+          land = s
+          mover = m
         }
       }
-      for (const t of this.stage.tombstones) {
+      for (const l of this.act.ledges)
+        if (this.x > l.x && this.x < l.x + l.w && prevY <= l.y && this.y >= l.y)
+          take(l.y)
+      ;(this.act.movers ?? []).forEach((m, i) => {
+        const p = this.moverPos(i, this.actTick)
         if (
-          Math.abs(this.x - t) < 8 &&
-          prevY <= GROUND_Y - 16 &&
-          this.y >= GROUND_Y - 16
-        ) {
-          this.y = GROUND_Y - 16
-          this.vy = 0
-          this.onGround = true
-        }
+          p &&
+          this.x > p.x &&
+          this.x < p.x + m.w &&
+          prevY <= p.y + 3 &&
+          this.y >= p.y
+        )
+          take(p.y, i)
+      })
+      for (const b of this.act.blocks) {
+        const top = blockTop(b, GROUND_Y)
+        if (
+          this.x > b.x - 3 &&
+          this.x < b.x + b.w + 3 &&
+          prevY <= top &&
+          this.y >= top
+        )
+          take(top)
       }
-      if (
-        !this.onGround &&
-        this.y >= GROUND_Y &&
-        prevY <= GROUND_Y &&
-        this.groundAt(this.x)
-      ) {
-        this.y = GROUND_Y
+      if (this.y >= GROUND_Y && prevY <= GROUND_Y && this.groundAt(this.x))
+        take(GROUND_Y)
+      if (land !== null) {
+        this.y = land
         this.vy = 0
         this.onGround = true
+        this.riding = mover
+        if (mover !== null && mover !== wasRiding) this.boarded(mover)
+      }
+    } else {
+      // Bonk on the underside of a floating block.
+      for (const b of this.act.blocks) {
+        if (b.y === undefined) continue
+        const bottom = b.y + b.h
+        if (
+          this.x > b.x - 3 &&
+          this.x < b.x + b.w + 3 &&
+          prevY - BODY_H >= bottom &&
+          this.y - BODY_H < bottom
+        ) {
+          this.y = bottom + BODY_H
+          this.vy = 0
+        }
       }
     }
-    if (this.y > H + 20) this.die('INTO THE DARK')
+    if (this.y > H + 20) {
+      this.die('INTO THE DARK')
+      return
+    }
+    // Held under the tide too long, he loses a hit.
+    if (water !== null && this.y - BODY_H + 4 > water) {
+      if (++this.underwater > BREATH_TICKS) {
+        this.underwater = 0
+        this.hit()
+      }
+    } else this.underwater = 0
+  }
+
+  private updateHazards() {
+    const grounded = this.onGround && this.y >= GROUND_Y - 1
+    for (const h of this.act.hazards ?? []) {
+      // Lightning gathers over its column with a crackle: heard only while the column is in view.
+      if (
+        h.kind === 'lightning' &&
+        this.actTick % h.period! === h.period! - LIGHTNING_TELL &&
+        h.x + h.w > this.camX - 20 &&
+        h.x < this.camX + W + 20
+      )
+        this.sfx('thunder', 'warn')
+      // Ground fire burns only underfoot; a lightning strike finds him at any height in its column.
+      if (!grounded && h.kind !== 'lightning') continue
+      if (this.x > h.x && this.x < h.x + h.w && hazardLive(h, this.actTick)) {
+        this.hit()
+        return
+      }
+    }
   }
 
   private throw() {
@@ -591,12 +1179,57 @@ class ZuzuGhostTrail implements ArcadeGameInstance {
       for (const vy of [-1.1, 0, 1.1]) this.shots.push(shot(f * 3.8, vy, 36))
     else if (this.weapon === 'kasa') this.shots.push(shot(f * 5, 0, 120))
     else if (this.weapon === 'lantern') this.shots.push(shot(f * 3.2, -2, 90))
-    else this.shots.push(shot(0, 0, 10))
-    this.sound.play(this.weapon === 'katana' ? 'blip' : 'shoot')
+    else {
+      this.shots.push(shot(0, 0, 12))
+      this.lunge = IAI.lungeTicks
+      this.guard = IAI.guard
+    }
+    if (this.weapon === 'katana') this.sfx('cut', 'boom')
+    else this.sound.play('shoot')
   }
 
-  private spawnFoes() {
-    if (this.boss || this.bossDone) return
+  // --- encounters -----------------------------------------------------------------
+
+  /** Squads spring when Zuzu reaches them; members already put down this run stay down. */
+  private springEncounters() {
+    const cage = this.act.captive
+    for (const e of this.act.encounters) {
+      if (this.triggered.has(e.id) || this.x < e.at) continue
+      // A cage's ambush only springs once its lock is broken.
+      if (cage && e.id === cage.ambush && !this.unlocked.has(cage.id)) continue
+      this.triggered.add(e.id)
+      let fresh = 0
+      e.squad.forEach((member, i) => {
+        const id = memberId(this.act, e, i)
+        if (this.defeated.has(id) || this.foes.some((f) => f.id === id)) return
+        this.pending.push({
+          id,
+          member,
+          due: this.actTick + (member.delay ?? 0),
+        })
+        fresh++
+      })
+      if (fresh && e.title) this.banner = { text: e.title, ticks: 80 }
+      if (fresh && e.lock) this.sound.play('warn')
+    }
+    if (!this.pending.length) return
+    const ctx = this.foeCtx()
+    this.pending = this.pending.filter((p) => {
+      if (p.due > this.actTick) return true
+      const m = p.member
+      const def = FOES[m.kind]
+      const y = def.flies
+        ? (m.y ?? 110)
+        : (this.floorAt(m.x, m.y ?? -999) ?? GROUND_Y)
+      this.foes.push(makeFoe(m.kind, p.id, m.x, y, m.drops ?? null, ctx))
+      return false
+    })
+  }
+
+  /** A thin trickle of the act's ambient foes, paid for by forward progress only. */
+  private spawnAmbient() {
+    if (this.boss || this.x > this.arenaL - 40 || !this.act.ambient.length)
+      return
     const budget = advanceEncounterBudget(
       this.encounterFrontier,
       this.encounterCredits,
@@ -604,92 +1237,56 @@ class ZuzuGhostTrail implements ArcadeGameInstance {
     )
     this.encounterFrontier = budget.frontier
     this.encounterCredits = budget.credits
-    if (this.encounterCredits <= 0) return
-    const speed = levelCurve(this.level, TRAIL_CURVES.enemySpeed)
-    if (--this.spiritTimer <= 0) {
-      this.spiritTimer = Math.round(
-        levelCurve(this.level, TRAIL_CURVES.spiritEvery) *
-          this.stage.rates.spirit *
-          (0.7 + this.rng() * 0.6),
-      )
+    if (this.encounterCredits <= 0 || this.activeLock()) return
+    if (--this.ambientTimer > 0) return
+    this.ambientTimer = Math.round(
+      (curve(this.act.stage, TRAIL_CURVES.ambientEvery) /
+        (1 + (this.tier - 1) * 0.2)) *
+        (0.7 + this.rng() * 0.6),
+    )
+    const kind =
+      this.act.ambient[Math.floor(this.rng() * this.act.ambient.length)]!
+    const def = FOES[kind]
+    let sx: number
+    let sy: number
+    if (def.rises) {
       const side = this.rng() < 0.7 ? 1 : -1
-      const sx = this.x + side * (50 + this.rng() * 90)
-      // Spirits never claw up right at a pit's edge (a landing spot).
+      sx = this.x + side * (50 + this.rng() * 90)
+      // Risers never claw up right at a pit's edge (a landing spot) or inside a block.
       if (
-        this.groundAt(sx - 24) &&
-        this.groundAt(sx + 24) &&
-        sx < STAGE_END - 40 &&
-        !this.stage.tombstones.some((t) => Math.abs(t - sx) < 14)
-      ) {
-        this.encounterCredits--
-        this.foes.push({
-          kind: 'spirit',
-          x: sx,
-          y: GROUND_Y + 14,
-          vx: 0,
-          vy: 0,
-          hp: 1,
-          t: 0,
-          phase: 'rise',
-          baseY: GROUND_Y,
-          carrying: false,
-        })
-      }
-    }
-    if (this.encounterCredits > 0 && --this.crowTimer <= 0) {
-      this.crowTimer = Math.round(
-        levelCurve(this.level, TRAIL_CURVES.crowEvery) *
-          this.stage.rates.crow *
-          (0.7 + this.rng() * 0.6),
+        !this.groundAt(sx - 24) ||
+        !this.groundAt(sx + 24) ||
+        sx > this.length - 40 ||
+        this.blockedAt(sx, GROUND_Y - 4) ||
+        this.act.blocks.some((b) => sx > b.x - 10 && sx < b.x + b.w + 10)
       )
-      const y = 70 + this.rng() * 60
-      this.encounterCredits--
-      this.foes.push({
-        kind: 'crow',
-        x: this.camX + W + 10,
-        y,
-        vx: -1.4 * speed,
-        vy: 0,
-        hp: 1,
-        t: 0,
-        phase: 'walk',
-        baseY: y,
-        carrying: this.rng() < 0.3,
-      })
+        return
+      sy = GROUND_Y
+    } else if (def.flies) {
+      sx = this.camX + W + 10
+      sy = this.camY + 70 + this.rng() * 60
+    } else {
+      sx = this.camX + W + 10
+      if (!this.groundAt(sx) || this.blockedAt(sx, GROUND_Y - 4)) return
+      sy = GROUND_Y
     }
-    if (this.encounterCredits > 0 && --this.hyenaTimer <= 0) {
-      this.hyenaTimer = Math.round(
-        levelCurve(this.level, TRAIL_CURVES.hyenaEvery) *
-          this.stage.rates.hyena *
-          (0.7 + this.rng() * 0.6),
-      )
-      const hx = this.camX + W + 10
-      if (this.groundAt(hx)) {
-        this.encounterCredits--
-        this.foes.push({
-          kind: 'hyena',
-          x: hx,
-          y: GROUND_Y,
-          vx: -1.6 * speed,
-          vy: 0,
-          hp: 2,
-          t: 0,
-          phase: 'walk',
-          baseY: GROUND_Y,
-          carrying: false,
-        })
-      }
-    }
+    this.encounterCredits--
+    const carrying: Holding | null =
+      kind === 'crow' && this.rng() < 0.3 ? 'gear' : null
+    this.foes.push(makeFoe(kind, null, sx, sy, carrying, this.foeCtx()))
   }
+
+  // --- combat -------------------------------------------------------------------
 
   private updateShots() {
     for (const k of this.shots) {
       k.t++
       k.life--
       if (k.weapon === 'katana') {
-        // The iai cut stays in front of him for its few frames.
-        k.x = this.x + this.facing * 13
-        k.y = this.y - 11
+        // The crescent rides in front of him through the lunge.
+        k.x = this.x + this.facing * IAI.ahead
+        k.y = this.y - 13
+        if (k.t <= IAI.active) this.cutBolts(k)
       } else if (k.weapon === 'kasa') {
         // Out, slowing, then home on Zuzu; caught when it reaches him.
         if (k.t < 30) k.x += k.vx * (1 - k.t / 36)
@@ -706,65 +1303,69 @@ class ZuzuGhostTrail implements ArcadeGameInstance {
         k.y += k.vy
         if (k.weapon === 'lantern') {
           k.vy += 0.25
-          if (k.y >= GROUND_Y - 2 && this.groundAt(k.x)) {
-            this.ignite(k.x)
+          const floor = this.floorAt(k.x, k.y - k.vy)
+          if (floor !== null && k.y >= floor - 2) {
+            this.ignite(k.x, floor)
             k.life = 0
           } else if (k.y > H + 10) k.life = 0
         }
       }
       if (
         (k.weapon === 'kunai' || k.weapon === 'shuriken') &&
-        this.stage.tombstones.some(
-          (t) => Math.abs(k.x - t) < 6 && k.y > GROUND_Y - 16,
-        )
+        this.blockedAt(k.x, k.y)
       )
         k.life = 0
       // The iai cut only bites on its first few frames; the rest is follow-through.
-      if (k.life <= 0 || (k.weapon === 'katana' && k.t > 4)) continue
-      const reach = k.weapon === 'katana' ? 12 : k.weapon === 'kasa' ? 10 : 8
-      // A spirit can be hit once it is mostly out of the dirt.
-      const foes = this.foes.filter(
-        (f) =>
-          f.hp > 0 &&
-          !k.struck.includes(f) &&
-          (f.phase !== 'rise' || f.y < GROUND_Y + 6) &&
-          Math.abs(f.x - k.x) < reach &&
-          Math.abs(f.y - 8 - k.y) < reach + 2,
-      )
+      if (k.life <= 0 || (k.weapon === 'katana' && k.t > IAI.active)) continue
+      const cut = k.weapon === 'katana'
+      const pad = k.weapon === 'kasa' ? 2 : 0
+      const foes = this.foes.filter((f) => {
+        if (f.hp <= 0 || k.struck.includes(f)) return false
+        const def = FOES[f.kind]
+        // A riser can be hit once it is mostly out of the dirt.
+        if (def.rises && f.phase === 'rise' && f.y > f.baseY + 6) return false
+        return (
+          Math.abs(f.x - k.x) < def.hw + (cut ? IAI.hw : pad) &&
+          Math.abs(f.y - def.cy - k.y) < def.hh + (cut ? IAI.hh : pad)
+        )
+      })
       const pierce = k.weapon === 'katana' || k.weapon === 'kasa'
       for (const foe of pierce ? foes : foes.slice(0, 1)) {
         k.struck.push(foe)
         this.strike(foe, WEAPONS[k.weapon].damage, k.x, k.y)
       }
       if (foes.length && !pierce) {
-        if (k.weapon === 'lantern') this.ignite(k.x)
+        if (k.weapon === 'lantern') this.ignite(k.x, this.floorAt(k.x, k.y))
         k.life = 0
         continue
       }
       const b = this.boss
-      if (
-        b &&
-        b.dying === 0 &&
-        !k.struck.includes(b) &&
-        Math.abs(b.x - k.x) < 14 &&
-        k.y > b.y - this.bossHeight(b) &&
-        k.y < b.y
-      ) {
-        k.struck.push(b)
-        this.hurtBoss(WEAPONS[k.weapon].damage, k.x, k.y)
-        if (!pierce) {
-          if (k.weapon === 'lantern') this.ignite(k.x)
-          k.life = 0
-          continue
+      if (b && b.dying === 0 && !k.struck.includes(b)) {
+        const def = bossDef(b)
+        if (
+          Math.abs(b.x - k.x) < def.hw + (cut ? IAI.hw : pad) &&
+          k.y + (cut ? IAI.hh : 0) > b.y - def.height &&
+          k.y - (cut ? IAI.hh : 0) < b.y
+        ) {
+          k.struck.push(b)
+          this.hurtBoss(WEAPONS[k.weapon].damage, k.x, k.y)
+          if (!pierce) {
+            if (k.weapon === 'lantern') this.ignite(k.x, this.floorAt(k.x, k.y))
+            k.life = 0
+            continue
+          }
         }
       }
       const crate = this.crates.find(
-        (c) =>
-          !c.open && Math.abs(c.x - k.x) < reach + 1 && k.y > GROUND_Y - 18,
+        (c) => !c.open && Math.abs(c.x - k.x) < 9 + pad && k.y > GROUND_Y - 18,
       )
       if (crate) {
         if (!pierce) k.life = 0
         this.openCrate(crate)
+      }
+      if (this.act.captive && this.cageHit(k, cut)) {
+        if (!pierce) k.life = 0
+        this.breakLock(this.act.captive)
       }
     }
     this.shots = this.shots.filter(
@@ -772,11 +1373,28 @@ class ZuzuGhostTrail implements ArcadeGameInstance {
     )
   }
 
-  private ignite(x: number) {
-    if (!this.groundAt(x)) return
-    this.fires.push({ x, life: FIRE_TICKS })
+  /** The iai edge cuts hostile shots out of the air (not ground fire, waves or a boss's own reach). */
+  private cutBolts(k: Shot) {
+    for (const b of this.bolts) {
+      if (b.kind === 'pillar' || b.kind === 'wave' || b.kind === 'chain')
+        continue
+      if (b.life <= 0) continue
+      if (
+        Math.abs(b.x - k.x) < b.hw + IAI.hw &&
+        Math.abs(b.y - k.y) < b.hh + IAI.hh
+      ) {
+        b.life = 0
+        this.burst(b.x, b.y, 6, '#e0f2fe')
+        this.sfx('deflect', 'blip')
+      }
+    }
+  }
+
+  private ignite(x: number, floor: number | null) {
+    if (floor === null) return
+    this.fires.push({ x, y: floor, life: FIRE_TICKS })
     if (this.fires.length > MAX_FIRES) this.fires.shift()
-    this.burst(x, GROUND_Y - 4, 8, '#f97316')
+    this.burst(x, floor - 4, 8, '#f97316')
     this.sound.play('pop')
   }
 
@@ -786,155 +1404,90 @@ class ZuzuGhostTrail implements ArcadeGameInstance {
       fire.life--
       if (fire.life % 8 !== 0) continue
       for (const f of this.foes)
-        if (f.hp > 0 && Math.abs(f.x - fire.x) < 14 && f.y > GROUND_Y - 24)
-          this.strike(f, 1, f.x, GROUND_Y - 10)
-      if (this.boss && Math.abs(this.boss.x - fire.x) < 16)
-        this.hurtBoss(1, this.boss.x, GROUND_Y - 10)
+        if (
+          f.hp > 0 &&
+          Math.abs(f.x - fire.x) < 14 &&
+          Math.abs(f.y - fire.y) < 24
+        )
+          this.strike(f, 1, f.x, fire.y - 10)
+      // Only a boss standing in it (a perched or flying boss is out of reach), and more slowly:
+      // a boss shrugs off most of the flame.
+      if (
+        this.boss &&
+        fire.life % 24 === 0 &&
+        Math.abs(this.boss.x - fire.x) < 16 &&
+        Math.abs(this.boss.y - fire.y) < 24
+      )
+        this.hurtBoss(1, this.boss.x, fire.y - 10)
     }
     this.fires = this.fires.filter((f) => f.life > 0)
   }
 
-  // --- bosses -------------------------------------------------------------------
-
-  private bossHeight(b: Boss): number {
-    return b.kind === 'devil' ? 38 : 26
-  }
-
-  private spawnBoss() {
-    const kind: BossKind = this.level % 2 === 1 ? 'devil' : 'bull'
-    const hp = Math.round(
-      (kind === 'devil' ? 18 : 14) * (1 + (this.level - 1) * 0.25),
-    )
-    this.boss = {
-      kind,
-      x: STAGE_END - 50,
-      y: GROUND_Y,
-      vx: -1,
-      hp,
-      maxHp: hp,
-      t: 0,
-      flash: 0,
-      mode: kind === 'devil' ? 'drift' : 'paw',
-      timer: 90,
-      dying: 0,
-    }
-    // The arena is the boss's alone.
-    this.foes = this.foes.filter((f) => f.x < ARENA_X)
-    this.banner = {
-      text: kind === 'devil' ? 'THE DUST DEVIL' : 'THE BONE BULL',
-      sub: 'FROM THE THIN PLACES',
-      ticks: 100,
-    }
-    this.sound.play('warn')
-  }
-
-  private updateBoss() {
-    this.updateClods()
-    const b = this.boss
-    if (!b) {
-      if (!this.bossDone && this.x > ARENA_X + 60) this.spawnBoss()
-      return
-    }
-    b.t++
-    if (b.flash > 0) b.flash--
-    if (b.dying > 0) {
-      if (b.dying % 6 === 0)
-        this.burst(
-          b.x + (this.rng() - 0.5) * 24,
-          b.y - this.rng() * this.bossHeight(b),
-          8,
-          b.kind === 'devil' ? '#d6b25e' : '#f5f5f4',
-        )
-      if (--b.dying === 0) {
-        this.boss = null
-        this.bossDone = true
-        this.banner = { text: 'THE WAY IS OPEN', ticks: 90 }
-        this.sound.play('level')
+  private updateFoes() {
+    const ctx = this.foeCtx()
+    for (const f of this.foes) {
+      f.t++
+      const def = FOES[f.kind]
+      def.update(f, ctx)
+      // A diving harpy that meets solid rock pulls up: caves and overhangs are real cover.
+      if (f.phase === 'dive' && this.blockedAt(f.x, f.y - def.cy)) {
+        f.phase = 'rest'
+        f.vy = -1.6
       }
-      return
-    }
-    const speed = levelCurve(this.level, TRAIL_CURVES.enemySpeed)
-    if (b.kind === 'devil') {
-      b.x += b.vx * 0.8 * speed
-      if (b.x < ARENA_X + 16 || b.x > STAGE_END - 20) {
-        b.x = Math.max(ARENA_X + 16, Math.min(STAGE_END - 20, b.x))
-        b.vx = -b.vx
+      if (f.y > H + 20) {
+        f.hp = -99
+        if (f.id) this.lost.add(f.id)
       }
-      // Up close it just whirls; the clods are for keeping him at bay.
-      if (--b.timer <= 0 && Math.abs(this.x - b.x) > 75) {
-        // A spray of three dust clods lobbed Zuzu's way.
-        b.timer = Math.max(55, 100 - this.level * 8)
-        const dir = Math.sign(this.x - b.x) || 1
-        for (let i = 0; i < 3; i++)
-          this.clods.push({
-            x: b.x,
-            y: b.y - 34,
-            vx: dir * (0.9 + i * 0.9),
-            vy: -3.6 - i * 0.3,
-          })
-        this.sound.play('shoot')
-      }
-    } else if (b.mode === 'paw') {
-      if (b.t % 12 === 0) this.burst(b.x, GROUND_Y - 2, 3, '#a07a45')
-      if (--b.timer <= 0) {
-        b.mode = 'charge'
-        b.vx = (Math.sign(this.x - b.x) || -1) * 3.4 * speed
-        this.sound.play('warn')
-      }
-    } else if (b.mode === 'charge') {
-      b.x += b.vx
-      if (b.x < ARENA_X + 20 || b.x > STAGE_END - 16) {
-        b.x = Math.max(ARENA_X + 20, Math.min(STAGE_END - 16, b.x))
-        b.mode = 'stunned'
-        b.timer = 80
-        this.burst(b.x + Math.sign(b.vx) * 14, GROUND_Y - 14, 14, '#a07a45')
-        this.sound.play('boom')
-      }
-    } else if (--b.timer <= 0) {
-      b.mode = 'paw'
-      b.timer = Math.max(30, 70 - this.level * 6)
-    }
-    if (
-      Math.abs(b.x - this.x) < (b.kind === 'devil' ? 13 : 15) &&
-      this.y > b.y - this.bossHeight(b) + 4
-    )
-      this.hit()
-  }
-
-  private updateClods() {
-    for (const c of this.clods) {
-      c.vy += 0.2
-      c.x += c.vx
-      c.y += c.vy
-      if (Math.abs(c.x - this.x) < 6 && c.y > this.y - 22 && c.y < this.y) {
-        c.y = H + 99
+      if (f.hp <= 0) continue
+      if (def.rises && f.phase === 'rise') continue
+      if (
+        Math.abs(f.x - this.x) < def.hw &&
+        Math.abs(f.y - def.cy - (this.y - 11)) < def.hh + 6
+      )
         this.hit()
-      }
-      if (c.y >= GROUND_Y && c.y < H + 50) {
-        this.burst(c.x, GROUND_Y - 2, 4, '#a07a45')
-        c.y = H + 99
-      }
     }
-    this.clods = this.clods.filter((c) => c.y < H + 20)
+    this.foes = this.foes.filter((f) => {
+      if (f.hp <= 0) return false
+      // Squads wait wherever they were placed; strays and ambient foes leave with the screen.
+      const ahead = f.id ? this.length + 100 : this.camX + W + 80
+      return f.x > this.camX - 80 && f.x < ahead
+    })
   }
 
-  private hurtBoss(damage: number, x: number, y: number) {
-    const b = this.boss
-    if (!b || b.dying > 0) return
-    if (b.kind === 'bull' && b.mode === 'charge') {
-      // Charging, the bull shrugs it off.
-      this.burst(x, y, 3, '#9ca3af')
-      this.sound.play('blip')
-      return
+  private updateBolts() {
+    for (const b of this.bolts) {
+      const prevY = b.y
+      stepBolt(b)
+      if (
+        b.arm === 0 &&
+        Math.abs(b.x - this.x) < b.hw + BODY_HW &&
+        b.y + b.hh > this.y - BODY_H &&
+        b.y - b.hh < this.y
+      ) {
+        this.hit()
+        if (b.kind !== 'pillar' && b.kind !== 'wave') b.life = 0
+      }
+      if (b.grav > 0 && b.vy > 0) {
+        const floor = this.floorAt(b.x, prevY)
+        if (floor !== null && b.y >= floor) {
+          this.burst(
+            b.x,
+            floor - 2,
+            4,
+            b.kind === 'ember' ? '#f97316' : '#a07a45',
+          )
+          b.life = 0
+        }
+      }
+      if (
+        b.kind !== 'pillar' &&
+        (this.blockedAt(b.x, b.y) ||
+          b.y > H + 20 ||
+          Math.abs(b.x - this.camX - W / 2) > W)
+      )
+        b.life = 0
     }
-    b.hp -= damage
-    b.flash = 6
-    this.burst(x, y, 5, '#e5e7eb')
-    if (b.hp > 0) return
-    b.dying = BOSS_DYING_TICKS
-    this.clods = []
-    this.addScore(BOSS_POINTS * this.level, b.x, b.y - 50)
-    this.sound.play('boom')
+    this.bolts = this.bolts.filter((b) => b.life > 0)
   }
 
   private strike(foe: Foe, damage: number, x: number, y: number) {
@@ -943,10 +1496,32 @@ class ZuzuGhostTrail implements ArcadeGameInstance {
     if (foe.hp <= 0) this.defeat(foe)
   }
 
+  private defeat(f: Foe) {
+    this.foes = this.foes.filter((o) => o !== f)
+    if (f.id) this.defeated.add(f.id)
+    const def = FOES[f.kind]
+    this.addScore(def.points, f.x, f.y - 20)
+    const color =
+      f.kind === 'spirit'
+        ? '#a5f3fc'
+        : f.kind === 'crow'
+          ? '#475569'
+          : '#f5f5f4'
+    this.burst(f.x, f.y - def.cy, 10, color)
+    this.sound.play('pop')
+    if (f.carrying === 'gear') this.drop(this.otherWeapon(), f.x, f.y - def.cy)
+    else if (f.carrying === 'poncho' || f.carrying === 'heart')
+      this.drop('poncho', f.x, f.y - def.cy)
+    else if (f.carrying === 'nugget') this.drop('nugget', f.x, f.y - def.cy)
+    else if (f.kind === 'spirit' && this.rng() < 0.12)
+      this.drop('coin', f.x, f.y - 10)
+  }
+
   private openCrate(crate: Crate) {
     crate.open = true
+    const holds = crate.holds === 'heart' ? 'poncho' : crate.holds
     this.drop(
-      crate.holds === 'gear' ? this.otherWeapon() : crate.holds,
+      holds === 'gear' ? this.otherWeapon() : holds,
       crate.x,
       GROUND_Y - 10,
     )
@@ -963,91 +1538,96 @@ class ZuzuGhostTrail implements ArcadeGameInstance {
     this.pickups.push({ x, y, vy: -3, kind, life: 60 * 8 })
   }
 
-  private defeat(f: Foe) {
-    this.foes = this.foes.filter((o) => o !== f)
-    const points = f.kind === 'hyena' ? 300 : f.kind === 'crow' ? 150 : 100
-    this.addScore(points, f.x, f.y - 20)
-    const color =
-      f.kind === 'spirit'
-        ? '#a5f3fc'
-        : f.kind === 'crow'
-          ? '#475569'
-          : '#f5f5f4'
-    this.burst(f.x, f.y - 8, 10, color)
-    this.sound.play('pop')
-    if (f.carrying) this.drop(this.otherWeapon(), f.x, f.y)
-    else if (f.kind === 'spirit' && this.rng() < 0.12)
-      this.drop('coin', f.x, f.y - 10)
+  // --- bosses -------------------------------------------------------------------
+
+  private updateBoss() {
+    const b = this.boss
+    const id = this.act.boss
+    if (!b) {
+      if (id && !this.bossDone && this.x > this.arenaL + 60) this.spawnBoss(id)
+      return
+    }
+    const def = bossDef(b)
+    b.t++
+    if (b.flash > 0) b.flash--
+    if (b.dying > 0) {
+      if (b.dying % 6 === 0)
+        this.burst(
+          b.x + (this.rng() - 0.5) * 24,
+          b.y - this.rng() * def.height,
+          8,
+          BOSS_COLOR[b.id] ?? '#d6b25e',
+        )
+      if (--b.dying === 0) {
+        this.boss = null
+        this.bossDone = true
+        this.banner = { text: 'THE WAY IS OPEN', ticks: 90 }
+        this.sound.play('level')
+      }
+      return
+    }
+    def.update(b, this.bossCtx())
+    const touch = def.contact?.(b)
+    if (
+      touch &&
+      Math.abs(b.x - this.x) < touch.hw &&
+      this.y > b.y - touch.height + 4 &&
+      this.y - BODY_H < b.y
+    )
+      this.hit()
   }
 
-  private updateFoes() {
-    const speed = levelCurve(this.level, TRAIL_CURVES.enemySpeed)
-    for (const f of this.foes) {
-      f.t++
-      if (f.kind === 'spirit') {
-        if (f.phase === 'rise') {
-          f.y -= 0.5
-          if (f.y <= f.baseY) {
-            f.y = f.baseY
-            f.phase = 'walk'
-          }
-        } else if (f.phase === 'walk') {
-          f.x += Math.sign(this.x - f.x) * 0.5 * speed
-          if (!this.groundAt(f.x)) f.x -= Math.sign(this.x - f.x) * 0.5 * speed
-          if (f.t > 60 * 6) f.phase = 'sink'
-        } else {
-          f.y += 0.4
-          if (f.y > f.baseY + 16) f.hp = -99
-        }
-      } else if (f.kind === 'crow') {
-        // Swoops toward Zuzu's height, then away.
-        f.x += f.vx
-        const target = this.y - 14
-        f.y +=
-          Math.max(-1, Math.min(1, (target - f.y) * 0.02)) +
-          Math.sin(f.t / 10) * 0.6
-      } else {
-        f.x += f.vx
-        f.vy += GRAVITY
-        f.y += f.vy
-        if (f.y >= GROUND_Y && this.groundAt(f.x)) {
-          f.y = GROUND_Y
-          f.vy = 0
-          // Leap pits and tombstones.
-          const ahead = f.x + Math.sign(f.vx) * 18
-          if (
-            !this.groundAt(ahead) ||
-            this.stage.tombstones.some((t) => Math.abs(t - ahead) < 8)
-          )
-            f.vy = -5
-        }
-        if (f.y > H + 20) f.hp = -99
-      }
-      if (
-        f.hp > 0 &&
-        f.phase !== 'rise' &&
-        Math.abs(f.x - this.x) < 9 &&
-        Math.abs(f.y - 8 - (this.y - 10)) < 14
-      ) {
-        this.hit()
-      }
+  private spawnBoss(id: NonNullable<Act['boss']>) {
+    const b = makeBoss(id, this.length - 50, GROUND_Y, this.bossCtx())
+    this.boss = b
+    // The arena is the boss's alone.
+    this.foes = this.foes.filter((f) => f.x < this.arenaL)
+    const def = bossDef(b)
+    // The fight is never lost to a clock run down on the way there, and a fall in it starts again
+    // at the arena gate, not back down the trail.
+    this.timer = Math.max(this.timer, BOSS_CLOCK)
+    if (this.checkpoint < this.arenaL + 30) {
+      this.checkpoint = this.arenaL + 30
+      this.keep()
     }
-    this.foes = this.foes.filter(
-      (f) => f.hp > 0 && f.x > this.camX - 60 && f.x < this.camX + W + 80,
-    )
+    this.banner = { text: def.name, sub: def.title, ticks: 100 }
+    this.sound.play('warn')
+    this.sfx('toll')
   }
+
+  private hurtBoss(damage: number, x: number, y: number) {
+    const b = this.boss
+    if (!b || b.dying > 0) return
+    const def = bossDef(b)
+    if (def.immune?.(b)) {
+      this.burst(x, y, 3, '#9ca3af')
+      this.sound.play('blip')
+      return
+    }
+    b.hp -= damage
+    b.flash = 6
+    this.burst(x, y, 5, '#e5e7eb')
+    if (b.hp > 0) return
+    // A two-phase boss may refuse death here and transform instead.
+    if (def.onDefeat?.(b, this.bossCtx())) return
+    b.dying = BOSS_DYING_TICKS
+    this.bolts = []
+    this.foes = []
+    this.addScore(BOSS_POINTS * this.act.stage, b.x, b.y - 50)
+    this.sound.play('boom')
+  }
+
+  // --- pickups, hits and progress ---------------------------------------------------
 
   private updatePickups() {
     for (const p of this.pickups) {
+      const prevY = p.y
       p.vy += GRAVITY
       p.y += p.vy
-      // Pickups settle on the ground (or a boardwalk); over a pit they are lost.
-      const deck = this.stage.boardwalks.find(
-        (b) => p.x > b.x && p.x < b.x + b.w && p.y - p.vy <= b.y - 6,
-      )
-      const floor = deck ? deck.y - 6 : GROUND_Y - 6
-      if (p.y >= floor && (deck || this.groundAt(p.x))) {
-        p.y = floor
+      // Pickups settle on whatever is under them; over a pit they are lost.
+      const floor = this.floorAt(p.x, prevY + 6)
+      if (floor !== null && p.y >= floor - 6) {
+        p.y = floor - 6
         p.vy = 0
       }
       if (p.y > H + 10) p.life = 0
@@ -1079,7 +1659,7 @@ class ZuzuGhostTrail implements ArcadeGameInstance {
 
   /** The poncho rule: first hit knocks the poncho and kasa off; the next one ends him. */
   private hit() {
-    if (this.invuln > 0 || this.dead > 0) return
+    if (this.invuln > 0 || this.guard > 0 || this.dead > 0) return
     if (this.poncho) {
       this.poncho = false
       this.invuln = INVULN_TICKS
@@ -1094,6 +1674,7 @@ class ZuzuGhostTrail implements ArcadeGameInstance {
       this.vy = -2.5
       this.vx = -this.facing * 0.6
       this.onGround = false
+      this.riding = null
       this.sound.play('warn')
       return
     }
@@ -1119,18 +1700,94 @@ class ZuzuGhostTrail implements ArcadeGameInstance {
       this.banner = { text, sub: 'BACK TO THE CHECKPOINT', ticks: 90 }
   }
 
-  private stageClear() {
+  private collectSecret() {
+    for (const s of this.act.secrets) {
+      if (this.foundSecrets.has(s.id)) continue
+      if (Math.abs(this.x - s.x) >= 12 || Math.abs(this.y - 14 - s.y) >= 13)
+        continue
+      this.foundSecrets.add(s.id)
+      this.addScore(800, s.x, s.y)
+      this.banner = {
+        text: s.name,
+        sub: `${this.foundSecrets.size}/${RELIC_COUNT} RELICS FOUND`,
+        ticks: 110,
+      }
+      this.burst(s.x, s.y, 18, '#7dd3fc')
+      this.sfx('relic', 'extra')
+    }
+  }
+
+  private actClear() {
     const timeBonus = Math.floor(this.timer / 60) * 50
-    const bonus = 5000 * this.level + timeBonus
+    const bonus = 2000 * this.act.stage + timeBonus
     this.addScore(bonus, this.x, this.y - 30)
     this.clear = CLEAR_TICKS
     this.foes = []
+    this.bolts = []
+    const last = this.actIndex + 1 >= ACTS.length
+    const stageDone = last || ACTS[this.actIndex + 1]!.stage !== this.act.stage
     this.banner = {
-      text: 'TRAIL CLEARED',
+      text: stageDone ? 'STAGE CLEARED' : 'ACT CLEARED',
       sub: `BONUS ${bonus}`,
       ticks: CLEAR_TICKS,
     }
     this.sound.play('level')
+  }
+
+  /** After the clear interlude: the next act, a stage's closing page, or the ending. */
+  private advance() {
+    const next = ACTS[this.actIndex + 1]
+    const stage = stageInfo(this.act.stage)
+    if (!next) {
+      this.won = true
+      // The clear unlocks the next New Game+ tier: a fresh run, harder, relics to find again.
+      this.save = {
+        v: 1,
+        act: ACTS[0]!.id,
+        score: 0,
+        lives: START_LIVES,
+        weapon: 'kunai',
+        relics: [],
+        continued: false,
+        tier: Math.min(MAX_TIER, this.tier + 1),
+      }
+      const all = this.foundSecrets.size >= RELIC_COUNT
+      this.showCard({
+        kind: 'credits',
+        heading: all ? 'THE TRUE ENDING' : 'THE TRAIL ENDS',
+        lines: [
+          ...(stage?.outro ?? []),
+          // The novice freed from the abbey cage walks out with him.
+          ...(this.rescued.size ? ['', ...RESCUE_ENDING] : []),
+          '',
+          ...(all
+            ? TRUE_ENDING
+            : [
+                'EVERY RELIC HOLDS A MEMORY.',
+                'FIND THEM ALL FOR THE TRUE END.',
+              ]),
+          '',
+          'NEW GAME+ UNLOCKED',
+          '',
+          `RELICS FOUND: ${this.foundSecrets.size}/${RELIC_COUNT}`,
+          `FINAL SCORE: ${this.score}`,
+          this.continues ? `CONTINUES: ${this.continues}` : 'NO CONTINUES',
+          '',
+          ...CREDITS,
+        ],
+        then: 'end',
+      })
+      return
+    }
+    if (next.stage !== this.act.stage && stage?.outro.length)
+      this.showCard({
+        kind: 'story',
+        heading: stage.name,
+        sub: `STAGE ${stage.stage} CLEARED`,
+        lines: stage.outro,
+        then: 'next',
+      })
+    else this.startAct(this.actIndex + 1)
   }
 
   // --- scoring and effects ----------------------------------------------------
@@ -1198,26 +1855,94 @@ class ZuzuGhostTrail implements ArcadeGameInstance {
       start: false,
     }
     const frame: InputFrame = { held, pressed: { ...held } }
+    if (this.card) return frame
     if (this.boss && this.boss.dying === 0) return this.pilotBoss(frame)
+    // Hop what comes in low, step out from under what falls, and clear a diving harpy's mark,
+    // before trading shots.
+    if (
+      this.dodgeLightning(frame) ||
+      this.hopIncoming(frame) ||
+      this.dodgeBolts(frame) ||
+      this.dodgeDives(frame)
+    )
+      return frame
     // Deal with whatever is closest, facing it.
     const near = this.foes
-      .filter(
-        (f) => f.phase !== 'rise' && Math.abs(f.y - 8 - (this.y - 12)) < 22,
-      )
+      .filter((f) => {
+        const def = FOES[f.kind]
+        // One standing right on top of him can't be faced (he would only turn on the spot): he
+        // walks on out of it instead.
+        const dy = f.y - def.cy - (this.y - 12)
+        // A straight throw sails over anything lower (a leech in the mud): he vaults those.
+        const straight = this.weapon === 'kunai' || this.weapon === 'kasa'
+        return (
+          !(def.rises && f.phase === 'rise') &&
+          Math.abs(dy) < 22 &&
+          (!straight || dy < def.hh + 2) &&
+          Math.abs(f.x - this.x) >= 4
+        )
+      })
       .sort((a, b) => Math.abs(a.x - this.x) - Math.abs(b.x - this.x))[0]
-    if (near && Math.abs(near.x - this.x) < 110) {
+    const cover =
+      near &&
+      this.act.blocks.some(
+        (b) =>
+          b.x + b.w > Math.min(near.x, this.x) &&
+          b.x < Math.max(near.x, this.x) &&
+          blockTop(b, GROUND_Y) < this.y - 6 &&
+          // The grave a ghoul squats on is its perch, not cover; a tunnel roof overhead is no
+          // cover either: only stone down at throwing height.
+          !(near.x >= b.x - 2 && near.x <= b.x + b.w + 2) &&
+          (b.y === undefined || b.y + b.h > this.y - 12),
+      )
+    // Only what the weapon can reach is fought where it stands; the iai cut only reaches a step.
+    const reach =
+      this.weapon === 'katana'
+        ? 44
+        : this.weapon === 'lantern'
+          ? 80
+          : this.weapon === 'kasa'
+            ? 84
+            : 110
+    const gap = near ? Math.abs(near.x - this.x) : 999
+    // An ambush holds him in the room until the squad is down: hunt it anywhere on screen.
+    const ambush = !!this.activeLock()
+    // A foe behind him that keeps its distance is left behind, and one at his heels (too close for
+    // a throw to land) is stepped away from before he turns on it.
+    const behind =
+      !!near &&
+      near.x < this.x &&
+      ((gap >= reach && !ambush) || (gap <= 30 && this.weapon !== 'katana'))
+    // Held under the flood, he stops fighting and makes for high ground.
+    const drowning = this.underwater > 20
+    if (near && !cover && !drowning && gap < (ambush ? W : 110) && !behind) {
       const dir = near.x > this.x ? 1 : -1
+      // A sister winding up her censer (her tell) sweeps a step in front: back out of it.
+      if (near.kind === 'sister' && near.phase === 'aim' && gap < 44) {
+        if (dir > 0) held.left = true
+        else held.right = true
+        return frame
+      }
       if (dir !== this.facing && this.onGround) {
         if (dir > 0) held.right = true
         else held.left = true
         return frame
       }
-      // The iai cut only reaches a step ahead: hold still and let it come.
-      const reach =
-        this.weapon === 'katana' ? 24 : this.weapon === 'lantern' ? 80 : 110
-      const gap = Math.abs(near.x - this.x)
-      if (this.throwCooldown === 0 && gap < reach) frame.pressed.a = true
-      if (gap > 30 || this.weapon === 'katana') return frame
+      if (this.throwCooldown === 0 && gap < reach) {
+        frame.pressed.a = true
+        // A foe up on a grave or a step sits above a straight throw: hop as he throws.
+        const def = FOES[near.kind]
+        const above = this.y - 12 - (near.y - def.cy) > def.hh - 2
+        if (above && this.onGround && this.weapon !== 'katana')
+          frame.pressed.up = true
+      }
+      // Out of reach of a foe that holds its ground (a ghoul, an acolyte): close in.
+      if (gap < reach) {
+        if (gap > 30 || this.weapon === 'katana') return frame
+      } else if (dir < 0) {
+        held.left = true
+        return frame
+      }
     }
     // Break crates on the way.
     const crate = this.crates.find(
@@ -1227,44 +1952,368 @@ class ZuzuGhostTrail implements ArcadeGameInstance {
       crate &&
       this.throwCooldown === 0 &&
       this.facing === 1 &&
-      (this.weapon !== 'katana' || crate.x - this.x < 24)
+      (this.weapon !== 'katana' || crate.x - this.x < 40)
     )
       frame.pressed.a = true
+    if (this.pilotTerrain(frame)) return frame
     held.right = true
     if (this.onGround) {
       // Take off close to the edge so the jump clears the whole pit.
       const pit = this.groundAt(this.x) && !this.groundAt(this.x + 12)
-      const stone =
-        this.stage.tombstones.some((t) => t - this.x > 0 && t - this.x < 20) &&
-        this.y > GROUND_Y - 4
+      const wall = this.act.blocks.some(
+        (b) =>
+          b.x - this.x > 0 &&
+          b.x - this.x < 20 &&
+          blockTop(b, GROUND_Y) < this.y - 1 &&
+          (b.y === undefined || b.y + b.h > this.y - BODY_H),
+      )
+      // Fire on a beat that cannot be hopped (under a low roof, or too wide) is walked through
+      // in its cool spell: wait at its edge until it has just died down.
+      const timed = (this.act.hazards ?? []).find(
+        (h) => h.x - this.x > 0 && h.x - this.x < 20 && this.walkThrough(h),
+      )
+      if (timed) {
+        const phase = this.actTick % timed.period!
+        const cool = phase < timed.on! ? 0 : timed.period! - phase
+        if (cool < (timed.x + timed.w - this.x + 4) / WALK) {
+          held.right = false
+          return frame
+        }
+      }
+      const hazard = (this.act.hazards ?? []).some(
+        (h) => h.x - this.x > 0 && h.x - this.x < 14 && !this.walkThrough(h),
+      )
       const crateAhead = this.crates.some(
         (c) => !c.open && c.x - this.x > 0 && c.x - this.x < 16,
       )
-      // Hold at a pit's edge (throwing) while something is charging across it.
-      const charging = this.foes.some((f) => f.x > this.x && f.x - this.x < 110)
-      if (pit && charging) {
+      // Hold at a pit's edge (throwing) while something is charging across it (not a foe that
+      // only stands its ground over there, which would hold him forever); the iai cut cannot
+      // reach across, so with it he jumps and meets them.
+      const charging = this.foes.some(
+        (f) => f.x > this.x && f.x - this.x < 110 && f.vx < 0,
+      )
+      if (pit && charging && this.weapon !== 'katana') {
         held.right = false
         if (this.throwCooldown === 0) frame.pressed.a = true
         return frame
       }
-      if ((pit && this.y >= GROUND_Y - 1) || stone || crateAhead) held.up = true
+      if ((pit && this.y >= GROUND_Y - 1) || wall || hazard || crateAhead)
+        held.up = true
     }
     return frame
+  }
+
+  /** Timed fire the pilot walks through on its cool beat: roofed over or too wide to hop. */
+  private walkThrough(h: Hazard): boolean {
+    if (!h.period || !h.on) return false
+    // Lightning finds him at any height: never hopped, always crossed between strikes.
+    if (h.kind === 'lightning') return true
+    if ((h.period - h.on) * WALK < h.w + 30) return false
+    const roofed = this.act.blocks.some(
+      (b) =>
+        b.y !== undefined &&
+        b.x < h.x + h.w &&
+        b.x + b.w > h.x &&
+        b.y + b.h > GROUND_Y - 80,
+    )
+    return roofed || h.w > 44
+  }
+
+  /**
+   * The pilot's read of the trail's moving parts: ride rafts and lifts and step off where they
+   * land, wait at a pit's edge until a jump would land (a mover in reach, an updraft, the water
+   * low enough to jump from), and wait out a flood on a dry perch.
+   */
+  private pilotTerrain(frame: InputFrame): boolean {
+    if (!this.onGround) return false
+    const held = frame.held
+    const movers = this.act.movers ?? []
+    const tide = this.act.tide
+    // Feet at or above `perch` keep his head out of the highest water.
+    const perch = tide ? tide.high + BODY_H - 4 : GROUND_Y
+    const onPerch = !!tide && this.y <= perch
+    const docked = movers.findIndex((m, i) => {
+      const p = this.moverPos(i, this.actTick + 1)
+      return (
+        !!p &&
+        p.x <= this.x + 8 &&
+        p.x + m.w > this.x + 14 &&
+        Math.abs(p.y - this.y) <= 3
+      )
+    })
+    if (this.riding !== null) {
+      // On a ferry under way, sit tight until it docks.
+      if (
+        movers[this.riding]?.ferry &&
+        this.ferries[this.riding]?.left !== null
+      )
+        return true
+      const at = this.moverPos(this.riding, this.actTick)
+      const m = movers[this.riding]
+      const ahead = this.floorAt(this.x + 8, this.y - 2)
+      // (a lift tops out a little above its ledge)
+      if (ahead !== null && ahead >= this.y - 2 && ahead <= this.y + 10)
+        held.right = true
+      else {
+        // Hop off only onto footing ahead that is no lower than the mover.
+        const land = this.planJump()
+        if (
+          land &&
+          land.mover !== this.riding &&
+          land.x > this.x + 8 &&
+          land.y <= this.y + 10
+        ) {
+          held.right = true
+          frame.pressed.up = true
+        } else if (m && at && this.x + 8 < at.x + m.w) held.right = true
+      }
+      return true
+    }
+    if (this.floorAt(this.x + 12, this.y - 1) === null) {
+      // At an edge: board a docked mover, or jump only when the jump lands.
+      const land = this.planJump()
+      const safe = !onPerch || (land && land.y <= perch) || this.tideAllows()
+      if (this.foes.some((f) => f.x > this.x && f.x - this.x < 110)) {
+        // Hold at the edge (throwing) while something is charging across it.
+        if (this.throwCooldown === 0) frame.pressed.a = true
+      } else if (docked >= 0 && safe) held.right = true
+      else if (land && safe) {
+        held.right = true
+        frame.pressed.up = true
+      } else if (this.floorAt(this.x + 4, this.y - 1) !== null)
+        held.right = true
+      return true
+    }
+    // On a dry perch with the flood coming: wait it out (or take a raft that is waiting).
+    const next = this.floorAt(this.x + 10, this.y - 2)
+    if (onPerch && next !== null && next > perch && !this.tideAllows()) {
+      if (docked >= 0) held.right = true
+      return true
+    }
+    // Vault, rather than walk into, anything waiting below a drop or too low to throw at.
+    const blocking = this.foes.some((f) => {
+      const def = FOES[f.kind]
+      if (def.flies || f.x < this.x || (def.rises && f.phase === 'rise'))
+        return false
+      const below = f.y > this.y + 8 && f.x - this.x < 48
+      const low =
+        (this.weapon === 'kunai' || this.weapon === 'kasa') &&
+        Math.abs(f.y - this.y) < 4 &&
+        Math.abs(f.y - def.cy - (this.y - 12)) >= def.hh &&
+        f.x - this.x < 30
+      return below || low
+    })
+    const vault = blocking ? this.planJump() : null
+    if (vault && (!onPerch || vault.y <= perch || this.tideAllows())) {
+      held.right = true
+      frame.pressed.up = true
+      return true
+    }
+    return false
+  }
+
+  /** Can the pilot wade from here to the next dry perch before the water closes over his head? */
+  private tideAllows(): boolean {
+    const tide = this.act.tide
+    if (!tide) return true
+    const perch = tide.high + BODY_H - 4
+    // Dry stone ahead, or a jetty over a channel (the croc pool's high road).
+    const refuge = [
+      ...this.act.blocks.map((b) => ({ x: b.x, top: blockTop(b, GROUND_Y) })),
+      ...this.act.ledges
+        .filter((l) => !this.groundAt(l.x + l.w / 2))
+        .map((l) => ({ x: l.x, top: l.y })),
+    ]
+      .filter((b) => b.x > this.x + 10 && b.top <= perch)
+      .reduce((a, b) => Math.min(a, b.x), this.length)
+    let dry = 0
+    while (
+      dry < tide.period &&
+      tideAt(tide, this.actTick + dry).y >= GROUND_Y - BODY_H + 4
+    )
+      dry++
+    return dry >= (refuge - this.x) / 0.9
+  }
+
+  /** Where a running jump right from here would land (static ground, movers in time, updrafts). */
+  private planJump(): { x: number; y: number; mover: number | null } | null {
+    const water = this.waterY()
+    const wading = water !== null && this.y > water + 6
+    let x = this.x
+    let y = this.y
+    let vy = wading ? JUMP_VY * 0.85 : JUMP_VY
+    for (let t = 1; t < 160; t++) {
+      const prevY = y
+      vy += GRAVITY
+      for (const u of this.act.updrafts ?? [])
+        if (x > u.x && x < u.x + u.w && y > u.top)
+          vy = Math.max(-3.4, vy - u.lift)
+      let nx = x + JUMP_VX
+      for (const b of this.act.blocks) {
+        const top = blockTop(b, GROUND_Y)
+        const bottom = b.y !== undefined ? top + b.h : GROUND_Y + 40
+        if (
+          y > top + 1 &&
+          y - BODY_H < bottom &&
+          nx + BODY_HW > b.x &&
+          nx - BODY_HW < b.x + b.w
+        )
+          nx =
+            x < b.x + b.w / 2
+              ? b.x - BODY_HW - 0.01
+              : b.x + b.w + BODY_HW + 0.01
+      }
+      x = nx
+      y += vy
+      if (vy >= 0) {
+        let land: number | null = null
+        let mover: number | null = null
+        const take = (s: number, m: number | null = null) => {
+          if (land === null || s < land) {
+            land = s
+            mover = m
+          }
+        }
+        for (const l of this.act.ledges)
+          if (x > l.x && x < l.x + l.w && prevY <= l.y && y >= l.y) take(l.y)
+        ;(this.act.movers ?? []).forEach((m, i) => {
+          const p = this.moverPos(i, this.actTick + t)
+          if (p && x > p.x && x < p.x + m.w && prevY <= p.y + 3 && y >= p.y)
+            take(p.y, i)
+        })
+        for (const b of this.act.blocks) {
+          const top = blockTop(b, GROUND_Y)
+          if (x > b.x - 3 && x < b.x + b.w + 3 && prevY <= top && y >= top)
+            take(top)
+        }
+        if (y >= GROUND_Y && prevY <= GROUND_Y && this.groundAt(x))
+          take(GROUND_Y)
+        if (land !== null) return { x, y: land, mover }
+      } else
+        for (const b of this.act.blocks) {
+          if (b.y === undefined) continue
+          const bottom = b.y + b.h
+          if (
+            x > b.x - 3 &&
+            x < b.x + b.w + 3 &&
+            prevY - BODY_H >= bottom &&
+            y - BODY_H < bottom
+          ) {
+            y = bottom + BODY_H
+            vy = 0
+          }
+        }
+      if (y > H + 20) return null
+    }
+    return null
+  }
+
+  /** Hop bullets and waves coming in low. */
+  private hopIncoming(frame: InputFrame): boolean {
+    if (!this.onGround) return false
+    const incoming = this.bolts.find(
+      (k) =>
+        k.grav === 0 &&
+        k.vx !== 0 &&
+        Math.sign(k.vx) === Math.sign(this.x - k.x) &&
+        Math.abs(k.x - this.x) < 26 + Math.abs(k.vx) * 6 &&
+        k.y + k.hh > this.y - BODY_H &&
+        k.y - k.hh < this.y,
+    )
+    if (!incoming) return false
+    frame.pressed.up = true
+    // A slow orb is still there when a hop straight up comes down: hop away from it, if there
+    // is ground to land on.
+    const back = incoming.x > this.x ? -1 : 1
+    if (
+      Math.abs(incoming.vx) < 2 &&
+      this.groundAt(this.x + back * 60) &&
+      this.groundAt(this.x + back * 76)
+    ) {
+      if (back < 0) frame.held.left = true
+      else frame.held.right = true
+    }
+    return true
+  }
+
+  /** Step out from under a harpy's dive (it strikes where he stood when it screeched). */
+  private dodgeDives(frame: InputFrame): boolean {
+    if (!this.onGround) return false
+    const spots = this.foes
+      .filter(
+        (f) => f.kind === 'harpy' && (f.phase === 'dive' || f.phase === 'aim'),
+      )
+      .map((f) => {
+        if (f.phase === 'aim' || f.vy <= 0) return f.x
+        return f.x + f.vx * Math.max(0, (this.y - 10 - f.y) / f.vy)
+      })
+      .filter((x) => Math.abs(x - this.x) < 18)
+    if (!spots.length) return false
+    const away = spots.reduce((a, x) => a + x, 0) / spots.length
+    // Away from the strike, unless that is off an edge or against an ambush's wall.
+    const right = this.activeLock() ? this.camX + W - 6 : this.length
+    const footing = (d: number) =>
+      this.floorAt(this.x + d * 14, this.y - 1) !== null
+    let dir = away > this.x ? -1 : 1
+    if (!footing(dir) || (dir > 0 && this.x > right - 20)) dir = -dir
+    if (!footing(dir)) return false
+    if (dir > 0) frame.held.right = true
+    else frame.held.left = true
+    return true
+  }
+
+  /** Step out of a lightning column once its sky darkens (by the nearer side with footing). */
+  private dodgeLightning(frame: InputFrame): boolean {
+    if (!this.onGround) return false
+    const h = (this.act.hazards ?? []).find(
+      (h) =>
+        h.kind === 'lightning' &&
+        this.x > h.x - 2 &&
+        this.x < h.x + h.w + 2 &&
+        (hazardLive(h, this.actTick) ||
+          lightningTell(h, this.actTick) !== null),
+    )
+    if (!h) return false
+    const footing = (d: number) =>
+      this.floorAt(this.x + d * 8, this.y - 1) !== null
+    let dir = h.x + h.w - this.x <= this.x - h.x ? 1 : -1
+    if (!footing(dir)) dir = -dir
+    if (!footing(dir)) return false
+    if (dir > 0) frame.held.right = true
+    else frame.held.left = true
+    return true
+  }
+
+  /** Step out from under anything falling on him. */
+  private dodgeBolts(frame: InputFrame): boolean {
+    if (!this.onGround) return false
+    const landing = this.bolts
+      .filter((b) => b.vy > 0 || b.grav > 0 || b.kind === 'pillar')
+      .map((b) => {
+        if (b.kind === 'pillar' || b.grav <= 0) return b.x
+        const drop = b.y - (this.y - 10)
+        const t =
+          (-b.vy + Math.sqrt(Math.max(0, b.vy * b.vy - 2 * b.grav * drop))) /
+          b.grav
+        return b.x + b.vx * t
+      })
+      .filter((x) => Math.abs(x - this.x) < 12)
+    if (!landing.length) return false
+    const away = landing.reduce((a, x) => a + x, 0) / landing.length
+    if (away > this.x) frame.held.left = true
+    else frame.held.right = true
+    return true
   }
 
   private pilotBoss(frame: InputFrame): InputFrame {
     const b = this.boss!
     const dx = b.x - this.x
     const dir = dx > 0 ? 1 : -1
-    // Jump a charging bull.
-    // Vault the devil as it drifts in (a committed jump, so take off early).
+    // Vault the devil as it drifts in; jump anything charging (a committed jump, so take off early).
+    const closing = Math.sign(b.vx) === -dir
     const vault =
-      b.kind === 'devil' &&
-      Math.sign(b.vx) === -dir &&
-      Math.abs(dx) < 62 &&
-      Math.abs(dx) > 36
-    const charging =
-      b.mode === 'charge' && Math.sign(b.vx) === -dir && Math.abs(dx) < 80
+      b.id === 'devil' && closing && Math.abs(dx) < 62 && Math.abs(dx) > 36
+    const charging = b.mode === 'charge' && closing && Math.abs(dx) < 80
     if (this.onGround && (charging || vault)) {
       frame.pressed.up = true
       if (vault && dir > 0) frame.held.right = true
@@ -1272,20 +2321,7 @@ class ZuzuGhostTrail implements ArcadeGameInstance {
       return frame
     }
     if (!this.onGround) return frame
-    // Step out from under a clod that will land on him.
-    const landing = this.clods
-      .map((c) => {
-        const drop = c.y - (this.y - 10)
-        const t = (-c.vy + Math.sqrt(c.vy * c.vy - 0.4 * drop)) / 0.2
-        return c.x + c.vx * t
-      })
-      .filter((x) => Math.abs(x - this.x) < 12)
-    if (landing.length) {
-      const away = landing.reduce((a, x) => a + x, 0) / landing.length
-      if (away > this.x) frame.held.left = true
-      else frame.held.right = true
-      return frame
-    }
+    if (this.dodgeBolts(frame) || this.hopIncoming(frame)) return frame
     if (dir !== this.facing) {
       if (dir > 0) frame.held.right = true
       else frame.held.left = true
@@ -1297,11 +2333,11 @@ class ZuzuGhostTrail implements ArcadeGameInstance {
       shuriken: 90,
       kasa: 70,
       lantern: 48,
-      katana: 12,
+      katana: 26,
     }[this.weapon]
     if (
       this.throwCooldown === 0 &&
-      (this.weapon !== 'katana' || Math.abs(dx) < 30)
+      (this.weapon !== 'katana' || Math.abs(dx) < 48)
     )
       frame.pressed.a = true
     if (Math.abs(dx) > want + 12) {
@@ -1314,26 +2350,105 @@ class ZuzuGhostTrail implements ArcadeGameInstance {
   // --- render -------------------------------------------------------------------
 
   render(g: CanvasRenderingContext2D) {
-    this.renderSky(g)
+    const camX = Math.round(this.camX)
+    const theme = this.act.theme
+    const key = ART_KEY[theme]
+    drawBackdrop(g, key, camX, this.tick, this.length)
     g.save()
-    g.translate(-Math.round(this.camX), 0)
-    this.renderTown(g)
-    this.renderGround(g)
-    for (const c of this.crates) if (!c.open) this.renderCrate(g, c.x)
-    for (const p of this.pickups) this.renderPickup(g, p)
+    const camY = Math.round(this.camY)
+    // Up a tower, the town fades behind the tower's own walls; up the pass, behind the canyon's.
+    const climb = Math.min(1, -camY / 120)
+    if (theme === 'stormpass') drawCliffFace(g, camX, camY, climb, this.tick)
+    else drawTowerInterior(g, camX, camY, climb, this.tick)
+    g.translate(-camX, -camY)
+    for (const u of this.act.updrafts ?? []) {
+      // Up a climb, wind that rises off a floor is drawn from that floor, not the ground line.
+      const under = this.act.vertical
+        ? this.floorsUnder(u.x, u.x + u.w, u.top, GROUND_Y)
+        : []
+      drawUpdraft(g, u, under.length ? Math.min(...under) : GROUND_Y, this.tick)
+    }
+    drawTerrain(g, this.terrain, camX, this.tick)
+    for (const b of this.act.blocks)
+      if (!isGrave(b) && b.x + b.w > camX - 8 && b.x < camX + W + 8)
+        drawBlock(g, b, blockTop(b, GROUND_Y), theme)
+    for (const h of this.act.hazards ?? []) {
+      if (h.x + h.w < camX - 8 || h.x > camX + W + 8) continue
+      if (h.kind === 'lightning') {
+        drawLightning(
+          g,
+          h,
+          camY,
+          Math.min(GROUND_Y, camY + H),
+          this.floorsUnder(h.x, h.x + h.w, camY, camY + H),
+          {
+            tell: lightningTell(h, this.actTick),
+            since: this.actTick % h.period!,
+            on: h.on!,
+          },
+          this.tick,
+        )
+        continue
+      }
+      const live = hazardLive(h, this.actTick)
+      const warm =
+        !live && !!h.period && h.period - (this.actTick % h.period) < 40
+      drawHazard(g, h, GROUND_Y, live, warm, this.tick)
+    }
+    ;(this.act.movers ?? []).forEach((m, i) => {
+      const p = this.moverPos(i, this.actTick) ?? { x: m.x, y: m.y }
+      if (p.x + m.w < camX - 40 || p.x > camX + W + 40) return
+      const rose = this.risen.get(i)
+      const f = this.ferries[i]
+      drawMover(g, m, p.x, p.y, theme, this.tick, {
+        rise: rose === undefined ? 0 : Math.min(1, (this.actTick - rose) / 40),
+        face: f?.side === 1 ? -1 : 1,
+        swimming: !!f && f.left !== null && this.actTick - f.left > FERRY_WAIT,
+      })
+    })
+    const cage = this.act.captive
+    if (cage && cage.x > camX - 30 && cage.x < camX + W + 30)
+      drawCage(
+        g,
+        cage.x,
+        cage.y,
+        this.rescued.has(cage.id)
+          ? 'empty'
+          : this.unlocked.has(cage.id)
+            ? 'open'
+            : 'locked',
+        this.tick,
+        camY,
+      )
+    this.atFloor(g, this.length + 30, () =>
+      drawGate(g, key, this.length, this.tick, !this.bossDone),
+    )
+    for (const c of this.act.checkpoints)
+      if (c > 40)
+        this.atFloor(g, c, () =>
+          drawCheckpoint(g, key, c, this.checkpoint >= c, this.tick),
+        )
+    for (const c of this.crates) if (!c.open) drawCrate(g, c.x, GROUND_Y)
+    for (const s of this.act.secrets)
+      if (!this.foundSecrets.has(s.id)) drawSecret(g, s.x, s.y, this.tick)
+    for (const p of this.pickups) drawPickup(g, p, this.tick)
     for (const f of this.foes) this.renderFoe(g, f)
     if (this.boss) this.renderBoss(g, this.boss)
-    g.fillStyle = '#7c5a32'
-    for (const c of this.clods) {
-      g.beginPath()
-      g.arc(c.x, c.y, 3, 0, Math.PI * 2)
-      g.fill()
+    for (const b of this.bolts) drawBolt(g, b, this.tick)
+    for (const fire of this.fires)
+      drawFire(g, { x: fire.x, life: fire.life }, fire.y, this.tick)
+    for (const k of this.shots)
+      drawShot(g, { ...k, face: Math.sign(k.vx) || this.facing }, this.tick)
+    for (const f of this.flying) {
+      drawFlyingPoncho(g, f.x, f.y + 6, f.spin)
+      drawFlyingKasa(g, f.x, f.y, f.spin)
     }
-    for (const fire of this.fires) this.renderFire(g, fire)
-    for (const k of this.shots) this.renderShot(g, k)
-    for (const f of this.flying) this.renderFlyingKasa(g, f)
     if (this.dead === 0 && !this.over) this.renderZuzu(g)
     else if (this.dead > 0) this.renderFallen(g)
+    if (this.act.tide) {
+      const t = tideAt(this.act.tide, this.actTick)
+      drawWater(g, camX, t.y, t.warning, this.tick)
+    }
     for (const p of this.particles) {
       g.globalAlpha = Math.max(0, p.life / 30)
       g.fillStyle = p.color
@@ -1343,732 +2458,205 @@ class ZuzuGhostTrail implements ArcadeGameInstance {
     for (const f of this.floaters)
       drawText(g, f.text, f.x, f.y, { align: 'center', color: '#fde68a' })
     g.restore()
+    // A strike in view flashes the whole sky for a moment.
+    const flash = (this.act.hazards ?? []).reduce((a, h) => {
+      if (h.kind !== 'lightning' || h.x + h.w < camX || h.x > camX + W) return a
+      const since = this.actTick % h.period!
+      return since < 4 ? Math.max(a, 0.16 * (1 - since / 4)) : a
+    }, 0)
+    if (flash > 0 && this.dead === 0) {
+      g.fillStyle = `rgba(220, 228, 255, ${flash})`
+      g.fillRect(0, 0, W, H)
+    }
+    // The low foreground strip belongs to the ground line: it fades away as the view climbs.
+    if (camY > -40) {
+      g.globalAlpha = 1 + camY / 40
+      drawForeground(g, key, camX, this.tick, this.act.ground)
+      g.globalAlpha = 1
+    }
     this.renderHud(g)
+    if (this.card) drawCard(g, this.card)
   }
 
-  private renderSky(g: CanvasRenderingContext2D) {
-    const sky = g.createLinearGradient(0, 0, 0, GROUND_Y)
-    sky.addColorStop(0, this.stage.sky[0])
-    sky.addColorStop(0.65, this.stage.sky[1])
-    sky.addColorStop(1, this.stage.sky[2])
-    g.fillStyle = sky
-    g.fillRect(0, 0, W, H)
-    // A big pale moon, parallax-slow.
-    const mx = 250 - ((this.camX * 0.05) % 400)
-    g.fillStyle = '#e2e8f0'
-    g.beginPath()
-    g.arc(mx, 52, 22, 0, Math.PI * 2)
-    g.fill()
-    g.fillStyle = 'rgba(15, 27, 61, 0.35)'
-    g.beginPath()
-    g.arc(mx + 7, 48, 18, 0, Math.PI * 2)
-    g.fill()
-    // Distant mesas.
-    g.fillStyle = this.stage.mesa
-    for (let i = 0; i < 6; i++) {
-      const x = ((((i * 140 - this.camX * 0.25) % 840) + 840) % 840) - 120
-      g.fillRect(x, 150, 90, 60)
-      g.fillRect(x + 12, 138, 60, 14)
-    }
+  /** The tops of the floors (ground, ledges, blocks) under any of x0..x1 that lie between y0 and y1. */
+  private floorsUnder(x0: number, x1: number, y0: number, y1: number) {
+    const cx = (x0 + x1) / 2
+    const tops = [
+      ...this.act.ledges
+        .filter((l) => l.x < x1 && l.x + l.w > x0)
+        .map((l) => l.y),
+      ...this.act.blocks
+        .filter((b) => b.x < x1 && b.x + b.w > x0)
+        .map((b) => blockTop(b, GROUND_Y)),
+      ...(this.groundAt(cx) ? [GROUND_Y] : []),
+    ]
+    return tops.filter((y) => y >= y0 && y <= y1)
   }
 
-  private renderTown(g: CanvasRenderingContext2D) {
-    if (this.stage.key === 'town') this.renderShacks(g)
-    else if (this.stage.key === 'boneyard') this.renderBoneYard(g)
-    else if (this.stage.key === 'waterhole') this.renderWaterHole(g)
-    else this.renderMission(g)
-    this.renderGate(g)
-  }
-
-  private renderBoneYard(g: CanvasRenderingContext2D) {
-    for (let x = 160; x < STAGE_END; x += 300) {
-      // A great ribcage half sunk in the sand.
-      g.strokeStyle = '#d6d3d1'
-      g.lineWidth = 3
-      for (let i = 0; i < 5; i++) {
-        const r = 30 - Math.abs(i - 2) * 5
-        g.beginPath()
-        g.arc(x + i * 14, GROUND_Y, r, Math.PI, Math.PI * 1.5)
-        g.stroke()
-      }
-      g.lineWidth = 4
-      g.beginPath()
-      g.moveTo(x - 4, GROUND_Y - 30)
-      g.lineTo(x + 60, GROUND_Y - 22)
-      g.stroke()
-      // A cow skull on a post, and a saguaro.
-      const px = x + 130
-      g.fillStyle = '#57534e'
-      g.fillRect(px, GROUND_Y - 34, 3, 34)
-      g.fillStyle = '#e7e5e4'
-      g.fillRect(px - 3, GROUND_Y - 42, 9, 7)
-      g.fillRect(px - 8, GROUND_Y - 44, 5, 2)
-      g.fillRect(px + 6, GROUND_Y - 44, 5, 2)
-      g.fillStyle = '#292524'
-      g.fillRect(px - 1, GROUND_Y - 40, 2, 2)
-      g.fillRect(px + 2, GROUND_Y - 40, 2, 2)
-      g.fillStyle = '#3f6212'
-      g.fillRect(x + 200, GROUND_Y - 44, 8, 44)
-      g.fillRect(x + 192, GROUND_Y - 30, 8, 5)
-      g.fillRect(x + 192, GROUND_Y - 38, 4, 10)
-      g.fillRect(x + 208, GROUND_Y - 24, 8, 5)
-      g.fillRect(x + 212, GROUND_Y - 34, 4, 12)
-    }
-  }
-
-  private renderWaterHole(g: CanvasRenderingContext2D) {
-    for (let x = 90; x < STAGE_END; x += 280) {
-      // A drowned, dead tree.
-      g.fillStyle = '#1f2a2e'
-      g.fillRect(x, GROUND_Y - 64, 6, 64)
-      g.strokeStyle = '#1f2a2e'
-      g.lineWidth = 3
-      g.beginPath()
-      g.moveTo(x + 3, GROUND_Y - 44)
-      g.lineTo(x - 14, GROUND_Y - 60)
-      g.moveTo(x + 3, GROUND_Y - 54)
-      g.lineTo(x + 18, GROUND_Y - 74)
-      g.moveTo(x + 12, GROUND_Y - 66)
-      g.lineTo(x + 22, GROUND_Y - 64)
-      g.stroke()
-      // Reeds along the bank.
-      g.fillStyle = '#3f5d3a'
-      for (let i = 0; i < 6; i++)
-        g.fillRect(
-          x + 40 + i * 5,
-          GROUND_Y - 8 - (i % 3) * 3,
-          1,
-          8 + (i % 3) * 3,
-        )
-    }
-    for (let x = 420; x < STAGE_END; x += 700) {
-      // A creaking windmill over the old well.
-      g.strokeStyle = '#334155'
-      g.lineWidth = 2
-      g.beginPath()
-      g.moveTo(x - 12, GROUND_Y)
-      g.lineTo(x, GROUND_Y - 90)
-      g.lineTo(x + 12, GROUND_Y)
-      g.moveTo(x - 8, GROUND_Y - 30)
-      g.lineTo(x + 8, GROUND_Y - 30)
-      g.moveTo(x - 4, GROUND_Y - 60)
-      g.lineTo(x + 4, GROUND_Y - 60)
-      g.stroke()
-      g.lineWidth = 3
-      for (let i = 0; i < 4; i++) {
-        const a = this.tick / 40 + (i * Math.PI) / 2
-        g.beginPath()
-        g.moveTo(x, GROUND_Y - 92)
-        g.lineTo(x + Math.cos(a) * 18, GROUND_Y - 92 + Math.sin(a) * 18)
-        g.stroke()
-      }
-    }
-  }
-
-  private renderMission(g: CanvasRenderingContext2D) {
-    for (let x = 140; x < STAGE_END; x += 260) {
-      // Adobe houses with vigas and dark arched doorways.
-      const h = 40 + ((x / 260) % 2) * 12
-      g.fillStyle = '#b77b4f'
-      g.fillRect(x, GROUND_Y - h, 76, h)
-      g.fillStyle = '#5c3a22'
-      for (let i = 0; i < 5; i++)
-        g.fillRect(x + 6 + i * 15, GROUND_Y - h + 6, 4, 3)
-      g.fillStyle = '#2b1a10'
-      g.fillRect(x + 30, GROUND_Y - 22, 14, 22)
-      g.beginPath()
-      g.arc(x + 37, GROUND_Y - 22, 7, Math.PI, 0)
-      g.fill()
-      g.fillRect(x + 56, GROUND_Y - h + 16, 8, 8)
-    }
-    // The bell tower itself, its bell still swinging.
-    const tx = 2460
-    g.fillStyle = '#c99567'
-    g.fillRect(tx, GROUND_Y - 130, 46, 130)
-    g.fillRect(tx - 4, GROUND_Y - 136, 54, 8)
-    g.beginPath()
-    g.arc(tx + 23, GROUND_Y - 136, 14, Math.PI, 0)
-    g.fill()
-    g.fillStyle = '#2b1a10'
-    g.fillRect(tx + 11, GROUND_Y - 116, 24, 26)
-    g.beginPath()
-    g.arc(tx + 23, GROUND_Y - 116, 12, Math.PI, 0)
-    g.fill()
-    const swing = Math.sin(this.tick / 25) * 4
-    g.fillStyle = '#ca8a04'
-    g.beginPath()
-    g.moveTo(tx + 23 + swing, GROUND_Y - 118)
-    g.lineTo(tx + 31 + swing, GROUND_Y - 98)
-    g.lineTo(tx + 15 + swing, GROUND_Y - 98)
-    g.fill()
-  }
-
-  private renderShacks(g: CanvasRenderingContext2D) {
-    // False-front shacks along the trail, weathered and empty.
-    for (let x = 120; x < STAGE_END; x += 260) {
-      const h = 46 + ((x / 260) % 3) * 10
-      g.fillStyle = '#4a3423'
-      g.fillRect(x, GROUND_Y - h, 70, h)
-      g.fillStyle = '#5c4030'
-      g.fillRect(x - 4, GROUND_Y - h - 12, 78, 14)
-      g.fillStyle = '#1c1410'
-      g.fillRect(x + 10, GROUND_Y - h + 12, 12, 14)
-      g.fillRect(x + 46, GROUND_Y - h + 12, 12, 14)
-      g.fillRect(x + 28, GROUND_Y - 24, 14, 24)
-      // A swinging shutter.
-      g.fillStyle = '#6b4a33'
-      g.fillRect(
-        x + 46 + Math.sin(this.tick / 30 + x) * 2,
-        GROUND_Y - h + 12,
-        4,
-        14,
-      )
-    }
-  }
-
-  private renderGate(g: CanvasRenderingContext2D) {
-    // The mission gate at the trail's end.
-    g.fillStyle = '#d6c7a1'
-    g.fillRect(STAGE_END, GROUND_Y - 70, 12, 70)
-    g.fillRect(STAGE_END + 60, GROUND_Y - 70, 12, 70)
-    g.fillRect(STAGE_END - 4, GROUND_Y - 82, 80, 14)
-    g.fillStyle = '#a16207'
-    g.beginPath()
-    g.arc(STAGE_END + 36, GROUND_Y - 92, 7, Math.PI, 0)
-    g.fill()
-    // Iron bars across the gate until the boss falls.
-    if (!this.bossDone) {
-      g.fillStyle = '#292524'
-      for (let x = STAGE_END + 14; x < STAGE_END + 60; x += 7)
-        g.fillRect(x, GROUND_Y - 68, 3, 68)
-      g.fillRect(STAGE_END + 12, GROUND_Y - 40, 48, 3)
-    }
-    // Checkpoint lantern.
-    g.fillStyle = '#3f2a14'
-    g.fillRect(CHECKPOINT_X, GROUND_Y - 40, 3, 40)
-    g.fillStyle = this.checkpoint >= CHECKPOINT_X ? '#fbbf24' : '#57534e'
-    g.fillRect(CHECKPOINT_X - 3, GROUND_Y - 46, 9, 8)
-  }
-
-  private renderGround(g: CanvasRenderingContext2D) {
-    const [soil, crust, speck] = this.stage.soil
-    if (this.stage.key === 'waterhole') {
-      // Dark water fills every pit.
-      const runs = this.stage.ground
-      for (let i = 0; i < runs.length - 1; i++) {
-        const a = runs[i]![1]
-        const b = runs[i + 1]![0]
-        g.fillStyle = '#1e5a7a'
-        g.fillRect(a, GROUND_Y + 8, b - a, H - GROUND_Y - 8)
-        g.fillStyle = '#7dd3fc'
-        for (let x = a + 4; x < b - 4; x += 12)
-          g.fillRect(x + ((this.tick / 8 + x) % 6), GROUND_Y + 10, 4, 1)
-      }
-    }
-    for (const [a, b] of this.stage.ground) {
-      g.fillStyle = soil
-      g.fillRect(a, GROUND_Y, b - a, H - GROUND_Y)
-      g.fillStyle = crust
-      g.fillRect(a, GROUND_Y, b - a, 3)
-      g.fillStyle = speck
-      for (let x = a + 6; x < b; x += 23)
-        g.fillRect(x, GROUND_Y + 8 + (x % 3) * 4, 3, 2)
-    }
-    for (const b of this.stage.boardwalks) {
-      g.fillStyle = '#6b4a2b'
-      g.fillRect(b.x, b.y, b.w, 5)
-      g.fillStyle = '#3f2a14'
-      g.fillRect(b.x + 4, b.y + 5, 3, GROUND_Y - b.y - 5)
-      g.fillRect(b.x + b.w - 7, b.y + 5, 3, GROUND_Y - b.y - 5)
-      g.fillStyle = '#8b6a43'
-      for (let x = b.x; x < b.x + b.w; x += 8) g.fillRect(x, b.y, 1, 5)
-    }
-    for (const t of this.stage.tombstones) {
-      if (this.stage.key === 'waterhole') {
-        // A mossy boulder.
-        g.fillStyle = '#57534e'
-        g.beginPath()
-        g.ellipse(t, GROUND_Y - 7, 7, 8, 0, 0, Math.PI * 2)
-        g.fill()
-        g.fillStyle = '#4d7c0f'
-        g.fillRect(t - 5, GROUND_Y - 14, 6, 2)
-        continue
-      }
-      if (this.stage.key === 'belltower') {
-        // A tumbled adobe block.
-        g.fillStyle = '#a4683f'
-        g.fillRect(t - 6, GROUND_Y - 16, 12, 16)
-        g.fillStyle = '#c99567'
-        g.fillRect(t - 6, GROUND_Y - 16, 12, 3)
-        continue
-      }
-      g.fillStyle = '#78716c'
-      g.fillRect(t - 6, GROUND_Y - 14, 12, 14)
-      g.beginPath()
-      g.arc(t, GROUND_Y - 14, 6, Math.PI, 0)
-      g.fill()
-      g.fillStyle = '#44403c'
-      g.fillRect(t - 1, GROUND_Y - 16, 2, 8)
-      g.fillRect(t - 3, GROUND_Y - 13, 6, 2)
-    }
-  }
-
-  private renderCrate(g: CanvasRenderingContext2D, x: number) {
-    g.fillStyle = '#92400e'
-    g.fillRect(x - 8, GROUND_Y - 16, 16, 16)
-    g.strokeStyle = '#451a03'
-    g.lineWidth = 1
-    g.strokeRect(x - 7.5, GROUND_Y - 15.5, 15, 15)
-    g.beginPath()
-    g.moveTo(x - 7, GROUND_Y - 15)
-    g.lineTo(x + 7, GROUND_Y - 1)
-    g.stroke()
-  }
-
-  private renderPickup(g: CanvasRenderingContext2D, p: Pickup) {
-    if (p.life < 90 && Math.floor(this.tick / 5) % 2) return
-    if (p.kind === 'poncho') {
-      g.fillStyle = '#9a3412'
-      g.beginPath()
-      g.moveTo(p.x, p.y - 7)
-      g.lineTo(p.x + 8, p.y + 5)
-      g.lineTo(p.x - 8, p.y + 5)
-      g.fill()
-      g.fillStyle = '#f97316'
-      for (let i = -6; i < 6; i += 4) g.fillRect(p.x + i, p.y + 3, 2, 2)
-    } else if (p.kind === 'nugget' || p.kind === 'coin') {
-      g.fillStyle = p.kind === 'nugget' ? '#facc15' : '#cbd5e1'
-      g.beginPath()
-      g.arc(p.x, p.y, p.kind === 'nugget' ? 4 : 3, 0, Math.PI * 2)
-      g.fill()
-      g.fillStyle = p.kind === 'nugget' ? '#fef9c3' : '#f8fafc'
-      g.fillRect(p.x - 2, p.y - 2, 2, 2)
-    } else {
-      // Gear comes wrapped in a glinting bundle with its icon on the front.
-      g.fillStyle = '#1c1917'
-      g.fillRect(p.x - 7, p.y - 7, 14, 13)
-      g.strokeStyle = Math.floor(this.tick / 8) % 2 ? '#fbbf24' : '#f59e0b'
-      g.lineWidth = 1
-      g.strokeRect(p.x - 6.5, p.y - 6.5, 13, 12)
-      this.renderWeaponIcon(g, p.kind, p.x, p.y)
-    }
-  }
-
-  private renderWeaponIcon(
-    g: CanvasRenderingContext2D,
-    weapon: Weapon,
-    x: number,
-    y: number,
-  ) {
-    if (weapon === 'kunai') {
-      g.fillStyle = '#cbd5e1'
-      g.fillRect(x - 3, y - 1, 7, 2)
-      g.fillStyle = '#7c2d12'
-      g.fillRect(x - 5, y - 1, 3, 2)
-    } else if (weapon === 'shuriken') {
-      g.fillStyle = '#cbd5e1'
-      g.fillRect(x - 4, y - 1, 8, 2)
-      g.fillRect(x - 1, y - 4, 2, 8)
-      g.fillStyle = '#1c1917'
-      g.fillRect(x - 1, y - 1, 1, 1)
-    } else if (weapon === 'kasa') {
-      g.fillStyle = '#d6b25e'
-      g.beginPath()
-      g.moveTo(x - 5, y + 2)
-      g.lineTo(x, y - 3)
-      g.lineTo(x + 5, y + 2)
-      g.fill()
-      g.fillStyle = '#a07d32'
-      g.fillRect(x - 5, y + 2, 10, 1)
-    } else if (weapon === 'lantern') {
-      g.fillStyle = '#7c2d12'
-      g.fillRect(x - 2, y - 4, 4, 1)
-      g.fillStyle = '#fbbf24'
-      g.fillRect(x - 3, y - 3, 6, 6)
-      g.fillStyle = '#f97316'
-      g.fillRect(x - 1, y - 2, 2, 4)
-    } else {
-      g.fillStyle = '#e5e7eb'
-      g.fillRect(x - 4, y - 1, 8, 1)
-      g.fillStyle = '#b91c1c'
-      g.fillRect(x - 6, y - 1, 2, 2)
-      g.fillStyle = '#facc15'
-      g.fillRect(x - 4, y - 2, 1, 3)
-    }
-  }
-
-  private renderShot(g: CanvasRenderingContext2D, k: Shot) {
-    if (k.weapon === 'kunai') {
-      g.fillStyle = '#cbd5e1'
-      g.fillRect(k.x - 4, k.y - 1, 7, 2)
-      g.fillStyle = '#7c2d12'
-      g.fillRect(k.x - (k.vx > 0 ? 6 : -3), k.y - 1, 3, 2)
-    } else if (k.weapon === 'shuriken') {
-      g.fillStyle = '#e2e8f0'
-      if (Math.floor(k.t / 3) % 2) {
-        g.fillRect(k.x - 3, k.y, 7, 1)
-        g.fillRect(k.x, k.y - 3, 1, 7)
-      } else {
-        for (let i = -2; i <= 2; i++) {
-          g.fillRect(k.x + i, k.y + i, 1, 1)
-          g.fillRect(k.x + i, k.y - i, 1, 1)
-        }
-      }
-    } else if (k.weapon === 'kasa') {
-      g.save()
-      g.translate(k.x, k.y)
-      g.scale(1, Math.abs(Math.cos(k.t / 3)) * 0.6 + 0.4)
-      g.fillStyle = '#d6b25e'
-      g.beginPath()
-      g.moveTo(-9, 2)
-      g.lineTo(0, -4)
-      g.lineTo(9, 2)
-      g.fill()
-      g.fillStyle = '#a07d32'
-      g.fillRect(-9, 2, 18, 1)
-      g.restore()
-    } else if (k.weapon === 'lantern') {
-      this.renderWeaponIcon(g, 'lantern', k.x, k.y)
-    } else {
-      // The iai cut: a bright crescent sweeping in front of him.
-      const f = this.facing
-      g.save()
-      g.globalAlpha = Math.max(0.2, k.life / 10)
-      g.strokeStyle = '#e0f2fe'
-      g.lineWidth = 2
-      g.beginPath()
-      const sweep = (10 - k.life) / 10
-      g.arc(
-        this.x + f * 2,
-        this.y - 12,
-        14,
-        f > 0 ? -1.3 + sweep * 0.4 : Math.PI - 1.1 - sweep * 0.4,
-        f > 0 ? 1.1 + sweep * 0.4 : Math.PI + 1.3 - sweep * 0.4,
-      )
-      g.stroke()
-      g.restore()
-    }
-  }
-
-  private renderFire(g: CanvasRenderingContext2D, fire: Fire) {
-    const fade = Math.min(1, fire.life / 20)
-    for (let i = -2; i <= 2; i++) {
-      const flick = Math.sin(this.tick / 3 + i * 1.7 + fire.x) * 2
-      const h = (9 + (2 - Math.abs(i)) * 3 + flick) * fade
-      g.fillStyle = '#ea580c'
-      g.beginPath()
-      g.moveTo(fire.x + i * 4 - 3, GROUND_Y)
-      g.lineTo(fire.x + i * 4, GROUND_Y - h)
-      g.lineTo(fire.x + i * 4 + 3, GROUND_Y)
-      g.fill()
-      g.fillStyle = '#fde047'
-      g.fillRect(fire.x + i * 4 - 1, GROUND_Y - h * 0.45, 2, h * 0.45)
-    }
+  /** Draw ground-line art (a gate, a checkpoint lantern) standing on whatever floor is at x. */
+  private atFloor(g: CanvasRenderingContext2D, x: number, draw: () => void) {
+    const floor = this.standAt(x)
+    g.save()
+    g.translate(0, floor - GROUND_Y)
+    draw()
+    g.restore()
   }
 
   private renderFoe(g: CanvasRenderingContext2D, f: Foe) {
-    const x = f.x
-    const y = f.y
-    if (f.kind === 'spirit') {
-      // A restless spirit clawing up out of the dirt: pale, ragged, hollow-eyed.
-      g.save()
-      g.beginPath()
-      g.rect(x - 10, 0, 20, GROUND_Y + 1)
-      g.clip()
-      g.globalAlpha = f.phase === 'sink' ? 0.6 : 0.85
-      g.fillStyle = '#a5f3fc'
-      g.beginPath()
-      g.moveTo(x - 6, y)
-      g.lineTo(x - 6, y - 14)
-      g.arc(x, y - 14, 6, Math.PI, 0)
-      g.lineTo(x + 6, y)
-      g.fill()
-      g.fillStyle = '#164e63'
-      g.fillRect(x - 3, y - 16, 2, 3)
-      g.fillRect(x + 1, y - 16, 2, 3)
-      g.fillRect(x - 1, y - 11, 2, 2)
-      // Reaching arms.
-      g.fillStyle = '#a5f3fc'
-      const reach = Math.sin(f.t / 8) * 2
-      g.fillRect(x + Math.sign(this.x - x) * 6, y - 12 + reach, 5, 2)
-      g.restore()
-      return
-    }
-    if (f.kind === 'crow') {
-      const flap = Math.floor(f.t / 6) % 2
-      g.fillStyle = '#1e293b'
-      g.fillRect(x - 5, y - 3, 10, 6)
-      g.fillStyle = '#334155'
-      g.beginPath()
-      g.moveTo(x - 2, y - 2)
-      g.lineTo(x + 2, y - (flap ? 10 : 2))
-      g.lineTo(x + 6, y - 2)
-      g.fill()
-      g.fillStyle = '#facc15'
-      g.fillRect(x - 8, y - 1, 3, 2)
-      g.fillStyle = '#fef08a'
-      g.fillRect(x - 4, y - 2, 1, 1)
-      if (f.carrying) {
-        // A bundle of gear swinging from its talons.
-        g.fillStyle = '#78350f'
-        g.fillRect(x, y + 3, 1, 3)
-        g.fillStyle = '#d97706'
-        g.fillRect(x - 3, y + 6, 7, 5)
-        g.fillStyle = '#fbbf24'
-        g.fillRect(x - 1, y + 6, 2, 1)
-      }
-      return
-    }
-    // Bone hyena: a skeletal grin on four quick legs.
-    const step = Math.floor(f.t / 5) % 2
-    g.fillStyle = '#e7e5e4'
-    g.fillRect(x - 8, y - 12, 14, 6)
-    g.fillRect(x - 12, y - 15, 6, 6)
-    g.fillStyle = '#44403c'
-    g.fillRect(x - 11, y - 13, 1, 1)
-    g.fillRect(x - 12, y - 11, 4, 1)
-    for (let i = 0; i < 4; i++) g.fillRect(x - 6 + i * 3, y - 11, 1, 4)
-    g.fillStyle = '#e7e5e4'
-    g.fillRect(x - 7, y - 6, 2, 6 - step * 2)
-    g.fillRect(x + 3, y - 6, 2, 4 + step * 2)
-    g.fillRect(x + 6, y - 13, 4, 2)
+    // The slice's three always turn to Zuzu; the campaign roster faces the way its behaviour set.
+    const slice = f.kind === 'spirit' || f.kind === 'crow' || f.kind === 'hyena'
+    drawFoe(
+      g,
+      {
+        ...f,
+        carrying: !!f.carrying,
+        face: slice ? Math.sign(this.x - f.x) || -1 : f.face,
+      },
+      this.tick,
+    )
   }
 
   private renderBoss(g: CanvasRenderingContext2D, b: Boss) {
-    if (b.dying > 0 && Math.floor(b.dying / 3) % 2) return
-    const x = Math.round(b.x)
-    const y = b.y
-    const white = b.flash > 0
-    if (b.kind === 'devil') {
-      // A whirling funnel of dust, narrow at the ground, with a bull skull in it.
-      for (let i = 0; i < 9; i++) {
-        const h = i * 4
-        const w = 4 + i * 2
-        const sway = Math.sin(b.t / 6 + i * 0.7) * (2 + i * 0.4)
-        g.fillStyle = white ? '#ffffff' : i % 2 ? '#c9a46a' : '#a07a45'
-        g.fillRect(x - w / 2 + sway, y - h - 4, w, 4)
-      }
-      const sx = x + Math.sin(b.t / 6 + 4) * 4
-      g.fillStyle = white ? '#ffffff' : '#f5f5f4'
-      g.fillRect(sx - 4, y - 30, 8, 7)
-      g.fillRect(sx - 9, y - 32, 5, 2)
-      g.fillRect(sx + 4, y - 32, 5, 2)
-      g.fillRect(sx - 10, y - 35, 2, 3)
-      g.fillRect(sx + 8, y - 35, 2, 3)
-      g.fillStyle = '#f97316'
-      g.fillRect(sx - 3, y - 28, 2, 2)
-      g.fillRect(sx + 1, y - 28, 2, 2)
+    const face = Math.sign(this.x - b.x) || -1
+    const draw = BOSSES[b.id]?.draw
+    if (draw) {
+      draw(g, b, this.tick, face)
       return
     }
-    // The Bone Bull: ribs, four legs, a long-horned skull, eyes hot when it means it.
-    const f =
-      b.mode === 'charge' ? Math.sign(b.vx) : Math.sign(this.x - b.x) || -1
-    const step = b.mode === 'charge' ? Math.floor(b.t / 3) % 2 : 0
-    g.fillStyle = white ? '#ffffff' : '#e7e5e4'
-    g.fillRect(x - 14, y - 22, 24, 3)
-    for (let i = 0; i < 5; i++) g.fillRect(x - 12 + i * 5, y - 20, 2, 9)
-    g.fillRect(x - 14, y - 12, 24, 2)
-    g.fillRect(x - 12, y - 10, 2, 10 - step * 2)
-    g.fillRect(x - 7, y - 10, 2, 8 + step * 2)
-    g.fillRect(x + 3, y - 10, 2, 10 - step * 2)
-    g.fillRect(x + 8, y - 10, 2, 8 + step * 2)
-    const hx = x + f * 15
-    g.fillRect(hx - 4, y - 24, 8, 9)
-    g.fillRect(hx - 9, y - 27, 5, 2)
-    g.fillRect(hx + 4, y - 27, 5, 2)
-    g.fillRect(hx - 10, y - 31, 2, 4)
-    g.fillRect(hx + 8, y - 31, 2, 4)
-    g.fillStyle = b.mode === 'stunned' ? '#57534e' : '#dc2626'
-    g.fillRect(hx - 3, y - 21, 2, 2)
-    g.fillRect(hx + 1, y - 21, 2, 2)
-    if (b.mode === 'stunned') {
-      // Seeing stars.
-      g.fillStyle = '#fde047'
-      for (let i = 0; i < 3; i++) {
-        const a = b.t / 8 + (i * Math.PI * 2) / 3
-        g.fillRect(hx + Math.cos(a) * 8 - 1, y - 36 + Math.sin(a) * 3, 2, 2)
-      }
+    if (b.id === 'devil' || b.id === 'bull') {
+      const mode =
+        b.id === 'devil'
+          ? 'drift'
+          : b.mode === 'charge' || b.mode === 'stunned'
+            ? b.mode
+            : 'paw'
+      drawBoss(g, { ...b, kind: b.id, mode, face }, this.tick)
+      return
     }
+    const def = bossDef(b)
+    drawStandInBoss(
+      g,
+      { ...b, hw: def.hw, height: def.height, face },
+      BOSS_COLOR[b.id] ?? '#e7e5e4',
+      this.tick,
+    )
   }
 
   private renderZuzu(g: CanvasRenderingContext2D) {
     if (this.invuln > 0 && Math.floor(this.tick / 4) % 2) return
-    const x = Math.round(this.x)
-    const y = Math.round(this.y)
-    const f = this.facing
-    const step =
-      this.onGround && this.vx !== 0 ? Math.floor(this.walkPhase) % 2 : 0
-    // Short legs in dark brown trousers.
-    g.fillStyle = '#3f2a1d'
-    g.fillRect(x - 4, y - 5, 3, 5 - step)
-    g.fillRect(x + 1, y - 5, 3, 4 + step)
-    // Katana across the back, hilt over the right shoulder.
-    g.fillStyle = '#1c1917'
-    g.fillRect(x - f * 5, y - 22, 2, 6)
-    g.fillStyle = '#b91c1c'
-    g.fillRect(x - f * 5, y - 23, 2, 2)
-    if (this.poncho) {
-      // The rust-brown poncho with orange zigzag trim.
-      g.fillStyle = '#9a3412'
-      g.beginPath()
-      g.moveTo(x, y - 18)
-      g.lineTo(x + 8, y - 4)
-      g.lineTo(x - 8, y - 4)
-      g.fill()
-      g.fillStyle = '#f97316'
-      for (let i = -7; i < 7; i += 3)
-        g.fillRect(x + i, y - 6 + (i % 2 === 0 ? 0 : -1), 2, 1)
-    } else {
-      // Just the dark tunic and orange sash.
-      g.fillStyle = '#1e3a8a'
-      g.fillRect(x - 5, y - 15, 10, 10)
-      g.fillStyle = '#ea580c'
-      g.fillRect(x - 5, y - 9, 10, 2)
-    }
-    // The throwing arm.
-    if (this.throwPose > 0 && this.weapon === 'katana') {
-      // Drawn for the iai cut: arm and blade out front.
-      g.fillStyle = '#9ca3af'
-      g.fillRect(x + f * 5, y - 13, f * 4, 2)
-      g.fillStyle = '#e5e7eb'
-      g.fillRect(x + f * 9, y - 13, f * 9, 1)
-    } else if (this.throwPose > 0) {
-      g.fillStyle = '#9ca3af'
-      g.fillRect(x + f * 5, y - 14, f * 5, 2)
-    }
-    // Koala head: grey, big dark nose, round fuzzy ears.
-    g.fillStyle = '#9ca3af'
-    g.fillRect(x - 5, y - 24, 10, 8)
-    g.fillStyle = '#6b7280'
-    g.fillRect(x - 8, y - 25, 4, 5)
-    g.fillRect(x + 4, y - 25, 4, 5)
-    g.fillStyle = '#d1d5db'
-    g.fillRect(x - 7, y - 24, 2, 3)
-    g.fillRect(x + 5, y - 24, 2, 3)
-    g.fillStyle = '#111827'
-    g.fillRect(x + f * 2 - 1, y - 20, 3, 3)
-    if (this.poncho) {
-      // The wide straw kasa, its brim shading his eyes.
-      g.fillStyle = '#d6b25e'
-      g.beginPath()
-      g.moveTo(x - 11, y - 22)
-      g.lineTo(x, y - 30)
-      g.lineTo(x + 11, y - 22)
-      g.fill()
-      g.fillStyle = '#a07d32'
-      g.fillRect(x - 11, y - 22, 22, 1)
-      g.fillStyle = 'rgba(17, 24, 39, 0.5)'
-      g.fillRect(x - 5, y - 21, 10, 2)
-      // The katana hilt pokes out past the brim, over his right shoulder.
-      g.fillStyle = '#1c1917'
-      g.fillRect(x - f * 10, y - 27, 2, 6)
-      g.fillStyle = '#b91c1c'
-      g.fillRect(x - f * 10, y - 28, 2, 2)
-    } else {
-      // Bare-headed: a serious, level stare.
-      g.fillStyle = '#111827'
-      g.fillRect(x - 3 + f, y - 22, 2, 1)
-      g.fillRect(x + 1 + f, y - 22, 2, 1)
-    }
-  }
-
-  private renderFlyingKasa(g: CanvasRenderingContext2D, f: Flying) {
-    g.save()
-    g.translate(f.x, f.y)
-    g.rotate(f.spin)
-    g.fillStyle = '#d6b25e'
-    g.beginPath()
-    g.moveTo(-10, 3)
-    g.lineTo(0, -4)
-    g.lineTo(10, 3)
-    g.fill()
-    g.fillStyle = '#9a3412'
-    g.fillRect(-6, 4, 12, 4)
-    g.restore()
+    const cut = this.weapon === 'katana'
+    const action =
+      this.throwPose > 0
+        ? cut
+          ? 'cut'
+          : 'throw'
+        : !this.onGround
+          ? this.vy < 0
+            ? 'jump'
+            : 'fall'
+          : this.vx !== 0
+            ? 'walk'
+            : 'idle'
+    drawZuzu(g, {
+      x: this.x,
+      y: this.y,
+      facing: this.facing,
+      poncho: this.poncho,
+      action,
+      walkPhase: this.walkPhase,
+      tick: this.tick,
+      progress:
+        this.throwPose > 0 ? 1 - this.throwPose / (cut ? 12 : 8) : undefined,
+      airborne: !this.onGround,
+    })
   }
 
   private renderFallen(g: CanvasRenderingContext2D) {
-    // Face down in the dust, still serious about it.
-    const x = Math.round(this.x)
-    const y = Math.min(Math.round(this.y), GROUND_Y)
     if (this.y > GROUND_Y + 4) return
-    g.fillStyle = this.poncho ? '#9a3412' : '#1e3a8a'
-    g.fillRect(x - 9, y - 5, 16, 5)
-    g.fillStyle = '#9ca3af'
-    g.fillRect(x + 6, y - 6, 7, 6)
-    g.fillStyle = '#6b7280'
-    g.fillRect(x + 10, y - 9, 4, 4)
-    g.fillStyle = '#3f2a1d'
-    g.fillRect(x - 13, y - 3, 5, 3)
+    drawZuzuFallen(
+      g,
+      this.x,
+      Math.min(this.y, GROUND_Y),
+      DEATH_TICKS - this.dead,
+      this.poncho,
+    )
   }
 
   private renderHud(g: CanvasRenderingContext2D) {
-    const shadow = '#0f1b3d'
-    g.fillStyle = 'rgba(15, 27, 61, 0.7)'
-    g.fillRect(0, 0, W, 16)
-    drawText(g, String(this.score).padStart(7, '0'), 4, 2, {
-      scale: 2,
-      color: '#fbbf24',
-      shadow,
-    })
-    drawText(g, `HI ${Math.max(this.hiScore, this.score)}`, W - 4, 1, {
-      align: 'right',
-      color: '#fca5a5',
-    })
-    drawText(g, `TRAIL ${this.level}`, W - 4, 9, {
-      align: 'right',
-      color: '#bfdbfe',
-    })
-    const seconds = Math.ceil(this.timer / 60)
-    drawText(g, `TIME ${seconds}`, 100, 1, {
-      color:
-        seconds <= 20 && Math.floor(this.tick / 10) % 2 ? '#ef4444' : '#fde68a',
-    })
-    for (let i = 0; i < Math.min(this.lives - 1, 5); i++) {
-      g.fillStyle = '#d6b25e'
-      g.beginPath()
-      g.moveTo(100 + i * 12, 15)
-      g.lineTo(105 + i * 12, 10)
-      g.lineTo(110 + i * 12, 15)
-      g.fill()
+    const spec = WEAPONS[this.weapon]
+    const b = this.boss && this.boss.dying === 0 ? this.boss : null
+    drawHud(
+      g,
+      {
+        score: this.score,
+        hiScore: Math.max(this.hiScore, this.score),
+        lives: this.lives,
+        hits: hitsFor(this.poncho, this.dead > 0 || this.over),
+        invuln: this.invuln,
+        weapon: this.weapon,
+        weaponLabel: spec.label,
+        shotsMax: spec.max,
+        shotsOut: this.shots.filter((k) => k.weapon === this.weapon).length,
+        cadence: Math.max(
+          0,
+          Math.min(1, 1 - this.throwCooldown / spec.cooldown),
+        ),
+        trail: this.act.stage,
+        stageName: this.act.stageName,
+        seconds: Math.ceil(this.timer / 60),
+        progress: Math.max(0, Math.min(1, this.x / this.length)),
+        relics: this.foundSecrets.size,
+        relicsMax: RELIC_COUNT,
+        boss: b && {
+          name: bossDef(b).name,
+          hp: Math.max(0, b.hp),
+          maxHp: b.maxHp,
+          flash: b.flash,
+        },
+        tick: this.tick,
+      },
+      (h, x, y, w, ht) => drawZuzuPortrait(h, x, y, w, ht, this.poncho),
+      (h, weapon, x, y) => drawWeaponIcon(h, weapon as Weapon, x, y, 12),
+    )
+    if (this.banner !== this.bannerSeen) {
+      this.bannerSeen = this.banner
+      this.bannerFrom = this.tick
     }
-    // The gear in hand.
-    g.fillStyle = 'rgba(15, 27, 61, 0.7)'
-    g.fillRect(0, 16, 20 + WEAPONS[this.weapon].label.length * 6, 11)
-    this.renderWeaponIcon(g, this.weapon, 9, 21)
-    drawText(g, WEAPONS[this.weapon].label, 18, 18, { color: '#fde68a' })
-    // Progress along the trail.
-    g.fillStyle = '#1f2937'
-    g.fillRect(170, 6, 60, 3)
-    g.fillStyle = '#fbbf24'
-    g.fillRect(170, 6, Math.min(60, (60 * this.x) / STAGE_END), 3)
-    if (this.boss && this.boss.dying === 0) {
-      const b = this.boss
-      g.fillStyle = 'rgba(15, 27, 61, 0.7)'
-      g.fillRect(W / 2 - 62, 18, 124, 16)
-      drawText(g, b.kind === 'devil' ? 'DUST DEVIL' : 'BONE BULL', W / 2, 19, {
-        align: 'center',
-        color: '#fca5a5',
-      })
-      g.fillStyle = '#1f2937'
-      g.fillRect(W / 2 - 58, 28, 116, 3)
-      g.fillStyle = '#ef4444'
-      g.fillRect(W / 2 - 58, 28, (116 * Math.max(0, b.hp)) / b.maxHp, 3)
-    }
-    if (this.banner) {
-      drawText(g, this.banner.text, W / 2, 70, {
-        scale: 2,
-        align: 'center',
-        color: '#fef3c7',
-        shadow: '#7c2d12',
-      })
-      if (this.banner.sub)
-        drawText(g, this.banner.sub, W / 2, 90, {
-          align: 'center',
-          color: '#fde68a',
-          shadow,
-        })
-    }
+    if (this.banner)
+      drawBanner(
+        g,
+        this.banner.text,
+        this.banner.sub,
+        this.tick - this.bannerFrom,
+      )
+  }
+}
+
+/** Every captive's id (a rescue is saved with the relics but is not one). */
+const CAPTIVE_IDS = new Set(
+  ACTS.flatMap((a) => (a.captive ? [a.captive.id] : [])),
+)
+
+/** The relics among a save's ids. */
+function relicsIn(ids: string[]): string[] {
+  return ids.filter((id) => !CAPTIVE_IDS.has(id))
+}
+
+function bossDef(b: Boss): BossDef {
+  return BOSSES[b.id] ?? BOSSES.devil!
+}
+
+/** The slice's terrain draws 12x16 graves itself; every other block is drawn by worldArt. */
+function isGrave(b: Act['blocks'][number]) {
+  return b.look === 'grave' && b.w === 12 && b.h === 16 && b.y === undefined
+}
+
+function terrainOf(act: Act): TerrainStage {
+  return {
+    key: ART_KEY[act.theme],
+    ground: act.ground,
+    boardwalks: act.ledges,
+    tombstones: act.blocks.filter(isGrave).map((b) => b.x + 6),
   }
 }
 

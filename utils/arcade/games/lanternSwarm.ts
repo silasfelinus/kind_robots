@@ -19,6 +19,23 @@
 
 import { levelCurve } from '../curve'
 import { drawText } from '../font'
+import {
+  INK,
+  RAMPS,
+  Sparkles,
+  backdropRng,
+  bandedGradient,
+  cachedLayer,
+  drawSprite,
+  glow,
+  hudPanel,
+  mix,
+  pixelSprite,
+  rgba,
+  starField,
+  vignette,
+} from '../snes'
+import type { PixelSprite, Ramp } from '../snes'
 import type {
   ArcadeGameInstance,
   ArcadeGameModule,
@@ -166,6 +183,343 @@ const ROWS_FOR: Record<Kind, Array<{ row: number; cols: number[] }>> = {
   ],
 }
 
+// --- 16-bit art (utils/arcade/snes.ts) -------------------------------------------
+
+/** The night sky in HDMA bands: ink at the zenith, a warm festival haze low down. */
+const NIGHT_BANDS = [
+  RAMPS.night[0],
+  RAMPS.night[0],
+  RAMPS.night[1],
+  RAMPS.night[2],
+  mix(RAMPS.night[2], RAMPS.purple[0], 0.6),
+  RAMPS.purple[0],
+  mix(RAMPS.purple[0], RAMPS.pink[0], 0.55),
+  mix(RAMPS.pink[0], RAMPS.rust[0], 0.4),
+]
+/** Glow stages fly under an aurora. */
+const AURORA_BANDS = [
+  RAMPS.night[0],
+  mix(RAMPS.night[1], RAMPS.teal[0], 0.5),
+  RAMPS.teal[0],
+  mix(RAMPS.teal[0], RAMPS.purple[0], 0.5),
+  RAMPS.purple[0],
+  mix(RAMPS.purple[0], RAMPS.pink[0], 0.5),
+]
+
+/** Two backdrop star layers under the game's own (nearest, fastest) stars. */
+const FAR_STARS = starField(61, 90, W, H)
+const MID_STARS = starField(67, 40, W, H)
+const FAR_SPEED = 0.08
+const MID_SPEED = 0.3
+const NEBULA_SPEED = 0.05
+
+/** Nebula wisps: long stepped streaks of coloured haze, laid out once. */
+const WISPS = (() => {
+  const rand = backdropRng(71)
+  const ramps = [RAMPS.purple, RAMPS.pink, RAMPS.teal, RAMPS.sky, RAMPS.purple]
+  return ramps.map((ramp, i) => ({
+    x: 20 + rand() * (W - 40),
+    y: (i / ramps.length) * H + rand() * 30,
+    len: 80 + rand() * 90,
+    thick: 7 + Math.round(rand() * 7),
+    slant: (rand() - 0.5) * 3,
+    phase: rand() * Math.PI * 2,
+    ramp,
+  }))
+})()
+
+/** A row-art grid turned a quarter: an up-facing sprite becomes a left-facing one. */
+function transpose(rows: readonly string[]): string[] {
+  const w = Math.max(...rows.map((r) => r.length))
+  return Array.from({ length: w }, (_, x) =>
+    rows.map((r) => r[x] ?? '.').join(''),
+  )
+}
+
+/** The downstroke: both wings folded toward the body, same frame size so it stays centred. */
+function foldWings(rows: readonly string[], body = 1): string[] {
+  return rows.map((row) => {
+    const mid = Math.floor(row.length / 2)
+    const left = row.slice(0, mid - body)
+    const right = row.slice(mid + body + 1)
+    const keep = Math.ceil(left.length * 0.6)
+    const pick = (wing: string, inner: (j: number) => number) =>
+      Array.from({ length: keep }, (_, j) => wing[inner(j)] ?? '.').join('')
+    const step = left.length / keep
+    const l = pick(left, (j) => left.length - 1 - Math.round(j * step))
+      .split('')
+      .reverse()
+      .join('')
+    const r = pick(right, (j) => Math.round(j * step))
+    const pad = '.'.repeat(left.length - keep)
+    return pad + l + row.slice(mid - body, mid + body + 1) + r + pad
+  })
+}
+
+type MothSet = {
+  up: readonly [PixelSprite, PixelSprite]
+  side: readonly [PixelSprite, PixelSprite]
+}
+
+/** Up- and left-facing sprites, two flap frames each (down and right are flips). */
+function mothSet(
+  rows: readonly string[],
+  palette: Record<string, string>,
+): MothSet {
+  const folded = foldWings(rows)
+  return {
+    up: [pixelSprite(rows, palette), pixelSprite(folded, palette)],
+    side: [
+      pixelSprite(transpose(rows), palette),
+      pixelSprite(transpose(folded), palette),
+    ],
+  }
+}
+
+// Moths are drawn head-up; formation and dives flip them to face their heading.
+const MOTH_ROWS = [
+  '....a.....a....',
+  '.....a...a.....',
+  '.HHLL.kBk.LLMM.',
+  'HLLMLLbBbLLMLMS',
+  'HLeLMLbBbLMLeMS',
+  '.LLLLMbBbMLLMS.',
+  '..OOOkbBbkOoo..',
+  '..OokObBbOkoo..',
+  '...oo..b..oo...',
+]
+const LUNA_ROWS = [
+  '....a.....a....',
+  '.....a...a.....',
+  '.PPPP.kWk.PPPP.',
+  'HHLLLLwWwLLLLMS',
+  'HLeLLLwWwLLLeMS',
+  '.LLLLMwWwMLLMS.',
+  '..LMMSwWwSMMS..',
+  '...LM.wWw.MS...',
+  '...LS..w..MS...',
+  '...LS.....MS...',
+  '....T.....T....',
+  '....T.....T....',
+]
+const QUEEN_ROWS = [
+  '....a..g.g..a....',
+  '.....a.gGg.a.....',
+  '.HHLL.gGGGg.LLMM.',
+  'HLLLLLkBBBkLLLLMS',
+  'HLeeLLbBBBbLLeeMS',
+  'HLeeLLbBBBbLLeeMS',
+  '.LLLLMbBBBbMLLMS.',
+  '..LLMMbBBBbMMMS..',
+  '..MMMS.bBb.SMMS..',
+  '...MS..bBb..SM...',
+  '....S...b...S....',
+]
+
+const MOTHS = mothSet(MOTH_ROWS, {
+  a: RAMPS.cream[1],
+  k: INK,
+  H: '#ffffff',
+  L: RAMPS.cream[3],
+  M: RAMPS.cream[2],
+  S: RAMPS.cream[1],
+  e: RAMPS.earth[2],
+  B: RAMPS.gold[3],
+  b: RAMPS.gold[1],
+  O: RAMPS.rust[3],
+  o: RAMPS.rust[2],
+})
+const LUNAS = mothSet(LUNA_ROWS, {
+  a: RAMPS.leaf[3],
+  k: INK,
+  H: RAMPS.leaf[4],
+  L: RAMPS.leaf[3],
+  M: RAMPS.leaf[2],
+  S: RAMPS.leaf[1],
+  e: RAMPS.pink[2],
+  W: '#ffffff',
+  w: RAMPS.cream[2],
+  T: RAMPS.pink[2],
+  P: RAMPS.pink[1],
+})
+const queenPalette = (wings: Ramp, body: Ramp) => ({
+  a: RAMPS.gold[3],
+  g: RAMPS.gold[3],
+  G: RAMPS.gold[4],
+  k: INK,
+  H: wings[4],
+  L: wings[3],
+  M: wings[2],
+  S: wings[1],
+  e: RAMPS.gold[3],
+  B: body[3],
+  b: body[1],
+})
+const QUEENS = mothSet(QUEEN_ROWS, queenPalette(RAMPS.purple, RAMPS.pink))
+/** A queen with one beam in her goes blue, as in the original. */
+const QUEENS_HURT = mothSet(QUEEN_ROWS, queenPalette(RAMPS.sky, RAMPS.teal))
+
+// The paper lantern: lit from inside, so the glow is in the middle and the rims are shaded.
+const LANTERN_ROWS = [
+  '....nmn....',
+  '....n.n....',
+  '..CCCCCCe..',
+  '.cceeeeeed.',
+  '.RooyyyooqD',
+  'RoyYYYYYyoq',
+  'RoyYwwwYyoq',
+  'RoyYwwwYyoq',
+  'RoyYYwYYyoq',
+  'RooyyYyyooq',
+  '.RoooooooqD',
+  '..ceeeeed..',
+  '....RoR....',
+  '.....o.....',
+]
+const lanternPalette = (paper: Ramp, light: Ramp) => ({
+  n: RAMPS.steel[1],
+  m: RAMPS.steel[3],
+  C: RAMPS.earth[3],
+  c: RAMPS.earth[2],
+  e: RAMPS.earth[1],
+  d: RAMPS.earth[0],
+  D: paper[0],
+  R: paper[3],
+  o: paper[2],
+  q: paper[1],
+  y: light[2],
+  Y: light[3],
+  w: light[4],
+})
+/** The flame gutters: the bright core shrinks on the second frame. */
+const LANTERN_DIM_ROWS = LANTERN_ROWS.map((row, i) =>
+  i === 6 || i === 8 ? row.replace(/w/g, 'Y') : row,
+)
+const LANTERN = [
+  pixelSprite(LANTERN_ROWS, lanternPalette(RAMPS.rust, RAMPS.gold)),
+  pixelSprite(LANTERN_DIM_ROWS, lanternPalette(RAMPS.rust, RAMPS.gold)),
+] as const
+/** A captured lantern burns low and red. */
+const LANTERN_CAPTIVE = pixelSprite(
+  LANTERN_DIM_ROWS,
+  lanternPalette(RAMPS.ember, RAMPS.pink),
+)
+const LIFE_SPRITE = pixelSprite(
+  ['..n..', '.CCe.', 'RyYyq', 'RYwYq', 'RyYyq', '.cee.'],
+  lanternPalette(RAMPS.rust, RAMPS.gold),
+)
+
+/** The lantern's beam of light: no outline, it glows instead. */
+const BEAM_SPRITE = pixelSprite(
+  ['.w.', 'wWw', 'YWY', 'YwY', 'yYy', '.y.', '.o.', '.o.'],
+  {
+    w: '#ffffff',
+    W: RAMPS.gold[4],
+    Y: RAMPS.gold[3],
+    y: RAMPS.gold[2],
+    o: RAMPS.rust[3],
+  },
+  { outline: null },
+)
+
+/** Moth dust: a glittering lilac mote. */
+const DUST_SPRITES = [
+  pixelSprite(['.p.', 'pPp', '.p.'], { p: RAMPS.pink[2], P: '#ffffff' }),
+  pixelSprite(['.P.', 'PpP', '.P.'], { p: RAMPS.pink[3], P: RAMPS.purple[3] }),
+] as const
+
+/** The queen's tractor glow, banded light stepping down the beam. */
+const TRACTOR = [RAMPS.purple[2], RAMPS.purple[3], RAMPS.teal[3]] as const
+
+function paintNebula(k: CanvasRenderingContext2D) {
+  const rand = backdropRng(73)
+  for (const w of WISPS) {
+    for (const wrap of [-H, 0, H]) {
+      for (let row = -w.thick; row <= w.thick; row += 2) {
+        const t = row / w.thick
+        const width = w.len * (1 - t * t)
+        const cx = w.x + row * w.slant + Math.sin(row * 0.35 + w.phase) * 7
+        const y = Math.round(w.y + row + wrap)
+        const passes: [string, number, number][] = [
+          [w.ramp[1], 0.14, 1],
+          [w.ramp[2], 0.1, 0.62],
+          [w.ramp[3], 0.08, 0.3],
+        ]
+        for (const [colour, alpha, k2] of passes) {
+          k.fillStyle = rgba(colour, alpha)
+          k.fillRect(
+            Math.round(cx - (width * k2) / 2),
+            y,
+            Math.round(width * k2),
+            2,
+          )
+        }
+      }
+      // A glitter of brighter dust through the haze.
+      k.fillStyle = rgba(w.ramp[3], 0.35)
+      for (let i = 0; i < 26; i++) {
+        const row = (rand() * 2 - 1) * w.thick
+        const t = row / w.thick
+        const along = (rand() - 0.5) * w.len * (1 - t * t)
+        k.fillRect(
+          Math.round(w.x + row * w.slant + along),
+          Math.round(w.y + row + wrap),
+          1,
+          1,
+        )
+      }
+    }
+  }
+}
+
+const scrolling = new Map<string, HTMLCanvasElement | null>()
+
+/**
+ * A static layer that scrolls down the screen and wraps: painted once at logical size (it must
+ * tile vertically), then copied twice a frame with nearest filtering. Headless it paints direct.
+ * (A scrolling cousin of the kit's cachedLayer.)
+ */
+function scrollingLayer(
+  g: CanvasRenderingContext2D,
+  key: string,
+  w: number,
+  h: number,
+  offset: number,
+  paint: (layer: CanvasRenderingContext2D) => void,
+) {
+  let canvas = scrolling.get(key)
+  if (canvas === undefined) {
+    canvas = null
+    if (typeof document !== 'undefined') {
+      const made = document.createElement('canvas')
+      made.width = w
+      made.height = h
+      const lg = made.getContext('2d')
+      if (lg) {
+        paint(lg)
+        canvas = made
+      }
+    }
+    scrolling.set(key, canvas)
+  }
+  const y = Math.floor(((offset % h) + h) % h)
+  g.save()
+  if (!canvas) {
+    g.beginPath()
+    g.rect(0, 0, w, h)
+    g.clip()
+    g.translate(0, y)
+    paint(g)
+    g.translate(0, -h)
+    paint(g)
+  } else {
+    g.imageSmoothingEnabled = false
+    g.drawImage(canvas, 0, y)
+    g.drawImage(canvas, 0, y - h)
+  }
+  g.restore()
+}
+
 class LanternSwarm implements ArcadeGameInstance {
   score = 0
   level = 1
@@ -198,6 +552,9 @@ class LanternSwarm implements ArcadeGameInstance {
   private particles: Particle[] = []
   private floaters: Floater[] = []
   private banner: { text: string; sub?: string; ticks: number } | null = null
+  // Cosmetic sparkles roll their own dice, so the game's seeded rng is untouched.
+  private fx = new Sparkles()
+  private fxRng = backdropRng(83)
 
   constructor(options: ArcadeGameOptions) {
     this.rng = options.rng
@@ -274,6 +631,7 @@ class LanternSwarm implements ArcadeGameInstance {
   update(input: InputFrame) {
     this.tick++
     this.updateEffects()
+    this.fx.update()
     if (this.banner && --this.banner.ticks <= 0) this.banner = null
     for (const s of this.stars) {
       s.y += s.s
@@ -565,6 +923,11 @@ class LanternSwarm implements ArcadeGameInstance {
 
   private hitMoth(m: Moth, crash = false) {
     if (!crash && --m.hp > 0) {
+      this.fx.burst(m.x, m.y, this.fxRng, {
+        count: 4,
+        speed: 1,
+        colours: [RAMPS.sky[4], RAMPS.purple[3]],
+      })
       this.sound.play('blip')
       return
     }
@@ -587,6 +950,11 @@ class LanternSwarm implements ArcadeGameInstance {
         dock,
       })
       if (!crash) this.addScore(RESCUE_POINTS, m.x, m.y - 18)
+      this.fx.burst(m.x, m.y - 10, this.fxRng, {
+        count: 16,
+        speed: 2.2,
+        colours: [RAMPS.gold[4], RAMPS.gold[3], RAMPS.rust[3]],
+      })
       this.banner = { text: 'RESCUED!', ticks: 80 }
       if (!dock) this.lives++
     }
@@ -620,12 +988,14 @@ class LanternSwarm implements ArcadeGameInstance {
         if (d.dock && this.alive && !this.twin) {
           this.twin = true
           this.x = Math.min(W - 14, this.x + 7)
+          this.fx.burst(d.x, d.y, this.fxRng, { count: 12 })
           this.sound.play('extra')
           this.banner = { text: 'TWIN BEAMS!', ticks: 80 }
         } else if (d.dock) {
           // Lost the lantern it was flying to: it waits as a spare instead.
           this.lives++
           this.sound.play('extra')
+          this.fx.burst(d.x, d.y, this.fxRng, { count: 8 })
         }
         d.dock = false
         d.tx = -99
@@ -685,6 +1055,7 @@ class LanternSwarm implements ArcadeGameInstance {
         color: colors[i % 2]!,
       })
     }
+    this.fx.burst(x, y, this.fxRng, { count: 6, colours: colors })
   }
 
   private updateEffects() {
@@ -783,110 +1154,188 @@ class LanternSwarm implements ArcadeGameInstance {
   // --- render -------------------------------------------------------------------
 
   render(g: CanvasRenderingContext2D) {
-    g.fillStyle = '#0b1026'
-    g.fillRect(0, 0, W, H)
-    for (const s of this.stars) {
-      g.fillStyle = s.s > 0.7 ? '#e0e7ff' : '#6366f1'
-      g.fillRect(s.x, s.y, 1, 1)
-    }
-    for (const m of this.moths) if (m.mode === 'beam') this.renderGlow(g, m)
+    this.renderSky(g)
+    // (A beamed-down queen's glow goes out with her.)
+    for (const m of this.moths)
+      if (m.mode === 'beam' && !m.gone) this.renderGlow(g, m)
     for (const m of this.moths)
       if (!m.gone && m.mode !== 'wait') this.renderMoth(g, m)
-    for (const d of this.drifters) this.renderLantern(g, d.x, d.y, !d.dock)
-    for (const b of this.beams) {
-      g.fillStyle = '#fef08a'
-      g.fillRect(b.x - 1, b.y - 4, 2, 7)
-      g.fillStyle = '#fffbeb'
-      g.fillRect(b.x - 0.5, b.y - 4, 1, 3)
+    for (const d of this.drifters) {
+      glow(g, d.x, d.y - 2, 14, d.dock ? RAMPS.gold[3] : RAMPS.ember[2], 0.4)
+      this.renderLantern(g, d.x, d.y, !d.dock)
     }
+    for (const b of this.beams) {
+      glow(g, b.x, b.y, 9, RAMPS.gold[3], 0.55)
+      drawSprite(g, BEAM_SPRITE, b.x, b.y)
+    }
+    const mote = Math.floor(this.tick / 4) % 2
     for (const d of this.dust) {
-      g.fillStyle = Math.floor(this.tick / 4) % 2 ? '#d6d3d1' : '#a8a29e'
-      g.fillRect(d.x - 1, d.y - 2, 2, 4)
+      glow(g, d.x, d.y, 6, RAMPS.pink[2], 0.4)
+      drawSprite(g, DUST_SPRITES[mote]!, d.x, d.y)
     }
     if (this.alive && (this.safe === 0 || Math.floor(this.safe / 4) % 2)) {
       if (this.twin) {
-        this.renderLantern(g, this.x - 7, SHIP_Y, false)
-        this.renderLantern(g, this.x + 7, SHIP_Y, false)
-      } else this.renderLantern(g, this.x, SHIP_Y, false)
+        this.renderShip(g, this.x - 7)
+        this.renderShip(g, this.x + 7)
+      } else this.renderShip(g, this.x)
     }
+    // The game's own bursts, drawn as additive embers.
+    g.save()
+    g.globalCompositeOperation = 'lighter'
     for (const p of this.particles) {
-      g.globalAlpha = Math.max(0, p.life / 30)
+      g.globalAlpha = Math.max(0, Math.min(1, p.life / 30))
       g.fillStyle = p.color
-      g.fillRect(p.x - 1, p.y - 1, 2, 2)
+      g.fillRect(Math.round(p.x) - 1, Math.round(p.y) - 1, 2, 2)
     }
-    g.globalAlpha = 1
+    g.restore()
+    this.fx.render(g)
     for (const f of this.floaters)
       drawText(g, f.text, f.x, f.y, {
         align: 'center',
-        color: '#fef9c3',
-        shadow: '#1e1b4b',
+        color: RAMPS.gold[4],
+        outline: INK,
       })
+    vignette(g, W, H, 0.3)
     this.renderHud(g)
+  }
+
+  private renderSky(g: CanvasRenderingContext2D) {
+    // Banded sky and the warm haze over the festival far below; painted once per sky.
+    const aurora = this.glow
+    cachedLayer(
+      g,
+      `lantern-swarm-sky-${aurora ? 'aurora' : 'night'}`,
+      W,
+      H,
+      (k) => {
+        bandedGradient(k, 0, 0, W, H, aurora ? AURORA_BANDS : NIGHT_BANDS, 4)
+        glow(k, W / 2, H + 30, 150, RAMPS.rust[2], 0.22)
+        if (aurora) {
+          glow(k, W * 0.3, H * 0.3, 90, RAMPS.teal[2], 0.12)
+          glow(k, W * 0.75, H * 0.45, 80, RAMPS.leaf[2], 0.1)
+          // Aurora curtains: hanging rays along a wavy hem.
+          for (let x = 0; x < W; x += 2) {
+            const hem = 70 + Math.sin(x / 23) * 18 + Math.sin(x / 7) * 4
+            const tall = 30 + Math.sin(x / 13 + 1) * 14
+            const ramp = Math.sin(x / 31) > 0 ? RAMPS.teal : RAMPS.leaf
+            k.fillStyle = rgba(ramp[3], 0.07 + 0.05 * Math.sin(x / 3) ** 2)
+            k.fillRect(x, Math.round(hem - tall), 2, Math.round(tall))
+            k.fillStyle = rgba(ramp[4], 0.16)
+            k.fillRect(x, Math.round(hem) - 2, 2, 2)
+          }
+        }
+      },
+    )
+    // Nebula wisps, then two star layers, each scrolling slower than the next.
+    scrollingLayer(
+      g,
+      'lantern-swarm-nebula',
+      W,
+      H,
+      this.tick * NEBULA_SPEED,
+      paintNebula,
+    )
+    g.fillStyle = RAMPS.night[4]
+    for (const s of FAR_STARS) {
+      const y = Math.floor((s.y + this.tick * FAR_SPEED) % H)
+      g.fillRect(s.x, y, 1, 1)
+    }
+    for (const s of MID_STARS) {
+      const y = Math.floor((s.y + this.tick * MID_SPEED) % H)
+      const twinkle = Math.sin(this.tick / 24 + s.phase)
+      g.fillStyle =
+        twinkle > 0.5
+          ? RAMPS.purple[4]
+          : twinkle > -0.3
+            ? RAMPS.purple[3]
+            : RAMPS.purple[2]
+      g.fillRect(s.x, y, 1, 1)
+      if (s.size === 2 && twinkle > 0.7) {
+        g.fillStyle = RAMPS.purple[3]
+        g.fillRect(s.x - 1, y, 3, 1)
+        g.fillRect(s.x, y - 1, 1, 3)
+      }
+    }
+    // The nearest stars streak past.
+    for (const s of this.stars) {
+      const x = Math.round(s.x)
+      const y = Math.round(s.y)
+      if (s.s > 0.7) {
+        g.fillStyle = RAMPS.sky[2]
+        g.fillRect(x, y - 2, 1, 2)
+        g.fillStyle = RAMPS.sky[4]
+        g.fillRect(x, y, 1, 1)
+      } else {
+        g.fillStyle = s.s > 0.45 ? RAMPS.sky[3] : RAMPS.purple[3]
+        g.fillRect(x, y, 1, 1)
+      }
+    }
   }
 
   private renderGlow(g: CanvasRenderingContext2D, m: Moth) {
     const reach = this.beamReach(m)
     if (reach <= 0) return
-    const top = m.y + 8
-    const bottom = top + (SHIP_Y + 8 - top) * reach
+    const top = Math.round(m.y + 8)
+    const bottom = Math.round(top + (SHIP_Y + 8 - top) * reach)
+    const span = Math.max(1, bottom - top)
     const half = this.beamHalf(m)
-    g.fillStyle =
-      Math.floor(this.tick / 3) % 2
-        ? 'rgba(196, 181, 253, 0.35)'
-        : 'rgba(167, 139, 250, 0.28)'
-    g.beginPath()
-    g.moveTo(m.x - 4, top)
-    g.lineTo(m.x + 4, top)
-    g.lineTo(m.x + half, bottom)
-    g.lineTo(m.x - half, bottom)
-    g.closePath()
-    g.fill()
-    g.strokeStyle = 'rgba(237, 233, 254, 0.5)'
-    g.lineWidth = 1
-    for (let y = top + ((this.tick * 2) % 10); y < bottom; y += 10) {
-      const w = 4 + (half - 4) * ((y - top) / (bottom - top || 1))
-      g.beginPath()
-      g.moveTo(m.x - w, y)
-      g.lineTo(m.x + w, y)
-      g.stroke()
+    // Banded light (colour math) pulsing down the cone, its edges brighter than its heart.
+    g.save()
+    g.globalCompositeOperation = 'lighter'
+    for (let y = top; y < bottom; y += 2) {
+      const t = (y - top) / span
+      const w = Math.round(4 + (half - 4) * t)
+      const band = Math.floor((y - top - this.tick * 1.5) / 6)
+      const colour = TRACTOR[((band % 3) + 3) % 3]!
+      g.fillStyle = rgba(colour, 0.26)
+      g.fillRect(Math.round(m.x) - w, y, w * 2, 2)
+      g.fillStyle = rgba(RAMPS.purple[4], 0.45)
+      g.fillRect(Math.round(m.x) - w, y, 1, 2)
+      g.fillRect(Math.round(m.x) + w - 1, y, 1, 2)
     }
+    // Motes riding up the beam.
+    g.fillStyle = rgba(RAMPS.teal[4], 0.8)
+    for (let i = 0; i < 8; i++) {
+      const py = bottom - ((this.tick * 1.2 + i * 29) % span)
+      const t = (py - top) / span
+      const px =
+        m.x + Math.sin(this.tick / 9 + i * 1.7) * (4 + (half - 4) * t) * 0.8
+      g.fillRect(Math.round(px), Math.round(py), 1, 1)
+    }
+    g.restore()
+    glow(g, m.x, top, 12, RAMPS.purple[3], 0.5)
+    glow(g, m.x, bottom, half + 6, RAMPS.teal[3], 0.3 * reach)
   }
 
   private renderMoth(g: CanvasRenderingContext2D, m: Moth) {
     const flap = Math.floor((this.tick + m.col * 7) / 8) % 2
-    const x = Math.round(m.x)
-    const y = Math.round(m.y)
-    const wing = flap ? 5 : 3
-    if (m.kind === 'queen') {
-      g.fillStyle = m.hp > 1 ? '#a78bfa' : '#60a5fa'
-      g.fillRect(x - 3 - wing, y - 4, wing, 7)
-      g.fillRect(x + 3, y - 4, wing, 7)
-      g.fillStyle = m.hp > 1 ? '#6d28d9' : '#1d4ed8'
-      g.fillRect(x - 3, y - 6, 6, 11)
-      g.fillStyle = '#fde047'
-      g.fillRect(x - 3, y - 9, 1, 3)
-      g.fillRect(x + 2, y - 9, 1, 3)
-      g.fillRect(x - 1, y - 8, 2, 2)
-      if (m.holding && m.mode !== 'beam') this.renderLantern(g, x, y - 14, true)
-    } else if (m.kind === 'luna') {
-      g.fillStyle = '#86efac'
-      g.fillRect(x - 2 - wing, y - 4, wing, 5)
-      g.fillRect(x + 2, y - 4, wing, 5)
-      g.fillStyle = '#4ade80'
-      g.fillRect(x - 2 - wing + 1, y + 1, 2, 4)
-      g.fillRect(x + 2 + wing - 3, y + 1, 2, 4)
-      g.fillStyle = '#f0fdf4'
-      g.fillRect(x - 2, y - 5, 4, 8)
-    } else {
-      g.fillStyle = '#d6d3d1'
-      g.fillRect(x - 2 - wing, y - 3, wing, 5)
-      g.fillRect(x + 2, y - 3, wing, 5)
-      g.fillStyle = '#a16207'
-      g.fillRect(x - 2, y - 4, 4, 7)
+    const set =
+      m.kind === 'queen'
+        ? m.hp > 1
+          ? QUEENS
+          : QUEENS_HURT
+        : m.kind === 'luna'
+          ? LUNAS
+          : MOTHS
+    // Face the heading in quarter turns: flips of the up and side frames, never a rotation.
+    const facing = m.mode === 'form' ? Math.PI / 2 : m.heading
+    const dx = Math.cos(facing)
+    const dy = Math.sin(facing)
+    if (m.kind === 'queen') glow(g, m.x, m.y, 14, RAMPS.purple[3], 0.25)
+    if (Math.abs(dy) >= Math.abs(dx))
+      drawSprite(g, set.up[flap]!, m.x, m.y, { flipY: dy > 0 })
+    else drawSprite(g, set.side[flap]!, m.x, m.y, { flipX: dx > 0 })
+    if (m.kind === 'queen' && m.holding && m.mode !== 'beam') {
+      glow(g, m.x, m.y - 15, 10, RAMPS.ember[2], 0.35)
+      this.renderLantern(g, m.x, m.y - 14, true)
     }
-    g.fillStyle = '#0f172a'
-    g.fillRect(x - 2, y - 3, 1, 1)
-    g.fillRect(x + 1, y - 3, 1, 1)
+  }
+
+  private renderShip(g: CanvasRenderingContext2D, x: number) {
+    const flicker = Math.sin(this.tick / 5 + x) * 2
+    glow(g, x, SHIP_Y - 1, 22 + flicker, RAMPS.gold[3], 0.42)
+    glow(g, x, SHIP_Y - 1, 9, RAMPS.gold[4], 0.35)
+    this.renderLantern(g, x, SHIP_Y, false)
   }
 
   private renderLantern(
@@ -895,62 +1344,49 @@ class LanternSwarm implements ArcadeGameInstance {
     y: number,
     captive: boolean,
   ) {
-    const lx = Math.round(x)
-    const ly = Math.round(y)
-    if (!captive) {
-      g.fillStyle = 'rgba(253, 224, 71, 0.18)'
-      g.beginPath()
-      g.arc(lx, ly, 11, 0, Math.PI * 2)
-      g.fill()
-    }
-    g.fillStyle = '#44403c'
-    g.fillRect(lx - 1, ly - 9, 2, 2)
-    g.fillRect(lx - 4, ly - 7, 8, 2)
-    g.fillStyle = captive ? '#f87171' : '#fb923c'
-    g.fillRect(lx - 5, ly - 5, 10, 9)
-    g.fillStyle = captive ? '#fecaca' : '#fde047'
-    g.fillRect(lx - 3, ly - 4, 6, 7)
-    g.fillStyle = '#44403c'
-    g.fillRect(lx - 4, ly + 4, 8, 2)
-    g.fillStyle = captive ? '#fca5a5' : '#fb923c'
-    g.fillRect(lx - 5, ly - 2, 10, 1)
+    const sprite = captive
+      ? LANTERN_CAPTIVE
+      : LANTERN[Math.floor(this.tick / 6 + x) % 2]!
+    drawSprite(g, sprite, Math.round(x), Math.round(y) - 2)
   }
 
   private renderHud(g: CanvasRenderingContext2D) {
-    const shadow = '#1e1b4b'
-    g.fillStyle = 'rgba(11, 16, 38, 0.92)'
-    g.fillRect(0, 0, W, HUD_H)
-    drawText(g, String(this.score).padStart(6, '0'), 4, 3, {
+    hudPanel(g, 2, 2, 82, 18)
+    drawText(g, String(this.score).padStart(6, '0'), 7, 4, {
       scale: 2,
-      color: '#fde047',
-      shadow,
+      color: RAMPS.gold[3],
+      shadow: INK,
     })
-    drawText(g, `HI ${Math.max(this.hiScore, this.score)}`, W - 4, 2, {
+    hudPanel(g, W - 66, 2, 64, 18)
+    drawText(g, `HI ${Math.max(this.hiScore, this.score)}`, W - 5, 3, {
       align: 'right',
-      color: '#f9a8d4',
+      color: RAMPS.pink[3],
+      outline: INK,
     })
-    drawText(g, `STAGE ${this.level}`, W - 4, 11, {
+    drawText(g, `STAGE ${this.level}`, W - 5, 11, {
       align: 'right',
-      color: this.glow ? '#c4b5fd' : '#a5f3fc',
+      color: this.glow ? RAMPS.purple[3] : RAMPS.teal[3],
+      outline: INK,
     })
-    for (let i = 0; i < Math.min(this.lives - (this.alive ? 1 : 0), 6); i++) {
-      g.fillStyle = '#fb923c'
-      g.fillRect(4 + i * 9, H - 9, 6, 6)
-      g.fillStyle = '#fde047'
-      g.fillRect(5 + i * 9, H - 8, 4, 4)
+    const spares = Math.min(this.lives - (this.alive ? 1 : 0), 6)
+    if (spares > 0) {
+      hudPanel(g, 2, H - 14, spares * 9 + 4, 12)
+      for (let i = 0; i < spares; i++)
+        drawSprite(g, LIFE_SPRITE, 8 + i * 9, H - 8)
     }
     if (this.banner) {
       drawText(g, this.banner.text, W / 2, 150, {
         scale: 2,
         align: 'center',
         color: '#ffffff',
-        shadow,
+        outline: INK,
+        shadow: RAMPS.purple[1],
       })
       if (this.banner.sub)
         drawText(g, this.banner.sub, W / 2, 170, {
           align: 'center',
-          color: '#fef9c3',
-          shadow,
+          color: RAMPS.gold[4],
+          outline: INK,
         })
     }
   }

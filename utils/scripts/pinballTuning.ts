@@ -34,7 +34,12 @@ import {
   type BotSkill,
 } from '../arcade/pinball/tuning/bot'
 import type { RendererLike } from '../arcade/pinball/render/scene'
-import type { SwitchEvent } from '../arcade/pinball/types'
+import type { SwitchEvent, TableDef } from '../arcade/pinball/types'
+import type {
+  CoreRulesState,
+  PinballRuleset,
+} from '../arcade/pinball/rules/ruleset'
+import type { ZuzuRulesState } from '../arcade/pinball/tables/zuzuLastBell/rules'
 
 const TICKS_PER_SECOND = 60
 
@@ -78,8 +83,9 @@ export function playGame(
   seed: number,
   aimer: Aimer | null,
   minutes = 20,
+  table: TableDef = AMI_VILLAGE_GREYBOX,
+  ruleset?: PinballRuleset<ZuzuRulesState>,
 ): GameReport {
-  const table = AMI_VILLAGE_GREYBOX
   const runtime = new PinballRuntime(
     {
       rng: mulberry32(seed),
@@ -90,14 +96,16 @@ export function playGame(
     RAPIER,
     table,
     headless,
+    ruleset as PinballRuleset<CoreRulesState> | undefined,
   )
   const inner = runtime as unknown as {
     physics: PinballPhysics
-    rules: PinballRulesState
+    rules: PinballRulesState & Partial<ZuzuRulesState>
   }
   const bot = new PinballBot(skill, mulberry32(seed * 7919 + 1), aimer)
 
   // Watch the physics for drains and flipper touches.
+  const flipperIds = new Set(table.flippers.map((f) => f.id))
   const physics = inner.physics
   const step = physics.step.bind(physics)
   const lastLow = new Map<number, number>()
@@ -109,7 +117,7 @@ export function playGame(
   physics.step = () => {
     const events: SwitchEvent[] = step()
     for (const e of events) {
-      if (e.type === 'contact' && e.id.startsWith('flipper'))
+      if (e.type === 'contact' && flipperIds.has(e.id))
         lastFlipper.set(e.ballId, tick)
       else if (
         e.type === 'contact' ||
@@ -163,11 +171,17 @@ export function playGame(
       if (made > (shotsBefore[shot] ?? 0)) bot.shotMade(shot)
     shotsBefore = rules.shotsMade
     const play = rules.play
-    reached.mode ||= !!play.villages.mode
-    reached.multiball ||= play.multiball.running
-    reached.subTable ||= rules.sub.found > 0
-    reached.wizard ||= play.wizard.running
-    reached.extraBall ||= play.extraBalls > 0
+    if (play) {
+      reached.mode ||= !!play.villages.mode
+      reached.multiball ||= play.multiball.running
+      reached.subTable ||= rules.sub.found > 0
+      reached.wizard ||= play.wizard.running
+      reached.extraBall ||= play.extraBalls > 0
+    } else {
+      // Zuzu: a chapter being told, and an extra ball earned.
+      reached.mode ||= !!rules.story?.run
+      reached.extraBall ||= (rules.extraBalls ?? 0) > 0
+    }
     if (rules.ball !== ballNumber || rules.over) {
       ballSeconds.push((tick - ballStart) / TICKS_PER_SECOND)
       ballStart = tick
@@ -182,7 +196,9 @@ export function playGame(
     drains,
     shots: { ...rules.shotsMade },
     reached,
-    villages: rules.play.villages.visited.length,
+    villages: rules.play
+      ? rules.play.villages.visited.length
+      : (rules.story?.sealed ?? 0),
     capped: !rules.over,
     aimed: bot.aimed,
     aimedHits: bot.aimedHits,

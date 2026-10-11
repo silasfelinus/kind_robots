@@ -141,6 +141,20 @@ export function noteFreq(name: string): number | null {
 }
 
 /** A loop's tokens as timed notes; throws on a token that is not a note, `-`, `.` or `x`. */
+/**
+ * A game's `music`, if it really is a MusicLoop: anything else (a method of
+ * the same name, a half-built object) is no music, never a crash. The Kind
+ * Pinball runtime's private music() method once reached startMusic this way
+ * and froze the cabinet on the first tick of play.
+ */
+export function asMusicLoop(value: unknown): MusicLoop | null {
+  if (!value || typeof value !== 'object') return null
+  const loop = value as Partial<MusicLoop>
+  return typeof loop.bpm === 'number' && Array.isArray(loop.tracks)
+    ? (loop as MusicLoop)
+    : null
+}
+
 export function parseLoop(loop: MusicLoop): ParsedLoop {
   const stepDur = 60 / loop.bpm / (loop.stepsPerBeat ?? 2)
   const notes: LoopNote[] = []

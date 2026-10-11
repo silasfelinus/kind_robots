@@ -284,7 +284,7 @@ export const ACT_IX: Act = {
     s(
       'a9-wren-ally',
       CH.IX,
-      'The Novice',
+      'Sister Wren',
       'wren',
       'Sister Wren is sitting on the chapel steps where she said she would wait, with the dormitory keys in her lap and blood on her sleeve that is not hers. She stood with you tonight, and everyone in this house saw it. When the town comes, it will see only a habit. "I can\'t go home," she says. "I was given here. There isn\'t a home." She holds the keys out to you. "The house has a cistern and a roof. Somebody has to sleep in it who isn\'t her."',
       {
@@ -377,7 +377,7 @@ export const ACT_IX: Act = {
     s(
       'a9-cells',
       CH.IX,
-      'Under the House',
+      'The Tally Marks',
       'cellar-cells',
       'Under the house the cells stand open in a row, the straw still pressed into the shapes of small sleepers. Low on the walls are scratches: tally marks, a lopsided sun, a name you cannot read. At the end of the row a gap in the old wall opens into the crypt behind the altar, where the niches hold bundles wrapped in black habits, row on row, as neat as the cots upstairs. You know now what is in them, and how small. Beyond them, the wall where the dark came through is sweating in the cold.',
       {
@@ -566,7 +566,7 @@ export const ACT_IX: Act = {
     s(
       'a9-sister-knife',
       CH.IX,
-      'The Lone Survivor',
+      'The Knife in Her Hands',
       'sister-dagger',
       'The sister is not where you left her. You find her below, back in the altar room, standing alone among the dead with the sacrificial knife in her bandaged hands. The candles have burned down to puddles. She is not crying. She stands exactly as she stood in Hollow Bell the evening you found her, among the bodies of strangers, her teeth bared at nothing, and she does not put the knife down when she sees you. Her brother sits on the bottom step behind her with his thumb in his mouth, watching her the way he always watches her: to learn what is safe.',
       {

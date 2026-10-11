@@ -28,14 +28,14 @@ export type ScenePlate = {
   /** CSS object-position for the 4:3 phone crop of a 16:9 plate. */
   focus?: string
   /**
-   * The render's shape: 'wide' 1344x768 (the default), 'tall' 896x1152 or 'square' 1024x1024. Silas, 2026-10-10:
-   * "some are shown horizontally and some vertically, left right top bottom, for variety" — see plateLayout().
+   * The render's shape: 'wide' 1344x768 (the default), 'tall' 896x1152 or 'square' 1024x1024. Wide plates sit
+   * above the text, tall and square ones to its right — see plateLayout().
    */
   shape?: PlateShape
 }
 
 export type PlateShape = 'wide' | 'tall' | 'square'
-export type PlateLayout = 'top' | 'bottom' | 'left' | 'right'
+export type PlateLayout = 'top' | 'right'
 
 export const PLATE_SIZE: Record<PlateShape, { width: number; height: number }> =
   {
@@ -564,13 +564,10 @@ export function sectionPlate(node: { id: string; art: string }): ScenePlate {
 }
 
 /**
- * Where the plate sits beside the text. Wide plates go above or below it, tall and square ones to its left or
- * right; the side is a stable pick from the section id, so a section always looks the same but neighbours vary.
+ * Where the plate sits: a wide plate above the text, a tall or square one to its right. Silas, 2026-10-11: "Ditch
+ * the images appearing below the text, or to the left. Just keep a single horizontal view above or portrait to the
+ * right." (This replaced the 2026-10-10 hashed top/bottom/left/right mix.)
  */
-export function plateLayout(sectionId: string, art: ScenePlate): PlateLayout {
-  let hash = 0
-  for (const ch of sectionId) hash = (hash * 31 + ch.charCodeAt(0)) >>> 0
-  const flip = (hash >>> 3) % 2 === 1
-  if ((art.shape ?? 'wide') === 'wide') return flip ? 'bottom' : 'top'
-  return flip ? 'right' : 'left'
+export function plateLayout(art: ScenePlate): PlateLayout {
+  return (art.shape ?? 'wide') === 'wide' ? 'top' : 'right'
 }

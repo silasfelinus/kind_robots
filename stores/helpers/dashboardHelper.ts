@@ -1155,7 +1155,8 @@ export const dashboardConfigs = {
         tagline: 'Rule the shore. Answer to the tide.',
         narrative:
           'Cast lines, manage a seaside kingdom, and ride the slideshow of tides and decisions where every catch reshapes the realm you rule.',
-        route: '/plan/projects/ruler-hooked',
+        route: '/admin/ruler-hooked',
+        requiredRole: 'ADMIN',
       },
       {
         key: 'newsfeed',

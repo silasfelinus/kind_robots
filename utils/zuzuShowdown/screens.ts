@@ -5,12 +5,23 @@
 // fighter big at its edge and the roster's busts between them. The VS screen splits warm and cool, slams both fighters in from
 // the sides with a white flash, pops VS, and plays the matchup's intro exchange line by line, each on
 // its speaker's side. The win screen stands the winner in their victory pose (the Perfect pose for a
-// flawless win) and gives their quote to the loser. Until t-008's portraits land, the fighters are
-// their own sprites, enlarged. Reduced motion skips the slide and the flash and shows every line at
-// once.
+// flawless win) and gives their quote to the loser. The fighters are their t-008 portraits (portraits.ts):
+// the select cards their busts, the VS screen their half-body slams, the win screen the winner's victory
+// portrait and the loser's beaten one; any portrait not yet drawn falls back to the fighter's own
+// sprite, enlarged. Reduced motion skips the slide and the flash and shows every line at once.
 
 import { drawText, measureText } from '../arcade/font'
 import { introFor, winQuote, type MatchupLine } from './matchups'
+import { drawPortrait, type LoadedPortraits } from './portraits'
+import {
+  drawRoute,
+  drawToken,
+  drawWorldMap,
+  homeOf,
+  mapToScreen,
+  type MapPoint,
+} from './worldMap'
+import { BOSS_SLUG } from './arcade'
 import { VIEW_HEIGHT, VIEW_WIDTH } from './render'
 import { SELECT_COLUMNS, activeSide, type SelectState } from './select'
 import { drawSprite, type LoadedSprites } from './sprites'
@@ -116,6 +127,7 @@ export function drawVsScreen(
   sprites: Pair<LoadedSprites | undefined>,
   t: number,
   reduced: boolean,
+  portraits?: LoadedPortraits,
 ): void {
   const mirror = roster[0].slug === roster[1].slug
   // Two halves, warm and cool, split on a slant.
@@ -132,30 +144,54 @@ export function drawVsScreen(
 
   const slide = reduced ? 1 : Math.min(1, t / VS_SLAM_FRAMES)
   const travel = (1 - slide) * 220
-  // The plain stance: an intro animation can start somewhere else (the Coyote under his bedroll).
+  // The half-body portraits slam in, P2's turned to face P1; without one, the plain stance (an intro
+  // animation can start somewhere else: the Coyote under his bedroll).
   const idle = ['idle']
-  drawFighterBig(
-    g,
-    sprites[0],
-    roster[0],
-    idle,
-    false,
-    120 - travel,
-    FIGHTER_FLOOR,
-    1,
-    false,
+  if (
+    !drawPortrait(
+      g,
+      portraits,
+      roster[0].slug,
+      'vs',
+      120 - travel,
+      FIGHTER_FLOOR,
+    )
   )
-  drawFighterBig(
-    g,
-    sprites[1],
-    roster[1],
-    idle,
-    false,
-    360 + travel,
-    FIGHTER_FLOOR,
-    -1,
-    mirror,
+    drawFighterBig(
+      g,
+      sprites[0],
+      roster[0],
+      idle,
+      false,
+      120 - travel,
+      FIGHTER_FLOOR,
+      1,
+      false,
+    )
+  if (
+    !drawPortrait(
+      g,
+      portraits,
+      roster[1].slug,
+      'vs',
+      360 + travel,
+      FIGHTER_FLOOR,
+      true,
+      1,
+      mirror,
+    )
   )
+    drawFighterBig(
+      g,
+      sprites[1],
+      roster[1],
+      idle,
+      false,
+      360 + travel,
+      FIGHTER_FLOOR,
+      -1,
+      mirror,
+    )
   roster.forEach((f, side) =>
     drawText(
       g,
@@ -212,6 +248,7 @@ export function drawWinScreen(
   sprites: Pair<LoadedSprites | undefined>,
   t: number,
   reduced: boolean,
+  portraits?: LoadedPortraits,
 ): void {
   g.fillStyle = 'rgba(0, 0, 0, 0.7)'
   g.fillRect(0, 0, VIEW_WIDTH, VIEW_HEIGHT)
@@ -233,16 +270,41 @@ export function drawWinScreen(
     : ['victory_button', 'victory', 'taunt']
   const mirror = roster[0].slug === roster[1].slug
   const rise = reduced ? 0 : Math.max(0, 12 - t)
-  drawFighterBig(
+  if (
+    !drawPortrait(
+      g,
+      portraits,
+      w.slug,
+      'victory',
+      120,
+      FIGHTER_FLOOR + rise,
+      false,
+      1,
+      mirror && winner === 1,
+    )
+  )
+    drawFighterBig(
+      g,
+      sprites[winner],
+      w,
+      poses,
+      true,
+      120,
+      FIGHTER_FLOOR + rise,
+      1,
+      mirror && winner === 1,
+    )
+  // The loser, small at the edge: their beaten portrait (never hurt, for the Siblings).
+  drawPortrait(
     g,
-    sprites[winner],
-    w,
-    poses,
+    portraits,
+    roster[loser].slug,
+    'beaten',
+    VIEW_WIDTH - 30,
+    VIEW_HEIGHT - 6,
     true,
-    120,
-    FIGHTER_FLOOR + rise,
-    1,
-    mirror && winner === 1,
+    0.45,
+    mirror && loser === 1,
   )
 
   drawText(g, `P${winner + 1} WINS`, 330, 36, {
@@ -282,10 +344,54 @@ export function drawWinScreen(
 
 // ---------------------------------------------------------------- character select
 
-const CARD = 50
-const CARD_GAP = 6
-const GRID_TOP = 64
+const CARD = 36
+const CARD_GAP = 4
+const GRID_TOP = 32
 const CURSOR_COLOURS: Pair<string> = ['#fb923c', '#38bdf8']
+
+/** Where the select prompt sits: along the bottom, under the map. */
+export function selectPromptY(_count: number): number {
+  return VIEW_HEIGHT - 14
+}
+
+/**
+ * The wasteland under the grid (t-029), between the two fighters: each side's home pinned on it and
+ * the road between them inked in red.
+ */
+export function selectMapRect(count: number): {
+  x: number
+  y: number
+  w: number
+  h: number
+} {
+  const top =
+    GRID_TOP + Math.ceil(count / SELECT_COLUMNS) * (CARD + CARD_GAP) + 2
+  const h = selectPromptY(count) - 6 - top
+  const w = Math.round((h * 16) / 9)
+  return { x: Math.round((VIEW_WIDTH - w) / 2), y: top, w, h }
+}
+
+/** Story's far panel: a lone door in starry dark, its yellow eye opening and closing. */
+function drawDoorPanel(g: G, frame: number, reduced: boolean): void {
+  const cx = VIEW_WIDTH - 62
+  g.fillStyle = 'rgba(30, 16, 48, 0.85)'
+  g.fillRect(VIEW_WIDTH - 120, 0, 120, VIEW_HEIGHT)
+  g.fillStyle = '#e9d5ff'
+  for (let i = 0; i < 18; i += 1) {
+    const x = VIEW_WIDTH - 116 + ((i * 37) % 112)
+    const y = 20 + ((i * 53) % 200)
+    g.fillRect(x, y, 1, 1)
+  }
+  g.fillStyle = '#3b2a1a'
+  g.fillRect(cx - 26, 110, 52, 126)
+  g.fillStyle = '#0b0614'
+  g.fillRect(cx - 21, 115, 42, 121)
+  const open = reduced ? 1 : Math.abs(Math.sin(frame / 40))
+  g.fillStyle = '#facc15'
+  g.fillRect(cx - 9, 160 - 3 * open, 18, Math.max(1, 6 * open))
+  g.fillStyle = '#000000'
+  g.fillRect(cx - 1, 160 - 3 * open, 2, Math.max(1, 6 * open))
+}
 
 /** Where the roster's `index`-th card sits on the select grid. */
 export function selectCard(
@@ -312,11 +418,28 @@ function drawBust(
   data: FighterData,
   card: { x: number; y: number; w: number; h: number },
   p2: boolean,
+  portraits?: LoadedPortraits,
 ): void {
   g.save()
   g.beginPath()
   g.rect(card.x, card.y, card.w, card.h)
   g.clip()
+  // The bust portrait fills the card when it has been drawn.
+  if (
+    drawPortrait(
+      g,
+      portraits,
+      data.slug,
+      'bust',
+      card.x + card.w / 2,
+      card.y + card.h,
+      false,
+      card.w / 50,
+    )
+  ) {
+    g.restore()
+    return
+  }
   const sheet = sprites?.sheet
   const frame = sheet?.animations.idle?.frames[0]
   const cx = card.x + card.w / 2
@@ -358,6 +481,9 @@ export function drawSelectScreen(
   reduced: boolean,
   twoPlayers: boolean,
   opponentLabel = '2P',
+  portraits?: LoadedPortraits,
+  mapArt?: CanvasImageSource,
+  story = false,
 ): void {
   g.fillStyle = '#1c1917'
   g.fillRect(0, 0, VIEW_WIDTH, VIEW_HEIGHT)
@@ -367,7 +493,7 @@ export function drawSelectScreen(
   g.fillStyle = 'rgba(37, 99, 235, 0.22)'
   g.fillRect(VIEW_WIDTH - 120, 0, 120, VIEW_HEIGHT)
 
-  drawText(g, 'CHOOSE YOUR FIGHTER', VIEW_WIDTH / 2, 14, {
+  drawText(g, 'CHOOSE YOUR FIGHTER', VIEW_WIDTH / 2, 8, {
     align: 'center',
     scale: 2,
     color: '#fdba74',
@@ -391,30 +517,51 @@ export function drawSelectScreen(
     1,
     false,
   )
-  drawFighterBig(
-    g,
-    sprites[sides[1].slug],
-    sides[1],
-    idle,
-    false,
-    VIEW_WIDTH - 62,
-    236,
-    -1,
-    mirror,
-  )
+  // In Story the far side is no fighter but where the road ends: the door, its eye watching.
+  if (story) drawDoorPanel(g, state.frame, reduced)
+  else
+    drawFighterBig(
+      g,
+      sprites[sides[1].slug],
+      sides[1],
+      idle,
+      false,
+      VIEW_WIDTH - 62,
+      236,
+      -1,
+      mirror,
+    )
   sides.forEach((f, side) =>
-    drawText(g, f.name.toUpperCase(), side === 0 ? 62 : VIEW_WIDTH - 62, 242, {
-      align: 'center',
-      color: SIDE_COLOURS[side],
-      shadow: '#000000',
-    }),
+    drawText(
+      g,
+      side === 1 && story ? 'THE DOOR' : f.name.toUpperCase(),
+      side === 0 ? 62 : VIEW_WIDTH - 62,
+      242,
+      {
+        align: 'center',
+        color: SIDE_COLOURS[side],
+        shadow: '#000000',
+      },
+    ),
   )
+
+  const map = selectMapRect(fighters.length)
+  drawWorldMap(g, map, mapArt, false)
+  const homes: Pair<MapPoint> = [homeOf(sides[0].slug), homeOf(sides[1].slug)]
+  const destination = story ? homeOf(BOSS_SLUG) : homes[1]
+  drawRoute(g, map, homes[0], destination, 1, true)
+  if (!story) {
+    const p2 = mapToScreen(homes[1], map)
+    drawToken(g, portraits, sides[1].slug, p2.x, p2.y, 16, CURSOR_COLOURS[1])
+  }
+  const p1 = mapToScreen(homes[0], map)
+  drawToken(g, portraits, sides[0].slug, p1.x, p1.y, 16, CURSOR_COLOURS[0])
 
   fighters.forEach((f, index) => {
     const card = selectCard(index, fighters.length)
     g.fillStyle = '#292524'
     g.fillRect(card.x, card.y, card.w, card.h)
-    drawBust(g, sprites[f.slug], f, card, false)
+    drawBust(g, sprites[f.slug], f, card, false, portraits)
     g.strokeStyle = '#57534e'
     g.lineWidth = 1
     g.strokeRect(card.x + 0.5, card.y + 0.5, card.w - 1, card.h - 1)
@@ -426,6 +573,7 @@ export function drawSelectScreen(
   for (const side of [0, 1] as const) {
     const picked = state.picked[side]
     if (!picked && !blink) continue
+    if (side === 1 && story) continue
     const card = selectCard(state.cursor[side], fighters.length)
     const shared = state.cursor[0] === state.cursor[1]
     const inset = shared && side === 1 ? 3 : 0
@@ -455,9 +603,82 @@ export function drawSelectScreen(
     : activeSide(state) === 0
       ? 'PICK YOUR FIGHTER - LP'
       : `PICK THE OPPONENT - LP (HP GOES BACK)`
-  drawText(g, prompt, VIEW_WIDTH / 2, GRID_TOP + 2 * (CARD + CARD_GAP) + 8, {
+  drawText(g, prompt, VIEW_WIDTH / 2, selectPromptY(fighters.length), {
     align: 'center',
     color: '#fde047',
     shadow: '#000000',
   })
+}
+
+// ------------------------------------------------------------ pause
+
+/** One line of the pause screen's move list (fighters/index.ts moveList). */
+export type PauseMove = {
+  name: string
+  input: string
+  note: string
+  easy: string
+}
+
+/** Moves every fighter shares, after their own. */
+const SHARED_MOVES: PauseMove[] = [
+  { name: 'Throw', input: 'LP + LK', note: 'up close', easy: '' },
+  { name: 'Launcher', input: '↓ + HK', note: 'hold ↑ to chase', easy: '' },
+]
+
+/** Left edges of the input, name and Easy Specials columns. */
+export const PAUSE_COLUMNS = [12, 167, 346] as const
+export const PAUSE_ROWS_TOP = 52
+export const PAUSE_ROW_STEP = 12
+
+/**
+ * The pause screen: the fighter's moves, read mid-fight without leaving it.
+ * Inputs face right; the Easy Specials column shows only while they are on.
+ */
+export function drawPauseScreen(
+  g: G,
+  fighterName: string,
+  moves: readonly PauseMove[],
+  easy: boolean,
+): void {
+  g.fillStyle = 'rgba(0, 0, 0, 0.78)'
+  g.fillRect(0, 0, VIEW_WIDTH, VIEW_HEIGHT)
+  drawText(g, 'PAUSED', VIEW_WIDTH / 2, 10, {
+    align: 'center',
+    scale: 2,
+    color: '#ffffff',
+    shadow: '#000000',
+  })
+  drawText(g, `${fighterName.toUpperCase()} MOVES`, VIEW_WIDTH / 2, 34, {
+    align: 'center',
+    color: '#fdba74',
+  })
+  const [inputX, nameX, easyX] = PAUSE_COLUMNS
+  let y = PAUSE_ROWS_TOP
+  for (const move of pauseLines(moves)) {
+    drawText(g, move.input, inputX, y, { color: '#fde047' })
+    drawText(g, pauseName(move), nameX, y, { color: '#ffffff' })
+    if (easy && move.easy)
+      drawText(g, pauseEasy(move.easy), easyX, y, { color: '#86efac' })
+    y += PAUSE_ROW_STEP
+  }
+  drawText(g, 'PRESS START TO FIGHT ON', VIEW_WIDTH / 2, VIEW_HEIGHT - 16, {
+    align: 'center',
+    color: '#fde047',
+  })
+}
+
+/** A move's name with its note, as the pause screen writes it. */
+export function pauseName(move: PauseMove): string {
+  return move.note ? `${move.name} (${move.note})` : move.name
+}
+
+/** The Easy Specials label, shortened to fit its column. */
+export function pauseEasy(label: string): string {
+  return label.replace(/Special/g, 'SP')
+}
+
+/** Every line the pause screen draws for these moves, shared ones included. */
+export function pauseLines(moves: readonly PauseMove[]): PauseMove[] {
+  return [...moves, ...SHARED_MOVES]
 }

@@ -780,6 +780,18 @@ export const ANIMATION_EFFECTS = [
     generationSafe: true,
     preferredSurface: 'fullscreen',
   },
+  {
+    id: 'jellyfish-drift-bloom',
+    label: 'Jellyfish Drift Bloom',
+    reveal: 'Glowing jellyfish pulse and drift through the deep',
+    icon: 'kind-icon:sparkle',
+    tooltip:
+      'Bioluminescent jellyfish pulse upward and sink back through dark water 🪼 hover near one to make it glow, click to send the whole bloom into a quick swim',
+    color: '#5eead4',
+    releasedAt: '2026-10-11T08:00:00Z',
+    generationSafe: true,
+    preferredSurface: 'fullscreen',
+  },
 ] as const satisfies readonly AnimationEffectDefinition[]
 
 export type AnimationEffectId = (typeof ANIMATION_EFFECTS)[number]['id']

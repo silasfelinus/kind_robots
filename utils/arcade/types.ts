@@ -4,7 +4,7 @@
 // A game is metadata (which the server and the hall can read without touching
 // a canvas) plus a lazily imported module that creates playable instances.
 
-import type { ArcadeSound } from './sound'
+import type { ArcadeSound, MusicLoop } from './sound'
 
 export type ArcadeButton =
   'up' | 'down' | 'left' | 'right' | 'a' | 'b' | 'start'
@@ -28,7 +28,16 @@ export type InputFrame = {
    * a game that has one (Kind Pinball's touch layout); absent otherwise.
    */
   plunger?: number
+  /**
+   * Where a twin-stick game's second stick points, each axis -1..1 and at most length 1: the
+   * gamepad's right stick, the on-screen aim stick, or the arrows of a split keyboard. Only a
+   * cabinet whose game sets `twinStick` ever fills it, and only while something aims.
+   */
+  aim?: AimVector
 }
+
+/** A twin-stick aim (utils/arcade/input.ts). */
+export type AimVector = { x: number; y: number }
 
 /**
  * How a cabinet draws. Every classic cabinet is 'canvas2d' (the default): it
@@ -69,6 +78,11 @@ export type ArcadeGameMeta = {
   /** Server-side plausibility ceiling for a submitted score. */
   maxPlausibleScore: number
   titleArt: string
+  /**
+   * A scored game with a page of its own (LINKED_GAMES): the hall's tile and
+   * hall-of-fame card link here instead of to a cabinet.
+   */
+  route?: string
   /** Accent colour for the cabinet glow and the marquee title. */
   accent: string
   /** One line describing the controls on the cabinet's control panel. */
@@ -89,6 +103,11 @@ export type ArcadeGameMeta = {
    * plays ('pinball': utils/arcade/pinballTouch.ts).
    */
   touchLayout?: 'pinball'
+  /**
+   * The game reads InputFrame.aim (twin-stick): while it plays the cabinet aims with the right
+   * stick, an on-screen aim stick, or the arrows (moving on WASD). Solo cabinets only.
+   */
+  twinStick?: boolean
 }
 
 export type ArcadeGameOptions = {
@@ -101,10 +120,19 @@ export type ArcadeGameOptions = {
   players?: number
   /** Mastery goals this player has already earned (announced only when new). */
   mastery?: readonly string[]
+  /**
+   * This game's saved progress on this device (utils/arcade/saves.ts), for a game that keeps one.
+   * Untrusted: the game validates it and offers to continue or ignores it.
+   */
+  resume?: unknown
 }
 
-/** The subset of ArcadeSound a game may call (lets tests pass a stub). */
-export type ArcadeSoundLike = Pick<ArcadeSound, 'play'>
+/**
+ * The subset of ArcadeSound a game may call (lets tests pass a stub): the shared presets, and
+ * optionally its own notes (a stub may leave `playNotes` out, so games must fall back to `play`).
+ */
+export type ArcadeSoundLike = Pick<ArcadeSound, 'play'> &
+  Partial<Pick<ArcadeSound, 'playNotes'>>
 
 export interface ArcadeGameInstance {
   readonly score: number
@@ -113,6 +141,18 @@ export interface ArcadeGameInstance {
   readonly over: boolean
   /** Mastery goals earned this game, for a cabinet with a ladder. */
   readonly mastered?: readonly string[]
+  /**
+   * Progress to keep if the player leaves, for a game with a save (a long campaign): the cabinet
+   * stores it whenever it changes and hands it back as `resume`. null clears it; a game without
+   * saves leaves this undefined.
+   */
+  readonly save?: unknown
+  /**
+   * The music loop this game wants playing now, for a game with a score (Ghost Trail's stage,
+   * boss and ending themes): the cabinet starts it when the reference changes and stops it on
+   * null, on game over and when the game leaves. Return the same object while it should go on.
+   */
+  readonly music?: MusicLoop | null
   /**
    * Advance one fixed 1/60 s tick. `input` is player 1's; a game seating more
    * players also gets every seated player's frame, player 1 first.

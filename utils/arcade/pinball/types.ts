@@ -122,6 +122,21 @@ export type DoorDef = {
   id: string
   closed: BoxCollider[]
   open: BoxCollider[]
+  /** Starts open (a mouth that waits for the ball); doors start closed. */
+  startsOpen?: boolean
+}
+
+/**
+ * An animatronic toy (Zuzu t-015): scenery the rules pose by phase (the
+ * ruleset's animatronics()), drawn by the renderer for its kind. No collider.
+ */
+export type AnimatronicDef = {
+  id: string
+  kind: 'river-croc'
+  /** Its origin on the table, and its turn about Y. */
+  at: Vec3
+  yaw?: number
+  scale?: number
 }
 
 /** A motorised toy: arms on a hub that turn at a steady rate and bat the ball. */
@@ -135,6 +150,18 @@ export type ToyDef = {
   /** Radians per second about the playfield normal. */
   spin: number
   material: MaterialId
+}
+
+/**
+ * A captive ball (Zuzu t-007): a steel ball held in a short lane of its own,
+ * which the ball in play strikes. It moves and collides like any ball but is
+ * never in play: it does not drain, count or trip switches; striking it is a
+ * contact switch named by its id.
+ */
+export type CaptiveBallDef = {
+  id: string
+  /** Where it rests. */
+  at: Vec3
 }
 
 /**
@@ -240,6 +267,13 @@ export type CameraPreset = {
  * (rules/toys.ts) and the ball never touches. They have no colliders, so the
  * physics is the same with them or without.
  */
+/** A generated image, served from /images/, and the table rectangle (x, z) it covers. */
+export type ArtRegion = {
+  src: string
+  min: readonly [number, number]
+  max: readonly [number, number]
+}
+
 /**
  * A paper lantern hung from a pole (t-028): scenery on the rails and the
  * Ridge, with no collider. `at` is the pole's foot; `side` is the way its
@@ -250,6 +284,24 @@ export type LanternDef = {
   height?: number
   side?: 1 | -1
   color?: number
+}
+
+/** A kind of sculpted village prop (t-034). */
+export type SceneryKind =
+  'tree' | 'cottage' | 'fence' | 'barrel' | 'crate' | 'bush'
+
+/**
+ * Sculpted village scenery (t-034), with no collider: it stands only where
+ * no ball can reach. `at` is its foot; the lowest quality tier it shows at.
+ */
+export type SceneryDef = {
+  kind: SceneryKind
+  at: Vec3
+  yaw?: number
+  scale?: number
+  /** A fence's length along its yaw. */
+  length?: number
+  tier?: 'low' | 'medium' | 'high'
 }
 
 export type HeroDef = {
@@ -280,7 +332,7 @@ export type InsertDef = {
   id: string
   /** Centre on the playfield (x, z). */
   at: readonly [number, number]
-  shape: 'arrow' | 'circle' | 'rect'
+  shape: 'arrow' | 'chevron' | 'circle' | 'rect'
   /** Arrow length / circle diameter / rect width, and the rect's depth. */
   size: number
   depth?: number
@@ -291,6 +343,12 @@ export type InsertDef = {
   shot?: string
   /** A flasher fired when that shot is made. */
   flasher?: string
+  /**
+   * A chevron in the run leading into a shot (t-033): its place in the run,
+   * 0 the farthest from the shot's arrow, of `of`. The run fills as the shot
+   * is made, and chases toward the arrow while the shot is worth going for.
+   */
+  ladder?: { shot: string; step: number; of: number }
 }
 
 /** A flasher dome: a bright lamp under coloured plastic that fires on events. */
@@ -334,9 +392,12 @@ export type TableDef = {
   doors?: DoorDef[]
   kickers?: KickerDef[]
   toys?: ToyDef[]
+  captives?: CaptiveBallDef[]
+  animatronics?: AnimatronicDef[]
   /** The signature toys (t-010), drawn from the rules' state. */
   hero?: HeroDef
   lanterns?: LanternDef[]
+  scenery?: SceneryDef[]
   zones?: ZoneDef[]
   occluders?: OccluderDef[]
   inserts?: InsertDef[]
@@ -347,16 +408,19 @@ export type TableDef = {
    * or until it loads, the renderer paints the playfield itself.
    */
   art?: {
-    playfield?: {
-      src: string
-      min: readonly [number, number]
-      max: readonly [number, number]
-    }
+    playfield?: ArtRegion
+    /** The Ridge's own painted art (t-027), over the upper playfield's floor. */
+    ridge?: ArtRegion
     /**
      * The machine's room (t-020): the backglass over the DMD, and posters
      * and neighbouring screens from the rest of the arcade.
      */
-    room?: { backglass?: string; posters?: readonly string[] }
+    room?: {
+      backglass?: string
+      /** Shown while `backglass` is missing (t-030: the art is generated). */
+      backglassFallback?: string
+      posters?: readonly string[]
+    }
   }
   /**
    * The DMD in the backbox (t-006): the centre of its glass, facing the

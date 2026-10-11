@@ -134,7 +134,7 @@ check(
       { buttons: ['lp', 'hp'], move: 'erupt' },
     )
     assert.ok(FIGHTERS.includes(RIVER_CROC))
-    assert.equal(RIVER_CROC.health, 1100)
+    assert.equal(RIVER_CROC.health, 1050)
     assert.equal(RIVER_CROC.easy?.super, 'swallow', 'Easy: QCF QCF+P')
   },
 )

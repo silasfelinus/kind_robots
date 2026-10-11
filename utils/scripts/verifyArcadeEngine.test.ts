@@ -13,7 +13,12 @@ import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { MUSIC_BEDS, PINBALL_CUES } from '../arcade/pinball/audio/catalog'
 import { PinballMixer } from '../arcade/pinball/audio/mixer'
-import { advanceClock, MAX_TICKS_PER_FRAME, TICK_MS } from '../arcade/loop'
+import {
+  advanceClock,
+  MAX_TICKS_PER_FRAME,
+  startFixedLoop,
+  TICK_MS,
+} from '../arcade/loop'
 import { everyNthLevel, levelCurve, mulberry32 } from '../arcade/curve'
 import {
   assignPads,
@@ -69,11 +74,15 @@ import {
   type BallView,
 } from '../arcade/pinball/physics/world'
 import {
+  fitsFrame,
   liveRenderResources,
   PinballScene,
   type RendererLike,
 } from '../arcade/pinball/render/scene'
+import { artBounds, artScale } from '../arcade/pinball/render/materials'
 import { wireformRails } from '../arcade/pinball/render/wireforms'
+import { fenceEnds, SCENERY_SIZE } from '../arcade/pinball/render/scenery'
+import { reachMap, reachesNear } from '../arcade/pinball/reach'
 import {
   initialRules,
   SECRET_DOOR_STEPS,
@@ -116,6 +125,7 @@ import {
 } from '../arcade/pinball/dmdQueue'
 import { drawDmd, fitScale, formatScore } from '../arcade/pinball/dmdScenes'
 import { cameraViewFor, PinballRuntime } from '../arcade/pinball/runtime'
+import { asMusicLoop } from '../arcade/sound'
 import { aimedShot, delaysFor } from '../arcade/pinball/tuning/aim'
 import { BOT_SKILLS, PinballBot } from '../arcade/pinball/tuning/bot'
 import { playGame, summarize } from './pinballTuning'
@@ -192,6 +202,32 @@ import {
   )
   assert.equal(asleep.accumulator, 0)
   assert.equal(advanceClock(0, -50).ticks, 0, 'clock never runs backwards')
+
+  // A frame that throws never ends the loop (the tablet freeze, 2026-10-11):
+  // the error goes to the handler and the next frame still runs.
+  const queued: Array<(now: number) => void> = []
+  const g = globalThis as {
+    requestAnimationFrame?: (cb: (now: number) => void) => number
+    cancelAnimationFrame?: (handle: number) => void
+  }
+  const saved = [g.requestAnimationFrame, g.cancelAnimationFrame] as const
+  g.requestAnimationFrame = (cb) => queued.push(cb)
+  g.cancelAnimationFrame = () => {}
+  let renders = 0
+  const errors: unknown[] = []
+  const loop = startFixedLoop(
+    () => {},
+    () => {
+      renders++
+      if (renders === 2) throw new Error('boom')
+    },
+    (error) => errors.push(error),
+  )
+  for (let frame = 1; frame <= 5; frame++) queued.shift()!(frame * TICK_MS)
+  loop.stop()
+  ;[g.requestAnimationFrame, g.cancelAnimationFrame] = saved
+  assert.equal(errors.length, 1, 'the failed frame is reported')
+  assert.equal(renders, 5, 'and every frame after it still runs')
 }
 
 // --- curves and rng ----------------------------------------------------------
@@ -1292,6 +1328,17 @@ async function runPinballFeel() {
         e.type === 'mechanism' && e.id === 'flippers' && e.action === 'enable',
     ),
   )
+  // The cabinet plays a game's `music` as a MusicLoop. The runtime has none:
+  // its old private music() method read as one and froze the table on the
+  // first tick of play (Silas, tablet, 2026-10-11).
+  assert.equal(
+    asMusicLoop(() => {}),
+    null,
+    'a method is not music',
+  )
+  assert.equal(asMusicLoop({ bpm: 120 }), null, 'nor is a loop with no tracks')
+  const tune = { bpm: 120, tracks: [] }
+  assert.equal(asMusicLoop(tune), tune)
   // In the runtime, a tilted machine's flippers will not rise.
   const tilted = new PinballRuntime(
     { rng: mulberry32(8), sound: { play: () => {} }, demo: false, hiScore: 0 },
@@ -1303,6 +1350,15 @@ async function runPinballFeel() {
     physics: PinballPhysics
     rules: PinballRulesState
   }
+  assert.equal(
+    asMusicLoop((tilted as unknown as { music?: unknown }).music),
+    null,
+    'the pinball runtime hands the cabinet no music to play',
+  )
+  assert.ok(
+    !('music' in tilted),
+    'nothing on the runtime is named music (the cabinet reads that name)',
+  )
   inner.rules = { ...inner.rules, tilted: true }
   const hold = emptyInput()
   hold.held.left = true
@@ -1978,7 +2034,16 @@ async function runPinball3d() {
   const hall = ARCADE_GAMES.find((game) => game.slug === 'kind-pinball')!
   assert.equal(hall.renderMode, 'webgl', 'the hall plays the 3D table')
   assert.equal(findArcadeGame('kind-pinball'), hall)
-  assert.equal(PREVIEW_GAMES.length, 0, 'no preview cabinet is left')
+  assert.deepEqual(
+    PREVIEW_GAMES.map((game) => game.slug),
+    ['zuzu-pinball'],
+    'the only preview cabinet is Zuzu and it is not in the public hall',
+  )
+  assert.equal(
+    isPlausibleScore('zuzu-pinball', 100_000),
+    false,
+    'an unlisted admin preview never posts public leaderboard scores',
+  )
   assert.equal(findArcadeGame('kind-pinball-3d'), undefined)
   assert.ok(isPlausibleScore('kind-pinball', 60_000_000), 'a 3D-sized score')
   assert.equal(isPlausibleScore('kind-pinball', 200_000_000), false)
@@ -2338,6 +2403,15 @@ async function runPinballRender() {
     elevation(390 / 844) > elevation(1280 / 800) + 0.15,
     'a phone looks down on the table more steeply than a desktop',
   )
+  // The on-screen DMD shows unless the whole backbox glass is in frame: on a
+  // tall tablet its centre was on screen while its top was cut off.
+  const corner = (x: number, y: number) => ({ x, y, z: 0.5 })
+  assert.ok(fitsFrame([corner(-0.5, 0.8), corner(0.5, 0.9)]))
+  assert.ok(
+    !fitsFrame([corner(-0.5, 0.8), corner(0.5, 1.04)]),
+    'a glass cut off at the top is not readable',
+  )
+  assert.ok(!fitsFrame([{ x: 0, y: 0, z: 1.2 }]), 'nor one behind the camera')
   assert.equal(portraitBlend(0.4), 1)
   assert.equal(portraitBlend(1.6), 0)
 
@@ -2356,6 +2430,19 @@ async function runPinballRender() {
   assert.deepEqual(feed(30, 400), ['medium', 'low'], 'slow frames step down')
   assert.deepEqual(feed(16.7, 3000), [], 'a failed tier is not retried')
   assert.deepEqual(feed(5000, 400), [], 'stalls (a hidden tab) are not frames')
+  // A device whose every frame is slow is not stalling: it steps down at
+  // once, long before an average window fills (a tablet stuck at high
+  // dropped every 300 ms frame as a "stall" and never stepped down).
+  const drowning = new QualityGovernor('high')
+  const drops: string[] = []
+  for (let i = 0; i < 25; i++) {
+    const tier = drowning.sample(300)
+    if (tier) drops.push(tier)
+  }
+  assert.deepEqual(drops, ['medium', 'low'], 'a drowning device steps down')
+  const lone = new QualityGovernor('high')
+  for (let i = 0; i < 600; i++) lone.sample(i % 120 === 60 ? 5000 : 16.7)
+  assert.equal(lone.tier, 'high', 'a lone long gap is still a stall')
   const recovering = new QualityGovernor('high')
   for (let i = 0; i < 400; i++) recovering.sample(19)
   assert.equal(recovering.tier, 'high', 'just under 50 FPS is not slow')
@@ -2553,6 +2640,39 @@ async function runPinballRender() {
         'art rectangle = playfield',
       )
   }
+  // The Ridge has its own painted art (t-027), over its floor, meeting the
+  // main field's art where the arch begins.
+  const ridgeArt = table.art?.ridge
+  const ridgeFloor = table.colliders.find((c) => c.id === 'ridge-floor')
+  assert.ok(ridgeArt && ridgeFloor && ridgeFloor.kind === 'box' && art)
+  if (ridgeArt && ridgeFloor && ridgeFloor.kind === 'box' && art) {
+    assert.ok(ridgeArt.src.startsWith('/images/'))
+    assert.ok(
+      Math.abs(ridgeArt.min[1] - (ridgeFloor.at[2] - ridgeFloor.half[2])) <
+        1e-9,
+      'the Ridge art starts at the top of its floor',
+    )
+    assert.ok(
+      Math.abs(ridgeArt.max[1] - art.min[1]) < 1e-9,
+      'and meets the main field art',
+    )
+    assert.ok(
+      Math.abs(ridgeArt.min[0] - art.min[0]) < 1e-9 &&
+        Math.abs(ridgeArt.max[0] - art.max[0]) < 1e-9,
+      'as wide as the main field art',
+    )
+  }
+  // The painted canvas stays inside the device's texture limit.
+  const bounds = artBounds(table)
+  for (const maxSize of [2048, 4096, 8192]) {
+    const scale = artScale(bounds, maxSize)
+    const longest = Math.max(bounds.x1 - bounds.x0, bounds.z1 - bounds.z0)
+    assert.ok(longest * scale <= maxSize, `fits a ${maxSize} texture`)
+  }
+  assert.ok(
+    artScale(bounds, 8192) > 1240,
+    'sharper than the old procedural canvas where the device allows',
+  )
 
   // The scene: lamps follow the matrix, pulses and tiers are safe without
   // WebGL, and nothing leaks.
@@ -4113,6 +4233,27 @@ async function runPinballDressing() {
   scene.setLamps({}, 1)
   for (let i = 0; i < 120; i++) scene.render()
   assert.ok(dressing.lanternGlow > glow * 0.8, 'and they come back')
+  // Lanterns that really light the table, by quality tier (t-030).
+  for (const tier of ['high', 'medium', 'low'] as const) {
+    scene.forceQuality(tier)
+    assert.equal(
+      dressing.practicalsLit,
+      TIER_SETTINGS[tier].practicalLights,
+      `${tier}: its share of practical lanterns`,
+    )
+  }
+  assert.equal(dressing.practicalsLit, 0, 'a phone on low lights none')
+  // The apron carries its painted plate, just above the trim (t-030).
+  const plate = table.trim?.find((c) => c.id === 'apron-plate')
+  assert.ok(dressing.apronPlate && plate && plate.kind === 'box')
+  if (dressing.apronPlate && plate && plate.kind === 'box')
+    assert.ok(
+      dressing.apronPlate.position.y > plate.at[1] + plate.half[1],
+      'the plate sits on the apron, not inside it',
+    )
+  // The backglass waits on its painting with the title art behind it.
+  assert.ok(table.art?.room?.backglass?.startsWith('/images/'))
+  assert.ok(table.art?.room?.backglassFallback?.startsWith('/images/'))
   // The dressing is scenery: the table's colliders are untouched by it.
   assert.equal(JSON.stringify(table.colliders), colliders)
   scene.dispose()
@@ -4142,7 +4283,261 @@ async function runPinballMetalwork() {
   scene.setLamps({}, 0)
   for (let i = 0; i < 120; i++) scene.render()
   assert.ok(metal.stripGlow < glow * 0.1, 'and dim with the GI')
+  // t-033: every chrome lane guide on the playfield stands on stand-offs.
+  const guides = table.colliders.filter(
+    (c) =>
+      c.kind === 'box' &&
+      c.material === 'chrome' &&
+      !c.hidden &&
+      c.at[1] + c.half[1] < 0.03,
+  )
+  assert.ok(
+    metal.standoffs >= guides.length * 2,
+    `both ends of every lane guide are bolted down (${metal.standoffs})`,
+  )
   assert.equal(JSON.stringify(table.colliders), colliders)
+  scene.dispose()
+}
+
+/** kind-pinball/t-034: sculpted village scenery, only where no ball can go. */
+async function runPinballScenery() {
+  const table = AMI_VILLAGE_GREYBOX
+  const colliders = JSON.stringify(table.colliders)
+  const props = table.scenery ?? []
+  assert.ok(props.length >= 20, `a crowded village (${props.length} props)`)
+  for (const kind of Object.keys(SCENERY_SIZE))
+    assert.ok(
+      props.some((p) => p.kind === kind),
+      `the village has a ${kind}`,
+    )
+
+  // The reach map is real: the ball's whole field, and nowhere it cannot go.
+  const map = reachMap(table)
+  const ballR = table.physical.ballRadiusM
+  const reached = map.reach.reduce((n, v) => n + v, 0)
+  assert.ok(reached > map.reach.length * 0.3, 'most of the table is in play')
+  assert.ok(
+    reachesNear(map, table.plunger.rest[0], table.plunger.rest[2], 0.004),
+    'the shooter lane is in play',
+  )
+  const inserts = table.inserts ?? []
+  for (const insert of inserts.filter(
+    (i) =>
+      i.shape === 'arrow' && inserts.some((c) => c.ladder?.shot === i.shot),
+  ))
+    assert.ok(
+      reachesNear(map, insert.at[0], insert.at[1], 0.004),
+      `the ball rolls over ${insert.id}`,
+    )
+  for (const scoop of table.scoops.filter((s) => !s.hidden))
+    assert.ok(
+      reachesNear(map, scoop.at[0], scoop.at[2], scoop.radius),
+      `the ball reaches the ${scoop.id} saucer`,
+    )
+  for (const flipper of table.flippers)
+    assert.ok(
+      reachesNear(map, flipper.pivot[0], flipper.pivot[2], 0.04),
+      `the ball reaches ${flipper.id}`,
+    )
+
+  // Every prop stands, and reaches over, only where no ball can go.
+  const raised = table.colliders.filter((c) => c.kind === 'mesh')
+  for (const [i, prop] of props.entries()) {
+    const size = SCENERY_SIZE[prop.kind]
+    const k = prop.scale ?? 1
+    const spots: Array<[number, number]> =
+      prop.kind === 'fence'
+        ? [...fenceEnds(prop), [prop.at[0], prop.at[2]]]
+        : [[prop.at[0], prop.at[2]]]
+    // A crown higher than a ball may reach over the field; a lower one may not.
+    const reach =
+      size.crownFrom * k >= ballR * 2 + 0.005
+        ? size.foot * k
+        : Math.max(size.foot, size.crown) * k
+    for (const [x, z] of spots)
+      assert.ok(
+        !reachesNear(map, x, z, reach),
+        `${prop.kind} ${i} at (${x.toFixed(3)}, ${z.toFixed(3)}) is out of play`,
+      )
+    // Nothing a ball rides (ramps, covers) passes over or through it.
+    for (const mesh of raised) {
+      let x0 = Infinity
+      let x1 = -Infinity
+      let z0 = Infinity
+      let z1 = -Infinity
+      let top = -Infinity
+      for (let v = 0; v < mesh.vertices.length; v += 3) {
+        x0 = Math.min(x0, mesh.vertices[v]!)
+        x1 = Math.max(x1, mesh.vertices[v]!)
+        top = Math.max(top, mesh.vertices[v + 1]!)
+        z0 = Math.min(z0, mesh.vertices[v + 2]!)
+        z1 = Math.max(z1, mesh.vertices[v + 2]!)
+      }
+      if (top <= prop.at[1]) continue
+      const pad = size.crown * k + ballR
+      assert.ok(
+        prop.at[0] < x0 - pad ||
+          prop.at[0] > x1 + pad ||
+          prop.at[2] < z0 - pad ||
+          prop.at[2] > z1 + pad,
+        `${prop.kind} ${i} is clear of ${mesh.id}`,
+      )
+    }
+  }
+
+  // The huts keep their own ground.
+  for (const hut of table.hero?.huts ?? [])
+    for (const prop of props)
+      assert.ok(
+        Math.hypot(hut.at[0] - prop.at[0], hut.at[2] - prop.at[2]) >
+          0.014 + SCENERY_SIZE[prop.kind].foot * (prop.scale ?? 1),
+        `a ${prop.kind} is clear of the huts`,
+      )
+
+  // The renderer: merged per tier, fewer props as the tier steps down.
+  const scene = new PinballScene(table, {} as HTMLCanvasElement, () =>
+    stubRenderer({ disposed: 0, frames: 0 }),
+  )
+  const village = scene.village!
+  assert.equal(village.propsAt('high'), props.length)
+  assert.ok(village.propsAt('low') < village.propsAt('medium'))
+  assert.ok(village.propsAt('medium') < village.propsAt('high'))
+  assert.ok(village.propsAt('low') >= 8, 'the low tier keeps the village')
+  let meshes = 0
+  village.group.traverse((node) => {
+    if ((node as THREE.Mesh).isMesh) meshes++
+  })
+  assert.ok(meshes <= 6, `a few draw calls for the whole village (${meshes})`)
+  village.setTier('low')
+  assert.equal(village.showing, village.propsAt('low'))
+  village.setTier('high')
+  for (let f = 0; f < 30; f++) scene.render()
+  const lit = village.windowGlow
+  assert.ok(lit > 1, 'the cottage windows are lit')
+  scene.setLamps({}, 0)
+  for (let f = 0; f < 120; f++) scene.render()
+  assert.ok(village.windowGlow < lit * 0.1, 'and go dark with the GI')
+  assert.equal(JSON.stringify(table.colliders), colliders, 'no new colliders')
+  scene.dispose()
+}
+
+/** kind-pinball/t-033: a run of chevrons into every shot, lit by its rules. */
+async function runPinballChevrons() {
+  const table = AMI_VILLAGE_GREYBOX
+  const inserts = table.inserts ?? []
+  const arrows = inserts.filter((i) => i.shape === 'arrow' && i.shot)
+  const mainShots = [
+    'left-orbit',
+    'left-ramp',
+    'upper-feed',
+    'lock',
+    'spinner',
+    'right-ramp',
+    'right-orbit',
+  ]
+  assert.equal(
+    inserts.filter((i) => i.ladder?.shot === 'right-ramp').length,
+    0,
+    "the award saucer sits in the right ramp's lane, so it has no run",
+  )
+  for (const shot of mainShots.filter((s) => s !== 'right-ramp')) {
+    const run = inserts.filter((i) => i.ladder?.shot === shot)
+    assert.equal(run.length, 3, `${shot} has a run of three chevrons`)
+    const head = arrows.find((a) => a.shot === shot)!
+    for (const chevron of run) {
+      assert.equal(chevron.shape, 'chevron')
+      assert.equal(chevron.color, head.color, 'in its shot colour')
+      assert.equal(chevron.shot, undefined, 'the arrow still names the shot')
+      assert.ok(chevron.at[1] > head.at[1], 'down the table from its arrow')
+    }
+    // Nearest the arrow is the last step.
+    const near = (step: number) => {
+      const c = run.find((r) => r.ladder!.step === step)!
+      return Math.hypot(c.at[0] - head.at[0], c.at[1] - head.at[1])
+    }
+    assert.ok(near(2) < near(1) && near(1) < near(0), `${shot}'s run leads in`)
+  }
+  // No chevron sits on another insert, a saucer or a post.
+  const chevrons = inserts.filter((i) => i.shape === 'chevron')
+  for (const a of chevrons) {
+    for (const scoop of table.scoops)
+      assert.ok(
+        Math.hypot(a.at[0] - scoop.at[0], a.at[1] - scoop.at[2]) >
+          scoop.radius + a.size,
+        `${a.id} is clear of the ${scoop.id} saucer`,
+      )
+    for (const post of table.colliders)
+      if (post.kind === 'post')
+        assert.ok(
+          Math.hypot(a.at[0] - post.at[0], a.at[1] - post.at[2]) >
+            post.radius + a.size,
+          `${a.id} is clear of ${post.id}`,
+        )
+  }
+  for (const a of chevrons)
+    for (const b of inserts)
+      if (a !== b)
+        assert.ok(
+          Math.hypot(a.at[0] - b.at[0], a.at[1] - b.at[1]) >
+            (a.size + b.size) * 0.45,
+          `${a.id} is clear of ${b.id}`,
+        )
+
+  // The rules: dark with the arrow, filled per shot made, blinking with it.
+  const base = initialRules(table.balls)
+  const run = (state: PinballRulesState, shot: string) => {
+    const lamps = lampStates(state, table).lamps
+    return [1, 2, 3].map((i) => lamps[`chevron-${shot}-${i}`])
+  }
+  assert.deepEqual(run(base, 'left-ramp'), ['off', 'off', 'off'])
+  const made = { ...base, shotsMade: { 'left-ramp': 2 } }
+  assert.deepEqual(
+    run(made, 'left-ramp'),
+    ['on', 'on', 'off'],
+    'the run fills as the shot is made',
+  )
+  assert.deepEqual(run(made, 'left-orbit'), ['off', 'off', 'off'])
+  assert.deepEqual(
+    run({ ...made, shotsMade: { 'left-orbit': 9 } }, 'left-orbit'),
+    ['on', 'on', 'on'],
+    'and stays full',
+  )
+  assert.deepEqual(
+    run({ ...made, shotsMade: { lock: 3 } }, 'lock'),
+    ['off', 'off', 'off'],
+    'an unlit arrow keeps its run dark',
+  )
+  const wizard = {
+    ...base,
+    play: { ...base.play, wizard: { ...base.play.wizard, running: true } },
+  }
+  assert.deepEqual(
+    run(wizard, 'spinner'),
+    ['blink', 'blink', 'blink'],
+    'a shot worth going for chases its run',
+  )
+  assert.ok(
+    run({ ...made, tilted: true }, 'left-ramp').every((l) => l === 'off'),
+    'a tilt puts the runs out',
+  )
+
+  // The renderer chases a blinking run toward its arrow, one at a time.
+  const scene = new PinballScene(table, {} as HTMLCanvasElement, () =>
+    stubRenderer({ disposed: 0, frames: 0 }),
+  )
+  scene.setLamps(lampStates(wizard, table).lamps, 1)
+  const order: number[] = []
+  for (let f = 0; f < 60; f++) {
+    scene.render()
+    const glow = [1, 2, 3].map((i) => scene.insertGlow(`chevron-spinner-${i}`))
+    const brightest = glow.indexOf(Math.max(...glow)) + 1
+    if (Math.max(...glow) > 0.5 && order.at(-1) !== brightest)
+      order.push(brightest)
+  }
+  assert.ok(
+    order.join('').includes('123'),
+    `the chase runs toward the arrow (${order.join('')})`,
+  )
   scene.dispose()
 }
 
@@ -4607,6 +5002,8 @@ await runPinballRidgeFlippers()
 await runPinballCalmCamera()
 await runPinballDressing()
 await runPinballMetalwork()
+await runPinballChevrons()
+await runPinballScenery()
 await runPinballDepot()
 await runPinballGuide()
 await runPinballToys()

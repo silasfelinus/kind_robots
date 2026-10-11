@@ -9,14 +9,21 @@ on:
       - 'stores/shiftingLandsStore.ts'
       - 'stores/shiftingLandsJourneyStore.ts'
       - 'components/shifting-lands-journey-board.vue'
+      - 'components/shifting-lands-character-rail.vue'
       - 'components/navigation/flip-card.vue'
-      - 'public/images/shifting-lands/**'
+      - 'public/shifting-lands/**'
       - 'pages/admin/zuzu-shifting-lands.vue'
       - 'content/channels/admin/zuzu-shifting-lands.md'
       - 'utils/scripts/verifyShiftingLands.test.ts'
       - 'utils/scripts/verifyShiftingJourney.test.ts'
       - 'utils/scripts/verifyShiftingBoard.test.ts'
       - 'utils/scripts/verifyShiftingAuthored.test.ts'
+      - 'utils/scripts/verifyShiftingProgression.test.ts'
+      - 'utils/scripts/verifyShiftingSaveLedger.test.ts'
+      - 'utils/scripts/verifyShiftingV4.test.ts'
+      - 'utils/scripts/verifyShiftingTrials.test.ts'
+      - 'utils/scripts/verifyShiftingCharacterRail.test.ts'
+      - 'utils/scripts/verifyShiftingSceneArt.test.ts'
       - 'utils/scripts/importShiftingLandsWorld.mjs'
       - '.github/workflows/shifting-lands-gameplay.yml'
   push:
@@ -26,14 +33,21 @@ on:
       - 'stores/shiftingLandsStore.ts'
       - 'stores/shiftingLandsJourneyStore.ts'
       - 'components/shifting-lands-journey-board.vue'
+      - 'components/shifting-lands-character-rail.vue'
       - 'components/navigation/flip-card.vue'
-      - 'public/images/shifting-lands/**'
+      - 'public/shifting-lands/**'
       - 'pages/admin/zuzu-shifting-lands.vue'
       - 'content/channels/admin/zuzu-shifting-lands.md'
       - 'utils/scripts/verifyShiftingLands.test.ts'
       - 'utils/scripts/verifyShiftingJourney.test.ts'
       - 'utils/scripts/verifyShiftingBoard.test.ts'
       - 'utils/scripts/verifyShiftingAuthored.test.ts'
+      - 'utils/scripts/verifyShiftingProgression.test.ts'
+      - 'utils/scripts/verifyShiftingSaveLedger.test.ts'
+      - 'utils/scripts/verifyShiftingV4.test.ts'
+      - 'utils/scripts/verifyShiftingTrials.test.ts'
+      - 'utils/scripts/verifyShiftingCharacterRail.test.ts'
+      - 'utils/scripts/verifyShiftingSceneArt.test.ts'
       - 'utils/scripts/importShiftingLandsWorld.mjs'
       - '.github/workflows/shifting-lands-gameplay.yml'
 jobs:
@@ -53,3 +67,9 @@ jobs:
       - run: npx tsx utils/scripts/verifyShiftingJourney.test.ts
       - run: npx tsx utils/scripts/verifyShiftingBoard.test.ts
       - run: npx tsx utils/scripts/verifyShiftingAuthored.test.ts
+      - run: npx tsx utils/scripts/verifyShiftingProgression.test.ts
+      - run: npx tsx utils/scripts/verifyShiftingSaveLedger.test.ts
+      - run: npx tsx utils/scripts/verifyShiftingV4.test.ts
+      - run: npx tsx utils/scripts/verifyShiftingTrials.test.ts
+      - run: npx tsx utils/scripts/verifyShiftingCharacterRail.test.ts
+      - run: npx tsx utils/scripts/verifyShiftingSceneArt.test.ts

@@ -1338,7 +1338,7 @@ const scenes: Scene[] = [
     CH.END,
     'Silence Beneath the Surface',
     'kasa-on-water',
-    'The watering hole returns to stillness. A wide straw hat turns slowly on the black water. Nobody will tell the story of the stranger who almost changed this place.',
+    'The watering hole returns to stillness. The ripples run out against the black stones and stop, and the reeds stand up again one by one. A wide straw hat turns slowly on the water, brim up, the way a leaf turns, and drifts toward the far bank where the coyote is no longer watching. By evening the birds come back to drink. By the end of the week the wind has filled your tracks on the road in. Somewhere east a town goes on waiting for a stranger it never knew it was waiting for. Nobody will tell the story of the stranger who almost changed this place.',
     { ending: 'dark' },
   ),
   s(
@@ -1346,7 +1346,7 @@ const scenes: Scene[] = [
     CH.END,
     'One Shadow on the Road',
     'zuzu-moon',
-    'At sunrise your tracks run east, alone. The smallest footprints vanish behind you. You survived; the shape of what you left undone will travel farther than you do.',
+    'At sunrise your tracks run east, alone. You do not look back at the ridge, because you know what you would see there: two small figures on the skyline, not waving, only watching to learn which way the road goes without you. By noon the smallest footprints have vanished behind you, filled in by the wind as if they had never been. You make good time. Nobody slows you down, nobody needs carrying, nobody wakes you in the night. You survived; the shape of what you left undone will travel farther than you do, and it will be waiting at every fire you light from here to the sea.',
     { ending: 'bittersweet' },
   ),
   s(
@@ -1354,7 +1354,7 @@ const scenes: Scene[] = [
     CH.END,
     'The Unheard Warning',
     'shuttered-town',
-    'You carry the news from town to town. Doors are bolted, children kept close, the mission road left empty. You never learn who escaped the mission and who did not, but this year, at least, no one sends a child up that road.',
+    "You carry the news from town to town. You tell it in saloons and at well-heads and once from the back of a feed wagon, and mostly people do not believe you, until somebody asks after a niece or a neighbor's boy who went up that road last spring and never wrote. Then they believe you. Doors are bolted, children kept close, the mission road left empty, and the wagons with the white cloth on their hoops come back down it with nothing in them. You never learn who escaped the mission and who did not. But this year, at least, no one sends a child up that road.",
     { ending: 'bittersweet' },
   ),
   s(
@@ -1362,7 +1362,7 @@ const scenes: Scene[] = [
     CH.END,
     'The Bell Without a Ringer',
     'empty-gate',
-    'Something comes the rest of the way through. By dawn there is no trace of the mission beyond its broken gate, and a bell hanging in the arch above it, swinging, with no clapper and no one at the rope.',
+    'Something comes the rest of the way through. You do not see it, not properly. You see the candles lean toward it all at once, and the nuns kneel, and then the dark behind the altar is no longer behind anything. You are outside before you know you have run. Behind you the mission makes no sound at all, which is worse than screaming. By dawn there is no trace of the mission beyond its broken gate, no walls, no well, no road worn up to it, only the gate and, in the arch above it, a bell, swinging, with no clapper and no one at the rope.',
     { ending: 'dark' },
   ),
   s(
@@ -1370,7 +1370,7 @@ const scenes: Scene[] = [
     CH.END,
     'Hunted',
     'canyon',
-    'You get them out. You cut the rope bridge behind you and keep walking, and you will keep walking for a long time. The Abbess still lives. Somewhere behind you is a mission with a bell that never rings, and a patient woman who now knows your face. The sister sleeps with a dagger in her hand.',
+    'You get them out. You cut the rope bridge behind you and watch it fall slowly into the canyon, end over end, with nothing on it. Then you keep walking, and you will keep walking for a long time. The Abbess still lives. Somewhere behind you is a mission with a bell that never rings, and a patient woman who has written your face into her ledger with the rest of her accounts. You choose camps with two ways out. You do not sleep near water. The toddler learns to be quiet without being told. The sister sleeps with a dagger in her hand, and some nights, when you wake, she is the one keeping watch.',
     { ending: 'bittersweet' },
   ),
   s(
@@ -1378,7 +1378,7 @@ const scenes: Scene[] = [
     CH.END,
     'Three Small Shadows',
     'three-road',
-    "The mission burns behind the ridge. The sister takes the toddler's hand. You walk ahead, then slow your step until three shadows fall together along the road. Nothing is settled. Something has begun.",
+    "The mission burns behind the ridge. You stand on the rise long enough to see the bell tower lean and go, and then you turn your back on it, because there is nothing there anyone needs to remember. The sister takes the toddler's hand without being asked. You walk ahead, the way you always have, eyes on the road and the high ground, and after a while you notice the scuff of small feet falling behind. You slow your step. Then you slow it again, until three shadows fall together along the road, one tall and two short, long in the evening light. Nothing is settled. Something has begun.",
     { ending: 'hope' },
   ),
   s(
@@ -1386,7 +1386,7 @@ const scenes: Scene[] = [
     CH.END,
     'One Fire',
     'camp',
-    'That night there is one fire, not two. The coyote tries to roll a smoke one-handed and fails, and the toddler laughs for the first time since Hollow Bell. The sister sleeps. You keep watch, and for once you are not the only one keeping it.',
+    'That night there is one fire, not two. The coyote sits on the far side of it with his coat pulled close and his hat over his good eye, as if he might still decide to leave. He tries to roll a smoke one-handed and fails, and fails again, and the toddler laughs, the first laugh anyone has heard from him since Hollow Bell. The coyote looks offended, and then he does not. The sister sleeps with her back against your pack. The stars come out over the flats, more than you have ever counted. You keep watch, and for once you are not the only one keeping it.',
     { ending: 'hope' },
   ),
   s(
@@ -1394,7 +1394,7 @@ const scenes: Scene[] = [
     CH.END,
     'What the Desert Keeps',
     'kneeling-blade',
-    'The breach folds inward. The thing behind it goes back to wherever it waits. When the children look back they see you alive, on your knees, the sword blackened. The road will be longer. There will be a road.',
+    'The breach folds inward. It goes the way a held breath goes, all at once and then nothing, and the thing behind it slides back to wherever it waits, unhurried, already patient again. The candles stand up straight. The stone is only stone. Your katana is black from hilt to point and will not take an edge again, and you know without trying it that it will never leave its sheath. When the children look back from the doorway they see you alive, on your knees, the sword blackened across your lap. The sister comes back for you first. The road will be longer. There will be a road.',
     { ending: 'hope' },
   ),
 ]

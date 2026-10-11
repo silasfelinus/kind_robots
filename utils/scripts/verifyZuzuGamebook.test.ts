@@ -9,6 +9,7 @@ import {
 } from '../zuzuGamebook/art'
 import { SECTION_PLATES } from '../zuzuGamebook/sectionArt'
 import { journal } from '../zuzuGamebook/journal'
+import { emphasis } from '../zuzuGamebook/prose'
 import {
   BOOK,
   scene,
@@ -31,6 +32,31 @@ const endings = ids.filter((id) => !!BOOK[id]?.ending)
 assert.ok(endings.length >= 8, 'at least eight authored endings')
 assert.deepEqual([...ENDING_IDS].sort(), [...endings].sort())
 
+const titleOwners = new Map<string, string>()
+for (const node of Object.values(BOOK)) {
+  const owner = titleOwners.get(node.title)
+  assert.ok(!owner, node.id + ' reuses the title of ' + owner)
+  titleOwners.set(node.title, node.id)
+}
+// Spoken and remembered words are set in *asterisks*; the reader turns each pair into italics.
+for (const node of Object.values(BOOK)) {
+  assert.equal(
+    (node.text.match(/\*/g) ?? []).length % 2,
+    0,
+    node.id + ': unbalanced * emphasis',
+  )
+  assert.ok(
+    emphasis(node.text).every((part) => !part.text.includes('*')),
+    node.id + ': emphasis left a stray *',
+  )
+  assert.equal(
+    emphasis(node.text)
+      .map((part) => part.text)
+      .join(''),
+    node.text.replace(/\*/g, ''),
+    node.id + ': emphasis changed the words',
+  )
+}
 for (const node of Object.values(BOOK)) {
   assert.ok(
     node.art && node.text.length > 80,
@@ -79,12 +105,11 @@ for (const node of Object.values(BOOK)) {
     existsSync(join(scenesDir, own.file + '.webp')),
     node.id + ': own plate file missing',
   )
-  const layout = plateLayout(node.id, own)
-  assert.ok(
-    (own.shape ?? 'wide') === 'wide'
-      ? layout === 'top' || layout === 'bottom'
-      : layout === 'left' || layout === 'right',
-    node.id + ': wide plates sit above or below the text, tall ones beside it',
+  assert.equal(
+    plateLayout(own),
+    (own.shape ?? 'wide') === 'wide' ? 'top' : 'right',
+    node.id +
+      ': wide plates sit above the text, tall and square ones to its right',
   )
 }
 const usedPlates = new Set(Object.values(BOOK).map((node) => node.art))

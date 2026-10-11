@@ -30,6 +30,14 @@ export const POP_REST = 0.2
 export const POP_FLASH = 4
 /** A lantern's glow at full GI. */
 const LANTERN_GLOW = 2.2
+/**
+ * The warm light a practical lantern throws on the table at full GI, and
+ * how far it reaches (t-030). Only the main field's lanterns carry one, in
+ * an order that spreads a tier's few lights along both rails.
+ */
+const LANTERN_LIGHT = 0.009
+const LANTERN_REACH = 0.22
+const PRACTICAL_ORDER = [0, 3, 4, 1, 2, 5]
 /** A wall gets a trim rail when it is at least this tall. */
 const TRIM_MIN_HEIGHT = 0.015
 
@@ -207,13 +215,100 @@ export function wallPaint(track: Track): THREE.Texture | null {
   return texture
 }
 
-type Lantern = { material: THREE.MeshStandardMaterial }
+/**
+ * The apron's painted plate (t-030): deep plum lacquer framed in carved gold
+ * scrollwork, with a butterfly medallion at its centre and a lantern either
+ * side. No lettering. Browser only (it needs a canvas).
+ */
+function apronArt(track: Track, aspect: number): THREE.Texture | null {
+  if (typeof document === 'undefined') return null
+  const h = 128
+  const w = Math.round(h * aspect)
+  const canvas = document.createElement('canvas')
+  canvas.width = w
+  canvas.height = h
+  const g = canvas.getContext('2d')
+  if (!g) return null
+  const lacquer = g.createLinearGradient(0, 0, 0, h)
+  lacquer.addColorStop(0, '#2a0f3d')
+  lacquer.addColorStop(1, '#14061f')
+  g.fillStyle = lacquer
+  g.fillRect(0, 0, w, h)
+  g.strokeStyle = '#e7b65c'
+  g.lineWidth = 6
+  g.strokeRect(8, 8, w - 16, h - 16)
+  g.lineWidth = 2
+  g.strokeRect(18, 18, w - 36, h - 36)
+  // Scrolls along the frame: a running vine of gold curls.
+  g.lineWidth = 2.5
+  for (let x = 40; x < w - 40; x += 46) {
+    for (const y of [26, h - 26]) {
+      g.beginPath()
+      g.arc(x, y, 9, Math.PI * 0.1, Math.PI * 1.6)
+      g.stroke()
+      g.beginPath()
+      g.arc(x + 20, y, 6, Math.PI * 1.1, Math.PI * 2.6)
+      g.stroke()
+    }
+  }
+  // The butterfly medallion.
+  const cx = w / 2
+  const cy = h / 2
+  const glow = g.createRadialGradient(cx, cy, 4, cx, cy, 44)
+  glow.addColorStop(0, '#0f766e')
+  glow.addColorStop(1, '#134e4a')
+  g.fillStyle = glow
+  g.beginPath()
+  g.arc(cx, cy, 34, 0, Math.PI * 2)
+  g.fill()
+  g.strokeStyle = '#e7b65c'
+  g.lineWidth = 4
+  g.stroke()
+  const wing = (dir: number, color: string) => {
+    g.fillStyle = color
+    g.beginPath()
+    g.ellipse(cx + dir * 11, cy - 7, 12, 9, dir * -0.5, 0, Math.PI * 2)
+    g.fill()
+    g.beginPath()
+    g.ellipse(cx + dir * 9, cy + 9, 8, 6, dir * 0.6, 0, Math.PI * 2)
+    g.fill()
+  }
+  wing(-1, '#f472b6')
+  wing(1, '#22d3ee')
+  g.fillStyle = '#fde68a'
+  g.fillRect(cx - 1.5, cy - 12, 3, 24)
+  // A paper lantern either side of the medallion.
+  for (const x of [w * 0.25, w * 0.75]) {
+    const light = g.createRadialGradient(x, cy, 2, x, cy, 30)
+    light.addColorStop(0, 'rgba(255,200,120,0.9)')
+    light.addColorStop(1, 'rgba(255,200,120,0)')
+    g.fillStyle = light
+    g.fillRect(x - 30, cy - 30, 60, 60)
+    g.fillStyle = '#fb923c'
+    g.beginPath()
+    g.ellipse(x, cy, 10, 14, 0, 0, Math.PI * 2)
+    g.fill()
+    g.fillStyle = '#e7b65c'
+    g.fillRect(x - 7, cy - 17, 14, 4)
+    g.fillRect(x - 7, cy + 13, 14, 4)
+  }
+  const texture = track(new THREE.CanvasTexture(canvas))
+  texture.colorSpace = THREE.SRGBColorSpace
+  return texture
+}
+
+type Lantern = {
+  material: THREE.MeshStandardMaterial
+  light: THREE.PointLight | null
+}
 
 export class Dressing {
   readonly group = new THREE.Group()
   /** Each pop's lit body and cap, by pop id: they flash when it fires. */
   readonly pops = new Map<string, THREE.MeshPhysicalMaterial>()
   private lanterns: Lantern[] = []
+  private practicals: THREE.PointLight[] = []
+  private apron: THREE.Mesh | null = null
   private gi = 1
   private frame = 0
 
@@ -226,6 +321,7 @@ export class Dressing {
     this.buildTrim()
     this.buildSlingPlastics()
     this.buildLanterns()
+    this.buildApron()
   }
 
   /** How many lanterns stand on the rails (for tests). */
@@ -257,7 +353,19 @@ export class Dressing {
         0.06 * Math.sin(this.frame * 0.21 + i * 1.7) +
         0.04 * Math.sin(this.frame * 0.53 + i * 0.9)
       lantern.material.emissiveIntensity = LANTERN_GLOW * flicker * this.gi
+      if (lantern.light)
+        lantern.light.intensity = LANTERN_LIGHT * flicker * this.gi
     })
+  }
+
+  /** The quality tier's share of lanterns that really light the table. */
+  setPracticals(count: number) {
+    this.practicals.forEach((light, i) => (light.visible = i < count))
+  }
+
+  /** Lanterns lighting the table now (for tests). */
+  get practicalsLit(): number {
+    return this.practicals.filter((light) => light.visible).length
   }
 
   private physical(params: THREE.MeshPhysicalMaterialParameters) {
@@ -531,10 +639,66 @@ export class Dressing {
       const body = new THREE.Mesh(this.track(lathe(shade, 14)), material)
       body.position.set(hangX, bottom, z)
       this.group.add(body)
-      this.lanterns.push({ material })
+      this.lanterns.push({ material, light: null })
+    }
+    for (const index of PRACTICAL_ORDER) {
+      const lantern = this.lanterns[index]
+      const def = defs[index]
+      if (!lantern || !def) continue
+      const light = new THREE.PointLight(
+        def.color ?? 0xff6b3d,
+        LANTERN_LIGHT,
+        LANTERN_REACH,
+        2,
+      )
+      const height = def.height ?? 0.05
+      light.position.set(
+        def.at[0] - 0.02 * (def.side ?? 1),
+        def.at[1] + height - 0.011,
+        def.at[2],
+      )
+      light.visible = false
+      this.group.add(light)
+      lantern.light = light
+      this.practicals.push(light)
     }
     this.addMerged(poles, iron)
     this.addMerged(trims, gold)
+  }
+
+  /** The painted, gold-framed plate on the apron over the drain (t-030). */
+  private buildApron() {
+    const plate = (this.table.trim ?? []).find(
+      (c): c is BoxCollider => c.kind === 'box' && c.id === 'apron-plate',
+    )
+    if (!plate) return
+    const width = plate.half[0] * 2
+    const depth = plate.half[2] * 2
+    const art = apronArt(this.track, width / depth)
+    const mesh = new THREE.Mesh(
+      this.track(new THREE.PlaneGeometry(width, depth)),
+      this.physical({
+        color: art ? 0xffffff : 0x2a0f3d,
+        map: art,
+        roughness: 0.35,
+        clearcoat: 0.8,
+        clearcoatRoughness: 0.2,
+      }),
+    )
+    mesh.rotation.x = -Math.PI / 2
+    mesh.position.set(
+      plate.at[0],
+      plate.at[1] + plate.half[1] + 0.0005,
+      plate.at[2],
+    )
+    mesh.receiveShadow = true
+    this.group.add(mesh)
+    this.apron = mesh
+  }
+
+  /** The apron's painted plate (for tests). */
+  get apronPlate(): THREE.Mesh | null {
+    return this.apron
   }
 
   private addMerged(parts: THREE.BufferGeometry[], material: THREE.Material) {

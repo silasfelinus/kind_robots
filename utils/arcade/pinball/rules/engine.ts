@@ -331,15 +331,23 @@ export function stepRules(
   return { state: next, effects }
 }
 
+/** The part of any table's state the tilt bob reads and writes. */
+export type TiltState = {
+  tilted: boolean
+  tiltWarnings: number
+  lastNudgeAt: number
+  kickbackLit: boolean
+}
+
 /**
  * The tilt bob. A lone nudge is free; a nudge while the bob is still swinging
  * from the last one is a warning, and once the warnings are used up the next
  * one tilts the machine: the flippers die until the ball drains.
  */
-function nudge(
-  state: PinballRulesState,
+export function nudge<S extends TiltState>(
+  state: S,
   tick: number,
-): { state: PinballRulesState; effects: RuleEffect[] } {
+): { state: S; effects: RuleEffect[] } {
   if (state.tilted) return { state, effects: [] }
   const swinging = tick - state.lastNudgeAt < TILT_BOB_STEPS
   const next = { ...state, lastNudgeAt: tick }

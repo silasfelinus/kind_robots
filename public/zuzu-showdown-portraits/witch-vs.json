@@ -1,0 +1,10 @@
+{
+  "fighter": "swamp-witch",
+  "kind": "vs",
+  "w": 104,
+  "h": 152,
+  "hd_scale": 4,
+  "art_image_id": 244676,
+  "ledger_key": "witch-vs",
+  "mirrored": false
+}

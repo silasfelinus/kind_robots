@@ -15,7 +15,29 @@
 // Arrows move. A = stitch, B = slow stitch (double points).
 
 import { levelCurve } from '../curve'
-import { drawText } from '../font'
+import { drawText, measureText } from '../font'
+import {
+  INK,
+  RAMPS,
+  type Ramp,
+  Sparkles,
+  backdropRng,
+  bandedGradient,
+  bevel,
+  cachedLayer,
+  drawSprite,
+  drawStars,
+  dropShadow,
+  gauge,
+  glow,
+  hudPanel,
+  mix,
+  pixelSprite,
+  rgba,
+  shadedOrb,
+  starField,
+  vignette,
+} from '../snes'
 import type {
   ArcadeGameInstance,
   ArcadeGameModule,
@@ -35,6 +57,8 @@ const DEATH_TICKS = 100
 const CLEAR_TICKS = 160
 const FUSE_AFTER = 45
 const EXTRA_EVERY = 25_000
+/** Ticks a freshly sewn patch shimmers (cosmetic). */
+const FLASH_TICKS = 26
 
 /** Cell states. */
 const OPEN = 0
@@ -95,6 +119,229 @@ const DIRS: Array<[number, number]> = [
   [0, -1],
 ]
 
+// --- 16-bit art (utils/arcade/snes.ts) -------------------------------------------
+
+const FIELD_W = COLS * CELL
+const FIELD_H = ROWS * CELL
+/** Quilting blocks are this many cells square: the puffed pillows the stitching outlines. */
+const BLOCK = 4
+
+/**
+ * The fabric each patch colour is cut from, in PATCH_COLORS order (pink, yellow, cyan, violet,
+ * green, orange): a ramp to shade it and a print to stamp on it.
+ */
+const FABRICS: readonly Ramp[] = [
+  RAMPS.pink,
+  RAMPS.gold,
+  RAMPS.teal,
+  RAMPS.purple,
+  RAMPS.leaf,
+  RAMPS.rust,
+]
+
+/** The blank cloth, a new colour every quilt: HDMA-style bands, a weave and the glitter. */
+const CLOTHS: readonly {
+  bands: readonly string[]
+  weave: string
+  glitter: Ramp
+}[] = [
+  {
+    bands: [RAMPS.night[4], RAMPS.night[3], RAMPS.night[2], RAMPS.night[1]],
+    weave: RAMPS.purple[3],
+    glitter: RAMPS.purple,
+  },
+  {
+    bands: [
+      mix(RAMPS.sky[1], RAMPS.night[3], 0.4),
+      mix(RAMPS.sky[0], RAMPS.night[3], 0.3),
+      RAMPS.sky[0],
+      RAMPS.night[1],
+    ],
+    weave: RAMPS.sky[3],
+    glitter: RAMPS.sky,
+  },
+  {
+    bands: [
+      mix(RAMPS.teal[1], RAMPS.night[3], 0.45),
+      mix(RAMPS.teal[0], RAMPS.night[3], 0.3),
+      RAMPS.teal[0],
+      RAMPS.night[1],
+    ],
+    weave: RAMPS.teal[3],
+    glitter: RAMPS.teal,
+  },
+]
+
+const GLITTER = starField(41, 70, FIELD_W, FIELD_H)
+
+const NEEDLE_ROWS = [
+  '....h....',
+  '...hLm...',
+  '...L.m...',
+  '...hLm...',
+  '...hLm...',
+  '..hLLLm..',
+  '.hLLLLLm.',
+  'hLwkLwkmd',
+  'hLkkLkkmd',
+  '.LLLLLLd.',
+  '..LLLmd..',
+  '...Lmd...',
+  '....d....',
+]
+const needleSprites = (ramp: Ramp) => {
+  const palette = {
+    h: ramp[4],
+    L: ramp[3],
+    m: ramp[2],
+    d: ramp[1],
+    k: INK,
+    w: '#ffffff',
+  }
+  return [
+    pixelSprite(NEEDLE_ROWS, palette),
+    // A blink: the eyes close to a lid line.
+    pixelSprite(
+      NEEDLE_ROWS.map((row, i) => (i === 7 ? row.replace(/[wk]/g, 'L') : row)),
+      palette,
+    ),
+  ] as const
+}
+/** The needle-bot: bright steel on the edge, gold while stitching, rose on a slow stitch. */
+const NEEDLE = {
+  idle: needleSprites([
+    RAMPS.steel[1],
+    RAMPS.steel[2],
+    RAMPS.steel[3],
+    '#e0f2fe',
+    '#ffffff',
+  ]),
+  stitch: needleSprites(RAMPS.gold),
+  slow: needleSprites(RAMPS.pink),
+}
+
+/** A spare needle-bot for the lives row. */
+const SPARE_NEEDLE = pixelSprite(
+  ['..h..', '.hLm.', 'hLLLm', 'LkLkm', '.LLm.', '..m..'],
+  {
+    h: '#ffffff',
+    L: '#e0f2fe',
+    m: RAMPS.steel[3],
+    k: INK,
+  },
+)
+
+/**
+ * The tangle sprite: a ball of yarn lit from the upper left, wound in strands that curve round a
+ * tilted axis and roll as it moves, with two beady eyes looking the way it drifts (flip it to
+ * face left). `frame` of `frames` sets how far the strands have rolled.
+ */
+function tangleSprite(frame: number, frames: number, ramp: Ramp) {
+  const r = 7
+  const size = r * 2 + 1
+  const rows: string[][] = []
+  for (let y = 0; y < size; y++) {
+    const row: string[] = []
+    for (let x = 0; x < size; x++) {
+      const nx = (x - r) / (r + 0.4)
+      const ny = (y - r) / (r + 0.4)
+      const d = nx * nx + ny * ny
+      if (d > 1) {
+        row.push('.')
+        continue
+      }
+      const nz = Math.sqrt(1 - d)
+      const light = -0.5 * nx - 0.6 * ny + 0.62 * nz
+      let step = Math.max(0, Math.min(4, Math.round(light * 3 + 1.5)))
+      // Strands: rings round an axis tipped toward the viewer, so they bow over the ball.
+      const ty = nx * Math.sin(0.6) + ny * Math.cos(0.6)
+      const lat = ty * Math.cos(0.8) - nz * Math.sin(0.8)
+      const band = (((lat * 3.2 + frame / frames) % 1) + 1) % 1
+      if (band < 0.22) step = Math.max(0, step - 2)
+      else if (band < 0.4) step = Math.min(4, step + 1)
+      row.push(String(step))
+    }
+    rows.push(row)
+  }
+  for (const [x, y, ch] of [
+    [8, 5, 'w'],
+    [9, 5, 'w'],
+    [8, 6, 'w'],
+    [9, 6, 'k'],
+    [8, 7, 'w'],
+    [9, 7, 'k'],
+    [11, 5, 'w'],
+    [12, 5, 'w'],
+    [11, 6, 'w'],
+    [12, 6, 'k'],
+    [11, 7, 'w'],
+    [12, 7, 'k'],
+    [10, 10, 'k'],
+    [11, 10, 'k'],
+  ] as const)
+    rows[y]![x] = ch
+  return pixelSprite(
+    rows.map((row) => row.join('')),
+    {
+      '0': ramp[0],
+      '1': ramp[1],
+      '2': ramp[2],
+      '3': ramp[3],
+      '4': ramp[4],
+      k: INK,
+      w: '#ffffff',
+    },
+  )
+}
+const TANGLE_RAMPS: readonly Ramp[] = [RAMPS.pink, RAMPS.teal, RAMPS.gold]
+const TANGLES = TANGLE_RAMPS.map((ramp) =>
+  [0, 1, 2, 3, 4, 5].map((f) => tangleSprite(f, 6, ramp)),
+)
+const YARN = [RAMPS.pink, RAMPS.teal, RAMPS.leaf, RAMPS.gold] as const
+
+/** A spark running the edges: a crackling ember star, two frames. */
+const SPARK_PALETTE = {
+  y: RAMPS.ember[4],
+  o: RAMPS.ember[3],
+  r: RAMPS.ember[2],
+  w: '#ffffff',
+}
+const SPARKS = [
+  pixelSprite(
+    [
+      '...r...',
+      '...o...',
+      '..oyo..',
+      'roywyor',
+      '..oyo..',
+      '...o...',
+      '...r...',
+    ],
+    SPARK_PALETTE,
+  ),
+  pixelSprite(
+    [
+      'r.....r',
+      '.o...o.',
+      '..oyo..',
+      '..ywy..',
+      '..oyo..',
+      '.o...o.',
+      'r.....r',
+    ],
+    SPARK_PALETTE,
+  ),
+] as const
+
+/** A canvas for state that changes now and then (null headless, where callers paint direct). */
+function makeCanvas(w: number, h: number): HTMLCanvasElement | null {
+  if (typeof document === 'undefined') return null
+  const canvas = document.createElement('canvas')
+  canvas.width = w
+  canvas.height = h
+  return canvas.getContext('2d') ? canvas : null
+}
+
 class QuiltQuest implements ArcadeGameInstance {
   score = 0
   level = 1
@@ -129,6 +376,17 @@ class QuiltQuest implements ArcadeGameInstance {
   private particles: Particle[] = []
   private floaters: Floater[] = []
   private banner: { text: string; sub?: string; ticks: number } | null = null
+  // Cosmetic only: sparkles roll their own dice, so the game's seeded rng is untouched.
+  private fx = new Sparkles()
+  private fxRng = backdropRng(53)
+  /** The sewn quilt on its own canvas, repainted only when the claimed cloth changes. */
+  private quilt: HTMLCanvasElement | null | undefined = undefined
+  private quiltKey = ''
+  /** What the cells looked like at the last claim, to find (and flash) a fresh patch. */
+  private seenKey = ''
+  private seenCells = new Uint8Array(COLS * ROWS)
+  private fresh = new Uint8Array(COLS * ROWS)
+  private flash = 0
 
   constructor(options: ArcadeGameOptions) {
     this.rng = options.rng
@@ -225,6 +483,7 @@ class QuiltQuest implements ArcadeGameInstance {
   update(input: InputFrame) {
     this.tick++
     this.updateEffects()
+    this.updateCosmetics()
     if (this.banner && --this.banner.ticks <= 0) this.banner = null
     if (this.over) return
     const controls = this.demo ? this.demoInput() : input
@@ -574,6 +833,58 @@ class QuiltQuest implements ArcadeGameInstance {
     this.floaters = this.floaters.filter((f) => f.life > 0)
   }
 
+  /**
+   * Cosmetic only (reads state, never writes it): sparkles and a flash over each freshly sewn
+   * patch, fireworks over a finished quilt, embers off a burning fuse.
+   */
+  private updateCosmetics() {
+    this.fx.update()
+    if (this.flash > 0) this.flash--
+    const key = `${this.level}:${this.patchCount}`
+    if (key !== this.seenKey) {
+      let count = 0
+      for (let i = 0; i < this.cells.length; i++) {
+        const sewn = this.cells[i] === FILLED && this.seenCells[i] !== FILLED
+        this.fresh[i] = sewn ? 1 : 0
+        if (sewn) count++
+      }
+      this.seenCells.set(this.cells)
+      if (this.seenKey && count > 0) {
+        this.flash = FLASH_TICKS
+        const bursts = Math.min(7, 1 + Math.floor(count / 50))
+        for (let b = 0, tries = 0; b < bursts && tries < 400; tries++) {
+          const i = Math.floor(this.fxRng() * this.cells.length)
+          if (!this.fresh[i]) continue
+          b++
+          const ramp = FABRICS[(this.colors[i]! + 5) % FABRICS.length]!
+          this.fx.burst(
+            OX + (i % COLS) * CELL + 2,
+            OY + Math.floor(i / COLS) * CELL + 2,
+            this.fxRng,
+            { count: 9, colours: [ramp[4], ramp[3], RAMPS.gold[4]] },
+          )
+        }
+      }
+      this.seenKey = key
+    }
+    if (this.clear > 0 && this.clear % 14 === 0)
+      this.fx.burst(
+        OX + 20 + this.fxRng() * (FIELD_W - 40),
+        OY + 20 + this.fxRng() * (FIELD_H - 40),
+        this.fxRng,
+        { count: 18, speed: 2.6 },
+      )
+    if (this.drawing && this.fuse >= 0 && this.tick % 5 === 0) {
+      const f = this.trail[Math.min(this.fuse, this.trail.length - 1)]
+      if (f)
+        this.fx.burst(OX + f.c * CELL + 2, OY + f.r * CELL + 2, this.fxRng, {
+          count: 2,
+          speed: 0.9,
+          colours: [RAMPS.ember[4], RAMPS.ember[3]],
+        })
+    }
+  }
+
   // --- attract-mode pilot -----------------------------------------------------
 
   /**
@@ -676,151 +987,468 @@ class QuiltQuest implements ArcadeGameInstance {
   // --- render -------------------------------------------------------------------
 
   render(g: CanvasRenderingContext2D) {
-    g.fillStyle = '#1e1b4b'
-    g.fillRect(0, 0, W, H)
-    // The blank quilt: a soft cross-hatched cloth.
-    g.fillStyle = '#312e81'
-    g.fillRect(OX, OY, COLS * CELL, ROWS * CELL)
-    g.fillStyle = '#3730a3'
-    for (let y = 0; y < ROWS; y += 2)
-      for (let x = (y / 2) % 2; x < COLS; x += 2)
-        g.fillRect(OX + x * CELL, OY + y * CELL, CELL, CELL)
-    for (let y = 0; y < ROWS; y++)
-      for (let x = 0; x < COLS; x++) {
-        const v = this.cell(x, y)
-        if (v === OPEN) continue
-        const px = OX + x * CELL
-        const py = OY + y * CELL
-        if (v === FILLED) {
-          const color =
-            PATCH_COLORS[
-              (this.colors[this.idx(x, y)]! + 5) % PATCH_COLORS.length
-            ]!
-          g.fillStyle = color
-          g.fillRect(px, py, CELL, CELL)
-          // A quilted stitch dot pattern.
-          if ((x + y) % 4 === 0) {
-            g.fillStyle = 'rgba(255, 255, 255, 0.45)'
-            g.fillRect(px + 1, py + 1, 1, 1)
-          }
-        } else if (v === EDGE) {
-          g.fillStyle = '#f5f5f4'
-          g.fillRect(px + 1, py + 1, 2, 2)
-        } else if (v === TRAIL) {
-          g.fillStyle = this.slow ? '#fb7185' : '#fde047'
-          g.fillRect(px + 1, py + 1, 2, 2)
-        }
-      }
-    // The fuse burning along the thread.
-    if (this.drawing && this.fuse >= 0) {
-      const f = this.trail[Math.min(this.fuse, this.trail.length - 1)]
-      if (f) {
-        g.fillStyle = Math.floor(this.tick / 3) % 2 ? '#f97316' : '#fef08a'
-        g.fillRect(OX + f.c * CELL - 1, OY + f.r * CELL - 1, CELL + 2, CELL + 2)
-      }
-    }
-    for (const t of this.tangles) this.renderTangle(g, t)
-    for (const s of this.sparks) {
-      if (s.t > 0) continue
-      g.fillStyle = Math.floor(this.tick / 2) % 2 ? '#fef08a' : '#fb923c'
-      g.fillRect(OX + s.c * CELL - 1, OY + s.r * CELL - 1, CELL + 2, CELL + 2)
-    }
+    const theme = (this.level - 1) % CLOTHS.length
+    this.renderBackdrop(g, theme)
+    // Glitter woven into the blank cloth, twinkling; the sewn quilt covers it.
+    g.save()
+    g.translate(OX, OY)
+    drawStars(g, GLITTER, this.tick, CLOTHS[theme]!.glitter)
+    g.restore()
+    this.renderQuilt(g)
+    this.renderFlash(g)
+    this.renderThread(g)
+    this.tangles.forEach((t, i) => this.renderTangle(g, t, i))
+    for (const s of this.sparks) if (s.t <= 0) this.renderSpark(g, s)
     if (this.dead === 0) this.renderNeedle(g)
     for (const p of this.particles) {
+      const x = Math.round(p.x)
+      const y = Math.round(p.y)
       g.globalAlpha = Math.max(0, p.life / 30)
+      g.fillStyle = INK
+      g.fillRect(x - 2, y - 2, 4, 4)
       g.fillStyle = p.color
-      g.fillRect(p.x - 1, p.y - 1, 2, 2)
+      g.fillRect(x - 1, y - 1, 2, 2)
+      g.fillStyle = '#ffffff'
+      g.fillRect(x - 1, y - 1, 1, 1)
     }
     g.globalAlpha = 1
+    this.fx.render(g)
     for (const f of this.floaters)
       drawText(g, f.text, f.x, f.y, {
         align: 'center',
-        color: '#fde68a',
-        shadow: '#1e1b4b',
+        color: RAMPS.gold[3],
+        outline: INK,
       })
+    vignette(g, W, H, 0.25)
     this.renderHud(g)
   }
 
-  private renderTangle(g: CanvasRenderingContext2D, t: Tangle) {
-    // A scribble of yarn lines trailing the sprite.
-    const colors = ['#f472b6', '#22d3ee', '#a3e635', '#facc15']
-    for (let i = 0; i + 3 < t.trail.length; i += 3) {
-      const a = t.trail[i]!
-      const b = t.trail[i + 3]!
-      const wob = Math.sin((this.tick + i) / 4) * 4
-      g.strokeStyle = colors[(i / 3) % colors.length]!
-      g.lineWidth = 2
-      g.beginPath()
-      g.moveTo(OX + a.x * CELL + wob, OY + a.y * CELL - wob)
-      g.lineTo(OX + b.x * CELL - wob, OY + b.y * CELL + wob)
-      g.stroke()
+  /**
+   * The quilting frame and the blank cloth stretched in it, painted once per cloth colour: a
+   * banded backdrop, a bevelled wooden frame with brass tacks, the cloth in HDMA-style bands
+   * with a fine weave, and the quilting blocks marked out in dashed chalk.
+   */
+  private renderBackdrop(g: CanvasRenderingContext2D, theme: number) {
+    cachedLayer(g, `quilt-quest-cloth-${theme}`, W, H, (k) => {
+      const cloth = CLOTHS[theme]!
+      bandedGradient(
+        k,
+        0,
+        0,
+        W,
+        H,
+        [RAMPS.night[2], RAMPS.night[1], RAMPS.night[0]],
+        4,
+      )
+      bevel(k, OX - 4, OY - 4, FIELD_W + 8, FIELD_H + 8, RAMPS.earth, {
+        depth: 2,
+      })
+      // Wood grain along the frame.
+      k.fillStyle = RAMPS.earth[1]
+      for (let x = OX + 3; x < OX + FIELD_W - 4; x += 13) {
+        k.fillRect(x, OY - 3, 6, 1)
+        k.fillRect(x + 5, OY + FIELD_H + 2, 6, 1)
+      }
+      for (let y = OY + 5; y < OY + FIELD_H - 4; y += 15) {
+        k.fillRect(OX - 3, y, 1, 7)
+        k.fillRect(OX + FIELD_W + 2, y + 6, 1, 7)
+      }
+      for (const [tx, ty] of [
+        [OX - 2, OY - 2],
+        [OX + FIELD_W + 1, OY - 2],
+        [OX - 2, OY + FIELD_H + 1],
+        [OX + FIELD_W + 1, OY + FIELD_H + 1],
+        [OX + FIELD_W / 2, OY - 2],
+        [OX + FIELD_W / 2, OY + FIELD_H + 1],
+      ] as const)
+        shadedOrb(k, tx, ty, 1.6, RAMPS.gold, { outline: null })
+      k.fillStyle = INK
+      k.fillRect(OX - 1, OY - 1, FIELD_W + 2, FIELD_H + 2)
+      bandedGradient(k, OX, OY, FIELD_W, FIELD_H, cloth.bands, 4)
+      // The weave: faint threads both ways.
+      k.fillStyle = rgba(cloth.weave, 0.07)
+      for (let y = OY; y < OY + FIELD_H; y += 2) k.fillRect(OX, y, FIELD_W, 1)
+      k.fillStyle = rgba(INK, 0.12)
+      for (let x = OX + 1; x < OX + FIELD_W; x += 2)
+        k.fillRect(x, OY, 1, FIELD_H)
+      // Chalk marks where the quilting blocks will be sewn.
+      k.fillStyle = rgba(RAMPS.cream[3], 0.18)
+      const span = BLOCK * CELL
+      for (let x = OX + span; x < OX + FIELD_W; x += span)
+        for (let y = OY; y < OY + FIELD_H; y += 4) k.fillRect(x, y, 1, 2)
+      for (let y = OY + span; y < OY + FIELD_H; y += span)
+        for (let x = OX; x < OX + FIELD_W; x += 4) k.fillRect(x, y, 2, 1)
+    })
+  }
+
+  /** The sewn quilt lives on its own canvas, repainted only when the claimed cloth changes. */
+  private renderQuilt(g: CanvasRenderingContext2D) {
+    if (this.quilt === undefined) this.quilt = makeCanvas(W, H)
+    const canvas = this.quilt
+    if (!canvas) {
+      this.paintQuilt(g)
+      return
     }
-    g.fillStyle = Math.floor(this.tick / 4) % 2 ? '#ffffff' : '#fde047'
-    g.fillRect(OX + t.x * CELL - 2, OY + t.y * CELL - 2, 5, 5)
+    const key = `${this.level}:${this.patchCount}:${this.claimed}`
+    if (key !== this.quiltKey) {
+      const k = canvas.getContext('2d')!
+      k.clearRect(0, 0, W, H)
+      this.paintQuilt(k)
+      this.quiltKey = key
+    }
+    g.save()
+    g.imageSmoothingEnabled = false
+    g.drawImage(canvas, 0, 0)
+    g.restore()
+  }
+
+  private paintQuilt(k: CanvasRenderingContext2D) {
+    for (let y = 0; y < ROWS; y++)
+      for (let x = 0; x < COLS; x++) {
+        const v = this.cell(x, y)
+        const px = OX + x * CELL
+        const py = OY + y * CELL
+        if (v === FILLED) this.paintPatch(k, x, y, px, py)
+        else if (v === EDGE) this.paintCord(k, x, y, px, py)
+        else {
+          // Open cloth: the raised patches and cord cast a shadow down and right onto it.
+          const up = this.cell(x, y - 1)
+          const left = this.cell(x - 1, y)
+          k.fillStyle = rgba(INK, 0.45)
+          if (up === FILLED || up === EDGE) k.fillRect(px, py, CELL, 2)
+          if (left === FILLED || left === EDGE) k.fillRect(px, py, 2, CELL)
+        }
+      }
+  }
+
+  /**
+   * One cell of a sewn patch: its fabric's print, the puffed pillow of its quilting block
+   * (lit upper left, shadowed lower right), the stitched seams between blocks, and a lit rim
+   * and shadowed hem where the patch ends.
+   */
+  private paintPatch(
+    k: CanvasRenderingContext2D,
+    x: number,
+    y: number,
+    px: number,
+    py: number,
+  ) {
+    const colour = this.colors[this.idx(x, y)]!
+    const fabric = (colour + 5) % FABRICS.length
+    const ramp = FABRICS[fabric]!
+    const same = (dx: number, dy: number) => {
+      const nx = x + dx
+      const ny = y + dy
+      if (nx < 0 || ny < 0 || nx >= COLS || ny >= ROWS) return false
+      const i = this.idx(nx, ny)
+      return this.cells[i] === FILLED && this.colors[i] === colour
+    }
+    const bx = x % BLOCK
+    const by = y % BLOCK
+    // Each block puffs up like a pillow: lit along its top and left, shadowed bottom and right.
+    const lit = bx === 0 || by === 0
+    const dim = bx === BLOCK - 1 || by === BLOCK - 1
+    const shade = lit && !dim ? 3 : dim && !lit ? 1 : 2
+    k.fillStyle = ramp[shade]!
+    k.fillRect(px, py, CELL, CELL)
+    const print = ramp[Math.min(4, shade + 2)]!
+    k.fillStyle = print
+    switch (fabric) {
+      case 0: // polka dots
+        if (y % 2 === 0 && (x + y / 2) % 2 === 0)
+          k.fillRect(px + 1, py + 1, 2, 2)
+        break
+      case 1: // gingham
+        k.fillStyle = rgba(ramp[0], 0.2)
+        if (x % 2 === 0) k.fillRect(px, py, CELL, CELL)
+        if (y % 2 === 0) k.fillRect(px, py, CELL, CELL)
+        break
+      case 2: // diagonal stripes
+        if ((x - y) % 2 === 0)
+          for (let i = 0; i < CELL; i++) k.fillRect(px + i, py + i, 1, 1)
+        break
+      case 3: // sprigged flowers
+        if (x % 3 === 1 && y % 3 === 1) {
+          k.fillRect(px + 2, py + 1, 1, 3)
+          k.fillRect(px + 1, py + 2, 3, 1)
+          k.fillStyle = RAMPS.gold[3]
+          k.fillRect(px + 2, py + 2, 1, 1)
+        }
+        break
+      case 4: // pinstripes
+        if (x % 2 === 0) k.fillRect(px + 1, py, 1, CELL)
+        break
+      default: // plaid
+        if (y % 3 === 0) k.fillRect(px, py + 1, CELL, 1)
+        k.fillStyle = rgba(ramp[0], 0.35)
+        if (x % 3 === 0) k.fillRect(px + 1, py, 1, CELL)
+    }
+    // Quilting: thread dashes over a pressed seam round every block.
+    if (bx === 0) {
+      k.fillStyle = ramp[1]
+      k.fillRect(px, py, 1, CELL)
+      k.fillStyle = ramp[4]
+      k.fillRect(px, py + 1, 1, 2)
+    }
+    if (by === 0) {
+      k.fillStyle = ramp[1]
+      k.fillRect(px, py, CELL, 1)
+      k.fillStyle = ramp[4]
+      k.fillRect(px + 1, py, 2, 1)
+    }
+    // The patch's edge: a lit rim top and left, a shadowed hem bottom and right.
+    if (!same(0, -1)) {
+      k.fillStyle = ramp[4]
+      k.fillRect(px, py, CELL, 1)
+    }
+    if (!same(-1, 0)) {
+      k.fillStyle = ramp[3]
+      k.fillRect(px, py, 1, CELL)
+    }
+    if (!same(0, 1)) {
+      k.fillStyle = ramp[0]
+      k.fillRect(px, py + CELL - 1, CELL, 1)
+    }
+    if (!same(1, 0)) {
+      k.fillStyle = ramp[1]
+      k.fillRect(px + CELL - 1, py, 1, CELL)
+    }
+  }
+
+  /** One cell of the live edge: a cream binding cord, running-stitched, inked against the cloth. */
+  private paintCord(
+    k: CanvasRenderingContext2D,
+    x: number,
+    y: number,
+    px: number,
+    py: number,
+  ) {
+    const ramp = RAMPS.cream
+    const cord = (dx: number, dy: number) => this.cell(x + dx, y + dy) === EDGE
+    const open = (dx: number, dy: number) => {
+      const v = this.cell(x + dx, y + dy)
+      return v === OPEN || v === TRAIL
+    }
+    k.fillStyle = ramp[2]
+    k.fillRect(px, py, CELL, CELL)
+    k.fillStyle = ramp[4]
+    if (!cord(0, -1)) k.fillRect(px, py, CELL, 1)
+    k.fillStyle = ramp[3]
+    if (!cord(-1, 0)) k.fillRect(px, py, 1, CELL)
+    k.fillStyle = ramp[1]
+    if (!cord(0, 1)) k.fillRect(px, py + CELL - 1, CELL, 1)
+    if (!cord(1, 0)) k.fillRect(px + CELL - 1, py, 1, CELL)
+    if ((x + y) % 2 === 0) {
+      k.fillStyle = RAMPS.pink[2]
+      k.fillRect(px + 1, py + 1, 2, 2)
+      k.fillStyle = RAMPS.pink[4]
+      k.fillRect(px + 1, py + 1, 1, 1)
+    }
+    k.fillStyle = INK
+    if (open(0, -1)) k.fillRect(px, py, CELL, 1)
+    if (open(0, 1)) k.fillRect(px, py + CELL - 1, CELL, 1)
+    if (open(-1, 0)) k.fillRect(px, py, 1, CELL)
+    if (open(1, 0)) k.fillRect(px + CELL - 1, py, 1, CELL)
+  }
+
+  /** A freshly sewn patch shimmers: an additive flash with a bright band sweeping across it. */
+  private renderFlash(g: CanvasRenderingContext2D) {
+    if (this.flash <= 0) return
+    const t = this.flash / FLASH_TICKS
+    const sweep = (1 - t) * (COLS + ROWS) * 1.2 - 6
+    g.save()
+    g.globalCompositeOperation = 'lighter'
+    for (let y = 0; y < ROWS; y++)
+      for (let x = 0; x < COLS; x++) {
+        const i = this.idx(x, y)
+        if (!this.fresh[i] || this.cells[i] !== FILLED) continue
+        const band = Math.abs(x + y - sweep) < 4
+        g.fillStyle = rgba('#ffffff', (band ? 0.75 : 0.32) * t)
+        g.fillRect(OX + x * CELL, OY + y * CELL, CELL, CELL)
+      }
+    g.restore()
+  }
+
+  /** The thread being stitched: an inked, glowing cord with stitches marching along it. */
+  private renderThread(g: CanvasRenderingContext2D) {
+    if (!this.drawing || this.trail.length < 2) return
+    const ramp = this.slow ? RAMPS.pink : RAMPS.gold
+    const pts = this.trail.map((t) => ({
+      x: OX + t.c * CELL + 2,
+      y: OY + t.r * CELL + 2,
+    }))
+    const burnt = this.fuse >= 0 ? Math.min(this.fuse, pts.length - 1) : -1
+    const seg = (i: number, pad: number, colour: string) => {
+      const a = pts[i - 1]!
+      const b = pts[i]!
+      g.fillStyle = colour
+      g.fillRect(
+        Math.min(a.x, b.x) - pad,
+        Math.min(a.y, b.y) - pad,
+        Math.abs(a.x - b.x) + pad * 2,
+        Math.abs(a.y - b.y) + pad * 2,
+      )
+    }
+    for (let i = 1; i < pts.length; i++) seg(i, 2, INK)
+    for (let i = 1; i < pts.length; i++)
+      seg(i, 1, i <= burnt ? RAMPS.steel[1] : ramp[2])
+    // The lit top-left side of the thread.
+    for (let i = 1; i < pts.length; i++) {
+      const a = pts[i - 1]!
+      const b = pts[i]!
+      g.fillStyle = i <= burnt ? RAMPS.steel[2] : ramp[4]
+      g.fillRect(
+        Math.min(a.x, b.x) - 1,
+        Math.min(a.y, b.y) - 1,
+        Math.abs(a.x - b.x) + 1,
+        Math.abs(a.y - b.y) + 1,
+      )
+    }
+    // Stitches marching toward the needle, and the thread's glow.
+    const march = Math.floor(this.tick / 3)
+    g.fillStyle = ramp[1]
+    for (let i = burnt + 1; i < pts.length; i++)
+      if ((i - march) % 3 === 0) {
+        const p = pts[i]!
+        g.fillRect(p.x, p.y, 1, 1)
+      }
+    for (let i = Math.max(1, burnt + 1); i < pts.length; i += 2) {
+      const p = pts[i]!
+      glow(g, p.x, p.y, 7, ramp[3], 0.22)
+    }
+    // The fuse: an ember eating the thread from where it began.
+    if (burnt >= 0) {
+      const f = pts[burnt]!
+      const flicker = Math.floor(this.tick / 3) % 2
+      glow(g, f.x, f.y, 12 + flicker * 3, RAMPS.ember[3], 0.65)
+      shadedOrb(g, f.x, f.y, 2.5 + flicker * 0.5, RAMPS.ember)
+    }
+  }
+
+  /** A ball of yarn with eyes, rolling, trailing a loose strand behind it. */
+  private renderTangle(g: CanvasRenderingContext2D, t: Tangle, n: number) {
+    const ramp = TANGLE_RAMPS[n % TANGLE_RAMPS.length]!
+    const frames = TANGLES[n % TANGLES.length]!
+    const pts: Array<{ x: number; y: number }> = []
+    for (let i = 0; i < t.trail.length; i += 3) {
+      const p = t.trail[i]!
+      const wob = Math.sin((this.tick + i) / 4) * 3
+      pts.push({ x: OX + p.x * CELL + 2 + wob, y: OY + p.y * CELL + 2 - wob })
+    }
+    g.save()
+    g.lineCap = 'round'
+    g.lineJoin = 'round'
+    for (let i = pts.length - 1; i > 0; i--) {
+      const a = pts[i - 1]!
+      const b = pts[i]!
+      const yarn = YARN[(i + n) % YARN.length]!
+      g.globalAlpha = 1 - (i / pts.length) * 0.7
+      const stroke = (colour: string, width: number, off: number) => {
+        g.strokeStyle = colour
+        g.lineWidth = width
+        g.beginPath()
+        g.moveTo(a.x + off, a.y + off)
+        g.lineTo(b.x + off, b.y + off)
+        g.stroke()
+      }
+      stroke(INK, 3.5, 0)
+      stroke(yarn[2], 2, 0)
+      stroke(yarn[4], 0.8, -0.5)
+    }
+    g.restore()
+    const x = OX + t.x * CELL + 2
+    const y = OY + t.y * CELL + 2
+    dropShadow(g, x + 2, y + 8, 6, 2, 0.4)
+    glow(g, x, y, 14, ramp[3], 0.3)
+    const roll = Math.floor(this.tick / 5) % frames.length
+    const bob = Math.round(Math.sin(this.tick / 6 + n * 2))
+    drawSprite(g, frames[roll]!, x, y + bob, { flipX: t.vx < 0 })
+  }
+
+  private renderSpark(g: CanvasRenderingContext2D, s: Spark) {
+    const x = OX + s.c * CELL + 2
+    const y = OY + s.r * CELL + 2
+    glow(g, x, y, 11, RAMPS.ember[3], 0.6)
+    drawSprite(g, SPARKS[Math.floor(this.tick / 3) % SPARKS.length]!, x, y)
   }
 
   private renderNeedle(g: CanvasRenderingContext2D) {
     const x = OX + this.c * CELL + 2
     const y = OY + this.r * CELL + 2
-    g.fillStyle = this.drawing ? (this.slow ? '#fb7185' : '#fde047') : '#e0f2fe'
-    g.beginPath()
-    g.moveTo(x, y - 5)
-    g.lineTo(x + 4, y)
-    g.lineTo(x, y + 5)
-    g.lineTo(x - 4, y)
-    g.closePath()
-    g.fill()
-    g.fillStyle = '#1e1b4b'
-    g.fillRect(x - 1, y - 1, 2, 2)
+    const frames = this.drawing
+      ? this.slow
+        ? NEEDLE.slow
+        : NEEDLE.stitch
+      : NEEDLE.idle
+    const blink = this.tick % 110 < 6 ? 1 : 0
+    const bob = this.drawing ? 0 : Math.round(Math.sin(this.tick / 10))
+    if (this.drawing)
+      glow(g, x, y, 13, this.slow ? RAMPS.pink[3] : RAMPS.gold[3], 0.45)
+    dropShadow(g, x + 2, y + 8, 4, 1.5, 0.4)
+    drawSprite(g, frames[blink]!, x, y + bob)
   }
 
   private renderHud(g: CanvasRenderingContext2D) {
-    const shadow = '#1e1b4b'
-    drawText(g, String(this.score).padStart(6, '0'), 6, 4, {
+    hudPanel(g, 3, 2, 80, 22)
+    drawText(g, String(this.score).padStart(6, '0'), 8, 6, {
       scale: 2,
-      color: '#fde047',
-      shadow,
+      color: RAMPS.gold[3],
+      shadow: INK,
     })
-    drawText(g, `HI ${Math.max(this.hiScore, this.score)}`, W - 6, 3, {
-      align: 'right',
-      color: '#f9a8d4',
-    })
-    drawText(g, `QUILT ${this.level}`, W - 6, 12, {
-      align: 'right',
-      color: '#a5f3fc',
-    })
-    // Progress toward the target share.
-    const barX = 96
-    const barW = 80
-    g.fillStyle = '#0f172a'
-    g.fillRect(barX, 6, barW, 6)
-    g.fillStyle = '#86efac'
-    g.fillRect(barX, 6, (barW * Math.min(100, this.claimed)) / 100, 6)
-    g.fillStyle = '#fde047'
-    g.fillRect(barX + (barW * this.target) / 100, 4, 1, 10)
+    // Progress toward the target share: a gauge with the target notched in gold.
+    hudPanel(g, 87, 2, 82, 22)
+    const barX = 93
+    const barW = 70
+    const share = Math.min(100, this.claimed)
+    gauge(
+      g,
+      barX,
+      6,
+      barW,
+      5,
+      share / 100,
+      share >= this.target ? RAMPS.gold : RAMPS.leaf,
+    )
+    const mark = barX + Math.round((barW * this.target) / 100)
+    g.fillStyle = INK
+    g.fillRect(mark - 1, 3, 3, 11)
+    g.fillStyle = RAMPS.gold[3]
+    g.fillRect(mark, 4, 1, 9)
     drawText(
       g,
       `${Math.floor(this.claimed)} OF ${Math.round(this.target)}`,
-      barX,
-      16,
-      { color: '#e0f2fe' },
+      128,
+      15,
+      { align: 'center', color: RAMPS.teal[4], outline: INK },
     )
-    for (let i = 0; i < Math.min(this.lives - 1, 4); i++) {
-      g.fillStyle = '#e0f2fe'
-      g.fillRect(W - 12 - i * 8, 22, 4, 4)
-    }
+    hudPanel(g, 173, 2, 80, 22)
+    drawText(g, `HI ${Math.max(this.hiScore, this.score)}`, W - 8, 5, {
+      align: 'right',
+      color: RAMPS.pink[3],
+      outline: INK,
+    })
+    drawText(g, `QUILT ${this.level}`, 178, 15, {
+      color: RAMPS.teal[3],
+      outline: INK,
+    })
+    for (let i = 0; i < Math.min(this.lives - 1, 4); i++)
+      drawSprite(g, SPARE_NEEDLE, W - 14 - i * 7, 14, { anchor: 'topleft' })
     if (this.banner) {
-      drawText(g, this.banner.text, W / 2, H / 2 - 16, {
+      const { text, sub } = this.banner
+      const w = Math.max(measureText(text, 2), sub ? measureText(sub) : 0) + 20
+      hudPanel(g, Math.round(W / 2 - w / 2), H / 2 - 22, w, sub ? 38 : 26)
+      drawText(g, text, W / 2, H / 2 - 16, {
         scale: 2,
         align: 'center',
         color: '#ffffff',
-        shadow: '#7c3aed',
+        outline: INK,
+        shadow: RAMPS.purple[1],
       })
-      if (this.banner.sub)
-        drawText(g, this.banner.sub, W / 2, H / 2 + 4, {
+      if (sub)
+        drawText(g, sub, W / 2, H / 2 + 4, {
           align: 'center',
-          color: '#fde68a',
-          shadow,
+          color: RAMPS.gold[3],
+          outline: INK,
         })
     }
   }

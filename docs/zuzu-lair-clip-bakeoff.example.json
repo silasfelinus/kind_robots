@@ -1,0 +1,47 @@
+{
+  "scenes": [
+    {
+      "id": "walk",
+      "label": "Opening walk",
+      "artImageId": null,
+      "prompt": "The camera slowly pushes in as Zuzu tilts his kasa down against the wind and walks into the canyon."
+    },
+    {
+      "id": "action",
+      "label": "Bridge action",
+      "artImageId": null,
+      "prompt": "The bridge planks crack and drop away one by one toward Zuzu as the camera shakes."
+    },
+    {
+      "id": "acting",
+      "label": "Close-up acting (select existing Music Video still)",
+      "artImageId": null,
+      "prompt": "Replace with the exact existing scene motion prompt before rendering."
+    },
+    {
+      "id": "wide",
+      "label": "Canyon exit wide",
+      "artImageId": null,
+      "prompt": "The camera holds still as Zuzu walks out into the sunset and the dust settles."
+    }
+  ],
+  "lanes": [
+    {
+      "id": "ltx-balanced",
+      "label": "LTX 2.3 balanced"
+    },
+    {
+      "id": "ltx-quality",
+      "label": "LTX 2.3 full quality"
+    },
+    {
+      "id": "wan-ti2v",
+      "label": "WAN 2.2 TI2V 5B"
+    },
+    {
+      "id": "wan-a14b",
+      "label": "WAN 2.2 A14B"
+    }
+  ],
+  "clips": []
+}

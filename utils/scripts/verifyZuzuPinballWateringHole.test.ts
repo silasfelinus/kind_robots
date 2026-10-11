@@ -193,7 +193,6 @@ class Game {
   g.wait(deathRollWindow(2) + PHYSICS_HZ / 10)
   assert.equal(g.hole.lit, false, 'the lit mouth times out')
   assert.notEqual(lamps(g.state)['river-croc-mouth'], 'blink')
-  before = g.state.score
   g.swallow()
   assert.equal(g.hole.rolls, 2)
 

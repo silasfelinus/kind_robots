@@ -23,6 +23,7 @@ import { Heroes, Sparks, Trail } from './heroes'
 import { Room } from './room'
 import { Dressing, POP_FLASH, POP_REST, wallPaint } from './dressing'
 import { Wireforms, wireformRails } from './wireforms'
+import { Scenery } from './scenery'
 import { mergeGeometries } from 'three/examples/jsm/utils/BufferGeometryUtils.js'
 import { ConvexGeometry } from 'three/examples/jsm/geometries/ConvexGeometry.js'
 import { flipperProfile, flipperYaw } from '../physics/world'
@@ -252,6 +253,7 @@ export class PinballScene {
   private caps = new Map<string, THREE.MeshPhysicalMaterial>()
   private dressing: Dressing | null = null
   private wireforms: Wireforms | null = null
+  private scenery: Scenery | null = null
   private flash = new Map<string, number>()
   private doors = new Map<string, { closed: THREE.Group; open: THREE.Group }>()
   private toys = new Map<string, THREE.Group>()
@@ -373,6 +375,9 @@ export class PinballScene {
     this.root.add(this.dressing.group)
     this.wireforms = new Wireforms(this.table, track)
     this.root.add(this.wireforms.group)
+    this.scenery = new Scenery(this.table, track)
+    this.root.add(this.scenery.group)
+    this.staticCasters.push(...this.scenery.casters)
     this.room = new Room(
       this.table,
       track,
@@ -1027,6 +1032,11 @@ export class PinballScene {
     return this.wireforms
   }
 
+  /** The village's sculpted scenery (t-034). */
+  get village(): Scenery | null {
+    return this.scenery
+  }
+
   /** The signature toys, for tests (null on a table without them). */
   get heroToys(): Heroes | null {
     return this.heroes
@@ -1179,6 +1189,7 @@ export class PinballScene {
     for (const [i, light] of this.giLights.entries())
       light.visible = i < s.giLights
     this.dressing?.setPracticals(s.practicalLights)
+    this.scenery?.setTier(this.governor.tier)
     this.shadowMaterial.opacity = s.contactShadow
     if (this.gl) {
       if (this.gl.shadowMap.enabled !== shadows) {
@@ -1437,6 +1448,7 @@ export class PinballScene {
     for (const light of this.giLights) light.intensity = GI_LIGHT * this.gi
     this.dressing?.setGi(this.gi)
     this.wireforms?.setGi(this.gi)
+    this.scenery?.setGi(this.gi)
     this.hemisphere.intensity = 0.14 + 0.26 * this.gi
     // The pool follows the brightest flashers; the rest glow on their own.
     const firing = [...this.flashers.values()]

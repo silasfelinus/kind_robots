@@ -24,6 +24,7 @@ import type {
   HeroDef,
   InsertDef,
   LanternDef,
+  SceneryDef,
   MeshCollider,
   ScoopDef,
   SensorDef,
@@ -523,6 +524,53 @@ const LANTERNS: LanternDef[] = [
   ...def,
   color: LANTERN_COLORS[i % LANTERN_COLORS.length],
 }))
+
+// The village's sculpted scenery (t-034): two clusters of cottages, blossom
+// trees, fences, barrels and crates behind the arch at the Ridge's foot, a
+// tree in each of the Ridge's lower corners, and a flower bush on each sling
+// plastic. All of it stands where no ball can reach; the tests prove it.
+const SCENERY: SceneryDef[] = [
+  // Behind the arch, left: the village's west end.
+  { kind: 'cottage', at: [-0.205, 0, -0.958], yaw: 0.25 },
+  { kind: 'cottage', at: [-0.135, 0, -0.988], yaw: -0.1 },
+  { kind: 'tree', at: [-0.238, 0, -1.0] },
+  { kind: 'tree', at: [-0.085, 0, -0.958] },
+  { kind: 'tree', at: [-0.172, 0, -1.04], scale: 0.9, tier: 'medium' },
+  {
+    kind: 'fence',
+    at: [-0.165, 0, -0.93],
+    yaw: 0.15,
+    length: 0.05,
+    tier: 'medium',
+  },
+  { kind: 'barrel', at: [-0.104, 0, -1.003], tier: 'high' },
+  { kind: 'barrel', at: [-0.096, 0, -1.011], tier: 'high' },
+  { kind: 'crate', at: [-0.112, 0, -1.016], yaw: 0.4, tier: 'high' },
+  { kind: 'bush', at: [-0.178, 0, -0.995], tier: 'high' },
+  // Behind the arch, right: past the huts.
+  { kind: 'cottage', at: [0.13, 0, -0.978], yaw: -0.1 },
+  { kind: 'cottage', at: [0.245, 0, -0.942], yaw: -0.45 },
+  { kind: 'tree', at: [0.19, 0, -0.958] },
+  { kind: 'tree', at: [0.28, 0, -0.995] },
+  { kind: 'tree', at: [0.108, 0, -1.008], scale: 0.85, tier: 'medium' },
+  { kind: 'tree', at: [0.205, 0, -1.03], scale: 0.9, tier: 'medium' },
+  {
+    kind: 'fence',
+    at: [0.168, 0, -1.0],
+    yaw: 0.1,
+    length: 0.04,
+    tier: 'medium',
+  },
+  { kind: 'barrel', at: [0.276, 0, -0.958], tier: 'high' },
+  { kind: 'crate', at: [0.268, 0, -0.968], yaw: -0.3, tier: 'high' },
+  { kind: 'bush', at: [0.158, 0, -0.948], tier: 'high' },
+  // The Ridge's lower corners, under its lanterns.
+  { kind: 'tree', at: [-0.236, 0, -1.085], scale: 0.8, tier: 'medium' },
+  { kind: 'tree', at: [0.276, 0, -1.085], scale: 0.8, tier: 'medium' },
+  // A flower bush on each sling plastic.
+  { kind: 'bush', at: [-0.152, 0.041, -0.158], scale: 1.4, tier: 'high' },
+  { kind: 'bush', at: [0.152, 0.041, -0.158], scale: 1.4, tier: 'high' },
+]
 
 // --- The Ridge, the upper playfield (conductor kind-pinball/t-022) --------
 //
@@ -1298,6 +1346,7 @@ export const AMI_VILLAGE_GREYBOX: TableDef = {
   ],
   hero: HERO,
   lanterns: LANTERNS,
+  scenery: SCENERY,
   zones: [
     {
       // The Ridge: everything past the arch's crown, short of the backbox.

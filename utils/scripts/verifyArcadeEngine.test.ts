@@ -75,6 +75,8 @@ import {
 } from '../arcade/pinball/render/scene'
 import { artBounds, artScale } from '../arcade/pinball/render/materials'
 import { wireformRails } from '../arcade/pinball/render/wireforms'
+import { fenceEnds, SCENERY_SIZE } from '../arcade/pinball/render/scenery'
+import { reachMap, reachesNear } from '../arcade/pinball/reach'
 import {
   initialRules,
   SECRET_DOOR_STEPS,
@@ -4222,6 +4224,128 @@ async function runPinballMetalwork() {
   scene.dispose()
 }
 
+/** kind-pinball/t-034: sculpted village scenery, only where no ball can go. */
+async function runPinballScenery() {
+  const table = AMI_VILLAGE_GREYBOX
+  const colliders = JSON.stringify(table.colliders)
+  const props = table.scenery ?? []
+  assert.ok(props.length >= 20, `a crowded village (${props.length} props)`)
+  for (const kind of Object.keys(SCENERY_SIZE))
+    assert.ok(
+      props.some((p) => p.kind === kind),
+      `the village has a ${kind}`,
+    )
+
+  // The reach map is real: the ball's whole field, and nowhere it cannot go.
+  const map = reachMap(table)
+  const ballR = table.physical.ballRadiusM
+  const reached = map.reach.reduce((n, v) => n + v, 0)
+  assert.ok(reached > map.reach.length * 0.3, 'most of the table is in play')
+  assert.ok(
+    reachesNear(map, table.plunger.rest[0], table.plunger.rest[2], 0.004),
+    'the shooter lane is in play',
+  )
+  const inserts = table.inserts ?? []
+  for (const insert of inserts.filter(
+    (i) =>
+      i.shape === 'arrow' && inserts.some((c) => c.ladder?.shot === i.shot),
+  ))
+    assert.ok(
+      reachesNear(map, insert.at[0], insert.at[1], 0.004),
+      `the ball rolls over ${insert.id}`,
+    )
+  for (const scoop of table.scoops.filter((s) => !s.hidden))
+    assert.ok(
+      reachesNear(map, scoop.at[0], scoop.at[2], scoop.radius),
+      `the ball reaches the ${scoop.id} saucer`,
+    )
+  for (const flipper of table.flippers)
+    assert.ok(
+      reachesNear(map, flipper.pivot[0], flipper.pivot[2], 0.04),
+      `the ball reaches ${flipper.id}`,
+    )
+
+  // Every prop stands, and reaches over, only where no ball can go.
+  const raised = table.colliders.filter((c) => c.kind === 'mesh')
+  for (const [i, prop] of props.entries()) {
+    const size = SCENERY_SIZE[prop.kind]
+    const k = prop.scale ?? 1
+    const spots: Array<[number, number]> =
+      prop.kind === 'fence'
+        ? [...fenceEnds(prop), [prop.at[0], prop.at[2]]]
+        : [[prop.at[0], prop.at[2]]]
+    // A crown higher than a ball may reach over the field; a lower one may not.
+    const reach =
+      size.crownFrom * k >= ballR * 2 + 0.005
+        ? size.foot * k
+        : Math.max(size.foot, size.crown) * k
+    for (const [x, z] of spots)
+      assert.ok(
+        !reachesNear(map, x, z, reach),
+        `${prop.kind} ${i} at (${x.toFixed(3)}, ${z.toFixed(3)}) is out of play`,
+      )
+    // Nothing a ball rides (ramps, covers) passes over or through it.
+    for (const mesh of raised) {
+      let x0 = Infinity
+      let x1 = -Infinity
+      let z0 = Infinity
+      let z1 = -Infinity
+      let top = -Infinity
+      for (let v = 0; v < mesh.vertices.length; v += 3) {
+        x0 = Math.min(x0, mesh.vertices[v]!)
+        x1 = Math.max(x1, mesh.vertices[v]!)
+        top = Math.max(top, mesh.vertices[v + 1]!)
+        z0 = Math.min(z0, mesh.vertices[v + 2]!)
+        z1 = Math.max(z1, mesh.vertices[v + 2]!)
+      }
+      if (top <= prop.at[1]) continue
+      const pad = size.crown * k + ballR
+      assert.ok(
+        prop.at[0] < x0 - pad ||
+          prop.at[0] > x1 + pad ||
+          prop.at[2] < z0 - pad ||
+          prop.at[2] > z1 + pad,
+        `${prop.kind} ${i} is clear of ${mesh.id}`,
+      )
+    }
+  }
+
+  // The huts keep their own ground.
+  for (const hut of table.hero?.huts ?? [])
+    for (const prop of props)
+      assert.ok(
+        Math.hypot(hut.at[0] - prop.at[0], hut.at[2] - prop.at[2]) >
+          0.014 + SCENERY_SIZE[prop.kind].foot * (prop.scale ?? 1),
+        `a ${prop.kind} is clear of the huts`,
+      )
+
+  // The renderer: merged per tier, fewer props as the tier steps down.
+  const scene = new PinballScene(table, {} as HTMLCanvasElement, () =>
+    stubRenderer({ disposed: 0, frames: 0 }),
+  )
+  const village = scene.village!
+  assert.equal(village.propsAt('high'), props.length)
+  assert.ok(village.propsAt('low') < village.propsAt('medium'))
+  assert.ok(village.propsAt('medium') < village.propsAt('high'))
+  assert.ok(village.propsAt('low') >= 8, 'the low tier keeps the village')
+  let meshes = 0
+  village.group.traverse((node) => {
+    if ((node as THREE.Mesh).isMesh) meshes++
+  })
+  assert.ok(meshes <= 6, `a few draw calls for the whole village (${meshes})`)
+  village.setTier('low')
+  assert.equal(village.showing, village.propsAt('low'))
+  village.setTier('high')
+  for (let f = 0; f < 30; f++) scene.render()
+  const lit = village.windowGlow
+  assert.ok(lit > 1, 'the cottage windows are lit')
+  scene.setLamps({}, 0)
+  for (let f = 0; f < 120; f++) scene.render()
+  assert.ok(village.windowGlow < lit * 0.1, 'and go dark with the GI')
+  assert.equal(JSON.stringify(table.colliders), colliders, 'no new colliders')
+  scene.dispose()
+}
+
 /** kind-pinball/t-033: a run of chevrons into every shot, lit by its rules. */
 async function runPinballChevrons() {
   const table = AMI_VILLAGE_GREYBOX
@@ -4804,6 +4928,7 @@ await runPinballCalmCamera()
 await runPinballDressing()
 await runPinballMetalwork()
 await runPinballChevrons()
+await runPinballScenery()
 await runPinballDepot()
 await runPinballGuide()
 await runPinballToys()

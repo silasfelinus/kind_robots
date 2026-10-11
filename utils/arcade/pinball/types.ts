@@ -259,6 +259,24 @@ export type LanternDef = {
   color?: number
 }
 
+/** A kind of sculpted village prop (t-034). */
+export type SceneryKind =
+  'tree' | 'cottage' | 'fence' | 'barrel' | 'crate' | 'bush'
+
+/**
+ * Sculpted village scenery (t-034), with no collider: it stands only where
+ * no ball can reach. `at` is its foot; the lowest quality tier it shows at.
+ */
+export type SceneryDef = {
+  kind: SceneryKind
+  at: Vec3
+  yaw?: number
+  scale?: number
+  /** A fence's length along its yaw. */
+  length?: number
+  tier?: 'low' | 'medium' | 'high'
+}
+
 export type HeroDef = {
   /** The hut bank: each hut's base on its wall top, turned to face the field. */
   huts: Array<{ at: Vec3; yaw: number }>
@@ -350,6 +368,7 @@ export type TableDef = {
   /** The signature toys (t-010), drawn from the rules' state. */
   hero?: HeroDef
   lanterns?: LanternDef[]
+  scenery?: SceneryDef[]
   zones?: ZoneDef[]
   occluders?: OccluderDef[]
   inserts?: InsertDef[]

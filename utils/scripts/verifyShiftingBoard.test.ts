@@ -30,7 +30,7 @@ assert.equal(
   false,
 )
 
-assert.match(board, /NavigationFlipCard/)
+assert.match(board, /<FlipCard\b/)
 assert.match(board, /<kr-card-flip/)
 assert.match(board, /encounter-back\.svg/)
 assert.match(board, /trial-back\.svg/)

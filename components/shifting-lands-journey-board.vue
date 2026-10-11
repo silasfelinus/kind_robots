@@ -324,29 +324,31 @@
               <div
                 class="relative aspect-[4/3] overflow-hidden bg-base-300 lg:aspect-auto lg:min-h-[420px]"
               >
-                <NavigationFlipCard
-                  :trigger-key="dealKey"
-                  :reveal-on-trigger="true"
-                  :duration-ms="reducedMotion ? 0 : 650"
-                  radius="0"
-                >
-                  <template #front>
-                    <img
-                      :src="game.activeArt"
-                      :alt="
-                        game.activeEncounter?.title || game.activeCard.label
-                      "
-                      class="size-full object-cover"
-                    />
-                  </template>
-                  <template #back>
-                    <img
-                      src="/shifting-lands/encounter-back.svg"
-                      alt=""
-                      class="size-full object-cover"
-                    />
-                  </template>
-                </NavigationFlipCard>
+                <div class="absolute inset-0">
+                  <FlipCard
+                    :trigger-key="dealKey"
+                    :reveal-on-trigger="true"
+                    :duration-ms="reducedMotion ? 0 : 650"
+                    radius="0"
+                  >
+                    <template #front>
+                      <img
+                        :src="game.activeArt"
+                        :alt="
+                          game.activeEncounter?.title || game.activeCard.label
+                        "
+                        class="size-full object-cover"
+                      />
+                    </template>
+                    <template #back>
+                      <img
+                        src="/shifting-lands/encounter-back.svg"
+                        alt=""
+                        class="size-full object-cover"
+                      />
+                    </template>
+                  </FlipCard>
+                </div>
                 <span
                   class="absolute bottom-3 left-3 rounded-full bg-black/80 px-3 py-1 text-xs font-bold text-white"
                   >Encounter drawn</span

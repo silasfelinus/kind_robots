@@ -76,6 +76,11 @@ const board = readFileSync(
 )
 assert.doesNotMatch(board, /["'(]\/images\//)
 assert.doesNotMatch(board, /art pending|preview/i)
+// components/ is registered with pathPrefix: false; a prefixed name never
+// resolves and silently renders nothing.
+assert.match(board, /<FlipCard\b/)
+assert.doesNotMatch(board, /NavigationFlipCard/)
+assert.match(board, /<div class="absolute inset-0">\s*<FlipCard/)
 assert.match(board, /:src="game\.roadArt\(card\.id\)"/)
 assert.match(board, /:src="game\.activeArt"/)
 assert.match(board, /:src="game\.bossArt"/)

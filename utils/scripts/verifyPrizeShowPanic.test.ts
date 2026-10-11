@@ -27,6 +27,7 @@ import {
   sideToward,
   waveEnds,
 } from '../arcade/prizeShow/season'
+import { remixScript } from '../arcade/prizeShow/modes'
 import type {
   CrasherKind,
   ModifierId,
@@ -141,6 +142,12 @@ const DOORS: Point[] = [
 
 /** Past the contestant pick card (each seat takes the contestant under its cursor). */
 function skipPick(g: { picking: unknown; update(input: InputFrame): void }) {
+  // Past the mode card first (left alone, it takes the Season).
+  const menu = (g as unknown as { menu: { ticks: number } | null }).menu
+  if (menu) {
+    menu.ticks = 1e9
+    g.update(emptyInput())
+  }
   if (!g.picking) return
   ;(g.picking as { ticks: number }).ticks = 1e9
   g.update(emptyInput())
@@ -493,9 +500,15 @@ for (const ep of SEASON) {
         g.invuln = 1000
         g.update(emptyInput())
       }
+      // Later loops play the room's remix (prizeShow/modes.ts), and spawn what it declares.
+      assert.deepEqual(
+        g.script,
+        remixScript(script, id, loop),
+        `${id} at loop ${loop}: the remix`,
+      )
       assert.deepEqual(
         g.spawned,
-        declaredCrashers(script, loop),
+        declaredCrashers(g.script, loop),
         `${id} at loop ${loop}: spawns what its script declares`,
       )
     }

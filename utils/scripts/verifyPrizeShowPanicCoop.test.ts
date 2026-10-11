@@ -79,13 +79,19 @@ type Inner = {
 }
 
 function fresh(seed = 3, players = 1, demo = false): Inner {
-  return create({
+  const g = create({
     rng: mulberry32(seed),
     sound: { play: () => {} },
     demo,
     hiScore: 0,
     players,
-  }) as unknown as Inner
+  }) as unknown as Inner & { menu: { ticks: number } | null }
+  // Past the mode card (left alone, it takes the Season), onto the pick card.
+  if (g.menu) {
+    g.menu.ticks = 1e9
+    g.update(emptyInput())
+  }
+  return g
 }
 
 /** Past the pick card with each seat's cursor pick. */

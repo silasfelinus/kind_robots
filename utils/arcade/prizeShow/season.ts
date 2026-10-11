@@ -297,6 +297,8 @@ export type RoomScript = {
   lowGravity?: boolean
   /** Not a room at all: a commercial break's mini-game (prizeShow/commercials.ts). */
   commercial?: boolean
+  /** Remixed for a later pass (prizeShow/modes.ts remixScript): tagged in the room. */
+  remixed?: boolean
 }
 
 /** The concert's tempo: 120 beats a minute, a beat every 30 ticks (its music loop matches). */
@@ -329,6 +331,8 @@ export type Episode = {
   live?: boolean
   /** The Grand Prize Vault: only for ten golden tickets, and the host cheers for Sparkle. */
   vault?: boolean
+  /** What the cards call it instead of EPISODE n (a Marathon leg). */
+  billing?: string
 }
 
 /** Golden tickets hidden across the whole season, and how many open the Grand Prize Vault. */

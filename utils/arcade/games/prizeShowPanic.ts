@@ -205,6 +205,25 @@ import {
 } from '../prizeShow/commercials'
 import type { BreakState } from '../prizeShow/commercials'
 import { renderSeasonMap } from '../prizeShow/mapScreen'
+import {
+  MEDALS,
+  MENU,
+  MENU_AUTO,
+  RERUN_LOOP,
+  drawMedal,
+  marathonLeg,
+  marathonLoop,
+  readMedals,
+  remixScript,
+  renderModeCard,
+  unlocked,
+} from '../prizeShow/modes'
+import type {
+  MedalBoard,
+  MedalId,
+  MenuState,
+  ShowMode,
+} from '../prizeShow/modes'
 import type { MapOption } from '../prizeShow/mapScreen'
 import {
   CONCERT_BEAT,
@@ -512,7 +531,7 @@ type Particle = {
 type Floater = { x: number; y: number; text: string; life: number }
 /** A show kept at an episode's start (ArcadeGameInstance.save), and handed back as `resume`. */
 export type PrizeSave = {
-  v: 1
+  v: 2
   /** The episode to pick up at the start of (an index into SEASON). */
   episode: number
   loop: number
@@ -527,6 +546,10 @@ export type PrizeSave = {
   cleared: boolean
   /** The run it came from ended: picking it up again starts the score from zero. */
   continued: boolean
+  /** Room medals won on this device (prizeShow/modes.ts), kept across shows. */
+  medals: MedalBoard
+  /** The most rooms cleared in one Marathon. */
+  marathon: number
 }
 
 const isCount = (v: unknown, max: number): v is number =>
@@ -546,7 +569,8 @@ function readWallet(v: unknown): Wallet | null {
 export function readSave(raw: unknown): PrizeSave | null {
   if (!raw || typeof raw !== 'object') return null
   const v = raw as Record<string, unknown>
-  if (v.v !== 1) return null
+  // Version 1 (before the medals) still reads: it simply has none yet.
+  if (v.v !== 1 && v.v !== 2) return null
   if (!isCount(v.episode, SEASON.length - 1)) return null
   if (!isCount(v.loop, 99) || v.loop < 1) return null
   if (!isCount(v.score, 250_000_000)) return null
@@ -566,8 +590,12 @@ export function readSave(raw: unknown): PrizeSave | null {
   const wallet = readWallet(v.wallet)
   const won = readWallet(v.won)
   if (!wallet || !won) return null
+  const medals = readMedals(v.v === 1 ? undefined : v.medals)
+  if (!medals) return null
+  const marathon = v.v === 1 ? 0 : v.marathon
+  if (!isCount(marathon, 100_000)) return null
   return {
-    v: 1,
+    v: 2,
     episode: v.episode,
     loop: v.loop,
     score: v.score,
@@ -579,6 +607,8 @@ export function readSave(raw: unknown): PrizeSave | null {
     bestChain: v.bestChain,
     cleared: v.cleared,
     continued: v.continued,
+    medals,
+    marathon,
   }
 }
 
@@ -1732,6 +1762,16 @@ class PrizeShowPanic implements ArcadeGameInstance {
   /** A saved show offered on the opening card, until the player chooses. */
   private offer: PrizeSave | null = null
   private choosing = 0
+  /** The mode card before a new show: Season, Rerun, Marathon, episode select, the medal board. */
+  menu: MenuState | null = null
+  mode: ShowMode = 'season'
+  /** Room medals won on this device (kept in the save), and this episode's and this show's count. */
+  medals: MedalBoard = {}
+  private episodeMedals = 0
+  private showMedals = 0
+  /** The Marathon: rooms cleared this run, and the most in one run (kept in the save). */
+  marathonRooms = 0
+  marathonBest = 0
 
   // The season: where Sparkle is on which episode's map, and what she carries between rooms.
   private season: readonly Episode[] = SEASON
@@ -1789,6 +1829,15 @@ class PrizeShowPanic implements ArcadeGameInstance {
   private cleared = false
   private hit = false
   private prizeMissed = false
+  /** Full Haul: prizes grabbed in this room, and whether any got away. */
+  private roomGrabbed = 0
+  private haulMissed = false
+  /** The medals just won, shown on the way out of the room (and whether each is new). */
+  private medalToast: {
+    won: MedalId[]
+    fresh: MedalId[]
+    ticks: number
+  } | null = null
   private tosses: Toss[] = []
   private nextToss = 0
 
@@ -1824,16 +1873,24 @@ class PrizeShowPanic implements ArcadeGameInstance {
     this.lives = START_LIVES + seats - 1
     this.world = this.makeWorld()
     this.bossWorld = this.makeBossWorld()
+    const offer = this.demo ? null : readSave(options.resume)
+    if (offer) {
+      // What this device has won stays with every show: the clear, the medals, the best Marathon.
+      this.seasonCleared = offer.cleared
+      this.medals = { ...offer.medals }
+      this.marathonBest = offer.marathon
+    }
     this.beginEpisode(0)
     if (!this.demo) this.openPick()
-    const offer = this.demo ? null : readSave(options.resume)
-    if (offer && (offer.episode > 0 || offer.loop > 1 || offer.cleared)) {
+    if (offer && (offer.episode > 0 || offer.loop > 1)) {
       // Until the player chooses, the stored show stays as it was.
       this.offer = offer
       this.save = offer
       this.choosing = 1
       this.cutIn = null
       this.cutQueue = []
+    } else if (!this.demo) {
+      this.openMenu()
     }
   }
 
@@ -2051,6 +2108,7 @@ class PrizeShowPanic implements ArcadeGameInstance {
         const prize = p as Prize
         if (prize.pedestal && this.script.challenge === 'all-prizes')
           this.prizeMissed = true
+        this.haulMissed = true
         this.prizes = this.prizes.filter((q) => q !== prize)
       },
       dropPrize: (x, y) => this.dropPrize(x, y),
@@ -2063,6 +2121,71 @@ class PrizeShowPanic implements ArcadeGameInstance {
           color: CONFETTI[Math.floor(this.fxRng() * CONFETTI.length)]!,
         }),
     }
+  }
+
+  /** The mode card: what kind of show tonight (a new show only; the demo never sees it). */
+  private openMenu() {
+    this.menu = { cursor: 0, episode: 0, board: false, ticks: 0 }
+    this.cutIn = null
+    this.cutQueue = []
+  }
+
+  private updateMenu(input: InputFrame) {
+    const m = this.menu!
+    m.ticks++
+    if (m.ticks < 15) return
+    const go = input.pressed.a || input.pressed.start
+    if (m.board) {
+      if (go || input.pressed.b || m.ticks >= MENU_AUTO) {
+        m.board = false
+        m.ticks = 0
+        this.sound.play('blip')
+      }
+      return
+    }
+    const step = input.pressed.up ? -1 : input.pressed.down ? 1 : 0
+    if (step) {
+      m.cursor = (m.cursor + step + MENU.length) % MENU.length
+      this.sound.play('blip')
+    }
+    const entry = MENU[m.cursor]!
+    const open = unlocked(entry, this.seasonCleared)
+    if (entry === 'episode' && open) {
+      const turn = input.pressed.left ? -1 : input.pressed.right ? 1 : 0
+      if (turn) {
+        m.episode = (m.episode + turn + SEASON.length) % SEASON.length
+        this.sound.play('blip')
+      }
+    }
+    if (!go) {
+      // Nobody choosing: the show goes on with the row under the cursor (or the Season).
+      if (m.ticks >= MENU_AUTO)
+        this.startMode(open && entry !== 'medals' ? entry : 'season', m.episode)
+      return
+    }
+    if (!open) {
+      this.sound.play('warn')
+    } else if (entry === 'medals') {
+      m.board = true
+      m.ticks = 0
+      this.sound.play('pickup')
+    } else {
+      this.startMode(entry, m.episode)
+    }
+  }
+
+  /** A new show in `mode` (episode select starts at `episode`, an index into SEASON). */
+  private startMode(mode: ShowMode, episode = 0) {
+    this.menu = null
+    this.mode = mode
+    this.loop = mode === 'rerun' ? RERUN_LOOP : 1
+    this.tuning = loopTuning(this.loop)
+    this.season = mode === 'marathon' ? [marathonLeg(0, this.rng)] : SEASON
+    this.studios = 0
+    this.marathonRooms = 0
+    this.showMedals = 0
+    this.beginEpisode(mode === 'episode' ? episode : 0)
+    this.sound.play('start')
   }
 
   /** The contestant pick card: each seat chooses who to play (no two the same). */
@@ -2184,8 +2307,13 @@ class PrizeShowPanic implements ArcadeGameInstance {
   /** Keep the show as it stands at an episode's start (a real game only; demos never save). */
   private keep() {
     if (this.demo || this.offer) return
+    if (this.mode === 'marathon') {
+      // The Marathon is one sitting: it keeps only what the device has won.
+      this.keepProfile()
+      return
+    }
     this.save = {
-      v: 1,
+      v: 2,
       episode: this.episodeIndex,
       loop: this.loop,
       score: this.score,
@@ -2197,6 +2325,35 @@ class PrizeShowPanic implements ArcadeGameInstance {
       bestChain: this.bestChain,
       cleared: this.seasonCleared,
       continued: false,
+      medals: { ...this.medals },
+      marathon: this.marathonBest,
+    }
+  }
+
+  /** What the device has won (the clear, the medals, the best Marathon), kept the moment it's won. */
+  private keepProfile() {
+    if (this.demo || this.offer) return
+    const base: PrizeSave = this.save ?? {
+      v: 2,
+      episode: 0,
+      loop: 1,
+      score: 0,
+      lives: START_LIVES,
+      studios: 0,
+      tickets: [],
+      wallet: emptyWallet(),
+      won: emptyWallet(),
+      bestChain: 0,
+      cleared: false,
+      continued: true,
+      medals: {},
+      marathon: 0,
+    }
+    this.save = {
+      ...base,
+      cleared: this.seasonCleared,
+      medals: { ...this.medals },
+      marathon: this.marathonBest,
     }
   }
 
@@ -2215,6 +2372,9 @@ class PrizeShowPanic implements ArcadeGameInstance {
     this.seasonWon = { ...s.won }
     this.bestChain = s.bestChain
     this.seasonCleared = s.cleared
+    this.medals = { ...s.medals }
+    this.marathonBest = s.marathon
+    this.mode = s.loop > 1 ? 'rerun' : 'season'
     this.loop = s.loop
     this.tuning = loopTuning(this.loop)
     this.beginEpisode(s.episode)
@@ -2233,10 +2393,10 @@ class PrizeShowPanic implements ArcadeGameInstance {
       this.resumeFrom(this.offer!)
       this.sound.play('start')
     } else if (input.pressed.b) {
+      // A new show: the mode card first (the medals and the clear stay with the device).
       this.offer = null
       this.choosing = 0
-      this.keep()
-      this.say('room-start')
+      this.openMenu()
     }
   }
 
@@ -2436,6 +2596,7 @@ class PrizeShowPanic implements ArcadeGameInstance {
     this.prizes = this.prizes.filter((p) => p !== prize)
     if (this.prizes.length === before) return
     if (this.script.challenge === 'all-prizes') this.prizeMissed = true
+    this.haulMissed = true
     this.burst(prize.x, prize.y - 20, 8, RAMPS.sky[3])
     this.sound.play('warn')
   }
@@ -2464,6 +2625,7 @@ class PrizeShowPanic implements ArcadeGameInstance {
     this.modifiers.clear()
     this.episodeWon = emptyWallet()
     this.episodeTickets = 0
+    this.episodeMedals = 0
     this.peakTier = tierOf(this.ratings)
     // Every episode opens from the wings: the map's left edge.
     this.enterRoom(this.episode.start, 3)
@@ -2472,9 +2634,14 @@ class PrizeShowPanic implements ArcadeGameInstance {
         c.powers[this.perks.power] = POWERS[this.perks.power].ticks
     this.banner = {
       text: this.episode.title,
-      sub: `EPISODE ${this.episode.number}: ${this.episode.subtitle}`,
+      sub: `${this.billing()}: ${this.episode.subtitle}`,
       ticks: 120,
     }
+  }
+
+  /** What the cards call this episode: EPISODE n, or a Marathon leg. */
+  private billing(): string {
+    return this.episode.billing ?? `EPISODE ${this.episode.number}`
   }
 
   /** The modifier a map room plays under this loop, rolled once and kept. */
@@ -2492,7 +2659,8 @@ class PrizeShowPanic implements ArcadeGameInstance {
     this.secretId = null
     this.route.push(id)
     this.entryDoor = entry
-    this.script = roomById(this.episode, id).script
+    // Later passes play a remix of the room's script (prizeShow/modes.ts).
+    this.script = remixScript(roomById(this.episode, id).script, id, this.loop)
     this.modifier = this.modifierFor(id)
     this.level = ++this.studios
     this.startRoom()
@@ -2504,7 +2672,7 @@ class PrizeShowPanic implements ArcadeGameInstance {
     if (!this.secretsFound.includes(this.roomId))
       this.secretsFound.push(this.roomId)
     this.entryDoor = entry
-    this.script = this.episode.secrets[id]!
+    this.script = remixScript(this.episode.secrets[id]!, id, this.loop)
     this.modifier = null
     this.level = ++this.studios
     this.startRoom()
@@ -2579,6 +2747,7 @@ class PrizeShowPanic implements ArcadeGameInstance {
         this.episodeTickets,
         this.peakTier,
         this.loop,
+        this.episodeMedals,
       ),
       ticks: 0,
       paid: 0,
@@ -2638,7 +2807,10 @@ class PrizeShowPanic implements ArcadeGameInstance {
       this.buy(SWAP_OFFERS[swap.cursor]!.id)
     if (done && swap.ticks > 20) {
       this.swap = null
-      if (this.episodeIndex + 1 < this.season.length)
+      if (
+        this.mode === 'marathon' ||
+        this.episodeIndex + 1 < this.season.length
+      )
         this.openCommercial('episode')
       else this.finishEpisode()
     }
@@ -2746,6 +2918,15 @@ class PrizeShowPanic implements ArcadeGameInstance {
       this.openEnding('true')
       return
     }
+    if (this.mode === 'marathon') {
+      // The Marathon never ends on its own: another leg, a step harder every two.
+      const leg = this.episodeIndex + 1
+      this.loop = marathonLoop(leg)
+      this.tuning = loopTuning(this.loop)
+      this.season = [...this.season, marathonLeg(leg, this.rng)]
+      this.beginEpisode(leg)
+      return
+    }
     if (this.episodeIndex + 1 < this.season.length) {
       this.beginEpisode(this.episodeIndex + 1)
       return
@@ -2764,9 +2945,34 @@ class PrizeShowPanic implements ArcadeGameInstance {
     this.openEnding('show')
   }
 
+  /** The show's haul on the game-over card: prizes, tickets, best chain, medals, Marathon rooms. */
+  private haulRows(): TallyRow[] {
+    const rows = seasonRows(
+      this.seasonWon,
+      this.tickets.length,
+      this.bestChain,
+    ).filter((row) => this.mode !== 'marathon' || row.icon !== 'ticket')
+    if (this.showMedals)
+      rows.push({
+        label: 'ROOM MEDALS',
+        count: this.showMedals,
+        points: 0,
+        icon: 'medal',
+      })
+    if (this.mode === 'marathon')
+      rows.push({
+        label: 'MARATHON ROOMS',
+        count: this.marathonRooms,
+        points: 0,
+        icon: 'bonus',
+      })
+    return rows
+  }
+
   /** The season is cleared: the ending, then the credits, then a rerun. */
   private openEnding(kind: EndingKind) {
     this.seasonCleared = true
+    this.keepProfile()
     const bonus = (kind === 'true' ? 500_000 : 250_000) * this.loop
     this.addScore(bonus, CX, CY)
     this.ending = {
@@ -2819,11 +3025,7 @@ class PrizeShowPanic implements ArcadeGameInstance {
         // The last rerun is done: that's the series. The show ends on a high.
         this.ending = null
         this.over = true
-        this.finalRows = seasonRows(
-          this.seasonWon,
-          this.tickets.length,
-          this.bestChain,
-        )
+        this.finalRows = this.haulRows()
         this.banner = {
           text: "THAT'S THE SERIES!",
           sub: 'THANKS FOR WATCHING',
@@ -2866,6 +3068,9 @@ class PrizeShowPanic implements ArcadeGameInstance {
     this.cleared = false
     this.hit = false
     this.prizeMissed = false
+    this.roomGrabbed = 0
+    this.haulMissed = false
+    this.medalToast = null
     this.slip = 0
     this.vx = 0
     this.vy = 0
@@ -3079,6 +3284,7 @@ class PrizeShowPanic implements ArcadeGameInstance {
     this.tick++
     this.updateEffects()
     if (this.banner && --this.banner.ticks <= 0) this.banner = null
+    if (this.medalToast && --this.medalToast.ticks <= 0) this.medalToast = null
     this.updateCutIns()
     if (this.over) {
       this.overTicks++
@@ -3094,6 +3300,10 @@ class PrizeShowPanic implements ArcadeGameInstance {
 
     if (this.choosing) {
       this.updateChoice(controls)
+      return
+    }
+    if (this.menu) {
+      this.updateMenu(controls)
       return
     }
     if (this.picking) {
@@ -3138,14 +3348,11 @@ class PrizeShowPanic implements ArcadeGameInstance {
         if (this.lives <= 0) {
           this.over = true
           this.banner = null
-          this.finalRows = seasonRows(
-            this.seasonWon,
-            this.tickets.length,
-            this.bestChain,
-          )
+          this.finalRows = this.haulRows()
           this.say('game-over')
           // A save from this run can be picked up again, but its score starts over.
-          if (this.save) this.save = { ...this.save, continued: true }
+          if (this.save && this.mode !== 'marathon')
+            this.save = { ...this.save, continued: true }
         } else {
           this.startRoom()
         }
@@ -4487,6 +4694,7 @@ class PrizeShowPanic implements ArcadeGameInstance {
       if (!p.pedestal) p.life--
       if (p.life <= 0) {
         if (this.script.challenge === 'all-prizes') this.prizeMissed = true
+        this.haulMissed = true
         continue
       }
       const taker = this.inPlay().find(
@@ -4495,6 +4703,7 @@ class PrizeShowPanic implements ArcadeGameInstance {
       if (!taker) continue
       this.cur = taker
       p.life = -1
+      this.roomGrabbed++
       for (const c of this.crashers) if (c.prize === p) c.prize = null
       this.addScore(
         Math.round(PRIZE_POINTS[p.kind] * double * this.multiplier(false)),
@@ -4674,9 +4883,10 @@ class PrizeShowPanic implements ArcadeGameInstance {
     }
     if (!this.secretId && this.exits.length === 0) {
       // The finale is down: the episode is a wrap, and the haul is counted next.
+      this.awardMedals(true)
       this.banner = {
         text: "THAT'S A WRAP!",
-        sub: `EPISODE ${this.episode.number}: ${this.episode.title}`,
+        sub: `${this.billing()}: ${this.episode.title}`,
         ticks: EPISODE_TICKS,
       }
       this.say('wrap')
@@ -4702,7 +4912,42 @@ class PrizeShowPanic implements ArcadeGameInstance {
     }
   }
 
+  /**
+   * The room is done: its medals onto the board (Flawless: no hit; Full Haul: a prize or more grabbed
+   * and none lost or left behind; Prime Time: out with the ratings at Prime Time). A finale's wrap
+   * leaves nothing behind (the crew bags what's on the floor).
+   */
+  private awardMedals(wrap = false) {
+    if (this.script.commercial) return
+    const left = !wrap && this.prizes.some((p) => p.life > 0)
+    const won: MedalId[] = []
+    if (!this.hit) won.push('flawless')
+    if (this.roomGrabbed > 0 && !this.haulMissed && !left) won.push('haul')
+    if (tierOf(this.ratings) === TIERS.length - 1) won.push('prime')
+    if (this.mode === 'marathon') {
+      this.marathonRooms++
+      this.marathonBest = Math.max(this.marathonBest, this.marathonRooms)
+    }
+    if (won.length) {
+      const id = this.secretId ?? this.roomId
+      const before = this.medals[id] ?? 0
+      let bits = before
+      for (const m of won) bits |= MEDALS[m].bit
+      this.medals[id] = bits
+      this.episodeMedals += won.length
+      this.showMedals += won.length
+      this.medalToast = {
+        won,
+        fresh: won.filter((m) => !(before & MEDALS[m].bit)),
+        ticks: 100,
+      }
+      this.sound.play(bits !== before ? 'extra' : 'pickup')
+    }
+    this.keepProfile()
+  }
+
   private leave(exit: RoomExit) {
+    this.awardMedals()
     const timeBonus = this.script.closes
       ? 0
       : Math.floor(this.roomTimer / 60) * 50
@@ -4725,6 +4970,7 @@ class PrizeShowPanic implements ArcadeGameInstance {
 
   /** A vault or secret room's countdown ran out: the set closes behind Sparkle. */
   private closeSet() {
+    this.awardMedals()
     this.next = { to: 'map', side: null }
     this.transition = TRANSITION_TICKS
     this.banner = { text: 'THE SET CLOSES!', ticks: TRANSITION_TICKS }
@@ -4879,6 +5125,10 @@ class PrizeShowPanic implements ArcadeGameInstance {
       start: false,
     }
     const frame: InputFrame = { held, pressed: { ...held } }
+    if (this.menu) {
+      frame.pressed.a = this.menu.ticks % 30 === 29
+      return frame
+    }
     if (this.picking) {
       frame.pressed.a = this.picking.ticks % 30 === 29
       return frame
@@ -5162,6 +5412,17 @@ class PrizeShowPanic implements ArcadeGameInstance {
       this.renderChoice(g)
       return
     }
+    if (this.menu) {
+      this.renderStudio(g)
+      renderModeCard(g, {
+        menu: this.menu,
+        cleared: this.seasonCleared,
+        board: this.medals,
+        marathonBest: this.marathonBest,
+        tick: this.tick,
+      })
+      return
+    }
     if (this.picking) {
       this.renderPick(g)
       this.renderCutIn(g)
@@ -5402,6 +5663,10 @@ class PrizeShowPanic implements ArcadeGameInstance {
       secrets: this.secretsFound,
       marker: LIFE_SPRITE,
       tick: this.tick,
+      medals: this.medals,
+      ...(this.mode === 'marathon'
+        ? { tag: `PACE ${this.loop}`, rooms: this.marathonRooms }
+        : {}),
     })
     vignette(g, W, H, 0.22)
     if (this.banner) this.renderBanner(g)
@@ -7416,6 +7681,9 @@ class PrizeShowPanic implements ArcadeGameInstance {
         g.fillStyle = RAMPS.gold[3]
         g.fill()
         break
+      case 'medal':
+        drawMedal(g, x, y + 2, 'haul', true, 4)
+        break
     }
   }
 
@@ -7425,16 +7693,17 @@ class PrizeShowPanic implements ArcadeGameInstance {
     rows: readonly TallyRow[],
     progress: number,
     top: number,
+    gap = 22,
   ) {
     rows.forEach((row, i) => {
       if (progress < i) return
-      const y = top + i * 22
+      const y = top + i * gap
       const k = Math.min(1, progress - i)
       const count = Math.floor(row.count * k)
       bevel(g, 30, y - 8, W - 60, 18, RAMPS.purple, { depth: 1 })
       this.tallyIcon(g, row.icon, 48, y + 1)
       drawText(g, row.label, 66, y - 2, { color: '#ffffff', shadow: INK })
-      if (row.icon !== 'ratings' && row.icon !== 'bonus')
+      if (row.icon !== 'ratings' && (row.icon !== 'bonus' || !row.points))
         drawText(g, `X ${count}`, 200, y - 2, {
           align: 'right',
           color: RAMPS.gold[4],
@@ -7459,18 +7728,19 @@ class PrizeShowPanic implements ArcadeGameInstance {
       outline: INK,
       shadow: RAMPS.purple[1],
     })
-    drawText(
+    drawText(g, `${this.billing()}: ${this.episode.title}`, CX, 32, {
+      align: 'center',
+      color: RAMPS.cream[3],
+      shadow: INK,
+    })
+    const long = tally.rows.length > 6
+    this.renderRows(
       g,
-      `EPISODE ${this.episode.number}: ${this.episode.title}`,
-      CX,
-      32,
-      {
-        align: 'center',
-        color: RAMPS.cream[3],
-        shadow: INK,
-      },
+      tally.rows,
+      tally.ticks / TALLY_ROW,
+      long ? 50 : 54,
+      long ? 20 : 22,
     )
-    this.renderRows(g, tally.rows, tally.ticks / TALLY_ROW, 54)
     drawText(g, `SCORE ${this.score}`, CX, H - 50, {
       scale: 2,
       align: 'center',
@@ -7573,11 +7843,17 @@ class PrizeShowPanic implements ArcadeGameInstance {
       outline: INK,
       shadow: RAMPS.purple[1],
     })
-    drawText(g, 'THE SEASON HAUL', CX, 36, {
-      align: 'center',
-      color: RAMPS.gold[3],
-      shadow: INK,
-    })
+    drawText(
+      g,
+      this.mode === 'marathon' ? 'THE MARATHON HAUL' : 'THE SEASON HAUL',
+      CX,
+      36,
+      {
+        align: 'center',
+        color: RAMPS.gold[3],
+        shadow: INK,
+      },
+    )
     if (this.finalRows)
       this.renderRows(
         g,
@@ -7744,6 +8020,7 @@ class PrizeShowPanic implements ArcadeGameInstance {
     // ending and its credits).
     if (this.ending) return
     const tags: Array<[string, string]> = []
+    if (this.script.remixed) tags.push(['REMIX', RAMPS.purple[3]])
     if (this.modifier)
       tags.push([MODIFIERS[this.modifier].title, RAMPS.pink[3]])
     if (this.script.challenge && !this.cleared) {
@@ -7769,6 +8046,33 @@ class PrizeShowPanic implements ArcadeGameInstance {
       ty += 9
     }
     this.renderBanner(g)
+    this.renderMedalToast(g)
+  }
+
+  /** The medals won in the room just left: a strip along the floor's foot. */
+  private renderMedalToast(g: CanvasRenderingContext2D) {
+    const toast = this.medalToast
+    if (!toast) return
+    const step = 80
+    const w = toast.won.length * step + 6
+    const x0 = Math.round(CX - w / 2)
+    const rise = Math.min(1, (100 - toast.ticks) / 10)
+    const y = Math.round(BOTTOM - 8 - 30 * rise)
+    hudPanel(g, x0, y, w, 28, RAMPS.night)
+    toast.won.forEach((m, i) => {
+      const x = x0 + 6 + i * step
+      const fresh = toast.fresh.includes(m)
+      if (fresh) glow(g, x + 7, y + 14, 12, MEDALS[m].ramp[3], 0.5)
+      drawMedal(g, x + 7, y + 17, m, true, 4)
+      drawText(g, MEDALS[m].title, x + 16, y + 5, {
+        color: MEDALS[m].ramp[3],
+        outline: INK,
+      })
+      drawText(g, fresh ? 'NEW!' : 'AGAIN', x + 16, y + 15, {
+        color: fresh ? RAMPS.gold[4] : RAMPS.cream[2],
+        shadow: INK,
+      })
+    })
   }
 }
 

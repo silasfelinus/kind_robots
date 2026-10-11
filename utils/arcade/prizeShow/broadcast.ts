@@ -270,7 +270,14 @@ export function emptyWallet(): Wallet {
 }
 
 export type TallyIcon =
-  'cash' | 'toaster' | 'car' | 'ticket' | 'ratings' | 'chain' | 'bonus'
+  | 'cash'
+  | 'toaster'
+  | 'car'
+  | 'ticket'
+  | 'ratings'
+  | 'chain'
+  | 'bonus'
+  | 'medal'
 
 export type TallyRow = {
   label: string
@@ -281,7 +288,12 @@ export type TallyRow = {
 }
 
 /** What a golden ticket, each ratings tier reached, and the episode itself pay, per loop. */
-export const TALLY_PAY = { ticket: 2500, tier: 2000, episode: 20_000 }
+export const TALLY_PAY = {
+  ticket: 2500,
+  tier: 2000,
+  episode: 20_000,
+  medal: 1500,
+}
 
 /** The rows an episode's tally counts up, in order. */
 export function tallyRows(
@@ -289,6 +301,8 @@ export function tallyRows(
   tickets: number,
   peakTier: number,
   loop: number,
+  /** Room medals won this episode (prizeShow/modes.ts): a row only when there are some. */
+  medals = 0,
 ): TallyRow[] {
   return [
     { label: 'CASH', count: won.cash, points: 0, icon: 'cash' },
@@ -306,6 +320,16 @@ export function tallyRows(
       points: (peakTier + 1) * TALLY_PAY.tier * loop,
       icon: 'ratings',
     },
+    ...(medals > 0
+      ? [
+          {
+            label: 'ROOM MEDALS',
+            count: medals,
+            points: medals * TALLY_PAY.medal * loop,
+            icon: 'medal' as const,
+          },
+        ]
+      : []),
     {
       label: 'EPISODE BONUS',
       count: 1,

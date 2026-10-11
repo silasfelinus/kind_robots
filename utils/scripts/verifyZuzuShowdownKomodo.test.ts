@@ -146,7 +146,8 @@ check('every heavy attack soaks a hit, light or heavy', () => {
     assert.ok(armor && armor.hits >= 1 && !armor.lightOnly, id)
   }
   const log: SimEvent[] = []
-  play(fightAt(66), 30, [press({ hp: true })], [press({ hp: true })], log)
+  // Close enough for both heavies to reach (his staff smash reaches 45 px).
+  play(fightAt(58), 30, [press({ hp: true })], [press({ hp: true })], log)
   assert.ok(
     log.some((e) => e.type === 'armor' && e.side === 0),
     'soaked',

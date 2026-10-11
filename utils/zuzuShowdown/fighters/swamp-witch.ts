@@ -17,6 +17,7 @@ import {
   SUB,
   type FighterData,
   type MoveData,
+  type NormalId,
   type SpecialMove,
 } from '../types'
 import { defaultChains, defaultNormals } from './placeholders'
@@ -25,8 +26,24 @@ const HEIGHT = 120
 const WIDTH = 36
 const NO_HITBOX = { x: 0, y: 0, w: 0, h: 0 }
 
-// LP is a gnarled-hand slap, HP a tentacle lash.
+// LP is a gnarled-hand slap, HP a clawed lash; the kicks are her coil lashing
+// out low. Each box is fitted to her rig's art (conductor tools/rigs/witch.py),
+// so it reaches where the hand or coil is drawn on its active frames.
 const normals = defaultNormals(HEIGHT)
+const fit = (id: NormalId, hitbox: MoveData['hitbox']) => {
+  normals[id] = { ...normals[id], hitbox }
+}
+fit('stand_lp', { x: 8, y: 68, w: 36, h: 10 })
+fit('stand_lk', { x: 6, y: 20, w: 41, h: 12 })
+fit('stand_hk', { x: 6, y: 24, w: 56, h: 14 })
+fit('crouch_lp', { x: 8, y: 42, w: 33, h: 10 })
+fit('crouch_lk', { x: 6, y: 0, w: 43, h: 10 })
+fit('crouch_hp', { x: 2, y: 53, w: 24, h: 34 })
+fit('crouch_hk', { x: 6, y: 0, w: 58, h: 10 })
+fit('jump_lp', { x: 4, y: 37, w: 22, h: 14 })
+fit('jump_hp', { x: 4, y: 28, w: 30, h: 20 })
+fit('jump_lk', { x: -6, y: 7, w: 54, h: 14 })
+fit('jump_hk', { x: 2, y: 3, w: 57, h: 16 })
 
 // The leech: 60 health over five seconds, all of it red.
 const LEECH = { frames: 300, every: 5 }

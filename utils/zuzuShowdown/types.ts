@@ -288,6 +288,26 @@ export type FighterData = {
   ammoRegen?: number
   /** Colours (and a hat) for the stand-in renderer until sprites exist. */
   look?: FighterLook
+  /**
+   * The arcade boss (t-021): it takes damage and hitstop but is never stunned, knocked down, launched,
+   * pushed or thrown, and it never walks or jumps.
+   */
+  immovable?: boolean
+  /** Where it starts, in pixels from the stage's centre (the boss's door at the edge). */
+  startX?: number
+  /**
+   * Stages it passes through as it loses health, each from `below` percent of full health down (in
+   * falling order): a new standing hurtbox, and the damage it takes as a percent.
+   */
+  phases?: FighterPhase[]
+  /** The match is a single round (the boss fight). */
+  singleRound?: boolean
+}
+
+export type FighterPhase = {
+  below: number
+  hurtStand?: Box
+  damageTaken?: number
 }
 
 export type FighterLook = {

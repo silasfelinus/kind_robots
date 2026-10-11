@@ -108,7 +108,17 @@ export type RenderOptions = {
   style?: RenderStyle
   /** The camera's zoom (advanceZoom toward zoomTarget); 1, the whole stage, when left out. */
   zoom?: number
+  /** Fighters drawn by their own painter instead of sprites, by slug (the arcade boss, bossArt.ts). */
+  painters?: Partial<Record<string, FighterPainter>>
 }
+
+/** Draws a fighter in place of its sprite, in the fight's coordinates (under the camera's zoom). */
+export type FighterPainter = (
+  g: G,
+  s: MatchState,
+  side: 0 | 1,
+  camera: number,
+) => void
 
 /** Set a context up for a render style: image filtering and the HUD font. */
 export function applyRenderStyle(g: G, style: RenderStyle = 'pixel'): void {
@@ -2134,6 +2144,11 @@ export function drawMatch(
       ? fleeingPose(s.fighters[side], s.fighters[side === 0 ? 1 : 0], fled)
       : s.fighters[side]
     const slug = roster[side].slug
+    const painter = options.painters?.[slug]
+    if (painter) {
+      painter(g, s, side, camera)
+      continue
+    }
     const context: SpriteContext = {
       intro: s.phase === 'intro' ? s.phaseFrame : undefined,
       perfect: f.health >= roster[side].health,

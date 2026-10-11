@@ -180,12 +180,13 @@ const idx = (tx: number, ty: number) => ty * 40 + tx
   run(g, 40, () => [hold('right')])
   assert.ok(g.heroes[0]!.x < 8 * 16, 'it blocks like any rack')
   assert.ok(g.heroes[0]!.x > x0)
-  assert.equal(g.light, null, 'unlit')
+  const light = () => g.light
+  assert.equal(light(), null, 'unlit')
   g.heroes[0]!.pulses = 1
   run(g, 1, () => [tap('b')])
-  assert.ok(g.light && g.light.ticks > 0, "a pulse's light shows it")
+  assert.ok((light()?.ticks ?? 0) > 0, "a pulse's light shows it")
   run(g, 6 * 60 + 2)
-  assert.equal(g.light, null, 'for a while')
+  assert.equal(light(), null, 'for a while')
 }
 
 // Fake stairs: a bonk, not a way down.

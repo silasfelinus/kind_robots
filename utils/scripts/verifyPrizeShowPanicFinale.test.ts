@@ -579,8 +579,10 @@ const g2d = stubContext()
   g.cutIn = null
   g.modifiers.set('hot-vault', null)
   g.enterRoom('hot-vault', 3)
+  // (the type checker still thinks cutIn is the null set above; the room start has spoken since)
+  const cheer = g.cutIn as { text: string } | null
   assert.ok(
-    g.cutIn && VAULT_CHEERS.includes(g.cutIn.text),
+    cheer && VAULT_CHEERS.includes(cheer.text),
     'the host cheers you on',
   )
   g.render(g2d)

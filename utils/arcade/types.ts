@@ -78,6 +78,11 @@ export type ArcadeGameMeta = {
   /** Server-side plausibility ceiling for a submitted score. */
   maxPlausibleScore: number
   titleArt: string
+  /**
+   * A scored game with a page of its own (LINKED_GAMES): the hall's tile and
+   * hall-of-fame card link here instead of to a cabinet.
+   */
+  route?: string
   /** Accent colour for the cabinet glow and the marquee title. */
   accent: string
   /** One line describing the controls on the cabinet's control panel. */

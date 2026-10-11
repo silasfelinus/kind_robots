@@ -1,50 +1,79 @@
 <template>
   <main class="kr-surface">
-    <div class="kr-scroll mx-auto max-w-[1500px] px-3 py-5 sm:px-6 lg:px-10">
-      <div v-if="!store.loaded" class="grid min-h-52 place-items-center">
-        <span class="kr-spinner-lg-primary" />
+    <div v-if="!store.loaded" class="kr-stage items-center justify-center">
+      <span class="kr-spinner-lg-primary" />
+    </div>
+    <template v-else>
+      <div
+        class="kr-toolbar mx-auto w-full max-w-[1500px] justify-between gap-x-4 px-3 py-2 sm:px-6 lg:px-8"
+      >
+        <div class="flex min-w-0 items-baseline gap-3">
+          <p class="shrink-0 font-serif text-lg font-black tracking-wide">
+            ZUZU <span class="text-warning">/</span> KOALA ASSASSIN
+          </p>
+          <p
+            class="hidden truncate text-[11px] font-bold uppercase tracking-[.22em] opacity-60 sm:block"
+          >
+            {{ current.chapter }}
+          </p>
+        </div>
+        <div class="flex flex-wrap items-center gap-2">
+          <span
+            class="rounded-md bg-base-200 px-3 py-1.5 text-xs font-bold"
+            aria-label="Resources"
+          >
+            <span class="text-rose-400">♥ {{ store.run.health }}/12</span>
+            <span class="opacity-40"> · </span>
+            <span class="text-sky-400">✦ {{ store.run.resolve }}/4</span>
+          </span>
+          <button
+            type="button"
+            class="btn btn-sm"
+            :class="showSheet ? 'btn-warning' : 'btn-outline'"
+            :aria-expanded="showSheet"
+            aria-controls="zuzu-sheet"
+            @click="showSheet = !showSheet"
+          >
+            <icon name="kind-icon:book-open" class="size-4" /><span
+              class="sm:hidden"
+              >Sheet</span
+            ><span class="hidden sm:inline">Character sheet</span>
+          </button>
+          <button type="button" class="btn btn-ghost btn-sm" @click="restart">
+            New journey
+          </button>
+        </div>
       </div>
-      <template v-else>
-        <header class="mb-5 flex flex-wrap items-center justify-between gap-3">
-          <div>
-            <p
-              class="text-xs font-black uppercase tracking-[.3em] text-warning"
-            >
-              An illustrated gamebook · Book One, still growing
-            </p>
-            <h2
-              class="mt-1 font-serif text-2xl font-black tracking-wide sm:text-4xl"
-            >
-              ZUZU <span class="text-warning">/</span> KOALA ASSASSIN
-            </h2>
-            <p class="mt-1 text-sm opacity-70">The Bell That Never Rang</p>
-          </div>
-          <div class="flex flex-wrap items-center gap-2">
-            <button
-              type="button"
-              class="btn btn-outline btn-sm"
-              :aria-expanded="showSheet"
-              aria-controls="zuzu-sheet"
-              @click="showSheet = !showSheet"
-            >
-              <icon name="kind-icon:book-open" class="mr-1 size-4" /> Character
-              sheet
-            </button>
-            <button type="button" class="btn btn-ghost btn-sm" @click="restart">
-              New journey
-            </button>
-          </div>
-        </header>
 
+      <div
+        class="kr-panes mx-auto w-full max-w-[1500px] grid-cols-1 px-3 pb-3 sm:px-6 lg:px-8 lg:pb-5"
+        :class="showSheet ? 'lg:grid-cols-[minmax(0,1fr)_20rem]' : ''"
+      >
         <div
-          class="grid items-start gap-6"
-          :class="showSheet ? 'xl:grid-cols-[minmax(0,1fr)_20rem]' : ''"
+          class="kr-pane-scroll rounded-2xl"
+          :class="showSheet ? 'hidden lg:block' : ''"
         >
-          <article class="min-w-0">
-            <div :class="frameClass">
+          <article
+            class="flex min-h-full flex-col gap-4 lg:gap-6"
+            :class="
+              layout === 'right'
+                ? 'lg:flex-row'
+                : 'lg:grid lg:grid-rows-[minmax(12rem,1fr)_auto]'
+            "
+          >
+            <figure
+              class="relative isolate shrink-0 overflow-hidden rounded-2xl border border-warning/20 bg-stone-950 shadow-2xl lg:flex lg:aspect-auto lg:items-center lg:justify-center lg:[container-type:size]"
+              :class="plateClass"
+            >
+              <img
+                :src="platePath(art)"
+                class="absolute inset-0 hidden size-full scale-110 object-cover opacity-90 blur-2xl brightness-75 lg:block"
+                alt=""
+                aria-hidden="true"
+              />
               <div
-                class="relative isolate overflow-hidden rounded-[1.5rem] border border-warning/20 bg-stone-950 shadow-2xl"
-                :class="plateClass"
+                class="relative size-full overflow-hidden lg:shadow-2xl lg:ring-1 lg:ring-black/50"
+                :class="frameClass"
               >
                 <img
                   :src="platePath(art)"
@@ -54,66 +83,42 @@
                   :width="PLATE_SIZE[shape].width"
                   :height="PLATE_SIZE[shape].height"
                 />
-                <div
-                  class="absolute inset-0 bg-gradient-to-t via-transparent to-black/35"
-                  :class="layout === 'top' ? 'from-black' : 'from-black/40'"
-                />
-                <div
-                  class="absolute left-4 top-4 rounded-md border border-white/25 bg-black/65 px-3 py-2 text-[10px] font-bold uppercase tracking-[.25em] text-amber-100 sm:left-7 sm:top-6"
-                >
-                  {{ current.chapter }}
-                </div>
-                <div
-                  class="absolute right-4 top-4 flex items-center gap-2 rounded-md bg-black/65 px-3 py-2 text-xs font-bold sm:right-7 sm:top-6"
-                  aria-label="Resources"
-                >
-                  <span class="text-rose-300">♥ {{ store.run.health }}/12</span>
-                  <span class="opacity-40">·</span>
-                  <span class="text-sky-300">✦ {{ store.run.resolve }}/4</span>
-                </div>
-                <div
-                  v-if="layout === 'top'"
-                  class="absolute inset-x-4 bottom-5 sm:inset-x-8 sm:bottom-7"
-                >
-                  <p class="text-xs uppercase tracking-[.28em] text-amber-300">
-                    Section
-                    {{ String(store.run.visited.length).padStart(3, '0') }}
-                  </p>
-                  <h2
-                    class="mt-1 max-w-3xl font-serif text-3xl font-black leading-tight text-white drop-shadow-xl sm:text-5xl"
-                  >
-                    {{ current.title }}
-                  </h2>
-                </div>
               </div>
-              <div
-                class="relative z-10 border border-warning/20 bg-base-200 px-5 pb-6 pt-7 shadow-xl sm:px-10 sm:pb-10"
-                :class="
-                  layout === 'top'
-                    ? 'mx-2 -mt-1 rounded-b-[1.5rem] sm:mx-5'
-                    : 'rounded-[1.5rem]'
-                "
-              >
-                <header v-if="layout !== 'top'" class="mb-5">
-                  <p class="text-xs uppercase tracking-[.28em] text-warning">
-                    Section
-                    {{ String(store.run.visited.length).padStart(3, '0') }}
-                  </p>
-                  <h2
-                    class="mt-1 max-w-3xl font-serif text-3xl font-black leading-tight sm:text-4xl"
-                  >
-                    {{ current.title }}
-                  </h2>
-                </header>
+            </figure>
+
+            <div
+              class="flex flex-col gap-6 rounded-2xl border border-warning/20 bg-base-200 px-5 py-5 shadow-xl sm:px-8"
+              :class="
+                layout === 'top'
+                  ? 'lg:grid lg:grid-cols-[minmax(0,7fr)_minmax(18rem,5fr)] lg:items-start lg:gap-10'
+                  : 'lg:min-w-0 lg:flex-1 lg:justify-center'
+              "
+            >
+              <div>
+                <p class="text-xs uppercase tracking-[.28em] text-warning">
+                  Section
+                  {{ String(store.run.visited.length).padStart(3, '0') }}
+                </p>
+                <h2
+                  class="mt-1 font-serif text-2xl font-black leading-tight sm:text-3xl"
+                >
+                  {{ current.title }}
+                </h2>
                 <p
-                  class="max-w-3xl font-serif text-lg leading-[1.85] text-base-content sm:text-[1.35rem]"
+                  class="mt-4 max-w-3xl font-serif text-lg leading-[1.75] text-base-content xl:text-xl"
                 >
                   {{ current.text }}
                 </p>
-
+                <p
+                  v-if="art.fit === 'stand-in'"
+                  class="mt-3 text-xs opacity-55"
+                >
+                  This section shows the nearest existing plate while its own
+                  illustration is painted.
+                </p>
                 <section
                   v-if="store.run.lastRoll"
-                  class="mt-6 border-y border-base-content/15 py-4"
+                  class="mt-5 border-y border-base-content/15 py-4"
                   aria-live="polite"
                   aria-label="Last dice result"
                 >
@@ -158,10 +163,11 @@
                     </div>
                   </div>
                 </section>
-
+              </div>
+              <div class="min-w-0">
                 <div
                   v-if="current.battle && store.run.battle"
-                  class="mt-7 rounded-xl border border-error/30 bg-base-300 p-4 sm:p-6"
+                  class="rounded-xl border border-error/30 bg-base-300 p-4 sm:p-6"
                 >
                   <div
                     class="flex flex-wrap items-center justify-between gap-3"
@@ -213,7 +219,7 @@
                 </div>
                 <template v-else-if="current.ending">
                   <div
-                    class="mt-7 rounded-xl border border-warning/30 bg-warning/10 p-5"
+                    class="rounded-xl border border-warning/30 bg-warning/10 p-5"
                   >
                     <p
                       class="text-xs font-black uppercase tracking-[.2em] text-warning"
@@ -236,19 +242,19 @@
                     </button>
                   </div>
                 </template>
-                <section v-else class="mt-8" aria-label="Story choices">
+                <section v-else aria-label="Story choices">
                   <h3
-                    class="mb-4 text-xs font-black uppercase tracking-[.26em] opacity-65"
+                    class="mb-3 text-xs font-black uppercase tracking-[.26em] opacity-65"
                   >
                     What will Zuzu do?
                   </h3>
-                  <div class="grid gap-3">
+                  <div class="grid gap-2">
                     <button
                       v-for="(choice, index) in choices"
                       :key="choice.id"
                       type="button"
                       :disabled="!!lockReason(store.run, choice)"
-                      class="group flex min-h-16 items-center gap-4 rounded-xl border border-base-content/20 bg-base-100 px-4 py-4 text-left transition hover:border-warning hover:bg-base-300 focus-visible:outline focus-visible:outline-2 focus-visible:outline-warning disabled:cursor-not-allowed disabled:opacity-45"
+                      class="group flex min-h-12 items-center gap-4 rounded-xl border border-base-content/20 bg-base-100 px-4 py-2.5 text-left transition hover:border-warning hover:bg-base-300 focus-visible:outline focus-visible:outline-2 focus-visible:outline-warning disabled:cursor-not-allowed disabled:opacity-45"
                       @click="store.choose(choice.id)"
                     >
                       <span
@@ -274,135 +280,125 @@
                 </section>
               </div>
             </div>
-            <p class="mx-5 mt-4 text-xs opacity-55">
-              Illustrations are Zuzu: Koala Assassin comic renders.
-              <template v-if="art.fit === 'stand-in'">
-                This section shows the nearest existing plate while its own
-                illustration is painted.
+          </article>
+        </div>
+
+        <aside
+          v-if="showSheet"
+          id="zuzu-sheet"
+          class="kr-pane-scroll rounded-2xl border border-warning/25 bg-base-200 p-5 shadow-xl"
+        >
+          <div class="flex items-center justify-between">
+            <h2 class="font-serif text-2xl font-bold">The Wanderer</h2>
+            <button
+              class="btn btn-ghost btn-xs"
+              type="button"
+              aria-label="Close character sheet"
+              @click="showSheet = false"
+            >
+              ✕
+            </button>
+          </div>
+          <p class="mt-2 text-sm opacity-70">
+            Zuzu · Koala ronin · Road of Dust
+          </p>
+          <div class="mt-6 grid grid-cols-2 gap-3">
+            <div class="rounded-lg bg-base-300 p-3">
+              <p class="text-xs opacity-60">Health</p>
+              <p class="text-xl font-black text-rose-400">
+                {{ store.run.health }} / 12
+              </p>
+            </div>
+            <div class="rounded-lg bg-base-300 p-3">
+              <p class="text-xs opacity-60">Resolve</p>
+              <p class="text-xl font-black text-sky-400">
+                {{ store.run.resolve }} / 4
+              </p>
+            </div>
+          </div>
+          <h3
+            class="mt-6 text-xs font-bold uppercase tracking-[.22em] opacity-60"
+          >
+            Attributes
+          </h3>
+          <dl class="mt-3 space-y-2 text-sm">
+            <div
+              v-for="(value, attribute) of store.run.attributes"
+              :key="attribute"
+              class="flex justify-between border-b border-base-content/10 pb-2"
+            >
+              <dt class="capitalize">{{ attribute }}</dt>
+              <dd class="font-bold">+{{ value }}</dd>
+            </div>
+          </dl>
+          <h3
+            class="mt-6 text-xs font-bold uppercase tracking-[.22em] opacity-60"
+          >
+            Equipment and pack
+          </h3>
+          <p class="mt-2 text-xs opacity-70">Kasa · Poncho · Katana (worn)</p>
+          <ul class="mt-3 space-y-2 text-sm">
+            <li
+              v-for="(item, i) of store.run.items"
+              :key="item + i"
+              class="rounded-md border border-base-content/15 p-2 capitalize"
+            >
+              ◆ {{ item }}
+            </li>
+            <li
+              v-for="slot in Math.max(0, 5 - store.run.items.length)"
+              :key="'empty' + slot"
+              class="rounded-md border border-dashed border-base-content/15 p-2 opacity-35"
+            >
+              Empty slot
+            </li>
+          </ul>
+          <h3
+            class="mt-6 text-xs font-bold uppercase tracking-[.22em] opacity-60"
+          >
+            Special arts
+          </h3>
+          <ul class="mt-2 space-y-2 text-sm">
+            <li>
+              <strong>Still Wind</strong> · +2 to a Sense/Shadow check (planned)
+            </li>
+            <li><strong>Quiet Draw</strong> · powerful strike, 2 Resolve</li>
+            <li><strong>Last Kindness</strong> · protect an ally (planned)</li>
+          </ul>
+          <h3
+            class="mt-6 text-xs font-bold uppercase tracking-[.22em] opacity-60"
+          >
+            Journal
+          </h3>
+          <p v-if="!store.run.flags.length" class="mt-2 text-sm opacity-75">
+            The road has not yet left its marks.
+          </p>
+          <template v-else>
+            <p v-if="notes.deeds.length" class="mt-2 text-sm">
+              <span class="opacity-60">Deeds:</span>
+              <template v-for="(deed, i) in notes.deeds" :key="deed.text">
+                <span v-if="i"> · </span>
+                <span :class="deed.dark ? 'italic text-error' : ''">{{
+                  deed.text
+                }}</span>
               </template>
             </p>
-          </article>
-
-          <aside
-            v-if="showSheet"
-            id="zuzu-sheet"
-            class="rounded-2xl border border-warning/25 bg-base-200 p-5 shadow-xl xl:sticky xl:top-5"
-          >
-            <div class="flex items-center justify-between">
-              <h2 class="font-serif text-2xl font-bold">The Wanderer</h2>
-              <button
-                class="btn btn-ghost btn-xs"
-                type="button"
-                aria-label="Close character sheet"
-                @click="showSheet = false"
-              >
-                ✕
-              </button>
-            </div>
-            <p class="mt-2 text-sm opacity-70">
-              Zuzu · Koala ronin · Road of Dust
+            <p v-if="notes.debts.length" class="mt-2 text-sm">
+              <span class="opacity-60">Owed by:</span>
+              {{ notes.debts.join(' · ') }}
             </p>
-            <div class="mt-6 grid grid-cols-2 gap-3">
-              <div class="rounded-lg bg-base-300 p-3">
-                <p class="text-xs opacity-60">Health</p>
-                <p class="text-xl font-black text-rose-400">
-                  {{ store.run.health }} / 12
-                </p>
-              </div>
-              <div class="rounded-lg bg-base-300 p-3">
-                <p class="text-xs opacity-60">Resolve</p>
-                <p class="text-xl font-black text-sky-400">
-                  {{ store.run.resolve }} / 4
-                </p>
-              </div>
-            </div>
-            <h3
-              class="mt-6 text-xs font-bold uppercase tracking-[.22em] opacity-60"
-            >
-              Attributes
-            </h3>
-            <dl class="mt-3 space-y-2 text-sm">
-              <div
-                v-for="(value, attribute) of store.run.attributes"
-                :key="attribute"
-                class="flex justify-between border-b border-base-content/10 pb-2"
-              >
-                <dt class="capitalize">{{ attribute }}</dt>
-                <dd class="font-bold">+{{ value }}</dd>
-              </div>
-            </dl>
-            <h3
-              class="mt-6 text-xs font-bold uppercase tracking-[.22em] opacity-60"
-            >
-              Equipment and pack
-            </h3>
-            <p class="mt-2 text-xs opacity-70">Kasa · Poncho · Katana (worn)</p>
-            <ul class="mt-3 space-y-2 text-sm">
-              <li
-                v-for="(item, i) of store.run.items"
-                :key="item + i"
-                class="rounded-md border border-base-content/15 p-2 capitalize"
-              >
-                ◆ {{ item }}
-              </li>
-              <li
-                v-for="slot in Math.max(0, 5 - store.run.items.length)"
-                :key="'empty' + slot"
-                class="rounded-md border border-dashed border-base-content/15 p-2 opacity-35"
-              >
-                Empty slot
-              </li>
-            </ul>
-            <h3
-              class="mt-6 text-xs font-bold uppercase tracking-[.22em] opacity-60"
-            >
-              Special arts
-            </h3>
-            <ul class="mt-2 space-y-2 text-sm">
-              <li>
-                <strong>Still Wind</strong> · +2 to a Sense/Shadow check
-                (planned)
-              </li>
-              <li><strong>Quiet Draw</strong> · powerful strike, 2 Resolve</li>
-              <li>
-                <strong>Last Kindness</strong> · protect an ally (planned)
-              </li>
-            </ul>
-            <h3
-              class="mt-6 text-xs font-bold uppercase tracking-[.22em] opacity-60"
-            >
-              Journal
-            </h3>
-            <p v-if="!store.run.flags.length" class="mt-2 text-sm opacity-75">
-              The road has not yet left its marks.
+            <p v-if="notes.learned.length" class="mt-2 text-sm">
+              <span class="opacity-60">Learned:</span>
+              {{ notes.learned.join(' · ') }}
             </p>
-            <template v-else>
-              <p v-if="notes.deeds.length" class="mt-2 text-sm">
-                <span class="opacity-60">Deeds:</span>
-                <template v-for="(deed, i) in notes.deeds" :key="deed.text">
-                  <span v-if="i"> · </span>
-                  <span :class="deed.dark ? 'italic text-error' : ''">{{
-                    deed.text
-                  }}</span>
-                </template>
-              </p>
-              <p v-if="notes.debts.length" class="mt-2 text-sm">
-                <span class="opacity-60">Owed by:</span>
-                {{ notes.debts.join(' · ') }}
-              </p>
-              <p v-if="notes.learned.length" class="mt-2 text-sm">
-                <span class="opacity-60">Learned:</span>
-                {{ notes.learned.join(' · ') }}
-              </p>
-            </template>
-            <p class="mt-4 text-xs opacity-60">
-              Sections travelled: {{ store.run.visited.length }} · Endings
-              discovered: {{ store.discovered.length }}
-            </p>
-          </aside>
-        </div>
-      </template>
-    </div>
+          </template>
+          <p class="mt-4 text-xs opacity-60">
+            Sections travelled: {{ store.run.visited.length }} · Endings
+            discovered: {{ store.discovered.length }}
+          </p>
+        </aside>
+      </div>
+    </template>
   </main>
 </template>
 
@@ -429,29 +425,26 @@ const showSheet = ref(false)
 const current = computed(() => scene(store.run.sceneId))
 const art = computed(() => sectionPlate(current.value))
 const shape = computed(() => art.value.shape ?? 'wide')
-// Silas, 2026-10-10: plates shown "horizontally and some vertically, left right top bottom, for variety".
-const layout = computed(() => plateLayout(current.value.id, art.value))
-const frameClass = computed(() => {
-  if (layout.value === 'top') return 'flex flex-col'
-  if (layout.value === 'bottom') return 'flex flex-col gap-4'
-  return [
-    'flex flex-col gap-4 md:grid md:items-start',
-    layout.value === 'left'
-      ? 'md:grid-cols-[minmax(0,5fr)_minmax(0,7fr)]'
-      : 'md:grid-cols-[minmax(0,7fr)_minmax(0,5fr)]',
-  ]
-})
+// Silas, 2026-10-11: "Just keep a single horizontal view above or portrait to the right ... It should be one clean
+// page of display." Phones stack the plate above the text; from lg up the section fits the pane, the plate fills
+// whatever room the text leaves. The picture keeps close to its own shape inside that room (a wide plate may crop
+// to 12:5 at most) and a blur of itself fills the rest, so a short screen never slices it to a strip.
+const layout = computed(() => plateLayout(art.value))
 const plateClass = computed(() => [
   shape.value === 'wide'
-    ? 'aspect-[4/3] sm:aspect-[16/9]'
+    ? 'aspect-video'
     : shape.value === 'tall'
-      ? 'aspect-[4/5] md:aspect-[7/9]'
+      ? 'aspect-[4/5]'
       : 'aspect-square',
-  layout.value === 'bottom' || layout.value === 'right' ? 'md:order-last' : '',
-  layout.value === 'left' || layout.value === 'right'
-    ? 'md:sticky md:top-4'
-    : '',
+  layout.value === 'top' ? '' : 'lg:order-last lg:w-[min(44%,38rem)]',
 ])
+const frameClass = computed(() =>
+  shape.value === 'wide'
+    ? 'lg:h-[100cqh] lg:w-[min(100cqw,240cqh)]'
+    : shape.value === 'tall'
+      ? 'lg:w-full lg:h-[min(100cqh,128cqw)]'
+      : 'lg:w-full lg:h-[min(100cqh,100cqw)]',
+)
 const choices = computed(() => visibleChoices(store.run, current.value))
 const notes = computed(() => journal(store.run.flags))
 const moves: { action: BattleAction; label: string; help: string }[] = [

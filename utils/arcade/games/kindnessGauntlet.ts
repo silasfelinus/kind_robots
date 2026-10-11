@@ -67,6 +67,9 @@ import type {
   InputFrame,
 } from '../types'
 import {
+  BLUE_REACH,
+  BLUE_SPREAD,
+  BLUE_TELL,
   IMP_TELL,
   MIMIC_BLINK,
   POPUP_TELL,
@@ -91,6 +94,7 @@ import {
   LOOT_SACK,
   SNACK_SPRITE,
   TIER_COLOURS,
+  WORM_SEGMENT,
   raster,
 } from '../kindnessGauntlet/rosterArt'
 import {
@@ -100,6 +104,49 @@ import {
   mainframeBleeps,
   voiceLine,
 } from '../kindnessGauntlet/voice'
+import {
+  CHARMS,
+  CHARM_TICKS,
+  CHIPS,
+  type CharmKind,
+  type ChipKind,
+  type FloorPlan,
+  GENERATOR_LETTERS,
+  LOST_TICKS,
+  MAX_CHIPS,
+  type Tileset,
+  WINGS,
+  planAt,
+  tierAt,
+  wingStart,
+} from '../kindnessGauntlet/floors'
+import {
+  type BossWorld,
+  type Guardian,
+  bossZones,
+  hitBoss,
+  inHole,
+  nearTape,
+  newGuardian,
+  renderGuardian,
+  sorterAt,
+  tapeOf,
+  updateGuardian,
+} from '../kindnessGauntlet/guardians'
+import {
+  GUARDIAN_LOOP,
+  LOST_LOOP,
+  VAULT_LOOP,
+  WING_LOOPS,
+} from '../kindnessGauntlet/music'
+import type { MusicLoop } from '../sound'
+import {
+  CHARM_COLOURS,
+  CHARM_SPRITES,
+  CHIP_SPRITE,
+  KEEPSAKE_SPRITES,
+  SECRET_SPRITE,
+} from '../kindnessGauntlet/itemArt'
 
 const T = 16
 const MW = 40
@@ -122,9 +169,32 @@ const EXIT_TICKS = 120
 const GENERATOR_POINTS = 100
 const RESCUE_POINTS = 250
 const DOOR_POINTS = 100
-/** walls[] values: open floor, wall, and a locked door (solid until opened). */
+/**
+ * walls[] values: open floor, a rack, a locked door (solid until opened), a card wall (sparks break
+ * it), a mirror rack (sparks bounce), a sliding shelf while shut, and a Card Sorter's dealt card.
+ */
 const OPEN = 0
 const DOOR = 2
+const CARD = 3
+const MIRROR = 4
+const SHELF = 5
+const DEALT = 6
+/** fx[] values: what lies on the floor of a tile. */
+const MAT = 1
+const TAPE = 2
+const PAD = 3
+const LIFT = 4
+/** Ticks a static mat stuns, and how long before the same bot can be stunned again. */
+const STUN_TICKS = 45
+const MAT_WAIT = 150
+/** A sliding shelf's beat: shut for half of it, open for the other half. */
+const SHELF_BEAT = 150
+const SHELF_TELL = 40
+const CARD_HITS = 2
+const KEEPSAKE_POINTS = 300
+const SECRET_POINTS = 1500
+const GUARDIAN_POINTS = 5000
+const MAX_BOUNCES = 3
 const FLOOR_POINTS = 500
 /** Bots that can share a floor: one of each class. */
 const MAX_PLAYERS = 4
@@ -273,7 +343,16 @@ type Shot =
       t: number
       tier: Tier
     }
-  | { kind: 'bolt'; x: number; y: number; vx: number; vy: number; life: number }
+  | {
+      kind: 'bolt'
+      x: number
+      y: number
+      vx: number
+      vy: number
+      life: number
+      /** A Card Sorter's punch card rather than an imp's spark. */
+      card?: boolean
+    }
 /** The Hug Token: a bouncing heart that draws every glitch to whoever holds it. */
 type Token = {
   x: number
@@ -294,6 +373,8 @@ type Spark = Thing & {
   owner: Hero
   /** Glitches it has already hit (a piercing spark hits each once). */
   hit: number[]
+  /** Bounces off mirror racks so far. */
+  bounces: number
 }
 /** One player's bot. */
 type Hero = {
@@ -314,9 +395,27 @@ type Hero = {
   points: number
   /** The Mainframe has said this bot is low (rearmed once it charges back up). */
   warned: boolean
+  /** A timed charm, and the chips collected this run. */
+  charm: { kind: CharmKind; ticks: number } | null
+  chips: Record<ChipKind, number>
+  /** Stunned by a static mat; and how long before a mat can stun it again. */
+  stun: number
+  matWait: number
+  /** The transporter pad it arrived on (no going back until it steps off). */
+  padLock: number
 }
 type Item = Thing & {
-  kind: 'snack' | 'pulse' | 'cage' | 'key'
+  kind:
+    | 'snack'
+    | 'pulse'
+    | 'cage'
+    | 'key'
+    | 'charm'
+    | 'chip'
+    | 'keepsake'
+    | 'secret'
+  charm?: CharmKind
+  chip?: ChipKind
   /** A snack a mimic just turned into: sparks pass over it for this many ticks. */
   safe?: number
 }
@@ -347,7 +446,13 @@ function wrapWords(text: string, width: number): string[] {
 
 /** How close a spark must pass to hit a glitch of this kind. */
 function hitRadius(kind: GlitchKind): number {
-  return kind === 'brute' ? 9 : kind === 'bug' ? 5 : 7
+  return kind === 'bluescreen'
+    ? 24
+    : kind === 'brute'
+      ? 9
+      : kind === 'bug'
+        ? 5
+        : 7
 }
 
 /** Eight facings, clockwise from up. */
@@ -383,7 +488,51 @@ function newHero(seat: number): Hero {
     flat: false,
     points: 0,
     warned: false,
+    charm: null,
+    chips: noChips(),
+    stun: 0,
+    matWait: 0,
+    padLock: -1,
   }
+}
+
+function noChips(): Record<ChipKind, number> {
+  return { power: 0, speed: 0, armor: 0, range: 0, pulse: 0, zap: 0 }
+}
+
+/** Progress kept at the start of each wing (utils/arcade/saves.ts), so a descent can go on later. */
+export type GauntletSave = {
+  v: 1
+  /** The wing to start (0-based); wing 0 is never saved. */
+  wing: number
+  score: number
+  keys: number
+  seats: Array<{
+    cls: BotClass
+    points: number
+    pulses: number
+    chips: Record<ChipKind, number>
+  }>
+}
+
+/** A stored save, validated (anything else is ignored). */
+export function readGauntletSave(raw: unknown): GauntletSave | null {
+  if (!raw || typeof raw !== 'object') return null
+  const s = raw as Partial<GauntletSave>
+  const count = (n: unknown, max: number) =>
+    typeof n === 'number' && Number.isInteger(n) && n >= 0 && n <= max
+  if (s.v !== 1 || !count(s.wing, WINGS.length - 1) || !s.wing) return null
+  if (!count(s.score, 250_000_000) || !count(s.keys, 99)) return null
+  if (!Array.isArray(s.seats) || !s.seats.length || s.seats.length > 4)
+    return null
+  for (const seat of s.seats) {
+    if (!seat || !CLASS_ORDER.includes(seat.cls)) return null
+    if (!count(seat.points, 250_000_000) || !count(seat.pulses, 99)) return null
+    if (!seat.chips || typeof seat.chips !== 'object') return null
+    for (const k of Object.keys(noChips()) as ChipKind[])
+      if (!count(seat.chips[k], MAX_CHIPS)) return null
+  }
+  return s as GauntletSave
 }
 
 // --- 16-bit art (utils/arcade/snes.ts) -------------------------------------------
@@ -745,7 +894,13 @@ const HUD_BOT = pixelSprite(['HLLLS', 'LkLkS', 'LBBBS', '.S.S.'], CAGED_PALETTE)
 const HUD_KEY = pixelSprite(['.Gg...', 'G.Gggg', '.go.oO'], GOLD_PALETTE)
 
 /** The raised floor of the server room: cool steel panels. */
-const FLOOR_RAMP: Ramp = ['#0a0a1e', '#131735', '#1c2248', '#2a3363', '#414d8a']
+const STEEL_FLOOR: Ramp = [
+  '#0a0a1e',
+  '#131735',
+  '#1c2248',
+  '#2a3363',
+  '#414d8a',
+]
 /** The rack walls' colours change every floor, so a long run doesn't look like one dungeon. */
 const WALL_THEMES: readonly Ramp[] = [
   RAMPS.purple,
@@ -799,13 +954,16 @@ function paintFloor(
   y0: number,
   x1: number,
   y1: number,
+  tileset: Tileset | null = null,
 ) {
-  const theme = wallTheme(level)
+  const theme = tileset?.wall ?? wallTheme(level)
+  const FLOOR_RAMP = tileset?.floor ?? STEEL_FLOOR
+  const cables = tileset ? [tileset.cable] : CABLE_RAMPS
   const rack = (tx: number, ty: number) => rackAt(walls, tx, ty)
   for (let ty = y0; ty <= y1; ty++) {
     // Each row of wall-foot cable is one run, so it reads as laid, not scattered.
     const cabled = tileHash(0, ty, level + 7) < 0.6
-    const cable = CABLE_RAMPS[Math.floor(tileHash(1, ty, level) * 3)]!
+    const cable = cables[Math.floor(tileHash(1, ty, level) * cables.length)]!
     for (let tx = x0; tx <= x1; tx++) {
       if (rack(tx, ty)) continue
       const x = tx * T
@@ -915,7 +1073,31 @@ function paintFloor(
         k.fillStyle = faceLit
         k.fillRect(x, y + 8, T, 1)
         const variant = Math.floor(h * 3)
-        if (variant === 0) {
+        if (tileset?.face === 'cards' && variant !== 2) {
+          // The Vault: card hoppers, punched cards poking out of their slots.
+          k.fillStyle = INK
+          k.fillRect(x + 2, y + 10, 9, 2)
+          k.fillStyle = RAMPS.cream[3]
+          k.fillRect(x + 3, y + 9, 2, 2)
+          k.fillRect(x + 6, y + 9 - (variant ? 1 : 0), 2, 2)
+          k.fillStyle = INK
+          k.fillRect(x + 4, y + 9, 1, 1)
+          k.fillStyle = faceLit
+          k.fillRect(x + 2, y + 13, 9, 1)
+        } else if (tileset?.face === 'reels') {
+          // The Library: two tape reels on every rack front.
+          for (const cx of [x + 3, x + 8]) {
+            k.fillStyle = INK
+            k.fillRect(cx, y + 9, 4, 4)
+            k.fillStyle = RAMPS.steel[3]
+            k.fillRect(cx + 1, y + 9, 2, 4)
+            k.fillRect(cx, y + 10, 4, 2)
+            k.fillStyle = INK
+            k.fillRect(cx + 1, y + 10, 2, 2)
+          }
+          k.fillStyle = RAMPS.earth[1]
+          k.fillRect(x + 5, y + 13, 5, 1)
+        } else if (variant === 0) {
           for (const b of [9, 12]) {
             k.fillStyle = faceLit
             k.fillRect(x + 2, y + b, 9, 1)
@@ -1110,6 +1292,50 @@ class KindnessGauntlet implements ArcadeGameInstance {
   /** The attract pilot's last resting spot, and how long it has stood there. */
   private pilotAt: Thing = { x: 0, y: 0 }
   private pilotStill = 0
+  private pathGoal: Thing | null = null
+
+  // The Deep Archive: the authored floor this is (null on a procedural one), and its tricks.
+  private plan: FloorPlan | null = null
+  /** The wing (0-based) and the step in it (0..7); -1 past the authored wings. */
+  private wing = -1
+  private step = 0
+  /** What lies on each tile's floor (mats, tape, pads, the lift). */
+  private floorFx = new Uint8Array(MW * MH)
+  private pads: Array<{ tile: number; pair: number }> = []
+  private shelves: Array<{ tile: number; late: boolean }> = []
+  private cardHp = new Map<number, number>()
+  /** Every flight of stairs, and the express lift. */
+  private exits: Thing[] = []
+  private lift: Thing | null = null
+  /** The stairs stay sealed while a Big Bluescreen or a Guardian is up. */
+  private sealed = false
+  private guardian: Guardian | null = null
+  private arena = { x0: 1, y0: 1, x1: 2, y1: 2 }
+  private bossWorld: BossWorld
+  /** The Lost & Found clock. */
+  private lostTicks = 0
+  /** Ticks on this floor, and what its secret watches for. */
+  private floorTicks = 0
+  private snackSparked = false
+  private secretDone = false
+  /** Glitch kinds already introduced this run. */
+  private met = new Set<GlitchKind>(['glitch'])
+  /** The descent's progress at the start of the latest wing, for the cabinet to keep. */
+  save: GauntletSave | null = null
+  /** A stored descent to offer, and the one being picked back up. */
+  private offer: GauntletSave | null = null
+  private resuming: GauntletSave | null = null
+  /** Where the stairs being taken lead, and which stairs are the far ones. */
+  private nextFloor = 2
+  private farExit = -1
+
+  /** The wing's loop, the Guardian's, or the Lost & Found scamper. */
+  get music(): MusicLoop | null {
+    if (this.over || this.demo || this.offer || this.selecting > 0) return null
+    if (this.guardian && !this.guardian.done) return GUARDIAN_LOOP
+    if (this.lostTicks > 0) return LOST_LOOP
+    return WING_LOOPS[this.wing] ?? VAULT_LOOP
+  }
 
   constructor(options: ArcadeGameOptions) {
     this.rng = options.rng
@@ -1121,6 +1347,12 @@ class KindnessGauntlet implements ArcadeGameInstance {
       : Math.max(1, Math.min(MAX_PLAYERS, Math.round(options.players ?? 1)))
     this.heroes = Array.from({ length: seats }, (_, seat) => newHero(seat))
     this.world = this.makeWorld()
+    this.bossWorld = this.makeBossWorld()
+    const stored = this.demo ? null : readGauntletSave(options.resume)
+    if (stored) {
+      this.offer = stored
+      this.save = stored
+    }
     this.buildFloor(1)
     // The attract pilot picks a bot at random and skips the selection screen.
     if (this.demo) {
@@ -1169,6 +1401,11 @@ class KindnessGauntlet implements ArcadeGameInstance {
         other.choice = this.nextFree(other, 1)
     if (this.heroes.some((h) => !h.picked)) return
     this.selecting = 0
+    if (this.resuming) {
+      this.resumeFrom(this.resuming)
+      this.resuming = null
+      return
+    }
     const names = this.heroes.map((h) => this.specOf(h).name)
     this.banner = {
       text:
@@ -1179,6 +1416,60 @@ class KindnessGauntlet implements ArcadeGameInstance {
             : `${names[0]} ENTERS`,
       sub: 'FIX THE GLITCHES',
       ticks: 90,
+    }
+  }
+
+  /** Pick a saved descent back up at the start of its wing (after the bots are chosen). */
+  private resumeFrom(s: GauntletSave) {
+    this.score = s.score
+    this.keys = s.keys
+    this.heroes.forEach((h, i) => {
+      const seat = s.seats[i]
+      if (!seat) return
+      h.points = seat.points
+      h.pulses = Math.max(h.pulses, seat.pulses)
+      h.chips = { ...seat.chips }
+    })
+    for (let w = 0; w < s.wing; w++)
+      for (const plan of WINGS[w]!.floors)
+        for (const ch of plan.map.join(''))
+          if (GENERATOR_LETTERS[ch]) this.met.add(GENERATOR_LETTERS[ch]!)
+    this.buildFloor(wingStart(s.wing))
+    this.save = s
+  }
+
+  /** Remember the descent at the start of a wing past the first (a real game only). */
+  private keep() {
+    if (this.demo || this.wing <= 0 || this.step !== 0) return
+    this.save = {
+      v: 1,
+      wing: this.wing,
+      score: this.score,
+      keys: Math.min(99, this.keys),
+      seats: this.heroes.map((h) => ({
+        cls: h.cls,
+        points: h.points,
+        pulses: Math.min(99, h.pulses),
+        chips: { ...h.chips },
+      })),
+    }
+  }
+
+  /** The continue offer: A picks the saved descent back up, B starts a new one. */
+  private updateOffer(input: InputFrame) {
+    if (input.pressed.a || input.pressed.start) {
+      this.resuming = this.offer
+      this.offer = null
+      this.selecting = SELECT_TICKS
+      this.heroes.forEach((h, i) => {
+        const cls = this.resuming?.seats[i]?.cls
+        if (cls) h.choice = CLASS_ORDER.indexOf(cls)
+      })
+      this.sound.play('start')
+    } else if (input.pressed.b) {
+      this.offer = null
+      this.selecting = SELECT_TICKS
+      this.sound.play('blip')
     }
   }
 
@@ -1230,10 +1521,226 @@ class KindnessGauntlet implements ArcadeGameInstance {
     }
   }
 
+  /**
+   * Build a floor: in the Descent an authored one (kindnessGauntlet/floors.ts) while the wings last,
+   * then the procedural builder.
+   */
   private buildFloor(floor: number) {
     this.level = floor
-    this.walls.fill(1)
+    this.walls.fill(RACK)
     this.seen.fill(0)
+    this.floorFx.fill(0)
+    this.pads = []
+    this.shelves = []
+    this.cardHp.clear()
+    this.generators = []
+    this.items = []
+    this.glitches = []
+    this.token = null
+    this.guardian = null
+    this.doors = []
+    this.exits = []
+    this.lift = null
+    this.sealed = false
+    this.lostTicks = 0
+    this.floorTicks = 0
+    this.snackSparked = false
+    this.secretDone = false
+    this.farExit = -1
+    const at = planAt(floor)
+    this.plan = at?.plan ?? null
+    this.wing = at?.wing ?? -1
+    this.step = at?.step ?? 0
+    if (at) this.buildPlan(at.plan)
+    else this.buildRooms(floor)
+    this.exit = this.exits[0] ?? this.exit
+    this.sparks = []
+    this.shots = []
+    this.leaving = 0
+    this.path = []
+    this.keySpotted = false
+    this.mapExit()
+    this.reveal()
+    this.lives = this.standing.length
+    this.announceFloor(floor)
+    this.keep()
+  }
+
+  /** The floor's banner, its note, and a card for any glitch kind not met before. */
+  private announceFloor(floor: number) {
+    const fresh = [
+      ...this.generators.map((g) => g.kind),
+      ...this.glitches.map((g) => g.kind),
+    ].find((k) => !this.met.has(k))
+    for (const g of this.generators) this.met.add(g.kind)
+    for (const g of this.glitches) this.met.add(g.kind)
+    this.intro = fresh ? { kind: fresh, ticks: INTRO_TICKS } : null
+    const plan = this.plan
+    const wing = WINGS[this.wing]
+    if (plan && wing && this.step === 0)
+      this.banner = { text: wing.name, sub: wing.era, ticks: 150 }
+    else if (plan)
+      this.banner = { text: `FLOOR ${floor}`, sub: plan.name, ticks: 120 }
+    else
+      this.banner = {
+        text: `FLOOR ${floor}`,
+        sub: fresh ? `NEW: ${ROSTER[fresh].name}` : 'THE ARCHIVE GOES DEEPER',
+        ticks: 90,
+      }
+    if (plan) this.sayText('note', `NOTE: ${plan.note}`)
+    else if (floor > 1) this.say(fresh ? 'new-glitch' : 'floor')
+  }
+
+  /** Bots huddle at the start two by two (a flat bot is back with a little charge). */
+  private placeHeroes(start: Thing) {
+    this.heroes.forEach((hero, i) => {
+      const x = start.x + (i % 2 ? T : 0)
+      const y = start.y + (i >= 2 ? T : 0)
+      hero.x = this.solid(x, start.y) ? start.x : x
+      hero.y = this.solid(hero.x, y) ? start.y : y
+      hero.padLock = -1
+      hero.stun = 0
+      if (hero.flat) {
+        hero.flat = false
+        hero.battery = Math.max(hero.battery, MAX_BATTERY / 4)
+      }
+    })
+  }
+
+  /** Lay out an authored floor from its map (the legend is in kindnessGauntlet/floors.ts). */
+  private buildPlan(plan: FloorPlan) {
+    let start: Thing = { x: T * 2 + T / 2, y: T * 2 + T / 2 }
+    let gens = 0
+    let charms = 0
+    let chips = 0
+    const doorTiles = new Set<number>()
+    const scale = 1 + 0.5 * (this.heroes.length - 1)
+    plan.map.forEach((row, ty) => {
+      for (let tx = 0; tx < row.length && tx < MW; tx++) {
+        if (ty >= MH) return
+        const ch = row[tx]!
+        const i = this.idx(tx, ty)
+        const x = tx * T + T / 2
+        const y = ty * T + T / 2
+        this.walls[i] =
+          ch === '#'
+            ? RACK
+            : ch === 'C'
+              ? CARD
+              : ch === 'M'
+                ? MIRROR
+                : ch === 'D'
+                  ? DOOR
+                  : OPEN
+        if (ch === 'C') this.cardHp.set(i, CARD_HITS)
+        else if (ch === 'D') doorTiles.add(i)
+        else if (ch === '~') this.floorFx[i] = MAT
+        else if (ch === '=') this.floorFx[i] = TAPE
+        else if (ch === 'S' || ch === 's')
+          this.shelves.push({ tile: i, late: ch === 's' })
+        else if (ch >= '1' && ch <= '4') {
+          this.floorFx[i] = PAD
+          this.pads.push({ tile: i, pair: Number(ch) })
+        } else if (ch === 'E') {
+          this.floorFx[i] = LIFT
+          this.lift = { x, y }
+        } else if (ch === '@') start = { x, y }
+        else if (ch === '>') this.exits.push({ x, y })
+        else if (ch === '*') this.items.push({ x, y, kind: 'snack' })
+        else if (ch === 'h') this.items.push({ x, y, kind: 'pulse' })
+        else if (ch === '$') this.items.push({ x, y, kind: 'cage' })
+        else if (ch === 'k') this.items.push({ x, y, kind: 'key' })
+        else if (ch === 'K') this.items.push({ x, y, kind: 'keepsake' })
+        else if (ch === '!') this.items.push({ x, y, kind: 'secret' })
+        else if (ch === '?') {
+          const list = plan.charms ?? ['shell']
+          this.items.push({
+            x,
+            y,
+            kind: 'charm',
+            charm: list[charms++ % list.length],
+          })
+        } else if (ch === '^') {
+          const list = plan.chips ?? ['power']
+          this.items.push({
+            x,
+            y,
+            kind: 'chip',
+            chip: list[chips++ % list.length],
+          })
+        } else if (ch === 'T')
+          this.token = { x, y, vx: 0.5, vy: 0.35, holder: -1, wait: 0 }
+        else if (ch === 'x')
+          this.glitches.push(
+            newGlitch('mimic', x, y, 1, this.nextId++, -1, (tx * 7) % 6),
+          )
+        else if (ch === 'B') {
+          const tier = this.wing >= 1 ? 3 : 2
+          const blue = newGlitch('bluescreen', x, y, tier, this.nextId++, -1, 1)
+          blue.hp = blue.maxHp = Math.round(blue.hp * scale)
+          this.glitches.push(blue)
+          this.sealed = true
+        } else {
+          const kind = GENERATOR_LETTERS[ch]
+          if (kind) this.addGenerator(kind, x, y, tierAt(plan, gens++))
+        }
+      }
+    })
+    // Neighbouring door tiles are one door.
+    for (const t of doorTiles) {
+      if (this.doors.some((d) => d.tiles.includes(t))) continue
+      const tiles = [t]
+      for (let k = 0; k < tiles.length; k++) {
+        const c = tiles[k]!
+        for (const n of [c - 1, c + 1, c - MW, c + MW])
+          if (doorTiles.has(n) && !tiles.includes(n)) tiles.push(n)
+      }
+      this.doors.push({ tiles, open: false })
+    }
+    this.updateShelves(true)
+    if (plan.lost) this.lostTicks = LOST_TICKS
+    if (this.exits.length > 1) {
+      const d = this.distances(
+        Math.floor(start.x / T),
+        Math.floor(start.y / T),
+        true,
+      )
+      let best = -1
+      this.exits.forEach((e, i) => {
+        const v = d[this.idx(Math.floor(e.x / T), Math.floor(e.y / T))] ?? -1
+        if (v > best) {
+          best = v
+          this.farExit = i
+        }
+      })
+    } else this.farExit = -1
+    if (plan.guardian) {
+      let x0 = MW
+      let y0 = MH
+      let x1 = 0
+      let y1 = 0
+      for (let i = 0; i < this.walls.length; i++) {
+        if (this.walls[i] !== OPEN) continue
+        const tx = i % MW
+        const ty = Math.floor(i / MW)
+        x0 = Math.min(x0, tx)
+        y0 = Math.min(y0, ty)
+        x1 = Math.max(x1, tx)
+        y1 = Math.max(y1, ty)
+      }
+      this.arena = { x0, y0, x1, y1 }
+      this.guardian = newGuardian(
+        plan.guardian,
+        this.bossWorld,
+        this.heroes.length,
+      )
+      this.sealed = true
+    }
+    this.placeHeroes(start)
+  }
+
+  /** The procedural builder: random rooms joined by corridors, the stairs in the farthest. */
+  private buildRooms(floor: number) {
     const rooms: Room[] = []
     for (let tries = 0; tries < 300 && rooms.length < 9; tries++) {
       const w = 5 + Math.floor(this.rng() * 5)
@@ -1264,17 +1771,7 @@ class KindnessGauntlet implements ArcadeGameInstance {
       this.carve(bx, ay, bx + 1, by)
     }
     const start = this.centre(rooms[0]!)
-    this.heroes.forEach((hero, i) => {
-      // Huddled at the start, two by two (a flat bot is back with a little charge).
-      const x = start.x + (i % 2 ? T : 0)
-      const y = start.y + (i >= 2 ? T : 0)
-      hero.x = this.solid(x, start.y) ? start.x : x
-      hero.y = this.solid(hero.x, y) ? start.y : y
-      if (hero.flat) {
-        hero.flat = false
-        hero.battery = Math.max(hero.battery, MAX_BATTERY / 4)
-      }
-    })
+    this.placeHeroes(start)
     // The stairs go in the room farthest from the start, by walking distance.
     const dist = this.distances(
       Math.floor(start.x / T),
@@ -1291,7 +1788,7 @@ class KindnessGauntlet implements ArcadeGameInstance {
       })
       .sort((a, b) => b.d - a.d)[0]
     this.exit = this.centre(far?.r ?? rooms[rooms.length - 1]!)
-    this.doors = []
+    this.exits = [this.exit]
     const keyRooms = floor >= 2 ? this.lockTheWay(rooms, start) : []
 
     const spots = (count: number) => {
@@ -1366,22 +1863,6 @@ class KindnessGauntlet implements ArcadeGameInstance {
           wait: 0,
         }
       }
-    this.sparks = []
-    this.shots = []
-    this.leaving = 0
-    this.path = []
-    this.keySpotted = false
-    this.mapExit()
-    this.reveal()
-    this.lives = this.standing.length
-    const debut = debutOn(floor)
-    this.banner = {
-      text: `FLOOR ${floor}`,
-      sub: debut ? `NEW: ${ROSTER[debut].name}` : 'FIX THE GLITCHES',
-      ticks: 90,
-    }
-    this.intro = debut ? { kind: debut, ticks: INTRO_TICKS } : null
-    if (floor > 1) this.say(debut ? 'new-glitch' : 'floor')
   }
 
   /**
@@ -1418,18 +1899,32 @@ class KindnessGauntlet implements ArcadeGameInstance {
           : roll < levelCurve(floor, GAUNTLET_CURVES.tier2)
             ? 2
             : 1
-      this.generators.push({
-        ...s,
-        id: this.nextId++,
-        kind,
-        tier,
-        topTier: tier,
-        per,
-        hp: tier * per,
-        maxHp: tier * per,
-        timer: 60 + Math.floor(this.rng() * 90),
-        flash: 0,
-      })
+      this.addGenerator(kind, s.x, s.y, tier, per)
+    })
+  }
+
+  private addGenerator(
+    kind: GlitchKind,
+    x: number,
+    y: number,
+    tier: Tier,
+    per = Math.max(
+      1,
+      Math.round(levelCurve(this.level, GAUNTLET_CURVES.generatorHp) / 3),
+    ),
+  ) {
+    this.generators.push({
+      x,
+      y,
+      id: this.nextId++,
+      kind,
+      tier,
+      topTier: tier,
+      per,
+      hp: tier * per,
+      maxHp: tier * per,
+      timer: 60 + Math.floor(this.rng() * 90),
+      flash: 0,
     })
   }
 
@@ -1540,29 +2035,54 @@ class KindnessGauntlet implements ArcadeGameInstance {
   }
 
   /** Walking distance in tiles from (sx, sy) to every open tile. */
-  private distances(sx: number, sy: number, throughDoors = false): Int16Array {
+  /**
+   * Walking distance in tiles from (sx, sy) to every open tile; a transporter pad leads to its twin.
+   * With `throughDoors` locked doors count as open (the team has a key); with `cards` so do card
+   * walls and shut shelves (the pilot can spark the one and wait out the other).
+   */
+  private distances(
+    sx: number,
+    sy: number,
+    throughDoors = false,
+    cards = false,
+  ): Int16Array {
     const dist = new Int16Array(MW * MH).fill(-1)
+    // A pad walked onto carries you to its twin: from it the only way on is the twin, and from
+    // the twin (arrived at by cable) you walk on.
+    const byCable = new Uint8Array(MW * MH)
     const queue = [sx, sy]
     dist[this.idx(sx, sy)] = 0
+    byCable[this.idx(sx, sy)] = 1
+    const step = (nx: number, ny: number, d: number) => {
+      if (nx < 0 || ny < 0 || nx >= MW || ny >= MH) return
+      const i = this.idx(nx, ny)
+      const w = this.walls[i]
+      const blocked =
+        w !== OPEN &&
+        !(throughDoors && w === DOOR) &&
+        !(cards && (w === CARD || w === SHELF))
+      if (blocked || dist[i] !== -1) return
+      dist[i] = d + 1
+      queue.push(nx, ny)
+    }
     for (let head = 0; head < queue.length; head += 2) {
       const x = queue[head]!
       const y = queue[head + 1]!
-      const d = dist[this.idx(x, y)]!
-      for (const [dx, dy] of [
-        [1, 0],
-        [-1, 0],
-        [0, 1],
-        [0, -1],
-      ] as const) {
-        const nx = x + dx
-        const ny = y + dy
-        const blocked =
-          this.wallAt(nx, ny) &&
-          !(throughDoors && this.walls[this.idx(nx, ny)] === DOOR)
-        if (blocked || dist[this.idx(nx, ny)] !== -1) continue
-        dist[this.idx(nx, ny)] = d + 1
-        queue.push(nx, ny)
+      const here = this.idx(x, y)
+      const d = dist[here]!
+      if (this.floorFx[here] === PAD && !byCable[here]) {
+        const pad = this.pads.find((p) => p.tile === here)
+        const twin = this.pads.find(
+          (p) => p.pair === pad?.pair && p.tile !== here,
+        )
+        if (twin && dist[twin.tile] === -1) byCable[twin.tile] = 1
+        if (twin) step(twin.tile % MW, Math.floor(twin.tile / MW), d)
+        continue
       }
+      step(x + 1, y, d)
+      step(x - 1, y, d)
+      step(x, y + 1, d)
+      step(x, y - 1, d)
     }
     return dist
   }
@@ -1591,20 +2111,32 @@ class KindnessGauntlet implements ArcadeGameInstance {
     if (this.intro && --this.intro.ticks <= 0) this.intro = null
     if (this.over) return
     const frames = this.demo ? [this.demoInput()] : (players ?? [input])
+    if (this.offer) {
+      this.updateOffer(frames[0] ?? input)
+      return
+    }
     if (this.selecting > 0) {
       this.updateSelect(frames)
       return
     }
 
     if (this.leaving > 0) {
-      if (--this.leaving === 0) this.buildFloor(this.level + 1)
+      if (--this.leaving === 0) this.buildFloor(this.nextFloor)
       return
     }
     if (this.pulseFlash > 0) this.pulseFlash--
+    this.floorTicks++
+    this.updateShelves(false)
 
     for (const hero of this.standing) {
       if (this.tick % DRAIN_TICKS === 0) hero.battery--
       if (hero.fireCooldown > 0) hero.fireCooldown--
+      if (hero.charm && --hero.charm.ticks <= 0) hero.charm = null
+      if (hero.matWait > 0) hero.matWait--
+      if (hero.stun > 0) {
+        hero.stun--
+        continue
+      }
       const controls = frames[hero.seat] ?? idleFrame()
       const fromX = hero.x
       const fromY = hero.y
@@ -1617,6 +2149,7 @@ class KindnessGauntlet implements ArcadeGameInstance {
       if (controls.pressed.a || (controls.held.a && hero.fireCooldown === 0))
         this.fire(hero)
       if (controls.pressed.b) this.pulse(hero)
+      this.floorTricks(hero)
     }
     this.shareCharge()
     this.updateSparks()
@@ -1627,21 +2160,23 @@ class KindnessGauntlet implements ArcadeGameInstance {
     this.pickUp()
     this.reveal()
     this.watchBatteries()
+    this.updateHall()
 
-    const atExit = this.standing.find(
-      (h) => Math.hypot(this.exit.x - h.x, this.exit.y - h.y) < 10,
-    )
-    if (atExit) {
-      const bonus = FLOOR_POINTS + 100 * this.level
-      this.addScore(bonus, atExit.x, atExit.y - 16, atExit)
-      this.leaving = EXIT_TICKS
-      this.banner = {
-        text: 'DOWN THE STAIRS!',
-        sub: `FLOOR BONUS ${bonus}`,
-        ticks: EXIT_TICKS,
+    if (!this.sealed) {
+      for (const hero of this.standing) {
+        const i = this.exits.findIndex(
+          (e) => Math.hypot(e.x - hero.x, e.y - hero.y) < 10,
+        )
+        const lifted =
+          this.lift &&
+          Math.hypot(this.lift.x - hero.x, this.lift.y - hero.y) < 10
+        if (i < 0 && !lifted) continue
+        this.leaveFloor(
+          hero,
+          lifted ? 'lift' : i === this.farExit ? 'far' : 'stairs',
+        )
+        break
       }
-      this.sound.play('level')
-      this.say('stairs')
     }
     for (const hero of this.standing) {
       if (hero.battery > 0) continue
@@ -1668,8 +2203,145 @@ class KindnessGauntlet implements ArcadeGameInstance {
     this.followCamera()
   }
 
+  /**
+   * Down the stairs (or the express lift, two floors further): the floor bonus, and the floor's
+   * secret if leaving this way solves it.
+   */
+  private leaveFloor(hero: Hero, how: 'stairs' | 'far' | 'lift') {
+    const bonus = FLOOR_POINTS + 100 * this.level
+    this.addScore(bonus, hero.x, hero.y - 16, hero)
+    const secret = this.plan?.secret.kind
+    const solved =
+      (secret === 'express' && how === 'lift') ||
+      (secret === 'far' && how === 'far') ||
+      (secret === 'clean' && !this.generators.length) ||
+      (secret === 'rescue' && !this.items.some((i) => i.kind === 'cage')) ||
+      (secret === 'gentle' && !this.snackSparked) ||
+      (secret === 'swift' && this.floorTicks <= (this.plan?.par ?? 0) * 60)
+    if (solved) this.solveSecret(hero)
+    this.nextFloor = this.level + (how === 'lift' ? 3 : 1)
+    this.leaving = EXIT_TICKS
+    this.banner = {
+      text: how === 'lift' ? 'EXPRESS LIFT!' : 'DOWN THE STAIRS!',
+      sub: `FLOOR BONUS ${bonus}${this.secretDone ? '   SECRET FOUND!' : ''}`,
+      ticks: EXIT_TICKS,
+    }
+    this.sound.play('level')
+    this.say(how === 'lift' ? 'lift' : 'stairs')
+  }
+
+  /** The floor's secret is solved: a bonus by wing, and the Mainframe is delighted. */
+  private solveSecret(hero: Hero) {
+    if (this.secretDone) return
+    this.secretDone = true
+    this.addScore(SECRET_POINTS * (this.wing + 1), hero.x, hero.y - 22, hero)
+    this.sparkle(hero.x, hero.y, 20, [RAMPS.gold[4], RAMPS.pink[3], '#ffffff'])
+    this.sound.play('extra')
+    this.say('secret', this.specOf(hero).name)
+  }
+
+  /** Mats stun, pads carry a bot to their twin, and the lift waits (leaving is checked later). */
+  private floorTricks(hero: Hero) {
+    const tile = this.idx(Math.floor(hero.x / T), Math.floor(hero.y / T))
+    const fx = this.floorFx[tile]
+    if (fx === MAT && hero.matWait === 0) {
+      hero.stun = STUN_TICKS
+      hero.matWait = MAT_WAIT
+      this.burst(hero.x, hero.y, 8, RAMPS.sky[3])
+      this.sound.play('warn')
+      this.say('stun', this.specOf(hero).name)
+    }
+    if (fx !== PAD) {
+      hero.padLock = -1
+      return
+    }
+    if (tile === hero.padLock) return
+    const pad = this.pads.find((p) => p.tile === tile)
+    const twin = this.pads.find((p) => p.pair === pad?.pair && p.tile !== tile)
+    if (!twin) return
+    this.sparkle(hero.x, hero.y, 10, [RAMPS.teal[3], RAMPS.teal[4], '#ffffff'])
+    hero.x = (twin.tile % MW) * T + T / 2
+    hero.y = Math.floor(twin.tile / MW) * T + T / 2
+    hero.padLock = twin.tile
+    this.sparkle(hero.x, hero.y, 10, [RAMPS.teal[3], RAMPS.teal[4], '#ffffff'])
+    this.sound.play('pickup')
+  }
+
+  /**
+   * Sliding shelves shut on their half of the beat (one waits while anything stands in its way)
+   * and open on the other half.
+   */
+  private updateShelves(now: boolean) {
+    if (!this.shelves.length) return
+    const late = Math.floor(this.floorTicks / SHELF_BEAT) % 2 === 1
+    for (const shelf of this.shelves) {
+      const shut = shelf.late === late
+      const tx = (shelf.tile % MW) * T + T / 2
+      const ty = Math.floor(shelf.tile / MW) * T + T / 2
+      if (!shut) {
+        if (this.walls[shelf.tile] === SHELF) this.walls[shelf.tile] = OPEN
+        continue
+      }
+      if (this.walls[shelf.tile] !== OPEN) continue
+      const blocked =
+        !now &&
+        [...this.heroes, ...this.glitches].some(
+          (b) =>
+            Math.abs(b.x - tx) < T / 2 + 6 && Math.abs(b.y - ty) < T / 2 + 6,
+        )
+      if (!blocked) this.walls[shelf.tile] = SHELF
+    }
+  }
+
+  /** A hit lands on the Guardian's zone `id` (sparks, jolts, and the tests). */
+  private hitBossNow(id: number, damage: number) {
+    if (this.guardian) hitBoss(this.guardian, this.bossWorld, id, damage)
+  }
+
+  /** Guardians, Big Bluescreens and the Lost & Found clock: what keeps the stairs sealed. */
+  private updateHall() {
+    const g = this.guardian
+    if (g) {
+      updateGuardian(g, this.bossWorld)
+      if (g.done && this.sealed) {
+        this.sealed = false
+        const lead = this.standing[0] ?? this.lead
+        this.addScore(GUARDIAN_POINTS * (this.wing + 1), lead.x, lead.y - 20)
+        for (const h of this.standing) h.battery = MAX_BATTERY
+        this.banner = {
+          text: `${this.plan?.name ?? 'THE GUARDIAN'}`,
+          sub: 'REMEMBERS WHO IT IS. THE STAIRS ARE OPEN',
+          ticks: 180,
+        }
+        this.say('guardian')
+      }
+    } else if (
+      this.sealed &&
+      !this.glitches.some((gl) => gl.kind === 'bluescreen')
+    ) {
+      this.sealed = false
+      this.say('bluescreen')
+      this.banner = {
+        text: 'SCREEN CLEARED!',
+        sub: 'THE STAIRS ARE OPEN',
+        ticks: 120,
+      }
+    }
+    if (this.lostTicks > 0 && --this.lostTicks === 0) {
+      const left = this.items.filter((i) => i.kind === 'keepsake')
+      for (const k of left) this.sparkle(k.x, k.y, 4, [RAMPS.steel[3]])
+      this.items = this.items.filter((i) => i.kind !== 'keepsake')
+      this.say('lost')
+    }
+  }
+
   /** The Mainframe speaks: a more important line cuts in, and each cue keeps a little quiet after. */
   private say(cue: VoiceCue, bot = '') {
+    this.sayText(cue, voiceLine(cue, this.lines++, bot))
+  }
+
+  /** The Mainframe says this line, unless something more important is still being said. */
+  private sayText(cue: VoiceCue, text: string) {
     const urgent = CUE_PRIORITY[cue] >= 4
     const last = this.saidAt[cue]
     if (!urgent && last !== undefined && this.tick - last < 60 * 8) return
@@ -1679,7 +2351,6 @@ class KindnessGauntlet implements ArcadeGameInstance {
       CUE_PRIORITY[this.voice.cue] > CUE_PRIORITY[cue]
     )
       return
-    const text = voiceLine(cue, this.lines++, bot)
     this.voice = { text, cue, ticks: VOICE_TICKS }
     this.saidAt[cue] = this.tick
     if (!this.demo) this.sound.playNotes?.(mainframeBleeps(text))
@@ -1770,7 +2441,7 @@ class KindnessGauntlet implements ArcadeGameInstance {
     // As in the classic, holding fire plants the bot in place: the arrows only turn.
     if (input.held.a) return
     const len = Math.hypot(dx, dy)
-    const speed = this.specOf(hero).speed
+    const speed = this.speedOf(hero)
     const to = this.slide(
       hero.x,
       hero.y,
@@ -1778,9 +2449,63 @@ class KindnessGauntlet implements ArcadeGameInstance {
       (dy / len) * speed,
       HALF,
     )
+    if (hero.charm?.kind === 'hop' && to.x === hero.x && to.y === hero.y)
+      if (this.hop(hero, dx, dy)) return
     // Partners share one screen: neither can roll off it.
     if (this.onLeash(hero, to.x, hero.y)) hero.x = to.x
     if (this.onLeash(hero, hero.x, to.y)) hero.y = to.y
+  }
+
+  /** The Hop charm: roll straight through the rack in the way, to the floor beyond. Spent on use. */
+  private hop(hero: Hero, dx: number, dy: number): boolean {
+    const tx = Math.floor(hero.x / T)
+    const ty = Math.floor(hero.y / T)
+    for (let k = 2; k <= 3; k++) {
+      const nx = tx + dx * k
+      const ny = ty + dy * k
+      if (nx <= 0 || ny <= 0 || nx >= MW - 1 || ny >= MH - 1) return false
+      if (this.wallAt(nx, ny)) continue
+      if (this.walls[this.idx(tx + dx, ty + dy)] === DOOR) return false
+      const x = nx * T + T / 2
+      const y = ny * T + T / 2
+      if (!this.onLeash(hero, x, y)) return false
+      this.sparkle(hero.x, hero.y, 8, [RAMPS.sky[3], '#ffffff'])
+      hero.x = x
+      hero.y = y
+      hero.charm = null
+      this.sparkle(x, y, 8, [RAMPS.sky[3], '#ffffff'])
+      this.sound.play('pickup')
+      return true
+    }
+    return false
+  }
+
+  // A bot's stats: its class, its chips and its charm (chips stack up to three of a kind).
+
+  private speedOf(hero: Hero): number {
+    const tile = this.idx(Math.floor(hero.x / T), Math.floor(hero.y / T))
+    const sticky = this.floorFx[tile] === TAPE ? 0.55 : 1
+    return this.specOf(hero).speed * (1 + 0.12 * hero.chips.speed) * sticky
+  }
+
+  private powerOf(hero: Hero): number {
+    return this.specOf(hero).power + hero.chips.power
+  }
+
+  private armorOf(hero: Hero): number {
+    return this.specOf(hero).armor * 0.85 ** hero.chips.armor
+  }
+
+  private sparkLife(hero: Hero): number {
+    return SPARK_LIFE + 10 * hero.chips.range
+  }
+
+  private sparkSpeed(hero: Hero): number {
+    return SPARK_SPEED + 0.7 * hero.chips.zap
+  }
+
+  private magicOf(hero: Hero): number {
+    return this.specOf(hero).magic + hero.chips.pulse
   }
 
   /** Where a body at (x, y) ends up moving by (vx, vy), one axis at a time. */
@@ -1803,19 +2528,21 @@ class KindnessGauntlet implements ArcadeGameInstance {
     const spec = this.specOf(hero)
     const mine = this.sparks.filter((s) => s.owner === hero).length
     if (mine >= spec.maxSparks) return
-    hero.fireCooldown = spec.cooldown
+    hero.fireCooldown = Math.max(4, spec.cooldown - hero.chips.zap)
     const fx = FACE_X[hero.facing]!
     const fy = FACE_Y[hero.facing]!
     const len = Math.hypot(fx, fy)
+    const speed = this.sparkSpeed(hero)
     this.sparks.push({
       x: hero.x + fx * 6,
       y: hero.y + fy * 6,
-      vx: (fx / len) * SPARK_SPEED,
-      vy: (fy / len) * SPARK_SPEED,
-      life: SPARK_LIFE,
-      pierce: spec.power - 1,
+      vx: (fx / len) * speed,
+      vy: (fy / len) * speed,
+      life: this.sparkLife(hero),
+      pierce: hero.charm?.kind === 'mega' ? 99 : spec.power - 1,
       owner: hero,
       hit: [],
+      bounces: 0,
     })
     this.sound.play('shoot')
   }
@@ -1837,13 +2564,19 @@ class KindnessGauntlet implements ArcadeGameInstance {
         g.t = DRY_TICKS
         this.addScore(ROSTER[g.kind].points, g.x, g.y - 8, hero)
         this.say('spill-dry')
-      } else this.fixGlitch(g, hero)
+      } else if (g.kind === 'bluescreen') this.hurtGlitch(g, 6, hero)
+      else this.fixGlitch(g, hero)
     }
     this.shots = this.shots.filter((s) => !this.visible(s))
-    const magic = this.specOf(hero).magic
-    if (magic > 0)
+    const magic = this.magicOf(hero)
+    if (magic > 0) {
       for (const gen of this.generators.filter((g) => this.visible(g)))
         this.damageGenerator(gen, magic, hero)
+      if (this.guardian)
+        for (const z of bossZones(this.guardian, this.bossWorld))
+          if (this.visible(z))
+            hitBoss(this.guardian, this.bossWorld, z.id, magic)
+    }
     this.sound.play('extra')
   }
 
@@ -1867,13 +2600,28 @@ class KindnessGauntlet implements ArcadeGameInstance {
   }
 
   private updateSparks() {
+    const zones = this.guardian ? bossZones(this.guardian, this.bossWorld) : []
     for (const s of this.sparks) {
+      const px = s.x
+      const py = s.y
       s.x += s.vx
       s.y += s.vy
       s.life--
-      if (this.solid(s.x, s.y)) s.life = 0
       if (s.life <= 0) continue
-      const power = this.specOf(s.owner).power
+      const power = this.powerOf(s.owner)
+      const mega = s.owner.charm?.kind === 'mega'
+      // A Guardian first: the Card Sorter sits in its wall.
+      const zone = zones.find((z) => Math.hypot(z.x - s.x, z.y - s.y) < z.r)
+      if (zone && this.guardian) {
+        this.hitBossNow(zone.id, power)
+        this.burst(s.x, s.y, 4, RAMPS.gold[3])
+        s.life = 0
+        continue
+      }
+      if (this.solid(s.x, s.y)) {
+        this.sparkWall(s, px, py)
+        if (s.life <= 0) continue
+      }
       const glitch = this.glitches.find(
         (g) =>
           !ROSTER[g.kind].unfixable &&
@@ -1883,6 +2631,11 @@ class KindnessGauntlet implements ArcadeGameInstance {
       if (glitch) {
         s.hit.push(glitch.id)
         this.hurtGlitch(glitch, power, s.owner)
+        if (s.pierce-- <= 0) s.life = 0
+        continue
+      }
+      // A worm hit mid-body splits: the tail breaks off as little glitches.
+      if (this.splitWorm(s)) {
         if (s.pierce-- <= 0) s.life = 0
         continue
       }
@@ -1905,6 +2658,7 @@ class KindnessGauntlet implements ArcadeGameInstance {
       if (snack) {
         s.life = 0
         this.items = this.items.filter((i) => i !== snack)
+        this.snackSparked = true
         this.burst(snack.x, snack.y, 10, RAMPS.pink[3])
         this.burst(snack.x, snack.y, 6, RAMPS.gold[3])
         this.floaters.push({
@@ -1918,14 +2672,83 @@ class KindnessGauntlet implements ArcadeGameInstance {
         continue
       }
       const gen = this.generators.find(
-        (g) => Math.abs(g.x - s.x) < 8 && Math.abs(g.y - s.y) < 8,
+        (g) =>
+          !s.hit.includes(g.id) &&
+          Math.abs(g.x - s.x) < 8 &&
+          Math.abs(g.y - s.y) < 8,
       )
       if (gen) {
-        s.life = 0
+        s.hit.push(gen.id)
+        if (!mega) s.life = 0
         this.damageGenerator(gen, power, s.owner)
       }
     }
     this.sparks = this.sparks.filter((s) => s.life > 0)
+  }
+
+  /**
+   * A spark meets something solid: a card wall takes a hit (Mega breaks it outright), a mirror rack
+   * (or any rack, under the Mirror charm) bounces it back, anything else stops it.
+   */
+  private sparkWall(s: Spark, px: number, py: number) {
+    const tile = this.idx(Math.floor(s.x / T), Math.floor(s.y / T))
+    const wall = this.walls[tile]
+    if (wall === CARD) {
+      const left =
+        (this.cardHp.get(tile) ?? CARD_HITS) -
+        (s.owner.charm?.kind === 'mega' ? CARD_HITS : 1)
+      this.burst(s.x, s.y, 4, RAMPS.cream[3])
+      this.sound.play('blip')
+      if (left <= 0) {
+        this.walls[tile] = OPEN
+        this.cardHp.delete(tile)
+        const cx = (tile % MW) * T + T / 2
+        const cy = Math.floor(tile / MW) * T + T / 2
+        this.burst(cx, cy, 12, RAMPS.cream[4])
+        this.sparkle(cx, cy, 6, [RAMPS.cream[3], '#ffffff'])
+        this.sound.play('pop')
+        this.mapExit()
+      } else this.cardHp.set(tile, left)
+      s.life = 0
+      return
+    }
+    const bouncy =
+      wall === MIRROR || (s.owner.charm?.kind === 'mirror' && wall === RACK)
+    if (!bouncy || s.bounces >= MAX_BOUNCES) {
+      s.life = 0
+      return
+    }
+    s.bounces++
+    const hitX = this.solid(s.x, py)
+    const hitY = this.solid(px, s.y)
+    if (hitX || !hitY) s.vx = -s.vx
+    if (hitY || !hitX) s.vy = -s.vy
+    s.x = px
+    s.y = py
+    s.hit = []
+    this.sparkle(px, py, 3, [RAMPS.sky[4], '#ffffff'])
+  }
+
+  /** A spark that strikes a worm's body breaks the tail off there into little glitches. */
+  private splitWorm(s: Spark): boolean {
+    for (const w of this.glitches) {
+      if (w.kind !== 'worm' || !w.body?.length) continue
+      const at = w.body.findIndex(
+        (seg) => Math.hypot(seg.x - s.x, seg.y - s.y) < 5,
+      )
+      if (at < 0) continue
+      const tail = w.body.splice(at)
+      tail.forEach((seg, i) => {
+        if (i % 2) return
+        this.glitches.push(
+          newGlitch('glitch', seg.x, seg.y, 1, this.nextId++, -1, i),
+        )
+      })
+      this.burst(s.x, s.y, 6, RAMPS.earth[3])
+      this.sound.play('pop')
+      return true
+    }
+    return false
   }
 
   /** A spark lands on a partner: a little of the thrower's charge, never harm. */
@@ -2071,8 +2894,28 @@ class KindnessGauntlet implements ArcadeGameInstance {
     }
   }
 
+  /** Each glitch follows its own rules, unless a bot with the Shoo charm sends it running. */
   private updateGlitches() {
-    for (const g of [...this.glitches]) steerGlitch(this.world, g)
+    const shooers = this.standing.filter((h) => h.charm?.kind === 'shoo')
+    const speed = levelCurve(this.level, GAUNTLET_CURVES.glitchSpeed)
+    for (const g of [...this.glitches]) {
+      const near = shooers.find((h) => Math.hypot(h.x - g.x, h.y - g.y) < 72)
+      if (near && g.kind !== 'spill' && g.kind !== 'bluescreen') {
+        const d = Math.hypot(g.x - near.x, g.y - near.y) || 1
+        this.world.move(
+          g,
+          ((g.x - near.x) / d) * speed,
+          ((g.y - near.y) / d) * speed,
+        )
+        continue
+      }
+      steerGlitch(this.world, g)
+    }
+  }
+
+  /** A bot the glitches can find: one under the Ghost charm can't be tracked. */
+  private trackable(h: Hero): boolean {
+    return h.charm?.kind !== 'ghost'
   }
 
   /** The bot holding the Hug Token (while it rolls). */
@@ -2085,8 +2928,8 @@ class KindnessGauntlet implements ArcadeGameInstance {
   /** Every glitch on the floor goes for the Token's holder; otherwise the nearest bot in range. */
   private preyFor(g: Glitch): Prey | null {
     const holder = this.tokenHolder()
-    if (holder) return holder
-    const prey = this.nearestStanding(g)
+    if (holder && this.trackable(holder)) return holder
+    const prey = this.nearestStanding(g, true)
     if (!prey) return null
     return Math.hypot(prey.x - g.x, prey.y - g.y) <= GLITCH_RANGE ? prey : null
   }
@@ -2107,9 +2950,16 @@ class KindnessGauntlet implements ArcadeGameInstance {
       },
       rng: () => game.rng(),
       prey: (g) => game.preyFor(g),
-      nearest: (g) => game.nearestStanding(g) ?? null,
+      nearest: (g) => game.nearestStanding(g, true) ?? null,
       move: (g, vx, vy) => {
-        const half = g.kind === 'bug' ? 2 : g.kind === 'brute' ? 5 : 4
+        const half =
+          g.kind === 'bluescreen'
+            ? 12
+            : g.kind === 'bug'
+              ? 2
+              : g.kind === 'brute'
+                ? 5
+                : 4
         const to = game.slide(g.x, g.y, vx, vy, half)
         const full = to.x === g.x + vx && to.y === g.y + vy
         g.x = to.x
@@ -2152,7 +3002,59 @@ class KindnessGauntlet implements ArcadeGameInstance {
         if (g.kind === 'mimic') game.say('mimic')
         else if (g.kind !== 'brute') game.sound.play('blip')
       },
+      breathe: (g, dx, dy) => {
+        if (game.tick % 4 !== 0) return
+        for (const h of game.standing) {
+          const hx = h.x - g.x
+          const hy = h.y - g.y
+          const d = Math.hypot(hx, hy)
+          if (d > BLUE_REACH || d < 1) continue
+          if ((hx * dx + hy * dy) / d < Math.cos(BLUE_SPREAD)) continue
+          if (!game.lineClear(g.x, g.y, h.x, h.y)) continue
+          game.drain(h, 2)
+        }
+      },
       play: (name) => game.sound.play(name),
+    }
+  }
+
+  /** What a Guardian can sense and do here (kindnessGauntlet/guardians.ts runs them). */
+  private makeBossWorld(): BossWorld {
+    // eslint-disable-next-line @typescript-eslint/no-this-alias
+    const game = this
+    return {
+      get tick() {
+        return game.tick
+      },
+      rng: () => game.rng(),
+      get arena() {
+        return game.arena
+      },
+      bots: () => game.standing.filter((h) => game.trackable(h)),
+      deal: (tx, ty, on) => {
+        const i = game.idx(tx, ty)
+        if (!on) {
+          if (game.walls[i] === DEALT) game.walls[i] = OPEN
+          return
+        }
+        if (game.walls[i] !== OPEN) return
+        game.walls[i] = DEALT
+        // Anything standing where a card lands is nudged into the open beside the row.
+        for (const b of [...game.heroes, ...game.glitches]) {
+          if (Math.floor(b.x / T) !== tx || Math.floor(b.y / T) !== ty) continue
+          for (const oy of [1, -1, 2, -2])
+            if (!game.wallAt(tx, ty + oy)) {
+              b.y = (ty + oy) * T + T / 2
+              break
+            }
+        }
+      },
+      card: (x, y, vx, vy) =>
+        game.shots.push({ kind: 'bolt', x, y, vx, vy, life: 220, card: true }),
+      drain: (p, amount) => game.drain(game.heroes[p.seat]!, amount),
+      shove: (p, dx, dy) => game.shove(game.heroes[p.seat]!, dx, dy),
+      play: (name) => game.sound.play(name),
+      phase: (text) => game.sayText('guardian', text),
     }
   }
 
@@ -2180,7 +3082,8 @@ class KindnessGauntlet implements ArcadeGameInstance {
   /** Charge a glitch takes from a bot, through the bot's armour. */
   private drain(hero: Hero, amount: number) {
     if (hero.flat) return
-    hero.battery -= Math.max(1, Math.round(amount * this.specOf(hero).armor))
+    if (hero.charm?.kind === 'shell') return
+    hero.battery -= Math.max(1, Math.round(amount * this.armorOf(hero)))
   }
 
   /** A brute's shove: a tile back along (dx, dy), stopped by the racks. */
@@ -2342,10 +3245,12 @@ class KindnessGauntlet implements ArcadeGameInstance {
     this.say('token-taken', this.specOf(taker).name)
   }
 
-  private nearestStanding(t: Thing): Hero | undefined {
+  /** The nearest rolling bot (for a glitch, one it can track). */
+  private nearestStanding(t: Thing, glitch = false): Hero | undefined {
     let best: Hero | undefined
     let bestD = Infinity
     for (const h of this.standing) {
+      if (glitch && !this.trackable(h)) continue
       const d = Math.hypot(h.x - t.x, h.y - t.y)
       if (d < bestD) {
         bestD = d
@@ -2393,6 +3298,76 @@ class KindnessGauntlet implements ArcadeGameInstance {
           life: 40,
         })
         this.sound.play('pickup')
+      } else if (item.kind === 'charm' && item.charm) {
+        hero.charm = { kind: item.charm, ticks: CHARM_TICKS }
+        this.sparkle(item.x, item.y, 12, [
+          RAMPS.sky[3],
+          RAMPS.sky[4],
+          '#ffffff',
+        ])
+        this.floaters.push({
+          x: item.x,
+          y: item.y - 10,
+          text: `${CHARMS[item.charm].name}!`,
+          life: 60,
+        })
+        this.banner = {
+          text: `${CHARMS[item.charm].name} CHARM`,
+          sub: CHARMS[item.charm].about,
+          ticks: 90,
+        }
+        this.sound.play('extra')
+        this.say('charm', this.specOf(hero).name)
+      } else if (item.kind === 'chip' && item.chip) {
+        hero.chips[item.chip] = Math.min(MAX_CHIPS, hero.chips[item.chip] + 1)
+        this.sparkle(item.x, item.y, 12, [
+          RAMPS.leaf[3],
+          RAMPS.leaf[4],
+          '#ffffff',
+        ])
+        this.banner = {
+          text: CHIPS[item.chip].name,
+          sub: `${CHIPS[item.chip].about} FOR ${this.specOf(hero).name}`,
+          ticks: 90,
+        }
+        this.sound.play('extra')
+        this.say('chip', this.specOf(hero).name)
+      } else if (item.kind === 'keepsake') {
+        this.addScore(
+          KEEPSAKE_POINTS * Math.max(1, this.wing + 1),
+          item.x,
+          item.y - 10,
+          hero,
+        )
+        this.sparkle(item.x, item.y, 8, [RAMPS.gold[4], '#ffffff'])
+        this.sound.play('pickup')
+        if (
+          this.lostTicks > 0 &&
+          !this.items.some((i) => i.kind === 'keepsake')
+        ) {
+          this.addScore(
+            2000 * Math.max(1, this.wing + 1),
+            hero.x,
+            hero.y - 22,
+            hero,
+          )
+          this.banner = {
+            text: 'EVERY KEEPSAKE!',
+            sub: 'THE BINS ARE EMPTY',
+            ticks: 90,
+          }
+          this.lostTicks = 0
+        }
+      } else if (item.kind === 'secret') {
+        hero.pulses++
+        this.floaters.push({
+          x: item.x,
+          y: item.y - 10,
+          text: 'SECRET!',
+          life: 60,
+        })
+        if (this.plan?.secret.kind === 'find') this.solveSecret(hero)
+        else this.addScore(SECRET_POINTS, item.x, item.y - 10, hero)
       } else {
         this.rescued++
         this.addScore(RESCUE_POINTS * this.level, item.x, item.y - 10, hero)
@@ -2497,7 +3472,34 @@ class KindnessGauntlet implements ArcadeGameInstance {
         return this.offLine(me, g.x, g.y, g.vx !== 0)
       if (g.kind === 'spill' && g.state !== 'dry' && Math.hypot(dx, dy) < 18)
         return { x: dx, y: dy }
+      if (
+        g.kind === 'bluescreen' &&
+        (g.state === 'windup' || g.state === 'inhale') &&
+        Math.hypot(dx, dy) < BLUE_REACH + 6 &&
+        this.lineClear(g.x, g.y, me.x, me.y)
+      )
+        // Circle round it: step sideways out of its cone.
+        return { x: -g.vy * 2 + dx * 0.2, y: g.vx * 2 + dy * 0.2 }
     }
+    const boss = this.guardian
+    // In phase 2 the tape is drawn tight across the hall: the pilot takes the hit to cross it.
+    if (boss && !boss.done && boss.phase !== 2)
+      for (const seg of tapeOf(boss)) {
+        const length = Math.hypot(seg.bx - seg.ax, seg.by - seg.ay)
+        const near = nearTape(seg, me.x, me.y)
+        if (near.d > 26 || inHole(boss, near.t, length)) continue
+        if (boss.phase === 1) {
+          // Ride the gaps: slide along the tape to the nearest one, else back away from it.
+          const hole = boss.holes
+            .map((h) => seg.ax + (seg.bx - seg.ax) * h)
+            .sort((a, b) => Math.abs(a - me.x) - Math.abs(b - me.x))[0]!
+          if (Math.abs(hole - me.x) > 4) return { x: hole - me.x, y: 0 }
+          continue
+        }
+        const px = seg.ax + (seg.bx - seg.ax) * near.t
+        const py = seg.ay + (seg.by - seg.ay) * near.t
+        return { x: me.x - px || 1, y: me.y - py }
+      }
     return null
   }
 
@@ -2573,7 +3575,10 @@ class KindnessGauntlet implements ArcadeGameInstance {
       this.path = []
     }
     const holding = this.tokenHolder() === me
-    const aim = (this.pilotStill < 0 ? [] : this.pilotTargets(holding))
+    const zones = this.guardian ? bossZones(this.guardian, this.bossWorld) : []
+    const aim = (
+      this.pilotStill < 0 ? [] : [...this.pilotTargets(holding), ...zones]
+    )
       .filter((t) => {
         const loot = 'loot' in t && (t as Glitch).loot
         const reach = loot ? 150 : 90
@@ -2596,9 +3601,23 @@ class KindnessGauntlet implements ArcadeGameInstance {
       this.path = this.planPath()
     }
     const next = this.path[0]
-    if (!next) return frame
+    if (!next) {
+      // Already in the goal's tile: roll the last few pixels straight to it.
+      const goal = this.pathGoal
+      if (goal && Math.hypot(goal.x - me.x, goal.y - me.y) > 4)
+        this.steerTo(held, goal.x - me.x, goal.y - me.y)
+      return frame
+    }
     const nx = next.x * T + T / 2
     const ny = next.y * T + T / 2
+    const ahead = this.walls[this.idx(next.x, next.y)]
+    if (ahead === CARD) {
+      // A card wall in the way: spark it down.
+      this.steerTo(held, nx - me.x, ny - me.y)
+      held.a = true
+      return frame
+    }
+    if (ahead === SHELF) return frame
     if (Math.abs(nx - me.x) < 3 && Math.abs(ny - me.y) < 3) {
       this.path.shift()
       return frame
@@ -2625,17 +3644,22 @@ class KindnessGauntlet implements ArcadeGameInstance {
     const len = Math.hypot(fx, fy)
     let x = me.x + fx * 6
     let y = me.y + fy * 6
-    for (let i = 0; i < SPARK_LIFE; i++) {
-      x += (fx / len) * SPARK_SPEED
-      y += (fy / len) * SPARK_SPEED
-      if (this.solid(x, y)) return false
+    const life = this.sparkLife(me)
+    const speed = this.sparkSpeed(me)
+    for (let i = 0; i < life; i++) {
+      x += (fx / len) * speed
+      y += (fy / len) * speed
       const glitch = 'kind' in t && 'hp' in t && 'wobble' in t
+      const zone = 'r' in t && 'id' in t
       if (
-        glitch
-          ? Math.hypot(t.x - x, t.y - y) < hitRadius((t as Glitch).kind) - 1
-          : Math.abs(t.x - x) < 6 && Math.abs(t.y - y) < 6
+        zone
+          ? Math.hypot(t.x - x, t.y - y) < (t as { r: number }).r - 1
+          : glitch
+            ? Math.hypot(t.x - x, t.y - y) < hitRadius((t as Glitch).kind) - 1
+            : Math.abs(t.x - x) < 6 && Math.abs(t.y - y) < 6
       )
         return true
+      if (this.solid(x, y)) return false
       if (
         this.items.some(
           (s) =>
@@ -2652,7 +3676,7 @@ class KindnessGauntlet implements ArcadeGameInstance {
   private planPath(): Array<{ x: number; y: number }> {
     const sx = Math.floor(this.lead.x / T)
     const sy = Math.floor(this.lead.y / T)
-    const dist = this.distances(sx, sy, this.keys > 0)
+    const dist = this.distances(sx, sy, this.keys > 0, true)
     const holding = this.tokenHolder() === this.lead
     const loose =
       this.token && this.token.holder < 0 && this.lead.battery >= 120
@@ -2661,10 +3685,12 @@ class KindnessGauntlet implements ArcadeGameInstance {
     const reach = (t: Thing) =>
       dist[this.idx(Math.floor(t.x / T), Math.floor(t.y / T))]!
     const open = (list: Thing[]) => list.filter((t) => reach(t) >= 0)
+    const blues = this.glitches.filter((g) => g.kind === 'bluescreen')
     const usual = open([
       ...loose,
       ...this.items.filter((i) => i.kind !== 'snack'),
-      ...this.generators,
+      ...(this.lostTicks > 0 ? [] : this.generators),
+      ...blues,
     ])
     const snacks = open(this.items.filter((i) => i.kind === 'snack'))
     const gens = open(this.generators)
@@ -2675,7 +3701,9 @@ class KindnessGauntlet implements ArcadeGameInstance {
           ? gens
           : usual.length
             ? usual
-            : [this.exit]
+            : this.sealed && this.guardian
+              ? this.bossApproach()
+              : [this.pilotExit()]
     let best: Thing | null = null
     let bestD = Infinity
     for (const g of pool) {
@@ -2685,8 +3713,9 @@ class KindnessGauntlet implements ArcadeGameInstance {
         best = g
       }
     }
-    if (!best) best = this.exit
-    // Walk back from the goal along decreasing distance.
+    if (!best) best = this.pilotExit()
+    this.pathGoal = best
+    // Walk back from the goal along decreasing distance (a pad steps back to its twin).
     let x = Math.floor(best.x / T)
     let y = Math.floor(best.y / T)
     const path: Array<{ x: number; y: number }> = []
@@ -2708,14 +3737,53 @@ class KindnessGauntlet implements ArcadeGameInstance {
           break
         }
       }
-      if (!moved) break
+      if (!moved) {
+        const here = this.idx(x, y)
+        const pad = this.pads.find((p) => p.tile === here)
+        const twin = this.pads.find(
+          (p) => p.pair === pad?.pair && p.tile !== here,
+        )
+        if (!twin || dist[twin.tile] !== d - 1) break
+        x = twin.tile % MW
+        y = Math.floor(twin.tile / MW)
+      }
     }
     return path.slice(1)
+  }
+
+  /** Where the pilot squares up to a Guardian: under the Card Sorter, or by a live reel. */
+  private bossApproach(): Thing[] {
+    const g = this.guardian
+    if (!g) return []
+    if (g.kind === 'sorter')
+      return [{ x: sorterAt(this.bossWorld).x, y: this.arena.y0 * T + 24 }]
+    return g.reels
+      .filter((r) => r.stall <= 0)
+      .map((r) => ({
+        x: Math.max((this.arena.x0 + 1) * T, Math.min(this.arena.x1 * T, r.x)),
+        y: Math.max(
+          (this.arena.y0 + 1) * T,
+          Math.min(this.arena.y1 * T, r.y + 48),
+        ),
+      }))
+  }
+
+  /** The way out the pilot takes: the lift or the far stairs when the note asks for them. */
+  private pilotExit(): Thing {
+    const secret = this.plan?.secret.kind
+    if (secret === 'express' && this.lift) return this.lift
+    if (secret === 'far' && this.farExit >= 0)
+      return this.exits[this.farExit] ?? this.exit
+    return this.exit
   }
 
   // --- render -------------------------------------------------------------------
 
   render(g: CanvasRenderingContext2D) {
+    if (this.offer) {
+      this.renderOffer(g, this.offer)
+      return
+    }
     if (this.selecting > 0) {
       this.renderSelect(g)
       return
@@ -2731,12 +3799,15 @@ class KindnessGauntlet implements ArcadeGameInstance {
     const y0 = Math.max(0, Math.floor(this.camY / T))
     const x1 = Math.min(MW - 1, x0 + Math.ceil(W / T) + 1)
     const y1 = Math.min(MH - 1, y0 + Math.ceil(VIEW_H / T) + 1)
+    const tileset = WINGS[this.wing]?.tileset ?? null
     floorLayer(
       g,
       this.floorKey(),
-      (k) => paintFloor(k, this.walls, this.level, 0, 0, MW - 1, MH - 1),
-      () => paintFloor(g, this.walls, this.level, x0, y0, x1, y1),
+      (k) =>
+        paintFloor(k, this.walls, this.level, 0, 0, MW - 1, MH - 1, tileset),
+      () => paintFloor(g, this.walls, this.level, x0, y0, x1, y1, tileset),
     )
+    this.renderTricks(g, x0, y0, x1, y1)
     this.renderFog(g, x0, y0, x1, y1)
     this.renderLeds(g, x0, y0, x1, y1)
     this.renderDoors(g)
@@ -2747,6 +3818,7 @@ class KindnessGauntlet implements ArcadeGameInstance {
     for (const gen of this.generators)
       if (this.lit(gen)) this.renderGenerator(g, gen)
     for (const gl of this.glitches) if (this.lit(gl)) this.renderGlitch(g, gl)
+    if (this.guardian) renderGuardian(g, this.guardian, this.bossWorld)
     this.renderShots(g)
     this.renderSparks(g)
     this.renderHeroes(g)
@@ -2782,7 +3854,7 @@ class KindnessGauntlet implements ArcadeGameInstance {
     let h = 2166136261
     for (let i = 0; i < this.walls.length; i++)
       h = Math.imul(h ^ (this.walls[i] === RACK ? 1 : 0) ^ (i & 7), 16777619)
-    return `kindness-gauntlet-floor-${this.level}-${h >>> 0}`
+    return `kindness-gauntlet-floor-${this.level}-${this.wing}-${h >>> 0}`
   }
 
   /**
@@ -2885,15 +3957,42 @@ class KindnessGauntlet implements ArcadeGameInstance {
     }
   }
 
-  /** The stairs down: lit steps sinking into the dark, with motes of light rising. */
+  /** Every flight of stairs (sealed shut while a Bluescreen or a Guardian is up), and the lift. */
   private renderExit(g: CanvasRenderingContext2D) {
-    const e = this.exit
+    for (const e of this.exits) this.renderStairs(g, e)
+    const lift = this.lift
+    if (!lift || !this.lit(lift)) return
+    const x = Math.round(lift.x)
+    const y = Math.round(lift.y)
+    glow(g, x, y, 16 + Math.sin(this.tick / 9) * 2, RAMPS.gold[3], 0.35)
+    bevel(g, x - 8, y - 8, 16, 16, RAMPS.gold, { depth: 1 })
+    g.fillStyle = INK
+    g.fillRect(x - 6, y - 6, 12, 12)
+    const open = Math.floor(this.tick / 40) % 2
+    g.fillStyle = RAMPS.steel[2]
+    g.fillRect(x - 6, y - 6, 5 - open, 12)
+    g.fillRect(x + 1 + open, y - 6, 5 - open, 12)
+    g.fillStyle = RAMPS.gold[4]
+    g.fillRect(x - 1, y - 4, 2, 6)
+    g.fillRect(x - 3, y + 1, 6, 1)
+    g.fillRect(x - 2, y + 2, 4, 1)
+    if (Math.floor(this.tick / 15) % 2 === 0)
+      drawText(g, 'EXPRESS', x, y - 19, {
+        align: 'center',
+        color: RAMPS.gold[4],
+        outline: INK,
+      })
+  }
+
+  private renderStairs(g: CanvasRenderingContext2D, e: Thing) {
     if (!this.seen[this.idx(Math.floor(e.x / T), Math.floor(e.y / T))]) return
     const x = Math.round(e.x)
     const y = Math.round(e.y)
-    glow(g, x, y, 18 + Math.sin(this.tick / 10) * 3, RAMPS.teal[3], 0.4)
+    const shut = this.sealed
+    if (!shut)
+      glow(g, x, y, 18 + Math.sin(this.tick / 10) * 3, RAMPS.teal[3], 0.4)
     bevel(g, x - 8, y - 8, 16, 16, RAMPS.steel, { depth: 1 })
-    const ramp = RAMPS.teal
+    const ramp = shut ? RAMPS.steel : RAMPS.teal
     for (let i = 0; i < 4; i++) {
       const left = x - 6 + i
       const w = 12 - i * 2
@@ -2907,6 +4006,13 @@ class KindnessGauntlet implements ArcadeGameInstance {
     }
     g.fillStyle = INK
     g.fillRect(x - 2, y + 6, 4, 1)
+    if (shut) {
+      // Sealed: a grille across the steps.
+      g.fillStyle = RAMPS.ember[2]
+      for (let i = -6; i <= 6; i += 4) g.fillRect(x + i, y - 7, 1, 14)
+      g.fillRect(x - 7, y - 1, 14, 2)
+      return
+    }
     g.save()
     g.globalCompositeOperation = 'lighter'
     for (let i = 0; i < 3; i++) {
@@ -2922,6 +4028,113 @@ class KindnessGauntlet implements ArcadeGameInstance {
         color: RAMPS.teal[4],
         outline: INK,
       })
+    }
+  }
+
+  /**
+   * The wing's tricks, drawn live over the floor plan: card walls (cracked after a hit), mirror
+   * racks, sliding shelves (shut, open on their rails, or about to move), dealt cards, static mats,
+   * sticky tape and transporter pads.
+   */
+  private renderTricks(
+    g: CanvasRenderingContext2D,
+    x0: number,
+    y0: number,
+    x1: number,
+    y1: number,
+  ) {
+    const beat = this.floorTicks % SHELF_BEAT
+    const moving = beat > SHELF_BEAT - SHELF_TELL
+    for (let ty = y0; ty <= y1; ty++) {
+      for (let tx = x0; tx <= x1; tx++) {
+        const i = this.idx(tx, ty)
+        if (!this.seen[i]) continue
+        const x = tx * T
+        const y = ty * T
+        const wall = this.walls[i]
+        const fx = this.floorFx[i]
+        if (fx === MAT) {
+          g.fillStyle = RAMPS.night[1]
+          g.fillRect(x + 1, y + 1, T - 2, T - 2)
+          const on = (this.tick + tx * 3 + ty * 5) % 20 < 10
+          g.fillStyle = on ? RAMPS.sky[3] : RAMPS.sky[1]
+          for (let k = 0; k < 3; k++) {
+            g.fillRect(x + 3 + k * 4, y + 4 + (k % 2) * 3, 3, 1)
+            g.fillRect(x + 5 + k * 4, y + 5 + (k % 2) * 3, 1, 3)
+          }
+        } else if (fx === TAPE) {
+          g.fillStyle = rgba(RAMPS.earth[2], 0.75)
+          g.fillRect(x, y + 3, T, 4)
+          g.fillRect(x, y + 10, T, 4)
+          g.fillStyle = rgba(RAMPS.earth[4], 0.5)
+          g.fillRect(x, y + 3, T, 1)
+          g.fillRect(x, y + 10, T, 1)
+        } else if (fx === PAD) {
+          const pad = this.pads.find((p) => p.tile === i)
+          const ramp = [RAMPS.teal, RAMPS.pink, RAMPS.gold, RAMPS.leaf][
+            ((pad?.pair ?? 1) - 1) % 4
+          ]!
+          glow(g, x + 8, y + 8, 11 + Math.sin(this.tick / 8) * 2, ramp[3], 0.35)
+          g.fillStyle = INK
+          g.fillRect(x + 2, y + 2, 12, 12)
+          g.fillStyle = ramp[1]
+          g.fillRect(x + 3, y + 3, 10, 10)
+          g.fillStyle = ramp[3]
+          g.fillRect(x + 5, y + 5, 6, 6)
+          g.fillStyle = INK
+          g.fillRect(x + 6, y + 6, 1, 3)
+          g.fillRect(x + 9, y + 6, 1, 3)
+          drawText(g, String(pad?.pair ?? ''), x + 8, y - 7, {
+            align: 'center',
+            color: ramp[4],
+            outline: INK,
+          })
+        }
+        if (wall === CARD || wall === DEALT) {
+          const cracked =
+            wall === CARD && (this.cardHp.get(i) ?? CARD_HITS) < CARD_HITS
+          bevel(g, x, y, T, T, RAMPS.cream, { depth: 1 })
+          g.fillStyle = INK
+          for (let k = 0; k < 3; k++)
+            g.fillRect(x + 3 + k * 4, y + 4 + (k % 2) * 2, 2, 3)
+          g.fillStyle = RAMPS.cream[1]
+          g.fillRect(x + 2, y + 12, 12, 1)
+          if (cracked) {
+            g.fillStyle = INK
+            g.fillRect(x + 4, y + 2, 1, 4)
+            g.fillRect(x + 5, y + 6, 1, 3)
+            g.fillRect(x + 6, y + 9, 2, 1)
+          }
+        } else if (wall === MIRROR) {
+          bevel(g, x, y, T, T, RAMPS.steel, { depth: 1 })
+          g.fillStyle = RAMPS.sky[3]
+          g.fillRect(x + 2, y + 2, 12, 12)
+          g.fillStyle = RAMPS.sky[4]
+          for (let k = 0; k < 4; k++)
+            g.fillRect(x + 3 + k * 2, y + 10 - k * 2, 2, 1)
+          g.fillStyle = '#ffffff'
+          if ((this.tick + tx * 9) % 90 < 6) g.fillRect(x + 4, y + 4, 2, 2)
+        }
+        const shelf = this.shelves.find((sh) => sh.tile === i)
+        if (!shelf) continue
+        if (wall === SHELF) {
+          const shake = moving ? (this.tick % 4 < 2 ? -1 : 1) : 0
+          bevel(g, x + shake, y, T, T, RAMPS.earth, { depth: 1 })
+          g.fillStyle = INK
+          g.fillRect(x + 2 + shake, y + 7, 12, 1)
+          for (const cx of [x + 3, x + 9]) {
+            g.fillStyle = RAMPS.steel[3]
+            g.fillRect(cx + shake, y + 2, 4, 4)
+            g.fillRect(cx + shake, y + 9, 4, 4)
+          }
+        } else {
+          // Open: the rails it slides back on, flashing as it is about to.
+          g.fillStyle =
+            moving && this.tick % 8 < 4 ? RAMPS.gold[3] : RAMPS.earth[1]
+          g.fillRect(x, y + 2, T, 1)
+          g.fillRect(x, y + 13, T, 1)
+        }
+      }
     }
   }
 
@@ -2947,6 +4160,30 @@ class KindnessGauntlet implements ArcadeGameInstance {
       glow(g, x, y, 11 + Math.sin(this.tick / 6) * 2, RAMPS.pink[3], 0.5)
       dropShadow(g, x, y + 6, 4, 1.4, 0.4)
       drawSprite(g, HEART_SPRITE, x, y - 1 + bob)
+    } else if (item.kind === 'charm' && item.charm) {
+      glow(
+        g,
+        x,
+        y,
+        12 + Math.sin(this.tick / 6) * 2,
+        CHARM_COLOURS[item.charm],
+        0.5,
+      )
+      dropShadow(g, x, y + 6, 4, 1.4, 0.4)
+      drawSprite(g, CHARM_SPRITES[item.charm], x, y - 1 + bob)
+    } else if (item.kind === 'chip') {
+      glow(g, x, y, 10, RAMPS.leaf[3], 0.4)
+      dropShadow(g, x, y + 6, 4, 1.4, 0.4)
+      drawSprite(g, CHIP_SPRITE, x, y - 1 + bob)
+    } else if (item.kind === 'keepsake') {
+      const urgent = this.lostTicks > 0 && this.lostTicks < 5 * 60
+      if (urgent && this.tick % 10 < 5) return
+      glow(g, x, y, 9, RAMPS.gold[3], 0.35)
+      dropShadow(g, x, y + 6, 4, 1.4, 0.4)
+      drawSprite(g, KEEPSAKE_SPRITES[(item.x + item.y) % 2]!, x, y - 1 + bob)
+    } else if (item.kind === 'secret') {
+      glow(g, x, y, 12 + Math.sin(this.tick / 5) * 3, RAMPS.gold[4], 0.55)
+      drawSprite(g, SECRET_SPRITE, x, y - 1 + bob)
     } else {
       // A trapped bot behind bars, waving for help.
       dropShadow(g, x, y + 8, 8, 2, 0.45)
@@ -3060,6 +4297,15 @@ class KindnessGauntlet implements ArcadeGameInstance {
   /** Each glitch kind in its own sprite, wearing its tell when it is about to act. */
   private renderGlitch(g: CanvasRenderingContext2D, gl: Glitch) {
     if (gl.kind === 'spill') return
+    if (gl.kind === 'worm')
+      for (const seg of [...(gl.body ?? [])].reverse()) {
+        dropShadow(g, seg.x, seg.y + 4, 3, 1, 0.35)
+        drawSprite(g, WORM_SEGMENT, Math.round(seg.x), Math.round(seg.y))
+      }
+    if (gl.kind === 'bluescreen') {
+      this.renderBluescreen(g, gl)
+      return
+    }
     const frame = Math.floor(this.tick / 8 + gl.wobble) % 2
     let x = Math.round(gl.x)
     const y = Math.round(gl.y)
@@ -3132,6 +4378,54 @@ class KindnessGauntlet implements ArcadeGameInstance {
       gauge(g, x - 5, y - 11, 10, 2, gl.hp / gl.maxHp, RAMPS.pink)
   }
 
+  /** The Big Bluescreen: filling with blue (its tell), breathing its cone of static, its hits left. */
+  private renderBluescreen(g: CanvasRenderingContext2D, gl: Glitch) {
+    const x = Math.round(gl.x)
+    const y = Math.round(gl.y)
+    dropShadow(g, x, y + 24, 28, 5, 0.5)
+    const filling = gl.state === 'windup'
+    glow(
+      g,
+      x,
+      y,
+      48,
+      RAMPS.sky[3],
+      filling ? 0.35 + (BLUE_TELL - gl.t) / 120 : 0.18,
+    )
+    const frames =
+      gl.flash > 0 ? GLITCH_FLASH.bluescreen : GLITCH_FRAMES.bluescreen
+    drawSprite(g, frames[filling && this.tick % 6 < 3 ? 1 : 0]!, x, y, {
+      scale: 2,
+    })
+    if (gl.state === 'inhale') {
+      // The static breath: a flickering cone of snow.
+      const a = Math.atan2(gl.vy, gl.vx)
+      g.save()
+      g.globalCompositeOperation = 'lighter'
+      g.fillStyle = rgba(RAMPS.sky[3], 0.18)
+      g.beginPath()
+      g.moveTo(x, y)
+      g.arc(x, y, BLUE_REACH, a - BLUE_SPREAD, a + BLUE_SPREAD)
+      g.closePath()
+      g.fill()
+      for (let i = 0; i < 26; i++) {
+        const r = 14 + ((i * 37 + this.tick * 5) % (BLUE_REACH - 14))
+        const t = a + (((i * 53) % 100) / 100 - 0.5) * 2 * BLUE_SPREAD
+        g.fillStyle = i % 3 ? RAMPS.sky[4] : '#ffffff'
+        g.fillRect(
+          Math.round(x + Math.cos(t) * r),
+          Math.round(y + Math.sin(t) * r),
+          2,
+          1,
+        )
+      }
+      g.restore()
+    }
+    g.fillStyle = INK
+    g.fillRect(x - 25, y - 33, 50, 5)
+    gauge(g, x - 24, y - 32, 48, 3, gl.hp / gl.maxHp, RAMPS.sky)
+  }
+
   /** Packets in the air over a growing landing ring (their tell), and imp sparks. */
   private renderShots(g: CanvasRenderingContext2D) {
     for (const s of this.shots) {
@@ -3159,6 +4453,22 @@ class KindnessGauntlet implements ArcadeGameInstance {
         g.fillRect(Math.round(px) - 2, Math.round(py) - 2, 4, 4)
         g.fillStyle = RAMPS.leaf[4]
         g.fillRect(Math.round(px) - 2, Math.round(py) - 2, 2, 1)
+        continue
+      }
+      if (s.card) {
+        // A punch card, spinning.
+        const flip = Math.floor(this.tick / 4) % 2
+        g.fillStyle = INK
+        g.fillRect(
+          Math.round(s.x) - 4,
+          Math.round(s.y) - 3,
+          flip ? 8 : 4,
+          flip ? 6 : 6,
+        )
+        g.fillStyle = RAMPS.cream[3]
+        g.fillRect(Math.round(s.x) - 3, Math.round(s.y) - 2, flip ? 6 : 2, 4)
+        g.fillStyle = INK
+        if (flip) g.fillRect(Math.round(s.x) - 1, Math.round(s.y) - 1, 1, 1)
         continue
       }
       glow(g, s.x, s.y, 8, RAMPS.ember[3], 0.6)
@@ -3237,7 +4547,31 @@ class KindnessGauntlet implements ArcadeGameInstance {
         g.stroke()
       }
       if (!hero.flat) glow(g, x, y, 14, BOT_LOOKS[hero.cls].head[3], 0.2)
+      if (hero.charm && !hero.flat) {
+        // A charm's aura, flickering in its last three seconds.
+        const fading = hero.charm.ticks < 180 && this.tick % 10 < 5
+        if (!fading) {
+          g.strokeStyle = rgba(CHARM_COLOURS[hero.charm.kind], 0.7)
+          g.lineWidth = 1
+          g.beginPath()
+          g.arc(x, y, 11 + Math.sin(this.tick / 6), 0, Math.PI * 2)
+          g.stroke()
+        }
+      }
       dropShadow(g, x, y + 7, 6, 2, 0.45)
+      if (hero.stun > 0 && !hero.flat) {
+        // Stunned: little stars wheeling round its head.
+        for (let k = 0; k < 3; k++) {
+          const a = this.tick / 6 + (k * Math.PI * 2) / 3
+          g.fillStyle = RAMPS.sky[4]
+          g.fillRect(
+            Math.round(x + Math.cos(a) * 7),
+            Math.round(y - 12 + Math.sin(a) * 2),
+            2,
+            2,
+          )
+        }
+      }
       if (hero.flat) {
         // Flat: dimmed, with a blinking empty battery overhead.
         this.drawBot(g, hero.cls, x, y, 4, 0, 1, 0.45)
@@ -3460,6 +4794,45 @@ class KindnessGauntlet implements ArcadeGameInstance {
     vignette(g, W, H, 0.3)
   }
 
+  /** The continue offer: the saved wing, its score, and the two choices. */
+  private renderOffer(g: CanvasRenderingContext2D, s: GauntletSave) {
+    cachedLayer(g, 'kindness-gauntlet-select', W, H, paintSelect)
+    const wing = WINGS[s.wing]!
+    drawText(g, 'THE DEEP ARCHIVE', W / 2, 30, {
+      scale: 2,
+      align: 'center',
+      color: RAMPS.gold[4],
+      outline: INK,
+      shadow: RAMPS.purple[1],
+    })
+    hudPanel(g, 30, 64, W - 60, 92, RAMPS.purple)
+    drawSprite(g, MAINFRAME_FACE[Math.floor(this.tick / 12) % 2]!, W / 2, 86, {
+      scale: 2,
+    })
+    drawText(g, 'YOU CAME BACK! SHALL WE GO ON?', W / 2, 108, {
+      align: 'center',
+      color: RAMPS.cream[3],
+      outline: INK,
+    })
+    drawText(g, `WING ${s.wing + 1}: ${wing.name}`, W / 2, 124, {
+      align: 'center',
+      color: RAMPS.teal[3],
+      outline: INK,
+    })
+    drawText(g, `SCORE ${s.score}`, W / 2, 138, {
+      align: 'center',
+      color: RAMPS.gold[3],
+      outline: INK,
+    })
+    if (Math.floor(this.tick / 20) % 2 === 0)
+      drawText(g, 'A  CONTINUE      B  START OVER', W / 2, 180, {
+        align: 'center',
+        color: RAMPS.leaf[4],
+        outline: INK,
+      })
+    vignette(g, W, H, 0.3)
+  }
+
   /** A new glitch kind's card: what it looks like, its tell and its answer. */
   private renderIntro(g: CanvasRenderingContext2D) {
     if (!this.intro || this.banner) return
@@ -3600,6 +4973,24 @@ class KindnessGauntlet implements ArcadeGameInstance {
       })
     }
     this.renderSeats(g, 84, infoX - 3)
+    if (this.lostTicks > 0) {
+      const secs = String(Math.ceil(this.lostTicks / 60))
+      const urgent = this.lostTicks < 10 * 60
+      hudPanel(
+        g,
+        W / 2 - 34,
+        VIEW_Y + 2,
+        68,
+        18,
+        urgent ? RAMPS.ember : RAMPS.purple,
+      )
+      drawText(g, `TIME ${secs}`, W / 2, VIEW_Y + 4, {
+        scale: 2,
+        align: 'center',
+        color: urgent && this.tick % 20 < 10 ? '#ffffff' : RAMPS.gold[4],
+        outline: INK,
+      })
+    }
     if (this.banner) {
       // A dimmed band behind the banner keeps it legible over the busy dungeon.
       const tall = this.banner.sub ? 34 : 22

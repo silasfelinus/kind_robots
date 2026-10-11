@@ -174,6 +174,9 @@ jobs:
       - name: Zuzu Showdown fighter kit (Zuzu)
         run: npm run test:zuzu-showdown-zuzu
 
+      - name: Zuzu Lair QTE engine
+        run: npm run test:zuzu-lair
+
       - name: Zuzu Showdown fighter kit (Coyote Vagrant)
         run: npm run test:zuzu-showdown-coyote
 

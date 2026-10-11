@@ -209,6 +209,10 @@ export function insertShape(def: InsertDef): THREE.Shape {
  */
 const ART_PX_PER_M = 1750
 
+/** The generated art's grade (t-032): an overall dimming, and the rails' falloff. */
+const PAINT_DIM = '#d6cde2'
+const PAINT_EDGE = '#5a4a72'
+
 /** The generated images painted over their regions, as they load. */
 export type ArtImages = {
   playfield?: CanvasImageSource & { width: number; height: number }
@@ -365,9 +369,41 @@ export function paintPlayfield(
       h,
     )
   }
-  if (images.ridge && table.art?.ridge) cover(images.ridge, table.art.ridge)
-  if (images.playfield && table.art?.playfield)
+  // Graded like a lacquered playfield under a dark glass (t-032): a touch
+  // dimmer overall and falling away to the rails, so lamps, inserts and
+  // lanterns carry the light rather than the paint.
+  const grade = (region: ArtRegion) => {
+    const x = px(region.min[0])
+    const z = pz(region.min[1])
+    const w = m(region.max[0] - region.min[0])
+    const h = m(region.max[1] - region.min[1])
+    g.save()
+    g.globalCompositeOperation = 'multiply'
+    g.fillStyle = PAINT_DIM
+    g.fillRect(x, z, w, h)
+    const fall = g.createRadialGradient(
+      x + w / 2,
+      z + h * 0.55,
+      Math.min(w, h) * 0.25,
+      x + w / 2,
+      z + h * 0.55,
+      Math.max(w, h) * 0.62,
+    )
+    fall.addColorStop(0, '#ffffff')
+    fall.addColorStop(0.65, '#cbbfd9')
+    fall.addColorStop(1, PAINT_EDGE)
+    g.fillStyle = fall
+    g.fillRect(x, z, w, h)
+    g.restore()
+  }
+  if (images.ridge && table.art?.ridge) {
+    cover(images.ridge, table.art.ridge)
+    grade(table.art.ridge)
+  }
+  if (images.playfield && table.art?.playfield) {
     cover(images.playfield, table.art.playfield)
+    grade(table.art.playfield)
+  }
 
   // The rainbow band the multiplier lamps sit on.
   const rainbow = (table.inserts ?? []).filter((i) =>

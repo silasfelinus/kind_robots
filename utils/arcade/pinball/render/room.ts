@@ -25,6 +25,8 @@ import type { QualityTier } from './quality'
 
 type Track = <T extends { dispose(): void }>(resource: T) => T
 
+/** The cabinet side art's tint under the backglass painting (t-032). */
+const SIDE_ART_TINT = 0x8f86a3
 /** Where the floor is, in the world, below the playfield's front edge. */
 const FLOOR_Y = -1.0
 /** The cabinet's depth below the playfield, and its sides' height above it. */
@@ -238,6 +240,8 @@ export class Room {
     if (painted)
       this.image(painted, length / height, undefined, (texture) => {
         paint.map = texture
+        // Dimmer than the glass: the sides frame the table, not compete with it.
+        paint.color.set(SIDE_ART_TINT)
         paint.needsUpdate = true
       })
     const width = right - left + SIDE_THICK * 2

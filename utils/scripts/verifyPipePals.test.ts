@@ -12,6 +12,7 @@ import {
   DISTRICTS,
   chainPoints,
   create,
+  readPipeSave,
   rosterFor,
   walkersMeet,
 } from '../arcade/games/pipePals'
@@ -151,7 +152,7 @@ type Inner = {
   liftLefts: number[]
   release(): void
   thermoLedges(): Array<{ x0: number; x1: number; y: number }>
-  update(input: InputFrame): void
+  update(input: InputFrame, players?: InputFrame[]): void
   bumpAt(x: number, floorY: number): void
   moveCritters(): void
   startPhase(phase: number): void
@@ -159,16 +160,50 @@ type Inner = {
   advance(): void
   demoInput(): InputFrame
   refreshBoard(): void
+  menu: {
+    row: number
+    mode: number
+    pal: number
+    district: number
+    board: boolean
+  } | null
+  pals: Array<{
+    kind: string
+    body: { x: number; y: number; vx: number; vy: number; onGround: boolean }
+    alive: boolean
+    invuln: number
+    stun: number
+    points: number
+    tool: unknown
+  }>
+  cur: number
+  mode: string
+  result: { t: number; title: string; lines: string[] } | null
+  medals: Record<string, number>
+  times: Record<string, number>
+  reached: number
+  trialTicks: number
+  phaseFell: boolean
+  phaseChain: number
+  phaseCount: number
+  steps: Array<{ kind: string }>
+  alive: boolean
+  bumpReach(): number
+  loseLife(): void
+  awardMedals(phase: number): void
 }
 
 const quiet = { play: () => {} }
 function game(seed = 3): Inner {
-  return create({
+  const g = create({
     rng: mulberry32(seed),
     sound: quiet,
     demo: false,
     hiScore: 0,
   }) as unknown as Inner
+  // Straight past the mode menu into the campaign.
+  g.menu = null
+  return g
 }
 
 /** A game on a district's board with nothing in play and a pal who can't be hurt. */
@@ -1141,6 +1176,301 @@ function swing(index: number, step = 0): Inner {
     resume: g.save,
   }) as unknown as Inner
   assert.equal(demo.offer, null, 'demos never offer a save')
+}
+
+// --- two pals, co-op, Versus, Overtime, Time Trial and medals (slice 5) ----------------------
+
+function seated(players: number, resume?: unknown): Inner {
+  return create({
+    rng: mulberry32(5),
+    sound: quiet,
+    demo: false,
+    hiScore: 0,
+    players,
+    resume,
+  }) as unknown as Inner
+}
+
+/** Pick a mode on the menu: rows of mode, pal (solo) and district, then A. */
+function choose(
+  g: Inner,
+  mode: number,
+  opts: { pal?: number; district?: number } = {},
+) {
+  assert.ok(g.menu, 'a real game opens on the mode menu')
+  for (let i = 0; i < mode; i++) g.update(press('right'))
+  if (opts.pal) {
+    g.update(press('down'))
+    g.update(press('right'))
+    g.update(press('up'))
+  }
+  if (opts.district) {
+    const rows = g.pals.length > 1 ? 1 : 2
+    for (let i = 0; i < rows; i++) g.update(press('down'))
+    for (let i = 0; i < opts.district; i++) g.update(press('right'))
+  }
+  g.update(press('a'))
+  assert.equal(g.menu, null)
+  g.cardTicks = 0
+}
+
+{
+  // The pink pal jumps higher and floats; the teal pal's bump reaches further.
+  const apex = (pal: number) => {
+    const g = game(3)
+    g.pals[0]!.kind = pal ? 'pink' : 'teal'
+    g.cardTicks = 0
+    g.queue = []
+    g.critters = [critter('crawler', 40, 112)]
+    g.invuln = 100_000
+    // From the top ledge, with nothing overhead.
+    Object.assign(g.player, { x: 100, y: 112, vx: 0, vy: 0, onGround: true })
+    g.update(press('a'))
+    let top = 112
+    let air = 0
+    for (let t = 0; t < 80 && !g.player.onGround; t++) {
+      g.update(emptyInput())
+      top = Math.min(top, g.player.y)
+      air++
+    }
+    return { top, air: 112 - top, hang: air }
+  }
+  const teal = apex(0)
+  const pink = apex(1)
+  assert.ok(
+    pink.air > teal.air + 4,
+    `pink jumps higher (${pink.air} vs ${teal.air})`,
+  )
+  const t = game(3)
+  const reachTeal = t.bumpReach()
+  t.pals[0]!.kind = 'pink'
+  assert.ok(reachTeal > t.bumpReach(), 'teal bumps reach further')
+
+  // Solo: the pal is picked on the menu.
+  const solo = seated(1)
+  choose(solo, 0, { pal: 1 })
+  assert.equal(solo.pals.length, 1)
+  assert.equal(
+    solo.pals[0]!.kind,
+    'pink',
+    'a solo player can pick the pink pal',
+  )
+  assert.equal(solo.mode, 'campaign')
+}
+
+{
+  // Same-device co-op: two pals, each on its own player's frame, sharing a pool of pals.
+  const g = seated(2)
+  assert.equal(g.pals.length, 2)
+  assert.deepEqual(
+    g.pals.map((p) => p.kind),
+    ['teal', 'pink'],
+  )
+  assert.ok(g.lives >= 2, 'two seated, two in play')
+  choose(g, 0)
+  g.queue = []
+  g.critters = [critter('crawler', 40, 112)]
+  g.embers = []
+  for (const p of g.pals) p.invuln = 100_000
+  const [teal, pink] = g.pals as [Inner['pals'][0], Inner['pals'][0]]
+  const x0 = [teal.body.x, pink.body.x]
+  assert.ok(x0[0]! < x0[1]!, 'the pals start either side of the middle')
+  const right = emptyInput()
+  right.held.right = true
+  const left = emptyInput()
+  left.held.left = true
+  for (let t = 0; t < 20; t++) g.update(right, [right, left])
+  assert.ok(teal.body.x > x0[0]!, 'player 1 steers the teal pal')
+  assert.ok(pink.body.x < x0[1]!, 'player 2 steers the pink pal')
+
+  // A felled pal waits out its respawn while the other plays on.
+  const lives = g.lives
+  g.cur = 1
+  g.loseLife()
+  g.cur = 0
+  assert.equal(g.lives, lives - 1, 'pals come from one shared pool')
+  assert.ok(teal.alive && !pink.alive)
+  const before = teal.body.x
+  for (let t = 0; t < 10; t++) g.update(right, [right, left])
+  assert.ok(teal.body.x > before, 'the board keeps going while one pal is down')
+  for (let t = 0; t < 120; t++)
+    g.update(emptyInput(), [emptyInput(), emptyInput()])
+  assert.ok(pink.alive, 'and the felled pal comes back')
+
+  // A bump under the other pal bonks it, dizzy for a moment.
+  Object.assign(pink.body, { x: 120, y: 244, vx: 0, vy: 0, onGround: true })
+  g.cur = 0
+  g.bumpAt(120, 244)
+  assert.ok(pink.stun > 0 && pink.body.vy < 0, 'a bump under a pal bonks it')
+  const sx = pink.body.x
+  g.update(emptyInput(), [emptyInput(), left])
+  assert.equal(pink.body.x, sx, 'a dizzy pal does not steer')
+
+  // Out of pals with one pal still up: that pal plays on alone; then the game ends.
+  const end = seated(2)
+  choose(end, 0)
+  end.queue = []
+  end.critters = [critter('crawler', 40, 112)]
+  end.embers = []
+  end.pals[0]!.invuln = 100_000
+  end.lives = 1
+  end.cur = 1
+  end.loseLife()
+  assert.equal(end.lives, 0)
+  for (let t = 0; t < 200; t++)
+    end.update(emptyInput(), [emptyInput(), emptyInput()])
+  assert.ok(!end.pals[1]!.alive, 'with the pool empty a felled pal stays out')
+  assert.ok(!end.over, 'but the other pal is still playing')
+  end.cur = 0
+  end.pals[0]!.invuln = 0
+  end.loseLife()
+  for (let t = 0; t < 200 && !end.over; t++)
+    end.update(emptyInput(), [emptyInput(), emptyInput()])
+  assert.ok(end.over, 'with both pals out, the game is over')
+}
+
+{
+  // Versus: one district, each pal's own tally, steals and falls; the winner is called.
+  const solo = seated(1)
+  assert.notEqual(
+    (solo as unknown as { modes(): Array<{ id: string }> })
+      .modes()
+      .slice(-1)[0]!.id,
+    'versus',
+    'Versus needs two players',
+  )
+  const g = seated(2)
+  choose(g, 3)
+  assert.equal(g.mode, 'versus')
+  assert.ok(
+    g.steps.every((s) => s.kind === 'phase' || s.kind === 'boss'),
+    'a match is the board: no Workshop, no bonus',
+  )
+  g.queue = []
+  g.embers = []
+  const c = critter('crawler', 200, 310)
+  g.critters = [c, critter('crawler', 40, 112)]
+  g.cur = 0
+  g.bumpAt(200, 310)
+  assert.ok(c.flipped > 0)
+  const pinkBefore = g.pals[1]!.points
+  g.cur = 1
+  g.kick(c, 1)
+  g.cur = 0
+  assert.ok(
+    g.pals[1]!.points >= pinkBefore + 500 + CHAIN_POINTS[0]!,
+    'kicking a critter the other pal flipped steals it',
+  )
+  const lives = g.lives
+  g.pals[1]!.points = 2000
+  g.cur = 1
+  g.loseLife()
+  g.cur = 0
+  assert.equal(g.lives, lives, 'Versus never runs out of pals')
+  assert.equal(g.pals[1]!.points, 500, 'a fall costs points instead')
+  g.pals[0]!.points = 9000
+  while (!g.result) g.advance()
+  assert.match(g.result!.lines[0]!, /TEAL PAL WINS/)
+  for (let t = 0; t < 100; t++) g.update(press('a'))
+  assert.ok(g.over, 'the result card ends the match')
+}
+
+{
+  // Overtime: an endless score attack from a lap up, with no Workshop or endings.
+  const g = seated(1)
+  choose(g, 1)
+  assert.equal(g.mode, 'overtime')
+  assert.equal(g.lap, 1, 'Overtime starts a lap harder')
+  assert.equal(g.level, 1)
+  assert.ok(g.steps.every((s) => s.kind !== 'workshop' && s.kind !== 'ending'))
+  for (let i = 0; i < 80; i++) g.advance()
+  assert.ok(!g.result && !g.workshop, 'it never stops for a break')
+  assert.equal(g.save?.district ?? 0, 0, 'and it never moves the campaign save')
+}
+
+{
+  // Time Trial: districts the campaign has reached; the clock runs, a fall costs 5 seconds.
+  const g = seated(1)
+  g.reached = 3
+  choose(g, 2, { district: 2 })
+  assert.equal(g.mode, 'trial')
+  assert.equal(g.district.id, DISTRICTS[2]!.id, 'the chosen district')
+  const capped = seated(1)
+  choose(capped, 2, { district: 5 })
+  assert.equal(
+    capped.district.id,
+    'rooftop',
+    'only reached districts can be picked',
+  )
+  g.queue = []
+  g.critters = [critter('crawler', 40, 112)]
+  g.embers = []
+  g.invuln = 100_000
+  for (let t = 0; t < 60; t++) g.update(emptyInput())
+  assert.equal(g.trialTicks, 60, 'the clock runs while the pal plays')
+  const lives = g.lives
+  g.loseLife()
+  assert.equal(g.lives, lives)
+  assert.equal(g.trialTicks, 60 + 300)
+  while (!g.result) g.advance()
+  assert.match(g.result!.lines[0]!, /^TIME 0:06$/)
+  assert.equal(g.times[DISTRICTS[2]!.id], 360, 'the best time is kept')
+  const saved = readPipeSave(g.save)
+  assert.equal(saved?.times?.[DISTRICTS[2]!.id], 360, 'in the save')
+  const again = seated(1, g.save)
+  assert.equal(again.times[DISTRICTS[2]!.id], 360, 'and read back')
+}
+
+{
+  // Medals: Clean Sweep, Chain Master and Swift Fix per phase, saved, worth Workshop coins.
+  const g = fresh(3, 0)
+  g.phaseFell = false
+  g.phaseChain = 4
+  g.phaseCount = 5
+  g.phaseTicks = 60 * 30
+  const wallet = g.wallet
+  g.awardMedals(1)
+  assert.equal(g.medals['rooftop:1'], 7, 'all three medals')
+  assert.equal(g.wallet, wallet + 6, 'two coins for each new medal')
+  g.awardMedals(1)
+  assert.equal(g.wallet, wallet + 6, 'a medal pays out once')
+  g.phaseFell = true
+  g.phaseChain = 1
+  g.phaseTicks = 60 * 600
+  g.awardMedals(2)
+  assert.equal(g.medals['rooftop:2'], undefined, 'nothing earned, nothing kept')
+  // Clearing a phase awards them for real; a fall spoils the Clean Sweep.
+  const h = fresh(3, 0)
+  h.critters = [critter('crawler', 200, 310, { flipped: 100 })]
+  h.phaseChain = 0
+  h.kick(h.critters[0]!, 1)
+  for (let t = 0; t < 200 && !h.medals['rooftop:1']; t++) h.update(emptyInput())
+  assert.equal(
+    h.medals['rooftop:1']! & 1,
+    1,
+    'a phase cleared without a fall: Clean Sweep',
+  )
+  const saved = readPipeSave(h.save)
+  assert.equal(
+    saved?.medals?.['rooftop:1'],
+    h.medals['rooftop:1'],
+    'medals ride in the save',
+  )
+  const back = readPipeSave({
+    ...h.save,
+    medals: { 'rooftop:1': 99, 'nowhere:1': 1 },
+  })
+  assert.deepEqual(
+    back?.medals,
+    {},
+    'a save with nonsense medals keeps none of them',
+  )
+  // B on the menu shows the medal board; B again goes back.
+  const m = seated(1)
+  m.update(press('b'))
+  assert.ok(m.menu?.board)
+  m.update(press('b'))
+  assert.ok(m.menu && !m.menu.board)
 }
 
 // --- seeded runs repeat exactly, and the pilot keeps playing ---------------------------------

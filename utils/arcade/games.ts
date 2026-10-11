@@ -127,7 +127,7 @@ export const ARCADE_GAMES: ArcadeGameMeta[] = [
     title: 'Pipe Pals',
     riffsOn: 'Mario Bros.',
     blurb:
-      'Grumpy critters are crawling out of the Kind Robots plumbing. Bump the floor under one to flip it, then tap it to send it bowling along the ledge, taking any other flipped critter with it. Crab bots take two bumps, shell knights lose their armour first, spring fleas only flip when they land, and ember sparks are snuffed from below. Tools roll out of the pipes and the KIND block flips the whole floor. Work the city district by district: the Day Shift (a rooftop reservoir, a greenhouse of sagging vines, a bubbling laundry) ends with the Big Shell, the Swing Shift (icy cold storage, a boiler works of steam vents, a clockwork water tower) ends with the Thermostat, and the Night Shift (tidal flooded mains, a storm drain lit only by lamps and lightning) ends with the Clog King and a race up the flushing drain. Every district has its own special job and bonus round, the Workshop turns coins into upgrades, progress saves at each district, and eight golden valves open a secret ninth district and the true ending.',
+      'Grumpy critters are crawling out of the Kind Robots plumbing. Bump the floor under one to flip it, then tap it to send it bowling along the ledge, taking any other flipped critter with it. Crab bots take two bumps, shell knights lose their armour first, spring fleas only flip when they land, and ember sparks are snuffed from below. Tools roll out of the pipes and the KIND block flips the whole floor. Work the city district by district: the Day Shift (a rooftop reservoir, a greenhouse of sagging vines, a bubbling laundry) ends with the Big Shell, the Swing Shift (icy cold storage, a boiler works of steam vents, a clockwork water tower) ends with the Thermostat, and the Night Shift (tidal flooded mains, a storm drain lit only by lamps and lightning) ends with the Clog King and a race up the flushing drain. Every district has its own special job and bonus round, the Workshop turns coins into upgrades, progress saves at each district, and eight golden valves open a secret ninth district and the true ending. Play the teal pal (longer bumps) or the pink pal (higher, floatier jumps), or seat two players for same-device co-op or a Versus match full of bump-steals. Overtime is the endless score attack, Time Trial races the clock district by district, and every phase holds three medals: Clean Sweep, Chain Master and Swift Fix.',
     howTo: [
       'RUN, A TO JUMP',
       'BUMP FLOORS FROM BELOW',
@@ -135,6 +135,7 @@ export const ARCADE_GAMES: ArcadeGameMeta[] = [
       'KICKS BOWL AND CHAIN',
       'SNUFF EMBERS FROM BELOW',
       'B BLOWS WAND BUBBLES',
+      'TWO PLAYERS: CO-OP OR VERSUS',
     ],
     width: 448,
     height: 336,
@@ -142,6 +143,7 @@ export const ARCADE_GAMES: ArcadeGameMeta[] = [
     titleArt: '/images/arcade/games/pipe-pals-title.webp',
     accent: '#4ade80',
     controls: 'Run, jump, bump',
+    maxPlayers: 2,
   },
   {
     slug: 'butterfly-joust',
@@ -740,6 +742,20 @@ export const UNLISTED_SCORED_GAMES: ArcadeGameMeta[] = [
     titleArt: '/zuzu-showdown-portraits/zuzu-vs-hd.webp',
     accent: '#fb923c',
     controls: 'Move, two punches, two kicks, dodge',
+  },
+  {
+    slug: 'zuzu-lair',
+    title: "Zuzu's Lair",
+    riffsOn: "Dragon's Lair",
+    blurb:
+      'A quick-time animated adventure. Press the right direction in time and Zuzu lives on; miss and a life is lost.',
+    howTo: ['ARROWS  DIRECTION', 'SPACE  SWORD', 'PRESS IN THE WINDOW'],
+    width: 480,
+    height: 270,
+    maxPlausibleScore: 100_000,
+    titleArt: '/zuzu-showdown-portraits/zuzu-vs-hd.webp',
+    accent: '#fb923c',
+    controls: 'Four directions and the sword',
   },
 ]
 

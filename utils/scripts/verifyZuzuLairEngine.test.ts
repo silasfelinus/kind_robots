@@ -19,6 +19,12 @@ import {
   validateChapter,
   windowFor,
 } from '../zuzuLair/engine'
+import {
+  FLASH_HZ,
+  flashEnabled,
+  hintLit,
+  sanitizeLairPrefs,
+} from '../zuzuLair/prefs'
 import type {
   LairAction,
   LairChapter,
@@ -240,5 +246,29 @@ assert.equal(forever.deaths, 8)
 const skipped = lairReducer(startRun(CHAPTER_1, 'classic'), tick(5 + 1.0))
 assert.equal(skipped.node, 'm1-bridge')
 assert.ok(Math.abs(skipped.t - 1.0) < 1e-6)
+
+// -- options and flash assist ------------------------------------------------------------------
+assert.deepEqual(sanitizeLairPrefs('junk'), {
+  difficulty: 'assist',
+  flash: null,
+  buttons: null,
+  muted: false,
+})
+assert.equal(sanitizeLairPrefs({ difficulty: 'classic' }).difficulty, 'classic')
+assert.equal(flashEnabled('assist', null), true)
+assert.equal(flashEnabled('classic', null), false)
+assert.equal(flashEnabled('classic', true), true)
+assert.equal(hintLit(-0.1, false), false, 'dark before the window opens')
+assert.equal(hintLit(0.3, true), true, 'steady under reduced motion')
+assert.equal(hintLit(0.9, true), true)
+assert.ok(FLASH_HZ <= 3, 'never strobes faster than 3 Hz')
+let toggles = 0
+let last = hintLit(0, false)
+for (let t = 0.005; t < 1; t += 0.005) {
+  const now = hintLit(t, false)
+  if (now !== last) toggles++
+  last = now
+}
+assert.ok(toggles <= 6, `at most 3 on/off cycles a second (saw ${toggles})`)
 
 console.log('verifyZuzuLairEngine: ok')

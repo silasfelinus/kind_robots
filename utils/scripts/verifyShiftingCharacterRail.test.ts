@@ -37,7 +37,7 @@ assert.match(rail, /\$emit\('useReward', item\.id\)/)
 assert.match(rail, /item\.kind !== 'evidence'/)
 assert.match(
   rail,
-  /contact\.traveling \? 'Traveling companion' : 'Contact · not traveling'/,
+  /contact\.traveling\s*\?\s*'Traveling companion'\s*:\s*'Contact · not traveling'/,
 )
 assert.match(rail, /No established contacts yet/)
 assert.match(rail, /Already used/)
@@ -59,7 +59,7 @@ assert.match(workflow, /verifyShiftingCharacterRail\.test\.ts/)
 assert.match(board, /PRESENTATION_KEY = 'kr\.shiftingLands\.presentation\.v1'/)
 assert.match(
   board,
-  /window\.matchMedia\('\(prefers-reduced-motion: reduce\)'\)/,
+  /window\.matchMedia\(\s*'\(prefers-reduced-motion: reduce\)',?\s*\)/,
 )
 assert.match(board, /:duration-ms="reducedMotion \? 0 : 650"/)
 assert.match(board, /:aria-pressed="!reducedMotion"/)

@@ -2,7 +2,6 @@ import { defineStore } from 'pinia'
 import { journeyCharacterSheet } from '~/utils/shiftingLands/progression'
 import {
   migrateJourneyLedger,
-  newJourneyLedger,
   restoreJourneyLedger,
   stepJourneyLedger,
   type JourneyLedgerAction,

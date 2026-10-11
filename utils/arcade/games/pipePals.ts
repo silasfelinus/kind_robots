@@ -18,6 +18,7 @@ import { levelCurve } from '../curve'
 import {
   DISTRICTS,
   LEAKS,
+  PHASES_PER_DISTRICT,
   SEEDLINGS,
   SHOP_ITEMS,
   SOCK_COLOURS,
@@ -34,11 +35,15 @@ import type {
   Kind,
   Segment,
   SockColour,
+  Spot,
   Step,
 } from '../pipePals/districts'
 import {
   SCENE_SKY,
   ledgeTile,
+  paintBoiler,
+  paintClock,
+  paintCold,
   paintGreenhouse,
   paintLaundry,
 } from '../pipePals/scenes'
@@ -136,6 +141,8 @@ const SPARKS_FROM = 3
 export type Tier = 0 | 1 | 2
 const TIER_SPEED = [1, 1.3, 1.6] as const
 const RUSH_SPEED = 1.35
+/** The fastest any walker goes (a pal runs at 2.1); gear bug dashes are separate. */
+const MAX_WALK = 2.5
 
 type Critter = {
   kind: Kind
@@ -165,6 +172,10 @@ type Critter = {
   trapped: number
   /** Lint moths on the wing (they can only be flipped while resting). */
   flying: boolean
+  /** Snowballs grow as they roll. */
+  size: number
+  /** Gear bugs: 0 winding up, 1 paused (flippable), 2 dashing. */
+  mode: number
 }
 type Coin = {
   x: number
@@ -174,6 +185,8 @@ type Coin = {
   life: number
   /** Sprinkler and bubble coins drift at a set speed instead of falling. */
   float?: number
+  /** Coins riding a gear ledge: which one, and where along it. */
+  ride?: { lift: number; dx: number }
 }
 export type ToolKind = 'wrench' | 'boots' | 'wand' | 'magnet'
 const TOOL_KINDS: readonly ToolKind[] = ['wrench', 'boots', 'wand', 'magnet']
@@ -192,11 +205,14 @@ const CRITTER_NAMES: Record<Kind, string> = {
   moth: 'LINT MOTH',
   puppet: 'SOCK PUPPET',
   sock: 'LOOSE SOCK',
+  frost: 'FROST BOT',
+  snowball: 'SNOWBALL',
+  gearbug: 'GEAR BUG',
 }
 type Bubble = { x: number; y: number; vx: number; vy: number; life: number }
 /** An ember spark bounces across the board; a lurker ember slides along one floor. */
 type Ember = {
-  kind: 'spark' | 'lurker'
+  kind: 'spark' | 'lurker' | 'cuckoo'
   x: number
   y: number
   vx: number
@@ -566,6 +582,8 @@ function critterFrames(
     a: ramp[3],
     p: ramp[3],
     R: RAMPS.pink[3],
+    Y: RAMPS.gold[3],
+    y: RAMPS.gold[2],
     r: RAMPS.ember[1],
     k: INK,
     w: '#ffffff',
@@ -692,6 +710,38 @@ function kindLook(
     flash: critterFrames(body, legs, FLASH),
   }
 }
+// Swing Shift newcomers: the frost bot (a snowflake antenna; it ices the ledge it walks) and the
+// gear bug (a wind-up beetle with a key on its back). Snowballs are drawn round, by size.
+const FROST_BODY = [
+  '.......a........',
+  '......aHa.......',
+  '.......a........',
+  '....HHHLLLL.....',
+  '...HLLLLLLLLB...',
+  '..HLwkLLLwkLLB..',
+  '..LLkkLLLkkLLB..',
+  '..LLLLLLLLLLLB..',
+  '..SLLcccccLLBS..',
+  '...SBBBBBBBBS...',
+  '....DSSSSSSD....',
+]
+const FROST_LEGS = [
+  ['...SS....SS.....', '...SD....SD.....'],
+  ['....SS..SS......', '....SD..SD......'],
+  ['..SS......SS....', '..SD......SD....'],
+] as const
+const GEARBUG_BODY = [
+  '......YyyY.......',
+  '.......yy........',
+  '....HHHLLLL......',
+  '..HHLLSLLSLLB....',
+  '.HLLSSLLSSLLB.kk.',
+  '.LLLLLLLLLLLBccc.',
+  'HLLSLLLLSLLLBcwk.',
+  'SBBBBBBBBBBBBccC.',
+  '.DSSSSSSSSSSD....',
+]
+
 const CRITTER_LOOKS: Record<Kind | 'bare', KindLook> = {
   crawler: kindLook(CRAWLER_BODY, CRAWLER_LEGS, [
     RAMPS.leaf,
@@ -722,6 +772,22 @@ const CRITTER_LOOKS: Record<Kind | 'bare', KindLook> = {
     RAMPS.ember,
   ]),
   sock: kindLook(SOCK_BODY, SOCK_FEET, [RAMPS.teal, RAMPS.gold, RAMPS.ember]),
+  frost: kindLook(FROST_BODY, FROST_LEGS, [
+    RAMPS.water,
+    RAMPS.sky,
+    RAMPS.purple,
+  ]),
+  gearbug: kindLook(GEARBUG_BODY, CRAWLER_LEGS, [
+    RAMPS.steel,
+    RAMPS.gold,
+    RAMPS.ember,
+  ]),
+  // Snowballs are drawn by size in renderCritter; this look is never used.
+  snowball: kindLook(FROST_BODY, FROST_LEGS, [
+    RAMPS.water,
+    RAMPS.water,
+    RAMPS.water,
+  ]),
   bare: kindLook(BARE_BODY, CRAWLER_LEGS, [
     RAMPS.pink,
     RAMPS.gold,
@@ -763,6 +829,40 @@ const LURKER_SPRITES = [
       'dbccccccccccccbd',
     ],
     LURKER_PALETTE,
+  ),
+] as const
+
+/** The cuckoo: a small clockwork bird that swoops along a floor, two wing frames. */
+const CUCKOO_PALETTE = {
+  y: RAMPS.gold[3],
+  Y: RAMPS.gold[4],
+  o: RAMPS.ember[3],
+  b: RAMPS.earth[2],
+  k: INK,
+  w: '#ffffff',
+}
+const CUCKOO_SPRITES = [
+  pixelSprite(
+    [
+      '..bb........',
+      '.bbbb.......',
+      'bbyyyyy..wk.',
+      '.yyyyyyyyyyo',
+      '..yyYYyyyy..',
+      '....yy......',
+    ],
+    CUCKOO_PALETTE,
+  ),
+  pixelSprite(
+    [
+      '............',
+      '.......wk...',
+      'bbyyyyyyyyyo',
+      'bbbyyYYyyy..',
+      '.bb.yy......',
+      '..b.........',
+    ],
+    CUCKOO_PALETTE,
   ),
 ] as const
 
@@ -1073,6 +1173,34 @@ type Boss = {
   rolls: number
 }
 type Workshop = { cursor: number; t: number; bought: ShopItemId[] }
+type Icicle = {
+  x: number
+  /** The ledge top it hangs under. */
+  y: number
+  grow: number
+  state: 'grow' | 'shake' | 'fall' | 'gone'
+  fy: number
+  vy: number
+  t: number
+}
+type Thermostat = {
+  hp: number
+  maxHp: number
+  mode: 'freeze' | 'heat'
+  modeT: number
+  target: number
+  targetT: number
+  flash: number
+  spawnT: number
+}
+const THERMO = { x: W / 2, y: 70, r: 24 }
+const ICICLE_GROW = 420
+const ICICLE_SHAKE = 70
+const VENT_PERIOD = 200
+const VENT_PUFF = 34
+const VENT_TELL = 40
+/** The needle's last ticks on a ledge, when a bump there lands. */
+const THERMO_ARMED = 44
 type ShopItemId = (typeof SHOP_ITEMS)[number]['item']
 
 const BOSS_HALF = 28
@@ -1128,8 +1256,22 @@ class PipePals implements ArcadeGameInstance {
   private steps: Step[] = []
   private stepIndex = 0
   private boardNow: Segment[] = []
-  private liftLeft = 0
+  private liftLefts: number[] = []
   private vines = new Map<number, { sag: number; down: number }>()
+  /** Ledges a frost bot has iced over, and how long they stay icy. */
+  private frozen = new Map<Segment, number>()
+  /** Crumble ledges: landings so far, and how long until a fallen one rebuilds. */
+  private crumbles = new Map<Segment, { landings: number; down: number }>()
+  private wasOnGround = true
+  private icicles: Icicle[] = []
+  private cuckooTimer = 0
+  // Swing Shift special phases.
+  private blocks: Array<Spot & { hits: number; freed: boolean }> = []
+  private gauges: Array<Spot & { p: number; rate: number; burst: boolean }> = []
+  private wheels: Spot[] = []
+  private route = -1
+  private bestChain = 0
+  private thermo: Thermostat | null = null
   private cardTicks = 0
   // Workshop economy, golden valves and the KIND block.
   private wallet = 0
@@ -1202,9 +1344,14 @@ class PipePals implements ArcadeGameInstance {
     return this.steps[this.stepIndex]!
   }
 
-  /** Difficulty rises with every step played, and faster on each lap round the city. */
+  /**
+   * Difficulty climbs two steps per district and one per phase, so the curves are still rising in
+   * the Night Shift (new mechanics carry the rest); each lap round the city adds six.
+   */
   private heat(): number {
-    return this.level + this.lap * 6
+    const step = this.step()
+    const phase = step.kind === 'phase' ? step.phase : PHASES_PER_DISTRICT
+    return (this.district.number - 1) * 2 + phase + this.lap * 6
   }
 
   private beginDistrict(index: number) {
@@ -1251,6 +1398,13 @@ class PipePals implements ArcadeGameInstance {
     this.leaks = []
     this.seedlings = []
     this.socks = []
+    this.blocks = []
+    this.gauges = []
+    this.wheels = []
+    this.route = -1
+    this.bestChain = 0
+    this.icicles = []
+    this.thermo = null
     this.boss = null
     this.workshop = null
     this.bonusRound = 0
@@ -1265,6 +1419,9 @@ class PipePals implements ArcadeGameInstance {
       vy: 0,
       onGround: true,
     })
+    this.frozen = new Map()
+    this.crumbles = new Map()
+    this.cuckooTimer = 600
     this.refreshBoard()
     if (step.kind === 'phase') this.startPhase(step.phase)
     else if (step.kind === 'boss') this.startBoss()
@@ -1293,6 +1450,15 @@ class PipePals implements ArcadeGameInstance {
       sub = this.valveTestLabel()
       this.startSpecial()
     }
+    this.icicles = (d.icicles ?? []).map((spot, i) => ({
+      x: spot.x,
+      y: spot.y,
+      grow: -i * 90,
+      state: 'grow',
+      fy: 0,
+      vy: 0,
+      t: 0,
+    }))
     this.releaseTimer = 60
     this.sparkTimer = Math.round(
       levelCurve(this.heat(), PIPE_CURVES.sparkEvery) / 2,
@@ -1324,6 +1490,23 @@ class PipePals implements ArcadeGameInstance {
       this.leaks = LEAKS.map((l, i) => ({ ...l, sealed: false, t: i * 50 }))
     } else if (special === 'seedling-rescue') {
       this.seedlings = SEEDLINGS.map((s) => ({ ...s, state: 'potted', t: 0 }))
+    } else if (special === 'thaw-run') {
+      this.blocks = (this.district.spots ?? []).map((spot) => ({
+        ...spot,
+        hits: 0,
+        freed: false,
+      }))
+    } else if (special === 'pressure-valves') {
+      this.gauges = (this.district.spots ?? []).map((spot, i) => ({
+        ...spot,
+        p: i * 0.12,
+        rate: 1 / (1100 - i * 110),
+        burst: false,
+      }))
+    } else if (special === 'valve-routing') {
+      this.wheels = [...(this.district.spots ?? [])]
+      this.route = 0
+      this.bestChain = 0
     } else {
       this.socksDropped = 0
       this.sockTimer = 90
@@ -1339,6 +1522,10 @@ class PipePals implements ArcadeGameInstance {
       return this.leaks.filter((l) => l.sealed).length
     if (special === 'seedling-rescue')
       return this.seedlings.filter((s) => s.state === 'rescued').length
+    if (special === 'thaw-run') return this.blocks.filter((b) => b.freed).length
+    if (special === 'pressure-valves')
+      return this.gauges.filter((g) => !g.burst).length
+    if (special === 'valve-routing') return this.bestChain
     return this.pairs
   }
 
@@ -1359,6 +1546,10 @@ class PipePals implements ArcadeGameInstance {
   }
 
   private startBoss() {
+    if (this.district.boss === 'thermostat') {
+      this.startThermostat()
+      return
+    }
     const seg = this.bossLedges()[0]!
     this.boss = {
       x: (seg.x0 + seg.x1) / 2,
@@ -1398,12 +1589,25 @@ class PipePals implements ArcadeGameInstance {
     const twist = this.district.bonus
     this.bonusRound = BONUS_FULL
     this.bonusGot = 0
-    if (twist === 'static') {
+    if (twist === 'static' || twist === 'ice' || twist === 'gears') {
       for (const s of this.district.segments.slice(1)) {
         for (let x = s.x0 + 20; x < s.x1 - 10; x += 44) {
           this.coins.push({ x, y: s.y - 10, vx: 0, vy: 0, life: Infinity })
         }
       }
+      // Coins riding the gear ledges, two apiece.
+      if (twist === 'gears')
+        (this.district.lifts ?? []).forEach((lift, i) => {
+          for (const dx of [16, lift.w - 16])
+            this.coins.push({
+              x: 0,
+              y: lift.y - 10,
+              vx: 0,
+              vy: 0,
+              life: Infinity,
+              ride: { lift: i, dx },
+            })
+        })
       this.bonusTotal = this.coins.length
       this.bonusFeed = 0
     } else {
@@ -1411,12 +1615,14 @@ class PipePals implements ArcadeGameInstance {
       this.bonusFeed = 24
       this.bonusTimer = 30
     }
-    const sub =
-      twist === 'sprinkler'
-        ? 'COINS FROM THE SPRINKLERS'
-        : twist === 'bubbles'
-          ? 'COINS RIDING THE SUDS'
-          : 'GRAB EVERY COIN'
+    const sub = {
+      static: 'GRAB EVERY COIN',
+      sprinkler: 'COINS FROM THE SPRINKLERS',
+      bubbles: 'COINS RIDING THE SUDS',
+      ice: 'EVERY FLOOR IS ICE',
+      steam: 'COINS ON THE STEAM',
+      gears: 'COINS ON THE GEARS',
+    }[twist]
     this.banner = { text: 'BONUS ROUND', sub, ticks: 120 }
   }
 
@@ -1429,7 +1635,8 @@ class PipePals implements ArcadeGameInstance {
   private release() {
     const kind = this.queue.shift()
     if (!kind) return
-    const pipe = TOP_PIPES[this.critters.length % 2]!
+    const pipe =
+      TOP_PIPES[this.route >= 0 ? this.route : this.critters.length % 2]!
     this.critters.push(this.makeCritter(kind, pipe.x, pipe.y, pipe.dir))
     this.sound.play('warn')
   }
@@ -1455,41 +1662,78 @@ class PipePals implements ArcadeGameInstance {
       squash: 0,
       trapped: 0,
       flying: kind === 'moth',
+      size: 6,
+      mode: 0,
     }
   }
 
   // --- the board ------------------------------------------------------------------
 
-  /** This tick's solid ledges: the district's, minus drooping vines, plus the lift. */
+  /** This tick's solid ledges: the district's, minus drooping vines and fallen crumble, plus lifts. */
   private refreshBoard() {
     const d = this.district
     const board = d.segments.filter(
-      (_, i) => !((this.vines.get(i)?.down ?? 0) > 0),
+      (seg, i) =>
+        !((this.vines.get(i)?.down ?? 0) > 0) &&
+        !((this.crumbles.get(seg)?.down ?? 0) > 0),
     )
-    if (d.lift) {
-      this.liftLeft = liftX(d.lift, this.tick)
+    this.liftLefts = (d.lifts ?? []).map((lift) => liftX(lift, this.tick))
+    ;(d.lifts ?? []).forEach((lift, i) => {
       board.push({
-        x0: this.liftLeft,
-        x1: this.liftLeft + d.lift.w,
-        y: d.lift.y,
+        x0: this.liftLefts[i]!,
+        x1: this.liftLefts[i]! + lift.w,
+        y: lift.y,
+        kind: lift.kind,
       })
-    }
+    })
     this.boardNow = board
   }
 
-  /** The lift glides; whoever stands on it rides along. */
+  /** Lifts and gear ledges glide; whoever stands on them rides along. Conveyors carry riders. */
   private moveLift() {
-    const lift = this.district.lift
-    if (!lift) return
-    const before = this.liftLeft
-    const after = liftX(lift, this.tick)
-    const dx = after - before
-    const riding = (x: number, y: number) =>
-      Math.abs(y - lift.y) < 1 && x >= before - 4 && x <= before + lift.w + 4
     const p = this.player
-    if (p.onGround && riding(p.x, p.y)) p.x = wrapX(p.x + dx)
-    for (const c of this.critters)
-      if (c.onGround && !c.kicked && riding(c.x, c.y)) c.x += dx
+    ;(this.district.lifts ?? []).forEach((lift, i) => {
+      const before = this.liftLefts[i] ?? liftX(lift, this.tick - 1)
+      const dx = liftX(lift, this.tick) - before
+      const riding = (x: number, y: number) =>
+        Math.abs(y - lift.y) < 1 && x >= before - 4 && x <= before + lift.w + 4
+      if (p.onGround && riding(p.x, p.y)) p.x = wrapX(p.x + dx)
+      for (const c of this.critters)
+        if (c.onGround && !c.kicked && riding(c.x, c.y)) c.x += dx
+    })
+    for (const seg of this.district.segments) {
+      if (seg.kind !== 'conveyor' || !seg.dir) continue
+      const on = (x: number, y: number) =>
+        Math.abs(y - seg.y) < 1 && x > seg.x0 && x < seg.x1
+      if (p.onGround && on(p.x, p.y)) p.x = wrapX(p.x + seg.dir)
+      for (const c of this.critters)
+        if (c.onGround && !c.kicked && c.flipped > 0 && on(c.x, c.y))
+          c.x += seg.dir
+    }
+  }
+
+  /** Crumble ledges give way after their third landing and rebuild ten seconds later. */
+  private updateCrumbles() {
+    for (const c of this.crumbles.values())
+      if (c.down > 0 && --c.down === 0) c.landings = 0
+    const p = this.player
+    if (p.onGround && !this.wasOnGround) {
+      const seg = segmentUnder(this.boardNow, p.x, PLAYER_W, p.y, 1)
+      if (seg?.kind === 'crumble') {
+        const c = this.crumbles.get(seg) ?? { landings: 0, down: 0 }
+        c.landings++
+        if (c.landings >= 3) {
+          c.down = 600
+          this.sound.play('boom')
+          for (let x = seg.x0 + 8; x < seg.x1; x += 24)
+            this.burst(x, seg.y + 4, RAMPS.rust[2])
+        } else {
+          this.sound.play('warn')
+        }
+        this.crumbles.set(seg, c)
+      }
+    }
+    this.wasOnGround = p.onGround
   }
 
   /** Vines sag under a pal who lingers, then droop away for a moment. */
@@ -1519,11 +1763,24 @@ class PipePals implements ArcadeGameInstance {
     })
   }
 
-  private onSoap(): boolean {
+  /** What the pal is standing on: soap and ice change the footing. */
+  private footing(): 'soap' | 'ice' | null {
     const p = this.player
-    if (!p.onGround) return false
+    if (!p.onGround) return null
     const s = segmentUnder(this.boardNow, p.x, PLAYER_W, p.y, 1)
-    return s?.kind === 'soap'
+    if (!s) return null
+    if (s.kind === 'soap') return 'soap'
+    const original = this.district.segments.find(
+      (o) => o.y === s.y && o.x0 === s.x0 && o.x1 === s.x1,
+    )
+    if (
+      s.kind === 'ice' ||
+      (original && (this.frozen.get(original) ?? 0) > 0) ||
+      (this.bonusRound > 0 && this.district.bonus === 'ice') ||
+      this.thermo?.mode === 'freeze'
+    )
+      return 'ice'
+    return null
   }
 
   // --- update -------------------------------------------------------------------
@@ -1562,17 +1819,21 @@ class PipePals implements ArcadeGameInstance {
     const controls = this.demo ? this.demoInput() : input
     this.moveLift()
     this.updateVines()
+    this.updateCrumbles()
     this.refreshBoard()
     this.movePlayer(controls)
     this.updateTool(controls)
+    this.updateVents()
     if (this.bonusRound > 0) {
       this.updateBonus()
       return
     }
     this.phaseTicks++
     const step = this.step()
-    if (step.kind === 'boss') this.bossReinforcements()
-    else if (this.queue.length && --this.releaseTimer <= 0) {
+    if (step.kind === 'boss') {
+      this.bossReinforcements()
+      this.updateThermostat()
+    } else if (this.queue.length && --this.releaseTimer <= 0) {
       this.release()
       this.releaseTimer = Math.round(
         levelCurve(this.heat(), PIPE_CURVES.releaseEvery),
@@ -1583,6 +1844,7 @@ class PipePals implements ArcadeGameInstance {
     this.moveBoss()
     this.moveBubbles()
     this.moveEmbers()
+    this.moveIcicles()
     this.moveCoins()
     this.updateSpecial()
     this.collide()
@@ -1615,8 +1877,13 @@ class PipePals implements ArcadeGameInstance {
 
   private movePlayer(input: InputFrame) {
     const p = this.player
-    const soap = this.onSoap()
-    const accel = soap ? RUN_ACCEL * 0.7 : RUN_ACCEL
+    const footing = this.footing()
+    const accel =
+      footing === 'ice'
+        ? RUN_ACCEL * 0.45
+        : footing === 'soap'
+          ? RUN_ACCEL * 0.7
+          : RUN_ACCEL
     if (input.held.left) {
       p.vx -= accel
       p.face = -1
@@ -1624,7 +1891,8 @@ class PipePals implements ArcadeGameInstance {
       p.vx += accel
       p.face = 1
     } else {
-      p.vx *= soap ? 0.96 : RUN_FRICTION
+      p.vx *=
+        footing === 'ice' ? 0.985 : footing === 'soap' ? 0.96 : RUN_FRICTION
     }
     p.vx = Math.max(-RUN_MAX, Math.min(RUN_MAX, p.vx))
     if ((input.pressed.a || input.pressed.up) && p.onGround) {
@@ -1731,6 +1999,59 @@ class PipePals implements ArcadeGameInstance {
         colours: [RAMPS.water[4], RAMPS.water[3], '#ffffff'],
       })
     }
+    // Icicles under this ledge shatter harmlessly.
+    for (const ice of this.icicles) {
+      if (ice.y !== floorY || Math.abs(ice.x - x) > reach) continue
+      if (ice.state !== 'grow' && ice.state !== 'shake') continue
+      if (ice.grow < ICICLE_GROW * 0.3) continue
+      this.shatterIcicle(ice)
+      this.addScore(300, ice.x, ice.y + 20)
+    }
+    // Thaw Run: three bumps free a frozen pal from its block.
+    for (const b of this.blocks) {
+      if (b.freed || b.y !== floorY || Math.abs(b.x - x) > reach) continue
+      b.hits++
+      this.sound.play('pop')
+      if (b.hits >= 3) {
+        b.freed = true
+        this.addScore(1000, b.x, b.y - 24)
+        this.sound.play('extra')
+        this.fx.burst(b.x, b.y - 10, this.fxRng, {
+          count: 14,
+          colours: [RAMPS.water[4], RAMPS.teal[3], '#ffffff'],
+        })
+      }
+    }
+    // Pressure Valves: a bump vents the gauge back to zero.
+    for (const gauge of this.gauges) {
+      if (gauge.burst || gauge.y !== floorY || Math.abs(gauge.x - x) > reach)
+        continue
+      if (gauge.p > 0.2) this.addScore(300, gauge.x, gauge.y - 24)
+      gauge.p = 0
+      this.fx.burst(gauge.x, gauge.y - 14, this.fxRng, {
+        count: 8,
+        colours: ['#ffffff', RAMPS.steel[4]],
+      })
+    }
+    // Valve Routing: a bump on a wheel switches the pipe critters come out of.
+    for (const wheel of this.wheels) {
+      if (wheel.y !== floorY || Math.abs(wheel.x - x) > reach) continue
+      this.route = this.route === 0 ? 1 : 0
+      this.sound.play('blip')
+      this.floaters.push({
+        x: wheel.x,
+        y: wheel.y - 26,
+        text: this.route === 0 ? '< LEFT PIPE' : 'RIGHT PIPE >',
+        life: 60,
+      })
+    }
+    // The Thermostat: bump the ledge its needle has lit.
+    const th = this.thermo
+    if (th && th.targetT <= THERMO_ARMED) {
+      const seg = this.thermoLedges()[th.target]
+      if (seg && seg.y === floorY && x > seg.x0 - 8 && x < seg.x1 + 8)
+        this.hitThermostat()
+    }
     // A soapy ledge blows a bubble up from the bump.
     const ledge = segmentUnder(this.boardNow, x, 1, floorY, 1)
     if (ledge?.kind === 'soap' && this.bubbles.length < 6) {
@@ -1772,6 +2093,21 @@ class PipePals implements ArcadeGameInstance {
   private hitCritter(c: Critter) {
     if ((c.kind === 'flea' || c.kind === 'moth') && !c.onGround) return
     if (c.kind === 'moth' && c.flying) return
+    if (c.kind === 'frost') {
+      // One bump shatters a frost bot: no kick needed.
+      this.shatter(c)
+      return
+    }
+    if (c.kind === 'snowball') {
+      if (c.size < 10) this.shatter(c)
+      else {
+        c.vy = -2.5
+        this.floaters.push({ x: c.x, y: c.y - 24, text: 'TOO BIG!', life: 40 })
+      }
+      return
+    }
+    // A gear bug only flips while it is paused, winding down.
+    if (c.kind === 'gearbug' && c.mode !== 1 && c.flipped === 0) return
     if (c.flipped > 0) {
       // Bumping a flipped critter rights it again.
       c.flipped = 0
@@ -1901,7 +2237,9 @@ class PipePals implements ArcadeGameInstance {
             (c.rush ? RUSH_SPEED : 1) *
             (c.kind === 'crab' && c.angry ? 1.25 : 1) *
             (c.kind === 'knight' && !c.armored ? 1.5 : 1) *
-            (c.kind === 'sock' ? 1.2 : 1)
+            (c.kind === 'sock' ? 1.2 : 1) *
+            (c.kind === 'frost' ? 0.85 : 1) *
+            (c.kind === 'snowball' ? 1.3 : 1)
       if (c.kind === 'flea' && c.flipped === 0) {
         // Fleas wait, then spring forward in an arc.
         if (c.onGround) {
@@ -1915,6 +2253,37 @@ class PipePals implements ArcadeGameInstance {
           speed = 1.5 * TIER_SPEED[c.tier]
         }
       }
+      if (c.kind === 'gearbug' && c.flipped === 0) {
+        // Wind up slowly, pause (the only time it can be flipped), then dash.
+        if (--c.hop <= 0) {
+          c.mode = (c.mode + 1) % 3
+          c.hop = c.mode === 0 ? 110 : c.mode === 1 ? 64 : 44
+          if (c.mode === 2) this.sound.play('blip')
+        }
+        speed =
+          c.mode === 1
+            ? 0
+            : c.mode === 2
+              ? 2 + 0.3 * c.tier
+              : base * 0.5 * TIER_SPEED[c.tier]
+      }
+      if (c.kind === 'snowball' && c.flipped === 0)
+        c.size = Math.min(14, c.size + 0.008 * TIER_SPEED[c.tier])
+      if (c.kind === 'frost' && c.onGround && c.flipped === 0) {
+        // Frost bots ice over the ledge they walk, and re-ice any thawing block.
+        const seg = this.district.segments.find(
+          (o) => Math.abs(o.y - c.y) < 1 && c.x > o.x0 && c.x < o.x1,
+        )
+        if (seg && seg.y < 310) this.frozen.set(seg, 600)
+        for (const b of this.blocks)
+          if (
+            !b.freed &&
+            b.hits > 0 &&
+            Math.abs(b.y - c.y) < 1 &&
+            Math.abs(b.x - c.x) < 12
+          )
+            b.hits = 0
+      }
       if (c.kind === 'moth' && c.flipped === 0) {
         // Resting: still, wings down, then off it goes again.
         speed = 0
@@ -1926,7 +2295,8 @@ class PipePals implements ArcadeGameInstance {
           continue
         }
       }
-      c.vx = c.dir * speed
+      // However the bonuses stack, a walker never outruns a running pal by much.
+      c.vx = c.dir * Math.min(speed, MAX_WALK)
       c.vy += GRAVITY
       c.x += c.vx
       c.y += c.vy
@@ -1952,6 +2322,7 @@ class PipePals implements ArcadeGameInstance {
         const pipe = c.x < 6 ? TOP_PIPES[1]! : TOP_PIPES[0]!
         Object.assign(c, { x: pipe.x, y: pipe.y, vy: 0, dir: pipe.dir })
         if (c.kind === 'moth') Object.assign(c, { flying: true, hop: 150 })
+        if (c.kind === 'snowball') c.size = 6
         continue
       }
       if (c.y > H + 20) Object.assign(c, { y: 310, vy: 0 })
@@ -2013,6 +2384,7 @@ class PipePals implements ArcadeGameInstance {
     c.slide = grounded ? (this.tool?.kind === 'boots' ? W : BOWL_TICKS) : 0
     this.chain = this.chainTimer > 0 ? this.chain + 1 : 1
     this.chainTimer = CHAIN_WINDOW
+    this.bestChain = Math.max(this.bestChain, this.chain)
     this.addScore(chainPoints(this.chain), c.x, c.y - 14)
     if (this.chain > 1) {
       this.floaters.push({
@@ -2203,12 +2575,13 @@ class PipePals implements ArcadeGameInstance {
   private spawnEmbers() {
     const step = this.step()
     if (step.kind !== 'phase') return
+    const rate = this.district.emberRate ?? 1
     if (this.level >= SPARKS_FROM && --this.sparkTimer <= 0) {
       this.sparkTimer = Math.round(
-        levelCurve(this.heat(), PIPE_CURVES.sparkEvery),
+        levelCurve(this.heat(), PIPE_CURVES.sparkEvery) / rate,
       )
       const live = this.embers.filter((e) => e.kind === 'spark').length
-      if (live < (this.heat() >= 8 ? 2 : 1)) {
+      if (live < (this.heat() >= 8 ? 2 : 1) + (rate > 1 ? 1 : 0)) {
         const left = this.rng() < 0.5
         this.embers.push({
           kind: 'spark',
@@ -2220,6 +2593,22 @@ class PipePals implements ArcadeGameInstance {
           tell: HAZARD_TELL,
         })
       }
+    }
+    // The cuckoo pops out of the clock on the hour and swoops along one floor.
+    if (this.district.cuckoo && --this.cuckooTimer <= 0) {
+      this.cuckooTimer = 60 * 13
+      const fromLeft = this.rng() < 0.5
+      const floor = this.rng() < 0.5 ? 244 : 178
+      this.embers.push({
+        kind: 'cuckoo',
+        x: fromLeft ? -10 : W + 10,
+        y: floor - 12,
+        vx: fromLeft ? 2.4 : -2.4,
+        vy: 0,
+        life: 60 * 10,
+        tell: 70,
+      })
+      this.sound.play('warn')
     }
     // A pal who lingers gets a lurker ember sliding in along their floor.
     if (this.level >= 2 && this.phaseTicks > this.lurkerTimer) {
@@ -2249,6 +2638,9 @@ class PipePals implements ArcadeGameInstance {
         e.y += e.vy
         if (e.x < 8 || e.x > W - 8) e.vx = -e.vx
         if (e.y < 34 || e.y > 302) e.vy = -e.vy
+      } else if (e.kind === 'cuckoo') {
+        e.y += Math.sin((this.tick + e.x) / 10) * 0.6
+        if (e.x < -16 || e.x > W + 16) e.life = 0
       } else if (e.x < -8 || e.x > W + 8) {
         e.life = 0
       }
@@ -2272,6 +2664,22 @@ class PipePals implements ArcadeGameInstance {
       ) {
         p.vx = (p.x >= leak.x ? 1 : -1) * 3.2
         if (this.tick % 12 === 0) this.sound.play('blip')
+      }
+    }
+    for (const gauge of this.gauges) {
+      if (gauge.burst) continue
+      gauge.p += gauge.rate
+      if (gauge.p >= 1) {
+        gauge.burst = true
+        this.sound.play('boom')
+        this.kindShake = 14
+        this.burst(gauge.x, gauge.y - 12, '#ffffff')
+        this.floaters.push({
+          x: gauge.x,
+          y: gauge.y - 30,
+          text: 'BURST!',
+          life: 60,
+        })
       }
     }
     for (const s of this.seedlings) {
@@ -2358,6 +2766,220 @@ class PipePals implements ArcadeGameInstance {
     }
   }
 
+  /** Shatter a critter on the spot (frost bots, small snowballs): it counts as a kick. */
+  private shatter(c: Critter) {
+    c.onGround = false
+    this.kick(c, this.player.x < c.x ? 1 : -1)
+    this.burst(c.x, c.y - 6, RAMPS.water[4])
+    this.fx.burst(c.x, c.y - 6, this.fxRng, {
+      count: 10,
+      colours: [RAMPS.water[4], '#ffffff', RAMPS.sky[3]],
+    })
+  }
+
+  private shatterIcicle(ice: Icicle) {
+    const y = ice.state === 'fall' ? ice.fy + 10 : ice.y + 14
+    ice.state = 'gone'
+    ice.t = 300
+    this.sound.play('pop')
+    this.burst(ice.x, y, RAMPS.water[4])
+  }
+
+  /** Icicles grow under their ledge, shake (the tell), drop, and grow back. */
+  private moveIcicles() {
+    for (const ice of this.icicles) {
+      if (ice.state === 'gone') {
+        if (--ice.t <= 0) Object.assign(ice, { state: 'grow', grow: 0 })
+        continue
+      }
+      if (ice.state === 'grow') {
+        ice.grow++
+        if (ice.grow >= ICICLE_GROW)
+          Object.assign(ice, { state: 'shake', t: ICICLE_SHAKE })
+        continue
+      }
+      if (ice.state === 'shake') {
+        if (--ice.t <= 0)
+          Object.assign(ice, { state: 'fall', fy: ice.y + THICK, vy: 0 })
+        if (ice.t === ICICLE_SHAKE - 1) this.sound.play('warn')
+        continue
+      }
+      ice.vy = Math.min(7, ice.vy + GRAVITY)
+      ice.fy += ice.vy
+      const tip = ice.fy + 14
+      const land = segmentUnder(
+        this.boardNow,
+        ice.x,
+        2,
+        tip,
+        Math.max(4, ice.vy + 1),
+      )
+      if ((land && land.y > ice.y) || tip > H) {
+        this.shatterIcicle(ice)
+        ice.fy = tip
+      }
+    }
+  }
+
+  /** Steam vents puff on a beat: whoever stands in the puff is thrown upward. */
+  private updateVents() {
+    const vents = this.district.vents ?? []
+    const p = this.player
+    vents.forEach((vent, i) => {
+      if (!this.ventPuffing(vent, i)) return
+      const inPuff = (x: number, y: number) =>
+        Math.abs(x - vent.x) < 11 && y <= vent.y + 1 && y > vent.y - 40
+      if (inPuff(p.x, p.y) && p.vy >= 0) {
+        p.vy = -8.2
+        p.onGround = false
+        this.sound.play('blip')
+      }
+      for (const c of this.critters)
+        if (!c.kicked && c.trapped === 0 && c.onGround && inPuff(c.x, c.y)) {
+          c.vy = -5.5
+          c.onGround = false
+        }
+    })
+    // A burst gauge vents steam on its spot until the phase ends.
+    for (const gauge of this.gauges) {
+      if (!gauge.burst) continue
+      if (
+        Math.abs(p.x - gauge.x) < 11 &&
+        p.y <= gauge.y + 1 &&
+        p.y > gauge.y - 40 &&
+        p.vy >= 0
+      ) {
+        p.vy = -7
+        p.onGround = false
+      }
+    }
+  }
+
+  private ventPuffing(vent: Spot, i: number): boolean {
+    const t = (this.tick + i * 50) % VENT_PERIOD
+    return t >= VENT_PERIOD - VENT_PUFF
+  }
+
+  private ventHissing(vent: Spot, i: number): boolean {
+    const t = (this.tick + i * 50) % VENT_PERIOD
+    return (
+      t >= VENT_PERIOD - VENT_PUFF - VENT_TELL && t < VENT_PERIOD - VENT_PUFF
+    )
+  }
+
+  // --- the Thermostat ------------------------------------------------------------
+
+  private startThermostat() {
+    this.thermo = {
+      hp: 9,
+      maxHp: 9,
+      mode: 'freeze',
+      modeT: 480,
+      target: 0,
+      targetT: 100,
+      flash: 0,
+      spawnT: 120,
+    }
+    this.invuln = 120
+    this.banner = {
+      text: 'THE THERMOSTAT',
+      sub: 'BUMP THE LEDGE ITS NEEDLE LIGHTS',
+      ticks: 170,
+    }
+    this.sound.play('warn')
+  }
+
+  /** The ledges the needle can point at: every ledge above the floor. */
+  private thermoLedges(): Segment[] {
+    return this.district.segments.filter((s) => s.y < 310)
+  }
+
+  /** 1, 2 or 3: each third of its health it spins faster. */
+  private thermoStage(): number {
+    const t = this.thermo!
+    return Math.min(3, 1 + Math.floor(((t.maxHp - t.hp) / t.maxHp) * 3))
+  }
+
+  private updateThermostat() {
+    const t = this.thermo
+    if (!t) return
+    if (t.flash > 0) t.flash--
+    const stage = this.thermoStage()
+    if (--t.modeT <= 0) {
+      t.mode = t.mode === 'freeze' ? 'heat' : 'freeze'
+      t.modeT = [480, 380, 300][stage - 1]!
+      this.sound.play('warn')
+      this.banner = {
+        text: t.mode === 'freeze' ? 'FREEZE!' : 'HEAT!',
+        ticks: 60,
+      }
+    }
+    if (--t.targetT <= 0) {
+      const ledges = this.thermoLedges()
+      t.target =
+        (t.target + 1 + Math.floor(this.rng() * (ledges.length - 1))) %
+        ledges.length
+      t.targetT = [110, 90, 72][stage - 1]!
+    }
+    if (--t.spawnT <= 0) {
+      t.spawnT = [260, 220, 180][stage - 1]!
+      const both = stage === 3
+      if (t.mode === 'freeze' || both) {
+        const frost = this.critters.filter(
+          (c) => !c.kicked && c.kind === 'frost',
+        ).length
+        if (frost < 3) {
+          this.queue.push('frost')
+          this.release()
+        }
+      }
+      if (t.mode === 'heat' || both) {
+        const live = this.embers.filter((e) => e.kind === 'spark').length
+        if (live < 3) {
+          const left = this.rng() < 0.5
+          this.embers.push({
+            kind: 'spark',
+            x: left ? 10 : W - 10,
+            y: 120 + Math.floor(this.rng() * 150),
+            vx: left ? 1.2 : -1.2,
+            vy: this.rng() < 0.5 ? 1.1 : -1.1,
+            life: 60 * 10,
+            tell: HAZARD_TELL,
+          })
+        }
+      }
+    }
+  }
+
+  private hitThermostat() {
+    const t = this.thermo!
+    t.hp--
+    t.flash = 20
+    t.targetT = 0
+    this.addScore(3000, THERMO.x, THERMO.y + 40)
+    this.sound.play('boom')
+    this.kindShake = 16
+    this.fx.burst(THERMO.x, THERMO.y, this.fxRng, { count: 18, speed: 2.4 })
+    if (t.hp > 0) return
+    this.thermo = null
+    this.addScore(25_000, THERMO.x, THERMO.y + 50)
+    for (const c of this.critters) {
+      if (c.kicked) continue
+      c.kicked = true
+      c.slide = 0
+      c.vy = -4
+      c.vx = c.x < W / 2 ? -2 : 2
+    }
+    this.embers = []
+    this.banner = {
+      text: 'TEMPERATURE NORMAL',
+      sub: 'THE THERMOSTAT IS FIXED',
+      ticks: 170,
+    }
+    this.sound.play('level')
+    this.phaseDelay = 180
+  }
+
   private spraying(leak: Leak): boolean {
     return !leak.sealed && leak.t % 150 < 64
   }
@@ -2426,6 +3048,14 @@ class PipePals implements ArcadeGameInstance {
 
   /** Coins, tools and socks: fall and settle on ledges, or drift at their float speed. */
   private fall(coin: Coin) {
+    if (coin.ride) {
+      const lift = this.district.lifts?.[coin.ride.lift]
+      if (lift) {
+        coin.x = (this.liftLefts[coin.ride.lift] ?? lift.minX) + coin.ride.dx
+        coin.y = lift.y - 10
+        return
+      }
+    }
     if (coin.float !== undefined) {
       coin.y += coin.float
       if (coin.float < 0) {
@@ -2471,15 +3101,29 @@ class PipePals implements ArcadeGameInstance {
       this.bonusTimer = 26
       this.bonusFeed--
       const x = 24 + Math.floor(this.rng() * (W - 48))
-      const rising = this.district.bonus === 'bubbles'
-      this.coins.push({
-        x,
-        y: rising ? 300 : 44,
-        vx: 0,
-        vy: 0,
-        life: Infinity,
-        float: rising ? -0.55 : 0.5,
-      })
+      const twist = this.district.bonus
+      const vents = this.district.vents ?? []
+      if (twist === 'steam' && vents.length) {
+        // Coins thrown up on the steam from a random vent.
+        const vent = vents[Math.floor(this.rng() * vents.length)]!
+        this.coins.push({
+          x: vent.x,
+          y: vent.y - 8,
+          vx: (this.rng() - 0.5) * 2.4,
+          vy: -6 - this.rng() * 2,
+          life: Infinity,
+        })
+      } else {
+        const rising = twist === 'bubbles'
+        this.coins.push({
+          x,
+          y: rising ? 300 : 44,
+          vx: 0,
+          vy: 0,
+          life: Infinity,
+          float: rising ? -0.55 : 0.5,
+        })
+      }
     }
     this.moveCoins()
     this.collectCoins()
@@ -2578,6 +3222,14 @@ class PipePals implements ArcadeGameInstance {
       }
     }
     if (this.invuln > 0) return
+    for (const ice of this.icicles) {
+      if (ice.state !== 'fall') continue
+      if (this.touchingPlayer(ice.x, ice.fy + 6, 8, 16)) {
+        this.shatterIcicle(ice)
+        this.loseLife()
+        return
+      }
+    }
     for (const e of this.embers) {
       if (e.tell > 0) continue
       if (this.touchingPlayer(e.x, e.y - 5, 10, 14)) {
@@ -2819,6 +3471,18 @@ class PipePals implements ArcadeGameInstance {
       else held.right = true
       return frame
     }
+    // A shaking or falling icicle overhead: get out from under it.
+    const icicle = this.icicles.find(
+      (ice) =>
+        (ice.state === 'shake' || ice.state === 'fall') &&
+        Math.abs(ice.x - p.x) < 16 &&
+        (ice.state === 'fall' ? ice.fy : ice.y) < p.y,
+    )
+    if (icicle && this.invuln <= 0) {
+      if (icicle.x > p.x) held.left = true
+      else held.right = true
+      return frame
+    }
     // An ember close by: step away from it.
     const ember = this.embers.find(
       (e) =>
@@ -2843,7 +3507,16 @@ class PipePals implements ArcadeGameInstance {
       )[0]
     // Objectives first, but never forever: after a while it just clears the critters.
     const keen = this.phaseTicks < 60 * 45
-    const leak = keen ? this.leaks.find((l) => !l.sealed) : undefined
+    const th = this.thermo
+    const thermoSeg = th ? this.thermoLedges()[th.target] : undefined
+    const prop = keen
+      ? (this.leaks.find((l) => !l.sealed) ??
+        this.blocks.find((b) => !b.freed) ??
+        this.gauges
+          .filter((gg) => !gg.burst && gg.p > 0.45)
+          .sort((a, b) => b.p - a.p)[0])
+      : undefined
+    const leak = prop
     const seedling = keen
       ? this.seedlings.find((s) => s.state === 'potted')
       : undefined
@@ -2851,7 +3524,11 @@ class PipePals implements ArcadeGameInstance {
     let goalFloor: number | null = null
     let goalX = p.x
     let jumpWhenUnder = false
-    if (boss && boss.state === 'tipped' && boss.y > 0) {
+    if (thermoSeg && th && th.targetT < 80) {
+      goalFloor = thermoSeg.y + 66
+      goalX = Math.max(thermoSeg.x0 + 10, Math.min(thermoSeg.x1 - 10, p.x))
+      jumpWhenUnder = th.targetT <= THERMO_ARMED
+    } else if (boss && boss.state === 'tipped' && boss.y > 0) {
       goalFloor = boss.y
       goalX = boss.x
     } else if (flipped) {
@@ -2941,6 +3618,7 @@ class PipePals implements ArcadeGameInstance {
     g.fillStyle = RAMPS.night[0]
     g.fillRect(0, -4, W, H + 8)
     this.renderBackdrop(g)
+    if (this.thermo) this.renderThermostat(g, this.thermo)
     this.renderFloors(g)
     this.renderKindBlock(g)
     this.renderSpecial(g)
@@ -2984,6 +3662,51 @@ class PipePals implements ArcadeGameInstance {
 
   private renderBackdrop(g: CanvasRenderingContext2D) {
     const scene = this.district.scene
+    if (scene === 'cold') {
+      cachedLayer(g, 'pipe-pals-cold', W, H, paintCold)
+      // Snow drifting down in the cold-room air.
+      g.fillStyle = rgba('#ffffff', 0.7)
+      for (let i = 0; i < 26; i++) {
+        const x = (i * 53 + Math.sin((this.tick + i * 30) / 40) * 10 + W) % W
+        const y = (this.tick * (0.3 + (i % 3) * 0.15) + i * 41) % 300
+        g.fillRect(Math.round(x), Math.round(y), 1, 1)
+      }
+      return
+    }
+    if (scene === 'boiler') {
+      cachedLayer(g, 'pipe-pals-boiler', W, H, paintBoiler)
+      glow(
+        g,
+        W / 2,
+        300,
+        70,
+        RAMPS.ember[3],
+        0.18 + 0.08 * Math.sin(this.tick / 7),
+      )
+      return
+    }
+    if (scene === 'clock') {
+      cachedLayer(g, 'pipe-pals-clock', W, H, paintClock)
+      // The clock's hands.
+      const minute = (this.tick / 600) * Math.PI * 2 - Math.PI / 2
+      const hour = minute / 12
+      g.fillStyle = INK
+      for (let r = 0; r < 16; r++)
+        g.fillRect(
+          Math.round(W / 2 + Math.cos(minute) * r),
+          Math.round(46 + Math.sin(minute) * r),
+          1,
+          1,
+        )
+      for (let r = 0; r < 10; r++)
+        g.fillRect(
+          Math.round(W / 2 + Math.cos(hour) * r),
+          Math.round(46 + Math.sin(hour) * r),
+          2,
+          2,
+        )
+      return
+    }
     if (scene === 'greenhouse') {
       cachedLayer(g, 'pipe-pals-greenhouse', W, H, paintGreenhouse)
       // Sprinkler drips falling past the glass.
@@ -3093,17 +3816,75 @@ class PipePals implements ArcadeGameInstance {
         g.fillRect(Math.round((s.x0 + s.x1) / 2), s.y + THICK + sag, 2, 2)
       }
     })
-    if (d.lift) {
+    ;(d.lifts ?? []).forEach((liftDef, i) => {
+      const left = this.liftLefts[i] ?? liftDef.minX
       const lift = {
-        x0: this.liftLeft,
-        x1: this.liftLeft + d.lift.w,
-        y: d.lift.y,
+        x0: left,
+        x1: left + liftDef.w,
+        y: liftDef.y,
+        kind: liftDef.kind,
+      }
+      if (liftDef.kind === 'gear') {
+        // A brass gear ledge: teeth along its underside that turn as it slides.
+        this.drawLedge(g, lift)
+        for (let x = 0; x < liftDef.w; x += 6) {
+          const tx = Math.round(left + ((x + left * 0.5) % liftDef.w))
+          g.fillStyle = INK
+          g.fillRect(tx - 1, liftDef.y + THICK, 4, 3)
+          g.fillStyle = RAMPS.gold[2]
+          g.fillRect(tx, liftDef.y + THICK, 2, 2)
+        }
+        return
       }
       this.drawLedge(g, lift)
-      // Its cable rails, up into the glass roof.
+      // Its cable rails, up into the roof.
       g.fillStyle = RAMPS.steel[2]
-      g.fillRect(Math.round(this.liftLeft) + 6, 36, 1, d.lift.y - 36)
-      g.fillRect(Math.round(this.liftLeft + d.lift.w) - 7, 36, 1, d.lift.y - 36)
+      g.fillRect(Math.round(left) + 6, 36, 1, liftDef.y - 36)
+      g.fillRect(Math.round(left + liftDef.w) - 7, 36, 1, liftDef.y - 36)
+    })
+    for (const seg of d.segments) {
+      if (seg.kind === 'conveyor' && seg.dir) {
+        // Chevrons running along the belt.
+        const step = Math.floor((this.tick * Math.abs(seg.dir)) % 12)
+        for (let x = seg.x0 + 4; x < seg.x1 - 6; x += 12) {
+          const cx = Math.round(x + ((seg.dir > 0 ? step : 12 - step) % 12))
+          if (cx > seg.x1 - 6) continue
+          g.fillStyle = RAMPS.gold[4]
+          g.fillRect(cx, seg.y + 2, 1, 1)
+          g.fillRect(cx + (seg.dir > 0 ? 1 : -1), seg.y + 3, 1, 1)
+          g.fillRect(cx, seg.y + 4, 1, 1)
+        }
+      }
+      const iced = this.frozen.get(seg) ?? 0
+      if (iced > 0) {
+        g.fillStyle = rgba(RAMPS.water[4], Math.min(0.55, iced / 200))
+        g.fillRect(seg.x0, seg.y - 2, seg.x1 - seg.x0, 3)
+        g.fillStyle = '#ffffff'
+        for (let x = seg.x0 + 5; x < seg.x1; x += 17)
+          g.fillRect(x, seg.y - 2, 2, 1)
+      }
+      if (seg.kind === 'crumble') {
+        const c = this.crumbles.get(seg)
+        if (c && c.down > 0) {
+          // Fallen: a dotted outline where it will rebuild.
+          g.fillStyle = rgba(
+            RAMPS.rust[3],
+            c.down < 120 && Math.floor(c.down / 6) % 2 ? 0.7 : 0.25,
+          )
+          for (let x = seg.x0; x < seg.x1; x += 6)
+            g.fillRect(x, seg.y + 3, 3, 2)
+          continue
+        }
+        // Cracks spreading with each landing.
+        g.fillStyle = INK
+        for (let i = 0; i < (c?.landings ?? 0) * 4; i++) {
+          const x = Math.round(
+            seg.x0 + 10 + ((i * 37) % (seg.x1 - seg.x0 - 20)),
+          )
+          g.fillRect(x, seg.y + 1, 1, 3)
+          g.fillRect(x + 1, seg.y + 3, 1, 3)
+        }
+      }
     }
     const bump = this.bump
     if (!bump) return
@@ -3164,8 +3945,9 @@ class PipePals implements ArcadeGameInstance {
     }
   }
 
-  /** Leaky joints, potted seedlings. */
+  /** Leaky joints, potted seedlings, thaw blocks, gauges, route wheels, vents and icicles. */
   private renderSpecial(g: CanvasRenderingContext2D) {
+    this.renderSwing(g)
     for (const leak of this.leaks) {
       const x = leak.x
       const y = leak.y
@@ -3201,6 +3983,123 @@ class PipePals implements ArcadeGameInstance {
         continue
       }
       this.drawSeedling(g, s.x, s.y, s.state === 'trampled')
+    }
+  }
+
+  private renderSwing(g: CanvasRenderingContext2D) {
+    // Steam vents: a grate, a hiss before the puff, then a column of steam.
+    ;(this.district.vents ?? []).forEach((vent, i) => {
+      bevel(g, vent.x - 9, vent.y - 3, 18, 4, RAMPS.steel)
+      g.fillStyle = INK
+      for (let x = -6; x <= 6; x += 3) g.fillRect(vent.x + x, vent.y - 2, 1, 2)
+      if (this.ventHissing(vent, i) && Math.floor(this.tick / 3) % 2 === 0) {
+        g.fillStyle = rgba('#ffffff', 0.6)
+        g.fillRect(vent.x - 1 + ((this.tick * 3) % 5) - 2, vent.y - 7, 2, 3)
+      }
+      if (this.ventPuffing(vent, i)) this.drawSteam(g, vent.x, vent.y)
+    })
+    for (const b of this.blocks) {
+      if (b.freed) continue
+      // An ice block with a frozen pal inside; cracks show the bumps so far.
+      const x = Math.round(b.x - 10)
+      const y = Math.round(b.y - 22)
+      g.fillStyle = INK
+      g.fillRect(x - 1, y - 1, 22, 23)
+      g.fillStyle = rgba(RAMPS.water[3], 0.85)
+      g.fillRect(x, y, 20, 21)
+      drawSprite(g, TEAL_FACE, b.x, b.y - 11, { alpha: 0.7 })
+      g.fillStyle = rgba('#ffffff', 0.7)
+      g.fillRect(x + 2, y + 2, 3, 8)
+      g.fillStyle = INK
+      for (let i = 0; i < b.hits; i++) {
+        g.fillRect(x + 4 + i * 6, y + 4, 1, 6)
+        g.fillRect(x + 5 + i * 6, y + 10, 1, 5)
+      }
+    }
+    for (const gauge of this.gauges) {
+      const x = gauge.x
+      const y = gauge.y - 12
+      if (gauge.burst) {
+        this.drawSteam(g, x, gauge.y)
+        shadedOrb(g, x, y, 7, RAMPS.night)
+        continue
+      }
+      shadedOrb(g, x, y, 8, RAMPS.steel)
+      g.fillStyle = RAMPS.cream[4]
+      g.beginPath()
+      g.arc(x, y, 6, 0, Math.PI * 2)
+      g.fill()
+      g.fillStyle = RAMPS.ember[2]
+      g.fillRect(x + 2, y - 6, 3, 2)
+      // The needle swings from left to the red zone at top right.
+      const a = Math.PI * (0.9 + gauge.p * 1.45)
+      g.fillStyle = INK
+      for (let r = 0; r < 6; r++)
+        g.fillRect(
+          Math.round(x + Math.cos(a) * r),
+          Math.round(y + Math.sin(a) * r),
+          1,
+          1,
+        )
+      if (gauge.p > 0.75 && Math.floor(this.tick / 5) % 2 === 0)
+        glow(g, x, y, 14, RAMPS.ember[3], 0.45)
+      bevel(g, x - 2, y + 7, 4, gauge.y - y - 7, RAMPS.steel)
+    }
+    for (const wheel of this.wheels) {
+      const x = wheel.x
+      const y = wheel.y - 10
+      shadedOrb(g, x, y, 8, RAMPS.ember)
+      const a = this.tick / 30 + (this.route === 0 ? 0 : Math.PI / 4)
+      g.fillStyle = RAMPS.ember[4]
+      for (let i = 0; i < 4; i++) {
+        const sa = a + (i * Math.PI) / 2
+        g.fillRect(
+          Math.round(x + Math.cos(sa) * 5),
+          Math.round(y + Math.sin(sa) * 5),
+          2,
+          2,
+        )
+      }
+    }
+    if (this.route >= 0) {
+      // A glow on the pipe critters are routed through.
+      const pipe = TOP_PIPES[this.route]!
+      glow(
+        g,
+        pipe.x + pipe.dir * 16,
+        pipe.y - 14,
+        22,
+        RAMPS.gold[4],
+        0.35 + 0.1 * Math.sin(this.tick / 8),
+      )
+    }
+    for (const ice of this.icicles) {
+      if (ice.state === 'gone') continue
+      const len =
+        ice.state === 'grow' ? Math.round((ice.grow / ICICLE_GROW) * 14) : 14
+      if (len <= 0) continue
+      const shake =
+        ice.state === 'shake' ? Math.round(Math.sin(this.tick * 2)) : 0
+      const top = ice.state === 'fall' ? Math.round(ice.fy) : ice.y + THICK
+      const x = Math.round(ice.x) + shake
+      for (let i = 0; i < len; i++) {
+        const w = Math.max(1, Math.round((1 - i / len) * 5))
+        g.fillStyle = INK
+        g.fillRect(x - Math.ceil(w / 2) - 1, top + i, w + 2, 1)
+        g.fillStyle = i < 3 ? '#ffffff' : RAMPS.water[3]
+        g.fillRect(x - Math.ceil(w / 2), top + i, w, 1)
+      }
+      if (ice.state === 'shake') glow(g, x, top + 6, 10, RAMPS.water[4], 0.4)
+    }
+  }
+
+  private drawSteam(g: CanvasRenderingContext2D, x: number, y: number) {
+    glow(g, x, y - 20, 18, '#ffffff', 0.3)
+    for (let i = 0; i < 12; i++) {
+      const h = (i * 9 + this.tick * 2) % 40
+      const spread = (h / 40) * 8 * (i % 2 ? 1 : -1)
+      g.fillStyle = rgba('#ffffff', 0.75 - h / 70)
+      g.fillRect(Math.round(x + spread) - 1, y - 3 - h, 3, 3)
     }
   }
 
@@ -3252,6 +4151,88 @@ class PipePals implements ArcadeGameInstance {
     g.fillRect(px - 3, py - 6, 5, 2)
     g.fillStyle = r[3]
     g.fillRect(px - 3, py - 2, 5, 1)
+  }
+
+  /** The Thermostat: a great dial, blue for freeze and red for heat, its needle on a ledge. */
+  private renderThermostat(g: CanvasRenderingContext2D, t: Thermostat) {
+    const ledges = this.thermoLedges()
+    const seg = ledges[t.target]
+    const armed = t.targetT <= THERMO_ARMED
+    if (seg) {
+      const cx = (seg.x0 + seg.x1) / 2
+      const a = Math.atan2(seg.y - THERMO.y, cx - THERMO.x)
+      if (armed) {
+        const pulse = 0.35 + 0.25 * Math.sin(this.tick / 3)
+        g.fillStyle = rgba(
+          t.mode === 'freeze' ? RAMPS.water[4] : RAMPS.ember[3],
+          pulse,
+        )
+        g.fillRect(seg.x0, seg.y + THICK, seg.x1 - seg.x0, 4)
+      }
+      // The pointer beam from dial to ledge.
+      g.fillStyle = rgba(RAMPS.gold[4], armed ? 0.5 : 0.18)
+      const len = Math.hypot(cx - THERMO.x, seg.y - THERMO.y)
+      for (let r = THERMO.r; r < len; r += 6)
+        g.fillRect(
+          Math.round(THERMO.x + Math.cos(a) * r),
+          Math.round(THERMO.y + Math.sin(a) * r),
+          2,
+          2,
+        )
+    }
+    const ramp = t.mode === 'freeze' ? RAMPS.water : RAMPS.ember
+    glow(g, THERMO.x, THERMO.y, THERMO.r * 2, ramp[3], t.flash ? 0.7 : 0.3)
+    shadedOrb(
+      g,
+      THERMO.x,
+      THERMO.y,
+      THERMO.r,
+      t.flash && t.flash % 4 < 2 ? RAMPS.cream : RAMPS.steel,
+    )
+    g.fillStyle = RAMPS.cream[4]
+    g.beginPath()
+    g.arc(THERMO.x, THERMO.y, THERMO.r - 5, 0, Math.PI * 2)
+    g.fill()
+    g.fillStyle = RAMPS.water[2]
+    g.beginPath()
+    g.arc(THERMO.x, THERMO.y, THERMO.r - 7, Math.PI * 0.5, Math.PI * 1.5)
+    g.fill()
+    g.fillStyle = RAMPS.ember[2]
+    g.beginPath()
+    g.arc(THERMO.x, THERMO.y, THERMO.r - 7, -Math.PI * 0.5, Math.PI * 0.5)
+    g.fill()
+    if (seg) {
+      const a = Math.atan2(seg.y - THERMO.y, (seg.x0 + seg.x1) / 2 - THERMO.x)
+      g.fillStyle = INK
+      for (let r = 0; r < THERMO.r - 6; r++)
+        g.fillRect(
+          Math.round(THERMO.x + Math.cos(a) * r) - 1,
+          Math.round(THERMO.y + Math.sin(a) * r) - 1,
+          3,
+          3,
+        )
+    }
+    shadedOrb(g, THERMO.x, THERMO.y, 4, RAMPS.gold)
+    drawText(
+      g,
+      t.mode === 'freeze' ? 'FREEZE' : 'HEAT',
+      THERMO.x,
+      THERMO.y + THERMO.r + 4,
+      {
+        align: 'center',
+        color: ramp[3],
+        outline: INK,
+      },
+    )
+    gauge(
+      g,
+      THERMO.x - 30,
+      THERMO.y + THERMO.r + 14,
+      60,
+      4,
+      t.hp / t.maxHp,
+      RAMPS.ember,
+    )
   }
 
   private renderBoss(g: CanvasRenderingContext2D, b: Boss) {
@@ -3467,6 +4448,27 @@ class PipePals implements ArcadeGameInstance {
   }
 
   private renderCritter(g: CanvasRenderingContext2D, c: Critter) {
+    if (c.kind === 'snowball' && !c.kicked) {
+      const r = Math.round(c.size / 2 + 3)
+      const cy = Math.round(c.y - r)
+      shadedOrb(g, Math.round(c.x), cy, r, RAMPS.water)
+      g.fillStyle = '#ffffff'
+      g.fillRect(Math.round(c.x) - r + 3, cy - r + 3, 2, 2)
+      // Rolling: a scuff mark that turns with it, and a grumpy face.
+      const a = (c.x / r) * c.dir
+      g.fillStyle = RAMPS.water[1]
+      g.fillRect(
+        Math.round(c.x + Math.cos(a) * (r - 3)),
+        Math.round(cy + Math.sin(a) * (r - 3)),
+        2,
+        2,
+      )
+      g.fillStyle = INK
+      g.fillRect(Math.round(c.x) + c.dir * 2 - 1, cy - 2, 1, 2)
+      g.fillRect(Math.round(c.x) + c.dir * 2 + 2, cy - 2, 1, 2)
+      if (c.size >= 10) glow(g, c.x, cy, r + 6, RAMPS.water[4], 0.25)
+      return
+    }
     const upside = c.flipped > 0 || c.kicked
     const warning =
       c.flipped > 0 && c.flipped < 120 && Math.floor(c.flipped / 8) % 2 === 0
@@ -3482,6 +4484,8 @@ class PipePals implements ArcadeGameInstance {
           ? set.walk[c.onGround ? 0 : 1]!
           : set.walk[step % set.walk.length]!
     if (c.trapped > 0) this.renderBubble(g, c.x, c.y - CRITTER_H / 2 - 1, 14)
+    if (c.kind === 'gearbug' && c.mode === 1 && !upside)
+      glow(g, c.x, c.y - 8, 14, RAMPS.gold[4], 0.35)
     if (c.rush && !upside)
       glow(
         g,
@@ -3528,6 +4532,17 @@ class PipePals implements ArcadeGameInstance {
   }
 
   private renderEmber(g: CanvasRenderingContext2D, e: Ember) {
+    if (e.kind === 'cuckoo') {
+      if (e.tell > 0) {
+        // The clock door opens: the tell.
+        if (Math.floor(e.tell / 6) % 2 === 0)
+          glow(g, W / 2, 56, 16, RAMPS.gold[4], 0.6)
+        return
+      }
+      const flap = Math.floor(this.tick / 5) % 2
+      drawSprite(g, CUCKOO_SPRITES[flap]!, e.x, e.y, { flipX: e.vx < 0 })
+      return
+    }
     const x = Math.round(e.x)
     const y = Math.round(e.kind === 'lurker' ? e.y - 5 : e.y)
     if (e.tell > 0) {
@@ -3587,7 +4602,9 @@ class PipePals implements ArcadeGameInstance {
       this.bonusRound > 0
         ? `BONUS ${Math.ceil(this.bonusRound / 60)}`
         : step.kind === 'boss'
-          ? 'BIG SHELL'
+          ? this.district.boss === 'thermostat'
+            ? 'THERMOSTAT'
+            : 'BIG SHELL'
           : step.kind === 'phase'
             ? `PHASE ${this.district.number}-${step.phase}`
             : 'WORKSHOP'
@@ -3610,7 +4627,7 @@ class PipePals implements ArcadeGameInstance {
     }
     // Special-phase progress toward the golden valve.
     if (step.kind === 'phase' && step.phase === SPECIAL_PHASE) {
-      const text = `${VALVE_TESTS[this.district.special].label.split(' ')[0]} ${this.specialScore()}/${this.valveGoal()}`
+      const text = `${VALVE_TESTS[this.district.special].short} ${this.specialScore()}/${this.valveGoal()}`
       const tw = measureText(text) + 14
       hudPanel(g, Math.round(W / 2 - tw / 2), H - 16, tw, 13)
       drawText(g, text, W / 2, H - 13, {

@@ -43,6 +43,27 @@ export const SCENE_SKY: Record<SceneId, readonly string[]> = {
     mix(RAMPS.sky[1], RAMPS.water[2], 0.5),
     mix(RAMPS.water[2], RAMPS.cream[3], 0.25),
   ],
+  cold: [
+    mix(RAMPS.sky[0], RAMPS.night[0], 0.5),
+    RAMPS.sky[0],
+    mix(RAMPS.sky[1], RAMPS.water[1], 0.5),
+    mix(RAMPS.water[2], RAMPS.sky[1], 0.5),
+    mix(RAMPS.water[3], RAMPS.steel[3], 0.4),
+  ],
+  boiler: [
+    mix(RAMPS.ember[0], RAMPS.night[0], 0.6),
+    mix(RAMPS.ember[0], RAMPS.night[1], 0.3),
+    mix(RAMPS.rust[1], RAMPS.ember[0], 0.5),
+    mix(RAMPS.rust[1], RAMPS.ember[1], 0.5),
+    mix(RAMPS.ember[2], RAMPS.rust[2], 0.5),
+  ],
+  clock: [
+    mix(RAMPS.night[1], RAMPS.earth[0], 0.5),
+    RAMPS.earth[0],
+    mix(RAMPS.earth[1], RAMPS.night[2], 0.4),
+    mix(RAMPS.earth[1], RAMPS.gold[1], 0.4),
+    mix(RAMPS.gold[1], RAMPS.earth[2], 0.5),
+  ],
 }
 
 /** The greenhouse: glass roof panes, hanging baskets, potted palms and a sprinkler header. */
@@ -187,6 +208,179 @@ export function paintLaundry(k: CanvasRenderingContext2D) {
   )
 }
 
+/** Cold storage: frosted shelving of crates, hanging lamps and a frosty haze. */
+export function paintCold(k: CanvasRenderingContext2D) {
+  const rand = backdropRng(103)
+  bandedGradient(k, 0, 0, W, GROUND_Y, SCENE_SKY.cold, 4)
+  // Racks of crates on steel shelving.
+  const shelf = mix(RAMPS.steel[1], RAMPS.night[1], 0.4)
+  for (let y = 70; y < GROUND_Y; y += 60) {
+    k.fillStyle = shelf
+    k.fillRect(0, y, W, 3)
+    for (let x = 6; x < W - 20; x += 26 + Math.floor(rand() * 10)) {
+      const h = 18 + Math.floor(rand() * 18)
+      const crate: Ramp = [
+        mix(RAMPS.earth[0], RAMPS.sky[0], 0.6),
+        mix(RAMPS.earth[1], RAMPS.sky[1], 0.6),
+        mix(RAMPS.earth[2], RAMPS.sky[1], 0.55),
+        mix(RAMPS.earth[3], RAMPS.sky[2], 0.55),
+        mix(RAMPS.earth[4], RAMPS.sky[3], 0.5),
+      ]
+      bevel(k, x, y - h, 22, h, crate)
+      k.fillStyle = rgba('#ffffff', 0.5)
+      k.fillRect(x + 1, y - h, 20, 2)
+    }
+  }
+  for (let x = 0; x < W; x += 112) {
+    k.fillStyle = shelf
+    k.fillRect(x + 4, 40, 4, GROUND_Y - 40)
+  }
+  // Hanging cold lamps.
+  for (const x of [80, 224, 368]) {
+    k.fillStyle = RAMPS.steel[1]
+    k.fillRect(x, 0, 1, 26)
+    bevel(k, x - 8, 26, 17, 5, RAMPS.steel)
+    glow(k, x, 34, 40, RAMPS.water[4], 0.22)
+  }
+  // Frost creeping in from the corners.
+  for (let i = 0; i < 60; i++) {
+    const x = rand() < 0.5 ? rand() * 70 : W - rand() * 70
+    const y = rand() * GROUND_Y
+    k.fillStyle = rgba('#ffffff', 0.15 + rand() * 0.2)
+    k.fillRect(Math.round(x), Math.round(y), 2, 1)
+    k.fillRect(Math.round(x) + 1, Math.round(y) - 1, 1, 3)
+  }
+  bandedGradient(
+    k,
+    0,
+    GROUND_Y,
+    W,
+    H - GROUND_Y,
+    [RAMPS.sky[1], RAMPS.sky[0], INK],
+    3,
+  )
+}
+
+/** The boiler works: two big boilers, gauges, pipes and a furnace glowing low. */
+export function paintBoiler(k: CanvasRenderingContext2D) {
+  const rand = backdropRng(117)
+  bandedGradient(k, 0, 0, W, GROUND_Y, SCENE_SKY.boiler, 4)
+  const iron: Ramp = [
+    mix(RAMPS.rust[0], RAMPS.night[0], 0.6),
+    mix(RAMPS.rust[1], RAMPS.night[0], 0.55),
+    mix(RAMPS.rust[2], RAMPS.night[1], 0.55),
+    mix(RAMPS.rust[3], RAMPS.night[1], 0.5),
+    mix(RAMPS.rust[4], RAMPS.night[1], 0.45),
+  ]
+  for (const cx of [110, 338]) {
+    // A boiler drum, rivets and a gauge.
+    bevel(k, cx - 46, 70, 92, GROUND_Y - 70, iron, { depth: 3 })
+    for (let y = 80; y < GROUND_Y; y += 22) {
+      k.fillStyle = iron[3]
+      k.fillRect(cx - 44, y, 88, 1)
+      for (let x = cx - 40; x < cx + 42; x += 10) {
+        k.fillStyle = iron[4]
+        k.fillRect(x, y + 3, 1, 1)
+      }
+    }
+    shadedOrb(k, cx, 110, 10, RAMPS.steel)
+    k.fillStyle = RAMPS.cream[4]
+    k.beginPath()
+    k.arc(cx, 110, 7, 0, Math.PI * 2)
+    k.fill()
+    k.fillStyle = INK
+    k.fillRect(cx, 105, 1, 6)
+  }
+  // The furnace mouth, glowing.
+  bevel(k, W / 2 - 30, GROUND_Y - 34, 60, 34, iron)
+  k.fillStyle = RAMPS.ember[1]
+  k.fillRect(W / 2 - 22, GROUND_Y - 24, 44, 24)
+  glow(k, W / 2, GROUND_Y - 12, 60, RAMPS.ember[3], 0.5)
+  // Pipes along the ceiling.
+  for (let y = 20; y < 50; y += 12) {
+    k.fillStyle = iron[2]
+    k.fillRect(0, y, W, 5)
+    k.fillStyle = iron[4]
+    k.fillRect(0, y, W, 1)
+  }
+  for (let i = 0; i < 30; i++) {
+    k.fillStyle = rgba(RAMPS.ember[4], 0.2 + rand() * 0.2)
+    k.fillRect(Math.round(rand() * W), Math.round(60 + rand() * 200), 1, 1)
+  }
+  bandedGradient(
+    k,
+    0,
+    GROUND_Y,
+    W,
+    H - GROUND_Y,
+    [RAMPS.earth[1], RAMPS.earth[0], INK],
+    3,
+  )
+}
+
+/** Inside the water tower: a great clock face and the shadows of turning gears. */
+export function paintClock(k: CanvasRenderingContext2D) {
+  bandedGradient(k, 0, 0, W, GROUND_Y, SCENE_SKY.clock, 4)
+  const brass: Ramp = [
+    mix(RAMPS.gold[0], RAMPS.night[1], 0.6),
+    mix(RAMPS.gold[1], RAMPS.night[1], 0.6),
+    mix(RAMPS.gold[2], RAMPS.night[1], 0.6),
+    mix(RAMPS.gold[3], RAMPS.night[1], 0.55),
+    mix(RAMPS.gold[4], RAMPS.night[1], 0.5),
+  ]
+  // Background gear silhouettes.
+  for (const [cx, cy, r] of [
+    [60, 220, 50],
+    [390, 200, 60],
+    [200, 280, 36],
+    [300, 120, 30],
+  ] as const) {
+    k.fillStyle = brass[1]
+    for (let i = 0; i < 12; i++) {
+      const a = (i * Math.PI) / 6
+      k.fillRect(
+        Math.round(cx + Math.cos(a) * r) - 4,
+        Math.round(cy + Math.sin(a) * r) - 4,
+        8,
+        8,
+      )
+    }
+    k.beginPath()
+    k.arc(cx, cy, r, 0, Math.PI * 2)
+    k.fill()
+    k.fillStyle = brass[0]
+    k.beginPath()
+    k.arc(cx, cy, r * 0.35, 0, Math.PI * 2)
+    k.fill()
+  }
+  // The clock face, high on the back wall, with its little cuckoo door.
+  shadedOrb(k, W / 2, 46, 26, RAMPS.gold)
+  k.fillStyle = RAMPS.cream[4]
+  k.beginPath()
+  k.arc(W / 2, 46, 21, 0, Math.PI * 2)
+  k.fill()
+  k.fillStyle = INK
+  for (let i = 0; i < 12; i++) {
+    const a = (i * Math.PI) / 6
+    k.fillRect(
+      Math.round(W / 2 + Math.cos(a) * 17),
+      Math.round(46 + Math.sin(a) * 17),
+      2,
+      2,
+    )
+  }
+  bevel(k, W / 2 - 6, 50, 12, 10, RAMPS.earth)
+  bandedGradient(
+    k,
+    0,
+    GROUND_Y,
+    W,
+    H - GROUND_Y,
+    [RAMPS.steel[1], RAMPS.steel[0], INK],
+    3,
+  )
+}
+
 // --- ledge tiles ----------------------------------------------------------------------------
 
 const BRICK_ROWS = [
@@ -209,6 +403,46 @@ const VINE_ROWS = [
   '..D..D..',
   '........',
 ]
+const ICE_ROWS = [
+  'wHHHHwHH',
+  'HLLwLLLL',
+  'LBLLLBLw',
+  'BBBLBBBB',
+  'BSBBBBSB',
+  'SBBSBBBS',
+  'SSSSSSSD',
+  'DDDDDDDD',
+]
+const CRUMBLE_ROWS = [
+  'HHLHHHLH',
+  'LBBDLBBB',
+  'BBSDBBSL',
+  'SB.DSSB.',
+  'BBDLB.BB',
+  'B.DBBBS.',
+  'SSDS.SSS',
+  'D.DD.DDD',
+]
+const CONVEYOR_ROWS = [
+  'HHHHHHHH',
+  'DDDDDDDD',
+  'LBBBLBBB',
+  'BBBBBBBB',
+  'SBBBSBBB',
+  'DDDDDDDD',
+  'SLSSSLSS',
+  'DDDDDDDD',
+]
+const GEAR_ROWS = [
+  'HHHHHHHH',
+  'LLLLLLLL',
+  'BBDBBBDB',
+  'BLBBBLBB',
+  'BBBBBBBB',
+  'SSSSSSSS',
+  'DSDSDSDS',
+  'D.D.D.D.',
+]
 const SOAP_ROWS = [
   'HHHHHHHH',
   'LLwLLLLL',
@@ -221,8 +455,15 @@ const SOAP_ROWS = [
 ]
 
 export function ledgeTile(kind: LedgeKind, ramp: Ramp): PixelSprite {
-  const rows =
-    kind === 'vine' ? VINE_ROWS : kind === 'soap' ? SOAP_ROWS : BRICK_ROWS
+  const rows = {
+    brick: BRICK_ROWS,
+    vine: VINE_ROWS,
+    soap: SOAP_ROWS,
+    ice: ICE_ROWS,
+    crumble: CRUMBLE_ROWS,
+    conveyor: CONVEYOR_ROWS,
+    gear: GEAR_ROWS,
+  }[kind]
   return pixelSprite(
     rows,
     {

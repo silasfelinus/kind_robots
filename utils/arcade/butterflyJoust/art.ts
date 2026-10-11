@@ -716,3 +716,199 @@ export function drawTongue(
   g.restore()
   shadedOrb(g, tx, ty, 4, RAMPS.pink)
 }
+
+// --- the meadow's riders (slice 2) -------------------------------------------------------------
+
+/** A glider's long, flat wings: it never flaps. */
+const GLIDE_WING = [
+  '.....AAAAAAAAAAAAAAAAA..',
+  '...AABBBBBBBBBBBBBBBBBA.',
+  '.AABBBCCCCsCCCCCCsCBBBBA',
+  'ABBCCCCCCCCCCCCCCCCCCCBA',
+  '.EECCCDDDDDDDDDDDDDCCEE.',
+  '...EEEDDDDDDDDDDDDEEE...',
+  '......EEEEEEEEEEEE......',
+]
+const POLLEN_SACK = [
+  '..ww...',
+  '.PPPP..',
+  'PPpPPP.',
+  'PPPPpP.',
+  'PpPPPP.',
+  '.PPPP..',
+]
+
+function glideFrames(palette: Record<string, string>): Frames {
+  const level = compose(30, 28, [
+    [3, 15, MOUNT],
+    [3, 9, GLIDE_WING],
+    [12, 6, MOTH_RIDER],
+    [20, 15, LANCE],
+  ])
+  // A slight tilt as it banks: the wing a pixel lower at the tip.
+  const bank = level.map((row, i) =>
+    i >= 9 && i < 16 ? `.${row.slice(0, -1)}` : row,
+  )
+  return [pixelSprite(level, palette), pixelSprite(bank, palette)]
+}
+
+function twinFrames(palette: Record<string, string>): Frames {
+  const up = compose(30, 28, [
+    [0, 11, HINDWING_UP],
+    [3, 1, FOREWING_UP],
+    [3, 15, MOUNT],
+    [5, 7, MOTH_RIDER],
+    [13, 6, MOTH_RIDER],
+    [21, 15, LANCE],
+  ])
+  const down = compose(30, 28, [
+    [3, 15, MOUNT],
+    [0, 18, FOREWING_DOWN],
+    [5, 7, MOTH_RIDER],
+    [13, 6, MOTH_RIDER],
+    [21, 15, LANCE],
+  ])
+  return [pixelSprite(up, palette), pixelSprite(down, palette)]
+}
+
+function bomberFrames(palette: Record<string, string>): Frames {
+  const withSack = { ...palette, P: RAMPS.gold[3], p: RAMPS.gold[1] }
+  const up = compose(30, 28, [
+    [0, 11, HINDWING_UP],
+    [3, 1, FOREWING_UP],
+    [3, 15, MOUNT],
+    [12, 6, MOTH_RIDER],
+    [8, 20, POLLEN_SACK],
+    [20, 15, LANCE],
+  ])
+  const down = compose(30, 28, [
+    [3, 15, MOUNT],
+    [0, 18, FOREWING_DOWN],
+    [12, 6, MOTH_RIDER],
+    [8, 20, POLLEN_SACK],
+    [20, 15, LANCE],
+  ])
+  return [pixelSprite(up, withSack), pixelSprite(down, withSack)]
+}
+
+/** Every moth rider's frames, by kind. */
+export const RIDER_FRAMES: Record<
+  'drifter' | 'hunter' | 'shadow' | 'glider' | 'twin' | 'bomber',
+  Frames
+> = {
+  drifter: RIVAL_FRAMES[0]!,
+  hunter: RIVAL_FRAMES[1]!,
+  shadow: RIVAL_FRAMES[2]!,
+  glider: glideFrames(
+    riderPalette(
+      [
+        RAMPS.gold[4],
+        RAMPS.gold[2],
+        RAMPS.gold[3],
+        RAMPS.rust[3],
+        RAMPS.rust[1],
+        RAMPS.sky[3],
+      ],
+      RAMPS.gold,
+      RAMPS.ember[2],
+      RAMPS.cream[4],
+      MOTH_MOUNT,
+    ),
+  ),
+  twin: twinFrames(
+    riderPalette(
+      [
+        RAMPS.pink[4],
+        RAMPS.pink[2],
+        RAMPS.pink[3],
+        RAMPS.purple[2],
+        RAMPS.purple[0],
+        RAMPS.gold[4],
+      ],
+      RAMPS.pink,
+      RAMPS.ember[2],
+      RAMPS.pink[4],
+      MOTH_MOUNT,
+    ),
+  ),
+  bomber: bomberFrames(
+    riderPalette(
+      [
+        RAMPS.leaf[4],
+        RAMPS.leaf[2],
+        RAMPS.gold[2],
+        RAMPS.leaf[1],
+        RAMPS.leaf[0],
+        RAMPS.gold[4],
+      ],
+      RAMPS.leaf,
+      RAMPS.ember[2],
+      RAMPS.gold[4],
+      MOTH_MOUNT,
+    ),
+  ),
+}
+
+/** A pollen puff: a falling gold ball, then a sneezy cloud (`age` 0..1 of its life). */
+export function drawPollen(
+  g: CanvasRenderingContext2D,
+  x: number,
+  y: number,
+  cloud: boolean,
+  radius: number,
+  age: number,
+  tick: number,
+) {
+  if (!cloud) {
+    shadedOrb(g, x, y, 4, RAMPS.gold)
+    g.fillStyle = RAMPS.gold[4]
+    g.fillRect(Math.round(x) + 2, Math.round(y) - 5, 1, 1)
+    return
+  }
+  const fade = age > 0.8 ? (1 - age) / 0.2 : 1
+  glow(g, x, y, radius + 8, RAMPS.gold[3], 0.35 * fade)
+  for (let i = 0; i < 7; i++) {
+    const a = (i / 7) * Math.PI * 2 + tick / 50
+    const r = radius * (0.45 + 0.15 * Math.sin(tick / 9 + i))
+    g.fillStyle = rgba(i % 2 ? RAMPS.gold[3] : RAMPS.gold[4], 0.55 * fade)
+    g.beginPath()
+    g.arc(
+      x + Math.cos(a) * r,
+      y + Math.sin(a) * r * 0.7,
+      radius * 0.45,
+      0,
+      Math.PI * 2,
+    )
+    g.fill()
+  }
+  // Specks drifting out of it.
+  g.fillStyle = rgba(RAMPS.gold[4], fade)
+  for (let i = 0; i < 6; i++) {
+    const t = (tick * 0.7 + i * 23) % 40
+    g.fillRect(
+      Math.round(x + Math.sin(i * 2.3) * radius * 0.9),
+      Math.round(y - t * 0.4),
+      1,
+      1,
+    )
+  }
+}
+
+/** A sneeze: an "ACHOO" puff by a rider who flew through pollen. */
+export function drawSneeze(
+  g: CanvasRenderingContext2D,
+  x: number,
+  y: number,
+  tick: number,
+) {
+  g.fillStyle = rgba(RAMPS.gold[4], 0.8)
+  for (let i = 0; i < 5; i++) {
+    const a = tick / 4 + i * 1.3
+    g.fillRect(
+      Math.round(x + Math.cos(a) * 12),
+      Math.round(y - 14 + Math.sin(a) * 4),
+      2,
+      2,
+    )
+  }
+}

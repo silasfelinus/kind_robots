@@ -8,18 +8,24 @@
 // apart, unless one of you is lunging: hold B to brace and let go for a Charge Joust that wins a
 // level clash. Bonk after bonk without landing builds an Air Combo, banked when you land.
 //
-// Waves are announced with their bonus rule: Survival, Gladiator, Cocoon, Storm and (with two or
-// more riders) Team. From the second wave the Pond Frog lurks: bubbles, then eyes, then its tongue
-// snatches a low flier, and only hard flapping breaks free. From the fourth, carriers whistle in
-// to fetch cocoons and hatch them on the wing. Dawdle and the Thundercap comes hunting: its eye
-// opens between lightning flashes, and only a level, lance-first bonk to the open eye pops it.
+// The Tourney runs garden by garden (utils/arcade/butterflyJoust/arenas.ts): each arena has its
+// own ledges (crumbling, folding, drifting, rising), thermals and wind, its pond, six announced
+// waves (Survival, Gladiator, Cocoon, Storm and Team, each with its bonus rule) and a champion
+// bout (champions.ts). Between arenas the Wing Garden trades pollen for spare butterflies,
+// upgrades and wings, and the run saves at each arena's start. The Pond Frog lurks in open water:
+// bubbles, then eyes, then its tongue snatches a low flier, and only hard flapping breaks free.
+// Carriers whistle in to fetch cocoons. Dawdle and the Thundercap comes hunting: its eye opens
+// between lightning flashes, and only a level, lance-first bonk to the open eye pops it. The
+// Classic Pond keeps the original endless waves.
 //
-// The Jousting Party seats two to four riders on the cabinet's `players` frames: Co-op (a team
-// bonus for every wave nobody bonks a friend, and a scoop wakes a knocked teammate) or Last
-// Butterfly Flapping, a three-minute free-for-all where the most bonks wins.
+// The Jousting Party seats two to four riders on the cabinet's `players` frames: the tourney or
+// the pond in co-op (a team bonus for every wave nobody bonks a friend, and a scoop wakes a
+// knocked teammate), or Last Butterfly Flapping, a three-minute free-for-all where the most bonks
+// wins.
 
 import { levelCurve } from '../curve'
 import { drawText, measureText } from '../font'
+import type { MusicLoop } from '../sound'
 import {
   INK,
   RAMPS,
@@ -30,6 +36,7 @@ import {
   glow,
   hudPanel,
   rgba,
+  shadedOrb,
   vignette as snesVignette,
 } from '../snes'
 import type {
@@ -43,16 +50,53 @@ import {
   COCOON_SPRITES,
   COCOON_WARN_SPRITES,
   LIFE_SPRITE,
-  RIVAL_FRAMES,
+  RIDER_FRAMES,
   SEAT_LOOKS,
   cocoonSprites,
   drawFrog,
   drawFrogBubbles,
+  drawPollen,
+  drawSneeze,
   drawThundercap,
   drawTongue,
   seatFrames,
   type Frames,
+  type WingSet,
 } from '../butterflyJoust/art'
+import {
+  ARENAS,
+  CHAMPIONS,
+  CLASSIC_ARENA,
+  PUFF_START,
+  PUFF_STAND,
+  WAVES_PER_ARENA,
+  arenaAt,
+  arenaHeat,
+  crumbleAt,
+  flowerState,
+  thermalOn,
+  type Arena,
+  type LedgeLook,
+  type LedgeSpec,
+} from '../butterflyJoust/arenas'
+import {
+  COMBO_BOOST,
+  FLAP_BOOST,
+  FROG_BOOST,
+  POLLEN_FOR,
+  SHOP,
+  WING_ITEMS,
+  readJoustSave,
+  shopPrice,
+  type JoustSave,
+  type ShopItem,
+  type Upgrades,
+} from '../butterflyJoust/campaign'
+import {
+  createChampion,
+  type BoutCtx,
+  type Champion,
+} from '../butterflyJoust/champions'
 import {
   CEILING,
   H,
@@ -65,6 +109,19 @@ import {
   type Ledge,
 } from '../butterflyJoust/field'
 import {
+  CHAMPION_MUSIC,
+  GARDEN_MUSIC,
+  MEADOW_MUSIC,
+  SUNSET_MUSIC,
+} from '../butterflyJoust/music'
+import {
+  CLASSIC_TIERS,
+  GLIDE,
+  POLLEN,
+  ROSTER,
+  type RiderKind,
+} from '../butterflyJoust/roster'
+import {
   CARRIER,
   CHARGE_COOLDOWN,
   CHARGE_FULL,
@@ -72,7 +129,6 @@ import {
   FROG,
   KNOCK_TICKS,
   LUNGE_TICKS,
-  PARTY_MODES,
   TEAM_BONUS,
   THUNDERCAP,
   VERSUS_HATCH,
@@ -85,14 +141,29 @@ import {
   lungeSpeed,
   partyLives,
   thundercapPhase,
-  type PartyMode,
   type WaveKind,
 } from '../butterflyJoust/rules'
 import {
+  paintFlower,
+  paintLeaf,
   paintLedges,
+  paintLilyPond,
+  paintMeadowSky,
   paintPond,
+  paintPuff,
   paintSunsetSky,
+  paintThermal,
+  paintWind,
 } from '../butterflyJoust/scenery'
+import {
+  drawArenaCard,
+  drawChampionBar,
+  drawGarden,
+  drawMenu,
+  drawResult,
+  type GardenRow,
+  type MenuRow,
+} from '../butterflyJoust/screens'
 
 export { wrapDx } from '../butterflyJoust/field'
 
@@ -112,25 +183,17 @@ const AUTO_FLAP_TICKS = 10
 const LEVEL_BAND = 6
 /** Fresh into the arena (a new wave, a respawn, a hatch), a rider can't be hurt. */
 const INVULN_TICKS = 120
+/** How long an arena's title card shows. */
+const CARD_TICKS = 150
+/** The thermal lift stops speeding a flier up past this. */
+const THERMAL_MAX_RISE = -1.8
 
-/** Ledge tops (y) and spans; the bottom ledge crumbles in later waves. */
-export const JOUST_LEDGES: Ledge[] = [
-  { x0: 70, x1: 378, y: 304 },
-  { x0: -20, x1: 92, y: 226 },
-  { x0: 356, x1: W + 20, y: 226 },
-  { x0: 168, x1: 280, y: 196 },
-  { x0: 34, x1: 138, y: 126 },
-  { x0: 310, x1: 414, y: 126 },
-  { x0: 186, x1: 262, y: 74 },
-]
-
-const SPAWNS = [
-  { x: 224, y: 196 },
-  { x: 86, y: 126 },
-  { x: 362, y: 126 },
-  { x: 40, y: 226 },
-  { x: 408, y: 226 },
-]
+/** The Classic Pond's ledge tops (y) and spans; the bottom ledge crumbles in later waves. */
+export const JOUST_LEDGES: Ledge[] = CLASSIC_ARENA.ledges.map((l) => ({
+  x0: l.x0,
+  x1: l.x1,
+  y: l.y,
+}))
 
 export const JOUST_CURVES = {
   rivals: { start: 2, step: 1, limit: 8 },
@@ -143,19 +206,31 @@ export const JOUST_CURVES = {
   crumble: { start: -16, step: 8, limit: 56 },
 } as const
 
-/** 0 drifter, 1 hunter, 2 shadow: points, colours and smarts all step up. */
-type Tier = 0 | 1 | 2
-const TIER_POINTS = [500, 750, 1500]
-const TIER_WINGS = ['#f87171', '#a78bfa', '#475569']
-const TIER_SPEED = [0.75, 1, 1.15]
-const TIER_FLAP_GAP = [16, 12, 9]
+/** A ledge in play: its spec, where it rests, and what it is doing now. */
+type ArenaLedge = Ledge & {
+  spec: LedgeSpec | null
+  look: LedgeLook
+  bx0: number
+  bx1: number
+  by: number
+  /** Something can stand on it (a shut flower or a burst puff can't hold anyone). */
+  solid: boolean
+  /** How far it moved this tick (riders standing on it go with it). */
+  dx: number
+  dy: number
+  /** A flower about to fold: 0..1. */
+  closing: number
+  /** A dandelion puff (it rises, and bursts after it is stood on). */
+  puff: boolean
+  stood: number
+}
 
 type Body = {
   x: number
   y: number
   vx: number
   vy: number
-  ground: Ledge | null
+  ground: ArenaLedge | null
   flap: number
 }
 
@@ -180,6 +255,8 @@ export type Rider = Body & {
   chargeCool: number
   /** In the frog's grip. */
   held: boolean
+  /** Sneezing from a pollen puff: ticks of lost control. */
+  sneeze: number
   /** This seat's own points and bonks (the party's tallies). */
   points: number
   bonks: number
@@ -192,7 +269,7 @@ export type Rider = Body & {
 }
 
 type Rival = Body & {
-  tier: Tier
+  kind: RiderKind
   dir: number
   targetY: number
   retarget: number
@@ -200,14 +277,16 @@ type Rival = Body & {
   /** Ticks left shimmering into the world; can't be bonked meanwhile. */
   spawn: number
   held: boolean
+  /** A pollen bomber's wait before its next drop. */
+  drop: number
 }
 type Cocoon = {
   x: number
   y: number
   vy: number
-  ground: Ledge | null
+  ground: ArenaLedge | null
   hatch: number
-  tier: Tier
+  kind: RiderKind
   /** A carrier is on its way for it. */
   called: boolean
 }
@@ -215,10 +294,12 @@ type Carrier = Body & {
   target: Cocoon | null
   /** Carrying a cocoon off to hatch it: ticks left. */
   carrying: number
-  tier: Tier
+  kind: RiderKind
   /** Fluttering off (bonked, or its cocoon was scooped): ticks left. */
   leaving: number
 }
+/** A pollen puff a bomber dropped: falling, then a lingering sneezy cloud. */
+type Dust = { x: number; y: number; cloud: boolean; t: number }
 type Storm = { x: number; y: number; t: number; popped: boolean }
 type Prey = { kind: 'rider'; rider: Rider } | { kind: 'rival'; rival: Rival }
 type Frog = {
@@ -228,6 +309,7 @@ type Frog = {
   prey: Prey | null
   grip: number
 }
+type Wind = { state: 'calm' | 'tell' | 'blow'; t: number; dir: number }
 type Spark = {
   x: number
   y: number
@@ -244,6 +326,10 @@ type Floater = {
   color?: string
 }
 type Banner = { text: string; sub?: string; lines?: string[]; ticks: number }
+
+/** What a game is: the tourney, the Classic Pond, or the party's versus. */
+export type GameMode = 'tourney' | 'classic' | 'versus'
+type MenuId = 'continue' | GameMode
 
 function newRider(seat: number): Rider {
   return {
@@ -266,6 +352,7 @@ function newRider(seat: number): Rider {
     lungeV: 0,
     chargeCool: 0,
     held: false,
+    sneeze: 0,
     points: 0,
     bonks: 0,
     bestCombo: 0,
@@ -292,6 +379,29 @@ function clock(ticks: number): string {
   return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`
 }
 
+function arenaLedge(
+  spec: LedgeSpec | null,
+  look: LedgeLook,
+  at: Ledge,
+): ArenaLedge {
+  return {
+    x0: at.x0,
+    x1: at.x1,
+    y: at.y,
+    spec,
+    look,
+    bx0: at.x0,
+    bx1: at.x1,
+    by: at.y,
+    solid: true,
+    dx: 0,
+    dy: 0,
+    closing: 0,
+    puff: false,
+    stood: 0,
+  }
+}
+
 class ButterflyJoust implements ArcadeGameInstance {
   score = 0
   level = 0
@@ -305,20 +415,48 @@ class ButterflyJoust implements ArcadeGameInstance {
 
   private tick = 0
   private seats = 1
-  private mode: PartyMode = 'tourney'
-  /** The Jousting Party's mode pick, before a party game starts. */
+  private mode: GameMode = 'tourney'
+  /** Two or more riders sharing the tourney or the pond. */
+  private coop = false
+  /** The mode card, before a real game starts. */
   private menu: { pick: number } | null = null
+  /** A saved tourney this game could pick up. */
+  private offer: JoustSave | null = null
+  private saveData: JoustSave | null | undefined = undefined
+
+  // The tourney.
+  private arenaIndex = 0
+  private arena: Arena = CLASSIC_ARENA
+  private lap = 0
+  /** The wave within the arena: 1..6, then 7 for the champion bout. */
+  private wave = 0
+  private card = 0
+  private garden: { pick: number; t: number } | null = null
+  private champion: Champion | null = null
+  private championBeaten = false
+  private pollen = 0
+  private up: Upgrades = { flap: 0, combo: 0, frog: 0 }
+  private spares = 0
+  private wings: WingSet[] = []
+  private wear: WingSet = 'rainbow'
+  private reached = 1
+
   private riders: Rider[] = []
   private rivals: Rival[] = []
   private cocoons: Cocoon[] = []
   private carriers: Carrier[] = []
+  private dust: Dust[] = []
   private storm: Storm | null = null
   /** The Thundercap was popped this wave: it doesn't come back until the next. */
   private stormPopped = false
   private frog: Frog = { state: 'rest', t: 240, x: W / 2, prey: null, grip: 0 }
+  private wind: Wind = { state: 'calm', t: 0, dir: 1 }
+  private puffWait = 0
   private sparks: Spark[] = []
   private floaters: Floater[] = []
-  private ledges: Ledge[] = JOUST_LEDGES.map((l) => ({ ...l }))
+  private ledges: ArenaLedge[] = []
+  /** Ticks of play in this arena: flowers, thermals and swaying ledges keep its time. */
+  private arenaTicks = 0
   private waveKind: WaveKind = 'joust'
   private waveTicks = 0
   private collected = 0
@@ -333,6 +471,7 @@ class ButterflyJoust implements ArcadeGameInstance {
   /** Last Butterfly Flapping: the clock, and the result card once it runs out. */
   private versusTicks = 0
   private result: { t: number; lines: string[] } | null = null
+  private ctx: BoutCtx
   // Cosmetic sparkles roll their own dice, so the game's seeded rng is untouched.
   private fx = new Sparkles()
   private fxRng = backdropRng(53)
@@ -347,11 +486,19 @@ class ButterflyJoust implements ArcadeGameInstance {
       : Math.max(1, Math.min(4, Math.floor(options.players ?? 1)))
     this.riders = Array.from({ length: this.seats }, (_, i) => newRider(i))
     this.lives = partyLives(this.seats, START_LIVES)
-    if (this.seats > 1) {
-      this.mode = 'coop'
-      this.menu = { pick: 0 }
+    this.coop = this.seats > 1
+    this.ctx = this.makeCtx()
+    const stored = this.demo ? null : readJoustSave(options.resume)
+    if (stored) {
+      this.wings = [...stored.wings]
+      this.wear = stored.wear
+      this.reached = stored.reached
+      this.saveData = stored
+      if (stored.seats === this.seats && (stored.arena > 0 || stored.score > 0))
+        this.offer = stored
     }
-    this.startWave(1)
+    if (!this.demo) this.menu = { pick: 0 }
+    this.startArena(0)
   }
 
   /** Player 1's rider (the solo game's only one). */
@@ -359,43 +506,186 @@ class ButterflyJoust implements ArcadeGameInstance {
     return this.riders[0]!
   }
 
-  // --- the Jousting Party's menu ------------------------------------------------------------
+  get save(): unknown {
+    return this.saveData
+  }
+
+  get music(): MusicLoop | null {
+    if (this.demo || this.over || this.menu) return null
+    if (this.garden) return GARDEN_MUSIC
+    if (this.champion && !this.championBeaten) return CHAMPION_MUSIC
+    return this.arena.style === 'meadow' ? MEADOW_MUSIC : SUNSET_MUSIC
+  }
+
+  // --- the mode card ---------------------------------------------------------------------
+
+  private menuRows(): Array<MenuRow & { id: MenuId }> {
+    const rows: Array<MenuRow & { id: MenuId }> = []
+    if (this.offer) {
+      const { arena } = arenaAt(this.offer.arena)
+      rows.push({
+        id: 'continue',
+        name: 'CONTINUE',
+        about: `${arena.name}${this.offer.continued ? ', FRESH BUTTERFLIES' : ''}`,
+      })
+    }
+    rows.push({
+      id: 'tourney',
+      name: 'TOURNEY',
+      about: this.seats > 1 ? 'THE FOUR GARDENS, TOGETHER' : 'THE FOUR GARDENS',
+    })
+    rows.push({
+      id: 'classic',
+      name: 'CLASSIC POND',
+      about: 'ENDLESS WAVES AT SUNSET',
+    })
+    if (this.seats > 1)
+      rows.push({
+        id: 'versus',
+        name: 'VERSUS',
+        about: 'MOST BONKS IN 3 MINUTES',
+      })
+    return rows
+  }
 
   private updateMenu(input: InputFrame) {
     const m = this.menu!
-    const step = input.pressed.left ? -1 : input.pressed.right ? 1 : 0
-    if (step || input.pressed.up || input.pressed.down) {
-      m.pick = (m.pick + (step || 1) + PARTY_MODES.length) % PARTY_MODES.length
+    const rows = this.menuRows()
+    const step =
+      input.pressed.up || input.pressed.left
+        ? -1
+        : input.pressed.down || input.pressed.right
+          ? 1
+          : 0
+    if (step) {
+      m.pick = (m.pick + step + rows.length) % rows.length
       this.sound.play('blip')
     }
     if (input.pressed.a || input.pressed.start) {
+      const id = rows[m.pick]!.id
       this.menu = null
-      this.mode = PARTY_MODES[m.pick]!.id
       this.sound.play('start')
-      if (this.mode === 'versus') this.startVersus()
-      else this.startWave(1)
+      if (id === 'continue') this.resumeFrom(this.offer!)
+      else this.startMode(id)
     }
   }
 
-  private startVersus() {
-    this.lives = this.seats
-    this.versusTicks = VERSUS_TICKS
-    this.startWave(1)
-    this.banner = {
-      text: 'LAST BUTTERFLY',
-      sub: 'MOST BONKS IN 3 MINUTES',
-      ticks: 150,
+  private startMode(mode: GameMode) {
+    this.mode = mode
+    this.level = 0
+    if (mode === 'versus') {
+      this.coop = false
+      this.card = 0
+      this.lives = this.seats
+      this.versusTicks = VERSUS_TICKS
+      this.arena = CLASSIC_ARENA
+      this.buildLedges(CLASSIC_ARENA)
+      this.nextWave()
+      this.banner = {
+        text: 'LAST BUTTERFLY',
+        sub: 'MOST BONKS IN 3 MINUTES',
+        ticks: 150,
+      }
+      return
+    }
+    if (mode === 'classic') {
+      this.arena = CLASSIC_ARENA
+      this.buildLedges(CLASSIC_ARENA)
+      this.card = 0
+      this.nextWave()
+      return
+    }
+    this.startArena(0)
+  }
+
+  // --- the tourney ------------------------------------------------------------------------
+
+  /** Open an arena: its ledges, its title card, and its first wave. */
+  private startArena(index: number) {
+    const { arena, lap } = arenaAt(index)
+    this.arenaIndex = index
+    this.arena = arena
+    this.lap = lap
+    this.wave = 0
+    this.arenaTicks = 0
+    this.puffWait = 60
+    this.wind = { state: 'calm', t: arena.wind?.every ?? 0, dir: 1 }
+    this.buildLedges(arena)
+    if (!this.demo && this.mode === 'tourney')
+      this.reached = Math.max(this.reached, Math.min(ARENAS.length, index + 1))
+    this.card = this.demo ? 60 : CARD_TICKS
+    this.nextWave()
+    this.keep()
+  }
+
+  /** Pick a saved tourney back up at its arena's start. */
+  private resumeFrom(s: JoustSave) {
+    this.mode = 'tourney'
+    this.score = s.continued ? 0 : s.score
+    this.lives = s.continued ? partyLives(this.seats, START_LIVES) : s.lives
+    this.nextExtra =
+      (Math.floor(this.score / EXTRA_LIFE_EVERY) + 1) * EXTRA_LIFE_EVERY
+    this.pollen = s.pollen
+    this.up = { ...s.up }
+    this.spares = s.spares
+    this.wings = [...s.wings]
+    this.wear = s.wear
+    this.reached = s.reached
+    this.level = s.arena * (WAVES_PER_ARENA + 1)
+    this.startArena(s.arena)
+  }
+
+  /** Remember the run at this arena's start (a real tourney only). */
+  private keep() {
+    if (this.demo || this.menu || this.mode !== 'tourney') return
+    this.saveData = {
+      v: 1,
+      arena: this.arenaIndex,
+      score: this.score,
+      lives: Math.max(1, this.lives),
+      pollen: this.pollen,
+      up: { ...this.up },
+      spares: this.spares,
+      wings: [...this.wings],
+      wear: this.wear,
+      seats: this.seats,
+      continued: false,
+      reached: this.reached,
     }
   }
 
-  // --- setup ------------------------------------------------------------------------------
+  private buildLedges(arena: Arena) {
+    const base: LedgeLook = arena.style === 'meadow' ? 'turf' : 'candy'
+    this.ledges = arena.ledges.map((spec) =>
+      arenaLedge(spec, spec.look ?? base, spec),
+    )
+    this.updateLedges()
+  }
 
-  private startWave(wave: number) {
-    this.level = wave
+  /** The arena's difficulty step now (the curves read it). */
+  private heat(): number {
+    if (this.mode === 'tourney')
+      return arenaHeat(this.arenaIndex, Math.min(this.wave, WAVES_PER_ARENA))
+    if (this.mode === 'versus')
+      return 2 + Math.floor(((VERSUS_TICKS - this.versusTicks) / 3600) * 3)
+    return this.level
+  }
+
+  private nextWave() {
+    this.level++
+    if (this.mode === 'tourney') this.wave++
+    this.startWave()
+  }
+
+  private startWave() {
     this.rivals = []
     this.cocoons = []
     this.carriers = []
+    this.dust = []
     this.storm = null
+    this.stormPopped = false
+    this.champion = null
+    this.championBeaten = false
     this.waveTicks = 0
     this.collected = 0
     this.hatched = 0
@@ -403,70 +693,108 @@ class ButterflyJoust implements ArcadeGameInstance {
     this.friendlyBonk = false
     this.firstBonk = false
     this.clearing = 0
-    this.frog = {
-      state: 'rest',
-      t: 60 * 6,
-      x: W / 2,
-      prey: null,
-      grip: 0,
-    }
+    this.frog = { state: 'rest', t: 60 * 6, x: W / 2, prey: null, grip: 0 }
     for (const r of this.riders) r.bestCombo = 0
-    // The bottom ledge crumbles in from both ends as the waves go on.
-    const crumble =
-      this.mode === 'versus'
-        ? 0
-        : Math.max(0, levelCurve(wave, JOUST_CURVES.crumble))
-    this.ledges = JOUST_LEDGES.map((l, i) =>
-      i === 0 ? { ...l, x0: l.x0 + crumble, x1: l.x1 - crumble } : { ...l },
-    )
-    this.waveKind =
-      this.mode === 'versus' ? 'joust' : classicWaveKind(wave, this.seats)
-    const type = WAVE_TYPES[this.waveKind]
-    if (this.waveKind === 'cocoon') {
-      // Cocoon wave: scoop them all up before they hatch.
-      const hatch = Math.round(levelCurve(wave, JOUST_CURVES.hatchTicks)) + 480
-      for (let i = 0; i < 8; i++) {
-        const ledge = this.ledges[1 + (i % (this.ledges.length - 1))]!
-        const span = ledge.x1 - ledge.x0
-        const x = wrapX(ledge.x0 + span * (0.25 + (0.5 * ((i * 37) % 7)) / 7))
-        this.cocoons.push({
-          x,
-          y: ledge.y - 5,
-          vy: 0,
-          ground: ledge,
-          hatch: hatch + i * 30,
-          tier: 0,
-          called: false,
-        })
-      }
-    } else if (this.mode !== 'versus') {
-      const count = Math.floor(levelCurve(wave, JOUST_CURVES.rivals))
-      for (let i = 0; i < count; i++) this.addRival(this.rollTier(wave), i * 40)
+    this.ledges = this.ledges.filter((l) => !l.puff)
+    this.applyCrumble()
+    if (this.mode === 'versus') {
+      this.waveKind = 'joust'
+      this.placeRiders()
+      return
     }
-    if (this.mode !== 'versus') {
-      this.banner = {
-        text: this.waveKind === 'joust' ? `WAVE ${wave}` : type.title,
-        sub:
-          this.waveKind === 'joust'
-            ? this.seats > 1
-              ? `TEAM BONUS ${TEAM_BONUS * this.seats}`
-              : undefined
-            : type.rule,
-        ticks: 120,
-      }
+    const bout = this.mode === 'tourney' && this.wave > WAVES_PER_ARENA
+    if (bout) {
+      this.waveKind = 'joust'
+      this.champion = createChampion(this.arena.champion)
+      const info = CHAMPIONS[this.arena.champion]
+      this.banner = { text: info.name, sub: info.rule, ticks: 150 }
+      this.placeRiders()
+      return
+    }
+    let riders: RiderKind[]
+    if (this.mode === 'tourney') {
+      const spec = this.arena.waves[this.wave - 1]!
+      this.waveKind = spec.kind
+      riders = [...spec.riders]
+      // A party faces one more rider for each extra seat.
+      if (riders.length)
+        for (let i = 1; i < this.seats; i++) riders.push('hunter')
+    } else {
+      this.waveKind = classicWaveKind(this.level, this.seats)
+      const count =
+        this.waveKind === 'cocoon'
+          ? 0
+          : Math.floor(levelCurve(this.level, JOUST_CURVES.rivals))
+      riders = Array.from({ length: count }, () => this.rollKind(this.level))
+    }
+    if (this.waveKind === 'cocoon') this.layCocoons()
+    riders.forEach((kind, i) => this.addRival(kind, i * 40))
+    const type = WAVE_TYPES[this.waveKind]
+    const title =
+      this.mode === 'tourney'
+        ? `WAVE ${this.arena.number}-${this.wave}`
+        : `WAVE ${this.level}`
+    this.banner = {
+      text: this.waveKind === 'joust' ? title : type.title,
+      sub:
+        this.waveKind === 'joust'
+          ? this.coop
+            ? `TEAM BONUS ${TEAM_BONUS * this.seats}`
+            : undefined
+          : type.rule,
+      ticks: 120,
     }
     this.placeRiders()
   }
 
-  private rollTier(wave: number): Tier {
-    const hunters = levelCurve(wave, JOUST_CURVES.hunterShare)
-    const shadows = Math.max(0, levelCurve(wave, JOUST_CURVES.shadowShare))
-    const roll = this.rng()
-    return roll < shadows ? 2 : roll < shadows + hunters ? 1 : 0
+  /** The crumbling ledge's span this wave. */
+  private applyCrumble() {
+    const c =
+      this.mode === 'tourney'
+        ? crumbleAt(this.arena, this.wave)
+        : this.mode === 'classic'
+          ? Math.max(0, levelCurve(this.level, JOUST_CURVES.crumble))
+          : 0
+    for (const l of this.ledges) {
+      if (!l.spec?.crumbles) continue
+      l.bx0 = l.spec.x0 + c
+      l.bx1 = l.spec.x1 - c
+      l.x0 = l.bx0
+      l.x1 = l.bx1
+    }
   }
 
-  private addRival(tier: Tier, delay = 0, at?: { x: number; y: number }) {
-    const spot = at ?? SPAWNS[Math.floor(this.rng() * SPAWNS.length)]!
+  /** A cocoon wave: eight cocoons laid round the ledges, to scoop before they hatch. */
+  private layCocoons() {
+    const hatch =
+      Math.round(levelCurve(this.heat(), JOUST_CURVES.hatchTicks)) + 480
+    const perches = this.ledges.filter((l) => !l.spec?.fold && !l.spec?.move)
+    for (let i = 0; i < 8; i++) {
+      const ledge = perches[1 + (i % (perches.length - 1))] ?? perches[0]!
+      const span = ledge.x1 - ledge.x0
+      const x = wrapX(ledge.x0 + span * (0.25 + (0.5 * ((i * 37) % 7)) / 7))
+      this.cocoons.push({
+        x,
+        y: ledge.y - 5,
+        vy: 0,
+        ground: ledge,
+        hatch: hatch + i * 30,
+        kind: 'drifter',
+        called: false,
+      })
+    }
+  }
+
+  private rollKind(level: number): RiderKind {
+    const hunters = levelCurve(level, JOUST_CURVES.hunterShare)
+    const shadows = Math.max(0, levelCurve(level, JOUST_CURVES.shadowShare))
+    const roll = this.rng()
+    return CLASSIC_TIERS[roll < shadows ? 2 : roll < shadows + hunters ? 1 : 0]!
+  }
+
+  private addRival(kind: RiderKind, delay = 0, at?: { x: number; y: number }) {
+    const spots = this.arena.spawns
+    const spot = at ?? spots[Math.floor(this.rng() * spots.length)]!
     this.rivals.push({
       x: spot.x,
       y: spot.y - HALF_H,
@@ -474,37 +802,43 @@ class ButterflyJoust implements ArcadeGameInstance {
       vy: 0,
       ground: null,
       flap: 0,
-      tier,
+      kind,
       dir: this.rng() < 0.5 ? -1 : 1,
       targetY: 120,
       retarget: 0,
       cooldown: 20,
       spawn: 50 + delay,
       held: false,
+      drop: POLLEN.every,
     })
   }
 
-  /** Where a seat starts on the bottom ledge: spread out, P1 in the middle when solo. */
+  private homeLedge(): ArenaLedge {
+    return this.ledges[this.arena.home] ?? this.ledges[0]!
+  }
+
+  /** Where a seat starts on the home ledge: spread out, P1 in the middle when solo. */
   private home(seat: number): number {
-    const bottom = this.ledges[0]!
-    const mid = (bottom.x0 + bottom.x1) / 2
+    const home = this.homeLedge()
+    const mid = (home.x0 + home.x1) / 2
     return mid + (seat - (this.seats - 1) / 2) * 34
   }
 
   private placeRider(r: Rider) {
-    const bottom = this.ledges[0]!
+    const home = this.homeLedge()
     Object.assign(r, {
       x: this.home(r.seat),
-      y: bottom.y - HALF_H,
+      y: home.y - HALF_H,
       vx: 0,
       vy: 0,
-      ground: bottom,
+      ground: home,
       flap: 0,
       facing: r.seat % 2 === 0 ? 1 : -1,
       knocked: 0,
       brace: 0,
       lunge: 0,
       held: false,
+      sneeze: 0,
       trail: [],
     })
     r.invuln = INVULN_TICKS
@@ -519,7 +853,6 @@ class ButterflyJoust implements ArcadeGameInstance {
   update(input: InputFrame, players?: InputFrame[]) {
     this.tick++
     this.updateEffects()
-    if (this.banner && --this.banner.ticks <= 0) this.banner = null
     if (this.over) return
     if (this.menu) {
       this.updateMenu(input)
@@ -529,17 +862,33 @@ class ButterflyJoust implements ArcadeGameInstance {
       if (++this.result.t > 60 * 5) this.over = true
       return
     }
+    if (this.garden) {
+      this.updateGarden(input)
+      return
+    }
+    if (this.card > 0) {
+      this.card--
+      return
+    }
+    if (this.banner && --this.banner.ticks <= 0) this.banner = null
     if (this.mode !== 'versus' && this.lives <= 0) {
       if (++this.overTimer > 100) this.over = true
       return
     }
     if (this.clearing > 0) {
-      if (--this.clearing <= 0) this.startWave(this.level + 1)
+      if (--this.clearing <= 0) this.afterClear()
       return
     }
 
     this.waveTicks++
-    if (this.mode === 'versus') this.updateVersus()
+    this.arenaTicks++
+    this.updateLedges()
+    this.updatePuffs()
+    this.updateWind()
+    if (this.mode === 'versus') {
+      this.updateVersus()
+      if (this.result) return
+    }
     for (const r of this.riders) {
       const frame = this.demo
         ? this.demoInput(r.seat)
@@ -551,10 +900,25 @@ class ButterflyJoust implements ArcadeGameInstance {
     this.moveRivals()
     this.moveCocoons()
     this.moveCarriers()
+    this.moveDust()
     this.moveStorm()
     this.moveFrog()
+    this.updateChampion()
     this.collide()
     if (this.mode !== 'versus') this.checkWave()
+  }
+
+  /** A wave's bell has rung: the next wave, or after a champion, the Wing Garden. */
+  private afterClear() {
+    if (this.mode === 'tourney' && this.wave > WAVES_PER_ARENA) {
+      if (this.demo) this.startArena(this.arenaIndex + 1)
+      else {
+        this.garden = { pick: 0, t: 0 }
+        this.sound.play('level')
+      }
+      return
+    }
+    this.nextWave()
   }
 
   private updateVersus() {
@@ -568,8 +932,7 @@ class ButterflyJoust implements ArcadeGameInstance {
       this.cocoons.length +
       this.carriers.filter((c) => !c.leaving).length
     if (busy < VERSUS_MOTHS && this.waveTicks % 90 === 0) {
-      const minutes = (VERSUS_TICKS - this.versusTicks) / 3600
-      this.addRival(this.rollTier(2 + Math.floor(minutes * 3)))
+      this.addRival(this.rollKind(this.heat()))
     }
   }
 
@@ -589,37 +952,136 @@ class ButterflyJoust implements ArcadeGameInstance {
     this.banner = null
   }
 
-  private flapBody(b: Body) {
-    b.vy = Math.max(MAX_RISE, b.vy - FLAP)
+  // --- the arena engine --------------------------------------------------------------------
+
+  /** Swaying ledges move, flowers open and fold, puffs rise and burst. */
+  private updateLedges() {
+    const t = this.arenaTicks
+    for (const l of this.ledges) {
+      const spec = l.spec
+      l.dx = 0
+      l.dy = 0
+      if (spec?.move) {
+        const m = spec.move
+        const a = ((t + (m.phase ?? 0)) / m.period) * Math.PI * 2
+        const nx = l.bx0 + Math.sin(a) * m.ax
+        const ny = l.by + Math.sin(a * 2) * m.ay
+        l.dx = nx - l.x0
+        l.dy = ny - l.y
+        l.x0 = nx
+        l.x1 = nx + (l.bx1 - l.bx0)
+        l.y = ny
+      }
+      if (spec?.fold) {
+        const state = flowerState(spec.fold, t)
+        if (l.solid && !state.open) this.sound.play('warn')
+        l.solid = state.open
+        l.closing = state.closing
+      }
+      if (l.puff) {
+        const rise = this.arena.puffs?.rise ?? 0.4
+        l.y -= rise
+        l.dy = -rise
+        if (l.stood > 0) l.stood++
+        if (l.stood > PUFF_STAND || l.y < CEILING + 30) {
+          l.solid = false
+          this.burst((l.x0 + l.x1) / 2, l.y, 10, '#ffffff')
+        }
+      }
+    }
+    this.ledges = this.ledges.filter((l) => !l.puff || l.solid)
+  }
+
+  /** Dandelion puffs float up from the meadow now and then. */
+  private updatePuffs() {
+    const spec = this.arena.puffs
+    if (!spec || this.mode !== 'tourney') return
+    if (--this.puffWait > 0) return
+    this.puffWait = spec.every
+    const x = 30 + Math.floor(this.rng() * (W - 60))
+    const l = arenaLedge(null, 'puff', {
+      x0: x - spec.width / 2,
+      x1: x + spec.width / 2,
+      y: PUFF_START,
+    })
+    l.puff = true
+    this.ledges.push(l)
+  }
+
+  /** Gusts: a tell, then the wind blows one way for a while. */
+  private updateWind() {
+    const spec = this.arena.wind
+    if (!spec) return
+    const w = this.wind
+    if (--w.t > 0) return
+    if (w.state === 'calm') {
+      w.state = 'tell'
+      w.t = spec.tell
+      w.dir = this.rng() < 0.5 ? -1 : 1
+      this.sound.play('warn')
+    } else if (w.state === 'tell') {
+      w.state = 'blow'
+      w.t = spec.length
+    } else {
+      w.state = 'calm'
+      w.t = spec.every
+    }
+  }
+
+  private flapBody(b: Body, strength = FLAP) {
+    b.vy = Math.max(MAX_RISE, b.vy - strength)
     b.ground = null
     b.flap = 8
   }
 
-  /** Gravity, ledges, ceiling and wrap for any flier. Returns true if it fell in the pond. */
-  private physics(b: Body, maxSpeed: number): boolean {
+  private riderFlap(): number {
+    return this.mode === 'tourney'
+      ? FLAP * (1 + FLAP_BOOST * this.up.flap)
+      : FLAP
+  }
+
+  /**
+   * Gravity, ledges (solid ones, carrying whoever stands on a moving one), thermals, wind, the
+   * ceiling and the wrap for any flier. A glider falls slower. Returns true if it fell in the pond.
+   */
+  private physics(b: Body, maxSpeed: number, glide = false): boolean {
     if (b.flap > 0) b.flap--
+    if (b.ground && (!b.ground.solid || !this.ledges.includes(b.ground)))
+      b.ground = null
     if (b.ground) {
+      const l = b.ground
       b.vx = Math.max(-WALK_MAX, Math.min(WALK_MAX, b.vx))
-      b.x = wrapX(b.x + b.vx)
-      if (!onLedge(b.ground, b.x)) b.ground = null
+      b.x = wrapX(b.x + b.vx + l.dx)
+      if (!onLedge(l, b.x)) b.ground = null
       else {
-        b.y = b.ground.y - HALF_H
+        b.y = l.y - HALF_H
         b.vy = 0
         return false
       }
     }
     b.vx = Math.max(-maxSpeed, Math.min(maxSpeed, b.vx * 0.995))
-    b.vy = Math.min(MAX_FALL, b.vy + GRAVITY)
+    b.vy = Math.min(
+      glide ? GLIDE.maxFall : MAX_FALL,
+      b.vy + (glide ? GLIDE.gravity : GRAVITY),
+    )
+    this.lift(b)
+    if (this.wind.state === 'blow' && this.arena.wind)
+      b.vx += this.wind.dir * this.arena.wind.push * 0.03
     const prevTop = b.y - HALF_H
     const prevBottom = b.y + HALF_H
     b.x = wrapX(b.x + b.vx)
     b.y += b.vy
     for (const l of this.ledges) {
-      if (!onLedge(l, b.x)) continue
-      if (b.vy >= 0 && prevBottom <= l.y && b.y + HALF_H >= l.y) {
+      if (!l.solid || !onLedge(l, b.x)) continue
+      if (
+        b.vy >= 0 &&
+        prevBottom <= l.y + Math.max(0, -l.dy) &&
+        b.y + HALF_H >= l.y
+      ) {
         b.y = l.y - HALF_H
         b.vy = 0
         b.ground = l
+        if (l.puff && l.stood === 0) l.stood = 1
       } else if (
         b.vy < 0 &&
         prevTop >= l.y + THICK &&
@@ -636,6 +1098,15 @@ class ButterflyJoust implements ArcadeGameInstance {
     return b.y > POND_Y
   }
 
+  /** A lit thermal lifts any flier inside it. */
+  private lift(b: Body) {
+    for (const th of this.arena.thermals) {
+      if (this.mode !== 'tourney' || !thermalOn(th, this.arenaTicks)) continue
+      if (Math.abs(wrapDx(th.x, b.x)) > th.w / 2 || b.y < th.top) continue
+      b.vy = Math.max(THERMAL_MAX_RISE, b.vy - th.lift)
+    }
+  }
+
   /** Riders in the arena and able to joust. */
   private active(): Rider[] {
     return this.riders.filter((r) => r.alive && r.knocked === 0)
@@ -650,6 +1121,11 @@ class ButterflyJoust implements ArcadeGameInstance {
     if (r.knocked > 0) {
       this.moveKnocked(r)
       return
+    }
+    if (r.sneeze > 0) {
+      // ACHOO: half a second with no say in it.
+      r.sneeze--
+      input = blankFrame()
     }
     // The flap: tap A; holding A keeps flapping at a steady beat for touch players.
     if (r.autoFlap > 0) r.autoFlap--
@@ -677,7 +1153,7 @@ class ButterflyJoust implements ArcadeGameInstance {
       r.vx += dx * AIR_ACCEL
     }
     if (tapped || auto) {
-      this.flapBody(r)
+      this.flapBody(r, this.riderFlap())
       r.autoFlap = AUTO_FLAP_TICKS
       if (this.tick % 2 === 0) this.sound.play('blip')
     }
@@ -691,8 +1167,15 @@ class ButterflyJoust implements ArcadeGameInstance {
     }
     // Landing banks the Air Combo.
     if (wasAir && r.ground) this.bankCombo(r)
-    if (r.combo.bonks > 0 && ++r.combo.idle > COMBO_WINDOW) this.bankCombo(r)
+    if (r.combo.bonks > 0 && ++r.combo.idle > this.comboWindow())
+      this.bankCombo(r)
     this.updateTrail(r)
+  }
+
+  private comboWindow(): number {
+    return this.mode === 'tourney'
+      ? COMBO_WINDOW + COMBO_BOOST * this.up.combo
+      : COMBO_WINDOW
   }
 
   /** The Charge Joust: hold B to brace (wings back), let go to lunge. */
@@ -738,12 +1221,14 @@ class ButterflyJoust implements ArcadeGameInstance {
 
   /** A knocked rider is a cocoon: it falls to a ledge (or bobs on the pond) until it hatches. */
   private moveKnocked(r: Rider) {
+    if (r.ground && (!r.ground.solid || !onLedge(r.ground, r.x)))
+      r.ground = null
     if (!r.ground) {
       const prev = r.y
       r.vy = Math.min(MAX_FALL, r.vy + GRAVITY)
       r.y += r.vy
       for (const l of this.ledges) {
-        if (onLedge(l, r.x) && prev + 5 <= l.y && r.y + 5 >= l.y) {
+        if (l.solid && onLedge(l, r.x) && prev + 5 <= l.y && r.y + 5 >= l.y) {
           r.y = l.y - 5
           r.vy = 0
           r.ground = l
@@ -753,8 +1238,9 @@ class ButterflyJoust implements ArcadeGameInstance {
         r.y = POND_Y - 4
         r.vy = 0
       }
-    } else if (!onLedge(r.ground, r.x)) {
-      r.ground = null
+    } else {
+      r.x = wrapX(r.x + r.ground.dx)
+      r.y = r.ground.y - 5
     }
     if (--r.knocked <= 0) this.wake(r)
   }
@@ -786,7 +1272,7 @@ class ButterflyJoust implements ArcadeGameInstance {
   }
 
   private moveRivals() {
-    const speed = levelCurve(this.level, JOUST_CURVES.riderSpeed)
+    const speed = levelCurve(this.heat(), JOUST_CURVES.riderSpeed)
     const targets = this.active()
     for (const r of this.rivals) {
       if (r.spawn > 0) {
@@ -801,35 +1287,100 @@ class ButterflyJoust implements ArcadeGameInstance {
         }
         continue
       }
+      const spec = ROSTER[r.kind]
       if (--r.retarget <= 0) {
         r.retarget = 60 + Math.floor(this.rng() * 60)
-        if (r.tier === 0) {
+        if (spec.ai === 'drift') {
           r.targetY = 60 + this.rng() * 200
           if (this.rng() < 0.25) r.dir = -r.dir
         }
       }
       const prey = this.nearest(r, targets)
-      if (r.tier > 0 && prey) {
-        // Hunters chase your height; shadows try to get above you.
-        r.targetY = prey.y - (r.tier === 2 ? 28 : 6)
-        const toward = Math.sign(wrapDx(r.x, prey.x)) || r.dir
-        if (r.retarget % 20 === 0) r.dir = toward
-      }
-      const max = speed * TIER_SPEED[r.tier]!
-      r.vx += r.dir * (r.ground ? 0.15 : 0.05)
       if (r.cooldown > 0) r.cooldown--
-      const wantsUp = r.y > r.targetY + 4 || (r.y > POND_Y - 50 && r.vy > 0)
-      if (wantsUp && r.cooldown === 0) {
-        this.flapBody(r)
-        r.cooldown = TIER_FLAP_GAP[r.tier]! + Math.floor(this.rng() * 6)
+      if (spec.ai === 'glide') {
+        this.glide(r, prey)
+      } else {
+        if (prey && spec.ai !== 'drift') {
+          // Hunters chase your height; shadows climb over you; bombers hover high above.
+          const over = spec.ai === 'shadow' ? 28 : spec.ai === 'bomb' ? 72 : 6
+          r.targetY = Math.max(CEILING + 20, prey.y - over)
+          const toward = Math.sign(wrapDx(r.x, prey.x)) || r.dir
+          if (r.retarget % 20 === 0 || spec.ai === 'bomb') r.dir = toward
+        }
+        if (spec.ai === 'bomb') this.bomb(r, prey)
+        r.vx += r.dir * (r.ground ? 0.15 : 0.05)
+        const wantsUp = r.y > r.targetY + 4 || (r.y > POND_Y - 50 && r.vy > 0)
+        if (wantsUp && r.cooldown === 0) {
+          this.flapBody(r)
+          r.cooldown = spec.flapGap + Math.floor(this.rng() * 6)
+        }
       }
-      if (this.physics(r, max)) {
+      if (this.physics(r, speed * spec.speed, spec.ai === 'glide')) {
         r.spawn = -1
         this.burst(r.x, POND_Y, 10, '#7dd3fc')
         this.sound.play('pop')
       }
     }
     this.rivals = this.rivals.filter((r) => r.spawn >= 0)
+  }
+
+  /** A glider never flaps: it heads for a lit thermal, circles up it, then glides at you. */
+  private glide(r: Rival, prey: Rider | null) {
+    let th = null as Arena['thermals'][number] | null
+    let best = Infinity
+    if (this.mode === 'tourney') {
+      for (const t of this.arena.thermals) {
+        if (!thermalOn(t, this.arenaTicks)) continue
+        const d = Math.abs(wrapDx(r.x, t.x))
+        if (d < best) {
+          best = d
+          th = t
+        }
+      }
+    }
+    const inside = th && Math.abs(wrapDx(th.x, r.x)) < th.w / 2
+    if (th && inside && r.y > th.top + 12) {
+      if (Math.abs(wrapDx(th.x, r.x)) > th.w / 2 - 6)
+        r.dir = Math.sign(wrapDx(r.x, th.x)) || r.dir
+    } else if (th && !inside && r.y > th.top + 40) {
+      r.dir = Math.sign(wrapDx(r.x, th.x)) || r.dir
+    } else if (prey) {
+      r.dir = Math.sign(wrapDx(r.x, prey.x)) || r.dir
+    }
+    r.vx += r.dir * 0.05
+    // Only to keep out of the pond does it ever beat its wings.
+    if (r.y > POND_Y - 34 && r.vy > 0 && r.cooldown === 0) {
+      this.flapBody(r)
+      r.cooldown = 50
+    }
+  }
+
+  /** A pollen bomber drops a sneezy puff when it is over its prey. */
+  private bomb(r: Rival, prey: Rider | null) {
+    if (r.drop > 0) {
+      r.drop--
+      return
+    }
+    if (!prey || Math.abs(wrapDx(r.x, prey.x)) > 18 || prey.y - r.y < 24) return
+    this.dust.push({ x: r.x, y: r.y + 10, cloud: false, t: 0 })
+    r.drop = POLLEN.every + Math.floor(this.rng() * 60)
+    this.sound.play('pop')
+  }
+
+  private moveDust() {
+    for (const d of this.dust) {
+      d.t++
+      if (d.cloud) continue
+      d.y += POLLEN.fall
+      const hit = this.ledges.some(
+        (l) => l.solid && onLedge(l, d.x) && d.y >= l.y - 4 && d.y <= l.y + 4,
+      )
+      if (hit || d.t > 80 || d.y > POND_Y - 6) {
+        d.cloud = true
+        d.t = 0
+      }
+    }
+    this.dust = this.dust.filter((d) => !d.cloud || d.t < POLLEN.cloud)
   }
 
   private nearest<T extends { x: number; y: number }>(
@@ -849,20 +1400,28 @@ class ButterflyJoust implements ArcadeGameInstance {
   }
 
   private carriersActive(): boolean {
-    return this.level >= CARRIER.from || this.mode === 'versus'
+    if (this.mode === 'versus') return true
+    if (this.mode === 'tourney') return this.arena.carriers
+    return this.level >= CARRIER.from
   }
 
   private moveCocoons() {
     for (const c of this.cocoons) {
       if (!c.called) c.hatch--
+      if (c.ground && (!c.ground.solid || !this.ledges.includes(c.ground)))
+        c.ground = null
       if (c.ground) {
         if (!onLedge(c.ground, c.x)) c.ground = null
+        else {
+          c.x = wrapX(c.x + c.ground.dx)
+          c.y = c.ground.y - 5
+        }
       } else {
         const prev = c.y
         c.vy = Math.min(MAX_FALL, c.vy + GRAVITY)
         c.y += c.vy
         for (const l of this.ledges) {
-          if (onLedge(l, c.x) && prev + 5 <= l.y && c.y + 5 >= l.y) {
+          if (l.solid && onLedge(l, c.x) && prev + 5 <= l.y && c.y + 5 >= l.y) {
             c.y = l.y - 5
             c.vy = 0
             c.ground = l
@@ -878,8 +1437,7 @@ class ButterflyJoust implements ArcadeGameInstance {
           this.callCarrier(c)
         } else {
           // Out pops a tougher rider.
-          const tier = Math.min(2, c.tier + 1) as Tier
-          this.addRival(tier, -20, { x: c.x, y: c.y + 5 })
+          this.addRival(ROSTER[c.kind].hatch, -20, { x: c.x, y: c.y + 5 })
           c.hatch = -999
         }
       }
@@ -898,7 +1456,7 @@ class ButterflyJoust implements ArcadeGameInstance {
       flap: 0,
       target: c,
       carrying: 0,
-      tier: c.tier,
+      kind: c.kind,
       leaving: 0,
     })
     this.playWhistle()
@@ -927,8 +1485,7 @@ class ButterflyJoust implements ArcadeGameInstance {
         c.y = Math.max(CEILING + 20, c.y - 0.7)
         if (--c.carrying <= 0) {
           // It hatches on the wing: a tougher rider takes the reins.
-          const tier = Math.min(2, c.tier + 1) as Tier
-          this.addRival(tier, -50, { x: c.x, y: c.y + HALF_H })
+          this.addRival(ROSTER[c.kind].hatch, -50, { x: c.x, y: c.y + HALF_H })
           c.leaving = -1
           this.sound.play('warn')
         }
@@ -959,19 +1516,19 @@ class ButterflyJoust implements ArcadeGameInstance {
   private moveStorm() {
     if (this.mode === 'versus') {
       if (!this.storm && this.versusTicks === 60 * 90) this.summonStorm()
-    } else if (!this.storm) {
+    } else if (!this.storm && !this.champion) {
       const after =
         this.waveKind === 'storm'
           ? 120
           : this.waveKind === 'cocoon'
             ? -1
-            : Math.round(levelCurve(this.level, JOUST_CURVES.stormAfter))
+            : Math.round(levelCurve(this.heat(), JOUST_CURVES.stormAfter))
       if (this.waveTicks === after && !this.stormPopped) this.summonStorm()
     }
     const s = this.storm
     if (!s) return
     s.t++
-    const speed = levelCurve(this.level, JOUST_CURVES.stormSpeed)
+    const speed = levelCurve(this.heat(), JOUST_CURVES.stormSpeed)
     const prey = this.nearest(s, this.active())
     if (!prey) return
     const dx = wrapDx(s.x, prey.x)
@@ -999,19 +1556,76 @@ class ButterflyJoust implements ArcadeGameInstance {
     this.sound.play('warn')
   }
 
+  // --- the champion bout ------------------------------------------------------------------
+
+  private makeCtx(): BoutCtx {
+    return {
+      rng: () => this.rng(),
+      riders: () => this.active().filter((r) => !r.held),
+      ledges: () => this.ledges.filter((l) => l.solid),
+      hurt: (r) => this.loseLife(r as Rider),
+      hit: (r, points, x, y) => {
+        const rider = r as Rider
+        this.comboBonk(rider, points, x, y)
+        rider.vy = Math.min(rider.vy, -2)
+        rider.ground = null
+      },
+      push: (r, vx, vy) => {
+        const rider = r as Rider
+        rider.vx = vx
+        rider.vy += vy
+        rider.ground = null
+      },
+      spawn: (kind, x, y) => this.addRival(kind, 0, { x, y }),
+      burst: (x, y, count, colour) => this.burst(x, y, count, colour),
+      play: (name) => this.sound.play(name),
+      say: (text, sub) => {
+        this.banner = { text, sub, ticks: 100 }
+      },
+    }
+  }
+
+  private updateChampion() {
+    const c = this.champion
+    if (!c) return
+    c.update(this.ctx)
+    if (c.done && !this.championBeaten) {
+      this.championBeaten = true
+      const info = CHAMPIONS[c.id]
+      const share = Math.floor(info.points / this.riders.length)
+      for (const r of this.riders) this.addScore(share, undefined, undefined, r)
+      this.gainPollen(POLLEN_FOR.champion)
+      this.banner = {
+        text: 'CHAMPION BESTED!',
+        sub: `${info.name} +${share * this.riders.length}`,
+        ticks: 150,
+      }
+      this.burst(c.x, c.y, 40, RAMPS.gold[4])
+      this.fx.burst(c.x, c.y, this.fxRng, { count: 30, speed: 2.6 })
+      this.sound.play('extra')
+    }
+  }
+
   // --- the Pond Frog ----------------------------------------------------------------------
 
   private frogActive(): boolean {
-    return this.mode === 'versus' || this.level >= FROG.from
+    if (this.mode === 'versus') return true
+    if (this.mode === 'tourney') return this.wave >= this.arena.frogFrom
+    return this.level >= FROG.from
   }
 
-  /** The nearest open water to x: the frog can't surface under the bottom ledge. */
+  /** The nearest open water to x: the frog can't surface under a low ledge. */
   private openWater(x: number): number {
-    const bottom = this.ledges[0]!
-    const lo = bottom.x0 - 16
-    const hi = bottom.x1 + 16
-    if (x <= lo || x >= hi) return x
-    return x - lo < hi - x ? wrapX(lo) : wrapX(hi)
+    for (const l of this.ledges) {
+      if (l.puff || l.y < POND_Y - 40) continue
+      const lo = l.x0 - 16
+      const hi = l.x1 + 16
+      if (!onLedge({ x0: lo, x1: hi, y: l.y }, x)) continue
+      const dl = Math.abs(wrapDx(x, wrapX(lo)))
+      const dh = Math.abs(wrapDx(x, wrapX(hi)))
+      return dl < dh ? wrapX(lo) : wrapX(hi)
+    }
+    return x
   }
 
   /** Fliers low over open water, close enough to tempt the frog. */
@@ -1031,6 +1645,12 @@ class ButterflyJoust implements ArcadeGameInstance {
 
   private preyBody(p: Prey): Body {
     return p.kind === 'rider' ? p.rider : p.rival
+  }
+
+  private frogGrip(): number {
+    return this.mode === 'tourney'
+      ? FROG.grip - FROG_BOOST * this.up.frog
+      : FROG.grip
   }
 
   private moveFrog() {
@@ -1104,7 +1724,7 @@ class ButterflyJoust implements ArcadeGameInstance {
           return
         }
         f.state = 'hold'
-        f.grip = p.kind === 'rider' ? FROG.grip : 5
+        f.grip = p.kind === 'rider' ? this.frogGrip() : 5
         if (p.kind === 'rider') {
           p.rider.held = true
           p.rider.ground = null
@@ -1204,7 +1824,10 @@ class ButterflyJoust implements ArcadeGameInstance {
     for (const p of this.active()) {
       if (!p.alive || p.knocked > 0) continue
       if (this.collideStorm(p)) continue
+      if (this.champion && !p.held && this.champion.touch(this.ctx, p)) continue
+      if (!p.alive) continue
       if (this.collideRivals(p)) continue
+      this.collideDust(p)
       this.collideCarriers(p)
       this.collideCocoons(p)
     }
@@ -1282,6 +1905,29 @@ class ButterflyJoust implements ArcadeGameInstance {
     return false
   }
 
+  /** Flying through a pollen puff: a sneeze. */
+  private collideDust(p: Rider) {
+    if (p.sneeze > 0 || p.invuln > 0 || p.held) return
+    for (const d of this.dust) {
+      const reach = d.cloud ? POLLEN.radius : 7
+      if (Math.abs(wrapDx(p.x, d.x)) < reach && Math.abs(d.y - p.y) < reach) {
+        p.sneeze = POLLEN.sneeze
+        p.vx = -p.facing * 1.6
+        p.lunge = 0
+        p.brace = 0
+        this.floaters.push({
+          x: p.x,
+          y: p.y - 20,
+          text: 'ACHOO!',
+          life: 40,
+          color: RAMPS.gold[4],
+        })
+        this.sound.play('pop')
+        return
+      }
+    }
+  }
+
   private collideCarriers(p: Rider) {
     for (const c of this.carriers) {
       if (c.leaving !== 0 || p.held) continue
@@ -1291,6 +1937,7 @@ class ButterflyJoust implements ArcadeGameInstance {
       if (dy >= LEVEL_BAND || p.lunge > 0) {
         // Bonked: it drops what it carries and flutters off, dizzy.
         this.comboBonk(p, CARRIER.points, c.x, c.y - 14)
+        this.gainPollen(POLLEN_FOR.carrier)
         this.burst(c.x, c.y, 10, RAMPS.cream[3])
         this.sound.play('shoot')
         p.vy = Math.min(p.vy, -1.2)
@@ -1301,7 +1948,7 @@ class ButterflyJoust implements ArcadeGameInstance {
             vy: 0,
             ground: null,
             hatch: CARRIER.regrace,
-            tier: c.tier,
+            kind: c.kind,
             called: false,
           })
         } else if (c.target) {
@@ -1330,6 +1977,7 @@ class ButterflyJoust implements ArcadeGameInstance {
         let points = Math.min(1000, 250 * this.collected)
         if (!c.ground) points += 500
         this.addScore(points, c.x, c.y - 12, p)
+        this.gainPollen(POLLEN_FOR.scoop)
         this.fx.burst(c.x, c.y, this.fxRng, {
           count: 8,
           colours: [RAMPS.leaf[4], RAMPS.gold[4], RAMPS.pink[3]],
@@ -1352,7 +2000,7 @@ class ButterflyJoust implements ArcadeGameInstance {
           continue
         if (a.knocked > 0 || b.knocked > 0) {
           // A co-op scoop wakes a knocked friend.
-          if (this.mode !== 'coop') continue
+          if (!this.coop) continue
           const [sleeper, friend] = a.knocked > 0 ? [a, b] : [b, a]
           if (friend.knocked > 0) continue
           this.wake(sleeper)
@@ -1398,7 +2046,7 @@ class ButterflyJoust implements ArcadeGameInstance {
     this.sound.play('shoot')
     if (this.mode === 'versus') {
       winner.bonks++
-      this.comboBonk(winner, TIER_POINTS[1]!, loser.x, loser.y - 14, false)
+      this.comboBonk(winner, ROSTER.hunter.points, loser.x, loser.y - 14, false)
     } else {
       // Co-op: a friendly bonk costs the wave's team bonus.
       this.friendlyBonk = true
@@ -1413,28 +2061,42 @@ class ButterflyJoust implements ArcadeGameInstance {
   }
 
   private bonk(p: Rider, r: Rival) {
+    const spec = ROSTER[r.kind]
     this.rivals = this.rivals.filter((other) => other !== r)
     if (this.mode === 'versus') p.bonks++
-    this.comboBonk(p, TIER_POINTS[r.tier]!, r.x, r.y - 14)
+    this.comboBonk(p, spec.points, r.x, r.y - 14)
     if (this.waveKind === 'gladiator' && !this.firstBonk) {
       this.firstBonk = true
       this.addScore(WAVE_TYPES.gladiator.bonus, r.x, r.y - 28, p)
       this.banner = { text: 'FIRST BONK!', sub: 'GLADIATOR BONUS', ticks: 80 }
     }
     this.firstBonk = true
-    this.burst(r.x, r.y, 14, TIER_WINGS[r.tier]!)
+    this.burst(r.x, r.y, 14, spec.spark)
     this.fx.burst(r.x, r.y, this.fxRng, { count: 12 })
     this.sound.play('shoot')
     p.vy = Math.min(p.vy, -1.2)
-    this.cocoons.push({
-      x: r.x,
-      y: r.y,
-      vy: -1,
-      ground: null,
-      hatch: Math.round(levelCurve(this.level, JOUST_CURVES.hatchTicks)),
-      tier: r.tier,
-      called: false,
-    })
+    const hatch = Math.round(levelCurve(this.heat(), JOUST_CURVES.hatchTicks))
+    // Twin riders split: a cocoon for each moth.
+    for (let i = 0; i < spec.cocoons; i++) {
+      this.cocoons.push({
+        x: wrapX(r.x + (spec.cocoons > 1 ? (i ? 9 : -9) : 0)),
+        y: r.y,
+        vy: -1 - i * 0.4,
+        ground: null,
+        hatch: hatch + i * 40,
+        kind: r.kind,
+        called: false,
+      })
+    }
+    if (spec.cocoons > 1) {
+      this.floaters.push({
+        x: r.x,
+        y: r.y - 26,
+        text: 'SPLIT!',
+        life: 40,
+        color: RAMPS.pink[3],
+      })
+    }
   }
 
   // --- the Air Combo ----------------------------------------------------------------------
@@ -1456,6 +2118,7 @@ class ButterflyJoust implements ArcadeGameInstance {
     p.bestCombo = Math.max(p.bestCombo, mult)
     if (showBase) this.addScore(base, x, y, p)
     else this.addScore(base, undefined, undefined, p)
+    this.gainPollen(POLLEN_FOR.bonk)
     if (mult >= 2) {
       this.floaters.push({
         x,
@@ -1471,17 +2134,24 @@ class ButterflyJoust implements ArcadeGameInstance {
   private bankCombo(p: Rider) {
     const c = p.combo
     if (c.pot > 0 && !this.demo) {
+      const mult = comboMultiplier(c.bonks)
       this.addScore(c.pot, undefined, undefined, p)
+      this.gainPollen(POLLEN_FOR.combo * (mult - 1))
       this.floaters.push({
         x: p.x,
         y: p.y - 26,
-        text: `COMBO X${comboMultiplier(c.bonks)} +${c.pot}`,
+        text: `COMBO X${mult} +${c.pot}`,
         life: 70,
         color: RAMPS.gold[4],
       })
       this.sound.play('extra')
     }
     p.combo = { bonks: 0, pot: 0, idle: 0 }
+  }
+
+  private gainPollen(n: number) {
+    if (this.demo || this.mode !== 'tourney' || n <= 0) return
+    this.pollen = Math.min(99_999, this.pollen + n)
   }
 
   // --- lives ------------------------------------------------------------------------------
@@ -1499,6 +2169,7 @@ class ButterflyJoust implements ArcadeGameInstance {
     p.knocked = 0
     p.lunge = 0
     p.brace = 0
+    p.sneeze = 0
     p.trail = []
     if (p.combo.pot > 0) {
       this.floaters.push({
@@ -1519,7 +2190,12 @@ class ButterflyJoust implements ArcadeGameInstance {
     this.lives--
     this.diedThisWave = true
     p.respawn = 90
-    if (this.lives <= 0) this.banner = { text: 'GAME OVER', ticks: 9999 }
+    if (this.lives <= 0) {
+      this.banner = { text: 'GAME OVER', ticks: 9999 }
+      // The save stays at this arena's start, to pick up with fresh butterflies.
+      if (this.saveData && this.mode === 'tourney')
+        this.saveData = { ...this.saveData, continued: true }
+    }
   }
 
   private checkWave() {
@@ -1529,6 +2205,7 @@ class ButterflyJoust implements ArcadeGameInstance {
       this.carriers.some((c) => c.leaving === 0)
     )
       return
+    if (this.champion && (!this.champion.done || this.champion.busy())) return
     const lines: string[] = []
     const lead = this.active()[0] ?? this.player
     // Wave bonuses are shared evenly round the party's tallies.
@@ -1541,7 +2218,7 @@ class ButterflyJoust implements ArcadeGameInstance {
       pay(WAVE_TYPES.survival.bonus, 'SURVIVAL')
     if (this.waveKind === 'cocoon' && this.hatched === 0)
       pay(WAVE_TYPES.cocoon.bonus, 'ALL SCOOPED')
-    if (this.mode === 'coop' && !this.friendlyBonk) {
+    if (this.coop && !this.friendlyBonk) {
       pay(
         this.waveKind === 'team'
           ? WAVE_TYPES.team.bonus * this.seats
@@ -1550,12 +2227,16 @@ class ButterflyJoust implements ArcadeGameInstance {
       )
     }
     for (const r of this.riders) this.bankCombo(r)
-    this.banner = { text: 'WAVE CLEAR!', lines, ticks: 100 }
+    this.gainPollen(POLLEN_FOR.wave)
+    this.banner = this.champion
+      ? (this.banner ?? { text: 'CHAMPION BESTED!', ticks: 100 })
+      : { text: 'WAVE CLEAR!', lines, ticks: 100 }
     this.sound.play('level')
     this.fx.burst(lead.x, lead.y, this.fxRng, { count: 16 })
     this.storm = null
     this.stormPopped = false
-    this.clearing = 100
+    this.dust = []
+    this.clearing = this.champion ? 160 : 100
     // A rider in the frog's grip at the bell goes free.
     if (this.frog.prey) this.releasePrey(this.frog.prey)
     this.frog.prey = null
@@ -1611,12 +2292,117 @@ class ButterflyJoust implements ArcadeGameInstance {
     this.floaters = this.floaters.filter((f) => f.life > 0)
   }
 
+  // --- the Wing Garden ---------------------------------------------------------------------
+
+  private owned(item: ShopItem): number {
+    switch (item.id) {
+      case 'spare':
+        return this.spares
+      case 'flap':
+      case 'combo':
+      case 'frog':
+        return this.up[item.id]
+      case 'morpho':
+      case 'monarch':
+      case 'swallowtail':
+        return this.wings.includes(item.id) ? 1 : 0
+      default:
+        return 0
+    }
+  }
+
+  private gardenRows(): GardenRow[] {
+    return SHOP.map((item) => {
+      const owned = this.owned(item)
+      const maxed = item.id !== 'go' && owned >= item.max
+      const wing = (WING_ITEMS as readonly string[]).includes(item.id)
+      const price = item.id === 'go' || maxed ? null : shopPrice(item, owned)
+      return {
+        name: item.name,
+        about: item.about,
+        price,
+        action:
+          item.id === 'go'
+            ? 'A'
+            : wing
+              ? this.wear === item.id
+                ? 'WORN'
+                : 'WEAR'
+              : 'MAX',
+        affordable: price === null || this.pollen >= price,
+      }
+    })
+  }
+
+  private updateGarden(input: InputFrame) {
+    const g = this.garden!
+    g.t++
+    const step = input.pressed.up ? -1 : input.pressed.down ? 1 : 0
+    if (step) {
+      g.pick = (g.pick + step + SHOP.length) % SHOP.length
+      this.sound.play('blip')
+    }
+    if (input.pressed.b) {
+      this.leaveGarden()
+      return
+    }
+    if (!input.pressed.a && !input.pressed.start) return
+    const item = SHOP[g.pick]!
+    if (item.id === 'go') {
+      this.leaveGarden()
+      return
+    }
+    const owned = this.owned(item)
+    const wing = (WING_ITEMS as readonly string[]).includes(item.id)
+    if (wing && owned) {
+      // Owned wings: wear them, or go back to the rainbow.
+      this.wear = this.wear === item.id ? 'rainbow' : (item.id as WingSet)
+      this.sound.play('pickup')
+      return
+    }
+    const price = shopPrice(item, owned)
+    if (owned >= item.max || this.pollen < price) {
+      this.sound.play('warn')
+      return
+    }
+    this.pollen -= price
+    switch (item.id) {
+      case 'spare':
+        this.spares++
+        this.lives++
+        break
+      case 'flap':
+      case 'combo':
+      case 'frog':
+        this.up[item.id]++
+        break
+      default:
+        this.wings.push(item.id as WingSet)
+        this.wear = item.id as WingSet
+    }
+    this.sound.play('extra')
+  }
+
+  private leaveGarden() {
+    this.garden = null
+    this.sound.play('start')
+    this.startArena(this.arenaIndex + 1)
+  }
+
   // --- attract-mode pilot ------------------------------------------------------------------
 
   /** The pilot for a seat: the attract demo flies seat 1 with it. */
   demoInput(seat = 0): InputFrame {
     const frame = blankFrame()
     const held = frame.held
+    if (this.menu) {
+      frame.pressed.a = this.tick % 30 === 0
+      return frame
+    }
+    if (this.garden) {
+      frame.pressed.a = this.garden.t > 90 && this.garden.pick === 0
+      return frame
+    }
     const p = this.riders[seat]
     if (!p || !p.alive || p.knocked > 0) return frame
     if (p.held) {
@@ -1641,26 +2427,35 @@ class ButterflyJoust implements ArcadeGameInstance {
     const carrier = this.carriers
       .filter((c) => c.leaving === 0)
       .sort((a, b) => cost(a) - cost(b))[0]
-    let stormNear = false
+    let busy = false
     if (s) {
       const sdx = wrapDx(p.x, s.x)
-      stormNear = Math.abs(sdx) < 110 && Math.abs(s.y - p.y) < 90
+      busy = Math.abs(sdx) < 110 && Math.abs(s.y - p.y) < 90
       const phase = thundercapPhase(s.t)
       const openLeft =
         THUNDERCAP.flash +
         THUNDERCAP.open -
         (((s.t % THUNDERCAP.cycle) + THUNDERCAP.cycle) % THUNDERCAP.cycle)
-      if (stormNear && phase === 'open' && openLeft > 24) {
+      if (busy && phase === 'open' && openLeft > 24) {
         // Meet the open eye level, lance first.
         goalX = s.x
         goalY = s.y
-      } else if (stormNear) {
+      } else if (busy) {
         // Keep clear until the eye opens.
         goalX = wrapX(s.x + (sdx < 0 ? 140 : -140))
         goalY = s.y > 170 ? 80 : 250
       }
     }
-    if (!stormNear) {
+    const champ = this.champion
+    let flee = false
+    if (!busy && champ && (!champ.done || champ.busy()) && !rival) {
+      const goal = champ.goal(p)
+      goalX = goal.x
+      goalY = goal.y
+      flee = goal.flee === true
+      busy = true
+    }
+    if (!busy) {
       if (cocoon && (!rival || cocoon.hatch < 200 || cocoon.called)) {
         goalX = cocoon.x
         goalY = cocoon.y - 4
@@ -1673,14 +2468,18 @@ class ButterflyJoust implements ArcadeGameInstance {
       }
     }
     // Back away from any rider bearing down from above.
-    const threat = this.rivals.find(
-      (r) =>
-        r.spawn <= 0 &&
-        r.y < p.y - 3 &&
-        p.y - r.y < 70 &&
-        Math.abs(wrapDx(p.x, r.x)) < 50,
+    const threat = [
+      ...this.rivals.filter((r) => r.spawn <= 0),
+      ...(champ ? champ.threats() : []),
+    ].find(
+      (r) => r.y < p.y - 3 && p.y - r.y < 70 && Math.abs(wrapDx(p.x, r.x)) < 50,
     )
     if (threat) goalX = wrapX(p.x - Math.sign(wrapDx(p.x, threat.x)) * 60)
+    // Steer round pollen.
+    const puff = this.dust.find(
+      (d) => Math.abs(wrapDx(p.x, d.x)) < 40 && Math.abs(d.y - p.y) < 40,
+    )
+    if (puff) goalX = wrapX(p.x - (Math.sign(wrapDx(p.x, puff.x)) || 1) * 50)
     // Stay out of the frog's reach while it shows its tell.
     if (
       (this.frog.state === 'bubbles' || this.frog.state === 'eyes') &&
@@ -1689,21 +2488,37 @@ class ButterflyJoust implements ArcadeGameInstance {
       goalY = Math.min(goalY, POND_Y - FROG.reach - 30)
     // A ledge between us and a goal above it: fly round its nearer end.
     const roof = this.ledges.find(
-      (l) => l.y < p.y - HALF_H && l.y > goalY && onLedge(l, p.x),
+      (l) => l.solid && l.y < p.y - HALF_H && l.y > goalY && onLedge(l, p.x),
     )
     if (roof && Math.abs(wrapDx(p.x, goalX)) < 80) {
       const left = Math.abs(wrapDx(p.x, roof.x0))
       const right = Math.abs(wrapDx(p.x, roof.x1))
       goalX = wrapX(left < right ? roof.x0 - 18 : roof.x1 + 18)
     }
+    // A champion closing in at our height: climb over it.
+    const climb =
+      champ !== null &&
+      !champ.done &&
+      !flee &&
+      Math.abs(wrapDx(p.x, champ.x)) < 80 &&
+      p.y > champ.y - 22
     const dx = wrapDx(p.x, goalX)
     if (dx < -6) held.left = true
     else if (dx > 6) held.right = true
     const low = p.y > goalY + 4 || (p.y > POND_Y - 60 && !p.ground)
     const sinking = p.y > POND_Y - 44 && p.vy > -0.5
-    if (((low && !threat) || sinking) && p.vy > -1 && this.tick % 4 === 0) {
+    // Off a flower before it folds, off a puff before it bursts.
+    const shaky =
+      p.ground !== null &&
+      (p.ground.closing > 0.3 || (p.ground.puff && p.ground.stood > 60))
+    if (
+      ((low && !threat) || sinking || shaky) &&
+      p.vy > -1 &&
+      this.tick % 4 === 0
+    ) {
       frame.pressed.a = true
     }
+    if (climb && p.vy > -2.4 && this.tick % 3 === 0) frame.pressed.a = true
     // A level rider just ahead: brace, then lunge through.
     const level = this.rivals.find(
       (r) =>
@@ -1725,19 +2540,53 @@ class ButterflyJoust implements ArcadeGameInstance {
   // --- render ------------------------------------------------------------------------------
 
   render(g: CanvasRenderingContext2D) {
-    paintSunsetSky(g, this.tick)
-    const bottom = this.ledges[0]!
-    paintLedges(g, this.ledges, `${bottom.x0}-${bottom.x1}`)
-    paintPond(g, this.tick)
+    if (this.garden) {
+      this.renderGarden(g)
+      return
+    }
+    const meadow = this.arena.style === 'meadow'
+    if (meadow) paintMeadowSky(g, this.tick)
+    else paintSunsetSky(g, this.tick)
+    for (const th of this.arena.thermals) {
+      if (this.mode !== 'tourney') break
+      this.wrapDraw(th.x, (x) =>
+        paintThermal(
+          g,
+          x,
+          th.w,
+          th.top,
+          thermalOn(th, this.arenaTicks),
+          this.tick,
+        ),
+      )
+    }
+    this.renderLedges(g)
+    if (meadow) paintLilyPond(g, this.tick)
+    else paintPond(g, this.tick)
     this.renderFrog(g)
     for (const c of this.cocoons)
       this.wrapDraw(c.x, (x) => this.renderCocoon(g, c, x))
     for (const c of this.carriers)
       this.wrapDraw(c.x, (x) => this.renderCarrier(g, c, x))
+    for (const d of this.dust) {
+      this.wrapDraw(d.x, (x) =>
+        drawPollen(
+          g,
+          x,
+          d.y,
+          d.cloud,
+          POLLEN.radius,
+          d.cloud ? d.t / POLLEN.cloud : 0,
+          this.tick,
+        ),
+      )
+    }
     for (const r of this.rivals)
       this.wrapDraw(r.x, (x) => this.renderRival(g, r, x))
+    if (this.champion) this.champion.render(g, this.tick)
     for (const r of this.riders) this.renderPlayer(g, r)
     if (this.storm) this.wrapDraw(this.storm.x, (x) => this.renderStorm(g, x))
+    if (this.wind.state === 'blow') paintWind(g, this.wind.dir, 1, this.tick)
     this.renderSparks(g)
     this.fx.render(g)
     for (const f of this.floaters) {
@@ -1747,10 +2596,78 @@ class ButterflyJoust implements ArcadeGameInstance {
         outline: INK,
       })
     }
-    vignette(g)
+    snesVignette(g, W, H, 0.3)
     this.renderHud(g)
-    if (this.menu) this.renderMenu(g)
-    if (this.result) this.renderResult(g)
+    if (this.card > 0 && !this.menu) {
+      drawArenaCard(g, {
+        number: this.arena.number,
+        name: this.arena.name,
+        intro: this.arena.intro,
+        lap: this.lap,
+        t: CARD_TICKS - this.card,
+      })
+    }
+    if (this.menu) {
+      drawMenu(g, {
+        title: this.seats > 1 ? 'JOUSTING PARTY' : 'BUTTERFLY JOUST',
+        subtitle:
+          this.seats > 1 ? `${this.seats} RIDERS` : 'THE FOUR GARDENS TOURNEY',
+        rows: this.menuRows(),
+        pick: this.menu.pick,
+        tick: this.tick,
+      })
+      // Each seat's rider, lit up over the dimmed arena, flapping its own wings.
+      for (const r of this.riders) {
+        drawSprite(
+          g,
+          seatFrames(r.seat, r.seat === 0 ? this.wear : undefined)[
+            (this.tick + r.seat * 4) % 16 < 8 ? 0 : 1
+          ],
+          Math.round(r.x) - 16,
+          Math.round(r.y) - 17,
+          { anchor: 'topleft', flipX: r.facing < 0 },
+        )
+      }
+    }
+    if (this.result) drawResult(g, this.result.lines)
+  }
+
+  /** Static ledges come from a cached layer; moving, folding and puff ledges draw each frame. */
+  private renderLedges(g: CanvasRenderingContext2D) {
+    const fixed = this.ledges.filter(
+      (l) => !l.puff && !l.spec?.move && !l.spec?.fold,
+    )
+    const crumble = fixed.find((l) => l.spec?.crumbles)
+    paintLedges(
+      g,
+      fixed,
+      `${this.arena.id}-${crumble ? `${crumble.x0}-${crumble.x1}` : 'whole'}`,
+    )
+    for (const l of this.ledges) {
+      if (l.puff) {
+        paintPuff(g, l, l.stood / PUFF_STAND, this.tick)
+      } else if (l.spec?.fold) {
+        paintFlower(g, l, l.solid, l.closing, this.tick)
+      } else if (l.spec?.move) {
+        this.wrapDraw((l.x0 + l.x1) / 2, (x) => {
+          const half = (l.x1 - l.x0) / 2
+          paintLeaf(g, { x0: x - half, x1: x + half, y: l.y })
+        })
+      }
+    }
+  }
+
+  private renderGarden(g: CanvasRenderingContext2D) {
+    const { arena } = arenaAt(this.arenaIndex + 1)
+    drawGarden(g, {
+      pollen: this.pollen,
+      lives: this.lives,
+      rows: this.gardenRows(),
+      pick: this.garden!.pick,
+      wear: this.wear,
+      next: arena.name,
+      tick: this.tick,
+    })
   }
 
   /** Draw something twice when it straddles the wrapping edge. */
@@ -1805,7 +2722,8 @@ class ButterflyJoust implements ArcadeGameInstance {
     let top = ground ? ground.y : Infinity
     if (!ground) {
       for (const l of this.ledges) {
-        if (l.y >= y + HALF_H && l.y < top && onLedge(l, wrapX(x))) top = l.y
+        if (l.solid && l.y >= y + HALF_H && l.y < top && onLedge(l, wrapX(x)))
+          top = l.y
       }
     }
     const gap = top - (y + HALF_H)
@@ -1864,6 +2782,7 @@ class ButterflyJoust implements ArcadeGameInstance {
     }
     if (r.invuln > 0 && Math.floor(r.invuln / 6) % 2 === 0 && !r.held) return
     this.renderStreamer(g, r)
+    const frames = seatFrames(r.seat, r.seat === 0 ? this.wear : undefined)
     this.wrapDraw(r.x, (x) => {
       if (r.brace > 0) {
         // Bracing: the lance glints, brighter as the brace builds.
@@ -1884,10 +2803,11 @@ class ButterflyJoust implements ArcadeGameInstance {
         r.facing,
         r.flap,
         r.ground,
-        seatFrames(r.seat),
+        frames,
         undefined,
         r.brace > 0,
       )
+      if (r.sneeze > 0) drawSneeze(g, x, r.y, this.tick)
       if (this.seats > 1)
         drawText(g, look.name, x, r.y - 24, {
           align: 'center',
@@ -1920,23 +2840,19 @@ class ButterflyJoust implements ArcadeGameInstance {
       RAMPS.sky[3],
       RAMPS.purple[3],
     ]
-    const width =
-      r.combo.bonks >= 2 ? Math.min(5, comboMultiplier(r.combo.bonks)) : 2
+    const combo = r.combo.bonks >= 2
+    const width = combo ? Math.min(5, comboMultiplier(r.combo.bonks) + 1) : 2
     for (let i = 1; i < r.trail.length; i++) {
       const a = r.trail[i - 1]!
       const b = r.trail[i]!
       if (Math.abs(a.x - b.x) > W / 2) continue
-      const alpha = 0.75 * (1 - i / r.trail.length)
+      const alpha = 0.85 * (1 - i / r.trail.length)
+      const x = Math.round(Math.min(a.x, b.x) - r.facing * 10)
+      const w = Math.max(2, Math.round(Math.abs(a.x - b.x)) + 2)
+      const wave = Math.round(Math.sin((this.tick + i * 3) / 4))
       for (let k = 0; k < width; k++) {
-        g.fillStyle = rgba(r.combo.bonks >= 2 ? bands[k]! : '#ffffff', alpha)
-        g.fillRect(
-          Math.round(b.x - r.facing * 8),
-          Math.round(
-            b.y - 2 + k - width / 2 + Math.sin((this.tick + i * 3) / 4),
-          ),
-          Math.max(1, Math.round(Math.abs(a.x - b.x)) + 1),
-          1,
-        )
+        g.fillStyle = rgba(combo ? bands[k]! : '#ffffff', alpha)
+        g.fillRect(x, Math.round(b.y - 1 + k - width / 2 + wave), w, 1)
       }
     }
   }
@@ -1948,15 +2864,17 @@ class ButterflyJoust implements ArcadeGameInstance {
       alpha = 0.3 + 0.3 * Math.sin(this.tick / 3)
       glow(g, x, r.y - 4, 22, RAMPS.purple[3], 0.35)
     }
+    const glider = r.kind === 'glider'
     this.renderRider(
       g,
       x,
       r.y,
       Math.sign(r.vx) || r.dir,
-      r.flap,
+      glider ? 0 : r.flap,
       r.ground,
-      RIVAL_FRAMES[r.tier]!,
+      RIDER_FRAMES[r.kind],
       alpha,
+      glider && Math.floor(this.tick / 30) % 2 === 0,
     )
   }
 
@@ -2052,16 +2970,22 @@ class ButterflyJoust implements ArcadeGameInstance {
     if (this.mode === 'versus') {
       this.renderVersusHud(g)
     } else {
-      hudPanel(g, 92, 3, 54, 21, RAMPS.teal)
-      drawText(g, `WAVE ${this.level}`, 119, 10, {
+      const label =
+        this.mode === 'tourney'
+          ? this.champion
+            ? 'BOUT'
+            : `WAVE ${this.arena.number}-${Math.max(1, this.wave)}`
+          : `WAVE ${this.level}`
+      hudPanel(g, 92, 3, 62, 21, RAMPS.teal)
+      drawText(g, label, 123, 10, {
         align: 'center',
         color: RAMPS.teal[4],
         outline: INK,
       })
       const hi = `HI ${Math.max(this.hiScore, this.score)}`
       const hiW = measureText(hi, 2)
-      hudPanel(g, Math.round(W / 2 - hiW / 2 - 6), 3, hiW + 12, 21)
-      drawText(g, hi, W / 2, 7, {
+      hudPanel(g, Math.round(W / 2 - hiW / 2 - 6) + 12, 3, hiW + 12, 21)
+      drawText(g, hi, W / 2 + 12, 7, {
         scale: 2,
         align: 'center',
         color: RAMPS.gold[3],
@@ -2075,9 +2999,22 @@ class ButterflyJoust implements ArcadeGameInstance {
         }
       }
     }
+    if (this.mode === 'tourney') {
+      // The pollen purse, small in the corner.
+      hudPanel(g, 4, H - 19, 48, 16, RAMPS.gold)
+      shadedOrb(g, 13, H - 11, 4, RAMPS.gold)
+      drawText(g, String(this.pollen), 21, H - 14, {
+        color: '#ffffff',
+        outline: INK,
+      })
+    }
+    const c = this.champion
+    if (c && !c.done && this.card <= 0)
+      drawChampionBar(g, c.name, c.hp, c.maxHp)
     // The wave's rule, small along the bottom while it is fresh.
     if (
       this.mode !== 'versus' &&
+      !this.champion &&
       this.waveKind !== 'joust' &&
       this.waveTicks < 60 * 8
     ) {
@@ -2087,7 +3024,7 @@ class ButterflyJoust implements ArcadeGameInstance {
         outline: INK,
       })
     }
-    if (this.banner) {
+    if (this.banner && this.card <= 0) {
       drawText(g, this.banner.text, W / 2, H / 2 - 60, {
         scale: 3,
         align: 'center',
@@ -2137,85 +3074,6 @@ class ButterflyJoust implements ArcadeGameInstance {
       })
     })
   }
-
-  private renderMenu(g: CanvasRenderingContext2D) {
-    g.fillStyle = rgba(INK, 0.72)
-    g.fillRect(0, 0, W, H)
-    hudPanel(g, 64, 70, W - 128, 190)
-    drawText(g, 'JOUSTING PARTY', W / 2, 86, {
-      scale: 3,
-      align: 'center',
-      color: '#ffffff',
-      outline: INK,
-      shadow: RAMPS.pink[1],
-    })
-    drawText(g, `${this.seats} RIDERS`, W / 2, 118, {
-      scale: 2,
-      align: 'center',
-      color: RAMPS.teal[4],
-      outline: INK,
-    })
-    const m = this.menu!
-    PARTY_MODES.forEach((mode, i) => {
-      const y = 150 + i * 42
-      const on = i === m.pick
-      if (on) hudPanel(g, 90, y - 6, W - 180, 36, RAMPS.pink)
-      drawText(g, on ? `< ${mode.name} >` : mode.name, W / 2, y, {
-        scale: 2,
-        align: 'center',
-        color: on ? '#ffffff' : RAMPS.steel[3],
-        outline: INK,
-      })
-      drawText(g, mode.about, W / 2, y + 18, {
-        align: 'center',
-        color: on ? RAMPS.gold[4] : RAMPS.steel[2],
-        outline: INK,
-      })
-    })
-    drawText(g, 'A TO START', W / 2, 240, {
-      align: 'center',
-      color: RAMPS.gold[3],
-      outline: INK,
-    })
-    // Each seat's rider, lit up over the dimmed arena, flapping its own wings.
-    for (const r of this.riders) {
-      drawSprite(
-        g,
-        seatFrames(r.seat)[(this.tick + r.seat * 4) % 16 < 8 ? 0 : 1],
-        Math.round(r.x) - 16,
-        Math.round(r.y) - 17,
-        {
-          anchor: 'topleft',
-          flipX: r.facing < 0,
-        },
-      )
-    }
-  }
-
-  private renderResult(g: CanvasRenderingContext2D) {
-    g.fillStyle = rgba(INK, 0.7)
-    g.fillRect(0, 0, W, H)
-    hudPanel(g, 70, 96, W - 140, 130, RAMPS.pink)
-    drawText(g, 'TIME!', W / 2, 110, {
-      scale: 3,
-      align: 'center',
-      color: '#ffffff',
-      outline: INK,
-    })
-    this.result!.lines.forEach((line, i) => {
-      drawText(g, line, W / 2, 152 + i * 28, {
-        scale: 2,
-        align: 'center',
-        color: i === 0 ? RAMPS.gold[4] : RAMPS.teal[4],
-        outline: INK,
-      })
-    })
-  }
-}
-
-/** A soft dark edge round the arena. */
-function vignette(g: CanvasRenderingContext2D) {
-  snesVignette(g, W, H, 0.3)
 }
 
 const butterflyJoust: ArcadeGameModule = {

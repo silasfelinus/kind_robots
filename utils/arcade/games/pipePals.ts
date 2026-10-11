@@ -5,8 +5,14 @@
 // keeps a plumbing system tidy: grumpy critters crawl out of the top pipes,
 // and bumping the platform under one from below flips it over; touch a
 // flipped critter to kick it out of the pipes for good. Crab bots need two
-// bumps. The KIND block flips everything that is standing on a floor. Left
-// and right edges wrap around. A jumps.
+// bumps, shell knights lose their armour first, and spring fleas can only be
+// flipped while they are landed. A kicked critter bowls along its ledge and
+// takes other flipped critters with it; kicks in quick succession chain.
+// Ember sparks bounce across the board and lurker embers hunt a pal who
+// lingers; bump the ledge under either to snuff it. Tools roll out of the
+// pipes now and then. The KIND block flips everything that is standing on a
+// floor. Left and right edges wrap around. A jumps; B blows a bubble while
+// the Bubble Wand is in hand.
 
 import { everyNthLevel, levelCurve } from '../curve'
 import { drawText, measureText } from '../font'
@@ -48,14 +54,33 @@ const JUMP_SPEED = -7.2
 const RUN_ACCEL = 0.28
 const RUN_MAX = 2.1
 const RUN_FRICTION = 0.78
-const PLAYER_W = 12
-const PLAYER_H = 16
-const CRITTER_W = 14
-const CRITTER_H = 12
+const PLAYER_W = 16
+const PLAYER_H = 22
+const CRITTER_W = 20
+const CRITTER_H = 13
 const START_LIVES = 3
-const EXTRA_LIFE_AT = 20_000
+const EXTRA_LIFE_AT = 30_000
 const BUMP_TICKS = 12
-const BUMP_REACH = 20
+const BUMP_REACH = 22
+/** Kick chains: points for the 1st, 2nd, ... kick inside the window. */
+export const CHAIN_POINTS = [800, 1600, 2400, 3200, 5000] as const
+const CHAIN_WINDOW = 120
+/** A kicked critter bowls this many ticks along its ledge (Kick Boots: the whole ledge). */
+const BOWL_TICKS = 18
+const BOWL_SPEED = 3.4
+/** A tool rolls out of the pipes after every this many kicks. */
+const TOOL_EVERY_KICKS = 6
+const TOOL_TICKS = 60 * 10
+const WAND_CHARGES = 3
+const BUBBLE_TRAP_TICKS = 60 * 5
+const KIND_BLOCK_USES = 3
+/** The KIND block refills at the start of every fifth phase (6, 11, 16...). */
+const KIND_REFILL_EVERY = 5
+const HAZARD_TELL = 45
+
+export function chainPoints(n: number): number {
+  return CHAIN_POINTS[Math.max(0, Math.min(CHAIN_POINTS.length, n) - 1)]!
+}
 
 type Segment = { x0: number; x1: number; y: number }
 
@@ -78,14 +103,46 @@ const TOP_PIPES = [
 ]
 
 export const PIPE_CURVES = {
-  critters: { start: 3, step: 1, limit: 9 },
+  critters: { start: 3, step: 1, limit: 10 },
   crawlerSpeed: { start: 0.6, step: 0.07, limit: 1.4 },
-  crabEvery: { start: 0, step: 0.34, limit: 3 },
   recoverTicks: { start: 600, step: -40, limit: 240 },
   releaseEvery: { start: 150, step: -10, limit: 60 },
+  /** Ticks between ember sparks once they appear (phase 3 on). */
+  sparkEvery: { start: 60 * 16, step: -60, limit: 60 * 7 },
+  /** How long a phase runs before lurker embers start hunting a lingering pal. */
+  lurkerAfter: { start: 60 * 40, step: -120, limit: 60 * 24 },
 } as const
 
-type Kind = 'crawler' | 'crab'
+export type Kind = 'crawler' | 'crab' | 'flea' | 'knight'
+
+/** Who comes out of the pipes, from which phase, and how often against the rest. */
+export const PIPE_ROSTER: ReadonlyArray<{
+  kind: Kind
+  from: number
+  weight: number
+}> = [
+  { kind: 'crawler', from: 1, weight: 4 },
+  { kind: 'flea', from: 2, weight: 2 },
+  { kind: 'crab', from: 3, weight: 2 },
+  { kind: 'knight', from: 4, weight: 2 },
+]
+const SPARKS_FROM = 3
+
+/** The kinds a phase can release, and the one making its debut there (it leads the queue). */
+export function rosterFor(phase: number): {
+  kinds: Kind[]
+  debut: Kind | null
+} {
+  const open = PIPE_ROSTER.filter((r) => r.from <= phase)
+  const debut = PIPE_ROSTER.find((r) => r.from === phase)?.kind ?? null
+  return { kinds: open.map((r) => r.kind), debut }
+}
+
+/** Calm, cross, furious: each recovery steps a critter up one tier. */
+export type Tier = 0 | 1 | 2
+const TIER_SPEED = [1, 1.3, 1.6] as const
+const RUSH_SPEED = 1.35
+
 type Critter = {
   kind: Kind
   x: number
@@ -95,12 +152,52 @@ type Critter = {
   dir: number
   onGround: boolean
   flipped: number
+  /** Crab bots after their first bump. */
   angry: boolean
-  rage: number
+  /** Shell knights still wearing their shell. */
+  armored: boolean
+  tier: Tier
+  /** The last critter of a phase sprints. */
+  rush: boolean
   kicked: boolean
+  /** Ticks left bowling along the ledge after a kick. */
+  slide: number
   hits: number
+  /** Spring fleas: ticks until the next hop. */
+  hop: number
+  /** Ticks of squash after a flip or a kick (drawn flattened). */
+  squash: number
+  /** Ticks left floating inside a wand bubble. */
+  trapped: number
 }
 type Coin = { x: number; y: number; vx: number; vy: number; life: number }
+export type ToolKind = 'wrench' | 'boots' | 'wand' | 'magnet'
+const TOOL_KINDS: readonly ToolKind[] = ['wrench', 'boots', 'wand', 'magnet']
+const TOOL_NAMES: Record<ToolKind, string> = {
+  wrench: 'WIDE WRENCH',
+  boots: 'KICK BOOTS',
+  wand: 'BUBBLE WAND',
+  magnet: 'MAGNET CAP',
+}
+type Pickup = Coin & { kind: ToolKind }
+const CRITTER_NAMES: Record<Kind, string> = {
+  crawler: 'SHELL CRAWLER',
+  crab: 'CRAB BOT',
+  flea: 'SPRING FLEA',
+  knight: 'SHELL KNIGHT',
+}
+type Bubble = { x: number; y: number; vx: number; life: number }
+/** An ember spark bounces across the board; a lurker ember slides along one floor. */
+type Ember = {
+  kind: 'spark' | 'lurker'
+  x: number
+  y: number
+  vx: number
+  vy: number
+  life: number
+  /** Harmless warning ticks before it moves. */
+  tell: number
+}
 type Spark = {
   x: number
   y: number
@@ -115,6 +212,16 @@ function wrapX(x: number) {
   if (x < -8) return x + W + 16
   if (x > W + 8) return x - W - 16
   return x
+}
+
+/** Two walkers on one floor heading into each other: both turn round. */
+export function walkersMeet(
+  a: { x: number; y: number; dir: number },
+  b: { x: number; y: number; dir: number },
+): boolean {
+  if (Math.abs(a.y - b.y) > 1 || a.dir === b.dir) return false
+  const dx = b.x - a.x
+  return Math.abs(dx) < CRITTER_W - 2 && dx * a.dir > 0
 }
 
 function segmentUnder(
@@ -276,36 +383,79 @@ const TEAL_PALETTE = {
   k: INK,
   w: '#ffffff',
 }
+// The pal is drawn at full size (about 24 px tall); the HUD keeps a small face.
 const TEAL_HEAD = [
-  '..h......h..',
-  '.hL.....hLt.',
-  '.hLTTTTTTLt.',
-  '.LhhLLLLLLt.',
-  'yhLLLLLLLLTy',
-  'YLLLwkLLLwkY',
-  'YLLLkkLLLkkY',
-  '.TLLLLLppLt.',
-  '..tTTTTTTt..',
+  '...h........h...',
+  '..hLt......hLt..',
+  '..hLTt....hLTt..',
+  '.hLLTTTTTTTTLTt.',
+  '.hLLLLLLLLLLLLTt',
+  'yhLLLLLLLLLLLLTy',
+  'YLLLwwkLLLwwkLTY',
+  'YLLLwkkLLLwkkLTY',
+  'YTLLLLLLLLLLLLtY',
+  '.TLLLLLppLLLLLt.',
+  '..tTTTTTTTTTTt..',
 ]
 const TEAL_BODY = [
-  '...dTTTTd...',
-  '..hLLLLLLTt.',
-  '.hLLgLLLLTTt',
-  '.TLLLLLLLTtt',
-  '.tTTTTTTTTtd',
-  '..dttttttd..',
+  '....dTTTTTTd....',
+  '...hLLLLLLLLTt..',
+  '..hLLgLLLLLLTTt.',
+  '.hLLggLLLLLLTTtt',
+  '.TLLLLLLLLLLLTtt',
+  '.tTTTTTTTTTTTTtd',
+  '..dtttttttttttd.',
 ]
 const pal = (legs: string[]) =>
   pixelSprite([...TEAL_HEAD, ...TEAL_BODY, ...legs], TEAL_PALETTE)
 const PLAYER_SPRITES = {
-  stand: pal(['...TL..TL...', '...Tt..Tt...', '...TTt..TTt.']),
+  stand: pal([
+    '....TL....TL....',
+    '....TL....TL....',
+    '....Tt....Tt....',
+    '...TTt...TTt....',
+  ]),
   run: [
-    pal(['..TL....TL..', '.TL......Tt.', 'Tt........TT']),
-    pal(['....TLT.....', '....Tt.Tt...', '...TTt..t...']),
+    pal([
+      '...TL......TL...',
+      '..TL........Tt..',
+      '.TL..........Tt.',
+      'TTt..........TTt',
+    ]),
+    pal([
+      '.....TL..TL.....',
+      '.....Tt..Tt.....',
+      '....TTt...Tt....',
+      '..........TTt...',
+    ]),
+    pal([
+      '......TLTL......',
+      '......TtTt......',
+      '.....TTtTt......',
+      '.........TTt....',
+    ]),
   ],
-  jump: pal(['...TL.TL....', '..TL...Tt...', '..T.....TTt.']),
+  jump: pal([
+    '...TL....TL.....',
+    '..TL......Tt....',
+    '.TL........TTt..',
+    '.T..............',
+  ]),
 } as const
-const TEAL_FACE = pixelSprite(TEAL_HEAD, TEAL_PALETTE)
+const TEAL_FACE = pixelSprite(
+  [
+    '..h......h..',
+    '.hL.....hLt.',
+    '.hLTTTTTTLt.',
+    '.LhhLLLLLLt.',
+    'yhLLLLLLLLTy',
+    'YLLLwkLLLwkY',
+    'YLLLkkLLLkkY',
+    '.TLLLLLppLt.',
+    '..tTTTTTTt..',
+  ],
+  TEAL_PALETTE,
+)
 const PINK_FACE = pixelSprite(
   [
     '...pPPPPp...',
@@ -333,63 +483,253 @@ const PINK_FACE = pixelSprite(
   },
 )
 
-// Grumpy critters: a shell crawler and a clawed crab bot, two walk frames each, recoloured for
-// rage and for the white flash before a flipped critter rights itself.
+// Grumpy critters, about 20 px across: a shell crawler, a clawed crab bot, an armoured shell knight
+// (and the bare sprinter under the armour) and a spring flea. Every walker has three walk frames
+// and a squashed frame for the instant it is flipped or kicked, recoloured per tier (calm, cross,
+// furious) and white for the flash before a flipped critter rights itself.
 const FLASH: Ramp = ['#6b7a99', '#b4c0d8', '#e6eef8', '#ffffff', '#ffffff']
 const CRAWLER_BODY = [
-  '....HHLLL.......',
-  '..HHLLLLLLB.....',
-  '.HLLSLLLSLLB.kk.',
-  '.LLSSSLSSSLBcccc',
-  'HLLLSLLLSLLBcwkc',
-  'LLLLLLLLLLBBcccC',
-  'SBBBBBBBBBBS.CC.',
-  '.DSSSSSSSSD.....',
+  '.....HHHHLL.........',
+  '...HHLLLLLLLB.......',
+  '..HLLLSLLLLSLB......',
+  '.HLLLSSSLLSSSLB..kk.',
+  '.LLLLLSLLLLSLLB.cccc',
+  'HLLSLLLLLSLLLLBcwkcc',
+  'LLSSSLLLSSSLLBBccccC',
+  'LLLSLLLLLSLLLBB.cCC.',
+  'SBBBBBBBBBBBBBS.....',
+  '.DSSSSSSSSSSSD......',
 ]
-const CRAWLER_LEGS = ['.CC..CC..CC.....', '..CC..CC..CC....'] as const
+const CRAWLER_LEGS = [
+  ['.CC...CC...CC.......', '.CC...CC...CC.......'],
+  ['..CC...CC...CC......', '...CC...CC...CC.....'],
+  ['.CC....CC....CC.....', 'CC....CC....CC......'],
+] as const
 const CRAB_BODY = [
-  '.HH..........HH.',
-  'HLLH..w..w..HLLS',
-  'LLLS..k..k..SLLS',
-  '.LS...B..B...SS.',
-  '..S.HHLLLLLL.S..',
-  '...HLLLLLLLLB...',
-  '..HLLSLLLLSLLB..',
-  '..LLLLLLLLLLBB..',
-  '..SBBBBBBBBBBS..',
-  '...DDSSSSSSDD...',
+  '.HH..............HH.',
+  'HLLH....w..w....HLLS',
+  'LLLS....k..k....SLLS',
+  '.LSS....B..B....SSL.',
+  '...S.HHHLLLLLLB.S...',
+  '....HLLLLLLLLLLB....',
+  '...HLLSLLLLLLSLLB...',
+  '...LLLLLLLLLLLLLB...',
+  '...SBBBBBBBBBBBBS...',
+  '....DDSSSSSSSSDD....',
 ]
-const CRAB_LEGS = ['..S.S.S..S.S.S..', '.S.S.S....S.S.S.'] as const
+const CRAB_LEGS = [
+  ['...S.S.S....S.S.S...', '..S..S..S..S..S..S..'],
+  ['..S.S.S......S.S.S..', '.S..S..S....S..S..S.'],
+  ['...S..S.S..S.S..S...', '..S..S...SS...S..S..'],
+] as const
+/** The knight's armour: a riveted shell with a plume, worn over the crawler's body. */
+const KNIGHT_BODY = [
+  '......pp............',
+  '.....pHHHLL.........',
+  '...HHLLwLLLLB.......',
+  '..HLLLLLLLLwLB......',
+  '.HLwLLLLLLLLLLB..kk.',
+  '.LLLLLLwLLLLLLB.cccc',
+  'HLLLLLLLLLLLwLBcwkcc',
+  'LLwLLLLLLLLLLBBccccC',
+  'LLLLLLwLLLLLLBB.cCC.',
+  'SBBBBBBBBBBBBBS.....',
+  '.DSSSSSSSSSSSD......',
+]
+/** Out of its armour the knight is a soft, quick grub. */
+const BARE_BODY = [
+  '....................',
+  '.............kk.....',
+  '....HHHLLLLL.cccc...',
+  '..HLLLLLLLLLBcwkc...',
+  '.HLSLLLSLLLSBccccC..',
+  '.SBBBBBBBBBBS.cCC...',
+  '..DSSSSSSSSD........',
+]
+const FLEA_BODY = [
+  '...a.......a....',
+  '....a.....a.....',
+  '....HHHLLLL.....',
+  '..HHLLLLLLLLB...',
+  '.HLLwkLLLwkLLB..',
+  '.LLLkkLLLkkLLB..',
+  '.LLLLLLLLLLLLB..',
+  '.SLLLLccLLLLBS..',
+  '..SBBBBBBBBBS...',
+  '...DSSSSSSSD....',
+]
+const FLEA_LEGS = [
+  ['..SD......DS....', '.SD........DS...'],
+  ['...S......S.....', '...S......S.....'],
+  ['..SD......DS....', 'SD..........DS..'],
+] as const
+
+type CritterFrames = {
+  walk: readonly PixelSprite[]
+  squash: PixelSprite
+}
 function critterFrames(
   body: readonly string[],
-  legs: readonly [string, string],
+  legs: readonly (readonly string[])[],
   ramp: Ramp,
-): readonly [PixelSprite, PixelSprite] {
+  shell: Ramp = ramp,
+): CritterFrames {
   const palette = {
-    D: ramp[0],
-    S: ramp[1],
-    B: ramp[2],
-    L: ramp[3],
-    H: ramp[4],
+    D: shell[0],
+    S: shell[1],
+    B: shell[2],
+    L: shell[3],
+    H: shell[4],
     c: RAMPS.cream[3],
     C: RAMPS.cream[2],
+    a: ramp[3],
+    p: ramp[3],
     k: INK,
     w: '#ffffff',
   }
-  return [
-    pixelSprite([...body, legs[0]], palette),
-    pixelSprite([...body, legs[1]], palette),
-  ]
+  return {
+    walk: legs.map((l) => pixelSprite([...body, ...l], palette)),
+    // Squashed flat: the top rows pressed down, legs splayed.
+    squash: pixelSprite([...body.slice(3), legs[2]![1]!], palette),
+  }
 }
-const CRAWLER_SPRITES = {
-  calm: critterFrames(CRAWLER_BODY, CRAWLER_LEGS, RAMPS.leaf),
-  rage: critterFrames(CRAWLER_BODY, CRAWLER_LEGS, RAMPS.pink),
-  flash: critterFrames(CRAWLER_BODY, CRAWLER_LEGS, FLASH),
+/** Each kind's frames by tier (calm, cross, furious), plus the recovery flash. */
+type KindLook = {
+  tiers: readonly [CritterFrames, CritterFrames, CritterFrames]
+  flash: CritterFrames
 }
-const CRAB_SPRITES = {
-  calm: critterFrames(CRAB_BODY, CRAB_LEGS, RAMPS.rust),
-  angry: critterFrames(CRAB_BODY, CRAB_LEGS, RAMPS.ember),
-  flash: critterFrames(CRAB_BODY, CRAB_LEGS, FLASH),
+function kindLook(
+  body: readonly string[],
+  legs: readonly (readonly string[])[],
+  tiers: readonly [Ramp, Ramp, Ramp],
+): KindLook {
+  return {
+    tiers: [
+      critterFrames(body, legs, tiers[0]),
+      critterFrames(body, legs, tiers[1]),
+      critterFrames(body, legs, tiers[2]),
+    ],
+    flash: critterFrames(body, legs, FLASH),
+  }
+}
+const CRITTER_LOOKS: Record<Kind | 'bare', KindLook> = {
+  crawler: kindLook(CRAWLER_BODY, CRAWLER_LEGS, [
+    RAMPS.leaf,
+    RAMPS.sky,
+    RAMPS.ember,
+  ]),
+  crab: kindLook(CRAB_BODY, CRAB_LEGS, [RAMPS.rust, RAMPS.gold, RAMPS.pink]),
+  flea: kindLook(FLEA_BODY, FLEA_LEGS, [RAMPS.purple, RAMPS.sky, RAMPS.ember]),
+  knight: {
+    tiers: [
+      critterFrames(KNIGHT_BODY, CRAWLER_LEGS, RAMPS.pink, RAMPS.steel),
+      critterFrames(KNIGHT_BODY, CRAWLER_LEGS, RAMPS.gold, RAMPS.steel),
+      critterFrames(KNIGHT_BODY, CRAWLER_LEGS, RAMPS.ember, RAMPS.steel),
+    ],
+    flash: critterFrames(KNIGHT_BODY, CRAWLER_LEGS, FLASH),
+  },
+  bare: kindLook(BARE_BODY, CRAWLER_LEGS, [
+    RAMPS.pink,
+    RAMPS.gold,
+    RAMPS.ember,
+  ]),
+}
+
+/** The lurker ember: a low flame that creeps along a floor, two flicker frames. */
+const LURKER_PALETTE = {
+  d: RAMPS.ember[1],
+  b: RAMPS.ember[2],
+  c: RAMPS.ember[3],
+  w: RAMPS.ember[4],
+  k: INK,
+}
+const LURKER_SPRITES = [
+  pixelSprite(
+    [
+      '.........d......',
+      '......d.dbd.....',
+      '.....dbdbcbd..d.',
+      '....dbcbcwcbddbd',
+      '...dbcwcwwwcbcbd',
+      '..dbcwkwwkwwcwcb',
+      '.dbcwwwwwwwwwwcb',
+      'dbccccccccccccbd',
+    ],
+    LURKER_PALETTE,
+  ),
+  pixelSprite(
+    [
+      '..........d.....',
+      '.....d...dbd....',
+      '....dbd.dbcbd.d.',
+      '....dbcdbcwcbdbd',
+      '...dbcwcwwwcbcbd',
+      '..dbcwkwwkwwcwcb',
+      '.dbcwwwwwwwwwwcb',
+      'dbccccccccccccbd',
+    ],
+    LURKER_PALETTE,
+  ),
+] as const
+
+/** Tools from the belt: wrench, boot, wand and magnet, 10 px icons. */
+const TOOL_SPRITES: Record<ToolKind, PixelSprite> = {
+  wrench: pixelSprite(
+    [
+      '.ss...ss.',
+      '.sS...Ss.',
+      '..SsssS..',
+      '...sSs...',
+      '...sSs...',
+      '...sSs...',
+      '...sSs...',
+      '...SSS...',
+    ],
+    { s: RAMPS.steel[4], S: RAMPS.steel[2] },
+  ),
+  boots: pixelSprite(
+    [
+      '..rrr....',
+      '..rRr....',
+      '..rRr....',
+      '..rRr....',
+      '..rRRrr..',
+      '.rRRRRRr.',
+      '.wwwwwwww',
+    ],
+    { r: RAMPS.rust[3], R: RAMPS.rust[2], w: RAMPS.cream[4] },
+  ),
+  wand: pixelSprite(
+    [
+      '...bbb...',
+      '..b...b..',
+      '..b...b..',
+      '...bbb...',
+      '....s....',
+      '....s....',
+      '....s....',
+      '....s....',
+    ],
+    { b: RAMPS.water[3], s: RAMPS.gold[3] },
+  ),
+  magnet: pixelSprite(
+    [
+      '.rrr.ttt.',
+      '.rRr.tTt.',
+      '.rRr.tTt.',
+      '.rRrrtTt.',
+      '.rRRRTTt.',
+      '..rrrttt.',
+      '..wwwww..',
+    ],
+    {
+      r: RAMPS.ember[2],
+      R: RAMPS.ember[3],
+      t: RAMPS.teal[2],
+      T: RAMPS.teal[3],
+      w: RAMPS.steel[4],
+    },
+  ),
 }
 
 const COIN_PALETTE = {
@@ -546,10 +886,21 @@ class PipePals implements ArcadeGameInstance {
   private critters: Critter[] = []
   private queue: Kind[] = []
   private releaseTimer = 0
-  private bump: { x: number; y: number; ticks: number } | null = null
-  private kindBlockUses = 3
+  private bump: { x: number; y: number; ticks: number; reach: number } | null =
+    null
+  private kindBlockUses = KIND_BLOCK_USES
   private kindShake = 0
   private coins: Coin[] = []
+  private pickups: Pickup[] = []
+  private tool: { kind: ToolKind; ticks: number; charges: number } | null = null
+  private bubbles: Bubble[] = []
+  private embers: Ember[] = []
+  private sparkTimer = 0
+  private phaseTicks = 0
+  private lurkerTimer = 0
+  private kicks = 0
+  private chain = 0
+  private chainTimer = 0
   private bonusRound = 0
   private sparks: Spark[] = []
   private floaters: Floater[] = []
@@ -576,7 +927,13 @@ class PipePals implements ArcadeGameInstance {
     this.level = phase
     this.critters = []
     this.coins = []
+    this.pickups = []
+    this.bubbles = []
+    this.embers = []
     this.bump = null
+    this.chain = 0
+    this.chainTimer = 0
+    this.phaseTicks = 0
     Object.assign(this.player, {
       x: W / 2,
       y: 310,
@@ -586,7 +943,7 @@ class PipePals implements ArcadeGameInstance {
     })
     if (phase > 1 && everyNthLevel(phase - 1, 4)) {
       // Bonus round: grab the coins before the timer runs out.
-      this.bonusRound = 60 * 20
+      this.bonusRound = BONUS_FULL
       for (const s of PIPE_LEVELS.slice(1)) {
         for (let x = s.x0 + 20; x < s.x1 - 10; x += 44) {
           this.coins.push({ x, y: s.y - 10, vx: 0, vy: 0, life: Infinity })
@@ -597,19 +954,30 @@ class PipePals implements ArcadeGameInstance {
       return
     }
     this.bonusRound = 0
+    let sub: string | undefined
+    if (phase > 1 && (phase - 1) % KIND_REFILL_EVERY === 0) {
+      this.kindBlockUses = KIND_BLOCK_USES
+      sub = 'KIND BLOCK REFILLED'
+    }
     const total = Math.round(levelCurve(phase, PIPE_CURVES.critters))
-    const crabs = Math.floor(levelCurve(phase, PIPE_CURVES.crabEvery))
-    this.queue = Array.from({ length: total }, (_, i) =>
-      i < crabs ? 'crab' : 'crawler',
-    )
-    // Shuffle so crabs are mixed in.
-    for (let i = this.queue.length - 1; i > 0; i--) {
-      const j = Math.floor(this.rng() * (i + 1))
-      ;[this.queue[i], this.queue[j]] = [this.queue[j]!, this.queue[i]!]
+    const { kinds, debut } = rosterFor(phase)
+    const weights = PIPE_ROSTER.filter((r) => kinds.includes(r.kind))
+    const sum = weights.reduce((n, r) => n + r.weight, 0)
+    this.queue = Array.from({ length: total }, () => {
+      let roll = this.rng() * sum
+      for (const r of weights) if ((roll -= r.weight) < 0) return r.kind
+      return 'crawler'
+    })
+    // A newcomer leads its debut phase, so the player meets it on its own.
+    if (debut) {
+      this.queue[0] = debut
+      sub ??= `NEW: ${CRITTER_NAMES[debut]}`
     }
     this.releaseTimer = 60
+    this.sparkTimer = Math.round(levelCurve(phase, PIPE_CURVES.sparkEvery) / 2)
+    this.lurkerTimer = Math.round(levelCurve(phase, PIPE_CURVES.lurkerAfter))
     this.invuln = 90
-    this.banner = { text: `PHASE ${phase}`, ticks: 100 }
+    this.banner = { text: `PHASE ${phase}`, sub, ticks: 110 }
   }
 
   private release() {
@@ -626,9 +994,15 @@ class PipePals implements ArcadeGameInstance {
       onGround: false,
       flipped: 0,
       angry: false,
-      rage: 0,
+      armored: kind === 'knight',
+      tier: 0,
+      rush: false,
       kicked: false,
+      slide: 0,
       hits: 0,
+      hop: 40,
+      squash: 0,
+      trapped: 0,
     })
     this.sound.play('warn')
   }
@@ -641,6 +1015,7 @@ class PipePals implements ArcadeGameInstance {
     if (this.banner && --this.banner.ticks <= 0) this.banner = null
     if (this.kindShake > 0) this.kindShake--
     if (this.bump && --this.bump.ticks <= 0) this.bump = null
+    if (this.chainTimer > 0 && --this.chainTimer === 0) this.chain = 0
     if (this.over) return
     if (this.lives <= 0 && !this.alive) {
       if (++this.overTimer > 100) this.over = true
@@ -657,21 +1032,42 @@ class PipePals implements ArcadeGameInstance {
 
     const controls = this.demo ? this.demoInput() : input
     this.movePlayer(controls)
+    this.updateTool(controls)
     if (this.bonusRound > 0) {
       this.updateBonus()
       return
     }
+    this.phaseTicks++
     if (this.queue.length && --this.releaseTimer <= 0) {
       this.release()
       this.releaseTimer = Math.round(
         levelCurve(this.level, PIPE_CURVES.releaseEvery),
       )
     }
+    this.spawnEmbers()
     this.moveCritters()
+    this.moveBubbles()
+    this.moveEmbers()
     this.moveCoins()
     this.collide()
+    const left = this.critters.filter((c) => !c.kicked)
+    if (!this.queue.length && left.length === 1 && !left[0]!.rush) {
+      // The last critter of the phase sprints.
+      const last = left[0]!
+      last.rush = true
+      last.tier = 2
+      this.sound.play('warn')
+      this.floaters.push({
+        x: last.x,
+        y: last.y - 22,
+        text: 'HURRY!',
+        life: 50,
+      })
+    }
     if (!this.queue.length && this.critters.every((c) => c.kicked)) {
       this.critters = []
+      this.embers = []
+      this.bubbles = []
       this.phaseDelay = 120
       this.sound.play('level')
       this.banner = { text: 'PIPES CLEAR!', ticks: 110 }
@@ -746,8 +1142,14 @@ class PipePals implements ArcadeGameInstance {
     if (this.invuln > 0) this.invuln--
   }
 
+  /** How far a bump reaches along the floor: the Wide Wrench triples it. */
+  private bumpReach(): number {
+    return this.tool?.kind === 'wrench' ? BUMP_REACH * 3 : BUMP_REACH
+  }
+
   private bumpAt(x: number, floorY: number) {
-    this.bump = { x, y: floorY, ticks: BUMP_TICKS }
+    const reach = this.bumpReach()
+    this.bump = { x, y: floorY, ticks: BUMP_TICKS, reach }
     this.sound.play('pop')
     this.fx.burst(x, floorY + THICK, this.fxRng, {
       count: 4,
@@ -755,15 +1157,26 @@ class PipePals implements ArcadeGameInstance {
       colours: [RAMPS.teal[4], RAMPS.steel[4]],
     })
     for (const c of this.critters) {
-      if (c.kicked || !c.onGround) continue
-      if (Math.abs(c.y - floorY) > 2 || Math.abs(c.x - x) > BUMP_REACH) continue
+      if (c.kicked || !c.onGround || c.trapped > 0) continue
+      if (Math.abs(c.y - floorY) > 2 || Math.abs(c.x - x) > reach) continue
       this.hitCritter(c)
+    }
+    // Embers resting on or just above this ledge are snuffed from below.
+    for (const e of this.embers) {
+      if (e.life <= 0 || e.tell > 0) continue
+      const above = floorY - e.y
+      if (Math.abs(e.x - x) <= reach + 6 && above >= -2 && above <= 26) {
+        e.life = 0
+        this.addScore(e.kind === 'spark' ? 1000 : 500, e.x, e.y - 10)
+        this.sound.play('extra')
+        this.burst(e.x, e.y, RAMPS.ember[3])
+      }
     }
     // Bumping a coin from below collects it.
     for (const coin of this.coins) {
       if (
         Math.abs(coin.y - (floorY - 10)) < 8 &&
-        Math.abs(coin.x - x) < BUMP_REACH
+        Math.abs(coin.x - x) < reach
       ) {
         coin.life = 0
         this.addScore(800, coin.x, coin.y)
@@ -777,6 +1190,7 @@ class PipePals implements ArcadeGameInstance {
   }
 
   private hitCritter(c: Critter) {
+    if (c.kind === 'flea' && !c.onGround) return
     if (c.flipped > 0) {
       // Bumping a flipped critter rights it again.
       c.flipped = 0
@@ -784,15 +1198,26 @@ class PipePals implements ArcadeGameInstance {
       return
     }
     c.hits++
-    if (c.kind === 'crab' && c.hits === 1) {
+    if (c.kind === 'crab' && !c.angry) {
       c.angry = true
+      c.tier = Math.max(c.tier, 1) as Tier
       c.vy = -2.5
       this.addScore(10, c.x, c.y - 14)
+      return
+    }
+    if (c.kind === 'knight' && c.armored) {
+      // The armour flies off; the bare grub underneath sprints.
+      c.armored = false
+      c.vy = -2.5
+      this.addScore(50, c.x, c.y - 14)
+      this.burst(c.x, c.y - 8, RAMPS.steel[3])
+      this.sound.play('boom')
       return
     }
     c.flipped = Math.round(levelCurve(this.level, PIPE_CURVES.recoverTicks))
     c.vy = -3
     c.vx = 0
+    c.squash = 8
     this.addScore(10, c.x, c.y - 14)
   }
 
@@ -811,34 +1236,61 @@ class PipePals implements ArcadeGameInstance {
       },
     )
     for (const c of this.critters) {
-      if (!c.kicked && c.onGround) this.hitCritter(c)
+      if (!c.kicked && c.onGround && c.trapped === 0) this.hitCritter(c)
     }
+    for (const e of this.embers) if (e.tell === 0) e.life = 0
   }
 
   private moveCritters() {
     const base = levelCurve(this.level, PIPE_CURVES.crawlerSpeed)
     for (const c of this.critters) {
+      if (c.squash > 0) c.squash--
       if (c.kicked) {
-        c.vy += GRAVITY
-        c.y += c.vy
-        c.x += c.vx
+        this.moveKicked(c)
+        continue
+      }
+      if (c.trapped > 0) {
+        // Floating up inside a bubble; it pops at the ceiling or when time runs out.
+        c.y = Math.max(40, c.y - 0.35)
+        if (--c.trapped === 0 || c.y <= 40) {
+          c.trapped = 0
+          c.vy = 0
+          c.tier = Math.min(2, c.tier + 1) as Tier
+          this.sound.play('pop')
+        }
         continue
       }
       if (c.flipped > 0) {
         c.flipped--
         if (c.flipped === 0) {
-          // Recovers madder and faster.
-          c.rage++
-          c.angry = true
-          c.hits = c.kind === 'crab' ? 1 : 0
+          // Recovers one tier crosser and faster.
+          c.tier = Math.min(2, c.tier + 1) as Tier
+          c.angry = c.kind === 'crab'
           c.vy = -2
           this.sound.play('warn')
         }
       }
-      const speed =
+      let speed =
         c.flipped > 0
           ? 0
-          : base * (1 + c.rage * 0.3) * (c.kind === 'crab' && c.angry ? 1.4 : 1)
+          : base *
+            TIER_SPEED[c.tier] *
+            (c.rush ? RUSH_SPEED : 1) *
+            (c.kind === 'crab' && c.angry ? 1.25 : 1) *
+            (c.kind === 'knight' && !c.armored ? 1.5 : 1)
+      if (c.kind === 'flea' && c.flipped === 0) {
+        // Fleas wait, then spring forward in an arc.
+        if (c.onGround) {
+          speed = 0
+          if (--c.hop <= 0) {
+            c.vy = -5.2
+            c.hop = Math.max(24, 70 - c.tier * 16)
+            c.onGround = false
+          }
+        } else {
+          speed = 1.5 * TIER_SPEED[c.tier]
+        }
+      }
       c.vx = c.dir * speed
       c.vy += GRAVITY
       c.x += c.vx
@@ -861,22 +1313,225 @@ class PipePals implements ArcadeGameInstance {
       }
       c.x = wrapX(c.x)
     }
+    // Walkers that meet turn round.
+    const walkers = this.critters.filter(
+      (c) => !c.kicked && c.onGround && c.flipped === 0 && c.trapped === 0,
+    )
+    for (let i = 0; i < walkers.length; i++)
+      for (let j = i + 1; j < walkers.length; j++) {
+        const a = walkers[i]!
+        const b = walkers[j]!
+        if (!walkersMeet(a, b)) continue
+        a.dir = -a.dir
+        b.dir = -b.dir
+      }
     this.critters = this.critters.filter((c) => !(c.kicked && c.y > H + 30))
   }
 
+  /** A kicked critter bowls along its ledge, then pops off the board. */
+  private moveKicked(c: Critter) {
+    if (c.slide > 0) {
+      c.slide--
+      c.x += c.vx
+      const ledge = segmentUnder(c.x, 2, c.y, 2)
+      if (!ledge || c.x < 2 || c.x > W - 2) c.slide = 0
+      // Bowling: flipped critters in the way go with it, an upright one stops it.
+      for (const o of this.critters) {
+        if (o === c || o.kicked || !o.onGround || o.trapped > 0) continue
+        if (Math.abs(o.y - c.y) > 2 || Math.abs(o.x - c.x) > CRITTER_W - 4)
+          continue
+        if (o.flipped > 0) {
+          this.kick(o, Math.sign(c.vx) || 1)
+        } else {
+          this.hitCritter(o)
+          c.slide = 0
+        }
+      }
+      if (c.slide === 0) {
+        c.vy = -4
+        c.vx = Math.sign(c.vx) * 2.5
+      }
+      return
+    }
+    c.vy += GRAVITY
+    c.y += c.vy
+    c.x += c.vx
+  }
+
+  private kick(c: Critter, dir: number) {
+    const grounded = c.onGround && c.trapped === 0
+    c.kicked = true
+    c.flipped = 0
+    c.trapped = 0
+    c.squash = 8
+    c.vx = dir * (grounded ? BOWL_SPEED : 2.5)
+    c.vy = grounded ? 0 : -4
+    c.slide = grounded ? (this.tool?.kind === 'boots' ? W : BOWL_TICKS) : 0
+    this.chain = this.chainTimer > 0 ? this.chain + 1 : 1
+    this.chainTimer = CHAIN_WINDOW
+    this.addScore(chainPoints(this.chain), c.x, c.y - 14)
+    if (this.chain > 1) {
+      this.floaters.push({
+        x: c.x,
+        y: c.y - 26,
+        text: `CHAIN ${this.chain}`,
+        life: 50,
+      })
+    }
+    this.sound.play('extra')
+    this.burst(c.x, c.y - 6, c.kind === 'crab' ? '#f87171' : '#a3e635')
+    this.fx.burst(c.x, c.y - 6, this.fxRng, { count: 12 })
+    // Every kick sends a coin out of a pipe, and every few a tool.
+    const pipe = TOP_PIPES[Math.floor(this.rng() * 2)]!
+    this.coins.push({
+      x: pipe.x,
+      y: pipe.y,
+      vx: pipe.dir * 1.2,
+      vy: 0,
+      life: 900,
+    })
+    this.kicks++
+    if (this.kicks % TOOL_EVERY_KICKS === 0) {
+      const other = TOP_PIPES[pipe === TOP_PIPES[0] ? 1 : 0]!
+      this.pickups.push({
+        x: other.x,
+        y: other.y,
+        vx: other.dir * 1,
+        vy: 0,
+        life: 720,
+        kind: TOOL_KINDS[Math.floor(this.rng() * TOOL_KINDS.length)]!,
+      })
+    }
+  }
+
+  private spawnEmbers() {
+    if (this.level >= SPARKS_FROM && --this.sparkTimer <= 0) {
+      this.sparkTimer = Math.round(
+        levelCurve(this.level, PIPE_CURVES.sparkEvery),
+      )
+      const live = this.embers.filter((e) => e.kind === 'spark').length
+      if (live < (this.level >= 8 ? 2 : 1)) {
+        const left = this.rng() < 0.5
+        this.embers.push({
+          kind: 'spark',
+          x: left ? 10 : W - 10,
+          y: 60 + Math.floor(this.rng() * 200),
+          vx: left ? 1.1 : -1.1,
+          vy: this.rng() < 0.5 ? 1 : -1,
+          life: 60 * 14,
+          tell: HAZARD_TELL,
+        })
+      }
+    }
+    // A pal who lingers gets a lurker ember sliding in along their floor.
+    if (this.level >= 2 && this.phaseTicks > this.lurkerTimer) {
+      this.lurkerTimer = this.phaseTicks + 60 * 12
+      const left = this.player.x > W / 2
+      this.embers.push({
+        kind: 'lurker',
+        x: left ? 6 : W - 6,
+        y: this.floorOf(this.player.y),
+        vx: left ? 1.3 : -1.3,
+        vy: 0,
+        life: 60 * 12,
+        tell: HAZARD_TELL,
+      })
+    }
+  }
+
+  private moveEmbers() {
+    for (const e of this.embers) {
+      if (e.tell > 0) {
+        e.tell--
+        continue
+      }
+      e.life--
+      e.x += e.vx
+      if (e.kind === 'spark') {
+        e.y += e.vy
+        if (e.x < 8 || e.x > W - 8) e.vx = -e.vx
+        if (e.y < 34 || e.y > 302) e.vy = -e.vy
+      } else if (e.x < -8 || e.x > W + 8) {
+        e.life = 0
+      }
+    }
+    this.embers = this.embers.filter((e) => e.life > 0)
+  }
+
+  private updateTool(input: InputFrame) {
+    const t = this.tool
+    if (!t) return
+    if (t.kind === 'wand' && input.pressed.b && t.charges > 0) {
+      t.charges--
+      const p = this.player
+      this.bubbles.push({
+        x: p.x + p.face * 10,
+        y: p.y - PLAYER_H / 2,
+        vx: p.face * 2.4,
+        life: 90,
+      })
+      this.sound.play('blip')
+    }
+    if (t.kind === 'magnet') {
+      const p = this.player
+      for (const coin of this.coins) {
+        const dx = p.x - coin.x
+        const dy = p.y - PLAYER_H / 2 - coin.y
+        const d = Math.hypot(dx, dy)
+        if (d < 140 && d > 1) {
+          coin.x += (dx / d) * 2.6
+          coin.y += (dy / d) * 2.6
+          coin.vy = 0
+        }
+      }
+    }
+    if (--t.ticks <= 0 || (t.kind === 'wand' && t.charges <= 0))
+      this.tool = null
+  }
+
+  private moveBubbles() {
+    for (const b of this.bubbles) {
+      b.life--
+      b.x += b.vx
+      b.y -= 0.15
+      const hit = this.critters.find(
+        (c) =>
+          !c.kicked &&
+          c.flipped === 0 &&
+          c.trapped === 0 &&
+          Math.abs(c.x - b.x) < 12 &&
+          Math.abs(c.y - CRITTER_H / 2 - b.y) < 12,
+      )
+      if (hit) {
+        hit.trapped = BUBBLE_TRAP_TICKS
+        hit.onGround = false
+        hit.vy = 0
+        b.life = 0
+        this.addScore(100, hit.x, hit.y - 14)
+        this.sound.play('pickup')
+      }
+    }
+    this.bubbles = this.bubbles.filter(
+      (b) => b.life > 0 && b.x > -10 && b.x < W + 10,
+    )
+  }
+
   private moveCoins() {
-    for (const coin of this.coins) {
-      if (coin.life !== Infinity) coin.life--
-      coin.vy += GRAVITY * 0.5
-      coin.x = wrapX(coin.x + coin.vx)
-      coin.y += coin.vy
-      const s = segmentUnder(coin.x, 8, coin.y + 6, Math.max(4, coin.vy + 1))
-      if (s && coin.vy >= 0) {
-        coin.y = s.y - 6
-        coin.vy = 0
+    for (const list of [this.coins, this.pickups] as Coin[][]) {
+      for (const coin of list) {
+        if (coin.life !== Infinity) coin.life--
+        coin.vy += GRAVITY * 0.5
+        coin.x = wrapX(coin.x + coin.vx)
+        coin.y += coin.vy
+        const s = segmentUnder(coin.x, 8, coin.y + 6, Math.max(4, coin.vy + 1))
+        if (s && coin.vy >= 0) {
+          coin.y = s.y - 6
+          coin.vy = 0
+        }
       }
     }
     this.coins = this.coins.filter((c) => c.life > 0)
+    this.pickups = this.pickups.filter((c) => c.life > 0)
   }
 
   private updateBonus() {
@@ -897,20 +1552,42 @@ class PipePals implements ArcadeGameInstance {
     }
   }
 
-  private collectCoins() {
+  private touchingPlayer(x: number, y: number, rx: number, ry: number) {
     const p = this.player
+    return Math.abs(x - p.x) < rx && Math.abs(y - (p.y - PLAYER_H / 2)) < ry
+  }
+
+  private collectCoins() {
     for (const coin of this.coins) {
-      if (Math.abs(coin.x - p.x) < 10 && Math.abs(coin.y - (p.y - 8)) < 14) {
-        coin.life = 0
-        this.addScore(800, coin.x, coin.y)
-        this.sound.play('pickup')
-        this.fx.burst(coin.x, coin.y, this.fxRng, {
-          count: 8,
-          colours: [RAMPS.gold[4], RAMPS.gold[3], '#ffffff'],
-        })
-      }
+      if (!this.touchingPlayer(coin.x, coin.y, 11, 16)) continue
+      coin.life = 0
+      this.addScore(800, coin.x, coin.y)
+      this.sound.play('pickup')
+      this.fx.burst(coin.x, coin.y, this.fxRng, {
+        count: 8,
+        colours: [RAMPS.gold[4], RAMPS.gold[3], '#ffffff'],
+      })
     }
     this.coins = this.coins.filter((c) => c.life > 0)
+    for (const tool of this.pickups) {
+      if (!this.touchingPlayer(tool.x, tool.y, 12, 16)) continue
+      tool.life = 0
+      this.tool = {
+        kind: tool.kind,
+        ticks: tool.kind === 'wand' ? TOOL_TICKS * 2 : TOOL_TICKS,
+        charges: tool.kind === 'wand' ? WAND_CHARGES : 0,
+      }
+      this.addScore(300, tool.x, tool.y - 8)
+      this.floaters.push({
+        x: tool.x,
+        y: tool.y - 22,
+        text: TOOL_NAMES[tool.kind],
+        life: 60,
+      })
+      this.sound.play('extra')
+      this.fx.burst(tool.x, tool.y, this.fxRng, { count: 12 })
+    }
+    this.pickups = this.pickups.filter((c) => c.life > 0)
   }
 
   private collide() {
@@ -919,30 +1596,21 @@ class PipePals implements ArcadeGameInstance {
     for (const c of this.critters) {
       if (c.kicked) continue
       const overlap =
-        Math.abs(c.x - p.x) < (CRITTER_W + PLAYER_W) / 2 - 2 &&
+        Math.abs(c.x - p.x) < (CRITTER_W + PLAYER_W) / 2 - 3 &&
         Math.abs(c.y - CRITTER_H / 2 - (p.y - PLAYER_H / 2)) <
-          (CRITTER_H + PLAYER_H) / 2 - 2
+          (CRITTER_H + PLAYER_H) / 2 - 3
       if (!overlap) continue
-      if (c.flipped > 0) {
-        c.kicked = true
-        c.vx = p.face * 2.5
-        c.vy = -4
-        this.addScore(800, c.x, c.y - 14)
-        this.sound.play('extra')
-        this.burst(c.x, c.y - 6, c.kind === 'crab' ? '#f87171' : '#a3e635')
-        this.fx.burst(c.x, c.y - 6, this.fxRng, { count: 12 })
-        // A kicked critter sometimes leaves a coin behind in the pipes.
-        if (this.rng() < 0.35) {
-          const pipe = TOP_PIPES[Math.floor(this.rng() * 2)]!
-          this.coins.push({
-            x: pipe.x,
-            y: pipe.y,
-            vx: pipe.dir * 1.2,
-            vy: 0,
-            life: 900,
-          })
-        }
+      if (c.flipped > 0 || c.trapped > 0) {
+        this.kick(c, p.face)
       } else if (this.invuln <= 0) {
+        this.loseLife()
+        return
+      }
+    }
+    if (this.invuln > 0) return
+    for (const e of this.embers) {
+      if (e.tell > 0) continue
+      if (this.touchingPlayer(e.x, e.y - 5, 10, 14)) {
         this.loseLife()
         return
       }
@@ -953,6 +1621,8 @@ class PipePals implements ArcadeGameInstance {
     this.alive = false
     this.lives--
     this.respawn = 110
+    this.tool = null
+    this.chain = 0
     this.burst(this.player.x, this.player.y - 8, '#2dd4bf')
     this.sound.play('die')
     if (this.lives <= 0) this.banner = { text: 'GAME OVER', ticks: 9999 }
@@ -968,6 +1638,8 @@ class PipePals implements ArcadeGameInstance {
     })
     this.alive = true
     this.invuln = 150
+    // A fresh pal does not land in a lurker's path.
+    this.embers = this.embers.filter((e) => e.kind === 'spark')
   }
 
   private addScore(points: number, x: number, y: number) {
@@ -1072,15 +1744,39 @@ class PipePals implements ArcadeGameInstance {
     const live = this.critters.filter((c) => !c.kicked && c.onGround)
     const coin = this.coins[0]
     // Danger on my own floor: back away.
-    const threat = live.find(
-      (c) =>
-        c.flipped === 0 &&
-        c.y === myFloor &&
-        Math.abs(c.x - p.x) < 34 &&
-        Math.sign(c.dir) === Math.sign(p.x - c.x),
-    )
+    const threat =
+      live.find(
+        (c) =>
+          c.flipped === 0 &&
+          c.y === myFloor &&
+          Math.abs(c.x - p.x) < 34 &&
+          Math.sign(c.dir) === Math.sign(p.x - c.x),
+      ) ??
+      // A flea in mid-hop lands anywhere near: keep clear of it too.
+      this.critters.find(
+        (c) =>
+          c.kind === 'flea' &&
+          !c.kicked &&
+          !c.onGround &&
+          c.trapped === 0 &&
+          Math.abs(c.x - p.x) < 44 &&
+          myFloor - c.y < 60 &&
+          myFloor - c.y > -8,
+      )
     if (threat && this.invuln <= 0) {
       if (threat.x > p.x) held.left = true
+      else held.right = true
+      return frame
+    }
+    // An ember close by: step away from it.
+    const ember = this.embers.find(
+      (e) =>
+        e.tell === 0 &&
+        Math.abs(e.x - p.x) < 40 &&
+        Math.abs(e.y - (p.y - PLAYER_H / 2)) < 30,
+    )
+    if (ember && this.invuln <= 0) {
+      if (ember.x > p.x) held.left = true
       else held.right = true
       return frame
     }
@@ -1164,9 +1860,12 @@ class PipePals implements ArcadeGameInstance {
       this.alive && !(this.invuln > 0 && Math.floor(this.invuln / 6) % 2 === 0)
     this.renderShadows(g, visible)
     for (const coin of this.coins) this.renderCoin(g, coin)
+    for (const tool of this.pickups) this.renderPickup(g, tool)
     for (const c of this.critters) this.renderCritter(g, c)
     // The pipes stand in front, so critters crawl in and out of them.
     cachedLayer(g, 'pipe-pals-pipes', W, H, (k) => this.paintPipes(k))
+    for (const e of this.embers) this.renderEmber(g, e)
+    for (const b of this.bubbles) this.renderBubble(g, b.x, b.y, 7)
     if (visible) this.renderPlayer(g)
     for (const s of this.sparks) {
       const x = Math.round(s.x)
@@ -1296,9 +1995,9 @@ class PipePals implements ArcadeGameInstance {
 
   private renderShadows(g: CanvasRenderingContext2D, playerVisible: boolean) {
     const p = this.player
-    if (playerVisible && p.onGround) dropShadow(g, p.x, p.y, 7, 1.5, 0.4)
+    if (playerVisible && p.onGround) dropShadow(g, p.x, p.y, 9, 1.5, 0.4)
     for (const c of this.critters) {
-      if (c.onGround && !c.kicked) dropShadow(g, c.x, c.y, 8, 1.5, 0.35)
+      if (c.onGround && !c.kicked) dropShadow(g, c.x, c.y, 10, 1.5, 0.35)
     }
   }
 
@@ -1329,7 +2028,7 @@ class PipePals implements ArcadeGameInstance {
     const sprite = !p.onGround
       ? PLAYER_SPRITES.jump
       : Math.abs(p.vx) > 0.3
-        ? PLAYER_SPRITES.run[Math.floor(p.run / 1.6) % 2]!
+        ? PLAYER_SPRITES.run[Math.floor(p.run / 1.6) % 3]!
         : PLAYER_SPRITES.stand
     drawSprite(g, sprite, p.x, p.y + 1, { anchor: 'feet', flipX: p.face < 0 })
   }
@@ -1338,20 +2037,27 @@ class PipePals implements ArcadeGameInstance {
     const upside = c.flipped > 0 || c.kicked
     const warning =
       c.flipped > 0 && c.flipped < 120 && Math.floor(c.flipped / 8) % 2 === 0
-    const set =
-      c.kind === 'crab'
-        ? warning
-          ? CRAB_SPRITES.flash
-          : c.angry
-            ? CRAB_SPRITES.angry
-            : CRAB_SPRITES.calm
-        : warning
-          ? CRAWLER_SPRITES.flash
-          : c.rage > 0
-            ? CRAWLER_SPRITES.rage
-            : CRAWLER_SPRITES.calm
-    // Flipped critters kick their legs in the air, twice as fast.
-    const frame = set[Math.floor(this.tick / (upside ? 3 : 6)) % 2]!
+    const look =
+      CRITTER_LOOKS[c.kind === 'knight' && !c.armored ? 'bare' : c.kind]
+    const set = warning ? look.flash : look.tiers[c.tier]
+    // Flipped critters kick their legs in the air, twice as fast; fleas tuck in on the ground.
+    const step = Math.floor(this.tick / (upside ? 3 : 6))
+    const frame =
+      c.squash > 0
+        ? set.squash
+        : c.kind === 'flea' && !upside
+          ? set.walk[c.onGround ? 0 : 1]!
+          : set.walk[step % set.walk.length]!
+    if (c.trapped > 0) this.renderBubble(g, c.x, c.y - CRITTER_H / 2 - 1, 14)
+    if (c.rush && !upside)
+      glow(
+        g,
+        c.x,
+        c.y - 7,
+        16,
+        RAMPS.ember[3],
+        0.25 + 0.1 * Math.sin(this.tick / 3),
+      )
     drawSprite(g, frame, c.x, c.y + 1, {
       anchor: 'feet',
       flipX: c.dir < 0,
@@ -1361,14 +2067,62 @@ class PipePals implements ArcadeGameInstance {
       // Dizzy stars circling a flipped critter: kick it now.
       for (let i = 0; i < 2; i++) {
         const a = this.tick / 7 + i * Math.PI
-        const x = Math.round(c.x + Math.cos(a) * 8)
-        const y = Math.round(c.y - 15 + Math.sin(a) * 2)
+        const x = Math.round(c.x + Math.cos(a) * 10)
+        const y = Math.round(c.y - 19 + Math.sin(a) * 2)
         g.fillStyle = INK
         g.fillRect(x - 1, y - 1, 3, 3)
         g.fillStyle = i ? RAMPS.gold[4] : RAMPS.teal[4]
         g.fillRect(x, y, 1, 1)
       }
     }
+  }
+
+  /** A soap bubble: a see-through shaded orb with a glint. */
+  private renderBubble(
+    g: CanvasRenderingContext2D,
+    x: number,
+    y: number,
+    r: number,
+  ) {
+    g.save()
+    g.globalAlpha = 0.45
+    shadedOrb(g, Math.round(x), Math.round(y), r, RAMPS.water, {
+      outline: null,
+    })
+    g.restore()
+    g.fillStyle = '#ffffff'
+    g.fillRect(Math.round(x - r / 2), Math.round(y - r / 2), 2, 2)
+  }
+
+  private renderEmber(g: CanvasRenderingContext2D, e: Ember) {
+    const x = Math.round(e.x)
+    const y = Math.round(e.kind === 'lurker' ? e.y - 5 : e.y)
+    if (e.tell > 0) {
+      // The tell: a blinking glow where it is about to appear.
+      if (Math.floor(e.tell / 5) % 2 === 0)
+        glow(g, x, y, 14, RAMPS.ember[3], 0.5)
+      return
+    }
+    const flick = Math.floor(this.tick / 4) % 2
+    glow(g, x, y, e.kind === 'spark' ? 18 : 22, RAMPS.ember[3], 0.45)
+    if (e.kind === 'spark') {
+      shadedOrb(g, x, y, 5, RAMPS.ember)
+      g.fillStyle = RAMPS.ember[4]
+      g.fillRect(x - 1 - flick, y - 2, 2, 2)
+      return
+    }
+    // The lurker: a low creeping flame, licking forward.
+    drawSprite(g, LURKER_SPRITES[flick]!, x, e.y + 1, {
+      anchor: 'feet',
+      flipX: e.vx < 0,
+    })
+  }
+
+  private renderPickup(g: CanvasRenderingContext2D, tool: Pickup) {
+    if (tool.life < 120 && Math.floor(tool.life / 6) % 2 === 0) return
+    const bob = Math.round(Math.sin(this.tick / 8) * 1.5)
+    glow(g, tool.x, tool.y - 2, 16, RAMPS.cream[4], 0.45)
+    drawSprite(g, TOOL_SPRITES[tool.kind], tool.x, tool.y - 2 + bob)
   }
 
   private renderHud(g: CanvasRenderingContext2D) {
@@ -1407,6 +2161,27 @@ class PipePals implements ArcadeGameInstance {
     if (this.bonusRound > 0) {
       hudPanel(g, W - 112, H - 16, 86, 13)
       gauge(g, W - 106, H - 12, 74, 5, this.bonusRound / BONUS_FULL, RAMPS.gold)
+    }
+    // The tool in hand, its time left, and the wand's bubbles.
+    const tool = this.tool
+    if (tool && this.bonusRound === 0) {
+      hudPanel(g, W - 130, H - 18, 104, 15)
+      drawSprite(g, TOOL_SPRITES[tool.kind], W - 120, H - 10)
+      const full = tool.kind === 'wand' ? TOOL_TICKS * 2 : TOOL_TICKS
+      gauge(g, W - 108, H - 13, 52, 5, tool.ticks / full, RAMPS.teal)
+      if (tool.kind === 'wand')
+        drawText(g, `B x${tool.charges}`, W - 52, H - 14, {
+          color: RAMPS.water[3],
+          outline: INK,
+        })
+    }
+    if (this.chain > 1 && this.chainTimer > 0) {
+      drawText(g, `CHAIN ${this.chain}`, W / 2, 28, {
+        scale: 2,
+        align: 'center',
+        color: RAMPS.ember[4],
+        outline: INK,
+      })
     }
     if (this.banner) {
       drawText(g, this.banner.text, W / 2, 140, {

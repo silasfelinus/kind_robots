@@ -223,7 +223,7 @@ const specials: SpecialMove[] = [
 export const ABBESS: FighterData = {
   slug: 'the-abbess',
   name: 'The Abbess',
-  health: 950,
+  health: 1000,
   walkForward: Math.round(1.8 * SUB),
   walkBack: Math.round(1.5 * SUB),
   jumpVelocity: 9 * SUB,

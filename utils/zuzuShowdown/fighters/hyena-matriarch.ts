@@ -40,11 +40,11 @@ fit('jump_lk', { x: -6, y: 0, w: 36, h: 14 })
 // The chain and hook lash out straight (LP) or rising at an angle (HP). On a
 // hit, QCF+P again Drags them in.
 const hookLash: MoveData = {
-  startup: 12,
+  startup: 10,
   active: 4,
   recovery: 22,
-  hitbox: { x: 20, y: 50, w: 96, h: 14 },
-  damage: 80,
+  hitbox: { x: 20, y: 34, w: 96, h: 26 },
+  damage: 100,
   chip: 8,
   hitstun: 24,
   blockstun: 12,
@@ -90,7 +90,7 @@ const scavengersRush: MoveData = {
   active: 18,
   recovery: 16,
   hitbox: { x: 10, y: 0, w: 36, h: 40 },
-  damage: 45,
+  damage: 60,
   chip: 4,
   hitstun: 16,
   blockstun: 10,
@@ -107,7 +107,7 @@ const scavengersRush: MoveData = {
 const boneCrusher: MoveData = {
   startup: 5,
   active: 2,
-  recovery: 30,
+  recovery: 24,
   hitbox: { x: 16, y: 0, w: 30, h: 90 },
   damage: 150,
   hitstun: 0,
@@ -217,7 +217,7 @@ const specials: SpecialMove[] = [
 export const HYENA_MATRIARCH: FighterData = {
   slug: 'hyena-matriarch',
   name: 'The Hyena Matriarch',
-  health: 1000,
+  health: 1100,
   walkForward: 2 * SUB,
   walkBack: Math.round(1.6 * SUB),
   jumpVelocity: 9 * SUB,

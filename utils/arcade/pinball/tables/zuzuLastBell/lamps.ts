@@ -12,12 +12,16 @@ import type { LampFrame } from '../../rules/lamps'
 import { CHAPTERS, litShots, RELICS_FOR_CRYPT, SEAL_COUNT } from './chapters'
 import type { ZuzuRulesState } from './rules'
 import { LOCKS_FOR_HARVEST, locksMade, SUPER_SHOTS } from './multiball'
+import { STIR_SHOTS, wateringHoleRunning } from './wateringHole'
 
 /** The Citadel's lock lamps, one per lock. */
 export const CITADEL_LAMPS = Array.from(
   { length: LOCKS_FOR_HARVEST },
   (_, i) => `citadel-${i + 1}`,
 )
+
+/** The waterline LEDs ringing the Croc's pool. */
+export const WATERLINE_LAMPS = ['waterline-1', 'waterline-2', 'waterline-3']
 
 /** The story track's seal lamps, one per chapter. */
 export const SEAL_LAMPS = CHAPTERS.map((_, i) => `seal-${i + 1}`)
@@ -44,6 +48,11 @@ export function zuzuLamps(state: ZuzuRulesState, table: TableDef): LampFrame {
     hot.add(mb.lit)
     if (mb.superLit) for (const shot of SUPER_SHOTS) hot.add(shot)
   }
+  // The Watering Hole: the orbits stir the water, then the mouth is lit.
+  const hole = state.wateringHole
+  const watering = wateringHoleRunning(hole)
+  if (watering && hole.lit) hot.add('croc-mouth')
+  else if (watering) for (const shot of STIR_SHOTS) hot.add(shot)
   const mortuaryOpen = story.mortuaryLit && !run
   if (mortuaryOpen) hot.add('mortuary')
   for (const insert of table.inserts ?? []) {
@@ -78,6 +87,15 @@ export function zuzuLamps(state: ZuzuRulesState, table: TableDef): LampFrame {
           : i === locks && state.citadel.lit
             ? 'blink'
             : 'off',
+    )
+  for (const id of WATERLINE_LAMPS)
+    set(
+      id,
+      watering && (hole.lit || cycle === 'death-roll')
+        ? 'blink'
+        : watering || cycle === 'open'
+          ? 'on'
+          : 'off',
     )
   set('shoot-again', state.extraBalls > 0 ? 'on' : 'off')
   set('crypt-seal', state.relics >= RELICS_FOR_CRYPT ? 'blink' : 'off')

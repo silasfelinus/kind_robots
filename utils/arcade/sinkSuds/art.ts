@@ -424,22 +424,26 @@ export function renderKitchen(g: CanvasRenderingContext2D, b: BasinDef) {
       { s: SPONGE_PROP, x: W - 32, y: H - 30 },
     ]
     for (const p of props) {
-      const clear = b.prims.every((q) => {
-        const rx = q.kind === 'ellipse' ? q.rx + 16 : 0
-        if (q.kind === 'ellipse') {
-          const dx = (p.x - q.cx) / rx
-          const dy = (p.y - 12 - q.cy) / (q.ry + 16)
-          return dx * dx + dy * dy > 1
-        }
-        return (
-          p.x + 14 < q.x - 14 ||
-          p.x - 14 > q.x + q.w + 14 ||
-          p.y < q.y - 14 ||
-          p.y - 28 > q.y + q.h + 14
-        )
-      })
+      const clear = propClear(b, p.x, p.y)
       if (clear) drawSprite(k, p.s, p.x, p.y, { anchor: 'feet', scale: 2 })
     }
+  })
+}
+
+/** Is a 28 px counter prop standing at (x, y) (its feet) clear of the basin's rim? */
+export function propClear(b: BasinDef, x: number, y: number): boolean {
+  return b.prims.every((q) => {
+    if (q.kind === 'ellipse') {
+      const dx = (x - q.cx) / (q.rx + 16)
+      const dy = (y - 12 - q.cy) / (q.ry + 16)
+      return dx * dx + dy * dy > 1
+    }
+    return (
+      x + 14 < q.x - 14 ||
+      x - 14 > q.x + q.w + 14 ||
+      y < q.y - 14 ||
+      y - 28 > q.y + q.h + 14
+    )
   })
 }
 

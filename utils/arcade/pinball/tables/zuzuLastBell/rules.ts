@@ -10,9 +10,11 @@
 // shot; ramps and orbits in quick succession build a combo; the end of each
 // ball counts a bonus; a match at the end can earn one more ball.
 //
-// The Citadel locks balls for Harvest Moon, the three-ball multiball
-// (multiball.ts, t-009). The undercrypt (t-010) and the Croc's Death Roll
-// (t-016) build on this state; nothing here blocks flipping.
+// A swallow during Homestead opens the Watering Hole (wateringHole.ts),
+// where an orbit lights the Croc for the Death Roll jackpot (t-016). The
+// Citadel locks balls for Harvest Moon, the three-ball multiball
+// (multiball.ts, t-009). The undercrypt (t-010) builds on this state;
+// nothing here blocks flipping.
 
 import { PHYSICS_HZ } from '../../clock'
 import type { RuleEffect } from '../../types'
@@ -59,6 +61,18 @@ import {
   type Citadel,
   type Multiball,
 } from './multiball'
+import {
+  advanceWateringHole,
+  closeWateringHole,
+  initialWateringHole,
+  openWateringHole,
+  STIR_SHOTS,
+  stirWater,
+  WATERING_HOLE_CHAPTER,
+  wateringHoleRunning,
+  wateringSwallow,
+  type WateringHole,
+} from './wateringHole'
 
 /** A chapter being told. */
 export type ChapterRun = {
@@ -109,6 +123,8 @@ export type ZuzuRulesState = CoreRulesState & {
   /** The Citadel lock and its ball ledger (multiball.ts). */
   citadel: Citadel
   multiball: Multiball
+  /** The Croc's Watering Hole mini-mode (wateringHole.ts). */
+  wateringHole: WateringHole
   extraBalls: number
   /** Strikes on the captive relic ball this game: the undercrypt's key. */
   relics: number
@@ -195,6 +211,7 @@ export function initialZuzuRules(balls: number, seed = 1): ZuzuRulesState {
     },
     citadel: initialCitadel(),
     multiball: initialMultiball(),
+    wateringHole: initialWateringHole(),
     extraBalls: 0,
     relics: 0,
     thisBall: {
@@ -252,16 +269,22 @@ export function stepZuzuRules(
       if (sw.bank === SEAL_BANK) seal(next, sw.id, effects)
       break
     case 'capture':
-      effects.push({ type: 'sound', name: 'scoop' })
       if (sw.id === CROC_MOUTH) {
+        effects.push({ type: 'sound', name: 'jaw-snap' })
         next.croc = { ...next.croc, cycle: crocCaptured(at, effects) }
-        croc(next, effects)
-      } else if (sw.id === CITADEL) citadel(next, sw.ballId, at, effects)
+        // The chapter as it stood before this swallow counted toward it.
+        swallow(next, homestead(state), at, effects)
+      } else {
+        effects.push({ type: 'sound', name: 'scoop' })
+        if (sw.id === CITADEL) citadel(next, sw.ballId, at, effects)
+      }
       break
     case 'eject':
       effects.push({ type: 'sound', name: 'kickout' })
-      if (sw.id === CROC_MOUTH)
+      if (sw.id === CROC_MOUTH) {
+        effects.push({ type: 'sound', name: 'water-spray' })
         next.croc = { ...next.croc, cycle: crocEjected(at) }
+      }
       if (sw.id === CITADEL) {
         // A lock the machine could not hold: counted, and back in play.
         const healed = lockFellBack(next.citadel, sw.ballId)
@@ -336,6 +359,7 @@ function shot(
   if (comboEligible) combo(state, at, effects)
   harvest(state, id, comboEligible, effects)
   if (id === LOCK_LIGHTER) lightLock(state, effects)
+  if (STIR_SHOTS.includes(id)) stir(state, at, effects)
   if (chapterShot(state, id, at, effects)) return
   if (id === 'mortuary') return mortuary(state, at, effects)
   if (id === 'bell-lane') return bell(state, effects)
@@ -552,6 +576,8 @@ function tick(
   const cycle = advanceCroc(state.croc.cycle, at, effects)
   if (cycle !== state.croc.cycle)
     state = { ...state, croc: { ...state.croc, cycle } }
+  const hole = advanceWateringHole(state.wateringHole, at, effects)
+  if (hole !== state.wateringHole) state = { ...state, wateringHole: hole }
   const run = state.story.run
   if (!run) return { state, effects }
   const def = CHAPTERS[state.story.chapter]!
@@ -645,8 +671,51 @@ function relic(state: ZuzuRulesState, effects: RuleEffect[]) {
   )
 }
 
-/** The River Croc swallowed a ball: he always pays, and spits it back. */
-function croc(state: ZuzuRulesState, effects: RuleEffect[]) {
+/** Homestead is being told: a swallow opens the Watering Hole. */
+function homestead(state: ZuzuRulesState): boolean {
+  const story = state.story
+  return !!story.run && CHAPTERS[story.chapter]?.id === WATERING_HOLE_CHAPTER
+}
+
+/**
+ * A ball in the Croc's jaws: the Watering Hole's Death Roll or spit-back
+ * while it runs, his own count and extra ball always, and a swallow during
+ * Homestead opens the Watering Hole.
+ */
+function swallow(
+  state: ZuzuRulesState,
+  inHomestead: boolean,
+  at: number,
+  effects: RuleEffect[],
+) {
+  const round = state.story.round
+  if (state.tilted) return croc(state, effects)
+  if (wateringHoleRunning(state.wateringHole)) {
+    const r = wateringSwallow(state.wateringHole, round, effects)
+    state.wateringHole = r.hole
+    award(state, r.points)
+    return croc(state, effects, true)
+  }
+  croc(state, effects)
+  if (!inHomestead) return
+  const r = openWateringHole(at, round, effects)
+  state.wateringHole = r.hole
+  award(state, r.points)
+}
+
+/** An orbit while the Watering Hole runs: the mouth lights for a Death Roll. */
+function stir(state: ZuzuRulesState, at: number, effects: RuleEffect[]) {
+  if (state.tilted || !wateringHoleRunning(state.wateringHole)) return
+  const r = stirWater(state.wateringHole, at, state.story.round, effects)
+  state.wateringHole = r.hole
+  award(state, r.points)
+}
+
+/**
+ * The River Croc swallowed a ball: he always pays, and spits it back.
+ * `quiet` leaves the DMD to the Watering Hole unless the extra ball lights.
+ */
+function croc(state: ZuzuRulesState, effects: RuleEffect[], quiet = false) {
   const croc = state.croc
   const swallows = croc.swallows + 1
   state.thisBall = { ...state.thisBall, crocs: state.thisBall.crocs + 1 }
@@ -667,6 +736,7 @@ function croc(state: ZuzuRulesState, effects: RuleEffect[]) {
   }
   const lights = swallows >= CROC_EXTRA_BALL_AT && !croc.extraBallGiven
   state.croc = { ...croc, swallows, extraBallLit: lights }
+  if (quiet && !lights) return
   effects.push({
     type: 'dmd',
     text: 'SPIT OUT',
@@ -770,6 +840,7 @@ function drain(
     state.story = { ...state.story, run: null }
     effects.push({ type: 'dmd-clear', scene: 'mode-timer' })
   }
+  state.wateringHole = closeWateringHole(state.wateringHole, effects)
   if (!state.tilted) bonus(state, effects)
   let { ball, lives } = state
   const extra = state.extraBalls > 0
@@ -903,6 +974,13 @@ function zuzuShows(
     after.multiball.jackpots > before.multiball.jackpots
   )
     shows.push({ id: 'jackpot', start: at })
+  if (after.wateringHole.rolls > before.wateringHole.rolls)
+    shows.push({ id: 'jackpot', start: at })
+  if (
+    wateringHoleRunning(after.wateringHole) &&
+    !wateringHoleRunning(before.wateringHole)
+  )
+    shows.push({ id: 'secret', start: at })
   if (before.kickbackLit && !after.kickbackLit && !after.tilted)
     shows.push({ id: 'kickback', start: at })
   if (after.lives < before.lives && !after.over)
@@ -922,15 +1000,24 @@ export const ZUZU_RULESET: PinballRuleset<ZuzuRulesState> = {
       ? null
       : state.multiball.kind
         ? 'multiball'
-        : state.story.run
+        : state.story.run || wateringHoleRunning(state.wateringHole)
           ? 'mode'
           : null,
-  animatronics: (state, step) => ({
-    [CROC_TOY]: {
-      phase: state.croc.cycle.phase,
-      age: Math.max(0, step - state.croc.cycle.since) / PHYSICS_HZ,
-    },
-  }),
+  animatronics: (state, step) => {
+    const hole = state.wateringHole
+    return {
+      [CROC_TOY]: {
+        phase: state.croc.cycle.phase,
+        age: Math.max(0, step - state.croc.cycle.since) / PHYSICS_HZ,
+        // The waterline: astir in the Watering Hole, hungry when lit.
+        cue: hole.lit
+          ? 'hungry'
+          : wateringHoleRunning(hole)
+            ? 'watering-hole'
+            : undefined,
+      },
+    }
+  },
   skillTarget: (state) =>
     state.skill.armed && state.skill.until !== Number.NEGATIVE_INFINITY
       ? 'mortuary'

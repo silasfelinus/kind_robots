@@ -33,6 +33,18 @@
 // all five villages pay the AMI JACKPOT. Multiball ends at one ball left.
 
 import { drawText } from '../font'
+import {
+  bandedGradient,
+  bevel,
+  drawSprite,
+  dropShadow,
+  glow,
+  hudPanel,
+  pixelSprite,
+  RAMPS,
+  shadedOrb,
+  vignette,
+} from '../snes'
 import { Dmd, DMD_COLS, DMD_ROWS, dmdTextWidth } from '../pinball/dmd'
 import type {
   ArcadeGameInstance,
@@ -40,6 +52,58 @@ import type {
   ArcadeGameOptions,
   InputFrame,
 } from '../types'
+
+const AMI_PIXEL_ART = pixelSprite(
+  [
+    '....pppp....',
+    '...pccccp...',
+    '..pccccccp..',
+    '..pwwccwwp..',
+    '..pcgccgcp..',
+    '..pccccccp..',
+    '..pccmmccp..',
+    '...pmmmmp...',
+    '....pppp....',
+  ],
+  {
+    p: RAMPS.purple[2],
+    c: RAMPS.teal[2],
+    w: RAMPS.cream[4],
+    g: RAMPS.gold[3],
+    m: RAMPS.pink[3],
+  },
+)
+
+const VILLAGE_PIXELS = [
+  '....r....',
+  '...rrr...',
+  '..rrrrr..',
+  '.rrrrrrr.',
+  'bbbbbbbbb',
+  'bwwbwwbwb',
+  'bwwbwwbwb',
+  'bbbddbbbb',
+] as const
+const VILLAGE_DARK = pixelSprite(VILLAGE_PIXELS, {
+  r: RAMPS.purple[1],
+  b: RAMPS.earth[0],
+  w: RAMPS.night[2],
+  d: RAMPS.earth[1],
+})
+const VILLAGE_LIT = [
+  pixelSprite(VILLAGE_PIXELS, {
+    r: RAMPS.pink[2],
+    b: RAMPS.earth[2],
+    w: RAMPS.gold[4],
+    d: RAMPS.earth[0],
+  }),
+  pixelSprite(VILLAGE_PIXELS, {
+    r: RAMPS.pink[3],
+    b: RAMPS.earth[3],
+    w: RAMPS.gold[3],
+    d: RAMPS.earth[1],
+  }),
+]
 
 const W = 288
 /** Height of the playfield; the dot-matrix display sits above it. */
@@ -1563,12 +1627,23 @@ class KindPinball implements ArcadeGameInstance {
 
   /** The printed playfield: colour wash, sunburst, rainbow, lane art, AMI. */
   private renderArt(g: CanvasRenderingContext2D) {
-    const bg = g.createLinearGradient(0, 0, 0, H)
-    bg.addColorStop(0, THEME.base0)
-    bg.addColorStop(0.5, THEME.base1)
-    bg.addColorStop(1, THEME.base2)
-    g.fillStyle = bg
-    g.fillRect(0, 0, W, H)
+    bandedGradient(
+      g,
+      0,
+      0,
+      W,
+      H,
+      [RAMPS.night[0], RAMPS.purple[0], RAMPS.purple[1], RAMPS.night[0]],
+      4,
+    )
+    for (let y = 96; y < 360; y += 16) {
+      bevel(g, 12, y, 8, 9, y % 32 === 0 ? RAMPS.purple : RAMPS.steel, {
+        depth: 1,
+      })
+      bevel(g, 252, y, 8, 9, y % 32 === 0 ? RAMPS.purple : RAMPS.steel, {
+        depth: 1,
+      })
+    }
     // Sunburst rays behind the bumpers.
     g.save()
     g.translate(136, 168)
@@ -1633,43 +1708,13 @@ class KindPinball implements ArcadeGameInstance {
     }
     // AMI, the Kind Robots mascot, printed big between the slings.
     this.renderAmiPrint(g, 136, 300)
-    // A soft vignette for depth.
-    const vig = g.createRadialGradient(136, 230, 120, 136, 230, 300)
-    vig.addColorStop(0, 'rgba(0,0,0,0)')
-    vig.addColorStop(1, 'rgba(0,0,0,0.55)')
-    g.fillStyle = vig
-    g.fillRect(0, 0, W, H)
+    vignette(g, W, H, 0.32)
   }
 
   private renderAmiPrint(g: CanvasRenderingContext2D, x: number, y: number) {
-    g.save()
-    g.globalAlpha = 0.5
-    g.fillStyle = '#1e1b4b'
-    g.strokeStyle = '#5eead4'
-    g.lineWidth = 1.5
-    g.beginPath()
-    g.roundRect(x - 20, y - 16, 40, 30, 8)
-    g.fill()
-    g.stroke()
-    g.beginPath()
-    g.moveTo(x, y - 16)
-    g.lineTo(x, y - 24)
-    g.stroke()
-    g.fillStyle = '#f472b6'
-    g.beginPath()
-    g.arc(x, y - 26, 3, 0, Math.PI * 2)
-    g.fill()
-    g.fillStyle = '#5eead4'
-    for (const ex of [-8, 8]) {
-      g.beginPath()
-      g.ellipse(x + ex, y - 3, 4, 4, 0, 0, Math.PI * 2)
-      g.fill()
-    }
-    g.strokeStyle = '#fde68a'
-    g.beginPath()
-    g.arc(x, y + 3, 7, 0.2 * Math.PI, 0.8 * Math.PI)
-    g.stroke()
-    g.restore()
+    dropShadow(g, x + 2, y + 14, 16, 5, 0.5)
+    glow(g, x, y - 8, 31, RAMPS.teal[2], 0.18)
+    drawSprite(g, AMI_PIXEL_ART, x, y, { scale: 2, alpha: 0.88 })
   }
 
   /** One lamp insert: a dark coloured lens, or a bright one with a halo. */
@@ -1760,15 +1805,14 @@ class KindPinball implements ArcadeGameInstance {
     for (let i = 0; i < VILLAGES; i++) {
       const { x, y } = villageSpot(i)
       const lit = i < this.villages || (this.lampShow > 0 && this.lit(1, i))
-      g.fillStyle = lit ? '#facc15' : THEME.insertOff
-      g.fillRect(x - 6, y - 4, 12, 8)
-      g.beginPath()
-      g.moveTo(x - 8, y - 4)
-      g.lineTo(x, y - 11)
-      g.lineTo(x + 8, y - 4)
-      g.fill()
-      g.fillStyle = lit ? '#7c2d12' : '#1e1033'
-      g.fillRect(x - 1.5, y, 3, 4)
+      dropShadow(g, x + 1, y + 4, 8, 3, 0.3)
+      drawSprite(
+        g,
+        lit ? VILLAGE_LIT[Math.floor(this.tick / 12) % 2]! : VILLAGE_DARK,
+        x,
+        y - 2,
+        { scale: 1.5 },
+      )
       this.insertGlow(g, x, y - 3, '#facc15', lit, 14)
       if (this.multiball && i < this.nets % VILLAGES)
         this.renderNet(g, x, y - 6)
@@ -2010,27 +2054,9 @@ class KindPinball implements ArcadeGameInstance {
   private renderBumpers(g: CanvasRenderingContext2D) {
     for (const b of this.bumpers) {
       const hot = b.flash > 0
-      g.fillStyle = 'rgba(0,0,0,0.45)'
-      g.beginPath()
-      g.arc(b.x + 3, b.y + 4, b.r + 2, 0, Math.PI * 2)
-      g.fill()
-      // Skirt and metal ring.
-      g.fillStyle = '#e2e8f0'
-      g.beginPath()
-      g.arc(b.x, b.y, b.r + 1, 0, Math.PI * 2)
-      g.fill()
-      g.fillStyle = hot ? '#fde047' : '#be185d'
-      g.beginPath()
-      g.arc(b.x, b.y, b.r - 1, 0, Math.PI * 2)
-      g.fill()
-      // The cap: a domed top with a printed star.
-      const cap = g.createRadialGradient(b.x - 3, b.y - 4, 1, b.x, b.y, b.r - 3)
-      cap.addColorStop(0, hot ? '#ffffff' : '#fce7f3')
-      cap.addColorStop(1, hot ? '#facc15' : '#f472b6')
-      g.fillStyle = cap
-      g.beginPath()
-      g.arc(b.x, b.y - 1, b.r - 4, 0, Math.PI * 2)
-      g.fill()
+      dropShadow(g, b.x + 3, b.y + 4, b.r + 3, b.r - 1, 0.5)
+      shadedOrb(g, b.x, b.y, b.r + 1, RAMPS.steel)
+      shadedOrb(g, b.x, b.y - 1, b.r - 2, hot ? RAMPS.gold : RAMPS.pink)
       g.fillStyle = hot ? '#b45309' : '#5eead4'
       g.beginPath()
       for (let k = 0; k < 10; k++) {
@@ -2263,15 +2289,7 @@ class KindPinball implements ArcadeGameInstance {
     g.beginPath()
     g.ellipse(b.x + lift * 0.6, b.y + lift, R, R * 0.8, 0, 0, Math.PI * 2)
     g.fill()
-    const body = g.createRadialGradient(b.x - 2, b.y - 2.5, 0.5, b.x, b.y, R)
-    body.addColorStop(0, '#ffffff')
-    body.addColorStop(0.3, '#e2e8f0')
-    body.addColorStop(0.75, '#64748b')
-    body.addColorStop(1, '#1e293b')
-    g.fillStyle = body
-    g.beginPath()
-    g.arc(b.x, b.y, R, 0, Math.PI * 2)
-    g.fill()
+    shadedOrb(g, b.x, b.y, R, RAMPS.steel)
     // The playfield's colour reflected in the lower half of the chrome.
     g.fillStyle = 'rgba(244, 114, 182, 0.35)'
     g.beginPath()
@@ -2302,6 +2320,7 @@ class KindPinball implements ArcadeGameInstance {
     g.strokeStyle = '#94a3b8'
     g.lineWidth = 1
     g.stroke()
+    hudPanel(g, 42, top + 3, 188, 17, RAMPS.purple)
     drawText(g, 'AMI VILLAGE RESCUE', 136, top + 12, {
       align: 'center',
       color: '#fde68a',

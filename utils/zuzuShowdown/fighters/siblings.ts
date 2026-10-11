@@ -47,7 +47,7 @@ const appleToss: MoveData = {
   active: 1,
   recovery: 20,
   hitbox: NO_HITBOX,
-  damage: 45,
+  damage: 50,
   chip: 4,
   hitstun: 16,
   blockstun: 10,
@@ -232,7 +232,7 @@ const specials: SpecialMove[] = [
 export const SIBLINGS: FighterData = {
   slug: 'the-siblings',
   name: 'The Siblings',
-  health: 900,
+  health: 1000,
   walkForward: Math.round(2.6 * SUB),
   walkBack: Math.round(2.1 * SUB),
   jumpVelocity: 9 * SUB,

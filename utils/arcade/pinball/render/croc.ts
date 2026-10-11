@@ -12,6 +12,11 @@
 //   death-roll  the whole head rolling over in a churn of water
 //   spit        jaws flung open as the ball goes out to the inlane
 //
+// The pose's cue (t-016) stirs the waterline on top: 'watering-hole' while
+// the Watering Hole runs, 'hungry' while an orbit has lit his mouth. With
+// reduced motion the head never rolls and nothing flickers: the death roll
+// and the cues show as steady, brighter water and eyes instead.
+//
 // Every geometry and material goes through the scene's track().
 
 import * as THREE from 'three'
@@ -48,9 +53,16 @@ export class CrocToy {
   private sink = 0
   private roll = 0
   private glow = 1
+  private stir = 0
   private frame = 0
+  private readonly still: boolean
 
-  constructor(def: AnimatronicDef, track: Track) {
+  constructor(
+    def: AnimatronicDef,
+    track: Track,
+    options: { reducedMotion?: boolean } = {},
+  ) {
+    this.still = options.reducedMotion ?? false
     const scale = def.scale ?? 1
     this.group.position.set(def.at[0], def.at[1], def.at[2])
     this.group.rotation.y = def.yaw ?? 0
@@ -190,7 +202,10 @@ export class CrocToy {
   /** One frame toward the pose. */
   animate() {
     this.frame++
-    const { phase, age } = this.pose
+    const { phase, age, cue } = this.pose
+    const still = this.still
+    /** A slow swell, or a steady middle with reduced motion. */
+    const swell = (rate: number) => (still ? 0 : Math.sin(this.frame * rate))
     let jaw = 0
     let sink = 0
     let roll = 0
@@ -206,24 +221,29 @@ export class CrocToy {
         glow = 0.6
         break
       case 'open':
-        // A slow, hungry breath.
-        jaw = JAW_OPEN * (0.85 + 0.15 * Math.sin(this.frame * 0.06))
-        glow = 1 + 0.5 * Math.sin(this.frame * 0.12)
+        // A slow, hungry breath; wide and bright when an orbit lit him.
+        jaw =
+          cue === 'hungry' ? JAW_OPEN : JAW_OPEN * (0.85 + 0.15 * swell(0.06))
+        glow = (cue === 'hungry' ? 1.8 : 1) + 0.5 * swell(0.12)
         break
       case 'captured':
         jaw = 0
         glow = 2.2
         break
       case 'death-roll':
-        roll = Math.min(1, age / 0.5) * Math.PI * 2
-        glow = 2.6
+        roll = still ? 0 : Math.min(1, age / 0.5) * Math.PI * 2
+        glow = still ? 3.2 : 2.6
         break
       case 'spit':
         jaw = JAW_OPEN * (age < 0.15 ? 1 : Math.max(0, 1 - (age - 0.15) / 0.3))
         glow = 1.6
         break
     }
-    const snap = phase === 'captured' || phase === 'spit' ? SNAP : EASE
+    const snap =
+      !still && (phase === 'captured' || phase === 'spit') ? SNAP : EASE
+    // The waterline's stir: astir in the Watering Hole, churning when lit.
+    const stir = cue === 'hungry' ? 1 : cue === 'watering-hole' ? 0.5 : 0
+    this.stir += (stir - this.stir) * EASE
     this.jaw += (jaw - this.jaw) * snap
     this.sink += (sink - this.sink) * EASE
     this.roll = phase === 'death-roll' ? roll : this.roll * (1 - EASE)
@@ -234,12 +254,26 @@ export class CrocToy {
     this.head.rotation.z = this.roll
     this.eyes.emissiveIntensity = 0.6 + this.glow
     this.throat.emissiveIntensity = 0.2 + this.glow * 0.6
-    this.water.emissiveIntensity = 0.25 + this.glow * 0.35
-    this.ring.scale.setScalar(phase === 'death-roll' ? 1.25 : 1)
+    this.water.emissiveIntensity =
+      0.25 + this.glow * 0.35 + this.stir * (0.9 + 0.4 * swell(0.3))
+    this.ring.scale.setScalar(
+      (phase === 'death-roll' ? 1.25 : 1) +
+        this.stir * (0.12 + 0.04 * swell(0.3)),
+    )
   }
 
   /** The jaw gape the toy is showing, radians (for tests). */
   get gape(): number {
     return this.jaw
+  }
+
+  /** The head's roll, radians (for tests). */
+  get rolled(): number {
+    return this.head.rotation.z
+  }
+
+  /** The waterline's glow (for tests). */
+  get waterline(): number {
+    return this.water.emissiveIntensity
   }
 }

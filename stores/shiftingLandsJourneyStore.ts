@@ -7,7 +7,16 @@ import {
   type JourneyLedgerAction,
   type JourneyLedger,
 } from '~/utils/shiftingLands/saveLedger'
-import { activeFiveLandEncounter } from '~/utils/shiftingLands/authoredFiveLands'
+import {
+  activeFiveLandEncounter,
+  findFiveLandCard,
+} from '~/utils/shiftingLands/authoredFiveLands'
+import {
+  encounterArt,
+  landScenery,
+  locationArt,
+  trialArt,
+} from '~/utils/shiftingLands/sceneArt'
 import {
   trialForLand,
   canChooseTrial,
@@ -78,6 +87,34 @@ export const useShiftingLandsJourneyStore = defineStore(
         ? activeFiveLandEncounter(session.value)
         : activeAuthoredEncounter(session.value),
     )
+    const landArt = computed(() => landScenery(currentLand.value.id))
+    const activeArt = computed(() =>
+      encounterArt(
+        currentLand.value.id,
+        activeEncounter.value,
+        activeCard.value,
+      ),
+    )
+    const bossArt = computed(() =>
+      trialArt(currentLand.value.id, currentLand.value.boss.art),
+    )
+    const roadArt = (locationId: string): string => {
+      const land = JOURNEY_WORLD.lands.find((item) =>
+        item.locations.some((location) => location.id === locationId),
+      )
+      const location = land?.locations.find((item) => item.id === locationId)
+      return land && location ? locationArt(land.id, location) : landArt.value
+    }
+    const playedArt = (locationId: string): string => {
+      const land = JOURNEY_WORLD.lands.find((item) =>
+        item.locations.some((location) => location.id === locationId),
+      )
+      const location =
+        land?.locations.find((item) => item.id === locationId) ?? null
+      const drawnId = session.value.drawn?.[locationId]
+      const encounter = drawnId ? findFiveLandCard(drawnId) : null
+      return land ? encounterArt(land.id, encounter, location) : landArt.value
+    }
     const lastAuthoredOutcome = computed(
       () => session.value.outcomes[session.value.outcomes.length - 1] ?? null,
     )
@@ -238,6 +275,11 @@ export const useShiftingLandsJourneyStore = defineStore(
       resolved,
       activeCard,
       activeEncounter,
+      landArt,
+      activeArt,
+      bossArt,
+      roadArt,
+      playedArt,
       currentTrial,
       lastTrialOutcome,
       canTrial,

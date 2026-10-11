@@ -135,7 +135,7 @@ check(
       assert.equal(parsed.button, special.button, special.id)
     }
     assert.ok(FIGHTERS.includes(SIBLINGS))
-    assert.equal(SIBLINGS.health, 900)
+    assert.equal(SIBLINGS.health, 1000)
     assert.equal(SIBLINGS.childGuard, true)
   },
 )

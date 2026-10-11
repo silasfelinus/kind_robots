@@ -40,6 +40,8 @@ export type PinballSoundName =
   | 'mastery'
   | 'secret-tease'
   | 'secret-found'
+  | 'jaw-snap'
+  | 'water-spray'
 
 export type SynthCue = {
   bus: PinballBus
@@ -309,6 +311,24 @@ export const PINBALL_CUES: Record<PinballSoundName, SynthCue> = {
     duration: 0.5,
     gain: 0.12,
     wave: 'square',
+  },
+  /** A Zuzu River Croc's jaws closing on the ball (t-016). */
+  'jaw-snap': {
+    bus: 'mechanical',
+    frequency: 210,
+    endFrequency: 55,
+    duration: 0.08,
+    gain: 0.32,
+    noise: true,
+  },
+  /** Water thrown up as he surfaces or spits the ball (t-016). */
+  'water-spray': {
+    bus: 'ambience',
+    frequency: 900,
+    endFrequency: 280,
+    duration: 0.38,
+    gain: 0.16,
+    noise: true,
   },
   /** A mastery goal earned for the first time (rules/mastery.ts). */
   mastery: {

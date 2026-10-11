@@ -44,7 +44,7 @@ fit('crouch_hp', { x: 2, y: 40, w: 24, h: 56 })
 fit('jump_lp', { x: 4, y: 40, w: 38, h: 14 })
 fit('jump_hp', { x: 4, y: 24, w: 22, h: 20 })
 fit('jump_lk', { x: -6, y: 23, w: 55, h: 14 })
-fit('jump_hk', { x: 2, y: 19, w: 49, h: 16 })
+fit('jump_hk', { x: 2, y: 19, w: 40, h: 16 })
 const HEAVIES: NormalId[] = [
   'stand_hp',
   'stand_hk',
@@ -156,7 +156,7 @@ const slowHunger: MoveData = {
   active: 48,
   recovery: 30,
   hitbox: { x: 16, y: 40, w: 44, h: 40 },
-  damage: 87,
+  damage: 75,
   chip: 8,
   hitstun: 20,
   blockstun: 12,
@@ -251,7 +251,7 @@ const specials: SpecialMove[] = [
 export const OLD_KOMODO: FighterData = {
   slug: 'old-komodo',
   name: 'Old Komodo',
-  health: 1150,
+  health: 950,
   walkForward: Math.round(1.1 * SUB),
   walkBack: SUB,
   jumpVelocity: 8 * SUB,

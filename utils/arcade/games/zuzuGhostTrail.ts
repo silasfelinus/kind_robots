@@ -102,6 +102,15 @@ import {
   type SquadMember,
   type StageTheme,
 } from '../ghostTrail/world'
+import {
+  BOSS_MUSIC,
+  ENDING_MUSIC,
+  FINALE_MUSIC,
+  SFX,
+  STAGE_MUSIC,
+  type SfxName,
+} from '../ghostTrail/music'
+import type { MusicLoop } from '../sound'
 import type {
   ArcadeGameInstance,
   ArcadeGameModule,
@@ -404,6 +413,8 @@ class ZuzuGhostTrail implements ArcadeGameInstance {
   private card: (Card & { then: CardThen; max: number }) | null = null
   /** Progress the cabinet keeps for this player (see GhostSave); demos never save. */
   save: GhostSave | null = null
+  /** The tide's warning was already sounded this cycle. */
+  private tideWarned = false
   /** The iai cut's step-in and guard, in ticks left. */
   private lunge = 0
   private guard = 0
@@ -470,6 +481,26 @@ class ZuzuGhostTrail implements ArcadeGameInstance {
       this.respawn()
     }
     this.keep()
+  }
+
+  /** One of Ghost Trail's own sounds, or a shared preset where the cabinet only offers those. */
+  private sfx(
+    name: SfxName,
+    fallback?: Parameters<ArcadeGameOptions['sound']['play']>[0],
+  ) {
+    if (this.sound.playNotes) this.sound.playNotes(SFX[name])
+    else if (fallback) this.sound.play(fallback)
+  }
+
+  /** The score for this moment: the world's theme, a boss's, the finale, or the ending. */
+  get music(): MusicLoop | null {
+    if (this.demo || this.over) return null
+    if (this.card?.kind === 'credits') return ENDING_MUSIC
+    if (this.card?.then === 'revive' || this.card?.then === 'choose')
+      return null
+    if (this.boss && this.boss.dying === 0)
+      return this.boss.id === 'abbess' ? FINALE_MUSIC : BOSS_MUSIC
+    return STAGE_MUSIC[this.act.theme]
   }
 
   /** Remember the run as it stands at this checkpoint (a real game only; demos never save). */
@@ -723,6 +754,11 @@ class ZuzuGhostTrail implements ArcadeGameInstance {
     }
 
     this.actTick++
+    if (this.act.tide) {
+      const warning = tideAt(this.act.tide, this.actTick).warning
+      if (warning && !this.tideWarned) this.sfx('tide')
+      this.tideWarned = warning
+    }
     if (this.invuln > 0) this.invuln--
     if (this.throwCooldown > 0) this.throwCooldown--
     if (this.throwPose > 0) this.throwPose--
@@ -751,7 +787,7 @@ class ZuzuGhostTrail implements ArcadeGameInstance {
       if (c > this.checkpoint && this.x > c) {
         this.checkpoint = c
         this.banner = { text: 'CHECKPOINT', ticks: 70 }
-        this.sound.play('pickup')
+        this.sfx('checkpoint', 'pickup')
         this.keep()
       }
     }
@@ -971,7 +1007,8 @@ class ZuzuGhostTrail implements ArcadeGameInstance {
       this.lunge = IAI.lungeTicks
       this.guard = IAI.guard
     }
-    this.sound.play(this.weapon === 'katana' ? 'boom' : 'shoot')
+    if (this.weapon === 'katana') this.sfx('cut', 'boom')
+    else this.sound.play('shoot')
   }
 
   // --- encounters -----------------------------------------------------------------
@@ -1164,7 +1201,7 @@ class ZuzuGhostTrail implements ArcadeGameInstance {
       ) {
         b.life = 0
         this.burst(b.x, b.y, 6, '#e0f2fe')
-        this.sound.play('blip')
+        this.sfx('deflect', 'blip')
       }
     }
   }
@@ -1368,6 +1405,7 @@ class ZuzuGhostTrail implements ArcadeGameInstance {
     }
     this.banner = { text: def.name, sub: def.title, ticks: 100 }
     this.sound.play('warn')
+    this.sfx('toll')
   }
 
   private hurtBoss(damage: number, x: number, y: number) {
@@ -1488,7 +1526,7 @@ class ZuzuGhostTrail implements ArcadeGameInstance {
         ticks: 110,
       }
       this.burst(s.x, s.y, 18, '#7dd3fc')
-      this.sound.play('extra')
+      this.sfx('relic', 'extra')
     }
   }
 

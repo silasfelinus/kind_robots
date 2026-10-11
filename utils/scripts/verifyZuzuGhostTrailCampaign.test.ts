@@ -6,6 +6,13 @@ import { mulberry32 } from '../arcade/curve'
 import { emptyInput } from '../arcade/types'
 import { create, readSave } from '../arcade/games/zuzuGhostTrail'
 import { sanitizeSaves, withSave } from '../arcade/saves'
+import { parseLoop } from '../arcade/sound'
+import {
+  ALL_MUSIC,
+  BOSS_MUSIC,
+  ENDING_MUSIC,
+  STAGE_MUSIC,
+} from '../arcade/ghostTrail/music'
 import { ACTS, RELIC_COUNT, STAGES } from '../arcade/ghostTrail/campaign'
 import { FOES } from '../arcade/ghostTrail/foes'
 import { BOSSES } from '../arcade/ghostTrail/bosses'
@@ -331,6 +338,58 @@ assert.equal(lost.won, false, 'defeat never grants a victory')
   )
   assert.ok(r.x > x0 + 8, 'the quick-draw lunges him forward')
   assert.equal(r.poncho, true, 'and he takes no hit through the stroke')
+}
+
+// --- the score: every loop parses with its voices in step; the music follows the game ---------------
+for (const loop of ALL_MUSIC) {
+  const parsed = parseLoop(loop)
+  assert.equal(parsed.length, 64, 'every loop is eight bars of eight steps')
+  for (const track of loop.tracks)
+    assert.equal(
+      track.steps.trim().split(/\s+/).length,
+      64,
+      'every voice runs the whole loop',
+    )
+}
+{
+  const notes: unknown[] = []
+  const r = create({
+    rng: mulberry32(21),
+    sound: { play: () => {}, playNotes: (n) => void notes.push(n) },
+    demo: false,
+    hiScore: 0,
+  }) as Run & { music: unknown; weapon: string }
+  skipCard(r)
+  assert.equal(r.music, STAGE_MUSIC[r.act.theme], "the world's theme plays")
+  const bossAct = ACTS.findIndex((a) => a.boss)
+  r.startAct(bossAct)
+  skipCard(r)
+  r.invuln = 99999
+  r.x = r.act.length - 190
+  r.camX = r.act.length - 260
+  r.update(emptyInput())
+  assert.equal(r.music, BOSS_MUSIC, 'a boss brings its theme')
+  assert.ok(notes.length > 0, 'the bell tolls through playNotes')
+  r.weapon = 'katana'
+  const before = notes.length
+  const a = emptyInput()
+  a.pressed.a = true
+  r.update(a)
+  assert.ok(notes.length > before, 'the iai cut has its own sound')
+  r.clear = 0
+  const last = newRun(22) as Run & { music: unknown }
+  last.startAct(ACTS.length - 1)
+  skipCard(last)
+  last.clear = 1
+  last.update(emptyInput())
+  assert.equal(last.music, ENDING_MUSIC, 'the credits roll to the ending theme')
+  const demo = create({
+    rng: mulberry32(23),
+    sound: { play: () => {} },
+    demo: true,
+    hiScore: 0,
+  }) as Run & { music: unknown }
+  assert.equal(demo.music, null, 'the attract demo plays silent')
 }
 
 // --- checkpoints are close together and every boss fight restarts at its gate ----------------------

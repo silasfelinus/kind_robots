@@ -288,7 +288,11 @@ import {
   type ArcadeEvent,
   type ArcadePhase,
 } from '~/utils/arcade/machine'
-import { createArcadeSound, type ArcadeSound } from '~/utils/arcade/sound'
+import {
+  createArcadeSound,
+  type ArcadeSound,
+  type MusicLoop,
+} from '~/utils/arcade/sound'
 import { setGamePageLock } from '~/utils/arcade/pageLock'
 import { drawText, lineStep, measureText } from '~/utils/arcade/font'
 import { mulberry32 } from '~/utils/arcade/curve'
@@ -721,6 +725,21 @@ function dispatch(event: ArcadeEvent) {
   if (machine.phase !== before) enterPhase(machine.phase)
 }
 
+/** The music loop now playing for the real game, so it is restarted only when it changes. */
+let musicNow: MusicLoop | null = null
+
+/** Follow the real game's music (a demo plays silent; a finished game stops it). */
+function syncMusic(instance: ArcadePlayableInstance | null) {
+  const music =
+    instance && instance === game && !instance.over && 'music' in instance
+      ? ((instance as { music?: MusicLoop | null }).music ?? null)
+      : null
+  if (music === musicNow) return
+  musicNow = music
+  if (music) sound?.startMusic(music)
+  else sound?.stopMusic()
+}
+
 /** The last progress a game asked to keep, so the store is written only when it changes. */
 let lastSave: unknown = undefined
 
@@ -749,6 +768,10 @@ function retire(instance: ArcadePlayableInstance | null) {
   if (instance?.mastered?.length)
     store.recordMastery(props.slug, instance.mastered)
   keepSave(instance)
+  if (instance && instance === game) {
+    musicNow = null
+    sound?.stopMusic()
+  }
   if (isWebGLInstance(instance)) instance.dispose()
 }
 
@@ -983,6 +1006,7 @@ function tick() {
     else if (game.lives < hintLives) pinballHints.value = false
     game.update(frames[0]!, frames)
     keepSave(game)
+    syncMusic(game)
     if (game.over) {
       if (game.mastered?.length) store.recordMastery(props.slug, game.mastered)
       lastScore = game.score

@@ -54,6 +54,7 @@ import type { FighterData, MatchState } from '../zuzuShowdown/types'
 import {
   PORTRAIT_KINDS,
   PORTRAIT_ROOT,
+  P2_PORTRAIT_FILTER,
   portraitFighters,
   portraitInfo,
   portraitUrl,
@@ -449,6 +450,21 @@ check('the screens draw portraits where loaded, sprites where not', () => {
   )
   assert.equal(sized(half.calls, vs.w, vs.h), 1, 'one VS portrait')
   assert.ok(half.calls.filter((c) => c.op === 'drawImage').length > 1)
+
+  // A mirror match: P2's portrait (only P2's) turns to P2's colours.
+  const mirror = stubContext()
+  const filters: string[] = []
+  const g = mirror.g as unknown as {
+    filter: string
+    drawImage: (...args: unknown[]) => void
+  }
+  g.filter = 'none'
+  g.drawImage = (...args: unknown[]) => {
+    if (args.length === 5) filters.push(g.filter)
+  }
+  const twins: [FighterData, FighterData] = [ZUZU, ZUZU]
+  drawVsScreen(mirror.g, twins, [undefined, undefined], 30, false, portraits)
+  assert.deepEqual(filters, ['none', P2_PORTRAIT_FILTER], 'P2 recoloured')
 
   const s = createMatch(roster)
   s.phase = 'over'

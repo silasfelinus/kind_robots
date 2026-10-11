@@ -52,9 +52,14 @@ export type LoadedPortraits = Partial<
 
 type G = CanvasRenderingContext2D
 
+/** P2's colours in a mirror match: the sprites recolour by palette rules that don't fit a painting, so
+ * the portrait turns its hue instead. */
+export const P2_PORTRAIT_FILTER = 'hue-rotate(160deg) saturate(1.15)'
+
 /**
  * Draw a fighter's portrait of `kind` standing on (cx, floor), `flip`ped to face left, at `scale` of its
- * own size. Returns false (drawing nothing) when it isn't loaded, so the caller can draw the sprite.
+ * own size, in P2's colours when `p2` (a mirror match). Returns false (drawing nothing) when it isn't
+ * loaded, so the caller can draw the sprite.
  */
 export function drawPortrait(
   g: G,
@@ -65,6 +70,7 @@ export function drawPortrait(
   floor: number,
   flip = false,
   scale = 1,
+  p2 = false,
 ): boolean {
   const info = portraitInfo(slug, kind)
   const image = portraits?.[slug]?.[kind]
@@ -74,6 +80,7 @@ export function drawPortrait(
   g.save()
   g.translate(cx, floor - h)
   if (flip) g.scale(-1, 1)
+  if (p2) g.filter = P2_PORTRAIT_FILTER
   g.drawImage(image, -w / 2, 0, w, h)
   g.restore()
   return true

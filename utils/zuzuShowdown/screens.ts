@@ -168,6 +168,8 @@ export function drawVsScreen(
       360 + travel,
       FIGHTER_FLOOR,
       true,
+      1,
+      mirror,
     )
   )
     drawFighterBig(
@@ -259,7 +261,19 @@ export function drawWinScreen(
     : ['victory_button', 'victory', 'taunt']
   const mirror = roster[0].slug === roster[1].slug
   const rise = reduced ? 0 : Math.max(0, 12 - t)
-  if (!drawPortrait(g, portraits, w.slug, 'victory', 120, FIGHTER_FLOOR + rise))
+  if (
+    !drawPortrait(
+      g,
+      portraits,
+      w.slug,
+      'victory',
+      120,
+      FIGHTER_FLOOR + rise,
+      false,
+      1,
+      mirror && winner === 1,
+    )
+  )
     drawFighterBig(
       g,
       sprites[winner],
@@ -281,6 +295,7 @@ export function drawWinScreen(
     VIEW_HEIGHT - 6,
     true,
     0.45,
+    mirror && loser === 1,
   )
 
   drawText(g, `P${winner + 1} WINS`, 330, 36, {

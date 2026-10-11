@@ -9,6 +9,12 @@
 //   Bath      a lazy waltz-ish sway in thirds, all bubbles and echo.
 //   Boss      a minor-key scrub-scrub drive.
 //   Shop      a little music-box tune while you count your soap.
+//   Laundry   a churning minor-key tumble in a rolling 3+3+2.
+//   Tank      slow, drifting, underwater arpeggios.
+//   Garden    a skipping pastoral tune with a pitter-patter of rain.
+//   Car Wash  a funky stop-start beat for the conveyor.
+//   Palace    a grand, glittering waltz in rainbow foam.
+//   Ending    the kitchen theme slowed into a warm thank-you.
 
 import type { MusicLoop } from '../sound'
 import type { MusicId } from './rooms'
@@ -173,9 +179,239 @@ const SHOP: MusicLoop = {
   ],
 }
 
+const LAUNDRY: MusicLoop = {
+  bpm: 144,
+  tracks: [
+    {
+      type: 'triangle',
+      vol: 0.07,
+      steps: bars(
+        'D3 . . D3 . . A2 .',
+        'D3 . . D3 . . C3 .',
+        'Bb2 . . Bb2 . . F2 .',
+        'A2 . . A2 . . E3 .',
+        'D3 . . D3 . . A2 .',
+        'G2 . . G2 . . D3 .',
+        'Bb2 . . Bb2 . . C3 .',
+        'A2 . . A2 . . C#3 .',
+      ),
+    },
+    {
+      type: 'square',
+      vol: 0.03,
+      steps: bars(
+        'F5 E5 D5 . A4 . D5 .',
+        'E5 F5 G5 . E5 . C5 .',
+        'D5 C5 Bb4 . F4 . Bb4 .',
+        'C#5 D5 E5 - - . A4 .',
+        'F5 E5 D5 . A5 . F5 .',
+        'G5 F5 E5 . D5 . Bb4 .',
+        'D5 E5 F5 . G5 . E5 .',
+        'C#5 - E5 - A5 - - .',
+      ),
+    },
+    {
+      noise: true,
+      vol: 0.025,
+      steps: bars(...Array(8).fill('x . . x . . x .')),
+    },
+  ],
+}
+
+const TANK: MusicLoop = {
+  bpm: 96,
+  tracks: [
+    {
+      type: 'sine',
+      vol: 0.07,
+      steps: bars(
+        'E2 - - - - - - -',
+        'C3 - - - - - - -',
+        'A2 - - - - - - -',
+        'B2 - - - - - - -',
+        'E2 - - - - - - -',
+        'C3 - - - - - - -',
+        'D3 - - - - - - -',
+        'B2 - - - - - - -',
+      ),
+    },
+    {
+      type: 'triangle',
+      vol: 0.045,
+      steps: bars(
+        'E4 G4 B4 E5 B4 G4 E4 G4',
+        'C4 E4 G4 C5 G4 E4 C4 E4',
+        'A3 C4 E4 A4 E4 C4 A3 C4',
+        'B3 D#4 F#4 B4 F#4 D#4 B3 D#4',
+        'E4 G4 B4 E5 B4 G4 E4 G4',
+        'C4 E4 G4 C5 G4 E4 C4 E4',
+        'D4 F#4 A4 D5 A4 F#4 D4 F#4',
+        'B3 D#4 F#4 B4 - - - -',
+      ),
+    },
+  ],
+}
+
+const GARDEN: MusicLoop = {
+  bpm: 126,
+  tracks: [
+    {
+      type: 'triangle',
+      vol: 0.07,
+      steps: bars(
+        walk('G2', 'D3', 'G3'),
+        walk('C3', 'G2', 'C3'),
+        walk('D3', 'A2', 'D3'),
+        walk('G2', 'D3', 'B2'),
+        walk('E2', 'B2', 'E3'),
+        walk('C3', 'G2', 'C3'),
+        walk('A2', 'E3', 'A3'),
+        walk('D3', 'F#3', 'A3'),
+      ),
+    },
+    {
+      type: 'square',
+      vol: 0.03,
+      steps: bars(
+        'B4 . D5 . G5 . F#5 .',
+        'E5 . D5 . C5 - . .',
+        'A4 . D5 . F#5 . E5 .',
+        'D5 . B4 . G4 - . .',
+        'G4 . B4 . E5 . D5 .',
+        'C5 . E5 . G5 - . .',
+        'A5 . G5 . E5 . C5 .',
+        'D5 . F#5 . A5 - - .',
+      ),
+    },
+    {
+      noise: true,
+      vol: 0.012,
+      steps: bars(...Array(8).fill('x x . x x . x x')),
+    },
+  ],
+}
+
+const CARWASH: MusicLoop = {
+  bpm: 116,
+  tracks: [
+    {
+      type: 'square',
+      vol: 0.035,
+      steps: bars(
+        'E2 . E2 E3 . E2 G2 .',
+        'A2 . A2 A3 . A2 G2 .',
+        'E2 . E2 E3 . E2 G2 .',
+        'B2 . B2 B3 . A2 G2 .',
+        'E2 . E2 E3 . E2 G2 .',
+        'A2 . A2 A3 . A2 C3 .',
+        'D3 . D3 D2 . E2 G2 .',
+        'B2 . . B2 . . B2 .',
+      ),
+    },
+    {
+      type: 'triangle',
+      vol: 0.05,
+      steps: bars(
+        '. . G4 . A4 . B4 .',
+        '. . A4 . C5 . A4 .',
+        '. . G4 . A4 . B4 .',
+        '. . D5 . B4 . A4 .',
+        '. . G4 . A4 . B4 .',
+        '. . E5 . D5 . C5 .',
+        '. . D5 . E5 . F#5 .',
+        'G5 - . F#5 - . D#5 .',
+      ),
+    },
+    {
+      noise: true,
+      vol: 0.03,
+      steps: bars(...Array(8).fill('x . . . x . x .')),
+    },
+  ],
+}
+
+const PALACE: MusicLoop = {
+  bpm: 132,
+  tracks: [
+    {
+      type: 'triangle',
+      vol: 0.07,
+      steps: bars(
+        'C3 - - G3 - - E3 -',
+        'F2 - - C3 - - A2 -',
+        'G2 - - D3 - - B2 -',
+        'C3 - - G3 - - C4 -',
+        'A2 - - E3 - - C3 -',
+        'F2 - - C3 - - A2 -',
+        'D3 - - A3 - - F3 -',
+        'G2 - - D3 - - G3 -',
+      ),
+    },
+    {
+      type: 'sine',
+      vol: 0.05,
+      steps: bars(
+        'E5 - G5 - C6 - B5 -',
+        'A5 - F5 - C5 - - -',
+        'D5 - G5 - B5 - D6 -',
+        'C6 - - - G5 - - -',
+        'A5 - C6 - E6 - D6 -',
+        'C6 - A5 - F5 - - -',
+        'F5 - A5 - D6 - C6 -',
+        'B5 - D6 - G6 - - -',
+      ),
+    },
+    {
+      type: 'square',
+      vol: 0.015,
+      steps: bars(...Array(8).fill('. . C7 . . . G6 .')),
+    },
+  ],
+}
+
+const ENDING: MusicLoop = {
+  bpm: 90,
+  tracks: [
+    {
+      type: 'triangle',
+      vol: 0.07,
+      steps: bars(
+        walk('F2', 'C3', 'F3'),
+        walk('D2', 'A2', 'D3'),
+        walk('Bb2', 'F2', 'Bb2'),
+        walk('C3', 'G2', 'C3'),
+        walk('F2', 'C3', 'F3'),
+        walk('A2', 'E3', 'A3'),
+        walk('Bb2', 'F3', 'Bb3'),
+        walk('C3', 'E3', 'G3'),
+      ),
+    },
+    {
+      type: 'sine',
+      vol: 0.055,
+      steps: bars(
+        'A4 - C5 - F5 - - -',
+        'D5 - C5 - A4 - - -',
+        'Bb4 - D5 - F5 - D5 -',
+        'E5 - - - C5 - - -',
+        'A4 - C5 - F5 - A5 -',
+        'G5 - E5 - C#5 - - -',
+        'D5 - F5 - Bb5 - A5 -',
+        'G5 - - - F5 - - -',
+      ),
+    },
+  ],
+}
+
 export const MUSIC: Record<MusicId, MusicLoop> = {
   kitchen: KITCHEN,
   bath: BATH,
+  laundry: LAUNDRY,
+  tank: TANK,
+  garden: GARDEN,
+  carwash: CARWASH,
+  palace: PALACE,
   boss: BOSS,
   shop: SHOP,
+  ending: ENDING,
 }

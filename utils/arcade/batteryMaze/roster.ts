@@ -15,12 +15,30 @@
 //                       tiles and it comes to look (a "!" pops up) for a few seconds. Glide
 //                       through eaten halls and it never notices.
 //
+// The Toaster Works adds two (slice 2, t-040):
+//
+//   DASH  the sprinter  works its way into line with the robot; once it can see straight down a
+//                       corridor to it, it flattens its ears (and stops dead), then dashes at
+//                       double speed. Break the line at a corner.
+//   MUNCH the crumb     eats sparks too, heading for the nearest one. After fifteen it
+//         snacker      overclocks: it turns red, speeds up and comes for the robot. Race it, or
+//                       bump it while it's sleepy to reboot its appetite.
+//
+// And Gremlin Mama's babies: small, quick, and harmless while sleepy.
+//
 // Gremlins choose a turn at each tile centre by heading for a target tile; these rules pick that
 // target while the gremlins hunt. In scatter they head for their own corners instead.
 
 import type { Tile } from './mazes'
 
-export type GremlinKind = 'chaser' | 'ambusher' | 'flanker' | 'wanderer'
+export type GremlinKind =
+  | 'chaser'
+  | 'ambusher'
+  | 'flanker'
+  | 'wanderer'
+  | 'sprinter'
+  | 'snacker'
+  | 'baby'
 
 /** What a gremlin remembers between turns. */
 export type Mind = {
@@ -31,10 +49,25 @@ export type Mind = {
   curious: number
   /** A flanker charging the robot at its cell. */
   charging: boolean
+  /** A sprinter's wind-up (ears flat), its dash, and its breather after. */
+  aim: number
+  dash: number
+  cool: number
+  /** Sparks a crumb snacker has eaten. */
+  snacks: number
 }
 
 export function freshMind(): Mind {
-  return { goal: null, goalTicks: 0, curious: 0, charging: false }
+  return {
+    goal: null,
+    goalTicks: 0,
+    curious: 0,
+    charging: false,
+    aim: 0,
+    dash: 0,
+    cool: 0,
+    snacks: 0,
+  }
 }
 
 /** What a gremlin can tell about the robot and the maze. */
@@ -54,6 +87,10 @@ export type HuntView = {
   chomping: boolean
   /** The chaser's overclock stage (0 to 2). */
   overclock: 0 | 1 | 2
+  /** Whether the robot is in plain sight down a straight corridor from this tile. */
+  sees(from: Tile): boolean
+  /** The spark nearest this tile, or null when none are left. */
+  nearestSpark(from: Tile): Tile | null
 }
 
 export type HunterSelf = { x: number; y: number; mind: Mind }
@@ -69,6 +106,10 @@ export type Hunter = {
   hunt(self: HunterSelf, view: HuntView): Tile
   /** Called every tick while it roams awake (a wanderer listening). */
   sense?(self: HunterSelf, view: HuntView): void
+  /** Its speed, as a share of the maze's gremlin speed (1 when absent). */
+  pace?(self: HunterSelf): number
+  /** It eats the sparks it walks over. */
+  eats?: boolean
 }
 
 const dist = (a: Tile, b: Tile) => Math.hypot(a.x - b.x, a.y - b.y)
@@ -83,6 +124,10 @@ export const GUARD_RANGE = 6
 export const HEARING_RANGE = 6
 export const CURIOUS_TICKS = 150
 const POTTER_TICKS = 60 * 5
+/** A sprinter's wind-up, dash and breather (ticks), and its dash pace. */
+export const SPRINT = { aim: 30, dash: 60, cool: 120, pace: 2 } as const
+/** A crumb snacker overclocks after this many sparks. */
+export const SNACKS_TO_OVERCLOCK = 15
 
 export const HUNTERS: Record<GremlinKind, Hunter> = {
   chaser: {
@@ -145,6 +190,62 @@ export const HUNTERS: Record<GremlinKind, Hunter> = {
         self.mind.goalTicks = POTTER_TICKS
       }
       return self.mind.goal!
+    },
+  },
+  sprinter: {
+    kind: 'sprinter',
+    name: 'DASH',
+    tell: 'Ears flat on a straight',
+    answer: 'Break the line at a corner',
+    sense(self, view) {
+      const m = self.mind
+      if (m.dash > 0) {
+        if (--m.dash === 0) m.cool = SPRINT.cool
+      } else if (m.aim > 0) {
+        if (--m.aim === 0) m.dash = SPRINT.dash
+      } else if (m.cool > 0) {
+        m.cool--
+      } else if (view.sees({ x: Math.round(self.x), y: Math.round(self.y) })) {
+        m.aim = SPRINT.aim
+      }
+    },
+    pace(self) {
+      return self.mind.aim > 0 ? 0 : self.mind.dash > 0 ? SPRINT.pace : 1
+    },
+    hunt(self, view) {
+      const robot = view.robot
+      if (self.mind.dash > 0 || self.mind.aim > 0)
+        return { x: robot.x, y: robot.y }
+      // Line up: the nearer of the robot's column and its row.
+      const across = { x: robot.x, y: self.y }
+      const along = { x: self.x, y: robot.y }
+      return dist(self, across) <= dist(self, along) ? across : along
+    },
+  },
+  snacker: {
+    kind: 'snacker',
+    name: 'MUNCH',
+    tell: 'Heads for sparks, not you',
+    answer: 'Race it, or bump it before it turns red',
+    eats: true,
+    pace(self) {
+      return self.mind.snacks >= SNACKS_TO_OVERCLOCK ? 1.2 : 0.95
+    },
+    hunt(self, view) {
+      const robot = view.robot
+      if (self.mind.snacks >= SNACKS_TO_OVERCLOCK)
+        return { x: robot.x, y: robot.y }
+      return view.nearestSpark(self) ?? { x: robot.x, y: robot.y }
+    },
+  },
+  baby: {
+    kind: 'baby',
+    name: 'BABY',
+    tell: 'Small and quick',
+    answer: 'Grab a cell: sleepy babies are harmless',
+    pace: () => 1.15,
+    hunt(_self, view) {
+      return { x: view.robot.x, y: view.robot.y }
     },
   },
 }

@@ -26,16 +26,17 @@ import {
   leadShot,
   newFoe,
 } from '../arcade/rescueRally/roster'
+import { DISTRICTS, waveAt } from '../arcade/rescueRally/districts'
 import {
   NEON_PLAZA,
-  RALLY_WAVES,
   TOY_FACTORY,
   groupSize,
   scriptFoes,
-  waveAt,
 } from '../arcade/rescueRally/waves'
 import { emptyInput } from '../arcade/types'
 import type { InputFrame } from '../arcade/types'
+
+const RALLY_WAVES = DISTRICTS.flatMap((d) => d.waves)
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
@@ -55,6 +56,10 @@ function emptyArena(game: any) {
   Object.assign(h, { x: 240, y: 186, invuln: 0, trail: [] })
   // A late group far in the future keeps the wave from clearing itself while the test runs.
   game.arrivals = [{ tick: 1e9, kind: 'drone', count: 1, from: 'vents' }]
+  game.boss = null
+  game.belts = []
+  game.pickups = []
+  game.ventPower = true
 }
 
 function person(game: any, x: number, y: number, state = 'calm') {
@@ -167,7 +172,7 @@ function hold(...buttons: (keyof InputFrame['held'])[]): InputFrame {
   assert.ok(NEON_PLAZA.some((w) => scriptFoes(w).has('stomper')))
   assert.ok(NEON_PLAZA.some((w) => (w.pylons ?? []).length > 0))
   assert.ok(
-    TOY_FACTORY.every(
+    TOY_FACTORY.filter((w) => !w.boss).every(
       (w) => scriptFoes(w).has('hypno') || scriptFoes(w).has('sparker'),
     ),
   )
@@ -187,7 +192,9 @@ function hold(...buttons: (keyof InputFrame['held'])[]): InputFrame {
   game.startWave(3)
   const script = RALLY_WAVES[2]!
   assert.equal(game.script, script)
-  const pylons = game.foes.filter((f: any) => f.kind === 'pylon').length
+  const pylons = game.foes.filter(
+    (f: { kind: string }) => f.kind === 'pylon',
+  ).length
   const written = (script.pylons ?? []).flatMap(pylonSpots).length
   assert.ok(
     pylons > written - 4 && pylons <= written,
@@ -441,7 +448,7 @@ function hold(...buttons: (keyof InputFrame['held'])[]): InputFrame {
   assert.equal(demo.score, 0, 'the attract demo never scores')
   assert.ok(demo.level > 2, 'but it plays on through the waves')
 
-  const game = fresh(2)
+  const game = fresh(3)
   let t = 0
   for (; t < 60 * 60 * 30 && !game.over; t++) game.update(game.demoInput())
   assert.ok(game.over, 'the pilot runs out of heroes within half an hour')

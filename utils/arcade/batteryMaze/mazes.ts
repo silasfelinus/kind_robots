@@ -12,7 +12,10 @@
 //   's' Rewire switch (a spark on it too)
 //   'a' a gate that is open while its switch is up (shut when flipped)
 //   'b' a gate that is shut while its switch is up (open when flipped)
-// Each gate belongs to the switch nearest it (within three tiles).
+//   '<' '>' '^' 'v' a conveyor carrying things that way (a spark on it too)
+//   't' 'T' a toaster slot: toast pops up and blocks it on the board's beat,
+//       't' slots on the first half of the beat and 'T' on the second (a spark on it too)
+// Each gate belongs to the switch nearest it (within four tiles).
 
 export type Tile = { x: number; y: number }
 
@@ -28,6 +31,11 @@ export type MazeGate = Tile & {
 }
 
 export type MazeSwitch = Tile & { gates: readonly MazeGate[] }
+
+export type Conveyor = Tile & { dir: Tile }
+
+/** A toaster slot and which half of the beat its toast pops on. */
+export type ToastSlot = Tile & { group: 0 | 1 }
 
 export type Maze = {
   id: string
@@ -46,9 +54,20 @@ export type Maze = {
   sparks: readonly Tile[]
   cells: readonly Tile[]
   switches: readonly MazeSwitch[]
+  conveyors: readonly Conveyor[]
+  toast: readonly ToastSlot[]
   /** Rows that wrap from one edge to the other. */
   tunnelRows: readonly number[]
 }
+
+const CONVEYOR_DIRS: Record<string, Tile> = {
+  '<': { x: -1, y: 0 },
+  '>': { x: 1, y: 0 },
+  '^': { x: 0, y: -1 },
+  v: { x: 0, y: 1 },
+}
+/** Tiles that carry a spark. */
+const SPARKY = new Set(['.', 's', 't', 'T', ...Object.keys(CONVEYOR_DIRS)])
 
 export const MAZE_COLS = 23
 export const MAZE_ROWS = 21
@@ -140,10 +159,136 @@ export const SWITCHYARD: MazeLayout = {
   ],
 }
 
+// --- the Toaster Works -------------------------------------------------------
+
+/** Conveyors run to the middle along the top and out along the bottom. */
+export const CRUMB_TRAY: MazeLayout = {
+  id: 'crumb-tray',
+  name: 'THE CRUMB TRAY',
+  rows: [
+    '#######################',
+    '#.........###.........#',
+    '#o###.###.###.###.###o#',
+    '#....T.>>>>t<<<<.T....#',
+    '#.#####.###.###.#####.#',
+    '#.......###.###.......#',
+    '###.###.###.###.###.###',
+    '###.................###',
+    '###.#######-#######.###',
+    '   .....#GGGGG#.....   ',
+    '###.###.#######.###.###',
+    '#..........P..........#',
+    '#.###.###.###.###.###.#',
+    '#.........###.........#',
+    '###.#####.###.#####.###',
+    '#..>>>>>>..t..<<<<<<..#',
+    '#.#####.###.###.#####.#',
+    '#.......###.###.......#',
+    '#o###.#.###.###.#.###o#',
+    '#......T.......T......#',
+    '#######################',
+  ],
+}
+
+/** Breakfast Rush: eight toaster slots, and conveyors down both sides. */
+export const BREAKFAST_BAR: MazeLayout = {
+  id: 'breakfast-bar',
+  name: 'THE BREAKFAST BAR',
+  rows: [
+    '#######################',
+    '#.....................#',
+    '#o###.###.###.###.###o#',
+    '#.....###t...T###.....#',
+    '###.#.###.###.###.#.###',
+    '   ...###.....###...   ',
+    '###.#.###.#.#.###.#.###',
+    '###.................###',
+    '#####.#####-#####.#####',
+    '###.....#GGGGG#.....###',
+    '###.###.#######.###.###',
+    '#..........P..........#',
+    '#v###.###.###.###.###v#',
+    '#v...t..>>>.<<<..T...v#',
+    '#v#####.###.###.#####v#',
+    '#v......###.###......v#',
+    '#o#.###.###.###.###.#o#',
+    '#..T...............t..#',
+    '#.#######.###.#######.#',
+    '#........T...t........#',
+    '#######################',
+  ],
+}
+
+/** Everything at once: conveyors, toast and three switches. */
+export const POP_UP_PARLOUR: MazeLayout = {
+  id: 'pop-up-parlour',
+  name: 'THE POP-UP PARLOUR',
+  rows: [
+    '#######################',
+    '#.........###.........#',
+    '#o#.#####.###.#####.#o#',
+    '#.........>t<.........#',
+    '#.###.#####.#####.###.#',
+    '#.......#.....#.......#',
+    '###.#b#.#.###.#.#b#.###',
+    '#...as...........sa...#',
+    '#.###.#####-#####.###.#',
+    '  ###...#GGGGG#...###  ',
+    '#.###.#.#######.#.###.#',
+    '#.....<<<<<P>>>>>.....#',
+    '###.#####.#b#.#####.###',
+    '#..t.......s.......t..#',
+    '#.###.#####a#####.###.#',
+    '#.....................#',
+    '###.###.#######.###.###',
+    '#......T.......T......#',
+    '#o###.###.###.###.###o#',
+    '#.>>>>>>>.....<<<<<<<.#',
+    '#######################',
+  ],
+}
+
+/**
+ * Gremlin Mama's den: a ring of wide halls she patrols (she is two tiles across and can't fit
+ * the narrow corridors), a wide hall down to the dock she plugs, and the trap bay at the lower
+ * right whose gates the switch beside it can shut behind her.
+ */
+export const MAMAS_DEN: MazeLayout = {
+  id: 'mamas-den',
+  name: "MAMA'S DEN",
+  rows: [
+    '#######################',
+    '#.....................#',
+    '#.....................#',
+    '#..#######..########..#',
+    '#..#.....#..#......#..#',
+    '#..#.###.#..#.####.#..#',
+    '#....###.#..#.####....#',
+    '#..#.....#.......#.#..#',
+    '#..#.#.####-####.#.#..#',
+    '#....#.##GGGGG##.#....#',
+    '#..#.#.#########.#.#..#',
+    '#..#.......P.......#..#',
+    '#..#.######.##.#####..#',
+    '#.........#.#......#..#',
+    '#..#.####.#.#.#..#.#..#',
+    '#..#.####.#.#.#..#.#..#',
+    '#..#..........#..#s...#',
+    '#..####.#######aa###..#',
+    '#.....................#',
+    '#.....................#',
+    '#######################',
+  ],
+}
+
 export const LAYOUTS: readonly MazeLayout[] = [
   CLASSIC_LAYOUT,
   OUTLET_LOOPS,
   SWITCHYARD,
+  CRUMB_TRAY,
+  BREAKFAST_BAR,
+  POP_UP_PARLOUR,
+  MAMAS_DEN,
 ]
 
 const BLOCKED = new Set(['#', '-', 'G'])
@@ -187,7 +332,7 @@ export function parseMaze(layout: MazeLayout): Maze {
       }))
       .sort((p, q) => p.d - q.d)
     const best = ranked[0]
-    if (!best || best.d > 3 || ranked[1]?.d === best.d)
+    if (!best || best.d > 4 || ranked[1]?.d === best.d)
       throw new Error(`${layout.id}: gate ${gate.x},${gate.y} has no switch`)
     owned[best.i]!.push({
       ...gate,
@@ -210,9 +355,18 @@ export function parseMaze(layout: MazeLayout): Maze {
     dockExit: { x: door.x, y: door.y - 1 },
     dockHome: dockPads[Math.floor(dockPads.length / 2)]!,
     dockPads,
-    sparks: [...find(rows, '.'), ...switchTiles],
+    sparks: rows.flatMap((row, y) =>
+      [...row].flatMap((c, x) => (SPARKY.has(c) ? [{ x, y }] : [])),
+    ),
     cells: find(rows, 'o'),
     switches: switchTiles.map((s, i) => ({ ...s, gates: owned[i]! })),
+    conveyors: Object.entries(CONVEYOR_DIRS).flatMap(([c, dir]) =>
+      find(rows, c).map((t) => ({ ...t, dir })),
+    ),
+    toast: [
+      ...find(rows, 't').map((t) => ({ ...t, group: 0 as const })),
+      ...find(rows, 'T').map((t) => ({ ...t, group: 1 as const })),
+    ],
     tunnelRows,
   }
 }
@@ -223,9 +377,10 @@ export function gateOpen(gate: MazeGate, state: 0 | 1): boolean {
 }
 
 /**
- * Everything wrong with a maze, checked in every combination of its switches: every spark and
- * cell reachable from the start, and no dead ends except beside a shut gate (a shut gate makes
- * dead ends on purpose: that is how gremlins get bowled into them). Empty when the maze is good.
+ * Everything wrong with a maze, checked in every combination of its switches and with each half
+ * of its toast up: every spark and cell reachable from the start, and no dead ends except beside
+ * a shut gate or popped toast (those make dead ends on purpose: that is how gremlins get bowled
+ * into them). Empty when the maze is good.
  */
 export function mazeProblems(maze: Maze): string[] {
   const problems: string[] = []
@@ -235,17 +390,23 @@ export function mazeProblems(maze: Maze): string[] {
     for (const gate of s.gates) gateAt.set(`${gate.x},${gate.y}`, { sw, gate })
   })
   const combos = 2 ** maze.switches.length
-  for (let combo = 0; combo < combos; combo++) {
-    const state = (sw: number) => ((combo >> sw) & 1) as 0 | 1
+  const toastStates = maze.toast.length ? [-1, 0, 1] : [-1]
+  for (let combo = 0; combo < combos * toastStates.length; combo++) {
+    const popped = toastStates[Math.floor(combo / combos)]!
+    const state = (sw: number) => (((combo % combos) >> sw) & 1) as 0 | 1
+    const toastUp = (x: number, y: number) =>
+      maze.toast.some((t) => t.x === x && t.y === y && t.group === popped)
     const open = (x: number, y: number) => {
       const wx = ((x % cols) + cols) % cols
       const cell = rows[y]?.[wx]
       if (cell === undefined || BLOCKED.has(cell)) return false
+      if (toastUp(wx, y)) return false
       const g = gateAt.get(`${wx},${y}`)
       return !g || gateOpen(g.gate, state(g.sw))
     }
     const shutGate = (x: number, y: number) => {
       const wx = ((x % cols) + cols) % cols
+      if (toastUp(wx, y)) return true
       const g = gateAt.get(`${wx},${y}`)
       return !!g && !gateOpen(g.gate, state(g.sw))
     }
@@ -264,7 +425,7 @@ export function mazeProblems(maze: Maze): string[] {
       }
     }
     for (const t of [...maze.sparks, ...maze.cells])
-      if (!seen.has(`${t.x},${t.y}`))
+      if (!seen.has(`${t.x},${t.y}`) && !toastUp(t.x, t.y))
         problems.push(`${maze.id}[${combo}]: ${t.x},${t.y} is unreachable`)
     if (!seen.has(`${maze.dockExit.x},${maze.dockExit.y}`))
       problems.push(`${maze.id}[${combo}]: the dock exit is unreachable`)

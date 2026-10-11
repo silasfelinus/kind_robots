@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict'
-import { readdirSync, readFileSync } from 'node:fs'
+import { existsSync, readdirSync, readFileSync } from 'node:fs'
 import {
   filterChannelsByRole,
   resolveChannels,
@@ -10,6 +10,7 @@ import {
   navigationPermissions,
 } from '@/stores/helpers/navigationAccess'
 import { evaluateNavigationRouteAccess } from '@/stores/helpers/navigationRouteAccess'
+import { PROJECT_PLACEMENTS } from '@/utils/projectPlacements'
 
 const items: ChannelContentItem[] = [
   {
@@ -363,6 +364,34 @@ for (const key of ['art', 'projects', 'studios', 'people', 'shelf']) {
     new RegExp(`\\n\\s{4}- key:\\s*${key}\\n`),
     `Admin conceptual tutorial must keep the "${key}" section.`,
   )
+}
+
+
+const navigationMoves = [
+  { slug: 'zuzu-lair', from: 'projects', to: 'admin', route: '/play/zuzu-lair' },
+  { slug: 'tzaddik-gallery', from: 'projects', to: 'admin', route: '/tzaddik-gallery' },
+  { slug: 'ruler-hooked', from: 'projects', to: 'admin', route: '/plan/projects/ruler-hooked' },
+  { slug: 'brainstorm', from: 'projects', to: 'admin', route: '/brainstorm' },
+  { slug: 'zuzu-shifting-lands', from: 'admin', to: 'projects', route: '/admin/zuzu-shifting-lands' },
+  { slug: 'zuzu-pinball', from: 'admin', to: 'projects', route: '/admin/zuzu-pinball' },
+  { slug: 'zuzu-showdown', from: 'admin', to: 'projects', route: '/play/zuzu-showdown' },
+] as const
+
+for (const { slug, from, to, route } of navigationMoves) {
+  const relocated = `content/channels/${to}/${slug}.md`
+  const tab = readFileSync(relocated, 'utf8')
+  assert.match(tab, new RegExp(`\\nchannelKey: ${to}\\n`), `${slug} must live in ${to}`)
+  assert.ok(tab.includes(`\\nroute: ${route}\\n`), `${slug} must preserve its working route`)
+  assert.match(tab, /\\nrequiredRole: ADMIN\\n/, `${slug} must retain its current admin-only access`)
+  assert.equal(existsSync(`content/channels/${from}/${slug}.md`), false)
+  assert.deepEqual(PROJECT_PLACEMENTS[slug], {
+    channelKey: to,
+    tabKey: slug,
+    route,
+  })
+}
+for (const path of ['content/brainstorm.md', 'content/plan/projects/ruler-hooked.md']) {
+  assert.match(readFileSync(path, 'utf8'), /\\nchannelKey: admin\\n/)
 }
 
 const adminTabFiles = readdirSync('content/channels/admin').filter(

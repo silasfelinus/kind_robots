@@ -1,6 +1,6 @@
 ---
 contentType: tab
-channelKey: projects
+channelKey: admin
 tabKey: ruler-hooked
 label: The Ruler Is Hooked
 title: The Ruler Is Hooked
@@ -11,6 +11,7 @@ icon: kind-icon:crown
 image: /images/channels/admin/ruler-hooked.webp
 route: /plan/projects/ruler-hooked
 sort: 130
+requiredRole: ADMIN
 tutorial:
   title: Fish, then rule
   body: >-

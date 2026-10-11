@@ -1,6 +1,6 @@
 ---
 contentType: tab
-channelKey: projects
+channelKey: admin
 tabKey: zuzu-lair
 label: Zuzu's Lair
 title: Zuzu's Lair
@@ -11,6 +11,7 @@ icon: kind-icon:swords
 image: /zuzu-showdown-portraits/zuzu-vs-hd.webp
 route: /play/zuzu-lair
 sort: 119
+requiredRole: ADMIN
 tutorial:
   title: Press in the window
   body: >-

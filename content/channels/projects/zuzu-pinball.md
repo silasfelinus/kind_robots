@@ -1,6 +1,6 @@
 ---
 contentType: tab
-channelKey: admin
+channelKey: projects
 tabKey: zuzu-pinball
 label: Zuzu Pinball
 title: Zuzu · The Last Bell

@@ -1,6 +1,6 @@
 ---
 contentType: tab
-channelKey: projects
+channelKey: admin
 tabKey: brainstorm
 dashboardKey: brainstorm
 dashboardTab: brainstorm
@@ -12,6 +12,7 @@ summary: Generate, keep, and save ideas.
 icon: kind-icon:brain
 route: /brainstorm
 sort: 30
+requiredRole: ADMIN
 tutorial:
   title: Brainstorm a batch of ideas
   body: >-

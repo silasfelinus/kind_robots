@@ -1,6 +1,6 @@
 ---
 contentType: tab
-channelKey: admin
+channelKey: projects
 tabKey: zuzu-showdown
 label: Zuzu Showdown
 title: Zuzu Showdown

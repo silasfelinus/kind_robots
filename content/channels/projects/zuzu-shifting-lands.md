@@ -1,6 +1,6 @@
 ---
 contentType: tab
-channelKey: admin
+channelKey: projects
 tabKey: zuzu-shifting-lands
 label: Shifting Lands
 title: Zuzu · Shifting Lands Workshop

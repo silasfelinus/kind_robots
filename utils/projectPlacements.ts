@@ -113,13 +113,33 @@ export const PROJECT_PLACEMENTS: Record<string, ProjectPlacement> = {
     tabKey: 'arcade',
     route: '/play/arcade',
   },
+  'brainstorm': {
+    channelKey: 'admin',
+    tabKey: 'brainstorm',
+    route: '/brainstorm',
+  },
+  'zuzu-shifting-lands': {
+    channelKey: 'projects',
+    tabKey: 'zuzu-shifting-lands',
+    route: '/admin/zuzu-shifting-lands',
+  },
+  'zuzu-pinball': {
+    channelKey: 'projects',
+    tabKey: 'zuzu-pinball',
+    route: '/admin/zuzu-pinball',
+  },
+  'zuzu-showdown': {
+    channelKey: 'projects',
+    tabKey: 'zuzu-showdown',
+    route: '/play/zuzu-showdown',
+  },
   'zuzu-gamebook': {
     channelKey: 'projects',
     tabKey: 'zuzu-gamebook',
     route: '/play/zuzu-gamebook',
   },
   'zuzu-lair': {
-    channelKey: 'projects',
+    channelKey: 'admin',
     tabKey: 'zuzu-lair',
     route: '/play/zuzu-lair',
   },
@@ -134,12 +154,12 @@ export const PROJECT_PLACEMENTS: Record<string, ProjectPlacement> = {
     route: '/plan/projects/coat-dance',
   },
   'ruler-hooked': {
-    channelKey: 'projects',
+    channelKey: 'admin',
     tabKey: 'ruler-hooked',
     route: '/plan/projects/ruler-hooked',
   },
   'tzaddik-gallery': {
-    channelKey: 'projects',
+    channelKey: 'admin',
     tabKey: 'tzaddik-gallery',
     route: '/tzaddik-gallery',
   },

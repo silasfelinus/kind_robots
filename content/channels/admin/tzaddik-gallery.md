@@ -1,6 +1,6 @@
 ---
 contentType: tab
-channelKey: projects
+channelKey: admin
 tabKey: tzaddik-gallery
 label: Tzaddikim
 title: Tzaddikim
@@ -11,6 +11,7 @@ icon: kind-icon:stars
 image: /images/channels/projects/tzaddik-gallery.webp
 route: /tzaddik-gallery
 sort: 140
+requiredRole: ADMIN
 tutorial:
   title: Browse the 36 just people
   body: >-

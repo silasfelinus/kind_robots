@@ -182,7 +182,8 @@
               <dt class="font-semibold">Player 1</dt>
               <dd>
                 WASD (or arrows when solo) · U I punch · J K kick · Space dodge
-                · O special · Enter pause
+                · O special · Enter pause. Every motion works on keys at a
+                relaxed pace; Easy Specials make it O plus a direction.
               </dd>
               <dt class="font-semibold">Player 2</dt>
               <dd>
@@ -205,6 +206,11 @@
                   {{ row.name }}
                   <span v-if="row.note" class="opacity-60"
                     >({{ row.note }})</span
+                  >
+                  <span
+                    v-if="store.easySpecials && row.easy"
+                    class="kr-badge-xs ml-1"
+                    >Easy: {{ row.easy }}</span
                   >
                 </dd>
               </template>

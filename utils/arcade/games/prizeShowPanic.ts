@@ -9,9 +9,9 @@
 // spotlight beams swinging on a beat, a wall of live cameras. Confetti cannons make the crashers
 // happy (they dance off the set), prizes drop for the grabbing, and the doors open once the room is
 // clear: reach one before the host's countdown runs out. Golden tickets hide in vaults, behind a
-// cracked wall and in sponsor challenges. The Parade Float is the episode's mid-boss and, for now,
-// its finale too; past half health its cake's candles light and fire volleys of sparks. After the
-// last authored episode the season loops with harder curves and rolled room modifiers.
+// cracked wall and in sponsor challenges. The Parade Float is Opening Night's mid-boss; past half
+// health its cake's candles light and fire volleys of sparks. After the last authored episode the
+// season loops with harder curves and rolled room modifiers.
 //
 // Depth slice 2 (t-027) fills the studio: nineteen kinds of crasher (prizeShow/roster.ts, each with a
 // tell and an answer), ten power-ups that stack with their own HUD timers (prizeShow/arsenal.ts), a
@@ -23,6 +23,13 @@
 // sponsor's care package, Off Air brings a plot twist), cheer chains build a multiplier the host
 // counts out, and between episodes the haul is tallied and can be traded at the Prize Swap. An
 // APPLAUSE sign lights on the left wall and the studio audience cheers along the bottom.
+//
+// Depth slice 4 (t-029) adds episodes 2 and 3, each on its own set with its own look and music loop
+// (prizeShow/music.ts). Cooking Showdown's kitchen has hot plates, conveyor counters and flour clouds;
+// Countdown Concert keeps a beat for its speaker stacks (bass rings with a gap), strobes and mosh
+// pits (prizeShow/hazards.ts). Bosses live in prizeShow/bosses.ts (their art in bossArt.ts): the Big
+// Wobble now closes Opening Night, then the Pie Cart and the Souffle Supreme, the Mosh Mascot and
+// the Jumbotron. LENS the co-host joins on episode 3.
 //
 // The arrows move (eight ways) and A fires confetti the way Sparkle faces.
 // Hold B to lock the aim while moving, the single-stick stand-in for the
@@ -85,7 +92,7 @@ import type { PowerKind } from '../prizeShow/arsenal'
 import {
   CHAIN_WINDOW,
   CLOCK_BONUS_CAP,
-  COHOST_FROM_LOOP,
+  COHOST_FROM_EPISODE,
   COHOST_LINES,
   COHOST_NAME,
   HOST_LINES,
@@ -116,9 +123,46 @@ import {
   HOST_PORTRAIT,
   PACKAGE_SPRITE,
 } from '../prizeShow/hostArt'
+import {
+  BOSS,
+  BOSS_OUTRO,
+  bossAim,
+  bossDangers,
+  bossTargetAt,
+  candleClock as floatCandles,
+  damageBoss as strikeBoss,
+  newBoss,
+  updateBoss as runBoss,
+} from '../prizeShow/bosses'
+import type { Boss, BossWorld } from '../prizeShow/bosses'
+import { renderBoss as drawBoss } from '../prizeShow/bossArt'
+import {
+  FLOUR,
+  RING,
+  beltDir,
+  beltPush,
+  beatPhase,
+  driftFlour,
+  inFlour,
+  inGap,
+  newFlour,
+  newRing,
+  onPlate,
+  pitShove,
+  plateState,
+  ringHits,
+  ringLive,
+  speakerFires,
+  speakerGap,
+  speakerShot,
+  speakerUntil,
+} from '../prizeShow/hazards'
+import type { Flour, Pit, Ring } from '../prizeShow/hazards'
+import { BOSS_MUSIC, SET_MUSIC } from '../prizeShow/music'
 import { renderSeasonMap } from '../prizeShow/mapScreen'
 import type { MapOption } from '../prizeShow/mapScreen'
 import {
+  CONCERT_BEAT,
   DROP_RATE,
   MODIFIERS,
   REWARD_RANK,
@@ -173,8 +217,13 @@ import {
   clampY,
 } from '../prizeShow/stage'
 import type { Point } from '../prizeShow/stage'
+import type { MusicLoop } from '../sound'
 import type {
+  BeltProp,
   Episode,
+  HotPlateProp,
+  SetId,
+  SpeakerProp,
   LoopTuning,
   ModifierId,
   PrizeKind,
@@ -208,8 +257,6 @@ const CUSHION_BLAST = 22
 const SLIP_TICKS = 36
 /** Below this a stick's push doesn't aim. */
 const AIM_MIN = 0.3
-const CANDLE_CHARGE = 34
-const PHASE_SHIFT = 50
 /** The light rig steps across the floor on the beat: each lamp's marks, -1..1 of its swing. */
 const BEAM_STEPS = [-1, -0.5, 0, 0.5, 1, 0.5, 0, -0.5] as const
 /** Ticks a lamp shows its next mark before it lights, and how far a hot beam drifts. */
@@ -279,21 +326,6 @@ type Prize = {
   pedestal?: boolean
   /** How far a saucer's beam has it lifted (0..1). */
   lift: number
-}
-type Boss = {
-  x: number
-  y: number
-  vx: number
-  hp: number
-  maxHp: number
-  t: number
-  flash: number
-  /** 2 once the candles are lit. */
-  phase: 1 | 2
-  phase2At: number
-  /** Ticks left of the phase change (it shrugs off confetti meanwhile). */
-  shift: number
-  finale: boolean
 }
 type Mine = {
   kind: 'cushion' | 'peel'
@@ -1178,15 +1210,89 @@ const STUDIOS: readonly StudioLook[] = [
   studioLook(RAMPS.steel, RAMPS.night, RAMPS.purple[3]),
   studioLook(RAMPS.leaf, RAMPS.pink, RAMPS.cream[4]),
 ]
-/** The set each kind of room is dressed as (an index into STUDIOS; swarms cycle the first three). */
-const LOOK_OF: Partial<Record<RoomScript['type'], number>> = {
-  boss: 3,
-  lights: 4,
-  cameras: 5,
-  vault: 6,
-  secret: 7,
-  mines: 8,
-  conga: 2,
+/**
+ * Each episode's soundstage: its studio looks (one per kind of room, the plain rooms cycling the
+ * first `cycle`), the floor's tile size and centre mark, the marquee bulbs' colour and the wall trim.
+ */
+type SetStyle = {
+  looks: readonly StudioLook[]
+  lookOf: Partial<Record<RoomScript['type'], number>>
+  cycle: number
+  tile: number
+  mark: 'star' | 'plate' | 'stage'
+  marquee: Ramp
+  trim: 'bulbs' | 'tiles' | 'grilles'
+}
+const SETS: Record<SetId, SetStyle> = {
+  // Opening Night: the game show's glossy tiles, a star on the floor and gold marquee bulbs.
+  studio: {
+    looks: STUDIOS,
+    lookOf: {
+      boss: 3,
+      lights: 4,
+      cameras: 5,
+      vault: 6,
+      secret: 7,
+      mines: 8,
+      conga: 2,
+    },
+    cycle: 3,
+    tile: 16,
+    mark: 'star',
+    marquee: RAMPS.gold,
+    trim: 'bulbs',
+  },
+  // Cooking Showdown: small kitchen tiles, a big serving plate, steel and tiled walls.
+  kitchen: {
+    looks: [
+      studioLook(RAMPS.cream, RAMPS.steel, RAMPS.gold[4]),
+      studioLook(RAMPS.teal, RAMPS.cream, RAMPS.cream[4]),
+      studioLook(RAMPS.steel, RAMPS.ember, RAMPS.gold[4]),
+      studioLook(RAMPS.gold, RAMPS.teal, RAMPS.gold[4]),
+      studioLook(RAMPS.sky, RAMPS.steel, RAMPS.water[4]),
+      studioLook(RAMPS.rust, RAMPS.steel, RAMPS.ember[4]),
+      studioLook(RAMPS.leaf, RAMPS.cream, RAMPS.cream[4]),
+    ],
+    lookOf: {
+      boss: 2,
+      vault: 3,
+      secret: 4,
+      hotplates: 5,
+      speed: 5,
+      sponsor: 3,
+      conveyor: 6,
+    },
+    cycle: 2,
+    tile: 8,
+    mark: 'plate',
+    marquee: RAMPS.cream,
+    trim: 'tiles',
+  },
+  // Countdown Concert: a dark stage with tape marks, speaker-grille walls and pink stage lights.
+  concert: {
+    looks: [
+      studioLook(RAMPS.night, RAMPS.purple, RAMPS.pink[3]),
+      studioLook(RAMPS.purple, RAMPS.night, RAMPS.teal[3]),
+      studioLook(RAMPS.pink, RAMPS.night, RAMPS.purple[3]),
+      studioLook(RAMPS.ember, RAMPS.night, RAMPS.gold[4]),
+      studioLook(RAMPS.gold, RAMPS.night, RAMPS.gold[4]),
+      studioLook(RAMPS.leaf, RAMPS.purple, RAMPS.cream[4]),
+      studioLook(RAMPS.steel, RAMPS.night, RAMPS.pink[3]),
+    ],
+    lookOf: {
+      boss: 3,
+      vault: 4,
+      secret: 5,
+      speakers: 6,
+      moshpit: 2,
+      lights: 1,
+    },
+    cycle: 2,
+    tile: 16,
+    mark: 'stage',
+    marquee: RAMPS.pink,
+    trim: 'grilles',
+  },
 }
 const CROWD_COLOURS = [
   RAMPS.pink[2],
@@ -1217,7 +1323,6 @@ const STORM_FLAKES = (() => {
     big: dice() < 0.55,
   }))
 })()
-const TILE = 16
 
 /** Marquee bulbs around the walls, numbered clockwise so the chase runs round the set. */
 const BULBS = (() => {
@@ -1417,6 +1522,16 @@ class PrizeShowPanic implements ArcadeGameInstance {
   private slicks: Slick[] = []
   private pickups: TicketPickup[] = []
   private crack: Crack | null = null
+  // The set's floor (prizeShow/hazards.ts): the kitchen's hot plates, counters and flour, the
+  // concert's speaker stacks, their bass rings (and bosses' shockwaves), and mosh pits.
+  private plates: HotPlateProp[] = []
+  private belts: BeltProp[] = []
+  private flours: Flour[] = []
+  private speakers: SpeakerProp[] = []
+  private rings: Ring[] = []
+  private pits: Pit[] = []
+  /** The loop the cabinet should be playing (a concert room restarts it, so the beat lines up). */
+  private musicNow: MusicLoop | null = null
   private exits: RoomExit[] = []
   private exitsOpen = false
   private cleared = false
@@ -1433,6 +1548,14 @@ class PrizeShowPanic implements ArcadeGameInstance {
   private fxRng = backdropRng(47)
   /** What the roster's crashers may ask of the room (prizeShow/roster.ts). */
   private world: CrasherWorld
+  /** And what a boss may ask of it (prizeShow/bosses.ts). */
+  private bossWorld: BossWorld
+
+  /** The set's loop (the boss theme on a boss stage); none in the attract demo or after the show. */
+  get music(): MusicLoop | null {
+    if (this.demo || this.over) return null
+    return this.musicNow
+  }
 
   constructor(options: ArcadeGameOptions) {
     this.rng = options.rng
@@ -1442,6 +1565,7 @@ class PrizeShowPanic implements ArcadeGameInstance {
     // The host's own dice, seeded once from the game's: each show sounds different, replays alike.
     this.hostRng = backdropRng(Math.floor(this.rng() * 2 ** 31))
     this.world = this.makeWorld()
+    this.bossWorld = this.makeBossWorld()
     this.beginEpisode(0)
   }
 
@@ -1492,6 +1616,31 @@ class PrizeShowPanic implements ArcadeGameInstance {
     }
   }
 
+  private makeBossWorld(): BossWorld {
+    return {
+      rng: () => this.rng(),
+      player: () => ({ x: this.px, y: this.py }),
+      beat: () => this.beat(),
+      crowdScale: () => this.tuning.count,
+      fire: (x, y, angle, speed, style) =>
+        this.world.fire(x, y, angle, speed, style),
+      lobPie: (x, y, tx, ty, ticks) => this.world.lobPie(x, y, tx, ty, ticks),
+      slick: (x, y) => this.addSlick(clampX(x, 6), clampY(y, 6), 'cream'),
+      ring: (x, y, max, speed, gap) =>
+        this.rings.push(newRing(x, y, max, speed, gap)),
+      spawn: (kind, x, y) => this.makeCrasher(kind, x, y),
+      crowd: () => this.crashers,
+      hurt: (x, y, r, why) => {
+        if (this.lifted === 0 && this.touching(x, y, r)) this.loseLife(why)
+      },
+      announce: (text, sub) => {
+        this.banner = { text, sub, ticks: 90 }
+      },
+      puff: (x, y, colour, count) => this.burst(x, y, count, colour),
+      play: (sound) => this.sound.play(sound),
+    }
+  }
+
   /** The host says something about `cue` (big moments jump the queue; the rest wait their turn). */
   private say(cue: Cue, text?: string) {
     const urgent =
@@ -1508,7 +1657,8 @@ class PrizeShowPanic implements ArcadeGameInstance {
     if (urgent) this.cutQueue = []
     this.speak('host', line)
     this.cutGap = CUT_GAP
-    if (this.loop >= COHOST_FROM_LOOP && this.hostRng() < 0.35) {
+    const cohost = this.episode.number >= COHOST_FROM_EPISODE || this.loop > 1
+    if (cohost && this.hostRng() < 0.35) {
       const reply =
         COHOST_LINES[Math.floor(this.hostRng() * COHOST_LINES.length)]!
       this.cutQueue.push({ voice: 'cohost', text: reply })
@@ -1979,6 +2129,12 @@ class PrizeShowPanic implements ArcadeGameInstance {
     this.booms = []
     this.pickups = []
     this.crack = null
+    this.plates = []
+    this.belts = []
+    this.flours = []
+    this.speakers = []
+    this.rings = []
+    this.pits = []
     const flankSide = [1, 3].map((k) => ((this.entryDoor + k) % 4) as Side)
     let flank = 0
     for (const prop of script.props ?? []) {
@@ -2021,6 +2177,21 @@ class PrizeShowPanic implements ArcadeGameInstance {
           if (!this.tickets.includes(prop.id))
             this.pickups.push({ x: prop.x, y: prop.y, id: prop.id })
           break
+        case 'hotplate':
+          this.plates.push(prop)
+          break
+        case 'belt':
+          this.belts.push(prop)
+          break
+        case 'flour':
+          this.flours.push(newFlour(prop.x, prop.y, prop.r, prop.drift))
+          break
+        case 'speaker':
+          this.speakers.push(prop)
+          break
+        case 'mosh':
+          this.pits.push({ x: prop.x, y: prop.y, r: prop.r, spin: prop.spin })
+          break
         case 'crack': {
           const door = DOORS[prop.side]!
           const along = prop.side % 2 === 0
@@ -2038,20 +2209,11 @@ class PrizeShowPanic implements ArcadeGameInstance {
 
     this.boss = null
     if (script.boss) {
-      const hp = Math.round(script.boss.hp * t.bossHp)
-      this.boss = {
-        x: CX,
-        y: TOP + 40,
-        vx: 0.8,
-        hp,
-        maxHp: hp,
-        t: 0,
-        flash: 0,
-        phase: 1,
-        phase2At: script.boss.phase2At,
-        shift: 0,
-        finale: this.roomId === this.episode.finale,
-      }
+      this.boss = newBoss(
+        script.boss,
+        t.bossHp,
+        !this.secretId && this.roomId === this.episode.finale,
+      )
       this.banner = {
         text: script.boss.title,
         sub: script.boss.sub,
@@ -2065,6 +2227,9 @@ class PrizeShowPanic implements ArcadeGameInstance {
       this.banner = { text: mod.title, sub: mod.tagline, ticks: 110 }
     }
     if (script.closes) this.openExits()
+    // The set's loop, or the boss theme; a room on the beat starts its loop with the room.
+    const loop = script.boss ? BOSS_MUSIC : SET_MUSIC[this.episode.set]
+    this.musicNow = script.beat && !script.boss ? { ...loop } : loop
     this.lowTimeSaid = false
     this.packages = []
     // One care package a room at most: Prime Time is a treat, not a supply line.
@@ -2072,8 +2237,11 @@ class PrizeShowPanic implements ArcadeGameInstance {
     this.roomTicks += this.perks.clock * 60
     this.roomTimer = this.roomTicks
     if (this.perks.secret && this.crack) this.crack.hp = 0
-    if (script.boss) this.say('boss-intro')
-    else if (this.riskyRoute) this.say('risky-route')
+    if (script.boss) {
+      // A stock welcome, then the boss's own introduction.
+      this.say('boss-intro')
+      this.cutQueue.unshift({ voice: 'host', text: script.boss.line })
+    } else if (this.riskyRoute) this.say('risky-route')
     else this.say('room-start')
     this.riskyRoute = false
   }
@@ -2199,6 +2367,7 @@ class PrizeShowPanic implements ArcadeGameInstance {
       this.updateLift()
     } else {
       this.move(controls, stick)
+      this.carry()
       this.aiming = stick !== null
       if (stick) {
         const len = Math.hypot(stick.x, stick.y)
@@ -2215,6 +2384,7 @@ class PrizeShowPanic implements ArcadeGameInstance {
     this.updateMines()
     this.updateBeams()
     this.updateBoss()
+    this.updateHazards()
     this.updateStreamers()
     this.updateLobs()
     this.updateSlicks()
@@ -2271,6 +2441,28 @@ class PrizeShowPanic implements ArcadeGameInstance {
     if (ny !== this.py + my) this.vy = 0
     this.px = nx
     this.py = ny
+    this.bumpCases()
+  }
+
+  /** Counters carry Sparkle along and mosh pits swirl her round. */
+  private carry() {
+    const belt = beltPush(this.belts, this.px, this.py + 3)
+    const pit = pitShove(
+      this.pits,
+      this.px,
+      this.py,
+      this.roomTick,
+      this.beat(),
+    )
+    if (!belt.x && !belt.y && !pit.x && !pit.y) return
+    this.px = Math.max(
+      LEFT + HALF,
+      Math.min(RIGHT - HALF, this.px + belt.x + pit.x),
+    )
+    this.py = Math.max(
+      TOP + HALF,
+      Math.min(BOTTOM - HALF, this.py + belt.y + pit.y),
+    )
     this.bumpCases()
   }
 
@@ -2372,10 +2564,8 @@ class PrizeShowPanic implements ArcadeGameInstance {
         struck.add(c)
         if (deflects(c, dx, dy)) stop = true
       }
-      const b = this.boss
-      if (b && !bossHit && Math.abs(b.x - x) < 40 && Math.abs(b.y - y) < 18) {
+      if (!bossHit && this.boss && this.damageBoss(1, x, y)) {
         bossHit = true
-        this.damageBoss(1)
         stop = true
       }
       for (const st of this.streamers)
@@ -2414,9 +2604,7 @@ class PrizeShowPanic implements ArcadeGameInstance {
       if (Math.hypot(c.x - x, c.y - y) < ARSENAL.popperBlast)
         this.hitCrasher(c, ARSENAL.popperDamage, 0, 0, false)
     }
-    const b = this.boss
-    if (b && Math.abs(b.x - x) < 44 && Math.abs(b.y - y) < 26)
-      this.damageBoss(ARSENAL.popperDamage)
+    this.damageBoss(ARSENAL.popperDamage, x, y, 6)
     for (const m of this.mines)
       if (
         m.kind === 'cushion' &&
@@ -2459,15 +2647,30 @@ class PrizeShowPanic implements ArcadeGameInstance {
     return true
   }
 
-  private damageBoss(damage: number) {
+  /** Confetti (or a blast) strikes the boss at (x, y): true if it hit anything solid. */
+  private damageBoss(damage: number, x: number, y: number, pad = 0): boolean {
     const b = this.boss
-    if (!b || b.shift > 0) return
-    b.hp -= damage
-    b.flash = 4
+    if (!b) return false
+    const target = bossTargetAt(b, x, y, pad)
+    if (!target) return false
+    if (!target.open || b.shift > 0) {
+      if (this.tick % 8 === 0) {
+        this.floaters.push({ x, y: y - 8, text: 'PFFT!', life: 20 })
+        this.sound.play('blip')
+      }
+      return true
+    }
+    const callout = strikeBoss(b, target, damage, this.bossWorld)
     this.camFlash = 4
-    if (b.phase === 1 && b.hp <= Math.ceil(b.maxHp * b.phase2At))
-      this.lightCandles(b)
+    if (callout) {
+      this.addScore(1500 * this.loop, x, y - 10)
+      this.rate(RATINGS.cheer * 4)
+      this.audienceCheer = Math.max(this.audienceCheer, 40)
+      this.applause = Math.max(this.applause, 40)
+      this.floaters.push({ x, y: y - 18, text: callout, life: 40 })
+    }
     if (b.hp <= 0) this.bossDown()
+    return true
   }
 
   /** The script's waves: each comes through its doors on its tick. */
@@ -2557,6 +2760,9 @@ class PrizeShowPanic implements ArcadeGameInstance {
       s.x += s.vx
       s.y += s.vy
       s.life--
+      for (const f of this.flours)
+        if (inFlour(f, s.x, s.y))
+          f.density = Math.max(0, f.density - FLOUR.thin)
       const crack = this.crack
       if (
         crack &&
@@ -2604,11 +2810,9 @@ class PrizeShowPanic implements ArcadeGameInstance {
         mine.fuse = 12
         continue
       }
-      const b = this.boss
-      if (b && Math.abs(b.x - s.x) < 40 && Math.abs(b.y - s.y) < 18) {
+      if (this.boss && this.damageBoss(s.damage, s.x, s.y)) {
         s.life = 0
         this.burst(s.x, s.y, 2, CONFETTI[s.hue]!)
-        this.damageBoss(s.damage)
         continue
       }
       // Confetti knocks streamers out of the air too.
@@ -2946,6 +3150,63 @@ class PrizeShowPanic implements ArcadeGameInstance {
     }
   }
 
+  /** Ticks per beat in this room (the concert's tempo by default, for the bosses that keep it). */
+  beat(): number {
+    return this.script.beat ?? CONCERT_BEAT
+  }
+
+  /** The set's floor: hot plates, counters, flour, speaker stacks and their rings, mosh pits. */
+  private updateHazards() {
+    const tick = this.roomTick
+    const beat = this.beat()
+    const grounded = this.lifted === 0
+    for (const p of this.plates)
+      if (
+        grounded &&
+        plateState(p, tick).state === 'hot' &&
+        onPlate(p, this.px, this.py + 3)
+      )
+        this.loseLife('SIZZLED!')
+    for (const f of this.flours) driftFlour(f, tick)
+    for (const sp of this.speakers) {
+      if (!speakerFires(sp, tick, beat)) continue
+      const n = speakerShot(sp, tick, beat)
+      this.rings.push(
+        newRing(
+          sp.x,
+          sp.y,
+          RING.speakerMax,
+          RING.speakerSpeed,
+          speakerGap(sp, n),
+        ),
+      )
+      this.sound.play('pop')
+    }
+    for (const ring of this.rings) {
+      ring.r += ring.speed
+      if (grounded && ringHits(ring, this.px, this.py))
+        this.loseLife(
+          ring.gap === null ? 'KNOCKED FLAT!' : 'BLOWN AWAY BY THE BASS!',
+        )
+    }
+    this.rings = this.rings.filter((ring) => ring.r < ring.max)
+    // The counters and the pits move the crowd (and loose prizes) as well.
+    if (!this.belts.length && !this.pits.length) return
+    for (const c of this.crashers) {
+      if (c.kind === 'crane' || c.z > 2) continue
+      const belt = beltPush(this.belts, c.x, c.y)
+      const pit = pitShove(this.pits, c.x, c.y, tick, beat)
+      c.x = clampX(c.x + belt.x + pit.x * 0.5, 6)
+      c.y = clampY(c.y + belt.y + pit.y * 0.5, 6)
+    }
+    for (const p of this.prizes) {
+      if (p.pedestal) continue
+      const belt = beltPush(this.belts, p.x, p.y)
+      p.x = clampX(p.x + belt.x, 8)
+      p.y = clampY(p.y + belt.y, 8)
+    }
+  }
+
   private updateStreamers() {
     for (const s of this.streamers) {
       s.x += s.vx
@@ -3158,81 +3419,12 @@ class PrizeShowPanic implements ArcadeGameInstance {
   // --- the parade float -----------------------------------------------------------
 
   private updateBoss() {
-    const b = this.boss
-    if (!b) return
-    b.t++
-    if (b.flash > 0) b.flash--
-    if (b.shift > 0) {
-      // The candles catching: the float rocks in place and shrugs off confetti.
-      b.shift--
-      if (b.shift % 6 === 0)
-        this.burst(b.x + (this.rng() - 0.5) * 40, b.y - 26, 3, RAMPS.gold[3])
-      if (this.touching(b.x, b.y, 30)) this.loseLife('RUN OVER BY A FLOAT!')
-      return
-    }
-    b.x += b.vx
-    if (b.x < LEFT + 50 || b.x > RIGHT - 50) b.vx = -b.vx
-    // Volleys of streamers, and a few grabbers hopping off the float.
-    const volley = b.phase === 1 ? 70 : 110
-    if (b.t % volley === 0) {
-      for (const off of [-0.35, 0, 0.35]) {
-        const a = Math.atan2(this.py - b.y, this.px - b.x) + off
-        this.streamers.push({
-          x: b.x,
-          y: b.y + 14,
-          vx: Math.cos(a) * 2,
-          vy: Math.sin(a) * 2,
-          life: 160,
-          style: 'streamer',
-        })
-      }
-      this.sound.play('blip')
-    }
-    if (b.phase === 2 && this.candleClock(b) === 0) this.candleVolley(b)
-    const drop = b.phase === 1 ? 240 : 300
-    if (b.t % drop === 0 && this.crashers.length < 8) {
-      this.makeCrasher('grabber', b.x - 20, b.y + 20)
-      this.makeCrasher('grabber', b.x + 20, b.y + 20)
-    }
-    if (this.touching(b.x, b.y, 30)) this.loseLife('RUN OVER BY A FLOAT!')
+    if (this.boss) runBoss(this.boss, this.bossWorld)
   }
 
-  /** Ticks until the candles fire (they flare for CANDLE_CHARGE ticks first). */
+  /** Ticks until the float's candles fire (they flare for a moment first). */
   candleClock(b: Boss): number {
-    return (90 - (b.t % 90)) % 90
-  }
-
-  /** Phase 2: the cake's candles light, and the float speeds up. */
-  private lightCandles(b: Boss) {
-    b.phase = 2
-    b.shift = PHASE_SHIFT
-    b.t = 0
-    b.vx = Math.sign(b.vx || 1) * 1.15
-    this.banner = { text: 'CANDLES LIT!', sub: 'DODGE THE SPARKS', ticks: 100 }
-    this.fx.burst(b.x, b.y - 30, this.fxRng, {
-      count: 18,
-      speed: 2.2,
-      colours: [RAMPS.gold[4], RAMPS.ember[3], RAMPS.gold[3]],
-    })
-    this.sound.play('warn')
-  }
-
-  /** Each candle fires a spark in a fan aimed at Sparkle. */
-  private candleVolley(b: Boss) {
-    for (let i = 0; i < 4; i++) {
-      const cx = b.x - 14 + i * 10
-      const cy = b.y - 30
-      const a = Math.atan2(this.py - cy, this.px - cx) + (i - 1.5) * 0.24
-      this.streamers.push({
-        x: cx,
-        y: cy,
-        vx: Math.cos(a) * 1.9,
-        vy: Math.sin(a) * 1.9,
-        life: 170,
-        style: 'spark',
-      })
-    }
-    this.sound.play('shoot')
+    return floatCandles(b)
   }
 
   private bossDown() {
@@ -3248,12 +3440,14 @@ class PrizeShowPanic implements ArcadeGameInstance {
         speed: 2.4,
       })
     this.banner = {
-      text: 'BEST FLOAT EVER!',
+      text: BOSS_OUTRO[b.kind],
       sub: `BONUS ${bonus}`,
       ticks: 120,
     }
+    this.audienceCheer = Math.max(this.audienceCheer, 90)
     this.sound.play('level')
-    for (let i = 0; i < 3; i++) this.dropPrize(b.x + (i - 1) * 24, b.y + 20)
+    for (let i = 0; i < 3; i++)
+      this.dropPrize(clampX(b.x + (i - 1) * 24, 12), clampY(b.y + 20, 12))
   }
 
   // --- prizes, tickets and the audience ---------------------------------------------
@@ -3644,6 +3838,7 @@ class PrizeShowPanic implements ArcadeGameInstance {
       return frame
     }
     const threats: Array<{ x: number; y: number; r: number }> = []
+    const slippery = this.has('foam') || this.inCream()
     for (const c of this.crashers) {
       if (!touches(c)) continue
       const r =
@@ -3653,19 +3848,50 @@ class PrizeShowPanic implements ArcadeGameInstance {
             : 60
           : c.kind === 'meatball' && c.mode === 1
             ? 64
-            : 50
-      threats.push({ x: c.x, y: c.y, r })
+            : c.kind === 'tank'
+              ? 62
+              : 50
+      // On a slippery floor it can't stop short: keep further off.
+      threats.push({ x: c.x, y: c.y, r: slippery ? r * 1.3 : r })
     }
     for (const st of this.streamers) threats.push({ x: st.x, y: st.y, r: 18 })
-    if (this.boss) threats.push({ x: this.boss.x, y: this.boss.y, r: 56 })
+    const bossThreats = this.boss ? bossDangers(this.boss) : []
+    threats.push(...bossThreats)
+    for (const p of this.plates) {
+      const { state, k } = plateState(p, this.roomTick)
+      if (state === 'cold' && k < 0.9) continue
+      threats.push({
+        x: p.x + p.w / 2,
+        y: p.y + p.h / 2,
+        r: Math.max(p.w, p.h) * 0.75 + 8,
+      })
+    }
+    for (const ring of this.rings) {
+      // Out ahead of a ring's edge (and not in its gap): get further away.
+      const d = Math.hypot(this.px - ring.x, this.py - ring.y)
+      if (!ringLive(ring) || d < ring.r - 6 || d > ring.r + 34) continue
+      if (d > ring.max * RING.live + 6) continue
+      if (inGap(ring, this.px, this.py)) continue
+      const ux = (this.px - ring.x) / (d || 1)
+      const uy = (this.py - ring.y) / (d || 1)
+      threats.push({ x: ring.x + ux * ring.r, y: ring.y + uy * ring.r, r: 40 })
+    }
+    for (const sp of this.speakers)
+      if (speakerUntil(sp, this.roomTick, this.beat()) < 30)
+        threats.push({ x: sp.x, y: sp.y, r: 36 })
     const leavingNow = this.exitsOpen && this.cleared
+    if (!leavingNow)
+      for (const pit of this.pits)
+        threats.push({ x: pit.x, y: pit.y, r: pit.r + 8 })
     for (const m of this.mines) {
       // Heading out of a cleared room, only an armed cushion is worth a detour.
       if (leavingNow && m.fuse === 0) continue
       threats.push({
         x: m.x,
         y: m.y,
-        r: m.fuse > 0 ? CUSHION_BLAST + 16 : m.kind === 'cushion' ? 15 : 12,
+        r:
+          (m.fuse > 0 ? CUSHION_BLAST + 16 : m.kind === 'cushion' ? 15 : 12) *
+          (slippery ? 1.8 : 1),
       })
     }
     for (const lob of this.lobs)
@@ -3706,10 +3932,15 @@ class PrizeShowPanic implements ArcadeGameInstance {
     let my = 0
     for (const t of threats) {
       const d = Math.hypot(t.x - this.px, t.y - this.py)
-      if (d < t.r) {
-        mx -= (t.x - this.px) / (d || 1)
-        my -= (t.y - this.py) / (d || 1)
+      if (d >= t.r) continue
+      if (d < 1) {
+        // Dead on top of it (a pie aimed at a pilot standing still): step off toward the middle.
+        mx += this.px <= CX ? 1 : -1
+        my += this.py <= CY ? 0.5 : -0.5
+        continue
       }
+      mx -= (t.x - this.px) / d
+      my -= (t.y - this.py) / d
     }
     // Sidestep anything thrown this way, off the line it is flying along.
     for (const st of this.streamers) {
@@ -3743,6 +3974,12 @@ class PrizeShowPanic implements ArcadeGameInstance {
       const side = off >= 0 ? 1 : -1
       mx += -uy * side * 2.5
       my += ux * side * 2.5
+    }
+    // A boss pinning it to the top or bottom wall: slip out sideways, away from it.
+    for (const t of bossThreats) {
+      const d = Math.hypot(t.x - this.px, t.y - this.py)
+      const walled = this.py > BOTTOM - 24 || this.py < TOP + 24
+      if (d < t.r && walled) mx += (this.px >= t.x ? 1 : -1) * 1.2
     }
     // While dodging, keep off the walls so a corner never pins the pilot.
     if (Math.abs(mx) + Math.abs(my) > 0.5) {
@@ -3778,8 +4015,10 @@ class PrizeShowPanic implements ArcadeGameInstance {
         Math.hypot(c.x - this.px, c.y - this.py) < 140,
     )
     if (plated && !leaving && Math.abs(mx) + Math.abs(my) < 0.5) {
-      const bx = clampX(plated.x - Math.cos(plated.face) * 55, 20)
-      const by = clampY(plated.y - Math.sin(plated.face) * 55, 20)
+      // Behind it, but outside the berth the threats above keep (wider on a slippery floor).
+      const back = slippery ? 92 : 72
+      const bx = clampX(plated.x - Math.cos(plated.face) * back, 20)
+      const by = clampY(plated.y - Math.sin(plated.face) * back, 20)
       const rx = this.px - plated.x
       const ry = this.py - plated.y
       // Go round, not through: step sideways first when it is between here and its back.
@@ -3797,9 +4036,12 @@ class PrizeShowPanic implements ArcadeGameInstance {
     if (mx > 0.2) held.right = true
     if (my < -0.2) held.up = true
     if (my > 0.2) held.down = true
+    const bossSpot = this.boss
+      ? bossAim(this.boss, { x: this.px, y: this.py })
+      : null
     const target = [
-      ...this.crashers.filter(shootable),
-      ...(this.boss ? [this.boss] : []),
+      ...this.crashers.filter(shootable).map((c) => ({ x: c.x, y: c.y - c.z })),
+      ...(bossSpot ? [bossSpot] : []),
     ].sort(
       (a, b) =>
         Math.hypot(a.x - this.px, a.y - this.py) -
@@ -3807,8 +4049,7 @@ class PrizeShowPanic implements ArcadeGameInstance {
     )[0]
     if (target) {
       // Twin-stick: the second stick points at the target and Sparkle sprays.
-      const ty = 'z' in target ? target.y - target.z : target.y
-      const a = Math.atan2(ty - this.py, target.x - this.px)
+      const a = Math.atan2(target.y - this.py, target.x - this.px)
       frame.aim = { x: Math.cos(a), y: Math.sin(a) }
     }
     return frame
@@ -3840,6 +4081,7 @@ class PrizeShowPanic implements ArcadeGameInstance {
     this.renderCrack(g)
     if (this.exitsOpen)
       for (const exit of this.exits) this.renderExitArrows(g, exit)
+    this.renderSetFloor(g)
     this.renderSlicks(g)
     this.renderMines(g)
     this.renderShadows(g)
@@ -3854,8 +4096,11 @@ class PrizeShowPanic implements ArcadeGameInstance {
     const crowd = [...this.crashers].sort((a, b) => a.y - b.y)
     for (const c of crowd) this.renderCrasher(g, c)
     for (const d of this.dancers) this.renderDancer(g, d)
+    this.renderFlour(g)
+    if (this.script.strobe && !this.over) this.renderStrobe(g)
     if (!dark) this.renderBeams(g)
     this.renderDroneBeams(g)
+    this.renderRings(g)
     this.renderStreamers(g)
     this.renderShots(g)
     this.renderGlitter(g)
@@ -3916,111 +4161,176 @@ class PrizeShowPanic implements ArcadeGameInstance {
     if (this.banner) this.renderBanner(g)
   }
 
+  private setStyle(): SetStyle {
+    return SETS[this.episode.set]
+  }
+
   private studioIndex(): number {
-    const look = LOOK_OF[this.script.type]
+    const style = this.setStyle()
+    const look = style.lookOf[this.script.type]
     if (look !== undefined) return look
     const room = this.secretId ? null : roomById(this.episode, this.roomId)
-    return room ? (room.col + room.row) % 3 : 0
+    return room ? (room.col + room.row) % style.cycle : 0
   }
 
   private renderStudio(g: CanvasRenderingContext2D) {
     const theme = this.studioIndex()
-    const look = STUDIOS[theme]!
+    const style = this.setStyle()
+    const look = style.looks[theme]!
+    const tile = style.tile
     // Floor, walls and bulb sockets are painted once per studio look.
-    cachedLayer(g, `prize-show-panic-studio-${theme}`, W, H, (k) => {
-      k.fillStyle = INK
-      k.fillRect(0, 0, W, H)
-      bandedGradient(k, 0, 0, W, HUD, [RAMPS.night[2], RAMPS.night[0]], 2)
-      k.save()
-      k.beginPath()
-      k.rect(LEFT, TOP, RIGHT - LEFT, BOTTOM - TOP)
-      k.clip()
-      // Glossy bevelled tiles in a checkerboard, each with a glint of studio light.
-      k.fillStyle = look.tileB[0]
-      k.fillRect(LEFT, TOP, RIGHT - LEFT, BOTTOM - TOP)
-      for (let y = 0; y < BOTTOM; y += TILE) {
-        for (let x = 0; x < RIGHT; x += TILE) {
-          if (y + TILE <= TOP || x + TILE <= LEFT) continue
-          const ramp = (x / TILE + y / TILE) % 2 ? look.tileB : look.tileA
-          bevel(k, x + 1, y + 1, TILE - 2, TILE - 2, ramp, {
-            depth: 1,
-            outline: null,
-          })
-          k.fillStyle = rgba(ramp[4], 0.5)
-          for (let i = 0; i < 4; i++) k.fillRect(x + 3 + i, y + 7 - i, 2, 1)
-        }
-      }
-      // The show's star painted on the middle of the stage.
-      k.fillStyle = rgba(look.mark, 0.14)
-      starPath(k, CX, CY, 52, 22)
-      k.fill()
-      k.fillStyle = rgba(look.mark, 0.16)
-      starPath(k, CX, CY, 34, 14)
-      k.fill()
-      // Spotlight pools in stepped bands: one big one on the star, one per corner.
-      k.globalCompositeOperation = 'lighter'
-      const pool = (
-        x: number,
-        y: number,
-        rx: number,
-        ry: number,
-        a: number,
-      ) => {
-        for (let b = 0; b < 4; b++) {
-          k.fillStyle = rgba(look.pool, a)
-          k.beginPath()
-          k.ellipse(x, y, rx * (1 - b * 0.22), ry * (1 - b * 0.22), 0, 0, 7)
-          k.fill()
-        }
-      }
-      pool(CX, CY, 96, 64, 0.045)
-      for (const [x, y] of [
-        [LEFT + 44, TOP + 30],
-        [RIGHT - 44, TOP + 30],
-        [LEFT + 44, BOTTOM - 30],
-        [RIGHT - 44, BOTTOM - 30],
-      ] as const)
-        pool(x, y, 40, 24, 0.03)
-      k.globalCompositeOperation = 'source-over'
-      // HDMA falloff: the floor darkens in bands toward the walls.
-      for (let i = 0; i < 6; i++) {
-        k.fillStyle = rgba(INK, 0.3 - i * 0.05)
-        k.fillRect(LEFT, TOP + i * 4, RIGHT - LEFT, 4)
-        k.fillRect(LEFT, BOTTOM - (i + 1) * 4, RIGHT - LEFT, 4)
-        k.fillRect(LEFT + i * 4, TOP, 4, BOTTOM - TOP)
-        k.fillRect(RIGHT - (i + 1) * 4, TOP, 4, BOTTOM - TOP)
-      }
-      k.restore()
-      // Bevelled walls with a recessed marquee channel, gold posts at the corners.
-      const wall = look.wall
-      bevel(k, 1, HUD + 1, WALL - 2, H - HUD - 2, wall)
-      bevel(k, RIGHT + 1, HUD + 1, WALL - 2, H - HUD - 2, wall)
-      bevel(k, 1, HUD + 1, W - 2, WALL - 2, wall)
-      bevel(k, 1, BOTTOM + 1, W - 2, WALL - 2, wall)
-      k.fillStyle = wall[0]
-      k.fillRect(WALL, HUD + 3, W - WALL * 2, 4)
-      k.fillRect(WALL, BOTTOM + 3, W - WALL * 2, 4)
-      k.fillRect(3, TOP, 4, BOTTOM - TOP)
-      k.fillRect(RIGHT + 3, TOP, 4, BOTTOM - TOP)
-      for (const b of BULBS) {
+    cachedLayer(
+      g,
+      `prize-show-panic-${this.episode.set}-${theme}`,
+      W,
+      H,
+      (k) => {
         k.fillStyle = INK
-        k.fillRect(b.x - 1, b.y - 1, 4, 4)
-        k.fillStyle = RAMPS.gold[1]
-        k.fillRect(b.x, b.y, 2, 2)
-        k.fillStyle = RAMPS.gold[2]
-        k.fillRect(b.x, b.y, 1, 1)
-      }
-      for (const [x, y] of [
-        [1, HUD + 1],
-        [RIGHT + 1, HUD + 1],
-        [1, BOTTOM + 1],
-        [RIGHT + 1, BOTTOM + 1],
-      ] as const) {
-        bevel(k, x, y, WALL - 2, WALL - 2, RAMPS.gold)
-        k.fillStyle = RAMPS.gold[4]
-        k.fillRect(x + 3, y + 3, 2, 2)
-      }
-    })
+        k.fillRect(0, 0, W, H)
+        bandedGradient(k, 0, 0, W, HUD, [RAMPS.night[2], RAMPS.night[0]], 2)
+        k.save()
+        k.beginPath()
+        k.rect(LEFT, TOP, RIGHT - LEFT, BOTTOM - TOP)
+        k.clip()
+        // Glossy bevelled tiles in a checkerboard, each with a glint of studio light.
+        k.fillStyle = look.tileB[0]
+        k.fillRect(LEFT, TOP, RIGHT - LEFT, BOTTOM - TOP)
+        for (let y = 0; y < BOTTOM; y += tile) {
+          for (let x = 0; x < RIGHT; x += tile) {
+            if (y + tile <= TOP || x + tile <= LEFT) continue
+            const ramp = (x / tile + y / tile) % 2 ? look.tileB : look.tileA
+            bevel(k, x + 1, y + 1, tile - 2, tile - 2, ramp, {
+              depth: 1,
+              outline: null,
+            })
+            k.fillStyle = rgba(ramp[4], 0.5)
+            for (let i = 0; i < tile / 4; i++)
+              k.fillRect(x + 3 + i, y + tile / 2 - 1 - i, 2, 1)
+          }
+        }
+        if (style.mark === 'plate') {
+          // The kitchen's big serving plate in the middle of the floor.
+          for (const [rx, a] of [
+            [70, 0.12],
+            [62, 0.1],
+            [40, 0.14],
+          ] as const) {
+            k.fillStyle = rgba(look.mark, a)
+            k.beginPath()
+            k.ellipse(CX, CY, rx, rx * 0.6, 0, 0, Math.PI * 2)
+            k.fill()
+          }
+        } else {
+          // The show's star painted on the middle of the stage (the concert's taped in a circle).
+          k.fillStyle = rgba(look.mark, 0.14)
+          starPath(k, CX, CY, 52, 22)
+          k.fill()
+          k.fillStyle = rgba(look.mark, 0.16)
+          starPath(k, CX, CY, 34, 14)
+          k.fill()
+          if (style.mark === 'stage') {
+            k.strokeStyle = rgba(RAMPS.gold[3], 0.3)
+            k.lineWidth = 2
+            k.beginPath()
+            k.ellipse(CX, CY, 74, 48, 0, 0, Math.PI * 2)
+            k.stroke()
+            for (const [x, y] of [
+              [LEFT + 62, TOP + 34],
+              [RIGHT - 62, TOP + 34],
+              [LEFT + 62, BOTTOM - 34],
+              [RIGHT - 62, BOTTOM - 34],
+            ] as const) {
+              k.fillStyle = rgba(RAMPS.gold[3], 0.35)
+              k.fillRect(x - 5, y - 1, 10, 2)
+              k.fillRect(x - 1, y - 5, 2, 10)
+            }
+          }
+        }
+        // Spotlight pools in stepped bands: one big one on the star, one per corner.
+        k.globalCompositeOperation = 'lighter'
+        const pool = (
+          x: number,
+          y: number,
+          rx: number,
+          ry: number,
+          a: number,
+        ) => {
+          for (let b = 0; b < 4; b++) {
+            k.fillStyle = rgba(look.pool, a)
+            k.beginPath()
+            k.ellipse(x, y, rx * (1 - b * 0.22), ry * (1 - b * 0.22), 0, 0, 7)
+            k.fill()
+          }
+        }
+        pool(CX, CY, 96, 64, 0.045)
+        for (const [x, y] of [
+          [LEFT + 44, TOP + 30],
+          [RIGHT - 44, TOP + 30],
+          [LEFT + 44, BOTTOM - 30],
+          [RIGHT - 44, BOTTOM - 30],
+        ] as const)
+          pool(x, y, 40, 24, 0.03)
+        k.globalCompositeOperation = 'source-over'
+        // HDMA falloff: the floor darkens in bands toward the walls.
+        for (let i = 0; i < 6; i++) {
+          k.fillStyle = rgba(INK, 0.3 - i * 0.05)
+          k.fillRect(LEFT, TOP + i * 4, RIGHT - LEFT, 4)
+          k.fillRect(LEFT, BOTTOM - (i + 1) * 4, RIGHT - LEFT, 4)
+          k.fillRect(LEFT + i * 4, TOP, 4, BOTTOM - TOP)
+          k.fillRect(RIGHT - (i + 1) * 4, TOP, 4, BOTTOM - TOP)
+        }
+        k.restore()
+        // Bevelled walls with a recessed marquee channel, gold posts at the corners.
+        const wall = look.wall
+        bevel(k, 1, HUD + 1, WALL - 2, H - HUD - 2, wall)
+        bevel(k, RIGHT + 1, HUD + 1, WALL - 2, H - HUD - 2, wall)
+        bevel(k, 1, HUD + 1, W - 2, WALL - 2, wall)
+        bevel(k, 1, BOTTOM + 1, W - 2, WALL - 2, wall)
+        k.fillStyle = wall[0]
+        k.fillRect(WALL, HUD + 3, W - WALL * 2, 4)
+        k.fillRect(WALL, BOTTOM + 3, W - WALL * 2, 4)
+        k.fillRect(3, TOP, 4, BOTTOM - TOP)
+        k.fillRect(RIGHT + 3, TOP, 4, BOTTOM - TOP)
+        if (style.trim === 'tiles') {
+          // A tiled kitchen backsplash: grout lines on every wall.
+          k.fillStyle = rgba('#ffffff', 0.18)
+          for (let x = 0; x < W; x += 5) {
+            k.fillRect(x, HUD + 1, 1, WALL - 2)
+            k.fillRect(x, BOTTOM + 1, 1, WALL - 2)
+          }
+          for (let y = HUD; y < H; y += 5) {
+            k.fillRect(1, y, WALL - 2, 1)
+            k.fillRect(RIGHT + 1, y, WALL - 2, 1)
+          }
+        } else if (style.trim === 'grilles') {
+          // Speaker grilles all round the concert stage.
+          k.fillStyle = rgba(INK, 0.55)
+          for (let x = 2; x < W - 2; x += 3)
+            for (const y of [HUD + 2, HUD + 6, BOTTOM + 2, BOTTOM + 6])
+              k.fillRect(x, y, 1, 1)
+          for (let y = HUD + 2; y < H - 2; y += 3)
+            for (const x of [2, 6, RIGHT + 2, RIGHT + 6]) k.fillRect(x, y, 1, 1)
+        }
+        for (const b of BULBS) {
+          k.fillStyle = INK
+          k.fillRect(b.x - 1, b.y - 1, 4, 4)
+          k.fillStyle = RAMPS.gold[1]
+          k.fillRect(b.x, b.y, 2, 2)
+          k.fillStyle = RAMPS.gold[2]
+          k.fillRect(b.x, b.y, 1, 1)
+        }
+        for (const [x, y] of [
+          [1, HUD + 1],
+          [RIGHT + 1, HUD + 1],
+          [1, BOTTOM + 1],
+          [RIGHT + 1, BOTTOM + 1],
+        ] as const) {
+          bevel(k, x, y, WALL - 2, WALL - 2, RAMPS.gold)
+          k.fillStyle = RAMPS.gold[4]
+          k.fillRect(x + 3, y + 3, 2, 2)
+        }
+      },
+    )
   }
 
   /** The two follow-spots' centres this tick (also the only light in Lights Out). */
@@ -4036,7 +4346,7 @@ class PrizeShowPanic implements ArcadeGameInstance {
 
   private renderSpotlights(g: CanvasRenderingContext2D) {
     // Two follow-spots sweep the stage, stepped like the pools under them.
-    const look = STUDIOS[this.studioIndex()]!
+    const look = this.setStyle().looks[this.studioIndex()]!
     g.save()
     g.globalCompositeOperation = 'lighter'
     this.followSpots().forEach(({ x, y }, i) => {
@@ -4058,7 +4368,7 @@ class PrizeShowPanic implements ArcadeGameInstance {
         ? RAMPS.leaf
         : this.roomTimer <= 600 && !this.over
           ? RAMPS.ember
-          : RAMPS.gold
+          : this.setStyle().marquee
     const lit = BULBS.filter((_, i) => (((i - step) % 4) + 4) % 4 === 0)
     g.save()
     g.globalCompositeOperation = 'lighter'
@@ -4420,7 +4730,8 @@ class PrizeShowPanic implements ArcadeGameInstance {
   private renderShadows(g: CanvasRenderingContext2D) {
     for (const p of this.prizes)
       if (!p.pedestal) dropShadow(g, p.x, p.y + 6, 6, 1.6, 0.35)
-    if (this.boss) dropShadow(g, this.boss.x, this.boss.y + 21, 44, 5, 0.4)
+    if (this.boss?.kind === 'float')
+      dropShadow(g, this.boss.x, this.boss.y + 21, 44, 5, 0.4)
     for (const box of this.cases)
       dropShadow(g, box.x + 1, box.y + 7, 12, 2.2, 0.4)
     for (const c of this.crashers) {
@@ -4458,6 +4769,197 @@ class PrizeShowPanic implements ArcadeGameInstance {
       dropShadow(g, d.x, d.y + 7, 4, 1.4, 0.3 * Math.min(1, d.life / 25))
     if (this.dead === 0 && !this.over && this.lifted === 0)
       dropShadow(g, this.px, this.py + 8, 6, 1.8, 0.4)
+  }
+
+  /** The set's floor hazards: counters, hot plates, mosh pits and speaker stacks. */
+  private renderSetFloor(g: CanvasRenderingContext2D) {
+    const tick = this.roomTick
+    for (const b of this.belts) this.renderBelt(g, b)
+    for (const p of this.plates) {
+      const { state, k } = plateState(p, tick)
+      const cx = p.x + p.w / 2
+      const cy = p.y + p.h / 2
+      bevel(g, p.x + 1, p.y + 1, p.w - 2, p.h - 2, RAMPS.steel, { depth: 1 })
+      g.fillStyle = RAMPS.night[1]
+      g.fillRect(p.x + 3, p.y + 3, p.w - 6, p.h - 6)
+      const blink = Math.floor(this.tick / 4) % 2
+      const coil =
+        state === 'hot'
+          ? RAMPS.ember[blink ? 4 : 3]
+          : state === 'glow'
+            ? mix(RAMPS.steel[1], RAMPS.ember[2], blink ? k : k * 0.6)
+            : RAMPS.steel[1]
+      if (state !== 'cold')
+        glow(
+          g,
+          cx,
+          cy,
+          p.w * (state === 'hot' ? 0.8 : 0.5),
+          state === 'hot' ? RAMPS.ember[3] : RAMPS.ember[2],
+          state === 'hot' ? 0.55 : 0.2 + 0.3 * k,
+        )
+      g.strokeStyle = coil
+      g.lineWidth = 2
+      for (const inset of [6, 11]) {
+        g.beginPath()
+        g.ellipse(cx, cy, p.w / 2 - inset, p.h / 2 - inset, 0, 0, Math.PI * 2)
+        g.stroke()
+      }
+      if (state === 'hot') {
+        // Heat shimmering up off it.
+        for (let i = 0; i < 4; i++) {
+          const t = (this.tick + i * 9) % 36
+          g.fillStyle = rgba(RAMPS.gold[4], 0.6 * (1 - t / 36))
+          g.fillRect(p.x + 5 + i * 7, Math.round(cy - t / 2), 1, 3)
+        }
+      }
+    }
+    for (const pit of this.pits) {
+      // A scuffed circle with the crowd moshing round its edge.
+      g.fillStyle = rgba(INK, 0.28)
+      g.beginPath()
+      g.ellipse(pit.x, pit.y, pit.r, pit.r * 0.8, 0, 0, Math.PI * 2)
+      g.fill()
+      const kick = 1 - beatPhase(tick, this.beat())
+      g.strokeStyle = rgba(RAMPS.pink[3], 0.35 + 0.4 * kick)
+      g.lineWidth = 1
+      g.beginPath()
+      g.ellipse(pit.x, pit.y, pit.r, pit.r * 0.8, 0, 0, Math.PI * 2)
+      g.stroke()
+      // Swirl marks showing which way it spins.
+      g.strokeStyle = rgba(RAMPS.pink[3], 0.25 + 0.3 * kick)
+      g.lineWidth = 2
+      for (const k of [0, Math.PI]) {
+        const a0 = k + (this.tick / 30) * pit.spin
+        g.beginPath()
+        g.ellipse(pit.x, pit.y, pit.r * 0.5, pit.r * 0.4, 0, a0, a0 + 1.6)
+        g.stroke()
+      }
+      for (let i = 0; i < 9; i++) {
+        const a = (i / 9) * Math.PI * 2 + (this.tick / 40) * pit.spin
+        const mx = Math.round(pit.x + Math.cos(a) * pit.r * 0.86)
+        const my = Math.round(pit.y + Math.sin(a) * pit.r * 0.7)
+        const hop = Math.round(kick * 2 * ((i % 2) * 2 - 1))
+        // A little moshing fan: a head, a body, an arm up on the beat.
+        g.fillStyle = INK
+        g.fillRect(mx - 3, my - 8 - hop, 6, 10)
+        g.fillStyle = CROWD_COLOURS[i % CROWD_COLOURS.length]!
+        g.fillRect(mx - 2, my - 4 - hop, 4, 5)
+        g.fillStyle = RAMPS.cream[3]
+        g.fillRect(mx - 1, my - 7 - hop, 3, 3)
+        if (kick > 0.6) {
+          g.fillStyle = INK
+          g.fillRect(mx + 2, my - 11 - hop, 2, 5)
+          g.fillStyle = RAMPS.cream[3]
+          g.fillRect(mx + 2, my - 10 - hop, 1, 3)
+        }
+      }
+    }
+    for (const sp of this.speakers) {
+      // A speaker stack: two cones that pump just before each thump.
+      const until = speakerUntil(sp, tick, this.beat())
+      const pump =
+        until <= RING.speakerTell ? 1 + (1 - until / RING.speakerTell) : 1
+      dropShadow(g, sp.x, sp.y + 13, 11, 3, 0.4)
+      bevel(g, sp.x - 9, sp.y - 13, 18, 26, RAMPS.night)
+      for (const dy of [-6, 6]) {
+        shadedOrb(g, sp.x, sp.y + dy, 4 + pump, RAMPS.steel, { glint: false })
+        g.fillStyle = INK
+        g.fillRect(sp.x - 1, sp.y + dy - 1, 2, 2)
+      }
+      if (until <= RING.speakerTell)
+        glow(g, sp.x, sp.y, 16, RAMPS.pink[3], 0.25 + 0.35 * (pump - 1))
+    }
+  }
+
+  /** A conveyor counter: a steel bed with chevrons rolling the way it carries. */
+  private renderBelt(g: CanvasRenderingContext2D, b: BeltProp) {
+    bevel(g, b.x, b.y, b.w, b.h, RAMPS.steel, { depth: 1 })
+    g.fillStyle = RAMPS.night[2]
+    g.fillRect(b.x + 2, b.y + 2, b.w - 4, b.h - 4)
+    const dir = beltDir(b)
+    const roll = Math.floor(this.roomTick * 0.6) % 8
+    g.save()
+    g.beginPath()
+    g.rect(b.x + 2, b.y + 2, b.w - 4, b.h - 4)
+    g.clip()
+    g.fillStyle = RAMPS.steel[2]
+    if (dir.x !== 0) {
+      for (let x = b.x - 8; x < b.x + b.w + 8; x += 8) {
+        const cx = x + roll * dir.x
+        for (let i = 0; i < 3; i++) {
+          g.fillRect(cx + i * dir.x, b.y + b.h / 2 - 3 + i, 1, 1)
+          g.fillRect(cx + i * dir.x, b.y + b.h / 2 + 3 - i, 1, 1)
+        }
+      }
+    } else {
+      for (let y = b.y - 8; y < b.y + b.h + 8; y += 8) {
+        const cy = y + roll * dir.y
+        for (let i = 0; i < 3; i++) {
+          g.fillRect(b.x + b.w / 2 - 3 + i, cy + i * dir.y, 1, 1)
+          g.fillRect(b.x + b.w / 2 + 3 - i, cy + i * dir.y, 1, 1)
+        }
+      }
+    }
+    g.restore()
+  }
+
+  /** Flour clouds drawn over the crowd: whoever is inside is hard to see. */
+  private renderFlour(g: CanvasRenderingContext2D) {
+    for (const [n, f] of this.flours.entries()) {
+      const a = 0.18 + 0.72 * f.density
+      for (let i = 0; i < 7; i++) {
+        const ang = (i / 7) * Math.PI * 2 + n
+        const wob = Math.sin((this.tick + i * 17) / 30) * 2
+        const r = f.r * (i === 0 ? 0.75 : 0.5) + wob
+        const x = i === 0 ? f.x : f.x + Math.cos(ang) * f.r * 0.5
+        const y = i === 0 ? f.y : f.y + Math.sin(ang) * f.r * 0.4
+        g.fillStyle = rgba(i % 2 ? RAMPS.cream[3] : RAMPS.cream[4], a * 0.8)
+        g.beginPath()
+        g.arc(x, y, r, 0, Math.PI * 2)
+        g.fill()
+      }
+    }
+  }
+
+  /** The strobe: a flash on the beat, then the set falls dark until the next one. */
+  private renderStrobe(g: CanvasRenderingContext2D) {
+    const p = beatPhase(this.roomTick, this.beat())
+    g.fillStyle = rgba(INK, Math.min(0.86, 0.12 + p * 1.3))
+    g.fillRect(LEFT, TOP, RIGHT - LEFT, BOTTOM - TOP)
+    if (p < 0.1) {
+      g.fillStyle = rgba('#ffffff', 0.16)
+      g.fillRect(LEFT, TOP, RIGHT - LEFT, BOTTOM - TOP)
+    }
+    if (p > 0.4) this.renderEyes(g)
+  }
+
+  /** Bass rings and shockwaves: a bright edge (with its gap) that fades as it spreads. */
+  private renderRings(g: CanvasRenderingContext2D) {
+    if (!this.rings.length) return
+    g.save()
+    g.beginPath()
+    g.rect(LEFT, TOP, RIGHT - LEFT, BOTTOM - TOP)
+    g.clip()
+    for (const ring of this.rings) {
+      // Bright while it can hurt, a faint ripple for the last of its spread.
+      const fade = ringLive(ring) ? 1 - (0.6 * ring.r) / ring.max : 0.15
+      const from = ring.gap === null ? 0 : ring.gap + RING.gapHalf
+      const to =
+        ring.gap === null ? Math.PI * 2 : ring.gap - RING.gapHalf + Math.PI * 2
+      const colour = ring.gap === null ? RAMPS.cream[4] : RAMPS.pink[3]
+      g.strokeStyle = rgba(INK, 0.5 * fade + 0.2)
+      g.lineWidth = 4
+      g.beginPath()
+      g.arc(ring.x, ring.y, ring.r, from, to)
+      g.stroke()
+      g.strokeStyle = rgba(colour, 0.5 + 0.5 * fade)
+      g.lineWidth = 2
+      g.beginPath()
+      g.arc(ring.x, ring.y, ring.r, from, to)
+      g.stroke()
+    }
+    g.restore()
   }
 
   /** Pie cream (slippery) and foam (slows crashers) on the floor. */
@@ -5142,6 +5644,10 @@ class PrizeShowPanic implements ArcadeGameInstance {
   }
 
   private renderBoss(g: CanvasRenderingContext2D, b: Boss) {
+    if (b.kind !== 'float') {
+      drawBoss(g, b, this.tick)
+      return
+    }
     const rock = b.shift > 0 ? Math.round(Math.sin(b.shift / 2) * 2) : 0
     const x = Math.round(b.x) + rock
     const y = Math.round(b.y)
@@ -5154,8 +5660,9 @@ class PrizeShowPanic implements ArcadeGameInstance {
     })
     // Phase 1: the candles are cold wicks. Phase 2: lit, flaring hot before each volley.
     const until = this.candleClock(b)
-    const charging = b.phase === 2 && b.shift === 0 && until <= CANDLE_CHARGE
-    const k = charging ? 1 - until / CANDLE_CHARGE : 0
+    const charge = BOSS.float.candleCharge
+    const charging = b.phase === 2 && b.shift === 0 && until <= charge
+    const k = charging ? 1 - until / charge : 0
     for (let i = 0; i < 4; i++) {
       const fx = x - 15 + i * 10
       const fy = y - 31

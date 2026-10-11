@@ -15,7 +15,7 @@ import {
   CHAIN_CAP,
   CHAIN_STEP,
   CHAIN_WINDOW,
-  COHOST_FROM_LOOP,
+  COHOST_FROM_EPISODE,
   COHOST_LINES,
   HOST_LINES,
   RATINGS,
@@ -38,6 +38,7 @@ import type {
   Wallet,
 } from '../arcade/prizeShow/broadcast'
 import type { Crasher, CrasherKind } from '../arcade/prizeShow/roster'
+import { EPISODE_1, roomById } from '../arcade/prizeShow/season'
 import type { ModifierId, Side } from '../arcade/prizeShow/season'
 import type { PowerKind } from '../arcade/prizeShow/arsenal'
 
@@ -51,6 +52,7 @@ type Inner = {
   py: number
   invuln: number
   loop: number
+  episodeIndex: number
   roomTick: number
   roomTimer: number
   cleared: boolean
@@ -88,6 +90,7 @@ type Inner = {
   update(input: InputFrame): void
   render(g: CanvasRenderingContext2D): void
   enterRoom(id: string, entry: Side): void
+  beginEpisode(index: number): void
   makeCrasher(kind: CrasherKind, x: number, y: number): Crasher
   cheer(c: Crasher): void
   multiplier(withChain?: boolean): number
@@ -226,6 +229,11 @@ const g2d = stubContext()
   b.modifiers.set('parade-float', null)
   b.enterRoom('parade-float', 3)
   assert.ok(saying(b, 'boss-intro'))
+  assert.equal(
+    b.cutQueue[0]!.text,
+    roomById(EPISODE_1, 'parade-float').script.boss!.line,
+    "then the boss's own introduction",
+  )
 
   // Low time, once a room.
   const lt = stage()
@@ -292,23 +300,36 @@ const g2d = stubContext()
   m.update(press('a'))
   assert.ok(saying(m, 'risky-route'))
 
-  // LENS joins from loop 3 and answers now and then.
+  // LENS joins on episode 3, Countdown Concert, and answers now and then.
   let replies = 0
   const late = fresh(11)
-  late.loop = COHOST_FROM_LOOP
+  late.beginEpisode(COHOST_FROM_EPISODE - 1)
   for (let i = 0; i < 40; i++) {
-    late.modifiers.set('opening-act', null)
-    late.enterRoom('opening-act', 2)
+    late.modifiers.set('sound-check', null)
+    late.enterRoom('sound-check', 3)
     if (late.cutQueue.some((q) => q.voice === 'cohost')) replies++
   }
   assert.ok(
     replies > 4 && replies < 36,
     `LENS chimes in sometimes (${replies}/40)`,
   )
+  // ...and stays for every encore, Opening Night included.
+  let encoreReplies = 0
+  const encore = fresh(12)
+  encore.loop = 2
+  for (let i = 0; i < 40; i++) {
+    encore.modifiers.set('opening-act', null)
+    encore.enterRoom('opening-act', 3)
+    if (encore.cutQueue.some((q) => q.voice === 'cohost')) encoreReplies++
+  }
+  assert.ok(encoreReplies > 4, `LENS on the encore (${encoreReplies}/40)`)
   const early = fresh(1)
   for (let t = 0; t < 3000; t++) {
     early.update(emptyInput())
-    assert.ok(!early.cutIn || early.cutIn.voice === 'host', 'not before loop 3')
+    assert.ok(
+      !early.cutIn || early.cutIn.voice === 'host',
+      'not before episode 3',
+    )
     if (early.over || early.map) break
   }
 }
@@ -489,14 +510,14 @@ const g2d = stubContext()
   g.update(press('down'))
   g.update(press('a'))
   assert.equal(g.swap, null, 'DONE moves the show on')
-  assert.equal(g.loop, 2)
+  assert.equal(g.episodeIndex, 1, 'to episode 2')
   assert.ok(g.powers[perks.power!] > 0, 'the episode opens with the power-up')
   assert.ok(
     g.roomTimer > 40 * 60 * 0.9 + 9 * 60,
     'and extra seconds on the clock',
   )
-  g.modifiers.set('lightning-round', null)
-  g.enterRoom('lightning-round', 3)
+  g.modifiers.set('flour-power', null)
+  g.enterRoom('flour-power', 3)
   assert.equal(g.crack!.hp, 0, 'and the secret wall already open')
 
   // Left alone, the swap moves on by itself.
@@ -584,13 +605,13 @@ const g2d = stubContext()
     hiScore: 0,
   }) as unknown as Inner
   let tallied = false
-  for (let t = 0; t < 60 * 60 * 12 && demo.loop === 1; t++) {
+  for (let t = 0; t < 60 * 60 * 12 && demo.episodeIndex === 0; t++) {
     demo.lives = 99
     demo.update(emptyInput())
     if (demo.tally) tallied = true
   }
   assert.ok(tallied, 'the pilot sees the tally')
-  assert.equal(demo.loop, 2, 'and swaps its way into the next loop')
+  assert.equal(demo.episodeIndex, 1, 'and swaps its way into the next episode')
   assert.equal(demo.score, 0, 'the attract demo still never scores')
 }
 

@@ -74,6 +74,11 @@ const DIM: Ramp = [
 function iconFor(room: MapRoom): PixelSprite {
   if (room.script.type === 'lights') return MAP_ICONS.lamp
   if (room.script.type === 'cameras') return CAMERA_SPRITES.down
+  if (room.script.type === 'hotplates') return MAP_ICONS.hotplate
+  if (room.script.type === 'conveyor') return MAP_ICONS.belt
+  if (room.script.type === 'flour') return MAP_ICONS.flour
+  if (room.script.type === 'speakers') return MAP_ICONS.speaker
+  if (room.script.type === 'moshpit') return MAP_ICONS.mosh
   return MAP_ICONS[ROOM_ICON[room.script.type]]
 }
 

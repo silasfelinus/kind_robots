@@ -142,6 +142,8 @@ export type Act = {
   boss?: BossId
   /** Pre-written text shown on the act's title card. */
   intro: string[]
+  /** A climb: the view scrolls up with Zuzu, and the tower's walls replace the far town. */
+  vertical?: boolean
 }
 
 export type Stage = {

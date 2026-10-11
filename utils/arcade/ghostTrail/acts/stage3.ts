@@ -208,7 +208,7 @@ const s3a1: Act = {
       squad: [{ kind: 'crow', x: 6360, y: 140 }],
     },
   ],
-  checkpoints: [1716, 3960],
+  checkpoints: [40, 880, 1716, 3070, 3960, 5120],
   secrets: [
     { id: 's3a1-ferry-token', x: 3696, y: 78, name: 'THE FERRY TOKEN' },
   ],
@@ -441,7 +441,7 @@ const s3a2: Act = {
       ],
     },
   ],
-  checkpoints: [2440, 4980],
+  checkpoints: [40, 1210, 2440, 3260, 4070, 4980, 6000],
   secrets: [
     { id: 's3a2-chapel-chalice', x: 3140, y: 192, name: 'THE CHAPEL CHALICE' },
   ],
@@ -592,7 +592,7 @@ const s3a3: Act = {
       ],
     },
   ],
-  checkpoints: [1880, 3820],
+  checkpoints: [40, 1250, 1880, 2810, 3820],
   secrets: [
     { id: 's3a3-boatmans-coin', x: 2445, y: 106, name: 'THE BOATMANS COIN' },
   ],

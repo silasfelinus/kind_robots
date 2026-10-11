@@ -61,6 +61,7 @@ import {
   drawHazard,
   drawMover,
   drawStandInBoss,
+  drawTowerInterior,
   drawUpdraft,
   drawWater,
   type Card,
@@ -179,10 +180,28 @@ const WEAPONS: Record<
   shuriken: { label: 'SHURIKEN', cooldown: 22, max: 3, damage: 1 },
   kasa: { label: 'KASA', cooldown: 20, max: 2, damage: 1 },
   lantern: { label: 'LANTERN', cooldown: 24, max: 2, damage: 2 },
-  katana: { label: 'IAI CUT', cooldown: 30, max: 1, damage: 2 },
+  katana: { label: 'IAI CUT', cooldown: 26, max: 1, damage: 3 },
 }
 const WEAPON_LIST = Object.keys(WEAPONS) as Weapon[]
 const FIRE_TICKS = 70
+/**
+ * The iai cut (Silas, 2026-10-11: it "needs to have something going for it"): a quick-draw lunge and
+ * a great crescent that hits everything in front of him hard, cuts hostile shots out of the air, and
+ * guards him through the stroke. The kunai stays the safe ranged pick; the cut is the brave one.
+ */
+const IAI = {
+  /** Lunge: ticks and speed of the step-in. */
+  lungeTicks: 7,
+  lungeSpeed: 3.2,
+  /** The crescent's centre ahead of him, and its half extents. */
+  ahead: 20,
+  hw: 22,
+  hh: 18,
+  /** Frames the edge bites (the rest is follow-through). */
+  active: 6,
+  /** Guarded through the stroke. */
+  guard: 12,
+}
 const MAX_FIRES = 2
 
 type Shot = {
@@ -224,7 +243,7 @@ type Flying = {
 }
 type Pending = { id: string; member: SquadMember; due: number }
 /** What happens when the card on screen closes. */
-type CardThen = 'play' | 'next' | 'end' | 'choose'
+type CardThen = 'play' | 'next' | 'end' | 'choose' | 'revive'
 
 /** Each theme's painted world (stageArt paints all six). */
 const ART_KEY: Record<StageTheme, StageKey> = {
@@ -245,9 +264,10 @@ const BOSS_COLOR: Record<string, string> = {
 }
 
 /**
- * A saved run (utils/arcade/saves.ts): where the current act began, never mid-act state, so a reload
- * replays the act from its start with the score it began with and nothing can be collected twice.
- * After a game over the save is marked `continued`: the trail and relics are kept, the score is not.
+ * A saved run (utils/arcade/saves.ts): the last checkpoint reached, with the score, lives and gear at
+ * that moment and the act's squad members already put down and crates already opened, so a reload
+ * picks up at the checkpoint and nothing can be collected twice. After a game over the player declines
+ * to continue, the save is marked `continued`: the trail and relics are kept, the score is not.
  */
 export type GhostSave = {
   v: 1
@@ -259,6 +279,12 @@ export type GhostSave = {
   continued: boolean
   /** New Game+ tier: 1 on a first run; each campaign clear unlocks the next. */
   tier: number
+  /** The checkpoint reached in the act (40 = its start). */
+  checkpoint?: number
+  /** Squad members of this act already put down. */
+  down?: string[]
+  /** Crates of this act already broken (indices). */
+  opened?: number[]
 }
 
 /** The hardest New Game+ tier. */
@@ -271,7 +297,8 @@ export function readSave(raw: unknown): GhostSave | null {
   const count = (v: unknown, max: number) =>
     typeof v === 'number' && Number.isInteger(v) && v >= 0 && v <= max
   if (r.v !== 1 || typeof r.act !== 'string') return null
-  if (!ACTS.some((a) => a.id === r.act)) return null
+  const act = ACTS.find((a) => a.id === r.act)
+  if (!act) return null
   if (!count(r.score, 99_999_999) || !count(r.lives, 99)) return null
   if (typeof r.weapon !== 'string' || !(r.weapon in WEAPONS)) return null
   if (!Array.isArray(r.relics)) return null
@@ -294,6 +321,18 @@ export function readSave(raw: unknown): GhostSave | null {
       count(r.tier, MAX_TIER) && (r.tier as number) >= 1
         ? (r.tier as number)
         : 1,
+    checkpoint: act.checkpoints.includes(r.checkpoint as number)
+      ? (r.checkpoint as number)
+      : 40,
+    down: Array.isArray(r.down)
+      ? r.down.filter(
+          (x): x is string =>
+            typeof x === 'string' && x.startsWith(`${act.id}/`),
+        )
+      : [],
+    opened: Array.isArray(r.opened)
+      ? r.opened.filter((i): i is number => count(i, act.crates.length - 1))
+      : [],
   }
 }
 
@@ -335,6 +374,8 @@ class ZuzuGhostTrail implements ArcadeGameInstance {
   private clear = 0
   private timer = 0
   private camX = 0
+  /** Vertical scroll (0 at ground level; negative looks up a tower). */
+  private camY = 0
   private foes: Foe[] = []
   private shots: Shot[] = []
   private fires: Fire[] = []
@@ -363,6 +404,11 @@ class ZuzuGhostTrail implements ArcadeGameInstance {
   private card: (Card & { then: CardThen; max: number }) | null = null
   /** Progress the cabinet keeps for this player (see GhostSave); demos never save. */
   save: GhostSave | null = null
+  /** The iai cut's step-in and guard, in ticks left. */
+  private lunge = 0
+  private guard = 0
+  /** Continues taken after a game over this run. */
+  private continues = 0
   /** New Game+ tier (1 on a first run): tougher bosses and brisker foes. */
   private tier = 1
   /** A saved run offered on the opening card. */
@@ -375,7 +421,11 @@ class ZuzuGhostTrail implements ArcadeGameInstance {
     this.hiScore = options.hiScore
     this.startAct(0)
     const offer = this.demo ? null : readSave(options.resume)
-    const fresh = offer && offer.act === ACTS[0]!.id && !offer.relics.length
+    const fresh =
+      offer &&
+      offer.act === ACTS[0]!.id &&
+      !offer.relics.length &&
+      (offer.checkpoint ?? 40) <= 40
     if (offer && (!fresh || offer.tier > 1)) {
       this.offer = offer
       // Until the player chooses, the stored run stays as it was.
@@ -411,6 +461,34 @@ class ZuzuGhostTrail implements ArcadeGameInstance {
     this.foundSecrets = new Set(s.relics)
     this.tier = s.tier
     this.startAct(ACTS.findIndex((a) => a.id === s.act))
+    // Back at the checkpoint, with what was already done there still done.
+    for (const id of s.down ?? []) this.defeated.add(id)
+    for (const i of s.opened ?? [])
+      if (this.crates[i]) this.crates[i]!.open = true
+    if (s.checkpoint && s.checkpoint > 40) {
+      this.checkpoint = s.checkpoint
+      this.respawn()
+    }
+    this.keep()
+  }
+
+  /** Remember the run as it stands at this checkpoint (a real game only; demos never save). */
+  private keep() {
+    if (this.demo) return
+    const prefix = `${this.act.id}/`
+    this.save = {
+      v: 1,
+      act: this.act.id,
+      score: this.score,
+      lives: Math.max(1, this.lives),
+      weapon: this.weapon,
+      relics: [...this.foundSecrets],
+      continued: false,
+      tier: this.tier,
+      checkpoint: this.checkpoint,
+      down: [...this.defeated].filter((id) => id.startsWith(prefix)),
+      opened: this.crates.flatMap((c, i) => (c.open ? [i] : [])),
+    }
   }
 
   // --- the act ------------------------------------------------------------------
@@ -451,24 +529,15 @@ class ZuzuGhostTrail implements ArcadeGameInstance {
       lines: this.act.intro,
       then: 'play',
     })
-    if (!this.demo)
-      this.save = {
-        v: 1,
-        act: this.act.id,
-        score: this.score,
-        lives: this.lives,
-        weapon: this.weapon,
-        relics: [...this.foundSecrets],
-        continued: false,
-        tier: this.tier,
-      }
+    this.keep()
   }
 
   /** Back to the last checkpoint: the act's living foes reset; the defeated stay down. */
   private respawn() {
     this.x = this.checkpoint
     this.camX = Math.max(0, this.x - 120)
-    this.y = this.floorAt(this.x, -999) ?? GROUND_Y
+    this.y = this.standAt(this.x)
+    this.camY = this.act.vertical ? Math.min(0, Math.round(this.y - 150)) : 0
     this.vx = 0
     this.vy = 0
     this.onGround = true
@@ -476,6 +545,8 @@ class ZuzuGhostTrail implements ArcadeGameInstance {
     this.facing = 1
     this.poncho = true
     this.invuln = INVULN_TICKS
+    this.lunge = 0
+    this.guard = 0
     this.underwater = 0
     this.timer = this.act.seconds * 60
     this.foes = []
@@ -498,11 +569,13 @@ class ZuzuGhostTrail implements ArcadeGameInstance {
     const max =
       c.then === 'choose'
         ? Infinity
-        : c.kind === 'credits'
-          ? 900 + c.lines.length * 34
-          : this.demo
-            ? 90
-            : CARD_TICKS
+        : c.then === 'revive'
+          ? 60 * 10
+          : c.kind === 'credits'
+            ? 900 + c.lines.length * 34
+            : this.demo
+              ? 90
+              : CARD_TICKS
     this.card = { ...c, age: 0, max }
   }
 
@@ -530,6 +603,12 @@ class ZuzuGhostTrail implements ArcadeGameInstance {
       if (x >= b.x - 2 && x <= b.x + b.w + 2) take(blockTop(b, GROUND_Y))
     if (this.groundAt(x)) take(GROUND_Y)
     return best
+  }
+
+  /** Where a checkpoint (or gate) stands: the ground, or up a tower the floor over the void there. */
+  private standAt(x: number): number {
+    if (this.groundAt(x)) return GROUND_Y
+    return this.floorAt(x, -9999) ?? GROUND_Y
   }
 
   /** Is (x, y) inside a solid block? */
@@ -583,6 +662,24 @@ class ZuzuGhostTrail implements ArcadeGameInstance {
     if (this.over) return
     const controls = this.demo ? this.demoInput() : input
 
+    if (this.card?.then === 'revive') {
+      const c = this.card
+      c.age++
+      c.lines[0] = `CONTINUE?  ${Math.max(0, Math.ceil((c.max - c.age) / 60))}`
+      if (c.age >= 30 && (controls.pressed.a || controls.pressed.start)) {
+        // Get up again at the last checkpoint: fresh lives, the trail as it was.
+        this.card = null
+        this.continues++
+        this.lives = START_LIVES
+        this.respawn()
+        this.banner = { text: 'BACK ON THE TRAIL', ticks: 80 }
+        this.sound.play('start')
+      } else if ((c.age >= 30 && controls.pressed.b) || c.age >= c.max) {
+        this.card = null
+        this.gameOver()
+      }
+      return
+    }
     if (this.card?.then === 'choose') {
       this.card.age++
       if (this.card.age < 20) return
@@ -606,10 +703,20 @@ class ZuzuGhostTrail implements ArcadeGameInstance {
     if (this.dead > 0) {
       if (--this.dead === 0) {
         if (this.lives <= 0) {
-          this.over = true
-          this.banner = { text: 'GAME OVER', ticks: 9999 }
-          // The trail and relics wait for a continue; the score does not.
-          if (this.save) this.save = { ...this.save, continued: true }
+          if (this.demo) this.gameOver()
+          else
+            this.showCard({
+              kind: 'title',
+              heading: 'GAME OVER',
+              sub: 'THE TRAIL IS NOT DONE WITH HIM',
+              lines: [
+                'CONTINUE?',
+                'FROM THE LAST CHECKPOINT',
+                '',
+                'A: GET UP AGAIN     B: REST',
+              ],
+              then: 'revive',
+            })
         } else this.respawn()
       }
       return
@@ -645,13 +752,25 @@ class ZuzuGhostTrail implements ArcadeGameInstance {
         this.checkpoint = c
         this.banner = { text: 'CHECKPOINT', ticks: 70 }
         this.sound.play('pickup')
+        this.keep()
       }
     }
     if (this.x >= this.length && this.bossDone) this.actClear()
     this.moveCamera()
   }
 
+  private gameOver() {
+    this.over = true
+    this.banner = { text: 'GAME OVER', ticks: 9999 }
+    // The trail and relics wait for a later continue; the score does not.
+    if (this.save) this.save = { ...this.save, continued: true }
+  }
+
   private moveCamera() {
+    // Up a tower the view climbs with him (it never looks below the ground line).
+    const wantY = this.act.vertical ? Math.min(0, Math.round(this.y - 150)) : 0
+    this.camY += (wantY - this.camY) * 0.12
+    if (Math.abs(wantY - this.camY) < 0.5) this.camY = wantY
     const lock = this.activeLock()
     if (this.boss) this.camX += (this.arenaL - this.camX) * 0.15
     else if (lock) {
@@ -686,7 +805,17 @@ class ZuzuGhostTrail implements ArcadeGameInstance {
         this.y += now.y - was.y
       }
     }
-    if (this.onGround) {
+    if (this.lunge > 0) this.lunge--
+    if (this.guard > 0) this.guard--
+    if (this.onGround && this.lunge > 0) {
+      // The quick-draw step-in: never off a ledge or into a pit.
+      const ahead = this.x + this.facing * 10
+      const floor = this.floorAt(ahead, this.y - 1)
+      this.vx =
+        floor !== null && Math.abs(floor - this.y) < 2
+          ? this.facing * IAI.lungeSpeed
+          : 0
+    } else if (this.onGround) {
       const walk = wading ? WALK * 0.6 : WALK
       this.vx = 0
       if (input.held.left) {
@@ -837,8 +966,12 @@ class ZuzuGhostTrail implements ArcadeGameInstance {
       for (const vy of [-1.1, 0, 1.1]) this.shots.push(shot(f * 3.8, vy, 36))
     else if (this.weapon === 'kasa') this.shots.push(shot(f * 5, 0, 120))
     else if (this.weapon === 'lantern') this.shots.push(shot(f * 3.2, -2, 90))
-    else this.shots.push(shot(0, 0, 10))
-    this.sound.play(this.weapon === 'katana' ? 'blip' : 'shoot')
+    else {
+      this.shots.push(shot(0, 0, 12))
+      this.lunge = IAI.lungeTicks
+      this.guard = IAI.guard
+    }
+    this.sound.play(this.weapon === 'katana' ? 'boom' : 'shoot')
   }
 
   // --- encounters -----------------------------------------------------------------
@@ -914,7 +1047,7 @@ class ZuzuGhostTrail implements ArcadeGameInstance {
       sy = GROUND_Y
     } else if (def.flies) {
       sx = this.camX + W + 10
-      sy = 70 + this.rng() * 60
+      sy = this.camY + 70 + this.rng() * 60
     } else {
       sx = this.camX + W + 10
       if (!this.groundAt(sx) || this.blockedAt(sx, GROUND_Y - 4)) return
@@ -933,9 +1066,10 @@ class ZuzuGhostTrail implements ArcadeGameInstance {
       k.t++
       k.life--
       if (k.weapon === 'katana') {
-        // The iai cut stays in front of him for its few frames.
-        k.x = this.x + this.facing * 13
-        k.y = this.y - 11
+        // The crescent rides in front of him through the lunge.
+        k.x = this.x + this.facing * IAI.ahead
+        k.y = this.y - 13
+        if (k.t <= IAI.active) this.cutBolts(k)
       } else if (k.weapon === 'kasa') {
         // Out, slowing, then home on Zuzu; caught when it reaches him.
         if (k.t < 30) k.x += k.vx * (1 - k.t / 36)
@@ -965,16 +1099,17 @@ class ZuzuGhostTrail implements ArcadeGameInstance {
       )
         k.life = 0
       // The iai cut only bites on its first few frames; the rest is follow-through.
-      if (k.life <= 0 || (k.weapon === 'katana' && k.t > 4)) continue
-      const pad = k.weapon === 'katana' ? 4 : k.weapon === 'kasa' ? 2 : 0
+      if (k.life <= 0 || (k.weapon === 'katana' && k.t > IAI.active)) continue
+      const cut = k.weapon === 'katana'
+      const pad = k.weapon === 'kasa' ? 2 : 0
       const foes = this.foes.filter((f) => {
         if (f.hp <= 0 || k.struck.includes(f)) return false
         const def = FOES[f.kind]
         // A riser can be hit once it is mostly out of the dirt.
         if (def.rises && f.phase === 'rise' && f.y > f.baseY + 6) return false
         return (
-          Math.abs(f.x - k.x) < def.hw + pad &&
-          Math.abs(f.y - def.cy - k.y) < def.hh + pad
+          Math.abs(f.x - k.x) < def.hw + (cut ? IAI.hw : pad) &&
+          Math.abs(f.y - def.cy - k.y) < def.hh + (cut ? IAI.hh : pad)
         )
       })
       const pierce = k.weapon === 'katana' || k.weapon === 'kasa'
@@ -991,9 +1126,9 @@ class ZuzuGhostTrail implements ArcadeGameInstance {
       if (b && b.dying === 0 && !k.struck.includes(b)) {
         const def = bossDef(b)
         if (
-          Math.abs(b.x - k.x) < def.hw + pad &&
-          k.y > b.y - def.height &&
-          k.y < b.y
+          Math.abs(b.x - k.x) < def.hw + (cut ? IAI.hw : pad) &&
+          k.y + (cut ? IAI.hh : 0) > b.y - def.height &&
+          k.y - (cut ? IAI.hh : 0) < b.y
         ) {
           k.struck.push(b)
           this.hurtBoss(WEAPONS[k.weapon].damage, k.x, k.y)
@@ -1015,6 +1150,23 @@ class ZuzuGhostTrail implements ArcadeGameInstance {
     this.shots = this.shots.filter(
       (k) => k.life > 0 && Math.abs(k.x - this.x) < W,
     )
+  }
+
+  /** The iai edge cuts hostile shots out of the air (not ground fire, waves or a boss's own reach). */
+  private cutBolts(k: Shot) {
+    for (const b of this.bolts) {
+      if (b.kind === 'pillar' || b.kind === 'wave' || b.kind === 'chain')
+        continue
+      if (b.life <= 0) continue
+      if (
+        Math.abs(b.x - k.x) < b.hw + IAI.hw &&
+        Math.abs(b.y - k.y) < b.hh + IAI.hh
+      ) {
+        b.life = 0
+        this.burst(b.x, b.y, 6, '#e0f2fe')
+        this.sound.play('blip')
+      }
+    }
   }
 
   private ignite(x: number, floor: number | null) {
@@ -1207,8 +1359,13 @@ class ZuzuGhostTrail implements ArcadeGameInstance {
     // The arena is the boss's alone.
     this.foes = this.foes.filter((f) => f.x < this.arenaL)
     const def = bossDef(b)
-    // The fight is never lost to a clock run down on the way there.
+    // The fight is never lost to a clock run down on the way there, and a fall in it starts again
+    // at the arena gate, not back down the trail.
     this.timer = Math.max(this.timer, BOSS_CLOCK)
+    if (this.checkpoint < this.arenaL + 30) {
+      this.checkpoint = this.arenaL + 30
+      this.keep()
+    }
     this.banner = { text: def.name, sub: def.title, ticks: 100 }
     this.sound.play('warn')
   }
@@ -1277,7 +1434,7 @@ class ZuzuGhostTrail implements ArcadeGameInstance {
 
   /** The poncho rule: first hit knocks the poncho and kasa off; the next one ends him. */
   private hit() {
-    if (this.invuln > 0 || this.dead > 0) return
+    if (this.invuln > 0 || this.guard > 0 || this.dead > 0) return
     if (this.poncho) {
       this.poncho = false
       this.invuln = INVULN_TICKS
@@ -1387,6 +1544,7 @@ class ZuzuGhostTrail implements ArcadeGameInstance {
           '',
           `RELICS FOUND: ${this.foundSecrets.size}/${RELIC_COUNT}`,
           `FINAL SCORE: ${this.score}`,
+          this.continues ? `CONTINUES: ${this.continues}` : 'NO CONTINUES',
           '',
           ...CREDITS,
         ],
@@ -1512,7 +1670,7 @@ class ZuzuGhostTrail implements ArcadeGameInstance {
     // Only what the weapon can reach is fought where it stands; the iai cut only reaches a step.
     const reach =
       this.weapon === 'katana'
-        ? 24
+        ? 44
         : this.weapon === 'lantern'
           ? 80
           : this.weapon === 'kasa'
@@ -1566,7 +1724,7 @@ class ZuzuGhostTrail implements ArcadeGameInstance {
       crate &&
       this.throwCooldown === 0 &&
       this.facing === 1 &&
-      (this.weapon !== 'katana' || crate.x - this.x < 24)
+      (this.weapon !== 'katana' || crate.x - this.x < 40)
     )
       frame.pressed.a = true
     if (this.pilotTerrain(frame)) return frame
@@ -1910,11 +2068,11 @@ class ZuzuGhostTrail implements ArcadeGameInstance {
       shuriken: 90,
       kasa: 70,
       lantern: 48,
-      katana: 12,
+      katana: 26,
     }[this.weapon]
     if (
       this.throwCooldown === 0 &&
-      (this.weapon !== 'katana' || Math.abs(dx) < 30)
+      (this.weapon !== 'katana' || Math.abs(dx) < 48)
     )
       frame.pressed.a = true
     if (Math.abs(dx) > want + 12) {
@@ -1932,7 +2090,10 @@ class ZuzuGhostTrail implements ArcadeGameInstance {
     const key = ART_KEY[theme]
     drawBackdrop(g, key, camX, this.tick, this.length)
     g.save()
-    g.translate(-camX, 0)
+    const camY = Math.round(this.camY)
+    // Up a tower, the town fades behind the tower's own walls.
+    drawTowerInterior(g, camX, camY, Math.min(1, -camY / 120), this.tick)
+    g.translate(-camX, -camY)
     for (const u of this.act.updrafts ?? [])
       drawUpdraft(g, u, GROUND_Y, this.tick)
     drawTerrain(g, this.terrain, camX, this.tick)
@@ -1951,9 +2112,14 @@ class ZuzuGhostTrail implements ArcadeGameInstance {
       if (p.x + m.w > camX - 8 && p.x < camX + W + 8)
         drawMover(g, m, p.x, p.y, theme, this.tick)
     }
-    drawGate(g, key, this.length, this.tick, !this.bossDone)
+    this.atFloor(g, this.length + 30, () =>
+      drawGate(g, key, this.length, this.tick, !this.bossDone),
+    )
     for (const c of this.act.checkpoints)
-      if (c > 40) drawCheckpoint(g, key, c, this.checkpoint >= c, this.tick)
+      if (c > 40)
+        this.atFloor(g, c, () =>
+          drawCheckpoint(g, key, c, this.checkpoint >= c, this.tick),
+        )
     for (const c of this.crates) if (!c.open) drawCrate(g, c.x, GROUND_Y)
     for (const s of this.act.secrets)
       if (!this.foundSecrets.has(s.id)) drawSecret(g, s.x, s.y, this.tick)
@@ -1984,9 +2150,23 @@ class ZuzuGhostTrail implements ArcadeGameInstance {
     for (const f of this.floaters)
       drawText(g, f.text, f.x, f.y, { align: 'center', color: '#fde68a' })
     g.restore()
-    drawForeground(g, key, camX, this.tick, this.act.ground)
+    // The low foreground strip belongs to the ground line: it fades away as the view climbs.
+    if (camY > -40) {
+      g.globalAlpha = 1 + camY / 40
+      drawForeground(g, key, camX, this.tick, this.act.ground)
+      g.globalAlpha = 1
+    }
     this.renderHud(g)
     if (this.card) drawCard(g, this.card)
+  }
+
+  /** Draw ground-line art (a gate, a checkpoint lantern) standing on whatever floor is at x. */
+  private atFloor(g: CanvasRenderingContext2D, x: number, draw: () => void) {
+    const floor = this.standAt(x)
+    g.save()
+    g.translate(0, floor - GROUND_Y)
+    draw()
+    g.restore()
   }
 
   private renderFoe(g: CanvasRenderingContext2D, f: Foe) {

@@ -10,6 +10,7 @@
 
 import type { Act, Stage } from '../world'
 import { fire, groundWith, room, steps } from './build56'
+import { BELL_STAIR } from './tower'
 
 const NAME = 'MISSION BELL TOWER'
 
@@ -228,7 +229,7 @@ const missionSteps: Act = {
       ],
     },
   ],
-  checkpoints: [40, 2160, 4560, 5620],
+  checkpoints: [40, 1210, 2160, 3360, 4560, 5620],
   secrets: [{ id: 's5a1-ledger', x: 3982, y: 46, name: 'THE PADRE LEDGER' }],
   ambient: ['crow'],
   seconds: 360,
@@ -475,7 +476,7 @@ const bellGallery: Act = {
       ],
     },
   ],
-  checkpoints: [40, 2400, 4340, 6160],
+  checkpoints: [40, 1190, 2400, 3370, 4340, 5250, 6160],
   secrets: [{ id: 's5a2-clapper', x: 1685, y: 82, name: 'A CRACKED CLAPPER' }],
   ambient: ['crow'],
   seconds: 390,
@@ -494,7 +495,7 @@ const bellGallery: Act = {
 const belfry: Act = {
   id: 's5a3',
   stage: 5,
-  act: 3,
+  act: 4,
   stageName: NAME,
   actName: 'THE BELFRY',
   theme: 'belltower',
@@ -693,7 +694,7 @@ const belfry: Act = {
       ],
     },
   ],
-  checkpoints: [40, 2400, 4700, 7300],
+  checkpoints: [40, 1440, 2400, 3550, 4700, 5860, 6580, 7300],
   secrets: [{ id: 's5a3-bell-order', x: 3283, y: 44, name: 'THE BELL ORDER' }],
   ambient: ['crow'],
   seconds: 420,
@@ -706,4 +707,9 @@ const belfry: Act = {
   ],
 }
 
-export const STAGE_5_ACTS: Act[] = [missionSteps, bellGallery, belfry]
+export const STAGE_5_ACTS: Act[] = [
+  missionSteps,
+  bellGallery,
+  BELL_STAIR,
+  belfry,
+]

@@ -176,7 +176,7 @@ const MAIN_STREET: Act = {
       ],
     },
   ],
-  checkpoints: [40, 2680, 4700],
+  checkpoints: [40, 1340, 2680, 3690, 4700, 5550],
   secrets: [{ id: 's1a1-tin-star', x: 3670, y: 82, name: 'GULCH TIN STAR' }],
   ambient: ['spirit'],
   seconds: 360,
@@ -376,7 +376,7 @@ const THE_COURTHOUSE: Act = {
       ],
     },
   ],
-  checkpoints: [40, 2600, 5620, 6620],
+  checkpoints: [40, 1320, 2600, 3900, 4760, 5620, 6620],
   secrets: [
     { id: 's1a2-piano-key', x: 2800, y: 194, name: 'SALOON PIANO KEY' },
   ],

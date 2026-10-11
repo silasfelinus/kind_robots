@@ -197,7 +197,7 @@ const THE_CRYPTS: Act = {
       ],
     },
   ],
-  checkpoints: [40, 2160, 4060],
+  checkpoints: [40, 1120, 2160, 3060, 4060, 5330],
   secrets: [
     { id: 's2a1-widows-locket', x: 2780, y: 106, name: 'WIDOWS LOCKET' },
   ],
@@ -422,7 +422,7 @@ const THE_BROKEN_BRIDGE: Act = {
       ],
     },
   ],
-  checkpoints: [40, 1840, 3990, 6560],
+  checkpoints: [40, 660, 1840, 2920, 3990, 5280, 6560],
   secrets: [
     { id: 's2a2-bell-sigil', x: 2820, y: 58, name: 'FIRST BELL SIGIL' },
   ],

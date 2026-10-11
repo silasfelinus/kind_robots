@@ -250,7 +250,7 @@ const undercroft: Act = {
       ],
     },
   ],
-  checkpoints: [40, 2250, 4450, 6350],
+  checkpoints: [40, 1180, 2250, 3350, 4450, 5400, 6350, 7110],
   secrets: [
     { id: 's6a1-letter', x: 1250, y: 126, name: 'A NOVICE LETTER' },
     { id: 's6a1-vow', x: 3896, y: 86, name: 'THE FIRST VOW' },
@@ -477,7 +477,7 @@ const ritualHalls: Act = {
       ],
     },
   ],
-  checkpoints: [40, 1950, 3860, 6600],
+  checkpoints: [40, 1130, 1950, 2910, 3860, 5240, 6600, 7600],
   secrets: [
     { id: 's6a2-confession', x: 4240, y: 74, name: 'A SISTER CONFESSION' },
     { id: 's6a2-foundry', x: 5030, y: 78, name: 'THE FOUNDRY MARK' },
@@ -700,7 +700,7 @@ const bellBeneath: Act = {
       ],
     },
   ],
-  checkpoints: [40, 2600, 5640, 8240],
+  checkpoints: [40, 1320, 2600, 3900, 4760, 5640, 6860, 8240],
   secrets: [
     { id: 's6a3-ledger', x: 3180, y: 82, name: 'THE ABBESS LEDGER' },
     { id: 's6a3-litany', x: 6398, y: 70, name: 'THE LAST LITANY' },

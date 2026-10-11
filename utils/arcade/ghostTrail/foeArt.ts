@@ -4942,13 +4942,35 @@ function drawLanternShot(g: G, k: FoeArtShot) {
 
 function drawIaiCut(g: G, k: FoeArtShot) {
   const face = k.face ?? (Math.sign(k.vx) || 1)
-  const sweep = Math.max(0, Math.min(1, (10 - k.life) / 10))
-  const alpha = Math.max(0.2, Math.min(1, k.life / 10))
+  const sweep = Math.max(0, Math.min(1, (12 - k.life) / 12))
+  const alpha = Math.max(0.2, Math.min(1, k.life / 12))
   const a0 = -1.3 + sweep * 0.4
   const a1 = 1.1 + sweep * 0.4
+  // The great crescent: the game's cut box is centred 20 px ahead of Zuzu, 22 x 18 half extents.
+  const S = 2.3
   g.save()
-  g.translate(k.x - face * 11, k.y - 1)
-  g.scale(face, 1)
+  // A moonlit flash where the blade clears the scabbard, in the first frames.
+  if (sweep < 0.35) {
+    g.globalCompositeOperation = 'lighter'
+    g.globalAlpha = (0.35 - sweep) * 1.6
+    const flash = g.createRadialGradient(
+      k.x - face * 14,
+      k.y,
+      0,
+      k.x - face * 14,
+      k.y,
+      30,
+    )
+    flash.addColorStop(0, '#ffffff')
+    flash.addColorStop(0.4, rgba('#bfe9ff', 0.6))
+    flash.addColorStop(1, rgba('#bfe9ff', 0))
+    g.fillStyle = flash
+    g.fillRect(k.x - face * 14 - 30, k.y - 30, 60, 60)
+    g.globalCompositeOperation = 'source-over'
+    g.globalAlpha = 1
+  }
+  g.translate(k.x - face * 18, k.y - 1)
+  g.scale(face * S, S)
   const crescent = (r: number, inset: number) => {
     g.beginPath()
     g.arc(0, 0, r, a0, a1)

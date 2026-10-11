@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict'
+import { createHash } from 'node:crypto'
 import { readFileSync } from 'node:fs'
 import { fileURLToPath } from 'node:url'
 import {
@@ -7,7 +8,7 @@ import {
   canChooseTrial,
   trialForLand,
 } from '../shiftingLands/authoredBosses'
-import { activeFiveLandEncounter } from '../shiftingLands/authoredFiveLands'
+import { activeFiveLandEncounter, FIVE_LAND_CARDS } from '../shiftingLands/authoredFiveLands'
 import { JOURNEY_WORLD, reachableLocations } from '../shiftingLands/journey'
 import {
   newJourneyLedgerV4,
@@ -23,9 +24,16 @@ import {
 
 const clone = <T>(value: T): T => JSON.parse(JSON.stringify(value))
 const file = (path: string) => fileURLToPath(new URL(path, import.meta.url))
-const bossSource = JSON.parse(
-  readFileSync(file('../shiftingLands/authoredTrials.json'), 'utf8'),
-)
+const rawBossSource = readFileSync(file('../shiftingLands/authoredTrials.json'), 'utf8')
+const bossSource = JSON.parse(rawBossSource)
+const sourceBlob = createHash('sha1')
+  .update(`blob ${Buffer.byteLength(rawBossSource)}\0`)
+  .update(rawBossSource)
+  .digest('hex')
+assert.equal(TRIAL_SOURCE_SHA, sourceBlob, 'V5 save source must pin the exact authored trials Git blob')
+const earnedFlags = new Set(FIVE_LAND_CARDS.flatMap((card) =>
+  card.choices.flatMap((choice) => [...choice.success.add_flags, ...choice.failure.add_flags]),
+))
 assert.equal(TRIAL_SOURCE_VERSION, 1)
 assert.equal(TRIAL_SOURCE_SHA.length, 40)
 assert.equal(AUTHORED_TRIALS.length, 5)
@@ -57,6 +65,7 @@ for (const trial of AUTHORED_TRIALS) {
   assert.equal(trial.choices[0]!.requiredAnyFlags.length, 0)
   assert.equal(trial.choices[1]!.requiredAnyFlags.length, 0)
   assert.ok(trial.choices[2]!.requiredAnyFlags.length >= 3)
+  assert.ok(trial.choices[2]!.requiredAnyFlags.some((flag) => earnedFlags.has(flag)), 'evidence must be earnable from authored encounters')
   assert.equal(canChooseTrial(trial.choices[2]!, [], 30), false)
   assert.equal(
     canChooseTrial(

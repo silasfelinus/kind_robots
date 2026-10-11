@@ -273,6 +273,8 @@ export class PinballRuntime<
           this.tick,
         )
     this.scene.setLamps(frame.lamps, frame.gi)
+    const poses = this.ruleset.animatronics?.(this.rules, this.steps)
+    if (poses) this.scene.setAnimatronics(poses)
     // The skill shot's arrow flashes until the first shot after the plunge.
     const skill = this.ruleset.skillTarget(this.rules)
     if (!this.demo && skill && this.tick % SKILL_PULSE_TICKS === 0)

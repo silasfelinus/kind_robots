@@ -309,6 +309,7 @@ export type MusicVideoStillBody = {
   cfg?: number
   sampler?: string
   loraResourceIds: number[]
+  loras?: Array<{ resourceId: number; strength: number }>
   isPublic: false
   isMature: false
   designer: string
@@ -363,6 +364,8 @@ export function musicVideoStillBody(
       promptProse: composed,
       promptTags: options.lane.promptStyle === 'tags' ? composed : null,
       aspect: doc.settings.aspect,
+      // Character LoRAs follow the scene's own prompt, not the style bible.
+      castText: scene.prompt,
       useSeriesStyle: true,
       negativePrompt:
         [options.series?.negativeTags, doc.settings.negativePrompt]
@@ -383,5 +386,24 @@ export function musicVideoStillBody(
     ...(body.cfg ? { cfg: body.cfg } : {}),
     ...(body.sampler ? { sampler: body.sampler } : {}),
     ...shared,
+    ...(body.loras?.length
+      ? { loras: withVideoLoras(body.loras, shared.loraResourceIds) }
+      : {}),
   }
+}
+
+// /api/art/enqueue reads `loras` before `loraResourceIds`, so once the lane adds
+// character LoRAs the video's and scene's own LoRAs ride in the same list, at the
+// legacy full strength, without duplicates.
+function withVideoLoras(
+  cast: Array<{ resourceId: number; strength: number }>,
+  legacyIds: number[],
+): Array<{ resourceId: number; strength: number }> {
+  const seen = new Set(cast.map((lora) => lora.resourceId))
+  return [
+    ...cast,
+    ...legacyIds
+      .filter((id) => !seen.has(id))
+      .map((resourceId) => ({ resourceId, strength: 1 })),
+  ].slice(0, 6)
 }

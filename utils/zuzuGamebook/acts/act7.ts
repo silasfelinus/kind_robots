@@ -355,7 +355,7 @@ export const ACT_VII: Act = {
     s(
       'a7-long-way',
       CH.VII,
-      'The Long Way Round',
+      'Only Road',
       'dust-road',
       'The long way is only road. That is its mercy and its cruelty: no wonders, no voices, just miles. The black rocks shine off to your right for an hour, keeping pace, then fall behind. Your breath saws. Your pads are bleeding. You count strides to a hundred and start again, and somewhere in the counting you stop thinking about anything but the next hundred. The moon climbs past the top of the sky and starts down the other side. You watch it go. Every handspan it falls is a door closing somewhere in the mission.',
       {
@@ -424,7 +424,7 @@ export const ACT_VII: Act = {
     s(
       'a7-feather-road',
       CH.VII,
-      'Through the Feather',
+      'The White Road',
       'crow-witch',
       'You hold the black feather to your eye. Through its vane the world goes grey and very sharp, and the black rocks are not there. There is only the plain, and the road running through it straight and white as it always did, with a skin of something laid over it like oil on water, wrinkling. A mile up the true road, on a fence post where there is no fence, sits a crow in a coat of rags. She lifts one wing and points with it, toward the mission. "Paid is paid," she calls, as you run past with the feather held to your eye. She turns her head to watch you all the way by.',
       {

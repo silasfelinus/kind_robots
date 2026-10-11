@@ -122,6 +122,21 @@ export type DoorDef = {
   id: string
   closed: BoxCollider[]
   open: BoxCollider[]
+  /** Starts open (a mouth that waits for the ball); doors start closed. */
+  startsOpen?: boolean
+}
+
+/**
+ * An animatronic toy (Zuzu t-015): scenery the rules pose by phase (the
+ * ruleset's animatronics()), drawn by the renderer for its kind. No collider.
+ */
+export type AnimatronicDef = {
+  id: string
+  kind: 'river-croc'
+  /** Its origin on the table, and its turn about Y. */
+  at: Vec3
+  yaw?: number
+  scale?: number
 }
 
 /** A motorised toy: arms on a hub that turn at a steady rate and bat the ball. */
@@ -378,6 +393,7 @@ export type TableDef = {
   kickers?: KickerDef[]
   toys?: ToyDef[]
   captives?: CaptiveBallDef[]
+  animatronics?: AnimatronicDef[]
   /** The signature toys (t-010), drawn from the rules' state. */
   hero?: HeroDef
   lanterns?: LanternDef[]

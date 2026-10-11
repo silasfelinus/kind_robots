@@ -71,12 +71,15 @@
                 strikes raise it again. The River Croc always pays, and his
                 fifth swallow lights an extra ball. Feed him during Homestead to
                 open the Watering Hole, where an orbit lights his mouth for a
-                Death Roll jackpot that grows each time. A soft plunge into the
-                Mortuary is the skill shot.
+                Death Roll jackpot that grows each time. Ring the bell lane to
+                lock balls in the Citadel: three start Harvest Moon. Broken
+                seals and both orbits start the four-ball Storm Crow, and the
+                fifth story seal rings The Last Bell, all six balls. A soft
+                plunge into the Mortuary is the skill shot.
               </p>
               <p class="text-sm leading-relaxed opacity-85">
                 Next: a raised Abbey with independently controlled upper
-                flippers, multiball, and the hidden undercrypt.
+                flippers and the hidden undercrypt.
               </p>
             </section>
             <section class="kr-panel space-y-3 p-5">

@@ -168,6 +168,9 @@ jobs:
       - name: Zuzu Pinball Watering Hole and Death Roll
         run: npm run test:zuzu-pinball-watering-hole
 
+      - name: Zuzu Pinball Citadel lock and Harvest Moon multiball
+        run: npm run test:zuzu-pinball-multiball
+
       - name: Zuzu gamebook branching and combat
         run: npm run test:zuzu-gamebook
 

@@ -9,6 +9,19 @@
 const SCENE = '/zuzu-gamebook/scenes/'
 const SECTION = '/zuzu-gamebook/scenes/sections/'
 const STAGE = '/zuzu-showdown-stages/'
+const CARD = '/shifting-lands/cards/'
+
+// zuzu-shifting-lands t-023/t-026: cards whose own painting has been picked
+// from a conductor art round (projects/zuzu-shifting-lands/art/ROUND-*.yaml)
+// and exported to public/shifting-lands/cards/<id>.webp. Encounter ids, plus
+// trial-<landId> for a land's major trial. A listed card wins over reuse.
+export const BESPOKE_CARDS: readonly string[] = []
+
+const bespoke = new Set(BESPOKE_CARDS)
+
+export function bespokeArt(cardId: string): string | null {
+  return bespoke.has(cardId) ? CARD + cardId + '.webp' : null
+}
 
 export const LAND_SCENERY: Readonly<Record<string, string>> = {
   homestead: SCENE + 'dust-road.webp',
@@ -112,11 +125,18 @@ export function encounterArt(
   location: { id: string; art: string | null } | null,
 ): string {
   if (encounter?.art) return encounter.art
+  const painted = encounter ? bespokeArt(encounter.id) : null
+  if (painted) return painted
   if (encounter && ENCOUNTER_ART[encounter.id])
     return ENCOUNTER_ART[encounter.id]!
   return location ? locationArt(landId, location) : landScenery(landId)
 }
 
 export function trialArt(landId: string, bossArt: string | null): string {
-  return bossArt ?? TRIAL_ART[landId] ?? landScenery(landId)
+  return (
+    bespokeArt('trial-' + landId) ??
+    bossArt ??
+    TRIAL_ART[landId] ??
+    landScenery(landId)
+  )
 }

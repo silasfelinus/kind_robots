@@ -33,7 +33,18 @@
 // all five villages pay the AMI JACKPOT. Multiball ends at one ball left.
 
 import { drawText } from '../font'
-import { bandedGradient, bevel, drawSprite, dropShadow, glow, hudPanel, pixelSprite, RAMPS, shadedOrb, vignette } from '../snes'
+import {
+  bandedGradient,
+  bevel,
+  drawSprite,
+  dropShadow,
+  glow,
+  hudPanel,
+  pixelSprite,
+  RAMPS,
+  shadedOrb,
+  vignette,
+} from '../snes'
 import { Dmd, DMD_COLS, DMD_ROWS, dmdTextWidth } from '../pinball/dmd'
 import type {
   ArcadeGameInstance,
@@ -74,14 +85,23 @@ const VILLAGE_PIXELS = [
   'bbbddbbbb',
 ] as const
 const VILLAGE_DARK = pixelSprite(VILLAGE_PIXELS, {
-  r: RAMPS.purple[1], b: RAMPS.earth[0], w: RAMPS.night[2], d: RAMPS.earth[1],
+  r: RAMPS.purple[1],
+  b: RAMPS.earth[0],
+  w: RAMPS.night[2],
+  d: RAMPS.earth[1],
 })
 const VILLAGE_LIT = [
   pixelSprite(VILLAGE_PIXELS, {
-    r: RAMPS.pink[2], b: RAMPS.earth[2], w: RAMPS.gold[4], d: RAMPS.earth[0],
+    r: RAMPS.pink[2],
+    b: RAMPS.earth[2],
+    w: RAMPS.gold[4],
+    d: RAMPS.earth[0],
   }),
   pixelSprite(VILLAGE_PIXELS, {
-    r: RAMPS.pink[3], b: RAMPS.earth[3], w: RAMPS.gold[3], d: RAMPS.earth[1],
+    r: RAMPS.pink[3],
+    b: RAMPS.earth[3],
+    w: RAMPS.gold[3],
+    d: RAMPS.earth[1],
   }),
 ]
 
@@ -1607,12 +1627,22 @@ class KindPinball implements ArcadeGameInstance {
 
   /** The printed playfield: colour wash, sunburst, rainbow, lane art, AMI. */
   private renderArt(g: CanvasRenderingContext2D) {
-    bandedGradient(g, 0, 0, W, H, [
-      RAMPS.night[0], RAMPS.purple[0], RAMPS.purple[1], RAMPS.night[0],
-    ], 4)
+    bandedGradient(
+      g,
+      0,
+      0,
+      W,
+      H,
+      [RAMPS.night[0], RAMPS.purple[0], RAMPS.purple[1], RAMPS.night[0]],
+      4,
+    )
     for (let y = 96; y < 360; y += 16) {
-      bevel(g, 12, y, 8, 9, y % 32 === 0 ? RAMPS.purple : RAMPS.steel, { depth: 1 })
-      bevel(g, 252, y, 8, 9, y % 32 === 0 ? RAMPS.purple : RAMPS.steel, { depth: 1 })
+      bevel(g, 12, y, 8, 9, y % 32 === 0 ? RAMPS.purple : RAMPS.steel, {
+        depth: 1,
+      })
+      bevel(g, 252, y, 8, 9, y % 32 === 0 ? RAMPS.purple : RAMPS.steel, {
+        depth: 1,
+      })
     }
     // Sunburst rays behind the bumpers.
     g.save()

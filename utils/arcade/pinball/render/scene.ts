@@ -210,6 +210,19 @@ function batOutline(
   ])
 }
 
+/**
+ * Touch devices (phones, tablets) start a tier down: their screens are dense
+ * and their GPUs share power with everything else, and climbing up after ten
+ * smooth seconds costs far less than a first minute of crawling frames.
+ */
+function startingTier(): QualityTier {
+  const coarse =
+    typeof window !== 'undefined' &&
+    typeof window.matchMedia === 'function' &&
+    window.matchMedia('(pointer: coarse)').matches
+  return coarse ? 'medium' : 'high'
+}
+
 type Lamp = {
   material: THREE.MeshStandardMaterial
   level: LampLevel
@@ -314,8 +327,8 @@ export class PinballScene {
   /** World up as seen from the pitched table. */
   private up: THREE.Vector3
   private size = { width: 0, height: 0, dpr: 1 }
-  private governor = new QualityGovernor('high')
-  private settings: TierSettings = TIER_SETTINGS.high
+  private governor = new QualityGovernor(startingTier())
+  private settings: TierSettings = TIER_SETTINGS[this.governor.tier]
   private lastFrameAt = 0
   private albedoLoaded = false
   private disposed = false

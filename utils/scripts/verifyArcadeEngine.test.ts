@@ -13,7 +13,12 @@ import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { MUSIC_BEDS, PINBALL_CUES } from '../arcade/pinball/audio/catalog'
 import { PinballMixer } from '../arcade/pinball/audio/mixer'
-import { advanceClock, MAX_TICKS_PER_FRAME, TICK_MS } from '../arcade/loop'
+import {
+  advanceClock,
+  MAX_TICKS_PER_FRAME,
+  startFixedLoop,
+  TICK_MS,
+} from '../arcade/loop'
 import { everyNthLevel, levelCurve, mulberry32 } from '../arcade/curve'
 import {
   assignPads,
@@ -119,6 +124,7 @@ import {
 } from '../arcade/pinball/dmdQueue'
 import { drawDmd, fitScale, formatScore } from '../arcade/pinball/dmdScenes'
 import { cameraViewFor, PinballRuntime } from '../arcade/pinball/runtime'
+import { asMusicLoop } from '../arcade/sound'
 import { aimedShot, delaysFor } from '../arcade/pinball/tuning/aim'
 import { BOT_SKILLS, PinballBot } from '../arcade/pinball/tuning/bot'
 import { playGame, summarize } from './pinballTuning'
@@ -195,6 +201,32 @@ import {
   )
   assert.equal(asleep.accumulator, 0)
   assert.equal(advanceClock(0, -50).ticks, 0, 'clock never runs backwards')
+
+  // A frame that throws never ends the loop (the tablet freeze, 2026-10-11):
+  // the error goes to the handler and the next frame still runs.
+  const queued: Array<(now: number) => void> = []
+  const g = globalThis as {
+    requestAnimationFrame?: (cb: (now: number) => void) => number
+    cancelAnimationFrame?: (handle: number) => void
+  }
+  const saved = [g.requestAnimationFrame, g.cancelAnimationFrame] as const
+  g.requestAnimationFrame = (cb) => queued.push(cb)
+  g.cancelAnimationFrame = () => {}
+  let renders = 0
+  const errors: unknown[] = []
+  const loop = startFixedLoop(
+    () => {},
+    () => {
+      renders++
+      if (renders === 2) throw new Error('boom')
+    },
+    (error) => errors.push(error),
+  )
+  for (let frame = 1; frame <= 5; frame++) queued.shift()!(frame * TICK_MS)
+  loop.stop()
+  ;[g.requestAnimationFrame, g.cancelAnimationFrame] = saved
+  assert.equal(errors.length, 1, 'the failed frame is reported')
+  assert.equal(renders, 5, 'and every frame after it still runs')
 }
 
 // --- curves and rng ----------------------------------------------------------
@@ -1295,6 +1327,17 @@ async function runPinballFeel() {
         e.type === 'mechanism' && e.id === 'flippers' && e.action === 'enable',
     ),
   )
+  // The cabinet plays a game's `music` as a MusicLoop. The runtime has none:
+  // its old private music() method read as one and froze the table on the
+  // first tick of play (Silas, tablet, 2026-10-11).
+  assert.equal(
+    asMusicLoop(() => {}),
+    null,
+    'a method is not music',
+  )
+  assert.equal(asMusicLoop({ bpm: 120 }), null, 'nor is a loop with no tracks')
+  const tune = { bpm: 120, tracks: [] }
+  assert.equal(asMusicLoop(tune), tune)
   // In the runtime, a tilted machine's flippers will not rise.
   const tilted = new PinballRuntime(
     { rng: mulberry32(8), sound: { play: () => {} }, demo: false, hiScore: 0 },
@@ -1306,6 +1349,15 @@ async function runPinballFeel() {
     physics: PinballPhysics
     rules: PinballRulesState
   }
+  assert.equal(
+    asMusicLoop((tilted as unknown as { music?: unknown }).music),
+    null,
+    'the pinball runtime hands the cabinet no music to play',
+  )
+  assert.ok(
+    !('music' in tilted),
+    'nothing on the runtime is named music (the cabinet reads that name)',
+  )
   inner.rules = { ...inner.rules, tilted: true }
   const hold = emptyInput()
   hold.held.left = true
@@ -2368,6 +2420,19 @@ async function runPinballRender() {
   assert.deepEqual(feed(30, 400), ['medium', 'low'], 'slow frames step down')
   assert.deepEqual(feed(16.7, 3000), [], 'a failed tier is not retried')
   assert.deepEqual(feed(5000, 400), [], 'stalls (a hidden tab) are not frames')
+  // A device whose every frame is slow is not stalling: it steps down at
+  // once, long before an average window fills (a tablet stuck at high
+  // dropped every 300 ms frame as a "stall" and never stepped down).
+  const drowning = new QualityGovernor('high')
+  const drops: string[] = []
+  for (let i = 0; i < 25; i++) {
+    const tier = drowning.sample(300)
+    if (tier) drops.push(tier)
+  }
+  assert.deepEqual(drops, ['medium', 'low'], 'a drowning device steps down')
+  const lone = new QualityGovernor('high')
+  for (let i = 0; i < 600; i++) lone.sample(i % 120 === 60 ? 5000 : 16.7)
+  assert.equal(lone.tier, 'high', 'a lone long gap is still a stall')
   const recovering = new QualityGovernor('high')
   for (let i = 0; i < 400; i++) recovering.sample(19)
   assert.equal(recovering.tier, 'high', 'just under 50 FPS is not slow')

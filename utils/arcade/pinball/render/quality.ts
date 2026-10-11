@@ -93,12 +93,20 @@ const FAST_FRAMES = 600
 const SETTLE_FRAMES = 90
 /** A gap longer than this is a stall (tab hidden, GC), not a frame. */
 const STALL_MS = 250
+/**
+ * Frames slower than this (ms, under ~16 FPS) are a device drowning: a run of
+ * them steps down at once, settled or not, and even when each is long enough
+ * to look like a stall. A lone long gap is still a stall.
+ */
+const DROWNING_MS = 60
+const DROWNING_FRAMES = 10
 
 export class QualityGovernor {
   private current: QualityTier
   private samples: number[] = []
   private settle = SETTLE_FRAMES
   private fastRun = 0
+  private slowRun = 0
   /** Tiers this session has stepped down from; they are not retried. */
   private failed = new Set<QualityTier>()
   private locked: boolean
@@ -125,6 +133,16 @@ export class QualityGovernor {
     this.samples = []
     this.settle = SETTLE_FRAMES
     this.fastRun = 0
+    this.slowRun = 0
+  }
+
+  private stepDown(): QualityTier | null {
+    const index = QUALITY_TIERS.indexOf(this.current)
+    if (index >= QUALITY_TIERS.length - 1) return null
+    this.failed.add(this.current)
+    this.current = QUALITY_TIERS[index + 1]!
+    this.reset()
+    return this.current
   }
 
   /**
@@ -132,7 +150,12 @@ export class QualityGovernor {
    * changed it, else null.
    */
   sample(ms: number): QualityTier | null {
-    if (!(ms > 0) || ms > STALL_MS) return null
+    if (!(ms > 0)) return null
+    if (!this.locked) {
+      this.slowRun = ms > DROWNING_MS ? this.slowRun + 1 : 0
+      if (this.slowRun >= DROWNING_FRAMES) return this.stepDown()
+    }
+    if (ms > STALL_MS) return null
     this.history.push(ms)
     if (this.history.length > 600) this.history.shift()
     if (this.locked) return null
@@ -145,12 +168,8 @@ export class QualityGovernor {
     if (this.samples.length < WINDOW) return null
     const average = this.samples.reduce((a, b) => a + b, 0) / WINDOW
     const index = QUALITY_TIERS.indexOf(this.current)
-    if (average > SLOW_MS && index < QUALITY_TIERS.length - 1) {
-      this.failed.add(this.current)
-      this.current = QUALITY_TIERS[index + 1]!
-      this.reset()
-      return this.current
-    }
+    if (average > SLOW_MS && index < QUALITY_TIERS.length - 1)
+      return this.stepDown()
     this.fastRun = average < FAST_MS ? this.fastRun + 1 : 0
     const higher = QUALITY_TIERS[index - 1]
     if (this.fastRun >= FAST_FRAMES && higher && !this.failed.has(higher)) {

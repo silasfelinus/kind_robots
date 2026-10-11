@@ -11,7 +11,14 @@ import type { LampLevel, TableDef } from '../../types'
 import type { LampFrame } from '../../rules/lamps'
 import { CHAPTERS, litShots, RELICS_FOR_CRYPT, SEAL_COUNT } from './chapters'
 import type { ZuzuRulesState } from './rules'
-import { LOCKS_FOR_HARVEST, locksMade, SUPER_SHOTS } from './multiball'
+import {
+  LAST_BELL_SUPER,
+  LOCKS_FOR_HARVEST,
+  locksMade,
+  multiballTargets,
+  STORM_ORBITS,
+  STORM_SUPER,
+} from './multiball'
 import { STIR_SHOTS, wateringHoleRunning } from './wateringHole'
 
 /** The Citadel's lock lamps, one per lock. */
@@ -44,10 +51,11 @@ export function zuzuLamps(state: ZuzuRulesState, table: TableDef): LampFrame {
   if (state.croc.extraBallLit) hot.add('croc-mouth')
   // Multiball: the lit jackpot ramp, and the orbits once the super is lit.
   const mb = state.multiball
-  if (mb.kind) {
-    hot.add(mb.lit)
-    if (mb.superLit) for (const shot of SUPER_SHOTS) hot.add(shot)
-  }
+  for (const shot of multiballTargets(mb)) hot.add(shot)
+  // Storm Crow ready: the orbits not yet made blink.
+  if (state.storm.ready && !mb.kind)
+    for (const shot of STORM_ORBITS)
+      if (!state.storm.orbits.includes(shot)) hot.add(shot)
   // The Watering Hole: the orbits stir the water, then the mouth is lit.
   const hole = state.wateringHole
   const watering = wateringHoleRunning(hole)
@@ -105,7 +113,11 @@ export function zuzuLamps(state: ZuzuRulesState, table: TableDef): LampFrame {
   )
   set(
     'bell-flasher',
-    hot.has('bell-spiral') || (!run && !story.mortuaryLit) ? 'blink' : 'off',
+    hot.has(LAST_BELL_SUPER) ||
+      hot.has(STORM_SUPER) ||
+      (!run && !story.mortuaryLit)
+      ? 'blink'
+      : 'off',
   )
   return { lamps, gi: 1 }
 }

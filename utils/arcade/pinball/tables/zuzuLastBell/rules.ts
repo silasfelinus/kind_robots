@@ -12,8 +12,9 @@
 //
 // A swallow during Homestead opens the Watering Hole (wateringHole.ts),
 // where an orbit lights the Croc for the Death Roll jackpot (t-016). The
-// Citadel locks balls for Harvest Moon, the three-ball multiball
-// (multiball.ts, t-009). The undercrypt (t-010) builds on this state;
+// Citadel locks balls for Harvest Moon, the three-ball multiball; the
+// broken Abbey seals and both orbits start Storm Crow, four balls; and the
+// fifth story seal starts The Last Bell, six (multiball.ts, t-009). The undercrypt (t-010) builds on this state;
 // nothing here blocks flipping.
 
 import { PHYSICS_HZ } from '../../clock'
@@ -50,7 +51,7 @@ import { zuzuLamps } from './lamps'
 import {
   CITADEL,
   endMultiball,
-  harvestShot,
+  multiballShot,
   initialCitadel,
   initialMultiball,
   LOCK_LIGHTER,
@@ -58,6 +59,8 @@ import {
   lockFellBack,
   MULTIBALL_VALUES,
   startHarvest,
+  startMultiball,
+  STORM_ORBITS,
   type Citadel,
   type Multiball,
 } from './multiball'
@@ -123,6 +126,8 @@ export type ZuzuRulesState = CoreRulesState & {
   /** The Citadel lock and its ball ledger (multiball.ts). */
   citadel: Citadel
   multiball: Multiball
+  /** Storm Crow is ready once the seals break; both orbits start it. */
+  storm: { ready: boolean; orbits: string[] }
   /** The Croc's Watering Hole mini-mode (wateringHole.ts). */
   wateringHole: WateringHole
   extraBalls: number
@@ -211,6 +216,7 @@ export function initialZuzuRules(balls: number, seed = 1): ZuzuRulesState {
     },
     citadel: initialCitadel(),
     multiball: initialMultiball(),
+    storm: { ready: false, orbits: [] },
     wateringHole: initialWateringHole(),
     extraBalls: 0,
     relics: 0,
@@ -358,6 +364,7 @@ function shot(
   if (skillShot(state, id, at, effects)) return
   if (comboEligible) combo(state, at, effects)
   harvest(state, id, comboEligible, effects)
+  if (STORM_ORBITS.includes(id)) stormOrbit(state, id, at, effects)
   if (id === LOCK_LIGHTER) lightLock(state, effects)
   if (STIR_SHOTS.includes(id)) stir(state, at, effects)
   if (chapterShot(state, id, at, effects)) return
@@ -502,13 +509,13 @@ function chapterShot(
     { type: 'sound', name: 'mode-shot' },
     { type: 'dmd', text: label(id), ms: 1000, scene: 'jackpot', value },
   )
-  if (progress.hits >= def.need) sealChapter(state, effects)
+  if (progress.hits >= def.need) sealChapter(state, at, effects)
   else effects.push(timer(state))
   return true
 }
 
 /** A chapter told to its end: one of the five seals breaks. */
-function sealChapter(state: ZuzuRulesState, effects: RuleEffect[]) {
+function sealChapter(state: ZuzuRulesState, at: number, effects: RuleEffect[]) {
   const story = state.story
   const value = sealValue(story.chapter, story.round)
   award(state, value)
@@ -541,6 +548,8 @@ function sealChapter(state: ZuzuRulesState, effects: RuleEffect[]) {
       value: total,
     },
   )
+  // The fifth seal rings The Last Bell: the six-ball wizard multiball.
+  if (last && !state.tilted) start(state, 'last-bell', at, effects)
   if (last)
     effects.push({
       type: 'dmd',
@@ -636,6 +645,15 @@ function seal(state: ZuzuRulesState, id: string, effects: RuleEffect[]) {
     effects.push({ type: 'dmd', text: 'KICKBACK LIT', ms: 1200 })
   }
   lightMortuary(state, effects, 'THE SEALS GIVE WAY')
+  if (!state.storm.ready && !state.multiball.kind && !state.tilted) {
+    state.storm = { ready: true, orbits: [] }
+    effects.push({
+      type: 'dmd',
+      text: 'STORM CROW READY',
+      sub: 'SHOOT BOTH ORBITS',
+      ms: 1600,
+    })
+  }
 }
 
 /** One more on the bonus multiplier, to its cap; the DMD line saying so. */
@@ -790,7 +808,7 @@ function harvest(
 ) {
   if (state.tilted) return
   const inCombo = comboEligible && state.combo.count > 0
-  const r = harvestShot(
+  const r = multiballShot(
     state.multiball,
     id,
     inCombo,
@@ -801,6 +819,45 @@ function harvest(
   state.multiball = r.mb
   award(state, r.points)
   state.thisBall = { ...state.thisBall, jackpots: state.thisBall.jackpots + 1 }
+}
+
+/** Storm Crow's orbits: once the seals are broken, both start it. */
+function stormOrbit(
+  state: ZuzuRulesState,
+  id: string,
+  at: number,
+  effects: RuleEffect[],
+) {
+  const storm = state.storm
+  if (!storm.ready || state.multiball.kind || state.tilted) return
+  const orbits = storm.orbits.includes(id)
+    ? storm.orbits
+    : [...storm.orbits, id]
+  if (orbits.length < STORM_ORBITS.length) {
+    state.storm = { ...storm, orbits }
+    effects.push({
+      type: 'dmd',
+      text: 'THE CROWS GATHER',
+      sub: 'NOW THE OTHER ORBIT',
+      ms: 1400,
+    })
+    return
+  }
+  state.storm = { ready: false, orbits: [] }
+  start(state, 'storm', at, effects)
+}
+
+/** Storm Crow or The Last Bell begins. */
+function start(
+  state: ZuzuRulesState,
+  kind: 'storm' | 'last-bell',
+  at: number,
+  effects: RuleEffect[],
+) {
+  const r = startMultiball(kind, at, state.ballsInPlay, state.citadel, effects)
+  state.multiball = r.mb
+  state.citadel = r.citadel
+  state.ballsInPlay = r.ballsInPlay
 }
 
 /** A ball drained: saved, another of the same ball, the next, or game over. */

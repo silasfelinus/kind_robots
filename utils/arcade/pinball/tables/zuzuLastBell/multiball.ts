@@ -16,6 +16,15 @@
 // released and the trough serves the rest. The Village and Abbey ramps take
 // turns lighting the jackpot, and after two jackpots an orbit made in a combo
 // collects the super jackpot. A short ball save covers the start.
+//
+// Storm Crow, four balls: break all four Abbey seals, then make both orbits.
+// Every lane has its own jackpot ladder of three rungs; once each lane has
+// paid, the bell lane collects the super jackpot and the ladders reset.
+//
+// The Last Bell, six balls: the wizard multiball when the story's fifth seal
+// breaks. Any locked balls are released and the trough serves the rest;
+// every major shot is a jackpot, and six of them light the Bell spiral for
+// the super jackpot. Every super is worth more than the last.
 
 import { PHYSICS_HZ } from '../../clock'
 import type { RuleEffect } from '../../types'
@@ -38,6 +47,14 @@ export const MULTIBALL_VALUES = {
   jackpotStep: 250_000,
   superJackpot: 3_000_000,
   superStep: 1_000_000,
+  stormJackpot: 400_000,
+  stormStep: 200_000,
+  stormSuper: 5_000_000,
+  stormSuperStep: 1_000_000,
+  lastBellJackpot: 1_000_000,
+  lastBellStep: 250_000,
+  lastBellSuper: 10_000_000,
+  lastBellSuperStep: 5_000_000,
 }
 
 export type Citadel = {
@@ -49,7 +66,40 @@ export type Citadel = {
   virtual: number
 }
 
-export type MultiballKind = 'harvest'
+export type MultiballKind = 'harvest' | 'storm' | 'last-bell'
+
+/** Balls in play when each multiball starts. */
+export const MULTIBALL_BALLS: Record<MultiballKind, number> = {
+  harvest: 3,
+  storm: 4,
+  'last-bell': 6,
+}
+export const STORM_LANES: readonly string[] = [
+  'left-orbit',
+  'right-orbit',
+  'village-switchback',
+  'abbey-crossover',
+  'bell-spiral',
+]
+export const STORM_RUNGS = 3
+export const STORM_SUPER = 'bell-lane'
+/** The orbits that start Storm Crow once the seals are broken. */
+export const STORM_ORBITS: readonly string[] = ['left-orbit', 'right-orbit']
+export const LAST_BELL_SHOTS: readonly string[] = [
+  'left-orbit',
+  'right-orbit',
+  'village-switchback',
+  'abbey-crossover',
+  'croc-mouth',
+  'mortuary',
+]
+export const LAST_BELL_SUPER = 'bell-spiral'
+export const LAST_BELL_JACKPOTS_FOR_SUPER = 6
+const TOTAL_TEXT: Record<MultiballKind, string> = {
+  harvest: 'HARVEST MOON TOTAL',
+  storm: 'STORM CROW TOTAL',
+  'last-bell': 'LAST BELL TOTAL',
+}
 
 export type Multiball = {
   kind: MultiballKind | null
@@ -58,6 +108,8 @@ export type Multiball = {
   jackpots: number
   supers: number
   superLit: boolean
+  /** Storm Crow's rungs climbed on each lane. */
+  ladder: Record<string, number>
   /** Drains before this step are given back. */
   saveUntil: number
   total: number
@@ -74,6 +126,7 @@ export function initialMultiball(): Multiball {
     jackpots: 0,
     supers: 0,
     superLit: false,
+    ladder: {},
     saveUntil: Number.NEGATIVE_INFINITY,
     total: 0,
   }
@@ -185,6 +238,176 @@ export const superValue = (supers: number, round: number) =>
   (MULTIBALL_VALUES.superJackpot + MULTIBALL_VALUES.superStep * supers) * round
 
 /**
+ * Storm Crow or The Last Bell starts: the balls it needs come from the
+ * trough, and The Last Bell also releases the Citadel's locked balls.
+ */
+export function startMultiball(
+  kind: Exclude<MultiballKind, 'harvest'>,
+  at: number,
+  ballsInPlay: number,
+  citadel: Citadel,
+  effects: RuleEffect[],
+): { mb: Multiball; citadel: Citadel; ballsInPlay: number } {
+  const released = kind === 'last-bell' ? citadel.locked.length : 0
+  if (released)
+    effects.push({ type: 'mechanism', id: CITADEL, action: 'release' })
+  const served = Math.max(0, MULTIBALL_BALLS[kind] - ballsInPlay - released)
+  if (served) effects.push({ type: 'add-ball', count: served })
+  if (kind === 'storm')
+    effects.push(
+      { type: 'sound', name: 'multiball' },
+      { type: 'dmd', text: 'STORM CROW', ms: 2500, scene: 'multiball' },
+      {
+        type: 'dmd',
+        text: 'EVERY LANE A LADDER',
+        sub: 'BELL LANE FOR SUPER',
+        ms: 2000,
+      },
+    )
+  else
+    effects.push(
+      { type: 'sound', name: 'wizard' },
+      { type: 'dmd', text: 'THE LAST BELL', ms: 3000, scene: 'wizard' },
+      {
+        type: 'dmd',
+        text: 'EVERY SHOT A JACKPOT',
+        sub: 'BELL SPIRAL FOR SUPER',
+        ms: 2000,
+      },
+    )
+  return {
+    mb: { ...initialMultiball(), kind, saveUntil: at + MULTIBALL_SAVE_STEPS },
+    citadel:
+      kind === 'last-bell' ? { lit: false, locked: [], virtual: 0 } : citadel,
+    ballsInPlay: ballsInPlay + released + served,
+  }
+}
+
+export const stormJackpotValue = (rung: number, round: number) =>
+  (MULTIBALL_VALUES.stormJackpot + MULTIBALL_VALUES.stormStep * rung) * round
+export const stormSuperValue = (supers: number, round: number) =>
+  (MULTIBALL_VALUES.stormSuper + MULTIBALL_VALUES.stormSuperStep * supers) *
+  round
+export const lastBellJackpotValue = (jackpots: number, round: number) =>
+  (MULTIBALL_VALUES.lastBellJackpot +
+    MULTIBALL_VALUES.lastBellStep * jackpots) *
+  round
+export const lastBellSuperValue = (supers: number, round: number) =>
+  (MULTIBALL_VALUES.lastBellSuper +
+    MULTIBALL_VALUES.lastBellSuperStep * supers) *
+  round
+
+/** The shots lit for a jackpot or super right now (for the lamps). */
+export function multiballTargets(mb: Multiball): string[] {
+  switch (mb.kind) {
+    case 'harvest':
+      return mb.superLit ? [mb.lit, ...SUPER_SHOTS] : [mb.lit]
+    case 'storm': {
+      const lanes = STORM_LANES.filter((l) => (mb.ladder[l] ?? 0) < STORM_RUNGS)
+      return mb.superLit ? [...lanes, STORM_SUPER] : lanes
+    }
+    case 'last-bell':
+      return mb.superLit
+        ? [...LAST_BELL_SHOTS, LAST_BELL_SUPER]
+        : [...LAST_BELL_SHOTS]
+    default:
+      return []
+  }
+}
+
+function jackpot(
+  mb: Multiball,
+  points: number,
+  sub: string,
+  effects: RuleEffect[],
+): Multiball {
+  effects.push(
+    { type: 'sound', name: 'jackpot' },
+    {
+      type: 'dmd',
+      text: 'JACKPOT',
+      sub,
+      ms: 2000,
+      scene: 'jackpot',
+      value: points,
+    },
+  )
+  return { ...mb, jackpots: mb.jackpots + 1, total: mb.total + points }
+}
+
+function superJackpot(
+  mb: Multiball,
+  points: number,
+  effects: RuleEffect[],
+): Multiball {
+  effects.push(
+    { type: 'sound', name: 'super-jackpot' },
+    {
+      type: 'dmd',
+      text: 'SUPER JACKPOT',
+      ms: 2500,
+      scene: 'super-jackpot',
+      value: points,
+    },
+  )
+  return {
+    ...mb,
+    jackpots: 0,
+    superLit: false,
+    ladder: {},
+    supers: mb.supers + 1,
+    total: mb.total + points,
+  }
+}
+
+/** A shot during any multiball: its jackpots and super jackpot. */
+export function multiballShot(
+  mb: Multiball,
+  id: string,
+  inCombo: boolean,
+  round: number,
+  effects: RuleEffect[],
+): { mb: Multiball; points: number } | null {
+  if (mb.kind === 'harvest') return harvestShot(mb, id, inCombo, round, effects)
+  if (mb.kind === 'storm') {
+    if (mb.superLit && id === STORM_SUPER) {
+      const points = stormSuperValue(mb.supers, round)
+      return { mb: superJackpot(mb, points, effects), points }
+    }
+    const rung = mb.ladder[id] ?? 0
+    if (!STORM_LANES.includes(id) || rung >= STORM_RUNGS) return null
+    const points = stormJackpotValue(rung, round)
+    const ladder = { ...mb.ladder, [id]: rung + 1 }
+    const superLit = STORM_LANES.every((l) => (ladder[l] ?? 0) > 0)
+    const next = jackpot(
+      { ...mb, ladder, superLit },
+      points,
+      superLit ? 'SUPER IS LIT' : `RUNG ${rung + 1} OF ${STORM_RUNGS}`,
+      effects,
+    )
+    return { mb: next, points }
+  }
+  if (mb.kind === 'last-bell') {
+    if (mb.superLit && id === LAST_BELL_SUPER) {
+      const points = lastBellSuperValue(mb.supers, round)
+      return { mb: superJackpot(mb, points, effects), points }
+    }
+    if (!LAST_BELL_SHOTS.includes(id)) return null
+    const points = lastBellJackpotValue(mb.jackpots, round)
+    const superLit =
+      mb.superLit || mb.jackpots + 1 >= LAST_BELL_JACKPOTS_FOR_SUPER
+    const next = jackpot(
+      { ...mb, superLit },
+      points,
+      superLit ? 'SUPER IS LIT' : '',
+      effects,
+    )
+    return { mb: next, points }
+  }
+  return null
+}
+
+/**
  * A shot during Harvest Moon: the lit ramp is the jackpot, and moves to the
  * other ramp; with the super lit, an orbit made in a combo collects it.
  */
@@ -253,7 +476,7 @@ export function endMultiball(mb: Multiball, effects: RuleEffect[]): Multiball {
   if (!mb.kind) return mb
   effects.push({
     type: 'dmd',
-    text: 'HARVEST MOON TOTAL',
+    text: TOTAL_TEXT[mb.kind],
     ms: 2000,
     scene: 'mode-total',
     value: mb.total,

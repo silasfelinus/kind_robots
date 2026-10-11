@@ -66,6 +66,17 @@ const zuzuPinball: ArcadeGameModule = {
       scale: 1,
     },
     {
+      title: 'STORM AND BELL',
+      lines: [
+        'SEALS, THEN BOTH ORBITS',
+        'STORM CROW: FOUR BALLS',
+        'EVERY LANE A LADDER',
+        'FIFTH SEAL: LAST BELL',
+        'SIX BALLS, ALL JACKPOTS',
+      ],
+      scale: 1,
+    },
+    {
       title: 'WATERING HOLE',
       lines: [
         'FEED HIM IN HOMESTEAD',

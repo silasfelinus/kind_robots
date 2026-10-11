@@ -22,6 +22,13 @@ import { CITADEL_LAMPS } from '../arcade/pinball/tables/zuzuLastBell/lamps'
 import {
   BALLS_INSTALLED,
   CITADEL,
+  LAST_BELL_SHOTS,
+  lastBellJackpotValue,
+  lastBellSuperValue,
+  MULTIBALL_BALLS,
+  STORM_RUNGS,
+  stormJackpotValue,
+  stormSuperValue,
   HARVEST_BALLS,
   jackpotValue,
   locksMade,
@@ -341,18 +348,112 @@ const has = (effects: RuleEffect[], match: Partial<RuleEffect>) =>
   assert.ok(has(out, { type: 'mechanism', id: CITADEL, action: 'release' }))
 }
 
+// Storm Crow: the broken seals ready it, both orbits start it; every lane
+// climbs its own ladder, and once each has paid the bell lane is the super.
+{
+  const g = new Game()
+  for (let i = 1; i <= 4; i++)
+    g.sw({ type: 'drop', id: `abbey-seal-${i}`, bank: 'abbey-seals' })
+  assert.equal(g.state.storm.ready, true, 'Storm Crow is ready')
+  assert.equal(lamps(g.state)['left-orbit'], 'blink')
+  g.shot('left-orbit')
+  assert.equal(g.state.multiball.kind, null, 'one orbit is not enough')
+  assert.notEqual(lamps(g.state)['left-orbit'], 'blink', 'made: dark')
+  let out = g.shot('right-orbit')
+  assert.equal(g.state.multiball.kind, 'storm')
+  assert.ok(has(out, { type: 'add-ball', count: 3 } as Partial<RuleEffect>))
+  assert.equal(g.state.ballsInPlay, MULTIBALL_BALLS.storm)
+  assert.equal(g.state.storm.ready, false)
+
+  // The left orbit's ladder: three rungs, each worth more, then spent.
+  const paid: number[] = []
+  for (let rung = 0; rung < STORM_RUNGS + 1; rung++) {
+    g.wait(PHYSICS_HZ * 4)
+    const before = g.state.score
+    g.shot('left-orbit')
+    paid.push(g.state.score - before)
+  }
+  assert.equal(g.state.multiball.ladder['left-orbit'], STORM_RUNGS)
+  for (let rung = 0; rung < STORM_RUNGS; rung++)
+    assert.ok(paid[rung]! >= stormJackpotValue(rung, 1), `rung ${rung + 1}`)
+  assert.ok(paid[STORM_RUNGS]! < stormJackpotValue(0, 1), 'the ladder is spent')
+  assert.notEqual(lamps(g.state)['left-orbit'], 'blink')
+  assert.equal(g.state.multiball.superLit, false)
+  for (const lane of ['right-orbit', 'village-switchback', 'abbey-crossover'])
+    g.shot(lane)
+  assert.equal(g.state.multiball.superLit, false, 'one lane still to pay')
+  g.shot('bell-spiral')
+  assert.equal(g.state.multiball.superLit, true, 'every lane has paid')
+  assert.equal(lamps(g.state)['bell-flasher'], 'blink', 'the bell lane is lit')
+  const before = g.state.score
+  out = g.shot('bell-lane')
+  assert.ok(g.state.score - before >= stormSuperValue(0, 1))
+  assert.ok(has(out, { scene: 'super-jackpot' } as Partial<RuleEffect>))
+  assert.deepEqual(g.state.multiball.ladder, {}, 'the ladders start again')
+  assert.ok(stormSuperValue(1, 1) > stormSuperValue(0, 1), 'and climb')
+}
+
+// The Last Bell: the fifth seal starts the six-ball wizard multiball, the
+// locked balls released among them; every major shot is a jackpot and six
+// light the Bell spiral for the super.
+{
+  const g = new Game()
+  g.citadel()
+  g.shot('village-switchback')
+  g.citadel()
+  assert.equal(g.state.citadel.locked.length, 2)
+  g.state = {
+    ...g.state,
+    story: {
+      ...g.state.story,
+      chapter: 4,
+      progress: { hits: 2, made: [] },
+      run: { until: g.at + 1e6, shown: 0, rove: 0, movedAt: g.at, total: 0 },
+    },
+  }
+  let out = g.shot('bell-spiral')
+  assert.equal(g.state.multiball.kind, 'last-bell', 'The Last Bell')
+  assert.ok(has(out, { type: 'mechanism', id: CITADEL, action: 'release' }))
+  assert.ok(has(out, { type: 'add-ball', count: 3 } as Partial<RuleEffect>))
+  assert.ok(has(out, { scene: 'wizard' } as Partial<RuleEffect>))
+  assert.equal(g.state.ballsInPlay, BALLS_INSTALLED, 'all six balls')
+  assert.equal(g.state.citadel.locked.length, 0)
+  assert.equal(g.state.story.round, 2, 'and the story begins again')
+  for (const [i, shot] of LAST_BELL_SHOTS.entries()) {
+    const before = g.state.score
+    g.shot(shot)
+    assert.ok(
+      g.state.score - before >= lastBellJackpotValue(i, 2),
+      `${shot} is a jackpot`,
+    )
+  }
+  assert.equal(g.state.multiball.superLit, true, 'six jackpots')
+  const before = g.state.score
+  out = g.shot('bell-spiral')
+  assert.ok(g.state.score - before >= lastBellSuperValue(0, 2))
+  assert.ok(has(out, { scene: 'super-jackpot' } as Partial<RuleEffect>))
+}
+
 /**
  * Rules and physics together: a served ball goes straight up to the arch
  * and down into the Citadel, the trough serves multiball balls to the
  * middle of the field. Many lock-and-Harvest-Moon cycles; at every settled
  * moment the balls on the table are what the ledger says.
  */
-function soak(def: TableDef, cycles: number) {
+type SoakMode = 'harvest' | 'storm' | 'last-bell'
+
+function soak(def: TableDef, cycles: number, mode: SoakMode = 'harvest') {
   const physics = new PinballPhysics(RAPIER, def)
   let state = rules.initial(100_000, 5)
   let step = 0
   let pendingAdds = 0
-  const counts = { harvests: 0, physical: 0, virtual: 0, maxBalls: 0 }
+  const counts = {
+    harvests: 0,
+    starts: 0,
+    physical: 0,
+    virtual: 0,
+    maxBalls: 0,
+  }
   const send = (event: RulesEvent) => {
     const before = state
     const r = rules.step(state, event, { shots: def.shots })
@@ -360,7 +461,10 @@ function soak(def: TableDef, cycles: number) {
     if (state.citadel.virtual > before.citadel.virtual) counts.virtual++
     if (state.citadel.locked.length > before.citadel.locked.length)
       counts.physical++
-    if (state.multiball.kind && !before.multiball.kind) counts.harvests++
+    if (state.multiball.kind && !before.multiball.kind) {
+      if (state.multiball.kind === 'harvest') counts.harvests++
+      if (state.multiball.kind === mode) counts.starts++
+    }
     for (const e of r.effects) {
       if (e.type === 'serve-ball') physics.serveBall(...toCitadel())
       if (e.type === 'add-ball') pendingAdds += e.count
@@ -402,10 +506,66 @@ function soak(def: TableDef, cycles: number) {
       assert.ok(ledger(), `step ${step}: the ledger matches the table`)
     }
   }
+  /** A shot's switches, as a ball off the table makes them. */
+  const shot = (id: string) => {
+    for (const sensor of def.shots.find((x) => x.id === id)!.sensors)
+      send({
+        type: 'switch',
+        event: { type: 'sensor-enter', id: sensor, ballId: 999 },
+        tick: step,
+      })
+  }
   try {
     send({ type: 'start' })
     for (let cycle = 0; cycle < cycles; cycle++) {
       let guard = 0
+      if (mode === 'storm') {
+        // The seals are broken; both orbits start the storm.
+        state = {
+          ...state,
+          citadel: { ...state.citadel, lit: false },
+          storm: { ready: true, orbits: [] },
+        }
+        shot('left-orbit')
+        shot('right-orbit')
+      }
+      // The Last Bell: two balls locked on the shelf first, so the wizard
+      // has to release them; then the fifth seal's last shot.
+      while (
+        mode === 'last-bell' &&
+        state.citadel.locked.length < 2 &&
+        guard++ < 10
+      ) {
+        if (!state.citadel.lit)
+          state = { ...state, citadel: { ...state.citadel, lit: true } }
+        const locked = state.citadel.locked.length
+        let wait = 0
+        while (
+          state.citadel.locked.length === locked &&
+          wait++ < PHYSICS_HZ * 4
+        )
+          run(1)
+      }
+      if (mode === 'last-bell') {
+        assert.equal(state.citadel.locked.length, 2, 'two balls locked')
+        state = {
+          ...state,
+          citadel: { ...state.citadel, lit: false },
+          story: {
+            ...state.story,
+            chapter: 4,
+            progress: { hits: 2, made: [] },
+            run: {
+              until: step + 1e6,
+              shown: 0,
+              rove: 0,
+              movedAt: step,
+              total: 0,
+            },
+          },
+        }
+        shot('bell-spiral')
+      }
       // Lock until Harvest Moon, relighting the Citadel each time.
       while (!state.multiball.kind && guard++ < 10) {
         if (!state.citadel.lit)
@@ -419,12 +579,12 @@ function soak(def: TableDef, cycles: number) {
           run(1)
         run(PHYSICS_HZ)
       }
-      assert.ok(state.multiball.kind, `cycle ${cycle}: Harvest Moon starts`)
+      assert.equal(state.multiball.kind, mode, `cycle ${cycle}: it starts`)
       run(PHYSICS_HZ * 3)
       assert.equal(physics.lockedBalls(CITADEL), 0, 'all released')
       // Let them all drain (nobody flips) until the multiball ends.
       let wait = 0
-      while (state.multiball.kind && wait++ < PHYSICS_HZ * 40) run(1)
+      while (state.multiball.kind && wait++ < PHYSICS_HZ * 60) run(1)
       assert.equal(state.multiball.kind, null, `cycle ${cycle}: it ends`)
       run(PHYSICS_HZ * 2)
     }
@@ -452,10 +612,25 @@ const virtual = soak(noLock, Math.max(2, CYCLES / 4))
 assert.ok(virtual.harvests >= 2)
 assert.equal(virtual.physical, virtual.virtual, 'every lock healed to virtual')
 
+// Storm Crow (four balls) and The Last Bell (six, the two locked balls
+// released among them) through the physics, the ledger checked every step.
+const storm = soak(table, Math.max(2, CYCLES / 3), 'storm')
+assert.equal(storm.starts, Math.max(2, CYCLES / 3))
+assert.ok(
+  storm.maxBalls >= 4 && storm.maxBalls <= BALLS_INSTALLED,
+  'four in play',
+)
+const wizard = soak(table, Math.max(2, CYCLES / 3), 'last-bell')
+assert.equal(wizard.starts, Math.max(2, CYCLES / 3))
+assert.equal(wizard.maxBalls, BALLS_INSTALLED, 'all six balls')
+
 assert.equal(livePhysicsWorlds(), 0)
+console.log(
+  `  ${storm.starts} Storm Crows (4 balls) and ${wizard.starts} Last Bells (6 balls) through the physics`,
+)
 console.log(
   `  ${CYCLES} Harvest Moons through the physics (${real.physical} physical locks), ${virtual.harvests} more on a lockless Citadel`,
 )
 console.log(
-  'Citadel lock and Harvest Moon: bell shot to the Citadel, physical lock and release, ledger, virtual fallback, staggered jackpots, orbit-combo super, ball save and soak verified',
+  'Citadel lock, Harvest Moon, Storm Crow and The Last Bell: bell shot to the Citadel, physical lock and release, ledger, virtual fallback, staggered jackpots, orbit-combo super, ball save and soak verified',
 )

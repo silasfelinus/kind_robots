@@ -58,19 +58,21 @@
               <p
                 class="text-xs font-bold uppercase tracking-widest text-warning"
               >
-                Current slice · physics greybox
+                Current slice · playable physics greybox
               </p>
               <h3 class="font-serif text-xl font-bold">Under construction</h3>
               <p class="text-sm leading-relaxed opacity-85">
-                The prototype uses its own three-dimensional colliders, two
-                lower flippers, shooter lane, River Croc mouth scoop, pop
-                bumpers and side orbit switches. The shared AMI scoring rules
-                are temporary, not Zuzu's final game system.
+                Every shot on the table, the three ramps, both orbits, the River
+                Croc's mouth, the Mortuary, the Bell lane and the relic spinner,
+                is made by a real flip on the real physics. Inlanes feed the
+                flippers, the slingshots kick, and the four Abbey seals stand in
+                line between the Village and Bell ramps. The shared AMI scoring
+                rules are temporary, not Zuzu's final game system.
               </p>
               <p class="text-sm leading-relaxed opacity-85">
-                Next: shaped copper ramps, a raised Abbey with independently
-                controlled upper flippers, a sculpted snapping Croc jaw, Death
-                Roll jackpots and the hidden undercrypt.
+                Next: a raised Abbey with independently controlled upper
+                flippers, a sculpted snapping Croc jaw, Zuzu's own modes and
+                Death Roll jackpots, and the hidden undercrypt.
               </p>
             </section>
             <section class="kr-panel space-y-3 p-5">

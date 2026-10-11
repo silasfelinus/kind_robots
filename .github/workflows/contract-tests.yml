@@ -153,6 +153,9 @@ jobs:
       - name: Zuzu Pinball physics and ball transitions
         run: npm run test:zuzu-pinball-physics
 
+      - name: Zuzu Pinball shots from real flips
+        run: npm run test:zuzu-pinball-shots
+
       - name: Zuzu gamebook branching and combat
         run: npm run test:zuzu-gamebook
 

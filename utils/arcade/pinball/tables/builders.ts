@@ -246,6 +246,20 @@ export function ramp(
   ]
 }
 
+/** The steeper climb of the two path segments that meet at point i, radians. */
+function steepest(path: XZH[], i: number): number {
+  let angle = 0
+  for (const [a, b] of [
+    [path[i - 1], path[i]],
+    [path[i], path[i + 1]],
+  ]) {
+    if (!a || !b) continue
+    const run = Math.hypot(b[0] - a[0], b[1] - a[1])
+    angle = Math.max(angle, Math.atan2(Math.abs(b[2] - a[2]), run))
+  }
+  return angle
+}
+
 /** A clear roof over the stretch of a ramp between two distances along it. */
 function cover(
   id: string,
@@ -256,7 +270,7 @@ function cover(
 ): MeshCollider {
   const vertices: number[] = []
   const indices: number[] = []
-  const lift = 2 * 0.0135 + COVER_GAP
+  const gap = 2 * 0.0135 + COVER_GAP
   let dist = 0
   let n = 0
   path.forEach((p, i) => {
@@ -267,6 +281,9 @@ function cover(
     if (dist < from || dist > to) return
     const [sx, sz] = side[i]!
     const half = width / 2
+    // The ball needs its gap square to the floor, not straight up: on a
+    // steep climb a roof lifted only vertically pinches the ball and holds it.
+    const lift = gap / Math.cos(steepest(path, i))
     vertices.push(p[0] - sx * half, p[2] + lift, p[1] - sz * half)
     vertices.push(p[0] + sx * half, p[2] + lift, p[1] + sz * half)
     if (n > 0) {
@@ -285,6 +302,37 @@ function cover(
     restitution: 0.2,
     twoSided: true,
   }
+}
+
+/** The sling plastic's height at its edges, and at its peak. */
+const SLING_CAP_EDGE = 0.03
+const SLING_CAP_PEAK = 0.038
+
+/**
+ * The plastic over a slingshot: a shallow pitched roof over the triangle, so
+ * a ball dropped off a ramp's return rolls off into the inlane or onto the
+ * playfield instead of falling inside the sling and wedging there for good
+ * (found by the attract soak, t-012). Its edges sit above a ball rolling
+ * against the sling, so the kicker plays as before.
+ */
+export function slingCap(id: string, corners: [XZ, XZ, XZ]): MeshCollider {
+  const cx = corners.reduce((a, c) => a + c[0], 0) / 3
+  const cz = corners.reduce((a, c) => a + c[1], 0) / 3
+  const vertices = [
+    ...corners.flatMap(([x, z]) => [x, SLING_CAP_EDGE, z]),
+    cx,
+    SLING_CAP_PEAK,
+    cz,
+  ]
+  const indices: number[] = []
+  for (let i = 0; i < 3; i++) {
+    const j = (i + 1) % 3
+    const [a, b] = [corners[i]!, corners[j]!]
+    // Wind each face so its normal points up (the mirrored side flips it).
+    const up = (b[0] - a[0]) * (cz - a[1]) - (b[1] - a[1]) * (cx - a[0]) < 0
+    indices.push(...(up ? [i, j, 3] : [j, i, 3]))
+  }
+  return { kind: 'mesh', id, vertices, indices, material: 'plastic-clear' }
 }
 
 /** Mirror a 2D point across the table's centre line (x = 0). */

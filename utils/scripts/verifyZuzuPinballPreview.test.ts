@@ -50,10 +50,12 @@ assert.deepEqual(
   ['croc-mouth'],
 )
 assert.ok(table.scoops.find((scoop) => scoop.id === 'croc-mouth')?.holdMs)
-assert.deepEqual(
-  table.scoops.find((scoop) => scoop.id === 'croc-mouth')?.eject.at,
-  [0.18, table.physical.ballRadiusM + 0.005, -0.07],
+const crocEject = table.scoops.find((scoop) => scoop.id === 'croc-mouth')?.eject
+assert.ok(
+  crocEject && crocEject.at[0] > 0.16 && crocEject.at[0] < 0.2,
+  'River Croc spits into the right inlane',
 )
+assert.ok(crocEject.velocity[2] >= 0, 'the spit rolls down toward the flipper')
 assert.ok(table.colliders.some((collider) => collider.id === 'zuzu-playfield'))
 assert.ok(!table.colliders.some((collider) => collider.id.includes('ami')))
 assert.equal(

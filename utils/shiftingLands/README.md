@@ -178,3 +178,6 @@ and tampered saves, legacy V4 compatibility, and checks the developer
 lore never appears in the visible scene DTO. The separate human-gated
 public release, bespoke boss illustrations, and live deployment remain
 out of scope.
+
+The three boss approaches remain character decisions: a species or faction never
+by itself unlocks, blocks, or determines the outcome of a route.

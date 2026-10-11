@@ -287,7 +287,7 @@ export type InsertDef = {
   id: string
   /** Centre on the playfield (x, z). */
   at: readonly [number, number]
-  shape: 'arrow' | 'circle' | 'rect'
+  shape: 'arrow' | 'chevron' | 'circle' | 'rect'
   /** Arrow length / circle diameter / rect width, and the rect's depth. */
   size: number
   depth?: number
@@ -298,6 +298,12 @@ export type InsertDef = {
   shot?: string
   /** A flasher fired when that shot is made. */
   flasher?: string
+  /**
+   * A chevron in the run leading into a shot (t-033): its place in the run,
+   * 0 the farthest from the shot's arrow, of `of`. The run fills as the shot
+   * is made, and chases toward the arrow while the shot is worth going for.
+   */
+  ladder?: { shot: string; step: number; of: number }
 }
 
 /** A flasher dome: a bright lamp under coloured plastic that fires on events. */

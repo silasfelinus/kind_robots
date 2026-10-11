@@ -124,6 +124,8 @@ const FLASHER_FIRED = 2.4
 const PULSE_DECAY = 0.07
 /** Frames per half-cycle of a blinking lamp (~3.75 Hz at 60 FPS). */
 const BLINK_FRAMES = 8
+/** Frames each chevron of a blinking run stays lit as the chase passes. */
+const CHASE_FRAMES = 5
 /** A pooled flasher light's intensity at full fire. */
 const FLASHER_LIGHT = 0.12
 const FLASHER_REACH = 0.45
@@ -213,6 +215,8 @@ type Lamp = {
   /** Current glow, eased toward the level's. */
   glow: number
   pulse: number
+  /** A chevron's place in its run (t-033): blinking, the run chases. */
+  ladder?: { step: number; of: number }
 }
 
 type Flasher = Lamp & { position: THREE.Vector3; color: THREE.Color }
@@ -266,6 +270,8 @@ export class PinballScene {
   private flashers = new Map<string, Flasher>()
   /** Insert ids by the shot they point at, and that shot's flasher. */
   private shotLamps = new Map<string, { insert: string; flasher?: string }>()
+  /** Each shot's run of chevrons (t-033), flashed with its arrow. */
+  private shotRuns = new Map<string, string[]>()
   private flasherLights: THREE.PointLight[] = []
   private giLights: THREE.PointLight[] = []
   private hemisphere: THREE.HemisphereLight
@@ -802,9 +808,15 @@ export class PinballScene {
         level: 'off',
         glow: INSERT_OFF,
         pulse: 0,
+        ladder: def.ladder,
       })
       if (def.shot)
         this.shotLamps.set(def.shot, { insert: def.id, flasher: def.flasher })
+      if (def.ladder)
+        this.shotRuns.set(def.ladder.shot, [
+          ...(this.shotRuns.get(def.ladder.shot) ?? []),
+          def.id,
+        ])
     }
     const dome = this.track(
       new THREE.SphereGeometry(0.011, 24, 12, 0, Math.PI * 2, 0, Math.PI / 2),
@@ -984,6 +996,10 @@ export class PinballScene {
     if (insert) insert.pulse = 1
     const flasher = this.flashers.get(shot?.flasher ?? id)
     if (flasher) flasher.pulse = 1
+    for (const chevron of this.shotRuns.get(id) ?? []) {
+      const lamp = this.inserts.get(chevron)
+      if (lamp) lamp.pulse = 1
+    }
   }
 
   /** What the signature toys show, from the rules (rules/toys.ts). */
@@ -1115,6 +1131,11 @@ export class PinballScene {
       if (lamp) lamp.level = level
     }
     this.giTarget = gi
+  }
+
+  /** An insert's glow now (for tests). */
+  insertGlow(id: string): number {
+    return this.inserts.get(id)?.material.emissiveIntensity ?? 0
   }
 
   /** The level each lamp is set to (for tests). */
@@ -1395,9 +1416,14 @@ export class PinballScene {
   private animateLamps() {
     this.frame++
     const blinkOn = Math.floor(this.frame / BLINK_FRAMES) % 2 === 0
+    const chase = Math.floor(this.frame / CHASE_FRAMES)
+    const blinking = (lamp: Lamp) =>
+      lamp.ladder ? chase % (lamp.ladder.of + 1) === lamp.ladder.step : blinkOn
     const ease = (lamp: Lamp, off: number, on: number, peak: number) => {
       const lit =
-        lamp.level === 'on' || (lamp.level === 'blink' && blinkOn) ? on : off
+        lamp.level === 'on' || (lamp.level === 'blink' && blinking(lamp))
+          ? on
+          : off
       lamp.glow += (lit - lamp.glow) * LAMP_EASE
       lamp.pulse = Math.max(0, lamp.pulse - PULSE_DECAY)
       lamp.material.emissiveIntensity =

@@ -1064,15 +1064,54 @@ function arrow(
   }
 }
 
+/** Chevrons in each shot's run, and how far apart they sit (t-033). */
+const CHEVRONS = 3
+const CHEVRON_SIZE = 0.014
+const CHEVRON_GAP = 0.015
+/** From the arrow's tail to the nearest chevron's centre. */
+const CHEVRON_LEAD = 0.01
+
+/**
+ * The run of chevrons leading into a shot (t-033), down the table from its
+ * arrow along the way the arrow points: flat lamps under the clear coat, so
+ * the ball rolls over them as it rolls over the arrow. A run that would cross
+ * a saucer is left out (the award saucer sits in the right ramp's lane, and
+ * its own lamp lights the way there).
+ */
+function chevronRun(arrowDef: InsertDef): InsertDef[] {
+  const yaw = arrowDef.yaw ?? 0
+  const shot = arrowDef.shot!
+  const run = Array.from({ length: CHEVRONS }, (_, i): InsertDef => {
+    const back =
+      arrowDef.size / 2 + CHEVRON_LEAD + CHEVRON_GAP * (CHEVRONS - 1 - i)
+    return {
+      id: `chevron-${shot}-${i + 1}`,
+      at: [
+        arrowDef.at[0] + Math.sin(yaw) * back,
+        arrowDef.at[1] + Math.cos(yaw) * back,
+      ],
+      shape: 'chevron',
+      size: CHEVRON_SIZE,
+      yaw,
+      color: arrowDef.color,
+      ladder: { shot, step: i, of: CHEVRONS },
+    }
+  })
+  const onSaucer = run.some((c) =>
+    scoops.some(
+      (s) =>
+        Math.hypot(c.at[0] - s.at[0], c.at[1] - s.at[2]) <
+        s.radius + CHEVRON_SIZE,
+    ),
+  )
+  return onSaucer ? [] : run
+}
+
 function lamp(id: string, at: XZ, color: number, size = 0.012): InsertDef {
   return { id, at, shape: 'circle', size, color }
 }
 
-// The lamp matrix (t-019): an arrow in front of every shot's mouth, pointing
-// the way in, in its shot's colour; lamps for the A-M-I targets, the award
-// saucer and the kickback; the rainbow across the lower playfield that
-// counts the bonus multiplier; and the room's N-E-T and HOME lamps.
-const inserts: InsertDef[] = [
+const shotArrows: InsertDef[] = [
   arrow('left-orbit', [-0.19, -0.31], CYAN, 'flasher-left', 0.35),
   arrow('left-ramp', [-0.128, -0.287], MAGENTA, 'flasher-left', 0.19),
   arrow('upper-feed', [-0.064, -0.312], YELLOW, 'flasher-back-left', 0.13),
@@ -1080,6 +1119,16 @@ const inserts: InsertDef[] = [
   arrow('spinner', [0.0675, -0.3], CYAN, 'flasher-back-right', 0, 0.026),
   arrow('right-ramp', [0.128, -0.287], MAGENTA, 'flasher-right', -0.19),
   arrow('right-orbit', [0.19, -0.31], YELLOW, 'flasher-right', -0.35),
+]
+
+// The lamp matrix (t-019): an arrow in front of every shot's mouth, pointing
+// the way in, in its shot's colour, and behind each a run of chevrons (t-033)
+// that fills as the shot is made; lamps for the A-M-I targets, the award
+// saucer and the kickback; the rainbow across the lower playfield that
+// counts the bonus multiplier; and the room's N-E-T and HOME lamps.
+const inserts: InsertDef[] = [
+  ...shotArrows,
+  ...shotArrows.flatMap(chevronRun),
   { ...lamp('lamp-award', [0.12, -0.212], 0xfde68a, 0.018), shot: 'award' },
   ...['a', 'm', 'i'].map((letter, i) =>
     lamp(`lamp-drop-${letter}`, [-0.021 + i * 0.021, -0.284], 0xe0f2fe, 0.01),

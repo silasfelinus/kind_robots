@@ -13,7 +13,10 @@
 // multiball, every arrow in the wizard mode, the upper feed for the extra
 // ball, and the award saucer while it will start a village. Every other shot
 // arrow stays lit as a target, and a tilt puts every lamp and the GI out.
-// Light shows and the attract show play over this matrix
+// Each shot's run of chevrons (t-033) follows its arrow: dark while the
+// arrow is, filling one chevron per time the shot has been made while it is
+// lit, and all blinking (the renderer chases them toward the arrow) while it
+// blinks. Light shows and the attract show play over this matrix
 // (rules/lightShows.ts).
 
 import type { LampLevel, TableDef } from '../types'
@@ -102,5 +105,19 @@ export function lampStates(
     'arrow-sub-home',
     state.sub.nets.length >= Object.keys(NET_LAMPS).length ? 'blink' : 'on',
   )
+  for (const insert of table.inserts ?? []) {
+    const ladder = insert.ladder
+    if (!ladder) continue
+    const arrowLevel = lamps[`arrow-${ladder.shot}`] ?? 'off'
+    const made = state.shotsMade[ladder.shot] ?? 0
+    set(
+      insert.id,
+      arrowLevel === 'blink'
+        ? 'blink'
+        : arrowLevel === 'on' && ladder.step < made
+          ? 'on'
+          : 'off',
+    )
+  }
   return { lamps, gi: 1 }
 }

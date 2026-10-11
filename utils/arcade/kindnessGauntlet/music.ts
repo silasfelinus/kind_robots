@@ -8,6 +8,8 @@
 //   The Tape Library      a slow swung walk, all wow and flutter, with a reel-to-reel hum.
 //   Guardian              a driving riff for the halls where the old machines wait.
 //   Lost & Found          a quick major scamper against the clock.
+//   The Arcade Basement   a minor-key cabinet bop with a hard backbeat.
+//   The Cloud Atrium      slow sine pads and a drifting triangle melody.
 
 import type { MusicLoop } from '../sound'
 
@@ -153,4 +155,78 @@ export const LOST_LOOP: MusicLoop = {
   ],
 }
 
-export const WING_LOOPS: readonly MusicLoop[] = [VAULT_LOOP, LIBRARY_LOOP]
+const BASEMENT_LOOP: MusicLoop = {
+  bpm: 138,
+  tracks: [
+    {
+      type: 'square',
+      vol: 0.03,
+      steps: bars(
+        'C3 C3 . C3 G2 . A#2 .',
+        'C3 C3 . C3 D#3 . F3 .',
+        'G#2 G#2 . G#2 D#2 . F2 .',
+        'G2 G2 . G2 B2 . D3 .',
+        'C3 C3 . C3 G2 . A#2 .',
+        'C3 C3 . C3 D#3 . F3 .',
+        'F2 F2 . F2 G#2 . A#2 .',
+        'G2 . G2 . B2 . D3 .',
+      ),
+    },
+    {
+      type: 'square',
+      vol: 0.02,
+      steps: bars(
+        'G5 . D#5 . C5 . D#5 G5',
+        'F5 - D#5 . D5 . C5 .',
+        'D#5 . C5 . G#4 . C5 D#5',
+        'D5 - - . B4 . G4 .',
+        'G5 . A#5 . G5 . D#5 .',
+        'F5 . G5 . G#5 - G5 .',
+        'F5 . D#5 . D5 . C5 .',
+        'B4 - - - D5 - G5 .',
+      ),
+    },
+    { noise: true, vol: 0.035, steps: eight('x . . x x . x .') },
+  ],
+}
+
+const ATRIUM_LOOP: MusicLoop = {
+  bpm: 88,
+  tracks: [
+    {
+      type: 'sine',
+      vol: 0.06,
+      steps: bars(
+        'F3 - - - C4 - - -',
+        'D3 - - - A3 - - -',
+        'A#2 - - - F3 - - -',
+        'C3 - - - G3 - - -',
+        'F3 - - - C4 - - -',
+        'D3 - - - A3 - - -',
+        'G2 - - - D3 - - -',
+        'C3 - - - E3 - G3 -',
+      ),
+    },
+    {
+      type: 'triangle',
+      vol: 0.045,
+      steps: bars(
+        'A5 - C6 - F5 - - .',
+        'F5 - A5 - D5 - - .',
+        'D5 - F5 - A#5 - A5 .',
+        'G5 - - - E5 - - .',
+        'C6 - A5 - F5 - C5 .',
+        'D5 - F5 - A5 - D6 .',
+        'C6 - A#5 - A5 - G5 .',
+        'E5 - - - G5 - - .',
+      ),
+    },
+  ],
+}
+
+export const WING_LOOPS: readonly MusicLoop[] = [
+  VAULT_LOOP,
+  LIBRARY_LOOP,
+  BASEMENT_LOOP,
+  ATRIUM_LOOP,
+]

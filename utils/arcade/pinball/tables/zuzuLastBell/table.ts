@@ -21,6 +21,16 @@ const BELL: Vec3 = [0, BALL, -0.79]
 const SEAL_X = -0.054
 /** The mouth of the captive relic ball's lane, behind the last seal. */
 const RELIC_MOUTH = -0.405
+// The Citadel lock (t-009) at the head of the bell lane: a saucer the bell
+// shot's ball drops into as it rolls back from the arch (too fast to fall in
+// on the way up), and a clear shelf above the lane where locked balls wait.
+const CITADEL: Vec3 = [0.022, BALL, -0.845]
+const CITADEL_SHELF = { z: -0.905, base: 0.05, height: 0.006 }
+export const CITADEL_SLOTS: Vec3[] = [-0.008, 0.022, 0.052].map((x): Vec3 => [
+  x,
+  CITADEL_SHELF.base + CITADEL_SHELF.height + BALL,
+  CITADEL_SHELF.z,
+])
 // The River Croc's mouth, on the left bank beside the left orbit lane.
 const CROC: XZ = [-0.172, -0.47]
 
@@ -151,6 +161,19 @@ const colliders: ColliderDef[] = [
     railHeight: 0.032,
     cover: [0.13, 0.48],
   }),
+  // The Citadel's lock shelf, raised clear over the lane: a ball below
+  // rolls under it, and the locked balls sit on it in plain view.
+  wall(
+    'citadel-shelf',
+    [CITADEL_SLOTS[0]![0] - 0.02, CITADEL_SHELF.z],
+    [CITADEL_SLOTS[2]![0] + 0.02, CITADEL_SHELF.z],
+    {
+      base: CITADEL_SHELF.base,
+      height: CITADEL_SHELF.height,
+      thickness: 0.032,
+      material: 'plastic-clear',
+    },
+  ),
   // Raised catch plates at the exits stop a ball from rolling off the cabinet.
   wall('village-return-stop', [0.163, -0.165], [0.203, -0.165], {
     base: 0.03,
@@ -342,6 +365,15 @@ const inserts: InsertDef[] = [
     color: 0xc4a2f8,
     shot: 'relic-spinner',
   },
+  // The Citadel's lock lamps: one per ball it holds, the next one blinking
+  // while a lock is lit.
+  ...CITADEL_SLOTS.map((slot, i): InsertDef => ({
+    id: `citadel-${i + 1}`,
+    at: [slot[0], -0.735],
+    shape: 'circle',
+    size: 0.014,
+    color: 0xf2bb78,
+  })),
   // The waterline LEDs (t-016): lit while his jaws are open, all of them
   // astir in the Watering Hole, flashing when an orbit has lit the mouth.
   ...(
@@ -604,6 +636,21 @@ export const ZUZU_LAST_BELL_GREYBOX: TableDef = {
       captureMaxSpeed: 1.0,
       holdMs: 900,
       eject: { at: [0.13, BALL, -0.42], velocity: [-0.55, 0, -0.45] },
+    },
+    {
+      id: 'citadel',
+      at: CITADEL,
+      radius: 0.02,
+      captureMaxSpeed: 1.4,
+      holdMs: 500,
+      // A subway under the playfield to the left inlane, as the Croc spits
+      // to the right: kicked out at the head of the bell lane, the ball fell
+      // onto the pops, which sent it straight back up the lane, for ever.
+      eject: {
+        at: [(INLANE_GUIDE.left - SLING_BACK) / 2, BALL + 0.0005, -0.24],
+        velocity: [0, 0, 0.3],
+      },
+      lock: { slots: CITADEL_SLOTS, releaseGapMs: 700 },
     },
   ],
   shots: [

@@ -704,7 +704,7 @@ function face(
   for (const seed of [1, 2]) {
     const g = game([seed % 4], seed)
     let t = 0
-    for (; t < 60 * 60 * 20 && !g.over; t++) {
+    for (; t < 60 * 60 * 45 && !g.over; t++) {
       const f = g.demoInput()
       g.update(f, [f])
     }

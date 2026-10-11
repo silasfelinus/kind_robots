@@ -1,18 +1,25 @@
 // /utils/arcade/games/prizeShowPanic.ts
 //
-// Prize Show Panic -- the Kind Robots Arcade's Smash TV riff (conductor
-// kr-arcade/t-009 game factory). Sparkle, a contestant robot on a game show,
-// is stuck in a studio that floods with party crashers. Confetti cannons make
-// the crashers happy (they dance off the set), prizes drop for the grabbing,
-// and the exit door opens once the room is clear: reach it before the host's
-// countdown runs out. Every fourth studio ends in a parade float boss.
+// Prize Show Panic -- the Kind Robots Arcade's Smash TV riff (conductor kr-arcade/t-009 game factory,
+// depth slice 1 t-026). Sparkle, a contestant robot on a game show, plays a broadcast season: each
+// episode is a map of studio rooms, and between rooms the season map shows where every door leads
+// (a swarm, a prize vault, a trap, a sponsor challenge or a boss) with its danger and its prize, so
+// the route is Sparkle's call. Every room runs its script from prizeShow/season.ts: which doors throw
+// in which crashers when, and what is on the floor -- whoopee-cushion and banana-peel mines, a rig of
+// spotlight beams swinging on a beat, a wall of live cameras. Confetti cannons make the crashers
+// happy (they dance off the set), prizes drop for the grabbing, and the doors open once the room is
+// clear: reach one before the host's countdown runs out. Golden tickets hide in vaults, behind a
+// cracked wall and in sponsor challenges. The Parade Float is the episode's mid-boss and, for now,
+// its finale too; past half health its cake's candles light and fire volleys of sparks. After the
+// last authored episode the season loops with harder curves and rolled room modifiers.
 //
 // The arrows move (eight ways) and A fires confetti the way Sparkle faces.
 // Hold B to lock the aim while moving, the single-stick stand-in for the
-// classic's twin sticks: strafe one way, spray another.
+// classic's twin sticks: strafe one way, spray another. On the map the
+// arrows pick a door and A goes through it.
 
 import { levelCurve } from '../curve'
-import { drawText } from '../font'
+import { drawText, measureText } from '../font'
 import {
   INK,
   RAMPS,
@@ -39,6 +46,47 @@ import type {
   ArcadeGameOptions,
   InputFrame,
 } from '../types'
+import {
+  CAMERA_SPRITES,
+  CAR_SPRITE,
+  CASH_SPRITE,
+  TOASTER_SPRITE,
+  CUSHION_SPRITES,
+  FLASH_SPRITES,
+  MAP_ICONS,
+  PEEL_SPRITE,
+  SPARK_SPRITES,
+  TICKET_ICON,
+  TICKET_ICON_EMPTY,
+  TICKET_SPRITE,
+  audienceSprites,
+} from '../prizeShow/art'
+import { renderSeasonMap } from '../prizeShow/mapScreen'
+import type { MapOption } from '../prizeShow/mapScreen'
+import {
+  DROP_RATE,
+  MODIFIERS,
+  REWARD_RANK,
+  ROOM_ICON,
+  SEASON,
+  SEASON_TICKETS,
+  doorSides,
+  exitsOf,
+  loopTuning,
+  rollModifier,
+  roomById,
+  waveCount,
+} from '../prizeShow/season'
+import type {
+  CrasherKind,
+  Episode,
+  LoopTuning,
+  ModifierId,
+  PrizeKind,
+  RoomScript,
+  Side,
+  Wave,
+} from '../prizeShow/season'
 
 const W = 320
 const H = 240
@@ -53,6 +101,7 @@ const CX = W / 2
 const CY = (TOP + BOTTOM) / 2
 
 const SPEED = 1.6
+const CRASHER_TOP_SPEED = SPEED * 0.95
 const HALF = 5
 const SHOT_SPEED = 4.5
 const SHOT_LIFE = 50
@@ -60,24 +109,37 @@ const FIRE_COOLDOWN = 7
 const RAPID_COOLDOWN = 4
 const POWER_TICKS = 60 * 10
 const SHIELD_TICKS = 60 * 8
-const ROOM_TICKS = 60 * 60
 const START_LIVES = 3
 const EXTRA_EVERY = 50_000
 const DEATH_TICKS = 100
 const TRANSITION_TICKS = 70
+const EPISODE_TICKS = 180
 const INVULN_TICKS = 120
 const PRIZE_LIFE = 60 * 7
+/** The map waits this long before A counts, and goes with the highlighted door after this long. */
+const MAP_SETTLE = 30
+const MAP_AUTO = 60 * 12
+const TICKET_POINTS = 5000
+const CUSHION_FUSE = 30
+const CUSHION_BLAST = 22
+const SLIP_TICKS = 36
+const CAMERA_CHARGE = 42
+const CAMERA_HP = 4
+const CANDLE_CHARGE = 34
+const PHASE_SHIFT = 50
+/** The light rig steps across the floor on the beat: each lamp's marks, -1..1 of its swing. */
+const BEAM_STEPS = [-1, -0.5, 0, 0.5, 1, 0.5, 0, -0.5] as const
+/** Ticks a lamp shows its next mark before it lights, and how far a hot beam drifts. */
+const BEAM_TELL = 40
+const BEAM_DRIFT = 0.1
 
 export const PANIC_CURVES = {
-  /** Ticks of crashers streaming in at the start of each room. */
-  waveTicks: { start: 60 * 22, step: 60 * 2, limit: 60 * 36 },
-  spawnEvery: { start: 55, step: -4, limit: 18 },
+  /** Crasher walking speed by studio (rooms played this run). */
   grabberSpeed: { start: 0.55, step: 0.05, limit: 1.1 },
-  bossHp: { start: 50, step: 25, limit: 200 },
 } as const
 
 type Dir = { x: number; y: number }
-type Kind = 'grabber' | 'bouncer' | 'conga' | 'thrower'
+type Kind = CrasherKind
 type Crasher = {
   kind: Kind
   x: number
@@ -99,9 +161,23 @@ type Shot = {
   life: number
   hue: number
 }
-type Streamer = { x: number; y: number; vx: number; vy: number; life: number }
-type PrizeKind = 'cash' | 'toaster' | 'car' | 'spread' | 'rapid' | 'shield'
-type Prize = { x: number; y: number; kind: PrizeKind; life: number }
+/** Thrown at Sparkle: a thrower's streamer, a camera's flashbulb, or a candle spark. */
+type Streamer = {
+  x: number
+  y: number
+  vx: number
+  vy: number
+  life: number
+  style: 'streamer' | 'flash' | 'spark'
+}
+type Prize = {
+  x: number
+  y: number
+  kind: PrizeKind
+  life: number
+  /** Set out on a pedestal: it waits for the whole room. */
+  pedestal?: boolean
+}
 type Boss = {
   x: number
   y: number
@@ -110,6 +186,59 @@ type Boss = {
   maxHp: number
   t: number
   flash: number
+  /** 2 once the candles are lit. */
+  phase: 1 | 2
+  phase2At: number
+  /** Ticks left of the phase change (it shrugs off confetti meanwhile). */
+  shift: number
+  finale: boolean
+}
+type Mine = {
+  kind: 'cushion' | 'peel'
+  x: number
+  y: number
+  /** A stepped-on cushion's fuse; 0 while it waits. */
+  fuse: number
+}
+type Beam = {
+  x: number
+  y: number
+  base: number
+  swing: number
+  on: number
+  off: number
+  offset: number
+}
+type Camera = {
+  x: number
+  y: number
+  side: Side
+  every: number
+  offset: number
+  hp: number
+  /** Where the flash is going, locked as the charge starts. */
+  tx: number
+  ty: number
+}
+type TicketPickup = { x: number; y: number; id: string }
+type Crack = { side: Side; x: number; y: number; hp: number; secret: string }
+/** An open way out of the room: a door to a map neighbour, the way back, or a broken wall. */
+type RoomExit = {
+  side: Side
+  x: number
+  y: number
+  to: string
+  kind: 'door' | 'secret' | 'back'
+}
+/** A gift lobbed in by the audience. */
+type Toss = {
+  x0: number
+  y0: number
+  x1: number
+  y1: number
+  t: number
+  dur: number
+  kind: PrizeKind
 }
 type Particle = {
   x: number
@@ -120,6 +249,15 @@ type Particle = {
   color: string
 }
 type Floater = { x: number; y: number; text: string; life: number }
+type MapState = {
+  options: MapOption[]
+  cursor: number
+  ticks: number
+}
+type Next =
+  | { to: 'map'; side: Side | null }
+  | { to: 'secret'; id: string; side: Side }
+  | { to: 'episode' }
 
 const CONFETTI = [
   '#f472b6',
@@ -569,70 +707,6 @@ const STREAMER_SPRITES = [
   }),
 ] as const
 
-// Prizes: a stack of cash, a chrome toaster and the new car, all shaded and outlined.
-const CASH_SPRITE = pixelSprite(
-  [
-    '34444444443',
-    '42322222321',
-    '4222uUv2221',
-    '4222Uvv2221',
-    '42322222321',
-    '31111111110',
-  ],
-  {
-    '0': RAMPS.leaf[0],
-    '1': RAMPS.leaf[1],
-    '2': RAMPS.leaf[2],
-    '3': RAMPS.leaf[3],
-    '4': RAMPS.leaf[4],
-    u: RAMPS.gold[4],
-    U: RAMPS.gold[3],
-    v: RAMPS.gold[2],
-  },
-)
-const TOASTER_SPRITE = pixelSprite(
-  [
-    '..ttt..ttt..',
-    '..tTt..tTt..',
-    '.4444444443.',
-    '.4333333321.',
-    '.4322222221k',
-    '.4322222221.',
-    '.3222222211.',
-    '..00....00..',
-  ],
-  {
-    '0': RAMPS.steel[0],
-    '1': RAMPS.steel[1],
-    '2': RAMPS.steel[2],
-    '3': RAMPS.steel[3],
-    '4': RAMPS.steel[4],
-    t: RAMPS.earth[3],
-    T: RAMPS.cream[3],
-    k: INK,
-  },
-)
-const CAR_SPRITE = pixelSprite(
-  [
-    '....43333332....',
-    '...43sSS3sSS2...',
-    '.44333333333332.',
-    '4322222222222221',
-    '3222222222222221',
-    '.21kkk1111kkk11.',
-    '...kWk....kWk...',
-  ],
-  {
-    '1': RAMPS.ember[1],
-    '2': RAMPS.ember[2],
-    '3': RAMPS.ember[3],
-    '4': RAMPS.ember[4],
-    s: RAMPS.sky[4],
-    S: RAMPS.sky[2],
-    k: INK,
-    W: RAMPS.steel[3],
-  },
-)
 const POWER_RAMPS: Record<'spread' | 'rapid' | 'shield', Ramp> = {
   spread: RAMPS.purple,
   rapid: RAMPS.rust,
@@ -859,7 +933,51 @@ const STUDIOS: readonly StudioLook[] = [
   studioLook(RAMPS.teal, RAMPS.purple, RAMPS.cream[4]),
   studioLook(RAMPS.pink, RAMPS.teal, RAMPS.gold[4]),
   studioLook(RAMPS.ember, RAMPS.gold, RAMPS.gold[4]),
+  studioLook(RAMPS.night, RAMPS.gold, RAMPS.purple[3]),
+  studioLook(RAMPS.sky, RAMPS.steel, RAMPS.cream[4]),
+  studioLook(RAMPS.gold, RAMPS.purple, RAMPS.gold[4]),
+  studioLook(RAMPS.steel, RAMPS.night, RAMPS.purple[3]),
+  studioLook(RAMPS.leaf, RAMPS.pink, RAMPS.cream[4]),
 ]
+/** The set each kind of room is dressed as (an index into STUDIOS; swarms cycle the first three). */
+const LOOK_OF: Partial<Record<RoomScript['type'], number>> = {
+  boss: 3,
+  lights: 4,
+  cameras: 5,
+  vault: 6,
+  secret: 7,
+  mines: 8,
+  conga: 2,
+}
+const CROWD_COLOURS = [
+  RAMPS.pink[2],
+  RAMPS.teal[2],
+  RAMPS.gold[2],
+  RAMPS.purple[2],
+  RAMPS.sky[2],
+  RAMPS.leaf[2],
+]
+const CROWD = CROWD_COLOURS.map(audienceSprites)
+/** Cosmetic layout for the foam and confetti-storm modifiers (never the game's rng). */
+const FOAM_SUDS = (() => {
+  const dice = backdropRng(311)
+  return Array.from({ length: 34 }, () => ({
+    x: LEFT + 6 + dice() * (RIGHT - LEFT - 12),
+    y: TOP + 6 + dice() * (BOTTOM - TOP - 12),
+    r: 3 + Math.floor(dice() * 6),
+  }))
+})()
+const STORM_FLAKES = (() => {
+  const dice = backdropRng(907)
+  return Array.from({ length: 280 }, () => ({
+    x: dice() * W,
+    y: dice() * H,
+    speed: 0.35 + dice() * 0.7,
+    sway: dice() * Math.PI * 2,
+    hue: Math.floor(dice() * 6),
+    big: dice() < 0.55,
+  }))
+})()
 const TILE = 16
 
 /** Marquee bulbs around the walls, numbered clockwise so the chase runs round the set. */
@@ -948,6 +1066,10 @@ class PrizeShowPanic implements ArcadeGameInstance {
   private tick = 0
   private px = CX
   private py = CY + 30
+  /** Sparkle's momentum, used when the floor is slippery (Foam Party) or a peel sends her sliding. */
+  private vx = 0
+  private vy = 0
+  private slip = 0
   private aim: Dir = { x: 0, y: -1 }
   private fireCooldown = 0
   private spread = 0
@@ -960,18 +1082,59 @@ class PrizeShowPanic implements ArcadeGameInstance {
   private streamers: Streamer[] = []
   private prizes: Prize[] = []
   private boss: Boss | null = null
-  private roomTimer = ROOM_TICKS
-  private waveTimer = 0
-  private spawnTimer = 0
-  private exitDoor = -1
-  private entryDoor = 2
-  private transition = 0
   private dead = 0
   private nextExtra = EXTRA_EVERY
   private haul = 0
   private particles: Particle[] = []
   private floaters: Floater[] = []
   private banner: { text: string; sub?: string; ticks: number } | null = null
+
+  // The season: where Sparkle is on which episode's map, and what she carries between rooms.
+  private season: readonly Episode[] = SEASON
+  private episodeIndex = 0
+  private loop = 1
+  private tuning: LoopTuning = loopTuning(1)
+  private roomId = ''
+  /** The secret room Sparkle is in (off the map), or null on the map's own rooms. */
+  private secretId: string | null = null
+  private route: string[] = []
+  private secretsFound: string[] = []
+  /** Golden tickets held, by id (twelve across the season; ten open the Grand Prize Vault). */
+  tickets: string[] = []
+  private modifiers = new Map<string, ModifierId | null>()
+  private map: MapState | null = null
+  private next: Next | null = null
+  private transition = 0
+  private studios = 0
+
+  // The room in play: its script and everything the script put on the set.
+  private script!: RoomScript
+  private modifier: ModifierId | null = null
+  private entryDoor: Side = 2
+  private roomTick = 0
+  private roomTicks = 1
+  private roomTimer = 0
+  private waves: Array<{ wave: Wave; at: number; left: number }> = []
+  /** Crashers the room's script has brought on so far, by kind. */
+  spawned: Record<Kind, number> = {
+    grabber: 0,
+    bouncer: 0,
+    conga: 0,
+    thrower: 0,
+  }
+  private mines: Mine[] = []
+  private beams: Beam[] = []
+  private cameras: Camera[] = []
+  private pickups: TicketPickup[] = []
+  private crack: Crack | null = null
+  private exits: RoomExit[] = []
+  private exitsOpen = false
+  private cleared = false
+  private hit = false
+  private prizeMissed = false
+  private tosses: Toss[] = []
+  private nextToss = 0
+
   // Cosmetic only: walk-cycle bookkeeping and sparkles with their own dice, so the
   // game's seeded rng is untouched.
   private stride = 0
@@ -984,50 +1147,292 @@ class PrizeShowPanic implements ArcadeGameInstance {
     this.sound = options.sound
     this.demo = options.demo
     this.hiScore = options.hiScore
-    this.startRoom(1)
+    this.beginEpisode(0)
   }
 
-  private bossRoom(room = this.level): boolean {
-    return room % 4 === 0
+  private get episode(): Episode {
+    return this.season[this.episodeIndex]!
   }
 
-  private unlocked(): Kind[] {
-    const kinds: Kind[] = ['grabber']
-    if (this.level >= 2) kinds.push('bouncer')
-    if (this.level >= 3) kinds.push('conga')
-    if (this.level >= 5) kinds.push('thrower')
-    return kinds
+  private has(mod: ModifierId): boolean {
+    return this.modifier === mod
+  }
+
+  // --- the season ----------------------------------------------------------------
+
+  private beginEpisode(index: number) {
+    this.episodeIndex = index
+    this.route = []
+    this.modifiers.clear()
+    // Every episode opens from the wings: the map's left edge.
+    this.enterRoom(this.episode.start, 3)
+    this.banner = {
+      text: this.episode.title,
+      sub: `EPISODE ${this.episode.number}: ${this.episode.subtitle}`,
+      ticks: 120,
+    }
+  }
+
+  /** The modifier a map room plays under this loop, rolled once and kept. */
+  private modifierFor(id: string): ModifierId | null {
+    if (!this.modifiers.has(id)) {
+      const script = roomById(this.episode, id).script
+      this.modifiers.set(id, rollModifier(this.rng, this.loop, script))
+    }
+    return this.modifiers.get(id)!
+  }
+
+  private enterRoom(id: string, entry: Side) {
+    this.roomId = id
+    this.secretId = null
+    this.route.push(id)
+    this.entryDoor = entry
+    this.script = roomById(this.episode, id).script
+    this.modifier = this.modifierFor(id)
+    this.level = ++this.studios
+    this.startRoom()
+  }
+
+  private enterSecret(id: string, entry: Side) {
+    this.secretId = id
+    if (!this.secretsFound.includes(this.roomId))
+      this.secretsFound.push(this.roomId)
+    this.entryDoor = entry
+    this.script = this.episode.secrets[id]!
+    this.modifier = null
+    this.level = ++this.studios
+    this.startRoom()
+  }
+
+  private openMap(side: Side | null) {
+    const options: MapOption[] = exitsOf(this.episode, this.roomId).map(
+      (exit) => ({
+        id: exit.room.id,
+        side: exit.side,
+        modifier: this.modifierFor(exit.room.id),
+      }),
+    )
+    const cursor = Math.max(
+      0,
+      options.findIndex((o) => o.side === side),
+    )
+    this.map = { options, cursor, ticks: 0 }
+    this.banner = null
+  }
+
+  private updateMap(input: InputFrame) {
+    const map = this.map!
+    map.ticks++
+    if (map.ticks < MAP_SETTLE) return
+    const pressed = input.pressed
+    const sides: [keyof InputFrame['pressed'], Side][] = [
+      ['up', 0],
+      ['right', 1],
+      ['down', 2],
+      ['left', 3],
+    ]
+    for (const [button, side] of sides) {
+      if (!pressed[button]) continue
+      const facing = map.options.findIndex((o) => o.side === side)
+      const count = map.options.length
+      if (facing >= 0) map.cursor = facing
+      else if (button === 'left') map.cursor = (map.cursor + count - 1) % count
+      else if (button === 'right') map.cursor = (map.cursor + 1) % count
+      this.sound.play('blip')
+    }
+    if (pressed.a || pressed.start || map.ticks >= MAP_AUTO) {
+      const option = map.options[map.cursor]!
+      this.map = null
+      this.sound.play('level')
+      this.enterRoom(option.id, ((option.side + 2) % 4) as Side)
+    }
+  }
+
+  private finishEpisode() {
+    if (this.episodeIndex + 1 < this.season.length) {
+      this.beginEpisode(this.episodeIndex + 1)
+      return
+    }
+    // The authored season is over: the show goes round again, harder.
+    this.loop++
+    this.tuning = loopTuning(this.loop)
+    this.beginEpisode(0)
+    this.banner = {
+      text: `ENCORE ${this.loop}!`,
+      sub: 'THE CROWD WANTS MORE',
+      ticks: 120,
+    }
   }
 
   // --- rooms -------------------------------------------------------------------
 
-  private startRoom(room: number) {
-    this.level = room
+  private startRoom() {
+    const script = this.script
+    const t = this.tuning
+    const double = this.has('double-time')
     this.crashers = []
     this.streamers = []
     this.shots = []
     this.prizes = []
-    this.exitDoor = -1
-    this.roomTimer = ROOM_TICKS
-    this.waveTimer = Math.round(levelCurve(room, PANIC_CURVES.waveTicks))
-    this.spawnTimer = 60
+    this.tosses = []
+    this.exits = []
+    this.exitsOpen = false
+    this.cleared = false
+    this.hit = false
+    this.prizeMissed = false
+    this.slip = 0
+    this.vx = 0
+    this.vy = 0
+    this.roomTick = 0
+    this.roomTicks = Math.round(script.seconds * 60 * t.clock)
+    this.roomTimer = this.roomTicks
     this.invuln = INVULN_TICKS
+    this.spawned = { grabber: 0, bouncer: 0, conga: 0, thrower: 0 }
+    const pace = t.waveTime * (double ? 0.75 : 1)
+    this.waves = script.waves.map((wave) => ({
+      wave,
+      at: Math.round(wave.at * pace),
+      left: wave.times ?? 1,
+    }))
+    this.nextToss = 150
+    if (this.has('sudden-death')) this.shield = 0
     const entry = DOORS[this.entryDoor]!
     this.px = entry.x + (CX - entry.x) * 0.25
     this.py = entry.y + (CY - entry.y) * 0.25
+
+    this.mines = []
+    this.beams = []
+    this.cameras = []
+    this.pickups = []
+    this.crack = null
+    const flankSide = [1, 3].map((k) => ((this.entryDoor + k) % 4) as Side)
+    let flank = 0
+    for (const prop of script.props ?? []) {
+      switch (prop.kind) {
+        case 'cushion':
+        case 'peel':
+          this.mines.push({ kind: prop.kind, x: prop.x, y: prop.y, fuse: 0 })
+          break
+        case 'beam':
+          this.beams.push({ ...prop })
+          break
+        case 'camera': {
+          const side =
+            prop.wall === 'far'
+              ? (((this.entryDoor + 2) % 4) as Side)
+              : flankSide[flank++ % 2]!
+          this.cameras.push({
+            ...wallSpot(side, prop.at),
+            side,
+            every: prop.every,
+            offset: prop.offset,
+            hp: CAMERA_HP,
+            tx: CX,
+            ty: CY,
+          })
+          break
+        }
+        case 'pedestal':
+          this.prizes.push({
+            x: prop.x,
+            y: prop.y,
+            kind: this.prizeFor(prop.prize),
+            life: PRIZE_LIFE,
+            pedestal: true,
+          })
+          break
+        case 'ticket':
+          if (!this.tickets.includes(prop.id))
+            this.pickups.push({ x: prop.x, y: prop.y, id: prop.id })
+          break
+        case 'crack': {
+          const door = DOORS[prop.side]!
+          const along = prop.side % 2 === 0
+          this.crack = {
+            side: prop.side,
+            x: along ? door.x + prop.at : door.x,
+            y: along ? door.y : door.y + prop.at,
+            hp: 6,
+            secret: prop.secret,
+          }
+          break
+        }
+      }
+    }
+
     this.boss = null
-    if (this.bossRoom(room)) {
-      const hp = Math.round(levelCurve(room / 4, PANIC_CURVES.bossHp))
-      this.boss = { x: CX, y: TOP + 28, vx: 0.8, hp, maxHp: hp, t: 0, flash: 0 }
-      this.waveTimer = Math.round(this.waveTimer / 2)
+    if (script.boss) {
+      const hp = Math.round(script.boss.hp * t.bossHp)
+      this.boss = {
+        x: CX,
+        y: TOP + 40,
+        vx: 0.8,
+        hp,
+        maxHp: hp,
+        t: 0,
+        flash: 0,
+        phase: 1,
+        phase2At: script.boss.phase2At,
+        shift: 0,
+        finale: this.roomId === this.episode.finale,
+      }
       this.banner = {
-        text: 'PARADE FLOAT!',
-        sub: 'CONFETTI IT INTO A PARTY',
-        ticks: 110,
+        text: script.boss.title,
+        sub: script.boss.sub,
+        ticks: 120,
       }
     } else {
-      this.banner = { text: `STUDIO ${room}`, sub: 'CLEAR THE SET', ticks: 90 }
+      this.banner = { text: script.title, sub: script.tagline, ticks: 100 }
     }
+    if (this.modifier) {
+      const mod = MODIFIERS[this.modifier]
+      this.banner = { text: mod.title, sub: mod.tagline, ticks: 110 }
+    }
+    if (script.closes) this.openExits()
+  }
+
+  /** Sudden Death has no shields: they come out as cash. */
+  private prizeFor(kind: PrizeKind): PrizeKind {
+    return kind === 'shield' && this.has('sudden-death') ? 'cash' : kind
+  }
+
+  private wavesDone(): boolean {
+    return this.waves.every((w) => w.left <= 0)
+  }
+
+  /** Doors to the map's neighbours (or the way back from a secret), and a broken wall. */
+  private openExits() {
+    this.exitsOpen = true
+    if (this.secretId) {
+      const door = DOORS[this.entryDoor]!
+      this.exits = [
+        { side: this.entryDoor, x: door.x, y: door.y, to: '', kind: 'back' },
+      ]
+      return
+    }
+    this.exits = exitsOf(this.episode, this.roomId).map((exit) => {
+      const door = DOORS[exit.side]!
+      return {
+        side: exit.side,
+        x: door.x,
+        y: door.y,
+        to: exit.room.id,
+        kind: 'door' as const,
+      }
+    })
+    if (this.crack && this.crack.hp <= 0) this.openCrack()
+  }
+
+  private openCrack() {
+    const crack = this.crack!
+    if (this.exits.some((e) => e.kind === 'secret')) return
+    this.exits.push({
+      side: crack.side,
+      x: crack.x,
+      y: crack.y,
+      to: crack.secret,
+      kind: 'secret',
+    })
   }
 
   // --- update ------------------------------------------------------------------
@@ -1039,8 +1444,12 @@ class PrizeShowPanic implements ArcadeGameInstance {
     if (this.over) return
     const controls = this.demo ? this.demoInput() : input
 
+    if (this.map) {
+      this.updateMap(controls)
+      return
+    }
     if (this.transition > 0) {
-      if (--this.transition === 0) this.startRoom(this.level + 1)
+      if (--this.transition === 0) this.follow()
       return
     }
     if (this.dead > 0) {
@@ -1053,7 +1462,7 @@ class PrizeShowPanic implements ArcadeGameInstance {
             ticks: 9999,
           }
         } else {
-          this.startRoom(this.level)
+          this.startRoom()
         }
       }
       return
@@ -1063,8 +1472,10 @@ class PrizeShowPanic implements ArcadeGameInstance {
     if (this.spread > 0) this.spread--
     if (this.rapid > 0) this.rapid--
     if (this.shield > 0) this.shield--
+    this.roomTick++
     if (--this.roomTimer <= 0) {
-      this.loseLife("TIME'S UP!")
+      if (this.script.closes) this.closeSet()
+      else this.loseLife("TIME'S UP!")
       return
     }
 
@@ -1075,13 +1486,30 @@ class PrizeShowPanic implements ArcadeGameInstance {
     if (this.striding) this.stride++
     if (this.fireCooldown > 0) this.fireCooldown--
     if (controls.held.a && this.fireCooldown === 0) this.fire()
-    this.spawn()
+    this.spawnWaves()
     this.updateShots()
     this.updateCrashers()
+    this.updateMines()
+    this.updateBeams()
+    this.updateCameras()
     this.updateBoss()
     this.updateStreamers()
     this.updatePrizes()
+    this.updatePickups()
+    this.updateTosses()
+    this.checkClear()
     this.checkExit()
+  }
+
+  /** Where Sparkle goes once the transition ends. */
+  private follow() {
+    const next = this.next
+    this.next = null
+    if (!next) return
+    if (next.to === 'map') this.openMap(next.side)
+    else if (next.to === 'secret')
+      this.enterSecret(next.id, ((next.side + 2) % 4) as Side)
+    else this.finishEpisode()
   }
 
   private move(input: InputFrame) {
@@ -1091,18 +1519,31 @@ class PrizeShowPanic implements ArcadeGameInstance {
     if (input.held.right) dx += 1
     if (input.held.up) dy -= 1
     if (input.held.down) dy += 1
-    if (dx === 0 && dy === 0) return
     // Holding B locks the aim so Sparkle can strafe.
-    if (!input.held.b) this.aim = { x: dx, y: dy }
-    const len = Math.hypot(dx, dy)
-    this.px = Math.max(
-      LEFT + HALF,
-      Math.min(RIGHT - HALF, this.px + (dx / len) * SPEED),
-    )
-    this.py = Math.max(
-      TOP + HALF,
-      Math.min(BOTTOM - HALF, this.py + (dy / len) * SPEED),
-    )
+    if ((dx || dy) && !input.held.b) this.aim = { x: dx, y: dy }
+    const len = Math.hypot(dx, dy) || 1
+    let mx = (dx / len) * SPEED
+    let my = (dy / len) * SPEED
+    if (this.slip > 0) {
+      // On a banana peel: no steering until she stops sliding.
+      this.slip--
+      mx = this.vx
+      my = this.vy
+    } else if (this.has('foam')) {
+      this.vx += (mx - this.vx) * (dx || dy ? 0.06 : 0.025)
+      this.vy += (my - this.vy) * (dx || dy ? 0.06 : 0.025)
+      mx = this.vx
+      my = this.vy
+    } else {
+      this.vx = mx
+      this.vy = my
+    }
+    const nx = Math.max(LEFT + HALF, Math.min(RIGHT - HALF, this.px + mx))
+    const ny = Math.max(TOP + HALF, Math.min(BOTTOM - HALF, this.py + my))
+    if (nx !== this.px + mx) this.vx = 0
+    if (ny !== this.py + my) this.vy = 0
+    this.px = nx
+    this.py = ny
   }
 
   private fire() {
@@ -1122,37 +1563,57 @@ class PrizeShowPanic implements ArcadeGameInstance {
     if (this.tick % 3 === 0) this.sound.play('shoot')
   }
 
-  private spawn() {
-    if (this.waveTimer <= 0) return
-    this.waveTimer--
-    if (--this.spawnTimer > 0) return
-    this.spawnTimer = Math.round(
-      levelCurve(this.level, PANIC_CURVES.spawnEvery),
-    )
-    const doors = DOORS.filter((_, i) => i !== this.entryDoor || this.level > 1)
-    const door = doors[Math.floor(this.rng() * doors.length)]!
-    const kinds = this.unlocked()
-    const kind = kinds[Math.floor(this.rng() * kinds.length)]!
-    if (kind === 'conga') {
-      let leader: Crasher | null = null
-      const length = 4 + Math.min(4, Math.floor(this.level / 3))
-      for (let i = 0; i < length; i++) {
-        const c = this.makeCrasher('conga', door.x, door.y)
-        c.leader = leader
-        leader = c
+  /** The script's waves: each comes through its doors on its tick. */
+  private spawnWaves() {
+    const pace = this.tuning.waveTime * (this.has('double-time') ? 0.75 : 1)
+    for (const run of this.waves) {
+      while (run.left > 0 && this.roomTick >= run.at) {
+        this.spawnWave(run.wave)
+        run.left--
+        run.at += Math.max(1, Math.round((run.wave.every ?? 0) * pace))
       }
-    } else if (kind === 'grabber') {
-      const group = 2 + Math.floor(this.rng() * 3)
-      for (let i = 0; i < group; i++) {
-        this.makeCrasher(
-          'grabber',
-          door.x + (this.rng() - 0.5) * 16,
-          door.y + (this.rng() - 0.5) * 16,
-        )
-      }
-    } else {
-      this.makeCrasher(kind, door.x, door.y)
     }
+  }
+
+  private spawnWave(wave: Wave) {
+    let sides: Side[]
+    if (wave.doors === 'any') {
+      const open = ([0, 1, 2, 3] as Side[]).filter(
+        (side) => side !== this.entryDoor,
+      )
+      sides = [open[Math.floor(this.rng() * open.length)]!]
+    } else {
+      sides = doorSides(wave.doors, this.entryDoor)
+    }
+    const count = waveCount(wave, this.loop)
+    for (const side of sides) {
+      const door = DOORS[side]!
+      this.spawned[wave.kind] += count
+      if (wave.kind === 'conga') {
+        let leader: Crasher | null = null
+        for (let i = 0; i < count; i++) {
+          const c = this.makeCrasher('conga', door.x, door.y)
+          c.leader = leader
+          leader = c
+        }
+      } else if (wave.kind === 'grabber') {
+        for (let i = 0; i < count; i++) {
+          this.makeCrasher(
+            'grabber',
+            door.x + (this.rng() - 0.5) * 16,
+            door.y + (this.rng() - 0.5) * 16,
+          )
+        }
+      } else {
+        for (let i = 0; i < count; i++)
+          this.makeCrasher(
+            wave.kind,
+            door.x + (i - (count - 1) / 2) * 12,
+            door.y,
+          )
+      }
+    }
+    if (wave.doors === 'all') this.sound.play('warn')
   }
 
   private makeCrasher(kind: Kind, x: number, y: number): Crasher {
@@ -1177,6 +1638,17 @@ class PrizeShowPanic implements ArcadeGameInstance {
       s.x += s.vx
       s.y += s.vy
       s.life--
+      const crack = this.crack
+      if (
+        crack &&
+        crack.hp > 0 &&
+        Math.abs(crack.x - s.x) < 12 &&
+        Math.abs(crack.y - s.y) < 12
+      ) {
+        s.life = 0
+        this.hitCrack(crack)
+        continue
+      }
       if (s.x < LEFT || s.x > RIGHT || s.y < TOP || s.y > BOTTOM) s.life = 0
       if (s.life <= 0) continue
       const hit = this.crashers.find(
@@ -1188,13 +1660,39 @@ class PrizeShowPanic implements ArcadeGameInstance {
         if (--hit.hp <= 0) this.cheer(hit)
         continue
       }
+      const cam = this.cameras.find(
+        (c) => Math.abs(c.x - s.x) < 9 && Math.abs(c.y - s.y) < 9,
+      )
+      if (cam) {
+        s.life = 0
+        this.burst(s.x, s.y, 2, CONFETTI[s.hue]!)
+        if (--cam.hp <= 0) this.breakCamera(cam)
+        continue
+      }
+      const mine = this.mines.find(
+        (m) =>
+          m.kind === 'cushion' &&
+          m.fuse === 0 &&
+          Math.abs(m.x - s.x) < 8 &&
+          Math.abs(m.y - s.y) < 6,
+      )
+      if (mine) {
+        // Pop a cushion from range: it goes off where it lies.
+        s.life = 0
+        mine.fuse = 12
+        continue
+      }
       const b = this.boss
       if (b && Math.abs(b.x - s.x) < 40 && Math.abs(b.y - s.y) < 18) {
         s.life = 0
+        this.burst(s.x, s.y, 2, CONFETTI[s.hue]!)
+        if (b.shift > 0) continue
         b.hp--
         b.flash = 4
-        this.burst(s.x, s.y, 2, CONFETTI[s.hue]!)
+        if (b.phase === 1 && b.hp <= Math.ceil(b.maxHp * b.phase2At))
+          this.lightCandles(b)
         if (b.hp <= 0) this.bossDown()
+        continue
       }
       // Confetti knocks streamers out of the air too.
       const streamer = this.streamers.find(
@@ -1206,6 +1704,24 @@ class PrizeShowPanic implements ArcadeGameInstance {
       }
     }
     this.shots = this.shots.filter((s) => s.life > 0)
+  }
+
+  private hitCrack(crack: Crack) {
+    crack.hp--
+    this.burst(crack.x, crack.y, 3, RAMPS.cream[3])
+    if (crack.hp > 0) return
+    this.burst(crack.x, crack.y, 14, RAMPS.purple[3])
+    this.fx.burst(crack.x, crack.y, this.fxRng, {
+      count: 14,
+      colours: [RAMPS.purple[4], RAMPS.purple[3], RAMPS.gold[4]],
+    })
+    this.banner = {
+      text: 'A SECRET!',
+      sub: 'CLEAR THE SET, THEN GO IN',
+      ticks: 90,
+    }
+    this.sound.play('extra')
+    if (this.exitsOpen) this.openCrack()
   }
 
   /** Confetti'd: the crasher gets happy and dances off the set. */
@@ -1228,7 +1744,12 @@ class PrizeShowPanic implements ArcadeGameInstance {
     this.burst(c.x, c.y, 8, c.color)
     this.fx.burst(c.x, c.y - 4, this.fxRng, { count: 6 })
     this.sound.play('pop')
-    if (this.rng() < 0.12) this.dropPrize(c.x, c.y)
+    const rate =
+      (this.script.dropRate ?? DROP_RATE) * (this.has('double-time') ? 2 : 1)
+    if (this.rng() < rate) {
+      this.dropPrize(c.x, c.y)
+      if (this.script.doubleDrops) this.dropPrize(c.x + 10, c.y)
+    }
   }
 
   private dropPrize(x: number, y: number) {
@@ -1245,19 +1766,38 @@ class PrizeShowPanic implements ArcadeGameInstance {
               : roll < 0.9
                 ? 'rapid'
                 : 'shield'
-    this.prizes.push({ x, y, kind, life: PRIZE_LIFE })
+    this.prizes.push({
+      x: Math.max(LEFT + 8, Math.min(RIGHT - 8, x)),
+      y: Math.max(TOP + 8, Math.min(BOTTOM - 8, y)),
+      kind: this.prizeFor(kind),
+      life: PRIZE_LIFE,
+    })
+  }
+
+  /** Crashers' walking pace; never quite Sparkle's, so a crowd can always be outrun. */
+  private crasherSpeed(): number {
+    return Math.min(
+      CRASHER_TOP_SPEED,
+      levelCurve(this.level, PANIC_CURVES.grabberSpeed) *
+        (this.script.pace ?? 1) *
+        this.tuning.speed *
+        (this.has('double-time') ? 1.35 : 1),
+    )
   }
 
   private updateCrashers() {
-    const speed = levelCurve(this.level, PANIC_CURVES.grabberSpeed)
+    const speed = this.crasherSpeed()
+    const foam = this.has('foam')
     for (const c of this.crashers) {
       c.t++
+      let mx = 0
+      let my = 0
       if (c.kind === 'grabber') {
         const dx = this.px - c.x
         const dy = this.py - c.y
         const d = Math.hypot(dx, dy) || 1
-        c.x += (dx / d) * speed + Math.sin(c.t / 7) * 0.3
-        c.y += (dy / d) * speed
+        mx = (dx / d) * speed + Math.sin(c.t / 7) * 0.3
+        my = (dy / d) * speed
       } else if (c.kind === 'bouncer') {
         c.x += c.vx
         c.y += c.vy
@@ -1269,15 +1809,15 @@ class PrizeShowPanic implements ArcadeGameInstance {
           const dy = c.leader.y - c.y
           const d = Math.hypot(dx, dy) || 1
           if (d > 11) {
-            c.x += (dx / d) * speed * 1.3
-            c.y += (dy / d) * speed * 1.3
+            mx = (dx / d) * speed * 1.3
+            my = (dy / d) * speed * 1.3
           }
         } else {
           // The head of the line weaves toward Sparkle.
           const a =
             Math.atan2(this.py - c.y, this.px - c.x) + Math.sin(c.t / 20) * 0.9
-          c.x += Math.cos(a) * speed * 1.1
-          c.y += Math.sin(a) * speed * 1.1
+          mx = Math.cos(a) * speed * 1.1
+          my = Math.sin(a) * speed * 1.1
         }
       } else {
         // Throwers keep their distance and fling streamers.
@@ -1285,9 +1825,20 @@ class PrizeShowPanic implements ArcadeGameInstance {
         const dy = this.py - c.y
         const d = Math.hypot(dx, dy) || 1
         const away = d < 70 ? -1 : d > 110 ? 1 : 0
-        c.x += (dx / d) * speed * 0.6 * away + Math.cos(c.t / 30) * 0.4
-        c.y += (dy / d) * speed * 0.6 * away + Math.sin(c.t / 30) * 0.4
+        mx = (dx / d) * speed * 0.6 * away + Math.cos(c.t / 30) * 0.4
+        my = (dy / d) * speed * 0.6 * away + Math.sin(c.t / 30) * 0.4
         if (c.t % 90 === 0) this.throwStreamer(c.x, c.y)
+      }
+      if (c.kind !== 'bouncer') {
+        if (foam) {
+          // Foam Party: crashers skid too, slow to turn and slow to stop.
+          c.vx += (mx - c.vx) * 0.07
+          c.vy += (my - c.vy) * 0.07
+          mx = c.vx
+          my = c.vy
+        }
+        c.x += mx
+        c.y += my
       }
       c.x = Math.max(LEFT + 4, Math.min(RIGHT - 4, c.x))
       c.y = Math.max(TOP + 4, Math.min(BOTTOM - 4, c.y))
@@ -1306,8 +1857,150 @@ class PrizeShowPanic implements ArcadeGameInstance {
       vx: Math.cos(a) * 1.8,
       vy: Math.sin(a) * 1.8,
       life: 160,
+      style: 'streamer',
     })
     this.sound.play('blip')
+  }
+
+  // --- the set's hazards ---------------------------------------------------------
+
+  /** Whoopee cushions go off a beat after they are stepped on; peels send Sparkle sliding. */
+  private updateMines() {
+    for (const m of this.mines) {
+      if (m.kind === 'peel') {
+        if (this.slip === 0 && this.touching(m.x, m.y, 7)) {
+          m.fuse = -1
+          const len = Math.hypot(this.vx, this.vy)
+          const dx = len > 0.2 ? this.vx / len : this.aim.x
+          const dy = len > 0.2 ? this.vy / len : this.aim.y
+          const n = Math.hypot(dx, dy) || 1
+          this.vx = (dx / n) * 2.6
+          this.vy = (dy / n) * 2.6
+          this.slip = SLIP_TICKS
+          this.floaters.push({
+            x: this.px,
+            y: this.py - 16,
+            text: 'WHOA!',
+            life: 40,
+          })
+          this.sound.play('blip')
+        }
+        continue
+      }
+      if (m.fuse === 0) {
+        const stepped =
+          this.touching(m.x, m.y, 8) ||
+          this.crashers.some(
+            (c) =>
+              c.kind !== 'bouncer' &&
+              Math.abs(c.x - m.x) < 7 &&
+              Math.abs(c.y - m.y) < 6,
+          )
+        if (stepped) {
+          m.fuse = CUSHION_FUSE
+          this.sound.play('warn')
+        }
+        continue
+      }
+      if (--m.fuse > 0) continue
+      // PFFT: a cartoon puff that bowls over whoever is close.
+      m.fuse = -1
+      this.burst(m.x, m.y, 16, RAMPS.pink[3])
+      this.fx.burst(m.x, m.y, this.fxRng, {
+        count: 10,
+        colours: [RAMPS.cream[4], RAMPS.pink[3], RAMPS.gold[4]],
+      })
+      this.floaters.push({ x: m.x, y: m.y - 12, text: 'PFFT!', life: 40 })
+      this.sound.play('pop')
+      for (const c of [...this.crashers])
+        if (Math.hypot(c.x - m.x, c.y - m.y) < CUSHION_BLAST) this.cheer(c)
+      if (Math.hypot(this.px - m.x, this.py - m.y) < CUSHION_BLAST)
+        this.loseLife('WHOOPEE!')
+    }
+    this.mines = this.mines.filter((m) => m.fuse >= 0)
+  }
+
+  /** A beam's state at this tick: where it points and whether it is hot (or about to be). */
+  beamState(b: Beam) {
+    const beat = b.on + b.off
+    const clock = this.roomTick + b.offset
+    const k = Math.floor(clock / beat)
+    const phase = clock % beat
+    const stepAt = (i: number) =>
+      b.base +
+      b.swing *
+        BEAM_STEPS[
+          ((i % BEAM_STEPS.length) + BEAM_STEPS.length) % BEAM_STEPS.length
+        ]!
+    const target = stepAt(k)
+    const prev = stepAt(k - 1)
+    const hot = !this.cleared && phase >= b.off
+    const warming = !this.cleared && !hot && phase >= b.off - BEAM_TELL
+    // In the dark the lamp swings to its next mark; it settles before the tell, and once hot it
+    // only drifts a little further the way it was going.
+    const angle = hot
+      ? target +
+        Math.sign(target - prev) * BEAM_DRIFT * ((phase - b.off) / b.on)
+      : prev +
+        (target - prev) * Math.min(1, phase / Math.max(1, b.off - BEAM_TELL))
+    return { angle, hot, warming }
+  }
+
+  /** How far (x, y) is from a beam's centre line, and how wide the beam is there. */
+  private beamReach(b: Beam, angle: number, x: number, y: number) {
+    const dx = Math.cos(angle)
+    const dy = Math.sin(angle)
+    const rx = x - b.x
+    const ry = y - b.y
+    const along = rx * dx + ry * dy
+    const across = Math.abs(rx * dy - ry * dx)
+    return { along, across, half: 5 + Math.max(0, along) * 0.07 }
+  }
+
+  private updateBeams() {
+    for (const b of this.beams) {
+      const { angle, hot } = this.beamState(b)
+      if (!hot) continue
+      const { along, across, half } = this.beamReach(b, angle, this.px, this.py)
+      if (along > 6 && across < half - 1) this.loseLife('IN THE SPOTLIGHT!')
+    }
+  }
+
+  private updateCameras() {
+    if (this.cleared) return
+    for (const cam of this.cameras) {
+      const c = (this.roomTick + cam.offset) % cam.every
+      if (c === cam.every - CAMERA_CHARGE) {
+        cam.tx = this.px
+        cam.ty = this.py
+      }
+      if (c !== cam.every - 1) continue
+      const a = Math.atan2(cam.ty - cam.y, cam.tx - cam.x)
+      this.streamers.push({
+        x: cam.x,
+        y: cam.y,
+        vx: Math.cos(a) * 2.4,
+        vy: Math.sin(a) * 2.4,
+        life: 150,
+        style: 'flash',
+      })
+      this.sound.play('blip')
+    }
+  }
+
+  /** Whether a camera is charging a flash (its lens glows and its aim line shows). */
+  cameraCharging(cam: Camera): boolean {
+    if (this.cleared) return false
+    const c = (this.roomTick + cam.offset) % cam.every
+    return c >= cam.every - CAMERA_CHARGE
+  }
+
+  private breakCamera(cam: Camera) {
+    this.cameras = this.cameras.filter((c) => c !== cam)
+    this.addScore(300, cam.x, cam.y + 10)
+    this.burst(cam.x, cam.y, 12, RAMPS.sky[3])
+    this.floaters.push({ x: cam.x, y: cam.y + 14, text: 'CUT!', life: 40 })
+    this.sound.play('pop')
   }
 
   private updateStreamers() {
@@ -1318,21 +2011,38 @@ class PrizeShowPanic implements ArcadeGameInstance {
       if (s.x < LEFT || s.x > RIGHT || s.y < TOP || s.y > BOTTOM) s.life = 0
       if (s.life > 0 && this.touching(s.x, s.y, 4)) {
         s.life = 0
-        this.loseLife('TANGLED!')
+        this.loseLife(
+          s.style === 'flash'
+            ? 'FLASHED!'
+            : s.style === 'spark'
+              ? 'SPARKLED!'
+              : 'TANGLED!',
+        )
       }
     }
     this.streamers = this.streamers.filter((s) => s.life > 0)
   }
+
+  // --- the parade float -----------------------------------------------------------
 
   private updateBoss() {
     const b = this.boss
     if (!b) return
     b.t++
     if (b.flash > 0) b.flash--
+    if (b.shift > 0) {
+      // The candles catching: the float rocks in place and shrugs off confetti.
+      b.shift--
+      if (b.shift % 6 === 0)
+        this.burst(b.x + (this.rng() - 0.5) * 40, b.y - 26, 3, RAMPS.gold[3])
+      if (this.touching(b.x, b.y, 30)) this.loseLife('RUN OVER BY A FLOAT!')
+      return
+    }
     b.x += b.vx
     if (b.x < LEFT + 50 || b.x > RIGHT - 50) b.vx = -b.vx
     // Volleys of streamers, and a few grabbers hopping off the float.
-    if (b.t % 70 === 0) {
+    const volley = b.phase === 1 ? 70 : 110
+    if (b.t % volley === 0) {
       for (const off of [-0.35, 0, 0.35]) {
         const a = Math.atan2(this.py - b.y, this.px - b.x) + off
         this.streamers.push({
@@ -1341,21 +2051,62 @@ class PrizeShowPanic implements ArcadeGameInstance {
           vx: Math.cos(a) * 2,
           vy: Math.sin(a) * 2,
           life: 160,
+          style: 'streamer',
         })
       }
       this.sound.play('blip')
     }
-    if (b.t % 240 === 0 && this.crashers.length < 8) {
+    if (b.phase === 2 && this.candleClock(b) === 0) this.candleVolley(b)
+    const drop = b.phase === 1 ? 240 : 300
+    if (b.t % drop === 0 && this.crashers.length < 8) {
       this.makeCrasher('grabber', b.x - 20, b.y + 20)
       this.makeCrasher('grabber', b.x + 20, b.y + 20)
     }
     if (this.touching(b.x, b.y, 30)) this.loseLife('RUN OVER BY A FLOAT!')
   }
 
+  /** Ticks until the candles fire (they flare for CANDLE_CHARGE ticks first). */
+  candleClock(b: Boss): number {
+    return (90 - (b.t % 90)) % 90
+  }
+
+  /** Phase 2: the cake's candles light, and the float speeds up. */
+  private lightCandles(b: Boss) {
+    b.phase = 2
+    b.shift = PHASE_SHIFT
+    b.t = 0
+    b.vx = Math.sign(b.vx || 1) * 1.15
+    this.banner = { text: 'CANDLES LIT!', sub: 'DODGE THE SPARKS', ticks: 100 }
+    this.fx.burst(b.x, b.y - 30, this.fxRng, {
+      count: 18,
+      speed: 2.2,
+      colours: [RAMPS.gold[4], RAMPS.ember[3], RAMPS.gold[3]],
+    })
+    this.sound.play('warn')
+  }
+
+  /** Each candle fires a spark in a fan aimed at Sparkle. */
+  private candleVolley(b: Boss) {
+    for (let i = 0; i < 4; i++) {
+      const cx = b.x - 14 + i * 10
+      const cy = b.y - 30
+      const a = Math.atan2(this.py - cy, this.px - cx) + (i - 1.5) * 0.24
+      this.streamers.push({
+        x: cx,
+        y: cy,
+        vx: Math.cos(a) * 1.9,
+        vy: Math.sin(a) * 1.9,
+        life: 170,
+        style: 'spark',
+      })
+    }
+    this.sound.play('shoot')
+  }
+
   private bossDown() {
     const b = this.boss!
     this.boss = null
-    const bonus = 10_000 * (this.level / 4)
+    const bonus = (b.finale ? 25_000 : 10_000) * this.loop
     this.addScore(bonus, b.x, b.y)
     for (let i = 0; i < 6; i++)
       this.burst(b.x + (i - 3) * 12, b.y, 10, CONFETTI[i]!)
@@ -1373,17 +2124,24 @@ class PrizeShowPanic implements ArcadeGameInstance {
     for (let i = 0; i < 3; i++) this.dropPrize(b.x + (i - 1) * 24, b.y + 20)
   }
 
+  // --- prizes, tickets and the audience ---------------------------------------------
+
   private updatePrizes() {
+    const double = this.has('double-time') ? 2 : 1
     for (const p of this.prizes) {
-      p.life--
+      if (!p.pedestal) p.life--
+      if (p.life <= 0) {
+        if (this.script.challenge === 'all-prizes') this.prizeMissed = true
+        continue
+      }
       if (!this.touching(p.x, p.y, 9)) continue
-      p.life = 0
-      this.addScore(PRIZE_POINTS[p.kind], p.x, p.y - 10)
+      p.life = -1
+      this.addScore(PRIZE_POINTS[p.kind] * double, p.x, p.y - 10)
       if (p.kind === 'spread') this.spread = POWER_TICKS
       if (p.kind === 'rapid') this.rapid = POWER_TICKS
       if (p.kind === 'shield') this.shield = SHIELD_TICKS
       if (p.kind === 'cash' || p.kind === 'toaster' || p.kind === 'car')
-        this.haul++
+        this.haul += double
       this.fx.burst(p.x, p.y, this.fxRng, {
         count: 12,
         colours: [RAMPS.gold[4], RAMPS.gold[3], RAMPS.cream[4]],
@@ -1399,35 +2157,177 @@ class PrizeShowPanic implements ArcadeGameInstance {
     this.prizes = this.prizes.filter((p) => p.life > 0)
   }
 
-  private checkExit() {
-    const clear =
-      this.waveTimer <= 0 && this.crashers.length === 0 && !this.boss
-    if (!clear) return
-    if (this.exitDoor < 0) {
-      const options = DOORS.map((_, i) => i).filter((i) => i !== this.entryDoor)
-      this.exitDoor = options[Math.floor(this.rng() * options.length)]!
-      this.streamers = []
-      this.banner = { text: 'ROOM CLEAR!', sub: 'GET TO THE EXIT', ticks: 80 }
-      const open = DOORS[this.exitDoor]!
-      this.fx.burst(open.x, open.y, this.fxRng, {
-        count: 14,
-        colours: [RAMPS.leaf[4], RAMPS.leaf[3], RAMPS.gold[4]],
+  private updatePickups() {
+    for (const t of this.pickups) {
+      if (!this.touching(t.x, t.y, 10)) continue
+      this.collectTicket(t)
+    }
+  }
+
+  private collectTicket(t: TicketPickup) {
+    this.pickups = this.pickups.filter((other) => other !== t)
+    if (!this.tickets.includes(t.id)) this.tickets.push(t.id)
+    this.addScore(TICKET_POINTS, t.x, t.y - 12)
+    this.banner = {
+      text: 'GOLDEN TICKET!',
+      sub: `${this.tickets.length} OF ${SEASON_TICKETS}`,
+      ticks: 110,
+    }
+    for (let i = 0; i < 3; i++)
+      this.fx.burst(t.x, t.y, this.fxRng, {
+        count: 12,
+        speed: 2.2,
+        colours: [RAMPS.gold[4], RAMPS.gold[3], '#ffffff'],
       })
+    this.sound.play('extra')
+  }
+
+  /** Audience Participation: the crowd lobs gifts over the front wall. */
+  private updateTosses() {
+    if (
+      this.has('audience') &&
+      !this.cleared &&
+      this.roomTick >= this.nextToss
+    ) {
+      this.nextToss = this.roomTick + 220 + Math.floor(this.rng() * 160)
+      const pick = this.rng()
+      const kind: PrizeKind =
+        pick < 0.3
+          ? 'spread'
+          : pick < 0.6
+            ? 'rapid'
+            : pick < 0.8
+              ? 'shield'
+              : 'cash'
+      const x0 = LEFT + 30 + this.rng() * (RIGHT - LEFT - 60)
+      this.tosses.push({
+        x0,
+        y0: BOTTOM + 4,
+        x1: LEFT + 30 + this.rng() * (RIGHT - LEFT - 60),
+        y1: TOP + 30 + this.rng() * (BOTTOM - TOP - 80),
+        t: 0,
+        dur: 55,
+        kind: this.prizeFor(kind),
+      })
+      this.sound.play('blip')
+    }
+    for (const toss of this.tosses) {
+      if (++toss.t < toss.dur) continue
+      this.prizes.push({
+        x: toss.x1,
+        y: toss.y1,
+        kind: toss.kind,
+        life: PRIZE_LIFE,
+      })
+    }
+    this.tosses = this.tosses.filter((toss) => toss.t < toss.dur)
+  }
+
+  // --- clearing and leaving the room ---------------------------------------------
+
+  private checkClear() {
+    if (this.cleared) return
+    if (!this.wavesDone() || this.crashers.length || this.boss) return
+    this.cleared = true
+    this.streamers = []
+    const script = this.script
+    if (!script.closes) {
+      this.openExits()
+      this.banner = { text: 'ROOM CLEAR!', sub: 'PICK A DOOR', ticks: 80 }
+      for (const exit of this.exits)
+        this.fx.burst(exit.x, exit.y, this.fxRng, {
+          count: 14,
+          colours: [RAMPS.leaf[4], RAMPS.leaf[3], RAMPS.gold[4]],
+        })
       this.sound.play('extra')
     }
-    const door = DOORS[this.exitDoor]!
-    if (Math.hypot(door.x - this.px, door.y - this.py) < 16) {
-      const timeBonus = Math.floor(this.roomTimer / 60) * 50
-      this.addScore(timeBonus, this.px, this.py - 12)
-      this.entryDoor = (this.exitDoor + 2) % 4
-      this.transition = TRANSITION_TICKS
-      this.banner = {
-        text: 'NEXT STUDIO!',
-        sub: timeBonus ? `TIME BONUS ${timeBonus}` : undefined,
-        ticks: TRANSITION_TICKS,
+    if (script.challenge) {
+      const won =
+        script.challenge === 'no-hit'
+          ? !this.hit
+          : !this.prizeMissed && !this.prizes.some((p) => p.pedestal)
+      if (won && script.ticket && !this.tickets.includes(script.ticket)) {
+        this.pickups.push({ x: CX, y: CY, id: script.ticket })
+        this.banner = {
+          text: 'CHALLENGE MET!',
+          sub: 'A GOLDEN TICKET APPEARS',
+          ticks: 110,
+        }
+      } else if (won) {
+        this.addScore(TICKET_POINTS * this.loop, CX, CY)
+        this.banner = {
+          text: 'CHALLENGE MET!',
+          sub: 'SPONSOR BONUS',
+          ticks: 100,
+        }
+      } else {
+        this.banner = {
+          text: 'NO TICKET THIS TIME',
+          sub: 'PICK A DOOR',
+          ticks: 90,
+        }
       }
+    }
+    if (this.has('sudden-death') && !this.hit) {
+      const jackpot = 25_000 * this.loop
+      this.addScore(jackpot, CX, CY - 10)
+      this.banner = {
+        text: 'JACKPOT!',
+        sub: `SUDDEN DEATH ${jackpot}`,
+        ticks: 110,
+      }
+    }
+    if (!this.secretId && this.exits.length === 0) {
+      // The finale is down: the episode is a wrap.
+      const bonus = 20_000 * this.loop
+      this.addScore(bonus, CX, CY)
+      this.banner = {
+        text: "THAT'S A WRAP!",
+        sub: `EPISODE ${this.episode.number} BONUS ${bonus}`,
+        ticks: EPISODE_TICKS,
+      }
+      this.next = { to: 'episode' }
+      this.transition = EPISODE_TICKS
       this.sound.play('level')
     }
+  }
+
+  private checkExit() {
+    if (!this.exitsOpen || this.transition > 0) return
+    for (const exit of this.exits) {
+      if (Math.hypot(exit.x - this.px, exit.y - this.py) >= 16) continue
+      this.leave(exit)
+      return
+    }
+  }
+
+  private leave(exit: RoomExit) {
+    const timeBonus = this.script.closes
+      ? 0
+      : Math.floor(this.roomTimer / 60) * 50
+    if (timeBonus) this.addScore(timeBonus, this.px, this.py - 12)
+    // A sponsor's ticket left lying is collected on the way out; vault tickets are not.
+    for (const t of [...this.pickups])
+      if (t.id === this.script.ticket) this.collectTicket(t)
+    this.next =
+      exit.kind === 'secret'
+        ? { to: 'secret', id: exit.to, side: exit.side }
+        : { to: 'map', side: exit.kind === 'door' ? exit.side : null }
+    this.transition = TRANSITION_TICKS
+    this.banner = {
+      text: exit.kind === 'secret' ? 'BACKSTAGE!' : 'NEXT STUDIO!',
+      sub: timeBonus ? `TIME BONUS ${timeBonus}` : undefined,
+      ticks: TRANSITION_TICKS,
+    }
+    this.sound.play('level')
+  }
+
+  /** A vault or secret room's countdown ran out: the set closes behind Sparkle. */
+  private closeSet() {
+    this.next = { to: 'map', side: null }
+    this.transition = TRANSITION_TICKS
+    this.banner = { text: 'THE SET CLOSES!', ticks: TRANSITION_TICKS }
+    this.sound.play('warn')
   }
 
   private touching(x: number, y: number, r: number): boolean {
@@ -1436,7 +2336,8 @@ class PrizeShowPanic implements ArcadeGameInstance {
 
   private loseLife(text: string) {
     if (this.invuln > 0 || this.dead > 0) return
-    if (this.shield > 0) {
+    this.hit = true
+    if (this.shield > 0 && !this.has('sudden-death')) {
       // The shield pops instead.
       this.shield = 0
       this.invuln = 60
@@ -1509,6 +2410,28 @@ class PrizeShowPanic implements ArcadeGameInstance {
 
   // --- attract-mode pilot -----------------------------------------------------
 
+  /**
+   * The pilot's route call: the richest door, or the safest one every other room and whenever it
+   * is down to its last contestant, so the attract loop shows both lanes.
+   */
+  private pilotPick(options: readonly { id: string }[]): number {
+    if (options.length < 2) return 0
+    const careful = this.lives <= 1 || this.studios % 2 === 1
+    let best = 0
+    let bestScore = -Infinity
+    options.forEach((option, i) => {
+      const script = roomById(this.episode, option.id).script
+      const value = careful
+        ? -script.danger * 10 + REWARD_RANK[script.reward]
+        : REWARD_RANK[script.reward] * 10 - script.danger
+      if (value > bestScore) {
+        bestScore = value
+        best = i
+      }
+    })
+    return best
+  }
+
   private demoInput(): InputFrame {
     const held = {
       up: false,
@@ -1520,23 +2443,84 @@ class PrizeShowPanic implements ArcadeGameInstance {
       start: false,
     }
     const frame: InputFrame = { held, pressed: { ...held } }
-    const threats: Array<{ x: number; y: number }> = [
-      ...this.crashers,
-      ...this.streamers,
+    if (this.map) {
+      // On the map: walk the cursor to the pick, then press A.
+      const map = this.map
+      const target = this.pilotPick(map.options)
+      const buttons = ['up', 'right', 'down', 'left'] as const
+      if (map.cursor !== target) {
+        if (map.ticks >= MAP_SETTLE && map.ticks % 10 === 0)
+          frame.pressed[buttons[map.options[target]!.side]] = true
+      } else if (map.ticks >= MAP_SETTLE + 40) {
+        frame.pressed.a = true
+      }
+      return frame
+    }
+    const threats: Array<{ x: number; y: number; r: number }> = [
+      ...this.crashers.map((c) => ({ x: c.x, y: c.y, r: 50 })),
+      ...this.streamers.map((s) => ({ x: s.x, y: s.y, r: 18 })),
     ]
-    if (this.boss) threats.push(this.boss)
-    // Step away from whatever is closest; aim at the nearest crasher (or the float).
+    if (this.boss) threats.push({ x: this.boss.x, y: this.boss.y, r: 56 })
+    for (const m of this.mines)
+      threats.push({
+        x: m.x,
+        y: m.y,
+        r: m.fuse > 0 ? CUSHION_BLAST + 16 : m.kind === 'cushion' ? 15 : 12,
+      })
+    for (const b of this.beams) {
+      const { angle, hot, warming } = this.beamState(b)
+      if (!hot && !warming) continue
+      const { along, half } = this.beamReach(b, angle, this.px, this.py)
+      const d = Math.max(0, along)
+      threats.push({
+        x: b.x + Math.cos(angle) * d,
+        y: b.y + Math.sin(angle) * d,
+        r: half + 18,
+      })
+    }
+    // Step away from whatever is close; aim at the nearest crasher (or the float).
     let mx = 0
     let my = 0
     for (const t of threats) {
       const d = Math.hypot(t.x - this.px, t.y - this.py)
-      if (d < 50) {
+      if (d < t.r) {
         mx -= (t.x - this.px) / (d || 1)
         my -= (t.y - this.py) / (d || 1)
       }
     }
+    // Sidestep anything thrown this way, off the line it is flying along.
+    for (const s of this.streamers) {
+      const rx = this.px - s.x
+      const ry = this.py - s.y
+      if (Math.hypot(rx, ry) > 80) continue
+      const speed = Math.hypot(s.vx, s.vy) || 1
+      const ux = s.vx / speed
+      const uy = s.vy / speed
+      if (rx * ux + ry * uy < 0) continue
+      const off = ry * ux - rx * uy
+      if (Math.abs(off) > 12) continue
+      const side = off >= 0 ? 1 : -1
+      const push = 2 * (1 - Math.abs(off) / 12)
+      mx += -uy * side * push
+      my += ux * side * push
+    }
+    // While dodging, keep off the walls so a corner never pins the pilot.
+    if (Math.abs(mx) + Math.abs(my) > 0.5) {
+      if (this.px < LEFT + 24) mx += 0.8
+      if (this.px > RIGHT - 24) mx -= 0.8
+      if (this.py < TOP + 24) my += 0.8
+      if (this.py > BOTTOM - 24) my -= 0.8
+    }
     let goal: { x: number; y: number } | null = null
-    if (this.exitDoor >= 0) goal = DOORS[this.exitDoor]!
+    const doors = this.exits.filter((e) => e.kind !== 'secret')
+    const leaving =
+      this.exitsOpen &&
+      (this.cleared || this.roomTimer < 150 || !this.prizes.length) &&
+      !this.pickups.length
+    if (leaving && doors.length)
+      goal =
+        doors[this.pilotPick(doors.map((e) => ({ id: e.to || this.roomId })))]!
+    else if (this.pickups.length) goal = this.pickups[0]!
     else if (this.prizes.length) goal = this.prizes[0]!
     if (goal && Math.abs(mx) + Math.abs(my) < 0.5) {
       mx = goal.x - this.px
@@ -1551,7 +2535,11 @@ class PrizeShowPanic implements ArcadeGameInstance {
     if (mx > 0.2) held.right = true
     if (my < -0.2) held.up = true
     if (my > 0.2) held.down = true
-    const target = [...this.crashers, ...(this.boss ? [this.boss] : [])].sort(
+    const target = [
+      ...this.crashers,
+      ...this.cameras,
+      ...(this.boss ? [this.boss] : []),
+    ].sort(
       (a, b) =>
         Math.hypot(a.x - this.px, a.y - this.py) -
         Math.hypot(b.x - this.px, b.y - this.py),
@@ -1573,22 +2561,43 @@ class PrizeShowPanic implements ArcadeGameInstance {
   // --- render -------------------------------------------------------------------
 
   render(g: CanvasRenderingContext2D) {
+    if (this.map) {
+      this.renderMap(g)
+      return
+    }
+    const dark = this.has('lights-out')
     this.renderStudio(g)
+    if (this.has('foam')) this.renderFoam(g)
     this.renderSpotlights(g)
     this.renderMarquee(g)
     DOORS.forEach((d, i) => this.renderDoor(g, d, i))
-    if (this.exitDoor >= 0) this.renderExitArrows(g, DOORS[this.exitDoor]!)
+    this.renderCrack(g)
+    if (this.exitsOpen)
+      for (const exit of this.exits) this.renderExitArrows(g, exit)
+    this.renderMines(g)
     this.renderShadows(g)
+    this.renderPedestals(g)
     for (const p of this.prizes) this.renderPrize(g, p)
+    this.renderTickets(g)
     if (this.boss) this.renderBoss(g, this.boss)
     const crowd = [...this.crashers].sort((a, b) => a.y - b.y)
     for (const c of crowd) this.renderCrasher(g, c)
     for (const d of this.dancers) this.renderDancer(g, d)
+    this.renderCameras(g)
+    if (!dark) this.renderBeams(g)
     this.renderStreamers(g)
     this.renderShots(g)
     if (this.dead === 0 && !this.over) this.renderSparkle(g)
     this.renderConfetti(g)
     this.fx.render(g)
+    this.renderTosses(g)
+    if (dark) {
+      this.renderDarkness(g)
+      this.renderBeams(g)
+      this.renderEyes(g)
+    }
+    if (this.has('confetti-storm')) this.renderStorm(g)
+    if (this.has('audience')) this.renderAudience(g)
     for (const f of this.floaters) {
       drawText(g, f.text, f.x, f.y, {
         align: 'center',
@@ -1596,12 +2605,35 @@ class PrizeShowPanic implements ArcadeGameInstance {
         outline: INK,
       })
     }
+    if (this.has('sudden-death')) this.renderSuddenDeath(g)
     vignette(g, W, H, 0.28)
     this.renderHud(g)
   }
 
+  private renderMap(g: CanvasRenderingContext2D) {
+    const map = this.map!
+    renderSeasonMap(g, {
+      episode: this.episode,
+      loop: this.loop,
+      visited: this.route,
+      current: this.roomId,
+      options: map.options,
+      cursor: map.cursor,
+      tickets: this.tickets.length,
+      ticketsTotal: SEASON_TICKETS,
+      secrets: this.secretsFound,
+      marker: LIFE_SPRITE,
+      tick: this.tick,
+    })
+    vignette(g, W, H, 0.22)
+    if (this.banner) this.renderBanner(g)
+  }
+
   private studioIndex(): number {
-    return this.bossRoom() ? 3 : (this.level - 1) % 3
+    const look = LOOK_OF[this.script.type]
+    if (look !== undefined) return look
+    const room = this.secretId ? null : roomById(this.episode, this.roomId)
+    return room ? (room.col + room.row) % 3 : 0
   }
 
   private renderStudio(g: CanvasRenderingContext2D) {
@@ -1704,30 +2736,38 @@ class PrizeShowPanic implements ArcadeGameInstance {
     })
   }
 
+  /** The two follow-spots' centres this tick (also the only light in Lights Out). */
+  private followSpots(): Array<{ x: number; y: number }> {
+    return [0, 1].map((i) => {
+      const t = this.tick / 90 + i * 2.6
+      return {
+        x: CX + Math.sin(t * 0.83 + i) * 100,
+        y: CY + Math.sin(t * 1.21 + i * 1.7) * 52,
+      }
+    })
+  }
+
   private renderSpotlights(g: CanvasRenderingContext2D) {
     // Two follow-spots sweep the stage, stepped like the pools under them.
     const look = STUDIOS[this.studioIndex()]!
     g.save()
     g.globalCompositeOperation = 'lighter'
-    for (let i = 0; i < 2; i++) {
-      const t = this.tick / 90 + i * 2.6
-      const x = CX + Math.sin(t * 0.83 + i) * 100
-      const y = CY + Math.sin(t * 1.21 + i * 1.7) * 52
+    this.followSpots().forEach(({ x, y }, i) => {
       g.fillStyle = rgba(i ? RAMPS.pink[3] : look.pool, 0.06)
       for (let b = 0; b < 3; b++) {
         g.beginPath()
         g.ellipse(x, y, 30 - b * 8, 19 - b * 5, 0, 0, Math.PI * 2)
         g.fill()
       }
-    }
+    })
     g.restore()
   }
 
   private renderMarquee(g: CanvasRenderingContext2D) {
-    // The bulbs chase round the set: gold, green once the exit opens, red when time is short.
-    const step = Math.floor(this.tick / 5)
+    // The bulbs chase round the set: gold, green once the doors open, red when time is short.
+    const step = Math.floor(this.tick / (this.has('double-time') ? 2 : 5))
     const ramp =
-      this.exitDoor >= 0
+      this.exitsOpen && !this.script.closes
         ? RAMPS.leaf
         : this.roomTimer <= 600 && !this.over
           ? RAMPS.ember
@@ -1756,7 +2796,9 @@ class PrizeShowPanic implements ArcadeGameInstance {
     const y = across ? (d.side === 0 ? HUD : BOTTOM) : d.y - DOOR
     const w = across ? DOOR * 2 : WALL
     const h = across ? WALL : DOOR * 2
-    const exit = i === this.exitDoor
+    const exit = this.exitsOpen
+      ? this.exits.find((e) => e.side === i && e.kind !== 'secret')
+      : undefined
     // Gold posts either side of the doorway.
     const posts: [number, number, number, number][] = across
       ? [
@@ -1779,13 +2821,15 @@ class PrizeShowPanic implements ArcadeGameInstance {
     }
     if (exit) {
       glow(g, d.x, d.y, 30, RAMPS.leaf[3], 0.4 + 0.15 * Math.sin(this.tick / 6))
-      drawText(
-        g,
-        'EXIT',
-        d.x + (d.side === 1 ? -22 : d.side === 3 ? 22 : 0),
-        d.y + (d.side === 0 ? 6 : d.side === 2 ? -12 : -3),
-        { align: 'center', color: RAMPS.leaf[4], outline: INK },
-      )
+      // The door's sign shows what the map says is through it.
+      const icon =
+        exit.kind === 'back'
+          ? MAP_ICONS.secret
+          : MAP_ICONS[ROOM_ICON[roomById(this.episode, exit.to).script.type]]
+      const sx = d.x + (d.side === 1 ? -20 : d.side === 3 ? 20 : 0)
+      const sy = d.y + (d.side === 0 ? 14 : d.side === 2 ? -14 : 0)
+      bevel(g, sx - 9, sy - 8, 18, 16, RAMPS.leaf, { depth: 1 })
+      drawSprite(g, icon, sx, sy)
       return
     }
     // Closed: two sliding steel panels with a pink stud each.
@@ -1806,8 +2850,8 @@ class PrizeShowPanic implements ArcadeGameInstance {
       g.fillStyle = RAMPS.pink[4]
       g.fillRect(px + Math.floor(pw / 2) - 1, py + Math.floor(ph / 2) - 1, 1, 1)
     }
-    // While crashers are still streaming in, warning lamps blink on the posts.
-    if (this.waveTimer > 0 && Math.floor(this.tick / 12) % 2 === 0) {
+    // While the script still has crashers to send, warning lamps blink on the posts.
+    if (!this.wavesDone() && Math.floor(this.tick / 12) % 2 === 0) {
       g.save()
       g.globalCompositeOperation = 'lighter'
       g.globalAlpha = 0.45
@@ -1826,32 +2870,314 @@ class PrizeShowPanic implements ArcadeGameInstance {
     }
   }
 
-  private renderExitArrows(
-    g: CanvasRenderingContext2D,
-    d: { x: number; y: number; side: number },
-  ) {
-    // Chevrons on the floor run toward the open exit.
-    const inward = EXIT_INWARD[d.side]!
-    const start = d.side % 2 ? 40 : 18
+  /** The cracked wall: hairlines that spread as it takes confetti, then a hole to backstage. */
+  private renderCrack(g: CanvasRenderingContext2D) {
+    const crack = this.crack
+    if (!crack) return
+    const across = crack.side % 2 === 0
+    const wx = across ? crack.x - 12 : crack.side === 3 ? 1 : RIGHT + 1
+    const wy = across ? (crack.side === 0 ? HUD + 1 : BOTTOM + 1) : crack.y - 12
+    const ww = across ? 24 : WALL - 2
+    const wh = across ? WALL - 2 : 24
+    if (crack.hp <= 0) {
+      const open = this.exits.some((e) => e.kind === 'secret')
+      bandedGradient(
+        g,
+        wx,
+        wy,
+        ww,
+        wh,
+        [INK, RAMPS.purple[0], RAMPS.night[2]],
+        2,
+      )
+      glow(
+        g,
+        crack.x,
+        crack.y,
+        open ? 26 : 14,
+        RAMPS.purple[3],
+        open ? 0.45 + 0.15 * Math.sin(this.tick / 6) : 0.25,
+      )
+      if (open)
+        drawSprite(
+          g,
+          MAP_ICONS.secret,
+          crack.x,
+          crack.y + (crack.side === 2 ? -14 : 14),
+        )
+      return
+    }
+    // Hairline cracks in ink with a lit edge, more of them the more it is hit.
+    const stage = 6 - crack.hp
+    const lines: [number, number][][] = [
+      [
+        [-1, -4],
+        [1, -1],
+        [-1, 2],
+        [1, 4],
+      ],
+      [
+        [1, -1],
+        [5, -2],
+        [8, 1],
+      ],
+      [
+        [-1, 2],
+        [-5, 1],
+        [-8, 3],
+      ],
+      [
+        [5, -2],
+        [7, -4],
+      ],
+      [
+        [-5, 1],
+        [-7, -3],
+        [-10, -2],
+      ],
+    ]
+    const count = 1 + Math.min(4, stage)
+    // Drawn on the wall's face, not the floor's edge.
+    const ox = crack.side === 1 ? 5 : crack.side === 3 ? -5 : 0
+    const oy = crack.side === 2 ? 5 : crack.side === 0 ? -5 : 0
+    for (let i = 0; i < count; i++) {
+      const path = lines[i]!
+      for (let k = 1; k < path.length; k++) {
+        const [ax, ay] = path[k - 1]!
+        const [bx, by] = path[k]!
+        const steps = Math.max(Math.abs(bx - ax), Math.abs(by - ay))
+        for (let s = 0; s <= steps; s++) {
+          const u = s / (steps || 1)
+          const lx = ax + (bx - ax) * u
+          const ly = ay + (by - ay) * u
+          const px = Math.round(crack.x + ox + (across ? lx : ly))
+          const py = Math.round(crack.y + oy + (across ? ly : lx))
+          g.fillStyle = INK
+          g.fillRect(px, py, 2, 1)
+          g.fillStyle = RAMPS.cream[4]
+          g.fillRect(px + 2, py, 1, 1)
+        }
+      }
+    }
+    // The host's hint: now and then a glint and a puff of plaster dust at the crack.
+    if (this.tick % 150 < 14) {
+      const t = this.tick % 150
+      g.fillStyle = '#ffffff'
+      g.fillRect(crack.x + ox - 1, crack.y + oy - 3 + (t >> 2), 3, 1)
+      g.fillRect(crack.x + ox, crack.y + oy - 4 + (t >> 2), 1, 3)
+      glow(g, crack.x + ox, crack.y + oy, 10, RAMPS.cream[4], 0.35)
+    }
+  }
+
+  private renderExitArrows(g: CanvasRenderingContext2D, exit: RoomExit) {
+    // Chevrons on the floor run toward each open way out.
+    const inward = EXIT_INWARD[exit.side]!
+    const start = exit.side % 2 ? 40 : 18
     const step = Math.floor(this.tick / 6)
     for (let k = 0; k < 3; k++) {
       const dist = start + k * 9
       drawSprite(
         g,
-        d.side % 2 ? CHEVRON_LEFT : CHEVRON_UP,
-        d.x + inward[0] * dist,
-        d.y + inward[1] * dist,
+        exit.side % 2 ? CHEVRON_LEFT : CHEVRON_UP,
+        exit.x + inward[0] * dist,
+        exit.y + inward[1] * dist,
         {
-          flipX: d.side === 1,
-          flipY: d.side === 2,
+          flipX: exit.side === 1,
+          flipY: exit.side === 2,
           alpha: (step + k) % 3 === 0 ? 1 : 0.4,
         },
       )
     }
   }
 
+  /** Floor mines: cushions puff up and flash with their blast ring showing before they go. */
+  private renderMines(g: CanvasRenderingContext2D) {
+    for (const m of this.mines) {
+      if (m.kind === 'peel') {
+        dropShadow(g, m.x, m.y + 4, 6, 1.4, 0.3)
+        drawSprite(g, PEEL_SPRITE, m.x, m.y)
+        continue
+      }
+      dropShadow(g, m.x + 1, m.y + 5, 8, 1.8, 0.3)
+      if (m.fuse > 0) {
+        const urgent = m.fuse < 14
+        const blink = Math.floor(m.fuse / (urgent ? 2 : 4)) % 2 === 0
+        // The blast ring, dotted round the floor.
+        g.fillStyle = rgba(
+          urgent ? RAMPS.ember[3] : RAMPS.pink[3],
+          blink ? 0.9 : 0.45,
+        )
+        for (let i = 0; i < 20; i++) {
+          const a = (i / 20) * Math.PI * 2 + this.tick / 20
+          g.fillRect(
+            Math.round(m.x + Math.cos(a) * CUSHION_BLAST) - 1,
+            Math.round(m.y + Math.sin(a) * CUSHION_BLAST * 0.8),
+            2,
+            2,
+          )
+        }
+        glow(g, m.x, m.y, 16, RAMPS.pink[3], blink ? 0.55 : 0.25)
+        const frame = m.fuse > CUSHION_FUSE / 2 ? 1 : 2
+        drawSprite(g, CUSHION_SPRITES[frame]!, m.x, m.y, {
+          alpha: blink || !urgent ? 1 : 0.75,
+        })
+        continue
+      }
+      drawSprite(g, CUSHION_SPRITES[0]!, m.x, m.y)
+    }
+  }
+
+  private renderPedestals(g: CanvasRenderingContext2D) {
+    for (const p of this.prizes) {
+      if (!p.pedestal) continue
+      const x = Math.round(p.x)
+      const y = Math.round(p.y)
+      dropShadow(g, x, y + 11, 11, 2.2, 0.4)
+      bevel(g, x - 9, y + 3, 18, 8, RAMPS.purple, { depth: 1 })
+      bevel(g, x - 11, y + 1, 22, 3, RAMPS.gold, { depth: 1 })
+    }
+    for (const t of this.pickups) {
+      const x = Math.round(t.x)
+      const y = Math.round(t.y)
+      dropShadow(g, x, y + 11, 12, 2.2, 0.4)
+      bevel(g, x - 10, y + 3, 20, 8, RAMPS.gold, { depth: 1 })
+    }
+  }
+
+  private renderTickets(g: CanvasRenderingContext2D) {
+    for (const t of this.pickups) {
+      const bob = Math.round(Math.sin(this.tick / 8) * 2)
+      glow(
+        g,
+        t.x,
+        t.y - 3,
+        22,
+        RAMPS.gold[3],
+        0.5 + 0.15 * Math.sin(this.tick / 5),
+      )
+      drawSprite(g, TICKET_SPRITE, t.x, t.y - 4 + bob)
+      if (this.tick % 30 < 10) {
+        const tx = Math.round(t.x) + 8
+        const ty = Math.round(t.y) - 9 + bob
+        g.fillStyle = '#ffffff'
+        g.fillRect(tx - 2, ty, 5, 1)
+        g.fillRect(tx, ty - 2, 1, 5)
+      }
+    }
+  }
+
+  /** The camera wall: each camera's lens glows red and its aim line shows while it charges. */
+  private renderCameras(g: CanvasRenderingContext2D) {
+    for (const cam of this.cameras) {
+      const charging = this.cameraCharging(cam)
+      if (charging) {
+        const c = (this.roomTick + cam.offset) % cam.every
+        const k = (c - (cam.every - CAMERA_CHARGE)) / CAMERA_CHARGE
+        glow(g, cam.x, cam.y, 10 + k * 10, RAMPS.ember[3], 0.35 + k * 0.4)
+        // A dotted line to where the flash is going.
+        const dx = cam.tx - cam.x
+        const dy = cam.ty - cam.y
+        const len = Math.hypot(dx, dy) || 1
+        g.fillStyle = rgba(RAMPS.ember[3], 0.35 + k * 0.5)
+        for (let d = 12; d < len; d += 7) {
+          if (Math.floor((d + this.tick) / 7) % 2) continue
+          g.fillRect(
+            Math.round(cam.x + (dx / len) * d),
+            Math.round(cam.y + (dy / len) * d),
+            2,
+            2,
+          )
+        }
+      }
+      const sideways = cam.side % 2 === 1
+      const sprite = sideways
+        ? charging
+          ? CAMERA_SPRITES.sideHot
+          : CAMERA_SPRITES.side
+        : charging
+          ? CAMERA_SPRITES.downHot
+          : CAMERA_SPRITES.down
+      const sx = cam.x + (cam.side === 1 ? 1 : cam.side === 3 ? -1 : 0)
+      const sy = cam.y + (cam.side === 0 ? -1 : cam.side === 2 ? 1 : 0)
+      drawSprite(g, sprite, sx, sy, {
+        flipX: cam.side === 1,
+        flipY: cam.side === 2,
+      })
+      // The tally light: red while live.
+      if (charging && Math.floor(this.tick / 4) % 2 === 0) {
+        g.fillStyle = RAMPS.ember[4]
+        g.fillRect(Math.round(sx) - 2, Math.round(sy) - 2, 2, 2)
+      }
+    }
+  }
+
+  /** The light rig: hot beams glare in stepped bands; a warming beam flickers its outline. */
+  private renderBeams(g: CanvasRenderingContext2D) {
+    if (!this.beams.length) return
+    const reach = 300
+    g.save()
+    g.beginPath()
+    g.rect(LEFT, TOP, RIGHT - LEFT, BOTTOM - TOP)
+    g.clip()
+    for (const b of this.beams) {
+      const { angle, hot, warming } = this.beamState(b)
+      const dx = Math.cos(angle)
+      const dy = Math.sin(angle)
+      const nx = -dy
+      const ny = dx
+      const edge = (half: number, far: number) => {
+        g.beginPath()
+        g.moveTo(b.x + nx * half, b.y + ny * half)
+        g.lineTo(b.x + dx * reach + nx * far, b.y + dy * reach + ny * far)
+        g.lineTo(b.x + dx * reach - nx * far, b.y + dy * reach - ny * far)
+        g.lineTo(b.x - nx * half, b.y - ny * half)
+        g.closePath()
+      }
+      if (hot) {
+        g.globalCompositeOperation = 'lighter'
+        const bands: [number, string, number][] = [
+          [1.35, RAMPS.gold[2], 0.12],
+          [1, RAMPS.gold[3], 0.2],
+          [0.55, RAMPS.cream[4], 0.28],
+        ]
+        for (const [k, colour, a] of bands) {
+          g.fillStyle = rgba(colour, a)
+          edge(5 * k, (5 + reach * 0.07) * k)
+          g.fill()
+        }
+        g.globalCompositeOperation = 'source-over'
+      } else if (warming) {
+        g.strokeStyle = rgba(
+          RAMPS.ember[3],
+          Math.floor(this.tick / 4) % 2 ? 0.4 : 0.85,
+        )
+        g.lineWidth = 1
+        edge(5, 5 + reach * 0.07)
+        g.stroke()
+      }
+    }
+    g.restore()
+    // The lamps themselves, bolted to the wall.
+    for (const b of this.beams) {
+      const { hot, warming } = this.beamState(b)
+      bevel(g, Math.round(b.x) - 5, Math.round(b.y) - 4, 10, 8, RAMPS.steel, {
+        depth: 1,
+      })
+      const lamp = hot
+        ? RAMPS.gold[4]
+        : warming
+          ? RAMPS.ember[3]
+          : RAMPS.night[3]
+      g.fillStyle = lamp
+      g.fillRect(Math.round(b.x) - 2, Math.round(b.y) - 1, 4, 3)
+      if (hot || warming)
+        glow(g, b.x, b.y, hot ? 16 : 10, lamp, hot ? 0.6 : 0.4)
+    }
+  }
+
   private renderShadows(g: CanvasRenderingContext2D) {
-    for (const p of this.prizes) dropShadow(g, p.x, p.y + 6, 6, 1.6, 0.35)
+    for (const p of this.prizes)
+      if (!p.pedestal) dropShadow(g, p.x, p.y + 6, 6, 1.6, 0.35)
     if (this.boss) dropShadow(g, this.boss.x, this.boss.y + 21, 44, 5, 0.4)
     for (const c of this.crashers)
       dropShadow(g, c.x, c.y + 7, c.kind === 'bouncer' ? 6 : 5, 1.6, 0.35)
@@ -1883,6 +3209,17 @@ class PrizeShowPanic implements ArcadeGameInstance {
       flipX: this.aim.x < 0,
     })
     if (this.aim.y >= 0) cannon()
+    if (this.slip > 0) {
+      // Sliding on a peel: little motion lines behind her.
+      g.fillStyle = rgba(RAMPS.gold[4], 0.8)
+      for (let i = 1; i <= 3; i++)
+        g.fillRect(
+          Math.round(x - this.vx * i * 3) - 3,
+          Math.round(y + 6 - this.vy * i * 3),
+          6 - i,
+          1,
+        )
+    }
     if (
       this.shield > 0 &&
       !(this.shield < 120 && Math.floor(this.tick / 4) % 2)
@@ -1950,13 +3287,29 @@ class PrizeShowPanic implements ArcadeGameInstance {
 
   private renderStreamers(g: CanvasRenderingContext2D) {
     if (!this.streamers.length) return
+    const halos: Record<Streamer['style'], string> = {
+      streamer: RAMPS.pink[3],
+      flash: RAMPS.gold[4],
+      spark: RAMPS.ember[3],
+    }
     g.save()
     g.globalCompositeOperation = 'lighter'
     g.globalAlpha = 0.25
-    for (const s of this.streamers) halo(g, s.x, s.y, 4, RAMPS.pink[3])
+    for (const s of this.streamers)
+      if (s.style === 'streamer') halo(g, s.x, s.y, 4, halos[s.style])
     g.restore()
-    const sprite = STREAMER_SPRITES[Math.floor(this.tick / 4) % 2]!
-    for (const s of this.streamers) drawSprite(g, sprite, s.x, s.y)
+    for (const s of this.streamers)
+      if (s.style !== 'streamer') glow(g, s.x, s.y, 9, halos[s.style], 0.55)
+    const flutter = Math.floor(this.tick / 4) % 2
+    for (const s of this.streamers) {
+      const sprite =
+        s.style === 'flash'
+          ? FLASH_SPRITES[flutter]!
+          : s.style === 'spark'
+            ? SPARK_SPRITES[flutter]!
+            : STREAMER_SPRITES[flutter]!
+      drawSprite(g, sprite, s.x, s.y)
+    }
   }
 
   private renderShots(g: CanvasRenderingContext2D) {
@@ -1995,38 +3348,83 @@ class PrizeShowPanic implements ArcadeGameInstance {
   }
 
   private renderBoss(g: CanvasRenderingContext2D, b: Boss) {
-    const x = Math.round(b.x)
+    const rock = b.shift > 0 ? Math.round(Math.sin(b.shift / 2) * 2) : 0
+    const x = Math.round(b.x) + rock
     const y = Math.round(b.y)
     const sprite =
-      b.flash > 0 ? FLOAT_FLASH : FLOAT_SPRITES[Math.floor(b.t / 8) % 2]!
+      b.flash > 0 || (b.shift > 0 && Math.floor(b.shift / 4) % 2)
+        ? FLOAT_FLASH
+        : FLOAT_SPRITES[Math.floor(b.t / 8) % 2]!
     drawSprite(g, sprite, x - FLOAT_CX - 1, y - FLOAT_CY - 1, {
       anchor: 'topleft',
     })
-    // Candle flames flicker and glow.
+    // Phase 1: the candles are cold wicks. Phase 2: lit, flaring hot before each volley.
+    const until = this.candleClock(b)
+    const charging = b.phase === 2 && b.shift === 0 && until <= CANDLE_CHARGE
+    const k = charging ? 1 - until / CANDLE_CHARGE : 0
     for (let i = 0; i < 4; i++) {
       const fx = x - 15 + i * 10
       const fy = y - 31
+      if (b.phase === 1) {
+        g.fillStyle = INK
+        g.fillRect(fx, fy + 1, 2, 3)
+        g.fillStyle = RAMPS.steel[2]
+        g.fillRect(fx, fy + 2, 1, 1)
+        continue
+      }
       const flick = Math.floor(this.tick / 5 + i) % 2
-      glow(g, fx + 1, fy + 1, 8, RAMPS.gold[3], 0.55)
+      // A teardrop flame: ink edge, ember skin, gold heart; it stretches as the volley nears.
+      const tall = 4 + flick + Math.round(k * 5)
+      const top = fy + 1 - tall
+      glow(
+        g,
+        fx + 1,
+        fy - 2,
+        7 + k * 8,
+        charging ? RAMPS.ember[3] : RAMPS.gold[3],
+        0.45 + k * 0.35,
+      )
       g.fillStyle = INK
-      g.fillRect(fx - 1, fy - 1 - flick, 4, 5 + flick)
-      g.fillStyle = flick ? RAMPS.ember[3] : RAMPS.gold[3]
-      g.fillRect(fx, fy - flick, 2, 3 + flick)
+      g.fillRect(fx - 2, top + 1, 6, tall + 1)
+      g.fillRect(fx - 1, top - 1, 4, tall + 3)
+      g.fillStyle = charging && k > 0.5 ? RAMPS.ember[2] : RAMPS.ember[3]
+      g.fillRect(fx - 1, top + 2, 4, tall - 1)
+      g.fillRect(fx, top, 2, tall + 1)
+      g.fillStyle = RAMPS.gold[3]
+      g.fillRect(fx, top + 2, 2, tall - 2)
+      g.fillStyle = k > 0.6 ? '#ffffff' : RAMPS.gold[4]
+      g.fillRect(fx, top + tall - 2, 2, 2)
       g.fillStyle = RAMPS.gold[4]
-      g.fillRect(fx, fy + 1, 2, 1)
+      g.fillRect(fx + (flick ? 1 : 0), top, 1, 1)
     }
-    gauge(g, x - 40, y - 37, 80, 3, b.hp / b.maxHp, RAMPS.leaf)
+    if (b.phase === 2) {
+      // The cake is cross now: its eyes glow.
+      glow(g, x - 8, y - 15, 5, RAMPS.ember[3], 0.6)
+      glow(g, x + 9, y - 15, 5, RAMPS.ember[3], 0.6)
+    }
+    gauge(
+      g,
+      x - 40,
+      y - 37,
+      80,
+      3,
+      b.hp / b.maxHp,
+      b.phase === 2 ? RAMPS.ember : RAMPS.leaf,
+    )
+    // The phase mark on the gauge: past it, the candles light.
+    g.fillStyle = INK
+    g.fillRect(x - 40 + Math.round(80 * b.phase2At), y - 38, 1, 5)
   }
 
   private renderPrize(g: CanvasRenderingContext2D, p: Prize) {
-    if (p.life < 90 && Math.floor(this.tick / 5) % 2) return
+    if (!p.pedestal && p.life < 90 && Math.floor(this.tick / 5) % 2) return
     const bob = Math.round(Math.sin((this.tick + p.x) / 9) * 1.5)
     const x = p.x
-    const y = p.y - 1 + bob
+    const y = p.y - 1 + bob - (p.pedestal ? 4 : 0)
     glow(
       g,
       p.x,
-      p.y,
+      y,
       13,
       PRIZE_GLOW[p.kind],
       0.32 + 0.12 * Math.sin(this.tick / 7),
@@ -2061,6 +3459,163 @@ class PrizeShowPanic implements ArcadeGameInstance {
     }
   }
 
+  /** Audience gifts in flight, with a ring on the floor where each will land. */
+  private renderTosses(g: CanvasRenderingContext2D) {
+    for (const toss of this.tosses) {
+      const u = toss.t / toss.dur
+      const x = toss.x0 + (toss.x1 - toss.x0) * u
+      const y = toss.y0 + (toss.y1 - toss.y0) * u - Math.sin(u * Math.PI) * 60
+      g.strokeStyle = rgba(RAMPS.leaf[4], 0.5 + 0.4 * u)
+      g.lineWidth = 1
+      g.beginPath()
+      g.ellipse(toss.x1, toss.y1 + 5, 7, 3, 0, 0, Math.PI * 2)
+      g.stroke()
+      dropShadow(g, toss.x1, toss.y1 + 5, 3 + u * 4, 1 + u, 0.35)
+      if (toss.kind === 'cash') drawSprite(g, CASH_SPRITE, x, y)
+      else if (
+        toss.kind === 'spread' ||
+        toss.kind === 'rapid' ||
+        toss.kind === 'shield'
+      )
+        shadedOrb(g, x, y, 4.5, POWER_RAMPS[toss.kind])
+    }
+  }
+
+  /** Foam Party: soap suds on the floor and bubbles drifting up. */
+  private renderFoam(g: CanvasRenderingContext2D) {
+    for (const s of FOAM_SUDS) {
+      g.fillStyle = rgba(RAMPS.cream[4], 0.18)
+      g.beginPath()
+      g.ellipse(s.x, s.y, s.r * 2, s.r * 1.2, 0, 0, Math.PI * 2)
+      g.fill()
+      g.fillStyle = rgba('#ffffff', 0.3)
+      g.beginPath()
+      g.ellipse(
+        s.x - s.r * 0.6,
+        s.y - s.r * 0.3,
+        s.r * 0.7,
+        s.r * 0.4,
+        0,
+        0,
+        Math.PI * 2,
+      )
+      g.fill()
+    }
+    for (let i = 0; i < 14; i++) {
+      const s = FOAM_SUDS[i]!
+      const rise = (this.tick * 0.4 + i * 37) % 120
+      const bx = s.x + Math.sin((this.tick + i * 20) / 18) * 4
+      const by = s.y - rise
+      if (by < TOP + 2) continue
+      const r = 1.5 + (i % 3)
+      g.strokeStyle = rgba(RAMPS.sky[4], 0.7 * (1 - rise / 120))
+      g.lineWidth = 1
+      g.beginPath()
+      g.arc(bx, by, r, 0, Math.PI * 2)
+      g.stroke()
+      g.fillStyle = rgba('#ffffff', 0.8 * (1 - rise / 120))
+      g.fillRect(Math.round(bx - r / 2), Math.round(by - r / 2), 1, 1)
+    }
+  }
+
+  /** Lights Out: the floor goes dark in stepped bands except under the spotlights. */
+  private renderDarkness(g: CanvasRenderingContext2D) {
+    const lights: Array<{ x: number; y: number; r: number }> = [
+      { x: this.px, y: this.py, r: 36 },
+      ...this.followSpots().map((s) => ({ ...s, r: 30 })),
+      ...this.prizes.map((p) => ({ x: p.x, y: p.y, r: 11 })),
+      ...this.pickups.map((t) => ({ x: t.x, y: t.y, r: 14 })),
+      ...(this.exitsOpen
+        ? this.exits.map((e) => ({ x: e.x, y: e.y, r: 22 }))
+        : []),
+    ]
+    for (const [alpha, grow] of [
+      [0.55, 1.3],
+      [0.5, 1],
+    ] as const) {
+      g.save()
+      g.fillStyle = rgba(INK, alpha)
+      g.beginPath()
+      g.rect(LEFT, TOP, RIGHT - LEFT, BOTTOM - TOP)
+      for (const l of lights) {
+        const r = l.r * grow
+        g.moveTo(l.x + r, l.y)
+        g.ellipse(l.x, l.y, r, r * 0.8, 0, 0, Math.PI * 2)
+      }
+      g.fill('evenodd')
+      g.restore()
+    }
+  }
+
+  /** In the dark, crashers' eyes still glint. */
+  private renderEyes(g: CanvasRenderingContext2D) {
+    for (const c of this.crashers) {
+      if (Math.floor((this.tick + c.t) / 50) % 6 === 0) continue
+      g.fillStyle = RAMPS.gold[4]
+      g.fillRect(Math.round(c.x) - 3, Math.round(c.y) - 5, 2, 1)
+      g.fillRect(Math.round(c.x) + 1, Math.round(c.y) - 5, 2, 1)
+    }
+  }
+
+  /** Confetti Storm: a blizzard of paper over the whole set. */
+  private renderStorm(g: CanvasRenderingContext2D) {
+    // A haze in bands, thickest at the top and bottom of the set.
+    for (let y = TOP; y < BOTTOM; y += 12) {
+      const u = Math.abs((y - TOP) / (BOTTOM - TOP) - 0.5) * 2
+      g.fillStyle = rgba(RAMPS.purple[4], 0.12 + u * 0.16)
+      g.fillRect(LEFT, y, RIGHT - LEFT, Math.min(12, BOTTOM - y))
+    }
+    for (const f of STORM_FLAKES) {
+      const y = ((f.y + this.tick * f.speed * 1.4) % (H - HUD)) + HUD
+      const x = (f.x + Math.sin(this.tick / 25 + f.sway) * 10 + W) % W
+      const ramp = tintOf(CONFETTI[f.hue]!)
+      const flat = Math.floor((this.tick + f.sway * 10) / 6) % 2
+      g.fillStyle = ramp[flat ? 3 : 2]
+      if (f.big)
+        g.fillRect(Math.round(x), Math.round(y), flat ? 4 : 3, flat ? 3 : 1)
+      else g.fillRect(Math.round(x), Math.round(y), flat ? 2 : 3, flat ? 2 : 1)
+    }
+  }
+
+  /** Audience Participation: the front row cheers over the bottom wall. */
+  private renderAudience(g: CanvasRenderingContext2D) {
+    for (let i = 0, x = 16; x < W - 10; i++, x += 12) {
+      if (Math.abs(x - CX) < DOOR + 6) continue
+      const sprites = CROWD[i % CROWD.length]!
+      const up = Math.floor((this.tick + i * 7) / 14) % 3 === 0
+      drawSprite(g, sprites[up ? 1 : 0]!, x, H + 2 - (up ? 2 : 0), {
+        anchor: 'feet',
+      })
+    }
+  }
+
+  /** Sudden Death: the set's edge pulses red. */
+  private renderSuddenDeath(g: CanvasRenderingContext2D) {
+    const a = 0.3 + 0.2 * Math.sin(this.tick / 8)
+    g.fillStyle = rgba(RAMPS.ember[2], a)
+    g.fillRect(LEFT, TOP, RIGHT - LEFT, 2)
+    g.fillRect(LEFT, BOTTOM - 2, RIGHT - LEFT, 2)
+    g.fillRect(LEFT, TOP, 2, BOTTOM - TOP)
+    g.fillRect(RIGHT - 2, TOP, 2, BOTTOM - TOP)
+  }
+
+  private renderBanner(g: CanvasRenderingContext2D) {
+    if (!this.banner) return
+    drawText(g, this.banner.text, CX, 90, {
+      scale: 2,
+      align: 'center',
+      color: '#ffffff',
+      outline: INK,
+      shadow: RAMPS.purple[1],
+    })
+    if (this.banner.sub)
+      drawText(g, this.banner.sub, CX, 110, {
+        align: 'center',
+        color: RAMPS.gold[3],
+        outline: INK,
+      })
+  }
+
   private renderHud(g: CanvasRenderingContext2D) {
     // Score.
     hudPanel(g, 2, 1, 90, 15)
@@ -2083,66 +3638,94 @@ class PrizeShowPanic implements ArcadeGameInstance {
       gauge(g, px, 12, 5, 2, left / full, ramp)
     })
     // The host's countdown.
-    hudPanel(g, CX - 36, 1, 72, 15)
+    const tx = 126
+    hudPanel(g, tx, 1, 60, 15)
     const seconds = Math.ceil(this.roomTimer / 60)
     const urgent = seconds <= 10 && Math.floor(this.tick / 10) % 2 === 0
     if (seconds <= 10)
-      glow(g, CX + 20, 9, 22, RAMPS.ember[2], urgent ? 0.5 : 0.25)
-    drawText(g, 'TIME', CX - 31, 3, { color: RAMPS.cream[3], shadow: INK })
+      glow(g, tx + 46, 9, 20, RAMPS.ember[2], urgent ? 0.5 : 0.25)
+    drawText(g, 'TIME', tx + 4, 3, { color: RAMPS.cream[3], shadow: INK })
     gauge(
       g,
-      CX - 31,
+      tx + 4,
       12,
       23,
       2,
-      this.roomTimer / ROOM_TICKS,
+      this.roomTimer / this.roomTicks,
       seconds <= 10 ? RAMPS.ember : RAMPS.gold,
     )
-    drawSprite(g, STOPWATCH_SPRITE, CX - 1, 8)
-    drawText(g, String(seconds), CX + 31, 2, {
+    drawSprite(g, STOPWATCH_SPRITE, tx + 33, 8)
+    drawText(g, String(Math.max(0, seconds)), tx + 58, 2, {
       scale: 2,
       align: 'right',
       color: urgent ? RAMPS.ember[3] : RAMPS.gold[4],
       shadow: INK,
     })
     // Contestants in reserve.
-    hudPanel(g, 200, 1, 50, 15)
-    for (let i = 0; i < 5; i++) {
+    hudPanel(g, 190, 1, 42, 15)
+    for (let i = 0; i < 4; i++) {
       drawSprite(
         g,
         i < this.lives - 1 ? LIFE_SPRITE : LIFE_EMPTY,
-        207 + i * 9,
+        197 + i * 9,
         9,
       )
     }
+    // Golden tickets held.
+    hudPanel(g, 236, 1, 26, 15)
+    drawSprite(g, this.tickets.length ? TICKET_ICON : TICKET_ICON_EMPTY, 244, 9)
+    drawText(g, String(this.tickets.length), 259, 5, {
+      align: 'right',
+      color: this.tickets.length ? RAMPS.gold[4] : RAMPS.night[3],
+      outline: INK,
+    })
     // High score and studio.
-    hudPanel(g, 254, 1, 64, 15)
-    drawText(g, `HI ${Math.max(this.hiScore, this.score)}`, W - 6, 2, {
+    hudPanel(g, 266, 1, 52, 15)
+    const hi = String(Math.max(this.hiScore, this.score))
+    if (measureText(`HI ${hi}`) <= 46)
+      drawText(g, 'HI', 270, 2, { color: RAMPS.pink[2], shadow: INK })
+    drawText(g, hi, W - 5, 2, {
       align: 'right',
       color: RAMPS.pink[3],
       shadow: INK,
     })
-    drawText(g, `STUDIO ${this.level}`, W - 6, 9, {
+    drawText(g, `STUDIO ${this.level}`, W - 5, 9, {
       align: 'right',
       color: RAMPS.teal[3],
       shadow: INK,
     })
-    if (this.banner) {
-      drawText(g, this.banner.text, CX, 90, {
-        scale: 2,
-        align: 'center',
-        color: '#ffffff',
-        outline: INK,
-        shadow: RAMPS.purple[1],
-      })
-      if (this.banner.sub)
-        drawText(g, this.banner.sub, CX, 110, {
-          align: 'center',
-          color: RAMPS.gold[3],
-          outline: INK,
-        })
+    // The room's modifier and sponsor challenge, tagged on the floor's top edge.
+    const tags: Array<[string, string]> = []
+    if (this.modifier)
+      tags.push([MODIFIERS[this.modifier].title, RAMPS.pink[3]])
+    if (this.script.challenge && !this.cleared) {
+      const failed =
+        this.script.challenge === 'no-hit' ? this.hit : this.prizeMissed
+      tags.push([
+        this.script.challenge === 'no-hit'
+          ? 'NO-HIT CHALLENGE'
+          : 'GRAB EVERY PRIZE',
+        failed ? RAMPS.night[4] : RAMPS.gold[4],
+      ])
     }
+    let ty = TOP + 3
+    for (const [text, colour] of tags) {
+      drawText(g, text, LEFT + 4, ty, { color: colour, outline: INK })
+      ty += 9
+    }
+    this.renderBanner(g)
   }
+}
+
+/** Where a wall camera hangs: `at` -1..1 along its wall, either side of the door, just inside. */
+function wallSpot(side: Side, at: number): { x: number; y: number } {
+  const door = DOORS[side]!
+  const along = side % 2 === 0
+  const half = along ? (RIGHT - LEFT) / 2 : (BOTTOM - TOP) / 2
+  const reach = DOOR + 12 + Math.abs(at) * (half - DOOR - 26)
+  const off = Math.sign(at) * reach
+  if (along) return { x: door.x + off, y: side === 0 ? TOP + 5 : BOTTOM - 5 }
+  return { x: side === 3 ? LEFT + 5 : RIGHT - 5, y: door.y + off }
 }
 
 const PRIZE_NAMES: Record<PrizeKind, string> = {

@@ -50,6 +50,7 @@
         :class="showSheet ? 'lg:grid-cols-[minmax(0,1fr)_20rem]' : ''"
       >
         <div
+          ref="pane"
           class="kr-pane-scroll rounded-2xl"
           :class="showSheet ? 'hidden lg:block' : ''"
         >
@@ -100,14 +101,19 @@
                   {{ String(store.run.visited.length).padStart(3, '0') }}
                 </p>
                 <h2
-                  class="mt-1 font-serif text-2xl font-black leading-tight sm:text-3xl"
+                  ref="heading"
+                  tabindex="-1"
+                  class="mt-1 font-serif text-2xl font-black leading-tight outline-none sm:text-3xl"
                 >
                   {{ current.title }}
                 </h2>
                 <p
                   class="mt-4 max-w-3xl font-serif text-lg leading-[1.75] text-base-content xl:text-xl"
                 >
-                  {{ current.text }}
+                  <template v-for="(part, i) in prose" :key="i">
+                    <em v-if="part.em">{{ part.text }}</em>
+                    <template v-else>{{ part.text }}</template>
+                  </template>
                 </p>
                 <p
                   v-if="art.fit === 'stand-in'"
@@ -201,16 +207,21 @@
                   </p>
                   <div class="mt-4 grid gap-2 sm:grid-cols-2">
                     <button
-                      v-for="move in moves"
+                      v-for="(move, index) in moves"
                       :key="move.action"
                       type="button"
+                      :aria-keyshortcuts="String(index + 1)"
                       class="group rounded-xl border border-base-content/20 bg-base-100 p-3 text-left transition hover:border-warning hover:bg-base-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-warning"
                       :disabled="
                         move.action === 'quiet-draw' && store.run.resolve < 2
                       "
                       @click="store.battle(move.action)"
                     >
-                      <strong class="block text-base">{{ move.label }}</strong
+                      <strong class="block text-base"
+                        ><span class="mr-2 font-serif text-warning">{{
+                          index + 1
+                        }}</span
+                        >{{ move.label }}</strong
                       ><span class="mt-1 block text-xs opacity-65">{{
                         move.help
                       }}</span>
@@ -254,6 +265,9 @@
                       :key="choice.id"
                       type="button"
                       :disabled="!!lockReason(store.run, choice)"
+                      :aria-keyshortcuts="
+                        index < 9 ? String(index + 1) : undefined
+                      "
                       class="group flex min-h-12 items-center gap-4 rounded-xl border border-base-content/20 bg-base-100 px-4 py-2.5 text-left transition hover:border-warning hover:bg-base-300 focus-visible:outline focus-visible:outline-2 focus-visible:outline-warning disabled:cursor-not-allowed disabled:opacity-45"
                       @click="store.choose(choice.id)"
                     >
@@ -403,7 +417,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue'
+import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import {
   scene,
   type BattleAction,
@@ -418,6 +432,7 @@ import {
   sectionPlate,
 } from '~/utils/zuzuGamebook/art'
 import { journal } from '~/utils/zuzuGamebook/journal'
+import { emphasis } from '~/utils/zuzuGamebook/prose'
 import { useZuzuGamebookStore } from '~/stores/zuzuGamebookStore'
 
 const store = useZuzuGamebookStore()
@@ -445,6 +460,7 @@ const frameClass = computed(() =>
       ? 'lg:w-full lg:h-[min(100cqh,128cqw)]'
       : 'lg:w-full lg:h-[min(100cqh,100cqw)]',
 )
+const prose = computed(() => emphasis(current.value.text))
 const choices = computed(() => visibleChoices(store.run, current.value))
 const notes = computed(() => journal(store.run.flags))
 const moves: { action: BattleAction; label: string; help: string }[] = [
@@ -477,7 +493,39 @@ function restart() {
   )
     store.restart()
 }
-onMounted(() => store.load())
+const pane = ref<HTMLElement | null>(null)
+const heading = ref<HTMLElement | null>(null)
+watch(
+  () => store.run.sceneId,
+  async () => {
+    await nextTick()
+    pane.value?.scrollTo({ top: 0 })
+    heading.value?.focus({ preventScroll: true })
+  },
+)
+function onKey(event: KeyboardEvent) {
+  if (event.ctrlKey || event.metaKey || event.altKey || showSheet.value) return
+  if ((event.target as HTMLElement | null)?.closest('input, textarea, select'))
+    return
+  const n = Number(event.key)
+  if (!Number.isInteger(n) || n < 1) return
+  if (current.value.battle && store.run.battle) {
+    const move = moves[n - 1]
+    if (!move || (move.action === 'quiet-draw' && store.run.resolve < 2)) return
+    event.preventDefault()
+    store.battle(move.action)
+    return
+  }
+  const choice = choices.value[n - 1]
+  if (!choice || current.value.ending || lockReason(store.run, choice)) return
+  event.preventDefault()
+  store.choose(choice.id)
+}
+onMounted(() => {
+  store.load()
+  window.addEventListener('keydown', onKey)
+})
+onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
 useHead({ title: 'Zuzu: Koala Assassin · The Bell That Never Rang' })
 </script>
 

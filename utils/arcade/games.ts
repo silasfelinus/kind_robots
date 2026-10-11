@@ -118,7 +118,7 @@ export const ARCADE_GAMES: ArcadeGameMeta[] = [
     ],
     width: 420,
     height: 360,
-    maxPlausibleScore: 3_000_000,
+    maxPlausibleScore: 10_000_000,
     titleArt: '/images/arcade/games/sink-suds-title.webp',
     accent: '#a5f3fc',
     controls: 'Steer, puff, grow',

@@ -340,6 +340,25 @@ const LOOKS: Record<BasinLook, LookStyle> = {
     grime: ['#5a4030', '#6a4c38', '#4a3426'],
     speck: '#24160e',
   },
+  stone: {
+    rim: RAMPS.steel,
+    floor: [
+      mix(RAMPS.steel[1], RAMPS.leaf[1], 0.3),
+      mix(RAMPS.steel[3], RAMPS.cream[3], 0.4),
+    ],
+    water: RAMPS.sky[2],
+    waterAlpha: 0.22,
+    grime: ['#4f5a2c', '#5c6834', '#454e26'],
+    speck: '#232a12',
+  },
+  palace: {
+    rim: RAMPS.gold,
+    floor: [RAMPS.pink[2], '#fff0f7'],
+    water: RAMPS.purple[3],
+    waterAlpha: 0.16,
+    grime: ['#7a5a7a', '#8a6a88', '#6a4c6a'],
+    speck: '#3a2440',
+  },
 }
 
 // --- paths --------------------------------------------------------------------------------------

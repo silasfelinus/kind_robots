@@ -59,18 +59,38 @@ import {
   TRAIL_DRAG,
   TRAIL_TICKS,
   TRAP_POINTS,
+  ALGAE_BLOOM,
+  LINT_MAX,
+  PUFF_TELL,
+  PUFF_UP,
+  SOCK_GAP,
+  SOCK_SEGS,
+  STRIDER_SPEED,
+  STRIDER_TELL,
+  WAX_SET,
 } from '../sinkSuds/pests'
 import type { PestKind, Touch } from '../sinkSuds/pests'
 import {
+  BOSS_ARENAS,
   CYCLES,
   DUCK_PEN,
+  GOLDEN_ROOMS,
   PLATE_SPOTS,
   ROOMS,
   ROUNDUP_DUCKS,
   campaignSteps,
   isRoomStart,
+  isSecretStep,
 } from '../sinkSuds/rooms'
-import type { Backdrop, BasinPlan, Box, RoomDef, Step } from '../sinkSuds/rooms'
+import type {
+  Backdrop,
+  BasinPlan,
+  BossId,
+  Box,
+  EndingKind,
+  RoomDef,
+  Step,
+} from '../sinkSuds/rooms'
 import {
   BARS,
   BOMB_REACH,
@@ -92,7 +112,9 @@ import {
   DEFEAT_POINTS,
   RING_GAP,
 } from '../sinkSuds/bristleton'
-import type { BossHost } from '../sinkSuds/bristleton'
+import { Mossback } from '../sinkSuds/mossback'
+import { GIANT_R, GrimeKing } from '../sinkSuds/grimeking'
+import type { BossHost, SudsBoss } from '../sinkSuds/boss'
 import {
   BRUSH_SPRITE,
   BRUSH_TIPPED,
@@ -129,6 +151,36 @@ import {
   renderSlick,
   renderTrail,
 } from '../sinkSuds/roomArt'
+import {
+  renderAlgae,
+  renderAquarium,
+  renderCar,
+  renderCarWash,
+  renderCleanEnding,
+  renderCredits,
+  renderDrop,
+  renderGarden,
+  renderJet,
+  renderLaundry,
+  renderLeaf,
+  renderLeafBoat,
+  renderLint,
+  renderMinion,
+  renderPalace,
+  renderPlaza,
+  renderPuffer,
+  renderRain,
+  renderRoller,
+  renderSnail,
+  renderSock,
+  renderSockSnake,
+  renderSpinner,
+  renderSplash,
+  renderStrider,
+  renderStriderLine,
+  renderTrueEnding,
+  renderWax,
+} from '../sinkSuds/sceneArt'
 
 export { BASINS, BASIN_PLAYLIST, PESTS, ROOMS, SHOP_ITEMS, TRAP_POINTS }
 export type { PestKind }
@@ -184,7 +236,17 @@ export const SUDS_CURVES = {
 } as const
 
 type Mess = { x: number; y: number; kind: 'crumb' | 'grease'; r: number }
-type PestState = 'roam' | 'tipped' | 'hidden' | 'gurgle' | 'out' | 'home'
+type PestState =
+  | 'roam'
+  | 'tipped'
+  | 'hidden'
+  | 'gurgle'
+  | 'out'
+  | 'home'
+  | 'tell'
+  | 'puffed'
+  | 'set'
+  | 'wait'
 export type Pest = {
   kind: PestKind
   x: number
@@ -200,6 +262,10 @@ export type Pest = {
   /** 0 while free; once trapped, the chain it was caught on. */
   trap: number
   target: Point | null
+  /** A lint ball's radius; an algae puff's swell (ticks). */
+  size: number
+  /** A sock snake's socks, head first; a strider's run (from, to). */
+  segs: Point[]
 }
 export type Bubble = {
   seat: number
@@ -227,6 +293,8 @@ export type Bubble = {
   superFrom: number
   /** Stuck in slug trail this tick. */
   sticky: boolean
+  /** The finale's giant bubble. */
+  giant: boolean
 }
 type Shot = { x: number; y: number; vx: number; vy: number; life: number }
 type Drip = { x: number; y: number; vy: number; landY: number }
@@ -271,6 +339,39 @@ export type Float = {
   life: number
 }
 type ShopState = { cursor: number; t: number; message: string }
+export type Leaf = {
+  x: number
+  y: number
+  vx: number
+  vy: number
+  a: number
+  tone: number
+}
+export type LooseSock = {
+  x: number
+  y: number
+  vx: number
+  vy: number
+  colour: number
+  a: number
+}
+export type Car = { x: number; y: number; panels: number[]; cars: number }
+type Roller = { lane: number; tell: number; x: number | null; timer: number }
+type Splash = { x: number; y: number; life: number }
+
+/** Full Detail's robot car: its size and how fast the belt carries it. */
+export const CAR = { w: 120, h: 54, speed: 0.22 }
+/** Odd Socks: the pairs, and how long until the spin cycle shuffles them. */
+export const SOCK_PAIRS = 4
+export const SPIN_CYCLE = 60 * 40
+/** Rain Race: how long the shower lasts, how long more if it wins, and the clean it must beat. */
+export const RAIN_RACE = { shower: 60 * 40, more: 60 * 15, goal: 70 }
+/** Wax jets puff on this beat. */
+export const JET_BEAT = 120
+/** Deep Clean: what each lap adds. */
+export const DEEP = { dirt: 1, heat: 3, mess: 6 }
+/** Credits run this long before A skips. */
+const CREDITS_TICKS = 60 * 30
 
 /** A Sink Suds save: where the wash got to, and what the bubble has bought. */
 export type SudsSave = {
@@ -286,6 +387,10 @@ export type SudsSave = {
   skins: SkinId[]
   skin: SkinId
   golden: string[]
+  /** The house has been washed once: Deep Clean is open. */
+  cleared?: boolean
+  /** Deep Clean laps begun. */
+  deep?: number
 }
 
 const SKINS: readonly SkinId[] = ['plain', 'rainbow', 'starry', 'frosted']
@@ -307,7 +412,7 @@ export function readSudsSave(raw: unknown): SudsSave | null {
     !count(r.bars, 9_999)
   )
     return null
-  const roomIds = new Set(ROOMS.map((room) => room.id))
+  const roomIds = new Set(GOLDEN_ROOMS)
   const skins = Array.isArray(r.skins)
     ? r.skins.filter((s): s is SkinId => SKINS.includes(s as SkinId))
     : []
@@ -332,6 +437,8 @@ export function readSudsSave(raw: unknown): SudsSave | null {
           ),
         ]
       : [],
+    cleared: r.cleared === true,
+    deep: count(r.deep, 99) ? (r.deep as number) : 0,
   }
 }
 
@@ -405,18 +512,51 @@ function newBubble(seat: number, at: Point): Bubble {
     superTicks: 0,
     superFrom: 1,
     sticky: false,
+    giant: false,
   }
 }
 
-const BOSS_PLAN: BasinPlan = {
-  title: 'BRISTLETON',
-  basin: 'tub',
-  pests: {},
-  mess: 30,
-  drip: 100,
-  heat: 5,
-  par: 150,
+/** A boss fight's basin plan, from its arena. */
+function bossPlan(id: BossId): BasinPlan {
+  const a = BOSS_ARENAS[id]
+  return {
+    title: a.name,
+    basin: a.basin,
+    pests: {},
+    mess: a.mess,
+    drip: a.drip,
+    heat: a.heat,
+    par: 180,
+  }
 }
+
+function newBoss(id: BossId): SudsBoss {
+  if (id === 'mossback') return new Mossback()
+  if (id === 'grimeking') return new GrimeKing()
+  return new Bristleton()
+}
+
+/** The credits, rolled after an ending. */
+export const CREDITS: readonly string[] = [
+  '- SINK SUDS -',
+  'THE BIG HOUSE WASH',
+  '',
+  '- THE ROOMS -',
+  ...ROOMS.filter((r) => !r.secret).map((r) => r.name),
+  '',
+  '- THE BOSSES -',
+  'BRISTLETON, THE BIG BRUSH',
+  'MOSSBACK, THE OLD GIANT SNAIL',
+  'THE GRIME KING',
+  '',
+  '- STARRING -',
+  'ONE BRAVE BUBBLE',
+  'AND EVERY ROBOT IN THE HOUSE',
+  '',
+  '- A KIND ROBOTS ARCADE CABINET -',
+  '',
+  'THANK YOU FOR WASHING!',
+]
 
 class SinkSuds implements ArcadeGameInstance {
   score = 0
@@ -455,7 +595,22 @@ class SinkSuds implements ArcadeGameInstance {
   private floatTimer = FLOAT_EVERY
   private specialDone = false
   private basinTicks = 0
-  private boss: Bristleton | null = null
+  private boss: SudsBoss | null = null
+  private bossId: BossId | null = null
+  /** The credits after an ending. */
+  private ending: { kind: EndingKind; t: number } | null = null
+  /** Deep Clean laps begun, and whether the house has been washed once. */
+  private deep = 0
+  private cleared = false
+  private leaves: Leaf[] = []
+  private socks: LooseSock[] = []
+  private car: Car | null = null
+  private roller: Roller | null = null
+  private splashes: Splash[] = []
+  private rainTimer = 0
+  /** Odd Socks: ticks to the spin cycle; Rain Race: ticks of shower left. */
+  private specialTimer = 0
+  private strideTimer = 0
   private bossDone = 0
   private shop: ShopState | null = null
   private offer: SudsSave | null = null
@@ -502,6 +657,7 @@ class SinkSuds implements ArcadeGameInstance {
 
   get music(): MusicLoop | null {
     if (this.over || this.offer) return null
+    if (this.ending) return MUSIC.ending
     if (this.shop) return MUSIC.shop
     if (this.boss) return MUSIC.boss
     return MUSIC[this.room?.music ?? 'kitchen']
@@ -513,18 +669,30 @@ class SinkSuds implements ArcadeGameInstance {
   }
 
   private radiusOf(b: Bubble) {
-    return STAGE_RADIUS[b.stage]!
+    return b.giant ? GIANT_R : STAGE_RADIUS[b.stage]!
   }
 
   // --- the campaign ------------------------------------------------------------
 
-  /** Start campaign step i: a room's basin, the shop, a boss, or the endless sink. */
+  /** Has the bubble every golden soap (the palace is open)? */
+  private get allGolden() {
+    return GOLDEN_ROOMS.every((id) => this.golden.has(id))
+  }
+
+  /** Start campaign step i: a room's basin, the shop, a boss, an ending, or Deep Clean. */
   private beginStep(i: number) {
     this.stepIndex = i
     this.shop = null
     this.boss = null
+    this.bossId = null
+    this.ending = null
     this.inEndless = false
     const step = this.steps[i]
+    // The palace, its shop and the true ending only open with every golden soap.
+    if (isSecretStep(step) && !this.allGolden) {
+      this.beginStep(i + 1)
+      return
+    }
     if (!step || step.kind === 'endless') {
       this.startLevel(this.level + 1)
       return
@@ -534,13 +702,32 @@ class SinkSuds implements ArcadeGameInstance {
       this.sound.play('start')
       return
     }
+    if (step.kind === 'ending') {
+      this.ending = { kind: step.ending, t: 0 }
+      this.cleared = true
+      this.sound.play('extra')
+      return
+    }
+    if (step.kind === 'deep') {
+      // Round again: Deep Clean, dirtier and faster.
+      this.deep++
+      this.beginStep(0)
+      this.banner = {
+        text: 'DEEP CLEAN',
+        sub: `LAP ${this.deep}: DIRTIER AND FASTER`,
+        ticks: 180,
+      }
+      return
+    }
     this.level++
     if (step.kind === 'boss') {
+      const arena = BOSS_ARENAS[step.boss]
       this.room =
         ROOMS.find((r) => r.id === CYCLES[step.cycle]!.rooms.at(-1)) ?? null
-      this.startBasin(BOSS_PLAN, 'bath')
-      this.boss = new Bristleton()
-      this.banner = { text: 'BRISTLETON', sub: 'THE BIG BRUSH', ticks: 150 }
+      this.startBasin(bossPlan(step.boss), arena.backdrop)
+      this.boss = newBoss(step.boss)
+      this.bossId = step.boss
+      this.banner = { text: arena.name, sub: arena.title, ticks: 150 }
       this.keep()
       return
     }
@@ -597,6 +784,8 @@ class SinkSuds implements ArcadeGameInstance {
       skins: [...this.skins],
       skin: this.skin,
       golden: [...this.golden],
+      cleared: this.cleared,
+      deep: this.deep,
     }
   }
 
@@ -609,6 +798,8 @@ class SinkSuds implements ArcadeGameInstance {
     this.skins = new Set(s.skins)
     this.skin = s.skin
     this.golden = new Set(s.golden)
+    this.cleared = s.cleared === true
+    this.deep = s.deep ?? 0
     this.nextExtra =
       (Math.floor(s.score / EXTRA_LIFE_EVERY) + 1) * EXTRA_LIFE_EVERY
     this.level = this.steps
@@ -658,7 +849,36 @@ class SinkSuds implements ArcadeGameInstance {
       state: 'roam',
       trap: 0,
       target: null,
+      size: kind === 'lint' ? PESTS.lint.radius : 0,
+      segs: [],
     }
+  }
+
+  /** A pest set up for its kind: the sock snake's socks, a strider waiting off the water. */
+  private placePest(kind: PestKind, at: Point): Pest {
+    const p = this.newPest(kind, at)
+    if (kind === 'sock')
+      p.segs = Array.from({ length: SOCK_SEGS }, (_, i) => ({
+        x: at.x - i * SOCK_GAP,
+        y: at.y,
+      }))
+    if (kind === 'strider') {
+      p.state = 'wait'
+      p.t = 120 + Math.floor(this.rng() * 120)
+    }
+    if (kind === 'spinner') {
+      const a = this.rng() * Math.PI * 2
+      p.vx = Math.cos(a) * 1.6
+      p.vy = Math.sin(a) * 1.6
+    }
+    if (kind === 'puffer') p.t = 120 + Math.floor(this.rng() * 200)
+    if (kind === 'drop') {
+      // Flung out of the King.
+      const a = Math.atan2(at.y - this.basin.drain.y, at.x - this.basin.drain.x)
+      p.vx = Math.cos(a) * 2.5
+      p.vy = Math.sin(a) * 2.5
+    }
+    return p
   }
 
   /** Lay out a basin from its plan: grime, mess, pests, props and the special's pieces. */
@@ -666,7 +886,27 @@ class SinkSuds implements ArcadeGameInstance {
     this.plan = plan
     this.backdrop = backdrop
     this.basin = BASINS[plan.basin]
+    // Deep Clean: thicker grime, more mess, faster pests.
+    if (this.deep > 0) {
+      plan = {
+        ...plan,
+        dirt: (plan.dirt ?? 1) + DEEP.dirt * this.deep,
+        heat: plan.heat + DEEP.heat * this.deep,
+        mess: plan.mess + DEEP.mess * this.deep,
+      }
+      this.plan = plan
+    }
     this.grime = new Grime(this.basin, plan.dirt ?? 1)
+    this.leaves = []
+    this.socks = []
+    this.car = null
+    this.roller = plan.rollers
+      ? { lane: 0, tell: 0, x: null, timer: plan.rollers.every }
+      : null
+    this.splashes = []
+    this.rainTimer = plan.rain ?? 0
+    this.specialTimer = 0
+    this.strideTimer = 0
     this.spin = 0
     this.mess = []
     this.pests = []
@@ -698,6 +938,7 @@ class SinkSuds implements ArcadeGameInstance {
         invuln: 90,
         power: null,
         superTicks: 0,
+        giant: false,
       })
     }
     const home = this.basin.start
@@ -710,6 +951,17 @@ class SinkSuds implements ArcadeGameInstance {
       slug: 110,
       loofah: 130,
       minibrush: 120,
+      lint: 100,
+      sock: 140,
+      algae: 70,
+      snail: 120,
+      puffer: 110,
+      strider: 0,
+      leafboat: 120,
+      wax: 60,
+      spinner: 150,
+      minion: 80,
+      drop: 60,
     }
     for (const [kind, n] of Object.entries(plan.pests) as [
       PestKind,
@@ -724,7 +976,7 @@ class SinkSuds implements ArcadeGameInstance {
           continue
         }
         this.pests.push(
-          this.newPest(
+          this.placePest(
             kind,
             this.spot(PESTS[kind].radius + 12, home, keep[kind]),
           ),
@@ -763,7 +1015,46 @@ class SinkSuds implements ArcadeGameInstance {
           penned: false,
         })
     }
+    for (let i = 0; i < (plan.leaves ?? 0); i++) {
+      const at = this.spot(20)
+      const a = this.rng() * Math.PI * 2
+      this.leaves.push({
+        x: at.x,
+        y: at.y,
+        vx: Math.cos(a) * 0.3,
+        vy: Math.sin(a) * 0.3,
+        a,
+        tone: i,
+      })
+    }
+    if (plan.special === 'odd-socks') {
+      for (let i = 0; i < SOCK_PAIRS * 2; i++) {
+        const at = this.spot(24, home, 60)
+        this.socks.push({
+          x: at.x,
+          y: at.y,
+          vx: 0,
+          vy: 0,
+          colour: i % SOCK_PAIRS,
+          a: this.rng() * 6,
+        })
+      }
+      this.specialTimer = SPIN_CYCLE
+    }
+    if (plan.special === 'rain-race') this.specialTimer = RAIN_RACE.shower
+    if (plan.special === 'full-detail') this.newCar(0)
     this.dripTimer = plan.drip
+  }
+
+  /** Full Detail: a robot car rolls in at the belt's start with six grimy panels. */
+  private newCar(cars: number) {
+    const { x0, y0, y1 } = basinBounds(this.basin)
+    this.car = {
+      x: x0 - CAR.w + 10,
+      y: (y0 + y1) / 2 - CAR.h / 2 + 10,
+      panels: [1, 1, 1, 1, 1, 1],
+      cars: cars + 1,
+    }
   }
 
   // --- update ------------------------------------------------------------------
@@ -781,9 +1072,28 @@ class SinkSuds implements ArcadeGameInstance {
         this.resumeFrom(s)
       } else if (input.pressed.b) {
         // A new wash: the golden soaps and skins stay, the house starts dirty again.
+        const s = this.offer
         this.offer = null
         this.saveData = null
+        this.golden = new Set(s.golden)
+        this.skins = new Set(s.skins)
+        this.skin = s.skin
+        this.cleared = s.cleared === true
       }
+      return
+    }
+    if (this.ending) {
+      this.ending.t++
+      const skip =
+        !this.demo &&
+        this.ending.t > 120 &&
+        (input.pressed.a || input.pressed.start)
+      if (
+        skip ||
+        this.ending.t > CREDITS_TICKS ||
+        (this.demo && this.ending.t > 300)
+      )
+        this.advance()
       return
     }
     if (this.lives <= 0 && !this.bubbles.some((b) => b.alive)) {
@@ -815,6 +1125,9 @@ class SinkSuds implements ArcadeGameInstance {
     this.carryMess()
     this.updateDucks()
     this.updatePlates()
+    this.updateHazards()
+    this.updateSocks()
+    this.updateCar()
     this.movePests()
     this.moveShots()
     this.moveDrips()
@@ -865,6 +1178,12 @@ class SinkSuds implements ArcadeGameInstance {
 
   private updateWater() {
     const p = this.basin.physics
+    if (p.kind === 'ripple') {
+      // Ripples roll out in waves.
+      const w = Math.sin((this.basinTicks * Math.PI * 2) / p.period)
+      this.spin = w > 0 ? w * w : 0
+      return
+    }
     if (p.kind !== 'spin') return
     const { now } = dialAt(p, this.tick)
     this.spin += (now - this.spin) * 0.02
@@ -1254,18 +1573,23 @@ class SinkSuds implements ArcadeGameInstance {
           HUNT_RANGE,
           levelCurve(this.plan.heat, SUDS_CURVES.brushSpeed),
         )
-      else if (p.kind === 'minibrush') this.moveBrush(p, 90, 0.95)
+      else if (p.kind === 'minibrush') this.moveBrush(p, 80, 0.8)
       else if (p.kind === 'sponge')
         this.moveSponge(p, levelCurve(this.plan.heat, SUDS_CURVES.spongeSpeed))
       else if (p.kind === 'loofah') this.moveSponge(p, 0.22)
       else if (p.kind === 'slug') this.moveSlug(p)
-      else this.moveGremlin(p)
+      else if (p.kind === 'gremlin') this.moveGremlin(p)
+      else this.moveRoster(p)
       const rule = PESTS[p.kind]
       if (rule.cleans && p.state !== 'tipped')
         this.grime.scrub(p.x, p.y, rule.cleans)
       if (rule.eatsMess && p.state !== 'tipped') {
-        const eaten = this.mess.findIndex((m) => dist(m, p) < rule.radius + 2)
-        if (eaten >= 0) this.mess.splice(eaten, 1)
+        const eaten = this.mess.findIndex((m) => dist(m, p) < this.pestR(p) + 2)
+        if (eaten >= 0) {
+          this.mess.splice(eaten, 1)
+          // A lint ball rolls the crumb up and grows.
+          if (p.kind === 'lint') p.size = Math.min(LINT_MAX, p.size + 1)
+        }
       }
       this.guardShove(p)
     }
@@ -1476,7 +1800,522 @@ class SinkSuds implements ArcadeGameInstance {
 
   /** Can this pest touch (or be touched) right now? */
   private solid(p: Pest) {
-    return !p.trap && p.state !== 'hidden' && p.state !== 'gurgle'
+    if (p.trap || p.state === 'hidden' || p.state === 'gurgle') return false
+    if (p.kind === 'strider') return p.state === 'roam'
+    return true
+  }
+
+  /** A pest's contact radius now (a lint ball grows; an algae puff swells). */
+  private pestR(p: Pest) {
+    if (p.kind === 'lint') return p.size
+    if (p.kind === 'algae') return 6 + (p.size / ALGAE_BLOOM) * 4
+    if (p.kind === 'puffer' && p.state === 'puffed') return 14
+    return PESTS[p.kind].radius
+  }
+
+  /** The nearest bubble a hunter can see: one sheltering under a leaf is hidden. */
+  private prey(from: Point): Bubble | null {
+    const b = this.nearestBubble(from)
+    if (!b) return null
+    return this.leaves.some((l) => dist(l, b) < 15) ? null : b
+  }
+
+  // --- the Cycle 2 and 3 roster ------------------------------------------------
+
+  private moveRoster(p: Pest) {
+    const heat = this.plan.heat
+    switch (p.kind) {
+      case 'lint': {
+        // Rolling about after crumbs; the drum's spin carries it hardest of all.
+        if (--p.turn <= 0) {
+          const food = this.nearestMess(p)
+          p.heading = food
+            ? Math.atan2(food.y - p.y, food.x - p.x)
+            : this.rng() * Math.PI * 2
+          p.turn = 40
+        }
+        const flow = flowAt(this.basin, p.x, p.y, this.spin)
+        p.vx = Math.cos(p.heading) * 0.5 + flow.x * 25
+        p.vy = Math.sin(p.heading) * 0.5 + flow.y * 25
+        this.step(p)
+        return
+      }
+      case 'sock':
+        this.moveSock(p)
+        return
+      case 'algae':
+        this.wander(p, 0.15, 120)
+        if (++p.size >= ALGAE_BLOOM) {
+          // It blooms: the water clouds over with algae again.
+          p.size = 0
+          this.grime.soil(p.x, p.y, 40)
+          this.splashes.push({ x: p.x, y: p.y, life: 40 })
+          this.sound.play('warn')
+        }
+        return
+      case 'snail':
+        this.wander(p, 0.3, 160)
+        return
+      case 'puffer':
+        if (p.state === 'puffed') {
+          if (--p.t <= 0) {
+            p.state = 'roam'
+            p.t = 150 + Math.floor(this.rng() * 200)
+          }
+          return
+        }
+        if (p.state === 'tell') {
+          if (--p.t <= 0) {
+            p.state = 'puffed'
+            p.t = PUFF_UP
+            this.sound.play('pop')
+          }
+          return
+        }
+        this.wander(p, 0.6, 90)
+        if (--p.t <= 0) {
+          p.state = 'tell'
+          p.t = PUFF_TELL
+        }
+        return
+      case 'strider':
+        this.moveStrider(p)
+        return
+      case 'leafboat': {
+        // Drifting on the water, paddling round to face a bubble it can see.
+        const prey = this.prey(p)
+        if (prey && dist(prey, p) < 150)
+          p.heading = angleTo(
+            p.heading,
+            Math.atan2(prey.y - p.y, prey.x - p.x),
+            0.03,
+          )
+        else if (--p.turn <= 0) {
+          p.heading += (this.rng() - 0.5) * 2
+          p.turn = 90
+        }
+        const flow = flowAt(this.basin, p.x, p.y, this.spin)
+        p.vx = Math.cos(p.heading) * 0.55 + flow.x * 10
+        p.vy = Math.sin(p.heading) * 0.55 + flow.y * 10
+        this.step(p)
+        return
+      }
+      case 'wax':
+        if (p.state === 'roam' && ++p.t >= WAX_SET) {
+          p.state = 'set'
+          this.sound.play('blip')
+        }
+        return
+      case 'spinner': {
+        const speed = Math.min(2.6, 1.5 + heat * 0.06)
+        const v = Math.hypot(p.vx, p.vy) || 1
+        p.vx = (p.vx / v) * speed
+        p.vy = (p.vy / v) * speed
+        p.x += p.vx
+        p.y += p.vy
+        if (keepInside(this.basin, p, 10, 2)) this.sound.play('blip')
+        p.heading += 0.3
+        return
+      }
+      case 'minion': {
+        const prey = this.prey(p)
+        if (prey && dist(prey, p) < 100) {
+          const a = Math.atan2(prey.y - p.y, prey.x - p.x)
+          p.vx = Math.cos(a) * 0.9
+          p.vy = Math.sin(a) * 0.9
+        } else {
+          // Circling the King on guard.
+          const d = this.basin.drain
+          p.heading = Math.atan2(p.y - d.y, p.x - d.x) + 0.02
+          const r = 84
+          p.vx = (d.x + Math.cos(p.heading) * r - p.x) * 0.05
+          p.vy = (d.y + Math.sin(p.heading) * r * 0.75 - p.y) * 0.05
+        }
+        this.step(p)
+        return
+      }
+      default: {
+        // A grime drop: drifting back toward the others, shying from the bubble.
+        const drops = this.pests.filter((o) => o.kind === 'drop' && !o.trap)
+        const cx = drops.reduce((a, o) => a + o.x, 0) / drops.length
+        const cy = drops.reduce((a, o) => a + o.y, 0) / drops.length
+        let ax = (cx - p.x) * 0.0025
+        let ay = (cy - p.y) * 0.0025
+        const b = this.nearestBubble(p)
+        if (b && dist(b, p) < 80) {
+          const d = dist(b, p) || 1
+          ax += ((p.x - b.x) / d) * 0.25
+          ay += ((p.y - b.y) / d) * 0.25
+        }
+        p.vx = (p.vx + ax) * 0.95
+        p.vy = (p.vy + ay) * 0.95
+        const v = Math.hypot(p.vx, p.vy)
+        if (v > 1.7) {
+          p.vx *= 1.7 / v
+          p.vy *= 1.7 / v
+        }
+        this.step(p)
+      }
+    }
+  }
+
+  /** Move a pest by its velocity and keep it in the water. */
+  private step(p: Pest) {
+    p.x += p.vx
+    p.y += p.vy
+    if (keepInside(this.basin, p, this.pestR(p) + 2, 2))
+      p.heading = Math.atan2(p.vy, p.vx)
+  }
+
+  /** Amble toward a random spot, picking a new one now and then. */
+  private wander(p: Pest, speed: number, every: number) {
+    if (--p.turn <= 0 || !p.target) {
+      p.target = this.spot(20)
+      p.turn = every + Math.floor(this.rng() * every)
+    }
+    p.heading = angleTo(
+      p.heading,
+      Math.atan2(p.target.y - p.y, p.target.x - p.x),
+      0.05,
+    )
+    p.vx = Math.cos(p.heading) * speed
+    p.vy = Math.sin(p.heading) * speed
+    this.step(p)
+  }
+
+  /** The sock snake: the head winds about (after a bubble it can see); each sock follows the last. */
+  private moveSock(p: Pest) {
+    const prey = this.prey(p)
+    if (prey && dist(prey, p) < 110)
+      p.heading = angleTo(
+        p.heading,
+        Math.atan2(prey.y - p.y, prey.x - p.x),
+        0.04,
+      )
+    else if (--p.turn <= 0) {
+      p.heading += (this.rng() - 0.5) * 1.6
+      p.turn = 50
+    }
+    p.vx = Math.cos(p.heading) * 0.8
+    p.vy = Math.sin(p.heading) * 0.8
+    this.step(p)
+    const segs = p.segs
+    if (!segs.length) return
+    segs[0] = { x: p.x, y: p.y }
+    for (let i = 1; i < segs.length; i++) {
+      const a = segs[i - 1]!
+      const s = segs[i]!
+      const d = dist(a, s) || 1
+      if (d > SOCK_GAP) {
+        s.x = a.x + ((s.x - a.x) / d) * SOCK_GAP
+        s.y = a.y + ((s.y - a.y) / d) * SOCK_GAP
+      }
+    }
+  }
+
+  /** The water strider: waits off the water, shows its ripple line, then skates straight across. */
+  private moveStrider(p: Pest) {
+    if (p.state === 'wait') {
+      if (--p.t > 0) return
+      const c = this.basin.drain
+      const a = this.rng() * Math.PI * 2
+      const b = a + Math.PI + (this.rng() - 0.5) * 1.2
+      const rim = (ang: number) => {
+        let r = 10
+        while (
+          r < 400 &&
+          insideBasin(
+            this.basin,
+            c.x + Math.cos(ang) * r,
+            c.y + Math.sin(ang) * r,
+            8,
+          )
+        )
+          r += 4
+        return {
+          x: c.x + Math.cos(ang) * (r - 4),
+          y: c.y + Math.sin(ang) * (r - 4),
+        }
+      }
+      p.segs = [rim(a), rim(b)]
+      p.x = p.segs[0]!.x
+      p.y = p.segs[0]!.y
+      p.state = 'tell'
+      p.t = STRIDER_TELL
+      this.sound.play('warn')
+      return
+    }
+    if (p.state === 'tell') {
+      if (--p.t <= 0) p.state = 'roam'
+      return
+    }
+    const to = p.segs[1]!
+    const d = dist(to, p)
+    const speed = STRIDER_SPEED + Math.min(1.5, this.plan.heat * 0.05)
+    if (d < speed) {
+      p.state = 'wait'
+      p.t = 200 + Math.floor(this.rng() * 220)
+      return
+    }
+    p.heading = Math.atan2(to.y - p.y, to.x - p.x)
+    p.vx = Math.cos(p.heading) * speed
+    p.vy = Math.sin(p.heading) * speed
+    p.x += p.vx
+    p.y += p.vy
+  }
+
+  // --- hazards and the Cycle 2 and 3 specials -----------------------------------
+
+  private updateHazards() {
+    const plan = this.plan
+    // Rain: drops land anywhere, grime the spot, and now and then leave a crumb.
+    const raining =
+      plan.rain && (plan.special !== 'rain-race' || !this.specialDone)
+    if (raining && --this.rainTimer <= 0) {
+      this.rainTimer = plan.rain!
+      const at = this.spot(8)
+      this.grime.soil(at.x, at.y, 8)
+      this.splashes.push({ x: at.x, y: at.y, life: 20 })
+      if (this.rng() < 0.25) this.addMess(at)
+    }
+    for (const sp of this.splashes) sp.life--
+    this.splashes = this.splashes.filter((sp) => sp.life > 0)
+    // Leaves drift on the water and the ripples.
+    for (const l of this.leaves) {
+      const flow = flowAt(this.basin, l.x, l.y, this.spin)
+      l.vx = (l.vx + flow.x * 0.5) * 0.995
+      l.vy = (l.vy + flow.y * 0.5) * 0.995
+      l.x += l.vx
+      l.y += l.vy
+      l.a += 0.004
+      keepInside(this.basin, l, 16, 1.8)
+    }
+    this.updateRoller()
+    this.updateJets()
+    // Specials won on cleanliness.
+    if (
+      plan.special === 'clean-goal' &&
+      this.grime.percent >= (plan.cleanGoal ?? 90)
+    )
+      this.completeSpecial()
+    if (
+      plan.special === 'rain-race' &&
+      !this.specialDone &&
+      --this.specialTimer <= 0
+    ) {
+      if (this.grime.percent >= RAIN_RACE.goal) {
+        this.completeSpecial()
+        this.banner = {
+          text: 'THE SHOWER PASSES!',
+          sub: 'THE DRAIN IS OPEN',
+          ticks: 120,
+        }
+      } else {
+        this.specialTimer = RAIN_RACE.more
+        this.banner = {
+          text: 'STILL RAINING!',
+          sub: `GET IT ${RAIN_RACE.goal}% CLEAN`,
+          ticks: 100,
+        }
+        this.sound.play('warn')
+      }
+    }
+  }
+
+  /** Car-wash rollers: a lane lights up, then a roller sweeps along it. */
+  private updateRoller() {
+    const r = this.roller
+    const belt = this.basin.physics
+    if (!r || !this.plan.rollers || belt.kind !== 'conveyor') return
+    const laneH = (belt.bottom - belt.top) / belt.lanes
+    if (r.x === null && r.tell === 0) {
+      if (--r.timer <= 0) {
+        r.lane = Math.floor(this.rng() * belt.lanes)
+        r.tell = this.plan.rollers.tell
+        this.sound.play('warn')
+      }
+      return
+    }
+    if (r.tell > 0) {
+      if (--r.tell === 0) r.x = basinBounds(this.basin).x0 - 16
+      return
+    }
+    r.x! += 3.4
+    const y0 = belt.top + r.lane * laneH
+    const y1 = y0 + laneH
+    // It scrubs the lane clean and sweeps away whatever is in it.
+    this.grime.scrub(r.x!, (y0 + y1) / 2, laneH / 2)
+    this.mess = this.mess.filter(
+      (m) => !(Math.abs(m.x - r.x!) < 12 && m.y >= y0 && m.y < y1),
+    )
+    this.pests = this.pests.filter(
+      (p) =>
+        !(
+          p.kind === 'wax' &&
+          Math.abs(p.x - r.x!) < 14 &&
+          p.y >= y0 &&
+          p.y < y1
+        ),
+    )
+    for (const b of this.bubbles)
+      if (
+        b.alive &&
+        b.y >= y0 - 4 &&
+        b.y < y1 + 4 &&
+        Math.abs(b.x - r.x!) < this.radiusOf(b) + 12
+      )
+        this.hurtBubble(b, 'hit', { x: r.x!, y: b.y })
+    if (r.x! > basinBounds(this.basin).x1 + 16) {
+      r.x = null
+      r.timer = this.plan.rollers.every
+    }
+  }
+
+  /** The jet's beat: 0..1 of a puff, and whether it is about to blow. */
+  private jetPhase() {
+    const t = this.basinTicks % JET_BEAT
+    return { puff: t < 24 ? 1 - t / 24 : 0, warn: t > JET_BEAT - 36 }
+  }
+
+  /** Wax jets puff on the beat: they shove the bubble and spatter fresh wax. */
+  private updateJets() {
+    const jets = this.plan.jets
+    if (!jets) return
+    const t = this.basinTicks % JET_BEAT
+    if (t === 0) {
+      this.sound.play('pop')
+      const jet = jets[Math.floor(this.rng() * jets.length)]!
+      if (this.pests.filter((p) => p.kind === 'wax').length < 5) {
+        const c = this.basin.drain
+        const d = dist(c, jet) || 1
+        this.pests.push(
+          this.placePest('wax', {
+            x: jet.x + ((c.x - jet.x) / d) * 50,
+            y: jet.y + ((c.y - jet.y) / d) * 50,
+          }),
+        )
+      }
+    }
+    if (t >= 24) return
+    for (const jet of jets) {
+      const c = this.basin.drain
+      const dir = Math.atan2(c.y - jet.y, c.x - jet.x)
+      for (const b of this.bubbles) {
+        if (!b.alive || dist(b, jet) > 90) continue
+        let off = Math.atan2(b.y - jet.y, b.x - jet.x) - dir
+        while (off > Math.PI) off -= Math.PI * 2
+        while (off < -Math.PI) off += Math.PI * 2
+        if (Math.abs(off) > 0.6) continue
+        b.vx += Math.cos(dir) * 0.4
+        b.vy += Math.sin(dir) * 0.4
+      }
+    }
+  }
+
+  /** Odd Socks: socks tumble in the drum; push matching pairs together before the spin cycle. */
+  private updateSocks() {
+    if (this.plan.special !== 'odd-socks' || this.specialDone) return
+    for (const k of this.socks) {
+      const flow = flowAt(this.basin, k.x, k.y, this.spin)
+      k.vx = (k.vx + flow.x * 0.5) * 0.96
+      k.vy = (k.vy + flow.y * 0.5) * 0.96
+      k.x += k.vx
+      k.y += k.vy
+      k.a += k.vx * 0.05
+      keepInside(this.basin, k, 10, 1.5)
+      for (const b of this.bubbles) {
+        if (!b.alive) continue
+        const r = this.radiusOf(b) + 9
+        const d = dist(k, b)
+        if (d >= r || d < 0.01) continue
+        const nx = (k.x - b.x) / d
+        const ny = (k.y - b.y) / d
+        k.x += nx * (r - d)
+        k.y += ny * (r - d)
+        const dot = Math.max(0, b.vx * nx + b.vy * ny)
+        k.vx += nx * (dot * 0.9 + 0.2)
+        k.vy += ny * (dot * 0.9 + 0.2)
+      }
+    }
+    // A matching pair touching: paired off.
+    for (let i = 0; i < this.socks.length; i++)
+      for (let j = i + 1; j < this.socks.length; j++) {
+        const a = this.socks[i]!
+        const c = this.socks[j]!
+        if (dist(a, c) > 16) continue
+        if (a.colour === c.colour) {
+          this.addScore(
+            400 * this.chainUp(),
+            (a.x + c.x) / 2,
+            (a.y + c.y) / 2 - 12,
+          )
+          this.fx.burst(a.x, a.y, this.fxRng, { count: 12 })
+          this.sound.play('pickup')
+          this.socks = this.socks.filter((x) => x !== a && x !== c)
+          if (!this.socks.length) this.completeSpecial()
+          return
+        }
+        const d = dist(a, c) || 1
+        a.vx += ((a.x - c.x) / d) * 0.3
+        a.vy += ((a.y - c.y) / d) * 0.3
+      }
+    if (--this.specialTimer <= 0) {
+      // The spin cycle: everything flies apart.
+      this.specialTimer = SPIN_CYCLE
+      for (const k of this.socks) {
+        const a = this.rng() * Math.PI * 2
+        k.vx = Math.cos(a) * 3
+        k.vy = Math.sin(a) * 3
+      }
+      this.banner = {
+        text: 'SPIN CYCLE!',
+        sub: 'THE SOCKS GO FLYING',
+        ticks: 90,
+      }
+      this.sound.play('boom')
+    }
+  }
+
+  /** Full Detail: the car rides the belt; sit on a panel to scrub it. */
+  private updateCar() {
+    const car = this.car
+    if (!car || this.specialDone) return
+    car.x += CAR.speed
+    const cols = 3
+    const pw = (CAR.w - 8) / cols
+    const ph = (CAR.h - 8) / 2
+    car.panels.forEach((dirt, i) => {
+      if (dirt <= 0) return
+      const px = car.x + 4 + (i % cols) * pw
+      const py = car.y + 4 + Math.floor(i / cols) * ph
+      for (const b of this.bubbles) {
+        if (!b.alive) continue
+        const m = this.radiusOf(b) * 0.4
+        if (
+          b.x < px - m ||
+          b.x > px + pw + m ||
+          b.y < py - m ||
+          b.y > py + ph + m
+        )
+          continue
+        car.panels[i] = Math.max(0, car.panels[i]! - (0.006 + b.stage * 0.002))
+        if (this.tick % 8 === 0)
+          this.fx.burst(b.x, b.y, this.fxRng, { count: 1, speed: 0.5 })
+        if (car.panels[i] === 0) {
+          this.addScore(300, px + pw / 2, py - 6)
+          this.sound.play('pickup')
+        }
+      }
+    })
+    if (car.panels.every((d) => d <= 0)) {
+      this.completeSpecial()
+      this.banner = { text: 'FULL DETAIL!', sub: 'SHINY AS NEW', ticks: 120 }
+      return
+    }
+    if (car.x > basinBounds(this.basin).x1 + 10) {
+      this.newCar(car.cars)
+      this.banner = { text: 'NEXT CAR!', sub: 'CLEAN EVERY PANEL', ticks: 80 }
+    }
   }
 
   // --- the boss ----------------------------------------------------------------
@@ -1485,8 +2324,7 @@ class SinkSuds implements ArcadeGameInstance {
     return {
       rng: this.rng,
       radiusOf: (b) => this.radiusOf(b as Bubble),
-      hit: (b, from, soak) =>
-        this.hurtBubble(b as Bubble, soak ? 'soak' : 'hit', from),
+      hurt: (b, from, touch) => this.hurtBubble(b as Bubble, touch, from),
       bumped: (b, at) => {
         const bubble = b as Bubble
         this.addScore(BUMP_POINTS, at.x, at.y - 20)
@@ -1496,11 +2334,17 @@ class SinkSuds implements ArcadeGameInstance {
         bubble.invuln = 60
         this.fx.burst(at.x, at.y, this.fxRng, { count: 16 })
       },
-      shed: (at) => {
-        const p = this.newPest('minibrush', at)
-        keepInside(this.basin, p, 12, 0)
+      score: (points, at) => this.addScore(points, at.x, at.y),
+      spawn: (kind, at) => {
+        const p = this.placePest(kind, at)
+        keepInside(this.basin, p, this.pestR(p) + 2, 0)
         this.pests.push(p)
       },
+      living: (kind) => this.pests.filter((p) => p.kind === kind && !p.trap),
+      clear: (kind) => {
+        this.pests = this.pests.filter((p) => p.kind !== kind || p.trap > 0)
+      },
+      keepIn: (body, r) => keepInside(this.basin, body, r, 1.5),
       dropCrumbs: (at, count) => {
         for (let i = 0; i < count; i++) {
           const p = {
@@ -1511,9 +2355,25 @@ class SinkSuds implements ArcadeGameInstance {
           this.addMess(p)
         }
       },
+      soil: (at, r) => {
+        this.grime.soil(at.x, at.y, r)
+      },
+      giant: (b, on) => {
+        const bubble = b as Bubble
+        if (bubble.giant === on) return
+        bubble.giant = on
+        if (on) {
+          bubble.stage = MAX_STAGE
+          this.banner = {
+            text: 'GIANT BUBBLE!',
+            sub: 'SWEEP HIM DOWN THE DRAIN',
+            ticks: 120,
+          }
+        }
+        keepInside(this.basin, bubble, this.radiusOf(bubble))
+      },
       sound: (name) => this.sound.play(name),
-      minis: () =>
-        this.pests.filter((p) => p.kind === 'minibrush' && !p.trap).length,
+      drain: this.basin.drain,
     }
   }
 
@@ -1522,14 +2382,20 @@ class SinkSuds implements ArcadeGameInstance {
     if (!boss) return
     boss.update(this.bossHost(), this.bubbles)
     if (boss.done && this.bossDone === 0) {
-      this.addScore(DEFEAT_POINTS, W / 2, H / 2 - 30)
+      const which = this.bossId ?? 'bristleton'
+      const rank = which === 'grimeking' ? 3 : which === 'mossback' ? 2 : 1
+      this.addScore(DEFEAT_POINTS * rank, W / 2, H / 2 - 30)
       if (!this.demo) this.bars += BARS.boss
-      this.pests = this.pests.filter((p) => p.kind !== 'minibrush')
-      this.banner = {
-        text: 'TIPPED IN!',
-        sub: 'BRISTLETON IS ALL WASHED UP',
-        ticks: 160,
+      this.pests = this.pests.filter(
+        (p) => p.kind !== 'minibrush' && p.kind !== 'algae',
+      )
+      for (const b of this.bubbles) b.giant = false
+      const lines: Record<BossId, [string, string]> = {
+        bristleton: ['TIPPED IN!', 'BRISTLETON IS ALL WASHED UP'],
+        mossback: ['SHINING!', 'MOSSBACK IS SPARKLING CLEAN'],
+        grimeking: ['DOWN THE DRAIN!', 'THE TOWN SPARKLES AGAIN'],
       }
+      this.banner = { text: lines[which][0], sub: lines[which][1], ticks: 160 }
       this.sound.play('extra')
       this.bossDone = 160
     }
@@ -1548,12 +2414,34 @@ class SinkSuds implements ArcadeGameInstance {
         continue
       }
       for (const p of this.pests) {
-        if (!this.solid(p) || !PESTS[p.kind].trappable) continue
-        if (dist(p, s) < PESTS[p.kind].radius + SHOT_R) {
-          this.trapPest(p)
+        if (!this.solid(p) || dist(p, s) >= this.pestR(p) + SHOT_R) continue
+        if (p.kind === 'wax' && p.state === 'set') {
+          // A shot shatters hardened wax.
+          this.pests = this.pests.filter((o) => o !== p)
+          this.addScore(50, p.x, p.y - 10)
+          this.fx.burst(p.x, p.y, this.fxRng, { count: 8 })
           s.life = 0
           break
         }
+        if (!PESTS[p.kind].trappable) continue
+        if (p.kind === 'puffer' && p.state === 'puffed') continue
+        // A leaf boat's raised leaf turns a shot from the front.
+        if (p.kind === 'leafboat') {
+          const d = dist(p, s) || 1
+          const front =
+            (Math.cos(p.heading) * (s.x - p.x) +
+              Math.sin(p.heading) * (s.y - p.y)) /
+            d
+          if (front > 0.35) {
+            s.life = 0
+            this.fx.burst(s.x, s.y, this.fxRng, { count: 4, speed: 0.8 })
+            this.sound.play('blip')
+            break
+          }
+        }
+        this.trapPest(p)
+        s.life = 0
+        break
       }
     }
     this.shots = this.shots.filter((s) => s.life > 0)
@@ -1581,7 +2469,7 @@ class SinkSuds implements ArcadeGameInstance {
 
   private moveDrips() {
     // A basin picked bare by the cleaners drips three times as fast, so a hungry bubble can refill.
-    this.dripTimer -= this.mess.length < HUNGRY_MESS ? 3 : 1
+    this.dripTimer -= this.mess.length < HUNGRY_MESS ? 4 : 1
     if (this.dripTimer <= 0) {
       const land = this.spot(16)
       const f = this.basin.faucet
@@ -1595,8 +2483,11 @@ class SinkSuds implements ArcadeGameInstance {
     }
     for (const d of this.drips) d.y += d.vy
     const landed = this.drips.filter((d) => d.y >= d.landY)
+    const hungry = this.mess.length < HUNGRY_MESS
     for (const d of landed) {
       this.addMess({ x: d.x, y: d.landY })
+      // A picked-bare basin gets a little extra splash of food.
+      if (hungry) this.addMess({ x: d.x + 10, y: d.landY + 4 })
       this.grime.soil(d.x, d.landY, 7)
     }
     this.drips = this.drips.filter((d) => d.y < d.landY)
@@ -1655,16 +2546,52 @@ class SinkSuds implements ArcadeGameInstance {
       const p = this.pests[i]!
       if (!this.solid(p)) continue
       const rule = PESTS[p.kind]
-      if (dist(p, b) >= r + rule.radius) continue
+      if (p.kind === 'sock') {
+        if (this.touchSock(b, p)) this.pests.splice(i, 1)
+        if (!b.alive) return
+        continue
+      }
+      const pr = this.pestR(p)
+      if (dist(p, b) >= r + pr) continue
       if (p.kind === 'brush' && p.state === 'tipped') continue
-      if (rule.edibleFrom && b.stage >= rule.edibleFrom) {
+      if (b.giant) {
+        // Nothing stands up to the giant bubble.
+        this.pests.splice(i, 1)
+        this.addScore(100, p.x, p.y)
+        this.fx.burst(p.x, p.y, this.fxRng, { count: 8 })
+        continue
+      }
+      if (p.kind === 'wax' && p.state === 'set') {
+        // Hardened wax is a wall.
+        const d = dist(p, b) || 1
+        b.x = p.x + ((b.x - p.x) / d) * (r + pr)
+        b.y = p.y + ((b.y - p.y) / d) * (r + pr)
+        b.vx *= -0.5
+        b.vy *= -0.5
+        continue
+      }
+      const edible =
+        p.kind === 'lint'
+          ? p.size <= r
+          : p.kind === 'snail'
+            ? b.stage >= MAX_STAGE
+            : !!rule.edibleFrom && b.stage >= rule.edibleFrom
+      if (edible) {
         this.pests.splice(i, 1)
         const chain = this.chainUp()
         this.addScore(rule.points * chain, p.x, p.y)
         this.burst(p.x, p.y, 8, RAMPS.rust[2])
         this.fx.burst(p.x, p.y, this.fxRng, { count: 10 })
         this.sound.play('pop')
-        this.grow(b, EAT_GROWTH)
+        this.grow(b, p.kind === 'lint' ? Math.ceil(p.size / 3) : EAT_GROWTH)
+        if (p.kind === 'snail')
+          this.floaters.push({
+            x: p.x,
+            y: p.y - 20,
+            text: 'ROLLED OVER!',
+            life: 50,
+            color: RAMPS.gold[4],
+          })
         // A swallowed mite drops a crumb somewhere else: the sink is never quite done.
         if (p.kind === 'mite') this.addMess()
         continue
@@ -1683,9 +2610,35 @@ class SinkSuds implements ArcadeGameInstance {
       }
       // Scared pests (Lemon Zest) are all bluster.
       if (b.invuln > 0 || this.flee > 0) continue
-      this.hurtBubble(b, rule.touch, p)
+      const touch =
+        p.kind === 'puffer' && p.state === 'puffed' ? 'deadly' : rule.touch
+      this.hurtBubble(b, touch, p)
       if (!b.alive) return
     }
+  }
+
+  /** The sock snake: its head bites, its tail can be nibbled. Returns true when the last sock goes. */
+  private touchSock(b: Bubble, p: Pest): boolean {
+    const r = this.radiusOf(b)
+    const tail = p.segs[p.segs.length - 1]
+    if (tail && p.segs.length > 1 && dist(tail, b) < r + PESTS.sock.radius) {
+      p.segs.pop()
+      this.addScore(PESTS.sock.points * this.chainUp(), tail.x, tail.y - 10)
+      this.grow(b, 2)
+      this.sound.play('pop')
+      this.fx.burst(tail.x, tail.y, this.fxRng, { count: 6 })
+      return false
+    }
+    if (dist(p, b) < r + PESTS.sock.radius) {
+      if (b.giant || p.segs.length <= 1) {
+        this.addScore(PESTS.sock.points * 3 * this.chainUp(), p.x, p.y - 10)
+        this.grow(b, 2)
+        this.sound.play('pop')
+        return true
+      }
+      if (b.invuln <= 0 && this.flee <= 0) this.hurtBubble(b, 'hit', p)
+    }
+    return false
   }
 
   /** Is the bubble behind the brush (against the way it is heading)? */
@@ -1702,11 +2655,16 @@ class SinkSuds implements ArcadeGameInstance {
    * Sturdy Film or Super Suds takes the hit instead.
    */
   private hurtBubble(b: Bubble, touch: Touch, from: Point) {
-    if (b.invuln > 0) return
+    if (b.invuln > 0 || b.giant) return
     const a = Math.atan2(b.y - from.y, b.x - from.x)
     const knock = () => {
       b.vx = Math.cos(a) * 3
       b.vy = Math.sin(a) * 3
+    }
+    if (touch === 'bounce') {
+      // An armoured shell (or a calm pufferfish): just a shove.
+      knock()
+      return
     }
     if (b.superTicks > 0 || this.shield > 0) {
       if (b.superTicks > 0) {
@@ -1967,6 +2925,30 @@ class SinkSuds implements ArcadeGameInstance {
 
   // --- attract-mode pilot --------------------------------------------------------
 
+  /**
+   * Where to go to push `obj` (radius objR) toward `target`: round behind it first (working it
+   * along the wall when the wall is in the way), then on through it.
+   */
+  private pushGoal(b: Bubble, obj: Point, objR: number, target: Point) {
+    const r = this.radiusOf(b)
+    const base = Math.atan2(obj.y - target.y, obj.x - target.x)
+    const reach = r + objR + 3
+    for (const turn of [0, 0.5, -0.5, 1, -1, 1.5, -1.5, 2, -2, 2.4, -2.4]) {
+      const at = {
+        x: obj.x + Math.cos(base + turn) * reach,
+        y: obj.y + Math.sin(base + turn) * reach,
+      }
+      if (!insideBasin(this.basin, at.x, at.y, r * 0.7)) continue
+      const pushing = dist(at, b) <= 9
+      const through = {
+        x: obj.x + (obj.x - at.x) * 3,
+        y: obj.y + (obj.y - at.y) * 3,
+      }
+      return { goal: pushing ? through : at, pushing }
+    }
+    return { goal: null as Point | null, pushing: false }
+  }
+
   private demoInput(): InputFrame {
     const held = {
       up: false,
@@ -1985,7 +2967,7 @@ class SinkSuds implements ArcadeGameInstance {
     let goal: Point | null = null
     let pushing = false
     if (this.drainOpenFor(b)) goal = this.basin.drain
-    else if (this.boss && b.stage >= MAX_STAGE) goal = this.boss.bumpSpot(r)
+    else if (this.boss) goal = this.boss.goal(b, r, this.bossHost())
     if (!goal && this.plan.special === 'dish-stack') {
       let best = Infinity
       for (const p of this.plates) {
@@ -2007,30 +2989,31 @@ class SinkSuds implements ArcadeGameInstance {
           duck = d
         }
       }
-      if (duck) {
-        // Push toward the pen; a duck against the wall gets worked along it instead.
-        const base = Math.atan2(duck.y - DUCK_PEN.y, duck.x - DUCK_PEN.x)
-        const reach = r + DUCK_R + 3
-        let behind: Point | null = null
-        for (const turn of [0, 0.5, -0.5, 1, -1, 1.5, -1.5, 2, -2, 2.4, -2.4]) {
-          const at = {
-            x: duck.x + Math.cos(base + turn) * reach,
-            y: duck.y + Math.sin(base + turn) * reach,
-          }
-          if (insideBasin(this.basin, at.x, at.y, r * 0.7)) {
-            behind = at
-            break
-          }
-        }
-        if (behind) {
-          const through = {
-            x: duck.x + (duck.x - behind.x) * 3,
-            y: duck.y + (duck.y - behind.y) * 3,
-          }
-          pushing = dist(behind, b) <= 9
-          goal = pushing ? through : behind
-        }
-      }
+      if (duck) ({ goal, pushing } = this.pushGoal(b, duck, DUCK_R, DUCK_PEN))
+    }
+    if (!goal && this.plan.special === 'odd-socks' && this.socks.length) {
+      // Push the nearest sock at its match.
+      const sock = this.socks.reduce((a, k) =>
+        dist(k, b) < dist(a, b) ? k : a,
+      )
+      const match = this.socks.find(
+        (k) => k !== sock && k.colour === sock.colour,
+      )
+      if (match) ({ goal, pushing } = this.pushGoal(b, sock, 9, match))
+    }
+    if (!goal && this.car && !this.specialDone) {
+      // Sit on the dirtiest panel.
+      const car = this.car
+      let worst = 0
+      car.panels.forEach((dirt, i) => {
+        if (dirt <= worst) return
+        const px = car.x + 4 + (i % 3) * ((CAR.w - 8) / 3) + (CAR.w - 8) / 6
+        const py =
+          car.y + 4 + Math.floor(i / 3) * ((CAR.h - 8) / 2) + (CAR.h - 8) / 4
+        if (!insideBasin(this.basin, px, py, r)) return
+        worst = dirt
+        goal = { x: px + CAR.speed * 20, y: py }
+      })
     }
     if (!goal) {
       const float = this.floats.find((f) => dist(f, b) < 120)
@@ -2071,13 +3054,44 @@ class SinkSuds implements ArcadeGameInstance {
     steerY -= flow.y * 12
     // Shy away from anything that could pop or soak the bubble.
     const threats: Point[] = []
-    if (this.flee <= 0 && b.superTicks <= 0) {
+    if (this.flee <= 0 && b.superTicks <= 0 && !b.giant) {
       for (const p of this.pests) {
+        if (p.kind === 'strider' && p.state === 'tell') {
+          // Off the ripple line before it skates.
+          const [a, c] = p.segs
+          for (let k = 0; k <= 1; k += 0.1)
+            threats.push({
+              x: a!.x + (c!.x - a!.x) * k,
+              y: a!.y + (c!.y - a!.y) * k,
+            })
+          continue
+        }
         if (!this.solid(p)) continue
         const rule = PESTS[p.kind]
+        if (
+          rule.touch === 'bounce' &&
+          !(p.kind === 'puffer' && p.state !== 'roam')
+        )
+          continue
+        if (p.kind === 'lint' && p.size <= r) continue
         if (rule.edibleFrom && b.stage >= rule.edibleFrom) continue
         if (p.kind === 'brush' && p.state === 'tipped') continue
         threats.push(p)
+        if (p.kind === 'spinner' || p.kind === 'strider')
+          for (let k = 8; k <= 40; k += 8)
+            threats.push({ x: p.x + p.vx * k, y: p.y + p.vy * k })
+        if (p.kind === 'sock') threats.push(...p.segs.slice(1, -1))
+      }
+      const roll = this.roller
+      const belt = this.basin.physics
+      if (
+        roll &&
+        belt.kind === 'conveyor' &&
+        (roll.tell > 0 || roll.x !== null)
+      ) {
+        const laneH = (belt.bottom - belt.top) / belt.lanes
+        const y = belt.top + roll.lane * laneH + laneH / 2
+        threats.push({ x: b.x, y }, { x: b.x - 20, y }, { x: b.x + 20, y })
       }
     }
     const gurgling = this.pests.some(
@@ -2086,8 +3100,8 @@ class SinkSuds implements ArcadeGameInstance {
         (p.state === 'gurgle' || (p.state === 'hidden' && p.t < 40)),
     )
     if (gurgling) threats.push(this.basin.drain)
-    if (this.boss) {
-      threats.push(...this.boss.threats())
+    if (this.boss) threats.push(...this.boss.threats())
+    if (this.boss instanceof Bristleton) {
       // A suds ring coming: slide round to the nearer of its gaps.
       for (const ring of this.boss.rings) {
         const d = dist(ring, b)
@@ -2143,15 +3157,29 @@ class SinkSuds implements ArcadeGameInstance {
       frame.pressed.a = true
     }
     // Trap a pest lined up ahead, while there is size to spare (never while saving up for a bump).
-    if (b.stage >= 4 && !this.boss) {
+    // A hunting brush close by is worth turning to face and trapping at size 3.
+    if (b.stage >= 3 && !b.giant) {
       for (const p of this.pests) {
-        if (!this.solid(p) || p.kind === 'mite') continue
+        // In a boss fight, only its mini-brushes are worth a shot.
+        if (this.boss && p.kind !== 'minibrush') continue
+        if (!this.solid(p) || !PESTS[p.kind].trappable || p.kind === 'mite')
+          continue
         if (p.kind === 'brush' && p.state === 'tipped') continue
+        if (PESTS[p.kind].edibleFrom && b.stage >= PESTS[p.kind].edibleFrom!)
+          continue
         const d = dist(p, b)
-        if (d > 110 || d < 1) continue
+        const hunter =
+          p.kind === 'brush' || p.kind === 'minibrush' || p.kind === 'leafboat'
+        if (d > 110 || d < 1 || (b.stage < 4 && !hunter)) continue
         if (((p.x - b.x) * b.faceX + (p.y - b.y) * b.faceY) / d > 0.9) {
           held.b = true
           frame.pressed.b = this.tick % 20 === 0
+          break
+        }
+        if (hunter && d < 90 && b.puff > 0) {
+          // Turn to face it for the shot.
+          steerX = (p.x - b.x) / d
+          steerY = (p.y - b.y) / d
           break
         }
       }
@@ -2167,8 +3195,11 @@ class SinkSuds implements ArcadeGameInstance {
   // --- render ------------------------------------------------------------------------
 
   render(g: CanvasRenderingContext2D) {
-    if (this.backdrop === 'bath') renderBathroom(g, this.basin)
-    else renderKitchen(g, this.basin)
+    if (this.ending) {
+      this.renderEnding(g, this.ending)
+      return
+    }
+    this.renderBackdrop(g)
     renderBasin(g, this.basin, this.tick, this.drumAngle)
     this.grimeLayer.draw(g, this.grime, this.basin)
     for (const s of this.plan.slicks ?? []) renderSlick(g, s, this.tick)
@@ -2186,12 +3217,34 @@ class SinkSuds implements ArcadeGameInstance {
       gurgle ? 1 : 0,
     )
     for (const t of this.trail) renderTrail(g, t.x, t.y, t.life)
+    for (const sp of this.splashes) renderSplash(g, sp.x, sp.y, sp.life)
+    if (this.car)
+      renderCar(
+        g,
+        this.car.x,
+        this.car.y,
+        CAR.w,
+        CAR.h,
+        this.car.panels,
+        this.tick,
+      )
     for (const m of this.mess) this.renderMess(g, m)
+    for (const k of this.socks) renderSock(g, k.x, k.y, k.colour, k.a, 1)
+    for (const p of this.pests)
+      if (p.kind === 'strider' && p.state === 'tell')
+        renderStriderLine(
+          g,
+          p.segs[0]!,
+          p.segs[1]!,
+          1 - p.t / STRIDER_TELL,
+          this.tick,
+        )
     for (const p of this.plates)
       renderPlate(g, p.x, p.y, PLATE_R, p.dirt, PLATE_SPOTS.length)
     for (const d of this.drips) drawSprite(g, DRIP_SPRITE, d.x, d.y)
     for (const p of this.pests) if (!p.trap) this.renderPest(g, p)
     if (this.plan.shadows) renderRack(g, this.plan.shadows)
+    this.renderMachinery(g)
     for (const d of this.ducks)
       renderDuck(g, d.x, d.y, this.tick, d.penned, d.vx > 0.05)
     for (const f of this.floats)
@@ -2206,7 +3259,7 @@ class SinkSuds implements ArcadeGameInstance {
     for (const p of this.pests) {
       if (!p.trap) continue
       this.renderPest(g, p)
-      renderTrap(g, p.x, p.y, PESTS[p.kind].radius + 6, this.tick)
+      renderTrap(g, p.x, p.y, this.pestR(p) + 6, this.tick)
     }
     for (const s of this.shots) renderShot(g, s.x, s.y, SHOT_R, this.tick)
     for (const p of this.pops) {
@@ -2218,6 +3271,18 @@ class SinkSuds implements ArcadeGameInstance {
     }
     g.globalAlpha = 1
     for (const b of this.bubbles) this.renderOneBubble(g, b)
+    // Leaves float over the water: cover for a bubble underneath.
+    for (const l of this.leaves) {
+      g.save()
+      g.globalAlpha = 0.85
+      renderLeaf(g, l.x, l.y, 15, l.a, l.tone)
+      g.restore()
+    }
+    if (
+      this.plan.rain &&
+      !(this.plan.special === 'rain-race' && this.specialDone)
+    )
+      renderRain(g, this.tick, (this.plan.rain ?? 99) < 30)
     this.fx.render(g)
     for (const f of this.floaters) {
       drawText(g, f.text, f.x, f.y, {
@@ -2237,11 +3302,90 @@ class SinkSuds implements ArcadeGameInstance {
         wearing: (item) => item.id === this.skin,
         message: this.shop.message,
         golden: this.golden.size,
-        goldenTotal: ROOMS.length,
+        goldenTotal: GOLDEN_ROOMS.length,
         tick: this.tick,
       })
     }
     if (this.offer) this.renderOffer(g, this.offer)
+  }
+
+  private renderBackdrop(g: CanvasRenderingContext2D) {
+    const b = this.basin
+    switch (this.backdrop) {
+      case 'bath':
+        renderBathroom(g, b)
+        return
+      case 'laundry':
+        renderLaundry(g, b)
+        return
+      case 'aquarium':
+        renderAquarium(g, b)
+        return
+      case 'garden':
+        renderGarden(g, b)
+        return
+      case 'carwash':
+        renderCarWash(g, b)
+        return
+      case 'plaza':
+        renderPlaza(g, b)
+        return
+      case 'palace':
+        renderPalace(g, b)
+        return
+      default:
+        renderKitchen(g, b)
+    }
+  }
+
+  /** Car-wash rollers and wax jets. */
+  private renderMachinery(g: CanvasRenderingContext2D) {
+    const r = this.roller
+    const belt = this.basin.physics
+    if (r && belt.kind === 'conveyor') {
+      const box = basinBounds(this.basin)
+      const laneH = (belt.bottom - belt.top) / belt.lanes
+      const y0 = belt.top + r.lane * laneH
+      g.save()
+      clipBasin(g, this.basin)
+      renderRoller(g, box.x0, box.x1, y0, y0 + laneH, r.tell, r.x, this.tick)
+      g.restore()
+    }
+    if (this.plan.jets) {
+      const { puff, warn } = this.jetPhase()
+      for (const jet of this.plan.jets)
+        renderJet(g, jet, this.basin.drain, puff, warn, this.tick)
+    }
+  }
+
+  private renderEnding(
+    g: CanvasRenderingContext2D,
+    e: { kind: EndingKind; t: number },
+  ) {
+    if (e.kind === 'true') renderTrueEnding(g, e.t)
+    else renderCleanEnding(g, e.t)
+    const title =
+      e.kind === 'true'
+        ? 'THE WHOLE HOUSE SHINES'
+        : 'THE BIG HOUSE WASH IS DONE'
+    const lines = [
+      ...CREDITS,
+      '',
+      e.kind === 'true'
+        ? 'EVERY GOLDEN SOAP FOUND!'
+        : `GOLDEN SOAPS ${this.golden.size}/${GOLDEN_ROOMS.length}`,
+      e.kind === 'true' || this.allGolden
+        ? ''
+        : 'FIND THEM ALL TO OPEN THE PALACE',
+      'DEEP CLEAN IS OPEN',
+    ]
+    renderCredits(g, lines, e.t, title)
+    if (e.t > 120)
+      drawText(g, `SCORE ${this.score}`, W / 2, 34, {
+        align: 'center',
+        color: RAMPS.gold[3],
+        outline: INK,
+      })
   }
 
   private renderOneBubble(g: CanvasRenderingContext2D, b: Bubble) {
@@ -2402,6 +3546,57 @@ class SinkSuds implements ArcadeGameInstance {
           { flipX: p.vx < 0 },
         )
         break
+      case 'lint':
+        dropShadow(g, p.x, p.y + p.size, p.size, 2, 0.3)
+        renderLint(g, p.x, p.y, p.size, this.tick)
+        break
+      case 'sock':
+        renderSockSnake(g, p.segs, this.tick)
+        break
+      case 'algae':
+        renderAlgae(g, p.x, p.y, p.size / ALGAE_BLOOM, this.tick)
+        break
+      case 'snail':
+        renderSnail(g, p.x, p.y, p.vx < 0, false)
+        break
+      case 'puffer':
+        renderPuffer(
+          g,
+          p.x,
+          p.y,
+          p.state === 'puffed'
+            ? 'puffed'
+            : p.state === 'tell'
+              ? 'tell'
+              : 'calm',
+          p.vx < 0,
+          this.tick,
+        )
+        break
+      case 'strider':
+        if (p.state === 'roam') renderStrider(g, p.x, p.y, p.heading, this.tick)
+        break
+      case 'leafboat':
+        renderLeafBoat(g, p.x, p.y, p.heading, this.tick)
+        break
+      case 'wax':
+        renderWax(g, p.x, p.y, p.t / WAX_SET, p.state === 'set', this.tick)
+        break
+      case 'spinner':
+        // Its line of travel shows faintly ahead: read the bounce.
+        g.strokeStyle = 'rgba(239, 68, 68, 0.25)'
+        g.beginPath()
+        g.moveTo(p.x, p.y)
+        g.lineTo(p.x + p.vx * 30, p.y + p.vy * 30)
+        g.stroke()
+        renderSpinner(g, p.x, p.y, p.heading)
+        break
+      case 'minion':
+        renderMinion(g, p.x, p.y, this.tick)
+        break
+      case 'drop':
+        renderDrop(g, p.x, p.y, this.tick)
+        break
       case 'slug':
         dropShadow(g, p.x, p.y + 4, 6, 1.5, 0.3)
         drawSprite(g, SLUG_SPRITES[Math.floor(this.tick / 16) % 2]!, p.x, p.y, {
@@ -2485,25 +3680,50 @@ class SinkSuds implements ArcadeGameInstance {
       })
     }
     if (this.boss && !this.boss.done) {
-      hudPanel(g, W / 2 - 66, 3, 132, 17, RAMPS.ember)
-      drawText(g, 'BRISTLETON', W / 2 - 58, 8, {
+      const boss = this.boss
+      hudPanel(g, W / 2 - 80, 3, 160, 17, RAMPS.ember)
+      drawText(g, boss.name, W / 2 - 72, 8, { color: '#ffffff', outline: INK })
+      for (let i = 0; i < boss.maxHp; i++)
+        shadedOrb(
+          g,
+          W / 2 + 70 - (boss.maxHp - 1 - i) * 11,
+          11,
+          4,
+          i < boss.hp ? RAMPS.gold : RAMPS.steel,
+        )
+      if (boss.hint)
+        drawText(g, boss.hint, W / 2, 24, {
+          align: 'center',
+          color: RAMPS.gold[4],
+          outline: INK,
+        })
+    }
+    // A special basin's clock.
+    if (
+      !this.specialDone &&
+      (this.plan.special === 'odd-socks' || this.plan.special === 'rain-race')
+    ) {
+      const label = this.plan.special === 'odd-socks' ? 'SPIN CYCLE' : 'SHOWER'
+      hudPanel(g, W / 2 - 60, 3, 120, 15, RAMPS.sky)
+      drawText(g, `${label} ${Math.ceil(this.specialTimer / 60)}`, W / 2, 7, {
+        align: 'center',
         color: '#ffffff',
         outline: INK,
       })
-      for (let i = 0; i < 3; i++)
-        shadedOrb(
-          g,
-          W / 2 + 34 + i * 11,
-          11,
-          4,
-          i < this.boss.hp ? RAMPS.gold : RAMPS.steel,
-        )
     }
+    if (!this.specialDone && this.plan.special === 'clean-goal')
+      drawText(g, `GOAL ${this.plan.cleanGoal}% CLEAN`, W / 2, 7, {
+        align: 'center',
+        color: RAMPS.gold[4],
+        outline: INK,
+      })
     const step = this.steps[this.stepIndex]
     const label = this.inEndless
       ? `SINK ${this.level}`
       : step?.kind === 'boss'
-        ? 'BOSS'
+        ? this.deep
+          ? `BOSS +${this.deep}`
+          : 'BOSS'
         : step?.kind === 'basin'
           ? `BASIN ${step.room + 1}-${step.basin + 1}`
           : 'SHOP'
@@ -2673,9 +3893,24 @@ function sinkGuide(): ArcadeGuidePage[] {
         'EVERY ROOM HAS FOUR BASINS. BASIN 3 IS SPECIAL:',
         'DO ITS JOB AND THE DRAIN OPENS.',
         "FINISH IT 95% CLEAN FOR THE ROOM'S GOLDEN SOAP.",
-        ...ROOMS.flatMap((r) => [`${r.name}: ${r.basins[2].title}`]),
+        ...ROOMS.filter((r) => !r.secret).map(
+          (r) => `${r.name}: ${r.basins[2].title}`,
+        ),
+        'PROGRESS SAVES AT EVERY ROOM AND BOSS.',
+      ],
+    },
+    {
+      title: 'THE BOSSES',
+      scale: 1,
+      lines: [
         'BRISTLETON: BUMP THE HANDLE AT FULL SIZE.',
-        'PROGRESS SAVES AT EVERY ROOM.',
+        '  WHEN IT SPINS, SLIP THROUGH THE RING GAPS.',
+        'MOSSBACK: POP ITS ALGAE, FLOAT OVER ITS ROLL,',
+        '  THEN SCRUB ITS MOSSY BACK AT FULL SIZE.',
+        'THE GRIME KING: EAT HIS MINIONS, SWALLOW HIS',
+        '  DROPS, THEN CARRY HIM DOWN THE DRAIN.',
+        'ALL SIX GOLDEN SOAPS OPEN A SECRET ROOM.',
+        'A CLEAR OPENS DEEP CLEAN: DIRTIER, FASTER.',
       ],
     },
   ]

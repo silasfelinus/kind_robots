@@ -69,7 +69,7 @@
         class="cabinet-overlay"
         :class="[
           `cabinet-overlay--seats-${players}`,
-          { 'cabinet-overlay--duo': duo },
+          { 'cabinet-overlay--duo': duo, 'cabinet-overlay--twin': aiming },
         ]"
         aria-label="Touch controls"
       >
@@ -167,6 +167,26 @@
               A
             </button>
           </div>
+          <div
+            v-if="aiming && seat === 0"
+            :ref="setAimRef"
+            class="cabinet-aim"
+            role="group"
+            aria-label="Aim stick"
+            @pointerdown.prevent="onAim"
+            @pointermove.prevent="onAim"
+            @pointerup.prevent="releaseAim"
+            @pointercancel="releaseAim"
+            @lostpointercapture="releaseAim"
+          >
+            <span
+              class="cabinet-aim-knob"
+              :style="{
+                transform: `translate(${aimKnob.x * 60}%, ${aimKnob.y * 60}%)`,
+              }"
+              aria-hidden="true"
+            />
+          </div>
           <span v-if="duo" class="cabinet-seat-tag" aria-hidden="true">
             {{ seat + 1 }}P
           </span>
@@ -182,6 +202,10 @@
             &nbsp;·&nbsp;
           </template>
           Enter = Start · P pauses · a gamepad each works too
+        </p>
+        <p v-else-if="!touchControls && twinStick" class="cabinet-hint">
+          WASD move · arrows aim and spray · Space or Z = A · X or Shift = B ·
+          Enter = Start · P pauses · gamepads: right stick aims
         </p>
         <p v-else-if="!touchControls" class="cabinet-hint">
           Arrows or WASD move · Space or Z = A · X or Shift = B · Enter = Start
@@ -303,6 +327,8 @@ import {
   KEY_MAP,
   P1_KEYS,
   P2_KEYS,
+  stickAim,
+  TWIN_KEYS,
 } from '~/utils/arcade/input'
 import { startFixedLoop, TICK_MS, type FixedLoop } from '~/utils/arcade/loop'
 import {
@@ -409,6 +435,10 @@ const maxPlayers = computed(() =>
   Math.min(MAX_SEATS, meta.value?.maxPlayers ?? 1),
 )
 const duo = computed(() => players.value > 1)
+/** A twin-stick game played solo (t-027): the arrows, the right stick or a touch stick aim. */
+const twinStick = computed(() => meta.value?.twinStick === true && !duo.value)
+/** Aiming is live only while such a game plays, so menus keep the arrows. */
+const aiming = computed(() => twinStick.value && phase.value === 'playing')
 const seatList = computed(() =>
   Array.from({ length: players.value }, (_, seat) => seat),
 )
@@ -704,8 +734,48 @@ function setDpad(next: Record<DpadDirection, boolean>, seat = 0) {
   dpadHeld.value[seat] = next
 }
 
+let aimEl: HTMLElement | null = null
+let aimPointer: number | null = null
+
+function setAimRef(el: unknown) {
+  aimEl = el instanceof HTMLElement ? el : null
+}
+/** Where the aim stick's knob sits (-1..1 each way), for drawing it. */
+const aimKnob = ref({ x: 0, y: 0 })
+
+/** A finger on the aim stick: its offset from the centre is the aim. */
+function onAim(event: PointerEvent) {
+  const pad = aimEl
+  if (!pad) return
+  if (event.type === 'pointerdown') {
+    aimPointer = event.pointerId
+    capture(pad, event.pointerId)
+    unlockArcadeAudio()
+  } else if (event.pointerId !== aimPointer) {
+    return
+  }
+  const rect = pad.getBoundingClientRect()
+  const dx = (event.clientX - (rect.left + rect.width / 2)) / (rect.width / 2)
+  const dy = (event.clientY - (rect.top + rect.height / 2)) / (rect.height / 2)
+  const aim = stickAim(dx, dy)
+  aimKnob.value = aim ?? { x: 0, y: 0 }
+  input.setAimTouch(aim)
+}
+
+function releaseAim() {
+  aimPointer = null
+  aimKnob.value = { x: 0, y: 0 }
+  input.setAimTouch(null)
+}
+
+/** Seat 1's keys: the split board while a twin-stick game plays, else the usual map. */
+function seatOneKeys() {
+  return duo.value ? P1_KEYS : aiming.value ? TWIN_KEYS : KEY_MAP
+}
+
 /** Let go of every touch control on every seat. */
 function releaseTouch() {
+  releaseAim()
   pinballPadRef.value?.release()
   pinballPull.value = null
   for (let seat = 0; seat < MAX_SEATS; seat++) {
@@ -761,7 +831,7 @@ function applySeats() {
     : keepPads(padSlots, pads, players.value)
   const slots = padSlots
   input.setPadIndex(slots[0] ?? null)
-  input.setKeyMap(duo.value ? P1_KEYS : KEY_MAP)
+  input.setKeyMap(seatOneKeys())
   inputs.forEach((seatIn, seat) => {
     if (seat === 0) return
     if (seat < players.value) {
@@ -1671,6 +1741,12 @@ watch(players, () => {
   applySeats()
 })
 
+watch(aiming, (on) => {
+  releaseAim()
+  input.setAiming(on)
+  input.setKeyMap(seatOneKeys())
+})
+
 watch(fullscreen, () => {
   void nextTick(fitScreen)
 })
@@ -2010,6 +2086,50 @@ onBeforeUnmount(() => {
 
 .cabinet-overlay--duo .cabinet-buttons {
   gap: 0.5rem;
+}
+
+/* Twin-stick (t-027): the aim stick takes the right thumb; A and B sit above it. */
+.cabinet-overlay .cabinet-aim {
+  right: max(1rem, env(safe-area-inset-right));
+  bottom: max(1rem, env(safe-area-inset-bottom));
+  width: calc(var(--key) * 3);
+  height: calc(var(--key) * 3);
+  display: grid;
+  place-items: center;
+  border-radius: 9999px;
+  border: 2px solid rgba(253, 230, 138, 0.5);
+  background: radial-gradient(
+    circle,
+    rgba(236, 72, 153, 0.25),
+    rgba(15, 10, 46, 0.42) 70%
+  );
+  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
+  touch-action: none;
+  user-select: none;
+}
+
+.cabinet-aim-knob {
+  width: 40%;
+  height: 40%;
+  border-radius: 9999px;
+  background: rgba(236, 72, 153, 0.6);
+  border: 2px solid rgba(255, 255, 255, 0.6);
+  pointer-events: none;
+}
+
+.cabinet-overlay--twin .cabinet-buttons {
+  bottom: calc(max(1rem, env(safe-area-inset-bottom)) + var(--key) * 3.3);
+  gap: 0.5rem;
+}
+
+.cabinet-overlay--twin .cabinet-ball {
+  width: var(--key);
+  height: var(--key);
+}
+
+.cabinet-overlay--twin .cabinet-ball-a {
+  margin-bottom: 0;
 }
 
 .cabinet-overlay--duo .cabinet-ball {

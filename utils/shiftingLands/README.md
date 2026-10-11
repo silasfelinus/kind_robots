@@ -88,7 +88,7 @@ checkpoint because V2 did **not** record every earlier player command.
 Every subsequent V3 action is strictly replay-verified from that checkpoint.
 The original V2 localStorage key is left untouched. A corrupted V3 record
 never falls back to an older V2 copy, which could otherwise restore spent
-rewards. Use *New journey* to clear a rejected V3 in the private preview.
+rewards. Use _New journey_ to clear a rejected V3 in the private preview.
 
 `USE_REWARD` is a deterministic action (currently a healing willow-bark
 dose or recovered rations), gated on the specific previously earned item,
@@ -98,6 +98,7 @@ encounters are never retroactively rerolled. Applying newly learned skill
 bonuses to live checks requires a separately versioned authored roll contract.
 
 Verify with:
+
 ```sh
 npx tsx utils/scripts/verifyShiftingSaveLedger.test.ts
 ```

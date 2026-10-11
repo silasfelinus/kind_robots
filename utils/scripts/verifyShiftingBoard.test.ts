@@ -59,7 +59,10 @@ assert.match(store, /migrateJourneyLedger\(JSON\.parse\(legacy\)\)/)
 assert.match(store, /if \(next === ledger\.value\) return false/)
 assert.match(store, /stepJourneyLedger\(ledger\.value, action\)/)
 assert.match(store, /const SAVE_KEY = 'kr\.shiftingLands\.journeyLedger\.v3'/)
-assert.match(store, /const LEGACY_SAVE_KEY = 'kr\.shiftingLands\.authoredJourney\.v2'/)
+assert.match(
+  store,
+  /const LEGACY_SAVE_KEY = 'kr\.shiftingLands\.authoredJourney\.v2'/,
+)
 assert.match(store, /if \(saved !== null\) \{/)
 assert.match(store, /if \(restored\) ledger\.value = restored/)
 assert.match(store, /else restoreWarning\.value = true/)

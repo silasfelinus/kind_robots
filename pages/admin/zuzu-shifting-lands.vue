@@ -206,7 +206,7 @@
                 class="grid gap-3 sm:grid-cols-[125px_1fr]"
               >
                 <div class="aspect-[2/3] overflow-hidden rounded-xl">
-                  <NavigationFlipCard :trigger-key="flipKey" :duration-ms="580">
+                  <FlipCard :trigger-key="flipKey" :duration-ms="580">
                     <template #front
                       ><img
                         :src="game.activeCard.art"
@@ -219,7 +219,7 @@
                         alt=""
                         class="size-full object-cover"
                     /></template>
-                  </NavigationFlipCard>
+                  </FlipCard>
                 </div>
                 <div class="space-y-2">
                   <p class="text-xs font-bold uppercase text-warning">

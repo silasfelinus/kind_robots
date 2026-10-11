@@ -109,7 +109,7 @@ const stumpShiv: MoveData = {
 const pickPocket: MoveData = {
   startup: 6,
   active: 3,
-  recovery: 26,
+  recovery: 20,
   hitbox: { x: 0, y: 0, w: 28, h: HEIGHT },
   damage: 60,
   hitstun: 0,
@@ -122,7 +122,7 @@ const pickPocket: MoveData = {
 }
 
 const playDead: MoveData = {
-  startup: 40,
+  startup: 32,
   active: 1,
   recovery: 14,
   hitbox: NO_HITBOX,
@@ -134,7 +134,7 @@ const playDead: MoveData = {
   guard: 'mid',
   // A kick-up counter against anything that swings at him standing; a low
   // sweep (or a grab) just hits the "corpse".
-  parry: { from: 3, to: 30, damage: 90, guards: ['mid', 'high'] },
+  parry: { from: 3, to: 26, damage: 110, guards: ['mid', 'high'] },
 }
 
 const reload: MoveData = {
@@ -249,7 +249,7 @@ const specials: SpecialMove[] = [
 export const COYOTE: FighterData = {
   slug: 'coyote-vagrant',
   name: 'Coyote Vagrant',
-  health: 950,
+  health: 1000,
   walkForward: Math.round(2.5 * SUB),
   walkBack: 2 * SUB,
   jumpVelocity: 9 * SUB,

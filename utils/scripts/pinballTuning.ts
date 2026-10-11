@@ -34,7 +34,7 @@ import {
   type BotSkill,
 } from '../arcade/pinball/tuning/bot'
 import type { RendererLike } from '../arcade/pinball/render/scene'
-import type { SwitchEvent } from '../arcade/pinball/types'
+import type { SwitchEvent, TableDef } from '../arcade/pinball/types'
 
 const TICKS_PER_SECOND = 60
 
@@ -78,8 +78,8 @@ export function playGame(
   seed: number,
   aimer: Aimer | null,
   minutes = 20,
+  table: TableDef = AMI_VILLAGE_GREYBOX,
 ): GameReport {
-  const table = AMI_VILLAGE_GREYBOX
   const runtime = new PinballRuntime(
     {
       rng: mulberry32(seed),
@@ -98,6 +98,7 @@ export function playGame(
   const bot = new PinballBot(skill, mulberry32(seed * 7919 + 1), aimer)
 
   // Watch the physics for drains and flipper touches.
+  const flipperIds = new Set(table.flippers.map((f) => f.id))
   const physics = inner.physics
   const step = physics.step.bind(physics)
   const lastLow = new Map<number, number>()
@@ -109,7 +110,7 @@ export function playGame(
   physics.step = () => {
     const events: SwitchEvent[] = step()
     for (const e of events) {
-      if (e.type === 'contact' && e.id.startsWith('flipper'))
+      if (e.type === 'contact' && flipperIds.has(e.id))
         lastFlipper.set(e.ballId, tick)
       else if (
         e.type === 'contact' ||

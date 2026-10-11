@@ -6,7 +6,7 @@
 // the Abbey upper deck, a sculpted River Croc, crypt and Zuzu-specific rules.
 
 import type { ColliderDef, InsertDef, TableDef, Vec3 } from '../../types'
-import { ramp, wall, walls, type XZ, type XZH } from '../builders'
+import { ramp, slingCap, wall, walls, type XZ, type XZH } from '../builders'
 
 const BALL = 0.0135
 const LEFT = -0.26
@@ -18,6 +18,9 @@ const TOP = -0.97
 const BOTTOM = 0.14
 const FLOOR_MID = (TOP + BOTTOM) / 2
 const BELL: Vec3 = [0, BALL, -0.79]
+const SEAL_X = -0.054
+// The River Croc's mouth, on the left bank beside the left orbit lane.
+const CROC: XZ = [-0.172, -0.47]
 
 const arch: XZ[] = Array.from({ length: 25 }, (_, step) => {
   const theta = Math.PI + (step * Math.PI) / 24
@@ -39,20 +42,20 @@ const VILLAGE_SWITCHBACK: XZH[] = [
   [0.15, -0.69, 0.062],
   [0.21, -0.56, 0.052],
   [0.214, -0.38, 0.046],
-  [0.205, -0.19, 0.034],
+  [0.183, -0.19, 0.034],
 ]
 
 const ABBEY_CROSSOVER: XZH[] = [
-  [0.09, -0.29, 0],
-  [0.1, -0.39, 0.035],
-  [0.115, -0.49, 0.08],
+  [0.097, -0.27, 0],
+  [0.11, -0.37, 0.035],
+  [0.12, -0.47, 0.08],
   [0.12, -0.57, 0.122],
   [0.06, -0.63, 0.135],
   [-0.08, -0.64, 0.135],
   [-0.22, -0.63, 0.12],
   [-0.23, -0.5, 0.085],
   [-0.228, -0.35, 0.055],
-  [-0.205, -0.19, 0.034],
+  [-0.184, -0.19, 0.034],
 ]
 
 const BELL_SPIRAL: XZH[] = [
@@ -76,6 +79,38 @@ export const ZUZU_RAMP_PATHS = {
   'abbey-crossover': ABBEY_CROSSOVER,
   'bell-spiral': BELL_SPIRAL,
 } as const
+
+// The lower field, authored per side: an outlane between the cabinet rail and
+// the inlane guide, an inlane that bends in over the flipper pivot so a ball
+// rolls straight onto the resting flipper, and a triangular slingshot whose
+// rubber face kicks toward the far flipper. The right outlane is narrower
+// because the shooter lane takes that side of the cabinet.
+const FLIPPER_X = 0.09
+export const INLANE_GUIDE = { left: -0.205, right: 0.2 } as const
+export const SLING_BACK = 0.162
+
+function lowerSide(name: 'left' | 'right'): ColliderDef[] {
+  const s = name === 'left' ? -1 : 1
+  const guide = INLANE_GUIDE[name]
+  const top: XZ = [s * SLING_BACK, -0.215]
+  const bottom: XZ = [s * SLING_BACK, -0.14]
+  const tip: XZ = [s * 0.113, -0.104]
+  return [
+    ...walls(
+      `${name}-inlane-guide`,
+      [
+        [guide, -0.25],
+        [guide, -0.12],
+        [s * (FLIPPER_X - 0.0063), -0.045],
+      ],
+      { material: 'chrome', thickness: 0.004 },
+    ),
+    wall(`sling-${name}-back`, top, bottom, { material: 'plastic-printed' }),
+    wall(`sling-${name}-base`, bottom, tip, { material: 'plastic-printed' }),
+    wall(`sling-${name}-kicker`, top, tip, { material: 'rubber', kick: 1.5 }),
+    slingCap(`sling-${name}-cap`, [top, bottom, tip]),
+  ]
+}
 
 const colliders: ColliderDef[] = [
   {
@@ -115,19 +150,20 @@ const colliders: ColliderDef[] = [
     cover: [0.13, 0.48],
   }),
   // Raised catch plates at the exits stop a ball from rolling off the cabinet.
-  wall('village-return-stop', [0.185, -0.165], [0.233, -0.165], {
+  wall('village-return-stop', [0.163, -0.165], [0.203, -0.165], {
     base: 0.03,
     height: 0.04,
     material: 'plastic-clear',
   }),
-  wall('abbey-return-stop', [-0.228, -0.165], [-0.181, -0.165], {
+  wall('abbey-return-stop', [-0.205, -0.165], [-0.163, -0.165], {
     base: 0.03,
     height: 0.04,
     material: 'plastic-clear',
   }),
   // Each outer orbit has a dedicated up-table channel and a directional
-  // return vane. The left channel ends before the Croc's mouth approach.
-  wall('left-orbit-guide', [-0.166, -0.68], [-0.166, -0.54], {
+  // return vane. The left channel is one ball wide and runs down past the
+  // Croc, so the orbit and the mouth are two separate shots side by side.
+  wall('left-orbit-guide', [-0.215, -0.68], [-0.215, -0.44], {
     material: 'chrome',
     thickness: 0.004,
   }),
@@ -171,20 +207,8 @@ const colliders: ColliderDef[] = [
     thickness: 0.008,
     restitution: 0.2,
   }),
-  wall('inlane-left', [-0.24, 0.045], [-0.115, -0.17], {
-    material: 'rubber',
-  }),
-  wall('inlane-right', [0.2, 0.045], [0.115, -0.17], {
-    material: 'rubber',
-  }),
-  wall('sling-left', [-0.2, -0.09], [-0.107, -0.18], {
-    material: 'rubber',
-    kick: 1.8,
-  }),
-  wall('sling-right', [0.2, -0.09], [0.107, -0.18], {
-    material: 'rubber',
-    kick: 1.8,
-  }),
+  ...lowerSide('left'),
+  ...lowerSide('right'),
   {
     kind: 'post',
     id: 'marsh-pop-left',
@@ -215,16 +239,16 @@ const colliders: ColliderDef[] = [
   {
     kind: 'post',
     id: 'croc-mouth-guide',
-    at: [-0.221, 0.022, -0.46],
-    radius: 0.011,
+    at: [CROC[0] - 0.028, 0.022, CROC[1] + 0.025],
+    radius: 0.008,
     halfHeight: 0.02,
     material: 'post',
   },
   {
     kind: 'post',
     id: 'croc-mouth-opposite',
-    at: [-0.126, 0.022, -0.46],
-    radius: 0.011,
+    at: [CROC[0] + 0.028, 0.022, CROC[1] + 0.025],
+    radius: 0.008,
     halfHeight: 0.02,
     material: 'post',
   },
@@ -233,7 +257,7 @@ const colliders: ColliderDef[] = [
 const inserts: InsertDef[] = [
   {
     id: 'river-croc-mouth',
-    at: [-0.175, -0.4],
+    at: [CROC[0], -0.39],
     shape: 'arrow',
     size: 0.06,
     color: 0x55d6cd,
@@ -281,15 +305,15 @@ const inserts: InsertDef[] = [
   },
   {
     id: 'abbey-seals',
-    at: [-0.02, -0.23],
+    at: [SEAL_X, -0.275],
     shape: 'rect',
-    size: 0.15,
-    depth: 0.025,
+    size: 0.04,
+    depth: 0.022,
     color: 0xe9a56b,
   },
   {
     id: 'relic-lane',
-    at: [0.115, -0.23],
+    at: [0.143, -0.25],
     shape: 'arrow',
     size: 0.05,
     color: 0xc4a2f8,
@@ -356,8 +380,8 @@ export const ZUZU_LAST_BELL_GREYBOX: TableDef = {
   sensors: [
     {
       id: 'left-orbit-low',
-      at: [-0.208, BALL, -0.65],
-      half: [0.024, 0.02, 0.014],
+      at: [-0.236, BALL, -0.6],
+      half: [0.02, 0.02, 0.014],
     },
     {
       id: 'left-orbit-high',
@@ -392,7 +416,7 @@ export const ZUZU_LAST_BELL_GREYBOX: TableDef = {
     },
     {
       id: 'abbey-entry',
-      at: [0.1, BALL + 0.035, -0.39],
+      at: [0.112, BALL + 0.035, -0.39],
       half: [0.02, 0.03, 0.015],
     },
     {
@@ -426,7 +450,7 @@ export const ZUZU_LAST_BELL_GREYBOX: TableDef = {
       id: 'zuzu-lower-left',
       side: 'left',
       pivot: [-0.09, 0, -0.04],
-      length: 0.08,
+      length: 0.075,
       baseRadius: 0.012,
       tipRadius: 0.0065,
       restAngle: 0.5,
@@ -438,7 +462,7 @@ export const ZUZU_LAST_BELL_GREYBOX: TableDef = {
       id: 'zuzu-lower-right',
       side: 'right',
       pivot: [0.09, 0, -0.04],
-      length: 0.08,
+      length: 0.075,
       baseRadius: 0.012,
       tipRadius: 0.0065,
       restAngle: 0.5,
@@ -447,16 +471,19 @@ export const ZUZU_LAST_BELL_GREYBOX: TableDef = {
       returnMs: 70,
     },
   ],
-  drops: [-0.095, -0.045, 0.005, 0.055].map((x, i) => ({
+  // The four Abbey seals stand in line in the channel between the Village and
+  // Bell ramps: each one knocked down bares the next, so the bank asks for
+  // four straight shots instead of sitting across every ramp's mouth.
+  drops: [-0.31, -0.335, -0.36, -0.385].map((z, i) => ({
     id: `abbey-seal-${i + 1}`,
     bank: 'abbey-seals',
-    at: [x, 0.019, -0.29] as Vec3,
-    half: [0.015, 0.022, 0.004] as Vec3,
+    at: [SEAL_X, 0.019, z] as Vec3,
+    half: [0.012, 0.022, 0.004] as Vec3,
   })),
   spinners: [
     {
       id: 'relic-spinner',
-      at: [0.115, BALL + 0.008, -0.33],
+      at: [0.143, BALL + 0.008, -0.33],
       half: [0.012, 0.022, 0.004],
     },
   ],
@@ -471,11 +498,12 @@ export const ZUZU_LAST_BELL_GREYBOX: TableDef = {
   scoops: [
     {
       id: 'croc-mouth',
-      at: [-0.175, BALL, -0.48],
-      radius: 0.025,
+      at: [CROC[0], BALL, CROC[1]],
+      radius: 0.022,
       captureMaxSpeed: Number.POSITIVE_INFINITY,
       holdMs: 800,
-      eject: { at: [0.18, BALL + 0.005, -0.07], velocity: [-0.42, 0, -1.1] },
+      // Spat out onto the right inlane, to roll down onto the flipper.
+      eject: { at: [0.181, BALL + 0.005, -0.2], velocity: [0, 0, 0.3] },
     },
     {
       id: 'mortuary',
@@ -483,7 +511,7 @@ export const ZUZU_LAST_BELL_GREYBOX: TableDef = {
       radius: 0.019,
       captureMaxSpeed: 1.0,
       holdMs: 900,
-      eject: { at: [0.13, BALL, -0.4], velocity: [-0.75, 0, 0.7] },
+      eject: { at: [0.13, BALL, -0.42], velocity: [-0.55, 0, -0.45] },
     },
   ],
   shots: [
@@ -547,7 +575,11 @@ export const ZUZU_LAST_BELL_GREYBOX: TableDef = {
   ],
   inserts,
   flashers: [
-    { id: 'croc-flasher', at: [-0.175, 0.05, -0.49], color: 0x56d7cb },
+    {
+      id: 'croc-flasher',
+      at: [CROC[0], 0.05, CROC[1] - 0.01],
+      color: 0x56d7cb,
+    },
     { id: 'bell-flasher', at: [0, 0.05, -0.79], color: 0xf0ba6c },
   ],
   plunger: {

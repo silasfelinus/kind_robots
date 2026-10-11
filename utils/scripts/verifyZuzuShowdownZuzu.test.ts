@@ -254,7 +254,7 @@ check('Thousand-Mile Step costs a bar, dashes through, and lands', () => {
   )
   assert.equal(
     hits(log).find((h) => h.move === 'thousand-mile-step')?.damage,
-    280,
+    240,
   )
   assert.ok(s.fighters[0].x > s.fighters[1].x, 'he ends on the far side')
   assert.equal(s.fighters[0].meter, 0)

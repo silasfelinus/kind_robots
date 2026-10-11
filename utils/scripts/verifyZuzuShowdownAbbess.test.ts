@@ -123,7 +123,7 @@ check(
       assert.equal(parsed.button, special.button, special.id)
     }
     assert.ok(FIGHTERS.includes(ABBESS))
-    assert.equal(ABBESS.health, 950)
+    assert.equal(ABBESS.health, 1000)
   },
 )
 

@@ -618,9 +618,9 @@ export const SECTION_PLATES: Record<string, ScenePlate> = {
   },
   'a3-shade': {
     file: 'sections/a3-shade',
-    alt: 'The fennec girl sits at the foot of a dead tree holding her little brother in her lap.',
-    artImageId: 243737,
-    source: 'Gamebook round 6, gb6-a3-shade-1',
+    alt: 'The fennec sister sits under a dead tree with her arm around her little brother, who looks up at her.',
+    artImageId: 245156,
+    source: 'Gamebook round 12, gb12-a3-shade-1',
     fit: 'exact',
     shape: 'square',
   },
@@ -2723,9 +2723,9 @@ export const SECTION_PLATES: Record<string, ScenePlate> = {
   },
   survivors: {
     file: 'sections/survivors',
-    alt: 'A fennec girl with fierce orange eyes crouches on a burned boardwalk, clutching her little brother.',
-    artImageId: 243661,
-    source: 'Gamebook round 6, gb6-survivors-1',
+    alt: 'The fennec sister crouches snarling on a burned boardwalk at sunset while her small brother stands behind her, wide-eyed.',
+    artImageId: 245155,
+    source: 'Gamebook round 12, gb12-survivors-1',
     fit: 'exact',
   },
   'take-them': {

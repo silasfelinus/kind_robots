@@ -38,7 +38,39 @@ export type ComicLane = {
   sampler?: string | null
   primary?: boolean
   active: boolean
+  /**
+   * Character LoRAs for this lane's checkpoint (comic-creator t-016, Silas 2026-10-11:
+   * "These Loras should be the default"). Each one rides on a render only when the
+   * render's own prompt names that character, so a Zuzu-only panel never drags the
+   * coyote's trigger word in. SDXL-family lanes only: other engines drop or refuse them.
+   */
+  castLoras?: ComicCastLora[]
 }
+
+export type ComicCastLora = {
+  /** The character, e.g. "zuzu"; for people reading the lane JSON. */
+  key: string
+  /** Kind Robots LoRA Resource id. */
+  resourceId: number
+  /** The trained trigger word. Always counts as a match. */
+  trigger?: string | null
+  /** Words or phrases in a prompt that mean this character is in the picture. */
+  match: string[]
+  /** Strength when this is the only character LoRA in the render. Default 0.8. */
+  strength?: number | null
+  /**
+   * false: this LoRA fuses with any second one (Zuzu drew two koalas and lent the
+   * fennec his hat in zuzu-gamebook ROUND-12), so a render naming this character
+   * alongside another gets no character LoRAs at all.
+   */
+  stacks?: boolean | null
+}
+
+export const COMIC_CAST_LORA_DEFAULT_STRENGTH = 0.8
+/** Two or more character LoRAs in one render each drop to this share of their strength. */
+export const COMIC_CAST_LORA_SHARED_SCALE = 0.75
+/** At most this many character LoRAs ride on one render (the job cap is 6). */
+export const COMIC_CAST_LORA_MAX_PER_RENDER = 4
 
 export const COMIC_LANE_SAMPLERS = [
   'euler',
@@ -231,9 +263,91 @@ export function normalizeComicLanes(raw: unknown): {
           : null,
       primary: record.primary === true,
       active: record.active !== false,
+      ...(engine === 'comfy' ? castLorasField(record.castLoras) : {}),
     })
   }
   return { lanes: settlePrimaryLane(lanes), errors }
+}
+
+function castLorasField(raw: unknown): { castLoras?: ComicCastLora[] } {
+  const castLoras = normalizeComicCastLoras(raw)
+  return castLoras.length ? { castLoras } : {}
+}
+
+export function normalizeComicCastLoras(raw: unknown): ComicCastLora[] {
+  if (!Array.isArray(raw)) return []
+  const out: ComicCastLora[] = []
+  const seen = new Set<number>()
+  for (const item of raw) {
+    if (!item || typeof item !== 'object') continue
+    const record = item as Record<string, unknown>
+    const resourceId = Number(record.resourceId)
+    if (
+      !Number.isInteger(resourceId) ||
+      resourceId <= 0 ||
+      seen.has(resourceId)
+    )
+      continue
+    const trigger = optionalText(record.trigger, 64)
+    const match = (Array.isArray(record.match) ? record.match : [])
+      .map((term) => cleanText(term, 64).toLowerCase())
+      .filter(Boolean)
+      .slice(0, 12)
+    if (!match.length && !trigger) continue
+    const strength = Number(record.strength)
+    seen.add(resourceId)
+    out.push({
+      key: cleanText(record.key, 64) || String(resourceId),
+      resourceId,
+      ...(trigger ? { trigger } : {}),
+      match,
+      ...(Number.isFinite(strength) && strength > 0 && strength <= 2
+        ? { strength }
+        : {}),
+      ...(record.stacks === false ? { stacks: false } : {}),
+    })
+    if (out.length >= 12) break
+  }
+  return out
+}
+
+function mentions(text: string, term: string): boolean {
+  const escaped = term.trim().replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+  return escaped
+    ? new RegExp(`(^|[^a-z0-9])${escaped}($|[^a-z0-9])`).test(text)
+    : false
+}
+
+/**
+ * The lane's character LoRAs whose character the text names, as /api/art/enqueue
+ * `loras`. One character gets its full strength; two or more each get
+ * COMIC_CAST_LORA_SHARED_SCALE of it, so their looks don't bleed together.
+ * A character marked `stacks: false` sharing the frame means none: the prompt
+ * carries the scene, as it did before the LoRAs.
+ */
+export function selectComicCastLoras(
+  lane: Pick<ComicLane, 'engine' | 'castLoras'>,
+  text: string | null | undefined,
+): Array<{ resourceId: number; strength: number }> {
+  if (lane.engine !== 'comfy' || !lane.castLoras?.length) return []
+  const haystack = String(text ?? '').toLowerCase()
+  if (!haystack.trim()) return []
+  const hits = lane.castLoras
+    .filter((cast) =>
+      [cast.trigger ?? '', ...cast.match].some(
+        (term) => term && mentions(haystack, term.toLowerCase()),
+      ),
+    )
+    .slice(0, COMIC_CAST_LORA_MAX_PER_RENDER)
+  if (hits.length > 1 && hits.some((cast) => cast.stacks === false)) return []
+  const scale = hits.length > 1 ? COMIC_CAST_LORA_SHARED_SCALE : 1
+  return hits.map((cast) => ({
+    resourceId: cast.resourceId,
+    strength:
+      Math.round(
+        (cast.strength ?? COMIC_CAST_LORA_DEFAULT_STRENGTH) * scale * 100,
+      ) / 100,
+  }))
 }
 
 function oneOfOrNull<T extends string>(
@@ -336,6 +450,7 @@ export type ComicEnqueueBody = {
   isMature: boolean
   designer: string
   projectSlug: string
+  loras?: Array<{ resourceId: number; strength: number }>
 }
 
 export const COMIC_PROJECT_SLUG = 'comic-creator'
@@ -343,11 +458,20 @@ export const COMIC_DESIGNER = 'Comic Studio'
 
 export function buildComicLaneEnqueueBody(
   lane: ComicLane,
-  slot: ComicPromptSource & { aspect?: string | null },
+  slot: ComicPromptSource & {
+    aspect?: string | null
+    castText?: string | null
+  },
   series: ComicSeriesStyle & { isPublicArt?: boolean | null } = {},
 ): ComicEnqueueBody {
   const { prompt, negativePrompt } = composeComicLanePrompt(lane, slot, series)
   const { width, height } = comicRenderSize(slot.aspect)
+  // Who is in the picture comes from the slot's own words, never the series style.
+  const loras = selectComicCastLoras(
+    lane,
+    slot.castText ??
+      [slot.promptTags, slot.promptProse].filter(Boolean).join(', '),
+  )
   return {
     engine: lane.engine,
     promptString: prompt,
@@ -366,6 +490,7 @@ export function buildComicLaneEnqueueBody(
     isMature: false,
     designer: COMIC_DESIGNER,
     projectSlug: COMIC_PROJECT_SLUG,
+    ...(loras.length ? { loras } : {}),
   }
 }
 

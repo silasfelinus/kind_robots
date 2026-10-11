@@ -16,8 +16,8 @@
           aria-label="Zuzu Pinball art direction"
         >
           <img
-            src="/images/arcade/games/zuzu-ghost-trail-title.webp"
-            alt="Zuzu's haunted frontier, the starting point for the pinball art"
+            src="/images/pinball/zuzu-last-bell-backglass.webp"
+            alt="Zuzu the koala ronin on a ridge above the haunted abbey, the River Croc in the river below"
             class="absolute inset-0 h-full w-full object-cover object-center opacity-55"
           />
           <div

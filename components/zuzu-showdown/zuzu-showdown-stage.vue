@@ -1193,6 +1193,14 @@ function fitCanvas() {
       available,
       Math.floor((box.clientHeight * VIEW_WIDTH) / VIEW_HEIGHT),
     )
+  // A phone held sideways mid-fight (t-024 device pass): the fight fills the
+  // height and the touch controls float over its lower corners, so nothing
+  // scrolls off the screen.
+  if (locked.value && window.innerWidth > window.innerHeight)
+    available = Math.min(
+      available,
+      Math.floor(((window.innerHeight - 16) * VIEW_WIDTH) / VIEW_HEIGHT),
+    )
   fit.value = fitDisplay({
     width: VIEW_WIDTH,
     height: VIEW_HEIGHT,
@@ -1241,6 +1249,7 @@ function syncFullscreen() {
 watch(locked, (on) => {
   setPageLock(on)
   if (!on) releaseDpad()
+  void nextTick(fitCanvas)
 })
 
 watch(
@@ -1372,6 +1381,30 @@ onBeforeUnmount(() => {
 .showdown-bar {
   display: flex;
   justify-content: flex-end;
+}
+
+/* A phone held sideways mid-fight: the fight fills the height (fitCanvas) and the pad and buttons
+   float over its lower corners instead of stacking below it, off the screen. */
+@media (orientation: landscape) and (max-height: 600px) {
+  .showdown-stage--locked .showdown-touch {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0.5rem;
+    padding: 0 1rem;
+    pointer-events: none;
+  }
+
+  .showdown-stage--locked .showdown-touch > * {
+    pointer-events: auto;
+    opacity: 0.85;
+  }
+
+  .showdown-stage--locked .showdown-bar {
+    position: fixed;
+    top: 0.5rem;
+    right: 0.5rem;
+  }
 }
 
 /* Fullscreen: the fight takes the whole screen, centred on black, the bar and any touch controls

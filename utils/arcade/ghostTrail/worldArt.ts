@@ -2648,3 +2648,98 @@ export function drawCard(g: G, card: Card) {
   }
   g.restore()
 }
+
+// --- the tower interior ---------------------------------------------------------------------------
+
+/**
+ * Inside the bell tower (screen space, over the backdrop): as the view climbs (`camY` below 0) the
+ * town fades behind the tower's own stone: brick walls in two parallax planes, tall arched windows
+ * that still show the night sky, hanging bell ropes and wall torches. `rise` 0..1 fades it in.
+ */
+export function drawTowerInterior(
+  g: G,
+  camX: number,
+  camY: number,
+  rise: number,
+  tick: number,
+) {
+  if (rise <= 0) return
+  g.save()
+  g.globalAlpha = rise
+  // The far wall: dark stone, warmer toward the torches below.
+  const wall = g.createLinearGradient(0, 0, 0, H)
+  wall.addColorStop(0, '#1a1220')
+  wall.addColorStop(1, '#2a1a22')
+  g.fillStyle = wall
+  g.fillRect(0, 0, W, H)
+  // Far brick courses, drifting slowly.
+  const fx = -(camX * 0.25) % 32
+  const fy = -(camY * 0.25) % 16
+  g.fillStyle = rgba('#000000', 0.25)
+  for (let y = fy - 16; y < H; y += 16) {
+    g.fillRect(0, y, W, 1)
+    const off = Math.floor((y - fy) / 16) % 2 ? 16 : 0
+    for (let x = fx - 32 + off; x < W; x += 32) g.fillRect(x, y, 1, 16)
+  }
+  // Tall arched windows with the sky beyond, one every 120 px of far wall.
+  const wx = -(camX * 0.25) % 120
+  const wy = (-(camY * 0.25) % 180) - 40
+  for (let x = wx - 120; x < W + 120; x += 120)
+    for (let y = wy - 180; y < H + 60; y += 180) {
+      const sky = g.createLinearGradient(0, y, 0, y + 90)
+      sky.addColorStop(0, '#3b3a78')
+      sky.addColorStop(1, '#1e1b4b')
+      g.fillStyle = sky
+      g.beginPath()
+      g.moveTo(x + 40, y + 90)
+      g.lineTo(x + 40, y + 24)
+      g.arc(x + 54, y + 24, 14, Math.PI, 0)
+      g.lineTo(x + 68, y + 90)
+      g.closePath()
+      g.fill()
+      // A sill and mullion.
+      g.fillStyle = '#3f2a2f'
+      g.fillRect(x + 38, y + 90, 32, 3)
+      g.fillRect(x + 53, y + 12, 2, 78)
+      // A star or two.
+      const tw = (tick / 20 + x * 0.1 + y * 0.07) % 3 < 1.5 ? 1 : 0.4
+      g.fillStyle = rgba('#e0e7ff', 0.7 * tw)
+      g.fillRect(x + 46, y + 30, 1, 1)
+      g.fillRect(x + 61, y + 52, 1, 1)
+    }
+  // The near wall's piers, faster, framing the climb.
+  const px = -(camX * 0.6) % 160
+  for (let x = px - 160; x < W + 160; x += 160) {
+    const pier = g.createLinearGradient(x, 0, x + 26, 0)
+    pier.addColorStop(0, '#24161c')
+    pier.addColorStop(0.4, '#4a3036')
+    pier.addColorStop(1, '#1c1116')
+    g.fillStyle = pier
+    g.fillRect(x, 0, 26, H)
+    g.fillStyle = rgba('#000000', 0.3)
+    const py = -(camY * 0.6) % 24
+    for (let y = py - 24; y < H; y += 24) g.fillRect(x, y, 26, 1)
+    // A torch on every other pier.
+    if (Math.floor((x - px) / 160) % 2 === 0) {
+      const ty = (((-(camY * 0.6) % 220) + 220) % 220) + 10
+      const fl = 0.8 + 0.2 * Math.sin(tick / 5 + x)
+      glow(g, x + 13, ty, 34 * fl, '#f97316', 0.35)
+      g.fillStyle = '#fde68a'
+      g.fillRect(x + 12, ty - 3, 2, 4)
+      g.fillStyle = '#3f2a2f'
+      g.fillRect(x + 10, ty + 1, 6, 3)
+    }
+  }
+  // Bell ropes hanging the height of the tower.
+  const rx = -(camX * 0.45) % 210
+  g.strokeStyle = rgba('#a07a45', 0.55)
+  g.lineWidth = 1
+  for (let x = rx + 90; x < W + 210; x += 210) {
+    const sway = Math.sin(tick / 40 + x) * 1.5
+    g.beginPath()
+    g.moveTo(x, 0)
+    g.lineTo(x + sway, H)
+    g.stroke()
+  }
+  g.restore()
+}

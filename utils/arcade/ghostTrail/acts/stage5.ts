@@ -10,6 +10,7 @@
 
 import type { Act, Stage } from '../world'
 import { fire, groundWith, room, steps } from './build56'
+import { BELL_STAIR } from './tower'
 
 const NAME = 'MISSION BELL TOWER'
 
@@ -494,7 +495,7 @@ const bellGallery: Act = {
 const belfry: Act = {
   id: 's5a3',
   stage: 5,
-  act: 3,
+  act: 4,
   stageName: NAME,
   actName: 'THE BELFRY',
   theme: 'belltower',
@@ -706,4 +707,9 @@ const belfry: Act = {
   ],
 }
 
-export const STAGE_5_ACTS: Act[] = [missionSteps, bellGallery, belfry]
+export const STAGE_5_ACTS: Act[] = [
+  missionSteps,
+  bellGallery,
+  BELL_STAIR,
+  belfry,
+]

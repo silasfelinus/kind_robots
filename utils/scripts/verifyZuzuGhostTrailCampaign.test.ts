@@ -32,12 +32,13 @@ for (const [i, act] of ACTS.entries()) {
     `${act.id}: its stage has a page`,
   )
   assert.ok(groundAt(act, 40), `${act.id}: Zuzu starts on ground`)
-  assert.ok(groundAt(act, act.length), `${act.id}: the exit is on ground`)
+  // A tower act's exit and checkpoints stand on floating stone over the void.
+  const floorAt = (x: number) =>
+    groundAt(act, x) ||
+    act.blocks.some((b) => b.y !== undefined && x >= b.x && x <= b.x + b.w)
+  assert.ok(floorAt(act.length), `${act.id}: the exit stands on a floor`)
   for (const c of act.checkpoints)
-    assert.ok(
-      groundAt(act, c + 4),
-      `${act.id}: checkpoint ${c} stands on ground`,
-    )
+    assert.ok(floorAt(c + 4), `${act.id}: checkpoint ${c} stands on ground`)
   if (act.boss) {
     assert.ok(BOSSES[act.boss], `${act.id}: boss ${act.boss} has a definition`)
     const arenaL = act.length - 320 + 60

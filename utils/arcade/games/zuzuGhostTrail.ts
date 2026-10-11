@@ -61,6 +61,7 @@ import {
   drawHazard,
   drawMover,
   drawStandInBoss,
+  drawTowerInterior,
   drawUpdraft,
   drawWater,
   type Card,
@@ -373,6 +374,8 @@ class ZuzuGhostTrail implements ArcadeGameInstance {
   private clear = 0
   private timer = 0
   private camX = 0
+  /** Vertical scroll (0 at ground level; negative looks up a tower). */
+  private camY = 0
   private foes: Foe[] = []
   private shots: Shot[] = []
   private fires: Fire[] = []
@@ -533,7 +536,8 @@ class ZuzuGhostTrail implements ArcadeGameInstance {
   private respawn() {
     this.x = this.checkpoint
     this.camX = Math.max(0, this.x - 120)
-    this.y = this.floorAt(this.x, -999) ?? GROUND_Y
+    this.y = this.standAt(this.x)
+    this.camY = this.act.vertical ? Math.min(0, Math.round(this.y - 150)) : 0
     this.vx = 0
     this.vy = 0
     this.onGround = true
@@ -599,6 +603,12 @@ class ZuzuGhostTrail implements ArcadeGameInstance {
       if (x >= b.x - 2 && x <= b.x + b.w + 2) take(blockTop(b, GROUND_Y))
     if (this.groundAt(x)) take(GROUND_Y)
     return best
+  }
+
+  /** Where a checkpoint (or gate) stands: the ground, or up a tower the floor over the void there. */
+  private standAt(x: number): number {
+    if (this.groundAt(x)) return GROUND_Y
+    return this.floorAt(x, -9999) ?? GROUND_Y
   }
 
   /** Is (x, y) inside a solid block? */
@@ -757,6 +767,10 @@ class ZuzuGhostTrail implements ArcadeGameInstance {
   }
 
   private moveCamera() {
+    // Up a tower the view climbs with him (it never looks below the ground line).
+    const wantY = this.act.vertical ? Math.min(0, Math.round(this.y - 150)) : 0
+    this.camY += (wantY - this.camY) * 0.12
+    if (Math.abs(wantY - this.camY) < 0.5) this.camY = wantY
     const lock = this.activeLock()
     if (this.boss) this.camX += (this.arenaL - this.camX) * 0.15
     else if (lock) {
@@ -1033,7 +1047,7 @@ class ZuzuGhostTrail implements ArcadeGameInstance {
       sy = GROUND_Y
     } else if (def.flies) {
       sx = this.camX + W + 10
-      sy = 70 + this.rng() * 60
+      sy = this.camY + 70 + this.rng() * 60
     } else {
       sx = this.camX + W + 10
       if (!this.groundAt(sx) || this.blockedAt(sx, GROUND_Y - 4)) return
@@ -2076,7 +2090,10 @@ class ZuzuGhostTrail implements ArcadeGameInstance {
     const key = ART_KEY[theme]
     drawBackdrop(g, key, camX, this.tick, this.length)
     g.save()
-    g.translate(-camX, 0)
+    const camY = Math.round(this.camY)
+    // Up a tower, the town fades behind the tower's own walls.
+    drawTowerInterior(g, camX, camY, Math.min(1, -camY / 120), this.tick)
+    g.translate(-camX, -camY)
     for (const u of this.act.updrafts ?? [])
       drawUpdraft(g, u, GROUND_Y, this.tick)
     drawTerrain(g, this.terrain, camX, this.tick)
@@ -2095,9 +2112,14 @@ class ZuzuGhostTrail implements ArcadeGameInstance {
       if (p.x + m.w > camX - 8 && p.x < camX + W + 8)
         drawMover(g, m, p.x, p.y, theme, this.tick)
     }
-    drawGate(g, key, this.length, this.tick, !this.bossDone)
+    this.atFloor(g, this.length + 30, () =>
+      drawGate(g, key, this.length, this.tick, !this.bossDone),
+    )
     for (const c of this.act.checkpoints)
-      if (c > 40) drawCheckpoint(g, key, c, this.checkpoint >= c, this.tick)
+      if (c > 40)
+        this.atFloor(g, c, () =>
+          drawCheckpoint(g, key, c, this.checkpoint >= c, this.tick),
+        )
     for (const c of this.crates) if (!c.open) drawCrate(g, c.x, GROUND_Y)
     for (const s of this.act.secrets)
       if (!this.foundSecrets.has(s.id)) drawSecret(g, s.x, s.y, this.tick)
@@ -2128,9 +2150,23 @@ class ZuzuGhostTrail implements ArcadeGameInstance {
     for (const f of this.floaters)
       drawText(g, f.text, f.x, f.y, { align: 'center', color: '#fde68a' })
     g.restore()
-    drawForeground(g, key, camX, this.tick, this.act.ground)
+    // The low foreground strip belongs to the ground line: it fades away as the view climbs.
+    if (camY > -40) {
+      g.globalAlpha = 1 + camY / 40
+      drawForeground(g, key, camX, this.tick, this.act.ground)
+      g.globalAlpha = 1
+    }
     this.renderHud(g)
     if (this.card) drawCard(g, this.card)
+  }
+
+  /** Draw ground-line art (a gate, a checkpoint lantern) standing on whatever floor is at x. */
+  private atFloor(g: CanvasRenderingContext2D, x: number, draw: () => void) {
+    const floor = this.standAt(x)
+    g.save()
+    g.translate(0, floor - GROUND_Y)
+    draw()
+    g.restore()
   }
 
   private renderFoe(g: CanvasRenderingContext2D, f: Foe) {

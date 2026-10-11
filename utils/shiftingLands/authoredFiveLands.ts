@@ -18,7 +18,7 @@ import {
   type Skill,
 } from './journey'
 
-export const LATER_LAND_PACK = later as {
+export const LATER_LAND_PACK = later as unknown as {
   schemaVersion: number
   sources: Array<{ path: string; blobSha: string }>
   locations: Array<{ location_id: string; encounter_ids: string[] }>

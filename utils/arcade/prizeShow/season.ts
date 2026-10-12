@@ -532,7 +532,8 @@ export const CRASHER_CROWD_MULTIPLIER = 2
 /** Crashers per door in a wave, scaled for the loop (a mini-boss never multiplies). */
 export function waveCount(wave: Wave, loop: number): number {
   if (wave.fixed) return wave.count
-  return Math.max(1, Math.round(wave.count * loopTuning(loop).count)) * CRASHER_CROWD_MULTIPLIER
+  const scaled = Math.max(1, Math.round(wave.count * loopTuning(loop).count))
+  return scaled * CRASHER_CROWD_MULTIPLIER
 }
 
 /** The tick a wave's last group comes through, scaled for the loop. */

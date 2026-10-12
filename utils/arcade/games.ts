@@ -626,7 +626,7 @@ export const ARCADE_GAMES: ArcadeGameMeta[] = [
     ],
     width: 240,
     height: 224,
-    maxPlausibleScore: 2_000_000,
+    maxPlausibleScore: 25_000_000,
     titleArt: '/images/arcade/games/cable-crawler-title.webp',
     accent: '#2dd4bf',
     controls: 'Steer',

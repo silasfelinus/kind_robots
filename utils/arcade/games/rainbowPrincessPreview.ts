@@ -122,7 +122,7 @@ export function createRainbowPrincessPreview(
         ally.invulnerable = Math.max(ally.invulnerable, 60)
       }
     }
-    options.sound.play('powerup')
+    options.sound.play('extra')
   }
 
   function defeat(index: number, seat: number) {
@@ -136,7 +136,7 @@ export function createRainbowPrincessPreview(
       const kinds: Pickup['kind'][] = ['power', 'shield', 'charge']
       pickups.push({ x: reef.x, y: reef.y, kind: kinds[(clearCount / 3 - 1) % 3]! })
     }
-    options.sound.play('hit')
+    options.sound.play('pop')
   }
 
   function fireEnemy(reef: Reef) {
@@ -165,7 +165,7 @@ export function createRainbowPrincessPreview(
       ship.power = Math.max(1, ship.power - 1)
       if (!options.demo && ships.every((candidate) => candidate.lives <= 0)) over = true
     }
-    options.sound.play('hit')
+    options.sound.play('pop')
   }
 
   function update(input: InputFrame, seated = [input]) {

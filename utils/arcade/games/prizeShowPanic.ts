@@ -3813,7 +3813,9 @@ class PrizeShowPanic implements ArcadeGameInstance {
             : 'CLANG!',
         life: 40,
       })
-      this.sound.play(c.kind === 'tank' && c.armorHitsLeft === 0 ? 'pickup' : 'blip')
+      this.sound.play(
+        c.kind === 'tank' && c.armorHitsLeft === 0 ? 'pickup' : 'blip',
+      )
       return false
     }
     if (foamy) {

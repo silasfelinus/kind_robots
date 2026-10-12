@@ -848,7 +848,11 @@ function tick() {
   syncFightPads()
   const one = p1.poll()
   const two = p2.poll()
-  if (Object.values(one.pressed).some(Boolean) || Object.values(two.pressed).some(Boolean)) unlockSound()
+  if (
+    Object.values(one.pressed).some(Boolean) ||
+    Object.values(two.pressed).some(Boolean)
+  )
+    unlockSound()
   const start = one.pressed.start || two.pressed.start
   if (phase.value === 'title') {
     screenFrame += 1

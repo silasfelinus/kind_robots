@@ -1058,11 +1058,10 @@ class SinkSuds implements ArcadeGameInstance {
   /** Medals, best times and rooms reached go into the save as soon as they are earned. */
   private keepProgress() {
     if (this.demo) return
-    if (!this.saveData) {
-      this.keep()
-      if (this.mode !== 'campaign' && this.saveData)
-        (this.saveData as SudsSave).step = 0
-    }
+    if (!this.saveData)
+      this.saveData = this.snapshotSave(
+        this.mode === 'campaign' ? this.stepIndex : 0,
+      )
     const s = this.saveData
     if (!s) return
     this.saveData = {
@@ -1225,9 +1224,14 @@ class SinkSuds implements ArcadeGameInstance {
         this.reached,
         GOLDEN_ROOMS.indexOf(ROOMS[step.room]!.id) + 1,
       )
-    this.saveData = {
+    this.saveData = this.snapshotSave(this.stepIndex)
+  }
+
+  /** Capture valid progress independently of the currently selected mode. */
+  private snapshotSave(step: number): SudsSave {
+    return {
       v: 1,
-      step: this.stepIndex,
+      step,
       score: this.score,
       lives: Math.max(1, this.lives),
       bars: this.bars,

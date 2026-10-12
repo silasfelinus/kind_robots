@@ -2,6 +2,7 @@ import assert from 'node:assert/strict'
 import {
   approvedDailyPitchProgress,
   mayVisitPitchFrontend,
+  isPublicFacingPitchPage,
   pitchProjectSlug,
   safeProjectPageUrl,
 } from '../approvedPitchProgress'
@@ -97,7 +98,7 @@ const records = approvedDailyPitchProgress(
     project(
       'kind-nonogram-gallery',
       [['Build something', 'done']],
-      '/admin/nonogram',
+      '/play/nonogram',
     ),
     project('kr-arcade', [['Build multiple games', 'done']], '/play/arcade'),
   ],
@@ -119,4 +120,8 @@ assert.equal(mayVisitPitchFrontend(byTitle('kind-nonogram-gallery')!, false), tr
 assert.equal(mayVisitPitchFrontend(byTitle('robot-mashup-flipbook')!, true), false)
 assert.equal(mayVisitPitchFrontend({ pageUrl: '/play/a', publicReady: false }, false), false)
 assert.equal(mayVisitPitchFrontend({ pageUrl: '/play/a', publicReady: true }, false), true)
+assert.equal(mayVisitPitchFrontend({ pageUrl: '/admin/toy', publicReady: true }, false), false)
+assert.equal(mayVisitPitchFrontend({ pageUrl: '/admin/toy', publicReady: false }, true), true)
+assert.equal(isPublicFacingPitchPage('/admin/toy'), false)
+assert.equal(isPublicFacingPitchPage('/play/toy'), true)
 console.log('Approved Daily Dream pitch progress and public release access: verified')

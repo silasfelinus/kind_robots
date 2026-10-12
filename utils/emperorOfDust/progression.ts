@@ -1,7 +1,6 @@
-import { availableFollowers, dayAt } from './engine'
+import { availableFollowers, createCampaign, dayAt } from './engine'
 import { FOLLOWER_POOL, followerProfile, starterFollowers } from './followers'
 import type { Campaign, Follower } from './types'
-import { createCampaign } from './engine'
 
 export const startEmperorCampaign = (seed: number): Campaign =>
   createCampaign(seed, starterFollowers())

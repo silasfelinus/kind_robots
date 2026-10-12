@@ -35,7 +35,7 @@
           </span>
           <span class="arcade-mini-panel">
             <span class="arcade-mini-riff">Riffs on {{ game.riffsOn }}</span>
-            <span class="arcade-mini-blurb">{{ game.blurb }}</span>
+            <span class="arcade-mini-blurb">{{ shortArcadeBlurb(game.blurb) }}</span>
             <span class="arcade-mini-score">
               {{ topLine(game.slug) }}
             </span>
@@ -138,7 +138,7 @@
 
 import { onMounted, reactive, ref } from 'vue'
 import { useArcadeStore } from '@/stores/arcadeStore'
-import { COMING_SOON, HALL_GAMES } from '~/utils/arcade/games'
+import { COMING_SOON, HALL_GAMES, shortArcadeBlurb } from '~/utils/arcade/games'
 import { formatChampion } from '~/utils/arcade/leaderboard'
 import type { ArcadeGameMeta } from '~/utils/arcade/types'
 

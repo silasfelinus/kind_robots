@@ -464,6 +464,88 @@ function cleanAll(g: Inner) {
   assert.ok(JSON.stringify(g.save).length < 2000)
 }
 
+// --- progress survives New Wash and the other modes (review of #3558) -------------------------
+{
+  // A campaign checkpoint at Bath Time, with medals, a best time and three rooms reached.
+  const checkpoint = {
+    v: 1,
+    step: 5,
+    score: 12_000,
+    lives: 2,
+    bars: 9,
+    puff: true,
+    skins: ['starry'],
+    skin: 'starry',
+    golden: ['kitchen'],
+    medals: { 'kitchen:1': 7, 'kitchen:3': 1 },
+    times: { 'laundry:2': 4_000 },
+    reached: 3,
+  }
+  const g = game(1, 7, checkpoint)
+  assert.ok(
+    (g as unknown as { offer: unknown }).offer,
+    'a checkpoint offers to continue',
+  )
+  g.update(press('b'))
+  assert.ok(g.menu, 'New Wash goes to the menu')
+  assert.ok(g.save, 'New Wash keeps a save')
+  assert.equal(g.save!.step, 0, 'the checkpoint itself is gone')
+  assert.deepEqual(g.save!.medals, checkpoint.medals, 'the medals stay saved')
+  assert.deepEqual(g.save!.times, checkpoint.times)
+  assert.equal(g.save!.reached, 3)
+  // Squeaky Clean on Kitchen basin 2, scrubbed clean.
+  choose(g, 'squeaky', 1)
+  assert.equal(g.reached, 3)
+  g.pests = []
+  for (let t = 0; t < 90; t++) g.update(idle())
+  cleanAll(g)
+  g.update(idle())
+  assert.ok(g.result, 'finished')
+  const key = medalKey('kitchen', 0)
+  assert.ok(g.times[key])
+  const saved = g.save
+  assert.ok(saved, 'the best time is saved, not just held in memory')
+  assert.equal(saved!.times?.[key], g.times[key])
+  assert.equal(saved!.times?.['laundry:2'], 4_000, 'older times kept')
+  assert.deepEqual(saved!.medals, checkpoint.medals, 'medals kept')
+  assert.equal(saved!.reached, 3)
+  assert.deepEqual(saved!.golden, ['kitchen'], 'golden soaps kept')
+  assert.equal(saved!.skin, 'starry')
+  // Close the cabinet and come back: everything is there, and no stale checkpoint is offered.
+  const stored = JSON.parse(JSON.stringify(saved))
+  const back = game(1, 8, stored)
+  assert.equal(
+    (back as unknown as { offer: unknown }).offer,
+    null,
+    'nothing to continue',
+  )
+  assert.ok(back.menu, 'straight to the menu')
+  assert.equal(back.times[key], g.times[key], 'the best time came back')
+  assert.equal(back.times['laundry:2'], 4_000)
+  assert.deepEqual(back.medals, checkpoint.medals)
+  assert.equal(back.reached, 3)
+  assert.ok(
+    back.save && back.save.times?.[key] === g.times[key],
+    'and stays in the save',
+  )
+  // A fresh cabinet (no save at all) keeps Squeaky Clean times too.
+  const fresh = game(1, 9)
+  choose(fresh, 'squeaky', 1)
+  fresh.pests = []
+  for (let t = 0; t < 90; t++) fresh.update(idle())
+  cleanAll(fresh)
+  fresh.update(idle())
+  assert.ok(fresh.save?.times?.[key], 'saved from a fresh start')
+  // Endless and Classic Sink earn no medals or times, and leave the progress save alone.
+  for (const mode of ['endless', 'classic']) {
+    const e = game(1, 10, stored)
+    choose(e, mode, 1)
+    for (let t = 0; t < 600; t++) e.update(e.demoInput())
+    assert.deepEqual(e.save?.times, stored.times, `${mode}: times untouched`)
+    assert.deepEqual(e.save?.medals, stored.medals, `${mode}: medals untouched`)
+  }
+}
+
 // --- the cabinet's own co-op run, two to four seats ---------------------------------------
 {
   const scripted = (tick: number) => {

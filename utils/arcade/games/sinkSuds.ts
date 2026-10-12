@@ -1058,15 +1058,15 @@ class SinkSuds implements ArcadeGameInstance {
   /** Medals, best times and rooms reached go into the save as soon as they are earned. */
   private keepProgress() {
     if (this.demo) return
-    if (!this.saveData) {
-      this.keep()
-      if (this.mode !== 'campaign' && this.saveData)
-        (this.saveData as SudsSave).step = 0
-    }
-    const s = this.saveData
-    if (!s) return
+    // Any mode can earn progress: with no campaign checkpoint to carry it, it rides on a fresh
+    // start-of-the-house save (step 0, which never offers to continue).
+    const s = this.saveData ?? this.progressSave()
     this.saveData = {
       ...s,
+      golden: [...this.golden],
+      skins: [...this.skins],
+      skin: this.skin,
+      cleared: this.cleared,
       medals: { ...this.medals },
       times: { ...this.times },
       reached: this.reached,
@@ -1216,6 +1216,31 @@ class SinkSuds implements ArcadeGameInstance {
   }
 
   /** Write the save: where the wash is (a room's start or a boss) and what the bubble owns. */
+  /**
+   * A save that holds only what lasts between washes (medals, best times, rooms reached, golden
+   * soaps, skins, a clear) and starts the house over: what New Wash and the other modes keep.
+   */
+  private progressSave(): SudsSave {
+    return {
+      v: 1,
+      step: 0,
+      score: 0,
+      lives: START_LIVES,
+      bars: 0,
+      puff: false,
+      stage2: false,
+      shield: 0,
+      skins: [...this.skins],
+      skin: this.skin,
+      golden: [...this.golden],
+      cleared: this.cleared,
+      deep: 0,
+      medals: { ...this.medals },
+      times: { ...this.times },
+      reached: this.reached,
+    }
+  }
+
   private keep() {
     if (this.demo || this.mode !== 'campaign') return
     this.resumeStep = this.stepIndex
@@ -1548,11 +1573,12 @@ class SinkSuds implements ArcadeGameInstance {
         // A new wash: the golden soaps and skins stay, the house starts dirty again.
         const s = this.offer
         this.offer = null
-        this.saveData = null
         this.golden = new Set(s.golden)
         this.skins = new Set(s.skins)
         this.skin = s.skin
         this.cleared = s.cleared === true
+        // The checkpoint goes; the medals, best times and rooms reached stay saved.
+        this.saveData = this.progressSave()
         this.openMenu()
       }
       return

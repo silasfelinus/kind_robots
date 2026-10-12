@@ -92,6 +92,7 @@ type Game = {
   golden: string[]
   goldenBolt: { at: { x: number; y: number }; shown: boolean } | null
   rushBest: number
+  overclocked: boolean
   music: unknown
   update(input: InputFrame, players?: InputFrame[]): void
   render(g: unknown): void
@@ -104,6 +105,8 @@ type Game = {
   updateDown(): void
   updateRushHour(): void
   updateSpecial(): void
+  advance(): void
+  steps: unknown[]
   startStep(): void
   moveGremlin(g: Gremlin, view: unknown): void
   chooseTurn(g: Gremlin, view: unknown): void
@@ -525,21 +528,98 @@ function ticks(game: Game, n: number, players?: InputFrame[]) {
     steps.findIndex((s) => s.kind === 'card' && s.board === board)
   const endingAt = steps.findIndex((s) => s.kind === 'ending' && !s.secret)
 
-  // The campaign clear counts the moment the ending starts, not when the credits end.
-  {
-    const game = create()
-    pick(game, 'campaign')
+  // The campaign clear counts the moment the ending starts, not when the credits end: the
+  // checkpoint moves to the card the credits lead to (save audit BM-2).
+  const SIX = ['cozy', 'toaster', 'greenhouse', 'cold', 'arcade', 'solar']
+  const gardenCard = cardOf('garden')
+  const toEnding = (game: Game, golden: string[]) => {
+    game.golden = [...golden]
     game.stepIndex = cardOf('solar')
     game.startStep()
     game.stepIndex = endingAt
     game.startStep()
     assert.equal(game.story?.scene.id, 'ending')
+  }
+  {
+    const game = create()
+    pick(game, 'campaign')
+    toEnding(game, SIX.slice(0, 3))
     const back = reopen(game)
-    assert.ok(back.offer, 'the checkpoint is still there to continue')
-    assert.equal(readBatterySave(back.save)!.step, cardOf('solar'))
-    assert.equal(readBatterySave(back.save)!.overclocked, true)
+    const s = readBatterySave(back.save)!
+    assert.deepEqual([s.step, s.lap, s.overclocked], [0, 1, true])
+    assert.deepEqual(s.golden, SIX.slice(0, 3))
+    // A save at step 0 on a later lap is still offered (save audit BM-1).
+    assert.ok(back.offer, 'Overclocked from the top is offered')
+    back.update(press('a'))
+    assert.equal(back.lap, 1)
+    assert.equal(back.mode, 'overclocked')
+    assert.deepEqual(back.golden, SIX.slice(0, 3))
+  }
+  {
+    // With six golden bolts the credits lead to the Battery Garden.
+    const game = create()
+    pick(game, 'campaign')
+    toEnding(game, SIX)
+    const back = reopen(game)
+    assert.equal(readBatterySave(back.save)!.step, gardenCard)
+    back.update(press('a'))
+    assert.equal(back.board.id, 'garden')
+  }
+  {
+    // The true ending's credits lead round the grid again (save audit BM-3).
+    const game = create()
+    pick(game, 'campaign')
+    game.golden = [...SIX]
+    game.stepIndex = gardenCard
+    game.startStep()
+    game.stepIndex = game.steps.length - 1
+    game.startStep()
+    assert.equal(game.story?.scene.id, 'true-ending')
+    const s = readBatterySave(reopen(game).save)!
+    assert.deepEqual([s.step, s.lap, s.overclocked], [0, 1, true])
+  }
+  {
+    // Credits finished: the same checkpoint, and reloading never wipes it (save audit BM-1).
+    const game = create()
+    pick(game, 'campaign')
+    toEnding(game, SIX.slice(0, 2))
+    game.advance()
+    assert.deepEqual([game.stepIndex, game.lap], [0, 1])
+    const back = reopen(game)
+    back.update(idle())
+    const s = readBatterySave(back.save)!
+    assert.deepEqual([s.step, s.lap, s.overclocked], [0, 1, true])
+    assert.deepEqual(s.golden, SIX.slice(0, 2))
+  }
+  {
+    // A new game keeps the golden bolts and Overclocked, through a quit on its first board
+    // (save audit BM-1 and BM-4).
+    const game = create()
+    pick(game, 'campaign')
+    toEnding(game, SIX.slice(0, 4))
+    const back = reopen(game)
     back.update(press('b'))
-    pick(back, 'overclocked', 1, true)
+    pick(back, 'campaign', 1, true)
+    assert.equal(back.lap, 0)
+    for (let i = 0; i < 10; i++) back.update(idle())
+    const again = reopen(back)
+    const s = readBatterySave(again.save)!
+    assert.deepEqual([s.step, s.lap], [0, 0])
+    assert.deepEqual(s.golden, SIX.slice(0, 4))
+    assert.equal(s.overclocked, true)
+    assert.equal(
+      again.offer,
+      null,
+      'a fresh run at the very start needs no offer',
+    )
+    assert.deepEqual(again.golden, SIX.slice(0, 4))
+    assert.equal(again.overclocked, true)
+    again.update(idle())
+    assert.deepEqual(
+      readBatterySave(again.save)!.golden,
+      SIX.slice(0, 4),
+      'and the next frame keeps them',
+    )
   }
 
   // A medal counts the moment it is won.

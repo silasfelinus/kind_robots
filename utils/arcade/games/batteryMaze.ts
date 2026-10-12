@@ -604,7 +604,8 @@ class BatteryMaze implements ArcadeGameInstance {
     this.startStep()
     if (stored) this.save = stored
     // A real game opens on the continue offer (with a run saved) or the mode menu.
-    if (stored && stored.step > 0) this.offer = stored
+    // (A save at step 0 on a later lap is a run too: Overclocked, after the credits.)
+    if (stored && (stored.step > 0 || stored.lap > 0)) this.offer = stored
     else if (!this.demo) this.openMenu()
   }
 
@@ -986,10 +987,13 @@ class BatteryMaze implements ArcadeGameInstance {
         // The campaign is cleared: Overclocked opens.
         this.story = { scene: sceneById(step.id), t: 0 }
         this.ending = true
-        // Recorded the moment the ending starts, so leaving during the credits keeps it.
+        // Recorded the moment the ending starts, so leaving during the credits keeps it: the
+        // checkpoint moves on to the card the credits lead to (the Battery Garden with six
+        // golden bolts, else the grid again, Overclocked), the clear and the bolts with it.
         if (!this.demo) {
           this.overclocked = true
-          this.keepMeta()
+          const next = this.nextStep(this.stepIndex, this.lap)
+          this.keep(next.step, next.lap, this.level + 1)
         }
         return
       case 'boss':
@@ -1001,21 +1005,26 @@ class BatteryMaze implements ArcadeGameInstance {
     }
   }
 
-  private advance() {
-    if (this.mode === 'classic') return this.nextClassic()
-    this.stepIndex++
+  /** The step after `from`, skipping the secret board without six golden bolts. */
+  private nextStep(from: number, lap: number): { step: number; lap: number } {
+    let step = from + 1
     // The secret board and its true ending open only with all six golden bolts.
     while (
-      this.stepIndex < this.steps.length &&
-      secretStep(this.currentStepAt(this.stepIndex)) &&
+      step < this.steps.length &&
+      secretStep(this.currentStepAt(step)) &&
       this.golden.length < 6
     )
-      this.stepIndex++
-    if (this.stepIndex >= this.steps.length) {
-      // Round the grid again, Overclocked: the late tables from the first maze.
-      this.stepIndex = 0
-      this.lap++
-    }
+      step++
+    // Past the end: round the grid again, Overclocked, the late tables from the first maze.
+    if (step >= this.steps.length) return { step: 0, lap: lap + 1 }
+    return { step, lap }
+  }
+
+  private advance() {
+    if (this.mode === 'classic') return this.nextClassic()
+    const next = this.nextStep(this.stepIndex, this.lap)
+    this.stepIndex = next.step
+    this.lap = next.lap
     const step = this.currentStep()
     if (step.kind === 'card' || step.kind === 'maze' || step.kind === 'boss')
       this.level++
@@ -1033,13 +1042,13 @@ class BatteryMaze implements ArcadeGameInstance {
   }
 
   /** Remember the run at this board's start (a real game only). */
-  private keep() {
+  private keep(step = this.stepIndex, lap = this.lap, level = this.level) {
     if (this.demo) return
     this.save = {
       v: 1,
-      step: this.stepIndex,
-      lap: this.lap,
-      level: this.level,
+      step,
+      lap,
+      level,
       score: this.score,
       lives: Math.max(1, this.lives),
       bolts: this.bolts,

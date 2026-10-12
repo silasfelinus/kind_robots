@@ -63,8 +63,23 @@ import {
   TOP,
   W,
   boardTheme,
+  drawBed,
   drawConveyor,
+  drawCrackle,
+  drawDarkness,
+  drawFan,
+  drawFlowerGate,
+  drawIce,
+  drawLamp,
+  drawLock,
+  drawPanel,
+  drawProp,
+  drawThorns,
+  drawVine,
   drawGate,
+  drawOverload,
+  drawSurge,
+  drawTrainCar,
   drawSwitch,
   drawToastSlot,
   glowStamp,
@@ -76,21 +91,41 @@ import type { Ramp } from '../snes'
 import { BAY_ITEMS, BOLT_AWARDS, STARTING_POWER } from '../batteryMaze/bay'
 import type { BayItemId } from '../batteryMaze/bay'
 import {
+  BLOOM_VINES,
+  GARDEN_PRIZE_EVERY,
+  LAMP_REACH,
   PARADE,
+  PHASES,
   RUSH,
   SPECIALS,
+  SUNSET,
+  THAW_TICKS,
   boardById,
   bossHeat,
   campaignSteps,
   heatFor,
+  secretStep,
 } from '../batteryMaze/boards'
-import type { Board, BoardMaze, Step } from '../batteryMaze/boards'
-import { GremlinMama, MAMA } from '../batteryMaze/bosses'
-import type { BossWorld } from '../batteryMaze/bosses'
+import type { Board, BoardMaze, SpecialKind, Step } from '../batteryMaze/boards'
+import {
+  GlitchTrain,
+  GremlinMama,
+  MAMA,
+  OVERLOAD,
+  Overload,
+  TRAIN,
+} from '../batteryMaze/bosses'
+import type { BossMachine, BossWorld, PilotPlan } from '../batteryMaze/bosses'
 import { CLASSIC_LAYOUT, gateOpen, parseMaze } from '../batteryMaze/mazes'
 import type { Maze, MazeLayout, Tile } from '../batteryMaze/mazes'
-import { BAY_MUSIC, BOSS_MUSIC, STORY_MUSIC } from '../batteryMaze/music'
-import { HUNTERS, SNACKS_TO_OVERCLOCK, freshMind } from '../batteryMaze/roster'
+import { BAY_MUSIC, ENDING_MUSIC, STORY_MUSIC } from '../batteryMaze/music'
+import {
+  BLINK,
+  HUNTERS,
+  SNACKS_TO_OVERCLOCK,
+  THORN_TICKS,
+  freshMind,
+} from '../batteryMaze/roster'
 import type { GremlinKind, HuntView, Mind } from '../batteryMaze/roster'
 import { STAGE_FLOOR, actorAt, sceneById } from '../batteryMaze/story'
 import type { Scene } from '../batteryMaze/story'
@@ -101,6 +136,7 @@ import {
   POWER_UPS,
   POWER_UP_KINDS,
   POWER_UP_ROLL,
+  TOOL_CHANCE,
   PRIZES,
   PRIZE_AT,
   PRIZE_SPEED,
@@ -150,7 +186,15 @@ const FRIEND_HOME_SPEED = 0.16
 const CONVEYOR_WITH = 1.5
 const CONVEYOR_AGAINST = 0.6
 const CARD_TICKS = 200
+/** The boss's name on the gauge. */
+const BOSS_LABEL = { mama: 'MAMA', train: 'TRAIN', overload: 'CORE' } as const
 const GOLDEN_POINTS = 5000
+/** Ice speeds things up; fans push things along their row while they blow. */
+const ICE_PACE = 1.3
+const WIND_WITH = 1.4
+const WIND_AGAINST = 0.6
+/** Static's crackle lingers this long on a tile. */
+const CRACKLE_TICKS = 150
 
 type GremlinState = 'docked' | 'leaving' | 'roaming' | 'eyes' | 'friend'
 
@@ -170,6 +214,10 @@ type Gremlin = {
   friendly: boolean
   /** Jumping from where it was bumped into its train slot. */
   hop: { x: number; y: number; t: number } | null
+  /** The tile it last stood on (a bramble's thorns go there). */
+  from: Tile | null
+  /** A twin sulking home after its twin was rebooted. */
+  sulky: boolean
 }
 
 /** Something that ambles round the maze: a roaming prize or a power-up. */
@@ -183,6 +231,8 @@ type SpecialRun = {
   spawned: number
   next: number
   done: boolean
+  /** The special was lost (the vines won, the freezer shut, the sun set). */
+  failed: boolean
   toast: { at: Tile; t: number } | null
 }
 
@@ -204,6 +254,8 @@ export type BatterySave = {
   hint: boolean
   golden: string[]
   continued: boolean
+  /** The campaign has been cleared once: Overclocked is open. */
+  overclocked?: boolean
 }
 
 /** A stored save, checked against this build; null when unusable. */
@@ -241,6 +293,7 @@ export function readBatterySave(raw: unknown): BatterySave | null {
       ),
     ],
     continued: r.continued === true,
+    overclocked: r.overclocked === true,
   }
 }
 
@@ -285,7 +338,7 @@ class BatteryMaze implements ArcadeGameInstance {
   private story: { scene: Scene; t: number } | null = null
   private bay: { cursor: number; t: number } | null = null
   private offer: BatterySave | null = null
-  private mama: GremlinMama | null = null
+  private boss: BossMachine | null = null
   private bossWorld: BossWorld | null = null
   // What the run has earned.
   private bolts = 0
@@ -293,6 +346,9 @@ class BatteryMaze implements ArcadeGameInstance {
   private startMagnet = false
   private hint = false
   private golden: string[] = []
+  private overclocked = false
+  /** The ending scene on show (credits, or the true ending). */
+  private ending = false
   // This maze.
   private maze: Maze = mazeOf(CLASSIC_LAYOUT)
   private theme: WallTheme = boardTheme(boardById('cozy').look)
@@ -308,6 +364,18 @@ class BatteryMaze implements ArcadeGameInstance {
   private shut = new Set<string>()
   private toastUp = new Set<string>()
   private blocked = new Set<string>()
+  // Board mechanics.
+  private vineGrown = new Map<string, number>()
+  private vineTimer = 0
+  private bloomed = new Set<string>()
+  private ice = new Set<string>()
+  private lit = new Set<string>()
+  private unlocked = false
+  private panelBack = new Map<string, number>()
+  private mirrorTimer = 0
+  private thorns = new Map<string, number>()
+  private crackle = new Map<string, number>()
+  private gardenTimer = 0
   private flips = REWIRE_FLIPS
   private mazeLost = false
   private mazeFullTrain = false
@@ -373,9 +441,13 @@ class BatteryMaze implements ArcadeGameInstance {
   /** The board's tune, the boss theme, the Bay's or the story's; none in the attract demo. */
   get music(): MusicLoop | null {
     if (this.demo || this.over || this.offer) return null
+    if (this.story && this.ending)
+      return this.story.scene.id === 'true-ending'
+        ? this.board.music
+        : ENDING_MUSIC
     if (this.story) return STORY_MUSIC
     if (this.bay) return BAY_MUSIC
-    if (this.mama) return BOSS_MUSIC
+    if (this.boss) return this.boss.music
     return this.board.music
   }
 
@@ -389,8 +461,9 @@ class BatteryMaze implements ArcadeGameInstance {
     const step = this.currentStep()
     this.card = null
     this.story = null
+    this.ending = false
     this.bay = null
-    this.mama = null
+    this.boss = null
     this.bossWorld = null
     switch (step.kind) {
       case 'card':
@@ -407,6 +480,12 @@ class BatteryMaze implements ArcadeGameInstance {
       case 'story':
         this.story = { scene: sceneById(step.id), t: 0 }
         return
+      case 'ending':
+        // The campaign is cleared: Overclocked opens.
+        this.story = { scene: sceneById(step.id), t: 0 }
+        this.ending = true
+        if (!this.demo) this.overclocked = true
+        return
       case 'boss':
         this.beginBoss(step.phase)
         return
@@ -418,16 +497,32 @@ class BatteryMaze implements ArcadeGameInstance {
 
   private advance() {
     this.stepIndex++
+    // The secret board and its true ending open only with all six golden bolts.
+    while (
+      this.stepIndex < this.steps.length &&
+      secretStep(this.currentStepAt(this.stepIndex)) &&
+      this.golden.length < 6
+    )
+      this.stepIndex++
     if (this.stepIndex >= this.steps.length) {
-      // Round the grid again, hotter.
+      // Round the grid again, Overclocked: the late tables from the first maze.
       this.stepIndex = 0
       this.lap++
     }
     const step = this.currentStep()
-    if (step.kind !== 'story' && step.kind !== 'bay') this.level++
+    if (step.kind === 'card' || step.kind === 'maze' || step.kind === 'boss')
+      this.level++
     this.startStep()
     if (this.stepIndex === 0 && this.lap > 0)
-      this.banner = { text: 'THE GRID GLITCHES AGAIN!', ticks: 150 }
+      this.banner = {
+        text: 'OVERCLOCKED!',
+        sub: 'THE GRID RUNS HOT',
+        ticks: 150,
+      }
+  }
+
+  private currentStepAt(i: number): Step {
+    return this.steps[i]!
   }
 
   /** Remember the run at this board's start (a real game only). */
@@ -446,6 +541,7 @@ class BatteryMaze implements ArcadeGameInstance {
       hint: this.hint,
       golden: [...this.golden],
       continued: false,
+      overclocked: this.overclocked,
     }
   }
 
@@ -460,6 +556,7 @@ class BatteryMaze implements ArcadeGameInstance {
     this.startMagnet = s.startMagnet
     this.hint = s.hint
     this.golden = [...s.golden]
+    this.overclocked = s.overclocked === true
     this.lap = s.lap
     this.level = s.level
     this.stepIndex = s.step
@@ -477,7 +574,14 @@ class BatteryMaze implements ArcadeGameInstance {
       spec.roster,
     )
     this.special = spec.special
-      ? { caught: 0, spawned: 0, next: PARADE.first, done: false, toast: null }
+      ? {
+          caught: 0,
+          spawned: 0,
+          next: PARADE.first,
+          done: false,
+          failed: false,
+          toast: null,
+        }
       : null
     this.goldenBolt =
       spec.goldenBolt && !this.golden.includes(board.id)
@@ -504,15 +608,47 @@ class BatteryMaze implements ArcadeGameInstance {
     this.spec = null
     this.special = null
     this.goldenBolt = null
-    this.theme = boardTheme({ wall: 'pink', neon: 'gold', pattern: 'rivets' })
-    this.loadMaze(mazeOf(MAMA.layout), bossHeat(phase, this.lap), [])
-    this.mama = new GremlinMama(MAMA)
-    this.bossWorld = this.makeBossWorld()
-    this.banner = {
-      text: 'GREMLIN MAMA!',
-      sub: 'EAT SPARKS TO WAKE HER UP',
-      ticks: 180,
+    const heat = bossHeat(phase, this.lap)
+    const id = PHASES[phase - 1]!.boss
+    if (id === 'train') {
+      this.theme = boardTheme({
+        wall: 'steel',
+        neon: 'pink',
+        floor: 'night',
+        pattern: 'rivets',
+      })
+      this.loadMaze(mazeOf(TRAIN.layout), heat, [])
+      this.boss = new GlitchTrain(this.maze.dockExit, TRAIN)
+      this.banner = {
+        text: 'THE GLITCH TRAIN!',
+        sub: 'GRAB A CELL, BUMP THE CABOOSE',
+        ticks: 180,
+      }
+    } else if (id === 'overload') {
+      this.theme = boardTheme({
+        wall: 'night',
+        neon: 'ember',
+        floor: 'night',
+        pattern: 'tiles',
+      })
+      this.loadMaze(mazeOf(OVERLOAD.layout), heat, [])
+      this.boss = new Overload(OVERLOAD)
+      this.banner = {
+        text: 'THE OVERLOAD!',
+        sub: 'WATCH THE LINES LIGHT UP',
+        ticks: 180,
+      }
+    } else {
+      this.theme = boardTheme({ wall: 'pink', neon: 'gold', pattern: 'rivets' })
+      this.loadMaze(mazeOf(MAMA.layout), heat, [])
+      this.boss = new GremlinMama(MAMA)
+      this.banner = {
+        text: 'GREMLIN MAMA!',
+        sub: 'EAT SPARKS TO WAKE HER UP',
+        ticks: 180,
+      }
     }
+    this.bossWorld = this.makeBossWorld()
   }
 
   private openBay() {
@@ -591,6 +727,21 @@ class BatteryMaze implements ArcadeGameInstance {
     this.eaten = 0
     this.switchState = maze.switches.map(() => 0)
     this.toastUp.clear()
+    this.vineGrown.clear()
+    this.vineTimer = 0
+    this.bloomed.clear()
+    this.ice = new Set(maze.ice.map((t) => `${t.x},${t.y}`))
+    this.lit = new Set(
+      this.spec?.special === 'lamp-lighter'
+        ? []
+        : maze.lamps.map((t) => `${t.x},${t.y}`),
+    )
+    this.unlocked = false
+    this.panelBack.clear()
+    this.mirrorTimer = 0
+    this.thorns.clear()
+    this.crackle.clear()
+    this.gardenTimer = 0
     this.refreshGates()
     this.flips = this.maxFlips()
     this.prizes = []
@@ -645,8 +796,14 @@ class BatteryMaze implements ArcadeGameInstance {
         mind: freshMind(),
         friendly: false,
         hop: null,
+        from: null,
+        sulky: false,
       }
     })
+    // Twins work as a pair: the first races ahead, the second cuts off the retreat.
+    let twins = 0
+    for (const g of this.gremlins)
+      if (g.kind === 'twin') g.mind.side = (twins++ % 2) as 0 | 1
     this.train = []
     this.modeIndex = 0
     this.modeTimer = this.row.schedule[0] ?? Infinity
@@ -657,7 +814,7 @@ class BatteryMaze implements ArcadeGameInstance {
     this.sparksSinceRelease = 0
     this.idleTicks = 0
     this.decoy = null
-    this.mama?.reset()
+    this.boss?.reset()
     this.pause = 90
   }
 
@@ -671,11 +828,26 @@ class BatteryMaze implements ArcadeGameInstance {
       row: this.row,
       rng: () => this.rng(),
       open: (x, y) => {
-        if (x < 0 || x >= this.maze.cols) return false
-        const c = this.maze.rows[y]?.[x]
-        if (!c || c === '#' || c === '-' || c === 'G') return false
-        return !this.blocked.has(`${x},${y}`)
+        const wx = this.wrapX(x)
+        const c = this.maze.rows[y]?.[wx]
+        if (!c || c === '#' || c === '-' || c === 'G' || c === '{' || c === '}')
+          return false
+        if (!this.maze.tunnelRows.includes(y) && (x < 0 || x >= this.maze.cols))
+          return false
+        return !this.blocked.has(`${wx},${y}`)
       },
+      hurt: () => {
+        if (this.robot.shield <= 0 && this.dying === 0) this.lose()
+      },
+      switches: () => this.maze.switches,
+      flip: (i) => {
+        if (!this.maze.switches[i]) return
+        this.flips++
+        this.flip(i)
+      },
+      tunnel: (x, y) => this.inTunnel({ x, y }),
+      ahead: () => this.junctionAlong(this.robot.dir),
+      behind: () => this.junctionAlong(opposite(this.robot.dir)),
       sleepy: () => this.sleepyTimer > 0,
       eatenShare: () => this.eaten / Math.max(1, this.totalSparks),
       cellsLeft: () => this.cells.size,
@@ -700,6 +872,8 @@ class BatteryMaze implements ArcadeGameInstance {
           mind: freshMind(),
           friendly: false,
           hop: null,
+          from: null,
+          sulky: false,
         })
       },
       spawnCell: (at) => {
@@ -730,6 +904,14 @@ class BatteryMaze implements ArcadeGameInstance {
           this.shut.add(`${gate.x},${gate.y}`)
     })
     this.blocked = new Set([...this.shut, ...this.toastUp])
+    for (const [key, grown] of this.vineGrown)
+      if (grown >= 1) this.blocked.add(key)
+    for (const f of this.maze.flowers) {
+      const key = `${f.x},${f.y}`
+      if (!this.bloomed.has(key)) this.blocked.add(key)
+    }
+    if (!this.unlocked)
+      for (const k of this.maze.locks) this.blocked.add(`${k.x},${k.y}`)
   }
 
   private wrapX(x: number) {
@@ -888,6 +1070,7 @@ class BatteryMaze implements ArcadeGameInstance {
     if (controls.pressed.a) this.tryFlip()
 
     this.updateToast()
+    this.updateBoard()
     this.updateModes()
     this.updatePower()
     this.moveRobot()
@@ -897,18 +1080,20 @@ class BatteryMaze implements ArcadeGameInstance {
     const frozen = this.power?.kind === 'freeze'
     for (const gremlin of this.gremlins) {
       if (frozen && gremlin.state === 'roaming') continue
-      if (gremlin.state === 'roaming' && !gremlin.sleepy)
+      if (gremlin.state === 'roaming' && !gremlin.sleepy) {
         HUNTERS[gremlin.kind].sense?.(gremlin, view)
+        this.gremlinTricks(gremlin)
+      }
       this.moveGremlin(gremlin, view)
     }
-    if (this.mama && this.bossWorld) this.mama.update(this.bossWorld)
+    if (this.boss && this.bossWorld) this.boss.update(this.bossWorld)
     this.moveTrain()
     this.collide()
     this.updatePrizes()
     this.updateSpecial()
 
-    const cleared = this.mama
-      ? this.mama.done
+    const cleared = this.boss
+      ? this.boss.done
       : this.sparks.size === 0 && this.cells.size === 0
     if (cleared && this.dying === 0) this.clearMaze()
   }
@@ -918,11 +1103,21 @@ class BatteryMaze implements ArcadeGameInstance {
     this.endTrain(true)
     this.clearing = 120
     this.sound.play('level')
-    let bolts = this.mama ? BOLT_AWARDS.boss : BOLT_AWARDS.maze
+    const sp = this.special
+    if (this.spec?.special === 'thaw' && sp && !sp.failed && !sp.done) {
+      sp.done = true
+      this.earn(BOLT_AWARDS.special)
+      if (this.goldenBolt && !this.mazeLost && !this.demo) {
+        this.golden.push(this.board.id)
+        this.addScore(GOLDEN_POINTS)
+        this.goldenBolt = null
+      }
+    }
+    let bolts = this.boss ? BOLT_AWARDS.boss : BOLT_AWARDS.maze
     if (!this.mazeLost) bolts += BOLT_AWARDS.clean
     if (this.mazeFullTrain) bolts += BOLT_AWARDS.fullTrain
     this.earn(bolts)
-    if (this.mama) {
+    if (this.boss) {
       for (const g of this.gremlins) this.sparkle(g.x, g.y, 8)
       this.gremlins = []
       return
@@ -972,7 +1167,7 @@ class BatteryMaze implements ArcadeGameInstance {
   /** Where a slot is in the board's beat: down, glowing to warn, or up. */
   private toastPhase(group: 0 | 1): 'down' | 'tell' | 'up' {
     const beat = this.board.toastBeat
-    if (!beat || this.mama) return 'down'
+    if (!beat || this.boss) return 'down'
     const t = (this.mazeTick + (group * beat.period) / 2) % beat.period
     if (t >= beat.period - beat.up) return 'up'
     if (t >= beat.period - beat.up - beat.tell) return 'tell'
@@ -1008,6 +1203,155 @@ class BatteryMaze implements ArcadeGameInstance {
     }
   }
 
+  // --- Power Phases 2 and 3: vines, flowers, fans, lamps, panels, mirrors ----------------
+
+  private sunny(): boolean {
+    const sun = this.board.sun
+    if (!sun || this.boss) return false
+    if (this.spec?.special === 'sunset-charge')
+      return this.mazeTick < SUNSET.day
+    return this.mazeTick % (sun.day + sun.night) < sun.day
+  }
+
+  private fanOn(): boolean {
+    const fans = this.board.fans
+    if (!fans || this.boss) return false
+    return this.mazeTick % (fans.on + fans.off) < fans.on
+  }
+
+  private darkness(): boolean {
+    return !!this.board.dark && !this.boss
+  }
+
+  /** Every tick: vines grow, beds bloom, panels shine, mirrors turn, thorns and crackle fade. */
+  private updateBoard() {
+    const m = this.maze
+    let changed = false
+    // Vines: one buds, then grows, every so often (never onto anyone); a watering can stops them.
+    const vines = this.board.vines
+    if (vines && m.vines.length && this.power?.kind !== 'can') {
+      const every =
+        this.spec?.special === 'bloom-run' ? BLOOM_VINES : vines.every
+      if (++this.vineTimer >= every) {
+        this.vineTimer = 0
+        const waiting = m.vines.filter(
+          (v) => !this.vineGrown.has(`${v.x},${v.y}`),
+        )
+        if (waiting.length) {
+          const v = waiting[Math.floor(this.rng() * waiting.length)]!
+          this.vineGrown.set(`${v.x},${v.y}`, 0)
+        }
+      }
+      for (const [key, grown] of this.vineGrown) {
+        if (grown >= 1) continue
+        const next = grown + 1 / vines.bud
+        if (next < 1) {
+          this.vineGrown.set(key, next)
+          continue
+        }
+        const occupied = [this.robot, ...this.gremlins].some(
+          (a) => this.key(a.x, a.y) === key,
+        )
+        if (!occupied) {
+          this.vineGrown.set(key, 1)
+          changed = true
+        }
+      }
+    }
+    // Flower gates bloom once their beds are eaten.
+    for (const f of m.flowers) {
+      const key = `${f.x},${f.y}`
+      if (this.bloomed.has(key)) continue
+      if (f.bed.every((b) => !this.sparks.has(`${b.x},${b.y}`))) {
+        this.bloomed.add(key)
+        changed = true
+        this.sparkle(
+          f.x,
+          f.y,
+          14,
+          [RAMPS.pink[3], RAMPS.leaf[3], '#ffffff'],
+          1.6,
+        )
+        this.sound.play('pickup')
+        if (this.spec?.special === 'bloom-run' && this.special)
+          this.special.caught++
+      }
+    }
+    // Mirror junctions turn on the clock.
+    const mirrors = this.board.mirrors
+    if (
+      mirrors &&
+      m.switches.some((sw) => sw.auto) &&
+      ++this.mirrorTimer >= mirrors
+    ) {
+      this.mirrorTimer = 0
+      m.switches.forEach((sw, i) => {
+        if (!sw.auto) return
+        this.switchState[i] = this.switchState[i] === 0 ? 1 : 0
+        for (const gate of sw.gates)
+          this.sparkle(gate.x, gate.y, 4, [RAMPS.sky[4]], 0.8)
+      })
+      changed = true
+    }
+    if (changed) {
+      this.refreshGates()
+      this.turnBack()
+    }
+    // Panels' sparks come back in the sun.
+    if (this.board.sun) {
+      const sunny = this.sunny()
+      for (const [key, t] of this.panelBack) {
+        if (!sunny) continue
+        if (t > 1) this.panelBack.set(key, t - 1)
+        else {
+          this.panelBack.delete(key)
+          if (!this.sparks.has(key)) {
+            this.sparks.add(key)
+            this.totalSparks++
+          }
+        }
+      }
+    }
+    // Thorns and crackle fade.
+    for (const [key, t] of this.thorns)
+      if (t <= 1) this.thorns.delete(key)
+      else this.thorns.set(key, t - 1)
+    for (const [key, t] of this.crackle)
+      if (t <= 1) this.crackle.delete(key)
+      else this.crackle.set(key, t - 1)
+    // Prizes rain on the Battery Garden.
+    if (this.board.secret && ++this.gardenTimer >= GARDEN_PRIZE_EVERY) {
+      this.gardenTimer = 0
+      if (this.prizes.length < 3)
+        this.spawnPrize(
+          Math.floor(this.rng() * PRIZES.length),
+          PRIZE_WANDER_TICKS,
+          false,
+        )
+    }
+  }
+
+  /** How ice and wind under `actor` change its pace. */
+  private terrainPace(actor: { x: number; y: number }, dir: Dir): number {
+    let pace = 1
+    const key = this.key(actor.x, actor.y)
+    if (this.ice.has(key)) pace *= ICE_PACE
+    if (this.fanOn()) {
+      const y = Math.round(actor.y)
+      const fan = this.maze.fans.find((f) => f.row === y)
+      if (fan && dir.x) pace *= dir.x === fan.dir ? WIND_WITH : WIND_AGAINST
+    }
+    return pace
+  }
+
+  /** The robot may not walk into thorns. */
+  private robotCan(x: number, y: number, dir: Dir): boolean {
+    if (!this.canMove(x, y, dir)) return false
+    if (!this.thorns.size) return true
+    const nx = this.wrapX(Math.round(x) + dir.x)
+    return !this.thorns.has(`${nx},${Math.round(y) + dir.y}`)
+  }
+
   /** How a conveyor under `actor` changes its pace. */
   private conveyorPace(actor: { x: number; y: number }, dir: Dir): number {
     if (!this.maze.conveyors.length) return 1
@@ -1032,7 +1376,11 @@ class BatteryMaze implements ArcadeGameInstance {
           : r.robot
     const turbo = this.power?.kind === 'turbo' ? TURBO_BOOST : 1
     return (
-      BASE_SPEED * pace * turbo * this.conveyorPace(this.robot, this.robot.dir)
+      BASE_SPEED *
+      pace *
+      turbo *
+      this.conveyorPace(this.robot, this.robot.dir) *
+      this.terrainPace(this.robot, this.robot.dir)
     )
   }
 
@@ -1045,9 +1393,12 @@ class BatteryMaze implements ArcadeGameInstance {
     const robot = this.robot
     if (robot.eatDrag > 0) robot.eatDrag--
     const speed = this.robotSpeed()
-    if (sameDir(robot.want, opposite(robot.dir))) robot.dir = robot.want
     const tx = Math.round(robot.x)
     const ty = Math.round(robot.y)
+    // On ice there's no stopping and no turning back: only junctions let you choose.
+    const onIce = this.ice.has(this.key(tx, ty))
+    if (!onIce && sameDir(robot.want, opposite(robot.dir)))
+      robot.dir = robot.want
     const along = robot.dir.x ? robot.x - tx : robot.y - ty
     const side = robot.dir.x ? robot.y - ty : robot.x - tx
     const perpendicular =
@@ -1057,7 +1408,8 @@ class BatteryMaze implements ArcadeGameInstance {
       perpendicular &&
       Math.abs(along) <= CORNER_WINDOW &&
       Math.abs(side) < 1e-6 &&
-      this.canMove(tx, ty, robot.want)
+      this.robotCan(tx, ty, robot.want) &&
+      (!onIce || this.exits(tx, ty) >= 3)
     ) {
       robot.dir = robot.want
     }
@@ -1072,7 +1424,19 @@ class BatteryMaze implements ArcadeGameInstance {
     const offset = robot.dir.x ? robot.x - cx : robot.y - cy
     const sign = robot.dir.x || robot.dir.y
     const ahead = offset * sign
-    if (ahead >= -1e-6 && !this.canMove(cx, cy, robot.dir)) {
+    const slide =
+      onIce &&
+      ahead >= -1e-6 &&
+      !this.robotCan(cx, cy, robot.dir) &&
+      DIRS.find(
+        (d) => !sameDir(d, opposite(robot.dir)) && this.robotCan(cx, cy, d),
+      )
+    if (slide) {
+      // Sliding round an icy bend.
+      if (robot.dir.x) robot.x = cx
+      else robot.y = cy
+      robot.dir = slide
+    } else if (ahead >= -1e-6 && !this.robotCan(cx, cy, robot.dir)) {
       // Blocked: settle on the centre and wait for a way on.
       if (robot.dir.x) robot.x = cx
       else robot.y = cy
@@ -1080,7 +1444,7 @@ class BatteryMaze implements ArcadeGameInstance {
     } else if (
       ahead < -1e-6 &&
       ahead + speed >= 0 &&
-      !this.canMove(cx, cy, robot.dir)
+      !this.robotCan(cx, cy, robot.dir)
     ) {
       if (robot.dir.x) robot.x = cx
       else robot.y = cy
@@ -1123,7 +1487,9 @@ class BatteryMaze implements ArcadeGameInstance {
     const r = this.robot
     const tx = this.wrapX(Math.round(r.x))
     const ty = Math.round(r.y)
-    const i = this.maze.switches.findIndex((s) => s.x === tx && s.y === ty)
+    const i = this.maze.switches.findIndex(
+      (s) => s.x === tx && s.y === ty && !s.auto,
+    )
     if (i < 0) return
     if (this.flips <= 0) {
       this.sound.play('warn')
@@ -1172,7 +1538,7 @@ class BatteryMaze implements ArcadeGameInstance {
       const atCentre = Math.abs(w.x - ax) < 1e-6 && Math.abs(w.y - ay) < 1e-6
       if (intoShut && !atCentre) w.dir = opposite(w.dir)
     }
-    const mama = this.mama
+    const mama = this.boss instanceof GremlinMama ? this.boss : null
     if (mama && this.bossWorld) {
       // Mama is two tiles across: she turns back if any tile ahead of her has shut.
       const fx =
@@ -1202,6 +1568,7 @@ class BatteryMaze implements ArcadeGameInstance {
     const key = this.key(this.robot.x, this.robot.y)
     if (this.sparks.delete(key)) {
       this.chomp(this.robot.x, this.robot.y)
+      this.ateAt(key)
       this.robot.eatDrag = EAT_DRAG
       this.sparksSinceRelease++
       this.idleTicks = 0
@@ -1216,6 +1583,30 @@ class BatteryMaze implements ArcadeGameInstance {
     this.rollPrize()
   }
 
+  /** What eating the spark at `key` sets off: a lamp relit, a panel banked, ice melting. */
+  private ateAt(key: string) {
+    const [x, y] = key.split(',').map(Number) as [number, number]
+    const sp = this.special
+    for (const lamp of this.maze.lamps) {
+      const lk = `${lamp.x},${lamp.y}`
+      if (this.lit.has(lk)) continue
+      if (Math.abs(lamp.x - x) + Math.abs(lamp.y - y) > LAMP_REACH) continue
+      this.lit.add(lk)
+      this.sparkle(lamp.x, lamp.y, 12, [RAMPS.pink[3], RAMPS.gold[4]], 1.4)
+      this.sound.play('pickup')
+      if (this.spec?.special === 'lamp-lighter' && sp) sp.caught++
+    }
+    if (this.maze.panels.some((p) => p.x === x && p.y === y)) {
+      if (this.sunny()) {
+        this.panelBack.set(key, this.board.sun?.respawn ?? 360)
+        if (this.spec?.special === 'sunset-charge' && sp && !sp.failed)
+          sp.caught++
+      }
+    }
+    if (this.spec?.special === 'thaw' && this.ice.delete(key))
+      this.sparkle(x, y, 4, [RAMPS.sky[4], '#ffffff'], 0.8)
+  }
+
   /** A spark eaten, by the robot or a friend on its train. */
   private chomp(x: number, y: number) {
     this.addScore(10)
@@ -1226,7 +1617,7 @@ class BatteryMaze implements ArcadeGameInstance {
   /** A power cell: the gremlins go sleepy (or, at heat 20, a shield cell). Flips refill. */
   private powerUp() {
     this.flips = this.maxFlips()
-    const ticks = this.mama ? this.mama.spec.napTicks : this.row.sleepyTicks
+    const ticks = this.boss ? this.boss.napTicks : this.row.sleepyTicks
     for (const g of this.gremlins) {
       if (g.state === 'roaming') g.dir = opposite(g.dir)
     }
@@ -1269,13 +1660,15 @@ class BatteryMaze implements ArcadeGameInstance {
         this.sparksSinceRelease++
       }
     }
-    if (this.mama) return
+    if (this.boss) return
     // Now and then a power-up rolls out of the dock.
     if (!this.powerItem && this.mazeTick >= this.powerNext) {
       this.powerNext = this.mazeTick + POWER_UP_ROLL.every
       const exit = this.maze.dockExit
+      const tool = this.board.tool
+      const pick = Math.floor(this.rng() * POWER_UP_KINDS.length)
       this.powerItem = {
-        kind: POWER_UP_KINDS[Math.floor(this.rng() * POWER_UP_KINDS.length)]!,
+        kind: tool && this.rng() < TOOL_CHANCE ? tool : POWER_UP_KINDS[pick]!,
         x: exit.x,
         y: exit.y,
         dir: this.rng() < 0.5 ? LEFT : RIGHT,
@@ -1292,6 +1685,16 @@ class BatteryMaze implements ArcadeGameInstance {
     if (this.touchingRobot(item)) {
       this.powerItem = null
       this.power = { kind: item.kind, ticks: POWER_UPS[item.kind].ticks }
+      if (item.kind === 'can') {
+        // The vines wither.
+        for (const key of this.vineGrown.keys()) {
+          const [x, y] = key.split(',').map(Number) as [number, number]
+          this.sparkle(x, y, 6, [RAMPS.leaf[3], RAMPS.sky[4]], 1)
+        }
+        this.vineGrown.clear()
+        this.vineTimer = 0
+        this.refreshGates()
+      }
       if (item.kind === 'decoy')
         this.decoy = {
           x: this.wrapX(Math.round(this.robot.x)),
@@ -1376,6 +1779,24 @@ class BatteryMaze implements ArcadeGameInstance {
       overclock: this.overclock(),
       sees: (from) => this.sees(from),
       nearestSpark: (from) => nearest(from, this.sparks),
+      stick: r.want,
+      junction: (at) => this.exits(at.x, at.y) >= 3,
+      hopAcross: (from) => {
+        for (const d of DIRS) {
+          if (!this.isWall(from.x + d.x, from.y + d.y)) continue
+          const land = { x: this.wrapX(from.x + d.x * 2), y: from.y + d.y * 2 }
+          const cell = this.maze.rows[land.y]?.[land.x]
+          if (
+            !cell ||
+            cell === 'G' ||
+            cell === '-' ||
+            this.isWall(land.x, land.y)
+          )
+            continue
+          if (Math.hypot(land.x - r.x, land.y - r.y) <= 2) return land
+        }
+        return null
+      },
     }
   }
 
@@ -1395,13 +1816,25 @@ class BatteryMaze implements ArcadeGameInstance {
   }
 
   private gremlinSpeed(g: Gremlin): number {
-    if (g.state === 'eyes') return g.friendly ? FRIEND_HOME_SPEED : EYES_SPEED
+    if (g.state === 'eyes')
+      return g.sulky
+        ? FRIEND_HOME_SPEED * 0.7
+        : g.friendly
+          ? FRIEND_HOME_SPEED
+          : EYES_SPEED
     const r = this.row
     if (this.inTunnel(g)) return BASE_SPEED * r.tunnel
     if (g.sleepy) return BASE_SPEED * r.sleepyGremlin
     const boost = g.kind === 'chaser' ? OVERCLOCK_BOOST[this.overclock()] : 1
     const pace = HUNTERS[g.kind].pace?.(g) ?? 1
-    return BASE_SPEED * r.gremlin * boost * pace * this.conveyorPace(g, g.dir)
+    return (
+      BASE_SPEED *
+      r.gremlin *
+      boost *
+      pace *
+      this.conveyorPace(g, g.dir) *
+      this.terrainPace(g, g.dir)
+    )
   }
 
   private moveGremlin(g: Gremlin, view: HuntView) {
@@ -1426,16 +1859,18 @@ class BatteryMaze implements ArcadeGameInstance {
           g.dir = this.rng() < 0.5 ? LEFT : RIGHT
           g.sleepy = false
           g.friendly = false
+          g.sulky = false
         }
       }
       return
     }
 
     const speed = this.gremlinSpeed(g)
-    if (speed <= 0) return
     if (this.atCentre(g)) this.chooseTurn(g, view)
+    if (speed <= 0 || sameDir(g.dir, NONE)) return
     if (this.step(g, g.dir, speed)) {
       this.snap(g)
+      if (g.state === 'roaming') this.leaveMark(g)
       const exit = this.maze.dockExit
       if (g.state === 'eyes' && g.x === exit.x && g.y === exit.y) {
         g.state = 'leaving'
@@ -1445,6 +1880,44 @@ class BatteryMaze implements ArcadeGameInstance {
       } else if (g.state === 'roaming' && !g.sleepy && HUNTERS[g.kind].eats) {
         this.snack(g)
       }
+    }
+  }
+
+  /** A bramble leaves thorns on the tile behind it; static leaves crackle where it walks. */
+  private leaveMark(g: Gremlin) {
+    const here = { x: this.wrapX(g.x), y: g.y }
+    if (g.kind === 'static')
+      this.crackle.set(`${here.x},${here.y}`, CRACKLE_TICKS)
+    if (HUNTERS[g.kind].thorns && g.from && !g.sleepy) {
+      const key = `${g.from.x},${g.from.y}`
+      if (key !== this.key(this.robot.x, this.robot.y))
+        this.thorns.set(key, THORN_TICKS)
+    }
+    g.from = here
+  }
+
+  /** Each tick for a hunting gremlin: a blinker's hop, a snowball rolling in the wind. */
+  private gremlinTricks(g: Gremlin) {
+    const m = g.mind
+    if (g.kind === 'blinker' && m.goal && m.blink === 0) {
+      // Hop through the wall.
+      this.sparkle(g.x, g.y, 8, [RAMPS.steel[4], RAMPS.gold[3]], 1.2)
+      g.x = m.goal.x
+      g.y = m.goal.y
+      g.from = null
+      m.goal = null
+      m.cool = BLINK.rest
+      this.sparkle(g.x, g.y, 8, [RAMPS.steel[4], RAMPS.gold[3]], 1.2)
+      this.sound.play('warn')
+    }
+    if (g.kind === 'snowball') {
+      const fan = this.fanOn()
+        ? this.maze.fans.find((f) => f.row === Math.round(g.y))
+        : null
+      m.rolling = !!fan && g.dir.x === fan.dir
+      m.size = m.rolling
+        ? Math.min(3, m.size + 0.012)
+        : Math.max(0, m.size - 0.01)
     }
   }
 
@@ -1498,6 +1971,16 @@ class BatteryMaze implements ArcadeGameInstance {
   }
 
   private chooseTurn(g: Gremlin, view: HuntView) {
+    const hunter = HUNTERS[g.kind]
+    if (hunter.steer && g.state === 'roaming' && !g.sleepy && !this.decoy) {
+      // A copycat goes where it's steered, or stands still.
+      const d = hunter.steer(g, view)
+      if (d && this.canMove(g.x, g.y, d)) g.dir = d
+      else if (sameDir(g.dir, NONE) || !this.canMove(g.x, g.y, g.dir))
+        g.dir = NONE
+      return
+    }
+    if (sameDir(g.dir, NONE)) g.dir = LEFT
     const options = DIRS.filter(
       (d) =>
         !sameDir(d, opposite(g.dir)) &&
@@ -1618,19 +2101,19 @@ class BatteryMaze implements ArcadeGameInstance {
         if (this.power?.kind === 'decoy') this.power = null
       }
     }
-    if (this.mama && this.mama.touches(r.x, r.y)) {
-      if (this.mama.bumpable) {
-        this.mama.bump(this.bossWorld!)
-        this.pause = 30
-        return
-      }
-      if (this.mama.harmful && r.shield <= 0) return this.lose()
+    const touch = this.boss?.contact(r.x, r.y)
+    if (touch === 'bump') {
+      this.boss!.bump(this.bossWorld!, r.x, r.y)
+      this.pause = 30
+      return
     }
+    if (touch === 'hurt' && r.shield <= 0) return this.lose()
     for (const g of this.gremlins) {
       if (g.state !== 'roaming') continue
       const dx = Math.abs(g.x - r.x)
       const wrapDx = Math.min(dx, cols - dx)
-      if (wrapDx >= 0.6 || Math.abs(g.y - r.y) >= 0.6) continue
+      const reach = g.kind === 'snowball' ? 0.6 + g.mind.size * 0.15 : 0.6
+      if (wrapDx >= reach || Math.abs(g.y - r.y) >= reach) continue
       if (frozen) continue
       if (g.sleepy) {
         this.chain++
@@ -1648,9 +2131,12 @@ class BatteryMaze implements ArcadeGameInstance {
         }
         g.state = 'friend'
         g.sleepy = false
+        const side = g.mind.side
         g.mind = freshMind()
+        g.mind.side = side
         g.hop = { x: g.x, y: g.y, t: 0 }
         this.train.push(g)
+        this.rebooted(g)
         this.pause = 20
         return
       }
@@ -1664,6 +2150,28 @@ class BatteryMaze implements ArcadeGameInstance {
     }
   }
 
+  /** Rebooting a gatekeeper opens the shortcuts; rebooting a twin sends the other home sulking. */
+  private rebooted(g: Gremlin) {
+    if (g.kind === 'gatekeeper' && !this.unlocked && this.maze.locks.length) {
+      this.unlocked = true
+      for (const k of this.maze.locks)
+        this.sparkle(k.x, k.y, 12, [RAMPS.gold[4]], 1.4)
+      this.refreshGates()
+      this.banner = { text: 'SHORTCUTS OPEN!', ticks: 90 }
+    }
+    if (g.kind === 'twin')
+      for (const other of this.gremlins) {
+        if (other === g || other.kind !== 'twin' || other.state !== 'roaming')
+          continue
+        other.state = 'eyes'
+        other.sleepy = false
+        other.friendly = true
+        other.sulky = true
+        other.x = this.wrapX(Math.round(other.x))
+        other.y = Math.round(other.y)
+      }
+  }
+
   private lose() {
     this.lives--
     this.dying = 110
@@ -1672,7 +2180,7 @@ class BatteryMaze implements ArcadeGameInstance {
     this.power = null
     this.decoy = null
     this.endTrain(false)
-    if (this.mama)
+    if (this.boss)
       this.gremlins = this.gremlins.filter((g) => g.kind !== 'baby')
     this.sound.play('die')
   }
@@ -1681,7 +2189,7 @@ class BatteryMaze implements ArcadeGameInstance {
 
   /** Twice a maze a prize rolls in from a tunnel (or the dock) and wanders about. */
   private rollPrize() {
-    if (this.special || this.mama) return
+    if (this.special || this.boss) return
     if (this.prizesRolled >= PRIZE_AT.length || this.prizes.length) return
     if (this.eaten < PRIZE_AT[this.prizesRolled]! * this.totalSparks) return
     this.prizesRolled++
@@ -1779,7 +2287,37 @@ class BatteryMaze implements ArcadeGameInstance {
       }
     }
     if (sp && kind === 'breakfast-rush') this.updateRush(sp)
-    if (sp && kind && !sp.done && sp.caught >= SPECIALS[kind].target) {
+    if (sp && !sp.done && !sp.failed) {
+      const lost =
+        (kind === 'bloom-run' &&
+          this.maze.vines.length > 0 &&
+          [...this.vineGrown.values()].filter((g) => g >= 1).length >=
+            this.maze.vines.length) ||
+        (kind === 'thaw' && this.mazeTick >= THAW_TICKS) ||
+        (kind === 'sunset-charge' && this.mazeTick >= SUNSET.day)
+      if (lost) {
+        sp.failed = true
+        this.banner = {
+          text:
+            kind === 'bloom-run'
+              ? 'THE VINES WIN!'
+              : kind === 'thaw'
+                ? 'THE FREEZER SHUTS!'
+                : 'THE SUN SETS!',
+          sub: 'NO GOLDEN BOLT THIS TIME',
+          ticks: 120,
+        }
+        this.sound.play('warn')
+      }
+    }
+    if (
+      sp &&
+      kind &&
+      kind !== 'thaw' &&
+      !sp.done &&
+      !sp.failed &&
+      sp.caught >= SPECIALS[kind].target
+    ) {
       sp.done = true
       this.earn(BOLT_AWARDS.special)
       this.banner = {
@@ -1913,30 +2451,19 @@ class BatteryMaze implements ArcadeGameInstance {
           if (Math.abs(dx) + Math.abs(dy) <= reach)
             danger.add(`${this.wrapX(gx + dx)},${gy + dy}`)
     }
+    const plan =
+      this.boss && this.bossWorld ? this.boss.pilot(this.bossWorld) : null
     if (r.shield <= 0 && this.power?.kind !== 'freeze') {
       for (const g of this.gremlins) {
         if (g.state !== 'roaming' || g.sleepy) continue
         mark(Math.round(g.x), Math.round(g.y), g.kind === 'sprinter' ? 3 : 2)
       }
-      const mama = this.mama
-      if (mama?.harmful) {
-        for (const [dx, dy] of [
-          [0, 0],
-          [1, 0],
-          [0, 1],
-          [1, 1],
-        ])
-          mark(
-            Math.round(mama.x) + dx!,
-            Math.round(mama.y) + dy!,
-            mama.phase === 3 ? 1 : 2,
-          )
-      }
+      for (const t of plan?.threats ?? []) mark(t.x, t.y, t.reach)
     }
-    const goals = this.pilotGoals()
+    const goals = this.pilotGoals(plan)
     // Standing on a switch: throw it when a hunter is close, or when the plan says so.
     const onSwitch = this.maze.switches.some((s) => s.x === sx && s.y === sy)
-    const panic = nearest <= 4 && !this.mama
+    const panic = nearest <= 4 && !this.boss
     if (onSwitch && this.flips > 0 && (panic || goals.flip)) {
       held.a = true
       frame.pressed.a = true
@@ -1963,7 +2490,7 @@ class BatteryMaze implements ArcadeGameInstance {
         const nx = (x + d.x + cols) % cols
         const ny = y + d.y
         const key = `${nx},${ny}`
-        if (firstStep.has(key) || !this.canMove(x, y, d)) continue
+        if (firstStep.has(key) || !this.robotCan(x, y, d)) continue
         if (danger.has(key)) continue
         const first = firstStep.get(`${x},${y}`)!
         const step = sameDir(first, NONE) ? d : first
@@ -1984,8 +2511,8 @@ class BatteryMaze implements ArcadeGameInstance {
     return frame
   }
 
-  /** What the pilot is after besides sparks: prizes, power-ups, and Mama's trap. */
-  private pilotGoals(): {
+  /** What the pilot is after besides sparks: prizes, power-ups, and the boss's plan. */
+  private pilotGoals(plan: PilotPlan | null): {
     extra: Set<string>
     only: Set<string> | null
     flip: boolean
@@ -1997,33 +2524,11 @@ class BatteryMaze implements ArcadeGameInstance {
       extra.add(`${this.special.toast.at.x},${this.special.toast.at.y}`)
     if (this.goldenBolt?.shown)
       extra.add(`${this.goldenBolt.at.x},${this.goldenBolt.at.y}`)
-    const mama = this.mama
-    if (!mama) return { extra, only: null, flip: false }
-    const tiles = (list: readonly Tile[]) =>
-      new Set(list.map((t) => `${t.x},${t.y}`))
-    const mx = Math.round(mama.x)
-    const my = Math.round(mama.y)
-    if (mama.bumpable) {
-      const around: Tile[] = []
-      for (let dx = 0; dx <= 1; dx++)
-        for (let dy = 0; dy <= 1; dy++) around.push({ x: mx + dx, y: my + dy })
-      return { extra, only: tiles(around), flip: false }
-    }
-    if (mama.phase === 3) {
-      const b = MAMA.bay
-      const inBay = mx >= b.x0 && mx + 1 <= b.x1 && my >= b.y0 && my + 1 <= b.y1
-      const sw = this.maze.switches[0]!
-      const shut = MAMA.bayGates.every((t) => this.blocked.has(`${t.x},${t.y}`))
-      // Throw the switch to shut her in, or to open the bay again if it is shut while she is out.
-      if (inBay !== shut) return { extra, only: tiles([sw]), flip: true }
-      // Lure her out of the dock, then wait just past the bay's wall until she follows us in.
-      return {
-        extra,
-        only: tiles(mama.state === 'plug' ? MAMA.lureSpots : MAMA.baitSpots),
-        flip: false,
-      }
-    }
-    return { extra, only: null, flip: false }
+    for (const lamp of this.maze.lamps)
+      if (!this.lit.has(`${lamp.x},${lamp.y}`)) extra.add(`${lamp.x},${lamp.y}`)
+    if (!plan?.goals) return { extra, only: null, flip: !!plan?.flip }
+    const only = new Set(plan.goals.map((t) => `${this.wrapX(t.x)},${t.y}`))
+    return { extra, only, flip: plan.flip }
   }
 
   private fleeDir(): Dir {
@@ -2037,10 +2542,9 @@ class BatteryMaze implements ArcadeGameInstance {
       const threats = this.gremlins
         .filter((g) => g.state === 'roaming' && !g.sleepy)
         .map((g) => Math.hypot(g.x - nx, g.y - ny))
-      if (this.mama?.harmful)
-        threats.push(
-          Math.hypot(this.mama.centre.x - nx, this.mama.centre.y - ny),
-        )
+      if (this.boss && this.bossWorld)
+        for (const t of this.boss.pilot(this.bossWorld).threats)
+          threats.push(Math.hypot(t.x - nx, t.y - ny) - t.reach)
       const nearest = Math.min(Infinity, ...threats)
       if (nearest > bestScore) {
         bestScore = nearest
@@ -2063,7 +2567,7 @@ class BatteryMaze implements ArcadeGameInstance {
     const theme = flash
       ? { ...FLASH_THEME, floor: this.theme.floor, pattern: this.theme.pattern }
       : this.theme
-    const lookId = this.mama ? 'boss' : this.board.id
+    const lookId = this.boss ? `boss-${this.boss.id}` : this.board.id
     cachedLayer(
       g,
       `battery-maze-${this.maze.id}-${lookId}-${flash ? 'flash' : 'lit'}`,
@@ -2072,6 +2576,7 @@ class BatteryMaze implements ArcadeGameInstance {
       (k) => paintBoard(k, theme, this.maze),
     )
     for (const c of this.maze.conveyors) drawConveyor(g, c, c.dir, this.tick)
+    this.renderBoardMechanics(g)
     this.renderToast(g)
     this.renderGates(g, theme.neon)
     this.renderSparks(g)
@@ -2086,13 +2591,16 @@ class BatteryMaze implements ArcadeGameInstance {
       drawSprite(g, DECOY_SPRITE, cx, cy - 1.5)
     }
     if (!(this.dying > 0 && this.dying < 70)) {
+      const hidden = this.hiddenGremlins()
       for (const gremlin of this.gremlins)
-        if (gremlin.state !== 'friend') this.renderGremlin(g, gremlin)
+        if (gremlin.state !== 'friend' && !hidden.has(gremlin))
+          this.renderGremlin(g, gremlin)
       for (let i = this.train.length - 1; i >= 0; i--)
         this.renderGremlin(g, this.train[i]!)
-      if (this.mama) this.renderMama(g, this.mama)
+      if (this.boss) this.renderBoss(g, this.boss)
     }
     this.renderRobot(g)
+    this.renderShade(g)
     this.fx.render(g)
     for (const f of this.floaters) {
       drawText(g, f.text, f.x * TILE + TILE / 2, TOP + f.y * TILE, {
@@ -2106,6 +2614,102 @@ class BatteryMaze implements ArcadeGameInstance {
     if (this.card) this.renderCard(g)
     if (this.bay) this.renderBay(g)
     if (this.offer) this.renderOffer(g, this.offer)
+  }
+
+  /** In the dark, gremlins outside every light can't be seen. */
+  private hiddenGremlins(): Set<Gremlin> {
+    const out = new Set<Gremlin>()
+    if (!this.darkness()) return out
+    const dark = this.board.dark!
+    const r = this.robot
+    const lights = [
+      {
+        x: r.x,
+        y: r.y,
+        r: dark.robot * (this.power?.kind === 'lamp' ? 1.8 : 1),
+      },
+      ...this.maze.lamps
+        .filter((l) => this.lit.has(`${l.x},${l.y}`))
+        .map((l) => ({ x: l.x, y: l.y, r: dark.lamp })),
+    ]
+    for (const g of this.gremlins)
+      if (g.state === 'roaming' && !this.inLight(g, lights)) out.add(g)
+    return out
+  }
+
+  /** Panels, ice, beds, thorns, crackle, vines, flower gates, locks, fans and lamps. */
+  private renderBoardMechanics(g: CanvasRenderingContext2D) {
+    const m = this.maze
+    const sunny = this.sunny()
+    for (const p of m.panels) drawPanel(g, p, sunny)
+    for (const key of this.ice) {
+      const [x, y] = key.split(',').map(Number) as [number, number]
+      drawIce(g, { x, y }, this.tick)
+    }
+    for (const f of m.flowers)
+      if (!this.bloomed.has(`${f.x},${f.y}`))
+        for (const b of f.bed)
+          if (this.sparks.has(`${b.x},${b.y}`)) drawBed(g, b)
+    for (const [key, life] of this.thorns) {
+      const [x, y] = key.split(',').map(Number) as [number, number]
+      drawThorns(g, { x, y }, life)
+    }
+    for (const [key, life] of this.crackle) {
+      const [x, y] = key.split(',').map(Number) as [number, number]
+      drawCrackle(g, { x, y }, life, this.tick)
+    }
+    for (const [key, grown] of this.vineGrown) {
+      const [x, y] = key.split(',').map(Number) as [number, number]
+      drawVine(g, { x, y }, grown >= 1 ? 1 : 0, this.tick)
+    }
+    for (const f of m.flowers)
+      drawFlowerGate(g, f, this.bloomed.has(`${f.x},${f.y}`), this.tick)
+    if (!this.unlocked) for (const k of m.locks) drawLock(g, k)
+    const on = this.fanOn()
+    for (const fan of m.fans) drawFan(g, fan.row, fan.dir, on, this.tick)
+    for (const lamp of m.lamps)
+      drawLamp(g, lamp, this.lit.has(`${lamp.x},${lamp.y}`), this.tick)
+  }
+
+  /** Lights out in the arcade; night on the rooftop. */
+  private renderShade(g: CanvasRenderingContext2D) {
+    if (this.darkness()) {
+      const dark = this.board.dark!
+      const r = this.robot
+      const reach = dark.robot * (this.power?.kind === 'lamp' ? 1.8 : 1)
+      const lights = [{ x: r.x, y: r.y, r: reach }]
+      for (const lamp of this.maze.lamps)
+        if (this.lit.has(`${lamp.x},${lamp.y}`))
+          lights.push({ x: lamp.x, y: lamp.y, r: dark.lamp })
+      drawDarkness(g, lights, 0.9)
+      // Sparks glow faintly through the dark; gremlins' eyes glint (static's don't).
+      for (const key of this.sparks) {
+        const [x, y] = key.split(',').map(Number) as [number, number]
+        g.fillStyle = 'rgba(253, 230, 138, 0.35)'
+        g.fillRect(x * TILE + TILE / 2 - 1, TOP + y * TILE + TILE / 2 - 1, 2, 2)
+      }
+      for (const gr of this.gremlins) {
+        if (gr.state !== 'roaming' || gr.kind === 'static') continue
+        if (this.inLight(gr, lights)) continue
+        const cx = gr.x * TILE + TILE / 2
+        const cy = TOP + gr.y * TILE + TILE / 2
+        g.fillStyle = gr.sleepy ? RAMPS.sky[4] : '#ffffff'
+        g.fillRect(cx - 3, cy - 3, 2, 2)
+        g.fillRect(cx + 2, cy - 3, 2, 2)
+      }
+      return
+    }
+    if (this.board.sun && !this.boss && !this.sunny()) {
+      g.fillStyle = 'rgba(16, 24, 72, 0.38)'
+      g.fillRect(0, TOP, W, this.maze.height * TILE)
+    }
+  }
+
+  private inLight(
+    at: { x: number; y: number },
+    lights: ReadonlyArray<{ x: number; y: number; r: number }>,
+  ): boolean {
+    return lights.some((l) => Math.hypot(at.x - l.x, at.y - l.y) < l.r * 0.8)
   }
 
   private renderToast(g: CanvasRenderingContext2D) {
@@ -2137,7 +2741,7 @@ class BatteryMaze implements ArcadeGameInstance {
           this.tick,
           neon,
         )
-      drawSwitch(g, s, this.switchState[i]!, this.flips > 0, this.tick)
+      drawSwitch(g, s, this.switchState[i]!, this.flips > 0, this.tick, s.auto)
     })
   }
 
@@ -2309,6 +2913,11 @@ class BatteryMaze implements ArcadeGameInstance {
     const step = frozen ? 0 : Math.floor(this.tick / 6) % 2
     const y = cy - scale
 
+    if (gremlin.state === 'eyes' && gremlin.sulky) {
+      dropShadow(g, cx, cy + 8 * scale, 6 * scale, 1.8 * scale, 0.35)
+      drawSprite(g, art.sleepy[step]!, cx, y, { flipX, scale, alpha: 0.8 })
+      return
+    }
     if (
       gremlin.state === 'friend' ||
       (gremlin.state === 'eyes' && gremlin.friendly)
@@ -2349,7 +2958,14 @@ class BatteryMaze implements ArcadeGameInstance {
       gremlin.kind === 'sprinter' && gremlin.mind.aim > 0 && !gremlin.sleepy
         ? 2
         : 0
-    drawSprite(g, sprite, cx, y + crouch, { flipX, scale })
+    const grow =
+      gremlin.kind === 'snowball' && !gremlin.sleepy
+        ? 1 + Math.floor(gremlin.mind.size)
+        : scale
+    drawSprite(g, sprite, cx, y + crouch - (grow - 1) * 4, {
+      flipX,
+      scale: grow,
+    })
     if (frozen) {
       glow(g, cx, cy, 10, RAMPS.sky[4], 0.5)
       g.fillStyle = 'rgba(190, 235, 255, 0.35)'
@@ -2403,8 +3019,75 @@ class BatteryMaze implements ArcadeGameInstance {
           RAMPS.gold[3],
           0.5,
         )
+    } else if (gremlin.kind === 'blinker' && m.blink > 0) {
+      if (Math.floor(m.blink / 5) % 2 === 0)
+        glow(g, cx, cy, 12, RAMPS.steel[4], 0.7)
+    } else if (gremlin.kind === 'gatekeeper' && m.park > 0) {
+      glow(g, cx, cy, 13, RAMPS.gold[3], 0.35)
     } else if (gremlin.kind === 'snacker' && m.snacks >= SNACKS_TO_OVERCLOCK) {
       glow(g, cx, cy, 11, RAMPS.ember[2], 0.45 + 0.2 * Math.sin(this.tick / 3))
+    }
+  }
+
+  /** The boss: Mama, the Glitch Train or the Overload. */
+  private renderBoss(g: CanvasRenderingContext2D, boss: BossMachine) {
+    if (boss instanceof GremlinMama) this.renderMama(g, boss)
+    else if (boss instanceof GlitchTrain) {
+      for (const t of boss.trains) {
+        const cars = boss.carsOf(t)
+        for (let i = cars.length - 1; i >= 0; i--)
+          drawTrainCar(
+            g,
+            cars[i]!.x,
+            cars[i]!.y,
+            boss.sleepy,
+            i === cars.length - 1,
+            this.tick,
+          )
+        this.renderGremlin(g, {
+          kind: 'chaser',
+          x: t.x,
+          y: t.y,
+          dir: t.dir,
+          state: 'roaming',
+          sleepy: boss.sleepy,
+          corner: t,
+          order: 0,
+          pad: t,
+          mind: freshMind(),
+          friendly: false,
+          hop: null,
+          from: null,
+          sulky: false,
+        })
+        if (boss.sleepy && !cars.length)
+          glow(
+            g,
+            t.x * TILE + TILE / 2,
+            TOP + t.y * TILE + TILE / 2,
+            10,
+            RAMPS.gold[4],
+            0.5,
+          )
+      }
+    } else if (boss instanceof Overload) {
+      if (boss.surge)
+        drawSurge(
+          g,
+          boss.surge.axis,
+          boss.surge.at,
+          boss.surgeLive(),
+          this.tick,
+        )
+      const mood =
+        boss.doneTicks >= 0
+          ? 'calm'
+          : boss.dazed > 0
+            ? 'dazed'
+            : boss.sleepy && boss.phase === 3
+              ? 'sleepy'
+              : 'angry'
+      drawOverload(g, boss.x, boss.y, boss.plugs, mood, this.tick)
     }
   }
 
@@ -2459,9 +3142,13 @@ class BatteryMaze implements ArcadeGameInstance {
     story: { scene: Scene; t: number },
   ) {
     cachedLayer(g, 'battery-maze-break', W, H, paintBreak)
-    drawStars(g, BREAK_STARS, this.tick)
     const { scene, t } = story
-    hudPanel(g, W / 2 - 92, TOP + 32, 184, 26, RAMPS.purple)
+    if (scene.sky === 'dawn') {
+      g.fillStyle = 'rgba(251, 146, 60, 0.28)'
+      g.fillRect(0, 0, W, STAGE_FLOOR + 4)
+    } else drawStars(g, BREAK_STARS, this.tick)
+    const titleW = Math.max(184, measureText(scene.title, 2) + 24)
+    hudPanel(g, W / 2 - titleW / 2, TOP + 32, titleW, 26, RAMPS.purple)
     drawText(g, scene.title, W / 2, TOP + 38, {
       scale: 2,
       align: 'center',
@@ -2489,6 +3176,20 @@ class BatteryMaze implements ArcadeGameInstance {
           g.fill()
           glow(g, a.x - 8, cy - 1, 10, RAMPS.purple[3], 0.35)
           break
+        case 'cake':
+        case 'snow':
+        case 'dark':
+        case 'sun':
+        case 'flowers':
+          drawProp(g, actor.cast, a.x, cy, a.scale, t)
+          break
+        case 'mama': {
+          const frame = Math.floor(t / 9) % 2
+          const art = a.pose === 'friend' ? MAMA_ART.friend : MAMA_ART.sleepy
+          dropShadow(g, a.x, STAGE_FLOOR + 8, 12, 3, 0.4)
+          drawSprite(g, art[frame]!, a.x, cy, { scale: 2, flipX: a.face < 0 })
+          break
+        }
         case 'stars':
           for (let i = 0; i < 3; i++) {
             const ang = t / 7 + (i * Math.PI * 2) / 3
@@ -2509,15 +3210,31 @@ class BatteryMaze implements ArcadeGameInstance {
                 : a.pose === 'friend'
                   ? art.friend[frame]!
                   : art.normal.side[frame]!
-          dropShadow(g, a.x, STAGE_FLOOR + 8, 6, 1.8, 0.4)
-          drawSprite(g, sprite, a.x, cy - 1, { flipX: a.face < 0 })
+          dropShadow(g, a.x, STAGE_FLOOR + 8, 6 * a.scale, 1.8, 0.4)
+          drawSprite(g, sprite, a.x, cy - 1, {
+            flipX: a.face < 0,
+            scale: a.scale,
+          })
         }
       }
+    }
+    if (scene.credits && t >= scene.credits.from) {
+      // The credits roll up from the bottom.
+      const rise = (t - scene.credits.from) * 0.35
+      scene.credits.lines.forEach((line, i) => {
+        const y = H + 10 + i * 18 - rise
+        if (y < STAGE_FLOOR + 30 || y > H - 4) return
+        drawText(g, line, W / 2, y, {
+          align: 'center',
+          color: i === 0 ? RAMPS.gold[3] : RAMPS.steel[4],
+          outline: INK,
+        })
+      })
     }
     for (const c of scene.captions) {
       if (t < c.from || t >= c.to) continue
       drawText(g, c.text, W / 2, TOP + 200, {
-        scale: 2,
+        scale: measureText(c.text, 2) > W - 16 ? 1 : 2,
         align: 'center',
         color: RAMPS.teal[3],
         outline: INK,
@@ -2539,11 +3256,17 @@ class BatteryMaze implements ArcadeGameInstance {
     const w = W - 28
     const y = TOP + 40 + (1 - slide) * 30
     hudPanel(g, x, y, w, 168, RAMPS[b.look.wall])
-    drawText(g, `POWER PHASE ${b.phase}`, W / 2, y + 10, {
-      align: 'center',
-      color: RAMPS.gold[4],
-      outline: INK,
-    })
+    drawText(
+      g,
+      b.secret ? 'THE SECRET BOARD' : `POWER PHASE ${b.phase}`,
+      W / 2,
+      y + 10,
+      {
+        align: 'center',
+        color: RAMPS.gold[4],
+        outline: INK,
+      },
+    )
     drawText(g, `BOARD ${b.number}`, W / 2, y + 26, {
       align: 'center',
       color: RAMPS.teal[3],
@@ -2571,6 +3294,7 @@ class BatteryMaze implements ArcadeGameInstance {
       color: RAMPS.steel[4],
       outline: INK,
     })
+    if (b.secret) return
     const found = this.golden.includes(b.id)
     const label = found ? 'GOLDEN BOLT FOUND' : 'A GOLDEN BOLT HIDES HERE'
     const lw = measureText(label) + 16
@@ -2718,8 +3442,8 @@ class BatteryMaze implements ArcadeGameInstance {
       if (this.train.length) tally(`TRAIN x${this.train.length}`)
       else if (kind && this.special)
         tally(
-          `${kind === 'prize-parade' ? 'PRIZES' : 'TOAST'} ${this.special.caught}/${SPECIALS[kind].target}`,
-          RAMPS.gold,
+          this.specialTally(kind, this.special),
+          this.special.failed ? RAMPS.steel : RAMPS.gold,
         )
       else if (this.maze.switches.length) {
         const max = this.maxFlips()
@@ -2752,7 +3476,7 @@ class BatteryMaze implements ArcadeGameInstance {
       }
     }
     const mazeNo = this.spec ? this.board.mazes.indexOf(this.spec) + 1 : 1
-    const where = this.mama ? 'BOSS' : `${this.board.number}-${mazeNo}`
+    const where = this.boss ? 'BOSS' : `${this.board.number}-${mazeNo}`
     const boltText = String(this.bolts)
     const rightW = measureText(where) + measureText(boltText) + 30
     const rx = W - 3 - rightW
@@ -2795,7 +3519,30 @@ class BatteryMaze implements ArcadeGameInstance {
     }
   }
 
-  /** The bottom gauge: a shield, the sleepy time, a power-up, Mama's patience, or the charge. */
+  /** A special maze's progress, for the HUD. */
+  private specialTally(kind: SpecialKind, sp: SpecialRun): string {
+    if (sp.failed) return 'NEXT TIME!'
+    if (sp.done) return 'DONE!'
+    const target = SPECIALS[kind].target
+    switch (kind) {
+      case 'prize-parade':
+        return `PRIZES ${sp.caught}/${target}`
+      case 'breakfast-rush':
+        return `TOAST ${sp.caught}/${target}`
+      case 'bloom-run':
+        return `FLOWERS ${sp.caught}/${target}`
+      case 'lamp-lighter':
+        return `LAMPS ${sp.caught}/${target}`
+      case 'sunset-charge':
+        return `BANKED ${sp.caught}/${target}`
+      case 'thaw': {
+        const left = Math.max(0, Math.ceil((THAW_TICKS - this.mazeTick) / 60))
+        return `THAW ${Math.floor(left / 60)}:${String(left % 60).padStart(2, '0')}`
+      }
+    }
+  }
+
+  /** The bottom gauge: a shield, the sleepy time, a power-up, the boss's fight, or the charge. */
   private gaugeReading(): [string, number, Ramp] {
     if (this.robot.shield > 0)
       return ['SHIELD', this.robot.shield / SHIELD_TICKS, RAMPS.sky]
@@ -2809,7 +3556,8 @@ class BatteryMaze implements ArcadeGameInstance {
       const p = POWER_UPS[this.power.kind]
       return [p.name.split(' ')[0]!, this.power.ticks / p.ticks, RAMPS.pink]
     }
-    if (this.mama) return ['MAMA', 1 - this.mama.hits / MAMA.hits, RAMPS.pink]
+    if (this.boss)
+      return [BOSS_LABEL[this.boss.id], this.boss.health, RAMPS.pink]
     const total = this.totalSparks || 1
     return [
       'CHARGE',

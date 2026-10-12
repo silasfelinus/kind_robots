@@ -165,7 +165,7 @@ function walk(game: Game, from: Tile, to: Tile): number {
     assert.deepEqual(mazeProblems(maze), [], `${layout.id} is sound`)
     assert.ok(maze.sparks.length > 150, `${layout.id} has plenty of sparks`)
     // Boss dens drop their cells in as the fight goes on.
-    const boss = layout.id === 'mamas-den'
+    const boss = layout.id === 'mamas-den' || layout.id === 'the-core'
     assert.equal(maze.cells.length, boss ? 0 : 4, `${layout.id}'s power cells`)
     assert.ok(maze.dockPads.length >= 3)
   }
@@ -235,6 +235,9 @@ function walk(game: Game, from: Tile, to: Tile): number {
     overclock: 0,
     sees: () => false,
     nearestSpark: () => null,
+    stick: LEFT,
+    hopAcross: () => null,
+    junction: () => false,
     ...over,
   })
   const self = (x: number, y: number) => ({ x, y, mind: freshMind() })
@@ -520,7 +523,8 @@ function walk(game: Game, from: Tile, to: Tile): number {
   const game = play()
   const seen = new Set<string>()
   let heat = 0
-  for (const board of BOARDS) {
+  const open = BOARDS.filter((b) => !b.secret)
+  for (const board of open) {
     for (let i = 0; i < 3; i++) {
       goTo(game, board.id, i)
       seen.add(game.maze.id)
@@ -532,7 +536,7 @@ function walk(game: Game, from: Tile, to: Tile): number {
       )
     }
   }
-  assert.equal(seen.size, BOARDS.length * 3, 'every maze its own layout')
+  assert.equal(seen.size, open.length * 3, 'every maze its own layout')
   assert.ok(LAYOUTS.length > seen.size, 'plus the boss mazes')
 }
 

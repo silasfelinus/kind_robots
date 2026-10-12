@@ -231,7 +231,9 @@
             :title="
               canChangePlayers
                 ? 'Same-device co-op: adjust seats here'
-                : 'Pause this game to change players'
+                : props.slug === 'rainbow-bullet-hell-space-princess'
+                  ? 'Pause to change local pilots'
+                  : 'Pick players on the title screen'
             "
             @click="onPlayersClick"
           >

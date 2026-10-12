@@ -344,6 +344,7 @@ import {
   KEY_MAP,
   P1_KEYS,
   P2_KEYS,
+  readGhostTrailPad,
   stickAim,
   TWIN_KEYS,
 } from '~/utils/arcade/input'
@@ -494,7 +495,10 @@ let sound: ArcadeSound | null = null
 let loop: FixedLoop | null = null
 let resizeObserver: ResizeObserver | null = null
 let wrapObserver: ResizeObserver | null = null
-const input = new ArcadeInput()
+const input = new ArcadeInput(
+  KEY_MAP,
+  props.slug === 'zuzu-ghost-trail' ? readGhostTrailPad : undefined,
+)
 /**
  * Every seat's controls, read only while seated: player 2 has the arrows,
  * players 3 and 4 a gamepad (or a touch cluster) each.

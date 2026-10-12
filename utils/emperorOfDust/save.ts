@@ -4,7 +4,9 @@ const object = (value: unknown): value is Record<string, unknown> =>
   typeof value === 'object' && value !== null && !Array.isArray(value)
 
 const int = (value: unknown, low: number, high: number): value is number =>
-  Number.isSafeInteger(value) && (value as number) >= low && (value as number) <= high
+  Number.isSafeInteger(value) &&
+  (value as number) >= low &&
+  (value as number) <= high
 
 const text = (value: unknown, max = 200): value is string =>
   typeof value === 'string' && value.length > 0 && value.length <= max
@@ -26,7 +28,8 @@ const follower = (value: unknown): value is Follower => {
     value.specialties.length <= 12 &&
     value.specialties.every((tag: unknown) => text(tag, 60)) &&
     (value.dead === undefined || typeof value.dead === 'boolean') &&
-    (value.injuredUntilDay === undefined || int(value.injuredUntilDay, 1, 102)) &&
+    (value.injuredUntilDay === undefined ||
+      int(value.injuredUntilDay, 1, 102)) &&
     (value.availableOnDay === undefined || int(value.availableOnDay, 1, 101))
   )
 }
@@ -60,7 +63,8 @@ const incident = (value: unknown): value is Incident => {
         effect(choice.success) &&
         effect(choice.failure) &&
         (choice.moralEffect === undefined || effect(choice.moralEffect)) &&
-        (choice.injuryDaysOnFailure === undefined || int(choice.injuryDaysOnFailure, 0, 10))
+        (choice.injuryDaysOnFailure === undefined ||
+          int(choice.injuryDaysOnFailure, 0, 10))
       )
     })
   )
@@ -104,22 +108,24 @@ export const isSavedEmperorCampaign = (value: unknown): value is Campaign => {
     value.memorials !== undefined &&
     (!Array.isArray(value.memorials) ||
       value.memorials.length > 100 ||
-      !value.memorials.every((entry: unknown) =>
-        object(entry) &&
-        text(entry.followerId, 30) &&
-        text(entry.incidentId, 100) &&
-        text(entry.reason, 500),
+      !value.memorials.every(
+        (entry: unknown) =>
+          object(entry) &&
+          text(entry.followerId, 30) &&
+          text(entry.incidentId, 100) &&
+          text(entry.reason, 500),
       ))
   ) {
     return false
   }
   if (
-    !value.log.every((entry: unknown) =>
-      object(entry) &&
-      int(entry.hour, 0, 2400) &&
-      text(entry.incidentId, 100) &&
-      ['ignored', 'resolved', 'returned'].includes(String(entry.type)) &&
-      text(entry.detail, 500),
+    !value.log.every(
+      (entry: unknown) =>
+        object(entry) &&
+        int(entry.hour, 0, 2400) &&
+        text(entry.incidentId, 100) &&
+        ['ignored', 'resolved', 'returned'].includes(String(entry.type)) &&
+        text(entry.detail, 500),
     )
   ) {
     return false
@@ -136,7 +142,9 @@ export const isSavedEmperorCampaign = (value: unknown): value is Campaign => {
       !Array.isArray(entry.leaders) ||
       entry.leaders.length < 1 ||
       entry.leaders.length > 3 ||
-      !entry.leaders.every((id: unknown) => typeof id === 'string' && roster.has(id)) ||
+      !entry.leaders.every(
+        (id: unknown) => typeof id === 'string' && roster.has(id),
+      ) ||
       new Set(entry.leaders).size !== entry.leaders.length ||
       !int(entry.hordeSent, 0, 250) ||
       !int(entry.hordeSurvivors, 0, entry.hordeSent) ||
@@ -162,7 +170,8 @@ export const isSavedEmperorCampaign = (value: unknown): value is Campaign => {
         typeof o.success !== 'boolean' ||
         !int(o.lostHorde, 0, entry.hordeSent) ||
         !effect(o.effects) ||
-        (o.injuredFollowerId !== undefined && !roster.has(String(o.injuredFollowerId))) ||
+        (o.injuredFollowerId !== undefined &&
+          !roster.has(String(o.injuredFollowerId))) ||
         (o.injuredUntilDay !== undefined && !int(o.injuredUntilDay, 1, 102))
       ) {
         return false
@@ -185,6 +194,7 @@ export const decodeEmperorSave = (raw: string | null): Campaign | null => {
 }
 
 export const encodeEmperorSave = (campaign: Campaign): string => {
-  if (!isSavedEmperorCampaign(campaign)) throw new Error('Invalid campaign state')
+  if (!isSavedEmperorCampaign(campaign))
+    throw new Error('Invalid campaign state')
   return JSON.stringify({ format: 1, campaign })
 }

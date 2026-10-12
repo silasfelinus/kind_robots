@@ -1134,6 +1134,12 @@ export const ZUZU_LAST_BELL_GREYBOX: TableDef = {
   balls: 3,
   dmd: { at: [0.02, 0.2, -1.04], width: 0.3, occluder: 'backbox' },
   ledRail: ZUZU_LED_RAIL,
+  attract: {
+    title: 'ZUZU',
+    kicker: 'THE',
+    subtitle: 'LAST BELL',
+    picture: 'jaws',
+  },
   zones: [
     {
       id: 'sub-table',

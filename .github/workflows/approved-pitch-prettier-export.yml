@@ -27,6 +27,15 @@ jobs:
           CYPRESS_INSTALL_BINARY: '0'
       - name: Format only new files
         run: npx prettier --write 'pages/admin/daily-pitches/index.vue' 'pages/admin/daily-pitches/[slug].vue' 'utils/approvedPitchProgress.ts' 'utils/scripts/verifyApprovedPitchProgress.test.ts'
+      - name: Emit formatted source manifest
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          paths = ['pages/admin/daily-pitches/index.vue', 'pages/admin/daily-pitches/[slug].vue', 'utils/approvedPitchProgress.ts', 'utils/scripts/verifyApprovedPitchProgress.test.ts']
+          print('KR_FMT_JSON:' + json.dumps({path: Path(path).read_text() for path in paths}, ensure_ascii=True))
+          PY
       - name: Copy detail page for artifact collection
         run: cp 'pages/admin/daily-pitches/[slug].vue' approved-pitch-detail.vue
       - uses: actions/upload-artifact@v4

@@ -10,6 +10,9 @@
 //   Lost & Found          a quick major scamper against the clock.
 //   The Arcade Basement   a minor-key cabinet bop with a hard backbeat.
 //   The Cloud Atrium      slow sine pads and a drifting triangle melody.
+//   The Core              a hard sawtooth drive in D minor.
+//   The Old Mainframe     the Guardian riff, slowed and made grand.
+//   The ending            the Vault's march, slow and warm, in a major key.
 
 import type { MusicLoop } from '../sound'
 
@@ -224,9 +227,116 @@ const ATRIUM_LOOP: MusicLoop = {
   ],
 }
 
+const CORE_LOOP: MusicLoop = {
+  bpm: 150,
+  tracks: [
+    {
+      type: 'sawtooth',
+      vol: 0.03,
+      steps: bars(
+        'D2 D2 D3 D2 F2 D2 G2 A2',
+        'D2 D2 D3 D2 C3 A#2 A2 F2',
+        'A#1 A#1 A#2 A#1 D2 A#1 C2 D2',
+        'C2 C2 C3 C2 E2 G2 A2 C3',
+        'D2 D2 D3 D2 F2 D2 G2 A2',
+        'D2 D2 D3 D2 C3 A#2 A2 F2',
+        'G1 G1 G2 G1 A#1 D2 E2 G2',
+        'A1 . A2 . C#2 - - .',
+      ),
+    },
+    {
+      type: 'square',
+      vol: 0.02,
+      steps: bars(
+        'A4 - . D5 - . F5 .',
+        'E5 - D5 . C5 . A4 .',
+        'A#4 - . D5 - . F5 .',
+        'E5 - . G5 - . E5 .',
+        'A5 - . F5 - . D5 .',
+        'E5 . F5 . G5 . A5 .',
+        'A#5 - A5 . G5 . E5 .',
+        'C#5 - - - E5 - A5 .',
+      ),
+    },
+    { noise: true, vol: 0.035, steps: eight('x . x x x . x x') },
+  ],
+}
+
+/** The Old Mainframe: the Guardian riff, slowed and made grand, over a tape-drive whirr. */
+export const FINALE_LOOP: MusicLoop = {
+  bpm: 120,
+  tracks: [
+    {
+      type: 'sawtooth',
+      vol: 0.035,
+      steps: bars(
+        'A1 - A2 - A1 - A2 -',
+        'F1 - F2 - F1 - F2 -',
+        'D2 - D3 - D2 - D3 -',
+        'E2 - E3 - E2 - G#2 -',
+        'A1 - A2 - A1 - A2 -',
+        'F1 - F2 - F1 - F2 -',
+        'G1 - G2 - G1 - G2 -',
+        'E2 - - - E2 - G#2 -',
+      ),
+    },
+    {
+      type: 'square',
+      vol: 0.022,
+      steps: bars(
+        'E5 - - - A5 - C6 -',
+        'B5 - A5 - F5 - - -',
+        'F5 - - - A5 - D6 -',
+        'B5 - - - G#5 - E5 -',
+        'A5 - - - C6 - E6 -',
+        'D6 - C6 - A5 - - -',
+        'B5 - D6 - B5 - G5 -',
+        'G#5 - - - - - - -',
+      ),
+    },
+    { noise: true, vol: 0.03, steps: eight('x . . . x . x .') },
+  ],
+}
+
+/** The ending: the Vault's march, slow and warm, in a major key. */
+export const ENDING_LOOP: MusicLoop = {
+  bpm: 84,
+  tracks: [
+    {
+      type: 'triangle',
+      vol: 0.07,
+      steps: bars(
+        'C3 - G3 - C4 - G3 -',
+        'A2 - E3 - A3 - E3 -',
+        'F2 - C3 - F3 - C3 -',
+        'G2 - D3 - G3 - D3 -',
+        'C3 - G3 - C4 - G3 -',
+        'A2 - E3 - A3 - E3 -',
+        'F2 - C3 - G2 - D3 -',
+        'C3 - - - - - - -',
+      ),
+    },
+    {
+      type: 'sine',
+      vol: 0.05,
+      steps: bars(
+        'E5 - - - G5 - C6 -',
+        'C6 - B5 - A5 - - -',
+        'A5 - - - C6 - F6 -',
+        'D6 - - - B5 - G5 -',
+        'E5 - G5 - C6 - E6 -',
+        'D6 - C6 - A5 - - -',
+        'F5 - A5 - G5 - B5 -',
+        'C6 - - - - - - -',
+      ),
+    },
+  ],
+}
+
 export const WING_LOOPS: readonly MusicLoop[] = [
   VAULT_LOOP,
   LIBRARY_LOOP,
   BASEMENT_LOOP,
   ATRIUM_LOOP,
+  CORE_LOOP,
 ]

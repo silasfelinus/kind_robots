@@ -1,9 +1,16 @@
 import assert from 'node:assert/strict'
 import {
-  PINKWAKE, pinkwakeDialogue, pinkwakeScene, pinkwakeSpawn, pinkwakeStage,
+  PINKWAKE,
+  pinkwakeDialogue,
+  pinkwakeScene,
+  pinkwakeSpawn,
+  pinkwakeStage,
 } from '../arcade/games/rainbowPinkwake'
 import {
-  BOSS_MAX_HP, bossTelegraph, createPinkwakeBoss, stepPinkwakeBoss,
+  BOSS_MAX_HP,
+  bossTelegraph,
+  createPinkwakeBoss,
+  stepPinkwakeBoss,
 } from '../arcade/games/rainbowPinkwakeBoss'
 import { createRainbowPrincessPreview } from '../arcade/games/rainbowPrincessPreview'
 import { emptyInput } from '../arcade/types'
@@ -18,7 +25,11 @@ assert.equal(pinkwakeSpawn(312), 'picket')
 assert.equal(pinkwakeSpawn(1320), 'spiral')
 assert.equal(pinkwakeSpawn(2450), 'anchor')
 assert.equal(pinkwakeSpawn(3362), 'urchin')
-assert.equal(pinkwakeSpawn(PINKWAKE.turnStarts), null, 'pre-boss dialogue is safe')
+assert.equal(
+  pinkwakeSpawn(PINKWAKE.turnStarts),
+  null,
+  'pre-boss dialogue is safe',
+)
 assert.equal(pinkwakeScene(10, null)?.id, 'A01.OPEN')
 assert.equal(pinkwakeScene(1100, null), null)
 assert.equal(pinkwakeScene(PINKWAKE.turnStarts, null)?.id, 'A01.TURN')
@@ -37,7 +48,10 @@ for (const count of [1, 2, 3, 4]) {
         const active = ['Maribel', 'Azure', 'Solenne', 'Vivi'].slice(0, count)
         assert.ok(line.speaker === 'Lilt-7' || active.includes(line.speaker))
       }
-      assert.equal(pinkwakeDialogue(scene, PINKWAKE.aftermathFrames, count, rescued), null)
+      assert.equal(
+        pinkwakeDialogue(scene, PINKWAKE.aftermathFrames, count, rescued),
+        null,
+      )
     }
   }
 }
@@ -51,8 +65,11 @@ for (let tick = 0; tick < 510; tick++) {
   warned ||= bossTelegraph(boss)
   const volley = stepPinkwakeBoss(boss, [{ x: 60, y: 130, lives: 3 }])
   bullets += volley.length
-  assert.ok(volley.every((bullet) =>
-    bullet.vx < 0 && Math.hypot(bullet.vx, bullet.vy) <= 2.11))
+  assert.ok(
+    volley.every(
+      (bullet) => bullet.vx < 0 && Math.hypot(bullet.vx, bullet.vy) <= 2.11,
+    ),
+  )
 }
 assert.equal(boss.phase, 3)
 assert.ok(warned, 'boss has visible shot telegraph')
@@ -66,9 +83,14 @@ function rng(seed = 427) {
     return state / 0x100000000
   }
 }
-const create = () => createRainbowPrincessPreview({
-  rng: rng(), sound: { play() {} }, demo: true, hiScore: 0, players: 2,
-})
+const create = () =>
+  createRainbowPrincessPreview({
+    rng: rng(),
+    sound: { play() {} },
+    demo: true,
+    hiScore: 0,
+    players: 2,
+  })
 const a = create()
 const b = create()
 for (let tick = 0; tick < 4650; tick++) {
@@ -76,11 +98,22 @@ for (let tick = 0; tick < 4650; tick++) {
   a.update(frame, [frame, frame])
   b.update(frame, [frame, frame])
   if (tick % 300 === 0 || tick > 4498) {
-    assert.deepEqual(a.snapshot, b.snapshot, `Act I desynchronized at tick ${tick}`)
+    assert.deepEqual(
+      a.snapshot,
+      b.snapshot,
+      `Act I desynchronized at tick ${tick}`,
+    )
   }
 }
 assert.equal(a.snapshot.act, 'S01')
 assert.equal(a.snapshot.stage, 'boss')
-assert.ok(a.snapshot.boss, 'Pearl Seahorse enters after authored pre-boss scene')
-assert.equal(a.snapshot.sceneId, null, 'dangerous boss volley has no dialogue overlay')
+assert.ok(
+  a.snapshot.boss,
+  'Pearl Seahorse enters after authored pre-boss scene',
+)
+assert.equal(
+  a.snapshot.sceneId,
+  null,
+  'dangerous boss volley has no dialogue overlay',
+)
 console.log('Pinkwake Act I wave, comms and boss fixtures passed')

@@ -3,7 +3,9 @@
     class="kr-scroll journey-shell mx-auto w-full max-w-[1650px] space-y-5 px-3 py-5 sm:px-6"
     :class="{ 'journey-reduced-motion': reducedMotion }"
   >
-    <header class="flex flex-wrap items-end justify-between gap-3">
+    <header
+      class="kr-panel-flat flex flex-wrap items-end justify-between gap-3 px-4 py-3"
+    >
       <div>
         <p class="text-xs font-black uppercase tracking-[.25em] text-warning">
           Admin playtest · Five-land expedition

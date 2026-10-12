@@ -48,12 +48,6 @@
         <section class="kr-panel-section-plain shadow-lg text-center">
           <p class="text-6xl leading-none font-semibold">汉字</p>
           <p class="kr-text-black-2xl mt-3">Mandarin Tutor</p>
-          <p class="mx-auto mt-3 max-w-prose leading-relaxed">
-            A course that teaches you what the characters are actually doing —
-            which piece carries the meaning, which piece carries the sound, and
-            which other words are built the same way — and only then asks you to
-            recall them.
-          </p>
 
           <div
             v-if="pointTotals.totalPoints > 0"

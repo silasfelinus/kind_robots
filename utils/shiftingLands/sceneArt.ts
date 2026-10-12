@@ -9,6 +9,62 @@
 const SCENE = '/zuzu-gamebook/scenes/'
 const SECTION = '/zuzu-gamebook/scenes/sections/'
 const STAGE = '/zuzu-showdown-stages/'
+const CARD = '/shifting-lands/cards/'
+
+// zuzu-shifting-lands t-023/t-026: cards whose own painting has been picked
+// from a conductor art round (projects/zuzu-shifting-lands/art/ROUND-*.yaml)
+// and exported to public/shifting-lands/cards/<id>.webp. Encounter ids, plus
+// trial-<landId> for a land's major trial. A listed card wins over reuse.
+export const BESPOKE_CARDS: readonly string[] = [
+  'a-crust-for-the-road',
+  'a-cup-offered',
+  'ashes-at-the-border',
+  'family-at-the-fence',
+  'feathers-in-the-draft',
+  'footprints-in-the-silt',
+  'gate-still-open',
+  'lanterns-on-the-raft',
+  'marks-below-water',
+  'mirror-in-the-ash',
+  'one-place-by-the-fire',
+  'rope-at-dawn',
+  'salt-on-the-threshold',
+  'scarecrows-lantern',
+  'shelter-for-the-storm',
+  'the-banner-in-the-wind',
+  'the-candle-court',
+  'the-closed-infirmary',
+  'the-cooling-stones',
+  'the-forgotten-pledge',
+  'the-last-watchfire',
+  'the-locked-dormitory',
+  'the-map-in-ashes',
+  'the-mended-compass',
+  'the-night-watch-debt',
+  'the-orchard-debt',
+  'the-price-of-silence',
+  'the-prisoner-of-dusk',
+  'the-red-vial',
+  'the-reed-music',
+  'the-silent-bell',
+  'the-third-shadow',
+  'the-watchful-overhang',
+  'three-cups-on-the-table',
+  'three-doors-no-hinges',
+  'toll-of-two-names',
+  'trial-cave',
+  'trial-tablelands',
+  'trial-verge',
+  'two-empty-buckets',
+  'voices-across-the-rock',
+  'weighed-in-salt',
+]
+
+const bespoke = new Set(BESPOKE_CARDS)
+
+export function bespokeArt(cardId: string): string | null {
+  return bespoke.has(cardId) ? CARD + cardId + '.webp' : null
+}
 
 export const LAND_SCENERY: Readonly<Record<string, string>> = {
   homestead: SCENE + 'dust-road.webp',
@@ -112,11 +168,18 @@ export function encounterArt(
   location: { id: string; art: string | null } | null,
 ): string {
   if (encounter?.art) return encounter.art
+  const painted = encounter ? bespokeArt(encounter.id) : null
+  if (painted) return painted
   if (encounter && ENCOUNTER_ART[encounter.id])
     return ENCOUNTER_ART[encounter.id]!
   return location ? locationArt(landId, location) : landScenery(landId)
 }
 
 export function trialArt(landId: string, bossArt: string | null): string {
-  return bossArt ?? TRIAL_ART[landId] ?? landScenery(landId)
+  return (
+    bespokeArt('trial-' + landId) ??
+    bossArt ??
+    TRIAL_ART[landId] ??
+    landScenery(landId)
+  )
 }

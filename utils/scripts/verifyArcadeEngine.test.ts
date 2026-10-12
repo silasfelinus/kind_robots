@@ -41,6 +41,7 @@ import {
   ARCADE_GAMES,
   COMING_SOON,
   findArcadeGame,
+  HALL_GAMES,
   isPlausibleScore,
   loadArcadeGame,
   overrideWebGLSupport,
@@ -2034,11 +2035,21 @@ async function runPinball3d() {
   const hall = ARCADE_GAMES.find((game) => game.slug === 'kind-pinball')!
   assert.equal(hall.renderMode, 'webgl', 'the hall plays the 3D table')
   assert.equal(findArcadeGame('kind-pinball'), hall)
-  assert.deepEqual(
-    PREVIEW_GAMES.map((game) => game.slug),
-    ['zuzu-pinball'],
-    'the only preview cabinet is Zuzu and it is not in the public hall',
+  assert.ok(
+    PREVIEW_GAMES.some((game) => game.slug === 'zuzu-pinball'),
+    'the private Zuzu pinball preview must remain registered',
   )
+  for (const preview of PREVIEW_GAMES) {
+    assert.ok(
+      !HALL_GAMES.some((game) => game.slug === preview.slug),
+      `private preview ${preview.slug} must not appear in the public hall`,
+    )
+    assert.equal(
+      isPlausibleScore(preview.slug, 100_000),
+      false,
+      `private preview ${preview.slug} must not post public scores`,
+    )
+  }
   assert.equal(
     isPlausibleScore('zuzu-pinball', 100_000),
     false,

@@ -6,13 +6,9 @@
 -->
 <template>
   <section class="kr-container max-w-3xl flex flex-col gap-6 p-4 sm:p-6">
-    <header class="flex flex-col gap-1">
-      <h1 class="kr-text-black-2xl">Account &amp; Privacy</h1>
-      <p class="kr-text-dim-sm-70">
-        You're in control. Change what you share, who can reach you, and what
-        lands in your inbox.
-      </p>
-    </header>
+    <h2 class="kr-panel-flat kr-text-black-xl px-4 py-3">
+      Account &amp; Privacy
+    </h2>
 
     <div
       v-if="!userStore.isLoggedIn || userStore.isGuest"

@@ -7,19 +7,7 @@
      non-admin visitor can ever reach. -->
 <template>
   <section class="kr-unbound kr-container space-y-6 p-4">
-    <header class="flex flex-wrap items-center justify-between gap-3">
-      <div class="flex items-center gap-3">
-        <span class="kr-icon-tile">
-          <Icon name="kind-icon:toolbox" class="kr-icon-7" />
-        </span>
-        <div>
-          <p class="kr-text-black-2xl tracking-tight">AppMaker</p>
-          <p class="kr-text-dim-sm">
-            The app factory — every app is a workspace folder, a project
-            roadmap, and a Dream sharing one slug.
-          </p>
-        </div>
-      </div>
+    <header class="flex justify-end">
       <div class="flex items-center gap-2">
         <button class="kr-btn-plain" :disabled="loading" @click="refresh">
           {{ loading ? 'Refreshing…' : 'Refresh' }}
@@ -87,11 +75,6 @@
               createMessage
             }}</span>
           </div>
-          <p class="kr-text-faded-xs">
-            Creating an app files a scaffold request for the agents: the
-            workspace folder, project roadmap, and art prompts appear after the
-            next Worker cycle.
-          </p>
         </template>
         <p v-else class="kr-text-faded-sm">
           Admin sign-in required — AppMaker is an internal tool.

@@ -13,6 +13,12 @@ image: /images/channels/home/shared-with-me.webp
 route: /shared-with-me
 sort: 78
 requiredPermission: authenticated
+tutorial:
+  title: Shared With Me
+  body: >-
+    Projects, resources and packs other people have shared with your account,
+    in one list. Each entry names what was shared, who shared it, and the
+    access level you were given.
 ---
 
 Characters, art, and other creations that other members have shared with you.

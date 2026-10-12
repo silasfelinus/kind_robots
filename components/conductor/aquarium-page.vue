@@ -5,7 +5,6 @@
     slug="cthulhuquarium"
     :fallback="config"
     :show-deliverables="false"
-    :show-intro="false"
     wide
   >
     <template #interactive>
@@ -58,20 +57,6 @@ const config: ProjectFrontConfig = {
     'It sits in the back of the curiosity shop, and now it is yours to feed.',
   description:
     'A darkly funny aquarium. Every fed creature drops coins: tap them, buy more creatures, and fill the tank.',
-  sections: [
-    {
-      key: 'loop',
-      title: 'Coins from every fish',
-      body: 'Every fed creature drops coins; tap them before they fade, then buy more fish and a bigger tank.',
-      icon: 'kind-icon:coin',
-    },
-    {
-      key: 'collect',
-      title: 'Collect the unlistable',
-      body: 'Each unlock reveals a field note written by someone who is not telling you everything.',
-      icon: 'kind-icon:fish',
-    },
-  ],
   deliverables: {
     done: [
       'Server-backed tanks with real offline income',

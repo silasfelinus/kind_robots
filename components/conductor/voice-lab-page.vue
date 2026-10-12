@@ -199,20 +199,6 @@ const config: ProjectFrontConfig = {
     href: '/serendipity',
     icon: 'kind-icon:microphone',
   },
-  sections: [
-    {
-      key: 'skill',
-      title: 'The skill',
-      body: 'An Alexa skill that hands your voice to the Kind Robots narrators and back.',
-      icon: 'kind-icon:microphone',
-    },
-    {
-      key: 'relay',
-      title: 'The relay',
-      body: 'A local relay bridges the skill to the app; its status tells you if voice is live.',
-      icon: 'kind-icon:server',
-    },
-  ],
   deliverables: {
     done: [
       'Voice skill + local relay prototype',

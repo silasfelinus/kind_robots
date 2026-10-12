@@ -48,6 +48,13 @@ import type {
 import {
   CARRIER_FRAMES,
   COCOON_SPRITES,
+  LATE_FRAMES,
+  drawApple,
+  drawBolt,
+  drawFrost,
+  drawIceBlock,
+  drawLantern,
+  drawLeafPile,
   COCOON_WARN_SPRITES,
   LIFE_SPRITE,
   RIDER_FRAMES,
@@ -67,13 +74,16 @@ import {
   ARENAS,
   CHAMPIONS,
   CLASSIC_ARENA,
+  PETAL_ARENAS,
   PUFF_START,
   PUFF_STAND,
-  WAVES_PER_ARENA,
+  RAINBOW_LISTS,
+  SIGNATURE_WAVE,
   arenaAt,
   arenaHeat,
   crumbleAt,
   flowerState,
+  moonState,
   thermalOn,
   type Arena,
   type LedgeLook,
@@ -92,11 +102,9 @@ import {
   type ShopItem,
   type Upgrades,
 } from '../butterflyJoust/campaign'
-import {
-  createChampion,
-  type BoutCtx,
-  type Champion,
-} from '../butterflyJoust/champions'
+import type { BoutCtx, Champion } from '../butterflyJoust/champions'
+import { createChampion } from '../butterflyJoust/bouts'
+import { CREDITS } from '../butterflyJoust/credits'
 import {
   CEILING,
   H,
@@ -109,16 +117,20 @@ import {
   type Ledge,
 } from '../butterflyJoust/field'
 import {
+  ARENA_MUSIC,
   CHAMPION_MUSIC,
+  ENDING_MUSIC,
   GARDEN_MUSIC,
-  MEADOW_MUSIC,
-  SUNSET_MUSIC,
 } from '../butterflyJoust/music'
 import {
   CLASSIC_TIERS,
+  DIVE,
+  FROST,
   GLIDE,
+  LANCE,
   POLLEN,
   ROSTER,
+  SHELL_POINTS,
   type RiderKind,
 } from '../butterflyJoust/roster'
 import {
@@ -128,6 +140,7 @@ import {
   COMBO_WINDOW,
   FROG,
   KNOCK_TICKS,
+  LANTERN_WAVE,
   LUNGE_TICKS,
   TEAM_BONUS,
   THUNDERCAP,
@@ -144,20 +157,36 @@ import {
   type WaveKind,
 } from '../butterflyJoust/rules'
 import {
+  paintBranch,
+  paintCloudLedge,
+  paintCloudSea,
+  paintFloe,
   paintFlower,
+  paintHeightsSky,
+  paintIcePond,
   paintLeaf,
+  paintLedge,
   paintLedges,
   paintLilyPond,
   paintMeadowSky,
+  paintMirrorPool,
+  paintMoonSky,
+  paintOrchardSky,
   paintPond,
   paintPuff,
+  paintRain,
+  paintRainbowSky,
+  paintSnowSky,
+  paintStream,
   paintSunsetSky,
   paintThermal,
+  paintVane,
   paintWind,
 } from '../butterflyJoust/scenery'
 import {
   drawArenaCard,
   drawChampionBar,
+  drawEnding,
   drawGarden,
   drawMenu,
   drawResult,
@@ -185,6 +214,8 @@ const LEVEL_BAND = 6
 const INVULN_TICKS = 120
 /** How long an arena's title card shows. */
 const CARD_TICKS = 150
+/** The ending and its credits run this long (A skips them after a few seconds). */
+const ENDING_TICKS = 60 * 40
 /** The thermal lift stops speeding a flier up past this. */
 const THERMAL_MAX_RISE = -1.8
 
@@ -223,6 +254,15 @@ type ArenaLedge = Ledge & {
   /** A dandelion puff (it rises, and bursts after it is stood on). */
   puff: boolean
   stood: number
+  /** A paper lantern (it rises and fades): ticks of life left. */
+  lantern: number
+  /** Frozen by frost: ticks left. Stand on it too long and you freeze too. */
+  frozen: number
+  /** A slab of the frozen pond: landings crack it, and the third breaks it. */
+  floe: boolean
+  cracks: number
+  /** Lightning is about to strike it: ticks of warning left. */
+  flash: number
 }
 
 type Body = {
@@ -257,6 +297,14 @@ export type Rider = Body & {
   held: boolean
   /** Sneezing from a pollen puff: ticks of lost control. */
   sneeze: number
+  /** Frozen on a frosted ledge: ticks stuck fast. */
+  stuck: number
+  /** Ticks stood on a frosted ledge (it freezes you at FROST.chill). */
+  chill: number
+  /** Wings iced over by the Frost Moth Queen's veil: ticks with no flap. */
+  iced: number
+  /** Rain-soaked wings (0..1): every flap lifts less. */
+  wet: number
   /** This seat's own points and bonks (the party's tallies). */
   points: number
   bonks: number
@@ -279,6 +327,14 @@ type Rival = Body & {
   held: boolean
   /** A pollen bomber's wait before its next drop. */
   drop: number
+  /** A shield beetle's shell is still on. */
+  shell: boolean
+  /** A diver's or lancer's step (0 cruising) and its timer. */
+  state: number
+  timer: number
+  /** Bumped its head on a ledge: ticks spent flying round it, and which way. */
+  around: number
+  aroundDir: number
 }
 type Cocoon = {
   x: number
@@ -289,6 +345,8 @@ type Cocoon = {
   kind: RiderKind
   /** A carrier is on its way for it. */
   called: boolean
+  /** Hidden in a leaf pile until a rider blows through it. */
+  hidden: boolean
 }
 type Carrier = Body & {
   target: Cocoon | null
@@ -310,6 +368,20 @@ type Frog = {
   grip: number
 }
 type Wind = { state: 'calm' | 'tell' | 'blow'; t: number; dir: number }
+type Rain = { state: 'dry' | 'tell' | 'rain'; t: number }
+type Apple = {
+  x: number
+  y: number
+  vx: number
+  vy: number
+  ground: ArenaLedge | null
+  rot: number
+  kicked: boolean
+}
+type Pile = { ledge: ArenaLedge; scatter: number }
+type Bolt = { x: number; y0: number; y1: number; life: number }
+/** A lantern wave's lantern: catch it before it floats away. */
+type Glow = { x: number; y: number; t: number }
 type Spark = {
   x: number
   y: number
@@ -329,7 +401,7 @@ type Banner = { text: string; sub?: string; lines?: string[]; ticks: number }
 
 /** What a game is: the tourney, the Classic Pond, or the party's versus. */
 export type GameMode = 'tourney' | 'classic' | 'versus'
-type MenuId = 'continue' | GameMode
+type MenuId = 'continue' | 'circuit' | GameMode
 
 function newRider(seat: number): Rider {
   return {
@@ -353,6 +425,10 @@ function newRider(seat: number): Rider {
     chargeCool: 0,
     held: false,
     sneeze: 0,
+    stuck: 0,
+    chill: 0,
+    iced: 0,
+    wet: 0,
     points: 0,
     bonks: 0,
     bestCombo: 0,
@@ -399,6 +475,11 @@ function arenaLedge(
     closing: 0,
     puff: false,
     stood: 0,
+    lantern: 0,
+    frozen: 0,
+    floe: false,
+    cracks: 0,
+    flash: 0,
   }
 }
 
@@ -440,6 +521,14 @@ class ButterflyJoust implements ArcadeGameInstance {
   private wings: WingSet[] = []
   private wear: WingSet = 'rainbow'
   private reached = 1
+  private petals: string[] = []
+  private cleared = false
+  /** Champion's Circuit: the tourney again, a lap harder. */
+  private circuit = false
+  /** The Wing Garden's petal hint is bought for the next garden. */
+  private hint = false
+  /** The ending, then the credits. */
+  private ending: { t: number; truly: boolean } | null = null
 
   private riders: Rider[] = []
   private rivals: Rival[] = []
@@ -451,6 +540,24 @@ class ButterflyJoust implements ArcadeGameInstance {
   private stormPopped = false
   private frog: Frog = { state: 'rest', t: 240, x: W / 2, prey: null, grip: 0 }
   private wind: Wind = { state: 'calm', t: 0, dir: 1 }
+  private rain: Rain = { state: 'dry', t: 0 }
+  private rainForced = false
+  private lightningWait = 0
+  private apples: Apple[] = []
+  private appleWait = 0
+  private piles: Pile[] = []
+  private bolts: Bolt[] = []
+  private lanternWait = 0
+  private lanternRush = false
+  private glows: Glow[] = []
+  private glowsSent = 0
+  private glowsCaught = 0
+  /** The Frost Moth Queen's veil: above this a flap ices the wings. */
+  private veilY: number | null = null
+  /** The frozen pond was shattered this arena. */
+  private shattered = false
+  /** Where each seat was, tick by tick (the Mirror Moth's copy). */
+  private history: { x: number; y: number; facing: number }[][] = []
   private puffWait = 0
   private sparks: Spark[] = []
   private floaters: Floater[] = []
@@ -493,6 +600,8 @@ class ButterflyJoust implements ArcadeGameInstance {
       this.wings = [...stored.wings]
       this.wear = stored.wear
       this.reached = stored.reached
+      this.petals = [...stored.petals]
+      this.cleared = stored.cleared
       this.saveData = stored
       if (stored.seats === this.seats && (stored.arena > 0 || stored.score > 0))
         this.offer = stored
@@ -513,8 +622,9 @@ class ButterflyJoust implements ArcadeGameInstance {
   get music(): MusicLoop | null {
     if (this.demo || this.over || this.menu) return null
     if (this.garden) return GARDEN_MUSIC
+    if (this.ending) return ENDING_MUSIC
     if (this.champion && !this.championBeaten) return CHAMPION_MUSIC
-    return this.arena.style === 'meadow' ? MEADOW_MUSIC : SUNSET_MUSIC
+    return ARENA_MUSIC[this.arena.style]
   }
 
   // --- the mode card ---------------------------------------------------------------------
@@ -534,6 +644,12 @@ class ButterflyJoust implements ArcadeGameInstance {
       name: 'TOURNEY',
       about: this.seats > 1 ? 'THE FOUR GARDENS, TOGETHER' : 'THE FOUR GARDENS',
     })
+    if (this.cleared)
+      rows.push({
+        id: 'circuit',
+        name: "CHAMPION'S CIRCUIT",
+        about: 'THE TOURNEY AGAIN, A LAP HARDER',
+      })
     rows.push({
       id: 'classic',
       name: 'CLASSIC POND',
@@ -566,7 +682,12 @@ class ButterflyJoust implements ArcadeGameInstance {
       this.menu = null
       this.sound.play('start')
       if (id === 'continue') this.resumeFrom(this.offer!)
-      else this.startMode(id)
+      else if (id === 'circuit') {
+        this.mode = 'tourney'
+        this.level = 0
+        this.circuit = true
+        this.startArena(ARENAS.length)
+      } else this.startMode(id)
     }
   }
 
@@ -604,18 +725,30 @@ class ButterflyJoust implements ArcadeGameInstance {
   private startArena(index: number) {
     const { arena, lap } = arenaAt(index)
     this.arenaIndex = index
-    this.arena = arena
     this.lap = lap
+    this.openArena(arena)
+    if (!this.demo && this.mode === 'tourney')
+      this.reached = Math.max(this.reached, Math.min(ARENAS.length, index + 1))
+    this.keep()
+  }
+
+  /** An arena's ledges and weather, its title card, and its first wave. */
+  private openArena(arena: Arena) {
+    this.arena = arena
     this.wave = 0
     this.arenaTicks = 0
     this.puffWait = 60
     this.wind = { state: 'calm', t: arena.wind?.every ?? 0, dir: 1 }
+    this.rain = { state: 'dry', t: arena.rain?.every ?? 0 }
+    this.rainForced = false
+    this.lightningWait = arena.lightning?.every ?? 0
+    this.appleWait = arena.apples?.every ?? 0
+    this.lanternWait = 30
+    this.lanternRush = false
+    this.shattered = false
     this.buildLedges(arena)
-    if (!this.demo && this.mode === 'tourney')
-      this.reached = Math.max(this.reached, Math.min(ARENAS.length, index + 1))
     this.card = this.demo ? 60 : CARD_TICKS
     this.nextWave()
-    this.keep()
   }
 
   /** Pick a saved tourney back up at its arena's start. */
@@ -631,7 +764,10 @@ class ButterflyJoust implements ArcadeGameInstance {
     this.wings = [...s.wings]
     this.wear = s.wear
     this.reached = s.reached
-    this.level = s.arena * (WAVES_PER_ARENA + 1)
+    this.petals = [...s.petals]
+    this.cleared = s.cleared
+    this.circuit = s.arena >= ARENAS.length
+    this.level = s.arena * 7
     this.startArena(s.arena)
   }
 
@@ -651,6 +787,8 @@ class ButterflyJoust implements ArcadeGameInstance {
       seats: this.seats,
       continued: false,
       reached: this.reached,
+      petals: [...this.petals],
+      cleared: this.cleared,
     }
   }
 
@@ -659,13 +797,43 @@ class ButterflyJoust implements ArcadeGameInstance {
     this.ledges = arena.ledges.map((spec) =>
       arenaLedge(spec, spec.look ?? base, spec),
     )
+    this.piles = (arena.piles ?? []).map((i) => ({
+      ledge: this.ledges[i]!,
+      scatter: 0,
+    }))
+    this.freezePond()
     this.updateLedges()
+  }
+
+  /** A frozen pond: slabs of ice across the floor (landings crack them; the third breaks one). */
+  private freezePond() {
+    this.ledges = this.ledges.filter((l) => !l.floe)
+    if (this.arena.floor !== 'ice' || this.shattered) return
+    const slabs = 8
+    for (let i = 0; i < slabs; i++) {
+      const l = arenaLedge(null, 'floe', {
+        x0: (i * W) / slabs + 1,
+        x1: ((i + 1) * W) / slabs - 1,
+        y: POND_Y - 6,
+      })
+      l.floe = true
+      this.ledges.push(l)
+    }
+  }
+
+  /** The arena's own ledges (no puffs, lanterns or ice slabs). */
+  private perches(): ArenaLedge[] {
+    return this.ledges.filter((l) => l.spec !== null)
   }
 
   /** The arena's difficulty step now (the curves read it). */
   private heat(): number {
+    if (this.arena === RAINBOW_LISTS) return 30
     if (this.mode === 'tourney')
-      return arenaHeat(this.arenaIndex, Math.min(this.wave, WAVES_PER_ARENA))
+      return arenaHeat(
+        this.arenaIndex,
+        Math.min(this.wave, this.arena.waves.length),
+      )
     if (this.mode === 'versus')
       return 2 + Math.floor(((VERSUS_TICKS - this.versusTicks) / 3600) * 3)
     return this.level
@@ -695,15 +863,31 @@ class ButterflyJoust implements ArcadeGameInstance {
     this.clearing = 0
     this.frog = { state: 'rest', t: 60 * 6, x: W / 2, prey: null, grip: 0 }
     for (const r of this.riders) r.bestCombo = 0
-    this.ledges = this.ledges.filter((l) => !l.puff)
+    this.ledges = this.ledges.filter((l) => !l.puff && !l.lantern)
+    for (const l of this.ledges) {
+      l.frozen = 0
+      l.flash = 0
+    }
+    this.apples = []
+    this.bolts = []
+    this.glows = []
+    this.glowsSent = 0
+    this.glowsCaught = 0
+    this.veilY = null
+    this.lanternRush = false
+    for (const pile of this.piles) pile.scatter = 0
+    this.freezePond()
     this.applyCrumble()
     if (this.mode === 'versus') {
       this.waveKind = 'joust'
       this.placeRiders()
       return
     }
-    const bout = this.mode === 'tourney' && this.wave > WAVES_PER_ARENA
-    if (bout) {
+    const bout =
+      this.mode === 'tourney' &&
+      this.wave > this.arena.waves.length &&
+      this.arena.champion !== null
+    if (bout && this.arena.champion) {
       this.waveKind = 'joust'
       this.champion = createChampion(this.arena.champion)
       const info = CHAMPIONS[this.arena.champion]
@@ -714,7 +898,9 @@ class ButterflyJoust implements ArcadeGameInstance {
     let riders: RiderKind[]
     if (this.mode === 'tourney') {
       const spec = this.arena.waves[this.wave - 1]!
-      this.waveKind = spec.kind
+      // The Team wave needs a team: solo it is the Lantern wave.
+      this.waveKind =
+        spec.kind === 'team' && this.seats < 2 ? 'lantern' : spec.kind
       riders = [...spec.riders]
       // A party faces one more rider for each extra seat.
       if (riders.length)
@@ -730,19 +916,35 @@ class ButterflyJoust implements ArcadeGameInstance {
     if (this.waveKind === 'cocoon') this.layCocoons()
     riders.forEach((kind, i) => this.addRival(kind, i * 40))
     const type = WAVE_TYPES[this.waveKind]
+    const label =
+      this.mode === 'tourney'
+        ? this.arena.waves[this.wave - 1]?.label
+        : undefined
     const title =
       this.mode === 'tourney'
         ? `WAVE ${this.arena.number}-${this.wave}`
         : `WAVE ${this.level}`
     this.banner = {
-      text: this.waveKind === 'joust' ? title : type.title,
+      text: label ?? (this.waveKind === 'joust' ? title : type.title),
       sub:
         this.waveKind === 'joust'
           ? this.coop
             ? `TEAM BONUS ${TEAM_BONUS * this.seats}`
             : undefined
-          : type.rule,
+          : label
+            ? `${type.title}: ${type.rule}`
+            : type.rule,
       ticks: 120,
+    }
+    // The golden petal waits on this garden's signature wave.
+    if (
+      this.mode === 'tourney' &&
+      this.arena.petal &&
+      this.wave === SIGNATURE_WAVE &&
+      !this.petals.includes(this.arena.id)
+    ) {
+      this.banner.lines = [this.hint ? 'GOLDEN PETAL: LOSE NO BUTTERFLY' : '']
+      this.banner.lines = this.banner.lines.filter(Boolean)
     }
     this.placeRiders()
   }
@@ -768,11 +970,18 @@ class ButterflyJoust implements ArcadeGameInstance {
   private layCocoons() {
     const hatch =
       Math.round(levelCurve(this.heat(), JOUST_CURVES.hatchTicks)) + 480
-    const perches = this.ledges.filter((l) => !l.spec?.fold && !l.spec?.move)
+    const perches = this.perches().filter(
+      (l) => !l.spec?.fold && !l.spec?.moonlit,
+    )
     for (let i = 0; i < 8; i++) {
-      const ledge = perches[1 + (i % (perches.length - 1))] ?? perches[0]!
+      // In the orchard the first few hide in the leaf piles.
+      const pile = this.piles[i]
+      const ledge =
+        pile?.ledge ?? perches[1 + (i % (perches.length - 1))] ?? perches[0]!
       const span = ledge.x1 - ledge.x0
-      const x = wrapX(ledge.x0 + span * (0.25 + (0.5 * ((i * 37) % 7)) / 7))
+      const x = pile
+        ? wrapX((ledge.x0 + ledge.x1) / 2)
+        : wrapX(ledge.x0 + span * (0.25 + (0.5 * ((i * 37) % 7)) / 7))
       this.cocoons.push({
         x,
         y: ledge.y - 5,
@@ -781,6 +990,7 @@ class ButterflyJoust implements ArcadeGameInstance {
         hatch: hatch + i * 30,
         kind: 'drifter',
         called: false,
+        hidden: pile !== undefined,
       })
     }
   }
@@ -810,6 +1020,11 @@ class ButterflyJoust implements ArcadeGameInstance {
       spawn: 50 + delay,
       held: false,
       drop: POLLEN.every,
+      shell: ROSTER[kind].shell === true,
+      state: 0,
+      timer: 0,
+      around: 0,
+      aroundDir: 1,
     })
   }
 
@@ -866,6 +1081,10 @@ class ButterflyJoust implements ArcadeGameInstance {
       this.updateGarden(input)
       return
     }
+    if (this.ending) {
+      this.updateEnding(input)
+      return
+    }
     if (this.card > 0) {
       this.card--
       return
@@ -885,6 +1104,7 @@ class ButterflyJoust implements ArcadeGameInstance {
     this.updateLedges()
     this.updatePuffs()
     this.updateWind()
+    this.updateWeather()
     if (this.mode === 'versus') {
       this.updateVersus()
       if (this.result) return
@@ -896,8 +1116,12 @@ class ButterflyJoust implements ArcadeGameInstance {
           ? (players?.[0] ?? input)
           : (players?.[r.seat] ?? blankFrame())
       this.moveRider(r, frame)
+      const trail = (this.history[r.seat] ??= [])
+      trail.push({ x: r.x, y: r.y, facing: r.facing })
+      if (trail.length > 130) trail.shift()
     }
     this.moveRivals()
+    this.moveApples()
     this.moveCocoons()
     this.moveCarriers()
     this.moveDust()
@@ -910,7 +1134,23 @@ class ButterflyJoust implements ArcadeGameInstance {
 
   /** A wave's bell has rung: the next wave, or after a champion, the Wing Garden. */
   private afterClear() {
-    if (this.mode === 'tourney' && this.wave > WAVES_PER_ARENA) {
+    const last =
+      this.mode === 'tourney' &&
+      (this.champion !== null ||
+        (this.arena.champion === null && this.wave >= this.arena.waves.length))
+    if (last) {
+      if (this.arena === RAINBOW_LISTS) {
+        this.startEnding(true)
+        return
+      }
+      if (this.arena.id === 'moon') {
+        // Five golden petals open the Rainbow Lists before the end.
+        if (PETAL_ARENAS.every((id) => this.petals.includes(id)))
+          this.openArena(RAINBOW_LISTS)
+        else this.startEnding(false)
+        return
+      }
+      this.hint = false
       if (this.demo) this.startArena(this.arenaIndex + 1)
       else {
         this.garden = { pick: 0, t: 0 }
@@ -919,6 +1159,40 @@ class ButterflyJoust implements ArcadeGameInstance {
       return
     }
     this.nextWave()
+  }
+
+  /** The tourney is won: a bonus, the festival, then the credits. */
+  private startEnding(truly: boolean) {
+    const bonus = 25_000 + (truly ? 25_000 : 0) + Math.max(0, this.lives) * 2000
+    const share = Math.floor(bonus / this.riders.length)
+    for (const r of this.riders) this.addScore(share, undefined, undefined, r)
+    this.ending = { t: 0, truly }
+    this.champion = null
+    this.cleared = true
+    this.sound.play('extra')
+    if (!this.demo) {
+      this.keep()
+      if (this.saveData)
+        this.saveData = {
+          ...this.saveData,
+          arena: 0,
+          score: 0,
+          lives: START_LIVES,
+          continued: true,
+          cleared: true,
+          petals: [...this.petals],
+        }
+    }
+  }
+
+  private updateEnding(input: InputFrame) {
+    const e = this.ending!
+    e.t++
+    if (
+      e.t > ENDING_TICKS ||
+      (e.t > 60 * 6 && (input.pressed.a || input.pressed.start))
+    )
+      this.over = true
   }
 
   private updateVersus() {
@@ -978,6 +1252,18 @@ class ButterflyJoust implements ArcadeGameInstance {
         l.solid = state.open
         l.closing = state.closing
       }
+      if (spec?.moonlit && this.arena.moon) {
+        const moon = moonState(this.arena.moon, t)
+        l.solid = moon.out
+        l.closing = moon.fading
+      }
+      if (l.frozen > 0) l.frozen--
+      if (l.look === 'lantern' && l.solid) {
+        const rise = this.arena.lanterns?.rise ?? 0.32
+        l.y -= rise
+        l.dy = -rise
+        if (--l.lantern <= 0 || l.y < CEILING + 20) l.solid = false
+      }
       if (l.puff) {
         const rise = this.arena.puffs?.rise ?? 0.4
         l.y -= rise
@@ -989,7 +1275,177 @@ class ButterflyJoust implements ArcadeGameInstance {
         }
       }
     }
-    this.ledges = this.ledges.filter((l) => !l.puff || l.solid)
+    this.ledges = this.ledges.filter(
+      (l) => !(l.puff || l.look === 'lantern') || l.solid,
+    )
+  }
+
+  /** Rain, lightning, apples, lanterns and the lantern wave's lanterns. */
+  private updateWeather() {
+    for (const b of this.bolts) b.life--
+    this.bolts = this.bolts.filter((b) => b.life > 0)
+    for (const pile of this.piles)
+      if (pile.scatter > 0 && pile.scatter < 1)
+        pile.scatter = Math.min(1, pile.scatter + 1 / 30)
+    if (this.mode !== 'tourney') return
+    const a = this.arena
+    const rain = this.rain
+    if (this.rainForced) rain.state = 'rain'
+    else if (a.rain && --rain.t <= 0) {
+      if (rain.state === 'dry') {
+        rain.state = 'tell'
+        rain.t = a.rain.tell
+      } else if (rain.state === 'tell') {
+        rain.state = 'rain'
+        rain.t = a.rain.length
+        this.sound.play('warn')
+      } else {
+        rain.state = 'dry'
+        rain.t = a.rain.every
+      }
+    }
+    if (a.lightning && !this.champion) {
+      const lit = this.ledges.find((l) => l.flash > 0)
+      if (lit) {
+        if (--lit.flash === 0) this.strikeLedge(lit)
+      } else if (--this.lightningWait <= 0) {
+        const options = this.perches().filter((l) => l.solid)
+        const l = options[Math.floor(this.rng() * options.length)]
+        if (l) {
+          l.flash = a.lightning.tell
+          this.sound.play('warn')
+        }
+        this.lightningWait = a.lightning.every
+      }
+    }
+    if (a.apples && --this.appleWait <= 0) {
+      this.appleWait = a.apples.every
+      const branches = this.perches().filter((l) => l.look === 'branch')
+      const l = branches[Math.floor(this.rng() * branches.length)]
+      if (l)
+        this.apples.push({
+          x: wrapX(l.x0 + 8 + this.rng() * Math.max(1, l.x1 - l.x0 - 16)),
+          y: l.y + 10,
+          vx: 0,
+          vy: 0,
+          ground: null,
+          rot: 0,
+          kicked: false,
+        })
+    }
+    if (a.lanterns && --this.lanternWait <= 0) {
+      this.lanternWait = this.lanternRush ? 70 : a.lanterns.every
+      const x = 30 + Math.floor(this.rng() * (W - 60))
+      const half = a.lanterns.width / 2
+      const l = arenaLedge(null, 'lantern', {
+        x0: x - half,
+        x1: x + half,
+        y: POND_Y - 18,
+      })
+      l.lantern = a.lanterns.life
+      this.ledges.push(l)
+    }
+    if (
+      this.waveKind === 'lantern' &&
+      this.glowsSent < LANTERN_WAVE.count &&
+      this.waveTicks % LANTERN_WAVE.every === 1
+    ) {
+      this.glows.push({ x: 40 + this.rng() * (W - 80), y: POND_Y - 24, t: 0 })
+      this.glowsSent++
+    }
+    for (const g of this.glows) {
+      g.t++
+      g.y -= 0.3
+      g.x = wrapX(g.x + Math.sin(g.t / 40) * 0.35)
+    }
+    this.glows = this.glows.filter((g) => g.y > CEILING + 8)
+  }
+
+  /** Lightning strikes a whole ledge: anyone standing on it is caught. */
+  private strikeLedge(l: ArenaLedge) {
+    const x = wrapX((l.x0 + l.x1) / 2)
+    this.bolts.push({ x, y0: CEILING, y1: l.y, life: 14 })
+    this.sound.play('boom')
+    this.burst(x, l.y, 16, RAMPS.gold[4])
+    const caught = (b: Body) =>
+      b.ground === l ||
+      (onLedge(l, b.x) &&
+        l.y - (b.y + HALF_H) > -3 &&
+        l.y - (b.y + HALF_H) < 26)
+    for (const r of this.active())
+      if (r.invuln <= 0 && !r.held && caught(r)) this.loseLife(r)
+    for (const r of this.rivals) if (r.spawn <= 0 && caught(r)) r.spawn = -1
+    this.rivals = this.rivals.filter((r) => r.spawn >= 0)
+  }
+
+  /** A bolt straight down at x from fromY to the first ledge below (a champion's strike). */
+  private strikeColumn(x: number, fromY: number) {
+    let bottom = POND_Y
+    for (const l of this.ledges)
+      if (l.solid && l.y > fromY && l.y < bottom && onLedge(l, x)) bottom = l.y
+    this.bolts.push({ x, y0: fromY, y1: bottom, life: 14 })
+    this.burst(x, bottom, 12, RAMPS.gold[4])
+    const hit = (b: Body) =>
+      Math.abs(wrapDx(x, b.x)) < 12 && b.y > fromY - 8 && b.y < bottom + 4
+    for (const r of this.active())
+      if (r.invuln <= 0 && !r.held && hit(r)) this.loseLife(r)
+    for (const r of this.rivals) if (r.spawn <= 0 && hit(r)) r.spawn = -1
+    this.rivals = this.rivals.filter((r) => r.spawn >= 0)
+  }
+
+  /** Apples fall, rest on ledges, and knock riders about. */
+  private moveApples() {
+    for (const a of this.apples) {
+      a.rot++
+      if (a.ground) {
+        if (
+          !a.ground.solid ||
+          !this.ledges.includes(a.ground) ||
+          !onLedge(a.ground, a.x)
+        )
+          a.ground = null
+        else {
+          a.x = wrapX(a.x + a.ground.dx + a.vx)
+          a.vx *= 0.9
+          a.y = a.ground.y - 5
+          continue
+        }
+      }
+      a.vy = Math.min(MAX_FALL, a.vy + 0.12)
+      const prev = a.y
+      a.x = wrapX(a.x + a.vx)
+      a.y += a.vy
+      for (const l of this.ledges) {
+        if (
+          a.vy > 0 &&
+          l.solid &&
+          onLedge(l, a.x) &&
+          prev + 5 <= l.y &&
+          a.y + 5 >= l.y
+        ) {
+          a.y = l.y - 5
+          a.vy = 0
+          a.ground = l
+          a.kicked = false
+        }
+      }
+      for (const r of this.rivals) {
+        if (r.spawn > 0 || r.held) continue
+        if (Math.abs(wrapDx(a.x, r.x)) > 11 || Math.abs(a.y - r.y) > 11)
+          continue
+        if (a.vy < 1 && !a.kicked) continue
+        // Knocked down a ledge.
+        r.vy = 3
+        r.ground = null
+        r.cooldown = 45
+        a.rot = 9999
+        this.burst(a.x, a.y, 10, RAMPS.ember[2])
+        this.sound.play('pop')
+        if (a.kicked)
+          this.floaters.push({ x: r.x, y: r.y - 18, text: 'BONK!', life: 40 })
+      }
+    }
+    this.apples = this.apples.filter((a) => a.y < POND_Y && a.rot < 700)
   }
 
   /** Dandelion puffs float up from the meadow now and then. */
@@ -1082,6 +1538,7 @@ class ButterflyJoust implements ArcadeGameInstance {
         b.vy = 0
         b.ground = l
         if (l.puff && l.stood === 0) l.stood = 1
+        if (l.floe) this.crack(l)
       } else if (
         b.vy < 0 &&
         prevTop >= l.y + THICK &&
@@ -1096,6 +1553,15 @@ class ButterflyJoust implements ArcadeGameInstance {
       b.vy = Math.abs(b.vy) * 0.4
     }
     return b.y > POND_Y
+  }
+
+  /** A landing cracks the frozen pond; the third breaks the slab. */
+  private crack(l: ArenaLedge) {
+    l.cracks++
+    if (l.cracks < 3) return
+    l.solid = false
+    this.burst((l.x0 + l.x1) / 2, l.y, 14, RAMPS.sky[4])
+    this.sound.play('pop')
   }
 
   /** A lit thermal lifts any flier inside it. */
@@ -1127,10 +1593,39 @@ class ButterflyJoust implements ArcadeGameInstance {
       r.sneeze--
       input = blankFrame()
     }
+    if (r.stuck > 0) {
+      // Frozen fast to a frosted ledge.
+      r.stuck--
+      input = blankFrame()
+      r.vx = 0
+    }
+    if (r.iced > 0) r.iced--
     // The flap: tap A; holding A keeps flapping at a steady beat for touch players.
     if (r.autoFlap > 0) r.autoFlap--
-    const tapped = input.pressed.a
-    const auto = !tapped && input.held.a && r.autoFlap === 0
+    let tapped = input.pressed.a
+    let auto = !tapped && input.held.a && r.autoFlap === 0
+    if (
+      (tapped || auto) &&
+      !r.held &&
+      this.veilY !== null &&
+      r.y < this.veilY &&
+      r.iced === 0
+    ) {
+      // The Frost Moth Queen's veil: a flap up here ices the wings over.
+      r.iced = 45
+      this.floaters.push({
+        x: r.x,
+        y: r.y - 20,
+        text: 'WINGS ICED!',
+        life: 45,
+        color: RAMPS.sky[4],
+      })
+      this.sound.play('warn')
+    }
+    if (r.iced > 0 && !r.held) {
+      tapped = false
+      auto = false
+    }
     if (r.held) {
       // In the frog's grip: only flapping hard breaks free.
       if (tapped || auto) {
@@ -1147,13 +1642,19 @@ class ButterflyJoust implements ArcadeGameInstance {
     if (input.held.left) dx -= 1
     if (input.held.right) dx += 1
     if (dx && r.lunge === 0) r.facing = dx
+    const slick =
+      r.ground &&
+      (r.ground.look === 'ice' || r.ground.floe || r.ground.frozen > 0)
     if (r.ground) {
-      r.vx = dx ? r.vx + dx * 0.15 : r.vx * 0.8
+      // Ice: slow to get going, slower to stop.
+      if (slick) r.vx = dx ? r.vx + dx * 0.07 : r.vx * 0.985
+      else r.vx = dx ? r.vx + dx * 0.15 : r.vx * 0.8
     } else if (dx) {
       r.vx += dx * AIR_ACCEL
     }
     if (tapped || auto) {
-      this.flapBody(r, this.riderFlap())
+      // Rain-soaked wings lift less.
+      this.flapBody(r, this.riderFlap() * (1 - 0.35 * r.wet))
       r.autoFlap = AUTO_FLAP_TICKS
       if (this.tick % 2 === 0) this.sound.play('blip')
     }
@@ -1162,14 +1663,69 @@ class ButterflyJoust implements ArcadeGameInstance {
     const max = r.lunge > 0 ? r.lungeV : AIR_MAX
     if (r.lunge > 0) r.vx = r.facing * r.lungeV
     if (this.physics(r, max)) {
-      this.splash(r)
+      if (this.arena.floor === 'sky') this.skyFall(r)
+      else this.splash(r)
       return
     }
+    this.weather(r)
     // Landing banks the Air Combo.
     if (wasAir && r.ground) this.bankCombo(r)
     if (r.combo.bonks > 0 && ++r.combo.idle > this.comboWindow())
       this.bankCombo(r)
     this.updateTrail(r)
+  }
+
+  /** Rain soaks a rider's wings; a rainbow updraft dries them; frost underfoot freezes them. */
+  private weather(r: Rider) {
+    if (this.rain.state === 'rain') r.wet = Math.min(1, r.wet + 1 / 240)
+    else r.wet = Math.max(0, r.wet - 1 / 900)
+    for (const th of this.arena.thermals) {
+      if (
+        !th.rainbow ||
+        this.mode !== 'tourney' ||
+        !thermalOn(th, this.arenaTicks)
+      )
+        continue
+      if (Math.abs(wrapDx(th.x, r.x)) < th.w / 2 && r.y > th.top) r.wet = 0
+    }
+    if (r.ground && r.ground.frozen > 0 && r.stuck === 0) {
+      if (++r.chill >= FROST.chill) {
+        r.chill = 0
+        r.stuck = FROST.stuck
+        this.floaters.push({
+          x: r.x,
+          y: r.y - 20,
+          text: 'FROZEN!',
+          life: 45,
+          color: RAMPS.sky[4],
+        })
+        this.sound.play('warn')
+      }
+    } else r.chill = 0
+  }
+
+  /** Open sky below: a fall drops you back on the lowest cloud bank, at a cost. */
+  private skyFall(r: Rider) {
+    this.diedThisWave = true
+    if (r.combo.pot > 0)
+      this.floaters.push({
+        x: r.x,
+        y: CEILING + 30,
+        text: 'COMBO LOST',
+        life: 50,
+        color: RAMPS.steel[3],
+      })
+    r.combo = { bonks: 0, pot: 0, idle: 0 }
+    this.placeRider(r)
+    r.invuln = 90
+    this.floaters.push({
+      x: r.x,
+      y: r.y - 24,
+      text: 'CAUGHT BY A CLOUD',
+      life: 60,
+      color: RAMPS.sky[4],
+    })
+    this.sound.play('die')
   }
 
   private comboWindow(): number {
@@ -1297,31 +1853,162 @@ class ButterflyJoust implements ArcadeGameInstance {
       }
       const prey = this.nearest(r, targets)
       if (r.cooldown > 0) r.cooldown--
+      let max = speed * spec.speed
+      if (spec.ai === 'dive' && r.state === 1) {
+        // Locked over its prey, hanging still: its shadow on the ledge below is the tell.
+        r.vx *= 0.8
+        r.vy = 0
+        if (r.flap > 0) r.flap--
+        if (this.tick % 7 === 0) r.flap = 8
+        if (--r.timer <= 0) {
+          r.state = 2
+          r.timer = DIVE.stoop
+          this.sound.play('warn')
+        }
+        continue
+      }
       if (spec.ai === 'glide') {
         this.glide(r, prey)
+      } else if (spec.ai === 'dive' && r.state === 2) {
+        // The stoop: straight down as fast as it can fall.
+        r.vx = 0
+        r.vy = MAX_FALL
+        if (--r.timer <= 0 || r.ground || r.y > POND_Y - 44) {
+          r.state = 0
+          r.timer = 150
+          r.cooldown = 0
+        }
+      } else if (spec.ai === 'lance' && r.state === 2) {
+        // The charge: flat out along its line.
+        r.vx = r.dir * LANCE.speed
+        max = LANCE.speed
+        if (--r.timer <= 0) {
+          r.state = 0
+          r.timer = LANCE.rest
+        }
       } else {
-        if (prey && spec.ai !== 'drift') {
-          // Hunters chase your height; shadows climb over you; bombers hover high above.
-          const over = spec.ai === 'shadow' ? 28 : spec.ai === 'bomb' ? 72 : 6
-          r.targetY = Math.max(CEILING + 20, prey.y - over)
+        if (spec.ai === 'frost') this.frostFlight(r)
+        if (prey && spec.ai !== 'drift' && spec.ai !== 'frost') {
+          // Hunters chase your height; shadows climb over you; bombers hover high above;
+          // divers cruise high; lancers keep level with you.
+          const over =
+            spec.ai === 'shadow'
+              ? 28
+              : spec.ai === 'bomb'
+                ? 72
+                : spec.ai === 'lance'
+                  ? 0
+                  : 6
+          r.targetY =
+            spec.ai === 'dive'
+              ? CEILING + DIVE.cruise
+              : Math.max(CEILING + 20, prey.y - over)
           const toward = Math.sign(wrapDx(r.x, prey.x)) || r.dir
-          if (r.retarget % 20 === 0 || spec.ai === 'bomb') r.dir = toward
+          if (r.retarget % 20 === 0 || spec.ai === 'bomb' || spec.ai === 'dive')
+            r.dir = toward
         }
         if (spec.ai === 'bomb') this.bomb(r, prey)
-        r.vx += r.dir * (r.ground ? 0.15 : 0.05)
+        if (spec.ai === 'dive' && prey) this.diveCheck(r, prey)
+        if (spec.ai === 'lance' && prey) this.lanceCheck(r, prey)
+        r.vx += r.dir * (r.ground ? 0.15 : 0.05) * (r.state === 1 ? 0 : 1)
+        if (spec.ai === 'lance' && r.state === 1) r.vx *= 0.85
         const wantsUp = r.y > r.targetY + 4 || (r.y > POND_Y - 50 && r.vy > 0)
         if (wantsUp && r.cooldown === 0) {
           this.flapBody(r)
           r.cooldown = spec.flapGap + Math.floor(this.rng() * 6)
         }
       }
-      if (this.physics(r, speed * spec.speed, spec.ai === 'glide')) {
+      if (r.around > 0) {
+        // Flying round the ledge it bumped its head on.
+        r.around--
+        r.dir = r.aroundDir
+        r.vx += r.dir * 0.08
+      }
+      const rising = r.vy < 0
+      if (this.physics(r, max, spec.ai === 'glide')) {
         r.spawn = -1
-        this.burst(r.x, POND_Y, 10, '#7dd3fc')
+        this.burst(
+          r.x,
+          POND_Y,
+          10,
+          this.arena.floor === 'sky' ? '#ffffff' : '#7dd3fc',
+        )
         this.sound.play('pop')
+      } else if (rising && r.vy === 0.6 && r.around === 0) {
+        // A head bump: make for the nearer end of the ledge above.
+        const roof = this.ledges.find(
+          (l) =>
+            l.solid &&
+            onLedge(l, r.x) &&
+            Math.abs(l.y + THICK + HALF_H - r.y) < 2,
+        )
+        if (roof) {
+          const left = Math.abs(wrapDx(r.x, roof.x0))
+          const right = Math.abs(wrapDx(r.x, roof.x1))
+          r.aroundDir = left < right ? -1 : 1
+          r.around = 50
+        }
       }
     }
     this.rivals = this.rivals.filter((r) => r.spawn >= 0)
+  }
+
+  /** A diver cruising high locks on when its prey is well below it. */
+  private diveCheck(r: Rival, prey: Rider) {
+    if (r.timer > 0) {
+      r.timer--
+      return
+    }
+    if (Math.abs(wrapDx(r.x, prey.x)) < 12 && prey.y - r.y > 60) {
+      r.state = 1
+      r.timer = DIVE.lock
+    }
+  }
+
+  /** A lancer level with its prey lowers its lance, then charges. */
+  private lanceCheck(r: Rival, prey: Rider) {
+    if (r.state === 1) {
+      if (--r.timer <= 0) {
+        r.state = 2
+        r.timer = LANCE.charge
+        r.dir = Math.sign(wrapDx(r.x, prey.x)) || r.dir
+        this.sound.play('shoot')
+      }
+      return
+    }
+    if (r.timer > 0) {
+      r.timer--
+      return
+    }
+    if (Math.abs(prey.y - r.y) < 10 && Math.abs(wrapDx(r.x, prey.x)) < 110) {
+      r.state = 1
+      r.timer = LANCE.brace
+    }
+  }
+
+  /** A frost moth settles on the ledges and leaves them frozen. */
+  private frostFlight(r: Rival) {
+    if (r.ground) {
+      if (++r.timer === 1) {
+        r.ground.frozen = FROST.ledge
+        this.sound.play('pop')
+      }
+      if (r.timer > 50) {
+        r.timer = 0
+        r.retarget = 1
+        this.flapBody(r)
+      }
+      return
+    }
+    r.timer = 0
+    if (r.retarget === 1 || r.targetY === 120) {
+      const perches = this.perches().filter((l) => l.solid)
+      const l = perches[Math.floor(this.rng() * perches.length)]
+      if (l) {
+        r.targetY = l.y - HALF_H - 2
+        r.dir = Math.sign(wrapDx(r.x, (l.x0 + l.x1) / 2)) || r.dir
+      }
+    }
   }
 
   /** A glider never flaps: it heads for a lit thermal, circles up it, then glides at you. */
@@ -1431,6 +2118,7 @@ class ButterflyJoust implements ArcadeGameInstance {
       if (c.hatch === 60 && !c.called) this.sound.play('warn')
       if (c.hatch <= 0 && !c.called) {
         this.hatched++
+        c.hidden = false
         if (this.carriersActive()) {
           // A carrier whistles in to fetch it; scoop it first, or bonk the carrier.
           c.called = true
@@ -1581,6 +2269,37 @@ class ButterflyJoust implements ArcadeGameInstance {
       play: (name) => this.sound.play(name),
       say: (text, sub) => {
         this.banner = { text, sub, ticks: 100 }
+      },
+      perches: () => this.perches(),
+      strike: (x, fromY) => this.strikeColumn(x, fromY),
+      freeze: (index) => {
+        const perches = this.perches()
+        const l = perches[index % Math.max(1, perches.length)]
+        if (l) l.frozen = FROST.ledge
+      },
+      shatter: () => {
+        this.shattered = true
+        for (const l of this.ledges) {
+          if (!l.floe || !l.solid) continue
+          l.solid = false
+          this.burst((l.x0 + l.x1) / 2, l.y, 8, RAMPS.sky[4])
+        }
+      },
+      history: (seat, ago) => {
+        const trail = this.history[seat]
+        if (!trail?.length) return null
+        return trail[Math.max(0, trail.length - 1 - ago)]!
+      },
+      veil: (y) => {
+        this.veilY = y
+      },
+      lanternRush: (on) => {
+        this.lanternRush = on
+        if (on) this.lanternWait = Math.min(this.lanternWait, 20)
+      },
+      rain: (on) => {
+        this.rainForced = on
+        if (!on) this.rain.state = 'dry'
       },
     }
   }
@@ -1829,6 +2548,9 @@ class ButterflyJoust implements ArcadeGameInstance {
       if (this.collideRivals(p)) continue
       this.collideDust(p)
       this.collideCarriers(p)
+      this.collideApples(p)
+      this.collidePiles(p)
+      this.collideGlows(p)
       this.collideCocoons(p)
     }
     this.collideRiders()
@@ -1883,6 +2605,12 @@ class ButterflyJoust implements ArcadeGameInstance {
       if (Math.abs(dx) > HALF_W * 2 - 2 || Math.abs(dy) > HALF_H * 2 - 2)
         continue
       if (Math.abs(dy) < LEVEL_BAND) {
+        if (ROSTER[r.kind].levelWins) {
+          // A lancer wins every level clash, lunge or no lunge.
+          if (p.invuln > 0) continue
+          this.loseLife(p)
+          return true
+        }
         if (p.lunge > 0) {
           // A Charge Joust wins the level clash.
           this.bonk(p, r)
@@ -1903,6 +2631,68 @@ class ButterflyJoust implements ArcadeGameInstance {
       }
     }
     return false
+  }
+
+  /** Apples: land on one and you bounce; nudge one and it flies off to knock a rider down. */
+  private collideApples(p: Rider) {
+    for (const a of this.apples) {
+      if (Math.abs(wrapDx(p.x, a.x)) > 10 || Math.abs(a.y - p.y) > 12) continue
+      if (p.y < a.y - 4 && p.vy >= 0) {
+        p.vy = -3.6
+        p.ground = null
+        a.vy = 1.5
+        this.floaters.push({
+          x: a.x,
+          y: a.y - 12,
+          text: 'BOING',
+          life: 30,
+          color: RAMPS.ember[3],
+        })
+        this.sound.play('blip')
+      } else if (a.vy > 1.2 && a.y < p.y - 4) {
+        // Dropped on from above: knocked down a ledge, no harm done.
+        p.vy = Math.max(p.vy, 2.4)
+        p.ground = null
+        a.vy = -1
+      } else {
+        a.vx = (Math.sign(wrapDx(p.x, a.x)) || p.facing) * 3
+        a.vy = -1.6
+        a.ground = null
+        a.kicked = true
+        this.sound.play('pop')
+      }
+    }
+  }
+
+  /** Blowing through a leaf pile scatters it, and whatever cocoon hid there shows. */
+  private collidePiles(p: Rider) {
+    for (const pile of this.piles) {
+      if (pile.scatter > 0) continue
+      const l = pile.ledge
+      const x = (l.x0 + l.x1) / 2
+      if (Math.abs(wrapDx(p.x, x)) > 18 || Math.abs(l.y - 6 - p.y) > 18)
+        continue
+      pile.scatter = 0.01
+      for (const c of this.cocoons)
+        if (c.hidden && Math.abs(wrapDx(c.x, x)) < 24) c.hidden = false
+      this.sound.play('pop')
+    }
+  }
+
+  /** A lantern wave's lanterns: catch them as they float up. */
+  private collideGlows(p: Rider) {
+    for (let i = this.glows.length - 1; i >= 0; i--) {
+      const g = this.glows[i]!
+      if (Math.abs(wrapDx(p.x, g.x)) > 12 || Math.abs(g.y - p.y) > 14) continue
+      this.glows.splice(i, 1)
+      this.glowsCaught++
+      this.addScore(300, g.x, g.y - 10, p)
+      this.fx.burst(g.x, g.y, this.fxRng, {
+        count: 10,
+        colours: [RAMPS.gold[4], RAMPS.ember[3]],
+      })
+      this.sound.play('pickup')
+    }
   }
 
   /** Flying through a pollen puff: a sneeze. */
@@ -1950,6 +2740,7 @@ class ButterflyJoust implements ArcadeGameInstance {
             hatch: CARRIER.regrace,
             kind: c.kind,
             called: false,
+            hidden: false,
           })
         } else if (c.target) {
           c.target.called = false
@@ -1971,6 +2762,7 @@ class ButterflyJoust implements ArcadeGameInstance {
     if (p.held) return
     for (let i = this.cocoons.length - 1; i >= 0; i--) {
       const c = this.cocoons[i]!
+      if (c.hidden) continue
       if (Math.abs(wrapDx(p.x, c.x)) < 13 && Math.abs(c.y - p.y) < 14) {
         this.cocoons.splice(i, 1)
         this.collected++
@@ -2062,6 +2854,24 @@ class ButterflyJoust implements ArcadeGameInstance {
 
   private bonk(p: Rider, r: Rival) {
     const spec = ROSTER[r.kind]
+    if (r.shell) {
+      // The first bonk only knocks the shield beetle's shell off.
+      r.shell = false
+      r.vy = 1.5
+      r.ground = null
+      p.vy = Math.min(p.vy, -2)
+      this.addScore(SHELL_POINTS, r.x, r.y - 14, p)
+      this.floaters.push({
+        x: r.x,
+        y: r.y - 28,
+        text: 'SHELL OFF!',
+        life: 45,
+        color: RAMPS.leaf[4],
+      })
+      this.burst(r.x, r.y, 10, RAMPS.teal[3])
+      this.sound.play('blip')
+      return
+    }
     this.rivals = this.rivals.filter((other) => other !== r)
     if (this.mode === 'versus') p.bonks++
     this.comboBonk(p, spec.points, r.x, r.y - 14)
@@ -2086,6 +2896,7 @@ class ButterflyJoust implements ArcadeGameInstance {
         hatch: hatch + i * 40,
         kind: r.kind,
         called: false,
+        hidden: false,
       })
     }
     if (spec.cocoons > 1) {
@@ -2206,6 +3017,11 @@ class ButterflyJoust implements ArcadeGameInstance {
     )
       return
     if (this.champion && (!this.champion.done || this.champion.busy())) return
+    if (
+      this.waveKind === 'lantern' &&
+      (this.glowsSent < LANTERN_WAVE.count || this.glows.length)
+    )
+      return
     const lines: string[] = []
     const lead = this.active()[0] ?? this.player
     // Wave bonuses are shared evenly round the party's tallies.
@@ -2218,6 +3034,22 @@ class ButterflyJoust implements ArcadeGameInstance {
       pay(WAVE_TYPES.survival.bonus, 'SURVIVAL')
     if (this.waveKind === 'cocoon' && this.hatched === 0)
       pay(WAVE_TYPES.cocoon.bonus, 'ALL SCOOPED')
+    if (this.waveKind === 'lantern' && this.glowsCaught >= LANTERN_WAVE.count)
+      pay(WAVE_TYPES.lantern.bonus, 'ALL LANTERNS')
+    if (
+      this.mode === 'tourney' &&
+      this.arena.petal &&
+      this.wave === SIGNATURE_WAVE &&
+      !this.diedThisWave &&
+      !this.petals.includes(this.arena.id) &&
+      !this.demo
+    ) {
+      // The garden's golden petal.
+      this.petals.push(this.arena.id)
+      lines.push('A GOLDEN PETAL!')
+      if (this.saveData)
+        this.saveData = { ...this.saveData, petals: [...this.petals] }
+    }
     if (this.coop && !this.friendlyBonk) {
       pay(
         this.waveKind === 'team'
@@ -2298,6 +3130,8 @@ class ButterflyJoust implements ArcadeGameInstance {
     switch (item.id) {
       case 'spare':
         return this.spares
+      case 'hint':
+        return this.hint ? 1 : 0
       case 'flap':
       case 'combo':
       case 'frog':
@@ -2370,6 +3204,9 @@ class ButterflyJoust implements ArcadeGameInstance {
       case 'spare':
         this.spares++
         this.lives++
+        break
+      case 'hint':
+        this.hint = true
         break
       case 'flap':
       case 'combo':
@@ -2455,6 +3292,39 @@ class ButterflyJoust implements ArcadeGameInstance {
       flee = goal.flee === true
       busy = true
     }
+    // The Frost Moth Queen's veil: board a low lantern and ride it up.
+    let riding = false
+    if (this.veilY !== null && champ && !champ.done) {
+      const board = p.ground && p.ground.look === 'lantern' ? p.ground : null
+      if (board) {
+        riding = true
+        // Ride it up; once it lifts us over her, step off toward her and drop on her.
+        goalX = p.y < champ.y - 10 ? champ.x : p.x
+        goalY = p.y
+      } else {
+        // Hover over a lantern still below us and let it rise into our feet.
+        const lantern = this.ledges
+          .filter((l) => l.look === 'lantern' && l.solid && l.y > p.y + 12)
+          .sort(
+            (a, b) => Math.abs(wrapDx(p.x, a.x0)) - Math.abs(wrapDx(p.x, b.x0)),
+          )[0]
+        if (lantern) {
+          goalX = (lantern.x0 + lantern.x1) / 2
+          goalY = Math.min(lantern.y - 12, this.veilY! + 16)
+        }
+      }
+      busy = true
+    }
+    const glow = this.glows
+      .slice()
+      .sort(
+        (a, b) => Math.abs(wrapDx(p.x, a.x)) - Math.abs(wrapDx(p.x, b.x)),
+      )[0]
+    if (!busy && glow && (!rival || Math.abs(wrapDx(p.x, glow.x)) < 120)) {
+      goalX = glow.x
+      goalY = glow.y
+      busy = true
+    }
     if (!busy) {
       if (cocoon && (!rival || cocoon.hatch < 200 || cocoon.called)) {
         goalX = cocoon.x
@@ -2475,6 +3345,12 @@ class ButterflyJoust implements ArcadeGameInstance {
       (r) => r.y < p.y - 3 && p.y - r.y < 70 && Math.abs(wrapDx(p.x, r.x)) < 50,
     )
     if (threat) goalX = wrapX(p.x - Math.sign(wrapDx(p.x, threat.x)) * 60)
+    // Out from under a diver locked on overhead.
+    const diver = this.rivals.find(
+      (r) =>
+        r.kind === 'diver' && r.state > 0 && Math.abs(wrapDx(p.x, r.x)) < 26,
+    )
+    if (diver) goalX = wrapX(p.x + (wrapDx(diver.x, p.x) < 0 ? -70 : 70))
     // Steer round pollen.
     const puff = this.dust.find(
       (d) => Math.abs(wrapDx(p.x, d.x)) < 40 && Math.abs(d.y - p.y) < 40,
@@ -2496,12 +3372,20 @@ class ButterflyJoust implements ArcadeGameInstance {
       goalX = wrapX(left < right ? roof.x0 - 18 : roof.x1 + 18)
     }
     // A champion closing in at our height: climb over it.
+    const lancer = this.rivals.some(
+      (r) =>
+        r.kind === 'lancer' &&
+        r.state > 0 &&
+        Math.abs(r.y - p.y) < 14 &&
+        Math.abs(wrapDx(p.x, r.x)) < 130,
+    )
     const climb =
-      champ !== null &&
-      !champ.done &&
-      !flee &&
-      Math.abs(wrapDx(p.x, champ.x)) < 80 &&
-      p.y > champ.y - 22
+      lancer ||
+      (champ !== null &&
+        !champ.done &&
+        !flee &&
+        Math.abs(wrapDx(p.x, champ.x)) < 80 &&
+        p.y > champ.y - 22)
     const dx = wrapDx(p.x, goalX)
     if (dx < -6) held.left = true
     else if (dx > 6) held.right = true
@@ -2510,7 +3394,12 @@ class ButterflyJoust implements ArcadeGameInstance {
     // Off a flower before it folds, off a puff before it bursts.
     const shaky =
       p.ground !== null &&
-      (p.ground.closing > 0.3 || (p.ground.puff && p.ground.stood > 60))
+      !riding &&
+      (p.ground.closing > 0.3 ||
+        (p.ground.puff && p.ground.stood > 60) ||
+        p.ground.frozen > 0 ||
+        p.ground.flash > 0 ||
+        (p.ground.floe && p.ground.cracks >= 2))
     if (
       ((low && !threat) || sinking || shaky) &&
       p.vy > -1 &&
@@ -2519,6 +3408,9 @@ class ButterflyJoust implements ArcadeGameInstance {
       frame.pressed.a = true
     }
     if (climb && p.vy > -2.4 && this.tick % 3 === 0) frame.pressed.a = true
+    // Under the veil, no flapping (and riding a lantern, stand still).
+    if (riding || (this.veilY !== null && p.y < this.veilY + 4 && !sinking))
+      frame.pressed.a = false
     // A level rider just ahead: brace, then lunge through.
     const level = this.rivals.find(
       (r) =>
@@ -2544,28 +3436,50 @@ class ButterflyJoust implements ArcadeGameInstance {
       this.renderGarden(g)
       return
     }
-    const meadow = this.arena.style === 'meadow'
-    if (meadow) paintMeadowSky(g, this.tick)
-    else paintSunsetSky(g, this.tick)
+    if (this.ending) {
+      this.renderEnding(g)
+      return
+    }
+    this.renderSky(g)
     for (const th of this.arena.thermals) {
       if (this.mode !== 'tourney') break
-      this.wrapDraw(th.x, (x) =>
-        paintThermal(
-          g,
-          x,
-          th.w,
-          th.top,
-          thermalOn(th, this.arenaTicks),
-          this.tick,
-        ),
-      )
+      const on = thermalOn(th, this.arenaTicks)
+      this.wrapDraw(th.x, (x) => {
+        paintThermal(g, x, th.w, th.top, on, this.tick)
+        if (th.rainbow && on) {
+          // A rainbow updraft: the colours climbing the column.
+          const bands = [
+            RAMPS.ember[2],
+            RAMPS.gold[2],
+            RAMPS.leaf[3],
+            RAMPS.sky[3],
+            RAMPS.purple[3],
+          ]
+          bands.forEach((c, i) => {
+            g.fillStyle = rgba(c, 0.3)
+            g.fillRect(Math.round(x - 5 + i * 2), th.top, 2, POND_Y - th.top)
+          })
+        }
+      })
     }
     this.renderLedges(g)
-    if (meadow) paintLilyPond(g, this.tick)
-    else paintPond(g, this.tick)
+    this.renderFloor(g)
     this.renderFrog(g)
-    for (const c of this.cocoons)
+    for (const pile of this.piles) {
+      const l = pile.ledge
+      this.wrapDraw((l.x0 + l.x1) / 2, (x) =>
+        drawLeafPile(g, x, l.y, pile.scatter, this.tick),
+      )
+    }
+    for (const a of this.apples) this.wrapDraw(a.x, (x) => drawApple(g, x, a.y))
+    for (const c of this.cocoons) {
+      if (c.hidden) continue
       this.wrapDraw(c.x, (x) => this.renderCocoon(g, c, x))
+    }
+    for (const gl of this.glows)
+      this.wrapDraw(gl.x, (x) =>
+        drawLantern(g, x - 7, x + 7, gl.y - 8, 0, this.tick, true),
+      )
     for (const c of this.carriers)
       this.wrapDraw(c.x, (x) => this.renderCarrier(g, c, x))
     for (const d of this.dust) {
@@ -2586,7 +3500,51 @@ class ButterflyJoust implements ArcadeGameInstance {
     if (this.champion) this.champion.render(g, this.tick)
     for (const r of this.riders) this.renderPlayer(g, r)
     if (this.storm) this.wrapDraw(this.storm.x, (x) => this.renderStorm(g, x))
+    for (const b of this.bolts) {
+      const path: [number, number][] = []
+      const steps = Math.max(2, Math.round((b.y1 - b.y0) / 14))
+      for (let i = 0; i <= steps; i++)
+        path.push([
+          b.x + (i % 2 ? 4 : -4) * (i < steps ? 1 : 0),
+          b.y0 + ((b.y1 - b.y0) * i) / steps,
+        ])
+      glow(g, b.x, b.y1, 26, RAMPS.gold[4], 0.6 * (b.life / 14))
+      drawBolt(g, path)
+    }
+    if (this.arena.wind && this.mode === 'tourney') {
+      // The weathervane on the highest ledge: it swings hard in the tell, then points the gust.
+      const top = this.ledges.reduce<ArenaLedge | null>(
+        (best, l) => (l.solid && (!best || l.y < best.y) ? l : best),
+        null,
+      )
+      if (top) {
+        const w = this.wind
+        const swing =
+          w.state === 'tell'
+            ? Math.sin(this.tick / 3) * 5
+            : w.state === 'blow'
+              ? 0
+              : Math.sin(this.tick / 30)
+        paintVane(
+          g,
+          Math.round((top.x0 + top.x1) / 2),
+          top.y - 18,
+          w.state === 'calm' ? 1 : w.dir,
+          swing,
+        )
+      }
+    }
     if (this.wind.state === 'blow') paintWind(g, this.wind.dir, 1, this.tick)
+    if (this.rain.state !== 'dry' && this.mode === 'tourney')
+      paintRain(g, this.tick, this.rain.state === 'rain' ? 1 : 0.3)
+    if (this.veilY !== null) {
+      // The Frost Moth Queen's veil: a shimmer of frost across the sky.
+      g.fillStyle = rgba(RAMPS.sky[4], 0.12)
+      g.fillRect(0, CEILING, W, this.veilY - CEILING)
+      g.fillStyle = rgba('#ffffff', 0.35)
+      for (let x = (this.tick % 12) - 12; x < W; x += 12)
+        g.fillRect(x, this.veilY, 6, 1)
+    }
     this.renderSparks(g)
     this.fx.render(g)
     for (const f of this.floaters) {
@@ -2602,7 +3560,10 @@ class ButterflyJoust implements ArcadeGameInstance {
       drawArenaCard(g, {
         number: this.arena.number,
         name: this.arena.name,
-        intro: this.arena.intro,
+        intro:
+          this.hint && this.arena.petal && !this.petals.includes(this.arena.id)
+            ? `PETAL: WAVE ${SIGNATURE_WAVE}, NO BUTTERFLY LOST`
+            : this.arena.intro,
         lap: this.lap,
         t: CARD_TICKS - this.card,
       })
@@ -2632,10 +3593,87 @@ class ButterflyJoust implements ArcadeGameInstance {
     if (this.result) drawResult(g, this.result.lines)
   }
 
+  private renderSky(g: CanvasRenderingContext2D) {
+    switch (this.arena.style) {
+      case 'meadow':
+        return paintMeadowSky(g, this.tick)
+      case 'heights':
+        return paintHeightsSky(g, this.tick)
+      case 'orchard':
+        return paintOrchardSky(g, this.tick)
+      case 'snowfield':
+        return paintSnowSky(g, this.tick)
+      case 'moon': {
+        const moon = this.arena.moon
+        const st = moon
+          ? moonState(moon, this.arenaTicks)
+          : { out: true, fading: 0 }
+        return paintMoonSky(g, this.tick, st.out ? st.fading : 1)
+      }
+      case 'rainbow':
+        return paintRainbowSky(g, this.tick)
+      default:
+        return paintSunsetSky(g, this.tick)
+    }
+  }
+
+  private renderFloor(g: CanvasRenderingContext2D) {
+    switch (this.arena.floor) {
+      case 'stream':
+        return paintStream(g, this.tick)
+      case 'sky':
+        return paintCloudSea(g, this.tick)
+      case 'ice': {
+        paintIcePond(g, this.tick)
+        for (const l of this.ledges)
+          if (l.floe && l.solid) paintFloe(g, l, l.cracks)
+        return
+      }
+      case 'mirror':
+        return paintMirrorPool(g, this.tick)
+      default:
+        if (this.arena.style === 'meadow') paintLilyPond(g, this.tick)
+        else paintPond(g, this.tick)
+    }
+  }
+
+  private renderEnding(g: CanvasRenderingContext2D) {
+    const e = this.ending!
+    const kinds = Object.keys(ROSTER) as RiderKind[]
+    drawEnding(g, {
+      t: e.t,
+      truly: e.truly,
+      score: this.score,
+      petals: this.petals.length,
+      tick: this.tick,
+      fliers: [
+        ...this.riders.map((r) =>
+          seatFrames(r.seat, r.seat === 0 ? this.wear : undefined),
+        ),
+        ...kinds.map((k) => this.framesFor(k)),
+      ],
+      credits: CREDITS,
+    })
+  }
+
+  private framesFor(kind: RiderKind, r?: Rival): Frames {
+    switch (kind) {
+      case 'diver':
+      case 'frost':
+        return LATE_FRAMES[kind]
+      case 'lancer':
+        return r?.state === 1 ? LATE_FRAMES.lancerBrace : LATE_FRAMES.lancer
+      case 'beetle':
+        return r && !r.shell ? LATE_FRAMES.bareBeetle : LATE_FRAMES.beetle
+      default:
+        return RIDER_FRAMES[kind]
+    }
+  }
+
   /** Static ledges come from a cached layer; moving, folding and puff ledges draw each frame. */
   private renderLedges(g: CanvasRenderingContext2D) {
     const fixed = this.ledges.filter(
-      (l) => !l.puff && !l.spec?.move && !l.spec?.fold,
+      (l) => l.spec !== null && !l.spec.move && !l.spec.fold && !l.spec.moonlit,
     )
     const crumble = fixed.find((l) => l.spec?.crumbles)
     paintLedges(
@@ -2646,13 +3684,59 @@ class ButterflyJoust implements ArcadeGameInstance {
     for (const l of this.ledges) {
       if (l.puff) {
         paintPuff(g, l, l.stood / PUFF_STAND, this.tick)
+      } else if (l.look === 'lantern') {
+        const life = this.arena.lanterns?.life ?? 1
+        const fade = l.lantern < 120 ? 1 - l.lantern / 120 : 0
+        void life
+        drawLantern(g, l.x0, l.x1, l.y, fade, this.tick)
       } else if (l.spec?.fold) {
         paintFlower(g, l, l.solid, l.closing, this.tick)
+      } else if (l.spec?.moonlit) {
+        // There only while the moon is out: fading as it hides, a ghost while it is gone.
+        g.save()
+        g.globalAlpha = l.solid ? 1 - l.closing * 0.7 : 0.12
+        paintLedge(g, l, 'marble')
+        g.restore()
       } else if (l.spec?.move) {
         this.wrapDraw((l.x0 + l.x1) / 2, (x) => {
           const half = (l.x1 - l.x0) / 2
-          paintLeaf(g, { x0: x - half, x1: x + half, y: l.y })
+          const at = { x0: x - half, x1: x + half, y: l.y }
+          if (l.look === 'cloud') paintCloudLedge(g, at)
+          else if (l.look === 'branch') paintBranch(g, at)
+          else paintLeaf(g, at)
         })
+      }
+      if (l.frozen > 0)
+        drawFrost(g, l.x0, l.x1, l.y, Math.min(1, l.frozen / 60))
+      if (l.flash > 0 && Math.floor(this.tick / 4) % 2 === 0) {
+        // Lightning's tell: the ledge flickers gold before the strike.
+        g.fillStyle = rgba(RAMPS.gold[4], 0.55)
+        g.fillRect(
+          Math.round(l.x0),
+          Math.round(l.y) - 3,
+          Math.round(l.x1 - l.x0),
+          9,
+        )
+      }
+    }
+    const queen = this.champion as { mark?: () => number | null } | null
+    const marked = queen?.mark?.() ?? null
+    if (marked !== null) {
+      const perches = this.perches()
+      const l = perches[marked % Math.max(1, perches.length)]
+      if (l) {
+        const x = Math.round((l.x0 + l.x1) / 2)
+        const y = Math.round(l.y) - 14 + Math.round(Math.sin(this.tick / 6) * 2)
+        g.fillStyle = INK
+        g.fillRect(x - 6, y - 1, 13, 3)
+        g.fillRect(x - 1, y - 6, 3, 13)
+        g.fillStyle = '#ffffff'
+        g.fillRect(x - 5, y, 11, 1)
+        g.fillRect(x, y - 5, 1, 11)
+        g.fillRect(x - 3, y - 3, 1, 1)
+        g.fillRect(x + 3, y - 3, 1, 1)
+        g.fillRect(x - 3, y + 3, 1, 1)
+        g.fillRect(x + 3, y + 3, 1, 1)
       }
     }
   }
@@ -2808,6 +3892,19 @@ class ButterflyJoust implements ArcadeGameInstance {
         r.brace > 0,
       )
       if (r.sneeze > 0) drawSneeze(g, x, r.y, this.tick)
+      if (r.stuck > 0) drawIceBlock(g, x, r.y)
+      if (r.iced > 0 && Math.floor(this.tick / 3) % 2 === 0) {
+        g.fillStyle = '#ffffff'
+        g.fillRect(Math.round(x) - 10, Math.round(r.y) - 12, 2, 2)
+        g.fillRect(Math.round(x) + 8, Math.round(r.y) - 8, 2, 2)
+      }
+      if (r.wet > 0.25) {
+        // Rain-soaked: drips off the wings.
+        g.fillStyle = rgba(RAMPS.water[4], 0.8)
+        const d = (this.tick * 0.6) % 8
+        g.fillRect(Math.round(x) - 8, Math.round(r.y + 6 + d), 1, 2)
+        g.fillRect(Math.round(x) + 5, Math.round(r.y + 9 + ((d + 4) % 8)), 1, 2)
+      }
       if (this.seats > 1)
         drawText(g, look.name, x, r.y - 24, {
           align: 'center',
@@ -2865,6 +3962,27 @@ class ButterflyJoust implements ArcadeGameInstance {
       glow(g, x, r.y - 4, 22, RAMPS.purple[3], 0.35)
     }
     const glider = r.kind === 'glider'
+    if (r.kind === 'diver' && r.state === 1) {
+      // The diver's tell: its shadow, sharp on the ledge below.
+      let top = POND_Y
+      for (const l of this.ledges)
+        if (l.solid && l.y > r.y && l.y < top && onLedge(l, wrapX(x))) top = l.y
+      const k = 1 - r.timer / DIVE.lock
+      dropShadow(g, x, top, 8 + 6 * k, 2 + k, 0.35 + 0.35 * k)
+    }
+    if (
+      r.kind === 'lancer' &&
+      r.state === 1 &&
+      Math.floor(this.tick / 4) % 2 === 0
+    )
+      glow(
+        g,
+        x + (Math.sign(r.vx) || r.dir) * 22,
+        r.y + 2,
+        8,
+        RAMPS.gold[4],
+        0.6,
+      )
     this.renderRider(
       g,
       x,
@@ -2872,7 +3990,7 @@ class ButterflyJoust implements ArcadeGameInstance {
       Math.sign(r.vx) || r.dir,
       glider ? 0 : r.flap,
       r.ground,
-      RIDER_FRAMES[r.kind],
+      this.framesFor(r.kind, r),
       alpha,
       glider && Math.floor(this.tick / 30) % 2 === 0,
     )
@@ -3000,12 +4118,23 @@ class ButterflyJoust implements ArcadeGameInstance {
       }
     }
     if (this.mode === 'tourney') {
-      // The pollen purse, small in the corner.
+      // The pollen purse, small in the corner, and the golden petals won so far.
       hudPanel(g, 4, H - 19, 48, 16, RAMPS.gold)
       shadedOrb(g, 13, H - 11, 4, RAMPS.gold)
       drawText(g, String(this.pollen), 21, H - 14, {
         color: '#ffffff',
         outline: INK,
+      })
+      hudPanel(g, 56, H - 19, PETAL_ARENAS.length * 10 + 6, 16, RAMPS.purple)
+      PETAL_ARENAS.forEach((id, i) => {
+        const won = this.petals.includes(id)
+        const px = 64 + i * 10
+        g.fillStyle = INK
+        g.fillRect(px - 3, H - 15, 7, 8)
+        g.fillStyle = won ? RAMPS.gold[3] : RAMPS.purple[1]
+        g.fillRect(px - 2, H - 14, 5, 6)
+        g.fillStyle = won ? RAMPS.gold[4] : RAMPS.purple[2]
+        g.fillRect(px - 1, H - 14, 2, 2)
       })
     }
     const c = this.champion

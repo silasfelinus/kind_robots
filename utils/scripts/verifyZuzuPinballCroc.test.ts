@@ -185,6 +185,26 @@ const toMouth = (): [Vec3, Vec3] => [
   }
 }
 
+// A tilt while he holds the ball: the flippers die, but he still spits it
+// back to the table, and the ball is neither lost in his jaws nor doubled.
+{
+  const c = new Croc()
+  try {
+    c.physics.serveBall(...toMouth())
+    let wait = 0
+    while (c.captures === 0 && wait++ < PHYSICS_HZ * 2) c.run(1)
+    assert.equal(c.captures, 1)
+    c.state = { ...c.state, tilted: true }
+    wait = 0
+    while (c.ejects === 0 && wait++ < PHYSICS_HZ * 3) c.run(1)
+    assert.equal(c.ejects, 1, 'spat back through a tilt')
+    assert.equal(c.drainsWhileHeld, 0)
+    assert.equal(c.physics.ballCount + c.drains, 1, 'one ball, still')
+  } finally {
+    c.dispose()
+  }
+}
+
 // The lamp cue: the Croc's arrow is dark whenever the jaws are shut.
 {
   const c = new Croc()

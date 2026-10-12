@@ -227,11 +227,11 @@
             v-if="maxPlayers > 1"
             type="button"
             class="cabinet-switch"
-            :disabled="!choosingPlayers"
+            :disabled="!canChangePlayers"
             :title="
-              choosingPlayers
-                ? 'Same-device co-op'
-                : 'Pick players on the title screen'
+              canChangePlayers
+                ? 'Same-device co-op: adjust seats here'
+                : 'Pause this game to change players'
             "
             @click="onPlayersClick"
           >
@@ -462,6 +462,12 @@ const seatList = computed(() =>
   Array.from({ length: players.value }, (_, seat) => seat),
 )
 const choosingPlayers = computed(() => ATTRACT_PHASES.includes(phase.value))
+const canChangePlayers = computed(
+  () =>
+    choosingPlayers.value ||
+    (props.slug === 'rainbow-bullet-hell-space-princess' &&
+      phase.value === 'paused'),
+)
 /** Gamepads connected right now. */
 const padCount = ref(0)
 /**
@@ -797,7 +803,7 @@ function releaseTouch() {
 }
 
 function togglePlayers() {
-  if (!choosingPlayers.value) return
+  if (!canChangePlayers.value) return
   players.value = players.value >= seatLimit.value ? 1 : players.value + 1
   store.setPlayers(props.slug, players.value)
   unlockArcadeAudio()
@@ -1758,6 +1764,9 @@ watch(
 watch(players, () => {
   releaseTouch()
   applySeats()
+  if (game && 'setPlayers' in game && typeof game.setPlayers === 'function') {
+    game.setPlayers(players.value)
+  }
 })
 
 watch(aiming, (on) => {

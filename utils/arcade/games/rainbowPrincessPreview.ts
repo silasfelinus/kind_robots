@@ -465,6 +465,12 @@ export function createRainbowPrincessPreview(
         enemies: reefs.map((reef) => ({ ...reef })),
         enemyShots: enemyShots.map((bullet) => ({ ...bullet })),
         pickups: pickups.map((pickup) => ({ ...pickup })),
+        act: 'S01',
+        stage: pinkwakeStage(tick, defeatedAt),
+        sceneId: pinkwakeScene(tick, defeatedAt)?.id ?? null,
+        boss: boss ? { ...boss } : null,
+        rescuedStation,
+        defeatedAt,
       }
     },
     update,
@@ -475,9 +481,9 @@ export function createRainbowPrincessPreview(
       sky.addColorStop(1, '#ed9dbb')
       g.fillStyle = sky
       g.fillRect(0, 0, W, H)
-      for (let plane = 0; plane < 3; plane++) {
-        g.fillStyle = ['#f2d6ff88', '#9ffffa44', '#fff5c444'][plane]!
-        const speed = [0.22, 0.54, 1.13][plane]!
+      for (let plane = 0; plane < 4; plane++) {
+        g.fillStyle = ['#f2d6ff88', '#9ffffa44', '#fff5c444', '#ffe6f277'][plane]!
+        const speed = [0.15, 0.34, 0.72, 1.3][plane]!
         for (let i = 0; i < 16; i++) {
           const x =
             (((i * (47 + plane * 8) - tick * speed) % (W + 65)) + W + 65) %
@@ -500,7 +506,7 @@ export function createRainbowPrincessPreview(
         g.translate(reef.x, reef.y)
         g.shadowColor = reef.kind === 'urchin' ? '#ffe38a' : '#ffa3e6'
         g.shadowBlur = 12
-        g.fillStyle = reef.kind === 'urchin' ? '#ffd38a' : '#d09ffd'
+        g.fillStyle = reef.kind === 'urchin' ? '#ffd38a' : reef.kind === 'anchor' ? '#ffb3d1' : reef.kind === 'spiral' ? '#94e7ff' : '#d09ffd'
         g.beginPath()
         g.ellipse(0, 0, reef.kind === 'urchin' ? 14 : 16, 10, 0, 0, Math.PI * 2)
         g.fill()
@@ -515,6 +521,70 @@ export function createRainbowPrincessPreview(
         g.quadraticCurveTo(23, -15, 17, -22)
         g.stroke()
         g.restore()
+      }
+      if (station) {
+        g.save()
+        g.translate(station.x, station.y)
+        g.strokeStyle = '#b3ffdf'
+        g.fillStyle = '#163b46'
+        g.lineWidth = 3
+        g.beginPath()
+        g.arc(0, 0, 16, 0, Math.PI * 2)
+        g.fill()
+        g.stroke()
+        g.font = 'bold 9px monospace'
+        g.fillStyle = '#b3ffdf'
+        g.textAlign = 'center'
+        g.fillText('SOS', 0, 3)
+        g.restore()
+      }
+      if (boss) {
+        g.save()
+        g.translate(boss.x, boss.y)
+        const glow = bossTelegraph(boss)
+        g.shadowColor = glow ? '#fff7a7' : '#ffaff1'
+        g.shadowBlur = glow ? 25 : 9
+        g.fillStyle = boss.phase === 3 ? '#c791ff' : '#ffd0ef'
+        g.beginPath()
+        g.ellipse(0, 0, 38, 49, -0.2, 0, Math.PI * 2)
+        g.fill()
+        g.strokeStyle = glow ? '#fffbb6' : '#724aab'
+        g.lineWidth = glow ? 5 : 3
+        g.beginPath()
+        g.moveTo(12, -32)
+        g.quadraticCurveTo(-54, -72, -41, -22)
+        g.quadraticCurveTo(-12, 1, -30, 42)
+        g.quadraticCurveTo(-10, 70, 15, 40)
+        g.stroke()
+        g.shadowBlur = 0
+        g.fillStyle = '#3d205a'
+        g.beginPath()
+        g.arc(-16, -19, 6, 0, Math.PI * 2)
+        g.fill()
+        g.fillStyle = '#e2fff6'
+        g.beginPath()
+        g.ellipse(-9, 16, 13, 19, -0.1, 0, Math.PI * 2)
+        g.fill()
+        g.strokeStyle = '#5bdac8'
+        g.lineWidth = 2
+        g.stroke()
+        g.fillStyle = '#3d8b94'
+        g.font = 'bold 9px monospace'
+        g.textAlign = 'center'
+        g.fillText('POD', -9, 19)
+        g.restore()
+        g.fillStyle = '#240c42'
+        g.fillRect(148, 30, 184, 14)
+        g.fillStyle = '#ffb9e6'
+        g.fillRect(150, 32, 180 * Math.max(0, boss.hp / BOSS_MAX_HP), 10)
+        g.strokeStyle = '#fff7cf'
+        g.lineWidth = 1
+        g.strokeRect(148, 30, 184, 14)
+        g.fillStyle = '#fff7cf'
+        g.textAlign = 'center'
+        g.font = 'bold 8px monospace'
+        g.fillText('B01 PEARL SEAHORSE', 240, 53)
+        g.textAlign = 'left'
       }
       for (const bullet of enemyShots) {
         g.fillStyle = '#1b163e'
@@ -591,7 +661,7 @@ export function createRainbowPrincessPreview(
       g.fillRect(0, 0, W, 29)
       g.fillStyle = '#ffe7f5'
       g.font = 'bold 10px monospace'
-      g.fillText('PINKWAKE / COMBAT PREVIEW', 9, 12)
+      g.fillText('ACT I / PINKWAKE', 9, 12)
       g.font = '9px monospace'
       g.fillText('A FIRE · HOLD B FOCUS · CHARGED B SUPER', 9, 24)
       g.textAlign = 'right'
@@ -606,6 +676,42 @@ export function createRainbowPrincessPreview(
         )
       }
       g.textAlign = 'left'
+      const scene = pinkwakeScene(tick, defeatedAt)
+      const dialogue = scene
+        ? pinkwakeDialogue(scene.id, scene.elapsed, count, rescuedStation)
+        : null
+      if (dialogue) {
+        g.fillStyle = '#160b34e8'
+        g.fillRect(15, H - 63, W - 30, 51)
+        g.strokeStyle = '#ffe2fa'
+        g.lineWidth = 1
+        g.strokeRect(15, H - 63, W - 30, 51)
+        g.fillStyle = '#aef6f0'
+        g.font = 'bold 10px monospace'
+        g.fillText(`${scene!.id} / ${dialogue.speaker.toUpperCase()}`, 24, H - 47)
+        const words = dialogue.text.split(' ')
+        const lines = ['']
+        for (const word of words) {
+          const i = lines.length - 1
+          if (lines[i]!.length + word.length + 1 > 65) lines.push(word)
+          else lines[i] += (lines[i] ? ' ' : '') + word
+        }
+        g.fillStyle = '#fff4fa'
+        g.font = '9px monospace'
+        for (let line = 0; line < Math.min(lines.length, 2); line++) {
+          g.fillText(lines[line]!, 24, H - 33 + line * 12)
+        }
+      } else if (defeatedAt !== null) {
+        g.fillStyle = '#180d38d9'
+        g.fillRect(65, H - 47, W - 130, 33)
+        g.fillStyle = '#c7ffe6'
+        g.textAlign = 'center'
+        g.font = 'bold 11px monospace'
+        g.fillText('POD RESCUED · ACT I PREVIEW CLEAR', W / 2, H - 28)
+        g.font = '8px monospace'
+        g.fillText('Safe transit · Act II is still in production', W / 2, H - 17)
+        g.textAlign = 'left'
+      }
     },
   }
 }

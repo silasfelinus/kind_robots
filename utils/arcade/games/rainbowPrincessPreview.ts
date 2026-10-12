@@ -327,6 +327,26 @@ export function createRainbowPrincessPreview(
     const vx = (dx / length) * 2.15
     const vy = (dy / length) * 2.15
     enemyShots.push({ x: reef.x - 8, y: reef.y, vx, vy, grazed: 0 })
+    if (reef.kind === 'lantern') {
+      const theta = Math.atan2(vy, vx)
+      for (const spread of [-0.6, -0.3, 0.3, 0.6]) {
+        enemyShots.push({
+          x: reef.x - 8,
+          y: reef.y,
+          vx: Math.cos(theta + spread) * 1.65,
+          vy: Math.sin(theta + spread) * 1.65,
+          grazed: 0,
+        })
+      }
+    } else if (reef.kind === 'relay') {
+      enemyShots.push({
+        x: reef.x - 8, y: reef.y, vx: vx * 0.7, vy: vy * 0.7 + 0.85, grazed: 0,
+      })
+    } else if (reef.kind === 'skimmer') {
+      enemyShots.push({ x: reef.x - 8, y: reef.y - 11, vx: -1.25, vy: 1.1, grazed: 0 })
+    } else if (reef.kind === 'coral') {
+      enemyShots.push({ x: reef.x - 8, y: reef.y + 13, vx: -1.35, vy: -0.8, grazed: 0 })
+    }
     if (reef.kind === 'spiral') {
       for (const offset of [-0.45, 0.45]) {
         const angle = Math.atan2(vy, vx) + offset
@@ -380,16 +400,46 @@ export function createRainbowPrincessPreview(
   function update(input: InputFrame, seated = [input]) {
     if (over) return
     tick++
-    const stage = pinkwakeStage(tick, defeatedAt)
-    if (stage === 'waves') {
-      const kind = pinkwakeSpawn(tick)
-      if (kind) spawn(kind)
-      if (tick === 2520) station = { x: W + 18, y: 190 }
-    } else if (stage === 'turn' && tick === PINKWAKE.turnStarts) {
-      reefs.length = 0
-      enemyShots.length = 0
-    } else if (stage === 'boss' && !boss) {
-      boss = createPinkwakeBoss()
+    if (
+      moonStart === null &&
+      defeatedAt !== null &&
+      tick - defeatedAt >= PINKWAKE.aftermathFrames
+    ) {
+      moonStart = tick
+      shots.length = 0
+      pickups.length = 0
+      station = null
+    }
+    if (moonStart === null) {
+      const stage = pinkwakeStage(tick, defeatedAt)
+      if (stage === 'waves') {
+        const kind = pinkwakeSpawn(tick)
+        if (kind) spawn(kind)
+        if (tick === 2520) station = { x: W + 18, y: 190 }
+      } else if (stage === 'turn' && tick === PINKWAKE.turnStarts) {
+        reefs.length = 0
+        enemyShots.length = 0
+      } else if (stage === 'boss' && !boss) {
+        boss = createPinkwakeBoss()
+      }
+    } else {
+      const frame = moonFrame()
+      const stage = moonjellyStage(frame, moonDefeatedFrame)
+      if (stage === 'waves' || stage === 'remix') {
+        const kind = moonjellySpawn(frame)
+        if (kind) spawn(kind)
+        if (frame === MOONJELLY.nemiAppears) {
+          nemi = { x: W + 16, y: 158 }
+        }
+      } else if (
+        (stage === 'turn' && frame === MOONJELLY.turnStarts) ||
+        (stage === 'approach' && frame === MOONJELLY.approachStarts)
+      ) {
+        reefs.length = 0
+        enemyShots.length = 0
+      } else if (stage === 'boss' && !moonBoss && moonDefeatedFrame === null) {
+        moonBoss = createMoonjellyBoss()
+      }
     }
 
     for (let seat = 0; seat < activePlayers; seat++) {
@@ -420,7 +470,13 @@ export function createRainbowPrincessPreview(
     }
     for (const reef of reefs) {
       reef.x -=
-        reef.kind === 'anchor' ? 0.65 : reef.kind === 'urchin' ? 0.9 : 1.25
+        reef.kind === 'anchor'
+          ? 0.65
+          : reef.kind === 'coral'
+            ? 0.8
+            : reef.kind === 'urchin'
+              ? 0.9
+              : 1.25
       reef.y +=
         Math.sin(tick / (reef.kind === 'spiral' ? 14 : 24) + reef.phase) *
         (reef.kind === 'spiral' ? 1.3 : 0.55)
@@ -431,6 +487,27 @@ export function createRainbowPrincessPreview(
     }
     if (boss) {
       enemyShots.push(...stepPinkwakeBoss(boss, ships.slice(0, activePlayers)))
+    }
+    if (moonBoss) {
+      enemyShots.push(...stepMoonjellyBoss(moonBoss, ships.slice(0, activePlayers)))
+    }
+    if (nemi) {
+      nemi.x -= 0.95
+      if (nemi.x < -16) nemi = null
+      else if (
+        ships.slice(0, activePlayers).some(
+          (ship) => ship.lives > 0 &&
+          Math.hypot(ship.x - nemi!.x, ship.y - nemi!.y) < 24,
+        )
+      ) {
+        nemi = null
+        rescuedNemi = true
+        score += 750
+        for (const ship of ships.slice(0, activePlayers)) {
+          ship.charge = Math.min(100, ship.charge + 20)
+        }
+        options.sound.play('pickup')
+      }
     }
     if (station) {
       station.x -= 0.75
@@ -482,6 +559,15 @@ export function createRainbowPrincessPreview(
         shots.splice(si, 1)
         boss.hp -= shot.damage
         if (boss.hp <= 0) defeatBoss()
+      }
+      if (
+        moonBoss &&
+        moonBoss.frame > 85 &&
+        Math.hypot(shot.x - (moonBoss.x - 17), shot.y - moonBoss.y) < 43
+      ) {
+        shots.splice(si, 1)
+        moonBoss.hp -= shot.damage
+        if (moonBoss.hp <= 0) defeatMoonBoss()
       }
     }
 
@@ -567,7 +653,7 @@ export function createRainbowPrincessPreview(
       return score
     },
     get level() {
-      return 1
+      return moonStart === null ? 1 : 2
     },
     get lives() {
       return ships
@@ -588,10 +674,19 @@ export function createRainbowPrincessPreview(
         enemies: reefs.map((reef) => ({ ...reef })),
         enemyShots: enemyShots.map((bullet) => ({ ...bullet })),
         pickups: pickups.map((pickup) => ({ ...pickup })),
-        act: 'S01',
-        stage: pinkwakeStage(tick, defeatedAt),
-        sceneId: pinkwakeScene(tick, defeatedAt)?.id ?? null,
+        act: moonStart === null ? 'S01' : 'S02',
+        stage:
+          moonStart === null
+            ? pinkwakeStage(tick, defeatedAt)
+            : moonjellyStage(moonFrame(), moonDefeatedFrame),
+        sceneId:
+          moonStart === null
+            ? pinkwakeScene(tick, defeatedAt)?.id ?? null
+            : moonjellyScene(moonFrame(), moonDefeatedFrame)?.id ?? null,
         boss: boss ? { ...boss } : null,
+        moonBoss: moonBoss ? { ...moonBoss } : null,
+        rescuedNemi,
+        actTwoFrame: moonFrame(),
         rescuedStation,
         defeatedAt,
       }

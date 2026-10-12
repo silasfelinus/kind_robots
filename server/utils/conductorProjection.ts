@@ -120,10 +120,14 @@ export function assertConductorProjectionSnapshot(
     throw new Error('Conductor projection version must be 1')
   }
   if (source.sourceRepo !== DEFAULT_SOURCE_REPO) {
-    throw new Error(`Conductor projection sourceRepo must be ${DEFAULT_SOURCE_REPO}`)
+    throw new Error(
+      `Conductor projection sourceRepo must be ${DEFAULT_SOURCE_REPO}`,
+    )
   }
   if (source.sourceRef !== DEFAULT_SOURCE_REF) {
-    throw new Error(`Conductor projection sourceRef must be ${DEFAULT_SOURCE_REF}`)
+    throw new Error(
+      `Conductor projection sourceRef must be ${DEFAULT_SOURCE_REF}`,
+    )
   }
   if (
     typeof source.sourceCommitSha !== 'string' ||
@@ -221,7 +225,17 @@ function parsePitch(filename: string, text: string): ConductorPitch {
     }
   }
 
-  return { slug, date, title, status, projectTarget, publicReady, idea, whyDoIt, effort }
+  return {
+    slug,
+    date,
+    title,
+    status,
+    projectTarget,
+    publicReady,
+    idea,
+    whyDoIt,
+    effort,
+  }
 }
 
 function parsedRoadmap(
@@ -258,7 +272,8 @@ export function buildConductorData(
     const display = displays.get(override.slug)
     const fallbackAssets = conductorProjectAssets(snapshot, override.slug)
     const liveUrl = defined(display?.liveUrl) ?? defined(override.liveUrl)
-    const channelKey = defined(display?.channelKey) ?? defined(override.channelKey)
+    const channelKey =
+      defined(display?.channelKey) ?? defined(override.channelKey)
     const tabKey = defined(display?.tabKey) ?? defined(override.tabKey)
     const repoUrl = defined(display?.repoUrl) ?? defined(override.repoUrl)
 
@@ -288,7 +303,9 @@ export function buildConductorData(
   })
 
   const pitches = Object.entries(snapshot.pitches)
-    .filter(([filename]) => filename.endsWith('.md') && filename !== 'README.md')
+    .filter(
+      ([filename]) => filename.endsWith('.md') && filename !== 'README.md',
+    )
     .map(([filename, text]) => parsePitch(filename, text))
     .sort((left, right) => right.date.localeCompare(left.date))
 

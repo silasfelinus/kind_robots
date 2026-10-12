@@ -40,11 +40,24 @@ export function pitchProjectSlug(pitch: ConductorPitch): string {
   return pitch.slug.replace(/^\d{4}-\d{2}-\d{2}-/, '')
 }
 
+export function isPublicFacingPitchPage(url: string | null): boolean {
+  if (!url) return false
+  try {
+    const parsed = new URL(url, 'https://kindrobots.org')
+    return !/^\/admin(?:\/|$)/i.test(parsed.pathname)
+  } catch {
+    return false
+  }
+}
+
 export function mayVisitPitchFrontend(
   entry: Pick<ApprovedPitchProgress, 'publicReady' | 'pageUrl'>,
   isAdmin: boolean,
 ): boolean {
-  return Boolean(entry.pageUrl && (isAdmin || entry.publicReady))
+  return Boolean(
+    entry.pageUrl &&
+      (isAdmin || (entry.publicReady && isPublicFacingPitchPage(entry.pageUrl))),
+  )
 }
 
 function arcadePitchPageUrl(pitch: ConductorPitch): string | null {

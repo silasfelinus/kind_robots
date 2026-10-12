@@ -142,6 +142,14 @@ export function readGamepad(
   }
 }
 
+/** Swap physical face buttons for Zuzu Ghost Trail without changing keys or touch. */
+export function readGhostTrailPad(
+  pad: Pick<Gamepad, 'buttons' | 'axes'>,
+): Partial<Record<ArcadeButton, boolean>> {
+  const mapped = readGamepad(pad)
+  return { ...mapped, a: mapped.b, b: mapped.a }
+}
+
 /** Below this a stick's push is drift, not aim. */
 export const AIM_DEADZONE = 0.3
 
@@ -402,11 +410,14 @@ export class ButtonInput<B extends string> {
 }
 
 export class ArcadeInput extends ButtonInput<ArcadeButton> {
-  constructor(keyMap: Record<string, ArcadeButton> = KEY_MAP) {
+  constructor(
+    keyMap: Record<string, ArcadeButton> = KEY_MAP,
+    readPad: typeof readGamepad = readGamepad,
+  ) {
     super({
       buttons: ARCADE_BUTTONS,
       keyMap,
-      readPad: readGamepad,
+      readPad,
       passThrough: ['start'],
     })
   }

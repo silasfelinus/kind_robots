@@ -34,14 +34,18 @@ import type { InputFrame } from '../arcade/types'
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 const quiet = { play: () => {} }
-const fresh = (seed = 3, resume?: unknown) =>
-  mod.create({
+/** A game past the menu of modes, straight into the campaign (or the Welcome Back card). */
+const fresh = (seed = 3, resume?: unknown) => {
+  const game = mod.create({
     rng: mulberry32(seed),
     sound: quiet,
     demo: false,
     hiScore: 0,
     resume,
   }) as any
+  game.menu = null
+  return game
+}
 
 function emptyArena(game: any) {
   game.foes = []

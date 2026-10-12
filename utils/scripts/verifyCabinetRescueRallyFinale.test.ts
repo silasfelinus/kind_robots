@@ -47,13 +47,17 @@ import type { InputFrame } from '../arcade/types'
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 const quiet = { play: () => {} }
-const fresh = (seed = 3) =>
-  mod.create({
+/** A game past the menu of modes, straight into the campaign. */
+const fresh = (seed = 3) => {
+  const game = mod.create({
     rng: mulberry32(seed),
     sound: quiet,
     demo: false,
     hiScore: 0,
   }) as any
+  game.menu = null
+  return game
+}
 
 function emptyArena(game: any) {
   Object.assign(game, {

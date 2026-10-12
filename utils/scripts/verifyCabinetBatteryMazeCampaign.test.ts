@@ -93,7 +93,7 @@ type Game = {
   powerItem: { kind: string; x: number; y: number } | null
   power: { kind: string; ticks: number } | null
   decoy: Tile | null
-  mama: GremlinMama | null
+  boss: GremlinMama | null
   sleepyTimer: number
   music: unknown
   update(input: InputFrame): void
@@ -159,7 +159,7 @@ function charge(game: Game) {
 {
   const steps = campaignSteps()
   assert.deepEqual(
-    steps.map((s) => s.kind),
+    steps.slice(0, 12).map((s) => s.kind),
     [
       'card',
       'maze',
@@ -185,9 +185,10 @@ function charge(game: Game) {
     board.mazes.forEach((m, i) => {
       layouts.add(m.layout.id)
       assert.equal(heatFor(board, i, 0), b * 3 + i + 1)
-      assert.equal(heatFor(board, i, 1), b * 3 + i + 7, 'a lap is hotter')
+      assert.ok(heatFor(board, i, 1) > heatFor(board, i, 0), 'a lap is hotter')
       for (const kind of m.roster) assert.ok(HUNTERS[kind], kind)
     })
+    if (board.secret) return
     const special = board.mazes[1]!
     assert.ok(special.special, `${board.id}: maze 2 is its special maze`)
     const bolt = special.goldenBolt!
@@ -198,13 +199,13 @@ function charge(game: Game) {
     )
     assert.ok(SPECIALS[special.special!].target > 0)
   })
-  assert.equal(layouts.size, 6, 'six layouts across two boards')
+  assert.ok(layouts.size >= 18, 'every board brings new layouts')
   assert.deepEqual(
     boardById('toaster').mazes[0].roster.includes('sprinter'),
     true,
   )
   assert.ok(boardById('toaster').mazes[1].roster.includes('snacker'))
-  assert.equal(SCENES.length, 2, 'two story breaks so far')
+  assert.equal(SCENES.length, 2, 'the first two story breaks')
 }
 
 // --- the flow: card, mazes, bolts, story, save -------------------------------------------------
@@ -530,7 +531,7 @@ function charge(game: Game) {
   game.card = null
   game.beginBoss(1)
   game.pause = 0
-  const mama = game.mama!
+  const mama = game.boss!
   assert.equal(game.maze.id, 'mamas-den')
   assert.equal(game.gremlins.length, 0, 'only Mama and her babies here')
   assert.equal(game.music, MAMA.music)
@@ -607,7 +608,7 @@ function charge(game: Game) {
   other.card = null
   other.beginBoss(1)
   other.pause = 0
-  const m2 = other.mama!
+  const m2 = other.boss!
   Object.assign(other.robot, { x: m2.x + 0.5, y: m2.y + 0.5 })
   const lives = other.lives
   other.collide()

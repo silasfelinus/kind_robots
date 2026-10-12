@@ -292,6 +292,9 @@ export class PinballScene {
   private heroes: Heroes | null = null
   /** Animatronic toys by id (the River Croc). */
   private animatronics = new Map<string, CrocToy>()
+  /** The addressable LED rail (t-012): one instance per LED. */
+  private leds: THREE.InstancedMesh | null = null
+  private ledColor = new THREE.Color()
   /** The cabinet body and the room around it (t-020). */
   private room: Room
   private sparks: Sparks
@@ -403,6 +406,7 @@ export class PinballScene {
       this.heroes = new Heroes(this.table.hero, track)
       this.root.add(this.heroes.group)
     }
+    if (this.table.ledRail) this.buildLedRail(this.table.ledRail, track)
     for (const def of this.table.animatronics ?? []) {
       const toy = new CrocToy(def, track, {
         reducedMotion:
@@ -1204,6 +1208,65 @@ export class PinballScene {
       rubber.material.emissiveIntensity = rubber.kick * 0.8
       rubber.kick = Math.max(0, rubber.kick - RUBBER_DECAY)
     }
+  }
+
+  /**
+   * The LED rail: small unlit beads spaced evenly along the rail's
+   * polyline, each its own colour (rules/leds.ts), all one draw call.
+   */
+  private buildLedRail(
+    rail: NonNullable<TableDef['ledRail']>,
+    track: <T extends { dispose(): void }>(r: T) => T,
+  ) {
+    const geometry = track(new THREE.SphereGeometry(0.0035, 8, 6))
+    const material = track(
+      new THREE.MeshBasicMaterial({ color: 0xffffff, toneMapped: false }),
+    )
+    const mesh = track(new THREE.InstancedMesh(geometry, material, rail.count))
+    const lengths = rail.points
+      .slice(1)
+      .map((p, i) =>
+        Math.hypot(p[0] - rail.points[i]![0], p[1] - rail.points[i]![1]),
+      )
+    const total = lengths.reduce((a, b) => a + b, 0)
+    const at = new THREE.Matrix4()
+    for (let i = 0; i < rail.count; i++) {
+      let d = ((i + 0.5) / rail.count) * total
+      let seg = 0
+      while (seg < lengths.length - 1 && d > lengths[seg]!) d -= lengths[seg++]!
+      const a = rail.points[seg]!
+      const b = rail.points[seg + 1]!
+      const t = lengths[seg]! > 0 ? d / lengths[seg]! : 0
+      at.makeTranslation(
+        a[0] + (b[0] - a[0]) * t,
+        rail.y,
+        a[1] + (b[1] - a[1]) * t,
+      )
+      mesh.setMatrixAt(i, at)
+      mesh.setColorAt(i, this.ledColor.setHex(0))
+    }
+    this.leds = mesh
+    this.root.add(mesh)
+  }
+
+  /** Colour the LED rail: one 0xRRGGBB per LED (rules/leds.ts). */
+  setLeds(colors: readonly number[]) {
+    const mesh = this.leds
+    if (!mesh) return
+    const n = Math.min(colors.length, mesh.count)
+    for (let i = 0; i < n; i++)
+      mesh.setColorAt(i, this.ledColor.setHex(colors[i]!))
+    if (mesh.instanceColor) mesh.instanceColor.needsUpdate = true
+  }
+
+  /** The LED rail's colours now, 0xRRGGBB each (for tests). */
+  ledColors(): number[] {
+    const mesh = this.leds
+    if (!mesh) return []
+    return Array.from({ length: mesh.count }, (_, i) => {
+      mesh.getColorAt(i, this.ledColor)
+      return this.ledColor.getHex()
+    })
   }
 
   /** Set every lamp from the lamp matrix (rules/lamps.ts), and the GI level. */

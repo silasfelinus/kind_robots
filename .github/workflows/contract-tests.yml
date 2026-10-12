@@ -39,6 +39,9 @@ jobs:
         env:
           CYPRESS_INSTALL_BINARY: '0'
 
+      - name: Approved Daily Dream pitch progress contract
+        run: npx tsx utils/scripts/verifyApprovedPitchProgress.test.ts
+
       - name: Tablet navigation audit contract
         run: node --test utils/scripts/auditTabletNavigation.test.mjs
 
@@ -181,6 +184,9 @@ jobs:
 
       - name: Zuzu Pinball no stuck balls
         run: npm run test:zuzu-pinball-no-stuck
+
+      - name: Zuzu Pinball LED rail
+        run: npm run test:zuzu-pinball-leds
 
       - name: Zuzu Pinball camera sweeps and still camera
         run: npm run test:zuzu-pinball-camera

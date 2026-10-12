@@ -52,6 +52,25 @@ export interface BoutCtx {
   burst(x: number, y: number, count: number, colour: string): void
   play(name: ArcadeSoundName): void
   say(text: string, sub?: string): void
+  /** The arena's own ledges (no puffs, lanterns or ice slabs), in a steady order. */
+  perches(): readonly Ledge[]
+  /** A lightning bolt straight down at x: it scorches the ledge below and anyone in its path. */
+  strike(x: number, fromY: number): void
+  /** Freeze the arena's ledge at this index (frost): standing on it too long freezes a rider. */
+  freeze(index: number): void
+  /** Shatter the frozen pond: the ice floor is gone. */
+  shatter(): void
+  /** Where a seat's rider was `ago` ticks back (the Mirror Moth's copy). */
+  history(
+    seat: number,
+    ago: number,
+  ): { x: number; y: number; facing: number } | null
+  /** Above this height a flap ices the wings over (null: no frost veil). */
+  veil(y: number | null): void
+  /** More lanterns, sooner (the Frost Moth Queen's last phase). */
+  lanternRush(on: boolean): void
+  /** Rain showers over the arena now (Old Thunderhead's storm). */
+  rain(on: boolean): void
 }
 
 export interface Champion {
@@ -75,7 +94,11 @@ export interface Champion {
   render(g: CanvasRenderingContext2D, tick: number): void
 }
 
-function nearestRider(ctx: BoutCtx, x: number, y: number): BoutRider | null {
+export function nearestRider(
+  ctx: BoutCtx,
+  x: number,
+  y: number,
+): BoutRider | null {
   let best: BoutRider | null = null
   let d = Infinity
   for (const r of ctx.riders()) {
@@ -88,7 +111,7 @@ function nearestRider(ctx: BoutCtx, x: number, y: number): BoutRider | null {
   return best
 }
 
-const clampY = (y: number, top = CEILING + 22, bottom = POND_Y - 40) =>
+export const clampY = (y: number, top = CEILING + 22, bottom = POND_Y - 40) =>
   Math.max(top, Math.min(bottom, y))
 
 // --- Sir Bumbleton ------------------------------------------------------------------------------
@@ -413,7 +436,7 @@ export class Bumbleton implements Champion {
   }
 }
 
-function dizzy(
+export function dizzy(
   g: CanvasRenderingContext2D,
   x: number,
   y: number,
@@ -758,9 +781,4 @@ function drawSeed(
   g.fillRect(cx, cy - 5, 1, 6)
   g.fillStyle = RAMPS.earth[2]
   g.fillRect(cx - 1, cy + 1, 3, 2)
-}
-
-/** A champion for its id, fresh for its bout. */
-export function createChampion(id: ChampionId): Champion {
-  return id === 'bumbleton' ? new Bumbleton() : new Duchess()
 }

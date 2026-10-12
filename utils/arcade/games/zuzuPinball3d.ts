@@ -77,6 +77,17 @@ const zuzuPinball: ArcadeGameModule = {
       scale: 1,
     },
     {
+      title: 'THE UNDERCRYPT',
+      lines: [
+        'STRIKE THE RELIC 3 TIMES',
+        'THEN SHOOT THE MORTUARY',
+        'BREAK THREE SKULLS',
+        'HOME SEALS THE CRYPT',
+        'NO BALL IS LOST BELOW',
+      ],
+      scale: 1,
+    },
+    {
       title: 'WATERING HOLE',
       lines: [
         'FEED HIM IN HOMESTEAD',

@@ -113,7 +113,11 @@ assert.ok(
     }
     physics.setFlipper('left', true)
     settle()
-    assert.deepEqual(raised(), ['abbey-flipper-left', 'zuzu-lower-left'])
+    assert.deepEqual(raised(), [
+      'abbey-flipper-left',
+      'crypt-flipper-left',
+      'zuzu-lower-left',
+    ])
     physics.setFlipper('left', false)
     physics.setFlipper('right', true, 'upper')
     settle()
@@ -121,7 +125,11 @@ assert.ok(
     physics.setFlipper('right', false, 'upper')
     physics.setFlipper('right', true, 'lower')
     settle()
-    assert.deepEqual(raised(), ['zuzu-lower-right'], 'lower alone')
+    assert.deepEqual(
+      raised(),
+      ['crypt-flipper-right', 'zuzu-lower-right'],
+      'lower alone (the crypt pair is on the lower buttons)',
+    )
   } finally {
     physics.dispose()
   }

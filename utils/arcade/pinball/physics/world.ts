@@ -90,7 +90,13 @@ type LiveDrop = {
   up: boolean
 }
 
-type Hold = { ball: LiveBall; scoop: ScoopDef; releaseStep: number }
+type Hold = {
+  ball: LiveBall
+  scoop: ScoopDef
+  releaseStep: number
+  /** A subway the rules chose for this ball (overrides the scoop's own). */
+  to?: string
+}
 
 type LiveDoor = {
   def: DoorDef
@@ -721,10 +727,9 @@ export class PinballPhysics {
     if (!due.length) return
     this.holds = this.holds.filter((h) => h.releaseStep > this.stepCount)
     for (const hold of due) {
+      const via = hold.to ?? hold.scoop.subwayTo
       const target =
-        (hold.scoop.subwayTo &&
-          this.table.scoops.find((s) => s.id === hold.scoop.subwayTo)) ||
-        hold.scoop
+        (via && this.table.scoops.find((s) => s.id === via)) || hold.scoop
       const { at, velocity } = target.eject
       const ball = hold.ball
       ball.body.setEnabled(true)
@@ -961,6 +966,21 @@ export class PinballPhysics {
     )
     this.locked.set(id, [])
     return parked.length
+  }
+
+  /**
+   * Send the balls held in a scoop down a subway to another scoop's kicker
+   * (Zuzu's Mortuary down to the undercrypt, t-010). Returns how many.
+   */
+  subwayHeld(id: string, to: string): number {
+    if (!this.table.scoops.some((s) => s.id === to)) return 0
+    let count = 0
+    for (const hold of this.holds)
+      if (hold.scoop.id === id) {
+        hold.to = to
+        count++
+      }
+    return count
   }
 
   /** Balls parked in a scoop's physical lock. */

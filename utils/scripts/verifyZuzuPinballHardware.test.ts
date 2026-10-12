@@ -23,8 +23,12 @@ assert.ok(
 const bells = table.drops.filter((target) => target.bank === 'abbey-bells')
 assert.equal(bells.length, 3)
 assert.ok(bells.every((target) => target.standup))
-assert.equal(seals.length + bells.length, table.drops.length)
-assert.equal(new Set(table.drops.map((target) => target.id)).size, 7)
+// ...and the undercrypt's skulls (t-010), standups too.
+const skulls = table.drops.filter((target) => target.bank === 'crypt-skulls')
+assert.equal(skulls.length, 3)
+assert.ok(skulls.every((target) => target.standup))
+assert.equal(seals.length + bells.length + skulls.length, table.drops.length)
+assert.equal(new Set(table.drops.map((target) => target.id)).size, 10)
 assert.equal(
   table.spinners.filter((item) => item.id === 'relic-spinner').length,
   1,

@@ -491,6 +491,8 @@ export class PinballRuntime<
         if (effect.action === 'close') this.physics.setDoor(effect.id, false)
         if (effect.action === 'lock') this.physics.lockHeld(effect.id)
         if (effect.action === 'release') this.physics.releaseLocked(effect.id)
+        if (effect.action === 'subway' && typeof effect.payload === 'string')
+          this.physics.subwayHeld(effect.id, effect.payload)
         break
       default:
         break

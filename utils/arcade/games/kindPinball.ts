@@ -741,8 +741,7 @@ class KindPinball implements ArcadeGameInstance {
   }
 
   private moveFlippers(input: InputFrame) {
-    const both = input.held.a && this.inPlay
-    const wants = [input.held.left || both, input.held.right || both]
+    const wants = [input.held.left, input.held.right]
     // Flipper buttons also rotate the lit top lanes, the classic lane change;
     // before the launch they steer the skill shot.
     if (input.pressed.left) {

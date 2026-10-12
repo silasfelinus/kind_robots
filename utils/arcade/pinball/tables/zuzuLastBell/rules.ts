@@ -48,6 +48,7 @@ import {
   type CrocCycle,
 } from './croc'
 import { zuzuLamps } from './lamps'
+import { zuzuLeds } from './leds'
 import {
   CITADEL,
   endMultiball,
@@ -1252,6 +1253,7 @@ export const ZUZU_RULESET: PinballRuleset<ZuzuRulesState> = {
   step: stepZuzuRules,
   lamps: zuzuLamps,
   shows: zuzuShows,
+  leds: zuzuLeds,
   music: (state) =>
     state.over || state.tilted
       ? null

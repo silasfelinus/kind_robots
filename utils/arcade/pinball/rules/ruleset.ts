@@ -17,6 +17,7 @@ import {
   type RulesEvent,
 } from './engine'
 import { lampStates, type LampFrame } from './lamps'
+import type { LedFrame } from './leds'
 import { showTriggers, type LightShow } from './lightShows'
 import { goalsMet, MASTERY_GOALS, masteryEffects } from './mastery'
 import { musicFor } from './subTable'
@@ -63,6 +64,11 @@ export type PinballRuleset<S extends CoreRulesState = CoreRulesState> = {
     pose(state: S): ToyPose
     delivered(before: S, after: S): boolean
   }
+  /**
+   * The LED rail's colours (rules/leds.ts), one per LED, at physics step
+   * `step`; `still` is reduced motion: no flashing, no chases.
+   */
+  leds?(state: S, step: number, count: number, still: boolean): LedFrame
   /** Animatronic toys' poses by id, at physics step `step`. */
   animatronics?(state: S, step: number): Record<string, AnimatronicPose>
   /** Mastery goals, when the table has them. */

@@ -1,17 +1,11 @@
 <template>
   <div class="kr-unbound kr-container max-w-3xl p-6 space-y-8">
-    <header class="flex items-center gap-3">
-      <span class="kr-icon-tile">
-        <Icon name="kind-icon:coin" class="kr-icon-7" />
-      </span>
-      <div>
-        <p class="kr-text-black-2xl tracking-tight">Creator Earnings</p>
-        <p class="kr-text-dim-sm">
-          What you've earned when someone spent tokens on something you made — a
-          Bot, Character, Facet, Scenario, Pitch, Art, Pack, Reward, or Dream.
-        </p>
-      </div>
-    </header>
+    <h2
+      class="kr-panel-flat kr-text-black-xl flex items-center gap-3 px-4 py-3"
+    >
+      <Icon name="kind-icon:coin" class="kr-icon-6 text-primary" />
+      Creator Earnings
+    </h2>
 
     <div
       v-if="userStore.isGuest"
@@ -26,23 +20,6 @@
     </div>
 
     <template v-else>
-      <div
-        class="flex items-start gap-3 rounded-2xl border border-info/30 bg-info/10 p-4 text-sm text-base-content/75"
-      >
-        <Icon name="kind-icon:info" class="mt-0.5 h-5 w-5 shrink-0 text-info" />
-        <p>
-          This page is read-only. There's no payout button here because
-          <strong
-            >the payout threshold and schedule have not been set yet</strong
-          >
-          — creator payouts are still a design-in-progress
-          (kind-economy&nbsp;t-014) and are gated behind Silas's own review
-          before they go live (t-015). Nothing below is a balance you can
-          withdraw today; it's an honest running total of what you've accrued so
-          far.
-        </p>
-      </div>
-
       <div
         v-if="earningsStore.loading && !earningsStore.hasLoaded"
         class="kr-text-dim-sm-50"

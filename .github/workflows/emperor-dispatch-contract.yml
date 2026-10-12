@@ -9,12 +9,14 @@ on:
     paths:
       - 'utils/emperorOfDust/**'
       - 'utils/scripts/verifyEmperorDispatch.test.ts'
+      - 'utils/scripts/verifyEmperorCampaign.test.ts'
       - '.github/workflows/emperor-dispatch-contract.yml'
   push:
     branches: [main]
     paths:
       - 'utils/emperorOfDust/**'
       - 'utils/scripts/verifyEmperorDispatch.test.ts'
+      - 'utils/scripts/verifyEmperorCampaign.test.ts'
       - '.github/workflows/emperor-dispatch-contract.yml'
 
 jobs:
@@ -32,3 +34,4 @@ jobs:
         env:
           CYPRESS_INSTALL_BINARY: '0'
       - run: npx tsx utils/scripts/verifyEmperorDispatch.test.ts
+      - run: npx tsx utils/scripts/verifyEmperorCampaign.test.ts

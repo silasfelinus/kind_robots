@@ -4,7 +4,8 @@ import { createSavePlumberPreview } from '../arcade/games/savePlumberPreview'
 import { emptyInput } from '../arcade/types'
 import { findArcadeGame, HALL_GAMES, loadArcadeGame } from '../arcade/games'
 
-const source = (path: string) => readFileSync(new URL(path, import.meta.url), 'utf8')
+const source = (path: string) =>
+  readFileSync(new URL(path, import.meta.url), 'utf8')
 const tab = source('../../content/channels/admin/save-the-plumber.md')
 const page = source('../../pages/admin/save-the-plumber.vue')
 const placement = source('../projectPlacements.ts')
@@ -15,10 +16,18 @@ assert.match(page, /!user\.isAdmin/)
 assert.match(page, /ArcadeCabinet slug="save-the-plumber"/)
 assert.match(placement, /'save-the-plumber':\s*\{[\s\S]*?channelKey: 'admin'/)
 assert.equal(findArcadeGame('save-the-plumber')?.maxPlausibleScore, 0)
-assert.ok(!HALL_GAMES.some(game => game.slug === 'save-the-plumber'))
-assert.equal(typeof (await loadArcadeGame('save-the-plumber')).create, 'function')
+assert.ok(!HALL_GAMES.some((game) => game.slug === 'save-the-plumber'))
+assert.equal(
+  typeof (await loadArcadeGame('save-the-plumber')).create,
+  'function',
+)
 
-const options = { rng: () => 0.5, sound: { play() {} }, demo: false, hiScore: 0 }
+const options = {
+  rng: () => 0.5,
+  sound: { play() {} },
+  demo: false,
+  hiScore: 0,
+}
 const game = createSavePlumberPreview(options)
 const input = emptyInput()
 input.held.right = true

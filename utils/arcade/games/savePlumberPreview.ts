@@ -1,4 +1,9 @@
-import type { ArcadeGameInstance, ArcadeGameModule, ArcadeGameOptions, InputFrame } from '../types'
+import type {
+  ArcadeGameInstance,
+  ArcadeGameModule,
+  ArcadeGameOptions,
+  InputFrame,
+} from '../types'
 
 const W = 480
 const H = 270
@@ -23,7 +28,9 @@ const balconies: Platform[] = [
 const surfaces = [...floors, ...balconies]
 const initialBugs = [270, 515, 830, 1100]
 
-export function createSavePlumberPreview(options: ArcadeGameOptions): ArcadeGameInstance {
+export function createSavePlumberPreview(
+  options: ArcadeGameOptions,
+): ArcadeGameInstance {
   let x = 54
   let y = FLOOR_Y - 26
   let vx = 0
@@ -39,10 +46,14 @@ export function createSavePlumberPreview(options: ArcadeGameOptions): ArcadeGame
   let lives = 3
   let over = false
   let completed = 0
-  const bugs: Bug[] = initialBugs.map(home => ({
-    x: home, y: FLOOR_Y - 10, home, dir: 1, active: true,
+  const bugs: Bug[] = initialBugs.map((home) => ({
+    x: home,
+    y: FLOOR_Y - 10,
+    home,
+    dir: 1,
+    active: true,
   }))
-  const coins = [196, 462, 782, 1070].map(x => ({ x, y: 133, taken: false }))
+  const coins = [196, 462, 782, 1070].map((x) => ({ x, y: 133, taken: false }))
 
   function respawn() {
     x = 54
@@ -54,22 +65,33 @@ export function createSavePlumberPreview(options: ArcadeGameOptions): ArcadeGame
   }
 
   return {
-    get score() { return score },
-    get level() { return 1 },
-    get lives() { return lives },
-    get over() { return over },
+    get score() {
+      return score
+    },
+    get level() {
+      return 1
+    },
+    get lives() {
+      return lives
+    },
+    get over() {
+      return over
+    },
     update(input: InputFrame) {
       if (over) return
       tick++
       const keys = input
       if (cooldown) cooldown--
       if (immune) immune--
-      const move = options.demo ? 1 : Number(keys.held.right) - Number(keys.held.left)
+      const move = options.demo
+        ? 1
+        : Number(keys.held.right) - Number(keys.held.left)
       vx = move ? Math.max(-2.85, Math.min(2.85, vx + move * 0.44)) : vx * 0.77
       x = Math.max(10, Math.min(WORLD_W - 15, x + vx))
       if (ground) grace = 7
       else if (grace) grace--
-      if (options.demo ? tick % 108 === 2 : keys.pressed.up || keys.pressed.b) jumpBuffer = 7
+      if (options.demo ? tick % 108 === 2 : keys.pressed.up || keys.pressed.b)
+        jumpBuffer = 7
       else if (jumpBuffer) jumpBuffer--
       if (jumpBuffer && grace) {
         vy = JUMP
@@ -85,7 +107,12 @@ export function createSavePlumberPreview(options: ArcadeGameOptions): ArcadeGame
       if (vy >= 0) {
         for (const surface of surfaces) {
           if (previousBottom > surface.y + 3) continue
-          if (y + 26 < surface.y || x + 11 < surface.x || x - 11 > surface.x + surface.width) continue
+          if (
+            y + 26 < surface.y ||
+            x + 11 < surface.x ||
+            x - 11 > surface.x + surface.width
+          )
+            continue
           y = surface.y - 26
           vy = 0
           ground = true
@@ -95,7 +122,13 @@ export function createSavePlumberPreview(options: ArcadeGameOptions): ArcadeGame
       if (y > H + 40) respawn()
       if (!options.demo && keys.pressed.a && !cooldown) {
         cooldown = 23
-        const hit = bugs.find(bug => bug.active && bug.x > x && bug.x - x < 72 && Math.abs(bug.y - (y + 14)) < 28)
+        const hit = bugs.find(
+          (bug) =>
+            bug.active &&
+            bug.x > x &&
+            bug.x - x < 72 &&
+            Math.abs(bug.y - (y + 14)) < 28,
+        )
         if (hit) {
           hit.active = false
           score += 150
@@ -103,7 +136,12 @@ export function createSavePlumberPreview(options: ArcadeGameOptions): ArcadeGame
         } else options.sound.play('shoot')
       }
       for (const coin of coins) {
-        if (coin.taken || Math.abs(coin.x - x) > 16 || Math.abs(coin.y - (y + 10)) > 23) continue
+        if (
+          coin.taken ||
+          Math.abs(coin.x - x) > 16 ||
+          Math.abs(coin.y - (y + 10)) > 23
+        )
+          continue
         coin.taken = true
         score += 50
         options.sound.play('pickup')
@@ -112,7 +150,12 @@ export function createSavePlumberPreview(options: ArcadeGameOptions): ArcadeGame
         if (!bug.active) continue
         bug.x += bug.dir * 0.56
         if (Math.abs(bug.x - bug.home) > 34) bug.dir *= -1
-        if (immune || Math.abs(bug.x - x) >= 17 || Math.abs(bug.y - (y + 18)) >= 20) continue
+        if (
+          immune ||
+          Math.abs(bug.x - x) >= 17 ||
+          Math.abs(bug.y - (y + 18)) >= 20
+        )
+          continue
         if (vy > 1 && y + 26 <= bug.y + 8) {
           bug.active = false
           vy = -5.2
@@ -127,8 +170,13 @@ export function createSavePlumberPreview(options: ArcadeGameOptions): ArcadeGame
         y = FLOOR_Y - 26
         vx = vy = 0
         immune = 70
-        coins.forEach(coin => { coin.taken = false })
-        bugs.forEach(bug => { bug.active = true; bug.x = bug.home })
+        coins.forEach((coin) => {
+          coin.taken = false
+        })
+        bugs.forEach((bug) => {
+          bug.active = true
+          bug.x = bug.home
+        })
         options.sound.play('level')
       }
       camera = Math.max(0, Math.min(WORLD_W - W, x - W * 0.38))
@@ -141,15 +189,15 @@ export function createSavePlumberPreview(options: ArcadeGameOptions): ArcadeGame
       g.fillStyle = back
       g.fillRect(0, 0, W, H)
       for (let i = 0; i < 12; i++) {
-        const bx = ((i * 123 - camera * 0.28) % 640 + 640) % 640 - 70
+        const bx = ((((i * 123 - camera * 0.28) % 640) + 640) % 640) - 70
         g.fillStyle = i % 2 ? '#d0a5b9aa' : '#f5e8c6aa'
-        g.fillRect(bx, 96 + i % 3 * 14, 72, 160)
+        g.fillRect(bx, 96 + (i % 3) * 14, 72, 160)
         g.fillStyle = '#fff8dc'
-        g.fillRect(bx + 9, 112 + i % 3 * 14, 16, 25)
-        g.fillRect(bx + 42, 112 + i % 3 * 14, 16, 25)
+        g.fillRect(bx + 9, 112 + (i % 3) * 14, 16, 25)
+        g.fillRect(bx + 42, 112 + (i % 3) * 14, 16, 25)
       }
       for (let i = 0; i < 10; i++) {
-        const bx = ((i * 164 - camera * 0.55) % 790 + 790) % 790 - 80
+        const bx = ((((i * 164 - camera * 0.55) % 790) + 790) % 790) - 80
         g.strokeStyle = '#679f9e'
         g.lineWidth = 11
         g.beginPath()
@@ -166,13 +214,22 @@ export function createSavePlumberPreview(options: ArcadeGameOptions): ArcadeGame
         g.fillStyle = '#c7a473'
         g.fillRect(floor.x, floor.y, floor.width, 7)
         g.fillStyle = '#f3e4a2'
-        for (let k = 12; k < floor.width; k += 40) g.fillRect(floor.x + k, floor.y + 2, 6, 3)
+        for (let k = 12; k < floor.width; k += 40)
+          g.fillRect(floor.x + k, floor.y + 2, 6, 3)
       }
       for (const coin of coins) {
         if (coin.taken) continue
         g.fillStyle = '#f7b83b'
         g.beginPath()
-        g.ellipse(coin.x, coin.y + Math.sin(tick / 17) * 2, 7, 9, 0, 0, Math.PI * 2)
+        g.ellipse(
+          coin.x,
+          coin.y + Math.sin(tick / 17) * 2,
+          7,
+          9,
+          0,
+          0,
+          Math.PI * 2,
+        )
         g.fill()
         g.strokeStyle = '#fff4c1'
         g.lineWidth = 2

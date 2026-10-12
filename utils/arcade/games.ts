@@ -699,8 +699,15 @@ export const PREVIEW_GAMES: ArcadeGameMeta[] = [
     slug: 'save-the-plumber',
     title: 'Save the Plumber',
     riffsOn: 'classic side-scrolling platform adventures',
-    blurb: 'Private Bluebell Pipeworks movement-engine preview: authored gaps, jump buffering, original pumpbugs, tools and a training goal. The eight-world campaign is still under development.',
-    howTo: ['ARROWS  RUN', 'UP OR B  JUMP', 'A  TOOL BLAST', 'HOP ON PUMPBUGS', 'REACH THE PENNANT'],
+    blurb:
+      'Private Bluebell Pipeworks movement-engine preview: authored gaps, jump buffering, original pumpbugs, tools and a training goal. The eight-world campaign is still under development.',
+    howTo: [
+      'ARROWS  RUN',
+      'UP OR B  JUMP',
+      'A  TOOL BLAST',
+      'HOP ON PUMPBUGS',
+      'REACH THE PENNANT',
+    ],
     width: 480,
     height: 270,
     maxPlausibleScore: 0,

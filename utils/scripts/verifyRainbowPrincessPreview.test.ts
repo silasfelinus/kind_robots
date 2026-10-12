@@ -4,6 +4,7 @@ import { parse } from 'yaml'
 import { resolveChannels } from '../../stores/helpers/channelContent'
 import { createRainbowPrincessPreview } from '../arcade/games/rainbowPrincessPreview'
 import { emptyInput } from '../arcade/types'
+import { directionsAtDpadPoint } from '../arcade/dpad'
 import { findArcadeGame, HALL_GAMES, loadArcadeGame } from '../arcade/games'
 
 const file = (path: string) =>
@@ -35,6 +36,45 @@ for (const section of [
   )
 assert.match(tab, /route: \/admin\/rainbow-bullet-hell-space-princess/)
 assert.match(page, /!user\.isAdmin/)
+const cabinet = file('../../components/arcade/arcade-cabinet.vue')
+assert.match(cabinet, /'cabinet-dpad--compact': compactDpad/)
+assert.match(cabinet, /compactDpad\.value \? 0\.1 : 0\.22/)
+assert.match(cabinet, /releaseDpad\(seat, \$event\.pointerId\)/)
+
+const rect = { left: 20, top: 30, width: 180, height: 180 }
+const pad = (x: number, y: number, deadZone = 0.1) =>
+  directionsAtDpadPoint(x, y, rect, deadZone)
+const neutral = { up: false, down: false, left: false, right: false }
+assert.deepEqual(pad(110, 120), neutral, 'center still lets go')
+assert.deepEqual(
+  pad(123, 120, 0.22),
+  neutral,
+  'other Arcade games retain the original center dead zone',
+)
+assert.deepEqual(
+  pad(123, 120),
+  { ...neutral, right: true },
+  'Space Princess responds near the center of the pad',
+)
+assert.deepEqual(pad(110, 40), { ...neutral, up: true })
+assert.deepEqual(pad(110, 200), { ...neutral, down: true })
+assert.deepEqual(pad(30, 120), { ...neutral, left: true })
+assert.deepEqual(pad(190, 120), { ...neutral, right: true })
+assert.deepEqual(
+  pad(180, 50),
+  { ...neutral, up: true, right: true },
+  'sliding diagonally holds both directions',
+)
+assert.deepEqual(
+  pad(40, 190),
+  { ...neutral, down: true, left: true },
+)
+assert.deepEqual(
+  directionsAtDpadPoint(123, 120, { ...rect, width: 0 }),
+  neutral,
+  'unmeasured touch pad cannot produce accidental movement',
+)
+
 assert.match(page, /ArcadeCabinet slug="rainbow-bullet-hell-space-princess"/)
 assert.match(
   registry,

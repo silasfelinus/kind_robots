@@ -25,6 +25,21 @@ import {
   coopEnemyHealth,
   haloRevive,
 } from './rainbowLocalCoop'
+import {
+  MOONJELLY,
+  moonjellyDialogue,
+  moonjellyScene,
+  moonjellySpawn,
+  moonjellyStage,
+  type MoonjellyEnemy,
+} from './rainbowMoonjelly'
+import {
+  AURELIA_MAX_HP,
+  createMoonjellyBoss,
+  moonjellyBossWarning,
+  stepMoonjellyBoss,
+  type MoonjellyBoss,
+} from './rainbowMoonjellyBoss'
 
 const W = 480
 const H = 270
@@ -60,7 +75,7 @@ type Reef = {
   y: number
   phase: number
   health: number
-  kind: PinkwakeEnemy
+  kind: PinkwakeEnemy | MoonjellyEnemy
   fired: boolean
 }
 type EnemyShot = {
@@ -80,10 +95,20 @@ export type RainbowCombatSnapshot = {
   enemies: ReadonlyArray<Readonly<Reef>>
   enemyShots: ReadonlyArray<Readonly<EnemyShot>>
   pickups: ReadonlyArray<Readonly<Pickup>>
-  act: 'S01'
-  stage: ReturnType<typeof pinkwakeStage>
-  sceneId: 'A01.OPEN' | 'A01.TURN' | 'A01.AFTER' | null
+  act: 'S01' | 'S02'
+  stage: ReturnType<typeof pinkwakeStage> | ReturnType<typeof moonjellyStage>
+  sceneId:
+    | 'A01.OPEN'
+    | 'A01.TURN'
+    | 'A01.AFTER'
+    | 'A02.OPEN'
+    | 'A02.TURN'
+    | 'A02.AFTER'
+    | null
   boss: Readonly<PinkwakeBoss> | null
+  moonBoss: Readonly<MoonjellyBoss> | null
+  rescuedNemi: boolean
+  actTwoFrame: number
   rescuedStation: boolean
   defeatedAt: number | null
   activePlayers: number
@@ -123,6 +148,27 @@ export function createRainbowPrincessPreview(
   let defeatedAt: number | null = null
   let rescuedStation = false
   let station: { x: number; y: number } | null = null
+  let moonStart: number | null = null
+  let moonBoss: MoonjellyBoss | null = null
+  let moonDefeatedFrame: number | null = null
+  let rescuedNemi = false
+  let nemi: { x: number; y: number } | null = null
+  function moonFrame() {
+    return moonStart === null ? 0 : tick - moonStart
+  }
+
+  function defeatMoonBoss() {
+    if (!moonBoss || moonDefeatedFrame !== null) return
+    moonBoss = null
+    moonDefeatedFrame = moonFrame()
+    reefs.length = 0
+    enemyShots.length = 0
+    score += 3500
+    for (const ship of ships.slice(0, activePlayers)) {
+      ship.invulnerable = Math.max(ship.invulnerable, 240)
+    }
+    options.sound.play('level')
+  }
 
   function setPlayers(requested: number) {
     activePlayers = addCoopSeats(ships, requested, createShip)
@@ -131,7 +177,7 @@ export function createRainbowPrincessPreview(
     }
   }
 
-  function spawn(kind: PinkwakeEnemy) {
+  function spawn(kind: PinkwakeEnemy | MoonjellyEnemy) {
     reefs.push({
       x: W + 18,
       y: 40 + options.rng() * (H - 80),
@@ -143,7 +189,15 @@ export function createRainbowPrincessPreview(
             ? 3
             : kind === 'anchor'
               ? 4
-              : 5,
+              : kind === 'lantern'
+                ? 3
+                : kind === 'relay'
+                  ? 4
+                  : kind === 'skimmer'
+                    ? 3
+                    : kind === 'coral'
+                      ? 6
+                      : 5,
         activePlayers,
       ),
       kind,
@@ -217,6 +271,10 @@ export function createRainbowPrincessPreview(
     if (boss && boss.frame > 85) {
       boss.hp -= seat === 1 ? 28 : 20
       if (boss.hp <= 0) defeatBoss()
+    }
+    if (moonBoss && moonBoss.frame > 85) {
+      moonBoss.hp -= seat === 1 ? 28 : 20
+      if (moonBoss.hp <= 0) defeatMoonBoss()
     }
     for (let i = reefs.length - 1; i >= 0; i--) {
       const reef = reefs[i]!

@@ -273,6 +273,16 @@
             {{ crt ? 'CRT on' : 'CRT off' }}
           </button>
           <button
+            v-if="meta?.touchLayout === 'pinball'"
+            type="button"
+            class="cabinet-switch"
+            :aria-pressed="stillCamera"
+            title="A still camera never sweeps, and cuts instead of panning"
+            @click="toggleStillCamera"
+          >
+            {{ stillCamera ? 'Camera still' : 'Camera moves' }}
+          </button>
+          <button
             type="button"
             class="cabinet-switch"
             :title="`Render style: ${RENDER_STYLE_NAMES[renderStyle]} (click for ${RENDER_STYLE_NAMES[otherStyle]})`"
@@ -386,6 +396,7 @@ const stageRef = ref<HTMLCanvasElement | null>(null)
 const phase = ref<ArcadePhase>('title')
 const muted = computed(() => store.muted)
 const crt = computed(() => store.crt)
+const stillCamera = computed(() => store.stillCamera)
 const renderStyle = computed(() => store.styleFor(props.slug))
 const otherStyle = computed<RenderStyle>(() =>
   renderStyle.value === 'hd' ? 'pixel' : 'hd',
@@ -946,6 +957,7 @@ function enterPhase(next: ArcadePhase) {
         sound: { play: () => {} },
         demo: true,
         hiScore: hiScore(),
+        stillCamera: store.stillCamera,
       }),
     )
   } else if (next !== 'demo') {
@@ -986,6 +998,7 @@ function startGame() {
       players: players.value,
       mastery: store.masteryFor(props.slug),
       resume: store.saveFor(props.slug),
+      stillCamera: store.stillCamera,
     }),
   )
   lastSave = undefined
@@ -1668,6 +1681,12 @@ function toggleRenderStyle() {
 
 function toggleCrt() {
   store.setCrt(!store.crt)
+}
+
+function toggleStillCamera() {
+  store.setStillCamera(!store.stillCamera)
+  for (const instance of [game, demoGame])
+    if (isWebGLInstance(instance)) instance.setStillCamera?.(store.stillCamera)
 }
 
 async function boot() {

@@ -164,6 +164,22 @@
             >
           </header>
           <div class="project-profile-fields grid gap-2 p-3">
+            <div v-if="userStore.isAdmin" class="form-control min-w-0">
+              <label class="label py-0.5">
+                <span class="kr-label-xs-semibold">Project title</span>
+              </label>
+              <input
+                type="text"
+                class="kr-input-sm w-full text-sm"
+                :value="linkedProject.title"
+                maxlength="200"
+                :disabled="projectSaving"
+                @blur="onTitleBlur"
+              />
+              <p class="kr-text-dim-xs-55 mt-1">
+                Display name only. Conductor slug and roadmap stay unchanged.
+              </p>
+            </div>
             <div class="form-control min-w-0">
               <label class="label py-0.5">
                 <span class="kr-label-xs-semibold">Goal</span>
@@ -559,6 +575,7 @@ const projectTaskSubmitting = ref(false)
 let saveMessageTimer: ReturnType<typeof setTimeout> | null = null
 
 type ProjectPatch = {
+  title?: string
   description?: string | null
   goal?: string | null
   liveUrl?: string | null
@@ -830,6 +847,21 @@ async function patchProject(patch: ProjectPatch): Promise<boolean> {
   } finally {
     projectSaving.value = false
   }
+}
+
+async function onTitleBlur(event: FocusEvent) {
+  const input = event.target as HTMLInputElement | null
+  const project = linkedProject.value
+  if (!input || !project) return
+  const title = input.value.trim()
+  if (!title) {
+    input.value = project.title
+    showSaveMessage('Project title cannot be empty.', true)
+    return
+  }
+  if (title === project.title) return
+  const saved = await patchProject({ title })
+  if (!saved) input.value = project.title
 }
 
 async function onStatusSelect(event: Event) {

@@ -36,6 +36,7 @@ import type {
   ArcadeGameOptions,
   InputFrame,
 } from '../types'
+import { emptyInput } from '../types'
 import {
   BOLT_ICON,
   BREAK_STARS,
@@ -54,6 +55,7 @@ import {
   PRIZE_SPRITES,
   ROBOT_DEATH,
   ROBOT_FRAMES,
+  PINK_ROBOT_FRAMES,
   ROBOT_SPARKS,
   SLEEP_Z,
   SPARK_COLOURS,
@@ -91,6 +93,7 @@ import type { Ramp } from '../snes'
 import { BAY_ITEMS, BOLT_AWARDS, STARTING_POWER } from '../batteryMaze/bay'
 import type { BayItemId } from '../batteryMaze/bay'
 import {
+  BOARDS,
   BLOOM_VINES,
   GARDEN_PRIZE_EVERY,
   LAMP_REACH,
@@ -116,13 +119,30 @@ import {
   TRAIN,
 } from '../batteryMaze/bosses'
 import type { BossMachine, BossWorld, PilotPlan } from '../batteryMaze/bosses'
-import { CLASSIC_LAYOUT, gateOpen, parseMaze } from '../batteryMaze/mazes'
+import {
+  CLASSIC_LAYOUT,
+  LAYOUTS,
+  gateOpen,
+  parseMaze,
+} from '../batteryMaze/mazes'
+import {
+  ALL_MEDALS,
+  CLASSIC_MAZE,
+  COOP_LIVES,
+  MEDALS,
+  MODES,
+  RUSH_HOUR,
+  TAG,
+  menuModes,
+} from '../batteryMaze/modes'
+import type { ModeId } from '../batteryMaze/modes'
 import type { Maze, MazeLayout, Tile } from '../batteryMaze/mazes'
 import { BAY_MUSIC, ENDING_MUSIC, STORY_MUSIC } from '../batteryMaze/music'
 import {
   BLINK,
   HUNTERS,
   SNACKS_TO_OVERCLOCK,
+  STARTING_FOUR,
   THORN_TICKS,
   freshMind,
 } from '../batteryMaze/roster'
@@ -198,6 +218,48 @@ const CRACKLE_TICKS = 150
 
 type GremlinState = 'docked' | 'leaving' | 'roaming' | 'eyes' | 'friend'
 
+/** A robot: one, or two side by side in co-op, each with its own trail and Friend Train. */
+type Robot = {
+  seat: 0 | 1
+  x: number
+  y: number
+  dir: Dir
+  want: Dir
+  mouth: number
+  eatDrag: number
+  shield: number
+  /** Caught in co-op: a flickering spark bot until its partner touches it (ticks left). */
+  down: number
+  /** Its last ticks of position (the chaser sniffs it), and its trail for the train. */
+  history: Tile[]
+  trail: Tile[]
+  trailAcc: number
+  train: Gremlin[]
+}
+
+function newRobot(seat: 0 | 1, at: Tile): Robot {
+  return {
+    seat,
+    x: at.x,
+    y: at.y,
+    dir: LEFT,
+    want: LEFT,
+    mouth: 0,
+    eatDrag: 0,
+    shield: 0,
+    down: 0,
+    history: [{ ...at }],
+    trail: [{ ...at }],
+    trailAcc: 0,
+    train: [],
+  }
+}
+
+/** A caught co-op robot waits this long for its partner before it costs a life. */
+const REVIVE_TICKS = 60 * 12
+/** A sleepy gremlin bumped with both robots close by pays this Pair Bonus. */
+const PAIR_BONUS = 1000
+const PAIR_RANGE = 1.6
 type Gremlin = {
   kind: GremlinKind
   x: number
@@ -218,6 +280,20 @@ type Gremlin = {
   from: Tile | null
   /** A twin sulking home after its twin was rebooted. */
   sulky: boolean
+  /** Gremlin Tag: the seat steering it (players[seat]), and where that player last pushed. */
+  seat?: number
+  want?: Dir
+}
+
+/** Rush Hour's run: the clock, the sparks not yet banked, and the battery bar. */
+type RushRun = {
+  t: number
+  unbanked: number
+  mult: number
+  bar: { x: number; y: number; ticks: number } | null
+  barNext: number
+  wave: number
+  nextWave: number
 }
 
 /** Something that ambles round the maze: a roaming prize or a power-up. */
@@ -256,7 +332,16 @@ export type BatterySave = {
   continued: boolean
   /** The campaign has been cleared once: Overclocked is open. */
   overclocked?: boolean
+  /** Medals won per campaign maze (`board:maze`), as MEDALS bits. */
+  medals?: Record<string, number>
+  /** The best Rush Hour score on this device. */
+  rushBest?: number
 }
+
+/** Every campaign maze a medal can be won on, as `board:maze`. */
+const MEDAL_KEYS = new Set(
+  BOARDS.flatMap((b) => b.mazes.map((_, i) => `${b.id}:${i}`)),
+)
 
 /** A stored save, checked against this build; null when unusable. */
 export function readBatterySave(raw: unknown): BatterySave | null {
@@ -294,7 +379,21 @@ export function readBatterySave(raw: unknown): BatterySave | null {
     ],
     continued: r.continued === true,
     overclocked: r.overclocked === true,
+    medals: readMedals(r.medals),
+    rushBest: count(r.rushBest, 99_999_999) ? (r.rushBest as number) : 0,
   }
+}
+
+function readMedals(raw: unknown): Record<string, number> {
+  const out: Record<string, number> = {}
+  if (!raw || typeof raw !== 'object' || Array.isArray(raw)) return out
+  for (const [key, bits] of Object.entries(raw as Record<string, unknown>)) {
+    if (!MEDAL_KEYS.has(key)) continue
+    if (typeof bits !== 'number' || !Number.isInteger(bits)) continue
+    const kept = bits & ALL_MEDALS
+    if (kept) out[key] = kept
+  }
+  return out
 }
 
 function sameDir(a: Dir, b: Dir) {
@@ -349,6 +448,18 @@ class BatteryMaze implements ArcadeGameInstance {
   private overclocked = false
   /** The ending scene on show (credits, or the true ending). */
   private ending = false
+  // The mode, its menu, and what lasts beyond a run.
+  private mode: ModeId = 'campaign'
+  private menu: { cursor: number; t: number; medals: boolean } | null = null
+  private medals: Record<string, number> = {}
+  private rushBest = 0
+  private rush: RushRun | null = null
+  /** The Rush Hour best before this run, for the result card's NEW BEST. */
+  private rushBefore = 0
+  private result: { text: string; lines: string[]; t: number } | null = null
+  private classicBreak = false
+  private tune: MusicLoop | null = null
+  private prizesCaught = 0
   // This maze.
   private maze: Maze = mazeOf(CLASSIC_LAYOUT)
   private theme: WallTheme = boardTheme(boardById('cozy').look)
@@ -381,20 +492,11 @@ class BatteryMaze implements ArcadeGameInstance {
   private mazeFullTrain = false
   private special: SpecialRun | null = null
   private goldenBolt: { at: Tile; shown: boolean } | null = null
-  private robot = {
-    x: 0,
-    y: 0,
-    dir: LEFT as Dir,
-    want: LEFT as Dir,
-    mouth: 0,
-    eatDrag: 0,
-    shield: 0,
-  }
-  private history: Tile[] = []
-  private trail: Tile[] = []
-  private trailAcc = 0
+  /** The robots in play; per-robot code acts for `cur`, through the accessors below. */
+  private robots: Robot[] = [newRobot(0, { x: 0, y: 0 })]
+  private cur = 0
+  private seats = 1
   private gremlins: Gremlin[] = []
-  private train: Gremlin[] = []
   private modeIndex = 0
   private modeTimer = 0
   private chasing = false
@@ -425,22 +527,422 @@ class BatteryMaze implements ArcadeGameInstance {
   private fx = new Sparkles()
   private fxRng = backdropRng(41)
 
+  private get robot(): Robot {
+    return this.robots[this.cur] ?? this.robots[0]!
+  }
+
+  private get history(): Tile[] {
+    return this.robot.history
+  }
+
+  private get trail(): Tile[] {
+    return this.robot.trail
+  }
+
+  private set trail(v: Tile[]) {
+    this.robot.trail = v
+  }
+
+  private get trailAcc(): number {
+    return this.robot.trailAcc
+  }
+
+  private set trailAcc(v: number) {
+    this.robot.trailAcc = v
+  }
+
+  private get train(): Gremlin[] {
+    return this.robot.train
+  }
+
+  private set train(v: Gremlin[]) {
+    this.robot.train = v
+  }
+
+  /** Every friend on every robot's train. */
+  private allFriends(): Gremlin[] {
+    return this.robots.flatMap((r) => r.train)
+  }
+
+  /** Run `fn` for each robot still up, as the current robot; robot 0 is current after. */
+  private eachRobot(fn: (r: Robot) => void) {
+    this.robots.forEach((r, i) => {
+      if (r.down > 0) return
+      this.cur = i
+      fn(r)
+    })
+    this.cur = 0
+  }
+
+  /** The robot nearest a spot (the one a gremlin goes after), preferring robots still up. */
+  private nearestRobot(at: { x: number; y: number }): number {
+    let best = 0
+    let bestD = Infinity
+    this.robots.forEach((r, i) => {
+      const d = Math.hypot(r.x - at.x, r.y - at.y) + (r.down > 0 ? 1000 : 0)
+      if (d < bestD) {
+        bestD = d
+        best = i
+      }
+    })
+    return best
+  }
+
   constructor(options: ArcadeGameOptions) {
     this.rng = options.rng
     this.sound = options.sound
     this.demo = options.demo
     this.hiScore = options.hiScore
+    this.seats = Math.max(1, Math.min(4, options.players ?? 1))
     const stored = this.demo ? null : readBatterySave(options.resume)
+    if (stored) {
+      this.medals = { ...stored.medals }
+      this.rushBest = stored.rushBest ?? 0
+      this.overclocked = stored.overclocked === true
+      this.golden = [...stored.golden]
+    }
     this.startStep()
-    if (stored && stored.step > 0) {
-      this.offer = stored
-      this.save = stored
+    if (stored) this.save = stored
+    // A real game opens on the continue offer (with a run saved) or the mode menu.
+    if (stored && stored.step > 0) this.offer = stored
+    else if (!this.demo) this.openMenu()
+  }
+
+  /** Two seated, in any mode but Tag, is co-op: two robots. */
+  private coop() {
+    return this.seats === 2 && this.mode !== 'tag'
+  }
+
+  /** The campaign (or its Overclocked lap): where saves, bolts and medals count. */
+  private campaignMode() {
+    return this.mode === 'campaign' || this.mode === 'overclocked'
+  }
+
+  // --- the modes ---------------------------------------------------------------
+
+  private openMenu() {
+    this.menu = { cursor: 0, t: 0, medals: false }
+  }
+
+  private updateMenu(input: InputFrame) {
+    const m = this.menu!
+    m.t++
+    if (m.t < 15) return
+    if (m.medals) {
+      if (input.pressed.a || input.pressed.b || input.pressed.start) {
+        m.medals = false
+        this.sound.play('blip')
+      }
+      return
+    }
+    const list = menuModes(this.seats, this.overclocked)
+    if (input.pressed.up) m.cursor = (m.cursor + list.length - 1) % list.length
+    if (input.pressed.down) m.cursor = (m.cursor + 1) % list.length
+    if (input.pressed.up || input.pressed.down) this.sound.play('blip')
+    if (input.pressed.b) {
+      m.medals = true
+      this.sound.play('blip')
+      return
+    }
+    if (input.pressed.a || input.pressed.start) {
+      this.menu = null
+      this.startMode(list[m.cursor] ?? 'campaign')
+    }
+  }
+
+  /** A fresh run in this mode. */
+  private startMode(id: ModeId) {
+    this.mode = id
+    this.score = 0
+    this.level = 1
+    this.lives =
+      id === 'tag' ? TAG.lives : this.coop() ? COOP_LIVES : START_LIVES
+    // Tag is three tags and out: no extra robots from points.
+    this.nextExtra = id === 'tag' ? Infinity : EXTRA_LIFE_AT
+    this.bolts = 0
+    this.flipBonus = 0
+    this.startMagnet = false
+    this.hint = false
+    this.rush = null
+    this.result = null
+    this.classicBreak = false
+    this.tune = null
+    this.sound.play('start')
+    if (id === 'campaign' || id === 'overclocked') {
+      this.lap = id === 'overclocked' ? 1 : 0
+      this.stepIndex = 0
+      this.startStep()
+      if (id === 'overclocked')
+        this.banner = {
+          text: 'OVERCLOCKED!',
+          sub: 'THE GRID RUNS HOT',
+          ticks: 150,
+        }
+      return
+    }
+    this.lap = 0
+    if (id === 'rush') this.beginRush()
+    else if (id === 'classic') this.beginClassic()
+    else this.beginTag()
+  }
+
+  /** One maze outside the campaign: the mechanics of the Cozy Charger, in its own colours. */
+  private beginSolo(
+    layoutId: string,
+    look: string,
+    heat: number,
+    roster: readonly GremlinKind[],
+  ) {
+    this.card = null
+    this.story = null
+    this.ending = false
+    this.bay = null
+    this.boss = null
+    this.bossWorld = null
+    this.spec = null
+    this.special = null
+    this.goldenBolt = null
+    this.board = boardById('cozy')
+    const lookBoard = boardById(look)
+    this.theme = boardTheme(lookBoard.look)
+    this.tune = lookBoard.music
+    const layout = LAYOUTS.find((l) => l.id === layoutId) ?? CLASSIC_LAYOUT
+    this.loadMaze(mazeOf(layout), heat, roster)
+  }
+
+  private beginClassic() {
+    this.beginSolo(
+      CLASSIC_MAZE.layout,
+      CLASSIC_MAZE.look,
+      Math.min(20, this.level),
+      STARTING_FOUR,
+    )
+    this.banner = {
+      text: `LEVEL ${this.level}`,
+      sub: 'CLASSIC MAZE',
+      ticks: 140,
+    }
+  }
+
+  /** Classic Maze, after a clear: the next level, with a coffee break every few. */
+  private nextClassic() {
+    if (this.classicBreak) {
+      this.classicBreak = false
+      this.beginClassic()
+      return
+    }
+    this.level++
+    if ((this.level - 1) % CLASSIC_MAZE.breakEvery === 0) {
+      this.classicBreak = true
+      this.story = { scene: sceneById(CLASSIC_MAZE.scene), t: 0 }
+      return
+    }
+    this.beginClassic()
+  }
+
+  private beginRush() {
+    this.beginSolo(
+      RUSH_HOUR.layout,
+      RUSH_HOUR.look,
+      RUSH_HOUR.heat,
+      STARTING_FOUR,
+    )
+    this.lives = 1
+    this.rushBefore = this.rushBest
+    this.rush = {
+      t: 0,
+      unbanked: 0,
+      mult: 1,
+      bar: null,
+      barNext: RUSH_HOUR.barEvery,
+      wave: 1,
+      nextWave: RUSH_HOUR.wave,
+    }
+    this.banner = {
+      text: 'RUSH HOUR!',
+      sub: 'EAT A BATTERY BAR TO BANK',
+      ticks: 160,
+    }
+  }
+
+  /** Rush Hour's clock, its battery bars and its waves. */
+  private updateRushHour() {
+    const r = this.rush
+    if (!r) return
+    r.t++
+    if (r.t % 60 === 0 && this.score > this.rushBest) {
+      // A quit mid-run still keeps the best scored so far.
+      this.rushBest = this.score
+      this.keepMeta()
+    }
+    if (r.t >= RUSH_HOUR.ticks) {
+      this.endRush()
+      return
+    }
+    if (r.bar) {
+      if (r.unbanked > 0 && this.touchingRobot(r.bar)) this.bank(r)
+      else if (--r.bar.ticks <= 0) r.bar = null
+    } else if (r.t >= r.barNext) {
+      r.barNext = r.t + RUSH_HOUR.barEvery
+      const spots = this.maze.sparks.filter(
+        (t) => !this.robotOn(this.key(t.x, t.y)),
+      )
+      const at = spots[Math.floor(this.rng() * spots.length)]
+      if (at) r.bar = { x: at.x, y: at.y, ticks: RUSH_HOUR.barLife }
+    }
+    if (r.t >= r.nextWave || (this.sparks.size === 0 && this.cells.size === 0))
+      this.rushWave(r)
+  }
+
+  /** The battery bar banks every spark eaten since the last, at a rising multiplier. */
+  private bank(r: RushRun) {
+    const bar = r.bar!
+    const points = r.unbanked * RUSH_HOUR.sparkPoints * r.mult
+    this.addScore(points)
+    this.floaters.push({
+      x: bar.x,
+      y: bar.y - 1,
+      text: `BANKED x${r.mult} ${points}`,
+      life: 100,
+    })
+    this.sparkle(bar.x, bar.y, 20, [RAMPS.gold[4], RAMPS.leaf[3], '#ffffff'], 2)
+    this.sound.play('extra')
+    r.mult = Math.min(RUSH_HOUR.maxMultiplier, r.mult + 1)
+    r.unbanked = 0
+    r.bar = null
+    r.barNext = r.t + RUSH_HOUR.barEvery
+  }
+
+  /** The sparks flow back in, and the grid runs a little hotter. */
+  private rushWave(r: RushRun) {
+    r.wave++
+    r.nextWave = r.t + RUSH_HOUR.wave
+    this.heat = Math.min(RUSH_HOUR.maxHeat, this.heat + RUSH_HOUR.heatPerWave)
+    this.row = heatRow(this.heat)
+    for (const t of this.maze.sparks) {
+      const k = this.key(t.x, t.y)
+      if (!this.robotOn(k)) this.sparks.add(k)
+    }
+    for (const t of this.maze.cells) {
+      const k = this.key(t.x, t.y)
+      if (!this.robotOn(k)) this.cells.add(k)
+    }
+    this.banner = {
+      text: `WAVE ${r.wave}!`,
+      sub: 'THE SPARKS FLOW BACK',
+      ticks: 120,
+    }
+    this.sound.play('level')
+  }
+
+  private endRush() {
+    if (!this.rush) return
+    const best = this.score > this.rushBefore
+    this.rushBest = Math.max(this.rushBest, this.score)
+    this.keepMeta()
+    this.rush.t = RUSH_HOUR.ticks
+    this.showResult('TIME UP!', [
+      `SCORE ${this.score}`,
+      best && this.score > 0 ? 'A NEW BEST!' : `BEST ${this.rushBest}`,
+    ])
+  }
+
+  private beginTag() {
+    this.beginSolo(TAG.layout, TAG.look, TAG.heat, TAG.roster)
+    this.banner = {
+      text: 'GREMLIN TAG!',
+      sub: 'ROBOT: CHARGE IT. GREMLINS: TAG!',
+      ticks: 180,
+    }
+  }
+
+  /** The seated players' gremlins follow their sticks. */
+  private steerGremlins(players?: InputFrame[]) {
+    for (const g of this.gremlins) {
+      if (!g.seat) continue
+      const f = players?.[g.seat]
+      if (!f) continue
+      if (f.held.up) g.want = UP
+      else if (f.held.down) g.want = DOWN
+      else if (f.held.left) g.want = LEFT
+      else if (f.held.right) g.want = RIGHT
+    }
+  }
+
+  /** A mode's last card (Tag's winner, Rush Hour's score), then the game is over. */
+  private showResult(text: string, lines: string[]) {
+    this.result = { text, lines, t: 0 }
+    this.banner = null
+    this.sound.play(text.startsWith('GREMLINS') ? 'die' : 'level')
+  }
+
+  /**
+   * Keep what lasts beyond a run (Overclocked opened, golden bolts, medals, the Rush Hour best)
+   * the moment it is earned, leaving any saved campaign checkpoint as it was: the host saves
+   * whenever `save` changes, and again when the player leaves.
+   */
+  private keepMeta() {
+    if (this.demo) return
+    const base: BatterySave = this.save ?? {
+      v: 1,
+      step: 0,
+      lap: 0,
+      level: 1,
+      score: 0,
+      lives: START_LIVES,
+      bolts: 0,
+      flipBonus: 0,
+      startMagnet: false,
+      hint: false,
+      golden: [...this.golden],
+      continued: false,
+    }
+    this.save = {
+      ...base,
+      golden: [...new Set([...base.golden, ...this.golden])],
+      overclocked: this.overclocked || base.overclocked === true,
+      medals: { ...base.medals, ...this.medals },
+      rushBest: Math.max(this.rushBest, base.rushBest ?? 0),
+    }
+  }
+
+  /** A campaign maze charged: which medals it won (and which are new). */
+  private awardMedals() {
+    if (this.demo || !this.campaignMode() || !this.spec || this.boss) return
+    const index = this.board.mazes.indexOf(this.spec)
+    if (index < 0) return
+    const key = `${this.board.id}:${index}`
+    const sp = this.special
+    const won = [
+      !this.mazeLost,
+      this.mazeFullTrain,
+      sp ? sp.done && !sp.failed : this.prizesCaught >= PRIZE_AT.length,
+    ]
+    const had = this.medals[key] ?? 0
+    let bits = had
+    let y = this.robot.y - 2
+    MEDALS.forEach((m, i) => {
+      if (!won[i]) return
+      bits |= m.bit
+      if (had & m.bit) return
+      this.floaters.push({
+        x: this.robot.x,
+        y,
+        text: `MEDAL: ${m.name}`,
+        life: 140,
+      })
+      y -= 1
+    })
+    if (bits !== had) {
+      this.medals[key] = bits
+      this.keepMeta()
     }
   }
 
   /** The board's tune, the boss theme, the Bay's or the story's; none in the attract demo. */
   get music(): MusicLoop | null {
-    if (this.demo || this.over || this.offer) return null
+    if (this.demo || this.over || this.offer || this.result) return null
+    if (this.menu) return BAY_MUSIC
     if (this.story && this.ending)
       return this.story.scene.id === 'true-ending'
         ? this.board.music
@@ -448,7 +950,7 @@ class BatteryMaze implements ArcadeGameInstance {
     if (this.story) return STORY_MUSIC
     if (this.bay) return BAY_MUSIC
     if (this.boss) return this.boss.music
-    return this.board.music
+    return this.tune ?? this.board.music
   }
 
   // --- the campaign ---------------------------------------------------------------
@@ -484,7 +986,11 @@ class BatteryMaze implements ArcadeGameInstance {
         // The campaign is cleared: Overclocked opens.
         this.story = { scene: sceneById(step.id), t: 0 }
         this.ending = true
-        if (!this.demo) this.overclocked = true
+        // Recorded the moment the ending starts, so leaving during the credits keeps it.
+        if (!this.demo) {
+          this.overclocked = true
+          this.keepMeta()
+        }
         return
       case 'boss':
         this.beginBoss(step.phase)
@@ -496,6 +1002,7 @@ class BatteryMaze implements ArcadeGameInstance {
   }
 
   private advance() {
+    if (this.mode === 'classic') return this.nextClassic()
     this.stepIndex++
     // The secret board and its true ending open only with all six golden bolts.
     while (
@@ -542,13 +1049,20 @@ class BatteryMaze implements ArcadeGameInstance {
       golden: [...this.golden],
       continued: false,
       overclocked: this.overclocked,
+      medals: { ...this.medals },
+      rushBest: this.rushBest,
     }
   }
 
   /** Pick a saved run back up at the start of its board. */
   private resumeFrom(s: BatterySave) {
+    this.mode = s.lap > 0 ? 'overclocked' : 'campaign'
     this.score = s.continued ? 0 : s.score
-    this.lives = s.continued ? START_LIVES : s.lives
+    this.lives = s.continued
+      ? this.coop()
+        ? COOP_LIVES
+        : START_LIVES
+      : Math.max(s.lives, this.coop() ? 2 : 1)
     this.nextExtra =
       (Math.floor(this.score / EXTRA_LIFE_AT) + 1) * EXTRA_LIFE_AT
     this.bolts = s.bolts
@@ -746,6 +1260,7 @@ class BatteryMaze implements ArcadeGameInstance {
     this.flips = this.maxFlips()
     this.prizes = []
     this.prizesRolled = 0
+    this.prizesCaught = 0
     this.powerItem = null
     this.powerNext = POWER_UP_ROLL.first
     this.power = null
@@ -758,18 +1273,20 @@ class BatteryMaze implements ArcadeGameInstance {
 
   private resetActors() {
     const m = this.maze
-    this.robot = {
-      x: m.start.x,
-      y: m.start.y,
-      dir: LEFT,
-      want: LEFT,
-      mouth: 0,
-      eatDrag: 0,
-      shield: 0,
+    this.robots = [newRobot(0, m.start)]
+    if (this.coop()) {
+      // The second robot starts a step or two along the same corridor.
+      const open = (x: number) => !'#-G'.includes(m.rows[m.start.y]?.[x] ?? '#')
+      const x = open(m.start.x + 2)
+        ? m.start.x + 2
+        : open(m.start.x - 2)
+          ? m.start.x - 2
+          : m.start.x
+      this.robots.push(newRobot(1, { x, y: m.start.y }))
+      this.robots[1]!.dir = RIGHT
+      this.robots[1]!.want = RIGHT
     }
-    this.history = [{ ...m.start }]
-    this.trail = [{ ...m.start }]
-    this.trailAcc = 0
+    this.cur = 0
     const corners: Tile[] = [
       { x: m.cols - 2, y: -2 },
       { x: 1, y: -2 },
@@ -800,11 +1317,17 @@ class BatteryMaze implements ArcadeGameInstance {
         sulky: false,
       }
     })
+    if (this.mode === 'tag')
+      this.gremlins.forEach((g, i) => {
+        if (i >= this.seats - 1) return
+        g.seat = i + 1
+        g.want = LEFT
+        if (g.state === 'docked') g.state = 'leaving'
+      })
     // Twins work as a pair: the first races ahead, the second cuts off the retreat.
     let twins = 0
     for (const g of this.gremlins)
       if (g.kind === 'twin') g.mind.side = (twins++ % 2) as 0 | 1
-    this.train = []
     this.modeIndex = 0
     this.modeTimer = this.row.schedule[0] ?? Infinity
     this.chasing = false
@@ -979,7 +1502,8 @@ class BatteryMaze implements ArcadeGameInstance {
 
   // --- update ----------------------------------------------------------------
 
-  update(input: InputFrame) {
+  update(input: InputFrame, players?: InputFrame[]) {
+    this.cur = 0
     this.tick++
     this.fx.update()
     if (this.banner && --this.banner.ticks <= 0) this.banner = null
@@ -991,17 +1515,30 @@ class BatteryMaze implements ArcadeGameInstance {
 
     if (this.over) return
     const controls = this.demo ? this.demoInput() : input
+    if (this.result) {
+      const r = this.result
+      r.t++
+      if (
+        r.t >= TAG.resultTicks ||
+        (r.t > 60 && (controls.pressed.a || controls.pressed.start))
+      )
+        this.over = true
+      return
+    }
     if (this.offer) {
       if (controls.pressed.a || controls.pressed.start) {
         const s = this.offer
         this.offer = null
         this.resumeFrom(s)
       } else if (controls.pressed.b) {
-        // A new run: the campaign starts over (the golden bolts found stay found).
-        this.golden = [...this.offer.golden]
+        // Something else: the menu (the saved run stays saved until a new campaign starts).
         this.offer = null
-        this.keep()
+        this.openMenu()
       }
+      return
+    }
+    if (this.menu) {
+      this.updateMenu(controls)
       return
     }
     if (this.bay) {
@@ -1044,10 +1581,16 @@ class BatteryMaze implements ArcadeGameInstance {
     }
     if (this.dying > 0) {
       if (--this.dying === 0) {
-        if (this.lives <= 0) {
+        if (this.lives <= 0 && this.mode === 'tag') {
+          this.showResult('GREMLINS WIN!', [
+            `TAGGED ${TAG.lives} TIMES`,
+            `ROBOT SCORE ${this.score}`,
+          ])
+        } else if (this.lives <= 0) {
           this.over = true
           this.banner = { text: 'GAME OVER', ticks: 9999 }
-          if (this.save) this.save = { ...this.save, continued: true }
+          if (this.save && this.campaignMode())
+            this.save = { ...this.save, continued: true }
         } else {
           this.resetActors()
         }
@@ -1063,52 +1606,122 @@ class BatteryMaze implements ArcadeGameInstance {
     }
 
     this.mazeTick++
-    if (controls.held.up) this.robot.want = UP
-    else if (controls.held.down) this.robot.want = DOWN
-    else if (controls.held.left) this.robot.want = LEFT
-    else if (controls.held.right) this.robot.want = RIGHT
-    if (controls.pressed.a) this.tryFlip()
+    this.eachRobot((r) => {
+      const frame =
+        r.seat === 0
+          ? controls
+          : this.demo
+            ? this.demoInput()
+            : (players?.[r.seat] ?? emptyInput())
+      if (frame.held.up) r.want = UP
+      else if (frame.held.down) r.want = DOWN
+      else if (frame.held.left) r.want = LEFT
+      else if (frame.held.right) r.want = RIGHT
+      if (frame.pressed.a) this.tryFlip()
+    })
+    if (this.mode === 'tag' && !this.demo) this.steerGremlins(players)
+    this.updateDown()
 
     this.updateToast()
     this.updateBoard()
     this.updateModes()
     this.updatePower()
-    this.moveRobot()
-    this.eat()
+    this.eachRobot(() => {
+      this.moveRobot()
+      this.eat()
+    })
     this.release()
-    const view = this.huntView()
     const frozen = this.power?.kind === 'freeze'
     for (const gremlin of this.gremlins) {
       if (frozen && gremlin.state === 'roaming') continue
-      if (gremlin.state === 'roaming' && !gremlin.sleepy) {
+      // Each gremlin goes after the robot nearest it.
+      this.cur = this.nearestRobot(gremlin)
+      const view = this.huntView()
+      if (gremlin.state === 'roaming' && !gremlin.sleepy && !gremlin.seat) {
         HUNTERS[gremlin.kind].sense?.(gremlin, view)
         this.gremlinTricks(gremlin)
       }
       this.moveGremlin(gremlin, view)
     }
+    this.cur = Math.max(
+      0,
+      this.robots.findIndex((r) => r.down === 0),
+    )
     if (this.boss && this.bossWorld) this.boss.update(this.bossWorld)
-    this.moveTrain()
-    this.collide()
+    this.cur = 0
+    this.eachRobot(() => this.moveTrain())
+    this.eachRobot(() => this.collide())
     this.updatePrizes()
     this.updateSpecial()
+    if (this.rush) {
+      this.updateRushHour()
+      return
+    }
 
     const cleared = this.boss
       ? this.boss.done
       : this.sparks.size === 0 && this.cells.size === 0
+    if (cleared && this.dying === 0 && this.mode === 'tag') {
+      this.showResult('ROBOT WINS!', [
+        'THE MAZE IS CHARGED',
+        `SCORE ${this.score}`,
+      ])
+      return
+    }
     if (cleared && this.dying === 0) this.clearMaze()
+  }
+
+  /** Caught co-op robots wait for a partner's touch; too long, and it costs a life. */
+  private updateDown() {
+    if (this.robots.length < 2) return
+    for (const r of this.robots) {
+      if (r.down <= 0) continue
+      const partner = this.robots.find((o) => o !== r && o.down === 0)
+      if (
+        partner &&
+        Math.abs(partner.x - r.x) < 0.8 &&
+        Math.abs(partner.y - r.y) < 0.8
+      ) {
+        r.down = 0
+        r.shield = 90
+        this.sparkle(r.x, r.y, 18, ROBOT_SPARKS, 1.8)
+        this.sound.play('extra')
+        this.banner = { text: 'REVIVED!', ticks: 60 }
+        continue
+      }
+      if (--r.down > 0) continue
+      if (this.rush || this.lives > 1) {
+        // Too long: it costs a robot, and this one rolls back in from the start.
+        if (!this.rush) this.lives--
+        const start = this.maze.start
+        Object.assign(r, { x: start.x, y: start.y, shield: 120, down: 0 })
+        r.history = [{ ...start }]
+        r.trail = [{ ...start }]
+      } else r.down = 1
+    }
   }
 
   /** The maze is charged (or the boss is home): bolts for what went well, then on. */
   private clearMaze() {
-    this.endTrain(true)
+    this.eachRobot(() => this.endTrain(true))
     this.clearing = 120
     this.sound.play('level')
+    this.awardMedals()
+    if (!this.campaignMode()) {
+      this.banner = {
+        text: 'MAZE CHARGED!',
+        sub: this.mazeLost ? undefined : 'CLEAN CHARGE!',
+        ticks: 120,
+      }
+      return
+    }
     const sp = this.special
     if (this.spec?.special === 'thaw' && sp && !sp.failed && !sp.done) {
       sp.done = true
       this.earn(BOLT_AWARDS.special)
       if (this.goldenBolt && !this.mazeLost && !this.demo) {
         this.golden.push(this.board.id)
+        this.keepMeta()
         this.addScore(GOLDEN_POINTS)
         this.goldenBolt = null
       }
@@ -1130,17 +1743,17 @@ class BatteryMaze implements ArcadeGameInstance {
   }
 
   private earn(bolts: number) {
-    if (this.demo) return
+    if (this.demo || !this.campaignMode()) return
     this.bolts += bolts
   }
 
   private updateModes() {
-    if (this.robot.shield > 0) this.robot.shield--
+    for (const r of this.robots) if (r.shield > 0) r.shield--
     if (this.sleepyTimer > 0) {
       this.sleepyTimer--
       if (this.sleepyTimer === 0) {
         for (const g of this.gremlins) g.sleepy = false
-        this.endTrain(true)
+        this.eachRobot(() => this.endTrain(true))
       }
       return
     }
@@ -1185,7 +1798,7 @@ class BatteryMaze implements ArcadeGameInstance {
         this.toastPhase(slot.group) === 'up' &&
         !(rush && rush.x === slot.x && rush.y === slot.y)
       if (want && !this.toastUp.has(key)) {
-        const occupied = [this.robot, ...this.gremlins].some(
+        const occupied = [...this.robots, ...this.gremlins].some(
           (a) => this.key(a.x, a.y) === key,
         )
         if (!occupied) {
@@ -1249,7 +1862,7 @@ class BatteryMaze implements ArcadeGameInstance {
           this.vineGrown.set(key, next)
           continue
         }
-        const occupied = [this.robot, ...this.gremlins].some(
+        const occupied = [...this.robots, ...this.gremlins].some(
           (a) => this.key(a.x, a.y) === key,
         )
         if (!occupied) {
@@ -1609,7 +2222,8 @@ class BatteryMaze implements ArcadeGameInstance {
 
   /** A spark eaten, by the robot or a friend on its train. */
   private chomp(x: number, y: number) {
-    this.addScore(10)
+    if (this.rush) this.rush.unbanked++
+    else this.addScore(10)
     this.eaten++
     this.sparkle(x, y, 3, SPARK_COLOURS, 0.8)
   }
@@ -1622,7 +2236,7 @@ class BatteryMaze implements ArcadeGameInstance {
       if (g.state === 'roaming') g.dir = opposite(g.dir)
     }
     if (ticks <= 0) {
-      this.robot.shield = SHIELD_TICKS
+      for (const r of this.robots) if (r.down === 0) r.shield = SHIELD_TICKS
       this.banner = { text: 'SHIELD!', ticks: 60 }
       return
     }
@@ -1640,8 +2254,14 @@ class BatteryMaze implements ArcadeGameInstance {
       this.power = null
       this.decoy = null
     }
-    if (this.power?.kind === 'magnet' && this.tick % 3 === 0) {
-      // Pull in the nearest spark within reach.
+    if (this.power?.kind === 'magnet' && this.tick % 3 === 0)
+      this.eachRobot(() => this.pullSpark())
+    this.rollPower()
+  }
+
+  /** The magnet pulls in the nearest spark within reach of the current robot. */
+  private pullSpark() {
+    {
       const r = this.robot
       let best: string | null = null
       let bestD = MAGNET_RANGE + 1e-6
@@ -1660,6 +2280,10 @@ class BatteryMaze implements ArcadeGameInstance {
         this.sparksSinceRelease++
       }
     }
+  }
+
+  /** Now and then a power-up rolls out of the dock, and wanders until it is eaten. */
+  private rollPower() {
     if (this.boss) return
     // Now and then a power-up rolls out of the dock.
     if (!this.powerItem && this.mazeTick >= this.powerNext) {
@@ -1710,12 +2334,20 @@ class BatteryMaze implements ArcadeGameInstance {
     }
   }
 
+  /** Whether any robot still up is touching `w`. */
   private touchingRobot(w: { x: number; y: number }) {
-    const r = this.robot
-    const dx = Math.abs(w.x - r.x)
-    return (
-      Math.min(dx, this.maze.cols - dx) < 0.75 && Math.abs(w.y - r.y) < 0.75
-    )
+    return this.robots.some((r) => {
+      if (r.down > 0) return false
+      const dx = Math.abs(w.x - r.x)
+      return (
+        Math.min(dx, this.maze.cols - dx) < 0.75 && Math.abs(w.y - r.y) < 0.75
+      )
+    })
+  }
+
+  /** Whether any robot still up stands on this tile. */
+  private robotOn(key: string) {
+    return this.robots.some((r) => r.down === 0 && this.key(r.x, r.y) === key)
   }
 
   // --- the dock ---------------------------------------------------------------
@@ -1866,6 +2498,14 @@ class BatteryMaze implements ArcadeGameInstance {
     }
 
     const speed = this.gremlinSpeed(g)
+    // A player's gremlin turns straight round when its player pulls back.
+    if (
+      g.seat &&
+      g.state === 'roaming' &&
+      g.want &&
+      sameDir(g.want, opposite(g.dir))
+    )
+      g.dir = g.want
     if (this.atCentre(g)) this.chooseTurn(g, view)
     if (speed <= 0 || sameDir(g.dir, NONE)) return
     if (this.step(g, g.dir, speed)) {
@@ -1890,8 +2530,7 @@ class BatteryMaze implements ArcadeGameInstance {
       this.crackle.set(`${here.x},${here.y}`, CRACKLE_TICKS)
     if (HUNTERS[g.kind].thorns && g.from && !g.sleepy) {
       const key = `${g.from.x},${g.from.y}`
-      if (key !== this.key(this.robot.x, this.robot.y))
-        this.thorns.set(key, THORN_TICKS)
+      if (!this.robotOn(key)) this.thorns.set(key, THORN_TICKS)
     }
     g.from = here
   }
@@ -1971,6 +2610,16 @@ class BatteryMaze implements ArcadeGameInstance {
   }
 
   private chooseTurn(g: Gremlin, view: HuntView) {
+    if (g.seat && g.state === 'roaming') {
+      // A player's gremlin: where its stick says, else straight on (the hunt only at a wall).
+      if (g.want && this.canMove(g.x, g.y, g.want)) {
+        g.dir = g.want
+        return
+      }
+      if (!sameDir(g.dir, NONE) && this.canMove(g.x, g.y, g.dir)) return
+      g.dir = NONE
+      return
+    }
     const hunter = HUNTERS[g.kind]
     if (hunter.steer && g.state === 'roaming' && !g.sleepy && !this.decoy) {
       // A copycat goes where it's steered, or stands still.
@@ -2124,6 +2773,17 @@ class BatteryMaze implements ArcadeGameInstance {
           '#ffffff',
         ])
         this.sound.play('pop')
+        const partner = this.robots.find(
+          (o) => o !== this.robot && o.down === 0,
+        )
+        if (
+          partner &&
+          Math.hypot(partner.x - g.x, partner.y - g.y) <= PAIR_RANGE
+        ) {
+          // Both robots on it at once: a Pair Bonus.
+          this.addScore(PAIR_BONUS, g.x, g.y - 1)
+          this.banner = { text: 'PAIR BONUS!', ticks: 70 }
+        }
         if (g.kind === 'baby') {
           // A baby just pops home in a puff.
           this.gremlins = this.gremlins.filter((x) => x !== g)
@@ -2173,7 +2833,27 @@ class BatteryMaze implements ArcadeGameInstance {
   }
 
   private lose() {
-    this.lives--
+    const r = this.robot
+    if (this.robots.some((o) => o !== r && o.down === 0)) {
+      // Co-op: a flickering spark bot until the partner revives it.
+      this.endTrain(false)
+      r.down = REVIVE_TICKS
+      r.shield = 0
+      this.mazeLost = true
+      this.sparkle(r.x, r.y, 16, ROBOT_SPARKS, 2)
+      this.sound.play('die')
+      return
+    }
+    if (this.rush) {
+      if (this.rush.unbanked > 0)
+        this.floaters.push({
+          x: r.x,
+          y: r.y - 1,
+          text: 'SPARKS SPILLED!',
+          life: 90,
+        })
+      this.rush.unbanked = 0
+    } else this.lives--
     this.dying = 110
     this.mazeLost = true
     this.prizes = this.prizes.filter((p) => p.parade)
@@ -2271,6 +2951,7 @@ class BatteryMaze implements ArcadeGameInstance {
       this.sparkle(p.x, p.y, 18, undefined, 2)
       this.sound.play('extra')
       if (p.parade && this.special) this.special.caught++
+      else this.prizesCaught++
       return false
     })
   }
@@ -2331,12 +3012,12 @@ class BatteryMaze implements ArcadeGameInstance {
       }
     }
     const gb = this.goldenBolt
-    if (
-      gb?.shown &&
-      this.key(this.robot.x, this.robot.y) === `${gb.at.x},${gb.at.y}`
-    ) {
+    if (gb?.shown && this.robotOn(`${gb.at.x},${gb.at.y}`)) {
       this.goldenBolt = null
-      if (!this.demo) this.golden.push(this.board.id)
+      if (!this.demo) {
+        this.golden.push(this.board.id)
+        this.keepMeta()
+      }
       this.addScore(GOLDEN_POINTS, gb.at.x, gb.at.y)
       this.sparkle(
         gb.at.x,
@@ -2358,7 +3039,7 @@ class BatteryMaze implements ArcadeGameInstance {
   private updateRush(sp: SpecialRun) {
     if (sp.toast) {
       const t = sp.toast
-      if (this.key(this.robot.x, this.robot.y) === `${t.at.x},${t.at.y}`) {
+      if (this.robotOn(`${t.at.x},${t.at.y}`)) {
         const points = RUSH.points[sp.caught] ?? RUSH.points.at(-1)!
         this.addScore(points, t.at.x, t.at.y)
         this.earn(BOLT_AWARDS.prize)
@@ -2434,7 +3115,14 @@ class BatteryMaze implements ArcadeGameInstance {
     }
     const frame: InputFrame = { held, pressed: { ...held } }
     // Between mazes: tap through the cards, the comics and the Bay.
-    if (this.offer || this.card || this.story || this.bay) {
+    if (
+      this.offer ||
+      this.menu ||
+      this.result ||
+      this.card ||
+      this.story ||
+      this.bay
+    ) {
       if (this.tick % 20 === 0) frame.pressed.a = held.a = true
       return frame
     }
@@ -2524,6 +3212,19 @@ class BatteryMaze implements ArcadeGameInstance {
       extra.add(`${this.special.toast.at.x},${this.special.toast.at.y}`)
     if (this.goldenBolt?.shown)
       extra.add(`${this.goldenBolt.at.x},${this.goldenBolt.at.y}`)
+    // A partner down in co-op: go and revive it first.
+    const partner = this.robots.find((o) => o !== this.robot && o.down > 0)
+    if (partner)
+      return {
+        extra,
+        only: new Set([
+          `${this.wrapX(Math.round(partner.x))},${Math.round(partner.y)}`,
+        ]),
+        flip: false,
+      }
+    const bar = this.rush?.bar
+    if (bar && this.rush!.unbanked >= 20)
+      return { extra, only: new Set([`${bar.x},${bar.y}`]), flip: false }
     for (const lamp of this.maze.lamps)
       if (!this.lit.has(`${lamp.x},${lamp.y}`)) extra.add(`${lamp.x},${lamp.y}`)
     if (!plan?.goals) return { extra, only: null, flip: !!plan?.flip }
@@ -2567,7 +3268,11 @@ class BatteryMaze implements ArcadeGameInstance {
     const theme = flash
       ? { ...FLASH_THEME, floor: this.theme.floor, pattern: this.theme.pattern }
       : this.theme
-    const lookId = this.boss ? `boss-${this.boss.id}` : this.board.id
+    const lookId = this.boss
+      ? `boss-${this.boss.id}`
+      : this.campaignMode()
+        ? this.board.id
+        : `mode-${this.mode}`
     cachedLayer(
       g,
       `battery-maze-${this.maze.id}-${lookId}-${flash ? 'flash' : 'lit'}`,
@@ -2584,6 +3289,7 @@ class BatteryMaze implements ArcadeGameInstance {
     this.renderGolden(g)
     for (const p of this.prizes) this.renderPrize(g, p)
     if (this.powerItem) this.renderPowerItem(g, this.powerItem)
+    if (this.rush?.bar) this.renderBar(g, this.rush.bar)
     if (this.decoy) {
       const cx = this.decoy.x * TILE + TILE / 2
       const cy = TOP + this.decoy.y * TILE + TILE / 2
@@ -2595,11 +3301,12 @@ class BatteryMaze implements ArcadeGameInstance {
       for (const gremlin of this.gremlins)
         if (gremlin.state !== 'friend' && !hidden.has(gremlin))
           this.renderGremlin(g, gremlin)
-      for (let i = this.train.length - 1; i >= 0; i--)
-        this.renderGremlin(g, this.train[i]!)
+      for (const robot of this.robots)
+        for (let i = robot.train.length - 1; i >= 0; i--)
+          this.renderGremlin(g, robot.train[i]!)
       if (this.boss) this.renderBoss(g, this.boss)
     }
-    this.renderRobot(g)
+    for (const robot of this.robots) this.renderRobot(g, robot)
     this.renderShade(g)
     this.fx.render(g)
     for (const f of this.floaters) {
@@ -2611,9 +3318,219 @@ class BatteryMaze implements ArcadeGameInstance {
     }
     vignette(g, W, H, 0.28)
     this.renderHud(g)
-    if (this.card) this.renderCard(g)
+    if (this.card && !this.menu) this.renderCard(g)
     if (this.bay) this.renderBay(g)
     if (this.offer) this.renderOffer(g, this.offer)
+    if (this.menu) {
+      if (this.menu.medals) this.renderMedals(g)
+      else this.renderMenu(g, this.menu)
+    }
+    if (this.result) this.renderResult(g, this.result)
+  }
+
+  /** Rush Hour's battery bar: eat it to bank the sparks. */
+  private renderBar(
+    g: CanvasRenderingContext2D,
+    bar: { x: number; y: number; ticks: number },
+  ) {
+    if (bar.ticks < 120 && Math.floor(bar.ticks / 6) % 2 === 0) return
+    const cx = bar.x * TILE + TILE / 2
+    const cy = TOP + bar.y * TILE + TILE / 2
+    const ready = (this.rush?.unbanked ?? 0) > 0
+    const pulse = 0.5 + Math.sin(this.tick / 6) * 0.15
+    glow(g, cx, cy, 16, RAMPS.leaf[3], ready ? pulse : 0.25)
+    dropShadow(g, cx, cy + 7, 7, 1.6, 0.4)
+    g.fillStyle = INK
+    g.fillRect(cx - 8, cy - 5, 15, 11)
+    g.fillRect(cx + 7, cy - 2, 3, 5)
+    g.fillStyle = RAMPS.gold[3]
+    g.fillRect(cx - 7, cy - 4, 13, 9)
+    g.fillRect(cx + 7, cy - 1, 2, 3)
+    const fill = Math.floor(this.tick / 8) % 4
+    for (let i = 0; i <= fill; i++) {
+      g.fillStyle = i === fill ? RAMPS.leaf[4] : RAMPS.leaf[3]
+      g.fillRect(cx - 6 + i * 3, cy - 3, 2, 7)
+    }
+    g.fillStyle = '#ffffff'
+    g.fillRect(cx - 6, cy - 4, 4, 1)
+    if (ready)
+      drawText(g, 'BANK!', cx, cy - 17, {
+        align: 'center',
+        color: RAMPS.leaf[4],
+        outline: INK,
+      })
+  }
+
+  private renderMenu(
+    g: CanvasRenderingContext2D,
+    menu: { cursor: number; t: number },
+  ) {
+    g.fillStyle = 'rgba(7, 6, 26, 0.82)'
+    g.fillRect(0, 0, W, H)
+    const list = menuModes(this.seats, this.overclocked)
+    const y = TOP + 40
+    const h = 112 + list.length * 18
+    hudPanel(g, 18, y, W - 36, h, RAMPS.purple)
+    drawText(g, 'BATTERY MAZE', W / 2, y + 12, {
+      scale: 2,
+      align: 'center',
+      color: RAMPS.gold[3],
+      outline: INK,
+      shadow: RAMPS.pink[1],
+    })
+    const who =
+      this.seats >= 3
+        ? `${this.seats} PLAYERS`
+        : this.seats === 2
+          ? '2 ROBOTS: CO-OP'
+          : '1 ROBOT'
+    drawText(g, who, W / 2, y + 34, {
+      align: 'center',
+      color: this.seats === 2 ? RAMPS.pink[3] : RAMPS.teal[3],
+      outline: INK,
+    })
+    list.forEach((id, i) => {
+      const on = i === menu.cursor
+      const ly = y + 54 + i * 18
+      if (on) {
+        g.fillStyle = 'rgba(255, 255, 255, 0.08)'
+        g.fillRect(30, ly - 4, W - 60, 16)
+        if (Math.floor(menu.t / 15) % 2 === 0)
+          drawSprite(g, LIFE_SPRITE, 42, ly + 3)
+      }
+      drawText(g, MODES[id].name, W / 2, ly, {
+        align: 'center',
+        color: on ? RAMPS.gold[4] : RAMPS.steel[4],
+        outline: INK,
+      })
+    })
+    const pick = list[menu.cursor] ?? 'campaign'
+    const fy = y + 58 + list.length * 18
+    drawText(g, MODES[pick].about, W / 2, fy, {
+      align: 'center',
+      color: RAMPS.teal[3],
+      outline: INK,
+    })
+    const extra =
+      pick === 'rush' && this.rushBest > 0
+        ? `BEST ${this.rushBest}`
+        : pick === 'tag' && this.seats < 4
+          ? `${5 - this.seats} MORE GREMLINS ON AUTOPILOT`
+          : ''
+    if (extra)
+      drawText(g, extra, W / 2, fy + 13, {
+        align: 'center',
+        color: RAMPS.gold[4],
+        outline: INK,
+      })
+    drawText(g, 'A  PLAY     B  MEDALS', W / 2, y + h - 14, {
+      align: 'center',
+      color: RAMPS.leaf[3],
+      outline: INK,
+    })
+  }
+
+  /** The medal board: every campaign maze's three medals. */
+  private renderMedals(g: CanvasRenderingContext2D) {
+    g.fillStyle = 'rgba(7, 6, 26, 0.86)'
+    g.fillRect(0, 0, W, H)
+    const boards = BOARDS.filter(
+      (b) =>
+        !b.secret ||
+        this.golden.length >= 6 ||
+        b.mazes.some((_, i) => this.medals[`${b.id}:${i}`]),
+    )
+    const rowH = 24
+    const y = TOP + 6
+    const h = 70 + boards.length * rowH
+    hudPanel(g, 10, y, W - 20, h, RAMPS.purple)
+    let got = 0
+    let total = 0
+    for (const b of boards)
+      b.mazes.forEach((_, i) => {
+        const bits = this.medals[`${b.id}:${i}`] ?? 0
+        for (const m of MEDALS) {
+          total++
+          if (bits & m.bit) got++
+        }
+      })
+    drawText(g, 'MEDALS', W / 2, y + 10, {
+      scale: 2,
+      align: 'center',
+      color: RAMPS.gold[3],
+      outline: INK,
+    })
+    drawText(g, `${got}/${total}`, W - 22, y + 14, {
+      align: 'right',
+      color: RAMPS.gold[4],
+      outline: INK,
+    })
+    const colours = [RAMPS.teal, RAMPS.pink, RAMPS.gold]
+    boards.forEach((b, row) => {
+      const ry = y + 34 + row * rowH
+      drawText(g, `${b.number} ${b.name}`, 20, ry + 2, {
+        color: RAMPS.steel[4],
+        outline: INK,
+      })
+      b.mazes.forEach((_, i) => {
+        const bits = this.medals[`${b.id}:${i}`] ?? 0
+        const mx = 196 + i * 38
+        g.fillStyle = INK
+        g.fillRect(mx - 2, ry - 2, 34, 14)
+        MEDALS.forEach((m, k) => {
+          const on = (bits & m.bit) !== 0
+          const ramp = colours[k]!
+          g.fillStyle = on ? ramp[3] : RAMPS.steel[1]
+          g.fillRect(mx + k * 10, ry, 8, 10)
+          if (on) {
+            g.fillStyle = ramp[4]
+            g.fillRect(mx + k * 10, ry, 3, 3)
+          }
+        })
+      })
+    })
+    const ly = y + h - 28
+    MEDALS.forEach((m, k) => {
+      const lx = 22 + k * 98
+      g.fillStyle = colours[k]![3]
+      g.fillRect(lx, ly, 7, 9)
+      drawText(g, m.name, lx + 11, ly + 1, {
+        color: colours[k]![4],
+        outline: INK,
+      })
+    })
+    drawText(g, 'B  BACK', W / 2, ly + 14, {
+      align: 'center',
+      color: RAMPS.leaf[3],
+      outline: INK,
+    })
+  }
+
+  /** Tag's winner, or Rush Hour's score. */
+  private renderResult(
+    g: CanvasRenderingContext2D,
+    r: { text: string; lines: string[]; t: number },
+  ) {
+    g.fillStyle = `rgba(7, 6, 26, ${Math.min(0.8, r.t / 30)})`
+    g.fillRect(0, 0, W, H)
+    const y = TOP + 80
+    const h = 64 + r.lines.length * 16
+    hudPanel(g, 24, y, W - 48, h, RAMPS.purple)
+    const gremlins = r.text.startsWith('GREMLINS')
+    drawText(g, r.text, W / 2, y + 14, {
+      scale: 2,
+      align: 'center',
+      color: gremlins ? RAMPS.pink[3] : RAMPS.gold[3],
+      outline: INK,
+      shadow: RAMPS.purple[1],
+    })
+    r.lines.forEach((line, i) =>
+      drawText(g, line, W / 2, y + 40 + i * 16, {
+        align: 'center',
+        color: RAMPS.teal[3],
+        outline: INK,
+      }),
+    )
   }
 
   /** In the dark, gremlins outside every light can't be seen. */
@@ -2621,13 +3538,12 @@ class BatteryMaze implements ArcadeGameInstance {
     const out = new Set<Gremlin>()
     if (!this.darkness()) return out
     const dark = this.board.dark!
-    const r = this.robot
     const lights = [
-      {
+      ...this.robots.map((r) => ({
         x: r.x,
         y: r.y,
         r: dark.robot * (this.power?.kind === 'lamp' ? 1.8 : 1),
-      },
+      })),
       ...this.maze.lamps
         .filter((l) => this.lit.has(`${l.x},${l.y}`))
         .map((l) => ({ x: l.x, y: l.y, r: dark.lamp })),
@@ -2675,9 +3591,8 @@ class BatteryMaze implements ArcadeGameInstance {
   private renderShade(g: CanvasRenderingContext2D) {
     if (this.darkness()) {
       const dark = this.board.dark!
-      const r = this.robot
       const reach = dark.robot * (this.power?.kind === 'lamp' ? 1.8 : 1)
-      const lights = [{ x: r.x, y: r.y, r: reach }]
+      const lights = this.robots.map((r) => ({ x: r.x, y: r.y, r: reach }))
       for (const lamp of this.maze.lamps)
         if (this.lit.has(`${lamp.x},${lamp.y}`))
           lights.push({ x: lamp.x, y: lamp.y, r: dark.lamp })
@@ -2840,25 +3755,42 @@ class BatteryMaze implements ArcadeGameInstance {
     dir: Dir,
     mouth: number,
     scale = 1,
+    pink = false,
   ) {
     const open = 0.15 + Math.abs(Math.sin(mouth)) * 0.55
     const frame = open < 0.3 ? 0 : open < 0.52 ? 1 : 2
     const face: Face = dir.y < 0 ? 'up' : dir.y > 0 ? 'down' : 'side'
-    drawSprite(g, ROBOT_FRAMES[face][frame]!, cx, cy - 1.5 * scale, {
+    const frames = pink ? PINK_ROBOT_FRAMES : ROBOT_FRAMES
+    drawSprite(g, frames[face][frame]!, cx, cy - 1.5 * scale, {
       flipX: dir.x < 0,
       scale,
     })
   }
 
-  private renderRobot(g: CanvasRenderingContext2D) {
-    const r = this.robot
+  private renderRobot(g: CanvasRenderingContext2D, r: Robot) {
     const cx = r.x * TILE + TILE / 2
     const cy = TOP + r.y * TILE + TILE / 2
+    const pink = r.seat === 1
+    if (r.down > 0) {
+      // A flickering spark bot, waiting for its partner's touch.
+      if (Math.floor(this.tick / 4) % 3 === 0) return
+      g.globalAlpha = 0.55
+      this.drawRobot(g, cx, cy, UP, 0, 1, pink)
+      g.globalAlpha = 1
+      glow(g, cx, cy, 12, pink ? RAMPS.pink[3] : RAMPS.teal[3], 0.5)
+      if (Math.floor(this.tick / 20) % 2 === 0)
+        drawText(g, 'HELP!', cx, cy - 16, {
+          align: 'center',
+          color: RAMPS.gold[4],
+          outline: INK,
+        })
+      return
+    }
     if (this.dying > 0) {
       if (this.dying <= 30) return
       const p = 1 - (this.dying - 30) / 80
       if (p < 0.15) {
-        this.drawRobot(g, cx, cy, r.dir, 0)
+        this.drawRobot(g, cx, cy, r.dir, 0, 1, pink)
         return
       }
       const i = Math.min(
@@ -2879,7 +3811,7 @@ class BatteryMaze implements ArcadeGameInstance {
     const strong = kind === 'magnet' || kind === 'turbo'
     glow(g, cx, cy, kind === 'magnet' ? 18 : 11, aura, strong ? 0.4 : 0.22)
     dropShadow(g, cx + 1, cy + 7, 5, 1.6, 0.4)
-    this.drawRobot(g, cx, cy, r.dir, r.mouth)
+    this.drawRobot(g, cx, cy, r.dir, r.mouth, 1, pink)
     if (r.shield > 0 && (r.shield > 40 || Math.floor(r.shield / 5) % 2 === 0)) {
       glow(g, cx, cy, 15, RAMPS.sky[3], 0.45)
       g.strokeStyle = RAMPS.sky[4]
@@ -2983,6 +3915,13 @@ class BatteryMaze implements ArcadeGameInstance {
     } else if (gremlin.kind === 'wanderer' && gremlin.mind.curious > 0) {
       drawText(g, '!', cx + 6, cy - 16, { color: RAMPS.gold[4], outline: INK })
     }
+    // Gremlin Tag: the seat steering it, so every player can find their gremlin.
+    if (gremlin.seat && gremlin.state === 'roaming')
+      drawText(g, `P${gremlin.seat + 1}`, cx, cy - 18, {
+        align: 'center',
+        color: gremlin.sleepy ? RAMPS.sky[4] : RAMPS.gold[4],
+        outline: INK,
+      })
   }
 
   private renderTell(
@@ -3439,7 +4378,13 @@ class BatteryMaze implements ArcadeGameInstance {
       })
     }
     if (midR - midL >= 60) {
-      if (this.train.length) tally(`TRAIN x${this.train.length}`)
+      const cars = this.allFriends().length
+      if (cars) tally(`TRAIN x${cars}`)
+      else if (this.rush)
+        tally(
+          `x${this.rush.mult}  ${this.rush.unbanked} UNBANKED`,
+          this.rush.unbanked ? RAMPS.gold : RAMPS.steel,
+        )
       else if (kind && this.special)
         tally(
           this.specialTally(kind, this.special),
@@ -3468,7 +4413,7 @@ class BatteryMaze implements ArcadeGameInstance {
     // Along the bottom: spare robots, the maze's charge (or a timer), bolts and where we are.
     const panelY = TOP + this.maze.height * TILE + 4
     const textY = panelY + 4
-    const lives = Math.min(this.lives, 5)
+    const lives = this.rush ? 0 : Math.min(this.lives, 5)
     if (lives > 0) {
       hudPanel(g, 3, panelY, lives * 12 + 6, 15)
       for (let i = 0; i < lives; i++) {
@@ -3476,31 +4421,45 @@ class BatteryMaze implements ArcadeGameInstance {
       }
     }
     const mazeNo = this.spec ? this.board.mazes.indexOf(this.spec) + 1 : 1
-    const where = this.boss ? 'BOSS' : `${this.board.number}-${mazeNo}`
+    const left = this.rush ? Math.max(0, RUSH_HOUR.ticks - this.rush.t) : 0
+    const secs = Math.ceil(left / 60)
+    const where = this.rush
+      ? `${Math.floor(secs / 60)}:${String(secs % 60).padStart(2, '0')}`
+      : this.mode === 'tag'
+        ? 'TAG'
+        : this.mode === 'classic'
+          ? `LEVEL ${this.level}`
+          : this.boss
+            ? 'BOSS'
+            : `${this.board.number}-${mazeNo}`
+    const bolts = this.campaignMode()
     const boltText = String(this.bolts)
-    const rightW = measureText(where) + measureText(boltText) + 30
+    const rightW =
+      measureText(where) + (bolts ? measureText(boltText) + 30 : 14)
     const rx = W - 3 - rightW
     hudPanel(g, rx, panelY, rightW, 15)
-    drawSprite(g, BOLT_ICON, rx + 8, panelY + 7)
-    drawText(g, boltText, rx + 14, textY, {
-      color: RAMPS.gold[4],
-      outline: INK,
-    })
+    if (bolts) {
+      drawSprite(g, BOLT_ICON, rx + 8, panelY + 7)
+      drawText(g, boltText, rx + 14, textY, {
+        color: RAMPS.gold[4],
+        outline: INK,
+      })
+    }
     drawText(g, where, W - 9, textY, {
       align: 'right',
       color: RAMPS.purple[3],
       outline: INK,
     })
-    const left = 76
-    const right = rx - 6
-    if (right - left > 80) {
-      hudPanel(g, left, panelY, right - left, 15)
+    const gl = this.rush ? 3 : 76
+    const gr = rx - 6
+    if (gr - gl > 80) {
+      hudPanel(g, gl, panelY, gr - gl, 15)
       const [label, amount, ramp] = this.gaugeReading()
-      drawText(g, label, left + 6, textY, { color: ramp[4], outline: INK })
-      gauge(g, left + 48, textY, right - left - 54, 7, amount, ramp)
+      drawText(g, label, gl + 6, textY, { color: ramp[4], outline: INK })
+      gauge(g, gl + 48, textY, gr - gl - 54, 7, amount, ramp)
     }
 
-    if (this.banner && !this.card) {
+    if (this.banner && !this.card && !this.menu && !this.result) {
       const y = TOP + 12.5 * TILE
       drawText(g, this.banner.text, W / 2, y, {
         scale: 2,
@@ -3558,6 +4517,8 @@ class BatteryMaze implements ArcadeGameInstance {
     }
     if (this.boss)
       return [BOSS_LABEL[this.boss.id], this.boss.health, RAMPS.pink]
+    if (this.rush)
+      return ['TIME', 1 - this.rush.t / RUSH_HOUR.ticks, RAMPS.leaf]
     const total = this.totalSparks || 1
     return [
       'CHARGE',

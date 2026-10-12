@@ -109,7 +109,6 @@ export async function applyPitchVote(
   return { success: true, changed: true, path, status }
 }
 
-
 export function pitchReadyOf(content: string): boolean {
   return /^public-ready:\s*true(?:\s*(?:#.*)?)?$/im.test(content)
 }
@@ -130,19 +129,39 @@ export function withPitchReady(content: string, ready: boolean): string {
 
 export async function applyPitchReady(slug: string, ready: boolean) {
   if (!/^\d{4}-\d{2}-\d{2}-[a-z0-9]+(?:-[a-z0-9]+)*$/.test(slug)) {
-    throw createError({ statusCode: 400, statusMessage: 'Invalid daily pitch slug' })
+    throw createError({
+      statusCode: 400,
+      statusMessage: 'Invalid daily pitch slug',
+    })
   }
   const path = 'pitches/' + slug + '.md'
   const file = await conductorGet(path)
-  if (!file) throw createError({ statusCode: 404, statusMessage: 'Pitch not found' })
+  if (!file)
+    throw createError({ statusCode: 404, statusMessage: 'Pitch not found' })
   if (pitchStatusOf(file.content) !== 'approved') {
-    throw createError({ statusCode: 409, statusMessage: 'Only approved pitches can be marked ready for Play' })
+    throw createError({
+      statusCode: 409,
+      statusMessage: 'Only approved pitches can be marked ready for Play',
+    })
   }
   const updated = withPitchReady(file.content, ready)
   if (updated !== file.content) {
-    await conductorPut(path, updated, 'pitch: ' + (ready ? 'approve' : 'revoke') + ' Play readiness for ' + slug, file.sha)
+    await conductorPut(
+      path,
+      updated,
+      'pitch: ' +
+        (ready ? 'approve' : 'revoke') +
+        ' Play readiness for ' +
+        slug,
+      file.sha,
+    )
   }
-  return { success: true, slug, publicReady: ready, changed: updated !== file.content }
+  return {
+    success: true,
+    slug,
+    publicReady: ready,
+    changed: updated !== file.content,
+  }
 }
 
 export interface PendingPitch {

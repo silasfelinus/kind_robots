@@ -119,6 +119,7 @@ export default defineEventHandler(async (event) => {
             userId: true,
             reactionType: true,
             rating: true,
+            comment: true,
           },
           orderBy: [{ updatedAt: 'desc' }, { id: 'desc' }],
         })
@@ -136,10 +137,14 @@ export default defineEventHandler(async (event) => {
       const votesByUser = new Map<number, 1 | -1>()
       const ratingsByUser = new Map<number, number>()
       for (const reaction of reactionsByCandidate.get(candidate.id) ?? []) {
-        if (!votesByUser.has(reaction.userId)) {
-          if (reaction.reactionType === 'LOVED' || reaction.reactionType === 'CLAPPED') {
+        if (
+          !votesByUser.has(reaction.userId) &&
+          reaction.rating === 0 &&
+          reaction.comment === null
+        ) {
+          if (reaction.reactionType === 'LOVED') {
             votesByUser.set(reaction.userId, 1)
-          } else if (reaction.reactionType === 'BOOED' || reaction.reactionType === 'HATED') {
+          } else if (reaction.reactionType === 'BOOED') {
             votesByUser.set(reaction.userId, -1)
           }
         }
@@ -155,7 +160,14 @@ export default defineEventHandler(async (event) => {
       const score = upvotes - downvotes + ratingTotal - 3 * reviewCount
       return {
         ...candidate,
-        community: { upvotes, downvotes, reviewCount, averageRating, score },
+        community: {
+          upvotes,
+          downvotes,
+          reviewCount,
+          averageRating,
+          score,
+          myVote: auth?.user.id ? (votesByUser.get(auth.user.id) ?? 0) : 0,
+        },
       }
     })
 

@@ -6,7 +6,7 @@ label: Approved Pitches
 title: Approved Daily Dream Projects
 subtitle: What actually happened after each approval
 description: Browse approved Daily Dream ideas, their Conductor intake and build state, and a separate progress page for each pitch.
-summary: Approved ideas, actual builds, and progress pages.
+summary: Approved pitches and build progress.
 icon: kind-icon:sparkles
 route: /admin/daily-pitches
 sort: 16

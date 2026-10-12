@@ -150,7 +150,7 @@ const filters: { value: Filter; label: string }[] = [
   { value: 'shared-project', label: 'Existing project' },
 ]
 const hasProjection = computed(() => conductor.data?.projection.status === 'ready')
-const entries = computed(() => approvedDailyPitchProgress(conductor.pitches, conductor.liveProjects))
+const entries = computed(() => approvedDailyPitchProgress(conductor.pitches, conductor.data?.projects ?? []))
 const visibleEntries = computed(() => filter.value === 'all' ? entries.value : entries.value.filter((entry) => entry.stage === filter.value))
 function count(stage: PitchBuildStage): number {
   return entries.value.filter((entry) => entry.stage === stage).length

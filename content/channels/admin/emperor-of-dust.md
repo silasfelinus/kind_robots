@@ -3,7 +3,7 @@ contentType: tab
 channelKey: admin
 tabKey: emperor-of-dust
 label: Emperor of Dust
-title: "Emperor of Dust: One Hundred Days"
+title: 'Emperor of Dust: One Hundred Days'
 subtitle: The wasteland still has a chance
 description: A private visual concept for a 100-day Zuzu-world dispatch strategy prequel.
 summary: Govern the wasteland before Zuzu.
@@ -22,4 +22,5 @@ tutorial:
     losses will matter; low-resource states will open alternate stories.
     The game bible and calendar are linked on the page.
 ---
+
 The map is being drawn. The empire has a hundred days.

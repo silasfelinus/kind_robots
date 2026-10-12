@@ -22,7 +22,10 @@
                 The Daily Dream Workshop
               </h2>
               <p class="text-sm leading-relaxed text-base-content/75">
-                Browse our approved Daily Dream ideas. Games and experiences open to everyone once they are ready; until then, they are coming soon. Administrators can inspect work in progress and approve each preview for Play.
+                Browse our approved Daily Dream ideas. Games and experiences
+                open to everyone once they are ready; until then, they are
+                coming soon. Administrators can inspect work in progress and
+                approve each preview for Play.
               </p>
             </div>
             <button
@@ -52,7 +55,10 @@
           <span v-if="conductor.error">{{ conductor.error }}</span>
         </div>
         <template v-else>
-          <section v-if="user.isAdmin" class="grid grid-cols-2 gap-3 md:grid-cols-4">
+          <section
+            v-if="user.isAdmin"
+            class="grid grid-cols-2 gap-3 md:grid-cols-4"
+          >
             <div class="kr-panel-compact">
               <p class="text-2xl font-black">{{ entries.length }}</p>
               <p class="text-xs text-base-content/60">Approved pitches</p>
@@ -163,7 +169,13 @@
                   </h3>
                   <span
                     class="badge badge-outline h-auto whitespace-normal py-1 text-xs"
-                    >{{ user.isAdmin ? stageLabels[entry.stage] : (mayVisitPitchFrontend(entry, false) ? 'Ready to play' : 'Coming soon') }}</span
+                    >{{
+                      user.isAdmin
+                        ? stageLabels[entry.stage]
+                        : mayVisitPitchFrontend(entry, false)
+                          ? 'Ready to play'
+                          : 'Coming soon'
+                    }}</span
                   >
                   <p
                     class="line-clamp-3 min-h-16 text-sm leading-relaxed text-base-content/70"
@@ -196,12 +208,33 @@
                   </p>
                 </div>
               </NuxtLink>
-              <div class="mt-auto space-y-2 border-t border-base-content/10 p-3">
-                <p v-if="user.isAdmin && !entry.pageUrl" class="text-xs text-base-content/60">
+              <div
+                class="mt-auto space-y-2 border-t border-base-content/10 p-3"
+              >
+                <p
+                  v-if="user.isAdmin && !entry.pageUrl"
+                  class="text-xs text-base-content/60"
+                >
                   No project preview URL recorded yet.
                 </p>
-                <p v-if="user.isAdmin && entry.pageUrl && !isPublicFacingPitchPage(entry.pageUrl)" class="text-xs text-warning">This preview is under Admin; create a public Play route before approving.</p>
-                <p v-if="conductor.playReadyError && readyErrorSlug === entry.pitch.slug" class="kr-note kr-note-error text-xs">
+                <p
+                  v-if="
+                    user.isAdmin &&
+                    entry.pageUrl &&
+                    !isPublicFacingPitchPage(entry.pageUrl)
+                  "
+                  class="text-xs text-warning"
+                >
+                  This preview is under Admin; create a public Play route before
+                  approving.
+                </p>
+                <p
+                  v-if="
+                    conductor.playReadyError &&
+                    readyErrorSlug === entry.pitch.slug
+                  "
+                  class="kr-note kr-note-error text-xs"
+                >
                   {{ conductor.playReadyError }}
                 </p>
                 <button
@@ -209,20 +242,34 @@
                   type="button"
                   class="btn btn-sm w-full rounded-xl"
                   :class="entry.publicReady ? 'btn-outline' : 'btn-primary'"
-                  :disabled="!isPublicFacingPitchPage(entry.pageUrl) || conductor.updatingPlayReadySlugs.includes(entry.pitch.slug)"
+                  :disabled="
+                    !isPublicFacingPitchPage(entry.pageUrl) ||
+                    conductor.updatingPlayReadySlugs.includes(entry.pitch.slug)
+                  "
                   @click="setReady(entry.pitch.slug, !entry.publicReady)"
                 >
-                  {{ entry.publicReady ? 'Revoke Play approval' : 'Approve for Play' }}
+                  {{
+                    entry.publicReady
+                      ? 'Revoke Play approval'
+                      : 'Approve for Play'
+                  }}
                 </button>
                 <a
                   v-if="mayVisitPitchFrontend(entry, user.isAdmin)"
                   class="btn btn-outline btn-sm w-full rounded-xl"
                   :href="entry.pageUrl || undefined"
                 >
-                  {{ user.isAdmin && !entry.publicReady ? 'Open admin preview' : 'Open experience' }}
+                  {{
+                    user.isAdmin && !entry.publicReady
+                      ? 'Open admin preview'
+                      : 'Open experience'
+                  }}
                   <Icon name="kind-icon:external-link" class="size-4" />
                 </a>
-                <p v-else class="text-center text-sm font-bold text-base-content/55">
+                <p
+                  v-else
+                  class="text-center text-sm font-bold text-base-content/55"
+                >
                   Coming soon
                 </p>
               </div>

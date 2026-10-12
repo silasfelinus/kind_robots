@@ -336,7 +336,12 @@ export type BatterySave = {
   medals?: Record<string, number>
   /** The best Rush Hour score on this device. */
   rushBest?: number
+  /** The checkpoint's lives are a two-robot pool. */
+  coop?: boolean
 }
+
+/** Laps round the grid that a save remembers (any more play as this one). */
+const MAX_LAP = 50
 
 /** Every campaign maze a medal can be won on, as `board:maze`. */
 const MEDAL_KEYS = new Set(
@@ -349,12 +354,15 @@ export function readBatterySave(raw: unknown): BatterySave | null {
   const r = raw as Record<string, unknown>
   const count = (v: unknown, max: number) =>
     typeof v === 'number' && Number.isInteger(v) && v >= 0 && v <= max
+  // Counters that only ever grow are clamped, never a reason to lose the whole save.
+  const whole = (v: unknown) =>
+    typeof v === 'number' && Number.isInteger(v) && v >= 0
   if (r.v !== 1) return null
   if (!count(r.step, CAMPAIGN.length - 1)) return null
   if (CAMPAIGN[r.step as number]!.kind !== 'card') return null
-  if (!count(r.lap, 50) || !count(r.level, 9999)) return null
-  if (!count(r.score, 99_999_999) || !count(r.lives, 99)) return null
-  if (!count(r.bolts, 9999) || !count(r.flipBonus, 2)) return null
+  if (!whole(r.lap) || !whole(r.level)) return null
+  if (!whole(r.score) || !whole(r.lives)) return null
+  if (!whole(r.bolts) || !count(r.flipBonus, 2)) return null
   if (!Array.isArray(r.golden)) return null
   const boards = new Set(
     CAMPAIGN.map((s) => (s.kind === 'card' ? s.board : '')),
@@ -362,11 +370,11 @@ export function readBatterySave(raw: unknown): BatterySave | null {
   return {
     v: 1,
     step: r.step as number,
-    lap: r.lap as number,
-    level: Math.max(1, r.level as number),
-    score: r.score as number,
-    lives: Math.max(1, r.lives as number),
-    bolts: r.bolts as number,
+    lap: Math.min(MAX_LAP, r.lap as number),
+    level: Math.min(9999, Math.max(1, r.level as number)),
+    score: Math.min(99_999_999, r.score as number),
+    lives: Math.min(99, Math.max(1, r.lives as number)),
+    bolts: Math.min(9999, r.bolts as number),
     flipBonus: r.flipBonus as number,
     startMagnet: r.startMagnet === true,
     hint: r.hint === true,
@@ -380,7 +388,10 @@ export function readBatterySave(raw: unknown): BatterySave | null {
     continued: r.continued === true,
     overclocked: r.overclocked === true,
     medals: readMedals(r.medals),
-    rushBest: count(r.rushBest, 99_999_999) ? (r.rushBest as number) : 0,
+    rushBest: whole(r.rushBest)
+      ? Math.min(99_999_999, r.rushBest as number)
+      : 0,
+    coop: r.coop === true,
   }
 }
 
@@ -605,7 +616,9 @@ class BatteryMaze implements ArcadeGameInstance {
     if (stored) this.save = stored
     // A real game opens on the continue offer (with a run saved) or the mode menu.
     // (A save at step 0 on a later lap is a run too: Overclocked, after the credits.)
-    if (stored && (stored.step > 0 || stored.lap > 0)) this.offer = stored
+    // Three or four seated play Tag only, so they get the menu, never the campaign offer.
+    if (stored && (stored.step > 0 || stored.lap > 0) && this.seats < 3)
+      this.offer = stored
     else if (!this.demo) this.openMenu()
   }
 
@@ -771,11 +784,8 @@ class BatteryMaze implements ArcadeGameInstance {
     const r = this.rush
     if (!r) return
     r.t++
-    if (r.t % 60 === 0 && this.score > this.rushBest) {
-      // A quit mid-run still keeps the best scored so far.
-      this.rushBest = this.score
-      this.keepMeta()
-    }
+    // Points from bumps and cells count too: checked once a second.
+    if (r.t % 60 === 0) this.keepRushBest()
     if (r.t >= RUSH_HOUR.ticks) {
       this.endRush()
       return
@@ -812,6 +822,14 @@ class BatteryMaze implements ArcadeGameInstance {
     r.unbanked = 0
     r.bar = null
     r.barNext = r.t + RUSH_HOUR.barEvery
+    this.keepRushBest()
+  }
+
+  /** A new Rush Hour best is kept at once, so a quit right after still has it. */
+  private keepRushBest() {
+    if (this.score <= this.rushBest) return
+    this.rushBest = this.score
+    this.keepMeta()
   }
 
   /** The sparks flow back in, and the grid runs a little hotter. */
@@ -1047,8 +1065,8 @@ class BatteryMaze implements ArcadeGameInstance {
     this.save = {
       v: 1,
       step,
-      lap,
-      level,
+      lap: Math.min(MAX_LAP, lap),
+      level: Math.min(9999, level),
       score: this.score,
       lives: Math.max(1, this.lives),
       bolts: this.bolts,
@@ -1060,6 +1078,7 @@ class BatteryMaze implements ArcadeGameInstance {
       overclocked: this.overclocked,
       medals: { ...this.medals },
       rushBest: this.rushBest,
+      coop: this.coop(),
     }
   }
 
@@ -1071,7 +1090,11 @@ class BatteryMaze implements ArcadeGameInstance {
       ? this.coop()
         ? COOP_LIVES
         : START_LIVES
-      : Math.max(s.lives, this.coop() ? 2 : 1)
+      : this.coop()
+        ? Math.max(s.lives, 2)
+        : s.coop
+          ? Math.min(s.lives, START_LIVES)
+          : s.lives
     this.nextExtra =
       (Math.floor(this.score / EXTRA_LIFE_AT) + 1) * EXTRA_LIFE_AT
     this.bolts = s.bolts

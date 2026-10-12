@@ -682,6 +682,77 @@ function ticks(game: Game, n: number, players?: InputFrame[]) {
     assert.equal(readBatterySave(back.save)!.rushBest, 7200)
   }
 
+  // A bank that sets a new best is kept that very frame, not at the next whole second.
+  {
+    const game = create()
+    pick(game, 'rush')
+    const rush = game.rush!
+    rush.t = 100
+    rush.unbanked = 40
+    rush.bar = { x: game.robot.x, y: game.robot.y, ticks: 100 }
+    game.updateRushHour()
+    assert.ok(game.score > 0)
+    assert.notEqual(rush.t % 60, 0)
+    assert.equal(readBatterySave(reopen(game).save)!.rushBest, game.score)
+  }
+
+  // A save past the lap cap is clamped, never thrown away with its medals and bolts.
+  {
+    const game = create()
+    pick(game, 'campaign')
+    const late = {
+      ...(game.save as object),
+      lap: 51,
+      level: 12_000,
+      golden: ['cozy'],
+      medals: { 'cozy:0': 7 },
+      rushBest: 900,
+    }
+    const read = readBatterySave(late)!
+    assert.ok(read, 'a lap 51 save still loads')
+    assert.equal(read.lap, 50)
+    assert.equal(read.level, 9999)
+    assert.deepEqual(read.golden, ['cozy'])
+    assert.equal(read.medals!['cozy:0'], 7)
+    assert.equal(read.rushBest, 900)
+    game.lap = 70
+    game.stepIndex = 0
+    game.startStep()
+    assert.equal(
+      readBatterySave(reopen(game).save)!.lap,
+      50,
+      'and never written past it',
+    )
+  }
+
+  // Three or four seated get the menu (Tag only), never the one-robot campaign offer.
+  {
+    const first = create()
+    pick(first, 'campaign')
+    first.stepIndex = cardOf('toaster')
+    first.startStep()
+    const record = withSave({}, 'battery-maze', first.save)
+    const stored = sanitizeSaves(JSON.parse(JSON.stringify(record)))[
+      'battery-maze'
+    ]
+    for (const seats of [3, 4]) {
+      const game = create(seats, stored)
+      assert.equal(game.offer, null)
+      assert.ok(game.menu)
+    }
+    // A co-op checkpoint's pool of six doesn't carry into a solo continue.
+    const coop = create(2)
+    pick(coop, 'campaign', 2)
+    coop.stepIndex = cardOf('toaster')
+    coop.startStep()
+    const solo = reopen(coop)
+    solo.update(press('a'))
+    assert.equal(solo.lives, 3)
+    const pair = reopen(coop, 2)
+    pair.update(press('a'))
+    assert.equal(pair.lives, COOP_LIVES)
+  }
+
   // A new game from a checkpoint: Rush Hour and Classic Maze write their keepings onto it.
   {
     const first = create()

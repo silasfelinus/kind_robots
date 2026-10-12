@@ -13,34 +13,19 @@ sort: 134
 requiredRole: ADMIN
 tutorial:
   title: Princess pilot training
-  tagline: Four pilots. One pearlescent galaxy.
-  overview: >-
-    This is the private flight deck, not the public Arcade release. The prototype
-    uses the standard Arcade cabinet: choose a player count from its title screen,
-    start, and fly across the Pinkwake shoals. More worlds, powerups, bosses,
-    story cinematics and online co-op are roadmap features, not available yet.
-  sections:
-    - key: controls
-      title: Flight controls
-      body: >-
-        Use directional controls to steer and hold A to fire. Hit B to restore
-        a damaged training shield. The cabinet manages keyboard, gamepad,
-        local player seats, pause and touch controls. Ships are numbered
-        as well as color-coded. Choose up to four local pilots on the cabinet.
-    - key: danger
-      title: Read the battlefield
-      body: >-
-        The lilac scouts have live collision and can damage ship shields.
-        Their patterns are only the earliest engine test. Dodge with intention;
-        learn how much space your ship needs before the later bullet patterns
-        and multi-phase bosses arrive.
-    - key: progress
-      title: Future campaign
-      body: >-
-        The eight planned stages cross Pinkwake, Moonjelly Fields, Chromatic
-        Trench, Rosefin Express, Blossom Wreckyard, Crown Reef, Glass Current
-        and Eclipse Palace, followed by the final confrontation. Current
-        play is a short engine test, not a completed stage or public score run.
+  body: |-
+    Four pilots. One pearlescent galaxy.
+
+    This is the private flight deck, not the public Arcade release. The prototype uses the standard Arcade cabinet: choose a player count from its title screen, start, and fly across the Pinkwake shoals. More worlds, powerups, bosses, story cinematics and online co-op are roadmap features, not available yet.
+
+    Flight controls
+    Use directional controls to steer and hold A to fire. Hit B to restore a damaged training shield. The cabinet manages keyboard, gamepad, local player seats, pause and touch controls. Ships are numbered as well as color-coded. Choose up to four local pilots on the cabinet.
+
+    Read the battlefield
+    The lilac scouts have live collision and can damage ship shields. Their patterns are only the earliest engine test. Dodge with intention; learn how much space your ship needs before the later bullet patterns and multi-phase bosses arrive.
+
+    Future campaign
+    The eight planned stages cross Pinkwake, Moonjelly Fields, Chromatic Trench, Rosefin Express, Blossom Wreckyard, Crown Reef, Glass Current and Eclipse Palace, followed by the final confrontation. Current play is a short engine test, not a completed stage or public score run.
 ---
 
 The pastel starport is a private development page with a real Arcade-powered

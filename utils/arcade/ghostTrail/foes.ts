@@ -166,9 +166,9 @@ export const FOES: Record<FoeKind, FoeDef> = {
         Math.sin(f.t / 10) * 0.6
     },
   },
-  // Spectral bone coyotes run in hard and leap pits and graves.
+  // Bone coyotes are tougher than wandering spirits: a kunai takes three hits.
   hyena: {
-    hp: 2,
+    hp: 3,
     points: 300,
     hw: 9,
     cy: 8,

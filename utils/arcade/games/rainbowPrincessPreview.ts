@@ -381,7 +381,9 @@ export function createRainbowPrincessPreview(
   }
 
   function hitShip(ship: Ship) {
-    if (ship.invulnerable > 0) return
+    // The attract-mode flythrough must be able to reach its authored boss and
+    // second Act rather than silently losing every autonomous pilot.
+    if (options.demo || ship.invulnerable > 0) return
     ship.invulnerable = 90
     ship.shield--
     if (ship.shield <= 0) {

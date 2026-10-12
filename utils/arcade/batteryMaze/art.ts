@@ -204,6 +204,26 @@ export const ROBOT_FRAMES: Record<Face, readonly PixelSprite[]> = {
   ),
 }
 
+const PINK_ROBOT_PALETTE = {
+  ...rampPalette(RAMPS.pink),
+  k: INK,
+  w: '#ffffff',
+  p: RAMPS.teal[3],
+}
+
+/** The second robot in co-op: the same build in pink, so the pair never get mixed up. */
+export const PINK_ROBOT_FRAMES: Record<Face, readonly PixelSprite[]> = {
+  side: [0.08, 0.38, 0.72].map((o) =>
+    pixelSprite(robotRows('side', o), PINK_ROBOT_PALETTE),
+  ),
+  up: [0.08, 0.38, 0.72].map((o) =>
+    pixelSprite(robotRows('up', o), PINK_ROBOT_PALETTE),
+  ),
+  down: [0.08, 0.38, 0.72].map((o) =>
+    pixelSprite(robotRows('down', o), PINK_ROBOT_PALETTE),
+  ),
+}
+
 /** Losing a life: the mouth opens all the way round until only the ears are left. */
 export const ROBOT_DEATH = Array.from({ length: 8 }, (_, i) =>
   pixelSprite(robotRows('up', 0.9 + (i / 7) * 2.3), ROBOT_PALETTE),

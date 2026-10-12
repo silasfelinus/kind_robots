@@ -7,6 +7,9 @@ import { requireAdminApiUser } from '@/server/utils/authGuard'
 import { conductorGet, conductorPut } from '@/server/utils/conductor-github'
 import {
   projectPriorityToConductorPriority,
+  conductorPriorityToProjectPriority,
+  CONDUCTOR_PROJECT_PRIORITIES,
+  type ConductorProjectPriority,
   projectStatusToConductorStatus,
   updateConductorProjectOverride,
 } from '@/server/utils/conductorProjectRegistry'
@@ -24,6 +27,7 @@ type ProjectStateBody = {
   projectId?: number
   status?: ProjectStatus
   priority?: ProjectPriority
+  conductorPriority?: ConductorProjectPriority
 }
 
 export default defineEventHandler(async (event) => {
@@ -46,9 +50,16 @@ export default defineEventHandler(async (event) => {
     const nextStatus = projectStatuses.has(body.status as ProjectStatus)
       ? (body.status as ProjectStatus)
       : undefined
-    const nextPriority = projectPriorities.has(body.priority as ProjectPriority)
-      ? (body.priority as ProjectPriority)
+    const conductorPriority = CONDUCTOR_PROJECT_PRIORITIES.includes(
+      body.conductorPriority as ConductorProjectPriority,
+    )
+      ? (body.conductorPriority as ConductorProjectPriority)
       : undefined
+    const nextPriority = conductorPriority
+      ? (conductorPriorityToProjectPriority(conductorPriority) as ProjectPriority)
+      : projectPriorities.has(body.priority as ProjectPriority)
+        ? (body.priority as ProjectPriority)
+        : undefined
     if (!nextStatus && !nextPriority) {
       throw createError({
         statusCode: 400,
@@ -79,7 +90,7 @@ export default defineEventHandler(async (event) => {
       const content = updateConductorProjectOverride(current.content, conductorSlug, {
         ...(conductorStatus ? { status: conductorStatus } : {}),
         ...(nextPriority
-          ? { priority: projectPriorityToConductorPriority(nextPriority) }
+          ? { priority: conductorPriority ?? projectPriorityToConductorPriority(nextPriority) }
           : {}),
       })
       if (content !== current.content) {

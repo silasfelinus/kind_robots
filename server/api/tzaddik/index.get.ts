@@ -111,11 +111,80 @@ export default defineEventHandler(async (event) => {
           : [{ createdAt: 'desc' }],
     })
 
+    const reactions = data.length
+      ? await prisma.reaction.findMany({
+          where: {
+            tzaddikCandidateId: { in: data.map((candidate) => candidate.id) },
+          },
+          select: {
+            tzaddikCandidateId: true,
+            userId: true,
+            reactionType: true,
+            rating: true,
+            comment: true,
+          },
+          orderBy: [{ updatedAt: 'desc' }, { id: 'desc' }],
+        })
+      : []
+
+    const reactionsByCandidate = new Map<number, typeof reactions>()
+    for (const reaction of reactions) {
+      if (reaction.tzaddikCandidateId === null) continue
+      const group = reactionsByCandidate.get(reaction.tzaddikCandidateId) ?? []
+      group.push(reaction)
+      reactionsByCandidate.set(reaction.tzaddikCandidateId, group)
+    }
+
+    const rankedData = data.map((candidate) => {
+      const votesByUser = new Map<number, 1 | -1>()
+      const ratingsByUser = new Map<number, number>()
+      for (const reaction of reactionsByCandidate.get(candidate.id) ?? []) {
+        if (
+          !votesByUser.has(reaction.userId) &&
+          reaction.rating === 0 &&
+          reaction.comment === null
+        ) {
+          if (reaction.reactionType === 'LOVED') {
+            votesByUser.set(reaction.userId, 1)
+          } else if (reaction.reactionType === 'BOOED') {
+            votesByUser.set(reaction.userId, -1)
+          }
+        }
+        if (reaction.rating > 0 && !ratingsByUser.has(reaction.userId)) {
+          ratingsByUser.set(reaction.userId, reaction.rating)
+        }
+      }
+      const upvotes = [...votesByUser.values()].filter(
+        (vote) => vote === 1,
+      ).length
+      const downvotes = [...votesByUser.values()].filter(
+        (vote) => vote === -1,
+      ).length
+      const ratingTotal = [...ratingsByUser.values()].reduce(
+        (sum, rating) => sum + rating,
+        0,
+      )
+      const reviewCount = ratingsByUser.size
+      const averageRating = reviewCount ? ratingTotal / reviewCount : 0
+      const score = upvotes - downvotes + ratingTotal - 3 * reviewCount
+      return {
+        ...candidate,
+        community: {
+          upvotes,
+          downvotes,
+          reviewCount,
+          averageRating,
+          score,
+          myVote: auth?.user.id ? (votesByUser.get(auth.user.id) ?? 0) : 0,
+        },
+      }
+    })
+
     event.node.res.statusCode = 200
 
     return {
       success: true,
-      data,
+      data: rankedData,
       statusCode: 200,
     }
   } catch (error: unknown) {

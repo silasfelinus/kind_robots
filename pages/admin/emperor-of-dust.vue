@@ -5,7 +5,7 @@
     <div v-else class="kr-scroll mx-auto max-w-7xl space-y-5 px-3 py-5 sm:px-6">
       <header class="rounded-3xl border border-warning/30 bg-base-300 p-6 sm:p-10">
         <p class="text-xs font-bold uppercase tracking-widest text-warning">Private Zuzu-world prequel workshop</p>
-        <h1 class="font-serif text-4xl font-black sm:text-6xl">Emperor of Dust</h1>
+        <h2 class="font-serif text-4xl font-black sm:text-6xl">Emperor of Dust</h2>
         <p class="font-serif text-2xl italic text-warning">One Hundred Days</p>
         <p class="mt-3 max-w-2xl">Before Zuzu reached Hollow Bell, a small empire ruled the roads. One hundred mornings. Too many petitions. Never enough good hands.</p>
         <p class="mt-4 text-sm font-semibold text-warning">Illustrated concept preview only. No playable campaign yet.</p>

@@ -429,7 +429,7 @@ function hydrateSlotItem(id: string | number): void {
   hydratedSlotItems.value = new Set(hydratedSlotItems.value).add(id)
 }
 
-function availableArtSrc(src: string): string {
+function availableArtSrc(src: string | undefined): string {
   if (!src) return ''
   if (!failedArt.value.has(src)) return src
   const match = src.match(

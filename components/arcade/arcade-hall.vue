@@ -35,7 +35,9 @@
           </span>
           <span class="arcade-mini-panel">
             <span class="arcade-mini-riff">Riffs on {{ game.riffsOn }}</span>
-            <span class="arcade-mini-blurb">{{ shortArcadeBlurb(game.blurb) }}</span>
+            <span class="arcade-mini-blurb">
+              {{ shortArcadeBlurb(game.blurb) }}
+            </span>
             <span class="arcade-mini-score">
               {{ topLine(game.slug) }}
             </span>

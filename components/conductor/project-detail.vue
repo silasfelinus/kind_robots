@@ -104,10 +104,10 @@
       />
       <span
         v-else-if="projectSaveMessage"
-        class="hidden text-[0.62rem] font-semibold sm:inline"
+        class="max-w-72 truncate text-[0.7rem] font-semibold"
         :class="projectSaveError ? 'text-error' : 'text-success'"
       >
-        {{ projectSaveError ? 'save failed' : 'saved' }}
+        {{ projectSaveMessage }}
       </span>
       <button
         v-if="linkedProject"
@@ -789,19 +789,21 @@ function showSaveMessage(message: string, isError = false) {
   }, 3000)
 }
 
-async function patchProject(patch: ProjectPatch) {
-  if (!linkedProject.value) return
+async function patchProject(patch: ProjectPatch): Promise<boolean> {
+  if (!linkedProject.value) return false
   projectSaving.value = true
   projectSaveMessage.value = ''
   projectSaveError.value = false
   try {
     await projectStore.updateProject(linkedProject.value.id, patch)
     showSaveMessage('Saved')
+    return true
   } catch (error) {
     showSaveMessage(
       error instanceof Error ? error.message : 'Save failed',
       true,
     )
+    return false
   } finally {
     projectSaving.value = false
   }
@@ -814,11 +816,12 @@ function onStatusSelect(event: Event) {
   patchProject({ status: value })
 }
 
-function onPrioritySelect(event: Event) {
-  const value = (event.target as HTMLSelectElement)
-    .value as ProjectPriorityLevel
+async function onPrioritySelect(event: Event) {
+  const select = event.target as HTMLSelectElement
+  const value = select.value as ProjectPriorityLevel
   if (!linkedProject.value || value === linkedProject.value.priority) return
-  patchProject({ priority: value })
+  const saved = await patchProject({ priority: value })
+  if (!saved) select.value = linkedProject.value?.priority ?? value
 }
 
 async function autosave(field: keyof ProjectPatch, event: FocusEvent) {
@@ -842,10 +845,8 @@ async function refreshProject() {
         true,
       ),
       conductorStore.fetchProjects(true),
-      collectionStore.fetchCollections(),
+      collectionStore.fetchProjectCollection(props.slug),
     ])
-    if (linkedProject.value?.id)
-      await todoStore.fetchProjectTodos(linkedProject.value.id)
   } finally {
     refreshing.value = false
   }
@@ -899,14 +900,6 @@ async function submitProjectTask() {
     projectTaskSubmitting.value = false
   }
 }
-
-watch(
-  linkedProject,
-  async (project) => {
-    if (project?.id) await todoStore.fetchProjectTodos(project.id)
-  },
-  { immediate: true },
-)
 
 watch(
   () => props.slug,

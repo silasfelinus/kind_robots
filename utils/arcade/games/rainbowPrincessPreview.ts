@@ -5,11 +5,18 @@ import type {
   InputFrame,
 } from '../types'
 import {
-  PINKWAKE, pinkwakeDialogue, pinkwakeScene, pinkwakeSpawn, pinkwakeStage,
+  PINKWAKE,
+  pinkwakeDialogue,
+  pinkwakeScene,
+  pinkwakeSpawn,
+  pinkwakeStage,
   type PinkwakeEnemy,
 } from './rainbowPinkwake'
 import {
-  BOSS_MAX_HP, bossTelegraph, createPinkwakeBoss, stepPinkwakeBoss,
+  BOSS_MAX_HP,
+  bossTelegraph,
+  createPinkwakeBoss,
+  stepPinkwakeBoss,
   type PinkwakeBoss,
 } from './rainbowPinkwakeBoss'
 
@@ -111,7 +118,14 @@ export function createRainbowPrincessPreview(
       x: W + 18,
       y: 40 + options.rng() * (H - 80),
       phase: options.rng() * Math.PI * 2,
-      health: kind === 'picket' ? 2 : kind === 'spiral' ? 3 : kind === 'anchor' ? 4 : 5,
+      health:
+        kind === 'picket'
+          ? 2
+          : kind === 'spiral'
+            ? 3
+            : kind === 'anchor'
+              ? 4
+              : 5,
       kind,
       fired: false,
     })
@@ -124,7 +138,8 @@ export function createRainbowPrincessPreview(
     enemyShots.length = 0
     reefs.length = 0
     score += 2500
-    for (const ship of ships) ship.invulnerable = Math.max(ship.invulnerable, 210)
+    for (const ship of ships)
+      ship.invulnerable = Math.max(ship.invulnerable, 210)
     options.sound.play('level')
   }
 
@@ -235,8 +250,11 @@ export function createRainbowPrincessPreview(
       for (const offset of [-0.45, 0.45]) {
         const angle = Math.atan2(vy, vx) + offset
         enemyShots.push({
-          x: reef.x - 8, y: reef.y,
-          vx: Math.cos(angle) * 1.7, vy: Math.sin(angle) * 1.7, grazed: 0,
+          x: reef.x - 8,
+          y: reef.y,
+          vx: Math.cos(angle) * 1.7,
+          vy: Math.sin(angle) * 1.7,
+          grazed: 0,
         })
       }
     }
@@ -316,8 +334,11 @@ export function createRainbowPrincessPreview(
       shot.y += shot.vy
     }
     for (const reef of reefs) {
-      reef.x -= reef.kind === 'anchor' ? 0.65 : reef.kind === 'urchin' ? 0.9 : 1.25
-      reef.y += Math.sin(tick / (reef.kind === 'spiral' ? 14 : 24) + reef.phase) * (reef.kind === 'spiral' ? 1.3 : 0.55)
+      reef.x -=
+        reef.kind === 'anchor' ? 0.65 : reef.kind === 'urchin' ? 0.9 : 1.25
+      reef.y +=
+        Math.sin(tick / (reef.kind === 'spiral' ? 14 : 24) + reef.phase) *
+        (reef.kind === 'spiral' ? 1.3 : 0.55)
       if (!reef.fired && reef.x < W - 50) {
         reef.fired = true
         fireEnemy(reef)
@@ -330,8 +351,11 @@ export function createRainbowPrincessPreview(
       station.x -= 0.75
       if (station.x < -18) station = null
       else if (
-        ships.some((ship) => ship.lives > 0 &&
-          Math.hypot(ship.x - station!.x, ship.y - station!.y) < 24)
+        ships.some(
+          (ship) =>
+            ship.lives > 0 &&
+            Math.hypot(ship.x - station!.x, ship.y - station!.y) < 24,
+        )
       ) {
         station = null
         rescuedStation = true
@@ -362,8 +386,11 @@ export function createRainbowPrincessPreview(
         if (reefs[hitIndex]!.health <= 0) defeat(hitIndex, shot.seat)
         continue
       }
-      if (boss && boss.frame > 85 &&
-        Math.hypot(shot.x - (boss.x - 17), shot.y - boss.y) < 37) {
+      if (
+        boss &&
+        boss.frame > 85 &&
+        Math.hypot(shot.x - (boss.x - 17), shot.y - boss.y) < 37
+      ) {
         shots.splice(si, 1)
         boss.hp -= shot.damage
         if (boss.hp <= 0) defeatBoss()
@@ -482,7 +509,9 @@ export function createRainbowPrincessPreview(
       g.fillStyle = sky
       g.fillRect(0, 0, W, H)
       for (let plane = 0; plane < 4; plane++) {
-        g.fillStyle = ['#f2d6ff88', '#9ffffa44', '#fff5c444', '#ffe6f277'][plane]!
+        g.fillStyle = ['#f2d6ff88', '#9ffffa44', '#fff5c444', '#ffe6f277'][
+          plane
+        ]!
         const speed = [0.15, 0.34, 0.72, 1.3][plane]!
         for (let i = 0; i < 16; i++) {
           const x =
@@ -506,7 +535,14 @@ export function createRainbowPrincessPreview(
         g.translate(reef.x, reef.y)
         g.shadowColor = reef.kind === 'urchin' ? '#ffe38a' : '#ffa3e6'
         g.shadowBlur = 12
-        g.fillStyle = reef.kind === 'urchin' ? '#ffd38a' : reef.kind === 'anchor' ? '#ffb3d1' : reef.kind === 'spiral' ? '#94e7ff' : '#d09ffd'
+        g.fillStyle =
+          reef.kind === 'urchin'
+            ? '#ffd38a'
+            : reef.kind === 'anchor'
+              ? '#ffb3d1'
+              : reef.kind === 'spiral'
+                ? '#94e7ff'
+                : '#d09ffd'
         g.beginPath()
         g.ellipse(0, 0, reef.kind === 'urchin' ? 14 : 16, 10, 0, 0, Math.PI * 2)
         g.fill()
@@ -688,7 +724,11 @@ export function createRainbowPrincessPreview(
         g.strokeRect(15, H - 63, W - 30, 51)
         g.fillStyle = '#aef6f0'
         g.font = 'bold 10px monospace'
-        g.fillText(`${scene!.id} / ${dialogue.speaker.toUpperCase()}`, 24, H - 47)
+        g.fillText(
+          `${scene!.id} / ${dialogue.speaker.toUpperCase()}`,
+          24,
+          H - 47,
+        )
         const words = dialogue.text.split(' ')
         const lines = ['']
         for (const word of words) {
@@ -709,7 +749,11 @@ export function createRainbowPrincessPreview(
         g.font = 'bold 11px monospace'
         g.fillText('POD RESCUED · ACT I PREVIEW CLEAR', W / 2, H - 28)
         g.font = '8px monospace'
-        g.fillText('Safe transit · Act II is still in production', W / 2, H - 17)
+        g.fillText(
+          'Safe transit · Act II is still in production',
+          W / 2,
+          H - 17,
+        )
         g.textAlign = 'left'
       }
     },

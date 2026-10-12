@@ -14,7 +14,8 @@ const DAY_ONE = 1
 const DEFAULT_START_HOUR = 7
 
 const integer = (value: number, label: string): void => {
-  if (!Number.isSafeInteger(value)) throw new Error(`${label} must be an integer`)
+  if (!Number.isSafeInteger(value))
+    throw new Error(`${label} must be an integer`)
 }
 const clamp = (value: number, floor: number, ceiling: number): number =>
   Math.max(floor, Math.min(ceiling, value))
@@ -121,10 +122,7 @@ const assertIncident = (incident: Incident): void => {
     }
     if (choice.injuryDaysOnFailure !== undefined) {
       integer(choice.injuryDaysOnFailure, 'injuryDaysOnFailure')
-      if (
-        choice.injuryDaysOnFailure < 0 ||
-        choice.injuryDaysOnFailure > 10
-      ) {
+      if (choice.injuryDaysOnFailure < 0 || choice.injuryDaysOnFailure > 10) {
         throw new Error('invalid injury days')
       }
     }
@@ -162,16 +160,8 @@ const applyEconomy = (
   maxHordeLoss: number,
   atHour: number,
 ): void => {
-  state.prosperity = clamp(
-    state.prosperity + (effects.prosperity ?? 0),
-    0,
-    100,
-  )
-  state.popularity = clamp(
-    state.popularity + (effects.popularity ?? 0),
-    0,
-    100,
-  )
+  state.prosperity = clamp(state.prosperity + (effects.prosperity ?? 0), 0, 100)
+  state.popularity = clamp(state.popularity + (effects.popularity ?? 0), 0, 100)
   const committed = state.dispatches
     .filter((mission) => mission.returnsAt > atHour)
     .reduce((total, mission) => total + mission.hordeSurvivors, 0)
@@ -182,10 +172,7 @@ const applyEconomy = (
   )
 }
 
-const chooseLeaders = (
-  state: Campaign,
-  leaderIds: string[],
-): Follower[] => {
+const chooseLeaders = (state: Campaign, leaderIds: string[]): Follower[] => {
   if (
     leaderIds.length < 1 ||
     leaderIds.length > 3 ||
@@ -269,8 +256,10 @@ export const previewDispatch = (
   ) {
     throw new Error('Horde contingent unavailable or outside mission limits')
   }
-  if (state.hour + incident.outwardHours >
-      timeAt(incident.day, incident.deadlineHour)) {
+  if (
+    state.hour + incident.outwardHours >
+    timeAt(incident.day, incident.deadlineHour)
+  ) {
     throw new Error('cannot reach incident before deadline')
   }
   return calculateOdds(
@@ -349,7 +338,7 @@ const roll = (seed: number, mission: Dispatch): [number, number] => {
     hash ^= hash << 13
     hash ^= hash >>> 17
     hash ^= hash << 5
-    return (hash >>> 0) % 6 + 1
+    return ((hash >>> 0) % 6) + 1
   }
   return [next(), next()]
 }
@@ -374,7 +363,10 @@ const settleMission = (next: Campaign, mission: Dispatch): void => {
     choice.moralEffect,
     success ? choice.success : choice.failure,
   )
-  const lostHorde = Math.min(mission.hordeSent, Math.max(0, -(effects.horde ?? 0)))
+  const lostHorde = Math.min(
+    mission.hordeSent,
+    Math.max(0, -(effects.horde ?? 0)),
+  )
   mission.hordeSurvivors = mission.hordeSent - lostHorde
   const injuryDays = !success ? (choice.injuryDaysOnFailure ?? 0) : 0
   const injuredFollowerId = injuryDays ? leaders[0]?.id : undefined
@@ -382,7 +374,9 @@ const settleMission = (next: Campaign, mission: Dispatch): void => {
     ? dayAt(mission.resolvesAt) + injuryDays + 1
     : undefined
   if (injuredFollowerId && injuredUntilDay) {
-    const leader = next.followers.find((member) => member.id === injuredFollowerId)
+    const leader = next.followers.find(
+      (member) => member.id === injuredFollowerId,
+    )
     if (leader) {
       leader.injuredUntilDay = Math.max(
         leader.injuredUntilDay ?? 0,

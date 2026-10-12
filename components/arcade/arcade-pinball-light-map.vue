@@ -111,17 +111,17 @@
       </span>
       <span v-else class="opacity-60">Nothing selected</span>
       <button
+        v-if="moves.length"
         type="button"
         class="kr-btn-ghost-xs"
-        :disabled="!moves.length"
         @click="reset"
       >
         Reset
       </button>
       <button
+        v-if="moves.length"
         type="button"
         class="kr-btn-ghost-xs"
-        :disabled="!moves.length"
         @click="copy"
       >
         {{ copied ? 'Copied' : 'Copy changes' }}

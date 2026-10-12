@@ -35,3 +35,27 @@ jobs:
           CYPRESS_INSTALL_BINARY: '0'
       - run: npx tsx utils/scripts/verifyEmperorDispatch.test.ts
       - run: npx tsx utils/scripts/verifyEmperorCampaign.test.ts
+      - name: Temporary pinned formatting capture
+        run: |
+          npx prettier --write stores/emperorOfDustStore.ts utils/emperorOfDust/followers.ts utils/emperorOfDust/progression.ts utils/emperorOfDust/save.ts utils/emperorOfDust/types.ts utils/emperorOfDust/engine.ts utils/scripts/verifyEmperorCampaign.test.ts
+          printf '\\nEMP_FORMAT_0_BEGIN\\n'
+          base64 -w0 stores/emperorOfDustStore.ts
+          printf '\\nEMP_FORMAT_0_END\\n'
+          printf '\\nEMP_FORMAT_1_BEGIN\\n'
+          base64 -w0 utils/emperorOfDust/followers.ts
+          printf '\\nEMP_FORMAT_1_END\\n'
+          printf '\\nEMP_FORMAT_2_BEGIN\\n'
+          base64 -w0 utils/emperorOfDust/progression.ts
+          printf '\\nEMP_FORMAT_2_END\\n'
+          printf '\\nEMP_FORMAT_3_BEGIN\\n'
+          base64 -w0 utils/emperorOfDust/save.ts
+          printf '\\nEMP_FORMAT_3_END\\n'
+          printf '\\nEMP_FORMAT_4_BEGIN\\n'
+          base64 -w0 utils/emperorOfDust/types.ts
+          printf '\\nEMP_FORMAT_4_END\\n'
+          printf '\\nEMP_FORMAT_5_BEGIN\\n'
+          base64 -w0 utils/emperorOfDust/engine.ts
+          printf '\\nEMP_FORMAT_5_END\\n'
+          printf '\\nEMP_FORMAT_6_BEGIN\\n'
+          base64 -w0 utils/scripts/verifyEmperorCampaign.test.ts
+          printf '\\nEMP_FORMAT_6_END\\n'

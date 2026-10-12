@@ -120,15 +120,16 @@
           <div
             :ref="(el) => setDpadRef(seat, el)"
             class="cabinet-dpad"
+            :class="{ 'cabinet-dpad--compact': compactDpad }"
             role="group"
             :aria-label="
               duo ? `Player ${seat + 1} direction pad` : 'Direction pad'
             "
             @pointerdown.prevent="onDpad($event, seat)"
             @pointermove.prevent="onDpad($event, seat)"
-            @pointerup.prevent="releaseDpad(seat)"
-            @pointercancel="releaseDpad(seat)"
-            @lostpointercapture="releaseDpad(seat)"
+            @pointerup.prevent="releaseDpad(seat, $event.pointerId)"
+            @pointercancel="releaseDpad(seat, $event.pointerId)"
+            @lostpointercapture="releaseDpad(seat, $event.pointerId)"
           >
             <span
               v-for="pad in dpad"
@@ -316,6 +317,10 @@
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useArcadeStore } from '@/stores/arcadeStore'
 import ArcadePinballTouch from './arcade-pinball-touch.vue'
+import {
+  directionsAtDpadPoint,
+  type DpadDirection,
+} from '../../utils/arcade/dpad'
 import { useUserStore } from '@/stores/userStore'
 import type { CSSProperties } from 'vue'
 import {
@@ -436,6 +441,9 @@ const canvasStyle = computed<CSSProperties>(() => {
   }
 })
 const touchControls = ref(false)
+const compactDpad = computed(
+  () => props.slug === 'rainbow-bullet-hell-space-princess',
+)
 /** Directions held on each seat's touch d-pad. */
 const dpadHeld = ref<Array<Record<DpadDirection, boolean>>>(
   Array.from({ length: MAX_SEATS }, () => noDirections()),
@@ -500,8 +508,6 @@ let cursor = 0
 let initialsNote = ''
 let submitting = false
 let demoSeed = 1
-
-type DpadDirection = 'up' | 'down' | 'left' | 'right'
 
 function noDirections(): Record<DpadDirection, boolean> {
   return { up: false, down: false, left: false, right: false }
@@ -704,35 +710,29 @@ function setDpadRef(seat: number, el: unknown) {
   dpadEls[seat] = el instanceof HTMLElement ? el : null
 }
 
-const DPAD_DEAD_ZONE = 0.22
-
-/** Map a finger on the d-pad to directions (8-way, with a small dead zone). */
+/** The first finger owns this seat until it lifts; other fingers cannot steal it. */
 function onDpad(event: PointerEvent, seat = 0) {
   const pad = dpadEls[seat]
   if (!pad) return
   if (event.type === 'pointerdown') {
+    if (dpadPointers[seat] !== null) return
     dpadPointers[seat] = event.pointerId
     capture(pad, event.pointerId)
   } else if (event.pointerId !== dpadPointers[seat]) {
     return
   }
   const rect = pad.getBoundingClientRect()
-  const dx = (event.clientX - (rect.left + rect.width / 2)) / (rect.width / 2)
-  const dy = (event.clientY - (rect.top + rect.height / 2)) / (rect.height / 2)
-  const next = { up: false, down: false, left: false, right: false }
-  if (Math.hypot(dx, dy) > DPAD_DEAD_ZONE) {
-    const angle = Math.atan2(dy, dx)
-    // Eight 45-degree sectors; diagonals hold two directions.
-    const sector = Math.round(angle / (Math.PI / 4))
-    next.right = sector >= -1 && sector <= 1
-    next.left = sector >= 3 || sector <= -3
-    next.down = sector >= 1 && sector <= 3
-    next.up = sector >= -3 && sector <= -1
-  }
+  const next = directionsAtDpadPoint(
+    event.clientX,
+    event.clientY,
+    rect,
+    compactDpad.value ? 0.1 : 0.22,
+  )
   setDpad(next, seat)
 }
 
-function releaseDpad(seat = 0) {
+function releaseDpad(seat = 0, pointerId?: number) {
+  if (pointerId !== undefined && pointerId !== dpadPointers[seat]) return
   dpadPointers[seat] = null
   setDpad(noDirections(), seat)
 }
@@ -2484,6 +2484,36 @@ onBeforeUnmount(() => {
 .cabinet-key-down {
   grid-column: 2;
   grid-row: 3;
+}
+
+/* Space Princess: a visually joined cross and a generous continuous swipe
+   surface. All nine grid cells accept movement, including the center and
+   diagonals, while the smaller dead zone is handled in onDpad. */
+.cabinet-dpad--compact {
+  gap: 0;
+  border-radius: 1rem;
+  background:
+    linear-gradient(
+      90deg,
+      transparent 31%,
+      rgba(253, 230, 138, 0.2) 31% 69%,
+      transparent 69%
+    ),
+    linear-gradient(
+      0deg,
+      transparent 31%,
+      rgba(253, 230, 138, 0.2) 31% 69%,
+      transparent 69%
+    );
+}
+
+.cabinet-dpad--compact .cabinet-key {
+  border-radius: 0.55rem;
+  scale: 1.12;
+}
+
+.cabinet-dpad--compact .cabinet-key-held {
+  scale: 1.08;
 }
 
 .cabinet-buttons {

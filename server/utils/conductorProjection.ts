@@ -76,6 +76,7 @@ export interface ConductorPitch {
   title: string
   status: string
   projectTarget: string
+  publicReady: boolean
   idea: string
   whyDoIt: string
   effort: string
@@ -180,6 +181,7 @@ function parsePitch(filename: string, text: string): ConductorPitch {
   let title = slug
   let status = 'awaiting-silas'
   let projectTarget = ''
+  let publicReady = false
   let idea = ''
   let whyDoIt = ''
   let effort = ''
@@ -192,6 +194,10 @@ function parsePitch(filename: string, text: string): ConductorPitch {
     }
     if (/^project-target:/.test(line)) {
       projectTarget = line.replace(/^project-target:\s*/, '').trim()
+      continue
+    }
+    if (/^public-ready:/.test(line)) {
+      publicReady = /^public-ready:\s*true(?:\s*(?:#.*)?)?$/i.test(line)
       continue
     }
     if (/^status:/.test(line)) {
@@ -215,7 +221,7 @@ function parsePitch(filename: string, text: string): ConductorPitch {
     }
   }
 
-  return { slug, date, title, status, projectTarget, idea, whyDoIt, effort }
+  return { slug, date, title, status, projectTarget, publicReady, idea, whyDoIt, effort }
 }
 
 function parsedRoadmap(

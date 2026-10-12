@@ -540,7 +540,8 @@ function cleanAll(g: Inner) {
   for (const mode of ['endless', 'classic']) {
     const e = game(1, 10, stored)
     choose(e, mode, 1)
-    for (let t = 0; t < 600; t++) e.update(e.demoInput())
+    for (let t = 0; t < 600; t++)
+      e.update((e as Inner & { demoInput(): InputFrame }).demoInput())
     assert.deepEqual(e.save?.times, stored.times, `${mode}: times untouched`)
     assert.deepEqual(e.save?.medals, stored.medals, `${mode}: medals untouched`)
   }

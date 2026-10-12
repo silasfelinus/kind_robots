@@ -340,12 +340,28 @@ export function createRainbowPrincessPreview(
       }
     } else if (reef.kind === 'relay') {
       enemyShots.push({
-        x: reef.x - 8, y: reef.y, vx: vx * 0.7, vy: vy * 0.7 + 0.85, grazed: 0,
+        x: reef.x - 8,
+        y: reef.y,
+        vx: vx * 0.7,
+        vy: vy * 0.7 + 0.85,
+        grazed: 0,
       })
     } else if (reef.kind === 'skimmer') {
-      enemyShots.push({ x: reef.x - 8, y: reef.y - 11, vx: -1.25, vy: 1.1, grazed: 0 })
+      enemyShots.push({
+        x: reef.x - 8,
+        y: reef.y - 11,
+        vx: -1.25,
+        vy: 1.1,
+        grazed: 0,
+      })
     } else if (reef.kind === 'coral') {
-      enemyShots.push({ x: reef.x - 8, y: reef.y + 13, vx: -1.35, vy: -0.8, grazed: 0 })
+      enemyShots.push({
+        x: reef.x - 8,
+        y: reef.y + 13,
+        vx: -1.35,
+        vy: -0.8,
+        grazed: 0,
+      })
     }
     if (reef.kind === 'spiral') {
       for (const offset of [-0.45, 0.45]) {
@@ -491,16 +507,21 @@ export function createRainbowPrincessPreview(
       enemyShots.push(...stepPinkwakeBoss(boss, ships.slice(0, activePlayers)))
     }
     if (moonBoss) {
-      enemyShots.push(...stepMoonjellyBoss(moonBoss, ships.slice(0, activePlayers)))
+      enemyShots.push(
+        ...stepMoonjellyBoss(moonBoss, ships.slice(0, activePlayers)),
+      )
     }
     if (nemi) {
       nemi.x -= 0.95
       if (nemi.x < -16) nemi = null
       else if (
-        ships.slice(0, activePlayers).some(
-          (ship) => ship.lives > 0 &&
-          Math.hypot(ship.x - nemi!.x, ship.y - nemi!.y) < 24,
-        )
+        ships
+          .slice(0, activePlayers)
+          .some(
+            (ship) =>
+              ship.lives > 0 &&
+              Math.hypot(ship.x - nemi!.x, ship.y - nemi!.y) < 24,
+          )
       ) {
         nemi = null
         rescuedNemi = true
@@ -683,8 +704,8 @@ export function createRainbowPrincessPreview(
             : moonjellyStage(moonFrame(), moonDefeatedFrame),
         sceneId:
           moonStart === null
-            ? pinkwakeScene(tick, defeatedAt)?.id ?? null
-            : moonjellyScene(moonFrame(), moonDefeatedFrame)?.id ?? null,
+            ? (pinkwakeScene(tick, defeatedAt)?.id ?? null)
+            : (moonjellyScene(moonFrame(), moonDefeatedFrame)?.id ?? null),
         boss: boss ? { ...boss } : null,
         moonBoss: moonBoss ? { ...moonBoss } : null,
         rescuedNemi,
@@ -727,14 +748,26 @@ export function createRainbowPrincessPreview(
         for (let plane = 0; plane < 4; plane++) {
           const speed = 0.12 + plane * 0.21
           g.lineWidth = 1 + plane * 0.8
-          g.strokeStyle = ['#f1b9fc55', '#a6ffe766', '#ecdbff88', '#bdf9ff99'][plane]!
-          g.fillStyle = ['#ebbeff25', '#b8ffef30', '#d1d0ff38', '#bbf6ff48'][plane]!
+          g.strokeStyle = ['#f1b9fc55', '#a6ffe766', '#ecdbff88', '#bdf9ff99'][
+            plane
+          ]!
+          g.fillStyle = ['#ebbeff25', '#b8ffef30', '#d1d0ff38', '#bbf6ff48'][
+            plane
+          ]!
           for (let i = 0; i < 6; i++) {
             const x =
-              (((i * 111 - moonFrame() * speed) % 650) + 650) % 650 - 42
+              ((((i * 111 - moonFrame() * speed) % 650) + 650) % 650) - 42
             const y = 45 + ((i * 73 + plane * 39) % 170)
             g.beginPath()
-            g.ellipse(x, y, 18 + plane * 5, 9 + plane * 2, 0, Math.PI, 2 * Math.PI)
+            g.ellipse(
+              x,
+              y,
+              18 + plane * 5,
+              9 + plane * 2,
+              0,
+              Math.PI,
+              2 * Math.PI,
+            )
             g.fill()
             g.stroke()
             for (let arm = -2; arm <= 2; arm++) {
@@ -990,7 +1023,8 @@ export function createRainbowPrincessPreview(
       g.font = 'bold 10px monospace'
       g.fillText(
         moonStart === null ? 'ACT I / PINKWAKE' : 'ACT II / MOONJELLY',
-        9, 12,
+        9,
+        12,
       )
       g.font = '9px monospace'
       g.fillText('A FIRE · HOLD B FOCUS · CHARGED B SUPER', 9, 24)
@@ -1061,7 +1095,11 @@ export function createRainbowPrincessPreview(
         g.font = 'bold 11px monospace'
         g.fillText('AURELIA FREED · ACT II PREVIEW CLEAR', W / 2, H - 28)
         g.font = '8px monospace'
-        g.fillText('Safe transit to Chromatic Trench · Act III in production', W / 2, H - 17)
+        g.fillText(
+          'Safe transit to Chromatic Trench · Act III in production',
+          W / 2,
+          H - 17,
+        )
         g.textAlign = 'left'
       } else if (moonStart === null && defeatedAt !== null) {
         g.fillStyle = '#180d38d9'

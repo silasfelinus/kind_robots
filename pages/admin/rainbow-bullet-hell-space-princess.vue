@@ -33,7 +33,7 @@
         </div>
       </section>
 
-      <div class="grid gap-4 lg:grid-cols-3" id="princess-mission">
+      <div id="princess-mission" class="grid gap-4 lg:grid-cols-3">
         <article v-for="card in missionCards" :key="card.title" class="rounded-2xl border border-primary/20 bg-base-200 p-5 shadow-sm">
           <p class="text-xs font-bold uppercase tracking-widest text-secondary">{{ card.kicker }}</p>
           <h3 class="mt-2 text-xl font-black">{{ card.title }}</h3>

@@ -10,6 +10,8 @@ import {
 } from '../arcade/games'
 import { emptyInput, isWebGLInstance } from '../arcade/types'
 import { livePhysicsWorlds } from '../arcade/pinball/physics/world'
+import { Room } from '../arcade/pinball/render/room'
+import { AMI_VILLAGE_GREYBOX } from '../arcade/pinball/tables/amiVillage/table'
 import { ZUZU_LAST_BELL_GREYBOX } from '../arcade/pinball/tables/zuzuLastBell/table'
 
 const read = (path: string) =>
@@ -88,6 +90,25 @@ assert.equal(
   table.art?.playfield?.src,
   '/images/pinball/zuzu-last-bell-playfield-painted.webp',
 )
+// The cabinet's sides carry the Last Bell's own panorama (t-017); a table
+// without side art still echoes its backglass on them.
+assert.equal(
+  table.art?.room?.cabinetSide,
+  '/images/pinball/zuzu-last-bell-cabinet-side.webp',
+)
+{
+  const keep = <T>(resource: T) => resource
+  const zuzuRoom = new Room(table, keep, 0, table.art?.room)
+  assert.equal(zuzuRoom.sideArtSrc, table.art?.room?.cabinetSide)
+  const kp = AMI_VILLAGE_GREYBOX.art?.room
+  const kpRoom = new Room(AMI_VILLAGE_GREYBOX, keep, 0, kp)
+  assert.equal(kp?.cabinetSide, undefined)
+  assert.equal(
+    kpRoom.sideArtSrc,
+    kp?.backglass,
+    'Kind Pinball echoes its glass',
+  )
+}
 
 const module = await loadArcadeGame('zuzu-pinball')
 for (let i = 0; i < 3; i++) {

@@ -451,6 +451,41 @@ const WIZARD_ROWS = [
   ],
 ]
 
+const CURSOR = {
+  w: '#ffffff',
+  s: RAMPS.steel[3],
+  k: INK,
+  g: RAMPS.gold[3],
+  G: RAMPS.gold[4],
+}
+/** The Sleepy Cursor: an arrow pointer with a spinning hourglass at its tip. */
+const CURSOR_ROWS = [
+  [
+    'w.........',
+    'ww........',
+    'wsw.......',
+    'wssw......',
+    'wsssw.....',
+    'wssssw.kkk',
+    'wsswww.kGk',
+    'wsw.....g.',
+    'ww.....kgk',
+    'w......kkk',
+  ],
+  [
+    'w.........',
+    'ww........',
+    'wsw.......',
+    'wssw......',
+    'wsssw.....',
+    'wssssw.kkk',
+    'wsswww.kgk',
+    'wsw....G..',
+    'ww.....kGk',
+    'w......kkk',
+  ],
+]
+
 /** Each kind's two walk frames. */
 export const GLITCH_FRAMES: Record<GlitchKind, readonly PixelSprite[]> = {
   glitch: GLITCH_ROWS.map((r) => pixelSprite(r, PLAIN_GLITCH)),
@@ -465,6 +500,7 @@ export const GLITCH_FRAMES: Record<GlitchKind, readonly PixelSprite[]> = {
   worm: WORM_HEAD_ROWS.map((r) => pixelSprite(r, TAPE)),
   bluescreen: BLUESCREEN_FRAMES,
   blinker: BLINKER_ROWS.map((r) => pixelSprite(r, NEON)),
+  cursor: CURSOR_ROWS.map((r) => pixelSprite(r, CURSOR)),
   wizard: WIZARD_ROWS.map((r) => pixelSprite(r, WIZARD)),
 }
 
@@ -619,6 +655,16 @@ const LOOK_ROWS: Record<GeneratorLook, string[]> = {
     const s = shell(x, y - 10, 14, 4)
     return s ?? '2'
   }),
+  // An hourglass on a stand: the Sleepy Cursor's bed.
+  hourglass: raster(14, 14, (x, y) => {
+    if (y === 0 || y === 13) return x >= 2 && x <= 11 ? '3' : '.'
+    if (y === 1 || y === 12) return x >= 2 && x <= 11 ? '1' : '.'
+    const half = Math.abs(6.5 - y)
+    const w = 1 + half * 0.8
+    if (Math.abs(x - 6.5) > w) return x === 2 || x === 11 ? '2' : '.'
+    if (Math.abs(x - 6.5) > w - 1) return 'k'
+    return y > 7 ? 'c' : y < 4 ? 'c' : 'v'
+  }),
   // A snack vending machine: a tall glass front full of snacks, and a coin slot.
   vending: raster(14, 14, (x, y) => {
     const s = shell(x, y, 14, 14)
@@ -678,6 +724,12 @@ const LOOK_PALETTE: Record<GeneratorLook, Record<string, string>> = {
     v: RAMPS.teal[3],
     c: RAMPS.pink[3],
   },
+  hourglass: {
+    ...rampKeys(RAMPS.earth),
+    k: INK,
+    v: RAMPS.night[0],
+    c: RAMPS.gold[3],
+  },
   antenna: {
     ...rampKeys(RAMPS.steel),
     k: INK,
@@ -711,6 +763,7 @@ export const LOOK_SCREEN: Record<
   vending: null,
   arcade: null,
   antenna: null,
+  hourglass: null,
 }
 
 /** The three tiers' lamp colours: tier 3 releases the toughest. */

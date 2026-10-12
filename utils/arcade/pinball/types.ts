@@ -445,6 +445,11 @@ export type TableDef = {
       backglass?: string
       /** Shown while `backglass` is missing (t-030: the art is generated). */
       backglassFallback?: string
+      /**
+       * The cabinet's own side art (zuzu-pinball/t-017), a long panorama
+       * for both side panels. Without it the sides echo the backglass.
+       */
+      cabinetSide?: string
       posters?: readonly string[]
     }
   }

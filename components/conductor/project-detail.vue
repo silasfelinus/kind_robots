@@ -104,10 +104,10 @@
       />
       <span
         v-else-if="projectSaveMessage"
-        class="hidden text-[0.62rem] font-semibold sm:inline"
+        class="max-w-72 truncate text-[0.7rem] font-semibold"
         :class="projectSaveError ? 'text-error' : 'text-success'"
       >
-        {{ projectSaveError ? 'save failed' : 'saved' }}
+        {{ projectSaveMessage }}
       </span>
       <button
         v-if="linkedProject"
@@ -130,6 +130,14 @@
         <Icon v-else name="kind-icon:refresh" class="kr-icon-3-5" />
       </button>
     </div>
+
+    <p
+      v-if="projectSaveError && projectSaveMessage"
+      role="alert"
+      class="rounded-lg border border-error/30 bg-error/10 px-3 py-2 text-xs text-error"
+    >
+      {{ projectSaveMessage }}
+    </p>
 
     <div
       v-if="linkedProject"
@@ -236,12 +244,12 @@
                 </label>
                 <select
                   class="kr-select-sm w-full text-sm"
-                  :value="linkedProject.priority"
+                  :value="displayPriority"
                   :disabled="projectSaving"
                   @change="onPrioritySelect"
                 >
-                  <option v-for="p in LIFECYCLE_PRIORITIES" :key="p" :value="p">
-                    {{ p }}
+                  <option v-for="p in availablePriorities" :key="p" :value="p">
+                    {{ p.toUpperCase() }}
                   </option>
                 </select>
               </div>
@@ -529,6 +537,7 @@ import { useTodoStore } from '@/stores/todoStore'
 import type { TodoCategory } from '@/stores/todoStore'
 import { useConductorStore } from '@/stores/conductorStore'
 import { useCollectionStore } from '@/stores/collectionStore'
+import type { ConductorProjectPriority } from '@/server/utils/conductorProjectRegistry'
 
 const props = defineProps<{ slug: string }>()
 
@@ -568,7 +577,8 @@ const LIFECYCLE_STATUSES: ProjectLifecycleStatus[] = [
   'DONE',
   'ARCHIVED',
 ]
-const LIFECYCLE_PRIORITIES: ProjectPriorityLevel[] = ['HIGH', 'NORMAL', 'LOW']
+const CONDUCTOR_PRIORITIES: ConductorProjectPriority[] = ['urgent', 'high', 'normal', 'low']
+const projectPriorityOverride = ref<ConductorProjectPriority | null>(null)
 
 const linkedProject = computed(() => projectStore.projectForSlug(props.slug))
 
@@ -597,6 +607,19 @@ const selectedProject = computed<ConductorProject | null>(() => {
     ? projectRecordToConductor(linkedProject.value)
     : null
 })
+
+const availablePriorities = computed(() =>
+  selectedProject.value?.conductorPriority || linkedProject.value?.conductorSlug
+    ? CONDUCTOR_PRIORITIES
+    : CONDUCTOR_PRIORITIES.filter((priority) => priority !== 'urgent'),
+)
+const displayPriority = computed(
+  () =>
+    projectPriorityOverride.value ||
+    selectedProject.value?.conductorPriority ||
+    linkedProject.value?.priority.toLowerCase() ||
+    'normal',
+)
 
 const matchedProjectCollection = computed(() => {
   void collectionStore.collections
@@ -789,36 +812,61 @@ function showSaveMessage(message: string, isError = false) {
   }, 3000)
 }
 
-async function patchProject(patch: ProjectPatch) {
-  if (!linkedProject.value) return
+async function patchProject(patch: ProjectPatch): Promise<boolean> {
+  if (!linkedProject.value) return false
   projectSaving.value = true
   projectSaveMessage.value = ''
   projectSaveError.value = false
   try {
     await projectStore.updateProject(linkedProject.value.id, patch)
     showSaveMessage('Saved')
+    return true
   } catch (error) {
     showSaveMessage(
       error instanceof Error ? error.message : 'Save failed',
       true,
     )
+    return false
   } finally {
     projectSaving.value = false
   }
 }
 
-function onStatusSelect(event: Event) {
-  const value = (event.target as HTMLSelectElement)
-    .value as ProjectLifecycleStatus
+async function onStatusSelect(event: Event) {
+  const select = event.target as HTMLSelectElement
+  const value = select.value as ProjectLifecycleStatus
   if (!linkedProject.value || value === linkedProject.value.status) return
-  patchProject({ status: value })
+  const saved = await patchProject({ status: value })
+  if (!saved) select.value = linkedProject.value?.status ?? value
 }
 
-function onPrioritySelect(event: Event) {
-  const value = (event.target as HTMLSelectElement)
-    .value as ProjectPriorityLevel
-  if (!linkedProject.value || value === linkedProject.value.priority) return
-  patchProject({ priority: value })
+async function onPrioritySelect(event: Event) {
+  const select = event.target as HTMLSelectElement
+  const value = select.value as ConductorProjectPriority
+  const project = linkedProject.value
+  if (!project || value === displayPriority.value) return
+  if (!selectedProject.value?.conductorPriority && !project.conductorSlug) {
+    const saved = await patchProject({
+      priority: value.toUpperCase() as ProjectPriorityLevel,
+    })
+    if (!saved) select.value = displayPriority.value
+    return
+  }
+  projectSaving.value = true
+  projectSaveError.value = false
+  try {
+    await projectStore.updateConductorPriority(project.id, value)
+    projectPriorityOverride.value = value
+    showSaveMessage('Saved to Conductor; projection sync pending')
+  } catch (error) {
+    showSaveMessage(
+      error instanceof Error ? error.message : 'Priority update failed',
+      true,
+    )
+    select.value = displayPriority.value
+  } finally {
+    projectSaving.value = false
+  }
 }
 
 async function autosave(field: keyof ProjectPatch, event: FocusEvent) {
@@ -842,10 +890,11 @@ async function refreshProject() {
         true,
       ),
       conductorStore.fetchProjects(true),
-      collectionStore.fetchCollections(),
+      collectionStore.fetchProjectCollection(
+        props.slug,
+        linkedProject.value?.title || selectedProject.value?.name,
+      ),
     ])
-    if (linkedProject.value?.id)
-      await todoStore.fetchProjectTodos(linkedProject.value.id)
   } finally {
     refreshing.value = false
   }
@@ -901,16 +950,9 @@ async function submitProjectTask() {
 }
 
 watch(
-  linkedProject,
-  async (project) => {
-    if (project?.id) await todoStore.fetchProjectTodos(project.id)
-  },
-  { immediate: true },
-)
-
-watch(
   () => props.slug,
   async () => {
+    projectPriorityOverride.value = null
     await refreshProject()
   },
 )

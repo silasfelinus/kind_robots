@@ -694,9 +694,9 @@ export function createRainbowPrincessPreview(
     update,
     render(g: CanvasRenderingContext2D) {
       const sky = g.createLinearGradient(0, 0, 0, H)
-      sky.addColorStop(0, '#100d40')
-      sky.addColorStop(0.55, '#6d427e')
-      sky.addColorStop(1, '#ed9dbb')
+      sky.addColorStop(0, moonStart === null ? '#100d40' : '#072f50')
+      sky.addColorStop(0.55, moonStart === null ? '#6d427e' : '#357a91')
+      sky.addColorStop(1, moonStart === null ? '#ed9dbb' : '#ae9fe3')
       g.fillStyle = sky
       g.fillRect(0, 0, W, H)
       for (let plane = 0; plane < 4; plane++) {
@@ -721,6 +721,34 @@ export function createRainbowPrincessPreview(
         g.ellipse(x, 244 + Math.sin(i) * 12, 56, 25, 0, 0, Math.PI * 2)
         g.fill()
       }
+      if (moonStart !== null) {
+        for (let plane = 0; plane < 4; plane++) {
+          const speed = 0.12 + plane * 0.21
+          g.lineWidth = 1 + plane * 0.8
+          g.strokeStyle = ['#f1b9fc55', '#a6ffe766', '#ecdbff88', '#bdf9ff99'][plane]!
+          g.fillStyle = ['#ebbeff25', '#b8ffef30', '#d1d0ff38', '#bbf6ff48'][plane]!
+          for (let i = 0; i < 6; i++) {
+            const x =
+              (((i * 111 - moonFrame() * speed) % 650) + 650) % 650 - 42
+            const y = 45 + ((i * 73 + plane * 39) % 170)
+            g.beginPath()
+            g.ellipse(x, y, 18 + plane * 5, 9 + plane * 2, 0, Math.PI, 2 * Math.PI)
+            g.fill()
+            g.stroke()
+            for (let arm = -2; arm <= 2; arm++) {
+              g.beginPath()
+              g.moveTo(x + arm * 6, y)
+              g.quadraticCurveTo(
+                x + arm * 7 + Math.sin(moonFrame() / 45 + i + arm) * 6,
+                y + 21,
+                x + arm * 8,
+                y + 29 + plane * 4,
+              )
+              g.stroke()
+            }
+          }
+        }
+      }
       for (const reef of reefs) {
         g.save()
         g.translate(reef.x, reef.y)
@@ -733,7 +761,15 @@ export function createRainbowPrincessPreview(
               ? '#ffb3d1'
               : reef.kind === 'spiral'
                 ? '#94e7ff'
-                : '#d09ffd'
+                : reef.kind === 'lantern'
+                  ? '#afffea'
+                  : reef.kind === 'relay'
+                    ? '#f9a8e9'
+                    : reef.kind === 'skimmer'
+                      ? '#f9e7af'
+                      : reef.kind === 'coral'
+                        ? '#e4c0ff'
+                        : '#d09ffd'
         g.beginPath()
         g.ellipse(0, 0, reef.kind === 'urchin' ? 14 : 16, 10, 0, 0, Math.PI * 2)
         g.fill()
@@ -747,6 +783,25 @@ export function createRainbowPrincessPreview(
         g.moveTo(9, -5)
         g.quadraticCurveTo(23, -15, 17, -22)
         g.stroke()
+        g.restore()
+      }
+      if (nemi) {
+        g.save()
+        g.translate(nemi.x, nemi.y)
+        g.shadowColor = '#a7ffdf'
+        g.shadowBlur = 18
+        g.fillStyle = '#173f53'
+        g.strokeStyle = '#e0ffbc'
+        g.lineWidth = 3
+        g.beginPath()
+        g.arc(0, 0, 15, 0, 2 * Math.PI)
+        g.fill()
+        g.stroke()
+        g.shadowBlur = 0
+        g.fillStyle = '#f1ffda'
+        g.font = 'bold 9px monospace'
+        g.textAlign = 'center'
+        g.fillText('NEMI', 0, 3)
         g.restore()
       }
       if (station) {
@@ -811,6 +866,49 @@ export function createRainbowPrincessPreview(
         g.textAlign = 'center'
         g.font = 'bold 8px monospace'
         g.fillText('B01 PEARL SEAHORSE', 240, 53)
+        g.textAlign = 'left'
+      }
+      if (moonBoss) {
+        const warn = moonjellyBossWarning(moonBoss)
+        g.save()
+        g.translate(moonBoss.x, moonBoss.y)
+        g.shadowColor = warn ? '#fff49c' : '#affff7'
+        g.shadowBlur = warn ? 25 : 12
+        g.fillStyle = '#b4f4f1b8'
+        g.strokeStyle = warn ? '#fff3a2' : '#c5f7ff'
+        g.lineWidth = warn ? 5 : 3
+        g.beginPath()
+        g.ellipse(0, -9, 42, 38, 0, Math.PI, 2 * Math.PI)
+        g.fill()
+        g.stroke()
+        g.shadowBlur = 0
+        for (let arm = -3; arm <= 3; arm++) {
+          g.beginPath()
+          g.moveTo(arm * 10, -8)
+          g.quadraticCurveTo(
+            arm * 14 + Math.sin(moonBoss.frame / 24 + arm) * 8,
+            41,
+            arm * 9,
+            55,
+          )
+          g.stroke()
+        }
+        g.fillStyle = '#edffff'
+        g.beginPath()
+        g.arc(-11, -23, 7, 0, 2 * Math.PI)
+        g.fill()
+        g.restore()
+        g.fillStyle = '#1d2750'
+        g.fillRect(148, 30, 184, 14)
+        g.fillStyle = '#c2fff4'
+        g.fillRect(150, 32, 180 * Math.max(0, moonBoss.hp / AURELIA_MAX_HP), 10)
+        g.strokeStyle = '#fff4c4'
+        g.lineWidth = 1
+        g.strokeRect(148, 30, 184, 14)
+        g.textAlign = 'center'
+        g.font = 'bold 8px monospace'
+        g.fillStyle = '#fff4c4'
+        g.fillText('B02 AURELIA ARRAY', 240, 53)
         g.textAlign = 'left'
       }
       for (const bullet of enemyShots) {
@@ -888,7 +986,10 @@ export function createRainbowPrincessPreview(
       g.fillRect(0, 0, W, 29)
       g.fillStyle = '#ffe7f5'
       g.font = 'bold 10px monospace'
-      g.fillText('ACT I / PINKWAKE', 9, 12)
+      g.fillText(
+        moonStart === null ? 'ACT I / PINKWAKE' : 'ACT II / MOONJELLY',
+        9, 12,
+      )
       g.font = '9px monospace'
       g.fillText('A FIRE · HOLD B FOCUS · CHARGED B SUPER', 9, 24)
       g.textAlign = 'right'
@@ -903,9 +1004,24 @@ export function createRainbowPrincessPreview(
         )
       }
       g.textAlign = 'left'
-      const scene = pinkwakeScene(tick, defeatedAt)
+      const scene =
+        moonStart === null
+          ? pinkwakeScene(tick, defeatedAt)
+          : moonjellyScene(moonFrame(), moonDefeatedFrame)
       const dialogue = scene
-        ? pinkwakeDialogue(scene.id, scene.elapsed, count, rescuedStation)
+        ? moonStart === null
+          ? pinkwakeDialogue(
+              scene.id as 'A01.OPEN' | 'A01.TURN' | 'A01.AFTER',
+              scene.elapsed,
+              activePlayers,
+              rescuedStation,
+            )
+          : moonjellyDialogue(
+              scene.id as 'A02.OPEN' | 'A02.TURN' | 'A02.AFTER',
+              scene.elapsed,
+              activePlayers,
+              rescuedNemi,
+            )
         : null
       if (dialogue) {
         g.fillStyle = '#160b34e8'
@@ -932,7 +1048,20 @@ export function createRainbowPrincessPreview(
         for (let line = 0; line < Math.min(lines.length, 2); line++) {
           g.fillText(lines[line]!, 24, H - 33 + line * 12)
         }
-      } else if (defeatedAt !== null) {
+      } else if (
+        moonDefeatedFrame !== null &&
+        moonFrame() - moonDefeatedFrame >= MOONJELLY.aftermathFrames
+      ) {
+        g.fillStyle = '#180d38d9'
+        g.fillRect(48, H - 47, W - 96, 33)
+        g.fillStyle = '#c7ffe6'
+        g.textAlign = 'center'
+        g.font = 'bold 11px monospace'
+        g.fillText('AURELIA FREED · ACT II PREVIEW CLEAR', W / 2, H - 28)
+        g.font = '8px monospace'
+        g.fillText('Safe transit to Chromatic Trench · Act III in production', W / 2, H - 17)
+        g.textAlign = 'left'
+      } else if (moonStart === null && defeatedAt !== null) {
         g.fillStyle = '#180d38d9'
         g.fillRect(65, H - 47, W - 130, 33)
         g.fillStyle = '#c7ffe6'
@@ -941,7 +1070,7 @@ export function createRainbowPrincessPreview(
         g.fillText('POD RESCUED · ACT I PREVIEW CLEAR', W / 2, H - 28)
         g.font = '8px monospace'
         g.fillText(
-          'Safe transit · Act II is still in production',
+          'Moonjelly Fields incoming: shields and power persist',
           W / 2,
           H - 17,
         )

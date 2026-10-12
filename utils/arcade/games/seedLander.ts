@@ -1,88 +1,114 @@
 // /utils/arcade/games/seedLander.ts
 //
-// Seed Lander -- the Kind Robots Arcade's Lunar Lander riff (conductor
-// kr-arcade/t-009 game factory, batch 3). Pilot a seed pod down onto the
-// garden pads of a windy hillside. Puffs of air slow the fall and push the pod
-// the way it leans; land soft, slow and level on a pad to plant the seed. The
-// narrower the pad, the bigger the bloom (and the points).
+// Seed Lander -- the Kind Robots Arcade's Lunar Lander riff (conductor kr-arcade/t-009, depth
+// pass t-069..t-073: "The Great Replanting", depth-pass CABINETS.md section 9). Pilot a seed pod
+// across a wide island several screens across, leaning and puffing sunlight, and set it down
+// soft, slow and level on the garden beds to plant them. The camera scrolls with the pod and zooms
+// in close below about 40 px of altitude, so the last pixels of a touchdown are easy to read.
 //
-// A bumpy touchdown on a pad (a bit too fast) still plants, for fewer points.
-// Touch down much too fast, too tilted, or off a pad and the pod bonks: its
-// seeds scatter (a few wildflowers sprout) and a spare pod drops in. Every planting refills a little sunlight
-// (the puff fuel) and moves on to a new hillside: rougher ground, narrower
-// pads, gustier wind (LANDER_CURVES). The run ends when the pods run out.
+// Landings rank Feather, Soft, Bumpy or Bonk; a run of Feathers builds a streak multiplier that
+// carries from hill to hill. Beds run x1 to x5, the x5s tucked into narrow valleys or on peaks.
+// Each mission has its own sun tank, topped up at sunflower beds; running dry opens the pod's leaf
+// cap as a parachute and the mission is tried again with a spare pod. B hops (the classic's abort:
+// upright and one strong puff, for a lot of sun), and holding DOWN over a seed crate hooks it on
+// the tether winch to tow to the shed.
 //
-// Left/right lean the pod; Up or A puffs (B too). The gauges go green when the
-// speed is safe to land.
+// The flight tier is chosen at the start (Breezy shows the landing arc and gives more sun, Gale
+// is heavy and allows one hop a mission). Free Flight builds an endless run of hills from the
+// seeded rng (seedLander/missions.ts) and unlocks a new hazard every 4 hills.
+//
+// Left/right lean the pod; Up or A puffs; B hops; DOWN works the winch.
 
-import { levelCurve } from '../curve'
 import { drawText } from '../font'
-import {
-  INK,
-  RAMPS,
-  Sparkles,
-  backdropRng,
-  bandedGradient,
-  bevel,
-  cachedLayer,
-  drawCloud,
-  drawRidge,
-  drawSprite,
-  drawStars,
-  dropShadow,
-  gauge,
-  glow,
-  hudPanel,
-  mirrorSprite,
-  mix,
-  pixelSprite,
-  ridge,
-  rgba,
-  shadedOrb,
-  starField,
-  vignette,
-} from '../snes'
-import type { PixelSprite, Ramp } from '../snes'
+import { INK, RAMPS, Sparkles, backdropRng, glow, vignette } from '../snes'
 import type {
   ArcadeGameInstance,
   ArcadeGameModule,
   ArcadeGameOptions,
   InputFrame,
 } from '../types'
+import {
+  BLOOM_COLOURS,
+  FLOWER_SPARKS,
+  PAD_RAMP,
+  drawBloom,
+  drawCargo,
+  drawPadLive,
+  drawPod,
+  drawVent,
+  paintSky,
+  paintTerrain,
+} from '../seedLander/art'
+import { Camera, VIEW_H } from '../seedLander/camera'
+import {
+  BUMPY,
+  POD_FEET,
+  POD_HALF,
+  POD_TOP,
+  RANK_NAMES,
+  RANK_PAY,
+  SAFE,
+  SETTLE_TICKS,
+  TIERS,
+  TIER_ORDER,
+  canHop,
+  newPod,
+  nextStreak,
+  predictArc,
+  rankLanding,
+  steerPod,
+  streakMultiplier,
+} from '../seedLander/flight'
+import type { LandingRank, Pod, TierId } from '../seedLander/flight'
+import {
+  H,
+  HAZARD_NAMES,
+  HUD_H,
+  W,
+  freeHill,
+  highestBetween,
+} from '../seedLander/missions'
+import type { MissionSpec, VentSpec } from '../seedLander/missions'
+import {
+  drawHud,
+  drawMenu,
+  drawMissionCard,
+  drawTally,
+} from '../seedLander/screens'
+import type { MenuRow, TallyLine } from '../seedLander/screens'
+import {
+  WINCH,
+  canHook,
+  dropCargo,
+  groundCargo,
+  newCargo,
+  swingCargo,
+} from '../seedLander/tether'
+import type { Cargo } from '../seedLander/tether'
+import { Terrain } from '../seedLander/terrain'
+import type { Pad } from '../seedLander/terrain'
 
-const W = 320
-const H = 240
-const HUD_H = 26
-const GRAVITY = 0.011
-const THRUST = 0.03
-const TURN = 0.045
-const MAX_TILT = Math.PI / 2
-const FUEL_MAX = 900
-const FUEL_REFILL = 260
-const START_PODS = 3
-const SAFE_VY = 0.55
-const SAFE_VX = 0.4
-const SAFE_TILT = 0.22
-/** Up to this much faster than safe still plants, as a bumpy landing. */
-const BUMPY = 1.7
-const BONK_POINTS = 15
-const POD_HALF = 5
-const POD_FEET = 6
-const PLANT_TICKS = 140
+export const START_PODS = 3
+export const MAX_PODS = 5
+/** Free Flight hands out a spare pod every this many hills cleared. */
+export const EXTRA_POD_HILLS = 4
+/** A bonk's scattered seeds still sprout a few wildflowers: this times the hill. */
+export const BONK_POINTS = 25
+/** A delivered crate pays this per seedling still in it. */
+export const DELIVERY_POINTS = 400
+/** A spare pod after a bonk never starts with less than this share of the mission's sun. */
+export const SPARE_SUN = 0.25
+/** Sunflowers refuel a resting pod this much a tick. */
+export const SUN_REFILL = 6
+/** A planting tops the tank up by this share. */
+export const PLANT_SUN = 0.15
+
 const BONK_TICKS = 110
-const SEGMENTS = 32
+const DRY_TICKS = 100
+const CLEAR_TICKS = 200
+const PLANT_SETTLE = 40
+const CARD_TICKS = 150
 
-export const LANDER_CURVES = {
-  /** How far the ground rises and falls between points. */
-  rough: { start: 18, step: 4, limit: 46 },
-  /** Pad widths, widest first. */
-  padWide: { start: 46, step: -3, limit: 26 },
-  padNarrow: { start: 22, step: -2, limit: 12 },
-  /** Strongest gust (horizontal push per tick). */
-  wind: { start: 0, step: 0.0012, limit: 0.008 },
-} as const
-
-type Pad = { x0: number; x1: number; y: number; mult: number }
 type Particle = {
   x: number
   y: number
@@ -90,148 +116,18 @@ type Particle = {
   vy: number
   life: number
   color: string
+  kind: 'puff' | 'chip' | 'streamer'
 }
-type Floater = { x: number; y: number; text: string; life: number }
-
-// --- 16-bit art (utils/arcade/snes.ts) -------------------------------------------
-
-/** A dawn sky over the garden world: deep violet overhead down to a warm gold horizon. */
-const SKY_BANDS = [
-  RAMPS.night[2],
-  '#3a2a85',
-  '#6b3fa0',
-  '#b04f9a',
-  '#ec7f8c',
-  '#f9b77a',
-  RAMPS.gold[3],
-] as const
-const SKY_STARS = starField(5, 60, W, 96).filter((s) => s.y > HUD_H + 2)
-const STAR_RAMP: Ramp = ['#24124f', '#4c2a99', '#9a8ad8', '#e6dcff', '#ffffff']
-
-/** Clouds lit pink from below by the low sun. */
-const CLOUD_RAMP: Ramp = ['#24124f', '#9a5aa8', '#f0a0b8', '#ffd0c8', '#fff4e8']
-const CLOUD_SIZES = [6, 5, 7, 5]
-
-/** Four hillside backdrops (they cycle with the hill number): far peaks and nearer downs. */
-const FAR_RIDGES = [0, 1, 2, 3].map((i) => ridge(101 + i * 7, W, 44, 4))
-const MID_RIDGES = [0, 1, 2, 3].map((i) => ridge(203 + i * 11, W, 30, 3))
-const FAR_FILL = mix('#6b3fa0', '#b04f9a', 0.35)
-const MID_FILL = mix(RAMPS.leaf[1], '#3a2a85', 0.55)
-
-/** The planter boxes' wood. */
-const WOOD: Ramp = ['#2e160c', '#5c2e14', '#93501f', '#c98a4a', '#f2c98e']
-
-/** The turf's top rows, by which way the slope faces the (upper-left) light. */
-const TURF: Record<'lit' | 'flat' | 'shade', readonly string[]> = {
-  lit: [RAMPS.leaf[4], RAMPS.leaf[3], RAMPS.leaf[3], RAMPS.leaf[2]],
-  flat: [RAMPS.leaf[3], RAMPS.leaf[3], RAMPS.leaf[2], RAMPS.leaf[2]],
-  shade: [RAMPS.leaf[2], RAMPS.leaf[2], RAMPS.leaf[1], RAMPS.leaf[1]],
+type Floater = {
+  x: number
+  y: number
+  text: string
+  life: number
+  color: string
 }
-/** Below the turf, bands of soil by depth: [from row, colour]. */
-const SOIL: readonly (readonly [number, string])[] = [
-  [4, RAMPS.leaf[1]],
-  [7, RAMPS.leaf[0]],
-  [8, RAMPS.earth[2]],
-  [22, RAMPS.earth[1]],
-  [46, mix(RAMPS.earth[1], RAMPS.earth[0], 0.5)],
-  [76, RAMPS.earth[0]],
-]
-
-/** Each pad's beacon and multiplier colour, by multiplier. */
-const PAD_RAMP: Record<number, Ramp> = {
-  1: RAMPS.teal,
-  2: RAMPS.gold,
-  4: RAMPS.pink,
-}
-
-const DANGER = mix(RAMPS.ember[2], '#ffffff', 0.35)
-const PUFF_COLOR = '#e0f2fe'
-
-/** The spare-pod icon for the HUD (the flying pod leans, so it is drawn as shaded vector art). */
-const POD_ICON = pixelSprite(
-  ['.LLL.', 'LllLd', 'dddd.', 'EeeeE', 'EeEeE', '.EEE.'],
-  {
-    L: RAMPS.leaf[3],
-    l: RAMPS.leaf[2],
-    d: RAMPS.leaf[1],
-    E: RAMPS.earth[1],
-    e: RAMPS.earth[3],
-  },
-)
-
-/** A planted seed grows: sprout, bud, then a full bloom (swaying in two frames). */
-function flowerSprites(ramp: Ramp): {
-  sprout: PixelSprite
-  bud: PixelSprite
-  bloom: readonly [PixelSprite, PixelSprite]
-} {
-  const leaves = {
-    L: RAMPS.leaf[3],
-    l: RAMPS.leaf[2],
-    d: RAMPS.leaf[1],
-    s: RAMPS.leaf[2],
-  }
-  const petals = {
-    h: ramp[4],
-    P: ramp[3],
-    p: ramp[2],
-    q: ramp[1],
-    c: RAMPS.gold[2],
-    Y: RAMPS.gold[4],
-  }
-  const sprout = pixelSprite(
-    ['LL...LL', 'lLl.lLl', '.dlsld.', '...s...', '...s...'],
-    leaves,
-  )
-  const bud = pixelSprite(
-    [
-      '...hP...',
-      '..hPPp..',
-      '..PPpq..',
-      '...pq...',
-      '...s....',
-      '.Lls....',
-      'Llds.lL.',
-      '...sllL.',
-      '...s....',
-    ],
-    { ...leaves, ...petals },
-  )
-  const bloom = pixelSprite(
-    [
-      '..hh.hP..',
-      '.hPPhPPp.',
-      'hPPcYcPPp',
-      'PPpYYYpPq',
-      'hPPcYcPpq',
-      '.PPpPPpq.',
-      '..pq.qq..',
-      '....s....',
-      '.Ll.s....',
-      'Lllss....',
-      '.dds..lL.',
-      '....sllL.',
-      '....sdd..',
-      '....s....',
-    ],
-    { ...leaves, ...petals },
-  )
-  return { sprout, bud, bloom: [bloom, mirrorSprite(bloom)] }
-}
-
-/** Flower art per planted colour (the game picks one of these four). */
-const FLOWERS: Record<string, ReturnType<typeof flowerSprites>> = {
-  '#f9a8d4': flowerSprites(RAMPS.pink),
-  '#fde047': flowerSprites(RAMPS.gold),
-  '#c4b5fd': flowerSprites(RAMPS.purple),
-  '#fdba74': flowerSprites(RAMPS.rust),
-}
-const FLOWER_SPARKS: Record<string, readonly string[]> = {
-  '#f9a8d4': [RAMPS.pink[3], RAMPS.pink[4], RAMPS.gold[4]],
-  '#fde047': [RAMPS.gold[3], RAMPS.gold[4], RAMPS.leaf[4]],
-  '#c4b5fd': [RAMPS.purple[3], RAMPS.purple[4], RAMPS.teal[3]],
-  '#fdba74': [RAMPS.rust[3], RAMPS.rust[4], RAMPS.gold[4]],
-}
+type Bloom = { x: number; y: number; colour: string; age: number }
+type Phase = 'fly' | 'bonk' | 'dry' | 'clear'
+type MenuId = 'free' | 'tier'
 
 class SeedLander implements ArcadeGameInstance {
   score = 0
@@ -245,228 +141,423 @@ class SeedLander implements ArcadeGameInstance {
   private hiScore: number
 
   private tick = 0
-  private ground: number[] = []
-  private pads: Pad[] = []
-  private planted: Array<{ x: number; y: number; color: string }> = []
-  private x = 0
-  private y = 0
-  private vx = 0
-  private vy = 0
-  private tilt = 0
-  private fuel = FUEL_MAX
-  private puffing = false
+  private menu: { pick: number } | null = null
+  private tier: TierId = 'standard'
+  private mission!: MissionSpec
+  private terrain!: Terrain
+  private pods: Pod[] = []
+  private cargo: Cargo[] = []
+  private cargoTo = new Map<string, string>()
+  private vents: VentSpec[] = []
+  private blooms: Bloom[] = []
+  private phase: Phase = 'fly'
+  private phaseTicks = 0
+  private card = 0
+  private planted = 0
+  private streak = 0
+  private bestStreak = 0
+  private missionTicks = 0
+  private sunMax = 900
   private wind = 0
   private windTarget = 0
-  private plant = 0
-  private bonk = 0
+  private hillsCleared = 0
+  private lastRank: LandingRank | null = null
+  private tally: TallyLine[] = []
+  private hookTicks = 0
+  private camera = new Camera()
   private particles: Particle[] = []
   private floaters: Floater[] = []
   private banner: { text: string; sub?: string; ticks: number } | null = null
-  // Cosmetic only: sparkles roll their own dice, so the game's seeded rng is untouched.
+  // Cosmetic only: sparkles, puffs and bloom colours roll their own dice; the game's rng is untouched.
   private fx = new Sparkles()
   private fxRng = backdropRng(61)
   private bonkAt = { x: 0, y: 0 }
-  /** The current hillside's terrain art, painted once per hill (keyed on its ground array). */
-  private hillArt: HTMLCanvasElement | null = null
-  private hillArtFor: number[] | null = null
+  private terrainArt: HTMLCanvasElement | null = null
+  private terrainArtFor: { terrain: Terrain; version: number } | null = null
 
   constructor(options: ArcadeGameOptions) {
     this.rng = options.rng
     this.sound = options.sound
     this.demo = options.demo
     this.hiScore = options.hiScore
-    this.buildHill(1)
+    if (!this.demo) this.menu = { pick: 0 }
+    this.startHill(1)
   }
 
-  // --- the hillside --------------------------------------------------------------
+  /** Player 1's pod. */
+  private get pod(): Pod {
+    return this.pods[0]!
+  }
 
-  private buildHill(hill: number) {
-    this.level = hill
-    const rough = levelCurve(hill, LANDER_CURVES.rough)
-    const step = W / SEGMENTS
-    let y = H - 40 - this.rng() * 30
-    this.ground = []
-    for (let i = 0; i <= SEGMENTS; i++) {
-      this.ground.push(y)
-      y += (this.rng() - 0.5) * rough
-      y = Math.max(HUD_H + 90, Math.min(H - 12, y))
-    }
-    // Flatten pads into the slope: a wide one, a middling one, a narrow one.
-    const widths = [
-      levelCurve(hill, LANDER_CURVES.padWide),
-      (levelCurve(hill, LANDER_CURVES.padWide) +
-        levelCurve(hill, LANDER_CURVES.padNarrow)) /
-        2,
-      levelCurve(hill, LANDER_CURVES.padNarrow),
+  private get flightTier() {
+    return TIERS[this.tier]
+  }
+
+  private get gravity() {
+    return this.flightTier.gravity * (this.mission.gravity ?? 1)
+  }
+
+  // --- the mode card --------------------------------------------------------------------
+
+  private menuRows(): Array<MenuRow & { id: MenuId }> {
+    const t = this.flightTier
+    return [
+      { id: 'free', name: 'FREE FLIGHT', about: 'ENDLESS HILLS, NEW HAZARDS' },
+      { id: 'tier', name: `FLIGHT: ${t.name}`, about: t.about, picker: true },
     ]
-    const mults = [1, 2, 4]
-    this.pads = []
-    const slots = [0, 1, 2, 3, 4].sort(() => this.rng() - 0.5).slice(0, 3)
-    widths.forEach((width, i) => {
-      const slot = slots[i]!
-      const cx = 30 + slot * ((W - 60) / 4) + (this.rng() - 0.5) * 20
-      const x0 = Math.max(4, cx - width / 2)
-      const x1 = Math.min(W - 4, cx + width / 2)
-      const i0 = Math.floor(x0 / step)
-      const i1 = Math.ceil(x1 / step)
-      const padY = this.ground[Math.round((i0 + i1) / 2)]!
-      for (let k = i0; k <= i1 && k <= SEGMENTS; k++) this.ground[k] = padY
-      this.pads.push({
-        x0: i0 * step,
-        x1: Math.min(W, i1 * step),
-        y: padY,
-        mult: mults[i]!,
-      })
-    })
-    this.planted = []
-    this.windTarget = 0
-    this.wind = 0
-    this.spawn()
-    this.banner = {
-      text: `HILLSIDE ${hill}`,
-      sub: 'LAND SOFT AND LEVEL',
-      ticks: 100,
+  }
+
+  private updateMenu(input: InputFrame) {
+    const m = this.menu!
+    const rows = this.menuRows()
+    const step = input.pressed.up ? -1 : input.pressed.down ? 1 : 0
+    if (step) {
+      m.pick = (m.pick + step + rows.length) % rows.length
+      this.sound.play('blip')
+    }
+    const row = rows[m.pick]!
+    const turn = input.pressed.left ? -1 : input.pressed.right ? 1 : 0
+    if (row.id === 'tier' && (turn || input.pressed.a)) {
+      const i = TIER_ORDER.indexOf(this.tier)
+      const n = TIER_ORDER.length
+      this.tier = TIER_ORDER[(i + (turn || 1) + n) % n]!
+      this.sound.play('blip')
+      return
+    }
+    if (input.pressed.a || input.pressed.start) {
+      this.menu = null
+      this.sound.play('start')
+      this.startHill(1)
     }
   }
 
-  private spawn() {
-    this.x = 40 + this.rng() * (W - 80)
-    this.y = HUD_H + 10
-    this.vx = (this.rng() - 0.5) * 0.8
-    this.vy = 0
-    this.tilt = 0
+  // --- missions ---------------------------------------------------------------------------
+
+  /** Free Flight hill `hill`: a fresh island from the seeded rng. */
+  private startHill(hill: number) {
+    this.level = hill
+    this.startMission(freeHill(hill, this.rng))
   }
 
-  private groundAt(x: number): number {
-    const step = W / SEGMENTS
-    const i = Math.max(0, Math.min(SEGMENTS - 1, Math.floor(x / step)))
-    const t = (x - i * step) / step
-    return this.ground[i]! + (this.ground[i + 1]! - this.ground[i]!) * t
+  /** Lay out a mission: its terrain, cargo and vents, a full tank and the pod at the start. */
+  private startMission(spec: MissionSpec) {
+    this.mission = spec
+    this.terrain = new Terrain(spec.map)
+    this.cargo = []
+    this.cargoTo.clear()
+    ;(spec.cargo ?? []).forEach((c, i) => {
+      const id = c.id ?? `cargo${i}`
+      const crate = newCargo(id, c.kind, c.x, 0, c.seedlings ?? 3)
+      crate.y = this.terrain.groundAt(c.x) - crate.r
+      this.cargo.push(crate)
+      this.cargoTo.set(id, c.to)
+    })
+    this.vents = (spec.vents ?? []).map((v) => ({ ...v }))
+    this.sunMax = Math.round(spec.sun * this.flightTier.sun)
+    this.pods = [newPod(0, spec.start.x, spec.start.y, this.sunMax)]
+    this.blooms = []
+    this.planted = 0
+    this.missionTicks = 0
+    this.wind = 0
+    this.windTarget = 0
+    this.phase = 'fly'
+    this.phaseTicks = 0
+    this.card = CARD_TICKS
+    this.camera.snap(
+      spec.start.x,
+      spec.start.y + 60,
+      this.terrain.w,
+      this.terrain.h,
+    )
   }
 
-  private padUnder(x: number): Pad | undefined {
-    return this.pads.find((p) => x - 3 >= p.x0 && x + 3 <= p.x1)
+  /** Try the same mission again (the sun ran dry): the same island, a full tank, beds unplanted. */
+  private retryMission() {
+    const spec = this.mission
+    this.startMission(spec)
+    this.banner = { text: 'TRY AGAIN', sub: 'A FULL TANK OF SUN', ticks: 100 }
   }
 
-  // --- update ------------------------------------------------------------------
+  // --- update ----------------------------------------------------------------------------
 
   update(input: InputFrame) {
     this.tick++
     this.updateEffects()
     if (this.banner && --this.banner.ticks <= 0) this.banner = null
     if (this.over) return
+    if (this.menu) {
+      this.updateMenu(input)
+      return
+    }
     const controls = this.demo ? this.demoInput() : input
-    if (this.plant > 0) {
-      if (--this.plant === 0) this.buildHill(this.level + 1)
-      return
+    if (this.card > 0) {
+      this.card--
+      if (
+        this.card < CARD_TICKS - 30 &&
+        (controls.pressed.a || controls.pressed.start)
+      )
+        this.card = 0
     }
-    if (this.bonk > 0) {
-      if (--this.bonk === 0) {
-        if (this.lives <= 0) {
-          this.over = true
-          this.banner = { text: 'OUT OF PODS', sub: 'GAME OVER', ticks: 9999 }
-        } else this.spawn()
-      }
-      return
+    this.missionTicks++
+    this.updateWind()
+    switch (this.phase) {
+      case 'fly':
+        for (const pod of this.pods) this.flyPod(pod, controls)
+        this.updateCargo()
+        break
+      case 'bonk':
+        this.updateCargo()
+        if (++this.phaseTicks >= BONK_TICKS) this.afterBonk()
+        break
+      case 'dry':
+        this.updateDry()
+        break
+      case 'clear':
+        if (++this.phaseTicks >= CLEAR_TICKS) this.nextHill()
+        break
     }
-    this.fly(controls)
-    this.touchDown()
+    this.followCamera()
   }
 
-  private fly(input: InputFrame) {
-    if (input.held.left) this.tilt = Math.max(-MAX_TILT, this.tilt - TURN)
-    if (input.held.right) this.tilt = Math.min(MAX_TILT, this.tilt + TURN)
-    this.puffing =
-      (input.held.up || input.held.a || input.held.b) && this.fuel > 0
-    if (this.puffing) {
-      this.fuel = Math.max(0, this.fuel - 1)
-      this.vx += Math.sin(this.tilt) * THRUST
-      this.vy -= Math.cos(this.tilt) * THRUST
-      if (this.tick % 3 === 0) {
-        const a = this.tilt + Math.PI / 2 + (this.rng() - 0.5) * 0.5
-        this.particles.push({
-          x: this.x - Math.sin(this.tilt) * POD_FEET,
-          y: this.y + Math.cos(this.tilt) * POD_FEET,
-          vx: Math.cos(a) * 0.3 - Math.sin(this.tilt) * 0.8,
-          vy: Math.sin(a) * 0.3 + Math.cos(this.tilt) * 0.8,
-          life: 18,
-          color: '#e0f2fe',
-        })
-      }
-    }
-    // Gusts drift toward a new strength every few seconds.
-    const maxWind = levelCurve(this.level, LANDER_CURVES.wind)
-    if (this.tick % 180 === 0) this.windTarget = (this.rng() * 2 - 1) * maxWind
+  private updateWind() {
+    const max = this.mission.wind * this.flightTier.wind
+    if (this.tick % 180 === 0) this.windTarget = (this.rng() * 2 - 1) * max
     this.wind += (this.windTarget - this.wind) * 0.02
-    this.vx += this.wind
-    this.vy += GRAVITY
-    this.x += this.vx
-    this.y += this.vy
-    // The hillside wraps around, as if it goes on round the world.
-    if (this.x < 0) this.x += W
-    if (this.x > W) this.x -= W
-    if (this.y < HUD_H + 4) {
-      this.y = HUD_H + 4
-      this.vy = Math.max(0, this.vy)
+  }
+
+  /** Outside pushes at a point: the wind, and lift in an updraft column. */
+  private pushAt(x: number, y: number): { x: number; y: number } {
+    let lift = 0
+    for (const v of this.vents) {
+      if (Math.abs(x - v.x) > v.w / 2) continue
+      const ground = this.terrain.groundAt(v.x)
+      if (y > ground - v.h && y < ground) lift += v.lift
+    }
+    return { x: this.wind, y: -lift }
+  }
+
+  private flyPod(pod: Pod, input: InputFrame) {
+    const controls = {
+      left: input.held.left,
+      right: input.held.right,
+      puff: input.held.up || input.held.a,
+      hop: input.pressed.b,
+    }
+    this.workWinch(pod, input)
+    if (pod.restOn) {
+      this.rest(pod, controls.puff || controls.hop)
+      return
+    }
+    const sunBefore = pod.sun
+    if (
+      steerPod(
+        pod,
+        controls,
+        this.flightTier,
+        this.gravity,
+        this.pushAt(pod.x, pod.y),
+      )
+    ) {
+      this.sound.play('pickup')
+      this.puffBurst(pod, 10, 1.4)
+    }
+    if (pod.puffing && this.tick % 3 === 0) this.puffBurst(pod, 1, 0.8)
+    // The island's edges are cliffs of air: the pod bumps gently back.
+    if (pod.x < POD_HALF + 2) {
+      pod.x = POD_HALF + 2
+      pod.vx = Math.abs(pod.vx) * 0.3
+    }
+    if (pod.x > this.terrain.w - POD_HALF - 2) {
+      pod.x = this.terrain.w - POD_HALF - 2
+      pod.vx = -Math.abs(pod.vx) * 0.3
+    }
+    if (pod.y < POD_TOP + 2) {
+      pod.y = POD_TOP + 2
+      pod.vy = Math.max(0, pod.vy)
+    }
+    if (sunBefore > 0 && pod.sun <= 0 && !pod.chute) {
+      pod.chute = true
+      pod.puffing = false
+      this.dropHooked(pod)
+      this.sound.play('warn')
+      this.banner = {
+        text: 'OUT OF SUN',
+        sub: 'STEER ONTO A SUNFLOWER',
+        ticks: 120,
+      }
+    }
+    this.touchDown(pod)
+  }
+
+  /** Resting on a pad: sunflowers refuel; puffing (after a moment to settle) lifts off. */
+  private rest(pod: Pod, lift: boolean) {
+    const pad = this.terrain.pad(pod.restOn!)
+    pod.rest++
+    pod.puffing = false
+    if (pad) {
+      pod.x += pad.vx
+      pod.y = pad.y - POD_FEET
+      if (pad.kind === 'sun' && pod.sun < this.sunMax) {
+        pod.sun = Math.min(this.sunMax, pod.sun + SUN_REFILL)
+        if (this.tick % 6 === 0)
+          this.fx.burst(pod.x, pod.y - 4, this.fxRng, {
+            count: 1,
+            speed: 0.6,
+            colours: [RAMPS.gold[3], RAMPS.gold[4]],
+          })
+      }
+    }
+    // Dry on a pad with no sunflower: nothing to lift off with, so the mission is tried again.
+    if (pod.sun <= 0 && pad?.kind !== 'sun' && pod.rest >= SETTLE_TICKS) {
+      this.phase = 'dry'
+      this.phaseTicks = 0
+      this.banner = { text: 'OUT OF SUN', sub: 'NO SUNFLOWER HERE', ticks: 100 }
+      return
+    }
+    if (lift && pod.rest >= SETTLE_TICKS && pod.sun > 0) {
+      pod.restOn = null
+      pod.rest = 0
+      pod.vy = -0.35
+      pod.y -= 2
     }
   }
 
-  private touchDown() {
-    const feet = this.y + POD_FEET
-    // Either foot on the ground counts.
-    const left = this.groundAt(this.x - POD_HALF)
-    const right = this.groundAt(this.x + POD_HALF)
-    if (feet < Math.min(left, right)) return
-    const pad = this.padUnder(this.x)
-    const level = Math.abs(this.tilt) <= SAFE_TILT
-    const soft = this.vy <= SAFE_VY && Math.abs(this.vx) <= SAFE_VX
-    const bumpy =
-      this.vy <= SAFE_VY * BUMPY && Math.abs(this.vx) <= SAFE_VX * BUMPY
-    if (pad && level && (soft || bumpy)) this.land(pad, !soft)
-    else
-      this.crash(!pad ? 'MISSED THE PAD' : !level ? 'TOO TILTED' : 'TOO FAST')
+  private touchDown(pod: Pod) {
+    const t = this.terrain
+    const feet = pod.y + POD_FEET
+    const floorL = t.floorAt(pod.x - POD_HALF, pod.y)
+    const floorR = t.floorAt(pod.x + POD_HALF, pod.y)
+    const roof = Math.max(
+      t.ceilingAt(pod.x, pod.y),
+      t.ceilingAt(pod.x - POD_HALF, pod.y),
+      t.ceilingAt(pod.x + POD_HALF, pod.y),
+    )
+    if (pod.y - POD_TOP <= roof) {
+      if (pod.chute) pod.vy = Math.max(0, pod.vy)
+      else return this.crash(pod, 'BUMPED THE ROOF')
+    }
+    if (
+      !pod.chute &&
+      (t.insideLedge(pod.x - POD_HALF, pod.y) ||
+        t.insideLedge(pod.x + POD_HALF, pod.y))
+    )
+      return this.crash(pod, 'CLIPPED A LEDGE')
+    if (feet < Math.min(floorL, floorR)) return
+    // Climbing away with a foot brushing a slope is a scrape, not a touchdown.
+    if (pod.vy < 0 && feet < t.floorAt(pod.x, pod.y) - 1) return
+    const floor = Math.min(floorL, floorR)
+    if (pod.chute) {
+      // Floated down onto a sunflower: saved, and refuelling.
+      const sun = t.padUnder(pod.x, POD_HALF, floor)
+      if (sun?.kind === 'sun') {
+        pod.chute = false
+        this.land(pod, sun, 'soft')
+        this.banner = {
+          text: 'SAVED!',
+          sub: 'A SUNFLOWER CATCHES THE POD',
+          ticks: 100,
+        }
+        return
+      }
+      pod.y = floor - POD_FEET
+      pod.vx = 0
+      pod.vy = 0
+      this.phase = 'dry'
+      this.phaseTicks = 0
+      return
+    }
+    const pad = t.padUnder(pod.x, POD_HALF, floor)
+    const rank = pad
+      ? rankLanding(pod.vx - pad.vx, pod.vy - pad.vy, pod.tilt, BUMPY)
+      : 'bonk'
+    if (!pad || rank === 'bonk')
+      return this.crash(
+        pod,
+        !pad
+          ? 'MISSED THE PAD'
+          : Math.abs(pod.tilt) > SAFE.tilt
+            ? 'TOO TILTED'
+            : 'TOO FAST',
+      )
+    this.land(pod, pad, rank)
   }
 
-  private land(pad: Pad, bumpy: boolean) {
-    this.y = pad.y - POD_FEET
-    // Softer touchdowns pay more; a bumpy one pays a third.
-    const gentle = bumpy ? 1 / 3 : 1 + (SAFE_VY - this.vy) / SAFE_VY
-    const points = Math.round(50 * pad.mult * gentle) * 10
-    const fuelBonus = Math.round(this.fuel / 10) * 5
-    this.addScore(points, this.x, pad.y - 22)
-    this.addScore(fuelBonus, this.x, pad.y - 32)
-    this.fuel = Math.min(FUEL_MAX, this.fuel + FUEL_REFILL)
-    const color = ['#f9a8d4', '#fde047', '#c4b5fd', '#fdba74'][
-      Math.floor(this.rng() * 4)
-    ]!
-    this.planted.push({ x: this.x, y: pad.y, color })
-    this.burst(this.x, pad.y - 4, 16, color)
-    this.fx.burst(this.x, pad.y - 8, this.fxRng, {
-      count: 14,
-      colours: FLOWER_SPARKS[color],
-      speed: 1.8,
+  private land(pod: Pod, pad: Pad, rank: LandingRank) {
+    // Settle both feet onto the bed.
+    if (pad.x1 - pad.x0 >= POD_HALF * 2)
+      pod.x = Math.max(pad.x0 + POD_HALF, Math.min(pad.x1 - POD_HALF, pod.x))
+    pod.y = pad.y - POD_FEET
+    pod.vx = 0
+    pod.vy = 0
+    pod.tilt = 0
+    pod.puffing = false
+    pod.restOn = pad.id
+    pod.rest = 0
+    this.lastRank = rank
+    const cx = Math.max(pad.x0 + 3, Math.min(pad.x1 - 3, pod.x))
+    if (pad.kind === 'seed' && !pad.planted) {
+      this.streak = nextStreak(this.streak, rank)
+      this.bestStreak = Math.max(this.bestStreak, this.streak)
+      const mult = streakMultiplier(this.streak)
+      const points = Math.round(50 * pad.mult * RANK_PAY[rank] * mult) * 10
+      pad.planted = true
+      this.planted++
+      // A planting breathes a little sunlight back into the tank.
+      pod.sun = Math.min(
+        this.sunMax,
+        pod.sun + Math.round(this.sunMax * PLANT_SUN),
+      )
+      pod.rest = SETTLE_TICKS - PLANT_SETTLE
+      this.addScore(points, cx, pad.y - 22, RAMPS.gold[3])
+      const colour =
+        BLOOM_COLOURS[Math.floor(this.fxRng() * BLOOM_COLOURS.length)]!
+      this.blooms.push({ x: cx, y: pad.y, colour, age: 0 })
+      this.fx.burst(cx, pad.y - 8, this.fxRng, {
+        count: 14,
+        colours: FLOWER_SPARKS[colour],
+        speed: 1.8,
+      })
+      this.banner = {
+        text: `${RANK_NAMES[rank]} LANDING`,
+        sub:
+          `${pad.mult > 1 ? `X${pad.mult} BED  ` : ''}${points}` +
+          (this.streak > 1 ? `  STREAK X${mult.toFixed(1)}` : ''),
+        ticks: 110,
+      }
+      this.sound.play('level')
+      if (this.planted >= this.mission.seeds) this.clearMission()
+      return
+    }
+    // Any other pad: a rest stop. Sunflowers refuel; the shed and planted beds just hold the pod.
+    this.floaters.push({
+      x: cx,
+      y: pad.y - 18,
+      text: RANK_NAMES[rank],
+      life: 50,
+      color: rank === 'feather' ? RAMPS.teal[3] : RAMPS.cream[3],
     })
-    this.plant = PLANT_TICKS
-    this.banner = {
-      text: bumpy
-        ? 'BUMPY LANDING'
-        : pad.mult > 1
-          ? `PLANTED  X${pad.mult}`
-          : 'PLANTED!',
-      sub: `${points} + SUNLIGHT ${fuelBonus}`,
-      ticks: PLANT_TICKS,
-    }
-    this.sound.play('level')
+    if (pad.kind === 'sun') {
+      this.banner = {
+        text: 'SUNFLOWER',
+        sub: 'REFUELLING: PUFF TO LIFT OFF',
+        ticks: 90,
+      }
+      this.sound.play('pickup')
+    } else this.sound.play('blip')
   }
 
-  private crash(why: string) {
+  private crash(pod: Pod, why: string) {
     this.lives--
-    // The scattered seeds still sprout a few wildflowers.
-    this.addScore(BONK_POINTS * this.level, this.x, this.y - 12)
-    this.bonk = BONK_TICKS
-    this.bonkAt = { x: this.x, y: this.y }
-    this.burst(this.x, this.y, 22, '#a3e635')
-    this.burst(this.x, this.y, 10, '#fde047')
+    this.streak = 0
+    this.lastRank = 'bonk'
+    this.dropHooked(pod)
+    this.addScore(BONK_POINTS * this.level, pod.x, pod.y - 12, RAMPS.leaf[3])
+    this.phase = 'bonk'
+    this.phaseTicks = 0
+    this.bonkAt = { x: pod.x, y: pod.y }
+    this.chips(pod.x, pod.y, 22, '#a3e635')
+    this.chips(pod.x, pod.y, 10, '#fde047')
+    pod.puffing = false
     this.sound.play('die')
     this.banner = {
       text: 'BONK!',
@@ -478,25 +569,189 @@ class SeedLander implements ArcadeGameInstance {
     }
   }
 
-  // --- scoring and effects ----------------------------------------------------
-
-  private addScore(points: number, x: number, y: number) {
-    if (this.demo || points <= 0) return
-    this.score += points
-    this.floaters.push({ x, y, text: String(points), life: 50 })
+  /** After a bonk: a spare pod drops in at the start (or the run ends). */
+  private afterBonk() {
+    if (this.lives <= 0) {
+      this.endRun()
+      return
+    }
+    const old = this.pod
+    const pod = newPod(
+      0,
+      this.mission.start.x,
+      this.mission.start.y,
+      Math.max(old.sun, Math.round(this.sunMax * SPARE_SUN)),
+    )
+    pod.hops = old.hops
+    this.pods[0] = pod
+    this.phase = 'fly'
+    this.phaseTicks = 0
   }
 
-  private burst(x: number, y: number, count: number, color: string) {
+  /** The leaf-cap parachute: drift down, then the mission is tried again with a spare pod. */
+  private updateDry() {
+    if (++this.phaseTicks < DRY_TICKS) return
+    this.lives--
+    if (this.lives <= 0) {
+      this.endRun()
+      return
+    }
+    this.retryMission()
+  }
+
+  private endRun() {
+    this.over = true
+    this.banner = { text: 'OUT OF PODS', sub: 'GAME OVER', ticks: 9999 }
+  }
+
+  private clearMission() {
+    this.phase = 'clear'
+    this.phaseTicks = 0
+    this.hillsCleared++
+    const pod = this.pod
+    const sunUsed = this.sunMax - pod.sun
+    const bonus = Math.round((pod.sun / this.sunMax) * 100) * 10
+    const thrifty = sunUsed <= this.mission.par.sun * this.flightTier.sun
+    const swift = this.missionTicks <= this.mission.par.ticks
+    const medals = (thrifty ? 1 : 0) + (swift ? 1 : 0)
+    const medalPoints = medals * 250 * Math.min(10, this.level)
+    this.tally = [
+      { label: 'SUN LEFT', value: `${bonus}` },
+      {
+        label: thrifty ? 'THRIFTY' : 'SUN OVER PAR',
+        value: thrifty ? `${250 * Math.min(10, this.level)}` : '-',
+      },
+      {
+        label: swift ? 'SWIFT' : 'TIME OVER PAR',
+        value: swift ? `${250 * Math.min(10, this.level)}` : '-',
+      },
+    ]
+    this.addScore(bonus + medalPoints, pod.x, pod.y - 34, RAMPS.gold[4])
+    if (this.hillsCleared % EXTRA_POD_HILLS === 0 && this.lives < MAX_PODS) {
+      this.lives++
+      this.tally.push({ label: 'SPARE POD', value: '+1' })
+      this.sound.play('extra')
+    } else this.sound.play('level')
+    this.banner = null
+  }
+
+  private nextHill() {
+    this.startHill(this.level + 1)
+  }
+
+  // --- the tether winch -------------------------------------------------------------------
+
+  private workWinch(pod: Pod, input: InputFrame) {
+    const hooked = this.cargo.find((c) => c.hookedBy === pod.seat)
+    if (hooked) {
+      this.hookTicks++
+      if (input.pressed.down && this.hookTicks > 20) {
+        hooked.hookedBy = -1
+        this.sound.play('blip')
+      }
+      return
+    }
+    if (!input.held.down || pod.chute) return
+    const crate = this.cargo.find((c) => canHook(pod, c, WINCH.line))
+    if (!crate) return
+    crate.hookedBy = pod.seat
+    crate.resting = false
+    this.hookTicks = 0
+    this.sound.play('pickup')
+    this.floaters.push({
+      x: crate.x,
+      y: crate.y - 14,
+      text: 'HOOKED',
+      life: 40,
+      color: RAMPS.cream[3],
+    })
+  }
+
+  private dropHooked(pod: Pod) {
+    for (const c of this.cargo) if (c.hookedBy === pod.seat) c.hookedBy = -1
+  }
+
+  private updateCargo() {
+    for (const c of this.cargo) {
+      if (c.delivered) continue
+      const pod = this.pods.find((p) => p.seat === c.hookedBy)
+      if (pod && !pod.restOn)
+        swingCargo(pod, c, WINCH.line, this.gravity, this.wind)
+      else if (pod) {
+        c.resting = false
+        dropCargo(c, this.gravity)
+      } else dropCargo(c, this.gravity)
+      c.x = Math.max(c.r, Math.min(this.terrain.w - c.r, c.x))
+      const result = groundCargo(c, this.terrain.floorAt(c.x, c.y))
+      if (result === 'bump') {
+        this.sound.play('pop')
+        this.floaters.push({
+          x: c.x,
+          y: c.y - 14,
+          text: c.seedlings > 0 ? 'BUMP! -1 SEEDLING' : 'BUMP!',
+          life: 50,
+          color: RAMPS.rust[3],
+        })
+      }
+      if (result === 'land') this.checkDelivery(c)
+    }
+  }
+
+  private checkDelivery(c: Cargo) {
+    const pad = this.terrain.pad(this.cargoTo.get(c.id) ?? '')
+    if (!pad || c.x < pad.x0 || c.x > pad.x1 || Math.abs(c.y + c.r - pad.y) > 3)
+      return
+    c.delivered = true
+    c.hookedBy = -1
+    c.resting = true
+    const points =
+      DELIVERY_POINTS * Math.max(1, c.seedlings) * (c.seedlings > 0 ? 1 : 0) +
+      100
+    this.addScore(points, c.x, c.y - 18, RAMPS.gold[3])
+    this.fx.burst(c.x, c.y - 6, this.fxRng, { count: 12 })
+    this.banner = {
+      text: 'DELIVERED!',
+      sub: `${c.seedlings} SEEDLINGS  ${points}`,
+      ticks: 100,
+    }
+    this.sound.play('extra')
+  }
+
+  // --- scoring and effects ---------------------------------------------------------------
+
+  private addScore(points: number, x: number, y: number, color: string) {
+    if (this.demo || points <= 0) return
+    this.score += points
+    this.floaters.push({ x, y, text: String(points), life: 50, color })
+  }
+
+  private puffBurst(pod: Pod, count: number, speed: number) {
     for (let i = 0; i < count; i++) {
-      const a = this.rng() * Math.PI * 2
-      const s = 0.4 + this.rng() * 1.6
+      const a = pod.tilt + Math.PI / 2 + (this.fxRng() - 0.5) * 0.9
+      this.particles.push({
+        x: pod.x - Math.sin(pod.tilt) * POD_FEET,
+        y: pod.y + Math.cos(pod.tilt) * POD_FEET,
+        vx: Math.cos(a) * 0.3 * speed - Math.sin(pod.tilt) * 0.8,
+        vy: Math.sin(a) * 0.3 * speed + Math.cos(pod.tilt) * 0.8,
+        life: 18,
+        color: '#e0f2fe',
+        kind: 'puff',
+      })
+    }
+  }
+
+  private chips(x: number, y: number, count: number, color: string) {
+    for (let i = 0; i < count; i++) {
+      const a = this.fxRng() * Math.PI * 2
+      const s = 0.4 + this.fxRng() * 1.6
       this.particles.push({
         x,
         y,
         vx: Math.cos(a) * s,
         vy: Math.sin(a) * s - 0.6,
-        life: 24 + Math.floor(this.rng() * 18),
+        life: 24 + Math.floor(this.fxRng() * 18),
         color,
+        kind: 'chip',
       })
     }
   }
@@ -505,32 +760,94 @@ class SeedLander implements ArcadeGameInstance {
     for (const p of this.particles) {
       p.x += p.vx
       p.y += p.vy
-      p.vy += 0.03
+      if (p.kind === 'chip') p.vy += 0.03
       p.life--
     }
     this.particles = this.particles.filter((p) => p.life > 0)
+    // Gust streamers: ribbons of air blowing across the view, as many as the wind is strong.
+    if (
+      this.mission &&
+      Math.abs(this.wind) > 0.0015 &&
+      this.tick % Math.max(3, Math.round(0.03 / Math.abs(this.wind))) === 0
+    ) {
+      const v = this.camera.view()
+      const fromLeft = this.wind > 0
+      this.particles.push({
+        x: fromLeft ? v.x0 - 10 : v.x1 + 10,
+        y: v.y0 + this.fxRng() * (v.y1 - v.y0),
+        vx: this.wind * 260,
+        vy: (this.fxRng() - 0.5) * 0.2,
+        life: Math.round(
+          (v.x1 - v.x0 + 40) / Math.max(0.4, Math.abs(this.wind * 260)),
+        ),
+        color: RAMPS.cream[4],
+        kind: 'streamer',
+      })
+    }
     for (const f of this.floaters) {
       f.y -= 0.3
       f.life--
     }
     this.floaters = this.floaters.filter((f) => f.life > 0)
-    // A planted seed keeps twinkling while it grows.
-    const seed = this.planted[this.planted.length - 1]
-    if (seed && this.plant > 0 && this.tick % 9 === 0) {
-      this.fx.burst(
-        seed.x + (this.fxRng() - 0.5) * 18,
-        seed.y - 6 - this.fxRng() * 14,
-        this.fxRng,
-        { count: 2, speed: 0.5, colours: FLOWER_SPARKS[seed.color] },
-      )
+    for (const b of this.blooms) {
+      b.age++
+      if (b.age < 140 && this.tick % 9 === 0)
+        this.fx.burst(
+          b.x + (this.fxRng() - 0.5) * 18,
+          b.y - 6 - this.fxRng() * 14,
+          this.fxRng,
+          {
+            count: 2,
+            speed: 0.5,
+            colours: FLOWER_SPARKS[b.colour],
+          },
+        )
     }
     this.fx.update()
   }
 
-  // --- attract-mode pilot -----------------------------------------------------
+  private followCamera() {
+    const pod = this.pod
+    const floor = this.terrain.floorAt(pod.x, pod.y)
+    const altitude = floor - (pod.y + POD_FEET)
+    // Lean the view down toward the ground under the pod, keeping the pod well inside it.
+    const halfH = VIEW_H / 2 / this.camera.zoom
+    const y = Math.max(pod.y, Math.min(floor - halfH + 30, pod.y + halfH - 30))
+    this.camera.follow(
+      pod.x,
+      y,
+      altitude,
+      this.terrain.w,
+      this.terrain.h,
+      pod.vx * 30,
+    )
+  }
 
-  /** Picks a pad, drifts over it, then lets the pod down gently and upright. */
-  private demoInput(): InputFrame {
+  // --- attract-mode pilot ----------------------------------------------------------------
+
+  /** The pad the pilot heads for: the sunflower when low, else the best unplanted bed. */
+  private pilotTarget(): Pad | undefined {
+    const pod = this.pod
+    const pads = this.terrain.pads
+    if (pod.restOn) {
+      const on = this.terrain.pad(pod.restOn)
+      if (on?.kind === 'sun' && pod.sun < this.sunMax * 0.95) return on
+    }
+    const beds = pads.filter((p) => p.kind === 'seed' && !p.planted)
+    const suns = pads.filter((p) => p.kind === 'sun')
+    const far = (p: Pad) => Math.abs((p.x0 + p.x1) / 2 - pod.x)
+    const bed = [...beds].sort(
+      (a, b) => far(a) / (4 + a.mult) - far(b) / (4 + b.mult),
+    )[0]
+    const sun = [...suns].sort((a, b) => far(a) - far(b))[0]
+    // Refuel first when the bed is further than the tank comfortably reaches.
+    const need = (bed ? far(bed) : 0) * 0.6 + 280
+    if (sun && (pod.sun < need || pod.sun < this.sunMax * 0.3)) return sun
+    return bed
+  }
+
+  /** Picks a pad, climbs over the hills between, drifts over it, then sets down gently and upright. */
+  demoInput(): InputFrame {
     const held = {
       up: false,
       down: false,
@@ -541,42 +858,131 @@ class SeedLander implements ArcadeGameInstance {
       start: false,
     }
     const frame: InputFrame = { held, pressed: { ...held } }
-    const pad = [...this.pads].sort(
-      (a, b) =>
-        Math.abs((a.x0 + a.x1) / 2 - this.x) / a.mult -
-        Math.abs((b.x0 + b.x1) / 2 - this.x) / b.mult,
-    )[0]
+    const pod = this.pod
+    if (!pod || this.phase !== 'fly') return frame
+    const pad = this.pilotTarget()
     if (!pad) return frame
-    const dx = (pad.x0 + pad.x1) / 2 - this.x
-    const height = pad.y - (this.y + POD_FEET)
-    // Lean toward the speed we want, and stand up straight for the last bit.
-    const wantVx = Math.max(-1.2, Math.min(1.2, dx / 50))
-    let wantTilt = Math.max(-0.5, Math.min(0.5, (wantVx - this.vx) * 1.4))
-    if (height < 18 && Math.abs(dx) < (pad.x1 - pad.x0) / 2) wantTilt = 0
-    if (wantTilt < this.tilt - 0.03) held.left = true
-    if (wantTilt > this.tilt + 0.03) held.right = true
-    // Fall no faster than the height allows; keep clear of hills on the way.
-    const wantVy = Math.min(1.4, 0.25 + Math.max(0, height) / 90)
-    const ahead = this.groundAt(this.x + this.vx * 30) - (this.y + POD_FEET)
-    const tooLow = ahead < 22 && Math.abs(dx) > (pad.x1 - pad.x0) / 2
+    if (pod.restOn) {
+      if (pod.restOn === pad.id) return frame
+      held.a = true
+      return frame
+    }
+    const cx = (pad.x0 + pad.x1) / 2
+    const dx = cx - pod.x
+    if (pod.chute) {
+      // Under the leaf cap: drift toward the sunflower.
+      held.left = dx < -2
+      held.right = dx > 2
+      return frame
+    }
+    const halfPad = (pad.x1 - pad.x0) / 2
+    const over = Math.abs(dx) < Math.max(1.5, halfPad - 3)
+    const feet = pod.y + POD_FEET
+    const height = pad.y - feet
+    // Clear every hill between here and the pad (looking a little past the pod's drift).
+    const span = this.terrain
+    const reach = pod.x + Math.sign(dx) * Math.min(Math.abs(dx), 120)
+    const ridge = highestBetween(
+      (x) => span.floorAt(x, pod.y),
+      pod.x - Math.sign(dx) * 8,
+      reach,
+    )
+    const cruise = Math.min(ridge, pad.y) - 26 - Math.abs(pod.vx) * 12
+    const altitude = span.floorAt(pod.x, pod.y) - feet
+    const near = Math.abs(dx) < 26
+    // Never faster across than the pod can stop in before the bed.
+    let wantVx = Math.sign(dx) * Math.min(1.3, Math.sqrt(0.016 * Math.abs(dx)))
+    // Close in, aim where the pod will be in a moment, not where it is (no overshooting).
+    if (near) wantVx = Math.max(-0.6, Math.min(0.6, (dx - pod.vx * 18) / 30))
+    // Well under the hills ahead: climb before crossing, don't charge at them.
+    if (!near && feet > cruise + 8)
+      wantVx = Math.max(-0.25, Math.min(0.25, wantVx))
+    let wantVy: number
+    if (!near && feet > cruise) wantVy = -0.45
+    else if (!near) wantVy = feet < cruise - 40 ? 0.5 : 0.05
+    else if (!over) {
+      // Close, but not yet over the bed: hold clear of its rims until the pod is above it.
+      const rim = highestBetween(
+        (x) => span.floorAt(x, pod.y),
+        pod.x - Math.sign(dx) * 7,
+        cx,
+      )
+      wantVy = feet > rim - 12 ? -0.3 : feet < rim - 30 ? 0.35 : 0
+    } else if (Math.abs(pod.vx) > 0.12 && height < 40) {
+      // Over the bed but still sliding: hold height until the slide is gone.
+      wantVy = 0
+    } else wantVy = Math.min(1.1, 0.16 + Math.max(0, height) / 95)
+    const authority = near ? 0.3 : 0.5
+    let wantTilt = Math.max(
+      -authority,
+      Math.min(authority, (wantVx - pod.vx) * 1.5),
+    )
+    // Low over the bed (or just beside it): stay nearly upright and hover across.
+    if (height < 24 && Math.abs(dx) < halfPad + 12) {
+      wantTilt = Math.max(-0.12, Math.min(0.12, (wantVx - pod.vx) * 0.8))
+      if (over) wantTilt = Math.max(-0.07, Math.min(0.07, wantTilt))
+      else wantVy = Math.min(wantVy, -0.05)
+    }
+    // Hemmed in by close walls (climbing out of a valley): straight up first.
+    const wall = highestBetween(
+      (x) => span.floorAt(x, pod.y),
+      pod.x - 16,
+      pod.x + 16,
+    )
+    if (!near && feet > wall - 6) {
+      wantTilt = Math.max(-0.15, Math.min(0.15, -pod.vx * 1.5))
+      wantVy = Math.min(wantVy, -0.4)
+    }
+    if (wantTilt < pod.tilt - 0.03) held.left = true
+    if (wantTilt > pod.tilt + 0.03) held.right = true
+    const steer = wantVx - pod.vx
+    const leaning =
+      Math.abs(pod.tilt) > 0.2 && Math.sign(pod.tilt) === Math.sign(steer)
     if (
-      this.vy > wantVy ||
-      tooLow ||
-      (Math.abs(this.tilt) > 0.25 && this.vy > 0.2)
+      pod.vy > wantVy ||
+      (Math.abs(pod.tilt) > 0.3 && pod.vy > 0.15 && altitude < 50) ||
+      (leaning && Math.abs(steer) > 0.12 && pod.vy > wantVy - 0.05)
     )
       held.a = true
+    // The hop, when the ground comes up much too fast.
+    const ahead = span.floorAt(pod.x + pod.vx * 20, pod.y) - feet
+    if (!over && ahead < 10 && pod.vy > 0.6 && canHop(pod, this.flightTier)) {
+      held.b = true
+      frame.pressed.b = true
+    }
     return frame
   }
 
-  // --- render -------------------------------------------------------------------
+  // --- render ----------------------------------------------------------------------------
 
   render(g: CanvasRenderingContext2D) {
-    this.renderSky(g)
-    this.renderHill(g)
-    this.renderPads(g)
+    const theme = this.mission.theme
+    paintSky(g, theme, this.tick, this.camera.x, this.camera.y, this.wind)
+    g.save()
+    g.beginPath()
+    g.rect(0, HUD_H, W, H - HUD_H)
+    g.clip()
+    this.camera.apply(g)
+    this.renderTerrain(g)
+    const ground = (x: number) => this.terrain.groundAt(x)
+    for (const v of this.vents) drawVent(g, v, ground(v.x), this.tick)
+    this.terrain.pads.forEach((p, i) =>
+      drawPadLive(g, p, this.tick, i, p.kind === 'seed'),
+    )
+    for (const b of this.blooms)
+      drawBloom(g, b.x, b.y, b.colour, b.age, this.tick)
+    if (this.flightTier.arc && this.phase === 'fly' && !this.pod.restOn)
+      this.renderArc(g)
+    for (const c of this.cargo)
+      drawCargo(
+        g,
+        c,
+        this.pods.find((p) => p.seat === c.hookedBy) ?? null,
+        this.tick,
+      )
     this.renderParticles(g)
-    if (this.bonk > BONK_TICKS - 24) {
-      const t = (this.bonk - (BONK_TICKS - 24)) / 24
+    if (this.phase === 'bonk' && this.phaseTicks < 24) {
+      const t = 1 - this.phaseTicks / 24
       glow(
         g,
         this.bonkAt.x,
@@ -586,538 +992,70 @@ class SeedLander implements ArcadeGameInstance {
         0.7 * t,
       )
     }
-    if (this.bonk === 0 && !this.over) this.renderPod(g)
-    // The seed sprouts in front of the pod that planted it.
-    for (const p of this.planted) this.renderBloom(g, p.x, p.y, p.color)
+    if (this.phase !== 'bonk' && !this.over)
+      for (const pod of this.pods) {
+        const floor = this.terrain.floorAt(pod.x, pod.y)
+        const near = Math.max(0, 1 - (floor - (pod.y + POD_FEET)) / 110)
+        if (near > 0) {
+          g.fillStyle = 'rgba(20, 10, 38, 0.35)'
+          g.beginPath()
+          g.ellipse(pod.x, floor + 1, 3 + near * 4, 1 + near, 0, 0, Math.PI * 2)
+          g.fill()
+        }
+        drawPod(g, pod, this.tick)
+      }
     this.fx.render(g)
     for (const f of this.floaters)
       drawText(g, f.text, f.x, f.y, {
         align: 'center',
-        color: RAMPS.gold[3],
+        color: f.color,
         outline: INK,
       })
-    vignette(g, W, H, 0.28)
-    this.renderHud(g)
-  }
-
-  private renderSky(g: CanvasRenderingContext2D) {
-    // The banded HDMA sky, painted once; the stars twinkle live over it.
-    cachedLayer(g, 'seed-lander-sky', W, H, (k) => {
-      bandedGradient(k, 0, 0, W, H, SKY_BANDS, 4)
-    })
-    drawStars(g, SKY_STARS, this.tick, STAR_RAMP)
-    // A ringed planet, the sun and two ridges of hills, one backdrop per hill (cycling).
-    const variant = (this.level - 1) % 4
-    cachedLayer(g, `seed-lander-hills-${variant}`, W, H, (k) => {
-      this.paintPlanet(k, 60, 62, 12)
-      shadedOrb(k, W - 46, HUD_H + 34, 14, RAMPS.gold, { outline: null })
-      // Each ridge twice: a sunlit band first, then its body two pixels lower.
-      drawRidge(k, FAR_RIDGES[variant]!, {
-        base: 152,
-        bottom: H,
-        width: W,
-        step: 4,
-        fill: mix(FAR_FILL, RAMPS.pink[2], 0.35),
-        rim: RAMPS.pink[3],
-      })
-      drawRidge(k, FAR_RIDGES[variant]!, {
-        base: 154,
-        bottom: H,
-        width: W,
-        step: 4,
-        fill: FAR_FILL,
-      })
-      // Morning haze pooled at the foot of the far peaks.
-      k.fillStyle = rgba(RAMPS.pink[4], 0.12)
-      for (let i = 0; i < 4; i++) k.fillRect(0, 138 + i * 4, W, 30 - i * 4)
-      drawRidge(k, MID_RIDGES[variant]!, {
-        base: 176,
-        bottom: H,
-        width: W,
-        step: 3,
-        fill: mix(MID_FILL, RAMPS.leaf[2], 0.5),
-        rim: mix(RAMPS.leaf[3], RAMPS.pink[3], 0.4),
-      })
-      drawRidge(k, MID_RIDGES[variant]!, {
-        base: 178,
-        bottom: H,
-        width: W,
-        step: 3,
-        fill: MID_FILL,
-      })
-      // Shadow still pooled in the valleys between the downs.
-      for (let y = 186, i = 0; y < H; y += 4, i++) {
-        k.fillStyle = rgba(RAMPS.night[1], Math.min(0.55, i * 0.05))
-        k.fillRect(0, y, W, 4)
-      }
-    })
-    // The sun breathes light over the sky (colour math).
-    glow(
-      g,
-      W - 46,
-      HUD_H + 34,
-      40 + 3 * Math.sin(this.tick / 30),
-      RAMPS.gold[3],
-      0.42,
-    )
-    // Pink-lit clouds drift with the wind.
-    for (let i = 0; i < 4; i++) {
-      const cx =
-        ((((i * 97 + this.tick * (0.1 + this.wind * 40)) % (W + 60)) + W + 60) %
-          (W + 60)) -
-        30
-      drawCloud(g, cx, HUD_H + 18 + i * 13, CLOUD_SIZES[i]!, CLOUD_RAMP)
-    }
-  }
-
-  private paintPlanet(
-    k: CanvasRenderingContext2D,
-    x: number,
-    y: number,
-    r: number,
-  ) {
-    const ring = (from: number, to: number) => {
-      k.lineWidth = 3
-      k.strokeStyle = INK
-      k.beginPath()
-      k.ellipse(x, y, r * 1.9, r * 0.45, -0.3, from, to)
-      k.stroke()
-      k.lineWidth = 1.5
-      k.strokeStyle = RAMPS.gold[3]
-      k.beginPath()
-      k.ellipse(x, y, r * 1.9, r * 0.45, -0.3, from, to)
-      k.stroke()
-    }
-    ring(Math.PI, Math.PI * 2)
-    shadedOrb(k, x, y, r, RAMPS.teal)
-    // The night side, away from the sun.
-    k.save()
-    k.beginPath()
-    k.arc(x, y, r, 0, Math.PI * 2)
-    k.clip()
-    k.fillStyle = rgba(RAMPS.night[1], 0.45)
-    k.beginPath()
-    k.arc(x - r * 0.55, y + r * 0.35, r * 1.05, 0, Math.PI * 2)
-    k.rect(x - r - 2, y - r - 2, r * 2 + 4, r * 2 + 4)
-    k.fill('evenodd')
-    k.restore()
-    ring(0, Math.PI)
-    shadedOrb(k, x + 30, y - 22, 3, RAMPS.purple)
-  }
-
-  private renderHill(g: CanvasRenderingContext2D) {
-    // The terrain only changes with the hill, so it is painted once per hillside.
-    if (typeof document === 'undefined') {
-      this.paintHill(g)
-      return
-    }
-    if (this.hillArtFor !== this.ground) {
-      this.hillArtFor = this.ground
-      const canvas = document.createElement('canvas')
-      canvas.width = W
-      canvas.height = H
-      const k = canvas.getContext('2d')
-      if (k) this.paintHill(k)
-      this.hillArt = k ? canvas : null
-    }
-    if (!this.hillArt) {
-      this.paintHill(g)
-      return
-    }
-    g.save()
-    g.imageSmoothingEnabled = false
-    g.drawImage(this.hillArt, 0, 0)
     g.restore()
-  }
-
-  private paintHill(k: CanvasRenderingContext2D) {
-    // Column by column: a turf rim lit by which way the slope faces, then soil in bands,
-    // dithered where one band gives way to the next.
-    for (let x = 0; x < W; x++) {
-      const top = Math.round(this.groundAt(x + 0.5))
-      const slope = this.groundAt(x + 2.5) - this.groundAt(x - 1.5)
-      const turf = slope < -1 ? TURF.lit : slope > 1 ? TURF.shade : TURF.flat
-      turf.forEach((colour, row) => {
-        k.fillStyle = colour
-        k.fillRect(x, top + row, 1, 1)
+    this.renderPointers(g)
+    vignette(g, W, H, 0.24)
+    const pod = this.pod
+    drawHud(g, {
+      score: this.score,
+      hi: Math.max(this.hiScore, this.score),
+      sun: pod.sun / Math.max(1, this.sunMax),
+      wind: this.wind,
+      vx: pod.vx,
+      vy: pod.vy,
+      tilt: pod.tilt,
+      lives: this.lives,
+      label: `HILL ${this.level}`,
+      planted: this.planted,
+      seeds: this.mission.seeds,
+      streak: this.streak,
+      tier: this.flightTier,
+      hopsLeft: Math.max(0, this.flightTier.hops - pod.hops),
+      zoom: this.camera.zoom,
+      map: {
+        terrain: this.terrain,
+        pods: this.pods,
+        cargo: this.cargo,
+        view: this.camera.view(),
+      },
+      tick: this.tick,
+    })
+    if (this.card > 0 && !this.menu && this.phase === 'fly')
+      drawMissionCard(g, {
+        name: this.mission.name,
+        brief: this.mission.brief,
+        unlocked: (this.mission.unlocked ?? [])
+          .filter((h) => h !== 'gust' || this.level > 1)
+          .map((h) => `NEW: ${HAZARD_NAMES[h]}`),
+        t: CARD_TICKS - this.card,
+        left: this.card,
       })
-      SOIL.forEach(([from, colour], i) => {
-        const to = SOIL[i + 1]?.[0] ?? H
-        if (top + from >= H) return
-        k.fillStyle = colour
-        k.fillRect(x, top + from, 1, to - from)
-        if (i > 1 && x % 2) {
-          k.fillStyle = SOIL[i - 1]![1]
-          k.fillRect(x, top + from, 1, 1)
-        }
+    if (this.phase === 'clear')
+      drawTally(g, {
+        title: `${this.mission.name} PLANTED`,
+        lines: this.tally,
+        t: this.phaseTicks,
       })
-    }
-    // Pebbles in the soil, grass tufts and a few wildflowers on top (cosmetic dice).
-    const rand = backdropRng(31 + this.level * 13)
-    const onPad = (x: number) =>
-      this.pads.some((p) => x >= p.x0 - 2 && x <= p.x1 + 2)
-    for (let i = 0; i < 70; i++) {
-      const x = Math.floor(rand() * W)
-      const y = Math.round(this.groundAt(x) + 12 + rand() * 70)
-      if (y >= H - 2) continue
-      k.fillStyle = RAMPS.earth[3]
-      k.fillRect(x, y, 2, 1)
-      k.fillStyle = RAMPS.earth[4]
-      k.fillRect(x, y, 1, 1)
-      k.fillStyle = RAMPS.earth[0]
-      k.fillRect(x, y + 1, 2, 1)
-    }
-    const blossoms = [RAMPS.pink[3], RAMPS.gold[4], RAMPS.purple[3]]
-    for (let i = 0; i < 46; i++) {
-      const x = Math.floor(rand() * W)
-      const flower = rand() < 0.25
-      if (onPad(x)) continue
-      const top = Math.round(this.groundAt(x + 0.5))
-      k.fillStyle = RAMPS.leaf[2]
-      k.fillRect(x, top - 1, 1, 1)
-      if (flower) {
-        k.fillRect(x, top - 2, 1, 1)
-        k.fillStyle = blossoms[Math.floor(rand() * blossoms.length)]!
-        k.fillRect(x - 1, top - 3, 3, 1)
-        k.fillRect(x, top - 4, 1, 3)
-        k.fillStyle = RAMPS.gold[4]
-        k.fillRect(x, top - 3, 1, 1)
-      } else {
-        k.fillStyle = RAMPS.leaf[4]
-        k.fillRect(x - 1, top - 2, 1, 1)
-        k.fillRect(x + 1, top - 3, 1, 1)
-        k.fillStyle = RAMPS.leaf[3]
-        k.fillRect(x + 1, top - 2, 1, 1)
-      }
-    }
-    // The garden pads: tilled soil in a bevelled wooden planter, a post at each end.
-    for (const pad of this.pads) {
-      const w = pad.x1 - pad.x0
-      const y = pad.y
-      k.fillStyle = INK
-      k.fillRect(pad.x0 - 1, y - 2, w + 2, 10)
-      k.fillStyle = RAMPS.earth[1]
-      k.fillRect(pad.x0, y - 1, w, 2)
-      for (let x = pad.x0 + 1; x < pad.x1 - 1; x += 3) {
-        k.fillStyle = RAMPS.earth[3]
-        k.fillRect(x, y - 1, 1, 1)
-        k.fillStyle = RAMPS.earth[0]
-        k.fillRect(x + 1, y, 1, 1)
-      }
-      bevel(k, pad.x0, y + 1, w, 6, WOOD, { depth: 1, outline: null })
-      k.fillStyle = WOOD[1]
-      for (let x = pad.x0 + 7; x < pad.x1 - 3; x += 8)
-        k.fillRect(x, y + 2, 1, 4)
-      for (const px of [pad.x0 - 1, pad.x1 - 1])
-        bevel(k, px, y - 7, 2, 7, RAMPS.steel, { depth: 1 })
-    }
-  }
-
-  private renderPads(g: CanvasRenderingContext2D) {
-    this.pads.forEach((pad, i) => {
-      const ramp = PAD_RAMP[pad.mult] ?? RAMPS.teal
-      // Beacon lamps on the posts, pulsing; a brighter pulse means a bigger bloom.
-      const pulse = 0.5 + 0.5 * Math.sin(this.tick / 9 + i * 2.1)
-      for (const px of [pad.x0, pad.x1]) {
-        const bx = px
-        const by = pad.y - 9
-        glow(g, bx, by, 7 + pulse * 5, ramp[3], 0.35 + pulse * 0.35)
-        g.fillStyle = INK
-        g.fillRect(bx - 2, by - 2, 4, 4)
-        g.fillStyle = pulse > 0.5 ? ramp[3] : ramp[2]
-        g.fillRect(bx - 1, by - 1, 2, 2)
-        g.fillStyle = ramp[4]
-        g.fillRect(bx - 1, by - 1, 1, 1)
-      }
-      if (pad.mult > 1)
-        drawText(
-          g,
-          `X${pad.mult}`,
-          (pad.x0 + pad.x1) / 2,
-          Math.min(pad.y + 10, H - 9),
-          { align: 'center', color: ramp[3], outline: INK },
-        )
-    })
-  }
-
-  private renderBloom(
-    g: CanvasRenderingContext2D,
-    x: number,
-    y: number,
-    color: string,
-  ) {
-    const art = FLOWERS[color] ?? FLOWERS['#f9a8d4']!
-    // The newest seed grows while the hill celebrates; earlier ones stand in full bloom.
-    const latest = this.planted[this.planted.length - 1]
-    const age =
-      latest && latest.x === x && this.plant > 0
-        ? PLANT_TICKS - this.plant
-        : PLANT_TICKS
-    glow(g, x, y - 8, 16, RAMPS.gold[3], 0.3 + 0.1 * Math.sin(this.tick / 7))
-    dropShadow(g, x + 1, y, 5, 1.5, 0.35)
-    const sprite =
-      age < 24
-        ? art.sprout
-        : age < 52
-          ? art.bud
-          : art.bloom[Math.floor(this.tick / 20) % 2]!
-    drawSprite(g, sprite, x, y, { anchor: 'feet' })
-  }
-
-  private renderParticles(g: CanvasRenderingContext2D) {
-    for (const p of this.particles) {
-      const x = Math.round(p.x)
-      const y = Math.round(p.y)
-      if (p.color === PUFF_COLOR) {
-        // A puff of air: a little cloud that swells and fades.
-        const r = 1 + Math.floor((18 - p.life) / 6)
-        g.globalAlpha = Math.max(0, (p.life / 18) * 0.7)
-        g.fillStyle = RAMPS.cream[2]
-        g.fillRect(x - r, y - r + 1, r * 2 + 1, r * 2 - 1)
-        g.fillRect(x - r + 1, y - r, r * 2 - 1, r * 2 + 1)
-        g.fillStyle = RAMPS.cream[4]
-        g.fillRect(x - r + 1, y - r + 1, r * 2 - 2, r * 2 - 2)
-        continue
-      }
-      // Seeds and petals: outlined chips with a lit corner.
-      g.globalAlpha = Math.max(0, Math.min(1, p.life / 24))
-      g.fillStyle = INK
-      g.fillRect(x - 1, y - 1, 3, 3)
-      g.fillStyle = p.color
-      g.fillRect(x - 1, y - 1, 2, 2)
-      g.fillStyle = '#ffffff'
-      g.fillRect(x - 1, y - 1, 1, 1)
-    }
-    g.globalAlpha = 1
-  }
-
-  private renderPod(g: CanvasRenderingContext2D) {
-    // Once planted, the pod burrows into the soil (shrinking at its feet) for the sprout.
-    const sink =
-      this.plant > 0 ? Math.max(0, 1 - (PLANT_TICKS - this.plant) / 24) : 1
-    if (sink <= 0) return
-    // A shadow on the hill below, sharper and darker as the pod comes down.
-    const ground = this.groundAt(this.x)
-    const near = Math.max(0, 1 - (ground - (this.y + POD_FEET)) / 110) * sink
-    if (near > 0)
-      dropShadow(g, this.x, ground + 1, 3 + near * 4, 1 + near, 0.45 * near)
-    const flicker = Math.abs(Math.sin(this.tick * 0.9)) + (this.tick % 2) * 0.5
-    if (this.puffing) {
-      const jx = this.x - Math.sin(this.tilt) * (POD_FEET + 5)
-      const jy = this.y + Math.cos(this.tilt) * (POD_FEET + 5)
-      glow(g, jx, jy, 13 + flicker * 3, RAMPS.gold[3], 0.6)
-    }
-    // The pod leans, so it is shaded vector art (ramps + ink outline), never a rotated
-    // pixel sprite; its shading is turned against the lean so the light stays upper left.
-    const lx = -0.7 * Math.cos(this.tilt) - 0.7 * Math.sin(this.tilt)
-    const ly = 0.7 * Math.sin(this.tilt) - 0.7 * Math.cos(this.tilt)
-    const oval = (x: number, y: number, rx: number, ry: number) => {
-      g.beginPath()
-      g.ellipse(x, y, rx, ry, 0, 0, Math.PI * 2)
-      g.fill()
-    }
-    const dome = (x: number, y: number, rx: number, ry: number) => {
-      g.beginPath()
-      g.ellipse(x, y, rx, ry, 0, Math.PI, 0)
-      g.closePath()
-      g.fill()
-    }
-    g.save()
-    g.translate(this.x, this.y)
-    g.rotate(this.tilt)
-    g.translate(0, POD_FEET)
-    g.scale(sink, sink)
-    g.translate(0, -POD_FEET)
-    if (this.puffing) {
-      // A jet of sunlight: ember edge, gold heart, white-hot core.
-      const len = 9 + flicker * 4
-      const jet = (half: number, reach: number, colour: string) => {
-        g.fillStyle = colour
-        g.beginPath()
-        g.moveTo(-half, 6)
-        g.lineTo(half, 6)
-        g.lineTo(0, 6 + reach)
-        g.closePath()
-        g.fill()
-      }
-      g.save()
-      g.globalCompositeOperation = 'lighter'
-      jet(3.5, len, rgba(RAMPS.ember[2], 0.85))
-      g.restore()
-      jet(2.4, len * 0.72, RAMPS.gold[3])
-      jet(1.2, len * 0.4, '#ffffff')
-    }
-    // Legs and feet.
-    g.strokeStyle = INK
-    g.lineWidth = 2.2
-    g.beginPath()
-    g.moveTo(-3.5, 2)
-    g.lineTo(-6.5, 6)
-    g.moveTo(3.5, 2)
-    g.lineTo(6.5, 6)
-    g.stroke()
-    g.strokeStyle = RAMPS.steel[2]
-    g.lineWidth = 0.9
-    g.stroke()
-    g.fillStyle = INK
-    g.fillRect(-9, 5, 5, 2.2)
-    g.fillRect(4, 5, 5, 2.2)
-    g.fillStyle = RAMPS.steel[3]
-    g.fillRect(-8.5, 5.4, 4, 1)
-    g.fillRect(4.5, 5.4, 4, 1)
-    // The acorn body, shaded in bands toward the light.
-    g.fillStyle = INK
-    oval(0, 0.3, 6.2, 7.2)
-    g.fillStyle = RAMPS.earth[1]
-    oval(0, 0, 5.2, 6.2)
-    g.fillStyle = RAMPS.earth[2]
-    oval(lx * 0.9, ly * 0.9, 4.2, 5)
-    g.fillStyle = RAMPS.earth[3]
-    oval(lx * 2, ly * 2, 2.4, 3)
-    g.fillStyle = RAMPS.earth[4]
-    oval(lx * 3, ly * 3, 0.9, 1.3)
-    // A shy face.
-    g.fillStyle = INK
-    g.fillRect(-3, -1, 1.6, 2.2)
-    g.fillRect(1.4, -1, 1.6, 2.2)
-    g.fillStyle = '#ffffff'
-    g.fillRect(-3, -1, 0.8, 0.8)
-    g.fillRect(1.4, -1, 0.8, 0.8)
-    g.fillStyle = rgba(RAMPS.pink[2], 0.75)
-    g.fillRect(-4.6, 1.8, 1.8, 1)
-    g.fillRect(2.8, 1.8, 1.8, 1)
-    // The leafy cap: ink dome, shaded dome, a lip along its base and a sprig on top.
-    g.fillStyle = INK
-    dome(0, -3, 7.4, 5)
-    g.fillRect(-7.4, -3.4, 14.8, 2.2)
-    g.fillStyle = RAMPS.leaf[1]
-    dome(0, -3.2, 6.4, 4)
-    g.fillStyle = RAMPS.leaf[2]
-    dome(lx * 0.8, -3.4 + Math.min(0, ly) * 0.6, 5, 3.2)
-    g.fillStyle = RAMPS.leaf[3]
-    dome(lx * 1.8 - 1, -4, 2.4, 1.6)
-    g.fillStyle = RAMPS.leaf[1]
-    for (const [cx, cy] of [
-      [-3.5, -4.2],
-      [0, -5.6],
-      [3.2, -4.4],
-      [-1.6, -4.4],
-      [1.8, -4.2],
-    ] as const)
-      g.fillRect(cx, cy, 1, 1)
-    g.fillStyle = RAMPS.leaf[0]
-    g.fillRect(-6.4, -2.6, 12.8, 1)
-    g.fillStyle = RAMPS.leaf[3]
-    g.fillRect(-6, -3.4, 11, 0.8)
-    g.fillStyle = INK
-    g.fillRect(-1.6, -10, 3.2, 4)
-    g.beginPath()
-    g.ellipse(3, -9.5, 3, 1.8, -0.5, 0, Math.PI * 2)
-    g.fill()
-    g.fillStyle = RAMPS.leaf[2]
-    g.fillRect(-0.8, -9.2, 1.6, 3)
-    g.fillStyle = RAMPS.leaf[3]
-    g.beginPath()
-    g.ellipse(3, -9.5, 2, 1, -0.5, 0, Math.PI * 2)
-    g.fill()
-    g.restore()
-  }
-
-  private renderHud(g: CanvasRenderingContext2D) {
-    // One boxed cockpit strip across the top, split into bays by lit dividers.
-    hudPanel(g, 0, 0, W, HUD_H - 1)
-    for (const x of [77, 149, 213, 261]) {
-      g.fillStyle = INK
-      g.fillRect(x, 3, 1, HUD_H - 7)
-      g.fillStyle = RAMPS.purple[3]
-      g.fillRect(x + 1, 3, 1, HUD_H - 7)
-    }
-    drawText(g, String(this.score).padStart(6, '0'), 5, 6, {
-      scale: 2,
-      color: RAMPS.gold[3],
-      shadow: INK,
-    })
-    // Sunlight (puff fuel) and the wind.
-    const sunny = this.fuel > FUEL_MAX * 0.25
-    drawText(g, 'SUN', 82, 4, {
-      color: sunny ? RAMPS.gold[3] : RAMPS.rust[3],
-      shadow: INK,
-    })
-    gauge(
-      g,
-      102,
-      5,
-      44,
-      5,
-      this.fuel / FUEL_MAX,
-      sunny ? RAMPS.gold : RAMPS.ember,
-    )
-    drawText(g, 'WIND', 82, 15, { color: RAMPS.sky[4], shadow: INK })
-    const windPx = Math.max(-20, Math.min(20, Math.round(this.wind * 2500)))
-    const cx = 126
-    if (Math.abs(windPx) >= 2) {
-      const x0 = Math.min(cx, cx + windPx)
-      const dir = windPx > 0 ? 1 : -1
-      const tip = cx + windPx
-      g.fillStyle = INK
-      g.fillRect(x0 - 1, 16, Math.abs(windPx) + 2, 4)
-      g.fillRect(tip - (dir > 0 ? 2 : 1), 14, 4, 8)
-      g.fillStyle = RAMPS.sky[3]
-      g.fillRect(x0, 17, Math.abs(windPx), 2)
-      g.fillStyle = RAMPS.sky[4]
-      g.fillRect(x0, 17, Math.abs(windPx), 1)
-      g.fillRect(tip - (dir > 0 ? 1 : 0), 15, 2, 6)
-    } else {
-      g.fillStyle = INK
-      g.fillRect(cx - 2, 16, 4, 4)
-      g.fillStyle = RAMPS.sky[3]
-      g.fillRect(cx - 1, 17, 2, 2)
-    }
-    // Speed and lean readouts, each with a lamp: green when it is safe to land.
-    const lamp = (x: number, y: number, ok: boolean) => {
-      const ramp = ok ? RAMPS.leaf : RAMPS.ember
-      glow(g, x, y, 6, ramp[3], ok ? 0.45 : 0.6)
-      g.fillStyle = INK
-      g.fillRect(x - 2, y - 2, 5, 5)
-      g.fillStyle = ramp[1]
-      g.fillRect(x - 1, y - 1, 3, 3)
-      g.fillStyle = ramp[3]
-      g.fillRect(x - 1, y - 1, 2, 2)
-      g.fillStyle = ramp[4]
-      g.fillRect(x - 1, y - 1, 1, 1)
-    }
-    const hSafe = Math.abs(this.vx) <= SAFE_VX
-    const vSafe = this.vy <= SAFE_VY
-    const tSafe = Math.abs(this.tilt) <= SAFE_TILT
-    lamp(155, 7, hSafe)
-    drawText(g, `ACROSS ${Math.abs(this.vx * 10).toFixed(0)}`, 160, 4, {
-      color: hSafe ? RAMPS.leaf[3] : DANGER,
-      shadow: INK,
-    })
-    lamp(155, 18, vSafe)
-    drawText(g, `DOWN ${Math.max(0, this.vy * 10).toFixed(0)}`, 160, 15, {
-      color: vSafe ? RAMPS.leaf[3] : DANGER,
-      shadow: INK,
-    })
-    lamp(219, 7, tSafe)
-    drawText(g, tSafe ? 'LEVEL' : 'TILTED', 224, 4, {
-      color: tSafe ? RAMPS.leaf[3] : DANGER,
-      shadow: INK,
-    })
-    // Spare pods waiting their turn.
-    for (let i = 0; i < Math.min(this.lives - 1, 4); i++)
-      drawSprite(g, POD_ICON, 220 + i * 9, 18)
-    drawText(g, `HI ${Math.max(this.hiScore, this.score)}`, W - 5, 4, {
-      align: 'right',
-      color: RAMPS.pink[3],
-      shadow: INK,
-    })
-    drawText(g, `HILL ${this.level}`, W - 5, 15, {
-      align: 'right',
-      color: RAMPS.leaf[3],
-      shadow: INK,
-    })
-    if (this.banner) {
+    if (this.banner && this.phase !== 'clear') {
       drawText(g, this.banner.text, W / 2, 70, {
         scale: 2,
         align: 'center',
@@ -1132,6 +1070,158 @@ class SeedLander implements ArcadeGameInstance {
           outline: INK,
         })
     }
+    if (this.menu)
+      drawMenu(g, {
+        title: 'SEED LANDER',
+        subtitle: 'THE GREAT REPLANTING',
+        rows: this.menuRows(),
+        pick: this.menu.pick,
+        tick: this.tick,
+      })
+  }
+
+  private renderTerrain(g: CanvasRenderingContext2D) {
+    const t = this.terrain
+    const theme = this.mission.theme
+    const v = this.camera.view()
+    if (typeof document === 'undefined') {
+      paintTerrain(g, t, theme, v.x0 - 2, v.x1 + 2)
+      return
+    }
+    const key = this.terrainArtFor
+    if (!key || key.terrain !== t || key.version !== t.version) {
+      this.terrainArtFor = { terrain: t, version: t.version }
+      const canvas = document.createElement('canvas')
+      canvas.width = t.w
+      canvas.height = t.h + 80
+      const k = canvas.getContext('2d')
+      if (k) {
+        k.translate(0, 40)
+        paintTerrain(k, t, theme)
+      }
+      this.terrainArt = k ? canvas : null
+    }
+    if (!this.terrainArt) {
+      paintTerrain(g, t, theme, v.x0 - 2, v.x1 + 2)
+      return
+    }
+    g.save()
+    g.imageSmoothingEnabled = false
+    g.drawImage(this.terrainArt, 0, -40)
+    g.restore()
+  }
+
+  private renderArc(g: CanvasRenderingContext2D) {
+    const pod = this.pod
+    const points = predictArc(pod, this.gravity, this.wind, (x) =>
+      this.terrain.floorAt(x, pod.y),
+    )
+    points.forEach((p, i) => {
+      const last = i === points.length - 1
+      g.fillStyle = INK
+      g.fillRect(
+        Math.round(p.x) - 1,
+        Math.round(p.y + POD_FEET) - 1,
+        last ? 5 : 3,
+        last ? 3 : 3,
+      )
+      g.fillStyle = last ? RAMPS.gold[4] : RAMPS.teal[3]
+      g.fillRect(Math.round(p.x), Math.round(p.y + POD_FEET), last ? 3 : 1, 1)
+    })
+  }
+
+  /** Arrows at the screen's edge toward goal beds out of view (and the shed when towing). */
+  private renderPointers(g: CanvasRenderingContext2D) {
+    const v = this.camera.view()
+    const goals = this.terrain.pads.filter(
+      (p) =>
+        (p.kind === 'seed' && !p.planted) ||
+        (p.kind === 'drop' &&
+          this.cargo.some(
+            (c) => c.hookedBy >= 0 && this.cargoTo.get(c.id) === p.id,
+          )) ||
+        (p.kind === 'sun' && this.pod.sun < this.sunMax * 0.3),
+    )
+    const marks = goals.flatMap((p) => {
+      const cx = (p.x0 + p.x1) / 2
+      if (cx >= v.x0 && cx <= v.x1 && p.y >= v.y0 && p.y <= v.y1) return []
+      const s = this.camera.toScreen(cx, p.y)
+      return [
+        {
+          p,
+          x: Math.max(10, Math.min(W - 10, s.x)),
+          y: Math.max(HUD_H + 10, Math.min(H - 22, s.y)),
+          dir: s.x < 0 ? -1 : s.x > W ? 1 : 0,
+        },
+      ]
+    })
+    // Marks on the same edge stack apart rather than overlapping.
+    marks.sort((a, b) => a.y - b.y)
+    marks.forEach((m, i) => {
+      for (const prev of marks.slice(0, i))
+        if (Math.abs(m.x - prev.x) < 11 && Math.abs(m.y - prev.y) < 11)
+          m.y = prev.y + 11
+    })
+    const bob = Math.sin(this.tick / 8) > 0 ? 1 : 0
+    for (const { p, x: mx, y, dir } of marks) {
+      const x = mx + dir * bob
+      const ramp =
+        p.kind === 'sun'
+          ? RAMPS.gold
+          : p.kind === 'drop'
+            ? RAMPS.steel
+            : (PAD_RAMP[p.mult] ?? RAMPS.teal)
+      g.fillStyle = INK
+      g.fillRect(x - 4, y - 4, 9, 9)
+      g.fillStyle = ramp[3]
+      g.fillRect(x - 3, y - 3, 7, 7)
+      drawText(
+        g,
+        p.kind === 'seed' ? `${p.mult}` : p.kind === 'sun' ? '*' : 'S',
+        x + 1,
+        y - 3,
+        { align: 'center', color: INK },
+      )
+      if (dir) {
+        const tipX = dir > 0 ? x + 6 : x - 7
+        g.fillStyle = INK
+        g.fillRect(tipX, y - 2, 2, 5)
+        g.fillStyle = ramp[4]
+        g.fillRect(tipX, y - 1, 1, 3)
+      }
+    }
+  }
+
+  private renderParticles(g: CanvasRenderingContext2D) {
+    for (const p of this.particles) {
+      const x = Math.round(p.x)
+      const y = Math.round(p.y)
+      if (p.kind === 'streamer') {
+        g.globalAlpha = 0.35
+        g.fillStyle = p.color
+        const len = Math.min(18, Math.abs(p.vx) * 8 + 4)
+        g.fillRect(p.vx > 0 ? x - len : x, y, len, 1)
+        continue
+      }
+      if (p.kind === 'puff') {
+        const r = 1 + Math.floor((18 - p.life) / 6)
+        g.globalAlpha = Math.max(0, (p.life / 18) * 0.7)
+        g.fillStyle = RAMPS.cream[2]
+        g.fillRect(x - r, y - r + 1, r * 2 + 1, r * 2 - 1)
+        g.fillRect(x - r + 1, y - r, r * 2 - 1, r * 2 + 1)
+        g.fillStyle = RAMPS.cream[4]
+        g.fillRect(x - r + 1, y - r + 1, r * 2 - 2, r * 2 - 2)
+        continue
+      }
+      g.globalAlpha = Math.max(0, Math.min(1, p.life / 24))
+      g.fillStyle = INK
+      g.fillRect(x - 1, y - 1, 3, 3)
+      g.fillStyle = p.color
+      g.fillRect(x - 1, y - 1, 2, 2)
+      g.fillStyle = '#ffffff'
+      g.fillRect(x - 1, y - 1, 1, 1)
+    }
+    g.globalAlpha = 1
   }
 }
 

@@ -730,7 +730,7 @@ for (const ep of SEASON) {
   const first = g.script.waves[0]!
   assert.equal(first.doors, 'all')
   for (let t = 0; t <= first.at + 1; t++) safeTick(g)
-  assert.equal(g.spawned.grabber, first.count * 4)
+  assert.equal(g.spawned.grabber, first.count * 4 * 2)
   for (const door of DOORS)
     assert.ok(
       g.crashers.some((c) => Math.hypot(c.x - door.x, c.y - door.y) < 40),

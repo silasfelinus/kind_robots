@@ -352,18 +352,23 @@ class Game {
   assert.ok(lit() > 0, 'the award shows')
 }
 
-// The toy: the Death Roll rolls the head, except with reduced motion, which
-// shows it as a steady, brighter glow; a lit mouth churns the waterline.
+// The toy: the Death Roll plays its churn, except with reduced motion, which
+// holds a still and a steady, brighter cue; a lit mouth churns the waterline.
 {
   const def = table.animatronics![0]!
   const moving = new CrocToy(def, (r) => r)
   const still = new CrocToy(def, (r) => r, { reducedMotion: true })
-  for (const toy of [moving, still]) {
-    toy.setPose({ phase: 'death-roll', age: 0.25 })
-    for (let i = 0; i < 20; i++) toy.animate()
+  const frames = (toy: CrocToy) => {
+    const seen = new Set<number>()
+    for (let i = 0; i < 40; i++) {
+      toy.setPose({ phase: 'death-roll', age: 0.25 + i / 60 })
+      toy.animate()
+      seen.add(toy.frame)
+    }
+    return seen.size
   }
-  assert.ok(Math.abs(moving.rolled) > 0.5, 'the head rolls')
-  assert.equal(still.rolled, 0, 'reduced motion: no roll')
+  assert.ok(frames(moving) > 3, 'he rolls')
+  assert.equal(frames(still), 1, 'reduced motion: a still')
   assert.ok(still.waterline >= moving.waterline, 'a steady, brighter cue')
 
   const calm = new CrocToy(def, (r) => r, { reducedMotion: true })

@@ -267,88 +267,79 @@ const toMouth = (): [Vec3, Vec3] => [
   }
 }
 
-// The toy follows the pose: wide jaws when open, shut when he has the ball.
-{
-  const toy = new CrocToy(table.animatronics![0]!, (r) => r)
-  toy.setPose({ phase: 'open', age: 0 })
-  for (let i = 0; i < 40; i++) toy.animate()
-  assert.ok(toy.gape > 0.5, `open jaws gape (${toy.gape.toFixed(2)})`)
-  toy.setPose({ phase: 'captured', age: 0 })
-  for (let i = 0; i < 10; i++) toy.animate()
-  assert.ok(toy.gape < 0.05, 'jaws snap shut on the ball')
-  toy.setPose({ phase: 'death-roll', age: 0.3 })
-  toy.animate()
-  toy.setPose({ phase: 'submerged', age: 1 })
-  for (let i = 0; i < 40; i++) toy.animate()
-  assert.ok(toy.gape < 0.05)
-}
-
-// The rebuilt toy (t-018): he watches the nearest ball, the jaws clack
-// shut past closed and spring back, the snap throws spray, and after the
-// death roll he rolls on round to upright rather than back. With reduced
-// motion: no tracking, no spray, no roll.
+// The toy (t-019) is drawn from the generated art: every phase plays its
+// clips out of the atlas, and with reduced motion holds one still.
 {
   const def = table.animatronics![0]!
-  const at = (dx: number, dz: number) => ({
-    position: [def.at[0] + dx, 0.0135, def.at[2] + dz] as const,
-  })
-  const look = (toy: CrocToy, dx: number) => {
-    toy.setPose({ phase: 'open', age: 1 })
-    for (let i = 0; i < 90; i++) {
-      toy.watch([at(dx, 0.12)])
-      toy.animate()
-    }
-    return toy.gaze
+  const sprite = def.sprite!
+  assert.ok(sprite, 'the Croc is drawn from his atlas')
+  const cells = sprite.cols * sprite.rows
+  for (const name of ['open', 'snap', 'roll', 'spit', 'sink', 'lurk', 'rise']) {
+    const clip = sprite.clips[name]
+    assert.ok(clip, `the ${name} clip`)
+    assert.ok(clip.count > 0 && clip.first + clip.count <= cells, name)
   }
-  assert.ok(look(new CrocToy(def, (r) => r), 0.12) > 0.15, 'eyes right')
-  assert.ok(look(new CrocToy(def, (r) => r), -0.12) < -0.15, 'eyes left')
-  const far = new CrocToy(def, (r) => r)
-  far.setPose({ phase: 'open', age: 1 })
-  far.watch([at(0.3, 0.4)])
-  assert.ok(
-    (far as unknown as { watched: unknown }).watched === null,
-    'a ball across the table is not his',
-  )
-  assert.equal(
-    look(new CrocToy(def, (r) => r, { reducedMotion: true }), 0.12),
-    0,
-    'reduced motion: he does not track',
-  )
+  assert.ok(sprite.clips.open!.loop, 'he breathes while he waits')
+  assert.ok(sprite.clips.lurk!.loop, 'and lurks')
+  for (const phase of [
+    'submerged',
+    'rising',
+    'open',
+    'captured',
+    'death-roll',
+    'spit',
+  ]) {
+    const hold = sprite.holds[phase]
+    assert.ok(hold !== undefined && hold >= 0 && hold < cells, `${phase} still`)
+  }
 
   const toy = new CrocToy(def, (r) => r)
-  toy.setPose({ phase: 'open', age: 1 })
-  for (let i = 0; i < 30; i++) toy.animate()
-  toy.setPose({ phase: 'captured', age: 0 })
-  let least = Infinity
-  for (let i = 0; i < 15; i++) {
-    toy.animate()
-    least = Math.min(least, toy.gape)
+  const playing = (name: string) => {
+    const clip = sprite.clips[name]!
+    return toy.frame >= clip.first && toy.frame < clip.first + clip.count
   }
-  assert.ok(least < 0, `the jaws clack shut past closed (${least.toFixed(3)})`)
-  assert.ok(toy.droplets > 20, `the snap throws spray (${toy.droplets})`)
-  let last = 0
-  for (let k = 0; k <= 33; k++) {
-    toy.setPose({ phase: 'death-roll', age: k / 60 })
-    toy.animate()
-    assert.ok(toy.rolled >= last - 1e-9, 'the roll only goes one way')
-    last = toy.rolled
+  const run = (phase: string, frames: number) => {
+    const seen = new Set<number>()
+    for (let i = 0; i < frames; i++) {
+      toy.setPose({ phase, age: i / 60 })
+      toy.animate()
+      seen.add(toy.frame)
+    }
+    return seen
   }
-  assert.ok(last > Math.PI * 1.5, `a full roll (${last.toFixed(2)})`)
-  for (let k = 0; k < 60; k++) {
-    toy.setPose({ phase: 'spit', age: k / 60 })
-    toy.animate()
-    assert.ok(
-      toy.rolled >= last - 1e-9 || toy.rolled === 0,
-      'rolls on, not back',
-    )
-    last = toy.rolled
-  }
-  assert.equal(toy.rolled, 0, 'upright again')
+  assert.ok(run('open', 120).size > 3, 'open: the jaws move')
+  assert.ok(playing('open'), 'open plays the gape loop')
+  run('captured', 2)
+  assert.ok(playing('snap'), 'the snap')
+  run('captured', 600)
+  const snap = sprite.clips.snap!
+  assert.equal(toy.frame, snap.first + snap.count - 1, 'and holds shut')
+  assert.ok(run('death-roll', 40).size > 3, 'the death roll churns')
+  assert.ok(playing('roll'))
+  run('spit', 2)
+  assert.ok(playing('spit'), 'the spit')
+  run('submerged', 2)
+  assert.ok(playing('sink'), 'he sinks')
+  const sink = sprite.clips.sink!
+  run('submerged', Math.ceil((sink.count / sink.fps) * 60) + 30)
+  assert.ok(playing('lurk'), 'then lurks')
+  run('rising', 2)
+  assert.ok(playing('rise'), 'and rises')
 
   const calm = new CrocToy(def, (r) => r, { reducedMotion: true })
-  calm.setPose({ phase: 'captured', age: 0 })
-  for (let i = 0; i < 15; i++) calm.animate()
-  assert.equal(calm.droplets, 0, 'reduced motion: no spray')
+  for (const phase of Object.keys(sprite.holds)) {
+    const seen = new Set<number>()
+    for (let i = 0; i < 90; i++) {
+      calm.setPose({ phase, age: i / 60 })
+      calm.animate()
+      seen.add(calm.frame)
+    }
+    assert.deepEqual(
+      [...seen],
+      [sprite.holds[phase]],
+      `reduced motion: ${phase} holds its still`,
+    )
+  }
 }
 
 assert.equal(livePhysicsWorlds(), 0)

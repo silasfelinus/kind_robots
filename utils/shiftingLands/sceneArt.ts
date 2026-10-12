@@ -15,7 +15,50 @@ const CARD = '/shifting-lands/cards/'
 // from a conductor art round (projects/zuzu-shifting-lands/art/ROUND-*.yaml)
 // and exported to public/shifting-lands/cards/<id>.webp. Encounter ids, plus
 // trial-<landId> for a land's major trial. A listed card wins over reuse.
-export const BESPOKE_CARDS: readonly string[] = []
+export const BESPOKE_CARDS: readonly string[] = [
+  'a-crust-for-the-road',
+  'a-cup-offered',
+  'ashes-at-the-border',
+  'family-at-the-fence',
+  'feathers-in-the-draft',
+  'footprints-in-the-silt',
+  'gate-still-open',
+  'lanterns-on-the-raft',
+  'marks-below-water',
+  'mirror-in-the-ash',
+  'one-place-by-the-fire',
+  'rope-at-dawn',
+  'salt-on-the-threshold',
+  'scarecrows-lantern',
+  'shelter-for-the-storm',
+  'the-banner-in-the-wind',
+  'the-candle-court',
+  'the-closed-infirmary',
+  'the-cooling-stones',
+  'the-forgotten-pledge',
+  'the-last-watchfire',
+  'the-locked-dormitory',
+  'the-map-in-ashes',
+  'the-mended-compass',
+  'the-night-watch-debt',
+  'the-orchard-debt',
+  'the-price-of-silence',
+  'the-prisoner-of-dusk',
+  'the-red-vial',
+  'the-reed-music',
+  'the-silent-bell',
+  'the-third-shadow',
+  'the-watchful-overhang',
+  'three-cups-on-the-table',
+  'three-doors-no-hinges',
+  'toll-of-two-names',
+  'trial-cave',
+  'trial-tablelands',
+  'trial-verge',
+  'two-empty-buckets',
+  'voices-across-the-rock',
+  'weighed-in-salt',
+]
 
 const bespoke = new Set(BESPOKE_CARDS)
 

@@ -13,7 +13,7 @@ route: /tzaddik-gallery
 sort: 140
 requiredRole: ADMIN
 tutorial:
-  title: Tzaddikim: the 36 and the nominations
+  title: "Tzaddikim: the 36 and the nominations"
   body: >-
     Tzaddikim borrows the folklore of the 36 righteous or just people said to
     sustain the world, then plays with that idea as a sourced gallery of people

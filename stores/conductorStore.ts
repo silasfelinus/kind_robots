@@ -117,6 +117,8 @@ export const useConductorStore = defineStore('conductor', () => {
   let inFlightFetch: Promise<void> | null = null
   const error = ref<string | null>(null)
   const pitchUpdateError = ref<string | null>(null)
+  const playReadyError = ref<string | null>(null)
+  const updatingPlayReadySlugs = ref<string[]>([])
   const taskUpdateError = ref<string | null>(null)
   const updatingPitchSlugs = ref<string[]>([])
   const updatingTaskKeys = ref<string[]>([])
@@ -224,6 +226,41 @@ export const useConductorStore = defineStore('conductor', () => {
       }
     })()
     return inFlightFetch
+  }
+
+  async function setPitchPlayReady(
+    slug: string,
+    ready: boolean,
+  ): Promise<boolean> {
+    if (updatingPlayReadySlugs.value.includes(slug)) return false
+    updatingPlayReadySlugs.value = [...updatingPlayReadySlugs.value, slug]
+    playReadyError.value = null
+    try {
+      const response = await performFetch<{ publicReady: boolean }>(
+        '/api/conductor/pitch-ready',
+        { method: 'POST', body: JSON.stringify({ slug, ready }) },
+      )
+      if (!response.success || response.data?.publicReady !== ready) {
+        throw new Error(response.message || 'Play approval was not recorded')
+      }
+      if (data.value) {
+        data.value = {
+          ...data.value,
+          pitches: data.value.pitches.map((pitch) =>
+            pitch.slug === slug ? { ...pitch, publicReady: ready } : pitch,
+          ),
+        }
+      }
+      return true
+    } catch (cause) {
+      playReadyError.value =
+        cause instanceof Error ? cause.message : 'Play approval failed'
+      return false
+    } finally {
+      updatingPlayReadySlugs.value = updatingPlayReadySlugs.value.filter(
+        (entry) => entry !== slug,
+      )
+    }
   }
 
   function replacePitchStatus(slug: string, status: PitchStatus): void {
@@ -414,6 +451,8 @@ export const useConductorStore = defineStore('conductor', () => {
     pending,
     error,
     pitchUpdateError,
+    playReadyError,
+    updatingPlayReadySlugs,
     taskUpdateError,
     updatingPitchSlugs,
     updatingTaskKeys,
@@ -433,6 +472,7 @@ export const useConductorStore = defineStore('conductor', () => {
     fetchProjects,
     pitchStatus,
     updatePitchStatus,
+    setPitchPlayReady,
     submitTaskAction,
     pitchVote,
     voteOnPitch,

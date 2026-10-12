@@ -642,7 +642,9 @@ export function drawFrog(
   rise: number,
   lookX: number,
   mouth = false,
+  skin: Ramp = FROG,
 ) {
+  const FROG = skin
   const top = Math.round(pondY + 6 - rise * 14)
   const cx = Math.round(x)
   // The head: a broad dome breaking the water.
@@ -911,4 +913,293 @@ export function drawSneeze(
       2,
     )
   }
+}
+
+// --- the later gardens' riders (slice 3) --------------------------------------------------------
+
+/** A diver wears goggles for the stoop. */
+const DIVER_RIDER = MOTH_RIDER.map((row, i) => (i === 4 ? 'rRggggRRt' : row))
+const LONG_LANCE = ['LLLLLLLLLLLT', 'lllllllllllT']
+const SHELL = [
+  '...SSSSS...',
+  '.SSsSSSSSS.',
+  'SSsSSSSSSSS',
+  'SSSSSSSSSSS',
+  '.SSSSSSSSS.',
+]
+
+function mothFrames(
+  rider: readonly string[],
+  palette: Record<string, string>,
+  extra: readonly (readonly [number, number, readonly string[]])[] = [],
+  lance: { rows: readonly string[]; x: number; y: number } = {
+    rows: LANCE,
+    x: 20,
+    y: 15,
+  },
+): Frames {
+  const up = compose(30, 28, [
+    [0, 11, HINDWING_UP],
+    [3, 1, FOREWING_UP],
+    [3, 15, MOUNT],
+    [12, 6, rider],
+    ...extra,
+    [lance.x, lance.y, lance.rows],
+  ])
+  const down = compose(30, 28, [
+    [3, 15, MOUNT],
+    [0, 18, FOREWING_DOWN],
+    [12, 6, rider],
+    ...extra,
+    [lance.x, lance.y, lance.rows],
+  ])
+  return [pixelSprite(up, palette), pixelSprite(down, palette)]
+}
+
+const DIVER_PALETTE = {
+  ...riderPalette(
+    [
+      RAMPS.sky[3],
+      RAMPS.sky[1],
+      RAMPS.sky[2],
+      RAMPS.night[2],
+      RAMPS.night[0],
+      RAMPS.gold[4],
+    ],
+    RAMPS.sky,
+    RAMPS.ember[2],
+    RAMPS.sky[4],
+    MOTH_MOUNT,
+  ),
+  g: RAMPS.teal[4],
+}
+const LANCER_PALETTE = riderPalette(
+  [
+    RAMPS.rust[4],
+    RAMPS.rust[2],
+    RAMPS.gold[2],
+    RAMPS.rust[1],
+    RAMPS.rust[0],
+    RAMPS.steel[4],
+  ],
+  RAMPS.rust,
+  RAMPS.ember[2],
+  RAMPS.gold[4],
+  MOTH_MOUNT,
+)
+const BEETLE_PALETTE = {
+  ...riderPalette(
+    [
+      RAMPS.leaf[3],
+      RAMPS.leaf[1],
+      RAMPS.teal[2],
+      RAMPS.leaf[0],
+      RAMPS.night[1],
+      RAMPS.gold[3],
+    ],
+    RAMPS.leaf,
+    RAMPS.ember[2],
+    RAMPS.leaf[4],
+    MOTH_MOUNT,
+  ),
+  S: RAMPS.teal[2],
+  s: RAMPS.teal[4],
+}
+const FROST_PALETTE = riderPalette(
+  [
+    '#ffffff',
+    RAMPS.sky[4],
+    RAMPS.water[3],
+    RAMPS.sky[3],
+    RAMPS.steel[2],
+    RAMPS.sky[2],
+  ],
+  RAMPS.steel,
+  RAMPS.sky[2],
+  RAMPS.sky[4],
+  MOTH_MOUNT,
+)
+
+/** The later riders' frames, and the lancer with its lance lowered for a charge. */
+export const LATE_FRAMES = {
+  diver: mothFrames(DIVER_RIDER, DIVER_PALETTE),
+  lancer: mothFrames(MOTH_RIDER, LANCER_PALETTE, [], {
+    rows: LONG_LANCE,
+    x: 18,
+    y: 15,
+  }),
+  lancerBrace: mothFrames(MOTH_RIDER, LANCER_PALETTE, [], {
+    rows: LONG_LANCE,
+    x: 18,
+    y: 18,
+  }),
+  beetle: mothFrames(MOTH_RIDER, BEETLE_PALETTE, [[11, 3, SHELL]]),
+  bareBeetle: mothFrames(MOTH_RIDER, BEETLE_PALETTE),
+  frost: mothFrames(MOTH_RIDER, FROST_PALETTE),
+} as const
+
+/** The Mirror Moth: your own rider and butterfly, cast in silver. */
+export const MIRROR_FRAMES: Frames = riderFrames(
+  PLAYER_RIDER,
+  riderPalette(
+    [
+      '#ffffff',
+      RAMPS.steel[3],
+      RAMPS.steel[4],
+      RAMPS.purple[3],
+      RAMPS.steel[1],
+      RAMPS.sky[4],
+    ],
+    RAMPS.steel,
+    RAMPS.purple[4],
+    RAMPS.steel[4],
+    [
+      RAMPS.steel[4],
+      RAMPS.steel[1],
+      RAMPS.purple[3],
+      RAMPS.night[1],
+      RAMPS.steel[3],
+      '#ffffff',
+      RAMPS.purple[3],
+    ],
+  ),
+)
+
+// --- the orchard, the snowfield and the moon garden ---------------------------------------
+
+/** A falling apple, a stalk and a leaf. */
+export function drawApple(g: CanvasRenderingContext2D, x: number, y: number) {
+  shadedOrb(g, x, y, 4.5, RAMPS.ember)
+  g.fillStyle = INK
+  g.fillRect(Math.round(x), Math.round(y) - 7, 1, 3)
+  g.fillStyle = RAMPS.earth[2]
+  g.fillRect(Math.round(x), Math.round(y) - 6, 1, 2)
+  g.fillStyle = RAMPS.leaf[3]
+  g.fillRect(Math.round(x) + 1, Math.round(y) - 7, 3, 2)
+}
+
+/** A heap of fallen leaves on a ledge (`scatter` 0..1 as a rider blows through it). */
+export function drawLeafPile(
+  g: CanvasRenderingContext2D,
+  x: number,
+  y: number,
+  scatter: number,
+  tick: number,
+) {
+  const colours = [RAMPS.rust[2], RAMPS.gold[2], RAMPS.ember[2], RAMPS.rust[3]]
+  const spread = 1 + scatter * 3
+  for (let i = 0; i < 11; i++) {
+    const a = (i / 11) * Math.PI
+    const lx =
+      x + Math.cos(a) * 11 * spread + (scatter ? Math.sin(tick / 3 + i) * 2 : 0)
+    const ly =
+      y - 3 - Math.sin(a) * 6 * (1 - scatter * 0.6) - scatter * 6 * Math.sin(i)
+    g.fillStyle = INK
+    g.fillRect(Math.round(lx) - 3, Math.round(ly) - 2, 6, 4)
+    g.fillStyle = colours[i % colours.length]!
+    g.fillRect(Math.round(lx) - 2, Math.round(ly) - 1, 4, 2)
+  }
+  if (scatter === 0) {
+    g.fillStyle = RAMPS.rust[1]
+    g.fillRect(Math.round(x) - 8, Math.round(y) - 3, 16, 3)
+  }
+}
+
+/** A paper lantern to stand on, glowing, fading at the end of its life (`fade` 0..1). */
+export function drawLantern(
+  g: CanvasRenderingContext2D,
+  x0: number,
+  x1: number,
+  y: number,
+  fade: number,
+  tick: number,
+  gold = false,
+) {
+  const cx = (x0 + x1) / 2
+  const w = x1 - x0
+  const alpha = 1 - fade
+  g.save()
+  g.globalAlpha = Math.max(0.15, alpha)
+  glow(g, cx, y + 8, w, gold ? RAMPS.gold[4] : RAMPS.gold[3], 0.45)
+  const top = Math.round(y)
+  const left = Math.round(x0)
+  const body = gold ? RAMPS.gold : RAMPS.ember
+  // A round paper lantern: each row's inset gives the belly its curve.
+  const inset = [4, 2, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 4]
+  g.fillStyle = INK
+  inset.forEach((n, i) => g.fillRect(left + n - 1, top + i, w - n * 2 + 2, 1))
+  g.fillRect(left + 3, top - 1, w - 6, 1)
+  g.fillRect(left + 3, top + inset.length, w - 6, 1)
+  inset.forEach((n, i) => {
+    g.fillStyle = i < 3 || i > 11 ? body[1] : i < 6 ? body[3] : body[2]
+    g.fillRect(left + n, top + i, w - n * 2, 1)
+  })
+  // The paper ribs, curving with the belly.
+  g.fillStyle = body[1]
+  g.fillRect(left + Math.round(w / 4), top + 2, 1, 11)
+  g.fillRect(left + w - 1 - Math.round(w / 4), top + 2, 1, 11)
+  // The flame flickering inside.
+  const flick = Math.sin(tick / 4 + x0) > 0 ? 1 : 0
+  g.fillStyle = RAMPS.gold[4]
+  g.fillRect(Math.round(cx) - 1, top + 5 - flick, 3, 5 + flick)
+  g.fillStyle = '#ffffff'
+  g.fillRect(Math.round(cx), top + 7, 1, 2)
+  // The wooden cap and foot, and the string it hangs from.
+  g.fillStyle = INK
+  g.fillRect(left + 2, top - 3, w - 4, 3)
+  g.fillRect(left + 2, top + inset.length, w - 4, 3)
+  g.fillRect(Math.round(cx), top - 7, 1, 4)
+  g.fillStyle = RAMPS.earth[2]
+  g.fillRect(left + 3, top - 2, w - 6, 1)
+  g.fillRect(left + 3, top + inset.length + 1, w - 6, 1)
+  g.restore()
+}
+
+/** A frozen ledge: frost and icicles over whatever it was. */
+export function drawFrost(
+  g: CanvasRenderingContext2D,
+  x0: number,
+  x1: number,
+  y: number,
+  k: number,
+) {
+  g.fillStyle = rgba(RAMPS.sky[4], 0.75 * k)
+  g.fillRect(Math.round(x0), Math.round(y) - 2, Math.round(x1 - x0), 4)
+  g.fillStyle = rgba('#ffffff', 0.9 * k)
+  for (let x = Math.round(x0) + 3; x < x1 - 2; x += 7) {
+    g.fillRect(x, Math.round(y) - 2, 2, 1)
+    g.fillRect(x + 2, Math.round(y) + 6, 1, 3 + (x % 3))
+  }
+}
+
+/** A rider frozen in a block of ice. */
+export function drawIceBlock(
+  g: CanvasRenderingContext2D,
+  x: number,
+  y: number,
+) {
+  g.fillStyle = rgba(RAMPS.sky[4], 0.45)
+  g.fillRect(Math.round(x) - 15, Math.round(y) - 16, 30, 26)
+  g.fillStyle = rgba('#ffffff', 0.8)
+  g.fillRect(Math.round(x) - 15, Math.round(y) - 16, 30, 1)
+  g.fillRect(Math.round(x) - 15, Math.round(y) - 16, 1, 26)
+  g.fillRect(Math.round(x) - 10, Math.round(y) - 12, 2, 6)
+}
+
+/** Old Thunderhead: the Thundercap grown huge (the same eye, the same rules). */
+export function drawThunderhead(
+  g: CanvasRenderingContext2D,
+  x: number,
+  y: number,
+  phase: 'flash' | 'open' | 'shut',
+  tick: number,
+  look: { dx: number; dy: number },
+  charge: number,
+  size = 1.8,
+) {
+  g.save()
+  g.translate(Math.round(x), Math.round(y))
+  g.scale(size, size)
+  drawThundercap(g, 0, 0, phase, tick, look, charge)
+  g.restore()
 }

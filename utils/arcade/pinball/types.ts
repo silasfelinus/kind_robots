@@ -420,6 +420,12 @@ export type TableDef = {
   scenery?: SceneryDef[]
   zones?: ZoneDef[]
   occluders?: OccluderDef[]
+  /**
+   * The addressable LED rail (Zuzu t-012): `count` LEDs spaced evenly along
+   * the polyline `points` (x, z), at height `y`, round the inside of the
+   * cabinet. The ruleset's `leds` colours them every frame.
+   */
+  ledRail?: { points: Array<[number, number]>; count: number; y: number }
   inserts?: InsertDef[]
   flashers?: FlasherDef[]
   /**

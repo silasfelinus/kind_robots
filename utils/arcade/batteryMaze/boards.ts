@@ -10,20 +10,49 @@
 
 import type { MusicLoop } from '../sound'
 import type { RampName } from '../snes'
-import { COZY_MUSIC, TOASTER_MUSIC } from './music'
+import {
+  ARCADE_MUSIC,
+  COLD_MUSIC,
+  COZY_MUSIC,
+  GARDEN_MUSIC,
+  GREENHOUSE_MUSIC,
+  SOLAR_MUSIC,
+  TOASTER_MUSIC,
+} from './music'
 import {
   BREAKFAST_BAR,
+  CLAW_ROW,
   CLASSIC_LAYOUT,
   CRUMB_TRAY,
+  DARK_ARCADE,
+  DEEP_FREEZE,
+  FLOWER_BEDS,
+  FREEZER,
+  GARDEN_PATHS,
+  HIGH_SCORE_HALL,
+  ICE_TRAY,
   OUTLET_LOOPS,
+  PANEL_ROWS,
   POP_UP_PARLOUR,
+  POTTING_SHED,
+  SEEDLING_ROWS,
+  SUN_DECK,
   SWITCHYARD,
+  THE_ROOFTOP,
 } from './mazes'
+import { OVERCLOCKED_HEAT } from './tables'
+import type { PowerUpKind } from './tables'
 import type { MazeLayout, Tile } from './mazes'
 import type { GremlinKind } from './roster'
 
 /** A special maze's own goal (it pays, and with no robot lost it shows the golden bolt). */
-export type SpecialKind = 'prize-parade' | 'breakfast-rush'
+export type SpecialKind =
+  | 'prize-parade'
+  | 'breakfast-rush'
+  | 'bloom-run'
+  | 'thaw'
+  | 'lamp-lighter'
+  | 'sunset-charge'
 
 export type BoardMaze = {
   layout: MazeLayout
@@ -41,7 +70,7 @@ export type BoardLook = {
   /** The floor's colour ramp (night when absent). */
   floor?: RampName
   /** What is etched on the walls' faces. */
-  pattern: 'rivets' | 'coils'
+  pattern: 'rivets' | 'coils' | 'leaves' | 'frost' | 'tiles' | 'panels'
 }
 
 /** The beat a board's toaster slots keep: toast is up for `up` ticks, after a `tell`-tick glow. */
@@ -58,6 +87,20 @@ export type Board = {
   look: BoardLook
   music: MusicLoop
   toastBeat?: ToastBeat
+  /** Vines bud then grow across a corridor, one every `every` ticks (`bud` of them a warning). */
+  vines?: { every: number; bud: number }
+  /** Fans blow for `on` ticks, then rest for `off`. */
+  fans?: { on: number; off: number }
+  /** Lights out: the robot's light and a lit lamp's, in tiles. */
+  dark?: { robot: number; lamp: number }
+  /** The sun: day and night lengths, and how soon a panel's spark comes back by day. */
+  sun?: { day: number; night: number; respawn: number }
+  /** Mirror junctions turn this often. */
+  mirrors?: number
+  /** The board's own tool, rolling out of the dock with the other power-ups. */
+  tool?: PowerUpKind
+  /** The secret board: it opens only with all six golden bolts. */
+  secret?: boolean
   mazes: readonly [BoardMaze, BoardMaze, BoardMaze]
   /** The story break after it (story.ts). */
   story: string
@@ -128,6 +171,145 @@ export const BOARDS: readonly Board[] = [
     ],
     story: 'spilled-oil',
   },
+  {
+    id: 'greenhouse',
+    number: 3,
+    name: 'GREENHOUSE GRID',
+    phase: 2,
+    intro: 'VINES GROW. A WATERING CAN CLEARS THEM.',
+    newcomers: 'COPY THE COPYCAT  BRIAR THE BRAMBLE',
+    look: { wall: 'leaf', neon: 'pink', floor: 'earth', pattern: 'leaves' },
+    music: GREENHOUSE_MUSIC,
+    vines: { every: 60 * 7, bud: 90 },
+    tool: 'can',
+    mazes: [
+      {
+        layout: SEEDLING_ROWS,
+        roster: ['chaser', 'copycat', 'ambusher', 'wanderer'],
+      },
+      {
+        layout: FLOWER_BEDS,
+        roster: ['chaser', 'bramble', 'flanker', 'copycat'],
+        special: 'bloom-run',
+        goldenBolt: { x: 11, y: 7 },
+      },
+      {
+        layout: POTTING_SHED,
+        roster: ['chaser', 'copycat', 'bramble', 'sprinter', 'wanderer'],
+      },
+    ],
+    story: 'charging-party',
+  },
+  {
+    id: 'cold',
+    number: 4,
+    name: 'COLD STORAGE',
+    phase: 2,
+    intro: 'ICE SLIDES YOU ON. FANS BLOW ALONG THEIR ROWS.',
+    newcomers: 'BLINK THE BLINKER  FLURRY THE SNOWBALL',
+    look: { wall: 'sky', neon: 'teal', floor: 'steel', pattern: 'frost' },
+    music: COLD_MUSIC,
+    fans: { on: 60 * 4, off: 60 * 3 },
+    mazes: [
+      {
+        layout: ICE_TRAY,
+        roster: ['chaser', 'blinker', 'ambusher', 'flanker'],
+      },
+      {
+        layout: FREEZER,
+        roster: ['chaser', 'snowball', 'blinker', 'wanderer'],
+        special: 'thaw',
+        goldenBolt: { x: 11, y: 7 },
+      },
+      {
+        layout: DEEP_FREEZE,
+        roster: ['chaser', 'snowball', 'blinker', 'snacker', 'ambusher'],
+      },
+    ],
+    story: 'snow-day',
+  },
+  {
+    id: 'arcade',
+    number: 5,
+    name: 'ARCADE AFTER HOURS',
+    phase: 3,
+    intro: 'LIGHTS OUT. KEEP TO THE GLOW.',
+    newcomers: 'CRACKLE THE STATIC  BOLT THE GATEKEEPER',
+    look: { wall: 'purple', neon: 'pink', pattern: 'tiles' },
+    music: ARCADE_MUSIC,
+    dark: { robot: 3.5, lamp: 2.6 },
+    tool: 'lamp',
+    mazes: [
+      {
+        layout: CLAW_ROW,
+        roster: ['chaser', 'static', 'ambusher', 'wanderer'],
+      },
+      {
+        layout: DARK_ARCADE,
+        roster: ['chaser', 'gatekeeper', 'static', 'flanker'],
+        special: 'lamp-lighter',
+        goldenBolt: { x: 11, y: 7 },
+      },
+      {
+        layout: HIGH_SCORE_HALL,
+        roster: ['chaser', 'static', 'gatekeeper', 'bramble', 'sprinter'],
+      },
+    ],
+    story: 'lights-out',
+  },
+  {
+    id: 'solar',
+    number: 6,
+    name: 'ROOFTOP SOLAR FARM',
+    phase: 3,
+    intro: 'SPARKS GROW BACK IN THE SUN. MIRRORS TURN.',
+    newcomers: 'PIP AND POP THE TWINS  AND EVERY OLD FRIEND',
+    look: { wall: 'gold', neon: 'sky', floor: 'steel', pattern: 'panels' },
+    music: SOLAR_MUSIC,
+    sun: { day: 60 * 25, night: 60 * 15, respawn: 60 * 6 },
+    mirrors: 60 * 8,
+    mazes: [
+      { layout: PANEL_ROWS, roster: ['chaser', 'twin', 'twin', 'flanker'] },
+      {
+        layout: SUN_DECK,
+        roster: ['chaser', 'twin', 'twin', 'snacker'],
+        special: 'sunset-charge',
+        goldenBolt: { x: 11, y: 7 },
+      },
+      {
+        layout: THE_ROOFTOP,
+        roster: ['twin', 'twin', 'blinker', 'copycat', 'static'],
+      },
+    ],
+    story: 'sunrise',
+  },
+  {
+    id: 'garden',
+    number: 7,
+    name: 'THE BATTERY GARDEN',
+    phase: 4,
+    intro: 'SHIFTING PATHS AND PRIZES EVERYWHERE!',
+    newcomers: 'ALL OF THEM',
+    look: { wall: 'leaf', neon: 'gold', floor: 'leaf', pattern: 'leaves' },
+    music: GARDEN_MUSIC,
+    mirrors: 60 * 6,
+    secret: true,
+    mazes: [
+      {
+        layout: GARDEN_PATHS,
+        roster: ['chaser', 'sprinter', 'snacker', 'copycat', 'static'],
+      },
+      {
+        layout: OUTLET_LOOPS,
+        roster: ['bramble', 'blinker', 'snowball', 'gatekeeper', 'wanderer'],
+      },
+      {
+        layout: SEEDLING_ROWS,
+        roster: ['twin', 'twin', 'chaser', 'ambusher', 'flanker'],
+      },
+    ],
+    story: 'true-ending',
+  },
 ]
 
 export const PHASES: readonly Phase[] = [
@@ -137,7 +319,28 @@ export const PHASES: readonly Phase[] = [
     boards: ['cozy', 'toaster'],
     boss: 'mama',
   },
+  {
+    number: 2,
+    name: 'AFTERNOON LOAD',
+    boards: ['greenhouse', 'cold'],
+    boss: 'train',
+  },
+  {
+    number: 3,
+    name: 'NIGHT SHIFT',
+    boards: ['arcade', 'solar'],
+    boss: 'overload',
+  },
 ]
+
+/** Prizes rain on the Battery Garden: one rolls in this often. */
+export const GARDEN_PRIZE_EVERY = 60 * 8
+/** Bloom Run's vines grow faster; Thaw's freezer door shuts; Sunset Charge's long day. */
+export const BLOOM_VINES = 60 * 4
+export const THAW_TICKS = 60 * 110
+export const SUNSET = { day: 60 * 80, bank: 30 }
+/** A lamp relights when the robot eats a spark this near it. */
+export const LAMP_REACH = 2
 
 export const SPECIALS: Record<
   SpecialKind,
@@ -152,6 +355,26 @@ export const SPECIALS: Record<
     name: 'BREAKFAST RUSH',
     goal: 'GRAB ALL THREE GOLDEN TOASTS!',
     target: 3,
+  },
+  'bloom-run': {
+    name: 'BLOOM RUN',
+    goal: 'OPEN ALL SIX FLOWER GATES BEFORE THE VINES!',
+    target: 6,
+  },
+  thaw: {
+    name: 'THAW',
+    goal: 'CHARGE IT BEFORE THE FREEZER DOOR SHUTS!',
+    target: 1,
+  },
+  'lamp-lighter': {
+    name: 'LAMP LIGHTER',
+    goal: 'RELIGHT ALL EIGHT CABINET LAMPS!',
+    target: 8,
+  },
+  'sunset-charge': {
+    name: 'SUNSET CHARGE',
+    goal: 'BANK THIRTY PANEL SPARKS BEFORE SUNDOWN!',
+    target: 30,
   },
 }
 
@@ -170,6 +393,7 @@ export type Step =
   | { kind: 'story'; id: string }
   | { kind: 'boss'; id: string; phase: number }
   | { kind: 'bay'; phase: number }
+  | { kind: 'ending'; id: string; secret?: boolean }
 
 /** The whole campaign, in order. */
 export function campaignSteps(): Step[] {
@@ -183,8 +407,17 @@ export function campaignSteps(): Step[] {
       steps.push({ kind: 'story', id: board.story })
     }
     steps.push({ kind: 'boss', id: phase.boss, phase: phase.number })
-    steps.push({ kind: 'bay', phase: phase.number })
+    // The Bay opens between phases; the last phase ends the campaign.
+    if (phase.number < PHASES.length)
+      steps.push({ kind: 'bay', phase: phase.number })
   }
+  steps.push({ kind: 'ending', id: 'ending' })
+  // The secret board, then the true ending (both only with all six golden bolts).
+  const garden = boardById('garden')
+  steps.push({ kind: 'card', board: garden.id })
+  for (const maze of [0, 1, 2] as const)
+    steps.push({ kind: 'maze', board: garden.id, maze })
+  steps.push({ kind: 'ending', id: garden.story, secret: true })
   return steps
 }
 
@@ -194,9 +427,17 @@ export function boardById(id: string): Board {
   return board
 }
 
-/** Heat climbs one a maze through the campaign; each lap round the grid adds six. */
+/** Heat climbs one a maze through the campaign; Overclocked (any lap after the first) is late. */
 export function heatFor(board: Board, maze: number, lap: number): number {
-  return (board.number - 1) * 3 + maze + 1 + lap * 6
+  return (board.number - 1) * 3 + maze + 1 + (lap > 0 ? OVERCLOCKED_HEAT : 0)
+}
+
+/** Whether a step belongs to the secret board or its true ending. */
+export function secretStep(step: Step): boolean {
+  if (step.kind === 'ending') return !!step.secret
+  if (step.kind === 'card' || step.kind === 'maze')
+    return !!boardById(step.board).secret
+  return false
 }
 
 /** A boss maze plays at the heat of the board before it. */

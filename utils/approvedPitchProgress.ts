@@ -76,5 +76,5 @@ export const PITCH_STAGE_LABELS: Record<PitchBuildStage, string> = {
   scaffolded: 'Scaffolded · build not started',
   building: 'Implementation recorded',
   'page-linked': 'Page linked · not verified live',
-  'shared-project': 'Added to existing project',
+  'shared-project': 'Approved for existing project',
 }

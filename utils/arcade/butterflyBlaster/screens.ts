@@ -32,9 +32,11 @@ export type MapNode = {
   kind: 'night' | 'boss'
   region?: RegionDef
   night?: number
+  /** Only there with all six golden threads (the Moonlit Lagoon). */
+  secret: boolean
 }
 
-const ROWS = [118, 196, 274]
+const ROWS = [84, 146, 208, 270]
 
 /** Where each night and boss of the season sits on the river (a serpentine, a Moon per row). */
 export function mapNodes(steps: readonly Step[]): MapNode[] {
@@ -59,6 +61,7 @@ export function mapNodes(steps: readonly Step[]): MapNode[] {
         kind: s.kind === 'boss' ? 'boss' : 'night',
         region: s.kind === 'night' ? REGIONS[s.region] : undefined,
         night: s.kind === 'night' ? s.night : undefined,
+        secret: s.kind === 'night' && s.secret === true,
       })
     })
   }
@@ -78,6 +81,8 @@ export type MapView = {
   score: number
   beads: number
   t: number
+  /** The Moonlit Lagoon is open (all six golden threads). */
+  secretOpen?: boolean
 }
 
 function paintRiver(g: CanvasRenderingContext2D, nodes: readonly MapNode[]) {
@@ -153,37 +158,48 @@ export function renderMap(
   // Grass flecks and a few reeds.
   g.fillStyle = rgba(RAMPS.leaf[3], 0.25)
   for (let i = 0; i < 160; i++) g.fillRect((i * 97) % W, (i * 53) % H, 1, 2)
-  const nodes = mapNodes(view.steps)
+  const all = mapNodes(view.steps)
+  const nodes = all.filter((n) => !n.secret || view.secretOpen)
   paintRiver(g, nodes)
-  // Each Moon's name over its stretch of river, and each region's name under its nights.
+  // Each Moon's name over the start of its stretch of river (the river snakes, so even Moons
+  // start on the right), clear of the bend down from the Moon before.
   for (const m of MOONS) {
+    if (m.secret) continue
+    const odd = m.n % 2 === 1
     drawText(
       g,
       `MOON ${m.n}: ${m.name}`,
-      24,
-      ROWS[(m.n - 1) % ROWS.length]! - 48,
+      odd ? 70 : W - 70,
+      ROWS[(m.n - 1) % ROWS.length]! - 22,
       {
+        align: odd ? 'left' : 'right',
         color: RAMPS.sky[4],
         outline: INK,
       },
     )
   }
-  const labelled = new Set<string>()
+  // Each region's name under the middle of its stretch.
+  const stretches = new Map<string, MapNode[]>()
   for (const n of nodes) {
-    if (n.kind === 'night' && n.region && !labelled.has(n.region.id)) {
-      labelled.add(n.region.id)
-      drawText(
-        g,
-        n.region.name,
-        n.at.x + (n.at.x > W / 2 ? -66 : 66),
-        n.at.y + 22,
-        {
-          align: 'center',
-          color: RAMPS.cream[3],
-          outline: INK,
-        },
-      )
-    }
+    if (n.kind !== 'night' || !n.region) continue
+    stretches.set(n.region.id, [...(stretches.get(n.region.id) ?? []), n])
+  }
+  for (const list of stretches.values()) {
+    const x = list.reduce((sum, n) => sum + n.at.x, 0) / list.length
+    const y = Math.max(...list.map((n) => n.at.y))
+    drawText(g, list[0]!.region!.name, x, y + 18, {
+      align: 'center',
+      color: RAMPS.cream[3],
+      outline: INK,
+    })
+  }
+  if (!view.secretOpen && all.some((n) => n.secret)) {
+    // A hint of the secret: a faint, misty lagoon where the river ends.
+    drawText(g, '? ? ?  SIX GOLDEN THREADS  ? ? ?', W / 2, ROWS[3]!, {
+      align: 'center',
+      color: RAMPS.night[4],
+      outline: INK,
+    })
   }
   for (const n of nodes) {
     const done = view.record.get(n.step)

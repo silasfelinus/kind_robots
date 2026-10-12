@@ -160,7 +160,7 @@ function roundTrip(g: Inner): unknown {
   assert.notEqual(HEARTBEATS.riverbend[0], HEARTBEATS.terraces[0])
   assert.equal(HEARTBEATS.terraces.length, HEARTBEAT_BPM.length)
   assert.deepEqual(
-    steps.map((s) => s.kind),
+    steps.slice(0, 11).map((s) => s.kind),
     [
       'night',
       'night',
@@ -173,9 +173,8 @@ function roundTrip(g: Inner): unknown {
       'night',
       'boss',
       'clinic',
-      'endless',
     ],
-    'four nights, the Clinic, four nights, the Hum, the Clinic, then the river runs on',
+    'Moon 1: four nights, the Clinic, four nights, the Hum, then the Clinic',
   )
   assert.ok(
     REGIONS.terraces.nights.some((n) => n.wind),
@@ -187,10 +186,15 @@ function roundTrip(g: Inner): unknown {
     assert.ok(p.x > 0 && p.x < W && p.y < GROUND)
   // The river map: a node per night and nest, all on screen.
   const nodes = mapNodes(steps)
-  assert.equal(nodes.length, 9)
+  const moon1 = nodes.filter((n) => n.step <= stepOf((s) => s.kind === 'boss'))
+  assert.equal(
+    moon1.length,
+    9,
+    'eight villages and a nest on the first stretch',
+  )
   for (const n of nodes)
-    assert.ok(n.at.x > 20 && n.at.x < W - 20 && n.at.y > 60 && n.at.y < H - 60)
-  assert.equal(nodes.at(-1)!.kind, 'boss')
+    assert.ok(n.at.x > 20 && n.at.x < W - 20 && n.at.y > 40 && n.at.y < H - 60)
+  assert.equal(moon1.at(-1)!.kind, 'boss')
 }
 
 // --- the river map between nights ------------------------------------------------------------------
@@ -461,6 +465,12 @@ function roundTrip(g: Inner): unknown {
     sound: () => {},
     burst: () => {},
     spawn: (p) => void spawned.push(p),
+    spawnPest: () => {},
+    addPool: () => {},
+    dropKit: () => {},
+    lure: () => null,
+    pushShots: () => {},
+    ribbonBoost: () => {},
   }
   const hum = new Hum()
   for (let t = 0; t < 60; t++) hum.update(host)
@@ -590,14 +600,6 @@ function roundTrip(g: Inner): unknown {
   bb.update(frame('a'))
   bb.startPlay()
   assert.ok(bb.boss, 'a quit at the nest comes back to the nest')
-
-  // The endless river after the Hum keeps its night count.
-  const e = game()
-  e.beginStep(stepOf((s) => s.kind === 'endless'))
-  e.beginStep(stepOf((s) => s.kind === 'endless'))
-  const eb = game(9, roundTrip(e))
-  eb.update(frame('a'))
-  assert.equal(eb.level, e.level)
 
   // The save outlives a game over, so the season can be picked up again.
   const over = at(0)

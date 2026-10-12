@@ -32,8 +32,20 @@ export interface BossHost {
   score(points: number, at: Point, label?: string): void
   sound(name: BossSound): void
   burst(at: Point, count: number): void
-  /** A lone mosquito set loose in the sky. */
-  spawn(at: Point): void
+  /** A swarm set loose in the sky (a lone mosquito unless a size is given). */
+  spawn(at: Point, size?: 1 | 2 | 3): void
+  /** A pest set loose (Old Puddle's wrigglers). */
+  spawnPest(kind: 'wriggler' | 'hummer', at: Point): void
+  /** A new mini-pool where a drop landed. */
+  addPool(at: Point): void
+  /** AMI flies over with this kit. */
+  dropKit(kit: 'lure' | 'net'): void
+  /** AMI's lantern lure, if it is out (and whether the butterfly still carries it). */
+  lure(): (Point & { carried: boolean }) | null
+  /** Push every sparkle in the sky sideways (the Night Queen's wing gusts). */
+  pushShots(dx: number): void
+  /** Lengthen the Rainbow Lasso's ribbon for a while (AMI and the allies' sky-wide lasso). */
+  ribbonBoost(ticks: number, life: number): void
 }
 
 /** What the game asks of any boss. */
@@ -58,6 +70,8 @@ export interface Boss {
   threats(): { at: Point; r: number }[]
   targets(): Point[]
   lassoMark(): Point | null
+  /** Where the pilot should fly now, if the fight has a job for it. */
+  goal?(host: BossHost): Point | null
 }
 
 type Shape = 'ring' | 'spiral' | 'face'
@@ -74,7 +88,7 @@ export const HUM = {
   fling: 300,
   subs: 4,
   subR: 20,
-  subHp: 7,
+  subHp: 10,
   diveEvery: 200,
   /** Phase 3: the core's rest, tell and dash. */
   rest: 130,

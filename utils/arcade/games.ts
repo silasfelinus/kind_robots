@@ -56,7 +56,7 @@ export const ARCADE_GAMES: ArcadeGameMeta[] = [
     ],
     width: 480,
     height: 360,
-    maxPlausibleScore: 2_000_000,
+    maxPlausibleScore: 12_000_000,
     titleArt: '/images/arcade/games/butterfly-blaster-title.webp',
     accent: '#f472b6',
     controls: 'Turn, flutter, sparkle, hop',

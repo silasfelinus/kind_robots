@@ -983,6 +983,14 @@ export function renderSwarm(
 ) {
   const r = SWARM_RADIUS[swarm.size]
   const flip = swarm.vx < 0
+  // A sticky swarm hums in a dull brown haze; a shade swarm in a violet one.
+  const tint =
+    swarm.kind === 'sticky'
+      ? RAMPS.earth
+      : swarm.kind === 'shade'
+        ? RAMPS.purple
+        : null
+  if (tint) glow(g, swarm.x, swarm.y, r * 1.4, tint[2], 0.35)
   if (swarm.size === 1) {
     if (swarm.sprint) glow(g, swarm.x, swarm.y, 20, RAMPS.ember[3], 0.35)
     drawSprite(
@@ -1083,6 +1091,15 @@ export function renderPool(
 }
 
 export function renderPest(g: CanvasRenderingContext2D, p: Pest, tick: number) {
+  if (
+    p.kind === 'bloom' ||
+    p.kind === 'hummer' ||
+    p.kind === 'storm' ||
+    p.kind === 'decoy'
+  ) {
+    renderLaterPest(g, p, tick)
+    return
+  }
   if (p.kind === 'wriggler') {
     // In its bubble of pool water, wobbling; it flashes as it is about to hatch.
     const k = p.t / HATCH_TICKS
@@ -1295,3 +1312,101 @@ export function renderSparkle(
 }
 
 export type { PixelSprite }
+
+// --- the later Moons' pests -------------------------------------------------------------------------
+
+function renderLaterPest(g: CanvasRenderingContext2D, p: Pest, tick: number) {
+  if (p.kind === 'bloom') {
+    // Six petals round a hub, each petal a mosquito curled up in it.
+    glow(g, p.x, p.y, 22, RAMPS.pink[2], 0.35)
+    for (let i = 0; i < 6; i++) {
+      const a = p.heading + (i * Math.PI) / 3
+      const px = p.x + Math.cos(a) * 9
+      const py = p.y + Math.sin(a) * 9
+      g.fillStyle = INK
+      g.beginPath()
+      g.arc(px, py, 6, 0, Math.PI * 2)
+      g.fill()
+      g.fillStyle = p.hp < 2 ? RAMPS.ember[2] : RAMPS.pink[2]
+      g.beginPath()
+      g.arc(px, py, 5, 0, Math.PI * 2)
+      g.fill()
+      g.fillStyle = RAMPS.steel[0]
+      g.fillRect(Math.round(px) - 1, Math.round(py) - 1, 3, 2)
+    }
+    shadedOrb(g, p.x, p.y, 4, RAMPS.gold, { glint: false })
+    return
+  }
+  if (p.kind === 'hummer') {
+    glow(g, p.x, p.y, 10, RAMPS.ember[3], 0.3)
+    drawSprite(g, GNAT[flapFrame(tick * 2 + Math.floor(p.seed))]!, p.x, p.y, {
+      flipX: p.vx < 0,
+    })
+    return
+  }
+  if (p.kind === 'decoy') {
+    // It looks like AMI's falling net... but it blinks twice.
+    const k = (p.t + Math.floor(p.seed)) % 90
+    const blink = (k > 60 && k < 66) || (k > 72 && k < 78)
+    glow(g, p.x, p.y, 16, blink ? RAMPS.ember[2] : RAMPS.sky[4], 0.4)
+    renderMesh(g, p.x, p.y, 9, p.t / 50)
+    if (blink) {
+      g.fillStyle = RAMPS.ember[3]
+      g.fillRect(Math.round(p.x) - 3, Math.round(p.y) - 2, 2, 2)
+      g.fillRect(Math.round(p.x) + 2, Math.round(p.y) - 2, 2, 2)
+    }
+    return
+  }
+  // The storm cell: a little dark cloud; it crackles, then a bolt drops down its column.
+  const crackle = p.state === 'crackle'
+  if (crackle || p.state === 'strike') {
+    g.save()
+    g.fillStyle = rgba(
+      crackle ? RAMPS.night[4] : RAMPS.gold[4],
+      crackle ? 0.18 : 0.35,
+    )
+    g.fillRect(Math.round(p.x) - 8, Math.round(p.y), 16, GROUND - p.y)
+    g.restore()
+  }
+  if (p.state === 'strike') {
+    g.strokeStyle = '#ffffff'
+    g.lineWidth = 3
+    g.beginPath()
+    let x = p.x
+    g.moveTo(x, p.y)
+    for (let y = p.y + 14; y < GROUND; y += 14) {
+      x = p.x + (((y * 7 + tick) % 11) - 5)
+      g.lineTo(x, y)
+    }
+    g.stroke()
+    g.strokeStyle = RAMPS.gold[3]
+    g.lineWidth = 1
+    g.stroke()
+  }
+  g.fillStyle = INK
+  for (const [dx, dy, r] of [
+    [-8, 2, 7],
+    [0, -3, 9],
+    [8, 2, 7],
+  ] as const) {
+    g.beginPath()
+    g.arc(p.x + dx, p.y + dy, r + 1, 0, Math.PI * 2)
+    g.fill()
+  }
+  for (const [dx, dy, r] of [
+    [-8, 2, 7],
+    [0, -3, 9],
+    [8, 2, 7],
+  ] as const) {
+    g.fillStyle =
+      crackle && Math.floor(tick / 3) % 2 === 0
+        ? RAMPS.night[4]
+        : RAMPS.night[2]
+    g.beginPath()
+    g.arc(p.x + dx, p.y + dy, r, 0, Math.PI * 2)
+    g.fill()
+  }
+  g.fillStyle = RAMPS.gold[3]
+  g.fillRect(Math.round(p.x) - 4, Math.round(p.y) - 1, 2, 2)
+  g.fillRect(Math.round(p.x) + 2, Math.round(p.y) - 1, 2, 2)
+}

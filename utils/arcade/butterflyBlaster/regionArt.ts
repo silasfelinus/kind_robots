@@ -19,6 +19,13 @@ import {
 } from '../snes'
 import type { Ramp } from '../snes'
 import { paintGround, paintHut, paintNight, paintSky } from './art'
+import {
+  paintDelta,
+  paintLagoon,
+  paintMarket,
+  paintSwamp,
+  paintTea,
+} from './laterArt'
 import type { KitId } from './kit'
 import { KIT, RING } from './kit'
 import type { BackdropId } from './season'
@@ -126,6 +133,11 @@ export const BACKDROPS: Record<
 > = {
   savanna: paintNight,
   terraces: paintTerraces,
+  delta: paintDelta,
+  market: paintMarket,
+  tea: paintTea,
+  swamp: paintSwamp,
+  lagoon: paintLagoon,
 }
 
 /** Low mist drifting across the terraces. */
@@ -386,14 +398,16 @@ export function renderKitDrop(
   const ramp = KIT[kit].ramp
   glow(g, at.x, at.y, 18, ramp[3], 0.4)
   shadedOrb(g, at.x, at.y, 9, ramp, { glint: true })
-  const letter = {
+  const letters: Record<KitId, string> = {
     net: 'N',
     ring: 'R',
     fan: 'F',
     wingman: 'D',
     lure: 'L',
     long: 'S',
-  }[kit]
+    bats: 'B',
+  }
+  const letter = letters[kit]
   drawText(g, letter, at.x + 1, at.y - 3, {
     align: 'center',
     color: '#ffffff',

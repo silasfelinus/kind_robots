@@ -140,6 +140,101 @@ function abbeyDeck(): ColliderDef[] {
   ]
 }
 
+// The undercrypt (t-010): a hidden mini-table behind the backbox, under the
+// Abbey in the story. Three relic strikes light the crypt; the Mortuary then
+// sends its ball down a subway instead of telling a chapter, and it comes up
+// at the crypt's far corner. The crypt has its own pair of flippers (on the
+// lower buttons), three skull standups and a HOME saucer. HOME, or a ball
+// past the crypt's flippers, goes back by subway to the Mortuary's kicker:
+// nothing is lost below. The backbox hides the crypt from the main camera,
+// which eases over it only while every ball is down there.
+export const CRYPT = {
+  x: 0.02,
+  half: 0.16,
+  bottom: -1.1,
+  top: -1.4,
+  flipperZ: -1.15,
+}
+export const CRYPT_SKULLS = [-0.06, 0, 0.06].map((dx, i) => ({
+  id: `crypt-skull-${i + 1}`,
+  x: CRYPT.x + dx,
+}))
+const BACKBOX_Z = -1.06
+
+function crypt(): ColliderDef[] {
+  const x = (dx: number) => CRYPT.x + dx
+  const guide = { material: 'chrome' as const, thickness: 0.004 }
+  const side = (sign: -1 | 1): ColliderDef[] => {
+    const name = sign < 0 ? 'left' : 'right'
+    const pivot = x(sign * 0.065)
+    const end: XZ = [pivot - sign * 0.006, CRYPT.flipperZ - 0.004]
+    return [
+      wall(
+        `crypt-inlane-${name}`,
+        [x(sign * CRYPT.half), CRYPT.flipperZ - 0.07],
+        end,
+        guide,
+      ),
+      wall(`crypt-apron-${name}`, end, [x(sign * 0.02), CRYPT.bottom], guide),
+      // The top corner, cut so a ball cannot sit in it.
+      wall(
+        `crypt-corner-${name}`,
+        [x(sign * CRYPT.half), CRYPT.top + 0.035],
+        [x(sign * (CRYPT.half - 0.035)), CRYPT.top],
+        { material: 'rubber' },
+      ),
+    ]
+  }
+  return [
+    {
+      kind: 'box',
+      id: 'crypt-floor',
+      at: [CRYPT.x, -0.01, (CRYPT.bottom + CRYPT.top) / 2],
+      half: [CRYPT.half + 0.03, 0.01, (CRYPT.bottom - CRYPT.top) / 2 + 0.03],
+      material: 'playfield',
+      restitution: 0.18,
+    },
+    {
+      kind: 'box',
+      id: 'crypt-glass',
+      at: [CRYPT.x, 0.31, (CRYPT.bottom + CRYPT.top) / 2],
+      half: [CRYPT.half + 0.03, 0.005, (CRYPT.bottom - CRYPT.top) / 2 + 0.03],
+      material: 'plastic-clear',
+      hidden: true,
+    },
+    ...walls(
+      'crypt-wall',
+      [
+        [x(-CRYPT.half), CRYPT.bottom],
+        [x(-CRYPT.half), CRYPT.top],
+        [x(CRYPT.half), CRYPT.top],
+        [x(CRYPT.half), CRYPT.bottom],
+        [x(-CRYPT.half), CRYPT.bottom],
+      ],
+      { thickness: 0.009 },
+    ),
+    ...side(-1),
+    ...side(1),
+  ]
+}
+
+function cryptFlipper(side: 'left' | 'right') {
+  const sign = side === 'left' ? -1 : 1
+  return {
+    id: `crypt-flipper-${side}`,
+    side,
+    zone: 'sub-table',
+    pivot: [CRYPT.x + sign * 0.065, 0, CRYPT.flipperZ] as Vec3,
+    length: 0.05,
+    baseRadius: 0.009,
+    tipRadius: 0.0055,
+    restAngle: 0.5,
+    activeAngle: -0.45,
+    strokeMs: 20,
+    returnMs: 80,
+  }
+}
+
 function upperFlipper(side: 'left' | 'right') {
   return {
     id: `abbey-flipper-${side}`,
@@ -292,6 +387,7 @@ const colliders: ColliderDef[] = [
     },
   ),
   ...abbeyDeck(),
+  ...crypt(),
   // Raised catch plates at the exits stop a ball from rolling off the cabinet.
   wall('village-return-stop', [0.163, -0.165], [0.203, -0.165], {
     base: 0.03,
@@ -611,6 +707,19 @@ export const ZUZU_LAST_BELL_GREYBOX: TableDef = {
       frame,
       portrait: [0.02, 1.3, 0.2],
     },
+    {
+      // Over the backbox, down into the undercrypt (t-010).
+      id: 'sub-table',
+      position: [CRYPT.x, 0.52, CRYPT.bottom + 0.27],
+      target: [CRYPT.x, 0, (CRYPT.top + CRYPT.bottom) / 2],
+      fovDeg: 32,
+      frame: {
+        min: [CRYPT.x - CRYPT.half - 0.03, 0, CRYPT.top - 0.02],
+        max: [CRYPT.x + CRYPT.half + 0.03, 0.03, CRYPT.bottom + 0.04],
+      },
+      portrait: [CRYPT.x, 0.7, CRYPT.bottom + 0.15],
+      portraitFovDeg: 36,
+    },
   ],
   colliders,
   sensors: [
@@ -714,6 +823,8 @@ export const ZUZU_LAST_BELL_GREYBOX: TableDef = {
     },
     upperFlipper('left'),
     upperFlipper('right'),
+    cryptFlipper('left'),
+    cryptFlipper('right'),
   ],
   // The four Abbey seals stand in line in the channel between the Village and
   // Bell ramps: each one knocked down bares the next, so the bank asks for
@@ -732,6 +843,14 @@ export const ZUZU_LAST_BELL_GREYBOX: TableDef = {
       bank: 'abbey-bells',
       at: [bell.x, DECK_Y + 0.019, DECK.top + 0.008] as Vec3,
       half: [0.01, 0.019, 0.004] as Vec3,
+      standup: true,
+    })),
+    // The crypt's skulls (t-010): standups across its top wall.
+    ...CRYPT_SKULLS.map((skull) => ({
+      id: skull.id,
+      bank: 'crypt-skulls',
+      at: [skull.x, 0.019, CRYPT.top + 0.012] as Vec3,
+      half: [0.014, 0.019, 0.004] as Vec3,
       standup: true,
     })),
   ],
@@ -793,6 +912,43 @@ export const ZUZU_LAST_BELL_GREYBOX: TableDef = {
       holdMs: 300,
       hidden: true,
       eject: { at: [0.181, BALL + 0.005, -0.2], velocity: [0, 0, 0.3] },
+    },
+    {
+      // Where the Mortuary's subway comes up into the crypt. It never
+      // captures; it only kicks the arriving ball down toward the flippers.
+      id: 'crypt-entry',
+      at: [CRYPT.x - 0.12, BALL, CRYPT.top + 0.045],
+      radius: 0.012,
+      captureMaxSpeed: -1,
+      holdMs: 0,
+      eject: {
+        at: [CRYPT.x - 0.12, BALL, CRYPT.top + 0.045],
+        velocity: [0.3, 0, 0.45],
+      },
+    },
+    {
+      // The crypt's goal: HOME, back up to the Mortuary's kicker.
+      id: 'crypt-home',
+      at: [CRYPT.x + 0.1, BALL, CRYPT.top + 0.09],
+      radius: 0.02,
+      captureMaxSpeed: 2.5,
+      holdMs: 1000,
+      eject: {
+        at: [CRYPT.x + 0.1, BALL, CRYPT.top + 0.09],
+        velocity: [0, 0, 0],
+      },
+      subwayTo: 'mortuary',
+    },
+    {
+      // Past the crypt's flippers: not lost, it goes back up too.
+      id: 'crypt-drain',
+      at: [CRYPT.x, BALL, CRYPT.bottom - 0.02],
+      radius: 0.02,
+      captureMaxSpeed: Number.POSITIVE_INFINITY,
+      holdMs: 700,
+      eject: { at: [CRYPT.x, BALL, CRYPT.bottom - 0.02], velocity: [0, 0, 0] },
+      subwayTo: 'mortuary',
+      hidden: true,
     },
   ],
   shots: [
@@ -898,7 +1054,30 @@ export const ZUZU_LAST_BELL_GREYBOX: TableDef = {
   },
   drainZ: BOTTOM - 0.03,
   balls: 3,
-  dmd: { at: [0.02, 0.2, -1.04], width: 0.3 },
+  dmd: { at: [0.02, 0.2, -1.04], width: 0.3, occluder: 'backbox' },
+  zones: [
+    {
+      id: 'sub-table',
+      min: [CRYPT.x - CRYPT.half - 0.03, CRYPT.top - 0.03],
+      max: [CRYPT.x + CRYPT.half + 0.03, CRYPT.bottom + 0.03],
+    },
+  ],
+  occluders: [
+    {
+      // The backbox: it stands between the main camera and the crypt.
+      id: 'backbox',
+      at: [CRYPT.x, 0.2, BACKBOX_Z],
+      half: [0.32, 0.2, 0.012],
+      fadeFor: 'sub-table',
+    },
+    {
+      // Its lid, so a steep (phone) camera sees cabinet over the crypt.
+      id: 'backbox-lid',
+      at: [CRYPT.x, 0.4, (CRYPT.top + BACKBOX_Z) / 2],
+      half: [0.32, 0.012, (BACKBOX_Z - CRYPT.top) / 2 + 0.02],
+      fadeFor: 'sub-table',
+    },
+  ],
   art: {
     // Rendered by durable ArtJobs from conductor's art-prompts.yaml
     // (zuzu-pinball/t-011): the painted playfield over the whole table

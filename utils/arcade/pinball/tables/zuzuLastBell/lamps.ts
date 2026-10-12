@@ -9,7 +9,7 @@
 
 import type { LampLevel, TableDef } from '../../types'
 import type { LampFrame } from '../../rules/lamps'
-import { CHAPTERS, litShots, RELICS_FOR_CRYPT, SEAL_COUNT } from './chapters'
+import { CHAPTERS, litShots, SEAL_COUNT } from './chapters'
 import type { ZuzuRulesState } from './rules'
 import {
   LAST_BELL_SUPER,
@@ -66,7 +66,7 @@ export function zuzuLamps(state: ZuzuRulesState, table: TableDef): LampFrame {
   for (const insert of table.inserts ?? []) {
     if (!insert.shot || insert.shape !== 'arrow') continue
     if (insert.shot === 'mortuary')
-      set(insert.id, mortuaryOpen ? 'blink' : 'off')
+      set(insert.id, mortuaryOpen || state.crypt.lit ? 'blink' : 'off')
     else set(insert.id, hot.has(insert.shot) ? 'blink' : 'on')
   }
   // The Croc's arrow is lit only while his jaws are open to take the ball.
@@ -106,7 +106,10 @@ export function zuzuLamps(state: ZuzuRulesState, table: TableDef): LampFrame {
           : 'off',
     )
   set('shoot-again', state.extraBalls > 0 ? 'on' : 'off')
-  set('crypt-seal', state.relics >= RELICS_FOR_CRYPT ? 'blink' : 'off')
+  set(
+    'crypt-seal',
+    state.crypt.lit ? 'blink' : state.crypt.inside ? 'on' : 'off',
+  )
   set(
     'croc-flasher',
     cycle === 'death-roll' || hot.has('croc-mouth') ? 'blink' : 'off',

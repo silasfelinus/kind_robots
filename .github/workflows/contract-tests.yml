@@ -18,7 +18,9 @@ jobs:
   contract-tests:
     name: Contract verifiers
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    # The Zuzu physics soaks and their siblings run the job past 10
+    # minutes; give it room rather than trim what they prove.
+    timeout-minutes: 15
 
     steps:
       - name: Checkout
@@ -173,6 +175,9 @@ jobs:
 
       - name: Zuzu Pinball raised Abbey deck and upper flippers
         run: npm run test:zuzu-pinball-abbey
+
+      - name: Zuzu Pinball hidden undercrypt
+        run: npm run test:zuzu-pinball-crypt
 
       - name: Zuzu gamebook branching and combat
         run: npm run test:zuzu-gamebook

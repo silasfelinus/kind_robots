@@ -80,8 +80,10 @@
               <p class="text-sm leading-relaxed opacity-85">
                 The Bell spiral climbs to the raised Abbey deck, where two upper
                 flippers ring its three hollow bells; they flip with the lower
-                pair, or alone while you hold B (Shift). Next: the hidden
-                undercrypt.
+                pair, or alone while you hold B (Shift). Strike the captive
+                relic three times and the Mortuary opens the hidden undercrypt
+                behind the backbox, a mini-table with its own flippers, three
+                skulls and a HOME saucer.
               </p>
             </section>
             <section class="kr-panel space-y-3 p-5">

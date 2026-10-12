@@ -1,5 +1,7 @@
 import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
+import { parse } from 'yaml'
+import { resolveChannels } from '../../stores/helpers/channelContent'
 import { createSavePlumberPreview } from '../arcade/games/savePlumberPreview'
 import { emptyInput } from '../arcade/types'
 import { findArcadeGame, HALL_GAMES, loadArcadeGame } from '../arcade/games'
@@ -11,7 +13,19 @@ const page = source('../../pages/admin/save-the-plumber.vue')
 const placement = source('../projectPlacements.ts')
 assert.match(tab, /channelKey: admin/)
 assert.match(tab, /requiredRole: ADMIN/)
-assert.match(tab, /tutorial:[\s\S]*?sections:/)
+const admin = resolveChannels([
+  { contentType: 'channel', channelKey: 'admin', label: 'Admin' },
+  parse(tab.split('---')[1]!),
+])[0]!
+const tutorial = admin.tabs.find(
+  (item) => item.key === 'save-the-plumber',
+)?.tutorial
+assert.ok(tutorial?.explicit, 'the tab has authored tutorial help')
+for (const section of ['Movement lab', 'Tools and enemies', 'Eight worlds'])
+  assert.ok(
+    tutorial.body.includes(section),
+    `visible tutorial includes ${section}`,
+  )
 assert.match(page, /!user\.isAdmin/)
 assert.match(page, /ArcadeCabinet slug="save-the-plumber"/)
 assert.match(placement, /'save-the-plumber':\s*\{[\s\S]*?channelKey: 'admin'/)

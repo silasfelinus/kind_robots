@@ -228,7 +228,10 @@ export const useConductorStore = defineStore('conductor', () => {
     return inFlightFetch
   }
 
-  async function setPitchPlayReady(slug: string, ready: boolean): Promise<boolean> {
+  async function setPitchPlayReady(
+    slug: string,
+    ready: boolean,
+  ): Promise<boolean> {
     if (updatingPlayReadySlugs.value.includes(slug)) return false
     updatingPlayReadySlugs.value = [...updatingPlayReadySlugs.value, slug]
     playReadyError.value = null

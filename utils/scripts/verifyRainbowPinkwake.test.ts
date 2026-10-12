@@ -31,8 +31,9 @@ for (const count of [1, 2, 3, 4]) {
     for (const rescued of [true, false]) {
       for (const elapsed of [0, 96, 192]) {
         const line = pinkwakeDialogue(scene, elapsed, count, rescued)
-        assert.ok(line?.speaker)
-        assert.ok(line?.text)
+        assert.ok(line)
+        assert.ok(line.speaker)
+        assert.ok(line.text)
         const active = ['Maribel', 'Azure', 'Solenne', 'Vivi'].slice(0, count)
         assert.ok(line.speaker === 'Lilt-7' || active.includes(line.speaker))
       }

@@ -1,4 +1,7 @@
 import assert from 'node:assert/strict'
+import { readFileSync } from 'node:fs'
+import { createRainbowPrincessPreview } from '../arcade/games/rainbowPrincessPreview'
+import { emptyInput } from '../arcade/types'
 import {
   addCoopSeats,
   availableCoopTargets,
@@ -47,4 +50,45 @@ assert.equal(coopEnemyHealth(2, 1), 2)
 assert.equal(coopEnemyHealth(2, 2), 2)
 assert.equal(coopEnemyHealth(2, 3), 3)
 assert.equal(coopEnemyHealth(2, 4), 3)
+const cabinet = readFileSync(
+  new URL('../../components/arcade/arcade-cabinet.vue', import.meta.url),
+  'utf8',
+)
+assert.match(cabinet, /canChangePlayers/)
+assert.match(cabinet, /game\.setPlayers\(players\.value\)/)
+assert.match(cabinet, /phase\.value === 'paused'/)
+
+const rng = () => 0.5
+const flight = createRainbowPrincessPreview({
+  rng, sound: { play() {} }, demo: false, hiScore: 0, players: 1,
+})
+const input = emptyInput()
+input.held.right = true
+for (let i = 0; i < 60; i++) flight.update(input)
+const original = flight.snapshot.ships[0]!
+const tick = flight.snapshot.tick
+flight.setPlayers?.(4)
+assert.equal(flight.snapshot.activePlayers, 4)
+assert.equal(flight.snapshot.ships.length, 4)
+assert.equal(flight.snapshot.ships[0]!.x, original.x)
+assert.equal(flight.snapshot.tick, tick)
+assert.equal(flight.lives, 12)
+
+const p1 = emptyInput()
+const p2 = emptyInput()
+const p3 = emptyInput()
+const p4 = emptyInput()
+p3.held.up = true
+const yBefore = flight.snapshot.ships[2]!.y
+flight.update(p1, [p1, p2, p3, p4])
+assert.ok(flight.snapshot.ships[2]!.y < yBefore, 'seat three flies independently')
+assert.equal(flight.snapshot.ships[1]!.y, 112, 'an idle seat does not copy P1 input')
+flight.setPlayers?.(1)
+assert.equal(flight.snapshot.activePlayers, 1)
+assert.equal(flight.lives, 3)
+const bench = flight.snapshot.tick
+flight.setPlayers?.(4)
+assert.equal(flight.snapshot.tick, bench, 'seat toggling does not reset Act progress')
+assert.ok(flight.snapshot.ships[2]!.y < yBefore, 'rejoining retains flown position')
+
 console.log('Rainbow Princess local co-op roster, fair scaling and earned revive passed')

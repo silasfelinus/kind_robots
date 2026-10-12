@@ -30,7 +30,9 @@ export function availableCoopTargets<T extends CoopShipState>(
   roster: readonly T[],
   active: number,
 ): T[] {
-  return roster.slice(0, boundedCoopSeats(active)).filter((ship) => ship.lives > 0)
+  return roster
+    .slice(0, boundedCoopSeats(active))
+    .filter((ship) => ship.lives > 0)
 }
 
 /**

@@ -56,7 +56,7 @@ export function mayVisitPitchFrontend(
 ): boolean {
   return Boolean(
     entry.pageUrl &&
-      (isAdmin || (entry.publicReady && isPublicFacingPitchPage(entry.pageUrl))),
+    (isAdmin || (entry.publicReady && isPublicFacingPitchPage(entry.pageUrl))),
   )
 }
 
@@ -66,7 +66,9 @@ function arcadePitchPageUrl(pitch: ConductorPitch): string | null {
     ? ARCADE_GAMES.find((item) => item.slug === matched[1])
     : undefined
   return game
-    ? safeProjectPageUrl(game.route || '/play/arcade?game=' + encodeURIComponent(game.slug))
+    ? safeProjectPageUrl(
+        game.route || '/play/arcade?game=' + encodeURIComponent(game.slug),
+      )
     : null
 }
 

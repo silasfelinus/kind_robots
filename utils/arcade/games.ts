@@ -699,8 +699,15 @@ export const PREVIEW_GAMES: ArcadeGameMeta[] = [
     slug: 'rainbow-bullet-hell-space-princess',
     title: 'Rainbow Bullet Hell Space Princess',
     riffsOn: 'cinematic side-scrolling shmups',
-    blurb: 'Private Pinkwake Estuary combat-engine slice: oceanic scouts, numbered local pilots and real shots. This is not the complete eight-stage campaign.',
-    howTo: ['ARROWS  FLY', 'HOLD A  PETAL FIRE', 'B  REPAIR SHIELD', 'DODGE THE SEA SCOUTS', '1 TO 4 LOCAL PILOTS'],
+    blurb:
+      'Private Pinkwake Estuary combat-engine slice: oceanic scouts, numbered local pilots and real shots. This is not the complete eight-stage campaign.',
+    howTo: [
+      'ARROWS  FLY',
+      'HOLD A  PETAL FIRE',
+      'B  REPAIR SHIELD',
+      'DODGE THE SEA SCOUTS',
+      '1 TO 4 LOCAL PILOTS',
+    ],
     width: 480,
     height: 270,
     maxPlausibleScore: 0,
@@ -757,7 +764,8 @@ export const UNLISTED_SCORED_GAMES: ArcadeGameMeta[] = [
 ]
 
 const LOADERS: Record<string, () => Promise<ArcadeGameModule>> = {
-  'rainbow-bullet-hell-space-princess': () => import('./games/rainbowPrincessPreview'),
+  'rainbow-bullet-hell-space-princess': () =>
+    import('./games/rainbowPrincessPreview'),
   'butterfly-blaster': () => import('./games/butterflyBlaster'),
   'battery-maze': () => import('./games/batteryMaze'),
   'rescue-rally': () => import('./games/rescueRally'),

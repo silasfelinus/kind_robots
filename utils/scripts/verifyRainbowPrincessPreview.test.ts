@@ -4,8 +4,11 @@ import { createRainbowPrincessPreview } from '../arcade/games/rainbowPrincessPre
 import { emptyInput } from '../arcade/types'
 import { findArcadeGame, HALL_GAMES, loadArcadeGame } from '../arcade/games'
 
-const file = (path: string) => readFileSync(new URL(path, import.meta.url), 'utf8')
-const tab = file('../../content/channels/admin/rainbow-bullet-hell-space-princess.md')
+const file = (path: string) =>
+  readFileSync(new URL(path, import.meta.url), 'utf8')
+const tab = file(
+  '../../content/channels/admin/rainbow-bullet-hell-space-princess.md',
+)
 const page = file('../../pages/admin/rainbow-bullet-hell-space-princess.vue')
 const registry = file('../arcade/games.ts')
 const placement = file('../projectPlacements.ts')
@@ -15,10 +18,21 @@ assert.match(tab, /tutorial:[\s\S]*?sections:/)
 assert.match(tab, /route: \/admin\/rainbow-bullet-hell-space-princess/)
 assert.match(page, /!user\.isAdmin/)
 assert.match(page, /ArcadeCabinet slug="rainbow-bullet-hell-space-princess"/)
-assert.match(registry, /PREVIEW_GAMES:[\s\S]*?rainbow-bullet-hell-space-princess/)
-assert.match(placement, /'rainbow-bullet-hell-space-princess':\s*\{[\s\S]*?channelKey: 'admin'/)
-assert.ok(!HALL_GAMES.some(g => g.slug === 'rainbow-bullet-hell-space-princess'))
-assert.equal(findArcadeGame('rainbow-bullet-hell-space-princess')?.maxPlayers, 4)
+assert.match(
+  registry,
+  /PREVIEW_GAMES:[\s\S]*?rainbow-bullet-hell-space-princess/,
+)
+assert.match(
+  placement,
+  /'rainbow-bullet-hell-space-princess':\s*\{[\s\S]*?channelKey: 'admin'/,
+)
+assert.ok(
+  !HALL_GAMES.some((g) => g.slug === 'rainbow-bullet-hell-space-princess'),
+)
+assert.equal(
+  findArcadeGame('rainbow-bullet-hell-space-princess')?.maxPlayers,
+  4,
+)
 const module = await loadArcadeGame('rainbow-bullet-hell-space-princess')
 assert.equal(typeof module.create, 'function')
 

@@ -8,16 +8,27 @@ import type {
 const W = 480
 const H = 270
 const SPEED = 2.6
-type Ship = { x: number; y: number; shield: number; cooldown: number; invulnerable: number }
+type Ship = {
+  x: number
+  y: number
+  shield: number
+  cooldown: number
+  invulnerable: number
+}
 type Shot = { x: number; y: number; seat: number }
 type Reef = { x: number; y: number; phase: number; health: number }
 const PILOT_COLORS = ['#ffd2ef', '#b8f8ff', '#ffe99f', '#b9a9ff']
 
-export function createRainbowPrincessPreview(options: ArcadeGameOptions): ArcadeGameInstance {
+export function createRainbowPrincessPreview(
+  options: ArcadeGameOptions,
+): ArcadeGameInstance {
   const count = Math.max(1, Math.min(4, options.players ?? 1))
   const ships: Ship[] = Array.from({ length: count }, (_, seat) => ({
-    x: 65, y: 84 + seat * (105 / count),
-    shield: 3, cooldown: 0, invulnerable: 60,
+    x: 65,
+    y: 84 + seat * (105 / count),
+    shield: 3,
+    cooldown: 0,
+    invulnerable: 60,
   }))
   const shots: Shot[] = []
   const reefs: Reef[] = []
@@ -37,10 +48,18 @@ export function createRainbowPrincessPreview(options: ArcadeGameOptions): Arcade
   }
 
   return {
-    get score() { return score },
-    get level() { return 1 },
-    get lives() { return lives },
-    get over() { return over },
+    get score() {
+      return score
+    },
+    get level() {
+      return 1
+    },
+    get lives() {
+      return lives
+    },
+    get over() {
+      return over
+    },
     update(input: InputFrame, seated = [input]) {
       if (over) return
       tick++
@@ -51,8 +70,21 @@ export function createRainbowPrincessPreview(options: ArcadeGameOptions): Arcade
         if (options.demo) {
           ship.y = 135 + Math.sin(tick / 33 + seat) * 56
         } else {
-          ship.x = Math.max(20, Math.min(W - 40, ship.x + (Number(keys.held.right) - Number(keys.held.left)) * SPEED))
-          ship.y = Math.max(34, Math.min(H - 25, ship.y + (Number(keys.held.down) - Number(keys.held.up)) * SPEED))
+          ship.x = Math.max(
+            20,
+            Math.min(
+              W - 40,
+              ship.x +
+                (Number(keys.held.right) - Number(keys.held.left)) * SPEED,
+            ),
+          )
+          ship.y = Math.max(
+            34,
+            Math.min(
+              H - 25,
+              ship.y + (Number(keys.held.down) - Number(keys.held.up)) * SPEED,
+            ),
+          )
         }
         if (ship.cooldown > 0) ship.cooldown--
         if (ship.invulnerable > 0) ship.invulnerable--
@@ -72,18 +104,36 @@ export function createRainbowPrincessPreview(options: ArcadeGameOptions): Arcade
       }
       for (let si = shots.length - 1; si >= 0; si--) {
         const shot = shots[si]!
-        if (shot.x > W + 10) { shots.splice(si, 1); continue }
-        const hit = reefs.find(reef => Math.abs(reef.x - shot.x) < 13 && Math.abs(reef.y - shot.y) < 14)
+        if (shot.x > W + 10) {
+          shots.splice(si, 1)
+          continue
+        }
+        const hit = reefs.find(
+          (reef) =>
+            Math.abs(reef.x - shot.x) < 13 && Math.abs(reef.y - shot.y) < 14,
+        )
         if (!hit) continue
         shots.splice(si, 1)
         hit.health--
-        if (hit.health === 0) { reefs.splice(reefs.indexOf(hit), 1); score += 125; clearCount++ }
+        if (hit.health === 0) {
+          reefs.splice(reefs.indexOf(hit), 1)
+          score += 125
+          clearCount++
+        }
       }
       for (let ei = reefs.length - 1; ei >= 0; ei--) {
         const reef = reefs[ei]!
-        if (reef.x < -20) { reefs.splice(ei, 1); continue }
+        if (reef.x < -20) {
+          reefs.splice(ei, 1)
+          continue
+        }
         for (const ship of ships) {
-          if (ship.invulnerable || Math.abs(ship.x - reef.x) >= 16 || Math.abs(ship.y - reef.y) >= 14) continue
+          if (
+            ship.invulnerable ||
+            Math.abs(ship.x - reef.x) >= 16 ||
+            Math.abs(ship.y - reef.y) >= 14
+          )
+            continue
           reefs.splice(ei, 1)
           ship.invulnerable = 90
           ship.shield--
@@ -107,8 +157,10 @@ export function createRainbowPrincessPreview(options: ArcadeGameOptions): Arcade
         g.fillStyle = ['#f2d6ff88', '#9ffffa44', '#fff5c444'][plane]!
         const speed = [0.22, 0.54, 1.13][plane]!
         for (let i = 0; i < 16; i++) {
-          const x = ((i * (47 + plane * 8) - tick * speed) % (W + 65) + W + 65) % (W + 65)
-          const y = 36 + (i * 73 + plane * 29) % (H - 65)
+          const x =
+            (((i * (47 + plane * 8) - tick * speed) % (W + 65)) + W + 65) %
+            (W + 65)
+          const y = 36 + ((i * 73 + plane * 29) % (H - 65))
           g.beginPath()
           g.ellipse(x, y, 2 + plane * 1.5, 1.3 + plane, 0, 0, Math.PI * 2)
           g.fill()
@@ -116,7 +168,7 @@ export function createRainbowPrincessPreview(options: ArcadeGameOptions): Arcade
       }
       g.fillStyle = '#f6c4e655'
       for (let i = 0; i < 6; i++) {
-        const x = ((i * 108 - tick * 0.28) % 640 + 640) % 640 - 60
+        const x = ((((i * 108 - tick * 0.28) % 640) + 640) % 640) - 60
         g.beginPath()
         g.ellipse(x, 244 + Math.sin(i) * 12, 56, 25, 0, 0, Math.PI * 2)
         g.fill()
@@ -180,7 +232,11 @@ export function createRainbowPrincessPreview(options: ArcadeGameOptions): Arcade
       g.font = 'bold 11px monospace'
       g.fillText('PINKWAKE / ENGINE PREVIEW', 12, 17)
       g.textAlign = 'right'
-      g.fillText(`SHOALS ${clearCount}  ·  ${count} PILOT${count > 1 ? 'S' : ''}`, W - 12, 17)
+      g.fillText(
+        `SHOALS ${clearCount}  ·  ${count} PILOT${count > 1 ? 'S' : ''}`,
+        W - 12,
+        17,
+      )
       g.textAlign = 'left'
     },
   }

@@ -266,9 +266,7 @@
                 </span>
               </div>
               <kr-deferred-image
-                v-if="
-                  mode !== 'cards' && availableArtSrc(item.icon)
-                "
+                v-if="mode !== 'cards' && availableArtSrc(item.icon)"
                 :src="availableArtSrc(item.icon)"
                 alt=""
                 class="absolute bottom-2 left-2 size-11 rounded-xl border border-white/25 object-cover shadow"

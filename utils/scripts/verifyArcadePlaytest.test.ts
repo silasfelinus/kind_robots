@@ -1,9 +1,11 @@
 import assert from 'node:assert/strict'
 import { levelCurve } from '../arcade/curve'
 import { ARCADE_BLURB_MAX, shortArcadeBlurb } from '../arcade/games'
-import { GLOOM_CURVES } from '../arcade/games/gloomInvaders'
-import { readGamepad, readGhostTrailPad } from '../arcade/input'
+import { DROP_SPRITES, GLOOM_CURVES } from '../arcade/games/gloomInvaders'
+import { readGamepad, readGhostTrailPad, readPinballPad } from '../arcade/input'
 import { deflects, newCrasher } from '../arcade/prizeShow/roster'
+import { STAGE_1_ACTS } from '../arcade/ghostTrail/acts/stage1'
+import { FOES } from '../arcade/ghostTrail/foes'
 import { waveCount } from '../arcade/prizeShow/season'
 import { FIGHTERS } from '../zuzuShowdown/fighters'
 import {
@@ -85,4 +87,52 @@ for (const [i, special] of fighter.specials.entries()) {
   assert.equal(actual.move.damage, special.move.damage * SHOWDOWN_DAMAGE_SCALE)
 }
 assert.equal(FIGHTERS[0]!.throwDamage, fighter.throwDamage)
+
+const stage1 = STAGE_1_ACTS[0]!
+const beginning = stage1.ledges.filter((ledge) => ledge.x < 1370)
+const middle = beginning.filter((ledge) => ledge.y >= 160 && ledge.y <= 176)
+const upper = beginning.filter((ledge) => ledge.y <= 140)
+assert.ok(middle.length >= 6, 'a continuous middle path starts before the first foe')
+assert.ok(upper.length >= 6, 'a distinct upper path runs above the awnings')
+assert.ok(
+  stage1.ground.some(([start, end]) => start <= 400 && end > 1000),
+  'street-level path remains available',
+)
+for (const lane of [middle, upper]) {
+  const platforms = [...lane].sort((a, b) => a.x - b.x)
+  for (let i = 1; i < platforms.length; i++) {
+    const gap = platforms[i]!.x - (platforms[i - 1]!.x + platforms[i - 1]!.w)
+    assert.ok(gap <= 30, 'each upper path has jumps within horizontal reach')
+  }
+}
+assert.ok(FOES.hyena.hp >= 3, 'bone coyotes survive at least two kunai hits')
+assert.ok(DROP_SPRITES[0]!.width >= 7)
+assert.ok(DROP_SPRITES[0]!.height >= 9)
+
+function controller(button: number | null, axes = [0, 0, 0, 0]) {
+  return {
+    axes,
+    buttons: Array.from({ length: 16 }, (_, i) => ({
+      pressed: i === button,
+      touched: i === button,
+      value: i === button ? 1 : 0,
+    })),
+  }
+}
+for (const button of [4, 6, 2]) {
+  const frame = readPinballPad(controller(button))
+  assert.equal(frame.left, true, 'left shoulder, trigger or face X fires left')
+  assert.equal(frame.right, false, 'left flipper never energizes right')
+  assert.equal(frame.a, false, 'left flipper never triggers generic both action')
+}
+for (const button of [5, 7, 1]) {
+  const frame = readPinballPad(controller(button))
+  assert.equal(frame.right, true, 'right shoulder, trigger or face B fires right')
+  assert.equal(frame.left, false, 'right flipper never energizes left')
+}
+assert.equal(readPinballPad(controller(null, [0, 0.9, 0, 0])).down, true)
+assert.equal(readPinballPad(controller(null, [0, 0, 0, 0.9])).down, true)
+assert.equal(readPinballPad(controller(null)).down, false)
+assert.equal(readPinballPad(controller(0)).a, true, 'A launches on the plunger')
+
 console.log('verifyArcadePlaytest: ok')

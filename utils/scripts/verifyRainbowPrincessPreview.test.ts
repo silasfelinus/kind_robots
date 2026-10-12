@@ -65,10 +65,7 @@ assert.deepEqual(
   { ...neutral, up: true, right: true },
   'sliding diagonally holds both directions',
 )
-assert.deepEqual(
-  pad(40, 190),
-  { ...neutral, down: true, left: true },
-)
+assert.deepEqual(pad(40, 190), { ...neutral, down: true, left: true })
 assert.deepEqual(
   directionsAtDpadPoint(123, 120, { ...rect, width: 0 }),
   neutral,

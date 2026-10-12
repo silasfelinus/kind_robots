@@ -11,6 +11,14 @@
 // - the hypno, who hunts the family and glitches them into glitched friends;
 // - the sparker, who flashes, then fires a spark at where the hero is going;
 // - the pylon, a neon post laid out in shapes by the wave script.
+// Slice 2 adds the Big Wind-Up's little wind-ups and the Toy Factory's crates; slice 3 the last seven:
+// - the prism, which glows, then hatches a thornball (catch it before the hatch);
+// - the thornball, whose shells bounce off the walls;
+// - the splitter, which cracks when hit and splits into four drones;
+// - the mimic, an echo walking the hero's path from two seconds ago;
+// - the shield bot, armoured in front (flank it);
+// - the magnet, which pulses, then pulls the hero and bends the beam;
+// - the kite drone, which drops pylons where its shadow falls, ahead of the hero.
 
 import { levelCurve } from '../curve'
 import type { ArcadeSoundName } from '../sound'
@@ -30,6 +38,13 @@ export type FoeKind =
   | 'pylon'
   | 'windup'
   | 'crate'
+  | 'prism'
+  | 'thornball'
+  | 'splitter'
+  | 'mimic'
+  | 'shieldbot'
+  | 'magnet'
+  | 'kite'
 
 export type FoeSpec = {
   name: string
@@ -163,6 +178,76 @@ export const FOES: Record<FoeKind, FoeSpec> = {
     tell: 'stacked toy crates',
     answer: 'cover from sparks; break for a prize',
   },
+  prism: {
+    name: 'PRISM',
+    hp: 3,
+    points: 400,
+    radius: 9,
+    hostile: true,
+    shove: 0,
+    tell: 'glows before hatching',
+    answer: 'pop it before the hatch',
+  },
+  thornball: {
+    name: 'THORNBALL',
+    hp: 2,
+    points: 150,
+    radius: 7,
+    hostile: true,
+    shove: 0,
+    tell: 'curls up, then spits a shell that bounces',
+    answer: "don't stand on rebound lines",
+  },
+  splitter: {
+    name: 'SPLITTER',
+    hp: 3,
+    points: 250,
+    radius: 11,
+    hostile: true,
+    shove: 0,
+    tell: 'cracks when hit',
+    answer: 'finish all four pieces',
+  },
+  mimic: {
+    name: 'MIMIC',
+    hp: 2,
+    points: 300,
+    radius: 8,
+    hostile: true,
+    shove: 0,
+    tell: 'an echo of your recent path',
+    answer: "don't retrace your steps",
+  },
+  shieldbot: {
+    name: 'SHIELD BOT',
+    hp: 3,
+    points: 300,
+    radius: 10,
+    hostile: true,
+    shove: 1,
+    tell: 'a shield on its front',
+    answer: 'flank it',
+  },
+  magnet: {
+    name: 'MAGNET',
+    hp: 4,
+    points: 350,
+    radius: 10,
+    hostile: true,
+    shove: 0,
+    tell: 'a pulse ring before a pull',
+    answer: 'move across the pull, not against it',
+  },
+  kite: {
+    name: 'KITE DRONE',
+    hp: 1,
+    points: 200,
+    radius: 8,
+    hostile: true,
+    shove: 0,
+    tell: 'a shadow over the drop point',
+    answer: 'stay off the shadow',
+  },
 }
 
 export const FOE_KINDS = Object.keys(FOES) as FoeKind[]
@@ -182,6 +267,8 @@ export type Foe = {
   /** Shove still carrying it after a beam hit. */
   pushX: number
   pushY: number
+  /** Which way it faces (radians): a shield bot's shield. */
+  face: number
 }
 
 /** Difficulty by global wave number: each keeps rising to the end of the campaign. */
@@ -199,6 +286,22 @@ export const FOE_CURVES = {
 export const RUSH_MAX = 2
 /** Ticks for a wave to reach full rush. */
 export const RUSH_TICKS = 60 * 30
+
+/** A prism glows this long before it hatches; a thornball curls this long before it spits. */
+export const PRISM_TELL = 60
+export const THORN_TELL = 30
+/** A magnet pulses this long, then pulls for this long. */
+export const MAGNET_TELL = 60
+export const MAGNET_PULL = 100
+/** A shield bot turns its shield this fast (radians a tick): slower than a hero can circle it. */
+export const SHIELD_TURN = 0.016
+/** Beams from within this angle of its front clank off the shield. */
+export const SHIELD_ARC = 0.8
+/** This many beams on the shield rattle it round to the back for SHIELD_RATTLE ticks. */
+export const SHIELD_KNOCKS = 10
+export const SHIELD_RATTLE = 100
+/** A mimic walks where the hero was this many ticks ago. */
+export const MIMIC_LAG = 120
 
 /** A sparker's flash: this many ticks of warning before every spark. */
 export const SPARK_TELL = 36
@@ -229,8 +332,14 @@ export type FoeWorld = {
   bonk(r: Rescuee, by: Foe): void
   /** A hypno has reached one. */
   glitch(r: Rescuee, by: Foe): void
-  /** A foe's shot: a spark at (x, y) with this velocity. */
-  fire(x: number, y: number, vx: number, vy: number): void
+  /** A foe's shot: a spark at (x, y) with this velocity (a thornball's shell bounces off walls). */
+  fire(x: number, y: number, vx: number, vy: number, bounces?: number): void
+  /** Where the nearest hero stood `ago` ticks back (a mimic's path), or null. */
+  echo(from: Point, ago: number): Point | null
+  /** A kite drone drops a pylon here (its shadow shows first). */
+  drop(at: Point): void
+  /** How many of a kind are about. */
+  count(kind: FoeKind): number
   /** A new foe in the arena (a spawner's seeker). */
   hatch(kind: FoeKind, at: Point): void
   sound(name: ArcadeSoundName): void
@@ -250,6 +359,7 @@ export function newFoe(kind: FoeKind, at: Point, rng: () => number): Foe {
     clock: 0,
     pushX: 0,
     pushY: 0,
+    face: Math.PI / 2,
   }
 }
 
@@ -322,6 +432,115 @@ export function stepFoe(f: Foe, w: FoeWorld) {
       f.y += f.vy
       if (f.x < ARENA.left + 8 || f.x > ARENA.right - 8) f.vx *= -1
       if (f.y < ARENA.top + 8 || f.y > ARENA.bottom - 8) f.vy *= -1
+      break
+    }
+    case 'prism': {
+      // It drifts round the middle of the room, glows, and hatches a thornball.
+      const orbit = {
+        x: CX + Math.cos(f.timer / 260 + f.seed) * 140,
+        y: CY + Math.sin(f.timer / 210 + f.seed) * 90,
+      }
+      const u = toward(f, orbit)
+      f.x += u.x * 0.45
+      f.y += u.y * 0.45
+      if (f.clock <= 0) f.clock = 200 + Math.floor(w.rng() * 120)
+      f.clock--
+      f.mode = f.clock <= PRISM_TELL ? 1 : 0
+      if (f.clock === 0 && w.count('thornball') < 10) {
+        w.hatch('thornball', { x: f.x, y: f.y + 6 })
+        w.sound('warn')
+      }
+      break
+    }
+    case 'thornball': {
+      const u = hero ? toward(f, hero) : { x: 0, y: 0 }
+      if (f.mode === 0) {
+        f.x += u.x * 0.4 * Math.sqrt(w.rush)
+        f.y += u.y * 0.4 * Math.sqrt(w.rush)
+      }
+      if (f.clock <= 0) f.clock = 130 + Math.floor(w.rng() * 80)
+      f.clock--
+      f.mode = f.clock <= THORN_TELL ? 1 : 0
+      if (f.clock === 0 && hero) {
+        w.fire(f.x, f.y, u.x * 2.4, u.y * 2.4, 2)
+        w.sound('pop')
+      }
+      break
+    }
+    case 'splitter': {
+      const u = hero ? toward(f, hero) : { x: 0, y: 0 }
+      const speed = 0.5 * w.rush
+      f.x += u.x * speed
+      f.y += u.y * speed
+      f.mode = f.hp < FOES.splitter.hp ? 1 : 0
+      break
+    }
+    case 'mimic': {
+      // An echo: it walks the hero's own path, two seconds behind.
+      const at = w.echo(f, MIMIC_LAG)
+      if (at) {
+        const d = dist(f, at)
+        const u = toward(f, at)
+        const speed = Math.min(d, 2.3)
+        f.vx = u.x * speed
+        f.vy = u.y * speed
+        f.x += f.vx
+        f.y += f.vy
+      }
+      break
+    }
+    case 'shieldbot': {
+      // Rattled: enough beams on the shield spin it round its back for a moment.
+      if (f.mode === 1 && --f.clock <= 0) {
+        f.mode = 0
+        f.clock = 0
+      }
+      // It turns its shield to the hero, slowly: get round the side.
+      if (hero) {
+        const want = Math.atan2(hero.y - f.y, hero.x - f.x)
+        const turn = Math.atan2(
+          Math.sin(want - f.face),
+          Math.cos(want - f.face),
+        )
+        f.face += Math.max(-SHIELD_TURN, Math.min(SHIELD_TURN, turn))
+        const speed = 0.45 * w.rush
+        f.x += Math.cos(f.face) * speed
+        f.y += Math.sin(f.face) * speed
+      }
+      break
+    }
+    case 'magnet': {
+      f.x += Math.cos(f.timer / 90 + f.seed) * 0.3
+      f.y += Math.sin(f.timer / 71 + f.seed) * 0.3
+      if (f.clock <= 0) {
+        f.mode = (f.mode + 1) % 3
+        f.clock =
+          f.mode === 0
+            ? 160 + Math.floor(w.rng() * 80)
+            : f.mode === 1
+              ? MAGNET_TELL
+              : MAGNET_PULL
+        if (f.mode === 2) w.sound('warn')
+      }
+      f.clock--
+      break
+    }
+    case 'kite': {
+      // It flies a weaving line near the hero and drops pylons ahead of it.
+      const goal = hero
+        ? {
+            x: hero.x + Math.cos(f.timer / 50 + f.seed) * 90,
+            y: hero.y + Math.sin(f.timer / 37 + f.seed) * 70,
+          }
+        : { x: CX, y: CY }
+      const u = toward(f, goal)
+      f.vx = f.vx * 0.95 + u.x * 0.05
+      f.vy = f.vy * 0.95 + u.y * 0.05
+      f.x += f.vx * 1.1
+      f.y += f.vy * 1.1
+      if (f.clock <= 0) f.clock = 200 + Math.floor(w.rng() * 100)
+      if (--f.clock === 0 && hero)
+        w.drop({ x: hero.x + hero.vx * 40, y: hero.y + hero.vy * 40 })
       break
     }
     case 'puddle':

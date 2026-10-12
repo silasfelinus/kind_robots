@@ -47,7 +47,9 @@ for (const players of [1, 2, 3, 4]) {
         assert.ok(line.text)
         assert.ok(
           line.speaker === 'Lilt-7' ||
-          ['Maribel', 'Azure', 'Solenne', 'Vivi'].slice(0, players).includes(line.speaker),
+            ['Maribel', 'Azure', 'Solenne', 'Vivi']
+              .slice(0, players)
+              .includes(line.speaker),
         )
       }
       assert.equal(moonjellyDialogue(id, 288, players, saved), null)
@@ -73,14 +75,19 @@ for (let t = 0; t < 500; t++) {
     fired += next.length
     if (lastWarning < 36) attacksBeforeTelegraph++
     lastWarning = 0
-    assert.ok(next.every((shot) =>
-      shot.vx < 0 && Math.hypot(shot.vx, shot.vy) <= 2.21))
+    assert.ok(
+      next.every((shot) => shot.vx < 0 && Math.hypot(shot.vx, shot.vy) <= 2.21),
+    )
   }
 }
 assert.equal(boss.phase, 3)
 assert.ok(warnedFrames > 70)
 assert.ok(fired >= 12)
-assert.equal(attacksBeforeTelegraph, 0, 'every boss volley has a 36-frame warning')
+assert.equal(
+  attacksBeforeTelegraph,
+  0,
+  'every boss volley has a 36-frame warning',
+)
 
 function seeded(seed = 1234) {
   let state = seed
@@ -89,9 +96,14 @@ function seeded(seed = 1234) {
     return state / 0x100000000
   }
 }
-const create = (players: number) => createRainbowPrincessPreview({
-  players, demo: true, rng: seeded(), sound: { play() {} }, hiScore: 0,
-})
+const create = (players: number) =>
+  createRainbowPrincessPreview({
+    players,
+    demo: true,
+    rng: seeded(),
+    sound: { play() {} },
+    hiScore: 0,
+  })
 for (const players of [1, 4]) {
   const a = create(players)
   const b = create(players)
@@ -107,21 +119,37 @@ for (const players of [1, 4]) {
     if (frame === 100) startingLives = a.lives
     if (snapshot.act === 'S02') enteredTwo = true
     if (snapshot.moonBoss) sawMoonBoss = true
-    if (snapshot.act === 'S02' &&
-      snapshot.stage === 'aftermath') reachedClear = true
+    if (snapshot.act === 'S02' && snapshot.stage === 'aftermath')
+      reachedClear = true
     if (frame % 200 === 0 || (reachedClear && frame % 50 === 0)) {
-      assert.deepEqual(snapshot, b.snapshot, `desync with ${players} pilots at ${frame}`)
+      assert.deepEqual(
+        snapshot,
+        b.snapshot,
+        `desync with ${players} pilots at ${frame}`,
+      )
     }
-    assert.equal(a.lives, startingLives || a.lives, 'autoplay cannot exhaust the crew')
+    assert.equal(
+      a.lives,
+      startingLives || a.lives,
+      'autoplay cannot exhaust the crew',
+    )
     if (reachedClear) break
   }
-  assert.ok(enteredTwo, `${players} pilots reach Moonjelly without resetting lives`)
+  assert.ok(
+    enteredTwo,
+    `${players} pilots reach Moonjelly without resetting lives`,
+  )
   assert.ok(sawMoonBoss, `${players} pilots reach the Aurelia Array`)
   assert.ok(reachedClear, `${players} pilots can clear the second boss`)
   assert.equal(a.level, 2)
   assert.equal(a.snapshot.act, 'S02')
   assert.equal(a.snapshot.moonBoss, null)
-  assert.ok(a.snapshot.defeatedAt !== null, 'Pearl Seahorse remains marked defeated')
+  assert.ok(
+    a.snapshot.defeatedAt !== null,
+    'Pearl Seahorse remains marked defeated',
+  )
   assert.equal(a.lives, players * 3)
 }
-console.log('Rainbow Moonjelly two-Act transitions, boss telegraphs and replay passed')
+console.log(
+  'Rainbow Moonjelly two-Act transitions, boss telegraphs and replay passed',
+)

@@ -7,6 +7,7 @@
 // hungrier swarms and a sharper malaria cloud.
 
 import { levelCurve } from '../curve'
+import { GROUND } from './sky'
 
 export type WavePlan = {
   /** Big swarms on the edges at the start. */
@@ -19,10 +20,12 @@ export type WavePlan = {
   cloud: boolean
 }
 
+export type PoolSpot = { x: number; y: number }
+
 export type NightPlan = {
   waves: WavePlan[]
-  /** Breeding pools on the ground, by x. */
-  pools: number[]
+  /** Breeding pools: standing water on the ground, or paddies up on the terraces. */
+  pools: PoolSpot[]
   /** Ticks between wrigglers from one pool. */
   poolEvery: number
   /** Swarm speed (1 = the base speed). */
@@ -56,7 +59,9 @@ export const NIGHT_CURVES = {
 } as const
 
 /** Where pools may lie: between huts, clear of the HUD's bottom corners. */
-export const POOL_SPOTS = [240, 176, 303, 113, 367] as const
+export const POOL_SPOTS: readonly PoolSpot[] = [240, 176, 303, 113, 367].map(
+  (x) => ({ x, y: GROUND + 4 }),
+)
 
 /** Night n of the endless watch. */
 export function endlessNight(n: number): NightPlan {

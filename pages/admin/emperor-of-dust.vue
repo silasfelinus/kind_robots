@@ -57,8 +57,23 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted } from 'vue'
+import { onMounted, ref } from 'vue'
 import { useUserStore } from '~/stores/userStore'
 const user = useUserStore()
+const stats = [
+  { label: 'Campaign', value: '100 days' },
+  { label: 'Initial court', value: '5 followers' },
+  { label: 'Dispatch', value: '0–3 helpers' },
+  { label: 'Progress', value: 'Concept' },
+]
+const regions = [
+  { name: 'Imperial Keep', x: '54%', y: '54%', faction: 'Imperial court', description: 'A patched-together palace overlooks the only reliable market. Young Komodo has a great deal to say about what things cost.' },
+  { name: 'Hollow Bell', x: '79%', y: '43%', faction: 'Hollow Bell Council', description: 'A frontier village held together by a personable mayor who measures every promise against the next drought.' },
+  { name: 'Storm Crow Heights', x: '22%', y: '29%', faction: 'Storm Crow Conclave', description: 'Magic brings rain to thirsty farms. Payment for that magic is often hidden inside the bargain.' },
+  { name: 'Jackalwire Canyon', x: '25%', y: '78%', faction: 'Jackalwire Pack', description: 'Painted wagons and riotous punk hyena raiders. Their crews are as unruly with each other as they are with the crown.' },
+  { name: 'Mirefen', x: '76%', y: '19%', faction: 'Mire Mothers', description: 'The swamp witches plead for protection from real raiders. Their leaders have very different plans.' },
+  { name: 'Saltroad', x: '64%', y: '83%', faction: 'Saltroad Caravans', description: 'Medicine, food and news arrive by caravan. A merchant can save a village or profit from its desperation.' },
+]
+const selected = ref(regions[0]!)
 onMounted(async () => { await user.initialize() })
 </script>

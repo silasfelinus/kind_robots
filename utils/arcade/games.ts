@@ -378,8 +378,8 @@ export const ARCADE_GAMES: ArcadeGameMeta[] = [
       'Zuzu, the koala ronin, walks a haunted weird-west trail toward the mission bell that is waking the dead: six stages of hand-built acts, from a ghost town at dusk through the bone yard, a drowned watering hole whose tide rises and falls, Storm Crow Pass, the mission bell tower and the abbey beneath it. Every squad of the dead is placed by hand and stays down once beaten; every one of the six bosses (the Grave Marshal, the Bone Bull, the Drowned Ferryman, the Storm-Crow Matriarch, the Bell Heretic and the Abbess) shows its attacks before they land. The first hit knocks his poncho and kasa off; a second sends him back to the checkpoint. Crates and carried bundles hold new gear: three-way shuriken, a boomerang kasa, a lantern that leaves a ground fire, or the short, strong iai cut. Relics hide off the beaten path, and finding them all earns the true ending. Progress saves at every act, and a clear unlocks New Game+.',
     howTo: [
       'LEFT/RIGHT  WALK',
-      'UP/B  JUMP; PAD A JUMP',
-      'A  ATTACK; PAD B ATTACK',
+      'UP OR B JUMP  PAD A JUMP',
+      'A ATTACK  PAD B ATTACK',
       'ONE HIT LOSES THE PONCHO',
       'BREAK CRATES FOR A NEW ONE',
       'WATCH FOR EACH ATTACK TELL',

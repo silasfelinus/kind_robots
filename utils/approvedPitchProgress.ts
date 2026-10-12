@@ -1,4 +1,5 @@
-import type { ConductorPitch, ConductorProject, ConductorTask } from '@/server/utils/conductorProjection'
+import type { ConductorPitch, ConductorProject } from '@/server/utils/conductorProjection'
+import type { ConductorTask } from '@/server/utils/conductorRoadmap'
 
 export type PitchBuildStage = 'awaiting-intake' | 'scaffolded' | 'building' | 'page-linked' | 'shared-project'
 

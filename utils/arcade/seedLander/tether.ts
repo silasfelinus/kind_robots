@@ -48,7 +48,7 @@ export const WINCH = {
 } as const
 
 export const CARGO_MASS: Record<CargoKind, number> = {
-  crate: 0.6,
+  crate: 0.4,
   water: 0.5,
   sprout: 0.35,
   lander: 1.2,

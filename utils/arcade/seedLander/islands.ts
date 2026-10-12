@@ -1,0 +1,513 @@
+// /utils/arcade/seedLander/islands.ts
+//
+// The Great Replanting's islands as data (conductor kr-arcade/t-070..t-072, CABINETS.md
+// section 9): each wilted island is five short landing puzzles and a boss set-piece, every one a
+// MissionSpec. Later slices add islands to ISLANDS; a save can point one past the last, waiting.
+//
+//   1 Meadow Isle (dawn): today's hills, wider; updraft vents; First Bloom; Old Scarecrow.
+//   2 Windmill Downs: gust lanes, windmills, dandelion drift and crow-bots; Pollen Post; the Gale Mill.
+
+import type { MissionSpec, ThemeId } from './missions'
+
+export type Island = {
+  id: string
+  name: string
+  /** One line on the island map. */
+  about: string
+  theme: ThemeId
+  /** Five missions, then the boss. */
+  missions: readonly MissionSpec[]
+}
+
+/** Each island's missions: five, then the boss. */
+export const MISSIONS_PER_ISLAND = 6
+
+const par = (sun: number, seconds: number) => ({ sun, ticks: 60 * seconds })
+
+// --- 1. Meadow Isle -------------------------------------------------------------------------------
+
+const MEADOW: Island = {
+  id: 'meadow',
+  name: 'MEADOW ISLE',
+  about: 'WHERE THE REPLANTING BEGINS',
+  theme: 'dawn',
+  missions: [
+    {
+      id: 'meadow-1',
+      name: 'FIRST SEEDS',
+      brief: 'PLANT 2 BEDS',
+      kind: 'plant',
+      theme: 'dawn',
+      map: {
+        w: 640,
+        h: 260,
+        ground: [
+          [0, 200],
+          [64, 196],
+          [128, 206],
+          [192, 192],
+          [256, 190],
+          [320, 210],
+          [384, 214],
+          [448, 196],
+          [512, 182],
+          [576, 190],
+          [640, 200],
+        ],
+        pads: [
+          { id: 'bed1', x: 200, w: 40, mult: 1 },
+          { id: 'bed2', x: 400, w: 30, mult: 2 },
+          { id: 'bed3', x: 560, w: 24, mult: 3 },
+          { id: 'sun', x: 300, w: 30, kind: 'sun' },
+        ],
+      },
+      start: { x: 40, y: 40 },
+      sun: 900,
+      wind: 0.001,
+      seeds: 2,
+      acorns: [{ id: 'meadow-a1', x: 330, y: 112 }],
+      par: par(380, 30),
+    },
+    {
+      id: 'meadow-2',
+      name: 'FIRST BLOOM',
+      brief: 'THE GOLD BED GROWS A SUNFLOWER',
+      kind: 'plant',
+      theme: 'dawn',
+      map: {
+        w: 960,
+        h: 260,
+        ground: [
+          [0, 196],
+          [96, 200],
+          [192, 188],
+          [288, 196],
+          [384, 214],
+          [480, 206],
+          [576, 190],
+          [672, 172],
+          [768, 186],
+          [832, 160],
+          [880, 150],
+          [928, 176],
+          [960, 190],
+        ],
+        pads: [
+          { id: 'gold', x: 240, w: 30, mult: 2, grows: 'sunflower' },
+          { id: 'bed1', x: 520, w: 36, mult: 1 },
+          { id: 'bed4', x: 880, w: 18, mult: 4 },
+        ],
+      },
+      start: { x: 40, y: 40 },
+      sun: 860,
+      wind: 0.0015,
+      seeds: 3,
+      par: par(620, 50),
+    },
+    {
+      id: 'meadow-3',
+      name: 'BEAN UP',
+      brief: 'A BEANSTALK REACHES THE HIGH BEDS',
+      kind: 'plant',
+      theme: 'dawn',
+      map: {
+        w: 960,
+        h: 260,
+        ground: [
+          [0, 200],
+          [128, 210],
+          [256, 218],
+          [384, 222],
+          [576, 222],
+          [640, 214],
+          [676, 120],
+          [760, 112],
+          [880, 118],
+          [960, 110],
+        ],
+        pads: [
+          {
+            id: 'bean',
+            x: 520,
+            w: 30,
+            mult: 1,
+            grows: 'beanstalk',
+            reach: [[44, -88]],
+          },
+          { id: 'bed5', x: 720, w: 16, mult: 5 },
+          { id: 'bed2', x: 880, w: 28, mult: 2 },
+          { id: 'sun', x: 300, w: 30, kind: 'sun' },
+        ],
+      },
+      start: { x: 40, y: 40 },
+      sun: 1000,
+      wind: 0.0015,
+      seeds: 3,
+      vents: [{ x: 610, w: 22, h: 120, lift: 0.024 }],
+      acorns: [{ id: 'meadow-a2', x: 930, y: 50 }],
+      par: par(700, 55),
+    },
+    {
+      id: 'meadow-4',
+      name: 'HAY RUN',
+      brief: 'TOW 2 SEED CRATES TO THE BARN',
+      kind: 'deliver',
+      theme: 'dawn',
+      map: {
+        w: 960,
+        h: 260,
+        ground: [
+          [0, 206],
+          [128, 208],
+          [256, 210],
+          [384, 206],
+          [480, 196],
+          [576, 192],
+          [672, 182],
+          [768, 170],
+          [864, 168],
+          [960, 176],
+        ],
+        pads: [
+          { id: 'barn', x: 830, w: 40, kind: 'drop' },
+          { id: 'sun', x: 600, w: 30, kind: 'sun' },
+        ],
+      },
+      start: { x: 40, y: 40 },
+      sun: 1100,
+      wind: 0.0015,
+      seeds: 0,
+      cargo: [
+        { kind: 'crate', x: 190, seedlings: 3, to: 'barn' },
+        { kind: 'crate', x: 380, seedlings: 3, to: 'barn' },
+      ],
+      par: par(800, 70),
+    },
+    {
+      id: 'meadow-5',
+      name: 'PETAL RINGS',
+      brief: 'FLY THE RINGS IN ORDER, AGAINST THE CLOCK',
+      kind: 'rings',
+      theme: 'dawn',
+      map: {
+        w: 960,
+        h: 260,
+        ground: [
+          [0, 204],
+          [96, 196],
+          [192, 214],
+          [288, 190],
+          [384, 200],
+          [480, 218],
+          [576, 214],
+          [672, 186],
+          [768, 200],
+          [864, 196],
+          [960, 204],
+        ],
+        pads: [
+          { id: 'sun', x: 440, w: 30, kind: 'sun' },
+          { id: 'home', x: 900, w: 40, kind: 'home' },
+        ],
+      },
+      start: { x: 40, y: 40 },
+      sun: 1100,
+      wind: 0.001,
+      seeds: 0,
+      rings: [
+        { x: 170, y: 130, r: 16 },
+        { x: 300, y: 92, r: 16 },
+        { x: 420, y: 150, r: 15 },
+        { x: 560, y: 70, r: 15 },
+        { x: 700, y: 132, r: 14 },
+        { x: 850, y: 104, r: 14 },
+      ],
+      time: 60 * 50,
+      vents: [{ x: 560, w: 24, h: 150, lift: 0.026 }],
+      acorns: [{ id: 'meadow-a3', x: 560, y: 34 }],
+      par: par(600, 30),
+    },
+    {
+      id: 'meadow-boss',
+      name: 'OLD SCARECROW',
+      brief: 'PLANT ON HIS WAVING HANDS',
+      kind: 'boss',
+      theme: 'dawn',
+      map: {
+        w: 640,
+        h: 260,
+        ground: [
+          [0, 214],
+          [160, 220],
+          [320, 224],
+          [480, 220],
+          [640, 214],
+        ],
+        pads: [
+          { id: 'sunL', x: 70, w: 32, kind: 'sun' },
+          { id: 'sunR', x: 570, w: 32, kind: 'sun' },
+        ],
+      },
+      start: { x: 70, y: 40 },
+      sun: 1300,
+      wind: 0.001,
+      seeds: 0,
+      boss: { id: 'scarecrow', x: 320 },
+      par: par(900, 80),
+    },
+  ],
+}
+
+// --- 2. Windmill Downs ----------------------------------------------------------------------------
+
+const DOWNS: Island = {
+  id: 'downs',
+  name: 'WINDMILL DOWNS',
+  about: 'GUST LANES, SAILS AND CROWS',
+  theme: 'downs',
+  missions: [
+    {
+      id: 'downs-1',
+      name: 'GUST LANES',
+      brief: 'LEAN INTO THE STREAMERS',
+      kind: 'plant',
+      theme: 'downs',
+      map: {
+        w: 960,
+        h: 260,
+        ground: [
+          [0, 200],
+          [128, 204],
+          [256, 196],
+          [352, 206],
+          [448, 214],
+          [544, 200],
+          [640, 188],
+          [736, 196],
+          [832, 178],
+          [960, 190],
+        ],
+        pads: [
+          { id: 'bed2', x: 300, w: 28, mult: 2 },
+          { id: 'bed3', x: 640, w: 22, mult: 3 },
+          { id: 'bed4', x: 880, w: 18, mult: 4 },
+          { id: 'sun', x: 480, w: 30, kind: 'sun' },
+        ],
+      },
+      start: { x: 40, y: 40 },
+      sun: 1050,
+      wind: 0.002,
+      seeds: 3,
+      lanes: [
+        { x0: 180, x1: 780, y0: 56, y1: 100, push: 0.007 },
+        { x0: 180, x1: 780, y0: 110, y1: 150, push: -0.006 },
+      ],
+      acorns: [{ id: 'downs-a1', x: 480, y: 56 }],
+      par: par(700, 50),
+    },
+    {
+      id: 'downs-2',
+      name: 'POLLEN POST',
+      brief: 'TOW A CRATE TO EACH OF 3 FARMS',
+      kind: 'deliver',
+      theme: 'downs',
+      map: {
+        w: 1280,
+        h: 260,
+        ground: [
+          [0, 206],
+          [128, 208],
+          [256, 204],
+          [384, 210],
+          [512, 206],
+          [640, 196],
+          [768, 200],
+          [896, 186],
+          [1024, 196],
+          [1152, 180],
+          [1280, 190],
+        ],
+        pads: [
+          { id: 'farm1', x: 760, w: 38, kind: 'drop' },
+          { id: 'farm2', x: 980, w: 38, kind: 'drop' },
+          { id: 'farm3', x: 1200, w: 38, kind: 'drop' },
+          { id: 'sun1', x: 460, w: 30, kind: 'sun' },
+          { id: 'sun2', x: 870, w: 30, kind: 'sun' },
+        ],
+      },
+      start: { x: 40, y: 40 },
+      sun: 1300,
+      wind: 0.002,
+      seeds: 0,
+      cargo: [
+        { kind: 'crate', x: 150, seedlings: 3, to: 'farm1' },
+        { kind: 'crate', x: 290, seedlings: 3, to: 'farm2' },
+        { kind: 'crate', x: 600, seedlings: 3, to: 'farm3' },
+      ],
+      fluff: [{ x0: 300, x1: 1100, y0: 70, y1: 150, every: 70, drift: 0.5 }],
+      par: par(1100, 120),
+    },
+    {
+      id: 'downs-3',
+      name: 'MUSHROOM HOP',
+      brief: 'A MUSHROOM BOUNCES, A VINE CLIMBS',
+      kind: 'plant',
+      theme: 'downs',
+      map: {
+        w: 960,
+        h: 260,
+        ground: [
+          [0, 206],
+          [128, 212],
+          [256, 216],
+          [400, 218],
+          [420, 96],
+          [460, 92],
+          [480, 218],
+          [640, 222],
+          [688, 222],
+          [698, 124],
+          [800, 118],
+          [960, 122],
+        ],
+        pads: [
+          { id: 'mush', x: 340, w: 30, mult: 1, grows: 'mushroom' },
+          {
+            id: 'vine',
+            x: 660,
+            w: 30,
+            mult: 2,
+            grows: 'vine',
+            reach: [
+              [22, -34],
+              [-24, -70],
+            ],
+          },
+          { id: 'bed5', x: 840, w: 16, mult: 5 },
+          { id: 'sun', x: 560, w: 30, kind: 'sun' },
+        ],
+      },
+      start: { x: 40, y: 40 },
+      sun: 1050,
+      wind: 0.002,
+      seeds: 3,
+      acorns: [{ id: 'downs-a2', x: 440, y: 60 }],
+      par: par(700, 55),
+    },
+    {
+      id: 'downs-4',
+      name: 'SAIL TIMING',
+      brief: 'TIME THE GAPS IN THE SAILS',
+      kind: 'plant',
+      theme: 'downs',
+      map: {
+        w: 960,
+        h: 260,
+        ground: [
+          [0, 204],
+          [160, 210],
+          [320, 214],
+          [480, 206],
+          [640, 214],
+          [800, 196],
+          [960, 200],
+        ],
+        ledges: [
+          { x0: 337, x1: 343, y0: 153, y1: 214 },
+          { x0: 617, x1: 623, y0: 148, y1: 214 },
+        ],
+        pads: [
+          { id: 'bed2', x: 480, w: 26, mult: 2 },
+          { id: 'bed4', x: 860, w: 18, mult: 4 },
+          { id: 'sun', x: 160, w: 30, kind: 'sun' },
+        ],
+      },
+      start: { x: 40, y: 40 },
+      sun: 1000,
+      wind: 0.002,
+      seeds: 2,
+      windmills: [
+        { x: 340, y: 145, r: 56, speed: 0.02 },
+        { x: 620, y: 140, r: 60, speed: -0.017 },
+      ],
+      acorns: [{ id: 'downs-a3', x: 620, y: 66 }],
+      par: par(650, 50),
+    },
+    {
+      id: 'downs-5',
+      name: 'CROW COUNTRY',
+      brief: 'TOW 2 CRATES PAST THE CROW-BOTS',
+      kind: 'deliver',
+      theme: 'downs',
+      map: {
+        w: 1280,
+        h: 260,
+        ground: [
+          [0, 204],
+          [160, 210],
+          [320, 200],
+          [480, 210],
+          [640, 196],
+          [800, 206],
+          [960, 190],
+          [1120, 180],
+          [1280, 190],
+        ],
+        pads: [
+          { id: 'mill', x: 1180, w: 40, kind: 'drop' },
+          { id: 'sun1', x: 560, w: 30, kind: 'sun' },
+          { id: 'sun2', x: 960, w: 30, kind: 'sun' },
+        ],
+      },
+      start: { x: 40, y: 40 },
+      sun: 1300,
+      wind: 0.0025,
+      seeds: 0,
+      cargo: [
+        { kind: 'crate', x: 200, seedlings: 3, to: 'mill' },
+        { kind: 'crate', x: 380, seedlings: 3, to: 'mill' },
+      ],
+      crows: [
+        { x: 620, y: 64 },
+        { x: 960, y: 70 },
+      ],
+      fluff: [{ x0: 200, x1: 1200, y0: 60, y1: 140, every: 80, drift: -0.5 }],
+      par: par(1100, 120),
+    },
+    {
+      id: 'downs-boss',
+      name: 'THE GALE MILL',
+      brief: 'LAND ON THE SAILS AT THE TOP',
+      kind: 'boss',
+      theme: 'downs',
+      map: {
+        w: 800,
+        h: 260,
+        ground: [
+          [0, 214],
+          [200, 222],
+          [400, 226],
+          [600, 222],
+          [800, 214],
+        ],
+        pads: [
+          { id: 'sunL', x: 80, w: 32, kind: 'sun' },
+          { id: 'sunR', x: 720, w: 32, kind: 'sun' },
+        ],
+      },
+      start: { x: 80, y: 40 },
+      sun: 1400,
+      wind: 0,
+      seeds: 0,
+      boss: { id: 'galemill', x: 400 },
+      par: par(1000, 90),
+    },
+  ],
+}
+
+export const ISLANDS: readonly Island[] = [MEADOW, DOWNS]
+
+/** Every golden acorn on the islands built so far. */
+export const ALL_ACORNS: readonly string[] = ISLANDS.flatMap((i) =>
+  i.missions.flatMap((m) => (m.acorns ?? []).map((a) => a.id)),
+)

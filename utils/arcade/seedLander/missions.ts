@@ -7,6 +7,8 @@
 // game's seeded rng, with a new hazard from the roster unlocked every 4 hills.
 
 import { levelCurve } from '../curve'
+import type { BossId } from './bosses'
+import type { CrowSpec, FluffSpec, LaneSpec, WindmillSpec } from './hazards'
 import type { CargoKind } from './tether'
 import type { Knot, MapSpec, PadSpec } from './terrain'
 import { knotAt } from './terrain'
@@ -43,6 +45,9 @@ export type HazardId = (typeof HAZARD_LADDER)[number]
 export const BUILT_HAZARDS: ReadonlySet<HazardId> = new Set<HazardId>([
   'gust',
   'updraft',
+  'windmill',
+  'dandelion',
+  'crow',
 ])
 
 export const HAZARD_NAMES: Record<HazardId, string> = {
@@ -77,7 +82,12 @@ export type CargoSpec = {
 }
 
 /** How a mission's sky and ground are painted. */
-export type ThemeId = 'dawn' | 'noon' | 'dusk' | 'night'
+export type ThemeId = 'dawn' | 'noon' | 'dusk' | 'night' | 'downs'
+
+/** A petal ring to fly through (a Ring Race). */
+export type RingSpec = { x: number; y: number; r: number }
+/** A golden acorn hidden on the map. */
+export type AcornSpec = { id: string; x: number; y: number }
 
 export type MissionSpec = {
   id: string
@@ -102,6 +112,18 @@ export type MissionSpec = {
   theme: ThemeId
   /** Hazards newly unlocked on this hill (Free Flight shows them on its card). */
   unlocked?: readonly HazardId[]
+  lanes?: readonly LaneSpec[]
+  windmills?: readonly WindmillSpec[]
+  fluff?: readonly FluffSpec[]
+  crows?: readonly CrowSpec[]
+  /** A Ring Race's rings, flown in order, and its time limit. */
+  rings?: readonly RingSpec[]
+  time?: number
+  acorns?: readonly AcornSpec[]
+  /** A boss set-piece: who, standing where. */
+  boss?: { id: BossId; x: number }
+  /** Crates to deliver to clear a Deliver mission (all of them if omitted). */
+  deliveries?: number
 }
 
 /** Free Flight's levers: they keep rising long after the old hill-8 plateau. */
@@ -213,6 +235,38 @@ export function freeHill(hill: number, rng: () => number): MissionSpec {
         () => ({ x: take(), w: 22, h: 110 + rng() * 40, lift: 0.024 }),
       )
     : []
+  const after = (first: number, every: number, most: number) =>
+    Math.min(most, 1 + Math.floor((hill - first) / every))
+  const windmills: WindmillSpec[] = hazards.includes('windmill')
+    ? Array.from({ length: after(9, 5, 3) }, () => {
+        const x = take()
+        const ground = knotAt(knots, x)
+        return {
+          x,
+          y: ground - 78 - rng() * 14,
+          r: 50 + rng() * 14,
+          speed: (rng() < 0.5 ? -1 : 1) * (0.015 + rng() * 0.008),
+        }
+      })
+    : []
+  const fluff: FluffSpec[] = hazards.includes('dandelion')
+    ? [
+        {
+          x0: 0,
+          x1: w,
+          y0: 50,
+          y1: 150,
+          every: Math.max(18, 60 - (hill - 13) * 3),
+          drift: (rng() < 0.5 ? -1 : 1) * 0.55,
+        },
+      ]
+    : []
+  const crows: CrowSpec[] = hazards.includes('crow')
+    ? Array.from({ length: after(17, 6, 3) }, () => ({
+        x: take(),
+        y: 46 + rng() * 20,
+      }))
+    : []
   const seeds = hill < 5 ? 2 : 3
   const sun = 700 + 190 * screens + 70 * seeds
   return {
@@ -220,13 +274,27 @@ export function freeHill(hill: number, rng: () => number): MissionSpec {
     name: `HILLSIDE ${hill}`,
     brief: `PLANT ${seeds} BEDS`,
     kind: 'plant',
-    map: { w, h, ground: knots, pads },
     start: { x: 48, y: 34 },
     sun,
     wind: hazards.includes('gust') ? levelCurve(hill, FREE_CURVES.wind) : 0,
     seeds,
     cargo,
     vents,
+    windmills,
+    fluff,
+    crows,
+    map: {
+      w,
+      h,
+      ground: knots,
+      pads,
+      ledges: windmills.map((m) => ({
+        x0: m.x - 3,
+        x1: m.x + 3,
+        y0: m.y + 8,
+        y1: knotAt(knots, m.x) + 4,
+      })),
+    },
     par: { sun: Math.round(sun * 0.55), ticks: 60 * (18 + 9 * screens) },
     theme: freeTheme(hill),
     unlocked: newHazards(hill),

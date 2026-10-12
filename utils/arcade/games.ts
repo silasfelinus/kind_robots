@@ -456,6 +456,7 @@ export const ARCADE_GAMES: ArcadeGameMeta[] = [
     howTo: [
       'LEFT/RIGHT  LEAN',
       'UP OR A  PUFF',
+      'B HOP  DOWN WINCH',
       'LAND SLOW AND LEVEL',
       'GREEN GAUGES = SAFE',
       'NARROW PADS PAY MORE',

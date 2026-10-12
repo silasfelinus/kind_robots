@@ -13,9 +13,14 @@ export type Knot = readonly [x: number, y: number]
 
 /**
  * What a pad is for: a seed bed to plant, a sunflower that refuels, a drop zone for towed cargo,
- * or the home perch a mission starts and ends on.
+ * the home perch a mission starts and ends on, a perch to rest on (a beanstalk top, a vine's
+ * rungs), or a mushroom that bounces the pod back up.
  */
-export type PadKind = 'seed' | 'sun' | 'drop' | 'home'
+export type PadKind = 'seed' | 'sun' | 'drop' | 'home' | 'perch' | 'bounce'
+
+/** What a seed bed grows when planted (the living gardens: seedLander/gardens.ts). */
+export type PlantKind =
+  'flower' | 'sunflower' | 'beanstalk' | 'mushroom' | 'vine'
 
 export type PadSpec = {
   id?: string
@@ -29,6 +34,10 @@ export type PadSpec = {
   y?: number
   /** A ledge pad with nothing under it (a shelf on a cave wall); otherwise a pillar to the ground. */
   float?: boolean
+  /** What the bed grows once planted (a plain flower if omitted). */
+  grows?: PlantKind
+  /** Where a beanstalk's top or a vine's rungs reach, relative to the bed's centre and top. */
+  reach?: ReadonlyArray<readonly [dx: number, dy: number]>
 }
 
 export type LedgeSpec = { x0: number; x1: number; y0: number; y1: number }
@@ -54,9 +63,22 @@ export type Pad = {
   /** A moving pad's speed (a boss's hand, a drifting cloud): landings are judged relative to it. */
   vx: number
   vy: number
+  grows: PlantKind
+  reach: ReadonlyArray<readonly [number, number]>
+  /** Something sits on it (a crow on the Scarecrow's hand): landing there is a bonk. */
+  blocked?: boolean
+  /** Moving pads are drawn live (not baked into the island's art). */
+  live?: boolean
 }
 
-export type Ledge = { x0: number; x1: number; y0: number; y1: number }
+export type Ledge = {
+  x0: number
+  x1: number
+  y0: number
+  y1: number
+  /** A plant's perch (drawn by the plant, not as stone). */
+  leafy?: boolean
+}
 
 /** Linear interpolation along knots (sorted by x), held flat past either end. */
 export function knotAt(knots: readonly Knot[], x: number): number {
@@ -114,7 +136,7 @@ export class Terrain {
       if (!p.float)
         for (let x = x0; x <= x1; x += STEP)
           bottom = Math.max(bottom, this.groundAt(x))
-      this.ledges.push({ x0, x1, y0: y, y1: bottom })
+      this.ledges.push({ x0, x1, y0: y, y1: bottom, leafy: p.kind === 'perch' })
     }
     const pad: Pad = {
       id: p.id ?? fallbackId,
@@ -126,10 +148,30 @@ export class Terrain {
       planted: false,
       vx: 0,
       vy: 0,
+      grows: p.grows ?? 'flower',
+      reach: p.reach ?? [],
     }
     this.pads.push(pad)
     this.version++
     return pad
+  }
+
+  /** A pad that moves (a boss's hand, a sail tip, a drifting cloud): drawn live, no ledge. */
+  addLivePad(p: Omit<Pad, 'planted' | 'vx' | 'vy' | 'live'>): Pad {
+    const pad: Pad = { ...p, planted: false, vx: 0, vy: 0, live: true }
+    this.pads.push(pad)
+    return pad
+  }
+
+  /** Move a live pad to centre x, top y, recording its speed for landings. */
+  movePad(pad: Pad, x: number, y: number) {
+    const half = (pad.x1 - pad.x0) / 2
+    const cx = (pad.x0 + pad.x1) / 2
+    pad.vx = x - cx
+    pad.vy = y - pad.y
+    pad.x0 = x - half
+    pad.x1 = x + half
+    pad.y = y
   }
 
   private sample(line: readonly number[], x: number): number {
@@ -155,7 +197,7 @@ export class Terrain {
     for (const l of this.ledges)
       if (x >= l.x0 && x <= l.x1 && l.y0 >= y - 2 && l.y0 < floor) floor = l.y0
     for (const p of this.pads)
-      if ((p.vx || p.vy) && x >= p.x0 && x <= p.x1 && p.y >= y - 2)
+      if (p.live && x >= p.x0 && x <= p.x1 && p.y >= y - 2)
         floor = Math.min(floor, p.y)
     return floor
   }

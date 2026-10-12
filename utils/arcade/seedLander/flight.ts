@@ -159,7 +159,14 @@ export type Pod = {
   rest: number
   /** Drifting down under its leaf cap with an empty tank. */
   chute: boolean
+  /** Dandelion fluff stuck to it (seedLander/hazards.ts), and ticks of puffing in a row. */
+  fluff: number
+  puffRun: number
 }
+
+/** Pod Shed tuning for steerPod: lean speed, and how fast it levels itself when not leaning. */
+export type PodMods = { turn: number; settle: number }
+export const STOCK_MODS: PodMods = { turn: 1, settle: 0 }
 
 export function newPod(seat: number, x: number, y: number, sun: number): Pod {
   return {
@@ -176,6 +183,8 @@ export function newPod(seat: number, x: number, y: number, sun: number): Pod {
     restOn: null,
     rest: 0,
     chute: false,
+    fluff: 0,
+    puffRun: 0,
   }
 }
 
@@ -206,6 +215,7 @@ export function steerPod(
   tier: FlightTier,
   gravity: number,
   push: { x: number; y: number },
+  mods: PodMods = STOCK_MODS,
 ): boolean {
   let hopped = false
   if (pod.hopCool > 0) pod.hopCool--
@@ -224,8 +234,11 @@ export function steerPod(
     pod.y += pod.vy
     return false
   }
-  if (input.left) pod.tilt = Math.max(-FLIGHT.maxTilt, pod.tilt - FLIGHT.turn)
-  if (input.right) pod.tilt = Math.min(FLIGHT.maxTilt, pod.tilt + FLIGHT.turn)
+  const turn = FLIGHT.turn * mods.turn
+  if (input.left) pod.tilt = Math.max(-FLIGHT.maxTilt, pod.tilt - turn)
+  if (input.right) pod.tilt = Math.min(FLIGHT.maxTilt, pod.tilt + turn)
+  if (!input.left && !input.right && mods.settle > 0)
+    pod.tilt -= Math.sign(pod.tilt) * Math.min(Math.abs(pod.tilt), mods.settle)
   if (input.hop && canHop(pod, tier)) {
     pod.tilt = 0
     pod.vy = Math.min(pod.vy, 0) - HOP.lift

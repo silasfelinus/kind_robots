@@ -345,6 +345,7 @@ import {
   P1_KEYS,
   P2_KEYS,
   readGhostTrailPad,
+  readPinballPad,
   stickAim,
   TWIN_KEYS,
 } from '~/utils/arcade/input'

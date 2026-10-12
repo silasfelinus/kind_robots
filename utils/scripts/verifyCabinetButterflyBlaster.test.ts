@@ -27,6 +27,7 @@ import {
   lassoMultiplier,
   makeLoop,
 } from '../arcade/butterflyBlaster/lasso'
+import type { Loop } from '../arcade/butterflyBlaster/lasso'
 import {
   HEARTBEAT,
   HEARTBEAT_BPM,
@@ -172,12 +173,12 @@ function keeper(): Swarm {
     [100, 130],
     [130, 90],
   ]
-  let loop = null
+  let loop: Loop | null = null
   path.forEach(([x, y], i) => {
     loop = r.lay(x!, y!, i * 2, true) ?? loop
   })
   assert.ok(loop, 'crossing the ribbon closes the loop')
-  const l = loop as unknown as ReturnType<typeof makeLoop>
+  const l: Loop = loop
   assert.ok(l.area > MIN_LOOP_AREA)
   assert.ok(insideLoop(l, 130, 130), 'the middle is inside')
   assert.ok(!insideLoop(l, 200, 130), 'outside is outside')
@@ -213,7 +214,7 @@ function keeper(): Swarm {
     [0, 8],
     [4, -4],
   ]
-  let small = null
+  let small: Loop | null = null
   tiny.forEach(([x, y], i) => {
     small = wobble.lay(x!, y!, i, true) ?? small
   })
@@ -495,6 +496,7 @@ function keeper(): Swarm {
   g.swarms = [keeper()]
   Object.assign(g.ship, { x: 20, y: 150, vx: 0, vy: 0, angle: 0 })
   g.cloud = null
+  const cloud = () => g.cloud
   for (let t = 0; t < LURK.ticks + 2; t++) {
     g.invuln = 999
     g.ship.x = 20
@@ -502,10 +504,11 @@ function keeper(): Swarm {
     g.swarms[0]!.x = 300
     g.swarms[0]!.y = 20
     g.update(emptyInput())
-    if (g.cloud) break
+    if (cloud()) break
   }
-  assert.ok(g.cloud, 'idling at the edge brings the malaria cloud early')
-  assert.ok(g.cloud!.angry && g.cloud!.small, 'small, and aiming tighter')
+  const came = cloud()
+  assert.ok(came, 'idling at the edge brings the malaria cloud early')
+  assert.ok(came.angry && came.small, 'small, and aiming tighter')
 }
 
 // --- the heartbeat ---------------------------------------------------------------------------------

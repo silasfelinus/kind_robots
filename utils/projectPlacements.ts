@@ -113,6 +113,11 @@ export const PROJECT_PLACEMENTS: Record<string, ProjectPlacement> = {
     tabKey: 'arcade',
     route: '/play/arcade',
   },
+  'rainbow-bullet-hell-space-princess': {
+    channelKey: 'admin',
+    tabKey: 'rainbow-bullet-hell-space-princess',
+    route: '/admin/rainbow-bullet-hell-space-princess',
+  },
   'zuzu-shifting-lands': {
     channelKey: 'projects',
     tabKey: 'zuzu-shifting-lands',

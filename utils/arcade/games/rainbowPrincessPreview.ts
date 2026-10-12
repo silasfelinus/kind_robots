@@ -4,6 +4,14 @@ import type {
   ArcadeGameOptions,
   InputFrame,
 } from '../types'
+import {
+  PINKWAKE, pinkwakeDialogue, pinkwakeScene, pinkwakeSpawn, pinkwakeStage,
+  type PinkwakeEnemy,
+} from './rainbowPinkwake'
+import {
+  BOSS_MAX_HP, bossTelegraph, createPinkwakeBoss, stepPinkwakeBoss,
+  type PinkwakeBoss,
+} from './rainbowPinkwakeBoss'
 
 const W = 480
 const H = 270
@@ -39,7 +47,7 @@ type Reef = {
   y: number
   phase: number
   health: number
-  kind: 'picket' | 'urchin'
+  kind: PinkwakeEnemy
   fired: boolean
 }
 type EnemyShot = {
@@ -59,6 +67,12 @@ export type RainbowCombatSnapshot = {
   enemies: ReadonlyArray<Readonly<Reef>>
   enemyShots: ReadonlyArray<Readonly<EnemyShot>>
   pickups: ReadonlyArray<Readonly<Pickup>>
+  act: 'S01'
+  stage: ReturnType<typeof pinkwakeStage>
+  sceneId: 'A01.OPEN' | 'A01.TURN' | 'A01.AFTER' | null
+  boss: Readonly<PinkwakeBoss> | null
+  rescuedStation: boolean
+  defeatedAt: number | null
 }
 
 /** The preview's deterministic 60 Hz combat layer; stages and bosses are separate work. */
@@ -87,17 +101,31 @@ export function createRainbowPrincessPreview(
   let over = false
   let clearCount = 0
   let supers = 0
+  let boss: PinkwakeBoss | null = null
+  let defeatedAt: number | null = null
+  let rescuedStation = false
+  let station: { x: number; y: number } | null = null
 
-  function spawn() {
-    const kind = tick % 156 === 0 ? 'urchin' : 'picket'
+  function spawn(kind: PinkwakeEnemy) {
     reefs.push({
       x: W + 18,
       y: 40 + options.rng() * (H - 80),
       phase: options.rng() * Math.PI * 2,
-      health: kind === 'urchin' ? 5 : 2,
+      health: kind === 'picket' ? 2 : kind === 'spiral' ? 3 : kind === 'anchor' ? 4 : 5,
       kind,
       fired: false,
     })
+  }
+
+  function defeatBoss() {
+    if (!boss || defeatedAt !== null) return
+    boss = null
+    defeatedAt = tick
+    enemyShots.length = 0
+    reefs.length = 0
+    score += 2500
+    for (const ship of ships) ship.invulnerable = Math.max(ship.invulnerable, 210)
+    options.sound.play('level')
   }
 
   function fire(ship: Ship, seat: number) {
@@ -151,6 +179,10 @@ export function createRainbowPrincessPreview(
     ship.charge = 0
     supers++
     enemyShots.length = 0
+    if (boss && boss.frame > 85) {
+      boss.hp -= seat === 1 ? 28 : 20
+      if (boss.hp <= 0) defeatBoss()
+    }
     for (let i = reefs.length - 1; i >= 0; i--) {
       const reef = reefs[i]!
       if (seat === 1 && reef.x < ship.x) continue
@@ -199,6 +231,18 @@ export function createRainbowPrincessPreview(
     const vx = (dx / length) * 2.15
     const vy = (dy / length) * 2.15
     enemyShots.push({ x: reef.x - 8, y: reef.y, vx, vy, grazed: 0 })
+    if (reef.kind === 'spiral') {
+      for (const offset of [-0.45, 0.45]) {
+        const angle = Math.atan2(vy, vx) + offset
+        enemyShots.push({
+          x: reef.x - 8, y: reef.y,
+          vx: Math.cos(angle) * 1.7, vy: Math.sin(angle) * 1.7, grazed: 0,
+        })
+      }
+    }
+    if (reef.kind === 'anchor') {
+      enemyShots.push({ x: reef.x - 8, y: reef.y, vx: -0.75, vy: 0, grazed: 0 })
+    }
     if (reef.kind === 'urchin') {
       enemyShots.push({
         x: reef.x - 8,
@@ -234,7 +278,17 @@ export function createRainbowPrincessPreview(
   function update(input: InputFrame, seated = [input]) {
     if (over) return
     tick++
-    if (tick % 52 === 0) spawn()
+    const stage = pinkwakeStage(tick, defeatedAt)
+    if (stage === 'waves') {
+      const kind = pinkwakeSpawn(tick)
+      if (kind) spawn(kind)
+      if (tick === 2520) station = { x: W + 18, y: 190 }
+    } else if (stage === 'turn' && tick === PINKWAKE.turnStarts) {
+      reefs.length = 0
+      enemyShots.length = 0
+    } else if (stage === 'boss' && !boss) {
+      boss = createPinkwakeBoss()
+    }
 
     for (let seat = 0; seat < ships.length; seat++) {
       const ship = ships[seat]!
@@ -262,11 +316,28 @@ export function createRainbowPrincessPreview(
       shot.y += shot.vy
     }
     for (const reef of reefs) {
-      reef.x -= reef.kind === 'urchin' ? 0.9 : 1.25
-      reef.y += Math.sin(tick / 24 + reef.phase) * 0.55
+      reef.x -= reef.kind === 'anchor' ? 0.65 : reef.kind === 'urchin' ? 0.9 : 1.25
+      reef.y += Math.sin(tick / (reef.kind === 'spiral' ? 14 : 24) + reef.phase) * (reef.kind === 'spiral' ? 1.3 : 0.55)
       if (!reef.fired && reef.x < W - 50) {
         reef.fired = true
         fireEnemy(reef)
+      }
+    }
+    if (boss) {
+      enemyShots.push(...stepPinkwakeBoss(boss, ships))
+    }
+    if (station) {
+      station.x -= 0.75
+      if (station.x < -18) station = null
+      else if (
+        ships.some((ship) => ship.lives > 0 &&
+          Math.hypot(ship.x - station!.x, ship.y - station!.y) < 24)
+      ) {
+        station = null
+        rescuedStation = true
+        score += 500
+        for (const ship of ships) ship.shield = Math.min(3, ship.shield + 1)
+        options.sound.play('pickup')
       }
     }
     for (const bullet of enemyShots) {
@@ -285,10 +356,18 @@ export function createRainbowPrincessPreview(
         (reef) =>
           Math.abs(reef.x - shot.x) < 14 && Math.abs(reef.y - shot.y) < 13,
       )
-      if (hitIndex < 0) continue
-      shots.splice(si, 1)
-      reefs[hitIndex]!.health -= shot.damage
-      if (reefs[hitIndex]!.health <= 0) defeat(hitIndex, shot.seat)
+      if (hitIndex >= 0) {
+        shots.splice(si, 1)
+        reefs[hitIndex]!.health -= shot.damage
+        if (reefs[hitIndex]!.health <= 0) defeat(hitIndex, shot.seat)
+        continue
+      }
+      if (boss && boss.frame > 85 &&
+        Math.hypot(shot.x - (boss.x - 17), shot.y - boss.y) < 37) {
+        shots.splice(si, 1)
+        boss.hp -= shot.damage
+        if (boss.hp <= 0) defeatBoss()
+      }
     }
 
     for (let ei = reefs.length - 1; ei >= 0; ei--) {

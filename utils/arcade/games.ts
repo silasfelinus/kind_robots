@@ -32,8 +32,9 @@ const KIND_PINBALL_2D: ArcadeGameMeta = {
     'AMI Village Rescue, a full Kind Robots pinball table with a dot-matrix display, two crossing ramps and two orbits. Plunge into the blinking lane for the skill shot. Roll through the N-E-T lanes to raise your bonus, hit the A-M-I targets to ready the saucer, then shoot the saucer to light a village. Light all five villages for the jackpot. Every third ramp shot starts a timed mode; play all four for the super jackpot. Chain ramps and orbits for combos. The third village lights AMI multiball: three balls, and every ramp or saucer shot flies a mosquito net to a village.',
   howTo: [
     'LEFT/RIGHT  FLIPPERS',
-    'A  BOTH FLIPPERS',
-    'HOLD DOWN, LET GO',
+    'L/R OR SHOULDERS  FLIP',
+    'A TO LAUNCH THE BALL',
+    'PULL STICK, RELEASE',
     'UP  NUDGE THE TABLE',
     'BLINKING LANE = SKILL',
     'A-M-I READIES SAUCER',

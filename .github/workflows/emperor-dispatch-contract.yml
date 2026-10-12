@@ -1,0 +1,34 @@
+name: Emperor of Dust Dispatch Contract
+
+permissions:
+  contents: read
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'utils/emperorOfDust/**'
+      - 'utils/scripts/verifyEmperorDispatch.test.ts'
+      - '.github/workflows/emperor-dispatch-contract.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'utils/emperorOfDust/**'
+      - 'utils/scripts/verifyEmperorDispatch.test.ts'
+      - '.github/workflows/emperor-dispatch-contract.yml'
+
+jobs:
+  dispatch:
+    name: Seeded dispatch and recovery contract
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+      - run: npm ci
+        env:
+          CYPRESS_INSTALL_BINARY: '0'
+      - run: npx tsx utils/scripts/verifyEmperorDispatch.test.ts

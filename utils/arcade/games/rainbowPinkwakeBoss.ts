@@ -33,7 +33,6 @@ export function stepPinkwakeBoss(
   )[0]
   const dx = (target?.x ?? 72) - boss.x
   const dy = (target?.y ?? 135) - boss.y
-  const magnitude = Math.hypot(dx, dy) || 1
   const angle = Math.atan2(dy, dx)
   const count = boss.phase === 1 ? 3 : boss.phase === 2 ? 5 : 7
   const spread = boss.phase === 3 ? 0.32 : 0.19

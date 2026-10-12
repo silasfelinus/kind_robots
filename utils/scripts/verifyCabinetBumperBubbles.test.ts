@@ -144,6 +144,10 @@ function bubble(x: number, y: number, extra: Partial<Bubble> = {}): Bubble {
     ...extra,
   }
 }
+/** The game's Old Flat Fizz (read fresh, so an assertion about null doesn't narrow it). */
+function fizzOf(g: Inner): FlatFizz {
+  return g.fizz!
+}
 /** Keep a game's grumps from clearing the floor (a far-off waddler, frozen in a bubble). */
 function anchor(g: Inner) {
   const w = makeGrump('waddler', { x: 200, y: 64 }, () => 0.5)
@@ -558,21 +562,21 @@ function anchor(g: Inner) {
   g.roundTicks = HURRY_TICKS - 1
   g.update(emptyInput())
   assert.ok(g.fizz, 'then Old Flat Fizz drifts in')
-  const d0 = Math.hypot(g.fizz!.x - r.x, g.fizz!.y - r.y)
+  const d0 = Math.hypot(fizzOf(g).x - r.x, fizzOf(g).y - r.y)
   for (let t = 0; t < 120; t++) g.update(emptyInput())
   assert.ok(
-    Math.hypot(g.fizz!.x - r.x, g.fizz!.y - r.y) < d0 - 40,
+    Math.hypot(fizzOf(g).x - r.x, fizzOf(g).y - r.y) < d0 - 40,
     'it follows the robot',
   )
   // It can't be trapped.
-  const shot = bubble(g.fizz!.x, g.fizz!.y, { flight: 5 })
+  const shot = bubble(fizzOf(g).x, fizzOf(g).y, { flight: 5 })
   g.bubbles.push(shot)
   g.update(emptyInput())
   assert.equal(shot.held, null)
   // It bonks on touch, and a bonk starts the floor timer again and sends it home.
   r.invuln = 0
-  g.fizz!.x = r.x
-  g.fizz!.y = r.y - 7
+  fizzOf(g).x = r.x
+  fizzOf(g).y = r.y - 7
   const lives = g.lives
   g.update(emptyInput())
   assert.equal(g.lives, lives - 1, 'a bonk')
@@ -584,7 +588,7 @@ function anchor(g: Inner) {
   g2.robots[0]!.invuln = 99_999
   g2.update(emptyInput())
   assert.equal(g2.phase, 'clear')
-  assert.ok(g2.fizz!.leaving)
+  assert.ok(fizzOf(g2).leaving)
 }
 
 // --- FRIEND letters ------------------------------------------------------------------------------

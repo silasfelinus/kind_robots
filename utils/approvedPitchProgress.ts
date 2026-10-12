@@ -1,7 +1,15 @@
-import type { ConductorPitch, ConductorProject } from '@/server/utils/conductorProjection'
+import type {
+  ConductorPitch,
+  ConductorProject,
+} from '@/server/utils/conductorProjection'
 import type { ConductorTask } from '@/server/utils/conductorRoadmap'
 
-export type PitchBuildStage = 'awaiting-intake' | 'scaffolded' | 'building' | 'page-linked' | 'shared-project'
+export type PitchBuildStage =
+  | 'awaiting-intake'
+  | 'scaffolded'
+  | 'building'
+  | 'page-linked'
+  | 'shared-project'
 
 export interface ApprovedPitchProgress {
   pitch: ConductorPitch
@@ -31,7 +39,9 @@ export function pitchProjectSlug(pitch: ConductorPitch): string {
 }
 
 export function isImplementationTask(task: ConductorTask): boolean {
-  return !/^(confirm scope|scope approval|approve scope|write (the )?design brief|draft (the )?design brief|create (the )?design brief)\b/i.test(task.title.trim())
+  return !/^(confirm scope|scope approval|approve scope|write (the )?design brief|draft (the )?design brief|create (the )?design brief)\b/i.test(
+    task.title.trim(),
+  )
 }
 
 export function approvedDailyPitchProgress(
@@ -40,13 +50,21 @@ export function approvedDailyPitchProgress(
 ): ApprovedPitchProgress[] {
   const bySlug = new Map(projects.map((project) => [project.slug, project]))
   return pitches
-    .filter((pitch) => pitch.date >= DAILY_PITCH_START && pitch.status.trim().toLowerCase() === 'approved')
+    .filter(
+      (pitch) =>
+        pitch.date >= DAILY_PITCH_START &&
+        pitch.status.trim().toLowerCase() === 'approved',
+    )
     .map((pitch) => {
       const projectSlug = pitchProjectSlug(pitch)
       const project = bySlug.get(projectSlug) ?? null
-      const isSharedProject = Boolean(pitch.projectTarget && pitch.projectTarget !== 'new')
+      const isSharedProject = Boolean(
+        pitch.projectTarget && pitch.projectTarget !== 'new',
+      )
       const buildTasks = project?.tasks.filter(isImplementationTask) ?? []
-      const completedBuildTasks = buildTasks.filter((task) => task.status === 'done').length
+      const completedBuildTasks = buildTasks.filter(
+        (task) => task.status === 'done',
+      ).length
       const pageUrl = safeProjectPageUrl(project?.liveUrl)
       const stage: PitchBuildStage = isSharedProject
         ? 'shared-project'
@@ -68,7 +86,11 @@ export function approvedDailyPitchProgress(
         isSharedProject,
       }
     })
-    .sort((a, b) => b.pitch.date.localeCompare(a.pitch.date) || a.pitch.title.localeCompare(b.pitch.title))
+    .sort(
+      (a, b) =>
+        b.pitch.date.localeCompare(a.pitch.date) ||
+        a.pitch.title.localeCompare(b.pitch.title),
+    )
 }
 
 export const PITCH_STAGE_LABELS: Record<PitchBuildStage, string> = {

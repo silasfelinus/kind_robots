@@ -49,7 +49,11 @@ export const recruitmentStatus = (
       cost: profile.recruitCost,
     }
   }
-  return { eligible: true, reason: 'May join after one day of travel', cost: profile.recruitCost }
+  return {
+    eligible: true,
+    reason: 'May join after one day of travel',
+    cost: profile.recruitCost,
+  }
 }
 
 export const recruitFollower = (
@@ -115,7 +119,11 @@ export const scriptedFollowerDeath = (
     throw new Error('Fatal danger must be authored and telegraphed')
   }
   const leader = campaign.followers.find((entry) => entry.id === followerId)
-  if (!leader || leader.dead || campaign.memorials?.some((entry) => entry.incidentId === eventId)) {
+  if (
+    !leader ||
+    leader.dead ||
+    campaign.memorials?.some((entry) => entry.incidentId === eventId)
+  ) {
     throw new Error('Cannot repeat an unearned death')
   }
   const next = campaign.followers.map((entry) =>
@@ -128,7 +136,9 @@ export const scriptedFollowerDeath = (
       ...(campaign.memorials ?? []),
       { followerId, incidentId: eventId, reason: reason.trim() },
     ],
-    flags: (campaign.flags ?? []).filter((flag) => flag !== `fatal-risk-${eventId}`),
+    flags: (campaign.flags ?? []).filter(
+      (flag) => flag !== `fatal-risk-${eventId}`,
+    ),
     log: [
       ...campaign.log,
       {
@@ -148,5 +158,7 @@ export const eligibleLeaders = availableFollowers
 
 export const remainingCandidates = (campaign: Campaign) =>
   FOLLOWER_POOL.filter(
-    (entry) => !entry.starter && !campaign.followers.some((follower) => follower.id === entry.id),
+    (entry) =>
+      !entry.starter &&
+      !campaign.followers.some((follower) => follower.id === entry.id),
   )

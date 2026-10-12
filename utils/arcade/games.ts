@@ -10,6 +10,15 @@
 import type { ArcadeGameMeta, ArcadeGameModule } from './types'
 import { MASTERY_GOALS } from './pinball/rules/mastery'
 
+export const ARCADE_BLURB_MAX = 170
+
+export function shortArcadeBlurb(blurb: string): string {
+  if (blurb.length <= ARCADE_BLURB_MAX) return blurb
+  const prefix = blurb.slice(0, ARCADE_BLURB_MAX - 1)
+  const breakAt = prefix.lastIndexOf(' ')
+  return prefix.slice(0, breakAt > 120 ? breakAt : prefix.length).trimEnd() + '…'
+}
+
 /**
  * The Canvas 2D Kind Pinball: the hall's table on a device without WebGL
  * (the 3D table's fallback, conductor kind-pinball/t-024).

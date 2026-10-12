@@ -200,6 +200,7 @@
                 <p v-if="user.isAdmin && !entry.pageUrl" class="text-xs text-base-content/60">
                   No project preview URL recorded yet.
                 </p>
+                <p v-if="user.isAdmin && entry.pageUrl && !isPublicFacingPitchPage(entry.pageUrl)" class="text-xs text-warning">This preview is under Admin; create a public Play route before approving.</p>
                 <p v-if="conductor.playReadyError && readyErrorSlug === entry.pitch.slug" class="kr-note kr-note-error text-xs">
                   {{ conductor.playReadyError }}
                 </p>
@@ -208,7 +209,7 @@
                   type="button"
                   class="btn btn-sm w-full rounded-xl"
                   :class="entry.publicReady ? 'btn-outline' : 'btn-primary'"
-                  :disabled="!entry.pageUrl || conductor.updatingPlayReadySlugs.includes(entry.pitch.slug)"
+                  :disabled="!isPublicFacingPitchPage(entry.pageUrl) || conductor.updatingPlayReadySlugs.includes(entry.pitch.slug)"
                   @click="setReady(entry.pitch.slug, !entry.publicReady)"
                 >
                   {{ entry.publicReady ? 'Revoke Play approval' : 'Approve for Play' }}
@@ -249,6 +250,7 @@ import { useUserStore } from '@/stores/userStore'
 import {
   approvedDailyPitchProgress,
   mayVisitPitchFrontend,
+  isPublicFacingPitchPage,
   PITCH_STAGE_LABELS,
   type PitchBuildStage,
 } from '@/utils/approvedPitchProgress'

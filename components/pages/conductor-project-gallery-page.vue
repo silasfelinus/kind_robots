@@ -79,10 +79,110 @@
     </section>
 
     <section
+      v-if="manageOpen"
+      class="shrink-0 rounded-xl border border-base-300 bg-base-100 p-3"
+    >
+      <h3 class="kr-text-bold-sm">Manage project</h3>
+      <p class="kr-text-dim-xs-55 mt-1">
+        The title is stored in Kind Robots. Project status syncs with Conductor
+        when linked. Renaming a title never changes the project slug or roadmap.
+      </p>
+      <div class="mt-2 flex flex-wrap items-end gap-2">
+        <label class="form-control min-w-48 flex-1">
+          <span class="kr-label-xs">Project</span>
+          <select
+            v-model.number="manageId"
+            class="kr-select-sm w-full"
+            :disabled="managing"
+          >
+            <option :value="0" disabled>Choose a project</option>
+            <option
+              v-for="item in manageableItems"
+              :key="item.id"
+              :value="item.id"
+            >
+              {{ item.title }}
+            </option>
+          </select>
+        </label>
+        <label class="form-control min-w-48 flex-1">
+          <span class="kr-label-xs">Project title</span>
+          <input
+            v-model="manageTitle"
+            type="text"
+            class="kr-input-sm w-full"
+            maxlength="200"
+            placeholder="Project title"
+            :disabled="!manageSelected || managing"
+            @keydown.enter.prevent="saveManagedTitle"
+          />
+        </label>
+        <button
+          type="button"
+          class="btn btn-secondary btn-sm"
+          :disabled="
+            !manageSelected ||
+            managing ||
+            !manageTitle.trim() ||
+            manageTitle.trim() === manageSelected.title
+          "
+          @click="saveManagedTitle"
+        >
+          Save title
+        </button>
+        <label class="form-control min-w-32">
+          <span class="kr-label-xs">Status</span>
+          <select
+            v-model="manageStatus"
+            class="kr-select-sm w-full"
+            :disabled="!manageSelected || managing"
+          >
+            <option
+              v-for="status in editableStatuses"
+              :key="status"
+              :value="status"
+            >
+              {{ statusLabel(status) }}
+            </option>
+          </select>
+        </label>
+        <button
+          type="button"
+          class="btn btn-primary btn-sm"
+          :disabled="
+            !manageSelected ||
+            managing ||
+            manageSelected.dbStatus === manageStatus
+          "
+          @click="saveManagedStatus"
+        >
+          <span v-if="managing" class="kr-spinner-xs" />
+          Save status
+        </button>
+      </div>
+      <p
+        v-if="manageMessage"
+        class="mt-2 text-xs"
+        :class="manageError ? 'text-error' : 'text-success'"
+        role="status"
+      >
+        {{ manageMessage }}
+      </p>
+    </section>
+
+    <section
       v-if="showSync && syncIssueCount"
       class="shrink-0 rounded-xl border border-warning/30 bg-warning/10 p-3 text-xs"
     >
       <strong>Lifecycle reconciliation</strong>
+      <p
+        v-if="manageMessage"
+        class="mt-2 text-xs"
+        :class="manageError ? 'text-error' : 'text-success'"
+        role="status"
+      >
+        {{ manageMessage }}
+      </p>
       <div class="mt-2 grid gap-2 md:grid-cols-3">
         <div v-if="driftItems.length" class="rounded-lg bg-base-100/80 p-2">
           <b>Status/priority drift</b>
@@ -94,6 +194,20 @@
           >
             <span class="break-words">{{ item.title }}</span
             >: {{ item.dbStatus }} → {{ item.status }}
+          </button>
+          <p class="kr-text-dim-xs-55 mt-2">
+            Conductor is authoritative. If the Kind Robots value is your newer
+            choice, explicitly send it to Conductor:
+          </p>
+          <button
+            v-for="item in driftItems.slice(0, 8)"
+            :key="`reconcile-${item.id}`"
+            type="button"
+            class="btn btn-outline btn-xs mt-1 mr-1"
+            :disabled="managing"
+            @click.stop="reconcile(item)"
+          >
+            Keep {{ item.title }}: {{ statusLabel(item.dbStatus) }}
           </button>
         </div>
         <div v-if="conductorOnly.length" class="rounded-lg bg-base-100/80 p-2">
@@ -206,6 +320,17 @@
             </button>
 
             <button
+              type="button"
+              class="kr-btn-xs gap-1"
+              :class="manageOpen ? 'btn-primary' : 'btn-ghost'"
+              :aria-expanded="manageOpen"
+              @click="manageOpen = !manageOpen"
+            >
+              <Icon name="kind-icon:sliders" class="kr-icon-3" />
+              <span class="hidden sm:inline">Manage projects</span>
+            </button>
+
+            <button
               class="kr-btn-xs gap-1"
               :class="createOpen ? 'btn-primary' : 'btn-ghost'"
               :aria-expanded="createOpen"
@@ -262,6 +387,7 @@ type Item = {
   status: Status
   dbStatus: Status
   priority: ProjectPriorityLevel
+  dbPriority: ProjectPriorityLevel
   progress: number
   done: number
   total: number
@@ -323,6 +449,20 @@ const filter = computed({
 })
 const showSync = ref(false)
 const showBlocked = ref(false)
+const manageOpen = ref(false)
+const manageId = ref(0)
+const manageStatus = ref<Status>('ACTIVE')
+const manageTitle = ref('')
+const managing = ref(false)
+const manageMessage = ref('')
+const manageError = ref(false)
+const editableStatuses: Status[] = [
+  'ACTIVE',
+  'CONTINUOUS',
+  'PAUSED',
+  'DONE',
+  'ARCHIVED',
+]
 const createOpen = ref(false)
 const createError = ref('')
 const createForm = ref({ title: '', slug: '', description: '' })
@@ -354,7 +494,13 @@ function onSlugBlur() {
 const loading = computed(() => projects.loading || conductor.pending)
 const error = computed(() => projects.error || conductor.error || '')
 const conductorBySlug = computed(
-  () => new Map(conductor.projects.map((project) => [project.slug, project])),
+  () =>
+    new Map(
+      (conductor.data?.projects ?? []).map((project) => [
+        project.slug,
+        project,
+      ]),
+    ),
 )
 const slugFor = (record: ProjectWithRelations) =>
   record.conductorSlug || record.slug || `project-${record.id}`
@@ -460,6 +606,7 @@ function toItem(record: ProjectWithRelations): Item {
     status,
     dbStatus: record.status as Status,
     priority,
+    dbPriority: record.priority as ProjectPriorityLevel,
     progress,
     done,
     total,
@@ -478,13 +625,26 @@ function toItem(record: ProjectWithRelations): Item {
 }
 
 const allItems = computed(() => projects.projects.map(toItem))
+const manageableItems = computed(() =>
+  [...allItems.value].sort((a, b) => a.title.localeCompare(b.title)),
+)
+const manageSelected = computed(
+  () => allItems.value.find((item) => item.id === manageId.value) ?? null,
+)
+watch(manageId, () => {
+  manageStatus.value = manageSelected.value?.dbStatus ?? 'ACTIVE'
+  manageTitle.value = manageSelected.value?.title ?? ''
+  manageMessage.value = ''
+})
 const driftItems = computed(() => allItems.value.filter((item) => item.drift))
 const databaseOnly = computed(() =>
   allItems.value.filter((item) => !item.hasConductor),
 )
 const conductorOnly = computed(() => {
   const slugs = new Set(allItems.value.map((item) => item.slug))
-  return conductor.projects.filter((project) => !slugs.has(project.slug))
+  return (conductor.data?.projects ?? []).filter(
+    (project) => !slugs.has(project.slug),
+  )
 })
 const syncIssueCount = computed(
   () =>
@@ -493,7 +653,7 @@ const syncIssueCount = computed(
     conductorOnly.value.length,
 )
 const blockedTasks = computed<BlockedTask[]>(() =>
-  conductor.projects.flatMap((project) =>
+  (conductor.data?.projects ?? []).flatMap((project) =>
     project.tasks
       .filter((task) => task.status === 'blocked')
       .map((task) => ({
@@ -581,6 +741,87 @@ const load = (force: boolean) =>
     conductor.fetchProjects(force),
   ])
 const refresh = () => load(true)
+
+async function saveManagedTitle(): Promise<void> {
+  const selected = manageSelected.value
+  const title = manageTitle.value.trim()
+  if (!selected || managing.value || !title || title === selected.title) return
+  managing.value = true
+  manageMessage.value = ''
+  manageError.value = false
+  try {
+    await projects.updateProject(selected.id, { title })
+    manageTitle.value = title
+    manageMessage.value =
+      'Project title saved in Kind Robots. Conductor slug and roadmap unchanged.'
+  } catch (cause) {
+    manageError.value = true
+    manageMessage.value =
+      cause instanceof Error ? cause.message : 'Title update failed.'
+  } finally {
+    managing.value = false
+  }
+}
+
+async function saveManagedStatus(): Promise<void> {
+  const selected = manageSelected.value
+  if (!selected || managing.value || selected.dbStatus === manageStatus.value)
+    return
+  managing.value = true
+  manageMessage.value = ''
+  manageError.value = false
+  try {
+    const record = projects.projects.find(
+      (project) => project.id === selected.id,
+    )
+    if (manageStatus.value === 'ARCHIVED') {
+      await projects.archiveProject(selected.id)
+    } else {
+      await projects.updateProject(selected.id, { status: manageStatus.value })
+    }
+    await load(true)
+    manageMessage.value = record?.conductorSlug
+      ? 'Saved to Conductor. The gallery will reflect it after projection sync.'
+      : 'Saved in Kind Robots. This project is not linked to Conductor.'
+  } catch (cause) {
+    manageError.value = true
+    manageMessage.value =
+      cause instanceof Error ? cause.message : 'Status update failed.'
+  } finally {
+    managing.value = false
+  }
+}
+
+async function reconcile(item: Item): Promise<void> {
+  if (managing.value) return
+  managing.value = true
+  manageMessage.value = ''
+  manageError.value = false
+  try {
+    const record = projects.projects.find((project) => project.id === item.id)
+    if (!record?.conductorSlug) {
+      throw new Error(
+        'This project is not linked to Conductor; use Manage projects for local-only projects.',
+      )
+    }
+    await projects.updateProject(item.id, {
+      status: item.dbStatus,
+      ...(item.dbPriority !== item.priority
+        ? { priority: item.dbPriority }
+        : {}),
+    })
+    await load(true)
+    manageMessage.value = `Sent ${item.title} to Conductor. The projection may take a moment to catch up.`
+    showSync.value = true
+  } catch (cause) {
+    manageError.value = true
+    manageMessage.value =
+      cause instanceof Error ? cause.message : 'Reconciliation failed.'
+    manageOpen.value = true
+  } finally {
+    managing.value = false
+  }
+}
 
 function openProposed() {
   page.setWorkspaceCardKey('proposed')

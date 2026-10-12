@@ -890,7 +890,10 @@ async function refreshProject() {
         true,
       ),
       conductorStore.fetchProjects(true),
-      collectionStore.fetchProjectCollection(props.slug),
+      collectionStore.fetchProjectCollection(
+        props.slug,
+        linkedProject.value?.title || selectedProject.value?.name,
+      ),
     ])
   } finally {
     refreshing.value = false

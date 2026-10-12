@@ -502,7 +502,7 @@ const idx = (tx: number, ty: number) => ty * 40 + tx
   }
   assert.deepEqual(
     [...g.memories].sort(),
-    [0, 1, 2, 3],
+    [0, 1, 2, 3, 4],
     'a Memory Card from each wing',
   )
   g.buildFloor(25)

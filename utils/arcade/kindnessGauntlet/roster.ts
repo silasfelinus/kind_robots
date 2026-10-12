@@ -26,6 +26,7 @@ export type GlitchKind =
   | 'bluescreen'
   | 'blinker'
   | 'wizard'
+  | 'cursor'
 
 /** What a generator looks like: each glitch kind comes out of its own machine. */
 export type GeneratorLook =
@@ -38,6 +39,7 @@ export type GeneratorLook =
   | 'vending'
   | 'arcade'
   | 'antenna'
+  | 'hourglass'
 
 export type RosterEntry = {
   name: string
@@ -221,6 +223,20 @@ export const ROSTER: Record<GlitchKind, RosterEntry> = {
     every: 2.5,
     most: 2,
   },
+  cursor: {
+    name: 'SLEEPY CURSOR',
+    hp: 1,
+    tierHp: 0,
+    points: 300,
+    speed: 0.5,
+    debut: 12,
+    tell: 'a spinning hourglass',
+    answer: 'sparks pass through. only a pulse puts it to sleep',
+    look: 'hourglass',
+    every: 5,
+    most: 1,
+    unfixable: true,
+  },
   bluescreen: {
     name: 'BIG BLUESCREEN',
     hp: 30,
@@ -329,6 +345,8 @@ export interface GlitchWorld {
   readonly speed: number
   readonly bite: number
   rng(): number
+  /** The bot with the fullest battery, however far (what a Sleepy Cursor drifts toward). */
+  fullest(g: Glitch): Prey | null
   /** Whom it hunts: the Hug Token's holder anywhere on the floor, else the nearest bot in range. */
   prey(g: Glitch): Prey | null
   /** The nearest rolling bot, however far. */
@@ -419,6 +437,8 @@ export function steerGlitch(w: GlitchWorld, g: Glitch) {
       return homeAndCling(w, g, speed)
     case 'wizard':
       return wizard(w, g)
+    case 'cursor':
+      return cursor(w, g, speed)
   }
 }
 
@@ -739,6 +759,18 @@ function wizard(w: GlitchWorld, g: Glitch) {
   for (const off of [-0.38, 0, 0.38])
     w.bolt(g, Math.cos(base + off), Math.sin(base + off))
   w.play('shoot')
+}
+
+/** The Sleepy Cursor drifts toward the fullest battery and drinks it fast on contact. */
+function cursor(w: GlitchWorld, g: Glitch, speed: number) {
+  const p = w.fullest(g)
+  if (!p) return
+  const { d, ux, uy } = towards(g, p)
+  if (d < 10) {
+    if (w.tick % 6 === 0) w.drain(p, 3)
+    return
+  }
+  w.move(g, ux * speed, uy * speed)
 }
 
 /** A newly released glitch of this kind. */

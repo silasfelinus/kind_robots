@@ -94,7 +94,7 @@ const RAINBOW = [
 
 export const GLOOM_CURVES = {
   /** Extra ticks between formation steps while the whole wave is alive. */
-  march: { start: 34, step: -3, limit: 16 },
+  march: { start: 20, step: -2, limit: 11 },
   /** Where the formation's top row starts: each wave a little lower. */
   startY: { start: 52, step: 8, limit: 100 },
   dropEvery: { start: 48, step: -4, limit: 16 },
@@ -685,7 +685,7 @@ class GloomInvaders implements ArcadeGameInstance {
     this.fx = Math.round((W - ((COLS - 1) * CELL_W + CLOUD_W)) / 2)
     this.fy = Math.round(levelCurve(this.level, GLOOM_CURVES.startY))
     this.dir = 1
-    this.stepTimer = 30
+    this.stepTimer = 18
     this.drops = []
     this.dropTimer = 60
     this.beam = null

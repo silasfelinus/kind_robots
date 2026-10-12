@@ -1,3 +1,4 @@
+import { ARCADE_GAMES } from '@/utils/arcade/games'
 import type {
   ConductorPitch,
   ConductorProject,
@@ -15,6 +16,7 @@ export interface ApprovedPitchProgress {
   pitch: ConductorPitch
   project: ConductorProject | null
   projectSlug: string
+  publicReady: boolean
   stage: PitchBuildStage
   completedBuildTasks: number
   totalBuildTasks: number
@@ -36,6 +38,23 @@ export function pitchProjectSlug(pitch: ConductorPitch): string {
     return pitch.projectTarget
   }
   return pitch.slug.replace(/^\d{4}-\d{2}-\d{2}-/, '')
+}
+
+export function mayVisitPitchFrontend(
+  entry: Pick<ApprovedPitchProgress, 'publicReady' | 'pageUrl'>,
+  isAdmin: boolean,
+): boolean {
+  return Boolean(entry.pageUrl && (isAdmin || entry.publicReady))
+}
+
+function arcadePitchPageUrl(pitch: ConductorPitch): string | null {
+  const matched = pitch.slug.match(/^\d{4}-\d{2}-\d{2}-kr-cabinet-(.+)$/)
+  const game = matched
+    ? ARCADE_GAMES.find((item) => item.slug === matched[1])
+    : undefined
+  return game
+    ? safeProjectPageUrl(game.route || '/play/arcade?game=' + encodeURIComponent(game.slug))
+    : null
 }
 
 export function isImplementationTask(task: ConductorTask): boolean {
@@ -65,7 +84,11 @@ export function approvedDailyPitchProgress(
       const completedBuildTasks = buildTasks.filter(
         (task) => task.status === 'done',
       ).length
-      const pageUrl = safeProjectPageUrl(project?.liveUrl)
+      const pageUrl = isSharedProject
+        ? projectSlug === 'kr-arcade'
+          ? arcadePitchPageUrl(pitch)
+          : null
+        : safeProjectPageUrl(project?.liveUrl)
       const stage: PitchBuildStage = isSharedProject
         ? 'shared-project'
         : !project
@@ -79,6 +102,7 @@ export function approvedDailyPitchProgress(
         pitch,
         project,
         projectSlug,
+        publicReady: pitch.publicReady === true,
         stage,
         completedBuildTasks,
         totalBuildTasks: buildTasks.length,

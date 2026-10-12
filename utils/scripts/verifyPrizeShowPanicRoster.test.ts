@@ -288,7 +288,13 @@ const g2d = stubContext()
   const tank = g.makeCrasher('tank', 160, 120)
   tank.face = Math.PI / 2
   const fire = g as unknown as {
-    hitCrasher(c: Crasher, damage: number, vx: number, vy: number, foamy: boolean): boolean
+    hitCrasher(
+      c: Crasher,
+      damage: number,
+      vx: number,
+      vy: number,
+      foamy: boolean,
+    ): boolean
   }
   for (let hit = 0; hit < 4; hit++)
     assert.equal(fire.hitCrasher(tank, 1, 0, -4, false), false)

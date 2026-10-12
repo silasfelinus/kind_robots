@@ -116,6 +116,24 @@ export const THEMES: Record<ThemeId, Theme> = {
     turf: ['#123d2a', '#2a5a30', '#5a8a3a', '#b0c86a', '#fff0c0'],
     soil: RAMPS.earth,
   },
+  downs: {
+    sky: ['#2a5aa8', '#3b8fe6', '#6ab4f0', '#a8dcf8', '#e8f4d0', '#f8e8a0'],
+    stars: 0,
+    orb: {
+      x: W - 60,
+      y: HUD_H + 30,
+      r: 13,
+      ramp: RAMPS.gold,
+      glow: RAMPS.gold[4],
+    },
+    planet: false,
+    cloud: [RAMPS.sky[1], RAMPS.sky[3], '#e6f4ff', '#ffffff', '#ffffff'],
+    far: { fill: mix(RAMPS.sky[2], RAMPS.gold[2], 0.3), rim: RAMPS.gold[3] },
+    mid: { fill: mix(RAMPS.gold[1], RAMPS.leaf[1], 0.5), rim: RAMPS.gold[3] },
+    haze: RAMPS.gold[4],
+    turf: ['#3a3a10', '#6a6a18', '#a8a030', '#e0d060', '#fff8c0'],
+    soil: RAMPS.earth,
+  },
   night: {
     sky: [
       RAMPS.night[0],
@@ -325,7 +343,7 @@ export function paintTerrain(
   }
   // Ledges: stone pillars (or shelves) with a turf cap.
   for (const l of terrain.ledges) {
-    if (l.x1 < from || l.x0 > to) continue
+    if (l.leafy || l.x1 < from || l.x0 > to) continue
     bevel(k, l.x0, l.y0, l.x1 - l.x0, Math.max(4, l.y1 - l.y0), RAMPS.steel, {
       depth: 2,
     })
@@ -373,13 +391,25 @@ export function paintTerrain(
     }
   }
   for (const pad of terrain.pads)
-    if (pad.x1 >= from && pad.x0 <= to && !pad.vx && !pad.vy) paintPad(k, pad)
+    if (pad.x1 >= from && pad.x0 <= to && !pad.live) paintPad(k, pad)
 }
 
 /** A pad: tilled soil in a bevelled planter (a seed bed), a sunflower bed, or the shed's boards. */
 export function paintPad(k: CanvasRenderingContext2D, pad: Pad) {
   const w = pad.x1 - pad.x0
   const y = pad.y
+  if (pad.kind === 'perch') {
+    // A plant's perch: a broad leaf (the plant draws its stalk).
+    k.fillStyle = INK
+    k.fillRect(pad.x0 - 1, y - 2, w + 2, 6)
+    k.fillStyle = RAMPS.leaf[3]
+    k.fillRect(pad.x0, y - 1, w, 2)
+    k.fillStyle = RAMPS.leaf[1]
+    k.fillRect(pad.x0 + 1, y + 1, w - 2, 2)
+    k.fillStyle = RAMPS.leaf[4]
+    k.fillRect(pad.x0 + 2, y - 1, Math.max(1, w - 8), 1)
+    return
+  }
   k.fillStyle = INK
   k.fillRect(pad.x0 - 1, y - 2, w + 2, 10)
   if (pad.kind === 'drop') {
@@ -425,7 +455,7 @@ export function drawPadLive(
   i: number,
   goal: boolean,
 ) {
-  if (pad.vx || pad.vy) paintPad(g, pad)
+  if (pad.live) paintPad(g, pad)
   if (pad.kind === 'sun') {
     const n = Math.max(1, Math.floor((pad.x1 - pad.x0) / 14))
     for (let k = 0; k < n; k++) {
@@ -630,7 +660,7 @@ export function drawCargo(
     g.lineWidth = 0.8
     g.stroke()
   }
-  if (!cargo.hookedBy && !cargo.delivered && cargo.resting && !pod) {
+  if (cargo.hookedBy < 0 && !cargo.delivered && cargo.resting && !pod) {
     // A waiting crate glints so it can be found.
     if (tick % 50 < 8) glow(g, cargo.x, cargo.y, 10, RAMPS.gold[3], 0.5)
   }

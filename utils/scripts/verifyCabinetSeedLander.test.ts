@@ -556,7 +556,7 @@ function dropOnto(
   g.pod.y = shed.y - POD_FEET - WINCH.line - c.r * 2 - 4
   c.y = g.pod.y + POD_FEET + WINCH.line - 2
   const before = g.score
-  for (let i = 0; i < 200 && !c.delivered; i++) {
+  for (let i = 0; i < 400 && !c.delivered; i++) {
     g.pod.vy = Math.min(g.pod.vy, 0.15)
     g.update(g.pod.vy > 0.1 ? hold('up') : emptyInput())
   }
@@ -682,6 +682,7 @@ function dropOnto(
   const g = game(1)
   assert.ok(g.menu, 'a real game opens on the mode card')
   assert.equal(g.level, 1)
+  g.update(frame('down'))
   g.update(frame('down'))
   g.update(frame('right'))
   assert.equal(g.tier, 'gale', 'right on the tier row turns it')

@@ -6,7 +6,16 @@
 // view the game hands it.
 
 import { drawText, measureText } from '../font'
-import { INK, RAMPS, drawSprite, gauge, glow, hudPanel, rgba } from '../snes'
+import {
+  INK,
+  RAMPS,
+  bandedGradient,
+  drawSprite,
+  gauge,
+  glow,
+  hudPanel,
+  rgba,
+} from '../snes'
 import { PAD_RAMP, POD_ICON } from './art'
 import type { FlightTier, Pod } from './flight'
 import { SAFE, streakMultiplier } from './flight'
@@ -28,8 +37,9 @@ export type HudView = {
   lives: number
   /** The mission's short name (HILL 7, MEADOW 3). */
   label: string
-  planted: number
-  seeds: number
+  /** The mission's goal so far (BEDS 1/3, CRATES 0/2, RINGS 2/6 41S, PHASE 1/3). */
+  goal: string
+  goalDone: boolean
   streak: number
   tier: FlightTier
   hopsLeft: number
@@ -137,8 +147,8 @@ function drawStrip(g: CanvasRenderingContext2D, v: HudView) {
   g.fillRect(0, top, W, 13)
   g.fillStyle = rgba(RAMPS.purple[3], 0.6)
   g.fillRect(0, top, W, 1)
-  drawText(g, `BEDS ${v.planted}/${v.seeds}`, 4, top + 3, {
-    color: v.planted >= v.seeds ? RAMPS.leaf[3] : RAMPS.cream[3],
+  drawText(g, v.goal, 4, top + 3, {
+    color: v.goalDone ? RAMPS.leaf[3] : RAMPS.cream[3],
   })
   // The minimap: the island's outline, its beds, the view and the pod.
   const mx = 92
@@ -349,4 +359,244 @@ export function drawTally(
       outline: INK,
     })
   })
+}
+
+export type MapIsland = {
+  name: string
+  about: string
+  /** Built in this version of the game (later slices add the rest). */
+  built: boolean
+  cleared: boolean
+}
+export type MapMission = { name: string; medals: number; done: boolean }
+
+/** The island map between missions: the archipelago, this island's missions and medals. */
+export function drawIslandMap(
+  g: CanvasRenderingContext2D,
+  view: {
+    islands: readonly MapIsland[]
+    here: number
+    missions: readonly MapMission[]
+    next: number
+    acorns: { got: number; total: number }
+    nectar: number
+    tick: number
+  },
+) {
+  bandedGradient(
+    g,
+    0,
+    0,
+    W,
+    H,
+    [RAMPS.night[2], '#3a2a85', '#6b3fa0', '#b04f9a', '#ec7f8c'],
+    6,
+  )
+  drawText(g, 'THE GREAT REPLANTING', W / 2, 6, {
+    scale: 2,
+    align: 'center',
+    color: '#ffffff',
+    outline: INK,
+    shadow: RAMPS.leaf[1],
+  })
+  // The archipelago: six islands and a secret seventh, floating in a row.
+  const n = view.islands.length + 1
+  const step = (W - 40) / (n - 1)
+  for (let i = 0; i < n; i++) {
+    const isle = view.islands[i]
+    const x = Math.round(20 + i * step)
+    const y = Math.round(44 + Math.sin(view.tick / 30 + i) * 2 + (i % 2) * 8)
+    const here = i === view.here
+    const ramp = !isle
+      ? RAMPS.steel
+      : isle.cleared
+        ? RAMPS.leaf
+        : isle.built
+          ? RAMPS.earth
+          : RAMPS.steel
+    if (here) glow(g, x, y, 22, RAMPS.gold[3], 0.45)
+    g.fillStyle = INK
+    g.beginPath()
+    g.ellipse(x, y + 3, 15, 7, 0, 0, Math.PI)
+    g.fill()
+    g.fillStyle = ramp[2]
+    g.beginPath()
+    g.ellipse(x, y + 3, 14, 6, 0, 0, Math.PI)
+    g.fill()
+    g.fillStyle = INK
+    g.fillRect(x - 15, y - 1, 30, 5)
+    g.fillStyle = isle?.cleared
+      ? RAMPS.leaf[3]
+      : isle?.built
+        ? RAMPS.gold[1]
+        : RAMPS.steel[1]
+    g.fillRect(x - 14, y, 28, 3)
+    if (isle?.cleared) {
+      g.fillStyle = RAMPS.pink[3]
+      g.fillRect(x - 6, y - 3, 2, 2)
+      g.fillRect(x + 4, y - 4, 2, 2)
+    }
+    drawText(g, isle ? `${i + 1}` : '?', x, y + 12, {
+      align: 'center',
+      color: here ? RAMPS.gold[4] : RAMPS.steel[3],
+      outline: INK,
+    })
+  }
+  const isle = view.islands[view.here]
+  const top = 82
+  hudPanel(g, 14, top, W - 28, 136, RAMPS.leaf)
+  drawText(g, isle?.name ?? 'THE SKY', W / 2, top + 6, {
+    scale: 2,
+    align: 'center',
+    color: '#ffffff',
+    outline: INK,
+  })
+  drawText(g, isle?.about ?? '', W / 2, top + 24, {
+    align: 'center',
+    color: RAMPS.leaf[4],
+    outline: INK,
+  })
+  view.missions.forEach((m, i) => {
+    const y = top + 38 + i * 13
+    const on = i === view.next
+    if (on) {
+      g.fillStyle = rgba(RAMPS.gold[3], 0.25 + 0.1 * Math.sin(view.tick / 8))
+      g.fillRect(22, y - 2, W - 44, 11)
+    }
+    drawText(g, `${on ? '>' : m.done ? '+' : ' '} ${m.name}`, 26, y, {
+      color: on ? '#ffffff' : m.done ? RAMPS.leaf[4] : RAMPS.steel[3],
+      outline: INK,
+    })
+    const medalColours = [RAMPS.teal[3], RAMPS.gold[3], RAMPS.pink[3]]
+    medalColours.forEach((c, k) => {
+      const mx = W - 54 + k * 10
+      g.fillStyle = INK
+      g.fillRect(mx - 1, y - 1, 7, 7)
+      g.fillStyle = m.medals & (1 << k) ? c : RAMPS.night[2]
+      g.fillRect(mx, y, 5, 5)
+    })
+  })
+  drawText(
+    g,
+    `ACORNS ${view.acorns.got}/${view.acorns.total}   NECTAR ${view.nectar}`,
+    W / 2,
+    top + 124,
+    { align: 'center', color: RAMPS.gold[4], outline: INK },
+  )
+  if (view.tick % 40 < 28)
+    drawText(g, 'A  FLY', W / 2, H - 14, {
+      scale: 2,
+      align: 'center',
+      color: RAMPS.gold[3],
+      outline: INK,
+    })
+}
+
+export type ShedRow = {
+  name: string
+  about: string
+  level: number
+  max: number
+  cost: number
+}
+
+/** The Pod Shed: spend nectar on the pod between islands. */
+export function drawShed(
+  g: CanvasRenderingContext2D,
+  view: {
+    rows: readonly ShedRow[]
+    pick: number
+    nectar: number
+    note: string
+    tick: number
+  },
+) {
+  bandedGradient(
+    g,
+    0,
+    0,
+    W,
+    H,
+    [RAMPS.earth[0], RAMPS.earth[1], RAMPS.rust[1]],
+    6,
+  )
+  drawText(g, 'THE POD SHED', W / 2, 8, {
+    scale: 2,
+    align: 'center',
+    color: '#ffffff',
+    outline: INK,
+  })
+  drawText(g, `NECTAR ${view.nectar}`, W / 2, 28, {
+    align: 'center',
+    color: RAMPS.gold[4],
+    outline: INK,
+  })
+  view.rows.forEach((r, i) => {
+    const y = 44 + i * 28
+    const on = i === view.pick
+    hudPanel(g, 16, y, W - 32, 24, on ? RAMPS.gold : RAMPS.purple)
+    drawText(g, r.name, 24, y + 4, { color: '#ffffff', outline: INK })
+    drawText(g, r.about, 24, y + 14, {
+      color: on ? RAMPS.cream[4] : RAMPS.steel[3],
+      outline: INK,
+    })
+    if (r.max > 0) {
+      for (let k = 0; k < r.max; k++) {
+        g.fillStyle = INK
+        g.fillRect(W - 82 + k * 9, y + 5, 7, 7)
+        g.fillStyle = k < r.level ? RAMPS.leaf[3] : RAMPS.night[2]
+        g.fillRect(W - 81 + k * 9, y + 6, 5, 5)
+      }
+      drawText(g, r.level >= r.max ? 'MAX' : `${r.cost}`, W - 24, y + 6, {
+        align: 'right',
+        color:
+          r.level < r.max && view.nectar >= r.cost
+            ? RAMPS.gold[4]
+            : RAMPS.steel[2],
+        outline: INK,
+      })
+    }
+  })
+  if (view.note)
+    drawText(g, view.note, W / 2, H - 14, {
+      align: 'center',
+      color: RAMPS.pink[3],
+      outline: INK,
+    })
+}
+
+/** Past the last island this version has: the replanting continues soon. */
+export function drawSoon(g: CanvasRenderingContext2D, tick: number) {
+  bandedGradient(
+    g,
+    0,
+    0,
+    W,
+    H,
+    [RAMPS.night[1], RAMPS.night[3], RAMPS.purple[2]],
+    6,
+  )
+  drawText(g, 'MORE ISLANDS', W / 2, 80, {
+    scale: 3,
+    align: 'center',
+    color: '#ffffff',
+    outline: INK,
+  })
+  drawText(g, 'ARE STILL WILTING', W / 2, 110, {
+    scale: 2,
+    align: 'center',
+    color: RAMPS.leaf[3],
+    outline: INK,
+  })
+  drawText(g, 'YOUR PROGRESS IS SAVED', W / 2, 140, {
+    align: 'center',
+    color: RAMPS.gold[4],
+    outline: INK,
+  })
+  if (tick % 40 < 28)
+    drawText(g, 'A  TO FINISH', W / 2, 170, {
+      align: 'center',
+      color: RAMPS.gold[3],
+      outline: INK,
+    })
 }

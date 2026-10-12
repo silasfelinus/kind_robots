@@ -1143,14 +1143,17 @@ class GloomInvaders implements ArcadeGameInstance {
     for (const h of this.happies) this.renderHappy(g, h)
     if (this.kite) this.renderKite(g, this.kite)
     for (const d of this.drops) {
+      // High-contrast streak keeps falling shots distinct from the scenery.
+      g.fillStyle = INK
+      g.fillRect(Math.round(d.x) - 1, Math.round(d.y) - 9, 3, 9)
+      g.fillStyle = '#fef08a'
+      g.fillRect(Math.round(d.x), Math.round(d.y) - 8, 1, 6)
       drawSprite(
         g,
         DROP_SPRITES[Math.floor(this.tick / 4) % 2]!,
         d.x - 3,
         d.y - 1,
-        {
-          anchor: 'topleft',
-        },
+        { anchor: 'topleft' },
       )
     }
     if (this.beam) this.renderBeam(g, this.beam.x, this.beam.y)

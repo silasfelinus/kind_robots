@@ -86,7 +86,9 @@ export function createRainbowPrincessPreview(
     lives: 3,
     focus: false,
   })
-  const ships: Ship[] = Array.from({ length: count }, (_, seat) => createShip(seat))
+  const ships: Ship[] = Array.from({ length: count }, (_, seat) =>
+    createShip(seat),
+  )
   const shots: Shot[] = []
   const reefs: Reef[] = []
   const enemyShots: EnemyShot[] = []
@@ -245,7 +247,10 @@ export function createRainbowPrincessPreview(
       ship.lives--
       ship.shield = 3
       ship.power = Math.max(1, ship.power - 1)
-      if (!options.demo && ships.slice(0, activePlayers).every((candidate) => candidate.lives <= 0))
+      if (
+        !options.demo &&
+        ships.slice(0, activePlayers).every((candidate) => candidate.lives <= 0)
+      )
         over = true
     }
     options.sound.play('pop')
@@ -318,13 +323,15 @@ export function createRainbowPrincessPreview(
         reefs.splice(ei, 1)
         continue
       }
-      const ship = ships.slice(0, activePlayers).find(
-        (candidate) =>
-          candidate.lives > 0 &&
-          candidate.invulnerable === 0 &&
-          Math.hypot(candidate.x - reef.x, candidate.y - reef.y) <
-            CORE_RADIUS + 10,
-      )
+      const ship = ships
+        .slice(0, activePlayers)
+        .find(
+          (candidate) =>
+            candidate.lives > 0 &&
+            candidate.invulnerable === 0 &&
+            Math.hypot(candidate.x - reef.x, candidate.y - reef.y) <
+              CORE_RADIUS + 10,
+        )
       if (ship) {
         reefs.splice(ei, 1)
         hitShip(ship)
@@ -393,7 +400,9 @@ export function createRainbowPrincessPreview(
       return 1
     },
     get lives() {
-      return ships.slice(0, activePlayers).reduce((total, ship) => total + Math.max(0, ship.lives), 0)
+      return ships
+        .slice(0, activePlayers)
+        .reduce((total, ship) => total + Math.max(0, ship.lives), 0)
     },
     setPlayers,
     get over() {

@@ -358,7 +358,34 @@ export const LIFE_SPRITE = pixelSprite(
 // --- the night sky and the village ----------------------------------------------------------------
 
 export function paintNight(k: CanvasRenderingContext2D) {
-  bandedGradient(k, 0, 0, W, GROUND, SKY_BANDS, 6)
+  paintSky(k, SKY_BANDS)
+  drawRidge(k, FAR_RIDGE, {
+    base: GROUND - 16,
+    bottom: GROUND,
+    width: W,
+    step: 4,
+    fill: mix(RAMPS.night[2], RAMPS.purple[0], 0.5),
+    rim: RAMPS.night[4],
+  })
+  drawRidge(k, NEAR_RIDGE, {
+    base: GROUND - 3,
+    bottom: GROUND,
+    width: W,
+    step: 3,
+    fill: RAMPS.night[1],
+    rim: RAMPS.night[3],
+  })
+  for (const tree of ACACIAS) paintAcacia(k, tree.x, tree.h, tree.w)
+  paintGround(k, NIGHT_MUD)
+  for (let i = 0; i < HUT_COUNT; i++) paintHut(k, hutX(i))
+}
+
+/** The night sky's bands, the milky way, far stars and the moon. */
+export function paintSky(
+  k: CanvasRenderingContext2D,
+  bands: readonly string[],
+) {
+  bandedGradient(k, 0, 0, W, GROUND, bands, 6)
   k.save()
   k.globalAlpha = 0.18
   for (const [t, colour] of [
@@ -378,35 +405,21 @@ export function paintNight(k: CanvasRenderingContext2D) {
   k.restore()
   drawStars(k, FAR_STARS, 0, FAR_STAR)
   paintMoon(k, W - 46, 46, 16)
-  drawRidge(k, FAR_RIDGE, {
-    base: GROUND - 16,
-    bottom: GROUND,
-    width: W,
-    step: 4,
-    fill: mix(RAMPS.night[2], RAMPS.purple[0], 0.5),
-    rim: RAMPS.night[4],
-  })
-  drawRidge(k, NEAR_RIDGE, {
-    base: GROUND - 3,
-    bottom: GROUND,
-    width: W,
-    step: 3,
-    fill: RAMPS.night[1],
-    rim: RAMPS.night[3],
-  })
-  for (const tree of ACACIAS) paintAcacia(k, tree.x, tree.h, tree.w)
+}
+
+/** The packed-earth strip under the village. */
+export function paintGround(k: CanvasRenderingContext2D, mud: Ramp) {
   bandedGradient(
     k,
     0,
     GROUND,
     W,
     360 - GROUND,
-    [NIGHT_MUD[1], NIGHT_MUD[0], RAMPS.night[0]],
+    [mud[1], mud[0], RAMPS.night[0]],
     2,
   )
-  k.fillStyle = NIGHT_MUD[3]
+  k.fillStyle = mud[3]
   k.fillRect(0, GROUND, W, 1)
-  for (let i = 0; i < HUT_COUNT; i++) paintHut(k, hutX(i))
 }
 
 function paintMoon(
@@ -471,7 +484,7 @@ function paintAcacia(
   k.fillRect(x + 4, base - h - 7, Math.round(w / 2) - 5, 1)
 }
 
-function paintHut(k: CanvasRenderingContext2D, cx: number) {
+export function paintHut(k: CanvasRenderingContext2D, cx: number) {
   const x = Math.round(cx)
   const wallTop = GROUND - 14
   k.fillStyle = INK
@@ -1018,7 +1031,7 @@ export function renderPool(
   tick: number,
 ) {
   const x = Math.round(pool.x)
-  const y = GROUND + 4
+  const y = Math.round(pool.y)
   g.save()
   if (pool.dry) {
     g.fillStyle = INK

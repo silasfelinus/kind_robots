@@ -8,9 +8,11 @@
 
 import { BOTTLING_HALL } from './bottlingHall'
 import { GUMDROP_GARDENS } from './gumdropGardens'
+import { LAGOON_CELLAR } from './lagoonCellar'
+import { STARLIGHT_OBSERVATORY } from './starlightObservatory'
 import type { GrumpKind } from './grumps'
 import { parseFloor } from './tower'
-import type { Flavour, Floor, FloorDef } from './tower'
+import type { Flavour, Floor, FloorDef, SpecialKind } from './tower'
 
 export type WingDef = {
   /** 1-based. */
@@ -26,6 +28,8 @@ export type WingDef = {
   tap: Flavour | null
   /** What it teaches, for the wing card. */
   motto: string
+  /** The special bubble it introduces. */
+  special: SpecialKind | null
   floors: readonly FloorDef[]
 }
 
@@ -40,6 +44,7 @@ export const WINGS: readonly WingDef[] = [
     grumps: ['waddler', 'hopper', 'dasher', 'climber'],
     tap: 'classic',
     motto: 'HOLD HOP ON A BUBBLE TO RIDE IT',
+    special: null,
     floors: BOTTLING_HALL,
   },
   {
@@ -50,7 +55,30 @@ export const WINGS: readonly WingDef[] = [
     grumps: ['bouncer', 'sprout'],
     tap: 'gum',
     motto: 'GUM BUBBLES STICK TO WALLS',
+    special: null,
     floors: GUMDROP_GARDENS,
+  },
+  {
+    n: 3,
+    name: 'THE LAGOON CELLAR',
+    theme: 'lagoon',
+    music: 'lagoon',
+    grumps: ['puffer', 'diver'],
+    tap: null,
+    motto: 'WATER CARRIES BUBBLES ALONG',
+    special: 'splash',
+    floors: LAGOON_CELLAR,
+  },
+  {
+    n: 4,
+    name: 'STARLIGHT OBSERVATORY',
+    theme: 'observatory',
+    music: 'observatory',
+    grumps: ['comet', 'tick'],
+    tap: 'float',
+    motto: 'LOW GRAVITY: FLOATY HOPS',
+    special: 'zap',
+    floors: STARLIGHT_OBSERVATORY,
   },
 ]
 

@@ -20,7 +20,14 @@ export type BossTarget = { x: number; y: number; lives: number }
 export const BOSS_MAX_HP = 150
 
 export function createPinkwakeBoss(): PinkwakeBoss {
-  return { x: 525, y: 135, hp: BOSS_MAX_HP, frame: 0, phase: 1, nextVolleyAt: 162 }
+  return {
+    x: 525,
+    y: 135,
+    hp: BOSS_MAX_HP,
+    frame: 0,
+    phase: 1,
+    nextVolleyAt: 162,
+  }
 }
 
 export function stepPinkwakeBoss(
@@ -67,8 +74,5 @@ export function stepPinkwakeBoss(
 }
 
 export function bossTelegraph(boss: PinkwakeBoss): boolean {
-  return (
-    boss.frame < boss.nextVolleyAt &&
-    boss.frame >= boss.nextVolleyAt - 36
-  )
+  return boss.frame < boss.nextVolleyAt && boss.frame >= boss.nextVolleyAt - 36
 }

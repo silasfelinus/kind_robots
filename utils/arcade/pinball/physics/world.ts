@@ -90,7 +90,13 @@ type LiveDrop = {
   up: boolean
 }
 
-type Hold = { ball: LiveBall; scoop: ScoopDef; releaseStep: number }
+type Hold = {
+  ball: LiveBall
+  scoop: ScoopDef
+  releaseStep: number
+  /** A subway the rules chose for this ball (overrides the scoop's own). */
+  to?: string
+}
 
 type LiveDoor = {
   def: DoorDef
@@ -556,9 +562,18 @@ export class PinballPhysics {
     }
   }
 
-  setFlipper(side: 'left' | 'right', up: boolean) {
-    for (const flipper of this.flippers)
-      if (flipper.def.side === side) flipper.up = up
+  /** Raise or drop a side's flippers: all of them, or one tier only. */
+  setFlipper(side: 'left' | 'right', up: boolean, tier?: 'lower' | 'upper') {
+    for (const flipper of this.flippers) {
+      if (flipper.def.side !== side) continue
+      if (tier && (tier === 'upper') !== !!flipper.def.upper) continue
+      flipper.up = up
+    }
+  }
+
+  /** The table has upper flippers a player may work on their own. */
+  get hasUpperFlippers(): boolean {
+    return this.flippers.some((f) => f.def.upper)
   }
 
   /** Raise every target in a drop bank (a mechanism the rules ask for). */
@@ -712,10 +727,9 @@ export class PinballPhysics {
     if (!due.length) return
     this.holds = this.holds.filter((h) => h.releaseStep > this.stepCount)
     for (const hold of due) {
+      const via = hold.to ?? hold.scoop.subwayTo
       const target =
-        (hold.scoop.subwayTo &&
-          this.table.scoops.find((s) => s.id === hold.scoop.subwayTo)) ||
-        hold.scoop
+        (via && this.table.scoops.find((s) => s.id === via)) || hold.scoop
       const { at, velocity } = target.eject
       const ball = hold.ball
       ball.body.setEnabled(true)
@@ -952,6 +966,21 @@ export class PinballPhysics {
     )
     this.locked.set(id, [])
     return parked.length
+  }
+
+  /**
+   * Send the balls held in a scoop down a subway to another scoop's kicker
+   * (Zuzu's Mortuary down to the undercrypt, t-010). Returns how many.
+   */
+  subwayHeld(id: string, to: string): number {
+    if (!this.table.scoops.some((s) => s.id === to)) return 0
+    let count = 0
+    for (const hold of this.holds)
+      if (hold.scoop.id === id) {
+        hold.to = to
+        count++
+      }
+    return count
   }
 
   /** Balls parked in a scoop's physical lock. */

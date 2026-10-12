@@ -2,13 +2,21 @@
 import { defineStore } from 'pinia'
 
 const STORAGE_KEY = 'kindrobots:tutorial-state:v1'
+const SEEN_PAGES_STORAGE_KEY = 'kindrobots:tutorial-seen-pages:v1'
 
 export type TutorialChannelKey = string
 
 type TutorialState = {
   showByChannel: Record<TutorialChannelKey, boolean>
   activeChannel: TutorialChannelKey | null
+  seenPages: Record<string, true>
   hydrated: boolean
+}
+
+export function tutorialPageKey(channelKey: string, tabKey: string): string {
+  const channel = channelKey.trim()
+  const tab = tabKey.trim()
+  return channel && tab ? `${channel}/${tab}` : ''
 }
 
 function defaultShowMap(): Record<TutorialChannelKey, boolean> {
@@ -19,6 +27,7 @@ export const useTutorialStore = defineStore('tutorialStore', {
   state: (): TutorialState => ({
     showByChannel: defaultShowMap(),
     activeChannel: null,
+    seenPages: {},
     hydrated: false,
   }),
 
@@ -29,6 +38,11 @@ export const useTutorialStore = defineStore('tutorialStore', {
         state.showByChannel[channel] ?? true,
 
     isOpen: (state): boolean => state.activeChannel !== null,
+
+    isPageUnseen:
+      (state) =>
+      (pageKey: string): boolean =>
+        state.hydrated && Boolean(pageKey) && !state.seenPages[pageKey],
   },
 
   actions: {
@@ -52,7 +66,36 @@ export const useTutorialStore = defineStore('tutorialStore', {
         }
       } catch {}
 
+      try {
+        const raw = window.localStorage.getItem(SEEN_PAGES_STORAGE_KEY)
+        const parsed: unknown = raw ? JSON.parse(raw) : []
+        if (Array.isArray(parsed)) {
+          const next: Record<string, true> = {}
+          for (const key of parsed) {
+            if (typeof key === 'string' && key.trim()) next[key] = true
+          }
+          this.seenPages = next
+        }
+      } catch {
+        this.seenPages = {}
+      }
+
       this.hydrated = true
+    },
+
+    markPageSeen(pageKey: string) {
+      if (!pageKey || this.seenPages[pageKey]) return
+      this.seenPages = { ...this.seenPages, [pageKey]: true }
+
+      if (typeof window === 'undefined') return
+      try {
+        window.localStorage.setItem(
+          SEEN_PAGES_STORAGE_KEY,
+          JSON.stringify(Object.keys(this.seenPages)),
+        )
+      } catch {
+        return
+      }
     },
 
     syncToLocalStorage() {
@@ -98,6 +141,12 @@ export const useTutorialStore = defineStore('tutorialStore', {
     resetAll() {
       this.showByChannel = defaultShowMap()
       this.syncToLocalStorage()
+      this.seenPages = {}
+      try {
+        window.localStorage.removeItem(SEEN_PAGES_STORAGE_KEY)
+      } catch {
+        return
+      }
     },
   },
 })

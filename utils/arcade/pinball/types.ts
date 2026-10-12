@@ -233,6 +233,11 @@ export type FlipperDef = {
   side: 'left' | 'right'
   /** The zone it plays in (the hidden room, the Ridge); none on the main table. */
   zone?: string
+  /**
+   * An upper flipper on a raised deck (Zuzu's Abbey, t-006): it follows the
+   * lower buttons, or flips alone while the player holds B (Shift).
+   */
+  upper?: boolean
   pivot: Vec3
   length: number
   /** Radius at the pivot end and at the tip. */
@@ -406,6 +411,12 @@ export type TableDef = {
   scenery?: SceneryDef[]
   zones?: ZoneDef[]
   occluders?: OccluderDef[]
+  /**
+   * The addressable LED rail (Zuzu t-012): `count` LEDs spaced evenly along
+   * the polyline `points` (x, z), at height `y`, round the inside of the
+   * cabinet. The ruleset's `leds` colours them every frame.
+   */
+  ledRail?: { points: Array<[number, number]>; count: number; y: number }
   inserts?: InsertDef[]
   flashers?: FlasherDef[]
   /**

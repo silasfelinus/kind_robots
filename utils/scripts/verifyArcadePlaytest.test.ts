@@ -10,13 +10,13 @@ import { showtimeFighter, SHOWDOWN_DAMAGE_SCALE } from '../zuzuShowdown/combatTu
 import { fightPadSlots } from '../zuzuShowdown/input'
 
 const pad = {
-  buttons: Array.from({ length: 16 }, (_, i) => ({ pressed: i === 0 })),
+  buttons: Array.from({ length: 16 }, (_, i) => ({ pressed: i === 0, touched: i === 0, value: i === 0 ? 1 : 0 })),
   axes: [0, 0, 0, 0],
 }
 assert.equal(readGamepad(pad).a, true)
 assert.equal(readGhostTrailPad(pad).a, false)
 assert.equal(readGhostTrailPad(pad).b, true)
-assert.equal(readGhostTrailPad({ ...pad, buttons: pad.buttons.map((_, i) => ({ pressed: i === 1 })) }).a, true)
+assert.equal(readGhostTrailPad({ ...pad, buttons: pad.buttons.map((_, i) => ({ pressed: i === 1, touched: i === 1, value: i === 1 ? 1 : 0 })) }).a, true)
 
 assert.equal(levelCurve(1, GLOOM_CURVES.march), 20)
 assert.ok(levelCurve(3, GLOOM_CURVES.march) < levelCurve(1, GLOOM_CURVES.march))

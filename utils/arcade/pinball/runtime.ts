@@ -202,8 +202,13 @@ export class PinballRuntime<
     if ((controls.pressed.left || controls.pressed.right) && !this.demo) {
       this.mixer.play('flipper')
     }
-    this.physics.setFlipper('left', left)
-    this.physics.setFlipper('right', right)
+    // Upper flippers (Zuzu's Abbey deck, t-006) follow the lower buttons;
+    // holding B (Shift) flips the upper pair alone.
+    const upperOnly = controls.held.b && this.physics.hasUpperFlippers
+    this.physics.setFlipper('left', left && !upperOnly, 'lower')
+    this.physics.setFlipper('right', right && !upperOnly, 'lower')
+    this.physics.setFlipper('left', left, 'upper')
+    this.physics.setFlipper('right', right, 'upper')
     this.plunger(controls)
     this.addBalls()
     if (this.nudgeCooldown > 0) this.nudgeCooldown--
@@ -486,6 +491,8 @@ export class PinballRuntime<
         if (effect.action === 'close') this.physics.setDoor(effect.id, false)
         if (effect.action === 'lock') this.physics.lockHeld(effect.id)
         if (effect.action === 'release') this.physics.releaseLocked(effect.id)
+        if (effect.action === 'subway' && typeof effect.payload === 'string')
+          this.physics.subwayHeld(effect.id, effect.payload)
         break
       default:
         break

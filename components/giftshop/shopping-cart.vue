@@ -1,19 +1,8 @@
 <!-- /components/content/shop/shopping-cart.vue -->
 <template>
   <section class="kr-container max-w-5xl space-y-6 p-4 sm:p-6">
-    <div class="flex flex-wrap items-center justify-between gap-3">
-      <div>
-        <h1 class="kr-text-black-2xl flex items-center gap-2 text-primary">
-          <Icon name="kind-icon:cart" class="kr-icon-7" />
-          Your Cart
-        </h1>
-        <p class="mt-1 text-sm text-base-content/65">
-          Review everything here before Stripe opens its secure checkout.
-        </p>
-      </div>
-
+    <div v-if="cartStore.hasItems" class="flex justify-end">
       <button
-        v-if="cartStore.hasItems"
         type="button"
         class="btn btn-sm btn-outline btn-error rounded-2xl"
         :disabled="cartStore.loading"

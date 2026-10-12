@@ -698,18 +698,39 @@ export const COMING_SOON: ComingSoonCabinet[] = []
  */
 export const PREVIEW_GAMES: ArcadeGameMeta[] = [
   {
+    slug: 'rainbow-bullet-hell-space-princess',
+    title: 'Rainbow Bullet Hell Space Princess',
+    riffsOn: 'cinematic side-scrolling shmups',
+    blurb:
+      'Private Pinkwake Estuary combat-engine slice: oceanic scouts, numbered local pilots and real shots. This is not the complete eight-stage campaign.',
+    howTo: [
+      'ARROWS  FLY',
+      'HOLD A  PETAL FIRE',
+      'B  REPAIR SHIELD',
+      'DODGE THE SEA SCOUTS',
+      '1 TO 4 LOCAL PILOTS',
+    ],
+    width: 480,
+    height: 270,
+    maxPlausibleScore: 0,
+    titleArt: '',
+    accent: '#f9a8d4',
+    controls: 'Fly, shoot, shield',
+    maxPlayers: 4,
+  },
+  {
     slug: 'zuzu-pinball',
     title: 'Zuzu: The Last Bell',
     riffsOn: 'original multi-level pinball',
     blurb:
-      'Private Zuzu pinball physics preview. The separate 3D table has a shootable River Croc capture, Abbey bell lane, two lower flippers and its own score namespace. Ramps, the raised Abbey and Zuzu-specific game rules are being built; this is not the finished FX3-class game.',
+      'Private Zuzu pinball preview. The 3D table has three ramps, two orbits, the River Croc, the Citadel lock and three multiballs, a raised Abbey deck with its own upper flippers, and its own score namespace. It is still being built; this is not the finished FX3-class game.',
     howTo: [
       'ARROWS  FLIPPERS',
       'DOWN  CHARGE PLUNGER',
       'RELEASE  LAUNCH',
       'UP  NUDGE',
       'SHOOT RIVER CROC',
-      'B  CAMERA VIEW',
+      'HOLD B  UPPER ONLY',
     ],
     width: 288,
     height: 488,
@@ -745,6 +766,8 @@ export const UNLISTED_SCORED_GAMES: ArcadeGameMeta[] = [
 ]
 
 const LOADERS: Record<string, () => Promise<ArcadeGameModule>> = {
+  'rainbow-bullet-hell-space-princess': () =>
+    import('./games/rainbowPrincessPreview'),
   'butterfly-blaster': () => import('./games/butterflyBlaster'),
   'battery-maze': () => import('./games/batteryMaze'),
   'rescue-rally': () => import('./games/rescueRally'),

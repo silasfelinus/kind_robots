@@ -144,6 +144,8 @@ export interface ArcadeGameInstance {
   readonly level: number
   readonly lives: number
   readonly over: boolean
+  /** Optional live local seat adjustment, performed while the Arcade is paused. */
+  setPlayers?(count: number): void
   /** Mastery goals earned this game, for a cabinet with a ladder. */
   readonly mastered?: readonly string[]
   /**

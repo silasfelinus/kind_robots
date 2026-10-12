@@ -164,7 +164,7 @@ jobs:
       - name: Zuzu Pinball rules, chapters and seals
         run: npm run test:zuzu-pinball-rules
 
-      - name: Zuzu Pinball River Croc
+      - name: Zuzu Pinball River Croc (1,000 swallows)
         run: npm run test:zuzu-pinball-croc
 
       - name: Zuzu Pinball Watering Hole and Death Roll
@@ -178,6 +178,9 @@ jobs:
 
       - name: Zuzu Pinball hidden undercrypt
         run: npm run test:zuzu-pinball-crypt
+
+      - name: Zuzu Pinball no stuck balls
+        run: npm run test:zuzu-pinball-no-stuck
 
       - name: Zuzu Pinball LED rail
         run: npm run test:zuzu-pinball-leds

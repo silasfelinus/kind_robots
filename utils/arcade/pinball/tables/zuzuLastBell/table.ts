@@ -357,6 +357,16 @@ function lowerSide(name: 'left' | 'right'): ColliderDef[] {
     wall(`sling-${name}-base`, bottom, tip, { material: 'plastic-printed' }),
     wall(`sling-${name}-kicker`, top, tip, { material: 'rubber', kick: 1.5 }),
     slingCap(`sling-${name}-cap`, [top, bottom, tip]),
+    // A round post at the sling's top corner (t-013): a ball coming
+    // straight down could balance on the back wall's flat end.
+    {
+      kind: 'post',
+      id: `sling-${name}-top`,
+      at: [top[0], 0.013, top[1]],
+      radius: 0.006,
+      halfHeight: 0.013,
+      material: 'post',
+    },
   ]
 }
 
@@ -515,11 +525,55 @@ const colliders: ColliderDef[] = [
   ...[-1, 1].map((side): ColliderDef => ({
     kind: 'post',
     id: `relic-mouth-${side < 0 ? 'l' : 'r'}`,
-    at: [SEAL_X + side * 0.014, 0.02, RELIC_MOUTH],
+    // As low as the lane's walls (t-013): a 4 cm post pinched a ball
+    // between itself and the Village ramp's rail, perched on the wall.
+    at: [SEAL_X + side * 0.014, 0.013, RELIC_MOUTH],
     radius: 0.004,
-    halfHeight: 0.02,
+    halfHeight: 0.013,
     material: 'post',
   })),
+  // From beside the Village ramp's rail across behind the lane, a deflector
+  // (t-013): the strip between the rail and the lane pinched a ball
+  // wherever it narrowed; now a ball rolling down it is turned out past
+  // the lane's right side.
+  wall(
+    'relic-deflector',
+    [-0.073, -0.53],
+    [SEAL_X + 0.023, RELIC_MOUTH - 0.065],
+    {
+      material: 'chrome',
+      thickness: 0.004,
+    },
+  ),
+  // ...and a clear plate over the sliver between the Village ramp's rail
+  // and the lane (t-013), flush with that roof: the rail curves, so it is
+  // a mesh that follows it. Too narrow for a ball, the sliver held one
+  // perched on its edges through every shake of the ball search.
+  {
+    kind: 'mesh',
+    id: 'relic-rail-plate',
+    vertices: [
+      -0.079, 0.0485, -0.5, -0.0735, 0.0485, -0.5, -0.0735, 0.0485, -0.39,
+      -0.0975, 0.0485, -0.39,
+    ],
+    indices: [0, 2, 1, 0, 3, 2],
+    material: 'plastic-clear',
+    restitution: 0.18,
+  },
+  // One clear roof over the lane, the pocket behind it and the seals
+  // (t-013): an
+  // airborne ball in a multiball scramble could drop in behind the captive,
+  // or perch on a standing seal. One flat roof sheds a ball that lands on
+  // it off its front edge; a rolling ball passes under it.
+  {
+    kind: 'box',
+    id: 'relic-seal-roof',
+    // Kept right of the Village ramp's rail, which drifts from x -0.075
+    // to -0.1 down this stretch: the roof must never reach into the ramp.
+    at: [-0.053, 0.047, -0.4165],
+    half: [0.0205, 0.0015, 0.1135],
+    material: 'plastic-clear',
+  },
   {
     kind: 'post',
     id: 'croc-mouth-guide',

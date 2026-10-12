@@ -161,3 +161,193 @@ export const GARDEN_MUSIC: MusicLoop = {
     },
   ],
 }
+
+/** Thunderhead Heights: a stormy D minor over rolling thunder. */
+const HEIGHTS_MUSIC: MusicLoop = {
+  bpm: 112,
+  tracks: [
+    {
+      type: 'triangle',
+      vol: 0.08,
+      steps: bars(
+        rock('D2', 'A2'),
+        rock('D2', 'A2'),
+        rock('Bb1', 'F2'),
+        rock('C2', 'G2'),
+        rock('D2', 'A2'),
+        rock('G2', 'D3'),
+        rock('Bb1', 'F2'),
+        rock('A1', 'E2'),
+      ),
+    },
+    {
+      type: 'square',
+      vol: 0.022,
+      steps: bars(
+        'A4 - D5 - F5 - E5 D5',
+        'C5 - A4 - - . . .',
+        'Bb4 - D5 - F5 - G5 F5',
+        'E5 - C5 - - . . .',
+        'A4 - D5 - F5 - A5 G5',
+        'Bb5 - A5 - G5 - F5 .',
+        'E5 - F5 - D5 - Bb4 .',
+        'C#5 - - - E5 - - .',
+      ),
+    },
+    { noise: true, vol: 0.03, steps: eight('x . . . . x . .') },
+  ],
+}
+
+/** Autumn Orchard: a lilting folk tune in E minor. */
+const ORCHARD_MUSIC: MusicLoop = {
+  bpm: 120,
+  tracks: [
+    {
+      type: 'triangle',
+      vol: 0.07,
+      steps: bars(
+        skip('E2', 'E3', 'B2'),
+        skip('C3', 'C4', 'G3'),
+        skip('D3', 'D4', 'A3'),
+        skip('B2', 'B3', 'F#3'),
+        skip('E2', 'E3', 'B2'),
+        skip('A2', 'A3', 'E3'),
+        skip('B2', 'B3', 'F#3'),
+        skip('E2', 'E3', 'B2'),
+      ),
+    },
+    {
+      type: 'square',
+      vol: 0.022,
+      steps: bars(
+        'E5 . G5 A5 B5 - A5 G5',
+        'E5 - - . G5 . E5 .',
+        'F#5 . A5 B5 D6 - B5 A5',
+        'F#5 - - - D5 . . .',
+        'E5 . G5 A5 B5 - E6 D6',
+        'C6 - B5 A5 G5 . E5 .',
+        'F#5 - D5 . B4 . D5 F#5',
+        'E5 - - - . . . .',
+      ),
+    },
+    { noise: true, vol: 0.014, steps: eight('x . . x . . x .') },
+  ],
+}
+
+/** Lantern Snowfield: festival bells over a slow sway. */
+const SNOWFIELD_MUSIC: MusicLoop = {
+  bpm: 100,
+  tracks: [
+    {
+      type: 'triangle',
+      vol: 0.07,
+      steps: bars(
+        rock('C3', 'G3'),
+        rock('A2', 'E3'),
+        rock('F2', 'C3'),
+        rock('G2', 'D3'),
+        rock('C3', 'G3'),
+        rock('E3', 'B3'),
+        rock('F2', 'C3'),
+        rock('G2', 'D3'),
+      ),
+    },
+    {
+      type: 'sine',
+      vol: 0.05,
+      steps: bars(
+        'G5 . E6 . C6 . G5 .',
+        'A5 . E6 . C6 . A5 .',
+        'F5 . C6 . A5 . F5 .',
+        'G5 . D6 . B5 - - .',
+        'G5 . E6 . C6 . G6 .',
+        'E6 . B5 . G5 . E5 .',
+        'F5 . A5 . C6 . F6 .',
+        'D6 - - - B5 - - .',
+      ),
+    },
+    { noise: true, vol: 0.01, steps: eight('x . . . x . . .') },
+  ],
+}
+
+/** The Moon Garden: slow, floating arpeggios in A minor. */
+const MOON_MUSIC: MusicLoop = {
+  bpm: 88,
+  tracks: [
+    {
+      type: 'triangle',
+      vol: 0.07,
+      steps: bars(
+        'A2 - - - - - - -',
+        'F2 - - - - - - -',
+        'C3 - - - - - - -',
+        'G2 - - - - - - -',
+        'A2 - - - - - - -',
+        'D3 - - - - - - -',
+        'F2 - - - - - - -',
+        'E2 - - - - - - -',
+      ),
+    },
+    {
+      type: 'sine',
+      vol: 0.045,
+      steps: bars(
+        'A4 C5 E5 A5 E5 C5 A4 C5',
+        'F4 A4 C5 F5 C5 A4 F4 A4',
+        'C5 E5 G5 C6 G5 E5 C5 E5',
+        'G4 B4 D5 G5 D5 B4 G4 B4',
+        'A4 C5 E5 A5 E5 C5 A4 C5',
+        'D5 F5 A5 D6 A5 F5 D5 F5',
+        'F4 A4 C5 F5 C5 A4 F4 A4',
+        'E4 G#4 B4 E5 B4 G#4 E4 G#4',
+      ),
+    },
+  ],
+}
+
+/** The Rainbow Lists and the ending: the tourney's festival, bright and warm. */
+export const ENDING_MUSIC: MusicLoop = {
+  bpm: 120,
+  tracks: [
+    {
+      type: 'triangle',
+      vol: 0.07,
+      steps: bars(
+        skip('C3', 'C4', 'G3'),
+        skip('F2', 'F3', 'C3'),
+        skip('G2', 'G3', 'D3'),
+        skip('C3', 'C4', 'G3'),
+        skip('A2', 'A3', 'E3'),
+        skip('F2', 'F3', 'C3'),
+        skip('G2', 'G3', 'D3'),
+        skip('C3', 'C4', 'G3'),
+      ),
+    },
+    {
+      type: 'square',
+      vol: 0.024,
+      steps: bars(
+        'E5 - G5 - C6 - E6 -',
+        'F5 - A5 - C6 - A5 -',
+        'G5 - B5 - D6 - B5 -',
+        'C6 - - - G5 - E5 -',
+        'A5 - C6 - E6 - C6 -',
+        'F5 - A5 - C6 - F6 -',
+        'D6 - C6 - B5 - G5 -',
+        'C6 - - - - - - -',
+      ),
+    },
+    { noise: true, vol: 0.016, steps: eight('x . x . x . x x') },
+  ],
+}
+
+/** Each garden's loop. */
+export const ARENA_MUSIC = {
+  sunset: SUNSET_MUSIC,
+  meadow: MEADOW_MUSIC,
+  heights: HEIGHTS_MUSIC,
+  orchard: ORCHARD_MUSIC,
+  snowfield: SNOWFIELD_MUSIC,
+  moon: MOON_MUSIC,
+  rainbow: ENDING_MUSIC,
+} as const

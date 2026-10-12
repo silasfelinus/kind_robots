@@ -193,3 +193,194 @@ export const STORY_MUSIC: MusicLoop = {
     },
   ],
 }
+
+// --- Power Phases 2 and 3 (slice 3, t-041) -------------------------------------------------
+//
+//   Greenhouse Grid    a lazy, leafy tune in D, all plucks.
+//   Cold Storage       crystalline arpeggios in E minor over a slow bass.
+//   Arcade After Hours a hushed, minor-key creep with a ticking hat.
+//   Rooftop Solar Farm a wide, sunny anthem in A.
+//   Finale             the Overload's theme: the boss march, faster and fiercer.
+//   Ending             the Cozy tune, slowed into a lullaby, under the credits.
+//   Garden             the true ending's bed of chimes.
+
+export const GREENHOUSE_MUSIC: MusicLoop = {
+  bpm: 112,
+  tracks: [
+    {
+      type: 'triangle',
+      vol: 0.07,
+      steps: bars(
+        bounce('D3', 'A3', 'F#3'),
+        bounce('G2', 'G3', 'D3'),
+        bounce('B2', 'B3', 'F#3'),
+        bounce('A2', 'A3', 'E3'),
+        bounce('D3', 'A3', 'F#3'),
+        bounce('E3', 'B3', 'G#3'),
+        bounce('G2', 'G3', 'B2'),
+        bounce('A2', 'A3', 'C#3'),
+      ),
+    },
+    {
+      type: 'sine',
+      vol: 0.04,
+      steps: bars(
+        'F#5 . A5 . D6 . . .',
+        'B5 . G5 . D5 . . .',
+        'D6 . B5 . F#5 . A5 .',
+        'E5 . C#6 . A5 . . .',
+        'F#5 . A5 . D6 . F#6 .',
+        'E6 . B5 . G#5 . E5 .',
+        'D6 . B5 . G5 . B5 .',
+        'A5 - - - . . . .',
+      ),
+    },
+    { noise: true, vol: 0.012, steps: eight('. . x . . . x .') },
+  ],
+}
+
+export const COLD_MUSIC: MusicLoop = {
+  bpm: 104,
+  tracks: [
+    {
+      type: 'triangle',
+      vol: 0.07,
+      steps: bars(
+        'E2 - - - B2 - - -',
+        'C3 - - - G2 - - -',
+        'A2 - - - E3 - - -',
+        'B2 - - - F#2 - - -',
+        'E2 - - - B2 - - -',
+        'C3 - - - G2 - - -',
+        'A2 - - - C3 - - -',
+        'B2 - - - - - - -',
+      ),
+    },
+    {
+      type: 'square',
+      vol: 0.018,
+      steps: bars(
+        'E5 G5 B5 E6 B5 G5 E5 G5',
+        'C5 E5 G5 C6 G5 E5 C5 E5',
+        'A4 C5 E5 A5 E5 C5 A4 C5',
+        'B4 D#5 F#5 B5 F#5 D#5 B4 D#5',
+        'E5 G5 B5 E6 B5 G5 E5 G5',
+        'C5 E5 G5 C6 G5 E5 C5 E5',
+        'A4 C5 E5 A5 C6 A5 E5 C5',
+        'B4 D#5 F#5 B5 - - - .',
+      ),
+    },
+  ],
+}
+
+export const ARCADE_MUSIC: MusicLoop = {
+  bpm: 96,
+  tracks: [
+    {
+      type: 'triangle',
+      vol: 0.07,
+      steps: bars(
+        'A2 . . A2 . . G2 .',
+        'F2 . . F2 . . E2 .',
+        'A2 . . A2 . . C3 .',
+        'B2 . . G#2 . . E2 .',
+        'A2 . . A2 . . G2 .',
+        'F2 . . F2 . . E2 .',
+        'D2 . . F2 . . A2 .',
+        'E2 . . . G#2 . . .',
+      ),
+    },
+    {
+      type: 'square',
+      vol: 0.016,
+      steps: bars(
+        '. . E5 . . C5 . .',
+        '. . D5 . . A4 . .',
+        '. . E5 . . A5 . .',
+        '. . G#5 . . E5 . .',
+        '. . E5 . . C5 . .',
+        '. . F5 . . D5 . .',
+        '. . A5 . . F5 . .',
+        '. . G#5 - - - . .',
+      ),
+    },
+    { noise: true, vol: 0.014, steps: eight('x . x . x . x .') },
+  ],
+}
+
+export const SOLAR_MUSIC: MusicLoop = {
+  bpm: 124,
+  tracks: [
+    {
+      type: 'triangle',
+      vol: 0.07,
+      steps: bars(
+        bounce('A2', 'A3', 'E3'),
+        bounce('F#2', 'F#3', 'C#3'),
+        bounce('D3', 'D4', 'A3'),
+        bounce('E3', 'E4', 'B3'),
+        bounce('A2', 'A3', 'E3'),
+        bounce('C#3', 'C#4', 'G#3'),
+        bounce('D3', 'D4', 'F#3'),
+        bounce('E3', 'E4', 'G#3'),
+      ),
+    },
+    {
+      type: 'square',
+      vol: 0.022,
+      steps: bars(
+        'C#6 - - . E6 . A5 .',
+        'F#5 - A5 . C#6 . . .',
+        'D6 - - . F#6 . A6 .',
+        'G#6 - - . E6 . B5 .',
+        'A5 . C#6 . E6 . A6 .',
+        'G#6 - F#6 . E6 . C#6 .',
+        'D6 . F#6 . A6 . F#6 .',
+        'E6 - - - . . . .',
+      ),
+    },
+    { noise: true, vol: 0.018, steps: eight('x . . x x . . x') },
+  ],
+}
+
+export const FINALE_MUSIC: MusicLoop = { ...BOSS_MUSIC, bpm: 158 }
+
+export const ENDING_MUSIC: MusicLoop = {
+  ...COZY_MUSIC,
+  bpm: 84,
+  tracks: COZY_MUSIC.tracks.filter((t) => !t.noise),
+}
+
+export const GARDEN_MUSIC: MusicLoop = {
+  bpm: 100,
+  tracks: [
+    {
+      type: 'sine',
+      vol: 0.05,
+      steps: bars(
+        'C6 . E6 . G6 . C7 .',
+        'B5 . D6 . G6 . B6 .',
+        'A5 . C6 . E6 . A6 .',
+        'F5 . A5 . C6 . F6 .',
+        'C6 . E6 . G6 . C7 .',
+        'B5 . D6 . G6 . D7 .',
+        'A5 . C6 . F6 . A6 .',
+        'G5 . B5 . D6 . G6 .',
+      ),
+    },
+    {
+      type: 'triangle',
+      vol: 0.06,
+      steps: bars(
+        'C3 - - - - - - -',
+        'G2 - - - - - - -',
+        'A2 - - - - - - -',
+        'F2 - - - - - - -',
+        'C3 - - - - - - -',
+        'G2 - - - - - - -',
+        'F2 - - - - - - -',
+        'G2 - - - - - - -',
+      ),
+    },
+  ],
+}

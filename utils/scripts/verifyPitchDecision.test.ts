@@ -4,10 +4,13 @@
 // signature for the same inputs: the fixed vector below is asserted on both sides
 // (conductor's tests/test_pitch_links.py).
 import assert from 'node:assert/strict'
+import { readFileSync } from 'node:fs'
 
 import {
   withPitchModifications,
   withPitchStatus,
+  withPitchReady,
+  pitchReadyOf,
 } from '../../server/utils/conductorPitchVote'
 import {
   escapeHtml,
@@ -210,4 +213,35 @@ assert.equal(
   'a hand-written record with no header still records the vote',
 )
 
-console.log('verifyPitchDecision: ok')
+const releaseFixture =
+  '# Pitch: Toy\nproject-target: new\nstatus: approved\n\n## The idea\nPlay.\n'
+assert.equal(
+  pitchReadyOf(releaseFixture),
+  false,
+  'approval alone never means public release',
+)
+const released = withPitchReady(releaseFixture, true)
+assert.equal(pitchReadyOf(released), true)
+assert.equal(
+  withPitchReady(released, true),
+  released,
+  'release approval is idempotent',
+)
+const revoked = withPitchReady(released, false)
+assert.equal(pitchReadyOf(revoked), false)
+assert.equal(
+  (revoked.match(/^public-ready:/gm) || []).length,
+  1,
+  'revocation replaces existing approval',
+)
+const readyRoute = readFileSync(
+  'server/api/conductor/pitch-ready.post.ts',
+  'utf8',
+)
+assert.ok(
+  readyRoute.includes('requireAdminApiUser(event)'),
+  'public visitors cannot change Play readiness',
+)
+assert.ok(readyRoute.includes('applyPitchReady('))
+
+console.log('verifyPitchDecision and Play release approval: ok')

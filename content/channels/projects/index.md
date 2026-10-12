@@ -52,8 +52,9 @@ tutorial:
         classic, with worldwide high-score boards and no account needed. Memory
         Dungeon is a card-matching game with lives, power-ups and floors to
         clear. Zuzu Gamebook is an illustrated adventure with choices, dice
-        rolls and several endings. Administrators can also find in-development
-        Zuzu playtests in this menu.
+        rolls and several endings. Daily Dream Projects shows approved
+        pitches, their coming-soon previews, and experiences ready for play.
+        Administrators can also find in-development Zuzu playtests in this menu.
       image: /images/background/memorydungeon.webp
     - key: toys
       title: Try the toys and the gallery

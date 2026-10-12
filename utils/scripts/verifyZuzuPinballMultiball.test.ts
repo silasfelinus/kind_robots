@@ -490,6 +490,9 @@ function soak(def: TableDef, cycles: number, mode: SoakMode = 'harvest') {
       still = resting && physics.ballCount > 0 ? still + 1 : 0
       if (still > PHYSICS_HZ) {
         flipping = PHYSICS_HZ / 8
+        // ...and the machine's ball search shakes the table, as the
+        // runtime does for a ball sat still where no flipper reaches.
+        physics.nudge(step % 2 ? 0.1 : -0.1, -0.25)
         still = 0
       }
       physics.setFlipper('left', flipping > 0)

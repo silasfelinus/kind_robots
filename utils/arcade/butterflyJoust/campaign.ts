@@ -22,6 +22,7 @@ export type Upgrades = { flap: number; combo: number; frog: number }
 export type ShopItemId =
   | 'go'
   | 'spare'
+  | 'hint'
   | 'flap'
   | 'combo'
   | 'frog'
@@ -57,6 +58,14 @@ export const SHOP: readonly ShopItem[] = [
     price: 40,
     step: 20,
     max: 99,
+  },
+  {
+    id: 'hint',
+    name: 'PETAL HINT',
+    about: 'WHERE THE GOLDEN PETAL HIDES',
+    price: 10,
+    step: 0,
+    max: 1,
   },
   {
     id: 'flap',
@@ -145,6 +154,10 @@ export type JoustSave = {
   continued: boolean
   /** How far the tourney has ever got (arenas opened). */
   reached: number
+  /** Golden petals won (arena ids). */
+  petals: string[]
+  /** The tourney has been cleared: Champion's Circuit is open. */
+  cleared: boolean
 }
 
 const WINGS: readonly WingSet[] = [
@@ -153,6 +166,7 @@ const WINGS: readonly WingSet[] = [
   'monarch',
   'swallowtail',
 ]
+const PETALS = ['sunset', 'meadow', 'heights', 'orchard', 'snowfield']
 const int = (v: unknown, lo: number, hi: number): number | null =>
   typeof v === 'number' && Number.isInteger(v) && v >= lo && v <= hi ? v : null
 
@@ -161,7 +175,7 @@ export function readJoustSave(raw: unknown): JoustSave | null {
   if (!raw || typeof raw !== 'object' || Array.isArray(raw)) return null
   const s = raw as Record<string, unknown>
   if (s.v !== 1) return null
-  const arena = int(s.arena, 0, 99)
+  const arena = int(s.arena, 0, 999)
   const score = int(s.score, 0, 250_000_000)
   const lives = int(s.lives, 1, 99)
   const pollen = int(s.pollen, 0, 99_999)
@@ -205,5 +219,16 @@ export function readJoustSave(raw: unknown): JoustSave | null {
     seats,
     continued: s.continued,
     reached: Math.max(reached, arena + 1),
+    petals: Array.isArray(s.petals)
+      ? [
+          ...new Set(
+            s.petals.filter((p): p is string => PETALS.includes(p as never)),
+          ),
+        ]
+      : [],
+    cleared: s.cleared === true,
   }
 }
+
+/** The garden's golden petal hint: where to look. */
+export const PETAL_HINT = 'SIGNATURE WAVE, NO BUTTERFLY LOST'

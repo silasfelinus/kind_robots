@@ -1,10 +1,7 @@
 <template>
   <div class="kr-surface">
     <div class="kr-scroll kr-container max-w-7xl space-y-4 p-4 sm:p-5">
-      <header class="flex flex-wrap items-center justify-between gap-2">
-        <p class="kr-text-faded-sm">
-          Animate a still into a short clip. Pick a preset, add motion, render.
-        </p>
+      <header class="flex justify-end">
         <span class="kr-badge-ghost-sm">
           {{ activeEngine.label }} · {{ selectedPreset?.label || 'Custom' }}
         </span>

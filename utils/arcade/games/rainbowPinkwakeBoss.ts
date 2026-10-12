@@ -7,7 +7,13 @@ export type PinkwakeBoss = {
   phase: 1 | 2 | 3
 }
 
-export type BossProjectile = { x: number; y: number; vx: number; vy: number; grazed: number }
+export type BossProjectile = {
+  x: number
+  y: number
+  vx: number
+  vy: number
+  grazed: number
+}
 export type BossTarget = { x: number; y: number; lives: number }
 
 export const BOSS_MAX_HP = 150
@@ -28,9 +34,9 @@ export function stepPinkwakeBoss(
   const period = boss.phase === 3 ? 90 : 126
   if (boss.frame <= 100 || boss.frame % period !== 0) return []
 
-  const target = targets.filter((ship) => ship.lives > 0).sort((a, b) =>
-    Math.abs(a.y - boss.y) - Math.abs(b.y - boss.y),
-  )[0]
+  const target = targets
+    .filter((ship) => ship.lives > 0)
+    .sort((a, b) => Math.abs(a.y - boss.y) - Math.abs(b.y - boss.y))[0]
   const dx = (target?.x ?? 72) - boss.x
   const dy = (target?.y ?? 135) - boss.y
   const angle = Math.atan2(dy, dx)

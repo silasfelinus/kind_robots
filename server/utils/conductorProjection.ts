@@ -76,7 +76,7 @@ export interface ConductorPitch {
   title: string
   status: string
   projectTarget: string
-  publicReady: boolean
+  publicReady?: boolean
   idea: string
   whyDoIt: string
   effort: string

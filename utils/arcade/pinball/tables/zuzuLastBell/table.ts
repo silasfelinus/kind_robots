@@ -1199,6 +1199,8 @@ export const ZUZU_LAST_BELL_GREYBOX: TableDef = {
     room: {
       backglass: '/images/pinball/zuzu-last-bell-backglass.webp',
       backglassFallback: '/images/arcade/games/zuzu-ghost-trail-title.webp',
+      // The side panorama from the art queue (t-011), on both sides (t-017).
+      cabinetSide: '/images/pinball/zuzu-last-bell-cabinet-side.webp',
     },
   },
 }

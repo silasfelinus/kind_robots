@@ -3,6 +3,8 @@
 // Pinball-specific WebAudio mixer. The context is created only after unlock(),
 // which the runtime calls from a player gesture. Five buses sit under one
 // master, and the arcade sound object's live mute state remains authoritative.
+// A callout ducks the music under it (zuzu-pinball/t-012), so a jackpot or a
+// Death Roll is heard over the bed, and the music comes back once it is said.
 
 import type { ArcadeSoundLike } from '../../types'
 import {
@@ -25,6 +27,13 @@ const BUS_GAIN: Record<PinballBus, number> = {
   ambience: 0.16,
 }
 
+/** Under a callout the music drops to this share of its level. */
+export const DUCK_DEPTH = 0.35
+/** Seconds the music takes to drop under a callout... */
+export const DUCK_ATTACK = 0.03
+/** ...and to come back once the callout is done. */
+export const DUCK_RELEASE = 0.3
+
 export class PinballMixer {
   private sound: ArcadeSoundLike | null
   private context: AudioContext | null = null
@@ -32,6 +41,10 @@ export class PinballMixer {
   private buses = new Map<PinballBus, GainNode>()
   private music: OscillatorNode[] = []
   private unlocked = false
+  /** Each bus's level when nothing ducks it. */
+  private levels = new Map<PinballBus, number>()
+  /** Context time the music comes back up from under the callouts. */
+  private duckUntil = 0
 
   constructor(sound: ArcadeSoundLike) {
     this.sound = sound
@@ -57,6 +70,7 @@ export class PinballMixer {
       node.gain.value = BUS_GAIN[name]
       node.connect(master)
       this.buses.set(name, node)
+      this.levels.set(name, BUS_GAIN[name])
     }
     this.context = context
     this.master = master
@@ -73,7 +87,24 @@ export class PinballMixer {
 
   setBusGain(bus: PinballBus, gain: number) {
     const node = this.buses.get(bus)
-    if (node) node.gain.value = Math.max(0, Math.min(1, gain))
+    const level = Math.max(0, Math.min(1, gain))
+    this.levels.set(bus, level)
+    if (node) node.gain.value = level
+  }
+
+  /**
+   * Duck the music under a callout from `start` for `duration` seconds:
+   * down to DUCK_DEPTH of its level in an instant, back over DUCK_RELEASE
+   * once the last overlapping callout is done.
+   */
+  private duck(start: number, duration: number) {
+    const music = this.buses.get('music')
+    if (!music) return
+    const level = this.levels.get('music') ?? BUS_GAIN.music
+    this.duckUntil = Math.max(this.duckUntil, start + duration)
+    music.gain.cancelScheduledValues(start)
+    music.gain.setTargetAtTime(level * DUCK_DEPTH, start, DUCK_ATTACK / 3)
+    music.gain.setTargetAtTime(level, this.duckUntil, DUCK_RELEASE / 3)
   }
 
   private isMuted() {
@@ -115,6 +146,7 @@ export class PinballMixer {
     const bus = this.buses.get(cue.bus)
     if (!context || !bus) return
     const start = context.currentTime
+    if (cue.bus === 'callout') this.duck(start, cue.duration)
     const envelope = context.createGain()
     envelope.gain.setValueAtTime(Math.max(0.0001, cue.gain), start)
     envelope.gain.exponentialRampToValueAtTime(0.0001, start + cue.duration)
@@ -166,5 +198,6 @@ export class PinballMixer {
     this.context = null
     this.sound = null
     this.unlocked = false
+    this.duckUntil = 0
   }
 }

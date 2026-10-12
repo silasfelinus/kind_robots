@@ -383,6 +383,15 @@ export type ShotDef = {
   displayName: string
 }
 
+/** A table's name on the DMD's attract pages (dmdScenes.ts). */
+export type AttractPages = {
+  title: string
+  kicker: string
+  subtitle: string
+  /** A picture page between the name and the high score. */
+  picture?: 'jaws'
+}
+
 export type TableDef = {
   id: string
   title: string
@@ -444,6 +453,12 @@ export type TableDef = {
    * player, and its width (it is 4:1). It fades with the occluder it sits in.
    */
   dmd?: { at: Vec3; width: number; occluder?: string }
+  /**
+   * The DMD's attract pages (t-012): the table's name in dots, as a big
+   * `title`, then a small `kicker` over a big `subtitle`, and an optional
+   * picture page. Without it the pages name Kind Pinball's AMI Village.
+   */
+  attract?: AttractPages
   /** Solid trim the renderer draws and the physics never sees (the apron plate). */
   trim?: BoxCollider[]
   /** Where a new ball sits in the shooter lane, and the lane's launch speed range (m/s). */

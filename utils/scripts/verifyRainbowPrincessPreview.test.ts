@@ -1,5 +1,7 @@
 import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
+import { parse } from 'yaml'
+import { resolveChannels } from '../../stores/helpers/channelContent'
 import { createRainbowPrincessPreview } from '../arcade/games/rainbowPrincessPreview'
 import { emptyInput } from '../arcade/types'
 import { findArcadeGame, HALL_GAMES, loadArcadeGame } from '../arcade/games'
@@ -14,7 +16,23 @@ const registry = file('../arcade/games.ts')
 const placement = file('../projectPlacements.ts')
 assert.match(tab, /channelKey: admin/)
 assert.match(tab, /requiredRole: ADMIN/)
-assert.match(tab, /tutorial:[\s\S]*?sections:/)
+const admin = resolveChannels([
+  { contentType: 'channel', channelKey: 'admin', label: 'Admin' },
+  parse(tab.split('---')[1]!),
+])[0]!
+const tutorial = admin.tabs.find(
+  (item) => item.key === 'rainbow-bullet-hell-space-princess',
+)?.tutorial
+assert.ok(tutorial?.explicit, 'the tab has authored tutorial help')
+for (const section of [
+  'Flight controls',
+  'Read the battlefield',
+  'Future campaign',
+])
+  assert.ok(
+    tutorial.body.includes(section),
+    `visible tutorial includes ${section}`,
+  )
 assert.match(tab, /route: \/admin\/rainbow-bullet-hell-space-princess/)
 assert.match(page, /!user\.isAdmin/)
 assert.match(page, /ArcadeCabinet slug="rainbow-bullet-hell-space-princess"/)

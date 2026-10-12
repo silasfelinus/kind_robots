@@ -81,6 +81,11 @@ export function readFightPad(
   }
 }
 
+/** Keep the first connected pad on P1 even when the browser gives it a nonzero slot. */
+export function fightPadSlots(connected: readonly number[]): [number, number] {
+  return [connected[0] ?? -1, connected[1] ?? -1]
+}
+
 /**
  * Bind `code` to `button`: the key leaves whatever it did before, and the
  * button's old keys are released. Pure, so the options store can keep maps.

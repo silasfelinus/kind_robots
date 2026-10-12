@@ -17,8 +17,10 @@
 // Each night defends one village: two waves, then a dawn tally that thanks you for every hut that
 // came through unbitten, in thank-you beads. The river map shows the route between nights, the
 // season's regions bring their own skies, pests and special nights (butterflyBlaster/season.ts),
-// AMI's Clinic between regions takes the beads, and a nest boss ends each Moon. Progress saves at
-// every night, boss and Clinic.
+// AMI's Clinic between regions takes the beads, and a nest boss ends each Moon: the Hum, Old Puddle
+// and the Night Queen. Dawn after the Queen rolls the credits; six golden threads open the Moonlit
+// Lagoon and its true ending, Zero Night; then the Dry Season (New Game+) begins. Progress saves at
+// every night, boss and Clinic, and the clear is recorded the moment an ending starts.
 
 import { drawText } from '../font'
 import {
@@ -72,9 +74,15 @@ import {
   clinicPrice,
 } from '../butterflyBlaster/clinic'
 import type { ClinicItem } from '../butterflyBlaster/clinic'
+import {
+  CREDITS_TICKS,
+  SKIP_AFTER,
+  renderEnding,
+} from '../butterflyBlaster/endings'
 import { Hum } from '../butterflyBlaster/hum'
 import type { Boss, BossHost } from '../butterflyBlaster/hum'
 import {
+  BATS,
   FAN,
   KIT,
   LONG,
@@ -83,6 +91,18 @@ import {
   WINGMAN,
   pickKit,
 } from '../butterflyBlaster/kit'
+import {
+  renderBats,
+  renderCoins,
+  renderEscort,
+  renderFireflies2,
+  renderFog,
+  renderShelter,
+  renderStalls,
+  renderStorm,
+  renderStrings,
+  renderTide,
+} from '../butterflyBlaster/laterArt'
 import type { KitId } from '../butterflyBlaster/kit'
 import {
   LASSO_POINTS,
@@ -97,6 +117,7 @@ import {
   BOSS_MUSIC,
   CLINIC_MUSIC,
   DAWN,
+  ENDING,
   HEARTBEATS,
   RIVER,
   heartbeatTier,
@@ -106,12 +127,16 @@ import {
   BROODS,
   PEST_POINTS,
   PEST_RADIUS,
+  PEST_TREE,
   movePest,
   newPest,
   newPool,
   pestHurts,
+  struckBy,
   tickPool,
 } from '../butterflyBlaster/pests'
+import { Puddle } from '../butterflyBlaster/puddle'
+import { Queen } from '../butterflyBlaster/queen'
 import type { Pest, PestKind, Pool } from '../butterflyBlaster/pests'
 import {
   BACKDROPS,
@@ -136,13 +161,17 @@ import {
   BOSS_NAMES,
   JAR_SPOTS,
   REGIONS,
+  THREAD_REGIONS,
   campaignSteps,
+  dryNight,
   isCheckpoint,
   isRegionStart,
+  isSecret,
   regionAt,
 } from '../butterflyBlaster/season'
 import type {
   BossId,
+  EndingKind,
   NightDef,
   RegionDef,
   RegionId,
@@ -162,12 +191,18 @@ import {
 } from '../butterflyBlaster/sky'
 import type { Body, Point } from '../butterflyBlaster/sky'
 import {
+  ESCORT,
   JAR,
   LANTERN,
+  MARKET,
+  SHELTER,
   SPECIAL_GOAL,
-  lanternLights,
+  moveEscort,
+  newEscort,
   newJars,
   newLanterns,
+  newStalls,
+  specialLights,
   specialLine,
   specialMet,
   walkLanterns,
@@ -193,6 +228,18 @@ import {
   reachesHut,
 } from '../butterflyBlaster/village'
 import type { Hut, TallyRow } from '../butterflyBlaster/village'
+import {
+  COINS,
+  STORM,
+  STRINGS,
+  litForShade,
+  newWeather,
+  stringLights,
+  stringY,
+  tickWeather,
+  tideLine,
+} from '../butterflyBlaster/weather'
+import type { Weather } from '../butterflyBlaster/weather'
 
 export { endlessNight, SWARM_RADIUS, SWARM_TREE }
 export type { Pest, Pool, Swarm, Hut }
@@ -242,6 +289,14 @@ export const WIND = {
 } as const
 /** A boss's score for being netted is in the boss; the village's thanks for it is here. */
 const BOSS_DONE_TICKS = 120
+/** A sticky swarm's gum on the wings: turning is this much slower until B shakes it off. */
+export const STICKY = { ticks: 420, turn: 0.45 } as const
+/** Soaked wings flutter this much weaker, and sag this much, at full soak. */
+export const SOAK = { thrust: 0.5, sag: 0.03 } as const
+/** A carried lantern lure follows the butterfly this long before it hangs where it is. */
+export const LURE_CARRY = 300
+/** A decoy glow that is caught bursts into this many hummers. */
+const DECOY_HUMMERS = 4
 
 type Shot = Body & { life: number; hue: number }
 type Drop = Body & { life: number; fall: number }
@@ -264,7 +319,8 @@ type Floater = {
 }
 type Bag = { x: number; y: number; count: number; life: number }
 
-type Phase = 'offer' | 'map' | 'play' | 'gap' | 'dawn' | 'clinic' | 'bossDone'
+type Phase =
+  'offer' | 'map' | 'play' | 'gap' | 'dawn' | 'clinic' | 'bossDone' | 'ending'
 
 type Dawn = {
   rows: TallyRow[]
@@ -289,6 +345,12 @@ export type BlasterSave = {
   record: [number, number][]
   /** The night count, for a resume on the endless river. */
   level?: number
+  /** The season has been cleared once (the ending started): the Dry Season is open. */
+  cleared?: boolean
+  /** Dry Season laps begun. */
+  dry?: number
+  /** Zero Night, the true ending, has been reached. */
+  zero?: boolean
 }
 
 const ONCE_ITEMS: readonly ClinicItem[] = [
@@ -308,9 +370,12 @@ export function readBlasterSave(raw: unknown): BlasterSave | null {
   if (r.v !== 1) return null
   const steps = campaignSteps()
   if (!count(r.step, steps.length - 1)) return null
+  const kind = steps[r.step as number]?.kind
   if (
     !isCheckpoint(steps[r.step as number]) &&
-    steps[r.step as number]?.kind !== 'endless'
+    kind !== 'endless' &&
+    kind !== 'ending' &&
+    kind !== 'dry'
   )
     return null
   if (
@@ -340,6 +405,9 @@ export function readBlasterSave(raw: unknown): BlasterSave | null {
     threads: pick(r.threads, REGION_IDS),
     record: record.map(([s, u]) => [s, u]),
     level: count(r.level, 99_999) ? (r.level as number) : undefined,
+    cleared: r.cleared === true,
+    dry: count(r.dry, 99) ? (r.dry as number) : 0,
+    zero: r.zero === true,
   }
 }
 
@@ -392,7 +460,19 @@ class ButterflyBlaster implements ArcadeGameInstance {
   private ringAngle = 0
   private ringRest = [0, 0, 0]
   private wingman: (Body & { ticks: number }) | null = null
-  private lure: (Point & { ticks: number }) | null = null
+  private lure: (Point & { ticks: number; carry: number }) | null = null
+  private bats: Body[] = []
+  /** Gum from a sticky swarm on the wings (ticks left). */
+  private sticky = 0
+  /** Rain in the wings (0 .. STORM.soaked). */
+  private soak = 0
+  /** AMI's sky-long ribbon for the finale: ticks left, and the ribbon's life meanwhile. */
+  private boost = { ticks: 0, life: 0 }
+  /** A kit a boss has asked AMI to bring next. */
+  private kitWanted: KitId | null = null
+  private weather: Weather = newWeather({}, () => 0.5)
+  /** Ticks into tonight's play, for weather that builds. */
+  private nightTicks = 0
   private wind = { timer: 0, tell: 0, gust: 0, dir: 1 }
   private huts: Hut[] = newVillage()
   private special: SpecialState | null = null
@@ -425,6 +505,11 @@ class ButterflyBlaster implements ArcadeGameInstance {
   } | null = null
   private offer: BlasterSave | null = null
   private saveData: BlasterSave | null = null
+  private ending: { kind: EndingKind; t: number } | null = null
+  /** The season cleared (the Dry Season is open), Dry Season laps begun, Zero Night reached. */
+  private cleared = false
+  private dry = 0
+  private zero = false
 
   private chain = 0
   private chainTimer = 0
@@ -450,7 +535,7 @@ class ButterflyBlaster implements ArcadeGameInstance {
     this.hiScore = options.hiScore
     const stored = this.demo ? null : readBlasterSave(options.resume)
     this.beginStep(0)
-    if (stored && stored.step > 0) {
+    if (stored && (stored.step > 0 || (stored.dry ?? 0) > 0)) {
       this.offer = stored
       this.saveData = stored
       this.phase = 'offer'
@@ -465,6 +550,7 @@ class ButterflyBlaster implements ArcadeGameInstance {
     if (this.over || this.demo || this.phase === 'offer') return null
     if (this.phase === 'map') return RIVER
     if (this.phase === 'clinic') return CLINIC_MUSIC
+    if (this.phase === 'ending') return ENDING
     if (this.phase === 'dawn' || this.phase === 'bossDone') return DAWN
     if (this.bossId) return BOSS_MUSIC[this.bossId]
     const left = this.mosquitoesLeft() / Math.max(1, this.waveTotal)
@@ -475,9 +561,14 @@ class ButterflyBlaster implements ArcadeGameInstance {
 
   /** Nights and bosses up to and including step i: the level shown and kept on the board. */
   private levelAt(i: number): number {
-    return this.steps
-      .slice(0, i + 1)
-      .filter((s) => s.kind === 'night' || s.kind === 'boss').length
+    const count = (list: readonly Step[]) =>
+      list.filter((s) => s.kind === 'night' || s.kind === 'boss').length
+    return count(this.steps.slice(0, i + 1)) + this.dry * count(this.steps)
+  }
+
+  /** Every golden thread found: the Moonlit Lagoon is open. */
+  private get allThreads(): boolean {
+    return THREAD_REGIONS.every((r) => this.threads.has(r))
   }
 
   private get moon(): number {
@@ -492,7 +583,30 @@ class ButterflyBlaster implements ArcadeGameInstance {
     this.clinic = null
     this.dawn = null
     this.card = null
+    this.ending = null
     const step = this.steps[i]
+    // The Lagoon and Zero Night are only there for a watch with all six golden threads.
+    if (isSecret(step) && !this.allThreads) {
+      this.beginStep(i + 1)
+      return
+    }
+    if (step?.kind === 'dry') {
+      // Round again: the Dry Season, remixed and faster.
+      this.dry++
+      this.beginStep(0)
+      return
+    }
+    if (step?.kind === 'ending') {
+      this.region = regionAt(this.steps, i)
+      this.phase = 'ending'
+      this.ending = { kind: step.ending, t: 0 }
+      // The clear counts the moment the ending starts, whatever happens during the credits.
+      this.cleared = true
+      if (step.ending === 'zero') this.zero = true
+      this.sound.play('extra')
+      this.keep()
+      return
+    }
     if (!step || step.kind === 'endless') {
       this.inEndless = true
       this.level = Math.max(this.level + 1, this.levelAt(i))
@@ -529,7 +643,7 @@ class ButterflyBlaster implements ArcadeGameInstance {
       return
     }
     this.region = REGIONS[step.region]
-    this.plan = this.region.nights[step.night]!
+    this.plan = dryNight(this.region.nights[step.night]!, this.dry)
     this.setupNight()
     this.keep()
   }
@@ -558,11 +672,29 @@ class ButterflyBlaster implements ArcadeGameInstance {
     this.lure = null
     this.wingman = null
     this.wind = { timer: this.windWait(), tell: 0, gust: 0, dir: 1 }
+    this.weather = newWeather(this.plan, this.rng)
+    this.bats = []
+    this.soak = 0
+    this.sticky = 0
+    this.boost = { ticks: 0, life: 0 }
+    this.nightTicks = 0
+    this.applyUpgrades()
     this.special = null
-    if (this.plan.special === 'lanterns')
+    const sp = this.plan.special
+    if (sp === 'lanterns')
       this.special = { kind: 'lanterns', lanterns: newLanterns() }
-    else if (this.plan.special === 'pots')
+    else if (sp === 'pots')
       this.special = { kind: 'pots', jars: newJars(JAR_SPOTS) }
+    else if (sp === 'escort')
+      this.special = { kind: 'escort', escort: newEscort() }
+    else if (sp === 'market')
+      this.special = { kind: 'market', stalls: newStalls(), lit: 0, t: 0 }
+    else if (sp === 'hill')
+      this.special = {
+        kind: 'hill',
+        shelter: { x: SHELTER.x, y: SHELTER.y, bites: 0, flicker: 0 },
+      }
+    else if (sp === 'long') this.special = { kind: 'long' }
     this.wave = 0
     this.phase = 'map'
     this.phaseTicks = 0
@@ -585,7 +717,12 @@ class ButterflyBlaster implements ArcadeGameInstance {
     if (isRegionStart(this.steps[this.stepIndex]))
       this.card = { region: this.region, t: 0 }
     if (this.bossId) {
-      this.boss = new Hum()
+      this.boss =
+        this.bossId === 'puddle'
+          ? new Puddle()
+          : this.bossId === 'queen'
+            ? new Queen()
+            : new Hum()
       const title = BOSS_NAMES[this.bossId]
       this.banner = { text: title.name, sub: title.title, ticks: 150 }
       this.fairyTimer = Math.round(this.plan.amiEvery / 2)
@@ -620,6 +757,9 @@ class ButterflyBlaster implements ArcadeGameInstance {
       threads: [...this.threads],
       record: [...this.record],
       level: this.inEndless ? this.level : undefined,
+      cleared: this.cleared,
+      dry: this.dry,
+      zero: this.zero,
     }
   }
 
@@ -631,6 +771,9 @@ class ButterflyBlaster implements ArcadeGameInstance {
     this.hints = new Set(s.hints)
     this.threads = new Set(s.threads)
     this.record = new Map(s.record)
+    this.cleared = s.cleared === true
+    this.dry = s.dry ?? 0
+    this.zero = s.zero === true
     this.applyUpgrades()
     if (this.steps[s.step]?.kind === 'endless')
       this.level = Math.max(0, (s.level ?? this.levelAt(s.step)) - 1)
@@ -638,8 +781,9 @@ class ButterflyBlaster implements ArcadeGameInstance {
   }
 
   private applyUpgrades() {
+    const base = RIBBON_TICKS + (this.owned.has('ribbon') ? UPGRADES.ribbon : 0)
     this.ribbon.life =
-      RIBBON_TICKS + (this.owned.has('ribbon') ? UPGRADES.ribbon : 0)
+      this.boost.ticks > 0 ? Math.max(base, this.boost.life) : base
   }
 
   private get dashCooldown(): number {
@@ -684,6 +828,32 @@ class ButterflyBlaster implements ArcadeGameInstance {
       const x = k % 2 === 0 ? 150 : W - 150
       this.pests.push(newPest('skimmer', x, 0, this.rng))
     }
+    const addKind = (count: number | undefined, kind: Swarm['kind']) => {
+      for (let k = 0; k < (count ?? 0); k++) {
+        const p = this.edgeSpot()
+        const s = newSwarm(p.x, p.y, 2, this.rng, this.hunger())
+        s.kind = kind
+        this.swarms.push(s)
+      }
+    }
+    addKind(wave.shade, 'shade')
+    addKind(wave.sticky, 'sticky')
+    const addPest = (
+      count: number | undefined,
+      kind: PestKind,
+      top = false,
+    ) => {
+      for (let k = 0; k < (count ?? 0); k++) {
+        const p = top
+          ? { x: 30 + this.rng() * (W - 60), y: 6 }
+          : this.edgeSpot()
+        this.pests.push(newPest(kind, p.x, p.y, this.rng))
+      }
+    }
+    addPest(wave.blooms, 'bloom')
+    addPest(wave.hummers, 'hummer')
+    addPest(wave.storms, 'storm', true)
+    addPest(wave.decoys, 'decoy', true)
     for (const pool of this.pools) pool.broods = BROODS
     this.cloudTimer = Math.round(this.plan.cloudEvery / 2)
     this.fairyTimer = Math.round(this.plan.amiEvery / 2)
@@ -694,7 +864,8 @@ class ButterflyBlaster implements ArcadeGameInstance {
   private mosquitoesLeft(): number {
     let n = 0
     for (const s of this.swarms) n += SWARM_TREE[s.size]
-    return n + this.pests.length
+    for (const p of this.pests) n += PEST_TREE[p.kind]
+    return n
   }
 
   /** The last mosquito of the night sprints. */
@@ -723,7 +894,7 @@ class ButterflyBlaster implements ArcadeGameInstance {
       this.sound.play('level')
       this.banner = {
         text: 'HERE THEY COME',
-        sub: 'THE SECOND SWARM',
+        sub: this.wave === 0 ? 'THE SECOND SWARM' : 'THE THIRD SWARM',
         ticks: 90,
       }
       return
@@ -741,10 +912,14 @@ class ButterflyBlaster implements ArcadeGameInstance {
     let thread = false
     if (this.special) {
       const met = specialMet(this.special)
-      const label =
-        this.special.kind === 'lanterns'
-          ? 'LANTERNS KEPT LIT'
-          : 'ALL THE POTS TIPPED'
+      const label = {
+        lanterns: 'LANTERNS KEPT LIT',
+        pots: 'ALL THE POTS TIPPED',
+        escort: 'THE FIREFLIES GOT ACROSS',
+        market: 'THE MARKET STAYED OPEN',
+        hill: 'THE SHELTER HELD',
+        long: 'THE LONG NIGHT IS DONE',
+      }[this.special.kind]
       if (met) {
         rows.push({ label, count: 1, each: 3000, bonus: true })
         total += 3000
@@ -821,7 +996,21 @@ class ButterflyBlaster implements ArcadeGameInstance {
       return
     }
     if (this.phase === 'bossDone') {
-      if (--this.phaseTicks <= 0) this.startDawn()
+      if (--this.phaseTicks <= 0) {
+        // The Night Queen's dawn is the season's: no tally, straight into the ending.
+        if (this.bossId === 'queen') this.advance()
+        else this.startDawn()
+      }
+      return
+    }
+    if (this.phase === 'ending') {
+      const e = this.ending!
+      e.t++
+      const skip =
+        !this.demo &&
+        e.t > SKIP_AFTER &&
+        (input.pressed.a || input.pressed.start)
+      if (skip || e.t > (this.demo ? 300 : CREDITS_TICKS)) this.advance()
       return
     }
 
@@ -829,7 +1018,9 @@ class ButterflyBlaster implements ArcadeGameInstance {
     if (this.alive) this.updateShip(controls)
     else this.tryRespawn()
 
+    this.nightTicks++
     this.updateWind()
+    this.updateWeather()
     this.updateShots()
     this.updateSwarms()
     this.updatePests()
@@ -896,8 +1087,10 @@ class ButterflyBlaster implements ArcadeGameInstance {
 
   private updateShip(input: InputFrame) {
     const ship = this.ship
-    if (input.held.left) ship.angle -= TURN
-    if (input.held.right) ship.angle += TURN
+    const turn = this.sticky > 0 ? TURN * STICKY.turn : TURN
+    if (input.held.left) ship.angle -= turn
+    if (input.held.right) ship.angle += turn
+    const wet = this.soak / STORM.soaked
     this.thrusting = input.held.up
     if (this.thrusting) {
       // Wings bite the air: a flutter swings the drift round toward where the butterfly faces,
@@ -905,10 +1098,14 @@ class ButterflyBlaster implements ArcadeGameInstance {
       const speed0 = Math.hypot(ship.vx, ship.vy)
       ship.vx += (Math.sin(ship.angle) * speed0 - ship.vx) * GRIP
       ship.vy += (-Math.cos(ship.angle) * speed0 - ship.vy) * GRIP
-      ship.vx += Math.sin(ship.angle) * THRUST
-      ship.vy -= Math.cos(ship.angle) * THRUST
+      const thrust = THRUST * (1 - SOAK.thrust * wet)
+      ship.vx += Math.sin(ship.angle) * thrust
+      ship.vy -= Math.cos(ship.angle) * thrust
       limitSpeed(ship, MAX_SPEED)
     }
+    ship.vy += SOAK.sag * wet
+    if (this.sticky > 0) this.sticky--
+    if (this.boost.ticks > 0 && --this.boost.ticks === 0) this.applyUpgrades()
     if (this.wind.gust > 0) ship.vx += this.wind.dir * WIND.push
     ship.vx *= FRICTION
     ship.vy *= FRICTION
@@ -992,6 +1189,7 @@ class ButterflyBlaster implements ArcadeGameInstance {
     limitSpeed(ship, MAX_SPEED)
     wrap(ship)
     this.dashTrail = { from, to: { x: from.x + dx, y: from.y + dy }, t: 1 }
+    this.shakeOff()
     this.invuln = Math.max(this.invuln, DASH.invuln)
     this.bCooldown = this.dashCooldown
     // A dash mid-flutter carries the ribbon with it: a straight cut that can close a loop.
@@ -1009,12 +1207,26 @@ class ButterflyBlaster implements ArcadeGameInstance {
     this.ribbon.clear()
     this.unwrapped = { x: ship.x, y: ship.y }
     this.bCooldown = this.dashCooldown
+    this.shakeOff()
     this.burst(ship.x, ship.y, 10, RAINBOW)
     this.sound.play('blip')
     const near = this.swarms.some(
       (s) => wrapDist(s, ship) - SWARM_RADIUS[s.size] < BRAVE.reach,
     )
     this.brave = near ? BRAVE.ticks : 0
+  }
+
+  /** B shakes a sticky swarm's gum off the wings. */
+  private shakeOff() {
+    if (this.sticky <= 0) return
+    this.sticky = 0
+    this.floater(
+      this.ship.x,
+      this.ship.y - 20,
+      'SHAKEN OFF!',
+      RAMPS.gold[4],
+      50,
+    )
   }
 
   private layRibbon() {
@@ -1074,6 +1286,88 @@ class ButterflyBlaster implements ArcadeGameInstance {
     this.lurk = 0
   }
 
+  /** The later regions' weather: tide, fog, light strings, the storm, moonlight coins. */
+  private updateWeather() {
+    if (this.phase !== 'play' && this.phase !== 'gap') return
+    const w = this.weather
+    const ship = this.ship
+    const build = Math.min(1, this.nightTicks / 5400)
+    const ev = tickWeather(w, this.rng, build, this.alive ? ship : null)
+    if (ev.strikeTell !== undefined) this.sound.play('warn')
+    if (ev.strike !== undefined) this.lightning(ev.strike)
+    if (w.tide) {
+      const tide = tideLine(w)
+      if (this.alive && ship.y > tide - 8) {
+        ship.y = tide - 8
+        ship.vy = -Math.abs(ship.vy) * 0.6 - 0.3
+      }
+      for (const s of this.swarms) {
+        const r = SWARM_RADIUS[s.size] * 0.5
+        if (s.y > tide - r) {
+          s.y = tide - r
+          s.vy = -Math.abs(s.vy)
+        }
+      }
+      for (const p of this.pests) {
+        if (p.kind === 'wriggler' || p.kind === 'skimmer') continue
+        if (p.y > tide - PEST_RADIUS[p.kind]) {
+          p.y = tide - PEST_RADIUS[p.kind]
+          p.vy = -Math.abs(p.vy)
+        }
+      }
+      for (const shot of this.shots) if (shot.y > tide) shot.life = 0
+    }
+    // A swarm lingering at a lit string of bulbs lays a new mosquito there.
+    w.strings.forEach((str) => {
+      if (str.dim > 0) return
+      const near = this.swarms.find(
+        (s) => Math.abs(s.y - stringY(str.y, s.x)) < STRINGS.reach,
+      )
+      str.linger = near ? str.linger + 1 : Math.max(0, str.linger - 1)
+      if (near && str.linger >= STRINGS.lay) {
+        str.linger = 0
+        this.swarms.push(newSwarm(near.x, near.y, 1, this.rng, this.hunger()))
+        this.waveTotal += 1
+        this.floater(near.x, near.y - 14, 'LAID ONE!', RAMPS.ember[3], 50)
+      }
+    })
+    if (w.storm.on && this.alive) {
+      this.soak = Math.min(STORM.soaked, this.soak + STORM.soak)
+      if (
+        w.storm.updrafts.some(
+          (u) => Math.abs(ship.x - u.x) < STORM.updraftReach,
+        )
+      ) {
+        if (this.soak > 120)
+          this.floater(ship.x, ship.y - 20, 'DRIED!', RAMPS.sky[4], 40)
+        this.soak = 0
+        ship.vy -= 0.15
+      }
+    }
+    if (this.alive) {
+      for (const c of w.coins) {
+        if (wrapDist(c, ship) >= COINS.reach) continue
+        this.addScore(COINS.points, c.x, c.y)
+        this.sound.play('pickup')
+        c.x = 20 + this.rng() * (W - 40)
+        c.y = 40 + this.rng() * (GROUND - 120)
+      }
+    }
+  }
+
+  /** A lightning strike lands: it zaps whatever is in its column, the butterfly included. */
+  private lightning(x: number) {
+    this.sound.play('boom')
+    const inColumn = (p: Point) =>
+      Math.abs(toward({ x, y: p.y }, p).x) < STORM.reach
+    for (let i = this.swarms.length - 1; i >= 0; i--)
+      if (inColumn(this.swarms[i]!)) this.hitSwarm(i, false)
+    for (let i = this.pests.length - 1; i >= 0; i--)
+      if (inColumn(this.pests[i]!) && this.pests[i]!.kind !== 'storm')
+        this.hitPest(i, false)
+    if (this.alive && inColumn(this.ship)) this.hurtShip()
+  }
+
   /** Terraces wind: the flags tell, then a gust pushes everything sideways. */
   private updateWind() {
     if (!this.plan.wind || this.phase !== 'play') return
@@ -1124,8 +1418,8 @@ class ButterflyBlaster implements ArcadeGameInstance {
   /** Everything a swarm is drawn to this tick: lit huts, the lanterns, AMI's lure. */
   private lights(): Light[] {
     const lights = hutLights(this.huts)
-    if (this.special?.kind === 'lanterns')
-      lights.push(...lanternLights(this.special.lanterns))
+    if (this.special) lights.push(...specialLights(this.special))
+    lights.push(...stringLights(this.weather))
     if (this.lure)
       lights.push({
         x: this.lure.x,
@@ -1165,6 +1459,7 @@ class ButterflyBlaster implements ArcadeGameInstance {
         this.bite(hut, s)
         continue
       }
+      if (this.biteSpecial(s, r)) continue
       if (this.special?.kind === 'lanterns') {
         const lantern = this.special.lanterns.find(
           (l) =>
@@ -1198,6 +1493,49 @@ class ButterflyBlaster implements ArcadeGameInstance {
       )
   }
 
+  /** A hungry swarm at the night's special light: the firefly cloud, the lit stall, the shelter. */
+  private biteSpecial(s: Swarm, r: number): boolean {
+    const sp = this.special
+    if (!sp) return false
+    const reach = (x: number, y: number, extra: number) =>
+      Math.abs(toward(s, { x, y }).x) < extra + r * 0.6 &&
+      Math.abs(y - s.y) < extra + r * 0.6
+    if (sp.kind === 'escort') {
+      const e = sp.escort
+      if (e.arrived || e.health <= 0 || !reach(e.x, e.y, ESCORT.reach))
+        return false
+      e.health--
+      e.flicker = 50
+      this.shoo(s)
+      this.floater(
+        e.x,
+        e.y - 24,
+        e.health ? 'FIREFLIES DIM' : 'THEY SCATTERED',
+        RAMPS.ember[3],
+        60,
+      )
+      return true
+    }
+    if (sp.kind === 'market') {
+      const stall = sp.stalls[sp.lit]!
+      if (!reach(stall.x, MARKET.y, 12)) return false
+      stall.bites++
+      stall.flicker = 50
+      this.shoo(s)
+      return true
+    }
+    if (sp.kind === 'hill') {
+      const sh = sp.shelter
+      if (!reach(sh.x, sh.y, 14)) return false
+      sh.bites++
+      sh.flicker = 60
+      this.shoo(s)
+      this.floater(sh.x, sh.y - 30, 'THE SHELTER!', RAMPS.ember[3], 60)
+      return true
+    }
+    return false
+  }
+
   private shoo(s: Swarm) {
     s.mode = 'shoo'
     s.modeTicks = SHOO_TICKS
@@ -1228,10 +1566,15 @@ class ButterflyBlaster implements ArcadeGameInstance {
     for (const p of this.pests) {
       const event = movePest(p, host)
       if (event === 'hatch') hatched.push(p)
-      else if (event === 'dash') this.sound.play('warn')
+      else if (event === 'dash' || event === 'crackle') this.sound.play('warn')
+      else if (event === 'strike') this.sound.play('boom')
       if (this.wind.gust > 0 && p.kind !== 'skimmer')
         p.x += this.wind.dir * WIND.push * 6
     }
+    // A decoy that reaches the ground fizzles out.
+    this.pests = this.pests.filter(
+      (p) => p.kind !== 'decoy' || p.y < GROUND - 6,
+    )
     for (const p of hatched) {
       this.pests.splice(this.pests.indexOf(p), 1)
       const s = newSwarm(p.x, p.y, 2, this.rng, 30)
@@ -1255,7 +1598,31 @@ class ButterflyBlaster implements ArcadeGameInstance {
     const s = this.special
     if (!s || this.phase === 'dawn') return
     if (s.kind === 'lanterns') walkLanterns(s.lanterns)
-    else for (const jar of s.jars) if (jar.tipped) jar.tip++
+    else if (s.kind === 'pots') {
+      for (const jar of s.jars) if (jar.tipped) jar.tip++
+    } else if (s.kind === 'escort') {
+      const was = s.escort.arrived
+      moveEscort(s.escort, this.alive ? this.ship : null)
+      if (!was && s.escort.arrived) {
+        this.sound.play('extra')
+        this.floater(
+          s.escort.x,
+          s.escort.y - 30,
+          'THE FIREFLIES ARE ACROSS!',
+          RAMPS.gold[4],
+          90,
+        )
+      }
+    } else if (s.kind === 'market') {
+      for (const st of s.stalls) if (st.flicker > 0) st.flicker--
+      if (++s.t >= MARKET.lit) {
+        s.t = 0
+        s.lit = (s.lit + 1) % s.stalls.length
+        this.sound.play('blip')
+      }
+    } else if (s.kind === 'hill') {
+      if (s.shelter.flicker > 0) s.shelter.flicker--
+    }
   }
 
   private spawnCloud(angry: boolean) {
@@ -1319,13 +1686,14 @@ class ButterflyBlaster implements ArcadeGameInstance {
   /** The kit AMI may bring tonight. */
   private kitChoices(): readonly KitId[] {
     if (this.boss || this.inEndless)
-      return ['net', 'ring', 'fan', 'wingman', 'lure', 'long']
+      return ['net', 'ring', 'fan', 'wingman', 'lure', 'long', 'bats']
     return this.region.kit
   }
 
   private updateFairy() {
     if (this.phase === 'dawn') return
     const busy = this.swarms.length > 0 || !!this.boss
+    if (!this.fairy && this.kitWanted) this.fairyTimer = 0
     if (!this.fairy && --this.fairyTimer <= 0 && busy) {
       const fromLeft = this.rng() < 0.5
       this.fairy = {
@@ -1335,8 +1703,9 @@ class ButterflyBlaster implements ArcadeGameInstance {
         vy: 0,
         dropAt: 80 + this.rng() * (W - 160),
         carrying: true,
-        kit: pickKit(this.rng, this.kitChoices()),
+        kit: this.kitWanted ?? pickKit(this.rng, this.kitChoices()),
       }
+      this.kitWanted = null
       this.fairyTimer = this.plan.amiEvery
     }
     const fairy = this.fairy
@@ -1384,11 +1753,21 @@ class ButterflyBlaster implements ArcadeGameInstance {
     if (id === 'net') {
       this.giveNet()
     } else if (id === 'lure') {
+      // The butterfly carries the lantern a while (the flock follows it), then hangs it up.
       this.lure = {
         x: ship.x,
         y: clamp(ship.y, 50, GROUND - 70),
         ticks: KIT.lure.ticks,
+        carry: LURE_CARRY,
       }
+    } else if (id === 'bats') {
+      const fromLeft = ship.x > W / 2
+      this.bats = Array.from({ length: BATS.count }, (_, i) => ({
+        x: fromLeft ? -20 - (i % 2) * 18 : W + 20 + (i % 2) * 18,
+        y: 40 + i * ((GROUND - 100) / (BATS.count - 1)),
+        vx: (fromLeft ? 1 : -1) * BATS.speed,
+        vy: 0,
+      }))
     } else if (id === 'wingman') {
       this.wingman = {
         x: ship.x,
@@ -1407,6 +1786,34 @@ class ButterflyBlaster implements ArcadeGameInstance {
     if (this.phase !== 'play' && this.phase !== 'gap') return
     if (this.kit && --this.kit.ticks <= 0) this.kit = null
     if (this.lure && --this.lure.ticks <= 0) this.lure = null
+    if (this.lure && this.lure.carry > 0) {
+      this.lure.carry--
+      if (this.alive) {
+        this.lure.x = this.ship.x
+        this.lure.y = clamp(this.ship.y, 50, GROUND - 60)
+      } else {
+        this.lure.carry = 0
+      }
+    }
+    // The bat squadron sweeps across, gobbling lone mosquitoes and small pests.
+    for (const b of this.bats) {
+      b.x += b.vx
+      b.y += Math.sin((this.tick + b.x) / 20) * 0.6
+      for (let i = this.swarms.length - 1; i >= 0; i--) {
+        const s = this.swarms[i]!
+        if (s.size === 1 && wrapDist(s, b) < BATS.reach) this.hitSwarm(i, false)
+      }
+      for (let i = this.pests.length - 1; i >= 0; i--) {
+        const q = this.pests[i]!
+        if (
+          q.kind !== 'bloom' &&
+          q.kind !== 'storm' &&
+          wrapDist(q, b) < BATS.reach
+        )
+          this.hitPest(i, false)
+      }
+    }
+    this.bats = this.bats.filter((b) => b.x > -60 && b.x < W + 60)
     // The repellent ring's orbs pop what they touch.
     if (this.kit?.id === 'ring' && this.alive) {
       this.ringAngle += RING.spin
@@ -1488,9 +1895,30 @@ class ButterflyBlaster implements ArcadeGameInstance {
       bite: (hut) => this.bite(hut, null),
       score: (points, at, label) => this.addScore(points, at.x, at.y, label),
       sound: (name) => this.sound.play(name),
-      spawn: (at) => {
-        const s = newSwarm(at.x, at.y, 1, this.rng, this.hunger())
+      spawn: (at, size = 1) => {
+        const s = newSwarm(at.x, at.y, size, this.rng, this.hunger())
         this.swarms.push(s)
+      },
+      spawnPest: (kind, at) => {
+        this.pests.push(newPest(kind, at.x, at.y, this.rng))
+      },
+      addPool: (at) => {
+        const pool = newPool(at, this.plan.poolEvery, this.rng)
+        this.pools.push(pool)
+      },
+      dropKit: (kit) => {
+        this.kitWanted = kit
+      },
+      lure: () =>
+        this.lure
+          ? { x: this.lure.x, y: this.lure.y, carried: this.lure.carry > 0 }
+          : null,
+      pushShots: (dx) => {
+        for (const shot of this.shots) shot.vx += dx
+      },
+      ribbonBoost: (ticks, life) => {
+        this.boost = { ticks: Math.max(this.boost.ticks, ticks), life }
+        this.applyUpgrades()
       },
       burst: (at, count) =>
         this.fx.burst(at.x, at.y, this.fxRng, {
@@ -1510,11 +1938,18 @@ class ButterflyBlaster implements ArcadeGameInstance {
       this.phaseTicks = BOSS_DONE_TICKS
       this.cloud = null
       this.drops = []
-      this.banner = {
-        text: 'THE NEST IS QUIET',
-        sub: 'THE VILLAGE CHEERS',
-        ticks: BOSS_DONE_TICKS,
-      }
+      this.banner =
+        this.bossId === 'queen'
+          ? {
+              text: 'DAWN AT LAST',
+              sub: 'THE RAINS ARE OVER',
+              ticks: BOSS_DONE_TICKS,
+            }
+          : {
+              text: 'THE NEST IS QUIET',
+              sub: 'THE VILLAGE CHEERS',
+              ticks: BOSS_DONE_TICKS,
+            }
     }
   }
 
@@ -1660,7 +2095,15 @@ class ButterflyBlaster implements ArcadeGameInstance {
 
   private hitPest(index: number, byShot: boolean) {
     const p = this.pests[index]!
+    if (byShot && p.hp > 1) {
+      // A tough pest takes more than one sparkle.
+      p.hp--
+      this.sound.play('blip')
+      this.burst(p.x, p.y, 4, [RAMPS.cream[3], '#ffffff'])
+      return
+    }
     this.pests.splice(index, 1)
+    if (p.kind === 'bloom') this.scatterHummers(p, 6)
     const chain = byShot ? this.chainUp() : 1
     const label = p.kind === 'wriggler' ? 'NIPPED' : undefined
     this.addScore(PEST_POINTS[p.kind] * chain, p.x, p.y, label)
@@ -1668,6 +2111,37 @@ class ButterflyBlaster implements ArcadeGameInstance {
     this.burst(p.x, p.y, 10, [RAMPS.water[3], '#e2e8f0', RAMPS.ember[3]])
     this.fx.burst(p.x, p.y, this.fxRng, { count: 6 })
     this.sound.play('pop')
+  }
+
+  /** A bloom cluster broken, or a decoy caught: hummers scatter out of it. */
+  private scatterHummers(at: Point, n: number) {
+    for (let i = 0; i < n; i++) {
+      const a = (i / n) * Math.PI * 2
+      const h = newPest(
+        'hummer',
+        at.x + Math.cos(a) * 10,
+        at.y + Math.sin(a) * 10,
+        this.rng,
+      )
+      h.vx = Math.cos(a) * 1.2
+      h.vy = Math.sin(a) * 1.2
+      this.pests.push(h)
+    }
+    this.waveTotal += n
+  }
+
+  /** Something hurt the butterfly: the bed net takes it if there is one. */
+  private hurtShip() {
+    if (!this.alive || this.invuln > 0) return
+    const ship = this.ship
+    if (this.shield > 0) {
+      if (--this.shieldHits <= 0) this.shield = 0
+      this.invuln = 60
+      this.burst(ship.x, ship.y, 16, ['#ffffff', '#e0f2fe'])
+      this.sound.play('pop')
+      return
+    }
+    this.loseLife()
   }
 
   /** The Rainbow Lasso closes: every mosquito inside is netted at once. */
@@ -1692,7 +2166,7 @@ class ButterflyBlaster implements ArcadeGameInstance {
     })
     this.pests = this.pests.filter((p) => {
       if (!inside(p)) return true
-      count += 1
+      count += PEST_TREE[p.kind]
       cx += p.x
       cy += p.y
       caught++
@@ -1780,6 +2254,18 @@ class ButterflyBlaster implements ArcadeGameInstance {
         shot.life = 0
         continue
       }
+      const string = this.weather.strings.find(
+        (str) => str.dim === 0 && Math.abs(shot.y - stringY(str.y, shot.x)) < 4,
+      )
+      if (string) {
+        // A sparkle dims a string of bulbs, and the flock goes elsewhere.
+        shot.life = 0
+        string.dim = STRINGS.dim
+        string.linger = 0
+        this.floater(shot.x, shot.y - 10, 'DIMMED', RAMPS.sky[4], 40)
+        this.sound.play('blip')
+        continue
+      }
       const cloud = this.cloud
       if (cloud && wrapDist(shot, cloud) < (cloud.small ? 14 : 24)) {
         shot.life = 0
@@ -1801,8 +2287,24 @@ class ButterflyBlaster implements ArcadeGameInstance {
       const [drop] = this.kitDrops.splice(caught, 1)
       this.takeKit(drop!.kit)
     }
+    // A decoy glow looks like a falling net; catch it and it bursts into hummers.
+    const decoy = this.pests.findIndex(
+      (p) => p.kind === 'decoy' && wrapDist(p, ship) < 18,
+    )
+    if (decoy >= 0) {
+      const [d] = this.pests.splice(decoy, 1)
+      this.scatterHummers(d!, DECOY_HUMMERS)
+      // A breath to get clear of the burst.
+      this.invuln = Math.max(this.invuln, 45)
+      this.banner = { text: 'A DECOY!', sub: 'IT BLINKED TWICE', ticks: 70 }
+      this.sound.play('warn')
+    }
 
     if (this.invuln > 0) return
+    if (this.pests.some((p) => struckBy(p, ship))) {
+      this.hurtShip()
+      return
+    }
 
     const swarmHit = this.swarms.findIndex(
       (s) => wrapDist(s, ship) < SWARM_RADIUS[s.size] * HURT + SHIP_RADIUS - 2,
@@ -1821,6 +2323,19 @@ class ButterflyBlaster implements ArcadeGameInstance {
     const bossHit = this.boss?.touches(ship, SHIP_RADIUS - 2) ?? false
     if (swarmHit < 0 && pestHit < 0 && dropHit < 0 && !cloudHit && !bossHit)
       return
+    // A sticky swarm gums the wings instead of knocking the butterfly down.
+    if (
+      swarmHit >= 0 &&
+      this.swarms[swarmHit]!.kind === 'sticky' &&
+      this.shield <= 0
+    ) {
+      const [gum] = this.swarms.splice(swarmHit, 1)
+      this.sticky = STICKY.ticks
+      this.invuln = 40
+      this.floater(gum!.x, gum!.y - 20, 'STUCK! TAP B', RAMPS.earth[3], 70)
+      this.sound.play('warn')
+      return
+    }
 
     if (this.shield > 0) {
       // The net takes the hit, and catches what hit it.
@@ -1849,6 +2364,8 @@ class ButterflyBlaster implements ArcadeGameInstance {
     this.chain = 0
     this.chainTimer = 0
     this.kit = null
+    this.sticky = 0
+    this.soak = 0
     this.ribbon.clear()
     this.burst(this.ship.x, this.ship.y, 40, RAINBOW)
     this.sound.play('die')
@@ -1931,6 +2448,27 @@ class ButterflyBlaster implements ArcadeGameInstance {
     if (c.cursor !== target) frame.pressed.down = true
     else frame.pressed.a = true
     return frame
+  }
+
+  /** Somewhere the pilot should fly rather than shoot. */
+  private pilotGoal(): Point | null {
+    const ship = this.ship
+    if (this.boss?.goal) {
+      const g = this.boss.goal(this.bossHost())
+      if (g) return g
+    }
+    if (this.special?.kind === 'escort') {
+      const e = this.special.escort
+      if (!e.arrived && e.health > 0) {
+        const lead = { x: Math.min(W - 10, e.x + 36), y: e.y }
+        if (wrapDist(ship, lead) > 22) return lead
+      }
+    }
+    if (this.soak > STORM.soaked * 0.6) {
+      const u = this.weather.storm.updrafts[0]
+      if (u) return { x: u.x, y: ship.y }
+    }
+    return null
   }
 
   private demoInput(): InputFrame {
@@ -2028,11 +2566,32 @@ class ButterflyBlaster implements ArcadeGameInstance {
       }
     }
 
+    // A job to fly to: the sunbeam with Old Puddle's lantern, ahead of the fireflies, an updraft.
+    const goal = this.pilotGoal()
+    if (goal && (!danger || danger.gap > 36)) {
+      const d = toward(ship, goal)
+      const dist = Math.hypot(d.x, d.y)
+      const speed = Math.hypot(ship.vx, ship.vy)
+      // Close in, and brake (face back along the drift and flutter) so as not to overshoot.
+      const braking = dist < 70 && speed > 1
+      const want = braking
+        ? Math.atan2(-ship.vx, ship.vy)
+        : Math.atan2(d.x, -d.y)
+      const diff = angleDiff(ship.angle, want)
+      if (diff > 0.05) held.right = true
+      else if (diff < -0.05) held.left = true
+      held.up = (braking || dist > 26) && Math.abs(diff) < 0.6
+      if (this.tick % 10 === 0) pressed.a = true
+      return frame
+    }
+
     // Catch a falling kit when it is handy.
     const close = danger && danger.gap < 60 ? danger.at : null
     const net = close
       ? undefined
-      : this.kitDrops.find((n) => wrapDist(n, ship) < 150)
+      : this.kitDrops.find(
+          (n) => wrapDist(n, ship) < (this.bossId === 'puddle' ? 999 : 150),
+        )
     let target: Point | null = close ?? net ?? null
     if (!target) {
       // Wrigglers and jars first, then whatever is hungriest, then the nearest.
@@ -2086,7 +2645,26 @@ class ButterflyBlaster implements ArcadeGameInstance {
     return out
   }
 
+  /** Lights that reveal shade swarms and lift fog, besides the fireflies. */
+  private revealers(): Point[] {
+    const out: Point[] = []
+    if (this.lure) out.push(this.lure)
+    if (this.special?.kind === 'escort' && this.special.escort.health > 0)
+      out.push(this.special.escort)
+    return out
+  }
+
   render(g: CanvasRenderingContext2D) {
+    if (this.phase === 'ending' && this.ending) {
+      renderEnding(
+        g,
+        this.ending.kind,
+        this.ending.t,
+        THREAD_REGIONS.filter((r) => this.threads.has(r)).length,
+        this.tick,
+      )
+      return
+    }
     if (this.phase === 'map' || this.phase === 'offer') {
       const step = this.steps[this.stepIndex]
       const title = this.offer
@@ -2115,6 +2693,7 @@ class ButterflyBlaster implements ArcadeGameInstance {
           score: this.score,
           beads: this.offer?.beads ?? this.beads,
           t: this.phaseTicks,
+          secretOpen: this.allThreads,
         },
         this.tick,
       )
@@ -2142,10 +2721,20 @@ class ButterflyBlaster implements ArcadeGameInstance {
     cachedLayer(g, `butterfly-blaster-${backdrop}`, W, H, BACKDROPS[backdrop])
     renderStars(g, this.tick)
     renderDriftingClouds(g, this.tick)
-    if (backdrop === 'terraces') renderMist(g, this.tick)
+    if (backdrop === 'terraces' || backdrop === 'swamp')
+      renderMist(g, this.tick)
     for (const pool of this.pools) renderPool(g, pool, this.tick)
     renderWindows(g, this.huts, this.tick)
     renderFireflies(g, this.tick)
+    const w = this.weather
+    if (w.tide) renderTide(g, tideLine(w), this.tick)
+    if (w.strings.length) renderStrings(g, w, this.tick)
+    if (w.fireflies.length) renderFireflies2(g, w, this.tick)
+    if (w.coins.length) renderCoins(g, w, this.tick)
+    const sp = this.special
+    if (sp?.kind === 'escort') renderEscort(g, sp.escort, this.tick)
+    if (sp?.kind === 'market') renderStalls(g, sp.stalls, sp.lit, this.tick)
+    if (sp?.kind === 'hill') renderShelter(g, sp.shelter, this.tick)
     if (this.plan.wind) renderFlags(g, this.tick, this.wind)
     if (this.special?.kind === 'pots')
       for (const j of this.special.jars) renderJar(g, j, this.tick)
@@ -2174,8 +2763,21 @@ class ButterflyBlaster implements ArcadeGameInstance {
         this.tick,
       )
     for (const p of this.pests) renderPest(g, p, this.tick)
-    for (const swarm of this.swarms) renderSwarm(g, swarm, this.tick)
+    const reveal = this.revealers()
+    for (const swarm of this.swarms) {
+      // A shade swarm is only a shimmer outside firefly light or a lightning flash.
+      if (swarm.kind === 'shade' && !litForShade(w, swarm, reveal)) {
+        g.save()
+        g.globalAlpha = 0.14
+        renderSwarm(g, swarm, this.tick)
+        g.restore()
+      } else {
+        renderSwarm(g, swarm, this.tick)
+      }
+    }
     this.boss?.render(g, this.tick)
+    if (w.fog.length) renderFog(g, w, [...w.fireflies, ...reveal])
+    renderStorm(g, w, this.tick)
     if (this.cloud)
       renderCloud(
         g,
@@ -2210,6 +2812,7 @@ class ButterflyBlaster implements ArcadeGameInstance {
         this.dashTrail.t,
       )
     if (this.wingman) renderDragonfly(g, this.wingman, this.tick)
+    if (this.bats.length) renderBats(g, this.bats, this.tick)
     if (
       this.alive &&
       !(this.invuln > DASH.invuln && Math.floor(this.invuln / 6) % 2 === 0)
@@ -2217,6 +2820,20 @@ class ButterflyBlaster implements ArcadeGameInstance {
       renderButterfly(g, this.ship.x, this.ship.y, this.ship.angle, this.flap)
       if (this.kit?.id === 'ring')
         renderRing(g, this.ship, this.ringAngle, this.tick)
+      if (this.sticky > 0) {
+        // Gum on the wings.
+        for (let i = 0; i < 4; i++) {
+          const a = this.ship.angle + i * 1.7
+          shadedOrb(
+            g,
+            this.ship.x + Math.cos(a) * 10,
+            this.ship.y + Math.sin(a) * 8,
+            2.5,
+            RAMPS.earth,
+            { glint: false },
+          )
+        }
+      }
       if (
         this.shield > 0 &&
         (this.shield > 90 || Math.floor(this.shield / 8) % 2 === 0)
@@ -2268,7 +2885,11 @@ class ButterflyBlaster implements ArcadeGameInstance {
           ? BOSS_NAMES[step.boss].name
           : step?.kind === 'clinic'
             ? "AMI'S CLINIC"
-            : 'THE OPEN RIVER'
+            : step?.kind === 'ending'
+              ? 'THE CREDITS'
+              : step?.kind === 'dry'
+                ? 'THE DRY SEASON'
+                : 'THE OPEN RIVER'
     const night =
       step?.kind === 'night'
         ? `NIGHT ${step.night + 1}: ${REGIONS[step.region].nights[step.night]!.title}`
@@ -2322,12 +2943,36 @@ class ButterflyBlaster implements ArcadeGameInstance {
       color: RAMPS.gold[4],
       outline: INK,
     })
+    let row = 27
     if (this.special) {
       const line = specialLine(this.special)
       const met = specialMet(this.special)
       const w = line.length * 6 + 10
-      hudPanel(g, 4, 27, w, 15, met ? RAMPS.leaf : RAMPS.rust)
-      drawText(g, line, 10, 31, { color: '#ffffff', outline: INK })
+      hudPanel(g, 4, row, w, 15, met ? RAMPS.leaf : RAMPS.rust)
+      drawText(g, line, 10, row + 4, { color: '#ffffff', outline: INK })
+      row += 18
+    }
+    if (this.weather.storm.on) {
+      // Rain in the wings: fly through a rainbow updraft to dry them.
+      hudPanel(g, 4, row, 92, 15, RAMPS.sky)
+      drawText(g, 'WINGS', 10, row + 4, { color: '#ffffff', outline: INK })
+      gauge(g, 44, row + 4, 46, 7, 1 - this.soak / STORM.soaked, RAMPS.gold)
+    }
+    if (this.dry > 0) {
+      const tag = `DRY SEASON ${this.dry}`
+      hudPanel(
+        g,
+        W - 10 - tag.length * 6,
+        27,
+        tag.length * 6 + 6,
+        15,
+        RAMPS.rust,
+      )
+      drawText(g, tag, W - 7, 31, {
+        align: 'right',
+        color: RAMPS.gold[4],
+        outline: INK,
+      })
     }
     if (this.boss) {
       renderBossBar(g, this.boss.name, this.boss.health, this.boss.hint)

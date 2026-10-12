@@ -10,13 +10,24 @@
 //   Needle         drifts, then stops and glows red for half a second, then dashes straight across
 //                  the sky (and the wrap) along the line it locked on.
 //
+// And from the later Moons (conductor kr-arcade/t-057):
+//
+//   Bloom cluster  a spinning hexagon of six petals. Break it and it scatters into six hummers.
+//   Hummer         small and slow, and it never stops homing on the butterfly.
+//   Storm cell     a little dark cloud that drifts over the butterfly's column, crackles, then
+//                  drops a line of lightning straight down it.
+//   Decoy glow     looks like AMI's falling net, but it blinks twice. Catch it and it bursts into
+//                  hummers; sparkle it instead.
+//
 // Each pest's tell comes before its danger, and each has a plain answer.
 
 import { GROUND, W, toward, wrap } from './sky'
 import type { Body, Point } from './sky'
 
-export type PestKind = 'wriggler' | 'skimmer' | 'needle'
-export type PestState = 'rise' | 'skate' | 'drift' | 'aim' | 'dash'
+export type PestKind =
+  'wriggler' | 'skimmer' | 'needle' | 'bloom' | 'hummer' | 'storm' | 'decoy'
+export type PestState =
+  'rise' | 'skate' | 'drift' | 'aim' | 'dash' | 'crackle' | 'strike'
 
 export type Pest = Body & {
   kind: PestKind
@@ -27,17 +38,47 @@ export type Pest = Body & {
   heading: number
   /** Cosmetic phase. */
   seed: number
+  /** Sparkle hits it can still take. */
+  hp: number
 }
 
 export const PEST_POINTS: Record<PestKind, number> = {
   wriggler: 150,
   skimmer: 200,
   needle: 300,
+  bloom: 400,
+  hummer: 80,
+  storm: 400,
+  decoy: 150,
 }
 export const PEST_RADIUS: Record<PestKind, number> = {
   wriggler: 8,
   skimmer: 11,
   needle: 10,
+  bloom: 14,
+  hummer: 7,
+  storm: 13,
+  decoy: 10,
+}
+/** Sparkle hits each pest takes. */
+export const PEST_HP: Record<PestKind, number> = {
+  wriggler: 1,
+  skimmer: 1,
+  needle: 1,
+  bloom: 2,
+  hummer: 1,
+  storm: 2,
+  decoy: 1,
+}
+/** Mosquitoes a pest counts as in a lasso (a bloom is its six hummers). */
+export const PEST_TREE: Record<PestKind, number> = {
+  wriggler: 1,
+  skimmer: 1,
+  needle: 1,
+  bloom: 6,
+  hummer: 1,
+  storm: 1,
+  decoy: 1,
 }
 
 // --- breeding pools -------------------------------------------------------------------------------
@@ -127,6 +168,20 @@ export const SKIMMER = {
   sprayVy: 3.3,
 } as const
 
+export const BLOOM = { speed: 0.45, spin: 0.04, petals: 6 } as const
+export const HUMMER = { speed: 0.75, turn: 0.05 } as const
+export const STORM = {
+  speed: 0.7,
+  /** The crackle tell, then the strike down the column. */
+  tell: 60,
+  strike: 24,
+  rest: 170,
+  /** Half the width of the lightning line. */
+  reach: 8,
+  y: 52,
+} as const
+export const DECOY = { fall: 0.8, blink: 90 } as const
+
 export function newPest(
   kind: PestKind,
   x: number,
@@ -144,6 +199,21 @@ export function newPest(
     t: 0,
     heading,
     seed: rng() * 1000,
+    hp: PEST_HP[kind],
+  }
+  if (kind === 'bloom' || kind === 'hummer') {
+    p.vx = Math.cos(heading) * 0.4
+    p.vy = Math.sin(heading) * 0.4
+    return p
+  }
+  if (kind === 'storm') {
+    p.y = STORM.y + rng() * 30
+    p.t = STORM.rest
+    return p
+  }
+  if (kind === 'decoy') {
+    p.vy = DECOY.fall
+    return p
   }
   if (kind === 'wriggler') {
     p.state = 'rise'
@@ -170,11 +240,72 @@ export type PestHost = {
 }
 
 /** What a pest did this tick that the game must answer. */
-export type PestEvent = 'hatch' | 'dash' | 'spray' | null
+export type PestEvent = 'hatch' | 'dash' | 'spray' | 'crackle' | 'strike' | null
+
+/** Steer a homer toward a point at a speed. */
+function home(p: Pest, at: Point | null, speed: number, turn: number) {
+  if (!at) return
+  const d = toward(p, at)
+  const m = Math.hypot(d.x, d.y) || 1
+  p.vx += ((d.x / m) * speed - p.vx) * turn
+  p.vy += ((d.y / m) * speed - p.vy) * turn
+}
 
 /** One tick of a pest. */
 export function movePest(p: Pest, host: PestHost): PestEvent {
   const { rng } = host
+  if (p.kind === 'bloom') {
+    p.heading += BLOOM.spin
+    home(p, host.target, BLOOM.speed, 0.01)
+    p.x += p.vx
+    p.y += p.vy
+    if (p.y > GROUND - 60) p.vy -= 0.05
+    wrap(p)
+    return null
+  }
+  if (p.kind === 'hummer') {
+    home(p, host.target, HUMMER.speed, HUMMER.turn)
+    p.x += p.vx
+    p.y += p.vy
+    wrap(p)
+    return null
+  }
+  if (p.kind === 'decoy') {
+    p.t++
+    p.y += p.vy
+    p.x += Math.sin((p.t + p.seed) / 30) * 0.4
+    return null
+  }
+  if (p.kind === 'storm') {
+    let event: PestEvent = null
+    if (p.state === 'drift') {
+      // Drift over the butterfly's column, high up.
+      const tx = host.target?.x ?? p.x
+      const dx = toward(p, { x: tx, y: p.y }).x
+      p.vx +=
+        (Math.sign(dx) * Math.min(STORM.speed, Math.abs(dx) / 20) - p.vx) * 0.05
+      p.x += p.vx
+      if (p.x < 0) p.x += W
+      else if (p.x >= W) p.x -= W
+      if (--p.t <= 0 && Math.abs(dx) < 24) {
+        p.state = 'crackle'
+        p.t = STORM.tell
+        event = 'crackle'
+      } else if (p.t <= 0) {
+        p.t = 20
+      }
+    } else if (p.state === 'crackle') {
+      if (--p.t <= 0) {
+        p.state = 'strike'
+        p.t = STORM.strike
+        event = 'strike'
+      }
+    } else if (--p.t <= 0) {
+      p.state = 'drift'
+      p.t = STORM.rest + Math.round(rng() * 60)
+    }
+    return event
+  }
   if (p.kind === 'wriggler') {
     p.t++
     p.y += p.vy
@@ -237,7 +368,18 @@ export function movePest(p: Pest, host: PestHost): PestEvent {
   return event
 }
 
-/** Is this pest dangerous to touch right now? (A rising wriggler is not; it just hatches.) */
+/** Is this pest dangerous to touch right now? (A rising wriggler is not; it just hatches, and a
+ * decoy bursts when caught rather than hurting.) */
 export function pestHurts(p: Pest): boolean {
-  return p.kind !== 'wriggler'
+  return p.kind !== 'wriggler' && p.kind !== 'decoy'
+}
+
+/** Is a storm cell's lightning line down on this point? */
+export function struckBy(p: Pest, at: Point): boolean {
+  return (
+    p.kind === 'storm' &&
+    p.state === 'strike' &&
+    Math.abs(toward(p, at).x) < STORM.reach &&
+    at.y > p.y
+  )
 }

@@ -18,6 +18,26 @@ export type WavePlan = {
   skimmers: number
   /** The malaria cloud may come during this wave. */
   cloud: boolean
+  /** The later Moons' pests: shade and sticky swarms (medium), bloom clusters, hummers, storm
+   * cells and decoy glows. */
+  shade?: number
+  sticky?: number
+  blooms?: number
+  hummers?: number
+  storms?: number
+  decoys?: number
+}
+
+/** When each later pest joins the endless river, and how fast its numbers climb. */
+const LATER: Record<
+  'shade' | 'blooms' | 'storms' | 'sticky' | 'decoys',
+  [number, number]
+> = {
+  shade: [6, 3],
+  blooms: [8, 2],
+  storms: [10, 1],
+  sticky: [12, 2],
+  decoys: [14, 1],
 }
 
 export type PoolSpot = { x: number; y: number }
@@ -70,12 +90,22 @@ export function endlessNight(n: number): NightPlan {
   const medium = c('medium')
   const needles = Math.max(0, c('needles'))
   const skimmers = c('skimmers')
+  const later = (k: keyof typeof LATER, second: boolean) => {
+    const [from, most] = LATER[k]
+    if (n < from) return 0
+    return Math.min(most, Math.floor((n - from) / 4) + (second ? 1 : 0))
+  }
   const wave = (second: boolean): WavePlan => ({
     big: Math.max(2, Math.round(second ? big + 0.5 : big - 0.5)),
     medium: Math.floor(second ? medium + 0.5 : medium),
     needles: Math.floor(second ? needles + 0.5 : needles),
     skimmers: Math.floor(second ? skimmers + 0.5 : skimmers),
     cloud: second || n >= 2,
+    shade: later('shade', second),
+    blooms: later('blooms', second),
+    storms: later('storms', second),
+    sticky: later('sticky', second),
+    decoys: later('decoys', second),
   })
   const pools = Math.floor(c('pools') + (n >= 2 ? 0.5 : 0))
   return {

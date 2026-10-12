@@ -31,7 +31,9 @@ export const GLOW_REACH = 90
 /** The last mosquito of a night sprints this much faster. */
 export const SPRINT = 1.9
 
-export type SwarmKind = 'plain'
+/** A plain swarm; a shade swarm (unseen outside firefly or lightning light); a sticky swarm (its
+ * touch gums the wings instead of knocking the butterfly out of the sky). */
+export type SwarmKind = 'plain' | 'shade' | 'sticky'
 
 export type SwarmMode = 'wander' | 'seek' | 'shoo' | 'scatter'
 

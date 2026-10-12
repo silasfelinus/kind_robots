@@ -6,6 +6,7 @@ export type Follower = {
   stats: Record<ChallengeStat, number>
   specialties: string[]
   injuredUntilDay?: number
+  availableOnDay?: number
   dead?: boolean
 }
 
@@ -87,6 +88,8 @@ export type Campaign = {
   dispatches: Dispatch[]
   ignoredIncidentIds: string[]
   log: CampaignEvent[]
+  flags?: string[]
+  memorials?: { followerId: string; incidentId: string; reason: string }[]
 }
 
 export type OddsPreview = {

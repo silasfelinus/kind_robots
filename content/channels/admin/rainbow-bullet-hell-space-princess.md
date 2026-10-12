@@ -16,13 +16,13 @@ tutorial:
   body: |-
     Four pilots. One pearlescent galaxy.
 
-    This is the private flight deck, not the public Arcade release. The prototype uses the standard Arcade cabinet: choose a player count from its title screen, start, and fly across the Pinkwake shoals. More worlds, powerups, bosses, story cinematics and online co-op are roadmap features, not available yet.
+    This is the private flight deck, not the public Arcade release. The prototype uses the standard Arcade cabinet: choose a player count from its title screen, start, and fly across the Pinkwake shoals. More worlds, bosses, story cinematics and online co-op are roadmap features, not available yet. This combat test now includes collectible upgrades and hostile bullets.
 
     Flight controls
-    Use directional controls to steer and hold A to fire. Hit B to restore a damaged training shield. The cabinet manages keyboard, gamepad, local player seats, pause and touch controls. Ships are numbered as well as color-coded. Choose up to four local pilots on the cabinet.
+    Use directional controls to steer and hold A to fire. Hold B for precise, slower movement and focused shots; a fully charged super activates on a fresh B press. B no longer gives a free shield refill. Destroy enemy scouts and collect P (power), S (shield), and star (super charge) modules. The cabinet manages keyboard, gamepad, local player seats, pause and touch controls. Ships are numbered as well as color-coded. Choose up to four local pilots on the cabinet.
 
     Read the battlefield
-    The lilac scouts have live collision and can damage ship shields. Their patterns are only the earliest engine test. Dodge with intention; learn how much space your ship needs before the later bullet patterns and multi-phase bosses arrive.
+    The lilac scouts and pearl urchins have live collision and fire visible, dodgeable projectiles. Passing close to a bullet without getting hit earns a graze bonus and builds super charge. Your ship has a small central hitbox; focus mode shows it. Their patterns are only the earliest engine test. Dodge with intention; learn how much space your ship needs before the later bullet patterns and multi-phase bosses arrive.
 
     Future campaign
     The eight planned stages cross Pinkwake, Moonjelly Fields, Chromatic Trench, Rosefin Express, Blossom Wreckyard, Crown Reef, Glass Current and Eclipse Palace, followed by the final confrontation. Current play is a short engine test, not a completed stage or public score run.

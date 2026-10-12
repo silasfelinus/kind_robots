@@ -799,7 +799,8 @@ class SinkSuds implements ArcadeGameInstance {
       this.cleared = stored.cleared === true
     }
     this.beginStep(0)
-    if (stored && stored.step > 0) {
+    // A checkpoint to continue: past the first room, or a Deep Clean lap (which starts at step 0).
+    if (stored && (stored.step > 0 || (stored.deep ?? 0) > 0)) {
       this.offer = stored
       this.saveData = stored
     } else if (!this.demo) {
@@ -1132,6 +1133,15 @@ class SinkSuds implements ArcadeGameInstance {
       this.ending = { kind: step.ending, t: 0 }
       this.cleared = true
       this.sound.play('extra')
+      // Save where the credits lead, so quitting during them loses nothing: the palace with every
+      // golden soap after the clean ending, otherwise the next Deep Clean lap.
+      const palace = this.steps.findIndex(
+        (st) =>
+          st.kind === 'basin' && st.basin === 0 && !!ROOMS[st.room]?.secret,
+      )
+      if (step.ending === 'clean' && this.allGolden && palace >= 0)
+        this.keep(palace)
+      else this.keep(0, this.deep + 1)
       return
     }
     if (step.kind === 'deep') {
@@ -1241,10 +1251,10 @@ class SinkSuds implements ArcadeGameInstance {
     }
   }
 
-  private keep() {
+  private keep(at = this.stepIndex, deep = this.deep) {
     if (this.demo || this.mode !== 'campaign') return
-    this.resumeStep = this.stepIndex
-    const step = this.steps[this.stepIndex]
+    this.resumeStep = at
+    const step = this.steps[at]
     if (step?.kind === 'basin' && !ROOMS[step.room]!.secret)
       this.reached = Math.max(
         this.reached,
@@ -1252,7 +1262,7 @@ class SinkSuds implements ArcadeGameInstance {
       )
     this.saveData = {
       v: 1,
-      step: this.stepIndex,
+      step: at,
       score: this.score,
       lives: Math.max(1, this.lives),
       bars: this.bars,
@@ -1263,7 +1273,7 @@ class SinkSuds implements ArcadeGameInstance {
       skin: this.skin,
       golden: [...this.golden],
       cleared: this.cleared,
-      deep: this.deep,
+      deep,
       medals: { ...this.medals },
       times: { ...this.times },
       reached: this.reached,

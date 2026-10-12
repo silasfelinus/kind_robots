@@ -546,6 +546,152 @@ function cleanAll(g: Inner) {
   }
 }
 
+// --- checkpoints round-trip through the endings, Deep Clean and New Wash (save audit) ----------
+{
+  type Live = Inner & {
+    offer: SudsSave | null
+    ending: { kind: string; t: number } | null
+    golden: Set<string>
+    skins: Set<string>
+    cleared: boolean
+    deep: number
+    steps: Array<{
+      kind: string
+      room?: number
+      basin?: number
+      boss?: string
+      ending?: string
+    }>
+    beginStep(i: number): void
+  }
+  const live = (resume?: unknown, seed = 11) => {
+    const g = game(1, seed, resume) as Live
+    if (!g.offer) g.menu = null
+    return g
+  }
+  /** What the cabinet would store, as JSON, the way the arcade store keeps it. */
+  const stored = (g: Inner) => JSON.parse(JSON.stringify(g.save)) as SudsSave
+  const golden = ['kitchen', 'bath', 'laundry', 'tank', 'birdbath', 'carwash']
+  const steps = live().steps
+  const at = (pred: (s: Live['steps'][number]) => boolean) =>
+    steps.findIndex(pred)
+  const cleanEnd = at((s) => s.kind === 'ending' && s.ending === 'clean')
+  const trueEnd = at((s) => s.kind === 'ending' && s.ending === 'true')
+  const palace = at(
+    (s) =>
+      s.kind === 'basin' && s.basin === 0 && ROOMS[s.room!]!.id === 'palace',
+  )
+
+  // SS-2: quitting during the clean ending's credits keeps the clear: the next Deep Clean lap.
+  {
+    const g = live()
+    g.golden.add('kitchen')
+    g.beginStep(cleanEnd)
+    for (let t = 0; t < 60; t++) g.update(idle())
+    assert.ok(g.ending)
+    const s = stored(g)
+    assert.equal(s.step, 0, 'saved at the start of the next lap')
+    assert.equal(s.deep, 1)
+    assert.equal(s.cleared, true)
+    assert.deepEqual(s.golden, ['kitchen'])
+    // SS-1: a step-0 Deep Clean save is offered, and resumes the lap with everything it held.
+    const back = live(s)
+    assert.ok(back.offer, 'a Deep Clean lap is a checkpoint to continue')
+    assert.ok(
+      back.golden.has('kitchen') && back.cleared,
+      'loaded before the offer is taken',
+    )
+    assert.deepEqual(
+      stored(back),
+      s,
+      'the stored save is not overwritten by loading it',
+    )
+    back.update(press('a'))
+    assert.equal(back.deep, 1, 'into the Deep Clean lap')
+    assert.equal(back.stepIndex, 0)
+    assert.equal(
+      back.grime.hp.find((v) => v > 0),
+      2,
+      'dirtier basins',
+    )
+    assert.ok(back.cleared && back.golden.has('kitchen'))
+    assert.equal(stored(back).deep, 1)
+  }
+  // SS-2: with every golden soap, the clean ending saves at the palace door.
+  {
+    const g = live()
+    for (const id of golden) g.golden.add(id)
+    g.beginStep(cleanEnd)
+    g.update(idle())
+    const s = stored(g)
+    assert.equal(s.step, palace, 'saved at the palace')
+    assert.equal(s.cleared, true)
+    const back = live(s)
+    assert.ok(back.offer)
+    back.update(press('a'))
+    assert.equal(back.basin.id, 'palace', 'resumes in the Bubble Bath Palace')
+    assert.equal(back.golden.size, 6)
+  }
+  // SS-2: quitting during the true ending keeps it too.
+  {
+    const g = live()
+    for (const id of golden) g.golden.add(id)
+    g.beginStep(palace)
+    assert.equal(stored(g).step, palace)
+    g.beginStep(trueEnd)
+    for (let t = 0; t < 60; t++) g.update(idle())
+    assert.equal(g.ending?.kind, 'true')
+    const s = stored(g)
+    assert.equal(s.step, 0, 'not back to the palace')
+    assert.equal(s.deep, 1)
+    assert.equal(s.cleared, true)
+    assert.equal(s.golden.length, 6)
+    const back = live(s)
+    assert.ok(back.offer, 'offered as a Deep Clean lap')
+  }
+  // SS-3: New Wash from a checkpoint saves at once, keeping golden soaps, skins and the clear.
+  {
+    const checkpoint = {
+      v: 1,
+      step: 5,
+      score: 1000,
+      lives: 3,
+      bars: 50,
+      puff: true,
+      skins: ['rainbow'],
+      skin: 'rainbow',
+      golden: ['kitchen', 'bath', 'laundry', 'tank'],
+      cleared: true,
+      deep: 1,
+      medals: { 'bath:1': 3 },
+      times: { 'kitchen:2': 900 },
+      reached: 4,
+    }
+    const g = live(checkpoint)
+    assert.ok(g.offer)
+    g.update(press('b'))
+    const s = stored(g)
+    assert.equal(s.step, 0)
+    assert.equal(s.deep, 0, 'a new wash is not a Deep Clean lap')
+    assert.deepEqual(s.golden, checkpoint.golden)
+    assert.deepEqual(s.skins, ['rainbow'])
+    assert.equal(s.skin, 'rainbow')
+    assert.equal(s.cleared, true)
+    assert.deepEqual(s.medals, checkpoint.medals)
+    assert.deepEqual(s.times, checkpoint.times)
+    assert.equal(s.reached, 4)
+    // Quit in room 1 and come back: nothing lost, nothing stale offered.
+    choose(g, 'campaign', 1)
+    for (let t = 0; t < 100; t++) g.update(idle())
+    const later = stored(g)
+    const back = live(later)
+    assert.equal(back.offer, null)
+    assert.deepEqual([...back.golden], checkpoint.golden)
+    assert.ok(back.cleared && back.skins.has('rainbow'))
+    assert.deepEqual(back.medals, checkpoint.medals)
+  }
+}
+
 // --- the cabinet's own co-op run, two to four seats ---------------------------------------
 {
   const scripted = (tick: number) => {

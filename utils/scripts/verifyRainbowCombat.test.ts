@@ -12,7 +12,11 @@ function seedRng(seed = 12345) {
 }
 function game(players = 1) {
   return createRainbowPrincessPreview({
-    rng: seedRng(), sound, demo: false, hiScore: 0, players,
+    rng: seedRng(),
+    sound,
+    demo: false,
+    hiScore: 0,
+    players,
   })
 }
 const diagonal = game()
@@ -23,7 +27,10 @@ diagonal.update(frame)
 const ship = diagonal.snapshot.ships[0]!
 const dx = ship.x - 65
 const dy = ship.y - 80
-assert.ok(Math.abs(Math.hypot(dx, dy) - 2.6) < 0.001, 'diagonal flight has no speed boost')
+assert.ok(
+  Math.abs(Math.hypot(dx, dy) - 2.6) < 0.001,
+  'diagonal flight has no speed boost',
+)
 
 const focused = game()
 const slow = emptyInput()
@@ -31,7 +38,11 @@ slow.held.right = true
 slow.held.b = true
 focused.update(slow)
 assert.ok(Math.abs(focused.snapshot.ships[0]!.x - 65 - 2.6 * 0.55) < 0.001)
-assert.equal(focused.snapshot.ships[0]!.shield, 3, 'B is not a free shield refill')
+assert.equal(
+  focused.snapshot.ships[0]!.shield,
+  3,
+  'B is not a free shield refill',
+)
 
 const a = game(4)
 const b = game(4)
@@ -55,8 +66,13 @@ for (let tick = 0; tick < 900; tick++) {
   const snapshot = a.snapshot
   if (snapshot.enemyShots.length) sawEnemyBullets = true
   if (snapshot.ships.some((s) => s.graze > 0)) sawGraze = true
-  if (snapshot.pickups.length || snapshot.ships.some((s) => s.power > 1)) sawUpgrades = true
-  assert.deepEqual(snapshot, b.snapshot, `same seed and input must match at frame ${tick}`)
+  if (snapshot.pickups.length || snapshot.ships.some((s) => s.power > 1))
+    sawUpgrades = true
+  assert.deepEqual(
+    snapshot,
+    b.snapshot,
+    `same seed and input must match at frame ${tick}`,
+  )
 }
 assert.equal(a.snapshot.ships.length, 4)
 assert.ok(sawEnemyBullets, 'hostile craft must fire actual projectiles')
@@ -70,5 +86,7 @@ assert.ok(typeof sawGraze === 'boolean')
 
 const idle = game()
 for (let tick = 0; tick < 240; tick++) idle.update(emptyInput())
-assert.ok(idle.snapshot.enemies.length > 0 || idle.snapshot.enemyShots.length > 0)
+assert.ok(
+  idle.snapshot.enemies.length > 0 || idle.snapshot.enemyShots.length > 0,
+)
 console.log('Rainbow Princess deterministic combat and flight physics passed')

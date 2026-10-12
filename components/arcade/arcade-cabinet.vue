@@ -498,7 +498,11 @@ let resizeObserver: ResizeObserver | null = null
 let wrapObserver: ResizeObserver | null = null
 const input = new ArcadeInput(
   KEY_MAP,
-  props.slug === 'zuzu-ghost-trail' ? readGhostTrailPad : undefined,
+  props.slug === 'zuzu-ghost-trail'
+    ? readGhostTrailPad
+    : props.slug === 'kind-pinball' || props.slug === 'zuzu-pinball'
+      ? readPinballPad
+      : undefined,
 )
 /**
  * Every seat's controls, read only while seated: player 2 has the arrows,

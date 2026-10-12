@@ -56,7 +56,7 @@ export const NIGHT_CURVES = {
 } as const
 
 /** Where pools may lie: between huts, clear of the HUD's bottom corners. */
-export const POOL_SPOTS = [207, 273, 141, 339, 108, 372] as const
+export const POOL_SPOTS = [240, 176, 303, 113, 367] as const
 
 /** Night n of the endless watch. */
 export function endlessNight(n: number): NightPlan {

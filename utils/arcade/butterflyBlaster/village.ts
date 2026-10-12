@@ -71,7 +71,8 @@ export function dawnTally(huts: readonly Hut[]): Tally {
     { label: 'HUTS UNBITTEN', count: unbitten, each: TALLY.unbitten },
     { label: 'LAMPS STILL LIT', count: lit, each: TALLY.lit },
   ]
-  if (perfect) rows.push({ label: 'NOT A BITE!', count: 1, each: TALLY.notABite })
+  if (perfect)
+    rows.push({ label: 'NOT A BITE!', count: 1, each: TALLY.notABite })
   const total = rows.reduce((sum, r) => sum + r.count * r.each, 0)
   return { rows, total, perfect, unbitten }
 }

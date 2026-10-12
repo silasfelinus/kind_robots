@@ -62,11 +62,21 @@ export const HATCH_TICKS = 170
 export const RISE_SPEED = 0.28
 
 export function newPool(x: number, every: number, rng: () => number): Pool {
-  return { x, w: 13, timer: Math.round(every * (0.5 + rng() * 0.5)), ripple: 0, dry: false }
+  return {
+    x,
+    w: 13,
+    timer: Math.round(every * (0.5 + rng() * 0.5)),
+    ripple: 0,
+    dry: false,
+  }
 }
 
 /** One tick of a pool: true when a wriggler rises from it this tick. */
-export function tickPool(pool: Pool, every: number, rng: () => number): boolean {
+export function tickPool(
+  pool: Pool,
+  every: number,
+  rng: () => number,
+): boolean {
   if (pool.dry) return false
   if (pool.ripple > 0) {
     if (--pool.ripple === 0) {

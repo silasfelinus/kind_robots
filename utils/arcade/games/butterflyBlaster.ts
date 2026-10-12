@@ -119,6 +119,8 @@ const TURN = 0.08
 const THRUST = 0.12
 const MAX_SPEED = 4.2
 const FRICTION = 0.992
+/** How hard a flutter swings the drift toward the butterfly's heading. */
+const GRIP = 0.08
 const SHOT_SPEED = 6.5
 const SHOT_LIFE = 48
 const MAX_SHOTS = 5
@@ -129,14 +131,16 @@ const INVULN_TICKS = 150
 const SHIELD_TICKS = 480
 const START_LIVES = 3
 const MAX_LIVES = 9
-export const SHIP_RADIUS = 10
+export const SHIP_RADIUS = 8
+/** A swarm's haze is softer than its heart: it only hurts this far into its radius. */
+const HURT = 0.72
 
 /** B: a tap is a short aimed flutter-dash; a hold is the risky long hop. One cooldown for both. */
 export const DASH = { distance: 58, cooldown: 60, invuln: 8, hold: 16 } as const
 /** Land a long hop this close to a swarm and live this long for a Brave Hop. */
 export const BRAVE = { reach: 40, ticks: 120, points: 500 } as const
 /** Sparkle hits this close together chain, up to this multiplier. */
-export const CHAIN = { ticks: 60, max: 5 } as const
+export const CHAIN = { ticks: 45, max: 4 } as const
 /** Hang about an edge (or sit idle) this long and the malaria cloud comes for you. */
 export const LURK = { ticks: 480, edge: 70 } as const
 /** The second wave follows the first after this many ticks. */
@@ -338,7 +342,11 @@ class ButterflyBlaster implements ArcadeGameInstance {
       this.phase = 'gap'
       this.phaseTicks = WAVE_GAP
       this.sound.play('level')
-      this.banner = { text: 'HERE THEY COME', sub: 'THE SECOND SWARM', ticks: 90 }
+      this.banner = {
+        text: 'HERE THEY COME',
+        sub: 'THE SECOND SWARM',
+        ticks: 90,
+      }
       return
     }
     this.phase = 'dawn'
@@ -427,8 +435,10 @@ class ButterflyBlaster implements ArcadeGameInstance {
       b.life--
     }
     this.bags = this.bags.filter((b) => b.life > 0 && b.y > -40)
-    if (this.loopFlash && (this.loopFlash.t -= 1 / 30) <= 0) this.loopFlash = null
-    if (this.dashTrail && (this.dashTrail.t -= 1 / 14) <= 0) this.dashTrail = null
+    if (this.loopFlash && (this.loopFlash.t -= 1 / 30) <= 0)
+      this.loopFlash = null
+    if (this.dashTrail && (this.dashTrail.t -= 1 / 14) <= 0)
+      this.dashTrail = null
     for (const hut of this.huts) if (hut.flicker > 0) hut.flicker--
     if (this.chainTimer > 0 && --this.chainTimer === 0) this.chain = 0
   }
@@ -439,6 +449,11 @@ class ButterflyBlaster implements ArcadeGameInstance {
     if (input.held.right) ship.angle += TURN
     this.thrusting = input.held.up
     if (this.thrusting) {
+      // Wings bite the air: a flutter swings the drift round toward where the butterfly faces,
+      // so fluttering through a turn sweeps an arc (the lasso's loop) instead of skidding.
+      const speed0 = Math.hypot(ship.vx, ship.vy)
+      ship.vx += (Math.sin(ship.angle) * speed0 - ship.vx) * GRIP
+      ship.vy += (-Math.cos(ship.angle) * speed0 - ship.vy) * GRIP
       ship.vx += Math.sin(ship.angle) * THRUST
       ship.vy -= Math.cos(ship.angle) * THRUST
       const speed = Math.hypot(ship.vx, ship.vy)
@@ -569,8 +584,7 @@ class ButterflyBlaster implements ArcadeGameInstance {
     const speed = Math.hypot(ship.vx, ship.vy)
     const edge =
       ship.x < LURK.edge || ship.x > W - LURK.edge || ship.y < LURK.edge
-    const lurking =
-      (edge && speed < 1.6) || (speed < 0.3 && !this.thrusting)
+    const lurking = (edge && speed < 1.6) || (speed < 0.3 && !this.thrusting)
     this.lurk = lurking ? this.lurk + 1 : Math.max(0, this.lurk - 2)
     if (this.lurk < LURK.ticks || this.phase !== 'play' || !this.swarms.length)
       return
@@ -600,7 +614,8 @@ class ButterflyBlaster implements ArcadeGameInstance {
     const clear =
       this.swarms.every(
         (swarm) => wrapDist(swarm, centre) > SWARM_RADIUS[swarm.size] + 60,
-      ) && this.pests.every((p) => p.kind !== 'needle' || wrapDist(p, centre) > 70)
+      ) &&
+      this.pests.every((p) => p.kind !== 'needle' || wrapDist(p, centre) > 70)
     if (!clear) return
     Object.assign(this.ship, { x: W / 2, y: SKY / 2, vx: 0, vy: 0, angle: 0 })
     this.unwrapped = { x: W / 2, y: SKY / 2 }
@@ -864,13 +879,15 @@ class ButterflyBlaster implements ArcadeGameInstance {
   }
 
   private chainFloater(x: number, y: number, chain: number) {
+    // One chain call on screen at a time: the newest replaces the last.
+    this.floaters = this.floaters.filter((f) => !f.text.startsWith('CHAIN'))
     this.floaters.push({
       x,
       y,
       text: `CHAIN X${chain}`,
       life: 40 + chain * 6,
       color: RAINBOW[chain % RAINBOW.length]!,
-      scale: chain >= 3 ? 2 : 1,
+      scale: chain >= CHAIN.max ? 2 : 1,
     })
   }
 
@@ -897,8 +914,7 @@ class ButterflyBlaster implements ArcadeGameInstance {
     let cx = 0
     let cy = 0
     let caught = 0
-    const inside = (p: Point) =>
-      insideLoop(loop, p.x - shift.x, p.y - shift.y)
+    const inside = (p: Point) => insideLoop(loop, p.x - shift.x, p.y - shift.y)
     this.swarms = this.swarms.filter((s) => {
       if (!inside(s)) return true
       count += SWARM_TREE[s.size]
@@ -992,10 +1008,12 @@ class ButterflyBlaster implements ArcadeGameInstance {
     if (this.invuln > 0) return
 
     const swarmHit = this.swarms.findIndex(
-      (s) => wrapDist(s, ship) < SWARM_RADIUS[s.size] + SHIP_RADIUS - 4,
+      (s) => wrapDist(s, ship) < SWARM_RADIUS[s.size] * HURT + SHIP_RADIUS - 2,
     )
     const pestHit = this.pests.findIndex(
-      (p) => pestHurts(p) && wrapDist(p, ship) < PEST_RADIUS[p.kind] + SHIP_RADIUS - 3,
+      (p) =>
+        pestHurts(p) &&
+        wrapDist(p, ship) < PEST_RADIUS[p.kind] + SHIP_RADIUS - 3,
     )
     const dropHit = this.drops.findIndex(
       (drop) => wrapDist(drop, ship) < SHIP_RADIUS - 1,
@@ -1037,7 +1055,12 @@ class ButterflyBlaster implements ArcadeGameInstance {
     if (this.lives <= 0) this.banner = { text: 'GAME OVER', ticks: 200 }
   }
 
-  private burst(x: number, y: number, count: number, colors: readonly string[]) {
+  private burst(
+    x: number,
+    y: number,
+    count: number,
+    colors: readonly string[],
+  ) {
     for (let i = 0; i < count; i++) {
       const a = this.fxRng() * Math.PI * 2
       const s = 0.5 + this.fxRng() * 2.5
@@ -1071,9 +1094,17 @@ class ButterflyBlaster implements ArcadeGameInstance {
         // Stand off a needle's locked line.
         const d = toward(p, ship)
         const along = d.x * Math.cos(p.heading) + d.y * Math.sin(p.heading)
-        const across = Math.abs(-d.x * Math.sin(p.heading) + d.y * Math.cos(p.heading))
+        const across = Math.abs(
+          -d.x * Math.sin(p.heading) + d.y * Math.cos(p.heading),
+        )
         if (along > 0 && along < 380 && across < 18)
-          consider({ x: ship.x - Math.cos(p.heading) * 20, y: ship.y - Math.sin(p.heading) * 20 }, 0)
+          consider(
+            {
+              x: ship.x - Math.cos(p.heading) * 20,
+              y: ship.y - Math.sin(p.heading) * 20,
+            },
+            0,
+          )
       }
     }
     for (const d of this.drops) consider(d, 2)
@@ -1098,6 +1129,8 @@ class ButterflyBlaster implements ArcadeGameInstance {
     const pilot = this.pilot
     const danger = this.nearestDanger()
 
+    // A loop is dropped the moment something gets close.
+    if (danger && danger.gap < 22) pilot.loop = 0
     if (pilot.hold > 0) {
       pilot.hold--
       held.b = true
@@ -1125,22 +1158,31 @@ class ButterflyBlaster implements ArcadeGameInstance {
       pilot.loop--
       held.up = true
       held[pilot.side] = true
-      if (this.tick % 9 === 0) pressed.a = true
       return frame
     }
-    const near = this.swarms.reduce(
-      (n, s) => n + (wrapDist(s, ship) < 110 ? SWARM_TREE[s.size] : 0),
-      0,
-    )
-    if (near >= 4 && (!danger || danger.gap > 45) && this.tick % 180 < 60) {
-      pilot.loop = 74
-      pilot.side = this.rng() < 0.5 ? 'left' : 'right'
-      return frame
+    // Loop round a swarm off to one side: the circle's far side wraps behind it.
+    if (!danger || danger.gap > 50) {
+      const mark = this.swarms.find((s) => {
+        const dist = wrapDist(ship, s)
+        return dist > 45 && dist < 90
+      })
+      if (mark && this.tick % 360 < 60) {
+        const d = toward(ship, mark)
+        pilot.loop = 120
+        pilot.side =
+          angleDiff(ship.angle, Math.atan2(d.x, -d.y)) > 0 ? 'right' : 'left'
+        held.up = true
+        held[pilot.side] = true
+        return frame
+      }
     }
 
     // Catch a falling net when it is handy.
-    const net = this.nets.find((n) => wrapDist(n, ship) < 150)
-    let target: Point | null = net ?? null
+    const close = danger && danger.gap < 60 ? danger.at : null
+    const net = close
+      ? undefined
+      : this.nets.find((n) => wrapDist(n, ship) < 150)
+    let target: Point | null = close ?? net ?? null
     if (!target) {
       // Wrigglers first (before they hatch), then whatever is hungriest, then the nearest.
       let best = Infinity
@@ -1167,8 +1209,12 @@ class ButterflyBlaster implements ArcadeGameInstance {
     const diff = angleDiff(ship.angle, want)
     if (diff > 0.05) held.right = true
     else if (diff < -0.05) held.left = true
-    if (!net && Math.abs(diff) < 0.2 && this.tick % 8 === 0) pressed.a = true
-    held.up = (net ? dist > 20 : dist > 170) && Math.abs(diff) < 0.6 && this.tick % 60 < 30
+    if (!net && Math.abs(diff) < 0.25 && (close || this.tick % 8 === 0))
+      pressed.a = true
+    held.up =
+      (net ? dist > 20 : dist > 170) &&
+      Math.abs(diff) < 0.6 &&
+      this.tick % 60 < 30
     return frame
   }
 
@@ -1192,7 +1238,12 @@ class ButterflyBlaster implements ArcadeGameInstance {
     if (this.phase === 'dawn') renderDawn(g, DAWN_TICKS - this.phaseTicks)
 
     if (this.loopFlash)
-      renderLoopFlash(g, this.loopFlash.loop, this.loopFlash.shift, this.loopFlash.t)
+      renderLoopFlash(
+        g,
+        this.loopFlash.loop,
+        this.loopFlash.shift,
+        this.loopFlash.t,
+      )
     if (this.alive) renderRibbon(g, this.ribbon, this.ribbonShift(), this.tick)
     for (const net of this.nets) renderNet(g, net.x, net.y, net.spin, this.tick)
     if (this.fairy)
@@ -1232,10 +1283,21 @@ class ButterflyBlaster implements ArcadeGameInstance {
     g.globalAlpha = 1
     for (const shot of this.shots) renderSparkle(g, shot, this.tick)
     if (this.dashTrail)
-      renderDashTrail(g, this.dashTrail.from, this.dashTrail.to, this.dashTrail.t)
-    if (this.alive && !(this.invuln > DASH.invuln && Math.floor(this.invuln / 6) % 2 === 0)) {
+      renderDashTrail(
+        g,
+        this.dashTrail.from,
+        this.dashTrail.to,
+        this.dashTrail.t,
+      )
+    if (
+      this.alive &&
+      !(this.invuln > DASH.invuln && Math.floor(this.invuln / 6) % 2 === 0)
+    ) {
       renderButterfly(g, this.ship.x, this.ship.y, this.ship.angle, this.flap)
-      if (this.shield > 0 && (this.shield > 90 || Math.floor(this.shield / 8) % 2 === 0)) {
+      if (
+        this.shield > 0 &&
+        (this.shield > 90 || Math.floor(this.shield / 8) % 2 === 0)
+      ) {
         glow(g, this.ship.x, this.ship.y, 26, RAMPS.teal[3], 0.3)
         renderMesh(g, this.ship.x, this.ship.y, 20, this.tick / 40)
       }
@@ -1247,7 +1309,8 @@ class ButterflyBlaster implements ArcadeGameInstance {
         })
       }
     }
-    for (const bag of this.bags) renderBag(g, bag.x, bag.y, bag.count, this.tick)
+    for (const bag of this.bags)
+      renderBag(g, bag.x, bag.y, bag.count, this.tick)
     this.fx.render(g)
     for (const f of this.floaters) {
       drawText(g, f.text, f.x, f.y, {
@@ -1298,14 +1361,23 @@ class ButterflyBlaster implements ArcadeGameInstance {
       color: RAMPS.gold[4],
       outline: INK,
     })
+    // The net and B's cooldown sit under the high score, clear of the pools on the ground.
     if (this.shield > 0) {
-      hudPanel(g, W / 2 - 60, H - 19, 120, 15, RAMPS.teal)
-      drawText(g, 'NET', W / 2 - 54, H - 15, { color: RAMPS.teal[4], outline: INK })
-      gauge(g, W / 2 - 30, H - 15, 84, 7, this.shield / SHIELD_TICKS, RAMPS.sky)
+      hudPanel(g, W / 2 - 60, 27, 120, 15, RAMPS.teal)
+      drawText(g, 'NET', W / 2 - 54, 31, { color: RAMPS.teal[4], outline: INK })
+      gauge(g, W / 2 - 30, 31, 84, 7, this.shield / SHIELD_TICKS, RAMPS.sky)
     } else if (this.bCooldown > 0) {
-      hudPanel(g, W / 2 - 40, H - 19, 80, 15, RAMPS.purple)
-      drawText(g, 'B', W / 2 - 34, H - 15, { color: RAMPS.purple[4], outline: INK })
-      gauge(g, W / 2 - 24, H - 15, 58, 7, 1 - this.bCooldown / DASH.cooldown, RAMPS.pink)
+      hudPanel(g, W / 2 - 40, 27, 80, 15, RAMPS.purple)
+      drawText(g, 'B', W / 2 - 34, 31, { color: RAMPS.purple[4], outline: INK })
+      gauge(
+        g,
+        W / 2 - 24,
+        31,
+        58,
+        7,
+        1 - this.bCooldown / DASH.cooldown,
+        RAMPS.pink,
+      )
     }
     if (this.banner) {
       drawText(g, this.banner.text, W / 2, H / 2 - 40, {
@@ -1331,7 +1403,7 @@ class ButterflyBlaster implements ArcadeGameInstance {
     const x = W / 2 - 150
     const y = 70
     const rows = tally.rows.length
-    const h = 74 + rows * 18 + (tally.perfect ? 18 : 0)
+    const h = 78 + rows * 18 + (tally.perfect ? 18 : 0)
     hudPanel(g, x, y, 300, h, RAMPS.gold)
     drawText(g, 'DAWN', W / 2, y + 8, {
       scale: 3,
@@ -1340,15 +1412,19 @@ class ButterflyBlaster implements ArcadeGameInstance {
       outline: INK,
       shadow: RAMPS.rust[1],
     })
-    drawText(g, `NIGHT ${this.level} IS OVER`, W / 2, y + 34, {
+    drawText(g, `NIGHT ${this.level} IS OVER`, W / 2, y + 37, {
       align: 'center',
       color: RAMPS.gold[4],
       outline: INK,
     })
     tally.rows.forEach((row, i) => {
       if (t < 40 + i * 30) return
-      const ry = y + 50 + i * 18
-      drawText(g, row.label, x + 14, ry, { color: RAMPS.cream[3], outline: INK, scale: 1 })
+      const ry = y + 54 + i * 18
+      drawText(g, row.label, x + 14, ry, {
+        color: RAMPS.cream[3],
+        outline: INK,
+        scale: 1,
+      })
       const text =
         row.count === 1 && row.label.endsWith('!')
           ? `+${row.each}`
@@ -1360,7 +1436,7 @@ class ButterflyBlaster implements ArcadeGameInstance {
       })
     })
     if (t >= 40 + rows * 30) {
-      const ry = y + 50 + rows * 18
+      const ry = y + 54 + rows * 18
       if (tally.perfect) {
         drawText(g, '+1 BUTTERFLY FROM THE VILLAGE', W / 2, ry, {
           align: 'center',
@@ -1368,12 +1444,18 @@ class ButterflyBlaster implements ArcadeGameInstance {
           outline: INK,
         })
       }
-      drawText(g, `THANK YOU! ${tally.total}`, W / 2, ry + (tally.perfect ? 18 : 2), {
-        scale: 2,
-        align: 'center',
-        color: '#ffffff',
-        outline: INK,
-      })
+      drawText(
+        g,
+        `THANK YOU! ${tally.total}`,
+        W / 2,
+        ry + (tally.perfect ? 18 : 2),
+        {
+          scale: 2,
+          align: 'center',
+          color: '#ffffff',
+          outline: INK,
+        },
+      )
     }
   }
 }

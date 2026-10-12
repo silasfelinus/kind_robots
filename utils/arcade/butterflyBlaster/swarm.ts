@@ -26,8 +26,8 @@ export const SCATTER_TICKS = 45
 export const REGROUP_TICKS = 360
 /** Ticks a swarm that has bitten a hut is shooed off before it comes back. */
 export const SHOO_TICKS = 240
-/** The butterfly's glow draws swarms flying this close. */
-export const GLOW_REACH = 110
+/** The butterfly's glow draws swarms (not lone mosquitoes) flying this close. */
+export const GLOW_REACH = 90
 /** The last mosquito of a night sprints this much faster. */
 export const SPRINT = 1.9
 
@@ -123,7 +123,9 @@ export function pickLight(s: Point, lights: readonly Light[]): Light | null {
 
 function unit(x: number, y: number, weight: number): Point {
   const m = Math.hypot(x, y)
-  return m < 1e-6 ? { x: 0, y: 0 } : { x: (x / m) * weight, y: (y / m) * weight }
+  return m < 1e-6
+    ? { x: 0, y: 0 }
+    : { x: (x / m) * weight, y: (y / m) * weight }
 }
 
 /** One tick of a swarm's flight: steer by the flock and the lights, then move. */
@@ -159,7 +161,8 @@ export function flySwarm(s: Swarm, world: FlockWorld) {
       const d = toward(s, o)
       const dist = Math.hypot(d.x, d.y)
       const ro = SWARM_RADIUS[o.size]
-      const mates = s.regroup === 0 && o.regroup === 0 && o.size === s.size && s.size < 3
+      const mates =
+        s.regroup === 0 && o.regroup === 0 && o.size === s.size && s.size < 3
       if (mates && dist < 150) {
         const p = unit(d.x, d.y, 1.6)
         dx += p.x
@@ -204,8 +207,8 @@ export function flySwarm(s: Swarm, world: FlockWorld) {
         const p = unit(-d.x, -d.y, 3)
         dx += p.x
         dy += p.y
-      } else if (dist < GLOW_REACH) {
-        const p = unit(d.x, d.y, 0.55)
+      } else if (dist < GLOW_REACH && s.size > 1) {
+        const p = unit(d.x, d.y, 0.35)
         dx += p.x
         dy += p.y
       }
@@ -260,7 +263,10 @@ export function splitSwarm(
  * Halves left alone long enough merge back: two regrouping swarms of one size that touch become
  * one of the next size. Returns the swarms after merging (and how many merges happened).
  */
-export function regroupSwarms(swarms: Swarm[]): { swarms: Swarm[]; merged: Swarm[] } {
+export function regroupSwarms(swarms: Swarm[]): {
+  swarms: Swarm[]
+  merged: Swarm[]
+} {
   const merged: Swarm[] = []
   const gone = new Set<Swarm>()
   for (let i = 0; i < swarms.length; i++) {
@@ -268,7 +274,12 @@ export function regroupSwarms(swarms: Swarm[]): { swarms: Swarm[]; merged: Swarm
     if (gone.has(a) || a.regroup > 0 || a.size === 3 || a.sprint) continue
     for (let j = i + 1; j < swarms.length; j++) {
       const b = swarms[j]!
-      if (gone.has(b) || b.regroup > 0 || b.size !== a.size || b.kind !== a.kind)
+      if (
+        gone.has(b) ||
+        b.regroup > 0 ||
+        b.size !== a.size ||
+        b.kind !== a.kind
+      )
         continue
       const d = toward(a, b)
       if (Math.hypot(d.x, d.y) > SWARM_RADIUS[a.size] * 1.3) continue

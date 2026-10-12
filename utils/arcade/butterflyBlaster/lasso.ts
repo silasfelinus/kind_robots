@@ -17,6 +17,9 @@ export const RIBBON_TICKS = 90
 export const RIBBON_STEP = 2
 /** Loops smaller than this (px²) are a wobble, not a lasso. */
 export const MIN_LOOP_AREA = 260
+/** Coming back within this of older ribbon (at least TOUCH_SKIP points back) closes the loop. */
+export const TOUCH_REACH = 6
+export const TOUCH_SKIP = 12
 /** Points per mosquito netted, before the loop's multiplier. */
 export const LASSO_POINTS = 100
 
@@ -92,7 +95,10 @@ function insidePolygon(points: readonly Point[], x: number, y: number) {
   for (let i = 0, j = points.length - 1; i < points.length; j = i++) {
     const a = points[i]!
     const b = points[j]!
-    if (a.y > y !== b.y > y && x < ((b.x - a.x) * (y - a.y)) / (b.y - a.y) + a.x)
+    if (
+      a.y > y !== b.y > y &&
+      x < ((b.x - a.x) * (y - a.y)) / (b.y - a.y) + a.x
+    )
       inside = !inside
   }
   return inside
@@ -143,7 +149,12 @@ export class Ribbon {
    * crossing.
    */
   lay(x: number, y: number, tick: number, joined: boolean): Loop | null {
-    const b: RibbonPoint = { x, y, t: tick, gap: !joined || !this.points.length }
+    const b: RibbonPoint = {
+      x,
+      y,
+      t: tick,
+      gap: !joined || !this.points.length,
+    }
     const a = this.points.at(-1)
     this.points.push(b)
     if (b.gap || !a) return null
@@ -151,7 +162,8 @@ export class Ribbon {
     for (let i = n - 3; i >= 0; i--) {
       const c = this.points[i]!
       const d = this.points[i + 1]!
-      if (d.gap) continue
+      // Only ribbon unbroken all the way back to here can close.
+      if (d.gap || this.points[i + 2]!.gap) break
       const at = crossing(a, b, c, d)
       if (!at) continue
       const ring: Point[] = [at]
@@ -162,6 +174,18 @@ export class Ribbon {
         { x: at.x, y: at.y, t: tick, gap: true },
         { ...b, gap: false },
       ]
+      return loop
+    }
+    // Flying back over your own ribbon closes it too, even without a clean crossing.
+    for (let i = n - TOUCH_SKIP; i >= 0; i--) {
+      const c = this.points[i]!
+      if (Math.hypot(c.x - b.x, c.y - b.y) > TOUCH_REACH) continue
+      if (this.points.slice(i + 1, n + 1).some((p) => p.gap)) return null
+      const loop = makeLoop(
+        this.points.slice(i, n + 1).map(({ x, y }) => ({ x, y })),
+      )
+      if (loop.area < MIN_LOOP_AREA) return null
+      this.points = [{ ...b, gap: true }]
       return loop
     }
     return null

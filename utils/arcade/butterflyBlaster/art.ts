@@ -46,7 +46,13 @@ export const RAINBOW = [
 ] as const
 
 /** The malaria cloud's sickly green, and the haze a swarm hums in. */
-export const SICK: Ramp = ['#1a2e05', '#3f6212', '#65a30d', '#a3e635', '#ecfccb']
+export const SICK: Ramp = [
+  '#1a2e05',
+  '#3f6212',
+  '#65a30d',
+  '#a3e635',
+  '#ecfccb',
+]
 /** Moonlit night clouds. */
 const DUSK: Ramp = [
   RAMPS.night[0],
@@ -201,11 +207,25 @@ export const SKEETER = SKEETER_ROWS.map((rows) =>
 export const NEEDLE_SPRITES = SKEETER_ROWS.map((rows) =>
   pixelSprite(rows, NEEDLE_PALETTE),
 )
-/** The gnats humming in a swarm, about 12 px across. */
+/** The gnats humming in a swarm, about 16 px across. */
 export const GNAT = [
-  ['....VW', '...VWW', 'awaTTe', '.wattEpp', '..l.l'],
-  ['', '..VVWW', 'awaTTe', '.wattEpp', '..l.l'],
-  ['', '', 'awaTTe', '.waWWEpp', '..lWl'],
+  [
+    '......VVW',
+    '.....VWWWW',
+    'aawwaTTTee',
+    '.awwatttEepppp',
+    '...l..l..l',
+    '..l..l....l',
+  ],
+  [
+    '',
+    '....VVWWWW',
+    'aawwaTTTee',
+    '.awwatttEepppp',
+    '...l..l..l',
+    '..l..l....l',
+  ],
+  ['', '', 'aawwaTTTee', '.awwaWWWEepppp', '...lVWWWl', '..l..l....l'],
 ].map((rows) => pixelSprite(rows, SKEETER_PALETTE))
 
 /** A flap cycle through three frames: up, level, down, level. */
@@ -236,25 +256,28 @@ const SKIMMER_PALETTE = {
 }
 export const SKIMMER_SPRITES = [
   [
-    '........bbhe',
-    '...l..bbBBBbe',
-    '..l.lbbBBBb.l',
-    '.l...l.....l.l',
-    'l....l......l..l',
+    '..........bbBhe',
+    '....l....bbBBBBbe',
+    '...l.l..bbBBBBBb',
+    '..l...lbbbbbbbb..l',
+    '.l.....l.......l..l',
+    'l.......l.......l..l',
   ],
   [
-    '........bbhe',
-    '....l.bbBBBbe',
-    '...l.lbbBBBbl',
-    '..l..l....l..l',
-    '.l....l....l...l',
+    '..........bbBhe',
+    '.....l...bbBBBBbe',
+    '....l.l.bbBBBBBb',
+    '...l...lbbbbbbbb.l',
+    '..l.....l......l..l',
+    '.l.......l....l....l',
   ],
   [
-    '........bbhe',
-    '..l...bbBBBbe',
-    '.l..lbbBBBb..l',
-    'l...l.....l...l',
-    'l...l.....l....l',
+    '..........bbBhe',
+    '...l.....bbBBBBbe',
+    '..l.l...bbBBBBBb..',
+    '.l...l.bbbbbbbb...l',
+    'l.....l.......l...l',
+    'l......l.......l...l',
   ],
 ].map((rows) => pixelSprite(rows, SKIMMER_PALETTE))
 
@@ -386,7 +409,12 @@ export function paintNight(k: CanvasRenderingContext2D) {
   for (let i = 0; i < HUT_COUNT; i++) paintHut(k, hutX(i))
 }
 
-function paintMoon(k: CanvasRenderingContext2D, x: number, y: number, r: number) {
+function paintMoon(
+  k: CanvasRenderingContext2D,
+  x: number,
+  y: number,
+  r: number,
+) {
   glow(k, x, y, r * 3.2, RAMPS.cream[3], 0.28)
   shadedOrb(k, x, y, r, RAMPS.cream, { glint: false })
   k.save()
@@ -414,7 +442,12 @@ function paintMoon(k: CanvasRenderingContext2D, x: number, y: number, r: number)
   k.fillRect(x - 13, y + 2, 2, 2)
 }
 
-function paintAcacia(k: CanvasRenderingContext2D, x: number, h: number, w: number) {
+function paintAcacia(
+  k: CanvasRenderingContext2D,
+  x: number,
+  h: number,
+  w: number,
+) {
   const base = GROUND
   k.fillStyle = INK
   k.fillRect(x - 2, base - h, 4, h)
@@ -498,7 +531,11 @@ export function renderStars(g: CanvasRenderingContext2D, tick: number) {
     const x = Math.round(star.x)
     const y = Math.round(star.y)
     g.fillStyle =
-      twinkle > 0.6 ? RAMPS.sky[4] : twinkle > -0.2 ? RAMPS.sky[3] : RAMPS.purple[2]
+      twinkle > 0.6
+        ? RAMPS.sky[4]
+        : twinkle > -0.2
+          ? RAMPS.sky[3]
+          : RAMPS.purple[2]
     g.fillRect(x, y, 1, 1)
     if (star.big && twinkle > 0.7) {
       g.fillStyle = RAMPS.sky[3]
@@ -508,7 +545,10 @@ export function renderStars(g: CanvasRenderingContext2D, tick: number) {
   }
 }
 
-export function renderDriftingClouds(g: CanvasRenderingContext2D, tick: number) {
+export function renderDriftingClouds(
+  g: CanvasRenderingContext2D,
+  tick: number,
+) {
   g.save()
   g.globalAlpha = 0.55
   for (const [speed, offset, y, size] of [
@@ -910,7 +950,12 @@ export function renderBag(
   shadedOrb(g, 0, -r - 15, 5, RAMPS.sky, { outline: INK })
   for (let i = 0; i < Math.min(count, 6); i++) {
     const a = i * 2.1 + tick / 11
-    drawSprite(g, GNAT[flapFrame(tick + i * 2)]!, Math.cos(a) * r * 0.45, Math.sin(a) * r * 0.4)
+    drawSprite(
+      g,
+      GNAT[flapFrame(tick + i * 2)]!,
+      Math.cos(a) * r * 0.45,
+      Math.sin(a) * r * 0.4,
+    )
   }
   renderMesh(g, 0, 0, r, tick / 30)
   g.restore()
@@ -918,17 +963,34 @@ export function renderBag(
 
 // --- the pests --------------------------------------------------------------------------------------
 
-export function renderSwarm(g: CanvasRenderingContext2D, swarm: Swarm, tick: number) {
+export function renderSwarm(
+  g: CanvasRenderingContext2D,
+  swarm: Swarm,
+  tick: number,
+) {
   const r = SWARM_RADIUS[swarm.size]
   const flip = swarm.vx < 0
   if (swarm.size === 1) {
     if (swarm.sprint) glow(g, swarm.x, swarm.y, 20, RAMPS.ember[3], 0.35)
-    drawSprite(g, SKEETER[flapFrame(tick + Math.floor(swarm.seed))]!, swarm.x, swarm.y, {
-      flipX: flip,
-    })
+    drawSprite(
+      g,
+      SKEETER[flapFrame(tick + Math.floor(swarm.seed))]!,
+      swarm.x,
+      swarm.y,
+      {
+        flipX: flip,
+      },
+    )
     return
   }
-  const haze = g.createRadialGradient(swarm.x, swarm.y, r * 0.2, swarm.x, swarm.y, r * 1.2)
+  const haze = g.createRadialGradient(
+    swarm.x,
+    swarm.y,
+    r * 0.2,
+    swarm.x,
+    swarm.y,
+    r * 1.2,
+  )
   const hue = swarm.mode === 'seek' ? RAMPS.ember[2] : SICK[2]
   haze.addColorStop(0, rgba(hue, 0.22))
   haze.addColorStop(0.7, rgba(SICK[1], 0.12))
@@ -941,7 +1003,8 @@ export function renderSwarm(g: CanvasRenderingContext2D, swarm: Swarm, tick: num
   for (let i = 0; i < count; i++) {
     const orbit = swarm.seed + i * 2.4 + tick * (0.04 + (i % 3) * 0.015)
     const radius = r * (0.3 + ((i * 37) % 10) / 15)
-    const mx = swarm.x + Math.cos(orbit) * radius + Math.sin(tick * 0.9 + i) * 1.2
+    const mx =
+      swarm.x + Math.cos(orbit) * radius + Math.sin(tick * 0.9 + i) * 1.2
     const my = swarm.y + Math.sin(orbit * 1.3) * radius * 0.75
     drawSprite(g, GNAT[flapFrame(tick + i)]!, mx, my, {
       flipX: Math.cos(orbit + Math.PI / 2) < 0,
@@ -949,7 +1012,11 @@ export function renderSwarm(g: CanvasRenderingContext2D, swarm: Swarm, tick: num
   }
 }
 
-export function renderPool(g: CanvasRenderingContext2D, pool: Pool, tick: number) {
+export function renderPool(
+  g: CanvasRenderingContext2D,
+  pool: Pool,
+  tick: number,
+) {
   const x = Math.round(pool.x)
   const y = GROUND + 4
   g.save()
@@ -992,7 +1059,11 @@ export function renderPool(g: CanvasRenderingContext2D, pool: Pool, tick: number
       g.stroke()
     }
     if (pool.ripple < 30 && Math.floor(tick / 4) % 2 === 0) {
-      drawText(g, '!', x, y - 16, { align: 'center', color: RAMPS.water[4], outline: INK })
+      drawText(g, '!', x, y - 16, {
+        align: 'center',
+        color: RAMPS.water[4],
+        outline: INK,
+      })
     }
   }
   g.restore()
@@ -1022,9 +1093,15 @@ export function renderPest(g: CanvasRenderingContext2D, p: Pest, tick: number) {
   if (p.kind === 'skimmer') {
     const crouch = p.t < SKIMMER.tell ? 2 : 0
     if (crouch) glow(g, p.x, p.y, 14, RAMPS.water[3], 0.4)
-    drawSprite(g, SKIMMER_SPRITES[Math.floor(tick / 5) % 3]!, p.x, p.y + crouch, {
-      flipX: p.vx < 0,
-    })
+    drawSprite(
+      g,
+      SKIMMER_SPRITES[Math.floor(tick / 5) % 3]!,
+      p.x,
+      p.y + crouch,
+      {
+        flipX: p.vx < 0,
+      },
+    )
     if (crouch && Math.floor(tick / 4) % 2 === 0) {
       g.fillStyle = RAMPS.water[4]
       g.fillRect(Math.round(p.x) - 1, Math.round(p.y) - 10, 2, 2)
@@ -1042,7 +1119,10 @@ export function renderPest(g: CanvasRenderingContext2D, p: Pest, tick: number) {
     g.beginPath()
     g.moveTo(p.x, p.y)
     const reach = NEEDLE.speed * NEEDLE.dash
-    g.lineTo(p.x + Math.cos(p.heading) * reach, p.y + Math.sin(p.heading) * reach)
+    g.lineTo(
+      p.x + Math.cos(p.heading) * reach,
+      p.y + Math.sin(p.heading) * reach,
+    )
     g.stroke()
     g.restore()
   } else if (p.state === 'dash') {
@@ -1056,7 +1136,9 @@ export function renderPest(g: CanvasRenderingContext2D, p: Pest, tick: number) {
     g.restore()
   }
   const frame = p.state === 'aim' ? 1 : flapFrame(tick + Math.floor(p.seed))
-  drawSprite(g, NEEDLE_SPRITES[frame]!, p.x, p.y, { flipX: Math.cos(p.heading) < 0 })
+  drawSprite(g, NEEDLE_SPRITES[frame]!, p.x, p.y, {
+    flipX: Math.cos(p.heading) < 0,
+  })
 }
 
 // --- the malaria cloud and AMI ----------------------------------------------------------------------
@@ -1124,7 +1206,9 @@ export function renderFairy(
   const flutter = Math.floor(tick / 5) % 2
   const wand = { x: x + facing * 9, y: y + 2 }
   glow(g, x, y, 20, RAMPS.sky[3], 0.25)
-  drawSprite(g, flutter ? AMI_SPRITES[1] : AMI_SPRITES[0], x, y, { flipX: facing < 0 })
+  drawSprite(g, flutter ? AMI_SPRITES[1] : AMI_SPRITES[0], x, y, {
+    flipX: facing < 0,
+  })
   const stick = Math.round(Math.min(x + facing * 3, wand.x))
   g.fillStyle = INK
   g.fillRect(stick - 1, Math.round(y + 2), 8, 3)
@@ -1142,7 +1226,13 @@ export function renderFairy(
   if (carrying) renderMesh(g, x, y + 15, 6, 0)
 }
 
-export function renderNet(g: CanvasRenderingContext2D, x: number, y: number, spin: number, tick: number) {
+export function renderNet(
+  g: CanvasRenderingContext2D,
+  x: number,
+  y: number,
+  spin: number,
+  tick: number,
+) {
   glow(g, x, y, 16, RAMPS.sky[4], 0.35)
   renderMesh(g, x, y, 9, spin)
   const a = tick / 8

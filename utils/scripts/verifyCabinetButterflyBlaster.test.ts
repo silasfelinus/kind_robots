@@ -94,6 +94,7 @@ type Inner = {
   demoInput(): InputFrame
   mosquitoesLeft(): number
   hitSwarm(index: number, byShot: boolean): void
+  startPlay(): void
 }
 
 const quiet = { play: () => {} }
@@ -116,11 +117,12 @@ const frame = (...buttons: Array<keyof InputFrame['held']>) => {
 /** A sky cleared of pests, the butterfly mid-sky and no longer flashing. */
 function staged(seed = 1): Inner {
   const g = game(seed)
+  // Past the river map, straight into the night.
+  g.startPlay()
   g.swarms = []
   g.pests = []
   g.pools = []
   g.invuln = 0
-  // A far-off swarm keeps the wave from ending while a rule is staged.
   return g
 }
 function keeper(): Swarm {
@@ -406,7 +408,7 @@ function keeper(): Swarm {
   assert.equal(n.score - score, perfect.total)
   for (let t = 0; t < DAWN_TICKS + 2; t++) n.update(emptyInput())
   assert.equal(n.level, 2, 'the next night, downriver')
-  assert.equal(n.phase, 'play')
+  assert.equal(n.phase, 'map', 'the river map shows the way first')
   assert.ok(
     n.huts.every((h) => h.bites === 0),
     'a fresh village',
@@ -541,7 +543,7 @@ function keeper(): Swarm {
 // --- breeding pools and the wriggler ---------------------------------------------------------------
 {
   const rng = mulberry32(7)
-  const pool = newPool(200, 100, rng)
+  const pool = newPool({ x: 200, y: GROUND + 4 }, 100, rng)
   let rose = -1
   for (let t = 0; t < 400 && rose < 0; t++)
     if (tickPool(pool, 100, rng)) rose = t

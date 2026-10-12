@@ -44,6 +44,8 @@ export const PEST_RADIUS: Record<PestKind, number> = {
 
 export type Pool = {
   x: number
+  /** Its water line: the ground, or a paddy up on a terrace. */
+  y: number
   /** Half its width. */
   w: number
   /** Ticks until the next ripple. */
@@ -61,9 +63,14 @@ export const HATCH_TICKS = 170
 /** ...rising this fast. */
 export const RISE_SPEED = 0.28
 
-export function newPool(x: number, every: number, rng: () => number): Pool {
+export function newPool(
+  spot: { x: number; y: number },
+  every: number,
+  rng: () => number,
+): Pool {
   return {
-    x,
+    x: spot.x,
+    y: spot.y,
     w: 13,
     timer: Math.round(every * (0.5 + rng() * 0.5)),
     ripple: 0,

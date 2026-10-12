@@ -199,8 +199,9 @@ export const ARCADE_GAMES: ArcadeGameMeta[] = [
       'AMI Village Rescue in 3D: a full pinball table in a lit arcade, with a steel ball on real physics, crossing ramps, two orbits, a dot-matrix display and a camera that follows the ball. Shoot the saucer to start a village mode, lock balls for AMI multiball, and take the upper feed to the Ridge, a second playfield past the arch with its own flippers. Somewhere behind the backbox, a secret waits.',
     howTo: [
       'LEFT/RIGHT  FLIPPERS',
-      'A  BOTH FLIPPERS',
-      'HOLD DOWN, LET GO',
+      'L/R OR SHOULDERS  FLIP',
+      'A TO LAUNCH THE BALL',
+      'PULL STICK, RELEASE',
       'UP  NUDGE THE TABLE',
       'SAUCER STARTS A VILLAGE',
       'LOCKS LIGHT MULTIBALL',

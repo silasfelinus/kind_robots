@@ -62,9 +62,8 @@ export function mayVisitPitchFrontend(
 
 function arcadePitchPageUrl(pitch: ConductorPitch): string | null {
   const matched = pitch.slug.match(/^\d{4}-\d{2}-\d{2}-kr-cabinet-(.+)$/)
-  const game = matched
-    ? ARCADE_GAMES.find((item) => item.slug === matched[1])
-    : undefined
+  if (!matched) return null
+  const game = ARCADE_GAMES.find((item) => item.slug === matched[1])
   return game
     ? safeProjectPageUrl(
         game.route || '/play/arcade?game=' + encodeURIComponent(game.slug),

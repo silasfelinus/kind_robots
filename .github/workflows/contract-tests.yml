@@ -18,7 +18,9 @@ jobs:
   contract-tests:
     name: Contract verifiers
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    # The Zuzu physics soaks and their siblings run the job past 10
+    # minutes; give it room rather than trim what they prove.
+    timeout-minutes: 15
 
     steps:
       - name: Checkout
@@ -36,6 +38,9 @@ jobs:
         run: npm ci
         env:
           CYPRESS_INSTALL_BINARY: '0'
+
+      - name: Approved Daily Dream pitch progress contract
+        run: npx tsx utils/scripts/verifyApprovedPitchProgress.test.ts
 
       - name: Tablet navigation audit contract
         run: node --test utils/scripts/auditTabletNavigation.test.mjs
@@ -162,11 +167,26 @@ jobs:
       - name: Zuzu Pinball rules, chapters and seals
         run: npm run test:zuzu-pinball-rules
 
-      - name: Zuzu Pinball River Croc
+      - name: Zuzu Pinball River Croc (1,000 swallows)
         run: npm run test:zuzu-pinball-croc
 
       - name: Zuzu Pinball Watering Hole and Death Roll
         run: npm run test:zuzu-pinball-watering-hole
+
+      - name: Zuzu Pinball Citadel lock and Harvest Moon multiball
+        run: npm run test:zuzu-pinball-multiball
+
+      - name: Zuzu Pinball raised Abbey deck and upper flippers
+        run: npm run test:zuzu-pinball-abbey
+
+      - name: Zuzu Pinball hidden undercrypt
+        run: npm run test:zuzu-pinball-crypt
+
+      - name: Zuzu Pinball no stuck balls
+        run: npm run test:zuzu-pinball-no-stuck
+
+      - name: Zuzu Pinball LED rail
+        run: npm run test:zuzu-pinball-leds
 
       - name: Zuzu gamebook branching and combat
         run: npm run test:zuzu-gamebook

@@ -71,19 +71,27 @@
                 strikes raise it again. The River Croc always pays, and his
                 fifth swallow lights an extra ball. Feed him during Homestead to
                 open the Watering Hole, where an orbit lights his mouth for a
-                Death Roll jackpot that grows each time. A soft plunge into the
-                Mortuary is the skill shot.
+                Death Roll jackpot that grows each time. Ring the bell lane to
+                lock balls in the Citadel: three start Harvest Moon. Broken
+                seals and both orbits start the four-ball Storm Crow, and the
+                fifth story seal rings The Last Bell, all six balls. A soft
+                plunge into the Mortuary is the skill shot.
               </p>
               <p class="text-sm leading-relaxed opacity-85">
-                Next: a raised Abbey with independently controlled upper
-                flippers, multiball, and the hidden undercrypt.
+                The Bell spiral climbs to the raised Abbey deck, where two upper
+                flippers ring its three hollow bells; they flip with the lower
+                pair, or alone while you hold B (Shift). Strike the captive
+                relic three times and the Mortuary opens the hidden undercrypt
+                behind the backbox, a mini-table with its own flippers, three
+                skulls and a HOME saucer.
               </p>
             </section>
             <section class="kr-panel space-y-3 p-5">
               <h3 class="font-serif text-xl font-bold">Plunge and play</h3>
               <p class="text-sm">
                 Left and right arrows flip. Hold Down, then release for the
-                plunger. Up nudges; B changes the camera.
+                plunger. Up nudges; hold B (Shift) to flip the Abbey's upper
+                flippers alone.
               </p>
               <p class="text-xs opacity-70">
                 Scoring and leaderboards are deliberately disabled for the

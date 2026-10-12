@@ -20,7 +20,14 @@ import { drawText } from '../font'
 import { INK, RAMPS, bevel, dropShadow, gauge, glow, rgba } from '../snes'
 import type { ArcadeSoundName } from '../sound'
 import type { GuardianKind } from './floors'
-import type { Prey } from './roster'
+import type { GlitchKind, Prey } from './roster'
+import {
+  enterHallPhase,
+  hallZones,
+  renderHall,
+  setupHall,
+  updateHall,
+} from './halls'
 
 const T = 16
 
@@ -61,6 +68,15 @@ export type Guardian = {
   holes: number[]
   /** Per-seat cooldown after the tape catches a bot. */
   caught: number[]
+  /** The Attract Mode's marching blocks (tile x, y, heading), its coin slots' holds, its countdown. */
+  pillars: Array<{ x: number; y: number; dx: number }>
+  coins: number[]
+  countdown: number
+  /** The Cloud Bank: where it hovers, its drops, the wind's side, and the lightning's mark. */
+  bankX: number
+  drops: Array<{ x: number; y: number; t: number }>
+  windSide: number
+  bolt: { x: number; y: number; t: number; tell: number }
 }
 
 /** What a Guardian may sense and do: the game implements it. */
@@ -79,6 +95,14 @@ export interface BossWorld {
   play(name: ArcadeSoundName): void
   /** The Mainframe has something to say about it. */
   phase(text: string): void
+  /** A glitch appears (a ghost projected by the Attract Mode, a drop from the Cloud Bank). */
+  spawn(kind: GlitchKind, x: number, y: number, ghost: boolean): void
+  /** Whoever holds the Hug Token, and a fresh Token dropped on the floor. */
+  holder(): Prey | null
+  giveToken(x: number, y: number): void
+  /** A gentle push (the wind), stopped by racks. */
+  push(p: Prey, dx: number, dy: number): void
+  seats(): number
 }
 
 /** A hit zone: where a spark can land on the Guardian. */
@@ -103,6 +127,8 @@ const BOTH_WITHIN = 3 * 60
 const PHASE_HITS: Record<GuardianKind, readonly [number, number, number]> = {
   sorter: [30, 24, 16],
   reels: [32, 22, 16],
+  attract: [44, 40, 1],
+  bank: [22, 22, 3],
 }
 
 export function newGuardian(
@@ -131,9 +157,17 @@ export function newGuardian(
     heading: 1,
     holes: [0.3, 0.7],
     caught: [0, 0, 0, 0],
+    pillars: [],
+    coins: [0, 0, 0, 0],
+    countdown: 0,
+    bankX: 0,
+    drops: [],
+    windSide: 1,
+    bolt: { x: 0, y: 0, t: 0, tell: 0 },
   }
   g.hp = g.phaseHp
-  if (kind === 'sorter') {
+  if (kind === 'attract' || kind === 'bank') setupHall(g, w)
+  else if (kind === 'sorter') {
     g.rows = [a.y0 + 3, a.y0 + 6, a.y0 + 9]
     shuffle(g, w)
   } else {
@@ -177,6 +211,7 @@ export function sorterAt(w: BossWorld) {
 /** Where sparks can land this tick. */
 export function bossZones(g: Guardian, w: BossWorld): BossZone[] {
   if (g.done) return []
+  if (g.kind === 'attract' || g.kind === 'bank') return hallZones(g, w)
   if (g.kind === 'sorter') {
     const s = sorterAt(w)
     if (g.phase === 1 || (g.phase === 2 && g.fanOpen > 0))
@@ -195,7 +230,7 @@ export function hitBoss(g: Guardian, w: BossWorld, id: number, damage: number) {
   if (g.done) return
   g.flash = 6
   w.play('blip')
-  if (g.kind === 'sorter' || g.phase === 1) {
+  if (g.kind !== 'reels' || g.phase === 1) {
     g.hp -= damage
     if (g.kind === 'reels') for (const r of g.reels) r.flash = 6
     if (g.hp <= 0) nextPhase(g, w)
@@ -224,6 +259,7 @@ function nextPhase(g: Guardian, w: BossWorld) {
   if (g.phase === 3) {
     g.done = true
     g.flash = 30
+    g.drops = []
     if (g.kind === 'sorter') {
       const a = w.arena
       for (const ty of g.rows)
@@ -238,6 +274,19 @@ function nextPhase(g: Guardian, w: BossWorld) {
   g.t = 0
   g.flash = 20
   w.play('boom')
+  if (g.kind === 'attract' || g.kind === 'bank') {
+    enterHallPhase(g, w)
+    w.phase(
+      g.kind === 'attract'
+        ? g.phase === 2
+          ? 'IT IS PLAYING YOU! WATCH THE WALLS!'
+          : 'GAME OVER? FIND THE COIN SLOTS!'
+        : g.phase === 2
+          ? 'THE WIND! KEEP AWAY FROM THE VENTS!'
+          : 'LIGHTNING! LEAD IT WITH THE TOKEN!',
+    )
+    return
+  }
   if (g.kind === 'sorter') {
     w.phase(
       g.phase === 2
@@ -270,6 +319,12 @@ export function updateGuardian(g: Guardian, w: BossWorld) {
   for (let i = 0; i < g.caught.length; i++) if (g.caught[i]! > 0) g.caught[i]!--
   if (g.done) return
   g.t++
+  if (g.kind === 'attract' || g.kind === 'bank') {
+    const continued = updateHall(g, w)
+    if (continued || (g.kind === 'bank' && g.phase === 3 && g.hp <= 0))
+      nextPhase(g, w)
+    return
+  }
   if (g.kind === 'sorter') sorter(g, w)
   else reels(g, w)
 }
@@ -436,7 +491,8 @@ export function renderGuardian(
   g: Guardian,
   w: BossWorld,
 ) {
-  if (g.kind === 'sorter') renderSorter(c, g, w)
+  if (g.kind === 'attract' || g.kind === 'bank') renderHall(c, g, w)
+  else if (g.kind === 'sorter') renderSorter(c, g, w)
   else renderReels(c, g)
 }
 

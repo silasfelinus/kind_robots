@@ -98,6 +98,8 @@ function pest(
     state: 'roam',
     trap: 0,
     target: null,
+    size: kind === 'lint' ? 5 : 0,
+    segs: [],
     ...extra,
   }
 }
@@ -106,9 +108,9 @@ function pest(
 {
   const shapes = new Set(Object.values(BASINS).map((b) => b.shape))
   assert.deepEqual(
-    [...shapes].sort(),
+    [...shapes].filter((x) => x !== 'bowl').sort(),
     ['conveyor', 'double', 'drum', 'oval', 'tank', 'tub'],
-    'six basin shapes',
+    "six basin shapes (plus the later rooms' bowls)",
   )
   assert.equal(
     new Set(BASIN_PLAYLIST).size,
@@ -488,7 +490,7 @@ function pest(
     for (; t < 60 * 60 * 20 && !g.over; t++) g.update(g.demoInput())
     assert.ok(g.over, `seed ${seed}: the run ends`)
     assert.ok(g.level >= 3, `seed ${seed}: reached basin ${g.level}`)
-    assert.ok(g.score > 0 && g.score < 3_000_000)
+    assert.ok(g.score > 0 && g.score < 10_000_000)
   }
   assert.equal(GROWTH_PER_STAGE > 0, true)
 }

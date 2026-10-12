@@ -9,9 +9,23 @@
 
 import type { LampLevel, TableDef } from '../../types'
 import type { LampFrame } from '../../rules/lamps'
-import { CHAPTERS, litShots, RELICS_FOR_CRYPT, SEAL_COUNT } from './chapters'
+import { CHAPTERS, litShots, SEAL_COUNT } from './chapters'
 import type { ZuzuRulesState } from './rules'
+import {
+  LAST_BELL_SUPER,
+  LOCKS_FOR_HARVEST,
+  locksMade,
+  multiballTargets,
+  STORM_ORBITS,
+  STORM_SUPER,
+} from './multiball'
 import { STIR_SHOTS, wateringHoleRunning } from './wateringHole'
+
+/** The Citadel's lock lamps, one per lock. */
+export const CITADEL_LAMPS = Array.from(
+  { length: LOCKS_FOR_HARVEST },
+  (_, i) => `citadel-${i + 1}`,
+)
 
 /** The waterline LEDs ringing the Croc's pool. */
 export const WATERLINE_LAMPS = ['waterline-1', 'waterline-2', 'waterline-3']
@@ -35,6 +49,13 @@ export function zuzuLamps(state: ZuzuRulesState, table: TableDef): LampFrame {
     run ? litShots(CHAPTERS[story.chapter]!, story.progress, run.rove) : [],
   )
   if (state.croc.extraBallLit) hot.add('croc-mouth')
+  // Multiball: the lit jackpot ramp, and the orbits once the super is lit.
+  const mb = state.multiball
+  for (const shot of multiballTargets(mb)) hot.add(shot)
+  // Storm Crow ready: the orbits not yet made blink.
+  if (state.storm.ready && !mb.kind)
+    for (const shot of STORM_ORBITS)
+      if (!state.storm.orbits.includes(shot)) hot.add(shot)
   // The Watering Hole: the orbits stir the water, then the mouth is lit.
   const hole = state.wateringHole
   const watering = wateringHoleRunning(hole)
@@ -45,7 +66,7 @@ export function zuzuLamps(state: ZuzuRulesState, table: TableDef): LampFrame {
   for (const insert of table.inserts ?? []) {
     if (!insert.shot || insert.shape !== 'arrow') continue
     if (insert.shot === 'mortuary')
-      set(insert.id, mortuaryOpen ? 'blink' : 'off')
+      set(insert.id, mortuaryOpen || state.crypt.lit ? 'blink' : 'off')
     else set(insert.id, hot.has(insert.shot) ? 'blink' : 'on')
   }
   // The Croc's arrow is lit only while his jaws are open to take the ball.
@@ -63,6 +84,18 @@ export function zuzuLamps(state: ZuzuRulesState, table: TableDef): LampFrame {
   set('relic-lamp', seals >= SEAL_COUNT ? 'blink' : 'off')
   set('kickback-lamp', state.kickbackLit ? 'on' : 'off')
   set('croc-reward', state.croc.extraBallLit ? 'blink' : 'off')
+  const locks = locksMade(state.citadel)
+  for (const [i, id] of CITADEL_LAMPS.entries())
+    set(
+      id,
+      mb.kind
+        ? 'blink'
+        : i < locks
+          ? 'on'
+          : i === locks && state.citadel.lit
+            ? 'blink'
+            : 'off',
+    )
   for (const id of WATERLINE_LAMPS)
     set(
       id,
@@ -73,14 +106,21 @@ export function zuzuLamps(state: ZuzuRulesState, table: TableDef): LampFrame {
           : 'off',
     )
   set('shoot-again', state.extraBalls > 0 ? 'on' : 'off')
-  set('crypt-seal', state.relics >= RELICS_FOR_CRYPT ? 'blink' : 'off')
+  set(
+    'crypt-seal',
+    state.crypt.lit ? 'blink' : state.crypt.inside ? 'on' : 'off',
+  )
   set(
     'croc-flasher',
     cycle === 'death-roll' || hot.has('croc-mouth') ? 'blink' : 'off',
   )
   set(
     'bell-flasher',
-    hot.has('bell-spiral') || (!run && !story.mortuaryLit) ? 'blink' : 'off',
+    hot.has(LAST_BELL_SUPER) ||
+      hot.has(STORM_SUPER) ||
+      (!run && !story.mortuaryLit)
+      ? 'blink'
+      : 'off',
   )
   return { lamps, gi: 1 }
 }

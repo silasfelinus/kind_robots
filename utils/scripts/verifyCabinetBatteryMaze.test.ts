@@ -38,6 +38,7 @@ import {
   trainPayout,
 } from '../arcade/batteryMaze/tables'
 import { emptyInput, type InputFrame } from '../arcade/types'
+import { BOARDS, boardById, type Board } from '../arcade/batteryMaze/boards'
 
 type Dir = { x: number; y: number }
 type Gremlin = {
@@ -79,11 +80,13 @@ type Game = {
   sleepyTimer: number
   sparksSinceRelease: number
   idleTicks: number
-  prize: { kind: number; x: number; y: number; dir: Dir; t: number } | null
+  prizes: Array<{ kind: number; x: number; y: number; dir: Dir; t: number }>
   update(input: InputFrame): void
   demoInput(): InputFrame
-  startLevel(level: number): void
-  loadMaze(maze: Maze, heat: number): void
+  card: unknown
+  stepIndex: number
+  beginMaze(board: Board, index: number): void
+  loadMaze(maze: Maze, heat: number, roster: readonly string[]): void
   canMove(x: number, y: number, dir: Dir, allowDoor?: boolean): boolean
   junctionAlong(dir: Dir): Tile
   moveRobot(): void
@@ -95,7 +98,7 @@ type Game = {
   release(): void
   tryFlip(): void
   rollPrize(): void
-  movePrize(): void
+  updatePrizes(): void
   gremlinSpeed(g: Gremlin): number
   chooseTurn(g: Gremlin, view: HuntView): void
   huntView(): HuntView
@@ -105,13 +108,23 @@ const LEFT = { x: -1, y: 0 }
 const UP = { x: 0, y: -1 }
 const DOWN = { x: 0, y: 1 }
 
+/** A real game with Cozy Charger's title card lifted, its first maze in play. */
 function play(seed = 3): Game {
-  return batteryMaze.create({
+  const game = batteryMaze.create({
     rng: mulberry32(seed),
     sound: { play: () => {} },
     demo: false,
     hiScore: 0,
   }) as unknown as Game
+  game.card = null
+  game.stepIndex = 1
+  return game
+}
+
+/** Jump a game to one of a board's mazes. */
+function goTo(game: Game, board: string, index: number) {
+  game.beginMaze(boardById(board), index)
+  game.pause = 0
 }
 
 /** Shortest walking distance between two tiles in the game's current gate state. */
@@ -151,7 +164,9 @@ function walk(game: Game, from: Tile, to: Tile): number {
     const maze = parseMaze(layout)
     assert.deepEqual(mazeProblems(maze), [], `${layout.id} is sound`)
     assert.ok(maze.sparks.length > 150, `${layout.id} has plenty of sparks`)
-    assert.equal(maze.cells.length, 4, `${layout.id} has four power cells`)
+    // Boss dens drop their cells in as the fight goes on.
+    const boss = layout.id === 'mamas-den' || layout.id === 'the-core'
+    assert.equal(maze.cells.length, boss ? 0 : 4, `${layout.id}'s power cells`)
     assert.ok(maze.dockPads.length >= 3)
   }
   const yard = parseMaze(SWITCHYARD)
@@ -218,6 +233,11 @@ function walk(game: Game, from: Tile, to: Tile): number {
     randomSpark: () => ({ x: 7, y: 7 }),
     chomping: false,
     overclock: 0,
+    sees: () => false,
+    nearestSpark: () => null,
+    stick: LEFT,
+    hopAcross: () => null,
+    junction: () => false,
     ...over,
   })
   const self = (x: number, y: number) => ({ x, y, mind: freshMind() })
@@ -396,7 +416,12 @@ function walk(game: Game, from: Tile, to: Tile): number {
 // --- shield cells ---------------------------------------------------------------------------------
 {
   const game = play()
-  game.loadMaze(parseMaze(CLASSIC_LAYOUT), MAX_HEAT)
+  game.loadMaze(parseMaze(CLASSIC_LAYOUT), MAX_HEAT, [
+    'chaser',
+    'ambusher',
+    'flanker',
+    'wanderer',
+  ])
   game.pause = 0
   for (const g of game.gremlins) g.state = 'roaming'
   const cell = game.maze.cells[0]!
@@ -415,7 +440,7 @@ function walk(game: Game, from: Tile, to: Tile): number {
 // --- Rewire: switches swing gates and the gremlins re-path ---------------------------------------
 {
   const game = play()
-  game.startLevel(3)
+  goTo(game, 'cozy', 2)
   assert.equal(game.maze.id, 'switchyard')
   game.pause = 0
   const sw = game.maze.switches.find((s) => s.x === 11 && s.y === 3)!
@@ -461,20 +486,19 @@ function walk(game: Game, from: Tile, to: Tile): number {
 // --- roaming prizes -----------------------------------------------------------------------------
 {
   const game = play()
-  game.startLevel(2)
-  assert.equal(game.maze.id, 'outlet-loops')
+  assert.equal(game.maze.id, 'classic')
   game.rollPrize()
-  assert.equal(game.prize, null, 'no prize before the maze is under way')
+  assert.equal(game.prizes.length, 0, 'no prize before the maze is under way')
   game.eaten = Math.ceil(game.totalSparks * 0.3)
   game.rollPrize()
-  const roaming = () => (game as Game).prize
+  const roaming = () => (game as Game).prizes[0]
   const p = roaming()!
   assert.ok(p, 'a prize rolls in')
-  assert.equal(p.kind, 1, 'the heat-2 prize')
-  assert.ok([5, 15].includes(p.y) && (p.x === 0 || p.x === 22), 'from a tunnel')
+  assert.equal(p.kind, 0, 'the heat-1 prize')
+  assert.ok(p.y === 9 && (p.x === 0 || p.x === 22), 'from the tunnel')
   const start = { x: p.x, y: p.y }
   Object.assign(game.robot, { x: 11, y: 11 })
-  for (let i = 0; i < 120; i++) game.movePrize()
+  for (let i = 0; i < 120; i++) game.updatePrizes()
   const moved = roaming()!
   assert.ok(
     moved && (moved.x !== start.x || moved.y !== start.y),
@@ -482,29 +506,38 @@ function walk(game: Game, from: Tile, to: Tile): number {
   )
   Object.assign(game.robot, { x: moved.x, y: moved.y })
   const score = game.score
-  game.movePrize()
-  assert.equal(game.score - score, PRIZES[1]!.points, 'caught')
-  assert.equal(game.prize, null)
+  game.updatePrizes()
+  assert.equal(game.score - score, PRIZES[0]!.points, 'caught')
+  assert.equal(game.prizes.length, 0)
   // Left alone, it wanders off again.
   const other = play()
-  other.startLevel(2)
   other.eaten = Math.ceil(other.totalSparks * 0.3)
   other.rollPrize()
   Object.assign(other.robot, { x: -50, y: -50 })
-  for (let i = 0; i < 60 * 20 && other.prize; i++) other.movePrize()
-  assert.equal(other.prize, null, 'an uncaught prize leaves')
+  for (let i = 0; i < 60 * 20 && other.prizes.length; i++) other.updatePrizes()
+  assert.equal(other.prizes.length, 0, 'an uncaught prize leaves')
 }
 
-// --- each level a new maze, a hotter table --------------------------------------------------------
+// --- each maze its own layout, a hotter table ------------------------------------------------------
 {
   const game = play()
   const seen = new Set<string>()
-  for (let level = 1; level <= 6; level++) {
-    game.startLevel(level)
-    seen.add(game.maze.id)
-    assert.equal(game.row, heatRow(level))
+  let heat = 0
+  const open = BOARDS.filter((b) => !b.secret)
+  for (const board of open) {
+    for (let i = 0; i < 3; i++) {
+      goTo(game, board.id, i)
+      seen.add(game.maze.id)
+      heat++
+      assert.equal(
+        game.row,
+        heatRow(heat),
+        `${board.id} ${i + 1} is heat ${heat}`,
+      )
+    }
   }
-  assert.equal(seen.size, LAYOUTS.length, 'the levels walk every maze')
+  assert.equal(seen.size, open.length * 3, 'every maze its own layout')
+  assert.ok(LAYOUTS.length > seen.size, 'plus the boss mazes')
 }
 
 // --- determinism and the pilot probe -------------------------------------------------------------

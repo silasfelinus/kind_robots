@@ -89,6 +89,9 @@ export async function applyPitchVote(
   }
 
   let updated = withPitchStatus(file.content, status)
+  if (status !== 'approved' || pitchStatusOf(file.content) !== 'approved') {
+    updated = withPitchReady(updated, false)
+  }
   const hasNotes = Boolean(options.notes?.trim())
   if (hasNotes) updated = withPitchModifications(updated, options.notes ?? '')
 
@@ -104,6 +107,61 @@ export async function applyPitchVote(
   )
 
   return { success: true, changed: true, path, status }
+}
+
+export function pitchReadyOf(content: string): boolean {
+  return /^public-ready:\s*true(?:\s*(?:#.*)?)?$/im.test(content)
+}
+
+export function withPitchReady(content: string, ready: boolean): string {
+  const line = 'public-ready: ' + String(ready)
+  if (/^public-ready:.*$/m.test(content)) {
+    return content.replace(/^public-ready:.*$/m, line)
+  }
+  if (/^status:.*$/m.test(content)) {
+    return content.replace(/^(status:.*)$/m, '$1\n' + line)
+  }
+  if (/^project-target:.*$/m.test(content)) {
+    return content.replace(/^(project-target:.*)$/m, '$1\n' + line)
+  }
+  return line + '\n' + content
+}
+
+export async function applyPitchReady(slug: string, ready: boolean) {
+  if (!/^\d{4}-\d{2}-\d{2}-[a-z0-9]+(?:-[a-z0-9]+)*$/.test(slug)) {
+    throw createError({
+      statusCode: 400,
+      statusMessage: 'Invalid daily pitch slug',
+    })
+  }
+  const path = 'pitches/' + slug + '.md'
+  const file = await conductorGet(path)
+  if (!file)
+    throw createError({ statusCode: 404, statusMessage: 'Pitch not found' })
+  if (pitchStatusOf(file.content) !== 'approved') {
+    throw createError({
+      statusCode: 409,
+      statusMessage: 'Only approved pitches can be marked ready for Play',
+    })
+  }
+  const updated = withPitchReady(file.content, ready)
+  if (updated !== file.content) {
+    await conductorPut(
+      path,
+      updated,
+      'pitch: ' +
+        (ready ? 'approve' : 'revoke') +
+        ' Play readiness for ' +
+        slug,
+      file.sha,
+    )
+  }
+  return {
+    success: true,
+    slug,
+    publicReady: ready,
+    changed: updated !== file.content,
+  }
 }
 
 export interface PendingPitch {

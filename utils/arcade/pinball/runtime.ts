@@ -8,6 +8,7 @@
 //
 // Fixed 60 Hz arcade ticks run two 1/120 s physics steps each.
 
+import { attractLeds, prefersReducedMotion } from './rules/leds'
 import type {
   ArcadeGameOptions,
   ArcadeWebGLGameInstance,
@@ -98,6 +99,8 @@ export class PinballRuntime<
   /** ...and has decided to miss this one. */
   private pilotMisses = false
   private demo: boolean
+  /** Reduced motion: the LED rail holds its colours (rules/leds.ts). */
+  private reducedMotion = prefersReducedMotion()
   private factory: RendererFactory
   private pull = 0
   private nudgeCooldown = 0
@@ -202,8 +205,13 @@ export class PinballRuntime<
     if ((controls.pressed.left || controls.pressed.right) && !this.demo) {
       this.mixer.play('flipper')
     }
-    this.physics.setFlipper('left', left)
-    this.physics.setFlipper('right', right)
+    // Upper flippers (Zuzu's Abbey deck, t-006) follow the lower buttons;
+    // holding B (Shift) flips the upper pair alone.
+    const upperOnly = controls.held.b && this.physics.hasUpperFlippers
+    this.physics.setFlipper('left', left && !upperOnly, 'lower')
+    this.physics.setFlipper('right', right && !upperOnly, 'lower')
+    this.physics.setFlipper('left', left, 'upper')
+    this.physics.setFlipper('right', right, 'upper')
     this.plunger(controls)
     this.addBalls()
     if (this.nudgeCooldown > 0) this.nudgeCooldown--
@@ -273,6 +281,18 @@ export class PinballRuntime<
           this.tick,
         )
     this.scene.setLamps(frame.lamps, frame.gi)
+    const rail = table.ledRail
+    if (rail && this.ruleset.leds)
+      this.scene.setLeds(
+        this.demo
+          ? attractLeds(rail.count, this.steps, this.reducedMotion)
+          : this.ruleset.leds(
+              this.rules,
+              this.steps,
+              rail.count,
+              this.reducedMotion,
+            ),
+      )
     const poses = this.ruleset.animatronics?.(this.rules, this.steps)
     if (poses) this.scene.setAnimatronics(poses)
     // The skill shot's arrow flashes until the first shot after the plunge.
@@ -484,6 +504,10 @@ export class PinballRuntime<
         if (effect.action === 'fire') this.physics.fireKicker(effect.id)
         if (effect.action === 'open') this.physics.setDoor(effect.id, true)
         if (effect.action === 'close') this.physics.setDoor(effect.id, false)
+        if (effect.action === 'lock') this.physics.lockHeld(effect.id)
+        if (effect.action === 'release') this.physics.releaseLocked(effect.id)
+        if (effect.action === 'subway' && typeof effect.payload === 'string')
+          this.physics.subwayHeld(effect.id, effect.payload)
         break
       default:
         break

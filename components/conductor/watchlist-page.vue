@@ -22,20 +22,6 @@ const config: ProjectFrontConfig = {
     { label: 'years tracked', value: '12', icon: 'kind-icon:calendar' },
     { label: 'starred favorites', value: '60', icon: 'kind-icon:star' },
   ],
-  sections: [
-    {
-      key: 'browse',
-      title: 'Browse the log',
-      body: 'Search and filter the full history by media type, year, month, season, or starred favorites.',
-      icon: 'kind-icon:list',
-    },
-    {
-      key: 'patterns',
-      title: 'See the patterns',
-      body: 'Compare years, media types, active months, reading totals, listening hours, and favorite entries.',
-      icon: 'kind-icon:chart',
-    },
-  ],
   deliverables: {
     done: [
       'Real viewing log parsed and validated (2,440 entries, 12 years)',

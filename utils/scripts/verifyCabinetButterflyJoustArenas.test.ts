@@ -179,9 +179,17 @@ function place(b: Body, x: number, y: number) {
   const signature: Record<string, string> = {
     sunset: 'survival',
     meadow: 'gladiator',
+    heights: 'storm',
+    orchard: 'cocoon',
+    snowfield: 'team',
+    moon: 'survival',
   }
   for (const arena of ARENAS) {
-    assert.equal(arena.waves.length, WAVES_PER_ARENA, `${arena.id}: six waves`)
+    assert.equal(
+      arena.waves.length,
+      arena.id === 'moon' ? WAVES_PER_ARENA + 1 : WAVES_PER_ARENA,
+      `${arena.id}: six waves (the Moon Garden's Gauntlet, seven)`,
+    )
     assert.equal(
       arena.waves[2]!.kind,
       signature[arena.id],
@@ -197,7 +205,7 @@ function place(b: Body, x: number, y: number) {
       `${arena.id}: four seats fit the home ledge`,
     )
     assert.ok(arena.spawns.length >= 4)
-    assert.ok(CHAMPIONS[arena.champion])
+    if (arena.champion) assert.ok(CHAMPIONS[arena.champion])
     for (const wave of arena.waves)
       for (const kind of wave.riders)
         assert.ok(ROSTER[kind], `${arena.id}: ${kind} is a rider`)

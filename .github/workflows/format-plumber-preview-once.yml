@@ -1,0 +1,29 @@
+name: Format Plumber Preview Once
+on:
+  push:
+    branches:
+      - worker/plumber-t003-admin-landing-20261011-k9qm
+    paths:
+      - .github/workflows/format-plumber-preview-once.yml
+permissions:
+  contents: write
+jobs:
+  format:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - run: npm ci --no-audit --no-fund
+      - name: Format only scoped Arcade files
+        run: |
+          npx prettier --write pages/admin/save-the-plumber.vue utils/arcade/games.ts utils/arcade/games/savePlumberPreview.ts utils/scripts/verifySavePlumberPreview.test.ts
+          git add pages/admin/save-the-plumber.vue utils/arcade/games.ts utils/arcade/games/savePlumberPreview.ts utils/scripts/verifySavePlumberPreview.test.ts
+          if ! git diff --cached --quiet; then
+            git -c user.name='github-actions[bot]' -c user.email='41898282+github-actions[bot]@users.noreply.github.com' commit -m 'style(plumber): format private preview with project Prettier'
+            git push origin HEAD:${GITHUB_REF_NAME}
+          fi

@@ -150,6 +150,57 @@ function rescue(game: any) {
   const back = quitAndReturn(game)
   assert.equal(back.cleared, true, 'the clear survives')
   assert.equal(back.save.cleared, true)
+  // And the rally comes back past the Core, at the start of the next time round the city.
+  assert.ok(back.offer, 'offered')
+  assert.equal(back.offer.district, 0)
+  assert.equal(back.offer.loop, 2)
+  back.update(press('a'))
+  assert.equal(back.level, districtStart(0, 2), 'not the Glitch Core again')
+  // A new rally from there keeps the clear and the chips.
+  const anew = quitAndReturn(back)
+  anew.update(press('down'))
+  anew.update(press('a'))
+  assert.equal(anew.cleared, true, 'a new rally keeps the clear')
+  assert.equal(anew.save.cleared, true)
+}
+
+// --- the Reunion and the true ending survive a quit ---------------------------------------------
+{
+  const game = make()
+  game.begin('campaign')
+  game.startWave(districtStart(DISTRICTS.length - 1))
+  // The fifth chip is found in the last district, after its checkpoint.
+  for (const d of DISTRICTS) game.chips.add(d.id)
+  game.keepRecords()
+  game.startWave(districtStart(DISTRICTS.length - 1) + 7)
+  game.boss.down = 2
+  game.foes = []
+  game.arrivals = []
+  for (let t = 0; t < 300 && !game.script.reunion; t++)
+    game.update(emptyInput())
+  assert.equal(game.script.reunion, true)
+  // Quit on the roof.
+  const roof = quitAndReturn(game)
+  assert.equal(roof.chips.size, 5, 'all five chips survive')
+  assert.equal(roof.cleared, true, 'the Core counts as beaten')
+  assert.ok(roof.offer?.reunion, 'the Reunion is offered')
+  roof.update(press('a'))
+  assert.equal(roof.script.reunion, true, 'straight back to the roof')
+  assert.ok(!roof.boss, 'not the Glitch Core again')
+  // Greet everyone, then quit while the true ending's credits roll.
+  for (let t = 0; t < 60 * 60 && !roof.ending; t++) {
+    const r = roof.family[0]
+    if (r) Object.assign(roof.heroes[0], { x: r.x, y: r.y })
+    roof.update(emptyInput())
+  }
+  assert.ok(roof.ending?.trueEnding, 'the true ending rolls')
+  idle(roof, 30)
+  const after = quitAndReturn(roof)
+  assert.equal(after.save.trueEnding, true, 'the true ending survives')
+  assert.equal(after.save.cleared, true)
+  assert.equal(after.chips.size, 5)
+  assert.equal(after.offer?.reunion ?? false, false, 'no second Reunion')
+  assert.equal(after.offer?.loop, 2, 'the next time round')
 }
 
 // --- Time Attack, after a new rally from a checkpoint ----------------------------------------------

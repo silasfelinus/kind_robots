@@ -385,6 +385,10 @@ export type RallySave = {
   medals: MedalBoard
   times: BestTimes
   reached: number
+  /** Saved as the Reunion opened: continuing goes straight back to it. */
+  reunion: boolean
+  /** The true ending has been seen. */
+  trueEnding: boolean
 }
 
 const isCount = (v: unknown, max: number): v is number =>
@@ -433,6 +437,10 @@ export function readSave(raw: unknown): RallySave | null {
   const times = readTimes(v.v === 3 ? v.times : undefined)
   const reached = v.v === 3 ? v.reached : v.district
   if (!medals || !times || !isCount(reached, DISTRICTS.length - 1)) return null
+  const reunion = v.reunion ?? false
+  const trueEnding = v.trueEnding ?? false
+  if (typeof reunion !== 'boolean' || typeof trueEnding !== 'boolean')
+    return null
   return {
     v: 3,
     district: v.district,
@@ -449,6 +457,8 @@ export function readSave(raw: unknown): RallySave | null {
     medals,
     times,
     reached: Math.max(reached, v.district),
+    reunion,
+    trueEnding,
   }
 }
 
@@ -579,6 +589,8 @@ class RescueRally implements ArcadeGameInstance {
   private suits: HeroSprites[] = []
   /** The credits rolling (and whether it is the true ending). */
   private ending: { t: number; trueEnding: boolean } | null = null
+  /** The true ending has been seen on this device. */
+  private trueEnded = false
   private nextId = 1
   private sparks: Spark[] = []
   private floaters: Floater[] = []
@@ -645,11 +657,13 @@ class RescueRally implements ArcadeGameInstance {
       this.reached = offer.reached
       this.chips = new Set(offer.chips)
       this.cleared = offer.cleared
-      this.savePoint = offer
+      this.trueEnded = offer.trueEnding
     }
     this.startWave(1)
+    // Until the player chooses, the stored rally stays exactly as it was.
+    if (offer) this.savePoint = offer
     if (!this.demo) this.openMenu()
-    if (offer && (offer.district > 0 || offer.loop > 1)) {
+    if (offer && (offer.district > 0 || offer.loop > 1 || offer.reunion)) {
       // Until the player chooses, the stored rally stays as it was.
       this.offer = offer
       this.menu = null
@@ -1217,12 +1231,17 @@ class RescueRally implements ArcadeGameInstance {
   // --- saves, the opening card and the Shelter ------------------------------------------
 
   private writeSave() {
+    this.checkpoint(this.district, this.loop, false)
+  }
+
+  /** The campaign's checkpoint: where Continue picks up, with everything earned so far. */
+  private checkpoint(district: number, loop: number, reunion: boolean) {
     if (this.demo) return
     if (this.mode !== 'campaign') return this.keepRecords()
     this.savePoint = {
       v: 3,
-      district: this.district,
-      loop: this.loop,
+      district,
+      loop,
       score: this.score,
       lives: Math.min(MAX_LIVES, Math.max(1, this.lives)),
       hearts: Math.min(9999, this.hearts),
@@ -1235,6 +1254,8 @@ class RescueRally implements ArcadeGameInstance {
       medals: { ...this.medals },
       times: { ...this.times },
       reached: this.reached,
+      reunion,
+      trueEnding: this.trueEnded,
     }
   }
 
@@ -1261,6 +1282,8 @@ class RescueRally implements ArcadeGameInstance {
       medals: {},
       times: {},
       reached: 0,
+      reunion: false,
+      trueEnding: false,
     }
     const chips = [...new Set([...base.chips, ...this.chips])]
     this.savePoint = {
@@ -1268,6 +1291,7 @@ class RescueRally implements ArcadeGameInstance {
       friends: Math.max(base.friends, Math.min(1_000_000, this.friends)),
       chips,
       cleared: base.cleared || this.cleared,
+      trueEnding: base.trueEnding || this.trueEnded,
       medals: { ...this.medals },
       times: { ...this.times },
       reached: Math.max(base.reached, this.reached),
@@ -1350,7 +1374,14 @@ class RescueRally implements ArcadeGameInstance {
       this.cleared = offer.cleared
       for (const h of this.heroes) h.squad = offer.upgrades.squad
       this.bought = { ...offer.bought }
-      this.startWave(districtStart(offer.district, offer.loop))
+      if (offer.reunion) {
+        // Straight back to the roof: the Glitch Core is already beaten.
+        this.level =
+          districtStart(offer.district, offer.loop) + WAVES_PER_DISTRICT - 1
+        this.district = offer.district
+        this.index = WAVES_PER_DISTRICT - 1
+        this.setupWave(REUNION, offer.loop)
+      } else this.startWave(districtStart(offer.district, offer.loop))
     } else {
       // A new rally: the rally's place is reset, the menu picks the mode.
       this.savePoint = {
@@ -1664,6 +1695,9 @@ class RescueRally implements ArcadeGameInstance {
       if (this.district === DISTRICTS.length - 1) {
         // The Glitch Core is beaten. With every golden chip, the Reunion first.
         if (this.chips.size >= DISTRICTS.length) {
+          // The Core is beaten (the city is cleared), and a quit from here comes back to the roof.
+          this.cleared = true
+          this.checkpoint(this.district, this.loop, true)
           this.setupWave(REUNION, this.loop)
           return
         }
@@ -1693,6 +1727,9 @@ class RescueRally implements ArcadeGameInstance {
     this.bolts = []
     this.shots = []
     this.addScore(trueEnding ? 250_000 : 100_000, CX, CY, RAMPS.gold[4])
+    if (trueEnding) this.trueEnded = true
+    // Saved now, past the credits: a quit while they roll comes back to the next time round.
+    this.checkpoint(0, this.loop + 1, false)
     this.sound.play('extra')
   }
 
@@ -3103,7 +3140,9 @@ class RescueRally implements ArcadeGameInstance {
     })
     const d = DISTRICTS[offer.district]!
     const options = [
-      `CONTINUE: DISTRICT ${offer.district + 1} ${d.name}${offer.loop > 1 ? ` (LOOP ${offer.loop})` : ''}`,
+      offer.reunion
+        ? 'CONTINUE: THE REUNION'
+        : `CONTINUE: DISTRICT ${offer.district + 1} ${d.name}${offer.loop > 1 ? ` (LOOP ${offer.loop})` : ''}`,
       'START A NEW RALLY',
     ]
     options.forEach((text, i) => {

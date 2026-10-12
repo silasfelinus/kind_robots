@@ -41,6 +41,8 @@ const SIZE = 0.18
 /** Where his snout tip sits on the card, from its centre (fraction of the side, down the table). */
 const SNOUT = 0.47
 const WATER = 0x3fbfb0
+/** The card's tint: the art's own colours, a shade down for the tone mapping. */
+const SHADE = 0xc8c8c8
 
 /** The clips each phase plays, in order; the last one loops or holds. */
 const PLAYS: Record<string, readonly string[]> = {
@@ -93,16 +95,13 @@ export class CrocToy {
       texture.repeat.set(1 / this.sprite.cols, 1 / this.sprite.rows)
       this.texture = texture
     }
+    // Unlit: the art carries its own inked light and shade, which the
+    // table's lamps would only wash out; a touch under white so the
+    // tone mapping keeps his colours where the artist put them.
     const art = track(
-      new THREE.MeshStandardMaterial({
+      new THREE.MeshBasicMaterial({
         map: this.texture,
-        // Lit by the table's lights, and glowing a little of itself, as a
-        // backlit translite does, so he reads in the dark between flashes.
-        emissive: 0xffffff,
-        emissiveMap: this.texture,
-        emissiveIntensity: 0.45,
-        roughness: 0.85,
-        metalness: 0,
+        color: SHADE,
         transparent: true,
         alphaTest: 0.02,
         depthWrite: false,

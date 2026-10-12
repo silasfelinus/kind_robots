@@ -22,6 +22,13 @@ import type { ArcadeSoundName } from '../sound'
 import type { GuardianKind } from './floors'
 import type { GlitchKind, Prey } from './roster'
 import {
+  enterFinalePhase,
+  finaleZones,
+  recallNext,
+  renderFinale,
+  updateFinale,
+} from './finale'
+import {
   enterHallPhase,
   hallZones,
   renderHall,
@@ -77,6 +84,10 @@ export type Guardian = {
   drops: Array<{ x: number; y: number; t: number }>
   windSide: number
   bolt: { x: number; y: number; t: number; tell: number }
+  /** The Old Mainframe: the Guardian she is recalling, how many she has, and her boot bar. */
+  echo: Guardian | null
+  recalled: number
+  boot: number
 }
 
 /** What a Guardian may sense and do: the game implements it. */
@@ -103,6 +114,8 @@ export interface BossWorld {
   /** A gentle push (the wind), stopped by racks. */
   push(p: Prey, dx: number, dy: number): void
   seats(): number
+  /** Take the Hug Token off the floor (an echo of the Cloud Bank ends). */
+  clearToken(): void
 }
 
 /** A hit zone: where a spark can land on the Guardian. */
@@ -129,6 +142,7 @@ const PHASE_HITS: Record<GuardianKind, readonly [number, number, number]> = {
   reels: [32, 22, 16],
   attract: [44, 40, 1],
   bank: [22, 22, 3],
+  mainframe: [1, 70, 1],
 }
 
 export function newGuardian(
@@ -164,8 +178,15 @@ export function newGuardian(
     drops: [],
     windSide: 1,
     bolt: { x: 0, y: 0, t: 0, tell: 0 },
+    echo: null,
+    recalled: 0,
+    boot: 0,
   }
   g.hp = g.phaseHp
+  if (kind === 'mainframe') {
+    recallNext(g, w, (k) => newGuardian(k, w, seats))
+    return g
+  }
   if (kind === 'attract' || kind === 'bank') setupHall(g, w)
   else if (kind === 'sorter') {
     g.rows = [a.y0 + 3, a.y0 + 6, a.y0 + 9]
@@ -211,6 +232,8 @@ export function sorterAt(w: BossWorld) {
 /** Where sparks can land this tick. */
 export function bossZones(g: Guardian, w: BossWorld): BossZone[] {
   if (g.done) return []
+  if (g.kind === 'mainframe')
+    return g.phase === 1 && g.echo ? bossZones(g.echo, w) : finaleZones(g, w)
   if (g.kind === 'attract' || g.kind === 'bank') return hallZones(g, w)
   if (g.kind === 'sorter') {
     const s = sorterAt(w)
@@ -230,6 +253,18 @@ export function hitBoss(g: Guardian, w: BossWorld, id: number, damage: number) {
   if (g.done) return
   g.flash = 6
   w.play('blip')
+  if (g.kind === 'mainframe' && g.phase === 1 && g.echo) {
+    // A recalled Guardian: half strength, and only its first phase.
+    const echo = g.echo
+    echo.flash = 6
+    for (const r of echo.reels) r.flash = 6
+    echo.hp -= damage
+    if (echo.hp > 0) return
+    g.recalled++
+    w.play('boom')
+    if (!recallNext(g, w, (k) => newGuardian(k, w, w.seats()))) nextPhase(g, w)
+    return
+  }
   if (g.kind !== 'reels' || g.phase === 1) {
     g.hp -= damage
     if (g.kind === 'reels') for (const r of g.reels) r.flash = 6
@@ -274,6 +309,15 @@ function nextPhase(g: Guardian, w: BossWorld) {
   g.t = 0
   g.flash = 20
   w.play('boom')
+  if (g.kind === 'mainframe') {
+    enterFinalePhase(g, w)
+    w.phase(
+      g.phase === 2
+        ? 'DEFRAGMENTING... MIND THE BLOCKS!'
+        : 'REBOOT ME! HOLD ALL FOUR TERMINALS!',
+    )
+    return
+  }
   if (g.kind === 'attract' || g.kind === 'bank') {
     enterHallPhase(g, w)
     w.phase(
@@ -319,6 +363,11 @@ export function updateGuardian(g: Guardian, w: BossWorld) {
   for (let i = 0; i < g.caught.length; i++) if (g.caught[i]! > 0) g.caught[i]!--
   if (g.done) return
   g.t++
+  if (g.kind === 'mainframe') {
+    if (g.phase === 1 && g.echo) updateGuardian(g.echo, w)
+    else if (updateFinale(g, w)) nextPhase(g, w)
+    return
+  }
   if (g.kind === 'attract' || g.kind === 'bank') {
     const continued = updateHall(g, w)
     if (continued || (g.kind === 'bank' && g.phase === 3 && g.hp <= 0))
@@ -491,6 +540,16 @@ export function renderGuardian(
   g: Guardian,
   w: BossWorld,
 ) {
+  if (g.kind === 'mainframe') {
+    renderFinale(c, g, w)
+    if (g.echo) {
+      c.save()
+      c.globalAlpha = 0.75
+      renderGuardian(c, g.echo, w)
+      c.restore()
+    }
+    return
+  }
   if (g.kind === 'attract' || g.kind === 'bank') renderHall(c, g, w)
   else if (g.kind === 'sorter') renderSorter(c, g, w)
   else renderReels(c, g)

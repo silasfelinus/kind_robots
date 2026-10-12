@@ -125,6 +125,11 @@ export type ArcadeGameOptions = {
    * Untrusted: the game validates it and offers to continue or ignores it.
    */
   resume?: unknown
+  /**
+   * The player asked for a still camera (pinball, zuzu-pinball/t-012): no
+   * camera sweeps, and a cut instead of a pan when the view must change.
+   */
+  stillCamera?: boolean
 }
 
 /**
@@ -185,6 +190,8 @@ export interface ArcadeWebGLGameInstance {
   render(): void
   /** Release every GPU, physics and audio resource; safe to call twice. */
   dispose(): void
+  /** Change the still-camera choice mid-game (ArcadeGameOptions.stillCamera). */
+  setStillCamera?(still: boolean): void
 }
 
 export type ArcadePlayableInstance =

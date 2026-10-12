@@ -194,6 +194,9 @@ jobs:
       - name: Zuzu Pinball camera sweeps and still camera
         run: npm run test:zuzu-pinball-camera
 
+      - name: Zuzu Pinball insert light-map editor
+        run: npm run test:zuzu-pinball-light-map
+
       - name: Zuzu gamebook branching and combat
         run: npm run test:zuzu-gamebook
 

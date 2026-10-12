@@ -92,7 +92,10 @@ const stage1 = STAGE_1_ACTS[0]!
 const beginning = stage1.ledges.filter((ledge) => ledge.x < 1370)
 const middle = beginning.filter((ledge) => ledge.y >= 160 && ledge.y <= 176)
 const upper = beginning.filter((ledge) => ledge.y <= 140)
-assert.ok(middle.length >= 6, 'a continuous middle path starts before the first foe')
+assert.ok(
+  middle.length >= 6,
+  'a continuous middle path starts before the first foe',
+)
 assert.ok(upper.length >= 6, 'a distinct upper path runs above the awnings')
 assert.ok(
   stage1.ground.some(([start, end]) => start <= 400 && end > 400) &&
@@ -124,11 +127,19 @@ for (const button of [4, 6, 2]) {
   const frame = readPinballPad(controller(button))
   assert.equal(frame.left, true, 'left shoulder, trigger or face X fires left')
   assert.equal(frame.right, false, 'left flipper never energizes right')
-  assert.equal(frame.a, false, 'left flipper never triggers generic both action')
+  assert.equal(
+    frame.a,
+    false,
+    'left flipper never triggers generic both action',
+  )
 }
 for (const button of [5, 7, 1]) {
   const frame = readPinballPad(controller(button))
-  assert.equal(frame.right, true, 'right shoulder, trigger or face B fires right')
+  assert.equal(
+    frame.right,
+    true,
+    'right shoulder, trigger or face B fires right',
+  )
   assert.equal(frame.left, false, 'right flipper never energizes left')
 }
 assert.equal(readPinballPad(controller(null, [0, 0.9, 0, 0])).down, true)

@@ -31,7 +31,7 @@ export function pitchProjectSlug(pitch: ConductorPitch): string {
 }
 
 export function isImplementationTask(task: ConductorTask): boolean {
-  return !/^(confirm scope|scope approval|approve scope)\b/i.test(task.title.trim())
+  return !/^(confirm scope|scope approval|approve scope|write (the )?design brief|draft (the )?design brief|create (the )?design brief)\b/i.test(task.title.trim())
 }
 
 export function approvedDailyPitchProgress(

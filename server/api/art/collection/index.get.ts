@@ -119,6 +119,7 @@ export default defineEventHandler(async (event) => {
     )
     const userId = queryPositiveInt(query.userId, null)
     const collectionId = queryPositiveInt(query.id, null)
+    const collectionSlug = firstQueryValue(query.slug).trim()
 
     /*
      * DISPLAY filters, layered on top of the ACCESS rules below -- they can
@@ -228,6 +229,7 @@ export default defineEventHandler(async (event) => {
         {
           ...(userId ? { userId } : {}),
           ...(collectionId ? { id: collectionId } : {}),
+          ...(collectionSlug ? { slug: collectionSlug } : {}),
         },
         buildArtCollectionWhere(access),
         // Narrowing the COLLECTION list too, not just the images inside it, is

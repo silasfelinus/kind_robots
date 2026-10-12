@@ -6,8 +6,9 @@
 // pass 1 (t-003) added the dot-matrix display, the lit and printed playfield,
 // chrome rails and wireform ramps, a second ramp, the orbits, the skill shot
 // and combos.
-// Left and right work the flippers, A works both, hold Down to pull the
-// plunger and let go to launch (A launches too), and Up nudges the table.
+// Left and right independently work the flippers (gamepad shoulders or triggers).
+// Hold Down or pull the pad stick back and release to launch; A launches directly.
+// Up nudges the table.
 //
 // Rules: roll through the N-E-T lanes at the top to raise the bonus
 // multiplier (the flippers rotate the lit lanes). The blinking lane is the

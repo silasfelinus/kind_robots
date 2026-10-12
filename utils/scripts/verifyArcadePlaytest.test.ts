@@ -106,7 +106,7 @@ for (const lane of [middle, upper]) {
     assert.ok(gap <= 30, 'each upper path has jumps within horizontal reach')
   }
 }
-assert.ok(FOES.hyena.hp >= 3, 'bone coyotes survive at least two kunai hits')
+assert.ok(FOES.hyena.hp >= 4, 'bone coyotes survive even a heavy katana hit')
 assert.ok(DROP_SPRITES[0]!.width >= 7)
 assert.ok(DROP_SPRITES[0]!.height >= 9)
 

@@ -110,6 +110,7 @@ import {
   type FightButton,
 } from '~/utils/zuzuShowdown/input'
 import { createMatch, step } from '~/utils/zuzuShowdown/sim'
+import { showtimeFighter } from '~/utils/zuzuShowdown/combatTuning'
 import {
   VIEW_HEIGHT,
   VIEW_WIDTH,
@@ -479,7 +480,10 @@ function loadArt() {
 const store = useZuzuShowdownStore()
 
 function currentRoster(): [FighterData, FighterData] {
-  return [findFighter(store.fighters[0]), findFighter(store.fighters[1])]
+  return [
+    showtimeFighter(findFighter(store.fighters[0])),
+    showtimeFighter(findFighter(store.fighters[1])),
+  ]
 }
 
 let roster = currentRoster()

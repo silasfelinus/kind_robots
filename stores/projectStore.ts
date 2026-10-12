@@ -319,7 +319,9 @@ export const useProjectStore = defineStore('projectStore', () => {
         },
       )
       if (!response.success || !response.data) {
-        throw new Error(response.message || 'Failed to update Conductor priority.')
+        throw new Error(
+          response.message || 'Failed to update Conductor priority.',
+        )
       }
       return replaceProject(response.data)
     } finally {

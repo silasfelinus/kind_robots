@@ -120,7 +120,12 @@
         <button
           type="button"
           class="btn btn-secondary btn-sm"
-          :disabled="!manageSelected || managing || !manageTitle.trim() || manageTitle.trim() === manageSelected.title"
+          :disabled="
+            !manageSelected ||
+            managing ||
+            !manageTitle.trim() ||
+            manageTitle.trim() === manageSelected.title
+          "
           @click="saveManagedTitle"
         >
           Save title
@@ -132,7 +137,11 @@
             class="kr-select-sm w-full"
             :disabled="!manageSelected || managing"
           >
-            <option v-for="status in editableStatuses" :key="status" :value="status">
+            <option
+              v-for="status in editableStatuses"
+              :key="status"
+              :value="status"
+            >
               {{ statusLabel(status) }}
             </option>
           </select>
@@ -140,7 +149,11 @@
         <button
           type="button"
           class="btn btn-primary btn-sm"
-          :disabled="!manageSelected || managing || manageSelected.dbStatus === manageStatus"
+          :disabled="
+            !manageSelected ||
+            managing ||
+            manageSelected.dbStatus === manageStatus
+          "
           @click="saveManagedStatus"
         >
           <span v-if="managing" class="kr-spinner-xs" />
@@ -481,7 +494,13 @@ function onSlugBlur() {
 const loading = computed(() => projects.loading || conductor.pending)
 const error = computed(() => projects.error || conductor.error || '')
 const conductorBySlug = computed(
-  () => new Map((conductor.data?.projects ?? []).map((project) => [project.slug, project])),
+  () =>
+    new Map(
+      (conductor.data?.projects ?? []).map((project) => [
+        project.slug,
+        project,
+      ]),
+    ),
 )
 const slugFor = (record: ProjectWithRelations) =>
   record.conductorSlug || record.slug || `project-${record.id}`
@@ -623,7 +642,9 @@ const databaseOnly = computed(() =>
 )
 const conductorOnly = computed(() => {
   const slugs = new Set(allItems.value.map((item) => item.slug))
-  return (conductor.data?.projects ?? []).filter((project) => !slugs.has(project.slug))
+  return (conductor.data?.projects ?? []).filter(
+    (project) => !slugs.has(project.slug),
+  )
 })
 const syncIssueCount = computed(
   () =>
@@ -731,10 +752,12 @@ async function saveManagedTitle(): Promise<void> {
   try {
     await projects.updateProject(selected.id, { title })
     manageTitle.value = title
-    manageMessage.value = 'Project title saved in Kind Robots. Conductor slug and roadmap unchanged.'
+    manageMessage.value =
+      'Project title saved in Kind Robots. Conductor slug and roadmap unchanged.'
   } catch (cause) {
     manageError.value = true
-    manageMessage.value = cause instanceof Error ? cause.message : 'Title update failed.'
+    manageMessage.value =
+      cause instanceof Error ? cause.message : 'Title update failed.'
   } finally {
     managing.value = false
   }
@@ -742,12 +765,15 @@ async function saveManagedTitle(): Promise<void> {
 
 async function saveManagedStatus(): Promise<void> {
   const selected = manageSelected.value
-  if (!selected || managing.value || selected.dbStatus === manageStatus.value) return
+  if (!selected || managing.value || selected.dbStatus === manageStatus.value)
+    return
   managing.value = true
   manageMessage.value = ''
   manageError.value = false
   try {
-    const record = projects.projects.find((project) => project.id === selected.id)
+    const record = projects.projects.find(
+      (project) => project.id === selected.id,
+    )
     if (manageStatus.value === 'ARCHIVED') {
       await projects.archiveProject(selected.id)
     } else {
@@ -759,7 +785,8 @@ async function saveManagedStatus(): Promise<void> {
       : 'Saved in Kind Robots. This project is not linked to Conductor.'
   } catch (cause) {
     manageError.value = true
-    manageMessage.value = cause instanceof Error ? cause.message : 'Status update failed.'
+    manageMessage.value =
+      cause instanceof Error ? cause.message : 'Status update failed.'
   } finally {
     managing.value = false
   }
@@ -773,18 +800,23 @@ async function reconcile(item: Item): Promise<void> {
   try {
     const record = projects.projects.find((project) => project.id === item.id)
     if (!record?.conductorSlug) {
-      throw new Error('This project is not linked to Conductor; use Manage projects for local-only projects.')
+      throw new Error(
+        'This project is not linked to Conductor; use Manage projects for local-only projects.',
+      )
     }
     await projects.updateProject(item.id, {
       status: item.dbStatus,
-      ...(item.dbPriority !== item.priority ? { priority: item.dbPriority } : {}),
+      ...(item.dbPriority !== item.priority
+        ? { priority: item.dbPriority }
+        : {}),
     })
     await load(true)
     manageMessage.value = `Sent ${item.title} to Conductor. The projection may take a moment to catch up.`
     showSync.value = true
   } catch (cause) {
     manageError.value = true
-    manageMessage.value = cause instanceof Error ? cause.message : 'Reconciliation failed.'
+    manageMessage.value =
+      cause instanceof Error ? cause.message : 'Reconciliation failed.'
     manageOpen.value = true
   } finally {
     managing.value = false

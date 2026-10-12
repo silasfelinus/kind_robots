@@ -116,7 +116,7 @@ for (const seed of [6, 7, 8]) {
       [-0.15 + i * 0.06, table.physical.ballRadiusM + 0.0005, -0.62],
       [0, 0, 0.3],
     )
-  const BOUNDS = { x: [-0.32, 0.36], z: [-1.6, 0.25] }
+  const BOUNDS = { x: [-0.32, 0.36], z: [-1.6, 0.25] } as const
   const ticks = 60 * 60
   const cost: number[] = []
   let most = 0

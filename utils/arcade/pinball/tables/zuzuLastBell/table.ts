@@ -1109,6 +1109,12 @@ export const ZUZU_LAST_BELL_GREYBOX: TableDef = {
   drainZ: BOTTOM - 0.03,
   balls: 3,
   dmd: { at: [0.02, 0.2, -1.04], width: 0.3, occluder: 'backbox' },
+  attract: {
+    title: 'ZUZU',
+    kicker: 'THE',
+    subtitle: 'LAST BELL',
+    picture: 'jaws',
+  },
   zones: [
     {
       id: 'sub-table',

@@ -131,6 +131,7 @@
     "test:zuzu-pinball-rules": "tsx utils/scripts/verifyZuzuPinballRules.test.ts",
     "test:zuzu-pinball-croc": "CROC_ROUNDS=1000 tsx utils/scripts/verifyZuzuPinballCroc.test.ts",
     "test:zuzu-pinball-no-stuck": "tsx utils/scripts/verifyZuzuPinballNoStuck.test.ts",
+    "test:zuzu-pinball-dmd-sound": "tsx utils/scripts/verifyZuzuPinballDmdSound.test.ts",
     "test:zuzu-pinball-multiball": "tsx utils/scripts/verifyZuzuPinballMultiball.test.ts",
     "test:zuzu-pinball-abbey": "tsx utils/scripts/verifyZuzuPinballAbbey.test.ts",
     "test:zuzu-pinball-crypt": "tsx utils/scripts/verifyZuzuPinballCrypt.test.ts",

@@ -29,24 +29,42 @@
               {{ record.pitch.title }}
             </h2>
             <span class="badge badge-outline h-auto whitespace-normal py-1">{{
-              user.isAdmin ? labels[record.stage] : (mayVisitPitchFrontend(record, false) ? 'Ready to play' : 'Coming soon')
+              user.isAdmin
+                ? labels[record.stage]
+                : mayVisitPitchFrontend(record, false)
+                  ? 'Ready to play'
+                  : 'Coming soon'
             }}</span>
             <p class="max-w-3xl text-sm leading-relaxed">
               {{ record.pitch.idea }}
             </p>
           </div>
         </header>
-        <section v-if="!user.isAdmin" class="kr-panel space-y-4 p-6 text-center">
+        <section
+          v-if="!user.isAdmin"
+          class="kr-panel space-y-4 p-6 text-center"
+        >
           <h3 class="font-serif text-2xl font-black">
-            {{ mayVisitPitchFrontend(record, false) ? 'Ready to play' : 'Coming soon' }}
+            {{
+              mayVisitPitchFrontend(record, false)
+                ? 'Ready to play'
+                : 'Coming soon'
+            }}
           </h3>
           <p class="text-sm text-base-content/70">
-            {{ mayVisitPitchFrontend(record, false)
-              ? 'This experience has been approved for public play.'
-              : 'This Daily Dream project is in development. Check back for its public release.' }}
+            {{
+              mayVisitPitchFrontend(record, false)
+                ? 'This experience has been approved for public play.'
+                : 'This Daily Dream project is in development. Check back for its public release.'
+            }}
           </p>
-          <a v-if="mayVisitPitchFrontend(record, false)" class="btn btn-primary" :href="record.pageUrl || undefined">
-            Open experience <Icon name="kind-icon:external-link" class="size-4" />
+          <a
+            v-if="mayVisitPitchFrontend(record, false)"
+            class="btn btn-primary"
+            :href="record.pageUrl || undefined"
+          >
+            Open experience
+            <Icon name="kind-icon:external-link" class="size-4" />
           </a>
         </section>
         <div v-else class="grid gap-4 lg:grid-cols-[minmax(0,1fr)_290px]">

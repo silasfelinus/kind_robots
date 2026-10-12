@@ -15,7 +15,10 @@ export const PINKWAKE = {
   aftermathFrames: 390,
 } as const
 
-export function pinkwakeStage(tick: number, defeatedAt: number | null): PinkwakeStage {
+export function pinkwakeStage(
+  tick: number,
+  defeatedAt: number | null,
+): PinkwakeStage {
   if (defeatedAt !== null) return 'aftermath'
   if (tick < PINKWAKE.openingEnds) return 'opening'
   if (tick < PINKWAKE.turnStarts) return 'waves'
@@ -46,19 +49,54 @@ export function pinkwakeDialogue(
   const partner = pilots[pilots.length - 1]!
   const lines: Record<PinkwakeSceneId, PinkwakeDialogue[]> = {
     'A01.OPEN': [
-      { speaker: 'Lilt-7', text: 'Pinkwake Estuary ahead. Rescue beacons are answering with weapons fire.' },
-      { speaker: lead, text: 'Then we fly close enough to learn why. Keep the civilians behind us.' },
-      { speaker: partner === lead ? 'Lilt-7' : partner, text: partner === lead ? 'I will count safe passages. You provide the improbable part.' : 'I vote we ask politely, with our engines running.' },
+      {
+        speaker: 'Lilt-7',
+        text: 'Pinkwake Estuary ahead. Rescue beacons are answering with weapons fire.',
+      },
+      {
+        speaker: lead,
+        text: 'Then we fly close enough to learn why. Keep the civilians behind us.',
+      },
+      {
+        speaker: partner === lead ? 'Lilt-7' : partner,
+        text:
+          partner === lead
+            ? 'I will count safe passages. You provide the improbable part.'
+            : 'I vote we ask politely, with our engines running.',
+      },
     ],
     'A01.TURN': [
-      { speaker: 'Lilt-7', text: 'Hold fire a moment. The Pearl Seahorse carries a living escape pod.' },
-      { speaker: partner, text: 'That changes everything. Target its weapons, not the passenger.' },
-      { speaker: lead, text: rescuedStation ? 'Our station survivors can guide that pod out. We bring it home.' : 'We missed the station beacon. We can still bring this pod home.' },
+      {
+        speaker: 'Lilt-7',
+        text: 'Hold fire a moment. The Pearl Seahorse carries a living escape pod.',
+      },
+      {
+        speaker: partner,
+        text: 'That changes everything. Target its weapons, not the passenger.',
+      },
+      {
+        speaker: lead,
+        text: rescuedStation
+          ? 'Our station survivors can guide that pod out. We bring it home.'
+          : 'We missed the station beacon. We can still bring this pod home.',
+      },
     ],
     'A01.AFTER': [
-      { speaker: 'Lilt-7', text: 'The pod is free. Its distress signal was hidden beneath a command pulse.' },
-      { speaker: lead, text: 'So the fleet is trapped, not invading. We rescue them one ship at a time.' },
-      { speaker: partner === lead ? 'Lilt-7' : partner, text: partner === lead ? 'Plotting the Moonjelly Fields. I believe our mission just changed.' : 'Then onward. And nobody gets left in the wake.' },
+      {
+        speaker: 'Lilt-7',
+        text: 'The pod is free. Its distress signal was hidden beneath a command pulse.',
+      },
+      {
+        speaker: lead,
+        text: 'So the fleet is trapped, not invading. We rescue them one ship at a time.',
+      },
+      {
+        speaker: partner === lead ? 'Lilt-7' : partner,
+        text:
+          partner === lead
+            ? 'Plotting the Moonjelly Fields. I believe our mission just changed.'
+            : 'Then onward. And nobody gets left in the wake.',
+      },
     ],
   }
   const index = Math.floor(elapsed / PINKWAKE.sceneLineFrames)
@@ -71,7 +109,9 @@ export function pinkwakeScene(
 ): { id: PinkwakeSceneId; elapsed: number } | null {
   if (defeatedAt !== null) {
     const elapsed = tick - defeatedAt
-    return elapsed < PINKWAKE.aftermathFrames ? { id: 'A01.AFTER', elapsed } : null
+    return elapsed < PINKWAKE.aftermathFrames
+      ? { id: 'A01.AFTER', elapsed }
+      : null
   }
   if (tick < PINKWAKE.openingEnds) return { id: 'A01.OPEN', elapsed: tick }
   if (tick >= PINKWAKE.turnStarts && tick < PINKWAKE.bossStarts) {

@@ -1,0 +1,37 @@
+name: Temporary Approved Pitch Prettier Export
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - '.github/workflows/approved-pitch-prettier-export.yml'
+      - 'pages/admin/daily-pitches/**'
+      - 'utils/approvedPitchProgress.ts'
+      - 'utils/scripts/verifyApprovedPitchProgress.test.ts'
+
+permissions:
+  contents: read
+
+jobs:
+  export:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+      - name: Install dependencies
+        run: npm ci
+        env:
+          CYPRESS_INSTALL_BINARY: '0'
+      - name: Format only new files
+        run: npx prettier --write 'pages/admin/daily-pitches/index.vue' 'pages/admin/daily-pitches/[slug].vue' 'utils/approvedPitchProgress.ts' 'utils/scripts/verifyApprovedPitchProgress.test.ts'
+      - uses: actions/upload-artifact@v4
+        with:
+          name: approved-pitch-prettier-output
+          path: |
+            pages/admin/daily-pitches/index.vue
+            pages/admin/daily-pitches/[slug].vue
+            utils/approvedPitchProgress.ts
+            utils/scripts/verifyApprovedPitchProgress.test.ts

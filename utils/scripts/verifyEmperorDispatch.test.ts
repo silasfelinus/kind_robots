@@ -112,7 +112,14 @@ assert.throws(
   /unavailable/,
 )
 assert.throws(
-  () => dispatchFollowers(sent, incident('third', sure), ['F002', 'F002'], 0, 'stand-ground'),
+  () =>
+    dispatchFollowers(
+      sent,
+      incident('third', sure),
+      ['F002', 'F002'],
+      0,
+      'stand-ground',
+    ),
   /distinct/,
 )
 
@@ -129,30 +136,36 @@ assert.equal(availableFollowers(home).length, 3)
 assert.equal(home.log.filter((event) => event.type === 'resolved').length, 1)
 assert.equal(home.log.filter((event) => event.type === 'returned').length, 1)
 assert.equal(advanceClock(sent, 15).log.length, home.log.length)
-assert.deepEqual(advanceClock(sent, 15), home, 'step-wise and full advance replay match')
-
-const sentWisp = dispatchFollowers(
-  initial,
-  second,
-  ['F003'],
-  10,
-  'alone',
+assert.deepEqual(
+  advanceClock(sent, 15),
+  home,
+  'step-wise and full advance replay match',
 )
+
+const sentWisp = dispatchFollowers(initial, second, ['F003'], 10, 'alone')
 const resolved = advanceClock(sentWisp, 14)
 assert.equal(resolved.dispatches[0]?.outcome?.success, false)
 assert.equal(resolved.dispatches[0]?.outcome?.lostHorde, 4)
 assert.equal(resolved.horde, 56)
 assert.equal(resolved.prosperity, 43)
-assert.equal(resolved.popularity, 58, 'moral choice independent of skill failure')
+assert.equal(
+  resolved.popularity,
+  58,
+  'moral choice independent of skill failure',
+)
 assert.equal(resolved.followers[2]?.injuredUntilDay, 4)
-assert.equal(resolved.followers[2]?.dead, undefined, 'failure cannot randomly kill')
+assert.equal(
+  resolved.followers[2]?.dead,
+  undefined,
+  'failure cannot randomly kill',
+)
 assert.equal(availableHorde(resolved), 50, 'survivors are still returning')
 const afterReturn = advanceClock(resolved, 19)
 assert.equal(availableHorde(afterReturn), 56)
-assert.deepEqual(availableFollowers(afterReturn).map((follower) => follower.id), [
-  'F001',
-  'F002',
-])
+assert.deepEqual(
+  availableFollowers(afterReturn).map((follower) => follower.id),
+  ['F001', 'F002'],
+)
 assert.equal(availableFollowers(advanceClock(afterReturn, 72)).length, 3)
 assert.equal(advanceClock(afterReturn, 48).followers[2]?.injuredUntilDay, 4)
 assert.deepEqual(
@@ -163,24 +176,54 @@ assert.deepEqual(
 const twoMissions = dispatchFollowers(sent, second, ['F003'], 10, 'alone')
 assert.equal(availableHorde(twoMissions), 30)
 assert.throws(
-  () => dispatchFollowers(twoMissions, incident('fourth', sure), ['F002'], 31, 'stand-ground'),
+  () =>
+    dispatchFollowers(
+      twoMissions,
+      incident('fourth', sure),
+      ['F002'],
+      31,
+      'stand-ground',
+    ),
   /Horde contingent unavailable or outside mission limits/,
 )
 const ignored = neglectIncident(initial, incident('unused', impossible))
 assert.equal(ignored.popularity, 53)
 assert.equal(ignored.ignoredIncidentIds.length, 1)
 assert.equal(ignored.dispatches.length, 0)
-assert.throws(() => neglectIncident(ignored, incident('unused', impossible)), /already answered/)
-
-assert.throws(() => previewDispatch(initial, first, ['missing'], 1, 'stand-ground'), /unavailable/)
 assert.throws(
-  () => previewDispatch(initial, incident('late', sure, { outwardHours: 6 }), ['F001'], 1, 'stand-ground'),
+  () => neglectIncident(ignored, incident('unused', impossible)),
+  /already answered/,
+)
+
+assert.throws(
+  () => previewDispatch(initial, first, ['missing'], 1, 'stand-ground'),
+  /unavailable/,
+)
+assert.throws(
+  () =>
+    previewDispatch(
+      initial,
+      incident('late', sure, { outwardHours: 6 }),
+      ['F001'],
+      1,
+      'stand-ground',
+    ),
   /invalid incident/,
 )
 assert.throws(
-  () => dispatchFollowers(advanceClock(initial, 17), first, ['F001'], 1, 'stand-ground'),
+  () =>
+    dispatchFollowers(
+      advanceClock(initial, 17),
+      first,
+      ['F001'],
+      1,
+      'stand-ground',
+    ),
   /cannot reach incident/,
 )
 assert.throws(() => advanceClock(initial, 6), /rewind/)
-assert.throws(() => createCampaign(1, [followers[0]!, followers[0]!]), /duplicate/)
+assert.throws(
+  () => createCampaign(1, [followers[0]!, followers[0]!]),
+  /duplicate/,
+)
 console.log('Emperor of Dust timed dispatch tests passed')

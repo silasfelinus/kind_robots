@@ -1,10 +1,10 @@
 // /utils/arcade/cableCrawler/components.ts
 //
-// The Mainframe's components (conductor kr-arcade/t-064, spec: conductor
+// The Mainframe's components (conductor kr-arcade/t-064 on, spec: conductor
 // projects/kr-arcade/depth-pass/CABINETS.md section 8). Each component is a world: five authored
 // mazes, a Screensaver bonus board after the third, and a boss board, with its own spark set,
-// board art, music and pace. The campaign walks them in order; content is data here, never a
-// branch in the update loop.
+// board art, music and pace, and the Workbench after it. The campaign walks them in order;
+// content is data here, never a branch in the update loop.
 
 import type { MusicLoop } from '../sound'
 import { RAMPS, type Ramp } from '../snes'
@@ -14,18 +14,30 @@ import {
   STARFIELD,
   type MazeLayout,
 } from './mazes'
-import { BOSS_MUSIC, POWER_STRIP_MUSIC, SCREENSAVER_MUSIC } from './music'
+import { BREEZE, COOLING_FAN_MAZES, FAN_ROOM } from './mazesFan'
+import { DEFRAG, RAM_ROWS_MAZES, THE_HEAP } from './mazesRam'
+import {
+  BOSS_MUSIC,
+  COOLING_FAN_MUSIC,
+  POWER_STRIP_MUSIC,
+  RAM_ROWS_MUSIC,
+  SCREENSAVER_MUSIC,
+  WORKBENCH_MUSIC,
+} from './music'
 
-/** The spark sprite set a component uses. */
-export type SparkSet = 'bolt'
+/** The spark sprite set a component uses: bolts, bits or snowflakes. */
+export type SparkSet = 'bolt' | 'bit' | 'flake'
 /** The Screensaver bonus board a component plays after its third maze. */
-export type ScreensaverKind = 'starfield'
+export type ScreensaverKind = 'starfield' | 'defrag' | 'breeze'
 /** The boss at the end of a component. */
-export type BossKind = 'surge-protector'
+export type BossKind = 'surge-protector' | 'memory-leak' | 'big-whirr'
+/** How a component's wall slabs are dressed: outlet plastic, RAM chips, or cooling fins. */
+export type WallStyle = 'plastic' | 'chips' | 'fins'
 
 export type ComponentLook = {
   /** The wall slabs' ramp. */
   wall: Ramp
+  wallStyle: WallStyle
   /** The board under them, top band to bottom. */
   floor: readonly [string, string, string, string]
   /** Etched traces through the corridors. */
@@ -68,6 +80,7 @@ export const POWER_STRIP: Component = {
   },
   look: {
     wall: RAMPS.cream,
+    wallStyle: 'plastic',
     floor: ['#3a2a3f', '#2d2036', '#21182c', '#170f22'],
     trace: '#7a3d22',
     accent: RAMPS.rust,
@@ -79,17 +92,69 @@ export const POWER_STRIP: Component = {
   music: POWER_STRIP_MUSIC,
 }
 
-/** The components in campaign order. */
-export const COMPONENTS: readonly Component[] = [POWER_STRIP]
+export const RAM_ROWS: Component = {
+  id: 'ram-rows',
+  number: 2,
+  name: 'RAM ROWS',
+  tagline: 'MIND THE CRABS AND DIODES',
+  mazes: RAM_ROWS_MAZES,
+  screensaver: { kind: 'defrag', layout: DEFRAG, name: 'DEFRAG' },
+  boss: { kind: 'memory-leak', layout: THE_HEAP, name: 'THE MEMORY LEAK' },
+  look: {
+    wall: RAMPS.leaf,
+    wallStyle: 'chips',
+    floor: ['#163326', '#11281f', '#0c1f18', '#071510'],
+    trace: '#b88a2a',
+    accent: RAMPS.leaf,
+    spark: 'bit',
+  },
+  step: 7.5,
+  battery: 85,
+  bugStep: 14,
+  music: RAM_ROWS_MUSIC,
+}
 
-export { BOSS_MUSIC, SCREENSAVER_MUSIC }
+export const COOLING_FAN: Component = {
+  id: 'cooling-fan',
+  number: 3,
+  name: 'THE COOLING FAN',
+  tagline: 'RIDE THE AIR, DODGE THE HEAT',
+  mazes: COOLING_FAN_MAZES,
+  screensaver: { kind: 'breeze', layout: BREEZE, name: 'BREEZE' },
+  boss: { kind: 'big-whirr', layout: FAN_ROOM, name: 'THE BIG WHIRR' },
+  look: {
+    wall: RAMPS.sky,
+    wallStyle: 'fins',
+    floor: ['#1a2a44', '#14223a', '#0e1a2f', '#091224'],
+    trace: '#4a6c8f',
+    accent: RAMPS.sky,
+    spark: 'flake',
+  },
+  step: 7,
+  battery: 80,
+  bugStep: 13,
+  music: COOLING_FAN_MUSIC,
+}
+
+/** The components in campaign order. */
+export const COMPONENTS: readonly Component[] = [
+  POWER_STRIP,
+  RAM_ROWS,
+  COOLING_FAN,
+]
+
+export { BOSS_MUSIC, SCREENSAVER_MUSIC, WORKBENCH_MUSIC }
 
 export type Step =
   | { kind: 'maze'; index: number; layout: MazeLayout }
   | { kind: 'screensaver'; layout: MazeLayout }
   | { kind: 'boss'; layout: MazeLayout }
+  | { kind: 'workbench' }
 
-/** A component's boards in order: three mazes, the Screensaver, two mazes, the boss. */
+/**
+ * A component's boards in order: three mazes, the Screensaver, two mazes, the boss, and then
+ * the Workbench before the next component.
+ */
 export function componentSteps(c: Component): Step[] {
   const maze = (index: number): Step => ({
     kind: 'maze',
@@ -104,8 +169,12 @@ export function componentSteps(c: Component): Step[] {
     maze(3),
     maze(4),
     { kind: 'boss', layout: c.boss.layout },
+    { kind: 'workbench' },
   ]
 }
+
+/** The boards a component plays (every step but the Workbench). */
+export const BOARDS_PER_COMPONENT = 7
 
 /** The component at a campaign index, and how many laps of the Mainframe came before it. */
 export function componentAt(index: number): {

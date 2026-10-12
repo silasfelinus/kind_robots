@@ -12,12 +12,13 @@
 // or the battery running flat.
 //
 // The twist is the Plug-In Surge: drive the plug into a socket and the current runs the whole
-// length of the cable, slurping every spark touching its sides as a climbing chain, rebooting
-// every glitch it touches and topping the battery up by the cable's length. The longer the cable
-// you dare lay across the maze, the bigger the sweep.
+// length of the cable, slurping every spark by its sides as a climbing chain, rebooting every
+// glitch it touches and topping the battery up by the cable's length. The longer the cable you
+// dare lay across the maze, the bigger the sweep.
 //
-// Mazes, components, glitches, bosses, art and music live in utils/arcade/cableCrawler/. Arrows
-// steer.
+// Components so far: the Power Strip (t-064), RAM Rows and the Cooling Fan (t-065), with the
+// Workbench between components. Mazes, components, glitches, bosses, pickups, art and music live
+// in utils/arcade/cableCrawler/. Arrows steer; A and B work the Workbench and menus.
 
 import { drawText, measureText } from '../font'
 import {
@@ -33,6 +34,7 @@ import {
   glow,
   hudPanel,
   rgba,
+  shadedOrb,
   vignette,
 } from '../snes'
 import type { MusicLoop } from '../sound'
@@ -43,46 +45,56 @@ import type {
   InputFrame,
 } from '../types'
 import {
+  BLOCK_SPRITE,
   BOARD_H,
   BOARD_W,
   BUG_SPRITES,
   BUNNY_SPRITES,
   BYTE_SPRITES,
-  ELBOWS,
-  ELBOWS_LIT,
+  CABLE_COATS,
+  CRAB_SPRITES,
+  DRIP_SPRITES,
   ELBOWS_SURGE,
+  FLIPPER_SPRITES,
   FUSE_BEETLE,
   type Facing,
   LIFE_SPRITE,
   MIMIC_TWINKLE,
+  PICKUP_SPRITES,
   PLUG,
   REBOOT_SPRITE,
   REEL_SPRITE,
   SOCKET_SPRITE,
   SPARK_SPRITES,
   TILE,
-  TUBE,
-  TUBE_LIT,
   TUBE_SURGE,
   boardCanvas,
   glowStamp,
   paintBoard,
 } from '../cableCrawler/art'
 import {
-  BOSS_HIT_POINTS,
   BOSS_DEFEAT_POINTS,
+  BOSS_HIT_POINTS,
   SHUFFLE_TELL,
+  WHIRR_TELL,
   type Boss,
+  blobRadius,
+  bladeCells,
   bossCell,
+  bossCells,
   bossPhase,
   hitBoss,
   newBoss,
   updateBoss,
+  whirrWalls,
+  wrapSides,
 } from '../cableCrawler/bosses'
 import {
   BOSS_MUSIC,
+  BOARDS_PER_COMPONENT,
   COMPONENTS,
   SCREENSAVER_MUSIC,
+  WORKBENCH_MUSIC,
   type Component,
   type Step,
   componentAt,
@@ -91,31 +103,67 @@ import {
 import {
   BUG_BOOT,
   BUG_DOWN,
+  CRAB_STEP,
   CRACKLE_RANGE,
+  DRIP_STEP,
+  FLIPPER_STEP,
   GLITCH_POINTS,
+  GOO_TICKS,
   MIMIC_SHORT,
+  SNIP_MIN,
+  SOLID_GLITCHES,
+  WANDERERS,
   type Glitch,
+  type GlitchKind,
   bugWay,
+  clawsUp,
   glitchLive,
+  hotRadius,
   newGlitch,
 } from '../cableCrawler/glitches'
 import {
   COLS,
   ROWS,
   type Maze,
+  type Way,
   cellKey,
   cellX,
   cellY,
+  oneWayOk,
   parseMaze,
   ringOf,
+  sectorCells,
+  turnCell,
+  turnSector,
 } from '../cableCrawler/mazes'
+import {
+  CAPACITOR_TICKS,
+  COIL_CELLS,
+  HEATSINK_SLOW,
+  HEATSINK_TICKS,
+  INSULATION_MAX,
+  MAGNET_TICKS,
+  PICKUP_CHANCE,
+  PICKUP_LIFE,
+  PICKUP_NAMES,
+  type Pickup,
+  pickupFor,
+} from '../cableCrawler/pickups'
 import { type CableSave, readCableSave } from '../cableCrawler/save'
 import {
   SOCKET_RECHARGE,
+  SURGE_REACH,
   SURGE_TOPUP_PER_CELL,
   chainPoints,
   surgeSweep,
 } from '../cableCrawler/surge'
+import {
+  BENCH_ITEMS,
+  COPPER,
+  type Kit,
+  buy,
+  cannotBuy,
+} from '../cableCrawler/workbench'
 
 const W = 240
 const H = 224
@@ -133,19 +181,31 @@ const CARD_TICKS = 170
 const STUCK_STEPS = 12
 const EXTRA_FIRST = 40_000
 const EXTRA_EVERY = 100_000
+/** Laps of the Mainframe that raise the score multiplier. */
+const MULT_LAPS = 3
 
 const SPARK_POINTS = 10
 const BYTE_POINTS = 1000
 const BATTERY_POINTS = 10
 const STAR_POINTS = 50
+const BAY_POINTS = 300
 const SAVER_PERFECT = 5000
 const SAVER_TICKS = 60 * 20
 const STAR_EVERY = 26
 const STAR_STEP = 9
+const BREEZE_EVERY = 24
+const BREEZE_MAX = 10
 /** Sparks a boss board keeps topped up, so there is always cable to lay. */
 const BOSS_SPARKS = 14
+/** RAM Rows' refresh beat, and how long the rows flash before it. */
+const REFRESH_EVERY = 60 * 7
+const REFRESH_TELL = 60
+/** How often a fan sector turns, how long it flashes first, and its wait when something is in it. */
+const FAN_EVERY = 60 * 7
+const FAN_TELL = 60
+const FAN_JAM = 30
 
-type Dir = { dx: number; dy: number }
+type Dir = Way
 const UP: Dir = { dx: 0, dy: -1 }
 const DOWN: Dir = { dx: 0, dy: 1 }
 const LEFT: Dir = { dx: -1, dy: 0 }
@@ -165,12 +225,14 @@ type Floater = { x: number; y: number; text: string; life: number }
 /** A bolt of surge current jumping from the cable to something it slurps. */
 type Arc = { from: number; to: number; life: number }
 type Saver = {
+  kind: Component['screensaver']['kind']
   ticks: number
   stars: Array<{ k: number; t: number }>
   spawn: number
   caught: number
   total: number
 }
+type Fan = { hub: number; timer: number }
 
 const px = (k: number) => cellX(k) * TILE + TILE / 2
 const py = (k: number) => cellY(k) * TILE + TILE / 2
@@ -180,6 +242,10 @@ const step = (k: number, d: Dir) => {
   return x < 0 || y < 0 || x >= COLS || y >= ROWS ? -1 : cellKey(x, y)
 }
 const reverseOf = (a: Dir, b: Dir) => a.dx === -b.dx && a.dy === -b.dy
+const sameWay = (a: Dir | undefined, b: Dir) =>
+  !!a && a.dx === b.dx && a.dy === b.dy
+const manhattan = (a: number, b: number) =>
+  Math.abs(cellX(a) - cellX(b)) + Math.abs(cellY(a) - cellY(b))
 
 class CableCrawler implements ArcadeGameInstance {
   score = 0
@@ -205,13 +271,28 @@ class CableCrawler implements ArcadeGameInstance {
   private bytes = new Set<string>()
   /** A saved run waiting on CONTINUE (A) or NEW RUN (B). */
   private offer: CableSave | null = null
+  // The Workbench kit, and the Workbench screen while it is open.
+  private copper = 0
+  private reachBonus = 0
+  private insulation = 0
+  private colour = 0
+  private finder = false
+  /** The byte finder bought for this component. */
+  private finding = false
+  private bench: { cursor: number; note: string; t: number } | null = null
   // The board in play.
   private maze!: Maze
+  private walls: boolean[] = []
+  private diodes = new Map<number, Way>()
+  private goo = new Map<number, number>()
+  private fans: Fan[] = []
+  private refreshTimer = 0
   private ring: number[] = []
   private sparks = new Set<number>()
   private totalSparks = 0
   private sockets: Socket[] = []
   private glitches: Glitch[] = []
+  private pickups: Pickup[] = []
   private boss: Boss | null = null
   private byte: { k: number; shown: boolean } | null = null
   private saver: Saver | null = null
@@ -226,6 +307,8 @@ class CableCrawler implements ArcadeGameInstance {
   private stuck = 0
   private battery = 0
   private batteryMax = 0
+  private slow = 0
+  private magnet = 0
   private dead = 0
   private clear = 0
   private cardTicks = 0
@@ -241,9 +324,11 @@ class CableCrawler implements ArcadeGameInstance {
   /** Small eat sparkles, drawn under the cable so they never wash out the plug's face. */
   private crumbs = new Sparkles()
   private fxRng = backdropRng(53)
-  /** This instance's board, painted once per maze onto one reused canvas. */
-  private boardArt: { maze: Maze; canvas: HTMLCanvasElement | null } | null =
-    null
+  /** This instance's board, painted once per set of walls onto one reused canvas. */
+  private boardArt: {
+    walls: boolean[]
+    canvas: HTMLCanvasElement | null
+  } | null = null
   /** The attract pilot's last plan, kept until the plug moves on. */
   private pilot: { head: number; tick: number; dir: Dir | null } | null = null
 
@@ -267,18 +352,35 @@ class CableCrawler implements ArcadeGameInstance {
     const kind = this.steps[this.stepIndex]?.kind
     if (kind === 'boss') return BOSS_MUSIC
     if (kind === 'screensaver') return SCREENSAVER_MUSIC
+    if (kind === 'workbench') return WORKBENCH_MUSIC
     return this.component.music
   }
 
   // --- the campaign -------------------------------------------------------------------------
 
-  /** The score multiplier: the component's number, plus a lap of the Mainframe each time round. */
+  /**
+   * The score multiplier: the component's number, plus a lap of the Mainframe each time round
+   * (for the first few laps; after that the laps only get faster).
+   */
   private get mult(): number {
-    return this.component.number + this.lap * COMPONENTS.length
+    return (
+      this.component.number + Math.min(this.lap, MULT_LAPS) * COMPONENTS.length
+    )
   }
 
   private get stepNow(): Step {
     return this.steps[this.stepIndex]!
+  }
+
+  private get kit(): Kit {
+    return {
+      copper: this.copper,
+      lives: this.lives,
+      reach: this.reachBonus,
+      insulation: this.insulation,
+      colour: this.colour,
+      finder: this.finder,
+    }
   }
 
   private beginComponent(index: number) {
@@ -288,6 +390,9 @@ class CableCrawler implements ArcadeGameInstance {
     this.lap = lap
     this.steps = componentSteps(component)
     this.stepIndex = 0
+    this.bench = null
+    this.finding = this.finder
+    this.finder = false
     if (!this.demo) this.reached = Math.max(this.reached, index + 1)
     this.cardTicks = CARD_TICKS
     this.startStep()
@@ -305,32 +410,64 @@ class CableCrawler implements ArcadeGameInstance {
 
   private startStep() {
     const s = this.stepNow
+    if (s.kind === 'workbench') {
+      this.bench = { cursor: 0, note: '', t: 0 }
+      this.saver = null
+      this.boss = null
+      this.banner = null
+      return
+    }
     this.level++
     this.maze = parseMaze(s.layout)
+    this.walls = [...this.maze.walls]
+    this.diodes = new Map(this.maze.diodes)
+    this.goo = new Map()
+    this.fans = this.maze.fans.map((hub, i) => ({
+      hub,
+      timer: FAN_EVERY + i * 90,
+    }))
+    this.refreshTimer = REFRESH_EVERY
     this.ring = s.kind === 'boss' ? ringOf(this.maze) : []
     this.sparks = new Set(this.maze.sparks)
     this.totalSparks = this.sparks.size
     this.sockets = this.maze.sockets.map((k) => ({ k, charge: 0 }))
+    const spawn = (kind: GlitchKind, cells: readonly number[]) =>
+      cells.map((k) => newGlitch(kind, k))
     this.glitches = [
-      ...this.maze.bugs.map((k) => newGlitch('bug', k)),
-      ...this.maze.bunnies.map((k) => newGlitch('bunny', k)),
-      ...this.maze.mimics.map((k) => newGlitch('mimic', k)),
+      ...spawn('bug', this.maze.bugs),
+      ...spawn('bunny', this.maze.bunnies),
+      ...spawn('mimic', this.maze.mimics),
+      ...spawn('crab', this.maze.crabs),
+      ...spawn('flipper', this.maze.flippers),
+      ...spawn('hotspot', this.maze.hotspots),
+      ...spawn('drip', this.maze.drips),
+      ...spawn('block', this.maze.blocks),
     ]
-    this.boss =
-      s.kind === 'boss' && this.ring.length
-        ? newBoss(
-            this.component.boss.kind,
-            this.ring,
-            this.maze.boss ?? this.ring[0]!,
-          )
-        : null
+    this.pickups = []
+    this.boss = null
+    if (s.kind === 'boss') {
+      const kind = this.component.boss.kind
+      const lair = this.maze.boss ?? this.maze.start
+      if (kind === 'surge-protector' && this.ring.length)
+        this.boss = newBoss(kind, this.ring, lair)
+      else if (kind !== 'surge-protector')
+        this.boss = newBoss(kind, [], lair, this.maze.walls)
+      if (this.boss?.kind === 'big-whirr') this.walls = whirrWalls(this.boss)
+    }
     this.byte =
       s.kind === 'maze' && this.maze.byte !== null
-        ? { k: this.maze.byte, shown: false }
+        ? { k: this.maze.byte, shown: this.finding }
         : null
     this.saver =
       s.kind === 'screensaver'
-        ? { ticks: SAVER_TICKS, stars: [], spawn: 30, caught: 0, total: 0 }
+        ? {
+            kind: this.component.screensaver.kind,
+            ticks: SAVER_TICKS + (this.maze.bays.length ? 300 : 0),
+            stars: [],
+            spawn: 30,
+            caught: 0,
+            total: this.maze.bays.length,
+          }
         : null
     this.bossSparkTimer = 0
     this.arcs = []
@@ -343,6 +480,11 @@ class CableCrawler implements ArcadeGameInstance {
         : Math.max(45, c.battery - index * 4 - this.lap * 10)
     this.batteryMax = seconds * 60
     this.resetCable()
+    const saverLine: Record<Saver['kind'], string> = {
+      starfield: 'CATCH THE STREAMING STARS',
+      defrag: 'PUSH THE BLOCKS INTO THE SLOTS',
+      breeze: 'RIDE THE AIR, CATCH THE FLAKES',
+    }
     this.banner = {
       text: this.boardTitle(),
       sub:
@@ -350,24 +492,36 @@ class CableCrawler implements ArcadeGameInstance {
           ? `${this.maze.name}  ${this.totalSparks} SPARKS`
           : s.kind === 'boss'
             ? c.boss.name
-            : 'CATCH THE STREAMING STARS',
+            : saverLine[c.screensaver.kind],
       ticks: 110,
     }
   }
 
-  /** The board's label: MAZE 1-3, SCREENSAVER or BOSS. */
+  /** The board's label: MAZE 1-3, SCREENSAVER, BOSS or WORKBENCH. */
   private boardTitle(): string {
     const s = this.stepNow
     if (s.kind === 'maze') return `MAZE ${this.component.number}-${s.index + 1}`
+    if (s.kind === 'workbench') return 'WORKBENCH'
     return s.kind === 'boss' ? 'BOSS!' : 'SCREENSAVER'
   }
 
-  /** Ticks per cell the plug crawls on this board. */
+  /** Ticks per cell the plug crawls on this board, before what it is crawling over. */
   private stepTicks(): number {
     const s = this.stepNow
     if (s.kind === 'screensaver') return 6
     const index = s.kind === 'maze' ? s.index : 4
     return Math.max(3, this.component.step - index * 0.25 - this.lap)
+  }
+
+  /** Ticks for the plug's next cell: air with it hurries it, goo and a heat sink slow it. */
+  private crawlTicks(): number {
+    const head = this.body[0]!
+    let t = this.stepTicks()
+    if (sameWay(this.maze.air.get(head), this.dir)) t *= 0.5
+    if (this.goo.has(head)) t *= 2
+    if (this.slow > 0) t *= HEATSINK_SLOW
+    if (this.boss?.kind === 'big-whirr' && bossPhase(this.boss) === 3) t *= 0.8
+    return t
   }
 
   private resetCable() {
@@ -379,61 +533,84 @@ class CableCrawler implements ArcadeGameInstance {
     this.stuck = 0
     this.battery = this.batteryMax
     this.surgeGlow = 0
+    this.slow = 0
+    this.magnet = 0
     this.pilot = null
     for (const g of this.glitches) {
-      if (g.kind !== 'bug' || g.gone) continue
+      if (!WANDERERS.has(g.kind) || g.gone) continue
       g.k = g.home
       g.timer = 40
-      if (g.down === 0) g.booting = BUG_BOOT
+      if (g.down === 0 && g.kind !== 'hotspot') g.booting = BUG_BOOT
     }
     if (this.boss) {
-      this.boss.at = Math.max(
-        0,
-        this.ring.indexOf(this.maze.boss ?? this.ring[0]!),
-      )
-      this.boss.stun = 90
-      this.boss.charging = 0
-      this.boss.tell = 0
-      this.boss.blocked = 0
+      const b = this.boss
+      if (b.kind === 'surge-protector')
+        b.at = Math.max(0, this.ring.indexOf(this.maze.boss ?? this.ring[0]!))
+      for (const s of b.splits) s.k = s.home
+      b.stun = 90
+      b.charging = 0
+      b.tell = 0
+      b.blocked = 0
+    }
+  }
+
+  /** The run as it stands, for the save. */
+  private snapshot(comp: number, bench: boolean): CableSave {
+    return {
+      v: 1,
+      comp,
+      score: this.score,
+      lives: Math.max(1, this.lives),
+      continued: false,
+      bytes: [...this.bytes],
+      reached: this.reached,
+      copper: this.copper,
+      reach: this.reachBonus,
+      insulation: this.insulation,
+      colour: this.colour,
+      // At a component's start the finder bought for it is in use; at the bench, it's for next.
+      finder: bench ? this.finder : this.finding,
+      bench,
     }
   }
 
   /** Remember the run at this component's start (a real campaign game only). */
   private keep() {
     if (this.demo || this.offer) return
-    this.save = {
-      v: 1,
-      comp: this.compIndex,
-      score: this.score,
-      lives: Math.max(1, this.lives),
-      continued: false,
-      bytes: [...this.bytes],
-      reached: this.reached,
-    }
+    this.save = this.snapshot(this.compIndex, false)
   }
 
   /** Keep what is earned for good (the golden bytes) the moment it is earned. */
   private persist() {
     if (this.demo) return
-    const base: CableSave = this.save ?? {
-      v: 1,
-      comp: 0,
-      score: 0,
-      lives: START_LIVES,
-      continued: false,
-      bytes: [],
-      reached: 1,
-    }
+    const base = this.save ?? this.snapshot(0, false)
     this.save = { ...base, bytes: [...this.bytes], reached: this.reached }
   }
 
-  /** Pick a saved run back up at the start of its component. */
+  /** Pick a saved run back up at the start of its component (or its Workbench). */
   private resumeFrom(s: CableSave) {
     this.score = s.continued ? 0 : s.score
     this.lives = s.continued ? START_LIVES : s.lives
     this.nextExtra = EXTRA_FIRST
     while (this.nextExtra <= this.score) this.nextExtra += EXTRA_EVERY
-    this.level = s.comp * 7
+    this.copper = s.copper ?? 0
+    this.reachBonus = s.reach ?? 0
+    this.insulation = s.insulation ?? 0
+    this.colour = s.colour ?? 0
+    this.finder = s.finder ?? false
+    this.level = s.comp * BOARDS_PER_COMPONENT
+    if (s.bench && !s.continued) {
+      // Back at the Workbench before component `comp`.
+      const { component, lap } = componentAt(s.comp - 1)
+      this.compIndex = s.comp - 1
+      this.component = component
+      this.lap = lap
+      this.steps = componentSteps(component)
+      this.stepIndex = this.steps.length - 1
+      this.startStep()
+      this.save = this.snapshot(s.comp, true)
+      return
+    }
     this.beginComponent(s.comp)
   }
 
@@ -454,6 +631,10 @@ class CableCrawler implements ArcadeGameInstance {
         this.offer = null
         this.keep()
       }
+      return
+    }
+    if (this.bench) {
+      this.updateBench(this.demo ? this.demoInput() : input)
       return
     }
     if (this.cardTicks > 0) {
@@ -484,13 +665,19 @@ class CableCrawler implements ArcadeGameInstance {
     const controls = this.demo ? this.demoInput() : input
     this.steer(controls)
     if (this.surgeGlow > 0) this.surgeGlow--
+    if (this.slow > 0) this.slow--
+    if (this.magnet > 0) this.magnet--
     for (const s of this.sockets) if (s.charge > 0) s.charge--
+    this.updateBoard()
     if (this.saver) {
       this.updateSaver()
       if (this.clear > 0 || this.dead > 0) return
-    } else if (--this.battery <= 0) {
-      this.unplug('THE BATTERY RAN FLAT')
-      return
+    } else {
+      this.battery -= this.drain()
+      if (this.battery <= 0) {
+        this.unplug('THE BATTERY RAN FLAT')
+        return
+      }
     }
     this.updateGlitches()
     if (this.dead > 0) return
@@ -498,10 +685,85 @@ class CableCrawler implements ArcadeGameInstance {
       this.updateBossBoard()
       if (this.dead > 0 || this.clear > 0) return
     }
-    if (++this.stepTimer >= this.stepTicks()) {
+    if (++this.stepTimer >= this.crawlTicks()) {
       this.stepTimer = 0
       this.crawl()
     }
+  }
+
+  /** Battery used this tick: twice on a heat tile, and more inside each hot spot's glow. */
+  private drain(): number {
+    const head = this.body[0]!
+    let d = 1
+    if (this.maze.heat.includes(head)) d++
+    for (const g of this.glitches)
+      if (
+        g.kind === 'hotspot' &&
+        glitchLive(g) &&
+        manhattan(g.k, head) <= hotRadius(g)
+      )
+        d++
+    return d
+  }
+
+  /** The board's own clockwork: RAM refresh, fans turning, goo drying, pickups fading. */
+  private updateBoard() {
+    if (this.maze.refresh && --this.refreshTimer <= 0) {
+      this.refreshTimer = REFRESH_EVERY
+      this.refreshRows()
+    }
+    for (const fan of this.fans) {
+      if (--fan.timer > 0) continue
+      if (this.sectorBusy(fan.hub)) {
+        fan.timer = FAN_JAM
+        continue
+      }
+      fan.timer = FAN_EVERY
+      this.turnFan(fan.hub)
+    }
+    for (const [k, t] of this.goo)
+      if (t <= 1) this.goo.delete(k)
+      else this.goo.set(k, t - 1)
+    for (const p of this.pickups) p.life--
+    this.pickups = this.pickups.filter((p) => p.life > 0)
+  }
+
+  /** RAM Rows' refresh: each pair of rows swaps its sparks, cell for cell (never under the cable). */
+  private refreshRows() {
+    for (let y = 1; y + 2 < ROWS - 1; y += 4)
+      for (let x = 1; x < COLS - 1; x++) {
+        const a = cellKey(x, y)
+        const b = cellKey(x, y + 2)
+        if (this.walls[a] || this.walls[b]) continue
+        if (this.body.includes(a) || this.body.includes(b)) continue
+        const hasA = this.sparks.has(a)
+        const hasB = this.sparks.has(b)
+        if (hasA === hasB) continue
+        this.sparks.delete(hasA ? a : b)
+        this.sparks.add(hasA ? b : a)
+      }
+    this.sound.play('blip')
+  }
+
+  /** Whether anything but walls and sparks sits in a fan sector (then it waits). */
+  private sectorBusy(hub: number): boolean {
+    const cells = new Set(sectorCells(hub))
+    if (this.body.some((k) => cells.has(k))) return true
+    if (this.glitches.some((g) => !g.gone && cells.has(g.k))) return true
+    if (this.sockets.some((s) => cells.has(s.k))) return true
+    if (this.pickups.some((p) => cells.has(p.k))) return true
+    if (this.byte && cells.has(this.byte.k)) return true
+    return cells.has(this.maze.start)
+  }
+
+  /** A fan sector turns a quarter clockwise, carrying its sparks round with it. */
+  private turnFan(hub: number) {
+    this.walls = turnSector(this.walls, hub)
+    const cells = sectorCells(hub)
+    const moved = cells.filter((k) => this.sparks.has(k))
+    for (const k of moved) this.sparks.delete(k)
+    for (const k of moved) this.sparks.add(turnCell(hub, k))
+    this.sound.play('pop')
   }
 
   private steer(input: InputFrame) {
@@ -519,34 +781,57 @@ class CableCrawler implements ArcadeGameInstance {
   }
 
   /** A live glitch on a cell, if any. */
-  private glitchAt(k: number, kind?: Glitch['kind']): Glitch | undefined {
+  private glitchAt(k: number, kind?: GlitchKind): Glitch | undefined {
     return this.glitches.find(
       (g) => g.k === k && glitchLive(g) && (!kind || g.kind === kind),
     )
   }
 
   private isWall(k: number): boolean {
-    return k < 0 || this.maze.walls[k] === true
+    return k < 0 || this.walls[k] === true
   }
 
-  /** Where a dust bunny pushed off `k` the way `d` would land, or -1 if it can't go. */
-  private bunnyLanding(k: number, d: Dir): number {
+  /** Whether a crawl from `k` the way `d` gets past the walls, diodes and airflow. */
+  private canPass(k: number, d: Dir): boolean {
+    const n = step(k, d)
+    if (n < 0 || this.isWall(n)) return false
+    return oneWayOk(
+      d,
+      { diode: this.diodes.get(k), air: this.maze.air.get(k) },
+      { diode: this.diodes.get(n), air: this.maze.air.get(n) },
+    )
+  }
+
+  /** Where a pushed dust bunny or Defrag block off `k` the way `d` would land, or -1. */
+  private pushLanding(k: number, d: Dir): number {
     const to = step(k, d)
     if (to < 0 || this.isWall(to)) return -1
-    if (this.body.includes(to) || this.glitchAt(to)) return -1
+    if (
+      this.body.includes(to) ||
+      this.glitches.some((g) => !g.gone && g.down === 0 && g.k === to)
+    )
+      return -1
     if (this.sockets.some((s) => s.k === to) || to === this.maze.start)
       return -1
     if (this.byte?.shown && this.byte.k === to) return -1
-    if (this.boss && bossCell(this.boss) === to) return -1
+    if (this.boss && bossCells(this.boss).includes(to)) return -1
     return to
   }
 
   /** Whether the plug can crawl from its cell the way `d` (its own body aside). */
   private plugCan(d: Dir): boolean {
-    const to = step(this.body[0]!, d)
-    if (to < 0 || this.isWall(to)) return false
-    const bunny = this.glitchAt(to, 'bunny')
-    return !bunny || this.bunnyLanding(to, d) >= 0
+    const head = this.body[0]!
+    if (!this.canPass(head, d)) return false
+    const to = step(head, d)
+    // The Memory Leak's split drips are in the way, but harmless.
+    const b = this.boss
+    if (b?.kind === 'memory-leak' && b.hp === 1 && bossCells(b).includes(to))
+      return false
+    const g = this.glitchAt(to)
+    if (!g) return true
+    if (g.kind === 'bunny' || (g.kind === 'block' && !g.locked))
+      return this.pushLanding(to, d) >= 0
+    return !SOLID_GLITCHES.has(g.kind)
   }
 
   /** Whether a cell is cable that will still be there after this step. */
@@ -568,13 +853,7 @@ class CableCrawler implements ArcadeGameInstance {
           !this.bodyBlocks(step(head, d)),
       )
       if (ways.length !== 1) {
-        const boxed = !DIRS.some(
-          (d) =>
-            !reverseOf(d, this.dir) &&
-            this.plugCan(d) &&
-            !this.bodyBlocks(step(head, d)),
-        )
-        if (boxed && this.body.length > 1 && ++this.stuck >= STUCK_STEPS)
+        if (!ways.length && this.body.length > 1 && ++this.stuck >= STUCK_STEPS)
           this.tangled()
         return
       }
@@ -583,12 +862,25 @@ class CableCrawler implements ArcadeGameInstance {
     this.stuck = 0
     const next = step(head, dir)
     if (this.bodyBlocks(next)) {
-      if (this.saver) this.endSaver(false)
-      else this.unplug('BIT YOUR OWN CABLE')
-      return
+      if (this.insulation > 0) {
+        // Insulation: one free pass over your own cable.
+        this.insulation--
+        this.floaters.push({
+          x: px(next),
+          y: py(next) - 10,
+          text: 'INSULATED!',
+          life: 50,
+        })
+        this.sound.play('pickup')
+      } else {
+        if (this.saver) this.endSaver(false)
+        else this.unplug('BIT YOUR OWN CABLE')
+        return
+      }
     }
-    const bunny = this.glitchAt(next, 'bunny')
-    if (bunny) this.pushBunny(bunny, dir)
+    const pushed = this.glitchAt(next)
+    if (pushed && (pushed.kind === 'bunny' || pushed.kind === 'block'))
+      this.push(pushed, dir)
     this.dir = dir
     this.want = dir
     this.body.unshift(next)
@@ -598,11 +890,19 @@ class CableCrawler implements ArcadeGameInstance {
       this.unplug('STATIC SHOCK!')
       return
     }
-    if (this.boss && bossCell(this.boss) === next && this.boss.hp > 0) {
+    if (this.boss && bossCells(this.boss).includes(next)) {
       this.unplug('BONKED BY THE BOSS')
       return
     }
     this.eat(next)
+    if (this.magnet > 0)
+      for (const d of DIRS) {
+        const n = step(next, d)
+        if (n >= 0 && this.sparks.has(n)) {
+          this.arcs.push({ from: next, to: n, life: 10 })
+          this.eat(n, true)
+        }
+      }
   }
 
   /** A boxed-in cable, with no way on at all, gives up. */
@@ -611,10 +911,14 @@ class CableCrawler implements ArcadeGameInstance {
     else this.unplug('TANGLED UP')
   }
 
-  private pushBunny(bunny: Glitch, d: Dir) {
-    const to = this.bunnyLanding(bunny.k, d)
+  private push(g: Glitch, d: Dir) {
+    const to = this.pushLanding(g.k, d)
     if (to < 0) return
-    bunny.k = to
+    g.k = to
+    if (g.kind === 'block') {
+      if (this.maze.bays.includes(to)) this.lockBlock(g)
+      return
+    }
     // A dust bunny rolls up any spark it is pushed over.
     if (this.sparks.delete(to)) {
       this.addScore(SPARK_POINTS * this.mult, px(to), py(to) - 8, false)
@@ -623,12 +927,18 @@ class CableCrawler implements ArcadeGameInstance {
     }
   }
 
-  private eat(at: number) {
+  /** `magnet`: a spark that jumped to the plug rather than one it crawled onto. */
+  private eat(at: number, magnet = false) {
     const x = px(at)
     const y = py(at)
     if (this.sparks.delete(at)) {
-      this.grow++
-      this.addScore(SPARK_POINTS * this.mult, x, y - 8, false)
+      if (this.saver) {
+        this.saver.caught++
+        this.addScore(STAR_POINTS * this.mult, x, y - 8, false)
+      } else {
+        this.grow++
+        this.addScore(SPARK_POINTS * this.mult, x, y - 8, false)
+      }
       this.sound.play('blip')
       this.crumbs.burst(x, y, this.fxRng, {
         count: 3,
@@ -637,6 +947,7 @@ class CableCrawler implements ArcadeGameInstance {
       })
       this.afterSpark()
     }
+    if (magnet) return
     const mimic = this.glitchAt(at, 'mimic')
     if (mimic) {
       mimic.gone = true
@@ -646,6 +957,8 @@ class CableCrawler implements ArcadeGameInstance {
       this.sound.play('warn')
     }
     if (this.byte?.shown && this.byte.k === at) this.takeByte()
+    const pickup = this.pickups.find((p) => p.k === at)
+    if (pickup) this.takePickup(pickup)
     if (this.saver) this.catchStars()
     const socket = this.sockets.find((s) => s.k === at)
     if (socket && socket.charge === 0 && this.clear === 0) this.surge(socket)
@@ -681,25 +994,55 @@ class CableCrawler implements ArcadeGameInstance {
     this.addScore(BYTE_POINTS * this.mult, px(b.k), py(b.k) - 8, true)
     this.fx.burst(px(b.k), py(b.k), this.fxRng, { count: 18, speed: 2.2 })
     this.sound.play('extra')
+    this.earn(COPPER.byte)
     if (!this.demo) {
       this.bytes.add(this.maze.id)
       this.persist()
     }
   }
 
+  private takePickup(p: Pickup) {
+    this.pickups = this.pickups.filter((q) => q !== p)
+    if (p.kind === 'capacitor')
+      this.battery = Math.min(this.batteryMax, this.battery + CAPACITOR_TICKS)
+    else if (p.kind === 'heatsink') this.slow = HEATSINK_TICKS
+    else if (p.kind === 'insulation')
+      this.insulation = Math.min(INSULATION_MAX, this.insulation + 1)
+    else if (p.kind === 'coil')
+      this.body.length = Math.max(2, this.body.length - COIL_CELLS)
+    else this.magnet = MAGNET_TICKS
+    this.floaters.push({
+      x: px(p.k),
+      y: py(p.k) - 10,
+      text: PICKUP_NAMES[p.kind],
+      life: 70,
+    })
+    this.fx.burst(px(p.k), py(p.k), this.fxRng, { count: 10, speed: 1.6 })
+    this.sound.play('pickup')
+  }
+
+  /** Copper for the Workbench (never in the attract demo). */
+  private earn(copper: number) {
+    if (!this.demo) this.copper = Math.min(9999, this.copper + copper)
+  }
+
   // --- the Plug-In Surge ----------------------------------------------------------------------
 
   private surge(socket: Socket) {
     socket.charge = SOCKET_RECHARGE
-    const sweep = surgeSweep(this.body, this.maze.walls)
+    const sweep = surgeSweep(
+      this.body,
+      this.walls,
+      SURGE_REACH + this.reachBonus,
+    )
     const swept = new Set(sweep)
     let chain = 0
     let rebooted = 0
     const from = (k: number) =>
-      this.body.find(
-        (b) =>
-          Math.abs(cellX(b) - cellX(k)) + Math.abs(cellY(b) - cellY(k)) === 1,
-      ) ?? this.body[0]!
+      this.body.reduce(
+        (best, b) => (manhattan(b, k) < manhattan(best, k) ? b : best),
+        this.body[0]!,
+      )
     for (const k of sweep) {
       if (this.sparks.delete(k)) {
         const points = chainPoints(chain++) * this.mult
@@ -714,7 +1057,7 @@ class CableCrawler implements ArcadeGameInstance {
       if (this.byte?.shown && this.byte.k === k) this.takeByte()
     }
     for (const g of this.glitches) {
-      if (!glitchLive(g) || !swept.has(g.k)) continue
+      if (!glitchLive(g) || g.kind === 'block' || !swept.has(g.k)) continue
       rebooted++
       this.addScore(
         GLITCH_POINTS[g.kind] * this.mult,
@@ -727,10 +1070,19 @@ class CableCrawler implements ArcadeGameInstance {
         count: 8,
         colours: [RAMPS.teal[4], RAMPS.sky[4], '#ffffff'],
       })
-      if (g.kind === 'bug') g.down = BUG_DOWN
-      else g.gone = true
+      this.earn(COPPER.reboot)
+      if (this.rng() < PICKUP_CHANCE && !this.body.includes(g.k))
+        this.pickups.push({
+          k: g.k,
+          kind: pickupFor(this.rng()),
+          life: PICKUP_LIFE,
+        })
+      if (WANDERERS.has(g.kind)) {
+        g.down = BUG_DOWN
+        g.age = 0
+      } else g.gone = true
     }
-    if (this.boss && swept.has(bossCell(this.boss)) && hitBoss(this.boss)) {
+    if (this.boss && hitBoss(this.boss, swept, this.body)) {
       const k = bossCell(this.boss)
       this.arcs.push({ from: from(k), to: k, life: 30 })
       this.addScore(BOSS_HIT_POINTS * this.mult, px(k), py(k) - 12, true)
@@ -755,15 +1107,24 @@ class CableCrawler implements ArcadeGameInstance {
 
   // --- glitches and bosses --------------------------------------------------------------------
 
+  /** Ticks per cell a wandering glitch moves. */
+  private glitchStep(kind: GlitchKind): number {
+    const quicker = Math.min(5, this.lap * 2)
+    if (kind === 'crab') return CRAB_STEP - Math.min(4, this.lap)
+    if (kind === 'drip') return DRIP_STEP - quicker
+    if (kind === 'flipper') return FLIPPER_STEP - quicker
+    return this.component.bugStep - quicker
+  }
+
   private updateGlitches() {
     for (const g of this.glitches) {
-      if (g.gone) continue
+      if (g.gone || g.locked) continue
       if (g.down > 0) {
         if (--g.down === 0) {
           if (this.body.includes(g.home)) g.down = 30
           else {
             g.k = g.home
-            g.booting = BUG_BOOT
+            g.booting = g.kind === 'hotspot' ? 0 : BUG_BOOT
           }
         }
         continue
@@ -772,8 +1133,19 @@ class CableCrawler implements ArcadeGameInstance {
         g.booting--
         continue
       }
-      if (g.kind !== 'bug' || --g.timer > 0) continue
-      g.timer = this.component.bugStep - Math.min(5, this.lap * 2)
+      g.age++
+      if (g.kind === 'crab') {
+        if (--g.timer <= 0) {
+          g.timer = this.glitchStep('crab')
+          this.moveCrab(g)
+          if (this.dead > 0) return
+        }
+        continue
+      }
+      if (g.kind !== 'bug' && g.kind !== 'flipper' && g.kind !== 'drip')
+        continue
+      if (--g.timer > 0) continue
+      g.timer = this.glitchStep(g.kind)
       const head = this.body[0]!
       const way = bugWay(
         g,
@@ -785,7 +1157,9 @@ class CableCrawler implements ArcadeGameInstance {
             )
           )
             return 'wall'
-          if (this.boss && bossCell(this.boss) === k) return 'wall'
+          if (this.boss && bossCells(this.boss).includes(k)) return 'wall'
+          if (this.sockets.some((s) => s.k === k) && g.kind === 'drip')
+            return 'wall'
           if (k === head) return 'head'
           return this.body.includes(k) ? 'body' : 'open'
         },
@@ -793,21 +1167,64 @@ class CableCrawler implements ArcadeGameInstance {
       )
       if (!way) continue
       const next = step(g.k, way)
-      if (next === head) {
+      if (next === head && g.kind === 'bug') {
         g.k = next
         this.unplug('STATIC SHOCK!')
         return
       }
       if (this.body.includes(next)) {
-        // It bounces off the cable's body.
+        // It bounces off the cable.
         g.dx = -way.dx || 0
         g.dy = -way.dy || 0
         continue
       }
+      // A leak drip leaves goo where it was.
+      if (g.kind === 'drip') this.goo.set(g.k, GOO_TICKS)
       g.k = next
       g.dx = way.dx
       g.dy = way.dy
+      // A bit flipper turns round every diode it walks through.
+      const diode = this.diodes.get(next)
+      if (g.kind === 'flipper' && diode) {
+        this.diodes.set(next, { dx: -diode.dx || 0, dy: -diode.dy || 0 })
+        this.sound.play('blip')
+      }
     }
+  }
+
+  /** A cache crab scuttles along its row; claws up, it snips the cable it runs into. */
+  private moveCrab(g: Glitch) {
+    const next = step(g.k, { dx: g.dx, dy: 0 })
+    const turn = () => {
+      g.dx = -g.dx || 0
+    }
+    if (next < 0 || this.isWall(next) || this.glitchAt(next)) return turn()
+    if (this.boss && bossCells(this.boss).includes(next)) return turn()
+    const i = this.body.indexOf(next)
+    if (i === 0) return turn()
+    if (i > 0) {
+      if (!clawsUp(g)) return turn()
+      // Snip: the tail end beyond the cut is gone.
+      const keep = Math.max(SNIP_MIN, i)
+      if (keep >= this.body.length) return turn()
+      for (const k of this.body.slice(keep))
+        this.crumbs.burst(px(k), py(k), this.fxRng, {
+          count: 1,
+          speed: 0.6,
+          colours: [RAMPS.steel[3]],
+        })
+      this.body.length = keep
+      this.grow = 0
+      this.floaters.push({
+        x: px(next),
+        y: py(next) - 10,
+        text: 'SNIP!',
+        life: 60,
+      })
+      this.sound.play('pop')
+      return turn()
+    }
+    g.k = next
   }
 
   private updateBossBoard() {
@@ -817,16 +1234,40 @@ class CableCrawler implements ArcadeGameInstance {
         k === this.body[0] ? 'head' : this.body.includes(k) ? 'body' : null,
       bite: () => this.unplug('BONKED BY THE BOSS'),
       shuffleSockets: () => this.shuffleSockets(),
+      wall: (k) => this.isWall(k),
+      busy: (k) =>
+        this.body.includes(k) ||
+        this.glitches.some((g) => !g.gone && g.down === 0 && g.k === k) ||
+        this.sockets.some((s) => s.k === k) ||
+        this.pickups.some((p) => p.k === k) ||
+        k === this.maze.start,
+      setWalls: (walls) => {
+        this.walls = walls
+        for (const k of this.sparks) if (walls[k]) this.sparks.delete(k)
+      },
+      drip: (k) => {
+        const live = this.glitches.filter((g) => g.kind === 'drip' && !g.gone)
+        if (live.length >= 3) return
+        const d = newGlitch('drip', k)
+        d.dx = cellX(k) < cellX(boss.center) ? -1 : 1
+        d.dy = 0
+        this.glitches.push(d)
+      },
+      rng: this.rng,
     })
-    // The fuse box keeps a few sparks about, so there is always cable to lay.
+    // The boss board keeps a few sparks about, so there is always cable to lay.
     if (this.sparks.size < BOSS_SPARKS && ++this.bossSparkTimer >= 80) {
       this.bossSparkTimer = 0
+      const blocked = new Set(bossCells(boss))
       const free = this.maze.floor.filter(
         (k) =>
+          !this.walls[k] &&
+          !blocked.has(k) &&
           !this.sparks.has(k) &&
           !this.body.includes(k) &&
           !this.sockets.some((s) => s.k === k) &&
           !this.ring.includes(k) &&
+          manhattan(k, boss.center) > 3 &&
           k !== this.maze.start,
       )
       if (free.length)
@@ -857,11 +1298,11 @@ class CableCrawler implements ArcadeGameInstance {
         px(k) + (this.fxRng() - 0.5) * 30,
         py(k) + (this.fxRng() - 0.5) * 30,
         this.fxRng,
-        {
-          count: 12,
-          speed: 2.4,
-        },
+        { count: 12, speed: 2.4 },
       )
+    this.earn(COPPER.boss)
+    // Saved straight away: a quit from here on comes back at the Workbench.
+    if (!this.demo) this.save = this.snapshot(this.compIndex + 1, true)
     this.sound.play('level')
     this.clear = CLEAR_TICKS + 40
     this.banner = {
@@ -871,7 +1312,56 @@ class CableCrawler implements ArcadeGameInstance {
     }
   }
 
-  // --- the Screensaver ------------------------------------------------------------------------
+  // --- the Workbench --------------------------------------------------------------------------
+
+  private updateBench(input: InputFrame) {
+    const bench = this.bench!
+    bench.t++
+    if (this.demo) {
+      if (bench.t > 90) this.leaveBench()
+      return
+    }
+    const n = BENCH_ITEMS.length
+    if (input.pressed.up) bench.cursor = (bench.cursor + n - 1) % n
+    if (input.pressed.down) bench.cursor = (bench.cursor + 1) % n
+    if (input.pressed.up || input.pressed.down) {
+      bench.note = ''
+      this.sound.play('blip')
+    }
+    if (input.pressed.b && bench.t > 20) return this.leaveBench()
+    if (!(input.pressed.a || input.pressed.start) || bench.t < 20) return
+    const item = BENCH_ITEMS[bench.cursor]!
+    if (item.id === 'done') return this.leaveBench()
+    const why = cannotBuy(this.kit, item.id)
+    if (why) {
+      bench.note = why
+      this.sound.play('warn')
+      return
+    }
+    const kit = buy(this.kit, item.id)
+    this.copper = kit.copper
+    this.lives = kit.lives
+    this.reachBonus = kit.reach
+    this.insulation = kit.insulation
+    this.colour = kit.colour
+    this.finder = kit.finder
+    bench.note = `${item.name}: DONE!`
+    this.sound.play('pickup')
+    // Bought is kept, even if the player leaves now.
+    if (this.save && !this.demo)
+      this.save = {
+        ...this.snapshot(this.compIndex + 1, true),
+        continued: this.save.continued,
+      }
+  }
+
+  private leaveBench() {
+    this.bench = null
+    this.sound.play('start')
+    this.advance()
+  }
+
+  // --- the Screensavers -----------------------------------------------------------------------
 
   private updateSaver() {
     const s = this.saver!
@@ -879,25 +1369,39 @@ class CableCrawler implements ArcadeGameInstance {
       this.endSaver(true)
       return
     }
-    if (--s.spawn <= 0 && s.ticks > 60) {
-      s.spawn = STAR_EVERY
-      const y = 1 + Math.floor(this.rng() * (ROWS - 2))
-      s.stars.push({ k: cellKey(COLS - 2, y), t: STAR_STEP })
-      s.total++
+    if (s.kind === 'starfield') {
+      if (--s.spawn <= 0 && s.ticks > 60) {
+        s.spawn = STAR_EVERY
+        const y = 1 + Math.floor(this.rng() * (ROWS - 2))
+        s.stars.push({ k: cellKey(COLS - 2, y), t: STAR_STEP })
+        s.total++
+      }
+      for (const star of s.stars) {
+        if (--star.t > 0) continue
+        star.t = STAR_STEP
+        const x = cellX(star.k) - 1
+        star.k = x < 1 ? -1 : cellKey(x, cellY(star.k))
+      }
+      s.stars = s.stars.filter((star) => star.k >= 0)
+      this.catchStars()
+    } else if (s.kind === 'breeze') {
+      // Flakes settle on the airflow loops for the cable to ride round and catch.
+      if (--s.spawn <= 0 && s.ticks > 60 && this.sparks.size < BREEZE_MAX) {
+        s.spawn = BREEZE_EVERY
+        const lanes = [...this.maze.air.keys()].filter(
+          (k) => !this.sparks.has(k) && !this.body.includes(k),
+        )
+        if (lanes.length) {
+          this.sparks.add(lanes[Math.floor(this.rng() * lanes.length)]!)
+          s.total++
+        }
+      }
     }
-    for (const star of s.stars) {
-      if (--star.t > 0) continue
-      star.t = STAR_STEP
-      const x = cellX(star.k) - 1
-      star.k = x < 1 ? -1 : cellKey(x, cellY(star.k))
-    }
-    s.stars = s.stars.filter((star) => star.k >= 0)
-    this.catchStars()
   }
 
   private catchStars() {
     const s = this.saver
-    if (!s) return
+    if (!s || s.kind !== 'starfield') return
     const head = this.body[0]!
     s.stars = s.stars.filter((star) => {
       if (star.k !== head) return true
@@ -912,18 +1416,38 @@ class CableCrawler implements ArcadeGameInstance {
     })
   }
 
+  /** Defrag: a block pushed into a slot settles there for good. */
+  private lockBlock(g: Glitch) {
+    g.locked = true
+    const s = this.saver
+    if (!s) return
+    s.caught++
+    this.addScore(BAY_POINTS * this.mult, px(g.k), py(g.k) - 8, true)
+    this.fx.burst(px(g.k), py(g.k), this.fxRng, { count: 10, speed: 1.8 })
+    this.sound.play('pickup')
+    if (s.caught >= s.total) this.endSaver(true)
+  }
+
   /** The Screensaver ends: on time, or early if the cable bites itself (no cable lost). */
   private endSaver(onTime: boolean) {
     const s = this.saver!
     const perfect = onTime && s.caught === s.total && s.total > 0
-    if (perfect) this.addScore(SAVER_PERFECT * this.mult, W / 2, H / 2, true)
+    if (perfect) {
+      this.addScore(SAVER_PERFECT * this.mult, W / 2, H / 2, true)
+      this.earn(COPPER.saver)
+    }
     this.sound.play(onTime ? 'level' : 'pop')
     this.clear = CLEAR_TICKS
+    const what: Record<Saver['kind'], string> = {
+      starfield: 'STARS CAUGHT',
+      defrag: 'BLOCKS IN',
+      breeze: 'FLAKES CAUGHT',
+    }
     this.banner = {
       text: onTime ? 'SCREEN WAKES!' : 'TANGLED: WAKING UP',
       sub: perfect
-        ? `EVERY STAR! +${SAVER_PERFECT * this.mult}`
-        : `${s.caught} OF ${s.total} STARS CAUGHT`,
+        ? `PERFECT! +${SAVER_PERFECT * this.mult}`
+        : `${s.caught} OF ${s.total} ${what[s.kind]}`,
       ticks: CLEAR_TICKS,
     }
     s.stars = []
@@ -934,6 +1458,7 @@ class CableCrawler implements ArcadeGameInstance {
   private mazeClear() {
     const bonus = Math.ceil(this.battery / 60) * BATTERY_POINTS * this.mult
     this.addScore(bonus, W / 2, H / 2, true)
+    this.earn(COPPER.maze)
     this.clear = CLEAR_TICKS
     for (let i = 0; i < 6; i++)
       this.fx.burst(
@@ -1023,7 +1548,8 @@ class CableCrawler implements ArcadeGameInstance {
   /**
    * The attract pilot: steers by breadth-first search around its own cable and the glitches,
    * only into turns that leave room to move. It eats sparks, and when a ready socket would
-   * sweep plenty (or a glitch or the boss lies along the cable), it heads for the socket.
+   * sweep plenty (or a glitch or the boss lies along the cable), it heads for the socket. At the
+   * Workbench it gets straight back to work.
    */
   private demoInput(): InputFrame {
     const held = {
@@ -1036,6 +1562,10 @@ class CableCrawler implements ArcadeGameInstance {
       start: false,
     }
     const frame: InputFrame = { held, pressed: { ...held } }
+    if (this.bench) {
+      frame.pressed.a = this.bench.t % 30 === 25
+      return frame
+    }
     const head = this.body[0]!
     if (
       !this.pilot ||
@@ -1054,13 +1584,9 @@ class CableCrawler implements ArcadeGameInstance {
   /** Cells the pilot keeps the plug out of: its cable, the glitches and the boss's reach. */
   private hazards(bugReach: number): Set<number> {
     const out = new Set(this.body.slice(0, this.grow > 0 ? undefined : -1))
-    for (const g of this.glitches) {
-      if (g.gone || g.down > 0) continue
-      out.add(g.k)
-      if (g.kind !== 'bug') continue
-      // A static bug's reach along the corridors.
-      let ring = [g.k]
-      for (let r = 0; r < bugReach; r++) {
+    const spread = (from: number, reach: number) => {
+      let ring = [from]
+      for (let r = 0; r < reach; r++) {
         const next: number[] = []
         for (const k of ring)
           for (const d of DIRS) {
@@ -1072,12 +1598,36 @@ class CableCrawler implements ArcadeGameInstance {
         ring = next
       }
     }
+    for (const g of this.glitches) {
+      if (g.gone || g.down > 0) continue
+      if (g.kind === 'hotspot') continue
+      out.add(g.k)
+      if (g.kind === 'bug') spread(g.k, bugReach)
+      if (g.kind === 'crab')
+        for (const dx of [-2, -1, 1, 2]) {
+          const n = step(g.k, { dx, dy: 0 })
+          if (n >= 0) out.add(n)
+        }
+    }
     if (this.boss && this.boss.hp > 0) {
       const b = this.boss
-      const n = b.ring.length
-      const reach = b.charging || b.tell ? 10 : 2
-      for (let i = -1; i <= reach; i++)
-        out.add(b.ring[(((b.at + b.dir * i) % n) + n) % n]!)
+      if (b.kind === 'surge-protector') {
+        const n = b.ring.length
+        const reach = b.charging || b.tell ? 10 : 2
+        for (let i = -1; i <= reach; i++)
+          out.add(b.ring[(((b.at + b.dir * i) % n) + n) % n]!)
+      } else {
+        for (const k of bossCells(b)) {
+          out.add(k)
+          if (b.kind === 'memory-leak') spread(k, 1)
+        }
+        if (b.kind === 'big-whirr')
+          for (const k of bladeCells(
+            b.center,
+            b.angle + (bossPhase(b) === 2 ? -1 : 1),
+          ))
+            out.add(k)
+      }
     }
     return out
   }
@@ -1112,13 +1662,18 @@ class CableCrawler implements ArcadeGameInstance {
       const best = this.nearest(pool, targets, blocked)
       if (best) return best
       if (reach > 0) continue
-      const bunnies = new Set(
+      const pushable = new Set(
         this.glitches
-          .filter((g) => g.kind === 'bunny' && glitchLive(g))
+          .filter(
+            (g) =>
+              (g.kind === 'bunny' || g.kind === 'block') &&
+              glitchLive(g) &&
+              !g.locked,
+          )
           .map((g) => g.k),
       )
-      const open = new Set([...blocked].filter((k) => !bunnies.has(k)))
-      return this.nearest(pool, bunnies, open) ?? fallback
+      const open = new Set([...blocked].filter((k) => !pushable.has(k)))
+      return this.nearest(pool, pushable, open) ?? fallback
     }
     return fallback
   }
@@ -1152,7 +1707,8 @@ class CableCrawler implements ArcadeGameInstance {
       for (const dir of DIRS) {
         const n = step(k, dir)
         if (n === tail && k !== start) return true
-        if (n < 0 || seen.has(n) || blocked.has(n) || this.isWall(n)) continue
+        if (n < 0 || seen.has(n) || blocked.has(n) || !this.canPass(k, dir))
+          continue
         seen.add(n)
         stack.push(n)
       }
@@ -1161,42 +1717,80 @@ class CableCrawler implements ArcadeGameInstance {
   }
 
   private pilotTargets(): Set<number> {
-    if (this.saver) {
+    const s = this.saver
+    if (s?.kind === 'starfield') {
       const out = new Set<number>()
-      for (const s of this.saver.stars) {
-        out.add(s.k)
-        const left = step(s.k, LEFT)
+      for (const star of s.stars) {
+        out.add(star.k)
+        const left = step(star.k, LEFT)
         if (left >= 0 && !this.isWall(left)) out.add(left)
       }
       return out.size ? out : new Set([cellKey(COLS >> 1, ROWS >> 1)])
     }
+    if (s?.kind === 'defrag') {
+      // Get under a loose block and shove it up toward the slots.
+      const out = new Set<number>()
+      for (const g of this.glitches)
+        if (g.kind === 'block' && !g.locked) {
+          const below = step(g.k, DOWN)
+          if (below >= 0 && !this.isWall(below)) out.add(below)
+        }
+      return out
+    }
     const ready = this.sockets.filter(
-      (s) => s.charge === 0 && !this.body.includes(s.k),
+      (sk) => sk.charge === 0 && !this.body.includes(sk.k),
     )
-    const sweep = new Set(surgeSweep(this.body, this.maze.walls))
+    const sweep = new Set(
+      surgeSweep(this.body, this.walls, SURGE_REACH + this.reachBonus),
+    )
     let value = 0
     for (const k of sweep) if (this.sparks.has(k)) value++
     const glitchNear = this.glitches.some(
-      (g) => glitchLive(g) && sweep.has(g.k),
+      (g) => glitchLive(g) && g.kind !== 'block' && sweep.has(g.k),
     )
+    const boss = this.boss
     const bossNear =
-      !!this.boss && sweep.has(bossCell(this.boss)) && this.boss.invuln === 0
+      !!boss &&
+      boss.invuln === 0 &&
+      (boss.kind === 'memory-leak' && boss.hp === 1
+        ? boss.splits.every((sp) => sp.down === 0 && sweep.has(sp.k))
+        : bossCells(boss).some((k) => sweep.has(k))) &&
+      !(
+        boss.kind === 'big-whirr' &&
+        bossPhase(boss) === 3 &&
+        wrapSides(boss, this.body) < 2
+      )
     const lowBattery = this.battery < this.batteryMax * 0.3
     const enough = value >= Math.max(5, Math.min(12, this.sparks.size >> 2))
     if (ready.length && (enough || glitchNear || bossNear || lowBattery))
-      return new Set(ready.map((s) => s.k))
-    if (this.boss && this.body.length >= 16) {
-      // Lay the cable across the beetle's path, a little ahead of it.
-      const b = this.boss
-      const n = b.ring.length
+      return new Set(ready.map((sk) => sk.k))
+    if (boss && this.body.length >= 12) {
       const out = new Set<number>()
-      for (let i = 5; i <= 9; i++)
-        out.add(b.ring[(((b.at + b.dir * i) % n) + n) % n]!)
-      return out
+      if (boss.kind === 'surge-protector') {
+        // Lay the cable across the beetle's path, a little ahead of it.
+        const n = boss.ring.length
+        for (let i = 5; i <= 9; i++)
+          out.add(boss.ring[(((boss.at + boss.dir * i) % n) + n) % n]!)
+      } else if (boss.kind === 'big-whirr') {
+        // Round the hub, on the ring the sockets sit on.
+        for (let dy = -2; dy <= 2; dy++)
+          for (let dx = -2; dx <= 2; dx++)
+            if (Math.max(Math.abs(dx), Math.abs(dy)) === 2)
+              out.add(cellKey(cellX(boss.center) + dx, cellY(boss.center) + dy))
+      } else {
+        for (const k of bossCells(boss))
+          for (const d of DIRS) {
+            const n = step(step(k, d), d)
+            if (n >= 0 && !this.isWall(n)) out.add(n)
+          }
+      }
+      for (const k of this.body) out.delete(k)
+      if (out.size) return out
     }
     const out = new Set(this.sparks)
     if (this.byte?.shown) out.add(this.byte.k)
-    if (out.size === 0) for (const s of ready) out.add(s.k)
+    for (const p of this.pickups) out.add(p.k)
+    if (out.size === 0) for (const sk of ready) out.add(sk.k)
     return out
   }
 
@@ -1213,7 +1807,8 @@ class CableCrawler implements ArcadeGameInstance {
       for (const k of frontier)
         for (const dir of DIRS) {
           const n = step(k, dir)
-          if (n < 0 || seen.has(n) || blocked.has(n) || this.isWall(n)) continue
+          if (n < 0 || seen.has(n) || blocked.has(n) || !this.canPass(k, dir))
+            continue
           if (targets.has(n)) return d
           seen.add(n)
           next.push(n)
@@ -1231,7 +1826,8 @@ class CableCrawler implements ArcadeGameInstance {
       const k = stack.pop()!
       for (const dir of DIRS) {
         const n = step(k, dir)
-        if (n < 0 || seen.has(n) || blocked.has(n) || this.isWall(n)) continue
+        if (n < 0 || seen.has(n) || blocked.has(n) || !this.canPass(k, dir))
+          continue
         seen.add(n)
         stack.push(n)
       }
@@ -1243,12 +1839,17 @@ class CableCrawler implements ArcadeGameInstance {
 
   render(g: CanvasRenderingContext2D) {
     this.renderChassis(g)
-    if (!this.boardArt || this.boardArt.maze !== this.maze) {
-      const canvas = boardCanvas()
+    if (this.bench) {
+      this.renderBench(g)
+      this.renderHud(g)
+      if (this.offer) this.renderOffer(g, this.offer)
+      return
+    }
+    if (!this.boardArt || this.boardArt.walls !== this.walls) {
+      const canvas = this.boardArt?.canvas ?? boardCanvas()
       const board = canvas?.getContext('2d')
-      if (canvas && board)
-        paintBoard(board, this.maze.walls, this.component.look)
-      this.boardArt = { maze: this.maze, canvas: board ? canvas : null }
+      if (canvas && board) paintBoard(board, this.walls, this.component.look)
+      this.boardArt = { walls: this.walls, canvas: board ? canvas : null }
     }
     g.save()
     g.translate(BX, BY)
@@ -1258,14 +1859,20 @@ class CableCrawler implements ArcadeGameInstance {
       g.drawImage(this.boardArt.canvas, 0, 0)
       g.restore()
     } else {
-      paintBoard(g, this.maze.walls, this.component.look)
+      paintBoard(g, this.walls, this.component.look)
     }
-    if (this.saver) this.renderStarfield(g)
+    this.renderFloor(g)
+    if (this.saver?.kind === 'starfield') this.renderStarfield(g)
     this.renderSockets(g)
     if (this.body.length < this.startLen + 2)
       drawSprite(g, REEL_SPRITE, px(this.maze.start), py(this.maze.start))
     this.renderSparks(g)
     if (this.byte?.shown) this.renderByte(g, this.byte.k)
+    for (const p of this.pickups)
+      if (p.life > 90 || Math.floor(p.life / 6) % 2) {
+        glow(g, px(p.k), py(p.k), 8, RAMPS.gold[4], 0.35)
+        drawSprite(g, PICKUP_SPRITES[p.kind], px(p.k), py(p.k))
+      }
     this.renderGlitches(g)
     this.crumbs.render(g)
     if (this.dead === 0 || Math.floor(this.dead / 5) % 2) this.renderCable(g)
@@ -1291,11 +1898,7 @@ class CableCrawler implements ArcadeGameInstance {
           Math.min(BOARD_W - measureText(f.text) / 2 - 2, f.x),
         ),
         f.y,
-        {
-          align: 'center',
-          color: RAMPS.gold[4],
-          outline: INK,
-        },
+        { align: 'center', color: RAMPS.gold[4], outline: INK },
       )
     g.restore()
     vignette(g, W, H, 0.3)
@@ -1305,7 +1908,7 @@ class CableCrawler implements ArcadeGameInstance {
     if (this.offer) this.renderOffer(g, this.offer)
   }
 
-  /** The Mainframe's chassis round the board: a steel case with vents and a power lamp. */
+  /** The Mainframe's chassis round the board: a steel case with vents. */
   private renderChassis(g: CanvasRenderingContext2D) {
     cachedLayer(g, 'cable-crawler-chassis', W, H, (k) => {
       bandedGradient(
@@ -1323,6 +1926,109 @@ class CableCrawler implements ArcadeGameInstance {
       k.fillStyle = RAMPS.night[0]
       for (let x = 16; x < W - 16; x += 6) k.fillRect(x, H - 3, 3, 2)
     })
+  }
+
+  /**
+   * What lies on the floor: diode arrows, airflow chevrons drifting with the wind, glowing heat
+   * grates, goo puddles, Defrag's slots, flashing rows before a refresh and flashing sectors
+   * before a fan turns.
+   */
+  private renderFloor(g: CanvasRenderingContext2D) {
+    if (
+      this.maze.refresh &&
+      this.refreshTimer < REFRESH_TELL &&
+      (this.tick >> 2) % 2
+    ) {
+      g.fillStyle = rgba(RAMPS.leaf[4], 0.12)
+      for (let y = 1; y + 2 < ROWS - 1; y += 4) {
+        g.fillRect(TILE, y * TILE, BOARD_W - TILE * 2, TILE)
+        g.fillRect(TILE, (y + 2) * TILE, BOARD_W - TILE * 2, TILE)
+      }
+    }
+    for (const fan of this.fans)
+      if (fan.timer < FAN_TELL && (this.tick >> 2) % 2) {
+        const x = (cellX(fan.hub) - 2) * TILE
+        const y = (cellY(fan.hub) - 2) * TILE
+        g.strokeStyle = RAMPS.sky[4]
+        g.lineWidth = 1
+        g.strokeRect(x + 0.5, y + 0.5, TILE * 5 - 1, TILE * 5 - 1)
+      }
+    for (const k of this.maze.heat) {
+      const x = cellX(k) * TILE
+      const y = cellY(k) * TILE
+      const pulse = 0.5 + 0.5 * Math.sin(this.tick / 12 + k)
+      g.fillStyle = rgba(RAMPS.ember[2], 0.25 + pulse * 0.2)
+      g.fillRect(x + 1, y + 1, TILE - 2, TILE - 2)
+      g.fillStyle = rgba(RAMPS.ember[4], 0.6)
+      for (let i = 2; i < TILE - 1; i += 3)
+        g.fillRect(x + 2, y + i, TILE - 4, 1)
+    }
+    for (const [k, t] of this.goo) {
+      g.fillStyle = rgba(RAMPS.teal[2], Math.min(0.6, t / 200))
+      g.fillRect(cellX(k) * TILE + 1, cellY(k) * TILE + 2, TILE - 2, TILE - 4)
+      g.fillStyle = rgba(RAMPS.teal[4], Math.min(0.5, t / 300))
+      g.fillRect(cellX(k) * TILE + 2, cellY(k) * TILE + 3, 3, 1)
+    }
+    for (const [k, w] of this.maze.air) {
+      const x = px(k)
+      const y = py(k)
+      const t = (this.tick >> 2) % TILE
+      g.fillStyle = rgba(RAMPS.sky[2], 0.2)
+      g.fillRect(x - TILE / 2 + 1, y - TILE / 2 + 1, TILE - 2, TILE - 2)
+      g.fillStyle = rgba(RAMPS.sky[4], 0.75)
+      for (const off of [t - TILE / 2, t]) {
+        const o = Math.round(off) - 2
+        const cx = x + w.dx * o
+        const cy = y + w.dy * o
+        // A chevron pointing downwind.
+        g.fillRect(
+          cx - (w.dy ? 2 : 0) - w.dx,
+          cy - (w.dx ? 2 : 0) - w.dy,
+          w.dy ? 5 : 1,
+          w.dx ? 5 : 1,
+        )
+        g.fillRect(cx, cy, 1, 1)
+      }
+    }
+    for (const [k, w] of this.diodes) {
+      const x = px(k)
+      const y = py(k)
+      g.fillStyle = INK
+      g.fillRect(x - 4, y - 4, 8, 8)
+      g.fillStyle = RAMPS.gold[2]
+      g.fillRect(x - 3, y - 3, 6, 6)
+      g.fillStyle = RAMPS.gold[4]
+      // An arrow: a shaft and a head pointing the way through.
+      g.fillRect(
+        x - (w.dx ? 2 : 0),
+        y - (w.dy ? 2 : 0),
+        w.dx ? 4 : 1,
+        w.dy ? 4 : 1,
+      )
+      g.fillRect(
+        x + w.dx * 2 - (w.dy ? 2 : 0),
+        y + w.dy * 2 - (w.dx ? 2 : 0),
+        w.dy ? 5 : 1,
+        w.dx ? 5 : 1,
+      )
+      g.fillRect(
+        x + w.dx * 1 - (w.dy ? 1 : 0),
+        y + w.dy * 1 - (w.dx ? 1 : 0),
+        w.dy ? 3 : 1,
+        w.dx ? 3 : 1,
+      )
+    }
+    for (const k of this.maze.bays) {
+      const x = cellX(k) * TILE
+      const y = cellY(k) * TILE
+      g.fillStyle = INK
+      g.fillRect(x + 1, y + 1, TILE - 2, TILE - 2)
+      g.fillStyle = RAMPS.leaf[1]
+      g.fillRect(x + 2, y + 2, TILE - 4, TILE - 4)
+      g.fillStyle = RAMPS.gold[3]
+      for (let i = 2; i < TILE - 2; i += 2)
+        g.fillRect(x + i, y + TILE - 3, 1, 1)
+    }
   }
 
   private renderStarfield(g: CanvasRenderingContext2D) {
@@ -1346,7 +2052,9 @@ class CableCrawler implements ArcadeGameInstance {
 
   private renderSockets(g: CanvasRenderingContext2D) {
     const shuffling =
-      this.boss && bossPhase(this.boss) >= 2 && this.boss.shuffle < SHUFFLE_TELL
+      this.boss?.kind === 'surge-protector' &&
+      bossPhase(this.boss) >= 2 &&
+      this.boss.shuffle < SHUFFLE_TELL
     for (const s of this.sockets) {
       const x = px(s.k)
       const y = py(s.k)
@@ -1355,7 +2063,7 @@ class CableCrawler implements ArcadeGameInstance {
         glow(g, x, y, 9 + Math.sin(this.tick / 8) * 2, RAMPS.teal[3], 0.5)
       drawSprite(g, SOCKET_SPRITE, x, y, { alpha: s.charge > 0 ? 0.6 : 1 })
       if (s.charge > 0) {
-        // The recharge ring fills round the plate.
+        // The recharge bar fills under the plate.
         const frac = 1 - s.charge / SOCKET_RECHARGE
         g.fillStyle = INK
         g.fillRect(x - 5, y + 5, 10, 2)
@@ -1368,7 +2076,7 @@ class CableCrawler implements ArcadeGameInstance {
   /** Every spark: a baked glow under it, and a twinkle running across the board. */
   private renderSparks(g: CanvasRenderingContext2D) {
     const set = SPARK_SPRITES[this.component.look.spark]
-    const stamp = glowStamp(RAMPS.gold[3], 3, 0.45)
+    const stamp = glowStamp(this.component.look.accent[3], 3, 0.45)
     if (stamp) {
       g.save()
       g.globalCompositeOperation = 'lighter'
@@ -1414,6 +2122,7 @@ class CableCrawler implements ArcadeGameInstance {
         drawSprite(g, REBOOT_SPRITE, x, y)
         continue
       }
+      const frame = (this.tick >> 3) % 2
       if (gl.kind === 'mimic') {
         // Out of phase with the real sparks, and pink at the twinkle.
         const twinkle = (this.tick + 20) % 40 < 8
@@ -1427,11 +2136,35 @@ class CableCrawler implements ArcadeGameInstance {
         g.fillStyle = rgba(INK, 0.4)
         g.fillRect(x - 4, y + 3, 9, 2)
         drawSprite(g, BUNNY_SPRITES[(this.tick >> 5) % 2]!, x, y)
+      } else if (gl.kind === 'block') {
+        if (gl.locked) glow(g, x, y, 9, RAMPS.leaf[3], 0.5)
+        drawSprite(g, BLOCK_SPRITE, x, y)
+      } else if (gl.kind === 'crab') {
+        const up = clawsUp(gl)
+        if (up) glow(g, x, y, 9, RAMPS.ember[3], 0.35)
+        drawSprite(g, CRAB_SPRITES[up ? 'up' : 'down'][frame]!, x, y)
+      } else if (gl.kind === 'flipper') {
+        drawSprite(g, FLIPPER_SPRITES[frame]!, x, y)
+      } else if (gl.kind === 'drip') {
+        drawSprite(g, DRIP_SPRITES[(this.tick >> 4) % 2]!, x, y)
+      } else if (gl.kind === 'hotspot') {
+        // A warm glow, growing: everything inside it drains the battery.
+        const r = hotRadius(gl)
+        const pulse = 0.5 + 0.5 * Math.sin(this.tick / 9)
+        glow(g, x, y, (r + 0.6) * TILE, RAMPS.ember[3], 0.28 + pulse * 0.12)
+        g.fillStyle = rgba(RAMPS.ember[2], 0.12)
+        for (let dy = -r; dy <= r; dy++)
+          for (let dx = -r; dx <= r; dx++)
+            if (Math.abs(dx) + Math.abs(dy) <= r)
+              g.fillRect(
+                x - TILE / 2 + dx * TILE,
+                y - TILE / 2 + dy * TILE,
+                TILE,
+                TILE,
+              )
+        shadedOrb(g, x, y, 3, RAMPS.ember)
       } else {
-        const near =
-          Math.abs(cellX(gl.k) - cellX(head)) +
-            Math.abs(cellY(gl.k) - cellY(head)) <=
-          CRACKLE_RANGE
+        const near = manhattan(gl.k, head) <= CRACKLE_RANGE
         if (near) {
           // The tell: it crackles when the plug is close.
           glow(g, x, y, 10, RAMPS.sky[3], 0.5)
@@ -1445,15 +2178,15 @@ class CableCrawler implements ArcadeGameInstance {
               2,
             )
         }
-        drawSprite(g, BUG_SPRITES[(this.tick >> 3) % 2]!, x, y, {
-          flipX: gl.dx < 0,
-        })
+        drawSprite(g, BUG_SPRITES[frame]!, x, y, { flipX: gl.dx < 0 })
       }
     }
   }
 
   private renderBoss(g: CanvasRenderingContext2D, b: Boss) {
     if (b.hp <= 0 && this.clear % 6 < 3) return
+    if (b.kind === 'memory-leak') return this.renderLeak(g, b)
+    if (b.kind === 'big-whirr') return this.renderWhirr(g, b)
     const k = bossCell(b)
     const x = px(k)
     const y = py(k)
@@ -1472,18 +2205,90 @@ class CableCrawler implements ArcadeGameInstance {
       y - 1 + (b.tell > 0 ? Math.round(Math.sin(this.tick)) : 0),
       { flipX: b.dir < 0 },
     )
-    if (b.stun > 0) {
-      for (let i = 0; i < 3; i++) {
-        const a = this.tick / 8 + (i * Math.PI * 2) / 3
-        g.fillStyle = RAMPS.gold[4]
-        g.fillRect(
-          Math.round(x + Math.cos(a) * 7),
-          Math.round(y - 10 + Math.sin(a) * 2),
-          2,
-          2,
-        )
-      }
+    if (b.stun > 0) this.renderDizzy(g, x, y - 10)
+  }
+
+  private renderDizzy(g: CanvasRenderingContext2D, x: number, y: number) {
+    for (let i = 0; i < 3; i++) {
+      const a = this.tick / 8 + (i * Math.PI * 2) / 3
+      g.fillStyle = RAMPS.gold[4]
+      g.fillRect(
+        Math.round(x + Math.cos(a) * 7),
+        Math.round(y + Math.sin(a) * 2),
+        2,
+        2,
+      )
     }
+  }
+
+  /** The Memory Leak: a wobbling teal blob of spilled memory, or its three split drips. */
+  private renderLeak(g: CanvasRenderingContext2D, b: Boss) {
+    if (b.invuln > 0 && Math.floor(b.invuln / 4) % 2) return
+    const x = px(b.center)
+    const y = py(b.center)
+    if (b.hp > 1) {
+      const r = blobRadius(b)
+      glow(g, x, y, (r + 1.5) * TILE, RAMPS.teal[3], 0.35)
+      for (const k of bossCells(b)) {
+        const wob = Math.sin(this.tick / 7 + k) * 1.2
+        shadedOrb(g, px(k), py(k) + wob, 6, RAMPS.teal, { outline: INK })
+      }
+      // Its face: two big eyes and a wobbly mouth.
+      g.fillStyle = INK
+      g.fillRect(x - 7, y - 6, 6, 6)
+      g.fillRect(x + 1, y - 6, 6, 6)
+      g.fillStyle = '#ffffff'
+      g.fillRect(x - 6, y - 5, 4, 4)
+      g.fillRect(x + 2, y - 5, 4, 4)
+      g.fillStyle = INK
+      g.fillRect(x - 4, y - 3, 2, 2)
+      g.fillRect(x + 4, y - 3, 2, 2)
+      g.fillRect(x - 4, y + 3 + Math.round(Math.sin(this.tick / 6)), 8, 2)
+    } else
+      for (const s of b.splits) {
+        if (s.down > 0) continue
+        glow(g, px(s.k), py(s.k), 10, RAMPS.teal[3], 0.5)
+        drawSprite(g, DRIP_SPRITES[(this.tick >> 3) % 2]!, px(s.k), py(s.k), {
+          scale: 2,
+        })
+      }
+    if (b.stun > 0) this.renderDizzy(g, x, y - 18)
+  }
+
+  /** The Big Whirr's hub: a great fan boss with a face, its blades glowing before they turn. */
+  private renderWhirr(g: CanvasRenderingContext2D, b: Boss) {
+    const x = px(b.center)
+    const y = py(b.center)
+    if (b.timer < WHIRR_TELL || b.jam)
+      for (const k of bladeCells(b.center, b.angle)) {
+        g.fillStyle = rgba(b.jam ? RAMPS.ember[3] : RAMPS.sky[4], 0.35)
+        g.fillRect(cellX(k) * TILE, cellY(k) * TILE, TILE, TILE)
+      }
+    if (b.invuln > 0 && Math.floor(b.invuln / 4) % 2) return
+    const phase = bossPhase(b)
+    glow(g, x, y, 22, phase === 3 ? RAMPS.ember[2] : RAMPS.sky[3], 0.45)
+    shadedOrb(g, x, y, 14, RAMPS.steel, { outline: INK })
+    shadedOrb(g, x, y, 9, phase === 3 ? RAMPS.ember : RAMPS.sky)
+    // Little spinning vanes on the hub's face.
+    const spin = (this.tick / (12 - phase * 3)) * (phase === 2 ? -1 : 1)
+    g.fillStyle = RAMPS.steel[4]
+    for (let i = 0; i < 4; i++) {
+      const a = spin + (i * Math.PI) / 2
+      g.fillRect(
+        Math.round(x + Math.cos(a) * 11) - 1,
+        Math.round(y + Math.sin(a) * 11) - 1,
+        3,
+        3,
+      )
+    }
+    g.fillStyle = '#ffffff'
+    g.fillRect(x - 5, y - 3, 3, 3)
+    g.fillRect(x + 2, y - 3, 3, 3)
+    g.fillStyle = INK
+    g.fillRect(x - 4, y - 2, 1, 2)
+    g.fillRect(x + 3, y - 2, 1, 2)
+    g.fillRect(x - 2, y + 4, 4, 1)
+    if (b.stun > 0) this.renderDizzy(g, x, y - 18)
   }
 
   /** Surge bolts: a jagged line of light from the cable to what it slurps. */
@@ -1518,11 +2323,12 @@ class CableCrawler implements ArcadeGameInstance {
 
   /**
    * The cable as a shaded tube built from crisp runs: a drop shadow on the board, an ink
-   * outline, insulation lit along its top and left, an energy pulse lighting the core as it runs
-   * from tail to plug (the whole length glows gold in a surge), pink cable ties every few cells,
-   * and the plug head sprite for its facing.
+   * outline, insulation lit along its top and left in the colour the Workbench painted it, an
+   * energy pulse lighting the core as it runs from tail to plug (the whole length glows gold in a
+   * surge), pink cable ties every few cells, and the plug head sprite for its facing.
    */
   private renderCable(g: CanvasRenderingContext2D) {
+    const coat = CABLE_COATS[this.colour] ?? CABLE_COATS[0]!
     const pts = this.body.map((k) => ({ x: px(k), y: py(k) }))
     const n = pts.length
     const run = (i: number, hw: number, dx = 0, dy = 0) => {
@@ -1541,7 +2347,7 @@ class CableCrawler implements ArcadeGameInstance {
     g.fillStyle = rgba(INK, 0.4)
     for (let i = 0; i < n; i++) run(i, 3, 2, 2)
     const soft = glowStamp(
-      surging ? RAMPS.gold[3] : RAMPS.sky[3],
+      surging ? RAMPS.gold[3] : coat.glow,
       4,
       surging ? 0.35 : 0.18,
     )
@@ -1558,13 +2364,13 @@ class CableCrawler implements ArcadeGameInstance {
     }
     g.fillStyle = INK
     for (let i = 0; i < n; i++) run(i, 4)
-    const tube = surging ? TUBE_SURGE : TUBE_LIT
+    const tube = surging ? TUBE_SURGE : coat.lit
     const shade = (vertical: boolean) => {
       for (let i = 0; i < n; i++) {
         const a = pts[i]!
         const b = pts[Math.min(n - 1, i + 1)]!
         if ((a.x === b.x) !== vertical) continue
-        const rows = lit(i) ? tube : TUBE
+        const rows = lit(i) ? tube : coat.tube
         for (let r = 0; r < 6; r++) {
           g.fillStyle = rows[r]!
           if (vertical)
@@ -1591,13 +2397,15 @@ class CableCrawler implements ArcadeGameInstance {
       const prev = pts[i - 1]!
       const next = pts[i + 1]!
       if (prev.x === next.x || prev.y === next.y) continue
+      if (Math.abs(prev.x - next.x) > TILE || Math.abs(prev.y - next.y) > TILE)
+        continue
       const side = prev.y === p.y ? prev : next
       const end = prev.x === p.x ? prev : next
       const elbows = surging
         ? ELBOWS_SURGE
         : lit(i) || lit(i - 1)
-          ? ELBOWS_LIT
-          : ELBOWS
+          ? coat.elbowsLit
+          : coat.elbows
       const sprite =
         elbows[`${Math.sign(side.x - p.x)},${Math.sign(end.y - p.y)}`]
       if (sprite) drawSprite(g, sprite, p.x - 3, p.y - 3, { anchor: 'topleft' })
@@ -1623,11 +2431,13 @@ class CableCrawler implements ArcadeGameInstance {
     const d = this.dir
     const facing: Facing = d.dy < 0 ? 'up' : d.dy > 0 ? 'down' : 'side'
     const chomp =
-      this.dead === 0 && this.stepTimer < this.stepTicks() / 2 ? 1 : 0
+      this.dead === 0 && this.stepTimer < this.crawlTicks() / 2 ? 1 : 0
     const sprite = PLUG[facing][chomp]
     const left =
       facing === 'side' && d.dx < 0 ? head.x + 5 - sprite.width : head.x - 5
     const top = facing === 'up' ? head.y + 5 - sprite.height : head.y - 5
+    if (this.insulation > 0) glow(g, head.x, head.y, 10, RAMPS.pink[3], 0.35)
+    if (this.magnet > 0) glow(g, head.x, head.y, 14, RAMPS.ember[3], 0.3)
     glow(
       g,
       head.x + d.dx * 6,
@@ -1651,6 +2461,7 @@ class CableCrawler implements ArcadeGameInstance {
     const where = this.boardTitle()
       .replace('!', '')
       .replace('SCREENSAVER', 'SAVER')
+      .replace('WORKBENCH', 'BENCH')
     const rightW = Math.max(measureText(hi), measureText(where)) + 10
     const rightX = W - 2 - rightW
     hudPanel(g, rightX, 2, rightW, 20)
@@ -1667,18 +2478,20 @@ class CableCrawler implements ArcadeGameInstance {
     const midX = scoreW + 5
     const midW = rightX - 3 - midX
     hudPanel(g, midX, 2, midW, 20, RAMPS.night)
-    const frac = this.saver
-      ? 1
-      : this.batteryMax
-        ? this.battery / this.batteryMax
-        : 0
-    const ramp = this.saver
-      ? RAMPS.sky
-      : frac > 0.3
-        ? RAMPS.leaf
-        : frac > 0.15
-          ? RAMPS.gold
-          : RAMPS.ember
+    const frac =
+      this.saver || this.bench
+        ? 1
+        : this.batteryMax
+          ? this.battery / this.batteryMax
+          : 0
+    const ramp =
+      this.saver || this.bench
+        ? RAMPS.sky
+        : frac > 0.3
+          ? RAMPS.leaf
+          : frac > 0.15
+            ? RAMPS.gold
+            : RAMPS.ember
     const low = frac <= 0.15 && Math.floor(this.tick / 10) % 2 === 0
     const gaugeX = midX + 6
     const gaugeW = 32
@@ -1741,11 +2554,7 @@ class CableCrawler implements ArcadeGameInstance {
         : `COMPONENT ${c.number}`,
       W / 2,
       y + 10,
-      {
-        align: 'center',
-        color: c.look.accent[4],
-        outline: INK,
-      },
+      { align: 'center', color: c.look.accent[4], outline: INK },
     )
     drawText(g, c.name, W / 2, y + 26, {
       scale: 2,
@@ -1760,14 +2569,86 @@ class CableCrawler implements ArcadeGameInstance {
       outline: INK,
     })
     const found = c.mazes.filter((m) => this.bytes.has(m.id)).length
-    drawText(g, `GOLDEN BYTES ${found}/${c.mazes.length}`, W / 2, y + 66, {
-      align: 'center',
-      color: RAMPS.gold[3],
-      outline: INK,
-    })
+    drawText(
+      g,
+      `GOLDEN BYTES ${found}/${c.mazes.length}${this.finding ? '  FINDER ON' : ''}`,
+      W / 2,
+      y + 66,
+      { align: 'center', color: RAMPS.gold[3], outline: INK },
+    )
     // A power bar fills as the component boots.
     const frac = Math.min(1, t / (CARD_TICKS - 30))
     gauge(g, 40, y + 80, W - 80, 6, frac, RAMPS.teal)
+  }
+
+  /** The Workbench: a shop counter of parts, priced in copper, with the kit you have so far. */
+  private renderBench(g: CanvasRenderingContext2D) {
+    const bench = this.bench!
+    bandedGradient(
+      g,
+      BX,
+      BY,
+      BOARD_W,
+      BOARD_H,
+      ['#3b2a1d', '#2c1f15', '#1f160f', '#140e0a'],
+      6,
+    )
+    // The bench top: a wooden board with a pegboard of tools behind it.
+    g.fillStyle = rgba(RAMPS.earth[3], 0.25)
+    for (let y = BY + 6; y < BY + 40; y += 6)
+      for (let x = BX + 6; x < BX + BOARD_W - 4; x += 6) g.fillRect(x, y, 1, 1)
+    hudPanel(g, BX + 6, BY + 4, BOARD_W - 12, 22, RAMPS.rust)
+    drawText(g, 'THE WORKBENCH', W / 2, BY + 8, {
+      scale: 2,
+      align: 'center',
+      color: '#ffffff',
+      outline: INK,
+      shadow: RAMPS.rust[1],
+    })
+    drawText(g, `COPPER ${this.copper}`, BX + 10, BY + 32, {
+      color: RAMPS.rust[4],
+      outline: INK,
+    })
+    drawText(g, `CABLES ${this.lives}`, BX + BOARD_W - 10, BY + 32, {
+      align: 'right',
+      color: RAMPS.teal[3],
+      outline: INK,
+    })
+    BENCH_ITEMS.forEach((item, i) => {
+      const y = BY + 46 + i * 20
+      const on = i === bench.cursor
+      hudPanel(g, BX + 8, y, BOARD_W - 16, 17, on ? RAMPS.gold : RAMPS.night)
+      const owned =
+        (item.id === 'reach' && this.reachBonus > 0) ||
+        (item.id === 'finder' && this.finder)
+      const extra =
+        item.id === 'insulation'
+          ? ` ${this.insulation}/3`
+          : owned
+            ? ' OWNED'
+            : ''
+      drawText(g, `${on ? '>' : ' '}${item.name}${extra}`, BX + 12, y + 5, {
+        color: on ? '#ffffff' : RAMPS.steel[3],
+        outline: INK,
+      })
+      if (item.cost)
+        drawText(g, `${item.cost}`, BX + BOARD_W - 14, y + 5, {
+          align: 'right',
+          color: this.copper >= item.cost ? RAMPS.rust[4] : RAMPS.ember[2],
+          outline: INK,
+        })
+    })
+    const sel = BENCH_ITEMS[bench.cursor]!
+    drawText(g, bench.note || sel.note, W / 2, BY + BOARD_H - 22, {
+      align: 'center',
+      color: bench.note ? RAMPS.gold[4] : RAMPS.steel[3],
+      outline: INK,
+    })
+    drawText(g, 'A: BUY / GO   B: GO', W / 2, BY + BOARD_H - 10, {
+      align: 'center',
+      color: RAMPS.steel[2],
+      outline: INK,
+    })
   }
 
   private renderOffer(g: CanvasRenderingContext2D, o: CableSave) {
@@ -1785,14 +2666,10 @@ class CableCrawler implements ArcadeGameInstance {
     })
     drawText(
       g,
-      `COMPONENT ${c.component.number}${c.lap ? ` LAP ${c.lap + 1}` : ''}`,
+      `${o.bench ? 'WORKBENCH, THEN ' : ''}COMPONENT ${c.component.number}${c.lap ? ` LAP ${c.lap + 1}` : ''}`,
       W / 2,
       90,
-      {
-        align: 'center',
-        color: '#ffffff',
-        outline: INK,
-      },
+      { align: 'center', color: '#ffffff', outline: INK },
     )
     drawText(g, c.component.name, W / 2, 102, {
       align: 'center',
@@ -1806,17 +2683,19 @@ class CableCrawler implements ArcadeGameInstance {
         : `SCORE ${o.score}  CABLES ${o.lives}`,
       W / 2,
       120,
+      { align: 'center', color: RAMPS.teal[3], outline: INK },
+    )
+    drawText(
+      g,
+      `GOLDEN BYTES ${o.bytes.length}  COPPER ${o.copper ?? 0}`,
+      W / 2,
+      134,
       {
         align: 'center',
-        color: RAMPS.teal[3],
+        color: RAMPS.gold[4],
         outline: INK,
       },
     )
-    drawText(g, `GOLDEN BYTES ${o.bytes.length}`, W / 2, 134, {
-      align: 'center',
-      color: RAMPS.gold[4],
-      outline: INK,
-    })
     drawText(g, 'A: CONTINUE   B: NEW RUN', W / 2, 160, {
       align: 'center',
       color: RAMPS.steel[3],

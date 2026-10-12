@@ -1,11 +1,14 @@
 // /utils/arcade/cableCrawler/save.ts
 //
-// Cable Crawler's saved run (utils/arcade/saves.ts, conductor kr-arcade/t-064): the component the
-// run reached, with the score and spare cables it started that component with, and what is kept
-// for good whatever happens next: the golden bytes found. The game owns the shape and checks it
-// on the way back in; anything it doesn't recognise is dropped.
+// Cable Crawler's saved run (utils/arcade/saves.ts, conductor kr-arcade/t-064 on): the component
+// the run reached, with the score, spare cables and Workbench kit it started that component with,
+// and what is kept for good whatever happens next: the golden bytes found. Beating a boss saves
+// at once, pointing at the Workbench before the next component, so a quit there loses nothing.
+// The game owns the shape and checks it on the way back in; anything it doesn't recognise is
+// dropped.
 
 import { BYTE_MAZES } from './components'
+import { CABLE_COLOURS, MAX_INSULATION, MAX_LIVES } from './workbench'
 
 export type CableSave = {
   v: 1
@@ -19,6 +22,14 @@ export type CableSave = {
   bytes: string[]
   /** How many components the campaign has reached. */
   reached: number
+  /** The Workbench kit: copper, the long surge, insulation, cable colour, the byte finder. */
+  copper?: number
+  reach?: number
+  insulation?: number
+  colour?: number
+  finder?: boolean
+  /** Resume at the Workbench before component `comp` (the boss before it was just beaten). */
+  bench?: boolean
 }
 
 const count = (v: unknown, max: number) =>
@@ -41,13 +52,20 @@ export function readCableSave(raw: unknown): CableSave | null {
         ),
       ]
     : []
+  const num = (v: unknown, max: number) => (count(v, max) ? (v as number) : 0)
   return {
     v: 1,
     comp: r.comp as number,
     score: r.score as number,
-    lives: Math.max(1, r.lives as number),
+    lives: Math.max(1, Math.min(MAX_LIVES, r.lives as number)),
     continued: r.continued === true,
     bytes,
     reached: count(r.reached, 999) ? Math.max(1, r.reached as number) : 1,
+    copper: num(r.copper, 9999),
+    reach: num(r.reach, 1),
+    insulation: num(r.insulation, MAX_INSULATION),
+    colour: num(r.colour, CABLE_COLOURS - 1),
+    finder: r.finder === true,
+    bench: r.bench === true && (r.comp as number) > 0,
   }
 }

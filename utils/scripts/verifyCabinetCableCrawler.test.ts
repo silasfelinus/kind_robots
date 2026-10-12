@@ -94,6 +94,7 @@ type Game = {
   compIndex: number
   lap: number
   offer: CableSave | null
+  bench: { cursor: number; note: string; t: number } | null
   bytes: Set<string>
   rng: () => number
   update(input: InputFrame): void
@@ -225,8 +226,17 @@ function roundTrip(save: unknown): unknown {
   const steps = componentSteps(POWER_STRIP)
   assert.deepEqual(
     steps.map((s) => s.kind),
-    ['maze', 'maze', 'maze', 'screensaver', 'maze', 'maze', 'boss'],
-    'three mazes, the Screensaver, two mazes and the boss',
+    [
+      'maze',
+      'maze',
+      'maze',
+      'screensaver',
+      'maze',
+      'maze',
+      'boss',
+      'workbench',
+    ],
+    'three mazes, the Screensaver, two mazes, the boss and the Workbench',
   )
   assert.equal(componentAt(COMPONENTS.length).lap, 1, 'then round again')
   const game = play()
@@ -699,12 +709,18 @@ function roundTrip(save: unknown): unknown {
   hit()
   assert.equal(boss.hp, 0)
   assert.ok(game.clear > 0, 'REBOOTED!')
+  assert.equal(game.save!.comp, 1, 'saved at once, pointing past the boss')
+  assert.equal(game.save!.bench, true, 'at the Workbench')
   const level = game.level
-  for (let t = 0; t < 200 && game.stepIndex !== 0; t++)
-    game.update(emptyInput())
+  for (let t = 0; t < 400 && !game.bench; t++) game.update(emptyInput())
+  assert.ok(game.bench, 'the Workbench opens')
+  const go = emptyInput()
+  go.pressed.a = true
+  for (let t = 0; t < 30 && game.bench; t++) game.update(go)
   assert.equal(game.compIndex, 1)
   assert.equal(game.level, level + 1)
   assert.equal(game.save!.comp, 1, 'saved at the next component start')
+  assert.equal(game.save!.bench, false)
 }
 
 // --- saves: component starts, continues, new runs ---------------------------------------
@@ -714,6 +730,7 @@ function roundTrip(save: unknown): unknown {
   game.score = 12_345
   game.lives = 4
   game.bytes.add('ps-2')
+  game.advance()
   game.advance()
   const save = roundTrip(game.save)
   const back = play(5, save)

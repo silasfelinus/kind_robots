@@ -19,6 +19,12 @@ import {
   stepPinkwakeBoss,
   type PinkwakeBoss,
 } from './rainbowPinkwakeBoss'
+import {
+  addCoopSeats,
+  availableCoopTargets,
+  coopEnemyHealth,
+  haloRevive,
+} from './rainbowLocalCoop'
 
 const W = 480
 const H = 270
@@ -80,6 +86,7 @@ export type RainbowCombatSnapshot = {
   boss: Readonly<PinkwakeBoss> | null
   rescuedStation: boolean
   defeatedAt: number | null
+  activePlayers: number
 }
 
 /** The preview's deterministic 60 Hz combat layer; stages and bosses are separate work. */
@@ -87,18 +94,22 @@ export function createRainbowPrincessPreview(
   options: ArcadeGameOptions,
 ): ArcadeGameInstance & { readonly snapshot: RainbowCombatSnapshot } {
   const count = Math.max(1, Math.min(4, options.players ?? 1))
-  const ships: Ship[] = Array.from({ length: count }, (_, seat) => ({
+  let activePlayers = count
+  const createShip = (seat: number): Ship => ({
     x: 65,
-    y: 80 + seat * (125 / count),
+    y: 80 + seat * 32,
     shield: 3,
     cooldown: 0,
-    invulnerable: 60,
+    invulnerable: 120,
     power: 1,
     charge: 0,
     graze: 0,
     lives: 3,
     focus: false,
-  }))
+  })
+  const ships: Ship[] = Array.from({ length: count }, (_, seat) =>
+    createShip(seat),
+  )
   const shots: Shot[] = []
   const reefs: Reef[] = []
   const enemyShots: EnemyShot[] = []
@@ -113,12 +124,19 @@ export function createRainbowPrincessPreview(
   let rescuedStation = false
   let station: { x: number; y: number } | null = null
 
+  function setPlayers(requested: number) {
+    activePlayers = addCoopSeats(ships, requested, createShip)
+    for (let i = shots.length - 1; i >= 0; i--) {
+      if (shots[i]!.seat >= activePlayers) shots.splice(i, 1)
+    }
+  }
+
   function spawn(kind: PinkwakeEnemy) {
     reefs.push({
       x: W + 18,
       y: 40 + options.rng() * (H - 80),
       phase: options.rng() * Math.PI * 2,
-      health:
+      health: coopEnemyHealth(
         kind === 'picket'
           ? 2
           : kind === 'spiral'
@@ -126,6 +144,8 @@ export function createRainbowPrincessPreview(
             : kind === 'anchor'
               ? 4
               : 5,
+        activePlayers,
+      ),
       kind,
       fired: false,
     })
@@ -138,7 +158,7 @@ export function createRainbowPrincessPreview(
     enemyShots.length = 0
     reefs.length = 0
     score += 2500
-    for (const ship of ships)
+    for (const ship of ships.slice(0, activePlayers))
       ship.invulnerable = Math.max(ship.invulnerable, 210)
     options.sound.play('level')
   }
@@ -205,7 +225,8 @@ export function createRainbowPrincessPreview(
       if (reef.health <= 0) defeat(i, seat)
     }
     if (seat === 2) {
-      for (const ally of ships) {
+      haloRevive(ships, activePlayers, seat)
+      for (const ally of ships.slice(0, activePlayers)) {
         ally.shield = Math.min(3, ally.shield + 1)
         ally.invulnerable = Math.max(ally.invulnerable, 60)
       }
@@ -235,10 +256,12 @@ export function createRainbowPrincessPreview(
   }
 
   function fireEnemy(reef: Reef) {
-    const target = ships.reduce(
+    const active = availableCoopTargets(ships, activePlayers)
+    if (!active.length) return
+    const target = active.reduce(
       (best, ship) =>
         Math.abs(ship.y - reef.y) < Math.abs(best.y - reef.y) ? ship : best,
-      ships[0]!,
+      active[0]!,
     )
     const dx = target.x - reef.x
     const dy = target.y - reef.y
@@ -287,7 +310,10 @@ export function createRainbowPrincessPreview(
       ship.lives--
       ship.shield = 3
       ship.power = Math.max(1, ship.power - 1)
-      if (!options.demo && ships.every((candidate) => candidate.lives <= 0))
+      if (
+        !options.demo &&
+        ships.slice(0, activePlayers).every((candidate) => candidate.lives <= 0)
+      )
         over = true
     }
     options.sound.play('pop')
@@ -308,9 +334,10 @@ export function createRainbowPrincessPreview(
       boss = createPinkwakeBoss()
     }
 
-    for (let seat = 0; seat < ships.length; seat++) {
+    for (let seat = 0; seat < activePlayers; seat++) {
       const ship = ships[seat]!
-      const keys = seated[seat] ?? input
+      const keys = seated[seat] ?? (options.demo || seat === 0 ? input : null)
+      if (!keys) continue
       if (ship.lives <= 0) continue
       ship.focus = !options.demo && keys.held.b
       if (options.demo) {
@@ -345,22 +372,25 @@ export function createRainbowPrincessPreview(
       }
     }
     if (boss) {
-      enemyShots.push(...stepPinkwakeBoss(boss, ships))
+      enemyShots.push(...stepPinkwakeBoss(boss, ships.slice(0, activePlayers)))
     }
     if (station) {
       station.x -= 0.75
       if (station.x < -18) station = null
       else if (
-        ships.some(
-          (ship) =>
-            ship.lives > 0 &&
-            Math.hypot(ship.x - station!.x, ship.y - station!.y) < 24,
-        )
+        ships
+          .slice(0, activePlayers)
+          .some(
+            (ship) =>
+              ship.lives > 0 &&
+              Math.hypot(ship.x - station!.x, ship.y - station!.y) < 24,
+          )
       ) {
         station = null
         rescuedStation = true
         score += 500
-        for (const ship of ships) ship.shield = Math.min(3, ship.shield + 1)
+        for (const ship of ships.slice(0, activePlayers))
+          ship.shield = Math.min(3, ship.shield + 1)
         options.sound.play('pickup')
       }
     }
@@ -403,13 +433,15 @@ export function createRainbowPrincessPreview(
         reefs.splice(ei, 1)
         continue
       }
-      const ship = ships.find(
-        (candidate) =>
-          candidate.lives > 0 &&
-          candidate.invulnerable === 0 &&
-          Math.hypot(candidate.x - reef.x, candidate.y - reef.y) <
-            CORE_RADIUS + 10,
-      )
+      const ship = ships
+        .slice(0, activePlayers)
+        .find(
+          (candidate) =>
+            candidate.lives > 0 &&
+            candidate.invulnerable === 0 &&
+            Math.hypot(candidate.x - reef.x, candidate.y - reef.y) <
+              CORE_RADIUS + 10,
+        )
       if (ship) {
         reefs.splice(ei, 1)
         hitShip(ship)
@@ -428,7 +460,7 @@ export function createRainbowPrincessPreview(
         continue
       }
       let consumed = false
-      for (let seat = 0; seat < ships.length; seat++) {
+      for (let seat = 0; seat < activePlayers; seat++) {
         const ship = ships[seat]!
         if (ship.lives <= 0) continue
         const distance = Math.hypot(ship.x - bullet.x, ship.y - bullet.y)
@@ -454,11 +486,13 @@ export function createRainbowPrincessPreview(
         pickups.splice(pi, 1)
         continue
       }
-      const ship = ships.find(
-        (candidate) =>
-          candidate.lives > 0 &&
-          Math.hypot(candidate.x - pickup.x, candidate.y - pickup.y) < 18,
-      )
+      const ship = ships
+        .slice(0, activePlayers)
+        .find(
+          (candidate) =>
+            candidate.lives > 0 &&
+            Math.hypot(candidate.x - pickup.x, candidate.y - pickup.y) < 18,
+        )
       if (!ship) continue
       pickups.splice(pi, 1)
       if (pickup.kind === 'power') ship.power = Math.min(3, ship.power + 1)
@@ -478,16 +512,20 @@ export function createRainbowPrincessPreview(
       return 1
     },
     get lives() {
-      return ships.reduce((total, ship) => total + Math.max(0, ship.lives), 0)
+      return ships
+        .slice(0, activePlayers)
+        .reduce((total, ship) => total + Math.max(0, ship.lives), 0)
     },
     get over() {
       return over
     },
+    setPlayers,
     get snapshot(): RainbowCombatSnapshot {
       return {
         tick,
         score,
-        ships: ships.map((ship) => ({ ...ship })),
+        ships: ships.slice(0, activePlayers).map((ship) => ({ ...ship })),
+        activePlayers,
         shots: shots.map((shot) => ({ ...shot })),
         enemies: reefs.map((reef) => ({ ...reef })),
         enemyShots: enemyShots.map((bullet) => ({ ...bullet })),
@@ -657,7 +695,7 @@ export function createRainbowPrincessPreview(
         g.fillStyle = '#fff'
         g.fillRect(shot.x + 8, shot.y - 1, 5, 2)
       }
-      for (let seat = 0; seat < ships.length; seat++) {
+      for (let seat = 0; seat < activePlayers; seat++) {
         const ship = ships[seat]!
         if (
           ship.lives <= 0 ||
@@ -702,7 +740,7 @@ export function createRainbowPrincessPreview(
       g.fillText('A FIRE · HOLD B FOCUS · CHARGED B SUPER', 9, 24)
       g.textAlign = 'right'
       g.fillText(`SHOALS ${clearCount}  ·  NOVAS ${supers}`, W - 9, 12)
-      for (let seat = 0; seat < ships.length; seat++) {
+      for (let seat = 0; seat < activePlayers; seat++) {
         const ship = ships[seat]!
         g.fillStyle = PILOT_COLORS[seat]!
         g.fillText(

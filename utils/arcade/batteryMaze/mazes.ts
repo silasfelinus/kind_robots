@@ -15,7 +15,16 @@
 //   '<' '>' '^' 'v' a conveyor carrying things that way (a spark on it too)
 //   't' 'T' a toaster slot: toast pops up and blocks it on the board's beat,
 //       't' slots on the first half of the beat and 'T' on the second (a spark on it too)
-// Each gate belongs to the switch nearest it (within four tiles).
+// Power Phases 2 and 3 (slice 3, t-041) add:
+//   'V' a vine bud: a vine grows across it in time, until a watering can clears it (a spark)
+//   'f' a flower gate, shut until every bed spark nearest it is eaten; 'e' a bed spark
+//   'i' ice: things on it slide to the next junction (a spark)
+//   '}' '{' a fan in the left or right wall, blowing along its row
+//   'L' a cabinet lamp, lit by eating a spark near it (a spark)
+//   'k' a locked shortcut that opens when the gatekeeper is rebooted
+//   'p' a solar panel whose spark comes back in the sun
+//   'M' a mirror junction: a switch the clock turns (a spark)
+// Each gate belongs to the switch (or mirror) nearest it (within four tiles).
 
 export type Tile = { x: number; y: number }
 
@@ -30,7 +39,17 @@ export type MazeGate = Tile & {
   openIn: 0 | 1
 }
 
-export type MazeSwitch = Tile & { gates: readonly MazeGate[] }
+export type MazeSwitch = Tile & {
+  gates: readonly MazeGate[]
+  /** A mirror junction: it turns on the clock and can't be thrown. */
+  auto: boolean
+}
+
+/** A flower gate and the bed of sparks that opens it. */
+export type FlowerGate = Tile & { bed: readonly Tile[] }
+
+/** A fan in a wall, blowing along its row. */
+export type Fan = { row: number; dir: 1 | -1 }
 
 export type Conveyor = Tile & { dir: Tile }
 
@@ -56,6 +75,13 @@ export type Maze = {
   switches: readonly MazeSwitch[]
   conveyors: readonly Conveyor[]
   toast: readonly ToastSlot[]
+  vines: readonly Tile[]
+  flowers: readonly FlowerGate[]
+  ice: readonly Tile[]
+  fans: readonly Fan[]
+  lamps: readonly Tile[]
+  locks: readonly Tile[]
+  panels: readonly Tile[]
   /** Rows that wrap from one edge to the other. */
   tunnelRows: readonly number[]
 }
@@ -67,7 +93,19 @@ const CONVEYOR_DIRS: Record<string, Tile> = {
   v: { x: 0, y: 1 },
 }
 /** Tiles that carry a spark. */
-const SPARKY = new Set(['.', 's', 't', 'T', ...Object.keys(CONVEYOR_DIRS)])
+const SPARKY = new Set([
+  '.',
+  's',
+  't',
+  'T',
+  'V',
+  'e',
+  'i',
+  'L',
+  'p',
+  'M',
+  ...Object.keys(CONVEYOR_DIRS),
+])
 
 export const MAZE_COLS = 23
 export const MAZE_ROWS = 21
@@ -281,6 +319,443 @@ export const MAMAS_DEN: MazeLayout = {
   ],
 }
 
+// --- Power Phases 2 and 3, the bosses and the Battery Garden (slice 3, t-041) --------
+
+/** Vines and two flower gates. */
+export const SEEDLING_ROWS: MazeLayout = {
+  id: 'seedling-rows',
+  name: 'SEEDLING ROWS',
+  rows: [
+    '#######################',
+    '#......efee.eefe......#',
+    '#o###.###.###.###.###o#',
+    '#.......#.....#.......#',
+    '#.#.###.###.###.###.#.#',
+    '#....V...........V....#',
+    '###.###.#######.###.###',
+    '#.....................#',
+    '#.###.#####-#####.###.#',
+    '   .....#GGGGG#.....   ',
+    '###.###.#######.###.###',
+    '#..V.......P.......V..#',
+    '#.###.###.###.###.###.#',
+    '#.........###.........#',
+    '#.#####.#######.#####.#',
+    '#.....................#',
+    '###.#####.###.#####.###',
+    '#........V...V........#',
+    '#o###.#####.#####.###o#',
+    '#.....................#',
+    '#######################',
+  ],
+}
+
+/** Bloom Run: six flower gates, and vines everywhere. */
+export const FLOWER_BEDS: MazeLayout = {
+  id: 'bloom-run',
+  name: 'THE FLOWER BEDS',
+  rows: [
+    '#######################',
+    '#.........###.........#',
+    '#o###.###.###.###.###o#',
+    '#..efe...........efe..#',
+    '###e###.###.###.###e###',
+    '#..........V..........#',
+    '#.###.###.###.###.###.#',
+    '#....V...........V....#',
+    '###.#######-#######.###',
+    '   ...###GGGGG###...   ',
+    '###.#.###########.#.###',
+    '#........V.P.V........#',
+    '#e#####.###.###.#####e#',
+    '#efe...............efe#',
+    '###.#####.###.#####.###',
+    '#..........V..........#',
+    '#o###.#####.#####.###o#',
+    '#......efe...efe......#',
+    '#.#.###e###.###e###.#.#',
+    '#....V...........V....#',
+    '#######################',
+  ],
+}
+
+/** Vines, flower gates and two switches. */
+export const POTTING_SHED: MazeLayout = {
+  id: 'potting-shed',
+  name: 'THE POTTING SHED',
+  rows: [
+    '#######################',
+    '#..V...............V..#',
+    '#.#####.#######.#####.#',
+    '#.....eef.###.fee.....#',
+    '#o#.#####e###e#####.#o#',
+    '#.........as..........#',
+    '#.###.#####b#####.###.#',
+    '#.....................#',
+    '#.###.#####-#####.###.#',
+    '  ###...#GGGGG#...###  ',
+    '#.#####.#######.#####.#',
+    '#..........P..........#',
+    '###.###.###.###.###.###',
+    '#....V...........V....#',
+    '#.###.###.###.###.###.#',
+    '#.....................#',
+    '###.#######b#######.###',
+    '#..........sa.........#',
+    '#o#####.###.###.#####o#',
+    '#......V.......V......#',
+    '#######################',
+  ],
+}
+
+/** Long ice runs, and two fans. */
+export const ICE_TRAY: MazeLayout = {
+  id: 'ice-tray',
+  name: 'THE ICE TRAY',
+  rows: [
+    '#######################',
+    '#.....................#',
+    '#o#####.#######.#####o#',
+    '#.iiiiiiiiiiiiiiiiiii.#',
+    '#.###.#####.#####.###.#',
+    '}.....................#',
+    '###.#####.###.#####.###',
+    '###.................###',
+    '###.#######-#######.###',
+    '   ...###GGGGG###...   ',
+    '###.#.###########.#.###',
+    '#..........P..........#',
+    '#.#####.#######.#####.#',
+    '#.iiiiiiii...iiiiiiii.#',
+    '#.###.#####.#####.###.#',
+    '#.....................{',
+    '###.#####.###.#####.###',
+    '#.iiiiiiiiiiiiiiiiiii.#',
+    '#o#####.#######.#####o#',
+    '#.....................#',
+    '#######################',
+  ],
+}
+
+/** Thaw: the most ice, melting as its sparks are eaten. */
+export const FREEZER: MazeLayout = {
+  id: 'thaw',
+  name: 'THE FREEZER',
+  rows: [
+    '#######################',
+    '#.........###.........#',
+    '#o###.###.###.###.###o#',
+    '#.iiiiiiiiiiiiiiiiiii.{',
+    '#.#####.###.###.#####.#',
+    '#.iiiiiiiiiiiiiiiiiii.#',
+    '###.#####.###.#####.###',
+    '#.iiiiiii.....iiiiiii.#',
+    '#.###.#####-#####.###.#',
+    '  ###...#GGGGG#...###  ',
+    '#.#####.#######.#####.#',
+    '#..........P..........#',
+    '###.#####.###.#####.###',
+    '}.iiiiiiiiiiiiiiiiiii.#',
+    '#.#####.###.###.#####.#',
+    '#.iiiiiiiiiiiiiiiiiii.#',
+    '#o###.###.###.###.###o#',
+    '#.....................#',
+    '#.#.#######.#######.#.#',
+    '#.iiiiiiiiiiiiiiiiiii.#',
+    '#######################',
+  ],
+}
+
+/** Ice, three fans and two switches. */
+export const DEEP_FREEZE: MazeLayout = {
+  id: 'deep-freeze',
+  name: 'DEEP FREEZE',
+  rows: [
+    '#######################',
+    '}.iiiiiii.....iiiiiii.#',
+    '#.#######.###.#######.#',
+    '#..........sa.........#',
+    '###.###.###b###.###.###',
+    '#.....................#',
+    '#o###.###########.###o#',
+    '#.iiiiiii.....iiiiiii.#',
+    '###.#.#####-#####.#.###',
+    '   ...###GGGGG###...   ',
+    '###.#.###########.#.###',
+    '#..........P..........#',
+    '#.###.###.#b#.###.###.#',
+    '#.........as..........#',
+    '###.###.#######.###.###',
+    '}.....................{',
+    '#o#######.###.#######o#',
+    '#.....................#',
+    '#.###.#####.#####.###.#',
+    '#.iiiiiiiii.iiiiiiiii.#',
+    '#######################',
+  ],
+}
+
+/** Lights out: six cabinet lamps. */
+export const CLAW_ROW: MazeLayout = {
+  id: 'claw-row',
+  name: 'CLAW MACHINE ROW',
+  rows: [
+    '#######################',
+    '#.....................#',
+    '#o###.###.###.###.###o#',
+    '#....L...........L....#',
+    '###.###.#######.###.###',
+    '#.........###.........#',
+    '#.###.###.###.###.###.#',
+    '#.....................#',
+    '#.#########-#########.#',
+    '  #.....#GGGGG#.....#  ',
+    '#.#.###.#######.###.#.#',
+    '#..........P..........#',
+    '#.###.###.###.###.###.#',
+    '#..L...............L..#',
+    '###.###.###.###.###.###',
+    '#.....................#',
+    '#o###.###.###.###.###o#',
+    '#.........###.........#',
+    '#.#.#####.###.#####.#.#',
+    '#........L...L........#',
+    '#######################',
+  ],
+}
+
+/** Lamp Lighter: eight lamps to relight. */
+export const DARK_ARCADE: MazeLayout = {
+  id: 'lamp-lighter',
+  name: 'THE DARK ARCADE',
+  rows: [
+    '#######################',
+    '#....L...........L....#',
+    '#.#####.#######.#####.#',
+    '#.........###.........#',
+    '#o###.###.###.###.###o#',
+    '#.....................#',
+    '#.#.#####.###.#####.#.#',
+    '#L...................L#',
+    '###.#######-#######.###',
+    '   ...###GGGGG###...   ',
+    '###.#.###########.#.###',
+    '#..........P..........#',
+    '#.#####.###.###.#####.#',
+    '#....L...........L....#',
+    '###.#####.###.#####.###',
+    '#.....................#',
+    '#o###.#####.#####.###o#',
+    '#.....................#',
+    '#.#.###.#######.###.#.#',
+    '#......L.......L......#',
+    '#######################',
+  ],
+}
+
+/** Lamps, a switch, and two locked shortcuts. */
+export const HIGH_SCORE_HALL: MazeLayout = {
+  id: 'high-score-hall',
+  name: 'HIGH SCORE HALL',
+  rows: [
+    '#######################',
+    '#..........k..........#',
+    '#o###.###.###.###.###o#',
+    '#....L...........L....#',
+    '###.###.###.###.###.###',
+    '#.....................#',
+    '#.###.###.###.###.###.#',
+    '#.....................#',
+    '###.#.#####-#####.#.###',
+    '   ...###GGGGG###...   ',
+    '###.#.###########.#.###',
+    '#..........P..........#',
+    '#.###.###.###.###.###.#',
+    '#.........as..........#',
+    '###.###.###b###.###.###',
+    '#....L...........L....#',
+    '#o###.###.###.###.###o#',
+    '#..........k..........#',
+    '#.###.###########.###.#',
+    '#..........L..........#',
+    '#######################',
+  ],
+}
+
+/** Solar panels and two mirror junctions. */
+export const PANEL_ROWS: MazeLayout = {
+  id: 'panel-rows',
+  name: 'PANEL ROWS',
+  rows: [
+    '#######################',
+    '#.ppppppp.....ppppppp.#',
+    '#o###.###.###.###.###o#',
+    '#.....................#',
+    '#.#####.###b###.#####.#',
+    '#.........aM..........#',
+    '###.#####.###.#####.###',
+    '#.....................#',
+    '#.###.#####-#####.###.#',
+    '  ###...#GGGGG#...###  ',
+    '#.#####.#######.#####.#',
+    '#..........P..........#',
+    '###.#####.###.#####.###',
+    '#.....................#',
+    '#.###.#####b#####.###.#',
+    '#..........Ma.........#',
+    '###.###.#######.###.###',
+    '#.....................#',
+    '#o#######.###.#######o#',
+    '#.ppppppp.....ppppppp.#',
+    '#######################',
+  ],
+}
+
+/** Sunset Charge: panels everywhere. */
+export const SUN_DECK: MazeLayout = {
+  id: 'sunset-charge',
+  name: 'THE SUN DECK',
+  rows: [
+    '#######################',
+    '#.pppppppp...pppppppp.#',
+    '#.#####.###b###.#####.#',
+    '#.........aM..........#',
+    '#o#.#####.###.#####.#o#',
+    '#.....ppppp.ppppp.....#',
+    '#.###.#####.#####.###.#',
+    '#.....................#',
+    '###.#######-#######.###',
+    '   ...###GGGGG###...   ',
+    '###.#.###########.#.###',
+    '#..........P..........#',
+    '#.#####.###.###.#####.#',
+    '#.ppppppppp.ppppppppp.#',
+    '###.#####.###.#####.###',
+    '#.....................#',
+    '#o###.#####.#####.###o#',
+    '#..........Ma.........#',
+    '#.#.#####.#b#.#####.#.#',
+    '#.ppppppppp.ppppppppp.#',
+    '#######################',
+  ],
+}
+
+/** Panels, mirrors and a switch. */
+export const THE_ROOFTOP: MazeLayout = {
+  id: 'the-rooftop',
+  name: 'THE ROOFTOP',
+  rows: [
+    '#######################',
+    '#.........###.........#',
+    '#o###.###.###.###.###o#',
+    '#.ppppppp.....ppppppp.#',
+    '#.#####.###b###.#####.#',
+    '#.........aM..........#',
+    '###.#####.###.#####.###',
+    '#.....................#',
+    '#.###.#####-#####.###.#',
+    '  ###...#GGGGG#...###  ',
+    '#.#####.#######.#####.#',
+    '#..........P..........#',
+    '###.###.###b###.###.###',
+    '#..........sa.........#',
+    '#.###.###.###.###.###.#',
+    '#.....................#',
+    '#o#.#####.###.#####.#o#',
+    '#.........aM..........#',
+    '#.###.#####b#####.###.#',
+    '#.ppppppp.....ppppppp.#',
+    '#######################',
+  ],
+}
+
+/** The Glitch Train's yard: two tunnels and three switches. */
+export const TRAIN_YARD: MazeLayout = {
+  id: 'train-yard',
+  name: 'THE TRAIN YARD',
+  rows: [
+    '#######################',
+    '#.....................#',
+    '#o#####.###.###.#####o#',
+    '#.....................#',
+    '#.###.###.###.###.###.#',
+    '   .................   ',
+    '###.###.#######.###.###',
+    '#...as...........sa...#',
+    '#.###b#####-#####b###.#',
+    '#.......#GGGGG#.......#',
+    '#.#####.#######.#####.#',
+    '#..........P..........#',
+    '###.#####.###.#####.###',
+    '#.........as..........#',
+    '#.###.#####b#####.###.#',
+    '   .................   ',
+    '###.###.#######.###.###',
+    '#.....................#',
+    '#o#######.###.#######o#',
+    '#.....................#',
+    '#######################',
+  ],
+}
+
+/** The Overload's core: four switches, and room to run. */
+export const THE_CORE: MazeLayout = {
+  id: 'the-core',
+  name: 'THE CORE',
+  rows: [
+    '#######################',
+    '#.....................#',
+    '#.###.###.###.###.###.#',
+    '#...as...........sa...#',
+    '#.#.#b#.###.###.#b#.#.#',
+    '#.....................#',
+    '#.###.###.###.###.###.#',
+    '#.....................#',
+    '#.###.#####-#####.###.#',
+    '#.......#GGGGG#.......#',
+    '#.#####.#######.#####.#',
+    '#..........P..........#',
+    '#.###.###.###.###.###.#',
+    '#.....................#',
+    '#.#.###.###.###.###.#.#',
+    '#...as...........sa...#',
+    '#.###b###.###.###b###.#',
+    '#.....................#',
+    '#.#####.#######.#####.#',
+    '#.....................#',
+    '#######################',
+  ],
+}
+
+/** The Battery Garden: four mirror junctions, always shifting. */
+export const GARDEN_PATHS: MazeLayout = {
+  id: 'garden-paths',
+  name: 'THE GARDEN PATHS',
+  rows: [
+    '#######################',
+    '#.....................#',
+    '#o###.###.###.###.###o#',
+    '#.......#..Ma.#.......#',
+    '#.#.#b#.###b###.#b#.#.#',
+    '#...aM...........Ma...#',
+    '###.#####.###.#####.###',
+    '#.....................#',
+    '#.###.#####-#####.###.#',
+    '  ###...#GGGGG#...###  ',
+    '#.#####.#######.#####.#',
+    '#..........P..........#',
+    '###.#####.###.#####.###',
+    '#.........aM..........#',
+    '#.#####.###b###.#####.#',
+    '#.....................#',
+    '###.#####.###.#####.###',
+    '#.....................#',
+    '#o###.#####.#####.###o#',
+    '#.....................#',
+    '#######################',
+  ],
+}
+
 export const LAYOUTS: readonly MazeLayout[] = [
   CLASSIC_LAYOUT,
   OUTLET_LOOPS,
@@ -289,9 +764,24 @@ export const LAYOUTS: readonly MazeLayout[] = [
   BREAKFAST_BAR,
   POP_UP_PARLOUR,
   MAMAS_DEN,
+  SEEDLING_ROWS,
+  FLOWER_BEDS,
+  POTTING_SHED,
+  ICE_TRAY,
+  FREEZER,
+  DEEP_FREEZE,
+  CLAW_ROW,
+  DARK_ARCADE,
+  HIGH_SCORE_HALL,
+  PANEL_ROWS,
+  SUN_DECK,
+  THE_ROOFTOP,
+  TRAIN_YARD,
+  THE_CORE,
+  GARDEN_PATHS,
 ]
 
-const BLOCKED = new Set(['#', '-', 'G'])
+const BLOCKED = new Set(['#', '-', 'G', '{', '}'])
 
 const NEIGHBOURS = [
   [1, 0],
@@ -321,7 +811,7 @@ export function parseMaze(layout: MazeLayout): Maze {
   const dockPads = find(rows, 'G')
   if (!start || !door || dockPads.length < 3)
     throw new Error(`${layout.id}: needs a start, a door and a dock`)
-  const switchTiles = find(rows, 's')
+  const switchTiles = [...find(rows, 's'), ...find(rows, 'M')]
   const gates = [...find(rows, 'a'), ...find(rows, 'b')]
   const owned: MazeGate[][] = switchTiles.map(() => [])
   for (const gate of gates) {
@@ -359,7 +849,11 @@ export function parseMaze(layout: MazeLayout): Maze {
       [...row].flatMap((c, x) => (SPARKY.has(c) ? [{ x, y }] : [])),
     ),
     cells: find(rows, 'o'),
-    switches: switchTiles.map((s, i) => ({ ...s, gates: owned[i]! })),
+    switches: switchTiles.map((s, i) => ({
+      ...s,
+      gates: owned[i]!,
+      auto: rows[s.y]![s.x] === 'M',
+    })),
     conveyors: Object.entries(CONVEYOR_DIRS).flatMap(([c, dir]) =>
       find(rows, c).map((t) => ({ ...t, dir })),
     ),
@@ -367,8 +861,38 @@ export function parseMaze(layout: MazeLayout): Maze {
       ...find(rows, 't').map((t) => ({ ...t, group: 0 as const })),
       ...find(rows, 'T').map((t) => ({ ...t, group: 1 as const })),
     ],
+    vines: find(rows, 'V'),
+    flowers: flowerGates(rows, layout.id),
+    ice: find(rows, 'i'),
+    fans: rows.flatMap((row, y): Fan[] =>
+      row[0] === '}'
+        ? [{ row: y, dir: 1 as const }]
+        : row[cols - 1] === '{'
+          ? [{ row: y, dir: -1 as const }]
+          : [],
+    ),
+    lamps: find(rows, 'L'),
+    locks: find(rows, 'k'),
+    panels: find(rows, 'p'),
     tunnelRows,
   }
+}
+
+/** Each bed spark belongs to the flower gate nearest it. */
+function flowerGates(rows: readonly string[], id: string): FlowerGate[] {
+  const gates = find(rows, 'f').map((g) => ({ ...g, bed: [] as Tile[] }))
+  for (const e of find(rows, 'e')) {
+    const ranked = gates
+      .map((g, i) => ({ i, d: Math.abs(g.x - e.x) + Math.abs(g.y - e.y) }))
+      .sort((p, q) => p.d - q.d)
+    const best = ranked[0]
+    if (!best || ranked[1]?.d === best.d)
+      throw new Error(`${id}: bed spark ${e.x},${e.y} has no flower gate`)
+    gates[best.i]!.bed.push(e)
+  }
+  if (gates.some((g) => !g.bed.length))
+    throw new Error(`${id}: a flower gate with no bed`)
+  return gates
 }
 
 /** Whether a gate is open with its switch in `state`. */
@@ -378,9 +902,11 @@ export function gateOpen(gate: MazeGate, state: 0 | 1): boolean {
 
 /**
  * Everything wrong with a maze, checked in every combination of its switches and with each half
- * of its toast up: every spark and cell reachable from the start, and no dead ends except beside
- * a shut gate or popped toast (those make dead ends on purpose: that is how gremlins get bowled
- * into them). Empty when the maze is good.
+ * of its toast up (flower gates and locks shut, vines down), then with every vine grown, then
+ * with every flower gate and lock open: every spark and cell not under a blocked tile reachable
+ * from the start, and no dead ends except beside a blocked tile (a shut gate, popped toast, a
+ * vine, a flower gate or a lock makes dead ends on purpose: that is how gremlins get bowled into
+ * them). Empty when the maze is good.
  */
 export function mazeProblems(maze: Maze): string[] {
   const problems: string[] = []
@@ -389,26 +915,48 @@ export function mazeProblems(maze: Maze): string[] {
   maze.switches.forEach((s, sw) => {
     for (const gate of s.gates) gateAt.set(`${gate.x},${gate.y}`, { sw, gate })
   })
+  const keys = (tiles: readonly Tile[]) =>
+    new Set(tiles.map((t) => `${t.x},${t.y}`))
+  const vines = keys(maze.vines)
+  const flowers = keys(maze.flowers)
+  const locks = keys(maze.locks)
+  type Scenario = {
+    name: string
+    state: (sw: number) => 0 | 1
+    closed: (key: string) => boolean
+  }
+  const scenarios: Scenario[] = []
   const combos = 2 ** maze.switches.length
   const toastStates = maze.toast.length ? [-1, 0, 1] : [-1]
-  for (let combo = 0; combo < combos * toastStates.length; combo++) {
-    const popped = toastStates[Math.floor(combo / combos)]!
-    const state = (sw: number) => (((combo % combos) >> sw) & 1) as 0 | 1
-    const toastUp = (x: number, y: number) =>
-      maze.toast.some((t) => t.x === x && t.y === y && t.group === popped)
-    const open = (x: number, y: number) => {
-      const wx = ((x % cols) + cols) % cols
-      const cell = rows[y]?.[wx]
-      if (cell === undefined || BLOCKED.has(cell)) return false
-      if (toastUp(wx, y)) return false
-      const g = gateAt.get(`${wx},${y}`)
-      return !g || gateOpen(g.gate, state(g.sw))
+  for (let combo = 0; combo < combos; combo++)
+    for (const popped of toastStates) {
+      const up = keys(maze.toast.filter((t) => t.group === popped))
+      scenarios.push({
+        name: `${combo}/${popped}`,
+        state: (sw) => ((combo >> sw) & 1) as 0 | 1,
+        closed: (key) => up.has(key) || flowers.has(key) || locks.has(key),
+      })
     }
-    const shutGate = (x: number, y: number) => {
-      const wx = ((x % cols) + cols) % cols
-      if (toastUp(wx, y)) return true
-      const g = gateAt.get(`${wx},${y}`)
-      return !!g && !gateOpen(g.gate, state(g.sw))
+  if (vines.size)
+    scenarios.push({
+      name: 'vines',
+      state: () => 0,
+      closed: (key) => vines.has(key) || flowers.has(key) || locks.has(key),
+    })
+  if (flowers.size || locks.size)
+    scenarios.push({ name: 'open', state: () => 0, closed: () => false })
+  for (const sc of scenarios) {
+    const wrap = (x: number) => ((x % cols) + cols) % cols
+    const shut = (x: number, y: number) => {
+      const key = `${wrap(x)},${y}`
+      if (sc.closed(key)) return true
+      const g = gateAt.get(key)
+      return !!g && !gateOpen(g.gate, sc.state(g.sw))
+    }
+    const open = (x: number, y: number) => {
+      const cell = rows[y]?.[wrap(x)]
+      if (cell === undefined || BLOCKED.has(cell)) return false
+      return !shut(x, y)
     }
     const startKey = `${maze.start.x},${maze.start.y}`
     const seen = new Set([startKey])
@@ -416,7 +964,7 @@ export function mazeProblems(maze: Maze): string[] {
     while (queue.length) {
       const { x, y } = queue.pop()!
       for (const [dx, dy] of NEIGHBOURS) {
-        const nx = (x + dx + cols) % cols
+        const nx = wrap(x + dx)
         const key = `${nx},${y + dy}`
         if (!seen.has(key) && open(nx, y + dy)) {
           seen.add(key)
@@ -425,16 +973,16 @@ export function mazeProblems(maze: Maze): string[] {
       }
     }
     for (const t of [...maze.sparks, ...maze.cells])
-      if (!seen.has(`${t.x},${t.y}`) && !toastUp(t.x, t.y))
-        problems.push(`${maze.id}[${combo}]: ${t.x},${t.y} is unreachable`)
+      if (!seen.has(`${t.x},${t.y}`) && !shut(t.x, t.y))
+        problems.push(`${maze.id}[${sc.name}]: ${t.x},${t.y} is unreachable`)
     if (!seen.has(`${maze.dockExit.x},${maze.dockExit.y}`))
-      problems.push(`${maze.id}[${combo}]: the dock exit is unreachable`)
+      problems.push(`${maze.id}[${sc.name}]: the dock exit is unreachable`)
     for (const key of seen) {
       const [x, y] = key.split(',').map(Number) as [number, number]
       const exits = NEIGHBOURS.filter(([dx, dy]) => open(x + dx, y + dy)).length
-      const besideGate = NEIGHBOURS.some(([dx, dy]) => shutGate(x + dx, y + dy))
-      if (exits < 2 && !besideGate)
-        problems.push(`${maze.id}[${combo}]: dead end at ${key}`)
+      const beside = NEIGHBOURS.some(([dx, dy]) => shut(x + dx, y + dy))
+      if (exits < 2 && !beside)
+        problems.push(`${maze.id}[${sc.name}]: dead end at ${key}`)
     }
   }
   return problems

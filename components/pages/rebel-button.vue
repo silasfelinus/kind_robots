@@ -1,23 +1,13 @@
 <!-- /components/content/weird/rebel-button.vue -->
 <template>
   <main class="kr-unbound">
-    <header class="flex items-center gap-3 m-2">
-      <span class="kr-icon-tile">
-        <Icon name="kind-icon:button" class="kr-icon-7" />
-      </span>
-      <div>
-        <p class="kr-text-black-2xl tracking-tight">
-          {{ reviewerMode ? 'Art Reviewer' : 'Rebel Button' }}
-        </p>
-        <p class="kr-text-dim-sm">
-          {{
-            reviewerMode
-              ? 'You pressed the button 100 times. Now help art find its audience: every review earns a click and karma.'
-              : "Do not press this button. (You're going to press it.)"
-          }}
-        </p>
-      </div>
-    </header>
+    <h2
+      v-if="reviewerMode"
+      class="kr-panel-flat kr-text-black-xl m-2 flex items-center gap-3 px-4 py-3"
+    >
+      <Icon name="kind-icon:button" class="kr-icon-6 text-primary" />
+      Art Reviewer
+    </h2>
     <div
       v-if="reviewerMode"
       class="flex flex-col gap-4 m-2 p-2 rounded-2xl border bg-(--kr-surface-sunken)"

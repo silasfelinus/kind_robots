@@ -39,10 +39,246 @@ const arch: XZ[] = Array.from({ length: 25 }, (_, step) => {
   return [0.02 + Math.cos(theta) * 0.28, -0.72 + Math.sin(theta) * 0.25]
 })
 
+/** Where the River Croc lies (x, z): his LEDs on the rail sit beside him. */
+export const CROC_XZ: readonly [number, number] = CROC
+
+/**
+ * The LED rail (t-012): up the inside of the left wall, round under the
+ * arch and down the right wall, just inside the cabinet's edge.
+ */
+export const ZUZU_LED_RAIL: {
+  points: Array<[number, number]>
+  count: number
+  y: number
+} = {
+  points: [
+    [LEFT + 0.012, -0.12],
+    ...Array.from({ length: 25 }, (_, step): [number, number] => {
+      const theta = Math.PI + (step * Math.PI) / 24
+      return [0.02 + Math.cos(theta) * 0.268, -0.72 + Math.sin(theta) * 0.238]
+    }),
+    [RIGHT - 0.008, -0.12],
+  ],
+  count: 96,
+  y: 0.058,
+}
+
+// The Abbey (t-006): a clear raised deck on the right, level with the Bell
+// spiral's end, so the spiral's ball rolls out onto it instead of off the
+// cabinet. Two small upper flippers at its foot shoot at three hollow
+// bells along its top; a ball past them drops into the exit hole and goes
+// by subway to the right inlane. The deck is clear acrylic: the right orbit,
+// the shooter lane and the Mortuary's approach stay in sight beneath it.
+export const DECK_Y = 0.21
+export const DECK = { left: 0.115, right: 0.29, top: -0.645, front: -0.418 }
+/** Where the spiral comes onto the deck, through a gap in its top wall. */
+const DECK_MOUTH = { from: 0.205, to: 0.255 }
+const UPPER_FLIPPER = { z: -0.47, left: 0.147, right: 0.258, length: 0.04 }
+const DECK_EXIT: Vec3 = [
+  (UPPER_FLIPPER.left + UPPER_FLIPPER.right) / 2,
+  DECK_Y + BALL,
+  -0.432,
+]
+/** The three hollow bells along the deck's top, left of the spiral's mouth. */
+export const ABBEY_BELLS = [0.135, 0.16, 0.185].map((x, i) => ({
+  id: `abbey-bell-${i + 1}`,
+  x,
+}))
+
+function abbeyDeck(): ColliderDef[] {
+  const deck = { base: DECK_Y, height: 0.03 }
+  const guide = { ...deck, material: 'chrome' as const, thickness: 0.004 }
+  return [
+    {
+      kind: 'box',
+      id: 'abbey-deck',
+      at: [
+        (DECK.left + DECK.right) / 2,
+        DECK_Y - 0.005,
+        (DECK.top + DECK.front) / 2,
+      ],
+      half: [
+        (DECK.right - DECK.left) / 2 + 0.004,
+        0.005,
+        (DECK.front - DECK.top) / 2 + 0.004,
+      ],
+      material: 'plastic-clear',
+      restitution: 0.18,
+    },
+    wall('abbey-wall-left', [DECK.left, DECK.top], [DECK.left, DECK.front], {
+      ...deck,
+      thickness: 0.006,
+    }),
+    wall('abbey-wall-right', [DECK.right, DECK.top], [DECK.right, DECK.front], {
+      ...deck,
+      thickness: 0.006,
+    }),
+    wall(
+      'abbey-wall-top-left',
+      [DECK.left, DECK.top],
+      [DECK_MOUTH.from, DECK.top],
+      {
+        ...deck,
+        thickness: 0.006,
+      },
+    ),
+    wall(
+      'abbey-wall-top-right',
+      [DECK_MOUTH.to, DECK.top],
+      [DECK.right, DECK.top],
+      {
+        ...deck,
+        thickness: 0.006,
+      },
+    ),
+    wall(
+      'abbey-wall-front',
+      [DECK.left, DECK.front],
+      [DECK.right, DECK.front],
+      {
+        ...deck,
+        thickness: 0.006,
+      },
+    ),
+    // Inlane guides from the side walls to the flipper pivots, and under
+    // each flipper an apron to the exit hole: the deck's only way out.
+    ...(['left', 'right'] as const).flatMap((side): ColliderDef[] => {
+      const s = side === 'left' ? -1 : 1
+      const pivot = UPPER_FLIPPER[side]
+      const end: XZ = [pivot - s * 0.006, UPPER_FLIPPER.z - 0.004]
+      return [
+        wall(
+          `abbey-inlane-${side}`,
+          [side === 'left' ? DECK.left : DECK.right, UPPER_FLIPPER.z - 0.06],
+          end,
+          guide,
+        ),
+        wall(
+          `abbey-apron-${side}`,
+          end,
+          [DECK_EXIT[0] - s * 0.02, DECK.front],
+          guide,
+        ),
+      ]
+    }),
+  ]
+}
+
+// The undercrypt (t-010): a hidden mini-table behind the backbox, under the
+// Abbey in the story. Three relic strikes light the crypt; the Mortuary then
+// sends its ball down a subway instead of telling a chapter, and it comes up
+// at the crypt's far corner. The crypt has its own pair of flippers (on the
+// lower buttons), three skull standups and a HOME saucer. HOME, or a ball
+// past the crypt's flippers, goes back by subway to the Mortuary's kicker:
+// nothing is lost below. The backbox hides the crypt from the main camera,
+// which eases over it only while every ball is down there.
+export const CRYPT = {
+  x: 0.02,
+  half: 0.16,
+  bottom: -1.1,
+  top: -1.4,
+  flipperZ: -1.15,
+}
+export const CRYPT_SKULLS = [-0.06, 0, 0.06].map((dx, i) => ({
+  id: `crypt-skull-${i + 1}`,
+  x: CRYPT.x + dx,
+}))
+const BACKBOX_Z = -1.06
+
+function crypt(): ColliderDef[] {
+  const x = (dx: number) => CRYPT.x + dx
+  const guide = { material: 'chrome' as const, thickness: 0.004 }
+  const side = (sign: -1 | 1): ColliderDef[] => {
+    const name = sign < 0 ? 'left' : 'right'
+    const pivot = x(sign * 0.065)
+    const end: XZ = [pivot - sign * 0.006, CRYPT.flipperZ - 0.004]
+    return [
+      wall(
+        `crypt-inlane-${name}`,
+        [x(sign * CRYPT.half), CRYPT.flipperZ - 0.07],
+        end,
+        guide,
+      ),
+      wall(`crypt-apron-${name}`, end, [x(sign * 0.02), CRYPT.bottom], guide),
+      // The top corner, cut so a ball cannot sit in it.
+      wall(
+        `crypt-corner-${name}`,
+        [x(sign * CRYPT.half), CRYPT.top + 0.035],
+        [x(sign * (CRYPT.half - 0.035)), CRYPT.top],
+        { material: 'rubber' },
+      ),
+    ]
+  }
+  return [
+    {
+      kind: 'box',
+      id: 'crypt-floor',
+      at: [CRYPT.x, -0.01, (CRYPT.bottom + CRYPT.top) / 2],
+      half: [CRYPT.half + 0.03, 0.01, (CRYPT.bottom - CRYPT.top) / 2 + 0.03],
+      material: 'playfield',
+      restitution: 0.18,
+    },
+    {
+      kind: 'box',
+      id: 'crypt-glass',
+      at: [CRYPT.x, 0.31, (CRYPT.bottom + CRYPT.top) / 2],
+      half: [CRYPT.half + 0.03, 0.005, (CRYPT.bottom - CRYPT.top) / 2 + 0.03],
+      material: 'plastic-clear',
+      hidden: true,
+    },
+    ...walls(
+      'crypt-wall',
+      [
+        [x(-CRYPT.half), CRYPT.bottom],
+        [x(-CRYPT.half), CRYPT.top],
+        [x(CRYPT.half), CRYPT.top],
+        [x(CRYPT.half), CRYPT.bottom],
+        [x(-CRYPT.half), CRYPT.bottom],
+      ],
+      { thickness: 0.009 },
+    ),
+    ...side(-1),
+    ...side(1),
+  ]
+}
+
+function cryptFlipper(side: 'left' | 'right') {
+  const sign = side === 'left' ? -1 : 1
+  return {
+    id: `crypt-flipper-${side}`,
+    side,
+    zone: 'sub-table',
+    pivot: [CRYPT.x + sign * 0.065, 0, CRYPT.flipperZ] as Vec3,
+    length: 0.05,
+    baseRadius: 0.009,
+    tipRadius: 0.0055,
+    restAngle: 0.5,
+    activeAngle: -0.45,
+    strokeMs: 20,
+    returnMs: 80,
+  }
+}
+
+function upperFlipper(side: 'left' | 'right') {
+  return {
+    id: `abbey-flipper-${side}`,
+    side,
+    upper: true,
+    pivot: [UPPER_FLIPPER[side], DECK_Y, UPPER_FLIPPER.z] as Vec3,
+    length: UPPER_FLIPPER.length,
+    baseRadius: 0.009,
+    tipRadius: 0.005,
+    restAngle: 0.5,
+    activeAngle: -0.46,
+    strokeMs: 18,
+    returnMs: 60,
+  }
+}
+
 // Three distinct steel-ball paths. X/Z are metres, final coordinate is the
 // real elevation of the continuous ramp deck. The village switchback crosses
 // to the right inlane; the Abbey crossover feeds the left; the Bell climbs to
-// the future upper Abbey deck before its temporary right-side gravity return.
+// raised Abbey deck (t-006) on the right.
 const VILLAGE_SWITCHBACK: XZH[] = [
   [-0.12, -0.29, 0],
   [-0.12, -0.39, 0.011],
@@ -121,6 +357,16 @@ function lowerSide(name: 'left' | 'right'): ColliderDef[] {
     wall(`sling-${name}-base`, bottom, tip, { material: 'plastic-printed' }),
     wall(`sling-${name}-kicker`, top, tip, { material: 'rubber', kick: 1.5 }),
     slingCap(`sling-${name}-cap`, [top, bottom, tip]),
+    // A round post at the sling's top corner (t-013): a ball coming
+    // straight down could balance on the back wall's flat end.
+    {
+      kind: 'post',
+      id: `sling-${name}-top`,
+      at: [top[0], 0.013, top[1]],
+      radius: 0.006,
+      halfHeight: 0.013,
+      material: 'post',
+    },
   ]
 }
 
@@ -174,6 +420,8 @@ const colliders: ColliderDef[] = [
       material: 'plastic-clear',
     },
   ),
+  ...abbeyDeck(),
+  ...crypt(),
   // Raised catch plates at the exits stop a ball from rolling off the cabinet.
   wall('village-return-stop', [0.163, -0.165], [0.203, -0.165], {
     base: 0.03,
@@ -277,11 +525,55 @@ const colliders: ColliderDef[] = [
   ...[-1, 1].map((side): ColliderDef => ({
     kind: 'post',
     id: `relic-mouth-${side < 0 ? 'l' : 'r'}`,
-    at: [SEAL_X + side * 0.014, 0.02, RELIC_MOUTH],
+    // As low as the lane's walls (t-013): a 4 cm post pinched a ball
+    // between itself and the Village ramp's rail, perched on the wall.
+    at: [SEAL_X + side * 0.014, 0.013, RELIC_MOUTH],
     radius: 0.004,
-    halfHeight: 0.02,
+    halfHeight: 0.013,
     material: 'post',
   })),
+  // From beside the Village ramp's rail across behind the lane, a deflector
+  // (t-013): the strip between the rail and the lane pinched a ball
+  // wherever it narrowed; now a ball rolling down it is turned out past
+  // the lane's right side.
+  wall(
+    'relic-deflector',
+    [-0.073, -0.53],
+    [SEAL_X + 0.023, RELIC_MOUTH - 0.065],
+    {
+      material: 'chrome',
+      thickness: 0.004,
+    },
+  ),
+  // ...and a clear plate over the sliver between the Village ramp's rail
+  // and the lane (t-013), flush with that roof: the rail curves, so it is
+  // a mesh that follows it. Too narrow for a ball, the sliver held one
+  // perched on its edges through every shake of the ball search.
+  {
+    kind: 'mesh',
+    id: 'relic-rail-plate',
+    vertices: [
+      -0.079, 0.0485, -0.5, -0.0735, 0.0485, -0.5, -0.0735, 0.0485, -0.39,
+      -0.0975, 0.0485, -0.39,
+    ],
+    indices: [0, 2, 1, 0, 3, 2],
+    material: 'plastic-clear',
+    restitution: 0.18,
+  },
+  // One clear roof over the lane, the pocket behind it and the seals
+  // (t-013): an
+  // airborne ball in a multiball scramble could drop in behind the captive,
+  // or perch on a standing seal. One flat roof sheds a ball that lands on
+  // it off its front edge; a rolling ball passes under it.
+  {
+    kind: 'box',
+    id: 'relic-seal-roof',
+    // Kept right of the Village ramp's rail, which drifts from x -0.075
+    // to -0.1 down this stretch: the roof must never reach into the ramp.
+    at: [-0.053, 0.047, -0.4165],
+    half: [0.0205, 0.0015, 0.1135],
+    material: 'plastic-clear',
+  },
   {
     kind: 'post',
     id: 'croc-mouth-guide',
@@ -493,6 +785,19 @@ export const ZUZU_LAST_BELL_GREYBOX: TableDef = {
       frame,
       portrait: [0.02, 1.3, 0.2],
     },
+    {
+      // Over the backbox, down into the undercrypt (t-010).
+      id: 'sub-table',
+      position: [CRYPT.x, 0.52, CRYPT.bottom + 0.27],
+      target: [CRYPT.x, 0, (CRYPT.top + CRYPT.bottom) / 2],
+      fovDeg: 32,
+      frame: {
+        min: [CRYPT.x - CRYPT.half - 0.03, 0, CRYPT.top - 0.02],
+        max: [CRYPT.x + CRYPT.half + 0.03, 0.03, CRYPT.bottom + 0.04],
+      },
+      portrait: [CRYPT.x, 0.7, CRYPT.bottom + 0.15],
+      portraitFovDeg: 36,
+    },
   ],
   colliders,
   sensors: [
@@ -594,16 +899,39 @@ export const ZUZU_LAST_BELL_GREYBOX: TableDef = {
       strokeMs: 20,
       returnMs: 70,
     },
+    upperFlipper('left'),
+    upperFlipper('right'),
+    cryptFlipper('left'),
+    cryptFlipper('right'),
   ],
   // The four Abbey seals stand in line in the channel between the Village and
   // Bell ramps: each one knocked down bares the next, so the bank asks for
   // four straight shots instead of sitting across every ramp's mouth.
-  drops: [-0.31, -0.335, -0.36, -0.385].map((z, i) => ({
-    id: `abbey-seal-${i + 1}`,
-    bank: 'abbey-seals',
-    at: [SEAL_X, 0.019, z] as Vec3,
-    half: [0.012, 0.022, 0.004] as Vec3,
-  })),
+  drops: [
+    ...[-0.31, -0.335, -0.36, -0.385].map((z, i) => ({
+      id: `abbey-seal-${i + 1}`,
+      bank: 'abbey-seals',
+      at: [SEAL_X, 0.019, z] as Vec3,
+      half: [0.012, 0.022, 0.004] as Vec3,
+    })),
+    // The Abbey's hollow bells (t-006): standups along the deck's top wall,
+    // faced to the upper flippers; each hit rings, none ever drops.
+    ...ABBEY_BELLS.map((bell) => ({
+      id: bell.id,
+      bank: 'abbey-bells',
+      at: [bell.x, DECK_Y + 0.019, DECK.top + 0.008] as Vec3,
+      half: [0.01, 0.019, 0.004] as Vec3,
+      standup: true,
+    })),
+    // The crypt's skulls (t-010): standups across its top wall.
+    ...CRYPT_SKULLS.map((skull) => ({
+      id: skull.id,
+      bank: 'crypt-skulls',
+      at: [skull.x, 0.019, CRYPT.top + 0.012] as Vec3,
+      half: [0.014, 0.019, 0.004] as Vec3,
+      standup: true,
+    })),
+  ],
   spinners: [
     {
       id: 'relic-spinner',
@@ -651,6 +979,54 @@ export const ZUZU_LAST_BELL_GREYBOX: TableDef = {
         velocity: [0, 0, 0.3],
       },
       lock: { slots: CITADEL_SLOTS, releaseGapMs: 700 },
+    },
+    {
+      // The Abbey deck's exit: a hole between the upper flippers, and a
+      // subway to the right inlane, as the Croc spits.
+      id: 'abbey-exit',
+      at: DECK_EXIT,
+      radius: 0.018,
+      captureMaxSpeed: Number.POSITIVE_INFINITY,
+      holdMs: 300,
+      hidden: true,
+      eject: { at: [0.181, BALL + 0.005, -0.2], velocity: [0, 0, 0.3] },
+    },
+    {
+      // Where the Mortuary's subway comes up into the crypt. It never
+      // captures; it only kicks the arriving ball down toward the flippers.
+      id: 'crypt-entry',
+      at: [CRYPT.x - 0.12, BALL, CRYPT.top + 0.045],
+      radius: 0.012,
+      captureMaxSpeed: -1,
+      holdMs: 0,
+      eject: {
+        at: [CRYPT.x - 0.12, BALL, CRYPT.top + 0.045],
+        velocity: [0.3, 0, 0.45],
+      },
+    },
+    {
+      // The crypt's goal: HOME, back up to the Mortuary's kicker.
+      id: 'crypt-home',
+      at: [CRYPT.x + 0.1, BALL, CRYPT.top + 0.09],
+      radius: 0.02,
+      captureMaxSpeed: 2.5,
+      holdMs: 1000,
+      eject: {
+        at: [CRYPT.x + 0.1, BALL, CRYPT.top + 0.09],
+        velocity: [0, 0, 0],
+      },
+      subwayTo: 'mortuary',
+    },
+    {
+      // Past the crypt's flippers: not lost, it goes back up too.
+      id: 'crypt-drain',
+      at: [CRYPT.x, BALL, CRYPT.bottom - 0.02],
+      radius: 0.02,
+      captureMaxSpeed: Number.POSITIVE_INFINITY,
+      holdMs: 700,
+      eject: { at: [CRYPT.x, BALL, CRYPT.bottom - 0.02], velocity: [0, 0, 0] },
+      subwayTo: 'mortuary',
+      hidden: true,
     },
   ],
   shots: [
@@ -756,7 +1132,31 @@ export const ZUZU_LAST_BELL_GREYBOX: TableDef = {
   },
   drainZ: BOTTOM - 0.03,
   balls: 3,
-  dmd: { at: [0.02, 0.2, -1.04], width: 0.3 },
+  dmd: { at: [0.02, 0.2, -1.04], width: 0.3, occluder: 'backbox' },
+  ledRail: ZUZU_LED_RAIL,
+  zones: [
+    {
+      id: 'sub-table',
+      min: [CRYPT.x - CRYPT.half - 0.03, CRYPT.top - 0.03],
+      max: [CRYPT.x + CRYPT.half + 0.03, CRYPT.bottom + 0.03],
+    },
+  ],
+  occluders: [
+    {
+      // The backbox: it stands between the main camera and the crypt.
+      id: 'backbox',
+      at: [CRYPT.x, 0.2, BACKBOX_Z],
+      half: [0.32, 0.2, 0.012],
+      fadeFor: 'sub-table',
+    },
+    {
+      // Its lid, so a steep (phone) camera sees cabinet over the crypt.
+      id: 'backbox-lid',
+      at: [CRYPT.x, 0.4, (CRYPT.top + BACKBOX_Z) / 2],
+      half: [0.32, 0.012, (BACKBOX_Z - CRYPT.top) / 2 + 0.02],
+      fadeFor: 'sub-table',
+    },
+  ],
   art: {
     // Rendered by durable ArtJobs from conductor's art-prompts.yaml
     // (zuzu-pinball/t-011): the painted playfield over the whole table

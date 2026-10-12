@@ -20,26 +20,6 @@ const config: ProjectFrontConfig = {
     icon: 'kind-icon:external-link',
     external: true,
   },
-  sections: [
-    {
-      key: 'service',
-      title: 'The service',
-      body: 'Weekly, bi-weekly, monthly, and one-time cleanup plans — plus commercial/HOA and shared-space routes. Flat honest pricing, cancel anytime, no long-term contract.',
-      icon: 'kind-icon:check-circle',
-    },
-    {
-      key: 'area',
-      title: 'Service area',
-      body: 'Core routes in Eureka, Arcata, and McKinleyville, with Trinidad, Cutten, Freshwater, and Blue Lake served by request.',
-      icon: 'kind-icon:map-pin',
-    },
-    {
-      key: 'story',
-      title: 'The story',
-      body: 'A neighborly Humboldt business built on trust, routine, and genuinely tidy lawns — plus a Poopstakes giveaway for every new customer.',
-      icon: 'kind-icon:hand-heart',
-    },
-  ],
   stats: [
     { label: 'Service area', value: '3+ cities', icon: 'kind-icon:map-pin' },
     { label: 'Plan tiers', value: '4', icon: 'kind-icon:calendar' },

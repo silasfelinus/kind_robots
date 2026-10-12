@@ -67,8 +67,6 @@ export type ProjectFrontConfig = {
   launch?: ProjectFrontLink
   /** Extra links (repo, external app, docs). */
   links?: ProjectFrontLink[]
-  /** Marketing/explainer blocks rendered under the hero. */
-  sections?: ProjectFrontSection[]
   /** Headline stats shown in the hero strip. */
   stats?: ProjectFrontStat[]
   /** "What's shipped / what's next" deliverable bullets. */

@@ -7,7 +7,7 @@
 
 /** Every kind of wave the tourney announces on its banner. */
 export type WaveKind =
-  'joust' | 'survival' | 'gladiator' | 'cocoon' | 'storm' | 'team'
+  'joust' | 'survival' | 'gladiator' | 'cocoon' | 'storm' | 'team' | 'lantern'
 
 export type WaveType = {
   /** The banner's headline. */
@@ -41,7 +41,15 @@ export const WAVE_TYPES: Record<WaveKind, WaveType> = {
     rule: 'NO FRIENDLY BONK: 3000 EACH',
     bonus: 3000,
   },
+  lantern: {
+    title: 'LANTERN WAVE',
+    rule: 'CATCH ALL 8 LANTERNS: 3000',
+    bonus: 3000,
+  },
 }
+
+/** A lantern wave floats this many lanterns up, one after another. */
+export const LANTERN_WAVE = { count: 8, every: 100 } as const
 
 /**
  * The classic pond's announced waves, ten to a lap: a plain joust to open, then each bonus rule in

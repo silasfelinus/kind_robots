@@ -1,0 +1,45 @@
+name: Deferred Image Browser Contract
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'components/gallery/kr-deferred-image.vue'
+      - 'utils/viewportHydration.ts'
+      - 'utils/scripts/verifyDeferredImage.browser.test.mjs'
+      - '.github/workflows/deferred-image-contract.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: deferred-image-contract-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  deferred-image:
+    name: Deferred image browser states
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+      - name: Install dependencies
+        run: npm ci
+        env:
+          CYPRESS_INSTALL_BINARY: '0'
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+      - name: Verify actual image component and viewport activation
+        run: node utils/scripts/verifyDeferredImage.browser.test.mjs
+        env:
+          DEFERRED_IMAGE_SHOTS: deferred-image-shots
+      - name: Preserve responsive fixtures
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: deferred-image-states
+          path: deferred-image-shots

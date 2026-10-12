@@ -55,20 +55,6 @@ const config: ProjectFrontConfig = {
   tagline: 'Build, review, pair, package, and color three living books.',
   description:
     'A ledger-backed production studio for Monster Recast, Hollywood Recast, and Kind Robots. Track the exact next action for all 108 interiors and three covers, edit canonical Conductor prompts, compare current and historical color and black-and-white versions, request targeted candidates or revisions, adopt legacy set assets, accept working masters, confirm final pairs, inspect source and print-package readiness, diagnose queue failures, and preview finished pages in the shared coloring engine.',
-  sections: [
-    {
-      key: 'production',
-      title: 'One canonical production view',
-      body: 'The front end reads and updates the same proposal ledgers, cover queue, and package manifests used by Conductor instead of maintaining unrelated prompt cards and gallery generations.',
-      icon: 'kind-icon:book',
-    },
-    {
-      key: 'review',
-      title: 'Know the next action',
-      body: 'Every interior, cover, and publishing package is classified by its next required human or pipeline action, with source production kept separate from printer layout and export work.',
-      icon: 'kind-icon:check',
-    },
-  ],
   deliverables: {
     done: [
       'Shared coloring engine with region fill, flood fill, palette, undo, and export',

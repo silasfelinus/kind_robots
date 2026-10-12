@@ -7,7 +7,10 @@ function boostMove(move: MoveData): MoveData {
   return {
     ...move,
     damage: move.damage * SHOWDOWN_DAMAGE_SCALE,
-    chip: move.chip === undefined ? undefined : move.chip * SHOWDOWN_DAMAGE_SCALE,
+    chip:
+      move.chip === undefined
+        ? undefined
+        : move.chip * SHOWDOWN_DAMAGE_SCALE,
     parry: move.parry
       ? { ...move.parry, damage: move.parry.damage * SHOWDOWN_DAMAGE_SCALE }
       : undefined,

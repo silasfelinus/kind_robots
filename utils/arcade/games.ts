@@ -379,6 +379,7 @@ export const ARCADE_GAMES: ArcadeGameMeta[] = [
       'LEFT/RIGHT  WALK',
       'UP OR B  JUMP',
       'A  THROW OR CUT',
+      'GAMEPAD: A JUMP, B ATTACK',
       'ONE HIT LOSES THE PONCHO',
       'BREAK CRATES FOR A NEW ONE',
       'WATCH FOR EACH ATTACK TELL',

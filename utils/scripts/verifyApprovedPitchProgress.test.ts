@@ -30,7 +30,7 @@ assert.equal(safeProjectPageUrl('//untrusted.example'), null)
 assert.equal(safeProjectPageUrl('/admin/sample'), '/admin/sample')
 assert.equal(safeProjectPageUrl('https://kindrobots.org/play/sample'), 'https://kindrobots.org/play/sample')
 
-const baseTasks: Array<[string, string]> = [['Write the design brief and start building', 'ready'], ['Confirm scope with Silas', 'done']]
+const baseTasks: Array<[string, string]> = [['Write the design brief and start building', 'ready'], ['Confirm scope with Silas', 'done'], ['Build the first playable slice', 'ready']]
 const records = approvedDailyPitchProgress([
   approved,
   pitch('2026-10-04-robot-sound-garden'),

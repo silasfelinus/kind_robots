@@ -348,13 +348,22 @@ const HAPPY_SPRITE = pixelSprite(
   { ...rampPalette(HAPPY_RAMP), k: INK, w: '#ffffff', c: RAMPS.pink[3] },
 )
 
-const DROP_SPRITES = (() => {
-  const drop = pixelSprite(['.h..', '.lb.', '..bs', '.bs.', '.ss.'], {
-    h: RAMPS.purple[4],
-    l: RAMPS.purple[3],
-    b: RAMPS.purple[2],
-    s: RAMPS.purple[1],
-  })
+/** Vivid rain with a white rim and dark outline, readable on dark or daylight skies. */
+export const DROP_SPRITES = (() => {
+  const drop = pixelSprite(
+    [
+      '...w...',
+      '..wco..',
+      '.owcco.',
+      '.occco.',
+      '.ocbco.',
+      '.occco.',
+      '..cbo..',
+      '..oco..',
+      '...o...',
+    ],
+    { w: '#ffffff', c: '#67e8f9', b: '#0284c7', o: INK },
+  )
   return [drop, mirrorSprite(drop)] as const
 })()
 

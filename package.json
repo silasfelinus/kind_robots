@@ -133,6 +133,7 @@
     "test:zuzu-pinball-no-stuck": "tsx utils/scripts/verifyZuzuPinballNoStuck.test.ts",
     "test:zuzu-pinball-dmd-sound": "tsx utils/scripts/verifyZuzuPinballDmdSound.test.ts",
     "test:zuzu-pinball-camera": "tsx utils/scripts/verifyZuzuPinballCamera.test.ts",
+    "test:zuzu-pinball-stress": "tsx utils/scripts/verifyZuzuPinballStress.test.ts",
     "test:zuzu-pinball-multiball": "tsx utils/scripts/verifyZuzuPinballMultiball.test.ts",
     "test:zuzu-pinball-abbey": "tsx utils/scripts/verifyZuzuPinballAbbey.test.ts",
     "test:zuzu-pinball-crypt": "tsx utils/scripts/verifyZuzuPinballCrypt.test.ts",

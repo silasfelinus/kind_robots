@@ -18,6 +18,13 @@ import {
 import type { Ramp } from '../snes'
 import { ARENA, ARENA_H, ARENA_W, CX, CY, H, VENTS, W } from './arena'
 import type { District } from './districts'
+import {
+  gateState,
+  LIGHTNING_TELL,
+  LIGHTNING_RADIUS,
+  PAD_RADIUS,
+} from './floors'
+import type { LaserGate, PadPair, Rect, Sprinkler } from './floors'
 import { conveyorStep } from './waves'
 import type { Conveyor } from './waves'
 
@@ -147,7 +154,8 @@ export function renderFloor(
       k.restore()
     }
     if (look.emblem === 'heart') heartEmblem(k, look.accent)
-    else gearEmblem(k, look.accent)
+    else if (look.emblem === 'gear') gearEmblem(k, look.accent)
+    else lateEmblem(k, look.emblem, look.accent)
     // Ambient occlusion where the floor meets the rim, light catching the far lip.
     k.fillStyle = rgba(INK, 0.5)
     k.fillRect(ARENA.left, ARENA.top, ARENA_W, 3)
@@ -350,4 +358,340 @@ export function renderVents(
     }
     if (due) glow(g, v.x, v.y, 22, RAMPS.ember[3], hot ? 0.7 : 0.35)
   })
+}
+
+// --- districts 3-5 ---------------------------------------------------------------------------------
+
+/** The dome's flower, the docks' chip and the rooftops' lightning bolt, painted on the floor. */
+function lateEmblem(
+  k: CanvasRenderingContext2D,
+  emblem: 'flower' | 'chip' | 'bolt',
+  accent: Ramp,
+) {
+  k.fillStyle = rgba(accent[1], 0.22)
+  k.strokeStyle = rgba(accent[3], 0.24)
+  k.lineWidth = 2
+  if (emblem === 'flower') {
+    for (let p = 0; p < 6; p++) {
+      const a = (p / 6) * Math.PI * 2
+      k.beginPath()
+      k.ellipse(
+        CX + Math.cos(a) * 26,
+        CY + Math.sin(a) * 26,
+        18,
+        10,
+        a,
+        0,
+        Math.PI * 2,
+      )
+      k.fill()
+      k.stroke()
+    }
+    k.fillStyle = rgba(RAMPS.gold[3], 0.25)
+    k.beginPath()
+    k.arc(CX, CY, 12, 0, Math.PI * 2)
+    k.fill()
+  } else if (emblem === 'chip') {
+    k.fillRect(CX - 32, CY - 32, 64, 64)
+    k.strokeRect(CX - 32, CY - 32, 64, 64)
+    for (let i = -24; i <= 24; i += 12) {
+      k.fillRect(CX + i - 2, CY - 44, 4, 12)
+      k.fillRect(CX + i - 2, CY + 32, 4, 12)
+      k.fillRect(CX - 44, CY + i - 2, 12, 4)
+      k.fillRect(CX + 32, CY + i - 2, 12, 4)
+    }
+    k.strokeRect(CX - 16, CY - 16, 32, 32)
+  } else {
+    k.beginPath()
+    k.moveTo(CX + 8, CY - 44)
+    k.lineTo(CX - 20, CY + 4)
+    k.lineTo(CX - 2, CY + 4)
+    k.lineTo(CX - 10, CY + 44)
+    k.lineTo(CX + 22, CY - 8)
+    k.lineTo(CX + 4, CY - 8)
+    k.closePath()
+    k.fill()
+    k.stroke()
+  }
+}
+
+/** The dome's vine walls: dark stems, leaves, a few flowers. */
+export function renderVines(
+  g: CanvasRenderingContext2D,
+  vines: readonly Rect[],
+  tick: number,
+) {
+  for (const v of vines) {
+    g.fillStyle = INK
+    g.fillRect(v.x - 1, v.y - 1, v.w + 2, v.h + 2)
+    bandedGradient(
+      g,
+      v.x,
+      v.y,
+      v.w,
+      v.h,
+      [RAMPS.leaf[1], RAMPS.leaf[0], RAMPS.leaf[1]],
+      2,
+    )
+    const long = Math.max(v.w, v.h)
+    for (let s = 3; s < long - 2; s += 6) {
+      const x = v.w > v.h ? v.x + s : v.x + v.w / 2
+      const y = v.w > v.h ? v.y + v.h / 2 : v.y + s
+      const sway = Math.sin(tick / 30 + s) > 0 ? 1 : -1
+      g.fillStyle = RAMPS.leaf[3]
+      g.fillRect(Math.round(x + sway * 3) - 1, Math.round(y) - 1, 3, 2)
+      g.fillStyle = RAMPS.leaf[2]
+      g.fillRect(Math.round(x - sway * 3) - 1, Math.round(y) + 1, 3, 2)
+      if (s % 18 === 3) {
+        g.fillStyle = RAMPS.pink[3]
+        g.fillRect(Math.round(x) - 1, Math.round(y) - 1, 2, 2)
+        g.fillStyle = RAMPS.gold[4]
+        g.fillRect(Math.round(x), Math.round(y), 1, 1)
+      }
+    }
+  }
+}
+
+/** Sprinkler sprays: a misty ring of droplets over a wet patch. */
+export function renderSprinklers(
+  g: CanvasRenderingContext2D,
+  list: readonly Sprinkler[],
+  tick: number,
+) {
+  for (const s of list) {
+    g.fillStyle = rgba(RAMPS.water[2], 0.16)
+    g.beginPath()
+    g.ellipse(s.x, s.y, s.r, s.r * 0.8, 0, 0, Math.PI * 2)
+    g.fill()
+    g.strokeStyle = rgba(RAMPS.water[3], 0.35)
+    g.lineWidth = 1
+    g.stroke()
+    bevel(g, s.x - 3, s.y - 3, 6, 6, RAMPS.steel, { depth: 1 })
+    for (let k = 0; k < 10; k++) {
+      const a = (k / 10) * Math.PI * 2 + tick / 20
+      const r = ((tick * 0.8 + k * 9) % s.r) | 0
+      g.fillStyle = rgba(RAMPS.water[4], 0.8 - r / s.r / 1.5)
+      g.fillRect(
+        Math.round(s.x + Math.cos(a) * r),
+        Math.round(s.y + Math.sin(a) * r * 0.8),
+        1,
+        2,
+      )
+    }
+  }
+}
+
+/** Flowerbeds: soil and blooms (the family hides in them). */
+export function renderBeds(g: CanvasRenderingContext2D, beds: readonly Rect[]) {
+  for (const b of beds) {
+    g.fillStyle = INK
+    g.fillRect(b.x - 1, b.y - 1, b.w + 2, b.h + 2)
+    bandedGradient(g, b.x, b.y, b.w, b.h, [RAMPS.earth[2], RAMPS.earth[1]], 3)
+  }
+}
+
+/** The blooms on top of a bed, drawn over anyone hiding in it. */
+export function renderBedTops(
+  g: CanvasRenderingContext2D,
+  beds: readonly Rect[],
+  tick: number,
+) {
+  for (const b of beds) {
+    for (let y = b.y + 4; y < b.y + b.h; y += 7) {
+      for (let x = b.x + 3 + ((y / 7) % 2) * 3; x < b.x + b.w - 2; x += 7) {
+        const nod = Math.sin(tick / 25 + x + y) > 0 ? 1 : 0
+        g.fillStyle = RAMPS.leaf[2]
+        g.fillRect(x, y + 1, 3, 3)
+        const c =
+          (x + y) % 3 === 0
+            ? RAMPS.pink[3]
+            : (x + y) % 3 === 1
+              ? RAMPS.gold[3]
+              : RAMPS.purple[3]
+        g.fillStyle = c
+        g.fillRect(x + nod, y - 1, 2, 2)
+      }
+    }
+  }
+}
+
+/** Teleport pads: rings that hum, linked pairs sharing a colour. */
+export function renderPads(
+  g: CanvasRenderingContext2D,
+  pads: readonly PadPair[],
+  tick: number,
+) {
+  const ramps = [RAMPS.pink, RAMPS.teal, RAMPS.gold]
+  pads.forEach((pair, i) => {
+    const ramp = ramps[i % ramps.length]!
+    for (const p of pair) {
+      g.fillStyle = INK
+      g.beginPath()
+      g.ellipse(
+        p.x,
+        p.y,
+        PAD_RADIUS + 2,
+        PAD_RADIUS * 0.6 + 2,
+        0,
+        0,
+        Math.PI * 2,
+      )
+      g.fill()
+      g.fillStyle = ramp[1]
+      g.beginPath()
+      g.ellipse(p.x, p.y, PAD_RADIUS, PAD_RADIUS * 0.6, 0, 0, Math.PI * 2)
+      g.fill()
+      const t = (tick / 30) % 1
+      g.strokeStyle = rgba(ramp[3], 1 - t)
+      g.lineWidth = 1
+      g.beginPath()
+      g.ellipse(
+        p.x,
+        p.y - t * 10,
+        PAD_RADIUS * (1 - t * 0.4),
+        PAD_RADIUS * 0.6 * (1 - t * 0.4),
+        0,
+        0,
+        Math.PI * 2,
+      )
+      g.stroke()
+      glow(g, p.x, p.y, 16, ramp[3], 0.3)
+    }
+  })
+}
+
+/** Laser gates: two emitter posts and the beam between, flickering before it goes hot. */
+export function renderGates(
+  g: CanvasRenderingContext2D,
+  gates: readonly LaserGate[],
+  tick: number,
+) {
+  for (const gt of gates) {
+    const state = gateState(gt, tick)
+    const flicker = state === 'tell' && Math.floor(tick / 3) % 2 === 0
+    if (state === 'on' || flicker) {
+      g.save()
+      g.globalCompositeOperation = 'lighter'
+      g.strokeStyle =
+        state === 'on' ? rgba(RAMPS.ember[3], 0.9) : rgba(RAMPS.ember[2], 0.4)
+      g.lineWidth = state === 'on' ? 4 : 1
+      g.beginPath()
+      g.moveTo(gt.x0, gt.y0)
+      g.lineTo(gt.x1, gt.y1)
+      g.stroke()
+      if (state === 'on') {
+        g.strokeStyle = '#ffffff'
+        g.lineWidth = 1
+        g.stroke()
+      }
+      g.restore()
+    } else if (state === 'off') {
+      g.strokeStyle = rgba(RAMPS.ember[1], 0.35)
+      g.setLineDash([2, 4])
+      g.lineWidth = 1
+      g.beginPath()
+      g.moveTo(gt.x0, gt.y0)
+      g.lineTo(gt.x1, gt.y1)
+      g.stroke()
+      g.setLineDash([])
+    }
+    for (const [x, y] of [
+      [gt.x0, gt.y0],
+      [gt.x1, gt.y1],
+    ] as const) {
+      bevel(g, x - 3, y - 3, 6, 6, RAMPS.steel, { depth: 1 })
+      g.fillStyle = state === 'off' ? RAMPS.ember[1] : RAMPS.ember[3]
+      g.fillRect(x - 1, y - 1, 2, 2)
+    }
+  }
+}
+
+/** Magnet floors: striped plates with arrows drawing in to their middle. */
+export function renderMagnetFloors(
+  g: CanvasRenderingContext2D,
+  list: readonly Rect[],
+  tick: number,
+) {
+  for (const m of list) {
+    g.fillStyle = INK
+    g.fillRect(m.x - 1, m.y - 1, m.w + 2, m.h + 2)
+    bandedGradient(
+      g,
+      m.x,
+      m.y,
+      m.w,
+      m.h,
+      [RAMPS.ember[1], RAMPS.steel[1], RAMPS.ember[1]],
+      3,
+    )
+    const cy = m.y + m.h / 2
+    const pull = (tick / 3) % 8
+    g.fillStyle = rgba(RAMPS.steel[4], 0.5)
+    for (let x = m.x + 6; x < m.x + m.w - 4; x += 12) {
+      g.fillRect(x, m.y + 2 + pull, 2, 2)
+      g.fillRect(x, m.y + m.h - 4 - pull, 2, 2)
+    }
+    g.fillStyle = rgba(RAMPS.ember[3], 0.5)
+    g.fillRect(m.x, Math.round(cy), m.w, 1)
+  }
+}
+
+/** Wind streaks across the roof, and the lightning rings and strikes. */
+export function renderStorm(
+  g: CanvasRenderingContext2D,
+  wind: { x: number; y: number },
+  strikes: ReadonlyArray<{ x: number; y: number; clock: number }>,
+  tick: number,
+) {
+  const speed = Math.hypot(wind.x, wind.y)
+  if (speed > 0.01) {
+    const ux = wind.x / speed
+    const uy = wind.y / speed
+    g.strokeStyle = rgba(RAMPS.steel[4], 0.25)
+    g.lineWidth = 1
+    for (let i = 0; i < 18; i++) {
+      const sx = ((i * 97 + tick * speed * 9) % ARENA_W) + ARENA.left
+      const sy =
+        ((((i * 61 + tick * speed * 5 * uy) % ARENA_H) + ARENA_H) % ARENA_H) +
+        ARENA.top
+      g.beginPath()
+      g.moveTo(sx, sy)
+      g.lineTo(sx - ux * 14, sy - uy * 14)
+      g.stroke()
+    }
+  }
+  for (const s of strikes) {
+    if (s.clock > 0) {
+      const t = 1 - s.clock / LIGHTNING_TELL
+      g.strokeStyle = rgba(RAMPS.gold[3], 0.4 + 0.5 * t)
+      g.lineWidth = 2
+      g.beginPath()
+      g.ellipse(
+        s.x,
+        s.y,
+        LIGHTNING_RADIUS,
+        LIGHTNING_RADIUS * 0.7,
+        0,
+        0,
+        Math.PI * 2,
+      )
+      g.stroke()
+      if (Math.floor(tick / 4) % 2)
+        glow(g, s.x, s.y, LIGHTNING_RADIUS + 6, RAMPS.gold[3], 0.2 + 0.3 * t)
+    } else {
+      // The strike itself: a jagged bolt from the sky and a white flash.
+      g.strokeStyle = '#ffffff'
+      g.lineWidth = 3
+      g.beginPath()
+      let x = s.x + 10
+      g.moveTo(x, ARENA.top)
+      for (let y = ARENA.top; y < s.y; y += 18) {
+        x += ((y * 7) % 13) - 6
+        g.lineTo(x, y)
+      }
+      g.lineTo(s.x, s.y)
+      g.stroke()
+      glow(g, s.x, s.y, 40, RAMPS.gold[4], 0.9)
+    }
+  }
 }

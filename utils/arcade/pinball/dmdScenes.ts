@@ -15,6 +15,7 @@ import {
   type DmdLevel,
 } from './dmd'
 import { BONUS_LINE_MS, type DmdShowing } from './dmdQueue'
+import type { AttractPages } from './types'
 
 /** What the idle score scene needs from the game. */
 export type DmdIdle = {
@@ -25,6 +26,25 @@ export type DmdIdle = {
   /** Attract mode: pages instead of a score. */
   attract?: boolean
   highScore?: number
+  /** The table's name on the attract pages (Kind Pinball's by default). */
+  pages?: AttractPages
+}
+
+/** Kind Pinball's attract pages, for a table that names none. */
+export const KIND_PINBALL_PAGES: AttractPages = {
+  title: 'KIND PINBALL',
+  kicker: 'AMI VILLAGE',
+  subtitle: 'RESCUE',
+}
+
+/** Ms the high score takes to count up on its attract page. */
+export const HIGH_SCORE_COUNT_MS = 1200
+
+/** Whether this game's score beats the high score it started against. */
+export function beatsHighScore(idle: DmdIdle): boolean {
+  return (
+    !idle.attract && idle.highScore !== undefined && idle.score > idle.highScore
+  )
 }
 
 export function formatScore(score: number): string {
@@ -134,21 +154,42 @@ export function drawScore(dmd: Dmd, idle: DmdIdle) {
     })
 }
 
-/** Attract mode: title, the table, the high score, an invitation. */
+/**
+ * Attract mode: the title, the table, its picture if it has one, the high
+ * score counting up, an invitation.
+ */
 export const ATTRACT_PAGE_MS = 2500
 
+/** The attract pages in order, for a table's pages. */
+export function attractPages(pages: AttractPages = KIND_PINBALL_PAGES) {
+  return pages.picture
+    ? (['title', 'name', 'picture', 'high-score', 'start'] as const)
+    : (['title', 'name', 'high-score', 'start'] as const)
+}
+
 export function drawAttract(dmd: Dmd, idle: DmdIdle, now: number) {
-  const page = Math.floor(now / ATTRACT_PAGE_MS) % 4
+  const pages = idle.pages ?? KIND_PINBALL_PAGES
+  const order = attractPages(pages)
+  const page = order[Math.floor(now / ATTRACT_PAGE_MS) % order.length]
   const t = now % ATTRACT_PAGE_MS
-  if (page === 0) {
+  if (page === 'title') {
     sparkle(dmd, now)
-    headline(dmd, 'KIND PINBALL', 9, { max: 2 })
-  } else if (page === 1) {
-    small(dmd, 'AMI VILLAGE', 6, 3)
-    headline(dmd, 'RESCUE', 15, { max: 2 })
-  } else if (page === 2) {
+    headline(dmd, pages.title, 9, { max: 2, reveal: 1 + Math.floor(t / 80) })
+  } else if (page === 'name') {
+    small(dmd, pages.kicker, 6, 3)
+    headline(dmd, pages.subtitle, 15, { max: 2 })
+  } else if (page === 'picture') {
+    // The River Croc's jaws, snapping slowly shut and open again.
+    jaws(dmd, 4 + 18 * Math.abs(Math.cos((t / ATTRACT_PAGE_MS) * Math.PI)))
+  } else if (page === 'high-score') {
+    borderChase(dmd, now)
     small(dmd, 'HIGH SCORE', 3, 2)
-    headline(dmd, formatScore(idle.highScore ?? 0), 13, { max: 2 })
+    headline(
+      dmd,
+      formatScore(countUp(idle.highScore ?? 0, t, HIGH_SCORE_COUNT_MS)),
+      13,
+      { max: 2, level: t < HIGH_SCORE_COUNT_MS ? 2 : 3 },
+    )
   } else {
     borderChase(dmd, now)
     headline(dmd, 'PRESS START', 12, {
@@ -309,6 +350,13 @@ export function drawDmd(
       break
     }
     case 'game-over': {
+      if (beatsHighScore(idle)) {
+        // A new high score: it says so over the score, in a sparkle.
+        sparkle(dmd, t)
+        small(dmd, 'NEW HIGH SCORE', 2, 3)
+        headline(dmd, formatScore(idle.score), 12, { max: 2 })
+        break
+      }
       headline(dmd, 'GAME OVER', 3, { max: 2 })
       small(dmd, formatScore(idle.score), 23, 2)
       break

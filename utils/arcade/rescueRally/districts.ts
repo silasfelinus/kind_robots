@@ -4,16 +4,29 @@
 // 1, "Structure" and "The districts"). The hero sweeps the city district by district: each district
 // is eight wave scripts (waves.ts) closing on its boss (bosses.ts), on its own floor with its own
 // music (music.ts). The Shelter (shelter.ts) opens between districts, and progress saves at each
-// district's start. Past the last district the rally loops round the city, harder.
+// district's start. Five districts, forty waves: the Glitch Core closes the last, the credits roll,
+// and the rally loops round the city, harder.
 
 import { RAMPS } from '../snes'
 import type { Ramp } from '../snes'
 import type { MusicLoop } from '../sound'
-import { FACTORY_MUSIC, PLAZA_MUSIC } from './music'
-import { NEON_PLAZA, TOY_FACTORY } from './waves'
+import {
+  DOCKS_MUSIC,
+  DOME_MUSIC,
+  FACTORY_MUSIC,
+  PLAZA_MUSIC,
+  ROOFTOP_MUSIC,
+} from './music'
+import {
+  BOTANIC_DOME,
+  DATA_DOCKS,
+  NEON_PLAZA,
+  STORM_ROOFTOPS,
+  TOY_FACTORY,
+} from './waves'
 import type { WaveScript } from './waves'
 
-export type DistrictId = 'plaza' | 'factory'
+export type DistrictId = 'plaza' | 'factory' | 'dome' | 'docks' | 'rooftops'
 
 export type District = {
   id: DistrictId
@@ -28,7 +41,7 @@ export type District = {
     /** The bevelled rim round the arena. */
     rim: Ramp
     /** What is painted on the floor's middle. */
-    emblem: 'heart' | 'gear'
+    emblem: 'heart' | 'gear' | 'flower' | 'chip' | 'bolt'
   }
   music: MusicLoop
   waves: readonly WaveScript[]
@@ -64,6 +77,48 @@ export const DISTRICTS: readonly District[] = [
     },
     music: FACTORY_MUSIC,
     waves: TOY_FACTORY,
+  },
+  {
+    id: 'dome',
+    name: 'BOTANIC DOME',
+    tagline: 'THE GARDEN GREW WILD',
+    floor: {
+      bands: ['#0c2a18', '#1d5230'],
+      seam: RAMPS.leaf[3],
+      accent: RAMPS.leaf,
+      rim: RAMPS.teal,
+      emblem: 'flower',
+    },
+    music: DOME_MUSIC,
+    waves: BOTANIC_DOME,
+  },
+  {
+    id: 'docks',
+    name: 'DATA DOCKS',
+    tagline: 'WHERE THE CITY KEEPS ITS DATA',
+    floor: {
+      bands: ['#06142e', '#123a6a'],
+      seam: RAMPS.sky[3],
+      accent: RAMPS.sky,
+      rim: RAMPS.steel,
+      emblem: 'chip',
+    },
+    music: DOCKS_MUSIC,
+    waves: DATA_DOCKS,
+  },
+  {
+    id: 'rooftops',
+    name: 'STORM ROOFTOPS',
+    tagline: 'THE GLITCH CORE WAITS ABOVE',
+    floor: {
+      bands: ['#121626', '#2c3248'],
+      seam: RAMPS.steel[2],
+      accent: RAMPS.gold,
+      rim: RAMPS.night,
+      emblem: 'bolt',
+    },
+    music: ROOFTOP_MUSIC,
+    waves: STORM_ROOFTOPS,
   },
 ]
 

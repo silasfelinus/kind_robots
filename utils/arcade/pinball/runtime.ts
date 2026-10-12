@@ -283,6 +283,7 @@ export class PinballRuntime<
         multiplier: this.rules.bonusMultiplier,
         attract: this.demo,
         highScore: this.hiScore,
+        pages: this.physics.table.attract,
       },
       this.dmdQueue.now,
     )

@@ -26,7 +26,10 @@
             <div class="absolute left-[40%] top-[-15%] h-[125%] w-[8%] rotate-[-16deg] rounded-full bg-[#7e9c9e]/65 blur-md" />
             <div class="absolute inset-x-12 top-[55%] rotate-[-11deg] border-t-4 border-dashed border-[#624831]/70" />
             <p class="absolute left-4 top-4 font-serif text-xl font-bold text-[#352a24]">The Emperor's Domain</p>
-            <button v-for="region in regions" :key="region.name" type="button"
+            <button
+              v-for="region in regions"
+              :key="region.name"
+              type="button"
               :style="{ left: region.x, top: region.y }"
               :aria-pressed="selected.name === region.name"
               class="absolute z-10 max-w-[37%] -translate-x-1/2 -translate-y-1/2 rounded-xl border-2 px-2 py-2 text-xs font-black shadow-md hover:scale-105 focus-visible:outline focus-visible:outline-4 focus-visible:outline-primary sm:px-3 sm:text-sm"

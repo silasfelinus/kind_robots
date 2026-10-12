@@ -95,8 +95,9 @@ const upper = beginning.filter((ledge) => ledge.y <= 140)
 assert.ok(middle.length >= 6, 'a continuous middle path starts before the first foe')
 assert.ok(upper.length >= 6, 'a distinct upper path runs above the awnings')
 assert.ok(
-  stage1.ground.some(([start, end]) => start <= 400 && end > 1000),
-  'street-level path remains available',
+  stage1.ground.some(([start, end]) => start <= 400 && end > 400) &&
+    stage1.ground.some(([start, end]) => start <= 1000 && end > 1000),
+  'street-level path remains available on both sides of the first pit',
 )
 for (const lane of [middle, upper]) {
   const platforms = [...lane].sort((a, b) => a.x - b.x)

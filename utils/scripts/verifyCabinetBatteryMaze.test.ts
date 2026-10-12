@@ -85,6 +85,7 @@ type Game = {
   demoInput(): InputFrame
   card: unknown
   stepIndex: number
+  menu: unknown
   beginMaze(board: Board, index: number): void
   loadMaze(maze: Maze, heat: number, roster: readonly string[]): void
   canMove(x: number, y: number, dir: Dir, allowDoor?: boolean): boolean
@@ -116,6 +117,7 @@ function play(seed = 3): Game {
     demo: false,
     hiScore: 0,
   }) as unknown as Game
+  game.menu = null
   game.card = null
   game.stepIndex = 1
   return game

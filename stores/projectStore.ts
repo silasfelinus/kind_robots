@@ -9,6 +9,7 @@ import type {
   Project,
 } from '~/prisma/generated/prisma/client'
 import { performFetch } from '@/stores/utils'
+import type { ConductorProjectPriority } from '@/server/utils/conductorProjectRegistry'
 import { PROJECT_PLACEMENTS, placementLiveUrl } from '~/utils/projectPlacements'
 
 export type ProjectWithRelations = Project & {
@@ -303,6 +304,31 @@ export const useProjectStore = defineStore('projectStore', () => {
     return replaceProject(response.data)
   }
 
+  async function updateConductorPriority(
+    id: number,
+    conductorPriority: ConductorProjectPriority,
+  ): Promise<ProjectWithRelations> {
+    saving.value = true
+    try {
+      const response = await performFetch<ProjectWithRelations>(
+        '/api/conductor/project-state',
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ projectId: id, conductorPriority }),
+        },
+      )
+      if (!response.success || !response.data) {
+        throw new Error(
+          response.message || 'Failed to update Conductor priority.',
+        )
+      }
+      return replaceProject(response.data)
+    } finally {
+      saving.value = false
+    }
+  }
+
   async function updateProject(
     id: number,
     input: Partial<Project>,
@@ -429,6 +455,7 @@ export const useProjectStore = defineStore('projectStore', () => {
     fetchProject,
     createProject,
     updateProject,
+    updateConductorPriority,
     archiveProject,
     applyPlacements,
   }

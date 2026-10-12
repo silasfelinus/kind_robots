@@ -696,6 +696,26 @@ export const COMING_SOON: ComingSoonCabinet[] = []
  */
 export const PREVIEW_GAMES: ArcadeGameMeta[] = [
   {
+    slug: 'save-the-plumber',
+    title: 'Save the Plumber',
+    riffsOn: 'classic side-scrolling platform adventures',
+    blurb:
+      'Private Bluebell Pipeworks movement-engine preview: authored gaps, jump buffering, original pumpbugs, tools and a training goal. The eight-world campaign is still under development.',
+    howTo: [
+      'ARROWS  RUN',
+      'UP OR B  JUMP',
+      'A  TOOL BLAST',
+      'HOP ON PUMPBUGS',
+      'REACH THE PENNANT',
+    ],
+    width: 480,
+    height: 270,
+    maxPlausibleScore: 0,
+    titleArt: '',
+    accent: '#f5bb83',
+    controls: 'Run, jump, use tools',
+  },
+  {
     slug: 'rainbow-bullet-hell-space-princess',
     title: 'Rainbow Bullet Hell Space Princess',
     riffsOn: 'cinematic side-scrolling shmups',
@@ -764,6 +784,7 @@ export const UNLISTED_SCORED_GAMES: ArcadeGameMeta[] = [
 ]
 
 const LOADERS: Record<string, () => Promise<ArcadeGameModule>> = {
+  'save-the-plumber': () => import('./games/savePlumberPreview'),
   'rainbow-bullet-hell-space-princess': () =>
     import('./games/rainbowPrincessPreview'),
   'butterfly-blaster': () => import('./games/butterflyBlaster'),

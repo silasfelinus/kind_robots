@@ -257,10 +257,16 @@
                 </span>
               </div>
 
-              <p v-if="tzaddikStore.voteError" class="text-sm text-error" role="alert">
+              <p
+                v-if="tzaddikStore.voteError"
+                class="text-sm text-error"
+                role="alert"
+              >
                 {{ tzaddikStore.voteError }}
               </p>
-              <div class="space-y-8 pt-3 lg:min-h-0 lg:flex-1 lg:overflow-y-auto lg:pr-1">
+              <div
+                class="space-y-8 pt-3 lg:min-h-0 lg:flex-1 lg:overflow-y-auto lg:pr-1"
+              >
                 <template v-if="isRankingTab">
                   <div class="space-y-2">
                     <div class="flex items-baseline justify-between gap-2">
@@ -281,13 +287,18 @@
                         <tzaddik-ranked-card
                           v-if="candidateById.get(Number(item.id))"
                           :candidate="candidateById.get(Number(item.id))!"
-                          :earned-karma="earnedKarmaByCandidateId[Number(item.id)]"
+                          :earned-karma="
+                            earnedKarmaByCandidateId[Number(item.id)]
+                          "
                           @open="openCandidateId = $event"
                         />
                       </template>
                     </kr-gallery>
                   </div>
-                  <div v-if="otherCandidates.length" class="space-y-2 border-t border-base-300 pt-6">
+                  <div
+                    v-if="otherCandidates.length"
+                    class="space-y-2 border-t border-base-300 pt-6"
+                  >
                     <div class="flex items-baseline justify-between gap-2">
                       <h3 class="font-bold">Other eligible nominees</h3>
                       <span class="kr-text-dim-xs-55">
@@ -303,7 +314,9 @@
                         <tzaddik-ranked-card
                           v-if="candidateById.get(Number(item.id))"
                           :candidate="candidateById.get(Number(item.id))!"
-                          :earned-karma="earnedKarmaByCandidateId[Number(item.id)]"
+                          :earned-karma="
+                            earnedKarmaByCandidateId[Number(item.id)]
+                          "
                           @open="openCandidateId = $event"
                         />
                       </template>
@@ -331,7 +344,6 @@
               </div>
             </section>
           </section>
-
         </main>
       </div>
 
@@ -367,8 +379,7 @@ import type { TzaddikEditorialTag } from '~/prisma/generated/prisma/client'
 import { TZADDIK_TAG_ORDER, tzaddikTagLabel } from '@/utils/tzaddikTags'
 import { resolveTzaddikImageSrc } from '@/utils/tzaddikImage'
 
-type TabKey =
-  'living' | 'memorial' | 'popculture' | 'suggestions' | 'review'
+type TabKey = 'living' | 'memorial' | 'popculture' | 'suggestions' | 'review'
 
 const BASE_TABS: { key: TabKey; label: string; icon: string; body: string }[] =
   [
@@ -524,28 +535,38 @@ const activeCandidates = computed(() => {
   return source.filter(matchesSelectedTags)
 })
 
-const isRankingTab = computed(() =>
-  activeTab.value === 'living' ||
-  activeTab.value === 'memorial' ||
-  activeTab.value === 'popculture',
+const isRankingTab = computed(
+  () =>
+    activeTab.value === 'living' ||
+    activeTab.value === 'memorial' ||
+    activeTab.value === 'popculture',
 )
 
 const rankedCandidates = computed(() =>
-  [...activeCandidates.value].sort((a, b) =>
-    (b.community?.score ?? 0) - (a.community?.score ?? 0) ||
-    (b.community?.reviewCount ?? 0) - (a.community?.reviewCount ?? 0) ||
-    (b.community?.upvotes ?? 0) - (a.community?.upvotes ?? 0) ||
-    (a.displayNameOverride || a.displayName).localeCompare(b.displayNameOverride || b.displayName),
+  [...activeCandidates.value].sort(
+    (a, b) =>
+      (b.community?.score ?? 0) - (a.community?.score ?? 0) ||
+      (b.community?.reviewCount ?? 0) - (a.community?.reviewCount ?? 0) ||
+      (b.community?.upvotes ?? 0) - (a.community?.upvotes ?? 0) ||
+      (a.displayNameOverride || a.displayName).localeCompare(
+        b.displayNameOverride || b.displayName,
+      ),
   ),
 )
 const topCandidates = computed(() => rankedCandidates.value.slice(0, 36))
 const otherCandidates = computed(() => rankedCandidates.value.slice(36))
 const topGalleryItems = computed(() => topCandidates.value.map(toGalleryItem))
-const otherGalleryItems = computed(() => otherCandidates.value.map(toGalleryItem))
-const activeGalleryItems = computed(() => activeCandidates.value.map(toGalleryItem))
+const otherGalleryItems = computed(() =>
+  otherCandidates.value.map(toGalleryItem),
+)
+const activeGalleryItems = computed(() =>
+  activeCandidates.value.map(toGalleryItem),
+)
 
 const activeCandidateIds = computed(() =>
-  (isRankingTab.value ? rankedCandidates.value : activeCandidates.value).map((candidate) => candidate.id),
+  (isRankingTab.value ? rankedCandidates.value : activeCandidates.value).map(
+    (candidate) => candidate.id,
+  ),
 )
 
 const candidateById = computed(

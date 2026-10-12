@@ -113,7 +113,9 @@ export default defineEventHandler(async (event) => {
 
     const reactions = data.length
       ? await prisma.reaction.findMany({
-          where: { tzaddikCandidateId: { in: data.map((candidate) => candidate.id) } },
+          where: {
+            tzaddikCandidateId: { in: data.map((candidate) => candidate.id) },
+          },
           select: {
             tzaddikCandidateId: true,
             userId: true,
@@ -152,9 +154,16 @@ export default defineEventHandler(async (event) => {
           ratingsByUser.set(reaction.userId, reaction.rating)
         }
       }
-      const upvotes = [...votesByUser.values()].filter((vote) => vote === 1).length
-      const downvotes = [...votesByUser.values()].filter((vote) => vote === -1).length
-      const ratingTotal = [...ratingsByUser.values()].reduce((sum, rating) => sum + rating, 0)
+      const upvotes = [...votesByUser.values()].filter(
+        (vote) => vote === 1,
+      ).length
+      const downvotes = [...votesByUser.values()].filter(
+        (vote) => vote === -1,
+      ).length
+      const ratingTotal = [...ratingsByUser.values()].reduce(
+        (sum, rating) => sum + rating,
+        0,
+      )
       const reviewCount = ratingsByUser.size
       const averageRating = reviewCount ? ratingTotal / reviewCount : 0
       const score = upvotes - downvotes + ratingTotal - 3 * reviewCount

@@ -8,11 +8,17 @@
     <div
       class="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-base-300 bg-base-100/90 px-2 py-1.5 text-xs"
     >
-      <div class="flex items-center gap-1" role="group" :aria-label="`Vote for ${name}`">
+      <div
+        class="flex items-center gap-1"
+        role="group"
+        :aria-label="`Vote for ${name}`"
+      >
         <button
           type="button"
           class="btn btn-xs gap-1 rounded-lg"
-          :class="candidate.community?.myVote === 1 ? 'btn-success' : 'btn-ghost'"
+          :class="
+            candidate.community?.myVote === 1 ? 'btn-success' : 'btn-ghost'
+          "
           :aria-pressed="candidate.community?.myVote === 1"
           :aria-label="`Upvote ${name}`"
           :disabled="!userStore.isLoggedIn || voting"
@@ -25,7 +31,9 @@
         <button
           type="button"
           class="btn btn-xs gap-1 rounded-lg"
-          :class="candidate.community?.myVote === -1 ? 'btn-error' : 'btn-ghost'"
+          :class="
+            candidate.community?.myVote === -1 ? 'btn-error' : 'btn-ghost'
+          "
           :aria-pressed="candidate.community?.myVote === -1"
           :aria-label="`Downvote ${name}`"
           :disabled="!userStore.isLoggedIn || voting"
@@ -36,8 +44,16 @@
           {{ candidate.community?.downvotes ?? 0 }}
         </button>
       </div>
-      <span class="text-base-content/60" :title="`Community score ${candidate.community?.score ?? 0}`">
-        ★ {{ candidate.community?.reviewCount ? candidate.community.averageRating.toFixed(1) : '–' }}
+      <span
+        class="text-base-content/60"
+        :title="`Community score ${candidate.community?.score ?? 0}`"
+      >
+        ★
+        {{
+          candidate.community?.reviewCount
+            ? candidate.community.averageRating.toFixed(1)
+            : '–'
+        }}
         · {{ candidate.community?.reviewCount ?? 0 }} reviews
       </span>
     </div>
@@ -58,7 +74,9 @@ const props = defineProps<{
 const emit = defineEmits<{ open: [candidateId: number] }>()
 const store = useTzaddikStore()
 const userStore = useUserStore()
-const name = computed(() => props.candidate.displayNameOverride || props.candidate.displayName)
+const name = computed(
+  () => props.candidate.displayNameOverride || props.candidate.displayName,
+)
 const voting = computed(() => Boolean(store.votingById[props.candidate.id]))
 
 async function vote(value: -1 | 1): Promise<void> {

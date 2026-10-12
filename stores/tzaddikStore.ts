@@ -423,7 +423,10 @@ export const useTzaddikStore = defineStore('tzaddikStore', () => {
     }
   }
 
-  async function voteCandidate(candidateId: number, vote: -1 | 0 | 1): Promise<boolean> {
+  async function voteCandidate(
+    candidateId: number,
+    vote: -1 | 0 | 1,
+  ): Promise<boolean> {
     if (votingById.value[candidateId]) return false
     votingById.value = { ...votingById.value, [candidateId]: true }
     voteError.value = ''
@@ -439,7 +442,8 @@ export const useTzaddikStore = defineStore('tzaddikStore', () => {
       await Promise.all([fetchLiving(true), fetchMemorial(true)])
       return true
     } catch (error) {
-      voteError.value = error instanceof Error ? error.message : 'Vote was not saved.'
+      voteError.value =
+        error instanceof Error ? error.message : 'Vote was not saved.'
       handleError(error, 'voting on a Tzaddik candidate')
       return false
     } finally {

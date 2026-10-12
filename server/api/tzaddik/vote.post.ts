@@ -15,8 +15,15 @@ export default defineEventHandler(async (event) => {
     const body = await readBody<VoteBody>(event)
     const candidateId = Number(body?.candidateId)
     const vote = body?.vote
-    if (!Number.isSafeInteger(candidateId) || candidateId < 1 || ![1, 0, -1].includes(vote as number)) {
-      throw createError({ statusCode: 400, message: 'A candidate and vote of -1, 0 or 1 are required.' })
+    if (
+      !Number.isSafeInteger(candidateId) ||
+      candidateId < 1 ||
+      ![1, 0, -1].includes(vote as number)
+    ) {
+      throw createError({
+        statusCode: 400,
+        message: 'A candidate and vote of -1, 0 or 1 are required.',
+      })
     }
 
     const candidate = await prisma.tzaddikCandidate.findUnique({
@@ -29,7 +36,10 @@ export default defineEventHandler(async (event) => {
         !auth.isAdmin &&
         candidate.submittedByUserId !== auth.user.id)
     ) {
-      throw createError({ statusCode: 404, message: 'Candidate not available for voting.' })
+      throw createError({
+        statusCode: 404,
+        message: 'Candidate not available for voting.',
+      })
     }
 
     const existing = await prisma.reaction.findMany({
@@ -46,7 +56,9 @@ export default defineEventHandler(async (event) => {
 
     if (vote === 0) {
       if (existing.length) {
-        await prisma.reaction.deleteMany({ where: { id: { in: existing.map((row) => row.id) } } })
+        await prisma.reaction.deleteMany({
+          where: { id: { in: existing.map((row) => row.id) } },
+        })
       }
     } else {
       const reactionType = vote === 1 ? 'LOVED' : 'BOOED'

@@ -188,6 +188,9 @@ jobs:
       - name: Zuzu Pinball LED rail
         run: npm run test:zuzu-pinball-leds
 
+      - name: Zuzu Pinball DMD pages and music ducking
+        run: npm run test:zuzu-pinball-dmd-sound
+
       - name: Zuzu Pinball setup/dispose and six-ball stress
         run: npm run test:zuzu-pinball-stress
 

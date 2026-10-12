@@ -25,8 +25,10 @@ import {
   SPARKER_SPRITE,
   TANK_SPRITES,
   WINDUP_SPRITES,
+  HERO_SPRITES,
+  glitchTint,
 } from './art'
-import { STOMP_REWIND } from './roster'
+import { MAGNET_PULL, STOMP_REWIND } from './roster'
 import type { Foe } from './roster'
 
 export function renderFoe(g: CanvasRenderingContext2D, f: Foe, tick: number) {
@@ -131,6 +133,15 @@ export function renderFoe(g: CanvasRenderingContext2D, f: Foe, tick: number) {
     }
     case 'crate':
       renderCrate(g, f)
+      break
+    case 'prism':
+    case 'thornball':
+    case 'splitter':
+    case 'mimic':
+    case 'shieldbot':
+    case 'magnet':
+    case 'kite':
+      renderLateFoe(g, f, tick)
       break
     case 'puddle':
       break
@@ -394,5 +405,224 @@ export function renderPuddle(
     g.fillRect(Math.round(x) - 4 + b * 2, Math.round(y) - 2 + (b % 2), 1, 1)
     g.fillStyle = LIME[3]
     g.fillRect(Math.round(x) + 3 - b, Math.round(y) + 2, 1, 1)
+  }
+}
+
+/** Districts 3-5's roster, painted from shapes so each tell can grow and glow. */
+function renderLateFoe(g: CanvasRenderingContext2D, f: Foe, tick: number) {
+  const x = Math.round(f.x)
+  const y = Math.round(f.y)
+  switch (f.kind) {
+    case 'prism': {
+      // A floating crystal; it glows brighter and brighter before it hatches.
+      const tell = f.mode === 1
+      const hover = Math.round(Math.sin(tick / 12 + f.seed) * 2)
+      dropShadow(g, x, y + 10, 7, 2, 0.35)
+      glow(
+        g,
+        x,
+        y + hover,
+        tell ? 20 + (tick % 10) : 11,
+        RAMPS.teal[3],
+        tell ? 0.8 : 0.4,
+      )
+      const gem = (k: number, c: string, dy = 0) => {
+        g.fillStyle = c
+        g.beginPath()
+        g.moveTo(x, y + hover - k * 1.4 + dy)
+        g.lineTo(x + k, y + hover + dy)
+        g.lineTo(x, y + hover + k * 1.4 + dy)
+        g.lineTo(x - k, y + hover + dy)
+        g.closePath()
+        g.fill()
+      }
+      gem(9, INK)
+      gem(8, tell && tick % 6 < 3 ? '#ffffff' : RAMPS.teal[2])
+      g.fillStyle = RAMPS.teal[4]
+      g.beginPath()
+      g.moveTo(x, y + hover - 11)
+      g.lineTo(x - 8, y + hover)
+      g.lineTo(x, y + hover)
+      g.closePath()
+      g.fill()
+      g.fillStyle = RAMPS.pink[3]
+      g.fillRect(x - 1, y + hover - 2, 3, 3)
+      break
+    }
+    case 'thornball': {
+      const curled = f.mode === 1
+      dropShadow(g, x, y + 8, 6, 1.5, 0.35)
+      const spin = tick / (curled ? 3 : 10)
+      g.fillStyle = INK
+      for (let k = 0; k < 8; k++) {
+        const a = spin + (k * Math.PI) / 4
+        g.fillRect(
+          Math.round(x + Math.cos(a) * 8) - 1,
+          Math.round(y + Math.sin(a) * 8) - 1,
+          3,
+          3,
+        )
+      }
+      g.fillStyle = RAMPS.gold[3]
+      for (let k = 0; k < 8; k++) {
+        const a = spin + (k * Math.PI) / 4
+        g.fillRect(
+          Math.round(x + Math.cos(a) * 8),
+          Math.round(y + Math.sin(a) * 8),
+          1,
+          1,
+        )
+      }
+      shadedOrb(g, x, y, 6, curled ? RAMPS.ember : RAMPS.leaf)
+      g.fillStyle = INK
+      g.fillRect(x - 3, y - 1, 2, 2)
+      g.fillRect(x + 2, y - 1, 2, 2)
+      break
+    }
+    case 'splitter': {
+      dropShadow(g, x, y + 12, 10, 2.5, 0.4)
+      shadedOrb(g, x, y, 11, RAMPS.purple)
+      g.fillStyle = INK
+      g.fillRect(x - 11, y, 22, 1)
+      g.fillRect(x, y - 11, 1, 22)
+      if (f.mode === 1) {
+        // Cracked: the pieces are starting to come apart.
+        g.fillStyle = RAMPS.ember[3]
+        g.fillRect(x - 6, y - 4, 1, 3)
+        g.fillRect(x + 4, y + 3, 3, 1)
+        g.fillRect(x - 3, y + 5, 1, 3)
+        glow(g, x, y, 14, RAMPS.ember[3], 0.3)
+      }
+      g.fillStyle = RAMPS.ember[3]
+      g.fillRect(x - 6, y - 6, 3, 2)
+      g.fillRect(x + 4, y - 6, 3, 2)
+      break
+    }
+    case 'mimic': {
+      // A glitched echo of the hero, flickering.
+      const sprite = glitchTint(HERO_SPRITES.front[Math.floor(tick / 8) % 2]!)
+      dropShadow(g, x, y + 9, 7, 2, 0.3)
+      glow(g, x, y - 4, 16, RAMPS.purple[3], 0.35)
+      const shift = tick % 37 < 3 ? 2 : 0
+      drawSprite(g, sprite, x + shift, y + 10, { anchor: 'feet', alpha: 0.75 })
+      break
+    }
+    case 'shieldbot': {
+      dropShadow(g, x, y + 11, 9, 2.5, 0.4)
+      shadedOrb(g, x, y, 9, RAMPS.steel)
+      g.fillStyle = INK
+      g.fillRect(x - 5, y - 2, 10, 4)
+      g.fillStyle = RAMPS.sky[3]
+      g.fillRect(x - 4, y - 1, 8, 2)
+      // The shield: a gold arc on its front (spun round to its back while rattled).
+      const face =
+        f.mode === 1 ? f.face + Math.PI + Math.sin(tick / 3) * 0.4 : f.face
+      g.strokeStyle = INK
+      g.lineWidth = 5
+      g.beginPath()
+      g.arc(x, y, 14, face - 0.9, face + 0.9)
+      g.stroke()
+      g.strokeStyle = RAMPS.gold[3]
+      g.lineWidth = 3
+      g.stroke()
+      g.strokeStyle = RAMPS.gold[4]
+      g.lineWidth = 1
+      g.beginPath()
+      g.arc(x, y, 13, face - 0.8, face + 0.2)
+      g.stroke()
+      break
+    }
+    case 'magnet': {
+      const tell = f.mode === 1
+      const pulling = f.mode === 2
+      dropShadow(g, x, y + 11, 9, 2.5, 0.4)
+      if (tell) {
+        const t = 1 - f.clock / 60
+        g.strokeStyle = rgba(RAMPS.ember[3], 1 - t)
+        g.lineWidth = 2
+        g.beginPath()
+        g.arc(x, y, 10 + t * 40, 0, Math.PI * 2)
+        g.stroke()
+      }
+      if (pulling) {
+        // Pull lines drawn in toward it.
+        g.strokeStyle = rgba(RAMPS.ember[3], 0.45)
+        g.lineWidth = 1
+        for (let k = 0; k < 8; k++) {
+          const a = (k / 8) * Math.PI * 2
+          const r = 60 - (((MAGNET_PULL - f.clock) * 2) % 50)
+          g.beginPath()
+          g.moveTo(x + Math.cos(a) * r, y + Math.sin(a) * r)
+          g.lineTo(x + Math.cos(a) * (r - 8), y + Math.sin(a) * (r - 8))
+          g.stroke()
+        }
+        glow(g, x, y, 24, RAMPS.ember[3], 0.4)
+      }
+      // A horseshoe magnet: red arms, steel tips.
+      g.strokeStyle = INK
+      g.lineWidth = 8
+      g.beginPath()
+      g.arc(x, y - 2, 7, Math.PI, 0)
+      g.moveTo(x - 7, y - 2)
+      g.lineTo(x - 7, y + 6)
+      g.moveTo(x + 7, y - 2)
+      g.lineTo(x + 7, y + 6)
+      g.stroke()
+      g.strokeStyle = RAMPS.ember[2]
+      g.lineWidth = 5
+      g.stroke()
+      g.fillStyle = RAMPS.steel[4]
+      g.fillRect(x - 9, y + 4, 5, 4)
+      g.fillRect(x + 5, y + 4, 5, 4)
+      break
+    }
+    case 'kite': {
+      // A diamond kite on the wind, its tail fluttering.
+      const tilt = Math.sin(tick / 15 + f.seed) * 0.3
+      g.strokeStyle = RAMPS.cream[3]
+      g.lineWidth = 1
+      g.beginPath()
+      g.moveTo(x, y + 10)
+      for (let k = 1; k <= 4; k++)
+        g.lineTo(x + Math.sin(tick / 6 + k) * 3, y + 10 + k * 5)
+      g.stroke()
+      dropShadow(g, x, y + 30, 8, 2, 0.25)
+      const pts = [
+        [0, -11],
+        [8, 0],
+        [0, 11],
+        [-8, 0],
+      ].map(([dx, dy]) => [
+        x + dx! * Math.cos(tilt) - dy! * Math.sin(tilt),
+        y + dx! * Math.sin(tilt) + dy! * Math.cos(tilt),
+      ])
+      g.fillStyle = INK
+      g.beginPath()
+      pts.forEach(([px, py], i) =>
+        i ? g.lineTo(px!, py!) : g.moveTo(px!, py!),
+      )
+      g.closePath()
+      g.fill()
+      g.fillStyle = RAMPS.pink[3]
+      g.beginPath()
+      g.moveTo(pts[0]![0]!, pts[0]![1]! + 1)
+      g.lineTo(pts[1]![0]! - 1, pts[1]![1]!)
+      g.lineTo(pts[2]![0]!, pts[2]![1]! - 1)
+      g.closePath()
+      g.fill()
+      g.fillStyle = RAMPS.sky[3]
+      g.beginPath()
+      g.moveTo(pts[0]![0]!, pts[0]![1]! + 1)
+      g.lineTo(pts[3]![0]! + 1, pts[3]![1]!)
+      g.lineTo(pts[2]![0]!, pts[2]![1]! - 1)
+      g.closePath()
+      g.fill()
+      g.fillStyle = RAMPS.ember[3]
+      g.fillRect(x - 3, y - 1, 2, 2)
+      g.fillRect(x + 2, y - 1, 2, 2)
+      break
+    }
+    default:
+      break
   }
 }

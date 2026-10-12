@@ -1116,7 +1116,8 @@ export const ZUZU_LAST_BELL_GREYBOX: TableDef = {
   flashers: [
     {
       id: 'croc-flasher',
-      at: [CROC[0], 0.05, CROC[1] - 0.01],
+      // Beside the toy on the right bank, not over his head (t-018).
+      at: [CROC[0] + 0.04, 0.045, CROC[1] - 0.075],
       color: 0x56d7cb,
     },
     { id: 'bell-flasher', at: [0, 0.05, -0.79], color: 0xf0ba6c },
@@ -1144,6 +1145,9 @@ export const ZUZU_LAST_BELL_GREYBOX: TableDef = {
       id: 'river-croc',
       kind: 'river-croc',
       at: [CROC[0], 0, CROC[1] - 0.004],
+      // The table's signature toy, sized to read from the flippers (t-018);
+      // the snout still fits between the jaw gate's posts.
+      scale: 1.3,
     },
   ],
   captives: [

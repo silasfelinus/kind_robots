@@ -1539,6 +1539,8 @@ export class PinballScene {
       this.balls.delete(id)
     }
     this.trail.update(balls)
+    // The River Croc watches the nearest ball (t-018).
+    for (const toy of this.animatronics.values()) toy.watch(balls)
     for (const def of this.table.flippers) {
       const group = this.flippers.get(def.id)
       const angle = flipperAngles[def.id]

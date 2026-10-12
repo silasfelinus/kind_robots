@@ -5,6 +5,7 @@
 // in the garden; it is never bought with money.
 
 import type { WingSet } from './art'
+import { readMedals, type MedalBoard } from './medals'
 
 /** Pollen earned in play. */
 export const POLLEN_FOR = {
@@ -158,6 +159,10 @@ export type JoustSave = {
   petals: string[]
   /** The tourney has been cleared: Champion's Circuit is open. */
   cleared: boolean
+  /** Medals won, wave by wave (medals.ts): they stay with the device across runs. */
+  medals: MedalBoard
+  /** The Endless Pond's best wave. */
+  endless: number
 }
 
 const WINGS: readonly WingSet[] = [
@@ -227,6 +232,8 @@ export function readJoustSave(raw: unknown): JoustSave | null {
         ]
       : [],
     cleared: s.cleared === true,
+    medals: readMedals(s.medals),
+    endless: int(s.endless, 0, 9999) ?? 0,
   }
 }
 

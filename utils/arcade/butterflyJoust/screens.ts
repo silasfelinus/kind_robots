@@ -18,6 +18,15 @@ import {
 } from '../snes'
 import { LIFE_SPRITE, seatFrames, type Frames, type WingSet } from './art'
 import { H, W } from './field'
+import {
+  MEDALS,
+  MEDAL_IDS,
+  boardRows,
+  boardTotal,
+  cellMedals,
+  drawMedal,
+  type MedalBoard,
+} from './medals'
 
 export type MenuRow = { name: string; about: string }
 
@@ -35,8 +44,10 @@ export function drawMenu(
   g.fillStyle = rgba(INK, 0.72)
   g.fillRect(0, 0, W, H)
   const rows = view.rows.length
-  const top = 64
-  const height = 96 + rows * 38
+  // A long card packs its rows closer and climbs the screen to fit.
+  const step = rows > 4 ? 30 : 38
+  const height = 96 + rows * step
+  const top = Math.max(8, Math.min(64, Math.floor((H - height) / 2)))
   hudPanel(g, 60, top, W - 120, height)
   drawText(g, view.title, W / 2, top + 14, {
     scale: 3,
@@ -52,16 +63,16 @@ export function drawMenu(
     outline: INK,
   })
   view.rows.forEach((row, i) => {
-    const y = top + 72 + i * 38
+    const y = top + 72 + i * step
     const on = i === view.pick
-    if (on) hudPanel(g, 84, y - 6, W - 168, 34, RAMPS.pink)
+    if (on) hudPanel(g, 72, y - 4, W - 144, step - 2, RAMPS.pink)
     drawText(g, on ? `< ${row.name} >` : row.name, W / 2, y, {
       scale: 2,
       align: 'center',
       color: on ? '#ffffff' : RAMPS.steel[3],
       outline: INK,
     })
-    drawText(g, row.about, W / 2, y + 17, {
+    drawText(g, row.about, W / 2, y + (step > 30 ? 17 : 15), {
       align: 'center',
       color: on ? RAMPS.gold[4] : RAMPS.steel[2],
       outline: INK,
@@ -377,4 +388,104 @@ export function drawEnding(
       color: RAMPS.gold[3],
       outline: INK,
     })
+}
+
+/**
+ * The medal board: a row per garden, a cell per wave (and the champion's bout), and in each cell
+ * the medals it offers, lit when won. Gardens not yet reached keep their names hidden.
+ */
+export function drawMedalBoard(
+  g: CanvasRenderingContext2D,
+  view: {
+    board: MedalBoard
+    /** Whether each of boardRows()' gardens has been reached. */
+    open: readonly boolean[]
+    endlessBest: number
+    tick: number
+  },
+) {
+  g.fillStyle = rgba(INK, 0.82)
+  g.fillRect(0, 0, W, H)
+  hudPanel(g, 6, 6, W - 12, H - 12)
+  drawText(g, 'MEDAL BOARD', W / 2, 14, {
+    scale: 2,
+    align: 'center',
+    color: '#ffffff',
+    outline: INK,
+    shadow: RAMPS.pink[1],
+  })
+  const { won, of } = boardTotal(view.board)
+  drawText(g, `${won} OF ${of} WON`, W / 2, 33, {
+    align: 'center',
+    color: RAMPS.teal[4],
+    outline: INK,
+  })
+  // The legend: each medal and what it asks.
+  MEDAL_IDS.forEach((id, i) => {
+    const x = 26 + i * 140
+    drawMedal(g, x, 52, id, true, 4)
+    drawText(g, MEDALS[id].title, x + 9, 46, { color: '#ffffff', outline: INK })
+    drawText(g, MEDALS[id].blurb, x + 9, 55, {
+      color: RAMPS.steel[3],
+      outline: INK,
+    })
+  })
+  const cellW = 36
+  const left = 138
+  boardRows().forEach((row, r) => {
+    const y = 72 + r * 32
+    const open = view.open[r] ?? false
+    drawText(g, open ? row.arena.name : '? ? ?', 12, y + 8, {
+      color: open ? RAMPS.gold[4] : RAMPS.steel[2],
+      outline: INK,
+    })
+    row.cells.forEach((cell, c) => {
+      const x = left + c * cellW
+      const bits = view.board[cell.key] ?? 0
+      const ids = cellMedals(cell)
+      const full = ids.every((id) => (bits & MEDALS[id].bit) !== 0)
+      g.fillStyle = INK
+      g.fillRect(x, y, cellW - 4, 28)
+      g.fillStyle = full
+        ? rgba(RAMPS.gold[2], 0.45)
+        : rgba(cell.bout ? RAMPS.ember[1] : RAMPS.purple[1], open ? 0.9 : 0.35)
+      g.fillRect(x + 1, y + 1, cellW - 6, 26)
+      drawText(
+        g,
+        cell.bout ? 'BOUT' : String(cell.wave),
+        x + (cellW - 4) / 2,
+        y + 3,
+        {
+          align: 'center',
+          color: open ? '#ffffff' : RAMPS.steel[2],
+          outline: INK,
+        },
+      )
+      const mid = x + (cellW - 4) / 2
+      ids.forEach((id, k) => {
+        const off = (k - (ids.length - 1) / 2) * 9
+        drawMedal(
+          g,
+          Math.round(mid + off),
+          y + 19,
+          id,
+          (bits & MEDALS[id].bit) !== 0,
+        )
+      })
+    })
+  })
+  drawText(
+    g,
+    view.endlessBest
+      ? `ENDLESS POND BEST: WAVE ${view.endlessBest}`
+      : 'ENDLESS POND: NOT FLOWN YET',
+    16,
+    H - 22,
+    { color: RAMPS.teal[4], outline: INK },
+  )
+  drawText(g, 'A TO CLOSE', W - 16, H - 22, {
+    align: 'right',
+    color: Math.floor(view.tick / 30) % 2 ? RAMPS.gold[3] : RAMPS.gold[4],
+    outline: INK,
+  })
 }

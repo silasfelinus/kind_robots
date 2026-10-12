@@ -106,6 +106,25 @@ import type { BoutCtx, Champion } from '../butterflyJoust/champions'
 import { createChampion } from '../butterflyJoust/bouts'
 import { CREDITS } from '../butterflyJoust/credits'
 import {
+  endlessArena,
+  endlessCount,
+  endlessHeat,
+  endlessRider,
+  endlessWaveKind,
+} from '../butterflyJoust/endless'
+import {
+  MEDALS,
+  MEDAL_PAY,
+  boardTotal,
+  cellMedals,
+  boardRows,
+  drawMedalBadge,
+  medalKey,
+  parTicks,
+  type MedalBoard,
+  type MedalId,
+} from '../butterflyJoust/medals'
+import {
   CEILING,
   H,
   POND_Y,
@@ -137,6 +156,7 @@ import {
   CARRIER,
   CHARGE_COOLDOWN,
   CHARGE_FULL,
+  COMBO_ACE,
   COMBO_WINDOW,
   FROG,
   KNOCK_TICKS,
@@ -188,6 +208,7 @@ import {
   drawChampionBar,
   drawEnding,
   drawGarden,
+  drawMedalBoard,
   drawMenu,
   drawResult,
   type GardenRow,
@@ -400,8 +421,8 @@ type Floater = {
 type Banner = { text: string; sub?: string; lines?: string[]; ticks: number }
 
 /** What a game is: the tourney, the Classic Pond, or the party's versus. */
-export type GameMode = 'tourney' | 'classic' | 'versus'
-type MenuId = 'continue' | 'circuit' | GameMode
+export type GameMode = 'tourney' | 'classic' | 'versus' | 'endless'
+type MenuId = 'continue' | 'circuit' | 'medals' | GameMode
 
 function newRider(seat: number): Rider {
   return {
@@ -500,7 +521,7 @@ class ButterflyJoust implements ArcadeGameInstance {
   /** Two or more riders sharing the tourney or the pond. */
   private coop = false
   /** The mode card, before a real game starts. */
-  private menu: { pick: number } | null = null
+  private menu: { pick: number; board: boolean } | null = null
   /** A saved tourney this game could pick up. */
   private offer: JoustSave | null = null
   private saveData: JoustSave | null | undefined = undefined
@@ -523,6 +544,13 @@ class ButterflyJoust implements ArcadeGameInstance {
   private reached = 1
   private petals: string[] = []
   private cleared = false
+  /** Medals won on this device, wave by wave (butterflyJoust/medals.ts), kept across runs. */
+  private medals: MedalBoard = {}
+  /** The medals won at the last bell, shown under its banner (fresh: won for the first time). */
+  private medalShow: { won: MedalId[]; fresh: MedalId[] } | null = null
+  /** The Endless Pond's best wave on this device, and what it was when this run began. */
+  private endlessBest = 0
+  private endlessWas = 0
   /** Champion's Circuit: the tourney again, a lap harder. */
   private circuit = false
   /** The Wing Garden's petal hint is bought for the next garden. */
@@ -602,17 +630,24 @@ class ButterflyJoust implements ArcadeGameInstance {
       this.reached = stored.reached
       this.petals = [...stored.petals]
       this.cleared = stored.cleared
+      this.medals = { ...stored.medals }
+      this.endlessBest = stored.endless
       this.saveData = stored
       if (stored.seats === this.seats && (stored.arena > 0 || stored.score > 0))
         this.offer = stored
     }
-    if (!this.demo) this.menu = { pick: 0 }
+    if (!this.demo) this.menu = { pick: 0, board: false }
     this.startArena(0)
   }
 
   /** Player 1's rider (the solo game's only one). */
   private get player(): Rider {
     return this.riders[0]!
+  }
+
+  /** A garden's own ledges, weather and thermals are in play (the tourney and the Endless Pond). */
+  private get live(): boolean {
+    return this.mode === 'tourney' || this.mode === 'endless'
   }
 
   get save(): unknown {
@@ -651,9 +686,16 @@ class ButterflyJoust implements ArcadeGameInstance {
         about: 'THE TOURNEY AGAIN, A LAP HARDER',
       })
     rows.push({
+      id: 'endless',
+      name: 'ENDLESS POND',
+      about: this.endlessBest
+        ? `EVERY RIDER, NO END. BEST: WAVE ${this.endlessBest}`
+        : 'EVERY RIDER, ONE GARDEN, NO END',
+    })
+    rows.push({
       id: 'classic',
       name: 'CLASSIC POND',
-      about: 'ENDLESS WAVES AT SUNSET',
+      about: 'THE OLD WAVES AT SUNSET',
     })
     if (this.seats > 1)
       rows.push({
@@ -661,11 +703,25 @@ class ButterflyJoust implements ArcadeGameInstance {
         name: 'VERSUS',
         about: 'MOST BONKS IN 3 MINUTES',
       })
+    const { won, of } = boardTotal(this.medals)
+    rows.push({
+      id: 'medals',
+      name: 'MEDAL BOARD',
+      about: `${won} OF ${of} MEDALS WON`,
+    })
     return rows
   }
 
   private updateMenu(input: InputFrame) {
     const m = this.menu!
+    if (m.board) {
+      // The medal board is open over the card: any button closes it.
+      if (input.pressed.a || input.pressed.b || input.pressed.start) {
+        m.board = false
+        this.sound.play('blip')
+      }
+      return
+    }
     const rows = this.menuRows()
     const step =
       input.pressed.up || input.pressed.left
@@ -679,6 +735,11 @@ class ButterflyJoust implements ArcadeGameInstance {
     }
     if (input.pressed.a || input.pressed.start) {
       const id = rows[m.pick]!.id
+      if (id === 'medals') {
+        m.board = true
+        this.sound.play('blip')
+        return
+      }
       this.menu = null
       this.sound.play('start')
       if (id === 'continue') this.resumeFrom(this.offer!)
@@ -707,6 +768,14 @@ class ButterflyJoust implements ArcadeGameInstance {
         sub: 'MOST BONKS IN 3 MINUTES',
         ticks: 150,
       }
+      return
+    }
+    if (mode === 'endless') {
+      // The leaderboard event: one garden, drawn from the seed, and waves without end.
+      this.arenaIndex = 0
+      this.lap = 0
+      this.endlessWas = this.endlessBest
+      this.openArena(endlessArena(this.rng()))
       return
     }
     if (mode === 'classic') {
@@ -789,6 +858,36 @@ class ButterflyJoust implements ArcadeGameInstance {
       reached: this.reached,
       petals: [...this.petals],
       cleared: this.cleared,
+      medals: { ...this.medals },
+      endless: this.endlessBest,
+    }
+  }
+
+  /** What the device has won (medals, the pond's best), kept the moment it is won. */
+  private keepProfile() {
+    if (this.demo) return
+    const base: JoustSave = this.saveData ?? {
+      v: 1,
+      arena: 0,
+      score: 0,
+      lives: START_LIVES,
+      pollen: 0,
+      up: { flap: 0, combo: 0, frog: 0 },
+      spares: 0,
+      wings: [...this.wings],
+      wear: this.wear,
+      seats: this.seats,
+      continued: true,
+      reached: this.reached,
+      petals: [...this.petals],
+      cleared: this.cleared,
+      medals: {},
+      endless: 0,
+    }
+    this.saveData = {
+      ...base,
+      medals: { ...this.medals },
+      endless: this.endlessBest,
     }
   }
 
@@ -834,6 +933,7 @@ class ButterflyJoust implements ArcadeGameInstance {
         this.arenaIndex,
         Math.min(this.wave, this.arena.waves.length),
       )
+    if (this.mode === 'endless') return endlessHeat(this.level)
     if (this.mode === 'versus')
       return 2 + Math.floor(((VERSUS_TICKS - this.versusTicks) / 3600) * 3)
     return this.level
@@ -862,6 +962,7 @@ class ButterflyJoust implements ArcadeGameInstance {
     this.firstBonk = false
     this.clearing = 0
     this.frog = { state: 'rest', t: 60 * 6, x: W / 2, prey: null, grip: 0 }
+    this.medalShow = null
     for (const r of this.riders) r.bestCombo = 0
     this.ledges = this.ledges.filter((l) => !l.puff && !l.lantern)
     for (const l of this.ledges) {
@@ -905,6 +1006,15 @@ class ButterflyJoust implements ArcadeGameInstance {
       // A party faces one more rider for each extra seat.
       if (riders.length)
         for (let i = 1; i < this.seats; i++) riders.push('hunter')
+    } else if (this.mode === 'endless') {
+      this.waveKind = endlessWaveKind(this.level, this.seats)
+      const count =
+        this.waveKind === 'cocoon'
+          ? 0
+          : endlessCount(this.level) + this.seats - 1
+      riders = Array.from({ length: count }, () =>
+        endlessRider(this.level, this.rng()),
+      )
     } else {
       this.waveKind = classicWaveKind(this.level, this.seats)
       const count =
@@ -956,7 +1066,9 @@ class ButterflyJoust implements ArcadeGameInstance {
         ? crumbleAt(this.arena, this.wave)
         : this.mode === 'classic'
           ? Math.max(0, levelCurve(this.level, JOUST_CURVES.crumble))
-          : 0
+          : this.mode === 'endless'
+            ? crumbleAt(this.arena, Math.min(this.level, 7))
+            : 0
     for (const l of this.ledges) {
       if (!l.spec?.crumbles) continue
       l.bx0 = l.spec.x0 + c
@@ -1287,7 +1399,7 @@ class ButterflyJoust implements ArcadeGameInstance {
     for (const pile of this.piles)
       if (pile.scatter > 0 && pile.scatter < 1)
         pile.scatter = Math.min(1, pile.scatter + 1 / 30)
-    if (this.mode !== 'tourney') return
+    if (!this.live) return
     const a = this.arena
     const rain = this.rain
     if (this.rainForced) rain.state = 'rain'
@@ -1451,7 +1563,7 @@ class ButterflyJoust implements ArcadeGameInstance {
   /** Dandelion puffs float up from the meadow now and then. */
   private updatePuffs() {
     const spec = this.arena.puffs
-    if (!spec || this.mode !== 'tourney') return
+    if (!spec || !this.live) return
     if (--this.puffWait > 0) return
     this.puffWait = spec.every
     const x = 30 + Math.floor(this.rng() * (W - 60))
@@ -1567,7 +1679,7 @@ class ButterflyJoust implements ArcadeGameInstance {
   /** A lit thermal lifts any flier inside it. */
   private lift(b: Body) {
     for (const th of this.arena.thermals) {
-      if (this.mode !== 'tourney' || !thermalOn(th, this.arenaTicks)) continue
+      if (!this.live || !thermalOn(th, this.arenaTicks)) continue
       if (Math.abs(wrapDx(th.x, b.x)) > th.w / 2 || b.y < th.top) continue
       b.vy = Math.max(THERMAL_MAX_RISE, b.vy - th.lift)
     }
@@ -1680,12 +1792,7 @@ class ButterflyJoust implements ArcadeGameInstance {
     if (this.rain.state === 'rain') r.wet = Math.min(1, r.wet + 1 / 240)
     else r.wet = Math.max(0, r.wet - 1 / 900)
     for (const th of this.arena.thermals) {
-      if (
-        !th.rainbow ||
-        this.mode !== 'tourney' ||
-        !thermalOn(th, this.arenaTicks)
-      )
-        continue
+      if (!th.rainbow || !this.live || !thermalOn(th, this.arenaTicks)) continue
       if (Math.abs(wrapDx(th.x, r.x)) < th.w / 2 && r.y > th.top) r.wet = 0
     }
     if (r.ground && r.ground.frozen > 0 && r.stuck === 0) {
@@ -2015,7 +2122,7 @@ class ButterflyJoust implements ArcadeGameInstance {
   private glide(r: Rival, prey: Rider | null) {
     let th = null as Arena['thermals'][number] | null
     let best = Infinity
-    if (this.mode === 'tourney') {
+    if (this.live) {
       for (const t of this.arena.thermals) {
         if (!thermalOn(t, this.arenaTicks)) continue
         const d = Math.abs(wrapDx(r.x, t.x))
@@ -2089,6 +2196,8 @@ class ButterflyJoust implements ArcadeGameInstance {
   private carriersActive(): boolean {
     if (this.mode === 'versus') return true
     if (this.mode === 'tourney') return this.arena.carriers
+    if (this.mode === 'endless')
+      return this.arena.carriers && this.level >= CARRIER.from
     return this.level >= CARRIER.from
   }
 
@@ -2330,6 +2439,8 @@ class ButterflyJoust implements ArcadeGameInstance {
   private frogActive(): boolean {
     if (this.mode === 'versus') return true
     if (this.mode === 'tourney') return this.wave >= this.arena.frogFrom
+    if (this.mode === 'endless')
+      return this.level >= Math.max(FROG.from, this.arena.frogFrom)
     return this.level >= FROG.from
   }
 
@@ -3003,6 +3114,11 @@ class ButterflyJoust implements ArcadeGameInstance {
     p.respawn = 90
     if (this.lives <= 0) {
       this.banner = { text: 'GAME OVER', ticks: 9999 }
+      if (this.mode === 'endless')
+        this.banner.sub =
+          this.level - 1 > this.endlessWas
+            ? `NEW BEST: WAVE ${this.level - 1}`
+            : `THE POND HELD YOU ${this.level - 1} WAVES`
       // The save stays at this arena's start, to pick up with fresh butterflies.
       if (this.saveData && this.mode === 'tourney')
         this.saveData = { ...this.saveData, continued: true }
@@ -3059,6 +3175,15 @@ class ButterflyJoust implements ArcadeGameInstance {
       )
     }
     for (const r of this.riders) this.bankCombo(r)
+    this.awardMedals(pay)
+    if (
+      this.mode === 'endless' &&
+      !this.demo &&
+      this.level > this.endlessBest
+    ) {
+      this.endlessBest = this.level
+      this.keepProfile()
+    }
     this.gainPollen(POLLEN_FOR.wave)
     this.banner = this.champion
       ? (this.banner ?? { text: 'CHAMPION BESTED!', ticks: 100 })
@@ -3072,6 +3197,30 @@ class ButterflyJoust implements ArcadeGameInstance {
     // A rider in the frog's grip at the bell goes free.
     if (this.frog.prey) this.releasePrey(this.frog.prey)
     this.frog.prey = null
+  }
+
+  /**
+   * A tourney wave's medals at the bell: Unbonked (no butterfly lost), Air Ace (a x4 Air Combo)
+   * and Quick Lance (under par). A bout has no Air Ace. Each pays, and the board keeps them.
+   */
+  private awardMedals(pay: (points: number, line: string) => void) {
+    if (this.demo || this.mode !== 'tourney') return
+    const bout = this.champion !== null
+    const won: MedalId[] = cellMedals({ bout }).filter((id) =>
+      id === 'unbonked'
+        ? !this.diedThisWave
+        : id === 'ace'
+          ? this.riders.some((r) => r.bestCombo >= COMBO_ACE)
+          : this.waveTicks <= parTicks(this.arena, this.wave),
+    )
+    if (!won.length) return
+    const key = medalKey(this.arena.id, this.wave)
+    const before = this.medals[key] ?? 0
+    const fresh = won.filter((id) => (before & MEDALS[id].bit) === 0)
+    this.medals[key] = won.reduce((bits, id) => bits | MEDALS[id].bit, before)
+    this.medalShow = { won, fresh }
+    pay(MEDAL_PAY * won.length, won.length > 1 ? 'MEDALS' : 'MEDAL')
+    if (fresh.length) this.keepProfile()
   }
 
   private addScore(points: number, x?: number, y?: number, who?: Rider) {
@@ -3442,7 +3591,7 @@ class ButterflyJoust implements ArcadeGameInstance {
     }
     this.renderSky(g)
     for (const th of this.arena.thermals) {
-      if (this.mode !== 'tourney') break
+      if (!this.live) break
       const on = thermalOn(th, this.arenaTicks)
       this.wrapDraw(th.x, (x) => {
         paintThermal(g, x, th.w, th.top, on, this.tick)
@@ -3511,7 +3660,7 @@ class ButterflyJoust implements ArcadeGameInstance {
       glow(g, b.x, b.y1, 26, RAMPS.gold[4], 0.6 * (b.life / 14))
       drawBolt(g, path)
     }
-    if (this.arena.wind && this.mode === 'tourney') {
+    if (this.arena.wind && this.live) {
       // The weathervane on the highest ledge: it swings hard in the tell, then points the gust.
       const top = this.ledges.reduce<ArenaLedge | null>(
         (best, l) => (l.solid && (!best || l.y < best.y) ? l : best),
@@ -3535,7 +3684,7 @@ class ButterflyJoust implements ArcadeGameInstance {
       }
     }
     if (this.wind.state === 'blow') paintWind(g, this.wind.dir, 1, this.tick)
-    if (this.rain.state !== 'dry' && this.mode === 'tourney')
+    if (this.rain.state !== 'dry' && this.live)
       paintRain(g, this.tick, this.rain.state === 'rain' ? 1 : 0.3)
     if (this.veilY !== null) {
       // The Frost Moth Queen's veil: a shimmer of frost across the sky.
@@ -3561,9 +3710,13 @@ class ButterflyJoust implements ArcadeGameInstance {
         number: this.arena.number,
         name: this.arena.name,
         intro:
-          this.hint && this.arena.petal && !this.petals.includes(this.arena.id)
-            ? `PETAL: WAVE ${SIGNATURE_WAVE}, NO BUTTERFLY LOST`
-            : this.arena.intro,
+          this.mode === 'endless'
+            ? 'THE ENDLESS POND: EVERY RIDER, NO END'
+            : this.hint &&
+                this.arena.petal &&
+                !this.petals.includes(this.arena.id)
+              ? `PETAL: WAVE ${SIGNATURE_WAVE}, NO BUTTERFLY LOST`
+              : this.arena.intro,
         lap: this.lap,
         t: CARD_TICKS - this.card,
       })
@@ -3577,18 +3730,32 @@ class ButterflyJoust implements ArcadeGameInstance {
         pick: this.menu.pick,
         tick: this.tick,
       })
-      // Each seat's rider, lit up over the dimmed arena, flapping its own wings.
+      // Each seat's rider flanks the card, bobbing and flapping its own wings, facing in.
       for (const r of this.riders) {
+        const right = r.seat % 2 === 1
+        const bob = Math.round(Math.sin((this.tick + r.seat * 20) / 18) * 3)
         drawSprite(
           g,
           seatFrames(r.seat, r.seat === 0 ? this.wear : undefined)[
             (this.tick + r.seat * 4) % 16 < 8 ? 0 : 1
           ],
-          Math.round(r.x) - 16,
-          Math.round(r.y) - 17,
-          { anchor: 'topleft', flipX: r.facing < 0 },
+          (right ? W - 30 : 30) - 16,
+          H / 2 - 30 + Math.floor(r.seat / 2) * 48 + bob - 17,
+          { anchor: 'topleft', flipX: right },
         )
       }
+      if (this.menu.board)
+        drawMedalBoard(g, {
+          board: this.medals,
+          open: boardRows().map((row) =>
+            row.arena === RAINBOW_LISTS
+              ? PETAL_ARENAS.every((id) => this.petals.includes(id)) ||
+                Object.keys(this.medals).some((k) => k.startsWith('rainbow-'))
+              : this.cleared || row.arena.number <= this.reached,
+          ),
+          endlessBest: this.endlessBest,
+          tick: this.tick,
+        })
     }
     if (this.result) drawResult(g, this.result.lines)
   }
@@ -4177,6 +4344,16 @@ class ButterflyJoust implements ArcadeGameInstance {
           outline: INK,
         })
       })
+      // The medals won at the bell, in a row under the banner.
+      const show = this.medalShow
+      if (show && this.clearing > 0) {
+        const lines = this.banner.lines?.length ?? 0
+        const y = H / 2 - 4 + Math.max(1, lines) * 20
+        show.won.forEach((id, i) => {
+          const x = W / 2 + (i - (show.won.length - 1) / 2) * 96
+          drawMedalBadge(g, x, y, id, show.fresh.includes(id), this.tick)
+        })
+      }
     }
   }
 

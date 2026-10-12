@@ -65,6 +65,7 @@ type Inner = {
   over: boolean
   mode: string
   menu: unknown
+  menuRows(): Array<{ id: string }>
   riders: Rider[]
   rivals: Rival[]
   cocoons: Cocoon[]
@@ -106,13 +107,19 @@ function hold(...buttons: (keyof InputFrame['held'])[]): InputFrame {
   return f
 }
 const idle = () => emptyInput()
-/** The Classic Pond (the second row of the mode card), where the slice 1 rules are pinned. */
+/** Move the mode card's cursor down to the row with this id, and take it. */
+function pick(g: Inner, id: string) {
+  const at = g.menuRows().findIndex((row) => row.id === id)
+  assert.ok(at >= 0, `the card offers ${id}`)
+  for (let i = 0; i < at; i++) g.update(press('down'))
+  g.update(press('a'))
+}
+/** The Classic Pond (a row of the mode card), where the slice 1 rules are pinned. */
 function pond(players = 1, seed = 3): Inner {
   const g = game(players, seed)
   assert.ok(g.menu, 'the game opens on the mode card')
   assert.equal(g.level, 1, 'the card sits on wave 1')
-  g.update(press('down'))
-  g.update(press('a'))
+  pick(g, 'classic')
   assert.equal(g.menu, null)
   assert.equal(g.mode, 'classic')
   return g
@@ -125,9 +132,7 @@ function party(players: number, mode: 'coop' | 'versus'): Inner {
     return g
   }
   const g = game(players)
-  g.update(press('down'))
-  g.update(press('down'))
-  g.update(press('a'))
+  pick(g, 'versus')
   assert.equal(g.mode, 'versus')
   return g
 }

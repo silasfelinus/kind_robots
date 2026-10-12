@@ -216,7 +216,7 @@ export default defineEventHandler(async (event) => {
       artPrompt: true,
       description: true,
       username: true,
-      ...(includeImages && includeCounts
+      ...(includeImages && (includeCounts || Boolean(collectionSlug))
         ? { ArtImages: buildArtImagesRelation(imageLimit, imageWhere) }
         : {}),
       ...(includeCounts

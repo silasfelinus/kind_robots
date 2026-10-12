@@ -131,6 +131,14 @@
       </button>
     </div>
 
+    <p
+      v-if="projectSaveError && projectSaveMessage"
+      role="alert"
+      class="rounded-lg border border-error/30 bg-error/10 px-3 py-2 text-xs text-error"
+    >
+      {{ projectSaveMessage }}
+    </p>
+
     <div
       v-if="linkedProject"
       class="project-detail-primary grid shrink-0 gap-2"
@@ -601,7 +609,7 @@ const selectedProject = computed<ConductorProject | null>(() => {
 })
 
 const availablePriorities = computed(() =>
-  selectedProject.value?.conductorPriority
+  selectedProject.value?.conductorPriority || linkedProject.value?.conductorSlug
     ? CONDUCTOR_PRIORITIES
     : CONDUCTOR_PRIORITIES.filter((priority) => priority !== 'urgent'),
 )
@@ -837,7 +845,7 @@ async function onPrioritySelect(event: Event) {
   const value = select.value as ConductorProjectPriority
   const project = linkedProject.value
   if (!project || value === displayPriority.value) return
-  if (!selectedProject.value?.conductorPriority) {
+  if (!selectedProject.value?.conductorPriority && !project.conductorSlug) {
     const saved = await patchProject({
       priority: value.toUpperCase() as ProjectPriorityLevel,
     })

@@ -433,10 +433,10 @@ function availableArtSrc(src: string): string {
   if (!src) return ''
   if (!failedArt.value.has(src)) return src
   const match = src.match(
-    /^https:\/\/raw\.githubusercontent\.com\/silasfelinus\/conductor\/main\/projects\/images\/([a-z0-9-]+\.(?:webp|png|jpe?g))$/,
+    /^https:\/\/raw\.githubusercontent\.com\/silasfelinus\/conductor\/main\/projects\/images\/([a-z0-9-]+\.(?:webp|png|jpe?g))(?:\?v=([a-f0-9]+))?$/,
   )
   if (!match?.[1]) return ''
-  const fallback = `https://cdn.jsdelivr.net/gh/silasfelinus/conductor@main/projects/images/${match[1]}`
+  const fallback = `https://cdn.jsdelivr.net/gh/silasfelinus/conductor@main/projects/images/${match[1]}${match[2] ? `?v=${match[2]}` : ''}`
   return failedArt.value.has(fallback) ? '' : fallback
 }
 

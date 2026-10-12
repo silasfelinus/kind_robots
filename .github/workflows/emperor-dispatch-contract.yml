@@ -32,3 +32,12 @@ jobs:
         env:
           CYPRESS_INSTALL_BINARY: '0'
       - run: npx tsx utils/scripts/verifyEmperorDispatch.test.ts
+      - name: Inspect exact Prettier output for two authored source files
+        run: |
+          npx prettier --write utils/emperorOfDust/engine.ts utils/scripts/verifyEmperorDispatch.test.ts
+          printf 'EMPEROR_ENGINE_BEGIN\\n'
+          base64 -w0 utils/emperorOfDust/engine.ts
+          printf '\\nEMPEROR_ENGINE_END\\n'
+          printf 'EMPEROR_TEST_BEGIN\\n'
+          base64 -w0 utils/scripts/verifyEmperorDispatch.test.ts
+          printf '\\nEMPEROR_TEST_END\\n'

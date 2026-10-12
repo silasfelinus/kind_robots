@@ -3801,10 +3801,19 @@ class PrizeShowPanic implements ArcadeGameInstance {
         2,
         RAMPS.steel[4],
       )
-      if (this.tick % 10 === 0) {
-        this.floaters.push({ x: c.x, y: c.y - 16, text: 'CLANG!', life: 24 })
-        this.sound.play('blip')
-      }
+      if (c.kind === 'tank') c.armorHitsLeft = Math.max(0, c.armorHitsLeft - 1)
+      this.floaters.push({
+        x: c.x,
+        y: c.y - 16,
+        text:
+          c.kind === 'tank'
+            ? c.armorHitsLeft === 0
+              ? 'ARMOR OFF!'
+              : 'FLANK! / ARMOR ' + c.armorHitsLeft
+            : 'CLANG!',
+        life: 40,
+      })
+      this.sound.play(c.kind === 'tank' && c.armorHitsLeft === 0 ? 'pickup' : 'blip')
       return false
     }
     if (foamy) {

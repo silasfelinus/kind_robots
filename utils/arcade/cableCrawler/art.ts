@@ -15,6 +15,7 @@ import {
   rgba,
 } from '../snes'
 import type { ComponentLook, SparkSet } from './components'
+import type { PickupKind } from './pickups'
 import { COLS, ROWS, cellKey } from './mazes'
 
 export const TILE = 10
@@ -159,6 +160,51 @@ export const ELBOWS = elbowSprites(TUBE)
 export const ELBOWS_LIT = elbowSprites(TUBE_LIT)
 export const ELBOWS_SURGE = elbowSprites(TUBE_SURGE)
 
+/** The cable colours the Workbench sells: the core stripe in sky, pink, leaf or gold. */
+const CORES = [RAMPS.sky, RAMPS.pink, RAMPS.leaf, RAMPS.gold] as const
+
+export type CableCoat = {
+  tube: readonly string[]
+  lit: readonly string[]
+  elbows: Record<string, PixelSprite>
+  elbowsLit: Record<string, PixelSprite>
+  glow: string
+}
+
+export const CABLE_COATS: readonly CableCoat[] = CORES.map((core, i) => {
+  if (i === 0)
+    return {
+      tube: TUBE,
+      lit: TUBE_LIT,
+      elbows: ELBOWS,
+      elbowsLit: ELBOWS_LIT,
+      glow: RAMPS.sky[3],
+    }
+  const tube = [
+    RAMPS.steel[3],
+    RAMPS.steel[4],
+    RAMPS.steel[3],
+    core[3],
+    RAMPS.steel[2],
+    RAMPS.steel[1],
+  ]
+  const lit = [
+    RAMPS.steel[3],
+    RAMPS.steel[4],
+    core[4],
+    '#ffffff',
+    core[3],
+    RAMPS.steel[1],
+  ]
+  return {
+    tube,
+    lit,
+    elbows: elbowSprites(tube),
+    elbowsLit: elbowSprites(lit),
+    glow: core[3],
+  }
+})
+
 /** A spare cable for the HUD: a tiny plug. */
 export const LIFE_SPRITE = pixelSprite(
   ['.HHH...', 'HLLLBGy', 'HkLkB..', 'HLLLBGy', '.SSS...'],
@@ -202,11 +248,39 @@ const BOLT_SPRITES = [
   pixelSprite(['..Hw', '.Hw.', 'HwwY', '.wY.', '.Yd.', 'Yd..'], BOLT_PALETTE),
 ] as const
 
+const BIT_PALETTE = {
+  w: '#ffffff',
+  H: RAMPS.leaf[4],
+  Y: RAMPS.leaf[3],
+  G: RAMPS.leaf[2],
+  d: RAMPS.leaf[1],
+}
+/** RAM Rows' sparks: a lit bit, a one, and its twinkle. */
+const BIT_SPRITES = [
+  pixelSprite(['.HY.', 'HYY.', '.YG.', '.YG.', '.Gd.', 'HGGd'], BIT_PALETTE),
+  pixelSprite(['.Hw.', 'Hww.', '.wY.', '.wY.', '.YG.', 'HwYG'], BIT_PALETTE),
+] as const
+
+const FLAKE_PALETTE = {
+  w: '#ffffff',
+  H: RAMPS.sky[4],
+  Y: RAMPS.sky[3],
+  G: RAMPS.sky[2],
+  d: RAMPS.sky[1],
+}
+/** The Cooling Fan's sparks: a snowflake, and its twinkle. */
+const FLAKE_SPRITES = [
+  pixelSprite(['H.Y.H', '.HYH.', 'YYwYY', '.GYG.', 'G.d.G'], FLAKE_PALETTE),
+  pixelSprite(['w.H.w', '.wHw.', 'HwwwH', '.HwH.', 'Y.Y.Y'], FLAKE_PALETTE),
+] as const
+
 export const SPARK_SPRITES: Record<
   SparkSet,
   readonly [PixelSprite, PixelSprite]
 > = {
   bolt: BOLT_SPRITES,
+  bit: BIT_SPRITES,
+  flake: FLAKE_SPRITES,
 }
 
 /** A mimic spark's twinkle: the same shape, but its core flushes pink and two eyes open. */
@@ -221,6 +295,14 @@ export const MIMIC_TWINKLE: Record<SparkSet, PixelSprite> = {
     ['..Hw', '.kk.', 'HwwY', '.wY.', '.Yd.', 'Yd..'],
     MIMIC_PALETTE,
   ),
+  bit: pixelSprite(
+    ['.Hw.', 'kwk.', '.wY.', '.wY.', '.YG.', 'HwYG'],
+    MIMIC_PALETTE,
+  ),
+  flake: pixelSprite(['w.H.w', '.kHk.', 'HwwwH', '.HwH.', 'Y.Y.Y'], {
+    ...MIMIC_PALETTE,
+    H: RAMPS.pink[3],
+  }),
 }
 
 const BYTE_PALETTE = {
@@ -353,6 +435,148 @@ export const REBOOT_SPRITE = pixelSprite(
   { w: RAMPS.teal[4] },
 )
 
+/** A cache crab: a red scuttler, its claws raised (it snips) or lowered (it only bumps). */
+function crabRows(up: boolean, step: number): string[] {
+  return [
+    up ? 'Cc.....cC' : '.........',
+    up ? 'cC.....Cc' : '.........',
+    up ? '.c.....c.' : 'Cc.....cC',
+    '.cRRRRRc.',
+    'RRwkRkwRR',
+    'RRRRRRRRr',
+    '.rRRRRRr.',
+    step ? 'r.r...r.r' : '.r.r.r.r.',
+  ]
+}
+const CRAB_PALETTE = {
+  C: RAMPS.ember[4],
+  c: RAMPS.ember[3],
+  R: RAMPS.ember[2],
+  r: RAMPS.ember[1],
+  w: '#ffffff',
+  k: INK,
+}
+export const CRAB_SPRITES = {
+  up: [
+    pixelSprite(crabRows(true, 0), CRAB_PALETTE),
+    pixelSprite(crabRows(true, 1), CRAB_PALETTE),
+  ],
+  down: [
+    pixelSprite(crabRows(false, 0), CRAB_PALETTE),
+    pixelSprite(crabRows(false, 1), CRAB_PALETTE),
+  ],
+} as const
+
+/** A bit flipper: a little purple toggle switch on legs that flips its lever as it walks. */
+const FLIPPER_PALETTE = {
+  L: RAMPS.purple[3],
+  M: RAMPS.purple[2],
+  D: RAMPS.purple[1],
+  H: RAMPS.gold[4],
+  w: '#ffffff',
+  k: INK,
+}
+export const FLIPPER_SPRITES = [
+  pixelSprite(
+    [
+      'H......',
+      '.H.....',
+      '..H....',
+      'LLLLLLM',
+      'LwkLwkM',
+      'MMMMMMD',
+      '.D...D.',
+    ],
+    FLIPPER_PALETTE,
+  ),
+  pixelSprite(
+    [
+      '......H',
+      '.....H.',
+      '....H..',
+      'LLLLLLM',
+      'LwkLwkM',
+      'MMMMMMD',
+      'D.....D',
+    ],
+    FLIPPER_PALETTE,
+  ),
+] as const
+
+/** A leak drip: a wobbling teal droplet. */
+const DRIP_PALETTE = {
+  w: '#ffffff',
+  H: RAMPS.teal[4],
+  L: RAMPS.teal[3],
+  M: RAMPS.teal[2],
+  D: RAMPS.teal[1],
+  k: INK,
+}
+export const DRIP_SPRITES = [
+  pixelSprite(
+    ['..H..', '.HLM.', 'HwLLM', 'LkLkM', 'LLLMD', '.MMD.'],
+    DRIP_PALETTE,
+  ),
+  pixelSprite(
+    ['..H..', '..LM.', '.wLM.', 'HkLkM', 'LLLMD', 'MMMDD'],
+    DRIP_PALETTE,
+  ),
+] as const
+
+/** A Defrag block: a loose memory block, and the same block settled in its slot. */
+const BLOCK_PALETTE = {
+  H: RAMPS.leaf[4],
+  L: RAMPS.leaf[3],
+  M: RAMPS.leaf[2],
+  D: RAMPS.leaf[1],
+  G: RAMPS.gold[3],
+  k: INK,
+}
+export const BLOCK_SPRITE = pixelSprite(
+  ['HHHHHHL', 'HMMMMMD', 'HMkMkMD', 'HMMMMMD', 'LDDDDDD', 'G.G.G.G'],
+  BLOCK_PALETTE,
+)
+
+const PICKUP_PALETTE = {
+  w: '#ffffff',
+  k: INK,
+  G: RAMPS.gold[3],
+  g: RAMPS.gold[1],
+  S: RAMPS.steel[3],
+  s: RAMPS.steel[1],
+  B: RAMPS.sky[3],
+  b: RAMPS.sky[1],
+  R: RAMPS.ember[2],
+  r: RAMPS.ember[1],
+  P: RAMPS.pink[3],
+  p: RAMPS.pink[1],
+  O: RAMPS.rust[3],
+  o: RAMPS.rust[1],
+}
+/** The five pickups: capacitor, heat sink, insulation, coil and magnet. */
+export const PICKUP_SPRITES: Record<PickupKind, PixelSprite> = {
+  capacitor: pixelSprite(
+    ['.SSS.', 'BBBBb', 'BwBBb', 'BBBBb', 'bbbbb', '.s.s.'],
+    PICKUP_PALETTE,
+  ),
+  heatsink: pixelSprite(
+    ['S.S.S', 'S.S.S', 'SSSSS', 'SwSSs', 'sssss'],
+    PICKUP_PALETTE,
+  ),
+  insulation: pixelSprite(
+    ['.PPP.', 'PwPPp', 'P.k.p', 'PPPPp', '.ppp.'],
+    PICKUP_PALETTE,
+  ),
+  coil: pixelSprite(
+    ['OOOOO', 'oo.oo', 'OOOOO', 'oo.oo', 'OOOOO'],
+    PICKUP_PALETTE,
+  ),
+  magnet: pixelSprite(
+    ['RR.RR', 'Rr.Rr', 'Rr.Rr', 'RrrRr', '.rrr.', 'S...S'],
+    PICKUP_PALETTE,
+  ),
+}
+
 // --- bosses ----------------------------------------------------------------------------------------
 
 /** The Surge Protector's shell by phase: a glass fuse that runs green, then gold, then red. */
@@ -400,8 +624,8 @@ export const FUSE_BEETLE = [1, 2, 3].map((phase) => [
  * A component's static board, painted once per maze: a banded board etched with faint traces
  * down the middle of every corridor and a solder pad on every other cell, shadows the walls cast
  * down and right, and the walls as raised slabs, lit on their top and left edges and shadowed on
- * their bottom and right, outlined in ink. The Power Strip's slabs are cream plastic, with an
- * outlet's slots and a screw here and there.
+ * their bottom and right, outlined in ink. The Power Strip's slabs are cream plastic with an
+ * outlet's slots, RAM Rows' are chips with gold contacts, and the Cooling Fan's are finned.
  */
 export function paintBoard(
   k: CanvasRenderingContext2D,
@@ -508,15 +732,7 @@ export function paintBoard(
       if (down && right) corner(px + TILE - 1, py + TILE - 1)
       const frameCell = x === 0 || y === 0 || x === COLS - 1 || y === ROWS - 1
       const hash = (x * 7 + y * 13) % 11
-      if (!frameCell && !up && !down && hash < 3) {
-        // An outlet's two slots, pressed into the plastic.
-        k.fillStyle = ramp[0]
-        k.fillRect(px + 3, py + 3, 1, 3)
-        k.fillRect(px + 6, py + 3, 1, 3)
-        k.fillStyle = ramp[4]
-        k.fillRect(px + 4, py + 3, 1, 3)
-        k.fillRect(px + 7, py + 3, 1, 3)
-      } else if (frameCell && (x * 5 + y * 3) % 7 === 0) {
+      if (frameCell && (x * 5 + y * 3) % 7 === 0) {
         // A screw head in the chassis.
         k.fillStyle = INK
         k.fillRect(px + 3, py + 3, 4, 4)
@@ -524,6 +740,40 @@ export function paintBoard(
         k.fillRect(px + 4, py + 4, 2, 2)
         k.fillStyle = RAMPS.steel[1]
         k.fillRect(px + 4, py + 5, 2, 1)
+      } else if (frameCell) {
+        continue
+      } else if (look.wallStyle === 'plastic' && !up && !down && hash < 3) {
+        // An outlet's two slots, pressed into the plastic.
+        k.fillStyle = ramp[0]
+        k.fillRect(px + 3, py + 3, 1, 3)
+        k.fillRect(px + 6, py + 3, 1, 3)
+        k.fillStyle = ramp[4]
+        k.fillRect(px + 4, py + 3, 1, 3)
+        k.fillRect(px + 7, py + 3, 1, 3)
+      } else if (look.wallStyle === 'chips') {
+        // RAM chips: a black package on the green board, gold contacts along the open edges.
+        k.fillStyle = RAMPS.night[1]
+        k.fillRect(px + 2, py + 2, TILE - 4, TILE - 4)
+        k.fillStyle = RAMPS.night[3]
+        k.fillRect(px + 2, py + 2, TILE - 4, 1)
+        k.fillStyle = RAMPS.gold[3]
+        if (up)
+          for (let i = 2; i < TILE - 2; i += 2) k.fillRect(px + i, py + 1, 1, 1)
+        if (down)
+          for (let i = 2; i < TILE - 2; i += 2)
+            k.fillRect(px + i, py + TILE - 2, 1, 1)
+        if (hash === 0) {
+          k.fillStyle = RAMPS.gold[4]
+          k.fillRect(px + 3, py + 3, 1, 1)
+        }
+      } else if (look.wallStyle === 'fins') {
+        // Cooling fins: thin lit and shadowed ridges across the slab.
+        for (let i = 2; i < TILE - 2; i += 3) {
+          k.fillStyle = ramp[4]
+          k.fillRect(px + 1, py + i, TILE - 2, 1)
+          k.fillStyle = ramp[0]
+          k.fillRect(px + 1, py + i + 1, TILE - 2, 1)
+        }
       }
     }
 }

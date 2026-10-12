@@ -23,8 +23,11 @@
 //   d  dance-floor tile (stuns a bot standing on it as it lights on the beat)
 //   V  wind vent (blows along the floor's `wind` heading)   o  cloud tile (vanishes and reforms)
 //   Z  trap plate (stepped on, it lifts every W)             W  trap wall
+//   G  firewall gate, shut on the first half of its beat;  J  shut on the second half
+//   Y  defrag block (a wall that slides along its row);    y  an empty defrag slot
 //   generators: a glitch  b brute  p pop-up  i imp  t pickpocket  l leech  c coffee spill
 //               n bug nest  m mimic vending  w worm  z blinker  q pop-up wizard
+//               u sleepy cursor
 //   x  a mimic snack lying among the real ones
 
 import type { GlitchKind, Tier } from './roster'
@@ -32,6 +35,7 @@ import type { Ramp } from '../snes'
 import { RAMPS } from '../snes'
 import { ATRIUM } from './atrium'
 import { BASEMENT } from './basement'
+import { CORE } from './core'
 
 export const GENERATOR_LETTERS: Record<string, GlitchKind> = {
   a: 'glitch',
@@ -46,6 +50,7 @@ export const GENERATOR_LETTERS: Record<string, GlitchKind> = {
   w: 'worm',
   z: 'blinker',
   q: 'wizard',
+  u: 'cursor',
 }
 
 export type CharmKind = 'ghost' | 'shell' | 'shoo' | 'hop' | 'mirror' | 'mega'
@@ -92,7 +97,7 @@ export type Secret =
   /** Reach the stairs inside the floor's par time. */
   | { kind: 'swift' }
 
-export type GuardianKind = 'sorter' | 'reels' | 'attract' | 'bank'
+export type GuardianKind = 'sorter' | 'reels' | 'attract' | 'bank' | 'mainframe'
 
 export type FloorPlan = {
   name: string
@@ -133,7 +138,7 @@ export type Wing = {
 }
 
 export const FLOORS_PER_WING = 8
-/** The Deep Archive's five wings (the Core, the fifth, comes in slice 4). */
+/** The Deep Archive's five wings. */
 export const WING_COUNT = 5
 export const LOST_TICKS = 30 * 60
 
@@ -603,7 +608,7 @@ const LIBRARY: Wing = {
   ],
 }
 
-export const WINGS: readonly Wing[] = [VAULT, LIBRARY, BASEMENT, ATRIUM]
+export const WINGS: readonly Wing[] = [VAULT, LIBRARY, BASEMENT, ATRIUM, CORE]
 
 /** The authored floor for an overall floor number (1-based), or null past the authored wings. */
 export function planAt(

@@ -49,6 +49,8 @@ export type VoiceCue =
   | 'helper'
   | 'memory'
   | 'dance'
+  | 'cursor'
+  | 'ending'
 
 /** Higher cues cut in over lower ones; equal or lower ones wait their turn or are dropped. */
 export const CUE_PRIORITY: Record<VoiceCue, number> = {
@@ -91,6 +93,8 @@ export const CUE_PRIORITY: Record<VoiceCue, number> = {
   helper: 2,
   memory: 6,
   dance: 2,
+  cursor: 4,
+  ending: 6,
 }
 
 export const VOICE_LINES: Record<VoiceCue, readonly string[]> = {
@@ -149,6 +153,8 @@ export const VOICE_LINES: Record<VoiceCue, readonly string[]> = {
   helper: ['IT WANTS TO HELP {BOT} NOW!', 'A NEW FRIEND FOR {BOT}!'],
   memory: ['I REMEMBER!'],
   dance: ['STAY OFF THE LIT TILES!', '{BOT} MISSED THE BEAT!'],
+  cursor: ['SHH... THE CURSOR IS NAPPING.', 'SWEET DREAMS, LITTLE CURSOR.'],
+  ending: ['THANK YOU, LITTLE BOTS.'],
 }
 
 /** What the Old Mainframe remembers as each wing's Memory Card comes home. */

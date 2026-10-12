@@ -82,10 +82,10 @@
       v-if="manageOpen"
       class="shrink-0 rounded-xl border border-base-300 bg-base-100 p-3"
     >
-      <h3 class="kr-text-bold-sm">Manage project lifecycle</h3>
+      <h3 class="kr-text-bold-sm">Manage project</h3>
       <p class="kr-text-dim-xs-55 mt-1">
-        Update a project here without leaving the gallery. Linked projects save
-        to Conductor; local-only projects save to Kind Robots.
+        The title is stored in Kind Robots. Project status syncs with Conductor
+        when linked. Renaming a title never changes the project slug or roadmap.
       </p>
       <div class="mt-2 flex flex-wrap items-end gap-2">
         <label class="form-control min-w-48 flex-1">
@@ -101,6 +101,26 @@
             </option>
           </select>
         </label>
+        <label class="form-control min-w-48 flex-1">
+          <span class="kr-label-xs">Project title</span>
+          <input
+            v-model="manageTitle"
+            type="text"
+            class="kr-input-sm w-full"
+            maxlength="200"
+            placeholder="Project title"
+            :disabled="!manageSelected || managing"
+            @keydown.enter.prevent="saveManagedTitle"
+          />
+        </label>
+        <button
+          type="button"
+          class="btn btn-secondary btn-sm"
+          :disabled="!manageSelected || managing || !manageTitle.trim() || manageTitle.trim() === manageSelected.title"
+          @click="saveManagedTitle"
+        >
+          Save title
+        </button>
         <label class="form-control min-w-32">
           <span class="kr-label-xs">Status</span>
           <select
@@ -415,6 +435,7 @@ const showBlocked = ref(false)
 const manageOpen = ref(false)
 const manageId = ref(0)
 const manageStatus = ref<Status>('ACTIVE')
+const manageTitle = ref('')
 const managing = ref(false)
 const manageMessage = ref('')
 const manageError = ref(false)
@@ -589,6 +610,7 @@ const manageSelected = computed(
 )
 watch(manageId, () => {
   manageStatus.value = manageSelected.value?.dbStatus ?? 'ACTIVE'
+  manageTitle.value = manageSelected.value?.title ?? ''
   manageMessage.value = ''
 })
 const driftItems = computed(() => allItems.value.filter((item) => item.drift))
@@ -694,6 +716,25 @@ const load = (force: boolean) =>
     conductor.fetchProjects(force),
   ])
 const refresh = () => load(true)
+
+async function saveManagedTitle(): Promise<void> {
+  const selected = manageSelected.value
+  const title = manageTitle.value.trim()
+  if (!selected || managing.value || !title || title === selected.title) return
+  managing.value = true
+  manageMessage.value = ''
+  manageError.value = false
+  try {
+    await projects.updateProject(selected.id, { title })
+    manageTitle.value = title
+    manageMessage.value = 'Project title saved in Kind Robots. Conductor slug and roadmap unchanged.'
+  } catch (cause) {
+    manageError.value = true
+    manageMessage.value = cause instanceof Error ? cause.message : 'Title update failed.'
+  } finally {
+    managing.value = false
+  }
+}
 
 async function saveManagedStatus(): Promise<void> {
   const selected = manageSelected.value

@@ -390,6 +390,17 @@ const colliders: ColliderDef[] = [
   wall('bank-left', [LEFT, -0.72], [LEFT, BOTTOM], { thickness: 0.012 }),
   wall('bank-right', [RIGHT, -0.72], [RIGHT, BOTTOM], { thickness: 0.012 }),
   ...walls('abbey-arch', arch, { thickness: 0.009 }),
+  // The cabinet's clear sides reach the glass (t-013): the six-ball stress
+  // run flipped a ball into the air off a ramp mouth and over the 2.5 cm
+  // arch, out of the machine. Nothing elevated crosses this outline.
+  ...walls('cabinet-side', [[LEFT, BOTTOM], ...arch, [RIGHT, BOTTOM]], {
+    base: 0.025,
+    height: 0.29,
+    // Thinner than the arch and banks under it, so it never stands proud.
+    thickness: 0.008,
+    material: 'plastic-clear',
+    hidden: true,
+  }),
   // These are Rapier triangle-mesh floors, rails and clear anti-flyoff roofs,
   // not painted 2D ribbons. Balls can pass under the elevated crossovers.
   ...ramp('village-switchback', VILLAGE_SWITCHBACK, {

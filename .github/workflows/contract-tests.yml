@@ -188,6 +188,9 @@ jobs:
       - name: Zuzu Pinball LED rail
         run: npm run test:zuzu-pinball-leds
 
+      - name: Zuzu Pinball setup/dispose and six-ball stress
+        run: npm run test:zuzu-pinball-stress
+
       - name: Zuzu gamebook branching and combat
         run: npm run test:zuzu-gamebook
 

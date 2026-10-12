@@ -76,6 +76,36 @@ export function cameraViewFor(balls: BallView[]): CameraPresetId {
   return 'main'
 }
 
+/**
+ * The camera sweeps (zuzu-pinball/t-012), on a table with the presets for
+ * them: over the shooter lane while the only ball waits on the plunger,
+ * pulled back over the whole field while more than one ball is in play.
+ * Each frames the whole playfield, so the flippers are never off screen. A
+ * bonus area's view always wins, and a still camera never sweeps.
+ */
+export function sweepViewFor(
+  balls: BallView[],
+  onPlunger: boolean,
+  cameras: ReadonlyArray<{ id: CameraPresetId }>,
+  still: boolean,
+): CameraPresetId {
+  const need = cameraViewFor(balls)
+  if (need !== 'main' || still) return need
+  const has = (id: CameraPresetId) => cameras.some((c) => c.id === id)
+  if (balls.length > 1 && has('multiball')) return 'multiball'
+  if (balls.length === 1 && onPlunger && has('plunge')) return 'plunge'
+  return 'main'
+}
+
+/** Views a sweep moves between; the camera holds each a while. */
+const SWEEPS: ReadonlySet<CameraPresetId> = new Set([
+  'main',
+  'plunge',
+  'multiball',
+])
+/** Ticks a sweep must be wanted in a row before the camera goes (no flapping). */
+export const SWEEP_HOLD_TICKS = 45
+
 /** A sling kicker's switch: its rubber flexes when it fires. */
 const SLING_KICKER = /^sling-.+-kicker$/
 
@@ -98,6 +128,11 @@ export class PinballRuntime<
   /** ...and has decided to miss this one. */
   private pilotMisses = false
   private demo: boolean
+  /** The player's still camera (t-012): no sweeps, cuts for pans. */
+  private stillCamera: boolean
+  /** The view the camera is on, and ticks another has been wanted. */
+  private shownView: CameraPresetId = 'main'
+  private wantFor = 0
   private factory: RendererFactory
   private pull = 0
   private nudgeCooldown = 0
@@ -135,6 +170,7 @@ export class PinballRuntime<
   ) {
     this.rng = options.rng
     this.demo = options.demo
+    this.stillCamera = options.stillCamera ?? false
     this.factory = factory
     this.hiScore = options.hiScore
     this.earnedBefore = new Set(options.mastery ?? [])
@@ -177,6 +213,7 @@ export class PinballRuntime<
   mount(canvas: HTMLCanvasElement) {
     if (this.disposed || this.scene) return
     this.scene = new PinballScene(this.physics.table, canvas, this.factory)
+    this.scene.setStill(this.stillCamera)
     if (this.size.width > 0) {
       this.scene.resize(this.size.width, this.size.height, this.size.dpr)
     }
@@ -226,7 +263,7 @@ export class PinballRuntime<
     this.apply({ type: 'tick', tick: this.steps })
     this.unstick({ left, right })
     this.playMusicBed()
-    this.scene?.setView(this.view())
+    this.scene?.setView(this.heldView())
     this.lamps()
     this.dmdQueue.tick(TICK_MS)
     this.drawDmd()
@@ -298,7 +335,38 @@ export class PinballRuntime<
 
   /** The camera preset the balls on the table call for right now. */
   view(): CameraPresetId {
-    return cameraViewFor(this.physics.ballViews())
+    return sweepViewFor(
+      this.physics.ballViews(),
+      this.physics.ballOnPlunger(),
+      this.physics.table.cameras,
+      this.stillCamera,
+    )
+  }
+
+  /**
+   * The view to show this tick: a bonus area's at once, but a sweep only
+   * once it has been wanted SWEEP_HOLD_TICKS in a row, so a ball drained
+   * and re-served in a multiball doesn't swing the camera.
+   */
+  private heldView(): CameraPresetId {
+    const want = this.view()
+    if (want === this.shownView) {
+      this.wantFor = 0
+      return want
+    }
+    this.wantFor++
+    const sweep = SWEEPS.has(want) && SWEEPS.has(this.shownView)
+    if (!sweep || this.stillCamera || this.wantFor >= SWEEP_HOLD_TICKS) {
+      this.shownView = want
+      this.wantFor = 0
+    }
+    return this.shownView
+  }
+
+  /** The player changed the still-camera choice mid-game. */
+  setStillCamera(still: boolean) {
+    this.stillCamera = still
+    this.scene?.setStill(still)
   }
 
   /**

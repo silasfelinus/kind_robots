@@ -182,6 +182,9 @@ jobs:
       - name: Zuzu Pinball no stuck balls
         run: npm run test:zuzu-pinball-no-stuck
 
+      - name: Zuzu Pinball camera sweeps and still camera
+        run: npm run test:zuzu-pinball-camera
+
       - name: Zuzu gamebook branching and combat
         run: npm run test:zuzu-gamebook
 

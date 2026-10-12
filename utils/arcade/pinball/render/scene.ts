@@ -335,6 +335,8 @@ export class PinballScene {
     size: { width: number; height: number }
   } | null = null
   private view: CameraPresetId = 'main'
+  /** The player's still camera (t-012): cuts instead of pans. */
+  private still = false
   /** The camera's current eye and look target, in table space (eased). */
   private eye = new THREE.Vector3()
   private look = new THREE.Vector3()
@@ -1367,7 +1369,16 @@ export class PinballScene {
   setView(id: CameraPresetId) {
     if (id === this.view || !this.table.cameras.some((c) => c.id === id)) return
     this.view = id
-    this.pan = { eye: this.eye.clone(), look: this.look.clone(), t: 0 }
+    // A still camera (t-012) cuts to the new view instead of panning.
+    this.pan = this.still
+      ? null
+      : { eye: this.eye.clone(), look: this.look.clone(), t: 0 }
+  }
+
+  /** Hold the camera still: views change by cutting, never by a pan. */
+  setStill(still: boolean) {
+    this.still = still
+    if (still) this.pan = null
   }
 
   /** A pan is under way, for tests. */

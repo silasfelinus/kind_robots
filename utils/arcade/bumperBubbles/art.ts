@@ -157,6 +157,12 @@ export const GRUMP_RAMPS: Record<GrumpKind, Ramp> = {
   comet: RAMPS.gold,
   tick: ['#241a3a', '#4a3a6e', '#7e6aa8', '#bcaee0', '#f2ecff'],
   corklet: CORK_RAMP,
+  grumbler: ['#3a1a1a', '#7a3a2a', '#c0644a', '#ec9c7a', '#fcd8c4'],
+  toaster: ['#4a2a10', '#8a5a24', '#c8904a', '#ecc488', '#fff0d0'],
+  flinger: ['#2a3a5a', '#6a84a8', '#b8cce4', '#e4eefa', '#ffffff'],
+  skater: ['#3a1a4a', '#6a2a8a', '#a050c8', '#d49af0', '#f6e0ff'],
+  cog: RAMPS.steel,
+  windup: ['#3a2a1a', '#6a5a3a', '#a0906a', '#d4c8a0', '#f6f0dc'],
 }
 
 type Shape = { body: readonly string[]; feet: readonly [string[], string[]] }
@@ -322,6 +328,95 @@ const SHAPES: Record<GrumpKind, Shape> = {
     ],
     feet: FEET,
   },
+  // A teapot grump, red nose and all.
+  grumbler: {
+    body: [
+      '....LLLL....',
+      '...LHBBBb...',
+      '..LBBBBBBb..',
+      '.LBkkBBkkBb.',
+      '.BBwkBBwkBbn',
+      '.BBBBRRBBBbn',
+      'LBBBkkkkBBbn',
+      '.bBBBBBBBbd.',
+      '..bbbbbbdd..',
+    ],
+    feet: FEET,
+  },
+  // A grumpy slice of toast.
+  toaster: {
+    body: [
+      '..LLLLLLLL..',
+      '.LHBBBBBBBL.',
+      'LBBBBBBBBBBL',
+      'LBkkBBBBkkBL',
+      'LBwkBBBBwkBL',
+      'LBBBBBBBBBBL',
+      'LBBBkkkkBBBL',
+      'LBBBBBBBBBBL',
+      '.LLLLLLLLLL.',
+    ],
+    feet: FEET,
+  },
+  // A snowy grump in mittens.
+  flinger: {
+    body: [
+      '....LLLL....',
+      '...LHHBBb...',
+      '...LBkBkb...',
+      '...LBBkBb...',
+      '..LLBBBBbb..',
+      '.nLBBBBBBbn.',
+      'nnBBBBBBBBnn',
+      '.LBBBkkBBBb.',
+      '..bBBBBBBb..',
+      '...bbbbbb...',
+    ],
+    feet: FEET,
+  },
+  // A skater in a red scarf.
+  skater: {
+    body: [
+      '...LLLLL....',
+      '..LHBBBBb...',
+      '.LBkkBkkBb..',
+      '.BBwkBwkBb..',
+      '.BBBBBBBBb..',
+      'RRRRRRRRRb..',
+      '.BBBkkkBBb..',
+      '..bBBBBBb...',
+    ],
+    feet: [['..nnn.nnn...'], ['.nnn..nnn...']],
+  },
+  // A cog with teeth all round.
+  cog: {
+    body: [
+      '..L.LL.L....',
+      '.LLBBBBLL...',
+      '.LBkkBkkB...',
+      'LBBwkBwkBL..',
+      '.BBBBBBBB...',
+      'LBBkkkkBBL..',
+      '.LBBBBBBL...',
+      '.L.bbbb.L...',
+    ],
+    feet: [['.d.d..d.d...'], ['d.d..d.d....']],
+  },
+  // A clockwork mouse with a key in its back.
+  windup: {
+    body: [
+      '.......nNn..',
+      '........n...',
+      '..LLLLLLL...',
+      '.LHBBBBBBb..',
+      'LBkkBBBkkb..',
+      'LBwkBBBwkb..',
+      'BBBBBBBBBbd.',
+      '.BBkkkkBBbd.',
+      '..bbbbbbbd..',
+    ],
+    feet: [['..dd..dd....'], ['..d.d.d.d...']],
+  },
   // A beetle peering down a telescope.
   tick: {
     body: [
@@ -400,6 +495,7 @@ function grumpFrames(kind: GrumpKind, ramp: Ramp): GrumpFrames {
     p: RAMPS.pink[2],
     P: RAMPS.pink[3],
     Y: RAMPS.gold[3],
+    R: RAMPS.ember[2],
     w: '#ffffff',
     k: INK,
   }
@@ -618,7 +714,8 @@ export type Theme = {
   clouds: Ramp | null
   orb: { x: number; y: number; r: number; ramp: Ramp } | null
   /** Silhouettes along the far ridge. */
-  props: 'bottles' | 'lollipops' | 'kelp' | 'domes'
+  props:
+    'bottles' | 'lollipops' | 'kelp' | 'domes' | 'pots' | 'icicles' | 'gears'
   /** Light shafts slanting down through the backdrop. */
   rays: boolean
   /** A ring round the orb (a planet). */
@@ -635,6 +732,8 @@ const MOON: Ramp = ['#3a3048', '#6a5a70', '#a898a0', '#d8cfc8', '#f4efe8']
 const SUN: Ramp = ['#f0c890', '#f6dca8', '#fbecc4', '#fff6e0', '#ffffff']
 const PLANET: Ramp = ['#2a0f3a', '#4a1f5a', '#7a3a7a', '#a8609a', '#d090c0']
 const MOSS: Ramp = ['#1a3a1a', '#2e5e2a', '#4a8a3a', '#8ac46a', '#d0f0b0']
+const ICE: Ramp = ['#2a4a6a', '#5a8ab0', '#9ccce8', '#d4f0fc', '#ffffff']
+const SNOW: Ramp = ['#8aa8c4', '#b8cce0', '#dce8f4', '#f2f8fc', '#ffffff']
 const MINT: Ramp = ['#0f3b33', '#1f7a62', '#34c79a', '#9ef0cf', '#eafff6']
 
 export const THEMES: Record<string, Theme> = {
@@ -729,6 +828,66 @@ export const THEMES: Record<string, Theme> = {
     current: RAMPS.gold[3],
     hud: RAMPS.purple,
   },
+  // A huge warm kitchen: copper pots hanging in the glow of the ovens.
+  kitchen: {
+    id: 'kitchen',
+    sky: ['#1a0806', '#3a120a', '#5a1e10', '#7a2e14', '#9a4a1e'],
+    block: ['#2a1a1a', '#5a2e24', '#8a4434', '#c06a50', '#ecaa8a'],
+    frosting: RAMPS.cream,
+    wall: RAMPS.earth,
+    drops: [RAMPS.gold, RAMPS.rust, RAMPS.pink],
+    far: { fill: '#2a0e08', rim: '#6a2a14' },
+    near: { fill: '#1a0604', rim: '#4a1a0c' },
+    stars: null,
+    clouds: null,
+    orb: null,
+    props: 'pots',
+    rays: false,
+    ring: false,
+    decor: RAMPS.cream[3],
+    current: RAMPS.cream[4],
+    hud: RAMPS.rust,
+  },
+  // The freezer: blue cold, icicles from the ceiling, snow on every ledge.
+  freezer: {
+    id: 'freezer',
+    sky: ['#06142a', '#0c2a4a', '#164a6e', '#3a7aa0', '#8ac0dc'],
+    block: ICE,
+    frosting: SNOW,
+    wall: RAMPS.steel,
+    drops: [RAMPS.sky, RAMPS.teal, RAMPS.purple],
+    far: { fill: '#163a5a', rim: '#4a7ea8' },
+    near: { fill: '#0a1e34', rim: '#2a5070' },
+    stars: RAMPS.sky,
+    clouds: null,
+    orb: null,
+    props: 'icicles',
+    rays: false,
+    ring: false,
+    decor: '#ffffff',
+    current: '#ffffff',
+    hud: RAMPS.sky,
+  },
+  // The gearworks: brass, steel and turning wheels in the gloom.
+  gearworks: {
+    id: 'gearworks',
+    sky: ['#0e0c0a', '#1e1a14', '#2e281e', '#3e3628', '#4e4432'],
+    block: RAMPS.steel,
+    frosting: RAMPS.gold,
+    wall: RAMPS.earth,
+    drops: [RAMPS.gold, RAMPS.rust, RAMPS.steel],
+    far: { fill: '#2a2418', rim: '#5a4a2a' },
+    near: { fill: '#141008', rim: '#3a301a' },
+    stars: null,
+    clouds: null,
+    orb: null,
+    props: 'gears',
+    rays: false,
+    ring: false,
+    decor: RAMPS.gold[3],
+    current: RAMPS.gold[4],
+    hud: RAMPS.gold,
+  },
 }
 
 const STARS = starField(47, 44, W, 160)
@@ -799,6 +958,75 @@ export function paintSky(k: CanvasRenderingContext2D, theme: Theme) {
     }
   }
   const rand = backdropRng(71 + theme.id.length)
+  if (theme.props === 'pots') {
+    // Copper pots and ladles hanging on a rail.
+    k.fillStyle = rgba(INK, 0.6)
+    k.fillRect(0, 48, W, 2)
+    for (let x = 14; x < W; x += 26 + Math.floor(rand() * 14)) {
+      const r = 6 + Math.floor(rand() * 5)
+      const drop = 8 + Math.floor(rand() * 16)
+      k.fillStyle = rgba(RAMPS.rust[1], 0.55)
+      k.fillRect(x, 50, 1, drop)
+      k.beginPath()
+      k.arc(x, 50 + drop + r, r, 0, Math.PI)
+      k.fill()
+      k.fillRect(x - r, 50 + drop + r - 2, r * 2, 2)
+      k.fillStyle = rgba(RAMPS.gold[2], 0.35)
+      k.fillRect(x - r + 2, 50 + drop + r + 1, 2, 2)
+    }
+    return
+  }
+  if (theme.props === 'icicles') {
+    // Icicles hanging from the freezer's roof, and frost on the far wall.
+    for (let x = 4; x < W; x += 6 + Math.floor(rand() * 8)) {
+      const h = 6 + Math.floor(rand() * 22)
+      k.fillStyle = rgba('#dff4ff', 0.35)
+      k.beginPath()
+      k.moveTo(x, 24)
+      k.lineTo(x + 4, 24)
+      k.lineTo(x + 2, 24 + h)
+      k.closePath()
+      k.fill()
+    }
+    for (let i = 0; i < 40; i++) {
+      k.fillStyle = rgba('#ffffff', 0.12 + rand() * 0.2)
+      k.fillRect(Math.floor(rand() * W), 60 + Math.floor(rand() * 120), 1, 1)
+    }
+    return
+  }
+  if (theme.props === 'gears') {
+    // Great gears turning in the dark (painted still, rimmed in brass).
+    for (const [x, y, r] of [
+      [40, 80, 30],
+      [92, 130, 22],
+      [196, 70, 36],
+      [226, 160, 18],
+    ] as const) {
+      k.fillStyle = rgba(RAMPS.earth[1], 0.55)
+      k.beginPath()
+      k.arc(x, y, r, 0, Math.PI * 2)
+      k.fill()
+      for (let a = 0; a < 12; a++) {
+        const ang = (a / 12) * Math.PI * 2
+        k.fillRect(
+          Math.round(x + Math.cos(ang) * (r + 2)) - 2,
+          Math.round(y + Math.sin(ang) * (r + 2)) - 2,
+          5,
+          5,
+        )
+      }
+      k.fillStyle = rgba(INK, 0.6)
+      k.beginPath()
+      k.arc(x, y, r * 0.35, 0, Math.PI * 2)
+      k.fill()
+      k.strokeStyle = rgba(RAMPS.gold[1], 0.4)
+      k.lineWidth = 1
+      k.beginPath()
+      k.arc(x, y, r - 3, 0, Math.PI * 2)
+      k.stroke()
+    }
+    return
+  }
   if (theme.props === 'kelp') {
     // Kelp swaying up from the cellar floor (painted still; the water moves in front).
     for (let x = 8; x < W; x += 20 + Math.floor(rand() * 16)) {
@@ -1010,6 +1238,25 @@ export function paintTiles(
           (end - c + 1) * TILE,
           theme.drops[(c + r) % theme.drops.length]!,
         )
+        continue
+      }
+      if (cell === Cell.Door || cell === Cell.DoorOpen) continue
+      if (
+        cell === Cell.Hot ||
+        cell === Cell.ConveyorLeft ||
+        cell === Cell.ConveyorRight
+      ) {
+        // An iron hot plate, or a belt on its rollers (the glow and the belt move live).
+        bevel(k, x, y, TILE, TILE, RAMPS.steel, { depth: 1, outline: INK })
+        k.fillStyle = cell === Cell.Hot ? '#3a1a14' : '#1a1a22'
+        k.fillRect(x, y, TILE, 3)
+        continue
+      }
+      if (cell === Cell.Ice) {
+        bevel(k, x, y, TILE, TILE, ICE, { depth: 1, outline: INK })
+        k.fillStyle = rgba('#ffffff', 0.8)
+        k.fillRect(x + 1, y + 1, 3, 1)
+        k.fillRect(x + 1, y + 2, 1, 2)
         continue
       }
       if (cell !== Cell.Block) continue

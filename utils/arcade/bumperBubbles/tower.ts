@@ -14,6 +14,11 @@
 //   'T' the floor's Fizz Tap, standing on the block beneath it
 //   '~' still water; '(' ')' a water channel flowing left or right (bodies wade
 //       through water and are carried along; bubbles in a channel ride the flow)
+//   'H' a hot plate (a block that glows, then puffs scalding steam above it)
+//   'I' an ice block (slippery on top: robots slide)
+//   '[' ']' a conveyor block carrying whatever stands on it left or right
+//   'O' a wind-up door (a block that opens and shuts on a beat)
+//   'K' a push block of ice (shove it and it slides, bowling grumps over)
 //   'D' where a Secret Pantry's door appears (on a pantry floor)
 //   '*' a treat waiting in a pantry room; '@' the pantry's recipe card
 //   '1'..'4' where each robot starts (else the defaults along the floor)
@@ -40,7 +45,7 @@ export const FLOOR_Y = TOP + (ROWS - 1) * TILE
 export type Flavour = 'classic' | 'gum' | 'float' | 'fizz' | 'frost'
 /** Special bubbles that float in from a floor's walls. */
 export type SpecialKind = 'splash' | 'zap' | 'toasty'
-export type BossId = 'cork'
+export type BossId = 'cork' | 'kettle'
 
 export const GRAVITY = 0.2
 
@@ -58,9 +63,30 @@ export type FloorDef = {
   specials?: readonly SpecialKind[]
   /** A boss floor: the boss is the floor's grump script. */
   boss?: BossId
+  /** Moving lifts: a platform `w` tiles wide at column `c` (its left), row `r` (its bottom
+   * stop), rising `rise` rows and back every `period` ticks. */
+  lifts?: readonly LiftDef[]
 }
 
-export const Cell = { Air: 0, Block: 1, Spring: 2 } as const
+export type LiftDef = {
+  c: number
+  r: number
+  w: number
+  rise: number
+  period: number
+}
+
+export const Cell = {
+  Air: 0,
+  Block: 1,
+  Spring: 2,
+  Hot: 3,
+  Ice: 4,
+  ConveyorLeft: 5,
+  ConveyorRight: 6,
+  Door: 7,
+  DoorOpen: 8,
+} as const
 export type Cell = (typeof Cell)[keyof typeof Cell]
 
 /** Air-current directions, as stored in a parsed floor. */
@@ -103,6 +129,12 @@ export type Floor = {
   /** Treats laid out in a pantry room, and its recipe card. */
   treatSpots: readonly Spot[]
   card: Spot | null
+  /** Push blocks' starting feet. */
+  pushBlocks: readonly Spot[]
+  lifts: readonly LiftDef[]
+  /** Cells that are wind-up doors and hot plates (their indices). */
+  doors: readonly number[]
+  hotPlates: readonly number[]
 }
 
 /** Feet position for a marker in column c, row r: the bottom of its tile. */
@@ -123,6 +155,9 @@ export function parseFloor(def: FloorDef): Floor {
   const marked: Spot[] = []
   const water = new Uint8Array(COLS * ROWS)
   const treatSpots: Spot[] = []
+  const pushBlocks: Spot[] = []
+  const doors: number[] = []
+  const hotPlates: number[] = []
   let tap: Spot | null = null
   let door: Spot | null = null
   let card: Spot | null = null
@@ -134,6 +169,16 @@ export function parseFloor(def: FloorDef): Floor {
       const i = r * COLS + c
       if (ch === '#') cells[i] = Cell.Block
       else if (ch === 'G') cells[i] = Cell.Spring
+      else if (ch === 'H') {
+        cells[i] = Cell.Hot
+        hotPlates.push(i)
+      } else if (ch === 'I') cells[i] = Cell.Ice
+      else if (ch === '[') cells[i] = Cell.ConveyorLeft
+      else if (ch === ']') cells[i] = Cell.ConveyorRight
+      else if (ch === 'O') {
+        cells[i] = Cell.Door
+        doors.push(i)
+      } else if (ch === 'K') pushBlocks.push(feetOf(c, r))
       else if (ch in CURRENTS)
         currents[i] = 1 + CURRENT_CODES.indexOf(ch as CurrentChar)
       else if (ch === 'T') tap = feetOf(c, r)
@@ -177,6 +222,10 @@ export function parseFloor(def: FloorDef): Floor {
     door,
     treatSpots,
     card,
+    pushBlocks,
+    lifts: def.lifts ?? [],
+    doors,
+    hotPlates,
   }
 }
 
@@ -190,7 +239,14 @@ export function cellAt(f: Floor, c: number, r: number): Cell {
 }
 
 export function solid(f: Floor, c: number, r: number): boolean {
-  return cellAt(f, c, r) !== Cell.Air
+  const cell = cellAt(f, c, r)
+  return cell !== Cell.Air && cell !== Cell.DoorOpen
+}
+
+/** Open or shut every wind-up door on a floor (a floor parse belongs to one game). */
+export function setDoors(f: Floor, open: boolean) {
+  for (const i of f.doors) f.cells[i] = open ? Cell.DoorOpen : Cell.Door
+  navs.delete(f)
 }
 
 /** Is the pixel (px, py) inside a block (the walls and the band above the ceiling count)? */
@@ -276,6 +332,8 @@ export type StepResult = {
   wrapped: boolean
   /** The ledge landed on, if one. */
   ledge: Ledge | null
+  /** The block stood on (Air on a ledge or in the air). */
+  ground: Cell
 }
 
 function waistBlocked(f: Floor, x: number, y: number) {
@@ -301,6 +359,7 @@ export function stepBody(
     sprang: false,
     wrapped: false,
     ledge: null,
+    ground: Cell.Air,
   }
   // Across.
   if (b.vx !== 0) {
@@ -360,11 +419,15 @@ export function stepBody(
   const c1 = Math.floor((b.x + half - 1) / TILE)
   let land: number | null = null
   let spring = false
+  let ground: Cell = Cell.Air
   for (let r = r0; r <= r1 && land === null; r++) {
     for (let c = c0; c <= c1; c++) {
       if (!surface(f, c, r)) continue
       land = TOP + r * TILE
-      if (cellAt(f, c, r) === Cell.Spring) spring = true
+      const cell = cellAt(f, c, r)
+      if (cell === Cell.Spring) spring = true
+      // The block under the body's middle wins (a body on two kinds stands on that one).
+      if (ground === Cell.Air || c === Math.floor(b.x / TILE)) ground = cell
     }
   }
   for (const l of options.ledges ?? []) {
@@ -376,6 +439,7 @@ export function stepBody(
     ) {
       land = l.top
       spring = false
+      ground = Cell.Air
       out.ledge = l
     }
   }
@@ -383,6 +447,18 @@ export function stepBody(
     b.y = land
     b.vy = 0
     b.onGround = true
+    out.ground = ground
+    // A conveyor carries whatever stands on it.
+    if (ground === Cell.ConveyorLeft || ground === Cell.ConveyorRight) {
+      const nx = b.x + (ground === Cell.ConveyorRight ? 0.8 : -0.8)
+      const lead = nx + Math.sign(nx - b.x) * half
+      if (
+        nx > WALL_L + half &&
+        nx < WALL_R - half &&
+        !waistBlocked(f, lead, b.y)
+      )
+        b.x = nx
+    }
     if (spring) {
       b.vy = SPRING_V
       b.onGround = false

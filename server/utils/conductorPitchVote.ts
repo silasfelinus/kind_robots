@@ -89,6 +89,9 @@ export async function applyPitchVote(
   }
 
   let updated = withPitchStatus(file.content, status)
+  if (status !== 'approved' || pitchStatusOf(file.content) !== 'approved') {
+    updated = withPitchReady(updated, false)
+  }
   const hasNotes = Boolean(options.notes?.trim())
   if (hasNotes) updated = withPitchModifications(updated, options.notes ?? '')
 

@@ -140,6 +140,8 @@ function bubble(x: number, y: number, extra: Partial<Bubble> = {}): Bubble {
     flavour: 'classic',
     stuck: 0,
     letter: null,
+    special: null,
+    vy: 0,
     owner: 0,
     ...extra,
   }
@@ -156,10 +158,10 @@ function anchor(g: Inner) {
 
 // --- floors as data ------------------------------------------------------------------------------
 {
-  assert.equal(WINGS.length, 2, 'slice 1 builds wings 1 and 2')
-  assert.equal(BUILT_FLOORS, 20)
+  assert.ok(WINGS.length >= 2, 'wings 1 and 2 are built')
+  assert.equal(BUILT_FLOORS, WINGS.length * 10)
   assert.deepEqual(
-    WINGS.map((w) => w.name),
+    WINGS.slice(0, 2).map((w) => w.name),
     ['THE BOTTLING HALL', 'GUMDROP GARDENS'],
   )
   const names = new Set<string>()
@@ -189,7 +191,9 @@ function anchor(g: Inner) {
         )
       }
       assert.ok(
-        f.spawns.length >= 3 && f.spawns.length <= 8,
+        f.boss
+          ? f.spawns.length === 0
+          : f.spawns.length >= 3 && f.spawns.length <= 8,
         `${def.name}: 3-8 grumps`,
       )
       // Each grump belongs to this wing or an earlier one.
@@ -257,7 +261,7 @@ function anchor(g: Inner) {
   assert.equal(floorPlan(1).wing.n, 1)
   assert.equal(floorPlan(11).wing.n, 2)
   assert.equal(floorPlan(20).def.name, 'THE GREENHOUSE')
-  assert.equal(floorPlan(21).map, 0)
+  assert.equal(floorPlan(BUILT_FLOORS + 1).map, 0)
   // Parse errors are loud.
   assert.throws(() => parseFloor({ name: 'BAD', rows: ['##'] }), /rows/)
 }
@@ -691,7 +695,13 @@ function anchor(g: Inner) {
   // Wing 2's first floor writes the save.
   g.score = 81_234
   g.startFloor(11)
-  assert.deepEqual(g.save, { v: 1, wing: 2, score: 81_234, letters: '' })
+  assert.deepEqual(g.save, {
+    v: 1,
+    wing: 2,
+    score: 81_234,
+    letters: '',
+    cards: [],
+  })
   assert.equal(g.phase, 'card')
   // Saves are validated on the way back in.
   assert.equal(readBumperSave(null), null)
@@ -709,6 +719,7 @@ function anchor(g: Inner) {
     wing: 2,
     score: 5,
     letters: 'RF',
+    cards: [],
   })
   // The demo never saves.
   assert.equal(game({ demo: true }).save, undefined)
@@ -726,7 +737,13 @@ function anchor(g: Inner) {
   climbed.letters = new Set(['F', 'R'])
   climbed.startFloor(11)
   const kept = roundTrip(climbed.save)
-  assert.deepEqual(kept, { v: 1, wing: 2, score: 90_000, letters: 'FR' })
+  assert.deepEqual(kept, {
+    v: 1,
+    wing: 2,
+    score: 90_000,
+    letters: 'FR',
+    cards: [],
+  })
   // A resumed game offers to continue, at half score, from the wing's first floor.
   const back = game({ resume: kept })
   assert.ok(back.offer, 'the tower remembers')

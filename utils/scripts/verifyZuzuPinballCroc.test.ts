@@ -283,6 +283,74 @@ const toMouth = (): [Vec3, Vec3] => [
   assert.ok(toy.gape < 0.05)
 }
 
+// The rebuilt toy (t-018): he watches the nearest ball, the jaws clack
+// shut past closed and spring back, the snap throws spray, and after the
+// death roll he rolls on round to upright rather than back. With reduced
+// motion: no tracking, no spray, no roll.
+{
+  const def = table.animatronics![0]!
+  const at = (dx: number, dz: number) => ({
+    position: [def.at[0] + dx, 0.0135, def.at[2] + dz] as const,
+  })
+  const look = (toy: CrocToy, dx: number) => {
+    toy.setPose({ phase: 'open', age: 1 })
+    for (let i = 0; i < 90; i++) {
+      toy.watch([at(dx, 0.12)])
+      toy.animate()
+    }
+    return toy.gaze
+  }
+  assert.ok(look(new CrocToy(def, (r) => r), 0.12) > 0.15, 'eyes right')
+  assert.ok(look(new CrocToy(def, (r) => r), -0.12) < -0.15, 'eyes left')
+  const far = new CrocToy(def, (r) => r)
+  far.setPose({ phase: 'open', age: 1 })
+  far.watch([at(0.3, 0.4)])
+  assert.ok(
+    (far as unknown as { watched: unknown }).watched === null,
+    'a ball across the table is not his',
+  )
+  assert.equal(
+    look(new CrocToy(def, (r) => r, { reducedMotion: true }), 0.12),
+    0,
+    'reduced motion: he does not track',
+  )
+
+  const toy = new CrocToy(def, (r) => r)
+  toy.setPose({ phase: 'open', age: 1 })
+  for (let i = 0; i < 30; i++) toy.animate()
+  toy.setPose({ phase: 'captured', age: 0 })
+  let least = Infinity
+  for (let i = 0; i < 15; i++) {
+    toy.animate()
+    least = Math.min(least, toy.gape)
+  }
+  assert.ok(least < 0, `the jaws clack shut past closed (${least.toFixed(3)})`)
+  assert.ok(toy.droplets > 20, `the snap throws spray (${toy.droplets})`)
+  let last = 0
+  for (let k = 0; k <= 33; k++) {
+    toy.setPose({ phase: 'death-roll', age: k / 60 })
+    toy.animate()
+    assert.ok(toy.rolled >= last - 1e-9, 'the roll only goes one way')
+    last = toy.rolled
+  }
+  assert.ok(last > Math.PI * 1.5, `a full roll (${last.toFixed(2)})`)
+  for (let k = 0; k < 60; k++) {
+    toy.setPose({ phase: 'spit', age: k / 60 })
+    toy.animate()
+    assert.ok(
+      toy.rolled >= last - 1e-9 || toy.rolled === 0,
+      'rolls on, not back',
+    )
+    last = toy.rolled
+  }
+  assert.equal(toy.rolled, 0, 'upright again')
+
+  const calm = new CrocToy(def, (r) => r, { reducedMotion: true })
+  calm.setPose({ phase: 'captured', age: 0 })
+  for (let i = 0; i < 15; i++) calm.animate()
+  assert.equal(calm.droplets, 0, 'reduced motion: no spray')
+}
+
 assert.equal(livePhysicsWorlds(), 0)
 console.log(
   'River Croc: cycle, jaw gate, one ball at a time, spit to the inlane, toy poses and capture rounds verified',

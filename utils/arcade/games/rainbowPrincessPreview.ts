@@ -378,11 +378,13 @@ export function createRainbowPrincessPreview(
       station.x -= 0.75
       if (station.x < -18) station = null
       else if (
-        ships.slice(0, activePlayers).some(
-          (ship) =>
-            ship.lives > 0 &&
-            Math.hypot(ship.x - station!.x, ship.y - station!.y) < 24,
-        )
+        ships
+          .slice(0, activePlayers)
+          .some(
+            (ship) =>
+              ship.lives > 0 &&
+              Math.hypot(ship.x - station!.x, ship.y - station!.y) < 24,
+          )
       ) {
         station = null
         rescuedStation = true
@@ -431,13 +433,15 @@ export function createRainbowPrincessPreview(
         reefs.splice(ei, 1)
         continue
       }
-      const ship = ships.slice(0, activePlayers).find(
-        (candidate) =>
-          candidate.lives > 0 &&
-          candidate.invulnerable === 0 &&
-          Math.hypot(candidate.x - reef.x, candidate.y - reef.y) <
-            CORE_RADIUS + 10,
-      )
+      const ship = ships
+        .slice(0, activePlayers)
+        .find(
+          (candidate) =>
+            candidate.lives > 0 &&
+            candidate.invulnerable === 0 &&
+            Math.hypot(candidate.x - reef.x, candidate.y - reef.y) <
+              CORE_RADIUS + 10,
+        )
       if (ship) {
         reefs.splice(ei, 1)
         hitShip(ship)
@@ -482,11 +486,13 @@ export function createRainbowPrincessPreview(
         pickups.splice(pi, 1)
         continue
       }
-      const ship = ships.slice(0, activePlayers).find(
-        (candidate) =>
-          candidate.lives > 0 &&
-          Math.hypot(candidate.x - pickup.x, candidate.y - pickup.y) < 18,
-      )
+      const ship = ships
+        .slice(0, activePlayers)
+        .find(
+          (candidate) =>
+            candidate.lives > 0 &&
+            Math.hypot(candidate.x - pickup.x, candidate.y - pickup.y) < 18,
+        )
       if (!ship) continue
       pickups.splice(pi, 1)
       if (pickup.kind === 'power') ship.power = Math.min(3, ship.power + 1)
@@ -506,7 +512,9 @@ export function createRainbowPrincessPreview(
       return 1
     },
     get lives() {
-      return ships.slice(0, activePlayers).reduce((total, ship) => total + Math.max(0, ship.lives), 0)
+      return ships
+        .slice(0, activePlayers)
+        .reduce((total, ship) => total + Math.max(0, ship.lives), 0)
     },
     get over() {
       return over

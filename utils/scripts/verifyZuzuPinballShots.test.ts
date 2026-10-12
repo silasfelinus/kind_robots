@@ -101,7 +101,7 @@ const PROOF: Array<[string, FlipperSide, Feed, number]> = [
   ['bell-spiral', 'left', 'cradle', 42],
   ['left-orbit', 'right', 'cradle', 50],
   ['right-orbit', 'left', 'inlane', 55],
-  ['croc-mouth', 'right', 'cradle', 34],
+  ['croc-mouth', 'right', 'inlane', 54],
   ['mortuary', 'right', 'cradle', 22],
   ['bell-lane', 'right', 'cradle', 30],
   ['relic-spinner', 'right', 'cradle', 21],

@@ -26,6 +26,23 @@
 // heavies and come through a vent each wave. Between districts the Shelter (rescueRally/shelter.ts)
 // shows everyone the hero got home, and their thank-you hearts buy spare heroes, squad bots, a wider
 // beam and a longer chain window. Progress saves at each district's start (`save`).
+//
+// Depth slice 3 (t-037, "Districts 3-5, the Glitch Core and the endings") finishes the city: the
+// Botanic Dome (vine walls that grow, sprinklers that slow, flowerbeds the family hides in), the
+// Data Docks (teleport pads, laser gates on a beat, magnet floors) and the Storm Rooftops (wind that
+// turns, lightning after a glowing ring, roof edges the family can be blown to), with the prism,
+// thornball, splitter, mimic, shield bot, magnet and kite drone, and Overgrowth, the Static Twins and
+// the Glitch Core (rescueRally/bossesLate.ts, floors.ts). A golden chip hides in each district's
+// signature wave, earned by getting everyone in it home; the Shelter sells a hint. Beating the Core
+// rolls the credits (rescueRally/credits.ts); with all five chips the Reunion comes first, and the
+// true ending. Then the rally loops round the city, harder.
+//
+// Depth slice 4 (t-038, "Co-op and the long rally") seats two to four heroes through the cabinet's
+// `players` frames (one shared pool of lives and one rescue multiplier; a hero who goes down sits
+// dizzy until a partner stands close for two seconds, or picks themselves up after a while), and
+// opens the menu of modes (rescueRally/modes.ts): the Campaign, Rally 100 (the leaderboard's main
+// event), District Time Attack, Classic Rally (the original rules, kept) and the Medal Board. Every
+// district wave can win three medals: Everyone Home, Untouched and Full Squad.
 
 import { drawText, measureText } from '../font'
 import {
@@ -44,6 +61,7 @@ import {
   vignette,
 } from '../snes'
 import type { MusicLoop } from '../sound'
+import { emptyInput } from '../types'
 import type {
   ArcadeGameInstance,
   ArcadeGameModule,
@@ -61,6 +79,7 @@ import {
   W,
   clampToArena,
   dist,
+  nearWall,
   toward,
 } from '../rescueRally/arena'
 import type { Point } from '../rescueRally/arena'
@@ -70,6 +89,7 @@ import {
   HEART_SPRITE,
   HELP_SPRITE,
   HERO_SPRITES,
+  heroSprites,
   SHIRTS,
   SKINS,
   SQUAD_SPRITE,
@@ -89,6 +109,29 @@ import {
 } from '../rescueRally/bosses'
 import type { Boss, BossWorld } from '../rescueRally/bosses'
 import { renderBoss, renderShocks } from '../rescueRally/bossArt'
+import { shieldBlocks } from '../rescueRally/bossesLate'
+import { SKIP_AFTER, endingTicks, renderEnding } from '../rescueRally/credits'
+import {
+  GATE_REACH,
+  LIGHTNING_RADIUS,
+  LIGHTNING_TELL,
+  MAGNET_FLOOR_PULL,
+  PAD_COOLDOWN,
+  SPRINKLER_SLOW,
+  gateState,
+  inRect,
+  padExit,
+  pushOutOfRect,
+  segmentDistance,
+  windAt,
+} from '../rescueRally/floors'
+import type {
+  LaserGate,
+  PadPair,
+  Rect,
+  Sprinkler,
+  Storm,
+} from '../rescueRally/floors'
 import {
   DISTRICTS,
   WAVES_PER_DISTRICT,
@@ -102,13 +145,22 @@ import {
   stepRescuee,
 } from '../rescueRally/family'
 import type { FamilyWorld, Rescuee, RescueeKind } from '../rescueRally/family'
+import type { HeroSprites } from '../rescueRally/art'
 import {
+  renderBedTops,
+  renderBeds,
   renderConveyors,
   renderFloor,
+  renderGates,
+  renderMagnetFloors,
+  renderPads,
+  renderSprinklers,
+  renderStorm,
   renderVents,
+  renderVines,
 } from '../rescueRally/floorArt'
 import { renderFoe, renderPuddle } from '../rescueRally/foeArt'
-import { BOSS_MUSIC, SHELTER_MUSIC } from '../rescueRally/music'
+import { BOSS_MUSIC, ENDING_MUSIC, SHELTER_MUSIC } from '../rescueRally/music'
 import {
   CRATE_DROP,
   HEAVY_DROP,
@@ -125,6 +177,9 @@ import {
   FOES,
   RUSH_MAX,
   RUSH_TICKS,
+  SHIELD_ARC,
+  SHIELD_KNOCKS,
+  SHIELD_RATTLE,
   newFoe,
   stepFoe,
 } from '../rescueRally/roster'
@@ -147,8 +202,29 @@ import {
   CRATE_SPACING,
   conveyorStep,
   groupSize,
+  REUNION,
 } from '../rescueRally/waves'
 import type { Conveyor, Entry, WaveScript } from '../rescueRally/waves'
+import {
+  MEDALS,
+  MENU,
+  RALLY_BONUS,
+  RALLY_LENGTH,
+  classicWave,
+  clock,
+  medalKey,
+  rallyWave,
+  readMedals,
+  readTimes,
+  renderBoard,
+  renderMenu,
+} from '../rescueRally/modes'
+import type {
+  BestTimes,
+  MedalBoard,
+  MenuId,
+  ModeId,
+} from '../rescueRally/modes'
 
 export { W, H }
 
@@ -160,8 +236,14 @@ const MAX_SHOTS = 6
 const FIRE_COOLDOWN = 6
 const START_LIVES = 3
 const MAX_LIVES = 9
+/** Extra heroes: the first at 25,000, then each a further 75,000 more than the gap before. */
 const EXTRA_LIFE_FIRST = 25_000
 const EXTRA_LIFE_EVERY = 75_000
+
+/** The score of the n-th extra hero (0-based). */
+function extraAt(n: number) {
+  return EXTRA_LIFE_FIRST + (EXTRA_LIFE_EVERY * n * (n + 1)) / 2
+}
 const RESCUE_STEP = 1000
 const RESCUE_CAP = 5
 /** Points for rebooting a glitched friend back into a rescuee (never for hurting one). */
@@ -181,17 +263,27 @@ const VENT_TELL = 70
 const DIZZY_TICKS = 150
 /** The Reboot Squad: this many foes rebooted inside one chain window free a squad bot. */
 export const SQUAD_CHAIN = 15
-export const CHAIN_WINDOW = 180
+export const CHAIN_WINDOW = 120
 export const SQUAD_MAX = 3
 /** A squad bot fires a sparkle this often, at whatever is nearest in this reach. */
 const SQUAD_EVERY = 90
 const SQUAD_REACH = 220
 /** Points instead of a fourth squad bot. */
 const SQUAD_FULL_BONUS = 2500
+/** A wave still going after this long fades out by itself (never a boss wave). */
+const FADE_TICKS = 60 * 150
+/** A downed co-op hero gets up by themselves after this long; a partner close by takes this long. */
+const COOP_RESPAWN = 60 * 7
+const REVIVE_TICKS = 120
+const REVIVE_REACH = 24
+/** Each seat's suit. */
+const SUITS = [RAMPS.teal, RAMPS.pink, RAMPS.gold, RAMPS.leaf] as const
+/** A mode's result card shows this long before the game ends. */
+const RESULT_TICKS = 60 * 5
 /** A district's title card shows this long. */
 const CARD_TICKS = 150
 /** Each loop round the city, the walkers start this much faster. */
-const LOOP_RUSH = 0.25
+const LOOP_RUSH = 0.4
 
 /** How a wave remembers its late arrivals. */
 type Arrival = { tick: number; kind: FoeKind; count: number; from: Entry }
@@ -215,6 +307,12 @@ type Hero = {
   gathering: boolean
   /** Where the hero has been, newest last, for the parade to step in. */
   trail: Point[]
+  /** Down in co-op: how long a partner has stood by to pick this hero up. */
+  reviving: number
+  /** Every step of the last few seconds, for the mimics to walk. */
+  history: Point[]
+  /** A teleport pad won't take this hero again until the tick it allows. */
+  padClock: number
   /** Reboot Squad bots orbiting this hero. */
   squad: number
   /** Power-ups running, ticks left on each. */
@@ -245,6 +343,8 @@ type Bolt = {
   vy: number
   life: number
   confetti: boolean
+  /** Wall bounces left (a thornball's shell). */
+  bounces: number
 }
 type Pickup = { kind: PowerKind; x: number; y: number; life: number }
 type Spark = {
@@ -266,7 +366,7 @@ type Floater = {
 
 /** A rally kept at a district's start (ArcadeGameInstance.save), and handed back as `resume`. */
 export type RallySave = {
-  v: 1
+  v: 3
   /** The district to pick up at the start of (an index into DISTRICTS). */
   district: number
   loop: number
@@ -278,6 +378,17 @@ export type RallySave = {
   bought: Record<ShelterItemId, number>
   /** The run it came from ended: picking it up again starts the score from zero. */
   continued: boolean
+  /** Golden chips found (district ids), and whether the city has been cleared. */
+  chips: string[]
+  cleared: boolean
+  /** Medals and Time Attack bests won on this device, and the furthest district reached. */
+  medals: MedalBoard
+  times: BestTimes
+  reached: number
+  /** Saved as the Reunion opened: continuing goes straight back to it. */
+  reunion: boolean
+  /** The true ending has been seen. */
+  trueEnding: boolean
 }
 
 const isCount = (v: unknown, max: number): v is number =>
@@ -287,7 +398,7 @@ const isCount = (v: unknown, max: number): v is number =>
 export function readSave(raw: unknown): RallySave | null {
   if (!raw || typeof raw !== 'object') return null
   const v = raw as Record<string, unknown>
-  if (v.v !== 1) return null
+  if (v.v !== 1 && v.v !== 2 && v.v !== 3) return null
   if (!isCount(v.district, DISTRICTS.length - 1)) return null
   if (!isCount(v.loop, 99) || v.loop < 1) return null
   if (!isCount(v.score, 250_000_000)) return null
@@ -310,8 +421,28 @@ export function readSave(raw: unknown): RallySave | null {
     if (!isCount(n, 99)) return null
     bought[item.id] = n
   }
+  // Version 1 (before districts 3-5) still reads: no chips, not cleared.
+  const ids = new Set(DISTRICTS.map((d) => d.id as string))
+  const chips = v.v === 1 ? [] : v.chips
+  if (
+    !Array.isArray(chips) ||
+    !chips.every((c) => typeof c === 'string' && ids.has(c)) ||
+    new Set(chips).size !== chips.length
+  )
+    return null
+  const cleared = v.v === 1 ? false : v.cleared
+  if (typeof cleared !== 'boolean') return null
+  // Versions 1 and 2 (before the modes) still read: no medals or times yet.
+  const medals = readMedals(v.v === 3 ? v.medals : undefined)
+  const times = readTimes(v.v === 3 ? v.times : undefined)
+  const reached = v.v === 3 ? v.reached : v.district
+  if (!medals || !times || !isCount(reached, DISTRICTS.length - 1)) return null
+  const reunion = v.reunion ?? false
+  const trueEnding = v.trueEnding ?? false
+  if (typeof reunion !== 'boolean' || typeof trueEnding !== 'boolean')
+    return null
   return {
-    v: 1,
+    v: 3,
     district: v.district,
     loop: v.loop,
     score: v.score,
@@ -321,6 +452,13 @@ export function readSave(raw: unknown): RallySave | null {
     upgrades: { beam: u.beam, chain: u.chain, squad: u.squad },
     bought,
     continued: v.continued,
+    chips,
+    cleared,
+    medals,
+    times,
+    reached: Math.max(reached, v.district),
+    reunion,
+    trueEnding,
   }
 }
 
@@ -379,6 +517,7 @@ const emptyBought = (): Record<ShelterItemId, number> => ({
   squad: 0,
   beam: 0,
   chain: 0,
+  hint: 0,
   leave: 0,
 })
 
@@ -411,12 +550,54 @@ class RescueRally implements ArcadeGameInstance {
   private waveTick = 0
   private beacon: Point | null = null
   private ventPower = false
+  // Districts 3-5's floors (rescueRally/floors.ts), from the wave script.
+  private vines: readonly Rect[] = []
+  private sprinklers: readonly Sprinkler[] = []
+  private beds: readonly Rect[] = []
+  private pads: readonly PadPair[] = []
+  private gates: readonly LaserGate[] = []
+  private magnetFloors: readonly Rect[] = []
+  private storm: Storm | undefined
+  private wind: Point = { x: 0, y: 0 }
+  /** Lightning rings counting down to their strike (a strike flashes for a few ticks below zero). */
+  private strikes: Array<{ x: number; y: number; clock: number }> = []
+  /** Kite drones' shadows, counting down to the pylon they drop. */
+  private drops: Array<{ x: number; y: number; clock: number }> = []
+  /** A teleport pad won't take a rescuee or foe again until this tick. */
+  private padClock = new WeakMap<object, number>()
+  /** Golden chips found (district ids), the district a hint was bought for, and the city cleared. */
+  private chips = new Set<string>()
+  private hintFor = -1
+  private cleared = false
+  /** The mode being played, the menu (with its Time Attack district and the board open), records. */
+  private mode: ModeId = 'campaign'
+  private menu: {
+    cursor: number
+    district: number
+    board: boolean
+    ticks: number
+  } | null = null
+  private medals: MedalBoard = {}
+  private times: BestTimes = {}
+  private reached = 0
+  /** This wave saw a hero hit (no Untouched medal). */
+  private waveHit = false
+  /** Ticks on the Time Attack clock. */
+  private attackTicks = 0
+  /** A mode's last card (Time Attack's time, Rally 100's finish) before the game ends. */
+  private result: { text: string; sub: string; ticks: number } | null = null
+  private suits: HeroSprites[] = []
+  /** The credits rolling (and whether it is the true ending). */
+  private ending: { t: number; trueEnding: boolean } | null = null
+  /** The true ending has been seen on this device. */
+  private trueEnded = false
   private nextId = 1
   private sparks: Spark[] = []
   private floaters: Floater[] = []
   private freed: Array<{ x: number; y: number; life: number }> = []
   private multiplier = 1
   private nextExtra = EXTRA_LIFE_FIRST
+  private extras = 0
   private waveDelay = 0
   /** Every foe frozen (the Pause power), ticks left. */
   private freeze = 0
@@ -456,21 +637,36 @@ class RescueRally implements ArcadeGameInstance {
     this.sound = options.sound
     this.demo = options.demo
     this.hiScore = options.hiScore
-    this.heroes = [this.newHero(0)]
+    // Up to four seats, a hero each, one shared pool of lives.
+    const seats = Math.max(1, Math.min(4, Math.floor(options.players ?? 1)))
+    this.heroes = Array.from({ length: seats }, (_, i) => this.newHero(i))
+    this.suits = this.heroes.map((_, i) =>
+      i === 0 ? HERO_SPRITES : heroSprites(SUITS[i]!),
+    )
+    this.lives = START_LIVES + seats - 1
     this.foeWorld = this.makeFoeWorld()
     this.familyWorld = this.makeFamilyWorld()
     this.bossWorld = this.makeBossWorld()
     this.script = waveAt(1).script
     const offer = this.demo ? null : readSave(options.resume)
     if (offer) {
-      // What this device has earned stays with every rally: the friends at the Shelter.
+      // What this device has earned stays with every rally: the friends, the medals, the times.
       this.friends = offer.friends
+      this.medals = { ...offer.medals }
+      this.times = { ...offer.times }
+      this.reached = offer.reached
+      this.chips = new Set(offer.chips)
+      this.cleared = offer.cleared
+      this.trueEnded = offer.trueEnding
     }
     this.startWave(1)
-    if (offer && (offer.district > 0 || offer.loop > 1)) {
+    // Until the player chooses, the stored rally stays exactly as it was.
+    if (offer) this.savePoint = offer
+    if (!this.demo) this.openMenu()
+    if (offer && (offer.district > 0 || offer.loop > 1 || offer.reunion)) {
       // Until the player chooses, the stored rally stays as it was.
       this.offer = offer
-      this.savePoint = offer
+      this.menu = null
       this.banner = null
     }
   }
@@ -482,16 +678,18 @@ class RescueRally implements ArcadeGameInstance {
 
   /** The district's loop, the boss theme on a boss wave, the Shelter's tune between districts. */
   get music(): MusicLoop | null {
-    if (this.demo || this.over || this.offer) return null
+    if (this.demo || this.over || this.offer || this.menu) return null
+    if (this.ending || this.script.reunion) return ENDING_MUSIC
     if (this.shelter) return SHELTER_MUSIC
     if (this.boss) return BOSS_MUSIC
+    if (this.mode === 'classic') return DISTRICTS[0]!.music
     return DISTRICTS[this.district]!.music
   }
 
   private newHero(seat: number): Hero {
     return {
       seat,
-      x: CX,
+      x: CX + this.seatOffset(seat),
       y: CY,
       vx: 0,
       vy: 0,
@@ -505,9 +703,17 @@ class RescueRally implements ArcadeGameInstance {
       aiming: false,
       gathering: false,
       trail: [],
+      reviving: 0,
+      history: [],
+      padClock: 0,
       squad: 0,
       powers: {},
     }
+  }
+
+  /** Seats start side by side. */
+  private seatOffset(seat: number) {
+    return [0, 22, -22, 44][seat] ?? 0
   }
 
   // --- the worlds the roster, the family and the bosses see ----------------------------
@@ -543,6 +749,9 @@ class RescueRally implements ArcadeGameInstance {
         for (const r of this.family) {
           if ((r.state !== 'calm' && r.state !== 'parade') || r.immune > 0)
             continue
+          // Hiding in a flowerbed: out of sight.
+          if (r.state === 'calm' && this.beds.some((b) => inRect(r, b)))
+            continue
           const d = dist(r, from)
           if (d < bestD) {
             best = r
@@ -553,7 +762,19 @@ class RescueRally implements ArcadeGameInstance {
       },
       bonk: (r, by) => this.bonk(r, by),
       glitch: (r) => this.glitch(r),
-      fire: (x, y, vx, vy) => this.fireBolt(x, y, vx, vy, false),
+      fire: (x, y, vx, vy, bounces) =>
+        this.fireBolt(x, y, vx, vy, false, bounces ?? 0),
+      echo: (from, ago) => {
+        const h = this.nearestHero(from)
+        if (!h || !h.history.length) return null
+        return h.history[Math.max(0, h.history.length - 1 - ago)]!
+      },
+      drop: (at) => {
+        const p = { ...at }
+        clampToArena(p, 16)
+        if (this.drops.length < 6) this.drops.push({ ...p, clock: 60 })
+      },
+      count: (kind) => this.foes.filter((f) => f.kind === kind).length,
       hatch: (kind, at) => {
         if (this.foes.length < MAX_FOES)
           this.foes.push(newFoe(kind, at, this.rng))
@@ -602,6 +823,10 @@ class RescueRally implements ArcadeGameInstance {
         }
       },
       count: (kind) => this.foes.filter((f) => f.kind === kind).length,
+      glitchAll: () => {
+        for (const r of this.family)
+          if (r.state !== 'glitched' && r.state !== 'dizzy') this.glitch(r)
+      },
       sound: (name) => this.sound.play(name),
     }
   }
@@ -612,9 +837,10 @@ class RescueRally implements ArcadeGameInstance {
     vx: number,
     vy: number,
     confetti: boolean,
+    bounces = 0,
   ) {
     if (this.bolts.length < MAX_BOLTS)
-      this.bolts.push({ x, y, vx, vy, life: BOLT_LIFE, confetti })
+      this.bolts.push({ x, y, vx, vy, life: BOLT_LIFE, confetti, bounces })
   }
 
   // --- the family under threat -------------------------------------------------------
@@ -786,14 +1012,28 @@ class RescueRally implements ArcadeGameInstance {
       this.foes.push(newFoe(kind, this.entrySpot(from, i, count), this.rng))
   }
 
+  /** Where wave `n` falls for the mode being played. */
+  private spotFor(n: number) {
+    if (this.mode === 'rally100') return rallyWave(n)
+    if (this.mode === 'classic')
+      return { script: classicWave(n), loop: 1, district: 0, index: 0 }
+    return waveAt(n)
+  }
+
   private startWave(n: number) {
-    const spot = waveAt(n)
-    const { script, loop } = spot
+    const spot = this.spotFor(n)
     this.level = n
-    this.script = script
-    this.loop = loop
     this.district = spot.district
     this.index = spot.index
+    this.setupWave(spot.script, spot.loop)
+  }
+
+  /** Lay out a wave from its script (the campaign's, or the Reunion's). */
+  private setupWave(script: WaveScript, loop: number) {
+    const n = this.level
+    const spot = { index: this.index }
+    this.script = script
+    this.loop = loop
     this.foeWorld.heat = n
     this.familyWorld.heat = n
     this.bossWorld.heat = n
@@ -804,6 +1044,16 @@ class RescueRally implements ArcadeGameInstance {
     this.arrivals = []
     this.pickups = []
     this.belts = script.conveyors ?? []
+    this.vines = script.vines ?? []
+    this.sprinklers = script.sprinklers ?? []
+    this.beds = script.beds ?? []
+    this.pads = script.pads ?? []
+    this.gates = script.gates ?? []
+    this.magnetFloors = script.magnets ?? []
+    this.storm = script.storm
+    this.wind = { x: 0, y: 0 }
+    this.strikes = []
+    this.drops = []
     this.multiplier = 1
     this.waveTick = 0
     this.freeze = 0
@@ -811,8 +1061,14 @@ class RescueRally implements ArcadeGameInstance {
     this.beacon = script.beacon
     const start = script.hero ?? { x: CX, y: CY }
     for (const h of this.heroes) {
-      Object.assign(h, { x: start.x, y: start.y, vx: 0, vy: 0 })
+      Object.assign(h, {
+        x: start.x + this.seatOffset(h.seat),
+        y: start.y,
+        vx: 0,
+        vy: 0,
+      })
       h.trail = []
+      h.history = []
     }
     // The pylon garden and the crates first, so nothing else is placed on a post.
     const inside = (p: Point) =>
@@ -849,15 +1105,35 @@ class RescueRally implements ArcadeGameInstance {
         })
       }
     }
-    this.boss = script.boss
-      ? newBoss(script.boss, { x: CX, y: ARENA.top + 80 }, this.rng)
-      : null
+    const bossAt =
+      script.boss === 'twins'
+        ? { x: CX, y: CY }
+        : script.boss === 'core'
+          ? { x: CX, y: CY - 30 }
+          : script.boss === 'overgrowth'
+            ? { x: CX, y: ARENA.top + 90 }
+            : { x: CX, y: ARENA.top + 80 }
+    this.boss = script.boss ? newBoss(script.boss, bossAt, this.rng) : null
     if (script.power)
       this.pickups.push({ ...script.power, life: POWER_FLOOR_TICKS * 2 })
     this.placeFamily(script, loop)
     for (const h of this.heroes) h.invuln = 90
     const d = DISTRICTS[this.district]!
-    if (spot.index === 0) {
+    this.waveHit = false
+    if (this.mode === 'campaign' && spot.index === 0)
+      this.reached = Math.max(this.reached, this.district)
+    if (this.mode === 'classic' || this.mode === 'rally100') {
+      this.banner = {
+        text:
+          this.mode === 'classic'
+            ? `WAVE ${n}`
+            : `RALLY ${n} OF ${RALLY_LENGTH}`,
+        sub: script.name,
+        ticks: 100,
+      }
+    } else if (script.reunion) {
+      this.banner = { text: 'THE REUNION', sub: script.hint, ticks: 180 }
+    } else if (spot.index === 0) {
       this.writeSave()
       this.banner = {
         text: d.name,
@@ -899,6 +1175,18 @@ class RescueRally implements ArcadeGameInstance {
         case 'ring': {
           const a = (i / count) * Math.PI * 2
           p = { x: CX + Math.cos(a) * 110, y: CY + Math.sin(a) * 90 }
+          break
+        }
+        case 'beds': {
+          // Most hide in the flowerbeds; the rest wander the floor.
+          const bed = this.beds[i % Math.max(1, this.beds.length)]
+          p =
+            bed && i < this.beds.length * 3
+              ? {
+                  x: bed.x + 8 + this.rng() * (bed.w - 16),
+                  y: bed.y + 8 + this.rng() * (bed.h - 16),
+                }
+              : this.scatterSpot(50, 14)
           break
         }
         case 'shapes': {
@@ -943,11 +1231,17 @@ class RescueRally implements ArcadeGameInstance {
   // --- saves, the opening card and the Shelter ------------------------------------------
 
   private writeSave() {
+    this.checkpoint(this.district, this.loop, false)
+  }
+
+  /** The campaign's checkpoint: where Continue picks up, with everything earned so far. */
+  private checkpoint(district: number, loop: number, reunion: boolean) {
     if (this.demo) return
+    if (this.mode !== 'campaign') return this.keepRecords()
     this.savePoint = {
-      v: 1,
-      district: this.district,
-      loop: this.loop,
+      v: 3,
+      district,
+      loop,
       score: this.score,
       lives: Math.min(MAX_LIVES, Math.max(1, this.lives)),
       hearts: Math.min(9999, this.hearts),
@@ -955,6 +1249,106 @@ class RescueRally implements ArcadeGameInstance {
       upgrades: this.held(),
       bought: { ...this.bought },
       continued: this.continued,
+      chips: [...this.chips],
+      cleared: this.cleared,
+      medals: { ...this.medals },
+      times: { ...this.times },
+      reached: this.reached,
+      reunion,
+      trueEnding: this.trueEnded,
+    }
+  }
+
+  /**
+   * Everything earned on this device (friends home, golden chips, the clear, medals, Time Attack
+   * bests, the furthest district) written to the save at once, without moving its rally's
+   * checkpoint, so a quit at any moment keeps it.
+   */
+  private keepRecords() {
+    if (this.demo) return
+    const base = this.savePoint ?? {
+      v: 3 as const,
+      district: 0,
+      loop: 1,
+      score: 0,
+      lives: START_LIVES,
+      hearts: 0,
+      friends: 0,
+      upgrades: { beam: 0, chain: 0, squad: 0 },
+      bought: emptyBought(),
+      continued: false,
+      chips: [],
+      cleared: false,
+      medals: {},
+      times: {},
+      reached: 0,
+      reunion: false,
+      trueEnding: false,
+    }
+    const chips = [...new Set([...base.chips, ...this.chips])]
+    this.savePoint = {
+      ...base,
+      friends: Math.max(base.friends, Math.min(1_000_000, this.friends)),
+      chips,
+      cleared: base.cleared || this.cleared,
+      trueEnding: base.trueEnding || this.trueEnded,
+      medals: { ...this.medals },
+      times: { ...this.times },
+      reached: Math.max(base.reached, this.reached),
+    }
+  }
+
+  // --- the menu of modes -------------------------------------------------------------------------
+
+  private openMenu() {
+    this.menu = { cursor: 0, district: 0, board: false, ticks: 0 }
+    this.banner = null
+  }
+
+  private updateMenu(input: InputFrame) {
+    const m = this.menu!
+    m.ticks++
+    if (m.board) {
+      if (
+        m.ticks > 10 &&
+        (input.pressed.a || input.pressed.b || input.pressed.start)
+      )
+        m.board = false
+      return
+    }
+    if (input.pressed.up) m.cursor = (m.cursor + MENU.length - 1) % MENU.length
+    if (input.pressed.down) m.cursor = (m.cursor + 1) % MENU.length
+    if (input.pressed.up || input.pressed.down) this.sound.play('blip')
+    if (MENU[m.cursor]!.id === 'timeattack') {
+      if (input.pressed.left)
+        m.district = (m.district + DISTRICTS.length - 1) % DISTRICTS.length
+      if (input.pressed.right) m.district = (m.district + 1) % DISTRICTS.length
+    }
+    if (m.ticks < 8 || (!input.pressed.a && !input.pressed.start)) return
+    const id = MENU[m.cursor]!.id
+    if (id === 'board') {
+      m.board = true
+      m.ticks = 0
+      return
+    }
+    if (id === 'timeattack' && m.district > this.reached) {
+      this.sound.play('warn')
+      return
+    }
+    this.begin(id, m.district)
+  }
+
+  /** Start a mode from the menu (Time Attack in a district). */
+  private begin(id: Exclude<MenuId, 'board'>, district = 0) {
+    this.menu = null
+    this.mode = id
+    this.score = 0
+    this.attackTicks = 0
+    this.sound.play('start')
+    if (id === 'timeattack') this.startWave(districtStart(district))
+    else {
+      this.startWave(1)
+      if (id === 'campaign') this.writeSave()
     }
   }
 
@@ -969,27 +1363,36 @@ class RescueRally implements ArcadeGameInstance {
     if (this.choice === 0) {
       this.continued = offer.continued
       this.score = offer.continued ? 0 : offer.score
-      this.nextExtra =
-        this.score < EXTRA_LIFE_FIRST
-          ? EXTRA_LIFE_FIRST
-          : EXTRA_LIFE_FIRST +
-            (Math.floor((this.score - EXTRA_LIFE_FIRST) / EXTRA_LIFE_EVERY) +
-              1) *
-              EXTRA_LIFE_EVERY
+      this.extras = 0
+      while (extraAt(this.extras) <= this.score) this.extras++
+      this.nextExtra = extraAt(this.extras)
       this.lives = offer.lives
       this.hearts = offer.hearts
       this.friends = offer.friends
       this.upgrades = { ...offer.upgrades }
+      this.chips = new Set(offer.chips)
+      this.cleared = offer.cleared
       for (const h of this.heroes) h.squad = offer.upgrades.squad
       this.bought = { ...offer.bought }
-      this.startWave(districtStart(offer.district, offer.loop))
+      if (offer.reunion) {
+        // Straight back to the roof: the Glitch Core is already beaten.
+        this.level =
+          districtStart(offer.district, offer.loop) + WAVES_PER_DISTRICT - 1
+        this.district = offer.district
+        this.index = WAVES_PER_DISTRICT - 1
+        this.setupWave(REUNION, offer.loop)
+      } else this.startWave(districtStart(offer.district, offer.loop))
     } else {
-      this.writeSave()
-      this.banner = {
-        text: DISTRICTS[0]!.name,
-        sub: `DISTRICT 1: ${DISTRICTS[0]!.tagline}`,
-        ticks: CARD_TICKS,
+      // A new rally: the rally's place is reset, the menu picks the mode.
+      this.savePoint = {
+        ...offer,
+        district: 0,
+        loop: 1,
+        score: 0,
+        continued: false,
       }
+      this.writeSave()
+      this.openMenu()
     }
     this.sound.play('start')
   }
@@ -1043,13 +1446,21 @@ class RescueRally implements ArcadeGameInstance {
       case 'chain':
         this.upgrades.chain++
         break
+      case 'hint':
+        this.hintFor = waveAt(this.level + 1).district
+        break
     }
     this.sound.play('extra')
   }
 
   /** What the Shelter's prices and caps are checked against. */
   private shop() {
-    return { hearts: this.hearts, bought: this.bought, held: this.held() }
+    return {
+      hearts: this.hearts,
+      bought: this.bought,
+      held: this.held(),
+      hinted: this.hintFor === waveAt(this.level + 1).district,
+    }
   }
 
   /** Upgrades held, with the squad bots the hero has right now. */
@@ -1059,7 +1470,7 @@ class RescueRally implements ArcadeGameInstance {
 
   // --- update ----------------------------------------------------------------------------
 
-  update(input: InputFrame) {
+  update(input: InputFrame, players?: InputFrame[]) {
     this.tick++
     this.updateEffects()
     if (this.banner && --this.banner.ticks <= 0) this.banner = null
@@ -1069,8 +1480,20 @@ class RescueRally implements ArcadeGameInstance {
       this.updateChoice(controls)
       return
     }
+    if (this.menu) {
+      this.updateMenu(controls)
+      return
+    }
+    if (this.result) {
+      if (--this.result.ticks <= 0) this.over = true
+      return
+    }
     if (this.shelter) {
       this.updateShelter(controls)
+      return
+    }
+    if (this.ending) {
+      this.updateEnding(controls)
       return
     }
     if (this.lives <= 0 && !this.heroes.some((h) => h.alive)) {
@@ -1078,34 +1501,59 @@ class RescueRally implements ArcadeGameInstance {
       return
     }
     if (this.waveDelay > 0) {
-      if (--this.waveDelay === 0) {
-        if (this.index === WAVES_PER_DISTRICT - 1) this.openShelter()
-        else this.startWave(this.level + 1)
-      }
+      if (this.mode === 'timeattack') this.attackTicks++
+      if (--this.waveDelay === 0) this.nextWave()
       return
     }
 
-    for (const h of this.heroes) this.stepHero(h, controls)
+    this.heroes.forEach((h, i) =>
+      this.stepHero(h, i === 0 ? controls : (players?.[i] ?? emptyInput())),
+    )
     this.waveTick++
+    if (this.mode === 'timeattack') this.attackTicks++
     // Walkers hurry as a wave drags on, and every loop round the city starts them faster.
+    // (Classic Rally keeps the original's steady pace.)
     this.foeWorld.rush =
-      (1 + (RUSH_MAX - 1) * Math.min(1, this.waveTick / RUSH_TICKS)) *
-      (1 + LOOP_RUSH * (this.loop - 1))
+      this.mode === 'classic'
+        ? 1
+        : (1 + (RUSH_MAX - 1) * Math.min(1, this.waveTick / RUSH_TICKS)) *
+          (1 + LOOP_RUSH * (this.loop - 1))
     this.arrive()
     if (this.freeze > 0) this.freeze--
     else {
+      const before = this.sprinklers.length
+        ? this.foes.map((f) => ({ x: f.x, y: f.y }))
+        : null
       for (let i = 0; i < this.foes.length; i++)
         stepFoe(this.foes[i]!, this.foeWorld)
+      if (before) {
+        // In the sprinklers' spray everyone wades.
+        before.forEach((p, i) => {
+          const f = this.foes[i]
+          if (f && this.sprinklers.some((sp) => dist(f, sp) < sp.r))
+            Object.assign(f, {
+              x: p.x + (f.x - p.x) * SPRINKLER_SLOW,
+              y: p.y + (f.y - p.y) * SPRINKLER_SLOW,
+            })
+        })
+      }
       if (this.boss) this.stepTheBoss(this.boss)
     }
     this.carry()
+    this.stepFloors()
     this.moveFamily()
     this.moveShots()
     this.squadsFire()
     this.collide()
     if (this.chainClock > 0 && --this.chainClock === 0) this.chain = 0
 
+    // A safety net: a wave that drags on this long fades out (the glitch gives up).
+    if (this.waveTick === FADE_TICKS && !this.boss && !this.script.reunion)
+      this.fadeWave()
+    if (this.boss?.kind === 'core')
+      this.boss.guard = this.family.some((r) => r.state === 'glitched')
     const busy =
+      (this.script.reunion === true && this.family.length > 0) ||
       this.arrivals.length > 0 ||
       this.boss !== null ||
       this.foes.some((f) => FOES[f.kind].hostile) ||
@@ -1115,6 +1563,7 @@ class RescueRally implements ArcadeGameInstance {
 
   private gameOver() {
     this.over = true
+    if (this.mode !== 'campaign') return this.keepRecords()
     // The rally stays saved at this district's start, its score back to zero.
     if (this.savePoint) {
       this.savePoint = {
@@ -1156,13 +1605,143 @@ class RescueRally implements ArcadeGameInstance {
     this.sound.play('level')
     const all = this.familySaved >= this.familyTotal
     if (all) this.hearts += HEARTS_EVERYONE_HOME
+    const won = this.awardMedals(all)
+    const id = DISTRICTS[this.district]!.id
+    if (
+      this.mode === 'campaign' &&
+      this.script.signature &&
+      all &&
+      !this.chips.has(id)
+    ) {
+      // The district's golden chip, for getting everyone in its signature wave home.
+      this.chips.add(id)
+      this.keepRecords()
+      this.addScore(10_000, CX, CY - 50, RAMPS.gold[4])
+      this.banner = {
+        text: 'GOLDEN CHIP!',
+        sub: `${this.chips.size} OF ${DISTRICTS.length} FOUND`,
+        ticks: 150,
+      }
+      this.sound.play('extra')
+      return
+    }
     this.banner = {
       text: this.script.boss ? 'DISTRICT CLEAR!' : 'WAVE CLEAR!',
-      sub: all
-        ? 'EVERYONE HOME!'
-        : `SAVED ${this.familySaved} OF ${this.familyTotal}`,
+      sub: won.length
+        ? won.length === MEDALS.length
+          ? 'ALL THREE MEDALS!'
+          : won.join(' + ')
+        : all
+          ? 'EVERYONE HOME!'
+          : `SAVED ${this.familySaved} OF ${this.familyTotal}`,
       ticks: 120,
     }
+  }
+
+  /** A district wave's medals: Everyone Home, Untouched and Full Squad. Returns the names won. */
+  private awardMedals(all: boolean): string[] {
+    if (this.mode !== 'campaign' && this.mode !== 'timeattack') return []
+    if (this.script.reunion) return []
+    const bits =
+      (all ? 1 : 0) |
+      (this.waveHit ? 0 : 2) |
+      (this.heroes.some((h) => h.squad >= SQUAD_MAX) ? 4 : 0)
+    if (!bits) return []
+    const key = medalKey(this.district, this.index)
+    const had = this.medals[key] ?? 0
+    this.medals = { ...this.medals, [key]: had | bits }
+    if ((had | bits) !== had) this.keepRecords()
+    return MEDALS.filter((m) => bits & m.bit).map((m) => m.name)
+  }
+
+  /** The glitch gives up on a wave that has dragged on: every helper reboots by itself, unpaid. */
+  private fadeWave() {
+    for (const f of this.foes) {
+      if (FOES[f.kind].hostile) this.freed.push({ x: f.x, y: f.y, life: 60 })
+    }
+    this.foes = this.foes.filter((f) => !FOES[f.kind].hostile)
+    this.arrivals = []
+    for (const r of this.family) {
+      if (r.state === 'glitched') {
+        r.state = 'calm'
+        r.immune = 180
+      }
+    }
+    this.banner = { text: 'THE GLITCH FADES', ticks: 90 }
+  }
+
+  /** After a wave: the next one, the Shelter after a district, or the endings after the last. */
+  private nextWave() {
+    if (this.mode === 'classic') return this.startWave(this.level + 1)
+    if (this.mode === 'rally100') {
+      if (this.level < RALLY_LENGTH) return this.startWave(this.level + 1)
+      this.addScore(RALLY_BONUS, CX, CY, RAMPS.gold[4])
+      return this.finish('RALLY 100 COMPLETE!', `${this.score} POINTS`)
+    }
+    if (this.mode === 'timeattack' && this.index === WAVES_PER_DISTRICT - 1) {
+      const id = DISTRICTS[this.district]!.id
+      const best = this.times[id]
+      const fresh = !best || this.attackTicks < best
+      if (fresh) this.times = { ...this.times, [id]: this.attackTicks }
+      this.keepRecords()
+      return this.finish(
+        fresh ? 'NEW BEST TIME!' : 'DISTRICT CLEAR!',
+        `${clock(this.attackTicks)}   BEST ${clock(fresh ? this.attackTicks : best!)}`,
+      )
+    }
+    if (this.mode === 'timeattack') return this.startWave(this.level + 1)
+    if (this.script.reunion) return this.startEnding(true)
+    if (this.index === WAVES_PER_DISTRICT - 1) {
+      if (this.district === DISTRICTS.length - 1) {
+        // The Glitch Core is beaten. With every golden chip, the Reunion first.
+        if (this.chips.size >= DISTRICTS.length) {
+          // The Core is beaten (the city is cleared), and a quit from here comes back to the roof.
+          this.cleared = true
+          this.checkpoint(this.district, this.loop, true)
+          this.setupWave(REUNION, this.loop)
+          return
+        }
+        return this.startEnding(false)
+      }
+      return this.openShelter()
+    }
+    this.startWave(this.level + 1)
+  }
+
+  /** A mode's last card, then the game ends. */
+  private finish(text: string, sub: string) {
+    this.result = { text, sub, ticks: RESULT_TICKS }
+    this.banner = null
+    this.foes = []
+    this.bolts = []
+    this.sound.play('extra')
+  }
+
+  private startEnding(trueEnding: boolean) {
+    this.ending = { t: 0, trueEnding }
+    // The city is cleared the moment the Core reboots, credits watched or not.
+    this.cleared = true
+    this.keepRecords()
+    this.banner = null
+    this.foes = []
+    this.bolts = []
+    this.shots = []
+    this.addScore(trueEnding ? 250_000 : 100_000, CX, CY, RAMPS.gold[4])
+    if (trueEnding) this.trueEnded = true
+    // Saved now, past the credits: a quit while they roll comes back to the next time round.
+    this.checkpoint(0, this.loop + 1, false)
+    this.sound.play('extra')
+  }
+
+  private updateEnding(input: InputFrame) {
+    const e = this.ending!
+    e.t++
+    const skip = e.t > SKIP_AFTER && (input.pressed.a || input.pressed.start)
+    if (e.t < endingTicks(e.trueEnding) && !skip) return
+    // The city is cleared; the rally goes on, round the city again and harder.
+    this.ending = null
+    this.cleared = true
+    this.startWave(this.level + 1)
   }
 
   private arrive() {
@@ -1172,6 +1751,7 @@ class RescueRally implements ArcadeGameInstance {
     }
     this.arrivals = this.arrivals.filter((a) => this.waveTick < a.tick)
     // Partway in, a power-up comes through a vent.
+    if (this.mode === 'classic') this.ventPower = true
     if (!this.ventPower && this.waveTick >= VENT_POWER_AT) {
       this.ventPower = true
       const v = VENTS[Math.floor(this.rng() * VENTS.length)]!
@@ -1194,7 +1774,25 @@ class RescueRally implements ArcadeGameInstance {
     }
     h.powers = running
     if (!h.alive) {
-      if (this.lives > 0 && --h.respawn <= 0) this.revive(h)
+      const partner = this.heroes.some(
+        (o) => o !== h && o.alive && dist(o, h) < REVIVE_REACH,
+      )
+      h.reviving = partner ? h.reviving + 1 : Math.max(0, h.reviving - 2)
+      if (partner && h.reviving >= REVIVE_TICKS) {
+        // Picked up by a partner, right where they fell.
+        h.alive = true
+        h.invuln = 120
+        h.reviving = 0
+        this.rings.push({ x: h.x, y: h.y, life: 24, color: RAMPS.leaf[3] })
+        this.floaters.push({
+          x: h.x,
+          y: h.y - 22,
+          text: 'BACK UP!',
+          life: 50,
+          color: RAMPS.leaf[3],
+        })
+        this.sound.play('pickup')
+      } else if (this.lives > 0 && --h.respawn <= 0) this.revive(h)
       return
     }
     const stick =
@@ -1209,7 +1807,9 @@ class RescueRally implements ArcadeGameInstance {
     if (input.held.down) dy += 1
     const fromX = h.x
     const fromY = h.y
-    const speed = PLAYER_SPEED * (h.powers.sprint ? 1.4 : 1)
+    const wading = this.sprinklers.some((sp) => dist(h, sp) < sp.r)
+    const speed =
+      PLAYER_SPEED * (h.powers.sprint ? 1.4 : 1) * (wading ? SPRINKLER_SLOW : 1)
     if (dx || dy) {
       const len = Math.hypot(dx, dy)
       h.x += (dx / len) * speed
@@ -1223,12 +1823,15 @@ class RescueRally implements ArcadeGameInstance {
     }
     clampToArena(h, HERO_RADIUS)
     this.pushOffCrates(h, HERO_RADIUS)
+    for (const v of this.vines) pushOutOfRect(h, HERO_RADIUS, v)
     h.vx = h.x - fromX
     h.vy = h.y - fromY
     if (h.vx || h.vy) {
       h.trail.push({ x: h.x, y: h.y })
       if (h.trail.length > TRAIL) h.trail.shift()
     }
+    h.history.push({ x: h.x, y: h.y })
+    if (h.history.length > 150) h.history.shift()
     h.aiming = stick !== null
     if (stick) {
       const len = Math.hypot(stick.x, stick.y)
@@ -1322,6 +1925,150 @@ class RescueRally implements ArcadeGameInstance {
     return best
   }
 
+  /** Districts 3-5's floors: magnets and wind, teleport pads, laser gates, lightning, kite drops. */
+  private stepFloors() {
+    this.wind = windAt(this.waveTick, this.storm)
+    const pad = (o: Point, key: object) => {
+      if (!this.pads.length || this.waveTick < (this.padClock.get(key) ?? 0))
+        return false
+      const to = padExit(o, this.pads)
+      if (!to) return false
+      o.x = to.x
+      o.y = to.y
+      this.padClock.set(key, this.waveTick + PAD_COOLDOWN)
+      return true
+    }
+    for (const h of this.heroes) {
+      if (!h.alive) continue
+      for (const m of this.magnetFloors) {
+        if (inRect(h, m))
+          h.y += Math.sign(m.y + m.h / 2 - h.y) * MAGNET_FLOOR_PULL
+      }
+      for (const f of this.foes) {
+        if (f.kind === 'magnet' && f.mode === 2 && dist(f, h) < 180) {
+          const u = toward(h, f)
+          h.x += u.x * 0.8
+          h.y += u.y * 0.8
+        }
+      }
+      h.x += this.wind.x
+      h.y += this.wind.y
+      if (pad(h, h)) {
+        h.trail = []
+        this.rings.push({ x: h.x, y: h.y, life: 24, color: RAMPS.pink[3] })
+        this.sound.play('blip')
+      }
+      for (const v of this.vines) pushOutOfRect(h, HERO_RADIUS, v)
+      clampToArena(h, HERO_RADIUS)
+      const zapped = this.gates.some(
+        (g) =>
+          gateState(g, this.waveTick) === 'on' &&
+          segmentDistance(h, g.x0, g.y0, g.x1, g.y1) <
+            GATE_REACH + HERO_RADIUS - 3,
+      )
+      if (zapped && h.invuln === 0) this.hurtHero(h)
+    }
+    for (const r of this.family) {
+      if (r.state === 'parade') continue
+      if (this.wind.x || this.wind.y) {
+        r.x += this.wind.x * 0.8
+        r.y += this.wind.y * 0.8
+        // A low roof edge: blown right to it, they cling on, dizzy, and head home.
+        if (r.state === 'calm' && nearWall(r, 10))
+          this.bonk(r, { x: CX, y: CY })
+      }
+      if (r.state === 'calm' || r.state === 'glitched') pad(r, r)
+      if (r.state !== 'dizzy') clampToArena(r, RESCUEE_RADIUS)
+    }
+    if (this.freeze === 0) {
+      for (const f of this.foes) {
+        const kite = f.kind === 'kite'
+        if (!WALKS(f.kind) && !kite) continue
+        f.x += this.wind.x * (kite ? 1.5 : 0.5)
+        f.y += this.wind.y * (kite ? 1.5 : 0.5)
+        if (kite) continue
+        for (const m of this.magnetFloors) {
+          if (inRect(f, m))
+            f.y += Math.sign(m.y + m.h / 2 - f.y) * MAGNET_FLOOR_PULL
+        }
+        pad(f, f)
+        clampToArena(f, FOES[f.kind].radius)
+      }
+    }
+    // Magnets bend the beam.
+    for (const s of this.shots) {
+      let bent = false
+      for (const m of this.magnetFloors) {
+        if (inRect(s, m)) {
+          s.vy += Math.sign(m.y + m.h / 2 - s.y) * 0.3
+          bent = true
+        }
+      }
+      for (const f of this.foes) {
+        if (f.kind === 'magnet' && f.mode === 2 && dist(f, s) < 120) {
+          const u = toward(s, f)
+          s.vx += u.x * 0.35
+          s.vy += u.y * 0.35
+          bent = true
+        }
+      }
+      if (bent) {
+        const len = Math.hypot(s.vx, s.vy) || 1
+        s.vx = (s.vx / len) * SHOT_SPEED
+        s.vy = (s.vy / len) * SHOT_SPEED
+      }
+    }
+    // Lightning: a ring glows where it will strike, near the hero, then it strikes.
+    const every = this.storm?.lightningEvery ?? 0
+    if (every && this.waveTick > 60 && this.waveTick % every === 0) {
+      const h = this.heroes.find((o) => o.alive)
+      if (h) {
+        const p = {
+          x: h.x + h.vx * 30 + (this.rng() - 0.5) * 50,
+          y: h.y + h.vy * 30 + (this.rng() - 0.5) * 50,
+        }
+        clampToArena(p, 20)
+        this.strikes.push({ ...p, clock: LIGHTNING_TELL })
+        this.sound.play('warn')
+      }
+    }
+    for (const st of this.strikes) {
+      if (--st.clock !== 0) continue
+      this.sound.play('boom')
+      for (const h of this.heroes) {
+        if (
+          h.alive &&
+          h.invuln === 0 &&
+          dist(h, st) < LIGHTNING_RADIUS + HERO_RADIUS - 4
+        )
+          this.hurtHero(h)
+      }
+      for (const r of this.family) {
+        if (
+          (r.state === 'calm' || r.state === 'parade') &&
+          dist(r, st) < LIGHTNING_RADIUS
+        )
+          this.bonk(r, st)
+      }
+      // Glitched helpers under it are rebooted by the jolt (no points for the weather).
+      for (const f of this.foes) {
+        if (FOES[f.kind].hostile && dist(f, st) < LIGHTNING_RADIUS)
+          this.freed.push({ x: f.x, y: f.y, life: 60 })
+      }
+      this.foes = this.foes.filter(
+        (f) => !(FOES[f.kind].hostile && dist(f, st) < LIGHTNING_RADIUS),
+      )
+    }
+    this.strikes = this.strikes.filter((st) => st.clock > -8)
+    // Kite drones' pylons land where their shadows were.
+    for (const d of this.drops) {
+      if (--d.clock > 0) continue
+      if (this.foes.filter((f) => f.kind === 'pylon').length < 40)
+        this.foes.push(newFoe('pylon', d, this.rng))
+    }
+    this.drops = this.drops.filter((d) => d.clock > 0)
+  }
+
   /** Conveyor strips carry whoever stands on them. */
   private carry() {
     if (!this.belts.length) return
@@ -1361,7 +2108,14 @@ class RescueRally implements ArcadeGameInstance {
   private moveFamily() {
     const home: Rescuee[] = []
     for (const r of this.family) {
+      const was = { x: r.x, y: r.y }
       if (stepRescuee(r, this.familyWorld)) home.push(r)
+      if (this.sprinklers.some((sp) => dist(r, sp) < sp.r)) {
+        r.x = was.x + (r.x - was.x) * SPRINKLER_SLOW
+        r.y = was.y + (r.y - was.y) * SPRINKLER_SLOW
+      }
+      if (r.state !== 'glitched')
+        for (const v of this.vines) pushOutOfRect(r, RESCUEE_RADIUS, v)
       // The magnet calls the waiting family to its hero.
       if (r.state === 'calm') {
         const h = this.nearestHero(r)
@@ -1412,6 +2166,10 @@ class RescueRally implements ArcadeGameInstance {
       s.x += s.vx
       s.y += s.vy
       s.life--
+      if (this.vines.some((v) => inRect(s, v))) {
+        s.life = 0
+        continue
+      }
       if (!out(s)) continue
       if (s.bounce > 0) {
         // The Bounce power: off the wall once.
@@ -1427,7 +2185,16 @@ class RescueRally implements ArcadeGameInstance {
       b.x += b.vx
       b.y += b.vy
       b.life--
-      if (out(b)) b.life = 0
+      if (out(b)) {
+        if (b.bounces > 0) {
+          // A thornball's shell rebounds off the wall.
+          b.bounces--
+          if (b.x < ARENA.left || b.x > ARENA.right) b.vx *= -1
+          if (b.y < ARENA.top || b.y > ARENA.bottom) b.vy *= -1
+          clampToArena(b, 1)
+        } else b.life = 0
+      }
+      if (this.vines.some((v) => inRect(b, v))) b.life = 0
     }
     this.bolts = this.bolts.filter((b) => b.life > 0)
   }
@@ -1450,6 +2217,12 @@ class RescueRally implements ArcadeGameInstance {
       if (friend) {
         s.life = 0
         this.reboot(friend)
+        continue
+      }
+      if (this.boss && shieldBlocks(this.boss, s)) {
+        // The Glitch Core's shields: only a beam through every gap gets in.
+        s.life = 0
+        this.burst(s.x, s.y, 3, [RAMPS.purple[3], RAMPS.teal[3]])
         continue
       }
       if (this.boss && this.hitBoss(this.boss, s)) continue
@@ -1508,7 +2281,7 @@ class RescueRally implements ArcadeGameInstance {
         this.sound.play('blip')
         return true
       }
-      const result = hurtBoss(b)
+      const result = hurtBoss(b, t.id)
       this.burst(s.x, s.y, 4, [RAMPS.gold[4], '#ffffff'])
       if (result === 'hit') {
         this.sound.play('blip')
@@ -1538,7 +2311,16 @@ class RescueRally implements ArcadeGameInstance {
     this.bolts = []
     for (const r of this.family) if (r.state === 'glitched') this.reboot(r)
     this.banner = {
-      text: b.kind === 'windup' ? 'WOUND DOWN!' : 'BACK IN THE BOX!',
+      text:
+        b.kind === 'windup'
+          ? 'WOUND DOWN!'
+          : b.kind === 'jack'
+            ? 'BACK IN THE BOX!'
+            : b.kind === 'overgrowth'
+              ? 'IN FULL BLOOM!'
+              : b.kind === 'twins'
+                ? 'LINKED AS FRIENDS!'
+                : 'THE CORE REBOOTS!',
       sub: `${spec.name} REBOOTS AS A FRIEND`,
       ticks: 140,
     }
@@ -1552,6 +2334,30 @@ class RescueRally implements ArcadeGameInstance {
       const len = Math.hypot(s.vx, s.vy) || 1
       foe.pushX += (s.vx / len) * spec.shove
       foe.pushY += (s.vy / len) * spec.shove
+    }
+    if (foe.kind === 'shieldbot') {
+      // Its shield turns a beam from the front: flank it.
+      const from = Math.atan2(-s.vy, -s.vx)
+      const off = Math.atan2(
+        Math.sin(from - foe.face),
+        Math.cos(from - foe.face),
+      )
+      if (Math.abs(off) < SHIELD_ARC && foe.mode === 0) {
+        this.burst(s.x, s.y, 3, [RAMPS.gold[4], RAMPS.gold[3]])
+        this.sound.play('blip')
+        if (++foe.clock >= SHIELD_KNOCKS) {
+          foe.mode = 1
+          foe.clock = SHIELD_RATTLE
+          this.floaters.push({
+            x: foe.x,
+            y: foe.y - 18,
+            text: 'RATTLED!',
+            life: 40,
+            color: RAMPS.gold[3],
+          })
+        }
+        return
+      }
     }
     if (spec.hp === 0) {
       // Nothing reboots a stomper: the beam only shoves it.
@@ -1589,10 +2395,26 @@ class RescueRally implements ArcadeGameInstance {
         colours: [RAMPS.leaf[3], RAMPS.teal[3], RAMPS.gold[4]],
       })
     }
-    if (CHAINS(foe.kind)) this.chainUp(foe)
+    if (CHAINS(foe.kind) && this.mode !== 'classic') this.chainUp(foe)
+    if (foe.kind === 'splitter') {
+      // It splits into four drones.
+      for (let k = 0; k < 4; k++) {
+        const a = (k / 4) * Math.PI * 2 + 0.4
+        const p = { x: foe.x + Math.cos(a) * 12, y: foe.y + Math.sin(a) * 12 }
+        clampToArena(p, 10)
+        if (this.foes.length < MAX_FOES)
+          this.foes.push(newFoe('drone', p, this.rng))
+      }
+    }
     // Crates and heavies leave a power-up behind now and then.
     const drop =
-      foe.kind === 'crate' ? CRATE_DROP : HEAVY(foe.kind) ? HEAVY_DROP : 0
+      this.mode === 'classic'
+        ? 0
+        : foe.kind === 'crate'
+          ? CRATE_DROP
+          : HEAVY(foe.kind)
+            ? HEAVY_DROP
+            : 0
     if (drop && this.rng() < drop) {
       this.pickups.push({
         kind: powerFromRoll(this.rng()),
@@ -1679,6 +2501,7 @@ class RescueRally implements ArcadeGameInstance {
         this.family.splice(this.family.indexOf(r), 1)
         this.familySaved++
         this.friends++
+        this.keepRecords()
         this.hearts += HEARTS_PER_RESCUE
         this.floaters.push({
           x: r.x,
@@ -1720,6 +2543,7 @@ class RescueRally implements ArcadeGameInstance {
     if (i >= 0) this.family.splice(i, 1)
     this.familySaved++
     this.friends++
+    this.keepRecords()
     this.hearts += HEARTS_PER_RESCUE
     const points = RESCUE_STEP * this.multiplier * times
     this.addScore(points, r.x, r.y, times > 1 ? RAMPS.gold[4] : '#86efac')
@@ -1731,6 +2555,7 @@ class RescueRally implements ArcadeGameInstance {
 
   /** A hit: the parade scatters, then a bubble shield or a squad bot takes it before a hero does. */
   private hurtHero(h: Hero) {
+    this.waveHit = true
     for (const r of this.parade(h.seat)) {
       r.state = 'calm'
       const u = toward(h, r)
@@ -1772,7 +2597,9 @@ class RescueRally implements ArcadeGameInstance {
   private loseLife(h: Hero) {
     h.alive = false
     this.lives--
-    h.respawn = 90
+    h.reviving = 0
+    // In co-op a downed hero sits dizzy where they fell, for a partner to pick up.
+    h.respawn = this.heroes.length > 1 ? COOP_RESPAWN : 90
     h.powers = {}
     this.multiplier = 1
     this.shots = this.shots.filter((s) => s.seat !== h.seat)
@@ -1785,7 +2612,12 @@ class RescueRally implements ArcadeGameInstance {
 
   private revive(h: Hero) {
     const start = this.script.hero ?? { x: CX, y: CY }
-    Object.assign(h, { x: start.x, y: start.y, vx: 0, vy: 0 })
+    Object.assign(h, {
+      x: start.x + this.seatOffset(h.seat),
+      y: start.y,
+      vx: 0,
+      vy: 0,
+    })
     h.trail = []
     // Move anything crowding the spot back out toward the walls.
     for (const f of this.foes) {
@@ -1824,7 +2656,7 @@ class RescueRally implements ArcadeGameInstance {
     this.floaters.push({ x, y, text: String(points), life: 50, color })
     if (this.score >= this.nextExtra) {
       this.lives = Math.min(MAX_LIVES, this.lives + 1)
-      this.nextExtra += EXTRA_LIFE_EVERY
+      this.nextExtra = extraAt(++this.extras)
       this.sound.play('extra')
       this.banner = { text: 'EXTRA HERO!', ticks: 90 }
     }
@@ -1897,6 +2729,10 @@ class RescueRally implements ArcadeGameInstance {
     }
     const frame: InputFrame = { held, pressed: { ...held } }
     if (this.shelter) return this.shelterPilot(frame)
+    if (this.menu) {
+      frame.pressed.a = this.tick % 20 === 0
+      return frame
+    }
     if (this.offer) {
       frame.pressed.a = this.tick % 30 === 0
       return frame
@@ -1977,6 +2813,41 @@ class RescueRally implements ArcadeGameInstance {
         }
       }
     }
+    // Off any line that's about to hurt: a hot (or flickering) gate, a root whip, the Twins' link.
+    const offLine = (
+      x0: number,
+      y0: number,
+      x1: number,
+      y1: number,
+      reach: number,
+    ) => {
+      const d = segmentDistance(h, x0, y0, x1, y1)
+      if (d >= reach) return
+      const len = Math.hypot(x1 - x0, y1 - y0) || 1
+      const nx = -(y1 - y0) / len
+      const ny = (x1 - x0) / len
+      const side = (h.x - x0) * nx + (h.y - y0) * ny >= 0 ? 1 : -1
+      const k = 2.6 * (1 - d / reach)
+      mx += nx * side * k
+      my += ny * side * k
+    }
+    for (const gt of this.gates)
+      if (gateState(gt, this.waveTick) !== 'off')
+        offLine(gt.x0, gt.y0, gt.x1, gt.y1, 24)
+    if (b && !b.down) {
+      for (const wp of b.whips) offLine(wp.x0, wp.y0, wp.x1, wp.y1, 26)
+      if (b.kind === 'twins' && b.phase === 0) {
+        const [t0, t1] = b.twins
+        offLine(t0!.x, t0!.y, t1!.x, t1!.y, 30)
+        for (const t of b.twins) away(t, 46, 2)
+      }
+      if (b.kind === 'twins' && b.phase > 0)
+        for (const t of b.twins) if (t.hp > 0) away(t, 60, 2)
+      if (b.kind === 'overgrowth' || b.kind === 'core') away(b, 70, 2)
+    }
+    for (const st of this.strikes)
+      if (st.clock > 0) away(st, LIGHTNING_RADIUS + 18, 2.5)
+    for (const d of this.drops) away(d, 22, 2)
     // Sidestep any spark flying this way, off the line it is flying along.
     for (const bolt of this.bolts) {
       const rx = h.x - bolt.x
@@ -1992,6 +2863,17 @@ class RescueRally implements ArcadeGameInstance {
       const push = 2.4 * (1 - Math.abs(off) / 14)
       mx += -uy * side * push
       my += ux * side * push
+    }
+    // A shield bot facing the pilot: circle round to its side.
+    for (const f of this.foes) {
+      if (f.kind !== 'shieldbot' || dist(f, h) > 170) continue
+      const from = Math.atan2(h.y - f.y, h.x - f.x)
+      const off = Math.atan2(Math.sin(from - f.face), Math.cos(from - f.face))
+      if (Math.abs(off) > SHIELD_ARC + 0.2) continue
+      const side = off >= 0 ? 1 : -1
+      mx += -Math.sin(from) * side * 1.6
+      my += Math.cos(from) * side * 1.6
+      break
     }
     // Keep off the walls while dodging, so a corner never pins the pilot.
     if (Math.abs(mx) + Math.abs(my) > 0.4) {
@@ -2092,6 +2974,26 @@ class RescueRally implements ArcadeGameInstance {
   // --- render ------------------------------------------------------------------------------
 
   render(g: CanvasRenderingContext2D) {
+    if (this.menu?.board) {
+      renderBoard(g, this.medals, this.times, this.reached)
+      return
+    }
+    if (this.ending) {
+      renderEnding(g, {
+        tick: this.tick,
+        t: this.ending.t,
+        trueEnding: this.ending.trueEnding,
+        friends: this.friends,
+        chips: this.chips.size,
+      })
+      if (this.ending.t > SKIP_AFTER)
+        drawText(g, 'A TO GO ON', W - 8, 8, {
+          align: 'right',
+          color: RAMPS.steel[3],
+          outline: INK,
+        })
+      return
+    }
     if (this.shelter) {
       renderShelter(g, {
         tick: this.tick,
@@ -2103,12 +3005,25 @@ class RescueRally implements ArcadeGameInstance {
         lives: this.lives,
         next: this.nextDistrictLine(),
         thanks: this.shelter.thanks,
+        chips: this.chips.size,
+        hinted: this.hintFor === waveAt(this.level + 1).district,
       })
       return
     }
     const d = DISTRICTS[this.district]!
     renderFloor(g, d.floor, d.id, this.district, this.tick)
     renderConveyors(g, this.belts, this.tick)
+    renderBeds(g, this.beds)
+    renderSprinklers(g, this.sprinklers, this.tick)
+    renderMagnetFloors(g, this.magnetFloors, this.tick)
+    renderPads(g, this.pads, this.tick)
+    renderGates(g, this.gates, this.waveTick)
+    renderVines(g, this.vines, this.tick)
+    for (const d of this.drops) {
+      // A kite's shadow, darkening as its pylon falls.
+      const t = 1 - d.clock / 60
+      dropShadow(g, d.x, d.y + 4, 5 + t * 6, 2 + t * 2, 0.25 + t * 0.4)
+    }
     const due = this.arrivals.some(
       (a) => a.tick - this.waveTick <= VENT_TELL && a.tick > this.waveTick,
     )
@@ -2127,8 +3042,12 @@ class RescueRally implements ArcadeGameInstance {
     for (const r of this.family)
       actors.push({ y: r.y, draw: () => this.renderRescuee(g, r) })
     for (const h of this.heroes) {
-      if (!h.alive || (h.invuln > 0 && Math.floor(h.invuln / 5) % 2 === 0))
+      if (!h.alive) {
+        if (this.heroes.length > 1 && this.lives >= 0)
+          actors.push({ y: h.y, draw: () => this.renderDowned(g, h) })
         continue
+      }
+      if (h.invuln > 0 && Math.floor(h.invuln / 5) % 2 === 0) continue
       actors.push({ y: h.y, draw: () => this.renderHero(g, h) })
     }
     const boss = this.boss
@@ -2136,6 +3055,7 @@ class RescueRally implements ArcadeGameInstance {
       actors.push({ y: boss.y, draw: () => renderBoss(g, boss, this.tick) })
     actors.sort((a, b) => a.y - b.y)
     for (const a of actors) a.draw()
+    renderBedTops(g, this.beds, this.tick)
     for (const h of this.heroes) if (h.alive) this.renderSquad(g, h)
     for (const f of this.freed) this.renderFreed(g, f)
     this.renderBolts(g)
@@ -2154,6 +3074,8 @@ class RescueRally implements ArcadeGameInstance {
       }
     }
     g.restore()
+    if (this.storm || this.strikes.length)
+      renderStorm(g, this.wind, this.strikes, this.tick)
     this.renderRings(g)
     this.fx.render(g)
     if (this.freeze > 0) {
@@ -2170,6 +3092,32 @@ class RescueRally implements ArcadeGameInstance {
     }
     vignette(g, W, H, 0.3)
     this.renderHud(g)
+    if (this.result) {
+      g.fillStyle = rgba(INK, 0.7)
+      g.fillRect(0, 0, W, H)
+      drawText(g, this.result.text, W / 2, H / 2 - 30, {
+        scale: 3,
+        align: 'center',
+        color: RAMPS.gold[4],
+        outline: INK,
+        shadow: RAMPS.pink[1],
+      })
+      drawText(g, this.result.sub, W / 2, H / 2 + 6, {
+        scale: 2,
+        align: 'center',
+        color: '#ffffff',
+        outline: INK,
+      })
+    }
+    if (this.menu)
+      renderMenu(g, {
+        tick: this.tick,
+        cursor: this.menu.cursor,
+        district: this.menu.district,
+        reached: this.reached,
+        times: this.times,
+        players: this.heroes.length,
+      })
     if (this.offer) this.renderChoice(g, this.offer)
   }
 
@@ -2192,7 +3140,9 @@ class RescueRally implements ArcadeGameInstance {
     })
     const d = DISTRICTS[offer.district]!
     const options = [
-      `CONTINUE: DISTRICT ${offer.district + 1} ${d.name}${offer.loop > 1 ? ` (LOOP ${offer.loop})` : ''}`,
+      offer.reunion
+        ? 'CONTINUE: THE REUNION'
+        : `CONTINUE: DISTRICT ${offer.district + 1} ${d.name}${offer.loop > 1 ? ` (LOOP ${offer.loop})` : ''}`,
       'START A NEW RALLY',
     ]
     options.forEach((text, i) => {
@@ -2304,12 +3254,17 @@ class RescueRally implements ArcadeGameInstance {
     const frame = Math.floor(h.walk / 1.2) % 2
     // Facing comes from the aim; pixel sprites flip, never rotate.
     const vertical = Math.abs(h.aimY) > Math.abs(h.aimX) * 1.2
-    const set = vertical
-      ? h.aimY > 0
-        ? HERO_SPRITES.front
-        : HERO_SPRITES.back
-      : HERO_SPRITES.side
-    glow(g, h.x, h.y, 30, RAMPS.teal[3], 0.16)
+    const suit = this.suits[h.seat] ?? HERO_SPRITES
+    const set = vertical ? (h.aimY > 0 ? suit.front : suit.back) : suit.side
+    glow(g, h.x, h.y, 30, SUITS[h.seat]![3], 0.16)
+    if (this.heroes.length > 1) {
+      // Co-op: each hero's seat number over its head.
+      drawText(g, `P${h.seat + 1}`, h.x, h.y - 30, {
+        align: 'center',
+        color: SUITS[h.seat]![3],
+        outline: INK,
+      })
+    }
     dropShadow(g, h.x, h.y + 9, 8, 2.5, 0.4)
     drawSprite(g, set[frame ? 1 : 0], h.x, h.y + 10 + bob, {
       anchor: 'feet',
@@ -2525,6 +3480,42 @@ class RescueRally implements ArcadeGameInstance {
     g.restore()
   }
 
+  /** A co-op hero down: sitting dizzy, a ring filling as a partner picks them up. */
+  private renderDowned(g: CanvasRenderingContext2D, h: Hero) {
+    const suit = this.suits[h.seat] ?? HERO_SPRITES
+    dropShadow(g, h.x, h.y + 9, 8, 2.5, 0.4)
+    drawSprite(g, suit.front[0], h.x, h.y + 10, { anchor: 'feet', alpha: 0.75 })
+    for (let k = 0; k < 3; k++) {
+      const a = this.tick / 8 + (k * Math.PI * 2) / 3
+      g.fillStyle = RAMPS.gold[4]
+      g.fillRect(
+        Math.round(h.x + Math.cos(a) * 9),
+        Math.round(h.y - 22 + Math.sin(a) * 3),
+        2,
+        2,
+      )
+    }
+    if (h.reviving > 0) {
+      g.strokeStyle = RAMPS.leaf[3]
+      g.lineWidth = 2
+      g.beginPath()
+      g.arc(
+        h.x,
+        h.y - 4,
+        16,
+        -Math.PI / 2,
+        -Math.PI / 2 + (h.reviving / REVIVE_TICKS) * Math.PI * 2,
+      )
+      g.stroke()
+    } else if (Math.floor(this.tick / 20) % 2 === 0) {
+      drawText(g, 'HELP!', h.x, h.y - 34, {
+        align: 'center',
+        color: SUITS[h.seat]![3],
+        outline: INK,
+      })
+    }
+  }
+
   private renderHud(g: CanvasRenderingContext2D) {
     // Score, high score and lives sit in boxes in the strip above the rim.
     hudPanel(g, 4, 3, 96, 18)
@@ -2533,7 +3524,10 @@ class RescueRally implements ArcadeGameInstance {
       color: RAMPS.teal[4],
       shadow: INK,
     })
-    const hi = `HI ${Math.max(this.hiScore, this.score)}`
+    const hi =
+      this.mode === 'timeattack'
+        ? `TIME ${clock(this.attackTicks)}`
+        : `HI ${Math.max(this.hiScore, this.score)}`
     const hiW = measureText(hi, 2) + 14
     hudPanel(g, Math.round(W / 2 - hiW / 2), 3, hiW, 18)
     drawText(g, hi, W / 2, 5, {
@@ -2551,7 +3545,12 @@ class RescueRally implements ArcadeGameInstance {
       }
     }
     // The wave and its name, the parade and the rescue multiplier sit in boxes below the rim.
-    const wave = `${this.district + 1}-${this.index + 1}  ${this.script.name}`
+    const wave =
+      this.mode === 'rally100'
+        ? `${this.level}/${RALLY_LENGTH}  ${this.script.name}`
+        : this.mode === 'classic'
+          ? `CLASSIC WAVE ${this.level}`
+          : `${this.district + 1}-${this.index + 1}  ${this.script.name}`
     hudPanel(g, 4, H - 13, measureText(wave) + 14, 11)
     drawText(g, wave, 11, H - 10, {
       color: RAMPS.purple[4],
@@ -2559,6 +3558,7 @@ class RescueRally implements ArcadeGameInstance {
     })
     this.renderChainHud(g)
     this.renderPowersHud(g)
+    this.renderChipHud(g)
     if (this.boss) this.renderBossBar(g, this.boss)
     if (this.beacon) {
       const seat = this.heroes[0]!.seat
@@ -2627,6 +3627,22 @@ class RescueRally implements ArcadeGameInstance {
       this.chain / SQUAD_CHAIN,
       this.chainClock > 0 && this.chainClock < 40 ? RAMPS.ember : RAMPS.leaf,
     )
+  }
+
+  /** In a signature wave: the golden chip waits (shown once hinted, or once found). */
+  private renderChipHud(g: CanvasRenderingContext2D) {
+    if (!this.script.signature) return
+    const found = this.chips.has(DISTRICTS[this.district]!.id)
+    if (!found && this.hintFor !== this.district) return
+    const text = found ? 'CHIP FOUND' : `CHIP: SAVE ALL ${this.familyTotal}`
+    const w = measureText(text) + 22
+    const x = ARENA.right - 6 - w
+    hudPanel(g, x, ARENA.top + 4, w, 12, RAMPS.gold)
+    shadedOrb(g, x + 8, ARENA.top + 10, 3, RAMPS.gold)
+    drawText(g, text, x + 15, ARENA.top + 7, {
+      color: found ? RAMPS.leaf[3] : '#ffffff',
+      outline: INK,
+    })
   }
 
   /** Running power-ups, each with its timer, along the top of the arena. */

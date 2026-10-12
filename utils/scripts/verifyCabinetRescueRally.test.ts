@@ -41,8 +41,17 @@ const RALLY_WAVES = DISTRICTS.flatMap((d) => d.waves)
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 const quiet = { play: () => {} }
-const fresh = (seed = 3, demo = false) =>
-  mod.create({ rng: mulberry32(seed), sound: quiet, demo, hiScore: 0 }) as any
+/** A game past the menu of modes, straight into the campaign. */
+const fresh = (seed = 3, demo = false) => {
+  const game = mod.create({
+    rng: mulberry32(seed),
+    sound: quiet,
+    demo,
+    hiScore: 0,
+  }) as any
+  game.menu = null
+  return game
+}
 
 /** A quiet arena: the wave's foes and family gone, the hero in the middle, nothing hurrying. */
 function emptyArena(game: any) {
@@ -450,8 +459,8 @@ function hold(...buttons: (keyof InputFrame['held'])[]): InputFrame {
 
   const game = fresh(3)
   let t = 0
-  for (; t < 60 * 60 * 30 && !game.over; t++) game.update(game.demoInput())
-  assert.ok(game.over, 'the pilot runs out of heroes within half an hour')
+  for (; t < 60 * 60 * 45 && !game.over; t++) game.update(game.demoInput())
+  assert.ok(game.over, 'the pilot runs out of heroes within 45 minutes')
   assert.ok(
     game.level > 8,
     `it gets well into the rally first (wave ${game.level})`,

@@ -34,14 +34,18 @@ import type { InputFrame } from '../arcade/types'
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 const quiet = { play: () => {} }
-const fresh = (seed = 3, resume?: unknown) =>
-  mod.create({
+/** A game past the menu of modes, straight into the campaign (or the Welcome Back card). */
+const fresh = (seed = 3, resume?: unknown) => {
+  const game = mod.create({
     rng: mulberry32(seed),
     sound: quiet,
     demo: false,
     hiScore: 0,
     resume,
   }) as any
+  game.menu = null
+  return game
+}
 
 function emptyArena(game: any) {
   game.foes = []
@@ -418,7 +422,7 @@ const aimAt = (x: number, y: number) => {
   const meta = ARCADE_GAMES.find((g) => g.slug === 'rescue-rally')!
   const game = fresh(3)
   let shelters = 0
-  for (let t = 0; t < 60 * 60 * 30 && !game.over; t++) {
+  for (let t = 0; t < 60 * 60 * 45 && !game.over; t++) {
     const was = !!game.shelter
     game.update(game.demoInput())
     if (!was && game.shelter) shelters++

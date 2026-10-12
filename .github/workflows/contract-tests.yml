@@ -188,6 +188,18 @@ jobs:
       - name: Zuzu Pinball LED rail
         run: npm run test:zuzu-pinball-leds
 
+      - name: Zuzu Pinball DMD pages and music ducking
+        run: npm run test:zuzu-pinball-dmd-sound
+
+      - name: Zuzu Pinball camera sweeps and still camera
+        run: npm run test:zuzu-pinball-camera
+
+      - name: Zuzu Pinball setup/dispose and six-ball stress
+        run: npm run test:zuzu-pinball-stress
+
+      - name: Zuzu Pinball insert light-map editor
+        run: npm run test:zuzu-pinball-light-map
+
       - name: Zuzu gamebook branching and combat
         run: npm run test:zuzu-gamebook
 

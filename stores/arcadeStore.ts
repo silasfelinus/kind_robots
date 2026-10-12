@@ -53,6 +53,8 @@ const PENDING_KEY = 'kr-arcade-pending'
 type ArcadePrefs = {
   muted?: boolean
   crt?: boolean
+  /** Pinball's camera holds still: no sweeps, cuts instead of pans. */
+  stillCamera?: boolean
   /** The player's render style for every cabinet, and per-game overrides by slug. */
   renderStyle?: RenderStyle
   gameStyles?: Record<string, RenderStyle>
@@ -166,6 +168,7 @@ export const useArcadeStore = defineStore('arcadeStore', () => {
   const muted = ref(false)
   /** CRT scanlines; defaults off for reduced-motion viewers. */
   const crt = ref(true)
+  const stillCamera = ref(false)
   const renderStyle = ref<RenderStyle>(DEFAULT_RENDER_STYLE)
   const gameStyles = ref<Record<string, RenderStyle>>({})
   const savedInitials = ref('')
@@ -253,6 +256,7 @@ export const useArcadeStore = defineStore('arcadeStore', () => {
     const prefs = readPrefs()
     muted.value = prefs.muted === true
     crt.value = prefs.crt ?? !prefersReducedMotion
+    stillCamera.value = prefs.stillCamera ?? prefersReducedMotion
     renderStyle.value = isRenderStyle(prefs.renderStyle)
       ? prefs.renderStyle
       : DEFAULT_RENDER_STYLE
@@ -275,6 +279,7 @@ export const useArcadeStore = defineStore('arcadeStore', () => {
     writePrefs({
       muted: muted.value,
       crt: crt.value,
+      stillCamera: stillCamera.value,
       renderStyle: renderStyle.value,
       gameStyles: gameStyles.value,
       initials: savedInitials.value,
@@ -299,6 +304,11 @@ export const useArcadeStore = defineStore('arcadeStore', () => {
 
   function setCrt(value: boolean) {
     crt.value = value
+    savePreferences()
+  }
+
+  function setStillCamera(value: boolean) {
+    stillCamera.value = value
     savePreferences()
   }
 
@@ -411,6 +421,7 @@ export const useArcadeStore = defineStore('arcadeStore', () => {
     lastSubmittedId,
     muted,
     crt,
+    stillCamera,
     renderStyle,
     gameStyles,
     styleFor,
@@ -430,6 +441,7 @@ export const useArcadeStore = defineStore('arcadeStore', () => {
     loadPreferences,
     setMuted,
     setCrt,
+    setStillCamera,
     rememberInitials,
   }
 })

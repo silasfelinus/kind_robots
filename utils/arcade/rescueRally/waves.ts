@@ -21,6 +21,7 @@ import type { PylonPlacement } from './pylons'
 import type { FoeKind } from './roster'
 import type { BossKind } from './bosses'
 import type { PowerKind } from './powers'
+import type { LaserGate, PadPair, Rect, Sprinkler, Storm } from './floors'
 
 /**
  * Where a group comes in: scattered over the floor (away from the hero), spread round the four
@@ -52,7 +53,8 @@ export type Group = {
 }
 
 /** Where the family waits: scattered, in the middle, in the corners, round the hero, or in the shapes. */
-export type FamilySpots = 'scatter' | 'center' | 'corners' | 'ring' | 'shapes'
+export type FamilySpots =
+  'scatter' | 'center' | 'corners' | 'ring' | 'shapes' | 'beds'
 
 export type WaveScript = {
   name: string
@@ -76,6 +78,18 @@ export type WaveScript = {
   crates?: readonly PylonPlacement[]
   /** A power-up that waits on the floor from the start. */
   power?: { kind: PowerKind; x: number; y: number }
+  /** The Botanic Dome: vine walls, sprinkler sprays, flowerbeds the family hides in. */
+  vines?: readonly Rect[]
+  sprinklers?: readonly Sprinkler[]
+  beds?: readonly Rect[]
+  /** The Data Docks: teleport pad pairs, laser gates, magnet floors. */
+  pads?: readonly PadPair[]
+  gates?: readonly LaserGate[]
+  magnets?: readonly Rect[]
+  /** The Storm Rooftops: wind and lightning. */
+  storm?: Storm
+  /** The Reunion: no foes, everyone to greet. */
+  reunion?: boolean
 }
 
 /** A strip of moving floor: a rectangle (its top-left and size) and the way it runs. */
@@ -412,6 +426,418 @@ export const TOY_FACTORY: readonly WaveScript[] = [
     hero: { x: CX, y: 250 },
   },
 ]
+
+// --- districts 3-5 -----------------------------------------------------------------------------------
+
+/** The dome's vine walls, in the order they grow: each wave has more of them. */
+const VINES: readonly Rect[] = [
+  { x: 150, y: 110, w: 12, h: 70 },
+  { x: 318, y: 192, w: 12, h: 70 },
+  { x: 200, y: 270, w: 80, h: 12 },
+  { x: 200, y: 90, w: 80, h: 12 },
+  { x: 60, y: 180, w: 64, h: 12 },
+  { x: 356, y: 180, w: 64, h: 12 },
+  { x: 96, y: 52, w: 12, h: 64 },
+  { x: 372, y: 256, w: 12, h: 64 },
+]
+const vines = (n: number) => VINES.slice(0, n)
+const BEDS: readonly Rect[] = [
+  { x: 40, y: 262, w: 64, h: 44 },
+  { x: 376, y: 62, w: 64, h: 44 },
+  { x: 376, y: 262, w: 64, h: 44 },
+]
+
+/**
+ * District 3, the Botanic Dome: the prism and its thornballs (their shells bounce), the splitter;
+ * vine walls that grow wave by wave, sprinklers that slow everyone, flowerbeds the family hides in.
+ */
+export const BOTANIC_DOME: readonly WaveScript[] = [
+  {
+    name: 'GREENHOUSE',
+    hint: 'POP THE PRISMS BEFORE THEY HATCH',
+    groups: [
+      { kind: 'prism', count: 2, from: 'corners' },
+      { kind: 'drone', count: 16, from: 'edges' },
+    ],
+    vines: vines(2),
+    sprinklers: [{ x: CX, y: CY, r: 46 }],
+    beds: BEDS.slice(0, 1),
+    family: { count: 7, at: 'scatter' },
+    beacon: TOP_PAD,
+  },
+  {
+    name: 'THORN BOUNCE',
+    hint: "DON'T STAND ON REBOUND LINES",
+    groups: [
+      { kind: 'thornball', count: 3, from: 'edges' },
+      { kind: 'splitter', count: 2, from: 'corners' },
+      { kind: 'drone', count: 14, from: 'edges' },
+    ],
+    vines: vines(3),
+    beds: BEDS.slice(0, 2),
+    family: { count: 8, at: 'beds' },
+    beacon: BOTTOM_PAD,
+  },
+  {
+    name: 'BOUNCE WAVE',
+    hint: 'PRISMS AND THORNBALLS. ALL RICOCHET',
+    signature: true,
+    groups: [
+      { kind: 'prism', count: 3, from: 'corners' },
+      { kind: 'thornball', count: 4, from: 'edges' },
+      { kind: 'drone', count: 10, from: 'ring' },
+    ],
+    vines: vines(4),
+    beds: BEDS,
+    family: { count: 9, at: 'beds' },
+    beacon: LEFT_PAD,
+  },
+  {
+    name: 'SPLIT DECISION',
+    hint: 'FINISH ALL FOUR PIECES',
+    groups: [
+      { kind: 'splitter', count: 4, from: 'edges' },
+      { kind: 'hypno', count: 2, from: 'corners' },
+      { kind: 'drone', count: 12, from: 'edges' },
+    ],
+    vines: vines(5),
+    beds: BEDS,
+    family: { count: 9, at: 'beds' },
+    beacon: TOP_PAD,
+  },
+  {
+    name: 'SPRINKLER SEASON',
+    hint: 'THE SPRAY SLOWS EVERYONE',
+    groups: [
+      { kind: 'stomper', count: 2, from: 'corners' },
+      { kind: 'prism', count: 2, from: 'edges' },
+      { kind: 'drone', count: 16, from: 'edges' },
+    ],
+    vines: vines(5),
+    sprinklers: [
+      { x: 120, y: 110, r: 40 },
+      { x: 360, y: 262, r: 40 },
+      { x: CX, y: CY, r: 36 },
+    ],
+    family: { count: 8, at: 'scatter' },
+    beacon: BOTTOM_PAD,
+    power: { kind: 'bounce', x: 120, y: 280 },
+  },
+  {
+    name: 'ROOT MAZE',
+    hint: 'THE VINES HAVE GROWN',
+    groups: [
+      { kind: 'sparker', count: 2, from: 'corners' },
+      { kind: 'thornball', count: 3, from: 'edges' },
+      { kind: 'drone', count: 10, from: 'edges' },
+      { kind: 'drone', count: 8, from: 'vents', at: 360, times: 2, every: 360 },
+    ],
+    vines: vines(8),
+    beds: BEDS.slice(0, 2),
+    family: { count: 8, at: 'beds' },
+    beacon: TOP_PAD,
+  },
+  {
+    name: 'FULL BLOOM',
+    hint: 'THE WHOLE DOME AT ONCE',
+    groups: [
+      { kind: 'prism', count: 3, from: 'corners' },
+      { kind: 'splitter', count: 3, from: 'edges' },
+      { kind: 'hypno', count: 2, from: 'edges' },
+      { kind: 'thornball', count: 3, from: 'ring' },
+      { kind: 'drone', count: 18, from: 'edges' },
+    ],
+    vines: vines(8),
+    sprinklers: [
+      { x: 120, y: 262, r: 36 },
+      { x: 360, y: 110, r: 36 },
+    ],
+    beds: BEDS,
+    family: { count: 10, at: 'beds' },
+    beacon: TOP_PAD,
+  },
+  {
+    name: 'OVERGROWTH',
+    hint: 'BREAK THE PETALS, WATCH THE ROOTS',
+    boss: 'overgrowth',
+    groups: [{ kind: 'drone', count: 6, from: 'edges' }],
+    vines: [VINES[4]!, VINES[5]!],
+    beds: [BEDS[0]!, BEDS[2]!],
+    family: { count: 6, at: 'beds' },
+    beacon: LEFT_PAD,
+    hero: { x: CX, y: 290 },
+  },
+]
+
+const PADS_X: PadPair = [
+  { x: 60, y: 64 },
+  { x: 420, y: 308 },
+]
+const PADS_Y: PadPair = [
+  { x: 420, y: 64 },
+  { x: 60, y: 308 },
+]
+const gate = (
+  x0: number,
+  y0: number,
+  x1: number,
+  y1: number,
+  offset = 0,
+  period = 180,
+  on = 70,
+): LaserGate => ({ x0, y0, x1, y1, period, on, offset })
+
+/**
+ * District 4, the Data Docks: the mimic, the shield bot and the magnet; teleport pads, laser gates
+ * on a beat, magnet floors.
+ */
+export const DATA_DOCKS: readonly WaveScript[] = [
+  {
+    name: 'MIRROR MIRROR',
+    hint: 'AN ECHO WALKS YOUR OLD PATH',
+    groups: [
+      { kind: 'mimic', count: 1, from: 'vents', at: 120 },
+      { kind: 'drone', count: 16, from: 'edges' },
+    ],
+    pads: [PADS_X],
+    family: { count: 7, at: 'scatter' },
+    beacon: TOP_PAD,
+  },
+  {
+    name: 'SHIELD WALL',
+    hint: 'SHIELD BOTS: FLANK THEM',
+    groups: [
+      { kind: 'shieldbot', count: 3, from: 'top' },
+      { kind: 'drone', count: 14, from: 'edges' },
+    ],
+    gates: [gate(110, CY, 200, CY), gate(280, CY, 370, CY, 90)],
+    family: { count: 7, at: 'scatter' },
+    beacon: BOTTOM_PAD,
+  },
+  {
+    name: 'MIRROR WAVE',
+    hint: 'MIMICS OF YOU AND YOUR PAST MOVES',
+    signature: true,
+    groups: [
+      { kind: 'mimic', count: 1, from: 'vents', at: 90, times: 4, every: 150 },
+      { kind: 'drone', count: 12, from: 'edges' },
+    ],
+    pads: [PADS_X, PADS_Y],
+    family: { count: 9, at: 'scatter' },
+    beacon: LEFT_PAD,
+  },
+  {
+    name: 'MAGNETIC',
+    hint: 'MOVE ACROSS THE PULL, NOT AGAINST IT',
+    groups: [
+      { kind: 'magnet', count: 2, from: 'corners' },
+      { kind: 'shieldbot', count: 1, from: 'bottom' },
+      { kind: 'drone', count: 16, from: 'edges' },
+    ],
+    magnets: [
+      { x: 60, y: 120, w: 100, h: 40 },
+      { x: 320, y: 212, w: 100, h: 40 },
+    ],
+    family: { count: 8, at: 'scatter' },
+    beacon: TOP_PAD,
+  },
+  {
+    name: 'GATEWAY',
+    hint: 'MIND THE GATES ON THE BEAT',
+    groups: [
+      { kind: 'hypno', count: 2, from: 'corners' },
+      { kind: 'drone', count: 16, from: 'edges' },
+    ],
+    gates: [
+      gate(CX, 40, CX, 130),
+      gate(CX, 242, CX, 332, 90),
+      gate(30, CY, 140, CY, 45),
+      gate(340, CY, 450, CY, 135),
+    ],
+    pads: [PADS_X, PADS_Y],
+    family: { count: 9, at: 'scatter' },
+    beacon: { x: 130, y: 290 },
+  },
+  {
+    name: 'DATA STORM',
+    hint: 'EVERYTHING ON THE DOCKS',
+    groups: [
+      { kind: 'mimic', count: 2, from: 'vents', at: 120, times: 2, every: 200 },
+      { kind: 'shieldbot', count: 2, from: 'top' },
+      { kind: 'magnet', count: 1, from: 'corners' },
+      { kind: 'sparker', count: 2, from: 'edges' },
+      { kind: 'drone', count: 16, from: 'edges' },
+    ],
+    gates: [gate(110, 110, 200, 110), gate(280, 262, 370, 262, 90)],
+    magnets: [{ x: 190, y: 166, w: 100, h: 40 }],
+    family: { count: 9, at: 'scatter' },
+    beacon: RIGHT_PAD,
+  },
+  {
+    name: 'BUFFER OVERFLOW',
+    hint: 'THE VENTS ARE OVERFLOWING',
+    groups: [
+      { kind: 'shieldbot', count: 2, from: 'corners' },
+      { kind: 'magnet', count: 2, from: 'edges' },
+      { kind: 'hypno', count: 2, from: 'edges' },
+      { kind: 'drone', count: 14, from: 'edges' },
+      {
+        kind: 'drone',
+        count: 10,
+        from: 'vents',
+        at: 300,
+        times: 3,
+        every: 300,
+      },
+    ],
+    pads: [PADS_X, PADS_Y],
+    gates: [gate(CX, 40, CX, 130), gate(CX, 242, CX, 332, 90)],
+    family: { count: 10, at: 'center' },
+    beacon: { x: 130, y: 80 },
+  },
+  {
+    name: 'THE STATIC TWINS',
+    hint: 'BREAK THE LINK WHEN THEY ARE FAR APART',
+    boss: 'twins',
+    groups: [{ kind: 'drone', count: 6, from: 'edges' }],
+    pads: [PADS_X, PADS_Y],
+    family: { count: 6, at: 'corners' },
+    beacon: BOTTOM_PAD,
+    hero: { x: CX, y: 300 },
+  },
+]
+
+const STORM = { lightningEvery: 210, wind: 0.3 }
+
+/** District 5, the Storm Rooftops: the kite drone and remixes of everything; wind and lightning. */
+export const STORM_ROOFTOPS: readonly WaveScript[] = [
+  {
+    name: 'KITE SEASON',
+    hint: 'STAY OFF THE SHADOWS',
+    groups: [
+      { kind: 'kite', count: 3, from: 'top' },
+      { kind: 'drone', count: 16, from: 'edges' },
+    ],
+    storm: { lightningEvery: 0, wind: 0.25 },
+    family: { count: 7, at: 'center' },
+    beacon: BOTTOM_PAD,
+  },
+  {
+    name: 'LIGHTNING',
+    hint: 'THE RING GLOWS, THEN IT STRIKES',
+    groups: [
+      { kind: 'sparker', count: 2, from: 'corners' },
+      { kind: 'drone', count: 18, from: 'edges' },
+    ],
+    storm: STORM,
+    family: { count: 8, at: 'scatter' },
+    beacon: TOP_PAD,
+  },
+  {
+    name: 'STORM WAVE',
+    hint: 'EVERY FOE AT ONCE',
+    signature: true,
+    groups: [
+      { kind: 'drone', count: 10, from: 'edges' },
+      { kind: 'spawner', count: 1, from: 'corners' },
+      { kind: 'tank', count: 1, from: 'bottom' },
+      { kind: 'stomper', count: 1, from: 'corners' },
+      { kind: 'hypno', count: 1, from: 'top' },
+      { kind: 'sparker', count: 1, from: 'edges' },
+      { kind: 'prism', count: 1, from: 'corners' },
+      { kind: 'thornball', count: 1, from: 'edges' },
+      { kind: 'splitter', count: 1, from: 'edges' },
+      { kind: 'mimic', count: 1, from: 'vents', at: 120 },
+      { kind: 'shieldbot', count: 1, from: 'top' },
+      { kind: 'magnet', count: 1, from: 'corners' },
+      { kind: 'kite', count: 1, from: 'top' },
+    ],
+    pylons: [
+      { shape: 'heart', x: 100, y: 110 },
+      { shape: 'star', x: 380, y: 262 },
+    ],
+    puddles: 2,
+    storm: STORM,
+    family: { count: 10, at: 'center' },
+    beacon: LEFT_PAD,
+  },
+  {
+    name: 'HIGH WINDS',
+    hint: 'THE WIND PUSHES THE FAMILY TO THE EDGE',
+    groups: [
+      { kind: 'kite', count: 3, from: 'edges' },
+      { kind: 'splitter', count: 2, from: 'corners' },
+      { kind: 'drone', count: 16, from: 'edges' },
+    ],
+    storm: { lightningEvery: 0, wind: 0.45 },
+    pylons: [{ shape: 'row', x: CX, y: 100 }],
+    family: { count: 9, at: 'center' },
+    beacon: BOTTOM_PAD,
+  },
+  {
+    name: 'ROOF RACE',
+    hint: 'TANKS ON THE ROOF',
+    groups: [
+      { kind: 'tank', count: 3, from: 'corners' },
+      { kind: 'stomper', count: 2, from: 'edges' },
+      { kind: 'hypno', count: 2, from: 'top' },
+      { kind: 'drone', count: 18, from: 'edges' },
+    ],
+    storm: STORM,
+    family: { count: 9, at: 'scatter' },
+    beacon: TOP_PAD,
+  },
+  {
+    name: 'GLITCH RAIN',
+    hint: 'PRISMS IN THE RAIN',
+    groups: [
+      { kind: 'prism', count: 3, from: 'corners' },
+      { kind: 'thornball', count: 3, from: 'edges' },
+      { kind: 'magnet', count: 2, from: 'edges' },
+      { kind: 'kite', count: 2, from: 'top' },
+      { kind: 'drone', count: 16, from: 'edges' },
+    ],
+    storm: { lightningEvery: 170, wind: 0.3 },
+    family: { count: 9, at: 'scatter' },
+    beacon: RIGHT_PAD,
+  },
+  {
+    name: 'LAST STAND',
+    hint: 'ONE MORE, THEN THE CORE',
+    groups: [
+      { kind: 'stomper', count: 2, from: 'corners', fixed: true },
+      { kind: 'hypno', count: 3, from: 'edges' },
+      { kind: 'mimic', count: 2, from: 'vents', at: 120 },
+      { kind: 'shieldbot', count: 2, from: 'top' },
+      { kind: 'kite', count: 2, from: 'edges' },
+      { kind: 'drone', count: 20, from: 'edges' },
+    ],
+    storm: STORM,
+    pylons: kindWord(CX, 86, 10),
+    family: { count: 10, at: 'center' },
+    beacon: BOTTOM_PAD,
+  },
+  {
+    name: 'THE GLITCH CORE',
+    hint: 'SHOOT THROUGH THE GAPS IN ITS SHIELDS',
+    boss: 'core',
+    groups: [{ kind: 'drone', count: 6, from: 'edges' }],
+    storm: { lightningEvery: 0, wind: 0.2 },
+    family: { count: 8, at: 'ring' },
+    beacon: BOTTOM_PAD,
+    hero: { x: CX, y: 300 },
+  },
+]
+
+/** The Reunion: with all five golden chips, every family on the roof together. No foes; greet them all. */
+export const REUNION: WaveScript = {
+  name: 'THE REUNION',
+  hint: 'EVERY FAMILY, TOGETHER AGAIN',
+  reunion: true,
+  groups: [],
+  family: { count: 24, at: 'scatter' },
+  beacon: null,
+}
 
 /** Each loop round the rally, every group grows by this much (fixed groups never do). */
 export const LOOP_GROWTH = 0.35

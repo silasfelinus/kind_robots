@@ -1,0 +1,27 @@
+name: Temporary Emperor formatting audit
+on:
+  push:
+    branches:
+      - worker/emperor-of-dust-map-20261012-n5s
+permissions:
+  contents: read
+jobs:
+  capture:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Install pinned formatter
+        run: npm ci --ignore-scripts --no-audit --no-fund
+      - name: Format private preview
+        run: npx prettier --write pages/admin/emperor-of-dust.vue content/channels/admin/emperor-of-dust.md
+      - name: Display formatted source for branch-only repair
+        run: |
+          for f in pages/admin/emperor-of-dust.vue content/channels/admin/emperor-of-dust.md; do
+            echo "STARTFMT:$f"
+            base64 -w 0 "$f"
+            echo
+            echo "ENDFMT:$f"
+          done

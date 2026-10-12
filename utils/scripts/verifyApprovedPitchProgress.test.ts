@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict'
 import {
   approvedDailyPitchProgress,
+  mayVisitPitchFrontend,
   pitchProjectSlug,
   safeProjectPageUrl,
 } from '../approvedPitchProgress'
@@ -13,6 +14,7 @@ function pitch(
   slug: string,
   target = 'new',
   status = 'approved',
+  publicReady = false,
 ): ConductorPitch {
   return {
     slug,
@@ -20,6 +22,7 @@ function pitch(
     title: slug,
     status,
     projectTarget: target,
+    publicReady,
     idea: '',
     whyDoIt: '',
     effort: '',
@@ -83,7 +86,7 @@ const records = approvedDailyPitchProgress(
     approved,
     pitch('2026-10-04-robot-sound-garden'),
     pitch('2026-10-05-kind-daily-riddle'),
-    pitch('2026-10-06-kind-nonogram-gallery'),
+    pitch('2026-10-06-kind-nonogram-gallery', 'new', 'approved', true),
     pitch('2026-10-08-kr-cabinet-bumper-bubbles', 'kr-arcade'),
     pitch('2026-10-09-rejected-thing', 'new', 'rejected'),
     pitch('2026-06-24-older-proposal'),
@@ -109,4 +112,11 @@ assert.equal(byTitle('robot-sound-garden')?.stage, 'awaiting-intake')
 assert.equal(byTitle('kind-daily-riddle')?.stage, 'building')
 assert.equal(byTitle('kind-nonogram-gallery')?.stage, 'page-linked')
 assert.equal(byTitle('kr-cabinet-bumper-bubbles')?.stage, 'shared-project')
-console.log('Approved Daily Dream pitch progress: 13 assertions passed')
+assert.equal(byTitle('kr-cabinet-bumper-bubbles')?.pageUrl, '/play/arcade?game=bumper-bubbles')
+assert.equal(mayVisitPitchFrontend(byTitle('kr-cabinet-bumper-bubbles')!, true), true)
+assert.equal(mayVisitPitchFrontend(byTitle('kr-cabinet-bumper-bubbles')!, false), false)
+assert.equal(mayVisitPitchFrontend(byTitle('kind-nonogram-gallery')!, false), true)
+assert.equal(mayVisitPitchFrontend(byTitle('robot-mashup-flipbook')!, true), false)
+assert.equal(mayVisitPitchFrontend({ pageUrl: '/play/a', publicReady: false }, false), false)
+assert.equal(mayVisitPitchFrontend({ pageUrl: '/play/a', publicReady: true }, false), true)
+console.log('Approved Daily Dream pitch progress and public release access: verified')

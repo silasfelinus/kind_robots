@@ -17,7 +17,14 @@ export type MoonjellyProjectile = {
 
 export const AURELIA_MAX_HP = 210
 export function createMoonjellyBoss(): MoonjellyBoss {
-  return { x: 532, y: 132, hp: AURELIA_MAX_HP, frame: 0, phase: 1, nextVolley: 132 }
+  return {
+    x: 532,
+    y: 132,
+    hp: AURELIA_MAX_HP,
+    frame: 0,
+    phase: 1,
+    nextVolley: 132,
+  }
 }
 
 /** Telegraph persists at least 36 full frames, including on a phase change. */
@@ -40,7 +47,8 @@ export function stepMoonjellyBoss(
   if (boss.frame < boss.nextVolley) return []
   const living = targets.filter((ship) => ship.lives > 0)
   const target = living.reduce(
-    (best, ship) => Math.abs(ship.y - boss.y) < Math.abs(best.y - boss.y) ? ship : best,
+    (best, ship) =>
+      Math.abs(ship.y - boss.y) < Math.abs(best.y - boss.y) ? ship : best,
     living[0] ?? { x: 80, y: 130, lives: 1 },
   )
   const angle = Math.atan2(target.y - boss.y, target.x - boss.x)
@@ -60,6 +68,7 @@ export function stepMoonjellyBoss(
       grazed: 0,
     })
   }
-  boss.nextVolley = boss.frame + (boss.phase === 3 ? 88 : boss.phase === 2 ? 106 : 124)
+  boss.nextVolley =
+    boss.frame + (boss.phase === 3 ? 88 : boss.phase === 2 ? 106 : 124)
   return shots
 }

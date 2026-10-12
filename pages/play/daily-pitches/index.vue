@@ -243,7 +243,8 @@
                   class="btn btn-sm w-full rounded-xl"
                   :class="entry.publicReady ? 'btn-outline' : 'btn-primary'"
                   :disabled="
-                    (!entry.publicReady && !isPublicFacingPitchPage(entry.pageUrl)) ||
+                    (!entry.publicReady &&
+                      !isPublicFacingPitchPage(entry.pageUrl)) ||
                     conductor.updatingPlayReadySlugs.includes(entry.pitch.slug)
                   "
                   @click="setReady(entry.pitch.slug, !entry.publicReady)"

@@ -20,7 +20,8 @@ import { W, H } from './arena'
 import { HEART_SPRITE, SHIRTS, SKINS, familySprites } from './art'
 import type { RescueeKind } from './family'
 
-export type ShelterItemId = 'hero' | 'squad' | 'beam' | 'chain' | 'leave'
+export type ShelterItemId =
+  'hero' | 'squad' | 'beam' | 'chain' | 'hint' | 'leave'
 
 /** What the hero has bought that lasts: beam width and chain window levels, and squad bots to start with. */
 export type Upgrades = { beam: number; chain: number; squad: number }
@@ -65,6 +66,13 @@ export const SHELTER_ITEMS: readonly ShelterItem[] = [
     max: 2,
   },
   {
+    id: 'hint',
+    name: 'CHIP HINT',
+    line: "WHERE THE NEXT DISTRICT'S GOLDEN CHIP WAITS",
+    cost: () => 8,
+    max: null,
+  },
+  {
     id: 'leave',
     name: 'ON TO THE NEXT DISTRICT',
     line: '',
@@ -81,7 +89,7 @@ export const HEARTS_PER_BOSS = 10
 export const SHELTER_TICKS = 60 * 40
 
 /** Ticks of chain window per Longer Chain bought, and px of beam per Wider Beam. */
-export const CHAIN_STEP = 60
+export const CHAIN_STEP = 45
 export const BEAM_STEP = 2
 
 /** What the screen needs to draw. */
@@ -96,6 +104,9 @@ export type ShelterView = {
   next: string
   /** A line of thanks, rolled when the Shelter opens. */
   thanks: string
+  /** Golden chips found, and whether the next district's chip hint is already bought. */
+  chips: number
+  hinted: boolean
 }
 
 export const THANKS = [
@@ -109,9 +120,10 @@ export const THANKS = [
 /** Whether an item can be had right now: affordable and under its cap. */
 export function canBuy(
   item: ShelterItem,
-  v: Pick<ShelterView, 'hearts' | 'bought' | 'held'>,
+  v: Pick<ShelterView, 'hearts' | 'bought' | 'held' | 'hinted'>,
 ) {
   if (item.id === 'leave') return true
+  if (item.id === 'hint' && v.hinted) return false
   const n = v.bought[item.id]
   if (item.max !== null) {
     const have =
@@ -168,7 +180,7 @@ export function renderShelter(g: CanvasRenderingContext2D, v: ShelterView) {
   // The menu.
   const top = 50
   SHELTER_ITEMS.forEach((item, i) => {
-    const y = top + i * 24
+    const y = top + i * 23
     const on = i === v.cursor
     const able = canBuy(item, v)
     hudPanel(g, 40, y, W - 80, 20, on ? RAMPS.gold : RAMPS.purple)
@@ -188,26 +200,33 @@ export function renderShelter(g: CanvasRenderingContext2D, v: ShelterView) {
     }
     drawText(g, item.line, 60, y + 11, { color: RAMPS.cream[2], outline: INK })
     const have =
-      item.id === 'hero'
-        ? `${v.lives} HEROES`
-        : item.id === 'squad'
-          ? `${v.held.squad}/3`
-          : item.id === 'beam'
-            ? `${v.held.beam}/2`
-            : `${v.held.chain}/2`
+      item.id === 'hint'
+        ? `${v.chips}/5 CHIPS`
+        : item.id === 'hero'
+          ? `${v.lives} HEROES`
+          : item.id === 'squad'
+            ? `${v.held.squad}/3`
+            : item.id === 'beam'
+              ? `${v.held.beam}/2`
+              : `${v.held.chain}/2`
     drawText(g, have, W - 140, y + 7, {
       align: 'right',
       color: RAMPS.leaf[3],
       outline: INK,
     })
     const capped =
-      item.max !== null &&
-      (item.id === 'squad'
-        ? v.held.squad
-        : item.id === 'beam'
-          ? v.held.beam
-          : v.held.chain) >= item.max
-    const price = capped ? 'FULL' : String(item.cost(v.bought[item.id]))
+      (item.id === 'hint' && v.hinted) ||
+      (item.max !== null &&
+        (item.id === 'squad'
+          ? v.held.squad
+          : item.id === 'beam'
+            ? v.held.beam
+            : v.held.chain) >= item.max)
+    const price = capped
+      ? item.id === 'hint'
+        ? 'BOUGHT'
+        : 'FULL'
+      : String(item.cost(v.bought[item.id]))
     drawText(g, price, W - 64, y + 7, {
       align: 'right',
       color: able ? RAMPS.pink[3] : RAMPS.steel[2],
@@ -222,7 +241,7 @@ export function renderShelter(g: CanvasRenderingContext2D, v: ShelterView) {
   hudPanel(
     g,
     W / 2 - ww / 2,
-    top + SHELTER_ITEMS.length * 24 + 2,
+    top + SHELTER_ITEMS.length * 23 + 2,
     ww,
     18,
     RAMPS.pink,
@@ -231,7 +250,7 @@ export function renderShelter(g: CanvasRenderingContext2D, v: ShelterView) {
     g,
     HEART_SPRITE,
     W / 2 - ww / 2 + 12,
-    top + SHELTER_ITEMS.length * 24 + 11,
+    top + SHELTER_ITEMS.length * 23 + 11,
     {
       scale: 2,
     },
@@ -240,7 +259,7 @@ export function renderShelter(g: CanvasRenderingContext2D, v: ShelterView) {
     g,
     wallet,
     W / 2 - ww / 2 + 24,
-    top + SHELTER_ITEMS.length * 24 + 4,
+    top + SHELTER_ITEMS.length * 23 + 4,
     {
       scale: 2,
       color: '#ffffff',

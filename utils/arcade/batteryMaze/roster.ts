@@ -26,6 +26,18 @@
 //
 // And Gremlin Mama's babies: small, quick, and harmless while sleepy.
 //
+// Power Phases 2 and 3 add seven more (slice 3, t-041):
+//
+//   COPY    the copycat    moves when you move, mirrored left for right. Steer it into a dead end.
+//   BRIAR   the bramble    leaves a short-lived thorn wall behind it. Don't follow it; go round.
+//   BLINK   the blinker    blinks twice, then hops two tiles through a thin wall to land beside you.
+//   FLURRY  the snowball   rolls along a fan's row with the wind, growing bigger and faster.
+//   CRACKLE the static     is invisible outside the light, but leaves crackle on the tiles it crosses.
+//   BOLT    the gatekeeper parks on a junction near you and holds it. Reboot it to open the locked
+//                          shortcuts.
+//   PIP and POP, the twins: a pincer pair, one racing ahead of you, one cutting off your retreat.
+//                          Reboot one and the other sulks home.
+//
 // Gremlins choose a turn at each tile centre by heading for a target tile; these rules pick that
 // target while the gremlins hunt. In scatter they head for their own corners instead.
 
@@ -39,6 +51,13 @@ export type GremlinKind =
   | 'sprinter'
   | 'snacker'
   | 'baby'
+  | 'copycat'
+  | 'bramble'
+  | 'blinker'
+  | 'snowball'
+  | 'static'
+  | 'gatekeeper'
+  | 'twin'
 
 /** What a gremlin remembers between turns. */
 export type Mind = {
@@ -55,6 +74,14 @@ export type Mind = {
   cool: number
   /** Sparks a crumb snacker has eaten. */
   snacks: number
+  /** A blinker's blink before its hop; a gatekeeper's time parked. */
+  blink: number
+  park: number
+  /** A snowball's size (0 to 3) and whether the wind is rolling it. */
+  size: number
+  rolling: boolean
+  /** Which twin: 0 races ahead of the robot, 1 cuts off its retreat. */
+  side: 0 | 1
 }
 
 export function freshMind(): Mind {
@@ -67,6 +94,11 @@ export function freshMind(): Mind {
     dash: 0,
     cool: 0,
     snacks: 0,
+    blink: 0,
+    park: 0,
+    size: 0,
+    rolling: false,
+    side: 0,
   }
 }
 
@@ -91,6 +123,15 @@ export type HuntView = {
   sees(from: Tile): boolean
   /** The spark nearest this tile, or null when none are left. */
   nearestSpark(from: Tile): Tile | null
+  /** Which way the robot's stick points (where it wants to go). */
+  stick: Tile
+  /**
+   * The tile two steps away across a one-tile wall that lands beside the robot (within two
+   * tiles of it), or null.
+   */
+  hopAcross(from: Tile): Tile | null
+  /** Whether a tile is a junction (three ways or more). */
+  junction(at: Tile): boolean
 }
 
 export type HunterSelf = { x: number; y: number; mind: Mind }
@@ -110,6 +151,10 @@ export type Hunter = {
   pace?(self: HunterSelf): number
   /** It eats the sparks it walks over. */
   eats?: boolean
+  /** It ignores targets and is steered instead (a copycat); null means stand still. */
+  steer?(self: HunterSelf, view: HuntView): Tile | null
+  /** It leaves a thorn trail behind it. */
+  thorns?: boolean
 }
 
 const dist = (a: Tile, b: Tile) => Math.hypot(a.x - b.x, a.y - b.y)
@@ -128,6 +173,12 @@ const POTTER_TICKS = 60 * 5
 export const SPRINT = { aim: 30, dash: 60, cool: 120, pace: 2 } as const
 /** A crumb snacker overclocks after this many sparks. */
 export const SNACKS_TO_OVERCLOCK = 15
+/** A blinker blinks this long before it hops, then rests. */
+export const BLINK = { tell: 40, rest: 180 } as const
+/** A gatekeeper parks this long, within this range of the robot, then moves on for a while. */
+export const GATEKEEP = { park: 300, range: 7, rest: 180 } as const
+/** A thorn lasts this long. */
+export const THORN_TICKS = 180
 
 export const HUNTERS: Record<GremlinKind, Hunter> = {
   chaser: {
@@ -246,6 +297,126 @@ export const HUNTERS: Record<GremlinKind, Hunter> = {
     pace: () => 1.15,
     hunt(_self, view) {
       return { x: view.robot.x, y: view.robot.y }
+    },
+  },
+  copycat: {
+    kind: 'copycat',
+    name: 'COPY',
+    tell: 'Moves when you move, mirrored',
+    answer: 'Steer it into a dead end',
+    steer(_self, view) {
+      const s = view.stick
+      if (!s.x && !s.y) return null
+      return { x: -s.x || 0, y: s.y }
+    },
+    hunt(_self, view) {
+      return { x: view.robot.x, y: view.robot.y }
+    },
+  },
+  bramble: {
+    kind: 'bramble',
+    name: 'BRIAR',
+    tell: 'A thorn trail behind it',
+    answer: "Don't follow it; go round",
+    thorns: true,
+    pace: () => 0.9,
+    hunt(_self, view) {
+      return { x: view.robot.x, y: view.robot.y }
+    },
+  },
+  blinker: {
+    kind: 'blinker',
+    name: 'BLINK',
+    tell: 'Blinks twice, then hops a wall',
+    answer: "Don't stand two tiles from a thin wall",
+    sense(self, view) {
+      const m = self.mind
+      if (m.blink > 0) {
+        m.blink--
+        return
+      }
+      if (m.cool > 0) {
+        m.cool--
+        return
+      }
+      const at = { x: Math.round(self.x), y: Math.round(self.y) }
+      const hop = view.hopAcross(at)
+      if (hop) {
+        m.goal = hop
+        m.blink = BLINK.tell
+      }
+    },
+    pace(self) {
+      return self.mind.blink > 0 ? 0 : 1
+    },
+    hunt(_self, view) {
+      return { x: view.robot.x, y: view.robot.y }
+    },
+  },
+  snowball: {
+    kind: 'snowball',
+    name: 'FLURRY',
+    tell: 'Rolls along fan rows, growing',
+    answer: 'Catch it small, or step out of its row',
+    pace(self) {
+      return self.mind.rolling ? 1.7 : 0.85
+    },
+    hunt(_self, view) {
+      return { x: view.robot.x, y: view.robot.y }
+    },
+  },
+  static: {
+    kind: 'static',
+    name: 'CRACKLE',
+    tell: 'Crackle on the tiles in the dark',
+    answer: 'Read the crackle',
+    hunt(self, view) {
+      const robot = view.robot
+      if (dist(self, robot) <= POUNCE_RANGE) return { x: robot.x, y: robot.y }
+      return view.trail(30)
+    },
+  },
+  gatekeeper: {
+    kind: 'gatekeeper',
+    name: 'BOLT',
+    tell: 'Parks on a junction',
+    answer: 'Bump it while sleepy for a shortcut',
+    sense(self, view) {
+      const m = self.mind
+      if (m.park > 0) {
+        if (--m.park === 0) m.cool = GATEKEEP.rest
+        return
+      }
+      if (m.cool > 0) {
+        m.cool--
+        return
+      }
+      const at = { x: Math.round(self.x), y: Math.round(self.y) }
+      const centred =
+        Math.abs(self.x - at.x) < 1e-6 && Math.abs(self.y - at.y) < 1e-6
+      if (
+        centred &&
+        view.junction(at) &&
+        dist(at, view.robot) <= GATEKEEP.range
+      )
+        m.park = GATEKEEP.park
+    },
+    pace(self) {
+      return self.mind.park > 0 ? 0 : 1
+    },
+    hunt(_self, view) {
+      return view.junctionAhead()
+    },
+  },
+  twin: {
+    kind: 'twin',
+    name: 'PIP AND POP',
+    tell: 'Come at you from both ends',
+    answer: 'Reboot one; the other gives up',
+    hunt(self, view) {
+      const robot = view.robot
+      if (dist(self, robot) <= 2) return { x: robot.x, y: robot.y }
+      return self.mind.side === 0 ? view.junctionAhead() : view.junctionBehind()
     },
   },
 }

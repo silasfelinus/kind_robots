@@ -19,7 +19,7 @@ import {
   starField,
   type Ramp,
 } from '../snes'
-import { H, POND_Y, THICK, W, type Ledge } from './field'
+import { CEILING, H, POND_Y, THICK, W, type Ledge } from './field'
 
 // Dusk: indigo overhead, through violet and magenta, to a gold horizon.
 const SKY_STOPS = [
@@ -61,8 +61,6 @@ const CLOUDS = (() => {
   }))
 })()
 
-/** Chocolate rock under the candy, lit from the upper left. */
-const ROCK = RAMPS.earth
 /** The candy top of every ledge, one row each, frosting first. */
 const CANDY_ROWS = [
   RAMPS.cream[4],
@@ -84,12 +82,60 @@ const TURF_ROWS = [
   RAMPS.earth[2],
 ] as const
 
+/** The other slab looks: autumn earth, a snow bank, sheet ice and moonlit marble. */
+const SLAB_ROWS = {
+  candy: CANDY_ROWS,
+  turf: TURF_ROWS,
+  autumn: [
+    RAMPS.gold[3],
+    RAMPS.rust[3],
+    RAMPS.rust[2],
+    RAMPS.earth[3],
+    RAMPS.earth[2],
+    RAMPS.earth[1],
+  ],
+  snow: [
+    '#ffffff',
+    RAMPS.cream[4],
+    RAMPS.sky[4],
+    RAMPS.steel[3],
+    RAMPS.steel[2],
+    RAMPS.steel[1],
+  ],
+  ice: [
+    '#ffffff',
+    RAMPS.sky[4],
+    RAMPS.sky[3],
+    RAMPS.water[3],
+    RAMPS.sky[2],
+    RAMPS.water[2],
+  ],
+  marble: [
+    RAMPS.steel[4],
+    '#ffffff',
+    RAMPS.purple[4],
+    RAMPS.steel[3],
+    RAMPS.purple[3],
+    RAMPS.steel[2],
+  ],
+} as const
+export type SlabLook = keyof typeof SLAB_ROWS
+const SLAB_ROCK: Record<SlabLook, Ramp> = {
+  candy: RAMPS.earth,
+  turf: RAMPS.earth,
+  autumn: RAMPS.earth,
+  snow: RAMPS.steel,
+  ice: RAMPS.steel,
+  marble: RAMPS.purple,
+}
+
 export function paintLedge(
   k: CanvasRenderingContext2D,
   l: Ledge,
-  look: 'candy' | 'turf' = 'candy',
+  look: SlabLook = 'candy',
 ) {
   const turf = look === 'turf'
+  const ROCK = SLAB_ROCK[look]
   const x0 = Math.max(-4, Math.round(l.x0))
   const x1 = Math.min(W + 4, Math.round(l.x1))
   const w = x1 - x0
@@ -126,12 +172,16 @@ export function paintLedge(
   k.fillStyle = INK
   k.fillRect(x0 - 1, l.y, w + 2, THICK)
   k.fillRect(x0, l.y - 1, w, THICK + 2)
-  ;(turf ? TURF_ROWS : CANDY_ROWS).forEach((colour, i) => {
+  SLAB_ROWS[look].forEach((colour, i) => {
     k.fillStyle = colour
     k.fillRect(x0, l.y + i, w, 1)
   })
   if (turf) {
     paintTurfTop(k, x0, x1, l.y, rand)
+    return
+  }
+  if (look !== 'candy') {
+    paintSlabTop(k, look, x0, x1, l.y, under, rand)
     return
   }
   // Candy blocks: a lit seam and a shadow seam every 16 pixels.
@@ -150,6 +200,46 @@ export function paintLedge(
     k.fillRect(x, under, 2, len)
     k.fillStyle = RAMPS.pink[3]
     k.fillRect(x, under, 1, len - 1)
+  }
+}
+
+/** Fallen leaves on autumn earth, icicles under snow and ice, seams in moon marble. */
+function paintSlabTop(
+  k: CanvasRenderingContext2D,
+  look: SlabLook,
+  x0: number,
+  x1: number,
+  y: number,
+  under: number,
+  rand: () => number,
+) {
+  if (look === 'autumn') {
+    for (let x = x0 + 3; x < x1 - 3; x += 4 + Math.floor(rand() * 6)) {
+      k.fillStyle = [RAMPS.ember[2], RAMPS.gold[2], RAMPS.rust[3]][
+        Math.floor(rand() * 3)
+      ]!
+      k.fillRect(x, y - 1, 2, 1)
+    }
+    return
+  }
+  if (look === 'marble') {
+    for (let x = x0 + 10; x < x1 - 4; x += 20) {
+      k.fillStyle = rgba(RAMPS.purple[2], 0.6)
+      k.fillRect(x, y + 1, 1, THICK - 2)
+    }
+    return
+  }
+  // Snow and ice: icicles hanging under the slab.
+  for (let x = x0 + 4; x < x1 - 4; x += 6 + Math.floor(rand() * 9)) {
+    const len = 2 + Math.floor(rand() * 6)
+    k.fillStyle = INK
+    k.fillRect(x - 1, under, 3, len + 1)
+    k.fillStyle = RAMPS.sky[4]
+    k.fillRect(x, under, 1, len)
+  }
+  if (look === 'snow') {
+    k.fillStyle = '#ffffff'
+    for (let x = x0 + 2; x < x1 - 2; x += 5) k.fillRect(x, y - 1, 3, 1)
   }
 }
 
@@ -241,7 +331,11 @@ export function paintLedges(
 ) {
   cachedLayer(g, `butterfly-joust-ledges-${key}`, W, H, (k) => {
     for (const l of ledges)
-      paintLedge(k, l, l.look === 'turf' ? 'turf' : 'candy')
+      paintLedge(
+        k,
+        l,
+        l.look && l.look in SLAB_ROWS ? (l.look as SlabLook) : 'candy',
+      )
   })
 }
 
@@ -614,4 +708,445 @@ export function paintWind(
       ((((tick * 5 * dir + i * 97) % (W + 60)) + W + 60) % (W + 60)) - 30
     g.fillRect(Math.round(x), y, len, 1)
   }
+}
+
+// --- Thunderhead Heights, Autumn Orchard, Lantern Snowfield, the Moon Garden (slice 3) ------
+
+const STORM_STOPS = [
+  '#1b1f3a',
+  '#262c52',
+  '#323a66',
+  '#3f4a78',
+  '#55628c',
+  '#6f7ea3',
+  '#8796b5',
+] as const
+const STORM_CLOUD: Ramp = [
+  '#20243e',
+  '#353c60',
+  '#4a5480',
+  '#66729c',
+  '#8a96b8',
+]
+const HEIGHTS_CLOUDS = (() => {
+  const rand = backdropRng(81)
+  return Array.from({ length: 7 }, (_, i) => ({
+    x: rand() * (W + 120),
+    y: 36 + i * 30 + rand() * 20,
+    size: 12 + Math.round(rand() * 10),
+    speed: 0.08 + rand() * 0.12,
+  }))
+})()
+
+/** A storm sky, cloud on cloud, with far-off sheet lightning now and then. */
+export function paintHeightsSky(g: CanvasRenderingContext2D, tick: number) {
+  cachedLayer(g, 'butterfly-joust-heights-sky', W, H, (k) => {
+    bandedGradient(k, 0, 0, W, H, STORM_STOPS, 4)
+  })
+  const sheet = tick % 400 < 6 && Math.floor(tick / 400) % 3 === 1
+  if (sheet) {
+    g.fillStyle = rgba('#dfe6ff', 0.18)
+    g.fillRect(0, 0, W, H)
+  }
+  for (const c of HEIGHTS_CLOUDS) {
+    const x = ((c.x + tick * c.speed) % (W + 120)) - 60
+    drawCloud(g, x, c.y, c.size, STORM_CLOUD)
+  }
+}
+
+/** Open sky below: a sea of cloud far under the heights. */
+export function paintCloudSea(g: CanvasRenderingContext2D, tick: number) {
+  bandedGradient(
+    g,
+    0,
+    POND_Y - 4,
+    W,
+    H - POND_Y + 4,
+    ['#6f7ea3', '#55628c', '#3f4a78'],
+    2,
+  )
+  for (let i = 0; i < 9; i++) {
+    const x = ((i * 61 + tick * 0.2) % (W + 60)) - 30
+    drawCloud(g, x, POND_Y + 10, 10, STORM_CLOUD)
+  }
+}
+
+const AUTUMN_STOPS = [
+  '#6b9fd4',
+  '#8bb5d8',
+  '#b8c9cf',
+  '#e6c9a0',
+  '#f2b26b',
+  '#e88a4a',
+] as const
+const ORCHARD_FAR = ridge(91, W, 34, 8)
+const ORCHARD_NEAR = ridge(97, W, 22, 4)
+
+/** An autumn afternoon: a pale sky warming to orange, rows of trees, leaves on the air. */
+export function paintOrchardSky(g: CanvasRenderingContext2D, tick: number) {
+  cachedLayer(g, 'butterfly-joust-orchard-sky', W, H, (k) => {
+    bandedGradient(k, 0, 0, W, H, AUTUMN_STOPS, 4)
+    glow(k, 360, 70, 70, '#fff1c0', 0.5)
+    k.fillStyle = '#fff4d0'
+    k.beginPath()
+    k.arc(360, 70, 18, 0, Math.PI * 2)
+    k.fill()
+  })
+  drawRidge(g, ORCHARD_FAR, {
+    base: 250,
+    bottom: POND_Y,
+    width: W,
+    offset: tick * 0.04,
+    step: 8,
+    fill: mix(RAMPS.rust[2], RAMPS.sky[3], 0.45),
+    rim: mix(RAMPS.gold[3], '#ffffff', 0.2),
+  })
+  drawRidge(g, ORCHARD_NEAR, {
+    base: 286,
+    bottom: POND_Y,
+    width: W,
+    offset: tick * 0.12,
+    step: 4,
+    fill: RAMPS.rust[1],
+    rim: RAMPS.rust[3],
+  })
+  // Leaves drifting down across the orchard.
+  for (let i = 0; i < 12; i++) {
+    const y = ((tick * 0.5 + i * 37) % (POND_Y - CEILING)) + CEILING
+    const x = (i * 53 + Math.sin((tick + i * 40) / 30) * 20 + tick * 0.3) % W
+    g.fillStyle = [RAMPS.ember[2], RAMPS.gold[2], RAMPS.rust[3]][i % 3]!
+    g.fillRect(Math.round(x), Math.round(y), 2, 1)
+  }
+}
+
+/** The orchard stream: brown-green water with leaves floating by. */
+export function paintStream(g: CanvasRenderingContext2D, tick: number) {
+  bandedGradient(
+    g,
+    0,
+    POND_Y,
+    W,
+    H - POND_Y,
+    [
+      mix(RAMPS.water[2], RAMPS.earth[2], 0.4),
+      mix(RAMPS.water[1], RAMPS.earth[1], 0.4),
+      RAMPS.water[0],
+    ],
+    2,
+  )
+  g.fillStyle = RAMPS.water[3]
+  g.fillRect(0, POND_Y, W, 1)
+  for (let i = 0; i < 10; i++) {
+    const x = Math.round((i * 47 + tick * 0.6) % W)
+    g.fillStyle = [RAMPS.ember[2], RAMPS.gold[2]][i % 2]!
+    g.fillRect(x, POND_Y + 4 + (i % 3) * 3, 3, 1)
+  }
+}
+
+const SNOW_STOPS = [
+  '#070b24',
+  '#0d1436',
+  '#141e4a',
+  '#1d2a5e',
+  '#2a3a73',
+  '#3a4d88',
+] as const
+const SNOW_STARS = starField(101, 40, W, 160)
+const SNOW_HILLS = ridge(103, W, 28, 5)
+
+/** A winter night: stars, falling snow, snowy hills and strings of festival lanterns. */
+export function paintSnowSky(g: CanvasRenderingContext2D, tick: number) {
+  cachedLayer(g, 'butterfly-joust-snow-sky', W, H, (k) => {
+    bandedGradient(k, 0, 0, W, H, SNOW_STOPS, 4)
+  })
+  drawStars(g, SNOW_STARS, tick, RAMPS.sky)
+  drawRidge(g, SNOW_HILLS, {
+    base: 280,
+    bottom: POND_Y,
+    width: W,
+    offset: tick * 0.05,
+    step: 5,
+    fill: '#c9d6ec',
+    rim: '#ffffff',
+  })
+  // Festival lanterns strung across the far hills.
+  for (let s = 0; s < 2; s++) {
+    for (let i = 0; i < 16; i++) {
+      const x = i * 30 + 6 + s * 15
+      const y = 238 + s * 16 + Math.sin(i / 2.5 + s) * 6
+      const on = (i + Math.floor(tick / 20)) % 4 !== 0
+      g.fillStyle = on ? RAMPS.ember[3] : RAMPS.ember[1]
+      g.fillRect(x, Math.round(y), 2, 3)
+    }
+  }
+  // Snow.
+  g.fillStyle = '#ffffff'
+  for (let i = 0; i < 40; i++) {
+    const y =
+      ((tick * (0.4 + (i % 3) * 0.2) + i * 29) % (H - CEILING)) + CEILING
+    const x = (i * 71 + Math.sin((tick + i * 17) / 40) * 10) % W
+    g.fillRect(
+      Math.round(x),
+      Math.round(y),
+      i % 5 === 0 ? 2 : 1,
+      i % 5 === 0 ? 2 : 1,
+    )
+  }
+}
+
+/** Under the frozen pond: dark water, seen where the ice has broken. */
+export function paintIcePond(g: CanvasRenderingContext2D, tick: number) {
+  bandedGradient(
+    g,
+    0,
+    POND_Y - 4,
+    W,
+    H - POND_Y + 4,
+    [RAMPS.water[1], RAMPS.water[0], RAMPS.night[1]],
+    2,
+  )
+  for (let x = 0; x < W; x += 20) {
+    const y = Math.round(POND_Y + 4 + Math.sin((x + tick) / 9))
+    g.fillStyle = rgba(RAMPS.water[3], 0.5)
+    g.fillRect(x + 4, y, 6, 1)
+  }
+}
+
+/** A slab of the frozen pond, crazed with cracks as it is landed on. */
+export function paintFloe(
+  g: CanvasRenderingContext2D,
+  l: Ledge,
+  cracks: number,
+) {
+  const x0 = Math.round(l.x0)
+  const w = Math.round(l.x1 - l.x0)
+  g.fillStyle = INK
+  g.fillRect(x0, l.y - 1, w, 7)
+  g.fillStyle = RAMPS.sky[4]
+  g.fillRect(x0 + 1, l.y, w - 2, 5)
+  g.fillStyle = '#ffffff'
+  g.fillRect(x0 + 2, l.y, w - 8, 1)
+  g.fillStyle = RAMPS.sky[3]
+  g.fillRect(x0 + 1, l.y + 4, w - 2, 1)
+  g.strokeStyle = INK
+  g.lineWidth = 1
+  for (let c = 0; c < cracks; c++) {
+    const cx = x0 + ((c * 17 + 9) % (w - 8)) + 4
+    g.beginPath()
+    g.moveTo(cx, l.y)
+    g.lineTo(cx + 3, l.y + 2)
+    g.lineTo(cx - 2, l.y + 5)
+    g.stroke()
+  }
+}
+
+const MOON_STOPS = [
+  '#0c0620',
+  '#160c36',
+  '#22124a',
+  '#2f1a5c',
+  '#3d2470',
+  '#4f3184',
+] as const
+const MOON_STARS = starField(111, 54, W, 200)
+const MOON = { x: 330, y: 76, r: 26 }
+const TOPIARY = ridge(113, W, 30, 10)
+
+/** The Moon Garden: a violet night, the moon slipping behind clouds, and dark topiary. */
+export function paintMoonSky(
+  g: CanvasRenderingContext2D,
+  tick: number,
+  hidden: number,
+) {
+  cachedLayer(g, 'butterfly-joust-moon-sky', W, H, (k) => {
+    bandedGradient(k, 0, 0, W, H, MOON_STOPS, 4)
+  })
+  drawStars(g, MOON_STARS, tick, RAMPS.purple)
+  glow(g, MOON.x, MOON.y, MOON.r * 3, '#f4ecff', 0.4 * (1 - hidden))
+  g.fillStyle = '#f6f0ff'
+  g.beginPath()
+  g.arc(MOON.x, MOON.y, MOON.r, 0, Math.PI * 2)
+  g.fill()
+  g.fillStyle = '#d9cdf0'
+  for (const [dx, dy, r] of [
+    [-8, -6, 5],
+    [7, 4, 4],
+    [-3, 10, 3],
+  ] as const) {
+    g.beginPath()
+    g.arc(MOON.x + dx, MOON.y + dy, r, 0, Math.PI * 2)
+    g.fill()
+  }
+  // Clouds sliding over it as it hides.
+  const cover = MOON.x - 90 + hidden * 90
+  drawCloud(g, cover, MOON.y + 4, 16, [
+    '#1d1238',
+    '#2c1c50',
+    '#3d2a66',
+    '#56408a',
+    '#7460a8',
+  ])
+  drawCloud(g, cover + 40, MOON.y - 10, 13, [
+    '#1d1238',
+    '#2c1c50',
+    '#3d2a66',
+    '#56408a',
+    '#7460a8',
+  ])
+  drawRidge(g, TOPIARY, {
+    base: 276,
+    bottom: POND_Y,
+    width: W,
+    offset: 0,
+    step: 10,
+    fill: '#140a2e',
+    rim: '#2c1c50',
+  })
+}
+
+/** A still mirror pool: the moon's path shimmering on the water. */
+export function paintMirrorPool(g: CanvasRenderingContext2D, tick: number) {
+  bandedGradient(
+    g,
+    0,
+    POND_Y,
+    W,
+    H - POND_Y,
+    ['#3d2a66', '#2c1c50', '#140a2e'],
+    2,
+  )
+  g.fillStyle = '#e8dcff'
+  g.fillRect(0, POND_Y, W, 1)
+  for (let i = 0; i < 5; i++) {
+    const half = Math.round(16 - i * 2 + Math.sin(tick / 11 + i) * 3)
+    g.fillStyle = rgba('#f6f0ff', 0.5 - i * 0.08)
+    g.fillRect(MOON.x - half, POND_Y + 2 + i * 2, half * 2, 1)
+  }
+}
+
+const RAINBOW_STOPS = [
+  '#ff8fb4',
+  '#ffb38a',
+  '#ffe08a',
+  '#b8f08a',
+  '#8ad8ff',
+  '#b8a0ff',
+] as const
+
+/** The Rainbow Lists: a sky in rainbow bands, all sparkle. */
+export function paintRainbowSky(g: CanvasRenderingContext2D, tick: number) {
+  cachedLayer(g, 'butterfly-joust-rainbow-sky', W, H, (k) => {
+    bandedGradient(k, 0, 0, W, H, RAINBOW_STOPS, 6)
+  })
+  for (let i = 0; i < 24; i++) {
+    const t = (tick + i * 37) % 120
+    if (t > 20) continue
+    const x = (i * 97) % W
+    const y = CEILING + ((i * 53) % 240)
+    g.fillStyle = '#ffffff'
+    g.fillRect(x - 1, y, 3, 1)
+    g.fillRect(x, y - 1, 1, 3)
+  }
+}
+
+/** A fluffy cloud ledge. */
+export function paintCloudLedge(g: CanvasRenderingContext2D, l: Ledge) {
+  const x0 = l.x0
+  const w = l.x1 - l.x0
+  const puffs = Math.max(3, Math.round(w / 14))
+  const at = (i: number) => x0 + 6 + (i * (w - 12)) / (puffs - 1)
+  g.fillStyle = INK
+  for (let i = 0; i < puffs; i++) {
+    g.beginPath()
+    g.arc(at(i), l.y + 4, 8, 0, Math.PI * 2)
+    g.fill()
+  }
+  g.fillRect(Math.round(x0) + 2, Math.round(l.y) + 4, Math.round(w) - 4, 8)
+  for (let i = 0; i < puffs; i++) {
+    g.fillStyle = '#b8c2da'
+    g.beginPath()
+    g.arc(at(i), l.y + 5, 7, 0, Math.PI * 2)
+    g.fill()
+    g.fillStyle = '#eef2fb'
+    g.beginPath()
+    g.arc(at(i) - 1, l.y + 3, 5.5, 0, Math.PI * 2)
+    g.fill()
+  }
+  g.fillStyle = '#ffffff'
+  g.fillRect(Math.round(x0) + 6, Math.round(l.y) - 1, Math.round(w) - 12, 1)
+}
+
+/** A swaying branch: bark, twigs and a few bright autumn leaves. */
+export function paintBranch(g: CanvasRenderingContext2D, l: Ledge) {
+  const x0 = Math.round(l.x0)
+  const w = Math.round(l.x1 - l.x0)
+  const y = Math.round(l.y)
+  g.fillStyle = INK
+  g.fillRect(x0 - 1, y - 1, w + 2, 8)
+  g.fillStyle = RAMPS.earth[2]
+  g.fillRect(x0, y, w, 6)
+  g.fillStyle = RAMPS.earth[3]
+  g.fillRect(x0, y, w, 2)
+  g.fillStyle = RAMPS.earth[1]
+  for (let x = x0 + 5; x < x0 + w - 3; x += 9) g.fillRect(x, y + 3, 4, 1)
+  // Twigs and leaf clusters.
+  for (let i = 0; i < 4; i++) {
+    const tx = x0 + 8 + (i * (w - 16)) / 3
+    g.fillStyle = INK
+    g.fillRect(Math.round(tx), y + 6, 2, 6)
+    const leafs = [RAMPS.ember[2], RAMPS.gold[2], RAMPS.rust[3]]
+    for (let j = 0; j < 3; j++) {
+      g.fillStyle = INK
+      g.fillRect(Math.round(tx) - 4 + j * 3, y + 10 + (j % 2) * 2, 5, 4)
+      g.fillStyle = leafs[(i + j) % 3]!
+      g.fillRect(Math.round(tx) - 3 + j * 3, y + 11 + (j % 2) * 2, 3, 2)
+    }
+  }
+}
+
+/** Rain: slanting streaks over the whole arena (`k` 0..1 as it builds). */
+export function paintRain(
+  g: CanvasRenderingContext2D,
+  tick: number,
+  k: number,
+) {
+  g.fillStyle = rgba('#c6d4f0', 0.45 * k)
+  for (let i = 0; i < 70; i++) {
+    const x = ((i * 67 + tick * 3) % (W + 40)) - 20
+    const y = ((i * 41 + tick * 7) % (H - CEILING)) + CEILING
+    g.fillRect(Math.round(x), Math.round(y), 1, 5)
+    g.fillRect(Math.round(x) - 1, Math.round(y) + 5, 1, 2)
+  }
+}
+
+/** The orchard's weather vane: it swings to point the way the next gust will blow. */
+export function paintVane(
+  g: CanvasRenderingContext2D,
+  x: number,
+  y: number,
+  dir: number,
+  swing: number,
+) {
+  g.fillStyle = INK
+  g.fillRect(x - 1, y, 3, 18)
+  g.fillStyle = RAMPS.steel[3]
+  g.fillRect(x, y, 1, 17)
+  const tip = dir * (10 + swing)
+  g.strokeStyle = INK
+  g.lineWidth = 3
+  g.beginPath()
+  g.moveTo(x - tip, y + 2)
+  g.lineTo(x + tip, y + 2)
+  g.stroke()
+  g.strokeStyle = RAMPS.gold[3]
+  g.lineWidth = 1
+  g.beginPath()
+  g.moveTo(x - tip, y + 2)
+  g.lineTo(x + tip, y + 2)
+  g.stroke()
+  // The arrowhead and the rooster's tail.
+  g.fillStyle = RAMPS.gold[3]
+  g.fillRect(Math.round(x + tip) - (dir > 0 ? 0 : 3), y, 4, 5)
+  g.fillStyle = RAMPS.rust[3]
+  g.fillRect(Math.round(x - tip) - (dir > 0 ? 3 : 0), y - 2, 4, 6)
 }

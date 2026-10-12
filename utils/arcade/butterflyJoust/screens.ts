@@ -16,7 +16,7 @@ import {
   rgba,
   shadedOrb,
 } from '../snes'
-import { LIFE_SPRITE, seatFrames, type WingSet } from './art'
+import { LIFE_SPRITE, seatFrames, type Frames, type WingSet } from './art'
 import { H, W } from './field'
 
 export type MenuRow = { name: string; about: string }
@@ -218,19 +218,19 @@ export function drawGarden(
   })
   // The wares.
   view.rows.forEach((row, i) => {
-    const y = 82 + i * 26
+    const y = 80 + i * 23
     const on = i === view.pick
-    hudPanel(g, 168, y, W - 190, 24, on ? RAMPS.pink : RAMPS.purple)
-    drawText(g, row.name, 176, y + 4, {
+    hudPanel(g, 168, y, W - 190, 22, on ? RAMPS.pink : RAMPS.purple)
+    drawText(g, row.name, 176, y + 3, {
       color: on ? '#ffffff' : row.affordable ? RAMPS.steel[4] : RAMPS.steel[2],
       outline: INK,
     })
-    drawText(g, row.about, 176, y + 14, {
+    drawText(g, row.about, 176, y + 12, {
       color: on ? RAMPS.gold[4] : RAMPS.steel[3],
       outline: INK,
     })
     const tag = row.price === null ? row.action : `${row.price}`
-    drawText(g, tag, W - 30, y + 8, {
+    drawText(g, tag, W - 30, y + 7, {
       align: 'right',
       color:
         row.price === null
@@ -241,7 +241,7 @@ export function drawGarden(
       outline: INK,
     })
   })
-  drawText(g, 'UP/DOWN TO BROWSE, A TO PICK', W / 2, H - 42, {
+  drawText(g, 'UP/DOWN TO BROWSE, A TO PICK', W / 2, H - 34, {
     align: 'center',
     color: '#ffffff',
     outline: INK,
@@ -270,4 +270,111 @@ export function drawResult(
       outline: INK,
     })
   })
+}
+
+/** The ending: the moth riders lower their lances and everyone flies together; then the credits. */
+export function drawEnding(
+  g: CanvasRenderingContext2D,
+  view: {
+    t: number
+    truly: boolean
+    score: number
+    petals: number
+    tick: number
+    fliers: readonly Frames[]
+    credits: readonly string[]
+  },
+) {
+  bandedGradient(
+    g,
+    0,
+    0,
+    W,
+    H,
+    view.truly
+      ? ['#ff8fb4', '#ffb38a', '#ffe08a', '#b8f08a', '#8ad8ff', '#b8a0ff']
+      : ['#1a1240', '#3d2470', '#7a2f8f', '#d9466f', '#f59e5b', '#fde68a'],
+    6,
+  )
+  // Everyone flies together: riders and moths in one great loop.
+  view.fliers.forEach((frames, i) => {
+    const a = view.tick / 90 + (i / view.fliers.length) * Math.PI * 2
+    const x = W / 2 + Math.cos(a) * 170
+    const y = 150 + Math.sin(a * 2) * 50 + Math.sin(a) * 20
+    const facing = -Math.sin(a)
+    drawSprite(
+      g,
+      frames[Math.floor((view.tick + i * 5) / 8) % 2]!,
+      Math.round(x) - 16,
+      Math.round(y) - 17,
+      {
+        anchor: 'topleft',
+        flipX: facing < 0,
+      },
+    )
+  })
+  const fade = Math.min(1, view.t / 40)
+  g.fillStyle = rgba(INK, 0.45 * fade)
+  g.fillRect(0, 0, W, H)
+  if (view.t < 60 * 8) {
+    const lines = [
+      'THE MOTH RIDERS LOWER THEIR LANCES,',
+      'AND THE TOURNEY BECOMES A FESTIVAL',
+      'WHERE EVERYONE FLIES TOGETHER.',
+    ]
+    drawText(
+      g,
+      view.truly ? 'THE TRUE ENDING' : 'THE TOURNEY IS WON',
+      W / 2,
+      60,
+      {
+        scale: 3,
+        align: 'center',
+        color: '#ffffff',
+        outline: INK,
+        shadow: RAMPS.pink[1],
+      },
+    )
+    lines.forEach((line, i) =>
+      drawText(g, line, W / 2, 120 + i * 22, {
+        scale: 2,
+        align: 'center',
+        color: RAMPS.gold[4],
+        outline: INK,
+      }),
+    )
+    if (view.truly)
+      drawText(g, 'THE RAINBOW LISTS ARE YOURS', W / 2, 200, {
+        scale: 2,
+        align: 'center',
+        color: RAMPS.pink[4],
+        outline: INK,
+      })
+  } else {
+    // The credits roll up the screen.
+    const scroll = (view.t - 60 * 8) * 0.55
+    view.credits.forEach((line, i) => {
+      const y = H + i * 20 - scroll
+      if (y < 28 || y > H - 30) return
+      const head = line === line.toUpperCase() && line.startsWith('-')
+      drawText(g, head ? line.slice(1) : line, W / 2, Math.round(y), {
+        scale: 2,
+        align: 'center',
+        color: head ? RAMPS.gold[4] : '#ffffff',
+        outline: INK,
+      })
+    })
+  }
+  hudPanel(g, 4, 3, 140, 21)
+  drawText(g, String(view.score).padStart(7, '0'), 12, 7, {
+    scale: 2,
+    color: RAMPS.pink[3],
+    shadow: INK,
+  })
+  if (view.t > 60 * 6)
+    drawText(g, 'A TO FINISH', W - 10, H - 14, {
+      align: 'right',
+      color: RAMPS.gold[3],
+      outline: INK,
+    })
 }

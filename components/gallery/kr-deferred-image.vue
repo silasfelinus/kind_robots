@@ -2,6 +2,7 @@
   <img
     ref="element"
     v-bind="$attrs"
+    :class="{ invisible: !activeSrc }"
     :src="activeSrc || undefined"
     :alt="alt"
     :loading="eager ? 'eager' : 'lazy'"

@@ -5,16 +5,26 @@
 // the hidden-condition items, the pantry door and its recipe card, and THE BIG CORK. All
 // cosmetic; nothing here touches the game's rng.
 
-import { INK, RAMPS, drawSprite, glow, pixelSprite, rgba } from '../snes'
+import {
+  INK,
+  RAMPS,
+  bevel,
+  drawSprite,
+  glow,
+  pixelSprite,
+  rgba,
+  shadedOrb,
+} from '../snes'
 import type { PixelSprite, Ramp } from '../snes'
 import { CORK_RAMP, GRUMP_FRAMES } from './art'
+import { KETTLE, bossHazards } from './bosses'
 import type { Boss } from './bosses'
 import type { ItemId } from './items'
 import { ITEMS } from './items'
 import type { Bolt, Fire, Ice, Wave } from './specials'
 import type { Hazard } from './grumps'
-import { COLS, ROWS, TILE, TOP, WATER } from './tower'
-import type { Floor, SpecialKind } from './tower'
+import { COLS, Cell, FLOOR_Y, ROWS, TILE, TOP, WATER } from './tower'
+import type { Body, Floor, SpecialKind } from './tower'
 
 // --- water ---------------------------------------------------------------------------------------
 
@@ -171,6 +181,34 @@ export function paintHazard(
   h: Hazard,
   tick: number,
 ) {
+  if (h.kind === 'steam') {
+    // A scalding cloud, swelling then thinning out.
+    const life = h.life / 50
+    const r = 6 + (1 - life) * 6
+    g.fillStyle = rgba('#ffffff', 0.25 + 0.45 * life)
+    for (let i = 0; i < 4; i++) {
+      g.beginPath()
+      g.arc(
+        h.x + Math.cos(i * 1.7 + tick / 9) * r * 0.5,
+        h.y + Math.sin(i * 2.1 + tick / 7) * r * 0.4,
+        r * 0.7,
+        0,
+        Math.PI * 2,
+      )
+      g.fill()
+    }
+    glow(g, h.x, h.y, r + 4, RAMPS.ember[3], 0.3 * life)
+    return
+  }
+  if (h.kind === 'snowball') {
+    g.fillStyle = INK
+    g.fillRect(Math.round(h.x) - 3, Math.round(h.y) - 3, 7, 7)
+    g.fillStyle = '#eef6ff'
+    g.fillRect(Math.round(h.x) - 2, Math.round(h.y) - 2, 5, 5)
+    g.fillStyle = '#ffffff'
+    g.fillRect(Math.round(h.x) - 2, Math.round(h.y) - 2, 2, 1)
+    return
+  }
   if (h.kind === 'jet') {
     g.fillStyle = INK
     g.fillRect(Math.round(h.x) - 4, Math.round(h.y) - 2, 8, 5)
@@ -375,8 +413,152 @@ const BIG_CORK = pixelSprite(
   },
 )
 
+/** The Kettle Colossus: a great copper kettle with a scowl, spout and handle. */
+function paintKettle(
+  g: CanvasRenderingContext2D,
+  b: Boss,
+  tick: number,
+  alpha = 1,
+) {
+  g.save()
+  g.globalAlpha *= alpha
+  const spin = b.state === 'spin' ? Math.sin(tick / 3) : 0
+  const x = b.x
+  const y = b.y
+  const face =
+    b.state === 'spin' ? (Math.floor(tick / 6) % 2 ? -1 : 1) : b.vx < 0 ? -1 : 1
+  const copper: Ramp = ['#3a1a0a', '#7a3a16', '#b8642a', '#e89a5a', '#fcd2a8']
+  // Handle and spout.
+  g.strokeStyle = INK
+  g.lineWidth = 4
+  g.beginPath()
+  g.arc(x - face * 16, y - 4, 10, Math.PI * 0.5, Math.PI * 1.5, face > 0)
+  g.stroke()
+  g.strokeStyle = copper[1]
+  g.lineWidth = 2
+  g.stroke()
+  g.fillStyle = INK
+  g.beginPath()
+  g.moveTo(x + face * 14, y - 2)
+  g.lineTo(x + face * 30, y - 16)
+  g.lineTo(x + face * 32, y - 12)
+  g.lineTo(x + face * 16, y + 6)
+  g.closePath()
+  g.fill()
+  g.fillStyle = copper[2]
+  g.beginPath()
+  g.moveTo(x + face * 15, y - 1)
+  g.lineTo(x + face * 29, y - 14)
+  g.lineTo(x + face * 30, y - 12)
+  g.lineTo(x + face * 16, y + 4)
+  g.closePath()
+  g.fill()
+  // The body.
+  shadedOrb(g, x + spin, y, b.r, copper, { outline: INK })
+  // The lid, rattling before a blast.
+  const rattle = b.state === 'rattle' ? (tick % 4 < 2 ? -2 : 0) : 0
+  g.fillStyle = INK
+  g.fillRect(Math.round(x) - 11, Math.round(y - b.r) - 3 + rattle, 22, 5)
+  g.fillStyle = RAMPS.steel[3]
+  g.fillRect(Math.round(x) - 10, Math.round(y - b.r) - 2 + rattle, 20, 3)
+  g.fillStyle = INK
+  g.fillRect(Math.round(x) - 3, Math.round(y - b.r) - 7 + rattle, 6, 5)
+  g.fillStyle = RAMPS.gold[3]
+  g.fillRect(Math.round(x) - 2, Math.round(y - b.r) - 6 + rattle, 4, 3)
+  // A scowl.
+  const fx = Math.round(x + face * 3)
+  const fy = Math.round(y - 2)
+  g.fillStyle = INK
+  g.fillRect(fx - 9, fy - 6, 6, 2)
+  g.fillRect(fx + 3, fy - 6, 6, 2)
+  g.fillStyle = '#ffffff'
+  g.fillRect(fx - 8, fy - 3, 4, 4)
+  g.fillRect(fx + 4, fy - 3, 4, 4)
+  g.fillStyle = INK
+  g.fillRect(fx - 6, fy - 2, 2, 2)
+  g.fillRect(fx + 6, fy - 2, 2, 2)
+  g.fillRect(fx - 5, fy + 6, 10, 2)
+  g.fillRect(fx - 6, fy + 5, 1, 1)
+  g.fillRect(fx + 5, fy + 5, 1, 1)
+  if (b.state === 'stunned') {
+    // Seeing stars.
+    for (let i = 0; i < 3; i++) {
+      const a = tick / 8 + (i * Math.PI * 2) / 3
+      g.fillStyle = RAMPS.gold[4]
+      g.fillRect(
+        Math.round(x + Math.cos(a) * 14),
+        Math.round(y - b.r - 10 + Math.sin(a) * 4),
+        2,
+        2,
+      )
+    }
+  }
+  if (b.state === 'spin' && tick % 8 < 4) {
+    // The whistle.
+    g.fillStyle = '#ffffff'
+    g.fillRect(Math.round(x + face * 32), Math.round(y - 20), 2, 2)
+    g.fillRect(Math.round(x + face * 36), Math.round(y - 24), 1, 1)
+  }
+  g.restore()
+}
+
+/** What a boss scalds with: the Kettle's steam column, and its flood of hot water. */
+export function paintBossHazards(
+  g: CanvasRenderingContext2D,
+  b: Boss,
+  tick: number,
+) {
+  for (const h of bossHazards(b)) {
+    if (h.y1 - h.y0 > 60) {
+      // The steam column, billowing up the room.
+      g.fillStyle = rgba('#ffffff', 0.45)
+      g.fillRect(h.x0, h.y0, h.x1 - h.x0, h.y1 - h.y0)
+      for (let y = h.y1; y > h.y0; y -= 10) {
+        const wob = Math.sin(y / 9 + tick / 4) * 5
+        g.fillStyle = rgba('#ffffff', 0.5)
+        g.beginPath()
+        g.arc((h.x0 + h.x1) / 2 + wob, y, (h.x1 - h.x0) / 2, 0, Math.PI * 2)
+        g.fill()
+      }
+      glow(g, (h.x0 + h.x1) / 2, (h.y0 + h.y1) / 2, 60, RAMPS.ember[3], 0.25)
+    } else {
+      // The flood, steaming.
+      g.fillStyle = rgba('#e0703a', 0.45)
+      g.fillRect(h.x0, h.y0, h.x1 - h.x0, h.y1 - h.y0)
+      g.fillStyle = rgba('#ffd0a0', 0.8)
+      for (let x = h.x0; x < h.x1; x += 4)
+        g.fillRect(x, Math.round(h.y0 + Math.sin(x / 7 + tick / 6)), 4, 1)
+      if (tick % 6 < 3)
+        for (let x = h.x0 + ((tick * 3) % 20); x < h.x1; x += 20) {
+          g.fillStyle = rgba('#ffffff', 0.5)
+          g.fillRect(x, h.y0 - 4 - ((tick + x) % 6), 1, 2)
+        }
+    }
+  }
+  // The rattle's tell: steam already curling up where the column will blast.
+  if (b.state === 'rattle') {
+    g.fillStyle = rgba('#ffffff', 0.25 + 0.2 * Math.sin(tick / 2))
+    g.fillRect(
+      b.target - KETTLE.blastHalf,
+      FLOOR_Y - 10,
+      KETTLE.blastHalf * 2,
+      10,
+    )
+  }
+}
+
 export function paintBoss(g: CanvasRenderingContext2D, b: Boss, tick: number) {
   if (b.state === 'done') return
+  if (b.id === 'kettle') {
+    if (b.state === 'popping') {
+      paintKettle(g, b, tick, 1 - b.t / 90)
+      glow(g, b.x, b.y, 34 + b.t / 2, RAMPS.gold[3], 0.5)
+      return
+    }
+    if (b.hurt > 0 && Math.floor(tick / 3) % 2) return
+    paintKettle(g, b, tick)
+    return
+  }
   if (b.state === 'popping') {
     // Shaking, then gone in a fizz.
     const shake = (tick % 4) - 2
@@ -401,4 +583,118 @@ export function paintBoss(g: CanvasRenderingContext2D, b: Boss, tick: number) {
         2,
       )
   }
+}
+
+// --- slice 3: live tiles, push blocks, lifts, the toaster ----------------------------------------
+
+/** Hot plates' glow and puff, conveyors' moving chevrons and the wind-up doors (all live). */
+export function paintLiveTiles(
+  g: CanvasRenderingContext2D,
+  f: Floor,
+  tick: number,
+  hot: (i: number) => 'cool' | 'glow' | 'puff',
+  doorTell: boolean,
+) {
+  for (const i of f.hotPlates) {
+    const x = (i % COLS) * TILE
+    const y = TOP + Math.floor(i / COLS) * TILE
+    const state = hot(i)
+    if (state === 'cool') continue
+    const flicker = state === 'glow' ? 0.5 + 0.3 * Math.sin(tick / 3) : 1
+    g.fillStyle = rgba(RAMPS.ember[2], 0.8 * flicker)
+    g.fillRect(x + 1, y, TILE - 2, 3)
+    glow(g, x + 4, y, 9, RAMPS.ember[3], 0.35 * flicker)
+    if (state === 'puff') {
+      for (let j = 0; j < 3; j++) {
+        g.fillStyle = rgba('#ffffff', 0.55)
+        g.beginPath()
+        g.arc(
+          x + 4 + Math.sin(tick / 5 + j) * 2,
+          y - 6 - j * 7,
+          4 + j,
+          0,
+          Math.PI * 2,
+        )
+        g.fill()
+      }
+    }
+  }
+  for (let r = 0; r < ROWS; r++)
+    for (let c = 0; c < COLS; c++) {
+      const cell = f.cells[r * COLS + c]
+      const x = c * TILE
+      const y = TOP + r * TILE
+      if (cell === Cell.ConveyorLeft || cell === Cell.ConveyorRight) {
+        const dir = cell === Cell.ConveyorRight ? 1 : -1
+        const phase = ((((tick * dir) % 6) + 6) % 6) - 1
+        g.fillStyle = RAMPS.gold[2]
+        g.fillRect(x + phase + 1, y + 1, 1, 1)
+        g.fillRect(x + phase + 1 + dir, y, 1, 1)
+        g.fillRect(x + phase + 1 + dir, y + 2, 1, 1)
+      } else if (cell === Cell.Door) {
+        bevel(g, x, y, TILE, TILE, RAMPS.earth, { depth: 1, outline: INK })
+        g.fillStyle = INK
+        g.fillRect(x + 2, y, 1, TILE)
+        g.fillRect(x + 5, y, 1, TILE)
+        if (doorTell && tick % 8 < 4) {
+          g.fillStyle = RAMPS.gold[4]
+          g.fillRect(x + 3, y + 3, 2, 2)
+        }
+      } else if (cell === Cell.DoorOpen) {
+        g.fillStyle = rgba(RAMPS.earth[2], 0.35)
+        g.fillRect(x, y, 1, TILE)
+        g.fillRect(x + TILE - 1, y, 1, TILE)
+      }
+    }
+}
+
+/** A push block of ice: a clear cube with a glint. */
+export function paintPushBlock(g: CanvasRenderingContext2D, b: Body) {
+  const x = Math.round(b.x) - 7
+  const y = Math.round(b.y) - 14
+  g.fillStyle = INK
+  g.fillRect(x - 1, y - 1, 16, 16)
+  g.fillStyle = '#8ad0f0'
+  g.fillRect(x, y, 14, 14)
+  g.fillStyle = '#bfe8fa'
+  g.fillRect(x, y, 14, 4)
+  g.fillStyle = '#ffffff'
+  g.fillRect(x + 1, y + 1, 5, 1)
+  g.fillRect(x + 1, y + 1, 1, 4)
+  g.fillStyle = rgba('#2a5a8a', 0.6)
+  g.fillRect(x + 9, y + 9, 4, 4)
+}
+
+/** A lift: a riveted platform on its cables. */
+export function paintLift(
+  g: CanvasRenderingContext2D,
+  x0: number,
+  top: number,
+  w: number,
+) {
+  g.fillStyle = rgba(RAMPS.steel[1], 0.7)
+  g.fillRect(x0 + 2, TOP + TILE, 1, top - TOP - TILE)
+  g.fillRect(x0 + w - 3, TOP + TILE, 1, top - TOP - TILE)
+  bevel(g, x0, top, w, 5, RAMPS.gold, { depth: 1, outline: INK })
+  g.fillStyle = RAMPS.gold[0]
+  for (let x = x0 + 3; x < x0 + w - 2; x += 6) g.fillRect(x, top + 2, 1, 1)
+}
+
+/** A toaster: the slot a toast popper waits in. */
+export function paintToaster(
+  g: CanvasRenderingContext2D,
+  x: number,
+  y: number,
+  ticking: boolean,
+  tick: number,
+) {
+  const left = Math.round(x) - 8
+  const top = Math.round(y) - 9
+  g.fillStyle = INK
+  g.fillRect(left - 1, top - 1, 18, 11)
+  bevel(g, left, top, 16, 9, RAMPS.steel, { depth: 1, outline: null })
+  g.fillStyle = INK
+  g.fillRect(left + 3, top, 10, 2)
+  g.fillStyle = ticking && tick % 10 < 5 ? RAMPS.ember[3] : RAMPS.ember[1]
+  g.fillRect(left + 13, top + 4, 2, 2)
 }

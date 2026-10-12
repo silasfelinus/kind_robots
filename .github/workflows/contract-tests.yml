@@ -37,6 +37,9 @@ jobs:
         env:
           CYPRESS_INSTALL_BINARY: '0'
 
+      - name: Approved Daily Dream pitch progress contract
+        run: npx tsx utils/scripts/verifyApprovedPitchProgress.test.ts
+
       - name: Tablet navigation audit contract
         run: node --test utils/scripts/auditTabletNavigation.test.mjs
 

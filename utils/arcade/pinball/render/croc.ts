@@ -28,6 +28,7 @@
 // Every geometry, material and texture goes through the scene's track().
 
 import * as THREE from 'three'
+import { mergeGeometries } from 'three/examples/jsm/utils/BufferGeometryUtils.js'
 import type { AnimatronicDef } from '../types'
 import type { AnimatronicPose } from '../rules/ruleset'
 
@@ -207,6 +208,46 @@ function widthAt(sections: Section[], z: number): number {
   return sections.at(-1)!.w
 }
 
+/** A static part to bake into the mesh it rides on, with its colour. */
+type Part = {
+  geo: THREE.BufferGeometry
+  at: [number, number, number]
+  rot?: [number, number, number]
+  scale?: [number, number, number]
+  color: number
+}
+
+/**
+ * Bake static parts (scutes, nostrils, claws, scars) into one geometry with
+ * `base`: one draw call instead of one each. Each part's colour rides in
+ * its vertex colours; `base` (or the first part) is consumed.
+ */
+function bake(base: THREE.BufferGeometry | null, parts: Part[]) {
+  const m = new THREE.Matrix4()
+  const q = new THREE.Quaternion()
+  const pieces = parts.map((p) => {
+    const g = p.geo.clone()
+    q.setFromEuler(new THREE.Euler(...(p.rot ?? [0, 0, 0])))
+    m.compose(
+      new THREE.Vector3(...p.at),
+      q,
+      new THREE.Vector3(...(p.scale ?? [1, 1, 1])),
+    )
+    g.applyMatrix4(m)
+    const c = new THREE.Color(p.color)
+    const n = g.getAttribute('position').count
+    const rgb = new Float32Array(n * 3)
+    for (let i = 0; i < n; i++) rgb.set([c.r, c.g, c.b], i * 3)
+    g.setAttribute('color', new THREE.BufferAttribute(rgb, 3))
+    return g
+  })
+  const all = base ? [base, ...pieces] : pieces
+  const merged = mergeGeometries(all)
+  if (!merged) throw new Error('croc: parts do not merge')
+  for (const g of all) g.dispose()
+  return merged
+}
+
 /** Scale relief for the hide, drawn once (null outside a browser). */
 function scaleTexture(): THREE.CanvasTexture | null {
   if (typeof document === 'undefined') return null
@@ -384,16 +425,6 @@ export class CrocToy {
         bumpScale: 1.2,
       }),
     )
-    const crest = track(
-      new THREE.MeshStandardMaterial({
-        color: BACK,
-        roughness: 0.5,
-        metalness: 0.05,
-      }),
-    )
-    const scar = track(
-      new THREE.MeshStandardMaterial({ color: SCAR, roughness: 0.7 }),
-    )
     const tooth = track(
       new THREE.MeshStandardMaterial({ color: TOOTH, roughness: 0.32 }),
     )
@@ -436,7 +467,7 @@ export class CrocToy {
     // The river: a rippling pool round the head and the body, its edge
     // fading into the playfield, and the glowing waterline ring at the
     // mouth (the shot's aim cue).
-    const pool = new THREE.PlaneGeometry(0.12, 0.25, 28, 50)
+    const pool = new THREE.PlaneGeometry(0.12, 0.25, 16, 32)
     pool.rotateX(-Math.PI / 2)
     pool.translate(0.012, WATER_Y, -0.085)
     const rest = pool.getAttribute('position')
@@ -508,7 +539,9 @@ export class CrocToy {
     this.spine.add(this.head)
     this.head.add(this.upper, this.lower)
 
-    const upperMesh = new THREE.Mesh(track(loft(UPPER, 24, 2.6, 'down')), hide)
+    // The head's static parts bake into the upper jaw's mesh (one draw).
+    const upperParts: Part[] = []
+    const upperMesh = new THREE.Mesh(undefined, hide)
     const lowerMesh = new THREE.Mesh(track(loft(LOWER, 22, 2.6, 'up')), hide)
     upperMesh.castShadow = lowerMesh.castShadow = true
     this.upper.add(upperMesh)
@@ -579,17 +612,22 @@ export class CrocToy {
 
     // Nostrils on the bulb, and the scars down his snout and brow.
     const nostril = track(new THREE.SphereGeometry(0.0021, 10, 6))
+    const hole = track(new THREE.SphereGeometry(0.0009, 8, 4))
     for (const side of [-1, 1]) {
-      const n = new THREE.Mesh(nostril, skin)
-      n.scale.set(1, 0.7, 1.2)
-      n.position.set(side * 0.0032, 0.0064, 0.0505)
-      const hole = new THREE.Mesh(
-        track(new THREE.SphereGeometry(0.0009, 8, 4)),
-        pupil,
+      upperParts.push(
+        {
+          geo: nostril,
+          at: [side * 0.0032, 0.0064, 0.0505],
+          scale: [1, 0.7, 1.2],
+          color: FLANK,
+        },
+        {
+          geo: hole,
+          at: [side * 0.0032, 0.0078, 0.051],
+          scale: [0.6, 0.4, 1.4],
+          color: 0x080808,
+        },
       )
-      hole.scale.set(0.6, 0.4, 1.4)
-      hole.position.set(side * 0.0032, 0.0078, 0.051)
-      this.upper.add(n, hole)
     }
     const scarGeo = track(new THREE.BoxGeometry(0.0006, 0.0004, 1))
     const scars: Array<[number, number, number, number, number]> = [
@@ -598,13 +636,14 @@ export class CrocToy {
       [0.0085, 0.0118, -0.018, 0.016, 0.6],
       [-0.002, 0.0135, -0.03, 0.01, -0.15],
     ]
-    for (const [x, y, z, length, turn] of scars) {
-      const mark = new THREE.Mesh(scarGeo, scar)
-      mark.scale.z = length
-      mark.position.set(x, y, z)
-      mark.rotation.y = turn
-      this.upper.add(mark)
-    }
+    for (const [x, y, z, length, turn] of scars)
+      upperParts.push({
+        geo: scarGeo,
+        at: [x, y, z],
+        rot: [0, turn, 0],
+        scale: [1, 1, length],
+        color: SCAR,
+      })
 
     // The eyes: bosses on the skull, amber eyes with slit pupils that turn
     // to the ball, and heavy upper lids that blink, narrow and squint.
@@ -616,10 +655,12 @@ export class CrocToy {
     )
     for (const side of [-1, 1]) {
       const at = new THREE.Vector3(side * 0.0122, 0.0128, -0.012)
-      const bossMesh = new THREE.Mesh(boss, skin)
-      bossMesh.scale.set(1, 0.72, 1.15)
-      bossMesh.position.copy(at).add(new THREE.Vector3(0, -0.002, -0.001))
-      bossMesh.castShadow = true
+      upperParts.push({
+        geo: boss,
+        at: [at.x, at.y - 0.002, at.z - 0.001],
+        scale: [1, 0.72, 1.15],
+        color: FLANK,
+      })
       const eyeball = new THREE.Group()
       eyeball.position.copy(at).add(new THREE.Vector3(side * 0.001, 0.0012, 0))
       eyeball.rotation.y = side * 0.35
@@ -631,7 +672,7 @@ export class CrocToy {
       lid.scale.set(1.05, 0.7, 1.05)
       lid.position.copy(eyeball.position)
       lid.rotation.y = side * 0.35
-      this.upper.add(bossMesh, eyeball, lid)
+      this.upper.add(eyeball, lid)
       this.eyeballs.push(eyeball)
       this.lids.push(lid)
     }
@@ -641,28 +682,35 @@ export class CrocToy {
     scute.rotateY(Math.PI / 4)
     scute.scale(0.8, 1, 1.5)
     for (let i = 0; i < 5; i++)
-      for (const side of [-1, 1]) {
-        const s = new THREE.Mesh(scute, crest)
-        s.position.set(side * 0.0045, 0.0118 - i * 0.0012, -0.032 - i * 0.0045)
-        this.upper.add(s)
-      }
+      for (const side of [-1, 1])
+        upperParts.push({
+          geo: scute,
+          at: [side * 0.0045, 0.0118 - i * 0.0012, -0.032 - i * 0.0045],
+          color: BACK,
+        })
+    upperMesh.geometry = track(bake(loft(UPPER, 24, 2.6, 'down'), upperParts))
 
     // The body in the river behind him, scutes and shoulders breaking the
     // surface; front claws gripping the bank either side of the head.
-    const body = new THREE.Mesh(track(loft(BODY, 18)), hide)
-    body.position.set(0, -0.0035, 0)
-    body.castShadow = true
-    this.spine.add(body)
+    const bodyParts: Part[] = []
     for (let i = 0; i < 9; i++)
       for (const col of [-2, -1, 1, 2]) {
         if (Math.abs(col) === 2 && (i < 2 || i > 6)) continue
         const z = -0.036 - i * 0.0115
         const w = widthAt(BODY.slice().reverse(), z) || 0.012
-        const s = new THREE.Mesh(scute, crest)
-        s.position.set(col * w * 0.28, 0.0058 - Math.abs(col) * 0.0012, z)
-        s.scale.setScalar(Math.abs(col) === 1 ? 1.05 : 0.8)
-        this.spine.add(s)
+        const k = Math.abs(col) === 1 ? 1.05 : 0.8
+        bodyParts.push({
+          geo: scute,
+          // In the body's own frame, which sits 3.5 mm down.
+          at: [col * w * 0.28, 0.0058 - Math.abs(col) * 0.0012 + 0.0035, z],
+          scale: [k, k, k],
+          color: BACK,
+        })
       }
+    const body = new THREE.Mesh(track(bake(loft(BODY, 18), bodyParts)), hide)
+    body.position.set(0, -0.0035, 0)
+    body.castShadow = true
+    this.spine.add(body)
     const clawGeo = track(new THREE.ConeGeometry(0.0009, 0.0042, 5))
     clawGeo.rotateX(Math.PI / 2)
     const legGeo = track(new THREE.CapsuleGeometry(0.0038, 0.012, 4, 10))
@@ -673,16 +721,13 @@ export class CrocToy {
       limb.rotation.set(Math.PI / 2 - 0.25, 0, side * -0.9)
       limb.position.set(side * 0.006, 0.002, 0.004)
       leg.add(limb)
-      for (let k = 0; k < 3; k++) {
-        const claw = new THREE.Mesh(clawGeo, tooth)
-        claw.position.set(
-          side * (0.011 + k * 0.0018),
-          0.0005,
-          0.011 - k * 0.002,
-        )
-        claw.rotation.y = side * (0.3 + k * 0.25)
-        leg.add(claw)
-      }
+      const foot: Part[] = [0, 1, 2].map((k) => ({
+        geo: clawGeo,
+        at: [side * (0.011 + k * 0.0018), 0.0005, 0.011 - k * 0.002],
+        rot: [0, side * (0.3 + k * 0.25), 0],
+        color: TOOTH,
+      }))
+      leg.add(new THREE.Mesh(track(bake(null, foot)), tooth))
       this.spine.add(leg)
       this.claws.push(leg)
     }
@@ -699,36 +744,44 @@ export class CrocToy {
       seg.position.set(0, 0, z)
       z = -TAIL_STEP
       seg.rotation.y = TAIL_CURL * (i < 4 ? 1 : -0.6)
+      // The tail's crest: a double row, then a single one toward the tip,
+      // baked into the segment (in its frame, which sits lower).
+      const lift = 0.0045 - f * 0.002
+      const crestParts: Part[] = (i < 5 ? [-1, 1] : [0]).map((col) => {
+        const k = 1.1 - f * 0.5
+        return {
+          geo: scute,
+          at: [
+            col * w0 * 0.35,
+            -0.0045 + w0 * 0.55 + 0.0006 + lift,
+            -TAIL_STEP / 2,
+          ],
+          scale: [k, k, k],
+          color: BACK,
+        }
+      })
       const piece = new THREE.Mesh(
         track(
-          loft(
-            [
-              { z: 0.0015, w: w0, top: w0 * 0.55, bottom: w0 * 0.5 },
-              {
-                z: -TAIL_STEP - 0.0015,
-                w: w1,
-                top: w1 * 0.55,
-                bottom: w1 * 0.5,
-              },
-            ],
-            12,
+          bake(
+            loft(
+              [
+                { z: 0.0015, w: w0, top: w0 * 0.55, bottom: w0 * 0.5 },
+                {
+                  z: -TAIL_STEP - 0.0015,
+                  w: w1,
+                  top: w1 * 0.55,
+                  bottom: w1 * 0.5,
+                },
+              ],
+              12,
+            ),
+            crestParts,
           ),
         ),
         hide,
       )
-      piece.position.y = -0.0045 + f * 0.002
+      piece.position.y = -lift
       seg.add(piece)
-      // The tail's crest: a double row, then a single one toward the tip.
-      for (const col of i < 5 ? [-1, 1] : [0]) {
-        const s = new THREE.Mesh(scute, crest)
-        s.scale.setScalar(1.1 - f * 0.5)
-        s.position.set(
-          col * w0 * 0.35,
-          -0.0045 + w0 * 0.55 + 0.0006,
-          -TAIL_STEP / 2,
-        )
-        seg.add(s)
-      }
       parent.add(seg)
       parent = seg
       this.tail.push(seg)

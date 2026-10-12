@@ -86,7 +86,11 @@ assert.ok(typeof sawGraze === 'boolean')
 
 const idle = game()
 for (let tick = 0; tick < 240; tick++) idle.update(emptyInput())
+assert.equal(idle.snapshot.sceneId, 'A01.OPEN')
+assert.equal(idle.snapshot.enemies.length, 0, 'Act I opens with safe dialogue')
+for (let tick = 240; tick < 360; tick++) idle.update(emptyInput())
 assert.ok(
   idle.snapshot.enemies.length > 0 || idle.snapshot.enemyShots.length > 0,
+  'enemy waves begin after the opening conversation',
 )
 console.log('Rainbow Princess deterministic combat and flight physics passed')

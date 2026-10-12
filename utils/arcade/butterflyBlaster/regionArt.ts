@@ -237,9 +237,10 @@ export function renderLantern(
   drawSprite(g, VILLAGER[Math.floor((tick + l.seed * 10) / 12) % 2]!, x, feet, {
     anchor: 'feet',
     flipX: l.dir < 0,
+    scale: 2,
   })
   // A pole held out in front, the lantern swinging on it.
-  const hx = x + l.dir * 6
+  const hx = x + l.dir * 10
   const swing = Math.sin(tick / 14 + l.seed) * 1.5
   g.fillStyle = INK
   g.fillRect(Math.min(x, hx), LANTERN.y - 7, Math.abs(hx - x) + 1, 1)

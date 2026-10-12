@@ -67,12 +67,14 @@ export const HUM = {
   ringR: 62,
   coreR: 16,
   /** Core hits to break the shell. */
-  coreHp: 8,
+  coreHp: 14,
   shapeTicks: 360,
-  regrow: 80,
+  regrow: 40,
+  /** Phase 1 flings a mosquito loose this often. */
+  fling: 300,
   subs: 4,
   subR: 20,
-  subHp: 4,
+  subHp: 7,
   diveEvery: 200,
   /** Phase 3: the core's rest, tell and dash. */
   rest: 130,
@@ -219,6 +221,9 @@ export class Hum implements Boss {
       m.x += (this.x + rx - m.x) * 0.08
       m.y += (this.y + ry - m.y) * 0.08
     })
+    // Now and then it flings a mosquito off its orbit.
+    if (this.t % HUM.fling === 0)
+      host.spawn({ x: this.x, y: this.y + HUM.ringR })
     if (this.t % HUM.regrow === 0) {
       const gap = this.motes.find((m) => !m.alive)
       if (gap) gap.alive = true
@@ -245,7 +250,7 @@ export class Hum implements Boss {
     const hut = this.target
     // The core sulks up high while its swarms work.
     this.x += (W / 2 - this.x) * 0.02
-    this.y += (50 - this.y) * 0.02
+    this.y += (96 - this.y) * 0.02
     const live = this.subs.filter((s) => s.hp > 0)
     if (this.t % HUM.diveEvery === 0 && live.length) {
       const diver = live[this.t % live.length]!

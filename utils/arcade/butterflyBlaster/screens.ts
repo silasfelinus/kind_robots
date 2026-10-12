@@ -155,7 +155,19 @@ export function renderMap(
   for (let i = 0; i < 160; i++) g.fillRect((i * 97) % W, (i * 53) % H, 1, 2)
   const nodes = mapNodes(view.steps)
   paintRiver(g, nodes)
-  // Region names above their nights, and each Moon's name.
+  // Each Moon's name over its stretch of river, and each region's name under its nights.
+  for (const m of MOONS) {
+    drawText(
+      g,
+      `MOON ${m.n}: ${m.name}`,
+      24,
+      ROWS[(m.n - 1) % ROWS.length]! - 48,
+      {
+        color: RAMPS.sky[4],
+        outline: INK,
+      },
+    )
+  }
   const labelled = new Set<string>()
   for (const n of nodes) {
     if (n.kind === 'night' && n.region && !labelled.has(n.region.id)) {
@@ -163,8 +175,8 @@ export function renderMap(
       drawText(
         g,
         n.region.name,
-        n.at.x + (n.at.x > W / 2 ? -40 : 40),
-        n.at.y - 30,
+        n.at.x + (n.at.x > W / 2 ? -66 : 66),
+        n.at.y + 22,
         {
           align: 'center',
           color: RAMPS.cream[3],
@@ -300,14 +312,19 @@ export function renderClinic(
   for (let x = 0; x < W; x += 24) g.fillRect(x, 0, 2, H)
   glow(g, W / 2, 30, 160, RAMPS.gold[3], 0.35)
   for (const [x, y, r] of [
-    [60, 70, 26],
-    [420, 70, 26],
-    [36, 160, 18],
-    [444, 160, 18],
+    [52, 88, 26],
+    [428, 88, 26],
+    [40, 170, 18],
+    [440, 170, 18],
   ] as const) {
     renderMesh(g, x, y, r, Math.sin(tick / 90 + x) * 0.2)
   }
-  renderFairy(g, 70, 262 + Math.sin(tick / 12) * 2, 1, false, tick)
+  // AMI herself, drawn large, keeping the clinic.
+  g.save()
+  g.translate(58, 250 + Math.sin(tick / 12) * 2)
+  g.scale(3, 3)
+  renderFairy(g, 0, 0, 1, false, tick)
+  g.restore()
   drawText(g, "AMI'S CLINIC", W / 2, 10, {
     scale: 3,
     align: 'center',
@@ -315,19 +332,19 @@ export function renderClinic(
     outline: INK,
     shadow: RAMPS.rust[1],
   })
-  drawText(g, 'SPEND THE THANK-YOU BEADS', W / 2, 36, {
+  drawText(g, 'SPEND THE THANK-YOU BEADS', W / 2, 40, {
     align: 'center',
     color: RAMPS.gold[4],
     outline: INK,
   })
-  const x0 = 120
+  const x0 = 116
   const y0 = 60
   CLINIC_ROWS.forEach((row, i) => {
     const y = y0 + i * 30
     const on = i === view.cursor
-    hudPanel(g, x0, y, 300, 24, on ? RAMPS.gold : RAMPS.purple)
+    hudPanel(g, x0, y, 270, 24, on ? RAMPS.gold : RAMPS.purple)
     if (row === 'leave') {
-      drawText(g, 'ON DOWN THE RIVER', x0 + 150, y + 8, {
+      drawText(g, 'ON DOWN THE RIVER', x0 + 135, y + 8, {
         align: 'center',
         color: '#ffffff',
         outline: INK,
@@ -342,7 +359,7 @@ export function renderClinic(
       outline: INK,
     })
     const tag = owned ? 'GOT IT' : `${price}`
-    drawText(g, tag, x0 + 290, y + 8, {
+    drawText(g, tag, x0 + 260, y + 8, {
       align: 'right',
       color: owned
         ? RAMPS.leaf[3]

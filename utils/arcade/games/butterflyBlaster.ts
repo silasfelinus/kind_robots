@@ -746,7 +746,7 @@ class ButterflyBlaster implements ArcadeGameInstance {
           ? 'LANTERNS KEPT LIT'
           : 'ALL THE POTS TIPPED'
       if (met) {
-        rows.push({ label, count: 1, each: 3000 })
+        rows.push({ label, count: 1, each: 3000, bonus: true })
         total += 3000
         beads += BEADS.special
         thread = tally.perfect
@@ -2089,14 +2089,16 @@ class ButterflyBlaster implements ArcadeGameInstance {
   render(g: CanvasRenderingContext2D) {
     if (this.phase === 'map' || this.phase === 'offer') {
       const step = this.steps[this.stepIndex]
-      const title =
-        step?.kind === 'boss'
+      const title = this.offer
+        ? 'WELCOME BACK'
+        : step?.kind === 'boss'
           ? BOSS_NAMES[step.boss].name
           : this.inEndless
             ? `NIGHT ${this.level}`
             : this.plan.title
-      const sub =
-        step?.kind === 'boss'
+      const sub = this.offer
+        ? 'THE NIGHT WATCH WAITS FOR YOU'
+        : step?.kind === 'boss'
           ? BOSS_NAMES[step.boss].title
           : this.inEndless
             ? 'THE RIVER RUNS ON PAST THE MAP'
@@ -2105,13 +2107,13 @@ class ButterflyBlaster implements ArcadeGameInstance {
         g,
         {
           steps: this.steps,
-          current: this.stepIndex,
-          record: this.record,
+          current: this.offer?.step ?? this.stepIndex,
+          record: this.offer ? new Map(this.offer.record) : this.record,
           threads: this.mapThreads(),
           title,
           sub,
           score: this.score,
-          beads: this.beads,
+          beads: this.offer?.beads ?? this.beads,
           t: this.phaseTicks,
         },
         this.tick,
@@ -2420,7 +2422,7 @@ class ButterflyBlaster implements ArcadeGameInstance {
       const text =
         row.each === 0
           ? ''
-          : row.count === 1
+          : row.bonus
             ? `+${row.each}`
             : `${row.count} X ${row.each}`
       drawText(g, text, x + 286, ry, {

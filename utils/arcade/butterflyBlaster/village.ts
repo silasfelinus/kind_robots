@@ -52,7 +52,13 @@ export function reachesHut(hut: Hut, x: number, y: number, r: number): boolean {
 /** Points per hut at the dawn tally. */
 export const TALLY = { unbitten: 300, lit: 100, notABite: 2000 } as const
 
-export type TallyRow = { label: string; count: number; each: number }
+/** A row of the dawn tally; a bonus row pays its sum once (shown as +sum). */
+export type TallyRow = {
+  label: string
+  count: number
+  each: number
+  bonus?: boolean
+}
 
 export type Tally = {
   rows: TallyRow[]
@@ -72,7 +78,12 @@ export function dawnTally(huts: readonly Hut[]): Tally {
     { label: 'LAMPS STILL LIT', count: lit, each: TALLY.lit },
   ]
   if (perfect)
-    rows.push({ label: 'NOT A BITE!', count: 1, each: TALLY.notABite })
+    rows.push({
+      label: 'NOT A BITE!',
+      count: 1,
+      each: TALLY.notABite,
+      bonus: true,
+    })
   const total = rows.reduce((sum, r) => sum + r.count * r.each, 0)
   return { rows, total, perfect, unbitten }
 }

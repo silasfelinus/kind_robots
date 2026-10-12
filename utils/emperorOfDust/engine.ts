@@ -43,7 +43,8 @@ export const availableFollowers = (state: Campaign): Follower[] => {
     (leader) =>
       !leader.dead &&
       !traveling.has(leader.id) &&
-      (leader.injuredUntilDay ?? 0) <= dayAt(state.hour),
+      (leader.injuredUntilDay ?? 0) <= dayAt(state.hour) &&
+      (leader.availableOnDay ?? 0) <= dayAt(state.hour),
   )
 }
 
@@ -83,6 +84,8 @@ export const createCampaign = (
     dispatches: [],
     ignoredIncidentIds: [],
     log: [],
+    flags: [],
+    memorials: [],
   }
 }
 

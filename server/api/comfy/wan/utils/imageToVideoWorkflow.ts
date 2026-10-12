@@ -272,7 +272,10 @@ export function buildWanImageToVideoWorkflow(
   }
 
   // WanImageToVideo emits conditioning + the seed latent from the start frame.
-  // An optional end frame (WAN 2.2 first-last-frame) pins the final frame.
+  // An end frame needs WanFirstLastFrameToVideo instead (same three outputs):
+  // WanImageToVideo has no end_image input, and ComfyUI rejected every
+  // first-last request with "unexpected keyword argument 'end_image'"
+  // (ArtJobs 37646-37651, zuzu-pinball t-019).
   const i2vInputs: Record<string, unknown> = {
     positive: ['positive', 0],
     negative: ['negative', 0],
@@ -295,8 +298,12 @@ export function buildWanImageToVideoWorkflow(
 
   workflow['wan_i2v'] = {
     inputs: i2vInputs,
-    class_type: 'WanImageToVideo',
-    _meta: { title: 'WAN Image To Video' },
+    class_type: hasLastFrame ? 'WanFirstLastFrameToVideo' : 'WanImageToVideo',
+    _meta: {
+      title: hasLastFrame
+        ? 'WAN First-Last Frame To Video'
+        : 'WAN Image To Video',
+    },
   }
 
   // --- Two-expert sampling --------------------------------------------------

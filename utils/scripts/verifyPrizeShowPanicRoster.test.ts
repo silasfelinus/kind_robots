@@ -282,6 +282,22 @@ const g2d = stubContext()
   assert.ok(tell && bubbles === 5, 'a charge, then five bubbles')
 }
 
+// Tank armor should not turn a room into an unwinnable countdown.
+{
+  const g = stage()
+  const tank = g.makeCrasher('tank', 160, 120)
+  tank.face = Math.PI / 2
+  const fire = g as unknown as {
+    hitCrasher(c: Crasher, damage: number, vx: number, vy: number, foamy: boolean): boolean
+  }
+  for (let hit = 0; hit < 4; hit++)
+    assert.equal(fire.hitCrasher(tank, 1, 0, -4, false), false)
+  assert.equal(tank.armorHitsLeft, 0, 'the fourth clang breaks the plate')
+  for (let hit = 0; hit < ROSTER.tank.hp; hit++)
+    assert.equal(fire.hitCrasher(tank, 1, 0, -4, false), true)
+  assert.ok(!g.crashers.includes(tank), 'frontal shots now finish the tank')
+}
+
 // --- stagehand: crouches, then lays a mine, never in a doorway ----------------------------------
 {
   const g = stage()

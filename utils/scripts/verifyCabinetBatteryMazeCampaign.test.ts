@@ -61,6 +61,7 @@ type Game = {
   dying: number
   clearing: number
   stepIndex: number
+  menu: unknown
   steps: Step[]
   card: { t: number } | null
   story: { t: number } | null
@@ -120,13 +121,16 @@ const RIGHT = { x: 1, y: 0 }
 const UP = { x: 0, y: -1 }
 
 function create(resume?: unknown, demo = false): Game {
-  return batteryMaze.create({
+  const game = batteryMaze.create({
     rng: mulberry32(5),
     sound: { play: () => {} },
     demo,
     hiScore: 0,
     resume,
   }) as unknown as Game
+  // Straight into the campaign, as picking it from the mode menu does.
+  game.menu = null
+  return game
 }
 
 const press = (button: keyof InputFrame['held']) => {

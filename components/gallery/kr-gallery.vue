@@ -266,13 +266,11 @@
                 </span>
               </div>
               <kr-deferred-image
-                v-if="
-                  mode !== 'cards' && item.icon && !failedArt.has(item.icon)
-                "
-                :src="item.icon"
+                v-if="mode !== 'cards' && availableArtSrc(item.icon)"
+                :src="availableArtSrc(item.icon)"
                 alt=""
                 class="absolute bottom-2 left-2 size-11 rounded-xl border border-white/25 object-cover shadow"
-                @error="onArtError(item.icon)"
+                @error="onArtError(availableArtSrc(item.icon))"
               />
               <div
                 v-if="mode === 'cards'"
@@ -429,9 +427,19 @@ function hydrateSlotItem(id: string | number): void {
   hydratedSlotItems.value = new Set(hydratedSlotItems.value).add(id)
 }
 
+function availableArtSrc(src: string | undefined): string {
+  if (!src) return ''
+  if (!failedArt.value.has(src)) return src
+  const match = src.match(
+    /^https:\/\/raw\.githubusercontent\.com\/silasfelinus\/conductor\/main\/projects\/images\/([a-z0-9-]+\.(?:webp|png|jpe?g))(?:\?v=([a-f0-9]+))?$/,
+  )
+  if (!match?.[1]) return ''
+  const fallback = `https://cdn.jsdelivr.net/gh/silasfelinus/conductor@main/projects/images/${match[1]}${match[2] ? `?v=${match[2]}` : ''}`
+  return failedArt.value.has(fallback) ? '' : fallback
+}
+
 function artSrc(item: GalleryItem): string {
-  const src = displayImage(item)
-  return src && !failedArt.value.has(src) ? src : ''
+  return availableArtSrc(displayImage(item))
 }
 
 function onArtError(src: string): void {
@@ -451,7 +459,7 @@ function onArtError(src: string): void {
  */
 function didFail(item: GalleryItem): boolean {
   const src = displayImage(item)
-  return !!src && failedArt.value.has(src)
+  return !!src && !artSrc(item) && failedArt.value.has(src)
 }
 
 /*

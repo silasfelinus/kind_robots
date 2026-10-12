@@ -26,8 +26,18 @@ export type TzaddikOverridePayload = {
   overrideNote?: string | null
 }
 
+export type TzaddikCommunityScore = {
+  upvotes: number
+  downvotes: number
+  reviewCount: number
+  averageRating: number
+  score: number
+  myVote: number
+}
+
 export type TzaddikCandidateWithTags = TzaddikCandidate & {
   Tags: TzaddikCandidateTag[]
+  community?: TzaddikCommunityScore
 }
 
 export type TzaddikCandidateDetail = TzaddikCandidateWithTags & {
@@ -69,6 +79,8 @@ export const useTzaddikStore = defineStore('tzaddikStore', () => {
   const isLoadingDiscoveryQueue = ref(false)
   const discoveryQueueError = ref('')
   const isModerating = ref(false)
+  const votingById = ref<Record<number, boolean>>({})
+  const voteError = ref('')
 
   async function fetchLiving(
     force = false,
@@ -411,6 +423,34 @@ export const useTzaddikStore = defineStore('tzaddikStore', () => {
     }
   }
 
+  async function voteCandidate(
+    candidateId: number,
+    vote: -1 | 0 | 1,
+  ): Promise<boolean> {
+    if (votingById.value[candidateId]) return false
+    votingById.value = { ...votingById.value, [candidateId]: true }
+    voteError.value = ''
+    try {
+      const res = await performFetch<{ candidateId: number; vote: number }>(
+        '/api/tzaddik/vote',
+        {
+          method: 'POST',
+          body: JSON.stringify({ candidateId, vote }),
+        },
+      )
+      if (!res.success) throw new Error(res.message || 'Vote was not saved.')
+      await Promise.all([fetchLiving(true), fetchMemorial(true)])
+      return true
+    } catch (error) {
+      voteError.value =
+        error instanceof Error ? error.message : 'Vote was not saved.'
+      handleError(error, 'voting on a Tzaddik candidate')
+      return false
+    } finally {
+      votingById.value = { ...votingById.value, [candidateId]: false }
+    }
+  }
+
   return {
     living,
     memorial,
@@ -433,6 +473,9 @@ export const useTzaddikStore = defineStore('tzaddikStore', () => {
     isLoadingDiscoveryQueue,
     discoveryQueueError,
     isModerating,
+    votingById,
+    voteError,
+    voteCandidate,
     fetchLiving,
     fetchMemorial,
     fetchOne,

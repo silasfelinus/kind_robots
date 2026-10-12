@@ -166,9 +166,9 @@ export const FOES: Record<FoeKind, FoeDef> = {
         Math.sin(f.t / 10) * 0.6
     },
   },
-  // Bone coyotes are tougher than wandering spirits: a kunai takes three hits.
+  // Bone coyotes take four kunai or at least two heavy hits.
   hyena: {
-    hp: 3,
+    hp: 4,
     points: 300,
     hw: 9,
     cy: 8,

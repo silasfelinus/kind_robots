@@ -41,8 +41,17 @@ const RALLY_WAVES = DISTRICTS.flatMap((d) => d.waves)
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 const quiet = { play: () => {} }
-const fresh = (seed = 3, demo = false) =>
-  mod.create({ rng: mulberry32(seed), sound: quiet, demo, hiScore: 0 }) as any
+/** A game past the menu of modes, straight into the campaign. */
+const fresh = (seed = 3, demo = false) => {
+  const game = mod.create({
+    rng: mulberry32(seed),
+    sound: quiet,
+    demo,
+    hiScore: 0,
+  }) as any
+  game.menu = null
+  return game
+}
 
 /** A quiet arena: the wave's foes and family gone, the hero in the middle, nothing hurrying. */
 function emptyArena(game: any) {

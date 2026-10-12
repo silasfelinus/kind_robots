@@ -716,6 +716,27 @@ export const PREVIEW_GAMES: ArcadeGameMeta[] = [
     controls: 'Run, jump, use tools',
   },
   {
+    slug: 'rainbow-bullet-hell-space-princess',
+    title: 'Rainbow Bullet Hell Space Princess',
+    riffsOn: 'cinematic side-scrolling shmups',
+    blurb:
+      'Private Pinkwake Estuary combat-engine slice: oceanic scouts, numbered local pilots and real shots. This is not the complete eight-stage campaign.',
+    howTo: [
+      'ARROWS  FLY',
+      'HOLD A  PETAL FIRE',
+      'B  REPAIR SHIELD',
+      'DODGE THE SEA SCOUTS',
+      '1 TO 4 LOCAL PILOTS',
+    ],
+    width: 480,
+    height: 270,
+    maxPlausibleScore: 0,
+    titleArt: '',
+    accent: '#f9a8d4',
+    controls: 'Fly, shoot, shield',
+    maxPlayers: 4,
+  },
+  {
     slug: 'zuzu-pinball',
     title: 'Zuzu: The Last Bell',
     riffsOn: 'original multi-level pinball',
@@ -764,6 +785,8 @@ export const UNLISTED_SCORED_GAMES: ArcadeGameMeta[] = [
 
 const LOADERS: Record<string, () => Promise<ArcadeGameModule>> = {
   'save-the-plumber': () => import('./games/savePlumberPreview'),
+  'rainbow-bullet-hell-space-princess': () =>
+    import('./games/rainbowPrincessPreview'),
   'butterfly-blaster': () => import('./games/butterflyBlaster'),
   'battery-maze': () => import('./games/batteryMaze'),
   'rescue-rally': () => import('./games/rescueRally'),

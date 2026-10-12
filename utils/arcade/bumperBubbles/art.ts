@@ -135,6 +135,15 @@ export function robotSprites(seat: number, flavour: Flavour): RobotFrames {
 
 // --- the grumps ---------------------------------------------------------------------------------
 
+/** Cork, for the Big Cork and its little corks. */
+export const CORK_RAMP: Ramp = [
+  '#3a2410',
+  '#7a4e24',
+  '#b88048',
+  '#e0b07a',
+  '#f6dcb4',
+]
+
 /** Each grump's colour ramp (and the gems and pops it leaves). */
 export const GRUMP_RAMPS: Record<GrumpKind, Ramp> = {
   waddler: ['#0e3b2a', '#17803f', '#4ade80', '#a7f3c0', '#effff4'],
@@ -143,6 +152,11 @@ export const GRUMP_RAMPS: Record<GrumpKind, Ramp> = {
   climber: ['#3d0f4a', '#8a2a9e', '#e879f9', '#f5c2fc', '#fff0ff'],
   bouncer: RAMPS.rust,
   sprout: RAMPS.leaf,
+  puffer: RAMPS.water,
+  diver: ['#0b3a3a', '#11706a', '#22b8a0', '#86ecd6', '#e6fff8'],
+  comet: RAMPS.gold,
+  tick: ['#241a3a', '#4a3a6e', '#7e6aa8', '#bcaee0', '#f2ecff'],
+  corklet: CORK_RAMP,
 }
 
 type Shape = { body: readonly string[]; feet: readonly [string[], string[]] }
@@ -249,7 +263,95 @@ const SHAPES: Record<GrumpKind, Shape> = {
     ],
     feet: FEET,
   },
+  // A round little puffer, fins out, lips pursed.
+  puffer: {
+    body: [
+      '....LLLL....',
+      '..LHBBBBbb..',
+      '.LBBBBBBBBb.',
+      'LLkkBBBkkBbL',
+      'LBwkBBBwkBbL',
+      '.BBBBBBBBBb.',
+      '.BBBBkkBBBb.',
+      '..bBBBBBBb..',
+      '...bbbbbb...',
+    ],
+    feet: FEET,
+  },
+  // Goggles on, flippers ready.
+  diver: {
+    body: [
+      '...LLLLLL...',
+      '..LHBBBBBb..',
+      '.LkwkBBkwkb.',
+      '.BkkkBBkkkb.',
+      'LBBBBBBBBBbd',
+      'BBBBkkkkBBbd',
+      '.bBBBBBBBbd.',
+      '..bbbbbbbd..',
+    ],
+    feet: [['.nnN....Nnn.'], ['..nNn..nNn..']],
+  },
+  // A grumpy star dragging its tail.
+  comet: {
+    body: [
+      '.....H......',
+      '....HLH.....',
+      'NnnLBBBL....',
+      '.NnBkBkBBL..',
+      'NnnBwBwBBBL.',
+      '.NnBBkkBBL..',
+      'NnnLBBBL....',
+      '....HLH.....',
+      '.....H......',
+    ],
+    feet: [[], []],
+  },
+  // A little cork, sulking.
+  corklet: {
+    body: [
+      '..LLLLLLL...',
+      '.LHBdBBdBb..',
+      '.LBBBBBBBb..',
+      '.LkkBBBkkb..',
+      '.BwkBBBwkb..',
+      '.BBBBBBBBb..',
+      '.BBBkkkBBb..',
+      '.BdBBBBdBb..',
+      '..bbbbbbb...',
+    ],
+    feet: FEET,
+  },
+  // A beetle peering down a telescope.
+  tick: {
+    body: [
+      '.......nNN..',
+      '.....LLnNNw.',
+      '...LHBBnN...',
+      '..LBBBBBBb..',
+      '.LBkkBBBBBb.',
+      '.BBwkBBBBBb.',
+      '.BBBBBkkBBb.',
+      '..bBBBBBBb..',
+      '...bbbbbb...',
+    ],
+    feet: [['.d.d.d..d.d.'], ['d.d.d..d.d..']],
+  },
 }
+
+/** The puddle puffer swollen up for its jet. */
+const PUFFER_PUFFED = [
+  '...LLLLLL...',
+  '.LHBBBBBBbb.',
+  'LBBBBBBBBBBb',
+  'LBkkBBBBkkBb',
+  'BBwkBBBBwkBb',
+  'BBBBBBBBBBBb',
+  'BBBBBkkBBBBb',
+  '.bBBBkkBBBb.',
+  '..bbbbbbbb..',
+  '..dd....dd..',
+]
 
 /** The bouncer's wings down. */
 const BOUNCER_DOWN = [
@@ -281,6 +383,8 @@ const FLOWER = [
 export type GrumpFrames = {
   walk: readonly [PixelSprite, PixelSprite]
   flower: PixelSprite | null
+  /** The puffer's puffed-up wind-up. */
+  puffed: PixelSprite | null
 }
 
 function grumpFrames(kind: GrumpKind, ramp: Ramp): GrumpFrames {
@@ -303,13 +407,20 @@ function grumpFrames(kind: GrumpKind, ramp: Ramp): GrumpFrames {
   const walk: [PixelSprite, PixelSprite] = [
     pixelSprite([...shape.body, ...shape.feet[0]], palette),
     pixelSprite(
-      kind === 'bouncer' ? BOUNCER_DOWN : [...shape.body, ...shape.feet[1]],
+      kind === 'bouncer'
+        ? BOUNCER_DOWN
+        : kind === 'comet'
+          ? shape.body.map((row) =>
+              row.replace(/Nnn/g, '.Nn').replace(/\.Nn/g, 'nN.'),
+            )
+          : [...shape.body, ...shape.feet[1]],
       palette,
     ),
   ]
   return {
     walk,
     flower: kind === 'sprout' ? pixelSprite(FLOWER, palette) : null,
+    puffed: kind === 'puffer' ? pixelSprite(PUFFER_PUFFED, palette) : null,
   }
 }
 
@@ -507,7 +618,11 @@ export type Theme = {
   clouds: Ramp | null
   orb: { x: number; y: number; r: number; ramp: Ramp } | null
   /** Silhouettes along the far ridge. */
-  props: 'bottles' | 'lollipops'
+  props: 'bottles' | 'lollipops' | 'kelp' | 'domes'
+  /** Light shafts slanting down through the backdrop. */
+  rays: boolean
+  /** A ring round the orb (a planet). */
+  ring: boolean
   /** Rising backdrop bubbles. */
   decor: string
   /** Air-current streamers. */
@@ -518,6 +633,8 @@ export type Theme = {
 
 const MOON: Ramp = ['#3a3048', '#6a5a70', '#a898a0', '#d8cfc8', '#f4efe8']
 const SUN: Ramp = ['#f0c890', '#f6dca8', '#fbecc4', '#fff6e0', '#ffffff']
+const PLANET: Ramp = ['#2a0f3a', '#4a1f5a', '#7a3a7a', '#a8609a', '#d090c0']
+const MOSS: Ramp = ['#1a3a1a', '#2e5e2a', '#4a8a3a', '#8ac46a', '#d0f0b0']
 const MINT: Ramp = ['#0f3b33', '#1f7a62', '#34c79a', '#9ef0cf', '#eafff6']
 
 export const THEMES: Record<string, Theme> = {
@@ -540,6 +657,8 @@ export const THEMES: Record<string, Theme> = {
     clouds: null,
     orb: { x: 196, y: 62, r: 15, ramp: MOON },
     props: 'bottles',
+    rays: false,
+    ring: false,
     decor: RAMPS.pink[3],
     current: RAMPS.sky[3],
     hud: RAMPS.purple,
@@ -558,9 +677,57 @@ export const THEMES: Record<string, Theme> = {
     clouds: ['#9ab4e0', '#c4d4f0', '#e4ecfa', '#f6f9ff', '#ffffff'],
     orb: { x: 206, y: 52, r: 11, ramp: SUN },
     props: 'lollipops',
+    rays: false,
+    ring: false,
     decor: '#ffffff',
     current: '#ffffff',
     hud: RAMPS.leaf,
+  },
+  // A flooded cellar: green-blue gloom, light shafts and kelp, mossy stone.
+  lagoon: {
+    id: 'lagoon',
+    sky: ['#030d18', '#06213a', RAMPS.water[0], RAMPS.teal[0]],
+    block: RAMPS.steel,
+    frosting: MOSS,
+    wall: ['#0e2630', '#1a4450', '#2a6670', '#5a9a98', '#a6d8d0'],
+    drops: [RAMPS.teal, RAMPS.water, RAMPS.sky],
+    far: { fill: mix(RAMPS.teal[0], RAMPS.water[0], 0.4), rim: '#14505a' },
+    near: { fill: '#04161e', rim: RAMPS.teal[0] },
+    stars: null,
+    clouds: null,
+    orb: null,
+    props: 'kelp',
+    rays: true,
+    ring: false,
+    decor: RAMPS.water[4],
+    current: RAMPS.water[4],
+    hud: ['#0a2a3a', '#13506a', '#2a8fa9', '#7cd3f2', '#e0fbff'],
+  },
+  // The observatory at night: a ringed planet, gold stars, brass and violet.
+  observatory: {
+    id: 'observatory',
+    sky: [
+      RAMPS.night[0],
+      RAMPS.night[0],
+      RAMPS.night[1],
+      RAMPS.purple[0],
+      RAMPS.night[2],
+    ],
+    block: RAMPS.purple,
+    frosting: RAMPS.gold,
+    wall: RAMPS.night,
+    drops: [RAMPS.gold, RAMPS.purple, RAMPS.sky],
+    far: { fill: '#1a0f40', rim: RAMPS.night[3] },
+    near: { fill: RAMPS.night[0], rim: RAMPS.night[2] },
+    stars: RAMPS.gold,
+    clouds: null,
+    orb: { x: 58, y: 60, r: 14, ramp: PLANET },
+    props: 'domes',
+    rays: false,
+    ring: true,
+    decor: RAMPS.purple[3],
+    current: RAMPS.gold[3],
+    hud: RAMPS.purple,
   },
 }
 
@@ -591,20 +758,84 @@ const DECOR_BUBBLES = (() => {
 /** The sky, its moon or sun, the prop silhouettes: painted once into a cached layer. */
 export function paintSky(k: CanvasRenderingContext2D, theme: Theme) {
   bandedGradient(k, 0, 0, W, H, theme.sky, 4)
+  if (theme.rays) {
+    for (let i = 0; i < 5; i++) {
+      const x = 20 + i * 52
+      k.fillStyle = rgba(RAMPS.water[4], 0.05 + (i % 2) * 0.03)
+      k.beginPath()
+      k.moveTo(x, 0)
+      k.lineTo(x + 18 + (i % 3) * 6, 0)
+      k.lineTo(x + 70, H)
+      k.lineTo(x + 34, H)
+      k.closePath()
+      k.fill()
+    }
+  }
   const orb = theme.orb
   if (orb) {
     glow(k, orb.x, orb.y, orb.r * 2.6, orb.ramp[3], 0.22)
+    if (theme.ring) {
+      k.strokeStyle = RAMPS.gold[0]
+      k.lineWidth = 2
+      k.beginPath()
+      k.ellipse(orb.x, orb.y, orb.r * 1.8, orb.r * 0.45, -0.3, Math.PI, 0)
+      k.stroke()
+    }
     k.save()
-    k.globalAlpha = orb.ramp === MOON ? 1 : 0.55
+    k.globalAlpha = orb.ramp === SUN ? 0.55 : 1
     shadedOrb(k, orb.x, orb.y, orb.r, orb.ramp, { outline: null })
     k.restore()
+    if (theme.ring) {
+      k.strokeStyle = RAMPS.gold[1]
+      k.lineWidth = 2
+      k.beginPath()
+      k.ellipse(orb.x, orb.y, orb.r * 1.8, orb.r * 0.45, -0.3, 0, Math.PI)
+      k.stroke()
+    }
     if (orb.ramp === MOON) {
       k.fillStyle = rgba(MOON[1], 0.6)
       k.fillRect(orb.x + 3, orb.y + 2, 4, 3)
       k.fillRect(orb.x - 6, orb.y + 6, 3, 2)
     }
   }
-  const rand = backdropRng(theme.id === 'bottling' ? 71 : 73)
+  const rand = backdropRng(71 + theme.id.length)
+  if (theme.props === 'kelp') {
+    // Kelp swaying up from the cellar floor (painted still; the water moves in front).
+    for (let x = 8; x < W; x += 20 + Math.floor(rand() * 16)) {
+      const h = 40 + Math.floor(rand() * 60)
+      k.strokeStyle = rgba(RAMPS.leaf[1], 0.45)
+      k.lineWidth = 3
+      k.beginPath()
+      k.moveTo(x, H)
+      for (let y = H; y > H - h; y -= 6)
+        k.lineTo(x + Math.sin(y / 9 + x) * 4, y)
+      k.stroke()
+    }
+    return
+  }
+  if (theme.props === 'domes') {
+    // Observatory domes on the far ridge, their slits open to the stars.
+    for (let x = 24; x < W; x += 64 + Math.floor(rand() * 30)) {
+      const r = 12 + Math.floor(rand() * 8)
+      const base = 176
+      k.fillStyle = rgba(RAMPS.night[2], 0.95)
+      k.fillRect(x - r, base, r * 2, 24)
+      k.beginPath()
+      k.arc(x, base, r, Math.PI, 0)
+      k.fill()
+      k.strokeStyle = rgba(RAMPS.night[4], 0.8)
+      k.lineWidth = 1
+      k.beginPath()
+      k.arc(x, base, r, Math.PI, 0)
+      k.stroke()
+      // The slit, open to the stars, and a telescope peeking out.
+      k.fillStyle = rgba(RAMPS.night[0], 0.95)
+      k.fillRect(x - 2, base - r + 2, 4, r - 2)
+      k.fillStyle = rgba(RAMPS.gold[2], 0.7)
+      k.fillRect(x - 1, base - r - 3, 2, 6)
+    }
+    return
+  }
   if (theme.props === 'bottles') {
     // Bottles marching along a conveyor high in the hall.
     k.fillStyle = rgba(INK, 0.55)

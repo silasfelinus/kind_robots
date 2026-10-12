@@ -118,6 +118,11 @@ export const PROJECT_PLACEMENTS: Record<string, ProjectPlacement> = {
     tabKey: 'save-the-plumber',
     route: '/admin/save-the-plumber',
   },
+  'emperor-of-dust': {
+    channelKey: 'admin',
+    tabKey: 'emperor-of-dust',
+    route: '/admin/emperor-of-dust',
+  },
   'rainbow-bullet-hell-space-princess': {
     channelKey: 'admin',
     tabKey: 'rainbow-bullet-hell-space-princess',

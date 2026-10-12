@@ -12,6 +12,10 @@
 //   '.' open air (bubbles rise through it)
 //   '^' 'v' '<' '>' open air with an air current blowing that way
 //   'T' the floor's Fizz Tap, standing on the block beneath it
+//   '~' still water; '(' ')' a water channel flowing left or right (bodies wade
+//       through water and are carried along; bubbles in a channel ride the flow)
+//   'D' where a Secret Pantry's door appears (on a pantry floor)
+//   '*' a treat waiting in a pantry room; '@' the pantry's recipe card
 //   '1'..'4' where each robot starts (else the defaults along the floor)
 //   a lowercase letter: a grump starts here (GRUMP_LETTERS in grumps.ts)
 //
@@ -34,6 +38,11 @@ export const WALL_R = W - 2 * TILE
 export const FLOOR_Y = TOP + (ROWS - 1) * TILE
 
 export type Flavour = 'classic' | 'gum' | 'float' | 'fizz' | 'frost'
+/** Special bubbles that float in from a floor's walls. */
+export type SpecialKind = 'splash' | 'zap' | 'toasty'
+export type BossId = 'cork'
+
+export const GRAVITY = 0.2
 
 export type FloorDef = {
   /** The floor's name, shown as it scrolls in. */
@@ -43,6 +52,12 @@ export type FloorDef = {
   tap?: Flavour
   /** Where bubbles pinned under a ceiling drift to (default the middle). */
   gather?: number
+  /** Low gravity (the Observatory): floaty hops and slow bubbles. */
+  gravity?: number
+  /** Special bubbles that drift in on this floor. */
+  specials?: readonly SpecialKind[]
+  /** A boss floor: the boss is the floor's grump script. */
+  boss?: BossId
 }
 
 export const Cell = { Air: 0, Block: 1, Spring: 2 } as const
@@ -61,6 +76,9 @@ const CURRENT_CODES: readonly CurrentChar[] = ['^', 'v', '<', '>']
 export type Spot = { x: number; y: number }
 export type Spawn = Spot & { letter: string }
 
+/** Water codes, as stored in a parsed floor. */
+export const WATER = { none: 0, still: 1, left: 2, right: 3 } as const
+
 export type Floor = {
   name: string
   cells: Uint8Array
@@ -75,6 +93,16 @@ export type Floor = {
   gather: number
   /** Columns open in the floor row (bodies drop through and wrap). */
   wrapCols: readonly number[]
+  /** WATER codes per cell. */
+  water: Uint8Array
+  gravity: number
+  specials: readonly SpecialKind[]
+  boss: BossId | null
+  /** A pantry door's feet, on a pantry floor. */
+  door: Spot | null
+  /** Treats laid out in a pantry room, and its recipe card. */
+  treatSpots: readonly Spot[]
+  card: Spot | null
 }
 
 /** Feet position for a marker in column c, row r: the bottom of its tile. */
@@ -93,7 +121,11 @@ export function parseFloor(def: FloorDef): Floor {
   const currents = new Uint8Array(COLS * ROWS)
   const spawns: Spawn[] = []
   const marked: Spot[] = []
+  const water = new Uint8Array(COLS * ROWS)
+  const treatSpots: Spot[] = []
   let tap: Spot | null = null
+  let door: Spot | null = null
+  let card: Spot | null = null
   rows.forEach((row, r) => {
     if (row.length !== COLS)
       throw new Error(`${def.name}: row ${r} is ${row.length} wide`)
@@ -105,6 +137,12 @@ export function parseFloor(def: FloorDef): Floor {
       else if (ch in CURRENTS)
         currents[i] = 1 + CURRENT_CODES.indexOf(ch as CurrentChar)
       else if (ch === 'T') tap = feetOf(c, r)
+      else if (ch === '~') water[i] = WATER.still
+      else if (ch === '(') water[i] = WATER.left
+      else if (ch === ')') water[i] = WATER.right
+      else if (ch === 'D') door = feetOf(c, r)
+      else if (ch === '*') treatSpots.push(feetOf(c, r))
+      else if (ch === '@') card = feetOf(c, r)
       else if (ch >= '1' && ch <= '4') marked[Number(ch) - 1] = feetOf(c, r)
       else if (ch >= 'a' && ch <= 'z' && ch !== 'v')
         spawns.push({ ...feetOf(c, r), letter: ch })
@@ -112,6 +150,12 @@ export function parseFloor(def: FloorDef): Floor {
         throw new Error(`${def.name}: unknown "${ch}" at ${c},${r}`)
     }
   })
+  // A grump starting in water (a diver) keeps the water it stands in.
+  for (const sp of spawns) {
+    const c = Math.floor(sp.x / TILE)
+    const i = Math.round((sp.y - TOP) / TILE - 1) * COLS + c
+    water[i] = water[i - 1] || water[i + 1] || water[i]!
+  }
   const starts = DEFAULT_STARTS.map((c, i) => marked[i] ?? feetOf(c, ROWS - 2))
   const wrapCols: number[] = []
   for (let c = 2; c < COLS - 2; c++)
@@ -126,6 +170,13 @@ export function parseFloor(def: FloorDef): Floor {
     flavour: def.tap ?? null,
     gather: def.gather ?? W / 2,
     wrapCols,
+    water,
+    gravity: def.gravity ?? GRAVITY,
+    specials: def.specials ?? [],
+    boss: def.boss ?? null,
+    door,
+    treatSpots,
+    card,
   }
 }
 
@@ -152,7 +203,21 @@ export function surface(f: Floor, c: number, r: number): boolean {
   return r >= 1 && r < ROWS && solid(f, c, r) && !solid(f, c, r - 1)
 }
 
-/** The current blowing at a pixel, or null in still air. */
+/** The water at a pixel (a WATER code). */
+export function waterAt(f: Floor, px: number, py: number): number {
+  const c = Math.floor(px / TILE)
+  const r = Math.floor((py - TOP) / TILE)
+  if (c < 0 || c >= COLS || r < 0 || r >= ROWS) return WATER.none
+  return f.water[r * COLS + c]!
+}
+
+/** Which way water flows at a pixel: -1, 0 or 1. */
+export function flowAt(f: Floor, px: number, py: number): number {
+  const w = waterAt(f, px, py)
+  return w === WATER.left ? -1 : w === WATER.right ? 1 : 0
+}
+
+/** The current blowing at a pixel (a water channel counts), or null in still air. */
 export function currentAt(
   f: Floor,
   px: number,
@@ -161,6 +226,8 @@ export function currentAt(
   const c = Math.floor(px / TILE)
   const r = Math.floor((py - TOP) / TILE)
   if (c < 0 || c >= COLS || r < 0 || r >= ROWS) return null
+  const flow = flowAt(f, px, py)
+  if (flow) return { x: flow * 2, y: 0 }
   const code = f.currents[r * COLS + c]!
   return code ? CURRENTS[CURRENT_CODES[code - 1]!] : null
 }
@@ -176,7 +243,6 @@ export function groundBelow(f: Floor, x: number, y: number, half = 0): number {
 
 // --- bodies -------------------------------------------------------------------------------------
 
-export const GRAVITY = 0.2
 export const MAX_FALL = 4
 /** A hop clears five tiles (a platform row above), never two. */
 export const JUMP_V = -4.4
@@ -193,7 +259,13 @@ export type Body = {
 }
 
 /** Something a body can stand on besides blocks: a gum ledge, a bubble being ridden. */
-export type Ledge = { x: number; top: number; half: number }
+export type Ledge = {
+  x: number
+  top: number
+  half: number
+  /** What the ledge is (a bubble), for whoever stands on it. */
+  ref?: unknown
+}
 
 export type StepResult = {
   /** Walked into a wall or a block at waist height. */
@@ -253,10 +325,22 @@ export function stepBody(
     }
     b.x = nx
   }
+  // A water channel carries a wading body along.
+  const flow = flowAt(f, b.x, b.y - 4)
+  if (flow) {
+    const nx = b.x + flow * 0.6
+    if (
+      nx > WALL_L + half &&
+      nx < WALL_R - half &&
+      !waistBlocked(f, nx + flow * half, b.y)
+    )
+      b.x = nx
+  }
+  const wet = waterAt(f, b.x, b.y - 4) !== WATER.none
   // Down (or up).
   b.vy = Math.min(
-    options.maxFall ?? MAX_FALL,
-    b.vy + (options.gravity ?? GRAVITY),
+    wet ? 1.6 : (options.maxFall ?? MAX_FALL),
+    b.vy + (options.gravity ?? f.gravity),
   )
   const prevY = b.y
   let ny = b.y + b.vy
@@ -373,12 +457,15 @@ export function segments(f: Floor): Segment[] {
         c++
         continue
       }
+      // A run of gumdrops is a segment of its own: nobody walks across one, they bounce.
       const c0 = c
-      let spring = false
-      while (c < COLS - 2 && surface(f, c, r)) {
-        if (cellAt(f, c, r) === Cell.Spring) spring = true
+      const spring = cellAt(f, c, r) === Cell.Spring
+      while (
+        c < COLS - 2 &&
+        surface(f, c, r) &&
+        (cellAt(f, c, r) === Cell.Spring) === spring
+      )
         c++
-      }
       out.push({ r, c0, c1: c - 1, spring })
     }
   }
@@ -392,7 +479,7 @@ function gapBetween(a: Segment, b: Segment) {
 /** A way from one run of surface to another: where to set off from, and where to steer. */
 export type Hop = {
   to: number
-  kind: 'up' | 'down' | 'spring' | 'wrap'
+  kind: 'up' | 'down' | 'spring' | 'wrap' | 'walk'
   /** Stand here (px) and hop, or walk past here to drop. */
   launch: number
   /** Steer toward this x (px) while in the air. */
@@ -420,6 +507,10 @@ export function navOf(f: Floor): Nav {
     }
     return -1
   }
+  // How high and far a hop reaches under this floor's gravity.
+  const reachUp = Math.floor((JUMP_V * JUMP_V) / (2 * f.gravity) / TILE) - 1
+  const reachAcross = Math.round(4 * Math.sqrt(GRAVITY / f.gravity))
+  const reachSpring = Math.floor((SPRING_V * SPRING_V) / (2 * f.gravity) / TILE)
   const hops = segs.map((a, ai) => {
     const out: Hop[] = []
     const add = (hop: Hop) => {
@@ -429,7 +520,7 @@ export function navOf(f: Floor): Nav {
     segs.forEach((b, bi) => {
       const rise = a.r - b.r
       const gap = gapBetween(a, b)
-      if (rise >= 1 && rise <= 5 && gap <= 4) {
+      if (!a.spring && rise >= 1 && rise <= reachUp && gap <= reachAcross) {
         const lo = Math.max(a.c0, b.c0)
         const hi = Math.min(a.c1, b.c1)
         // Under the overlap, or from the end nearest the ledge, steering onto it.
@@ -454,14 +545,11 @@ export function navOf(f: Floor): Nav {
       }
     })
     if (a.spring) {
-      const spring = (() => {
-        for (let c = a.c0; c <= a.c1; c++)
-          if (cellAt(f, c, a.r) === Cell.Spring) return c
-        return a.c0
-      })()
+      // A gumdrop throws you high, or over to the run beside it.
+      const spring = Math.floor((a.c0 + a.c1) / 2)
       segs.forEach((b, bi) => {
         const rise = a.r - b.r
-        if (rise >= 1 && rise <= 13 && gapBetween(a, b) <= 6)
+        if (rise >= 0 && rise <= reachSpring && gapBetween(a, b) <= 6)
           add({
             to: bi,
             kind: 'spring',
@@ -469,6 +557,14 @@ export function navOf(f: Floor): Nav {
             aim: px(Math.max(b.c0, Math.min(b.c1, spring))),
           })
       })
+    } else {
+      // Walking onto a gumdrop beside this run.
+      for (const c of [a.c0 - 1, a.c1 + 1]) {
+        const i = segs.findIndex(
+          (b) => b.spring && b.r === a.r && c >= b.c0 && c <= b.c1,
+        )
+        if (i >= 0) add({ to: i, kind: 'walk', launch: px(c), aim: px(c) })
+      }
     }
     // Walking off either end, and drifting a little as it falls.
     for (const [c, edge] of [

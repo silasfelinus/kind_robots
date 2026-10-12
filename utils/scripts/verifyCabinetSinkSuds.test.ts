@@ -55,12 +55,15 @@ type Inner = {
 
 const quiet = { play: () => {} }
 function game(seed = 1, demo = false): Inner {
-  return create({
+  const g = create({
     rng: mulberry32(seed),
     sound: quiet,
     demo,
     hiScore: 0,
-  }) as unknown as Inner
+  }) as unknown as Inner & { menu: unknown }
+  // Straight into the campaign, past the mode menu (slice 4 has its own menu tests).
+  g.menu = null
+  return g
 }
 const press = (...buttons: Array<keyof InputFrame['held']>) => {
   const f = emptyInput()

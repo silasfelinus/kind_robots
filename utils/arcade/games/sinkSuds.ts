@@ -28,6 +28,7 @@ import {
   vignette,
 } from '../snes'
 import type { MusicLoop } from '../sound'
+import { emptyInput } from '../types'
 import type {
   ArcadeGameInstance,
   ArcadeGameModule,
@@ -115,6 +116,20 @@ import {
 import { Mossback } from '../sinkSuds/mossback'
 import { GIANT_R, GrimeKing } from '../sinkSuds/grimeking'
 import type { BossHost, SudsBoss } from '../sinkSuds/boss'
+import {
+  ENDLESS_ROSTER,
+  MEDAL,
+  MEDAL_NAMES,
+  SEAT_COLOURS,
+  SUMO,
+  SUMO_STARTS,
+  medalCount,
+  medalKey,
+  medalsFor,
+  modesFor,
+} from '../sinkSuds/modes'
+import type { ModeDef, ModeId } from '../sinkSuds/modes'
+import { renderBoard, renderMenu, renderResult } from '../sinkSuds/modeArt'
 import {
   BRUSH_SPRITE,
   BRUSH_TIPPED,
@@ -295,8 +310,24 @@ export type Bubble = {
   sticky: boolean
   /** The finale's giant bubble. */
   giant: boolean
+  /** Bubble Buddies: the seat of the bubble this one has merged into, or null. */
+  host: number | null
+  /** Seats merged into this one. */
+  members: number[]
+  /** Ticks before it can merge again after a split. */
+  mergeCool: number
+  /** Suds Sumo: round points, and whether it is out of this round. */
+  points: number
+  out: boolean
 }
-type Shot = { x: number; y: number; vx: number; vy: number; life: number }
+type Shot = {
+  x: number
+  y: number
+  vx: number
+  vy: number
+  life: number
+  seat: number
+}
 type Drip = { x: number; y: number; vy: number; landY: number }
 type Pop = {
   x: number
@@ -391,6 +422,12 @@ export type SudsSave = {
   cleared?: boolean
   /** Deep Clean laps begun. */
   deep?: number
+  /** Medals per basin, keyed `room:basin` (MEDAL bits). */
+  medals?: Record<string, number>
+  /** Best Squeaky Clean times per basin, in ticks. */
+  times?: Record<string, number>
+  /** Rooms the campaign has reached (Squeaky Clean picks from these). */
+  reached?: number
 }
 
 const SKINS: readonly SkinId[] = ['plain', 'rainbow', 'starry', 'frosted']
@@ -439,7 +476,25 @@ export function readSudsSave(raw: unknown): SudsSave | null {
       : [],
     cleared: r.cleared === true,
     deep: count(r.deep, 99) ? (r.deep as number) : 0,
+    medals: readTable(r.medals, 7),
+    times: readTable(r.times, 60 * 60 * 60),
+    reached: count(r.reached, GOLDEN_ROOMS.length)
+      ? Math.max(1, r.reached as number)
+      : 1,
   }
+}
+
+/** A small table of whole numbers keyed `room:basin` from a save, keeping only what makes sense. */
+function readTable(raw: unknown, max: number): Record<string, number> {
+  const out: Record<string, number> = {}
+  if (!raw || typeof raw !== 'object') return out
+  for (const [k, v] of Object.entries(raw as Record<string, unknown>)) {
+    const [room = '', basin = ''] = k.split(':')
+    if (!GOLDEN_ROOMS.includes(room) || !/^[1-4]$/.test(basin)) continue
+    if (typeof v === 'number' && Number.isInteger(v) && v > 0 && v <= max)
+      out[k] = v
+  }
+  return out
 }
 
 function dist(a: Point, b: Point) {
@@ -465,6 +520,59 @@ export function basinForLevel(level: number): BasinDef {
 }
 
 /** The endless sink's plan for a level: every shape in turn, the pests rising on curves. */
+/** Every shape the Endless Sink plays, in turn. */
+export const ENDLESS_PLAYLIST: readonly BasinId[] = [
+  'oval',
+  'double',
+  'tub',
+  'drum',
+  'tank',
+  'birdbath',
+  'conveyor',
+  'palace',
+]
+
+/**
+ * The Endless Sink: every shape in turn and, level by level, every pest. Each pest joins at its
+ * level (ENDLESS_ROSTER) and a second of each comes along eight levels later.
+ */
+export function endlessSinkPlan(level: number): BasinPlan {
+  const pests: Partial<Record<PestKind, number>> = {}
+  for (const { kind, from } of ENDLESS_ROSTER) {
+    if (level < from) continue
+    pests[kind] = 1 + Math.floor((level - from) / 8) + (kind === 'mite' ? 2 : 0)
+  }
+  const basin = ENDLESS_PLAYLIST[(level - 1) % ENDLESS_PLAYLIST.length]!
+  return {
+    title: `SINK ${level}`,
+    basin,
+    pests,
+    mess: Math.min(60, 26 + level * 2),
+    drip: Math.max(50, 140 - level * 5),
+    heat: level,
+    dirt: 1 + Math.floor(level / 10),
+    rain: basin === 'birdbath' ? 60 : undefined,
+    leaves: basin === 'birdbath' ? 3 : undefined,
+    par: 100,
+  }
+}
+
+/** Classic Sink: the original single kitchen sink, mites and brushes on today's curves. */
+export function classicPlan(level: number): BasinPlan {
+  const n = (spec: { start: number; step: number; limit: number }) =>
+    Math.max(0, Math.floor(levelCurve(level, spec)))
+  return {
+    title: `SINK ${level}`,
+    basin: 'oval',
+    pests: { mite: n(SUDS_CURVES.mites), brush: n(SUDS_CURVES.brushes) },
+    mess: n(SUDS_CURVES.messStart),
+    drip: Math.round(levelCurve(level, SUDS_CURVES.dripEvery)),
+    heat: level,
+    dirt: 1,
+    par: 90,
+  }
+}
+
 export function endlessPlan(level: number): BasinPlan {
   const n = (spec: { start: number; step: number; limit: number }) =>
     Math.max(0, Math.floor(levelCurve(level, spec)))
@@ -513,6 +621,11 @@ function newBubble(seat: number, at: Point): Bubble {
     superFrom: 1,
     sticky: false,
     giant: false,
+    host: null,
+    members: [],
+    mergeCool: 0,
+    points: 0,
+    out: false,
   }
 }
 
@@ -597,6 +710,32 @@ class SinkSuds implements ArcadeGameInstance {
   private basinTicks = 0
   private boss: SudsBoss | null = null
   private bossId: BossId | null = null
+  /** Players seated (1-4) and the mode they chose. */
+  private seats = 1
+  private mode: ModeId = 'campaign'
+  /** The mode menu before a real game starts; `board` shows the medal board instead. */
+  private menu: { mode: number; pick: number; board: boolean } | null = null
+  /** A finished Squeaky Clean or Suds Sumo, showing its result before the game ends. */
+  private result: {
+    title: string
+    lines: { text: string; colour?: string }[]
+    t: number
+  } | null = null
+  private medals: Record<string, number> = {}
+  private times: Record<string, number> = {}
+  private reached = 1
+  /** Bubbles lost in this basin (No Pop). */
+  private basinPops = 0
+  /** The step the save resumes at (the latest room start or boss). */
+  private resumeStep = 0
+  /** The Squeaky Clean basin, keyed `room:basin`. */
+  private squeakyKey = ''
+  private sumo: {
+    round: number
+    wins: number[]
+    t: number
+    pause: number
+  } | null = null
   /** The credits after an ending. */
   private ending: { kind: EndingKind; t: number } | null = null
   /** Deep Clean laps begun, and whether the house has been washed once. */
@@ -643,11 +782,295 @@ class SinkSuds implements ArcadeGameInstance {
     this.sound = options.sound
     this.demo = options.demo
     this.hiScore = options.hiScore
+    this.seats = Math.max(1, Math.min(4, options.players ?? 1))
+    if (this.demo) this.seats = 1
+    this.bubbles = Array.from({ length: this.seats }, (_, i) =>
+      newBubble(i, BASINS.oval.start),
+    )
+    this.lives = START_LIVES * this.seats
     const stored = this.demo ? null : readSudsSave(options.resume)
+    if (stored) {
+      this.medals = { ...stored.medals }
+      this.times = { ...stored.times }
+      this.reached = stored.reached ?? 1
+      this.golden = new Set(stored.golden)
+      this.skins = new Set(stored.skins)
+      this.skin = stored.skin
+      this.cleared = stored.cleared === true
+    }
     this.beginStep(0)
-    if (stored && stored.step > 0) {
+    // A checkpoint to continue: past the first room, or a Deep Clean lap (which starts at step 0).
+    if (stored && (stored.step > 0 || (stored.deep ?? 0) > 0)) {
       this.offer = stored
       this.saveData = stored
+    } else if (!this.demo) {
+      this.openMenu()
+    }
+  }
+
+  // --- modes -------------------------------------------------------------------
+
+  private openMenu() {
+    this.menu = { mode: 0, pick: 0, board: false }
+  }
+
+  private modes(): ModeDef[] {
+    return modesFor(this.seats)
+  }
+
+  /** Squeaky Clean's basins: every basin of the rooms the campaign has reached. */
+  private squeakyPicks() {
+    const picks: Array<{ room: number; basin: number }> = []
+    const rooms = ROOMS.filter((r) => !r.secret).slice(
+      0,
+      Math.max(1, this.reached),
+    )
+    for (const r of rooms)
+      for (let basin = 0; basin < 4; basin++)
+        picks.push({ room: ROOMS.indexOf(r), basin })
+    return picks
+  }
+
+  private updateMenu(input: InputFrame) {
+    const m = this.menu!
+    if (input.pressed.b) {
+      m.board = !m.board
+      this.sound.play('blip')
+      return
+    }
+    if (m.board) {
+      if (input.pressed.a || input.pressed.start) m.board = false
+      return
+    }
+    const n = this.modes().length
+    if (input.pressed.up) m.mode = (m.mode + n - 1) % n
+    if (input.pressed.down) m.mode = (m.mode + 1) % n
+    const picks = this.squeakyPicks().length
+    if (input.pressed.left) m.pick = (m.pick + picks - 1) % picks
+    if (input.pressed.right) m.pick = (m.pick + 1) % picks
+    if (
+      input.pressed.up ||
+      input.pressed.down ||
+      input.pressed.left ||
+      input.pressed.right
+    )
+      this.sound.play('blip')
+    if (input.pressed.a || input.pressed.start) this.startMode()
+  }
+
+  private startMode() {
+    const m = this.menu!
+    this.menu = null
+    this.mode = this.modes()[m.mode]!.id
+    this.sound.play('level')
+    switch (this.mode) {
+      case 'campaign':
+        if (this.seats > 1)
+          this.banner = {
+            text: 'BUBBLE BUDDIES',
+            sub: 'TOUCH TO MERGE, B TO SPLIT',
+            ticks: 150,
+          }
+        return
+      case 'squeaky': {
+        const pick = this.squeakyPicks()[m.pick] ?? { room: 0, basin: 0 }
+        const room = ROOMS[pick.room]!
+        const plan = room.basins[pick.basin]!
+        this.level = 1
+        this.room = room
+        this.squeakyKey = medalKey(room.id, pick.basin)
+        // A time attack on the grime: no special objective, just the clock.
+        this.startBasin(
+          { ...plan, special: undefined, goal: undefined },
+          room.backdrop,
+        )
+        this.banner = {
+          text: 'SQUEAKY CLEAN',
+          sub: `${plan.title}: 95% CLEAN, FAST`,
+          ticks: 120,
+        }
+        return
+      }
+      case 'sumo':
+        this.startSumoRound(1)
+        return
+      default:
+        this.level = 0
+        this.startLevel(1)
+    }
+  }
+
+  /** Suds Sumo: every bubble in the oval sink at once; the drain swallows whoever is shoved in. */
+  private startSumoRound(round: number) {
+    if (!this.sumo)
+      this.sumo = { round, wins: this.bubbles.map(() => 0), t: 0, pause: 0 }
+    this.sumo.round = round
+    this.sumo.t = 0
+    this.sumo.pause = 0
+    this.level = round
+    this.room = null
+    this.startBasin(
+      {
+        title: 'SUDS SUMO',
+        basin: 'oval',
+        pests: { mite: 3 },
+        mess: SUMO.mess,
+        drip: SUMO.drip,
+        heat: 3,
+        par: 90,
+      },
+      'kitchen',
+    )
+    this.bubbles.forEach((b, i) => {
+      const at = SUMO_STARTS[i % SUMO_STARTS.length]!
+      Object.assign(b, {
+        x: at.x,
+        y: at.y,
+        stage: 2,
+        alive: true,
+        out: false,
+        host: null,
+        members: [],
+        invuln: 90,
+      })
+    })
+    this.lives = this.seats
+    this.banner = {
+      text: `ROUND ${round}`,
+      sub: 'SHOVE THEM DOWN THE DRAIN',
+      ticks: 120,
+    }
+  }
+
+  private updateSumo() {
+    const sumo = this.sumo!
+    sumo.t++
+    // Bigger bubbles shove smaller ones about: the push goes by size.
+    const live = this.bubbles.filter((b) => b.alive && !b.out)
+    for (let i = 0; i < live.length; i++)
+      for (let j = i + 1; j < live.length; j++) {
+        const a = live[i]!
+        const c = live[j]!
+        const ra = this.radiusOf(a)
+        const rc = this.radiusOf(c)
+        const d = dist(a, c) || 1
+        if (d >= ra + rc) continue
+        const nx = (c.x - a.x) / d
+        const ny = (c.y - a.y) / d
+        const ma = ra * ra
+        const mc = rc * rc
+        const overlap = ra + rc - d
+        a.x -= nx * overlap * (mc / (ma + mc))
+        a.y -= ny * overlap * (mc / (ma + mc))
+        c.x += nx * overlap * (ma / (ma + mc))
+        c.y += ny * overlap * (ma / (ma + mc))
+        const rel = (a.vx - c.vx) * nx + (a.vy - c.vy) * ny
+        if (rel > 0) {
+          const k = (2.4 * rel) / (ma + mc)
+          a.vx -= k * mc * nx
+          a.vy -= k * mc * ny
+          c.vx += k * ma * nx
+          c.vy += k * ma * ny
+          if (rel > 1) this.sound.play('blip')
+        }
+      }
+    // The drain is open all round: shoved in, you are out.
+    for (const b of live) {
+      if (dist(b, this.basin.drain) < 12) {
+        b.out = true
+        b.alive = false
+        this.burst(b.x, b.y, 24, SEAT_COLOURS[b.seat]!)
+        this.sound.play('die')
+        this.floaters.push({
+          x: b.x,
+          y: b.y - 20,
+          text: `P${b.seat + 1} DOWN THE DRAIN!`,
+          life: 70,
+          color: SEAT_COLOURS[b.seat],
+        })
+      }
+    }
+    const standing = this.bubbles.filter((b) => !b.out)
+    if (sumo.pause > 0) {
+      if (--sumo.pause === 0) {
+        if (Math.max(...sumo.wins) >= SUMO.wins) this.endSumo()
+        else this.startSumoRound(sumo.round + 1)
+      }
+      return
+    }
+    if (standing.length <= 1 || sumo.t >= SUMO.roundTicks) {
+      // The last bubble in the basin, or the biggest when the clock runs out.
+      const winner = (standing.length ? standing : this.bubbles).reduce(
+        (a, c) => (c.stage * 100 + c.growth > a.stage * 100 + a.growth ? c : a),
+      )
+      sumo.wins[winner.seat]!++
+      winner.points += 1000
+      if (winner.seat === 0) this.addScore(1000)
+      this.banner = {
+        text: `P${winner.seat + 1} WINS THE ROUND`,
+        sub: sumo.wins.map((w, i) => `P${i + 1} ${w}`).join('  '),
+        ticks: 150,
+      }
+      this.sound.play('extra')
+      sumo.pause = 150
+    }
+  }
+
+  private endSumo() {
+    const sumo = this.sumo!
+    const best = Math.max(...sumo.wins)
+    const champ = sumo.wins.indexOf(best)
+    this.result = {
+      title: `P${champ + 1} WINS!`,
+      lines: this.bubbles.map((b, i) => ({
+        text: `P${i + 1}  ${sumo.wins[i]} ROUNDS  ${b.points} POINTS`,
+        colour: SEAT_COLOURS[i],
+      })),
+      t: 0,
+    }
+  }
+
+  /** Squeaky Clean: done at 95%; the clock is the score. */
+  private finishSqueaky() {
+    const ticks = this.basinTicks
+    const best = this.times[this.squeakyKey]
+    const record = !best || ticks < best
+    if (record && !this.demo) this.times[this.squeakyKey] = ticks
+    const points = Math.max(1_000, 40_000 - ticks * 8)
+    this.addScore(points)
+    this.keepProgress()
+    const clock = (t: number) =>
+      `${Math.floor(t / 3600)}:${String(Math.floor((t / 60) % 60)).padStart(2, '0')}.${String(Math.floor(((t % 60) / 60) * 10))}`
+    this.result = {
+      title: 'SQUEAKY CLEAN!',
+      lines: [
+        { text: `${this.plan.title}  ${clock(ticks)}`, colour: '#ffffff' },
+        {
+          text: record ? 'A NEW BEST TIME!' : `BEST ${clock(best!)}`,
+          colour: record ? RAMPS.gold[4] : RAMPS.cream[3],
+        },
+        { text: `${points} POINTS`, colour: RAMPS.teal[4] },
+      ],
+      t: 0,
+    }
+    this.sound.play('extra')
+  }
+
+  /** Medals, best times and rooms reached go into the save as soon as they are earned. */
+  private keepProgress() {
+    if (this.demo) return
+    // Any mode can earn progress: with no campaign checkpoint to carry it, it rides on a fresh
+    // start-of-the-house save (step 0, which never offers to continue).
+    const s = this.saveData ?? this.progressSave()
+    this.saveData = {
+      ...s,
+      golden: [...this.golden],
+      skins: [...this.skins],
+      skin: this.skin,
+      cleared: this.cleared,
+      medals: { ...this.medals },
+      times: { ...this.times },
+      reached: this.reached,
     }
   }
 
@@ -669,7 +1092,11 @@ class SinkSuds implements ArcadeGameInstance {
   }
 
   private radiusOf(b: Bubble) {
-    return b.giant ? GIANT_R : STAGE_RADIUS[b.stage]!
+    if (b.giant) return GIANT_R
+    // A merged bubble is bigger than any one bubble can grow.
+    return (
+      STAGE_RADIUS[b.stage]! + (b.members.length ? 2 + b.members.length * 3 : 0)
+    )
   }
 
   // --- the campaign ------------------------------------------------------------
@@ -706,6 +1133,15 @@ class SinkSuds implements ArcadeGameInstance {
       this.ending = { kind: step.ending, t: 0 }
       this.cleared = true
       this.sound.play('extra')
+      // Save where the credits lead, so quitting during them loses nothing: the palace with every
+      // golden soap after the clean ending, otherwise the next Deep Clean lap.
+      const palace = this.steps.findIndex(
+        (st) =>
+          st.kind === 'basin' && st.basin === 0 && !!ROOMS[st.room]?.secret,
+      )
+      if (step.ending === 'clean' && this.allGolden && palace >= 0)
+        this.keep(palace)
+      else this.keep(0, this.deep + 1)
       return
     }
     if (step.kind === 'deep') {
@@ -764,17 +1200,69 @@ class SinkSuds implements ArcadeGameInstance {
     this.room = null
     this.boss = null
     this.shop = null
-    this.startBasin(endlessPlan(level), 'kitchen')
+    const plan =
+      this.mode === 'endless'
+        ? endlessSinkPlan(level)
+        : this.mode === 'classic'
+          ? classicPlan(level)
+          : endlessPlan(level)
+    const backdrop =
+      plan.basin === 'birdbath'
+        ? 'garden'
+        : plan.basin === 'palace'
+          ? 'palace'
+          : plan.basin === 'tub'
+            ? 'bath'
+            : plan.basin === 'drum'
+              ? 'laundry'
+              : plan.basin === 'tank'
+                ? 'aquarium'
+                : plan.basin === 'conveyor'
+                  ? 'carwash'
+                  : 'kitchen'
+    this.startBasin(plan, backdrop)
     this.inEndless = true
     this.banner = { text: `SINK ${level}`, sub: this.basin.name, ticks: 100 }
   }
 
   /** Write the save: where the wash is (a room's start or a boss) and what the bubble owns. */
-  private keep() {
-    if (this.demo) return
+  /**
+   * A save that holds only what lasts between washes (medals, best times, rooms reached, golden
+   * soaps, skins, a clear) and starts the house over: what New Wash and the other modes keep.
+   */
+  private progressSave(): SudsSave {
+    return {
+      v: 1,
+      step: 0,
+      score: 0,
+      lives: START_LIVES,
+      bars: 0,
+      puff: false,
+      stage2: false,
+      shield: 0,
+      skins: [...this.skins],
+      skin: this.skin,
+      golden: [...this.golden],
+      cleared: this.cleared,
+      deep: 0,
+      medals: { ...this.medals },
+      times: { ...this.times },
+      reached: this.reached,
+    }
+  }
+
+  private keep(at = this.stepIndex, deep = this.deep) {
+    if (this.demo || this.mode !== 'campaign') return
+    this.resumeStep = at
+    const step = this.steps[at]
+    if (step?.kind === 'basin' && !ROOMS[step.room]!.secret)
+      this.reached = Math.max(
+        this.reached,
+        GOLDEN_ROOMS.indexOf(ROOMS[step.room]!.id) + 1,
+      )
     this.saveData = {
       v: 1,
-      step: this.stepIndex,
+      step: at,
       score: this.score,
       lives: Math.max(1, this.lives),
       bars: this.bars,
@@ -785,7 +1273,10 @@ class SinkSuds implements ArcadeGameInstance {
       skin: this.skin,
       golden: [...this.golden],
       cleared: this.cleared,
-      deep: this.deep,
+      deep,
+      medals: { ...this.medals },
+      times: { ...this.times },
+      reached: this.reached,
     }
   }
 
@@ -926,10 +1417,15 @@ class SinkSuds implements ArcadeGameInstance {
     this.bossDone = 0
     this.pilotGoal = null
     const startStage = this.upgrades.stage2 ? 2 : 1
+    this.basinPops = 0
     for (const b of this.bubbles) {
+      const at = this.seatStart(b.seat)
       Object.assign(b, {
-        x: this.basin.start.x,
-        y: this.basin.start.y,
+        host: null,
+        members: [],
+        mergeCool: 60,
+        x: at.x,
+        y: at.y,
         vx: 0,
         vy: 0,
         stage: startStage,
@@ -1059,12 +1555,25 @@ class SinkSuds implements ArcadeGameInstance {
 
   // --- update ------------------------------------------------------------------
 
-  update(input: InputFrame) {
+  update(input: InputFrame, players?: InputFrame[]) {
     this.tick++
     this.updateEffects()
     if (this.banner && --this.banner.ticks <= 0) this.banner = null
     if (this.chainTimer > 0 && --this.chainTimer === 0) this.chain = 0
     if (this.over) return
+    if (this.result) {
+      this.result.t++
+      if (
+        this.result.t > 60 * 12 ||
+        (this.result.t > 90 && (input.pressed.a || input.pressed.start))
+      )
+        this.over = true
+      return
+    }
+    if (this.menu) {
+      this.updateMenu(input)
+      return
+    }
     if (this.offer) {
       if (input.pressed.a || input.pressed.start) {
         const s = this.offer
@@ -1074,11 +1583,13 @@ class SinkSuds implements ArcadeGameInstance {
         // A new wash: the golden soaps and skins stay, the house starts dirty again.
         const s = this.offer
         this.offer = null
-        this.saveData = null
         this.golden = new Set(s.golden)
         this.skins = new Set(s.skins)
         this.skin = s.skin
         this.cleared = s.cleared === true
+        // The checkpoint goes; the medals, best times and rooms reached stay saved.
+        this.saveData = this.progressSave()
+        this.openMenu()
       }
       return
     }
@@ -1096,7 +1607,11 @@ class SinkSuds implements ArcadeGameInstance {
         this.advance()
       return
     }
-    if (this.lives <= 0 && !this.bubbles.some((b) => b.alive)) {
+    if (
+      this.mode !== 'sumo' &&
+      this.lives <= 0 &&
+      !this.bubbles.some((b) => b.alive)
+    ) {
       if (++this.overTimer > 100) this.over = true
       return
     }
@@ -1113,15 +1628,42 @@ class SinkSuds implements ArcadeGameInstance {
       return
     }
     for (const b of this.bubbles) {
-      if (b.alive || this.lives <= 0) continue
+      if (b.alive || b.host !== null || this.lives <= 0 || this.mode === 'sumo')
+        continue
       if (--b.respawn <= 0) this.revive(b)
     }
-    if (!this.bubbles.some((b) => b.alive)) return
+    if (this.mode === 'sumo') this.updateSumo()
+    if (this.result || !this.bubbles.some((b) => b.alive)) return
 
     this.basinTicks++
-    const controls = this.demo ? this.demoInput() : input
+    const frames = this.demo
+      ? [this.demoInput()]
+      : players?.length && this.seats > 1
+        ? players
+        : [input]
     this.updateWater()
-    for (const b of this.bubbles) if (b.alive) this.moveBubble(b, controls)
+    for (const b of this.bubbles) {
+      if (!b.alive || b.host !== null) continue
+      const controls = this.controlsFor(b, frames)
+      // B splits a merged bubble (any of its players can).
+      if (b.members.length && controls.pressed.b) {
+        this.split(b)
+        continue
+      }
+      // The B that split a bubble does not also blow a soap shot.
+      const own =
+        b.mergeCool >= 90 && controls.pressed.b
+          ? { ...controls, pressed: { ...controls.pressed, b: false } }
+          : controls
+      this.moveBubble(b, own)
+    }
+    this.mergeBubbles()
+    for (const b of this.bubbles) {
+      if (b.host === null) continue
+      const h = this.bubbles[b.host]!
+      b.x = h.x
+      b.y = h.y
+    }
     this.carryMess()
     this.updateDucks()
     this.updatePlates()
@@ -1133,7 +1675,118 @@ class SinkSuds implements ArcadeGameInstance {
     this.moveDrips()
     this.updateFloats()
     this.updateBoss()
-    for (const b of this.bubbles) if (b.alive) this.collide(b)
+    for (const b of this.bubbles)
+      if (b.alive && b.host === null) this.collide(b)
+    if (
+      this.mode === 'squeaky' &&
+      !this.result &&
+      this.grime.percent >= SQUEAKY
+    )
+      this.finishSqueaky()
+  }
+
+  /** A bubble's controls: its own player's, or everyone's averaged inside a merged bubble. */
+  private controlsFor(b: Bubble, frames: InputFrame[]): InputFrame {
+    const own = frames[b.seat] ?? emptyInput()
+    if (!b.members.length) return own
+    const all = [own, ...b.members.map((s) => frames[s] ?? emptyInput())]
+    let x = 0
+    let y = 0
+    for (const f of all) {
+      x += (f.held.right ? 1 : 0) - (f.held.left ? 1 : 0)
+      y += (f.held.down ? 1 : 0) - (f.held.up ? 1 : 0)
+    }
+    const out = emptyInput()
+    const k = 0.34 * all.length
+    out.held.right = x > k
+    out.held.left = x < -k
+    out.held.down = y > k
+    out.held.up = y < -k
+    out.pressed.a = all.some((f) => f.pressed.a)
+    out.pressed.b = all.some((f) => f.pressed.b)
+    return out
+  }
+
+  /** Bubble Buddies: two bubbles that touch merge into one, bigger, steered by both. */
+  private mergeBubbles() {
+    if (
+      this.seats < 2 ||
+      this.mode === 'sumo' ||
+      this.boss instanceof GrimeKing
+    )
+      return
+    for (const b of this.bubbles) if (b.mergeCool > 0) b.mergeCool--
+    const free = this.bubbles.filter(
+      (b) => b.alive && b.host === null && !b.giant && b.mergeCool === 0,
+    )
+    for (let i = 0; i < free.length; i++)
+      for (let j = i + 1; j < free.length; j++) {
+        const a = free[i]!
+        const c = free[j]!
+        if (a.host !== null || c.host !== null) continue
+        if (dist(a, c) > this.radiusOf(a) + this.radiusOf(c)) continue
+        // The bigger one takes the other in (and everyone it carried).
+        const [host, guest] =
+          this.radiusOf(a) >= this.radiusOf(c) ? [a, c] : [c, a]
+        const seats = [guest.seat, ...guest.members]
+        guest.members = []
+        for (const seat of seats) {
+          const m = this.bubbles[seat]!
+          m.host = host.seat
+          m.alive = true
+        }
+        host.members.push(...seats)
+        host.stage = Math.min(MAX_STAGE, Math.max(host.stage, guest.stage) + 1)
+        host.growth = 0
+        host.x = (host.x + guest.x) / 2
+        host.y = (host.y + guest.y) / 2
+        keepInside(this.basin, host, this.radiusOf(host))
+        this.fx.burst(host.x, host.y, this.fxRng, { count: 14 })
+        this.sound.play('pickup')
+        this.floaters.push({
+          x: host.x,
+          y: host.y - 24,
+          text: 'MERGED!',
+          life: 50,
+          color: RAMPS.teal[4],
+        })
+      }
+  }
+
+  /** B on a merged bubble: everyone pops back out, each a size smaller than the whole. */
+  private split(b: Bubble) {
+    const seats = b.members
+    b.members = []
+    const size = Math.max(1, b.stage - 1)
+    b.stage = size
+    b.mergeCool = 90
+    const n = seats.length + 1
+    seats.forEach((seat, i) => {
+      const m = this.bubbles[seat]!
+      const a = ((i + 1) / n) * Math.PI * 2
+      Object.assign(m, {
+        host: null,
+        alive: true,
+        stage: size,
+        growth: 0,
+        x: b.x + Math.cos(a) * 20,
+        y: b.y + Math.sin(a) * 20,
+        vx: Math.cos(a) * 2.5,
+        vy: Math.sin(a) * 2.5,
+        invuln: 60,
+        mergeCool: 90,
+      })
+      keepInside(this.basin, m, this.radiusOf(m))
+    })
+    b.vx -= 1
+    this.sound.play('pop')
+    this.floaters.push({
+      x: b.x,
+      y: b.y - 24,
+      text: 'SPLIT!',
+      life: 45,
+      color: RAMPS.pink[3],
+    })
   }
 
   private updateDraining() {
@@ -1161,7 +1814,40 @@ class SinkSuds implements ArcadeGameInstance {
       }
     }
     if (!this.demo) this.bars += bars
+    // Medals for a campaign basin: Squeaky Clean, No Pop, Quick Rinse.
+    const step = this.steps[this.stepIndex]
+    let earned = 0
+    if (
+      this.mode === 'campaign' &&
+      step?.kind === 'basin' &&
+      !this.inEndless &&
+      !this.demo
+    ) {
+      const room = ROOMS[step.room]!
+      if (!room.secret) {
+        const key = medalKey(room.id, step.basin)
+        const bits = medalsFor(
+          percent,
+          this.basinPops,
+          this.basinTicks,
+          this.plan.par,
+        )
+        earned = bits & ~(this.medals[key] ?? 0)
+        this.medals[key] = (this.medals[key] ?? 0) | bits
+        this.keepProgress()
+      }
+    }
     this.advance()
+    if (earned && !golden && !squeaky) {
+      const names = (Object.keys(MEDAL) as (keyof typeof MEDAL)[])
+        .filter((k) => earned & MEDAL[k])
+        .map((k) => MEDAL_NAMES[k])
+      this.banner = {
+        text: medalCount(earned) > 1 ? 'MEDALS!' : 'MEDAL!',
+        sub: names.join(' + '),
+        ticks: 120,
+      }
+    }
     if (golden)
       this.banner = {
         text: 'GOLDEN SOAP!',
@@ -1288,6 +1974,7 @@ class SinkSuds implements ArcadeGameInstance {
       vx: b.faceX * SHOT_SPEED + b.vx * 0.3,
       vy: b.faceY * SHOT_SPEED + b.vy * 0.3,
       life: SHOT_LIFE,
+      seat: b.seat,
     })
     this.sound.play('shoot')
   }
@@ -1450,7 +2137,8 @@ class SinkSuds implements ArcadeGameInstance {
 
   /** Can this bubble go down the drain now? */
   private drainOpenFor(b: Bubble) {
-    if (this.boss) return false
+    if (this.boss || this.mode === 'sumo' || this.mode === 'squeaky')
+      return false
     if (this.plan.special) return this.specialDone
     return b.stage >= MAX_STAGE
   }
@@ -2413,6 +3101,25 @@ class SinkSuds implements ArcadeGameInstance {
         this.fx.burst(s.x, s.y, this.fxRng, { count: 4, speed: 0.8 })
         continue
       }
+      if (this.mode === 'sumo') {
+        // In Suds Sumo a shot shoves a rival and knocks a size off it.
+        const rival = this.bubbles.find(
+          (o) =>
+            o.alive &&
+            !o.out &&
+            o.seat !== s.seat &&
+            dist(o, s) < this.radiusOf(o) + SHOT_R,
+        )
+        if (rival) {
+          rival.vx += s.vx * 1.3
+          rival.vy += s.vy * 1.3
+          rival.stage = Math.max(1, rival.stage - 1)
+          rival.hurt = 30
+          s.life = 0
+          this.sound.play('pop')
+          continue
+        }
+      }
       for (const p of this.pests) {
         if (!this.solid(p) || dist(p, s) >= this.pestR(p) + SHOT_R) continue
         if (p.kind === 'wax' && p.state === 'set') {
@@ -2721,8 +3428,22 @@ class SinkSuds implements ArcadeGameInstance {
   }
 
   private popBubble(b: Bubble) {
+    if (this.mode === 'sumo') {
+      b.alive = false
+      b.out = true
+      this.burst(b.x, b.y, 30, SEAT_COLOURS[b.seat]!)
+      this.sound.play('die')
+      return
+    }
+    // A merged bubble pops everyone inside it, for one bubble off the shared count.
+    for (const seat of b.members) {
+      const m = this.bubbles[seat]!
+      Object.assign(m, { alive: false, host: null, respawn: 100 + seat * 20 })
+    }
+    b.members = []
     b.alive = false
-    this.lives--
+    this.lives = Math.max(0, this.lives - 1)
+    this.basinPops++
     b.respawn = 100
     b.power = null
     b.superTicks = 0
@@ -2732,10 +3453,23 @@ class SinkSuds implements ArcadeGameInstance {
       this.banner = { text: 'GAME OVER', ticks: 9999 }
   }
 
+  /** Where a seat's bubble starts: side by side across the basin's start. */
+  private seatStart(seat: number): Point {
+    const s = this.basin.start
+    if (this.seats === 1) return { ...s }
+    const at = { x: s.x + (seat - (this.seats - 1) / 2) * 30, y: s.y }
+    keepInside(this.basin, at, 18, 0)
+    return at
+  }
+
   private revive(b: Bubble) {
+    const at = this.seatStart(b.seat)
     Object.assign(b, {
-      x: this.basin.start.x,
-      y: this.basin.start.y,
+      host: null,
+      members: [],
+      mergeCool: 60,
+      x: at.x,
+      y: at.y,
       vx: 0,
       vy: 0,
       stage: Math.max(this.upgrades.stage2 ? 2 : 1, b.stage - 1),
@@ -2960,6 +3694,11 @@ class SinkSuds implements ArcadeGameInstance {
       start: false,
     }
     const frame: InputFrame = { held, pressed: { ...held } }
+    // On the menu or a result card, the pilot just presses on.
+    if (this.menu || this.result) {
+      frame.pressed.a = this.tick % 30 === 0
+      return frame
+    }
     if (this.shop) return this.shopPilot()
     const b = this.bubble
     if (!b.alive) return frame
@@ -3307,6 +4046,35 @@ class SinkSuds implements ArcadeGameInstance {
       })
     }
     if (this.offer) this.renderOffer(g, this.offer)
+    if (this.menu) {
+      if (this.menu.board) renderBoard(g, this.boardRows(), this.tick)
+      else {
+        const modes = this.modes()
+        const pick = this.squeakyPicks()[this.menu.pick] ?? {
+          room: 0,
+          basin: 0,
+        }
+        const room = ROOMS[pick.room]!
+        const key = medalKey(room.id, pick.basin)
+        const best = this.times[key]
+        renderMenu(g, {
+          modes,
+          mode: this.menu.mode,
+          row: 0,
+          rows:
+            modes[this.menu.mode]?.id === 'squeaky'
+              ? ['mode', 'room']
+              : ['mode'],
+          room: `${room.name}: ${room.basins[pick.basin]!.title}`,
+          basin: pick.basin,
+          best: best ? `${(best / 60).toFixed(1)} S` : null,
+          seats: this.seats,
+          tick: this.tick,
+        })
+      }
+    }
+    if (this.result)
+      renderResult(g, this.result.title, this.result.lines, this.result.t > 90)
   }
 
   private renderBackdrop(g: CanvasRenderingContext2D) {
@@ -3388,8 +4156,16 @@ class SinkSuds implements ArcadeGameInstance {
       })
   }
 
+  /** The medal board's rows: every room but the palace, four basins each. */
+  private boardRows() {
+    return ROOMS.filter((r) => !r.secret).map((r) => ({
+      name: r.name,
+      medals: [0, 1, 2, 3].map((i) => this.medals[medalKey(r.id, i)] ?? 0),
+    }))
+  }
+
   private renderOneBubble(g: CanvasRenderingContext2D, b: Bubble) {
-    if (!b.alive) return
+    if (!b.alive || b.host !== null) return
     if (b.invuln > 0 && Math.floor(b.invuln / 6) % 2 === 0) return
     const base = this.radiusOf(b)
     const r =
@@ -3421,6 +4197,21 @@ class SinkSuds implements ArcadeGameInstance {
       tick: this.tick,
       tint: SKIN_TINTS[this.skin],
     })
+    if (this.seats > 1) {
+      // Whose bubble: a ring in the seat's colour and a tag for everyone inside.
+      g.strokeStyle = SEAT_COLOURS[b.seat]!
+      g.lineWidth = 2
+      g.beginPath()
+      g.arc(b.x, b.y, r + 2, 0, Math.PI * 2)
+      g.stroke()
+      g.lineWidth = 1
+      const tag = [b.seat, ...b.members].map((seat) => `P${seat + 1}`).join('+')
+      drawText(g, tag, b.x, b.y - r - 12, {
+        align: 'center',
+        color: SEAT_COLOURS[b.seat],
+        outline: INK,
+      })
+    }
     if (this.skin === 'starry') {
       g.fillStyle = '#ffffff'
       for (let i = 0; i < 4; i++) {
@@ -3717,16 +4508,43 @@ class SinkSuds implements ArcadeGameInstance {
         color: RAMPS.gold[4],
         outline: INK,
       })
+    if (this.sumo) {
+      hudPanel(g, W / 2 - 90, 3, 180, 17, RAMPS.pink)
+      const left = Math.max(0, Math.ceil((SUMO.roundTicks - this.sumo.t) / 60))
+      drawText(g, `ROUND ${this.sumo.round}  ${left}`, W / 2 - 82, 8, {
+        color: '#ffffff',
+        outline: INK,
+      })
+      this.sumo.wins.forEach((w, i) =>
+        drawText(g, `${w}`, W / 2 + 30 + i * 14, 8, {
+          color: SEAT_COLOURS[i],
+          outline: INK,
+        }),
+      )
+    }
+    if (this.mode === 'squeaky') {
+      hudPanel(g, W / 2 - 50, 3, 100, 15, RAMPS.gold)
+      drawText(g, `${(this.basinTicks / 60).toFixed(1)} S`, W / 2, 7, {
+        align: 'center',
+        color: '#ffffff',
+        outline: INK,
+      })
+    }
     const step = this.steps[this.stepIndex]
-    const label = this.inEndless
-      ? `SINK ${this.level}`
-      : step?.kind === 'boss'
-        ? this.deep
-          ? `BOSS +${this.deep}`
-          : 'BOSS'
-        : step?.kind === 'basin'
-          ? `BASIN ${step.room + 1}-${step.basin + 1}`
-          : 'SHOP'
+    const label =
+      this.mode === 'sumo'
+        ? 'SUMO'
+        : this.mode === 'squeaky'
+          ? 'TIMED'
+          : this.inEndless
+            ? `SINK ${this.level}`
+            : step?.kind === 'boss'
+              ? this.deep
+                ? `BOSS +${this.deep}`
+                : 'BOSS'
+              : step?.kind === 'basin'
+                ? `BASIN ${step.room + 1}-${step.basin + 1}`
+                : 'SHOP'
     hudPanel(g, 4, H - 19, 58, 15)
     drawText(g, label, 33, H - 15, {
       align: 'center',
@@ -3911,6 +4729,20 @@ function sinkGuide(): ArcadeGuidePage[] {
         '  DROPS, THEN CARRY HIM DOWN THE DRAIN.',
         'ALL SIX GOLDEN SOAPS OPEN A SECRET ROOM.',
         'A CLEAR OPENS DEEP CLEAN: DIRTIER, FASTER.',
+      ],
+    },
+    {
+      title: 'MODES AND MEDALS',
+      scale: 1,
+      lines: [
+        'BUBBLE BUDDIES (2-4): BUBBLES THAT TOUCH MERGE INTO',
+        '  ONE BIG BUBBLE STEERED BY ALL. B SPLITS IT AGAIN.',
+        'SUDS SUMO (2-4): BIG BUBBLES SHOVE SMALL ONES. THE',
+        '  DRAIN SWALLOWS THE LOSER. TWO ROUNDS WINS.',
+        'SQUEAKY CLEAN: ONE BASIN 95% CLEAN, AGAINST THE CLOCK.',
+        'ENDLESS SINK: EVERY SHAPE, EVERY PEST, FOREVER.',
+        'CLASSIC SINK: THE ORIGINAL KITCHEN SINK.',
+        'MEDALS PER BASIN: SQUEAKY CLEAN, NO POP, QUICK RINSE.',
       ],
     },
   ]

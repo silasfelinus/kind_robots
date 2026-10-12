@@ -74,8 +74,17 @@
           </div>
 
           <div
-            class="flex shrink-0 items-center justify-end lg:w-[19rem] xl:w-[21rem]"
+            class="flex shrink-0 flex-wrap items-center justify-end gap-2 lg:w-[19rem] xl:w-[21rem]"
           >
+            <button
+              type="button"
+              class="btn btn-ghost btn-sm gap-1 rounded-xl border border-base-300"
+              title="Open the Tzaddikim tutorial in the ? sidebar"
+              @click="navStore.openWorkspaceSheet()"
+            >
+              <Icon name="kind-icon:question" class="kr-icon-3-5" />
+              Tutorial
+            </button>
             <button
               v-if="userStore.isLoggedIn"
               type="button"
@@ -96,7 +105,6 @@
 
         <main class="min-h-0 flex-1">
           <section
-            v-if="activeTab !== 'info'"
             :id="`tzaddik-panel-${activeTab}`"
             role="tabpanel"
             :aria-labelledby="`tzaddik-tab-${activeTab}`"
@@ -222,10 +230,11 @@
               <div
                 class="mt-auto rounded-2xl border border-primary/20 bg-primary/5 p-3"
               >
-                <p class="kr-text-bold-xs">Not a leaderboard</p>
+                <p class="kr-text-bold-xs">How the Top 36 works</p>
                 <p class="kr-text-dim-xs-55 mt-1 leading-relaxed">
-                  Reactions help surface community interest. The canonical 36 is
-                  an editorial choice, not an automatic popularity score.
+                  Every category has a community Top 36, scored from upvotes,
+                  downvotes, and star reviews. Other approved nominees stay
+                  below in their own gallery. Approval remains editorial.
                 </p>
               </div>
             </aside>
@@ -248,8 +257,74 @@
                 </span>
               </div>
 
-              <div class="pt-3 lg:min-h-0 lg:flex-1 lg:overflow-y-auto lg:pr-1">
+              <p
+                v-if="tzaddikStore.voteError"
+                class="text-sm text-error"
+                role="alert"
+              >
+                {{ tzaddikStore.voteError }}
+              </p>
+              <div
+                class="space-y-8 pt-3 lg:min-h-0 lg:flex-1 lg:overflow-y-auto lg:pr-1"
+              >
+                <template v-if="isRankingTab">
+                  <div class="space-y-2">
+                    <div class="flex items-baseline justify-between gap-2">
+                      <h3 class="font-black text-primary">Top 36</h3>
+                      <span class="kr-text-dim-xs-55">
+                        {{ topCandidates.length }} ranked nominees
+                      </span>
+                    </div>
+                    <kr-gallery
+                      :items="topGalleryItems"
+                      :loading="activeLoading"
+                      :error="activeError"
+                      :empty-label="activeEmptyLabel"
+                      :modes="[]"
+                      @open="openDetail"
+                    >
+                      <template #item="{ item }">
+                        <tzaddik-ranked-card
+                          v-if="candidateById.get(Number(item.id))"
+                          :candidate="candidateById.get(Number(item.id))!"
+                          :earned-karma="
+                            earnedKarmaByCandidateId[Number(item.id)]
+                          "
+                          @open="openCandidateId = $event"
+                        />
+                      </template>
+                    </kr-gallery>
+                  </div>
+                  <div
+                    v-if="otherCandidates.length"
+                    class="space-y-2 border-t border-base-300 pt-6"
+                  >
+                    <div class="flex items-baseline justify-between gap-2">
+                      <h3 class="font-bold">Other eligible nominees</h3>
+                      <span class="kr-text-dim-xs-55">
+                        {{ otherCandidates.length }} more
+                      </span>
+                    </div>
+                    <kr-gallery
+                      :items="otherGalleryItems"
+                      :modes="[]"
+                      @open="openDetail"
+                    >
+                      <template #item="{ item }">
+                        <tzaddik-ranked-card
+                          v-if="candidateById.get(Number(item.id))"
+                          :candidate="candidateById.get(Number(item.id))!"
+                          :earned-karma="
+                            earnedKarmaByCandidateId[Number(item.id)]
+                          "
+                          @open="openCandidateId = $event"
+                        />
+                      </template>
+                    </kr-gallery>
+                  </div>
+                </template>
                 <kr-gallery
+                  v-else
                   :items="activeGalleryItems"
                   :loading="activeLoading"
                   :error="activeError"
@@ -268,128 +343,6 @@
                 </kr-gallery>
               </div>
             </section>
-          </section>
-
-          <section
-            v-else
-            id="tzaddik-panel-info"
-            role="tabpanel"
-            aria-labelledby="tzaddik-tab-info"
-            class="grid gap-3 lg:h-full lg:min-h-0 lg:grid-cols-[minmax(19rem,0.78fr)_minmax(0,1.22fr)]"
-          >
-            <article
-              class="kr-panel relative overflow-hidden rounded-3xl p-5 sm:p-6 lg:flex lg:min-h-0 lg:flex-col lg:justify-between"
-            >
-              <div
-                class="absolute -right-12 -top-16 text-[12rem] font-black leading-none text-primary/7"
-                aria-hidden="true"
-              >
-                36
-              </div>
-              <div class="relative space-y-4">
-                <p class="kr-text-eyebrow text-primary">The borrowed idea</p>
-                <h2
-                  class="kr-text-black-2xl max-w-xl leading-tight sm:text-3xl"
-                >
-                  A ridiculous little premise with serious sourcing underneath.
-                </h2>
-                <p
-                  class="max-w-2xl text-sm leading-relaxed text-base-content/75 sm:text-base"
-                >
-                  {{ activeTabBody }}
-                </p>
-              </div>
-
-              <div
-                class="relative mt-6 rounded-2xl border border-primary/20 bg-primary/5 p-4"
-              >
-                <p class="kr-text-bold-sm">The important boundary</p>
-                <p class="kr-text-dim-sm-70 mt-1 leading-relaxed">
-                  This is not a Jewish religious classification. Jewish or
-                  Hasidic identity is neither required nor implied by inclusion
-                  here.
-                </p>
-              </div>
-            </article>
-
-            <div
-              class="grid gap-3 lg:min-h-0 lg:grid-rows-[auto_minmax(0,1fr)]"
-            >
-              <div class="grid gap-3 sm:grid-cols-3">
-                <article
-                  v-for="block in sections"
-                  :key="block.key"
-                  class="kr-panel-flat flex flex-col gap-2 rounded-3xl p-4"
-                >
-                  <div class="flex items-center gap-2">
-                    <span
-                      class="flex size-9 items-center justify-center rounded-xl bg-primary/12 text-primary"
-                    >
-                      <Icon :name="block.icon" class="kr-icon-4" />
-                    </span>
-                    <h2 class="kr-text-black-sm">{{ block.title }}</h2>
-                  </div>
-                  <p class="kr-text-dim-sm-70 leading-relaxed">
-                    {{ block.body }}
-                  </p>
-                </article>
-              </div>
-
-              <article
-                class="kr-panel flex flex-col gap-4 rounded-3xl p-5 lg:min-h-0 lg:overflow-y-auto"
-              >
-                <div>
-                  <p class="kr-text-eyebrow text-primary">
-                    How the gallery behaves
-                  </p>
-                  <h2 class="kr-text-black-lg mt-1">
-                    Admiration without hagiography
-                  </h2>
-                </div>
-                <div class="grid gap-3 sm:grid-cols-2">
-                  <div
-                    class="rounded-2xl border border-base-300 bg-base-200/45 p-4"
-                  >
-                    <p class="kr-text-bold-sm">Sources stay visible</p>
-                    <p class="kr-text-dim-sm-70 mt-1 leading-relaxed">
-                      Wikipedia and Wikimedia are the default factual and image
-                      provenance. Editor overrides remain explicit instead of
-                      quietly replacing the source record.
-                    </p>
-                  </div>
-                  <div
-                    class="rounded-2xl border border-base-300 bg-base-200/45 p-4"
-                  >
-                    <p class="kr-text-bold-sm">Objections stay visible</p>
-                    <p class="kr-text-dim-sm-70 mt-1 leading-relaxed">
-                      Meaningful controversies belong beside the praise when
-                      they are documented. When there is no substantial
-                      objection, the gallery does not invent one for symmetry.
-                    </p>
-                  </div>
-                  <div
-                    class="rounded-2xl border border-base-300 bg-base-200/45 p-4"
-                  >
-                    <p class="kr-text-bold-sm">Community signal is advisory</p>
-                    <p class="kr-text-dim-sm-70 mt-1 leading-relaxed">
-                      Users can nominate and react. Those signals help
-                      discovery, but they do not automatically promote anyone
-                      into the 36.
-                    </p>
-                  </div>
-                  <div
-                    class="rounded-2xl border border-base-300 bg-base-200/45 p-4"
-                  >
-                    <p class="kr-text-bold-sm">Discovery should travel</p>
-                    <p class="kr-text-dim-sm-70 mt-1 leading-relaxed">
-                      Research deliberately reaches beyond familiar US and UK
-                      names across regions, languages, disciplines, and kinds of
-                      service.
-                    </p>
-                  </div>
-                </div>
-              </article>
-            </div>
           </section>
         </main>
       </div>
@@ -421,12 +374,12 @@ import type {
   TzaddikModerationQueueFilter,
 } from '@/stores/tzaddikStore'
 import { useUserStore } from '@/stores/userStore'
+import { useNavStore } from '@/stores/navStore'
 import type { TzaddikEditorialTag } from '~/prisma/generated/prisma/client'
 import { TZADDIK_TAG_ORDER, tzaddikTagLabel } from '@/utils/tzaddikTags'
 import { resolveTzaddikImageSrc } from '@/utils/tzaddikImage'
 
-type TabKey =
-  'living' | 'memorial' | 'popculture' | 'suggestions' | 'review' | 'info'
+type TabKey = 'living' | 'memorial' | 'popculture' | 'suggestions' | 'review'
 
 const BASE_TABS: { key: TabKey; label: string; icon: string; body: string }[] =
   [
@@ -448,12 +401,6 @@ const BASE_TABS: { key: TabKey; label: string; icon: string; body: string }[] =
       icon: 'kind-icon:stars',
       body: 'Living and memorial profiles whose public impact runs through entertainment, celebrity, television, film, music, sports, or mass culture.',
     },
-    {
-      key: 'info',
-      label: 'Info',
-      icon: 'kind-icon:mask',
-      body: 'Tzaddikim (the plural of tzaddik, a righteous person) borrows the folklore idea of 36 righteous or “just” people who quietly sustain the world, then turns it into a playful, sourced pop-culture gallery. It is not a religious classification, and inclusion does not require or imply Jewish or Hasidic identity.',
-    },
   ]
 
 const SUGGESTIONS_TAB = {
@@ -473,16 +420,9 @@ const REVIEW_TAB = {
 // Admin-only tab, inserted right before Info -- the review queue is where an
 // unapproved (PENDING) or retired (ARCHIVED) candidate is discoverable at
 // all (tzaddik-gallery/t-008); a non-admin never sees the tab.
-const tabs = computed(() => {
-  if (!userStore.isAdmin) return BASE_TABS
-  const infoIndex = BASE_TABS.findIndex((tab) => tab.key === 'info')
-  return [
-    ...BASE_TABS.slice(0, infoIndex),
-    SUGGESTIONS_TAB,
-    REVIEW_TAB,
-    ...BASE_TABS.slice(infoIndex),
-  ]
-})
+const tabs = computed(() =>
+  userStore.isAdmin ? [...BASE_TABS, SUGGESTIONS_TAB, REVIEW_TAB] : BASE_TABS,
+)
 
 const activeTab = ref<TabKey>('living')
 const activeTabBody = computed(
@@ -515,29 +455,9 @@ function onTabKeydown(event: KeyboardEvent, currentKey: TabKey): void {
   document.getElementById(`tzaddik-tab-${nextTab.key}`)?.focus()
 }
 
-const sections = [
-  {
-    key: 'sourced',
-    title: 'Sourced, not assumed',
-    body: 'Wikipedia is the default source for facts and images. Overrides remain explicit and preserve the original provenance.',
-    icon: 'kind-icon:database',
-  },
-  {
-    key: 'international',
-    title: 'Beyond the usual names',
-    body: 'Discovery deliberately pushes past US and Anglosphere celebrity gravity into wider regions, languages, and kinds of service.',
-    icon: 'kind-icon:globe',
-  },
-  {
-    key: 'community',
-    title: 'Community-suggested',
-    body: 'Signed-in users can nominate people and react to entries. Community interest is evidence to inspect, not a canonical ranking.',
-    icon: 'kind-icon:people',
-  },
-]
-
 const tzaddikStore = useTzaddikStore()
 const userStore = useUserStore()
+const navStore = useNavStore()
 const showSubmitForm = ref(false)
 const openCandidateId = ref<number | null>(null)
 const selectedTags = reactive(new Set<TzaddikEditorialTag>())
@@ -615,12 +535,38 @@ const activeCandidates = computed(() => {
   return source.filter(matchesSelectedTags)
 })
 
+const isRankingTab = computed(
+  () =>
+    activeTab.value === 'living' ||
+    activeTab.value === 'memorial' ||
+    activeTab.value === 'popculture',
+)
+
+const rankedCandidates = computed(() =>
+  [...activeCandidates.value].sort(
+    (a, b) =>
+      (b.community?.score ?? 0) - (a.community?.score ?? 0) ||
+      (b.community?.reviewCount ?? 0) - (a.community?.reviewCount ?? 0) ||
+      (b.community?.upvotes ?? 0) - (a.community?.upvotes ?? 0) ||
+      (a.displayNameOverride || a.displayName).localeCompare(
+        b.displayNameOverride || b.displayName,
+      ),
+  ),
+)
+const topCandidates = computed(() => rankedCandidates.value.slice(0, 36))
+const otherCandidates = computed(() => rankedCandidates.value.slice(36))
+const topGalleryItems = computed(() => topCandidates.value.map(toGalleryItem))
+const otherGalleryItems = computed(() =>
+  otherCandidates.value.map(toGalleryItem),
+)
 const activeGalleryItems = computed(() =>
   activeCandidates.value.map(toGalleryItem),
 )
 
 const activeCandidateIds = computed(() =>
-  activeCandidates.value.map((candidate) => candidate.id),
+  (isRankingTab.value ? rankedCandidates.value : activeCandidates.value).map(
+    (candidate) => candidate.id,
+  ),
 )
 
 const candidateById = computed(
@@ -666,13 +612,13 @@ const activeRosterTitle = computed(() => {
 })
 
 const activeRosterEyebrow = computed(() => {
-  if (activeTab.value === 'memorial') return 'Past Tzaddik'
+  if (activeTab.value === 'memorial') return 'The memorial Top 36'
   if (activeTab.value === 'popculture') return 'Culture lane'
   if (activeTab.value === 'suggestions') return '100+ fresh options'
   if (activeTab.value === 'review') {
     return REVIEW_STATE_LABELS[reviewCurationState.value]
   }
-  return 'The current 36'
+  return 'The living Top 36'
 })
 
 const activeEmptyLabel = computed(() => {

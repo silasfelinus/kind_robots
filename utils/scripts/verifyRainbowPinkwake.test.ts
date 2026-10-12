@@ -59,11 +59,26 @@ const boss = createPinkwakeBoss()
 assert.equal(boss.hp, BOSS_MAX_HP)
 let bullets = 0
 let warned = false
+let warningFrames = 0
+let volleys = 0
 for (let tick = 0; tick < 510; tick++) {
   if (tick === 180) boss.hp = 90
   if (tick === 330) boss.hp = 30
-  warned ||= bossTelegraph(boss)
   const volley = stepPinkwakeBoss(boss, [{ x: 60, y: 130, lives: 3 }])
+  if (volley.length) {
+    assert.ok(
+      warningFrames >= 36,
+      `B01 phase ${boss.phase} fired without 36 consecutive warning frames`,
+    )
+    warningFrames = 0
+    volleys++
+  }
+  if (bossTelegraph(boss)) {
+    warned = true
+    warningFrames++
+  } else if (!volley.length) {
+    warningFrames = 0
+  }
   bullets += volley.length
   assert.ok(
     volley.every(
@@ -73,8 +88,41 @@ for (let tick = 0; tick < 510; tick++) {
 }
 assert.equal(boss.phase, 3)
 assert.ok(warned, 'boss has visible shot telegraph')
+assert.ok(volleys >= 3, 'all boss phases reach an actual volley')
 assert.ok(bullets >= 10, 'all phases fire real volleys')
 assert.equal(boss.x, 398)
+
+// Reproduce the real engine order: step boss at frame 269, then a ship
+// projectile drops phase-2 health below 50 before the next update.
+// The legacy modulo schedule fired seven phase-3 pellets on frame 270.
+const damageBoundary = createPinkwakeBoss()
+for (let frame = 0; frame < 269; frame++) {
+  if (frame === 170) damageBoundary.hp = 51
+  stepPinkwakeBoss(damageBoundary, [{ x: 60, y: 130, lives: 3 }])
+}
+assert.equal(damageBoundary.frame, 269)
+assert.equal(damageBoundary.phase, 2)
+damageBoundary.hp = 49
+const premature = stepPinkwakeBoss(damageBoundary, [
+  { x: 60, y: 130, lives: 3 },
+])
+assert.equal(premature.length, 0, 'phase-3 must not volley immediately')
+assert.equal(damageBoundary.phase, 3)
+assert.equal(damageBoundary.nextVolleyAt, 342)
+let phaseWarning = 0
+for (let frame = 271; frame <= 341; frame++) {
+  const shot = stepPinkwakeBoss(damageBoundary, [
+    { x: 60, y: 130, lives: 3 },
+  ])
+  assert.equal(shot.length, 0, 'phase transition is visibly rearmed')
+  if (bossTelegraph(damageBoundary)) phaseWarning++
+}
+assert.equal(phaseWarning, 36)
+assert.equal(
+  stepPinkwakeBoss(damageBoundary, [{ x: 60, y: 130, lives: 3 }]).length,
+  7,
+  'third phase begins only after its full telegraph',
+)
 
 function rng(seed = 427) {
   let state = seed

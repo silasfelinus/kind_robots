@@ -134,6 +134,7 @@
     "test:zuzu-pinball-multiball": "tsx utils/scripts/verifyZuzuPinballMultiball.test.ts",
     "test:zuzu-pinball-abbey": "tsx utils/scripts/verifyZuzuPinballAbbey.test.ts",
     "test:zuzu-pinball-crypt": "tsx utils/scripts/verifyZuzuPinballCrypt.test.ts",
+    "test:zuzu-pinball-leds": "tsx utils/scripts/verifyZuzuPinballLeds.test.ts",
     "test:zuzu-pinball-watering-hole": "tsx utils/scripts/verifyZuzuPinballWateringHole.test.ts",
     "test:arcade-engine": "tsx utils/scripts/verifyArcadeEngine.test.ts && tsx utils/scripts/verifyRainbowPrincessPreview.test.ts && tsx utils/scripts/verifyPrizeShowPanic.test.ts && tsx utils/scripts/verifyPrizeShowPanicRoster.test.ts && tsx utils/scripts/verifyPrizeShowPanicShow.test.ts && tsx utils/scripts/verifyPrizeShowPanicEpisodes.test.ts && tsx utils/scripts/verifyPrizeShowPanicFinale.test.ts && tsx utils/scripts/verifyPrizeShowPanicCoop.test.ts && tsx utils/scripts/verifyPrizeShowPanicModes.test.ts && tsx utils/scripts/verifyArcadeTwinStick.test.ts && tsx utils/scripts/verifyPipePals.test.ts && tsx utils/scripts/verifyZuzuGhostTrailFarm.test.ts && tsx utils/scripts/verifyZuzuGhostTrailCampaign.test.ts && tsx utils/scripts/verifyZuzuGhostTrailBosses.test.ts && tsx utils/scripts/verifyZuzuGhostTrailFinalBosses.test.ts && tsx utils/scripts/runArcadeCabinetSuites.ts",
     "tune:pinball": "tsx utils/scripts/pinballTuning.ts",

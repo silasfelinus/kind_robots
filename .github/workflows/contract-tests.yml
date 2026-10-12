@@ -185,6 +185,9 @@ jobs:
       - name: Zuzu Pinball no stuck balls
         run: npm run test:zuzu-pinball-no-stuck
 
+      - name: Zuzu Pinball LED rail
+        run: npm run test:zuzu-pinball-leds
+
       - name: Zuzu gamebook branching and combat
         run: npm run test:zuzu-gamebook
 

@@ -62,7 +62,7 @@ export function createRainbowPrincessPreview(options: ArcadeGameOptions): Arcade
         }
         if (!options.demo && keys.pressed.b && ship.shield < 3) {
           ship.shield++
-          options.sound.play('collect')
+          options.sound.play('pickup')
         }
       }
       for (const shot of shots) shot.x += 7

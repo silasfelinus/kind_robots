@@ -41,6 +41,7 @@ import {
   ARCADE_GAMES,
   COMING_SOON,
   findArcadeGame,
+  HALL_GAMES,
   isPlausibleScore,
   loadArcadeGame,
   overrideWebGLSupport,

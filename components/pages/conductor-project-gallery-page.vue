@@ -138,6 +138,14 @@
       class="shrink-0 rounded-xl border border-warning/30 bg-warning/10 p-3 text-xs"
     >
       <strong>Lifecycle reconciliation</strong>
+      <p
+        v-if="manageMessage"
+        class="mt-2 text-xs"
+        :class="manageError ? 'text-error' : 'text-success'"
+        role="status"
+      >
+        {{ manageMessage }}
+      </p>
       <div class="mt-2 grid gap-2 md:grid-cols-3">
         <div v-if="driftItems.length" class="rounded-lg bg-base-100/80 p-2">
           <b>Status/priority drift</b>
@@ -448,7 +456,7 @@ function onSlugBlur() {
 const loading = computed(() => projects.loading || conductor.pending)
 const error = computed(() => projects.error || conductor.error || '')
 const conductorBySlug = computed(
-  () => new Map(conductor.liveProjects.map((project) => [project.slug, project])),
+  () => new Map((conductor.data?.projects ?? []).map((project) => [project.slug, project])),
 )
 const slugFor = (record: ProjectWithRelations) =>
   record.conductorSlug || record.slug || `project-${record.id}`
@@ -589,7 +597,7 @@ const databaseOnly = computed(() =>
 )
 const conductorOnly = computed(() => {
   const slugs = new Set(allItems.value.map((item) => item.slug))
-  return conductor.liveProjects.filter((project) => !slugs.has(project.slug))
+  return (conductor.data?.projects ?? []).filter((project) => !slugs.has(project.slug))
 })
 const syncIssueCount = computed(
   () =>
@@ -598,7 +606,7 @@ const syncIssueCount = computed(
     conductorOnly.value.length,
 )
 const blockedTasks = computed<BlockedTask[]>(() =>
-  conductor.liveProjects.flatMap((project) =>
+  (conductor.data?.projects ?? []).flatMap((project) =>
     project.tasks
       .filter((task) => task.status === 'blocked')
       .map((task) => ({
@@ -695,7 +703,11 @@ async function saveManagedStatus(): Promise<void> {
   manageError.value = false
   try {
     const record = projects.projects.find((project) => project.id === selected.id)
-    await projects.updateProject(selected.id, { status: manageStatus.value })
+    if (manageStatus.value === 'ARCHIVED') {
+      await projects.archiveProject(selected.id)
+    } else {
+      await projects.updateProject(selected.id, { status: manageStatus.value })
+    }
     await load(true)
     manageMessage.value = record?.conductorSlug
       ? 'Saved to Conductor. The gallery will reflect it after projection sync.'

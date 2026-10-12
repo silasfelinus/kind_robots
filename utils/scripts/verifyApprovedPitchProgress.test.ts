@@ -113,15 +113,44 @@ assert.equal(byTitle('robot-sound-garden')?.stage, 'awaiting-intake')
 assert.equal(byTitle('kind-daily-riddle')?.stage, 'building')
 assert.equal(byTitle('kind-nonogram-gallery')?.stage, 'page-linked')
 assert.equal(byTitle('kr-cabinet-bumper-bubbles')?.stage, 'shared-project')
-assert.equal(byTitle('kr-cabinet-bumper-bubbles')?.pageUrl, '/play/arcade?game=bumper-bubbles')
-assert.equal(mayVisitPitchFrontend(byTitle('kr-cabinet-bumper-bubbles')!, true), true)
-assert.equal(mayVisitPitchFrontend(byTitle('kr-cabinet-bumper-bubbles')!, false), false)
-assert.equal(mayVisitPitchFrontend(byTitle('kind-nonogram-gallery')!, false), true)
-assert.equal(mayVisitPitchFrontend(byTitle('robot-mashup-flipbook')!, true), false)
-assert.equal(mayVisitPitchFrontend({ pageUrl: '/play/a', publicReady: false }, false), false)
-assert.equal(mayVisitPitchFrontend({ pageUrl: '/play/a', publicReady: true }, false), true)
-assert.equal(mayVisitPitchFrontend({ pageUrl: '/admin/toy', publicReady: true }, false), false)
-assert.equal(mayVisitPitchFrontend({ pageUrl: '/admin/toy', publicReady: false }, true), true)
+assert.equal(
+  byTitle('kr-cabinet-bumper-bubbles')?.pageUrl,
+  '/play/arcade?game=bumper-bubbles',
+)
+assert.equal(
+  mayVisitPitchFrontend(byTitle('kr-cabinet-bumper-bubbles')!, true),
+  true,
+)
+assert.equal(
+  mayVisitPitchFrontend(byTitle('kr-cabinet-bumper-bubbles')!, false),
+  false,
+)
+assert.equal(
+  mayVisitPitchFrontend(byTitle('kind-nonogram-gallery')!, false),
+  true,
+)
+assert.equal(
+  mayVisitPitchFrontend(byTitle('robot-mashup-flipbook')!, true),
+  false,
+)
+assert.equal(
+  mayVisitPitchFrontend({ pageUrl: '/play/a', publicReady: false }, false),
+  false,
+)
+assert.equal(
+  mayVisitPitchFrontend({ pageUrl: '/play/a', publicReady: true }, false),
+  true,
+)
+assert.equal(
+  mayVisitPitchFrontend({ pageUrl: '/admin/toy', publicReady: true }, false),
+  false,
+)
+assert.equal(
+  mayVisitPitchFrontend({ pageUrl: '/admin/toy', publicReady: false }, true),
+  true,
+)
 assert.equal(isPublicFacingPitchPage('/admin/toy'), false)
 assert.equal(isPublicFacingPitchPage('/play/toy'), true)
-console.log('Approved Daily Dream pitch progress and public release access: verified')
+console.log(
+  'Approved Daily Dream pitch progress and public release access: verified',
+)

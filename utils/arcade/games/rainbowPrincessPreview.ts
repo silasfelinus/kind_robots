@@ -87,7 +87,7 @@ export type RainbowCombatSnapshot = {
   rescuedStation: boolean
   defeatedAt: number | null
   activePlayers: number
-
+}
 
 /** The preview's deterministic 60 Hz combat layer; stages and bosses are separate work. */
 export function createRainbowPrincessPreview(

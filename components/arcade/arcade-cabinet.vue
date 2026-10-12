@@ -317,7 +317,10 @@
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useArcadeStore } from '@/stores/arcadeStore'
 import ArcadePinballTouch from './arcade-pinball-touch.vue'
-import { directionsAtDpadPoint, type DpadDirection } from '../../utils/arcade/dpad'
+import {
+  directionsAtDpadPoint,
+  type DpadDirection,
+} from '../../utils/arcade/dpad'
 import { useUserStore } from '@/stores/userStore'
 import type { CSSProperties } from 'vue'
 import {

@@ -90,7 +90,11 @@
       <div class="mt-2 flex flex-wrap items-end gap-2">
         <label class="form-control min-w-48 flex-1">
           <span class="kr-label-xs">Project</span>
-          <select v-model.number="manageId" class="kr-select-sm w-full">
+          <select
+            v-model.number="manageId"
+            class="kr-select-sm w-full"
+            :disabled="managing"
+          >
             <option :value="0" disabled>Choose a project</option>
             <option
               v-for="item in manageableItems"
@@ -310,7 +314,7 @@
               @click="manageOpen = !manageOpen"
             >
               <Icon name="kind-icon:sliders" class="kr-icon-3" />
-              <span class="hidden sm:inline">Manage status</span>
+              <span class="hidden sm:inline">Manage projects</span>
             </button>
 
             <button
@@ -769,7 +773,7 @@ async function reconcile(item: Item): Promise<void> {
   try {
     const record = projects.projects.find((project) => project.id === item.id)
     if (!record?.conductorSlug) {
-      throw new Error('This project is not linked to Conductor; use Manage status for local-only projects.')
+      throw new Error('This project is not linked to Conductor; use Manage projects for local-only projects.')
     }
     await projects.updateProject(item.id, {
       status: item.dbStatus,

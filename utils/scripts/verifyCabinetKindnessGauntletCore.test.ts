@@ -397,6 +397,48 @@ const downsTo = (id: string) =>
   )
 }
 
+// Quitting during the credits keeps the clear: the save is written the moment she wakes, not when
+// the credits end (a review found a descent resumed at the Core, quit five seconds into the
+// credits, came back as the Core again with Reboot still locked).
+{
+  const start = game([1], 6)
+  start.buildFloor(33)
+  run(start, 1)
+  const checkpoint = start.save!
+  assert.equal(checkpoint.wing, 4, 'a checkpoint at the Core')
+  assert.equal(checkpoint.cleared ?? 0, 0)
+  const g = fresh(1, 6, JSON.parse(JSON.stringify(checkpoint)))
+  run(g, 1, () => [tap('a')])
+  run(g, 1, () => [tap('a')])
+  assert.equal(g.selecting, 0)
+  assert.equal(g.level, 33, 'the checkpoint picked back up')
+  g.buildFloor(40)
+  g.guardian!.done = true
+  run(g, 2)
+  const e = g.exits[0]!
+  g.heroes[0]!.x = e.x
+  g.heroes[0]!.y = e.y
+  run(g, 2)
+  run(g, 125)
+  assert.ok(g.ending, 'the credits are rolling')
+  run(g, 5 * 60)
+  assert.ok(g.ending && !g.over, 'still in the credits (A cannot skip yet)')
+  // The player quits here: the cabinet keeps whatever save the game holds.
+  const kept = JSON.parse(JSON.stringify(g.save)) as GauntletSave
+  assert.ok(readGauntletSave(kept), 'a valid save')
+  assert.equal(kept.cleared, 1, 'the clear is kept')
+  assert.equal(kept.wing, 0, 'and the Core is not offered again')
+  const back = fresh(1, 7, kept) as unknown as Inner & {
+    modes(): Array<{ id: string }>
+    offer: unknown
+  }
+  assert.ok(!back.offer, 'no continue offer on reload')
+  assert.ok(
+    back.modes().some((m) => m.id === 'reboot'),
+    'and REBOOT is unlocked',
+  )
+}
+
 // --- the Endless Archive ------------------------------------------------------------------------------
 
 {
@@ -429,6 +471,23 @@ const downsTo = (id: string) =>
     `an Endless run ends (floor ${deep.level}, ${(t / 3600).toFixed(1)} min)`,
   )
   assert.equal(deep.save?.best?.depth, deep.level, 'the deepest floor is kept')
+  // The deepest depth is kept as each one is reached: quitting mid-run keeps it too.
+  {
+    const mid = game([1], 10, endlessAt)
+    for (let floor = 2; floor <= 6; floor++) mid.buildFloor(floor)
+    run(mid, 30)
+    assert.ok(!mid.over, 'still mid-run')
+    const kept = JSON.parse(JSON.stringify(mid.save)) as GauntletSave
+    assert.equal(kept.best?.depth, 6, 'depth 6 kept without a game over')
+    const back = fresh(1, 11, kept) as unknown as { best: { depth?: number } }
+    assert.equal(back.best.depth, 6, 'and still there on reload')
+    const shallow = game([1], 12, endlessAt, kept)
+    assert.equal(
+      shallow.save?.best?.depth,
+      6,
+      'a shallower run does not lower it',
+    )
+  }
   console.log(
     `  Endless Archive: the pilot reaches depth ${deep.level} in ${(t / 3600).toFixed(1)} min, score ${deep.score}`,
   )

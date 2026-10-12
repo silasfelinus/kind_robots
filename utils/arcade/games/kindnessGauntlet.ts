@@ -1790,6 +1790,15 @@ class KindnessGauntlet implements ArcadeGameInstance {
       this.buildRooms(floor)
       if (this.mode === 'endless') this.sprinkleTricks(floor)
     }
+    if (
+      this.mode === 'endless' &&
+      !this.demo &&
+      floor > (this.best.depth ?? 0)
+    ) {
+      // The deepest depth is kept as each one is reached, so quitting mid-run keeps it too.
+      this.best.depth = Math.min(9999, floor)
+      this.persist()
+    }
     this.exit = this.exits[0] ?? this.exit
     this.sparks = []
     this.shots = []
@@ -2582,6 +2591,10 @@ class KindnessGauntlet implements ArcadeGameInstance {
       lead.y,
     )
     this.ending = { t: 0, full }
+    // The clear is kept the moment she wakes: quitting during the credits must not lose it (or
+    // the Reboot unlock). The credits themselves are only for show.
+    this.cleared++
+    this.recordRun(true)
     this.sayText(
       'ending',
       full ? 'I REMEMBER EVERYTHING. THANK YOU.' : 'THANK YOU, LITTLE BOTS.',
@@ -2599,7 +2612,6 @@ class KindnessGauntlet implements ArcadeGameInstance {
     )
       return
     this.ending = null
-    this.cleared++
     this.over = true
     this.banner = {
       text: 'THE DEEP ARCHIVE',

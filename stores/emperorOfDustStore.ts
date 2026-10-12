@@ -24,21 +24,27 @@ import {
 import type { Campaign, Incident } from '~/utils/emperorOfDust/types'
 
 const SAVE_KEY = 'kr-emperor-of-dust-campaign-v1'
-const newSeed = (): number => (Date.now() >>> 0) || 1
+const newSeed = (): number => Date.now() >>> 0 || 1
 
 export const useEmperorOfDustStore = defineStore('emperorOfDust', () => {
   const campaign = ref<Campaign | null>(null)
   const loaded = ref(false)
   const storageWarning = ref('')
 
-  const day = computed(() => campaign.value ? dayAt(campaign.value.hour) : 1)
-  const ready = computed(() => campaign.value ? availableFollowers(campaign.value) : [])
-  const freeHorde = computed(() => campaign.value ? availableHorde(campaign.value) : 0)
-  const wounded = computed(() => campaign.value
-    ? campaign.value.followers.filter(
-      (follower) => remainingRecoveryDays(campaign.value!, follower) > 0,
-    )
-    : [])
+  const day = computed(() => (campaign.value ? dayAt(campaign.value.hour) : 1))
+  const ready = computed(() =>
+    campaign.value ? availableFollowers(campaign.value) : [],
+  )
+  const freeHorde = computed(() =>
+    campaign.value ? availableHorde(campaign.value) : 0,
+  )
+  const wounded = computed(() =>
+    campaign.value
+      ? campaign.value.followers.filter(
+          (follower) => remainingRecoveryDays(campaign.value!, follower) > 0,
+        )
+      : [],
+  )
 
   function persist() {
     if (!campaign.value || typeof localStorage === 'undefined') return
@@ -46,7 +52,8 @@ export const useEmperorOfDustStore = defineStore('emperorOfDust', () => {
       localStorage.setItem(SAVE_KEY, encodeEmperorSave(campaign.value))
       storageWarning.value = ''
     } catch {
-      storageWarning.value = 'Local save unavailable. This session is not backed up.'
+      storageWarning.value =
+        'Local save unavailable. This session is not backed up.'
     }
   }
 
@@ -63,13 +70,15 @@ export const useEmperorOfDustStore = defineStore('emperorOfDust', () => {
       campaign.value = saved ?? startEmperorCampaign(newSeed())
     } catch {
       campaign.value = startEmperorCampaign(newSeed())
-      storageWarning.value = 'Browser storage is blocked. This run may not persist.'
+      storageWarning.value =
+        'Browser storage is blocked. This run may not persist.'
     }
     loaded.value = true
   }
 
   function update(next: Campaign) {
-    if (!loaded.value || !campaign.value) throw new Error('Load the court first')
+    if (!loaded.value || !campaign.value)
+      throw new Error('Load the court first')
     campaign.value = next
     persist()
   }
@@ -85,16 +94,27 @@ export const useEmperorOfDustStore = defineStore('emperorOfDust', () => {
   }
 
   function availability(id: string) {
-    if (!campaign.value) return { eligible: false, reason: 'Not loaded', cost: 0 }
+    if (!campaign.value)
+      return { eligible: false, reason: 'Not loaded', cost: 0 }
     return recruitmentStatus(campaign.value, id)
   }
 
-  function dispatch(incident: Incident, leaders: string[], troops: number, choice: string) {
+  function dispatch(
+    incident: Incident,
+    leaders: string[],
+    troops: number,
+    choice: string,
+  ) {
     if (!campaign.value) throw new Error('Load the court first')
     update(dispatchFollowers(campaign.value, incident, leaders, troops, choice))
   }
 
-  function estimate(incident: Incident, leaders: string[], troops: number, choice: string) {
+  function estimate(
+    incident: Incident,
+    leaders: string[],
+    troops: number,
+    choice: string,
+  ) {
     if (!campaign.value) throw new Error('Load the court first')
     return previewDispatch(campaign.value, incident, leaders, troops, choice)
   }
@@ -114,7 +134,11 @@ export const useEmperorOfDustStore = defineStore('emperorOfDust', () => {
     update(earnStoryFlag(campaign.value, flag))
   }
 
-  function recordAuthoredFatality(leaderId: string, eventId: string, reason: string) {
+  function recordAuthoredFatality(
+    leaderId: string,
+    eventId: string,
+    reason: string,
+  ) {
     if (!campaign.value) throw new Error('Load the court first')
     update(scriptedFollowerDeath(campaign.value, leaderId, eventId, reason))
   }

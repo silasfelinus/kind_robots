@@ -225,7 +225,15 @@ function cleanAll(g: Inner) {
 
 // New Wash → Squeaky Clean must persist the best time across reloads.
 {
-  const checkpoint = readSudsSave({ v: 1, step: 5, score: 300, lives: 3, bars: 0, reached: 2, times: { 'bath:1': 1000 } })
+  const checkpoint = readSudsSave({
+    v: 1,
+    step: 5,
+    score: 300,
+    lives: 3,
+    bars: 0,
+    reached: 2,
+    times: { 'bath:1': 1000 },
+  })
   assert.ok(checkpoint)
   const g = game(1, 1, checkpoint)
   g.update(press('b'))

@@ -1,5 +1,10 @@
 import assert from 'node:assert/strict'
-import { advanceClock, availableFollowers, dayAt, dispatchFollowers } from '../emperorOfDust/engine'
+import {
+  advanceClock,
+  availableFollowers,
+  dayAt,
+  dispatchFollowers,
+} from '../emperorOfDust/engine'
 import { FOLLOWER_POOL } from '../emperorOfDust/followers'
 import {
   earnStoryFlag,
@@ -17,13 +22,21 @@ import {
 } from '../emperorOfDust/save'
 import type { Incident } from '../emperorOfDust/types'
 
-assert.equal(FOLLOWER_POOL.length, 10, 'first authored pilot, not 100 fabricated characters')
+assert.equal(
+  FOLLOWER_POOL.length,
+  10,
+  'first authored pilot, not 100 fabricated characters',
+)
 assert.equal(new Set(FOLLOWER_POOL.map((leader) => leader.id)).size, 10)
 assert.equal(FOLLOWER_POOL.filter((leader) => leader.starter).length, 5)
-assert.ok(FOLLOWER_POOL.every((leader) =>
-  Object.keys(leader.art).sort().join(',') === 'injured,portrait,splash' &&
-  Object.values(leader.art).every((asset) => asset === null),
-), 'three reserved art variants, none yet delivered')
+assert.ok(
+  FOLLOWER_POOL.every(
+    (leader) =>
+      Object.keys(leader.art).sort().join(',') === 'injured,portrait,splash' &&
+      Object.values(leader.art).every((asset) => asset === null),
+  ),
+  'three reserved art variants, none yet delivered',
+)
 
 const first = startEmperorCampaign(123456)
 assert.equal(first.followers.length, 5)
@@ -35,9 +48,30 @@ assert.equal(availableFollowers(first).length, 5)
 assert.deepEqual(decodeEmperorSave(encodeEmperorSave(first)), first)
 assert.equal(decodeEmperorSave('{bad json'), null)
 assert.equal(decodeEmperorSave('{"format":9}'), null)
-assert.equal(decodeEmperorSave(JSON.stringify({format:1,campaign:{...first,horde:-10}})), null)
-assert.equal(decodeEmperorSave(JSON.stringify({format:1,campaign:{...first,followers:[first.followers[0],first.followers[0]]}})), null)
-assert.equal(decodeEmperorSave(JSON.stringify({format:1,campaign:{...first, hour:'today'}})), null)
+assert.equal(
+  decodeEmperorSave(
+    JSON.stringify({ format: 1, campaign: { ...first, horde: -10 } }),
+  ),
+  null,
+)
+assert.equal(
+  decodeEmperorSave(
+    JSON.stringify({
+      format: 1,
+      campaign: {
+        ...first,
+        followers: [first.followers[0], first.followers[0]],
+      },
+    }),
+  ),
+  null,
+)
+assert.equal(
+  decodeEmperorSave(
+    JSON.stringify({ format: 1, campaign: { ...first, hour: 'today' } }),
+  ),
+  null,
+)
 
 const nera = recruitmentStatus(first, 'F006')
 assert.equal(nera.eligible, false)
@@ -78,16 +112,18 @@ const incident: Incident = {
   hordeMinimum: 5,
   hordeMaximum: 20,
   neglected: { popularity: -4 },
-  choices: [{
-    id: 'mercy',
-    label: 'Seek a peaceful resolution',
-    approach: 'diplomacy',
-    difficulty: 12,
-    moralEffect: { popularity: 3 },
-    success: { prosperity: 2 },
-    failure: { prosperity: -2, horde: -2 },
-    injuryDaysOnFailure: 3,
-  }],
+  choices: [
+    {
+      id: 'mercy',
+      label: 'Seek a peaceful resolution',
+      approach: 'diplomacy',
+      difficulty: 12,
+      moralEffect: { popularity: 3 },
+      success: { prosperity: 2 },
+      failure: { prosperity: -2, horde: -2 },
+      injuryDaysOnFailure: 3,
+    },
+  ],
 }
 
 const travel = dispatchFollowers(first, incident, ['F003'], 10, 'mercy')
@@ -105,8 +141,9 @@ const recovered = advanceClock(savedWound, 96)
 assert.equal(availableFollowers(recovered).length, 5)
 assert.equal(remainingRecoveryDays(recovered, recovered.followers[2]!), 0)
 
-assert.throws(() =>
-  scriptedFollowerDeath(first, 'F001', 'terrible-bridge', 'The bridge fell'),
+assert.throws(
+  () =>
+    scriptedFollowerDeath(first, 'F001', 'terrible-bridge', 'The bridge fell'),
   /Fatal danger must be authored/,
 )
 const forewarned = earnStoryFlag(first, 'fatal-risk-terrible-bridge')
@@ -121,9 +158,17 @@ assert.equal(memorial.memorials?.length, 1)
 assert.equal(availableFollowers(memorial).length, 4)
 assert.equal(isSavedEmperorCampaign(memorial), true)
 assert.deepEqual(decodeEmperorSave(encodeEmperorSave(memorial)), memorial)
-assert.throws(() =>
-  scriptedFollowerDeath(memorial, 'F001', 'terrible-bridge', 'The same event repeats'),
+assert.throws(
+  () =>
+    scriptedFollowerDeath(
+      memorial,
+      'F001',
+      'terrible-bridge',
+      'The same event repeats',
+    ),
   /Fatal danger/,
 )
 assert.equal(first.followers[0]?.dead, undefined)
-console.log('Emperor of Dust recruitment, recovery, death and save contracts passed')
+console.log(
+  'Emperor of Dust recruitment, recovery, death and save contracts passed',
+)

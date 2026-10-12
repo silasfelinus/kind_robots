@@ -197,6 +197,9 @@ jobs:
       - name: Zuzu Pinball setup/dispose and six-ball stress
         run: npm run test:zuzu-pinball-stress
 
+      - name: Zuzu Pinball insert light-map editor
+        run: npm run test:zuzu-pinball-light-map
+
       - name: Zuzu gamebook branching and combat
         run: npm run test:zuzu-gamebook
 

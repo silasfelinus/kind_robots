@@ -643,6 +643,8 @@ class RescueRally implements ArcadeGameInstance {
       this.medals = { ...offer.medals }
       this.times = { ...offer.times }
       this.reached = offer.reached
+      this.chips = new Set(offer.chips)
+      this.cleared = offer.cleared
       this.savePoint = offer
     }
     this.startWave(1)
@@ -1236,7 +1238,11 @@ class RescueRally implements ArcadeGameInstance {
     }
   }
 
-  /** Medals, times and the furthest district, kept on the save without moving its rally. */
+  /**
+   * Everything earned on this device (friends home, golden chips, the clear, medals, Time Attack
+   * bests, the furthest district) written to the save at once, without moving its rally's
+   * checkpoint, so a quit at any moment keeps it.
+   */
   private keepRecords() {
     if (this.demo) return
     const base = this.savePoint ?? {
@@ -1256,9 +1262,12 @@ class RescueRally implements ArcadeGameInstance {
       times: {},
       reached: 0,
     }
+    const chips = [...new Set([...base.chips, ...this.chips])]
     this.savePoint = {
       ...base,
       friends: Math.max(base.friends, Math.min(1_000_000, this.friends)),
+      chips,
+      cleared: base.cleared || this.cleared,
       medals: { ...this.medals },
       times: { ...this.times },
       reached: Math.max(base.reached, this.reached),
@@ -1575,6 +1584,7 @@ class RescueRally implements ArcadeGameInstance {
     ) {
       // The district's golden chip, for getting everyone in its signature wave home.
       this.chips.add(id)
+      this.keepRecords()
       this.addScore(10_000, CX, CY - 50, RAMPS.gold[4])
       this.banner = {
         text: 'GOLDEN CHIP!',
@@ -1675,6 +1685,9 @@ class RescueRally implements ArcadeGameInstance {
 
   private startEnding(trueEnding: boolean) {
     this.ending = { t: 0, trueEnding }
+    // The city is cleared the moment the Core reboots, credits watched or not.
+    this.cleared = true
+    this.keepRecords()
     this.banner = null
     this.foes = []
     this.bolts = []
@@ -2451,6 +2464,7 @@ class RescueRally implements ArcadeGameInstance {
         this.family.splice(this.family.indexOf(r), 1)
         this.familySaved++
         this.friends++
+        this.keepRecords()
         this.hearts += HEARTS_PER_RESCUE
         this.floaters.push({
           x: r.x,
@@ -2492,6 +2506,7 @@ class RescueRally implements ArcadeGameInstance {
     if (i >= 0) this.family.splice(i, 1)
     this.familySaved++
     this.friends++
+    this.keepRecords()
     this.hearts += HEARTS_PER_RESCUE
     const points = RESCUE_STEP * this.multiplier * times
     this.addScore(points, r.x, r.y, times > 1 ? RAMPS.gold[4] : '#86efac')

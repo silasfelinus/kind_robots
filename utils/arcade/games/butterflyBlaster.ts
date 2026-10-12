@@ -103,6 +103,7 @@ import {
 } from '../butterflyBlaster/music'
 import { endlessNight } from '../butterflyBlaster/nights'
 import {
+  BROODS,
   PEST_POINTS,
   PEST_RADIUS,
   movePest,
@@ -200,6 +201,8 @@ const TURN = 0.08
 const THRUST = 0.12
 const MAX_SPEED = 4.2
 const FRICTION = 0.992
+/** The ribbon streams behind a butterfly gliding at least this fast, fluttering or not. */
+const RIBBON_SPEED = 2.2
 /** How hard a flutter swings the drift toward the butterfly's heading. */
 const GRIP = 0.08
 const SHOT_SPEED = 6.5
@@ -430,7 +433,12 @@ class ButterflyBlaster implements ArcadeGameInstance {
   private floaters: Floater[] = []
   private banner: { text: string; sub?: string; ticks: number } | null = null
   private overTimer = 0
-  private pilot = { loop: 0, side: 'right' as 'left' | 'right', hold: 0 }
+  private pilot = {
+    loop: 0,
+    side: 'right' as 'left' | 'right',
+    hold: 0,
+    mark: null as Swarm | null,
+  }
   // Cosmetic sparkles roll their own dice, so the game's seeded rng is untouched.
   private fx = new Sparkles()
   private fxRng = backdropRng(31)
@@ -676,6 +684,7 @@ class ButterflyBlaster implements ArcadeGameInstance {
       const x = k % 2 === 0 ? 150 : W - 150
       this.pests.push(newPest('skimmer', x, 0, this.rng))
     }
+    for (const pool of this.pools) pool.broods = BROODS
     this.cloudTimer = Math.round(this.plan.cloudEvery / 2)
     this.fairyTimer = Math.round(this.plan.amiEvery / 2)
     this.waveTotal = this.mosquitoesLeft()
@@ -910,13 +919,15 @@ class ButterflyBlaster implements ArcadeGameInstance {
     wrap(ship)
     this.flap += this.thrusting ? 0.45 : 0.15
 
-    // The ribbon: laid while the butterfly flutters.
+    // The ribbon: laid while the butterfly flutters, or glides fast on a flutter's way.
     this.ribbon.age(this.tick)
     if (!this.ribbon.points.length) {
       this.unwrapped.x = ship.x
       this.unwrapped.y = ship.y
     }
-    if (this.thrusting && this.tick % RIBBON_STEP === 0) this.layRibbon()
+    const streaming = Math.hypot(ship.vx, ship.vy) >= RIBBON_SPEED
+    if ((this.thrusting || streaming) && this.tick % RIBBON_STEP === 0)
+      this.layRibbon()
 
     if (this.fireCooldown > 0) this.fireCooldown--
     const wantsFire =
@@ -1868,14 +1879,17 @@ class ButterflyBlaster implements ArcadeGameInstance {
   // --- attract-mode pilot ------------------------------------------------------------------------
 
   /** The nearest thing that can hurt the butterfly, and how far its edge is. */
-  private nearestDanger(): { at: Point; gap: number } | null {
+  private nearestDanger(
+    skip: Swarm | null = null,
+  ): { at: Point; gap: number } | null {
     const ship = this.ship
     let best: { at: Point; gap: number } | null = null
     const consider = (at: Point, r: number) => {
       const gap = wrapDist(at, ship) - r
       if (!best || gap < best.gap) best = { at, gap }
     }
-    for (const s of this.swarms) consider(s, SWARM_RADIUS[s.size])
+    for (const s of this.swarms)
+      if (s !== skip) consider(s, SWARM_RADIUS[s.size])
     for (const p of this.pests) {
       if (!pestHurts(p)) continue
       consider(p, PEST_RADIUS[p.kind])
@@ -1944,7 +1958,7 @@ class ButterflyBlaster implements ArcadeGameInstance {
       return frame
     const ship = this.ship
     const pilot = this.pilot
-    const danger = this.nearestDanger()
+    const danger = this.nearestDanger(pilot.loop > 0 ? pilot.mark : null)
 
     // A loop is dropped the moment something gets close.
     if (danger && danger.gap < 22) pilot.loop = 0
@@ -1973,8 +1987,24 @@ class ButterflyBlaster implements ArcadeGameInstance {
     // A lasso: circle round a swarm (or a boss's core) with the ribbon out.
     if (pilot.loop > 0) {
       pilot.loop--
-      held.up = true
-      held[pilot.side] = true
+      // Flutter round, coasting when fast, so the wings grip and the turn stays tight.
+      held.up = Math.hypot(ship.vx, ship.vy) < 3.3
+      // Orbit the mark: fly tangent to a circle about 40 px round it, so the ribbon closes on it.
+      const mark =
+        this.boss?.lassoMark() ??
+        (pilot.mark && this.swarms.includes(pilot.mark) ? pilot.mark : null)
+      if (!mark) {
+        held[pilot.side] = true
+        return frame
+      }
+      const d = toward(ship, mark)
+      const dist = Math.hypot(d.x, d.y)
+      const s = pilot.side === 'right' ? 1 : -1
+      const corr = clamp((dist - 36) / 12, -0.9, 0.9)
+      const want = Math.atan2(d.x, -d.y) - s * (Math.PI / 2 - corr)
+      const diff = angleDiff(ship.angle, want)
+      if (diff > 0.04) held.right = true
+      else if (diff < -0.04) held.left = true
       return frame
     }
     if (!danger || danger.gap > 50 || this.boss?.lassoMark()) {
@@ -1989,6 +2019,7 @@ class ButterflyBlaster implements ArcadeGameInstance {
       if (mark && dist > 40 && dist < 100 && window) {
         const d = toward(ship, mark)
         pilot.loop = 120
+        pilot.mark = this.boss ? null : (mark as Swarm)
         pilot.side =
           angleDiff(ship.angle, Math.atan2(d.x, -d.y)) > 0 ? 'right' : 'left'
         held.up = true

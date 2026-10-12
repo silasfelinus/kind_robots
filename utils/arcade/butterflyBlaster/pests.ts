@@ -54,7 +54,12 @@ export type Pool = {
   ripple: number
   /** Tipped out or dried: it breeds no more. */
   dry: boolean
+  /** Wrigglers it still has in it this wave. */
+  broods: number
 }
+
+/** Wrigglers a pool can raise in one wave: standing water is a hazard, not a flood. */
+export const BROODS = 3
 
 /** The ripple tell before a wriggler rises. */
 export const RIPPLE_TICKS = 70
@@ -75,6 +80,7 @@ export function newPool(
     timer: Math.round(every * (0.5 + rng() * 0.5)),
     ripple: 0,
     dry: false,
+    broods: BROODS,
   }
 }
 
@@ -84,9 +90,10 @@ export function tickPool(
   every: number,
   rng: () => number,
 ): boolean {
-  if (pool.dry) return false
+  if (pool.dry || pool.broods <= 0) return false
   if (pool.ripple > 0) {
     if (--pool.ripple === 0) {
+      pool.broods--
       pool.timer = Math.round(every * (0.8 + rng() * 0.4))
       return true
     }

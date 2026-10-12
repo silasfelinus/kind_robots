@@ -83,7 +83,7 @@ export const HUM = {
   dashGain: 0.25,
   dashMax: 7.5,
   restMin: 70,
-  daze: 45,
+  daze: 90,
   fatR: 18,
 } as const
 
@@ -463,7 +463,10 @@ export class Hum implements Boss {
   }
 
   lassoMark(): Point | null {
-    return this.phase === 3 && !this.defeated ? { x: this.x, y: this.y } : null
+    const still = this.mode === 'rest' || this.dazed > 0
+    return this.phase === 3 && !this.defeated && still
+      ? { x: this.x, y: this.y }
+      : null
   }
 
   render(g: CanvasRenderingContext2D, tick: number) {

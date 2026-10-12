@@ -10,6 +10,9 @@ import { BOTTLING_HALL } from './bottlingHall'
 import { GUMDROP_GARDENS } from './gumdropGardens'
 import { LAGOON_CELLAR } from './lagoonCellar'
 import { STARLIGHT_OBSERVATORY } from './starlightObservatory'
+import { EMBER_KITCHEN } from './emberKitchen'
+import { FROST_FREEZER } from './frostFreezer'
+import { GEARWORKS } from './gearworks'
 import type { GrumpKind } from './grumps'
 import { parseFloor } from './tower'
 import type { Flavour, Floor, FloorDef, SpecialKind } from './tower'
@@ -79,6 +82,39 @@ export const WINGS: readonly WingDef[] = [
     motto: 'LOW GRAVITY: FLOATY HOPS',
     special: 'zap',
     floors: STARLIGHT_OBSERVATORY,
+  },
+  {
+    n: 5,
+    name: 'THE EMBER KITCHEN',
+    theme: 'kitchen',
+    music: 'kitchen',
+    grumps: ['grumbler', 'toaster'],
+    tap: 'fizz',
+    motto: 'HOT PLATES GLOW, THEN PUFF',
+    special: 'toasty',
+    floors: EMBER_KITCHEN,
+  },
+  {
+    n: 6,
+    name: 'THE FROST FREEZER',
+    theme: 'freezer',
+    music: 'freezer',
+    grumps: ['flinger', 'skater'],
+    tap: 'frost',
+    motto: 'ICE SLIDES. SHOVE THE BLOCKS',
+    special: null,
+    floors: FROST_FREEZER,
+  },
+  {
+    n: 7,
+    name: 'THE GEARWORKS',
+    theme: 'gearworks',
+    music: 'gearworks',
+    grumps: ['cog', 'windup'],
+    tap: null,
+    motto: 'BELTS, LIFTS AND WIND-UP DOORS',
+    special: null,
+    floors: GEARWORKS,
   },
 ]
 

@@ -33,6 +33,12 @@ export type GrumpKind =
   | 'comet'
   | 'tick'
   | 'corklet'
+  | 'grumbler'
+  | 'toaster'
+  | 'flinger'
+  | 'skater'
+  | 'cog'
+  | 'windup'
 
 export type GrumpSpec = {
   kind: GrumpKind
@@ -47,7 +53,9 @@ export type GrumpSpec = {
   hop: number
   /** Chance it turns back at a platform's edge instead of walking off. */
   edgeTurn: number
-  move: 'walk' | 'fly' | 'hide' | 'swim' | 'comet'
+  move: 'walk' | 'fly' | 'hide' | 'swim' | 'comet' | 'toast' | 'cling'
+  /** A wind-up's run and rewind: it speeds up for `run` ticks, then stops `rest` to rewind. */
+  rewind?: { run: number; rest: number }
   /** A shot it winds up and fires: a water jet or a lens beam along its row. */
   attack?: { kind: HazardKind; every: number; windup: number }
   /** What warns you, if anything. */
@@ -192,9 +200,84 @@ export const GRUMPS: Record<GrumpKind, GrumpSpec> = {
     tell: null,
     answer: 'POP IT AGAINST THE BIG CORK',
   },
+  grumbler: {
+    kind: 'grumbler',
+    name: 'STEAM GRUMBLER',
+    letter: 'g',
+    wing: 5,
+    speed: 0.9,
+    hop: 0.6,
+    edgeTurn: 0.7,
+    move: 'walk',
+    attack: { kind: 'steam', every: 200, windup: 50 },
+    tell: 'ITS NOSE GLOWS RED',
+    answer: 'TRAP IT DURING THE WIND-UP',
+  },
+  toaster: {
+    kind: 'toaster',
+    name: 'TOAST POPPER',
+    letter: 'o',
+    wing: 5,
+    speed: 1,
+    hop: 0.5,
+    edgeTurn: 0.6,
+    move: 'toast',
+    tell: 'THE TOASTER TICKS',
+    answer: 'LEAVE A BUBBLE OVER THE SLOT',
+  },
+  flinger: {
+    kind: 'flinger',
+    name: 'SNOW-FLINGER',
+    letter: 'f',
+    wing: 6,
+    speed: 0.8,
+    hop: 0.5,
+    edgeTurn: 0.8,
+    move: 'walk',
+    attack: { kind: 'snowball', every: 240, windup: 45 },
+    tell: 'IT WINDS UP',
+    answer: 'DODGE, AND TRAP IT ON THE THROW',
+  },
+  skater: {
+    kind: 'skater',
+    name: 'SKATER',
+    letter: 'x',
+    wing: 6,
+    speed: 2.1,
+    hop: 0,
+    edgeTurn: 0,
+    move: 'walk',
+    tell: null,
+    answer: 'A BUBBLE AT THE END OF ITS SLIDE',
+  },
+  cog: {
+    kind: 'cog',
+    name: 'COG CRAWLER',
+    letter: 'r',
+    wing: 7,
+    speed: 0.9,
+    hop: 0.6,
+    edgeTurn: 0.6,
+    move: 'cling',
+    tell: 'ITS TEETH CLICK BEFORE IT DROPS',
+    answer: 'TRAP IT WHEN IT DROPS',
+  },
+  windup: {
+    kind: 'windup',
+    name: 'WIND-UP',
+    letter: 'u',
+    wing: 7,
+    speed: 0.5,
+    hop: 0.4,
+    edgeTurn: 0.6,
+    move: 'walk',
+    rewind: { run: 240, rest: 90 },
+    tell: 'ITS KEY TURNS',
+    answer: 'TRAP IT DURING THE REWIND',
+  },
 }
 
-export type HazardKind = 'jet' | 'beam'
+export type HazardKind = 'jet' | 'beam' | 'steam' | 'snowball'
 
 /** A grump's shot: a water jet flying along, or a beam lit across a row. */
 export type Hazard = {
@@ -206,6 +289,8 @@ export type Hazard = {
   /** A beam's ends. */
   x0: number
   x1: number
+  /** A snowball's fall. */
+  vy?: number
 }
 
 export const JET_SPEED = 2.4
@@ -216,7 +301,18 @@ export const GRUMP_LETTERS: Record<string, GrumpKind> = Object.fromEntries(
 )
 
 export type GrumpState =
-  'walk' | 'fly' | 'hidden' | 'rise' | 'windup' | 'swim' | 'leap' | 'comet'
+  | 'walk'
+  | 'fly'
+  | 'hidden'
+  | 'rise'
+  | 'windup'
+  | 'swim'
+  | 'leap'
+  | 'comet'
+  | 'toast'
+  | 'popup'
+  | 'cling'
+  | 'rewind'
 
 export type Grump = Body & {
   kind: GrumpKind
@@ -233,6 +329,8 @@ export type Grump = Body & {
   cool: number
   /** A comet's lane (the height it streaks along, and drifts back to). */
   lane: number
+  /** Where it started (a toaster's slot). */
+  home: Spot
 }
 
 /** What a grump can see: the floor, the robots, and this floor's base pace. */
@@ -269,11 +367,21 @@ export function makeGrump(kind: GrumpKind, at: Spot, rng: () => number): Grump {
           ? 'swim'
           : move === 'comet'
             ? 'comet'
-            : 'walk'
+            : move === 'toast'
+              ? 'toast'
+              : move === 'cling'
+                ? 'cling'
+                : 'walk'
   return {
     kind,
     x: at.x,
-    y: move === 'fly' || move === 'comet' ? at.y - 6 : at.y,
+    // A cog crawler hangs under the block above its marker.
+    y:
+      move === 'fly' || move === 'comet'
+        ? at.y - 6
+        : move === 'cling'
+          ? at.y - 8
+          : at.y,
     vx: 0,
     vy: 0,
     onGround: false,
@@ -285,22 +393,24 @@ export function makeGrump(kind: GrumpKind, at: Spot, rng: () => number): Grump {
     twitch: false,
     cool: Math.floor((spec.attack?.every ?? 180) * (0.5 + rng() * 0.6)),
     lane: at.y - 6,
+    home: { x: at.x, y: at.y },
   }
 }
 
 /** Can a bubble catch it? (A diver under water can't be reached.) */
 export function trappable(g: Grump): boolean {
-  return g.state !== 'swim'
+  return g.state !== 'swim' && g.state !== 'toast' && g.state !== 'cling'
 }
 
 /** A grump that bonks a robot on touch (a sprout hiding as a flower, or still unfolding, doesn't). */
 export function harmful(g: Grump): boolean {
   if (g.state === 'rise') return g.t >= RISE_TICKS / 2
-  return g.state !== 'hidden' && g.state !== 'swim'
+  return g.state !== 'hidden' && g.state !== 'swim' && g.state !== 'toast'
 }
 
 /** The centre of a grump's body, where bubbles catch it. */
 export function grumpCentre(g: Grump): Spot {
+  if (g.state === 'cling') return { x: g.x, y: g.y + 6 }
   return g.state === 'fly' || g.state === 'comet'
     ? { x: g.x, y: g.y }
     : { x: g.x, y: g.y - 6 }
@@ -333,7 +443,12 @@ export function updateGrump(g: Grump, w: GrumpWorld) {
   g.t++
   if (w.frozen) {
     // The Clock: everyone stands still (a flyer hangs where it is).
-    if (g.state !== 'fly' && g.state !== 'comet') {
+    if (
+      g.state !== 'fly' &&
+      g.state !== 'comet' &&
+      g.state !== 'cling' &&
+      g.state !== 'toast'
+    ) {
       g.vx = 0
       stepBody(w.floor, g, HALF, { ledges: w.ledges })
     }
@@ -348,6 +463,24 @@ export function updateGrump(g: Grump, w: GrumpWorld) {
       g.state = 'walk'
       g.t = 0
       g.cool = Math.floor((spec.attack?.every ?? 200) * (0.7 + w.rng() * 0.6))
+    }
+    return
+  }
+  if (g.state === 'toast' || g.state === 'popup') {
+    toast(g, w)
+    return
+  }
+  if (g.state === 'cling') {
+    cling(g, w, spec.speed * w.speed * mult)
+    return
+  }
+  if (g.state === 'rewind') {
+    // Stopped to wind its key back up (the tell): the moment to trap it.
+    g.vx = 0
+    stepBody(w.floor, g, HALF, { ledges: w.ledges })
+    if (g.t >= (spec.rewind?.rest ?? 0)) {
+      g.state = 'walk'
+      g.t = 0
     }
     return
   }
@@ -421,7 +554,9 @@ export function updateGrump(g: Grump, w: GrumpWorld) {
       const follow = g.kind === 'climber' && near && near.y > g.y + 20
       if (!follow) g.dir = g.dir === 1 ? -1 : 1
     }
-    g.vx = g.dir * w.speed * spec.speed * mult
+    // A wind-up speeds up the longer it runs.
+    const wound = spec.rewind ? Math.min(4.4, 0.8 + g.t / 70) : 1
+    g.vx = g.dir * w.speed * spec.speed * mult * wound
     let jump = w.rng() < w.hop * spec.hop * mult
     if (
       g.kind === 'climber' &&
@@ -440,6 +575,10 @@ export function updateGrump(g: Grump, w: GrumpWorld) {
   const step = stepBody(w.floor, g, HALF, { ledges: w.ledges })
   if (step.bumped) g.dir = g.dir === 1 ? -1 : 1
   else if (g.onGround && w.rng() < 0.003) g.dir = g.dir === 1 ? -1 : 1
+  if (spec.rewind && g.t >= spec.rewind.run) {
+    g.state = 'rewind'
+    g.t = 0
+  }
   // A shooter winds up now and then, facing the nearest robot on its level.
   if (spec.attack && g.onGround && --g.cool <= 0) {
     const near = nearest(g, w.robots)
@@ -458,6 +597,35 @@ function fire(g: Grump, w: GrumpWorld) {
   const attack = GRUMPS[g.kind].attack
   if (!attack || !w.hazards) return
   const y = g.y - 6
+  if (attack.kind === 'steam') {
+    // A scalding cloud puffed out ahead.
+    w.hazards.push({
+      kind: 'steam',
+      x: g.x + g.dir * 14,
+      y: g.y - 8,
+      vx: g.dir * 0.35,
+      life: STEAM_TICKS,
+      x0: 0,
+      x1: 0,
+    })
+    return
+  }
+  if (attack.kind === 'snowball') {
+    // Lobbed in an arc at the nearest robot.
+    const near = nearest(g, w.robots)
+    const dx = near ? near.x - g.x : g.dir * 60
+    w.hazards.push({
+      kind: 'snowball',
+      x: g.x,
+      y: g.y - 12,
+      vx: Math.max(-2.2, Math.min(2.2, dx / 45)),
+      vy: -3.2,
+      life: 240,
+      x0: 0,
+      x1: 0,
+    })
+    return
+  }
   if (attack.kind === 'jet') {
     w.hazards.push({
       kind: 'jet',
@@ -483,6 +651,55 @@ function fire(g: Grump, w: GrumpWorld) {
     })
   }
 }
+
+export const STEAM_TICKS = 50
+export const TOAST = { beat: 150, up: 60 }
+
+/** A toast popper: down in its toaster, popping up on the beat, then back into the slot. */
+function toast(g: Grump, w: GrumpWorld) {
+  if (g.state === 'toast') {
+    g.x = g.home.x
+    g.y = g.home.y
+    g.vx = 0
+    g.vy = 0
+    if (g.t >= TOAST.beat) {
+      g.state = 'popup'
+      g.t = 0
+      g.vy = -3.6
+    }
+    return
+  }
+  // Popped up: out of the slot and back down into it.
+  g.vy = Math.min(4, g.vy + w.floor.gravity)
+  g.y += g.vy
+  if (g.y >= g.home.y && g.vy > 0) {
+    g.y = g.home.y
+    if (g.t >= TOAST.up) {
+      g.state = 'toast'
+      g.t = 0
+    } else g.vy = -2.4
+  }
+}
+
+/** A cog crawler, upside down along the underside of the blocks, dropping now and then. */
+function cling(g: Grump, w: GrumpWorld, speed: number) {
+  const f = w.floor
+  const ahead = g.x + g.dir * (HALF + 1)
+  const roofAhead = solidAt(f, ahead, g.y - 2)
+  if (!roofAhead || ahead <= WALL_L || ahead >= WALL_R)
+    g.dir = g.dir === 1 ? -1 : 1
+  else g.x += g.dir * speed
+  g.vx = g.dir * speed
+  if (!solidAt(f, g.x, g.y - 2) || --g.cool <= 0) {
+    // It lets go and drops (feet first) onto whatever is beneath.
+    g.state = 'walk'
+    g.t = 0
+    g.y += BODY_DROP
+    g.vy = 0
+    g.cool = 180 + Math.floor(w.rng() * 160)
+  }
+}
+const BODY_DROP = 14
 
 /** A diver: along its channel under water, leaping clear every so often. */
 function swim(g: Grump, w: GrumpWorld, speed: number) {

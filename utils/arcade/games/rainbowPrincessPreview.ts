@@ -8,43 +8,360 @@ import type {
 const W = 480
 const H = 270
 const SPEED = 2.6
+const FOCUS_SPEED = SPEED * 0.55
+const CORE_RADIUS = 4
+const GRAZE_RADIUS = 15
+const PILOT_COLORS = ['#ffd2ef', '#b8f8ff', '#ffe99f', '#b9a9ff'] as const
+const SHIP_NAMES = ['PETAL', 'PRISM', 'HALO', 'COMET'] as const
+
 type Ship = {
   x: number
   y: number
   shield: number
   cooldown: number
   invulnerable: number
+  power: number
+  charge: number
+  graze: number
+  lives: number
+  focus: boolean
 }
-type Shot = { x: number; y: number; seat: number }
-type Reef = { x: number; y: number; phase: number; health: number }
-const PILOT_COLORS = ['#ffd2ef', '#b8f8ff', '#ffe99f', '#b9a9ff']
+type Shot = {
+  x: number
+  y: number
+  vx: number
+  vy: number
+  seat: number
+  damage: number
+}
+type Reef = {
+  x: number
+  y: number
+  phase: number
+  health: number
+  kind: 'picket' | 'urchin'
+  fired: boolean
+}
+type EnemyShot = {
+  x: number
+  y: number
+  vx: number
+  vy: number
+  grazed: number
+}
+type Pickup = { x: number; y: number; kind: 'power' | 'shield' | 'charge' }
 
+export type RainbowCombatSnapshot = {
+  tick: number
+  score: number
+  ships: ReadonlyArray<Readonly<Ship>>
+  shots: ReadonlyArray<Readonly<Shot>>
+  enemies: ReadonlyArray<Readonly<Reef>>
+  enemyShots: ReadonlyArray<Readonly<EnemyShot>>
+  pickups: ReadonlyArray<Readonly<Pickup>>
+}
+
+/** The preview's deterministic 60 Hz combat layer; stages and bosses are separate work. */
 export function createRainbowPrincessPreview(
   options: ArcadeGameOptions,
-): ArcadeGameInstance {
+): ArcadeGameInstance & { readonly snapshot: RainbowCombatSnapshot } {
   const count = Math.max(1, Math.min(4, options.players ?? 1))
   const ships: Ship[] = Array.from({ length: count }, (_, seat) => ({
     x: 65,
-    y: 84 + seat * (105 / count),
+    y: 80 + seat * (125 / count),
     shield: 3,
     cooldown: 0,
     invulnerable: 60,
+    power: 1,
+    charge: 0,
+    graze: 0,
+    lives: 3,
+    focus: false,
   }))
   const shots: Shot[] = []
   const reefs: Reef[] = []
+  const enemyShots: EnemyShot[] = []
+  const pickups: Pickup[] = []
   let tick = 0
   let score = 0
-  let lives = count * 3
   let over = false
   let clearCount = 0
+  let supers = 0
 
   function spawn() {
+    const kind = tick % 156 === 0 ? 'urchin' : 'picket'
     reefs.push({
       x: W + 18,
       y: 40 + options.rng() * (H - 80),
-      phase: options.rng() * 6.28,
-      health: 2,
+      phase: options.rng() * Math.PI * 2,
+      health: kind === 'urchin' ? 5 : 2,
+      kind,
+      fired: false,
     })
+  }
+
+  function fire(ship: Ship, seat: number) {
+    const power = ship.power
+    const speed = seat === 1 ? 10 : seat === 3 ? 9 : 8
+    const damage = seat === 1 ? 2 : 1
+    shots.push({ x: ship.x + 15, y: ship.y, vx: speed, vy: 0, seat, damage })
+    if (!ship.focus && power >= 2) {
+      const spread = seat === 0 ? 1.8 : 1.1
+      shots.push({
+        x: ship.x + 12,
+        y: ship.y - 3,
+        vx: 7.4,
+        vy: -spread,
+        seat,
+        damage: 1,
+      })
+      shots.push({
+        x: ship.x + 12,
+        y: ship.y + 3,
+        vx: 7.4,
+        vy: spread,
+        seat,
+        damage: 1,
+      })
+    }
+    if (power >= 3 && (seat === 2 || seat === 3)) {
+      shots.push({
+        x: ship.x + 10,
+        y: ship.y - 10,
+        vx: 8,
+        vy: 0,
+        seat,
+        damage: 1,
+      })
+      shots.push({
+        x: ship.x + 10,
+        y: ship.y + 10,
+        vx: 8,
+        vy: 0,
+        seat,
+        damage: 1,
+      })
+    }
+    ship.cooldown = ship.focus ? 8 : seat === 3 ? 7 : 11
+  }
+
+  function superAttack(seat: number) {
+    const ship = ships[seat]!
+    if (ship.charge < 100) return
+    ship.charge = 0
+    supers++
+    enemyShots.length = 0
+    for (let i = reefs.length - 1; i >= 0; i--) {
+      const reef = reefs[i]!
+      if (seat === 1 && reef.x < ship.x) continue
+      reef.health -= seat === 1 ? 8 : 5
+      if (reef.health <= 0) defeat(i, seat)
+    }
+    if (seat === 2) {
+      for (const ally of ships) {
+        ally.shield = Math.min(3, ally.shield + 1)
+        ally.invulnerable = Math.max(ally.invulnerable, 60)
+      }
+    }
+    options.sound.play('extra')
+  }
+
+  function defeat(index: number, seat: number) {
+    const reef = reefs[index]!
+    reefs.splice(index, 1)
+    score += reef.kind === 'urchin' ? 250 : 125
+    clearCount++
+    const ship = ships[seat]!
+    ship.charge = Math.min(
+      100,
+      ship.charge + (reef.kind === 'urchin' ? 24 : 12),
+    )
+    if (clearCount % 3 === 0) {
+      const kinds: Pickup['kind'][] = ['power', 'shield', 'charge']
+      pickups.push({
+        x: reef.x,
+        y: reef.y,
+        kind: kinds[(clearCount / 3 - 1) % 3]!,
+      })
+    }
+    options.sound.play('pop')
+  }
+
+  function fireEnemy(reef: Reef) {
+    const target = ships.reduce(
+      (best, ship) =>
+        Math.abs(ship.y - reef.y) < Math.abs(best.y - reef.y) ? ship : best,
+      ships[0]!,
+    )
+    const dx = target.x - reef.x
+    const dy = target.y - reef.y
+    const length = Math.hypot(dx, dy) || 1
+    const vx = (dx / length) * 2.15
+    const vy = (dy / length) * 2.15
+    enemyShots.push({ x: reef.x - 8, y: reef.y, vx, vy, grazed: 0 })
+    if (reef.kind === 'urchin') {
+      enemyShots.push({
+        x: reef.x - 8,
+        y: reef.y,
+        vx: vx * 0.9 - vy * 0.4,
+        vy: vy * 0.9 + vx * 0.4,
+        grazed: 0,
+      })
+      enemyShots.push({
+        x: reef.x - 8,
+        y: reef.y,
+        vx: vx * 0.9 + vy * 0.4,
+        vy: vy * 0.9 - vx * 0.4,
+        grazed: 0,
+      })
+    }
+  }
+
+  function hitShip(ship: Ship) {
+    if (ship.invulnerable > 0) return
+    ship.invulnerable = 90
+    ship.shield--
+    if (ship.shield <= 0) {
+      ship.lives--
+      ship.shield = 3
+      ship.power = Math.max(1, ship.power - 1)
+      if (!options.demo && ships.every((candidate) => candidate.lives <= 0))
+        over = true
+    }
+    options.sound.play('pop')
+  }
+
+  function update(input: InputFrame, seated = [input]) {
+    if (over) return
+    tick++
+    if (tick % 52 === 0) spawn()
+
+    for (let seat = 0; seat < ships.length; seat++) {
+      const ship = ships[seat]!
+      const keys = seated[seat] ?? input
+      if (ship.lives <= 0) continue
+      ship.focus = !options.demo && keys.held.b
+      if (options.demo) {
+        ship.y = 135 + Math.sin(tick / 33 + seat) * 56
+      } else {
+        const dx = Number(keys.held.right) - Number(keys.held.left)
+        const dy = Number(keys.held.down) - Number(keys.held.up)
+        const length = Math.hypot(dx, dy) || 1
+        const speed = ship.focus ? FOCUS_SPEED : SPEED
+        ship.x = Math.max(20, Math.min(W - 40, ship.x + (dx / length) * speed))
+        ship.y = Math.max(34, Math.min(H - 25, ship.y + (dy / length) * speed))
+      }
+      if (ship.cooldown > 0) ship.cooldown--
+      if (ship.invulnerable > 0) ship.invulnerable--
+      if ((options.demo || keys.held.a) && ship.cooldown === 0) fire(ship, seat)
+      if (!options.demo && keys.pressed.b) superAttack(seat)
+    }
+
+    for (const shot of shots) {
+      shot.x += shot.vx
+      shot.y += shot.vy
+    }
+    for (const reef of reefs) {
+      reef.x -= reef.kind === 'urchin' ? 0.9 : 1.25
+      reef.y += Math.sin(tick / 24 + reef.phase) * 0.55
+      if (!reef.fired && reef.x < W - 50) {
+        reef.fired = true
+        fireEnemy(reef)
+      }
+    }
+    for (const bullet of enemyShots) {
+      bullet.x += bullet.vx
+      bullet.y += bullet.vy
+    }
+    for (const pickup of pickups) pickup.x -= 0.8
+
+    for (let si = shots.length - 1; si >= 0; si--) {
+      const shot = shots[si]!
+      if (shot.x > W + 15 || shot.y < 25 || shot.y > H + 10) {
+        shots.splice(si, 1)
+        continue
+      }
+      const hitIndex = reefs.findIndex(
+        (reef) =>
+          Math.abs(reef.x - shot.x) < 14 && Math.abs(reef.y - shot.y) < 13,
+      )
+      if (hitIndex < 0) continue
+      shots.splice(si, 1)
+      reefs[hitIndex]!.health -= shot.damage
+      if (reefs[hitIndex]!.health <= 0) defeat(hitIndex, shot.seat)
+    }
+
+    for (let ei = reefs.length - 1; ei >= 0; ei--) {
+      const reef = reefs[ei]!
+      if (reef.x < -25) {
+        reefs.splice(ei, 1)
+        continue
+      }
+      const ship = ships.find(
+        (candidate) =>
+          candidate.lives > 0 &&
+          candidate.invulnerable === 0 &&
+          Math.hypot(candidate.x - reef.x, candidate.y - reef.y) <
+            CORE_RADIUS + 10,
+      )
+      if (ship) {
+        reefs.splice(ei, 1)
+        hitShip(ship)
+      }
+    }
+
+    for (let bi = enemyShots.length - 1; bi >= 0; bi--) {
+      const bullet = enemyShots[bi]!
+      if (
+        bullet.x < -12 ||
+        bullet.x > W + 12 ||
+        bullet.y < 22 ||
+        bullet.y > H + 12
+      ) {
+        enemyShots.splice(bi, 1)
+        continue
+      }
+      let consumed = false
+      for (let seat = 0; seat < ships.length; seat++) {
+        const ship = ships[seat]!
+        if (ship.lives <= 0) continue
+        const distance = Math.hypot(ship.x - bullet.x, ship.y - bullet.y)
+        if (distance < CORE_RADIUS + 3 && ship.invulnerable === 0) {
+          hitShip(ship)
+          enemyShots.splice(bi, 1)
+          consumed = true
+          break
+        }
+        if (distance < GRAZE_RADIUS && (bullet.grazed & (1 << seat)) === 0) {
+          bullet.grazed |= 1 << seat
+          ship.graze++
+          ship.charge = Math.min(100, ship.charge + 2)
+          score += 5
+        }
+      }
+      if (consumed) continue
+    }
+
+    for (let pi = pickups.length - 1; pi >= 0; pi--) {
+      const pickup = pickups[pi]!
+      if (pickup.x < -15) {
+        pickups.splice(pi, 1)
+        continue
+      }
+      const ship = ships.find(
+        (candidate) =>
+          candidate.lives > 0 &&
+          Math.hypot(candidate.x - pickup.x, candidate.y - pickup.y) < 18,
+      )
+      if (!ship) continue
+      pickups.splice(pi, 1)
+      if (pickup.kind === 'power') ship.power = Math.min(3, ship.power + 1)
+      else if (pickup.kind === 'shield')
+        ship.shield = Math.min(3, ship.shield + 1)
+      else ship.charge = Math.min(100, ship.charge + 35)
+      score += 25
+      options.sound.play('pickup')
+    }
   }
 
   return {
@@ -55,97 +372,23 @@ export function createRainbowPrincessPreview(
       return 1
     },
     get lives() {
-      return lives
+      return ships.reduce((total, ship) => total + Math.max(0, ship.lives), 0)
     },
     get over() {
       return over
     },
-    update(input: InputFrame, seated = [input]) {
-      if (over) return
-      tick++
-      if (tick % 52 === 0) spawn()
-      for (let seat = 0; seat < ships.length; seat++) {
-        const ship = ships[seat]!
-        const keys = seated[seat] ?? input
-        if (options.demo) {
-          ship.y = 135 + Math.sin(tick / 33 + seat) * 56
-        } else {
-          ship.x = Math.max(
-            20,
-            Math.min(
-              W - 40,
-              ship.x +
-                (Number(keys.held.right) - Number(keys.held.left)) * SPEED,
-            ),
-          )
-          ship.y = Math.max(
-            34,
-            Math.min(
-              H - 25,
-              ship.y + (Number(keys.held.down) - Number(keys.held.up)) * SPEED,
-            ),
-          )
-        }
-        if (ship.cooldown > 0) ship.cooldown--
-        if (ship.invulnerable > 0) ship.invulnerable--
-        if ((options.demo || keys.held.a) && ship.cooldown === 0) {
-          shots.push({ x: ship.x + 14, y: ship.y, seat })
-          ship.cooldown = 11
-        }
-        if (!options.demo && keys.pressed.b && ship.shield < 3) {
-          ship.shield++
-          options.sound.play('pickup')
-        }
-      }
-      for (const shot of shots) shot.x += 7
-      for (const reef of reefs) {
-        reef.x -= 1.25
-        reef.y += Math.sin(tick / 24 + reef.phase) * 0.55
-      }
-      for (let si = shots.length - 1; si >= 0; si--) {
-        const shot = shots[si]!
-        if (shot.x > W + 10) {
-          shots.splice(si, 1)
-          continue
-        }
-        const hit = reefs.find(
-          (reef) =>
-            Math.abs(reef.x - shot.x) < 13 && Math.abs(reef.y - shot.y) < 14,
-        )
-        if (!hit) continue
-        shots.splice(si, 1)
-        hit.health--
-        if (hit.health === 0) {
-          reefs.splice(reefs.indexOf(hit), 1)
-          score += 125
-          clearCount++
-        }
-      }
-      for (let ei = reefs.length - 1; ei >= 0; ei--) {
-        const reef = reefs[ei]!
-        if (reef.x < -20) {
-          reefs.splice(ei, 1)
-          continue
-        }
-        for (const ship of ships) {
-          if (
-            ship.invulnerable ||
-            Math.abs(ship.x - reef.x) >= 16 ||
-            Math.abs(ship.y - reef.y) >= 14
-          )
-            continue
-          reefs.splice(ei, 1)
-          ship.invulnerable = 90
-          ship.shield--
-          if (ship.shield <= 0) {
-            lives--
-            ship.shield = 3
-            if (!options.demo && lives <= 0) over = true
-          }
-          break
-        }
+    get snapshot(): RainbowCombatSnapshot {
+      return {
+        tick,
+        score,
+        ships: ships.map((ship) => ({ ...ship })),
+        shots: shots.map((shot) => ({ ...shot })),
+        enemies: reefs.map((reef) => ({ ...reef })),
+        enemyShots: enemyShots.map((bullet) => ({ ...bullet })),
+        pickups: pickups.map((pickup) => ({ ...pickup })),
       }
     },
+    update,
     render(g: CanvasRenderingContext2D) {
       const sky = g.createLinearGradient(0, 0, 0, H)
       sky.addColorStop(0, '#100d40')
@@ -176,11 +419,11 @@ export function createRainbowPrincessPreview(
       for (const reef of reefs) {
         g.save()
         g.translate(reef.x, reef.y)
-        g.shadowColor = '#ffa3e6'
+        g.shadowColor = reef.kind === 'urchin' ? '#ffe38a' : '#ffa3e6'
         g.shadowBlur = 12
-        g.fillStyle = '#d09ffd'
+        g.fillStyle = reef.kind === 'urchin' ? '#ffd38a' : '#d09ffd'
         g.beginPath()
-        g.ellipse(0, 0, 16, 10, 0, 0, Math.PI * 2)
+        g.ellipse(0, 0, reef.kind === 'urchin' ? 14 : 16, 10, 0, 0, Math.PI * 2)
         g.fill()
         g.fillStyle = '#fce7ff'
         g.beginPath()
@@ -194,6 +437,35 @@ export function createRainbowPrincessPreview(
         g.stroke()
         g.restore()
       }
+      for (const bullet of enemyShots) {
+        g.fillStyle = '#1b163e'
+        g.beginPath()
+        g.arc(bullet.x, bullet.y, 5, 0, Math.PI * 2)
+        g.fill()
+        g.strokeStyle = '#fff5b3'
+        g.lineWidth = 2
+        g.stroke()
+      }
+      for (const pickup of pickups) {
+        g.fillStyle =
+          pickup.kind === 'power'
+            ? '#a5f3fc'
+            : pickup.kind === 'shield'
+              ? '#f9a8d4'
+              : '#fde68a'
+        g.beginPath()
+        g.arc(pickup.x, pickup.y, 9, 0, Math.PI * 2)
+        g.fill()
+        g.fillStyle = '#21133b'
+        g.font = 'bold 10px sans-serif'
+        g.textAlign = 'center'
+        g.fillText(
+          pickup.kind === 'power' ? 'P' : pickup.kind === 'shield' ? 'S' : '★',
+          pickup.x,
+          pickup.y + 4,
+        )
+        g.textAlign = 'left'
+      }
       for (const shot of shots) {
         g.fillStyle = PILOT_COLORS[shot.seat]!
         g.fillRect(shot.x, shot.y - 2, 12, 4)
@@ -202,7 +474,11 @@ export function createRainbowPrincessPreview(
       }
       for (let seat = 0; seat < ships.length; seat++) {
         const ship = ships[seat]!
-        if (ship.invulnerable && Math.floor(tick / 6) % 2 === 0) continue
+        if (
+          ship.lives <= 0 ||
+          (ship.invulnerable && Math.floor(tick / 6) % 2 === 0)
+        )
+          continue
         g.save()
         g.translate(ship.x, ship.y)
         g.fillStyle = PILOT_COLORS[seat]!
@@ -221,22 +497,35 @@ export function createRainbowPrincessPreview(
         g.shadowBlur = 0
         g.fillStyle = '#44235c'
         g.fillRect(-3, -3, 6, 6)
+        if (ship.focus) {
+          g.strokeStyle = '#fff'
+          g.beginPath()
+          g.arc(0, 0, CORE_RADIUS, 0, Math.PI * 2)
+          g.stroke()
+        }
         g.strokeStyle = '#fff'
         g.font = 'bold 9px sans-serif'
         g.strokeText(String(seat + 1), -3, -17)
         g.restore()
       }
-      g.fillStyle = '#180d38cc'
-      g.fillRect(0, 0, W, 26)
+      g.fillStyle = '#180d38e8'
+      g.fillRect(0, 0, W, 29)
       g.fillStyle = '#ffe7f5'
-      g.font = 'bold 11px monospace'
-      g.fillText('PINKWAKE / ENGINE PREVIEW', 12, 17)
+      g.font = 'bold 10px monospace'
+      g.fillText('PINKWAKE / COMBAT PREVIEW', 9, 12)
+      g.font = '9px monospace'
+      g.fillText('A FIRE · HOLD B FOCUS · CHARGED B SUPER', 9, 24)
       g.textAlign = 'right'
-      g.fillText(
-        `SHOALS ${clearCount}  ·  ${count} PILOT${count > 1 ? 'S' : ''}`,
-        W - 12,
-        17,
-      )
+      g.fillText(`SHOALS ${clearCount}  ·  NOVAS ${supers}`, W - 9, 12)
+      for (let seat = 0; seat < ships.length; seat++) {
+        const ship = ships[seat]!
+        g.fillStyle = PILOT_COLORS[seat]!
+        g.fillText(
+          `${SHIP_NAMES[seat]} ${ship.lives}♥ ${ship.shield}◇ P${ship.power} ${ship.charge}%`,
+          W - 9,
+          24 + seat * 10,
+        )
+      }
       g.textAlign = 'left'
     },
   }

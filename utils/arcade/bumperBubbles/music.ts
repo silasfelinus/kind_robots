@@ -10,6 +10,9 @@
 //   Lagoon Cellar    slow drippy arpeggios in D minor, a plink like water in a cask.
 //   Observatory      a twinkling, spacey loop over a long held bass.
 //   Boss             a stomping minor riff for THE BIG CORK and the bosses after it.
+//   Ember Kitchen    a hot, quick tarantella in A minor, pans clattering.
+//   Frost Freezer    glassy, slow B minor bells over a held bass.
+//   Gearworks        a clanking C minor ostinato in octaves, like pistons.
 
 import type { MusicLoop } from '../sound'
 
@@ -237,7 +240,127 @@ const BOSS: MusicLoop = {
   ],
 }
 
+const KITCHEN: MusicLoop = {
+  bpm: 152,
+  tracks: [
+    {
+      type: 'triangle',
+      vol: 0.07,
+      steps: bars(
+        'A2 . E3 . A2 . E3 .',
+        'D3 . A3 . D3 . A3 .',
+        'E3 . B3 . E3 . B3 .',
+        'A2 . E3 . A2 . G#2 .',
+        'A2 . E3 . A2 . E3 .',
+        'F2 . C3 . F2 . C3 .',
+        'D3 . A3 . E3 . B3 .',
+        'E3 . E3 . E2 . E2 .',
+      ),
+    },
+    {
+      type: 'square',
+      vol: 0.03,
+      steps: bars(
+        'A4 C5 E5 A5 G#5 A5 E5 C5',
+        'D5 F5 A5 D6 C6 A5 F5 D5',
+        'E5 G#5 B5 E6 D6 B5 G#5 E5',
+        'A5 E5 C5 A4 B4 C5 D5 E5',
+        'A4 C5 E5 A5 G#5 A5 E5 C5',
+        'F5 A5 C6 F6 E6 C6 A5 F5',
+        'D6 C6 B5 A5 G#5 A5 B5 C6',
+        'B5 - G#5 - E5 - . .',
+      ),
+    },
+    {
+      noise: true,
+      vol: 0.02,
+      steps: bars(...Array(8).fill('x . x x . x x .')),
+    },
+  ],
+}
+
+const FREEZER: MusicLoop = {
+  bpm: 96,
+  tracks: [
+    {
+      type: 'triangle',
+      vol: 0.06,
+      steps: bars(
+        'B1 - - - F#2 - - -',
+        'G2 - - - D2 - - -',
+        'E2 - - - B1 - - -',
+        'F#2 - - - C#2 - - -',
+        'B1 - - - F#2 - - -',
+        'G2 - - - D2 - - -',
+        'A2 - - - E2 - - -',
+        'F#2 - - - F#2 - A#2 -',
+      ),
+    },
+    {
+      type: 'sine',
+      vol: 0.05,
+      steps: bars(
+        'F#5 - D5 - B4 - D5 -',
+        'G5 - D5 - B4 - G4 -',
+        'E5 - G5 - B5 - G5 -',
+        'F#5 - - - C#5 - - -',
+        'B5 - F#5 - D5 - F#5 -',
+        'G5 - B5 - D6 - B5 -',
+        'A5 - E5 - C#5 - E5 -',
+        'F#5 - - - - - - -',
+      ),
+    },
+    {
+      type: 'square',
+      vol: 0.01,
+      steps: bars(...Array(8).fill('B6 . . F#6 . . D6 .')),
+    },
+  ],
+}
+
+const GEARWORKS: MusicLoop = {
+  bpm: 126,
+  tracks: [
+    {
+      type: 'sawtooth',
+      vol: 0.03,
+      steps: bars(
+        'C2 C3 C2 C3 G2 G3 G2 G3',
+        'A#1 A#2 A#1 A#2 F2 F3 F2 F3',
+        'G#1 G#2 G#1 G#2 D#2 D#3 D#2 D#3',
+        'G1 G2 G1 G2 D2 D3 B1 B2',
+        'C2 C3 C2 C3 G2 G3 G2 G3',
+        'A#1 A#2 A#1 A#2 F2 F3 F2 F3',
+        'G#1 G#2 G#1 G#2 A#1 A#2 A#1 A#2',
+        'G1 G2 G1 G2 G1 G2 B1 B2',
+      ),
+    },
+    {
+      type: 'square',
+      vol: 0.026,
+      steps: bars(
+        'G4 . C5 . D#5 . G5 .',
+        'F5 . D5 . A#4 . . .',
+        'D#5 . G#5 . C6 . G#5 .',
+        'G5 . F5 . D5 . B4 .',
+        'G4 . C5 . D#5 . G5 .',
+        'A#5 . G5 . F5 . D5 .',
+        'C6 . G#5 . D#5 . F5 .',
+        'G5 - - . B4 - - .',
+      ),
+    },
+    {
+      noise: true,
+      vol: 0.025,
+      steps: bars(...Array(8).fill('x . . x . x . .')),
+    },
+  ],
+}
+
 export const MUSIC: Record<string, MusicLoop> = {
+  kitchen: KITCHEN,
+  freezer: FREEZER,
+  gearworks: GEARWORKS,
   bottling: BOTTLING,
   gardens: GARDENS,
   lagoon: LAGOON,

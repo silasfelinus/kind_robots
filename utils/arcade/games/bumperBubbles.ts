@@ -71,13 +71,18 @@ import {
 } from '../bumperBubbles/grumps'
 import type { Grump, GrumpKind, Hazard } from '../bumperBubbles/grumps'
 import {
+  BOSSES,
+  bossAlive,
+  bossCanBeHurt,
+  bossHazards,
+  bossSpecials,
   bossTouches,
   hurtBoss,
   makeBoss,
+  stunBoss,
   updateBoss,
-  CORK,
 } from '../bumperBubbles/bosses'
-import type { Boss } from '../bumperBubbles/bosses'
+import type { Boss, BossHost, HurtKind } from '../bumperBubbles/bosses'
 import {
   CARD_SPRITE,
   DOOR_SPRITE,
@@ -86,6 +91,11 @@ import {
   SPECIAL_TINT,
   paintBolt,
   paintBoss,
+  paintBossHazards,
+  paintLift,
+  paintLiveTiles,
+  paintPushBlock,
+  paintToaster,
   paintFire,
   paintHazard,
   paintIce,
@@ -123,8 +133,10 @@ import {
   W,
   WALL_L,
   WALL_R,
+  Cell,
   currentAt,
   groundBelow,
+  setDoors,
   navOf,
   parseFloor,
   reachableSegments,
@@ -139,6 +151,7 @@ import type {
   Body,
   Flavour,
   Floor,
+  LiftDef,
   Ledge,
   SpecialKind,
   Spot,
@@ -148,7 +161,6 @@ import {
   FLOORS_PER_WING,
   WINGS,
   floorPlan,
-  parsedFloor,
 } from '../bumperBubbles/wings'
 import type { FloorPlan, WingDef } from '../bumperBubbles/wings'
 
@@ -218,8 +230,10 @@ export type Robot = Body & {
   rides: number
   /** Items kept until this robot is lost. */
   items: ItemId[]
-  /** The Float bubble it rides, if it stands on one. */
-  on: Bubble | null
+  /** What it rides, if it stands on one: a Float bubble, or a lift. */
+  on: Bubble | Lift | null
+  /** Standing on ice: it slides. */
+  ice: boolean
 }
 
 export type Bubble = {
@@ -242,6 +256,18 @@ export type Bubble = {
   vy: number
   owner: number
 }
+
+/** A push block of ice: shove it and it slides until it hits something, bowling grumps over. */
+export type PushBlock = Body & { sliding: boolean; dir: -1 | 1; hits: number }
+
+/** A lift, where it is now. */
+export type Lift = { def: LiftDef; x: number; w: number; top: number }
+
+/** Hot plates: cool most of the beat, glowing (the tell), then puffing steam. */
+export const HOT_PLATE = { beat: 300, glow: 200, puff: 260 } as const
+/** Wind-up doors: shut, the key glints, then open for a while. */
+export const WIND_DOOR = { beat: 300, tell: 160, open: 200 } as const
+export const PUSH_SPEED = 2.4
 
 /** A hidden-condition item, waiting where it appeared. */
 export type Pickup = Body & { id: ItemId; t: number; skip: number }
@@ -382,6 +408,9 @@ class BumperBubbles implements ArcadeGameInstance {
   private door = false
   /** The recipe card waiting in this pantry. */
   private recipe: Spot | null = null
+  private blocks: PushBlock[] = []
+  private lifts: Lift[] = []
+  private doorsOpen = false
   private particles: Particle[] = []
   private floaters: Floater[] = []
   private banner: { text: string; sub?: string; ticks: number } | null = null
@@ -394,6 +423,7 @@ class BumperBubbles implements ArcadeGameInstance {
     wander: 1 as -1 | 1,
     aim: null as number | null,
     touch: null as Spot | null,
+    idle: 0,
   }
   // Cosmetic sparkles roll their own dice, so the game's seeded rng is untouched.
   private fx = new Sparkles()
@@ -424,6 +454,7 @@ class BumperBubbles implements ArcadeGameInstance {
       rides: 0,
       items: [],
       on: null,
+      ice: false,
     }))
     const stored = this.demo ? null : readBumperSave(options.resume)
     this.startFloor(1)
@@ -441,7 +472,9 @@ class BumperBubbles implements ArcadeGameInstance {
     if (this.over || this.offer) return null
     if (this.boss && this.boss.state !== 'done') return MUSIC.boss!
     const id = this.plan.wing.music
-    return this.roundTicks >= HURRY_WARN && this.phase === 'play'
+    return this.roundTicks >= HURRY_WARN &&
+      this.phase === 'play' &&
+      !this.pantry
       ? HURRY_MUSIC[id]!
       : MUSIC[id]!
   }
@@ -455,7 +488,25 @@ class BumperBubbles implements ArcadeGameInstance {
   private startFloor(n: number) {
     this.level = n
     this.plan = floorPlan(n)
-    this.floor = parsedFloor(this.plan.map)
+    // A floor's own parse: its wind-up doors open and shut for this game alone.
+    this.floor = parseFloor(this.plan.def)
+    this.doorsOpen = false
+    this.blocks = this.floor.pushBlocks.map((p) => ({
+      x: p.x,
+      y: p.y,
+      vx: 0,
+      vy: 0,
+      onGround: true,
+      sliding: false,
+      dir: 1,
+      hits: 0,
+    }))
+    this.lifts = this.floor.lifts.map((def) => ({
+      def,
+      x: def.c * 8,
+      w: def.w * 8,
+      top: TOP + def.r * 8,
+    }))
     this.pantry = null
     this.recipe = null
     this.door = false
@@ -476,9 +527,10 @@ class BumperBubbles implements ArcadeGameInstance {
     )
     this.letterAt =
       this.boss || this.rng() >= 0.7 ? -1 : 360 + Math.floor(this.rng() * 900)
-    this.specialAt = this.floor.specials.length
-      ? 300 + Math.floor(this.rng() * 300)
-      : -1
+    this.specialAt =
+      this.floor.specials.length || this.boss
+        ? 300 + Math.floor(this.rng() * 300)
+        : -1
     for (const r of this.robots) this.placeRobot(r)
     // Items earned and missed wait on this floor instead.
     for (const id of this.owed) this.placePickup(id)
@@ -536,6 +588,7 @@ class BumperBubbles implements ArcadeGameInstance {
     r.cooldown = 0
     r.rides = 0
     r.on = null
+    r.ice = false
   }
 
   private active(r: Robot) {
@@ -611,18 +664,24 @@ class BumperBubbles implements ArcadeGameInstance {
 
   private play(frames: InputFrame[]) {
     this.roundTicks++
-    if (this.roundTicks === HURRY_WARN) {
+    // A boss is pressure enough: no hurry on a boss floor (or in a pantry).
+    const hurry = !this.boss && !this.pantry
+    if (hurry && this.roundTicks === HURRY_WARN) {
       this.banner = { text: 'HURRY!', ticks: 90 }
       this.sound.play('warn')
     }
-    if (this.roundTicks === HURRY_TICKS) {
+    if (hurry && this.roundTicks === HURRY_TICKS) {
       this.fizz = { x: W / 2, y: TOP + 6, t: 0, leaving: false }
       this.sound.play('warn')
     }
     if (this.roundTicks === this.letterAt) this.spawnLetter()
     if (this.roundTicks === this.specialAt) {
-      if (this.bubbles.filter((b) => b.special).length < 2) this.spawnSpecial()
-      this.specialAt += SPECIAL_EVERY + Math.floor(this.rng() * 300)
+      const kinds = this.boss ? bossSpecials(this.boss) : this.floor.specials
+      if (kinds.length && this.bubbles.filter((b) => b.special).length < 2)
+        this.spawnSpecial(kinds)
+      this.specialAt +=
+        (this.boss ? SPECIAL_EVERY / 2 : SPECIAL_EVERY) +
+        Math.floor(this.rng() * 300)
     }
     this.updateRobots(frames)
     this.updateWorld(true)
@@ -781,6 +840,10 @@ class BumperBubbles implements ArcadeGameInstance {
       else if (this.isFloat(b))
         out.push({ x: b.x, top: b.y - FLOAT_R + 1, half: FLOAT_R, ref: b })
     }
+    for (const k of this.blocks)
+      out.push({ x: k.x, top: k.y - 14, half: 7, ref: k })
+    for (const l of this.lifts)
+      out.push({ x: l.x + l.w / 2, top: l.top, half: l.w / 2, ref: l })
     return out
   }
 
@@ -818,7 +881,9 @@ class BumperBubbles implements ArcadeGameInstance {
       if (f.held.left) dir -= 1
       if (f.held.right) dir += 1
       const kept = (id: ItemId) => r.items.includes(id)
-      r.vx = dir * WALK * (kept('shoes') ? ITEM_POWER.shoes : 1)
+      const want = dir * WALK * (kept('shoes') ? ITEM_POWER.shoes : 1)
+      // On ice a robot only slowly gathers speed, and slowly loses it.
+      r.vx = r.ice && r.onGround ? r.vx + (want - r.vx) * 0.05 : want
       if (dir !== 0) r.face = dir < 0 ? -1 : 1
       if ((f.pressed.up || f.pressed.b) && r.onGround) {
         r.vy = JUMP_V
@@ -830,7 +895,15 @@ class BumperBubbles implements ArcadeGameInstance {
       const x0 = r.x
       const step = stepBody(this.floor, r, ROBOT_HALF, { ledges })
       if (r.onGround) this.stats.walked += Math.abs(r.x - x0) / 8
-      r.on = (step.ledge?.ref as Bubble | undefined) ?? null
+      const ref = step.ledge?.ref
+      r.on =
+        ref &&
+        (this.bubbles.includes(ref as Bubble) ||
+          this.lifts.includes(ref as Lift))
+          ? (ref as Bubble | Lift)
+          : null
+      r.ice = step.ground === Cell.Ice
+      if (dir !== 0 && r.onGround) this.shove(r, dir < 0 ? -1 : 1)
       if (step.sprang) this.sound.play('blip')
       if (r.onGround && !step.ledge) r.rides = 0
       if (r.cooldown > 0) r.cooldown--
@@ -841,6 +914,22 @@ class BumperBubbles implements ArcadeGameInstance {
       }
       this.touchTap(r)
       this.touchBubbles(r, f.held.up || f.held.b)
+    }
+  }
+
+  /** Walking into a push block shoves it off sliding (it never lets a robot walk through it). */
+  private shove(r: Robot, dir: -1 | 1) {
+    for (const k of this.blocks) {
+      if (Math.abs(k.y - r.y) > 2) continue
+      const gap = (k.x - r.x) * dir
+      if (gap < 0 || gap > 7 + ROBOT_HALF + 1) continue
+      r.x = k.x - dir * (7 + ROBOT_HALF + 1)
+      if (!k.sliding && k.onGround) {
+        k.sliding = true
+        k.dir = dir
+        k.hits = 0
+        this.sound.play('blip')
+      }
     }
   }
 
@@ -945,8 +1034,12 @@ class BumperBubbles implements ArcadeGameInstance {
         const tier = Math.min(TREAT_LADDER.length - 1, this.boost + caught)
         caught++
         this.dropTreat(b, tier)
-        // A cork bubble popped against a boss knocks a chunk off it.
-        if (this.boss && bossTouches(this.boss, b.x, b.y, BUBBLE_R + 10))
+        // A minion's bubble popped against a boss knocks a chunk off it.
+        if (
+          this.boss &&
+          bossCanBeHurt(this.boss, 'pop') &&
+          bossTouches(this.boss, b.x, b.y, BOSSES[this.boss.id].popReach)
+        )
           this.hitBoss()
       } else if (b.letter) {
         this.collectLetter(b)
@@ -1041,8 +1134,7 @@ class BumperBubbles implements ArcadeGameInstance {
   }
 
   /** A special bubble drifting in from a wall: one of the floor's kinds. */
-  private spawnSpecial() {
-    const kinds = this.floor.specials
+  private spawnSpecial(kinds: readonly SpecialKind[]) {
     const special = kinds[Math.floor(this.rng() * kinds.length)]!
     const fromLeft = this.rng() < 0.5
     this.bubbles.push({
@@ -1169,9 +1261,9 @@ class BumperBubbles implements ArcadeGameInstance {
       this.sound.play('boom')
     }
     if (live) this.trapGrumps(hold)
-    // A cork bubble that floats into a boss bursts against it.
+    // A minion's bubble that floats into a boss bursts against it.
     const boss = this.boss
-    if (boss)
+    if (boss && bossCanBeHurt(boss, 'pop'))
       for (const b of [...this.bubbles])
         if (b.held && bossTouches(boss, b.x, b.y, BUBBLE_R + 3)) {
           this.popCluster(b, -1)
@@ -1264,6 +1356,7 @@ class BumperBubbles implements ArcadeGameInstance {
 
   private updateWorld(live: boolean) {
     const robots = this.robots.filter((r) => this.active(r))
+    this.updateMachines()
     if (live) {
       if (this.frozen > 0) this.frozen--
       const world = {
@@ -1279,33 +1372,7 @@ class BumperBubbles implements ArcadeGameInstance {
       for (const g of this.grumps) updateGrump(g, world)
       if (this.boss) {
         const boss = this.boss
-        updateBoss(boss, {
-          floor: this.floor,
-          rng: this.rng,
-          robots,
-          minions: this.grumps.filter((g) => g.kind === 'corklet').length,
-          spawnMinion: (at, dir) => {
-            const g = makeGrump('corklet', at, this.rng)
-            g.dir = dir
-            g.vy = -2.5
-            g.vx = dir * 1.5
-            this.grumps.push(g)
-          },
-          cue: (what) => {
-            if (what === 'creak' || what === 'phase') this.sound.play('warn')
-            else if (what === 'slam') this.sound.play('boom')
-            else this.sound.play('blip')
-            if (what === 'phase')
-              this.banner = {
-                text: boss.phase === 3 ? 'IT FIZZES!' : 'IT WEDGES IN!',
-                sub:
-                  boss.phase === 3
-                    ? 'FLOAT BUBBLES TAKE YOU UP'
-                    : 'WATCH FOR THE CREAK',
-                ticks: 100,
-              }
-          },
-        })
+        updateBoss(boss, this.bossHost(robots))
         if (boss.state === 'done' && boss.t === 91) this.bossBeaten(boss)
       }
     }
@@ -1330,8 +1397,8 @@ class BumperBubbles implements ArcadeGameInstance {
       floor: this.floor,
       grumps: this.grumps,
       defeat: (g, x, y, count) => this.defeat(g, x, y, count),
-      // The Big Cork shrugs off bolts, flames and waves: only its own corks hurt it.
-      strikeBoss: () => false,
+      // Each boss is hurt only by what its phase allows (the Big Cork: only its own corks).
+      strikeBoss: (x, y, kind) => this.strikeBoss(x, y, kind),
     }
   }
 
@@ -1352,30 +1419,48 @@ class BumperBubbles implements ArcadeGameInstance {
     })
   }
 
-  private hitBoss() {
-    const boss = this.boss
-    if (!boss) return
-    const host = {
+  private bossHost(robots: readonly Spot[]): BossHost {
+    const boss = this.boss!
+    const minion = BOSSES[boss.id].minion
+    return {
       floor: this.floor,
       rng: this.rng,
-      robots: [],
-      minions: 0,
-      spawnMinion: () => {},
-      cue: (what: string) => {
-        if (what === 'phase') {
+      robots,
+      minions: this.grumps.filter((g) => g.kind === minion).length,
+      spawnMinion: (at, dir, kind) => {
+        const g = makeGrump(kind, at, this.rng)
+        g.dir = dir
+        g.vy = -2.5
+        g.vx = dir * 1.5
+        this.grumps.push(g)
+      },
+      cue: (what) => {
+        if (what === 'creak' || what === 'phase' || what === 'rattle')
           this.sound.play('warn')
+        else if (what === 'slam' || what === 'blast') this.sound.play('boom')
+        else this.sound.play('blip')
+        if (what === 'phase' && boss.phase > 1)
           this.banner = {
-            text: boss.phase === 3 ? 'IT FIZZES!' : 'IT WEDGES IN!',
-            sub:
-              boss.phase === 3
-                ? 'FLOAT BUBBLES TAKE YOU UP'
-                : 'WATCH FOR THE CREAK',
-            ticks: 100,
+            ...BOSSES[boss.id].phases[boss.phase as 2 | 3],
+            ticks: 110,
           }
-        }
       },
     }
-    if (!hurtBoss(boss, host)) return
+  }
+
+  /** A hit of this kind where it touches the boss: true if it landed. */
+  private strikeBoss(x: number, y: number, kind: HurtKind): boolean {
+    const boss = this.boss
+    if (!boss || !bossCanBeHurt(boss, kind) || !bossTouches(boss, x, y, 8))
+      return false
+    if (kind === 'zap') stunBoss(boss)
+    return this.hitBoss()
+  }
+
+  private hitBoss(): boolean {
+    const boss = this.boss
+    if (!boss) return false
+    if (!hurtBoss(boss, this.bossHost([]))) return false
     this.sound.play('boom')
     this.fx.burst(boss.x, boss.y, this.fxRng, { count: 20, speed: 2.4 })
     this.floaters.push({
@@ -1385,11 +1470,12 @@ class BumperBubbles implements ArcadeGameInstance {
       life: 50,
       color: '#ffffff',
     })
+    return true
   }
 
-  /** The boss pops: its prize, a shower of treats, and every cork it spat out besides. */
+  /** The boss pops: its prize, a shower of treats, and every minion it spat out besides. */
   private bossBeaten(boss: Boss) {
-    this.addScore(CORK.prize, boss.x, boss.y)
+    this.addScore(BOSSES[boss.id].prize, boss.x, boss.y)
     this.banner = { text: `${boss.name}`, sub: 'POPPED!', ticks: 150 }
     this.sound.play('extra')
     for (let i = 0; i < TREAT_LADDER.length; i++)
@@ -1410,12 +1496,75 @@ class BumperBubbles implements ArcadeGameInstance {
     for (const b of this.bubbles.filter((x) => x.held)) this.popCluster(b, -1)
   }
 
+  /** Hot plates (read live), wind-up doors, push blocks and lifts. */
+  private updateMachines() {
+    const f = this.floor
+    if (f.doors.length) {
+      const open = this.roundTicks % WIND_DOOR.beat >= WIND_DOOR.open
+      if (open !== this.doorsOpen) {
+        this.doorsOpen = open
+        setDoors(f, open)
+        this.sound.play('blip')
+      }
+    }
+    for (const k of this.blocks) {
+      k.vx = k.sliding ? k.dir * PUSH_SPEED : 0
+      const step = stepBody(f, k, 7)
+      if (!k.sliding) continue
+      for (const g of [...this.grumps]) {
+        const c = grumpCentre(g)
+        if (Math.abs(c.x - k.x) < 13 && Math.abs(c.y - (k.y - 7)) < 12) {
+          this.grumps.splice(this.grumps.indexOf(g), 1)
+          this.defeat(g, g.x, g.y - 6, k.hits++)
+        }
+      }
+      if (step.bumped) {
+        k.sliding = false
+        this.sound.play('pop')
+      }
+    }
+    for (const l of this.lifts) {
+      const was = l.top
+      const d = l.def
+      const phase = (this.roundTicks % d.period) / d.period
+      l.top =
+        TOP + d.r * 8 - d.rise * 8 * (0.5 - 0.5 * Math.cos(phase * Math.PI * 2))
+      if (l.top === was) continue
+      // Whatever stands on it rides with it.
+      const riding = (b: Body) =>
+        b.onGround &&
+        Math.abs(b.y - was) < 1.5 &&
+        b.x > l.x - 3 &&
+        b.x < l.x + l.w + 3
+      for (const r of this.robots) if (r.on === l || riding(r)) r.y = l.top
+      for (const g of this.grumps) if (riding(g)) g.y = l.top
+      for (const t of this.treats) if (riding(t)) t.y = l.top
+    }
+  }
+
+  /** A hot plate's state now. */
+  private hotState(i: number): 'cool' | 'glow' | 'puff' {
+    const t = (this.roundTicks + (i % 32) * 13) % HOT_PLATE.beat
+    return t >= HOT_PLATE.puff ? 'puff' : t >= HOT_PLATE.glow ? 'glow' : 'cool'
+  }
+
   private updateHazards() {
     for (const h of this.hazards) {
       h.life--
-      if (h.kind === 'jet') {
+      if (h.kind === 'jet' || h.kind === 'steam') {
         h.x += h.vx
         if (h.x < WALL_L || h.x > WALL_R || solidAt(this.floor, h.x, h.y))
+          h.life = 0
+      } else if (h.kind === 'snowball') {
+        h.vy = (h.vy ?? 0) + 0.15
+        h.x += h.vx
+        h.y += h.vy
+        if (
+          h.x < WALL_L ||
+          h.x > WALL_R ||
+          h.y > H ||
+          (h.vy > 0 && solidAt(this.floor, h.x, h.y + 2))
+        )
           h.life = 0
       }
     }
@@ -1574,11 +1723,23 @@ class BumperBubbles implements ArcadeGameInstance {
     }
     for (const r of this.robots) {
       if (!this.active(r) || r.invuln > 0 || this.demo) continue
-      const hazard = this.hazards.some((h) =>
-        h.kind === 'jet'
-          ? Math.abs(h.x - r.x) < 7 && Math.abs(h.y - (r.y - 7)) < 9
-          : r.x > h.x0 - 4 && r.x < h.x1 + 4 && Math.abs(h.y - (r.y - 7)) < 8,
-      )
+      const hazard =
+        this.hazards.some((h) =>
+          h.kind === 'beam'
+            ? r.x > h.x0 - 4 && r.x < h.x1 + 4 && Math.abs(h.y - (r.y - 7)) < 8
+            : Math.abs(h.x - r.x) < (h.kind === 'steam' ? 10 : 7) &&
+              Math.abs(h.y - (r.y - 7)) < (h.kind === 'steam' ? 11 : 9),
+        ) ||
+        this.floor.hotPlates.some((i) => {
+          if (this.hotState(i) !== 'puff') return false
+          const x = (i % 32) * 8
+          const top = TOP + Math.floor(i / 32) * 8
+          return r.x > x - 3 && r.x < x + 11 && r.y <= top + 1 && r.y > top - 22
+        }) ||
+        (!!this.boss &&
+          bossHazards(this.boss).some(
+            (z) => r.x > z.x0 && r.x < z.x1 && r.y > z.y0 && r.y - 12 < z.y1,
+          ))
       const boss = !!this.boss && bossTouches(this.boss, r.x, r.y - 7, 6)
       if (hazard || boss) {
         this.bonk(r)
@@ -1613,7 +1774,11 @@ class BumperBubbles implements ArcadeGameInstance {
       text: this.lives > 0 ? 'BONK!' : 'GAME OVER',
       ticks: 70,
     }
-    // The floor timer starts again, and Old Flat Fizz goes home.
+    // The floor timer starts again, and Old Flat Fizz goes home. Letters and specials still
+    // to come keep their place on the new clock.
+    const was = this.roundTicks
+    if (this.letterAt > was) this.letterAt -= was
+    if (this.specialAt >= 0) this.specialAt = Math.max(1, this.specialAt - was)
     this.roundTicks = 0
     this.fizz = null
   }
@@ -1712,6 +1877,31 @@ class BumperBubbles implements ArcadeGameInstance {
       if (fizz.y > r.y - 20) hop(r.x + away * 40)
       return frame
     }
+    // Off a hot plate that is about to puff.
+    const plate = this.floor.hotPlates.find((i) => {
+      const x = (i % 32) * 8
+      return (
+        this.hotState(i) !== 'cool' &&
+        Math.abs(TOP + Math.floor(i / 32) * 8 - r.y) < 2 &&
+        r.x > x - 6 &&
+        r.x < x + 14
+      )
+    })
+    if (plate !== undefined && r.onGround) {
+      go(r.x < (plate % 32) * 8 + 4 ? -1 : 1, 0)
+      return frame
+    }
+    // A cloud of steam or a snowball close by: get out from under it.
+    const blast = this.hazards.find(
+      (h) =>
+        (h.kind === 'steam' || h.kind === 'snowball') &&
+        Math.abs(h.x - r.x) < 30 &&
+        Math.abs(h.y - (r.y - 7)) < 30,
+    )
+    if (blast) {
+      go(r.x - blast.x, 0)
+      return frame
+    }
     // A jet flying at us, or a beam about to light our row: hop it.
     const level = (y: number) => Math.abs(y - (r.y - 7)) < 10
     const jet = this.hazards.some(
@@ -1738,8 +1928,41 @@ class BumperBubbles implements ArcadeGameInstance {
     }
     // Keep clear of a boss, and never stand under one that creaks.
     const boss = this.boss
+    if (boss && bossAlive(boss)) {
+      // The Kettle: out of where the steam will blast, and up out of the flood.
+      if (
+        (boss.state === 'rattle' || boss.state === 'blast') &&
+        Math.abs(r.x - boss.target) < 30
+      ) {
+        go(r.x < boss.target ? -1 : 1, 0)
+        if (
+          boss.state === 'blast' &&
+          r.x > boss.target - 24 &&
+          r.x < boss.target + 24
+        )
+          hop(r.x + (r.x < boss.target ? -40 : 40))
+        return frame
+      }
+      if (
+        (boss.phase === 2 || boss.flood > 0) &&
+        r.onGround &&
+        r.y > FLOOR_Y - 30
+      ) {
+        const here = segmentUnder(this.floor, r.x, r.y)
+        const nav = navOf(this.floor)
+        const up = nav.segs.findIndex((sg) => sg.r <= 21 && sg.r >= 15)
+        const way = up >= 0 ? route(this.floor, here, up) : null
+        if (way) {
+          if (way.kind === 'up' && Math.abs(way.launch - r.x) < 3) hop(way.aim)
+          else go(way.launch - r.x, 0)
+          return frame
+        }
+      }
+    }
     if (boss && boss.state !== 'done' && boss.state !== 'popping') {
-      const near = Math.hypot(boss.x - r.x, boss.y - (r.y - 7)) < boss.r + 28
+      const near =
+        Math.hypot(boss.x - r.x, boss.y - (r.y - 7)) <
+        boss.r + (boss.id === 'kettle' ? 12 : 28)
       const under =
         boss.state === 'creak' && Math.abs(boss.x - r.x) < boss.r + 10
       if (near || under) {
@@ -1779,8 +2002,13 @@ class BumperBubbles implements ArcadeGameInstance {
     for (const b of this.bubbles) {
       if (b.flight > 0 || b.stuck > 0 || (!b.held && !b.letter && !b.special))
         continue
-      // A cork bubble near a boss is better left to float into it.
-      if (this.boss && b.held && Math.abs(b.x - this.boss.x) < 40) continue
+      // A cork bubble near the Big Cork is better left to float into it.
+      if (
+        this.boss?.id === 'cork' &&
+        b.held &&
+        Math.abs(b.x - this.boss.x) < 40
+      )
+        continue
       const d = Math.abs(b.x - r.x) + Math.abs(b.y - r.y) * 0.7 - keep(b.x, b.y)
       if (d < best) {
         best = d
@@ -1813,6 +2041,26 @@ class BumperBubbles implements ArcadeGameInstance {
         prey = g
       }
     }
+    // Nothing trappable left but grumps hiding (in a toaster, under a girder, under water):
+    // wait beside one, leaving bubbles over it for when it shows itself.
+    let lurk: Spot | null = null
+    if (!prey && !touch) {
+      let d0 = Infinity
+      for (const g of this.grumps) {
+        const d = Math.abs(g.x - r.x) + Math.abs(g.y - r.y) * 0.8
+        if (d < d0) {
+          d0 = d
+          const side = r.x < g.x ? -1 : 1
+          lurk = { x: g.x + side * 30, y: g.y }
+        }
+      }
+      if (lurk && Math.abs(lurk.y - r.y) < 12 && Math.abs(lurk.x - r.x) < 20) {
+        if (this.tick % 40 === 0) blow(lurk.x < r.x ? 1 : -1)
+        else if (Math.sign(-(lurk.x - r.x)) !== r.face)
+          go(r.x > lurk.x ? 1 : -1, 0)
+        return frame
+      }
+    }
     if (prey && (preyD < best || !touch)) {
       const c = grumpCentre(prey)
       const dx = c.x - r.x
@@ -1832,7 +2080,7 @@ class BumperBubbles implements ArcadeGameInstance {
         return frame
       }
     }
-    const goal = touch ?? (prey ? grumpCentre(prey) : null)
+    const goal = touch ?? (prey ? grumpCentre(prey) : lurk)
     if (!r.onGround) {
       // In the air: steer for where the last hop was headed.
       if (memo.aim !== null) go(memo.aim - r.x, 1)
@@ -1870,6 +2118,16 @@ class BumperBubbles implements ArcadeGameInstance {
         hop(r.x + memo.wander * 40)
       }
     } else memo.still = 0
+    // Standing about with nothing to do (a hop held back by something overhead): wander off.
+    if (!held.left && !held.right && !pressed.up && !pressed.a && r.onGround) {
+      if (++memo.idle > 50) {
+        go(memo.wander, 0)
+        if (memo.idle > 110) {
+          memo.idle = 0
+          memo.wander = memo.wander > 0 ? -1 : 1
+        }
+      }
+    } else memo.idle = 0
     memo.lastX = r.x
     return frame
   }
@@ -1911,7 +2169,25 @@ class BumperBubbles implements ArcadeGameInstance {
       })
     } else {
       this.paintStage(g, this.stageKey(), this.floor, this.wing.theme)
+      paintLiveTiles(
+        g,
+        this.floor,
+        this.tick,
+        (i) => this.hotState(i),
+        !this.doorsOpen && this.roundTicks % WIND_DOOR.beat >= WIND_DOOR.tell,
+      )
       paintCurrents(g, this.floor, theme.current, this.tick)
+      for (const l of this.lifts) paintLift(g, l.x, l.top, l.w)
+      for (const k of this.blocks) paintPushBlock(g, k)
+      for (const gr of this.grumps)
+        if (gr.kind === 'toaster')
+          paintToaster(
+            g,
+            gr.home.x,
+            gr.home.y,
+            gr.state === 'toast' && gr.t > 110,
+            this.tick,
+          )
       this.renderTap(g)
       if (this.door && this.floor.door) {
         const d = this.floor.door
@@ -1947,7 +2223,10 @@ class BumperBubbles implements ArcadeGameInstance {
       for (const fire of this.effects.fires) paintFire(g, fire, this.tick)
       if (this.phase !== 'card')
         for (const gr of this.grumps) this.renderGrump(g, gr)
-      if (this.boss) paintBoss(g, this.boss, this.tick)
+      if (this.boss) {
+        paintBossHazards(g, this.boss, this.tick)
+        paintBoss(g, this.boss, this.tick)
+      }
       for (const ice of this.effects.ice) paintIce(g, ice)
       for (const b of this.bubbles) this.renderBubble(g, b)
       paintWater(g, this.floor, this.tick)
@@ -2058,6 +2337,20 @@ class BumperBubbles implements ArcadeGameInstance {
       drawSprite(g, set.flower, gr.x + twitch, gr.y + 1, { anchor: 'feet' })
       return
     }
+    if (gr.state === 'toast') {
+      // Down in its toaster: just the top of the toast showing over the slot.
+      drawSprite(g, set.walk[0], gr.x, gr.y - 6, { anchor: 'feet', alpha: 0.9 })
+      return
+    }
+    if (gr.state === 'cling') {
+      // Upside down along the underside of the girder.
+      drawSprite(g, set.walk[Math.floor(this.tick / 8) % 2]!, gr.x, gr.y + 7, {
+        anchor: 'center',
+        flipY: true,
+        flipX: gr.dir === -1,
+      })
+      return
+    }
     if (gr.state === 'swim') {
       // Under water: a dim shape and a trail of bubbles.
       drawSprite(g, set.walk[0], gr.x, gr.y + 1, {
@@ -2081,6 +2374,21 @@ class BumperBubbles implements ArcadeGameInstance {
       if (gr.state === 'comet')
         glow(g, gr.x - gr.dir * 6, gr.y, 12, RAMPS.gold[3], 0.35)
       drawSprite(g, set.walk[frame]!, gr.x, gr.y, { flipX: gr.dir === -1 })
+    } else if (gr.state === 'rewind') {
+      // Stopped, its key turning round.
+      this.castShadow(g, gr.x, gr.y, 6)
+      drawSprite(g, set.walk[0], gr.x, gr.y + 1, {
+        anchor: 'feet',
+        flipX: gr.dir === -1,
+      })
+      const turn = Math.floor(this.tick / 6) % 2
+      g.fillStyle = RAMPS.gold[3]
+      g.fillRect(
+        Math.round(gr.x - gr.dir * 4) - (turn ? 3 : 0),
+        Math.round(gr.y - 16),
+        turn ? 7 : 1,
+        turn ? 1 : 5,
+      )
     } else if (gr.state === 'windup') {
       // The tell: puffed cheeks, or a lens glinting before the beam.
       this.castShadow(g, gr.x, gr.y, 6)
@@ -2090,6 +2398,17 @@ class BumperBubbles implements ArcadeGameInstance {
         anchor: 'feet',
         flipX: gr.dir === -1,
       })
+      if (gr.kind === 'grumbler') {
+        // The red nose glowing before the puff.
+        glow(
+          g,
+          gr.x + gr.dir * 4,
+          gr.y - 9,
+          6 + (gr.t % 8),
+          RAMPS.ember[2],
+          0.6,
+        )
+      }
       if (gr.kind === 'tick') {
         const lx = Math.round(gr.x + gr.dir * 6)
         const ly = Math.round(gr.y - 13)

@@ -606,6 +606,34 @@ export const useCollectionStore = defineStore('collectionStore', () => {
     return fetchPromise.value
   }
 
+  const projectCollectionFetches = new Map<string, Promise<void>>()
+
+  function fetchProjectCollection(slug: string): Promise<void> {
+    if (!/^[a-z0-9-]+$/.test(slug)) return Promise.resolve()
+    const inFlight = projectCollectionFetches.get(slug)
+    if (inFlight) return inFlight
+
+    const request = (async () => {
+      try {
+        const response = await performFetch<unknown>(
+          `/api/art/collection?slug=${encodeURIComponent(slug)}&imageLimit=24&counts=false`,
+        )
+        if (!response.success) {
+          throw new Error(response.message || 'Failed to load project artwork')
+        }
+        for (const collection of normalizeCollections(response.data)) {
+          state.collections = replaceCollectionLocal(state.collections, collection)
+        }
+      } catch (error) {
+        handleError(error, 'fetching project collection')
+      }
+    })().finally(() => {
+      projectCollectionFetches.delete(slug)
+    })
+    projectCollectionFetches.set(slug, request)
+    return request
+  }
+
   function getUncollectedArtImages(): ArtImage[] {
     const collectedIds = new Set(allCollectionArtImageIds.value)
 
@@ -1196,6 +1224,7 @@ export const useCollectionStore = defineStore('collectionStore', () => {
      */
 
     fetchCollections,
+    fetchProjectCollection,
     createCollection,
     deleteCollectionById,
     patchCollection,

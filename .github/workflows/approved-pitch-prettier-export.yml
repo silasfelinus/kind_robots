@@ -27,10 +27,13 @@ jobs:
           CYPRESS_INSTALL_BINARY: '0'
       - name: Format only new files
         run: npx prettier --write 'pages/admin/daily-pitches/index.vue' 'pages/admin/daily-pitches/[slug].vue' 'utils/approvedPitchProgress.ts' 'utils/scripts/verifyApprovedPitchProgress.test.ts'
+      - name: Copy detail page for artifact collection
+        run: cp 'pages/admin/daily-pitches/[slug].vue' approved-pitch-detail.vue
       - uses: actions/upload-artifact@v4
         with:
           name: approved-pitch-prettier-output
           path: |
+            approved-pitch-detail.vue
             pages/admin/daily-pitches/index.vue
             pages/admin/daily-pitches/[slug].vue
             utils/approvedPitchProgress.ts

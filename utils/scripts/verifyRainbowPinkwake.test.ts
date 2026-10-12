@@ -111,9 +111,7 @@ assert.equal(damageBoundary.phase, 3)
 assert.equal(damageBoundary.nextVolleyAt, 342)
 let phaseWarning = 0
 for (let frame = 271; frame <= 341; frame++) {
-  const shot = stepPinkwakeBoss(damageBoundary, [
-    { x: 60, y: 130, lives: 3 },
-  ])
+  const shot = stepPinkwakeBoss(damageBoundary, [{ x: 60, y: 130, lives: 3 }])
   assert.equal(shot.length, 0, 'phase transition is visibly rearmed')
   if (bossTelegraph(damageBoundary)) phaseWarning++
 }

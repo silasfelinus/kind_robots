@@ -223,6 +223,28 @@ function cleanAll(g: Inner) {
   assert.equal(fresh.room?.id ?? 'kitchen', 'kitchen')
 }
 
+// New Wash → Squeaky Clean must persist the best time across reloads.
+{
+  const checkpoint = readSudsSave({ v: 1, step: 5, score: 300, lives: 3, bars: 0, reached: 2, times: { 'bath:1': 1000 } })
+  assert.ok(checkpoint)
+  const g = game(1, 1, checkpoint)
+  g.update(press('b'))
+  assert.ok(g.menu, 'New Wash opens a mode menu')
+  choose(g, 'squeaky', 1)
+  g.pests = []
+  for (let t = 0; t < 120; t++) g.update(idle())
+  cleanAll(g)
+  g.update(idle())
+  const key = medalKey('kitchen', 0)
+  assert.ok(g.result && g.times[key])
+  const persisted = readSudsSave(g.save)
+  assert.ok(persisted, 'time attack progress must persist after New Wash')
+  assert.equal(persisted.step, 0)
+  assert.equal(persisted.times?.[key], g.times[key])
+  const reloaded = game(1, 1, persisted)
+  assert.equal(reloaded.times[key], g.times[key])
+}
+
 // --- Bubble Buddies --------------------------------------------------------------------------
 {
   const g = game(2)

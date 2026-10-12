@@ -75,7 +75,7 @@ const route = useRoute()
 const labels = PITCH_STAGE_LABELS
 const slug = computed(() => typeof route.params.slug === 'string' ? route.params.slug : '')
 const ready = computed(() => conductor.data?.projection.status === 'ready')
-const record = computed(() => approvedDailyPitchProgress(conductor.pitches, conductor.liveProjects).find((item) => item.pitch.slug === slug.value))
+const record = computed(() => approvedDailyPitchProgress(conductor.pitches, conductor.data?.projects ?? []).find((item) => item.pitch.slug === slug.value))
 const pitchUrl = computed(() => 'https://github.com/silasfelinus/conductor/blob/main/pitches/' + encodeURIComponent(slug.value) + '.md')
 const roadmapUrl = computed(() => 'https://github.com/silasfelinus/conductor/blob/main/projects/' + encodeURIComponent(record.value?.projectSlug || '') + '/roadmap.yaml')
 watch(() => user.isAdmin, (admin) => { if (admin) void conductor.fetchProjects() }, { immediate: true })

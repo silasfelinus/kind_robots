@@ -27,6 +27,8 @@ type Track = <T extends { dispose(): void }>(resource: T) => T
 
 /** The cabinet side art's tint under the backglass painting (t-032). */
 const SIDE_ART_TINT = 0x8f86a3
+/** ...and under a table's own side art, painted for the sides (t-017). */
+const OWN_SIDE_ART_TINT = 0xd6d0e0
 /** Where the floor is, in the world, below the playfield's front edge. */
 const FLOOR_Y = -1.0
 /** The cabinet's depth below the playfield, and its sides' height above it. */
@@ -58,6 +60,8 @@ export class Room {
   readonly cabinet = new THREE.Group()
   /** The backglass, which hides with the backbox when the room camera looks in. */
   readonly backglass: THREE.Mesh | null = null
+  /** The painting on the cabinet's sides: its own art, else the backglass. */
+  readonly sideArtSrc: string | undefined
   private spots: THREE.SpotLight[] = []
   private track: Track
   private loader: THREE.TextureLoader | null
@@ -69,6 +73,7 @@ export class Room {
     art: {
       backglass?: string
       backglassFallback?: string
+      cabinetSide?: string
       posters?: readonly string[]
     } = {},
   ) {
@@ -80,7 +85,16 @@ export class Room {
     const back = b.z0 - 0.02
     const left = b.x0 - SIDE_THICK / 2
     const right = b.x1 + SIDE_THICK / 2
-    this.buildCabinet(b, front, back, left, right, art.backglass)
+    this.sideArtSrc = art.cabinetSide ?? art.backglass
+    this.buildCabinet(
+      b,
+      front,
+      back,
+      left,
+      right,
+      this.sideArtSrc,
+      art.cabinetSide ? OWN_SIDE_ART_TINT : SIDE_ART_TINT,
+    )
     this.backglass = this.buildBackglass(
       table,
       b,
@@ -189,6 +203,7 @@ export class Room {
     left: number,
     right: number,
     painted?: string,
+    tint = SIDE_ART_TINT,
   ) {
     const length = front - back
     const height = CABINET_BELOW + CABINET_ABOVE
@@ -235,13 +250,14 @@ export class Room {
         this.cabinet.add(armour)
       }
     }
-    // The side art echoes the backglass once its painting loads (t-030),
-    // as on a real machine; until then the painted night village stands.
+    // The side art is the table's own panorama (t-017), or echoes the
+    // backglass (t-030), once its painting loads; until then the painted
+    // night village stands.
     if (painted)
       this.image(painted, length / height, undefined, (texture) => {
         paint.map = texture
         // Dimmer than the glass: the sides frame the table, not compete with it.
-        paint.color.set(SIDE_ART_TINT)
+        paint.color.set(tint)
         paint.needsUpdate = true
       })
     const width = right - left + SIDE_THICK * 2

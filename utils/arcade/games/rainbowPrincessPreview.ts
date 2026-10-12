@@ -694,7 +694,7 @@ export function createRainbowPrincessPreview(
         for (const word of words) {
           const i = lines.length - 1
           if (lines[i]!.length + word.length + 1 > 65) lines.push(word)
-          else lines[i] += (lines[i] ? ' ' : '') + word
+          else lines[i] = (lines[i] ? lines[i] + ' ' : '') + word
         }
         g.fillStyle = '#fff4fa'
         g.font = '9px monospace'

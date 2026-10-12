@@ -608,7 +608,7 @@ export const useCollectionStore = defineStore('collectionStore', () => {
 
   const projectCollectionFetches = new Map<string, Promise<void>>()
 
-  function fetchProjectCollection(slug: string): Promise<void> {
+  function fetchProjectCollection(slug: string, label?: string): Promise<void> {
     if (!/^[a-z0-9-]+$/.test(slug)) return Promise.resolve()
     const inFlight = projectCollectionFetches.get(slug)
     if (inFlight) return inFlight
@@ -616,7 +616,7 @@ export const useCollectionStore = defineStore('collectionStore', () => {
     const request = (async () => {
       try {
         const response = await performFetch<unknown>(
-          `/api/art/collection?slug=${encodeURIComponent(slug)}&imageLimit=24&counts=false`,
+          `/api/art/collection?slug=${encodeURIComponent(slug)}${label ? `&label=${encodeURIComponent(label)}` : ''}&imageLimit=24&counts=false`,
         )
         if (!response.success) {
           throw new Error(response.message || 'Failed to load project artwork')

@@ -1,49 +1,121 @@
 // /utils/arcade/games/butterflyBlaster.ts
 //
-// Butterfly Blaster -- the Kind Robots Arcade's Asteroids riff (Silas,
-// 2026-10-06: "rainbow butterflies to kill mosquitoes, a la our malaria
-// project"). A rainbow butterfly turns, flutters and drifts around a wrapping
-// night sky, sparkling mosquito swarms that split big -> small -> single. AMI,
-// the Anti-Malaria Intelligence, flies over now and then and drops a bed net
-// that shields the butterfly. A malaria cloud hunts the player from wave 3.
-// Every wave cleared keeps one more village safe.
+// Butterfly Blaster -- the Kind Robots Arcade's riff on the 1979 rock-splitting shooter (Silas,
+// 2026-10-06: "rainbow butterflies to kill mosquitoes, a la our malaria project"; depth pass
+// conductor kr-arcade/t-055.., spec: conductor projects/kr-arcade/depth-pass/CABINETS.md section 6,
+// "The Rainy Season").
+//
+// A rainbow butterfly keeps the night watch over a village. It turns, flutters and drifts around a
+// wrapping sky, sparkling mosquito swarms that split big -> medium -> single. The swarms are alive:
+// they flock, hum toward light, regroup when split and left alone, and when they get hungry they
+// head for the huts' lit windows and bite. Fluttering trails a rainbow ribbon; cross it to close the
+// Rainbow Lasso and net every mosquito inside at once. B is a flutter-dash on a tap and the old
+// risky long hop on a hold. Pools of standing water breed wrigglers; skimmers skate the ground and
+// needles dash. AMI, the Anti-Malaria Intelligence, drops bed nets. Each night is two waves and a
+// dawn tally that thanks you for every hut that came through unbitten.
 
-import { levelCurve } from '../curve'
 import { drawText } from '../font'
 import {
   INK,
   RAMPS,
   Sparkles,
   backdropRng,
-  bandedGradient,
   cachedLayer,
-  drawCloud,
-  drawRidge,
   drawSprite,
-  drawStars,
   gauge,
   glow,
   hudPanel,
-  mix,
-  pixelSprite,
-  rgba,
-  ridge,
   shadedOrb,
-  starField,
   vignette,
 } from '../snes'
-import type { Ramp } from '../snes'
+import type { MusicLoop } from '../sound'
 import type {
   ArcadeGameInstance,
   ArcadeGameModule,
   ArcadeGameOptions,
   InputFrame,
 } from '../types'
+import {
+  LIFE_SPRITE,
+  RAINBOW,
+  SICK,
+  paintNight,
+  renderBag,
+  renderButterfly,
+  renderCloud,
+  renderDashTrail,
+  renderDawn,
+  renderDriftingClouds,
+  renderFairy,
+  renderFireflies,
+  renderLoopFlash,
+  renderMesh,
+  renderNet,
+  renderPest,
+  renderPool,
+  renderRibbon,
+  renderSparkle,
+  renderStars,
+  renderSwarm,
+  renderWindows,
+} from '../butterflyBlaster/art'
+import {
+  LASSO_POINTS,
+  RIBBON_STEP,
+  Ribbon,
+  insideLoop,
+  lassoMultiplier,
+} from '../butterflyBlaster/lasso'
+import type { Loop } from '../butterflyBlaster/lasso'
+import { DAWN, HEARTBEAT, heartbeatTier } from '../butterflyBlaster/music'
+import { endlessNight } from '../butterflyBlaster/nights'
+import type { NightPlan } from '../butterflyBlaster/nights'
+import {
+  PEST_POINTS,
+  PEST_RADIUS,
+  movePest,
+  newPest,
+  newPool,
+  pestHurts,
+  tickPool,
+} from '../butterflyBlaster/pests'
+import type { Pest, PestKind, Pool } from '../butterflyBlaster/pests'
+import {
+  GROUND,
+  H,
+  SKY,
+  W,
+  angleDiff,
+  clamp,
+  toward,
+  wrap,
+  wrapDist,
+} from '../butterflyBlaster/sky'
+import type { Body, Point } from '../butterflyBlaster/sky'
+import {
+  SHOO_TICKS,
+  SWARM_POINTS,
+  SWARM_RADIUS,
+  SWARM_TREE,
+  flySwarm,
+  newSwarm,
+  regroupSwarms,
+  splitSwarm,
+} from '../butterflyBlaster/swarm'
+import type { Size, Swarm } from '../butterflyBlaster/swarm'
+import {
+  dawnTally,
+  hutLights,
+  hutLit,
+  newVillage,
+  reachesHut,
+} from '../butterflyBlaster/village'
+import type { Hut, Tally } from '../butterflyBlaster/village'
 
-const W = 480
-const H = 360
+export { endlessNight, SWARM_RADIUS, SWARM_TREE }
+export type { Pest, Pool, Swarm, Hut }
 
-const TURN = 0.075
+const TURN = 0.08
 const THRUST = 0.12
 const MAX_SPEED = 4.2
 const FRICTION = 0.992
@@ -52,302 +124,48 @@ const SHOT_LIFE = 48
 const MAX_SHOTS = 5
 const FIRE_COOLDOWN = 8
 const AUTOFIRE_COOLDOWN = 14
-const HOP_COOLDOWN = 60
 const RESPAWN_TICKS = 120
 const INVULN_TICKS = 150
 const SHIELD_TICKS = 480
-const EXTRA_LIFE_EVERY = 10_000
 const START_LIVES = 3
-const SHIP_RADIUS = 9
+const MAX_LIVES = 9
+export const SHIP_RADIUS = 10
 
-type Size = 1 | 2 | 3
-const SWARM_RADIUS: Record<Size, number> = { 3: 26, 2: 15, 1: 7 }
-const SWARM_POINTS: Record<Size, number> = { 3: 20, 2: 50, 1: 100 }
-const SWARM_SPEED: Record<Size, number> = { 3: 0.6, 2: 1.0, 1: 1.5 }
-const SWARM_COUNT: Record<Size, number> = { 3: 9, 2: 5, 1: 1 }
+/** B: a tap is a short aimed flutter-dash; a hold is the risky long hop. One cooldown for both. */
+export const DASH = { distance: 58, cooldown: 60, invuln: 8, hold: 16 } as const
+/** Land a long hop this close to a swarm and live this long for a Brave Hop. */
+export const BRAVE = { reach: 40, ticks: 120, points: 500 } as const
+/** Sparkle hits this close together chain, up to this multiplier. */
+export const CHAIN = { ticks: 60, max: 5 } as const
+/** Hang about an edge (or sit idle) this long and the malaria cloud comes for you. */
+export const LURK = { ticks: 480, edge: 70 } as const
+/** The second wave follows the first after this many ticks. */
+const WAVE_GAP = 110
+/** The dawn tally lasts this long (A skips it after a second). */
+export const DAWN_TICKS = 330
 
-const RAINBOW = [
-  '#ef4444',
-  '#f97316',
-  '#facc15',
-  '#4ade80',
-  '#38bdf8',
-  '#a78bfa',
-  '#f472b6',
-]
-
-type Vec = { x: number; y: number; vx: number; vy: number }
-type Shot = Vec & { life: number; hue: number }
-type Swarm = Vec & { size: Size; seed: number }
-type Cloud = Vec & { small: boolean; fire: number; turn: number; hp: number }
-type Drop = Vec & { life: number }
-type Fairy = Vec & { dropAt: number; carrying: boolean }
-type Net = Vec & { spin: number }
-type Particle = Vec & { life: number; max: number; color: string }
-type Floater = { x: number; y: number; text: string; life: number }
-type Star = { x: number; y: number; r: number; phase: number }
-
-export const BLASTER_CURVES = {
-  bigSwarms: { start: 4, step: 1, limit: 11 },
-  speed: { start: 1, step: 0.07, limit: 1.8 },
-  cloudEvery: { start: 1500, step: -90, limit: 600 },
-  cloudFire: { start: 90, step: -6, limit: 40 },
-  cloudAimError: { start: 0.6, step: -0.06, limit: 0.08 },
-  fairyEvery: { start: 1100, step: 120, limit: 2400 },
-} as const
-
-function wrap(v: Vec) {
-  if (v.x < 0) v.x += W
-  else if (v.x >= W) v.x -= W
-  if (v.y < 0) v.y += H
-  else if (v.y >= H) v.y -= H
+type Shot = Body & { life: number; hue: number }
+type Drop = Body & { life: number; fall: number }
+type Cloud = Body & {
+  small: boolean
+  angry: boolean
+  fire: number
+  turn: number
 }
-
-/** Shortest delta from a to b on the wrapping playfield. */
-function wrapDelta(from: number, to: number, span: number): number {
-  let d = to - from
-  if (d > span / 2) d -= span
-  else if (d < -span / 2) d += span
-  return d
+type Fairy = Body & { dropAt: number; carrying: boolean }
+type Net = Body & { spin: number }
+type Particle = Body & { life: number; max: number; color: string }
+type Floater = {
+  x: number
+  y: number
+  text: string
+  life: number
+  color: string
+  scale: 1 | 2
 }
+type Bag = { x: number; y: number; count: number; life: number }
 
-function dist(a: { x: number; y: number }, b: { x: number; y: number }) {
-  return Math.hypot(a.x - b.x, a.y - b.y)
-}
-
-function angleDiff(a: number, b: number): number {
-  let d = b - a
-  while (d > Math.PI) d -= Math.PI * 2
-  while (d < -Math.PI) d += Math.PI * 2
-  return d
-}
-
-// --- 16-bit art (utils/arcade/snes.ts) -------------------------------------------
-
-/** The village sits on this line; the HUD's bottom boxes live on the ground below it. */
-const GROUND = H - 22
-const HUTS = 8
-const hutX = (i: number) => 18 + i * ((W - 36) / (HUTS - 1))
-
-/** The malaria cloud's sickly green, and the haze a swarm hums in. */
-const SICK: Ramp = ['#1a2e05', '#3f6212', '#65a30d', '#a3e635', '#ecfccb']
-/** Moonlit night clouds. */
-const DUSK: Ramp = [
-  RAMPS.night[0],
-  RAMPS.night[2],
-  RAMPS.night[3],
-  mix(RAMPS.night[4], RAMPS.purple[2], 0.4),
-  mix(RAMPS.purple[2], RAMPS.purple[3], 0.5),
-]
-/** Dim far stars, baked into the sky. */
-const FAR_STAR: Ramp = [
-  RAMPS.night[2],
-  RAMPS.night[3],
-  RAMPS.night[4],
-  RAMPS.purple[2],
-  RAMPS.purple[3],
-]
-/** Thatch and mud walls, dimmed for night. */
-const NIGHT_THATCH = RAMPS.gold.map((c) =>
-  mix(c, RAMPS.night[1], 0.62),
-) as unknown as Ramp
-const NIGHT_MUD = RAMPS.earth.map((c) =>
-  mix(c, RAMPS.night[1], 0.55),
-) as unknown as Ramp
-
-const SKY_BANDS = [
-  RAMPS.night[0],
-  RAMPS.night[1],
-  RAMPS.night[2],
-  RAMPS.purple[0],
-  mix(RAMPS.purple[0], RAMPS.pink[0], 0.6),
-  mix(RAMPS.pink[0], RAMPS.rust[1], 0.3),
-]
-
-const FAR_STARS = starField(41, 150, W, GROUND - 40)
-const FAR_RIDGE = ridge(43, W, 28, 4)
-const NEAR_RIDGE = ridge(47, W, 14, 3)
-
-/** The milky way: a diagonal band of dust, laid out once. */
-const NEBULA = (() => {
-  const rand = backdropRng(53)
-  const colours = [RAMPS.purple[2], RAMPS.pink[1], RAMPS.night[4], RAMPS.sky[1]]
-  return Array.from({ length: 700 }, () => {
-    const t = rand()
-    const spread = (rand() + rand() + rand() - 1.5) * 34
-    return {
-      x: Math.floor(t * W),
-      y: Math.floor(GROUND - 60 - t * (GROUND - 110) + spread),
-      colour: colours[Math.floor(rand() * colours.length)]!,
-    }
-  })
-})()
-
-const ACACIAS = [
-  { x: 50, h: 28, w: 38 },
-  { x: 176, h: 22, w: 30 },
-  { x: 302, h: 32, w: 44 },
-  { x: 430, h: 24, w: 34 },
-]
-
-const FIREFLIES = (() => {
-  const rand = backdropRng(59)
-  return Array.from({ length: 9 }, () => ({
-    x: rand() * W,
-    y: GROUND - 8 - rand() * 40,
-    phase: rand() * Math.PI * 2,
-    speed: 0.6 + rand() * 0.8,
-  }))
-})()
-
-// Aedes mosquitoes: black with white bands, a red eye, glassy wings, two flap frames.
-const SKEETER_PALETTE = {
-  a: RAMPS.steel[0],
-  w: RAMPS.steel[3],
-  t: RAMPS.steel[1],
-  T: RAMPS.steel[2],
-  e: RAMPS.ember[2],
-  p: RAMPS.steel[2],
-  l: RAMPS.steel[1],
-  W: 'rgba(214, 234, 255, 0.72)',
-  V: '#ffffff',
-}
-const SKEETER_BIG = [
-  pixelSprite(
-    [
-      '......VW.......',
-      '.....VWW.......',
-      '....VWWW.......',
-      '.....WW........',
-      'awawaTTTte.....',
-      '.awawttttepppp.',
-      '...l.l.l.......',
-      '..l..l..l......',
-    ],
-    SKEETER_PALETTE,
-  ),
-  pixelSprite(
-    [
-      '...............',
-      '...............',
-      '..VVWW.........',
-      '.VWWWWW........',
-      'awawaTTTte.....',
-      '.awawttttepppp.',
-      '..l..l.l.......',
-      '.l..l...l......',
-    ],
-    SKEETER_PALETTE,
-  ),
-] as const
-const SKEETER_SMALL = [
-  pixelSprite(
-    ['....VW....', '...VWW....', 'awaTTte...', '.wattteppp', '..l.l.....'],
-    SKEETER_PALETTE,
-  ),
-  pixelSprite(
-    ['..........', '.VVWW.....', 'awaTTte...', '.wattteppp', '.l..l.....'],
-    SKEETER_PALETTE,
-  ),
-] as const
-
-// AMI, the Anti-Malaria Intelligence: a little robot fairy in a sky-blue dress.
-const AMI_PALETTE = {
-  g: RAMPS.gold[3],
-  G: RAMPS.gold[4],
-  H: RAMPS.sky[4],
-  h: RAMPS.sky[3],
-  s: RAMPS.sky[2],
-  f: RAMPS.cream[3],
-  c: RAMPS.pink[3],
-  k: INK,
-  D: RAMPS.sky[2],
-  d: RAMPS.sky[1],
-  L: RAMPS.sky[3],
-  W: 'rgba(191, 233, 255, 0.7)',
-}
-const AMI_HEAD = [
-  '......G......',
-  '......g......',
-  '....hHHhs....',
-  '...hHffffs...',
-  '...hfkffks...',
-  '...sfcffcs...',
-]
-const AMI_SPRITES = [
-  pixelSprite(
-    [
-      ...AMI_HEAD,
-      'WW...ssss..WW',
-      'WWW..dLDd.WWW',
-      '.WWWdLDDDdWW.',
-      '..WdLDDDDDdW.',
-      '...dDDDDDDd..',
-      '..dDDDDDDDDd.',
-      '...d.d.d.d...',
-    ],
-    AMI_PALETTE,
-  ),
-  pixelSprite(
-    [
-      ...AMI_HEAD,
-      '.....ssss....',
-      '.W...dLDd...W',
-      '.WW.dLDDDd.WW',
-      '..WdLDDDDDdW.',
-      '...dDDDDDDd..',
-      '..dDDDDDDDDd.',
-      '...d.d.d.d...',
-    ],
-    AMI_PALETTE,
-  ),
-] as const
-
-/** A spare butterfly for the lives box. */
-const LIFE_SPRITE = pixelSprite(
-  [
-    '.pp...pp.',
-    'pPyp.pyPp',
-    'pyyyByyyp',
-    '.pyyByyp.',
-    '..tvBvt..',
-    '.tTtBtTt.',
-    '.tt...tt.',
-  ],
-  {
-    p: RAMPS.pink[2],
-    P: RAMPS.pink[4],
-    y: RAMPS.gold[3],
-    B: RAMPS.purple[0],
-    v: RAMPS.purple[2],
-    t: RAMPS.teal[2],
-    T: RAMPS.teal[4],
-  },
-)
-
-/** The puffs drawCloud lays down, for an ink outline under them. */
-const CLOUD_PUFFS: readonly (readonly [number, number, number])[] = [
-  [-1.1, 0.25, 0.55],
-  [-0.45, -0.15, 0.75],
-  [0.35, -0.3, 0.85],
-  [1.05, 0.15, 0.6],
-  [0, 0.35, 0.7],
-]
-
-function cloudOutline(
-  g: CanvasRenderingContext2D,
-  x: number,
-  y: number,
-  size: number,
-) {
-  g.fillStyle = INK
-  for (const [dx, dy, k] of CLOUD_PUFFS) {
-    const r = size * k
-    g.beginPath()
-    g.arc(x + dx * size, y + dy * size + r * 0.12, r + 1.5, 0, Math.PI * 2)
-    g.fill()
-  }
-}
+type Phase = 'play' | 'gap' | 'dawn'
 
 class ButterflyBlaster implements ArcadeGameInstance {
   score = 0
@@ -360,32 +178,56 @@ class ButterflyBlaster implements ArcadeGameInstance {
   private demo: boolean
   private hiScore: number
 
-  private tickCount = 0
-  private ship = { x: W / 2, y: H / 2, vx: 0, vy: 0, angle: 0 }
+  private tick = 0
+  private ship = { x: W / 2, y: SKY / 2, vx: 0, vy: 0, angle: 0 }
+  /** The butterfly's position before the sky wraps it: the ribbon is laid here. */
+  private unwrapped = { x: W / 2, y: SKY / 2 }
   private alive = true
   private respawn = 0
   private invuln = INVULN_TICKS
   private shield = 0
   private fireCooldown = 0
-  private hopCooldown = 0
+  private bCooldown = 0
+  /** Ticks B has been held (-1: up; -2: held past a hop, waiting to be let go). */
+  private bHeld = -1
+  private brave = 0
   private flap = 0
   private thrusting = false
+  private dashTrail: { from: Point; to: Point; t: number } | null = null
+
+  private ribbon = new Ribbon()
+  private lastLaid = -99
+  private loopFlash: { loop: Loop; shift: Point; t: number } | null = null
+  private bags: Bag[] = []
+
   private shots: Shot[] = []
   private swarms: Swarm[] = []
+  private pests: Pest[] = []
+  private pools: Pool[] = []
+  private drops: Drop[] = []
   private cloud: Cloud | null = null
   private cloudTimer = 0
-  private drops: Drop[] = []
   private fairy: Fairy | null = null
   private fairyTimer = 0
   private nets: Net[] = []
+  private huts: Hut[] = newVillage()
+
+  private plan: NightPlan = endlessNight(1)
+  private wave = 0
+  private phase: Phase = 'play'
+  private phaseTicks = 0
+  /** Mosquitoes the wave began with (the heartbeat's measure). */
+  private waveTotal = 1
+  private tally: Tally | null = null
+  private chain = 0
+  private chainTimer = 0
+  private lurk = 0
+
   private particles: Particle[] = []
   private floaters: Floater[] = []
-  private stars: Star[] = []
-  private villages = 0
-  private nextExtra = EXTRA_LIFE_EVERY
-  private waveDelay = 0
   private banner: { text: string; sub?: string; ticks: number } | null = null
   private overTimer = 0
+  private pilot = { loop: 0, side: 'right' as 'left' | 'right', hold: 0 }
   // Cosmetic sparkles roll their own dice, so the game's seeded rng is untouched.
   private fx = new Sparkles()
   private fxRng = backdropRng(31)
@@ -395,110 +237,200 @@ class ButterflyBlaster implements ArcadeGameInstance {
     this.sound = options.sound
     this.demo = options.demo
     this.hiScore = options.hiScore
-    for (let i = 0; i < 80; i++) {
-      this.stars.push({
-        x: this.rng() * W,
-        y: this.rng() * (H - 40),
-        r: this.rng() < 0.15 ? 1.6 : 0.8,
-        phase: this.rng() * Math.PI * 2,
-      })
-    }
-    this.startWave(1)
+    this.startNight(1)
   }
 
-  // --- setup -------------------------------------------------------------
+  get music(): MusicLoop | null {
+    if (this.over || this.demo) return null
+    if (this.phase === 'dawn') return DAWN
+    const left = this.mosquitoesLeft() / Math.max(1, this.waveTotal)
+    return HEARTBEAT[heartbeatTier(left, this.sprinting())]!
+  }
 
-  private startWave(wave: number) {
-    this.level = wave
-    const count = Math.round(levelCurve(wave, BLASTER_CURVES.bigSwarms))
-    for (let i = 0; i < count; i++) {
-      let x: number
-      let y: number
-      // Spawn along the edges, never on top of the butterfly.
-      do {
-        if (this.rng() < 0.5) {
-          x = this.rng() * W
-          y = this.rng() < 0.5 ? 0 : H - 1
-        } else {
-          x = this.rng() < 0.5 ? 0 : W - 1
-          y = this.rng() * H
-        }
-      } while (dist({ x, y }, this.ship) < 120)
-      this.swarms.push(this.makeSwarm(x, y, 3))
-    }
-    this.cloudTimer = Math.round(
-      levelCurve(wave, BLASTER_CURVES.cloudEvery) / 2,
+  // --- the night ---------------------------------------------------------------------------------
+
+  private startNight(n: number) {
+    this.level = n
+    this.plan = endlessNight(n)
+    this.huts = newVillage()
+    this.pools = this.plan.pools.map((x) =>
+      newPool(x, this.plan.poolEvery, this.rng),
     )
-    this.fairyTimer = Math.round(
-      levelCurve(wave, BLASTER_CURVES.fairyEvery) / 2,
-    )
-    this.banner = { text: `WAVE ${wave}`, ticks: 90 }
-  }
-
-  private makeSwarm(x: number, y: number, size: Size): Swarm {
-    const heading = this.rng() * Math.PI * 2
-    const speed =
-      SWARM_SPEED[size] *
-      levelCurve(this.level, BLASTER_CURVES.speed) *
-      (0.7 + this.rng() * 0.6)
-    return {
-      x,
-      y,
-      vx: Math.cos(heading) * speed,
-      vy: Math.sin(heading) * speed,
-      size,
-      seed: this.rng() * 1000,
+    this.startWave(0)
+    this.banner = {
+      text: `NIGHT ${n}`,
+      sub: n === 1 ? 'KEEP THE VILLAGE SAFE' : 'THE NEXT VILLAGE DOWNRIVER',
+      ticks: 120,
     }
   }
 
-  // --- update ------------------------------------------------------------
+  private hunger(): number {
+    const [least, spread] = this.plan.hunger
+    return Math.round(least + this.rng() * spread)
+  }
+
+  /** A spot on the sky's edge, well away from the butterfly. */
+  private edgeSpot(): Point {
+    for (let attempt = 0; attempt < 40; attempt++) {
+      const p =
+        this.rng() < 0.4
+          ? { x: this.rng() * W, y: 4 }
+          : {
+              x: this.rng() < 0.5 ? 2 : W - 2,
+              y: 20 + this.rng() * (GROUND - 110),
+            }
+      if (wrapDist(p, this.ship) > 140) return p
+    }
+    return { x: 2, y: 20 }
+  }
+
+  private startWave(i: number) {
+    this.wave = i
+    this.phase = 'play'
+    const wave = this.plan.waves[i]!
+    const add = (size: Size) => {
+      const p = this.edgeSpot()
+      this.swarms.push(newSwarm(p.x, p.y, size, this.rng, this.hunger()))
+    }
+    for (let k = 0; k < wave.big; k++) add(3)
+    for (let k = 0; k < wave.medium; k++) add(2)
+    for (let k = 0; k < wave.needles; k++) {
+      const p = this.edgeSpot()
+      this.pests.push(newPest('needle', p.x, p.y, this.rng))
+    }
+    for (let k = 0; k < wave.skimmers; k++) {
+      const x = k % 2 === 0 ? 12 : W - 12
+      this.pests.push(newPest('skimmer', x, 0, this.rng))
+    }
+    this.cloudTimer = Math.round(this.plan.cloudEvery / 2)
+    this.fairyTimer = Math.round(this.plan.amiEvery / 2)
+    this.waveTotal = this.mosquitoesLeft()
+  }
+
+  /** Mosquitoes still in the sky (a swarm counts its whole split tree). */
+  private mosquitoesLeft(): number {
+    let n = 0
+    for (const s of this.swarms) n += SWARM_TREE[s.size]
+    for (const p of this.pests) n += p.kind === 'skimmer' ? 1 : 1
+    return n
+  }
+
+  /** The last mosquito of the night sprints. */
+  private sprinting(): boolean {
+    return (
+      this.phase === 'play' &&
+      this.wave === this.plan.waves.length - 1 &&
+      this.swarms.length === 1 &&
+      this.swarms[0]!.size === 1 &&
+      this.pests.every((p) => p.kind === 'skimmer')
+    )
+  }
+
+  private waveClear(): boolean {
+    return !this.swarms.length && !this.pests.length
+  }
+
+  private endWave() {
+    this.cloud = null
+    this.drops = []
+    this.ribbon.clear()
+    if (this.wave < this.plan.waves.length - 1) {
+      this.phase = 'gap'
+      this.phaseTicks = WAVE_GAP
+      this.sound.play('level')
+      this.banner = { text: 'HERE THEY COME', sub: 'THE SECOND SWARM', ticks: 90 }
+      return
+    }
+    this.phase = 'dawn'
+    this.phaseTicks = DAWN_TICKS
+    this.tally = dawnTally(this.huts)
+    this.banner = null
+    this.nets = []
+    this.fairy = null
+    this.sound.play('level')
+    if (!this.demo) {
+      this.score += this.tally.total
+      if (this.tally.perfect) {
+        this.lives = Math.min(MAX_LIVES, this.lives + 1)
+        this.sound.play('extra')
+      }
+    }
+    for (const hut of this.huts) {
+      if (hut.bites === 0)
+        this.fx.burst(hut.x, GROUND - 12, this.fxRng, {
+          count: 10,
+          colours: [RAMPS.gold[4], RAMPS.gold[3], RAMPS.pink[3]],
+        })
+    }
+  }
+
+  // --- update ------------------------------------------------------------------------------------
 
   update(input: InputFrame) {
-    this.tickCount++
-    const controls = this.demo ? this.demoInput() : input
+    this.tick++
+    this.updateEffects()
+    if (this.banner && --this.banner.ticks <= 0) this.banner = null
+    if (this.over) return
 
+    if (this.phase === 'dawn') {
+      this.phaseTicks--
+      const skip =
+        !this.demo &&
+        this.phaseTicks < DAWN_TICKS - 60 &&
+        (input.pressed.a || input.pressed.start)
+      if (this.phaseTicks <= 0 || skip) {
+        this.tally = null
+        this.startNight(this.level + 1)
+      }
+      return
+    }
+
+    const controls = this.demo ? this.demoInput() : input
     if (this.alive) this.updateShip(controls)
     else this.tryRespawn()
 
     this.updateShots()
     this.updateSwarms()
+    this.updatePests()
     this.updateCloud()
     this.updateFairy()
-    this.updateParticles()
     this.collide()
-    this.fx.update()
 
-    if (this.banner && --this.banner.ticks <= 0) this.banner = null
-
-    if (!this.swarms.length && !this.over && this.lives > 0) {
-      if (this.waveDelay === 0) {
-        this.waveDelay = 150
-        this.villages++
-        this.fx.burst(
-          hutX((this.villages - 1) % HUTS),
-          GROUND - 12,
-          this.fxRng,
-          {
-            count: 14,
-            colours: [RAMPS.gold[4], RAMPS.gold[3], RAMPS.pink[3]],
-          },
-        )
-        this.cloud = null
-        this.drops = []
-        this.sound.play('level')
-        this.banner = {
-          text: 'VILLAGE SAFE!',
-          sub: `${this.villages} ${this.villages === 1 ? 'VILLAGE' : 'VILLAGES'} PROTECTED`,
-          ticks: 140,
-        }
-      } else if (--this.waveDelay === 0) {
-        this.startWave(this.level + 1)
-      }
+    if (this.phase === 'gap') {
+      if (--this.phaseTicks <= 0) this.startWave(this.wave + 1)
+    } else if (this.waveClear() && this.lives > 0) {
+      this.endWave()
     }
 
     if (this.lives <= 0 && !this.alive && ++this.overTimer > 90) {
       this.over = true
     }
+  }
+
+  private updateEffects() {
+    this.fx.update()
+    for (const p of this.particles) {
+      p.x += p.vx
+      p.y += p.vy
+      p.vx *= 0.97
+      p.vy *= 0.97
+      p.life--
+    }
+    this.particles = this.particles.filter((p) => p.life > 0)
+    for (const f of this.floaters) {
+      f.y -= 0.4
+      f.life--
+    }
+    this.floaters = this.floaters.filter((f) => f.life > 0)
+    for (const b of this.bags) {
+      b.y -= 0.7
+      b.life--
+    }
+    this.bags = this.bags.filter((b) => b.life > 0 && b.y > -40)
+    if (this.loopFlash && (this.loopFlash.t -= 1 / 30) <= 0) this.loopFlash = null
+    if (this.dashTrail && (this.dashTrail.t -= 1 / 14) <= 0) this.dashTrail = null
+    for (const hut of this.huts) if (hut.flicker > 0) hut.flicker--
+    if (this.chainTimer > 0 && --this.chainTimer === 0) this.chain = 0
   }
 
   private updateShip(input: InputFrame) {
@@ -514,24 +446,23 @@ class ButterflyBlaster implements ArcadeGameInstance {
         ship.vx *= MAX_SPEED / speed
         ship.vy *= MAX_SPEED / speed
       }
-      if (this.tickCount % 3 === 0) {
-        this.particles.push({
-          x: ship.x - Math.sin(ship.angle) * 8,
-          y: ship.y + Math.cos(ship.angle) * 8,
-          vx: -Math.sin(ship.angle) * 1.2 + (this.rng() - 0.5),
-          vy: Math.cos(ship.angle) * 1.2 + (this.rng() - 0.5),
-          life: 24,
-          max: 24,
-          color: RAINBOW[this.tickCount % RAINBOW.length]!,
-        })
-      }
     }
     ship.vx *= FRICTION
     ship.vy *= FRICTION
     ship.x += ship.vx
     ship.y += ship.vy
+    this.unwrapped.x += ship.vx
+    this.unwrapped.y += ship.vy
     wrap(ship)
     this.flap += this.thrusting ? 0.45 : 0.15
+
+    // The ribbon: laid while the butterfly flutters.
+    this.ribbon.age(this.tick)
+    if (!this.ribbon.points.length) {
+      this.unwrapped.x = ship.x
+      this.unwrapped.y = ship.y
+    }
+    if (this.thrusting && this.tick % RIBBON_STEP === 0) this.layRibbon()
 
     if (this.fireCooldown > 0) this.fireCooldown--
     const wantsFire =
@@ -539,31 +470,124 @@ class ButterflyBlaster implements ArcadeGameInstance {
       (input.held.a && this.fireCooldown === 0)
     if (wantsFire && this.shots.length < MAX_SHOTS) {
       this.shots.push({
-        x: ship.x + Math.sin(ship.angle) * 10,
-        y: ship.y - Math.cos(ship.angle) * 10,
+        x: ship.x + Math.sin(ship.angle) * 13,
+        y: ship.y - Math.cos(ship.angle) * 13,
         vx: ship.vx + Math.sin(ship.angle) * SHOT_SPEED,
         vy: ship.vy - Math.cos(ship.angle) * SHOT_SPEED,
         life: SHOT_LIFE,
-        hue: this.tickCount,
+        hue: this.tick,
       })
       this.fireCooldown = input.pressed.a ? FIRE_COOLDOWN : AUTOFIRE_COOLDOWN
       this.sound.play('shoot')
     }
 
-    if (this.hopCooldown > 0) this.hopCooldown--
-    if (input.pressed.b && this.hopCooldown === 0) {
-      this.burst(ship.x, ship.y, 10, RAINBOW)
-      ship.x = 20 + this.rng() * (W - 40)
-      ship.y = 20 + this.rng() * (H - 60)
-      ship.vx = 0
-      ship.vy = 0
-      this.hopCooldown = HOP_COOLDOWN
-      this.burst(ship.x, ship.y, 10, RAINBOW)
-      this.sound.play('blip')
-    }
+    this.updateB(input.held.b || input.pressed.b)
 
+    if (this.brave > 0 && --this.brave === 0) {
+      this.addScore(BRAVE.points, ship.x, ship.y - 16, 'BRAVE HOP!')
+      this.sound.play('pickup')
+    }
+    this.updateLurk()
     if (this.invuln > 0) this.invuln--
     if (this.shield > 0) this.shield--
+  }
+
+  /** B: tap to flutter-dash, hold to long-hop. */
+  private updateB(held: boolean) {
+    if (this.bCooldown > 0) this.bCooldown--
+    if (held) {
+      if (this.bHeld === -2) return
+      this.bHeld = this.bHeld < 0 ? 0 : this.bHeld + 1
+      if (this.bHeld >= DASH.hold) {
+        this.bHeld = -2
+        if (this.bCooldown === 0) this.longHop()
+      }
+      return
+    }
+    if (this.bHeld >= 0 && this.bCooldown === 0) this.dash()
+    this.bHeld = -1
+  }
+
+  private dash() {
+    const ship = this.ship
+    const from = { x: ship.x, y: ship.y }
+    const dx = Math.sin(ship.angle) * DASH.distance
+    const dy = -Math.cos(ship.angle) * DASH.distance
+    ship.x += dx
+    ship.y += dy
+    this.unwrapped.x += dx
+    this.unwrapped.y += dy
+    ship.vx += Math.sin(ship.angle) * 1.2
+    ship.vy -= Math.cos(ship.angle) * 1.2
+    const speed = Math.hypot(ship.vx, ship.vy)
+    if (speed > MAX_SPEED) {
+      ship.vx *= MAX_SPEED / speed
+      ship.vy *= MAX_SPEED / speed
+    }
+    wrap(ship)
+    this.dashTrail = { from, to: { x: from.x + dx, y: from.y + dy }, t: 1 }
+    this.invuln = Math.max(this.invuln, DASH.invuln)
+    this.bCooldown = DASH.cooldown
+    // A dash mid-flutter carries the ribbon with it: a straight cut that can close a loop.
+    if (this.tick - this.lastLaid <= RIBBON_STEP + 1) this.layRibbon()
+    this.sound.play('blip')
+  }
+
+  private longHop() {
+    const ship = this.ship
+    this.burst(ship.x, ship.y, 10, RAINBOW)
+    ship.x = 20 + this.rng() * (W - 40)
+    ship.y = 20 + this.rng() * (SKY - 60)
+    ship.vx = 0
+    ship.vy = 0
+    this.ribbon.clear()
+    this.unwrapped = { x: ship.x, y: ship.y }
+    this.bCooldown = DASH.cooldown
+    this.burst(ship.x, ship.y, 10, RAINBOW)
+    this.sound.play('blip')
+    const near = this.swarms.some(
+      (s) => wrapDist(s, ship) - SWARM_RADIUS[s.size] < BRAVE.reach,
+    )
+    this.brave = near ? BRAVE.ticks : 0
+  }
+
+  private layRibbon() {
+    const joined = this.tick - this.lastLaid <= RIBBON_STEP + 1
+    const loop = this.ribbon.lay(
+      this.unwrapped.x,
+      this.unwrapped.y,
+      this.tick,
+      joined,
+    )
+    this.lastLaid = this.tick
+    if (loop) this.closeLoop(loop)
+  }
+
+  /** Hanging about an edge, or sitting idle, brings the malaria cloud early and sharper. */
+  private updateLurk() {
+    const ship = this.ship
+    const speed = Math.hypot(ship.vx, ship.vy)
+    const edge =
+      ship.x < LURK.edge || ship.x > W - LURK.edge || ship.y < LURK.edge
+    const lurking =
+      (edge && speed < 1.6) || (speed < 0.3 && !this.thrusting)
+    this.lurk = lurking ? this.lurk + 1 : Math.max(0, this.lurk - 2)
+    if (this.lurk < LURK.ticks || this.phase !== 'play' || !this.swarms.length)
+      return
+    this.lurk = 0
+    if (this.cloud) {
+      this.cloud.angry = true
+    } else {
+      this.spawnCloud(true)
+    }
+    this.floaters.push({
+      x: ship.x,
+      y: ship.y - 20,
+      text: 'NO LURKING!',
+      life: 70,
+      color: SICK[3],
+      scale: 1,
+    })
   }
 
   private tryRespawn() {
@@ -572,14 +596,18 @@ class ButterflyBlaster implements ArcadeGameInstance {
       this.respawn--
       return
     }
-    const centre = { x: W / 2, y: H / 2 }
-    const clear = this.swarms.every(
-      (swarm) => dist(swarm, centre) > SWARM_RADIUS[swarm.size] + 60,
-    )
+    const centre = { x: W / 2, y: SKY / 2 }
+    const clear =
+      this.swarms.every(
+        (swarm) => wrapDist(swarm, centre) > SWARM_RADIUS[swarm.size] + 60,
+      ) && this.pests.every((p) => p.kind !== 'needle' || wrapDist(p, centre) > 70)
     if (!clear) return
-    Object.assign(this.ship, { x: W / 2, y: H / 2, vx: 0, vy: 0, angle: 0 })
+    Object.assign(this.ship, { x: W / 2, y: SKY / 2, vx: 0, vy: 0, angle: 0 })
+    this.unwrapped = { x: W / 2, y: SKY / 2 }
+    this.ribbon.clear()
     this.alive = true
     this.invuln = INVULN_TICKS
+    this.lurk = 0
   }
 
   private updateShots() {
@@ -591,42 +619,145 @@ class ButterflyBlaster implements ArcadeGameInstance {
     }
     this.shots = this.shots.filter((shot) => shot.life > 0)
     for (const drop of this.drops) {
+      drop.vy += drop.fall
       drop.x += drop.vx
       drop.y += drop.vy
-      wrap(drop)
+      if (drop.fall) {
+        if (drop.y > GROUND) drop.life = 0
+        if (drop.x < 0) drop.x += W
+        else if (drop.x >= W) drop.x -= W
+      } else {
+        wrap(drop)
+      }
       drop.life--
     }
     this.drops = this.drops.filter((drop) => drop.life > 0)
   }
 
   private updateSwarms() {
-    for (const swarm of this.swarms) {
-      swarm.x += swarm.vx
-      swarm.y += swarm.vy
-      wrap(swarm)
+    if (this.phase !== 'play') return
+    const sprint = this.sprinting()
+    const lights = hutLights(this.huts)
+    for (const s of this.swarms) {
+      s.sprint = sprint
+      if (sprint) s.hunger = 0
+      flySwarm(s, {
+        swarms: this.swarms,
+        lights,
+        glow: this.alive ? this.ship : null,
+        speed: this.plan.speed,
+        rng: this.rng,
+      })
+    }
+    // Bites: a hungry swarm that reaches a lit window.
+    for (const s of this.swarms) {
+      if (s.mode !== 'seek') continue
+      const hut = this.huts.find(
+        (h) => hutLit(h) && reachesHut(h, s.x, s.y, SWARM_RADIUS[s.size]),
+      )
+      if (hut) this.bite(hut, s)
+    }
+    const { swarms, merged } = regroupSwarms(this.swarms)
+    this.swarms = swarms
+    for (const m of merged) {
+      this.floaters.push({
+        x: m.x,
+        y: m.y - SWARM_RADIUS[m.size] - 6,
+        text: 'REGROUPED',
+        life: 50,
+        color: SICK[3],
+        scale: 1,
+      })
     }
   }
 
-  private updateCloud() {
-    if (this.level >= 3 && !this.cloud && this.swarms.length) {
-      if (--this.cloudTimer <= 0) {
-        const fromLeft = this.rng() < 0.5
-        const small = this.level >= 6 && this.rng() < 0.5
-        this.cloud = {
-          x: fromLeft ? -20 : W + 20,
-          y: 40 + this.rng() * (H - 120),
-          vx: (fromLeft ? 1 : -1) * (small ? 1.6 : 1.2),
-          vy: 0,
-          small,
-          fire: 60,
-          turn: 60,
-          hp: 1,
-        }
-        this.cloudTimer = Math.round(
-          levelCurve(this.level, BLASTER_CURVES.cloudEvery),
-        )
-        this.sound.play('warn')
+  private bite(hut: Hut, s: Swarm) {
+    hut.bites++
+    hut.flicker = 60
+    s.mode = 'shoo'
+    s.modeTicks = SHOO_TICKS
+    s.hunger = this.hunger()
+    s.vy = -1.6
+    this.sound.play('warn')
+    if (!hutLit(hut)) {
+      this.floaters.push({
+        x: hut.x,
+        y: GROUND - 44,
+        text: 'NETS UP',
+        life: 80,
+        color: RAMPS.sky[3],
+        scale: 1,
+      })
+    }
+  }
+
+  private updatePests() {
+    if (this.phase !== 'play') return
+    const host = {
+      rng: this.rng,
+      target: this.alive ? this.ship : null,
+      spray: (x: number, y: number, vx: number, vy: number) => {
+        this.drops.push({ x, y, vx, vy, life: 150, fall: 0.05 })
+      },
+    }
+    const hatched: Pest[] = []
+    for (const p of this.pests) {
+      const event = movePest(p, host)
+      if (event === 'hatch') hatched.push(p)
+      else if (event === 'dash') this.sound.play('warn')
+    }
+    for (const p of hatched) {
+      this.pests.splice(this.pests.indexOf(p), 1)
+      const s = newSwarm(p.x, p.y, 2, this.rng, 30)
+      s.vy = -0.6
+      this.swarms.push(s)
+      this.waveTotal += SWARM_TREE[2]
+      this.floaters.push({
+        x: p.x,
+        y: p.y - 22,
+        text: 'HATCHED!',
+        life: 60,
+        color: RAMPS.ember[3],
+        scale: 1,
+      })
+      this.sound.play('warn')
+    }
+    // Standing water breeds while the swarms are out.
+    if (!this.swarms.length) return
+    for (const pool of this.pools) {
+      if (tickPool(pool, this.plan.poolEvery, this.rng)) {
+        this.pests.push(newPest('wriggler', pool.x, GROUND - 4, this.rng))
+        this.waveTotal += 1
       }
+    }
+  }
+
+  private spawnCloud(angry: boolean) {
+    const fromLeft = this.rng() < 0.5
+    // The small, sharp cloud turns up more as the score climbs.
+    const smallChance =
+      this.level < 2 ? 0 : clamp(0.1 + this.score / 60_000, 0, 0.75)
+    const small = angry || this.rng() < smallChance
+    this.cloud = {
+      x: fromLeft ? -24 : W + 24,
+      y: 40 + this.rng() * (SKY - 140),
+      vx: (fromLeft ? 1 : -1) * (small ? 1.6 : 1.1),
+      vy: 0,
+      small,
+      angry,
+      fire: 60,
+      turn: 60,
+    }
+    const quicken = 1 - Math.min(0.35, this.score / 150_000)
+    this.cloudTimer = Math.round(this.plan.cloudEvery * quicken)
+    this.sound.play('warn')
+  }
+
+  private updateCloud() {
+    if (this.phase !== 'play') return
+    const wave = this.plan.waves[this.wave]!
+    if (wave.cloud && !this.cloud && this.swarms.length) {
+      if (--this.cloudTimer <= 0) this.spawnCloud(false)
     }
     const cloud = this.cloud
     if (!cloud) return
@@ -636,46 +767,47 @@ class ButterflyBlaster implements ArcadeGameInstance {
       cloud.vy = (this.rng() - 0.5) * 1.6
       cloud.turn = 50 + Math.floor(this.rng() * 40)
     }
-    cloud.y = Math.min(H - 70, Math.max(20, cloud.y))
-    if (cloud.x < -40 || cloud.x > W + 40) {
+    cloud.y = clamp(cloud.y, 24, SKY - 80)
+    if (cloud.x < -44 || cloud.x > W + 44) {
       this.cloud = null
       return
     }
     if (--cloud.fire <= 0 && this.alive) {
-      const aim = Math.atan2(this.ship.y - cloud.y, this.ship.x - cloud.x)
-      const error = levelCurve(this.level, BLASTER_CURVES.cloudAimError)
-      const angle =
-        aim + (this.rng() - 0.5) * 2 * (cloud.small ? error / 2 : error)
+      const d = toward(cloud, this.ship)
+      const aim = Math.atan2(d.y, d.x)
+      const error =
+        this.plan.cloudAim * (cloud.angry ? 0.25 : cloud.small ? 0.5 : 1)
+      const angle = aim + (this.rng() - 0.5) * 2 * error
       this.drops.push({
         x: cloud.x,
         y: cloud.y,
         vx: Math.cos(angle) * 3,
         vy: Math.sin(angle) * 3,
         life: 90,
+        fall: 0,
       })
-      cloud.fire = Math.round(levelCurve(this.level, BLASTER_CURVES.cloudFire))
+      cloud.fire = Math.round(this.plan.cloudFire * (cloud.angry ? 0.6 : 1))
     }
   }
 
   private updateFairy() {
+    if (this.phase === 'dawn') return
     if (!this.fairy && --this.fairyTimer <= 0 && this.swarms.length) {
       const fromLeft = this.rng() < 0.5
       this.fairy = {
         x: fromLeft ? -16 : W + 16,
-        y: 28 + this.rng() * 20,
+        y: 34 + this.rng() * 20,
         vx: fromLeft ? 1.5 : -1.5,
         vy: 0,
         dropAt: 80 + this.rng() * (W - 160),
         carrying: true,
       }
-      this.fairyTimer = Math.round(
-        levelCurve(this.level, BLASTER_CURVES.fairyEvery),
-      )
+      this.fairyTimer = this.plan.amiEvery
     }
     const fairy = this.fairy
     if (fairy) {
       fairy.x += fairy.vx
-      fairy.y += Math.sin(this.tickCount / 10) * 0.4
+      fairy.y += Math.sin(this.tick / 10) * 0.4
       const passed =
         fairy.vx > 0 ? fairy.x >= fairy.dropAt : fairy.x <= fairy.dropAt
       if (fairy.carrying && passed) {
@@ -686,46 +818,40 @@ class ButterflyBlaster implements ArcadeGameInstance {
     }
     for (const net of this.nets) {
       net.y += net.vy
-      net.x += Math.sin((this.tickCount + net.spin * 50) / 30) * 0.4
+      net.x += Math.sin((this.tick + net.spin * 50) / 30) * 0.4
       net.spin += 0.02
     }
-    this.nets = this.nets.filter((net) => net.y < H + 20)
+    this.nets = this.nets.filter((net) => net.y < GROUND)
   }
 
-  private updateParticles() {
-    for (const p of this.particles) {
-      p.x += p.vx
-      p.y += p.vy
-      p.vx *= 0.97
-      p.vy *= 0.97
-      p.life--
-    }
-    this.particles = this.particles.filter((p) => p.life > 0)
-    for (const f of this.floaters) {
-      f.y -= 0.4
-      f.life--
-    }
-    this.floaters = this.floaters.filter((f) => f.life > 0)
-  }
+  // --- scoring and hits ----------------------------------------------------------------------------
 
-  // --- collisions --------------------------------------------------------
-
-  private addScore(points: number, x: number, y: number) {
+  private addScore(points: number, x: number, y: number, label?: string) {
     if (this.demo) return
     this.score += points
-    this.floaters.push({ x, y, text: String(points), life: 40 })
-    if (this.score >= this.nextExtra) {
-      this.lives++
-      this.nextExtra += EXTRA_LIFE_EVERY
-      this.sound.play('extra')
-      this.banner = { text: 'EXTRA BUTTERFLY!', ticks: 90 }
-    }
+    this.floaters.push({
+      x,
+      y,
+      text: label ? `${label} ${points}` : String(points),
+      life: 45,
+      color: RAMPS.gold[3],
+      scale: 1,
+    })
   }
 
-  private splitSwarm(index: number) {
+  /** A sparkle hit: the chain grows if the last one was under a second ago. */
+  private chainUp(): number {
+    this.chain = this.chainTimer > 0 ? Math.min(CHAIN.max, this.chain + 1) : 1
+    this.chainTimer = CHAIN.ticks
+    return this.chain
+  }
+
+  private hitSwarm(index: number, byShot: boolean) {
     const swarm = this.swarms[index]!
     this.swarms.splice(index, 1)
-    this.addScore(SWARM_POINTS[swarm.size], swarm.x, swarm.y)
+    const chain = byShot ? this.chainUp() : 1
+    this.addScore(SWARM_POINTS[swarm.size] * chain, swarm.x, swarm.y)
+    if (chain > 1) this.chainFloater(swarm.x, swarm.y - 12, chain)
     this.burst(swarm.x, swarm.y, swarm.size * 6, [
       '#a3e635',
       '#e2e8f0',
@@ -733,29 +859,112 @@ class ButterflyBlaster implements ArcadeGameInstance {
     ])
     this.sound.play('pop')
     this.fx.burst(swarm.x, swarm.y, this.fxRng, { count: 3 + swarm.size * 2 })
-    if (swarm.size > 1) {
-      const next = (swarm.size - 1) as Size
-      this.swarms.push(this.makeSwarm(swarm.x, swarm.y, next))
-      this.swarms.push(this.makeSwarm(swarm.x, swarm.y, next))
+    const halves = splitSwarm(swarm, this.rng, this.hunger())
+    if (halves) this.swarms.push(...halves)
+  }
+
+  private chainFloater(x: number, y: number, chain: number) {
+    this.floaters.push({
+      x,
+      y,
+      text: `CHAIN X${chain}`,
+      life: 40 + chain * 6,
+      color: RAINBOW[chain % RAINBOW.length]!,
+      scale: chain >= 3 ? 2 : 1,
+    })
+  }
+
+  private hitPest(index: number, byShot: boolean) {
+    const p = this.pests[index]!
+    this.pests.splice(index, 1)
+    const chain = byShot ? this.chainUp() : 1
+    const label = p.kind === 'wriggler' ? 'NIPPED' : undefined
+    this.addScore(PEST_POINTS[p.kind] * chain, p.x, p.y, label)
+    if (chain > 1) this.chainFloater(p.x, p.y - 12, chain)
+    this.burst(p.x, p.y, 10, [RAMPS.water[3], '#e2e8f0', RAMPS.ember[3]])
+    this.fx.burst(p.x, p.y, this.fxRng, { count: 6 })
+    this.sound.play('pop')
+  }
+
+  /** The Rainbow Lasso closes: every mosquito inside is netted at once. */
+  private closeLoop(loop: Loop) {
+    const shift = {
+      x: this.ship.x - this.unwrapped.x,
+      y: this.ship.y - this.unwrapped.y,
     }
+    this.loopFlash = { loop, shift, t: 1 }
+    let count = 0
+    let cx = 0
+    let cy = 0
+    let caught = 0
+    const inside = (p: Point) =>
+      insideLoop(loop, p.x - shift.x, p.y - shift.y)
+    this.swarms = this.swarms.filter((s) => {
+      if (!inside(s)) return true
+      count += SWARM_TREE[s.size]
+      cx += s.x
+      cy += s.y
+      caught++
+      return false
+    })
+    this.pests = this.pests.filter((p) => {
+      if (!inside(p)) return true
+      count += 1
+      cx += p.x
+      cy += p.y
+      caught++
+      return false
+    })
+    if (!count) {
+      this.sound.play('blip')
+      return
+    }
+    cx /= caught
+    cy /= caught
+    const mult = lassoMultiplier(count)
+    const points = LASSO_POINTS * count * mult
+    this.addScore(points, cx, cy + 14)
+    this.floaters.push({
+      x: cx,
+      y: cy - 18,
+      text: mult > 1 ? `NETTED ${count} X${mult}` : `NETTED ${count}`,
+      life: 70,
+      color: RAMPS.sky[4],
+      scale: count >= 7 ? 2 : 1,
+    })
+    this.bags.push({ x: cx, y: cy, count, life: 140 })
+    this.fx.burst(cx, cy, this.fxRng, {
+      count: 10 + Math.min(20, count * 2),
+      colours: [...RAINBOW],
+      speed: 2.4,
+    })
+    this.sound.play('extra')
   }
 
   private collide() {
-    // Sparkles vs swarms and the cloud.
     for (const shot of this.shots) {
       if (shot.life <= 0) continue
       const hit = this.swarms.findIndex(
-        (swarm) => dist(shot, swarm) < SWARM_RADIUS[swarm.size],
+        (s) => wrapDist(shot, s) < SWARM_RADIUS[s.size],
       )
       if (hit >= 0) {
         shot.life = 0
-        this.splitSwarm(hit)
+        this.hitSwarm(hit, true)
+        continue
+      }
+      const pest = this.pests.findIndex(
+        (p) => wrapDist(shot, p) < PEST_RADIUS[p.kind] + 2,
+      )
+      if (pest >= 0) {
+        shot.life = 0
+        this.hitPest(pest, true)
         continue
       }
       const cloud = this.cloud
-      if (cloud && dist(shot, cloud) < (cloud.small ? 11 : 19)) {
+      if (cloud && wrapDist(shot, cloud) < (cloud.small ? 14 : 24)) {
         shot.life = 0
-        this.addScore(cloud.small ? 1000 : 200, cloud.x, cloud.y)
+        const chain = this.chainUp()
+        this.addScore((cloud.small ? 1000 : 200) * chain, cloud.x, cloud.y)
         this.burst(cloud.x, cloud.y, 24, ['#65a30d', '#a3e635', '#d9f99d'])
         this.fx.burst(cloud.x, cloud.y, this.fxRng, { count: 16, speed: 2.2 })
         this.sound.play('boom')
@@ -767,8 +976,7 @@ class ButterflyBlaster implements ArcadeGameInstance {
     if (!this.alive) return
     const ship = this.ship
 
-    // Catching AMI's bed net.
-    const caught = this.nets.findIndex((net) => dist(net, ship) < 18)
+    const caught = this.nets.findIndex((net) => wrapDist(net, ship) < 20)
     if (caught >= 0) {
       this.nets.splice(caught, 1)
       this.shield = SHIELD_TICKS
@@ -784,17 +992,23 @@ class ButterflyBlaster implements ArcadeGameInstance {
     if (this.invuln > 0) return
 
     const swarmHit = this.swarms.findIndex(
-      (swarm) => dist(swarm, ship) < SWARM_RADIUS[swarm.size] + SHIP_RADIUS - 3,
+      (s) => wrapDist(s, ship) < SWARM_RADIUS[s.size] + SHIP_RADIUS - 4,
+    )
+    const pestHit = this.pests.findIndex(
+      (p) => pestHurts(p) && wrapDist(p, ship) < PEST_RADIUS[p.kind] + SHIP_RADIUS - 3,
     )
     const dropHit = this.drops.findIndex(
-      (drop) => dist(drop, ship) < SHIP_RADIUS,
+      (drop) => wrapDist(drop, ship) < SHIP_RADIUS - 1,
     )
-    const cloudHit = this.cloud && dist(this.cloud, ship) < SHIP_RADIUS + 14
-    if (swarmHit < 0 && dropHit < 0 && !cloudHit) return
+    const cloudHit =
+      this.cloud &&
+      wrapDist(this.cloud, ship) < SHIP_RADIUS + (this.cloud.small ? 10 : 18)
+    if (swarmHit < 0 && pestHit < 0 && dropHit < 0 && !cloudHit) return
 
     if (this.shield > 0) {
       // The net takes the hit, and catches what hit it.
-      if (swarmHit >= 0) this.splitSwarm(swarmHit)
+      if (swarmHit >= 0) this.hitSwarm(swarmHit, false)
+      else if (pestHit >= 0) this.hitPest(pestHit, false)
       if (dropHit >= 0) this.drops.splice(dropHit, 1)
       if (cloudHit) this.cloud = null
       this.shield = 0
@@ -804,7 +1018,8 @@ class ButterflyBlaster implements ArcadeGameInstance {
       return
     }
 
-    if (swarmHit >= 0) this.splitSwarm(swarmHit)
+    if (swarmHit >= 0) this.hitSwarm(swarmHit, false)
+    else if (pestHit >= 0) this.hitPest(pestHit, false)
     if (dropHit >= 0) this.drops.splice(dropHit, 1)
     this.loseLife()
   }
@@ -813,28 +1028,58 @@ class ButterflyBlaster implements ArcadeGameInstance {
     this.alive = false
     this.lives--
     this.respawn = RESPAWN_TICKS
+    this.brave = 0
+    this.chain = 0
+    this.chainTimer = 0
+    this.ribbon.clear()
     this.burst(this.ship.x, this.ship.y, 40, RAINBOW)
     this.sound.play('die')
     if (this.lives <= 0) this.banner = { text: 'GAME OVER', ticks: 200 }
   }
 
-  private burst(x: number, y: number, count: number, colors: string[]) {
+  private burst(x: number, y: number, count: number, colors: readonly string[]) {
     for (let i = 0; i < count; i++) {
-      const a = this.rng() * Math.PI * 2
-      const s = 0.5 + this.rng() * 2.5
+      const a = this.fxRng() * Math.PI * 2
+      const s = 0.5 + this.fxRng() * 2.5
       this.particles.push({
         x,
         y,
         vx: Math.cos(a) * s,
         vy: Math.sin(a) * s,
-        life: 30 + Math.floor(this.rng() * 30),
+        life: 30 + Math.floor(this.fxRng() * 30),
         max: 60,
         color: colors[i % colors.length]!,
       })
     }
   }
 
-  // --- attract-mode pilot ------------------------------------------------
+  // --- attract-mode pilot ------------------------------------------------------------------------
+
+  /** The nearest thing that can hurt the butterfly, and how far its edge is. */
+  private nearestDanger(): { at: Point; gap: number } | null {
+    const ship = this.ship
+    let best: { at: Point; gap: number } | null = null
+    const consider = (at: Point, r: number) => {
+      const gap = wrapDist(at, ship) - r
+      if (!best || gap < best.gap) best = { at, gap }
+    }
+    for (const s of this.swarms) consider(s, SWARM_RADIUS[s.size])
+    for (const p of this.pests) {
+      if (!pestHurts(p)) continue
+      consider(p, PEST_RADIUS[p.kind])
+      if (p.kind === 'needle' && p.state !== 'drift') {
+        // Stand off a needle's locked line.
+        const d = toward(p, ship)
+        const along = d.x * Math.cos(p.heading) + d.y * Math.sin(p.heading)
+        const across = Math.abs(-d.x * Math.sin(p.heading) + d.y * Math.cos(p.heading))
+        if (along > 0 && along < 380 && across < 18)
+          consider({ x: ship.x - Math.cos(p.heading) * 20, y: ship.y - Math.sin(p.heading) * 20 }, 0)
+      }
+    }
+    for (const d of this.drops) consider(d, 2)
+    if (this.cloud) consider(this.cloud, this.cloud.small ? 12 : 20)
+    return best
+  }
 
   private demoInput(): InputFrame {
     const held = {
@@ -847,46 +1092,133 @@ class ButterflyBlaster implements ArcadeGameInstance {
       start: false,
     }
     const pressed = { ...held }
+    const frame = { held, pressed }
+    if (!this.alive) return frame
     const ship = this.ship
-    let target: { x: number; y: number } | null = null
-    let best = Infinity
-    for (const swarm of this.swarms) {
-      const d = Math.hypot(
-        wrapDelta(ship.x, swarm.x, W),
-        wrapDelta(ship.y, swarm.y, H),
-      )
-      if (d < best) {
-        best = d
-        target = swarm
-      }
+    const pilot = this.pilot
+    const danger = this.nearestDanger()
+
+    if (pilot.hold > 0) {
+      pilot.hold--
+      held.b = true
+      return frame
     }
-    if (target) {
-      const dx = wrapDelta(ship.x, target.x, W)
-      const dy = wrapDelta(ship.y, target.y, H)
-      const want = Math.atan2(dx, -dy)
-      const diff = angleDiff(ship.angle, want)
-      if (diff > 0.05) held.right = true
-      else if (diff < -0.05) held.left = true
-      if (Math.abs(diff) < 0.2 && this.tickCount % 10 === 0) pressed.a = true
-      held.up = best > 170 && this.tickCount % 90 < 25
-      if (best < 34 && this.hopCooldown === 0 && this.tickCount % 7 === 0) {
+    if (danger && danger.gap < 30 && this.bCooldown === 0) {
+      const d = toward(ship, danger.at)
+      const diff = angleDiff(ship.angle, Math.atan2(d.x, -d.y))
+      if (Math.abs(diff) > 1.4) {
+        // The threat is behind or beside: dash on, away from it.
+        held.b = true
         pressed.b = true
+        return frame
+      }
+      if (danger.gap < 10) {
+        pilot.hold = DASH.hold + 1
+        held.b = true
+        pressed.b = true
+        return frame
       }
     }
-    return { held, pressed }
+
+    // A lasso: circle round a cluster with the ribbon out.
+    if (pilot.loop > 0) {
+      pilot.loop--
+      held.up = true
+      held[pilot.side] = true
+      if (this.tick % 9 === 0) pressed.a = true
+      return frame
+    }
+    const near = this.swarms.reduce(
+      (n, s) => n + (wrapDist(s, ship) < 110 ? SWARM_TREE[s.size] : 0),
+      0,
+    )
+    if (near >= 4 && (!danger || danger.gap > 45) && this.tick % 180 < 60) {
+      pilot.loop = 74
+      pilot.side = this.rng() < 0.5 ? 'left' : 'right'
+      return frame
+    }
+
+    // Catch a falling net when it is handy.
+    const net = this.nets.find((n) => wrapDist(n, ship) < 150)
+    let target: Point | null = net ?? null
+    if (!target) {
+      // Wrigglers first (before they hatch), then whatever is hungriest, then the nearest.
+      let best = Infinity
+      for (const p of this.pests) {
+        const d = wrapDist(p, ship) - (p.kind === 'wriggler' ? 120 : 0)
+        if (d < best) {
+          best = d
+          target = p
+        }
+      }
+      for (const s of this.swarms) {
+        const d = wrapDist(s, ship) - (s.mode === 'seek' ? 80 : 0)
+        if (d < best) {
+          best = d
+          target = s
+        }
+      }
+      if (!target && this.cloud) target = this.cloud
+    }
+    if (!target) return frame
+    const d = toward(ship, target)
+    const dist = Math.hypot(d.x, d.y)
+    const want = Math.atan2(d.x, -d.y)
+    const diff = angleDiff(ship.angle, want)
+    if (diff > 0.05) held.right = true
+    else if (diff < -0.05) held.left = true
+    if (!net && Math.abs(diff) < 0.2 && this.tick % 8 === 0) pressed.a = true
+    held.up = (net ? dist > 20 : dist > 170) && Math.abs(diff) < 0.6 && this.tick % 60 < 30
+    return frame
   }
 
-  // --- render ------------------------------------------------------------
+  // --- render ------------------------------------------------------------------------------------
+
+  /** Where the ribbon's unwrapped coordinates sit on the sky. */
+  private ribbonShift(): Point {
+    return {
+      x: this.ship.x - this.unwrapped.x,
+      y: this.ship.y - this.unwrapped.y,
+    }
+  }
 
   render(g: CanvasRenderingContext2D) {
-    this.renderSky(g)
-    for (const net of this.nets) this.renderNet(g, net)
-    if (this.fairy) this.renderFairy(g, this.fairy)
-    for (const swarm of this.swarms) this.renderSwarm(g, swarm)
-    if (this.cloud) this.renderCloud(g, this.cloud)
+    cachedLayer(g, 'butterfly-blaster-night', W, H, paintNight)
+    renderStars(g, this.tick)
+    renderDriftingClouds(g, this.tick)
+    for (const pool of this.pools) renderPool(g, pool, this.tick)
+    renderWindows(g, this.huts, this.tick)
+    renderFireflies(g, this.tick)
+    if (this.phase === 'dawn') renderDawn(g, DAWN_TICKS - this.phaseTicks)
+
+    if (this.loopFlash)
+      renderLoopFlash(g, this.loopFlash.loop, this.loopFlash.shift, this.loopFlash.t)
+    if (this.alive) renderRibbon(g, this.ribbon, this.ribbonShift(), this.tick)
+    for (const net of this.nets) renderNet(g, net.x, net.y, net.spin, this.tick)
+    if (this.fairy)
+      renderFairy(
+        g,
+        this.fairy.x,
+        this.fairy.y,
+        this.fairy.vx > 0 ? 1 : -1,
+        this.fairy.carrying,
+        this.tick,
+      )
+    for (const p of this.pests) renderPest(g, p, this.tick)
+    for (const swarm of this.swarms) renderSwarm(g, swarm, this.tick)
+    if (this.cloud)
+      renderCloud(
+        g,
+        this.cloud.x,
+        this.cloud.y,
+        this.cloud.small,
+        this.cloud.angry,
+        this.tick,
+      )
     for (const drop of this.drops) {
-      glow(g, drop.x, drop.y, 9, SICK[3], 0.5)
-      shadedOrb(g, drop.x, drop.y, 2.5, SICK, { glint: false })
+      const ramp = drop.fall ? RAMPS.water : SICK
+      glow(g, drop.x, drop.y, 9, ramp[3], 0.5)
+      shadedOrb(g, drop.x, drop.y, 2.5, ramp, { glint: false })
     }
     for (const p of this.particles) {
       const x = Math.round(p.x)
@@ -898,606 +1230,36 @@ class ButterflyBlaster implements ArcadeGameInstance {
       g.fillRect(x - 1, y - 1, 2, 2)
     }
     g.globalAlpha = 1
-    for (const shot of this.shots) this.renderSparkle(g, shot)
-    if (
-      this.alive &&
-      !(this.invuln > 0 && Math.floor(this.invuln / 6) % 2 === 0)
-    ) {
-      this.renderButterfly(g)
+    for (const shot of this.shots) renderSparkle(g, shot, this.tick)
+    if (this.dashTrail)
+      renderDashTrail(g, this.dashTrail.from, this.dashTrail.to, this.dashTrail.t)
+    if (this.alive && !(this.invuln > DASH.invuln && Math.floor(this.invuln / 6) % 2 === 0)) {
+      renderButterfly(g, this.ship.x, this.ship.y, this.ship.angle, this.flap)
+      if (this.shield > 0 && (this.shield > 90 || Math.floor(this.shield / 8) % 2 === 0)) {
+        glow(g, this.ship.x, this.ship.y, 26, RAMPS.teal[3], 0.3)
+        renderMesh(g, this.ship.x, this.ship.y, 20, this.tick / 40)
+      }
+      if (this.brave > 0) {
+        drawText(g, 'BRAVE!', this.ship.x, this.ship.y - 30, {
+          align: 'center',
+          color: RAMPS.gold[4],
+          outline: INK,
+        })
+      }
     }
+    for (const bag of this.bags) renderBag(g, bag.x, bag.y, bag.count, this.tick)
     this.fx.render(g)
     for (const f of this.floaters) {
       drawText(g, f.text, f.x, f.y, {
         align: 'center',
-        color: RAMPS.gold[3],
+        color: f.color,
         outline: INK,
+        scale: f.scale,
       })
     }
     vignette(g, W, H, 0.3)
     this.renderHud(g)
-  }
-
-  private renderSky(g: CanvasRenderingContext2D) {
-    // The far sky, the milky way, the moon and the sleeping village: painted once.
-    cachedLayer(g, 'butterfly-blaster-night', W, H, (k) => {
-      bandedGradient(k, 0, 0, W, GROUND, SKY_BANDS, 6)
-      k.save()
-      k.globalAlpha = 0.18
-      for (const [t, colour] of [
-        [0.2, RAMPS.pink[1]],
-        [0.5, RAMPS.purple[1]],
-        [0.8, RAMPS.sky[1]],
-      ] as const) {
-        glow(k, t * W, GROUND - 60 - t * (GROUND - 110), 90, colour, 1)
-      }
-      k.restore()
-      k.save()
-      k.globalAlpha = 0.55
-      for (const d of NEBULA) {
-        k.fillStyle = d.colour
-        k.fillRect(d.x, d.y, 1, 1)
-      }
-      k.restore()
-      drawStars(k, FAR_STARS, 0, FAR_STAR)
-      this.paintMoon(k, W - 46, 46, 16)
-      // Two ridges of hills, rim-lit from the moon side.
-      drawRidge(k, FAR_RIDGE, {
-        base: GROUND - 16,
-        bottom: GROUND,
-        width: W,
-        step: 4,
-        fill: mix(RAMPS.night[2], RAMPS.purple[0], 0.5),
-        rim: RAMPS.night[4],
-      })
-      drawRidge(k, NEAR_RIDGE, {
-        base: GROUND - 3,
-        bottom: GROUND,
-        width: W,
-        step: 3,
-        fill: RAMPS.night[1],
-        rim: RAMPS.night[3],
-      })
-      for (const tree of ACACIAS) this.paintAcacia(k, tree.x, tree.h, tree.w)
-      // Packed-earth ground in bands.
-      bandedGradient(
-        k,
-        0,
-        GROUND,
-        W,
-        H - GROUND,
-        [NIGHT_MUD[1], NIGHT_MUD[0], RAMPS.night[0]],
-        2,
-      )
-      k.fillStyle = NIGHT_MUD[3]
-      k.fillRect(0, GROUND, W, 1)
-      for (let i = 0; i < HUTS; i++) this.paintHut(k, hutX(i))
-    })
-
-    // Twinkling near stars (laid out by the game at start-up).
-    for (const star of this.stars) {
-      const twinkle = Math.sin(star.phase + this.tickCount / 25)
-      const x = Math.round(star.x)
-      const y = Math.round(star.y)
-      if (y >= GROUND - 20) continue
-      g.fillStyle =
-        twinkle > 0.6
-          ? RAMPS.sky[4]
-          : twinkle > -0.2
-            ? RAMPS.sky[3]
-            : RAMPS.purple[2]
-      g.fillRect(x, y, 1, 1)
-      if (star.r > 1 && twinkle > 0.7) {
-        g.fillStyle = RAMPS.sky[3]
-        g.fillRect(x - 1, y, 3, 1)
-        g.fillRect(x, y - 1, 1, 3)
-        if (twinkle > 0.93) {
-          g.fillStyle = rgba(RAMPS.sky[3], 0.5)
-          g.fillRect(x - 2, y, 1, 1)
-          g.fillRect(x + 2, y, 1, 1)
-          g.fillRect(x, y - 2, 1, 1)
-          g.fillRect(x, y + 2, 1, 1)
-        }
-      }
-    }
-
-    // Moonlit clouds drifting past.
-    g.save()
-    g.globalAlpha = 0.55
-    for (const [speed, offset, y, size] of [
-      [0.12, 40, 116, 8],
-      [0.07, 300, 196, 11],
-    ] as const) {
-      const span = W + 120
-      const x =
-        ((((this.tickCount * speed + offset) % span) + span) % span) - 60
-      drawCloud(g, x, y, size, DUSK)
-    }
-    g.restore()
-
-    // Lit windows: one more for every village kept safe.
-    for (let i = 0; i < HUTS; i++) {
-      const x = Math.round(hutX(i))
-      const lit = i < this.villages % (HUTS + 1) || this.villages > HUTS
-      const top = GROUND - 11
-      g.fillStyle = INK
-      g.fillRect(x - 4, top - 1, 8, 7)
-      if (lit) {
-        const flicker = 0.4 + 0.08 * Math.sin(this.tickCount / 7 + i * 1.7)
-        glow(g, x, top + 2, 22, RAMPS.gold[3], flicker + 0.1)
-        g.fillStyle = RAMPS.gold[2]
-        g.fillRect(x - 3, top, 6, 5)
-        g.fillStyle = RAMPS.gold[4]
-        g.fillRect(x - 3, top, 6, 2)
-        g.fillStyle = RAMPS.rust[2]
-        g.fillRect(x, top, 1, 5)
-      } else {
-        g.fillStyle = RAMPS.night[2]
-        g.fillRect(x - 3, top, 6, 5)
-        g.fillStyle = RAMPS.night[3]
-        g.fillRect(x - 3, top, 6, 1)
-      }
-    }
-
-    // Fireflies over the village rooftops.
-    g.save()
-    g.globalCompositeOperation = 'lighter'
-    for (const fly of FIREFLIES) {
-      const t = this.tickCount / 60
-      const on = Math.sin(t * fly.speed * 3 + fly.phase)
-      if (on < 0.2) continue
-      const x = Math.round(fly.x + Math.sin(t * fly.speed + fly.phase) * 14)
-      const y = Math.round(fly.y + Math.cos(t * fly.speed * 1.3) * 5)
-      g.globalAlpha = on
-      g.fillStyle = rgba(RAMPS.leaf[3], 0.35)
-      g.fillRect(x - 1, y - 1, 3, 3)
-      g.fillStyle = RAMPS.gold[4]
-      g.fillRect(x, y, 1, 1)
-    }
-    g.restore()
-  }
-
-  private paintMoon(
-    k: CanvasRenderingContext2D,
-    x: number,
-    y: number,
-    r: number,
-  ) {
-    glow(k, x, y, r * 3.2, RAMPS.cream[3], 0.28)
-    shadedOrb(k, x, y, r, RAMPS.cream, { glint: false })
-    // The night side, faint with earthshine, and a few craters.
-    k.save()
-    k.beginPath()
-    k.arc(x, y, r, 0, Math.PI * 2)
-    k.clip()
-    k.fillStyle = RAMPS.cream[1]
-    for (const [cx, cy, cr] of [
-      [-8, 6, 2.5],
-      [-11, -2, 1.5],
-      [-4, 11, 1.5],
-    ] as const) {
-      k.beginPath()
-      k.arc(x + cx, y + cy, cr, 0, Math.PI * 2)
-      k.fill()
-    }
-    k.fillStyle = mix(RAMPS.night[2], RAMPS.night[3], 0.5)
-    k.beginPath()
-    k.arc(x + 7, y - 5, r - 2, 0, Math.PI * 2)
-    k.fill()
-    k.fillStyle = rgba(RAMPS.night[4], 0.35)
-    k.fillRect(x + 1, y - 13, 6, 1)
-    k.restore()
-    k.fillStyle = '#ffffff'
-    k.fillRect(x - 13, y + 2, 2, 2)
-  }
-
-  private paintAcacia(
-    k: CanvasRenderingContext2D,
-    x: number,
-    h: number,
-    w: number,
-  ) {
-    const base = GROUND
-    k.fillStyle = INK
-    k.fillRect(x - 2, base - h, 4, h)
-    k.fillStyle = RAMPS.night[0]
-    k.fillRect(x - 1, base - h, 2, h)
-    // Forked branches up to a flat crown.
-    k.fillStyle = INK
-    for (let i = 0; i < 6; i++) {
-      k.fillRect(x - 3 - i, base - h + 4 - i, 2, 2)
-      k.fillRect(x + 1 + i, base - h + 3 - i, 2, 2)
-    }
-    const crown = (
-      dx: number,
-      dy: number,
-      rw: number,
-      ry: number,
-      c: string,
-    ) => {
-      k.fillStyle = c
-      k.beginPath()
-      k.ellipse(x + dx, base - h - 4 + dy, rw, ry, 0, 0, Math.PI * 2)
-      k.fill()
-    }
-    crown(0, 0, w / 2 + 1, 4, INK)
-    crown(0, 0, w / 2, 3, RAMPS.night[1])
-    crown(3, -1, w / 2 - 4, 2, RAMPS.night[2])
-    k.fillStyle = RAMPS.night[4]
-    k.fillRect(x + 4, base - h - 7, Math.round(w / 2) - 5, 1)
-  }
-
-  private paintHut(k: CanvasRenderingContext2D, cx: number) {
-    const x = Math.round(cx)
-    const wallTop = GROUND - 14
-    // Mud walls: lit on the moon side (right), shadowed on the left.
-    k.fillStyle = INK
-    k.fillRect(x - 11, wallTop - 1, 22, 16)
-    bandedGradient(
-      k,
-      x - 10,
-      wallTop,
-      20,
-      14,
-      [NIGHT_MUD[3], NIGHT_MUD[2], NIGHT_MUD[1]],
-      2,
-    )
-    k.fillStyle = NIGHT_MUD[1]
-    k.fillRect(x - 10, wallTop, 4, 14)
-    k.fillStyle = NIGHT_MUD[4]
-    k.fillRect(x + 9, wallTop, 1, 14)
-    // Doorway.
-    k.fillStyle = INK
-    k.fillRect(x + 4, wallTop + 6, 4, 8)
-    // A conical thatch roof in stripes, outlined.
-    const apex = wallTop - 13
-    const roof = (grow: number) => {
-      k.beginPath()
-      k.moveTo(x - 14 - grow, wallTop + 1 + grow * 0.5)
-      k.lineTo(x, apex - grow)
-      k.lineTo(x + 14 + grow, wallTop + 1 + grow * 0.5)
-      k.closePath()
-    }
-    k.fillStyle = INK
-    roof(1.5)
-    k.fill()
-    k.save()
-    roof(0)
-    k.clip()
-    bandedGradient(
-      k,
-      x - 15,
-      apex,
-      30,
-      wallTop - apex + 2,
-      [NIGHT_THATCH[3], NIGHT_THATCH[2], NIGHT_THATCH[1]],
-      3,
-    )
-    k.fillStyle = NIGHT_THATCH[0]
-    for (let r = apex + 4; r < wallTop; r += 4) k.fillRect(x - 15, r, 30, 1)
-    k.fillStyle = rgba(NIGHT_THATCH[0], 0.6)
-    k.fillRect(x - 15, apex, 13, wallTop - apex + 2)
-    k.restore()
-    k.fillStyle = NIGHT_THATCH[4]
-    for (let i = 0; i < 12; i++) {
-      k.fillRect(x + 1 + i, apex + 1 + Math.round(i * 0.93), 1, 1)
-    }
-  }
-
-  private renderButterfly(g: CanvasRenderingContext2D) {
-    const ship = this.ship
-    const open = 0.55 + 0.45 * Math.abs(Math.sin(this.flap))
-    glow(g, ship.x, ship.y, 24, RAMPS.pink[3], 0.32)
-    g.save()
-    g.translate(ship.x, ship.y)
-    g.rotate(ship.angle)
-    const wings = () => {
-      g.beginPath()
-      g.ellipse(6, -4, 7, 6, -0.5, 0, Math.PI * 2)
-      g.ellipse(5, 5, 5, 4, 0.5, 0, Math.PI * 2)
-    }
-    for (const side of [-1, 1]) {
-      g.save()
-      g.scale(side * open, 1)
-      // Ink outline, then rainbow bands radiating from the body.
-      g.strokeStyle = INK
-      g.lineWidth = 2.4
-      wings()
-      g.stroke()
-      g.save()
-      wings()
-      g.clip()
-      RAINBOW.forEach((colour, i) => {
-        g.fillStyle = colour
-        g.beginPath()
-        g.arc(0, 0, 16 - i * 2, 0, Math.PI * 2)
-        g.fill()
-      })
-      // Hindwings sit in shadow; the forewing's leading edge catches the light.
-      g.fillStyle = rgba(INK, 0.32)
-      g.beginPath()
-      g.ellipse(5, 7, 6, 4, 0.5, 0, Math.PI * 2)
-      g.fill()
-      g.fillStyle = rgba('#ffffff', 0.35)
-      g.beginPath()
-      g.ellipse(7, -8, 5, 2, -0.5, 0, Math.PI * 2)
-      g.fill()
-      g.restore()
-      // Wing veins and the white eyespots.
-      g.strokeStyle = rgba(INK, 0.55)
-      g.lineWidth = 0.8
-      g.beginPath()
-      g.moveTo(1, -1)
-      g.lineTo(11, -8)
-      g.moveTo(1, 1)
-      g.lineTo(8, 6)
-      g.stroke()
-      g.fillStyle = INK
-      g.beginPath()
-      g.arc(9, -6, 1.8, 0, Math.PI * 2)
-      g.fill()
-      g.fillStyle = '#ffffff'
-      g.beginPath()
-      g.arc(9, -6, 1.1, 0, Math.PI * 2)
-      g.arc(6, 6, 0.9, 0, Math.PI * 2)
-      g.fill()
-      g.restore()
-    }
-    // A shaded, segmented body, a round head and gold-tipped antennae.
-    g.fillStyle = INK
-    g.beginPath()
-    g.ellipse(0, 1, 2.8, 8.5, 0, 0, Math.PI * 2)
-    g.fill()
-    g.fillStyle = RAMPS.purple[1]
-    g.beginPath()
-    g.ellipse(0, 1, 1.8, 7.5, 0, 0, Math.PI * 2)
-    g.fill()
-    g.fillStyle = RAMPS.purple[3]
-    g.beginPath()
-    g.ellipse(-0.6, 0, 0.8, 5.5, 0, 0, Math.PI * 2)
-    g.fill()
-    g.fillStyle = INK
-    for (const y of [2, 4.5, 7]) g.fillRect(-1.8, y, 3.6, 0.7)
-    g.strokeStyle = INK
-    g.lineWidth = 1.2
-    g.beginPath()
-    g.moveTo(-1, -8)
-    g.quadraticCurveTo(-2, -12, -4.5, -13)
-    g.moveTo(1, -8)
-    g.quadraticCurveTo(2, -12, 4.5, -13)
-    g.stroke()
-    shadedOrb(g, -4.5, -13, 1.2, RAMPS.gold, { glint: false })
-    shadedOrb(g, 4.5, -13, 1.2, RAMPS.gold, { glint: false })
-    shadedOrb(g, 0, -7.5, 2.4, RAMPS.purple, { glint: false })
-    g.restore()
-    if (
-      this.shield > 0 &&
-      (this.shield > 90 || Math.floor(this.shield / 8) % 2 === 0)
-    ) {
-      glow(g, ship.x, ship.y, 22, RAMPS.teal[3], 0.3)
-      this.renderMesh(g, ship.x, ship.y, 15, this.tickCount / 40)
-    }
-  }
-
-  /** AMI's bed net: a shaded hoop with a fine mesh across it. */
-  private renderMesh(
-    g: CanvasRenderingContext2D,
-    x: number,
-    y: number,
-    r: number,
-    spin: number,
-  ) {
-    g.save()
-    g.translate(x, y)
-    g.fillStyle = rgba(RAMPS.sky[4], 0.12)
-    g.beginPath()
-    g.arc(0, 0, r, 0, Math.PI * 2)
-    g.fill()
-    g.save()
-    g.clip()
-    g.rotate(spin)
-    g.lineWidth = 1
-    const mesh = (offset: number, colour: string) => {
-      g.strokeStyle = colour
-      g.beginPath()
-      for (let i = -r + 4; i < r; i += 4) {
-        g.moveTo(i + offset, -r)
-        g.lineTo(i + offset, r)
-        g.moveTo(-r, i + offset)
-        g.lineTo(r, i + offset)
-      }
-      g.stroke()
-    }
-    mesh(0.8, rgba(INK, 0.45))
-    mesh(0, rgba(RAMPS.cream[3], 0.75))
-    g.restore()
-    // The hoop: ink, then the cloth's lit and shadowed rims.
-    g.lineWidth = 3
-    g.strokeStyle = INK
-    g.beginPath()
-    g.arc(0, 0, r, 0, Math.PI * 2)
-    g.stroke()
-    g.lineWidth = 1.5
-    g.strokeStyle = RAMPS.cream[1]
-    g.beginPath()
-    g.arc(0, 0, r, 0, Math.PI * 2)
-    g.stroke()
-    g.strokeStyle = RAMPS.cream[4]
-    g.beginPath()
-    g.arc(0, 0, r, Math.PI * 0.95, Math.PI * 1.7)
-    g.stroke()
-    g.restore()
-  }
-
-  private renderMosquito(
-    g: CanvasRenderingContext2D,
-    x: number,
-    y: number,
-    heading: number,
-    big: boolean,
-    buzz: number,
-  ) {
-    const frames = big ? SKEETER_BIG : SKEETER_SMALL
-    drawSprite(g, buzz ? frames[0] : frames[1], x, y, {
-      flipX: Math.cos(heading) < 0,
-    })
-  }
-
-  private renderSwarm(g: CanvasRenderingContext2D, swarm: Swarm) {
-    const r = SWARM_RADIUS[swarm.size]
-    const heading = Math.atan2(swarm.vy, swarm.vx)
-    if (swarm.size === 1) {
-      this.renderMosquito(
-        g,
-        swarm.x,
-        swarm.y,
-        heading,
-        true,
-        this.tickCount % 4 < 2 ? 1 : 0,
-      )
-      return
-    }
-    // The sickly haze the swarm hums in.
-    const haze = g.createRadialGradient(
-      swarm.x,
-      swarm.y,
-      r * 0.2,
-      swarm.x,
-      swarm.y,
-      r * 1.15,
-    )
-    haze.addColorStop(0, rgba(SICK[2], 0.2))
-    haze.addColorStop(0.7, rgba(SICK[1], 0.12))
-    haze.addColorStop(1, rgba(SICK[1], 0))
-    g.fillStyle = haze
-    g.beginPath()
-    g.arc(swarm.x, swarm.y, r * 1.15, 0, Math.PI * 2)
-    g.fill()
-    const count = SWARM_COUNT[swarm.size]
-    for (let i = 0; i < count; i++) {
-      const orbit =
-        swarm.seed + i * 2.4 + this.tickCount * (0.04 + (i % 3) * 0.015)
-      const radius = r * (0.35 + ((i * 37) % 10) / 16)
-      const mx =
-        swarm.x +
-        Math.cos(orbit) * radius +
-        Math.sin(this.tickCount * 0.9 + i) * 1.2
-      const my = swarm.y + Math.sin(orbit * 1.3) * radius * 0.8
-      this.renderMosquito(
-        g,
-        mx,
-        my,
-        orbit + Math.PI / 2,
-        false,
-        (this.tickCount + i) % 4 < 2 ? 1 : 0,
-      )
-    }
-  }
-
-  private renderCloud(g: CanvasRenderingContext2D, cloud: Cloud) {
-    const s = cloud.small ? 0.6 : 1
-    const size = 13 * s
-    const bob = Math.round(Math.sin(this.tickCount / 9) * 1.5)
-    const y = cloud.y + bob
-    glow(g, cloud.x, y, 34 * s, SICK[3], 0.3)
-    cloudOutline(g, cloud.x, y, size)
-    drawCloud(g, cloud.x, y, size, SICK)
-    // A scowling face.
-    g.save()
-    g.translate(Math.round(cloud.x), Math.round(y))
-    g.scale(s, s)
-    g.fillStyle = INK
-    g.fillRect(-8, -4, 6, 5)
-    g.fillRect(2, -4, 6, 5)
-    g.fillStyle = SICK[4]
-    g.fillRect(-7, -3, 4, 3)
-    g.fillRect(3, -3, 4, 3)
-    g.fillStyle = RAMPS.ember[2]
-    g.fillRect(-5, -2, 2, 2)
-    g.fillRect(3, -2, 2, 2)
-    g.fillStyle = INK
-    // Angry brows and a jagged frown.
-    g.fillRect(-9, -7, 3, 1)
-    g.fillRect(-6, -6, 3, 1)
-    g.fillRect(3, -6, 3, 1)
-    g.fillRect(6, -7, 3, 1)
-    g.fillRect(-5, 5, 10, 2)
-    g.fillStyle = SICK[4]
-    g.fillRect(-3, 5, 1, 1)
-    g.fillRect(2, 5, 1, 1)
-    g.restore()
-  }
-
-  private renderFairy(g: CanvasRenderingContext2D, fairy: Fairy) {
-    const flutter = Math.floor(this.tickCount / 5) % 2
-    const facing = fairy.vx > 0 ? 1 : -1
-    const wand = { x: fairy.x + facing * 9, y: fairy.y + 2 }
-    glow(g, fairy.x, fairy.y, 20, RAMPS.sky[3], 0.25)
-    drawSprite(g, flutter ? AMI_SPRITES[1] : AMI_SPRITES[0], fairy.x, fairy.y, {
-      flipX: facing < 0,
-    })
-    // The wand, with a twinkling star on its tip.
-    const stick = Math.round(Math.min(fairy.x + facing * 3, wand.x))
-    g.fillStyle = INK
-    g.fillRect(stick - 1, Math.round(fairy.y + 2), 8, 3)
-    g.fillStyle = RAMPS.gold[2]
-    g.fillRect(stick, Math.round(fairy.y + 3), 6, 1)
-    const pulse = 0.55 + 0.25 * Math.sin(this.tickCount / 4)
-    glow(g, wand.x, wand.y, 10, RAMPS.gold[3], pulse)
-    const wx = Math.round(wand.x)
-    const wy = Math.round(wand.y)
-    g.fillStyle = RAMPS.gold[4]
-    g.fillRect(wx - 2, wy, 5, 1)
-    g.fillRect(wx, wy - 2, 1, 5)
-    g.fillStyle = '#ffffff'
-    g.fillRect(wx, wy, 1, 1)
-    if (fairy.carrying) this.renderMesh(g, fairy.x, fairy.y + 15, 6, 0)
-  }
-
-  private renderNet(g: CanvasRenderingContext2D, net: Net) {
-    glow(g, net.x, net.y, 16, RAMPS.sky[4], 0.35)
-    this.renderMesh(g, net.x, net.y, 9, net.spin)
-    // A twinkle orbiting the falling net says "catch me".
-    const a = this.tickCount / 8
-    const tx = Math.round(net.x + Math.cos(a) * 12)
-    const ty = Math.round(net.y + Math.sin(a) * 12)
-    g.fillStyle = RAMPS.sky[4]
-    g.fillRect(tx - 1, ty, 3, 1)
-    g.fillRect(tx, ty - 1, 1, 3)
-  }
-
-  private renderSparkle(g: CanvasRenderingContext2D, shot: Shot) {
-    const colour = RAINBOW[shot.hue % RAINBOW.length]!
-    const x = Math.round(shot.x)
-    const y = Math.round(shot.y)
-    // A short comet tail of fading afterimages.
-    for (let i = 3; i >= 1; i--) {
-      g.globalAlpha = 0.18 * (4 - i)
-      g.fillStyle = colour
-      g.fillRect(
-        Math.round(shot.x - shot.vx * i * 0.45),
-        Math.round(shot.y - shot.vy * i * 0.45),
-        2,
-        2,
-      )
-    }
-    g.globalAlpha = 1
-    glow(g, x, y, 9, colour, 0.65)
-    const diagonal = (this.tickCount + shot.hue) % 8 < 4
-    g.fillStyle = INK
-    g.fillRect(x - 1, y - 1, 3, 3)
-    g.fillStyle = colour
-    if (diagonal) {
-      for (const d of [-2, 2]) {
-        g.fillRect(x + d, y + d, 1, 1)
-        g.fillRect(x + d, y - d, 1, 1)
-      }
-      g.fillRect(x - 1, y - 1, 3, 3)
-    } else {
-      g.fillRect(x - 3, y, 7, 1)
-      g.fillRect(x, y - 3, 1, 7)
-    }
-    g.fillStyle = '#ffffff'
-    g.fillRect(x, y, 1, 1)
+    if (this.tally) this.renderTally(g, this.tally)
   }
 
   private renderHud(g: CanvasRenderingContext2D) {
@@ -1519,16 +1281,16 @@ class ButterflyBlaster implements ArcadeGameInstance {
     if (lives > 0) {
       hudPanel(g, W - 8 - lives * 14, 3, lives * 14 + 4, 21, RAMPS.pink)
       for (let i = 0; i < lives; i++) {
-        const bob = Math.round(Math.sin(this.tickCount / 12 + i) * 0.6)
+        const bob = Math.round(Math.sin(this.tick / 12 + i) * 0.6)
         drawSprite(g, LIFE_SPRITE, W - 13 - i * 14, 13 + bob)
       }
     }
-    hudPanel(g, 4, H - 19, 60, 15)
-    drawText(g, `WAVE ${this.level}`, 10, H - 15, {
-      color: RAMPS.purple[4],
-      outline: INK,
-    })
-    const safe = `VILLAGES SAFE ${this.villages}`
+    const night = `NIGHT ${this.level}  ${this.wave + 1}/${this.plan.waves.length}`
+    const nightW = night.length * 6 + 10
+    hudPanel(g, 4, H - 19, nightW, 15)
+    drawText(g, night, 10, H - 15, { color: RAMPS.purple[4], outline: INK })
+    const unbitten = this.huts.filter((h) => h.bites === 0).length
+    const safe = `UNBITTEN ${unbitten}`
     const safeW = safe.length * 6 + 10
     hudPanel(g, W - 4 - safeW, H - 19, safeW, 15, RAMPS.gold)
     drawText(g, safe, W - 10, H - 15, {
@@ -1538,14 +1300,15 @@ class ButterflyBlaster implements ArcadeGameInstance {
     })
     if (this.shield > 0) {
       hudPanel(g, W / 2 - 60, H - 19, 120, 15, RAMPS.teal)
-      drawText(g, 'NET', W / 2 - 54, H - 15, {
-        color: RAMPS.teal[4],
-        outline: INK,
-      })
+      drawText(g, 'NET', W / 2 - 54, H - 15, { color: RAMPS.teal[4], outline: INK })
       gauge(g, W / 2 - 30, H - 15, 84, 7, this.shield / SHIELD_TICKS, RAMPS.sky)
+    } else if (this.bCooldown > 0) {
+      hudPanel(g, W / 2 - 40, H - 19, 80, 15, RAMPS.purple)
+      drawText(g, 'B', W / 2 - 34, H - 15, { color: RAMPS.purple[4], outline: INK })
+      gauge(g, W / 2 - 24, H - 15, 58, 7, 1 - this.bCooldown / DASH.cooldown, RAMPS.pink)
     }
     if (this.banner) {
-      drawText(g, this.banner.text, W / 2, H / 2 - 30, {
+      drawText(g, this.banner.text, W / 2, H / 2 - 40, {
         scale: 3,
         align: 'center',
         color: '#ffffff',
@@ -1553,7 +1316,7 @@ class ButterflyBlaster implements ArcadeGameInstance {
         shadow: RAMPS.pink[1],
       })
       if (this.banner.sub) {
-        drawText(g, this.banner.sub, W / 2, H / 2 + 2, {
+        drawText(g, this.banner.sub, W / 2, H / 2 - 8, {
           scale: 2,
           align: 'center',
           color: RAMPS.gold[3],
@@ -1562,7 +1325,61 @@ class ButterflyBlaster implements ArcadeGameInstance {
       }
     }
   }
+
+  private renderTally(g: CanvasRenderingContext2D, tally: Tally) {
+    const t = DAWN_TICKS - this.phaseTicks
+    const x = W / 2 - 150
+    const y = 70
+    const rows = tally.rows.length
+    const h = 74 + rows * 18 + (tally.perfect ? 18 : 0)
+    hudPanel(g, x, y, 300, h, RAMPS.gold)
+    drawText(g, 'DAWN', W / 2, y + 8, {
+      scale: 3,
+      align: 'center',
+      color: '#ffffff',
+      outline: INK,
+      shadow: RAMPS.rust[1],
+    })
+    drawText(g, `NIGHT ${this.level} IS OVER`, W / 2, y + 34, {
+      align: 'center',
+      color: RAMPS.gold[4],
+      outline: INK,
+    })
+    tally.rows.forEach((row, i) => {
+      if (t < 40 + i * 30) return
+      const ry = y + 50 + i * 18
+      drawText(g, row.label, x + 14, ry, { color: RAMPS.cream[3], outline: INK, scale: 1 })
+      const text =
+        row.count === 1 && row.label.endsWith('!')
+          ? `+${row.each}`
+          : `${row.count} X ${row.each}`
+      drawText(g, text, x + 286, ry, {
+        align: 'right',
+        color: RAMPS.gold[4],
+        outline: INK,
+      })
+    })
+    if (t >= 40 + rows * 30) {
+      const ry = y + 50 + rows * 18
+      if (tally.perfect) {
+        drawText(g, '+1 BUTTERFLY FROM THE VILLAGE', W / 2, ry, {
+          align: 'center',
+          color: RAMPS.pink[3],
+          outline: INK,
+        })
+      }
+      drawText(g, `THANK YOU! ${tally.total}`, W / 2, ry + (tally.perfect ? 18 : 2), {
+        scale: 2,
+        align: 'center',
+        color: '#ffffff',
+        outline: INK,
+      })
+    }
+  }
 }
+
+/** Every pest kind the game knows, for tests. */
+export const PEST_KINDS: readonly PestKind[] = ['wriggler', 'skimmer', 'needle']
 
 const butterflyBlaster: ArcadeGameModule = {
   create: (options) => new ButterflyBlaster(options),

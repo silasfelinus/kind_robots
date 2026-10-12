@@ -182,7 +182,12 @@ export function readJoustSave(raw: unknown): JoustSave | null {
   if (s.v !== 1) return null
   const arena = int(s.arena, 0, 999)
   const score = int(s.score, 0, 250_000_000)
-  const lives = int(s.lives, 1, 99)
+  // Lives past 99 (written before keep() clamped them) read as 99 rather than losing the save.
+  const lives = int(
+    typeof s.lives === 'number' ? Math.min(99, s.lives) : s.lives,
+    1,
+    99,
+  )
   const pollen = int(s.pollen, 0, 99_999)
   const spares = int(s.spares, 0, 999)
   const seats = int(s.seats, 1, 4)

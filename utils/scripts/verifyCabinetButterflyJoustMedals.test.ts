@@ -8,7 +8,11 @@ import { mulberry32 } from '../arcade/curve'
 import { emptyInput } from '../arcade/types'
 import type { InputFrame } from '../arcade/types'
 import { create } from '../arcade/games/butterflyJoust'
-import { ARENAS, RAINBOW_LISTS } from '../arcade/butterflyJoust/arenas'
+import {
+  ARENAS,
+  PETAL_ARENAS,
+  RAINBOW_LISTS,
+} from '../arcade/butterflyJoust/arenas'
 import { readJoustSave } from '../arcade/butterflyJoust/campaign'
 import type { JoustSave } from '../arcade/butterflyJoust/campaign'
 import {
@@ -65,6 +69,9 @@ type Inner = {
   nextWave(): void
   checkWave(): void
   loseLife(r: Rider): void
+  afterClear(): void
+  petals: string[]
+  cleared: boolean
 }
 
 const quiet = { play() {} }
@@ -427,6 +434,63 @@ function ring(g: Inner, seconds: number) {
   assert.equal(d.score, 0)
   assert.deepEqual(d.medals, {})
   assert.equal(d.save, undefined)
+}
+
+// --- save round trips (the review of #3575) ----------------------------------------------------
+{
+  // All five petals: besting the Mirror Moth opens the Rainbow Lists, and that is already the
+  // clear. Quit in the Lists, or lose there, and the reload still offers Champion's Circuit.
+  const moonBout = ARENAS.find((a) => a.id === 'moon')!.waves.length + 1
+  for (const leave of ['quit', 'game over'] as const) {
+    const g = stage('moon', moonBout)
+    g.petals = [...PETAL_ARENAS]
+    g.champion = { done: true, busy: () => false }
+    ring(g, 10)
+    g.afterClear()
+    assert.equal(g.arena.id, RAINBOW_LISTS.id, 'five petals open the Lists')
+    assert.equal(g.cleared, true, 'the clear is won with the Mirror Moth')
+    if (leave === 'game over') {
+      g.lives = 1
+      for (const r of g.riders) r.invuln = 0
+      g.loseLife(g.riders[0]!)
+      assert.equal(g.lives, 0)
+    }
+    const saved = readJoustSave(g.save) as JoustSave
+    assert.equal(saved.cleared, true, `${leave} in the Lists keeps the clear`)
+    const back = game({ resume: g.save })
+    assert.equal(back.cleared, true)
+    assert.ok(
+      back.menuRows().some((r) => r.id === 'circuit'),
+      `${leave} in the Lists: the card offers Champion's Circuit`,
+    )
+  }
+  // Fewer petals: the plain ending has always kept the clear.
+  const plain = stage('moon', moonBout)
+  plain.champion = { done: true, busy: () => false }
+  ring(plain, 10)
+  plain.afterClear()
+  assert.equal((readJoustSave(plain.save) as JoustSave).cleared, true)
+}
+{
+  // A long run's spares past 99 lives: the save clamps them and the profile survives.
+  const g = stage('sunset', 1)
+  ring(g, 5)
+  g.cleared = true
+  g.lives = 120
+  g.startArena(1)
+  const saved = readJoustSave(g.save) as JoustSave
+  assert.ok(saved, 'a save with 120 lives still reads')
+  assert.equal(saved.lives, 99)
+  const back = game({ resume: g.save })
+  assert.equal(back.cleared, true, 'the clear is kept')
+  assert.ok(back.medals['sunset-1'], 'the medals are kept')
+  assert.ok(back.menuRows().some((r) => r.id === 'continue'))
+  // A save written before the clamp (lives past 99) reads as 99 instead of being thrown away.
+  const old = readJoustSave({ ...(g.save as object), lives: 120 }) as JoustSave
+  assert.ok(old, 'an over-99 save is rescued')
+  assert.equal(old.lives, 99)
+  assert.ok(old.medals['sunset-1'])
+  assert.equal(readJoustSave({ ...(g.save as object), lives: 0 }), null)
 }
 
 console.log('verifyCabinetButterflyJoustMedals: ok')

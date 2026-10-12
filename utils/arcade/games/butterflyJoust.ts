@@ -847,7 +847,8 @@ class ButterflyJoust implements ArcadeGameInstance {
       v: 1,
       arena: this.arenaIndex,
       score: this.score,
-      lives: Math.max(1, this.lives),
+      // The save reads lives up to 99 (campaign.ts); a long run's spares can pass that.
+      lives: Math.max(1, Math.min(99, this.lives)),
       pollen: this.pollen,
       up: { ...this.up },
       spares: this.spares,
@@ -1256,10 +1257,14 @@ class ButterflyJoust implements ArcadeGameInstance {
         return
       }
       if (this.arena.id === 'moon') {
-        // Five golden petals open the Rainbow Lists before the end.
-        if (PETAL_ARENAS.every((id) => this.petals.includes(id)))
+        // Five golden petals open the Rainbow Lists before the end. Besting the Mirror Moth is
+        // the clear either way: kept now, so a game over or a quit in the Lists still has it.
+        if (PETAL_ARENAS.every((id) => this.petals.includes(id))) {
+          this.cleared = true
+          if (this.saveData && !this.demo)
+            this.saveData = { ...this.saveData, cleared: true }
           this.openArena(RAINBOW_LISTS)
-        else this.startEnding(false)
+        } else this.startEnding(false)
         return
       }
       this.hint = false

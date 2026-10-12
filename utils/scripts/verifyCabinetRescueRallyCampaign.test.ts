@@ -418,7 +418,7 @@ const aimAt = (x: number, y: number) => {
   const meta = ARCADE_GAMES.find((g) => g.slug === 'rescue-rally')!
   const game = fresh(3)
   let shelters = 0
-  for (let t = 0; t < 60 * 60 * 30 && !game.over; t++) {
+  for (let t = 0; t < 60 * 60 * 45 && !game.over; t++) {
     const was = !!game.shelter
     game.update(game.demoInput())
     if (!was && game.shelter) shelters++

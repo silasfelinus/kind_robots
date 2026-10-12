@@ -8,6 +8,7 @@
 //
 // Fixed 60 Hz arcade ticks run two 1/120 s physics steps each.
 
+import { attractLeds, prefersReducedMotion } from './rules/leds'
 import type {
   ArcadeGameOptions,
   ArcadeWebGLGameInstance,
@@ -98,6 +99,8 @@ export class PinballRuntime<
   /** ...and has decided to miss this one. */
   private pilotMisses = false
   private demo: boolean
+  /** Reduced motion: the LED rail holds its colours (rules/leds.ts). */
+  private reducedMotion = prefersReducedMotion()
   private factory: RendererFactory
   private pull = 0
   private nudgeCooldown = 0
@@ -243,6 +246,7 @@ export class PinballRuntime<
         multiplier: this.rules.bonusMultiplier,
         attract: this.demo,
         highScore: this.hiScore,
+        pages: this.physics.table.attract,
       },
       this.dmdQueue.now,
     )
@@ -278,6 +282,18 @@ export class PinballRuntime<
           this.tick,
         )
     this.scene.setLamps(frame.lamps, frame.gi)
+    const rail = table.ledRail
+    if (rail && this.ruleset.leds)
+      this.scene.setLeds(
+        this.demo
+          ? attractLeds(rail.count, this.steps, this.reducedMotion)
+          : this.ruleset.leds(
+              this.rules,
+              this.steps,
+              rail.count,
+              this.reducedMotion,
+            ),
+      )
     const poses = this.ruleset.animatronics?.(this.rules, this.steps)
     if (poses) this.scene.setAnimatronics(poses)
     // The skill shot's arrow flashes until the first shot after the plunge.

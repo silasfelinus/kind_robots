@@ -4,7 +4,9 @@ import { fileURLToPath } from 'node:url'
 import { JOURNEY_WORLD } from '../shiftingLands/journey'
 import { findFiveLandCard } from '../shiftingLands/authoredFiveLands'
 import {
+  BESPOKE_CARDS,
   ENCOUNTER_ART,
+  bespokeArt,
   LAND_SCENERY,
   LOCATION_ART,
   TRIAL_ART,
@@ -67,8 +69,27 @@ for (const id of encounterIds) {
   const card = findFiveLandCard(id)
   assert.ok(card, id)
   assert.equal(card!.art, null, 'authored packs stay unpainted for t-023')
-  assert.equal(encounterArt('homestead', card, null), ENCOUNTER_ART[id])
+  assert.equal(
+    encounterArt('homestead', card, null),
+    bespokeArt(id) ?? ENCOUNTER_ART[id],
+  )
 }
+
+const trialIds = JOURNEY_WORLD.lands.map((land) => 'trial-' + land.id)
+assert.equal(new Set(BESPOKE_CARDS).size, BESPOKE_CARDS.length)
+for (const id of BESPOKE_CARDS) {
+  assert.ok(
+    encounterIds.includes(id) || trialIds.includes(id),
+    id + ' is not an authored encounter or trial-<land>',
+  )
+  shipped(bespokeArt(id)!)
+}
+for (const land of JOURNEY_WORLD.lands)
+  if (BESPOKE_CARDS.includes('trial-' + land.id))
+    assert.equal(
+      trialArt(land.id, land.boss.art),
+      bespokeArt('trial-' + land.id),
+    )
 
 const board = readFileSync(
   toPath('../../components/shifting-lands-journey-board.vue'),

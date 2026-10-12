@@ -39,6 +39,30 @@ const arch: XZ[] = Array.from({ length: 25 }, (_, step) => {
   return [0.02 + Math.cos(theta) * 0.28, -0.72 + Math.sin(theta) * 0.25]
 })
 
+/** Where the River Croc lies (x, z): his LEDs on the rail sit beside him. */
+export const CROC_XZ: readonly [number, number] = CROC
+
+/**
+ * The LED rail (t-012): up the inside of the left wall, round under the
+ * arch and down the right wall, just inside the cabinet's edge.
+ */
+export const ZUZU_LED_RAIL: {
+  points: Array<[number, number]>
+  count: number
+  y: number
+} = {
+  points: [
+    [LEFT + 0.012, -0.12],
+    ...Array.from({ length: 25 }, (_, step): [number, number] => {
+      const theta = Math.PI + (step * Math.PI) / 24
+      return [0.02 + Math.cos(theta) * 0.268, -0.72 + Math.sin(theta) * 0.238]
+    }),
+    [RIGHT - 0.008, -0.12],
+  ],
+  count: 96,
+  y: 0.058,
+}
+
 // The Abbey (t-006): a clear raised deck on the right, level with the Bell
 // spiral's end, so the spiral's ball rolls out onto it instead of off the
 // cabinet. Two small upper flippers at its foot shoot at three hollow
@@ -1109,6 +1133,13 @@ export const ZUZU_LAST_BELL_GREYBOX: TableDef = {
   drainZ: BOTTOM - 0.03,
   balls: 3,
   dmd: { at: [0.02, 0.2, -1.04], width: 0.3, occluder: 'backbox' },
+  ledRail: ZUZU_LED_RAIL,
+  attract: {
+    title: 'ZUZU',
+    kicker: 'THE',
+    subtitle: 'LAST BELL',
+    picture: 'jaws',
+  },
   zones: [
     {
       id: 'sub-table',

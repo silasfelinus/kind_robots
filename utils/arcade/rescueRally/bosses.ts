@@ -11,14 +11,28 @@
 // - The Jack-in-the-Box (Toy Factory): a box that pops up where its shadow falls. Phase 1 its spring
 //   head lunges along a line it shows first. Phase 2 the lid fires confetti fans between lunges.
 //   Phase 3 it rolls like a die, and the face that lands up picks its next attack.
+// - Overgrowth, the Static Twins and the Glitch Core (districts 3-5) are in bossesLate.ts.
 
 import { levelCurve } from '../curve'
 import type { ArcadeSoundName } from '../sound'
 import { ARENA, CX, CY, clampToArena, dist, toward } from './arena'
 import type { Point } from './arena'
 import type { FoeKind, Quarry } from './roster'
+import { segmentDistance } from './floors'
+import {
+  LINK_APART,
+  PETALS,
+  PETAL_HP,
+  petalSpot,
+  stepCore,
+  stepOvergrowth,
+  stepTwins,
+  stepWhips,
+  whipLive,
+  WHIP_REACH,
+} from './bossesLate'
 
-export type BossKind = 'windup' | 'jack'
+export type BossKind = 'windup' | 'jack' | 'overgrowth' | 'twins' | 'core'
 
 export type BossSpec = {
   name: string
@@ -41,7 +55,36 @@ export const BOSSES: Record<BossKind, BossSpec> = {
     points: 30_000,
     radius: 16,
   },
+  overgrowth: {
+    name: 'OVERGROWTH',
+    hp: [PETALS * PETAL_HP, 60, 60],
+    points: 35_000,
+    radius: 18,
+  },
+  twins: {
+    name: 'THE STATIC TWINS',
+    hp: [36, 76, 48],
+    points: 40_000,
+    radius: 12,
+  },
+  core: {
+    name: 'THE GLITCH CORE',
+    hp: [50, 40, 64],
+    points: 60_000,
+    radius: 14,
+  },
 }
+
+/** A root whip: its line, and ticks left (it shows first, then lashes). */
+export type Whip = {
+  x0: number
+  y0: number
+  x1: number
+  y1: number
+  clock: number
+}
+/** One of the Static Twins. */
+export type Twin = { x: number; y: number; hp: number; clock: number }
 
 /**
  * A stomp's shockwave: a ring spreading over the floor, broken by gaps (angles, radians) the hero can
@@ -92,6 +135,15 @@ export type Boss = {
   left: number
   /** The safe lanes of the Big Wind-Up's next stomp. */
   gaps: number[]
+  /** Overgrowth's petals (hits left on each) and every root whip on the floor. */
+  petals: number[]
+  whips: Whip[]
+  /** The Static Twins. */
+  twins: Twin[]
+  /** The Glitch Core's four shield gaps (angles), whether it is shut tight, and its next echo. */
+  rings: number[]
+  guard: boolean
+  echo: number
 }
 
 export type BossWorld = {
@@ -103,6 +155,8 @@ export type BossWorld = {
   hatch(kind: FoeKind, at: Point): void
   /** How many of a kind are about (so a hatch never floods the arena). */
   count(kind: FoeKind): number
+  /** The Glitch Core glitches every rescuee in the arena at once. */
+  glitchAll(): void
   sound(name: ArcadeSoundName): void
 }
 
@@ -147,29 +201,112 @@ export function newBoss(kind: BossKind, at: Point, rng: () => number): Boss {
     face: 1,
     left: 0,
     gaps: [],
+    petals: kind === 'overgrowth' ? Array(PETALS).fill(PETAL_HP) : [],
+    whips: [],
+    twins:
+      kind === 'twins'
+        ? [
+            { x: at.x - 40, y: at.y, hp: 38, clock: 0 },
+            { x: at.x + 40, y: at.y, hp: 38, clock: 35 },
+          ]
+        : [],
+    rings: kind === 'core' ? [0] : [],
+    guard: false,
+    echo: 0,
   }
 }
 
 /** Where a beam can reach the boss: its spots, and whether each hurts (the rest just clank). */
-export function bossTargets(
-  b: Boss,
-): Array<{ x: number; y: number; r: number; hurts: boolean }> {
+export type BossTarget = {
+  id: string
+  x: number
+  y: number
+  r: number
+  hurts: boolean
+}
+
+export function bossTargets(b: Boss): BossTarget[] {
   if (b.down) return []
   switch (b.kind) {
     case 'windup': {
-      const key = { x: b.x, y: b.y - 52, r: 10, hurts: b.phase === 2 }
-      const body = { x: b.x, y: b.y - 16, r: 22, hurts: b.phase < 2 }
+      const key = {
+        id: 'key',
+        x: b.x,
+        y: b.y - 52,
+        r: 10,
+        hurts: b.phase === 2,
+      }
+      const body = {
+        id: 'body',
+        x: b.x,
+        y: b.y - 16,
+        r: 22,
+        hurts: b.phase < 2,
+      }
       return [key, body]
     }
     case 'jack': {
       if (b.mode === 'hide') return []
-      const spots = [{ x: b.x, y: b.y - 6, r: 17, hurts: true }]
+      const spots = [{ id: 'box', x: b.x, y: b.y - 6, r: 17, hurts: true }]
       if (b.reach > 12) {
         const head = jackHead(b)
-        spots.push({ x: head.x, y: head.y, r: 10, hurts: true })
+        spots.push({ id: 'head', x: head.x, y: head.y, r: 10, hurts: true })
       }
       return spots
     }
+    case 'overgrowth': {
+      const core = {
+        id: 'core',
+        x: b.x,
+        y: b.y - 18,
+        r: 13,
+        hurts: b.phase > 0,
+      }
+      if (b.phase > 0) return [core]
+      const petals = b.petals
+        .map((hp, k) => ({ hp, k }))
+        .filter((p) => p.hp > 0)
+        .map(({ k }) => ({
+          id: `p${k}`,
+          ...petalSpot(b, k),
+          r: 8,
+          hurts: true,
+        }))
+      return [...petals, core]
+    }
+    case 'twins': {
+      const bodies = b.twins
+        .map((t, i) => ({ t, i }))
+        .filter(({ t }) => t.hp > 0)
+        .map(({ t, i }) => ({
+          id: `t${i}`,
+          x: t.x,
+          y: t.y,
+          r: 12,
+          hurts: b.phase > 0,
+        }))
+      if (b.phase > 0) return bodies
+      const [t0, t1] = b.twins
+      const apart = dist(t0!, t1!)
+      const mid = {
+        id: 'link',
+        x: (t0!.x + t1!.x) / 2,
+        y: (t0!.y + t1!.y) / 2,
+        r: 10,
+        hurts: apart >= LINK_APART,
+      }
+      return [mid, ...bodies]
+    }
+    case 'core':
+      return [
+        {
+          id: 'core',
+          x: b.x,
+          y: b.y,
+          r: 14,
+          hurts: !(b.phase === 1 && b.guard),
+        },
+      ]
   }
 }
 
@@ -179,13 +316,38 @@ export function jackHead(b: Boss): Point {
 }
 
 /** A beam hit that hurts: the boss loses a hit; 'phase' when a phase ends, 'down' when beaten. */
-export function hurtBoss(b: Boss): 'hit' | 'phase' | 'down' {
+export function hurtBoss(b: Boss, id = ''): 'hit' | 'phase' | 'down' {
   b.flash = 6
-  if (--b.hp > 0) return 'hit'
+  if (b.kind === 'overgrowth' && b.phase === 0) {
+    // A petal turret takes the hit; the phase ends when the last one breaks.
+    const k = Number(id.slice(1))
+    if (b.petals[k]! > 0) b.petals[k]!--
+    b.hp = b.petals.reduce((a, v) => a + v, 0)
+    if (b.hp > 0) return 'hit'
+  } else if (b.kind === 'twins' && b.phase > 0) {
+    const i = Number(id.slice(1))
+    const t = b.twins[i]!
+    t.hp = Math.max(0, t.hp - 1)
+    b.hp = b.twins.reduce((a, v) => a + v.hp, 0)
+    if (b.phase === 1 && t.hp === 0) {
+      // One twin down: the other enrages.
+      const other = b.twins[1 - i]!
+      other.hp += 10
+      b.phase = 2
+      b.hp = other.hp
+      return 'phase'
+    }
+    if (b.hp > 0) return 'hit'
+    b.down = DOWN_TICKS
+    b.whips = []
+    return 'down'
+  } else if (--b.hp > 0) return 'hit'
   const hp = BOSSES[b.kind].hp
   if (b.phase + 1 < hp.length) {
     b.phase++
     b.hp = hp[b.phase]!
+    if (b.kind === 'twins') b.hp = b.twins.reduce((a, v) => a + v.hp, 0)
+    if (b.kind === 'core' && b.phase === 2) b.mode = 'chase'
     b.mode = b.kind === 'jack' && b.phase === 2 ? 'roll' : b.mode
     if (b.kind === 'jack' && b.phase === 2) {
       b.clock = 150
@@ -199,6 +361,7 @@ export function hurtBoss(b: Boss): 'hit' | 'phase' | 'down' {
   }
   b.down = DOWN_TICKS
   b.shocks = []
+  b.whips = []
   b.reach = 0
   return 'down'
 }
@@ -214,7 +377,27 @@ export function bossHarms(b: Boss, p: Point, r: number): boolean {
       if (!inGap(s.gaps, Math.atan2(p.y - s.y, p.x - s.x), slack)) return true
     }
   }
+  for (const wp of b.whips) {
+    if (
+      whipLive(wp) &&
+      segmentDistance(p, wp.x0, wp.y0, wp.x1, wp.y1) < WHIP_REACH + r * 0.5
+    )
+      return true
+  }
   switch (b.kind) {
+    case 'overgrowth':
+      return dist({ x: b.x, y: b.y - 12 }, p) < BOSSES.overgrowth.radius + r - 2
+    case 'twins': {
+      const live = b.twins.filter((t) => t.hp > 0)
+      if (live.some((t) => dist(t, p) < 11 + r - 2)) return true
+      const [t0, t1] = b.twins
+      return (
+        b.phase === 0 &&
+        segmentDistance(p, t0!.x, t0!.y, t1!.x, t1!.y) < 4 + r * 0.5
+      )
+    }
+    case 'core':
+      return dist(b, p) < BOSSES.core.radius + r - 2
     case 'windup':
       return dist({ x: b.x, y: b.y - 12 }, p) < BOSSES.windup.radius + r - 2
     case 'jack': {
@@ -245,8 +428,30 @@ export function stepBoss(b: Boss, w: BossWorld) {
     b.down--
     return
   }
-  if (b.kind === 'windup') stepWindup(b, w)
-  else stepJack(b, w)
+  stepWhips(b)
+  const hero = w.hero(b)
+  switch (b.kind) {
+    case 'windup':
+      stepWindup(b, w)
+      break
+    case 'jack':
+      stepJack(b, w)
+      break
+    case 'overgrowth':
+      stepOvergrowth(b, w, hero)
+      break
+    case 'twins':
+      stepTwins(b, w, hero)
+      break
+    case 'core':
+      if (b.phase === 1 && b.mode !== 'shut') {
+        // Phase 2 opens with every rescuee in the arena glitched at once.
+        b.mode = 'shut'
+        w.glitchAll()
+      }
+      stepCore(b, w, hero)
+      break
+  }
 }
 
 // --- the Big Wind-Up -------------------------------------------------------------------------------

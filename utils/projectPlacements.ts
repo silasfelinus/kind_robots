@@ -113,6 +113,11 @@ export const PROJECT_PLACEMENTS: Record<string, ProjectPlacement> = {
     tabKey: 'arcade',
     route: '/play/arcade',
   },
+  'save-the-plumber': {
+    channelKey: 'admin',
+    tabKey: 'save-the-plumber',
+    route: '/admin/save-the-plumber',
+  },
   'rainbow-bullet-hell-space-princess': {
     channelKey: 'admin',
     tabKey: 'rainbow-bullet-hell-space-princess',

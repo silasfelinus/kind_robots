@@ -80,6 +80,7 @@ const RIG_NAMES: Partial<Record<string, string>> = {
   'hyena-matriarch': 'hyena',
   'old-komodo': 'komodo',
   'swamp-witch': 'witch',
+  'jeffery-mittens': 'mittens',
 }
 
 /** The file name the rig gives a fighter's sheets (`coyote` for the game's `coyote-vagrant`). */
@@ -109,7 +110,12 @@ export function puppetKey(slug: string): string {
 }
 
 export type PuppetPose =
-  'stand' | 'duck' | 'throw' | 'proud' | 'wave' | 'raspberry'
+  | 'stand'
+  | 'duck'
+  | 'throw'
+  | 'proud'
+  | 'wave'
+  | 'raspberry'
 
 /**
  * The puppet's pose and spot: `back` game pixels behind the fighter (toward her back), `up` above the

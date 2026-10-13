@@ -2,7 +2,10 @@
   "source": "conductor projects/zuzu-showdown/matchups.yaml (tools/matchups_to_ts.py); edit there, not here",
   "matchups": [
     {
-      "pair": ["zuzu", "coyote-vagrant"],
+      "pair": [
+        "zuzu",
+        "coyote-vagrant"
+      ],
       "intro": [
         {
           "speaker": "coyote-vagrant",
@@ -23,7 +26,10 @@
       }
     },
     {
-      "pair": ["coyote-vagrant", "river-croc"],
+      "pair": [
+        "coyote-vagrant",
+        "river-croc"
+      ],
       "intro": [
         {
           "speaker": "coyote-vagrant",
@@ -40,7 +46,10 @@
       }
     },
     {
-      "pair": ["the-abbess", "the-siblings"],
+      "pair": [
+        "the-abbess",
+        "the-siblings"
+      ],
       "intro": [
         {
           "speaker": "the-abbess",
@@ -57,7 +66,10 @@
       }
     },
     {
-      "pair": ["storm-crow", "hyena-matriarch"],
+      "pair": [
+        "storm-crow",
+        "hyena-matriarch"
+      ],
       "intro": [
         {
           "speaker": "hyena-matriarch",
@@ -74,7 +86,10 @@
       }
     },
     {
-      "pair": ["river-croc", "old-komodo"],
+      "pair": [
+        "river-croc",
+        "old-komodo"
+      ],
       "intro": [
         {
           "speaker": "old-komodo",
@@ -91,7 +106,10 @@
       }
     },
     {
-      "pair": ["zuzu", "the-siblings"],
+      "pair": [
+        "zuzu",
+        "the-siblings"
+      ],
       "intro": [
         {
           "speaker": "the-siblings",
@@ -108,7 +126,10 @@
       }
     },
     {
-      "pair": ["zuzu", "the-abbess"],
+      "pair": [
+        "zuzu",
+        "the-abbess"
+      ],
       "intro": [
         {
           "speaker": "the-abbess",
@@ -129,7 +150,10 @@
       }
     },
     {
-      "pair": ["zuzu", "storm-crow"],
+      "pair": [
+        "zuzu",
+        "storm-crow"
+      ],
       "intro": [
         {
           "speaker": "storm-crow",
@@ -150,7 +174,10 @@
       }
     },
     {
-      "pair": ["zuzu", "river-croc"],
+      "pair": [
+        "zuzu",
+        "river-croc"
+      ],
       "intro": [
         {
           "speaker": "river-croc",
@@ -167,7 +194,10 @@
       }
     },
     {
-      "pair": ["zuzu", "hyena-matriarch"],
+      "pair": [
+        "zuzu",
+        "hyena-matriarch"
+      ],
       "intro": [
         {
           "speaker": "hyena-matriarch",
@@ -184,7 +214,10 @@
       }
     },
     {
-      "pair": ["zuzu", "old-komodo"],
+      "pair": [
+        "zuzu",
+        "old-komodo"
+      ],
       "intro": [
         {
           "speaker": "old-komodo",
@@ -201,7 +234,10 @@
       }
     },
     {
-      "pair": ["coyote-vagrant", "the-abbess"],
+      "pair": [
+        "coyote-vagrant",
+        "the-abbess"
+      ],
       "intro": [
         {
           "speaker": "the-abbess",
@@ -222,7 +258,10 @@
       }
     },
     {
-      "pair": ["coyote-vagrant", "the-siblings"],
+      "pair": [
+        "coyote-vagrant",
+        "the-siblings"
+      ],
       "intro": [
         {
           "speaker": "coyote-vagrant",
@@ -239,7 +278,10 @@
       }
     },
     {
-      "pair": ["coyote-vagrant", "storm-crow"],
+      "pair": [
+        "coyote-vagrant",
+        "storm-crow"
+      ],
       "intro": [
         {
           "speaker": "storm-crow",
@@ -260,7 +302,10 @@
       }
     },
     {
-      "pair": ["coyote-vagrant", "hyena-matriarch"],
+      "pair": [
+        "coyote-vagrant",
+        "hyena-matriarch"
+      ],
       "intro": [
         {
           "speaker": "hyena-matriarch",
@@ -277,7 +322,10 @@
       }
     },
     {
-      "pair": ["coyote-vagrant", "old-komodo"],
+      "pair": [
+        "coyote-vagrant",
+        "old-komodo"
+      ],
       "intro": [
         {
           "speaker": "old-komodo",
@@ -294,7 +342,10 @@
       }
     },
     {
-      "pair": ["the-abbess", "storm-crow"],
+      "pair": [
+        "the-abbess",
+        "storm-crow"
+      ],
       "intro": [
         {
           "speaker": "storm-crow",
@@ -311,7 +362,10 @@
       }
     },
     {
-      "pair": ["the-abbess", "river-croc"],
+      "pair": [
+        "the-abbess",
+        "river-croc"
+      ],
       "intro": [
         {
           "speaker": "the-abbess",
@@ -328,7 +382,10 @@
       }
     },
     {
-      "pair": ["the-abbess", "hyena-matriarch"],
+      "pair": [
+        "the-abbess",
+        "hyena-matriarch"
+      ],
       "intro": [
         {
           "speaker": "hyena-matriarch",
@@ -345,7 +402,10 @@
       }
     },
     {
-      "pair": ["the-abbess", "old-komodo"],
+      "pair": [
+        "the-abbess",
+        "old-komodo"
+      ],
       "intro": [
         {
           "speaker": "old-komodo",
@@ -362,7 +422,10 @@
       }
     },
     {
-      "pair": ["the-siblings", "storm-crow"],
+      "pair": [
+        "the-siblings",
+        "storm-crow"
+      ],
       "intro": [
         {
           "speaker": "storm-crow",
@@ -379,7 +442,10 @@
       }
     },
     {
-      "pair": ["the-siblings", "river-croc"],
+      "pair": [
+        "the-siblings",
+        "river-croc"
+      ],
       "intro": [
         {
           "speaker": "river-croc",
@@ -396,7 +462,10 @@
       }
     },
     {
-      "pair": ["the-siblings", "hyena-matriarch"],
+      "pair": [
+        "the-siblings",
+        "hyena-matriarch"
+      ],
       "intro": [
         {
           "speaker": "hyena-matriarch",
@@ -413,7 +482,10 @@
       }
     },
     {
-      "pair": ["the-siblings", "old-komodo"],
+      "pair": [
+        "the-siblings",
+        "old-komodo"
+      ],
       "intro": [
         {
           "speaker": "old-komodo",
@@ -430,7 +502,10 @@
       }
     },
     {
-      "pair": ["storm-crow", "river-croc"],
+      "pair": [
+        "storm-crow",
+        "river-croc"
+      ],
       "intro": [
         {
           "speaker": "storm-crow",
@@ -447,7 +522,10 @@
       }
     },
     {
-      "pair": ["storm-crow", "old-komodo"],
+      "pair": [
+        "storm-crow",
+        "old-komodo"
+      ],
       "intro": [
         {
           "speaker": "old-komodo",
@@ -464,7 +542,10 @@
       }
     },
     {
-      "pair": ["river-croc", "hyena-matriarch"],
+      "pair": [
+        "river-croc",
+        "hyena-matriarch"
+      ],
       "intro": [
         {
           "speaker": "hyena-matriarch",
@@ -481,7 +562,10 @@
       }
     },
     {
-      "pair": ["hyena-matriarch", "old-komodo"],
+      "pair": [
+        "hyena-matriarch",
+        "old-komodo"
+      ],
       "intro": [
         {
           "speaker": "hyena-matriarch",
@@ -498,7 +582,10 @@
       }
     },
     {
-      "pair": ["zuzu", "zuzu"],
+      "pair": [
+        "zuzu",
+        "zuzu"
+      ],
       "intro": [
         {
           "speaker": "zuzu",
@@ -514,7 +601,10 @@
       }
     },
     {
-      "pair": ["coyote-vagrant", "coyote-vagrant"],
+      "pair": [
+        "coyote-vagrant",
+        "coyote-vagrant"
+      ],
       "intro": [
         {
           "speaker": "coyote-vagrant",
@@ -530,7 +620,10 @@
       }
     },
     {
-      "pair": ["the-abbess", "the-abbess"],
+      "pair": [
+        "the-abbess",
+        "the-abbess"
+      ],
       "intro": [
         {
           "speaker": "the-abbess",
@@ -546,7 +639,10 @@
       }
     },
     {
-      "pair": ["the-siblings", "the-siblings"],
+      "pair": [
+        "the-siblings",
+        "the-siblings"
+      ],
       "intro": [
         {
           "speaker": "the-siblings",
@@ -562,7 +658,10 @@
       }
     },
     {
-      "pair": ["storm-crow", "storm-crow"],
+      "pair": [
+        "storm-crow",
+        "storm-crow"
+      ],
       "intro": [
         {
           "speaker": "storm-crow",
@@ -578,7 +677,10 @@
       }
     },
     {
-      "pair": ["river-croc", "river-croc"],
+      "pair": [
+        "river-croc",
+        "river-croc"
+      ],
       "intro": [
         {
           "speaker": "river-croc",
@@ -594,7 +696,10 @@
       }
     },
     {
-      "pair": ["hyena-matriarch", "hyena-matriarch"],
+      "pair": [
+        "hyena-matriarch",
+        "hyena-matriarch"
+      ],
       "intro": [
         {
           "speaker": "hyena-matriarch",
@@ -610,7 +715,10 @@
       }
     },
     {
-      "pair": ["old-komodo", "old-komodo"],
+      "pair": [
+        "old-komodo",
+        "old-komodo"
+      ],
       "intro": [
         {
           "speaker": "old-komodo",
@@ -626,7 +734,10 @@
       }
     },
     {
-      "pair": ["zuzu", "swamp-witch"],
+      "pair": [
+        "zuzu",
+        "swamp-witch"
+      ],
       "intro": [
         {
           "speaker": "swamp-witch",
@@ -647,7 +758,10 @@
       }
     },
     {
-      "pair": ["coyote-vagrant", "swamp-witch"],
+      "pair": [
+        "coyote-vagrant",
+        "swamp-witch"
+      ],
       "intro": [
         {
           "speaker": "swamp-witch",
@@ -664,7 +778,10 @@
       }
     },
     {
-      "pair": ["the-abbess", "swamp-witch"],
+      "pair": [
+        "the-abbess",
+        "swamp-witch"
+      ],
       "intro": [
         {
           "speaker": "the-abbess",
@@ -681,7 +798,10 @@
       }
     },
     {
-      "pair": ["the-siblings", "swamp-witch"],
+      "pair": [
+        "the-siblings",
+        "swamp-witch"
+      ],
       "intro": [
         {
           "speaker": "swamp-witch",
@@ -698,7 +818,10 @@
       }
     },
     {
-      "pair": ["storm-crow", "swamp-witch"],
+      "pair": [
+        "storm-crow",
+        "swamp-witch"
+      ],
       "intro": [
         {
           "speaker": "storm-crow",
@@ -715,7 +838,10 @@
       }
     },
     {
-      "pair": ["river-croc", "swamp-witch"],
+      "pair": [
+        "river-croc",
+        "swamp-witch"
+      ],
       "intro": [
         {
           "speaker": "river-croc",
@@ -732,7 +858,10 @@
       }
     },
     {
-      "pair": ["hyena-matriarch", "swamp-witch"],
+      "pair": [
+        "hyena-matriarch",
+        "swamp-witch"
+      ],
       "intro": [
         {
           "speaker": "hyena-matriarch",
@@ -749,7 +878,10 @@
       }
     },
     {
-      "pair": ["old-komodo", "swamp-witch"],
+      "pair": [
+        "old-komodo",
+        "swamp-witch"
+      ],
       "intro": [
         {
           "speaker": "old-komodo",
@@ -766,7 +898,10 @@
       }
     },
     {
-      "pair": ["swamp-witch", "swamp-witch"],
+      "pair": [
+        "swamp-witch",
+        "swamp-witch"
+      ],
       "intro": [
         {
           "speaker": "swamp-witch",
@@ -780,6 +915,209 @@
       "win": {
         "swamp-witch": "There. Back to one. Much tidier."
       }
+    },
+    {
+      "pair": [
+        "zuzu",
+        "jeffery-mittens"
+      ],
+      "intro": [
+        {
+          "speaker": "jeffery-mittens",
+          "line": "You. The bear who laced the dead back up."
+        },
+        {
+          "speaker": "zuzu",
+          "line": "..."
+        },
+        {
+          "speaker": "jeffery-mittens",
+          "line": "I ain't scared of you. Much."
+        }
+      ],
+      "win": {
+        "zuzu": "Keep the boots.",
+        "jeffery-mittens": "Ha! Told you I ain't scared. Mostly."
+      }
+    },
+    {
+      "pair": [
+        "coyote-vagrant",
+        "jeffery-mittens"
+      ],
+      "intro": [
+        {
+          "speaker": "coyote-vagrant",
+          "line": "Kid. Them boots ain't yours."
+        },
+        {
+          "speaker": "jeffery-mittens",
+          "line": "Ain't yours neither. Ain't nobody's now."
+        }
+      ],
+      "win": {
+        "coyote-vagrant": "I'll take the left one. Only need the left.",
+        "jeffery-mittens": "There's your boot, mister. Both of 'em."
+      }
+    },
+    {
+      "pair": [
+        "the-abbess",
+        "jeffery-mittens"
+      ],
+      "intro": [
+        {
+          "speaker": "the-abbess",
+          "line": "Such cold little feet. Come inside, child."
+        },
+        {
+          "speaker": "jeffery-mittens",
+          "line": "I seen the notices. Nobody comes back out."
+        }
+      ],
+      "win": {
+        "the-abbess": "Hush now. There's a bed with your name on it.",
+        "jeffery-mittens": "Them kids get their boots back. All of 'em."
+      }
+    },
+    {
+      "pair": [
+        "the-siblings",
+        "jeffery-mittens"
+      ],
+      "intro": [
+        {
+          "speaker": "the-siblings",
+          "line": "Those are dead folks' boots."
+        },
+        {
+          "speaker": "jeffery-mittens",
+          "line": "Dead folks don't walk. You do. Want a pair?"
+        }
+      ],
+      "win": {
+        "the-siblings": "We're fine barefoot. Leave us alone.",
+        "jeffery-mittens": "Sorry. You hit hard. Take the little ones."
+      }
+    },
+    {
+      "pair": [
+        "storm-crow",
+        "jeffery-mittens"
+      ],
+      "intro": [
+        {
+          "speaker": "storm-crow",
+          "line": "A thief on my road, in a dead man's coat."
+        },
+        {
+          "speaker": "jeffery-mittens",
+          "line": "Roads ain't got owners. Neither do coats."
+        }
+      ],
+      "win": {
+        "storm-crow": "Fly while you can, little thief.",
+        "jeffery-mittens": "Left a boot in your nest. You're welcome."
+      }
+    },
+    {
+      "pair": [
+        "river-croc",
+        "jeffery-mittens"
+      ],
+      "intro": [
+        {
+          "speaker": "jeffery-mittens",
+          "line": "Easy. Easy now. I only want a drink."
+        },
+        {
+          "speaker": "river-croc",
+          "line": "HSSSSSS."
+        }
+      ],
+      "win": {
+        "river-croc": "*gulp* ... *spits out a boot*",
+        "jeffery-mittens": "Can't swallow what you can't catch!"
+      }
+    },
+    {
+      "pair": [
+        "hyena-matriarch",
+        "jeffery-mittens"
+      ],
+      "intro": [
+        {
+          "speaker": "hyena-matriarch",
+          "line": "Look at the boots! Heh! Look at his feet!"
+        },
+        {
+          "speaker": "jeffery-mittens",
+          "line": "Laugh it up. Mine don't bleed no more."
+        }
+      ],
+      "win": {
+        "hyena-matriarch": "Run on home, little mask. Heh heh heh.",
+        "jeffery-mittens": "Who's laughin' now? Not me. I'm runnin'."
+      }
+    },
+    {
+      "pair": [
+        "old-komodo",
+        "jeffery-mittens"
+      ],
+      "intro": [
+        {
+          "speaker": "old-komodo",
+          "line": "Mm. Small. Quick. Mostly bones."
+        },
+        {
+          "speaker": "jeffery-mittens",
+          "line": "Mostly quick. You'll see."
+        }
+      ],
+      "win": {
+        "old-komodo": "Mm. Too quick to eat. Next time.",
+        "jeffery-mittens": "Your feet's too big for boots anyhow."
+      }
+    },
+    {
+      "pair": [
+        "swamp-witch",
+        "jeffery-mittens"
+      ],
+      "intro": [
+        {
+          "speaker": "swamp-witch",
+          "line": "Bring me the boots of the dead, little one."
+        },
+        {
+          "speaker": "jeffery-mittens",
+          "line": "Nah. Them're for the living. Find your own."
+        }
+      ],
+      "win": {
+        "swamp-witch": "Every pair walks back to us, sooner or later.",
+        "jeffery-mittens": "Ain't tradin' nothin' with you. Ever."
+      }
+    },
+    {
+      "pair": [
+        "jeffery-mittens",
+        "jeffery-mittens"
+      ],
+      "intro": [
+        {
+          "speaker": "jeffery-mittens",
+          "line": "Hey. That's my coat."
+        },
+        {
+          "speaker": "jeffery-mittens",
+          "line": "Weren't me. I found it."
+        }
+      ],
+      "win": {
+        "jeffery-mittens": "Finders keepers. Them's the rules."
+      }
     }
   ],
   "boss": {
@@ -791,6 +1129,7 @@
     "river-croc": "HSSSSSSS.",
     "hyena-matriarch": "Heh... heh. Okay, that one's not funny.",
     "old-komodo": "I have eaten many things. Not that.",
-    "swamp-witch": "Oh, don't be shy. It's only the rest of me."
+    "swamp-witch": "Oh, don't be shy. It's only the rest of me.",
+    "jeffery-mittens": "Weren't me. Weren't us. We only come after."
   }
 }

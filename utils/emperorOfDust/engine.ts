@@ -248,8 +248,16 @@ export const previewDispatch = (
   leaderIds: string[],
   hordeSent: number,
   choiceId: string,
+  useHourglass = false,
 ): OddsPreview => {
   ensureOpen(state, incident)
+  const canUseHourglass =
+    (state.equippedRelics ?? []).includes('komodo-brass-hourglass') &&
+    (state.relicUses?.['komodo-brass-hourglass'] ?? 0) !== dayAt(state.hour) &&
+    incident.outwardHours > 1
+  if (useHourglass && !canUseHourglass)
+    throw new Error('Brass Hourglass is not available for this mission')
+  const outbound = incident.outwardHours - Number(useHourglass)
   integer(hordeSent, 'hordeSent')
   const leaders = chooseLeaders(state, leaderIds)
   if (
@@ -259,19 +267,20 @@ export const previewDispatch = (
   ) {
     throw new Error('Horde contingent unavailable or outside mission limits')
   }
-  if (
-    state.hour + incident.outwardHours >
-    timeAt(incident.day, incident.deadlineHour)
-  ) {
+  if (state.hour + outbound > timeAt(incident.day, incident.deadlineHour)) {
     throw new Error('cannot reach incident before deadline')
   }
-  return calculateOdds(
+  const odds = calculateOdds(
     incident,
     chooseAction(incident, choiceId),
     leaders,
     hordeSent,
     state.hour,
   )
+  return {
+    ...odds,
+    projectedReturnHour: state.hour + outbound + incident.missionHours + incident.outwardHours,
+  }
 }
 
 export const dispatchFollowers = (
@@ -280,9 +289,10 @@ export const dispatchFollowers = (
   leaderIds: string[],
   hordeSent: number,
   choiceId: string,
+  useHourglass = false,
 ): Campaign => {
-  previewDispatch(state, incident, leaderIds, hordeSent, choiceId)
-  const arrivesAt = state.hour + incident.outwardHours
+  previewDispatch(state, incident, leaderIds, hordeSent, choiceId, useHourglass)
+  const arrivesAt = state.hour + incident.outwardHours - Number(useHourglass)
   const dispatch: Dispatch = {
     incidentId: incident.id,
     choiceId,
@@ -295,7 +305,13 @@ export const dispatchFollowers = (
     returnsAt: arrivesAt + incident.missionHours + incident.outwardHours,
     incident,
   }
-  return { ...state, dispatches: [...state.dispatches, dispatch] }
+  return {
+    ...state,
+    dispatches: [...state.dispatches, dispatch],
+    relicUses: useHourglass
+      ? { ...state.relicUses, 'komodo-brass-hourglass': dayAt(state.hour) }
+      : state.relicUses,
+  }
 }
 
 export const neglectIncident = (

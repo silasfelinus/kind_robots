@@ -6,7 +6,9 @@
       :key="chip.meter"
       class="rounded-md px-2 py-0.5 font-bold"
       :class="
-        chip.harmful ? 'bg-error/15 text-error' : 'bg-success/15 text-success'
+        chip.harmful
+          ? 'bg-error/15 text-red-800'
+          : 'bg-success/15 text-green-800'
       "
       >{{ chip.label }}</span
     >

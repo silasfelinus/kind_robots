@@ -215,9 +215,9 @@ const statusLabel = computed(() =>
 )
 const statusClass = computed(() =>
   run.value?.societyStatus === 'met'
-    ? 'bg-success text-success-content'
+    ? 'bg-green-800 text-white'
     : run.value?.societyStatus === 'betrayed'
-      ? 'bg-error text-error-content'
+      ? 'bg-red-800 text-white'
       : 'bg-amber-100 text-stone-900',
 )
 </script>

@@ -820,6 +820,16 @@ assert.doesNotMatch(page, /<h1[\s>]/)
 assert.match(page, /class="kr-surface"/)
 assert.doesNotMatch(page, /localStorage|\$fetch/)
 assert.match(page, /prefers-reduced-motion: reduce/)
+assert.match(
+  page,
+  /function focusNewFile[\s\S]*cardBack\.value\?\.focus/,
+  'focus returns to the newly dealt file after Next and after the elevator',
+)
+assert.match(
+  asset('../../nuxt.config.ts'),
+  /htmlAttrs: \{ lang: 'en' \}/,
+  'every page declares its language',
+)
 const tab = asset('../../content/channels/projects/shifting-desks.md')
 assert.match(tab, /route: \/play\/shifting-desks/)
 assert.match(asset('../../public/shifting-desks/front-poster.svg'), /<title/)

@@ -243,6 +243,19 @@
         </div>
       </div>
 
+      <nav class="grid grid-cols-2 gap-1 rounded-xl border border-base-300 bg-base-200/50 p-2" aria-label="Your pages">
+        <NuxtLink
+          v-for="link in personalLinks"
+          :key="link.route"
+          :to="link.route"
+          class="flex min-h-10 items-center gap-2 rounded-lg px-2 text-xs font-bold hover:bg-base-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary"
+          @click="store.close"
+        >
+          <Icon :name="link.icon" class="h-4 w-4 shrink-0 text-primary" />
+          {{ link.label }}
+        </NuxtLink>
+      </nav>
+
       <!--
         2. TOOLS AND WALLET, one row. Silas, 2026-08-11: "karma and mana should
         be inline with the server and reload icons, and reload does not need a
@@ -402,6 +415,26 @@ const maturityPreferenceStore = useMaturityPreferenceStore()
 const navStore = useNavStore()
 const menuRef = ref<HTMLElement | null>(null)
 const fallbackAvatar = '/images/kindart.webp'
+
+const personalLinks = computed(() => [
+  { label: 'Explore site', route: '/', icon: 'kind-icon:home' },
+  ...(userStore.isLoggedIn
+    ? [
+        { label: 'My account', route: '/account', icon: 'kind-icon:user' },
+        { label: 'Achievements', route: '/achievements', icon: 'kind-icon:star' },
+        { label: 'Messages', route: '/messages', icon: 'kind-icon:message' },
+        { label: 'Friends', route: '/friends', icon: 'kind-icon:users' },
+        { label: 'Themes', route: '/themes', icon: 'kind-icon:palette' },
+        { label: 'Servers', route: '/servers', icon: 'kind-icon:server' },
+        { label: 'Newsfeed', route: '/plan/newsfeed', icon: 'kind-icon:news' },
+      ]
+    : [
+        { label: 'Sign in', route: '/login', icon: 'kind-icon:login' },
+        { label: 'Register', route: '/register', icon: 'kind-icon:user' },
+      ]),
+  { label: 'About & support', route: '/about', icon: 'kind-icon:heart' },
+  { label: 'Site directory', route: '/navigation', icon: 'kind-icon:map' },
+])
 
 /**
  * Whether the nested account menu is showing.

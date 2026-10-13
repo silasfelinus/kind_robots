@@ -86,6 +86,17 @@
 -->
 <template>
   <div class="kr-unbound gap-3 pb-6">
+    <nav class="flex flex-wrap items-center justify-between gap-2 kr-panel-flat p-3" aria-label="Home views">
+      <div class="min-w-0">
+        <p class="text-sm font-black">{{ showDirectory ? 'Explore Kind Robots' : 'Kind Robots today' }}</p>
+        <p class="text-xs opacity-70">{{ showDirectory ? 'Featured experiences and the freshest creations' : 'Daily dreams, projects and the agent workbench' }}</p>
+      </div>
+      <div class="join" role="group" aria-label="Front page view">
+        <button type="button" class="btn btn-sm join-item" :class="showDirectory ? 'btn-primary' : 'btn-outline'" :aria-pressed="showDirectory" @click="homeMode = 'directory'">Explore</button>
+        <button type="button" class="btn btn-sm join-item" :class="!showDirectory ? 'btn-primary' : 'btn-outline'" :aria-pressed="!showDirectory" @click="homeMode = 'dashboard'">Dashboard</button>
+      </div>
+    </nav>
+    <template v-if="!showDirectory">
     <div v-if="showcaseStore.errorMessage" class="kr-note kr-note-warning">
       {{ showcaseStore.errorMessage }}
     </div>
@@ -433,6 +444,8 @@
       :card="selectedCard"
       @close="selectedCard = null"
     />
+    </template>
+    <home-visitor-directory v-else :showcase="showcaseStore.showcase" :loaded="showcaseStore.hasLoaded" />
   </div>
 </template>
 
@@ -486,6 +499,10 @@ const userStore = useUserStore()
  * honest thing.
  */
 const isAdmin = computed(() => userStore.isAdmin)
+const homeMode = ref<'directory' | 'dashboard' | null>(null)
+const showDirectory = computed(() =>
+  homeMode.value ? homeMode.value === 'directory' : !isAdmin.value,
+)
 
 const visiblePanes = computed(() =>
   RIGHT_PANES.filter((pane) => pane.key !== 'attention' || isAdmin.value),

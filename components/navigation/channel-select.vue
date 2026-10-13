@@ -42,8 +42,8 @@
       <span class="kr-text-black-sm min-w-0 truncate sm:text-base xl:text-lg">
         {{
           unifiedMobile
-            ? activeTab?.label || activeChannel.label
-            : activeChannel.label
+            ? activeChannel.channelKey === 'home' ? 'Explore' : activeTab?.label || activeChannel.label
+            : activeChannel.channelKey === 'home' ? 'Explore' : activeChannel.label
         }}
       </span>
 
@@ -320,7 +320,7 @@ const submenuMode = ref<SubmenuMode>('inline')
 
 await channelContentStore.initialize()
 
-const visibleChannels = computed(() => channelContentStore.visibleChannels)
+const visibleChannels = computed(() => channelContentStore.navigationChannels)
 const expandedChannel = computed<ResolvedChannel | null>(() => {
   return (
     visibleChannels.value.find(

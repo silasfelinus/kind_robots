@@ -1,5 +1,7 @@
 <template>
-  <section class="overflow-hidden rounded-3xl border border-base-content/20 bg-base-200">
+  <section
+    class="overflow-hidden rounded-3xl border border-base-content/20 bg-base-200"
+  >
     <div class="flex flex-wrap items-center justify-between gap-3 p-5">
       <h3 class="font-serif text-2xl font-bold">The imperial roads</h3>
       <p class="text-xs font-semibold uppercase tracking-widest opacity-70">
@@ -11,9 +13,15 @@
       role="group"
       aria-label="Regional destinations linked by straight roads to the Emperor's Tower"
     >
-      <div class="pointer-events-none absolute -left-10 top-[25%] h-48 w-52 rounded-full bg-[#405e59]/50 blur-2xl" />
-      <div class="pointer-events-none absolute right-0 top-[35%] h-40 w-32 rounded-full bg-[#d2c08e]/55 blur-xl" />
-      <div class="pointer-events-none absolute -bottom-16 left-[20%] h-56 w-52 rounded-full bg-[#a66d51]/60 blur-2xl" />
+      <div
+        class="pointer-events-none absolute -left-10 top-[25%] h-48 w-52 rounded-full bg-[#405e59]/50 blur-2xl"
+      />
+      <div
+        class="pointer-events-none absolute right-0 top-[35%] h-40 w-32 rounded-full bg-[#d2c08e]/55 blur-xl"
+      />
+      <div
+        class="pointer-events-none absolute -bottom-16 left-[20%] h-56 w-52 rounded-full bg-[#a66d51]/60 blur-2xl"
+      />
       <svg
         viewBox="0 0 100 100"
         preserveAspectRatio="none"
@@ -30,7 +38,14 @@
           stroke-linecap="round"
           stroke-dasharray="2 0.6"
         />
-        <circle :cx="TOWER.x" :cy="TOWER.y" r="2.5" fill="#593728" stroke="#f4d68f" stroke-width="0.75" />
+        <circle
+          :cx="TOWER.x"
+          :cy="TOWER.y"
+          r="2.5"
+          fill="#593728"
+          stroke="#f4d68f"
+          stroke-width="0.75"
+        />
       </svg>
       <span
         class="pointer-events-none absolute z-10 -translate-x-1/2 rounded-xl border border-amber-200/80 bg-[#382e29] px-3 py-1 font-serif text-xs font-black text-amber-100 shadow-md sm:text-sm"
@@ -83,7 +98,11 @@
 </template>
 
 <script setup lang="ts">
-import { IMPERIAL_REGIONS, TOWER, pathFromTower } from '~/utils/emperorOfDust/map'
+import {
+  IMPERIAL_REGIONS,
+  TOWER,
+  pathFromTower,
+} from '~/utils/emperorOfDust/map'
 import type { Dispatch, Incident } from '~/utils/emperorOfDust/types'
 
 const props = defineProps<{

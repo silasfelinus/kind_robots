@@ -884,8 +884,12 @@ const currentNotice = computed(() => {
 })
 
 const locationTitle = computed(() => {
-  if (view.value?.kind !== 'encounter') return ''
-  return locationById(view.value.card.location_id)?.title ?? ''
+  if (view.value?.kind !== 'encounter' || !run.value) return ''
+  return (
+    stepLabels(run.value)[run.value.position] ??
+    locationById(view.value.card.location_id)?.title ??
+    ''
+  )
 })
 
 const TAG_ICONS: Record<string, string> = {

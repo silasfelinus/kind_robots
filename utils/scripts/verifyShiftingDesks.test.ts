@@ -779,6 +779,11 @@ const pageWithParts = [
 ].join('\n')
 assert.match(
   page,
+  /stepLabels\(run\.value\)\[run\.value\.position\]/,
+  'a card names its restructured location, not the one it came from',
+)
+assert.match(
+  page,
   /kind === 'boss' \? interimResults/,
   'interim results appear only at a review',
 )

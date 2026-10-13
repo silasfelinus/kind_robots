@@ -691,7 +691,7 @@ export const ARCADE_GAMES: ArcadeGameMeta[] = [
     ],
     width: 256,
     height: 240,
-    maxPlausibleScore: 2_000_000,
+    maxPlausibleScore: 20_000_000,
     titleArt: '/images/arcade/games/bumper-bubbles-title.webp',
     accent: '#38bdf8',
     controls: 'Walk, hop, blow',

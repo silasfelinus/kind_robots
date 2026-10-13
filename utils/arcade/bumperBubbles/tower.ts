@@ -45,7 +45,7 @@ export const FLOOR_Y = TOP + (ROWS - 1) * TILE
 export type Flavour = 'classic' | 'gum' | 'float' | 'fizz' | 'frost'
 /** Special bubbles that float in from a floor's walls. */
 export type SpecialKind = 'splash' | 'zap' | 'toasty'
-export type BossId = 'cork' | 'kettle'
+export type BossId = 'cork' | 'kettle' | 'jelly' | 'king'
 
 export const GRAVITY = 0.2
 
@@ -66,6 +66,12 @@ export type FloorDef = {
   /** Moving lifts: a platform `w` tiles wide at column `c` (its left), row `r` (its bottom
    * stop), rising `rise` rows and back every `period` ticks. */
   lifts?: readonly LiftDef[]
+  /** The Haunted Pantry: dark floors lit only by the robots' antennae. */
+  dark?: boolean
+  /** The Storm Rooftop: a steady wind (+ blows right) across the open air. */
+  wind?: number
+  /** Rain, and lightning that strikes a column after a tell. */
+  storm?: boolean
 }
 
 export type LiftDef = {
@@ -135,6 +141,9 @@ export type Floor = {
   /** Cells that are wind-up doors and hot plates (their indices). */
   doors: readonly number[]
   hotPlates: readonly number[]
+  dark: boolean
+  wind: number
+  storm: boolean
 }
 
 /** Feet position for a marker in column c, row r: the bottom of its tile. */
@@ -226,6 +235,9 @@ export function parseFloor(def: FloorDef): Floor {
     lifts: def.lifts ?? [],
     doors,
     hotPlates,
+    dark: def.dark ?? false,
+    wind: def.wind ?? 0,
+    storm: def.storm ?? false,
   }
 }
 

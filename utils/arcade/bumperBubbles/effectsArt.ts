@@ -17,6 +17,7 @@ import {
 } from '../snes'
 import type { PixelSprite, Ramp } from '../snes'
 import { CORK_RAMP, GRUMP_FRAMES } from './art'
+import { paintHazardExtra, paintJelly, paintKing } from './slice4Art'
 import { KETTLE, bossHazards } from './bosses'
 import type { Boss } from './bosses'
 import type { ItemId } from './items'
@@ -181,6 +182,7 @@ export function paintHazard(
   h: Hazard,
   tick: number,
 ) {
+  if (paintHazardExtra(g, h, tick)) return
   if (h.kind === 'steam') {
     // A scalding cloud, swelling then thinning out.
     const life = h.life / 50
@@ -522,8 +524,8 @@ export function paintBossHazards(
       }
       glow(g, (h.x0 + h.x1) / 2, (h.y0 + h.y1) / 2, 60, RAMPS.ember[3], 0.25)
     } else {
-      // The flood, steaming.
-      g.fillStyle = rgba('#e0703a', 0.45)
+      // The flood, steaming (the King's is pink fizz).
+      g.fillStyle = rgba(b.id === 'king' ? '#f070c0' : '#e0703a', 0.45)
       g.fillRect(h.x0, h.y0, h.x1 - h.x0, h.y1 - h.y0)
       g.fillStyle = rgba('#ffd0a0', 0.8)
       for (let x = h.x0; x < h.x1; x += 4)
@@ -549,6 +551,17 @@ export function paintBossHazards(
 
 export function paintBoss(g: CanvasRenderingContext2D, b: Boss, tick: number) {
   if (b.state === 'done') return
+  if (b.id === 'jelly' || b.id === 'king') {
+    const paint = b.id === 'jelly' ? paintJelly : paintKing
+    if (b.state === 'popping') {
+      paint(g, b, tick, 1 - b.t / 90)
+      glow(g, b.x, b.y, 34 + b.t / 2, RAMPS.gold[3], 0.5)
+      return
+    }
+    if (b.hurt > 0 && Math.floor(tick / 3) % 2) return
+    paint(g, b, tick)
+    return
+  }
   if (b.id === 'kettle') {
     if (b.state === 'popping') {
       paintKettle(g, b, tick, 1 - b.t / 90)

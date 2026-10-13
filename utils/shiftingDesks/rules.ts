@@ -1,6 +1,7 @@
 import pack from './orientation.json'
 import recordsPack from './records.json'
 import toysPack from './toy-division.json'
+import wellnessPack from './wellness.json'
 import decksData from './decks.json'
 
 export const SKILLS = [
@@ -160,7 +161,13 @@ export type Pack = {
 export const ORIENTATION = pack as Pack
 export const RECORDS = recordsPack as Pack
 export const TOY_DIVISION = toysPack as Pack
-export const DEPARTMENTS: Pack[] = [ORIENTATION, RECORDS, TOY_DIVISION]
+export const WELLNESS = wellnessPack as Pack
+export const DEPARTMENTS: Pack[] = [
+  ORIENTATION,
+  RECORDS,
+  TOY_DIVISION,
+  WELLNESS,
+]
 
 export function departmentPack(id: string): Pack {
   return DEPARTMENTS.find((d) => d.department.id === id) ?? ORIENTATION
@@ -495,6 +502,7 @@ const FALLBACK_OUTCOMES = [
   'reorientation',
   'refiled',
   'back-to-the-drawing-board',
+  'retest',
   'resubmit',
   'redo',
 ]

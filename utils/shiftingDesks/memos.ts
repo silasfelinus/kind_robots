@@ -91,6 +91,20 @@ export const FLAG_MEMOS: Record<string, string> = {
     'An unscheduled minute of silence was observed on the Proving Grounds. It has been rescheduled.',
   'stuffed-the-bear':
     'Snuggle Sentinel is softer than specified. Defense would like to discuss the word "soft."',
+  'ate-compound-w':
+    'An employee in Nutrition Studies is feeling wonderful about everything. Please do not interrupt.',
+  'pressed-the-button':
+    'Thank you for pressing the button. Dale is fine. Dale would like to know who pressed the button.',
+  'buzzed-your-successor':
+    'Your Successor has completed the word list and asks that you not visit for a while.',
+  'failed-pip':
+    'Pip has been reassigned to a study. Pip sends a thumbs-up from behind the glass.',
+  'opened-the-humming-door':
+    'A vault door in the Mutation Suite has stopped humming. Facilities would like to know why it looks so pleased.',
+  'kept-kevin-company':
+    'Tank Nine reports a visitor. Kevin is having the best day of his career.',
+  'stole-a-vial':
+    'A vial is missing from the Mutation Suite. It is warm and it hums. Please return it before it hums louder.',
   'shipped-the-bear':
     'Snuggle Sentinel ships to four million homes this spring. Peace of mind is on its way.',
 }

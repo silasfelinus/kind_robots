@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "source": "silasfelinus/conductor:projects/shifting-desks/encounters/ORIENTATION-12.json",
-  "sourceSha": "bb96b604728c8734d439074838cff405a8377e02",
+  "sourceSha": "b48d6923b059290a980cb8d502c05119e8017824",
   "department": {
     "id": "orientation",
     "title": "Orientation",

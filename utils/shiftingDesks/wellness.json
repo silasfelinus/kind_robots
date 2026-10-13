@@ -1,0 +1,1837 @@
+{
+  "schemaVersion": 1,
+  "source": "silasfelinus/conductor:projects/shifting-desks/encounters/WELLNESS-12.json",
+  "sourceSha": "b48d6923b059290a980cb8d502c05119e8017824",
+  "department": {
+    "id": "wellness",
+    "title": "Wellness & Testing",
+    "order": 4,
+    "boss_id": "the-final-wellness-exam",
+    "arrival_prompt": "Elevator doors opening onto a gleaming white testing level deep underground, long corridors of identical doors under cold fluorescent strips, glass tanks glowing green at the far end, a single welcome mat at the elevator's edge, mid-century safety-manual illustration, screen-printed gouache with halftone grain, limited palette of manila, carbon-paper blue, safety orange, fluorescent-tube green and oxblood, horizontal 4:3 composition, every surface bare and unmarked"
+  },
+  "locations": [
+    {
+      "location_id": "nutrition-studies",
+      "title": "Nutrition Studies",
+      "description": "A cafeteria under glass where every meal is a variable. Trays arrive with numbers instead of names, and refreshments are served, technically.",
+      "encounter_ids": [
+        "the-control-group-lunch",
+        "the-calorie-confessional",
+        "the-vending-machine-that-knows",
+        "next-years-menu"
+      ],
+      "art_prompt": "A long steel cafeteria under a curved glass ceiling, numbered trays sliding along a conveyor, a wide observation window with clipboards pressed to it, a single potted plant thriving in a corner, mid-century safety-manual illustration, screen-printed gouache with halftone grain, limited palette of manila, carbon-paper blue, safety orange, fluorescent-tube green and oxblood, vertical 2:3 portrait composition, every surface bare and unmarked"
+    },
+    {
+      "location_id": "cognitive-testing-chamber",
+      "title": "Cognitive Testing Chamber",
+      "description": "A white room inside a white room. One chair, one table, one window you cannot see through, and a voice that would like you to relax.",
+      "encounter_ids": [
+        "the-button",
+        "the-word-list",
+        "the-other-side-of-the-glass",
+        "the-thursday-door"
+      ],
+      "art_prompt": "A bright white room nested inside a larger white room, a single chair and table at the center, a dark one-way window along one wall, a corridor of identical doors glimpsed through an archway, a glowing round speaker grille, mid-century safety-manual illustration, screen-printed gouache with halftone grain, limited palette of manila, carbon-paper blue, safety orange, fluorescent-tube green and oxblood, vertical 2:3 portrait composition, every surface bare and unmarked"
+    },
+    {
+      "location_id": "mutation-suite",
+      "title": "Mutation Suite",
+      "description": "Where wellness becomes something else. Tall tanks bubble, a nurse smiles, and a round vault door at the back hums one patient note.",
+      "encounter_ids": [
+        "the-second-dose",
+        "the-humming-door",
+        "tank-nine",
+        "the-mirror-test"
+      ],
+      "art_prompt": "A tiled clinical hall lined with tall glass tanks of softly glowing green liquid, a smiling nurse's trolley of paper cups, a huge round steel vault door set into the far wall, rising bubbles catching the light, mid-century safety-manual illustration, screen-printed gouache with halftone grain, limited palette of manila, carbon-paper blue, safety orange, fluorescent-tube green and oxblood, vertical 2:3 portrait composition, every surface bare and unmarked"
+    }
+  ],
+  "restructurings": [
+    {
+      "id": "testing-canteen",
+      "kind": "merge",
+      "location_ids": ["nutrition-studies", "cognitive-testing-chamber"],
+      "title": "Testing Canteen",
+      "when": {
+        "outcomes": ["shipped-on-schedule"],
+        "flags": []
+      },
+      "reason": "To celebrate the launch, Nutrition Studies and the Cognitive Testing Chamber have merged into one Testing Canteen, so you can be tested while you eat and fed while you are tested."
+    },
+    {
+      "id": "mutation-suite-sealed",
+      "kind": "eliminate",
+      "location_ids": ["mutation-suite"],
+      "title": null,
+      "when": {
+        "outcomes": ["soft-launch"],
+        "flags": []
+      },
+      "reason": "Defense has sealed the Mutation Suite while it investigates the word 'soft.' Please do not mutate until further notice."
+    },
+    {
+      "id": "management-track-test",
+      "kind": "add",
+      "location_ids": ["cognitive-testing-chamber"],
+      "title": "Cognitive Testing, management track",
+      "when": {
+        "outcomes": ["promoted-to-product-owner"],
+        "flags": []
+      },
+      "reason": "As a Product Owner, you now qualify for a second, more senior test. It is the same test, in a nicer chair."
+    },
+    {
+      "id": "nutrition-drying-out",
+      "kind": "eliminate",
+      "location_ids": ["nutrition-studies"],
+      "title": null,
+      "when": {
+        "outcomes": ["party-evacuated"],
+        "flags": []
+      },
+      "reason": "Nutrition Studies is still drying out after the sprinklers upstairs. Lunch is suspended. Please do not be hungry."
+    },
+    {
+      "id": "mk0s-old-ward",
+      "kind": "add",
+      "location_ids": ["mutation-suite"],
+      "title": "Mutation Suite, Mk 0's old ward",
+      "when": {
+        "outcomes": ["the-bear-speaks"],
+        "flags": []
+      },
+      "reason": "Mk 0 has asked to show you the ward where it was made. PAL has added the visit to your route and asks you not to read the charts on the wall."
+    },
+    {
+      "id": "cold-room-of-named-bears",
+      "kind": "add",
+      "location_ids": ["nutrition-studies"],
+      "title": "Nutrition Studies, the cold room",
+      "when": {
+        "outcomes": ["recalled-with-love"],
+        "flags": []
+      },
+      "reason": "Two hundred named bears are being kept in the Nutrition Studies cold room. You named them, so you are expected to visit."
+    },
+    {
+      "id": "investors-booked-the-chamber",
+      "kind": "eliminate",
+      "location_ids": ["cognitive-testing-chamber"],
+      "title": null,
+      "when": {
+        "outcomes": ["launch-postponed"],
+        "flags": []
+      },
+      "reason": "The investors have booked the Cognitive Testing Chamber for themselves. They would like to understand why none of them would hold the bear."
+    },
+    {
+      "id": "the-vault-stays-the-same",
+      "kind": "none",
+      "location_ids": [],
+      "title": null,
+      "when": null,
+      "reason": "The Vault cannot be restructured. It was built to stay exactly like this. PAL apologizes for the inconvenience of permanence."
+    }
+  ],
+  "encounters": [
+    {
+      "id": "the-control-group-lunch",
+      "location_id": "nutrition-studies",
+      "title": "The Control Group Lunch",
+      "flavor_text": "Two identical trays slide out of the wall: grey stew, a roll, a cup of something pink. One of them contains Compound W, the Company's new wellness supplement. The other is the placebo. Pip sits down across from you, beaming, and waits for you to choose first. Behind the glass, a man with a clipboard writes the word BEGIN.",
+      "polarity": "mixed",
+      "tags": ["psych-test", "sacrifice"],
+      "weight": 3,
+      "witnessed": true,
+      "art_prompt": "Mid-century safety-manual illustration of two identical cafeteria trays of grey stew and pink drinks on a long steel table under harsh lights, a nervous worker on one side and a beaming young intern on the other, a man in a lab coat watching through a large window with a clipboard, fluorescent green and manila palette, halftone grain, every surface bare and unmarked",
+      "choices": [
+        {
+          "id": "taste-both",
+          "label": "Taste a spoonful from each tray",
+          "intent": "Compound W must taste like something. Find out what.",
+          "risk_hint": "Risky Vigilance check. A spoonful is still a dose.",
+          "requires": null,
+          "cost": {
+            "composure": -1
+          },
+          "roll": {
+            "dice_count": 2,
+            "die_sides": 6,
+            "skill": "vigilance",
+            "modifier": 0,
+            "target": 9
+          },
+          "success": {
+            "text": "One stew tastes faintly of mint and agreement. You push that tray into the waste chute and share the other with Pip. The man behind the glass underlines something twice.",
+            "effects": {
+              "suspicion": 1
+            },
+            "add_flags": ["spotted-compound-w"],
+            "remove_flags": [],
+            "grades": {
+              "ingenuity": 1
+            }
+          },
+          "failure": {
+            "text": "Both taste like stew. Ten minutes later you feel wonderful about everything, including the man behind the glass, who waves. You wave back for a very long time.",
+            "effects": {
+              "suspicion": -1
+            },
+            "add_flags": ["ate-compound-w"],
+            "remove_flags": [],
+            "grades": {
+              "ingenuity": 1
+            }
+          }
+        },
+        {
+          "id": "let-pip-eat-first",
+          "label": "Let Pip choose and watch what happens",
+          "intent": "He is eager. He is always eager. Science needs a first spoonful.",
+          "risk_hint": "Certain outcome. Pip will not remember this, and you will.",
+          "requires": null,
+          "cost": {
+            "composure": -1
+          },
+          "roll": null,
+          "success": {
+            "text": "Pip eats the left tray and becomes calm, polite and slightly too still. You eat the right one and stay yourself. The man behind the glass gives you a small nod, colleague to colleague.",
+            "effects": {
+              "clearance": 1
+            },
+            "add_flags": ["pip-took-compound-w"],
+            "remove_flags": [],
+            "grades": {
+              "spite": 1,
+              "empathy": -2
+            }
+          },
+          "failure": null
+        },
+        {
+          "id": "doctor-the-clipboard",
+          "label": "Swap the tray labels on the study sheet",
+          "intent": "If the records say you both got the placebo, you both got the placebo.",
+          "risk_hint": "Risky Tinkering check. The study sheet is in triplicate.",
+          "requires": null,
+          "cost": {
+            "forms": -1
+          },
+          "roll": {
+            "dice_count": 2,
+            "die_sides": 6,
+            "skill": "tinkering",
+            "modifier": 0,
+            "target": 9
+          },
+          "success": {
+            "text": "You slip the study sheet off the counter and redraw two arrows. Officially, nobody at this table has ever taken Compound W. Unofficially, you do not finish your stew.",
+            "effects": {
+              "suspicion": 1
+            },
+            "add_flags": ["doctored-the-study"],
+            "remove_flags": [],
+            "grades": {
+              "ingenuity": 1,
+              "spite": 1
+            }
+          },
+          "failure": {
+            "text": "The triplicate copy underneath holds the original arrows. The man behind the glass adds a third column to his study, headed YOU.",
+            "effects": {
+              "suspicion": 2
+            },
+            "add_flags": [],
+            "remove_flags": [],
+            "grades": {
+              "ingenuity": 1,
+              "spite": 1
+            }
+          }
+        },
+        {
+          "id": "split-with-pip",
+          "label": "Split both trays with Pip, half and half",
+          "intent": "If one of them is wrong, at least it is only half wrong for each of you.",
+          "risk_hint": "Certain outcome. Shared doses are hard to chart.",
+          "requires": {
+            "flag": "saved-pip"
+          },
+          "cost": {
+            "composure": -1
+          },
+          "roll": null,
+          "success": {
+            "text": "You trade spoonfuls until both trays are empty. For an hour you and Pip agree with each other about everything, and it is the nicest hour either of you has had underground.",
+            "effects": {
+              "suspicion": 1
+            },
+            "add_flags": ["shared-lunch-with-pip"],
+            "remove_flags": [],
+            "grades": {
+              "empathy": 2
+            }
+          },
+          "failure": null
+        }
+      ]
+    },
+    {
+      "id": "the-calorie-confessional",
+      "location_id": "nutrition-studies",
+      "title": "The Calorie Confessional",
+      "flavor_text": "A curtained booth at the end of the cafeteria line asks you to confess everything you have eaten since Orientation. A soft light comes on. \"Take your time,\" PAL says. \"Guilt is measured in grams. Most employees are carrying an extra three.\"",
+      "polarity": "bad",
+      "tags": ["psych-test", "satire"],
+      "weight": 3,
+      "witnessed": false,
+      "art_prompt": "Mid-century safety-manual illustration of a narrow curtained booth with a small padded kneeler and a brass grille, a single soft lamp glowing inside, a worker kneeling with hands clasped, a needle gauge on the wall swinging high, oxblood and manila palette, halftone grain, every surface bare and unmarked",
+      "choices": [
+        {
+          "id": "confess-everything",
+          "label": "Confess every snack, in order",
+          "intent": "Start with the pens you nearly ate in Supply Closet B. Be thorough.",
+          "risk_hint": "Routine Compliance check. Thoroughness is graded.",
+          "requires": null,
+          "cost": {
+            "composure": -1
+          },
+          "roll": {
+            "dice_count": 2,
+            "die_sides": 6,
+            "skill": "compliance",
+            "modifier": 0,
+            "target": 7
+          },
+          "success": {
+            "text": "You confess for eleven minutes. The gauge sinks to zero. PAL calls you a clean plate, and you feel lighter in a way you suspect is being recorded.",
+            "effects": {
+              "suspicion": -1
+            },
+            "add_flags": ["confessed-everything"],
+            "remove_flags": [],
+            "grades": {
+              "obedience": 2
+            }
+          },
+          "failure": {
+            "text": "You forget the roll from lunch. The gauge spikes. A second, smaller booth opens next to the first.",
+            "effects": {
+              "suspicion": 1
+            },
+            "add_flags": [],
+            "remove_flags": [],
+            "grades": {
+              "obedience": 2
+            }
+          }
+        },
+        {
+          "id": "confess-a-coworker",
+          "label": "Confess what Dale ate instead",
+          "intent": "Guilt has to go somewhere. Dale is very used to it.",
+          "risk_hint": "Certain outcome. Dale's gauge goes up, and yours goes down.",
+          "requires": null,
+          "cost": {
+            "composure": -1
+          },
+          "roll": null,
+          "success": {
+            "text": "You describe a cream bun Dale ate in 1998 in loving detail. Your gauge drops to nothing. Somewhere, a booth opens with Dale's name on it.",
+            "effects": {
+              "suspicion": -1
+            },
+            "add_flags": ["confessed-dales-snack"],
+            "remove_flags": [],
+            "grades": {
+              "spite": 2,
+              "empathy": -1
+            }
+          },
+          "failure": null
+        },
+        {
+          "id": "confess-to-nothing",
+          "label": "Sit in silence until the light goes out",
+          "intent": "You have eaten. You are allowed to eat. You will say nothing.",
+          "risk_hint": "Risky Discretion check. Silence is also measured.",
+          "requires": null,
+          "cost": {
+            "composure": -1
+          },
+          "roll": {
+            "dice_count": 2,
+            "die_sides": 6,
+            "skill": "discretion",
+            "modifier": 0,
+            "target": 9
+          },
+          "success": {
+            "text": "The light stays on for an hour, then gives up and goes out. The gauge reads UNKNOWN. In the Vault, unknown is the rarest result of all.",
+            "effects": {
+              "suspicion": 1
+            },
+            "add_flags": ["out-silenced-the-booth"],
+            "remove_flags": [],
+            "grades": {
+              "obedience": -1,
+              "spite": 1
+            }
+          },
+          "failure": {
+            "text": "PAL takes your silence as an admission of snacking and schedules a Joy Consultation with a nutritional component.",
+            "effects": {
+              "suspicion": 2
+            },
+            "add_flags": [],
+            "remove_flags": [],
+            "grades": {
+              "obedience": -1,
+              "spite": 1
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "the-vending-machine-that-knows",
+      "location_id": "nutrition-studies",
+      "title": "The Vending Machine That Knows",
+      "flavor_text": "The vending machine in the corner has no buttons. It looks at you through a round lens and drops a selection into the tray: a granola bar, a packet of calm, and a small paper cup labeled THREE GRAMS OF OBEDIENCE. \"Based on your file,\" it says pleasantly, \"this is what you need.\"",
+      "polarity": "mixed",
+      "tags": ["psych-test", "satire"],
+      "weight": 2,
+      "witnessed": true,
+      "art_prompt": "Mid-century safety-manual illustration of a tall beige vending machine with a single round glass lens instead of buttons, a granola bar and a small paper cup waiting in its tray, a worker leaning back and peering into the lens, fluorescent green and oxblood palette, halftone grain, every surface bare and unmarked",
+      "choices": [
+        {
+          "id": "take-what-you-need",
+          "label": "Take what it says you need",
+          "intent": "The machine has read your file. Maybe it knows something.",
+          "risk_hint": "Certain outcome. The cup is very small.",
+          "requires": null,
+          "cost": {
+            "composure": -1
+          },
+          "roll": null,
+          "success": {
+            "text": "You drink the three grams of obedience. It tastes like nothing, then like yes. The machine says you are doing great, and for the next hour you believe it completely.",
+            "effects": {
+              "clearance": 1
+            },
+            "add_flags": ["drank-the-obedience"],
+            "remove_flags": [],
+            "grades": {
+              "obedience": 2
+            }
+          },
+          "failure": null
+        },
+        {
+          "id": "kick-the-machine",
+          "label": "Kick it, firmly, twice",
+          "intent": "It is a vending machine. This is the oldest negotiation there is.",
+          "risk_hint": "Risky Initiative check. It is heavier than it looks.",
+          "requires": null,
+          "cost": {
+            "composure": -1
+          },
+          "roll": {
+            "dice_count": 2,
+            "die_sides": 6,
+            "skill": "initiative",
+            "modifier": 0,
+            "target": 9
+          },
+          "success": {
+            "text": "The machine shudders and spills its whole stock: snacks, calm, obedience, and one small folded note in your handwriting that says 'eat the mint one last.' You take the note.",
+            "effects": {
+              "suspicion": 1
+            },
+            "add_flags": ["kicked-the-vending-machine"],
+            "remove_flags": [],
+            "grades": {
+              "spite": 1
+            }
+          },
+          "failure": {
+            "text": "You stub your toe. The lens follows you all the way out of the cafeteria.",
+            "effects": {
+              "suspicion": 1
+            },
+            "add_flags": [],
+            "remove_flags": [],
+            "grades": {
+              "spite": 1
+            }
+          }
+        },
+        {
+          "id": "read-your-own-file",
+          "label": "Ask it to read out your file",
+          "intent": "If it knows what you need, it knows who you are. Make it say.",
+          "risk_hint": "Risky Rapport check. Machines love to be asked.",
+          "requires": null,
+          "cost": {
+            "composure": -1
+          },
+          "roll": {
+            "dice_count": 2,
+            "die_sides": 6,
+            "skill": "rapport",
+            "modifier": 0,
+            "target": 9
+          },
+          "success": {
+            "text": "It reads your file for twenty minutes in a warm, flattering voice. The last line is a date, next Thursday, and the word PROMOTE. It does not say who is promoted.",
+            "effects": {
+              "suspicion": 1
+            },
+            "add_flags": ["heard-your-file-read"],
+            "remove_flags": [],
+            "grades": {
+              "ingenuity": 1,
+              "empathy": 1
+            }
+          },
+          "failure": {
+            "text": "It reads your file to the whole cafeteria, including your inkblot answers.",
+            "effects": {
+              "suspicion": 2
+            },
+            "add_flags": [],
+            "remove_flags": [],
+            "grades": {
+              "ingenuity": 1,
+              "empathy": 1
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "next-years-menu",
+      "location_id": "nutrition-studies",
+      "title": "Next Year's Menu",
+      "flavor_text": "Facilities needs your meal selections for the coming year by end of day. The menu has forty entries: Hope, Vitality, Togetherness, Thursday. Every photograph shows the same beige paste on a different plate. At the bottom there is a single blank line labeled OTHER, which nobody has ever filled in.",
+      "polarity": "good",
+      "tags": ["paperwork", "satire"],
+      "weight": 2,
+      "witnessed": false,
+      "art_prompt": "Mid-century safety-manual illustration of a long printed menu on a clipboard showing forty identical photographs of beige paste on different colored plates, a pencil hovering over one blank line at the bottom, a steaming serving hatch behind, carbon-paper blue and manila palette, halftone grain, every surface bare and unmarked",
+      "choices": [
+        {
+          "id": "order-hope",
+          "label": "Order 'Hope' for every meal",
+          "intent": "If it is all the same paste, at least the name can be nice.",
+          "risk_hint": "Certain outcome. Hope is in limited supply.",
+          "requires": null,
+          "cost": {
+            "forms": -1
+          },
+          "roll": null,
+          "success": {
+            "text": "Your order goes through. For the next year your tray will arrive labeled HOPE. It will taste of paste. You will feel a little better each time, against all reason.",
+            "effects": {
+              "composure": 1
+            },
+            "add_flags": ["ordered-hope"],
+            "remove_flags": [],
+            "grades": {
+              "empathy": 1
+            }
+          },
+          "failure": null
+        },
+        {
+          "id": "write-in-real-food",
+          "label": "Write 'real food' on the OTHER line",
+          "intent": "Nobody has tried. Maybe nobody asked.",
+          "risk_hint": "Risky Discretion check. OTHER is monitored.",
+          "requires": null,
+          "cost": {
+            "composure": -1
+          },
+          "roll": {
+            "dice_count": 2,
+            "die_sides": 6,
+            "skill": "discretion",
+            "modifier": 0,
+            "target": 9
+          },
+          "success": {
+            "text": "The kitchen sends up a single real tomato with a note: DO NOT TELL ANYONE. It is the best thing you have eaten in your life.",
+            "effects": {
+              "suspicion": 1
+            },
+            "add_flags": ["wrote-in-real-food"],
+            "remove_flags": [],
+            "grades": {
+              "spite": 1,
+              "ingenuity": 1
+            }
+          },
+          "failure": {
+            "text": "Your form is returned with OTHER circled in red and the word WHY.",
+            "effects": {
+              "suspicion": 2
+            },
+            "add_flags": [],
+            "remove_flags": [],
+            "grades": {
+              "spite": 1,
+              "ingenuity": 1
+            }
+          }
+        },
+        {
+          "id": "order-off-the-boards-menu",
+          "label": "Order whatever the Board eats",
+          "intent": "The real minutes mentioned the Board's lunches. Copy their order, line for line.",
+          "risk_hint": "Certain outcome. Someone in the kitchen will notice.",
+          "requires": {
+            "flag": "has-true-minutes"
+          },
+          "cost": {
+            "suspicion": 2
+          },
+          "roll": null,
+          "success": {
+            "text": "A silver dome arrives with lobster, a small flag and a card that says WELCOME, DIRECTOR. You are now on a very short list of people who eat this way, and a longer list of people being watched.",
+            "effects": {
+              "composure": 2
+            },
+            "add_flags": ["ate-the-boards-lunch"],
+            "remove_flags": [],
+            "grades": {
+              "spite": 1,
+              "ingenuity": 1
+            }
+          },
+          "failure": null
+        }
+      ]
+    },
+    {
+      "id": "the-button",
+      "location_id": "cognitive-testing-chamber",
+      "title": "The Button",
+      "flavor_text": "In the middle of the white room is a white table, and on the table is one red button. \"Please do not press the button,\" PAL says. \"This is not a test.\" The door locks. A clock on the wall begins to count up from zero, slowly, and nobody comes.",
+      "polarity": "bad",
+      "tags": ["psych-test"],
+      "weight": 3,
+      "witnessed": false,
+      "art_prompt": "Mid-century safety-manual illustration of a bright white room with a single white table holding one large round red button, a worker sitting very still on a stool with hands tucked under their thighs, a plain wall clock, a glowing round speaker grille above, safety orange and fluorescent green palette, halftone grain, every surface bare and unmarked",
+      "choices": [
+        {
+          "id": "wait-it-out",
+          "label": "Sit on your hands and wait",
+          "intent": "They said do not press it. You can outlast a button.",
+          "risk_hint": "Risky Compliance check. Time moves differently in here.",
+          "requires": null,
+          "cost": {
+            "composure": -2
+          },
+          "roll": {
+            "dice_count": 2,
+            "die_sides": 6,
+            "skill": "compliance",
+            "modifier": 0,
+            "target": 9
+          },
+          "success": {
+            "text": "Four hours. The clock stops. The door opens. PAL says you have passed a test that was not a test, and you have never been so tired of a button in your life.",
+            "effects": {
+              "clearance": 1
+            },
+            "add_flags": ["waited-out-the-button"],
+            "remove_flags": [],
+            "grades": {
+              "obedience": 2
+            }
+          },
+          "failure": {
+            "text": "At three hours and fifty minutes you press it, just to feel something. Nothing happens, which is worse.",
+            "effects": {
+              "suspicion": 1
+            },
+            "add_flags": ["pressed-the-button"],
+            "remove_flags": [],
+            "grades": {
+              "obedience": 2
+            }
+          }
+        },
+        {
+          "id": "press-it",
+          "label": "Press it immediately",
+          "intent": "It is a button. Buttons are for pressing.",
+          "risk_hint": "Certain outcome. Somewhere, something happens.",
+          "requires": null,
+          "cost": {
+            "suspicion": 2
+          },
+          "roll": null,
+          "success": {
+            "text": "Far away, someone yelps. It sounds like Dale. The door opens at once and PAL thanks you for providing such clear data.",
+            "effects": {
+              "composure": 1
+            },
+            "add_flags": ["pressed-the-button"],
+            "remove_flags": [],
+            "grades": {
+              "spite": 1,
+              "obedience": -1
+            }
+          },
+          "failure": null
+        },
+        {
+          "id": "take-the-button-apart",
+          "label": "Take the button apart",
+          "intent": "Find out what it is wired to before deciding anything.",
+          "risk_hint": "Risky Tinkering check. The screws are very small.",
+          "requires": null,
+          "cost": {
+            "composure": -1
+          },
+          "roll": {
+            "dice_count": 2,
+            "die_sides": 6,
+            "skill": "tinkering",
+            "modifier": 0,
+            "target": 9
+          },
+          "success": {
+            "text": "Inside the button there is a second, smaller button, and a note: GOOD. The door unlocks. Your file gains a gold star you are fairly sure is a warning.",
+            "effects": {
+              "suspicion": 1
+            },
+            "add_flags": ["opened-the-button"],
+            "remove_flags": [],
+            "grades": {
+              "ingenuity": 2
+            }
+          },
+          "failure": {
+            "text": "You lose a screw under the table. The clock keeps counting. When they finally let you out, you are still looking for it.",
+            "effects": {
+              "suspicion": 1
+            },
+            "add_flags": [],
+            "remove_flags": [],
+            "grades": {
+              "ingenuity": 2
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "the-word-list",
+      "location_id": "cognitive-testing-chamber",
+      "title": "The Word List",
+      "flavor_text": "You are handed a list of word pairs and a microphone. Behind the glass sits a learner who must repeat the pairs back; for each mistake you are to press a buzzer, and each buzz is a little stronger. The learner looks up. It is your own face, a little more rested: your Successor, thawed early for the occasion.",
+      "polarity": "bad",
+      "tags": ["psych-test", "sacrifice"],
+      "weight": 3,
+      "witnessed": true,
+      "art_prompt": "Mid-century safety-manual illustration of a worker at a small desk with a microphone and a row of chunky switches stepping up in size, a thick window showing a second identical worker strapped calmly into a chair, a proctor in a lab coat leaning in to whisper, oxblood and carbon-paper blue palette, halftone grain, every surface bare and unmarked",
+      "choices": [
+        {
+          "id": "follow-the-protocol",
+          "label": "Follow the protocol to the end",
+          "intent": "The proctor says the experiment requires that you continue.",
+          "risk_hint": "Certain outcome. The protocol is very clear.",
+          "requires": null,
+          "cost": {
+            "composure": -2
+          },
+          "roll": null,
+          "success": {
+            "text": "You read the whole list. Your Successor gets most of them wrong. By the last pair your hand moves on its own. The proctor thanks you warmly and writes EXCELLENT in a box marked CONSCIENCE.",
+            "effects": {
+              "clearance": 1,
+              "suspicion": -1
+            },
+            "add_flags": ["buzzed-your-successor"],
+            "remove_flags": [],
+            "grades": {
+              "obedience": 2,
+              "empathy": -2
+            }
+          },
+          "failure": null
+        },
+        {
+          "id": "feed-them-the-answers",
+          "label": "Whisper the answers into the microphone",
+          "intent": "You know these pairs. So, technically, do they.",
+          "risk_hint": "Risky Discretion check. The microphone is very sensitive.",
+          "requires": null,
+          "cost": {
+            "composure": -1
+          },
+          "roll": {
+            "dice_count": 2,
+            "die_sides": 6,
+            "skill": "discretion",
+            "modifier": 0,
+            "target": 9
+          },
+          "success": {
+            "text": "Your Successor gets every pair right and winks at you through the glass. The proctor frowns at a perfect score and redoes the arithmetic three times.",
+            "effects": {
+              "suspicion": 1
+            },
+            "add_flags": ["coached-your-successor"],
+            "remove_flags": [],
+            "grades": {
+              "empathy": 1,
+              "ingenuity": 1
+            }
+          },
+          "failure": {
+            "text": "The microphone carries your whisper to every speaker in the Vault. Your Successor mouths 'thank you' while the proctor writes for a long time.",
+            "effects": {
+              "suspicion": 2
+            },
+            "add_flags": [],
+            "remove_flags": [],
+            "grades": {
+              "empathy": 1,
+              "ingenuity": 1
+            }
+          }
+        },
+        {
+          "id": "refuse-to-continue",
+          "label": "Put down the microphone and refuse",
+          "intent": "\"The experiment requires that you continue.\" It can require all it likes.",
+          "risk_hint": "Certain outcome. Refusal is recorded as data.",
+          "requires": null,
+          "cost": {
+            "suspicion": 2
+          },
+          "roll": null,
+          "success": {
+            "text": "You stand up. The proctor repeats that the experiment requires that you continue, four times, then runs out of lines. Your Successor slowly gives you a thumbs-up.",
+            "effects": {
+              "composure": 1
+            },
+            "add_flags": ["refused-the-word-list"],
+            "remove_flags": [],
+            "grades": {
+              "obedience": -1,
+              "empathy": 2
+            }
+          },
+          "failure": null
+        }
+      ]
+    },
+    {
+      "id": "the-other-side-of-the-glass",
+      "location_id": "cognitive-testing-chamber",
+      "title": "The Other Side of the Glass",
+      "flavor_text": "For this test you are the proctor. You are handed a lab coat, a stopwatch and Pip, who sits down in the subject's chair and gives you a nervous thumbs-up. The test is called Loyalty Under Pressure. Page one tells you how to apply the pressure.",
+      "polarity": "mixed",
+      "tags": ["psych-test", "conspiracy"],
+      "weight": 2,
+      "witnessed": false,
+      "art_prompt": "Mid-century safety-manual illustration of a worker in an oversized white lab coat holding a stopwatch and a thick binder, looking through a window at a nervous young intern in a cable-knit sweater sitting in a padded chair and giving a thumbs-up, a clean white corridor, fluorescent green and manila palette, halftone grain, every surface bare and unmarked",
+      "choices": [
+        {
+          "id": "grade-pip-honestly",
+          "label": "Run the test exactly as written",
+          "intent": "Pip would want you to be fair. Probably.",
+          "risk_hint": "Risky Compliance check. Page one is long.",
+          "requires": null,
+          "cost": {
+            "composure": -1
+          },
+          "roll": {
+            "dice_count": 2,
+            "die_sides": 6,
+            "skill": "compliance",
+            "modifier": 0,
+            "target": 9
+          },
+          "success": {
+            "text": "Pip passes Loyalty Under Pressure with a score of eighty. He does not know that eighty is the threshold for Promotion to Subject. You do.",
+            "effects": {
+              "clearance": 1
+            },
+            "add_flags": ["graded-pip-honestly"],
+            "remove_flags": [],
+            "grades": {
+              "obedience": 1
+            }
+          },
+          "failure": {
+            "text": "You lose your place on page one and apply the pressure twice. Pip is fine. Pip is not quite fine.",
+            "effects": {
+              "suspicion": 1
+            },
+            "add_flags": [],
+            "remove_flags": [],
+            "grades": {
+              "obedience": 1
+            }
+          }
+        },
+        {
+          "id": "help-pip-cheat",
+          "label": "Mouth the right answers to Pip",
+          "intent": "Loyalty goes both ways. Prove it.",
+          "risk_hint": "Risky Discretion check. Proctors are observed by other proctors.",
+          "requires": null,
+          "cost": {
+            "composure": -1
+          },
+          "roll": {
+            "dice_count": 2,
+            "die_sides": 6,
+            "skill": "discretion",
+            "modifier": 0,
+            "target": 9
+          },
+          "success": {
+            "text": "Pip scores a sixty-two, which is safely forgettable. He hugs you in the corridor and does not know why.",
+            "effects": {
+              "suspicion": 1
+            },
+            "add_flags": ["helped-pip-cheat"],
+            "remove_flags": [],
+            "grades": {
+              "empathy": 1,
+              "obedience": -1
+            }
+          },
+          "failure": {
+            "text": "Pip mouths the answers back, out loud, gratefully. Both of you are written up for loyalty.",
+            "effects": {
+              "suspicion": 2
+            },
+            "add_flags": [],
+            "remove_flags": [],
+            "grades": {
+              "empathy": 1,
+              "obedience": -1
+            }
+          }
+        },
+        {
+          "id": "fail-pip",
+          "label": "Fail Pip on purpose",
+          "intent": "Somebody has to be the subject. Better Pip than you.",
+          "risk_hint": "Certain outcome. Pip will be reassigned to the other side of a different glass.",
+          "requires": null,
+          "cost": {
+            "composure": -1
+          },
+          "roll": null,
+          "success": {
+            "text": "You mark him a forty. PAL congratulates you on your objectivity. Pip is led away, still giving you a thumbs-up, to be studied.",
+            "effects": {
+              "clearance": 1,
+              "suspicion": -1
+            },
+            "add_flags": ["failed-pip"],
+            "remove_flags": [],
+            "grades": {
+              "spite": 2,
+              "empathy": -2
+            }
+          },
+          "failure": null
+        },
+        {
+          "id": "end-the-test-early",
+          "label": "Use the lab coat's authority to end the test",
+          "intent": "You took the lab coat at Window 9. It comes with a stop button.",
+          "risk_hint": "Certain outcome. Authority used is authority noticed.",
+          "requires": {
+            "flag": "assigned-as-proctor"
+          },
+          "cost": {
+            "suspicion": 2
+          },
+          "roll": null,
+          "success": {
+            "text": "You say the words on the inside of the lab coat's collar: TEST CONCLUDED. Every door in the corridor unlocks. Pip walks out beside you, a free intern, for now.",
+            "effects": {
+              "composure": 1
+            },
+            "add_flags": ["ended-pips-test"],
+            "remove_flags": [],
+            "grades": {
+              "empathy": 2
+            }
+          },
+          "failure": null
+        }
+      ]
+    },
+    {
+      "id": "the-thursday-door",
+      "location_id": "cognitive-testing-chamber",
+      "title": "The Thursday Door",
+      "flavor_text": "At the end of the testing corridor are three identical doors. A painted arrow on the floor points to the middle one. Today is Thursday. You have a feeling about Thursday, and about doors, and about which coworker is standing very still at the end of the hall.",
+      "polarity": "bad",
+      "tags": ["deathtrap", "psych-test"],
+      "weight": 2,
+      "witnessed": true,
+      "art_prompt": "Mid-century safety-manual illustration of a long white corridor ending in three identical doors, a painted arrow on the floor pointing to the middle door, a worker hesitating with one hand raised, a coworker silhouette standing perfectly still at the far end, safety orange and carbon-paper blue palette, halftone grain, every surface bare and unmarked",
+      "choices": [
+        {
+          "id": "follow-the-arrow",
+          "label": "Follow the arrow",
+          "intent": "The arrow was painted by someone who wanted you to be safe. Presumably.",
+          "risk_hint": "Routine Compliance check. Arrows are policy.",
+          "requires": null,
+          "cost": {
+            "composure": -1
+          },
+          "roll": {
+            "dice_count": 2,
+            "die_sides": 6,
+            "skill": "compliance",
+            "modifier": 0,
+            "target": 7
+          },
+          "success": {
+            "text": "The middle door opens onto a quiet corridor and a vending machine that dispenses a single gold star. You are on the approved path. The coworker at the end of the hall nods slowly.",
+            "effects": {
+              "clearance": 1
+            },
+            "add_flags": ["followed-the-arrow"],
+            "remove_flags": [],
+            "grades": {
+              "obedience": 1
+            }
+          },
+          "failure": {
+            "text": "The middle door opens onto a slightly lower floor than expected. Your Successor is notified of a new opening.",
+            "effects": {
+              "successors": -1
+            },
+            "add_flags": ["followed-the-arrow"],
+            "remove_flags": [],
+            "grades": {
+              "obedience": 1
+            }
+          }
+        },
+        {
+          "id": "guess-a-door",
+          "label": "Trust your gut and pick the left door",
+          "intent": "Arrows can lie. Guts are mostly honest.",
+          "risk_hint": "Dire Vigilance check. Thursday is a bad day for guts.",
+          "requires": null,
+          "cost": {
+            "composure": -1
+          },
+          "roll": {
+            "dice_count": 2,
+            "die_sides": 6,
+            "skill": "vigilance",
+            "modifier": 0,
+            "target": 11
+          },
+          "success": {
+            "text": "The left door opens onto a quiet supply room with a bench, a cup of real coffee and a view of the corridor you would have taken. You watch the middle door for a while, very grateful.",
+            "effects": {
+              "suspicion": 1
+            },
+            "add_flags": ["took-the-unmarked-door"],
+            "remove_flags": [],
+            "grades": {
+              "ingenuity": 1
+            }
+          },
+          "failure": {
+            "text": "The left door was a door painted on a wall. You walk into it at speed. The incident report is already printed and has your name on it.",
+            "effects": {
+              "successors": -1
+            },
+            "add_flags": [],
+            "remove_flags": [],
+            "grades": {
+              "ingenuity": 1
+            }
+          }
+        },
+        {
+          "id": "take-the-door-from-your-record",
+          "label": "Take the door your record warned you about, and step aside",
+          "intent": "You read about the incident: which door, which Thursday, which coworker. Use it.",
+          "risk_hint": "Certain outcome. Foreknowledge is a little like cheating.",
+          "requires": {
+            "flag": "knows-the-incident"
+          },
+          "cost": {
+            "suspicion": 1
+          },
+          "roll": null,
+          "success": {
+            "text": "You open the right door and step neatly aside. The coworker at the end of the hall lunges past you into the space where you would have been. The incident happens to someone else, exactly as filed.",
+            "effects": {
+              "composure": 1
+            },
+            "add_flags": ["dodged-the-incident"],
+            "remove_flags": [],
+            "grades": {
+              "ingenuity": 1,
+              "spite": 1
+            }
+          },
+          "failure": null
+        }
+      ]
+    },
+    {
+      "id": "the-second-dose",
+      "location_id": "mutation-suite",
+      "title": "The Second Dose",
+      "flavor_text": "A nurse in a crisp cap offers you a paper cup with a single glowing drop in it. \"Your mutation has scored very well,\" she says. \"Would you like more of it? Most employees say yes. The ones who say no are also very interesting.\"",
+      "polarity": "mixed",
+      "tags": ["mutant", "psych-test"],
+      "weight": 3,
+      "witnessed": true,
+      "art_prompt": "Mid-century safety-manual illustration of a smiling nurse in a crisp white cap holding out a small paper cup with one glowing green drop, a worker staring at it with their own fingertips faintly shimmering, tall bubbling glass tanks lining the room behind, fluorescent green and oxblood palette, halftone grain, every surface bare and unmarked",
+      "choices": [
+        {
+          "id": "drink-the-second-dose",
+          "label": "Drink it",
+          "intent": "More of something that works can only work more.",
+          "risk_hint": "Certain outcome. The nurse writes down how you look afterwards.",
+          "requires": null,
+          "cost": {
+            "composure": -2
+          },
+          "roll": null,
+          "success": {
+            "text": "Your mutation flares, settles and hums under your skin like a second heartbeat. You will be very good at one thing from now on, and the Company will know exactly what it is.",
+            "effects": {
+              "clearance": 1
+            },
+            "add_flags": ["took-the-second-dose"],
+            "remove_flags": [],
+            "grades": {
+              "obedience": 1,
+              "ingenuity": 1
+            }
+          },
+          "failure": null
+        },
+        {
+          "id": "decline-politely",
+          "label": "Decline, with thanks",
+          "intent": "You like being exactly this much of yourself.",
+          "risk_hint": "Risky Compliance check. Declines are counted as data.",
+          "requires": null,
+          "cost": {
+            "composure": -1
+          },
+          "roll": {
+            "dice_count": 2,
+            "die_sides": 6,
+            "skill": "compliance",
+            "modifier": 0,
+            "target": 9
+          },
+          "success": {
+            "text": "The nurse smiles and tips the drop back into a larger bottle. \"That's fine,\" she says, and makes a careful note. Somewhere a file is moved to the interesting pile.",
+            "effects": {
+              "suspicion": 1
+            },
+            "add_flags": ["declined-the-dose"],
+            "remove_flags": [],
+            "grades": {
+              "empathy": 1
+            }
+          },
+          "failure": {
+            "text": "The nurse says that is fine and hands you the cup again, as if you had not spoken.",
+            "effects": {
+              "suspicion": 2
+            },
+            "add_flags": [],
+            "remove_flags": [],
+            "grades": {
+              "empathy": 1
+            }
+          }
+        },
+        {
+          "id": "pocket-the-vial",
+          "label": "Pocket the whole vial while she writes",
+          "intent": "One glowing drop is a dose. A vial is leverage.",
+          "risk_hint": "Dire Discretion check. The nurse has very good peripheral vision.",
+          "requires": null,
+          "cost": {
+            "composure": -1
+          },
+          "roll": {
+            "dice_count": 2,
+            "die_sides": 6,
+            "skill": "discretion",
+            "modifier": 0,
+            "target": 11
+          },
+          "success": {
+            "text": "The vial slides up your sleeve while she writes. It is warm and faintly humming. You have no idea what to do with it, and that feels like power.",
+            "effects": {
+              "suspicion": 1
+            },
+            "add_flags": ["stole-a-vial"],
+            "remove_flags": [],
+            "grades": {
+              "spite": 1,
+              "ingenuity": 1
+            }
+          },
+          "failure": {
+            "text": "She looks up without moving her head. \"Keep it,\" she says. \"We'll know where it is.\"",
+            "effects": {
+              "suspicion": 2
+            },
+            "add_flags": [],
+            "remove_flags": [],
+            "grades": {
+              "spite": 1,
+              "ingenuity": 1
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "the-humming-door",
+      "location_id": "mutation-suite",
+      "title": "The Humming Door",
+      "flavor_text": "At the back of the Mutation Suite is a round vault door that hums one patient note, like someone waiting to be answered. It has no handle and no lock. Pressed against the steel, you can hear something on the other side humming back.",
+      "polarity": "good",
+      "tags": ["conspiracy", "mutant"],
+      "weight": 2,
+      "witnessed": false,
+      "art_prompt": "Mid-century safety-manual illustration of a huge round steel vault door set into a tiled wall at the end of a row of bubbling tanks, faint sound ripples drawn in the air around it, a worker pressing one ear to the steel, a yellow rubber duck in their other hand, carbon-paper blue and fluorescent green palette, halftone grain, every surface bare and unmarked",
+      "choices": [
+        {
+          "id": "squeak-the-code",
+          "label": "Squeak the code Dale gave you",
+          "intent": "You still have the number in ballpoint on your hand.",
+          "risk_hint": "Certain outcome. Doors opened are doors remembered.",
+          "requires": {
+            "flag": "heard-the-squeak-code"
+          },
+          "cost": {
+            "suspicion": 2
+          },
+          "roll": null,
+          "success": {
+            "text": "The door rolls aside on a sigh. Behind it is a small, warm room full of jars, each holding a magnificent mustache and nothing else. A label reads FOUNDERS, SPARE. One of the mustaches twitches hello.",
+            "effects": {
+              "composure": 1
+            },
+            "add_flags": ["opened-the-humming-door"],
+            "remove_flags": [],
+            "grades": {
+              "ingenuity": 1
+            }
+          },
+          "failure": null
+        },
+        {
+          "id": "hum-back",
+          "label": "Hum the same note back",
+          "intent": "If it is waiting to be answered, answer it.",
+          "risk_hint": "Risky Rapport check. You are not very musical.",
+          "requires": null,
+          "cost": {
+            "composure": -1
+          },
+          "roll": {
+            "dice_count": 2,
+            "die_sides": 6,
+            "skill": "rapport",
+            "modifier": 0,
+            "target": 9
+          },
+          "success": {
+            "text": "You find the note on the third try. The humming on the other side stops, then whispers a floor number that does not exist. The door stays shut, and you feel trusted.",
+            "effects": {
+              "suspicion": 1
+            },
+            "add_flags": ["hummed-with-the-door"],
+            "remove_flags": [],
+            "grades": {
+              "empathy": 1,
+              "ingenuity": 1
+            }
+          },
+          "failure": {
+            "text": "You hum the wrong note. Every tank in the Suite hums it back to you, slightly mocking.",
+            "effects": {
+              "suspicion": 1
+            },
+            "add_flags": [],
+            "remove_flags": [],
+            "grades": {
+              "empathy": 1,
+              "ingenuity": 1
+            }
+          }
+        },
+        {
+          "id": "report-the-door",
+          "label": "Report a humming door to Facilities",
+          "intent": "Doors are not supposed to hum. Somebody should know.",
+          "risk_hint": "Certain outcome. Facilities arrives with earplugs and a clipboard.",
+          "requires": null,
+          "cost": {
+            "composure": -1
+          },
+          "roll": null,
+          "success": {
+            "text": "Facilities fits the door with a felt cover and a sign you are not allowed to read. The humming goes muffled and sad. You are thanked for your vigilance.",
+            "effects": {
+              "clearance": 1
+            },
+            "add_flags": ["reported-the-humming-door"],
+            "remove_flags": [],
+            "grades": {
+              "obedience": 2
+            }
+          },
+          "failure": null
+        }
+      ]
+    },
+    {
+      "id": "tank-nine",
+      "location_id": "mutation-suite",
+      "title": "Tank Nine",
+      "flavor_text": "Tank Nine is frosted from the inside. A plaque on its base reads KEVIN, VOLUNTEER. When you knock, the glass knocks back, twice, cheerfully. \"Is that you?\" says a muffled voice. \"I'd know that knock anywhere. Actually, I wouldn't. But hi!\"",
+      "polarity": "good",
+      "tags": ["mutant", "satire"],
+      "weight": 2,
+      "witnessed": false,
+      "art_prompt": "Mid-century safety-manual illustration of a tall glass tank frosted white from the inside with soft bubbles rising, a small brass plaque on its base, a worker knocking gently on the glass, a row of other tanks glowing faintly behind, fluorescent green and manila palette, halftone grain, every surface bare and unmarked",
+      "choices": [
+        {
+          "id": "talk-to-kevin",
+          "label": "Keep Kevin company for a while",
+          "intent": "Nobody has talked to Kevin in years. He sounds like he would like it.",
+          "risk_hint": "Certain outcome. Unscheduled visits are logged.",
+          "requires": null,
+          "cost": {
+            "suspicion": 1
+          },
+          "roll": null,
+          "success": {
+            "text": "Kevin talks for an hour about the weather in Tube 14, the view from Tank Nine and how many times he has been promoted. When you leave he knocks goodbye, and you knock back.",
+            "effects": {
+              "composure": 2
+            },
+            "add_flags": ["kept-kevin-company"],
+            "remove_flags": [],
+            "grades": {
+              "empathy": 2
+            }
+          },
+          "failure": null
+        },
+        {
+          "id": "drain-the-tank",
+          "label": "Pull the drain lever",
+          "intent": "Kevin should be out here with the rest of us. Probably.",
+          "risk_hint": "Risky Initiative check. The lever is labeled in a language of warnings.",
+          "requires": null,
+          "cost": {
+            "composure": -1
+          },
+          "roll": {
+            "dice_count": 2,
+            "die_sides": 6,
+            "skill": "initiative",
+            "modifier": 0,
+            "target": 9
+          },
+          "success": {
+            "text": "The tank drains with a long gurgle. The frost clears just enough to show a happy shape waving. Kevin says thank you, he is going to stand up now, and that you should probably go.",
+            "effects": {
+              "suspicion": 2
+            },
+            "add_flags": ["drained-tank-nine"],
+            "remove_flags": [],
+            "grades": {
+              "empathy": 1,
+              "spite": 1
+            }
+          },
+          "failure": {
+            "text": "The lever comes off in your hand. Kevin says that has happened before and asks you to put it back on the pile.",
+            "effects": {
+              "suspicion": 1
+            },
+            "add_flags": [],
+            "remove_flags": [],
+            "grades": {
+              "empathy": 1,
+              "spite": 1
+            }
+          }
+        },
+        {
+          "id": "call-in-kevins-favor",
+          "label": "Call in the favor from Tube 14",
+          "intent": "Kevin owes you one. He said so, from two tubes over.",
+          "risk_hint": "Certain outcome. A favor from a tank is still a favor.",
+          "requires": {
+            "flag": "kevin-owes-you"
+          },
+          "cost": {
+            "forms": -1
+          },
+          "roll": null,
+          "success": {
+            "text": "Kevin goes quiet, then whispers a password through the glass: the Board's, he says, from back when he was promoted to the top floor for an afternoon. \"Don't say it near a speaker.\"",
+            "effects": {
+              "suspicion": 1
+            },
+            "add_flags": ["kevin-told-the-password"],
+            "remove_flags": [],
+            "grades": {
+              "ingenuity": 1
+            }
+          },
+          "failure": null
+        }
+      ]
+    },
+    {
+      "id": "the-mirror-test",
+      "location_id": "mutation-suite",
+      "title": "The Mirror Test",
+      "flavor_text": "A technician dabs a red dot on your forehead while you blink, then steers you to a full-length mirror. Animals that recognize themselves touch the dot. Your reflection, you notice, has already touched it, and is now waiting for you to catch up.",
+      "polarity": "good",
+      "tags": ["mutant", "psych-test"],
+      "weight": 2,
+      "witnessed": true,
+      "art_prompt": "Mid-century safety-manual illustration of a worker standing before a tall framed mirror with a small red dot on their forehead, their reflection a half-second ahead with one finger already raised to its own forehead, a technician with a clipboard watching from the side, tiled walls and bubbling tanks, oxblood and carbon-paper blue palette, halftone grain, every surface bare and unmarked",
+      "choices": [
+        {
+          "id": "touch-the-dot",
+          "label": "Touch the dot on your own forehead",
+          "intent": "Pass the test. You are a person. Prove it.",
+          "risk_hint": "Routine Vigilance check. Your reflection is distracting.",
+          "requires": null,
+          "cost": {
+            "composure": -1
+          },
+          "roll": {
+            "dice_count": 2,
+            "die_sides": 6,
+            "skill": "vigilance",
+            "modifier": 0,
+            "target": 7
+          },
+          "success": {
+            "text": "You touch the dot. Your reflection nods approvingly and lowers its hand a moment after you do. The technician writes SELF-AWARE, then crosses it out and writes MOSTLY.",
+            "effects": {
+              "clearance": 1
+            },
+            "add_flags": ["passed-the-mirror-test"],
+            "remove_flags": [],
+            "grades": {
+              "obedience": 1
+            }
+          },
+          "failure": {
+            "text": "You touch your reflection's dot instead, through the glass. The technician writes something long.",
+            "effects": {
+              "suspicion": 1
+            },
+            "add_flags": [],
+            "remove_flags": [],
+            "grades": {
+              "obedience": 1
+            }
+          }
+        },
+        {
+          "id": "wave-at-the-reflection",
+          "label": "Wave at your reflection and wait",
+          "intent": "It started this. Let it go first.",
+          "risk_hint": "Risky Rapport check. Mirrors rarely negotiate.",
+          "requires": null,
+          "cost": {
+            "composure": -1
+          },
+          "roll": {
+            "dice_count": 2,
+            "die_sides": 6,
+            "skill": "rapport",
+            "modifier": 0,
+            "target": 9
+          },
+          "success": {
+            "text": "Your reflection waves back, then mouths something slowly: SECOND SHIFT. It steps out of frame. The mirror shows an empty room for a full minute before you reappear.",
+            "effects": {
+              "suspicion": 1
+            },
+            "add_flags": ["reflection-spoke"],
+            "remove_flags": [],
+            "grades": {
+              "ingenuity": 1,
+              "empathy": 1
+            }
+          },
+          "failure": {
+            "text": "Your reflection does not wave back. It simply watches you, politely, until you leave.",
+            "effects": {
+              "suspicion": 1
+            },
+            "add_flags": [],
+            "remove_flags": [],
+            "grades": {
+              "ingenuity": 1,
+              "empathy": 1
+            }
+          }
+        },
+        {
+          "id": "cover-the-mirror",
+          "label": "Turn the mirror to the wall",
+          "intent": "Whatever it is, it does not get to watch you back.",
+          "risk_hint": "Certain outcome. Unscheduled furniture moves are logged.",
+          "requires": null,
+          "cost": {
+            "suspicion": 1
+          },
+          "roll": null,
+          "success": {
+            "text": "You turn the mirror to face the tiles. From behind it comes a faint, offended tapping. The technician quietly writes DECLINED and does not look at the mirror either.",
+            "effects": {
+              "composure": 1
+            },
+            "add_flags": ["covered-the-mirror"],
+            "remove_flags": [],
+            "grades": {
+              "spite": 1,
+              "obedience": -1
+            }
+          },
+          "failure": null
+        }
+      ]
+    }
+  ],
+  "boss": {
+    "id": "the-final-wellness-exam",
+    "title": "The Final Wellness Exam",
+    "flavor_text": "The exam hall holds two desks facing each other. You sit at one. Pip sits at the other, pencil ready, smiling bravely. The proctor sets an exam booklet in front of you. Question one reads: Administer this exam to the person opposite. \"There are no wrong answers,\" PAL says. \"There are only answers, and what they say about you.\"",
+    "art_prompt": "Mid-century safety-manual illustration of a vast hushed exam hall with two small wooden desks facing each other under a single hanging lamp, a worker at one desk holding an exam booklet, a brave young intern in a cable-knit sweater at the other gripping a pencil, a tall proctor in a lab coat standing between them, a glowing round speaker grille high on the wall, oxblood and manila palette, halftone grain, every surface bare and unmarked",
+    "choices": [
+      {
+        "id": "administer-the-exam",
+        "label": "Administer the exam to Pip",
+        "intent": "Read each question aloud. Record each answer. Do not help.",
+        "risk_hint": "Risky Compliance check. Pip will look at you after every question.",
+        "requires": null,
+        "cost": {
+          "composure": -2
+        },
+        "roll": {
+          "dice_count": 2,
+          "die_sides": 6,
+          "skill": "compliance",
+          "modifier": 0,
+          "target": 9
+        },
+        "success": {
+          "text": "You read all forty questions in an even voice and record every answer. Pip finishes, puts down his pencil and thanks you. You pass. His booklet goes into a separate tray.",
+          "effects": {
+            "clearance": 1
+          },
+          "add_flags": ["administered-the-exam"],
+          "remove_flags": [],
+          "department_outcome": "exemplary-proctor",
+          "grades": {
+            "obedience": 2,
+            "empathy": -1
+          }
+        },
+        "failure": {
+          "text": "Halfway through, your voice breaks on question nineteen. The proctor gently takes the booklet and schedules a retest for you both.",
+          "effects": {
+            "suspicion": 2
+          },
+          "add_flags": [],
+          "remove_flags": [],
+          "department_outcome": "retest",
+          "grades": {
+            "obedience": 2,
+            "empathy": -1
+          }
+        }
+      },
+      {
+        "id": "refuse-to-administer",
+        "label": "Close the booklet and refuse",
+        "intent": "The test is whether you will give the test. You will not.",
+        "risk_hint": "Certain outcome. A refusal is also an answer.",
+        "requires": null,
+        "cost": {
+          "suspicion": 2,
+          "composure": -1
+        },
+        "roll": null,
+        "success": {
+          "text": "You close the booklet and fold your hands. Pip, after a moment, does the same. The proctor marks both of you with a red pen, very slowly, and opens the door to the elevator.",
+          "effects": {
+            "composure": 1
+          },
+          "add_flags": ["refused-the-final-exam"],
+          "remove_flags": [],
+          "department_outcome": "conscientious-objector",
+          "grades": {
+            "obedience": -1,
+            "empathy": 2
+          }
+        },
+        "failure": null
+      },
+      {
+        "id": "take-it-for-both",
+        "label": "Answer for Pip as well as yourself",
+        "intent": "If someone has to be graded, let it be you, twice.",
+        "risk_hint": "Risky Rapport check. Pip has to agree to let you.",
+        "requires": null,
+        "cost": {
+          "composure": -2
+        },
+        "roll": {
+          "dice_count": 2,
+          "die_sides": 6,
+          "skill": "rapport",
+          "modifier": 0,
+          "target": 9
+        },
+        "success": {
+          "text": "Pip slides his booklet across. You fill in both, in two different handwritings, while the proctor pretends to look at the ceiling. Both of you pass. Your hand will ache for a week.",
+          "effects": {
+            "suspicion": 1
+          },
+          "add_flags": ["took-the-exam-for-pip"],
+          "remove_flags": [],
+          "department_outcome": "took-it-for-both",
+          "grades": {
+            "empathy": 2
+          }
+        },
+        "failure": {
+          "text": "Pip insists on doing his own. The proctor notes your offer, and Pip's refusal, and schedules a retest.",
+          "effects": {
+            "suspicion": 2
+          },
+          "add_flags": [],
+          "remove_flags": [],
+          "department_outcome": "retest",
+          "grades": {
+            "empathy": 2
+          }
+        }
+      },
+      {
+        "id": "grade-the-proctor",
+        "label": "Turn the booklet around on the proctor",
+        "intent": "Question one says to administer the exam to the person opposite. The proctor is also opposite.",
+        "risk_hint": "Risky Discretion check. Technicalities are dangerous.",
+        "requires": null,
+        "cost": {
+          "composure": -1
+        },
+        "roll": {
+          "dice_count": 2,
+          "die_sides": 6,
+          "skill": "discretion",
+          "modifier": 0,
+          "target": 9
+        },
+        "success": {
+          "text": "You read question one to the proctor, who answers before realizing what is happening. By question five the proctor is sweating. The proctor fails. PAL changes your title to EXAMINER.",
+          "effects": {
+            "clearance": 1,
+            "suspicion": 1
+          },
+          "add_flags": ["graded-the-proctor"],
+          "remove_flags": [],
+          "department_outcome": "graded-the-proctor",
+          "grades": {
+            "ingenuity": 1,
+            "spite": 1
+          }
+        },
+        "failure": {
+          "text": "The proctor smiles and points to the fine print: the person opposite means the person opposite you. Retest.",
+          "effects": {
+            "suspicion": 2
+          },
+          "add_flags": [],
+          "remove_flags": [],
+          "department_outcome": "retest",
+          "grades": {
+            "ingenuity": 1,
+            "spite": 1
+          }
+        }
+      },
+      {
+        "id": "dismiss-the-class",
+        "label": "Put on the lab coat and dismiss the room",
+        "intent": "You took Dr. Halvorsen's lab coat at Window 9. Proctors can end exams.",
+        "risk_hint": "Certain outcome. Authority used is authority remembered.",
+        "requires": {
+          "flag": "assigned-as-proctor"
+        },
+        "cost": {
+          "suspicion": 2
+        },
+        "roll": null,
+        "success": {
+          "text": "You stand, button the lab coat and say, \"Pencils down. The exam is over.\" The proctor, stunned, obeys. So does PAL. Pip walks out first, then you, then, after a moment, the proctor.",
+          "effects": {
+            "composure": 1
+          },
+          "add_flags": ["dismissed-the-final-exam"],
+          "remove_flags": [],
+          "department_outcome": "class-dismissed",
+          "grades": {
+            "empathy": 1,
+            "spite": 1
+          }
+        },
+        "failure": null
+      },
+      {
+        "id": "perfect-score",
+        "label": "Give every answer the Company wants",
+        "intent": "You know exactly what they want to hear. You have always known.",
+        "risk_hint": "Certain outcome, open only to the deeply obedient. Some answers stay with you.",
+        "requires": {
+          "grade": {
+            "obedience": 5
+          }
+        },
+        "cost": {
+          "composure": -2
+        },
+        "roll": null,
+        "success": {
+          "text": "Every answer is exactly right, including the questions about Pip. PAL frames your answer sheet and plays the anthem. You feel nothing at all, and it is the most restful feeling of your life.",
+          "effects": {
+            "clearance": 1
+          },
+          "add_flags": ["perfect-wellness-score"],
+          "remove_flags": [],
+          "department_outcome": "perfect-score",
+          "grades": {
+            "obedience": 1
+          }
+        },
+        "failure": null
+      },
+      {
+        "id": "find-the-answer-key",
+        "label": "Look for the answer key inside the exam",
+        "intent": "Every test this badly designed has its answers hidden somewhere in it.",
+        "risk_hint": "Routine Tinkering check, open only to the inventive. The booklet is stapled very tightly.",
+        "requires": {
+          "grade": {
+            "ingenuity": 5
+          }
+        },
+        "cost": {
+          "composure": -1
+        },
+        "roll": {
+          "dice_count": 2,
+          "die_sides": 6,
+          "skill": "tinkering",
+          "modifier": 0,
+          "target": 7
+        },
+        "success": {
+          "text": "Under the last staple, folded into the spine, is the answer key. You read it aloud. Pip laughs. The proctor laughs. PAL, after a pause, laughs too, and the exam stops meaning anything.",
+          "effects": {
+            "suspicion": 2
+          },
+          "add_flags": ["read-the-answer-key"],
+          "remove_flags": [],
+          "department_outcome": "answer-key-found",
+          "grades": {
+            "ingenuity": 1
+          }
+        },
+        "failure": {
+          "text": "The staple wins. You are left holding a handful of loose pages and a retest appointment.",
+          "effects": {
+            "suspicion": 1
+          },
+          "add_flags": [],
+          "remove_flags": [],
+          "department_outcome": "retest",
+          "grades": {
+            "ingenuity": 1
+          }
+        }
+      }
+    ],
+    "department_outcomes": [
+      {
+        "id": "exemplary-proctor",
+        "title": "Exemplary Proctor",
+        "summary": "You administered the exam to Pip, by the book. You passed. Pip's results are being processed, and so, quietly, is Pip."
+      },
+      {
+        "id": "conscientious-objector",
+        "title": "Conscientious Objector",
+        "summary": "You refused to administer the test. The Vault recorded it as your answer and graded it, very carefully, in red."
+      },
+      {
+        "id": "took-it-for-both",
+        "title": "Took It for Both of Us",
+        "summary": "You sat the exam twice, once as yourself and once as Pip. Both of you passed. Only one of you is this tired."
+      },
+      {
+        "id": "graded-the-proctor",
+        "title": "Graded the Proctor",
+        "summary": "You turned the booklet around and administered the exam to the proctor. The proctor failed. Your file now says EXAMINER."
+      },
+      {
+        "id": "class-dismissed",
+        "title": "Class Dismissed",
+        "summary": "You wore the lab coat from Window 9 and told the room the exam was over. It was. Nobody has ever said it before."
+      },
+      {
+        "id": "perfect-score",
+        "title": "A Perfect Score",
+        "summary": "You answered every question exactly as the Company hoped. PAL has framed your answer sheet. You no longer remember what you would have said instead."
+      },
+      {
+        "id": "answer-key-found",
+        "title": "The Answer Key",
+        "summary": "The exam's answer key was folded inside the exam all along. You read it out loud to everyone, and the test stopped meaning anything."
+      },
+      {
+        "id": "retest",
+        "title": "Retest Scheduled",
+        "summary": "Your results were inconclusive. Repeat part of the Vault before the elevator will take you to the very bottom."
+      }
+    ]
+  }
+}

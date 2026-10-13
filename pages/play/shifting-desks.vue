@@ -802,7 +802,7 @@ const levelNotes = [
   {
     floor: 'Level −3',
     name: 'Wellness & Testing: the Vault',
-    note: 'The test is whether you will administer the test.',
+    note: 'Nutrition Studies, the Cognitive Testing Chamber, the Mutation Suite, and an exam where the test is whether you will administer the test.',
     id: 'wellness',
   },
   {

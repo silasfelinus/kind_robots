@@ -99,9 +99,15 @@
                 :aria-label="`Open ${tab.label}`"
                 @click="emit('select', tab)"
               >
-                <Icon :name="tab.icon || channel.icon" class="h-4 w-4 shrink-0" />
+                <Icon
+                  :name="tab.icon || channel.icon"
+                  class="h-4 w-4 shrink-0"
+                />
                 Open {{ tab.label }}
-                <Icon name="kind-icon:arrow-right" class="ml-auto h-3.5 w-3.5" />
+                <Icon
+                  name="kind-icon:arrow-right"
+                  class="ml-auto h-3.5 w-3.5"
+                />
               </button>
             </li>
             <li v-for="subtab in subtabsFor(tab)" :key="subtab.tabKey">

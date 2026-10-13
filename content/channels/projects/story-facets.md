@@ -1,7 +1,8 @@
 ---
 contentType: tab
-channelKey: storybook
+channelKey: projects
 tabKey: facets
+parentTabKey: storybook
 dashboardKey: facets
 dashboardTab: gallery
 label: Facets

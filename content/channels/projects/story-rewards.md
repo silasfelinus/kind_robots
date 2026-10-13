@@ -1,7 +1,8 @@
 ---
 contentType: tab
-channelKey: storybook
+channelKey: projects
 tabKey: rewards
+parentTabKey: storybook
 dashboardKey: reward
 dashboardTab: rewards
 label: Rewards

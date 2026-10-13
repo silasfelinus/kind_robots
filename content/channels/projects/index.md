@@ -4,8 +4,8 @@ channelKey: projects
 label: Play
 title: Play
 room: The Workshop
-subtitle: Make things, practice, and play games
-description: Make images and video, practice singing and Mandarin, or play arcade cabinets, card dungeons, and other games, many built by the Kind Robots agents.
+subtitle: Storybook, creative tools, and playful experiments
+description: Make stories in Storybook, create art and video, practice skills, and explore playful experiments. Arcade and Zuzu adventures have their own channels.
 icon: kind-icon:blueprint
 image: /images/arcade/arcade-hall-backdrop.webp
 route: /art
@@ -19,13 +19,18 @@ tutorial:
   title: Play
   tagline: Make art, practice a skill, or play a game.
   overview: >-
-    Play holds the hands-on parts of Kind Robots. Some tabs make things, like
-    images, short video clips and music videos. Some help you practice singing
-    or Mandarin. The rest are games and toys, many of them built mostly by the
-    Kind Robots agents. Pick a tab from the Play menu; each one explains its
-    own controls in this sidebar.
+    Play starts with Storybook; open its submenu for characters, dreams, bots,
+    facets, rewards, scenarios and model tools. Play also holds art and video
+    studios, skill practice, and experiments. Arcade and Zuzu now have their
+    own channels. Each destination explains its controls in this sidebar.
   hero: /images/arcade/arcade-hall-backdrop.webp
   sections:
+    - key: storybook
+      title: Storybook and its ingredients
+      body: >-
+        Start with Storybook to weave an interactive narrative. Expand the
+        Storybook submenu for its ingredient galleries and model tools.
+      image: /images/channels/play/channel.webp
     - key: make
       title: Make images, clips and music videos
       body: >-
@@ -48,8 +53,9 @@ tutorial:
     - key: games
       title: Play a game
       body: >-
-        The Arcade is a hall of free cabinets, each an original game based on a
-        classic, with worldwide high-score boards and no account needed. Memory
+        Arcade now has its own channel of free cabinets and leaderboards.
+        Zuzu has a separate channel for his story, Shifting Lands board,
+        fighting game and pinball. Memory
         Dungeon is a card-matching game with lives, power-ups and floors to
         clear. Zuzu Gamebook is an illustrated adventure with choices, dice
         rolls and several endings. Daily Dream Projects shows approved

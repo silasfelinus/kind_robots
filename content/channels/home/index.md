@@ -12,7 +12,7 @@ icon: kind-icon:home
 image: /images/nav/heroes/home.webp
 route: /
 defaultTab: dashboard
-sort: 10
+sort: 999
 loadingMessage: Loading your dashboard...
 refreshLabel: Refresh Home
 dottiTip: Start here when you want to see what is yours or what Kind Robots is about.

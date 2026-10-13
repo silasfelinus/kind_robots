@@ -6,7 +6,7 @@
 
     <template v-else>
       <div
-        class="kr-toolbar mx-auto w-full max-w-[1400px] justify-between gap-x-3 gap-y-1 px-2 sm:px-4"
+        class="kr-toolbar mx-auto w-full max-w-[1400px] justify-between gap-x-3 gap-y-1 rounded-2xl bg-base-100/95 px-2 py-1 shadow-sm sm:px-4"
       >
         <p
           class="hidden font-mono text-sm font-black uppercase tracking-[.25em] sm:block"
@@ -175,7 +175,9 @@
         v-else-if="screen === 'hire'"
         class="kr-stage mx-auto w-full max-w-[1400px] gap-2 px-2 pb-2 sm:px-4"
       >
-        <div class="flex shrink-0 items-center justify-between gap-3">
+        <div
+          class="flex shrink-0 items-center justify-between gap-3 rounded-xl bg-base-100/95 px-3 py-1"
+        >
           <p class="font-mono text-sm font-black uppercase tracking-widest">
             Choose your job title
           </p>
@@ -363,7 +365,7 @@
         </div>
         <p
           v-if="currentNotice"
-          class="shrink-0 truncate text-xs font-semibold"
+          class="shrink-0 truncate rounded-lg bg-base-100/95 px-2 py-0.5 text-xs font-semibold"
           :class="{ 'max-md:hidden': deciding || !!run.pending }"
           :title="currentNotice.reason"
         >
@@ -500,8 +502,8 @@
                   class="relative flex flex-col gap-2 rounded-2xl border-2 p-3 sm:p-4"
                   :class="
                     run.pending.success
-                      ? 'border-success/60 bg-success/5'
-                      : 'border-error/60 bg-error/5'
+                      ? 'border-success bg-base-100 shadow-md'
+                      : 'border-error bg-base-100 shadow-md'
                   "
                   aria-live="polite"
                 >
@@ -540,7 +542,7 @@
                       >first roll {{ run.pending.rerolled.join(' + ') }}</span
                     >
                   </div>
-                  <p class="text-sm leading-relaxed sm:text-base">
+                  <p class="text-sm leading-relaxed sm:text-base lg:text-lg">
                     {{ run.pending.text }}
                   </p>
                   <shifting-desks-effect-chips :effects="run.pending.effects" />
@@ -581,7 +583,7 @@
                   <button
                     ref="nextButton"
                     type="button"
-                    class="btn btn-warning self-start"
+                    class="btn btn-warning self-start lg:btn-lg"
                     @click="next"
                   >
                     {{
@@ -619,98 +621,120 @@
                       :sealed="interim.sealed"
                     />
                   </details>
-                  <button
-                    v-for="choice in openRoutes"
-                    :key="choice.id"
-                    type="button"
-                    class="flex shrink-0 flex-col gap-1 rounded-xl border-2 bg-base-100 px-3 text-left transition"
-                    :style="{ paddingBlock: manyRoutes ? '0.35rem' : '0.5rem' }"
-                    :class="
-                      lockFor(choice)
-                        ? 'cursor-not-allowed border-base-300 opacity-55'
-                        : 'border-base-300 hover:border-warning focus-visible:border-warning'
-                    "
-                    :aria-disabled="!!lockFor(choice)"
-                    :title="lockFor(choice) ?? undefined"
-                    @click="pick(choice)"
+                  <div
+                    class="flex shrink-0 flex-col gap-2"
+                    :class="manyRoutes ? '' : 'grow lg:gap-3'"
                   >
-                    <span class="flex flex-wrap items-center gap-x-2 gap-y-1">
-                      <icon
-                        v-if="manyRoutes && lockFor(choice)"
-                        name="kind-icon:lock"
-                        class="size-3.5 text-error"
-                      />
-                      <span class="text-sm font-bold">{{ choice.label }}</span>
-                      <span
-                        v-if="manyRoutes && lockFor(choice)"
-                        class="sr-only"
-                        >{{ lockFor(choice) }}</span
-                      >
-                      <template v-if="!(manyRoutes && lockFor(choice))">
-                        <span
-                          v-if="choice.roll"
-                          class="flex items-center gap-1 rounded-md bg-base-300 px-1.5 py-0.5 text-[11px] font-bold"
-                        >
-                          <icon name="kind-icon:dice" class="size-3" />
-                          <span class="capitalize">{{
-                            choice.roll.skill
-                          }}</span>
-                          {{ run.skills[choice.roll.skill] }} ·
-                          {{ DIFFICULTY[choice.roll.target] ?? '' }}
-                          {{ choice.roll.target }}
-                        </span>
-                        <span
-                          v-else
-                          class="rounded-md bg-base-300 px-1.5 py-0.5 text-[11px] font-bold"
-                          >Certain</span
-                        >
-                        <shifting-desks-effect-chips
-                          v-if="hasCost(choice)"
-                          :effects="choice.cost"
-                          :prefix="manyRoutes ? '' : 'Cost'"
-                        />
-                      </template>
-                    </span>
-                    <span
-                      v-if="!(manyRoutes && lockFor(choice))"
-                      class="text-xs opacity-80"
-                      :class="manyRoutes ? 'line-clamp-1' : 'line-clamp-2'"
-                      :title="
+                    <button
+                      v-for="choice in openRoutes"
+                      :key="choice.id"
+                      type="button"
+                      class="flex shrink-0 flex-col rounded-xl border-2 text-left transition"
+                      :class="[
                         manyRoutes
-                          ? `${choice.intent} ${choice.risk_hint}`
-                          : undefined
-                      "
-                      >{{ choice.intent }}
-                      <span v-if="!manyRoutes" class="italic opacity-80">{{
-                        choice.risk_hint
-                      }}</span></span
+                          ? 'gap-1 px-3 py-1.5'
+                          : 'grow justify-center gap-1.5 px-4 py-3 lg:gap-2 lg:rounded-2xl lg:px-5',
+                        lockFor(choice)
+                          ? 'cursor-not-allowed border-base-300 bg-base-200 text-base-content/60'
+                          : 'border-base-300 bg-base-100 hover:border-warning focus-visible:border-warning',
+                      ]"
+                      :aria-disabled="!!lockFor(choice)"
+                      :title="lockFor(choice) ?? undefined"
+                      @click="pick(choice)"
                     >
-                    <span
-                      v-if="gradeBadge(choice)"
-                      class="flex items-center gap-1 self-start rounded-md bg-stone-800 px-2 py-0.5 text-[10px] font-bold uppercase text-amber-50"
-                    >
-                      <icon name="kind-icon:document" size="0.75rem" />
-                      {{ gradeBadge(choice) }}
-                    </span>
-                    <span
-                      v-if="aidBadges(choice).length"
-                      class="flex flex-wrap gap-1.5 text-[10px] font-bold uppercase"
-                    >
+                      <span class="flex flex-wrap items-center gap-x-2 gap-y-1">
+                        <icon
+                          v-if="manyRoutes && lockFor(choice)"
+                          name="kind-icon:lock"
+                          class="size-3.5 text-error"
+                        />
+                        <span
+                          class="font-bold"
+                          :class="
+                            manyRoutes
+                              ? 'text-sm'
+                              : 'text-base sm:text-lg lg:text-2xl'
+                          "
+                          >{{ choice.label }}</span
+                        >
+                        <span
+                          v-if="manyRoutes && lockFor(choice)"
+                          class="sr-only"
+                          >{{ lockFor(choice) }}</span
+                        >
+                        <template v-if="!(manyRoutes && lockFor(choice))">
+                          <span
+                            v-if="choice.roll"
+                            class="flex items-center gap-1 rounded-md bg-base-300 font-bold"
+                            :class="chipSize"
+                          >
+                            <icon name="kind-icon:dice" class="size-3.5" />
+                            <span class="capitalize">{{
+                              choice.roll.skill
+                            }}</span>
+                            {{ run.skills[choice.roll.skill] }} ·
+                            {{ DIFFICULTY[choice.roll.target] ?? '' }}
+                            {{ choice.roll.target }}
+                          </span>
+                          <span
+                            v-else
+                            class="rounded-md bg-base-300 font-bold"
+                            :class="chipSize"
+                            >Certain</span
+                          >
+                          <shifting-desks-effect-chips
+                            v-if="hasCost(choice)"
+                            :effects="choice.cost"
+                            :prefix="manyRoutes ? '' : 'Cost'"
+                            :large="!manyRoutes"
+                          />
+                        </template>
+                      </span>
                       <span
-                        v-for="badge in aidBadges(choice)"
-                        :key="badge"
-                        class="rounded-md bg-warning/20 px-2 py-0.5"
-                        >{{ badge }}</span
+                        v-if="!(manyRoutes && lockFor(choice))"
+                        class="opacity-80"
+                        :class="
+                          manyRoutes
+                            ? 'line-clamp-1 text-xs'
+                            : 'text-sm leading-snug sm:text-base lg:text-lg'
+                        "
+                        :title="
+                          manyRoutes
+                            ? `${choice.intent} ${choice.risk_hint}`
+                            : undefined
+                        "
+                        >{{ choice.intent }}
+                        <span v-if="!manyRoutes" class="italic opacity-80">{{
+                          choice.risk_hint
+                        }}</span></span
                       >
-                    </span>
-                    <span
-                      v-if="lockFor(choice) && !manyRoutes"
-                      class="text-xs font-bold text-error"
-                    >
-                      <icon name="kind-icon:lock" class="size-3" />
-                      {{ lockFor(choice) }}
-                    </span>
-                  </button>
+                      <span
+                        v-if="gradeBadge(choice)"
+                        class="flex items-center gap-1 self-start rounded-md bg-stone-800 px-2 py-0.5 text-[10px] font-bold uppercase text-amber-50"
+                      >
+                        <icon name="kind-icon:document" size="0.75rem" />
+                        {{ gradeBadge(choice) }}
+                      </span>
+                      <span
+                        v-if="aidBadges(choice).length"
+                        class="flex flex-wrap gap-1.5 text-[10px] font-bold uppercase"
+                      >
+                        <span
+                          v-for="badge in aidBadges(choice)"
+                          :key="badge"
+                          class="rounded-md bg-warning/20 px-2 py-0.5"
+                          >{{ badge }}</span
+                        >
+                      </span>
+                      <span
+                        v-if="lockFor(choice) && !manyRoutes"
+                        class="text-xs font-bold text-error"
+                      >
+                        <icon name="kind-icon:lock" class="size-3" />
+                        {{ lockFor(choice) }}
+                      </span>
+                    </button>
+                  </div>
                   <ul
                     v-if="lockedRoutes.length"
                     class="flex shrink-0 flex-wrap gap-1.5"
@@ -719,7 +743,7 @@
                     <li
                       v-for="choice in lockedRoutes"
                       :key="choice.id"
-                      class="flex max-w-full items-center gap-1 rounded-lg border border-base-300 bg-base-200 px-2 py-1 text-xs opacity-70"
+                      class="flex max-w-full items-center gap-1 rounded-lg border border-base-300 bg-base-200 px-2 py-1 text-xs text-base-content/70"
                       :title="lockFor(choice) ?? undefined"
                     >
                       <icon
@@ -778,7 +802,7 @@
 
               <p
                 v-else
-                class="rounded-2xl border border-base-300 bg-base-200 p-4 text-sm opacity-80"
+                class="rounded-2xl border border-base-300 bg-base-200 p-4 text-sm text-base-content/80"
               >
                 A file has been placed on your desk. Open it when you are ready.
                 PAL is watching either way.
@@ -1165,6 +1189,12 @@ function aidBadges(choice: Choice): string[] {
 
 const manyRoutes = computed(() => (view.value?.card.choices.length ?? 0) > 4)
 
+const chipSize = computed(() =>
+  manyRoutes.value
+    ? 'px-1.5 py-0.5 text-[11px]'
+    : 'px-2 py-0.5 text-xs sm:py-1 sm:text-sm',
+)
+
 const openRoutes = computed(() =>
   (view.value?.card.choices ?? []).filter(
     (c) => !manyRoutes.value || !lockFor(c),
@@ -1251,13 +1281,10 @@ function toFront(): void {
   screen.value = 'front'
 }
 
-watch(
-  () => [run.value?.position, run.value?.department],
-  () => {
-    opened.value = false
-    deciding.value = false
-  },
-)
+watch([() => run.value?.position, () => run.value?.department], () => {
+  opened.value = false
+  deciding.value = false
+})
 
 onMounted(() => {
   store.load()

@@ -206,7 +206,9 @@
       </div>
     </article>
 
-    <div class="flex shrink-0 flex-wrap gap-2 print:hidden">
+    <div
+      class="flex shrink-0 flex-wrap gap-2 rounded-2xl bg-base-100/95 p-2 print:hidden"
+    >
       <button
         type="button"
         class="btn btn-warning btn-sm sm:btn-md"

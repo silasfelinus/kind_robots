@@ -1,6 +1,6 @@
 <template>
   <section
-    class="flex flex-col gap-2"
+    class="flex grow flex-col gap-2 lg:gap-3"
     :aria-label="`${shift.title}, applicant ${index + 1} of ${shift.applicants.length}`"
   >
     <div class="flex flex-wrap gap-2">
@@ -17,7 +17,7 @@
           {{ shift.memo.title }}
         </p>
         <ol
-          class="mt-1 flex list-decimal flex-col gap-0.5 pl-5 text-xs sm:text-sm"
+          class="mt-1 flex list-decimal flex-col gap-0.5 pl-5 text-xs sm:text-sm lg:text-base"
         >
           <li v-for="rule in shift.memo.rules" :key="rule.id">
             {{ rule.text }}
@@ -34,14 +34,14 @@
         >
           Applicant {{ index + 1 }} of {{ shift.applicants.length }}
         </p>
-        <p class="font-mono text-base font-black uppercase">
+        <p class="font-mono text-base font-black uppercase lg:text-xl">
           {{ applicant.name }}
         </p>
-        <p class="text-xs font-semibold sm:mt-1 sm:text-sm">
+        <p class="text-xs font-semibold sm:mt-1 sm:text-sm lg:text-base">
           {{ applicant.request }}
         </p>
         <dl
-          class="mt-1 flex flex-col gap-0.5 text-xs sm:mt-2 sm:gap-1 sm:text-sm"
+          class="mt-1 flex flex-col gap-0.5 text-xs sm:mt-2 sm:gap-1 sm:text-sm lg:text-base"
         >
           <div
             v-for="doc in applicant.documents"
@@ -58,23 +58,27 @@
     </div>
 
     <p
-      class="font-mono text-xs font-black uppercase tracking-widest opacity-70"
+      class="self-start rounded-lg bg-base-100/95 px-2 py-0.5 font-mono text-xs font-black uppercase tracking-widest text-base-content/80"
     >
       Check the papers against the memo, then stamp
     </p>
-    <div class="flex flex-wrap gap-2">
+    <div class="flex grow flex-wrap gap-2 lg:gap-3">
       <button
         v-for="stamp in stamps"
         :key="stamp.id"
         type="button"
-        class="window-stamp flex min-w-[min(100%,10rem)] flex-1 flex-col gap-0.5 rounded-2xl border-4 bg-base-100 px-3 py-2 text-left transition"
+        class="window-stamp flex min-w-[min(100%,10rem)] flex-1 flex-col justify-center gap-0.5 rounded-2xl border-4 bg-base-100 px-3 py-1.5 text-left transition sm:gap-1 sm:py-2 lg:px-5 lg:py-4"
         :class="stamp.id === 'approve' ? 'is-approve' : 'is-deny'"
         @click="emit('stamp', stamp)"
       >
-        <span class="window-stamp-face font-mono text-lg font-black uppercase">
+        <span
+          class="window-stamp-face font-mono text-lg font-black uppercase md:text-2xl lg:text-3xl"
+        >
           {{ stamp.id === 'approve' ? 'Approved' : 'Denied' }}
         </span>
-        <span class="text-xs opacity-80">{{ stamp.intent }}</span>
+        <span class="text-xs opacity-80 md:text-sm lg:text-base">{{
+          stamp.intent
+        }}</span>
       </button>
     </div>
   </section>

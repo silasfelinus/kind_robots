@@ -41,6 +41,9 @@
           <p v-if="dept.society" class="mt-1 text-xs font-bold uppercase">
             Society: {{ dept.society }}
           </p>
+          <p v-if="dept.restructured" class="mt-1 text-xs italic">
+            Restructured on arrival: {{ dept.restructured }}
+          </p>
         </div>
       </div>
 
@@ -127,6 +130,9 @@ import {
   mutationById,
   finalVerdict,
   outcomeById,
+  RESTRUCTURING_CARD,
+  restructuringById,
+  restructuringHeadline,
   rankedGrades,
   societyById,
   START_GRADES,
@@ -140,7 +146,10 @@ const society = computed(() => societyById(run.value?.societyId ?? ''))
 const mutation = computed(() => mutationById(run.value?.mutationId ?? ''))
 const jobTitle = computed(() => jobById(run.value?.jobId ?? '').title)
 const filesHandled = computed(
-  () => run.value?.log.filter((e) => e.cardId !== 'dossier').length ?? 0,
+  () =>
+    run.value?.log.filter(
+      (e) => e.cardId !== 'dossier' && e.cardId !== RESTRUCTURING_CARD,
+    ).length ?? 0,
 )
 const deeperLevel = computed(() => DEPARTMENTS.length)
 const results = computed(() => rankedGrades(run.value?.grades ?? START_GRADES))
@@ -159,12 +168,15 @@ const departments = computed(() =>
     const id = d.department.id
     const outcomeId = run.value?.departmentOutcomes[id] ?? null
     const record = run.value?.societyRecord[id]
+    const memo = restructuringById(d, run.value?.restructurings[id])
     return {
       id,
       title: d.department.title,
       floor: DEPARTMENT_FLOORS[d.department.order] ?? '',
       outcome: outcomeById(outcomeId),
       society: record ? SOCIETY_WORDS[record] : null,
+      restructured:
+        memo && memo.kind !== 'none' ? restructuringHeadline(d, memo) : null,
     }
   }),
 )

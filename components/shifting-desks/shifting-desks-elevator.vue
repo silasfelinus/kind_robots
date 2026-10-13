@@ -72,6 +72,35 @@
           <span aria-hidden="true">▸</span>{{ line }}
         </li>
       </ul>
+      <div
+        v-if="restructuring"
+        class="mt-4 rounded-xl border-2 border-dashed border-stone-800 bg-stone-50/60 p-3"
+      >
+        <p class="font-mono text-[11px] font-black uppercase tracking-widest">
+          Restructuring notice · {{ restructuring.headline }}
+        </p>
+        <p class="mt-1 text-sm">{{ restructuring.reason }}</p>
+        <p
+          class="mt-3 font-mono text-[10px] font-black uppercase tracking-widest opacity-70"
+        >
+          {{ toTitle }} floor plan
+        </p>
+        <ul class="mt-1 flex flex-wrap gap-2" aria-label="Floor plan">
+          <li
+            v-for="slot in board"
+            :key="`${slot.change}-${slot.title}`"
+            class="rounded-md border-2 border-stone-800 px-2 py-1 text-xs font-bold"
+            :class="BOARD_STYLE[slot.change]"
+          >
+            <span :class="slot.change === 'closed' ? 'line-through' : ''">{{
+              slot.title
+            }}</span>
+            <span class="ml-1 font-mono text-[10px] uppercase">{{
+              BOARD_LABEL[slot.change]
+            }}</span>
+          </li>
+        </ul>
+      </div>
     </article>
 
     <button
@@ -88,19 +117,38 @@
 
 <script setup lang="ts">
 import { onMounted, ref } from 'vue'
+import type { BoardSlot } from '~/utils/shiftingDesks/rules'
 
-defineProps<{
-  fromTitle: string
-  fromFloor: string
-  toTitle: string
-  toFloor: string
-  toTagline: string
-  outcomeTitle: string
-  outcomeSummary: string
-  memo: string[]
-  arrivalSrc: string
-  arrivalPrompt: string
-}>()
+withDefaults(
+  defineProps<{
+    fromTitle: string
+    fromFloor: string
+    toTitle: string
+    toFloor: string
+    toTagline: string
+    outcomeTitle: string
+    outcomeSummary: string
+    memo: string[]
+    arrivalSrc: string
+    arrivalPrompt: string
+    restructuring?: { headline: string; reason: string } | null
+    board?: BoardSlot[]
+  }>(),
+  { restructuring: null, board: () => [] },
+)
+
+const BOARD_LABEL: Record<BoardSlot['change'], string> = {
+  open: 'Open',
+  closed: 'Closed',
+  merged: 'Merged',
+  added: 'Added',
+}
+const BOARD_STYLE: Record<BoardSlot['change'], string> = {
+  open: 'bg-stone-50',
+  closed: 'bg-stone-300 opacity-70',
+  merged: 'bg-amber-200',
+  added: 'bg-lime-200',
+}
 
 const emit = defineEmits<{ descend: [] }>()
 const stepOut = ref<HTMLElement | null>(null)

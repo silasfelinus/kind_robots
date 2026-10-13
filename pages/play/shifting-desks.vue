@@ -253,6 +253,8 @@
               :outcome-title="store.outcome?.title ?? ''"
               :outcome-summary="store.outcome?.summary ?? ''"
               :memo="elevatorMemo"
+              :restructuring="upcomingNotice"
+              :board="upcomingBoard"
               :arrival-src="
                 upcoming
                   ? stationArt('departments', upcoming.department.id)
@@ -287,6 +289,16 @@
             >
               <p class="font-mono text-sm font-black uppercase tracking-[.2em]">
                 {{ floorFor(currentDept) }} · {{ currentDept.department.title }}
+              </p>
+              <p
+                v-if="currentNotice"
+                class="w-full text-xs font-semibold sm:order-last"
+                :title="currentNotice.reason"
+              >
+                <span class="font-mono font-black uppercase"
+                  >Restructured:</span
+                >
+                {{ currentNotice.headline }}. {{ currentNotice.reason }}
               </p>
               <p class="font-mono text-[11px] font-bold uppercase opacity-70">
                 Department {{ currentDept.department.order }} of
@@ -684,6 +696,11 @@ import {
   gradeRequirement,
   gradeTitle,
   interimResults,
+  departmentBoard,
+  restructuringById,
+  restructuringFor,
+  restructuringHeadline,
+  stepLabels,
   type Choice,
   type Pack,
   type Meter,
@@ -833,16 +850,46 @@ const discoveredTitles = computed(() =>
 )
 
 const steps = computed(() =>
-  (run.value?.deck ?? []).map((id) => {
-    if (id === 'boss') return 'Review'
-    const enc = currentDept.value.encounters.find((e) => e.id === id)
-    return locationById(enc?.location_id ?? '')?.title.split(' & ')[0] ?? 'File'
-  }),
+  run.value ? stepLabels(run.value).map((t) => t.split(' & ')[0]!) : [],
 )
 
+const upcomingMemo = computed(() =>
+  run.value && upcoming.value
+    ? restructuringFor(run.value, upcoming.value)
+    : null,
+)
+const upcomingNotice = computed(() =>
+  upcoming.value && upcomingMemo.value
+    ? {
+        headline: restructuringHeadline(upcoming.value, upcomingMemo.value),
+        reason: upcomingMemo.value.reason,
+      }
+    : null,
+)
+const upcomingBoard = computed(() =>
+  upcoming.value ? departmentBoard(upcoming.value, upcomingMemo.value) : [],
+)
+const currentNotice = computed(() => {
+  if (!run.value) return null
+  const memo = restructuringById(
+    currentDept.value,
+    run.value.restructurings[run.value.department],
+  )
+  return memo && memo.kind !== 'none'
+    ? {
+        headline: restructuringHeadline(currentDept.value, memo),
+        reason: memo.reason,
+      }
+    : null
+})
+
 const locationTitle = computed(() => {
-  if (view.value?.kind !== 'encounter') return ''
-  return locationById(view.value.card.location_id)?.title ?? ''
+  if (view.value?.kind !== 'encounter' || !run.value) return ''
+  return (
+    stepLabels(run.value)[run.value.position] ??
+    locationById(view.value.card.location_id)?.title ??
+    ''
+  )
 })
 
 const TAG_ICONS: Record<string, string> = {

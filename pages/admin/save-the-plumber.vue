@@ -1,5 +1,5 @@
 <template>
-  <main class="kr-surface">
+  <main class="kr-surface plumber-page">
     <div v-if="!user.initialized" class="grid min-h-96 place-items-center">
       <span class="kr-spinner-lg-primary" />
     </div>
@@ -11,263 +11,541 @@
     </div>
     <div
       v-else
-      class="kr-scroll mx-auto max-w-[1500px] space-y-6 px-3 py-5 sm:px-6"
+      class="kr-scroll mx-auto max-w-[1500px] space-y-14 px-3 pb-16 pt-5 sm:px-6"
     >
       <section
-        class="relative isolate overflow-hidden rounded-[2rem] border border-amber-200/40 bg-[#194f62] text-[#fff8e5] shadow-xl"
-        aria-label="Save the Plumber introduction"
+        class="plumber-title relative isolate overflow-hidden rounded-[2rem] border-4 border-[#e2bc7c] bg-[#0c2f47] text-[#fff8e5] shadow-[0_30px_60px_-30px_rgba(6,30,44,.9)]"
+        aria-label="Save the Plumber title screen"
+        @pointermove="onTilt"
+        @pointerleave="tilt = { x: 0, y: 0 }"
       >
-        <div class="pointer-events-none absolute inset-0" aria-hidden="true">
-          <div
-            class="absolute -right-16 top-[-10rem] h-[30rem] w-[30rem] rounded-full bg-amber-300/35 blur-3xl"
-          />
-          <div
-            class="absolute bottom-0 left-0 h-56 w-96 rounded-full bg-emerald-300/25 blur-3xl"
-          />
-          <svg
-            viewBox="0 0 800 370"
-            class="absolute bottom-0 right-0 h-full w-full max-w-[800px]"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <path
-              d="M365 320v-106q0-44 44-44h84v-60q0-39 39-39h91"
-              stroke="#7cc8c6"
-              stroke-width="42"
-              fill="none"
-            />
-            <path
-              d="M365 320v-106q0-44 44-44h84v-60q0-39 39-39h91"
-              stroke="#dcf7e1"
-              stroke-width="6"
-              fill="none"
-            />
-            <g fill="#f9bf79" stroke="#fdf0c0" stroke-width="5">
-              <circle cx="624" cy="69" r="32" />
-              <path d="M624 32v-21m0 116v-21M588 69h-20m112 0h-19" />
-            </g>
-            <g transform="translate(545 233)">
-              <path
-                d="m-31 36 17-64 29-6 22 76"
-                fill="#ed8270"
-                stroke="#ffd4a3"
-                stroke-width="5"
-              />
-              <path d="M-13-25q-15-24 4-37 28-14 39 14l-7 31" fill="#523d53" />
-              <circle cx="8" cy="-27" r="25" fill="#d8a47c" />
-              <path d="M-15-38q9-36 30-27 29 4 25 39" fill="#4b3450" />
-              <path d="M-15-2h45v49h-45Z" fill="#69bfc0" />
-              <path d="M-25 46h22v21h-22Zm31 0h21v21H6Z" fill="#313e50" />
-              <path d="m37 15 37-14 14 12-48 17" fill="#ffd59a" />
-            </g>
-            <g fill="#e8cb94">
-              <rect x="260" y="328" width="150" height="26" rx="5" />
-              <rect x="430" y="328" width="155" height="26" rx="5" />
-              <rect x="600" y="328" width="165" height="26" rx="5" />
-            </g>
-            <path
-              d="M300 318c30-42 58-33 90-60"
-              stroke="#86e4df"
-              stroke-width="8"
-              stroke-linecap="round"
-              stroke-dasharray="6 19"
-              fill="none"
-            />
-          </svg>
+        <div
+          class="absolute inset-x-0 bottom-0 -z-10 h-[400px] md:inset-0 md:h-auto"
+        >
+          <PlumberTitleScene :heroine="heroine" :tilt="tilt" />
         </div>
         <div
-          class="relative flex min-h-[340px] flex-col justify-center gap-4 px-6 py-12 sm:px-10"
+          class="pointer-events-none absolute inset-0 -z-10 bg-[linear-gradient(180deg,rgba(12,47,71,1)_0%,rgba(12,47,71,.9)_45%,rgba(12,47,71,0)_62%)] md:bg-[linear-gradient(90deg,rgba(8,34,50,.92)_0%,rgba(8,34,50,.6)_40%,rgba(8,34,50,0)_68%)]"
+          aria-hidden="true"
+        />
+
+        <div
+          class="flex min-h-[640px] flex-col justify-start gap-5 px-6 pb-[340px] pt-8 sm:px-10 md:min-h-[600px] md:justify-center md:pb-10 lg:min-h-[640px]"
         >
           <p
-            class="w-fit rounded-full border border-amber-100/30 bg-[#0e4255]/70 px-4 py-1 text-xs font-bold uppercase tracking-[.22em] text-amber-100"
+            class="w-fit rounded-full border border-amber-100/30 bg-[#0e4255]/80 px-4 py-1 text-[11px] font-bold uppercase tracking-[.22em] text-amber-100 backdrop-blur"
           >
-            Private Arcade adventure workshop
+            <span
+              class="mr-1 inline-block h-2 w-2 animate-pulse rounded-full bg-emerald-400 align-middle"
+            />
+            Workshop build · World 1 training run playable
           </p>
-          <h2
-            class="max-w-xl font-black leading-[.94] tracking-tight text-5xl sm:text-7xl"
-          >
-            SAVE<br /><span class="text-[#ffcf92]">THE</span><br />PLUMBER!
+
+          <h2 class="plumber-logo select-none" aria-label="Save the Plumber!">
+            <span class="plumber-logo-line">SAVE</span>
+            <span class="plumber-logo-the">THE</span>
+            <span class="plumber-logo-line plumber-logo-big">PLUMBER!</span>
           </h2>
+
           <p
-            class="max-w-[440px] text-sm leading-relaxed text-amber-50/90 sm:text-base"
+            class="max-w-[460px] text-base leading-relaxed text-amber-50/90 sm:text-lg"
           >
-            The pipes are running upward. Your boyfriend has vanished. Eight
-            strange worlds, one fearless heroine, and a very badly behaved
-            waterworks corporation.
+            The rivers are running uphill. Your boyfriend went to find out why
+            and never came back. Eight strange worlds, one fearless heroine, and
+            a very badly behaved waterworks corporation.
           </p>
+
           <div class="flex flex-wrap gap-3">
             <a
-              href="#plumber-demo"
-              class="btn border-0 bg-[#f9d8a3] text-[#244b53] hover:bg-white"
-              >Try the movement lab ↓</a
-            ><a
+              href="#plumber-play"
+              class="plumber-start btn btn-lg border-0 bg-[#ffcf82] text-[#123c44] hover:bg-white"
+            >
+              ▶ Press Start
+            </a>
+            <a
               href="#plumber-map"
-              class="btn border-white/40 bg-white/10 text-white hover:bg-white/20"
-              >Explore eight worlds</a
+              class="btn btn-lg border-white/40 bg-white/10 text-white backdrop-blur hover:bg-white/20"
             >
+              World map
+            </a>
+            <a
+              href="#plumber-casting"
+              class="btn btn-lg border-white/40 bg-white/10 text-white backdrop-blur hover:bg-white/20"
+            >
+              Meet your heroine
+            </a>
           </div>
-          <p class="text-xs text-amber-100/80">
-            Currently an original platforming-engine preview. The full campaign
-            and randomized heroine creator are in production.
-          </p>
-        </div>
-      </section>
 
-      <section id="plumber-map" class="scroll-mt-8 space-y-3">
-        <div class="flex flex-wrap items-end justify-between gap-2">
-          <div>
-            <p
-              class="text-xs font-bold uppercase tracking-widest text-secondary"
-            >
-              The rescue itinerary
-            </p>
-            <h3 class="text-2xl font-black">
-              Eight worlds. Thirty-two stages.
-            </h3>
-          </div>
-          <span class="badge badge-outline">Authored campaign blueprint</span>
-        </div>
-        <div class="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-          <article
-            v-for="(world, index) in worlds"
-            :key="world.name"
-            class="overflow-hidden rounded-2xl border border-base-content/10 bg-base-200 shadow-sm"
+          <dl
+            class="grid grid-cols-2 gap-x-6 gap-y-1 pt-1 sm:flex sm:flex-wrap"
           >
             <div
-              class="relative h-28 p-4"
-              :style="{ background: world.gradient }"
+              v-for="stat in stats"
+              :key="stat.label"
+              class="flex items-baseline gap-2"
             >
-              <span class="text-5xl">{{ world.symbol }}</span
-              ><span
-                class="absolute right-4 top-3 rounded-full bg-black/30 px-2 py-1 text-xs font-bold text-white"
-                >WORLD {{ index + 1 }}</span
+              <dt class="sr-only">{{ stat.label }}</dt>
+              <dd class="plumber-display text-3xl text-[#ffcf82]">
+                {{ stat.value }}
+              </dd>
+              <span
+                class="text-xs font-bold uppercase tracking-widest text-amber-50/70"
+                >{{ stat.label }}</span
               >
             </div>
-            <div class="space-y-2 p-4">
-              <h4 class="font-bold">{{ world.name }}</h4>
-              <p class="text-sm leading-relaxed opacity-75">
-                {{ world.ability }}
+          </dl>
+        </div>
+
+        <a
+          href="#plumber-casting"
+          class="absolute bottom-4 right-4 flex items-center gap-2 rounded-full border border-white/30 bg-[#0b2a3a]/75 py-1.5 pl-1.5 pr-4 text-sm text-white shadow-lg backdrop-blur transition hover:bg-[#0b2a3a]"
+        >
+          <span class="h-9 w-9 overflow-hidden rounded-full bg-[#ffcf82]">
+            <PlumberHeroinePortrait :heroine="heroine" class="h-full w-full" />
+          </span>
+          <span class="leading-tight">
+            <span
+              class="block text-[10px] font-bold uppercase tracking-widest text-amber-100/80"
+              >Starring</span
+            >
+            <span class="font-bold">{{ heroine.name }}</span>
+          </span>
+        </a>
+      </section>
+
+      <section aria-labelledby="plumber-prologue" class="space-y-4">
+        <header class="max-w-2xl">
+          <p class="plumber-kicker">Previously, in the pipes</p>
+          <h3
+            id="plumber-prologue"
+            class="plumber-display text-3xl sm:text-4xl"
+          >
+            One morning, the water went the wrong way.
+          </h3>
+        </header>
+        <ol class="grid gap-4 md:grid-cols-3">
+          <li
+            v-for="(panel, index) in prologue"
+            :key="panel.caption"
+            class="plumber-panel relative overflow-hidden rounded-2xl border-[5px] border-[#1f2d3a] bg-[#1f2d3a] shadow-[6px_6px_0_#e2bc7c]"
+            :class="index === 1 ? 'md:translate-y-4' : ''"
+          >
+            <div
+              class="relative aspect-[4/3] overflow-hidden rounded-lg"
+              :style="{ background: panel.backdrop }"
+            >
+              <PlumberWorldScene
+                v-if="panel.world"
+                :world="panel.world"
+                class="absolute inset-0 h-full w-full"
+              />
+              <PlumberCastPortrait
+                v-if="panel.who"
+                :who="panel.who"
+                class="absolute bottom-0 left-1/2 h-[92%] -translate-x-1/2"
+              />
+            </div>
+            <p
+              class="absolute left-3 top-3 max-w-[78%] rounded-md border-2 border-[#1f2d3a] bg-[#fff1c4] px-3 py-1.5 text-sm font-bold leading-snug text-[#1f2d3a] shadow"
+            >
+              {{ panel.caption }}
+            </p>
+            <span
+              class="plumber-display absolute bottom-2 right-3 text-4xl text-white/90 drop-shadow"
+              aria-hidden="true"
+              >{{ index + 1 }}</span
+            >
+          </li>
+        </ol>
+      </section>
+
+      <section
+        id="plumber-map"
+        class="scroll-mt-8 space-y-4"
+        aria-labelledby="plumber-map-title"
+      >
+        <header class="flex flex-wrap items-end justify-between gap-3">
+          <div class="max-w-2xl">
+            <p class="plumber-kicker">The rescue itinerary</p>
+            <h3
+              id="plumber-map-title"
+              class="plumber-display text-3xl sm:text-4xl"
+            >
+              Eight worlds. Thirty-two stages. All uphill.
+            </h3>
+            <p class="mt-1 opacity-75">
+              Each world teaches a trick, mixes it up, turns it inside out, then
+              throws a boss at you. Pick an island to scout it.
+            </p>
+          </div>
+        </header>
+        <PlumberWorldMap />
+      </section>
+
+      <section
+        id="plumber-casting"
+        class="scroll-mt-8"
+        aria-label="Heroine casting"
+      >
+        <PlumberCasting />
+      </section>
+
+      <section class="space-y-8" aria-labelledby="plumber-cast-title">
+        <header class="max-w-2xl">
+          <p class="plumber-kicker">Who is who</p>
+          <h3
+            id="plumber-cast-title"
+            class="plumber-display text-3xl sm:text-4xl"
+          >
+            A plumber worth saving. A villain worth beating.
+          </h3>
+        </header>
+
+        <div class="grid gap-5 md:grid-cols-2">
+          <article
+            v-for="member in PLUMBER_CAST"
+            :key="member.key"
+            class="flex overflow-hidden rounded-[1.75rem] border border-base-content/10 bg-base-200 shadow-md"
+          >
+            <div
+              class="relative w-2/5 shrink-0 overflow-hidden"
+              :class="
+                member.key === 'teo'
+                  ? 'bg-gradient-to-b from-[#9ad9f0] to-[#3f6fd1]'
+                  : 'bg-gradient-to-b from-[#463a66] to-[#d99a5a]'
+              "
+            >
+              <PlumberCastPortrait
+                :who="member.key"
+                class="absolute bottom-0 left-1/2 h-[88%] -translate-x-1/2"
+              />
+              <PlumberPainted
+                :src="member.art"
+                :alt="`${member.name} portrait`"
+              />
+            </div>
+            <div class="space-y-2 p-5">
+              <p
+                class="text-[11px] font-black uppercase tracking-[.2em]"
+                :class="member.key === 'teo' ? 'text-info' : 'text-error'"
+              >
+                {{ member.role }}
               </p>
-              <p class="text-xs font-semibold text-secondary">
-                4 stages · 1 boss
+              <h4 class="plumber-display text-3xl leading-none">
+                {{ member.name }}
+              </h4>
+              <p class="text-sm font-semibold italic opacity-80">
+                {{ member.line }}
               </p>
+              <p class="text-sm leading-relaxed opacity-75">{{ member.bio }}</p>
             </div>
           </article>
         </div>
+
+        <div class="grid gap-6 lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
+          <div class="space-y-3">
+            <h4 class="plumber-display text-2xl">Every enemy is a toy</h4>
+            <ul class="grid grid-cols-2 gap-3 sm:grid-cols-3">
+              <li
+                v-for="enemy in PLUMBER_ENEMIES"
+                :key="enemy.key"
+                class="group rounded-2xl border border-base-content/10 bg-base-200 p-3 transition hover:-translate-y-1 hover:shadow-lg"
+              >
+                <div
+                  class="mb-2 grid h-24 place-items-center rounded-xl bg-gradient-to-b from-[#d6f2ee] to-[#f8e7c9] dark:from-[#1d3c46] dark:to-[#3a3046]"
+                >
+                  <PlumberSprite :kind="enemy.key" class="h-24 w-24" />
+                </div>
+                <p class="font-bold">{{ enemy.name }}</p>
+                <p class="text-xs leading-snug opacity-70">{{ enemy.toy }}</p>
+              </li>
+            </ul>
+          </div>
+          <div class="space-y-3">
+            <h4 class="plumber-display text-2xl">Three ways to get stronger</h4>
+            <ul class="space-y-3">
+              <li
+                v-for="power in PLUMBER_POWERS"
+                :key="power.key"
+                class="flex items-center gap-3 rounded-2xl border border-base-content/10 bg-base-200 p-3"
+              >
+                <div
+                  class="grid h-16 w-16 shrink-0 place-items-center rounded-xl bg-[#123f52]"
+                >
+                  <PlumberSprite :kind="power.key" class="h-16 w-16" />
+                </div>
+                <div>
+                  <p class="font-bold">{{ power.name }}</p>
+                  <p class="text-xs leading-snug opacity-70">
+                    {{ power.does }}
+                  </p>
+                </div>
+              </li>
+            </ul>
+          </div>
+        </div>
       </section>
 
-      <div
-        id="plumber-demo"
-        class="grid scroll-mt-8 gap-5 xl:grid-cols-[minmax(0,1fr)_320px]"
+      <section
+        id="plumber-play"
+        class="scroll-mt-8 overflow-hidden rounded-[2rem] border-4 border-[#e2bc7c] bg-gradient-to-b from-[#0f3446] to-[#0b2433] p-4 text-[#fff6df] shadow-xl sm:p-6"
+        aria-labelledby="plumber-play-title"
       >
-        <section class="min-w-0 space-y-3">
-          <div class="flex flex-wrap items-center justify-between gap-2">
-            <div>
-              <p class="text-xs uppercase tracking-widest text-secondary">
-                Prototype 1-1 / Bluebell Pipeworks
-              </p>
-              <h3 class="text-2xl font-bold">Run, leap, rescue.</h3>
+        <div class="grid gap-6 xl:grid-cols-[minmax(0,1fr)_320px]">
+          <div class="min-w-0 space-y-3">
+            <div class="flex flex-wrap items-end justify-between gap-2">
+              <div>
+                <p
+                  class="text-xs font-bold uppercase tracking-[.22em] text-[#ffcf82]"
+                >
+                  World 1 · Bluebell Pipeworks
+                </p>
+                <h3
+                  id="plumber-play-title"
+                  class="plumber-display text-3xl sm:text-4xl"
+                >
+                  Training run: Rainy Courtyard
+                </h3>
+              </div>
+              <span
+                class="rounded-full border border-white/25 px-3 py-1 text-xs font-bold uppercase tracking-wider text-white/80"
+              >
+                Movement lab
+              </span>
             </div>
-            <span class="badge badge-outline">Movement lab</span>
+            <ArcadeCabinet slug="save-the-plumber" />
           </div>
-          <ArcadeCabinet slug="save-the-plumber" />
-        </section>
-        <aside class="space-y-4" aria-label="Platforming notes">
-          <section class="kr-panel space-y-3 p-5">
-            <h3 class="text-xl font-bold">How to play this slice</h3>
-            <p class="text-sm leading-relaxed opacity-80">
-              Press Start on the Arcade cabinet. Arrows move; Up or B jumps. A
-              uses your practice tool on nearby pumpbugs. Jump on bugs, collect
-              brass tokens, and reach the pink pennant on the far right.
+
+          <aside class="space-y-4" aria-label="How to play">
+            <div class="rounded-2xl bg-white/5 p-5">
+              <h4 class="plumber-display mb-3 text-xl">Controls</h4>
+              <ul class="space-y-2.5 text-sm">
+                <li
+                  v-for="control in controls"
+                  :key="control.does"
+                  class="flex items-center gap-3"
+                >
+                  <span class="flex gap-1">
+                    <kbd
+                      v-for="key in control.keys"
+                      :key="key"
+                      class="plumber-key"
+                      >{{ key }}</kbd
+                    >
+                  </span>
+                  <span class="text-white/85">{{ control.does }}</span>
+                </li>
+              </ul>
+            </div>
+            <div class="rounded-2xl bg-white/5 p-5">
+              <h4 class="plumber-display mb-3 text-xl">Your goals</h4>
+              <ul class="space-y-2 text-sm text-white/85">
+                <li class="flex gap-2">
+                  <span class="text-[#ffcf82]">◆</span> Press Start on the
+                  cabinet.
+                </li>
+                <li class="flex gap-2">
+                  <span class="text-[#ffcf82]">◆</span> Bop pumpbugs from above,
+                  or zap them with your tool.
+                </li>
+                <li class="flex gap-2">
+                  <span class="text-[#ffcf82]">◆</span> Grab the brass tokens
+                  floating over the gaps.
+                </li>
+                <li class="flex gap-2">
+                  <span class="text-[#ffcf82]">◆</span> Reach the pink pennant
+                  to open a valve.
+                </li>
+              </ul>
+            </div>
+            <p class="px-1 text-xs leading-relaxed text-white/60">
+              This is the engine's first training course, with coyote time and
+              buffered jumps already in. The full authored 1-1 and the rest of
+              the campaign are on the way.
             </p>
-            <p class="text-sm leading-relaxed opacity-80">
-              Coyote-time and buffered jump inputs are included. Reaching the
-              banner restarts the training course. This is not a claimed
-              completion of World 1.
-            </p>
-          </section>
-          <section class="kr-panel space-y-3 p-5">
-            <h3 class="text-xl font-bold">The game's promises</h3>
-            <ul
-              class="list-disc space-y-2 pl-5 text-sm leading-relaxed opacity-80"
-            >
-              <li>
-                A different young adult heroine every new adventure, consistent
-                for that save.
-              </li>
-              <li>
-                Eight distinct boss encounters, throw/carry interactions and
-                secret passages.
-              </li>
-              <li>
-                Designed levels and delightful enemy behavior, never endless
-                procedural tiles.
-              </li>
-              <li>A proper rescue, payoff, illustrated ending and credits.</li>
-            </ul>
-          </section>
-        </aside>
-      </div>
+          </aside>
+        </div>
+      </section>
     </div>
   </main>
 </template>
 
 <script setup lang="ts">
-import { onMounted } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import { useUserStore } from '~/stores/userStore'
+import { useSavePlumberStore } from '~/stores/savePlumberStore'
+import {
+  PLUMBER_CAST,
+  PLUMBER_ENEMIES,
+  PLUMBER_POWERS,
+  PLUMBER_STAGE_COUNT,
+  PLUMBER_WORLDS,
+} from '~/utils/arcade/games/savePlumberWorlds'
 
 const user = useUserStore()
-const worlds = [
+const plumber = useSavePlumberStore()
+const heroine = computed(() => plumber.heroine)
+
+const tilt = ref({ x: 0, y: 0 })
+let reducedMotion = false
+
+function onTilt(event: PointerEvent) {
+  if (reducedMotion || event.pointerType === 'touch') return
+  const box = (event.currentTarget as HTMLElement).getBoundingClientRect()
+  tilt.value = {
+    x: ((event.clientX - box.left) / box.width) * 2 - 1,
+    y: ((event.clientY - box.top) / box.height) * 2 - 1,
+  }
+}
+
+const stats = [
+  { value: PLUMBER_WORLDS.length, label: 'Worlds' },
+  { value: PLUMBER_STAGE_COUNT, label: 'Stages' },
+  { value: PLUMBER_WORLDS.length, label: 'Bosses' },
+  { value: 1, label: 'Heroine, yours' },
+]
+
+const prologue = [
   {
-    name: 'Bluebell Pipeworks',
-    symbol: '🔧',
-    ability: 'Garden valves, rising pistons and the Pump Tower.',
-    gradient: 'linear-gradient(125deg,#188e99,#9ce4c9)',
+    caption: 'The rivers of Bluebell started running uphill.',
+    world: PLUMBER_WORLDS[0],
+    backdrop: '#7fd3d1',
   },
   {
-    name: 'Tideglass Marina',
-    symbol: '🐚',
-    ability: 'Water currents, glass boats and the drydock.',
-    gradient: 'linear-gradient(125deg,#2469b4,#96d9ed)',
+    caption: 'Teo, the local plumber, went to find out why.',
+    who: 'teo' as const,
+    backdrop: 'radial-gradient(circle at 50% 30%, #bfe3ff, #3f6fd1)',
   },
   {
-    name: 'Lantern Orchard',
-    symbol: '🏮',
-    ability: 'Springfruit, fireflies and a hanging conservatory.',
-    gradient: 'linear-gradient(125deg,#9b3a69,#efa26c)',
-  },
-  {
-    name: 'Clockwork Fair',
-    symbol: '🎠',
-    ability: 'Conveyor parades, coasters and clockwork surprises.',
-    gradient: 'linear-gradient(125deg,#a85b52,#efc784)',
-  },
-  {
-    name: 'Cloudrail Commons',
-    symbol: '☁️',
-    ability: 'Wind corridors, ropeways and airships.',
-    gradient: 'linear-gradient(125deg,#547ac9,#b8dceb)',
-  },
-  {
-    name: 'Crystal Underworks',
-    symbol: '💎',
-    ability: 'Reflections, echoes and geode passages.',
-    gradient: 'linear-gradient(125deg,#744a9e,#beafff)',
-  },
-  {
-    name: 'Night Market Rooftops',
-    symbol: '🌙',
-    ability: 'Lantern chases and secret midnight trade routes.',
-    gradient: 'linear-gradient(125deg,#392c7f,#a56b9f)',
-  },
-  {
-    name: 'Stardrain Citadel',
-    symbol: '🏰',
-    ability: 'One final sky-pump and a hard-earned reunion.',
-    gradient: 'linear-gradient(125deg,#263859,#dca15e)',
+    caption: 'Lady Spigot took him to her sky-pump. Your move.',
+    world: PLUMBER_WORLDS[7],
+    backdrop: '#1c2946',
   },
 ]
+
+const controls = [
+  { keys: ['←', '→'], does: 'Run (hold to build speed)' },
+  { keys: ['↑', 'B'], does: 'Jump, buffered and forgiving' },
+  { keys: ['A'], does: 'Tool blast at a nearby pumpbug' },
+]
+
 onMounted(() => {
   void user.initialize()
+  reducedMotion =
+    window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ?? false
+  plumber.load()
+  if (!document.getElementById('plumber-display-font')) {
+    const link = document.createElement('link')
+    link.id = 'plumber-display-font'
+    link.rel = 'stylesheet'
+    link.href =
+      'https://fonts.googleapis.com/css2?family=Lilita+One&display=swap'
+    document.head.appendChild(link)
+  }
 })
+
 useHead({ title: 'Save the Plumber · Private Arcade' })
 </script>
+
+<style>
+.plumber-page .plumber-display,
+.plumber-page .plumber-logo {
+  font-family:
+    'Lilita One', ui-rounded, 'Arial Rounded MT Bold', ui-sans-serif, system-ui,
+    sans-serif;
+  font-weight: 400;
+  letter-spacing: 0.01em;
+}
+
+.plumber-page .plumber-kicker {
+  font-family: ui-sans-serif, system-ui, sans-serif;
+  font-size: 0.75rem;
+  font-weight: 800;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: #d9468f;
+}
+</style>
+
+<style scoped>
+.plumber-logo {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  line-height: 0.86;
+  transform: rotate(-3deg);
+  transform-origin: left center;
+}
+
+.plumber-logo-line {
+  font-size: clamp(3.6rem, 9vw, 6.5rem);
+  color: #fff3d6;
+  -webkit-text-stroke: 3px #0b2a3a;
+  paint-order: stroke fill;
+  text-shadow:
+    0 3px 0 #e2bc7c,
+    0 6px 0 #b98a4a,
+    0 9px 0 #7c5a2c,
+    0 16px 22px rgba(0, 0, 0, 0.45);
+}
+
+.plumber-logo-big {
+  font-size: clamp(4.4rem, 12vw, 8.6rem);
+  color: #ffcf82;
+}
+
+.plumber-logo-the {
+  margin: 0.25rem 0 0.35rem 0.4rem;
+  padding: 0.15rem 1.1rem 0.25rem;
+  font-size: clamp(1.4rem, 3vw, 2rem);
+  color: #0b2a3a;
+  background: linear-gradient(180deg, #8fe3dc, #3fa5a3);
+  border: 3px solid #0b2a3a;
+  border-radius: 999px;
+  box-shadow:
+    inset 0 3px 0 rgba(255, 255, 255, 0.55),
+    0 4px 0 #0b2a3a;
+}
+
+.plumber-start {
+  animation: plumber-start 1.6s ease-in-out infinite;
+  box-shadow: 0 6px 0 #b98a4a;
+}
+
+.plumber-start:active {
+  transform: translateY(4px);
+  box-shadow: 0 2px 0 #b98a4a;
+}
+
+@keyframes plumber-start {
+  0%,
+  100% {
+    filter: brightness(1);
+  }
+
+  50% {
+    filter: brightness(1.12) drop-shadow(0 0 14px rgba(255, 207, 130, 0.6));
+  }
+}
+
+.plumber-key {
+  display: inline-grid;
+  min-width: 2rem;
+  height: 2rem;
+  place-items: center;
+  padding: 0 0.45rem;
+  border-radius: 0.5rem;
+  border: 2px solid rgba(255, 255, 255, 0.35);
+  border-bottom-width: 4px;
+  background: rgba(255, 255, 255, 0.1);
+  font-weight: 800;
+  font-size: 0.85rem;
+  color: #fff6df;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .plumber-start {
+    animation: none;
+  }
+}
+</style>

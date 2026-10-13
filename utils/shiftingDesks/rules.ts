@@ -143,6 +143,33 @@ export type Boss = {
   choices: Choice[]
   department_outcomes: DepartmentOutcome[]
 }
+// Window shifts (conductor shifting-desks t-016): a Papers, Please desk shift.
+// Each applicant is dealt as its own file with two certain stamps, approve and
+// deny; the memo says which one PAL expects.
+export type WindowRule = { id: string; text: string }
+export type WindowDocument = {
+  label: string
+  value: string
+  breaks: string | null
+}
+export type WindowApplicant = {
+  id: string
+  name: string
+  request: string
+  plea: string
+  documents: WindowDocument[]
+  art_prompt: string
+  choices: Choice[]
+}
+export type WindowShift = {
+  id: string
+  location_id: string
+  title: string
+  flavor_text: string
+  memo: { title: string; rules: WindowRule[] }
+  art_prompt: string
+  applicants: WindowApplicant[]
+}
 export type Pack = {
   schemaVersion: number
   source: string
@@ -157,6 +184,7 @@ export type Pack = {
   locations: Location[]
   restructurings?: Restructuring[]
   encounters: Encounter[]
+  window_shift?: WindowShift
   boss: Boss
 }
 
@@ -255,6 +283,7 @@ export type StationKind =
   | 'societies'
   | 'mutations'
   | 'endings'
+  | 'window'
 
 export function stationArt(kind: StationKind, id: string, dept = ''): string {
   const folder = kind === 'cards' ? `cards/${dept}` : kind
@@ -507,7 +536,59 @@ function weightedPick(
   return [pool[pool.length - 1]?.id ?? ids[0] ?? '', next]
 }
 
+export const WINDOW_PREFIX = 'window:'
+
+export type WindowView = {
+  dept: Pack
+  shift: WindowShift
+  applicant: WindowApplicant
+  index: number
+}
+
+export function windowApplicant(id: string): WindowView | null {
+  if (!id.startsWith(WINDOW_PREFIX)) return null
+  const aid = id.slice(WINDOW_PREFIX.length)
+  for (const dept of DEPARTMENTS) {
+    const shift = dept.window_shift
+    const index = shift?.applicants.findIndex((a) => a.id === aid) ?? -1
+    if (shift && index >= 0) {
+      return { dept, shift, applicant: shift.applicants[index]!, index }
+    }
+  }
+  return null
+}
+
+// The stamp the day's memo demands: deny anyone whose documents break a rule.
+export function byTheBook(applicant: WindowApplicant): 'approve' | 'deny' {
+  return applicant.documents.some((d) => d.breaks) ? 'deny' : 'approve'
+}
+
+export function brokenRule(
+  shift: WindowShift,
+  applicant: WindowApplicant,
+): WindowRule | null {
+  const id = applicant.documents.find((d) => d.breaks)?.breaks
+  return shift.memo.rules.find((r) => r.id === id) ?? null
+}
+
+function applicantFile(view: WindowView): Encounter {
+  return {
+    id: `${WINDOW_PREFIX}${view.applicant.id}`,
+    location_id: view.shift.location_id,
+    title: view.applicant.name,
+    flavor_text: view.applicant.plea,
+    polarity: 'mixed',
+    tags: ['paperwork'],
+    weight: 0,
+    witnessed: true,
+    art_prompt: view.applicant.art_prompt,
+    choices: view.applicant.choices,
+  }
+}
+
 export function encounterById(id: string): Encounter {
+  const atWindow = windowApplicant(id)
+  if (atWindow) return applicantFile(atWindow)
   const found = DEPARTMENTS.flatMap((d) => d.encounters).find(
     (e) => e.id === id,
   )
@@ -674,6 +755,14 @@ function dealDepartment(
     deck.push(id)
     rng = next
   }
+  const shift = dept.window_shift
+  const closed = departmentBoard(dept, memo).some(
+    (x) =>
+      x.change === 'closed' && x.locationIds.includes(shift?.location_id ?? ''),
+  )
+  if (shift && !closed) {
+    deck.push(...shift.applicants.map((a) => `${WINDOW_PREFIX}${a.id}`))
+  }
   deck.push(BOSS_CARD)
   return [deck, rng]
 }
@@ -686,6 +775,10 @@ export function stepLabels(state: RunState): string[] {
   const open = departmentBoard(dept, memo).filter((x) => x.change !== 'closed')
   return state.deck.map((id, i) => {
     if (id === BOSS_CARD) return 'Review'
+    const atWindow = windowApplicant(id)
+    if (atWindow) {
+      return `${locationById(atWindow.shift.location_id)?.title ?? 'Window'} · ${atWindow.index + 1}/${atWindow.shift.applicants.length}`
+    }
     if (i < open.length && open[i]!.pool.includes(id)) return open[i]!.title
     const loc = dept.locations.find((l) => l.encounter_ids.includes(id))
     return loc?.title ?? 'File'
@@ -739,14 +832,19 @@ export function currentCardId(state: RunState): string | null {
   return state.deck[state.position] ?? null
 }
 
-export function currentCard(
-  state: RunState,
-):
-  { kind: 'encounter'; card: Encounter } | { kind: 'boss'; card: Boss } | null {
+export type CardView =
+  | { kind: 'encounter'; card: Encounter }
+  | { kind: 'boss'; card: Boss }
+  | ({ kind: 'window'; card: Encounter } & WindowView)
+
+export function currentCard(state: RunState): CardView | null {
   const id = currentCardId(state)
   if (!id) return null
   if (id === BOSS_CARD)
     return { kind: 'boss', card: departmentPack(state.department).boss }
+  const atWindow = windowApplicant(id)
+  if (atWindow)
+    return { kind: 'window', card: applicantFile(atWindow), ...atWindow }
   return { kind: 'encounter', card: encounterById(id) }
 }
 
@@ -1041,6 +1139,11 @@ export function choose(
   let effects = addEffects(choice.cost, outcome.effects)
   if (formBoost) effects = addEffects(effects, { forms: -1 })
   const mutationSpent = mutationUsed && !state.mutationUsed
+  if (view.kind === 'window' && choice.id !== byTheBook(view.applicant)) {
+    events.push(
+      "PAL's audit: this stamp contradicts today's memo. A copy has been filed.",
+    )
+  }
   const witnessed = view.kind === 'boss' || view.card.witnessed
   if (mutationSpent && witnessed) {
     effects = addEffects(effects, { suspicion: 2 })
@@ -1472,6 +1575,7 @@ export function isRunState(value: unknown): value is RunState {
     v.deck.every(
       (id) =>
         id === BOSS_CARD ||
+        !!windowApplicant(id) ||
         DEPARTMENTS.some((d) => d.encounters.some((e) => e.id === id)),
     ) &&
     Array.isArray(v.flags) &&

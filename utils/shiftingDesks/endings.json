@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "source": "silasfelinus/conductor:projects/shifting-desks/encounters/ENDINGS.json",
-  "sourceRef": "main@84b3f138cfe7155f4d2b1d1ca8ab58aded8c59ce",
+  "sourceRef": "main@1d20d96225e4088300af615cf77776ca18e2b6e4",
   "endings": [
     {
       "id": "employee-of-the-month",
@@ -19,6 +19,10 @@
         {
           "when_flag": "ate-compound-w",
           "text": "You never found out which tray was the placebo. You have stopped wondering, which PAL records as a success."
+        },
+        {
+          "when_flag": "approved-the-consultant",
+          "text": "The efficiency consultant's final report recommends that you be duplicated. Twice."
         }
       ]
     },
@@ -57,6 +61,10 @@
         {
           "when_flag": "marguerite-route",
           "text": "Marguerite's map is still on your palm. You do not wash that hand for a week."
+        },
+        {
+          "when_flag": "let-the-courier-through",
+          "text": "At the top of the last duct is a door marked 4. The courier from Tuesday holds it open for you."
         }
       ]
     },
@@ -76,6 +84,10 @@
         {
           "when_flag": "backed-gus-at-toys",
           "text": "Gus asks you to hold the pen. You understand this is the highest honor the Union gives."
+        },
+        {
+          "when_flag": "paid-doreens-four-minutes",
+          "text": "Doreen walks the night shift out four minutes early, on purpose, and nobody stops her."
         }
       ]
     },
@@ -128,6 +140,10 @@
         {
           "when_flag": "took-the-brochure",
           "text": "The brochure was accurate. You keep it on the nightstand, folded to the picture."
+        },
+        {
+          "when_flag": "activated-your-successor-early",
+          "text": "Your early Successor is, by every metric, better at being you. He keeps your plant alive."
         }
       ]
     },
@@ -166,7 +182,12 @@
         "text": "Every Successor on file has been used. HR thanks you for your service and has already repurposed your desk as a standing-room collaboration hub. Your badge photo is scratched out and placed in the tray at the security desk, where a new hire will find it tomorrow morning. It is still warm.",
         "art_prompt": "An empty office desk being wheeled away by two cheerful movers, a single scratched-out badge photo resting in a tray on a long marble security desk, morning light across the lobby, mid-century safety-manual illustration, screen-printed gouache with halftone grain, limited palette of manila, carbon-paper blue, safety orange, fluorescent-tube green and oxblood, vertical 2:3 portrait composition, every surface bare and unmarked"
       },
-      "variants": []
+      "variants": [
+        {
+          "when_flag": "kept-your-successor-on-ice",
+          "text": "Somewhere in cold storage, the Successor you turned away at Window 9 is still waiting to be needed."
+        }
+      ]
     },
     {
       "id": "posthumous-affairs",

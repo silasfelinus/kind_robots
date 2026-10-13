@@ -199,7 +199,7 @@ onMounted(async () => {
   // Fall back to per-cabinet boards (or this device's) if the hall of fame
   // could not load.
   if (!store.hallOfFame.length) {
-    for (const game of games) void store.fetchBoard(game.slug, 'all')
+    for (const game of games.value) void store.fetchBoard(game.slug, 'all')
   }
 })
 </script>

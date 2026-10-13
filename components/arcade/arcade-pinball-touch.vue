@@ -37,7 +37,7 @@
 // what it decides: flipper buttons, a nudge's tap, and the plunger's pull.
 // The hints fade once the first ball is gone (the cabinet says when).
 
-import { onBeforeUnmount, ref } from 'vue'
+import { onBeforeUnmount, onMounted, ref } from 'vue'
 import { PinballTouch } from '~/utils/arcade/pinballTouch'
 import type { ArcadeButton } from '~/utils/arcade/types'
 
@@ -84,8 +84,27 @@ function release() {
   touch.release()
 }
 
+function onVisibilityChange() {
+  if (document.hidden) release()
+}
+
+onMounted(() => {
+  window.addEventListener('pointerup', onUp)
+  window.addEventListener('pointercancel', onUp)
+  window.addEventListener('blur', release)
+  window.addEventListener('pagehide', release)
+  document.addEventListener('visibilitychange', onVisibilityChange)
+})
+
 defineExpose({ release })
-onBeforeUnmount(release)
+onBeforeUnmount(() => {
+  window.removeEventListener('pointerup', onUp)
+  window.removeEventListener('pointercancel', onUp)
+  window.removeEventListener('blur', release)
+  window.removeEventListener('pagehide', release)
+  document.removeEventListener('visibilitychange', onVisibilityChange)
+  release()
+})
 </script>
 
 <style scoped>

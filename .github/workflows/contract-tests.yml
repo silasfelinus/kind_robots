@@ -185,6 +185,9 @@ jobs:
       - name: Zuzu Pinball no stuck balls
         run: npm run test:zuzu-pinball-no-stuck
 
+      - name: Kind Pinball (AMI Village) no stuck balls, and ball rescue
+        run: npm run test:kind-pinball-no-stuck
+
       - name: Zuzu Pinball LED rail
         run: npm run test:zuzu-pinball-leds
 
@@ -238,6 +241,8 @@ jobs:
         run: npm run test:zuzu-showdown-komodo
       - name: Zuzu Showdown fighter kit (The Swamp Witch)
         run: npm run test:zuzu-showdown-witch
+      - name: Zuzu Showdown fighter kit (Jeffery Mittens)
+        run: npm run test:zuzu-showdown-mittens
 
       - name: Zuzu Showdown fighter sprites
         run: npm run test:zuzu-showdown-sprites

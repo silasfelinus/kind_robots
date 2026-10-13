@@ -553,13 +553,31 @@ export class PinballPhysics {
     })
   }
 
-  /** Bump the cabinet: every free ball gets the same small shove (m/s). */
-  nudge(dx: number, dz: number) {
+  /**
+   * Bump the cabinet: every free ball gets the same small shove (m/s). With
+   * `only`, just that ball does, as a ball search's coil pulse frees one.
+   */
+  nudge(dx: number, dz: number, only?: number) {
     for (const ball of this.balls) {
-      if (ball.captured) continue
+      if (ball.captured || (only !== undefined && ball.id !== only)) continue
       const m = ball.body.mass()
       ball.body.applyImpulse({ x: dx * m, y: 0, z: dz * m }, true)
     }
+  }
+
+  /**
+   * A ball the ball search could not free is picked up and set back on the
+   * plunger, as a real machine counts a lost ball missing and serves another
+   * in its place. False (and nothing moves) while the plunger is taken.
+   */
+  rescueBall(id: number): boolean {
+    const ball = this.balls.find((b) => b.id === id)
+    if (!ball || ball.captured || this.ballOnPlunger()) return false
+    const [x, y, z] = this.table.plunger.rest
+    ball.body.setTranslation({ x, y, z }, true)
+    ball.body.setLinvel({ x: 0, y: 0, z: 0 }, true)
+    ball.body.setAngvel({ x: 0, y: 0, z: 0 }, true)
+    return true
   }
 
   /** Raise or drop a side's flippers: all of them, or one tier only. */

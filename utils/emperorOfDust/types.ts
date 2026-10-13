@@ -90,6 +90,8 @@ export type Campaign = {
   log: CampaignEvent[]
   flags?: string[]
   memorials?: { followerId: string; incidentId: string; reason: string }[]
+  equippedRelics?: string[]
+  relicUses?: Record<string, number>
 }
 
 export type OddsPreview = {

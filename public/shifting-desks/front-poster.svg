@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 720" role="img" aria-labelledby="t d">
+  <title id="t">Shifting Desks</title>
+  <desc id="d">A mid-century safety-poster scene: an orange office folder tilted on a manila ground, an eye peering out from between its pages, a cheerful round speaker grille above and a staircase of desks descending into the dark.</desc>
+  <defs>
+    <pattern id="dots" width="10" height="10" patternUnits="userSpaceOnUse">
+      <circle cx="5" cy="5" r="1.4" fill="#292524" fill-opacity="0.13"/>
+    </pattern>
+    <linearGradient id="down" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#292524" stop-opacity="0"/>
+      <stop offset="1" stop-color="#292524" stop-opacity="0.85"/>
+    </linearGradient>
+  </defs>
+  <rect width="1280" height="720" fill="#e9d8a6"/>
+  <rect width="1280" height="720" fill="url(#dots)"/>
+  <g stroke="#292524" stroke-width="6" fill="#d9c48c">
+    <rect x="80" y="430" width="260" height="60" rx="8"/>
+    <rect x="200" y="510" width="260" height="60" rx="8"/>
+    <rect x="320" y="590" width="260" height="60" rx="8"/>
+    <rect x="440" y="670" width="260" height="60" rx="8"/>
+  </g>
+  <rect y="420" width="1280" height="300" fill="url(#down)"/>
+  <g transform="translate(250 150)">
+    <circle r="78" fill="#fef3c7" stroke="#292524" stroke-width="8"/>
+    <g stroke="#292524" stroke-width="7" stroke-linecap="round">
+      <line x1="-44" y1="-22" x2="44" y2="-22"/>
+      <line x1="-52" y1="0" x2="52" y2="0"/>
+      <line x1="-44" y1="22" x2="44" y2="22"/>
+    </g>
+    <path d="M-30 96 Q0 120 30 96" fill="none" stroke="#292524" stroke-width="8" stroke-linecap="round"/>
+  </g>
+  <g transform="translate(860 330) rotate(-9)">
+    <rect x="-300" y="-210" width="600" height="420" rx="34" fill="#292524"/>
+    <rect x="-314" y="-224" width="600" height="420" rx="34" fill="#c2410c" stroke="#292524" stroke-width="10"/>
+    <path d="M-314 -150 h220 l40 -74" fill="none" stroke="#292524" stroke-width="10"/>
+    <rect x="-250" y="-40" width="470" height="90" rx="45" fill="#fef3c7" stroke="#292524" stroke-width="10"/>
+    <circle cx="-15" cy="5" r="34" fill="#292524"/>
+    <circle cx="-4" cy="-6" r="10" fill="#fef3c7"/>
+    <rect x="120" y="-250" width="34" height="110" rx="12" fill="none" stroke="#9ca3af" stroke-width="10"/>
+  </g>
+</svg>

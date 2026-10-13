@@ -16,17 +16,21 @@ tutorial:
   body: |-
     Thirty-two stages, one determined heroine.
 
-    Save the Plumber is planned as a full eight-world side-scrolling adventure. This Admin page contains the first real platforming-engine exercise: press Start on the Arcade cabinet, learn its jump and movement timing, and reach the pink goal flag. The full authored levels, random run-stable heroine, cutscenes, powerups and boss fights are forthcoming.
+    Save the Plumber is planned as a full eight-world side-scrolling adventure. This Admin page is its front door: the title screen, a prologue, the overworld map, heroine casting, the cast and the first playable training run. The full authored levels, cutscenes, powerups and boss fights are forthcoming.
 
     Movement lab
-    Use Left and Right to run, and Up or B to jump. Holding a direction accelerates you; let go to slow. Jump input is buffered just before landing and remains available for a few frames after leaving a ledge. The Arcade cabinet also manages gamepad, touch, pause and sound.
+    Press Start on the title screen or scroll to the training run, then press Start on the Arcade cabinet. Use Left and Right to run, and Up or B to jump. Holding a direction accelerates you; let go to slow. Jump input is buffered just before landing and remains available for a few frames after leaving a ledge. The Arcade cabinet also manages gamepad, touch, pause and sound.
 
     Tools and enemies
-    Press A to use your short-range practice tool against a pumpbug ahead. A careful landing on top of a pumpbug also defeats it. Pick up the brass collectible tokens and cross gaps to reach the pennant. Enemy interactions are a first mechanical slice, not the final carry-and-throw system or a full campaign boss.
+    Press A to use your short-range practice tool against a pumpbug ahead. A careful landing on top of a pumpbug also defeats it. Pick up the brass collectible tokens and cross gaps to reach the pennant. The toy box on this page previews the planned enemy families and the three power disciplines; the training run has only the first mechanical slice.
 
     Eight worlds
-    Each world will have four substantial authored levels and a unique world boss. Bluebell Pipeworks, Tideglass Marina, Lantern Orchard, Clockwork Fair, Cloudrail Commons, Crystal Underworks, Night Market Rooftops and Stardrain Citadel culminate in the rescue of the plumber. The current practice course resets at the pennant.
+    Click an island on the overworld map, or a World chip below it, to scout that world's four stages, its boss and its locals. Arrow keys step between islands. Bluebell Pipeworks, Tideglass Marina, Lantern Orchard, Clockwork Fair, Cloudrail Commons, Crystal Underworks, Night Market Rooftops and Stardrain Citadel culminate in the rescue of the plumber. Painted vignettes replace the drawn scenes as the art pipeline delivers them.
+
+    Casting call
+    Roll a new heroine to see another young woman with her own name and look, and press Keep her to remember her on this device. Your kept heroine stars on the title screen and the map. Looks are cosmetic: every heroine shares one hitbox and the same abilities.
 ---
 
-An original eight-world rescue platformer, currently shown as an admin-only
-movement training stage rather than a finished public Arcade cabinet.
+An original eight-world rescue platformer. The admin-only front page carries the
+title screen, overworld map, heroine casting and the first movement training run;
+it is not yet a public Arcade cabinet.

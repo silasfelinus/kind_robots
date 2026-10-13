@@ -208,6 +208,14 @@
           WASD move · arrows aim and spray · Space or Z = A · X or Shift = B ·
           Enter = Start · P pauses · gamepads: right stick aims
         </p>
+        <p
+          v-else-if="!touchControls && meta?.touchLayout === 'pinball'"
+          class="cabinet-hint"
+        >
+          Left / right = flippers · hold Down, release to launch · Up nudges
+          (nudge too often and it TILTs) · Enter = Start · P pauses · gamepads
+          work too
+        </p>
         <p v-else-if="!touchControls" class="cabinet-hint">
           Arrows or WASD move · Space or Z = A · X or Shift = B · Enter = Start
           · P pauses · gamepads work too
@@ -222,6 +230,18 @@
             @lostpointercapture="press('start', false)"
           >
             {{ phase === 'paused' ? 'Resume' : 'Start' }}
+          </button>
+          <button
+            v-if="meta?.touchLayout === 'pinball'"
+            type="button"
+            class="cabinet-switch"
+            title="Bump the cabinet to shake a ball loose (Up key). Nudge again before it settles and it warns; a third time and the table TILTs."
+            @pointerdown.prevent="holdButton($event, 'up')"
+            @pointerup.prevent="press('up', false)"
+            @pointercancel="press('up', false)"
+            @lostpointercapture="press('up', false)"
+          >
+            Nudge
           </button>
           <button
             v-if="maxPlayers > 1"
@@ -701,6 +721,18 @@ function unlockArcadeAudio() {
 
 function press(button: ArcadeButton, down: boolean, seat = 0) {
   if (down) unlockArcadeAudio()
+  // Start pinball while the touch event still has browser audio activation.
+  // Waiting for the fixed-loop poll creates its WebAudio mixer too late.
+  if (
+    down &&
+    !guide.value &&
+    meta.value?.touchLayout === 'pinball' &&
+    ATTRACT_PHASES.includes(machine.phase) &&
+    (button === 'start' || button === 'a')
+  ) {
+    startGame()
+    return
+  }
   seatInput(seat).setTouch(button, down)
 }
 
@@ -1019,6 +1051,9 @@ function startGame() {
     }),
   )
   lastSave = undefined
+  // The pinball mixer is constructed by create(). Unlock it now, not only
+  // before the instance exists or on the next requestAnimationFrame tick.
+  if (meta.value?.touchLayout === 'pinball') unlockArcadeAudio()
   dispatch({ type: 'start' })
 }
 
@@ -1656,6 +1691,15 @@ function onScreenPointer() {
 function onKey(event: KeyboardEvent) {
   if (event.target instanceof HTMLInputElement) return
   unlockArcadeAudio()
+  if (
+    !guide.value &&
+    meta.value?.touchLayout === 'pinball' &&
+    ATTRACT_PHASES.includes(machine.phase) &&
+    ['Enter', 'Space', 'KeyZ'].includes(event.code)
+  ) {
+    startGame()
+    return
+  }
   if (guide.value && (event.code === 'KeyP' || event.code === 'Escape')) {
     closeGuide()
     return
@@ -1680,15 +1724,26 @@ function onOnline() {
   void store.flushPending()
 }
 
+function releaseInterruptedInput() {
+  releaseTouch()
+  for (const seatIn of inputs) seatIn.clear()
+}
+
 function onVisibility() {
-  if (document.hidden && machine.phase === 'playing')
-    dispatch({ type: 'pause' })
+  if (!document.hidden) return
+  releaseInterruptedInput()
+  if (machine.phase === 'playing') dispatch({ type: 'pause' })
+}
+
+function onWindowBlur() {
+  releaseInterruptedInput()
 }
 
 function toggleMute() {
   unlockArcadeAudio()
   store.setMuted(!store.muted)
   sound?.setMuted(store.muted)
+  unlockArcadeAudio()
 }
 
 function toggleRenderStyle() {
@@ -1749,6 +1804,7 @@ onMounted(() => {
   window.addEventListener('gamepadconnected', applySeats)
   window.addEventListener('gamepaddisconnected', applySeats)
   window.addEventListener('keydown', onKey)
+  window.addEventListener('blur', onWindowBlur)
   window.addEventListener('online', onOnline)
   document.addEventListener('visibilitychange', onVisibility)
   document.addEventListener('fullscreenchange', syncFullscreen)
@@ -1808,6 +1864,7 @@ onBeforeUnmount(() => {
   window.removeEventListener('gamepadconnected', applySeats)
   window.removeEventListener('gamepaddisconnected', applySeats)
   window.removeEventListener('keydown', onKey)
+  window.removeEventListener('blur', onWindowBlur)
   window.removeEventListener('online', onOnline)
   document.removeEventListener('visibilitychange', onVisibility)
   document.removeEventListener('fullscreenchange', syncFullscreen)

@@ -17,60 +17,17 @@
         class="relative isolate overflow-hidden rounded-[2rem] border border-pink-200/40 bg-[#251345] text-white shadow-2xl"
         aria-label="Rainbow Space Princess introduction"
       >
-        <div
-          class="pointer-events-none absolute inset-0 opacity-90"
-          aria-hidden="true"
-        >
-          <div
-            class="absolute -right-24 -top-32 h-96 w-96 rounded-full bg-pink-400/45 blur-3xl"
+        <div class="pointer-events-none absolute inset-0" aria-hidden="true">
+          <img
+            :src="RAINBOW_HERO_ART"
+            alt=""
+            width="1344"
+            height="768"
+            class="h-full w-full object-cover object-[70%_center]"
           />
           <div
-            class="absolute bottom-0 right-0 h-72 w-3/4 rounded-full bg-cyan-400/35 blur-3xl"
+            class="absolute inset-0 bg-gradient-to-r from-[#251345] via-[#251345]/75 to-transparent"
           />
-          <div
-            class="absolute -bottom-32 left-1/4 h-60 w-96 rounded-full bg-violet-500/50 blur-3xl"
-          />
-          <div class="princess-stars absolute inset-0" />
-          <svg
-            viewBox="0 0 700 340"
-            class="absolute bottom-0 right-0 h-full w-full max-w-[810px] opacity-90"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <path
-              d="M670 30c-75 3-123 50-121 116 3 68 60 101 125 92"
-              stroke="#F9E1FF"
-              stroke-width="3"
-              opacity=".45"
-            />
-            <path
-              d="M600 18c-68 36-103 100-79 157 24 55 88 64 172 53"
-              stroke="#9BEFFD"
-              stroke-width="2"
-              opacity=".6"
-            />
-            <g transform="translate(435 180)">
-              <path
-                d="M-96 0 24-26 97 0 24 26Z"
-                fill="#FFD2EC"
-                stroke="#FFFFFF"
-                stroke-width="4"
-              />
-              <path d="M-45 0 22-18 69 0 22 18Z" fill="#8BE5EE" />
-              <path d="m-64-4-37-37 75 33M-64 4l-37 37L-26 8" fill="#D698F2" />
-              <ellipse cx="36" cy="0" rx="14" ry="8" fill="#FFFFFF" />
-              <path d="M-97 0-143-12-131 0-143 12Z" fill="#F8D07F" />
-            </g>
-            <g transform="translate(612 70)" stroke="#F4BBF1" stroke-width="4">
-              <ellipse rx="51" ry="26" fill="#744BB9" />
-              <path d="M-28 18 0 59 22 19M-12 24-17 65M15 25 32 68" />
-            </g>
-            <g fill="#FDF5C2">
-              <circle cx="316" cy="124" r="4" />
-              <circle cx="356" cy="136" r="3" />
-              <circle cx="395" cy="150" r="2" />
-            </g>
-          </svg>
         </div>
         <div
           class="relative flex min-h-[340px] flex-col justify-center gap-4 px-6 py-12 sm:px-10"
@@ -100,6 +57,11 @@
               >Enter flight simulator ↓</a
             >
             <a
+              href="#princess-pilots"
+              class="btn border-white/40 bg-white/10 text-white hover:bg-white/20"
+              >Meet the pilots</a
+            >
+            <a
               href="#princess-mission"
               class="btn border-white/40 bg-white/10 text-white hover:bg-white/20"
               >Explore the mission</a
@@ -110,6 +72,113 @@
             still being built.
           </p>
         </div>
+      </section>
+
+      <section
+        id="princess-pilots"
+        class="space-y-4"
+        aria-labelledby="princess-pilots-title"
+      >
+        <div class="flex flex-wrap items-end justify-between gap-3">
+          <div>
+            <p class="text-xs uppercase tracking-widest text-secondary">
+              Flight roster · P1–P4
+            </p>
+            <h3 id="princess-pilots-title" class="text-2xl font-bold">
+              Choose your princess
+            </h3>
+          </div>
+          <p class="max-w-md text-sm opacity-75">
+            Every pilot flies the same fair hitbox. Pick by play style, not by
+            size: the glyph and number follow you into battle.
+          </p>
+        </div>
+        <ul class="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+          <li
+            v-for="pilot in RAINBOW_PILOTS"
+            :key="pilot.key"
+            class="group relative overflow-hidden rounded-2xl border-2 bg-[#251345] text-white shadow-lg"
+            :style="{ borderColor: pilot.color }"
+          >
+            <div class="relative aspect-[832/1216] overflow-hidden">
+              <img
+                :src="pilot.portrait"
+                :alt="pilot.portraitAlt"
+                width="576"
+                height="842"
+                loading="lazy"
+                class="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105 motion-reduce:transition-none motion-reduce:group-hover:scale-100"
+              />
+              <div
+                class="absolute left-3 top-3 flex items-center gap-2 rounded-full bg-[#251345]/85 py-1 pl-1 pr-3 text-sm font-black"
+              >
+                <span
+                  class="grid h-8 w-8 place-items-center rounded-full"
+                  :style="{ backgroundColor: pilot.color }"
+                >
+                  <svg
+                    viewBox="0 0 24 24"
+                    class="h-5 w-5"
+                    role="img"
+                    :aria-label="pilot.glyphName"
+                  >
+                    <path
+                      v-if="pilot.glyph.shape === 'path'"
+                      :d="pilot.glyph.d"
+                      fill="#251345"
+                    />
+                    <g v-else fill="none" stroke="#251345" stroke-width="2.5">
+                      <circle cx="12" cy="12" r="9" />
+                      <circle cx="12" cy="12" r="4.5" />
+                    </g>
+                  </svg>
+                </span>
+                P{{ pilot.seat + 1 }}
+              </div>
+              <div
+                class="absolute inset-x-0 bottom-0 bg-gradient-to-t from-[#251345] via-[#251345]/85 to-transparent px-4 pb-4 pt-16"
+              >
+                <h4
+                  class="text-2xl font-black leading-tight"
+                  :style="{ color: pilot.color }"
+                >
+                  {{ pilot.name }}
+                </h4>
+                <p class="text-xs uppercase tracking-widest text-white/75">
+                  {{ pilot.pronouns }} · {{ pilot.colorName }}
+                </p>
+              </div>
+            </div>
+            <dl class="space-y-2 p-4 text-sm">
+              <div>
+                <dt class="text-xs uppercase tracking-widest text-white/60">
+                  Ship
+                </dt>
+                <dd>
+                  <span class="font-bold">{{ pilot.ship }}</span> ·
+                  {{ pilot.shipShape }}
+                </dd>
+              </div>
+              <div>
+                <dt class="text-xs uppercase tracking-widest text-white/60">
+                  Fire
+                </dt>
+                <dd>{{ pilot.primary }}</dd>
+              </div>
+              <div>
+                <dt class="text-xs uppercase tracking-widest text-white/60">
+                  Super
+                </dt>
+                <dd>
+                  <span class="font-bold">{{ pilot.superName }}</span
+                  >:
+                  {{ pilot.superDetail }}
+                </dd>
+              </div>
+              <p class="pt-1 leading-relaxed text-white/85">{{ pilot.hook }}</p>
+            </dl>
+          </li>
+        </ul>
       </section>
 
       <div id="princess-mission" class="grid gap-4 lg:grid-cols-3">
@@ -183,6 +252,10 @@
 <script setup lang="ts">
 import { onMounted } from 'vue'
 import { useUserStore } from '~/stores/userStore'
+import {
+  RAINBOW_HERO_ART,
+  RAINBOW_PILOTS,
+} from '~/utils/arcade/games/rainbowPilots'
 
 const user = useUserStore()
 const missionCards = [
@@ -220,17 +293,3 @@ onMounted(() => {
 })
 useHead({ title: 'Rainbow Bullet Hell Space Princess · Private Arcade' })
 </script>
-
-<style scoped>
-.princess-stars {
-  background-image:
-    radial-gradient(circle, #fff6 1px, transparent 2px),
-    radial-gradient(circle, #99efff99 1px, transparent 2px);
-  background-size:
-    49px 63px,
-    87px 77px;
-  background-position:
-    0 0,
-    28px 15px;
-}
-</style>

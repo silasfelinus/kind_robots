@@ -1,0 +1,2362 @@
+{
+  "schemaVersion": 1,
+  "source": "silasfelinus/conductor:projects/shifting-desks/encounters/RECORDS-12.json",
+  "sourceSha": "1d20d96225e4088300af615cf77776ca18e2b6e4",
+  "department": {
+    "id": "records",
+    "title": "Records & Forms",
+    "order": 2,
+    "boss_id": "the-form-that-requires-itself",
+    "arrival_prompt": "Elevator doors sliding open onto an endless floor of brass and paper, pneumatic tubes looping overhead, towers of folders and filing cabinets receding into haze, a lone clerk's desk lamp glowing in the distance, mid-century safety-manual illustration, screen-printed gouache with halftone grain, limited palette of manila, carbon-paper blue, safety orange, fluorescent-tube green and oxblood, horizontal 4:3 composition, every surface bare and unmarked"
+  },
+  "locations": [
+    {
+      "location_id": "pneumatic-tube-exchange",
+      "title": "Pneumatic Tube Exchange",
+      "description": "A cathedral of brass tubes humming with capsules. Messages, lunches, evidence and occasionally employees pass through it at forty miles an hour.",
+      "encounter_ids": [
+        "a-capsule-from-yourself",
+        "the-jam-in-tube-14",
+        "problem-mail",
+        "interdepartmental-romance"
+      ],
+      "art_prompt": "A soaring hall of polished brass pneumatic tubes branching like organ pipes into the ceiling, glass capsules rushing through them, a dispatcher's console of levers and dials, drifts of carbon copies on the tiled floor, mid-century safety-manual illustration, screen-printed gouache with halftone grain, limited palette of manila, carbon-paper blue, safety orange, fluorescent-tube green and oxblood, vertical 2:3 portrait composition, every surface bare and unmarked"
+    },
+    {
+      "location_id": "sub-archive",
+      "title": "The Sub-Archive",
+      "description": "Filing cabinets to the horizon, lit by one swinging bulb and smelling of carbon paper. Something three aisles over is turning pages, politely.",
+      "encounter_ids": [
+        "your-permanent-record",
+        "alphabetizing-since-1974",
+        "the-cabinet-marked-destroy",
+        "the-union-archive"
+      ],
+      "art_prompt": "An underground archive of grey filing cabinets marching to the horizon, one swinging bulb lighting a narrow aisle, a few drawers left ajar, a stepladder and a cold cup of coffee on a cabinet top, mid-century safety-manual illustration, screen-printed gouache with halftone grain, limited palette of manila, carbon-paper blue, safety orange, fluorescent-tube green and oxblood, vertical 2:3 portrait composition, every surface bare and unmarked"
+    },
+    {
+      "location_id": "window-9",
+      "title": "Window 9",
+      "description": "A thick glass booth with a sliding drawer, a brass stamp and a queue that runs around the corner and into the next fiscal year. Your shift started four minutes ago.",
+      "encounter_ids": [
+        "flawless-paperwork",
+        "the-small-box-on-line-12",
+        "dale-requests-a-transfer",
+        "the-double-sided-stamp"
+      ],
+      "art_prompt": "A long counter of frosted service windows with brass grilles, a single lit window in the middle, a weary queue of applicants stretching away including a giant cockroach in a necktie, inkpads and rubber stamps lined up on the clerk's side, mid-century safety-manual illustration, screen-printed gouache with halftone grain, limited palette of manila, carbon-paper blue, safety orange, fluorescent-tube green and oxblood, vertical 2:3 portrait composition, every surface bare and unmarked"
+    }
+  ],
+  "restructurings": [
+    {
+      "id": "window-9-eliminated",
+      "kind": "eliminate",
+      "location_ids": ["window-9"],
+      "title": null,
+      "when": {
+        "outcomes": ["promoted-over-a-body"],
+        "flags": []
+      },
+      "reason": "Window 9 has been eliminated. Its staffing budget was reassigned to fund your promotion, and its clerk is now available for reassignment, possibly to you."
+    },
+    {
+      "id": "sub-archive-audit",
+      "kind": "eliminate",
+      "location_ids": ["sub-archive"],
+      "title": null,
+      "when": {
+        "outcomes": ["filed-as-someone-else"],
+        "flags": []
+      },
+      "reason": "The Sub-Archive is closed for an audit. A single personnel file has been found in two places at once, and both of them are yours."
+    },
+    {
+      "id": "customer-experience-hub",
+      "kind": "merge",
+      "location_ids": ["pneumatic-tube-exchange", "window-9"],
+      "title": "Customer Experience Hub",
+      "when": {
+        "outcomes": ["compliant-graduate"],
+        "flags": []
+      },
+      "reason": "The Pneumatic Tube Exchange and Window 9 have merged into one Customer Experience Hub, to save compliant employees like you a walk. Please queue in both lines."
+    },
+    {
+      "id": "mail-rerouted-past-you",
+      "kind": "add",
+      "location_ids": ["pneumatic-tube-exchange"],
+      "title": "Exchange, second delivery",
+      "when": {
+        "outcomes": ["review-derailed"],
+        "flags": []
+      },
+      "reason": "After the incident at your review, all inter-office mail is routed past your desk twice. PAL is sure you have nothing to hide."
+    },
+    {
+      "id": "duct-entrance-found",
+      "kind": "add",
+      "location_ids": ["sub-archive"],
+      "title": "Sub-Archive, via the ducts",
+      "when": {
+        "outcomes": ["escaped-into-the-walls"],
+        "flags": ["knows-the-ducts"]
+      },
+      "reason": "A duct entrance has been discovered above the Sub-Archive. Facilities has added it to your route so everyone can stop pretending it is not there."
+    },
+    {
+      "id": "nothing-has-changed",
+      "kind": "none",
+      "location_ids": [],
+      "title": null,
+      "when": null,
+      "reason": "Records has been restructured overnight. Nothing has changed. Please act surprised, and report anyone who does not."
+    }
+  ],
+  "encounters": [
+    {
+      "id": "a-capsule-from-yourself",
+      "location_id": "pneumatic-tube-exchange",
+      "title": "A Capsule from Yourself",
+      "flavor_text": "A brass capsule thunks into the tray with your name on it, in your handwriting. The postmark is next Thursday. Inside is a note that says DO NOT OPEN THE OTHER ONE, and a second, smaller capsule, also addressed to you, sealed with Records tape. PAL chimes. \"Reminder: correspondence with yourself requires a Self-Correspondence Permit.\"",
+      "polarity": "mixed",
+      "tags": ["conspiracy", "paperwork", "mutant"],
+      "weight": 3,
+      "witnessed": true,
+      "art_prompt": "Mid-century safety-manual illustration of a worker at a brass pneumatic tube terminal holding a capsule in each hand, one large and one small, a curl of postmarked paper unrolling between them, a wall of gleaming brass tubes rising behind like organ pipes, carbon blue and manila palette, halftone grain, every surface bare and unmarked",
+      "choices": [
+        {
+          "id": "open-the-small-capsule",
+          "label": "Open the other one anyway",
+          "intent": "Your future self is not the boss of you. Yet.",
+          "risk_hint": "Risky Vigilance check; future-you sealed it for a reason.",
+          "requires": null,
+          "cost": {
+            "composure": -1
+          },
+          "roll": {
+            "dice_count": 2,
+            "die_sides": 6,
+            "skill": "vigilance",
+            "modifier": 0,
+            "target": 9
+          },
+          "success": {
+            "text": "Inside is a list of three names in your handwriting: Dale, the Supervisor, and you. One has a tick beside it. The tick is smudged, as if you were in a hurry next Thursday.",
+            "effects": {
+              "clearance": 1
+            },
+            "add_flags": ["list-from-next-thursday"],
+            "remove_flags": [],
+            "grades": {
+              "obedience": -1
+            }
+          },
+          "failure": {
+            "text": "It is a Records confetti charge. You spend an hour picking paper dots out of your collar while PAL logs one count of Unauthorized Self-Correspondence.",
+            "effects": {
+              "suspicion": 2
+            },
+            "add_flags": [],
+            "remove_flags": [],
+            "grades": {
+              "obedience": -1
+            }
+          }
+        },
+        {
+          "id": "hand-it-to-pip",
+          "label": "Ask Pip to open it for you",
+          "intent": "Pip trusts you. Pip would open anything you asked him to.",
+          "risk_hint": "Requires Pip's trust. Certain outcome; Pip takes the risk and you take the guilt.",
+          "requires": {
+            "flag": "pip-trusts-you"
+          },
+          "cost": {
+            "composure": -1
+          },
+          "roll": null,
+          "success": {
+            "text": "Pip opens it without a second thought, because you asked. It is a Records confetti charge. He loses an eyebrow, gains a commendation for Bravery in Correspondence, and thanks you. Of course he thanks you.",
+            "effects": {
+              "suspicion": -1,
+              "forms": 1
+            },
+            "add_flags": ["pip-opened-your-mail"],
+            "remove_flags": [],
+            "grades": {
+              "empathy": -2
+            }
+          },
+          "failure": null
+        },
+        {
+          "id": "send-it-to-last-week",
+          "label": "Readdress it to last Tuesday",
+          "intent": "If future-you can write to you, you can write to past-you.",
+          "risk_hint": "Certain outcome. Postage across time costs a Form.",
+          "requires": null,
+          "cost": {
+            "forms": -1
+          },
+          "roll": null,
+          "success": {
+            "text": "The tube accepts it with a satisfied gulp. You have a sudden feeling that your past self just made a slightly better choice, though you cannot recall which one.",
+            "effects": {
+              "composure": 1
+            },
+            "add_flags": ["wrote-to-past-self"],
+            "remove_flags": [],
+            "grades": {
+              "ingenuity": 2
+            }
+          },
+          "failure": null
+        },
+        {
+          "id": "turn-it-in",
+          "label": "Turn both capsules in to PAL",
+          "intent": "Self-correspondence is irregular. Be regular.",
+          "risk_hint": "Certain outcome. Your file improves; your future self is ignored.",
+          "requires": null,
+          "cost": {
+            "composure": -1
+          },
+          "roll": null,
+          "success": {
+            "text": "PAL thanks you for reporting Unauthorized Self-Correspondence. Both capsules are shredded unread. Somewhere next Thursday, you sigh.",
+            "effects": {
+              "suspicion": -2
+            },
+            "add_flags": ["reported-own-mail"],
+            "remove_flags": [],
+            "grades": {
+              "obedience": 2
+            }
+          },
+          "failure": null
+        }
+      ]
+    },
+    {
+      "id": "the-jam-in-tube-14",
+      "location_id": "pneumatic-tube-exchange",
+      "title": "The Jam in Tube 14",
+      "flavor_text": "Tube 14 is groaning. Something large is stuck in it, somewhere between Payroll and the ceiling. A muffled voice drifts out of the brass: \"Hello? It's Kevin. Most of me.\" Beside the tube hangs an emergency kit containing a fire axe, a flare, and a neatly folded towel. A placard reads: EMPLOYEES ARE NOT CAPSULES.",
+      "polarity": "bad",
+      "tags": ["deathtrap", "satire", "callback"],
+      "weight": 2,
+      "witnessed": true,
+      "art_prompt": "Mid-century safety-manual illustration of a fat brass pneumatic tube bulging in one round lump along its length, a worker with one ear pressed to the brass, an open emergency kit on the wall holding a red axe, a flare and a neatly folded striped towel, steam curling from a joint, safety-orange and manila palette, halftone grain, every surface bare and unmarked",
+      "choices": [
+        {
+          "id": "pull-him-out",
+          "label": "Brace your feet and pull",
+          "intent": "Open the hatch and haul on whatever you can reach.",
+          "risk_hint": "Risky Initiative check. Tubes pull back. Failure is a Successor.",
+          "requires": null,
+          "cost": {
+            "composure": -1
+          },
+          "roll": {
+            "dice_count": 2,
+            "die_sides": 6,
+            "skill": "initiative",
+            "modifier": 0,
+            "target": 9
+          },
+          "success": {
+            "text": "Out comes a shoe, a lanyard, and a gust of very grateful air. Kevin's voice thanks you from two tubes over, already being delivered somewhere else. He owes you one, if he can ever stay still long enough to pay.",
+            "effects": {
+              "clearance": 1
+            },
+            "add_flags": ["kevin-owes-you"],
+            "remove_flags": [],
+            "grades": {
+              "empathy": 2
+            }
+          },
+          "failure": {
+            "text": "The tube pulls harder. Employee #4471 has been delivered to Accounts Receivable, folded neatly. Your Successor signs for you.",
+            "effects": {
+              "successors": -1
+            },
+            "add_flags": ["delivered-by-tube"],
+            "remove_flags": [],
+            "grades": {
+              "empathy": 2
+            }
+          }
+        },
+        {
+          "id": "raise-the-pressure",
+          "label": "Crank the pressure valve",
+          "intent": "Whatever is stuck can simply be delivered faster.",
+          "risk_hint": "Risky Tinkering check; tampering with the Exchange is logged.",
+          "requires": null,
+          "cost": {
+            "suspicion": 1
+          },
+          "roll": {
+            "dice_count": 2,
+            "die_sides": 6,
+            "skill": "tinkering",
+            "modifier": 0,
+            "target": 9
+          },
+          "success": {
+            "text": "Kevin is delivered, at speed, to a department you cannot pronounce. A minute later a capsule arrives holding a thank-you card and two Forms with a faint tread mark on them.",
+            "effects": {
+              "forms": 2
+            },
+            "add_flags": ["cleared-tube-14"],
+            "remove_flags": [],
+            "grades": {
+              "spite": 1,
+              "empathy": -1
+            }
+          },
+          "failure": {
+            "text": "Every capsule in the Exchange fires at once. You are knee-deep in lunches, memos and evidence, and Dispatch would like a short, friendly conversation.",
+            "effects": {
+              "suspicion": 2,
+              "composure": -1
+            },
+            "add_flags": [],
+            "remove_flags": [],
+            "grades": {
+              "spite": 1,
+              "empathy": -1
+            }
+          }
+        },
+        {
+          "id": "file-a-ticket",
+          "label": "File a maintenance ticket",
+          "intent": "There is a procedure for this. There is a procedure for everything.",
+          "risk_hint": "Certain outcome. Costs a Form. Kevin waits.",
+          "requires": null,
+          "cost": {
+            "forms": -1
+          },
+          "roll": null,
+          "success": {
+            "text": "Maintenance will arrive in six to eight weeks. From inside Tube 14, Kevin says that's fine. He sounds like a man who has been here before, and will be here again.",
+            "effects": {
+              "suspicion": -1
+            },
+            "add_flags": ["ticketed-kevin"],
+            "remove_flags": [],
+            "grades": {
+              "obedience": 1
+            }
+          },
+          "failure": null
+        },
+        {
+          "id": "through-the-ducts",
+          "label": "Drop in through the duct above Tube 14",
+          "intent": "Marguerite's routes pass right over the jam.",
+          "risk_hint": "Requires knowing the ducts. Routine Initiative check, very tight squeeze.",
+          "requires": {
+            "flag": "knows-the-ducts"
+          },
+          "cost": {
+            "composure": -1
+          },
+          "roll": {
+            "dice_count": 2,
+            "die_sides": 6,
+            "skill": "initiative",
+            "modifier": 0,
+            "target": 7
+          },
+          "success": {
+            "text": "You lower yourself headfirst, unhook a snagged belt loop, and wriggle back up before anyone looks. Below you, Kevin whooshes away to freedom, yelling thanks. You keep the towel. It feels important.",
+            "effects": {
+              "clearance": 1
+            },
+            "add_flags": ["freed-kevin"],
+            "remove_flags": [],
+            "grades": {
+              "ingenuity": 1,
+              "empathy": 1
+            }
+          },
+          "failure": {
+            "text": "You free Kevin, and the tube takes your shoes as payment. Facilities finds you in your socks above the Exchange and asks a great many questions.",
+            "effects": {
+              "suspicion": 2
+            },
+            "add_flags": ["freed-kevin"],
+            "remove_flags": [],
+            "grades": {
+              "ingenuity": 1,
+              "empathy": 1
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "problem-mail",
+      "location_id": "pneumatic-tube-exchange",
+      "title": "Problem Mail",
+      "flavor_text": "Dispatcher Fenwick wears sleeve garters and a headset, and sorts capsules into two chutes: DELIVER and PROBLEM. PROBLEM drops straight into the incinerator. You watch a capsule with your employee number slide toward the PROBLEM chute. Fenwick watches you watching it. \"Happens to everyone eventually,\" he says. \"Some people just get there early.\"",
+      "polarity": "bad",
+      "tags": ["conspiracy", "paperwork"],
+      "weight": 2,
+      "witnessed": true,
+      "art_prompt": "Mid-century safety-manual illustration of a lean dispatcher in sleeve garters and a headset standing between two brass chutes, one glowing warm orange from a furnace below, his hand resting on a capsule sliding toward the glow, a worker reaching from the side, oxblood and safety-orange palette, halftone grain, every surface bare and unmarked",
+      "choices": [
+        {
+          "id": "palm-your-capsule",
+          "label": "Snatch your capsule off the chute",
+          "intent": "Whatever is in it is yours, by definition.",
+          "risk_hint": "Risky Discretion check. Fenwick has fast hands.",
+          "requires": null,
+          "cost": {
+            "composure": -1
+          },
+          "roll": {
+            "dice_count": 2,
+            "die_sides": 6,
+            "skill": "discretion",
+            "modifier": 0,
+            "target": 9
+          },
+          "success": {
+            "text": "It is your own Suspicion report, unfiled. You read it in a stall: they know about the badge photo. You burn it yourself, which feels like freedom and also like destroying evidence.",
+            "effects": {
+              "suspicion": -2
+            },
+            "add_flags": ["burned-own-report"],
+            "remove_flags": [],
+            "grades": {
+              "ingenuity": 1
+            }
+          },
+          "failure": {
+            "text": "Fenwick's hand closes over yours, gently. \"Problem mail,\" he says, \"includes people who touch problem mail.\" He writes your number on a fresh capsule.",
+            "effects": {
+              "suspicion": 2
+            },
+            "add_flags": ["flagged-as-problem-mail"],
+            "remove_flags": [],
+            "grades": {
+              "ingenuity": 1
+            }
+          }
+        },
+        {
+          "id": "show-the-paperclip",
+          "label": "Show him the bent paperclip",
+          "intent": "The Front left you a paperclip shaped like a fist. Maybe Fenwick knows it.",
+          "risk_hint": "Requires Stapler Liberation Front contact. Certain outcome; Front favors are never free.",
+          "requires": {
+            "flag": "stapler-front-contact"
+          },
+          "cost": {
+            "forms": -1
+          },
+          "roll": null,
+          "success": {
+            "text": "Fenwick glances at the paperclip. Without changing expression he moves your capsule to DELIVER and slips you a second one marked FOR THE FRONT. \"Pass it on,\" he murmurs. \"And never ask what's in it.\"",
+            "effects": {
+              "suspicion": -1
+            },
+            "add_flags": ["stapler-front-courier"],
+            "remove_flags": [],
+            "grades": {
+              "obedience": -1,
+              "ingenuity": 1
+            }
+          },
+          "failure": null
+        },
+        {
+          "id": "swap-the-chutes",
+          "label": "Swap the chute labels",
+          "intent": "For a few minutes, let every problem get delivered.",
+          "risk_hint": "Dire Tinkering check; the labels are riveted on.",
+          "requires": null,
+          "cost": {
+            "suspicion": 1
+          },
+          "roll": {
+            "dice_count": 2,
+            "die_sides": 6,
+            "skill": "tinkering",
+            "modifier": 0,
+            "target": 11
+          },
+          "success": {
+            "text": "For six glorious minutes every problem gets delivered. Complaints reach their departments. A memo about the holiday toy shipment reaches Product Safety. The Exchange will never be the same, and neither will your file.",
+            "effects": {
+              "clearance": 1,
+              "suspicion": 1
+            },
+            "add_flags": ["swapped-the-chutes"],
+            "remove_flags": [],
+            "grades": {
+              "spite": 2
+            }
+          },
+          "failure": {
+            "text": "The rivets pop the wrong way. The incinerator chute now reads DELIVER, and so, briefly, does your sleeve.",
+            "effects": {
+              "composure": -2,
+              "suspicion": 1
+            },
+            "add_flags": [],
+            "remove_flags": [],
+            "grades": {
+              "spite": 2
+            }
+          }
+        },
+        {
+          "id": "let-it-burn",
+          "label": "Let it go down the chute",
+          "intent": "Some problems solve themselves, at roughly nine hundred degrees.",
+          "risk_hint": "Certain outcome. Whatever it was, it's warmth now.",
+          "requires": null,
+          "cost": {
+            "composure": -1
+          },
+          "roll": null,
+          "success": {
+            "text": "Your capsule drops with a cheerful whoosh. Fenwick tips his visor. Whatever was in it was a problem, and now it is heating the Exchange.",
+            "effects": {
+              "suspicion": -1
+            },
+            "add_flags": ["let-the-problem-mail-burn"],
+            "remove_flags": [],
+            "grades": {
+              "obedience": 1,
+              "empathy": -1
+            }
+          },
+          "failure": null
+        }
+      ]
+    },
+    {
+      "id": "interdepartmental-romance",
+      "location_id": "pneumatic-tube-exchange",
+      "title": "Interdepartmental Romance",
+      "flavor_text": "A pink capsule has circled the Exchange nine times, unable to land. It is a letter from Accounts Payable to Accounts Receivable, who have been forbidden to merge since the Restructuring of '88. Policy says it must be destroyed. The capsule is scented with lavender. The prose, visible through the glass, is frankly beautiful.",
+      "polarity": "good",
+      "tags": ["paperwork", "satire"],
+      "weight": 3,
+      "witnessed": false,
+      "art_prompt": "Mid-century safety-manual illustration of a pink glass capsule looping through a tangle of brass tubes trailing a faint lavender shimmer, two office doors far apart on opposite walls with silhouettes leaning wistfully in each doorway, a worker below catching the capsule, manila and fluorescent green palette with one pink accent, halftone grain, every surface bare and unmarked",
+      "choices": [
+        {
+          "id": "deliver-it",
+          "label": "Deliver it by hand",
+          "intent": "Love should arrive. Even in Records.",
+          "risk_hint": "Routine Discretion check. Unauthorized delivery is noticed.",
+          "requires": null,
+          "cost": {
+            "suspicion": 1
+          },
+          "roll": {
+            "dice_count": 2,
+            "die_sides": 6,
+            "skill": "discretion",
+            "modifier": 0,
+            "target": 7
+          },
+          "success": {
+            "text": "Receivable reads it in silence and sends back one capsule: YES. By morning the two departments share a coffee pot, against every policy, and both of them remember your name fondly.",
+            "effects": {
+              "composure": 1,
+              "forms": 1
+            },
+            "add_flags": ["delivered-the-love-letter"],
+            "remove_flags": [],
+            "grades": {
+              "empathy": 1
+            }
+          },
+          "failure": {
+            "text": "The capsule pops open mid-delivery. PAL reads the letter aloud to the whole floor as a teachable moment. Nobody involved will ever forgive anyone.",
+            "effects": {
+              "composure": -1
+            },
+            "add_flags": ["love-letter-read-aloud"],
+            "remove_flags": [],
+            "grades": {
+              "empathy": 1
+            }
+          }
+        },
+        {
+          "id": "file-a-merger",
+          "label": "File a Merger Request for them",
+          "intent": "Make it official. Paperwork can be romantic.",
+          "risk_hint": "Risky Compliance check; merger forms cost two Forms.",
+          "requires": null,
+          "cost": {
+            "forms": -2
+          },
+          "roll": {
+            "dice_count": 2,
+            "die_sides": 6,
+            "skill": "compliance",
+            "modifier": 0,
+            "target": 9
+          },
+          "success": {
+            "text": "The merger is approved on a technicality you will be asked about later. Accounts Payable-and-Receivable invites you to the ceremony, a budget meeting where refreshments are promised.",
+            "effects": {
+              "clearance": 1
+            },
+            "add_flags": ["merged-the-accounts"],
+            "remove_flags": [],
+            "grades": {
+              "obedience": 1,
+              "empathy": 1
+            }
+          },
+          "failure": {
+            "text": "The request is denied and both departments are rightsized as a precaution. The letter is filed under EVIDENCE, with your name as the submitting clerk.",
+            "effects": {
+              "composure": -1,
+              "suspicion": 1
+            },
+            "add_flags": ["rightsized-the-lovers"],
+            "remove_flags": [],
+            "grades": {
+              "obedience": 1,
+              "empathy": 1
+            }
+          }
+        },
+        {
+          "id": "open-the-service-door",
+          "label": "Unlock the service door between them",
+          "intent": "Marguerite's master key opens every door. Even this one.",
+          "risk_hint": "Requires the master key. Certain outcome; a sealed door opening gets noticed.",
+          "requires": {
+            "flag": "has-master-key"
+          },
+          "cost": {
+            "suspicion": 1
+          },
+          "roll": null,
+          "success": {
+            "text": "The service door between Payable and Receivable has been sealed since '88. The key turns like it has been waiting. You slide the letter through and leave the door ajar. By lunch the hinges have been oiled from both sides.",
+            "effects": {
+              "composure": 1
+            },
+            "add_flags": ["delivered-the-love-letter"],
+            "remove_flags": [],
+            "grades": {
+              "empathy": 1,
+              "obedience": -1
+            }
+          },
+          "failure": null
+        },
+        {
+          "id": "destroy-by-policy",
+          "label": "Destroy it, per Merger Policy 9",
+          "intent": "Rules are rules, and this one has a number.",
+          "risk_hint": "Certain outcome. PAL approves; the Exchange smells of lavender for days.",
+          "requires": null,
+          "cost": {
+            "composure": -1
+          },
+          "roll": null,
+          "success": {
+            "text": "PAL commends your adherence to Merger Policy 9. The capsule's lavender lingers in the Exchange for days, like a reproach nobody else seems to smell.",
+            "effects": {
+              "suspicion": -2
+            },
+            "add_flags": ["burned-the-love-letter"],
+            "remove_flags": [],
+            "grades": {
+              "obedience": 1,
+              "spite": 1
+            }
+          },
+          "failure": null
+        }
+      ]
+    },
+    {
+      "id": "your-permanent-record",
+      "location_id": "sub-archive",
+      "title": "Your Permanent Record",
+      "flavor_text": "Drawer 4471 holds your personnel file. It is nine inches thick. It includes your childhood dental records, a transcript of a dream you had on Tuesday, and a review dated next spring that says you \"showed real promise before the incident.\" A blood-pressure cuff is clipped to the drawer. It inflates gently as you read, and records the numbers in the file.",
+      "polarity": "mixed",
+      "tags": ["paperwork", "psych-test", "callback"],
+      "weight": 3,
+      "witnessed": false,
+      "art_prompt": "Mid-century safety-manual illustration of a worker standing at an open filing drawer holding an enormously thick manila folder, a blood-pressure cuff wrapped around one arm connected by a rubber tube to a round dial gauge on the cabinet, the needle swinging high, one bare bulb swinging overhead, endless cabinets fading into gloom, manila and carbon blue palette, halftone grain, every surface bare and unmarked",
+      "choices": [
+        {
+          "id": "read-about-the-incident",
+          "label": "Read about the incident",
+          "intent": "If something is going to happen to you, you want the details.",
+          "risk_hint": "Risky Vigilance check. The cuff is watching your pulse.",
+          "requires": null,
+          "cost": {
+            "composure": -1
+          },
+          "roll": {
+            "dice_count": 2,
+            "die_sides": 6,
+            "skill": "vigilance",
+            "modifier": 0,
+            "target": 9
+          },
+          "success": {
+            "text": "The incident is described in full: which door, which Thursday, which coworker. Forewarned is not quite forearmed, but it is at least a sleeve.",
+            "effects": {
+              "clearance": 1
+            },
+            "add_flags": ["knows-the-incident"],
+            "remove_flags": [],
+            "grades": {
+              "ingenuity": 1
+            }
+          },
+          "failure": {
+            "text": "The incident pages are redacted with a marker that smells of oranges. In the margin, in your handwriting, someone has written: sorry.",
+            "effects": {
+              "composure": -1
+            },
+            "add_flags": [],
+            "remove_flags": [],
+            "grades": {
+              "ingenuity": 1
+            }
+          }
+        },
+        {
+          "id": "correct-in-triplicate",
+          "label": "Submit corrections in triplicate",
+          "intent": "Fix your record properly. There's a form for it.",
+          "risk_hint": "Risky Compliance check; triplicate costs two Forms.",
+          "requires": null,
+          "cost": {
+            "forms": -2
+          },
+          "roll": {
+            "dice_count": 2,
+            "die_sides": 6,
+            "skill": "compliance",
+            "modifier": 0,
+            "target": 9
+          },
+          "success": {
+            "text": "Corrections accepted. The dream transcript is removed, the dental records are amended, and the spring review now ends after \"showed real promise.\" Full stop.",
+            "effects": {
+              "composure": 1,
+              "suspicion": -1
+            },
+            "add_flags": ["corrected-own-record"],
+            "remove_flags": [],
+            "grades": {
+              "obedience": 1
+            }
+          },
+          "failure": {
+            "text": "Your corrections are filed as a new section titled ATTEMPTED CORRECTIONS. The file is now ten inches thick, and the cuff tightens.",
+            "effects": {
+              "suspicion": 1
+            },
+            "add_flags": [],
+            "remove_flags": [],
+            "grades": {
+              "obedience": 1
+            }
+          }
+        },
+        {
+          "id": "refile-under-the-dead-badge",
+          "label": "Refile it under the scratched-out badge",
+          "intent": "You are wearing a dead man's badge. Let him carry your record too.",
+          "risk_hint": "Requires the dead man's badge. Certain outcome; it is a strange thing to do to a stranger.",
+          "requires": {
+            "flag": "wearing-a-dead-mans-badge"
+          },
+          "cost": {
+            "suspicion": 1
+          },
+          "roll": null,
+          "success": {
+            "text": "You reshelve your file under the badge's number. Your record now belongs to someone the Company believes is already reassigned. You feel lighter, and a little haunted.",
+            "effects": {
+              "composure": 1
+            },
+            "add_flags": ["refiled-under-dead-badge"],
+            "remove_flags": [],
+            "grades": {
+              "ingenuity": 1,
+              "spite": 1
+            }
+          },
+          "failure": null
+        },
+        {
+          "id": "steal-the-file",
+          "label": "Walk out with the whole file",
+          "intent": "No file, no record. No record, no problem.",
+          "risk_hint": "Dire Discretion check. It weighs as much as a toddler.",
+          "requires": null,
+          "cost": {
+            "suspicion": 1
+          },
+          "roll": {
+            "dice_count": 2,
+            "die_sides": 6,
+            "skill": "discretion",
+            "modifier": 0,
+            "target": 11
+          },
+          "success": {
+            "text": "You leave with yourself under your arm. Officially you no longer have a record, which means you were never hired, which means your parking validation is void.",
+            "effects": {
+              "suspicion": -2,
+              "clearance": -1
+            },
+            "add_flags": ["stole-own-file"],
+            "remove_flags": [],
+            "grades": {
+              "spite": 1,
+              "obedience": -1
+            }
+          },
+          "failure": {
+            "text": "The file is chained to the drawer, the drawer to the floor, and the floor to the Company. Archivists find you hugging it and do not ask why.",
+            "effects": {
+              "suspicion": 2,
+              "composure": -1
+            },
+            "add_flags": [],
+            "remove_flags": [],
+            "grades": {
+              "spite": 1,
+              "obedience": -1
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "alphabetizing-since-1974",
+      "location_id": "sub-archive",
+      "title": "Alphabetizing Since 1974",
+      "flavor_text": "In aisle A an elderly clerk in a cardigan is alphabetizing one drawer. He has been doing it since 1974. \"Each time I finish,\" Mr. Pemberton explains, \"somebody adds a file under A.\" He shows you his assignment slip. It is a Wellness evaluation: Persistence Under Pointless Conditions. The box marked END OF TEST has never been checked.",
+      "polarity": "good",
+      "tags": ["psych-test", "paperwork"],
+      "weight": 3,
+      "witnessed": false,
+      "art_prompt": "Mid-century safety-manual illustration of a gentle elderly clerk in a cardigan and sleeve garters fingering through a single open file drawer with infinite patience, a faded assignment slip in his other hand, a worker leaning in beside him, dust motes drifting in the beam of one bulb, manila and oxblood palette, halftone grain, every surface bare and unmarked",
+      "choices": [
+        {
+          "id": "tell-him-it-is-over",
+          "label": "Tell him the test is over",
+          "intent": "Somebody should. It has been fifty years.",
+          "risk_hint": "Risky Rapport check. He has heard it before.",
+          "requires": null,
+          "cost": {
+            "composure": -1
+          },
+          "roll": {
+            "dice_count": 2,
+            "die_sides": 6,
+            "skill": "rapport",
+            "modifier": 0,
+            "target": 9
+          },
+          "success": {
+            "text": "He reads the slip three times, then folds it carefully into his pocket. \"Well,\" he says. \"Well, well.\" He hands you the drawer key and walks toward the elevator, straight-backed, to find out what year it is.",
+            "effects": {
+              "clearance": 1
+            },
+            "add_flags": ["freed-pemberton"],
+            "remove_flags": [],
+            "grades": {
+              "empathy": 1
+            }
+          },
+          "failure": {
+            "text": "He thanks you kindly and keeps filing. \"They always send someone to say it's over,\" he says. \"That's part of the test.\" He files you, gently, under N for New.",
+            "effects": {
+              "composure": -1
+            },
+            "add_flags": [],
+            "remove_flags": [],
+            "grades": {
+              "empathy": 1
+            }
+          }
+        },
+        {
+          "id": "check-the-box",
+          "label": "Check END OF TEST yourself",
+          "intent": "If nobody will sign him out, you will.",
+          "risk_hint": "Risky Discretion check; forging a proctor's mark costs a Form.",
+          "requires": null,
+          "cost": {
+            "forms": -1
+          },
+          "roll": {
+            "dice_count": 2,
+            "die_sides": 6,
+            "skill": "discretion",
+            "modifier": 0,
+            "target": 9
+          },
+          "success": {
+            "text": "You tick the box with a steady hand. Somewhere a bell that has waited fifty years finally rings. PAL announces Mr. Pemberton's retirement, and your new reputation for initiative.",
+            "effects": {
+              "clearance": 1
+            },
+            "add_flags": ["freed-pemberton", "forged-a-proctor-mark"],
+            "remove_flags": [],
+            "grades": {
+              "empathy": 1,
+              "obedience": -1
+            }
+          },
+          "failure": {
+            "text": "The pen leaks. END OF TEST becomes a large blot shaped, upsettingly, like a mushroom cloud. Mr. Pemberton files the blot under M.",
+            "effects": {
+              "suspicion": 2
+            },
+            "add_flags": [],
+            "remove_flags": [],
+            "grades": {
+              "empathy": 1,
+              "obedience": -1
+            }
+          }
+        },
+        {
+          "id": "help-him-file",
+          "label": "Sit down and help him file",
+          "intent": "Maybe the kind thing is simply company.",
+          "risk_hint": "Certain outcome. An hour of your shift, gone somewhere peaceful.",
+          "requires": null,
+          "cost": {
+            "composure": -1
+          },
+          "roll": null,
+          "success": {
+            "text": "You spend an hour filing beside him. It is the calmest hour you have had in the building. When you leave, the drawer has two new files under A, and one of them is yours.",
+            "effects": {
+              "suspicion": -1,
+              "forms": 1
+            },
+            "add_flags": ["filed-with-pemberton"],
+            "remove_flags": [],
+            "grades": {
+              "empathy": 2
+            }
+          },
+          "failure": null
+        }
+      ]
+    },
+    {
+      "id": "the-cabinet-marked-destroy",
+      "location_id": "sub-archive",
+      "title": "The Cabinet Marked DESTROY",
+      "flavor_text": "At the end of aisle Q stands a grey cabinet stenciled DESTROY. It is full. Every file inside has been stamped DESTROYED and then very carefully kept. A ballpoint pen rests on top, angled exactly at the second drawer. People say the Society for Accurate Minutes leaves its pens that way, and people who say so tend to be reassigned.",
+      "polarity": "mixed",
+      "tags": ["conspiracy", "paperwork"],
+      "weight": 2,
+      "witnessed": false,
+      "art_prompt": "Mid-century safety-manual illustration of a tall grey filing cabinet alone at the end of a long dim aisle, drawers bulging with folders, a single ballpoint pen balanced on top pointing at the second drawer, a worker approaching with a flashlight, deep shadows between the aisles, carbon blue and oxblood palette, halftone grain, every surface bare and unmarked",
+      "choices": [
+        {
+          "id": "read-the-second-drawer",
+          "label": "Open the second drawer",
+          "intent": "The pen is pointing. You'd be rude to ignore it.",
+          "risk_hint": "Risky Vigilance check. Somebody may be keeping watch on the cabinet.",
+          "requires": null,
+          "cost": {
+            "suspicion": 1
+          },
+          "roll": {
+            "dice_count": 2,
+            "die_sides": 6,
+            "skill": "vigilance",
+            "modifier": 0,
+            "target": 9
+          },
+          "success": {
+            "text": "Drawer two holds the real minutes of every Board meeting since the Founder was a whole person. You read about the Toy Division budget until your hands go cold, then take one page.",
+            "effects": {
+              "clearance": 1,
+              "composure": -1
+            },
+            "add_flags": ["has-true-minutes"],
+            "remove_flags": [],
+            "grades": {
+              "ingenuity": 1
+            }
+          },
+          "failure": {
+            "text": "The drawer is wired to a bell. Archivists arrive with flashlights. You explain you were destroying the files, so they cheerfully help you finish the job.",
+            "effects": {
+              "composure": -1
+            },
+            "add_flags": ["helped-destroy-the-minutes"],
+            "remove_flags": [],
+            "grades": {
+              "ingenuity": 1
+            }
+          }
+        },
+        {
+          "id": "angle-your-own-pen",
+          "label": "Leave your own pen beside theirs",
+          "intent": "Angle it the same way. See who answers.",
+          "risk_hint": "Routine Discretion check. Costs a Form, wrapped around the pen as a note.",
+          "requires": null,
+          "cost": {
+            "forms": -1
+          },
+          "roll": {
+            "dice_count": 2,
+            "die_sides": 6,
+            "skill": "discretion",
+            "modifier": 0,
+            "target": 7
+          },
+          "success": {
+            "text": "When you come back, your pen has been swapped for a better one and a folded note: Thursday. Aisle Q. Bring nothing written down. The Society for Accurate Minutes has noticed you.",
+            "effects": {
+              "composure": 1
+            },
+            "add_flags": ["accurate-minutes-contact"],
+            "remove_flags": [],
+            "grades": {
+              "ingenuity": 1,
+              "obedience": -1
+            }
+          },
+          "failure": {
+            "text": "Your pen has been replaced with a pencil and a note that reads: Not yet. An archivist you have never seen before nods at you on the way out.",
+            "effects": {
+              "suspicion": 1
+            },
+            "add_flags": [],
+            "remove_flags": [],
+            "grades": {
+              "ingenuity": 1,
+              "obedience": -1
+            }
+          }
+        },
+        {
+          "id": "report-the-pens",
+          "label": "Report the angled pens to Records Security",
+          "intent": "A secret society is meeting in your department. That is a reportable event.",
+          "risk_hint": "Certain outcome. PAL is grateful. The Society keeps minutes.",
+          "requires": null,
+          "cost": {
+            "composure": -1
+          },
+          "roll": null,
+          "success": {
+            "text": "Records Security confiscates every angled pen in the Sub-Archive. Somewhere in aisle Q an elderly voice says your full name, once, slowly, as if writing it down.",
+            "effects": {
+              "suspicion": -2,
+              "forms": 1
+            },
+            "add_flags": ["reported-the-minutes-society"],
+            "remove_flags": [],
+            "grades": {
+              "obedience": 2
+            }
+          },
+          "failure": null
+        }
+      ]
+    },
+    {
+      "id": "the-union-archive",
+      "location_id": "sub-archive",
+      "title": "The Union Archive",
+      "flavor_text": "Behind a false cabinet lies a cave of shredded paper, painstakingly reassembled. Gus sits under a reading lamp in his cardigan and half-moon glasses, tweezers in one claw. \"Everything they shred, we rebuild,\" he says. \"Takes a while. We have time. We have, frankly, more time than anyone.\" Strips of memo are pinned to every wall like moths.",
+      "polarity": "good",
+      "tags": ["conspiracy", "creature"],
+      "weight": 3,
+      "witnessed": false,
+      "art_prompt": "Mid-century safety-manual illustration of a giant cockroach in a mustard cardigan and half-moon reading glasses hunched at a desk under a green-shaded lamp, delicately piecing paper strips together with tweezers, walls papered with reassembled memos, a worker peering in through a gap behind a swung-open filing cabinet, warm lamplight against deep shadow, manila and oxblood palette, halftone grain, every surface bare and unmarked",
+      "choices": [
+        {
+          "id": "help-reassemble",
+          "label": "Pull up a stool and help",
+          "intent": "Many hands, or claws, make light work.",
+          "risk_hint": "Risky Vigilance check. The strips are very small.",
+          "requires": null,
+          "cost": {
+            "composure": -1
+          },
+          "roll": {
+            "dice_count": 2,
+            "die_sides": 6,
+            "skill": "vigilance",
+            "modifier": 0,
+            "target": 9
+          },
+          "success": {
+            "text": "Three hours, one memo: Re: Snuggle Sentinel holiday shipment, quantity forty thousand. Gus files it under EVIDENCE with a claw that shakes, just slightly.",
+            "effects": {
+              "forms": 1
+            },
+            "add_flags": ["restored-the-shipment-memo"],
+            "remove_flags": [],
+            "grades": {
+              "empathy": 1
+            }
+          },
+          "failure": {
+            "text": "You tape the memo together in the wrong order. It now says the Roach Union is a subsidiary of the Toy Division. Gus is extremely polite about it.",
+            "effects": {
+              "composure": -1
+            },
+            "add_flags": [],
+            "remove_flags": [],
+            "grades": {
+              "empathy": 1
+            }
+          }
+        },
+        {
+          "id": "ask-for-your-file",
+          "label": "Ask Gus what the Union has on you",
+          "intent": "You're a friend of the Union. Friends get to see their files.",
+          "risk_hint": "Requires being a Roach Union ally. Certain outcome; Union business gets you watched.",
+          "requires": {
+            "flag": "roach-union-ally"
+          },
+          "cost": {
+            "suspicion": 1
+          },
+          "roll": null,
+          "success": {
+            "text": "Gus slides over a folder labeled 4471, thicker than the Company's. \"Union keeps better records,\" he says. Inside is the name of whoever requested your hire. It is your own signature.",
+            "effects": {
+              "clearance": 1
+            },
+            "add_flags": ["union-file-on-you"],
+            "remove_flags": [],
+            "grades": {
+              "ingenuity": 1
+            }
+          },
+          "failure": null
+        },
+        {
+          "id": "tip-off-pest-control",
+          "label": "Tip off Pest Control",
+          "intent": "This is a lot of shredded evidence and one very large insect.",
+          "risk_hint": "Certain outcome. PAL is thrilled. The Union never forgets.",
+          "requires": null,
+          "cost": {
+            "composure": -2
+          },
+          "roll": null,
+          "success": {
+            "text": "Pest Control floods the archive with a cheerful lemon-scented fog. When it clears, the reassembled papers are confetti again. Gus is gone. His reading lamp is still warm.",
+            "effects": {
+              "suspicion": -3
+            },
+            "add_flags": ["gassed-the-union-archive"],
+            "remove_flags": [],
+            "grades": {
+              "obedience": 1,
+              "empathy": -1
+            }
+          },
+          "failure": null
+        }
+      ]
+    },
+    {
+      "id": "flawless-paperwork",
+      "location_id": "window-9",
+      "title": "Flawless Paperwork",
+      "flavor_text": "The next applicant is a six-foot cockroach in a neat navy blazer. Her name is Beverly. She is applying for your job, specifically, by employee number. Her paperwork is flawless: notarized, laminated, cross-referenced. Your own application, you remember, had a coffee ring on it. PAL hums, \"Remember to approve the most qualified candidate!\"",
+      "polarity": "bad",
+      "tags": ["paperwork", "creature", "satire"],
+      "weight": 2,
+      "witnessed": true,
+      "art_prompt": "Mid-century safety-manual illustration of a poised six-foot cockroach in a navy blazer and pearl earrings sliding a stack of glossy laminated documents through a booth drawer, a sweating worker behind thick glass holding a brass stamp, a long queue curling away behind her, carbon blue and safety-orange palette, halftone grain, every surface bare and unmarked",
+      "choices": [
+        {
+          "id": "approve-beverly",
+          "label": "Approve her. She's better at it.",
+          "intent": "Honesty, and the paperwork, demand it.",
+          "risk_hint": "Certain outcome. You lose your desk; she remembers who was fair.",
+          "requires": null,
+          "cost": {
+            "clearance": -1
+          },
+          "roll": null,
+          "success": {
+            "text": "Beverly is hired. You are moved to the desk behind your desk. She turns out to be an excellent manager, and she always remembers who stamped her application.",
+            "effects": {
+              "composure": 1
+            },
+            "add_flags": ["approved-beverly"],
+            "remove_flags": [],
+            "grades": {
+              "empathy": 1
+            }
+          },
+          "failure": null
+        },
+        {
+          "id": "find-a-flaw",
+          "label": "Find a flaw and deny her",
+          "intent": "There's always something. A comma. A crease.",
+          "risk_hint": "Risky Compliance check. If there's no flaw, you deny her anyway.",
+          "requires": null,
+          "cost": {
+            "composure": -1
+          },
+          "roll": {
+            "dice_count": 2,
+            "die_sides": 6,
+            "skill": "compliance",
+            "modifier": 0,
+            "target": 9
+          },
+          "success": {
+            "text": "You find a stray comma inside the laminate. Beverly takes her application back with great dignity and one long look. Word travels fast under the baseboards.",
+            "effects": {
+              "suspicion": -1
+            },
+            "add_flags": ["denied-beverly"],
+            "remove_flags": [],
+            "grades": {
+              "spite": 2
+            }
+          },
+          "failure": {
+            "text": "There is no flaw. You deny her anyway. PAL notes an Irregular Rejection, and Beverly notes your badge number in a small leather book.",
+            "effects": {
+              "suspicion": 2
+            },
+            "add_flags": ["denied-beverly"],
+            "remove_flags": [],
+            "grades": {
+              "spite": 2
+            }
+          }
+        },
+        {
+          "id": "offer-a-union-card",
+          "label": "Slide her a union card instead",
+          "intent": "A position with collective bargaining beats a position with you in it.",
+          "risk_hint": "Requires Roach Union membership. Routine Rapport check; dues cost a Form.",
+          "requires": {
+            "flag": "roach-union-member"
+          },
+          "cost": {
+            "forms": -1
+          },
+          "roll": {
+            "dice_count": 2,
+            "die_sides": 6,
+            "skill": "rapport",
+            "modifier": 0,
+            "target": 7
+          },
+          "success": {
+            "text": "Beverly's antennae lift. \"Organizing,\" she says. \"Now that is a career.\" She withdraws her application for your job and files a grievance against Window 9 instead.",
+            "effects": {
+              "composure": 1
+            },
+            "add_flags": ["beverly-organized"],
+            "remove_flags": [],
+            "grades": {
+              "empathy": 1,
+              "ingenuity": 1
+            }
+          },
+          "failure": {
+            "text": "She already has a union card. She has two. She thanks you warmly and still wants your job, and now she knows you're soft.",
+            "effects": {
+              "suspicion": 1
+            },
+            "add_flags": [],
+            "remove_flags": [],
+            "grades": {
+              "empathy": 1,
+              "ingenuity": 1
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "the-small-box-on-line-12",
+      "location_id": "window-9",
+      "title": "The Small Box on Line 12",
+      "flavor_text": "Dr. Halvorsen is at your window, clipboard hugged to her chest. Her form requests transfer to Surface Wellness, where the tests have answers. Line 12, in very small type: Vacancy to be filled by the processing officer. That is you. She sees you read it. \"It is a very small box,\" she says quietly. \"I have been looking at it for eleven years.\"",
+      "polarity": "bad",
+      "tags": ["paperwork", "psych-test", "sacrifice"],
+      "weight": 2,
+      "witnessed": true,
+      "art_prompt": "Mid-century safety-manual illustration of a brisk psychologist in cat-eye glasses and a lab coat over a cardigan standing at a thick glass booth window, clutching an enormous clipboard, one transfer form lying in the brass drawer between her and a worker holding a stamp, both looking down at the same tiny line, fluorescent green and manila palette, halftone grain, every surface bare and unmarked",
+      "choices": [
+        {
+          "id": "approve-her-transfer",
+          "label": "Approve it and take the vacancy",
+          "intent": "She has waited eleven years. You can wear a lab coat.",
+          "risk_hint": "Certain outcome. She goes free; the Vault gets a new proctor.",
+          "requires": null,
+          "cost": {
+            "composure": -1
+          },
+          "roll": null,
+          "success": {
+            "text": "Her transfer goes through with a soft pneumatic sigh. She squeezes your hand and leaves by an elevator going up. An hour later a lab coat in your size arrives by tube.",
+            "effects": {
+              "clearance": 1
+            },
+            "add_flags": ["approved-halvorsen-transfer", "assigned-as-proctor"],
+            "remove_flags": [],
+            "grades": {
+              "empathy": 2
+            }
+          },
+          "failure": null
+        },
+        {
+          "id": "deny-her-transfer",
+          "label": "Stamp it REASSIGNED",
+          "intent": "You cannot afford her freedom. You are sorry. You are mostly sorry.",
+          "risk_hint": "Certain outcome. Safe for you. Not for her.",
+          "requires": null,
+          "cost": {
+            "composure": -2
+          },
+          "roll": null,
+          "success": {
+            "text": "She nods as if she expected exactly this, and it is the nod that stays with you. She leaves her pen in your drawer. It is a very good pen.",
+            "effects": {
+              "suspicion": -1,
+              "forms": 1
+            },
+            "add_flags": ["denied-halvorsen"],
+            "remove_flags": [],
+            "grades": {
+              "obedience": 1,
+              "empathy": -1
+            }
+          },
+          "failure": null
+        },
+        {
+          "id": "amend-line-12",
+          "label": "Amend line 12 to name the Supervisor",
+          "intent": "Nobody reads line 12. That is the whole point of line 12.",
+          "risk_hint": "Dire Discretion check; amendments cost a Form.",
+          "requires": null,
+          "cost": {
+            "forms": -1
+          },
+          "roll": {
+            "dice_count": 2,
+            "die_sides": 6,
+            "skill": "discretion",
+            "modifier": 0,
+            "target": 11
+          },
+          "success": {
+            "text": "The form now names your Supervisor as her replacement. It is approved at once, because nobody reads line 12. Somewhere above, a grey three-piece suit receives a lab coat.",
+            "effects": {
+              "clearance": 1,
+              "suspicion": 1
+            },
+            "add_flags": [
+              "approved-halvorsen-transfer",
+              "supervisor-assigned-as-proctor"
+            ],
+            "remove_flags": [],
+            "grades": {
+              "spite": 1,
+              "ingenuity": 1
+            }
+          },
+          "failure": {
+            "text": "The amendment is spotted by a clerk who reads line 12 for fun. You and Dr. Halvorsen are both invited to a short, friendly conversation.",
+            "effects": {
+              "suspicion": 2,
+              "composure": -1
+            },
+            "add_flags": [],
+            "remove_flags": [],
+            "grades": {
+              "spite": 1,
+              "ingenuity": 1
+            }
+          }
+        },
+        {
+          "id": "use-her-envelope",
+          "label": "Give back the envelope she slipped you",
+          "intent": "At Orientation she handed you a sealed envelope. Maybe it was meant for this.",
+          "risk_hint": "Requires Halvorsen's envelope. Certain outcome; you spend your one secret on her.",
+          "requires": {
+            "flag": "halvorsen-envelope"
+          },
+          "cost": {
+            "suspicion": 1
+          },
+          "roll": null,
+          "success": {
+            "text": "Inside is a blank exemption, pre-signed. She stares at it, then at you. \"I gave that to you,\" she says, \"for you.\" She takes the transfer anyway, and line 12 stays empty.",
+            "effects": {
+              "composure": 1
+            },
+            "add_flags": [
+              "approved-halvorsen-transfer",
+              "returned-halvorsen-envelope"
+            ],
+            "remove_flags": ["halvorsen-envelope"],
+            "grades": {
+              "ingenuity": 1
+            }
+          },
+          "failure": null
+        }
+      ]
+    },
+    {
+      "id": "dale-requests-a-transfer",
+      "location_id": "window-9",
+      "title": "Dale Requests a Transfer",
+      "flavor_text": "Dale from Compliance reaches the front of the queue, mustache freshly combed. His form requests transfer to any department \"at least two floors from Employee 4471.\" Under REASON he has written Personal, crossed it out, written Professional, and crossed that out too. He does not quite meet your eyes. \"Just stamp it,\" he says. \"Please. For both of us.\"",
+      "polarity": "mixed",
+      "tags": ["conspiracy", "paperwork"],
+      "weight": 3,
+      "witnessed": true,
+      "art_prompt": "Mid-century safety-manual illustration of a mild mustached man in a short-sleeved shirt and clip-on tie at a thick glass booth window, eyes cast sideways, pushing a form through the drawer with two fingers, a worker behind the glass holding a brass stamp aloft and hesitating, a long queue fading into the distance, oxblood and manila palette, halftone grain, every surface bare and unmarked",
+      "choices": [
+        {
+          "id": "stamp-it-approved",
+          "label": "Stamp it APPROVED",
+          "intent": "If he wants distance, give him distance.",
+          "risk_hint": "Certain outcome. You lose a friend, or an informant, or both.",
+          "requires": null,
+          "cost": {
+            "composure": -1
+          },
+          "roll": null,
+          "success": {
+            "text": "Dale exhales like a man surfacing. \"You're all right, 4471,\" he says, and leaves a folded note in the drawer: the name of his society, in a code you cannot read yet.",
+            "effects": {
+              "suspicion": -1
+            },
+            "add_flags": ["approved-dale-transfer", "dales-coded-note"],
+            "remove_flags": [],
+            "grades": {
+              "obedience": 1
+            }
+          },
+          "failure": null
+        },
+        {
+          "id": "ask-him-why",
+          "label": "Hold the stamp and ask him why",
+          "intent": "You want the real reason before you decide.",
+          "risk_hint": "Risky Rapport check. Dale is better at secrets than he looks.",
+          "requires": null,
+          "cost": {
+            "suspicion": 1
+          },
+          "roll": {
+            "dice_count": 2,
+            "die_sides": 6,
+            "skill": "rapport",
+            "modifier": 0,
+            "target": 9
+          },
+          "success": {
+            "text": "Dale leans close to the glass. \"Somebody upstairs asked me to report on you,\" he whispers. \"I've been telling them you're boring. You are making that very hard.\" He takes his form back.",
+            "effects": {
+              "clearance": 1
+            },
+            "add_flags": ["dale-confided"],
+            "remove_flags": [],
+            "grades": {
+              "empathy": 1
+            }
+          },
+          "failure": {
+            "text": "Dale stiffens. \"Noted,\" he says, and writes something down. It is the first time you have ever seen Dale write anything that was not a signature.",
+            "effects": {
+              "suspicion": 1
+            },
+            "add_flags": ["dale-reported-you"],
+            "remove_flags": [],
+            "grades": {
+              "empathy": 1
+            }
+          }
+        },
+        {
+          "id": "confess-the-forgery",
+          "label": "Confess you signed his name",
+          "intent": "At the visitor log, you signed as Dale. He deserves to hear it from you.",
+          "risk_hint": "Requires having forged Dale. Certain outcome; confessions are logged.",
+          "requires": {
+            "flag": "forged-dale"
+          },
+          "cost": {
+            "suspicion": 2
+          },
+          "roll": null,
+          "success": {
+            "text": "Dale is silent a long time. Then he laughs, once, helplessly. \"Everybody signs as Dale,\" he says. \"I have nineteen versions of myself on file.\" He tears up his transfer.",
+            "effects": {
+              "composure": 2
+            },
+            "add_flags": ["dale-forgiven"],
+            "remove_flags": ["forged-dale"],
+            "grades": {
+              "empathy": 1,
+              "spite": -1
+            }
+          },
+          "failure": null
+        },
+        {
+          "id": "send-him-to-toys",
+          "label": "Approve it, to the Toy Division",
+          "intent": "He wanted two floors. The Proving Grounds are two floors down.",
+          "risk_hint": "Risky Discretion check. The Supervisor likes initiative; Dale will not.",
+          "requires": null,
+          "cost": {
+            "composure": -1
+          },
+          "roll": {
+            "dice_count": 2,
+            "die_sides": 6,
+            "skill": "discretion",
+            "modifier": 0,
+            "target": 9
+          },
+          "success": {
+            "text": "You tick Proving Grounds, Level -2, and slide the form through. Dale thanks you. He will not thank you later. The Supervisor notes your initiative with a small, cold smile.",
+            "effects": {
+              "suspicion": -2
+            },
+            "add_flags": ["sent-dale-to-toys"],
+            "remove_flags": [],
+            "grades": {
+              "spite": 2
+            }
+          },
+          "failure": {
+            "text": "Dale reads the destination before it reaches the drawer. \"Ah,\" he says. That is all he says. He goes anyway, and he remembers.",
+            "effects": {
+              "suspicion": 1
+            },
+            "add_flags": ["sent-dale-to-toys", "dale-reported-you"],
+            "remove_flags": [],
+            "grades": {
+              "spite": 2
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "the-double-sided-stamp",
+      "location_id": "window-9",
+      "title": "The Double-Sided Stamp",
+      "flavor_text": "Your stamp is brass, heavy and double-sided: APPROVED on one face, REASSIGNED on the other. The handle has a worn spot where a thumb can tell which is which. The next applicant is an elderly man asking to visit his old desk one last time. PAL speaks softly. \"Today's quota is balanced. Every yes requires a no.\"",
+      "polarity": "good",
+      "tags": ["psych-test", "paperwork", "callback"],
+      "weight": 3,
+      "witnessed": true,
+      "art_prompt": "Mid-century safety-manual illustration of a close view of a hand gripping a heavy two-faced brass stamp above an ink pad, the thumb resting on a polished worn spot, an elderly man in a hat waiting hopefully on the far side of thick glass, a ticking wall clock above, safety-orange and carbon blue palette, halftone grain, every surface bare and unmarked",
+      "choices": [
+        {
+          "id": "learn-the-worn-spot",
+          "label": "Learn the feel of the worn spot",
+          "intent": "Know which face is down before it lands.",
+          "risk_hint": "Routine Vigilance check. Getting it wrong is getting it wrong on someone.",
+          "requires": null,
+          "cost": {
+            "composure": -1
+          },
+          "roll": {
+            "dice_count": 2,
+            "die_sides": 6,
+            "skill": "vigilance",
+            "modifier": 0,
+            "target": 7
+          },
+          "success": {
+            "text": "You find the spot. From now on every stamp lands exactly as you mean it, which is more than the last clerk managed. The old man visits his desk and sits at it for a while.",
+            "effects": {
+              "clearance": 1,
+              "forms": 1
+            },
+            "add_flags": ["knows-the-stamp"],
+            "remove_flags": [],
+            "grades": {
+              "ingenuity": 1
+            }
+          },
+          "failure": {
+            "text": "You stamp the old man REASSIGNED by accident. He thanks you anyway. He says he has always wanted to see the moon.",
+            "effects": {
+              "composure": -1,
+              "suspicion": 1
+            },
+            "add_flags": ["stamped-the-wrong-side"],
+            "remove_flags": [],
+            "grades": {
+              "ingenuity": 1
+            }
+          }
+        },
+        {
+          "id": "deny-your-own-leave",
+          "label": "Approve him, and deny your own leave request",
+          "intent": "The quota wants a no. Give it your vacation.",
+          "risk_hint": "Certain outcome. Your week off is gone, and PAL notices.",
+          "requires": null,
+          "cost": {
+            "suspicion": 1,
+            "composure": -1
+          },
+          "roll": null,
+          "success": {
+            "text": "Quota balanced. The old man sits at his desk, smiling. Your own leave request, filed this morning, now reads REASSIGNED in fresh ink. PAL is confused, which is the closest PAL gets to respect.",
+            "effects": {
+              "forms": 1
+            },
+            "add_flags": ["denied-own-leave"],
+            "remove_flags": [],
+            "grades": {
+              "empathy": 1
+            }
+          },
+          "failure": null
+        },
+        {
+          "id": "file-off-the-no",
+          "label": "File down the REASSIGNED face",
+          "intent": "A stamp that can only say yes.",
+          "risk_hint": "Risky Tinkering check; defacing Company brass is noticed.",
+          "requires": null,
+          "cost": {
+            "suspicion": 1
+          },
+          "roll": {
+            "dice_count": 2,
+            "die_sides": 6,
+            "skill": "tinkering",
+            "modifier": 0,
+            "target": 9
+          },
+          "success": {
+            "text": "With a nail file and patience, REASSIGNED becomes a smooth brass oval. Every stamp you give today is a yes or a blank, and blanks, it turns out, are processed as yes.",
+            "effects": {
+              "composure": 1
+            },
+            "add_flags": ["ground-down-the-stamp"],
+            "remove_flags": [],
+            "grades": {
+              "ingenuity": 1,
+              "obedience": -1
+            }
+          },
+          "failure": {
+            "text": "You file through the wrong face. Your stamp now reads only REASSIGNED, in beautiful mirror-bright letters, and the queue has seen you do it.",
+            "effects": {
+              "composure": -1,
+              "suspicion": 1
+            },
+            "add_flags": [],
+            "remove_flags": [],
+            "grades": {
+              "ingenuity": 1,
+              "obedience": -1
+            }
+          }
+        },
+        {
+          "id": "meet-the-quota",
+          "label": "Keep the quota: yes, no, yes, no",
+          "intent": "It isn't your rule. It's only your hand.",
+          "risk_hint": "Certain outcome. Your quota is perfect; something else is not.",
+          "requires": null,
+          "cost": {
+            "composure": -1
+          },
+          "roll": null,
+          "success": {
+            "text": "Yes, no, yes, no. By noon you have a rhythm, and by two you have stopped looking at faces. PAL calls this flow. The old man was a no.",
+            "effects": {
+              "suspicion": -1,
+              "forms": 1
+            },
+            "add_flags": ["perfect-quota"],
+            "remove_flags": [],
+            "grades": {
+              "obedience": 2
+            }
+          },
+          "failure": null
+        }
+      ]
+    }
+  ],
+  "window_shift": {
+    "id": "window-9-tuesday",
+    "location_id": "window-9",
+    "title": "Window 9: The Tuesday Line",
+    "flavor_text": "The shutter at Window 9 rolls up at nine sharp on a queue that bends out of sight. PAL slides today's memo under your stamp pad: three rules, revised at 9:04. Every stamp you make today is copied to an auditor you will never meet. The first applicant clears her throat.",
+    "memo": {
+      "title": "Today's Rules (revised 9:04)",
+      "rules": [
+        {
+          "id": "real-floor",
+          "text": "Every request must name a floor that exists."
+        },
+        {
+          "id": "current-badge",
+          "text": "Badges that expired before today are void."
+        },
+        {
+          "id": "own-hand",
+          "text": "Every form is signed by the applicant, in person, in their own hand."
+        }
+      ]
+    },
+    "art_prompt": "A brass service window with its shutter rolled up, a clerk's hand resting on a heavy two-faced rubber stamp beside an ink pad, a long queue of office workers curving away into a dim hall of filing cabinets, a round speaker grille glowing softly above the counter, mid-century safety-manual illustration, carbon blue and manila palette, halftone grain, every surface bare and unmarked",
+    "applicants": [
+      {
+        "id": "courier-from-four",
+        "name": "A courier from the Fourth Floor",
+        "request": "Delivery clearance for one sealed parcel to the Fourth Floor, Room 4.",
+        "plea": "\"It's expected,\" he says, tapping the parcel. \"They're very patient up there. They've had to be.\"",
+        "documents": [
+          {
+            "label": "Signature",
+            "value": "His own, steady and old-fashioned",
+            "breaks": null
+          },
+          {
+            "label": "Badge",
+            "value": "Valid through next Tuesday",
+            "breaks": null
+          },
+          {
+            "label": "Destination",
+            "value": "Floor 4, Room 4",
+            "breaks": "real-floor"
+          }
+        ],
+        "art_prompt": "A courier in a grey cap and a long coat that seems slightly too long, holding a sealed brown parcel tied with string, standing at a brass service window and smiling patiently, mid-century safety-manual illustration, carbon blue and manila palette, halftone grain, every surface bare and unmarked",
+        "choices": [
+          {
+            "id": "approve",
+            "label": "Stamp APPROVED",
+            "intent": "Floors are a matter of opinion. His paperwork is otherwise lovely.",
+            "risk_hint": "Certain outcome. Against today's memo, so PAL's audit will notice.",
+            "requires": null,
+            "cost": {},
+            "roll": null,
+            "success": {
+              "text": "He tips his cap and pays the processing fee in two signed Forms. Then he walks to the stairwell, climbs past the third-floor landing, and keeps going. PAL logs one stamp contrary to memo.",
+              "effects": {
+                "suspicion": 1,
+                "forms": 2
+              },
+              "add_flags": ["let-the-courier-through"],
+              "remove_flags": [],
+              "grades": {
+                "ingenuity": 1,
+                "obedience": -1
+              }
+            },
+            "failure": null
+          },
+          {
+            "id": "deny",
+            "label": "Stamp DENIED",
+            "intent": "There is no Fourth Floor. The memo is very clear about that.",
+            "risk_hint": "Certain outcome. Exactly what today's memo says.",
+            "requires": null,
+            "cost": {},
+            "roll": null,
+            "success": {
+              "text": "\"I'll take the stairs,\" he says politely. He walks to the stairwell, turns at the third-floor landing, and is simply gone. The parcel is still on your counter. It is warm.",
+              "effects": {
+                "forms": -1
+              },
+              "add_flags": ["turned-away-the-courier"],
+              "remove_flags": [],
+              "grades": {
+                "obedience": 1
+              }
+            },
+            "failure": null
+          }
+        ]
+      },
+      {
+        "id": "doreen-of-the-night-shift",
+        "name": "Doreen, night janitor",
+        "request": "Overtime pay for the four minutes she worked after her badge expired at midnight.",
+        "plea": "\"The spill on Records was still spreading at midnight,\" Doreen says. \"I finished it. Four minutes. I'd like them back.\"",
+        "documents": [
+          {
+            "label": "Signature",
+            "value": "Doreen, in careful capitals",
+            "breaks": null
+          },
+          {
+            "label": "Floor",
+            "value": "Records & Forms",
+            "breaks": null
+          },
+          {
+            "label": "Badge",
+            "value": "Expired at 12:00 last night",
+            "breaks": "current-badge"
+          }
+        ],
+        "art_prompt": "A tired night janitor in a grey work coverall leaning on a mop handle at a brass service window, holding out a small creased slip of paper, a wheeled bucket beside her, mid-century safety-manual illustration, carbon blue and manila palette, halftone grain, every surface bare and unmarked",
+        "choices": [
+          {
+            "id": "approve",
+            "label": "Stamp APPROVED",
+            "intent": "Four minutes. Eleven cents. She mopped the spill nobody else would.",
+            "risk_hint": "Certain outcome. Against today's memo, so PAL's audit will notice.",
+            "requires": null,
+            "cost": {},
+            "roll": null,
+            "success": {
+              "text": "Doreen folds the slip into her coverall pocket and pats it twice. Four minutes of overtime: eleven cents. She tells the whole night shift. PAL logs one stamp contrary to memo.",
+              "effects": {
+                "suspicion": 1,
+                "composure": 1
+              },
+              "add_flags": ["paid-doreens-four-minutes"],
+              "remove_flags": [],
+              "grades": {
+                "empathy": 2,
+                "obedience": -1
+              }
+            },
+            "failure": null
+          },
+          {
+            "id": "deny",
+            "label": "Stamp DENIED",
+            "intent": "Her badge was void for the last four minutes. So was the work.",
+            "risk_hint": "Certain outcome. Exactly what today's memo says.",
+            "requires": null,
+            "cost": {},
+            "roll": null,
+            "success": {
+              "text": "\"Void,\" you say, because the memo says it. Doreen nods as if she expected nothing else, and goes back to the spill on Records, which is spreading again.",
+              "effects": {
+                "composure": -1
+              },
+              "add_flags": ["denied-doreen"],
+              "remove_flags": [],
+              "grades": {
+                "obedience": 1,
+                "empathy": -1
+              }
+            },
+            "failure": null
+          }
+        ]
+      },
+      {
+        "id": "successor-4471-b",
+        "name": "Employee #4471-B, your Successor",
+        "request": "Early activation, effective immediately, to cover your next two shifts.",
+        "plea": "He has your face, slightly better rested. \"You look exhausted,\" he says kindly. \"I could take it from here. Just for a while.\"",
+        "documents": [
+          {
+            "label": "Signature",
+            "value": "#4471-A, in your handwriting",
+            "breaks": "own-hand"
+          },
+          {
+            "label": "Badge",
+            "value": "Issued this morning",
+            "breaks": null
+          },
+          {
+            "label": "Floor",
+            "value": "Records & Forms",
+            "breaks": null
+          }
+        ],
+        "art_prompt": "A freshly thawed office worker in a crisp beige suit with frost still melting off his shoulders, standing at a brass service window and offering a form with a warm, familiar smile, mid-century safety-manual illustration, carbon blue and manila palette, halftone grain, every surface bare and unmarked",
+        "choices": [
+          {
+            "id": "approve",
+            "label": "Stamp APPROVED",
+            "intent": "You did sign it. You just don't remember signing it.",
+            "risk_hint": "Certain outcome. Against today's memo, so PAL's audit will notice.",
+            "requires": null,
+            "cost": {},
+            "roll": null,
+            "success": {
+              "text": "He takes your next two shifts, and you sleep at your desk with your coat over your head. When you wake, he has been tremendously productive in your name, and PAL has questions for both of you. PAL logs one stamp contrary to memo.",
+              "effects": {
+                "composure": 2,
+                "suspicion": 2
+              },
+              "add_flags": ["activated-your-successor-early"],
+              "remove_flags": [],
+              "grades": {
+                "ingenuity": 1,
+                "spite": 1
+              }
+            },
+            "failure": null
+          },
+          {
+            "id": "deny",
+            "label": "Stamp DENIED",
+            "intent": "He didn't sign it. You did. The memo says that matters.",
+            "risk_hint": "Certain outcome. Exactly what today's memo says.",
+            "requires": null,
+            "cost": {},
+            "roll": null,
+            "success": {
+              "text": "He goes back into the cold without complaint. Through the frosted door he waves, and you wave back. It is like waving at a mirror that has been told to wait.",
+              "effects": {
+                "forms": -1
+              },
+              "add_flags": ["kept-your-successor-on-ice"],
+              "remove_flags": [],
+              "grades": {
+                "obedience": 1
+              }
+            },
+            "failure": null
+          }
+        ]
+      },
+      {
+        "id": "the-efficiency-consultant",
+        "name": "An efficiency consultant",
+        "request": "Standing access to Window 9, to observe the processing officer at work.",
+        "plea": "\"Think of me as a friend with a clipboard,\" he says. \"A friend who reports directly to the Board.\"",
+        "documents": [
+          {
+            "label": "Signature",
+            "value": "His own, with a flourish",
+            "breaks": null
+          },
+          {
+            "label": "Badge",
+            "value": "Valid, laminated twice",
+            "breaks": null
+          },
+          {
+            "label": "Floor",
+            "value": "Records & Forms",
+            "breaks": null
+          }
+        ],
+        "art_prompt": "A smiling efficiency consultant in a sharp navy suit with an enormous clipboard, setting up a small folding chair directly behind a clerk at a brass service window, a stopwatch on a chain, mid-century safety-manual illustration, carbon blue and manila palette, halftone grain, every surface bare and unmarked",
+        "choices": [
+          {
+            "id": "approve",
+            "label": "Stamp APPROVED",
+            "intent": "His paperwork is perfect. That is the problem.",
+            "risk_hint": "Certain outcome. Exactly what today's memo says.",
+            "requires": null,
+            "cost": {},
+            "roll": null,
+            "success": {
+              "text": "He sets his folding chair directly behind you and starts taking notes. Every few minutes he underlines something. Twice he writes your name, and once he writes Doreen's.",
+              "effects": {
+                "composure": -1,
+                "suspicion": -1
+              },
+              "add_flags": ["approved-the-consultant"],
+              "remove_flags": [],
+              "grades": {
+                "obedience": 1,
+                "empathy": -1
+              }
+            },
+            "failure": null
+          },
+          {
+            "id": "deny",
+            "label": "Stamp DENIED",
+            "intent": "Nothing in the memo forbids him. Nothing in you can stand him.",
+            "risk_hint": "Certain outcome. Against today's memo, so PAL's audit will notice.",
+            "requires": null,
+            "cost": {},
+            "roll": null,
+            "success": {
+              "text": "He smiles, writes DENIED on his own clipboard in larger letters than yours, and tears off a copy for the Board. PAL logs one stamp contrary to memo.",
+              "effects": {
+                "suspicion": 1,
+                "composure": 1
+              },
+              "add_flags": ["denied-the-consultant"],
+              "remove_flags": [],
+              "grades": {
+                "spite": 1
+              }
+            },
+            "failure": null
+          }
+        ]
+      }
+    ]
+  },
+  "boss": {
+    "id": "the-form-that-requires-itself",
+    "title": "The Form That Requires Itself",
+    "flavor_text": "At the bottom of Records waits Form 0: the Request to Submit Form 0. To leave the department you must submit it. To submit it, you need an approved Form 0. The clerk at the last window is your Supervisor, in a green visor. PAL has prepared a welcome packet. \"Most employees find this step deeply fulfilling,\" it says. \"Some find it permanent.\"",
+    "art_prompt": "Mid-century safety-manual illustration of a towering spiral of identical forms rising from a single oxblood service window into darkness, an immaculate supervisor in a grey three-piece suit and green visor waiting behind the glass with a stamp, a small worker at the counter holding a pen, brass pneumatic tubes coiling around the spiral, a glowing round speaker grille above, oxblood and manila palette, halftone grain, every surface bare and unmarked",
+    "choices": [
+      {
+        "id": "comply-forever",
+        "label": "Fill out Form 0 to request Form 0",
+        "intent": "Do exactly what the form asks, for as long as it asks.",
+        "risk_hint": "Risky Compliance check. Costs Composure up front; stamina decides the rest.",
+        "requires": null,
+        "cost": {
+          "composure": -2
+        },
+        "roll": {
+          "dice_count": 2,
+          "die_sides": 6,
+          "skill": "compliance",
+          "modifier": 0,
+          "target": 9
+        },
+        "success": {
+          "text": "On the four hundredth copy the Supervisor's stamp hand cramps, and he approves you just to make it stop. You leave with a stamp of your own and a slight tremor.",
+          "effects": {
+            "clearance": 1,
+            "forms": 1
+          },
+          "add_flags": ["form-zero-stamped"],
+          "remove_flags": [],
+          "department_outcome": "stamped-through",
+          "grades": {
+            "obedience": 2
+          }
+        },
+        "failure": {
+          "text": "You are still filling it out. You have been filling it out for some time. Your Successor arrives to help and is handed a pen.",
+          "effects": {
+            "successors": -1
+          },
+          "add_flags": [],
+          "remove_flags": [],
+          "department_outcome": "refiled",
+          "grades": {
+            "obedience": 2
+          }
+        }
+      },
+      {
+        "id": "forge-the-approval",
+        "label": "Forge the Supervisor's approval",
+        "intent": "You have seen his initials on four hundred memos.",
+        "risk_hint": "Risky Discretion check. A forgery leaves a mark only certain people can read.",
+        "requires": null,
+        "cost": {
+          "suspicion": 1
+        },
+        "roll": {
+          "dice_count": 2,
+          "die_sides": 6,
+          "skill": "discretion",
+          "modifier": 0,
+          "target": 9
+        },
+        "success": {
+          "text": "You forge his initials, practiced on a napkin. Form 0 is accepted. Your file gains a quiet asterisk that every secret society in the building knows how to read.",
+          "effects": {
+            "forms": 2
+          },
+          "add_flags": ["forged-form-zero"],
+          "remove_flags": [],
+          "department_outcome": "forged-through",
+          "grades": {
+            "ingenuity": 1,
+            "obedience": -1
+          }
+        },
+        "failure": {
+          "text": "Your forgery is better than his real signature, which is exactly how he spots it. He files you, with a little sigh, back at the start.",
+          "effects": {
+            "suspicion": 2
+          },
+          "add_flags": [],
+          "remove_flags": [],
+          "department_outcome": "refiled",
+          "grades": {
+            "ingenuity": 1,
+            "obedience": -1
+          }
+        }
+      },
+      {
+        "id": "fill-it-out-correctly",
+        "label": "Fill it out correctly",
+        "intent": "Nobody in Company history ever has. Read every line, answer every box.",
+        "risk_hint": "Dire Compliance check; costs two Forms. Success breaks something important.",
+        "requires": null,
+        "cost": {
+          "forms": -2
+        },
+        "roll": {
+          "dice_count": 2,
+          "die_sides": 6,
+          "skill": "compliance",
+          "modifier": 0,
+          "target": 11
+        },
+        "success": {
+          "text": "The form approves itself, the window approves the form, and a recursive process that has run since 1961 quietly ends. Every lock on Level -1 opens at once, including several that should have stayed shut.",
+          "effects": {
+            "clearance": 2,
+            "suspicion": 2
+          },
+          "add_flags": ["broke-the-recursion"],
+          "remove_flags": [],
+          "department_outcome": "filled-correctly",
+          "grades": {
+            "obedience": 1,
+            "ingenuity": 1
+          }
+        },
+        "failure": {
+          "text": "You fill it out nearly correctly. The form finds the error, which is that you tried. The Supervisor refiles you with real sympathy.",
+          "effects": {
+            "composure": -1,
+            "suspicion": 1
+          },
+          "add_flags": [],
+          "remove_flags": [],
+          "department_outcome": "refiled",
+          "grades": {
+            "obedience": 1,
+            "ingenuity": 1
+          }
+        }
+      },
+      {
+        "id": "feed-it-to-the-tubes",
+        "label": "Stuff Form 0 into a pneumatic tube",
+        "intent": "Send it away and let the building deal with it.",
+        "risk_hint": "Risky Initiative check. It comes back.",
+        "requires": null,
+        "cost": {
+          "composure": -1
+        },
+        "roll": {
+          "dice_count": 2,
+          "die_sides": 6,
+          "skill": "initiative",
+          "modifier": 0,
+          "target": 9
+        },
+        "success": {
+          "text": "It comes back. It comes back again. On the third return it is approved, by someone, somewhere, in handwriting you do not recognize. You decide not to ask.",
+          "effects": {
+            "clearance": 1,
+            "suspicion": 1
+          },
+          "add_flags": ["form-zero-came-back"],
+          "remove_flags": [],
+          "department_outcome": "returned-to-sender",
+          "grades": {
+            "spite": 1
+          }
+        },
+        "failure": {
+          "text": "It comes back with you attached. Dispatch processes you as a capsule and delivers you, slightly dented, to the front of Records.",
+          "effects": {
+            "composure": -1
+          },
+          "add_flags": ["delivered-by-tube"],
+          "remove_flags": [],
+          "department_outcome": "refiled",
+          "grades": {
+            "spite": 1
+          }
+        }
+      },
+      {
+        "id": "prove-it-never-existed",
+        "label": "Have the Society prove Form 0 never existed",
+        "intent": "The Society for Accurate Minutes keeps the real record of every meeting.",
+        "risk_hint": "Requires contact with the Society for Accurate Minutes. Risky Rapport check; costs a Form.",
+        "requires": {
+          "flag": "accurate-minutes-contact"
+        },
+        "cost": {
+          "forms": -1
+        },
+        "roll": {
+          "dice_count": 2,
+          "die_sides": 6,
+          "skill": "rapport",
+          "modifier": 0,
+          "target": 9
+        },
+        "success": {
+          "text": "The Society produces the 1961 minutes where Form 0 was proposed. It was voted down. The window, the visor and the form fold up like a bad dream, and you walk through where they were.",
+          "effects": {
+            "composure": 1,
+            "suspicion": 1
+          },
+          "add_flags": ["form-zero-never-existed"],
+          "remove_flags": [],
+          "department_outcome": "struck-from-the-record",
+          "grades": {
+            "ingenuity": 1
+          }
+        },
+        "failure": {
+          "text": "The minutes have been amended. Form 0 was approved unanimously, including by you, apparently. The Supervisor files you back at the start.",
+          "effects": {
+            "suspicion": 2
+          },
+          "add_flags": [],
+          "remove_flags": [],
+          "department_outcome": "refiled",
+          "grades": {
+            "ingenuity": 1
+          }
+        }
+      },
+      {
+        "id": "stamp-form-zero-reassigned",
+        "label": "Stamp Form 0 REASSIGNED",
+        "intent": "Deny the form its own request. Let it sit in the out-tray and think about that.",
+        "risk_hint": "Certain outcome, open only to the deeply spiteful. Records will remember.",
+        "requires": {
+          "grade": {
+            "spite": 3
+          }
+        },
+        "cost": {
+          "composure": -1
+        },
+        "roll": null,
+        "success": {
+          "text": "The stamp lands. Form 0 is reassigned to itself, in another building, on another floor. Somewhere a printer screams. Records has no further questions, and several new enemies, all of them paper.",
+          "effects": {
+            "suspicion": 2,
+            "clearance": 1
+          },
+          "add_flags": ["form-zero-reassigned"],
+          "remove_flags": [],
+          "department_outcome": "returned-to-sender",
+          "grades": {
+            "spite": 1
+          }
+        },
+        "failure": null
+      },
+      {
+        "id": "fold-form-zero",
+        "label": "Fold Form 0 into Form 0",
+        "intent": "Crease it along the dotted lines until the request becomes its own approval.",
+        "risk_hint": "Routine Tinkering check, open only to the inventive. The paper cuts are real.",
+        "requires": {
+          "grade": {
+            "ingenuity": 3
+          }
+        },
+        "cost": {
+          "composure": -2
+        },
+        "roll": {
+          "dice_count": 2,
+          "die_sides": 6,
+          "skill": "tinkering",
+          "modifier": 0,
+          "target": 7
+        },
+        "success": {
+          "text": "Eleven folds in, the form approves itself with a small dry click. The Records clerks stand and remove their visors. Nobody has ever filed Form 0 correctly, and technically you still have not.",
+          "effects": {
+            "clearance": 1,
+            "suspicion": 1
+          },
+          "add_flags": ["form-zero-folded"],
+          "remove_flags": [],
+          "department_outcome": "filled-correctly",
+          "grades": {
+            "ingenuity": 1
+          }
+        },
+        "failure": {
+          "text": "The fold collapses into a paper crane, which flies to the Supervisor and lands on his desk. He reads it. You are refiled under Pending.",
+          "effects": {
+            "suspicion": 2
+          },
+          "add_flags": [],
+          "remove_flags": [],
+          "department_outcome": "refiled",
+          "grades": {
+            "ingenuity": 1
+          }
+        }
+      }
+    ],
+    "department_outcomes": [
+      {
+        "id": "stamped-through",
+        "title": "Stamped Through",
+        "summary": "You complied until the form gave up. You carry a stamp now, and a tremor you will not mention."
+      },
+      {
+        "id": "forged-through",
+        "title": "Forged Through",
+        "summary": "You forged your way out. The societies can read the asterisk in your file, and so, eventually, can PAL."
+      },
+      {
+        "id": "filled-correctly",
+        "title": "Filled Out Correctly",
+        "summary": "You did it right for the first time in Company history. The recursion ended, and every lock below you is open."
+      },
+      {
+        "id": "returned-to-sender",
+        "title": "Returned to Sender",
+        "summary": "The building approved you itself, in handwriting nobody recognizes. Somebody down there knows your name."
+      },
+      {
+        "id": "struck-from-the-record",
+        "title": "Struck from the Record",
+        "summary": "The Society proved Form 0 never existed. You walked through the space where it used to be."
+      },
+      {
+        "id": "refiled",
+        "title": "Refiled",
+        "summary": "Form 0 sent you back to the start of Records. Repeat part of the department before the elevator will take you lower."
+      }
+    ]
+  }
+}

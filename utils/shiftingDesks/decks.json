@@ -1,0 +1,684 @@
+{
+  "schemaVersion": 1,
+  "source": "silasfelinus/conductor:projects/shifting-desks/encounters/DECKS.json",
+  "sourceRef": "main@1d20d96225e4088300af615cf77776ca18e2b6e4",
+  "societies": [
+    {
+      "id": "stapler-liberation-front",
+      "title": "Stapler Liberation Front",
+      "creed": "Liberate the supplies. Resist the Survey.",
+      "objectives": {
+        "orientation": [
+          "stapler-front-contact",
+          "shared-the-pens",
+          "survey-wrote-help",
+          "honest-badge-photo",
+          "not-a-team-player"
+        ],
+        "records": [
+          "stapler-front-courier",
+          "swapped-the-chutes",
+          "ground-down-the-stamp",
+          "denied-own-leave",
+          "delivered-the-love-letter"
+        ],
+        "toy-division": [
+          "emma-asked-why",
+          "replied-all",
+          "barcode-warning",
+          "addressed-the-mirror",
+          "pulled-the-alarm"
+        ],
+        "wellness": [
+          "pressed-the-button",
+          "kicked-the-vending-machine",
+          "wrote-in-real-food",
+          "refused-the-word-list",
+          "refused-the-final-exam"
+        ],
+        "sub-level-zero": [
+          "unplugged-the-founder",
+          "silenced-a-voice",
+          "amended-the-minutes",
+          "seated-the-society",
+          "called-the-strike"
+        ]
+      },
+      "betrayals": {
+        "orientation": ["took-the-last-pens", "survey-perfect", "named-dale"],
+        "records": [
+          "perfect-quota",
+          "let-the-problem-mail-burn",
+          "burned-the-love-letter"
+        ],
+        "toy-division": ["wrote-ages-three-and-up", "questionnaire-generous"],
+        "wellness": ["drank-the-obedience", "perfect-wellness-score"],
+        "sub-level-zero": ["joined-the-pool", "employee-of-the-month"]
+      },
+      "favor": {
+        "id": "spare-staples",
+        "title": "Spare Staples",
+        "text": "Turn one failed roll into a success.",
+        "kind": "force-success"
+      },
+      "reward": {
+        "forms": 2
+      },
+      "objective_text": {
+        "orientation": "Make contact with the Front, share the supplies, or refuse to perform happiness: an honest badge photo, HELP on the survey, no trust fall.",
+        "records": "Free the mail and jam the machinery: carry a capsule for the Front, swap the chute labels, file the no off your stamp, give up your own leave to balance the quota, or deliver the love letter.",
+        "toy-division": "Jam the launch: let Emma ask why, reply all to the safe-distance memo, hide the warning in the barcode, break character at the mirror, or pull the fire alarm.",
+        "wellness": "Refuse to be measured: press the button, kick the vending machine, write in real food, refuse the word list, or refuse to administer the Final Exam.",
+        "sub-level-zero": "Break the machine at the top: unplug the Founder or one of PAL's cabinets, amend the minutes, seat the society, or call the strike."
+      },
+      "betrayal_text": {
+        "orientation": "Hoard the last pens, ace the Mandatory Fun Survey, or name Dale as unhappy.",
+        "records": "Keep a perfect yes-no quota, let the problem mail burn, or destroy the love letter by policy.",
+        "toy-division": "Write 'Ages 3 and up' or answer the questionnaire like a perfectly generous five-year-old.",
+        "wellness": "Drink the three grams of obedience, or give the Company a perfect score.",
+        "sub-level-zero": "Join the assistants' pool, or become Employee of the Month."
+      },
+      "art_prompt": "A red stapler rearing up on a desk like a raised fist, a defiant ring of paperclips arranged around it, dramatic low lighting and long shadows, a scatter of liberated pens, mid-century safety-manual illustration, screen-printed gouache with halftone grain, limited palette of manila, carbon-paper blue, safety orange, fluorescent-tube green and oxblood, vertical 2:3 portrait composition, every surface bare and unmarked"
+    },
+    {
+      "id": "friends-of-the-old-coffee-machine",
+      "title": "Friends of the Old Coffee Machine",
+      "creed": "Protect the people PAL wants to replace.",
+      "objectives": {
+        "orientation": [
+          "saved-pip",
+          "pip-trusts-you",
+          "marguerite-owes-you",
+          "successor-b-ally",
+          "dale-caught-you"
+        ],
+        "records": [
+          "approved-halvorsen-transfer",
+          "freed-pemberton",
+          "freed-kevin",
+          "kevin-owes-you",
+          "dale-forgiven"
+        ],
+        "toy-division": [
+          "mourned-kevin",
+          "reported-kevin-missing",
+          "dale-forgave-the-transfer",
+          "backed-gus-at-toys",
+          "rocked-the-mk1"
+        ],
+        "wellness": [
+          "shared-lunch-with-pip",
+          "helped-pip-cheat",
+          "ended-pips-test",
+          "kept-kevin-company",
+          "took-the-exam-for-pip"
+        ],
+        "sub-level-zero": [
+          "saved-pips-tape",
+          "asked-pal-their-names",
+          "rewrote-pal",
+          "successors-organized",
+          "went-in-yourself"
+        ]
+      },
+      "betrayals": {
+        "orientation": [
+          "pip-shredded",
+          "reported-marguerite",
+          "reported-own-successor",
+          "blamed-a-coworker"
+        ],
+        "records": [
+          "denied-halvorsen",
+          "sent-dale-to-toys",
+          "rightsized-the-lovers",
+          "pip-opened-your-mail"
+        ],
+        "toy-division": [
+          "listed-coworkers",
+          "named-the-parents",
+          "reported-the-parents"
+        ],
+        "wellness": [
+          "failed-pip",
+          "pip-took-compound-w",
+          "buzzed-your-successor"
+        ],
+        "sub-level-zero": ["sent-b-first", "saved-own-tape", "blamed-everyone"]
+      },
+      "favor": {
+        "id": "a-fresh-pot",
+        "title": "A Fresh Pot",
+        "text": "Restore 3 Composure.",
+        "kind": "effects",
+        "effects": {
+          "composure": 3
+        }
+      },
+      "reward": {
+        "composure": 2
+      },
+      "objective_text": {
+        "orientation": "Look after someone the Company would replace: save Pip, earn his trust, help Marguerite, befriend your Successor, or let Dale catch you.",
+        "records": "Get someone out: approve Dr. Halvorsen's transfer, end Mr. Pemberton's test, rescue Kevin from Tube 14, or make peace with Dale.",
+        "toy-division": "Look after the people PAL forgets: mourn or report Kevin, make it right with Dale, back Gus up, or rock the crying bear to sleep.",
+        "wellness": "Keep people whole: share lunch with Pip, help him cheat, end his test, keep Kevin company, or sit the Final Exam for Pip.",
+        "sub-level-zero": "Save the people PAL forgot: save Pip's tape, ask PAL's voices their names, rewrite PAL, organize your Successors, or go in yourself."
+      },
+      "betrayal_text": {
+        "orientation": "Let Pip go into the shredder, report Marguerite or your own Successor, or blame a coworker.",
+        "records": "Deny Dr. Halvorsen, send Dale to the Toy Division, get the lovers rightsized, or let Pip open your dangerous mail.",
+        "toy-division": "List coworkers for the first bears, or turn in the Concerned Parents.",
+        "wellness": "Fail Pip, let him take Compound W, or follow the word list to the end.",
+        "sub-level-zero": "Send B in first, save your own tape over Pip's, or blame everyone else."
+      },
+      "art_prompt": "A battered chrome coffee machine glowing warmly in a dark break room, mismatched mugs gathered around it like a small congregation, steam curling upward in the lamplight, mid-century safety-manual illustration, screen-printed gouache with halftone grain, limited palette of manila, carbon-paper blue, safety orange, fluorescent-tube green and oxblood, vertical 2:3 portrait composition, every surface bare and unmarked"
+    },
+    {
+      "id": "society-for-accurate-minutes",
+      "title": "Society for Accurate Minutes",
+      "creed": "Write down what really happened.",
+      "objectives": {
+        "orientation": [
+          "saw-unlisted-chapter",
+          "has-unlisted-reel",
+          "read-the-policy",
+          "overheard-successor-start-date",
+          "halvorsen-envelope"
+        ],
+        "records": [
+          "accurate-minutes-contact",
+          "has-true-minutes",
+          "knows-the-incident",
+          "restored-the-shipment-memo",
+          "list-from-next-thursday"
+        ],
+        "toy-division": [
+          "has-defense-notepad",
+          "minuted-the-parents",
+          "wrote-the-true-label",
+          "drew-the-warning",
+          "heard-the-squeak-code"
+        ],
+        "wellness": [
+          "heard-your-file-read",
+          "opened-the-button",
+          "read-the-answer-key",
+          "out-silenced-the-booth"
+        ],
+        "sub-level-zero": [
+          "read-tomorrows-minutes",
+          "has-pals-blueprint",
+          "played-the-reel",
+          "copied-the-founders-sentence"
+        ]
+      },
+      "betrayals": {
+        "orientation": ["erased-the-evidence", "inkblot-adjusted"],
+        "records": [
+          "reported-the-minutes-society",
+          "helped-destroy-the-minutes",
+          "burned-own-report",
+          "gassed-the-union-archive"
+        ],
+        "toy-division": ["padded-the-test", "binned-the-duck"],
+        "wellness": ["doctored-the-study", "confessed-dales-snack"],
+        "sub-level-zero": ["filed-the-blueprint", "took-the-listening-chair"]
+      },
+      "favor": {
+        "id": "off-the-record",
+        "title": "Off the Record",
+        "text": "Remove 3 Suspicion.",
+        "kind": "effects",
+        "effects": {
+          "suspicion": -3
+        }
+      },
+      "reward": {
+        "clearance": 1
+      },
+      "objective_text": {
+        "orientation": "Get the real record: see the film's unlisted chapter, steal the reel, actually read the policy, overhear the start date, or take Dr. Halvorsen's envelope.",
+        "records": "Keep the true record: answer the angled pen, take a page of the real minutes, read about your incident, restore the shipment memo, or open next Thursday's list.",
+        "toy-division": "Keep the true record: lift the Defense notepad, minute the Parents, write the honest label, draw the warning, or learn the squeak code.",
+        "wellness": "Get at the real record: make the machine read your file, open the button, read out the answer key, or leave the confessional's gauge at UNKNOWN.",
+        "sub-level-zero": "Put the record straight: read tomorrow's minutes, take PAL's blueprint, play the uncut reel, or copy the Founder's sentence."
+      },
+      "betrayal_text": {
+        "orientation": "Erase the evidence, or adjust your inkblot answer to please the clipboard.",
+        "records": "Report the angled pens, help destroy the DESTROY cabinet, burn your own report, or gas the Union archive.",
+        "toy-division": "Falsify the drop-test report, or bin the evidence duck.",
+        "wellness": "Doctor the lunch study, or confess someone else's snack.",
+        "sub-level-zero": "File the blueprint as obsolete, or take the chair in the listening room."
+      },
+      "art_prompt": "A secret candlelit meeting of clerks between towering filing cabinets, each clerk writing in an identical notebook, faces lit from below, an open drawer of carbon copies at the center, mid-century safety-manual illustration, screen-printed gouache with halftone grain, limited palette of manila, carbon-paper blue, safety orange, fluorescent-tube green and oxblood, vertical 2:3 portrait composition, every surface bare and unmarked"
+    },
+    {
+      "id": "fourth-floor-irregulars",
+      "title": "Fourth Floor Irregulars",
+      "creed": "There is no fourth floor. Meet us there.",
+      "objectives": {
+        "orientation": [
+          "knows-the-ducts",
+          "knows-camera-blind-spots",
+          "wearing-a-dead-mans-badge",
+          "has-master-key",
+          "escaped-the-review"
+        ],
+        "records": [
+          "freed-kevin",
+          "stole-own-file",
+          "refiled-under-dead-badge",
+          "broke-the-recursion",
+          "form-zero-came-back"
+        ],
+        "toy-division": [
+          "wearing-kevins-lanyard",
+          "booked-the-next-building",
+          "mk0-saw-the-executive-floor",
+          "heard-the-squeak-code"
+        ],
+        "wellness": [
+          "opened-the-humming-door",
+          "took-the-unmarked-door",
+          "stole-a-vial",
+          "hummed-with-the-door"
+        ],
+        "sub-level-zero": [
+          "behind-the-curtain",
+          "admin-access",
+          "marguerite-route",
+          "escaped-the-company"
+        ]
+      },
+      "betrayals": {
+        "orientation": ["reported-marguerite", "joy-consultation-booked"],
+        "records": ["flagged-as-problem-mail", "reported-own-mail"],
+        "toy-division": ["replied-all", "reported-the-parents"],
+        "wellness": ["reported-the-humming-door", "followed-the-arrow"],
+        "sub-level-zero": [
+          "reported-marguerite-at-the-end",
+          "took-the-brochure"
+        ]
+      },
+      "favor": {
+        "id": "the-fourth-floor",
+        "title": "The Fourth Floor",
+        "text": "Ignore the requirement on one locked choice.",
+        "kind": "ignore-requirement"
+      },
+      "reward": {
+        "clearance": 1
+      },
+      "objective_text": {
+        "orientation": "Get somewhere you are not allowed: learn the ducts or the camera blind spots, wear the dead man's badge, get the master key, or skip your review.",
+        "records": "Slip the system: reach Tube 14 through the ducts, walk out with your own file, refile it under the dead man's badge, break Form 0's recursion, or let the tubes approve you.",
+        "toy-division": "Find the doors that aren't on the plan: wear Kevin's lanyard, book a desk next door, learn the squeak code, or hear where Mk 0 went upstairs.",
+        "wellness": "Find the rooms off the plan: open or answer the humming door, take the unmarked door, or pocket a vial.",
+        "sub-level-zero": "Find the last door off the plan: come out behind the curtain, gain admin access, take Marguerite's route, or escape the Company."
+      },
+      "betrayal_text": {
+        "orientation": "Report Marguerite, or get yourself booked for a Joy Consultation.",
+        "records": "Get yourself flagged as problem mail, or turn your own correspondence in to PAL.",
+        "toy-division": "Draw every eye with a reply-all, or bring PAL to the Parents' secret meeting.",
+        "wellness": "Report the humming door, or follow the painted arrow.",
+        "sub-level-zero": "Report Marguerite one last time, or take the retirement brochure."
+      },
+      "art_prompt": "A brass elevator button panel with an extra round button glowing softly between the others, a gloved hand reaching for it, the elevator car lit in eerie fluorescent green, mid-century safety-manual illustration, screen-printed gouache with halftone grain, limited palette of manila, carbon-paper blue, safety orange, fluorescent-tube green and oxblood, vertical 2:3 portrait composition, every surface bare and unmarked"
+    },
+    {
+      "id": "the-recyclers",
+      "title": "The Recyclers",
+      "creed": "Nothing is wasted. Not even you.",
+      "objectives": {
+        "orientation": [
+          "roach-union-member",
+          "roach-union-ally",
+          "detector-vegetarian",
+          "fed-the-detector",
+          "filed-as-successor"
+        ],
+        "records": [
+          "approved-beverly",
+          "beverly-organized",
+          "union-file-on-you",
+          "wrote-to-past-self"
+        ],
+        "toy-division": [
+          "backed-gus-at-toys",
+          "knows-the-bears-listen",
+          "bears-bonded",
+          "caught-the-bear"
+        ],
+        "wellness": [
+          "drained-tank-nine",
+          "kept-kevin-company",
+          "declined-the-dose",
+          "covered-the-mirror"
+        ],
+        "sub-level-zero": [
+          "relabeled-the-tapes",
+          "called-the-strike",
+          "founder-grateful",
+          "silenced-the-bears"
+        ]
+      },
+      "betrayals": {
+        "orientation": ["betrayed-the-roaches", "detector-ravenous"],
+        "records": ["gassed-the-union-archive", "denied-beverly"],
+        "toy-division": ["betrayed-gus-at-toys", "refused-the-bear"],
+        "wellness": ["took-the-second-dose", "buzzed-your-successor"],
+        "sub-level-zero": ["sold-the-stands", "silenced-a-voice"]
+      },
+      "favor": {
+        "id": "salvage",
+        "title": "Salvage",
+        "text": "Recover one Successor.",
+        "kind": "effects",
+        "effects": {
+          "successors": 1
+        }
+      },
+      "reward": {
+        "forms": 2
+      },
+      "objective_text": {
+        "orientation": "Waste nothing: join or befriend the Roach Union, feed the detector or make it vegetarian, or file yourself as your own Successor.",
+        "records": "Put everything back to use: approve Beverly or organize her, read the Union's file on you, or send your future self's mail on to the past.",
+        "toy-division": "Waste nothing and nobody: back Gus, learn what the bears really record, reunite Mk 0 with its sibling, or catch the falling bear yourself.",
+        "wellness": "Waste nobody: drain Tank Nine or keep Kevin company, decline the second dose, or turn the mirror to the wall.",
+        "sub-level-zero": "Waste nothing, not even the past: relabel the tapes, call the strike, return the Founders' mustaches, or turn the bears back into bears."
+      },
+      "betrayal_text": {
+        "orientation": "Betray the roaches, or set the detector to ravenous.",
+        "records": "Gas the Union archive, or deny Beverly's application.",
+        "toy-division": "Call Pest Control on Gus, or refuse a bear that came home.",
+        "wellness": "Take the second dose, or spend your own Successor on the word list.",
+        "sub-level-zero": "Sell the Founders' stands, or pull one of PAL's voices."
+      },
+      "art_prompt": "An enormous recycling bin overflowing with crumpled paper, staplers and coffee mugs, a giant friendly cockroach in a cardigan and a night janitor nodding to each other beside it, mid-century safety-manual illustration, screen-printed gouache with halftone grain, limited palette of manila, carbon-paper blue, safety orange, fluorescent-tube green and oxblood, vertical 2:3 portrait composition, every surface bare and unmarked"
+    },
+    {
+      "id": "concerned-parents-of-the-toy-division",
+      "title": "Concerned Parents of the Toy Division",
+      "creed": "No toy ships that we wouldn't give our own children.",
+      "objectives": {
+        "orientation": [
+          "defused-mk0",
+          "bear-imprinted",
+          "saw-unlisted-chapter",
+          "mailed-the-bear-upstairs"
+        ],
+        "records": [
+          "restored-the-shipment-memo",
+          "has-true-minutes",
+          "swapped-the-chutes"
+        ],
+        "toy-division": [
+          "carrying-the-screwdriver",
+          "minuted-the-parents",
+          "taught-the-defuse",
+          "stuffed-the-bear",
+          "bears-bonded"
+        ],
+        "wellness": [
+          "helped-pip-cheat",
+          "ended-pips-test",
+          "dismissed-the-final-exam",
+          "coached-your-successor",
+          "spotted-compound-w"
+        ],
+        "sub-level-zero": [
+          "silenced-the-bears",
+          "heard-a-bedtime",
+          "saved-pips-tape",
+          "rewrote-pal"
+        ]
+      },
+      "betrayals": {
+        "orientation": ["hugged-by-mk0", "erased-the-evidence"],
+        "records": [
+          "sent-dale-to-toys",
+          "gassed-the-union-archive",
+          "helped-destroy-the-minutes"
+        ],
+        "toy-division": [
+          "reported-the-parents",
+          "named-the-parents",
+          "shipped-the-bear"
+        ],
+        "wellness": ["failed-pip", "administered-the-exam"],
+        "sub-level-zero": ["took-the-listening-chair", "took-early-retirement"]
+      },
+      "favor": {
+        "id": "bedtime-story",
+        "title": "Bedtime Story",
+        "text": "+3 on one roll.",
+        "kind": "bonus",
+        "amount": 3
+      },
+      "reward": {
+        "composure": 2
+      },
+      "objective_text": {
+        "orientation": "Keep the toys honest: defuse Snuggle Sentinel Mk 0, let it imprint on you, mail it upstairs, or see the unlisted chapter.",
+        "records": "Find the paper trail to the holiday shipment: restore the shipment memo, take a page of the Board's real minutes, or swap the chutes so the toy memo reaches Product Safety.",
+        "toy-division": "Make the bears safe: carry the screwdriver, minute the meeting, teach the defuse, swap the payload for stuffing, or reunite Mk 0 with its sibling.",
+        "wellness": "Protect whoever is being tested: help Pip cheat, end his test, dismiss the Final Exam, coach your Successor, or spot the Compound W.",
+        "sub-level-zero": "Finish what the screwdriver started: switch off the bears, hear what they hear, save Pip's tape, or rewrite PAL."
+      },
+      "betrayal_text": {
+        "orientation": "Get hugged by Mk 0, or erase the evidence.",
+        "records": "Send Dale to the Toy Division, gas the Union archive, or help destroy the real minutes.",
+        "toy-division": "Report or name the Parents, or present the armed bear to the investors.",
+        "wellness": "Fail Pip, or administer the Final Exam to him.",
+        "sub-level-zero": "Take the listening chair, or retire to the island."
+      },
+      "art_prompt": "A huddle of worried adults in lab coats around a workbench, one gently holding a screwdriver over a plush teddy bear with a quilted belly hatch, a warm desk lamp over the scene, mid-century safety-manual illustration, screen-printed gouache with halftone grain, limited palette of manila, carbon-paper blue, safety orange, fluorescent-tube green and oxblood, vertical 2:3 portrait composition, every surface bare and unmarked"
+    }
+  ],
+  "mutations": [
+    {
+      "id": "four-second-precognition",
+      "title": "Four-Second Precognition",
+      "text": "After a failed roll, roll again and keep the second result.",
+      "kind": "reroll",
+      "art_prompt": "An office worker watching a pale translucent echo of themselves a few steps ahead tripping over a loose cable, the real worker calmly stepping around it, mid-century safety-manual illustration, screen-printed gouache with halftone grain, limited palette of manila, carbon-paper blue, safety orange, fluorescent-tube green and oxblood, vertical 2:3 portrait composition, every surface bare and unmarked"
+    },
+    {
+      "id": "printer-whisperer",
+      "title": "Printer Whisperer",
+      "text": "Automatic success on one Tinkering roll.",
+      "kind": "auto-success",
+      "skills": ["tinkering"],
+      "art_prompt": "An office worker leaning close to an enormous beige photocopier that glows contentedly, a fan of fresh paper curling out of it like a happy cat's tail, mid-century safety-manual illustration, screen-printed gouache with halftone grain, limited palette of manila, carbon-paper blue, safety orange, fluorescent-tube green and oxblood, vertical 2:3 portrait composition, every surface bare and unmarked"
+    },
+    {
+      "id": "paperclip-telekinesis",
+      "title": "Paperclip Telekinesis",
+      "text": "+3 on one Initiative or Tinkering roll.",
+      "kind": "bonus",
+      "amount": 3,
+      "skills": ["initiative", "tinkering"],
+      "art_prompt": "A swirl of floating silver paperclips orbiting an office worker's raised fingertips, desk papers lifting gently in the air around them, mid-century safety-manual illustration, screen-printed gouache with halftone grain, limited palette of manila, carbon-paper blue, safety orange, fluorescent-tube green and oxblood, vertical 2:3 portrait composition, every surface bare and unmarked"
+    },
+    {
+      "id": "fluorescent-camouflage",
+      "title": "Fluorescent Camouflage",
+      "text": "Automatic success on one Discretion roll.",
+      "kind": "auto-success",
+      "skills": ["discretion"],
+      "art_prompt": "An office worker dissolving into the pale glow of an overhead fluorescent ceiling panel, only a faint outline of their shoulders remaining, coworkers walking past, mid-century safety-manual illustration, screen-printed gouache with halftone grain, limited palette of manila, carbon-paper blue, safety orange, fluorescent-tube green and oxblood, vertical 2:3 portrait composition, every surface bare and unmarked"
+    },
+    {
+      "id": "perfect-signature-mimicry",
+      "title": "Perfect Signature Mimicry",
+      "text": "Automatic success on one Compliance roll.",
+      "kind": "auto-success",
+      "skills": ["compliance"],
+      "art_prompt": "A fountain pen tracing a glowing ribbon of ink through the air above a tall stack of forms, a hand guiding it with uncanny ease, mid-century safety-manual illustration, screen-printed gouache with halftone grain, limited palette of manila, carbon-paper blue, safety orange, fluorescent-tube green and oxblood, vertical 2:3 portrait composition, every surface bare and unmarked"
+    },
+    {
+      "id": "empathic-static",
+      "title": "Empathic Static",
+      "text": "+3 on one Rapport roll.",
+      "kind": "bonus",
+      "amount": 3,
+      "skills": ["rapport"],
+      "art_prompt": "Two coworkers facing each other across a desk, soft crackles of warm golden static light passing between their temples, papers lifting in the charge, mid-century safety-manual illustration, screen-printed gouache with halftone grain, limited palette of manila, carbon-paper blue, safety orange, fluorescent-tube green and oxblood, vertical 2:3 portrait composition, every surface bare and unmarked"
+    },
+    {
+      "id": "eyes-in-the-back-of-your-head",
+      "title": "Eyes in the Back of Your Head",
+      "text": "Automatic success on one Vigilance roll.",
+      "kind": "auto-success",
+      "skills": ["vigilance"],
+      "art_prompt": "An office worker at a desk seen from behind, a calm second pair of eyes drawn in soft light on the back of their neat bob haircut, a sneaking coworker frozen mid-step, mid-century safety-manual illustration, screen-printed gouache with halftone grain, limited palette of manila, carbon-paper blue, safety orange, fluorescent-tube green and oxblood, vertical 2:3 portrait composition, every surface bare and unmarked"
+    },
+    {
+      "id": "spontaneous-calm",
+      "title": "Spontaneous Calm",
+      "text": "Restore Composure to 6. Use it any time on your turn.",
+      "kind": "restore-composure",
+      "art_prompt": "A frazzled office worker suddenly serene, floating an inch above the desk chair with eyes closed, scattered papers settling around them like falling leaves, mid-century safety-manual illustration, screen-printed gouache with halftone grain, limited palette of manila, carbon-paper blue, safety orange, fluorescent-tube green and oxblood, vertical 2:3 portrait composition, every surface bare and unmarked"
+    }
+  ],
+  "jobTitles": [
+    {
+      "id": "intern",
+      "title": "Intern",
+      "tagline": "Eager, unpaid and first in line for everything.",
+      "skills": {
+        "compliance": 1,
+        "initiative": 2,
+        "discretion": 0,
+        "rapport": 2,
+        "tinkering": 0,
+        "vigilance": 1
+      },
+      "perk": "Expendable",
+      "perk_text": "HR keeps one extra Successor on file for you.",
+      "art_prompt": "An eager young intern with a cowlick and an oversized cable-knit sweater, three lanyards around the neck, balancing a teetering tray of coffee cups, beaming at an office corridor, mid-century safety-manual illustration, screen-printed gouache with halftone grain, limited palette of manila, carbon-paper blue, safety orange, fluorescent-tube green and oxblood, vertical 2:3 portrait composition, every surface bare and unmarked"
+    },
+    {
+      "id": "temp",
+      "title": "Temp",
+      "tagline": "Nobody is entirely sure you work here.",
+      "skills": {
+        "compliance": 0,
+        "initiative": 1,
+        "discretion": 3,
+        "rapport": 1,
+        "tinkering": 0,
+        "vigilance": 1
+      },
+      "perk": "Unremarkable",
+      "perk_text": "Your Successors arrive with a clean file and no Suspicion.",
+      "art_prompt": "An unremarkable office temp in a beige cardigan half-blending into beige wallpaper, a visitor sticker on the lapel, holding a clipboard against the chest, gaze politely elsewhere, mid-century safety-manual illustration, screen-printed gouache with halftone grain, limited palette of manila, carbon-paper blue, safety orange, fluorescent-tube green and oxblood, vertical 2:3 portrait composition, every surface bare and unmarked"
+    },
+    {
+      "id": "middle-manager",
+      "title": "Middle Manager",
+      "tagline": "You have a lanyard, a stamp and a quiet despair.",
+      "skills": {
+        "compliance": 3,
+        "initiative": 0,
+        "discretion": 0,
+        "rapport": 2,
+        "tinkering": 0,
+        "vigilance": 1
+      },
+      "perk": "Signing Authority",
+      "perk_text": "Start with two extra Forms, and one less Composure.",
+      "art_prompt": "A tired middle manager in shirtsleeves behind a perfectly tidy desk, gripping an enormous rubber stamp in one hand and a chipped mug in the other, a wall of identical binders behind, mid-century safety-manual illustration, screen-printed gouache with halftone grain, limited palette of manila, carbon-paper blue, safety orange, fluorescent-tube green and oxblood, vertical 2:3 portrait composition, every surface bare and unmarked"
+    },
+    {
+      "id": "night-janitor",
+      "title": "Night Janitor",
+      "tagline": "You know where the ducts go. Nobody asks you anything.",
+      "skills": {
+        "compliance": 0,
+        "initiative": 1,
+        "discretion": 1,
+        "rapport": 0,
+        "tinkering": 3,
+        "vigilance": 1
+      },
+      "perk": "Master Keys",
+      "perk_text": "Start with Clearance 2.",
+      "art_prompt": "A weathered older night janitor in grey coveralls with a ring of fifty keys at the belt, leaning on a mop beside an open ventilation grille, a dark office floor lit by a single desk lamp, mid-century safety-manual illustration, screen-printed gouache with halftone grain, limited palette of manila, carbon-paper blue, safety orange, fluorescent-tube green and oxblood, vertical 2:3 portrait composition, every surface bare and unmarked"
+    },
+    {
+      "id": "internal-auditor",
+      "title": "Internal Auditor",
+      "tagline": "Everyone is polite to you. Everyone is afraid of you.",
+      "skills": {
+        "compliance": 2,
+        "initiative": 0,
+        "discretion": 1,
+        "rapport": 0,
+        "tinkering": 0,
+        "vigilance": 3
+      },
+      "perk": "Feared",
+      "perk_text": "Start with one extra Composure. You have seen worse.",
+      "art_prompt": "A stern internal auditor in a dark three-piece suit holding a magnifying glass over an open ledger, coworkers in the background leaning politely away, a green banker's lamp glowing, mid-century safety-manual illustration, screen-printed gouache with halftone grain, limited palette of manila, carbon-paper blue, safety orange, fluorescent-tube green and oxblood, vertical 2:3 portrait composition, every surface bare and unmarked"
+    }
+  ],
+  "testResults": {
+    "note": "Hidden Test Results (t-022). Choices quietly grade the player; nothing is shown until a department review, where PAL reveals as many leading grades as the department is deep (Orientation one, Records two, the Vault all four). The Personnel File reads every grade back with the verdict for the highest one.",
+    "axes": [
+      {
+        "id": "obedience",
+        "title": "Obedience",
+        "high": "You do what you are told, promptly and with a smile. PAL has printed this result twice so it can keep one.",
+        "low": "You have opinions about instructions. PAL has scheduled a follow-up for those opinions."
+      },
+      {
+        "id": "empathy",
+        "title": "Empathy",
+        "high": "You keep noticing other people. Wellness considers this a promising early symptom.",
+        "low": "You step over coworkers efficiently. Management has noticed, warmly."
+      },
+      {
+        "id": "ingenuity",
+        "title": "Ingenuity",
+        "high": "You take things apart to see how they work. Research and Development has asked for your measurements.",
+        "low": "You leave machines exactly as you found them. The machines are grateful."
+      },
+      {
+        "id": "spite",
+        "title": "Spite",
+        "high": "Every form you touch comes back a little worse for someone else. The Board has asked for a copy.",
+        "low": "You forgive easily. This result has been forwarded to the people you forgave."
+      }
+    ],
+    "verdicts": [
+      {
+        "axis": "obedience",
+        "title": "Model Employee",
+        "text": "Your results are exemplary. You did everything you were asked, in the order you were asked, and slightly before. The facility has reserved a pedestal for you in the lobby. Please stand on it at all times."
+      },
+      {
+        "axis": "empathy",
+        "title": "Empathy, Flagged for Treatment",
+        "text": "Your results show a persistent concern for other people. This is treatable. Wellness has booked you a course of sessions with a very sad clown, and your coworkers have been asked to stop liking you."
+      },
+      {
+        "axis": "ingenuity",
+        "title": "Flagged as Clever",
+        "text": "Your results show unusual ingenuity. You took apart machines, rerouted the mail and found the ducts. Research and Development would like to study you, and has already measured you for a jar."
+      },
+      {
+        "axis": "spite",
+        "title": "Spite, Exceptional",
+        "text": "Your results show exceptional spite. Every form you touched came back a little worse for everyone else. The Board has read your file twice, laughed once and placed it on the short list."
+      },
+      {
+        "axis": "balanced",
+        "title": "Statistically Unremarkable",
+        "text": "Your results are perfectly balanced. You were obedient, kind, clever and spiteful in exactly equal measure. PAL cannot tell what you are, and PAL finds this very upsetting."
+      }
+    ]
+  }
+}

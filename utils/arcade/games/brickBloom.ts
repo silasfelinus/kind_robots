@@ -14,8 +14,53 @@
 // crates that take more hits, bolted crates that never break (from stage 4),
 // and a drifting gloom puff that knocks the ball off course (from stage 3).
 // Arrows move the paddle; A launches (or lets go of) the ball.
+//
+// Depth pass, slice 1 (conductor kr-arcade/t-078, "The Glasshouse Grand Tour"): walls are authored
+// data (utils/arcade/brickBloom/walls.ts); cracked crates send flowers down to plant the Bloom Bed,
+// and a plot in full bloom bounces a missed ball back once. The Pollen Chain multiplies crates
+// cracked between paddle touches, Last-Crate Rush sends Bumble in for the last four, B right after
+// a paddle hit while moving is the Leaf Curl, the ball glows hotter as it speeds up, the roof glass
+// chimes for a double, and sprout, hinge and puffball crates plus the R, T and Q seeds join in.
+// The rules' numbers live in utils/arcade/brickBloom/rules.ts.
 
 import { levelCurve } from '../curve'
+import {
+  BALL_R,
+  BUMBLE_TAP_TICKS,
+  CHIME_MULT,
+  COMPASS_TICKS,
+  CURL_TICKS,
+  CURL_TURN,
+  CURL_WINDOW,
+  FULL_BLOOM,
+  HEAT_COLORS,
+  LEFT,
+  PLOTS,
+  RAIN_EVERY,
+  RAIN_TICKS,
+  RIGHT,
+  THORN_TICKS,
+  TOP,
+  W,
+  ballHeat,
+  bedSave,
+  cashIn,
+  chainColor,
+  chainMultiplier,
+  coolSpeed,
+  curlDirection,
+  newBed,
+  plantPetal,
+  plotCenter,
+  predictPath,
+  rotate,
+  rushActive,
+  rushBonus,
+  steerToward,
+} from '../brickBloom/rules'
+import type { Bed } from '../brickBloom/rules'
+import { COLS, ROWS, parseWall, wallFor } from '../brickBloom/walls'
+import type { CrateKind } from '../brickBloom/walls'
 import { drawText } from '../font'
 import {
   INK,
@@ -47,18 +92,11 @@ import type {
   InputFrame,
 } from '../types'
 
-const W = 256
 const H = 320
-const LEFT = 8
-const RIGHT = W - 8
-const TOP = 26
 const PADDLE_Y = 296
 const PADDLE_H = 6
 const PADDLE_W = 36
 const WIDE_W = 56
-const BALL_R = 2.5
-const COLS = 12
-const ROWS = 9
 const BRICK_W = (RIGHT - LEFT) / COLS
 const BRICK_H = 10
 const BRICK_TOP = 48
@@ -69,6 +107,14 @@ const LOST_TICKS = 70
 const POWER_TICKS = 60 * 14
 const EXTRA_AT = [20_000, 60_000, 120_000]
 const MAX_BALLS = 5
+/** Where a missed ball meets the Bloom Bed, and where the bed's flowers stand. */
+const BED_SAVE_Y = 306
+const BED_FEET = H - 1
+/** Hinge crates swing shut for the first HINGE_SHUT ticks of every HINGE_PERIOD. */
+const HINGE_PERIOD = 150
+const HINGE_SHUT = 100
+const PETAL_SPEED = 1.3
+const DROPLET_SPEED = 4
 
 /** Crate colours by row, top first (the top rows score more). */
 const ROW_COLORS = [
@@ -98,14 +144,17 @@ export const BLOOM_CURVES = {
   puffs: { start: -1, step: 0.5, limit: 2 },
 } as const
 
-type Seed = 'W' | 'S' | 'M' | 'C' | '+'
-const SEEDS: Seed[] = ['W', 'W', 'S', 'M', 'M', 'C', 'C', '+']
+type Seed = 'W' | 'S' | 'M' | 'C' | '+' | 'R' | 'T' | 'Q'
+const SEEDS: Seed[] = ['W', 'W', 'S', 'M', 'M', 'C', 'C', '+', 'R', 'T', 'Q']
 const SEED_COLORS: Record<Seed, string> = {
   W: '#38bdf8',
   S: '#4ade80',
   M: '#f472b6',
   C: '#c4b5fd',
   '+': '#fde047',
+  R: '#67e8f9',
+  T: '#fb7185',
+  Q: '#e879f9',
 }
 
 type Brick = {
@@ -115,6 +164,9 @@ type Brick = {
   maxHp: number
   /** Bolted crates never break and don't count toward clearing. */
   bolt: boolean
+  kind: CrateKind
+  /** A hinge crate swings open on a beat and the ball passes through. */
+  open: boolean
   flash: number
 }
 type Ball = {
@@ -124,6 +176,12 @@ type Ball = {
   vy: number
   /** Riding the paddle (serve or sticky catch), at this offset. */
   stuck: number | null
+  /** Ticks of Leaf Curl left, and which way it bends. */
+  curl: number
+  curlDir: number
+  /** Ticks since the paddle last hit it, and the paddle's direction then (the curl window). */
+  since: number
+  hitDir: number
 }
 type Drop = { x: number; y: number; kind: Seed }
 type Puff = { x: number; y: number; vx: number; vy: number; hp: number }
@@ -136,23 +194,11 @@ type Particle = {
   life: number
   color: string
 }
+/** A cracked crate's flower, falling to plant itself in the Bloom Bed. */
+type Petal = { x: number; y: number; color: string }
+type Droplet = { x: number; y: number }
+type Bumble = { x: number; y: number; angle: number; tap: number }
 type Floater = { x: number; y: number; text: string; life: number }
-
-/** Wall patterns: true where a crate stands. They cycle stage by stage. */
-const PATTERNS: Array<(c: number, r: number) => boolean> = [
-  // Full bands.
-  (_c, r) => r >= 1 && r <= 6,
-  // Pyramid.
-  (c, r) => r >= 1 && r <= 7 && Math.abs(c - 5.5) <= r - 0.5,
-  // Checkerboard.
-  (c, r) => r <= 7 && (c + r) % 2 === 0,
-  // Diamond.
-  (c, r) => Math.abs(c - 5.5) + Math.abs(r - 4) <= 5,
-  // Two towers and a bridge.
-  (c, r) => r <= 7 && (c <= 2 || c >= 9 || r === 1 || r === 2),
-  // Stripes with gaps.
-  (c, r) => r % 2 === 0 && c % 4 !== 3,
-]
 
 // --- 16-bit art (utils/arcade/snes.ts) -------------------------------------------
 
@@ -228,6 +274,9 @@ function crateSprite(
 const CRATE_SPRITES = ROW_RAMPS.map((r) => crateSprite(r, 'crate'))
 const BOLT_SPRITE = crateSprite(RAMPS.steel, 'bolt')
 const FLASH_SPRITE = crateSprite(RAMPS.cream, 'flash')
+const SPROUT_CRATE = crateSprite(RAMPS.leaf, 'crate')
+const HINGE_CRATE = crateSprite(RAMPS.earth, 'crate')
+const PUFF_CRATE = crateSprite(RAMPS.pink, 'crate')
 
 /**
  * The paddle bot: a lit tray with pink bumper caps and an inked visor with two shining eyes
@@ -417,6 +466,9 @@ const CAPSULE_SPRITES: Record<Seed, readonly PixelSprite[]> = {
   M: capsuleFrames('M'),
   C: capsuleFrames('C'),
   '+': capsuleFrames('+'),
+  R: capsuleFrames('R'),
+  T: capsuleFrames('T'),
+  Q: capsuleFrames('Q'),
 }
 
 const GLOOM: Ramp = ['#1a1430', '#3a3058', '#5a5080', '#8a82ae', '#c8c2e0']
@@ -554,7 +606,7 @@ function paintGarden(k: CanvasRenderingContext2D, t: Theme) {
   })
   k.fillStyle = t.nearRim
   for (const f of HEDGE_FLECKS) k.fillRect(f.x, f.y, 2, 1)
-  // The soil bed, furrowed, with sprouts and a few early blooms.
+  // The soil bed, furrowed; the live Bloom Bed is drawn over it.
   bandedGradient(
     k,
     0,
@@ -571,13 +623,6 @@ function paintGarden(k: CanvasRenderingContext2D, t: Theme) {
     k.fillRect(x, SOIL_TOP + 5 + ((x >> 3) % 2) * 5, 4, 1)
     k.fillStyle = RAMPS.earth[3]
     k.fillRect(x + 1, SOIL_TOP + 4 + ((x >> 3) % 2) * 5, 2, 1)
-  }
-  for (let i = 0, x = 18; x < W - 12; i++, x += 19) {
-    const sprite =
-      i % 3 === 1
-        ? FLOWER_SPRITES[FLOWER_COLORS[i % FLOWER_COLORS.length]!]![2]!
-        : SPROUT_SPRITE
-    drawSprite(k, sprite, x, SOIL_TOP + 2, { anchor: 'feet' })
   }
   // Trellis posts with climbing ivy, and the roof beam with ivy hanging from it.
   for (const x of [1, RIGHT + 1]) {
@@ -626,6 +671,20 @@ class BrickBloom implements ArcadeGameInstance {
   private wide = 0
   private sticky = 0
   private calm = 0
+  /** Seconds of the new seeds still working: Rain Spray, Thorn Ball, Queen's Compass. */
+  private rain = 0
+  private thorn = 0
+  private compass = 0
+  private bed: Bed = newBed()
+  private petals: Petal[] = []
+  private droplets: Droplet[] = []
+  private bumble: Bumble | null = null
+  /** Crates cracked since the paddle last touched a ball: the Pollen Chain. */
+  private chain = 0
+  private bestChain = 0
+  /** The roof glass rang since the last crate: the next one pays double. */
+  private chime = false
+  private rushTicks = 0
   private bricks: Brick[] = []
   private balls: Ball[] = []
   private drops: Drop[] = []
@@ -660,29 +719,31 @@ class BrickBloom implements ArcadeGameInstance {
 
   private startStage(stage: number) {
     this.level = stage
-    const pattern = PATTERNS[(stage - 1) % PATTERNS.length]!
     const tough = Math.round(levelCurve(stage, BLOOM_CURVES.tough))
     this.bricks = []
-    for (let r = 0; r < ROWS; r++) {
-      for (let c = 0; c < COLS; c++) {
-        if (!pattern(c, r)) continue
-        // The top rows are the toughest.
-        const hp = Math.max(1, tough - Math.floor(r / 3))
-        this.bricks.push({
-          col: c,
-          row: r,
-          hp,
-          maxHp: hp,
-          bolt: false,
-          flash: 0,
-        })
-      }
+    for (const cell of parseWall(wallFor(stage))) {
+      // The top rows are the toughest; special crates take one hit and let the wall's shape play.
+      const plain = cell.kind === 'crate' || cell.kind === 'bolt'
+      const hp = plain ? Math.max(1, tough - Math.floor(cell.row / 3)) : 1
+      this.bricks.push({
+        col: cell.col,
+        row: cell.row,
+        hp,
+        maxHp: hp,
+        bolt: cell.kind === 'bolt',
+        kind: cell.kind,
+        open: false,
+        flash: 0,
+      })
     }
     const bolts = Math.max(0, Math.round(levelCurve(stage, BLOOM_CURVES.bolts)))
     for (let i = 0; i < bolts && this.bricks.length > 12; i++) {
       const pick = this.bricks[Math.floor(this.rng() * this.bricks.length)]!
       // Keep the top row breakable, so no wall is sealed shut.
-      if (pick.row > 0) pick.bolt = true
+      if (pick.row > 0 && pick.kind === 'crate') {
+        pick.bolt = true
+        pick.kind = 'bolt'
+      }
     }
     this.puffs = []
     const puffs = Math.max(0, Math.round(levelCurve(stage, BLOOM_CURVES.puffs)))
@@ -700,6 +761,15 @@ class BrickBloom implements ArcadeGameInstance {
     this.wide = 0
     this.sticky = 0
     this.calm = 0
+    this.rain = 0
+    this.thorn = 0
+    this.compass = 0
+    this.droplets = []
+    this.petals = []
+    this.bumble = null
+    this.chain = 0
+    this.chime = false
+    this.rushTicks = 0
     this.serve()
     this.banner = {
       text: `STAGE ${stage}`,
@@ -709,10 +779,22 @@ class BrickBloom implements ArcadeGameInstance {
   }
 
   private serve() {
-    this.balls = [
-      { x: this.paddleX, y: PADDLE_Y - BALL_R - 1, vx: 0, vy: 0, stuck: 0 },
-    ]
+    this.balls = [this.newBall(this.paddleX, PADDLE_Y - BALL_R - 1, 0, 0, 0)]
     this.serveTimer = SERVE_TICKS
+  }
+
+  private newBall(
+    x: number,
+    y: number,
+    vx: number,
+    vy: number,
+    stuck: number | null,
+  ): Ball {
+    return { x, y, vx, vy, stuck, curl: 0, curlDir: 0, since: 999, hitDir: 0 }
+  }
+
+  private get breakable(): Brick[] {
+    return this.bricks.filter((b) => !b.bolt)
   }
 
   private brickRect(b: Brick) {
@@ -748,12 +830,126 @@ class BrickBloom implements ArcadeGameInstance {
     if (this.wide > 0) this.wide--
     if (this.sticky > 0) this.sticky--
     if (this.calm > 0) this.calm--
+    if (this.rain > 0) this.rain--
+    if (this.thorn > 0) this.thorn--
+    if (this.compass > 0) this.compass--
     this.movePaddle(controls)
+    this.updateHinges()
     this.updateBalls(controls)
     this.updateDrops()
+    this.updatePetals()
+    this.updateRain()
+    this.updateRush()
     this.updatePuffs()
     for (const b of this.bricks) if (b.flash > 0) b.flash--
     if (!this.bricks.some((b) => !b.bolt)) this.stageClear()
+  }
+
+  /** Hinge crates swing on a beat; one stays open while a ball is inside it, so none traps a ball. */
+  private updateHinges() {
+    const shut = this.tick % HINGE_PERIOD < HINGE_SHUT
+    for (const b of this.bricks) {
+      if (b.kind !== 'hinge') continue
+      const r = this.brickRect(b)
+      const occupied = this.balls.some(
+        (ball) =>
+          ball.x + BALL_R > r.x - 1 &&
+          ball.x - BALL_R < r.x + r.w + 1 &&
+          ball.y + BALL_R > r.y - 1 &&
+          ball.y - BALL_R < r.y + r.h + 1,
+      )
+      b.open = !shut || (b.open && occupied)
+    }
+  }
+
+  /** Cracked crates' flowers fall into the Bloom Bed and plant where they land. */
+  private updatePetals() {
+    for (const p of this.petals) {
+      p.y += PETAL_SPEED
+      if (p.y < BED_SAVE_Y) continue
+      const { plot, bloomed } = plantPetal(this.bed, p.x)
+      this.addScore(10, plotCenter(plot), BED_SAVE_Y - 10)
+      if (bloomed) {
+        this.floaters.push({
+          x: plotCenter(plot),
+          y: BED_SAVE_Y - 16,
+          text: 'IN BLOOM!',
+          life: 44,
+        })
+        this.fx.burst(plotCenter(plot), BED_SAVE_Y, this.fxRng, {
+          count: 8,
+          colours: [RAMPS.leaf[4], RAMPS.gold[4], p.color],
+        })
+        this.sound.play('pickup')
+      }
+      p.y = H + 99
+    }
+    this.petals = this.petals.filter((p) => p.y < H + 10)
+  }
+
+  /** Rain Spray: droplets leave the paddle and chip the first crate they meet. */
+  private updateRain() {
+    if (this.rain > 0 && this.rain % RAIN_EVERY === 0)
+      this.droplets.push({ x: this.paddleX, y: PADDLE_Y - 3 })
+    for (const d of this.droplets) {
+      d.y -= DROPLET_SPEED
+      const hit = this.bricks.find((b) => {
+        if (b.kind === 'hinge' && b.open) return false
+        const r = this.brickRect(b)
+        return d.x >= r.x && d.x <= r.x + r.w && d.y <= r.y + r.h && d.y >= r.y
+      })
+      if (hit) {
+        d.y = -99
+        this.crack(hit)
+      }
+    }
+    this.droplets = this.droplets.filter((d) => d.y > TOP)
+  }
+
+  /** Last-Crate Rush: with four or fewer crates left, Bumble the bee loops in and taps the nearest. */
+  private updateRush() {
+    const left = this.breakable
+    if (!rushActive(left.length)) {
+      this.bumble = null
+      return
+    }
+    this.rushTicks++
+    const near = (x: number, y: number) =>
+      [...left].sort((a, b) => {
+        const ra = this.brickRect(a)
+        const rb = this.brickRect(b)
+        return (
+          Math.hypot(ra.x + ra.w / 2 - x, ra.y + ra.h / 2 - y) -
+          Math.hypot(rb.x + rb.w / 2 - x, rb.y + rb.h / 2 - y)
+        )
+      })[0]!
+    if (!this.bumble) {
+      this.bumble = {
+        x: this.paddleX,
+        y: PADDLE_Y - 40,
+        angle: 0,
+        tap: Math.floor(BUMBLE_TAP_TICKS / 2),
+      }
+      this.floaters.push({ x: W / 2, y: 170, text: 'LAST CRATES!', life: 60 })
+    }
+    const bee = this.bumble
+    const target = near(bee.x, bee.y)
+    const r = this.brickRect(target)
+    bee.angle += 0.14
+    const gx = r.x + r.w / 2 + Math.cos(bee.angle) * 15
+    const gy = r.y + r.h / 2 + Math.sin(bee.angle * 1.3) * 9
+    bee.x += (gx - bee.x) * 0.12
+    bee.y += (gy - bee.y) * 0.12
+    if (--bee.tap <= 0) {
+      bee.tap = BUMBLE_TAP_TICKS
+      this.floaters.push({
+        x: r.x + r.w / 2,
+        y: r.y - 4,
+        text: 'BZZT',
+        life: 24,
+      })
+      this.crack(target)
+    }
   }
 
   private movePaddle(input: InputFrame) {
@@ -794,6 +990,45 @@ class BrickBloom implements ArcadeGameInstance {
           this.launch(ball)
         continue
       }
+      ball.since++
+      // Leaf Curl: B just after a paddle hit, while the paddle was moving, bends the ball.
+      if (
+        input.pressed.b &&
+        ball.curl === 0 &&
+        ball.hitDir !== 0 &&
+        ball.since <= CURL_WINDOW
+      ) {
+        ball.curl = CURL_TICKS
+        ball.curlDir = ball.hitDir
+        this.floaters.push({ x: ball.x, y: ball.y - 8, text: 'CURL', life: 24 })
+        this.sound.play('blip')
+      }
+      if (ball.curl > 0) {
+        ball.curl--
+        const bent = rotate(ball.vx, ball.vy, ball.curlDir * CURL_TURN)
+        ball.vx = bent.vx
+        ball.vy = bent.vy
+      }
+      // Last-Crate Rush: a gentle 10% steer toward the nearest crate that is left.
+      if (this.bumble) {
+        const near = this.breakable
+          .map((b) => this.brickRect(b))
+          .sort(
+            (a, b) =>
+              Math.hypot(a.x + a.w / 2 - ball.x, a.y + a.h / 2 - ball.y) -
+              Math.hypot(b.x + b.w / 2 - ball.x, b.y + b.h / 2 - ball.y),
+          )[0]
+        if (near) {
+          const steered = steerToward(
+            ball.vx,
+            ball.vy,
+            near.x + near.w / 2 - ball.x,
+            near.y + near.h / 2 - ball.y,
+          )
+          ball.vx = steered.vx
+          ball.vy = steered.vy
+        }
+      }
       // Step in small pieces so a fast ball never tunnels through a crate.
       const v = Math.hypot(ball.vx, ball.vy) * calmFactor
       const steps = Math.max(1, Math.ceil(v / 1.5))
@@ -803,6 +1038,28 @@ class BrickBloom implements ArcadeGameInstance {
           (ball.vx * calmFactor) / steps,
           (ball.vy * calmFactor) / steps,
         )
+      }
+      // A plot in full bloom bounces a missed ball back up once, and cools it a step.
+      if (ball.stuck === null && ball.vy > 0 && ball.y >= BED_SAVE_Y) {
+        const plot = bedSave(this.bed, ball.x)
+        if (plot !== null) {
+          const speed = Math.hypot(ball.vx, ball.vy)
+          const cooled = coolSpeed(speed)
+          ball.vx *= cooled / speed
+          ball.vy = -Math.abs(ball.vy * (cooled / speed))
+          ball.y = BED_SAVE_Y - 1
+          this.floaters.push({
+            x: plotCenter(plot),
+            y: BED_SAVE_Y - 16,
+            text: 'BLOOM SAVE!',
+            life: 50,
+          })
+          this.fx.burst(plotCenter(plot), BED_SAVE_Y, this.fxRng, {
+            count: 12,
+            colours: [RAMPS.leaf[4], RAMPS.gold[4], '#f9a8d4'],
+          })
+          this.sound.play('extra')
+        }
       }
       // Never let a ball settle into a near-flat bounce that loops forever.
       const s = Math.hypot(ball.vx, ball.vy)
@@ -827,20 +1084,27 @@ class BrickBloom implements ArcadeGameInstance {
     }
     const hitX = this.hitBrick(ball)
     if (hitX) {
-      ball.x -= dx
-      ball.vx = -ball.vx
-      this.crack(hitX)
+      if (this.thorn > 0 && !hitX.bolt) this.pierce(hitX)
+      else {
+        ball.x -= dx
+        ball.vx = -ball.vx
+        this.crack(hitX)
+      }
     }
     ball.y += dy
     if (ball.y < TOP + BALL_R) {
       ball.y = TOP + BALL_R
       ball.vy = Math.abs(ball.vy)
+      this.ringRoof(ball)
     }
     const hitY = this.hitBrick(ball)
     if (hitY) {
-      ball.y -= dy
-      ball.vy = -ball.vy
-      this.crack(hitY)
+      if (this.thorn > 0 && !hitY.bolt) this.pierce(hitY)
+      else {
+        ball.y -= dy
+        ball.vy = -ball.vy
+        this.crack(hitY)
+      }
     }
     this.hitPaddle(ball)
     for (const puff of this.puffs) {
@@ -854,8 +1118,23 @@ class BrickBloom implements ArcadeGameInstance {
     }
   }
 
+  /** The Thorn Ball goes straight through a crate: it breaks outright and the ball flies on. */
+  private pierce(b: Brick) {
+    b.hp = 1
+    this.crack(b)
+  }
+
+  /** The roof glass rings, and the next crate pays double. */
+  private ringRoof(ball: Ball) {
+    if (this.chime) return
+    this.chime = true
+    this.floaters.push({ x: ball.x, y: TOP + 14, text: 'CHIME x2', life: 40 })
+    this.sound.play('pickup')
+  }
+
   private hitBrick(ball: Ball): Brick | undefined {
     return this.bricks.find((b) => {
+      if (b.kind === 'hinge' && b.open) return false
       const r = this.brickRect(b)
       return (
         ball.x + BALL_R > r.x &&
@@ -877,6 +1156,7 @@ class BrickBloom implements ArcadeGameInstance {
     )
       return
     const offset = Math.max(-1, Math.min(1, (ball.x - this.paddleX) / half))
+    this.cashChain(ball)
     if (this.sticky > 0) {
       ball.stuck = ball.x - this.paddleX
       ball.vx = 0
@@ -891,7 +1171,25 @@ class BrickBloom implements ArcadeGameInstance {
     ball.vx = Math.cos(angle) * speed + this.paddleV * 0.08
     ball.vy = Math.sin(angle) * speed
     ball.y = PADDLE_Y - BALL_R - 0.1
+    ball.since = 0
+    ball.hitDir = curlDirection(this.paddleV)
+    ball.curl = 0
     this.sound.play('blip')
+  }
+
+  /** Touching the paddle cashes the Pollen Chain in. */
+  private cashChain(ball: Ball) {
+    const bonus = cashIn(this.chain)
+    if (bonus > 0) {
+      this.addScore(bonus, ball.x, PADDLE_Y - 14)
+      this.floaters.push({
+        x: ball.x,
+        y: PADDLE_Y - 24,
+        text: `CHAIN x${Math.min(this.chain, 8)}`,
+        life: 44,
+      })
+    }
+    this.chain = 0
   }
 
   private crack(b: Brick) {
@@ -904,14 +1202,23 @@ class BrickBloom implements ArcadeGameInstance {
     const r = this.brickRect(b)
     const cx = r.x + r.w / 2
     const cy = r.y + r.h / 2
+    // The roof chime doubles the next crate's points, chip or crack.
+    const chimed = this.chime ? CHIME_MULT : 1
+    this.chime = false
     if (b.hp > 0) {
       this.sound.play('blip')
-      this.addScore(5, cx, cy)
+      this.addScore(5 * chimed, cx, cy)
       return
     }
+    // Pollen Chain: every crate cracked between paddle touches pays more than the last.
+    const link = chainMultiplier(this.chain)
+    this.chain++
+    this.bestChain = Math.max(this.bestChain, this.chain)
     this.bricks = this.bricks.filter((o) => o !== b)
-    const points = (ROWS - b.row) * 10 * b.maxHp
+    const points = (ROWS - b.row) * 10 * b.maxHp * link * chimed
     this.addScore(points, cx, cy - 4)
+    if (link > 1 && !this.demo)
+      this.floaters.push({ x: cx, y: cy + 6, text: `x${link}`, life: 30 })
     this.burst(cx, cy, 6, ROW_COLORS[b.row]!)
     const ramp = ROW_RAMPS[b.row]!
     this.fx.burst(cx, cy, this.fxRng, {
@@ -919,14 +1226,16 @@ class BrickBloom implements ArcadeGameInstance {
       colours: [ramp[4], ramp[3], RAMPS.gold[4]],
       speed: 1.4,
     })
-    // A flower blooms where the crate was and floats away.
+    // A flower blooms where the crate was and floats away; a petal falls to plant the Bloom Bed.
+    const color = FLOWER_COLORS[Math.floor(this.rng() * FLOWER_COLORS.length)]!
     this.flowers.push({
       x: cx,
       y: cy,
       vy: -0.4 - this.rng() * 0.3,
       life: 70,
-      color: FLOWER_COLORS[Math.floor(this.rng() * FLOWER_COLORS.length)]!,
+      color,
     })
+    this.petals.push({ x: cx, y: cy, color })
     this.sound.play('pop')
     // Speed up a touch with every crate, up to the stage's cap.
     const max = levelCurve(this.level, BLOOM_CURVES.maxSpeed)
@@ -937,12 +1246,25 @@ class BrickBloom implements ArcadeGameInstance {
         ball.vy *= (s + 0.015) / s
       }
     }
-    if (this.rng() < levelCurve(this.level, BLOOM_CURVES.seedChance))
+    // A sprout crate always drops a seed; the rest drop one by chance.
+    if (
+      b.kind === 'sprout' ||
+      this.rng() < levelCurve(this.level, BLOOM_CURVES.seedChance)
+    )
       this.drops.push({
         x: cx,
         y: cy,
         kind: SEEDS[Math.floor(this.rng() * SEEDS.length)]!,
       })
+    // A puffball bursts: it cracks all eight neighbours, so chains can run.
+    if (b.kind === 'puffball') {
+      this.fx.burst(cx, cy, this.fxRng, { count: 12, speed: 2 })
+      for (const o of this.bricks.slice()) {
+        if (o.bolt || !this.bricks.includes(o)) continue
+        if (Math.abs(o.col - b.col) <= 1 && Math.abs(o.row - b.row) <= 1)
+          this.crack(o)
+      }
+    }
   }
 
   private updateDrops() {
@@ -974,6 +1296,9 @@ class BrickBloom implements ArcadeGameInstance {
       M: 'MULTI!',
       C: 'CALM!',
       '+': 'SPARE PADDLE!',
+      R: 'RAIN SPRAY!',
+      T: 'THORN BALL!',
+      Q: "QUEEN'S COMPASS!",
     }
     this.floaters.push({
       x: this.paddleX,
@@ -984,6 +1309,9 @@ class BrickBloom implements ArcadeGameInstance {
     if (kind === 'W') this.wide = POWER_TICKS
     if (kind === 'S') this.sticky = POWER_TICKS
     if (kind === 'C') this.calm = POWER_TICKS
+    if (kind === 'R') this.rain = RAIN_TICKS
+    if (kind === 'T') this.thorn = THORN_TICKS
+    if (kind === 'Q') this.compass = COMPASS_TICKS
     if (kind === '+') {
       this.lives++
       this.sound.play('extra')
@@ -996,13 +1324,9 @@ class BrickBloom implements ArcadeGameInstance {
       for (const turn of [-0.5, 0.5]) {
         if (this.balls.length >= MAX_BALLS) break
         const a = Math.atan2(free.vy, free.vx) + turn
-        this.balls.push({
-          x: free.x,
-          y: free.y,
-          vx: Math.cos(a) * s,
-          vy: Math.sin(a) * s,
-          stuck: null,
-        })
+        this.balls.push(
+          this.newBall(free.x, free.y, Math.cos(a) * s, Math.sin(a) * s, null),
+        )
       }
     }
   }
@@ -1035,6 +1359,12 @@ class BrickBloom implements ArcadeGameInstance {
     this.wide = 0
     this.sticky = 0
     this.calm = 0
+    this.rain = 0
+    this.thorn = 0
+    this.compass = 0
+    this.droplets = []
+    this.chain = 0
+    this.chime = false
     this.drops = []
     this.burst(this.paddleX, PADDLE_Y, 12, '#f9a8d4')
     this.sound.play('die')
@@ -1042,13 +1372,20 @@ class BrickBloom implements ArcadeGameInstance {
   }
 
   private stageClear() {
-    const bonus = 1000 * this.level
+    // Cash in the chain, plant every petal still falling, and pay the Last-Crate Rush bonus.
+    const rush = this.rushTicks > 0 ? rushBonus(this.rushTicks) : 0
+    const bonus = 1000 * this.level + rush + cashIn(this.chain)
     this.addScore(bonus, W / 2, 180)
+    for (const petal of this.petals) plantPetal(this.bed, petal.x)
+    this.petals = []
+    this.droplets = []
+    this.bumble = null
+    this.chain = 0
     this.balls = []
     this.clear = CLEAR_TICKS
     this.banner = {
       text: 'STAGE IN BLOOM!',
-      sub: `BONUS ${bonus}`,
+      sub: rush > 0 ? `BONUS ${bonus} · RUSH ${rush}` : `BONUS ${bonus}`,
       ticks: CLEAR_TICKS,
     }
     this.sound.play('level')
@@ -1181,7 +1518,17 @@ class BrickBloom implements ArcadeGameInstance {
   render(g: CanvasRenderingContext2D) {
     this.renderGarden(g)
     this.renderWall(g)
+    this.renderBed(g)
+    if (this.compass > 0) this.renderCompass(g)
     for (const f of this.flowers) this.renderFlower(g, f)
+    for (const p of this.petals) this.renderPetal(g, p)
+    for (const d of this.droplets) {
+      g.fillStyle = INK
+      g.fillRect(Math.round(d.x) - 1, Math.round(d.y) - 1, 3, 5)
+      g.fillStyle = SEED_COLORS.R
+      g.fillRect(Math.round(d.x), Math.round(d.y), 1, 3)
+    }
+    if (this.bumble) this.renderBumble(g, this.bumble)
     for (const p of this.puffs) this.renderPuff(g, p)
     for (const d of this.drops) this.renderDrop(g, d)
     this.renderPaddle(g)
@@ -1244,9 +1591,38 @@ class BrickBloom implements ArcadeGameInstance {
       ? FLASH_SPRITE
       : b.bolt
         ? BOLT_SPRITE
-        : CRATE_SPRITES[b.row]!
-    drawSprite(g, sprite, x - 1, y - 1, { anchor: 'topleft' })
+        : b.kind === 'sprout'
+          ? SPROUT_CRATE
+          : b.kind === 'hinge'
+            ? HINGE_CRATE
+            : b.kind === 'puffball'
+              ? PUFF_CRATE
+              : CRATE_SPRITES[b.row]!
+    // An open hinge crate is a ghost the ball flies through.
+    drawSprite(g, sprite, x - 1, y - 1, {
+      anchor: 'topleft',
+      alpha: b.open ? 0.3 : 1,
+    })
+    if (b.kind === 'hinge') {
+      g.fillStyle = INK
+      for (const px of [x, x + CRATE_W - 2]) g.fillRect(px, y + 2, 2, 4)
+    }
     if (b.bolt || b.flash) return
+    if (b.kind === 'sprout')
+      drawSprite(g, SPROUT_SPRITE, x + CRATE_W / 2, y + CRATE_H - 1, {
+        anchor: 'feet',
+      })
+    if (b.kind === 'puffball') {
+      const pulse = Math.floor(this.tick / 10) % 2
+      g.fillStyle = RAMPS.pink[4]
+      for (const [px, py] of [
+        [x, y],
+        [x + CRATE_W - 1, y],
+        [x, y + CRATE_H - 1],
+        [x + CRATE_W - 1, y + CRATE_H - 1],
+      ] as const)
+        g.fillRect(px - pulse, py - pulse, 1, 1)
+    }
     // Cracks as it weakens, and gold studs for the hits it has left.
     const w = CRATE_W
     if (b.hp < b.maxHp) {
@@ -1367,7 +1743,14 @@ class BrickBloom implements ArcadeGameInstance {
   }
 
   private renderBall(g: CanvasRenderingContext2D, ball: Ball) {
-    const colour = this.calm > 0 ? SEED_COLORS.C : RAMPS.gold[3]
+    const heat = ballHeat(Math.hypot(ball.vx, ball.vy))
+    const colour =
+      this.calm > 0
+        ? SEED_COLORS.C
+        : this.thorn > 0
+          ? SEED_COLORS.T
+          : HEAT_COLORS[heat]
+    const trailColour = this.chain > 0 ? chainColor(this.chain) : RAMPS.pink[2]
     const trail = this.trails.get(ball)
     if (trail) {
       g.save()
@@ -1376,14 +1759,91 @@ class BrickBloom implements ArcadeGameInstance {
         const t = (i + 1) / (trail.length + 1)
         const s = 1 + Math.round(t * 2)
         g.globalAlpha = t * 0.7
-        g.fillStyle = mix(RAMPS.pink[2], colour, t)
+        g.fillStyle = mix(trailColour, colour, t)
         g.fillRect(Math.round(p.x - s / 2), Math.round(p.y - s / 2), s, s)
       })
       g.restore()
     }
-    glow(g, ball.x, ball.y, 10, colour, 0.5)
+    glow(g, ball.x, ball.y, 10 + heat * 2, colour, 0.5 + heat * 0.1)
     const frame = Math.floor(this.tick / 5) % 2
     drawSprite(g, BALL_SPRITES[frame]!, ball.x, ball.y)
+  }
+
+  /** The Bloom Bed: eight plots, each a sprout, a bud or a bloom; a bloom is the safety net. */
+  private renderBed(g: CanvasRenderingContext2D) {
+    for (let plot = 0; plot < PLOTS; plot++) {
+      const cx = Math.round(plotCenter(plot))
+      const level = this.bed[plot]!
+      const colour = FLOWER_COLORS[plot % FLOWER_COLORS.length]!
+      g.fillStyle = RAMPS.earth[1]
+      g.fillRect(cx - 11, H - 5, 22, 5)
+      g.fillStyle = RAMPS.earth[3]
+      g.fillRect(cx - 11, H - 5, 22, 1)
+      for (let pip = 0; pip < FULL_BLOOM; pip++) {
+        g.fillStyle = pip < level ? RAMPS.gold[3] : RAMPS.earth[0]
+        g.fillRect(cx - 6 + pip * 5, H - 3, 3, 2)
+      }
+      if (level === 0) continue
+      if (level >= FULL_BLOOM) {
+        const bob = Math.round(Math.sin((this.tick + plot * 9) / 14))
+        glow(g, cx, BED_FEET - 12, 14, colour, 0.35)
+        drawSprite(g, FLOWER_SPRITES[colour]![2]!, cx, BED_FEET - 5 + bob, {
+          anchor: 'feet',
+          scale: 2,
+        })
+      } else if (level === 2) {
+        drawSprite(g, FLOWER_SPRITES[colour]![0]!, cx, BED_FEET - 5, {
+          anchor: 'feet',
+          scale: 2,
+        })
+      } else {
+        drawSprite(g, SPROUT_SPRITE, cx, BED_FEET - 5, {
+          anchor: 'feet',
+          scale: 2,
+        })
+      }
+    }
+  }
+
+  private renderPetal(g: CanvasRenderingContext2D, p: Petal) {
+    const x = Math.round(p.x + Math.sin((p.y + p.x) / 12) * 3)
+    glow(g, x, p.y, 7, p.color, 0.3)
+    drawSprite(g, FLOWER_SPRITES[p.color]![0]!, x, p.y)
+  }
+
+  private renderBumble(g: CanvasRenderingContext2D, bee: Bumble) {
+    const x = Math.round(bee.x)
+    const y = Math.round(bee.y)
+    const flap = Math.floor(this.tick / 2) % 2
+    glow(g, x, y, 9, RAMPS.gold[3], 0.3)
+    g.fillStyle = INK
+    g.fillRect(x - 5, y - 3, 10, 7)
+    g.fillStyle = RAMPS.gold[3]
+    g.fillRect(x - 4, y - 2, 8, 5)
+    g.fillStyle = INK
+    g.fillRect(x - 1, y - 2, 1, 5)
+    g.fillRect(x + 2, y - 2, 1, 5)
+    g.fillStyle = '#ffffff'
+    g.fillRect(x - 3, y - 6 + flap, 3, 2)
+    g.fillRect(x + 1, y - 6 + flap, 3, 2)
+    g.fillRect(x - 4, y - 1, 1, 1)
+  }
+
+  /** Queen's Compass: the ball's path two bounces ahead, dotted on the glass. */
+  private renderCompass(g: CanvasRenderingContext2D) {
+    const solids = this.bricks
+      .filter((b) => !(b.kind === 'hinge' && b.open))
+      .map((b) => this.brickRect(b))
+    for (const ball of this.balls) {
+      if (ball.stuck !== null) continue
+      const path = predictPath(ball, solids)
+      path.forEach((pt, i) => {
+        g.globalAlpha = Math.max(0.15, 0.8 - i * 0.012)
+        g.fillStyle = SEED_COLORS.Q
+        g.fillRect(Math.round(pt.x), Math.round(pt.y), 2, 2)
+      })
+    }
+    g.globalAlpha = 1
   }
 
   private renderHud(g: CanvasRenderingContext2D) {
@@ -1423,6 +1883,38 @@ class BrickBloom implements ArcadeGameInstance {
         gauge(g, px + 8, 14, 18, 3, left / POWER_TICKS, SEED_RAMPS[kind])
       })
     }
+    const extra: [Seed, number, number][] = []
+    if (this.rain > 0) extra.push(['R', this.rain, RAIN_TICKS])
+    if (this.thorn > 0) extra.push(['T', this.thorn, THORN_TICKS])
+    if (this.compass > 0) extra.push(['Q', this.compass, COMPASS_TICKS])
+    if (extra.length) {
+      hudPanel(g, 86, 22, 100, 14)
+      extra.forEach(([kind, left, max], i) => {
+        const px = 91 + i * 31
+        drawText(g, kind, px, 26, {
+          color: SEED_RAMPS[kind][3],
+          outline: INK,
+        })
+        gauge(g, px + 8, 28, 18, 3, left / max, SEED_RAMPS[kind])
+      })
+    }
+    if (this.chain >= 2)
+      drawText(g, `POLLEN x${Math.min(8, this.chain)}`, 6, 24, {
+        color: chainColor(this.chain),
+        outline: INK,
+      })
+    if (this.bumble)
+      drawText(g, `RUSH ${rushBonus(this.rushTicks)}`, W - 7, 24, {
+        align: 'right',
+        color: RAMPS.gold[3],
+        outline: INK,
+      })
+    else if (this.chime)
+      drawText(g, 'CHIME x2', W - 7, 24, {
+        align: 'right',
+        color: RAMPS.teal[3],
+        outline: INK,
+      })
     if (this.banner) {
       drawText(g, this.banner.text, W / 2, 200, {
         scale: 2,

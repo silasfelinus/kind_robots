@@ -63,8 +63,9 @@ export default defineEventHandler(async (event) => {
     const note = notes[pitch.slug] ?? ''
     if (choice === 'later') continue
     if (choice === 'approve-changes' && !note) {
-      problems[pitch.slug] =
-        'Approve with changes needs a note saying what to change. Nothing was saved for this one.'
+      problems[pitch.slug] = pitch.deliveryStatus
+        ? 'Modify needs a note describing the requested change. Nothing was saved for this one.'
+        : 'Approve with changes needs a note saying what to change. Nothing was saved for this one.'
       continue
     }
     try {
@@ -73,8 +74,13 @@ export default defineEventHandler(async (event) => {
         choice === 'pass' ? 'rejected' : 'approved',
         { notes: choice === 'pass' ? '' : note },
       )
-      const label =
-        choice === 'approve-changes'
+      const label = pitch.deliveryStatus
+        ? choice === 'approve-changes'
+          ? 'modification requested'
+          : choice === 'approve'
+            ? 'kept'
+            : 'rollback requested'
+        : choice === 'approve-changes'
           ? 'approved with changes'
           : choice === 'approve'
             ? 'approved'

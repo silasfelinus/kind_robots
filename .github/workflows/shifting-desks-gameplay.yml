@@ -1,0 +1,45 @@
+name: Shifting Desks gameplay contract
+permissions:
+  contents: read
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'utils/shiftingDesks/**'
+      - 'stores/shiftingDesksStore.ts'
+      - 'components/shifting-desks/**'
+      - 'pages/play/shifting-desks.vue'
+      - 'content/channels/projects/shifting-desks.md'
+      - 'public/shifting-desks/**'
+      - 'utils/scripts/verifyShiftingDesks.test.ts'
+      - 'utils/scripts/verifyShiftingDesksBalance.test.ts'
+      - 'utils/scripts/shiftingDesksBalanceReport.ts'
+      - '.github/workflows/shifting-desks-gameplay.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'utils/shiftingDesks/**'
+      - 'stores/shiftingDesksStore.ts'
+      - 'components/shifting-desks/**'
+      - 'pages/play/shifting-desks.vue'
+      - 'content/channels/projects/shifting-desks.md'
+      - 'public/shifting-desks/**'
+      - 'utils/scripts/verifyShiftingDesks.test.ts'
+      - 'utils/scripts/verifyShiftingDesksBalance.test.ts'
+      - 'utils/scripts/shiftingDesksBalanceReport.ts'
+      - '.github/workflows/shifting-desks-gameplay.yml'
+jobs:
+  contract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+      - run: npm ci
+        env:
+          CYPRESS_INSTALL_BINARY: '0'
+      - run: npx tsx utils/scripts/verifyShiftingDesks.test.ts
+      - run: npx tsx utils/scripts/verifyShiftingDesksBalance.test.ts

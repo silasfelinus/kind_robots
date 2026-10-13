@@ -14,9 +14,18 @@ import {
   recruitmentStatus,
   remainingRecoveryDays,
   scriptedFollowerDeath,
-  startEmperorCampaign,
 } from '~/utils/emperorOfDust/progression'
 import { advancePilotClock } from '~/utils/emperorOfDust/pilot'
+import {
+  acquireRelic,
+  chooseNextLoadout,
+  decodeRelicVault,
+  earnSecondSlot,
+  emptyRelicVault,
+  encodeRelicVault,
+  startWithRelics,
+} from '~/utils/emperorOfDust/relics'
+import type { RelicId, RelicVault } from '~/utils/emperorOfDust/relics'
 import {
   decodeEmperorSave,
   encodeEmperorSave,
@@ -24,10 +33,12 @@ import {
 import type { Campaign, Incident } from '~/utils/emperorOfDust/types'
 
 const SAVE_KEY = 'kr-emperor-of-dust-campaign-v1'
+const RELIC_KEY = 'kr-emperor-of-dust-relic-vault-v1'
 const newSeed = (): number => Date.now() >>> 0 || 1
 
 export const useEmperorOfDustStore = defineStore('emperorOfDust', () => {
   const campaign = ref<Campaign | null>(null)
+  const relicVault = ref<RelicVault>(emptyRelicVault())
   const loaded = ref(false)
   const storageWarning = ref('')
 
@@ -61,15 +72,22 @@ export const useEmperorOfDustStore = defineStore('emperorOfDust', () => {
     if (loaded.value) return
     if (typeof localStorage === 'undefined') return
     try {
+      const rawRelics = localStorage.getItem(RELIC_KEY)
+      const savedRelics = decodeRelicVault(rawRelics)
+      if (rawRelics && !savedRelics) {
+        storageWarning.value =
+          'The relic vault could not be read; it was not overwritten.'
+      }
+      relicVault.value = savedRelics ?? emptyRelicVault()
       const raw = localStorage.getItem(SAVE_KEY)
       const saved = decodeEmperorSave(raw)
       if (raw && !saved) {
         storageWarning.value =
           'An existing campaign could not be read. It was not overwritten.'
       }
-      campaign.value = saved ?? startEmperorCampaign(newSeed())
+      campaign.value = saved ?? startWithRelics(newSeed(), relicVault.value)
     } catch {
-      campaign.value = startEmperorCampaign(newSeed())
+      campaign.value = startWithRelics(newSeed(), emptyRelicVault())
       storageWarning.value =
         'Browser storage is blocked. This run may not persist.'
     }
@@ -85,7 +103,35 @@ export const useEmperorOfDustStore = defineStore('emperorOfDust', () => {
 
   function beginNewRun() {
     if (!loaded.value) load()
-    update(startEmperorCampaign(newSeed()))
+    update(startWithRelics(newSeed(), relicVault.value))
+  }
+
+  function saveRelics(next: RelicVault) {
+    if (!loaded.value || typeof localStorage === 'undefined')
+      throw new Error('Load the court first')
+    const encoded = encodeRelicVault(next)
+    try {
+      localStorage.setItem(RELIC_KEY, encoded)
+    } catch {
+      storageWarning.value =
+        'Relic unlock could not be saved. No change was made.'
+      throw new Error('Browser storage is full or unavailable for relics')
+    }
+    relicVault.value = next
+  }
+
+  function claimRelic(id: RelicId) {
+    if (!campaign.value) throw new Error('Load the court first')
+    saveRelics(acquireRelic(relicVault.value, campaign.value, id))
+  }
+
+  function setNextRelics(ids: RelicId[]) {
+    saveRelics(chooseNextLoadout(relicVault.value, ids))
+  }
+
+  function unlockSecondRelicSlot() {
+    if (!campaign.value) throw new Error('Load the court first')
+    saveRelics(earnSecondSlot(relicVault.value, campaign.value))
   }
 
   function recruit(id: string) {
@@ -104,9 +150,19 @@ export const useEmperorOfDustStore = defineStore('emperorOfDust', () => {
     leaders: string[],
     troops: number,
     choice: string,
+    useHourglass = false,
   ) {
     if (!campaign.value) throw new Error('Load the court first')
-    update(dispatchFollowers(campaign.value, incident, leaders, troops, choice))
+    update(
+      dispatchFollowers(
+        campaign.value,
+        incident,
+        leaders,
+        troops,
+        choice,
+        useHourglass,
+      ),
+    )
   }
 
   function estimate(
@@ -114,9 +170,17 @@ export const useEmperorOfDustStore = defineStore('emperorOfDust', () => {
     leaders: string[],
     troops: number,
     choice: string,
+    useHourglass = false,
   ) {
     if (!campaign.value) throw new Error('Load the court first')
-    return previewDispatch(campaign.value, incident, leaders, troops, choice)
+    return previewDispatch(
+      campaign.value,
+      incident,
+      leaders,
+      troops,
+      choice,
+      useHourglass,
+    )
   }
 
   function ignore(incident: Incident) {
@@ -147,6 +211,10 @@ export const useEmperorOfDustStore = defineStore('emperorOfDust', () => {
     campaign,
     loaded,
     storageWarning,
+    relicVault,
+    claimRelic,
+    setNextRelics,
+    unlockSecondRelicSlot,
     day,
     ready,
     freeHorde,

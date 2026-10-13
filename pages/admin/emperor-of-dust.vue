@@ -116,7 +116,17 @@
             v-for="report in DAY_ONE_BRIEFINGS"
             :key="report.id"
             class="rounded-xl border border-base-content/15 bg-base-100 p-3"
+            :class="
+              revealFalseReport(campaign, report.truth)
+                ? 'border-warning bg-warning/10'
+                : ''
+            "
           >
+            <span
+              v-if="revealFalseReport(campaign, report.truth)"
+              class="text-xs font-bold text-warning"
+              >Eye revealed: false report</span
+            >
             <p
               class="text-xs font-semibold uppercase tracking-wider opacity-60"
             >
@@ -127,9 +137,12 @@
         </div>
         <p class="mt-3 text-xs opacity-65">
           Two reports are true. One is a harmless false rumor. The Eye of the
-          Elder Crow and the full 100-day briefings are not implemented yet.
+          Elder Crow can reveal the false rumor if equipped. The full 100-day
+          briefings are not authored yet.
         </p>
       </section>
+
+      <EmperorOfDustRelicVault />
 
       <div class="grid gap-5 xl:grid-cols-[minmax(0,1.4fr)_minmax(320px,1fr)]">
         <div class="space-y-5">
@@ -343,6 +356,31 @@
                 troops permitted. The Horde is a headcount, not a consumable
                 favor currency.
               </p>
+              <label
+                v-if="hourglassEquipped"
+                class="flex items-start gap-3 rounded-xl border border-base-content/15 p-3 text-sm"
+              >
+                <input
+                  v-model="useHourglass"
+                  type="checkbox"
+                  class="checkbox checkbox-sm checkbox-warning"
+                  :disabled="
+                    !hourglassReady || !isDispatchable(selectedIncident)
+                  "
+                />
+                <span>
+                  <strong>Use Brass Hourglass</strong>
+                  <span class="block text-xs opacity-70">
+                    Reduce outbound travel by one hour, once per day. Return
+                    travel stays unchanged.
+                    {{
+                      hourglassReady
+                        ? 'Available today'
+                        : 'Unavailable for this mission'
+                    }}
+                  </span>
+                </span>
+              </label>
               <div
                 v-if="odds"
                 class="rounded-xl border border-warning/40 bg-warning/10 p-3"
@@ -559,6 +597,7 @@ import {
 } from '~/utils/emperorOfDust/dayOne'
 import { dayAt, timeAt } from '~/utils/emperorOfDust/engine'
 import { followerProfile } from '~/utils/emperorOfDust/followers'
+import { revealFalseReport } from '~/utils/emperorOfDust/relics'
 import { IMPERIAL_REGIONS } from '~/utils/emperorOfDust/map'
 import {
   remainingCandidates,
@@ -579,6 +618,7 @@ const selectedIncidentId = ref<string | null>('d001-aqueduct')
 const selectedChoiceId = ref('repair')
 const chosenIds = ref<string[]>([])
 const troops = ref(10)
+const useHourglass = ref(false)
 const notice = ref('')
 const confirmRestart = ref(false)
 
@@ -602,6 +642,17 @@ const canAdvance = computed(
   () => !!campaign.value && campaign.value.hour < MAX_PILOT_HOUR,
 )
 
+const hourglassEquipped = computed(() =>
+  (campaign.value?.equippedRelics ?? []).includes('komodo-brass-hourglass'),
+)
+const hourglassReady = computed(
+  () =>
+    hourglassEquipped.value &&
+    (campaign.value?.relicUses?.['komodo-brass-hourglass'] ?? 0) !==
+      court.day &&
+    (selectedIncident.value?.outwardHours ?? 1) > 1,
+)
+
 const odds = computed<OddsPreview | null>(() => {
   if (
     !selectedIncident.value ||
@@ -615,6 +666,7 @@ const odds = computed<OddsPreview | null>(() => {
       chosenIds.value,
       troops.value,
       selectedChoiceId.value,
+      useHourglass.value,
     )
   } catch {
     return null
@@ -655,6 +707,7 @@ function selectIncident(incident: Incident) {
   selectedChoiceId.value = incident.choices[0]?.id ?? ''
   chosenIds.value = []
   troops.value = incident.hordeMinimum
+  useHourglass.value = false
   notice.value = ''
 }
 
@@ -734,10 +787,12 @@ function sendParty() {
         chosenIds.value,
         troops.value,
         selectedChoiceId.value,
+        useHourglass.value,
       ),
     'The expedition departed the tower. Check the roads and the campaign ledger.',
   )
   chosenIds.value = []
+  useHourglass.value = false
 }
 
 function sendNobody() {
@@ -798,6 +853,7 @@ function restartRun() {
   chosenIds.value = []
   troops.value = 10
   confirmRestart.value = false
+  useHourglass.value = false
 }
 
 onMounted(async () => {

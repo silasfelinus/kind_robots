@@ -23,8 +23,12 @@ tutorial:
     home, unanswered deadlines, wounds and recovery all persist locally.
     Sending nobody has consequences, while ordinary failures do not
     automatically kill leaders. The Horde rises and falls as a headcount,
-    not consumable support tokens. Portraits, additional days, relics and
-    the wider follower roster remain planned. Public /play is gated.
+    not consumable support tokens. Items of Power now have a persistent
+    collection and one or two next-run equipment slots. The Eye of the Elder
+    Crow reveals the false briefing; the Brass Hourglass speeds one outbound
+    journey per day. Both are story-gated for later days, not granted free
+    on Day 1. Portraits, further days, and the wider follower roster remain
+    planned. Public /play is gated.
 ---
 
 The Tower is waiting for its first orders. Only Day 1 incidents are playable.

@@ -1,6 +1,6 @@
 ---
 contentType: tab
-channelKey: projects
+channelKey: arcade
 tabKey: arcade
 label: Arcade
 title: Kind Robots Arcade

@@ -61,7 +61,11 @@ assert.equal(afterDay.dispatches[0]?.outcome?.choiceId, 'repair')
 assert.equal(afterDay.dispatches[0]?.returnsAt, 13)
 assert.equal(afterDay.ignoredIncidentIds.length, 2, 'sent mission is not neglected')
 assert.equal(afterDay.horde - availableHorde(afterDay), 0, 'returned troops are available')
-assert.deepEqual(decodeEmperorSave(encodeEmperorSave(afterDay)), afterDay)
+assert.deepEqual(
+  decodeEmperorSave(encodeEmperorSave(afterDay)),
+  JSON.parse(JSON.stringify(afterDay)),
+  'save round-trip preserves JSON campaign state',
+)
 
 const stepped = advancePilotClock(
   advancePilotClock(sent, timeAt(1, 15)),

@@ -2,6 +2,7 @@ import assert from 'node:assert/strict'
 import { enemyBulletContact } from '../arcade/games/rainbowHitGeometry'
 import { createRainbowPrincessPreview } from '../arcade/games/rainbowPrincessPreview'
 import { emptyInput } from '../arcade/types'
+import { availableCoopTargets, haloRevive } from '../arcade/games/rainbowLocalCoop'
 
 assert.equal(enemyBulletContact(0, false, 10, 15), 'hit')
 assert.equal(enemyBulletContact(9.99, false, 10, 15), 'hit')
@@ -169,5 +170,16 @@ assert.ok(shieldSeen, 'enemy defeats must generate the shield pickup')
 assert.ok(shieldCaught, 'an actual moving pilot can collect the shield pickup')
 assert.equal(pickupGame.snapshot.ships[0]!.shield, 3, 'repair caps at three shields')
 assert.ok(shieldEffects.includes('pickup'), 'collecting produces pickup feedback')
+
+const eliminatedRoster = [
+  { lives: 0, shield: 3, invulnerable: 0, power: 2 },
+  { lives: 2, shield: 2, invulnerable: 0, power: 1 },
+  { lives: 0, shield: 3, invulnerable: 0, power: 3 },
+  { lives: 1, shield: 3, invulnerable: 0, power: 1 },
+]
+assert.equal(availableCoopTargets(eliminatedRoster, 4).length, 2)
+assert.equal(haloRevive(eliminatedRoster, 4, 2), null, 'a fallen Halo cannot cast')
+assert.equal(haloRevive(eliminatedRoster, 2, 2), null, 'a benched Halo cannot cast')
+assert.equal(eliminatedRoster[0]!.lives, 0, 'invalid supers do not restore dead pilots')
 
 console.log('Rainbow Princess earned supers, bullet cancellation and shield boundaries passed')

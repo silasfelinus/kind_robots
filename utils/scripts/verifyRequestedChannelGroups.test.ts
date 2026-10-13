@@ -40,6 +40,9 @@ for (const key of ['zuzu-lair', 'emperor-of-dust']) {
 }
 
 assert.match(nav('admin/retired'), /\nsort: 9999\n/)
+assert.match(nav('zuzu/zuzu-lair'), /\nroute: \/admin\/zuzu-lair\n/)
+assert.equal(existsSync('pages/play/zuzu-lair.vue'), false)
+assert.equal(existsSync('pages/admin/zuzu-lair.vue'), true)
 assert.match(
   nav('zuzu/zuzu-ghost-trail'),
   /\nroute: \/play\/zuzu-ghost-trail\n/,

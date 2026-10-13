@@ -370,9 +370,9 @@ for (const key of ['art', 'projects', 'studios', 'people', 'shelf']) {
 const navigationMoves = [
   {
     slug: 'zuzu-lair',
-    from: 'projects',
-    to: 'admin',
-    route: '/play/zuzu-lair',
+    from: 'admin',
+    to: 'zuzu',
+    route: '/admin/zuzu-lair',
     admin: true,
   },
   {

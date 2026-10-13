@@ -1,9 +1,9 @@
 <template>
   <div
-    class="relative overflow-hidden rounded-[2rem] border border-base-content/10 bg-gradient-to-br from-[#fff3dc] via-[#ffe3e0] to-[#dff4ef] p-5 text-[#1f2d3a] shadow-lg sm:p-8 dark:from-[#2a2236] dark:via-[#2c2a3f] dark:to-[#173a3f] dark:text-[#fff4e4]"
+    class="@container relative overflow-hidden rounded-[2rem] border border-base-content/10 bg-gradient-to-br from-[#fff3dc] via-[#ffe3e0] to-[#dff4ef] p-5 text-[#1f2d3a] shadow-lg sm:p-8 dark:from-[#2a2236] dark:via-[#2c2a3f] dark:to-[#173a3f] dark:text-[#fff4e4]"
   >
     <div
-      class="grid items-center gap-6 md:grid-cols-[minmax(0,300px)_minmax(0,1fr)] lg:gap-10"
+      class="grid items-center gap-6 @2xl:grid-cols-[minmax(0,300px)_minmax(0,1fr)] @4xl:gap-10"
     >
       <figure
         class="relative mx-auto w-full max-w-[300px] -rotate-2 rounded-[1.5rem] border-[6px] border-white bg-white shadow-xl transition-transform duration-300 hover:rotate-0 dark:border-[#3a3350] dark:bg-[#3a3350]"

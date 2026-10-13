@@ -5,11 +5,13 @@ import { starterFollowers } from './followers'
 export const RELICS = {
   'eye-of-elder-crow': {
     name: 'Eye of the Elder Crow',
+    description: 'Marks the false morning report.',
     unlockDay: 16,
     unlockFlag: 'relic-eye-earned',
   },
   'komodo-brass-hourglass': {
     name: "Komodo's Brass Hourglass",
+    description: 'Once daily, save an hour on the outward road.',
     unlockDay: 11,
     unlockFlag: 'relic-hourglass-earned',
   },

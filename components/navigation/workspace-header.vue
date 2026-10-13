@@ -135,7 +135,7 @@
         />
 
         <div
-          v-if="resolvedChannel && resolvedTabs.length"
+          v-if="resolvedChannel && resolvedChannel.channelKey !== 'home' && resolvedTabs.length"
           class="hidden min-w-0 flex-1 items-stretch border-l border-base-300 sm:flex"
         >
           <tab-select

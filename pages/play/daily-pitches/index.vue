@@ -289,14 +289,18 @@
                     loading="lazy"
                     class="size-full object-cover transition duration-300 group-hover:scale-105"
                   />
-                  <span class="absolute bottom-3 left-3 badge border-base-100/20 bg-base-100/95 text-base-content">
+                  <span
+                    class="absolute bottom-3 left-3 badge border-base-100/20 bg-base-100/95 text-base-content"
+                  >
                     One-prompt experiment
                   </span>
                 </div>
                 <div class="space-y-3 p-5">
                   <h3 class="font-serif text-xl font-black">Music Mentor</h3>
                   <span class="badge badge-outline">Available to use</span>
-                  <p class="min-h-16 text-sm leading-relaxed text-base-content/70">
+                  <p
+                    class="min-h-16 text-sm leading-relaxed text-base-content/70"
+                  >
                     Upload a recording for pitch, timing, dynamics and arrangement
                     feedback. Your audio stays on your device.
                   </p>
@@ -304,7 +308,9 @@
                     Shelved with Daily Dream projects for discovery; originally a
                     standalone experiment, not an approved daily pitch.
                   </p>
-                  <p class="inline-flex items-center gap-1 text-sm font-bold text-primary">
+                  <p
+                    class="inline-flex items-center gap-1 text-sm font-bold text-primary"
+                  >
                     Open Music Mentor
                     <Icon name="kind-icon:arrow-right" class="size-4" />
                   </p>

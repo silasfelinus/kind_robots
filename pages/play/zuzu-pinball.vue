@@ -1,25 +1,25 @@
 <template>
   <main class="kr-surface">
     <div class="kr-scroll mx-auto w-full max-w-[1500px] px-2 py-2 sm:px-4">
-        <div class="mb-2 flex justify-end">
-          <button
-            type="button"
-            class="btn btn-ghost btn-sm gap-2 rounded-xl border border-base-300"
-            aria-label="Open Zuzu Pinball tutorial in the sidebar"
-            title="How to play, table rules and development notes"
-            @click="navStore.openWorkspaceSheet()"
-          >
-            <Icon name="kind-icon:question" class="kr-icon-4" />
-            Tutorial
-          </button>
-        </div>
+      <div class="mb-2 flex justify-end">
+        <button
+          type="button"
+          class="btn btn-ghost btn-sm gap-2 rounded-xl border border-base-300"
+          aria-label="Open Zuzu Pinball tutorial in the sidebar"
+          title="How to play, table rules and development notes"
+          @click="navStore.openWorkspaceSheet()"
+        >
+          <Icon name="kind-icon:question" class="kr-icon-4" />
+          Tutorial
+        </button>
+      </div>
 
-        <div v-if="!webglReady" class="kr-note kr-note-error p-5">
-          This 3D pinball table requires a browser with WebGL enabled.
-        </div>
-        <section v-else class="zuzu-game-stage" aria-label="Zuzu Pinball game">
-          <ArcadeCabinet slug="zuzu-pinball" />
-        </section>
+      <div v-if="!webglReady" class="kr-note kr-note-error p-5">
+        This 3D pinball table requires a browser with WebGL enabled.
+      </div>
+      <section v-else class="zuzu-game-stage" aria-label="Zuzu Pinball game">
+        <ArcadeCabinet slug="zuzu-pinball" />
+      </section>
     </div>
   </main>
 </template>

@@ -300,7 +300,7 @@
                 >
                 {{ currentNotice.headline }}. {{ currentNotice.reason }}
               </p>
-              <p class="font-mono text-[11px] font-bold uppercase opacity-70">
+              <p class="font-mono text-[11px] font-bold uppercase">
                 Department {{ currentDept.department.order }} of
                 {{ DEPARTMENTS.length }}
               </p>
@@ -315,10 +315,10 @@
                 class="rounded-md px-2 py-1"
                 :class="
                   i < run.position
-                    ? 'bg-base-300 line-through opacity-60'
+                    ? 'bg-base-300 line-through opacity-80'
                     : i === run.position
                       ? 'bg-warning text-warning-content'
-                      : 'bg-base-200 opacity-60'
+                      : 'bg-base-200 opacity-80'
                 "
                 >{{ step }}</span
               >
@@ -335,6 +335,7 @@
               <div class="desk-flip mx-auto w-full max-w-sm lg:max-w-none">
                 <div class="desk-flip-inner" :class="{ 'is-open': opened }">
                   <button
+                    ref="cardBack"
                     type="button"
                     class="desk-face desk-back flex flex-col items-center justify-center gap-4 rounded-2xl border-4 p-6"
                     :class="view.kind === 'boss' ? 'is-boss' : ''"
@@ -456,8 +457,8 @@
                         class="rounded-md px-2 py-1 text-xs font-black uppercase"
                         :class="
                           run.pending.success
-                            ? 'bg-success text-success-content'
-                            : 'bg-error text-error-content'
+                            ? 'bg-green-800 text-white'
+                            : 'bg-red-800 text-white'
                         "
                         >{{ run.pending.success ? 'Approved' : 'Denied' }}</span
                       >
@@ -719,6 +720,7 @@ const spendForm = ref(false)
 const useFavor = ref(false)
 const useMutation = ref(false)
 const cardHeading = ref<HTMLElement | null>(null)
+const cardBack = ref<HTMLElement | null>(null)
 const nextButton = ref<HTMLElement | null>(null)
 const scroller = ref<HTMLElement | null>(null)
 
@@ -1032,11 +1034,18 @@ function toTop(): void {
   scroller.value?.scrollTo({ top: 0, behavior: reduce ? 'auto' : 'smooth' })
 }
 
+// After the next file is dealt, keyboard and screen-reader users land on it
+// instead of falling back to the top of the document.
+function focusNewFile(): void {
+  cardBack.value?.focus({ preventScroll: true })
+}
+
 async function descend(): Promise<void> {
   store.descend()
   opened.value = false
   await nextTick()
   toTop()
+  focusNewFile()
 }
 
 async function next(): Promise<void> {
@@ -1044,6 +1053,7 @@ async function next(): Promise<void> {
   opened.value = false
   await nextTick()
   toTop()
+  focusNewFile()
 }
 
 function toFront(): void {
@@ -1143,7 +1153,7 @@ useHead({ title: 'Shifting Desks' })
   }
   to {
     transform: rotate(-10deg) scale(1);
-    opacity: 0.9;
+    opacity: 1;
   }
 }
 

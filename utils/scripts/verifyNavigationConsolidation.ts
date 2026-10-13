@@ -36,8 +36,8 @@ assert.ok(
   'channel + tab pickers must remain the tablet/desktop navigation',
 )
 assert.ok(
-  channelSelect.includes('? activeTab?.label || activeChannel.label') &&
-    channelSelect.includes(': activeChannel.label'),
+  channelSelect.includes("activeChannel.channelKey === 'home' ? 'Explore'") &&
+    channelSelect.includes('activeTab?.label || activeChannel.label'),
   'the unified phone picker must show the active tab label rather than only the channel label',
 )
 assert.ok(

@@ -301,12 +301,12 @@
                   <p
                     class="min-h-16 text-sm leading-relaxed text-base-content/70"
                   >
-                    Upload a recording for pitch, timing, dynamics and arrangement
-                    feedback. Your audio stays on your device.
+                    Upload a recording for pitch, timing, dynamics and
+                    arrangement feedback. Your audio stays on your device.
                   </p>
                   <p class="text-xs text-base-content/60">
-                    Shelved with Daily Dream projects for discovery; originally a
-                    standalone experiment, not an approved daily pitch.
+                    Shelved with Daily Dream projects for discovery; originally
+                    a standalone experiment, not an approved daily pitch.
                   </p>
                   <p
                     class="inline-flex items-center gap-1 text-sm font-bold text-primary"

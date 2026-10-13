@@ -10,12 +10,14 @@
 // and the jackals come through.
 //
 // Starting values; the balance pass tunes them, mirrored into fighters.yaml in the same
-// conductor PR. He plays with the stand-in body until his rig ships (t-032 step 3).
+// conductor PR. His rig: conductor projects/zuzu-showdown/tools/rigs/mittens.py.
 
 import {
   SUB,
+  type Box,
   type FighterData,
   type MoveData,
+  type NormalId,
   type SpecialMove,
 } from '../types'
 import { defaultChains, defaultNormals } from './placeholders'
@@ -29,6 +31,28 @@ const normals = defaultNormals(HEIGHT)
 normals.stand_lp = { ...normals.stand_lp, damage: 28 }
 normals.stand_hp = { ...normals.stand_hp, damage: 64 }
 normals.stand_hk = { ...normals.stand_hk, damage: 74 }
+// Hitboxes fitted to his rig's art (conductor tools/rigs/mittens.py): each sits where the knife, the
+// shoving paw or the boot is drawn on the move's active frames and never reaches past it
+// (verifyZuzuShowdownSprites holds every one to the shipped frame maps). His reach is short: HP is a
+// two-pawed shove, and the crouching kicks are drawn skidding along the floor.
+const ART_HITBOXES: Record<NormalId, Box> = {
+  stand_lp: { x: 12, y: 56, w: 23, h: 24 },
+  stand_lk: { x: 3, y: 23, w: 38, h: 24 },
+  stand_hp: { x: 10, y: 53, w: 18, h: 22 },
+  stand_hk: { x: 9, y: 36, w: 37, h: 24 },
+  crouch_lp: { x: 12, y: 40, w: 23, h: 24 },
+  crouch_lk: { x: 3, y: 4, w: 38, h: 14 },
+  crouch_hp: { x: 0, y: 53, w: 15, h: 24 },
+  crouch_hk: { x: 10, y: 1, w: 37, h: 14 },
+  jump_lp: { x: 11, y: 49, w: 26, h: 22 },
+  jump_hp: { x: 9, y: 49, w: 17, h: 22 },
+  jump_lk: { x: 0, y: 12, w: 38, h: 24 },
+  jump_hk: { x: 7, y: 11, w: 38, h: 24 },
+}
+for (const [id, hitbox] of Object.entries(ART_HITBOXES) as Array<
+  [NormalId, Box]
+>)
+  normals[id] = { ...normals[id], hitbox }
 
 // A boot thrown overarm. LP flies high; HP skids along the ground and must be blocked low.
 const bootToss: MoveData = {

@@ -68,6 +68,7 @@ export const SPRITE_FIGHTERS = [
   'hyena-matriarch',
   'old-komodo',
   'swamp-witch',
+  'jeffery-mittens',
 ] as const
 
 /** The rig's short names for fighters whose game slug is longer. */

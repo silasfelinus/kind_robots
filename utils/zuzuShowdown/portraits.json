@@ -43,6 +43,28 @@
       "w": 104
     }
   },
+  "jeffery-mittens": {
+    "beaten": {
+      "file": "mittens-beaten",
+      "h": 152,
+      "w": 104
+    },
+    "bust": {
+      "file": "mittens-bust",
+      "h": 50,
+      "w": 50
+    },
+    "victory": {
+      "file": "mittens-victory",
+      "h": 152,
+      "w": 104
+    },
+    "vs": {
+      "file": "mittens-vs",
+      "h": 152,
+      "w": 104
+    }
+  },
   "old-komodo": {
     "beaten": {
       "file": "komodo-beaten",

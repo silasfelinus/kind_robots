@@ -97,7 +97,18 @@ assert.match(store, /if \(savedV3 !== null\) \{/)
 assert.match(board, /findFiveLandCard/)
 assert.match(board, /v-for="choice in game\.currentTrial\.choices"/)
 assert.match(board, /attemptTrialWithCue\(choice\.id\)/)
-assert.match(board, /if \(game\.attemptTrial\(id\)\) cueDiceResult\(\)/)
+assert.match(
+  board,
+  /if \(!game\.attemptTrial\(id\)\) return\s+cueDiceResult\(\)/,
+)
+assert.match(
+  board,
+  /showConsequence\('trial', game\.lastTrialOutcome\?\.turn\)/,
+)
+assert.match(
+  board,
+  /showConsequence\('encounter', game\.lastAuthoredOutcome\?\.turn\)/,
+)
 assert.match(board, /game\.lastTrialOutcome\.resultText/)
 assert.match(store, /if \(savedV4 !== null\) \{/)
 assert.match(store, /attemptTrial\(choiceId: string\)/)

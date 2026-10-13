@@ -19,7 +19,7 @@
       </span>
     </div>
     <p v-if="notice" class="kr-note p-3 text-sm" role="status">{{ notice }}</p>
-    <div class="grid gap-3 md:grid-cols-2">
+    <div class="grid grid-cols-[repeat(auto-fit,minmax(min(100%,20rem),1fr))] gap-3">
       <article
         v-for="entry in relicEntries"
         :key="entry.id"

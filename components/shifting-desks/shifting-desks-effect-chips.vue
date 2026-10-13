@@ -1,5 +1,8 @@
 <template>
-  <span class="flex flex-wrap items-center gap-1.5 text-xs">
+  <span
+    class="flex flex-wrap items-center gap-1.5"
+    :class="large ? 'text-xs sm:text-sm' : 'text-xs'"
+  >
     <span v-if="prefix" class="font-bold opacity-70">{{ prefix }}:</span>
     <span
       v-for="chip in chips"
@@ -25,9 +28,10 @@ import {
 } from '~/utils/shiftingDesks/rules'
 
 const props = withDefaults(
-  defineProps<{ effects: Effects; prefix?: string }>(),
+  defineProps<{ effects: Effects; prefix?: string; large?: boolean }>(),
   {
     prefix: '',
+    large: false,
   },
 )
 

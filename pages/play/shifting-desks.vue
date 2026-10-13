@@ -164,7 +164,7 @@
                 >{{ pillar.title }}</span
               >
             </span>
-            <span class="hidden text-sm opacity-80 md:line-clamp-2">{{
+            <span class="hidden text-sm opacity-80 md:block">{{
               pillar.body
             }}</span>
           </article>
@@ -364,6 +364,7 @@
         <p
           v-if="currentNotice"
           class="shrink-0 truncate text-xs font-semibold"
+          :class="{ 'max-md:hidden': deciding || !!run.pending }"
           :title="currentNotice.reason"
         >
           <span class="font-mono font-black uppercase">Restructured:</span>
@@ -450,7 +451,7 @@
                   <button
                     v-if="opened && !run.pending"
                     type="button"
-                    class="btn btn-warning btn-sm mt-1 self-start lg:hidden"
+                    class="btn btn-warning btn-sm mt-1 self-start md:hidden"
                     :tabindex="opened ? 0 : -1"
                     @click="decide"
                   >
@@ -468,7 +469,7 @@
           >
             <div class="kr-pane-scroll flex flex-col gap-2">
               <div
-                class="flex shrink-0 items-center gap-2 rounded-xl border-2 border-stone-800 bg-base-200 p-1.5 lg:hidden"
+                class="flex shrink-0 items-center gap-2 rounded-xl border-2 border-stone-800 bg-base-200 p-1.5 md:hidden"
               >
                 <shifting-desks-art
                   class="shrink-0 rounded-lg"
@@ -619,7 +620,7 @@
                     />
                   </details>
                   <button
-                    v-for="choice in view.card.choices"
+                    v-for="choice in openRoutes"
                     :key="choice.id"
                     type="button"
                     class="flex shrink-0 flex-col gap-1 rounded-xl border-2 bg-base-100 px-3 text-left transition"
@@ -710,6 +711,25 @@
                       {{ lockFor(choice) }}
                     </span>
                   </button>
+                  <ul
+                    v-if="lockedRoutes.length"
+                    class="flex shrink-0 flex-wrap gap-1.5"
+                    aria-label="Routes you have not earned"
+                  >
+                    <li
+                      v-for="choice in lockedRoutes"
+                      :key="choice.id"
+                      class="flex max-w-full items-center gap-1 rounded-lg border border-base-300 bg-base-200 px-2 py-1 text-xs opacity-70"
+                      :title="lockFor(choice) ?? undefined"
+                    >
+                      <icon
+                        name="kind-icon:lock"
+                        class="size-3 shrink-0 text-error"
+                      />
+                      <span class="truncate">{{ choice.label }}</span>
+                      <span class="sr-only">{{ lockFor(choice) }}</span>
+                    </li>
+                  </ul>
                   <div
                     v-if="anyRoll || favorToggleShown || mutationToggleShown"
                     class="flex shrink-0 flex-wrap gap-1.5 text-xs"
@@ -1145,6 +1165,17 @@ function aidBadges(choice: Choice): string[] {
 
 const manyRoutes = computed(() => (view.value?.card.choices.length ?? 0) > 4)
 
+const openRoutes = computed(() =>
+  (view.value?.card.choices ?? []).filter(
+    (c) => !manyRoutes.value || !lockFor(c),
+  ),
+)
+const lockedRoutes = computed(() =>
+  manyRoutes.value
+    ? (view.value?.card.choices ?? []).filter((c) => lockFor(c))
+    : [],
+)
+
 const anyRoll = computed(
   () => !!view.value?.card.choices.some((c) => c.roll && !lockFor(c)),
 )
@@ -1256,9 +1287,15 @@ useHead({ title: 'Shifting Desks' })
   grid-template-rows: minmax(0, 1fr);
 }
 
-@media (max-width: 1023.98px) {
+@media (max-width: 767.98px) {
   .is-tucked {
     display: none;
+  }
+}
+
+@media (min-width: 768px) {
+  .desk-layout {
+    grid-template-rows: minmax(0, 1fr) minmax(0, 1.15fr);
   }
 }
 

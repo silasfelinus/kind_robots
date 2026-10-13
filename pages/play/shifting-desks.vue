@@ -307,6 +307,8 @@
               >
             </div>
 
+            <shifting-desks-envelope />
+
             <div
               class="grid grid-cols-1 gap-5 lg:grid-cols-[minmax(0,26rem)_minmax(0,1fr)]"
             >
@@ -418,6 +420,11 @@
                         vs {{ run.pending.target }}
                       </span>
                       <span
+                        v-if="run.pending.rerolled"
+                        class="text-xs line-through opacity-60"
+                        >first roll {{ run.pending.rerolled.join(' + ') }}</span
+                      >
+                      <span
                         class="rounded-md px-2 py-1 text-xs font-black uppercase"
                         :class="
                           run.pending.success
@@ -433,6 +440,12 @@
                     <shifting-desks-effect-chips
                       :effects="run.pending.effects"
                     />
+                    <p
+                      v-if="run.pending.aids.length"
+                      class="text-xs font-bold uppercase opacity-70"
+                    >
+                      Helped by {{ run.pending.aids.join(', ') }}
+                    </p>
                     <ul
                       v-if="run.pending.events.length"
                       class="flex flex-col gap-1 text-sm font-semibold"
@@ -512,6 +525,17 @@
                       choice.risk_hint
                     }}</span>
                     <span
+                      v-if="aidBadges(choice).length"
+                      class="flex flex-wrap gap-1.5 text-[11px] font-bold uppercase"
+                    >
+                      <span
+                        v-for="badge in aidBadges(choice)"
+                        :key="badge"
+                        class="rounded-md bg-warning/20 px-2 py-0.5"
+                        >{{ badge }}</span
+                      >
+                    </span>
+                    <span
                       v-if="lockFor(choice)"
                       class="text-xs font-bold text-error"
                     >
@@ -532,6 +556,38 @@
                       Attach a signed Form for <strong>+2</strong> to the roll
                       (costs 1 Form, rolls only). You have
                       {{ run.meters.forms }}.
+                    </span>
+                  </label>
+                  <label
+                    v-if="favorToggleShown"
+                    class="flex cursor-pointer items-center gap-3 rounded-2xl border border-base-300 bg-base-200 p-3 text-sm"
+                  >
+                    <input
+                      v-model="useFavor"
+                      type="checkbox"
+                      class="checkbox checkbox-error checkbox-sm"
+                    />
+                    <span>
+                      Call in a favor, <strong>{{ society.favor.title }}</strong
+                      >: {{ society.favor.text }} Once per run.
+                    </span>
+                  </label>
+                  <label
+                    v-if="mutationToggleShown"
+                    class="flex cursor-pointer items-center gap-3 rounded-2xl border border-base-300 bg-base-200 p-3 text-sm"
+                  >
+                    <input
+                      v-model="useMutation"
+                      type="checkbox"
+                      class="checkbox checkbox-success checkbox-sm"
+                    />
+                    <span>
+                      Use your mutation, <strong>{{ mutation.title }}</strong
+                      >:
+                      {{ mutation.text }}
+                      <template v-if="witnessed">
+                        Someone is watching: +2 Suspicion.</template
+                      >
                     </span>
                   </label>
                 </template>
@@ -572,7 +628,12 @@ import {
   SKILLS,
   employeeId,
   jobById,
+  favorAppliesTo,
+  favorAvailable,
   lockReason,
+  mutationAppliesTo,
+  mutationById,
+  societyById,
   locationById,
   outcomeById,
   type Choice,
@@ -584,6 +645,8 @@ const store = useShiftingDesksStore()
 const screen = ref<'front' | 'hire' | 'play'>('front')
 const opened = ref(false)
 const spendForm = ref(false)
+const useFavor = ref(false)
+const useMutation = ref(false)
 const cardHeading = ref<HTMLElement | null>(null)
 const nextButton = ref<HTMLElement | null>(null)
 
@@ -718,8 +781,50 @@ const cardIcon = computed(() => {
 const employee = computed(() => employeeId(run.value?.generation ?? 0))
 const jobTitle = computed(() => jobById(run.value?.jobId ?? '').title)
 
+const society = computed(() => societyById(run.value?.societyId ?? ''))
+const mutation = computed(() => mutationById(run.value?.mutationId ?? ''))
+const witnessed = computed(
+  () =>
+    view.value?.kind === 'boss' ||
+    (view.value?.kind === 'encounter' && view.value.card.witnessed),
+)
+const favorToggleShown = computed(
+  () =>
+    !!run.value &&
+    store.envelopeOpened &&
+    favorAvailable(run.value) &&
+    society.value.favor.kind !== 'effects' &&
+    !!view.value?.card.choices.some((c) => favorAppliesTo(run.value!, c)),
+)
+const mutationToggleShown = computed(
+  () =>
+    !!run.value &&
+    store.envelopeOpened &&
+    !!view.value?.card.choices.some((c) => mutationAppliesTo(run.value!, c)),
+)
+
+function favorFor(choice: Choice): boolean {
+  return !!run.value && useFavor.value && favorAppliesTo(run.value, choice)
+}
+
+function mutationFor(choice: Choice): boolean {
+  return (
+    !!run.value && useMutation.value && mutationAppliesTo(run.value, choice)
+  )
+}
+
 function lockFor(choice: Choice): string | null {
-  return run.value ? lockReason(run.value, choice) : null
+  if (!run.value) return null
+  const ignore =
+    favorFor(choice) && society.value.favor.kind === 'ignore-requirement'
+  return lockReason(run.value, choice, ignore)
+}
+
+function aidBadges(choice: Choice): string[] {
+  const out: string[] = []
+  if (favorFor(choice)) out.push(society.value.favor.title)
+  if (mutationFor(choice)) out.push(mutation.value.title)
+  return out
 }
 
 function hasCost(choice: Choice): boolean {
@@ -741,7 +846,13 @@ async function openFile(): Promise<void> {
 
 async function pick(choice: Choice): Promise<void> {
   if (lockFor(choice)) return
-  store.choose(choice.id, spendForm.value)
+  store.choose(choice.id, {
+    spendForm: spendForm.value,
+    useFavor: favorFor(choice),
+    useMutation: mutationFor(choice),
+  })
+  useFavor.value = false
+  useMutation.value = false
   spendForm.value = false
   await nextTick()
   nextButton.value?.focus()

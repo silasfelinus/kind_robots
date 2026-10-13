@@ -4,13 +4,16 @@ import {
   advance as advanceRun,
   choose as chooseInRun,
   currentCard,
-  isRunState,
   newRun,
   outcomeById,
+  upgradeRun,
+  useInstant as useInstantInRun,
+  type ChooseOptions,
   type RunState,
 } from '~/utils/shiftingDesks/rules'
 
 const SAVE_KEY = 'shifting-desks-run-v1'
+const ENVELOPE_KEY = 'shifting-desks-envelope-opened-v1'
 const OUTCOMES_KEY = 'shifting-desks-outcomes-v1'
 
 export const useShiftingDesksStore = defineStore('shiftingDesks', () => {
@@ -18,6 +21,7 @@ export const useShiftingDesksStore = defineStore('shiftingDesks', () => {
   const discovered = ref<string[]>([])
   const loaded = ref(false)
   const rollSerial = ref(0)
+  const envelopeOpened = ref(false)
 
   const card = computed(() => (run.value ? currentCard(run.value) : null))
   const outcome = computed(() =>
@@ -42,7 +46,9 @@ export const useShiftingDesksStore = defineStore('shiftingDesks', () => {
     try {
       const raw = localStorage.getItem(SAVE_KEY)
       const parsed: unknown = raw ? JSON.parse(raw) : null
-      run.value = isRunState(parsed) ? parsed : null
+      run.value = upgradeRun(parsed)
+      envelopeOpened.value =
+        localStorage.getItem(ENVELOPE_KEY) === run.value?.seed
       const seen: unknown = JSON.parse(
         localStorage.getItem(OUTCOMES_KEY) ?? '[]',
       )
@@ -59,19 +65,35 @@ export const useShiftingDesksStore = defineStore('shiftingDesks', () => {
   function start(jobId: string): void {
     const seed = `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`
     run.value = newRun(seed, jobId)
+    envelopeOpened.value = false
     persist()
   }
 
-  function choose(choiceId: string, spendForm = false): void {
+  function choose(choiceId: string, options: ChooseOptions = {}): void {
     if (!run.value) return
     const before = run.value.log.length
-    run.value = chooseInRun(run.value, choiceId, spendForm)
+    run.value = chooseInRun(run.value, choiceId, options)
     if (run.value.log.length === before) return
     rollSerial.value += 1
     const id = run.value.departmentOutcome
     if (id && !discovered.value.includes(id))
       discovered.value = [...discovered.value, id]
     persist()
+  }
+
+  function useInstant(which: 'favor' | 'mutation'): void {
+    if (!run.value) return
+    run.value = useInstantInRun(run.value, which)
+    persist()
+  }
+
+  function openEnvelope(): void {
+    envelopeOpened.value = true
+    try {
+      if (run.value) localStorage.setItem(ENVELOPE_KEY, run.value.seed)
+    } catch {
+      return
+    }
   }
 
   function advance(): void {
@@ -87,6 +109,9 @@ export const useShiftingDesksStore = defineStore('shiftingDesks', () => {
 
   return {
     run,
+    envelopeOpened,
+    useInstant,
+    openEnvelope,
     discovered,
     loaded,
     rollSerial,

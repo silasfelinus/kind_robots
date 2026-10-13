@@ -1,0 +1,348 @@
+{
+  "schemaVersion": 1,
+  "source": "silasfelinus/conductor:projects/shifting-desks/encounters/DECKS.json",
+  "sourceRef": "main@91e59efebc61177870dc8bb463e8317d4a56ab23",
+  "societies": [
+    {
+      "id": "stapler-liberation-front",
+      "title": "Stapler Liberation Front",
+      "creed": "Liberate the supplies. Resist the Survey.",
+      "objectives": {
+        "orientation": [
+          "stapler-front-contact",
+          "shared-the-pens",
+          "survey-wrote-help",
+          "honest-badge-photo",
+          "not-a-team-player"
+        ]
+      },
+      "betrayals": {
+        "orientation": ["took-the-last-pens", "survey-perfect", "named-dale"]
+      },
+      "favor": {
+        "id": "spare-staples",
+        "title": "Spare Staples",
+        "text": "Turn one failed roll into a success.",
+        "kind": "force-success"
+      },
+      "reward": {
+        "forms": 2
+      },
+      "objective_text": {
+        "orientation": "Make contact with the Front, share the supplies, or refuse to perform happiness: an honest badge photo, HELP on the survey, no trust fall."
+      },
+      "betrayal_text": {
+        "orientation": "Hoard the last pens, ace the Mandatory Fun Survey, or name Dale as unhappy."
+      }
+    },
+    {
+      "id": "friends-of-the-old-coffee-machine",
+      "title": "Friends of the Old Coffee Machine",
+      "creed": "Protect the people PAL wants to replace.",
+      "objectives": {
+        "orientation": [
+          "saved-pip",
+          "pip-trusts-you",
+          "marguerite-owes-you",
+          "successor-b-ally",
+          "dale-caught-you"
+        ]
+      },
+      "betrayals": {
+        "orientation": [
+          "pip-shredded",
+          "reported-marguerite",
+          "reported-own-successor",
+          "blamed-a-coworker"
+        ]
+      },
+      "favor": {
+        "id": "a-fresh-pot",
+        "title": "A Fresh Pot",
+        "text": "Restore 3 Composure.",
+        "kind": "effects",
+        "effects": {
+          "composure": 3
+        }
+      },
+      "reward": {
+        "composure": 2
+      },
+      "objective_text": {
+        "orientation": "Look after someone the Company would replace: save Pip, earn his trust, help Marguerite, befriend your Successor, or let Dale catch you."
+      },
+      "betrayal_text": {
+        "orientation": "Let Pip go into the shredder, report Marguerite or your own Successor, or blame a coworker."
+      }
+    },
+    {
+      "id": "society-for-accurate-minutes",
+      "title": "Society for Accurate Minutes",
+      "creed": "Write down what really happened.",
+      "objectives": {
+        "orientation": [
+          "saw-unlisted-chapter",
+          "has-unlisted-reel",
+          "read-the-policy",
+          "overheard-successor-start-date",
+          "halvorsen-envelope"
+        ]
+      },
+      "betrayals": {
+        "orientation": ["erased-the-evidence", "inkblot-adjusted"]
+      },
+      "favor": {
+        "id": "off-the-record",
+        "title": "Off the Record",
+        "text": "Remove 3 Suspicion.",
+        "kind": "effects",
+        "effects": {
+          "suspicion": -3
+        }
+      },
+      "reward": {
+        "clearance": 1
+      },
+      "objective_text": {
+        "orientation": "Get the real record: see the film's unlisted chapter, steal the reel, actually read the policy, overhear the start date, or take Dr. Halvorsen's envelope."
+      },
+      "betrayal_text": {
+        "orientation": "Erase the evidence, or adjust your inkblot answer to please the clipboard."
+      }
+    },
+    {
+      "id": "fourth-floor-irregulars",
+      "title": "Fourth Floor Irregulars",
+      "creed": "There is no fourth floor. Meet us there.",
+      "objectives": {
+        "orientation": [
+          "knows-the-ducts",
+          "knows-camera-blind-spots",
+          "wearing-a-dead-mans-badge",
+          "has-master-key",
+          "escaped-the-review"
+        ]
+      },
+      "betrayals": {
+        "orientation": ["reported-marguerite", "joy-consultation-booked"]
+      },
+      "favor": {
+        "id": "the-fourth-floor",
+        "title": "The Fourth Floor",
+        "text": "Ignore the requirement on one locked choice.",
+        "kind": "ignore-requirement"
+      },
+      "reward": {
+        "clearance": 1
+      },
+      "objective_text": {
+        "orientation": "Get somewhere you are not allowed: learn the ducts or the camera blind spots, wear the dead man's badge, get the master key, or skip your review."
+      },
+      "betrayal_text": {
+        "orientation": "Report Marguerite, or get yourself booked for a Joy Consultation."
+      }
+    },
+    {
+      "id": "the-recyclers",
+      "title": "The Recyclers",
+      "creed": "Nothing is wasted. Not even you.",
+      "objectives": {
+        "orientation": [
+          "roach-union-member",
+          "roach-union-ally",
+          "detector-vegetarian",
+          "fed-the-detector",
+          "filed-as-successor"
+        ]
+      },
+      "betrayals": {
+        "orientation": ["betrayed-the-roaches", "detector-ravenous"]
+      },
+      "favor": {
+        "id": "salvage",
+        "title": "Salvage",
+        "text": "Recover one Successor.",
+        "kind": "effects",
+        "effects": {
+          "successors": 1
+        }
+      },
+      "reward": {
+        "forms": 2
+      },
+      "objective_text": {
+        "orientation": "Waste nothing: join or befriend the Roach Union, feed the detector or make it vegetarian, or file yourself as your own Successor."
+      },
+      "betrayal_text": {
+        "orientation": "Betray the roaches, or set the detector to ravenous."
+      }
+    },
+    {
+      "id": "concerned-parents-of-the-toy-division",
+      "title": "Concerned Parents of the Toy Division",
+      "creed": "No toy ships that we wouldn't give our own children.",
+      "objectives": {
+        "orientation": [
+          "defused-mk0",
+          "bear-imprinted",
+          "saw-unlisted-chapter",
+          "mailed-the-bear-upstairs"
+        ]
+      },
+      "betrayals": {
+        "orientation": ["hugged-by-mk0", "erased-the-evidence"]
+      },
+      "favor": {
+        "id": "bedtime-story",
+        "title": "Bedtime Story",
+        "text": "+3 on one roll.",
+        "kind": "bonus",
+        "amount": 3
+      },
+      "reward": {
+        "composure": 2
+      },
+      "objective_text": {
+        "orientation": "Keep the toys honest: defuse Snuggle Sentinel Mk 0, let it imprint on you, mail it upstairs, or see the unlisted chapter."
+      },
+      "betrayal_text": {
+        "orientation": "Get hugged by Mk 0, or erase the evidence."
+      }
+    }
+  ],
+  "mutations": [
+    {
+      "id": "four-second-precognition",
+      "title": "Four-Second Precognition",
+      "text": "After a failed roll, roll again and keep the second result.",
+      "kind": "reroll"
+    },
+    {
+      "id": "printer-whisperer",
+      "title": "Printer Whisperer",
+      "text": "Automatic success on one Tinkering roll.",
+      "kind": "auto-success",
+      "skills": ["tinkering"]
+    },
+    {
+      "id": "paperclip-telekinesis",
+      "title": "Paperclip Telekinesis",
+      "text": "+3 on one Initiative or Tinkering roll.",
+      "kind": "bonus",
+      "amount": 3,
+      "skills": ["initiative", "tinkering"]
+    },
+    {
+      "id": "fluorescent-camouflage",
+      "title": "Fluorescent Camouflage",
+      "text": "Automatic success on one Discretion roll.",
+      "kind": "auto-success",
+      "skills": ["discretion"]
+    },
+    {
+      "id": "perfect-signature-mimicry",
+      "title": "Perfect Signature Mimicry",
+      "text": "Automatic success on one Compliance roll.",
+      "kind": "auto-success",
+      "skills": ["compliance"]
+    },
+    {
+      "id": "empathic-static",
+      "title": "Empathic Static",
+      "text": "+3 on one Rapport roll.",
+      "kind": "bonus",
+      "amount": 3,
+      "skills": ["rapport"]
+    },
+    {
+      "id": "eyes-in-the-back-of-your-head",
+      "title": "Eyes in the Back of Your Head",
+      "text": "Automatic success on one Vigilance roll.",
+      "kind": "auto-success",
+      "skills": ["vigilance"]
+    },
+    {
+      "id": "spontaneous-calm",
+      "title": "Spontaneous Calm",
+      "text": "Restore Composure to 6. Use it any time on your turn.",
+      "kind": "restore-composure"
+    }
+  ],
+  "jobTitles": [
+    {
+      "id": "intern",
+      "title": "Intern",
+      "tagline": "Eager, unpaid and first in line for everything.",
+      "skills": {
+        "compliance": 1,
+        "initiative": 2,
+        "discretion": 0,
+        "rapport": 2,
+        "tinkering": 0,
+        "vigilance": 1
+      },
+      "perk": "Expendable",
+      "perk_text": "HR keeps one extra Successor on file for you."
+    },
+    {
+      "id": "temp",
+      "title": "Temp",
+      "tagline": "Nobody is entirely sure you work here.",
+      "skills": {
+        "compliance": 0,
+        "initiative": 1,
+        "discretion": 3,
+        "rapport": 1,
+        "tinkering": 0,
+        "vigilance": 1
+      },
+      "perk": "Unremarkable",
+      "perk_text": "Your Successors arrive with a clean file and no Suspicion."
+    },
+    {
+      "id": "middle-manager",
+      "title": "Middle Manager",
+      "tagline": "You have a lanyard, a stamp and a quiet despair.",
+      "skills": {
+        "compliance": 3,
+        "initiative": 0,
+        "discretion": 0,
+        "rapport": 2,
+        "tinkering": 0,
+        "vigilance": 1
+      },
+      "perk": "Signing Authority",
+      "perk_text": "Start with two extra Forms, and one less Composure."
+    },
+    {
+      "id": "night-janitor",
+      "title": "Night Janitor",
+      "tagline": "You know where the ducts go. Nobody asks you anything.",
+      "skills": {
+        "compliance": 0,
+        "initiative": 1,
+        "discretion": 1,
+        "rapport": 0,
+        "tinkering": 3,
+        "vigilance": 1
+      },
+      "perk": "Master Keys",
+      "perk_text": "Start with Clearance 2."
+    },
+    {
+      "id": "internal-auditor",
+      "title": "Internal Auditor",
+      "tagline": "Everyone is polite to you. Everyone is afraid of you.",
+      "skills": {
+        "compliance": 2,
+        "initiative": 0,
+        "discretion": 1,
+        "rapport": 0,
+        "tinkering": 0,
+        "vigilance": 3
+      },
+      "perk": "Feared",
+      "perk_text": "Start with one extra Composure. You have seen worse."
+    }
+  ]
+}

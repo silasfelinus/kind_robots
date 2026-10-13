@@ -1,4 +1,5 @@
 import pack from './orientation.json'
+import decksData from './decks.json'
 
 export const SKILLS = [
   'compliance',
@@ -116,6 +117,55 @@ export type Pack = {
 
 export const ORIENTATION = pack as Pack
 
+export type FavorKind =
+  'force-success' | 'effects' | 'ignore-requirement' | 'bonus'
+export type Favor = {
+  id: string
+  title: string
+  text: string
+  kind: FavorKind
+  effects?: Effects
+  amount?: number
+}
+export type Society = {
+  id: string
+  title: string
+  creed: string
+  objectives: Record<string, string[]>
+  betrayals: Record<string, string[]>
+  objective_text: Record<string, string>
+  betrayal_text: Record<string, string>
+  favor: Favor
+  reward: Effects
+}
+export type MutationKind =
+  'reroll' | 'auto-success' | 'bonus' | 'restore-composure'
+export type Mutation = {
+  id: string
+  title: string
+  text: string
+  kind: MutationKind
+  skills?: Skill[]
+  amount?: number
+}
+export type Decks = {
+  schemaVersion: number
+  source: string
+  sourceRef: string
+  societies: Society[]
+  mutations: Mutation[]
+  jobTitles: Array<{
+    id: string
+    title: string
+    skills: Record<Skill, number>
+    perk: string
+  }>
+}
+
+export const DECKS = decksData as Decks
+export const SOCIETIES = DECKS.societies
+export const MUTATIONS = DECKS.mutations
+
 export type JobTitle = {
   id: string
   title: string
@@ -226,12 +276,22 @@ export type LogEntry = {
   effects: Effects
   events: string[]
   employee: string
+  aids: string[]
+  rerolled: number[] | null
 }
 
 export type RunStatus = 'playing' | 'department-complete' | 'eliminated'
 
+export type SocietyStatus = 'active' | 'met' | 'betrayed'
+
 export type RunState = {
-  version: 1
+  version: 2
+  department: string
+  societyId: string
+  societyStatus: SocietyStatus
+  favorUsed: boolean
+  mutationId: string
+  mutationUsed: boolean
   seed: string
   rng: number
   jobId: string
@@ -249,7 +309,7 @@ export type RunState = {
 }
 
 export const BOSS_CARD = 'boss'
-const SAVE_VERSION = 1
+const SAVE_VERSION = 2
 
 function hashSeed(seed: string): number {
   let h = 2166136261
@@ -300,6 +360,22 @@ export function jobById(id: string): JobTitle {
   return JOB_TITLES.find((j) => j.id === id) ?? (JOB_TITLES[0] as JobTitle)
 }
 
+export function societyById(id: string): Society {
+  return SOCIETIES.find((x) => x.id === id) ?? (SOCIETIES[0] as Society)
+}
+
+export function mutationById(id: string): Mutation {
+  return MUTATIONS.find((x) => x.id === id) ?? (MUTATIONS[0] as Mutation)
+}
+
+function dealDossier(rng: number): [string, string, number] {
+  const [a, r1] = nextRandom(rng)
+  const [b, r2] = nextRandom(r1)
+  const society = SOCIETIES[Math.floor(a * SOCIETIES.length)] as Society
+  const mutation = MUTATIONS[Math.floor(b * MUTATIONS.length)] as Mutation
+  return [society.id, mutation.id, r2]
+}
+
 export function employeeId(generation: number): string {
   return `#4471-${String.fromCharCode(65 + Math.min(generation, 25))}`
 }
@@ -333,8 +409,16 @@ export function newRun(seed: string, jobId: string): RunState {
     rng = next
   }
   deck.push(BOSS_CARD)
+  const [societyId, mutationId, dealt] = dealDossier(rng)
+  rng = dealt
   return {
     version: SAVE_VERSION,
+    department: ORIENTATION.department.id,
+    societyId,
+    societyStatus: 'active',
+    favorUsed: false,
+    mutationId,
+    mutationUsed: false,
     seed,
     rng,
     jobId: job.id,
@@ -366,7 +450,10 @@ export function currentCard(
   return { kind: 'encounter', card: encounterById(id) }
 }
 
-export function lockReason(state: RunState, choice: Choice): string | null {
+export function requirementLock(
+  state: RunState,
+  choice: Choice,
+): string | null {
   const req = choice.requires
   if (req?.flag && !state.flags.includes(req.flag)) {
     return 'You have not earned this option on this run.'
@@ -374,11 +461,63 @@ export function lockReason(state: RunState, choice: Choice): string | null {
   if (req?.clearance && state.meters.clearance < req.clearance) {
     return `Requires Clearance ${req.clearance}.`
   }
+  return null
+}
+
+export function lockReason(
+  state: RunState,
+  choice: Choice,
+  ignoreRequirement = false,
+): string | null {
+  if (!ignoreRequirement) {
+    const locked = requirementLock(state, choice)
+    if (locked) return locked
+  }
+  const req = choice.requires
   const formsNeeded = (req?.forms ?? 0) + Math.max(0, -(choice.cost.forms ?? 0))
   if (formsNeeded > state.meters.forms) {
     return `Requires ${formsNeeded} Form${formsNeeded === 1 ? '' : 's'}.`
   }
   return null
+}
+
+export function favorAvailable(state: RunState): boolean {
+  return !state.favorUsed && state.societyStatus !== 'betrayed'
+}
+
+export function favorAppliesTo(state: RunState, choice: Choice): boolean {
+  if (!favorAvailable(state)) return false
+  const kind = societyById(state.societyId).favor.kind
+  if (kind === 'force-success' || kind === 'bonus') return !!choice.roll
+  if (kind === 'ignore-requirement') return !!requirementLock(state, choice)
+  return false
+}
+
+export function mutationAppliesTo(state: RunState, choice: Choice): boolean {
+  if (state.mutationUsed || !choice.roll) return false
+  const m = mutationById(state.mutationId)
+  if (m.kind === 'reroll') return true
+  if (m.kind === 'auto-success' || m.kind === 'bonus') {
+    return !m.skills || m.skills.includes(choice.roll.skill)
+  }
+  return false
+}
+
+export function instantAvailable(
+  state: RunState,
+  which: 'favor' | 'mutation',
+): boolean {
+  if (state.status !== 'playing' || state.pending) return false
+  if (which === 'favor') {
+    return (
+      favorAvailable(state) &&
+      societyById(state.societyId).favor.kind === 'effects'
+    )
+  }
+  return (
+    !state.mutationUsed &&
+    mutationById(state.mutationId).kind === 'restore-composure'
+  )
 }
 
 export function isHarmful(effects: Effects): boolean {
@@ -399,16 +538,39 @@ function rollDie(rng: number, sides: number): [number, number] {
   return [1 + Math.floor(r * sides), next]
 }
 
+export type ChooseOptions = {
+  spendForm?: boolean
+  useFavor?: boolean
+  useMutation?: boolean
+}
+
 export function choose(
   state: RunState,
   choiceId: string,
-  spendForm = false,
+  options: ChooseOptions | boolean = {},
 ): RunState {
+  const opts: ChooseOptions =
+    typeof options === 'boolean' ? { spendForm: options } : options
+  const spendForm = !!opts.spendForm
   if (state.status !== 'playing' || state.pending) return state
   const view = currentCard(state)
   if (!view) return state
   const choice = view.card.choices.find((c) => c.id === choiceId)
-  if (!choice || lockReason(state, choice)) return state
+  if (!choice) return state
+  const society = societyById(state.societyId)
+  const mutation = mutationById(state.mutationId)
+  const favor = !!opts.useFavor && favorAppliesTo(state, choice)
+  const mutate = !!opts.useMutation && mutationAppliesTo(state, choice)
+  const ignoreRequirement = favor && society.favor.kind === 'ignore-requirement'
+  if (lockReason(state, choice, ignoreRequirement)) return state
+  const aids: string[] = []
+  let favorUsed = state.favorUsed
+  let mutationUsed = state.mutationUsed
+  let rerolled: number[] | null = null
+  if (ignoreRequirement) {
+    favorUsed = true
+    aids.push(society.favor.title)
+  }
 
   let rng = state.rng
   let meters: Meters = { ...state.meters }
@@ -417,10 +579,21 @@ export function choose(
   const events: string[] = []
   const employee = employeeId(generation)
 
-  const boost =
+  const formBoost =
     spendForm && choice.roll && meters.forms + (choice.cost.forms ?? 0) >= 1
       ? 2
       : 0
+  let boost = formBoost
+  if (favor && society.favor.kind === 'bonus') {
+    boost += society.favor.amount ?? 0
+    favorUsed = true
+    aids.push(society.favor.title)
+  }
+  if (mutate && mutation.kind === 'bonus') {
+    boost += mutation.amount ?? 0
+    mutationUsed = true
+    aids.push(mutation.title)
+  }
   let total: number | null = null
   let dice: number[] | null = null
   let special: LogEntry['special'] = null
@@ -442,11 +615,52 @@ export function choose(
         : special === 'incident'
           ? false
           : total >= choice.roll.target
+    if (!success && mutate && mutation.kind === 'reroll') {
+      const [e1, q1] = rollDie(rng, choice.roll.die_sides)
+      const [e2, q2] = rollDie(q1, choice.roll.die_sides)
+      rng = q2
+      rerolled = dice
+      dice = [e1, e2]
+      total = e1 + e2 + skillValue + choice.roll.modifier + boost
+      special =
+        e1 + e2 === 12 ? 'commendation' : e1 + e2 === 2 ? 'incident' : null
+      success =
+        special === 'commendation'
+          ? true
+          : special === 'incident'
+            ? false
+            : total >= choice.roll.target
+      mutationUsed = true
+      aids.push(mutation.title)
+      events.push(
+        `${mutation.title}: you saw it go wrong four seconds early and tried again.`,
+      )
+    }
+    if (!success && mutate && mutation.kind === 'auto-success') {
+      success = true
+      mutationUsed = true
+      aids.push(mutation.title)
+      events.push(`${mutation.title} carries it, whatever the dice say.`)
+    }
+    if (!success && favor && society.favor.kind === 'force-success') {
+      success = true
+      favorUsed = true
+      aids.push(society.favor.title)
+      events.push(
+        `${society.title} quietly fixes it. ${society.favor.title} is spent.`,
+      )
+    }
   }
 
   const outcome = success || !choice.failure ? choice.success : choice.failure
   let effects = addEffects(choice.cost, outcome.effects)
-  if (boost) effects = addEffects(effects, { forms: -1 })
+  if (formBoost) effects = addEffects(effects, { forms: -1 })
+  const mutationSpent = mutationUsed && !state.mutationUsed
+  const witnessed = view.kind === 'boss' || view.card.witnessed
+  if (mutationSpent && witnessed) {
+    effects = addEffects(effects, { suspicion: 2 })
+    events.push(`Someone saw that. Using ${mutation.title} in public is noted.`)
+  }
   if (special === 'commendation') {
     effects = addEffects(effects, { composure: 1 })
     events.push(
@@ -464,6 +678,29 @@ export function choose(
     ...flags.filter((f) => !outcome.remove_flags.includes(f)),
     ...outcome.add_flags.filter((f) => !flags.includes(f)),
   ]
+
+  let societyStatus = state.societyStatus
+  if (societyStatus === 'active') {
+    const betrayals = society.betrayals[state.department] ?? []
+    const objectives = society.objectives[state.department] ?? []
+    if (betrayals.some((f) => flags.includes(f))) {
+      societyStatus = 'betrayed'
+      favorUsed = true
+      meters.suspicion += 2
+      effects = addEffects(effects, { suspicion: 2 })
+      events.push(
+        `${society.title} has burned you. Someone left an anonymous note about you on PAL's desk.`,
+      )
+    } else if (objectives.some((f) => flags.includes(f))) {
+      societyStatus = 'met'
+      for (const k of METERS) meters[k] += society.reward[k] ?? 0
+      effects = addEffects(effects, society.reward)
+      events.push(
+        `${society.title} is pleased. A plain envelope appears in your desk drawer.`,
+      )
+    }
+    meters = clampMeters(meters)
+  }
 
   const successorLost = (effects.successors ?? 0) < 0
   let replaced = successorLost
@@ -514,6 +751,8 @@ export function choose(
     effects,
     events,
     employee,
+    aids,
+    rerolled,
   }
 
   let deck = state.deck
@@ -548,12 +787,70 @@ export function choose(
     meters,
     flags,
     generation,
+    societyStatus,
+    favorUsed,
+    mutationUsed,
     deck,
     bossAttempts,
     status,
     departmentOutcome,
     log: [...state.log, entry],
     pending: entry,
+  }
+}
+
+export function useInstant(
+  state: RunState,
+  which: 'favor' | 'mutation',
+): RunState {
+  if (!instantAvailable(state, which)) return state
+  const meters: Meters = { ...state.meters }
+  let effects: Effects
+  let title: string
+  let text: string
+  if (which === 'favor') {
+    const favor = societyById(state.societyId).favor
+    effects = favor.effects ?? {}
+    for (const k of METERS) meters[k] += effects[k] ?? 0
+    title = favor.title
+    text = favor.text
+  } else {
+    const mutation = mutationById(state.mutationId)
+    const restored = Math.max(meters.composure, START_METERS.composure)
+    effects =
+      restored > meters.composure
+        ? { composure: restored - meters.composure }
+        : {}
+    meters.composure = restored
+    title = mutation.title
+    text = mutation.text
+  }
+  const entry: LogEntry = {
+    cardId: 'dossier',
+    cardTitle: 'Sealed envelope',
+    choiceId: which,
+    choiceLabel: title,
+    dice: null,
+    skill: null,
+    skillValue: 0,
+    boost: 0,
+    total: null,
+    target: null,
+    success: true,
+    special: null,
+    text,
+    effects,
+    events: [],
+    employee: employeeId(state.generation),
+    aids: [title],
+    rerolled: null,
+  }
+  return {
+    ...state,
+    meters: clampMeters(meters),
+    favorUsed: which === 'favor' ? true : state.favorUsed,
+    mutationUsed: which === 'mutation' ? true : state.mutationUsed,
+    log: [...state.log, entry],
   }
 }
 
@@ -577,11 +874,44 @@ export function outcomeById(id: string | null): DepartmentOutcome | null {
   return ORIENTATION.boss.department_outcomes.find((o) => o.id === id) ?? null
 }
 
+export function upgradeRun(value: unknown): RunState | null {
+  if (isRunState(value)) return value
+  if (!value || typeof value !== 'object') return null
+  const v = value as Record<string, unknown>
+  if (v.version !== 1) return null
+  const [societyId, mutationId] = dealDossier(hashSeed(String(v.seed ?? '')))
+  const upgraded = {
+    ...v,
+    version: SAVE_VERSION,
+    department: ORIENTATION.department.id,
+    societyId,
+    societyStatus: 'active',
+    favorUsed: false,
+    mutationId,
+    mutationUsed: false,
+    log: Array.isArray(v.log)
+      ? v.log.map((e) => ({ aids: [], rerolled: null, ...(e as object) }))
+      : [],
+    pending: v.pending
+      ? { aids: [], rerolled: null, ...(v.pending as object) }
+      : null,
+  }
+  return isRunState(upgraded) ? upgraded : null
+}
+
 export function isRunState(value: unknown): value is RunState {
   if (!value || typeof value !== 'object') return false
   const v = value as Partial<RunState>
   return (
     v.version === SAVE_VERSION &&
+    typeof v.department === 'string' &&
+    SOCIETIES.some((x) => x.id === v.societyId) &&
+    MUTATIONS.some((x) => x.id === v.mutationId) &&
+    (v.societyStatus === 'active' ||
+      v.societyStatus === 'met' ||
+      v.societyStatus === 'betrayed') &&
+    typeof v.favorUsed === 'boolean' &&
+    typeof v.mutationUsed === 'boolean' &&
     typeof v.seed === 'string' &&
     typeof v.rng === 'number' &&
     typeof v.position === 'number' &&

@@ -52,9 +52,17 @@ const STEPS_PER_TICK = PHYSICS_HZ / 60
 const TICK_MS = 1000 / 60
 /** Ticks to hold Down for a full plunger pull. */
 const PULL_TICKS = 45
-/** A ball this slow for this long, off the plunger, gets a small shove. */
-const STILL_SPEED = 0.01
+/**
+ * The ball search (kind-pinball t-035). A ball that has not left a spot this
+ * size (m) for this long, off the plunger, is stuck: sitting still, or
+ * rattling in a pocket it cannot get out of.
+ */
+const TRAP_RADIUS = 0.02
 const STILL_TICKS = 60 * 4
+/** Ticks between searches while the same ball stays stuck. */
+const SEARCH_GAP_TICKS = 60 * 3
+/** Searches, each harder than the last, before the ball is rescued. */
+const SEARCHES = 3
 /** How far past a held flipper's length a resting ball counts as cradled. */
 const CRADLE_REACH = 0.03
 /** How often the attract pilot makes a save it goes for. */
@@ -146,8 +154,14 @@ export class PinballRuntime<
   private autoLaunch = 0
   /** The music bed playing (rules/subTable.ts musicFor). */
   private bed: PinballMusicBed | null = null
-  /** Ticks each ball (by id) has sat still, for the ball search. */
-  private still = new Map<number, number>()
+  /**
+   * For the ball search, each ball (by id): where it was last seen moving
+   * from, ticks since, and the searches it has had there.
+   */
+  private still = new Map<
+    number,
+    { x: number; z: number; ticks: number; searches: number }
+  >()
   private tick = 0
   /** Physics steps taken, the clock the shot recognizer times windows by. */
   private steps = 0
@@ -432,45 +446,68 @@ export class PinballRuntime<
   }
 
   /**
-   * Ball search: a ball that has sat still somewhere odd for a while gets the
-   * table shaken, as a real machine pulses its coils. Each ball is watched on
-   * its own, so one moving ball cannot hide another that is stuck. A ball on
-   * the plunger, in a scoop, or cradled on a held flipper is not stuck; a
-   * held flipper only vouches for a ball within its reach, so a player (or
-   * the attract pilot) flipping cannot hide a ball stuck elsewhere.
+   * Ball search: a ball that has not left one spot for a while (sitting
+   * still, or rattling in a pocket) gets a coil pulse, as a real machine
+   * pulses its coils, and then harder ones from alternate sides. A ball
+   * still there after the last search is rescued: set back on the plunger
+   * and fired, never lost, so no game can hang on a stuck ball. Each ball is
+   * watched on its own, so one moving ball cannot hide another that is
+   * stuck. A ball on the plunger, in a scoop, or cradled on a held flipper is
+   * not stuck; a held flipper only vouches for a ball within its reach, so a
+   * player (or the attract pilot) flipping cannot hide a ball stuck
+   * elsewhere.
    */
   private unstick(held: { left: boolean; right: boolean }) {
     const balls = this.physics.ballViews()
     const plunger = this.physics.table.plunger.rest
     const flippers = this.physics.table.flippers.filter((f) => held[f.side])
-    let search = false
     for (const ball of balls) {
+      const [x, , z] = ball.position
       const onPlunger =
-        Math.abs(ball.position[0] - plunger[0]) < 0.012 &&
-        Math.abs(ball.position[2] - plunger[2]) < 0.03
+        Math.abs(x - plunger[0]) < 0.012 && Math.abs(z - plunger[2]) < 0.03
       const cradled = flippers.some(
         (f) =>
-          Math.hypot(
-            ball.position[0] - f.pivot[0],
-            ball.position[2] - f.pivot[2],
-          ) <
-          f.length + CRADLE_REACH,
+          Math.hypot(x - f.pivot[0], z - f.pivot[2]) < f.length + CRADLE_REACH,
       )
-      if (ball.captured || onPlunger || cradled || ball.speed > STILL_SPEED) {
-        this.still.set(ball.id, 0)
+      const seen = this.still.get(ball.id)
+      if (
+        !seen ||
+        ball.captured ||
+        onPlunger ||
+        cradled ||
+        Math.hypot(x - seen.x, z - seen.z) > TRAP_RADIUS
+      ) {
+        this.still.set(ball.id, { x, z, ticks: 0, searches: 0 })
         continue
       }
-      const ticks = (this.still.get(ball.id) ?? 0) + 1
-      this.still.set(ball.id, ticks)
-      if (ticks >= STILL_TICKS) {
-        search = true
-        this.still.set(ball.id, 0)
+      seen.ticks++
+      const due = seen.searches === 0 ? STILL_TICKS : SEARCH_GAP_TICKS
+      if (seen.ticks < due) continue
+      seen.ticks = 0
+      if (seen.searches < SEARCHES) {
+        // Up the table, and across from alternate sides, harder each time.
+        const k = seen.searches++
+        const side = k % 2 ? 1 : -1
+        const across = k === 0 ? (this.rng() - 0.5) * 0.2 : side * 0.15 * k
+        this.physics.nudge(
+          across,
+          -0.25 - 0.2 * k,
+          k === 0 ? undefined : ball.id,
+        )
+        continue
       }
+      // The plunger is busy: try again next tick.
+      if (this.autoLaunch > 0 || !this.physics.rescueBall(ball.id)) {
+        seen.ticks = due
+        continue
+      }
+      this.still.delete(ball.id)
+      this.autoLaunch = AUTO_LAUNCH_TICKS
+      this.effect({ type: 'dmd', text: 'BALL RESCUED', ms: 1500 })
     }
     for (const id of this.still.keys()) {
       if (!balls.some((b) => b.id === id)) this.still.delete(id)
     }
-    if (search) this.physics.nudge((this.rng() - 0.5) * 0.2, -0.25)
   }
 
   private apply(event: RulesEvent) {

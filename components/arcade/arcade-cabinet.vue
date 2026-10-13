@@ -208,6 +208,14 @@
           WASD move · arrows aim and spray · Space or Z = A · X or Shift = B ·
           Enter = Start · P pauses · gamepads: right stick aims
         </p>
+        <p
+          v-else-if="!touchControls && meta?.touchLayout === 'pinball'"
+          class="cabinet-hint"
+        >
+          Left / right = flippers · hold Down, release to launch · Up nudges
+          (nudge too often and it TILTs) · Enter = Start · P pauses · gamepads
+          work too
+        </p>
         <p v-else-if="!touchControls" class="cabinet-hint">
           Arrows or WASD move · Space or Z = A · X or Shift = B · Enter = Start
           · P pauses · gamepads work too
@@ -222,6 +230,18 @@
             @lostpointercapture="press('start', false)"
           >
             {{ phase === 'paused' ? 'Resume' : 'Start' }}
+          </button>
+          <button
+            v-if="meta?.touchLayout === 'pinball'"
+            type="button"
+            class="cabinet-switch"
+            title="Bump the cabinet to shake a ball loose (Up key). Nudge again before it settles and it warns; a third time and the table TILTs."
+            @pointerdown.prevent="holdButton($event, 'up')"
+            @pointerup.prevent="press('up', false)"
+            @pointercancel="press('up', false)"
+            @lostpointercapture="press('up', false)"
+          >
+            Nudge
           </button>
           <button
             v-if="maxPlayers > 1"

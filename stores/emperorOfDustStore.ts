@@ -159,6 +159,7 @@ export const useEmperorOfDustStore = defineStore('emperorOfDust', () => {
     leaders: string[],
     troops: number,
     choice: string,
+    useHourglass = false,
   ) {
     if (!campaign.value) throw new Error('Load the court first')
     return previewDispatch(campaign.value, incident, leaders, troops, choice, useHourglass)

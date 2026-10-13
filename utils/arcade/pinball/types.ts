@@ -137,6 +137,31 @@ export type AnimatronicDef = {
   at: Vec3
   yaw?: number
   scale?: number
+  /**
+   * Drawn from generated art (zuzu-pinball t-019): an animated card lying in
+   * the water, `size` metres square, centred on `at`, its picture's top up
+   * the table. Its frames come from the sprite's atlas.
+   */
+  sprite?: CrocSprite
+  size?: number
+}
+
+/**
+ * A sprite toy's atlas (zuzu-pinball t-019): square frames in a grid, left to
+ * right and top to bottom, the clips the rules' phases play, and the frame
+ * each phase holds with reduced motion.
+ */
+export type CrocSprite = {
+  src: string
+  /** One frame's side, pixels; the grid's columns and rows. */
+  frame: number
+  cols: number
+  rows: number
+  clips: Record<
+    string,
+    { first: number; count: number; fps: number; loop: boolean }
+  >
+  holds: Record<string, number>
 }
 
 /** A motorised toy: arms on a hub that turn at a steady rate and bat the ball. */

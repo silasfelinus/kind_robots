@@ -7,6 +7,7 @@
 
 import type { ColliderDef, InsertDef, TableDef, Vec3 } from '../../types'
 import { ramp, slingCap, wall, walls, type XZ, type XZH } from '../builders'
+import { RIVER_CROC_SPRITE } from './crocSprite'
 
 const BALL = 0.0135
 const LEFT = -0.26
@@ -1144,10 +1145,12 @@ export const ZUZU_LAST_BELL_GREYBOX: TableDef = {
     {
       id: 'river-croc',
       kind: 'river-croc',
-      at: [CROC[0], 0, CROC[1] - 0.004],
-      // The table's signature toy, sized to read from the flippers (t-018);
-      // the snout still fits between the jaw gate's posts.
-      scale: 1.3,
+      // Drawn from generated art (t-019): an 18 cm card lying in the
+      // painted pond, centred so his snout tip lies at the scoop, between
+      // the jaw gate's posts, and his body and tail run up the bank.
+      at: [CROC[0], 0, CROC[1] - 0.035],
+      sprite: RIVER_CROC_SPRITE,
+      size: 0.18,
     },
   ],
   captives: [

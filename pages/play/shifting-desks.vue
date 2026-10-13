@@ -808,7 +808,7 @@ const levelNotes = [
   {
     floor: 'Level −4',
     name: 'Sub-Level Zero: the Board',
-    note: 'The executives live at the very bottom.',
+    note: "The Boardroom Antechamber, the Founder's Office, Server Room Zero, and the Board itself, where every choice is an ending.",
     id: 'sub-level-zero',
   },
 ]

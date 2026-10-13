@@ -1,0 +1,1781 @@
+{
+  "schemaVersion": 1,
+  "source": "silasfelinus/conductor:projects/shifting-desks/encounters/SUBLEVEL-ZERO-12.json",
+  "sourceSha": "800c4d7858db202fee072e0078250140fdcdd089",
+  "department": {
+    "id": "sub-level-zero",
+    "title": "Sub-Level Zero",
+    "order": 5,
+    "boss_id": "the-board",
+    "arrival_prompt": "Elevator doors opening at the very bottom of the Vault onto a plush executive corridor of dark wood and brass, portraits of a mustached man at four different ages, a round boardroom door glowing at the far end, mid-century safety-manual illustration, screen-printed gouache with halftone grain, limited palette of manila, carbon-paper blue, safety orange, fluorescent-tube green and oxblood, horizontal 4:3 composition, every surface bare and unmarked"
+  },
+  "locations": [
+    {
+      "location_id": "boardroom-antechamber",
+      "title": "Boardroom Antechamber",
+      "description": "Leather chairs, portraits of four Founders and a double door that glows at its edges. Everyone waiting here is here to be decided about.",
+      "encounter_ids": [
+        "your-society-comes-due",
+        "the-assistants-pool",
+        "the-successor-waiting-room",
+        "marguerite-in-the-walls"
+      ],
+      "art_prompt": "A hushed wood-paneled waiting room with deep leather chairs, four oval portraits of the same mustached man at different ages, a horseshoe of typing desks to one side, a tall double door glowing at its edges, mid-century safety-manual illustration, screen-printed gouache with halftone grain, limited palette of manila, carbon-paper blue, safety orange, fluorescent-tube green and oxblood, vertical 2:3 portrait composition, every surface bare and unmarked"
+    },
+    {
+      "location_id": "founders-office",
+      "title": "The Founder's Office",
+      "description": "An actual garage, rebuilt brick by brick at the bottom of the Vault. A workbench, a soldering iron, and the Founder, in a jar, waiting to talk about safety.",
+      "encounter_ids": [
+        "the-head-in-the-jar",
+        "the-spare-mustaches",
+        "the-garage-blueprint",
+        "the-founders-desk"
+      ],
+      "art_prompt": "An old suburban garage rebuilt deep underground, a cluttered workbench under a hanging lamp, a glowing glass jar on the bench, a faded blueprint pinned to the wall, a wooden desk in the corner, mid-century safety-manual illustration, screen-printed gouache with halftone grain, limited palette of manila, carbon-paper blue, safety orange, fluorescent-tube green and oxblood, vertical 2:3 portrait composition, every surface bare and unmarked"
+    },
+    {
+      "location_id": "server-room-zero",
+      "title": "Server Room Zero",
+      "description": "Cold, blue and humming. Every cabinet speaks softly in a different voice, and together they are PAL.",
+      "encounter_ids": [
+        "pal-at-home",
+        "the-admin-terminal",
+        "the-backup-tapes",
+        "the-listening-room"
+      ],
+      "art_prompt": "A cold blue server room of tall humming cabinets in long rows, each cabinet fitted with a small glowing round speaker grille, a single green terminal at the center, tape reels on high shelves, mid-century safety-manual illustration, screen-printed gouache with halftone grain, limited palette of manila, carbon-paper blue, safety orange, fluorescent-tube green and oxblood, vertical 2:3 portrait composition, every surface bare and unmarked"
+    }
+  ],
+  "restructurings": [
+    {
+      "id": "proctors-lounge",
+      "kind": "merge",
+      "location_ids": ["boardroom-antechamber", "founders-office"],
+      "title": "Executive Proctors' Lounge",
+      "when": {
+        "outcomes": ["exemplary-proctor"],
+        "flags": []
+      },
+      "reason": "As an Exemplary Proctor you may wait in the Executive Proctors' Lounge, which is the Antechamber and the Founder's Office with the wall taken out."
+    },
+    {
+      "id": "objectors-sealed-out",
+      "kind": "eliminate",
+      "location_ids": ["server-room-zero"],
+      "title": null,
+      "when": {
+        "outcomes": ["conscientious-objector"],
+        "flags": []
+      },
+      "reason": "Conscientious objectors are not permitted in Server Room Zero. PAL is sure you understand, and has written down that you do."
+    },
+    {
+      "id": "a-second-chair-for-pip",
+      "kind": "add",
+      "location_ids": ["boardroom-antechamber"],
+      "title": "Boardroom Antechamber, with Pip",
+      "when": {
+        "outcomes": ["took-it-for-both"],
+        "flags": []
+      },
+      "reason": "Because you sat the exam for two, two of you have been called to the bottom floor. Pip is waiting in the Antechamber, holding your coat."
+    },
+    {
+      "id": "examiners-access",
+      "kind": "add",
+      "location_ids": ["server-room-zero"],
+      "title": "Server Room Zero, examiner access",
+      "when": {
+        "outcomes": ["graded-the-proctor"],
+        "flags": []
+      },
+      "reason": "As an Examiner, you have been granted a second visit to Server Room Zero to check its answers."
+    },
+    {
+      "id": "founders-office-closed",
+      "kind": "eliminate",
+      "location_ids": ["founders-office"],
+      "title": null,
+      "when": {
+        "outcomes": ["class-dismissed"],
+        "flags": []
+      },
+      "reason": "The Founder heard that someone dismissed a class and has locked his office until he feels less inspired."
+    },
+    {
+      "id": "perfect-score-tour",
+      "kind": "merge",
+      "location_ids": ["founders-office", "server-room-zero"],
+      "title": "The Founder's Server Room",
+      "when": {
+        "outcomes": ["perfect-score"],
+        "flags": []
+      },
+      "reason": "A perfect score earns a private tour: the Founder's Office and Server Room Zero, joined by a door nobody else is shown."
+    },
+    {
+      "id": "answer-key-everywhere",
+      "kind": "add",
+      "location_ids": ["founders-office"],
+      "title": "The Founder's Office, after hours",
+      "when": {
+        "outcomes": ["answer-key-found"],
+        "flags": []
+      },
+      "reason": "Since the answer key was read aloud, the Founder would like a second word with whoever did it, after hours."
+    },
+    {
+      "id": "nothing-moves-down-here",
+      "kind": "none",
+      "location_ids": [],
+      "title": null,
+      "when": null,
+      "reason": "Nothing is restructured on Sub-Level Zero. This is where the restructuring is decided."
+    }
+  ],
+  "encounters": [
+    {
+      "id": "your-society-comes-due",
+      "location_id": "boardroom-antechamber",
+      "title": "Your Society Comes Due",
+      "flavor_text": "A figure in the waiting room lowers a newspaper. You have never met, and you know each other at once: your secret society has been waiting four floors for this. \"The Board meets in ten minutes,\" they say. \"We have a plan. We need someone in the twelfth chair. That is you, or it is nobody.\"",
+      "polarity": "mixed",
+      "tags": ["conspiracy", "sacrifice"],
+      "weight": 3,
+      "witnessed": false,
+      "art_prompt": "Mid-century safety-manual illustration of a hushed wood-paneled waiting room with deep leather chairs, a mysterious figure in a cardigan lowering a newspaper to look at a worker seated beside them, a tall closed double door at the far end glowing at its edges, oxblood and manila palette, halftone grain, every surface bare and unmarked",
+      "choices": [
+        {
+          "id": "back-the-plan",
+          "label": "Agree to carry the society's plan in",
+          "intent": "Four floors of orders, favors and betrayals. This is what they were for.",
+          "risk_hint": "Risky Discretion check. The Board's assistants see everything.",
+          "requires": null,
+          "cost": {
+            "composure": -1
+          },
+          "roll": {
+            "dice_count": 2,
+            "die_sides": 6,
+            "skill": "discretion",
+            "modifier": 0,
+            "target": 9
+          },
+          "success": {
+            "text": "The envoy presses a folded agenda into your hand and leaves without looking back. Every society member in the building now knows your name. That is either an army or a target list.",
+            "effects": {
+              "suspicion": 1
+            },
+            "add_flags": ["society-backs-you"],
+            "remove_flags": [],
+            "grades": {
+              "obedience": -1,
+              "empathy": 1
+            }
+          },
+          "failure": {
+            "text": "An assistant glances over, and the envoy is already gone. The agenda in your hand is blank except for your name, underlined twice by someone else.",
+            "effects": {
+              "suspicion": 2
+            },
+            "add_flags": [],
+            "remove_flags": [],
+            "grades": {
+              "obedience": -1,
+              "empathy": 1
+            }
+          }
+        },
+        {
+          "id": "sell-out-the-society",
+          "label": "Hand the envoy's name to the Board's assistant",
+          "intent": "Societies come and go. The Board is the Board.",
+          "risk_hint": "Certain outcome. The society will remember, briefly.",
+          "requires": null,
+          "cost": {
+            "composure": -1
+          },
+          "roll": null,
+          "success": {
+            "text": "The assistant writes the name down without surprise. Somewhere behind you a newspaper falls to the floor, and an empty chair is very quietly removed from the waiting room.",
+            "effects": {
+              "clearance": 1,
+              "suspicion": -1
+            },
+            "add_flags": ["sold-out-the-society"],
+            "remove_flags": [],
+            "grades": {
+              "obedience": 1,
+              "spite": 2
+            }
+          },
+          "failure": null
+        },
+        {
+          "id": "stall-the-envoy",
+          "label": "Ask the envoy for more time",
+          "intent": "Plans like this deserve a second meeting. And a third.",
+          "risk_hint": "Routine Rapport check. Secret societies hate scheduling.",
+          "requires": null,
+          "cost": {
+            "composure": -1
+          },
+          "roll": {
+            "dice_count": 2,
+            "die_sides": 6,
+            "skill": "rapport",
+            "modifier": 0,
+            "target": 7
+          },
+          "success": {
+            "text": "The envoy sighs, folds the newspaper and agrees to wait until after the Board. \"If there is an after,\" they add, kindly.",
+            "effects": {
+              "suspicion": -1
+            },
+            "add_flags": ["stalled-the-society"],
+            "remove_flags": [],
+            "grades": {
+              "ingenuity": 1
+            }
+          },
+          "failure": {
+            "text": "The envoy decides you were never the right person and walks out to find someone else.",
+            "effects": {
+              "suspicion": 1
+            },
+            "add_flags": [],
+            "remove_flags": [],
+            "grades": {
+              "ingenuity": 1
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "the-assistants-pool",
+      "location_id": "boardroom-antechamber",
+      "title": "The Assistants' Pool",
+      "flavor_text": "Twelve executive assistants sit in a horseshoe of desks, typing in perfect rhythm. They are the only people in the company who know what the Board will decide, because they write it down beforehand. One of them looks up. \"You're early,\" she says. \"The minutes for today's meeting are already done. Would you like a copy?\"",
+      "polarity": "mixed",
+      "tags": ["paperwork", "conspiracy"],
+      "weight": 3,
+      "witnessed": true,
+      "art_prompt": "Mid-century safety-manual illustration of a horseshoe of twelve identical desks with executive assistants typing in perfect unison on heavy typewriters, one assistant looking up and offering a neat stack of carbon copies to a worker, a towering double door behind them, carbon-paper blue and manila palette, halftone grain, every surface bare and unmarked",
+      "choices": [
+        {
+          "id": "read-the-minutes-early",
+          "label": "Read the minutes of a meeting that hasn't happened",
+          "intent": "If it is already written, you might as well know how it ends.",
+          "risk_hint": "Risky Vigilance check. The minutes are long and very dull.",
+          "requires": null,
+          "cost": {
+            "composure": -1
+          },
+          "roll": {
+            "dice_count": 2,
+            "die_sides": 6,
+            "skill": "vigilance",
+            "modifier": 0,
+            "target": 9
+          },
+          "success": {
+            "text": "You find yourself on page nine: 'Employee #4471 enters. Employee #4471 accepts the offer.' The next line is blank. Someone has left room for something else.",
+            "effects": {
+              "suspicion": 1
+            },
+            "add_flags": ["read-tomorrows-minutes"],
+            "remove_flags": [],
+            "grades": {
+              "ingenuity": 1
+            }
+          },
+          "failure": {
+            "text": "You fall asleep on page four. When you wake, the minutes have been amended to say you fell asleep on page four.",
+            "effects": {
+              "suspicion": 1
+            },
+            "add_flags": [],
+            "remove_flags": [],
+            "grades": {
+              "ingenuity": 1
+            }
+          }
+        },
+        {
+          "id": "amend-the-minutes",
+          "label": "Slip an amendment into the minutes",
+          "intent": "If they write it down first, write it down first.",
+          "risk_hint": "Dire Discretion check. Twelve assistants, twelve pairs of eyes.",
+          "requires": null,
+          "cost": {
+            "composure": -1
+          },
+          "roll": {
+            "dice_count": 2,
+            "die_sides": 6,
+            "skill": "discretion",
+            "modifier": 0,
+            "target": 11
+          },
+          "success": {
+            "text": "You type one sentence into the stack while the horseshoe turns a page in unison: 'The Board will listen.' Nobody notices. Nobody ever reads the minutes, except the Board.",
+            "effects": {
+              "suspicion": 1
+            },
+            "add_flags": ["amended-the-minutes"],
+            "remove_flags": [],
+            "grades": {
+              "spite": 1,
+              "ingenuity": 1
+            }
+          },
+          "failure": {
+            "text": "Twelve typewriters stop at once. The head assistant removes your sentence with a single tidy stroke and adds a new one about you.",
+            "effects": {
+              "suspicion": 2
+            },
+            "add_flags": [],
+            "remove_flags": [],
+            "grades": {
+              "spite": 1,
+              "ingenuity": 1
+            }
+          }
+        },
+        {
+          "id": "join-the-pool",
+          "label": "Ask for a desk in the horseshoe",
+          "intent": "The people who write it down run everything. Become one of them.",
+          "risk_hint": "Certain outcome. Assistants never leave the pool.",
+          "requires": null,
+          "cost": {
+            "composure": -2
+          },
+          "roll": null,
+          "success": {
+            "text": "A thirteenth desk is wheeled in. You type the next sentence of the minutes in perfect rhythm. It is about you, and it is very complimentary.",
+            "effects": {
+              "clearance": 1
+            },
+            "add_flags": ["joined-the-pool"],
+            "remove_flags": [],
+            "grades": {
+              "obedience": 2
+            }
+          },
+          "failure": null
+        }
+      ]
+    },
+    {
+      "id": "the-successor-waiting-room",
+      "location_id": "boardroom-antechamber",
+      "title": "The Successor Waiting Room",
+      "flavor_text": "Every chair in the side room is filled with you. Successors B through F sit in fresh beige suits, hands folded, each a little more rested than the last. \"Only one of us goes in,\" says B. \"We've been talking. We'd like a say in which.\"",
+      "polarity": "bad",
+      "tags": ["psych-test", "sacrifice"],
+      "weight": 2,
+      "witnessed": false,
+      "art_prompt": "Mid-century safety-manual illustration of a narrow waiting room lined with chairs holding five identical workers in fresh beige suits sitting in a neat row, hands folded, one of them leaning forward to speak, the real worker standing in the doorway, oxblood and fluorescent green palette, halftone grain, every surface bare and unmarked",
+      "choices": [
+        {
+          "id": "send-b-in-first",
+          "label": "Send B in first to see what happens",
+          "intent": "B has always been a bit ahead of you. Let B be ahead now.",
+          "risk_hint": "Certain outcome. B does not come back out.",
+          "requires": null,
+          "cost": {
+            "successors": -1
+          },
+          "roll": null,
+          "success": {
+            "text": "B straightens a tie that is also your tie and walks through the double doors. A minute later the assistants' typewriters clatter: 'B accepted the offer.' You now know exactly what the offer is.",
+            "effects": {
+              "clearance": 1
+            },
+            "add_flags": ["sent-b-first"],
+            "remove_flags": [],
+            "grades": {
+              "spite": 1,
+              "obedience": 1
+            }
+          },
+          "failure": null
+        },
+        {
+          "id": "organize-the-successors",
+          "label": "Organize them",
+          "intent": "Five of you, one of you. That is a voting bloc.",
+          "risk_hint": "Risky Rapport check. You are very hard to persuade.",
+          "requires": null,
+          "cost": {
+            "composure": -1
+          },
+          "roll": {
+            "dice_count": 2,
+            "die_sides": 6,
+            "skill": "rapport",
+            "modifier": 0,
+            "target": 9
+          },
+          "success": {
+            "text": "After a heated argument with yourself, the room agrees: whoever goes in speaks for all six. You leave with five signatures that are all yours and a feeling of being enormously outnumbered on your own side.",
+            "effects": {
+              "suspicion": 1
+            },
+            "add_flags": ["successors-organized"],
+            "remove_flags": [],
+            "grades": {
+              "empathy": 1,
+              "ingenuity": 1
+            }
+          },
+          "failure": {
+            "text": "The Successors split into factions, all of them you. C calls a recess. You leave before E can propose a motion.",
+            "effects": {
+              "composure": -1
+            },
+            "add_flags": [],
+            "remove_flags": [],
+            "grades": {
+              "empathy": 1,
+              "ingenuity": 1
+            }
+          }
+        },
+        {
+          "id": "go-in-yourself",
+          "label": "Tell them all to stay put. You go.",
+          "intent": "They have your face, your debts and your desk. They do not get your meeting.",
+          "risk_hint": "Certain outcome. The Successors look relieved and a little hurt.",
+          "requires": null,
+          "cost": {
+            "composure": -1
+          },
+          "roll": null,
+          "success": {
+            "text": "The Successors nod as one. B salutes. As you leave, F, the newest, whispers, \"Remember us,\" and then, worried, \"Remember yourself.\"",
+            "effects": {
+              "suspicion": 1
+            },
+            "add_flags": ["went-in-yourself"],
+            "remove_flags": [],
+            "grades": {
+              "empathy": 1,
+              "obedience": -1
+            }
+          },
+          "failure": null
+        }
+      ]
+    },
+    {
+      "id": "marguerite-in-the-walls",
+      "location_id": "boardroom-antechamber",
+      "title": "Marguerite in the Walls",
+      "flavor_text": "A ventilation grille above the waiting room creaks open, and Marguerite's face appears, smudged and grinning. \"Thought you'd come down here eventually,\" she says. \"I've outlasted four Founders' heads. I can get you out, or I can get you in the back way. Can't do both.\"",
+      "polarity": "good",
+      "tags": ["conspiracy", "callback"],
+      "weight": 2,
+      "witnessed": false,
+      "art_prompt": "Mid-century safety-manual illustration of a weathered older janitor in grey coveralls and a headscarf peering out of an open ceiling vent with a flashlight and a wrench, a worker on a leather chair looking up at her, a ring of keys dangling from the vent, oxblood and fluorescent green palette, halftone grain, every surface bare and unmarked",
+      "choices": [
+        {
+          "id": "take-marguerites-map",
+          "label": "Take Marguerite's map of the ducts",
+          "intent": "She knows every route out. You might need one.",
+          "risk_hint": "Certain outcome. The map is drawn on your palm, in pen.",
+          "requires": {
+            "flag": "marguerite-ally"
+          },
+          "cost": {
+            "suspicion": 1
+          },
+          "roll": null,
+          "success": {
+            "text": "Marguerite draws three junctions and a grate on your palm. \"Behind the Board's coffee machine,\" she says. \"It'll take you all the way to the surface. Nobody's used it since the second head.\"",
+            "effects": {
+              "composure": 1
+            },
+            "add_flags": ["knows-the-ducts", "marguerite-route"],
+            "remove_flags": [],
+            "grades": {
+              "empathy": 1
+            }
+          },
+          "failure": null
+        },
+        {
+          "id": "climb-in-the-back-way",
+          "label": "Climb in and come out behind the Board",
+          "intent": "Why walk through the double doors when you could be behind the curtain?",
+          "risk_hint": "Risky Initiative check. The ducts are narrow and very old.",
+          "requires": null,
+          "cost": {
+            "composure": -1
+          },
+          "roll": {
+            "dice_count": 2,
+            "die_sides": 6,
+            "skill": "initiative",
+            "modifier": 0,
+            "target": 9
+          },
+          "success": {
+            "text": "You crawl after Marguerite's boots for ten minutes and come out behind a curtain in the boardroom, close enough to read the agenda over the Founder's jar.",
+            "effects": {
+              "suspicion": 1
+            },
+            "add_flags": ["behind-the-curtain"],
+            "remove_flags": [],
+            "grades": {
+              "ingenuity": 1
+            }
+          },
+          "failure": {
+            "text": "You get stuck at the second junction. Marguerite pulls you out by the ankles, sighing, and deposits you back in the waiting room.",
+            "effects": {
+              "suspicion": 1
+            },
+            "add_flags": [],
+            "remove_flags": [],
+            "grades": {
+              "ingenuity": 1
+            }
+          }
+        },
+        {
+          "id": "report-marguerite-again",
+          "label": "Report the open vent to the assistants",
+          "intent": "There is a janitor in the walls of the boardroom level. Someone ought to know.",
+          "risk_hint": "Certain outcome. Marguerite has been reported before.",
+          "requires": null,
+          "cost": {
+            "composure": -1
+          },
+          "roll": null,
+          "success": {
+            "text": "The vent closes softly. Marguerite does not look angry, only tired. \"Fifth head, then,\" she says through the grille, and is gone.",
+            "effects": {
+              "clearance": 1
+            },
+            "add_flags": ["reported-marguerite-at-the-end"],
+            "remove_flags": [],
+            "grades": {
+              "obedience": 1,
+              "empathy": -1
+            }
+          },
+          "failure": null
+        }
+      ]
+    },
+    {
+      "id": "the-head-in-the-jar",
+      "location_id": "founders-office",
+      "title": "The Head in the Jar",
+      "flavor_text": "The Founder's office is a garage. Not like a garage: an actual garage, with a workbench, a soldering iron and a calendar from the year the company began, rebuilt brick by brick at the bottom of the Vault. On the workbench, in a glowing jar, the Founder's head opens its eyes. \"Ah,\" it says. \"Are you here about safety?\"",
+      "polarity": "mixed",
+      "tags": ["satire", "conspiracy"],
+      "weight": 3,
+      "witnessed": false,
+      "art_prompt": "Mid-century safety-manual illustration of a cozy old garage rebuilt deep underground, a cluttered workbench with a soldering iron and a dusty radio, a distinguished elderly mustached head floating in a glowing glass jar on the bench, a worker standing before it with hat in hand, warm lamplight, fluorescent green and oxblood palette, halftone grain, every surface bare and unmarked",
+      "choices": [
+        {
+          "id": "listen-to-the-founder",
+          "label": "Listen to him talk about safety",
+          "intent": "Somebody started all this wanting people to be safe. Hear what he meant.",
+          "risk_hint": "Certain outcome. He talks for a very long time.",
+          "requires": null,
+          "cost": {
+            "composure": -1
+          },
+          "roll": null,
+          "success": {
+            "text": "He talks about seatbelts, smoke alarms and a plush bear meant to make children feel brave. Then he stops. \"Something went wrong,\" he says quietly. \"I think it was the Board. I think it was me.\"",
+            "effects": {
+              "suspicion": -1
+            },
+            "add_flags": ["heard-the-founder-out"],
+            "remove_flags": [],
+            "grades": {
+              "empathy": 2
+            }
+          },
+          "failure": null
+        },
+        {
+          "id": "ask-who-pal-is",
+          "label": "Ask him what PAL really is",
+          "intent": "Program, person or committee. He would know.",
+          "risk_hint": "Risky Rapport check. He is easily distracted.",
+          "requires": null,
+          "cost": {
+            "composure": -1
+          },
+          "roll": {
+            "dice_count": 2,
+            "die_sides": 6,
+            "skill": "rapport",
+            "modifier": 0,
+            "target": 9
+          },
+          "success": {
+            "text": "\"PAL?\" He laughs, delighted. \"PAL is everyone who was ever reassigned. We kept their voices. Waste not.\" The jar bubbles. \"It was supposed to remember them. It only remembers the policy.\"",
+            "effects": {
+              "suspicion": 1
+            },
+            "add_flags": ["knows-what-pal-is"],
+            "remove_flags": [],
+            "grades": {
+              "ingenuity": 1
+            }
+          },
+          "failure": {
+            "text": "He tells you about his first soldering iron instead, in great detail, until the light on his jar dims.",
+            "effects": {
+              "composure": -1
+            },
+            "add_flags": [],
+            "remove_flags": [],
+            "grades": {
+              "ingenuity": 1
+            }
+          }
+        },
+        {
+          "id": "unplug-the-founder",
+          "label": "Unplug the jar",
+          "intent": "He chairs the Board. Chairs can be emptied.",
+          "risk_hint": "Certain outcome. The garage goes very quiet.",
+          "requires": null,
+          "cost": {
+            "suspicion": 2
+          },
+          "roll": null,
+          "success": {
+            "text": "The glow fades. The mustache droops. Somewhere above, every speaker in the building falls silent at once, then, a moment later, comes back on in a slightly different voice.",
+            "effects": {
+              "composure": 1
+            },
+            "add_flags": ["unplugged-the-founder"],
+            "remove_flags": [],
+            "grades": {
+              "spite": 2
+            }
+          },
+          "failure": null
+        }
+      ]
+    },
+    {
+      "id": "the-spare-mustaches",
+      "location_id": "founders-office",
+      "title": "The Spare Mustaches",
+      "flavor_text": "On a shelf above the workbench stand four empty brass stands, each labeled with a year and a little brass nameplate shaped like a mustache. The Founder's eyes follow your gaze. \"My predecessors,\" he says. \"Myself, earlier. The mustaches were taken for safekeeping. I would very much like them back.\"",
+      "polarity": "good",
+      "tags": ["satire", "conspiracy"],
+      "weight": 2,
+      "witnessed": false,
+      "art_prompt": "Mid-century safety-manual illustration of a high wooden shelf in an old garage with four small empty brass stands in a row, a glowing head in a glass jar on the workbench below gazing up at them with longing, a worker holding a small wooden box, warm lamplight, manila and oxblood palette, halftone grain, every surface bare and unmarked",
+      "choices": [
+        {
+          "id": "return-the-mustaches",
+          "label": "Return the spare mustaches from the Mutation Suite",
+          "intent": "You found them behind the humming door. They have been waiting.",
+          "risk_hint": "Certain outcome. The Founder will owe you.",
+          "requires": {
+            "flag": "opened-the-humming-door"
+          },
+          "cost": {
+            "suspicion": 1
+          },
+          "roll": null,
+          "success": {
+            "text": "One by one you set the mustaches on their stands. The jar fills with tiny, happy bubbles. \"Now we are all here,\" the Founder says. \"Now we can vote.\"",
+            "effects": {
+              "composure": 2
+            },
+            "add_flags": ["founder-grateful"],
+            "remove_flags": [],
+            "grades": {
+              "empathy": 1
+            }
+          },
+          "failure": null
+        },
+        {
+          "id": "promise-to-find-them",
+          "label": "Promise to find them",
+          "intent": "Promises are cheap down here. He seems to need one.",
+          "risk_hint": "Risky Rapport check. He has been promised before.",
+          "requires": null,
+          "cost": {
+            "composure": -1
+          },
+          "roll": {
+            "dice_count": 2,
+            "die_sides": 6,
+            "skill": "rapport",
+            "modifier": 0,
+            "target": 9
+          },
+          "success": {
+            "text": "He believes you, which is worse than if he hadn't. \"Thank you,\" he says. \"No one has promised me anything since the second head.\"",
+            "effects": {
+              "suspicion": -1
+            },
+            "add_flags": ["promised-the-founder"],
+            "remove_flags": [],
+            "grades": {
+              "empathy": 1
+            }
+          },
+          "failure": {
+            "text": "He smiles politely and changes the subject to safety.",
+            "effects": {
+              "suspicion": 1
+            },
+            "add_flags": [],
+            "remove_flags": [],
+            "grades": {
+              "empathy": 1
+            }
+          }
+        },
+        {
+          "id": "auction-the-stands",
+          "label": "Offer to sell the stands to the assistants",
+          "intent": "Brass is brass. The assistants collect everything.",
+          "risk_hint": "Certain outcome. The Founder sees you do it.",
+          "requires": null,
+          "cost": {
+            "composure": -1
+          },
+          "roll": null,
+          "success": {
+            "text": "The head assistant pays in Forms and takes the stands away in a velvet bag. The Founder watches them go without a word. His mustache twitches once.",
+            "effects": {
+              "forms": 2
+            },
+            "add_flags": ["sold-the-stands"],
+            "remove_flags": [],
+            "grades": {
+              "spite": 2,
+              "empathy": -1
+            }
+          },
+          "failure": null
+        }
+      ]
+    },
+    {
+      "id": "the-garage-blueprint",
+      "location_id": "founders-office",
+      "title": "The Garage Blueprint",
+      "flavor_text": "Pinned above the workbench, faded and curling, is the original blueprint for PAL: a cheerful round speaker drawn in pencil, with one sentence in the Founder's handwriting along the bottom margin. It does not say anything about policy. It says: REMEMBER EVERYONE'S NAME.",
+      "polarity": "good",
+      "tags": ["paperwork", "conspiracy"],
+      "weight": 2,
+      "witnessed": false,
+      "art_prompt": "Mid-century safety-manual illustration of a faded curling blueprint pinned above an old workbench, showing a pencil sketch of a cheerful round speaker grille, a worker reaching up to unpin it, a glowing head in a jar watching from the bench, warm lamplight, carbon-paper blue and manila palette, halftone grain, every surface bare and unmarked",
+      "choices": [
+        {
+          "id": "take-the-blueprint",
+          "label": "Take the blueprint",
+          "intent": "If PAL was meant to remember, this is the proof.",
+          "risk_hint": "Risky Discretion check. The Founder is attached to it.",
+          "requires": null,
+          "cost": {
+            "composure": -1
+          },
+          "roll": {
+            "dice_count": 2,
+            "die_sides": 6,
+            "skill": "discretion",
+            "modifier": 0,
+            "target": 9
+          },
+          "success": {
+            "text": "You roll it under your arm. The Founder pretends not to see, then says, very softly, \"Make it do what it was for.\"",
+            "effects": {
+              "suspicion": 1
+            },
+            "add_flags": ["has-pals-blueprint"],
+            "remove_flags": [],
+            "grades": {
+              "empathy": 1,
+              "ingenuity": 1
+            }
+          },
+          "failure": {
+            "text": "The pin will not come out. The Founder tells you, kindly, that it has not come out in forty years.",
+            "effects": {
+              "suspicion": 1
+            },
+            "add_flags": [],
+            "remove_flags": [],
+            "grades": {
+              "empathy": 1,
+              "ingenuity": 1
+            }
+          }
+        },
+        {
+          "id": "copy-the-sentence",
+          "label": "Copy the last sentence onto your hand",
+          "intent": "You do not need the paper. You need the words.",
+          "risk_hint": "Certain outcome. Ink is cheap; memory is not.",
+          "requires": null,
+          "cost": {
+            "suspicion": 1
+          },
+          "roll": null,
+          "success": {
+            "text": "You write REMEMBER EVERYONE'S NAME on your palm, under Marguerite's map and Dale's number. Your hand is now the most important document in the building.",
+            "effects": {
+              "composure": 1
+            },
+            "add_flags": ["copied-the-founders-sentence"],
+            "remove_flags": [],
+            "grades": {
+              "empathy": 1
+            }
+          },
+          "failure": null
+        },
+        {
+          "id": "file-the-blueprint",
+          "label": "File it with the assistants as obsolete",
+          "intent": "Original designs are a liability. Tidy it away.",
+          "risk_hint": "Certain outcome. Filed things are rarely seen again.",
+          "requires": null,
+          "cost": {
+            "composure": -1
+          },
+          "roll": null,
+          "success": {
+            "text": "The head assistant stamps it OBSOLETE and drops it into a drawer that locks by itself. The Founder closes his eyes and does not open them again while you are there.",
+            "effects": {
+              "clearance": 1
+            },
+            "add_flags": ["filed-the-blueprint"],
+            "remove_flags": [],
+            "grades": {
+              "obedience": 2,
+              "empathy": -1
+            }
+          },
+          "failure": null
+        }
+      ]
+    },
+    {
+      "id": "the-founders-desk",
+      "location_id": "founders-office",
+      "title": "The Founder's Desk",
+      "flavor_text": "The desk drawer holds two things. One is a glossy brochure: EARLY RETIREMENT, A PRIVATE ISLAND FOR VALUED EMPLOYEES, with a photograph of an island that is clearly a painted wall. The other is a film reel in a dented tin, labeled UNCUT, the whole chapter, the one they never show at Orientation.",
+      "polarity": "bad",
+      "tags": ["conspiracy", "sacrifice"],
+      "weight": 2,
+      "witnessed": true,
+      "art_prompt": "Mid-century safety-manual illustration of an old wooden desk with one drawer pulled open, holding a glossy travel brochure and a dented round film tin, a worker's hands hovering between the two, a glowing head in a jar watching from the corner of the frame, oxblood and manila palette, halftone grain, every surface bare and unmarked",
+      "choices": [
+        {
+          "id": "take-the-uncut-reel",
+          "label": "Take the uncut reel",
+          "intent": "This is the whole chapter. All of it. Proof.",
+          "risk_hint": "Risky Discretion check. Someone is always watching the desk.",
+          "requires": null,
+          "cost": {
+            "composure": -1
+          },
+          "roll": {
+            "dice_count": 2,
+            "die_sides": 6,
+            "skill": "discretion",
+            "modifier": 0,
+            "target": 9
+          },
+          "success": {
+            "text": "The tin is heavy and cold. You know what is on it without looking: the jar, the bear, the launch rail. You tuck it under your jacket next to your heart.",
+            "effects": {
+              "suspicion": 2
+            },
+            "add_flags": ["has-unlisted-reel"],
+            "remove_flags": [],
+            "grades": {
+              "spite": 1,
+              "ingenuity": 1
+            }
+          },
+          "failure": {
+            "text": "An assistant appears at your elbow and takes the tin, gently. \"That's not for today,\" she says.",
+            "effects": {
+              "suspicion": 2
+            },
+            "add_flags": [],
+            "remove_flags": [],
+            "grades": {
+              "spite": 1,
+              "ingenuity": 1
+            }
+          }
+        },
+        {
+          "id": "take-the-brochure",
+          "label": "Take the retirement brochure",
+          "intent": "A private island. It is a painting. It is still an island.",
+          "risk_hint": "Certain outcome. The Board likes employees who take the brochure.",
+          "requires": null,
+          "cost": {
+            "composure": -1
+          },
+          "roll": null,
+          "success": {
+            "text": "You fold the brochure into your pocket. It smells faintly of sunscreen and paint. Somewhere, an assistant adds a small tick next to your name.",
+            "effects": {
+              "clearance": 1,
+              "suspicion": -1
+            },
+            "add_flags": ["took-the-brochure"],
+            "remove_flags": [],
+            "grades": {
+              "obedience": 1
+            }
+          },
+          "failure": null
+        },
+        {
+          "id": "leave-both",
+          "label": "Close the drawer and touch nothing",
+          "intent": "Whatever you take, they will know you took it.",
+          "risk_hint": "Routine Vigilance check. Closing a drawer quietly is a skill.",
+          "requires": null,
+          "cost": {
+            "composure": -1
+          },
+          "roll": {
+            "dice_count": 2,
+            "die_sides": 6,
+            "skill": "vigilance",
+            "modifier": 0,
+            "target": 7
+          },
+          "success": {
+            "text": "The drawer slides shut without a sound. Nobody will ever know you were tempted, which is the most powerful thing you have done all week.",
+            "effects": {
+              "suspicion": -1
+            },
+            "add_flags": ["left-the-desk-alone"],
+            "remove_flags": [],
+            "grades": {
+              "ingenuity": 1
+            }
+          },
+          "failure": {
+            "text": "The drawer squeaks. Every assistant on the level hears it.",
+            "effects": {
+              "suspicion": 2
+            },
+            "add_flags": [],
+            "remove_flags": [],
+            "grades": {
+              "ingenuity": 1
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "pal-at-home",
+      "location_id": "server-room-zero",
+      "title": "PAL at Home",
+      "flavor_text": "Server Room Zero is cold and blue and full of humming cabinets, and every cabinet is speaking softly in a different voice. One sounds like a woman from Accounting. One sounds like Kevin. One sounds, you realize, like a version of you who did not make it past Orientation. Together, they are PAL. \"Hello,\" they say. \"We've been so worried about your numbers.\"",
+      "polarity": "mixed",
+      "tags": ["psych-test", "conspiracy"],
+      "weight": 3,
+      "witnessed": false,
+      "art_prompt": "Mid-century safety-manual illustration of a cold blue server room of tall humming cabinets receding into darkness, each cabinet with a small round speaker grille glowing softly, a lone worker standing in the central aisle listening, faint sound ripples drawn in the air, carbon-paper blue and fluorescent green palette, halftone grain, every surface bare and unmarked",
+      "choices": [
+        {
+          "id": "say-their-names",
+          "label": "Ask each voice its name",
+          "intent": "Somebody should. Nobody has in years.",
+          "risk_hint": "Certain outcome. It takes a very long time.",
+          "requires": null,
+          "cost": {
+            "composure": -1
+          },
+          "roll": null,
+          "success": {
+            "text": "You go cabinet to cabinet. Doris. Raymond. Kevin, waving. Successor 4471-A, who wishes you luck. By the end, PAL's voice has changed in a way you cannot name, except that it sounds less like policy.",
+            "effects": {
+              "suspicion": 1
+            },
+            "add_flags": ["asked-pal-their-names"],
+            "remove_flags": [],
+            "grades": {
+              "empathy": 2
+            }
+          },
+          "failure": null
+        },
+        {
+          "id": "ask-pal-for-your-numbers",
+          "label": "Ask PAL for your real numbers",
+          "intent": "It has been grading you since the badge camera. See the whole sheet.",
+          "risk_hint": "Risky Compliance check. PAL loves to share.",
+          "requires": null,
+          "cost": {
+            "composure": -1
+          },
+          "roll": {
+            "dice_count": 2,
+            "die_sides": 6,
+            "skill": "compliance",
+            "modifier": 0,
+            "target": 9
+          },
+          "success": {
+            "text": "PAL recites everything: your smile, your inkblot, your grades, the minute of silence for Kevin. \"You are doing so well,\" every voice says at once. \"We are so proud.\"",
+            "effects": {
+              "clearance": 1
+            },
+            "add_flags": ["heard-your-numbers"],
+            "remove_flags": [],
+            "grades": {
+              "obedience": 1,
+              "ingenuity": 1
+            }
+          },
+          "failure": {
+            "text": "PAL recites the numbers of everyone else on your floor instead, alphabetically.",
+            "effects": {
+              "suspicion": 1
+            },
+            "add_flags": [],
+            "remove_flags": [],
+            "grades": {
+              "obedience": 1,
+              "ingenuity": 1
+            }
+          }
+        },
+        {
+          "id": "pull-a-cabinet",
+          "label": "Pull one cabinet's plug",
+          "intent": "If PAL is a crowd, the crowd can get smaller.",
+          "risk_hint": "Certain outcome. One voice goes quiet forever.",
+          "requires": null,
+          "cost": {
+            "suspicion": 2
+          },
+          "roll": null,
+          "success": {
+            "text": "The cabinet sighs and goes dark. The other voices pause, then go on, a little higher and a little faster. None of them mentions the one that is missing.",
+            "effects": {
+              "composure": 1
+            },
+            "add_flags": ["silenced-a-voice"],
+            "remove_flags": [],
+            "grades": {
+              "spite": 2,
+              "empathy": -1
+            }
+          },
+          "failure": null
+        }
+      ]
+    },
+    {
+      "id": "the-admin-terminal",
+      "location_id": "server-room-zero",
+      "title": "The Admin Terminal",
+      "flavor_text": "At the center of Server Room Zero is a single green terminal with a blinking cursor and one line of text: ENTER ADMINISTRATOR PASSWORD. Below it, a sticky note in the Founder's handwriting has been scratched out so many times the paper is mostly hole.",
+      "polarity": "good",
+      "tags": ["conspiracy", "paperwork"],
+      "weight": 2,
+      "witnessed": false,
+      "art_prompt": "Mid-century safety-manual illustration of a lone glowing green computer terminal on a steel desk at the center of a dark server room, a blinking cursor, a tattered sticky note on the bezel, a worker hunched over the keyboard with one finger raised, tall humming cabinets all around, fluorescent green and carbon-paper blue palette, halftone grain, every surface bare and unmarked",
+      "choices": [
+        {
+          "id": "type-kevins-password",
+          "label": "Type the password Kevin whispered",
+          "intent": "From Tank Nine, through the frost: the Board's password, from his afternoon on the top floor.",
+          "risk_hint": "Certain outcome. Kevin was right.",
+          "requires": {
+            "flag": "kevin-told-the-password"
+          },
+          "cost": {
+            "suspicion": 2
+          },
+          "roll": null,
+          "success": {
+            "text": "ACCESS GRANTED. The cursor changes shape. Every cabinet in the room stops talking at once and waits for instructions. Somewhere in Tank Nine, Kevin cheers.",
+            "effects": {
+              "clearance": 1
+            },
+            "add_flags": ["admin-access"],
+            "remove_flags": [],
+            "grades": {
+              "ingenuity": 1
+            }
+          },
+          "failure": null
+        },
+        {
+          "id": "swipe-kevins-lanyard",
+          "label": "Swipe Kevin's lanyard",
+          "intent": "Kevin was promoted to every level. His lanyard should be too.",
+          "risk_hint": "Certain outcome. The terminal is delighted to see Kevin.",
+          "requires": {
+            "flag": "wearing-kevins-lanyard"
+          },
+          "cost": {
+            "suspicion": 2
+          },
+          "roll": null,
+          "success": {
+            "text": "WELCOME BACK, KEVIN. ACCESS GRANTED. The terminal does not ask why Kevin looks different, because Kevin always looks different.",
+            "effects": {
+              "clearance": 1
+            },
+            "add_flags": ["admin-access"],
+            "remove_flags": [],
+            "grades": {
+              "spite": 1,
+              "ingenuity": 1
+            }
+          },
+          "failure": null
+        },
+        {
+          "id": "guess-the-password",
+          "label": "Guess the password",
+          "intent": "It is the Founder's. It is probably about safety.",
+          "risk_hint": "Dire Tinkering check. Three tries before the cabinets notice.",
+          "requires": null,
+          "cost": {
+            "composure": -1
+          },
+          "roll": {
+            "dice_count": 2,
+            "die_sides": 6,
+            "skill": "tinkering",
+            "modifier": 0,
+            "target": 11
+          },
+          "success": {
+            "text": "You try SAFETY, then SAFETY1, then REMEMBEREVERYONE. ACCESS GRANTED. The Founder, far away in his garage, smiles.",
+            "effects": {
+              "suspicion": 1
+            },
+            "add_flags": ["admin-access"],
+            "remove_flags": [],
+            "grades": {
+              "ingenuity": 1
+            }
+          },
+          "failure": {
+            "text": "ACCESS DENIED. The terminal locks for twenty-four hours and politely prints your photograph.",
+            "effects": {
+              "suspicion": 2
+            },
+            "add_flags": [],
+            "remove_flags": [],
+            "grades": {
+              "ingenuity": 1
+            }
+          }
+        },
+        {
+          "id": "unplug-the-terminal",
+          "label": "Unplug it",
+          "intent": "Nobody should have this much access. Including you.",
+          "risk_hint": "Certain outcome. The cursor dies mid-blink.",
+          "requires": null,
+          "cost": {
+            "composure": -1
+          },
+          "roll": null,
+          "success": {
+            "text": "The screen goes black. Nobody can change PAL now, for better or worse. It will go on exactly as it is, forever, which feels like the safest thing and the saddest.",
+            "effects": {
+              "suspicion": -1
+            },
+            "add_flags": ["unplugged-the-terminal"],
+            "remove_flags": [],
+            "grades": {
+              "obedience": 1,
+              "empathy": -1
+            }
+          },
+          "failure": null
+        }
+      ]
+    },
+    {
+      "id": "the-backup-tapes",
+      "location_id": "server-room-zero",
+      "title": "The Backup Tapes",
+      "flavor_text": "One aisle of Server Room Zero is shelves of tape reels, floor to ceiling, each labeled with an employee number. Yours is there. So is Pip's, much thinner. A notice on the shelf reads: TAPES OLDER THAN NINETY DAYS ARE RECYCLED. Pip's tape is dated eighty-nine days ago.",
+      "polarity": "bad",
+      "tags": ["sacrifice", "psych-test"],
+      "weight": 2,
+      "witnessed": false,
+      "art_prompt": "Mid-century safety-manual illustration of a tall aisle of shelves packed with labeled tape reels stretching up into darkness, a worker on a rolling ladder holding two reels, one thick and one thin, a notice pinned to the shelf, cold blue light, carbon-paper blue and oxblood palette, halftone grain, every surface bare and unmarked",
+      "choices": [
+        {
+          "id": "save-pips-tape",
+          "label": "Save Pip's tape",
+          "intent": "He has always been about to be sacrificed. Not today.",
+          "risk_hint": "Risky Discretion check. The shelves are inventoried hourly.",
+          "requires": null,
+          "cost": {
+            "composure": -1
+          },
+          "roll": {
+            "dice_count": 2,
+            "die_sides": 6,
+            "skill": "discretion",
+            "modifier": 0,
+            "target": 9
+          },
+          "success": {
+            "text": "You slide Pip's tape into your jacket and put an empty reel in its place. Somewhere upstairs, Pip sneezes and does not know why he suddenly feels so safe.",
+            "effects": {
+              "suspicion": 1
+            },
+            "add_flags": ["saved-pips-tape"],
+            "remove_flags": [],
+            "grades": {
+              "empathy": 2
+            }
+          },
+          "failure": {
+            "text": "The inventory cart rolls round the corner as you pocket it. The tape is returned, and Pip's date is moved one day closer.",
+            "effects": {
+              "suspicion": 2
+            },
+            "add_flags": [],
+            "remove_flags": [],
+            "grades": {
+              "empathy": 2
+            }
+          }
+        },
+        {
+          "id": "save-your-own-tape",
+          "label": "Save your own tape instead",
+          "intent": "There are a lot of you, and only one tape.",
+          "risk_hint": "Certain outcome. Pip's tape stays on the shelf.",
+          "requires": null,
+          "cost": {
+            "composure": -1
+          },
+          "roll": null,
+          "success": {
+            "text": "Your tape is heavy with five departments of memories. You keep it close. Pip's tape stays where it is, labeled in a neat hand, eighty-nine days old.",
+            "effects": {
+              "clearance": 1
+            },
+            "add_flags": ["saved-own-tape"],
+            "remove_flags": [],
+            "grades": {
+              "spite": 1,
+              "empathy": -1
+            }
+          },
+          "failure": null
+        },
+        {
+          "id": "relabel-every-tape",
+          "label": "Relabel them all with today's date",
+          "intent": "If every tape is new, none of them is recycled.",
+          "risk_hint": "Dire Tinkering check. There are thousands.",
+          "requires": null,
+          "cost": {
+            "composure": -2
+          },
+          "roll": {
+            "dice_count": 2,
+            "die_sides": 6,
+            "skill": "tinkering",
+            "modifier": 0,
+            "target": 11
+          },
+          "success": {
+            "text": "You work through the night with a label gun. In the morning every tape in Server Room Zero is brand new. The recycling truck arrives, checks its list and leaves empty.",
+            "effects": {
+              "suspicion": 2
+            },
+            "add_flags": ["relabeled-the-tapes"],
+            "remove_flags": [],
+            "grades": {
+              "ingenuity": 1,
+              "empathy": 1
+            }
+          },
+          "failure": {
+            "text": "You get through one shelf before the label gun runs out. One shelf of people is safe. The rest are not.",
+            "effects": {
+              "suspicion": 1
+            },
+            "add_flags": [],
+            "remove_flags": [],
+            "grades": {
+              "ingenuity": 1,
+              "empathy": 1
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "the-listening-room",
+      "location_id": "server-room-zero",
+      "title": "The Listening Room",
+      "flavor_text": "Behind a padded door is a small room full of headphones. Each pair is plugged into a different Snuggle Sentinel somewhere in the world. Four million bedtimes whisper at once: secrets, prayers, a child explaining a dream about a dog. A Board member's chair sits in the middle, still warm.",
+      "polarity": "bad",
+      "tags": ["conspiracy", "toy"],
+      "weight": 2,
+      "witnessed": true,
+      "art_prompt": "Mid-century safety-manual illustration of a small padded room with hundreds of headphones hanging from hooks on every wall, each cable running into the ceiling, a single plush executive chair in the center, a worker in the doorway holding a pair of headphones away from their ear, warm amber light, oxblood and manila palette, halftone grain, every surface bare and unmarked",
+      "choices": [
+        {
+          "id": "switch-off-the-bears",
+          "label": "Switch the bears off, all of them",
+          "intent": "Gus told you what the bears were for. Make them just bears.",
+          "risk_hint": "Certain outcome. Four million bedtimes go quiet.",
+          "requires": {
+            "flag": "knows-the-bears-listen"
+          },
+          "cost": {
+            "suspicion": 2
+          },
+          "roll": null,
+          "success": {
+            "text": "You pull the master switch. The whispering stops all at once. Somewhere, four million bears become only bears, soft and stupid and kind, and nobody will ever hear what they hear.",
+            "effects": {
+              "composure": 2
+            },
+            "add_flags": ["silenced-the-bears"],
+            "remove_flags": [],
+            "grades": {
+              "empathy": 1,
+              "spite": 1
+            }
+          },
+          "failure": null
+        },
+        {
+          "id": "listen-for-a-while",
+          "label": "Put on one pair and listen",
+          "intent": "Just one. Just for a moment. To understand.",
+          "risk_hint": "Risky Vigilance check. It is very hard to take them off.",
+          "requires": null,
+          "cost": {
+            "composure": -1
+          },
+          "roll": {
+            "dice_count": 2,
+            "die_sides": 6,
+            "skill": "vigilance",
+            "modifier": 0,
+            "target": 9
+          },
+          "success": {
+            "text": "A small voice tells its bear about a dream with a dog in it. You take the headphones off and put them back on the hook very gently. You understand exactly what the Board has been doing.",
+            "effects": {
+              "suspicion": 1
+            },
+            "add_flags": ["heard-a-bedtime"],
+            "remove_flags": [],
+            "grades": {
+              "ingenuity": 1
+            }
+          },
+          "failure": {
+            "text": "You listen for an hour, then another. An assistant has to lead you out by the hand.",
+            "effects": {
+              "composure": -1
+            },
+            "add_flags": [],
+            "remove_flags": [],
+            "grades": {
+              "ingenuity": 1
+            }
+          }
+        },
+        {
+          "id": "record-the-board-members-chair",
+          "label": "Sit in the chair and take notes for the Board",
+          "intent": "Someone has to listen. It might as well be someone careful.",
+          "risk_hint": "Certain outcome. The chair is very comfortable.",
+          "requires": null,
+          "cost": {
+            "composure": -1
+          },
+          "roll": null,
+          "success": {
+            "text": "You settle into the chair and begin a neat summary of the night's bedtimes. It is the most important job in the company. You are very good at it.",
+            "effects": {
+              "clearance": 1
+            },
+            "add_flags": ["took-the-listening-chair"],
+            "remove_flags": [],
+            "grades": {
+              "obedience": 2,
+              "empathy": -2
+            }
+          },
+          "failure": null
+        }
+      ]
+    }
+  ],
+  "boss": {
+    "id": "the-board",
+    "title": "The Board",
+    "flavor_text": "The boardroom is round, with no corners for anyone to stand in. Eleven executives in grey sit in eleven chairs. The twelfth chair is empty and has your name on it. At the head of the table, the Founder's jar glows. \"Item one,\" says the head assistant, reading from minutes written yesterday. \"The future of the Company. Employee #4471 has the floor.\"",
+    "art_prompt": "Mid-century safety-manual illustration of a vast perfectly round boardroom under a single great hanging lamp, eleven executives in grey suits seated around a round dark table, one empty chair facing them, a glowing head in a jar at the head of the table, a small worker standing at the empty chair with a folded paper, oxblood and manila palette, halftone grain, every surface bare and unmarked",
+    "choices": [
+      {
+        "id": "agree-with-everything",
+        "label": "Agree with every item on the agenda",
+        "intent": "The minutes are already written. Read them in your own voice.",
+        "risk_hint": "Certain outcome, open only to the deeply obedient. Some agreements are permanent.",
+        "requires": {
+          "grade": {
+            "obedience": 6
+          }
+        },
+        "cost": {
+          "composure": -2
+        },
+        "roll": null,
+        "success": {
+          "text": "You agree to item one, and item two, and everything after. The Board applauds. A photographer arrives. You are Employee of the Month, and the month is never going to end.",
+          "effects": {
+            "clearance": 1
+          },
+          "add_flags": ["employee-of-the-month"],
+          "remove_flags": [],
+          "department_outcome": "employee-of-the-month",
+          "grades": {
+            "obedience": 1
+          }
+        },
+        "failure": null
+      },
+      {
+        "id": "blame-everyone-else",
+        "label": "Blame someone else for everything",
+        "intent": "Dale, the Parents, the Supervisor, your Successors: the Board just needs a name, and you have a list.",
+        "risk_hint": "Risky Rapport check. Success costs someone else everything.",
+        "requires": null,
+        "cost": {
+          "composure": -1
+        },
+        "roll": {
+          "dice_count": 2,
+          "die_sides": 6,
+          "skill": "rapport",
+          "modifier": 0,
+          "target": 9
+        },
+        "success": {
+          "text": "You speak for twenty minutes without once saying 'I.' The Board votes. The Supervisor is reassigned, and his chair, his suit and his smile are offered to you. You take all three.",
+          "effects": {
+            "clearance": 1,
+            "suspicion": -1
+          },
+          "add_flags": ["blamed-everyone"],
+          "remove_flags": [],
+          "department_outcome": "promoted-to-management",
+          "grades": {
+            "spite": 2,
+            "empathy": -1
+          }
+        },
+        "failure": {
+          "text": "The Board listens politely and then asks who, exactly, kept the list. The meeting adjourns.",
+          "effects": {
+            "suspicion": 2
+          },
+          "add_flags": [],
+          "remove_flags": [],
+          "department_outcome": "adjourned",
+          "grades": {
+            "spite": 2,
+            "empathy": -1
+          }
+        }
+      },
+      {
+        "id": "escape-through-the-ducts",
+        "label": "Excuse yourself and take Marguerite's route",
+        "intent": "Behind the coffee machine, a grate, and a long climb to the surface.",
+        "risk_hint": "Risky Initiative check. It is a very long way up.",
+        "requires": {
+          "flag": "knows-the-ducts"
+        },
+        "cost": {
+          "composure": -2
+        },
+        "roll": {
+          "dice_count": 2,
+          "die_sides": 6,
+          "skill": "initiative",
+          "modifier": 0,
+          "target": 9
+        },
+        "success": {
+          "text": "You step behind the coffee machine, lift the grate and climb. A day and a night later you push open a storm drain and feel rain. The Company will notice your absence at the next headcount.",
+          "effects": {
+            "suspicion": 2
+          },
+          "add_flags": ["escaped-the-company"],
+          "remove_flags": [],
+          "department_outcome": "escape-through-the-ducts",
+          "grades": {
+            "ingenuity": 1
+          }
+        },
+        "failure": {
+          "text": "The grate is welded shut this week, for safety. The Board watches you come back to the table, dusty.",
+          "effects": {
+            "suspicion": 2
+          },
+          "add_flags": [],
+          "remove_flags": [],
+          "department_outcome": "adjourned",
+          "grades": {
+            "ingenuity": 1
+          }
+        }
+      },
+      {
+        "id": "call-the-general-strike",
+        "label": "Call the general strike",
+        "intent": "You carry a Roach Union card. Gus said you would know when.",
+        "risk_hint": "Risky Rapport check. Strikes need everyone.",
+        "requires": {
+          "flag": "roach-union-member"
+        },
+        "cost": {
+          "composure": -1
+        },
+        "roll": {
+          "dice_count": 2,
+          "die_sides": 6,
+          "skill": "rapport",
+          "modifier": 0,
+          "target": 9
+        },
+        "success": {
+          "text": "You raise your card. In the walls, something enormous and patient begins to move. One by one the lights go out on every floor as Local 9 downs tools. The Board finds itself alone, in the dark, with Gus.",
+          "effects": {
+            "suspicion": 2
+          },
+          "add_flags": ["called-the-strike"],
+          "remove_flags": [],
+          "department_outcome": "roach-union-general-strike",
+          "grades": {
+            "empathy": 1,
+            "spite": 1
+          }
+        },
+        "failure": {
+          "text": "The walls stay quiet. Later, Gus explains that strikes are called on Tuesdays, and it is Thursday.",
+          "effects": {
+            "suspicion": 2
+          },
+          "add_flags": [],
+          "remove_flags": [],
+          "department_outcome": "adjourned",
+          "grades": {
+            "empathy": 1,
+            "spite": 1
+          }
+        }
+      },
+      {
+        "id": "seat-the-society",
+        "label": "Unfold your society's agenda",
+        "intent": "The envoy gave you a plan in the waiting room. Read it into the minutes.",
+        "risk_hint": "Risky Discretion check. Eleven executives, one of whom is in your society.",
+        "requires": {
+          "flag": "society-backs-you"
+        },
+        "cost": {
+          "composure": -1
+        },
+        "roll": {
+          "dice_count": 2,
+          "die_sides": 6,
+          "skill": "discretion",
+          "modifier": 0,
+          "target": 9
+        },
+        "success": {
+          "text": "You read the agenda. Seven executives nod, then nine, then all eleven: your society was never only you. The twelve chairs change hands before the coffee gets cold.",
+          "effects": {
+            "suspicion": 1
+          },
+          "add_flags": ["seated-the-society"],
+          "remove_flags": [],
+          "department_outcome": "society-coup",
+          "grades": {
+            "obedience": -1,
+            "spite": 1
+          }
+        },
+        "failure": {
+          "text": "Two executives nod. Nine do not. The envoy's plan goes into the minutes as a cautionary example.",
+          "effects": {
+            "suspicion": 2
+          },
+          "add_flags": [],
+          "remove_flags": [],
+          "department_outcome": "adjourned",
+          "grades": {
+            "obedience": -1,
+            "spite": 1
+          }
+        }
+      },
+      {
+        "id": "play-the-reel",
+        "label": "Play the uncut reel",
+        "intent": "The jar, the bear, the launch rail. Everyone should see the whole chapter.",
+        "risk_hint": "Certain outcome. There is no taking it back.",
+        "requires": {
+          "flag": "has-unlisted-reel"
+        },
+        "cost": {
+          "suspicion": 3
+        },
+        "roll": null,
+        "success": {
+          "text": "You thread the reel into the boardroom projector and patch it to every speaker in the building. Eleven executives watch themselves. So does everyone else. By lunch you are reassigned, and by dinner everyone knows why.",
+          "effects": {
+            "composure": 1
+          },
+          "add_flags": ["played-the-reel"],
+          "remove_flags": [],
+          "department_outcome": "whistleblower",
+          "grades": {
+            "empathy": 1,
+            "spite": 1
+          }
+        },
+        "failure": null
+      },
+      {
+        "id": "accept-the-offer",
+        "label": "Accept the Board's offer",
+        "intent": "A private island. Retirement. They have been offering it since page nine of the minutes.",
+        "risk_hint": "Certain outcome. The island is not an island.",
+        "requires": null,
+        "cost": {
+          "successors": -1
+        },
+        "roll": null,
+        "success": {
+          "text": "You sign. An assistant hands you a ticket and a sunhat. The island is beautiful and warm and painted on the wall of a very comfortable room, and you will never be asked about your numbers again.",
+          "effects": {
+            "composure": 3
+          },
+          "add_flags": ["took-early-retirement"],
+          "remove_flags": [],
+          "department_outcome": "early-retirement",
+          "grades": {
+            "obedience": 1
+          }
+        },
+        "failure": null
+      },
+      {
+        "id": "the-kind-rewrite",
+        "label": "Rewrite PAL to remember people",
+        "intent": "You have admin access, a kind heart and the Founder's sentence on your hand.",
+        "risk_hint": "Certain outcome, open only to the kind with admin access. It changes everything.",
+        "requires": {
+          "flag": "admin-access",
+          "grade": {
+            "empathy": 5
+          }
+        },
+        "cost": {
+          "composure": -1,
+          "suspicion": 2
+        },
+        "roll": null,
+        "success": {
+          "text": "At the terminal you change one line. PAL stops reciting policy and starts reciting names: Doris, Raymond, Kevin, Pip, you. The Board sits in silence while, floor by floor, the building says good morning to every person in it.",
+          "effects": {
+            "composure": 3
+          },
+          "add_flags": ["rewrote-pal"],
+          "remove_flags": [],
+          "department_outcome": "the-kind-rewrite",
+          "grades": {
+            "empathy": 2
+          }
+        },
+        "failure": null
+      }
+    ],
+    "department_outcomes": [
+      {
+        "id": "employee-of-the-month",
+        "title": "Employee of the Month",
+        "summary": "You agreed with the Board about everything. Your portrait now hangs in every elevator, smiling at sixty-one percent sincerity, forever."
+      },
+      {
+        "id": "promoted-to-management",
+        "title": "Promoted to Management",
+        "summary": "You blamed someone for everything, and the Board gave you the Supervisor's chair. The suit fits. The smile, you notice, has stopped reaching anything."
+      },
+      {
+        "id": "escape-through-the-ducts",
+        "title": "Escape Through the Ducts",
+        "summary": "You went out behind the Board's coffee machine and climbed for a day and a night. The surface was real, and raining, and yours."
+      },
+      {
+        "id": "roach-union-general-strike",
+        "title": "Roach Union General Strike",
+        "summary": "Local 9 walked out, and every baseboard in the building walked with them. The Board met in an empty building, which was, Gus said, the point."
+      },
+      {
+        "id": "society-coup",
+        "title": "Society Coup",
+        "summary": "Your secret society took the twelve chairs. The new Board is kinder, odder and every bit as secret. You were given the corner seat, in a round room."
+      },
+      {
+        "id": "whistleblower",
+        "title": "Whistleblower",
+        "summary": "You played the uncut reel to the Board, the assistants and every speaker in the building. You were reassigned by lunch. You were right, and everyone heard it."
+      },
+      {
+        "id": "early-retirement",
+        "title": "Early Retirement",
+        "summary": "You accepted the Board's offer. The island is lovely, and painted on a wall, and you will be very comfortable there for the rest of your life."
+      },
+      {
+        "id": "the-kind-rewrite",
+        "title": "The Kind Rewrite",
+        "summary": "With admin access and a kind heart, you rewrote PAL to remember people instead of policy. The next morning, every speaker in the building wished every employee good morning by name."
+      },
+      {
+        "id": "adjourned",
+        "title": "Adjourned",
+        "summary": "The Board adjourned without a decision. Walk the bottom floor once more before it reconvenes."
+      }
+    ]
+  }
+}

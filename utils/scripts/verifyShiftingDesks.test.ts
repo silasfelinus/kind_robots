@@ -42,6 +42,7 @@ import {
   restructuringFor,
   stepLabels,
   TOY_DIVISION,
+  nextDepartment,
 } from '../shiftingDesks/rules'
 import { FLAG_MEMOS } from '../shiftingDesks/memos'
 
@@ -596,8 +597,8 @@ assert.deepEqual(
 // Toy Division (conductor shifting-desks t-011)
 assert.deepEqual(
   DEPARTMENTS.map((d) => d.department.id),
-  ['orientation', 'records', 'toy-division', 'wellness'],
-  'four departments ship, in order',
+  ['orientation', 'records', 'toy-division', 'wellness', 'sub-level-zero'],
+  'all five departments ship, in order',
 )
 assert.equal(TOY_DIVISION.encounters.length, 12)
 assert.equal(
@@ -637,6 +638,21 @@ for (const soc of SOCIETIES) {
   assert.ok(soc.objective_text['toy-division'], `${soc.id} explains its orders`)
 }
 assert.equal(
+  fallbackOutcome(DEPARTMENTS[4]!),
+  'adjourned',
+  'an undecided Board adjourns',
+)
+assert.equal(
+  nextDepartment('sub-level-zero'),
+  null,
+  'the Board is the bottom floor',
+)
+assert.match(
+  asset('../../components/shifting-desks/shifting-desks-personnel-file.vue'),
+  /const ending = computed/,
+  'a run that reaches the Board ends on its ending',
+)
+assert.equal(
   fallbackOutcome(DEPARTMENTS[3]!),
   'retest',
   'an inconclusive Final Exam schedules a retest',
@@ -650,6 +666,38 @@ for (const flag of Object.keys(FLAG_MEMOS)) {
     `PAL memo ${flag} is keyed to a flag a card grants`,
   )
 }
+
+// Five floors of attrition: HR thaws a Successor at a new level when you are low.
+const lowOnStaff = descend({
+  ...newRun('thaw-low', 'temp'),
+  status: 'department-complete',
+  departmentOutcome: 'compliant-graduate',
+  departmentOutcomes: { orientation: 'compliant-graduate' },
+  meters: { ...newRun('thaw-low', 'temp').meters, successors: 2 },
+})
+assert.equal(
+  lowOnStaff.meters.successors,
+  3,
+  'a low run gets one Successor back',
+)
+assert.ok(
+  lowOnStaff.log
+    .at(-1)!
+    .events.some((e) => e.includes('thawed a fresh Successor')),
+  'the thaw is announced in the journal',
+)
+const wellStaffed = descend({
+  ...newRun('thaw-high', 'temp'),
+  status: 'department-complete',
+  departmentOutcome: 'compliant-graduate',
+  departmentOutcomes: { orientation: 'compliant-graduate' },
+  meters: { ...newRun('thaw-high', 'temp').meters, successors: 4 },
+})
+assert.equal(
+  wellStaffed.meters.successors,
+  4,
+  'a healthy run gets nothing extra',
+)
 
 const kindsSeen = new Set<string>()
 const outcomes = new Set<string>()
@@ -803,7 +851,7 @@ const stationPrompts: Array<[string, string]> = [
   ...MUTATIONS.map((x): [string, string] => [`mutation ${x.id}`, x.art_prompt]),
 ]
 assert.ok(
-  stationPrompts.length >= 87,
+  stationPrompts.length >= 104,
   `every station is covered (${stationPrompts.length})`,
 )
 for (const [station, prompt] of stationPrompts) {

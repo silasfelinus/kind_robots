@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict'
 import { existsSync, readFileSync, statSync } from 'node:fs'
 import {
+  RAINBOW_HERO_ART,
   RAINBOW_PILOTS,
   RAINBOW_PORTRAIT_ROOT,
 } from '../arcade/games/rainbowPilots'
@@ -71,5 +72,15 @@ assert.match(page, /:alt="pilot\.portraitAlt"/)
 assert.match(page, /:aria-label="pilot\.glyphName"/)
 assert.match(page, /P\{\{ pilot\.seat \+ 1 \}\}/)
 assert.match(page, /href="#princess-pilots"/)
+
+const hero = new URL(`public${RAINBOW_HERO_ART}`, root)
+assert.ok(existsSync(hero), `${RAINBOW_HERO_ART} is committed`)
+assert.ok(statSync(hero).size < 200_000, 'hero backdrop stays light')
+assert.match(page, /:src="RAINBOW_HERO_ART"/)
+assert.match(
+  page,
+  /bg-gradient-to-r from-\[#251345\]/,
+  'hero text keeps a dark scrim over the painted backdrop',
+)
 
 console.log('rainbow pilot roster: ok')

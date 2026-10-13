@@ -1,4 +1,5 @@
 export const RAINBOW_PORTRAIT_ROOT = '/rainbow-princess-portraits'
+export const RAINBOW_HERO_ART = '/rainbow-princess-art/hero-pearl-palace.webp'
 
 export type RainbowPilotGlyph = {
   shape: 'path' | 'rings'

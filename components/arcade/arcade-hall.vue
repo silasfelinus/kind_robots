@@ -15,7 +15,7 @@
     </section>
 
     <ul class="arcade-row" aria-label="Cabinets">
-      <li v-for="game in games" :key="game.slug">
+      <li v-for="game in games" :key="game.slug" class="flex flex-col">
         <NuxtLink
           :to="hallLink(game)"
           class="arcade-mini"
@@ -41,9 +41,23 @@
             <span class="arcade-mini-score">
               {{ topLine(game.slug) }}
             </span>
+            <span class="arcade-mini-score">{{ ratingLine(game.slug) }}</span>
             <span class="arcade-mini-play">Play</span>
           </span>
         </NuxtLink>
+        <button
+          type="button"
+          class="btn btn-ghost btn-sm mt-2 text-amber-200"
+          @click="
+            selectedReview = selectedReview === game.slug ? '' : game.slug
+          "
+        >
+          {{
+            selectedReview === game.slug
+              ? 'Hide reviews'
+              : 'Rate & read reviews'
+          }}
+        </button>
       </li>
       <li v-for="soon in comingSoon" :key="soon.slug">
         <div
@@ -71,6 +85,8 @@
         </div>
       </li>
     </ul>
+
+    <ArcadeReviews v-if="selectedReview" :game="selectedReview" />
 
     <section class="arcade-fame" aria-labelledby="arcade-fame-title">
       <h2 id="arcade-fame-title" class="arcade-fame-title">Hall of fame</h2>
@@ -138,14 +154,20 @@
 // The Kind Robots Arcade hall: a row of cabinets, live ones linking to their
 // own page and queued ones shown as "coming soon" (conductor kr-arcade).
 
-import { onMounted, reactive, ref } from 'vue'
+import { computed, onMounted, reactive, ref } from 'vue'
 import { useArcadeStore } from '@/stores/arcadeStore'
+import { useArcadeReviewsStore } from '@/stores/arcadeReviewsStore'
 import { COMING_SOON, HALL_GAMES, shortArcadeBlurb } from '~/utils/arcade/games'
 import { formatChampion } from '~/utils/arcade/leaderboard'
+import { sortArcadeGamesByRating } from '~/utils/arcade/reviews'
 import type { ArcadeGameMeta } from '~/utils/arcade/types'
 
 const store = useArcadeStore()
-const games = HALL_GAMES
+const reviewStore = useArcadeReviewsStore()
+const selectedReview = ref('')
+const games = computed(() =>
+  sortArcadeGamesByRating(HALL_GAMES, reviewStore.summaries),
+)
 const comingSoon = COMING_SOON
 const backdrop = ref('/images/arcade/arcade-hall-backdrop.webp')
 // '' = use the game's own art, 'fallback' = it 404'd so show the arcade
@@ -173,17 +195,25 @@ function topLine(slug: string) {
     : 'HI SCORE: be the first'
 }
 
+function ratingLine(slug: string) {
+  const summary = reviewStore.summaries[slug]
+  return summary?.count
+    ? summary.average.toFixed(1) + ' ★ · ' + summary.count + ' reviews'
+    : 'Not rated yet'
+}
+
 function playsLabel(plays: number) {
   return plays === 1 ? '1 score on the board' : `${plays} scores on the board`
 }
 
 onMounted(async () => {
+  void reviewStore.fetchSummaries()
   await store.fetchHallOfFame()
   void store.flushPending()
   // Fall back to per-cabinet boards (or this device's) if the hall of fame
   // could not load.
   if (!store.hallOfFame.length) {
-    for (const game of games) void store.fetchBoard(game.slug, 'all')
+    for (const game of games.value) void store.fetchBoard(game.slug, 'all')
   }
 })
 </script>

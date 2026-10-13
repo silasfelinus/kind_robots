@@ -85,6 +85,7 @@
             </p>
           </aside>
         </div>
+        <ArcadeReviews :game="meta.slug" />
       </template>
 
       <div v-else class="kr-panel mx-auto max-w-xl rounded-2xl p-6 text-center">

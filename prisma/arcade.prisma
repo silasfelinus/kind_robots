@@ -18,3 +18,19 @@ model ArcadeScore {
   @@index([gameSlug, createdAt])
   @@index([userId])
 }
+
+// One authenticated player's rating and editable comment per public Arcade title.
+// Arcade games use stable slugs rather than database-backed entity IDs.
+model ArcadeReview {
+  id        Int      @id @default(autoincrement())
+  gameSlug  String   @db.VarChar(64)
+  userId    Int
+  username  String?  @db.VarChar(255)
+  rating    Int
+  comment   String?  @db.Text
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([gameSlug, userId])
+  @@index([gameSlug, rating])
+}

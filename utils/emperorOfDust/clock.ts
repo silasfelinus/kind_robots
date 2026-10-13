@@ -55,5 +55,5 @@ export const upcomingMoment = (
     ]),
   ].filter((time) => time > state.hour && time <= timeAt(101, 0))
 
-  return Math.min(state.hour + 1, ...upcoming)
+  return upcoming.length ? Math.min(...upcoming) : state.hour + 1
 }

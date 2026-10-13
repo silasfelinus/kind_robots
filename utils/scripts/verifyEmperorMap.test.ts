@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict'
+import { upcomingMoment } from '../emperorOfDust/clock'
 import { DAY_ONE_BRIEFINGS, DAY_ONE_INCIDENTS } from '../emperorOfDust/dayOne'
 import {
   availableFollowers,
@@ -52,6 +53,7 @@ assert.equal(DAY_ONE_BRIEFINGS.filter((report) => !report.truth).length, 1)
 
 const state = startEmperorCampaign(1201)
 assert.equal(state.hour, 7)
+assert.equal(upcomingMoment(state, DAY_ONE_INCIDENTS), 9)
 const aqueduct = DAY_ONE_INCIDENTS[0]!
 const advanceAtDeadline = advancePilotClock(
   state,

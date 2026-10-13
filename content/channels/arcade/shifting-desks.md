@@ -1,6 +1,6 @@
 ---
 contentType: tab
-channelKey: projects
+channelKey: arcade
 tabKey: shifting-desks
 label: Shifting Desks
 title: Shifting Desks

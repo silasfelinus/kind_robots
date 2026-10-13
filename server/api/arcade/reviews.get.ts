@@ -13,15 +13,21 @@ export default defineEventHandler(async (event) => {
     })
     return {
       success: true,
-      data: Object.fromEntries(groups.map((row) => [
-        row.gameSlug,
-        { average: row._avg.rating ?? 0, count: row._count.rating },
-      ])),
+      data: Object.fromEntries(
+        groups.map((row) => [
+          row.gameSlug,
+          { average: row._avg.rating ?? 0, count: row._count.rating },
+        ]),
+      ),
       statusCode: 200,
     }
   } catch (error) {
     const failure = errorHandler(error)
     event.node.res.statusCode = failure.statusCode || 500
-    return { success: false, message: failure.message, statusCode: event.node.res.statusCode }
+    return {
+      success: false,
+      message: failure.message,
+      statusCode: event.node.res.statusCode,
+    }
   }
 })

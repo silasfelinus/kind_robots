@@ -21,7 +21,9 @@ export const useArcadeReviewsStore = defineStore('arcadeReviews', () => {
   const error = ref('')
 
   async function fetchSummaries() {
-    const res = await performFetch<ArcadeRatingSummaryMap>('/api/arcade/reviews')
+    const res = await performFetch<ArcadeRatingSummaryMap>(
+      '/api/arcade/reviews',
+    )
     if (res.success && res.data) summaries.value = res.data
     return res.success
   }
@@ -30,11 +32,15 @@ export const useArcadeReviewsStore = defineStore('arcadeReviews', () => {
     loading.value = true
     error.value = ''
     try {
-      const res = await performFetch<ArcadeReviewRow[]>('/api/arcade/reviews/' + encodeURIComponent(game))
-      if (!res.success || !Array.isArray(res.data)) throw new Error(res.message || 'Could not load reviews.')
+      const res = await performFetch<ArcadeReviewRow[]>(
+        '/api/arcade/reviews/' + encodeURIComponent(game),
+      )
+      if (!res.success || !Array.isArray(res.data))
+        throw new Error(res.message || 'Could not load reviews.')
       reviewsByGame.value[game] = res.data
     } catch (cause) {
-      error.value = cause instanceof Error ? cause.message : 'Could not load reviews.'
+      error.value =
+        cause instanceof Error ? cause.message : 'Could not load reviews.'
     } finally {
       loading.value = false
     }
@@ -44,20 +50,34 @@ export const useArcadeReviewsStore = defineStore('arcadeReviews', () => {
     saving.value = true
     error.value = ''
     try {
-      const res = await performFetch<ArcadeReviewRow>('/api/arcade/reviews/' + encodeURIComponent(game), {
-        method: 'PUT',
-        body: JSON.stringify({ rating, comment }),
-      })
-      if (!res.success) throw new Error(res.message || 'Could not save your review.')
+      const res = await performFetch<ArcadeReviewRow>(
+        '/api/arcade/reviews/' + encodeURIComponent(game),
+        {
+          method: 'PUT',
+          body: JSON.stringify({ rating, comment }),
+        },
+      )
+      if (!res.success)
+        throw new Error(res.message || 'Could not save your review.')
       await Promise.all([fetchReviews(game), fetchSummaries()])
       return true
     } catch (cause) {
-      error.value = cause instanceof Error ? cause.message : 'Could not save your review.'
+      error.value =
+        cause instanceof Error ? cause.message : 'Could not save your review.'
       return false
     } finally {
       saving.value = false
     }
   }
 
-  return { summaries, reviewsByGame, loading, saving, error, fetchSummaries, fetchReviews, saveReview }
+  return {
+    summaries,
+    reviewsByGame,
+    loading,
+    saving,
+    error,
+    fetchSummaries,
+    fetchReviews,
+    saveReview,
+  }
 })

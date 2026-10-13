@@ -45,8 +45,18 @@
             <span class="arcade-mini-play">Play</span>
           </span>
         </NuxtLink>
-        <button type="button" class="btn btn-ghost btn-sm mt-2 text-amber-200" @click="selectedReview = selectedReview === game.slug ? '' : game.slug">
-          {{ selectedReview === game.slug ? 'Hide reviews' : 'Rate & read reviews' }}
+        <button
+          type="button"
+          class="btn btn-ghost btn-sm mt-2 text-amber-200"
+          @click="
+            selectedReview = selectedReview === game.slug ? '' : game.slug
+          "
+        >
+          {{
+            selectedReview === game.slug
+              ? 'Hide reviews'
+              : 'Rate & read reviews'
+          }}
         </button>
       </li>
       <li v-for="soon in comingSoon" :key="soon.slug">
@@ -155,7 +165,9 @@ import type { ArcadeGameMeta } from '~/utils/arcade/types'
 const store = useArcadeStore()
 const reviewStore = useArcadeReviewsStore()
 const selectedReview = ref('')
-const games = computed(() => sortArcadeGamesByRating(HALL_GAMES, reviewStore.summaries))
+const games = computed(() =>
+  sortArcadeGamesByRating(HALL_GAMES, reviewStore.summaries),
+)
 const comingSoon = COMING_SOON
 const backdrop = ref('/images/arcade/arcade-hall-backdrop.webp')
 // '' = use the game's own art, 'fallback' = it 404'd so show the arcade
@@ -185,7 +197,9 @@ function topLine(slug: string) {
 
 function ratingLine(slug: string) {
   const summary = reviewStore.summaries[slug]
-  return summary?.count ? summary.average.toFixed(1) + ' ★ · ' + summary.count + ' reviews' : 'Not rated yet'
+  return summary?.count
+    ? summary.average.toFixed(1) + ' ★ · ' + summary.count + ' reviews'
+    : 'Not rated yet'
 }
 
 function playsLabel(plays: number) {

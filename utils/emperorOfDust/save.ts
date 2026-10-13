@@ -1,3 +1,4 @@
+import { relicId } from './relics'
 import type { Campaign, Follower, Incident } from './types'
 
 const object = (value: unknown): value is Record<string, unknown> =>
@@ -104,6 +105,19 @@ export const isSavedEmperorCampaign = (value: unknown): value is Campaign => {
   ) {
     return false
   }
+  if (
+    value.equippedRelics !== undefined &&
+    (!Array.isArray(value.equippedRelics) ||
+      value.equippedRelics.length > 2 ||
+      !value.equippedRelics.every(relicId) ||
+      new Set(value.equippedRelics).size !== value.equippedRelics.length)
+  ) return false
+  if (
+    value.relicUses !== undefined &&
+    (!object(value.relicUses) ||
+      Object.keys(value.relicUses).some((id) => !relicId(id)) ||
+      Object.values(value.relicUses).some((day) => !int(day, 1, 100)))
+  ) return false
   if (
     value.memorials !== undefined &&
     (!Array.isArray(value.memorials) ||

@@ -1,6 +1,6 @@
 ---
 contentType: tab
-channelKey: projects
+channelKey: arcade
 tabKey: aquarium
 label: Cthulhuquarium
 title: Cthulhuquarium

@@ -102,7 +102,7 @@ export const PROJECT_PLACEMENTS: Record<string, ProjectPlacement> = {
   // the largely AI-created games. Approved daily-pitch projects join it once
   // they have something playable.
   cthulhuquarium: {
-    channelKey: 'projects',
+    channelKey: 'arcade',
     tabKey: 'aquarium',
     route: '/play/aquarium',
   },
@@ -119,7 +119,7 @@ export const PROJECT_PLACEMENTS: Record<string, ProjectPlacement> = {
     route: '/admin/save-the-plumber',
   },
   'emperor-of-dust': {
-    channelKey: 'admin',
+    channelKey: 'zuzu',
     tabKey: 'emperor-of-dust',
     route: '/admin/emperor-of-dust',
   },
@@ -144,7 +144,7 @@ export const PROJECT_PLACEMENTS: Record<string, ProjectPlacement> = {
     route: '/play/zuzu-gamebook',
   },
   'zuzu-lair': {
-    channelKey: 'admin',
+    channelKey: 'zuzu',
     tabKey: 'zuzu-lair',
     route: '/play/zuzu-lair',
   },

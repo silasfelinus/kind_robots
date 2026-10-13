@@ -1,6 +1,6 @@
 ---
 contentType: tab
-channelKey: projects
+channelKey: arcade
 tabKey: experiments
 dashboardKey: wonder
 dashboardTab: memory-dungeon

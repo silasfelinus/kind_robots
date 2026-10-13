@@ -55,7 +55,14 @@ export class PinballMixer {
   }
 
   unlock() {
-    if (this.unlocked || typeof window === 'undefined') return
+    // iOS and other browsers may suspend an existing context again after a
+    // background tab or a gesture that arrived before the game was mounted.
+    if (this.unlocked) {
+      if (this.context && this.context.state !== 'running')
+        void this.context.resume()
+      return
+    }
+    if (typeof window === 'undefined') return
     const audioWindow = window as typeof window & {
       webkitAudioContext?: AudioCtor
     }
@@ -78,7 +85,13 @@ export class PinballMixer {
     if (context.state === 'suspended') void context.resume()
   }
 
+  /** The parent arcade mute switch controls this separate pinball context too. */
+  syncMute() {
+    if (this.master) this.master.gain.value = this.isMuted() ? 0 : 0.72
+  }
+
   play(name: string, position?: Position) {
+    this.syncMute()
     if (this.isMuted()) return
     const cue = PINBALL_CUES[name as PinballSoundName]
     if (!cue || !this.context || this.context.state !== 'running') return

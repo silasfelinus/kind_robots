@@ -1187,8 +1187,7 @@ export function descend(state: RunState): RunState {
   const [deck, rng] = dealDepartment(next, state.rng, memo)
   // Running low on Successors, HR thaws one fresh one at each new level, so a
   // long run wears you down without making the bottom floors a foregone loss.
-  const thawed =
-    state.meters.successors <= THAW_BELOW ? THAW_PER_LEVEL : 0
+  const thawed = state.meters.successors <= THAW_BELOW ? THAW_PER_LEVEL : 0
   const meters: Meters = {
     ...state.meters,
     successors: state.meters.successors + thawed,

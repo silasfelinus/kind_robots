@@ -51,3 +51,30 @@ jobs:
       - run: npx tsx utils/scripts/verifyEmperorCampaign.test.ts
       - run: npx tsx utils/scripts/verifyEmperorMap.test.ts
       - run: npx tsx utils/scripts/verifyEmperorRelics.test.ts
+      - name: Temporary pinned Prettier snapshot
+        run: |
+          npx prettier --write utils/emperorOfDust/relics.ts utils/emperorOfDust/engine.ts utils/emperorOfDust/save.ts utils/emperorOfDust/types.ts utils/scripts/verifyEmperorRelics.test.ts stores/emperorOfDustStore.ts components/EmperorOfDustRelicVault.vue pages/admin/emperor-of-dust.vue
+          printf '\\nERELIC_FMT_0_BEGIN\\n'
+          base64 -w0 utils/emperorOfDust/relics.ts
+          printf '\\nERELIC_FMT_0_END\\n'
+          printf '\\nERELIC_FMT_1_BEGIN\\n'
+          base64 -w0 utils/emperorOfDust/engine.ts
+          printf '\\nERELIC_FMT_1_END\\n'
+          printf '\\nERELIC_FMT_2_BEGIN\\n'
+          base64 -w0 utils/emperorOfDust/save.ts
+          printf '\\nERELIC_FMT_2_END\\n'
+          printf '\\nERELIC_FMT_3_BEGIN\\n'
+          base64 -w0 utils/emperorOfDust/types.ts
+          printf '\\nERELIC_FMT_3_END\\n'
+          printf '\\nERELIC_FMT_4_BEGIN\\n'
+          base64 -w0 utils/scripts/verifyEmperorRelics.test.ts
+          printf '\\nERELIC_FMT_4_END\\n'
+          printf '\\nERELIC_FMT_5_BEGIN\\n'
+          base64 -w0 stores/emperorOfDustStore.ts
+          printf '\\nERELIC_FMT_5_END\\n'
+          printf '\\nERELIC_FMT_6_BEGIN\\n'
+          base64 -w0 components/EmperorOfDustRelicVault.vue
+          printf '\\nERELIC_FMT_6_END\\n'
+          printf '\\nERELIC_FMT_7_BEGIN\\n'
+          base64 -w0 pages/admin/emperor-of-dust.vue
+          printf '\\nERELIC_FMT_7_END\\n'

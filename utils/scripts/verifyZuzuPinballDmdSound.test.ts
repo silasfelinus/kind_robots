@@ -4,6 +4,9 @@
 // score is a new high, and music that ducks under every callout so a
 // jackpot or a Death Roll is heard over the bed.
 import assert from 'node:assert/strict'
+import { readFileSync } from 'node:fs'
+import vm from 'node:vm'
+import ts from 'typescript'
 import RAPIER from '@dimforge/rapier3d-compat'
 import { mulberry32 } from '../arcade/curve'
 import { PINBALL_CUES } from '../arcade/pinball/audio/catalog'
@@ -340,6 +343,75 @@ assert.deepEqual(
   } finally {
     if (had) g.window = before
     else delete g.window
+  }
+}
+
+const cabinetScript = readFileSync(
+  new URL('../../components/arcade/arcade-cabinet.vue', import.meta.url),
+  'utf8',
+)
+  .split('<script setup lang="ts">')[1]!
+  .split('</script>')[0]!
+const cabinetAst = ts.createSourceFile(
+  'cabinet.ts',
+  cabinetScript,
+  ts.ScriptTarget.Latest,
+  true,
+)
+const gestureHandlers = cabinetAst.statements
+  .filter(
+    (statement) =>
+      ts.isFunctionDeclaration(statement) &&
+      ['press', 'onKey'].includes(statement.name?.text ?? ''),
+  )
+  .map((statement) => statement.getText(cabinetAst))
+  .join('\n')
+assert.equal(
+  cabinetAst.statements.filter(
+    (statement) =>
+      ts.isFunctionDeclaration(statement) &&
+      ['press', 'onKey'].includes(statement.name?.text ?? ''),
+  ).length,
+  2,
+)
+const gestureCode = ts.transpile(gestureHandlers, {
+  target: ts.ScriptTarget.ES2022,
+})
+for (const open of [false, true]) {
+  for (const gesture of ['touch-a', 'touch-start', 'Enter', 'Space', 'KeyZ']) {
+    let starts = 0
+    const touch: Array<[string, boolean]> = []
+    const scope = {
+      HTMLInputElement: class {},
+      meta: { value: { touchLayout: 'pinball' } },
+      ATTRACT_PHASES: ['title', 'scores', 'demo'],
+      machine: { phase: 'title' },
+      guide: { value: open ? { pages: [{}, {}], page: 0 } : null },
+      unlockArcadeAudio() {},
+      startGame() {
+        starts++
+      },
+      seatInput() {
+        return {
+          setTouch(button: string, down: boolean) {
+            touch.push([button, down])
+          },
+        }
+      },
+    }
+    const context = vm.createContext(scope)
+    vm.runInContext(gestureCode, context)
+    if (gesture.startsWith('touch-')) {
+      vm.runInContext(`press('${gesture.slice(6)}', true)`, context)
+      assert.deepEqual(touch, open ? [[gesture.slice(6), true]] : [])
+    } else {
+      vm.runInContext(`onKey({ target: {}, code: '${gesture}' })`, context)
+    }
+    assert.equal(
+      starts,
+      open ? 0 : 1,
+      `${gesture}: open guide owns input; closed guide starts synchronously`,
+    )
   }
 }
 

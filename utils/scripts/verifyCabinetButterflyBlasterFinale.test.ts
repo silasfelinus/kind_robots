@@ -12,7 +12,11 @@ import { mulberry32 } from '../arcade/curve'
 import { sanitizeSaves, withSave } from '../arcade/saves'
 import { emptyInput } from '../arcade/types'
 import type { InputFrame } from '../arcade/types'
-import { STICKY, create } from '../arcade/games/butterflyBlaster'
+import {
+  STICKY,
+  create,
+  readBlasterSave,
+} from '../arcade/games/butterflyBlaster'
 import type { BlasterSave } from '../arcade/games/butterflyBlaster'
 import {
   CREDITS_TICKS,
@@ -744,7 +748,7 @@ const ALL = new Set<RegionId>(THREAD_REGIONS)
     earned.score = 12340
     earned.lives = 1
     earned.beginStep(stepOf((s) => s.kind === 'ending' && s.ending === kind))
-    const saved = roundTrip(earned)
+    const saved = readBlasterSave(roundTrip(earned))
     assert.ok(saved?.cleared)
     assert.equal(saved.zero, kind === 'zero')
 
@@ -798,7 +802,7 @@ const ALL = new Set<RegionId>(THREAD_REGIONS)
   }
   const unfinished = game(22)
   unfinished.beginStep(nightStep('delta', 0))
-  const legacy = roundTrip(unfinished)!
+  const legacy = readBlasterSave(roundTrip(unfinished))!
   delete legacy.cleared
   delete legacy.zero
   const fresh = game(23, legacy)

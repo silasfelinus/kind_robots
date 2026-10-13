@@ -152,6 +152,9 @@ jobs:
       - name: Kind Robots Arcade engine
         run: npm run test:arcade-engine
 
+      - name: Arcade reviews and private Lair contract
+        run: npm run test:arcade-reviews
+
       - name: Zuzu Pinball private 3D preview
         run: npm run test:zuzu-pinball
 

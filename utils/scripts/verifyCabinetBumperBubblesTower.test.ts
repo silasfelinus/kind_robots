@@ -33,6 +33,7 @@ import {
   BOLT_TICKS,
   CLOUD_CHARGE,
   GRUMPS,
+  GRUMP_LETTERS,
   MIMIC,
   PHANTOM,
   disguised,
@@ -40,8 +41,10 @@ import {
   makeGrump,
   trappable,
   updateGrump,
+  type Grump,
+  type GrumpWorld,
+  type Hazard,
 } from '../arcade/bumperBubbles/grumps'
-import type { Grump, GrumpWorld, Hazard } from '../arcade/bumperBubbles/grumps'
 import { PANTRIES, PANTRY_FLOORS } from '../arcade/bumperBubbles/pantries'
 import { LAMP_RADIUS, LAMP_WIDE } from '../arcade/bumperBubbles/slice4Art'
 import { MUSIC } from '../arcade/bumperBubbles/music'
@@ -50,13 +53,11 @@ import { sanitizeSaves, withSave } from '../arcade/saves'
 import {
   FLOOR_Y,
   TILE,
-  TOP,
   WALL_L,
   parseFloor,
   solidAt,
+  type Floor,
 } from '../arcade/bumperBubbles/tower'
-import type { Floor } from '../arcade/bumperBubbles/tower'
-import { GRUMP_LETTERS } from '../arcade/bumperBubbles/grumps'
 
 type Inner = {
   score: number

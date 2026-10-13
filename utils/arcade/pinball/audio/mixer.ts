@@ -58,6 +58,7 @@ export class PinballMixer {
     // iOS and other browsers may suspend an existing context again after a
     // background tab or a gesture that arrived before the game was mounted.
     if (this.unlocked) {
+      this.syncMute()
       if (this.context && this.context.state !== 'running')
         void this.context.resume()
       return
@@ -82,6 +83,7 @@ export class PinballMixer {
     this.context = context
     this.master = master
     this.unlocked = true
+    this.syncMute()
     if (context.state === 'suspended') void context.resume()
   }
 

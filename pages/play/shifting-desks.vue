@@ -377,7 +377,10 @@
         <shifting-desks-envelope class="shrink-0" />
 
         <div class="kr-panes desk-layout gap-2 lg:gap-4">
-          <div class="desk-flip kr-pane">
+          <div
+            class="desk-flip kr-pane"
+            :class="{ 'is-tucked': deciding || !!run.pending }"
+          >
             <div class="desk-flip-inner" :class="{ 'is-open': opened }">
               <button
                 ref="cardBack"
@@ -441,18 +444,56 @@
                   >
                     {{ view.card.title }}
                   </p>
-                  <p
-                    class="max-h-28 overflow-y-auto text-xs leading-relaxed sm:text-sm lg:max-h-40"
-                  >
+                  <p class="max-h-40 overflow-y-auto text-sm leading-relaxed">
                     {{ view.card.flavor_text }}
                   </p>
+                  <button
+                    v-if="opened && !run.pending"
+                    type="button"
+                    class="btn btn-warning btn-sm mt-1 self-start lg:hidden"
+                    :tabindex="opened ? 0 : -1"
+                    @click="decide"
+                  >
+                    Decide
+                    <icon name="kind-icon:arrow-right" class="size-4" />
+                  </button>
                 </div>
               </article>
             </div>
           </div>
 
-          <div class="kr-pane">
+          <div
+            class="kr-pane"
+            :class="{ 'is-tucked': !deciding && !run.pending }"
+          >
             <div class="kr-pane-scroll flex flex-col gap-2">
+              <div
+                class="flex shrink-0 items-center gap-2 rounded-xl border-2 border-stone-800 bg-base-200 p-1.5 lg:hidden"
+              >
+                <shifting-desks-art
+                  class="size-11 shrink-0 rounded-lg"
+                  frame="h-full w-full"
+                  :src="faceArt"
+                  :show-brief="false"
+                  :fallback-icon="cardIcon"
+                  icon-size="1.25rem"
+                />
+                <p
+                  ref="decideHeading"
+                  tabindex="-1"
+                  class="min-w-0 flex-1 truncate font-mono text-sm font-black uppercase"
+                >
+                  {{ view.card.title }}
+                </p>
+                <button
+                  v-if="!run.pending"
+                  type="button"
+                  class="btn btn-ghost btn-xs shrink-0"
+                  @click="deciding = false"
+                >
+                  <icon name="kind-icon:arrow-left" class="size-3.5" /> Card
+                </button>
+              </div>
               <template v-if="run.pending">
                 <article
                   class="relative flex flex-col gap-2 rounded-2xl border-2 p-3 sm:p-4"
@@ -786,6 +827,8 @@ const useMutation = ref(false)
 const cardHeading = ref<HTMLElement | null>(null)
 const cardBack = ref<HTMLElement | null>(null)
 const nextButton = ref<HTMLElement | null>(null)
+const decideHeading = ref<HTMLElement | null>(null)
+const deciding = ref(false)
 const journal = ref<HTMLDialogElement | null>(null)
 const journalOpen = ref(false)
 const pickedJobId = ref(JOB_TITLES[0]!.id)
@@ -1088,7 +1131,14 @@ function hire(jobId: string): void {
   screen.value = 'play'
 }
 
+async function decide(): Promise<void> {
+  deciding.value = true
+  await nextTick()
+  decideHeading.value?.focus()
+}
+
 async function openFile(): Promise<void> {
+  deciding.value = false
   opened.value = true
   await nextTick()
   cardHeading.value?.focus()
@@ -1142,9 +1192,10 @@ function toFront(): void {
 }
 
 watch(
-  () => run.value?.position,
+  () => [run.value?.position, run.value?.department],
   () => {
     opened.value = false
+    deciding.value = false
   },
 )
 
@@ -1173,7 +1224,13 @@ useHead({ title: 'Shifting Desks' })
 }
 
 .desk-layout {
-  grid-template-rows: minmax(0, 1fr) minmax(0, 1.1fr);
+  grid-template-rows: minmax(0, 1fr);
+}
+
+@media (max-width: 1023.98px) {
+  .is-tucked {
+    display: none;
+  }
 }
 
 .hire-layout {

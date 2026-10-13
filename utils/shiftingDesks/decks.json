@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "source": "silasfelinus/conductor:projects/shifting-desks/encounters/DECKS.json",
-  "sourceRef": "main@f2cac065bc02471765b6f2a72201c12951b01f3a",
+  "sourceRef": "main@c701e0dd6e2f43dd3f36853528d6e539523a5011",
   "societies": [
     {
       "id": "stapler-liberation-front",
@@ -47,7 +47,8 @@
       "betrayal_text": {
         "orientation": "Hoard the last pens, ace the Mandatory Fun Survey, or name Dale as unhappy.",
         "records": "Keep a perfect yes-no quota, let the problem mail burn, or destroy the love letter by policy."
-      }
+      },
+      "art_prompt": "A red stapler rearing up on a desk like a raised fist, a defiant ring of paperclips arranged around it, dramatic low lighting and long shadows, a scatter of liberated pens, mid-century safety-manual illustration, screen-printed gouache with halftone grain, limited palette of manila, carbon-paper blue, safety orange, fluorescent-tube green and oxblood, vertical 2:3 portrait composition, every surface bare and unmarked"
     },
     {
       "id": "friends-of-the-old-coffee-machine",
@@ -102,7 +103,8 @@
       "betrayal_text": {
         "orientation": "Let Pip go into the shredder, report Marguerite or your own Successor, or blame a coworker.",
         "records": "Deny Dr. Halvorsen, send Dale to the Toy Division, get the lovers rightsized, or let Pip open your dangerous mail."
-      }
+      },
+      "art_prompt": "A battered chrome coffee machine glowing warmly in a dark break room, mismatched mugs gathered around it like a small congregation, steam curling upward in the lamplight, mid-century safety-manual illustration, screen-printed gouache with halftone grain, limited palette of manila, carbon-paper blue, safety orange, fluorescent-tube green and oxblood, vertical 2:3 portrait composition, every surface bare and unmarked"
     },
     {
       "id": "society-for-accurate-minutes",
@@ -152,7 +154,8 @@
       "betrayal_text": {
         "orientation": "Erase the evidence, or adjust your inkblot answer to please the clipboard.",
         "records": "Report the angled pens, help destroy the DESTROY cabinet, burn your own report, or gas the Union archive."
-      }
+      },
+      "art_prompt": "A secret candlelit meeting of clerks between towering filing cabinets, each clerk writing in an identical notebook, faces lit from below, an open drawer of carbon copies at the center, mid-century safety-manual illustration, screen-printed gouache with halftone grain, limited palette of manila, carbon-paper blue, safety orange, fluorescent-tube green and oxblood, vertical 2:3 portrait composition, every surface bare and unmarked"
     },
     {
       "id": "fourth-floor-irregulars",
@@ -194,7 +197,8 @@
       "betrayal_text": {
         "orientation": "Report Marguerite, or get yourself booked for a Joy Consultation.",
         "records": "Get yourself flagged as problem mail, or turn your own correspondence in to PAL."
-      }
+      },
+      "art_prompt": "A brass elevator button panel with an extra round button glowing softly between the others, a gloved hand reaching for it, the elevator car lit in eerie fluorescent green, mid-century safety-manual illustration, screen-printed gouache with halftone grain, limited palette of manila, carbon-paper blue, safety orange, fluorescent-tube green and oxblood, vertical 2:3 portrait composition, every surface bare and unmarked"
     },
     {
       "id": "the-recyclers",
@@ -238,7 +242,8 @@
       "betrayal_text": {
         "orientation": "Betray the roaches, or set the detector to ravenous.",
         "records": "Gas the Union archive, or deny Beverly's application."
-      }
+      },
+      "art_prompt": "An enormous recycling bin overflowing with crumpled paper, staplers and coffee mugs, a giant friendly cockroach in a cardigan and a night janitor nodding to each other beside it, mid-century safety-manual illustration, screen-printed gouache with halftone grain, limited palette of manila, carbon-paper blue, safety orange, fluorescent-tube green and oxblood, vertical 2:3 portrait composition, every surface bare and unmarked"
     },
     {
       "id": "concerned-parents-of-the-toy-division",
@@ -282,7 +287,8 @@
       "betrayal_text": {
         "orientation": "Get hugged by Mk 0, or erase the evidence.",
         "records": "Send Dale to the Toy Division, gas the Union archive, or help destroy the real minutes."
-      }
+      },
+      "art_prompt": "A huddle of worried adults in lab coats around a workbench, one gently holding a screwdriver over a plush teddy bear with a quilted belly hatch, a warm desk lamp over the scene, mid-century safety-manual illustration, screen-printed gouache with halftone grain, limited palette of manila, carbon-paper blue, safety orange, fluorescent-tube green and oxblood, vertical 2:3 portrait composition, every surface bare and unmarked"
     }
   ],
   "mutations": [
@@ -290,14 +296,16 @@
       "id": "four-second-precognition",
       "title": "Four-Second Precognition",
       "text": "After a failed roll, roll again and keep the second result.",
-      "kind": "reroll"
+      "kind": "reroll",
+      "art_prompt": "An office worker watching a pale translucent echo of themselves a few steps ahead tripping over a loose cable, the real worker calmly stepping around it, mid-century safety-manual illustration, screen-printed gouache with halftone grain, limited palette of manila, carbon-paper blue, safety orange, fluorescent-tube green and oxblood, vertical 2:3 portrait composition, every surface bare and unmarked"
     },
     {
       "id": "printer-whisperer",
       "title": "Printer Whisperer",
       "text": "Automatic success on one Tinkering roll.",
       "kind": "auto-success",
-      "skills": ["tinkering"]
+      "skills": ["tinkering"],
+      "art_prompt": "An office worker leaning close to an enormous beige photocopier that glows contentedly, a fan of fresh paper curling out of it like a happy cat's tail, mid-century safety-manual illustration, screen-printed gouache with halftone grain, limited palette of manila, carbon-paper blue, safety orange, fluorescent-tube green and oxblood, vertical 2:3 portrait composition, every surface bare and unmarked"
     },
     {
       "id": "paperclip-telekinesis",
@@ -305,21 +313,24 @@
       "text": "+3 on one Initiative or Tinkering roll.",
       "kind": "bonus",
       "amount": 3,
-      "skills": ["initiative", "tinkering"]
+      "skills": ["initiative", "tinkering"],
+      "art_prompt": "A swirl of floating silver paperclips orbiting an office worker's raised fingertips, desk papers lifting gently in the air around them, mid-century safety-manual illustration, screen-printed gouache with halftone grain, limited palette of manila, carbon-paper blue, safety orange, fluorescent-tube green and oxblood, vertical 2:3 portrait composition, every surface bare and unmarked"
     },
     {
       "id": "fluorescent-camouflage",
       "title": "Fluorescent Camouflage",
       "text": "Automatic success on one Discretion roll.",
       "kind": "auto-success",
-      "skills": ["discretion"]
+      "skills": ["discretion"],
+      "art_prompt": "An office worker dissolving into the pale glow of an overhead fluorescent ceiling panel, only a faint outline of their shoulders remaining, coworkers walking past, mid-century safety-manual illustration, screen-printed gouache with halftone grain, limited palette of manila, carbon-paper blue, safety orange, fluorescent-tube green and oxblood, vertical 2:3 portrait composition, every surface bare and unmarked"
     },
     {
       "id": "perfect-signature-mimicry",
       "title": "Perfect Signature Mimicry",
       "text": "Automatic success on one Compliance roll.",
       "kind": "auto-success",
-      "skills": ["compliance"]
+      "skills": ["compliance"],
+      "art_prompt": "A fountain pen tracing a glowing ribbon of ink through the air above a tall stack of forms, a hand guiding it with uncanny ease, mid-century safety-manual illustration, screen-printed gouache with halftone grain, limited palette of manila, carbon-paper blue, safety orange, fluorescent-tube green and oxblood, vertical 2:3 portrait composition, every surface bare and unmarked"
     },
     {
       "id": "empathic-static",
@@ -327,20 +338,23 @@
       "text": "+3 on one Rapport roll.",
       "kind": "bonus",
       "amount": 3,
-      "skills": ["rapport"]
+      "skills": ["rapport"],
+      "art_prompt": "Two coworkers facing each other across a desk, soft crackles of warm golden static light passing between their temples, papers lifting in the charge, mid-century safety-manual illustration, screen-printed gouache with halftone grain, limited palette of manila, carbon-paper blue, safety orange, fluorescent-tube green and oxblood, vertical 2:3 portrait composition, every surface bare and unmarked"
     },
     {
       "id": "eyes-in-the-back-of-your-head",
       "title": "Eyes in the Back of Your Head",
       "text": "Automatic success on one Vigilance roll.",
       "kind": "auto-success",
-      "skills": ["vigilance"]
+      "skills": ["vigilance"],
+      "art_prompt": "An office worker at a desk seen from behind, a calm second pair of eyes drawn in soft light on the back of their neat bob haircut, a sneaking coworker frozen mid-step, mid-century safety-manual illustration, screen-printed gouache with halftone grain, limited palette of manila, carbon-paper blue, safety orange, fluorescent-tube green and oxblood, vertical 2:3 portrait composition, every surface bare and unmarked"
     },
     {
       "id": "spontaneous-calm",
       "title": "Spontaneous Calm",
       "text": "Restore Composure to 6. Use it any time on your turn.",
-      "kind": "restore-composure"
+      "kind": "restore-composure",
+      "art_prompt": "A frazzled office worker suddenly serene, floating an inch above the desk chair with eyes closed, scattered papers settling around them like falling leaves, mid-century safety-manual illustration, screen-printed gouache with halftone grain, limited palette of manila, carbon-paper blue, safety orange, fluorescent-tube green and oxblood, vertical 2:3 portrait composition, every surface bare and unmarked"
     }
   ],
   "jobTitles": [
@@ -357,7 +371,8 @@
         "vigilance": 1
       },
       "perk": "Expendable",
-      "perk_text": "HR keeps one extra Successor on file for you."
+      "perk_text": "HR keeps one extra Successor on file for you.",
+      "art_prompt": "An eager young intern with a cowlick and an oversized cable-knit sweater, three lanyards around the neck, balancing a teetering tray of coffee cups, beaming at an office corridor, mid-century safety-manual illustration, screen-printed gouache with halftone grain, limited palette of manila, carbon-paper blue, safety orange, fluorescent-tube green and oxblood, vertical 2:3 portrait composition, every surface bare and unmarked"
     },
     {
       "id": "temp",
@@ -372,7 +387,8 @@
         "vigilance": 1
       },
       "perk": "Unremarkable",
-      "perk_text": "Your Successors arrive with a clean file and no Suspicion."
+      "perk_text": "Your Successors arrive with a clean file and no Suspicion.",
+      "art_prompt": "An unremarkable office temp in a beige cardigan half-blending into beige wallpaper, a visitor sticker on the lapel, holding a clipboard against the chest, gaze politely elsewhere, mid-century safety-manual illustration, screen-printed gouache with halftone grain, limited palette of manila, carbon-paper blue, safety orange, fluorescent-tube green and oxblood, vertical 2:3 portrait composition, every surface bare and unmarked"
     },
     {
       "id": "middle-manager",
@@ -387,7 +403,8 @@
         "vigilance": 1
       },
       "perk": "Signing Authority",
-      "perk_text": "Start with two extra Forms, and one less Composure."
+      "perk_text": "Start with two extra Forms, and one less Composure.",
+      "art_prompt": "A tired middle manager in shirtsleeves behind a perfectly tidy desk, gripping an enormous rubber stamp in one hand and a chipped mug in the other, a wall of identical binders behind, mid-century safety-manual illustration, screen-printed gouache with halftone grain, limited palette of manila, carbon-paper blue, safety orange, fluorescent-tube green and oxblood, vertical 2:3 portrait composition, every surface bare and unmarked"
     },
     {
       "id": "night-janitor",
@@ -402,7 +419,8 @@
         "vigilance": 1
       },
       "perk": "Master Keys",
-      "perk_text": "Start with Clearance 2."
+      "perk_text": "Start with Clearance 2.",
+      "art_prompt": "A weathered older night janitor in grey coveralls with a ring of fifty keys at the belt, leaning on a mop beside an open ventilation grille, a dark office floor lit by a single desk lamp, mid-century safety-manual illustration, screen-printed gouache with halftone grain, limited palette of manila, carbon-paper blue, safety orange, fluorescent-tube green and oxblood, vertical 2:3 portrait composition, every surface bare and unmarked"
     },
     {
       "id": "internal-auditor",
@@ -417,7 +435,8 @@
         "vigilance": 3
       },
       "perk": "Feared",
-      "perk_text": "Start with one extra Composure. You have seen worse."
+      "perk_text": "Start with one extra Composure. You have seen worse.",
+      "art_prompt": "A stern internal auditor in a dark three-piece suit holding a magnifying glass over an open ledger, coworkers in the background leaning politely away, a green banker's lamp glowing, mid-century safety-manual illustration, screen-printed gouache with halftone grain, limited palette of manila, carbon-paper blue, safety orange, fluorescent-tube green and oxblood, vertical 2:3 portrait composition, every surface bare and unmarked"
     }
   ]
 }

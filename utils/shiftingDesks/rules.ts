@@ -90,6 +90,7 @@ export type Encounter = {
   tags: string[]
   weight: number
   witnessed: boolean
+  art_prompt: string
   choices: Choice[]
 }
 export type Location = {
@@ -97,12 +98,14 @@ export type Location = {
   title: string
   description: string
   encounter_ids: string[]
+  art_prompt: string
 }
 export type DepartmentOutcome = { id: string; title: string; summary: string }
 export type Boss = {
   id: string
   title: string
   flavor_text: string
+  art_prompt: string
   choices: Choice[]
   department_outcomes: DepartmentOutcome[]
 }
@@ -110,7 +113,13 @@ export type Pack = {
   schemaVersion: number
   source: string
   sourceSha: string
-  department: { id: string; title: string; order: number; boss_id: string }
+  department: {
+    id: string
+    title: string
+    order: number
+    boss_id: string
+    arrival_prompt: string
+  }
   locations: Location[]
   encounters: Encounter[]
   boss: Boss
@@ -157,6 +166,7 @@ export type Society = {
   betrayal_text: Record<string, string>
   favor: Favor
   reward: Effects
+  art_prompt: string
 }
 export type MutationKind =
   'reroll' | 'auto-success' | 'bonus' | 'restore-composure'
@@ -167,6 +177,7 @@ export type Mutation = {
   kind: MutationKind
   skills?: Skill[]
   amount?: number
+  art_prompt: string
 }
 export type Decks = {
   schemaVersion: number
@@ -179,11 +190,24 @@ export type Decks = {
     title: string
     skills: Record<Skill, number>
     perk: string
+    art_prompt: string
   }>
 }
 
 export const DECKS = decksData as Decks
 export const SOCIETIES = DECKS.societies
+
+export type StationKind =
+  'cards' | 'locations' | 'departments' | 'jobs' | 'societies' | 'mutations'
+
+export function stationArt(kind: StationKind, id: string, dept = ''): string {
+  const folder = kind === 'cards' ? `cards/${dept}` : kind
+  return `/images/shifting-desks/${folder}/${id}.webp`
+}
+
+export function jobPrompt(id: string): string {
+  return DECKS.jobTitles.find((j) => j.id === id)?.art_prompt ?? ''
+}
 export const MUTATIONS = DECKS.mutations
 
 export type JobTitle = {

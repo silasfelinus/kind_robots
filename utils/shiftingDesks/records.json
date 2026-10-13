@@ -1,12 +1,13 @@
 {
   "schemaVersion": 1,
   "source": "silasfelinus/conductor:projects/shifting-desks/encounters/RECORDS-12.json",
-  "sourceSha": "f2cac065bc02471765b6f2a72201c12951b01f3a",
+  "sourceSha": "c701e0dd6e2f43dd3f36853528d6e539523a5011",
   "department": {
     "id": "records",
     "title": "Records & Forms",
     "order": 2,
-    "boss_id": "the-form-that-requires-itself"
+    "boss_id": "the-form-that-requires-itself",
+    "arrival_prompt": "Elevator doors sliding open onto an endless floor of brass and paper, pneumatic tubes looping overhead, towers of folders and filing cabinets receding into haze, a lone clerk's desk lamp glowing in the distance, mid-century safety-manual illustration, screen-printed gouache with halftone grain, limited palette of manila, carbon-paper blue, safety orange, fluorescent-tube green and oxblood, horizontal 4:3 composition, every surface bare and unmarked"
   },
   "locations": [
     {
@@ -18,7 +19,8 @@
         "the-jam-in-tube-14",
         "problem-mail",
         "interdepartmental-romance"
-      ]
+      ],
+      "art_prompt": "A soaring hall of polished brass pneumatic tubes branching like organ pipes into the ceiling, glass capsules rushing through them, a dispatcher's console of levers and dials, drifts of carbon copies on the tiled floor, mid-century safety-manual illustration, screen-printed gouache with halftone grain, limited palette of manila, carbon-paper blue, safety orange, fluorescent-tube green and oxblood, vertical 2:3 portrait composition, every surface bare and unmarked"
     },
     {
       "location_id": "sub-archive",
@@ -29,7 +31,8 @@
         "alphabetizing-since-1974",
         "the-cabinet-marked-destroy",
         "the-union-archive"
-      ]
+      ],
+      "art_prompt": "An underground archive of grey filing cabinets marching to the horizon, one swinging bulb lighting a narrow aisle, a few drawers left ajar, a stepladder and a cold cup of coffee on a cabinet top, mid-century safety-manual illustration, screen-printed gouache with halftone grain, limited palette of manila, carbon-paper blue, safety orange, fluorescent-tube green and oxblood, vertical 2:3 portrait composition, every surface bare and unmarked"
     },
     {
       "location_id": "window-9",
@@ -40,7 +43,8 @@
         "the-small-box-on-line-12",
         "dale-requests-a-transfer",
         "the-double-sided-stamp"
-      ]
+      ],
+      "art_prompt": "A long counter of frosted service windows with brass grilles, a single lit window in the middle, a weary queue of applicants stretching away including a giant cockroach in a necktie, inkpads and rubber stamps lined up on the clerk's side, mid-century safety-manual illustration, screen-printed gouache with halftone grain, limited palette of manila, carbon-paper blue, safety orange, fluorescent-tube green and oxblood, vertical 2:3 portrait composition, every surface bare and unmarked"
     }
   ],
   "encounters": [
@@ -53,6 +57,7 @@
       "tags": ["conspiracy", "paperwork", "mutant"],
       "weight": 3,
       "witnessed": true,
+      "art_prompt": "Mid-century safety-manual illustration of a worker at a brass pneumatic tube terminal holding a capsule in each hand, one large and one small, a curl of postmarked paper unrolling between them, a wall of gleaming brass tubes rising behind like organ pipes, carbon blue and manila palette, halftone grain, every surface bare and unmarked",
       "choices": [
         {
           "id": "open-the-small-capsule",
@@ -161,6 +166,7 @@
       "tags": ["deathtrap", "satire", "callback"],
       "weight": 2,
       "witnessed": true,
+      "art_prompt": "Mid-century safety-manual illustration of a fat brass pneumatic tube bulging in one round lump along its length, a worker with one ear pressed to the brass, an open emergency kit on the wall holding a red axe, a flare and a neatly folded striped towel, steam curling from a joint, safety-orange and manila palette, halftone grain, every surface bare and unmarked",
       "choices": [
         {
           "id": "pull-him-out",
@@ -295,6 +301,7 @@
       "tags": ["conspiracy", "paperwork"],
       "weight": 2,
       "witnessed": true,
+      "art_prompt": "Mid-century safety-manual illustration of a lean dispatcher in sleeve garters and a headset standing between two brass chutes, one glowing warm orange from a furnace below, his hand resting on a capsule sliding toward the glow, a worker reaching from the side, oxblood and safety-orange palette, halftone grain, every surface bare and unmarked",
       "choices": [
         {
           "id": "palm-your-capsule",
@@ -417,6 +424,7 @@
       "tags": ["paperwork", "satire"],
       "weight": 3,
       "witnessed": false,
+      "art_prompt": "Mid-century safety-manual illustration of a pink glass capsule looping through a tangle of brass tubes trailing a faint lavender shimmer, two office doors far apart on opposite walls with silhouettes leaning wistfully in each doorway, a worker below catching the capsule, manila and fluorescent green palette with one pink accent, halftone grain, every surface bare and unmarked",
       "choices": [
         {
           "id": "deliver-it",
@@ -539,6 +547,7 @@
       "tags": ["paperwork", "psych-test", "callback"],
       "weight": 3,
       "witnessed": false,
+      "art_prompt": "Mid-century safety-manual illustration of a worker standing at an open filing drawer holding an enormously thick manila folder, a blood-pressure cuff wrapped around one arm connected by a rubber tube to a round dial gauge on the cabinet, the needle swinging high, one bare bulb swinging overhead, endless cabinets fading into gloom, manila and carbon blue palette, halftone grain, every surface bare and unmarked",
       "choices": [
         {
           "id": "read-about-the-incident",
@@ -675,6 +684,7 @@
       "tags": ["psych-test", "paperwork"],
       "weight": 3,
       "witnessed": false,
+      "art_prompt": "Mid-century safety-manual illustration of a gentle elderly clerk in a cardigan and sleeve garters fingering through a single open file drawer with infinite patience, a faded assignment slip in his other hand, a worker leaning in beside him, dust motes drifting in the beam of one bulb, manila and oxblood palette, halftone grain, every surface bare and unmarked",
       "choices": [
         {
           "id": "tell-him-it-is-over",
@@ -774,6 +784,7 @@
       "tags": ["conspiracy", "paperwork"],
       "weight": 2,
       "witnessed": false,
+      "art_prompt": "Mid-century safety-manual illustration of a tall grey filing cabinet alone at the end of a long dim aisle, drawers bulging with folders, a single ballpoint pen balanced on top pointing at the second drawer, a worker approaching with a flashlight, deep shadows between the aisles, carbon blue and oxblood palette, halftone grain, every surface bare and unmarked",
       "choices": [
         {
           "id": "read-the-second-drawer",
@@ -874,6 +885,7 @@
       "tags": ["conspiracy", "creature"],
       "weight": 3,
       "witnessed": false,
+      "art_prompt": "Mid-century safety-manual illustration of a giant cockroach in a mustard cardigan and half-moon reading glasses hunched at a desk under a green-shaded lamp, delicately piecing paper strips together with tweezers, walls papered with reassembled memos, a worker peering in through a gap behind a swung-open filing cabinet, warm lamplight against deep shadow, manila and oxblood palette, halftone grain, every surface bare and unmarked",
       "choices": [
         {
           "id": "help-reassemble",
@@ -961,6 +973,7 @@
       "tags": ["paperwork", "creature", "satire"],
       "weight": 2,
       "witnessed": true,
+      "art_prompt": "Mid-century safety-manual illustration of a poised six-foot cockroach in a navy blazer and pearl earrings sliding a stack of glossy laminated documents through a booth drawer, a sweating worker behind thick glass holding a brass stamp, a long queue curling away behind her, carbon blue and safety-orange palette, halftone grain, every surface bare and unmarked",
       "choices": [
         {
           "id": "approve-beverly",
@@ -1061,6 +1074,7 @@
       "tags": ["paperwork", "psych-test", "sacrifice"],
       "weight": 2,
       "witnessed": true,
+      "art_prompt": "Mid-century safety-manual illustration of a brisk psychologist in cat-eye glasses and a lab coat over a cardigan standing at a thick glass booth window, clutching an enormous clipboard, one transfer form lying in the brass drawer between her and a worker holding a stamp, both looking down at the same tiny line, fluorescent green and manila palette, halftone grain, every surface bare and unmarked",
       "choices": [
         {
           "id": "approve-her-transfer",
@@ -1177,6 +1191,7 @@
       "tags": ["conspiracy", "paperwork"],
       "weight": 3,
       "witnessed": true,
+      "art_prompt": "Mid-century safety-manual illustration of a mild mustached man in a short-sleeved shirt and clip-on tie at a thick glass booth window, eyes cast sideways, pushing a form through the drawer with two fingers, a worker behind the glass holding a brass stamp aloft and hesitating, a long queue fading into the distance, oxblood and manila palette, halftone grain, every surface bare and unmarked",
       "choices": [
         {
           "id": "stamp-it-approved",
@@ -1297,6 +1312,7 @@
       "tags": ["psych-test", "paperwork", "callback"],
       "weight": 3,
       "witnessed": true,
+      "art_prompt": "Mid-century safety-manual illustration of a close view of a hand gripping a heavy two-faced brass stamp above an ink pad, the thumb resting on a polished worn spot, an elderly man in a hat waiting hopefully on the far side of thick glass, a ticking wall clock above, safety-orange and carbon blue palette, halftone grain, every surface bare and unmarked",
       "choices": [
         {
           "id": "learn-the-worn-spot",
@@ -1416,6 +1432,7 @@
     "id": "the-form-that-requires-itself",
     "title": "The Form That Requires Itself",
     "flavor_text": "At the bottom of Records waits Form 0: the Request to Submit Form 0. To leave the department you must submit it. To submit it, you need an approved Form 0. The clerk at the last window is your Supervisor, in a green visor. PAL has prepared a welcome packet. \"Most employees find this step deeply fulfilling,\" it says. \"Some find it permanent.\"",
+    "art_prompt": "Mid-century safety-manual illustration of a towering spiral of identical forms rising from a single oxblood service window into darkness, an immaculate supervisor in a grey three-piece suit and green visor waiting behind the glass with a stamp, a small worker at the counter holding a pen, brass pneumatic tubes coiling around the spiral, a glowing round speaker grille above, oxblood and manila palette, halftone grain, every surface bare and unmarked",
     "choices": [
       {
         "id": "comply-forever",

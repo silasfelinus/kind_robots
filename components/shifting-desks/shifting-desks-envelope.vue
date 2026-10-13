@@ -89,6 +89,15 @@
             >{{ statusLabel }}</span
           >
         </div>
+        <shifting-desks-art
+          class="rounded-xl border-2 border-stone-900"
+          frame="aspect-[3/2]"
+          :src="stationArt('societies', society.id)"
+          :prompt="society.art_prompt"
+          :alt="`Society: ${society.title}`"
+          fallback-icon="kind-icon:mask"
+          icon-size="2.5rem"
+        />
         <p class="font-mono text-lg font-black uppercase">
           {{ society.title }}
         </p>
@@ -135,6 +144,15 @@
             >{{ run.mutationUsed ? 'Used this department' : 'Ready' }}</span
           >
         </div>
+        <shifting-desks-art
+          class="rounded-xl border-2 border-stone-900"
+          frame="aspect-[3/2]"
+          :src="stationArt('mutations', mutation.id)"
+          :prompt="mutation.art_prompt"
+          :alt="`Mutation: ${mutation.title}`"
+          fallback-icon="kind-icon:bolt"
+          icon-size="2.5rem"
+        />
         <p class="font-mono text-lg font-black uppercase">
           {{ mutation.title }}
         </p>
@@ -171,6 +189,7 @@ import {
   instantAvailable,
   mutationById,
   societyById,
+  stationArt,
 } from '~/utils/shiftingDesks/rules'
 import { useShiftingDesksStore } from '~/stores/shiftingDesksStore'
 

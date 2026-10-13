@@ -721,6 +721,17 @@ function unlockArcadeAudio() {
 
 function press(button: ArcadeButton, down: boolean, seat = 0) {
   if (down) unlockArcadeAudio()
+  // Start pinball while the touch event still has browser audio activation.
+  // Waiting for the fixed-loop poll creates its WebAudio mixer too late.
+  if (
+    down &&
+    meta.value?.touchLayout === 'pinball' &&
+    ATTRACT_PHASES.includes(machine.phase) &&
+    (button === 'start' || button === 'a')
+  ) {
+    startGame()
+    return
+  }
   seatInput(seat).setTouch(button, down)
 }
 
@@ -1039,6 +1050,9 @@ function startGame() {
     }),
   )
   lastSave = undefined
+  // The pinball mixer is constructed by create(). Unlock it now, not only
+  // before the instance exists or on the next requestAnimationFrame tick.
+  if (meta.value?.touchLayout === 'pinball') unlockArcadeAudio()
   dispatch({ type: 'start' })
 }
 
@@ -1676,6 +1690,14 @@ function onScreenPointer() {
 function onKey(event: KeyboardEvent) {
   if (event.target instanceof HTMLInputElement) return
   unlockArcadeAudio()
+  if (
+    meta.value?.touchLayout === 'pinball' &&
+    ATTRACT_PHASES.includes(machine.phase) &&
+    ['Enter', 'Space', 'KeyZ'].includes(event.code)
+  ) {
+    startGame()
+    return
+  }
   if (guide.value && (event.code === 'KeyP' || event.code === 'Escape')) {
     closeGuide()
     return

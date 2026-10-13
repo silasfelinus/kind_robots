@@ -244,6 +244,7 @@ export class PinballRuntime<
   update(input: InputFrame) {
     if (this.disposed || this.rules.over) return
     this.tick++
+    this.mixer.syncMute()
     if (!this.demo && Object.values(input.pressed).some(Boolean)) {
       this.mixer.unlock()
     }

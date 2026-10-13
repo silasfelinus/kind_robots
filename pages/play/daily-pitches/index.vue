@@ -109,7 +109,7 @@
           </nav>
 
           <div
-            v-if="!visibleEntries.length"
+            v-if="!visibleEntries.length && !showMusicMentor"
             class="kr-panel p-8 text-center text-base-content/65"
           >
             {{
@@ -275,6 +275,48 @@
                 </p>
               </div>
             </article>
+            <!-- This finished one-prompt experiment belongs on the small-project
+                 shelf, not in Conductor's real approved-pitch ledger. -->
+            <article
+              v-if="showMusicMentor"
+              class="group flex min-w-0 flex-col overflow-hidden rounded-3xl border border-base-content/15 bg-base-100 shadow-sm transition hover:border-primary/60 hover:shadow-lg"
+            >
+              <NuxtLink to="/music-mentor" class="block">
+                <div class="relative aspect-[16/9] overflow-hidden bg-base-300">
+                  <img
+                    src="/images/channels/plan/music-mentor.webp"
+                    alt="Music Mentor project illustration"
+                    loading="lazy"
+                    class="size-full object-cover transition duration-300 group-hover:scale-105"
+                  />
+                  <span
+                    class="absolute bottom-3 left-3 badge border-base-100/20 bg-base-100/95 text-base-content"
+                  >
+                    One-prompt experiment
+                  </span>
+                </div>
+                <div class="space-y-3 p-5">
+                  <h3 class="font-serif text-xl font-black">Music Mentor</h3>
+                  <span class="badge badge-outline">Available to use</span>
+                  <p
+                    class="min-h-16 text-sm leading-relaxed text-base-content/70"
+                  >
+                    Upload a recording for pitch, timing, dynamics and
+                    arrangement feedback. Your audio stays on your device.
+                  </p>
+                  <p class="text-xs text-base-content/60">
+                    Shelved with Daily Dream projects for discovery; originally
+                    a standalone experiment, not an approved daily pitch.
+                  </p>
+                  <p
+                    class="inline-flex items-center gap-1 text-sm font-bold text-primary"
+                  >
+                    Open Music Mentor
+                    <Icon name="kind-icon:arrow-right" class="size-4" />
+                  </p>
+                </div>
+              </NuxtLink>
+            </article>
           </section>
           <p v-if="user.isAdmin" class="text-xs text-base-content/60">
             Data from Conductor's synchronized project and pitch ledger, not an
@@ -323,6 +365,9 @@ const hasProjection = computed(
 )
 const entries = computed(() =>
   approvedDailyPitchProgress(conductor.pitches, conductor.data?.projects ?? []),
+)
+const showMusicMentor = computed(
+  () => filter.value === 'all' || filter.value === 'page-linked',
 )
 const visibleEntries = computed(() =>
   filter.value === 'all'

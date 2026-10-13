@@ -4,6 +4,9 @@
 // score is a new high, and music that ducks under every callout so a
 // jackpot or a Death Roll is heard over the bed.
 import assert from 'node:assert/strict'
+import { readFileSync } from 'node:fs'
+import vm from 'node:vm'
+import ts from 'typescript'
 import RAPIER from '@dimforge/rapier3d-compat'
 import { mulberry32 } from '../arcade/curve'
 import { PINBALL_CUES } from '../arcade/pinball/audio/catalog'
@@ -307,11 +310,154 @@ assert.deepEqual(
     ).buses.get('music')!.gain
     muted.play('jackpot')
     assert.equal(mutedMusic.events.length, 0)
+
+    // The arcade mute switch must silence the dedicated pinball mixer, not
+    // just the unrelated chiptune context. Unmuting restores the same music.
+    const liveSound = { play: () => {}, muted: false }
+    const live = new PinballMixer(liveSound)
+    live.unlock()
+    const liveMaster = (live as unknown as { master: { gain: Param } }).master
+      .gain
+    assert.ok(live.startMusic('mode'))
+    liveSound.muted = true
+    live.unlock()
+    assert.equal(liveMaster.value, 0)
+    liveSound.muted = false
+    live.unlock()
+    assert.ok(liveMaster.value > 0)
+
+    // A tab suspended by the browser gets another resume attempt on the
+    // next real keyboard/touch gesture, even after its first unlock.
+    let resumes = 0
+    inner.context.state = 'suspended'
+    inner.context.resume = () => {
+      resumes++
+      inner.context.state = 'running'
+      return Promise.resolve()
+    }
+    mixer.unlock()
+    assert.equal(resumes, 1)
     mixer.dispose()
     muted.dispose()
+    live.dispose()
   } finally {
     if (had) g.window = before
     else delete g.window
+  }
+}
+
+const cabinetScript = readFileSync(
+  new URL('../../components/arcade/arcade-cabinet.vue', import.meta.url),
+  'utf8',
+)
+  .split('<script setup lang="ts">')[1]!
+  .split('</script>')[0]!
+const cabinetAst = ts.createSourceFile(
+  'cabinet.ts',
+  cabinetScript,
+  ts.ScriptTarget.Latest,
+  true,
+)
+// Execute the actual cabinet mute handler without a game update tick. A paused
+// table must refresh its dedicated mixer after the shared sound flag changes.
+{
+  const handler = cabinetAst.statements.find(
+    (statement) =>
+      ts.isFunctionDeclaration(statement) &&
+      statement.name?.text === 'toggleMute',
+  )
+  assert.ok(handler, 'cabinet mute handler exists')
+  const sharedSound = { muted: false }
+  const cabinetStore = {
+    muted: false,
+    setMuted(value: boolean) {
+      this.muted = value
+    },
+  }
+  let dedicatedMuted = false
+  const context = vm.createContext({
+    store: cabinetStore,
+    sound: {
+      setMuted(value: boolean) {
+        sharedSound.muted = value
+      },
+    },
+    unlockArcadeAudio() {
+      dedicatedMuted = sharedSound.muted
+    },
+  })
+  vm.runInContext(ts.transpile(handler.getText(cabinetAst)), context)
+  vm.runInContext('toggleMute()', context)
+  assert.equal(dedicatedMuted, true, 'paused mute reaches the dedicated mixer')
+  vm.runInContext('toggleMute()', context)
+  assert.equal(dedicatedMuted, false, 'paused unmute reaches the same mixer')
+}
+
+const gestureHandlers = cabinetAst.statements
+  .filter(
+    (statement) =>
+      ts.isFunctionDeclaration(statement) &&
+      ['press', 'onKey'].includes(statement.name?.text ?? ''),
+  )
+  .map((statement) => statement.getText(cabinetAst))
+  .join('\n')
+assert.equal(
+  cabinetAst.statements.filter(
+    (statement) =>
+      ts.isFunctionDeclaration(statement) &&
+      ['press', 'onKey'].includes(statement.name?.text ?? ''),
+  ).length,
+  2,
+)
+const gestureCode = ts.transpile(gestureHandlers, {
+  target: ts.ScriptTarget.ES2022,
+})
+for (const open of [false, true]) {
+  for (const gesture of ['touch-a', 'touch-start', 'Enter', 'Space', 'KeyZ']) {
+    let starts = 0
+    const touch: Array<[string, boolean]> = []
+    const scope = {
+      HTMLInputElement: class {
+        value = ''
+      },
+      meta: { value: { touchLayout: 'pinball' } },
+      ATTRACT_PHASES: ['title', 'scores', 'demo'],
+      machine: { phase: 'title' },
+      guide: { value: open ? { pages: [{}, {}], page: 0 } : null },
+      unlockArcadeAudio() {},
+      startGame() {
+        starts++
+      },
+      seatInput() {
+        return {
+          setTouch(button: string, down: boolean) {
+            touch.push([button, down])
+          },
+        }
+      },
+    }
+    const context = vm.createContext(scope)
+    vm.runInContext(gestureCode, context)
+    if (gesture.startsWith('touch-')) {
+      vm.runInContext(`press('${gesture.slice(6)}', true)`, context)
+      assert.deepEqual(touch, open ? [[gesture.slice(6), true]] : [])
+    } else {
+      vm.runInContext(`onKey({ target: {}, code: '${gesture}' })`, context)
+    }
+    assert.equal(
+      starts,
+      open ? 0 : 1,
+      `${gesture}: open guide owns input; closed guide starts synchronously`,
+    )
+    vm.runInContext(
+      "onKey({ target: new HTMLInputElement(), code: 'Enter' })",
+      context,
+    )
+    assert.equal(
+      starts,
+      open ? 0 : 1,
+      'typing in an input never starts pinball',
+    )
   }
 }
 

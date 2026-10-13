@@ -49,7 +49,26 @@ const MAIN_STREET: Act = {
     [5760, 50],
   ]),
   ledges: [
-    // The saloon porch and its balcony: the first one-way boards.
+    // Three traversable lanes from the very first street: ground below,
+    // interconnected shop awnings in the middle and rooftops overhead.
+    // The rise from each lane to the next stays within Zuzu's jump arc.
+    { x: 330, y: 172, w: 112 },
+    { x: 460, y: 170, w: 124 },
+    { x: 605, y: 172, w: 135 },
+    { x: 760, y: 174, w: 135 },
+    { x: 913, y: 172, w: 135 },
+    { x: 1068, y: 174, w: 133 },
+    { x: 1222, y: 172, w: 134 },
+    // A second lane above the awnings. Crossing from one lane to another
+    // opens different angles against the spirits, crows and dogs below.
+    { x: 465, y: 134, w: 96 },
+    { x: 580, y: 132, w: 105 },
+    { x: 703, y: 132, w: 102 },
+    { x: 824, y: 130, w: 107 },
+    { x: 950, y: 132, w: 110 },
+    { x: 1078, y: 134, w: 119 },
+    { x: 1213, y: 138, w: 117 },
+    // The saloon porch and its balcony: a later rejoin point.
     { x: 1380, y: 172, w: 96 },
     { x: 1450, y: 140, w: 90 },
     // The water tower climb (optional): porch, landing, tank walk, the tower cap and its relic.

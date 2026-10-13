@@ -105,10 +105,12 @@ import {
   P2_KEYS,
   SOLO_KEYS,
   createPlayerInput,
+  fightPadSlots,
   toSimInput,
   type FightButton,
 } from '~/utils/zuzuShowdown/input'
 import { createMatch, step } from '~/utils/zuzuShowdown/sim'
+import { showtimeFighter } from '~/utils/zuzuShowdown/combatTuning'
 import {
   VIEW_HEIGHT,
   VIEW_WIDTH,
@@ -478,7 +480,10 @@ function loadArt() {
 const store = useZuzuShowdownStore()
 
 function currentRoster(): [FighterData, FighterData] {
-  return [findFighter(store.fighters[0]), findFighter(store.fighters[1])]
+  return [
+    showtimeFighter(findFighter(store.fighters[0])),
+    showtimeFighter(findFighter(store.fighters[1])),
+  ]
 }
 
 let roster = currentRoster()
@@ -824,9 +829,30 @@ function unlockSound() {
   sound?.unlock()
 }
 
+let assignedPadSlots = ''
+function syncFightPads() {
+  const connected = navigator.getGamepads
+    ? Array.from(navigator.getGamepads())
+        .filter((pad): pad is Gamepad => Boolean(pad?.connected))
+        .map((pad) => pad.index)
+    : []
+  const next = connected.join(',')
+  if (next === assignedPadSlots) return
+  assignedPadSlots = next
+  const [first, second] = fightPadSlots(connected)
+  p1.setPadIndex(first)
+  p2.setPadIndex(second)
+}
+
 function tick() {
+  syncFightPads()
   const one = p1.poll()
   const two = p2.poll()
+  if (
+    Object.values(one.pressed).some(Boolean) ||
+    Object.values(two.pressed).some(Boolean)
+  )
+    unlockSound()
   const start = one.pressed.start || two.pressed.start
   if (phase.value === 'title') {
     screenFrame += 1

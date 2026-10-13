@@ -94,7 +94,7 @@ const RAINBOW = [
 
 export const GLOOM_CURVES = {
   /** Extra ticks between formation steps while the whole wave is alive. */
-  march: { start: 34, step: -3, limit: 16 },
+  march: { start: 20, step: -2, limit: 11 },
   /** Where the formation's top row starts: each wave a little lower. */
   startY: { start: 52, step: 8, limit: 100 },
   dropEvery: { start: 48, step: -4, limit: 16 },
@@ -348,13 +348,22 @@ const HAPPY_SPRITE = pixelSprite(
   { ...rampPalette(HAPPY_RAMP), k: INK, w: '#ffffff', c: RAMPS.pink[3] },
 )
 
-const DROP_SPRITES = (() => {
-  const drop = pixelSprite(['.h..', '.lb.', '..bs', '.bs.', '.ss.'], {
-    h: RAMPS.purple[4],
-    l: RAMPS.purple[3],
-    b: RAMPS.purple[2],
-    s: RAMPS.purple[1],
-  })
+/** Vivid rain with a white rim and dark outline, readable on dark or daylight skies. */
+export const DROP_SPRITES = (() => {
+  const drop = pixelSprite(
+    [
+      '...w...',
+      '..wco..',
+      '.owcco.',
+      '.occco.',
+      '.ocbco.',
+      '.occco.',
+      '..cbo..',
+      '..oco..',
+      '...o...',
+    ],
+    { w: '#ffffff', c: '#67e8f9', b: '#0284c7', o: INK },
+  )
   return [drop, mirrorSprite(drop)] as const
 })()
 
@@ -685,7 +694,7 @@ class GloomInvaders implements ArcadeGameInstance {
     this.fx = Math.round((W - ((COLS - 1) * CELL_W + CLOUD_W)) / 2)
     this.fy = Math.round(levelCurve(this.level, GLOOM_CURVES.startY))
     this.dir = 1
-    this.stepTimer = 30
+    this.stepTimer = 18
     this.drops = []
     this.dropTimer = 60
     this.beam = null
@@ -1134,14 +1143,17 @@ class GloomInvaders implements ArcadeGameInstance {
     for (const h of this.happies) this.renderHappy(g, h)
     if (this.kite) this.renderKite(g, this.kite)
     for (const d of this.drops) {
+      // High-contrast streak keeps falling shots distinct from the scenery.
+      g.fillStyle = INK
+      g.fillRect(Math.round(d.x) - 1, Math.round(d.y) - 9, 3, 9)
+      g.fillStyle = '#fef08a'
+      g.fillRect(Math.round(d.x), Math.round(d.y) - 8, 1, 6)
       drawSprite(
         g,
         DROP_SPRITES[Math.floor(this.tick / 4) % 2]!,
         d.x - 3,
         d.y - 1,
-        {
-          anchor: 'topleft',
-        },
+        { anchor: 'topleft' },
       )
     }
     if (this.beam) this.renderBeam(g, this.beam.x, this.beam.y)

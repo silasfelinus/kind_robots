@@ -395,6 +395,11 @@ export const ALL_MUSIC: MusicLoop[] = [
 
 /** Ghost Trail's own sound effects (played through playNotes when the cabinet offers it). */
 export const SFX = {
+  /** A surviving bone coyote growls when a hit lands. */
+  hit: [
+    { freq: 260, to: 130, dur: 0.1, type: 'sawtooth', vol: 0.05 },
+    { freq: 1, dur: 0.06, noise: true, vol: 0.035 },
+  ],
   /** The iai cut: a steel whisper and a ringing edge. */
   cut: [
     { freq: 3000, to: 400, dur: 0.18, noise: true, vol: 0.08 },

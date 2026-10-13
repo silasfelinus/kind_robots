@@ -10,6 +10,16 @@
 import type { ArcadeGameMeta, ArcadeGameModule } from './types'
 import { MASTERY_GOALS } from './pinball/rules/mastery'
 
+export const ARCADE_BLURB_MAX = 170
+
+export function shortArcadeBlurb(blurb: string): string {
+  if (blurb.length <= ARCADE_BLURB_MAX) return blurb
+  const prefix = blurb.slice(0, ARCADE_BLURB_MAX - 1)
+  const breakAt = prefix.lastIndexOf(' ')
+  const end = breakAt > 120 ? breakAt : prefix.length
+  return prefix.slice(0, end).trimEnd() + '…'
+}
+
 /**
  * The Canvas 2D Kind Pinball: the hall's table on a device without WebGL
  * (the 3D table's fallback, conductor kind-pinball/t-024).
@@ -22,8 +32,9 @@ const KIND_PINBALL_2D: ArcadeGameMeta = {
     'AMI Village Rescue, a full Kind Robots pinball table with a dot-matrix display, two crossing ramps and two orbits. Plunge into the blinking lane for the skill shot. Roll through the N-E-T lanes to raise your bonus, hit the A-M-I targets to ready the saucer, then shoot the saucer to light a village. Light all five villages for the jackpot. Every third ramp shot starts a timed mode; play all four for the super jackpot. Chain ramps and orbits for combos. The third village lights AMI multiball: three balls, and every ramp or saucer shot flies a mosquito net to a village.',
   howTo: [
     'LEFT/RIGHT  FLIPPERS',
-    'A  BOTH FLIPPERS',
-    'HOLD DOWN, LET GO',
+    'L/R OR SHOULDERS  FLIP',
+    'A TO LAUNCH THE BALL',
+    'PULL STICK, RELEASE',
     'UP  NUDGE THE TABLE',
     'BLINKING LANE = SKILL',
     'A-M-I READIES SAUCER',
@@ -189,8 +200,9 @@ export const ARCADE_GAMES: ArcadeGameMeta[] = [
       'AMI Village Rescue in 3D: a full pinball table in a lit arcade, with a steel ball on real physics, crossing ramps, two orbits, a dot-matrix display and a camera that follows the ball. Shoot the saucer to start a village mode, lock balls for AMI multiball, and take the upper feed to the Ridge, a second playfield past the arch with its own flippers. Somewhere behind the backbox, a secret waits.',
     howTo: [
       'LEFT/RIGHT  FLIPPERS',
-      'A  BOTH FLIPPERS',
-      'HOLD DOWN, LET GO',
+      'L/R OR SHOULDERS  FLIP',
+      'A TO LAUNCH THE BALL',
+      'PULL STICK, RELEASE',
       'UP  NUDGE THE TABLE',
       'SAUCER STARTS A VILLAGE',
       'LOCKS LIGHT MULTIBALL',
@@ -368,8 +380,8 @@ export const ARCADE_GAMES: ArcadeGameMeta[] = [
       'Zuzu, the koala ronin, walks a haunted weird-west trail toward the mission bell that is waking the dead: six stages of hand-built acts, from a ghost town at dusk through the bone yard, a drowned watering hole whose tide rises and falls, Storm Crow Pass, the mission bell tower and the abbey beneath it. Every squad of the dead is placed by hand and stays down once beaten; every one of the six bosses (the Grave Marshal, the Bone Bull, the Drowned Ferryman, the Storm-Crow Matriarch, the Bell Heretic and the Abbess) shows its attacks before they land. The first hit knocks his poncho and kasa off; a second sends him back to the checkpoint. Crates and carried bundles hold new gear: three-way shuriken, a boomerang kasa, a lantern that leaves a ground fire, or the short, strong iai cut. Relics hide off the beaten path, and finding them all earns the true ending. Progress saves at every act, and a clear unlocks New Game+.',
     howTo: [
       'LEFT/RIGHT  WALK',
-      'UP OR B  JUMP',
-      'A  THROW OR CUT',
+      'UP OR B JUMP  PAD A JUMP',
+      'A ATTACK  PAD B ATTACK',
       'ONE HIT LOSES THE PONCHO',
       'BREAK CRATES FOR A NEW ONE',
       'WATCH FOR EACH ATTACK TELL',

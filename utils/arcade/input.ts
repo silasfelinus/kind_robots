@@ -142,6 +142,36 @@ export function readGamepad(
   }
 }
 
+/** Swap physical face buttons for Zuzu Ghost Trail without changing keys or touch. */
+export function readGhostTrailPad(
+  pad: Pick<Gamepad, 'buttons' | 'axes'>,
+): Partial<Record<ArcadeButton, boolean>> {
+  const mapped = readGamepad(pad)
+  return { ...mapped, a: mapped.b, b: mapped.a }
+}
+
+/** Pinball needs two independent flippers and a pull-and-release plunger.
+ * Bumpers/triggers are the corresponding flippers, face X/B are alternatives,
+ * and pulling either stick back holds the plunger. A is launch, never both flippers.
+ */
+export function readPinballPad(
+  pad: Pick<Gamepad, 'buttons' | 'axes'>,
+): Partial<Record<ArcadeButton, boolean>> {
+  const down = (index: number) => Boolean(pad.buttons[index]?.pressed)
+  const x = pad.axes[0] ?? 0
+  const y = pad.axes[1] ?? 0
+  const rightY = pad.axes[3] ?? 0
+  return {
+    a: down(0),
+    b: down(3),
+    start: down(9),
+    left: down(4) || down(6) || down(2) || down(14) || x < -AXIS_DEADZONE,
+    right: down(5) || down(7) || down(1) || down(15) || x > AXIS_DEADZONE,
+    down: down(13) || y > AXIS_DEADZONE || rightY > AXIS_DEADZONE,
+    up: down(12) || y < -AXIS_DEADZONE,
+  }
+}
+
 /** Below this a stick's push is drift, not aim. */
 export const AIM_DEADZONE = 0.3
 
@@ -402,11 +432,14 @@ export class ButtonInput<B extends string> {
 }
 
 export class ArcadeInput extends ButtonInput<ArcadeButton> {
-  constructor(keyMap: Record<string, ArcadeButton> = KEY_MAP) {
+  constructor(
+    keyMap: Record<string, ArcadeButton> = KEY_MAP,
+    readPad: typeof readGamepad = readGamepad,
+  ) {
     super({
       buttons: ARCADE_BUTTONS,
       keyMap,
-      readPad: readGamepad,
+      readPad,
       passThrough: ['start'],
     })
   }

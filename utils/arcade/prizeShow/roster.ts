@@ -112,7 +112,7 @@ export const ROSTER: Record<CrasherKind, RosterEntry> = {
     points: 600,
     episode: 1,
     tell: 'its wand glows before a bubble burst',
-    answer: 'flank it: the front plate turns confetti',
+    answer: 'flank the front plate, or break it with four shots',
     contact: true,
   },
   stagehand: {
@@ -256,6 +256,8 @@ export type Crasher = {
   vy: number
   hp: number
   maxHp: number
+  /** Tank armor breaks after four frontal deflections; flanking bypasses it. */
+  armorHitsLeft: number
   t: number
   /** Conga dancers follow the one in front. */
   leader: Crasher | null
@@ -376,6 +378,7 @@ export function reachOf(c: Crasher): number {
  * (vx, vy) is the shot's flight.
  */
 export function deflects(c: Crasher, vx: number, vy: number): boolean {
+  if (c.kind === 'tank' && c.armorHitsLeft <= 0) return false
   if (c.kind !== 'tank' && !(c.kind === 'mascot' && c.mode !== 3)) return false
   const len = Math.hypot(vx, vy) || 1
   const head = (vx / len) * Math.cos(c.face) + (vy / len) * Math.sin(c.face)
@@ -435,6 +438,7 @@ export function newCrasher(
     vy: 0,
     hp: ROSTER[kind].hp,
     maxHp: ROSTER[kind].hp,
+    armorHitsLeft: kind === 'tank' ? 4 : 0,
     t,
     leader: null,
     color,

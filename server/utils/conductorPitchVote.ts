@@ -32,7 +32,9 @@ export function pitchTitleOf(content: string, fallback: string): string {
 
 export function pitchIdeaOf(content: string): string {
   const lines = content.split('\n')
-  const start = lines.findIndex((line) => /^##\s*(?:The idea|Delivered change)/i.test(line))
+  const start = lines.findIndex((line) =>
+    /^##\s*(?:The idea|Delivered change)/i.test(line),
+  )
   if (start < 0) return ''
   const body: string[] = []
   for (const line of lines.slice(start + 1)) {
@@ -40,6 +42,16 @@ export function pitchIdeaOf(content: string): string {
     body.push(line)
   }
   return body.join(' ').replace(/\s+/g, ' ').trim()
+}
+
+export function pitchDeliveryStatusOf(
+  content: string,
+): 'shipped' | 'in-progress' | undefined {
+  const status = content.match(
+    /^delivery-status:\s*(shipped|in-progress)\s*$/m,
+  )?.[1]
+  if (status === 'shipped' || status === 'in-progress') return status
+  return undefined
 }
 
 export const PITCH_MODS_HEADING = "## Silas's modifications"
@@ -194,10 +206,7 @@ export async function listPendingPitches(): Promise<PendingPitch[]> {
             slug,
             title: pitchTitleOf(file.content, slug),
             idea: pitchIdeaOf(file.content),
-            deliveryStatus: (
-              file.content.match(/^delivery-status:\s*(shipped|in-progress)\s*$/m)?.[1]
-              ?? undefined
-            ) as 'shipped' | 'in-progress' | undefined,
+            deliveryStatus: pitchDeliveryStatusOf(file.content),
           },
         ]
       : [],

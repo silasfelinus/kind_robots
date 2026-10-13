@@ -184,17 +184,24 @@ assert.ok(inboxHtml.includes(`name="notes:${slug}"`))
 const deliveredHtml = renderPitchInboxPage({
   exp,
   sig: inboxSig,
-  cards: [{
-    slug: '2026-10-13-first-upgrade', title: 'Actual improvement',
-    idea: 'Added a working game stage with a verified PR.',
-    deliveryStatus: 'shipped', choice: 'pass',
-  }],
+  cards: [
+    {
+      slug: '2026-10-13-first-upgrade',
+      title: 'Actual improvement',
+      idea: 'Added a working game stage with a verified PR.',
+      deliveryStatus: 'shipped',
+      choice: 'pass',
+    },
+  ],
 })
 assert.ok(deliveredHtml.includes('✅ Keep'))
 assert.ok(deliveredHtml.includes('✏️ Modify'))
 assert.ok(deliveredHtml.includes('↩️ Reject'))
 assert.ok(deliveredHtml.includes('request a scoped rollback'))
-assert.ok(!inboxHtml.includes('↩️ Reject'), 'historical pitch controls stay unchanged')
+assert.ok(
+  !inboxHtml.includes('↩️ Reject'),
+  'historical pitch controls stay unchanged',
+)
 assert.ok(inboxHtml.includes('✅ Approve'))
 
 const base = '# Pitch: X\nstatus: awaiting-silas\n\n## The idea\nIdea.\n'

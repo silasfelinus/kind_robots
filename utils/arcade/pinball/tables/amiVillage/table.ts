@@ -320,6 +320,57 @@ function side(name: 'left' | 'right'): ColliderDef[] {
 }
 
 /**
+ * The top edge of a ramp's rail at depth z: its vertices are a bottom and a
+ * top per point along the ramp.
+ */
+function railTopAt(rail: MeshCollider, z: number): [number, number, number] {
+  const v = rail.vertices
+  for (let k = 3; k + 6 < v.length; k += 6) {
+    const [z0, z1] = [v[k + 2]!, v[k + 8]!]
+    if (z0 === z1 || (z0 - z) * (z1 - z) > 0) continue
+    const t = (z - z0) / (z1 - z0)
+    return [
+      v[k]! + (v[k + 6]! - v[k]!) * t,
+      v[k + 1]! + (v[k + 7]! - v[k + 1]!) * t,
+      z,
+    ]
+  }
+  throw new Error(`${rail.id} does not reach z=${z}`)
+}
+
+/**
+ * A clear roof over a sealed pocket beside a ramp, row by row down the
+ * table: each row runs from the top of the ramp's rail at depth z across to
+ * the pocket's far side at x, at height y there (the rail's height when y is
+ * left out, so the roof slopes down the table with the rail). A pocket with
+ * no way out must have no way in: a ball hopping the rail, or the low wall
+ * on the far side, lands on the roof and rolls off it instead of dropping in.
+ */
+function pocketRoof(
+  id: string,
+  rail: MeshCollider,
+  rows: Array<[z: number, x: number, y?: number]>,
+): MeshCollider {
+  const vertices: number[] = []
+  const indices: number[] = []
+  rows.forEach(([z, x, y], i) => {
+    const top = railTopAt(rail, z)
+    vertices.push(...top, x, y ?? top[1], z)
+    if (i === 0) return
+    const [a0, b0, a1, b1] = [2 * i - 2, 2 * i - 1, 2 * i, 2 * i + 1]
+    indices.push(a0, b0, a1, b0, b1, a1)
+  })
+  return {
+    kind: 'mesh',
+    id,
+    vertices,
+    indices,
+    material: 'plastic-clear',
+    twoSided: true,
+  }
+}
+
+/**
  * A clear roof spanning the tops of the facing rails of two ramps, between two
  * depths. Both rails climb with their ramps, so the roof slopes down toward
  * the playfield and toward the lower rail: a ball landing on it rolls off.
@@ -333,29 +384,14 @@ function channelRoof(
 ): ColliderDef {
   const rails = (ramp: MeshCollider[]) =>
     ramp.filter((m) => /-rail-[lr]$/.test(m.id))
-  // The top edge of a rail at depth z: its vertices are a bottom and a top
-  // per point along the ramp.
-  const topAt = (rail: MeshCollider, z: number): [number, number, number] => {
-    const v = rail.vertices
-    for (let k = 3; k + 6 < v.length; k += 6) {
-      const [z0, z1] = [v[k + 2]!, v[k + 8]!]
-      if (z0 === z1 || (z0 - z) * (z1 - z) > 0) continue
-      const t = (z - z0) / (z1 - z0)
-      return [
-        v[k]! + (v[k + 6]! - v[k]!) * t,
-        v[k + 1]! + (v[k + 7]! - v[k + 1]!) * t,
-        z,
-      ]
-    }
-    throw new Error(`${rail.id} does not reach z=${z}`)
-  }
   const mid = (zFrom + zTo) / 2
   // Of each ramp, the rail facing the other one.
   const facing = (mine: MeshCollider[], theirs: MeshCollider[]) => {
-    const other = topAt(rails(theirs)[0]!, mid)[0]
+    const other = railTopAt(rails(theirs)[0]!, mid)[0]
     return rails(mine).sort(
       (p, q) =>
-        Math.abs(topAt(p, mid)[0] - other) - Math.abs(topAt(q, mid)[0] - other),
+        Math.abs(railTopAt(p, mid)[0] - other) -
+        Math.abs(railTopAt(q, mid)[0] - other),
     )[0]!
   }
   const railA = facing(a, b)
@@ -365,7 +401,7 @@ function channelRoof(
   const n = 8
   for (let i = 0; i <= n; i++) {
     const z = zFrom + ((zTo - zFrom) * i) / n
-    vertices.push(...topAt(railA, z), ...topAt(railB, z))
+    vertices.push(...railTopAt(railA, z), ...railTopAt(railB, z))
     if (i === 0) continue
     const [a0, b0, a1, b1] = [2 * i - 2, 2 * i - 1, 2 * i, 2 * i + 1]
     indices.push(a0, b0, a1, b0, b1, a1)
@@ -410,6 +446,48 @@ const UPPER_FEED: XZH[] = [
   [-0.09, -0.57, 0.0355],
   [-0.092, -0.63, 0.036],
 ]
+
+/**
+ * Roofs over the two sealed pockets beside the centre shots (kind-pinball
+ * t-035). Left: between the upper feed's right rail and the lock pocket,
+ * running on behind the pocket to the island roof. Right: between the
+ * spinner lane's right wall and the right ramp's entrance. Each is closed
+ * all round, so a ball that hopped in (over the feed's low rail, or out of
+ * the spinner lane) wedged in its narrowing vee for good: the ball search's
+ * shake lifts it up the pocket and it rolls straight back (seen in play,
+ * 2026-10-13).
+ */
+function centrePocketRoofs(): MeshCollider[] {
+  const feed = ramp('upper-feed', UPPER_FEED, { width: 0.04 })
+  const feedRail = feed.find((m) => m.id === 'upper-feed-rail-r')!
+  const right = ramp('right-ramp', RIGHT_RAMP, { railHeight: 0.035 })
+  const rampRail = right.find((m) => m.id === 'right-ramp-rail-l')!
+  // Beside the lock pocket the left roof ends over the pocket's wall;
+  // behind the pocket it runs on to the spinner lane's wall, then follows
+  // the island roof's line back to the feed's rail.
+  const island = (z: number) => -0.0625 + ((z + 0.5) / 0.04) * 0.1075
+  const left = pocketRoof('pocket-roof-left', feedRail, [
+    ...[-0.35, -0.37, -0.39, -0.41, -0.43].map((z): [number, number] => [
+      z,
+      -0.022,
+    ]),
+    ...[-0.43, -0.445, -0.46, -0.475, -0.49].map((z): [number, number] => [
+      z,
+      Math.min(0.045, island(z)),
+    ]),
+  ])
+  // Low over the spinner lane's wall, so a ball landing on the right roof
+  // rolls back into the lane it hopped out of; at its top it follows the
+  // cap closing the pocket off from the pops.
+  const cap = (z: number) => 0.09 + ((-0.46 - z) / 0.025) * 0.033
+  const rightRoof = pocketRoof('pocket-roof-right', rampRail, [
+    ...[-0.335, -0.36, -0.385, -0.41, -0.435, -0.46].map(
+      (z): [number, number, number] => [z, 0.092, 0.03],
+    ),
+    ...[-0.47, -0.48].map((z): [number, number, number] => [z, cap(z), 0.03]),
+  ])
+  return [left, rightRoof]
+}
 
 /** The lock scoop: a pocket behind the A-M-I drop targets. */
 const LOCK_Z = -0.405
@@ -766,6 +844,7 @@ const colliders: ColliderDef[] = [
     height: 0.045,
   }),
   ...lockPocket(),
+  ...centrePocketRoofs(),
   // Spinner lane: up the right-centre into the pop bumpers.
   ...walls(
     'spinner-lane-left',

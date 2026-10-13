@@ -64,25 +64,30 @@ onMounted(async () => {
 </script>
 
 <style scoped>
-.zuzu-game-stage :deep(.arcade-cabinet:not(.arcade-cabinet--locked):not(.arcade-cabinet--fullscreen) .cabinet-marquee),
-.zuzu-game-stage :deep(.arcade-cabinet:not(.arcade-cabinet--locked):not(.arcade-cabinet--fullscreen) .cabinet-title-plate) {
+.zuzu-game-stage :deep(.cabinet-marquee),
+.zuzu-game-stage :deep(.cabinet-title-plate),
+.zuzu-game-stage :deep(.cabinet-hint) {
   display: none;
 }
 
-.zuzu-game-stage :deep(.arcade-cabinet:not(.arcade-cabinet--locked):not(.arcade-cabinet--fullscreen) .cabinet-screen-wrap) {
+.zuzu-game-stage :deep(.cabinet-screen-wrap) {
   padding: 0.25rem;
 }
 
-.zuzu-game-stage :deep(.arcade-cabinet:not(.arcade-cabinet--locked):not(.arcade-cabinet--fullscreen) .cabinet-bezel) {
+.zuzu-game-stage :deep(.cabinet-bezel) {
   padding: clamp(0.35rem, 1.5%, 1rem);
 }
 
-.zuzu-game-stage :deep(.arcade-cabinet:not(.arcade-cabinet--locked):not(.arcade-cabinet--fullscreen) .cabinet-panel) {
+.zuzu-game-stage :deep(.cabinet-panel) {
   gap: 0.35rem;
   padding: 0.5rem;
 }
 
-.zuzu-game-stage :deep(.arcade-cabinet:not(.arcade-cabinet--locked):not(.arcade-cabinet--fullscreen) .cabinet-hint) {
-  display: none;
+.zuzu-game-stage :deep(.arcade-cabinet--fullscreen .cabinet-screen-wrap) {
+  padding: 0.5rem;
+}
+
+.zuzu-game-stage :deep(.arcade-cabinet--fullscreen .cabinet-bezel) {
+  padding: 0;
 }
 </style>

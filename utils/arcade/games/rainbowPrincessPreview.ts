@@ -25,6 +25,7 @@ import {
   coopEnemyHealth,
   haloRevive,
 } from './rainbowLocalCoop'
+import { enemyBulletContact } from './rainbowHitGeometry'
 
 const W = 480
 const H = 270
@@ -464,13 +465,19 @@ export function createRainbowPrincessPreview(
         const ship = ships[seat]!
         if (ship.lives <= 0) continue
         const distance = Math.hypot(ship.x - bullet.x, ship.y - bullet.y)
-        if (distance < CORE_RADIUS + 3 && ship.invulnerable === 0) {
+        const contact = enemyBulletContact(
+          distance,
+          ship.invulnerable > 0,
+          CORE_RADIUS + 3,
+          GRAZE_RADIUS,
+        )
+        if (contact === 'hit') {
           hitShip(ship)
           enemyShots.splice(bi, 1)
           consumed = true
           break
         }
-        if (distance < GRAZE_RADIUS && (bullet.grazed & (1 << seat)) === 0) {
+        if (contact === 'graze' && (bullet.grazed & (1 << seat)) === 0) {
           bullet.grazed |= 1 << seat
           ship.graze++
           ship.charge = Math.min(100, ship.charge + 2)

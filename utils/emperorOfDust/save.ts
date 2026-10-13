@@ -111,13 +111,15 @@ export const isSavedEmperorCampaign = (value: unknown): value is Campaign => {
       value.equippedRelics.length > 2 ||
       !value.equippedRelics.every(relicId) ||
       new Set(value.equippedRelics).size !== value.equippedRelics.length)
-  ) return false
+  )
+    return false
   if (
     value.relicUses !== undefined &&
     (!object(value.relicUses) ||
       Object.keys(value.relicUses).some((id) => !relicId(id)) ||
       Object.values(value.relicUses).some((day) => !int(day, 1, 100)))
-  ) return false
+  )
+    return false
   if (
     value.memorials !== undefined &&
     (!Array.isArray(value.memorials) ||

@@ -307,8 +307,37 @@ assert.deepEqual(
     ).buses.get('music')!.gain
     muted.play('jackpot')
     assert.equal(mutedMusic.events.length, 0)
+
+    // The arcade mute switch must silence the dedicated pinball mixer, not
+    // just the unrelated chiptune context. Unmuting restores the same music.
+    const liveSound = { play: () => {}, muted: false }
+    const live = new PinballMixer(liveSound)
+    live.unlock()
+    const liveMaster = (
+      live as unknown as { master: { gain: Param } }
+    ).master.gain
+    assert.ok(live.startMusic('mode'))
+    liveSound.muted = true
+    live.syncMute()
+    assert.equal(liveMaster.value, 0)
+    liveSound.muted = false
+    live.syncMute()
+    assert.ok(liveMaster.value > 0)
+
+    // A tab suspended by the browser gets another resume attempt on the
+    // next real keyboard/touch gesture, even after its first unlock.
+    let resumes = 0
+    inner.context.state = 'suspended'
+    inner.context.resume = () => {
+      resumes++
+      inner.context.state = 'running'
+      return Promise.resolve()
+    }
+    mixer.unlock()
+    assert.equal(resumes, 1)
     mixer.dispose()
     muted.dispose()
+    live.dispose()
   } finally {
     if (had) g.window = before
     else delete g.window

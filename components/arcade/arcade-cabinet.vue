@@ -1733,6 +1733,7 @@ function toggleMute() {
   unlockArcadeAudio()
   store.setMuted(!store.muted)
   sound?.setMuted(store.muted)
+  unlockArcadeAudio()
 }
 
 function toggleRenderStyle() {

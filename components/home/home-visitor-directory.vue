@@ -19,7 +19,7 @@
         <div><h2 class="font-serif text-2xl font-black">Featured experiences</h2><p class="text-xs opacity-70">A hand-picked doorway into Kind Robots</p></div>
         <NuxtLink to="/navigation" class="text-sm font-bold text-primary hover:underline">All destinations →</NuxtLink>
       </div>
-      <div class="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3">
+      <div class="grid grid-cols-[repeat(auto-fit,minmax(min(100%,18rem),1fr))] gap-3">
         <NuxtLink
           v-for="feature in features"
           :key="feature.route"
@@ -42,7 +42,7 @@
         <div><h2 class="font-serif text-2xl font-black">Freshly made</h2><p class="text-xs opacity-70">Recent public creations, straight from the galleries</p></div>
         <NuxtLink to="/art" class="text-sm font-bold text-primary hover:underline">Art gallery →</NuxtLink>
       </div>
-      <div class="grid grid-cols-2 gap-3 md:grid-cols-3 xl:grid-cols-6">
+      <div class="grid grid-cols-[repeat(auto-fit,minmax(min(100%,10rem),1fr))] gap-3">
         <NuxtLink v-for="card in newest" :key="`${card.kind}-${card.id}`" :to="showcaseHref(card)" class="group flex min-w-0 flex-col overflow-hidden rounded-xl border border-base-300 bg-base-100 transition hover:border-primary/50 hover:shadow-lg">
           <div class="aspect-square overflow-hidden">
             <kr-art-plate :source="card.art" variant="card" shape="square" frame="none" :alt="card.title" :fallback="defaultArtFor(`${card.kind}-${card.id}`)" fit="cover" />
@@ -54,7 +54,7 @@
         </NuxtLink>
       </div>
     </section>
-    <section v-else-if="!loaded" class="grid grid-cols-2 gap-3 md:grid-cols-3 xl:grid-cols-6" aria-label="Loading recent creations">
+    <section v-else-if="!loaded" class="grid grid-cols-[repeat(auto-fit,minmax(min(100%,10rem),1fr))] gap-3" aria-label="Loading recent creations">
       <div v-for="n in 6" :key="n" class="aspect-square animate-pulse rounded-xl bg-base-200" />
     </section>
   </div>

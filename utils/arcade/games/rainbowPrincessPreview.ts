@@ -26,6 +26,21 @@ import {
   haloRevive,
 } from './rainbowLocalCoop'
 import { enemyBulletContact } from './rainbowHitGeometry'
+import {
+  MOONJELLY,
+  moonjellyDialogue,
+  moonjellyScene,
+  moonjellySpawn,
+  moonjellyStage,
+  type MoonjellyEnemy,
+} from './rainbowMoonjelly'
+import {
+  AURELIA_MAX_HP,
+  createMoonjellyBoss,
+  moonjellyBossWarning,
+  stepMoonjellyBoss,
+  type MoonjellyBoss,
+} from './rainbowMoonjellyBoss'
 
 const W = 480
 const H = 270
@@ -61,7 +76,7 @@ type Reef = {
   y: number
   phase: number
   health: number
-  kind: PinkwakeEnemy
+  kind: PinkwakeEnemy | MoonjellyEnemy
   fired: boolean
 }
 type EnemyShot = {
@@ -81,10 +96,20 @@ export type RainbowCombatSnapshot = {
   enemies: ReadonlyArray<Readonly<Reef>>
   enemyShots: ReadonlyArray<Readonly<EnemyShot>>
   pickups: ReadonlyArray<Readonly<Pickup>>
-  act: 'S01'
-  stage: ReturnType<typeof pinkwakeStage>
-  sceneId: 'A01.OPEN' | 'A01.TURN' | 'A01.AFTER' | null
+  act: 'S01' | 'S02'
+  stage: ReturnType<typeof pinkwakeStage> | ReturnType<typeof moonjellyStage>
+  sceneId:
+    | 'A01.OPEN'
+    | 'A01.TURN'
+    | 'A01.AFTER'
+    | 'A02.OPEN'
+    | 'A02.TURN'
+    | 'A02.AFTER'
+    | null
   boss: Readonly<PinkwakeBoss> | null
+  moonBoss: Readonly<MoonjellyBoss> | null
+  rescuedNemi: boolean
+  actTwoFrame: number
   rescuedStation: boolean
   defeatedAt: number | null
   activePlayers: number
@@ -124,6 +149,27 @@ export function createRainbowPrincessPreview(
   let defeatedAt: number | null = null
   let rescuedStation = false
   let station: { x: number; y: number } | null = null
+  let moonStart: number | null = null
+  let moonBoss: MoonjellyBoss | null = null
+  let moonDefeatedFrame: number | null = null
+  let rescuedNemi = false
+  let nemi: { x: number; y: number } | null = null
+  function moonFrame() {
+    return moonStart === null ? 0 : tick - moonStart
+  }
+
+  function defeatMoonBoss() {
+    if (!moonBoss || moonDefeatedFrame !== null) return
+    moonBoss = null
+    moonDefeatedFrame = moonFrame()
+    reefs.length = 0
+    enemyShots.length = 0
+    score += 3500
+    for (const ship of ships.slice(0, activePlayers)) {
+      ship.invulnerable = Math.max(ship.invulnerable, 240)
+    }
+    options.sound.play('level')
+  }
 
   function setPlayers(requested: number) {
     activePlayers = addCoopSeats(ships, requested, createShip)
@@ -132,7 +178,7 @@ export function createRainbowPrincessPreview(
     }
   }
 
-  function spawn(kind: PinkwakeEnemy) {
+  function spawn(kind: PinkwakeEnemy | MoonjellyEnemy) {
     reefs.push({
       x: W + 18,
       y: 40 + options.rng() * (H - 80),
@@ -144,7 +190,15 @@ export function createRainbowPrincessPreview(
             ? 3
             : kind === 'anchor'
               ? 4
-              : 5,
+              : kind === 'lantern'
+                ? 3
+                : kind === 'relay'
+                  ? 4
+                  : kind === 'skimmer'
+                    ? 3
+                    : kind === 'coral'
+                      ? 6
+                      : 5,
         activePlayers,
       ),
       kind,
@@ -219,6 +273,10 @@ export function createRainbowPrincessPreview(
       boss.hp -= seat === 1 ? 28 : 20
       if (boss.hp <= 0) defeatBoss()
     }
+    if (moonBoss && moonBoss.frame > 85) {
+      moonBoss.hp -= seat === 1 ? 28 : 20
+      if (moonBoss.hp <= 0) defeatMoonBoss()
+    }
     for (let i = reefs.length - 1; i >= 0; i--) {
       const reef = reefs[i]!
       if (seat === 1 && reef.x < ship.x) continue
@@ -270,6 +328,42 @@ export function createRainbowPrincessPreview(
     const vx = (dx / length) * 2.15
     const vy = (dy / length) * 2.15
     enemyShots.push({ x: reef.x - 8, y: reef.y, vx, vy, grazed: 0 })
+    if (reef.kind === 'lantern') {
+      const theta = Math.atan2(vy, vx)
+      for (const spread of [-0.6, -0.3, 0.3, 0.6]) {
+        enemyShots.push({
+          x: reef.x - 8,
+          y: reef.y,
+          vx: Math.cos(theta + spread) * 1.65,
+          vy: Math.sin(theta + spread) * 1.65,
+          grazed: 0,
+        })
+      }
+    } else if (reef.kind === 'relay') {
+      enemyShots.push({
+        x: reef.x - 8,
+        y: reef.y,
+        vx: vx * 0.7,
+        vy: vy * 0.7 + 0.85,
+        grazed: 0,
+      })
+    } else if (reef.kind === 'skimmer') {
+      enemyShots.push({
+        x: reef.x - 8,
+        y: reef.y - 11,
+        vx: -1.25,
+        vy: 1.1,
+        grazed: 0,
+      })
+    } else if (reef.kind === 'coral') {
+      enemyShots.push({
+        x: reef.x - 8,
+        y: reef.y + 13,
+        vx: -1.35,
+        vy: -0.8,
+        grazed: 0,
+      })
+    }
     if (reef.kind === 'spiral') {
       for (const offset of [-0.45, 0.45]) {
         const angle = Math.atan2(vy, vx) + offset
@@ -304,7 +398,9 @@ export function createRainbowPrincessPreview(
   }
 
   function hitShip(ship: Ship) {
-    if (ship.invulnerable > 0) return
+    // The attract-mode flythrough must be able to reach its authored boss and
+    // second Act rather than silently losing every autonomous pilot.
+    if (options.demo || ship.invulnerable > 0) return
     ship.invulnerable = 90
     ship.shield--
     if (ship.shield <= 0) {
@@ -323,16 +419,46 @@ export function createRainbowPrincessPreview(
   function update(input: InputFrame, seated = [input]) {
     if (over) return
     tick++
-    const stage = pinkwakeStage(tick, defeatedAt)
-    if (stage === 'waves') {
-      const kind = pinkwakeSpawn(tick)
-      if (kind) spawn(kind)
-      if (tick === 2520) station = { x: W + 18, y: 190 }
-    } else if (stage === 'turn' && tick === PINKWAKE.turnStarts) {
-      reefs.length = 0
-      enemyShots.length = 0
-    } else if (stage === 'boss' && !boss) {
-      boss = createPinkwakeBoss()
+    if (
+      moonStart === null &&
+      defeatedAt !== null &&
+      tick - defeatedAt >= PINKWAKE.aftermathFrames
+    ) {
+      moonStart = tick
+      shots.length = 0
+      pickups.length = 0
+      station = null
+    }
+    if (moonStart === null) {
+      const stage = pinkwakeStage(tick, defeatedAt)
+      if (stage === 'waves') {
+        const kind = pinkwakeSpawn(tick)
+        if (kind) spawn(kind)
+        if (tick === 2520) station = { x: W + 18, y: 190 }
+      } else if (stage === 'turn' && tick === PINKWAKE.turnStarts) {
+        reefs.length = 0
+        enemyShots.length = 0
+      } else if (stage === 'boss' && !boss) {
+        boss = createPinkwakeBoss()
+      }
+    } else {
+      const frame = moonFrame()
+      const stage = moonjellyStage(frame, moonDefeatedFrame)
+      if (stage === 'waves' || stage === 'remix') {
+        const kind = moonjellySpawn(frame)
+        if (kind) spawn(kind)
+        if (frame === MOONJELLY.nemiAppears) {
+          nemi = { x: W + 16, y: 158 }
+        }
+      } else if (
+        (stage === 'turn' && frame === MOONJELLY.turnStarts) ||
+        (stage === 'approach' && frame === MOONJELLY.approachStarts)
+      ) {
+        reefs.length = 0
+        enemyShots.length = 0
+      } else if (stage === 'boss' && !moonBoss && moonDefeatedFrame === null) {
+        moonBoss = createMoonjellyBoss()
+      }
     }
 
     for (let seat = 0; seat < activePlayers; seat++) {
@@ -363,7 +489,13 @@ export function createRainbowPrincessPreview(
     }
     for (const reef of reefs) {
       reef.x -=
-        reef.kind === 'anchor' ? 0.65 : reef.kind === 'urchin' ? 0.9 : 1.25
+        reef.kind === 'anchor'
+          ? 0.65
+          : reef.kind === 'coral'
+            ? 0.8
+            : reef.kind === 'urchin'
+              ? 0.9
+              : 1.25
       reef.y +=
         Math.sin(tick / (reef.kind === 'spiral' ? 14 : 24) + reef.phase) *
         (reef.kind === 'spiral' ? 1.3 : 0.55)
@@ -374,6 +506,32 @@ export function createRainbowPrincessPreview(
     }
     if (boss) {
       enemyShots.push(...stepPinkwakeBoss(boss, ships.slice(0, activePlayers)))
+    }
+    if (moonBoss) {
+      enemyShots.push(
+        ...stepMoonjellyBoss(moonBoss, ships.slice(0, activePlayers)),
+      )
+    }
+    if (nemi) {
+      nemi.x -= 0.95
+      if (nemi.x < -16) nemi = null
+      else if (
+        ships
+          .slice(0, activePlayers)
+          .some(
+            (ship) =>
+              ship.lives > 0 &&
+              Math.hypot(ship.x - nemi!.x, ship.y - nemi!.y) < 24,
+          )
+      ) {
+        nemi = null
+        rescuedNemi = true
+        score += 750
+        for (const ship of ships.slice(0, activePlayers)) {
+          ship.charge = Math.min(100, ship.charge + 20)
+        }
+        options.sound.play('pickup')
+      }
     }
     if (station) {
       station.x -= 0.75
@@ -425,6 +583,15 @@ export function createRainbowPrincessPreview(
         shots.splice(si, 1)
         boss.hp -= shot.damage
         if (boss.hp <= 0) defeatBoss()
+      }
+      if (
+        moonBoss &&
+        moonBoss.frame > 85 &&
+        Math.hypot(shot.x - (moonBoss.x - 17), shot.y - moonBoss.y) < 43
+      ) {
+        shots.splice(si, 1)
+        moonBoss.hp -= shot.damage
+        if (moonBoss.hp <= 0) defeatMoonBoss()
       }
     }
 
@@ -520,7 +687,7 @@ export function createRainbowPrincessPreview(
       return score
     },
     get level() {
-      return 1
+      return moonStart === null ? 1 : 2
     },
     get lives() {
       return ships
@@ -541,10 +708,19 @@ export function createRainbowPrincessPreview(
         enemies: reefs.map((reef) => ({ ...reef })),
         enemyShots: enemyShots.map((bullet) => ({ ...bullet })),
         pickups: pickups.map((pickup) => ({ ...pickup })),
-        act: 'S01',
-        stage: pinkwakeStage(tick, defeatedAt),
-        sceneId: pinkwakeScene(tick, defeatedAt)?.id ?? null,
+        act: moonStart === null ? 'S01' : 'S02',
+        stage:
+          moonStart === null
+            ? pinkwakeStage(tick, defeatedAt)
+            : moonjellyStage(moonFrame(), moonDefeatedFrame),
+        sceneId:
+          moonStart === null
+            ? (pinkwakeScene(tick, defeatedAt)?.id ?? null)
+            : (moonjellyScene(moonFrame(), moonDefeatedFrame)?.id ?? null),
         boss: boss ? { ...boss } : null,
+        moonBoss: moonBoss ? { ...moonBoss } : null,
+        rescuedNemi,
+        actTwoFrame: moonFrame(),
         rescuedStation,
         defeatedAt,
       }
@@ -552,9 +728,9 @@ export function createRainbowPrincessPreview(
     update,
     render(g: CanvasRenderingContext2D) {
       const sky = g.createLinearGradient(0, 0, 0, H)
-      sky.addColorStop(0, '#100d40')
-      sky.addColorStop(0.55, '#6d427e')
-      sky.addColorStop(1, '#ed9dbb')
+      sky.addColorStop(0, moonStart === null ? '#100d40' : '#072f50')
+      sky.addColorStop(0.55, moonStart === null ? '#6d427e' : '#357a91')
+      sky.addColorStop(1, moonStart === null ? '#ed9dbb' : '#ae9fe3')
       g.fillStyle = sky
       g.fillRect(0, 0, W, H)
       for (let plane = 0; plane < 4; plane++) {
@@ -579,6 +755,46 @@ export function createRainbowPrincessPreview(
         g.ellipse(x, 244 + Math.sin(i) * 12, 56, 25, 0, 0, Math.PI * 2)
         g.fill()
       }
+      if (moonStart !== null) {
+        for (let plane = 0; plane < 4; plane++) {
+          const speed = 0.12 + plane * 0.21
+          g.lineWidth = 1 + plane * 0.8
+          g.strokeStyle = ['#f1b9fc55', '#a6ffe766', '#ecdbff88', '#bdf9ff99'][
+            plane
+          ]!
+          g.fillStyle = ['#ebbeff25', '#b8ffef30', '#d1d0ff38', '#bbf6ff48'][
+            plane
+          ]!
+          for (let i = 0; i < 6; i++) {
+            const x =
+              ((((i * 111 - moonFrame() * speed) % 650) + 650) % 650) - 42
+            const y = 45 + ((i * 73 + plane * 39) % 170)
+            g.beginPath()
+            g.ellipse(
+              x,
+              y,
+              18 + plane * 5,
+              9 + plane * 2,
+              0,
+              Math.PI,
+              2 * Math.PI,
+            )
+            g.fill()
+            g.stroke()
+            for (let arm = -2; arm <= 2; arm++) {
+              g.beginPath()
+              g.moveTo(x + arm * 6, y)
+              g.quadraticCurveTo(
+                x + arm * 7 + Math.sin(moonFrame() / 45 + i + arm) * 6,
+                y + 21,
+                x + arm * 8,
+                y + 29 + plane * 4,
+              )
+              g.stroke()
+            }
+          }
+        }
+      }
       for (const reef of reefs) {
         g.save()
         g.translate(reef.x, reef.y)
@@ -591,7 +807,15 @@ export function createRainbowPrincessPreview(
               ? '#ffb3d1'
               : reef.kind === 'spiral'
                 ? '#94e7ff'
-                : '#d09ffd'
+                : reef.kind === 'lantern'
+                  ? '#afffea'
+                  : reef.kind === 'relay'
+                    ? '#f9a8e9'
+                    : reef.kind === 'skimmer'
+                      ? '#f9e7af'
+                      : reef.kind === 'coral'
+                        ? '#e4c0ff'
+                        : '#d09ffd'
         g.beginPath()
         g.ellipse(0, 0, reef.kind === 'urchin' ? 14 : 16, 10, 0, 0, Math.PI * 2)
         g.fill()
@@ -605,6 +829,25 @@ export function createRainbowPrincessPreview(
         g.moveTo(9, -5)
         g.quadraticCurveTo(23, -15, 17, -22)
         g.stroke()
+        g.restore()
+      }
+      if (nemi) {
+        g.save()
+        g.translate(nemi.x, nemi.y)
+        g.shadowColor = '#a7ffdf'
+        g.shadowBlur = 18
+        g.fillStyle = '#173f53'
+        g.strokeStyle = '#e0ffbc'
+        g.lineWidth = 3
+        g.beginPath()
+        g.arc(0, 0, 15, 0, 2 * Math.PI)
+        g.fill()
+        g.stroke()
+        g.shadowBlur = 0
+        g.fillStyle = '#f1ffda'
+        g.font = 'bold 9px monospace'
+        g.textAlign = 'center'
+        g.fillText('NEMI', 0, 3)
         g.restore()
       }
       if (station) {
@@ -669,6 +912,49 @@ export function createRainbowPrincessPreview(
         g.textAlign = 'center'
         g.font = 'bold 8px monospace'
         g.fillText('B01 PEARL SEAHORSE', 240, 53)
+        g.textAlign = 'left'
+      }
+      if (moonBoss) {
+        const warn = moonjellyBossWarning(moonBoss)
+        g.save()
+        g.translate(moonBoss.x, moonBoss.y)
+        g.shadowColor = warn ? '#fff49c' : '#affff7'
+        g.shadowBlur = warn ? 25 : 12
+        g.fillStyle = '#b4f4f1b8'
+        g.strokeStyle = warn ? '#fff3a2' : '#c5f7ff'
+        g.lineWidth = warn ? 5 : 3
+        g.beginPath()
+        g.ellipse(0, -9, 42, 38, 0, Math.PI, 2 * Math.PI)
+        g.fill()
+        g.stroke()
+        g.shadowBlur = 0
+        for (let arm = -3; arm <= 3; arm++) {
+          g.beginPath()
+          g.moveTo(arm * 10, -8)
+          g.quadraticCurveTo(
+            arm * 14 + Math.sin(moonBoss.frame / 24 + arm) * 8,
+            41,
+            arm * 9,
+            55,
+          )
+          g.stroke()
+        }
+        g.fillStyle = '#edffff'
+        g.beginPath()
+        g.arc(-11, -23, 7, 0, 2 * Math.PI)
+        g.fill()
+        g.restore()
+        g.fillStyle = '#1d2750'
+        g.fillRect(148, 30, 184, 14)
+        g.fillStyle = '#c2fff4'
+        g.fillRect(150, 32, 180 * Math.max(0, moonBoss.hp / AURELIA_MAX_HP), 10)
+        g.strokeStyle = '#fff4c4'
+        g.lineWidth = 1
+        g.strokeRect(148, 30, 184, 14)
+        g.textAlign = 'center'
+        g.font = 'bold 8px monospace'
+        g.fillStyle = '#fff4c4'
+        g.fillText('B02 AURELIA ARRAY', 240, 53)
         g.textAlign = 'left'
       }
       for (const bullet of enemyShots) {
@@ -746,7 +1032,11 @@ export function createRainbowPrincessPreview(
       g.fillRect(0, 0, W, 29)
       g.fillStyle = '#ffe7f5'
       g.font = 'bold 10px monospace'
-      g.fillText('ACT I / PINKWAKE', 9, 12)
+      g.fillText(
+        moonStart === null ? 'ACT I / PINKWAKE' : 'ACT II / MOONJELLY',
+        9,
+        12,
+      )
       g.font = '9px monospace'
       g.fillText('A FIRE · HOLD B FOCUS · CHARGED B SUPER', 9, 24)
       g.textAlign = 'right'
@@ -761,9 +1051,24 @@ export function createRainbowPrincessPreview(
         )
       }
       g.textAlign = 'left'
-      const scene = pinkwakeScene(tick, defeatedAt)
+      const scene =
+        moonStart === null
+          ? pinkwakeScene(tick, defeatedAt)
+          : moonjellyScene(moonFrame(), moonDefeatedFrame)
       const dialogue = scene
-        ? pinkwakeDialogue(scene.id, scene.elapsed, count, rescuedStation)
+        ? moonStart === null
+          ? pinkwakeDialogue(
+              scene.id as 'A01.OPEN' | 'A01.TURN' | 'A01.AFTER',
+              scene.elapsed,
+              activePlayers,
+              rescuedStation,
+            )
+          : moonjellyDialogue(
+              scene.id as 'A02.OPEN' | 'A02.TURN' | 'A02.AFTER',
+              scene.elapsed,
+              activePlayers,
+              rescuedNemi,
+            )
         : null
       if (dialogue) {
         g.fillStyle = '#160b34e8'
@@ -790,7 +1095,24 @@ export function createRainbowPrincessPreview(
         for (let line = 0; line < Math.min(lines.length, 2); line++) {
           g.fillText(lines[line]!, 24, H - 33 + line * 12)
         }
-      } else if (defeatedAt !== null) {
+      } else if (
+        moonDefeatedFrame !== null &&
+        moonFrame() - moonDefeatedFrame >= MOONJELLY.aftermathFrames
+      ) {
+        g.fillStyle = '#180d38d9'
+        g.fillRect(48, H - 47, W - 96, 33)
+        g.fillStyle = '#c7ffe6'
+        g.textAlign = 'center'
+        g.font = 'bold 11px monospace'
+        g.fillText('AURELIA FREED · ACT II PREVIEW CLEAR', W / 2, H - 28)
+        g.font = '8px monospace'
+        g.fillText(
+          'Safe transit to Chromatic Trench · Act III in production',
+          W / 2,
+          H - 17,
+        )
+        g.textAlign = 'left'
+      } else if (moonStart === null && defeatedAt !== null) {
         g.fillStyle = '#180d38d9'
         g.fillRect(65, H - 47, W - 130, 33)
         g.fillStyle = '#c7ffe6'
@@ -799,7 +1121,7 @@ export function createRainbowPrincessPreview(
         g.fillText('POD RESCUED · ACT I PREVIEW CLEAR', W / 2, H - 28)
         g.font = '8px monospace'
         g.fillText(
-          'Safe transit · Act II is still in production',
+          'Moonjelly Fields incoming: shields and power persist',
           W / 2,
           H - 17,
         )

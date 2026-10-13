@@ -12,9 +12,11 @@ export type ProjectPlacement = {
 }
 
 export const PROJECT_PLACEMENTS: Record<string, ProjectPlacement> = {
+  // Small one-prompt experiment: show it in the Daily Dream Workshop instead
+  // of giving it the same top-level Projects tab as an active experience.
   'music-mentor': {
     channelKey: 'projects',
-    tabKey: 'music-mentor',
+    tabKey: 'daily-pitches',
     route: '/music-mentor',
   },
   'mandarin-tutor': {

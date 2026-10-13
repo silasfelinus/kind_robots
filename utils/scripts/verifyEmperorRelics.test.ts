@@ -88,11 +88,12 @@ assert.equal(sent.dispatches[0]!.returnsAt, fast.projectedReturnHour)
 assert.equal(sent.relicUses?.['komodo-brass-hourglass'], 1)
 assert.equal(run.relicUses?.['komodo-brass-hourglass'], undefined)
 const toll = DAY_ONE_INCIDENTS[1]!
+const atTollOpen = advanceClock(sent, timeAt(1, toll.opensAtHour))
 assert.throws(() =>
-  previewDispatch(sent, toll, ['F001'], 8, 'parley', true),
+  previewDispatch(atTollOpen, toll, ['F001'], 8, 'parley', true),
   /not available/,
 )
-assert.ok(previewDispatch(sent, toll, ['F001'], 8, 'parley').projectedReturnHour > 0)
+assert.ok(previewDispatch(atTollOpen, toll, ['F001'], 8, 'parley').projectedReturnHour > 0)
 const nextMorning = advanceClock(sent, timeAt(2, 7))
 assert.equal(nextMorning.equippedRelics?.length, 2)
 assert.equal(

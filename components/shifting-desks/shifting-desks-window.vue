@@ -1,11 +1,11 @@
 <template>
   <section
-    class="flex flex-col gap-3"
+    class="flex flex-col gap-2"
     :aria-label="`${shift.title}, applicant ${index + 1} of ${shift.applicants.length}`"
   >
-    <div class="flex flex-wrap gap-3">
+    <div class="flex flex-wrap gap-2">
       <aside
-        class="window-memo min-w-[min(100%,14rem)] flex-1 rounded-2xl border-2 border-stone-800 p-4 text-stone-900"
+        class="window-memo min-w-[min(100%,14rem)] flex-1 rounded-2xl border-2 border-stone-800 p-3 text-stone-900"
         aria-label="Today's memo"
       >
         <p
@@ -13,10 +13,12 @@
         >
           PAL · Window memo
         </p>
-        <p class="mt-1 font-mono text-base font-black uppercase">
+        <p class="font-mono text-sm font-black uppercase">
           {{ shift.memo.title }}
         </p>
-        <ol class="mt-2 flex list-decimal flex-col gap-1.5 pl-5 text-sm">
+        <ol
+          class="mt-1 flex list-decimal flex-col gap-0.5 pl-5 text-xs sm:text-sm"
+        >
           <li v-for="rule in shift.memo.rules" :key="rule.id">
             {{ rule.text }}
           </li>
@@ -24,7 +26,7 @@
       </aside>
 
       <article
-        class="window-papers min-w-[min(100%,16rem)] flex-[1.4] rounded-2xl border-2 border-stone-800 p-4 text-stone-900"
+        class="window-papers min-w-[min(100%,16rem)] flex-[1.4] rounded-2xl border-2 border-stone-800 p-3 text-stone-900"
         aria-label="Applicant's papers"
       >
         <p
@@ -32,11 +34,15 @@
         >
           Applicant {{ index + 1 }} of {{ shift.applicants.length }}
         </p>
-        <p class="mt-1 font-mono text-lg font-black uppercase">
+        <p class="font-mono text-base font-black uppercase">
           {{ applicant.name }}
         </p>
-        <p class="mt-1 text-sm font-semibold">{{ applicant.request }}</p>
-        <dl class="mt-3 flex flex-col gap-1.5 text-sm">
+        <p class="text-xs font-semibold sm:mt-1 sm:text-sm">
+          {{ applicant.request }}
+        </p>
+        <dl
+          class="mt-1 flex flex-col gap-0.5 text-xs sm:mt-2 sm:gap-1 sm:text-sm"
+        >
           <div
             v-for="doc in applicant.documents"
             :key="doc.label"
@@ -56,19 +62,19 @@
     >
       Check the papers against the memo, then stamp
     </p>
-    <div class="flex flex-wrap gap-3">
+    <div class="flex flex-wrap gap-2">
       <button
         v-for="stamp in stamps"
         :key="stamp.id"
         type="button"
-        class="window-stamp flex min-w-[min(100%,12rem)] flex-1 flex-col gap-1 rounded-2xl border-4 bg-base-100 p-4 text-left transition"
+        class="window-stamp flex min-w-[min(100%,10rem)] flex-1 flex-col gap-0.5 rounded-2xl border-4 bg-base-100 px-3 py-2 text-left transition"
         :class="stamp.id === 'approve' ? 'is-approve' : 'is-deny'"
         @click="emit('stamp', stamp)"
       >
-        <span class="window-stamp-face font-mono text-xl font-black uppercase">
+        <span class="window-stamp-face font-mono text-lg font-black uppercase">
           {{ stamp.id === 'approve' ? 'Approved' : 'Denied' }}
         </span>
-        <span class="text-sm opacity-80">{{ stamp.intent }}</span>
+        <span class="text-xs opacity-80">{{ stamp.intent }}</span>
       </button>
     </div>
   </section>

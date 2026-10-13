@@ -1079,6 +1079,25 @@ assert.equal(
 const page = asset('../../pages/play/shifting-desks.vue')
 assert.doesNotMatch(page, /<h1[\s>]/)
 assert.match(page, /class="kr-surface"/)
+// Single screen on every device (Silas, 2026-10-13, carried over from Shifting
+// Lands): the page never scrolls as a whole; each screen is a kr-stage and the
+// desk is two kr-panes that own any overflow themselves.
+assert.doesNotMatch(
+  page,
+  /class="[^"]*\bkr-scroll\b/,
+  'the page itself never scrolls',
+)
+assert.equal(
+  (page.match(/<section[\s\S]*?class="kr-stage/g) ?? []).length,
+  5,
+  'front desk, hiring, elevator, Personnel File and desk are each one screen',
+)
+assert.match(page, /class="kr-panes desk-layout/, 'the desk is two panes')
+assert.match(
+  asset('../../components/shifting-desks/shifting-desks-personnel-file.vue'),
+  /role="tablist"/,
+  'the Personnel File pages through tabs instead of scrolling',
+)
 assert.doesNotMatch(page, /localStorage|\$fetch/)
 assert.match(page, /prefers-reduced-motion: reduce/)
 assert.match(

@@ -1,22 +1,26 @@
 <template>
   <section
-    class="flex flex-col items-center gap-6 py-4"
+    class="flex min-h-0 flex-col gap-2 lg:flex-row lg:gap-4"
     aria-labelledby="elevator-heading"
   >
-    <div class="elevator relative w-full max-w-xl overflow-hidden rounded-2xl">
-      <div class="elevator-panel flex items-center justify-between px-5 py-3">
+    <div
+      class="elevator relative flex min-h-[40%] min-w-0 flex-1 flex-col overflow-hidden rounded-2xl"
+    >
+      <div
+        class="elevator-panel flex shrink-0 items-center justify-between px-4 py-2"
+      >
         <span
           class="font-mono text-xs font-black uppercase tracking-[.3em] text-amber-200"
           >Going down</span
         >
         <span
-          class="floor-readout font-mono text-2xl font-black text-amber-300"
+          class="floor-readout font-mono text-lg font-black text-amber-300 sm:text-2xl"
         >
           <span class="floor-from">{{ fromFloor }}</span>
           <span class="floor-to">{{ toFloor }}</span>
         </span>
       </div>
-      <div class="elevator-shaft relative aspect-[4/3]">
+      <div class="elevator-shaft relative min-h-0 flex-1">
         <shifting-desks-art
           class="!absolute inset-0"
           frame="h-full w-full"
@@ -26,7 +30,7 @@
           :show-brief="false"
         />
         <div
-          class="elevator-inside flex flex-col items-center justify-end gap-2 p-5 text-center"
+          class="elevator-inside flex h-full flex-col items-center justify-end gap-1 p-3 text-center sm:gap-2 sm:p-5"
         >
           <p
             class="font-mono text-xs font-black uppercase tracking-[.3em] text-stone-700"
@@ -35,14 +39,16 @@
           </p>
           <p
             id="elevator-heading"
-            class="font-mono text-3xl font-black uppercase text-stone-900 sm:text-4xl"
+            class="font-mono text-2xl font-black uppercase text-stone-900 sm:text-4xl"
           >
             {{ toTitle }}
           </p>
-          <p class="max-w-sm text-sm text-stone-800">{{ toTagline }}</p>
+          <p class="line-clamp-3 max-w-sm text-sm text-stone-800">
+            {{ toTagline }}
+          </p>
           <p
             v-if="arrivalPrompt"
-            class="line-clamp-2 max-w-md text-[10px] italic text-stone-700"
+            class="hidden max-w-md text-[10px] italic text-stone-700 sm:line-clamp-2"
           >
             <span class="font-bold not-italic uppercase tracking-wider"
               >Art brief:</span
@@ -55,63 +61,67 @@
       </div>
     </div>
 
-    <article
-      class="memo w-full max-w-xl rounded-2xl border-4 border-stone-800 p-5 text-stone-900"
+    <div
+      class="flex min-h-0 shrink flex-col gap-2 lg:w-[44%] lg:justify-center"
     >
-      <div class="flex flex-wrap items-baseline justify-between gap-2">
-        <p class="font-mono text-xs font-black uppercase tracking-[.25em]">
-          Inter-office memo · From PAL
-        </p>
-        <span class="result-stamp">{{ outcomeTitle }}</span>
-      </div>
-      <p class="mt-2 text-sm font-semibold">
-        {{ fromTitle }}: {{ outcomeSummary }}
-      </p>
-      <ul class="mt-3 flex flex-col gap-1.5 text-sm">
-        <li v-for="(line, i) in memo" :key="i" class="flex gap-2">
-          <span aria-hidden="true">▸</span>{{ line }}
-        </li>
-      </ul>
-      <div
-        v-if="restructuring"
-        class="mt-4 rounded-xl border-2 border-dashed border-stone-800 bg-stone-50/60 p-3"
+      <article
+        class="memo min-h-0 overflow-y-auto rounded-2xl border-4 border-stone-800 p-3 text-stone-900 sm:p-5"
       >
-        <p class="font-mono text-[11px] font-black uppercase tracking-widest">
-          Restructuring notice · {{ restructuring.headline }}
+        <div class="flex flex-wrap items-baseline justify-between gap-2">
+          <p class="font-mono text-xs font-black uppercase tracking-[.25em]">
+            Inter-office memo · From PAL
+          </p>
+          <span class="result-stamp">{{ outcomeTitle }}</span>
+        </div>
+        <p class="mt-2 text-sm font-semibold">
+          {{ fromTitle }}: {{ outcomeSummary }}
         </p>
-        <p class="mt-1 text-sm">{{ restructuring.reason }}</p>
-        <p
-          class="mt-3 font-mono text-[10px] font-black uppercase tracking-widest opacity-70"
-        >
-          {{ toTitle }} floor plan
-        </p>
-        <ul class="mt-1 flex flex-wrap gap-2" aria-label="Floor plan">
-          <li
-            v-for="slot in board"
-            :key="`${slot.change}-${slot.title}`"
-            class="rounded-md border-2 border-stone-800 px-2 py-1 text-xs font-bold"
-            :class="BOARD_STYLE[slot.change]"
-          >
-            <span :class="slot.change === 'closed' ? 'line-through' : ''">{{
-              slot.title
-            }}</span>
-            <span class="ml-1 font-mono text-[10px] uppercase">{{
-              BOARD_LABEL[slot.change]
-            }}</span>
+        <ul class="mt-2 flex flex-col gap-1 text-sm">
+          <li v-for="(line, i) in memo" :key="i" class="flex gap-2">
+            <span aria-hidden="true">▸</span>{{ line }}
           </li>
         </ul>
-      </div>
-    </article>
+        <div
+          v-if="restructuring"
+          class="mt-3 rounded-xl border-2 border-dashed border-stone-800 bg-stone-50/60 p-2 sm:p-3"
+        >
+          <p class="font-mono text-[11px] font-black uppercase tracking-widest">
+            Restructuring notice · {{ restructuring.headline }}
+          </p>
+          <p class="mt-1 text-sm">{{ restructuring.reason }}</p>
+          <p
+            class="mt-3 font-mono text-[10px] font-black uppercase tracking-widest opacity-70"
+          >
+            {{ toTitle }} floor plan
+          </p>
+          <ul class="mt-1 flex flex-wrap gap-2" aria-label="Floor plan">
+            <li
+              v-for="slot in board"
+              :key="`${slot.change}-${slot.title}`"
+              class="rounded-md border-2 border-stone-800 px-2 py-1 text-xs font-bold"
+              :class="BOARD_STYLE[slot.change]"
+            >
+              <span :class="slot.change === 'closed' ? 'line-through' : ''">{{
+                slot.title
+              }}</span>
+              <span class="ml-1 font-mono text-[10px] uppercase">{{
+                BOARD_LABEL[slot.change]
+              }}</span>
+            </li>
+          </ul>
+        </div>
+      </article>
 
-    <button
-      ref="stepOut"
-      type="button"
-      class="btn btn-lg border-stone-900 bg-stone-900 text-amber-50 hover:bg-stone-700"
-      @click="emit('descend')"
-    >
-      <icon name="kind-icon:arrow-right" size="1.25rem" />
-      Step out onto {{ toFloor }}
-    </button>
+      <button
+        ref="stepOut"
+        type="button"
+        class="btn shrink-0 border-stone-900 bg-stone-900 text-amber-50 hover:bg-stone-700 sm:btn-lg"
+        @click="emit('descend')"
+      >
+        <icon name="kind-icon:arrow-right" size="1.25rem" />
+        Step out onto {{ toFloor }}
+      </button>
+    </div>
   </section>
 </template>
 
@@ -173,7 +183,7 @@ onMounted(() => {
 .floor-readout {
   position: relative;
   display: inline-block;
-  min-width: 7rem;
+  min-width: 9rem;
   height: 2rem;
   overflow: hidden;
   text-align: right;

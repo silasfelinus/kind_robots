@@ -534,6 +534,12 @@ class ButterflyBlaster implements ArcadeGameInstance {
     this.demo = options.demo
     this.hiScore = options.hiScore
     const stored = this.demo ? null : readBlasterSave(options.resume)
+    // Earned history belongs to the pilot, including a fresh season's step-zero save.
+    if (stored) {
+      this.threads = new Set(stored.threads)
+      this.cleared = stored.cleared === true
+      this.zero = stored.zero === true
+    }
     this.beginStep(0)
     if (stored && (stored.step > 0 || (stored.dry ?? 0) > 0)) {
       this.offer = stored
@@ -1049,7 +1055,7 @@ class ButterflyBlaster implements ArcadeGameInstance {
       this.offer = null
       this.resumeFrom(s)
     } else if (input.pressed.b) {
-      // A new season: the golden threads stay, the river starts again.
+      // A new season: threads and ending history stay, the river starts again.
       this.offer = null
       this.saveData = null
       this.threads = new Set(s.threads)

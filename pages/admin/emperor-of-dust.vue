@@ -116,9 +116,17 @@
             v-for="report in DAY_ONE_BRIEFINGS"
             :key="report.id"
             class="rounded-xl border border-base-content/15 bg-base-100 p-3"
-            :class="revealFalseReport(campaign, report.truth) ? 'border-warning bg-warning/10' : ''"
+            :class="
+              revealFalseReport(campaign, report.truth)
+                ? 'border-warning bg-warning/10'
+                : ''
+            "
           >
-            <span v-if="revealFalseReport(campaign, report.truth)" class="text-xs font-bold text-warning">Eye revealed: false report</span>
+            <span
+              v-if="revealFalseReport(campaign, report.truth)"
+              class="text-xs font-bold text-warning"
+              >Eye revealed: false report</span
+            >
             <p
               class="text-xs font-semibold uppercase tracking-wider opacity-60"
             >
@@ -129,7 +137,8 @@
         </div>
         <p class="mt-3 text-xs opacity-65">
           Two reports are true. One is a harmless false rumor. The Eye of the
-          Elder Crow can reveal the false rumor if equipped. The full 100-day briefings are not authored yet.
+          Elder Crow can reveal the false rumor if equipped. The full 100-day
+          briefings are not authored yet.
         </p>
       </section>
 
@@ -347,18 +356,28 @@
                 troops permitted. The Horde is a headcount, not a consumable
                 favor currency.
               </p>
-              <label v-if="hourglassEquipped" class="flex items-start gap-3 rounded-xl border border-base-content/15 p-3 text-sm">
+              <label
+                v-if="hourglassEquipped"
+                class="flex items-start gap-3 rounded-xl border border-base-content/15 p-3 text-sm"
+              >
                 <input
                   v-model="useHourglass"
                   type="checkbox"
                   class="checkbox checkbox-sm checkbox-warning"
-                  :disabled="!hourglassReady || !isDispatchable(selectedIncident)"
+                  :disabled="
+                    !hourglassReady || !isDispatchable(selectedIncident)
+                  "
                 />
                 <span>
                   <strong>Use Brass Hourglass</strong>
                   <span class="block text-xs opacity-70">
-                    Reduce outbound travel by one hour, once per day. Return travel stays unchanged.
-                    {{ hourglassReady ? 'Available today' : 'Unavailable for this mission' }}
+                    Reduce outbound travel by one hour, once per day. Return
+                    travel stays unchanged.
+                    {{
+                      hourglassReady
+                        ? 'Available today'
+                        : 'Unavailable for this mission'
+                    }}
                   </span>
                 </span>
               </label>
@@ -626,10 +645,12 @@ const canAdvance = computed(
 const hourglassEquipped = computed(() =>
   (campaign.value?.equippedRelics ?? []).includes('komodo-brass-hourglass'),
 )
-const hourglassReady = computed(() =>
-  hourglassEquipped.value &&
-  (campaign.value?.relicUses?.['komodo-brass-hourglass'] ?? 0) !== court.day &&
-  (selectedIncident.value?.outwardHours ?? 1) > 1,
+const hourglassReady = computed(
+  () =>
+    hourglassEquipped.value &&
+    (campaign.value?.relicUses?.['komodo-brass-hourglass'] ?? 0) !==
+      court.day &&
+    (selectedIncident.value?.outwardHours ?? 1) > 1,
 )
 
 const odds = computed<OddsPreview | null>(() => {

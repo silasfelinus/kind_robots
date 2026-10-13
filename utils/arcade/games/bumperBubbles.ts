@@ -3131,18 +3131,16 @@ function bumperGuide(): ArcadeGuidePage[] {
         'THE CLIMB SAVES AT EVERY WING.',
       ],
     },
-    ...[0, 1, 2].map(
-      (page): ArcadeGuidePage => ({
-        title: `THE GRUMPS ${page + 1}/3`,
-        scale: 1,
-        lines: (Object.keys(GRUMPS) as GrumpKind[])
-          .slice(page * 8, page * 8 + 8)
-          .flatMap((k) => [
-            `${GRUMPS[k].name}${GRUMPS[k].tell ? `: ${GRUMPS[k].tell}` : ''}`,
-            `  ${GRUMPS[k].answer}`,
-          ]),
-      }),
-    ),
+    ...[0, 1, 2].map((page): ArcadeGuidePage => ({
+      title: `THE GRUMPS ${page + 1}/3`,
+      scale: 1,
+      lines: (Object.keys(GRUMPS) as GrumpKind[])
+        .slice(page * 8, page * 8 + 8)
+        .flatMap((k) => [
+          `${GRUMPS[k].name}${GRUMPS[k].tell ? `: ${GRUMPS[k].tell}` : ''}`,
+          `  ${GRUMPS[k].answer}`,
+        ]),
+    })),
     {
       title: 'THE TOWER ENDS AT 100',
       scale: 1,

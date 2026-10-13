@@ -807,13 +807,7 @@ export type Theme = {
   orb: { x: number; y: number; r: number; ramp: Ramp } | null
   /** Silhouettes along the far ridge. */
   props:
-    | 'bottles'
-    | 'lollipops'
-    | 'kelp'
-    | 'domes'
-    | 'pots'
-    | 'icicles'
-    | 'gears'
+    'bottles' | 'lollipops' | 'kelp' | 'domes' | 'pots' | 'icicles' | 'gears'
   /** Light shafts slanting down through the backdrop. */
   rays: boolean
   /** A ring round the orb (a planet). */

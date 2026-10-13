@@ -416,8 +416,7 @@ export function updateBoss(b: Boss, host: BossHost) {
     b.spit = spec.spitEvery[b.phase - 1]!
     if (host.minions < spec.maxMinions && b.state !== 'slam') {
       const dir = (b.vx < 0 ? -1 : b.vx > 0 ? 1 : host.rng() < 0.5 ? -1 : 1) as
-        | -1
-        | 1
+        -1 | 1
       // The Big Cork spits from underneath; the Kettle's minions climb out of its lid.
       const y = b.id === 'cork' ? b.y + b.r - 2 : b.y - b.r
       host.spawnMinion({ x: b.x, y }, dir, spec.minion)

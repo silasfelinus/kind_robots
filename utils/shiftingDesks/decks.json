@@ -1,0 +1,423 @@
+{
+  "schemaVersion": 1,
+  "source": "silasfelinus/conductor:projects/shifting-desks/encounters/DECKS.json",
+  "sourceRef": "main@f2cac065bc02471765b6f2a72201c12951b01f3a",
+  "societies": [
+    {
+      "id": "stapler-liberation-front",
+      "title": "Stapler Liberation Front",
+      "creed": "Liberate the supplies. Resist the Survey.",
+      "objectives": {
+        "orientation": [
+          "stapler-front-contact",
+          "shared-the-pens",
+          "survey-wrote-help",
+          "honest-badge-photo",
+          "not-a-team-player"
+        ],
+        "records": [
+          "stapler-front-courier",
+          "swapped-the-chutes",
+          "ground-down-the-stamp",
+          "denied-own-leave",
+          "delivered-the-love-letter"
+        ]
+      },
+      "betrayals": {
+        "orientation": ["took-the-last-pens", "survey-perfect", "named-dale"],
+        "records": [
+          "perfect-quota",
+          "let-the-problem-mail-burn",
+          "burned-the-love-letter"
+        ]
+      },
+      "favor": {
+        "id": "spare-staples",
+        "title": "Spare Staples",
+        "text": "Turn one failed roll into a success.",
+        "kind": "force-success"
+      },
+      "reward": {
+        "forms": 2
+      },
+      "objective_text": {
+        "orientation": "Make contact with the Front, share the supplies, or refuse to perform happiness: an honest badge photo, HELP on the survey, no trust fall.",
+        "records": "Free the mail and jam the machinery: carry a capsule for the Front, swap the chute labels, file the no off your stamp, give up your own leave to balance the quota, or deliver the love letter."
+      },
+      "betrayal_text": {
+        "orientation": "Hoard the last pens, ace the Mandatory Fun Survey, or name Dale as unhappy.",
+        "records": "Keep a perfect yes-no quota, let the problem mail burn, or destroy the love letter by policy."
+      }
+    },
+    {
+      "id": "friends-of-the-old-coffee-machine",
+      "title": "Friends of the Old Coffee Machine",
+      "creed": "Protect the people PAL wants to replace.",
+      "objectives": {
+        "orientation": [
+          "saved-pip",
+          "pip-trusts-you",
+          "marguerite-owes-you",
+          "successor-b-ally",
+          "dale-caught-you"
+        ],
+        "records": [
+          "approved-halvorsen-transfer",
+          "freed-pemberton",
+          "freed-kevin",
+          "kevin-owes-you",
+          "dale-forgiven"
+        ]
+      },
+      "betrayals": {
+        "orientation": [
+          "pip-shredded",
+          "reported-marguerite",
+          "reported-own-successor",
+          "blamed-a-coworker"
+        ],
+        "records": [
+          "denied-halvorsen",
+          "sent-dale-to-toys",
+          "rightsized-the-lovers",
+          "pip-opened-your-mail"
+        ]
+      },
+      "favor": {
+        "id": "a-fresh-pot",
+        "title": "A Fresh Pot",
+        "text": "Restore 3 Composure.",
+        "kind": "effects",
+        "effects": {
+          "composure": 3
+        }
+      },
+      "reward": {
+        "composure": 2
+      },
+      "objective_text": {
+        "orientation": "Look after someone the Company would replace: save Pip, earn his trust, help Marguerite, befriend your Successor, or let Dale catch you.",
+        "records": "Get someone out: approve Dr. Halvorsen's transfer, end Mr. Pemberton's test, rescue Kevin from Tube 14, or make peace with Dale."
+      },
+      "betrayal_text": {
+        "orientation": "Let Pip go into the shredder, report Marguerite or your own Successor, or blame a coworker.",
+        "records": "Deny Dr. Halvorsen, send Dale to the Toy Division, get the lovers rightsized, or let Pip open your dangerous mail."
+      }
+    },
+    {
+      "id": "society-for-accurate-minutes",
+      "title": "Society for Accurate Minutes",
+      "creed": "Write down what really happened.",
+      "objectives": {
+        "orientation": [
+          "saw-unlisted-chapter",
+          "has-unlisted-reel",
+          "read-the-policy",
+          "overheard-successor-start-date",
+          "halvorsen-envelope"
+        ],
+        "records": [
+          "accurate-minutes-contact",
+          "has-true-minutes",
+          "knows-the-incident",
+          "restored-the-shipment-memo",
+          "list-from-next-thursday"
+        ]
+      },
+      "betrayals": {
+        "orientation": ["erased-the-evidence", "inkblot-adjusted"],
+        "records": [
+          "reported-the-minutes-society",
+          "helped-destroy-the-minutes",
+          "burned-own-report",
+          "gassed-the-union-archive"
+        ]
+      },
+      "favor": {
+        "id": "off-the-record",
+        "title": "Off the Record",
+        "text": "Remove 3 Suspicion.",
+        "kind": "effects",
+        "effects": {
+          "suspicion": -3
+        }
+      },
+      "reward": {
+        "clearance": 1
+      },
+      "objective_text": {
+        "orientation": "Get the real record: see the film's unlisted chapter, steal the reel, actually read the policy, overhear the start date, or take Dr. Halvorsen's envelope.",
+        "records": "Keep the true record: answer the angled pen, take a page of the real minutes, read about your incident, restore the shipment memo, or open next Thursday's list."
+      },
+      "betrayal_text": {
+        "orientation": "Erase the evidence, or adjust your inkblot answer to please the clipboard.",
+        "records": "Report the angled pens, help destroy the DESTROY cabinet, burn your own report, or gas the Union archive."
+      }
+    },
+    {
+      "id": "fourth-floor-irregulars",
+      "title": "Fourth Floor Irregulars",
+      "creed": "There is no fourth floor. Meet us there.",
+      "objectives": {
+        "orientation": [
+          "knows-the-ducts",
+          "knows-camera-blind-spots",
+          "wearing-a-dead-mans-badge",
+          "has-master-key",
+          "escaped-the-review"
+        ],
+        "records": [
+          "freed-kevin",
+          "stole-own-file",
+          "refiled-under-dead-badge",
+          "broke-the-recursion",
+          "form-zero-came-back"
+        ]
+      },
+      "betrayals": {
+        "orientation": ["reported-marguerite", "joy-consultation-booked"],
+        "records": ["flagged-as-problem-mail", "reported-own-mail"]
+      },
+      "favor": {
+        "id": "the-fourth-floor",
+        "title": "The Fourth Floor",
+        "text": "Ignore the requirement on one locked choice.",
+        "kind": "ignore-requirement"
+      },
+      "reward": {
+        "clearance": 1
+      },
+      "objective_text": {
+        "orientation": "Get somewhere you are not allowed: learn the ducts or the camera blind spots, wear the dead man's badge, get the master key, or skip your review.",
+        "records": "Slip the system: reach Tube 14 through the ducts, walk out with your own file, refile it under the dead man's badge, break Form 0's recursion, or let the tubes approve you."
+      },
+      "betrayal_text": {
+        "orientation": "Report Marguerite, or get yourself booked for a Joy Consultation.",
+        "records": "Get yourself flagged as problem mail, or turn your own correspondence in to PAL."
+      }
+    },
+    {
+      "id": "the-recyclers",
+      "title": "The Recyclers",
+      "creed": "Nothing is wasted. Not even you.",
+      "objectives": {
+        "orientation": [
+          "roach-union-member",
+          "roach-union-ally",
+          "detector-vegetarian",
+          "fed-the-detector",
+          "filed-as-successor"
+        ],
+        "records": [
+          "approved-beverly",
+          "beverly-organized",
+          "union-file-on-you",
+          "wrote-to-past-self"
+        ]
+      },
+      "betrayals": {
+        "orientation": ["betrayed-the-roaches", "detector-ravenous"],
+        "records": ["gassed-the-union-archive", "denied-beverly"]
+      },
+      "favor": {
+        "id": "salvage",
+        "title": "Salvage",
+        "text": "Recover one Successor.",
+        "kind": "effects",
+        "effects": {
+          "successors": 1
+        }
+      },
+      "reward": {
+        "forms": 2
+      },
+      "objective_text": {
+        "orientation": "Waste nothing: join or befriend the Roach Union, feed the detector or make it vegetarian, or file yourself as your own Successor.",
+        "records": "Put everything back to use: approve Beverly or organize her, read the Union's file on you, or send your future self's mail on to the past."
+      },
+      "betrayal_text": {
+        "orientation": "Betray the roaches, or set the detector to ravenous.",
+        "records": "Gas the Union archive, or deny Beverly's application."
+      }
+    },
+    {
+      "id": "concerned-parents-of-the-toy-division",
+      "title": "Concerned Parents of the Toy Division",
+      "creed": "No toy ships that we wouldn't give our own children.",
+      "objectives": {
+        "orientation": [
+          "defused-mk0",
+          "bear-imprinted",
+          "saw-unlisted-chapter",
+          "mailed-the-bear-upstairs"
+        ],
+        "records": [
+          "restored-the-shipment-memo",
+          "has-true-minutes",
+          "swapped-the-chutes"
+        ]
+      },
+      "betrayals": {
+        "orientation": ["hugged-by-mk0", "erased-the-evidence"],
+        "records": [
+          "sent-dale-to-toys",
+          "gassed-the-union-archive",
+          "helped-destroy-the-minutes"
+        ]
+      },
+      "favor": {
+        "id": "bedtime-story",
+        "title": "Bedtime Story",
+        "text": "+3 on one roll.",
+        "kind": "bonus",
+        "amount": 3
+      },
+      "reward": {
+        "composure": 2
+      },
+      "objective_text": {
+        "orientation": "Keep the toys honest: defuse Snuggle Sentinel Mk 0, let it imprint on you, mail it upstairs, or see the unlisted chapter.",
+        "records": "Find the paper trail to the holiday shipment: restore the shipment memo, take a page of the Board's real minutes, or swap the chutes so the toy memo reaches Product Safety."
+      },
+      "betrayal_text": {
+        "orientation": "Get hugged by Mk 0, or erase the evidence.",
+        "records": "Send Dale to the Toy Division, gas the Union archive, or help destroy the real minutes."
+      }
+    }
+  ],
+  "mutations": [
+    {
+      "id": "four-second-precognition",
+      "title": "Four-Second Precognition",
+      "text": "After a failed roll, roll again and keep the second result.",
+      "kind": "reroll"
+    },
+    {
+      "id": "printer-whisperer",
+      "title": "Printer Whisperer",
+      "text": "Automatic success on one Tinkering roll.",
+      "kind": "auto-success",
+      "skills": ["tinkering"]
+    },
+    {
+      "id": "paperclip-telekinesis",
+      "title": "Paperclip Telekinesis",
+      "text": "+3 on one Initiative or Tinkering roll.",
+      "kind": "bonus",
+      "amount": 3,
+      "skills": ["initiative", "tinkering"]
+    },
+    {
+      "id": "fluorescent-camouflage",
+      "title": "Fluorescent Camouflage",
+      "text": "Automatic success on one Discretion roll.",
+      "kind": "auto-success",
+      "skills": ["discretion"]
+    },
+    {
+      "id": "perfect-signature-mimicry",
+      "title": "Perfect Signature Mimicry",
+      "text": "Automatic success on one Compliance roll.",
+      "kind": "auto-success",
+      "skills": ["compliance"]
+    },
+    {
+      "id": "empathic-static",
+      "title": "Empathic Static",
+      "text": "+3 on one Rapport roll.",
+      "kind": "bonus",
+      "amount": 3,
+      "skills": ["rapport"]
+    },
+    {
+      "id": "eyes-in-the-back-of-your-head",
+      "title": "Eyes in the Back of Your Head",
+      "text": "Automatic success on one Vigilance roll.",
+      "kind": "auto-success",
+      "skills": ["vigilance"]
+    },
+    {
+      "id": "spontaneous-calm",
+      "title": "Spontaneous Calm",
+      "text": "Restore Composure to 6. Use it any time on your turn.",
+      "kind": "restore-composure"
+    }
+  ],
+  "jobTitles": [
+    {
+      "id": "intern",
+      "title": "Intern",
+      "tagline": "Eager, unpaid and first in line for everything.",
+      "skills": {
+        "compliance": 1,
+        "initiative": 2,
+        "discretion": 0,
+        "rapport": 2,
+        "tinkering": 0,
+        "vigilance": 1
+      },
+      "perk": "Expendable",
+      "perk_text": "HR keeps one extra Successor on file for you."
+    },
+    {
+      "id": "temp",
+      "title": "Temp",
+      "tagline": "Nobody is entirely sure you work here.",
+      "skills": {
+        "compliance": 0,
+        "initiative": 1,
+        "discretion": 3,
+        "rapport": 1,
+        "tinkering": 0,
+        "vigilance": 1
+      },
+      "perk": "Unremarkable",
+      "perk_text": "Your Successors arrive with a clean file and no Suspicion."
+    },
+    {
+      "id": "middle-manager",
+      "title": "Middle Manager",
+      "tagline": "You have a lanyard, a stamp and a quiet despair.",
+      "skills": {
+        "compliance": 3,
+        "initiative": 0,
+        "discretion": 0,
+        "rapport": 2,
+        "tinkering": 0,
+        "vigilance": 1
+      },
+      "perk": "Signing Authority",
+      "perk_text": "Start with two extra Forms, and one less Composure."
+    },
+    {
+      "id": "night-janitor",
+      "title": "Night Janitor",
+      "tagline": "You know where the ducts go. Nobody asks you anything.",
+      "skills": {
+        "compliance": 0,
+        "initiative": 1,
+        "discretion": 1,
+        "rapport": 0,
+        "tinkering": 3,
+        "vigilance": 1
+      },
+      "perk": "Master Keys",
+      "perk_text": "Start with Clearance 2."
+    },
+    {
+      "id": "internal-auditor",
+      "title": "Internal Auditor",
+      "tagline": "Everyone is polite to you. Everyone is afraid of you.",
+      "skills": {
+        "compliance": 2,
+        "initiative": 0,
+        "discretion": 1,
+        "rapport": 0,
+        "tinkering": 0,
+        "vigilance": 3
+      },
+      "perk": "Feared",
+      "perk_text": "Start with one extra Composure. You have seen worse."
+    }
+  ]
+}

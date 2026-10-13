@@ -358,6 +358,40 @@ const cabinetAst = ts.createSourceFile(
   ts.ScriptTarget.Latest,
   true,
 )
+// Execute the actual cabinet mute handler without a game update tick. A paused
+// table must refresh its dedicated mixer after the shared sound flag changes.
+{
+  const handler = cabinetAst.statements.find(
+    (statement) =>
+      ts.isFunctionDeclaration(statement) && statement.name?.text === 'toggleMute',
+  )
+  assert.ok(handler, 'cabinet mute handler exists')
+  const sharedSound = { muted: false }
+  const cabinetStore = {
+    muted: false,
+    setMuted(value: boolean) {
+      this.muted = value
+    },
+  }
+  let dedicatedMuted = false
+  const context = vm.createContext({
+    store: cabinetStore,
+    sound: {
+      setMuted(value: boolean) {
+        sharedSound.muted = value
+      },
+    },
+    unlockArcadeAudio() {
+      dedicatedMuted = sharedSound.muted
+    },
+  })
+  vm.runInContext(ts.transpile(handler.getText(cabinetAst)), context)
+  vm.runInContext('toggleMute()', context)
+  assert.equal(dedicatedMuted, true, 'paused mute reaches the dedicated mixer')
+  vm.runInContext('toggleMute()', context)
+  assert.equal(dedicatedMuted, false, 'paused unmute reaches the same mixer')
+}
+
 const gestureHandlers = cabinetAst.statements
   .filter(
     (statement) =>

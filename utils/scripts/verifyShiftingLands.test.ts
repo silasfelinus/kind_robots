@@ -161,7 +161,10 @@ assert.match(page, /game\.state\.lastCheck/)
 assert.match(page, /images\/adventure\/card\/card-back1.webp/)
 assert.match(page, /game\.state\.discard/)
 assert.match(page, /game\.initialize/)
-assert.equal(existsSync(toPath('../../pages/play/zuzu-shifting-lands.vue')), true)
+assert.equal(
+  existsSync(toPath('../../pages/play/zuzu-shifting-lands.vue')),
+  true,
+)
 assert.equal(
   existsSync(toPath('../../content/channels/admin/zuzu-shifting-lands.md')),
   false,

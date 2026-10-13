@@ -308,9 +308,9 @@ export const dispatchFollowers = (
   return {
     ...state,
     dispatches: [...state.dispatches, dispatch],
-    relicUses: useHourglass
-      ? { ...state.relicUses, 'komodo-brass-hourglass': dayAt(state.hour) }
-      : state.relicUses,
+    ...(useHourglass
+      ? { relicUses: { ...state.relicUses, 'komodo-brass-hourglass': dayAt(state.hour) } }
+      : {}),
   }
 }
 

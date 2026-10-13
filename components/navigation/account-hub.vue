@@ -423,7 +423,7 @@ const personalLinks = computed(() => [
         { label: 'My account', route: '/account', icon: 'kind-icon:user' },
         { label: 'Achievements', route: '/achievements', icon: 'kind-icon:star' },
         { label: 'Wallet', route: '/wallet', icon: 'kind-icon:treasure' },
-        { label: 'Creator earnings', route: '/creator-earnings', icon: 'kind-icon:coins' },
+        { label: 'Creator earnings', route: '/creator-earnings', icon: 'kind-icon:treasure' },
         { label: 'Messages', route: '/messages', icon: 'kind-icon:message' },
         { label: 'Chats', route: '/chats', icon: 'kind-icon:chat' },
         { label: 'Friends', route: '/friends', icon: 'kind-icon:users' },

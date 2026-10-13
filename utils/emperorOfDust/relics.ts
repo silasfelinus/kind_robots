@@ -31,12 +31,14 @@ export const emptyRelicVault = (): RelicVault => ({
 })
 
 export const relicId = (value: unknown): value is RelicId =>
-  typeof value === 'string' && Object.prototype.hasOwnProperty.call(RELICS, value)
+  typeof value === 'string' &&
+  Object.prototype.hasOwnProperty.call(RELICS, value)
 
 export const validateRelicVault = (value: unknown): value is RelicVault => {
   if (!value || typeof value !== 'object' || Array.isArray(value)) return false
   const vault = value as Partial<RelicVault>
-  return vault.version === 1 &&
+  return (
+    vault.version === 1 &&
     (vault.slots === 1 || vault.slots === 2) &&
     Array.isArray(vault.owned) &&
     vault.owned.length <= Object.keys(RELICS).length &&
@@ -47,35 +49,48 @@ export const validateRelicVault = (value: unknown): value is RelicVault => {
     vault.nextLoadout.every(relicId) &&
     new Set(vault.nextLoadout).size === vault.nextLoadout.length &&
     vault.nextLoadout.every((id) => vault.owned?.includes(id))
+  )
 }
 
 export const acquireRelic = (
-  vault: RelicVault, campaign: Campaign, id: RelicId,
+  vault: RelicVault,
+  campaign: Campaign,
+  id: RelicId,
 ): RelicVault => {
   if (!validateRelicVault(vault) || !relicId(id))
     throw new Error('Invalid relic collection')
   const reward = RELICS[id]
-  if (dayAt(campaign.hour) < reward.unlockDay ||
-      !(campaign.flags ?? []).includes(reward.unlockFlag))
+  if (
+    dayAt(campaign.hour) < reward.unlockDay ||
+    !(campaign.flags ?? []).includes(reward.unlockFlag)
+  )
     throw new Error('Relic must be earned through its authored story branch')
   if (vault.owned.includes(id)) throw new Error('Already collected')
   return { ...vault, owned: [...vault.owned, id] }
 }
 
 export const chooseNextLoadout = (
-  vault: RelicVault, ids: RelicId[],
+  vault: RelicVault,
+  ids: RelicId[],
 ): RelicVault => {
   const next = { ...vault, nextLoadout: [...ids] }
   if (!validateRelicVault(next))
-    throw new Error('Only collected relics may be equipped within available slots')
+    throw new Error(
+      'Only collected relics may be equipped within available slots',
+    )
   return next
 }
 
-export const earnSecondSlot = (vault: RelicVault, campaign: Campaign): RelicVault => {
+export const earnSecondSlot = (
+  vault: RelicVault,
+  campaign: Campaign,
+): RelicVault => {
   if (!validateRelicVault(vault)) throw new Error('Invalid relic collection')
   if (vault.slots === 2) return vault
-  if (dayAt(campaign.hour) < 41 ||
-      !(campaign.flags ?? []).includes('relic-second-slot-earned'))
+  if (
+    dayAt(campaign.hour) < 41 ||
+    !(campaign.flags ?? []).includes('relic-second-slot-earned')
+  )
     throw new Error('Second slot is a later authored reward')
   return { ...vault, slots: 2 }
 }
@@ -99,7 +114,8 @@ export const encodeRelicVault = (vault: RelicVault): string => {
 }
 
 export const revealFalseReport = (
-  campaign: Campaign, reportIsTrue: boolean,
+  campaign: Campaign,
+  reportIsTrue: boolean,
 ): boolean => equipped(campaign, 'eye-of-elder-crow') && !reportIsTrue
 
 export const startWithRelics = (seed: number, vault: RelicVault): Campaign => {

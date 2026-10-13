@@ -313,9 +313,8 @@ assert.deepEqual(
     const liveSound = { play: () => {}, muted: false }
     const live = new PinballMixer(liveSound)
     live.unlock()
-    const liveMaster = (
-      live as unknown as { master: { gain: Param } }
-    ).master.gain
+    const liveMaster = (live as unknown as { master: { gain: Param } }).master
+      .gain
     assert.ok(live.startMusic('mode'))
     liveSound.muted = true
     live.syncMute()

@@ -4,6 +4,15 @@ import type {
   ArcadeGameOptions,
   InputFrame,
 } from '../types'
+import {
+  PLUMBER_ART,
+  drawSprite,
+  plumberHeroine,
+  plumberStageArt,
+  stagePlate,
+  tilePattern,
+} from './savePlumberArt'
+import { drawHeroine } from './savePlumberHeroineArt'
 
 const W = 480
 const H = 270
@@ -42,6 +51,8 @@ export function createSavePlumberPreview(
   let immune = 55
   let tick = 0
   let camera = 0
+  let facing: 1 | -1 = 1
+  let stride = 0
   let score = 0
   let lives = 3
   let over = false
@@ -87,6 +98,8 @@ export function createSavePlumberPreview(
         ? 1
         : Number(keys.held.right) - Number(keys.held.left)
       vx = move ? Math.max(-2.85, Math.min(2.85, vx + move * 0.44)) : vx * 0.77
+      if (move) facing = move > 0 ? 1 : -1
+      if (ground) stride += Math.abs(vx) * 0.17
       x = Math.max(10, Math.min(WORLD_W - 15, x + vx))
       if (ground) grace = 7
       else if (grace) grace--
@@ -188,29 +201,51 @@ export function createSavePlumberPreview(
       back.addColorStop(1, '#ffe5c8')
       g.fillStyle = back
       g.fillRect(0, 0, W, H)
-      for (let i = 0; i < 12; i++) {
-        const bx = ((((i * 123 - camera * 0.28) % 640) + 640) % 640) - 70
-        g.fillStyle = i % 2 ? '#d0a5b9aa' : '#f5e8c6aa'
-        g.fillRect(bx, 96 + (i % 3) * 14, 72, 160)
-        g.fillStyle = '#fff8dc'
-        g.fillRect(bx + 9, 112 + (i % 3) * 14, 16, 25)
-        g.fillRect(bx + 42, 112 + (i % 3) * 14, 16, 25)
-      }
-      for (let i = 0; i < 10; i++) {
-        const bx = ((((i * 164 - camera * 0.55) % 790) + 790) % 790) - 80
-        g.strokeStyle = '#679f9e'
-        g.lineWidth = 11
-        g.beginPath()
-        g.moveTo(bx, H)
-        g.lineTo(bx, 165)
-        g.quadraticCurveTo(bx + 18, 142, bx + 35, 165)
-        g.stroke()
+      const platePath = plumberStageArt('1-1')
+      const plate = platePath ? stagePlate(platePath) : null
+      if (plate) {
+        const cover =
+          Math.max(W / plate.naturalWidth, H / plate.naturalHeight) * 1.18
+        const pw = plate.naturalWidth * cover
+        const ph = plate.naturalHeight * cover
+        const pan = (camera / (WORLD_W - W)) * (pw - W)
+        g.drawImage(plate, -pan, H - ph, pw, ph)
+        const wash = g.createLinearGradient(0, 0, 0, H)
+        wash.addColorStop(0, 'rgba(214, 247, 236, 0.1)')
+        wash.addColorStop(1, 'rgba(255, 236, 214, 0.28)')
+        g.fillStyle = wash
+        g.fillRect(0, 0, W, H)
+      } else {
+        for (let i = 0; i < 12; i++) {
+          const bx = ((((i * 123 - camera * 0.28) % 640) + 640) % 640) - 70
+          g.fillStyle = i % 2 ? '#d0a5b9aa' : '#f5e8c6aa'
+          g.fillRect(bx, 96 + (i % 3) * 14, 72, 160)
+          g.fillStyle = '#fff8dc'
+          g.fillRect(bx + 9, 112 + (i % 3) * 14, 16, 25)
+          g.fillRect(bx + 42, 112 + (i % 3) * 14, 16, 25)
+        }
+        for (let i = 0; i < 10; i++) {
+          const bx = ((((i * 164 - camera * 0.55) % 790) + 790) % 790) - 80
+          g.strokeStyle = '#679f9e'
+          g.lineWidth = 11
+          g.beginPath()
+          g.moveTo(bx, H)
+          g.lineTo(bx, 165)
+          g.quadraticCurveTo(bx + 18, 142, bx + 35, 165)
+          g.stroke()
+        }
       }
       g.save()
       g.translate(-camera, 0)
+      const ground = tilePattern(g, PLUMBER_ART.tile(1), 32)
       for (const floor of surfaces) {
-        g.fillStyle = '#396d79'
-        g.fillRect(floor.x, floor.y + 4, floor.width, 19)
+        g.fillStyle = ground ?? '#396d79'
+        g.fillRect(
+          floor.x,
+          floor.y + 4,
+          floor.width,
+          ground && floor.y === FLOOR_Y ? 46 : 19,
+        )
         g.fillStyle = '#c7a473'
         g.fillRect(floor.x, floor.y, floor.width, 7)
         g.fillStyle = '#f3e4a2'
@@ -219,6 +254,17 @@ export function createSavePlumberPreview(
       }
       for (const coin of coins) {
         if (coin.taken) continue
+        const lift = Math.sin(tick / 17) * 2
+        if (
+          drawSprite(
+            g,
+            PLUMBER_ART.prop('brass-token'),
+            coin.x,
+            coin.y + 10 + lift,
+            20,
+          )
+        )
+          continue
         g.fillStyle = '#f7b83b'
         g.beginPath()
         g.ellipse(
@@ -237,6 +283,14 @@ export function createSavePlumberPreview(
       }
       for (const bug of bugs) {
         if (!bug.active) continue
+        const squash = 1 + Math.sin(tick / 5 + bug.home) * 0.07
+        if (
+          drawSprite(g, PLUMBER_ART.enemy('pumpbug'), bug.x, bug.y + 3, 26, {
+            flipX: bug.dir < 0,
+            squash,
+          })
+        )
+          continue
         g.fillStyle = '#b77696'
         g.beginPath()
         g.ellipse(bug.x, bug.y, 12, 9, 0, Math.PI, 2 * Math.PI)
@@ -245,15 +299,36 @@ export function createSavePlumberPreview(
         g.fillRect(bug.x - 8, bug.y - 5, 4, 4)
         g.fillRect(bug.x + 4, bug.y - 5, 4, 4)
       }
-      g.fillStyle = '#ffe5a6'
-      g.fillRect(WORLD_W - 36, FLOOR_Y - 57, 6, 57)
-      g.fillStyle = '#e6798b'
-      g.beginPath()
-      g.moveTo(WORLD_W - 30, FLOOR_Y - 56)
-      g.lineTo(WORLD_W - 5, FLOOR_Y - 45)
-      g.lineTo(WORLD_W - 30, FLOOR_Y - 34)
-      g.fill()
-      if (!immune || Math.floor(tick / 6) % 2) {
+      const goalDrawn = drawSprite(
+        g,
+        PLUMBER_ART.prop('goal-valve'),
+        WORLD_W - 30,
+        FLOOR_Y,
+        52,
+      )
+      if (!goalDrawn) {
+        g.fillStyle = '#ffe5a6'
+        g.fillRect(WORLD_W - 36, FLOOR_Y - 57, 6, 57)
+        g.fillStyle = '#e6798b'
+        g.beginPath()
+        g.moveTo(WORLD_W - 30, FLOOR_Y - 56)
+        g.lineTo(WORLD_W - 5, FLOOR_Y - 45)
+        g.lineTo(WORLD_W - 30, FLOOR_Y - 34)
+        g.fill()
+      }
+      if (
+        (!immune || Math.floor(tick / 6) % 2) &&
+        typeof Path2D !== 'undefined'
+      ) {
+        drawHeroine(g, plumberHeroine(), x, y + 27, 40, {
+          stride,
+          run: Math.min(1, Math.abs(vx) / 2.2),
+          airborne: !ground,
+          rising: vy < 0,
+          facing,
+          tick,
+        })
+      } else if (!immune || Math.floor(tick / 6) % 2) {
         g.save()
         g.translate(x, y)
         g.fillStyle = '#4d656c'

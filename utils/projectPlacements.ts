@@ -12,8 +12,6 @@ export type ProjectPlacement = {
 }
 
 export const PROJECT_PLACEMENTS: Record<string, ProjectPlacement> = {
-  // Small one-prompt experiment: show it in the Daily Dream Workshop instead
-  // of giving it the same top-level Projects tab as an active experience.
   'music-mentor': {
     channelKey: 'projects',
     tabKey: 'daily-pitches',
@@ -46,7 +44,7 @@ export const PROJECT_PLACEMENTS: Record<string, ProjectPlacement> = {
   // against the channel documents that actually exist. The slug stays because
   // the projects board still needs somewhere to send a reader who clicks it.
   taskmaster: {
-    channelKey: 'storybook',
+    channelKey: 'projects',
     tabKey: 'storybook',
     route: '/storybook',
   },
@@ -56,7 +54,7 @@ export const PROJECT_PLACEMENTS: Record<string, ProjectPlacement> = {
     route: '/mermaids',
   },
   'model-builder': {
-    channelKey: 'storybook',
+    channelKey: 'projects',
     tabKey: 'model-builder',
     route: '/model-builder',
   },
@@ -78,7 +76,7 @@ export const PROJECT_PLACEMENTS: Record<string, ProjectPlacement> = {
     route: '/play/music-video',
   },
   storybook: {
-    channelKey: 'storybook',
+    channelKey: 'projects',
     tabKey: 'storybook',
     route: '/storybook',
   },
@@ -95,7 +93,7 @@ export const PROJECT_PLACEMENTS: Record<string, ProjectPlacement> = {
   // slug is still here at all -- the projects board needs somewhere to send a
   // reader who clicks it.
   davinci: {
-    channelKey: 'storybook',
+    channelKey: 'projects',
     tabKey: 'storybook',
     route: '/storybook',
   },
@@ -104,14 +102,14 @@ export const PROJECT_PLACEMENTS: Record<string, ProjectPlacement> = {
   // the largely AI-created games. Approved daily-pitch projects join it once
   // they have something playable.
   cthulhuquarium: {
-    channelKey: 'projects',
+    channelKey: 'arcade',
     tabKey: 'aquarium',
     route: '/play/aquarium',
   },
   // Kind Robots Arcade (Silas, 2026-10-06): classic cabinets, leaderboards,
   // original games riffing on golden-age favourites.
   'kr-arcade': {
-    channelKey: 'projects',
+    channelKey: 'arcade',
     tabKey: 'arcade',
     route: '/play/arcade',
   },
@@ -121,7 +119,7 @@ export const PROJECT_PLACEMENTS: Record<string, ProjectPlacement> = {
     route: '/admin/save-the-plumber',
   },
   'emperor-of-dust': {
-    channelKey: 'admin',
+    channelKey: 'zuzu',
     tabKey: 'emperor-of-dust',
     route: '/admin/emperor-of-dust',
   },
@@ -131,29 +129,29 @@ export const PROJECT_PLACEMENTS: Record<string, ProjectPlacement> = {
     route: '/admin/rainbow-bullet-hell-space-princess',
   },
   'zuzu-shifting-lands': {
-    channelKey: 'projects',
+    channelKey: 'zuzu',
     tabKey: 'zuzu-shifting-lands',
     route: '/play/zuzu-shifting-lands',
   },
   'zuzu-pinball': {
-    channelKey: 'projects',
+    channelKey: 'zuzu',
     tabKey: 'zuzu-pinball',
     route: '/play/zuzu-pinball',
   },
   'zuzu-gamebook': {
-    channelKey: 'projects',
+    channelKey: 'zuzu',
     tabKey: 'zuzu-gamebook',
     route: '/play/zuzu-gamebook',
   },
   'zuzu-lair': {
-    channelKey: 'admin',
+    channelKey: 'zuzu',
     tabKey: 'zuzu-lair',
-    route: '/play/zuzu-lair',
+    route: '/admin/zuzu-lair',
   },
   // Out of Admin on 2026-10-11 (Silas: "If it's ready for prime time, it can
   // move to the Play and out of admin"), after the t-024 balance pass.
   'zuzu-showdown': {
-    channelKey: 'projects',
+    channelKey: 'zuzu',
     tabKey: 'zuzu-showdown',
     route: '/play/zuzu-showdown',
   },

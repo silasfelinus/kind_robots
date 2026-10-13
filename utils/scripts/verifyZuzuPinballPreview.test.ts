@@ -29,31 +29,22 @@ assert.equal(findArcadeGame('zuzu-pinball')?.renderMode, 'webgl')
 assert.equal(isPlausibleScore('zuzu-pinball', 5000), false)
 assert.equal(isPlausibleScore('kind-pinball', 5000), true)
 
-const tab = read('../../content/channels/projects/zuzu-pinball.md')
-assert.doesNotMatch(tab, /requiredRole:/)
+const tab = read('../../content/channels/zuzu/zuzu-pinball.md')
+assert.doesNotMatch(tab, /requiredRole: ADMIN/)
 assert.match(tab, /route: \/play\/zuzu-pinball/)
-assert.match(read('../../pages/admin/zuzu-pinball.vue'), /user\.isAdmin/)
-const pinballPage = read('../../pages/admin/zuzu-pinball.vue')
-const publicPage = read('../../pages/play/zuzu-pinball.vue')
-assert.match(pinballPage, /navStore\.openWorkspaceSheet\(\)/)
-assert.match(pinballPage, /ArcadeCabinet slug="zuzu-pinball"/)
-assert.match(pinballPage, /<details/)
-assert.match(publicPage, /ArcadeCabinet slug="zuzu-pinball"/)
-assert.match(publicPage, /navStore\.openWorkspaceSheet\(\)/)
+assert.doesNotMatch(read('../../pages/play/zuzu-pinball.vue'), /user\.isAdmin/)
+assert.match(read('../../pages/admin/zuzu-pinball.vue'), /redirectCode: 301/)
+const privateWorkshop = read('../../pages/admin/zuzu-pinball-workshop.vue')
+assert.match(privateWorkshop, /user\.isAdmin/)
+assert.match(privateWorkshop, /ArcadePinballLightMap/)
+assert.match(privateWorkshop, /ZUZU_LAST_BELL_GREYBOX/)
+const workshopTab = read('../../content/channels/admin/zuzu-pinball-workshop.md')
+assert.match(workshopTab, /requiredRole: ADMIN/)
+assert.match(workshopTab, /route: \/admin\/zuzu-pinball-workshop/)
 assert.doesNotMatch(
-  publicPage,
-  /user\.isAdmin|ArcadePinballLightMap|private engineering workshop/,
+  read('../../pages/play/zuzu-pinball.vue'),
+  /ArcadePinballLightMap/,
 )
-assert.match(
-  read('../../content/channels/admin/zuzu-pinball-workshop.md'),
-  /requiredRole: ADMIN/,
-)
-assert.match(pinballPage, /zuzu-game-stage/)
-assert.doesNotMatch(pinballPage, /The water has teeth/)
-assert.doesNotMatch(pinballPage, /Under construction/)
-assert.match(tab, /The water has teeth/)
-assert.match(tab, /Hold Down to charge the plunger/)
-assert.match(tab, /River Croc/)
 const arcade = read('../../pages/play/arcade/index.vue')
 assert.match(arcade, /ARCADE_GAMES\.some/)
 assert.match(arcade, /findArcadeGame\(slug\.value\)/)
@@ -151,6 +142,4 @@ assert.equal(
   0,
   'repeated private previews free Rapier physics worlds',
 )
-console.log(
-  'Zuzu Pinball public play and private workshop access contracts passed',
-)
+console.log('Zuzu Pinball public 3D prototype and access contracts passed')

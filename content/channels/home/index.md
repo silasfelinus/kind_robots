@@ -12,7 +12,7 @@ icon: kind-icon:home
 image: /images/nav/heroes/home.webp
 route: /
 defaultTab: dashboard
-sort: 10
+sort: 999
 loadingMessage: Loading your dashboard...
 refreshLabel: Refresh Home
 dottiTip: Start here when you want to see what is yours or what Kind Robots is about.
@@ -21,9 +21,10 @@ tutorial:
   title: Home
   tagline: Today's dream, your account, your people, and the mission.
   overview: >-
-    Home is where Kind Robots starts. The Dashboard shows what was made
-    today, and the other tabs hold your own account, the people you talk to,
-    your jellybean hunt, and the ways to support the project.
+    The front page welcomes visitors with featured games and recent public
+    creations. Administrators begin with the existing daily dashboard and can
+    switch to the visitor gallery. Personal settings, conversations,
+    achievements and support remain available from the right-side account menu.
   hero: /images/nav/heroes/home.webp
   sections:
     - key: today

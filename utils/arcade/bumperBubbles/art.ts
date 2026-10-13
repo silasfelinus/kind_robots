@@ -163,6 +163,11 @@ export const GRUMP_RAMPS: Record<GrumpKind, Ramp> = {
   skater: ['#3a1a4a', '#6a2a8a', '#a050c8', '#d49af0', '#f6e0ff'],
   cog: RAMPS.steel,
   windup: ['#3a2a1a', '#6a5a3a', '#a0906a', '#d4c8a0', '#f6f0dc'],
+  phantom: ['#1a1a3a', '#3a3a7a', '#7a7ac8', '#b8b8f0', '#f0f0ff'],
+  mimic: ['#4a0f3a', '#9a2a7a', '#e060b8', '#f8a8e0', '#fff0fa'],
+  thunder: ['#2a2e3a', '#4a5268', '#7a8498', '#b0b8c8', '#e8ecf4'],
+  glider: ['#4a1a1a', '#a02a2a', '#e04a4a', '#f89a8a', '#ffe8e0'],
+  jellet: ['#3a0a3a', '#8a1a8a', '#d040d0', '#f090f0', '#ffe0ff'],
 }
 
 type Shape = { body: readonly string[]; feet: readonly [string[], string[]] }
@@ -388,6 +393,79 @@ const SHAPES: Record<GrumpKind, Shape> = {
     ],
     feet: [['..nnn.nnn...'], ['.nnn..nnn...']],
   },
+  // A sheet-ghost with a wavy hem; it turns solid for a moment.
+  phantom: {
+    body: [
+      '...LLLLLL...',
+      '..LHHHHHHb..',
+      '.LHBBBBBBBb.',
+      '.LBkkBBkkBb.',
+      '.LBwkBBwkBb.',
+      '.BBBBkkBBBb.',
+      '.BBBBBBBBBb.',
+      '.BBBBBBBBBb.',
+      '.BBb.BBb.BBb',
+    ],
+    feet: [['..b...b...b.'], ['.b...b...b..']],
+  },
+  // A gem with eyes that open off-beat (its plain gem face is frame 0).
+  mimic: {
+    body: [
+      '....LLLL....',
+      '...LHHHHb...',
+      '..LHBBBBBb..',
+      '.LHBkBBkBBb.',
+      '.LBBwBBwBBb.',
+      '..LBBkkBBb..',
+      '...bBBBBb...',
+      '....bbbb....',
+    ],
+    feet: [['..dd....dd..'], ['...dd..dd...']],
+  },
+  // One of the Jelly Mould's pieces.
+  jellet: {
+    body: [
+      '....LLLL....',
+      '...LHHHHb...',
+      '..LHBBBBBb..',
+      '.LHBkBBkBBb.',
+      '.LBBwBBwBBb.',
+      'LBBBBBBBBBBb',
+      'LBBBkkkkBBBb',
+      'bBBBBBBBBBBb',
+      '.bbbbbbbbbb.',
+    ],
+    feet: FEET,
+  },
+  // A small storm cloud with a cross little face.
+  thunder: {
+    body: [
+      '....LLL.....',
+      '..LLHHHLL...',
+      '.LHBBBBBBL..',
+      'LHBBkBBkBBb.',
+      'LBBBwBBwBBb.',
+      'LBBBBkkBBBb.',
+      '.bBBBBBBBb..',
+      '..bbbbbbb...',
+    ],
+    feet: [['............'], ['............']],
+  },
+  // Gliding down under a little umbrella.
+  glider: {
+    body: [
+      '..LLLLLLLL..',
+      '.LHHHHHHHHb.',
+      'LHBBBBBBBBBb',
+      '.....dd.....',
+      '....LBBb....',
+      '...LkBBkb...',
+      '...LBwwBb...',
+      '...bBBBBb...',
+      '....bbbb....',
+    ],
+    feet: FEET,
+  },
   // A cog with teeth all round.
   cog: {
     body: [
@@ -433,6 +511,9 @@ const SHAPES: Record<GrumpKind, Shape> = {
     feet: [['.d.d.d..d.d.'], ['d.d.d..d.d..']],
   },
 }
+
+/** The mimic's gem face, its eyes and mouth shut (rows 3 to 5 of its body). */
+const MIMIC_PLAIN = ['.LHBBBBBBBb.', '.LBBBBBBBBb.', '..LBBBBBBb..']
 
 /** The puddle puffer swollen up for its jet. */
 const PUFFER_PUFFED = [
@@ -501,7 +582,18 @@ function grumpFrames(kind: GrumpKind, ramp: Ramp): GrumpFrames {
   }
   const shape = SHAPES[kind]
   const walk: [PixelSprite, PixelSprite] = [
-    pixelSprite([...shape.body, ...shape.feet[0]], palette),
+    pixelSprite(
+      // A mimic gem's first frame is the plain gem, eyes shut.
+      kind === 'mimic'
+        ? [
+            ...shape.body.map((row, i) =>
+              i === 3 || i === 4 || i === 5 ? MIMIC_PLAIN[i - 3]! : row,
+            ),
+            ...shape.feet[0],
+          ]
+        : [...shape.body, ...shape.feet[0]],
+      palette,
+    ),
     pixelSprite(
       kind === 'bouncer'
         ? BOUNCER_DOWN
@@ -867,6 +959,66 @@ export const THEMES: Record<string, Theme> = {
     decor: '#ffffff',
     current: '#ffffff',
     hud: RAMPS.sky,
+  },
+  // The Haunted Pantry: a dim, purple larder under a pale moon, copper pots on a rail.
+  haunted: {
+    id: 'haunted',
+    sky: ['#07050f', '#100a22', '#1c1238', '#2c1c50', '#3e2a6a'],
+    block: ['#1a1424', '#2e2442', '#4a3a6a', '#6a5a90', '#9a8ac0'],
+    frosting: RAMPS.cream,
+    wall: RAMPS.purple,
+    drops: [RAMPS.purple, RAMPS.teal, RAMPS.pink],
+    far: { fill: '#1a1030', rim: '#4a3a70' },
+    near: { fill: '#0c0818', rim: '#2a1e48' },
+    stars: RAMPS.purple,
+    clouds: null,
+    orb: { x: 64, y: 62, r: 14, ramp: MOON },
+    props: 'pots',
+    rays: true,
+    ring: false,
+    decor: RAMPS.cream[3],
+    current: RAMPS.cream[4],
+    hud: RAMPS.purple,
+  },
+  // The Storm Rooftop: slate cloud, cold light and rain.
+  storm: {
+    id: 'storm',
+    sky: ['#0a0e1a', '#16203a', '#2a3a5c', '#4a5a80', '#6a7aa0'],
+    block: RAMPS.steel,
+    frosting: SNOW,
+    wall: RAMPS.steel,
+    drops: [RAMPS.sky, RAMPS.steel, RAMPS.teal],
+    far: { fill: '#16203a', rim: '#4a5a80' },
+    near: { fill: '#0a1020', rim: '#2a3a5c' },
+    stars: null,
+    clouds: ICE,
+    orb: null,
+    props: 'domes',
+    rays: false,
+    ring: false,
+    decor: '#bcd0f0',
+    current: '#ffffff',
+    hud: RAMPS.steel,
+  },
+  // The Carbonator: the tower's heart, hot pink and gold, the bottles all fizzing.
+  carbonator: {
+    id: 'carbonator',
+    sky: ['#1a0830', '#3a1050', '#6a1a70', '#a82a80', '#e04a90'],
+    block: RAMPS.pink,
+    frosting: RAMPS.cream,
+    wall: RAMPS.purple,
+    drops: [RAMPS.gold, RAMPS.teal, RAMPS.pink],
+    far: { fill: '#4a1458', rim: '#c04a98' },
+    near: { fill: '#26082e', rim: '#7a2a78' },
+    stars: RAMPS.gold,
+    clouds: null,
+    orb: { x: 196, y: 62, r: 15, ramp: SUN },
+    props: 'bottles',
+    rays: true,
+    ring: false,
+    decor: '#ffffff',
+    current: RAMPS.gold[4],
+    hud: RAMPS.pink,
   },
   // The gearworks: brass, steel and turning wheels in the gloom.
   gearworks: {

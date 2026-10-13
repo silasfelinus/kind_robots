@@ -129,7 +129,7 @@ const query = ref('')
 
 await channelContentStore.initialize()
 
-const visibleChannels = computed(() => channelContentStore.visibleChannels)
+const visibleChannels = computed(() => channelContentStore.navigationChannels)
 
 const normalizedQuery = computed(() => query.value.trim().toLowerCase())
 

@@ -1,0 +1,18 @@
+---
+contentType: tab
+channelKey: projects
+tabKey: bots
+parentTabKey: storybook
+dashboardKey: bot
+dashboardTab: bots
+label: Bots
+title: Bots
+subtitle: Browse, chat with, create, and edit assistants
+description: Browse bot personalities, launch conversations, forge new assistants, clone favorites, and refine existing bots.
+summary: Create and chat with bots.
+icon: kind-icon:robot-color
+route: /bots
+sort: 30
+---
+
+Meet, make, and manage bots as characters and collaborators in one place.

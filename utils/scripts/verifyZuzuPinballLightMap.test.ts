@@ -122,18 +122,14 @@ assert.equal(cssColor(0xff), '#0000ff')
   for (const i of kp.inserts) assert.ok(i.at[0] >= kp.bounds.min[0])
 }
 
-// The workshop page shows the editor, admin only.
+// The play page shows the editor (the old admin page only redirects here).
 {
   const page = readFileSync(
-    new URL('../../pages/admin/zuzu-pinball.vue', import.meta.url),
+    new URL('../../pages/play/zuzu-pinball.vue', import.meta.url),
     'utf8',
   )
   assert.match(page, /<ArcadePinballLightMap :table="ZUZU_LAST_BELL_GREYBOX"/)
-  assert.ok(
-    page.indexOf('ArcadePinballLightMap') >
-      page.indexOf('v-else-if="!user.isAdmin"'),
-    'inside the admin-only branch',
-  )
+  assert.doesNotMatch(page, /user\.isAdmin/, 'play page has no admin gate')
   const editor = readFileSync(
     new URL(
       '../../components/arcade/arcade-pinball-light-map.vue',
@@ -149,5 +145,5 @@ assert.equal(cssColor(0xff), '#0000ff')
 }
 
 console.log(
-  `Zuzu light map: ${map.inserts.length} inserts, ${map.flashers.length} flashers and ${map.rail.leds.length} LEDs over the painted playfield, frame round-trip, mm nudges, moves written back as table data, admin workshop`,
+  `Zuzu light map: ${map.inserts.length} inserts, ${map.flashers.length} flashers and ${map.rail.leds.length} LEDs over the painted playfield, frame round-trip, mm nudges, moves written back as table data, play workshop`,
 )

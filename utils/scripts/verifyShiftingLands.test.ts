@@ -142,17 +142,17 @@ assert.ok(
 const toPath = (relative: string) =>
   fileURLToPath(new URL(relative, import.meta.url))
 const page = readFileSync(
-  toPath('../../pages/admin/zuzu-shifting-lands.vue'),
+  toPath('../../pages/play/zuzu-shifting-lands.vue'),
   'utf8',
 )
 const channel = readFileSync(
-  toPath('../../content/channels/projects/zuzu-shifting-lands.md'),
+  toPath('../../content/channels/zuzu/zuzu-shifting-lands.md'),
   'utf8',
 )
 const world = readFileSync(toPath('../zuzuWorld.ts'), 'utf8')
-assert.match(channel, /channelKey: projects/)
+assert.match(channel, /channelKey: zuzu/)
 assert.match(channel, /route: \/play\/zuzu-shifting-lands/)
-assert.doesNotMatch(channel, /requiredRole:/)
+assert.doesNotMatch(channel, /requiredRole: ADMIN/)
 assert.doesNotMatch(channel, /navigation: false/)
 assert.match(world, /route: '\/play\/zuzu-shifting-lands'/)
 assert.match(page, /<FlipCard\b/)
@@ -161,23 +161,14 @@ assert.match(page, /game\.state\.lastCheck/)
 assert.match(page, /images\/adventure\/card\/card-back1.webp/)
 assert.match(page, /game\.state\.discard/)
 assert.match(page, /game\.initialize/)
-const publicPage = readFileSync(
-  toPath('../../pages/play/zuzu-shifting-lands.vue'),
-  'utf8',
-)
-assert.match(publicPage, /ShiftingLandsJourneyBoard/)
-assert.doesNotMatch(publicPage, /user\.isAdmin|requiredRole: ADMIN/)
-assert.match(
-  readFileSync(
-    toPath('../../content/channels/admin/zuzu-shifting-lands-workshop.md'),
-    'utf8',
-  ),
-  /requiredRole: ADMIN/,
+assert.equal(
+  existsSync(toPath('../../pages/play/zuzu-shifting-lands.vue')),
+  true,
 )
 assert.equal(
   existsSync(toPath('../../content/channels/admin/zuzu-shifting-lands.md')),
   false,
 )
 console.log(
-  'Shifting Lands Play-tab, admin-route, independent Facet and saved-roll contracts passed',
+  'Shifting Lands Zuzu-channel, play-route, independent Facet and saved-roll contracts passed',
 )

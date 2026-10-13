@@ -36,8 +36,8 @@ assert.ok(
   'channel + tab pickers must remain the tablet/desktop navigation',
 )
 assert.ok(
-  channelSelect.includes('? activeTab?.label || activeChannel.label') &&
-    channelSelect.includes(': activeChannel.label'),
+  channelSelect.replace(/\s+/g, ' ').includes("activeChannel.channelKey === 'home' ? 'Explore'") &&
+    channelSelect.includes('activeTab?.label || activeChannel.label'),
   'the unified phone picker must show the active tab label rather than only the channel label',
 )
 assert.ok(
@@ -87,6 +87,12 @@ for (const path of channelMarkdownFiles('content/channels')) {
     `${path} nav summary must stay at 40 characters or fewer (got ${summary.length})`,
   )
 }
+assert.ok(
+  channelTabList.includes('v-if="tab.route"') &&
+    channelTabList.includes("emit('select', tab)") &&
+    channelTabList.includes('Open {{ tab.label }}'),
+  'A routed submenu parent such as Storybook must retain an Open Storybook destination.',
+)
 assert.ok(
   channelTabList.includes('navigationSubtabs') &&
     channelTabList.includes("tab.label + ' subtabs'"),
@@ -382,6 +388,35 @@ assert.ok(
   ),
   'the full navigation directory must link leaf destinations rather than subtab parents',
 )
+
+const channelStoreSource = source('stores/channelContentStore.ts')
+const pickerSource = source('components/navigation/channel-select.vue')
+const siteDirectorySource = source('components/navigation/navigation-trimmed.vue')
+const accountHubSource = source('components/navigation/account-hub.vue')
+const homePageSource = source('components/home/home-page.vue').replace(/\s+/g, ' ')
+const visitorDirectorySource = source('components/home/home-visitor-directory.vue')
+assert.ok(channelStoreSource.includes('const navigationChannels = computed(() =>'))
+assert.ok(channelStoreSource.includes("channel.channelKey !== 'home'"))
+assert.ok(pickerSource.includes('channelContentStore.navigationChannels'))
+assert.ok(siteDirectorySource.includes('channelContentStore.navigationChannels'))
+assert.ok(pickerSource.replace(/\s+/g, ' ').includes("activeChannel.channelKey === 'home' ? 'Explore'"))
+assert.ok(homePageSource.includes("homeMode = 'directory'"))
+assert.ok(homePageSource.includes("homeMode = 'dashboard'"))
+assert.ok(homePageSource.includes("!isAdmin.value"))
+assert.ok(homePageSource.includes('<home-visitor-directory v-else'))
+assert.ok(visitorDirectorySource.includes('showcaseHref(card)'))
+assert.ok(visitorDirectorySource.includes('props.showcase.rails.art'))
+assert.ok(visitorDirectorySource.includes('props.showcase.rails.dreams'))
+for (const route of [
+  '/', '/account', '/achievements', '/messages', '/friends', '/themes',
+  '/servers', '/plan/newsfeed', '/about', '/navigation',
+]) {
+  assert.ok(accountHubSource.includes(`route: '${route}'`),
+    `Account hub must retain ${route} without a Home channel`)
+}
+assert.match(accountHubSource, /userStore.isLoggedIn/)
+assert.ok(source('content/channels/home/index.md').includes('contentType: channel'))
+assert.ok(source('content/channels/home/account.md').includes('route: /account'))
 
 console.log(
   'Navigation consolidation verified: Account tools, Resources triage access, Admin > Retired subtabs, hidden diagnostics, nested routes, access metadata, and ArtJob icon all hold.',

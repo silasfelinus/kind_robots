@@ -56,6 +56,11 @@ export type AgentNote = Prisma.AgentNoteModel
  */
 export type ArcadeScore = Prisma.ArcadeScoreModel
 /**
+ * Model ArcadeReview
+ * 
+ */
+export type ArcadeReview = Prisma.ArcadeReviewModel
+/**
  * Model ArchiveEntry
  * Durable archive-entry ledger (art-archive/t-003): filesystem identity and
  * curation state for one legacy AI-art file, independent of any ArtImage it

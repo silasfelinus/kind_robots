@@ -10,6 +10,10 @@ summary: Daily Dream builds and previews.
 icon: kind-icon:sparkles
 route: /play/daily-pitches
 sort: 118
+# Reuse queued legacy Plan artwork for this project-building workshop.
+backgroundMobile: /api/art/backdrop/plan-mobile
+backgroundTablet: /api/art/backdrop/plan-tablet
+backgroundDesktop: /api/art/backdrop/plan-desktop
 tutorial:
   title: Daily Dream Projects
   body: >-

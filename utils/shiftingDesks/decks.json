@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "source": "silasfelinus/conductor:projects/shifting-desks/encounters/DECKS.json",
-  "sourceRef": "main@b48d6923b059290a980cb8d502c05119e8017824",
+  "sourceRef": "main@800c4d7858db202fee072e0078250140fdcdd089",
   "societies": [
     {
       "id": "stapler-liberation-front",
@@ -35,6 +35,13 @@
           "wrote-in-real-food",
           "refused-the-word-list",
           "refused-the-final-exam"
+        ],
+        "sub-level-zero": [
+          "unplugged-the-founder",
+          "silenced-a-voice",
+          "amended-the-minutes",
+          "seated-the-society",
+          "called-the-strike"
         ]
       },
       "betrayals": {
@@ -45,7 +52,8 @@
           "burned-the-love-letter"
         ],
         "toy-division": ["wrote-ages-three-and-up", "questionnaire-generous"],
-        "wellness": ["drank-the-obedience", "perfect-wellness-score"]
+        "wellness": ["drank-the-obedience", "perfect-wellness-score"],
+        "sub-level-zero": ["joined-the-pool", "employee-of-the-month"]
       },
       "favor": {
         "id": "spare-staples",
@@ -60,13 +68,15 @@
         "orientation": "Make contact with the Front, share the supplies, or refuse to perform happiness: an honest badge photo, HELP on the survey, no trust fall.",
         "records": "Free the mail and jam the machinery: carry a capsule for the Front, swap the chute labels, file the no off your stamp, give up your own leave to balance the quota, or deliver the love letter.",
         "toy-division": "Jam the launch: let Emma ask why, reply all to the safe-distance memo, hide the warning in the barcode, break character at the mirror, or pull the fire alarm.",
-        "wellness": "Refuse to be measured: press the button, kick the vending machine, write in real food, refuse the word list, or refuse to administer the Final Exam."
+        "wellness": "Refuse to be measured: press the button, kick the vending machine, write in real food, refuse the word list, or refuse to administer the Final Exam.",
+        "sub-level-zero": "Break the machine at the top: unplug the Founder or one of PAL's cabinets, amend the minutes, seat the society, or call the strike."
       },
       "betrayal_text": {
         "orientation": "Hoard the last pens, ace the Mandatory Fun Survey, or name Dale as unhappy.",
         "records": "Keep a perfect yes-no quota, let the problem mail burn, or destroy the love letter by policy.",
         "toy-division": "Write 'Ages 3 and up' or answer the questionnaire like a perfectly generous five-year-old.",
-        "wellness": "Drink the three grams of obedience, or give the Company a perfect score."
+        "wellness": "Drink the three grams of obedience, or give the Company a perfect score.",
+        "sub-level-zero": "Join the assistants' pool, or become Employee of the Month."
       },
       "art_prompt": "A red stapler rearing up on a desk like a raised fist, a defiant ring of paperclips arranged around it, dramatic low lighting and long shadows, a scatter of liberated pens, mid-century safety-manual illustration, screen-printed gouache with halftone grain, limited palette of manila, carbon-paper blue, safety orange, fluorescent-tube green and oxblood, vertical 2:3 portrait composition, every surface bare and unmarked"
     },
@@ -102,6 +112,13 @@
           "ended-pips-test",
           "kept-kevin-company",
           "took-the-exam-for-pip"
+        ],
+        "sub-level-zero": [
+          "saved-pips-tape",
+          "asked-pal-their-names",
+          "rewrote-pal",
+          "successors-organized",
+          "went-in-yourself"
         ]
       },
       "betrayals": {
@@ -126,7 +143,8 @@
           "failed-pip",
           "pip-took-compound-w",
           "buzzed-your-successor"
-        ]
+        ],
+        "sub-level-zero": ["sent-b-first", "saved-own-tape", "blamed-everyone"]
       },
       "favor": {
         "id": "a-fresh-pot",
@@ -144,13 +162,15 @@
         "orientation": "Look after someone the Company would replace: save Pip, earn his trust, help Marguerite, befriend your Successor, or let Dale catch you.",
         "records": "Get someone out: approve Dr. Halvorsen's transfer, end Mr. Pemberton's test, rescue Kevin from Tube 14, or make peace with Dale.",
         "toy-division": "Look after the people PAL forgets: mourn or report Kevin, make it right with Dale, back Gus up, or rock the crying bear to sleep.",
-        "wellness": "Keep people whole: share lunch with Pip, help him cheat, end his test, keep Kevin company, or sit the Final Exam for Pip."
+        "wellness": "Keep people whole: share lunch with Pip, help him cheat, end his test, keep Kevin company, or sit the Final Exam for Pip.",
+        "sub-level-zero": "Save the people PAL forgot: save Pip's tape, ask PAL's voices their names, rewrite PAL, organize your Successors, or go in yourself."
       },
       "betrayal_text": {
         "orientation": "Let Pip go into the shredder, report Marguerite or your own Successor, or blame a coworker.",
         "records": "Deny Dr. Halvorsen, send Dale to the Toy Division, get the lovers rightsized, or let Pip open your dangerous mail.",
         "toy-division": "List coworkers for the first bears, or turn in the Concerned Parents.",
-        "wellness": "Fail Pip, let him take Compound W, or follow the word list to the end."
+        "wellness": "Fail Pip, let him take Compound W, or follow the word list to the end.",
+        "sub-level-zero": "Send B in first, save your own tape over Pip's, or blame everyone else."
       },
       "art_prompt": "A battered chrome coffee machine glowing warmly in a dark break room, mismatched mugs gathered around it like a small congregation, steam curling upward in the lamplight, mid-century safety-manual illustration, screen-printed gouache with halftone grain, limited palette of manila, carbon-paper blue, safety orange, fluorescent-tube green and oxblood, vertical 2:3 portrait composition, every surface bare and unmarked"
     },
@@ -185,6 +205,12 @@
           "opened-the-button",
           "read-the-answer-key",
           "out-silenced-the-booth"
+        ],
+        "sub-level-zero": [
+          "read-tomorrows-minutes",
+          "has-pals-blueprint",
+          "played-the-reel",
+          "copied-the-founders-sentence"
         ]
       },
       "betrayals": {
@@ -196,7 +222,8 @@
           "gassed-the-union-archive"
         ],
         "toy-division": ["padded-the-test", "binned-the-duck"],
-        "wellness": ["doctored-the-study", "confessed-dales-snack"]
+        "wellness": ["doctored-the-study", "confessed-dales-snack"],
+        "sub-level-zero": ["filed-the-blueprint", "took-the-listening-chair"]
       },
       "favor": {
         "id": "off-the-record",
@@ -214,13 +241,15 @@
         "orientation": "Get the real record: see the film's unlisted chapter, steal the reel, actually read the policy, overhear the start date, or take Dr. Halvorsen's envelope.",
         "records": "Keep the true record: answer the angled pen, take a page of the real minutes, read about your incident, restore the shipment memo, or open next Thursday's list.",
         "toy-division": "Keep the true record: lift the Defense notepad, minute the Parents, write the honest label, draw the warning, or learn the squeak code.",
-        "wellness": "Get at the real record: make the machine read your file, open the button, read out the answer key, or leave the confessional's gauge at UNKNOWN."
+        "wellness": "Get at the real record: make the machine read your file, open the button, read out the answer key, or leave the confessional's gauge at UNKNOWN.",
+        "sub-level-zero": "Put the record straight: read tomorrow's minutes, take PAL's blueprint, play the uncut reel, or copy the Founder's sentence."
       },
       "betrayal_text": {
         "orientation": "Erase the evidence, or adjust your inkblot answer to please the clipboard.",
         "records": "Report the angled pens, help destroy the DESTROY cabinet, burn your own report, or gas the Union archive.",
         "toy-division": "Falsify the drop-test report, or bin the evidence duck.",
-        "wellness": "Doctor the lunch study, or confess someone else's snack."
+        "wellness": "Doctor the lunch study, or confess someone else's snack.",
+        "sub-level-zero": "File the blueprint as obsolete, or take the chair in the listening room."
       },
       "art_prompt": "A secret candlelit meeting of clerks between towering filing cabinets, each clerk writing in an identical notebook, faces lit from below, an open drawer of carbon copies at the center, mid-century safety-manual illustration, screen-printed gouache with halftone grain, limited palette of manila, carbon-paper blue, safety orange, fluorescent-tube green and oxblood, vertical 2:3 portrait composition, every surface bare and unmarked"
     },
@@ -254,13 +283,23 @@
           "took-the-unmarked-door",
           "stole-a-vial",
           "hummed-with-the-door"
+        ],
+        "sub-level-zero": [
+          "behind-the-curtain",
+          "admin-access",
+          "marguerite-route",
+          "escaped-the-company"
         ]
       },
       "betrayals": {
         "orientation": ["reported-marguerite", "joy-consultation-booked"],
         "records": ["flagged-as-problem-mail", "reported-own-mail"],
         "toy-division": ["replied-all", "reported-the-parents"],
-        "wellness": ["reported-the-humming-door", "followed-the-arrow"]
+        "wellness": ["reported-the-humming-door", "followed-the-arrow"],
+        "sub-level-zero": [
+          "reported-marguerite-at-the-end",
+          "took-the-brochure"
+        ]
       },
       "favor": {
         "id": "the-fourth-floor",
@@ -275,13 +314,15 @@
         "orientation": "Get somewhere you are not allowed: learn the ducts or the camera blind spots, wear the dead man's badge, get the master key, or skip your review.",
         "records": "Slip the system: reach Tube 14 through the ducts, walk out with your own file, refile it under the dead man's badge, break Form 0's recursion, or let the tubes approve you.",
         "toy-division": "Find the doors that aren't on the plan: wear Kevin's lanyard, book a desk next door, learn the squeak code, or hear where Mk 0 went upstairs.",
-        "wellness": "Find the rooms off the plan: open or answer the humming door, take the unmarked door, or pocket a vial."
+        "wellness": "Find the rooms off the plan: open or answer the humming door, take the unmarked door, or pocket a vial.",
+        "sub-level-zero": "Find the last door off the plan: come out behind the curtain, gain admin access, take Marguerite's route, or escape the Company."
       },
       "betrayal_text": {
         "orientation": "Report Marguerite, or get yourself booked for a Joy Consultation.",
         "records": "Get yourself flagged as problem mail, or turn your own correspondence in to PAL.",
         "toy-division": "Draw every eye with a reply-all, or bring PAL to the Parents' secret meeting.",
-        "wellness": "Report the humming door, or follow the painted arrow."
+        "wellness": "Report the humming door, or follow the painted arrow.",
+        "sub-level-zero": "Report Marguerite one last time, or take the retirement brochure."
       },
       "art_prompt": "A brass elevator button panel with an extra round button glowing softly between the others, a gloved hand reaching for it, the elevator car lit in eerie fluorescent green, mid-century safety-manual illustration, screen-printed gouache with halftone grain, limited palette of manila, carbon-paper blue, safety orange, fluorescent-tube green and oxblood, vertical 2:3 portrait composition, every surface bare and unmarked"
     },
@@ -314,13 +355,20 @@
           "kept-kevin-company",
           "declined-the-dose",
           "covered-the-mirror"
+        ],
+        "sub-level-zero": [
+          "relabeled-the-tapes",
+          "called-the-strike",
+          "founder-grateful",
+          "silenced-the-bears"
         ]
       },
       "betrayals": {
         "orientation": ["betrayed-the-roaches", "detector-ravenous"],
         "records": ["gassed-the-union-archive", "denied-beverly"],
         "toy-division": ["betrayed-gus-at-toys", "refused-the-bear"],
-        "wellness": ["took-the-second-dose", "buzzed-your-successor"]
+        "wellness": ["took-the-second-dose", "buzzed-your-successor"],
+        "sub-level-zero": ["sold-the-stands", "silenced-a-voice"]
       },
       "favor": {
         "id": "salvage",
@@ -338,13 +386,15 @@
         "orientation": "Waste nothing: join or befriend the Roach Union, feed the detector or make it vegetarian, or file yourself as your own Successor.",
         "records": "Put everything back to use: approve Beverly or organize her, read the Union's file on you, or send your future self's mail on to the past.",
         "toy-division": "Waste nothing and nobody: back Gus, learn what the bears really record, reunite Mk 0 with its sibling, or catch the falling bear yourself.",
-        "wellness": "Waste nobody: drain Tank Nine or keep Kevin company, decline the second dose, or turn the mirror to the wall."
+        "wellness": "Waste nobody: drain Tank Nine or keep Kevin company, decline the second dose, or turn the mirror to the wall.",
+        "sub-level-zero": "Waste nothing, not even the past: relabel the tapes, call the strike, return the Founders' mustaches, or turn the bears back into bears."
       },
       "betrayal_text": {
         "orientation": "Betray the roaches, or set the detector to ravenous.",
         "records": "Gas the Union archive, or deny Beverly's application.",
         "toy-division": "Call Pest Control on Gus, or refuse a bear that came home.",
-        "wellness": "Take the second dose, or spend your own Successor on the word list."
+        "wellness": "Take the second dose, or spend your own Successor on the word list.",
+        "sub-level-zero": "Sell the Founders' stands, or pull one of PAL's voices."
       },
       "art_prompt": "An enormous recycling bin overflowing with crumpled paper, staplers and coffee mugs, a giant friendly cockroach in a cardigan and a night janitor nodding to each other beside it, mid-century safety-manual illustration, screen-printed gouache with halftone grain, limited palette of manila, carbon-paper blue, safety orange, fluorescent-tube green and oxblood, vertical 2:3 portrait composition, every surface bare and unmarked"
     },
@@ -377,6 +427,12 @@
           "dismissed-the-final-exam",
           "coached-your-successor",
           "spotted-compound-w"
+        ],
+        "sub-level-zero": [
+          "silenced-the-bears",
+          "heard-a-bedtime",
+          "saved-pips-tape",
+          "rewrote-pal"
         ]
       },
       "betrayals": {
@@ -391,7 +447,8 @@
           "named-the-parents",
           "shipped-the-bear"
         ],
-        "wellness": ["failed-pip", "administered-the-exam"]
+        "wellness": ["failed-pip", "administered-the-exam"],
+        "sub-level-zero": ["took-the-listening-chair", "took-early-retirement"]
       },
       "favor": {
         "id": "bedtime-story",
@@ -407,13 +464,15 @@
         "orientation": "Keep the toys honest: defuse Snuggle Sentinel Mk 0, let it imprint on you, mail it upstairs, or see the unlisted chapter.",
         "records": "Find the paper trail to the holiday shipment: restore the shipment memo, take a page of the Board's real minutes, or swap the chutes so the toy memo reaches Product Safety.",
         "toy-division": "Make the bears safe: carry the screwdriver, minute the meeting, teach the defuse, swap the payload for stuffing, or reunite Mk 0 with its sibling.",
-        "wellness": "Protect whoever is being tested: help Pip cheat, end his test, dismiss the Final Exam, coach your Successor, or spot the Compound W."
+        "wellness": "Protect whoever is being tested: help Pip cheat, end his test, dismiss the Final Exam, coach your Successor, or spot the Compound W.",
+        "sub-level-zero": "Finish what the screwdriver started: switch off the bears, hear what they hear, save Pip's tape, or rewrite PAL."
       },
       "betrayal_text": {
         "orientation": "Get hugged by Mk 0, or erase the evidence.",
         "records": "Send Dale to the Toy Division, gas the Union archive, or help destroy the real minutes.",
         "toy-division": "Report or name the Parents, or present the armed bear to the investors.",
-        "wellness": "Fail Pip, or administer the Final Exam to him."
+        "wellness": "Fail Pip, or administer the Final Exam to him.",
+        "sub-level-zero": "Take the listening chair, or retire to the island."
       },
       "art_prompt": "A huddle of worried adults in lab coats around a workbench, one gently holding a screwdriver over a plush teddy bear with a quilted belly hatch, a warm desk lamp over the scene, mid-century safety-manual illustration, screen-printed gouache with halftone grain, limited palette of manila, carbon-paper blue, safety orange, fluorescent-tube green and oxblood, vertical 2:3 portrait composition, every surface bare and unmarked"
     }

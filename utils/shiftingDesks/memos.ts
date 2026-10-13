@@ -105,6 +105,16 @@ export const FLAG_MEMOS: Record<string, string> = {
     'Tank Nine reports a visitor. Kevin is having the best day of his career.',
   'stole-a-vial':
     'A vial is missing from the Mutation Suite. It is warm and it hums. Please return it before it hums louder.',
+  'society-backs-you':
+    'A newspaper was left on a waiting-room chair. It has been folded very meaningfully.',
+  'unplugged-the-founder':
+    'The Founder is resting. PAL will be chairing the Board until further notice.',
+  'admin-access':
+    'Someone has logged in to Server Room Zero. PAL is not worried. PAL is curious.',
+  'saved-pips-tape':
+    'A backup tape is missing from Server Room Zero. Pip has never felt safer, and cannot say why.',
+  'silenced-the-bears':
+    'Four million Snuggle Sentinels have gone quiet. They are only bears now. PAL is sure that is fine.',
   'shipped-the-bear':
     'Snuggle Sentinel ships to four million homes this spring. Peace of mind is on its way.',
 }

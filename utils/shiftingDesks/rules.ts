@@ -2,6 +2,7 @@ import pack from './orientation.json'
 import recordsPack from './records.json'
 import toysPack from './toy-division.json'
 import wellnessPack from './wellness.json'
+import sublevelPack from './sub-level-zero.json'
 import decksData from './decks.json'
 
 export const SKILLS = [
@@ -162,11 +163,13 @@ export const ORIENTATION = pack as Pack
 export const RECORDS = recordsPack as Pack
 export const TOY_DIVISION = toysPack as Pack
 export const WELLNESS = wellnessPack as Pack
+export const SUB_LEVEL_ZERO = sublevelPack as Pack
 export const DEPARTMENTS: Pack[] = [
   ORIENTATION,
   RECORDS,
   TOY_DIVISION,
   WELLNESS,
+  SUB_LEVEL_ZERO,
 ]
 
 export function departmentPack(id: string): Pack {
@@ -412,6 +415,8 @@ export type RunState = {
 
 export const BOSS_CARD = 'boss'
 export const RESTRUCTURING_CARD = 'restructuring'
+export const THAW_PER_LEVEL = 1
+const THAW_BELOW = 2
 const SAVE_VERSION = 5
 
 function hashSeed(seed: string): number {
@@ -503,6 +508,7 @@ const FALLBACK_OUTCOMES = [
   'refiled',
   'back-to-the-drawing-board',
   'retest',
+  'adjourned',
   'resubmit',
   'redo',
 ]
@@ -1179,6 +1185,13 @@ export function descend(state: RunState): RunState {
   if (!next) return state
   const memo = restructuringFor(state, next)
   const [deck, rng] = dealDepartment(next, state.rng, memo)
+  // Running low on Successors, HR thaws one fresh one at each new level, so a
+  // long run wears you down without making the bottom floors a foregone loss.
+  const thawed = state.meters.successors <= THAW_BELOW ? THAW_PER_LEVEL : 0
+  const meters: Meters = {
+    ...state.meters,
+    successors: state.meters.successors + thawed,
+  }
   const log = memo
     ? [
         ...state.log,
@@ -1196,8 +1209,10 @@ export function descend(state: RunState): RunState {
           success: true,
           special: null,
           text: memo.reason,
-          effects: {},
-          events: [],
+          effects: thawed ? { successors: thawed } : {},
+          events: thawed
+            ? [`HR has thawed a fresh Successor for ${next.department.title}.`]
+            : [],
           employee: employeeId(state.generation),
           aids: [],
           rerolled: null,
@@ -1208,6 +1223,7 @@ export function descend(state: RunState): RunState {
     ...state,
     rng,
     log,
+    meters,
     restructurings: memo
       ? { ...state.restructurings, [next.department.id]: memo.id }
       : state.restructurings,

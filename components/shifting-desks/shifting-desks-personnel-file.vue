@@ -100,11 +100,19 @@
     </article>
 
     <p
-      v-if="run.status === 'complete'"
+      v-if="run.status === 'complete' && !ending"
       class="rounded-2xl border border-warning/50 bg-base-200 p-4 text-sm"
     >
       The elevator chimes again. Level −{{ deeperLevel }} is still being
       restructured. PAL promises it will open soon, and that you will love it.
+    </p>
+    <p
+      v-if="ending"
+      class="rounded-2xl border border-warning/50 bg-base-200 p-4 text-sm"
+    >
+      The Board has decided, and this is one of its endings. The others are
+      still on the table, and so, technically, are you. PAL has kept your
+      Successors warm.
     </p>
 
     <div class="flex flex-wrap gap-3 print:hidden">
@@ -152,6 +160,15 @@ const filesHandled = computed(
     ).length ?? 0,
 )
 const deeperLevel = computed(() => DEPARTMENTS.length)
+const BOTTOM_FLOOR = 5
+
+// On the bottom floor the Board's decision is the run's ending.
+const ending = computed(() => {
+  const last = DEPARTMENTS[DEPARTMENTS.length - 1]
+  if (!run.value || run.value.status !== 'complete' || !last) return null
+  if (last.department.order < BOTTOM_FLOOR) return null
+  return outcomeById(run.value.departmentOutcomes[last.department.id] ?? null)
+})
 const results = computed(() => rankedGrades(run.value?.grades ?? START_GRADES))
 const resultsVerdict = computed(() =>
   finalVerdict(run.value?.grades ?? START_GRADES),
@@ -189,6 +206,13 @@ const verdict = computed(() => {
       summary:
         'Every Successor on file has been used. HR thanks you for your service and has already repurposed your desk.',
       stamp: 'Terminated',
+    }
+  }
+  if (ending.value) {
+    return {
+      title: ending.value.title,
+      summary: ending.value.summary,
+      stamp: 'The End',
     }
   }
   const met = Object.values(run.value.societyRecord).filter(

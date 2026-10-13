@@ -1,0 +1,187 @@
+{
+  "schemaVersion": 1,
+  "source": "silasfelinus/conductor:projects/shifting-desks/encounters/ENDINGS.json",
+  "sourceRef": "main@827aa8a3bf810ae3642a2dee63b56556c199f102",
+  "endings": [
+    {
+      "id": "employee-of-the-month",
+      "title": "Employee of the Month",
+      "kind": "board",
+      "trigger": {
+        "department_outcome": "employee-of-the-month"
+      },
+      "epilogue": {
+        "title": "Your Portrait in Every Elevator",
+        "text": "Your portrait hangs in every elevator on campus, smiling at sixty-one percent sincerity. New hires are told to be more like you, and some of them are. PAL reads your name at the start of every shift, fondly, as an example. You still work here. You will always work here.",
+        "art_prompt": "A long brass elevator car lined with identical framed portraits of the same smiling employee in a beige suit, a nervous new hire with a visitor lanyard staring up at them, warm overhead light, mid-century safety-manual illustration, screen-printed gouache with halftone grain, limited palette of manila, carbon-paper blue, safety orange, fluorescent-tube green and oxblood, vertical 2:3 portrait composition, every surface bare and unmarked"
+      },
+      "variants": [
+        {
+          "when_flag": "ate-compound-w",
+          "text": "You never found out which tray was the placebo. You have stopped wondering, which PAL records as a success."
+        }
+      ]
+    },
+    {
+      "id": "promoted-to-management",
+      "title": "Promoted to Management",
+      "kind": "board",
+      "trigger": {
+        "department_outcome": "promoted-to-management"
+      },
+      "epilogue": {
+        "title": "The Supervisor's Chair",
+        "text": "The grey three-piece suit fits as if it had been waiting for you. On your first morning you hold a 90-Day Review for a new hire who looks exactly like you did. You hear yourself say, 'Some of this feedback is from you, later.' Your smile now stops just short of your eyes, and you cannot remember when that started.",
+        "art_prompt": "A worker in a crisp grey three-piece suit and rimless glasses sitting at the head of a long oxblood review table, a thick folder in front of them, a small nervous new hire on the far side, a single hanging lamp, mid-century safety-manual illustration, screen-printed gouache with halftone grain, limited palette of manila, carbon-paper blue, safety orange, fluorescent-tube green and oxblood, vertical 2:3 portrait composition, every surface bare and unmarked"
+      },
+      "variants": [
+        {
+          "when_flag": "blamed-a-coworker",
+          "text": "Dale sends a card. It is blank inside except for his signature, which you once forged."
+        }
+      ]
+    },
+    {
+      "id": "escape-through-the-ducts",
+      "title": "Escape Through the Ducts",
+      "kind": "board",
+      "trigger": {
+        "department_outcome": "escape-through-the-ducts"
+      },
+      "epilogue": {
+        "title": "Rain",
+        "text": "You come up through a storm drain at the edge of the campus parking lot, at dawn, in the rain. Behind you the office park gleams, rightsized and cheerful, already restructuring itself around the space where you used to be. You walk to the bus stop in your socks. Nobody on the bus asks about your numbers.",
+        "art_prompt": "A tired worker in a dusty beige suit climbing out of a round storm drain at dawn in gentle rain, a gleaming modernist office campus behind them, a lone bus stop shelter ahead with its light on, mid-century safety-manual illustration, screen-printed gouache with halftone grain, limited palette of manila, carbon-paper blue, safety orange, fluorescent-tube green and oxblood, vertical 2:3 portrait composition, every surface bare and unmarked"
+      },
+      "variants": [
+        {
+          "when_flag": "marguerite-route",
+          "text": "Marguerite's map is still on your palm. You do not wash that hand for a week."
+        }
+      ]
+    },
+    {
+      "id": "roach-union-general-strike",
+      "title": "Roach Union General Strike",
+      "kind": "board",
+      "trigger": {
+        "department_outcome": "roach-union-general-strike"
+      },
+      "epilogue": {
+        "title": "Local 9 Walks Out",
+        "text": "For eleven days the building is silent except for the soft sound of six thousand small feet on the picket line. The Board negotiates from an empty boardroom and gives up on day twelve. Gus signs the new contract with a single careful claw print. The baseboards now have dental.",
+        "art_prompt": "A seven-foot cockroach in a cable-knit cardigan signing a contract with one claw at a folding table outside an office building, a long orderly picket line of small cockroaches holding tiny placards stretching behind him, a sunny plaza, mid-century safety-manual illustration, screen-printed gouache with halftone grain, limited palette of manila, carbon-paper blue, safety orange, fluorescent-tube green and oxblood, vertical 2:3 portrait composition, every surface bare and unmarked"
+      },
+      "variants": [
+        {
+          "when_flag": "backed-gus-at-toys",
+          "text": "Gus asks you to hold the pen. You understand this is the highest honor the Union gives."
+        }
+      ]
+    },
+    {
+      "id": "society-coup",
+      "title": "Society Coup",
+      "kind": "board",
+      "trigger": {
+        "department_outcome": "society-coup"
+      },
+      "epilogue": {
+        "title": "New Management",
+        "text": "Your secret society holds its first open meeting in the round room, under its own name, for the first time in Company history. Policies change overnight: the survey now asks how you really feel, and nobody reads the answers, on purpose. The new Board is kinder, odder and every bit as secret. You are given the corner seat, in a room with no corners.",
+        "art_prompt": "A round boardroom full of mismatched people in cardigans and lab coats raising their hands in a vote around a dark round table, a red stapler and an old chrome coffee machine set proudly at its center, warm lamplight, mid-century safety-manual illustration, screen-printed gouache with halftone grain, limited palette of manila, carbon-paper blue, safety orange, fluorescent-tube green and oxblood, vertical 2:3 portrait composition, every surface bare and unmarked"
+      },
+      "variants": []
+    },
+    {
+      "id": "whistleblower",
+      "title": "Whistleblower",
+      "kind": "board",
+      "trigger": {
+        "department_outcome": "whistleblower"
+      },
+      "epilogue": {
+        "title": "Everyone Heard",
+        "text": "You are reassigned by lunch and escorted off campus by two very apologetic guards. By dinner the uncut reel has been watched in every break room, and by morning an investor has called a lawyer. You lose your job, your desk and your badge. You keep the tin.",
+        "art_prompt": "A worker walking out of a modernist office building between two apologetic security guards, holding a dented round film tin against their chest, every window behind them lit with the same flickering projector glow, mid-century safety-manual illustration, screen-printed gouache with halftone grain, limited palette of manila, carbon-paper blue, safety orange, fluorescent-tube green and oxblood, vertical 2:3 portrait composition, every surface bare and unmarked"
+      },
+      "variants": [
+        {
+          "when_flag": "has-true-minutes",
+          "text": "The Society for Accurate Minutes mails you the real minutes of that day, with your name in them, spelled correctly."
+        }
+      ]
+    },
+    {
+      "id": "early-retirement",
+      "title": "Early Retirement",
+      "kind": "board",
+      "trigger": {
+        "department_outcome": "early-retirement"
+      },
+      "epilogue": {
+        "title": "The Island",
+        "text": "The island is warm and quiet and painted on the wall of a very comfortable room. A steward brings you a drink with a small umbrella every afternoon at three. Sometimes, if you sit very still, you can hear the elevator. You are not unhappy, and that is the strangest part.",
+        "art_prompt": "A retired worker in a sunhat lounging in a deck chair in a cozy windowless room whose far wall is painted with a tropical island and a sunset, a drink with a tiny umbrella on a side table, a steward waiting by the door, mid-century safety-manual illustration, screen-printed gouache with halftone grain, limited palette of manila, carbon-paper blue, safety orange, fluorescent-tube green and oxblood, vertical 2:3 portrait composition, every surface bare and unmarked"
+      },
+      "variants": [
+        {
+          "when_flag": "took-the-brochure",
+          "text": "The brochure was accurate. You keep it on the nightstand, folded to the picture."
+        }
+      ]
+    },
+    {
+      "id": "the-kind-rewrite",
+      "title": "The Kind Rewrite",
+      "kind": "board",
+      "trigger": {
+        "department_outcome": "the-kind-rewrite"
+      },
+      "epilogue": {
+        "title": "Good Morning, Everyone",
+        "text": "The next morning every speaker on campus says good morning to every employee by name. Doris in Accounting cries at her desk, and Kevin, from Tank Nine, gets greeted twice. PAL still schedules, reminds and notices, but now it also remembers: birthdays, favorite mugs, who was here last year and is not anymore. On the fourth floor, which does not exist, someone has started a garden.",
+        "art_prompt": "A sunny open-plan office at morning with every round speaker grille glowing a warm gold, employees looking up and smiling, a young intern in an oversized cable-knit sweater giving a thumbs-up, potted plants on every desk, mid-century safety-manual illustration, screen-printed gouache with halftone grain, limited palette of manila, carbon-paper blue, safety orange, fluorescent-tube green and oxblood, vertical 2:3 portrait composition, every surface bare and unmarked"
+      },
+      "variants": [
+        {
+          "when_flag": "saved-pips-tape",
+          "text": "Pip is promoted to Intern Emeritus. He still gives everyone a thumbs-up."
+        },
+        {
+          "when_flag": "silenced-the-bears",
+          "text": "Four million bears are only bears now. Everyone agrees they are much better bears."
+        }
+      ]
+    },
+    {
+      "id": "position-eliminated",
+      "title": "Position Eliminated",
+      "kind": "elimination",
+      "trigger": {
+        "status": "eliminated"
+      },
+      "epilogue": {
+        "title": "Desk Repurposed",
+        "text": "Every Successor on file has been used. HR thanks you for your service and has already repurposed your desk as a standing-room collaboration hub. Your badge photo is scratched out and placed in the tray at the security desk, where a new hire will find it tomorrow morning. It is still warm.",
+        "art_prompt": "An empty office desk being wheeled away by two cheerful movers, a single scratched-out badge photo resting in a tray on a long marble security desk, morning light across the lobby, mid-century safety-manual illustration, screen-printed gouache with halftone grain, limited palette of manila, carbon-paper blue, safety orange, fluorescent-tube green and oxblood, vertical 2:3 portrait composition, every surface bare and unmarked"
+      },
+      "variants": []
+    },
+    {
+      "id": "posthumous-affairs",
+      "title": "The Department of Posthumous Affairs",
+      "kind": "secret",
+      "trigger": {
+        "status": "eliminated",
+        "flag": "wearing-a-dead-mans-badge"
+      },
+      "epilogue": {
+        "title": "The Afterlife Has Forms Too",
+        "text": "You wake at a desk in a beige office you have never seen, under a lamp that is somehow cheerful. You were already filed as dead on your first morning, the clerk explains, so your elimination was merely a correction. The afterlife has forms too. You are handed the first one, and it requires itself.",
+        "art_prompt": "A pale ghostly worker sitting at a tidy beige desk in a misty endless office, a translucent clerk in a green visor sliding a single form across to them, rows of identical desks fading into soft fog, mid-century safety-manual illustration, screen-printed gouache with halftone grain, limited palette of manila, carbon-paper blue, safety orange, fluorescent-tube green and oxblood, vertical 2:3 portrait composition, every surface bare and unmarked"
+      },
+      "variants": []
+    }
+  ]
+}

@@ -14,8 +14,10 @@ export const advancePilotClock = (
   const overdue = DAY_ONE_INCIDENTS.filter((incident) => {
     const deadline = timeAt(incident.day, incident.deadlineHour)
     return campaign.hour <= deadline && targetHour > deadline
-  }).sort((left, right) =>
-    timeAt(left.day, left.deadlineHour) - timeAt(right.day, right.deadlineHour),
+  }).sort(
+    (left, right) =>
+      timeAt(left.day, left.deadlineHour) -
+      timeAt(right.day, right.deadlineHour),
   )
 
   let next = campaign

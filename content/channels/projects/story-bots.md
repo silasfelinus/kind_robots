@@ -1,7 +1,8 @@
 ---
 contentType: tab
-channelKey: storybook
+channelKey: projects
 tabKey: bots
+parentTabKey: storybook
 dashboardKey: bot
 dashboardTab: bots
 label: Bots

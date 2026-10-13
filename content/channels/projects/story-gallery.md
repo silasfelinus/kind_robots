@@ -1,7 +1,8 @@
 ---
 contentType: tab
-channelKey: storybook
+channelKey: projects
 tabKey: dreams
+parentTabKey: storybook
 dashboardKey: dream
 dashboardTab: dreams
 label: Dreams

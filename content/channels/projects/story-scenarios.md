@@ -1,7 +1,8 @@
 ---
 contentType: tab
-channelKey: storybook
+channelKey: projects
 tabKey: scenarios
+parentTabKey: storybook
 dashboardKey: scenario
 dashboardTab: scenarios
 label: Scenarios

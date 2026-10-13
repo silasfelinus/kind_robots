@@ -1,6 +1,6 @@
 ---
 contentType: tab
-channelKey: projects
+channelKey: zuzu
 tabKey: zuzu-gamebook
 label: Zuzu Gamebook
 title: Zuzu · The Bell That Never Rang

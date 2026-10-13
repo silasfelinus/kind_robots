@@ -1,6 +1,6 @@
 ---
 contentType: tab
-channelKey: admin
+channelKey: zuzu
 tabKey: zuzu-lair
 label: Zuzu's Lair
 title: Zuzu's Lair
@@ -10,7 +10,7 @@ description: 'A quick-time animated adventure starring Zuzu the koala ronin. Pre
 icon: kind-icon:swords
 image: /zuzu-showdown-portraits/zuzu-vs-hd.webp
 route: /admin/zuzu-lair
-sort: 119
+sort: 140
 requiredRole: ADMIN
 tutorial:
   title: Press in the window
@@ -23,4 +23,4 @@ tutorial:
 ---
 
 Step into a short weird-west chapter as Zuzu. Every danger opens a brief window: press the
-right direction to survive. Private development preview for admins.
+right direction to survive. Private admin-only preview.

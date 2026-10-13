@@ -117,6 +117,13 @@ export const useChannelContentStore = defineStore('channelContentStore', () => {
       .filter((channel) => channel.tabs.length > 0)
   })
 
+  // Home remains in the route, tutorial and permissions graph, but it is no
+  // longer a selectable workspace channel. Personal destinations live in the
+  // account hub; '/' is the site's public directory / admin dashboard.
+  const navigationChannels = computed(() =>
+    visibleChannels.value.filter((channel) => channel.channelKey !== 'home'),
+  )
+
   function syncActiveTabs(): void {
     if (!isClient) return
 
@@ -315,6 +322,7 @@ export const useChannelContentStore = defineStore('channelContentStore', () => {
     items,
     channels,
     visibleChannels,
+    navigationChannels,
     accessContext,
     activeTabs,
     activeTabsHydrated,

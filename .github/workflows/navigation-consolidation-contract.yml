@@ -6,6 +6,13 @@ on:
     paths:
       - 'content/channels/home/**'
       - 'content/channels/admin/**'
+      - 'content/channels/arcade/**'
+      - 'content/channels/zuzu/**'
+      - 'content/channels/projects/**'
+      - 'components/home/home-page.vue'
+      - 'components/home/home-visitor-directory.vue'
+      - 'components/navigation/account-hub.vue'
+      - 'stores/channelContentStore.ts'
       - 'content/account.md'
       - 'content/connect.md'
       - 'content/about.md'
@@ -29,12 +36,23 @@ on:
       - 'stores/helpers/channelCards.ts'
       - 'utils/channelTabGroups.ts'
       - 'utils/scripts/verifyNavigationConsolidation.ts'
+      - 'utils/scripts/verifyRequestedChannelGroups.test.ts'
+      - 'pages/play/zuzu-ghost-trail.vue'
+      - 'content/play/aquarium.md'
+      - 'content/play/memory.md'
       - '.github/workflows/navigation-consolidation-contract.yml'
   pull_request:
     branches: [main]
     paths:
       - 'content/channels/home/**'
       - 'content/channels/admin/**'
+      - 'content/channels/arcade/**'
+      - 'content/channels/zuzu/**'
+      - 'content/channels/projects/**'
+      - 'components/home/home-page.vue'
+      - 'components/home/home-visitor-directory.vue'
+      - 'components/navigation/account-hub.vue'
+      - 'stores/channelContentStore.ts'
       - 'content/account.md'
       - 'content/connect.md'
       - 'content/about.md'
@@ -58,6 +76,10 @@ on:
       - 'stores/helpers/channelCards.ts'
       - 'utils/channelTabGroups.ts'
       - 'utils/scripts/verifyNavigationConsolidation.ts'
+      - 'utils/scripts/verifyRequestedChannelGroups.test.ts'
+      - 'pages/play/zuzu-ghost-trail.vue'
+      - 'content/play/aquarium.md'
+      - 'content/play/memory.md'
       - '.github/workflows/navigation-consolidation-contract.yml'
   workflow_dispatch:
 
@@ -83,4 +105,6 @@ jobs:
           CYPRESS_INSTALL_BINARY: '0'
 
       - name: Verify consolidated navigation
-        run: npx tsx utils/scripts/verifyNavigationConsolidation.ts
+        run: |
+          npx tsx utils/scripts/verifyNavigationConsolidation.ts
+          npx tsx utils/scripts/verifyRequestedChannelGroups.test.ts

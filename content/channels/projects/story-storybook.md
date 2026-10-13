@@ -1,6 +1,6 @@
 ---
 contentType: tab
-channelKey: storybook
+channelKey: projects
 tabKey: storybook
 dashboardKey: scenario
 dashboardTab: storybook

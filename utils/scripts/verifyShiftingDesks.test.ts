@@ -1110,7 +1110,7 @@ assert.match(
   /htmlAttrs: \{ lang: 'en' \}/,
   'every page declares its language',
 )
-const tab = asset('../../content/channels/projects/shifting-desks.md')
+const tab = asset('../../content/channels/arcade/shifting-desks.md')
 assert.match(tab, /route: \/play\/shifting-desks/)
 assert.match(asset('../../public/shifting-desks/front-poster.svg'), /<title/)
 

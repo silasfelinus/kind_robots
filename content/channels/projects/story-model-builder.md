@@ -1,7 +1,8 @@
 ---
 contentType: tab
-channelKey: storybook
+channelKey: projects
 tabKey: model-builder
+parentTabKey: storybook
 dashboardKey: builder
 dashboardTab: model-builder
 label: Models

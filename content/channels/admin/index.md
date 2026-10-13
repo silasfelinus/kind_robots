@@ -51,7 +51,7 @@ tutorial:
         Studio is where you pitch to the Editor, compare panel renders, and lay out
         pages. Zuzu's Lair is a quick-time adventure, while The Ruler Is Hooked
         blends fishing and kingdom decisions. Tzaddikim presents a sourced
-        gallery, and Brainstorm develops batches of new ideas. Zuzu Showdown has launched publicly in Play; other Zuzu
+        gallery, and Brainstorm develops batches of new ideas. Zuzu Showdown, Shifting Lands and Pinball now have a Zuzu channel; other Zuzu
         game prototypes appear there but remain admin-only during development.
       image: /zuzu-gamebook/scenes/zuzu-fire.webp
     - key: people

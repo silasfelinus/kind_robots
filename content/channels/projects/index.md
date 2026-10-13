@@ -1,31 +1,39 @@
 ---
 contentType: channel
 channelKey: projects
-label: Play
-title: Play
-room: The Workshop
-subtitle: Make things, practice, and play games
-description: Make images and video, practice singing and Mandarin, or play arcade cabinets, card dungeons, and other games, many built by the Kind Robots agents.
+label: Projects
+title: Projects
+room: The Creative Workshop
+subtitle: Stories, projects, creation and learning
+description: Storybook, Daily Dream projects, art, video, Mandarin, Rebel Button and other non-game creations. Games live in Arcade and Zuzu.
 icon: kind-icon:blueprint
 image: /images/arcade/arcade-hall-backdrop.webp
-route: /art
-defaultTab: art
+backgroundMobile: /api/art/backdrop/play-mobile
+backgroundTablet: /api/art/backdrop/play-tablet
+backgroundDesktop: /api/art/backdrop/play-desktop
+route: /storybook
+defaultTab: storybook
 sort: 40
-loadingMessage: Opening the workshop...
-refreshLabel: Refresh Play
+loadingMessage: Opening the projects...
+refreshLabel: Refresh Projects
 dottiTip: Every bench in this workshop holds something to make or something to play.
 amiTip: Several of these the robots built mostly on their own. I checked them for goblins. Mostly.
 tutorial:
-  title: Play
-  tagline: Make art, practice a skill, or play a game.
+  title: Projects
+  tagline: Make art, build stories, explore projects.
   overview: >-
-    Play holds the hands-on parts of Kind Robots. Some tabs make things, like
-    images, short video clips and music videos. Some help you practice singing
-    or Mandarin. The rest are games and toys, many of them built mostly by the
-    Kind Robots agents. Pick a tab from the Play menu; each one explains its
-    own controls in this sidebar.
+    Projects gathers Storybook and its ingredient galleries, Daily Dream builds,
+    Art Studio, Video Gen, Music Video, Mandarin, Superkate Services and Rebel Button.
+    Arcade has standalone games; Zuzu has the connected weird-west adventures.
+    Each destination provides its own tutorial.
   hero: /images/arcade/arcade-hall-backdrop.webp
   sections:
+    - key: storybook
+      title: Storybook and its ingredients
+      body: >-
+        Start with Storybook to weave an interactive narrative. Expand the
+        Storybook submenu for its ingredient galleries and model tools.
+      image: /images/channels/play/channel.webp
     - key: make
       title: Make images, clips and music videos
       body: >-
@@ -46,10 +54,11 @@ tutorial:
         how well you knew it.
       image: /images/mandarin-tutor/cards/v2/f24c02b7272a3d3004079114.webp
     - key: games
-      title: Play a game
+      title: Where to find games
       body: >-
-        The Arcade is a hall of free cabinets, each an original game based on a
-        classic, with worldwide high-score boards and no account needed. Memory
+        Arcade hosts the standalone games and cabinets.
+        Zuzu has a separate channel for his story, Shifting Lands board,
+        fighting game and pinball. Memory
         Dungeon is a card-matching game with lives, power-ups and floors to
         clear. Zuzu Gamebook is an illustrated adventure with choices, dice
         rolls and several endings. Daily Dream Projects shows approved
@@ -68,12 +77,6 @@ tutorial:
 # Stage 3 backdrop art, resolved by slug via /api/art/backdrop/<page>-<variant>.
 # The route finds the completed ArtJob for this page and redirects to its
 # image, so art appears on its own once generation finishes. Until then the
-# route 404s and the page renders exactly as before. The slug stays `plan`
-# (Plan folded into Projects and Admin 2026-10-06) so its generated drafting-hall
-# art keeps resolving.
-backgroundMobile: /api/art/backdrop/plan-mobile
-backgroundTablet: /api/art/backdrop/plan-tablet
-backgroundDesktop: /api/art/backdrop/plan-desktop
 ---
 
 Silas, 2026-10-06: everything that isn't Storybook and isn't admin-gated. Tools

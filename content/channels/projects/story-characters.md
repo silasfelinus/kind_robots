@@ -1,7 +1,8 @@
 ---
 contentType: tab
-channelKey: storybook
+channelKey: projects
 tabKey: characters
+parentTabKey: storybook
 dashboardKey: character
 dashboardTab: characters
 label: Characters

@@ -48,6 +48,9 @@ export const SYSTEM_ROUTES: Record<string, string> = {
   '/coloring-page':
     'per-image action, opened from an image card with ?imageId=',
   '/build-bench': 'Art dashboard tab, reached from the Art page',
+  '/admin/zuzu-pinball': 'legacy URL, 301-redirects to /play/zuzu-pinball',
+  '/admin/zuzu-shifting-lands':
+    'legacy URL, 301-redirects to /play/zuzu-shifting-lands',
 }
 
 function walk(dir: string, ext: string, out: string[] = []): string[] {

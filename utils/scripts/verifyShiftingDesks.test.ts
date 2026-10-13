@@ -1093,6 +1093,12 @@ assert.equal(
   'front desk, hiring, elevator, Personnel File and desk are each one screen',
 )
 assert.match(page, /class="kr-panes desk-layout/, 'the desk is two panes')
+// Themes paint art behind the page, so no container may be see-through.
+assert.doesNotMatch(
+  page,
+  /bg-(?:success|error)\/5\b|opacity-55/,
+  'result panels and locked routes keep a solid background',
+)
 assert.match(
   asset('../../components/shifting-desks/shifting-desks-personnel-file.vue'),
   /role="tablist"/,

@@ -671,7 +671,7 @@ export const ACT_IX: Act = {
           {
             id: 'scout',
             label:
-              'Whistle low for the raccoon who shadows you, and send word.',
+              'Whistle low for Jeffery Mittens, who shadows you, and send word.',
             to: 'a9-tower',
             needs: 'debt:looter',
             hint: 'No one out there owes you a run in the dark.',

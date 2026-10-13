@@ -50,7 +50,8 @@ export const PLACES: Record<string, MapPlace> = {
 
 /**
  * Where each fighter is found: their stage's place, or beside it when they share one (the Coyote camps
- * on the road into the Watering Hole, the Witch keeps to the mire on its far side).
+ * on the road into the Watering Hole, the Witch keeps to the mire on its far side, Jeffery Mittens
+ * scavenges the road out of Hollow Bell).
  */
 export const HOMES: Record<string, MapPoint> = {
   zuzu: PLACES['hollow-bell']!,
@@ -59,6 +60,7 @@ export const HOMES: Record<string, MapPoint> = {
   'river-croc': PLACES['watering-hole']!,
   'coyote-vagrant': { x: 0.35, y: 0.54 },
   'swamp-witch': { x: 0.55, y: 0.47 },
+  'jeffery-mittens': { x: 0.19, y: 0.47 },
   'storm-crow': PLACES['storm-canyon']!,
   'hyena-matriarch': PLACES['bone-yard']!,
   'old-komodo': PLACES['the-dunes']!,

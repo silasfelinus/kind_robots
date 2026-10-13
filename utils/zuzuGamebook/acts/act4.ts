@@ -194,7 +194,7 @@ export const ACT_IV: Act = {
       CH.IV,
       'A Familiar Thief',
       'dry-well',
-      'A small striped shape drops off a ledge in front of you: the young raccoon from Hollow Bell, in a coat still too big for him. He has a jackal\'s rag tied round his arm now. "I scout for them," he says, quick and low. "They ain\'t bad. They\'re hungry. Hollis is going to ask for the girl. Don\'t let her see you think about it." He looks at the sister, then away. "I\'ll tell her you let me walk. Might be it counts for something."',
+      'A small striped shape drops off a ledge in front of you: Jeffery Mittens, the young raccoon from Hollow Bell, in a coat still too big for him. He has a jackal\'s rag tied round his arm now. "I scout for them," he says, quick and low. "They ain\'t bad. They\'re hungry. Hollis is going to ask for the girl. Don\'t let her see you think about it." He looks at the sister, then away. "I\'ll tell her you let me walk. Might be it counts for something."',
       {
         effects: { flag: 'met:looter' },
         choices: [
@@ -216,7 +216,7 @@ export const ACT_IV: Act = {
       CH.IV,
       'His Word for Yours',
       'dry-well',
-      'The raccoon talks the whole way down, fast, and you understand perhaps half of it. The grey jackal listens with her arms folded. Her name is Hollis; the others say it the way you would say a prayer. When he is done she looks at you a long time. "Drink," she says at last. "One cup each. Then go, and don\'t come back this way." The cup is muddy and warm and the best thing you have tasted in days. Up in the rocks something small whimpers, and every jackal at the well goes still.',
+      'Jeffery talks the whole way down, fast, and you understand perhaps half of it. The grey jackal listens with her arms folded. Her name is Hollis; the others say it the way you would say a prayer. When he is done she looks at you a long time. "Drink," she says at last. "One cup each. Then go, and don\'t come back this way." The cup is muddy and warm and the best thing you have tasted in days. Up in the rocks something small whimpers, and every jackal at the well goes still.',
       {
         effects: { heal: 2, flag: 'met:hollis' },
         choices: [

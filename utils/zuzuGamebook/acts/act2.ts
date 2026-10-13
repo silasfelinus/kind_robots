@@ -241,7 +241,7 @@ export const ACT_II: Act = {
       CH.II,
       'One Pair',
       'looter',
-      "You lift the bundle from his neck and choose a pair his size, plain and scuffed, from a dead man whose feet are already crossed. You set them in front of him. The rest you lace back onto their owners. He watches with his knife still out, forgotten. Then he pulls the boots on fast, before you can change your mind. At the arch he stops. 'Jackals from the dry well,' he says. 'They'll come for what's left. Don't be here.' He is gone before you can nod.",
+      "You lift the bundle from his neck and choose a pair his size, plain and scuffed, from a dead man whose feet are already crossed. You set them in front of him. The rest you lace back onto their owners. He watches with his knife still out, forgotten. Then he pulls the boots on fast, before you can change your mind. At the arch he stops. 'Jeffery,' he says, as if you had asked. 'Jeffery Mittens.' He holds up one paw, black to the wrist like a mitten, by way of explaining. 'Jackals from the dry well,' he says. 'They'll come for what's left. Don't be here.' He is gone before you can nod.",
       { choices: toBoardwalk },
     ),
 

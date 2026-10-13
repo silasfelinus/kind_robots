@@ -34,6 +34,7 @@ export const RIVALS: Record<string, string> = {
   'hyena-matriarch': 'storm-crow',
   'old-komodo': 'river-croc',
   'swamp-witch': 'the-abbess',
+  'jeffery-mittens': 'zuzu',
 }
 
 /** xorshift32, as the sim's own rng: the same seed always climbs the same ladder. */
@@ -268,6 +269,16 @@ export const ENDINGS: Record<string, [EndingStill, EndingStill]> = {
     {
       file: 'witch-ending-2',
       line: 'Just a crack. In case you want to make a deal.',
+    },
+  ],
+  'jeffery-mittens': [
+    {
+      file: 'mittens-ending-1',
+      line: 'He came home with boots for every bare foot.',
+    },
+    {
+      file: 'mittens-ending-2',
+      line: 'One pair left over. He keeps it for the next kid.',
     },
   ],
 }

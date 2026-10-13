@@ -11,6 +11,9 @@ export type Journal = {
 
 const words = (slug: string) => slug.replace(/-/g, ' ')
 
+/** Debts owed to someone the journal knows by name (debt:looter is the boy who gave his at the arch). */
+const DEBT_NAMES: Record<string, string> = { looter: 'Jeffery Mittens' }
+
 export function journal(flags: string[]): Journal {
   const deeds: JournalEntry[] = []
   const debts: string[] = []
@@ -21,7 +24,7 @@ export function journal(flags: string[]): Journal {
       : ['', flag]
     if (kind === 'honor') deeds.push({ text: words(rest) })
     else if (kind === 'taint') deeds.push({ text: words(rest), dark: true })
-    else if (kind === 'debt') debts.push(words(rest))
+    else if (kind === 'debt') debts.push(DEBT_NAMES[rest] ?? words(rest))
     else if (kind === 'met') continue
     else learned.push(words(rest))
   }

@@ -151,4 +151,6 @@ assert.equal(
   0,
   'repeated private previews free Rapier physics worlds',
 )
-console.log('Zuzu Pinball public play and private workshop access contracts passed')
+console.log(
+  'Zuzu Pinball public play and private workshop access contracts passed',
+)

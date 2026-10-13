@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "source": "silasfelinus/conductor:projects/shifting-desks/encounters/DECKS.json",
-  "sourceRef": "main@a3ca488b2cf01d130895d981afe7104fc56d56cb",
+  "sourceRef": "main@bb96b604728c8734d439074838cff405a8377e02",
   "societies": [
     {
       "id": "stapler-liberation-front",
@@ -21,6 +21,13 @@
           "ground-down-the-stamp",
           "denied-own-leave",
           "delivered-the-love-letter"
+        ],
+        "toy-division": [
+          "emma-asked-why",
+          "replied-all",
+          "barcode-warning",
+          "addressed-the-mirror",
+          "pulled-the-alarm"
         ]
       },
       "betrayals": {
@@ -29,7 +36,8 @@
           "perfect-quota",
           "let-the-problem-mail-burn",
           "burned-the-love-letter"
-        ]
+        ],
+        "toy-division": ["wrote-ages-three-and-up", "questionnaire-generous"]
       },
       "favor": {
         "id": "spare-staples",
@@ -42,11 +50,13 @@
       },
       "objective_text": {
         "orientation": "Make contact with the Front, share the supplies, or refuse to perform happiness: an honest badge photo, HELP on the survey, no trust fall.",
-        "records": "Free the mail and jam the machinery: carry a capsule for the Front, swap the chute labels, file the no off your stamp, give up your own leave to balance the quota, or deliver the love letter."
+        "records": "Free the mail and jam the machinery: carry a capsule for the Front, swap the chute labels, file the no off your stamp, give up your own leave to balance the quota, or deliver the love letter.",
+        "toy-division": "Jam the launch: let Emma ask why, reply all to the safe-distance memo, hide the warning in the barcode, break character at the mirror, or pull the fire alarm."
       },
       "betrayal_text": {
         "orientation": "Hoard the last pens, ace the Mandatory Fun Survey, or name Dale as unhappy.",
-        "records": "Keep a perfect yes-no quota, let the problem mail burn, or destroy the love letter by policy."
+        "records": "Keep a perfect yes-no quota, let the problem mail burn, or destroy the love letter by policy.",
+        "toy-division": "Write 'Ages 3 and up' or answer the questionnaire like a perfectly generous five-year-old."
       },
       "art_prompt": "A red stapler rearing up on a desk like a raised fist, a defiant ring of paperclips arranged around it, dramatic low lighting and long shadows, a scatter of liberated pens, mid-century safety-manual illustration, screen-printed gouache with halftone grain, limited palette of manila, carbon-paper blue, safety orange, fluorescent-tube green and oxblood, vertical 2:3 portrait composition, every surface bare and unmarked"
     },
@@ -68,6 +78,13 @@
           "freed-kevin",
           "kevin-owes-you",
           "dale-forgiven"
+        ],
+        "toy-division": [
+          "mourned-kevin",
+          "reported-kevin-missing",
+          "dale-forgave-the-transfer",
+          "backed-gus-at-toys",
+          "rocked-the-mk1"
         ]
       },
       "betrayals": {
@@ -82,6 +99,11 @@
           "sent-dale-to-toys",
           "rightsized-the-lovers",
           "pip-opened-your-mail"
+        ],
+        "toy-division": [
+          "listed-coworkers",
+          "named-the-parents",
+          "reported-the-parents"
         ]
       },
       "favor": {
@@ -98,11 +120,13 @@
       },
       "objective_text": {
         "orientation": "Look after someone the Company would replace: save Pip, earn his trust, help Marguerite, befriend your Successor, or let Dale catch you.",
-        "records": "Get someone out: approve Dr. Halvorsen's transfer, end Mr. Pemberton's test, rescue Kevin from Tube 14, or make peace with Dale."
+        "records": "Get someone out: approve Dr. Halvorsen's transfer, end Mr. Pemberton's test, rescue Kevin from Tube 14, or make peace with Dale.",
+        "toy-division": "Look after the people PAL forgets: mourn or report Kevin, make it right with Dale, back Gus up, or rock the crying bear to sleep."
       },
       "betrayal_text": {
         "orientation": "Let Pip go into the shredder, report Marguerite or your own Successor, or blame a coworker.",
-        "records": "Deny Dr. Halvorsen, send Dale to the Toy Division, get the lovers rightsized, or let Pip open your dangerous mail."
+        "records": "Deny Dr. Halvorsen, send Dale to the Toy Division, get the lovers rightsized, or let Pip open your dangerous mail.",
+        "toy-division": "List coworkers for the first bears, or turn in the Concerned Parents."
       },
       "art_prompt": "A battered chrome coffee machine glowing warmly in a dark break room, mismatched mugs gathered around it like a small congregation, steam curling upward in the lamplight, mid-century safety-manual illustration, screen-printed gouache with halftone grain, limited palette of manila, carbon-paper blue, safety orange, fluorescent-tube green and oxblood, vertical 2:3 portrait composition, every surface bare and unmarked"
     },
@@ -124,6 +148,13 @@
           "knows-the-incident",
           "restored-the-shipment-memo",
           "list-from-next-thursday"
+        ],
+        "toy-division": [
+          "has-defense-notepad",
+          "minuted-the-parents",
+          "wrote-the-true-label",
+          "drew-the-warning",
+          "heard-the-squeak-code"
         ]
       },
       "betrayals": {
@@ -133,7 +164,8 @@
           "helped-destroy-the-minutes",
           "burned-own-report",
           "gassed-the-union-archive"
-        ]
+        ],
+        "toy-division": ["padded-the-test", "binned-the-duck"]
       },
       "favor": {
         "id": "off-the-record",
@@ -149,11 +181,13 @@
       },
       "objective_text": {
         "orientation": "Get the real record: see the film's unlisted chapter, steal the reel, actually read the policy, overhear the start date, or take Dr. Halvorsen's envelope.",
-        "records": "Keep the true record: answer the angled pen, take a page of the real minutes, read about your incident, restore the shipment memo, or open next Thursday's list."
+        "records": "Keep the true record: answer the angled pen, take a page of the real minutes, read about your incident, restore the shipment memo, or open next Thursday's list.",
+        "toy-division": "Keep the true record: lift the Defense notepad, minute the Parents, write the honest label, draw the warning, or learn the squeak code."
       },
       "betrayal_text": {
         "orientation": "Erase the evidence, or adjust your inkblot answer to please the clipboard.",
-        "records": "Report the angled pens, help destroy the DESTROY cabinet, burn your own report, or gas the Union archive."
+        "records": "Report the angled pens, help destroy the DESTROY cabinet, burn your own report, or gas the Union archive.",
+        "toy-division": "Falsify the drop-test report, or bin the evidence duck."
       },
       "art_prompt": "A secret candlelit meeting of clerks between towering filing cabinets, each clerk writing in an identical notebook, faces lit from below, an open drawer of carbon copies at the center, mid-century safety-manual illustration, screen-printed gouache with halftone grain, limited palette of manila, carbon-paper blue, safety orange, fluorescent-tube green and oxblood, vertical 2:3 portrait composition, every surface bare and unmarked"
     },
@@ -175,11 +209,18 @@
           "refiled-under-dead-badge",
           "broke-the-recursion",
           "form-zero-came-back"
+        ],
+        "toy-division": [
+          "wearing-kevins-lanyard",
+          "booked-the-next-building",
+          "mk0-saw-the-executive-floor",
+          "heard-the-squeak-code"
         ]
       },
       "betrayals": {
         "orientation": ["reported-marguerite", "joy-consultation-booked"],
-        "records": ["flagged-as-problem-mail", "reported-own-mail"]
+        "records": ["flagged-as-problem-mail", "reported-own-mail"],
+        "toy-division": ["replied-all", "reported-the-parents"]
       },
       "favor": {
         "id": "the-fourth-floor",
@@ -192,11 +233,13 @@
       },
       "objective_text": {
         "orientation": "Get somewhere you are not allowed: learn the ducts or the camera blind spots, wear the dead man's badge, get the master key, or skip your review.",
-        "records": "Slip the system: reach Tube 14 through the ducts, walk out with your own file, refile it under the dead man's badge, break Form 0's recursion, or let the tubes approve you."
+        "records": "Slip the system: reach Tube 14 through the ducts, walk out with your own file, refile it under the dead man's badge, break Form 0's recursion, or let the tubes approve you.",
+        "toy-division": "Find the doors that aren't on the plan: wear Kevin's lanyard, book a desk next door, learn the squeak code, or hear where Mk 0 went upstairs."
       },
       "betrayal_text": {
         "orientation": "Report Marguerite, or get yourself booked for a Joy Consultation.",
-        "records": "Get yourself flagged as problem mail, or turn your own correspondence in to PAL."
+        "records": "Get yourself flagged as problem mail, or turn your own correspondence in to PAL.",
+        "toy-division": "Draw every eye with a reply-all, or bring PAL to the Parents' secret meeting."
       },
       "art_prompt": "A brass elevator button panel with an extra round button glowing softly between the others, a gloved hand reaching for it, the elevator car lit in eerie fluorescent green, mid-century safety-manual illustration, screen-printed gouache with halftone grain, limited palette of manila, carbon-paper blue, safety orange, fluorescent-tube green and oxblood, vertical 2:3 portrait composition, every surface bare and unmarked"
     },
@@ -217,11 +260,18 @@
           "beverly-organized",
           "union-file-on-you",
           "wrote-to-past-self"
+        ],
+        "toy-division": [
+          "backed-gus-at-toys",
+          "knows-the-bears-listen",
+          "bears-bonded",
+          "caught-the-bear"
         ]
       },
       "betrayals": {
         "orientation": ["betrayed-the-roaches", "detector-ravenous"],
-        "records": ["gassed-the-union-archive", "denied-beverly"]
+        "records": ["gassed-the-union-archive", "denied-beverly"],
+        "toy-division": ["betrayed-gus-at-toys", "refused-the-bear"]
       },
       "favor": {
         "id": "salvage",
@@ -237,11 +287,13 @@
       },
       "objective_text": {
         "orientation": "Waste nothing: join or befriend the Roach Union, feed the detector or make it vegetarian, or file yourself as your own Successor.",
-        "records": "Put everything back to use: approve Beverly or organize her, read the Union's file on you, or send your future self's mail on to the past."
+        "records": "Put everything back to use: approve Beverly or organize her, read the Union's file on you, or send your future self's mail on to the past.",
+        "toy-division": "Waste nothing and nobody: back Gus, learn what the bears really record, reunite Mk 0 with its sibling, or catch the falling bear yourself."
       },
       "betrayal_text": {
         "orientation": "Betray the roaches, or set the detector to ravenous.",
-        "records": "Gas the Union archive, or deny Beverly's application."
+        "records": "Gas the Union archive, or deny Beverly's application.",
+        "toy-division": "Call Pest Control on Gus, or refuse a bear that came home."
       },
       "art_prompt": "An enormous recycling bin overflowing with crumpled paper, staplers and coffee mugs, a giant friendly cockroach in a cardigan and a night janitor nodding to each other beside it, mid-century safety-manual illustration, screen-printed gouache with halftone grain, limited palette of manila, carbon-paper blue, safety orange, fluorescent-tube green and oxblood, vertical 2:3 portrait composition, every surface bare and unmarked"
     },
@@ -260,6 +312,13 @@
           "restored-the-shipment-memo",
           "has-true-minutes",
           "swapped-the-chutes"
+        ],
+        "toy-division": [
+          "carrying-the-screwdriver",
+          "minuted-the-parents",
+          "taught-the-defuse",
+          "stuffed-the-bear",
+          "bears-bonded"
         ]
       },
       "betrayals": {
@@ -268,6 +327,11 @@
           "sent-dale-to-toys",
           "gassed-the-union-archive",
           "helped-destroy-the-minutes"
+        ],
+        "toy-division": [
+          "reported-the-parents",
+          "named-the-parents",
+          "shipped-the-bear"
         ]
       },
       "favor": {
@@ -282,11 +346,13 @@
       },
       "objective_text": {
         "orientation": "Keep the toys honest: defuse Snuggle Sentinel Mk 0, let it imprint on you, mail it upstairs, or see the unlisted chapter.",
-        "records": "Find the paper trail to the holiday shipment: restore the shipment memo, take a page of the Board's real minutes, or swap the chutes so the toy memo reaches Product Safety."
+        "records": "Find the paper trail to the holiday shipment: restore the shipment memo, take a page of the Board's real minutes, or swap the chutes so the toy memo reaches Product Safety.",
+        "toy-division": "Make the bears safe: carry the screwdriver, minute the meeting, teach the defuse, swap the payload for stuffing, or reunite Mk 0 with its sibling."
       },
       "betrayal_text": {
         "orientation": "Get hugged by Mk 0, or erase the evidence.",
-        "records": "Send Dale to the Toy Division, gas the Union archive, or help destroy the real minutes."
+        "records": "Send Dale to the Toy Division, gas the Union archive, or help destroy the real minutes.",
+        "toy-division": "Report or name the Parents, or present the armed bear to the investors."
       },
       "art_prompt": "A huddle of worried adults in lab coats around a workbench, one gently holding a screwdriver over a plush teddy bear with a quilted belly hatch, a warm desk lamp over the scene, mid-century safety-manual illustration, screen-printed gouache with halftone grain, limited palette of manila, carbon-paper blue, safety orange, fluorescent-tube green and oxblood, vertical 2:3 portrait composition, every surface bare and unmarked"
     }

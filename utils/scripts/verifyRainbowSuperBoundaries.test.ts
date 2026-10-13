@@ -2,7 +2,10 @@ import assert from 'node:assert/strict'
 import { enemyBulletContact } from '../arcade/games/rainbowHitGeometry'
 import { createRainbowPrincessPreview } from '../arcade/games/rainbowPrincessPreview'
 import { emptyInput } from '../arcade/types'
-import { availableCoopTargets, haloRevive } from '../arcade/games/rainbowLocalCoop'
+import {
+  availableCoopTargets,
+  haloRevive,
+} from '../arcade/games/rainbowLocalCoop'
 
 assert.equal(enemyBulletContact(0, false, 10, 15), 'hit')
 assert.equal(enemyBulletContact(9.99, false, 10, 15), 'hit')
@@ -16,7 +19,11 @@ const protectedFirst = enemyBulletContact(2, true, 10, 15)
 const grazeAfter = enemyBulletContact(12, true, 10, 15)
 const grazeMask = protectedFirst === 'protected' ? 1 : 0
 const bonus = grazeAfter === 'graze' && (grazeMask & 1) === 0
-assert.equal(bonus, false, 'a protected core crossing disqualifies its later near-miss bonus')
+assert.equal(
+  bonus,
+  false,
+  'a protected core crossing disqualifies its later near-miss bonus',
+)
 assert.equal(grazeMask, 1)
 assert.equal(enemyBulletContact(10, false, 10, 15), 'graze')
 assert.equal(enemyBulletContact(14.99, true, 10, 15), 'graze')
@@ -24,12 +31,21 @@ assert.equal(enemyBulletContact(15, false, 10, 15), null)
 assert.equal(enemyBulletContact(Number.NaN, false, 10, 15), null)
 
 type Flight = ReturnType<typeof createRainbowPrincessPreview>
-const allSeats = (seat: number, overrides?: Partial<ReturnType<typeof emptyInput>>) => {
+const allSeats = (
+  seat: number,
+  overrides?: Partial<ReturnType<typeof emptyInput>>,
+) => {
   const seats = Array.from({ length: 4 }, () => emptyInput())
   Object.assign(seats[seat]!, overrides)
   return seats
 }
-function step(game: Flight, seat: number, fire = false, pressSuper = false, focus = false) {
+function step(
+  game: Flight,
+  seat: number,
+  fire = false,
+  pressSuper = false,
+  focus = false,
+) {
   const frames = allSeats(seat)
   frames[seat]!.held.a = fire
   frames[seat]!.held.b = focus || pressSuper
@@ -94,7 +110,9 @@ for (let seat = 0; seat < 4; seat++) {
   )
   assert.ok(game.score >= beforeScore, 'the super never subtracts earned score')
   assert.ok(
-    game.snapshot.ships.every((pilot) => pilot.shield >= 1 && pilot.shield <= 3),
+    game.snapshot.ships.every(
+      (pilot) => pilot.shield >= 1 && pilot.shield <= 3,
+    ),
   )
   step(game, seat, false, false, true)
   assert.equal(effects.filter((effect) => effect === 'extra').length, 1)
@@ -158,7 +176,10 @@ for (let tick = 0; tick < 1600; tick++) {
     input.held.down = ship.y < target.y - 4
   }
   pickupGame.update(input)
-  if (target && !pickupGame.snapshot.pickups.some((pickup) => pickup.kind === 'shield')) {
+  if (
+    target &&
+    !pickupGame.snapshot.pickups.some((pickup) => pickup.kind === 'shield')
+  ) {
     const ship = pickupGame.snapshot.ships[0]!
     shieldCaught =
       Math.hypot(ship.x - target.x, ship.y - target.y) < 20 &&
@@ -168,8 +189,15 @@ for (let tick = 0; tick < 1600; tick++) {
 }
 assert.ok(shieldSeen, 'enemy defeats must generate the shield pickup')
 assert.ok(shieldCaught, 'an actual moving pilot can collect the shield pickup')
-assert.equal(pickupGame.snapshot.ships[0]!.shield, 3, 'repair caps at three shields')
-assert.ok(shieldEffects.includes('pickup'), 'collecting produces pickup feedback')
+assert.equal(
+  pickupGame.snapshot.ships[0]!.shield,
+  3,
+  'repair caps at three shields',
+)
+assert.ok(
+  shieldEffects.includes('pickup'),
+  'collecting produces pickup feedback',
+)
 
 const eliminatedRoster = [
   { lives: 0, shield: 3, invulnerable: 0, power: 2 },
@@ -178,8 +206,22 @@ const eliminatedRoster = [
   { lives: 1, shield: 3, invulnerable: 0, power: 1 },
 ]
 assert.equal(availableCoopTargets(eliminatedRoster, 4).length, 2)
-assert.equal(haloRevive(eliminatedRoster, 4, 2), null, 'a fallen Halo cannot cast')
-assert.equal(haloRevive(eliminatedRoster, 2, 2), null, 'a benched Halo cannot cast')
-assert.equal(eliminatedRoster[0]!.lives, 0, 'invalid supers do not restore dead pilots')
+assert.equal(
+  haloRevive(eliminatedRoster, 4, 2),
+  null,
+  'a fallen Halo cannot cast',
+)
+assert.equal(
+  haloRevive(eliminatedRoster, 2, 2),
+  null,
+  'a benched Halo cannot cast',
+)
+assert.equal(
+  eliminatedRoster[0]!.lives,
+  0,
+  'invalid supers do not restore dead pilots',
+)
 
-console.log('Rainbow Princess earned supers, bullet cancellation and shield boundaries passed')
+console.log(
+  'Rainbow Princess earned supers, bullet cancellation and shield boundaries passed',
+)

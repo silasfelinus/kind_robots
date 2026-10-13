@@ -12,6 +12,8 @@ on:
       - 'content/channels/projects/shifting-desks.md'
       - 'public/shifting-desks/**'
       - 'utils/scripts/verifyShiftingDesks.test.ts'
+      - 'utils/scripts/verifyShiftingDesksBalance.test.ts'
+      - 'utils/scripts/shiftingDesksBalanceReport.ts'
       - '.github/workflows/shifting-desks-gameplay.yml'
   push:
     branches: [main]
@@ -23,6 +25,8 @@ on:
       - 'content/channels/projects/shifting-desks.md'
       - 'public/shifting-desks/**'
       - 'utils/scripts/verifyShiftingDesks.test.ts'
+      - 'utils/scripts/verifyShiftingDesksBalance.test.ts'
+      - 'utils/scripts/shiftingDesksBalanceReport.ts'
       - '.github/workflows/shifting-desks-gameplay.yml'
 jobs:
   contract:
@@ -38,3 +42,4 @@ jobs:
         env:
           CYPRESS_INSTALL_BINARY: '0'
       - run: npx tsx utils/scripts/verifyShiftingDesks.test.ts
+      - run: npx tsx utils/scripts/verifyShiftingDesksBalance.test.ts

@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "source": "silasfelinus/conductor:projects/shifting-desks/encounters/DECKS.json",
-  "sourceRef": "main@827aa8a3bf810ae3642a2dee63b56556c199f102",
+  "sourceRef": "main@f6f61b0ff7693256d2c17acc008c2c62aaae5152",
   "societies": [
     {
       "id": "stapler-liberation-front",

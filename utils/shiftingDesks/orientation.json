@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "source": "silasfelinus/conductor:projects/shifting-desks/encounters/ORIENTATION-12.json",
-  "sourceSha": "827aa8a3bf810ae3642a2dee63b56556c199f102",
+  "sourceSha": "f6f61b0ff7693256d2c17acc008c2c62aaae5152",
   "department": {
     "id": "orientation",
     "title": "Orientation",
@@ -20,7 +20,7 @@
         "the-visitor-log",
         "the-hungry-detector"
       ],
-      "art_prompt": "A cathedral-sized marble lobby with one long security desk, a brass badge camera on a stand, an upholstered walk-through detector with a row of small rounded teeth along its inner frame, a cheerful round speaker grille high on the wall, long shafts of morning light across the floor, mid-century safety-manual illustration, screen-printed gouache with halftone grain, limited palette of manila, carbon-paper blue, safety orange, fluorescent-tube green and oxblood, vertical 2:3 portrait composition, every surface bare and unmarked"
+      "art_prompt": "A cathedral-sized marble lobby with one long security desk, a brass badge camera on a stand, an upholstered walk-through detector with a row of small rounded teeth along its inner arch, a cheerful round speaker grille high on the wall, long shafts of morning light across the floor, mid-century safety-manual illustration, screen-printed gouache with halftone grain, limited palette of manila, carbon-paper blue, safety orange, fluorescent-tube green and oxblood, vertical 2:3 portrait composition, every surface bare and unmarked"
     },
     {
       "location_id": "orientation-theater",
@@ -400,7 +400,7 @@
       "tags": ["deathtrap", "creature"],
       "weight": 2,
       "witnessed": true,
-      "art_prompt": "Mid-century safety-manual illustration of a plush beige walk-through security arch with a subtle row of small rounded teeth along its inner frame, an umbrella handle poking out of the top, a nervous worker holding out a tray of keys and papers, warm lobby light, oxblood and manila palette, halftone grain, every surface bare and unmarked",
+      "art_prompt": "Mid-century safety-manual illustration of a plush beige walk-through security arch with a subtle row of small rounded teeth along its inner arch, an umbrella handle poking out of the top, a nervous worker holding out a tray of keys and papers, warm lobby light, oxblood and manila palette, halftone grain, every surface bare and unmarked",
       "choices": [
         {
           "id": "feed-it",
@@ -1518,23 +1518,24 @@
         "id": "swap-the-file",
         "label": "Swap your file for your Successor's",
         "intent": "Your Successor's file is spotless. Your Successor hasn't done anything yet.",
-        "risk_hint": "Dire Discretion check. Success spends a Successor's clean record.",
+        "risk_hint": "Risky Discretion check. Success spends a Successor's clean record.",
         "requires": null,
         "cost": {
-          "successors": -1
+          "composure": -1
         },
         "roll": {
           "dice_count": 2,
           "die_sides": 6,
           "skill": "discretion",
           "modifier": 0,
-          "target": 11
+          "target": 9
         },
         "success": {
           "text": "The panel reviews a perfect employee who has never made a mistake. You graduate as your own replacement. Somewhere in cold storage, 4471-C shivers.",
           "effects": {
             "clearance": 1,
-            "suspicion": -2
+            "suspicion": -2,
+            "successors": -1
           },
           "add_flags": ["filed-as-successor"],
           "remove_flags": [],

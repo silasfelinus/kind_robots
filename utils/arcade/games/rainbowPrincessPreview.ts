@@ -477,6 +477,10 @@ export function createRainbowPrincessPreview(
           consumed = true
           break
         }
+        if (contact === 'protected') {
+          bullet.grazed |= 1 << seat
+          continue
+        }
         if (contact === 'graze' && (bullet.grazed & (1 << seat)) === 0) {
           bullet.grazed |= 1 << seat
           ship.graze++

@@ -86,22 +86,49 @@
 -->
 <template>
   <div class="kr-unbound gap-3 pb-6">
-    <nav class="flex flex-wrap items-center justify-between gap-2 kr-panel-flat p-3" aria-label="Home views">
+    <nav
+      class="flex flex-wrap items-center justify-between gap-2 kr-panel-flat p-3"
+      aria-label="Home views"
+    >
       <div class="min-w-0">
-        <p class="text-sm font-black">{{ showDirectory ? 'Explore Kind Robots' : 'Kind Robots today' }}</p>
-        <p class="text-xs opacity-70">{{ showDirectory ? 'Featured experiences and the freshest creations' : 'Daily dreams, projects and the agent workbench' }}</p>
+        <p class="text-sm font-black">
+          {{ showDirectory ? 'Explore Kind Robots' : 'Kind Robots today' }}
+        </p>
+        <p class="text-xs opacity-70">
+          {{
+            showDirectory
+              ? 'Featured experiences and the freshest creations'
+              : 'Daily dreams, projects and the agent workbench'
+          }}
+        </p>
       </div>
       <div class="join" role="group" aria-label="Front page view">
-        <button type="button" class="btn btn-sm join-item" :class="showDirectory ? 'btn-primary' : 'btn-outline'" :aria-pressed="showDirectory" @click="homeMode = 'directory'">Explore</button>
-        <button type="button" class="btn btn-sm join-item" :class="!showDirectory ? 'btn-primary' : 'btn-outline'" :aria-pressed="!showDirectory" @click="homeMode = 'dashboard'">Dashboard</button>
+        <button
+          type="button"
+          class="btn btn-sm join-item"
+          :class="showDirectory ? 'btn-primary' : 'btn-outline'"
+          :aria-pressed="showDirectory"
+          @click="homeMode = 'directory'"
+        >
+          Explore
+        </button>
+        <button
+          type="button"
+          class="btn btn-sm join-item"
+          :class="!showDirectory ? 'btn-primary' : 'btn-outline'"
+          :aria-pressed="!showDirectory"
+          @click="homeMode = 'dashboard'"
+        >
+          Dashboard
+        </button>
       </div>
     </nav>
     <template v-if="!showDirectory">
-    <div v-if="showcaseStore.errorMessage" class="kr-note kr-note-warning">
-      {{ showcaseStore.errorMessage }}
-    </div>
+      <div v-if="showcaseStore.errorMessage" class="kr-note kr-note-warning">
+        {{ showcaseStore.errorMessage }}
+      </div>
 
-    <!--
+      <!--
       TWO COLUMNS ON DESKTOP, THEN THE FEED ACROSS THE BOTTOM. Silas, 2026-09-01:
       "Needs you, project progress, and newsfeed should be in one column on the
       right side ... the dream hero gets the extra room ... Then in the lower
@@ -124,31 +151,31 @@
       ("ideally we will be able to do something close to this with tablet but
       have swipe scrolling to show the different object galleries").
     -->
-    <div class="flex flex-col gap-3 xl:flex-row xl:items-stretch">
-      <div class="flex min-w-0 flex-col gap-3 xl:w-[78%]">
-        <!--
+      <div class="flex flex-col gap-3 xl:flex-row xl:items-stretch">
+        <div class="flex min-w-0 flex-col gap-3 xl:w-[78%]">
+          <!--
           The dream band. 46/54 rather than half and half: the galleries below
           are two rows of cards and need the larger share, while the hero is one
           card and one scrolling cast row.
         -->
-        <div
-          class="flex flex-col gap-3 lg:h-[26rem] lg:flex-row lg:items-stretch"
-        >
-          <home-dream-hero
-            v-if="showcaseStore.hero"
-            class="min-w-0 lg:flex-1"
-            :hero="showcaseStore.hero"
-            @select="openCard"
-          />
-
           <div
-            v-else-if="!showcaseStore.hasLoaded"
-            class="h-40 w-full animate-pulse rounded-2xl bg-base-200 lg:h-full lg:flex-1"
-            aria-hidden="true"
-          />
-        </div>
+            class="flex flex-col gap-3 lg:h-[26rem] lg:flex-row lg:items-stretch"
+          >
+            <home-dream-hero
+              v-if="showcaseStore.hero"
+              class="min-w-0 lg:flex-1"
+              :hero="showcaseStore.hero"
+              @select="openCard"
+            />
 
-        <!--
+            <div
+              v-else-if="!showcaseStore.hasLoaded"
+              class="h-40 w-full animate-pulse rounded-2xl bg-base-200 lg:h-full lg:flex-1"
+              aria-hidden="true"
+            />
+          </div>
+
+          <!--
           THE SIX GALLERIES, 3x2. Silas named exactly six: "art images, dreams,
           character, rewards (items and skills combined) scenario, and facets".
           Bots and animations are no longer on the page as a result -- flagged
@@ -172,57 +199,57 @@
           change is meant to undo, just relocated. 14rem is the breathing room:
           a plate around 150px tall with its caption under it.
         -->
-        <div
-          v-if="visibleRails.length"
-          class="no-scrollbar flex flex-col gap-2 md:flex-row md:overflow-x-auto md:pb-1 xl:grid xl:grid-cols-3 xl:gap-3 xl:overflow-visible xl:pb-0"
-        >
-          <template v-for="entry in visibleRails" :key="entry.key">
-            <!--
+          <div
+            v-if="visibleRails.length"
+            class="no-scrollbar flex flex-col gap-2 md:flex-row md:overflow-x-auto md:pb-1 xl:grid xl:grid-cols-3 xl:gap-3 xl:overflow-visible xl:pb-0"
+          >
+            <template v-for="entry in visibleRails" :key="entry.key">
+              <!--
               The art cell is the one shelf with two modes behind it. Silas,
               2026-08-29: "let me togle between the fresh from art queue and to
               see the current progress, and choose from active to failed, etc,
               keeping the layout, which otherwise is great." home-art-shelf
               renders the SAME home-rail and only swaps what fills it.
             -->
-            <home-art-shelf
-              v-if="entry.key === 'art'"
-              class="h-56 w-full shrink-0 md:w-auto md:min-w-[17rem] md:basis-[calc(25%-0.375rem)] xl:min-w-0 xl:basis-auto"
-              :fresh="entry.items"
-              @select="openCard"
-            />
+              <home-art-shelf
+                v-if="entry.key === 'art'"
+                class="h-56 w-full shrink-0 md:w-auto md:min-w-[17rem] md:basis-[calc(25%-0.375rem)] xl:min-w-0 xl:basis-auto"
+                :fresh="entry.items"
+                @select="openCard"
+              />
 
-            <home-rail
-              v-else
-              class="h-56 w-full shrink-0 md:w-auto md:min-w-[17rem] md:basis-[calc(25%-0.375rem)] xl:min-w-0 xl:basis-auto"
-              :label="entry.label"
-              :icon="entry.icon"
-              :items="entry.items"
-              :see-all-href="entry.href"
-              :shape="entry.shape"
-              :plate-variant="entry.plateVariant"
-              :placeholder-icon="entry.placeholderIcon"
-              :fit="entry.fit ?? 'cover'"
-              show-label
-              interactive
-              @select="openCard"
-            />
-          </template>
-        </div>
+              <home-rail
+                v-else
+                class="h-56 w-full shrink-0 md:w-auto md:min-w-[17rem] md:basis-[calc(25%-0.375rem)] xl:min-w-0 xl:basis-auto"
+                :label="entry.label"
+                :icon="entry.icon"
+                :items="entry.items"
+                :see-all-href="entry.href"
+                :shape="entry.shape"
+                :plate-variant="entry.plateVariant"
+                :placeholder-icon="entry.placeholderIcon"
+                :fit="entry.fit ?? 'cover'"
+                show-label
+                interactive
+                @select="openCard"
+              />
+            </template>
+          </div>
 
-        <div
-          v-else-if="!showcaseStore.hasLoaded"
-          class="flex flex-col gap-2 md:flex-row md:overflow-hidden xl:grid xl:grid-cols-3 xl:gap-3"
-          aria-hidden="true"
-        >
           <div
-            v-for="n in 6"
-            :key="n"
-            class="h-56 w-full shrink-0 animate-pulse rounded-2xl bg-base-200 md:w-auto md:min-w-[17rem] md:basis-[calc(25%-0.375rem)] xl:min-w-0 xl:basis-auto"
-          />
+            v-else-if="!showcaseStore.hasLoaded"
+            class="flex flex-col gap-2 md:flex-row md:overflow-hidden xl:grid xl:grid-cols-3 xl:gap-3"
+            aria-hidden="true"
+          >
+            <div
+              v-for="n in 6"
+              :key="n"
+              class="h-56 w-full shrink-0 animate-pulse rounded-2xl bg-base-200 md:w-auto md:min-w-[17rem] md:basis-[calc(25%-0.375rem)] xl:min-w-0 xl:basis-auto"
+            />
+          </div>
         </div>
-      </div>
 
-      <!--
+        <!--
         THE RIGHT COLUMN: the things that are lists rather than pictures.
 
         Three of them for Silas, two for everyone else -- "Needs you" is his own
@@ -233,10 +260,10 @@
         there. Silas, 2026-09-08: "the news section is too small, it could be
         twice as big, eating in the what we're building."
       -->
-      <div
-        class="flex min-w-0 flex-col gap-3 xl:min-h-0 xl:w-[22%] xl:[contain:size]"
-      >
-        <!--
+        <div
+          class="flex min-w-0 flex-col gap-3 xl:min-h-0 xl:w-[22%] xl:[contain:size]"
+        >
+          <!--
           ONE PANE AT A TIME ON A PHONE. Silas, 2026-09-02: "Thinking we should
           move the news, todo, project section to a different screen on mobile.
           I don't love scrolling vertically forever to finish my todos before
@@ -253,138 +280,140 @@
           the xl layout keeps all three stacked exactly as before, and nothing
           here has to know the viewport width in JavaScript.
         -->
-        <div
-          role="tablist"
-          aria-label="Dashboard sections"
-          class="flex shrink-0 gap-1 kr-panel-flat p-1 xl:hidden"
-        >
-          <button
-            v-for="pane in visiblePanes"
-            :key="pane.key"
-            type="button"
-            role="tab"
-            :aria-selected="currentPane === pane.key"
-            class="kr-text-eyebrow flex-1 rounded-lg px-2 py-1.5 text-[0.7rem] tracking-[0.1em] transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary"
-            :class="
-              currentPane === pane.key
-                ? 'bg-primary text-primary-content'
-                : 'text-base-content/55 hover:text-primary'
-            "
-            @click="activePane = pane.key"
+          <div
+            role="tablist"
+            aria-label="Dashboard sections"
+            class="flex shrink-0 gap-1 kr-panel-flat p-1 xl:hidden"
           >
-            {{ pane.label }}
-          </button>
-        </div>
+            <button
+              v-for="pane in visiblePanes"
+              :key="pane.key"
+              type="button"
+              role="tab"
+              :aria-selected="currentPane === pane.key"
+              class="kr-text-eyebrow flex-1 rounded-lg px-2 py-1.5 text-[0.7rem] tracking-[0.1em] transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary"
+              :class="
+                currentPane === pane.key
+                  ? 'bg-primary text-primary-content'
+                  : 'text-base-content/55 hover:text-primary'
+              "
+              @click="activePane = pane.key"
+            >
+              {{ pane.label }}
+            </button>
+          </div>
 
-        <div v-if="isAdmin" :class="paneClass('attention')">
-          <home-attention />
-        </div>
+          <div v-if="isAdmin" :class="paneClass('attention')">
+            <home-attention />
+          </div>
 
-        <!--
+          <!--
           The projects strip. Silas, 2026-08-29: "I do like how projects appear
           differently than the rest" -- so this keeps its horizontal
           icon-plus-text card shape. In a narrow column that becomes one card
           per row, which is what the container-width columns already do.
         -->
-        <div :class="paneClass('projects')">
-          <section
-            v-if="showcaseStore.projects.length"
-            class="flex w-full flex-col gap-1.5 kr-panel-flat p-3 xl:min-h-0 xl:flex-1 xl:overflow-y-auto"
-          >
-            <header class="flex flex-wrap items-baseline justify-between gap-3">
-              <h2
-                class="kr-text-eyebrow text-[0.7rem] tracking-[0.16em] text-primary"
-              >
-                What we're building
-              </h2>
-
-              <NuxtLink
-                to="/conductor"
-                class="link link-hover text-[0.7rem] font-bold text-base-content/50 hover:text-primary"
-              >
-                every project →
-              </NuxtLink>
-            </header>
-
-            <div
-              class="grid gap-2 grid-cols-[repeat(auto-fit,minmax(min(100%,11rem),1fr))]"
+          <div :class="paneClass('projects')">
+            <section
+              v-if="showcaseStore.projects.length"
+              class="flex w-full flex-col gap-1.5 kr-panel-flat p-3 xl:min-h-0 xl:flex-1 xl:overflow-y-auto"
             >
-              <NuxtLink
-                v-for="project in showcaseStore.projects"
-                :key="project.id"
-                :to="showcaseHref(project)"
-                class="group flex items-center gap-2 rounded-xl border border-base-300 bg-base-100 p-1.5 transition-shadow hover:shadow-md focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary motion-safe:transition-transform motion-safe:hover:-translate-y-0.5"
+              <header
+                class="flex flex-wrap items-baseline justify-between gap-3"
               >
-                <div class="kr-icon-10 shrink-0 overflow-hidden rounded-lg">
-                  <kr-art-plate
-                    :source="project.art"
-                    variant="icon"
-                    shape="square"
-                    frame="none"
-                    :alt="project.title"
-                    :fallback="fallbackFor(project)"
-                    placeholder-icon="kind-icon:blueprint"
-                    fit="cover"
-                  />
-                </div>
+                <h2
+                  class="kr-text-eyebrow text-[0.7rem] tracking-[0.16em] text-primary"
+                >
+                  What we're building
+                </h2>
 
-                <div class="min-w-0 flex-1">
-                  <p
-                    class="kr-text-black-xs truncate leading-tight group-hover:text-primary"
-                    :title="project.title"
-                  >
-                    {{ project.title }}
-                  </p>
+                <NuxtLink
+                  to="/conductor"
+                  class="link link-hover text-[0.7rem] font-bold text-base-content/50 hover:text-primary"
+                >
+                  every project →
+                </NuxtLink>
+              </header>
 
-                  <div class="mt-1 flex items-center gap-1.5">
-                    <span
-                      v-if="priorityLetter(project)"
-                      class="grid size-3.5 shrink-0 place-items-center rounded bg-primary text-[0.5rem] font-black text-primary-content"
-                      :title="`${project.badge || 'Priority'}`"
-                    >
-                      {{ priorityLetter(project) }}
-                    </span>
-
-                    <template v-if="progressFor(project) !== null">
-                      <span
-                        class="h-1.5 min-w-0 flex-1 overflow-hidden rounded-full bg-base-300"
-                        :title="`${progressFor(project)}% complete`"
-                      >
-                        <span
-                          class="block h-full rounded-full bg-primary"
-                          :style="{ width: `${progressFor(project)}%` }"
-                        />
-                      </span>
-
-                      <span
-                        class="shrink-0 text-[0.6rem] font-bold tabular-nums text-base-content/55"
-                      >
-                        {{ progressFor(project) }}%
-                      </span>
-                    </template>
-
-                    <span v-else class="min-w-0 flex-1" />
+              <div
+                class="grid gap-2 grid-cols-[repeat(auto-fit,minmax(min(100%,11rem),1fr))]"
+              >
+                <NuxtLink
+                  v-for="project in showcaseStore.projects"
+                  :key="project.id"
+                  :to="showcaseHref(project)"
+                  class="group flex items-center gap-2 rounded-xl border border-base-300 bg-base-100 p-1.5 transition-shadow hover:shadow-md focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary motion-safe:transition-transform motion-safe:hover:-translate-y-0.5"
+                >
+                  <div class="kr-icon-10 shrink-0 overflow-hidden rounded-lg">
+                    <kr-art-plate
+                      :source="project.art"
+                      variant="icon"
+                      shape="square"
+                      frame="none"
+                      :alt="project.title"
+                      :fallback="fallbackFor(project)"
+                      placeholder-icon="kind-icon:blueprint"
+                      fit="cover"
+                    />
                   </div>
-                </div>
-              </NuxtLink>
-            </div>
-          </section>
+
+                  <div class="min-w-0 flex-1">
+                    <p
+                      class="kr-text-black-xs truncate leading-tight group-hover:text-primary"
+                      :title="project.title"
+                    >
+                      {{ project.title }}
+                    </p>
+
+                    <div class="mt-1 flex items-center gap-1.5">
+                      <span
+                        v-if="priorityLetter(project)"
+                        class="grid size-3.5 shrink-0 place-items-center rounded bg-primary text-[0.5rem] font-black text-primary-content"
+                        :title="`${project.badge || 'Priority'}`"
+                      >
+                        {{ priorityLetter(project) }}
+                      </span>
+
+                      <template v-if="progressFor(project) !== null">
+                        <span
+                          class="h-1.5 min-w-0 flex-1 overflow-hidden rounded-full bg-base-300"
+                          :title="`${progressFor(project)}% complete`"
+                        >
+                          <span
+                            class="block h-full rounded-full bg-primary"
+                            :style="{ width: `${progressFor(project)}%` }"
+                          />
+                        </span>
+
+                        <span
+                          class="shrink-0 text-[0.6rem] font-bold tabular-nums text-base-content/55"
+                        >
+                          {{ progressFor(project) }}%
+                        </span>
+                      </template>
+
+                      <span v-else class="min-w-0 flex-1" />
+                    </div>
+                  </div>
+                </NuxtLink>
+              </div>
+            </section>
+          </div>
         </div>
       </div>
-    </div>
 
-    <!--
+      <!--
       The daily Dream ritual. It lived on the standalone For You page until
       that page was folded into this dashboard (kind_robots issue #2664), so it
       comes here rather than going back to dream-manager, where Silas did not
       want it (2026-08-07). Admin-only, like the rest of the attention desk.
     -->
-    <section v-if="isAdmin" class="w-full space-y-3">
-      <daily-dream-generator />
-      <daily-digest-browser />
-    </section>
+      <section v-if="isAdmin" class="w-full space-y-3">
+        <daily-dream-generator />
+        <daily-digest-browser />
+      </section>
 
-    <!--
+      <!--
       THE FEED, FULL WIDTH, LAST. Silas, 2026-09-11: "let's readjust the layout
       so the news gets put on the bottom below everything, 100% width. We have a
       big problem now with whitespace."
@@ -404,34 +433,34 @@
       inside it. Its heading stays inside its own control strip rather than in a
       section header above it (Silas, 2026-08-29).
     -->
-    <section class="w-full kr-panel-flat p-3">
-      <NewsfeedFeed :initial-limit="24" compact>
-        <!--
+      <section class="w-full kr-panel-flat p-3">
+        <NewsfeedFeed :initial-limit="24" compact>
+          <!--
           "News", not "From around the web" (Silas, 2026-09-01: "we might as
           well change 'from around the web' to 'News'"). It was also buying back
           width the topic chips were short of inside a 22% column; full width the
           chips have room either way, but the short name is the one he picked.
         -->
-        <template #lead>
-          <h2
-            class="kr-text-eyebrow hidden shrink-0 text-[0.7rem] tracking-[0.16em] text-primary lg:block"
-          >
-            News
-          </h2>
-        </template>
+          <template #lead>
+            <h2
+              class="kr-text-eyebrow hidden shrink-0 text-[0.7rem] tracking-[0.16em] text-primary lg:block"
+            >
+              News
+            </h2>
+          </template>
 
-        <template #trail>
-          <NuxtLink
-            to="/plan/newsfeed"
-            class="link link-hover shrink-0 text-[0.7rem] font-bold text-base-content/50 hover:text-primary"
-          >
-            lab →
-          </NuxtLink>
-        </template>
-      </NewsfeedFeed>
-    </section>
+          <template #trail>
+            <NuxtLink
+              to="/plan/newsfeed"
+              class="link link-hover shrink-0 text-[0.7rem] font-bold text-base-content/50 hover:text-primary"
+            >
+              lab →
+            </NuxtLink>
+          </template>
+        </NewsfeedFeed>
+      </section>
 
-    <!--
+      <!--
       The interstitial. Silas, 2026-08-29: "Whenever I click on one of the new
       objects, I want it to expand to tell me about it ... with clicking outside
       the container returning to the homepage."
@@ -439,13 +468,17 @@
       Mounted only while something is selected, so its detail fetch happens on
       the click rather than on page load.
     -->
-    <home-object-sheet
-      v-if="selectedCard"
-      :card="selectedCard"
-      @close="selectedCard = null"
-    />
+      <home-object-sheet
+        v-if="selectedCard"
+        :card="selectedCard"
+        @close="selectedCard = null"
+      />
     </template>
-    <home-visitor-directory v-else :showcase="showcaseStore.showcase" :loaded="showcaseStore.hasLoaded" />
+    <home-visitor-directory
+      v-else
+      :showcase="showcaseStore.showcase"
+      :loaded="showcaseStore.hasLoaded"
+    />
   </div>
 </template>
 

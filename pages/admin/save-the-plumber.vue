@@ -371,9 +371,10 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import { useUserStore } from '~/stores/userStore'
 import { useSavePlumberStore } from '~/stores/savePlumberStore'
+import { setPlumberHeroine } from '~/utils/arcade/games/savePlumberArt'
 import {
   PLUMBER_CAST,
   PLUMBER_ENEMIES,
@@ -385,6 +386,7 @@ import {
 const user = useUserStore()
 const plumber = useSavePlumberStore()
 const heroine = computed(() => plumber.heroine)
+watch(heroine, setPlumberHeroine, { immediate: true })
 
 const tilt = ref({ x: 0, y: 0 })
 let reducedMotion = false

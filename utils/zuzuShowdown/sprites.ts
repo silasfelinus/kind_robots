@@ -111,12 +111,7 @@ export function puppetKey(slug: string): string {
 }
 
 export type PuppetPose =
-  | 'stand'
-  | 'duck'
-  | 'throw'
-  | 'proud'
-  | 'wave'
-  | 'raspberry'
+  'stand' | 'duck' | 'throw' | 'proud' | 'wave' | 'raspberry'
 
 /**
  * The puppet's pose and spot: `back` game pixels behind the fighter (toward her back), `up` above the

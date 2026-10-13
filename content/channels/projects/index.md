@@ -77,12 +77,6 @@ tutorial:
 # Stage 3 backdrop art, resolved by slug via /api/art/backdrop/<page>-<variant>.
 # The route finds the completed ArtJob for this page and redirects to its
 # image, so art appears on its own once generation finishes. Until then the
-# route 404s and the page renders exactly as before. The slug stays `plan`
-# (Plan folded into Projects and Admin 2026-10-06) so its generated drafting-hall
-# art keeps resolving.
-backgroundMobile: /api/art/backdrop/plan-mobile
-backgroundTablet: /api/art/backdrop/plan-tablet
-backgroundDesktop: /api/art/backdrop/plan-desktop
 ---
 
 Silas, 2026-10-06: everything that isn't Storybook and isn't admin-gated. Tools

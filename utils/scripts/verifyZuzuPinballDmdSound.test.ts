@@ -382,7 +382,9 @@ for (const open of [false, true]) {
     let starts = 0
     const touch: Array<[string, boolean]> = []
     const scope = {
-      HTMLInputElement: class {},
+      HTMLInputElement: class {
+        value = ''
+      },
       meta: { value: { touchLayout: 'pinball' } },
       ATTRACT_PHASES: ['title', 'scores', 'demo'],
       machine: { phase: 'title' },
@@ -411,6 +413,15 @@ for (const open of [false, true]) {
       starts,
       open ? 0 : 1,
       `${gesture}: open guide owns input; closed guide starts synchronously`,
+    )
+    vm.runInContext(
+      "onKey({ target: new HTMLInputElement(), code: 'Enter' })",
+      context,
+    )
+    assert.equal(
+      starts,
+      open ? 0 : 1,
+      'typing in an input never starts pinball',
     )
   }
 }

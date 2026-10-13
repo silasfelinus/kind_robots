@@ -283,7 +283,7 @@ function weightedPick(
     roll -= e.weight
     if (roll < 0) return [e.id, next]
   }
-  return [pool[pool.length - 1].id, next]
+  return [pool[pool.length - 1]?.id ?? ids[0] ?? '', next]
 }
 
 export function encounterById(id: string): Encounter {
@@ -297,7 +297,7 @@ export function locationById(id: string): Location | undefined {
 }
 
 export function jobById(id: string): JobTitle {
-  return JOB_TITLES.find((j) => j.id === id) ?? JOB_TITLES[0]
+  return JOB_TITLES.find((j) => j.id === id) ?? (JOB_TITLES[0] as JobTitle)
 }
 
 export function employeeId(generation: number): string {

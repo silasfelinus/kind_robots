@@ -122,7 +122,7 @@ const outcomes = new Set<string>()
 let eliminated = 0
 let reorientations = 0
 for (let i = 0; i < 3000; i++) {
-  const job = JOB_TITLES[i % JOB_TITLES.length].id
+  const job = JOB_TITLES[i % JOB_TITLES.length]!.id
   let run = newRun(`sim-${i}`, job)
   let rng = i + 1
   let guard = 0
@@ -135,7 +135,7 @@ for (let i = 0; i < 3000; i++) {
     )
     const [r, next] = nextRandom(rng)
     rng = next
-    const pick = open[Math.floor(r * open.length)]
+    const pick = open[Math.floor(r * open.length)]!
     run = choose(run, pick.id, r < 0.3)
     if (run.pending?.events.some((e) => e.startsWith('Reorientation')))
       reorientations++

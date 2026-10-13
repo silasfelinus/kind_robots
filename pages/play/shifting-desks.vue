@@ -101,7 +101,8 @@
                 <div class="poster-folder">
                   <icon
                     name="kind-icon:eye"
-                    class="size-20 text-stone-900 sm:size-28"
+                    size="7rem"
+                    class="text-stone-900"
                   />
                 </div>
               </div>
@@ -325,12 +326,14 @@
                           ? 'kind-icon:shield'
                           : 'kind-icon:folder'
                       "
-                      class="size-20"
+                      size="4.5rem"
                     />
-                    <span
-                      class="font-mono text-sm font-black uppercase tracking-[.3em]"
-                    >
-                      {{ view.kind === 'boss' ? 'Review' : locationTitle }}
+                    <span class="desk-stamp">
+                      {{
+                        view.kind === 'boss'
+                          ? 'Department review'
+                          : locationTitle
+                      }}
                     </span>
                     <span
                       class="rounded-full border-2 px-4 py-1 text-xs font-bold uppercase"
@@ -347,7 +350,8 @@
                     >
                       <icon
                         :name="cardIcon"
-                        class="size-24 text-stone-900/80"
+                        size="7rem"
+                        class="text-stone-900/80"
                       />
                       <span
                         class="absolute left-3 top-3 rounded-md bg-stone-900 px-2 py-0.5 text-[10px] font-bold uppercase tracking-widest text-amber-50"
@@ -708,7 +712,7 @@ const TAG_ICONS: Record<string, string> = {
 const cardIcon = computed(() => {
   if (!view.value) return 'kind-icon:folder'
   if (view.value.kind === 'boss') return 'kind-icon:shield'
-  return TAG_ICONS[view.value.card.tags[0]] ?? 'kind-icon:folder'
+  return TAG_ICONS[view.value.card.tags[0] ?? ''] ?? 'kind-icon:folder'
 })
 
 const employee = computed(() => employeeId(run.value?.generation ?? 0))
@@ -829,12 +833,41 @@ useHead({ title: 'Shifting Desks' })
   backface-visibility: hidden;
 }
 
+.desk-stamp {
+  max-width: 85%;
+  transform: rotate(-6deg);
+  border: 4px double currentColor;
+  border-radius: 0.5rem;
+  padding: 0.4rem 0.9rem;
+  text-align: center;
+  font-family: ui-monospace, monospace;
+  font-size: 0.85rem;
+  font-weight: 900;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+}
+
 .desk-back {
+  position: relative;
   min-height: 24rem;
+  margin-top: 1.25rem;
   border-color: #292524;
   background: #c9a227;
   color: #292524;
   box-shadow: inset 0 0 0 10px rgb(41 37 36 / 0.08);
+}
+
+.desk-back::before {
+  content: '';
+  position: absolute;
+  top: -1.6rem;
+  left: 1.5rem;
+  width: 40%;
+  height: 1.6rem;
+  border: 4px solid currentColor;
+  border-bottom: 0;
+  border-radius: 0.75rem 0.75rem 0 0;
+  background: inherit;
 }
 
 .desk-back.is-boss {
@@ -844,6 +877,7 @@ useHead({ title: 'Shifting Desks' })
 }
 
 .desk-front {
+  margin-top: 1.25rem;
   transform: rotateY(180deg);
 }
 

@@ -1,4 +1,7 @@
 import assert from 'node:assert/strict'
+import { existsSync, readFileSync } from 'node:fs'
+import { fileURLToPath } from 'node:url'
+import { PROJECT_PLACEMENTS } from '../projectPlacements'
 import {
   approvedDailyPitchProgress,
   mayVisitPitchFrontend,
@@ -151,6 +154,20 @@ assert.equal(
 )
 assert.equal(isPublicFacingPitchPage('/admin/toy'), false)
 assert.equal(isPublicFacingPitchPage('/play/toy'), true)
+
+// Music Mentor predates Daily Dreams and must not be forged into the pitch
+// ledger. It is intentionally a discoverable one-off on the same shelf.
+const file = (path: string) => fileURLToPath(new URL(path, import.meta.url))
+const gallery = readFileSync(file('../../pages/play/daily-pitches/index.vue'), 'utf8')
+assert.match(gallery, /One-prompt experiment/)
+assert.match(gallery, /to="\/music-mentor"/)
+assert.deepEqual(PROJECT_PLACEMENTS['music-mentor'], {
+  channelKey: 'projects',
+  tabKey: 'daily-pitches',
+  route: '/music-mentor',
+})
+assert.equal(existsSync(file('../../content/channels/projects/music-mentor.md')), false)
+
 console.log(
   'Approved Daily Dream pitch progress and public release access: verified',
 )

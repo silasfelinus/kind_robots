@@ -36,7 +36,7 @@ assert.ok(
   'channel + tab pickers must remain the tablet/desktop navigation',
 )
 assert.ok(
-  channelSelect.includes("activeChannel.channelKey === 'home' ? 'Explore'") &&
+  channelSelect.replace(/\s+/g, ' ').includes("activeChannel.channelKey === 'home' ? 'Explore'") &&
     channelSelect.includes('activeTab?.label || activeChannel.label'),
   'the unified phone picker must show the active tab label rather than only the channel label',
 )
@@ -393,13 +393,13 @@ const channelStoreSource = source('stores/channelContentStore.ts')
 const pickerSource = source('components/navigation/channel-select.vue')
 const siteDirectorySource = source('components/navigation/navigation-trimmed.vue')
 const accountHubSource = source('components/navigation/account-hub.vue')
-const homePageSource = source('components/home/home-page.vue')
+const homePageSource = source('components/home/home-page.vue').replace(/\s+/g, ' ')
 const visitorDirectorySource = source('components/home/home-visitor-directory.vue')
 assert.ok(channelStoreSource.includes('const navigationChannels = computed(() =>'))
 assert.ok(channelStoreSource.includes("channel.channelKey !== 'home'"))
 assert.ok(pickerSource.includes('channelContentStore.navigationChannels'))
 assert.ok(siteDirectorySource.includes('channelContentStore.navigationChannels'))
-assert.ok(pickerSource.includes("activeChannel.channelKey === 'home' ? 'Explore'"))
+assert.ok(pickerSource.replace(/\s+/g, ' ').includes("activeChannel.channelKey === 'home' ? 'Explore'"))
 assert.ok(homePageSource.includes("homeMode = 'directory'"))
 assert.ok(homePageSource.includes("homeMode = 'dashboard'"))
 assert.ok(homePageSource.includes("!isAdmin.value"))

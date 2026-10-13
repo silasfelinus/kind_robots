@@ -207,8 +207,8 @@ assert.match(
   'Initial SSR client navigation must defer localStorage-backed access enforcement until app:mounted.',
 )
 
-// Silas, 2026-10-06: Play became Storybook, Plan folded away, and Art joined
-// the public Projects channel (everything not Storybook and not admin-gated).
+// Storybook and its ingredient subtabs now live under Play; Arcade and Zuzu
+// have dedicated channels, while Home is kept only for route/tutorial resolution.
 const artPageSource = readFileSync('content/art.md', 'utf8')
 assert.match(
   artPageSource,
@@ -273,7 +273,7 @@ assert.ok(
 )
 
 const arcadeChannelSource = readFileSync(
-  'content/channels/projects/arcade.md',
+  'content/channels/arcade/arcade.md',
   'utf8',
 )
 assert.match(arcadeChannelSource, /\nroute:\s*\/play\/arcade\n/)
@@ -293,7 +293,7 @@ const projectsChannelSource = readFileSync(
   'content/channels/projects/index.md',
   'utf8',
 )
-for (const key of ['make', 'learn', 'games', 'toys']) {
+for (const key of ['storybook', 'make', 'learn', 'games', 'toys']) {
   assert.match(
     projectsChannelSource,
     new RegExp(`\\n\\s{4}- key:\\s*${key}\\n`),
@@ -368,79 +368,43 @@ for (const key of ['art', 'projects', 'studios', 'people', 'shelf']) {
 }
 
 const navigationMoves = [
-  {
-    slug: 'zuzu-lair',
-    from: 'projects',
-    to: 'admin',
-    route: '/play/zuzu-lair',
-  },
-  {
-    slug: 'tzaddik-gallery',
-    from: 'projects',
-    to: 'admin',
-    route: '/tzaddik-gallery',
-  },
-  {
-    slug: 'ruler-hooked',
-    from: 'projects',
-    to: 'admin',
-    route: '/admin/ruler-hooked',
-  },
-  {
-    slug: 'brainstorm',
-    from: 'projects',
-    to: 'admin',
-    route: '/brainstorm',
-  },
-  {
-    slug: 'zuzu-shifting-lands',
-    from: 'admin',
-    to: 'projects',
-    route: '/admin/zuzu-shifting-lands',
-  },
-  {
-    slug: 'zuzu-pinball',
-    from: 'admin',
-    to: 'projects',
-    route: '/admin/zuzu-pinball',
-  },
-  {
-    slug: 'zuzu-showdown',
-    from: 'admin',
-    to: 'projects',
-    route: '/play/zuzu-showdown',
-  },
+  { slug: 'zuzu-lair', from: 'projects', to: 'admin', route: '/play/zuzu-lair', admin: true },
+  { slug: 'tzaddik-gallery', from: 'projects', to: 'admin', route: '/tzaddik-gallery', admin: true },
+  { slug: 'ruler-hooked', from: 'projects', to: 'admin', route: '/admin/ruler-hooked', admin: true },
+  { slug: 'brainstorm', from: 'projects', to: 'admin', route: '/brainstorm', admin: true },
+  { slug: 'zuzu-shifting-lands', from: 'projects', to: 'zuzu', route: '/play/zuzu-shifting-lands', admin: false },
+  { slug: 'zuzu-pinball', from: 'projects', to: 'zuzu', route: '/play/zuzu-pinball', admin: false },
+  { slug: 'zuzu-showdown', from: 'projects', to: 'zuzu', route: '/play/zuzu-showdown', admin: false },
+  { slug: 'zuzu-gamebook', from: 'projects', to: 'zuzu', route: '/play/zuzu-gamebook', admin: false },
+  { slug: 'arcade', from: 'projects', to: 'arcade', route: '/play/arcade', admin: false },
 ] as const
 
 const newline = String.fromCharCode(10)
-
-for (const { slug, from, to, route } of navigationMoves) {
+for (const { slug, from, to, route, admin } of navigationMoves) {
   const relocated = `content/channels/${to}/${slug}.md`
   const tab = readFileSync(relocated, 'utf8')
-  assert.ok(
-    tab.includes(`${newline}channelKey: ${to}${newline}`),
-    `${slug} must live in ${to}`,
-  )
-  assert.ok(
-    tab.includes(`${newline}route: ${route}${newline}`),
-    `${slug} must preserve its working route`,
-  )
-  if (slug === 'zuzu-showdown') {
-    // Showdown separately launched publicly under #3549; never re-gate it.
-    assert.ok(!tab.includes(`${newline}requiredRole: ADMIN${newline}`))
-  } else {
-    assert.ok(
-      tab.includes(`${newline}requiredRole: ADMIN${newline}`),
-      `${slug} must preserve admin-only access`,
-    )
-  }
+  assert.ok(tab.includes(`${newline}channelKey: ${to}${newline}`))
+  assert.ok(tab.includes(`${newline}route: ${route}${newline}`))
+  assert.equal(tab.includes(`${newline}requiredRole: ADMIN${newline}`), admin)
   assert.equal(existsSync(`content/channels/${from}/${slug}.md`), false)
-  assert.deepEqual(PROJECT_PLACEMENTS[slug], {
-    channelKey: to,
-    tabKey: slug,
-    route,
-  })
+  if (slug !== 'arcade') {
+    assert.deepEqual(PROJECT_PLACEMENTS[slug], { channelKey: to, tabKey: slug, route })
+  }
 }
+
+for (const key of ['arcade', 'zuzu', 'projects', 'admin', 'home']) {
+  const index = readFileSync(`content/channels/${key}/index.md`, 'utf8')
+  assert.match(index, /\\ntutorial:\\s*\\n[\\s\\S]*?overview:/)
+}
+const channelSort = (key: string) =>
+  Number(readFileSync(`content/channels/${key}/index.md`, 'utf8').match(/^sort: (\\d+)$/m)?.[1])
+assert.ok(['arcade','zuzu','projects','admin'].every((key) => channelSort(key) < channelSort('home')))
+for (const name of ['storybook','bots','characters','facets','gallery','model-builder','rewards','scenarios']) {
+  const tab = readFileSync(`content/channels/projects/story-${name}.md`, 'utf8')
+  assert.match(tab, /^channelKey: projects$/m)
+  if (name !== 'storybook') assert.match(tab, /^parentTabKey: storybook$/m)
+}
+assert.equal(existsSync('content/channels/storybook/index.md'), false)
 for (const path of [
   'content/brainstorm.md',
   'content/admin/ruler-hooked.md',

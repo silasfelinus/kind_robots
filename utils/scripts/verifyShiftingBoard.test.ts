@@ -12,23 +12,21 @@ import {
 
 const file = (path: string) => fileURLToPath(new URL(path, import.meta.url))
 const read = (path: string) => readFileSync(file(path), 'utf8')
-const page = read('../../pages/admin/zuzu-shifting-lands.vue')
+const page = read('../../pages/play/zuzu-shifting-lands.vue')
 const board = read('../../components/shifting-lands-journey-board.vue')
 const store = read('../../stores/shiftingLandsJourneyStore.ts')
 const legacy = read('../../stores/shiftingLandsStore.ts')
-const channel = read('../../content/channels/projects/zuzu-shifting-lands.md')
+const channel = read('../../content/channels/zuzu/zuzu-shifting-lands.md')
 
-assert.match(channel, /requiredRole: ADMIN/)
-assert.match(channel, /route: \/admin\/zuzu-shifting-lands/)
+assert.doesNotMatch(channel, /requiredRole: ADMIN/)
+assert.match(channel, /route: \/play\/zuzu-shifting-lands/)
 assert.doesNotMatch(channel, /navigation: false/)
-assert.match(page, /v-else-if="!legacyMode"/)
+assert.match(page, /v-if="!legacyMode"/)
 assert.match(page, /ShiftingLandsJourneyBoard/)
 assert.match(page, /@legacy="legacyMode = true"/)
 assert.match(page, /legacyMode = false/)
-assert.equal(
-  existsSync(file('../../pages/play/zuzu-shifting-lands.vue')),
-  false,
-)
+assert.equal(existsSync(file('../../pages/play/zuzu-shifting-lands.vue')), true)
+assert.match(read('../../pages/admin/zuzu-shifting-lands.vue'), /redirectCode: 301/)
 
 assert.match(board, /<FlipCard\b/)
 assert.match(board, /<kr-card-flip/)
@@ -165,5 +163,5 @@ assert.doesNotMatch(
 )
 
 console.log(
-  'Shifting Lands Admin board contract passed: safe card reveals, five-land controls, real reducer integration, legacy save isolation and inspectable history',
+  'Shifting Lands playable board contract passed: safe card reveals, five-land controls, real reducer integration, legacy save isolation and inspectable history',
 )

@@ -1,0 +1,39 @@
+name: Regenerate Arcade Prisma Client Once
+on:
+  pull_request:
+    branches: [main]
+permissions:
+  contents: write
+jobs:
+  generate:
+    if: github.event.pull_request.head.repo.full_name == github.repository && startsWith(github.head_ref, 'worker/arcade-ratings-comments-')
+    runs-on: ubuntu-latest
+    env:
+      DATABASE_URL: mysql://root:root@127.0.0.1:3306/kindrobots
+      CYPRESS_INSTALL_BINARY: '0'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref }}
+          persist-credentials: true
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: 'npm'
+      - run: npm ci
+      - run: npx prisma generate
+      - name: Commit regenerated client on this PR branch
+        run: |
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git config user.name "github-actions[bot]"
+          git add prisma/generated/prisma
+          if ! git diff --cached --quiet; then
+            git commit -m 'chore(prisma): sync generated ArcadeReview client'
+            git push origin HEAD:refs/heads/${{ github.head_ref }}
+          fi
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: arcade-generated-client
+          path: prisma/generated/prisma
+          retention-days: 1

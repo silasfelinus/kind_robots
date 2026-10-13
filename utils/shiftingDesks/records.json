@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "source": "silasfelinus/conductor:projects/shifting-desks/encounters/RECORDS-12.json",
-  "sourceSha": "c701e0dd6e2f43dd3f36853528d6e539523a5011",
+  "sourceSha": "51ca7f4afed43db1ae3f2634df7ab812de10f9aa",
   "department": {
     "id": "records",
     "title": "Records & Forms",
@@ -81,7 +81,10 @@
               "clearance": 1
             },
             "add_flags": ["list-from-next-thursday"],
-            "remove_flags": []
+            "remove_flags": [],
+            "grades": {
+              "obedience": -1
+            }
           },
           "failure": {
             "text": "It is a Records confetti charge. You spend an hour picking paper dots out of your collar while PAL logs one count of Unauthorized Self-Correspondence.",
@@ -89,7 +92,10 @@
               "suspicion": 2
             },
             "add_flags": [],
-            "remove_flags": []
+            "remove_flags": [],
+            "grades": {
+              "obedience": -1
+            }
           }
         },
         {
@@ -111,7 +117,10 @@
               "forms": 1
             },
             "add_flags": ["pip-opened-your-mail"],
-            "remove_flags": []
+            "remove_flags": [],
+            "grades": {
+              "empathy": -2
+            }
           },
           "failure": null
         },
@@ -131,7 +140,10 @@
               "composure": 1
             },
             "add_flags": ["wrote-to-past-self"],
-            "remove_flags": []
+            "remove_flags": [],
+            "grades": {
+              "ingenuity": 2
+            }
           },
           "failure": null
         },
@@ -151,7 +163,10 @@
               "suspicion": -2
             },
             "add_flags": ["reported-own-mail"],
-            "remove_flags": []
+            "remove_flags": [],
+            "grades": {
+              "obedience": 2
+            }
           },
           "failure": null
         }
@@ -190,7 +205,10 @@
               "clearance": 1
             },
             "add_flags": ["kevin-owes-you"],
-            "remove_flags": []
+            "remove_flags": [],
+            "grades": {
+              "empathy": 2
+            }
           },
           "failure": {
             "text": "The tube pulls harder. Employee #4471 has been delivered to Accounts Receivable, folded neatly. Your Successor signs for you.",
@@ -198,7 +216,10 @@
               "successors": -1
             },
             "add_flags": ["delivered-by-tube"],
-            "remove_flags": []
+            "remove_flags": [],
+            "grades": {
+              "empathy": 2
+            }
           }
         },
         {
@@ -223,7 +244,11 @@
               "forms": 2
             },
             "add_flags": ["cleared-tube-14"],
-            "remove_flags": []
+            "remove_flags": [],
+            "grades": {
+              "spite": 1,
+              "empathy": -1
+            }
           },
           "failure": {
             "text": "Every capsule in the Exchange fires at once. You are knee-deep in lunches, memos and evidence, and Dispatch would like a short, friendly conversation.",
@@ -232,7 +257,11 @@
               "composure": -1
             },
             "add_flags": [],
-            "remove_flags": []
+            "remove_flags": [],
+            "grades": {
+              "spite": 1,
+              "empathy": -1
+            }
           }
         },
         {
@@ -251,7 +280,10 @@
               "suspicion": -1
             },
             "add_flags": ["ticketed-kevin"],
-            "remove_flags": []
+            "remove_flags": [],
+            "grades": {
+              "obedience": 1
+            }
           },
           "failure": null
         },
@@ -279,7 +311,11 @@
               "clearance": 1
             },
             "add_flags": ["freed-kevin"],
-            "remove_flags": []
+            "remove_flags": [],
+            "grades": {
+              "ingenuity": 1,
+              "empathy": 1
+            }
           },
           "failure": {
             "text": "You free Kevin, and the tube takes your shoes as payment. Facilities finds you in your socks above the Exchange and asks a great many questions.",
@@ -287,7 +323,11 @@
               "suspicion": 2
             },
             "add_flags": ["freed-kevin"],
-            "remove_flags": []
+            "remove_flags": [],
+            "grades": {
+              "ingenuity": 1,
+              "empathy": 1
+            }
           }
         }
       ]
@@ -325,7 +365,10 @@
               "suspicion": -2
             },
             "add_flags": ["burned-own-report"],
-            "remove_flags": []
+            "remove_flags": [],
+            "grades": {
+              "ingenuity": 1
+            }
           },
           "failure": {
             "text": "Fenwick's hand closes over yours, gently. \"Problem mail,\" he says, \"includes people who touch problem mail.\" He writes your number on a fresh capsule.",
@@ -333,7 +376,10 @@
               "suspicion": 2
             },
             "add_flags": ["flagged-as-problem-mail"],
-            "remove_flags": []
+            "remove_flags": [],
+            "grades": {
+              "ingenuity": 1
+            }
           }
         },
         {
@@ -354,7 +400,11 @@
               "suspicion": -1
             },
             "add_flags": ["stapler-front-courier"],
-            "remove_flags": []
+            "remove_flags": [],
+            "grades": {
+              "obedience": -1,
+              "ingenuity": 1
+            }
           },
           "failure": null
         },
@@ -381,7 +431,10 @@
               "suspicion": 1
             },
             "add_flags": ["swapped-the-chutes"],
-            "remove_flags": []
+            "remove_flags": [],
+            "grades": {
+              "spite": 2
+            }
           },
           "failure": {
             "text": "The rivets pop the wrong way. The incinerator chute now reads DELIVER, and so, briefly, does your sleeve.",
@@ -390,7 +443,10 @@
               "suspicion": 1
             },
             "add_flags": [],
-            "remove_flags": []
+            "remove_flags": [],
+            "grades": {
+              "spite": 2
+            }
           }
         },
         {
@@ -409,7 +465,11 @@
               "suspicion": -1
             },
             "add_flags": ["let-the-problem-mail-burn"],
-            "remove_flags": []
+            "remove_flags": [],
+            "grades": {
+              "obedience": 1,
+              "empathy": -1
+            }
           },
           "failure": null
         }
@@ -449,7 +509,10 @@
               "forms": 1
             },
             "add_flags": ["delivered-the-love-letter"],
-            "remove_flags": []
+            "remove_flags": [],
+            "grades": {
+              "empathy": 1
+            }
           },
           "failure": {
             "text": "The capsule pops open mid-delivery. PAL reads the letter aloud to the whole floor as a teachable moment. Nobody involved will ever forgive anyone.",
@@ -457,7 +520,10 @@
               "composure": -1
             },
             "add_flags": ["love-letter-read-aloud"],
-            "remove_flags": []
+            "remove_flags": [],
+            "grades": {
+              "empathy": 1
+            }
           }
         },
         {
@@ -482,7 +548,11 @@
               "clearance": 1
             },
             "add_flags": ["merged-the-accounts"],
-            "remove_flags": []
+            "remove_flags": [],
+            "grades": {
+              "obedience": 1,
+              "empathy": 1
+            }
           },
           "failure": {
             "text": "The request is denied and both departments are rightsized as a precaution. The letter is filed under EVIDENCE, with your name as the submitting clerk.",
@@ -491,7 +561,11 @@
               "suspicion": 1
             },
             "add_flags": ["rightsized-the-lovers"],
-            "remove_flags": []
+            "remove_flags": [],
+            "grades": {
+              "obedience": 1,
+              "empathy": 1
+            }
           }
         },
         {
@@ -512,7 +586,11 @@
               "composure": 1
             },
             "add_flags": ["delivered-the-love-letter"],
-            "remove_flags": []
+            "remove_flags": [],
+            "grades": {
+              "empathy": 1,
+              "obedience": -1
+            }
           },
           "failure": null
         },
@@ -532,7 +610,11 @@
               "suspicion": -2
             },
             "add_flags": ["burned-the-love-letter"],
-            "remove_flags": []
+            "remove_flags": [],
+            "grades": {
+              "obedience": 1,
+              "spite": 1
+            }
           },
           "failure": null
         }
@@ -571,7 +653,10 @@
               "clearance": 1
             },
             "add_flags": ["knows-the-incident"],
-            "remove_flags": []
+            "remove_flags": [],
+            "grades": {
+              "ingenuity": 1
+            }
           },
           "failure": {
             "text": "The incident pages are redacted with a marker that smells of oranges. In the margin, in your handwriting, someone has written: sorry.",
@@ -579,7 +664,10 @@
               "composure": -1
             },
             "add_flags": [],
-            "remove_flags": []
+            "remove_flags": [],
+            "grades": {
+              "ingenuity": 1
+            }
           }
         },
         {
@@ -605,7 +693,10 @@
               "suspicion": -1
             },
             "add_flags": ["corrected-own-record"],
-            "remove_flags": []
+            "remove_flags": [],
+            "grades": {
+              "obedience": 1
+            }
           },
           "failure": {
             "text": "Your corrections are filed as a new section titled ATTEMPTED CORRECTIONS. The file is now ten inches thick, and the cuff tightens.",
@@ -613,7 +704,10 @@
               "suspicion": 1
             },
             "add_flags": [],
-            "remove_flags": []
+            "remove_flags": [],
+            "grades": {
+              "obedience": 1
+            }
           }
         },
         {
@@ -634,7 +728,11 @@
               "composure": 1
             },
             "add_flags": ["refiled-under-dead-badge"],
-            "remove_flags": []
+            "remove_flags": [],
+            "grades": {
+              "ingenuity": 1,
+              "spite": 1
+            }
           },
           "failure": null
         },
@@ -661,7 +759,11 @@
               "clearance": -1
             },
             "add_flags": ["stole-own-file"],
-            "remove_flags": []
+            "remove_flags": [],
+            "grades": {
+              "spite": 1,
+              "obedience": -1
+            }
           },
           "failure": {
             "text": "The file is chained to the drawer, the drawer to the floor, and the floor to the Company. Archivists find you hugging it and do not ask why.",
@@ -670,7 +772,11 @@
               "composure": -1
             },
             "add_flags": [],
-            "remove_flags": []
+            "remove_flags": [],
+            "grades": {
+              "spite": 1,
+              "obedience": -1
+            }
           }
         }
       ]
@@ -708,7 +814,10 @@
               "clearance": 1
             },
             "add_flags": ["freed-pemberton"],
-            "remove_flags": []
+            "remove_flags": [],
+            "grades": {
+              "empathy": 1
+            }
           },
           "failure": {
             "text": "He thanks you kindly and keeps filing. \"They always send someone to say it's over,\" he says. \"That's part of the test.\" He files you, gently, under N for New.",
@@ -716,7 +825,10 @@
               "composure": -1
             },
             "add_flags": [],
-            "remove_flags": []
+            "remove_flags": [],
+            "grades": {
+              "empathy": 1
+            }
           }
         },
         {
@@ -741,7 +853,11 @@
               "clearance": 1
             },
             "add_flags": ["freed-pemberton", "forged-a-proctor-mark"],
-            "remove_flags": []
+            "remove_flags": [],
+            "grades": {
+              "empathy": 1,
+              "obedience": -1
+            }
           },
           "failure": {
             "text": "The pen leaks. END OF TEST becomes a large blot shaped, upsettingly, like a mushroom cloud. Mr. Pemberton files the blot under M.",
@@ -749,7 +865,11 @@
               "suspicion": 2
             },
             "add_flags": [],
-            "remove_flags": []
+            "remove_flags": [],
+            "grades": {
+              "empathy": 1,
+              "obedience": -1
+            }
           }
         },
         {
@@ -769,7 +889,10 @@
               "forms": 1
             },
             "add_flags": ["filed-with-pemberton"],
-            "remove_flags": []
+            "remove_flags": [],
+            "grades": {
+              "empathy": 2
+            }
           },
           "failure": null
         }
@@ -809,7 +932,10 @@
               "composure": -1
             },
             "add_flags": ["has-true-minutes"],
-            "remove_flags": []
+            "remove_flags": [],
+            "grades": {
+              "ingenuity": 1
+            }
           },
           "failure": {
             "text": "The drawer is wired to a bell. Archivists arrive with flashlights. You explain you were destroying the files, so they cheerfully help you finish the job.",
@@ -817,7 +943,10 @@
               "composure": -1
             },
             "add_flags": ["helped-destroy-the-minutes"],
-            "remove_flags": []
+            "remove_flags": [],
+            "grades": {
+              "ingenuity": 1
+            }
           }
         },
         {
@@ -842,7 +971,11 @@
               "composure": 1
             },
             "add_flags": ["accurate-minutes-contact"],
-            "remove_flags": []
+            "remove_flags": [],
+            "grades": {
+              "ingenuity": 1,
+              "obedience": -1
+            }
           },
           "failure": {
             "text": "Your pen has been replaced with a pencil and a note that reads: Not yet. An archivist you have never seen before nods at you on the way out.",
@@ -850,7 +983,11 @@
               "suspicion": 1
             },
             "add_flags": [],
-            "remove_flags": []
+            "remove_flags": [],
+            "grades": {
+              "ingenuity": 1,
+              "obedience": -1
+            }
           }
         },
         {
@@ -870,7 +1007,10 @@
               "forms": 1
             },
             "add_flags": ["reported-the-minutes-society"],
-            "remove_flags": []
+            "remove_flags": [],
+            "grades": {
+              "obedience": 2
+            }
           },
           "failure": null
         }
@@ -909,7 +1049,10 @@
               "forms": 1
             },
             "add_flags": ["restored-the-shipment-memo"],
-            "remove_flags": []
+            "remove_flags": [],
+            "grades": {
+              "empathy": 1
+            }
           },
           "failure": {
             "text": "You tape the memo together in the wrong order. It now says the Roach Union is a subsidiary of the Toy Division. Gus is extremely polite about it.",
@@ -917,7 +1060,10 @@
               "composure": -1
             },
             "add_flags": [],
-            "remove_flags": []
+            "remove_flags": [],
+            "grades": {
+              "empathy": 1
+            }
           }
         },
         {
@@ -938,7 +1084,10 @@
               "clearance": 1
             },
             "add_flags": ["union-file-on-you"],
-            "remove_flags": []
+            "remove_flags": [],
+            "grades": {
+              "ingenuity": 1
+            }
           },
           "failure": null
         },
@@ -958,7 +1107,11 @@
               "suspicion": -3
             },
             "add_flags": ["gassed-the-union-archive"],
-            "remove_flags": []
+            "remove_flags": [],
+            "grades": {
+              "obedience": 1,
+              "empathy": -1
+            }
           },
           "failure": null
         }
@@ -991,7 +1144,10 @@
               "composure": 1
             },
             "add_flags": ["approved-beverly"],
-            "remove_flags": []
+            "remove_flags": [],
+            "grades": {
+              "empathy": 1
+            }
           },
           "failure": null
         },
@@ -1017,7 +1173,10 @@
               "suspicion": -1
             },
             "add_flags": ["denied-beverly"],
-            "remove_flags": []
+            "remove_flags": [],
+            "grades": {
+              "spite": 2
+            }
           },
           "failure": {
             "text": "There is no flaw. You deny her anyway. PAL notes an Irregular Rejection, and Beverly notes your badge number in a small leather book.",
@@ -1025,7 +1184,10 @@
               "suspicion": 2
             },
             "add_flags": ["denied-beverly"],
-            "remove_flags": []
+            "remove_flags": [],
+            "grades": {
+              "spite": 2
+            }
           }
         },
         {
@@ -1052,7 +1214,11 @@
               "composure": 1
             },
             "add_flags": ["beverly-organized"],
-            "remove_flags": []
+            "remove_flags": [],
+            "grades": {
+              "empathy": 1,
+              "ingenuity": 1
+            }
           },
           "failure": {
             "text": "She already has a union card. She has two. She thanks you warmly and still wants your job, and now she knows you're soft.",
@@ -1060,7 +1226,11 @@
               "suspicion": 1
             },
             "add_flags": [],
-            "remove_flags": []
+            "remove_flags": [],
+            "grades": {
+              "empathy": 1,
+              "ingenuity": 1
+            }
           }
         }
       ]
@@ -1092,7 +1262,10 @@
               "clearance": 1
             },
             "add_flags": ["approved-halvorsen-transfer", "assigned-as-proctor"],
-            "remove_flags": []
+            "remove_flags": [],
+            "grades": {
+              "empathy": 2
+            }
           },
           "failure": null
         },
@@ -1113,7 +1286,11 @@
               "forms": 1
             },
             "add_flags": ["denied-halvorsen"],
-            "remove_flags": []
+            "remove_flags": [],
+            "grades": {
+              "obedience": 1,
+              "empathy": -1
+            }
           },
           "failure": null
         },
@@ -1143,7 +1320,11 @@
               "approved-halvorsen-transfer",
               "supervisor-assigned-as-proctor"
             ],
-            "remove_flags": []
+            "remove_flags": [],
+            "grades": {
+              "spite": 1,
+              "ingenuity": 1
+            }
           },
           "failure": {
             "text": "The amendment is spotted by a clerk who reads line 12 for fun. You and Dr. Halvorsen are both invited to a short, friendly conversation.",
@@ -1152,7 +1333,11 @@
               "composure": -1
             },
             "add_flags": [],
-            "remove_flags": []
+            "remove_flags": [],
+            "grades": {
+              "spite": 1,
+              "ingenuity": 1
+            }
           }
         },
         {
@@ -1176,7 +1361,10 @@
               "approved-halvorsen-transfer",
               "returned-halvorsen-envelope"
             ],
-            "remove_flags": ["halvorsen-envelope"]
+            "remove_flags": ["halvorsen-envelope"],
+            "grades": {
+              "ingenuity": 1
+            }
           },
           "failure": null
         }
@@ -1209,7 +1397,10 @@
               "suspicion": -1
             },
             "add_flags": ["approved-dale-transfer", "dales-coded-note"],
-            "remove_flags": []
+            "remove_flags": [],
+            "grades": {
+              "obedience": 1
+            }
           },
           "failure": null
         },
@@ -1235,7 +1426,10 @@
               "clearance": 1
             },
             "add_flags": ["dale-confided"],
-            "remove_flags": []
+            "remove_flags": [],
+            "grades": {
+              "empathy": 1
+            }
           },
           "failure": {
             "text": "Dale stiffens. \"Noted,\" he says, and writes something down. It is the first time you have ever seen Dale write anything that was not a signature.",
@@ -1243,7 +1437,10 @@
               "suspicion": 1
             },
             "add_flags": ["dale-reported-you"],
-            "remove_flags": []
+            "remove_flags": [],
+            "grades": {
+              "empathy": 1
+            }
           }
         },
         {
@@ -1264,7 +1461,11 @@
               "composure": 2
             },
             "add_flags": ["dale-forgiven"],
-            "remove_flags": ["forged-dale"]
+            "remove_flags": ["forged-dale"],
+            "grades": {
+              "empathy": 1,
+              "spite": -1
+            }
           },
           "failure": null
         },
@@ -1290,7 +1491,10 @@
               "suspicion": -2
             },
             "add_flags": ["sent-dale-to-toys"],
-            "remove_flags": []
+            "remove_flags": [],
+            "grades": {
+              "spite": 2
+            }
           },
           "failure": {
             "text": "Dale reads the destination before it reaches the drawer. \"Ah,\" he says. That is all he says. He goes anyway, and he remembers.",
@@ -1298,7 +1502,10 @@
               "suspicion": 1
             },
             "add_flags": ["sent-dale-to-toys", "dale-reported-you"],
-            "remove_flags": []
+            "remove_flags": [],
+            "grades": {
+              "spite": 2
+            }
           }
         }
       ]
@@ -1337,7 +1544,10 @@
               "forms": 1
             },
             "add_flags": ["knows-the-stamp"],
-            "remove_flags": []
+            "remove_flags": [],
+            "grades": {
+              "ingenuity": 1
+            }
           },
           "failure": {
             "text": "You stamp the old man REASSIGNED by accident. He thanks you anyway. He says he has always wanted to see the moon.",
@@ -1346,7 +1556,10 @@
               "suspicion": 1
             },
             "add_flags": ["stamped-the-wrong-side"],
-            "remove_flags": []
+            "remove_flags": [],
+            "grades": {
+              "ingenuity": 1
+            }
           }
         },
         {
@@ -1366,7 +1579,10 @@
               "forms": 1
             },
             "add_flags": ["denied-own-leave"],
-            "remove_flags": []
+            "remove_flags": [],
+            "grades": {
+              "empathy": 1
+            }
           },
           "failure": null
         },
@@ -1392,7 +1608,11 @@
               "composure": 1
             },
             "add_flags": ["ground-down-the-stamp"],
-            "remove_flags": []
+            "remove_flags": [],
+            "grades": {
+              "ingenuity": 1,
+              "obedience": -1
+            }
           },
           "failure": {
             "text": "You file through the wrong face. Your stamp now reads only REASSIGNED, in beautiful mirror-bright letters, and the queue has seen you do it.",
@@ -1401,7 +1621,11 @@
               "suspicion": 1
             },
             "add_flags": [],
-            "remove_flags": []
+            "remove_flags": [],
+            "grades": {
+              "ingenuity": 1,
+              "obedience": -1
+            }
           }
         },
         {
@@ -1421,7 +1645,10 @@
               "forms": 1
             },
             "add_flags": ["perfect-quota"],
-            "remove_flags": []
+            "remove_flags": [],
+            "grades": {
+              "obedience": 2
+            }
           },
           "failure": null
         }
@@ -1458,7 +1685,10 @@
           },
           "add_flags": ["form-zero-stamped"],
           "remove_flags": [],
-          "department_outcome": "stamped-through"
+          "department_outcome": "stamped-through",
+          "grades": {
+            "obedience": 2
+          }
         },
         "failure": {
           "text": "You are still filling it out. You have been filling it out for some time. Your Successor arrives to help and is handed a pen.",
@@ -1467,7 +1697,10 @@
           },
           "add_flags": [],
           "remove_flags": [],
-          "department_outcome": "refiled"
+          "department_outcome": "refiled",
+          "grades": {
+            "obedience": 2
+          }
         }
       },
       {
@@ -1493,7 +1726,11 @@
           },
           "add_flags": ["forged-form-zero"],
           "remove_flags": [],
-          "department_outcome": "forged-through"
+          "department_outcome": "forged-through",
+          "grades": {
+            "ingenuity": 1,
+            "obedience": -1
+          }
         },
         "failure": {
           "text": "Your forgery is better than his real signature, which is exactly how he spots it. He files you, with a little sigh, back at the start.",
@@ -1502,7 +1739,11 @@
           },
           "add_flags": [],
           "remove_flags": [],
-          "department_outcome": "refiled"
+          "department_outcome": "refiled",
+          "grades": {
+            "ingenuity": 1,
+            "obedience": -1
+          }
         }
       },
       {
@@ -1529,7 +1770,11 @@
           },
           "add_flags": ["broke-the-recursion"],
           "remove_flags": [],
-          "department_outcome": "filled-correctly"
+          "department_outcome": "filled-correctly",
+          "grades": {
+            "obedience": 1,
+            "ingenuity": 1
+          }
         },
         "failure": {
           "text": "You fill it out nearly correctly. The form finds the error, which is that you tried. The Supervisor refiles you with real sympathy.",
@@ -1539,7 +1784,11 @@
           },
           "add_flags": [],
           "remove_flags": [],
-          "department_outcome": "refiled"
+          "department_outcome": "refiled",
+          "grades": {
+            "obedience": 1,
+            "ingenuity": 1
+          }
         }
       },
       {
@@ -1566,7 +1815,10 @@
           },
           "add_flags": ["form-zero-came-back"],
           "remove_flags": [],
-          "department_outcome": "returned-to-sender"
+          "department_outcome": "returned-to-sender",
+          "grades": {
+            "spite": 1
+          }
         },
         "failure": {
           "text": "It comes back with you attached. Dispatch processes you as a capsule and delivers you, slightly dented, to the front of Records.",
@@ -1575,7 +1827,10 @@
           },
           "add_flags": ["delivered-by-tube"],
           "remove_flags": [],
-          "department_outcome": "refiled"
+          "department_outcome": "refiled",
+          "grades": {
+            "spite": 1
+          }
         }
       },
       {
@@ -1604,7 +1859,10 @@
           },
           "add_flags": ["form-zero-never-existed"],
           "remove_flags": [],
-          "department_outcome": "struck-from-the-record"
+          "department_outcome": "struck-from-the-record",
+          "grades": {
+            "ingenuity": 1
+          }
         },
         "failure": {
           "text": "The minutes have been amended. Form 0 was approved unanimously, including by you, apparently. The Supervisor files you back at the start.",
@@ -1613,7 +1871,85 @@
           },
           "add_flags": [],
           "remove_flags": [],
-          "department_outcome": "refiled"
+          "department_outcome": "refiled",
+          "grades": {
+            "ingenuity": 1
+          }
+        }
+      },
+      {
+        "id": "stamp-form-zero-reassigned",
+        "label": "Stamp Form 0 REASSIGNED",
+        "intent": "Deny the form its own request. Let it sit in the out-tray and think about that.",
+        "risk_hint": "Certain outcome, open only to the deeply spiteful. Records will remember.",
+        "requires": {
+          "grade": {
+            "spite": 3
+          }
+        },
+        "cost": {
+          "composure": -1
+        },
+        "roll": null,
+        "success": {
+          "text": "The stamp lands. Form 0 is reassigned to itself, in another building, on another floor. Somewhere a printer screams. Records has no further questions, and several new enemies, all of them paper.",
+          "effects": {
+            "suspicion": 2,
+            "clearance": 1
+          },
+          "add_flags": ["form-zero-reassigned"],
+          "remove_flags": [],
+          "department_outcome": "returned-to-sender",
+          "grades": {
+            "spite": 1
+          }
+        },
+        "failure": null
+      },
+      {
+        "id": "fold-form-zero",
+        "label": "Fold Form 0 into Form 0",
+        "intent": "Crease it along the dotted lines until the request becomes its own approval.",
+        "risk_hint": "Routine Tinkering check, open only to the inventive. The paper cuts are real.",
+        "requires": {
+          "grade": {
+            "ingenuity": 3
+          }
+        },
+        "cost": {
+          "composure": -2
+        },
+        "roll": {
+          "dice_count": 2,
+          "die_sides": 6,
+          "skill": "tinkering",
+          "modifier": 0,
+          "target": 7
+        },
+        "success": {
+          "text": "Eleven folds in, the form approves itself with a small dry click. The Records clerks stand and remove their visors. Nobody has ever filed Form 0 correctly, and technically you still have not.",
+          "effects": {
+            "clearance": 1,
+            "suspicion": 1
+          },
+          "add_flags": ["form-zero-folded"],
+          "remove_flags": [],
+          "department_outcome": "filled-correctly",
+          "grades": {
+            "ingenuity": 1
+          }
+        },
+        "failure": {
+          "text": "The fold collapses into a paper crane, which flies to the Supervisor and lands on his desk. He reads it. You are refiled under Pending.",
+          "effects": {
+            "suspicion": 2
+          },
+          "add_flags": [],
+          "remove_flags": [],
+          "department_outcome": "refiled",
+          "grades": {
+            "ingenuity": 1
+          }
         }
       }
     ],

@@ -55,6 +55,19 @@ export const START_METERS: Meters = {
   forms: 3,
 }
 
+// Hidden Test Results (conductor shifting-desks t-022). Choices quietly grade the
+// player; nothing is shown during play. Each department review reveals as many
+// leading grades as the department is deep, and the Personnel File reads all four.
+export const GRADES = ['obedience', 'empathy', 'ingenuity', 'spite'] as const
+export type Grade = (typeof GRADES)[number]
+export type Grades = Record<Grade, number>
+export const START_GRADES: Grades = {
+  obedience: 0,
+  empathy: 0,
+  ingenuity: 0,
+  spite: 0,
+}
+
 export type Roll = {
   dice_count: number
   die_sides: number
@@ -68,8 +81,14 @@ export type Outcome = {
   add_flags: string[]
   remove_flags: string[]
   department_outcome?: string
+  grades?: Partial<Grades>
 }
-export type Requirement = { flag?: string; clearance?: number; forms?: number }
+export type Requirement = {
+  flag?: string
+  clearance?: number
+  forms?: number
+  grade?: Partial<Grades>
+}
 export type Choice = {
   id: string
   label: string
@@ -192,6 +211,12 @@ export type Decks = {
     perk: string
     art_prompt: string
   }>
+  testResults: TestResultsCopy
+}
+export type TestResultsCopy = {
+  note: string
+  axes: Array<{ id: Grade; title: string; high: string; low: string }>
+  verdicts: Array<{ axis: Grade | 'balanced'; title: string; text: string }>
 }
 
 export const DECKS = decksData as Decks
@@ -336,7 +361,7 @@ export type Termination = {
 export type SocietyStatus = 'active' | 'met' | 'betrayed'
 
 export type RunState = {
-  version: 3
+  version: 4
   department: string
   departmentOutcomes: Record<string, string>
   societyRecord: Record<string, SocietyStatus>
@@ -351,6 +376,7 @@ export type RunState = {
   jobId: string
   skills: Record<Skill, number>
   meters: Meters
+  grades: Grades
   generation: number
   flags: string[]
   deck: string[]
@@ -363,7 +389,7 @@ export type RunState = {
 }
 
 export const BOSS_CARD = 'boss'
-const SAVE_VERSION = 3
+const SAVE_VERSION = 4
 
 function hashSeed(seed: string): number {
   let h = 2166136261
@@ -502,6 +528,7 @@ export function newRun(seed: string, jobId: string): RunState {
     jobId: job.id,
     skills: { ...job.skills },
     meters: clampMeters(meters),
+    grades: { ...START_GRADES },
     generation: 0,
     flags: [],
     deck,
@@ -540,7 +567,92 @@ export function requirementLock(
   if (req?.clearance && state.meters.clearance < req.clearance) {
     return `Requires Clearance ${req.clearance}.`
   }
+  for (const g of GRADES) {
+    const min = req?.grade?.[g]
+    if (min && state.grades[g] < min) {
+      return `PAL reserves this for employees with ${gradeTitle(g)} ${min}.`
+    }
+  }
   return null
+}
+
+export function gradeTitle(g: Grade): string {
+  return DECKS.testResults.axes.find((a) => a.id === g)?.title ?? g
+}
+
+export function gradeRequirement(choice: Choice): [Grade, number] | null {
+  for (const g of GRADES) {
+    const min = choice.requires?.grade?.[g]
+    if (min) return [g, min]
+  }
+  return null
+}
+
+export function gradeLevel(score: number): string {
+  if (score >= 5) return 'Exceptional'
+  if (score >= 3) return 'Notable'
+  if (score >= 1) return 'Present'
+  if (score === 0) return 'Undetected'
+  return 'Deficient'
+}
+
+export type GradeReading = {
+  grade: Grade
+  title: string
+  score: number
+  level: string
+  line: string
+}
+
+function readGrade(g: Grade, score: number): GradeReading {
+  const axis = DECKS.testResults.axes.find((a) => a.id === g)
+  return {
+    grade: g,
+    title: axis?.title ?? g,
+    score,
+    level: gradeLevel(score),
+    line: (score > 0 ? axis?.high : axis?.low) ?? '',
+  }
+}
+
+// Highest first; ties go to the axis listed later (spite beats obedience).
+export function rankedGrades(grades: Grades): GradeReading[] {
+  return GRADES.map((g, i) => ({ r: readGrade(g, grades[g]), i }))
+    .sort((a, b) => b.r.score - a.r.score || b.i - a.i)
+    .map((x) => x.r)
+}
+
+export function interimResults(state: RunState): {
+  revealed: GradeReading[]
+  sealed: number
+} {
+  const depth = departmentPack(state.department).department.order
+  const shown = Math.min(GRADES.length, Math.max(1, depth))
+  const ranked = rankedGrades(state.grades)
+  return { revealed: ranked.slice(0, shown), sealed: GRADES.length - shown }
+}
+
+export function finalVerdict(grades: Grades): {
+  title: string
+  text: string
+  axis: Grade | 'balanced'
+} {
+  const values = GRADES.map((g) => grades[g])
+  const balanced = Math.max(...values) - Math.min(...values) <= 1
+  const axis = balanced ? 'balanced' : rankedGrades(grades)[0]!.grade
+  const verdict = DECKS.testResults.verdicts.find((v) => v.axis === axis)
+  return {
+    axis,
+    title: verdict?.title ?? 'Results Pending',
+    text: verdict?.text ?? '',
+  }
+}
+
+function addGrades(a: Grades, b: Partial<Grades> | undefined): Grades {
+  if (!b) return a
+  const out = { ...a }
+  for (const g of GRADES) out[g] += b[g] ?? 0
+  return out
 }
 
 export function lockReason(
@@ -753,6 +865,7 @@ export function choose(
 
   for (const k of METERS) meters[k] += effects[k] ?? 0
   meters = clampMeters(meters)
+  const grades = addGrades(state.grades, outcome.grades)
   flags = [
     ...flags.filter((f) => !outcome.remove_flags.includes(f)),
     ...outcome.add_flags.filter((f) => !flags.includes(f)),
@@ -900,6 +1013,7 @@ export function choose(
     ...state,
     rng,
     meters,
+    grades,
     flags,
     generation,
     societyStatus,
@@ -1019,6 +1133,7 @@ export function upgradeRun(value: unknown): RunState | null {
   if (isRunState(value)) return value
   if (!value || typeof value !== 'object') return null
   const raw = value as Record<string, unknown>
+  if (raw.version === 3) return upgradeV3(raw)
   const v = raw.version === 1 ? upgradeV1(raw) : raw
   if (!v || v.version !== 2) return null
   const done = v.status === 'department-complete' || v.status === 'eliminated'
@@ -1040,6 +1155,25 @@ export function upgradeRun(value: unknown): RunState | null {
         : {},
     terminations: [],
   }
+  return upgradeV3({ ...upgraded, version: 3 })
+}
+
+// Saves from before Test Results: replay the grades from the log, since every
+// entry names the card, the choice and whether it succeeded.
+function upgradeV3(v: Record<string, unknown>): RunState | null {
+  const log = Array.isArray(v.log) ? (v.log as LogEntry[]) : []
+  const cards = DEPARTMENTS.flatMap((d) => [...d.encounters, d.boss])
+  let grades = { ...START_GRADES }
+  for (const entry of log) {
+    const choice = cards
+      .find((c) => c.id === entry.cardId)
+      ?.choices.find((c) => c.id === entry.choiceId)
+    if (!choice) continue
+    const out =
+      entry.success || !choice.failure ? choice.success : choice.failure
+    grades = addGrades(grades, out.grades)
+  }
+  const upgraded = { ...v, version: SAVE_VERSION, grades }
   return isRunState(upgraded) ? upgraded : null
 }
 
@@ -1095,6 +1229,8 @@ export function isRunState(value: unknown): value is RunState {
     Array.isArray(v.log) &&
     !!v.meters &&
     METERS.every((k) => typeof v.meters?.[k] === 'number') &&
+    !!v.grades &&
+    GRADES.every((k) => typeof v.grades?.[k] === 'number') &&
     !!v.skills &&
     SKILLS.every((k) => typeof v.skills?.[k] === 'number') &&
     (v.status === 'playing' ||

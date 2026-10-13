@@ -31,6 +31,12 @@ import {
   lockReason,
   newRun,
   nextRandom,
+  GRADES,
+  START_GRADES,
+  finalVerdict,
+  gradeRequirement,
+  interimResults,
+  rankedGrades,
 } from '../shiftingDesks/rules'
 
 const file = (path: string) => fileURLToPath(new URL(path, import.meta.url))
@@ -104,7 +110,9 @@ assert.deepEqual(
 assert.equal(a.meters.successors, 6, 'Intern perk adds a Successor')
 assert.equal(newRun('x', 'night-janitor').meters.clearance, 2)
 assert.ok(isRunState(JSON.parse(JSON.stringify(a))))
-assert.equal(isRunState({ ...a, version: 4 }), false)
+assert.equal(isRunState({ ...a, version: 5 }), false)
+assert.deepEqual(a.grades, START_GRADES, 'Test Results start blank')
+assert.equal(isRunState({ ...a, grades: undefined }), false)
 assert.equal(isRunState({ ...a, deck: ['not-a-card'] }), false)
 
 assert.ok(SOCIETIES.length >= 6 && MUTATIONS.length >= 8)
@@ -152,7 +160,7 @@ const v1 = {
   version: 1,
 }
 const upgraded = upgradeRun(v1)
-assert.ok(upgraded && upgraded.version === 3, 'v1 saves upgrade')
+assert.ok(upgraded && upgraded.version === 4, 'v1 saves upgrade')
 assert.equal(upgradeRun({ version: 1, seed: 'x' }), null, 'junk v1 rejected')
 
 function withDossier(
@@ -326,7 +334,126 @@ assert.equal(
   'earning the flag unlocks the route',
 )
 
+// Hidden Test Results (conductor shifting-desks t-022)
+for (const d of DEPARTMENTS) {
+  for (const e of d.encounters) {
+    assert.ok(
+      e.choices.some((c) => c.success.grades || c.failure?.grades),
+      `${e.id} grades the player`,
+    )
+  }
+  const gated = d.boss.choices.filter((c) => gradeRequirement(c))
+  assert.ok(gated.length >= 1, `${d.department.id} review has a grade route`)
+  for (const e of d.encounters) {
+    for (const c of e.choices) {
+      assert.equal(
+        gradeRequirement(c),
+        null,
+        'only a review may gate on a hidden grade',
+      )
+    }
+  }
+}
+assert.deepEqual(
+  DECKS.testResults.axes.map((x) => x.id),
+  [...GRADES],
+  'every grade has PAL copy',
+)
+
+const gradedRun = findRun((r) => {
+  const v = currentCard(r)
+  return (
+    !!v &&
+    v.card.choices.some((c) => !lockReason(r, c) && c.success.grades && !c.roll)
+  )
+})
+const gradedChoice = currentCard(gradedRun)!.card.choices.find(
+  (c) => !lockReason(gradedRun, c) && c.success.grades && !c.roll,
+)!
+const afterGrade = choose(gradedRun, gradedChoice.id)
+for (const g of GRADES) {
+  assert.equal(
+    afterGrade.grades[g],
+    gradedChoice.success.grades?.[g] ?? 0,
+    `${g} accumulates from the outcome`,
+  )
+}
+assert.doesNotMatch(
+  JSON.stringify(afterGrade.pending),
+  /obedience|empathy|ingenuity|spite|grades/i,
+  'the result panel and journal never carry a grade',
+)
+
+const orientationReview: RunState = {
+  ...newRun('review', 'intern'),
+  position: 3,
+}
+assert.equal(currentCard(orientationReview)!.kind, 'boss')
+const gate = ORIENTATION.boss.choices.find((c) => gradeRequirement(c))!
+const [gateGrade, gateMin] = gradeRequirement(gate)!
+assert.match(
+  lockReason(orientationReview, gate) ?? '',
+  /PAL reserves this/,
+  'a grade route stays locked until earned',
+)
+assert.equal(
+  lockReason(
+    {
+      ...orientationReview,
+      grades: { ...START_GRADES, [gateGrade]: gateMin },
+    },
+    gate,
+  ),
+  null,
+  'reaching the grade opens the route',
+)
+const firstInterim = interimResults({
+  ...orientationReview,
+  grades: { obedience: 1, empathy: 3, ingenuity: 0, spite: 2 },
+})
+assert.deepEqual(
+  firstInterim.revealed.map((r) => r.grade),
+  ['empathy'],
+  'Orientation reveals only the leading grade',
+)
+assert.equal(firstInterim.sealed, 3)
+const recordsReview = interimResults({
+  ...orientationReview,
+  department: DEPARTMENTS[1]!.department.id,
+  grades: { obedience: 1, empathy: 3, ingenuity: 0, spite: 2 },
+})
+assert.deepEqual(
+  recordsReview.revealed.map((r) => r.grade),
+  ['empathy', 'spite'],
+  'each level deeper reveals one more grade',
+)
+assert.deepEqual(
+  rankedGrades({ obedience: 2, empathy: 0, ingenuity: 0, spite: 2 }).map(
+    (r) => r.grade,
+  )[0],
+  'spite',
+  'ties go to the later axis',
+)
+assert.equal(finalVerdict(START_GRADES).axis, 'balanced')
+assert.equal(
+  finalVerdict({ obedience: 5, empathy: 1, ingenuity: 0, spite: 2 }).axis,
+  'obedience',
+)
+for (const v of DECKS.testResults.verdicts) assert.match(v.text, /\.$/)
+
+const v3 = { ...JSON.parse(JSON.stringify(afterGrade)), version: 3 }
+delete v3.grades
+const fromV3 = upgradeRun(v3)
+assert.ok(fromV3, 'v3 saves upgrade')
+assert.deepEqual(
+  fromV3.grades,
+  afterGrade.grades,
+  'upgrading a v3 save replays its grades from the log',
+)
+
 const outcomes = new Set<string>()
+const gradeRoutesTaken = new Set<string>()
+const verdictsSeen = new Set<string>()
 let eliminated = 0
 let reorientations = 0
 let descents = 0
@@ -350,6 +477,13 @@ for (let i = 0; i < 3000; i++) {
     }
     const view = currentCard(run)!
     const open = view.card.choices.filter((c) => !lockReason(run, c))
+    if (view.kind !== 'boss') {
+      assert.equal(
+        open.some((c) => gradeRequirement(c)),
+        false,
+        'no grade gate before a review',
+      )
+    }
     assert.ok(
       open.length > 0,
       `a card always has an open choice (${view.card.id})`,
@@ -357,6 +491,7 @@ for (let i = 0; i < 3000; i++) {
     const [r, next] = nextRandom(rng)
     rng = next
     const pick = open[Math.floor(r * open.length)]!
+    if (gradeRequirement(pick)) gradeRoutesTaken.add(pick.id)
     run = choose(run, pick.id, {
       spendForm: r < 0.3,
       useFavor: r > 0.6,
@@ -383,6 +518,7 @@ for (let i = 0; i < 3000; i++) {
   if (run.status === 'eliminated') eliminated++
   if (run.status === 'complete') {
     completed++
+    verdictsSeen.add(finalVerdict(run.grades).axis)
     assert.deepEqual(
       Object.keys(run.departmentOutcomes),
       DEPARTMENTS.map((d) => d.department.id),
@@ -397,6 +533,15 @@ for (const d of DEPARTMENTS) {
     assert.ok(outcomes.has(id), `department outcome ${id} is reachable`)
   }
 }
+for (const d of DEPARTMENTS) {
+  for (const c of d.boss.choices.filter((x) => gradeRequirement(x))) {
+    assert.ok(gradeRoutesTaken.has(c.id), `grade route ${c.id} gets earned`)
+  }
+}
+assert.ok(
+  verdictsSeen.size >= 4,
+  `the Personnel File reaches varied verdicts (${[...verdictsSeen].join(', ')})`,
+)
 assert.ok(descents > 1000, `most runs reach the next department (${descents})`)
 assert.ok(completed > 1000, `most runs finish the demo (${completed})`)
 assert.ok(
@@ -464,6 +609,21 @@ const pageWithParts = [
   asset('../../components/shifting-desks/shifting-desks-envelope.vue'),
   asset('../../components/shifting-desks/shifting-desks-elevator.vue'),
 ].join('\n')
+assert.match(
+  page,
+  /kind === 'boss' \? interimResults/,
+  'interim results appear only at a review',
+)
+assert.match(
+  asset('../../components/shifting-desks/shifting-desks-personnel-file.vue'),
+  /<shifting-desks-test-results[\s\S]*final/,
+  'the Personnel File reads every grade back',
+)
+assert.doesNotMatch(
+  asset('../../components/shifting-desks/shifting-desks-journal.vue'),
+  /grade/i,
+  'the journal never shows a grade',
+)
 for (const kind of [
   'cards',
   'locations',

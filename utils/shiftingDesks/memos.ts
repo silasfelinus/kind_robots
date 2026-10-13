@@ -75,6 +75,24 @@ export const FLAG_MEMOS: Record<string, string> = {
     'A 90-Day Review has been adjourned pending escalation. Escalation has been escalated.',
   'founder-noticed-you':
     'The Founder would like to meet you. The Founder is very small and in a jar.',
+  'recycled-a-bear':
+    'Thank you for keeping the nursery quiet. The recycling chute has been emptied.',
+  'bears-bonded':
+    'Two Snuggle Sentinels have been found sharing an incubator. Please do not separate them. Please.',
+  'listed-coworkers':
+    'Three lucky employees have received early product samples. Please congratulate them while you can.',
+  'reported-the-parents':
+    'Nine engineers have been reassigned to Product Testing, as products.',
+  'replied-all':
+    'Reply-all has been disabled for your safety. The launch party has moved to the parking lot.',
+  'wearing-kevins-lanyard':
+    'Kevin has been seen in three places today. Kevin is having a wonderful day.',
+  'mourned-kevin':
+    'An unscheduled minute of silence was observed on the Proving Grounds. It has been rescheduled.',
+  'stuffed-the-bear':
+    'Snuggle Sentinel is softer than specified. Defense would like to discuss the word "soft."',
+  'shipped-the-bear':
+    'Snuggle Sentinel ships to four million homes this spring. Peace of mind is on its way.',
 }
 
 export const GENERIC_MEMOS = [

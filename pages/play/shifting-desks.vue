@@ -794,7 +794,7 @@ const levelNotes = [
   {
     floor: 'Level −2',
     name: 'Product Safety: Toy Division',
-    note: 'A plush bear with a peace-of-mind module.',
+    note: 'The Concept Lab, the Focus Group Room, the Proving Grounds and a launch party for a bear with a peace-of-mind module.',
     id: 'toy-division',
   },
   {

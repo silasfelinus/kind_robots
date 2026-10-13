@@ -41,7 +41,9 @@ import {
   departmentBoard,
   restructuringFor,
   stepLabels,
+  TOY_DIVISION,
 } from '../shiftingDesks/rules'
+import { FLAG_MEMOS } from '../shiftingDesks/memos'
 
 const file = (path: string) => fileURLToPath(new URL(path, import.meta.url))
 const asset = (path: string) => readFileSync(file(path), 'utf8')
@@ -591,6 +593,56 @@ assert.deepEqual(
   'old saves keep the map they were dealt',
 )
 
+// Toy Division (conductor shifting-desks t-011)
+assert.deepEqual(
+  DEPARTMENTS.map((d) => d.department.id),
+  ['orientation', 'records', 'toy-division'],
+  'three departments ship, in order',
+)
+assert.equal(TOY_DIVISION.encounters.length, 12)
+assert.equal(
+  fallbackOutcome(TOY_DIVISION),
+  'back-to-the-drawing-board',
+  'a failed launch sends you back to the floor',
+)
+assert.ok(
+  TOY_DIVISION.restructurings && TOY_DIVISION.restructurings.length >= 4,
+)
+const toyArrival = descend({
+  ...arriveAfter('compliant-graduate'),
+  status: 'department-complete',
+  departmentOutcome: 'stamped-through',
+  departmentOutcomes: {
+    orientation: 'compliant-graduate',
+    records: 'stamped-through',
+  },
+  pending: null,
+})
+assert.equal(
+  toyArrival.department,
+  'toy-division',
+  'Records descends to Toy Division',
+)
+assert.equal(
+  stepLabels(toyArrival)[0],
+  'Ideation & Feedback Suite',
+  'Toy Division restructures on how Records ended',
+)
+for (const soc of SOCIETIES) {
+  assert.ok(
+    soc.objectives['toy-division']?.length &&
+      soc.betrayals['toy-division']?.length,
+    `${soc.id} has Toy Division orders`,
+  )
+  assert.ok(soc.objective_text['toy-division'], `${soc.id} explains its orders`)
+}
+for (const flag of Object.keys(FLAG_MEMOS)) {
+  assert.ok(
+    allFlags.has(flag),
+    `PAL memo ${flag} is keyed to a flag a card grants`,
+  )
+}
+
 const kindsSeen = new Set<string>()
 const outcomes = new Set<string>()
 const gradeRoutesTaken = new Set<string>()
@@ -743,7 +795,7 @@ const stationPrompts: Array<[string, string]> = [
   ...MUTATIONS.map((x): [string, string] => [`mutation ${x.id}`, x.art_prompt]),
 ]
 assert.ok(
-  stationPrompts.length >= 53,
+  stationPrompts.length >= 70,
   `every station is covered (${stationPrompts.length})`,
 )
 for (const [station, prompt] of stationPrompts) {

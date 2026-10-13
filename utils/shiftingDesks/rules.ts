@@ -1,5 +1,6 @@
 import pack from './orientation.json'
 import recordsPack from './records.json'
+import toysPack from './toy-division.json'
 import decksData from './decks.json'
 
 export const SKILLS = [
@@ -158,7 +159,8 @@ export type Pack = {
 
 export const ORIENTATION = pack as Pack
 export const RECORDS = recordsPack as Pack
-export const DEPARTMENTS: Pack[] = [ORIENTATION, RECORDS]
+export const TOY_DIVISION = toysPack as Pack
+export const DEPARTMENTS: Pack[] = [ORIENTATION, RECORDS, TOY_DIVISION]
 
 export function departmentPack(id: string): Pack {
   return DEPARTMENTS.find((d) => d.department.id === id) ?? ORIENTATION
@@ -489,7 +491,13 @@ function clampMeters(m: Meters): Meters {
   return out
 }
 
-const FALLBACK_OUTCOMES = ['reorientation', 'refiled', 'resubmit', 'redo']
+const FALLBACK_OUTCOMES = [
+  'reorientation',
+  'refiled',
+  'back-to-the-drawing-board',
+  'resubmit',
+  'redo',
+]
 const MAX_REVIEW_ATTEMPTS = 3
 
 export function fallbackOutcome(dept: Pack): string {

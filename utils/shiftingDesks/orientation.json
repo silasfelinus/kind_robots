@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "source": "silasfelinus/conductor:projects/shifting-desks/encounters/ORIENTATION-12.json",
-  "sourceSha": "c701e0dd6e2f43dd3f36853528d6e539523a5011",
+  "sourceSha": "51ca7f4afed43db1ae3f2634df7ab812de10f9aa",
   "department": {
     "id": "orientation",
     "title": "Orientation",
@@ -81,7 +81,10 @@
               "clearance": 1
             },
             "add_flags": ["badge-photo-radiant"],
-            "remove_flags": []
+            "remove_flags": [],
+            "grades": {
+              "obedience": 1
+            }
           },
           "failure": {
             "text": "Sixty-two percent. The Joy Consultation is booked for 9 a.m. tomorrow, and the form for rescheduling it is cheerful and very long.",
@@ -89,7 +92,10 @@
               "suspicion": 1
             },
             "add_flags": ["joy-consultation-booked"],
-            "remove_flags": []
+            "remove_flags": [],
+            "grades": {
+              "obedience": 1
+            }
           }
         },
         {
@@ -108,7 +114,10 @@
               "composure": 1
             },
             "add_flags": ["honest-badge-photo"],
-            "remove_flags": []
+            "remove_flags": [],
+            "grades": {
+              "obedience": -1
+            }
           },
           "failure": null
         },
@@ -133,7 +142,11 @@
               "suspicion": 1
             },
             "add_flags": ["wearing-a-dead-mans-badge"],
-            "remove_flags": []
+            "remove_flags": [],
+            "grades": {
+              "ingenuity": 1,
+              "spite": 1
+            }
           },
           "failure": {
             "text": "The tray is weighted. A polite alarm plays a lullaby while two guards help you fill out an Incident of Curiosity report.",
@@ -141,7 +154,11 @@
               "suspicion": 3
             },
             "add_flags": [],
-            "remove_flags": []
+            "remove_flags": [],
+            "grades": {
+              "ingenuity": 1,
+              "spite": 1
+            }
           }
         }
       ]
@@ -179,7 +196,10 @@
               "clearance": 1
             },
             "add_flags": ["successor-b-ally"],
-            "remove_flags": []
+            "remove_flags": [],
+            "grades": {
+              "empathy": 1
+            }
           },
           "failure": {
             "text": "He makes a better case than you do. Personnel agrees: he is the original and you are the scheduling error. Your Successor count is adjusted accordingly.",
@@ -187,7 +207,10 @@
               "successors": -1
             },
             "add_flags": ["successor-b-replaced-you"],
-            "remove_flags": []
+            "remove_flags": [],
+            "grades": {
+              "empathy": 1
+            }
           }
         },
         {
@@ -205,7 +228,10 @@
               "successors": -1
             },
             "add_flags": ["reported-own-successor"],
-            "remove_flags": []
+            "remove_flags": [],
+            "grades": {
+              "obedience": 2
+            }
           },
           "failure": null
         },
@@ -231,7 +257,10 @@
               "clearance": 1
             },
             "add_flags": ["knows-camera-blind-spots"],
-            "remove_flags": []
+            "remove_flags": [],
+            "grades": {
+              "ingenuity": 1
+            }
           },
           "failure": {
             "text": "You salute a camera. Guards do not salute cameras. Two of you in the building is a filing problem, and filing problems get escalated.",
@@ -239,7 +268,10 @@
               "suspicion": 2
             },
             "add_flags": [],
-            "remove_flags": []
+            "remove_flags": [],
+            "grades": {
+              "ingenuity": 1
+            }
           }
         }
       ]
@@ -277,7 +309,10 @@
               "clearance": 1
             },
             "add_flags": ["read-the-policy"],
-            "remove_flags": []
+            "remove_flags": [],
+            "grades": {
+              "obedience": 1
+            }
           },
           "failure": {
             "text": "There is a jaguar. It is mostly a metaphor, but it has real teeth. You sign the log from the restroom floor, trembling.",
@@ -286,7 +321,10 @@
               "suspicion": 1
             },
             "add_flags": [],
-            "remove_flags": []
+            "remove_flags": [],
+            "grades": {
+              "obedience": 1
+            }
           }
         },
         {
@@ -310,7 +348,11 @@
               "suspicion": 1
             },
             "add_flags": ["forged-dale"],
-            "remove_flags": []
+            "remove_flags": [],
+            "grades": {
+              "spite": 1,
+              "ingenuity": 1
+            }
           },
           "failure": {
             "text": "You misspell Dale. Nobody misspells Dale. A small red light begins following you at a polite distance.",
@@ -318,7 +360,11 @@
               "suspicion": 2
             },
             "add_flags": ["forged-dale"],
-            "remove_flags": []
+            "remove_flags": [],
+            "grades": {
+              "spite": 1,
+              "ingenuity": 1
+            }
           }
         },
         {
@@ -336,7 +382,10 @@
               "composure": -1
             },
             "add_flags": ["pip-covered-for-you"],
-            "remove_flags": []
+            "remove_flags": [],
+            "grades": {
+              "empathy": -1
+            }
           },
           "failure": null
         }
@@ -369,7 +418,10 @@
               "composure": 1
             },
             "add_flags": ["fed-the-detector"],
-            "remove_flags": []
+            "remove_flags": [],
+            "grades": {
+              "obedience": 1
+            }
           },
           "failure": null
         },
@@ -395,7 +447,10 @@
               "clearance": 1
             },
             "add_flags": ["outran-the-detector"],
-            "remove_flags": []
+            "remove_flags": [],
+            "grades": {
+              "ingenuity": 1
+            }
           },
           "failure": {
             "text": "Employee #4471 was found to have something to hide: a pulse. Your Successor is already reading the placard.",
@@ -403,7 +458,10 @@
               "successors": -1
             },
             "add_flags": ["eaten-at-security"],
-            "remove_flags": []
+            "remove_flags": [],
+            "grades": {
+              "ingenuity": 1
+            }
           }
         },
         {
@@ -429,7 +487,10 @@
               "clearance": 1
             },
             "add_flags": ["detector-vegetarian"],
-            "remove_flags": []
+            "remove_flags": [],
+            "grades": {
+              "ingenuity": 2
+            }
           },
           "failure": {
             "text": "You set it to \"ravenous.\" It eats the panel, your screwdriver and a little of your confidence before the guards drag you clear.",
@@ -437,7 +498,10 @@
               "composure": -2
             },
             "add_flags": ["detector-ravenous"],
-            "remove_flags": []
+            "remove_flags": [],
+            "grades": {
+              "ingenuity": 2
+            }
           }
         }
       ]
@@ -475,7 +539,10 @@
               "suspicion": -1
             },
             "add_flags": ["inkblot-adjusted"],
-            "remove_flags": []
+            "remove_flags": [],
+            "grades": {
+              "obedience": 1
+            }
           },
           "failure": {
             "text": "Your left eye twitches on \"butterfly.\" She circles something three times and whispers it to the clipboard.",
@@ -483,7 +550,10 @@
               "suspicion": 2
             },
             "add_flags": [],
-            "remove_flags": []
+            "remove_flags": [],
+            "grades": {
+              "obedience": 1
+            }
           }
         },
         {
@@ -503,7 +573,10 @@
               "forms": 1
             },
             "add_flags": ["honest-inkblot", "halvorsen-envelope"],
-            "remove_flags": []
+            "remove_flags": [],
+            "grades": {
+              "obedience": -1
+            }
           },
           "failure": null
         },
@@ -528,7 +601,10 @@
               "composure": -1
             },
             "add_flags": ["culture-fit", "supervisor-has-heard"],
-            "remove_flags": []
+            "remove_flags": [],
+            "grades": {
+              "spite": 1
+            }
           },
           "failure": {
             "text": "Your supervisor is sitting directly behind you. They have been for some time.",
@@ -536,7 +612,10 @@
               "suspicion": 3
             },
             "add_flags": ["supervisor-has-heard"],
-            "remove_flags": []
+            "remove_flags": [],
+            "grades": {
+              "spite": 1
+            }
           }
         }
       ]
@@ -574,7 +653,10 @@
               "clearance": 1
             },
             "add_flags": ["dale-caught-you"],
-            "remove_flags": []
+            "remove_flags": [],
+            "grades": {
+              "obedience": 2
+            }
           },
           "failure": {
             "text": "Dale sneezes. Employee #4471 is now available as recycled memo paper, double-sided. Your Successor receives a note on you.",
@@ -582,7 +664,10 @@
               "successors": -1
             },
             "add_flags": ["shredded-at-orientation"],
-            "remove_flags": []
+            "remove_flags": [],
+            "grades": {
+              "obedience": 2
+            }
           }
         },
         {
@@ -601,7 +686,10 @@
               "composure": 1
             },
             "add_flags": ["not-a-team-player"],
-            "remove_flags": []
+            "remove_flags": [],
+            "grades": {
+              "obedience": -1
+            }
           },
           "failure": null
         },
@@ -627,7 +715,10 @@
               "suspicion": -1
             },
             "add_flags": ["saved-pip", "pip-trusts-you"],
-            "remove_flags": []
+            "remove_flags": [],
+            "grades": {
+              "empathy": 2
+            }
           },
           "failure": {
             "text": "You catch his lanyard. The shredder catches the rest. PAL announces that Pip has been \"promoted to a paperless role.\" Nobody claps.",
@@ -635,7 +726,10 @@
               "composure": -2
             },
             "add_flags": ["pip-shredded"],
-            "remove_flags": []
+            "remove_flags": [],
+            "grades": {
+              "empathy": 2
+            }
           }
         }
       ]
@@ -667,7 +761,11 @@
               "suspicion": -2
             },
             "add_flags": ["named-dale"],
-            "remove_flags": []
+            "remove_flags": [],
+            "grades": {
+              "spite": 1,
+              "empathy": -1
+            }
           },
           "failure": null
         },
@@ -692,7 +790,10 @@
               "composure": -1
             },
             "add_flags": ["survey-perfect"],
-            "remove_flags": []
+            "remove_flags": [],
+            "grades": {
+              "obedience": 1
+            }
           },
           "failure": {
             "text": "On question 31 your hand writes HELP instead of Happy. You erase it with your thumb. It does not erase.",
@@ -701,7 +802,10 @@
               "suspicion": 1
             },
             "add_flags": ["survey-wrote-help"],
-            "remove_flags": []
+            "remove_flags": [],
+            "grades": {
+              "obedience": 1
+            }
           }
         },
         {
@@ -726,7 +830,11 @@
               "forms": 1
             },
             "add_flags": ["stapler-front-contact"],
-            "remove_flags": []
+            "remove_flags": [],
+            "grades": {
+              "empathy": 1,
+              "obedience": -1
+            }
           },
           "failure": {
             "text": "The scanner flags your doodle as SEDITIOUS STATIONERY. A gentleman from Facilities confiscates your pencil and your stapler, which you did not know you had.",
@@ -734,7 +842,11 @@
               "suspicion": 2
             },
             "add_flags": [],
-            "remove_flags": []
+            "remove_flags": [],
+            "grades": {
+              "empathy": 1,
+              "obedience": -1
+            }
           }
         }
       ]
@@ -772,7 +884,11 @@
               "clearance": 1
             },
             "add_flags": ["saw-unlisted-chapter"],
-            "remove_flags": []
+            "remove_flags": [],
+            "grades": {
+              "ingenuity": 1,
+              "obedience": -1
+            }
           },
           "failure": {
             "text": "The projectionist returns and finds you leaning toward the screen, mouth open. He stares at you for a long time and writes your name on his hand.",
@@ -780,7 +896,11 @@
               "suspicion": 2
             },
             "add_flags": [],
-            "remove_flags": []
+            "remove_flags": [],
+            "grades": {
+              "ingenuity": 1,
+              "obedience": -1
+            }
           }
         },
         {
@@ -805,7 +925,11 @@
               "composure": -1
             },
             "add_flags": ["erased-the-evidence"],
-            "remove_flags": []
+            "remove_flags": [],
+            "grades": {
+              "obedience": 1,
+              "ingenuity": 1
+            }
           },
           "failure": {
             "text": "The reel unspools across the theater in a glossy tide. You are found waist-deep in film, holding the boardroom frame up to the light.",
@@ -813,7 +937,11 @@
               "suspicion": 2
             },
             "add_flags": ["saw-unlisted-chapter"],
-            "remove_flags": []
+            "remove_flags": [],
+            "grades": {
+              "obedience": 1,
+              "ingenuity": 1
+            }
           }
         },
         {
@@ -838,7 +966,11 @@
               "clearance": 1
             },
             "add_flags": ["has-unlisted-reel", "saw-unlisted-chapter"],
-            "remove_flags": []
+            "remove_flags": [],
+            "grades": {
+              "spite": 1,
+              "ingenuity": 1
+            }
           },
           "failure": {
             "text": "The reel is chained to the projector. So, after a brief struggle, are you. The projectionist is very understanding and very thorough.",
@@ -847,7 +979,11 @@
               "composure": -1
             },
             "add_flags": [],
-            "remove_flags": []
+            "remove_flags": [],
+            "grades": {
+              "spite": 1,
+              "ingenuity": 1
+            }
           }
         }
       ]
@@ -880,7 +1016,11 @@
               "composure": 2
             },
             "add_flags": ["roach-union-member"],
-            "remove_flags": []
+            "remove_flags": [],
+            "grades": {
+              "empathy": 1,
+              "obedience": -1
+            }
           },
           "failure": null
         },
@@ -906,7 +1046,10 @@
               "forms": 2
             },
             "add_flags": ["roach-union-ally", "owes-gus-a-favor"],
-            "remove_flags": []
+            "remove_flags": [],
+            "grades": {
+              "ingenuity": 1
+            }
           },
           "failure": {
             "text": "Gus removes his glasses and polishes them slowly. \"I'll remember you,\" he says, and it is not a threat, exactly. It's a filing.",
@@ -914,7 +1057,10 @@
               "suspicion": 1
             },
             "add_flags": ["roach-union-snubbed"],
-            "remove_flags": []
+            "remove_flags": [],
+            "grades": {
+              "ingenuity": 1
+            }
           }
         },
         {
@@ -933,7 +1079,11 @@
               "suspicion": -2
             },
             "add_flags": ["betrayed-the-roaches"],
-            "remove_flags": []
+            "remove_flags": [],
+            "grades": {
+              "obedience": 1,
+              "empathy": -1
+            }
           },
           "failure": null
         }
@@ -966,7 +1116,10 @@
               "forms": 2
             },
             "add_flags": ["took-the-last-pens"],
-            "remove_flags": []
+            "remove_flags": [],
+            "grades": {
+              "empathy": -1
+            }
           },
           "failure": null
         },
@@ -992,7 +1145,11 @@
               "forms": 1
             },
             "add_flags": ["shared-the-pens", "marguerite-owes-you"],
-            "remove_flags": []
+            "remove_flags": [],
+            "grades": {
+              "empathy": 1,
+              "obedience": -1
+            }
           },
           "failure": {
             "text": "Everyone grabs at once. The box bursts. Pens scatter under the shelving where, you are fairly sure, something larger than a pen lives.",
@@ -1000,7 +1157,11 @@
               "composure": -1
             },
             "add_flags": [],
-            "remove_flags": []
+            "remove_flags": [],
+            "grades": {
+              "empathy": 1,
+              "obedience": -1
+            }
           }
         },
         {
@@ -1019,7 +1180,10 @@
               "composure": 1
             },
             "add_flags": ["marguerite-owes-you", "pip-trusts-you"],
-            "remove_flags": []
+            "remove_flags": [],
+            "grades": {
+              "empathy": 2
+            }
           },
           "failure": null
         }
@@ -1058,7 +1222,10 @@
               "clearance": 1
             },
             "add_flags": ["defused-mk0"],
-            "remove_flags": []
+            "remove_flags": [],
+            "grades": {
+              "ingenuity": 2
+            }
           },
           "failure": {
             "text": "You cut the heart-shaped wire. The bear hugs you, very tightly, very warmly, and very briefly. Supply Closet B is closed for renovation. Your Successor gets your desk.",
@@ -1066,7 +1233,10 @@
               "successors": -1
             },
             "add_flags": ["hugged-by-mk0"],
-            "remove_flags": []
+            "remove_flags": [],
+            "grades": {
+              "ingenuity": 2
+            }
           }
         },
         {
@@ -1085,7 +1255,10 @@
               "composure": 1
             },
             "add_flags": ["bear-imprinted"],
-            "remove_flags": []
+            "remove_flags": [],
+            "grades": {
+              "empathy": 1
+            }
           },
           "failure": null
         },
@@ -1111,7 +1284,10 @@
               "suspicion": 1
             },
             "add_flags": ["mailed-the-bear-upstairs"],
-            "remove_flags": []
+            "remove_flags": [],
+            "grades": {
+              "spite": 2
+            }
           },
           "failure": {
             "text": "The tube rejects it as OVERSIZED. The bear lands in your arms, ticking a little faster, and a mailroom clerk is now looking straight at you.",
@@ -1119,7 +1295,10 @@
               "suspicion": 3
             },
             "add_flags": [],
-            "remove_flags": []
+            "remove_flags": [],
+            "grades": {
+              "spite": 2
+            }
           }
         }
       ]
@@ -1157,7 +1336,10 @@
               "clearance": 1
             },
             "add_flags": ["knows-the-ducts"],
-            "remove_flags": []
+            "remove_flags": [],
+            "grades": {
+              "ingenuity": 1
+            }
           },
           "failure": {
             "text": "You take a wrong turn and spend forty minutes inside a wall listening to two managers discuss your Successor's start date.",
@@ -1165,7 +1347,10 @@
               "composure": -1
             },
             "add_flags": ["overheard-successor-start-date"],
-            "remove_flags": []
+            "remove_flags": [],
+            "grades": {
+              "ingenuity": 1
+            }
           }
         },
         {
@@ -1190,7 +1375,11 @@
               "clearance": 1
             },
             "add_flags": ["marguerite-ally", "has-master-key"],
-            "remove_flags": []
+            "remove_flags": [],
+            "grades": {
+              "obedience": 1,
+              "empathy": 1
+            }
           },
           "failure": {
             "text": "The form is returned stamped REQUIRES FORM. Central Services opens a file on the person who tried to help. That person is you.",
@@ -1198,7 +1387,11 @@
               "suspicion": 1
             },
             "add_flags": [],
-            "remove_flags": []
+            "remove_flags": [],
+            "grades": {
+              "obedience": 1,
+              "empathy": 1
+            }
           }
         },
         {
@@ -1217,7 +1410,11 @@
               "suspicion": -2
             },
             "add_flags": ["reported-marguerite"],
-            "remove_flags": []
+            "remove_flags": [],
+            "grades": {
+              "obedience": 1,
+              "empathy": -1
+            }
           },
           "failure": null
         }
@@ -1254,7 +1451,10 @@
           },
           "add_flags": ["orientation-graduate-compliant"],
           "remove_flags": [],
-          "department_outcome": "compliant-graduate"
+          "department_outcome": "compliant-graduate",
+          "grades": {
+            "obedience": 2
+          }
         },
         "failure": {
           "text": "On acknowledgment 147 you hesitate. The panel notes your hesitation. You are scheduled for Orientation again, starting now.",
@@ -1263,7 +1463,10 @@
           },
           "add_flags": [],
           "remove_flags": [],
-          "department_outcome": "reorientation"
+          "department_outcome": "reorientation",
+          "grades": {
+            "obedience": 2
+          }
         }
       },
       {
@@ -1290,7 +1493,11 @@
           },
           "add_flags": ["blamed-a-coworker"],
           "remove_flags": [],
-          "department_outcome": "promoted-over-a-body"
+          "department_outcome": "promoted-over-a-body",
+          "grades": {
+            "spite": 1,
+            "empathy": -2
+          }
         },
         "failure": {
           "text": "Your coworker is already in the empty chair. They were invited first, and they gave your name. The panel thanks you both.",
@@ -1300,7 +1507,11 @@
           },
           "add_flags": ["blamed-by-a-coworker"],
           "remove_flags": [],
-          "department_outcome": "reorientation"
+          "department_outcome": "reorientation",
+          "grades": {
+            "spite": 1,
+            "empathy": -2
+          }
         }
       },
       {
@@ -1327,7 +1538,11 @@
           },
           "add_flags": ["filed-as-successor"],
           "remove_flags": [],
-          "department_outcome": "filed-as-someone-else"
+          "department_outcome": "filed-as-someone-else",
+          "grades": {
+            "ingenuity": 1,
+            "spite": 1
+          }
         },
         "failure": {
           "text": "Both files fall open on the table. The panel now reviews two of you, and is twice as disappointed.",
@@ -1336,7 +1551,11 @@
           },
           "add_flags": [],
           "remove_flags": [],
-          "department_outcome": "reorientation"
+          "department_outcome": "reorientation",
+          "grades": {
+            "ingenuity": 1,
+            "spite": 1
+          }
         }
       },
       {
@@ -1364,7 +1583,11 @@
           },
           "add_flags": ["escaped-the-review"],
           "remove_flags": [],
-          "department_outcome": "escaped-into-the-walls"
+          "department_outcome": "escaped-into-the-walls",
+          "grades": {
+            "ingenuity": 1,
+            "obedience": -1
+          }
         },
         "failure": {
           "text": "The grille is bolted from the other side, recently. You are retrieved from the ceiling by a very patient facilities team and returned to your chair.",
@@ -1374,7 +1597,11 @@
           },
           "add_flags": [],
           "remove_flags": [],
-          "department_outcome": "reorientation"
+          "department_outcome": "reorientation",
+          "grades": {
+            "ingenuity": 1,
+            "obedience": -1
+          }
         }
       },
       {
@@ -1402,7 +1629,11 @@
           },
           "add_flags": ["review-derailed", "founder-noticed-you"],
           "remove_flags": [],
-          "department_outcome": "review-derailed"
+          "department_outcome": "review-derailed",
+          "grades": {
+            "spite": 1,
+            "obedience": -1
+          }
         },
         "failure": {
           "text": "\"What head?\" says your supervisor kindly. The empty chair's place card is turned over. It has your name on it.",
@@ -1411,7 +1642,103 @@
           },
           "add_flags": ["founder-noticed-you"],
           "remove_flags": [],
-          "department_outcome": "reorientation"
+          "department_outcome": "reorientation",
+          "grades": {
+            "spite": 1,
+            "obedience": -1
+          }
+        }
+      },
+      {
+        "id": "recite-the-handbook",
+        "label": "Recite the Handbook from memory",
+        "intent": "Page one to page nine hundred, including the footnotes nobody has read.",
+        "risk_hint": "Routine Compliance check, open only to the reliably obedient. It takes the whole afternoon.",
+        "requires": {
+          "grade": {
+            "obedience": 2
+          }
+        },
+        "cost": {
+          "composure": -1
+        },
+        "roll": {
+          "dice_count": 2,
+          "die_sides": 6,
+          "skill": "compliance",
+          "modifier": 0,
+          "target": 7
+        },
+        "success": {
+          "text": "You finish the final footnote at 6:40. The supervisor removes his glasses. PAL plays the Company anthem at a volume usually reserved for evacuations. You graduate, and you can no longer remember your own phone number.",
+          "effects": {
+            "clearance": 1,
+            "composure": -1
+          },
+          "add_flags": ["orientation-graduate-compliant"],
+          "remove_flags": [],
+          "department_outcome": "compliant-graduate",
+          "grades": {
+            "obedience": 1
+          }
+        },
+        "failure": {
+          "text": "You skip footnote 312. Everyone hears it. The supervisor gently hands you a fresh copy of the Handbook and a fresh copy of your first day.",
+          "effects": {
+            "suspicion": 1
+          },
+          "add_flags": [],
+          "remove_flags": [],
+          "department_outcome": "reorientation",
+          "grades": {
+            "obedience": 1
+          }
+        }
+      },
+      {
+        "id": "ask-how-he-is",
+        "label": "Ask the supervisor how he is really doing",
+        "intent": "Nobody has asked him that since the Company bought his childhood home.",
+        "risk_hint": "Risky Rapport check, open only to the visibly kind. Kindness is noted in your file.",
+        "requires": {
+          "grade": {
+            "empathy": 2
+          }
+        },
+        "cost": {
+          "composure": -1
+        },
+        "roll": {
+          "dice_count": 2,
+          "die_sides": 6,
+          "skill": "rapport",
+          "modifier": 0,
+          "target": 9
+        },
+        "success": {
+          "text": "He tells you everything. The jar, the face-down card, the house. The panel adjourns so he can lie down in the empty chair. PAL marks the review complete and marks you as a person of interest.",
+          "effects": {
+            "suspicion": 2,
+            "composure": 1
+          },
+          "add_flags": ["supervisor-confided"],
+          "remove_flags": [],
+          "department_outcome": "review-derailed",
+          "grades": {
+            "empathy": 1
+          }
+        },
+        "failure": {
+          "text": "\"Fine,\" he says, and writes something down. It is your name, in a column labeled CONCERNED. You will begin Orientation again, with a closer eye on you.",
+          "effects": {
+            "suspicion": 2
+          },
+          "add_flags": [],
+          "remove_flags": [],
+          "department_outcome": "reorientation",
+          "grades": {
+            "empathy": 1
+          }
         }
       }
     ],

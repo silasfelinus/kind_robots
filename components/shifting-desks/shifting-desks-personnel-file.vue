@@ -44,6 +44,13 @@
         </div>
       </div>
 
+      <shifting-desks-test-results
+        class="mt-6"
+        final
+        :readings="results"
+        :verdict="resultsVerdict"
+      />
+
       <dl
         class="mt-6 grid grid-cols-[repeat(auto-fit,minmax(min(100%,10rem),1fr))] gap-3 text-sm"
       >
@@ -118,8 +125,11 @@ import {
   DEPARTMENT_FLOORS,
   jobById,
   mutationById,
+  finalVerdict,
   outcomeById,
+  rankedGrades,
   societyById,
+  START_GRADES,
 } from '~/utils/shiftingDesks/rules'
 import { useShiftingDesksStore } from '~/stores/shiftingDesksStore'
 
@@ -133,6 +143,10 @@ const filesHandled = computed(
   () => run.value?.log.filter((e) => e.cardId !== 'dossier').length ?? 0,
 )
 const deeperLevel = computed(() => DEPARTMENTS.length)
+const results = computed(() => rankedGrades(run.value?.grades ?? START_GRADES))
+const resultsVerdict = computed(() =>
+  finalVerdict(run.value?.grades ?? START_GRADES),
+)
 
 const SOCIETY_WORDS = {
   met: 'orders fulfilled',

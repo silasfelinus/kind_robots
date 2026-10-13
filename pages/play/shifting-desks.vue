@@ -507,6 +507,11 @@
                 </template>
 
                 <template v-else-if="opened">
+                  <shifting-desks-test-results
+                    v-if="interim"
+                    :readings="interim.revealed"
+                    :sealed="interim.sealed"
+                  />
                   <p
                     class="font-mono text-xs font-black uppercase tracking-widest opacity-70"
                   >
@@ -552,6 +557,13 @@
                     <span class="text-xs italic opacity-70">{{
                       choice.risk_hint
                     }}</span>
+                    <span
+                      v-if="gradeBadge(choice)"
+                      class="flex items-center gap-1 self-start rounded-md bg-stone-800 px-2 py-0.5 text-[11px] font-bold uppercase text-amber-50"
+                    >
+                      <icon name="kind-icon:clipboard" size="0.8rem" />
+                      {{ gradeBadge(choice) }}
+                    </span>
                     <span
                       v-if="aidBadges(choice).length"
                       class="flex flex-wrap gap-1.5 text-[11px] font-bold uppercase"
@@ -669,6 +681,9 @@ import {
   societyById,
   locationById,
   outcomeById,
+  gradeRequirement,
+  gradeTitle,
+  interimResults,
   type Choice,
   type Pack,
   type Meter,
@@ -915,6 +930,16 @@ function lockFor(choice: Choice): string | null {
   const ignore =
     favorFor(choice) && society.value.favor.kind === 'ignore-requirement'
   return lockReason(run.value, choice, ignore)
+}
+
+const interim = computed(() =>
+  run.value && view.value?.kind === 'boss' ? interimResults(run.value) : null,
+)
+
+function gradeBadge(choice: Choice): string | null {
+  const req = gradeRequirement(choice)
+  if (!req || !run.value || lockFor(choice)) return null
+  return `Test Results: ${gradeTitle(req[0])} ${req[1]} unlocked`
 }
 
 function aidBadges(choice: Choice): string[] {

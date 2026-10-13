@@ -1,6 +1,6 @@
 ---
 contentType: tab
-channelKey: admin
+channelKey: zuzu
 tabKey: emperor-of-dust
 label: Emperor of Dust
 title: 'Emperor of Dust: One Hundred Days'
@@ -9,7 +9,7 @@ description: A private Day 1 playable dispatch prototype for the Zuzu-world preq
 summary: Govern the wasteland before Zuzu.
 icon: kind-icon:crown
 route: /admin/emperor-of-dust
-sort: 137
+sort: 150
 requiredRole: ADMIN
 tutorial:
   title: The Emperor's desk

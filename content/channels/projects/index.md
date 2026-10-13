@@ -1,31 +1,31 @@
 ---
 contentType: channel
 channelKey: projects
-label: Play
-title: Play
-room: The Workshop
-subtitle: Storybook, creative tools, and playful experiments
-description: Make stories in Storybook, create art and video, practice skills, and explore playful experiments. Arcade and Zuzu adventures have their own channels.
+label: Projects
+title: Projects
+room: The Creative Workshop
+subtitle: Stories, projects, creation and learning
+description: Storybook, Daily Dream projects, art, video, Mandarin, Rebel Button and other non-game creations. Games live in Arcade and Zuzu.
 icon: kind-icon:blueprint
 image: /images/arcade/arcade-hall-backdrop.webp
 backgroundMobile: /api/art/backdrop/play-mobile
 backgroundTablet: /api/art/backdrop/play-tablet
 backgroundDesktop: /api/art/backdrop/play-desktop
-route: /art
-defaultTab: art
+route: /storybook
+defaultTab: storybook
 sort: 40
-loadingMessage: Opening the workshop...
-refreshLabel: Refresh Play
+loadingMessage: Opening the projects...
+refreshLabel: Refresh Projects
 dottiTip: Every bench in this workshop holds something to make or something to play.
 amiTip: Several of these the robots built mostly on their own. I checked them for goblins. Mostly.
 tutorial:
-  title: Play
-  tagline: Make art, practice a skill, or play a game.
+  title: Projects
+  tagline: Make art, build stories, explore projects.
   overview: >-
-    Play starts with Storybook; open its submenu for characters, dreams, bots,
-    facets, rewards, scenarios and model tools. Play also holds art and video
-    studios, skill practice, and experiments. Arcade and Zuzu now have their
-    own channels. Each destination explains its controls in this sidebar.
+    Projects gathers Storybook and its ingredient galleries, Daily Dream builds,
+    Art Studio, Video Gen, Music Video, Mandarin, Superkate Services and Rebel Button.
+    Arcade has standalone games; Zuzu has the connected weird-west adventures.
+    Each destination provides its own tutorial.
   hero: /images/arcade/arcade-hall-backdrop.webp
   sections:
     - key: storybook
@@ -54,9 +54,9 @@ tutorial:
         how well you knew it.
       image: /images/mandarin-tutor/cards/v2/f24c02b7272a3d3004079114.webp
     - key: games
-      title: Play a game
+      title: Where to find games
       body: >-
-        Arcade now has its own channel of free cabinets and leaderboards.
+        Arcade hosts the standalone games and cabinets.
         Zuzu has a separate channel for his story, Shifting Lands board,
         fighting game and pinball. Memory
         Dungeon is a card-matching game with lives, power-ups and floors to

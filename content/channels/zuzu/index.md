@@ -5,7 +5,7 @@ label: Zuzu
 title: The World of Zuzu
 room: The Shifting Lands
 subtitle: The koala ronin and the roads between worlds
-description: Illustrated adventures across Zuzu's weird-west frontier, from the gamebook and shifting board to Showdown and The Last Bell.
+description: Illustrated adventures across Zuzu's weird-west frontier, from its gamebook and fighting games to Ghost Trail, Zuzu's Lair and Emperor of Dust.
 summary: Adventures, combat and pinball in Zuzu's world.
 icon: kind-icon:swords
 image: /zuzu-showdown-portraits/zuzu-vs-hd.webp
@@ -16,7 +16,7 @@ loadingMessage: Crossing into the Shifting Lands...
 refreshLabel: Refresh Zuzu
 tutorial:
   title: The World of Zuzu
-  tagline: Four ways to travel the shifting frontier.
+  tagline: Games and stories across the shifting frontier.
   overview: >-
     Zuzu is an Edo-era koala ronin crossing a strange frontier. Choose an
     illustrated gamebook, a card-driven board journey, a fighting game or a

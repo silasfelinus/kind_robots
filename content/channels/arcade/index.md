@@ -5,8 +5,8 @@ label: Arcade
 title: Kind Robots Arcade
 room: The Arcade
 subtitle: Pick a cabinet, chase a high score
-description: 'Free original cabinets: pinball, platformers, shooters, and stranger surprises.'
-summary: The arcade hall and its games.
+description: 'Original cabinets, Memory Dungeon, Cthulhuquarium and other standalone games.'
+summary: Arcade cabinets and standalone games.
 icon: kind-icon:arcade
 image: /images/arcade/arcade-attract-splash.webp
 route: /play/arcade
@@ -18,7 +18,7 @@ tutorial:
   title: Arcade
   tagline: Original cabinets, high scores, no coins required.
   overview: >-
-    Arcade is its own channel. Choose a cabinet from the hall, play with its
+    Arcade brings the cabinets, Memory Dungeon and Cthulhuquarium together. Choose a cabinet from the hall, play with its
     indicated controls and chase high scores. Each game explains its own rules.
   hero: /images/arcade/arcade-attract-splash.webp
   sections:

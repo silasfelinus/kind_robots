@@ -68,6 +68,8 @@ export class PinballTouch {
 
   /** A finger lands at (x, y), in fractions of the screen, at `at` ms. */
   down(id: number, x: number, y: number, at: number) {
+    // Safari can reuse a pointer ID after a cancelled gesture with no up event.
+    if (this.fingers.has(id)) this.up(id)
     const zone = zoneAt(x, y)
     const holds =
       zone === 'left' ? 'left' : zone === 'none' ? null : ('right' as const)

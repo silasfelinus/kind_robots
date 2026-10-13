@@ -3571,6 +3571,25 @@ async function runPinballTouch() {
   touch.release()
   assert.ok(log.includes('left:up') && pull === null)
 
+  // A pointer ID reused after Safari loses its up event must not strand a hold.
+  log = []
+  touch.down(10, 0.2, 0.8, 0)
+  touch.down(10, 0.2, 0.8, 50)
+  touch.up(10)
+  assert.deepEqual(log, ['left:down', 'left:up', 'left:down', 'left:up'])
+
+  // Blur/visibility cleanup is idempotent even if late pointerup arrives.
+  log = []
+  touch.down(11, 0.2, 0.8, 100)
+  touch.down(12, 0.7, 0.8, 110)
+  touch.release()
+  touch.up(11)
+  touch.up(12)
+  assert.deepEqual(log, ['left:down', 'right:down', 'left:up', 'right:up'])
+  touch.down(13, 0.2, 0.8, 150)
+  touch.up(13)
+  assert.deepEqual(log.slice(-2), ['left:down', 'left:up'])
+
   // The runtime: the drag's depth is the pull, and letting go fires the
   // ball as hard as it was pulled.
   const launchSpeed = (depth: number) => {

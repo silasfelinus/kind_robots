@@ -1724,9 +1724,19 @@ function onOnline() {
   void store.flushPending()
 }
 
+function releaseInterruptedInput() {
+  releaseTouch()
+  for (const seatIn of inputs) seatIn.clear()
+}
+
 function onVisibility() {
-  if (document.hidden && machine.phase === 'playing')
-    dispatch({ type: 'pause' })
+  if (!document.hidden) return
+  releaseInterruptedInput()
+  if (machine.phase === 'playing') dispatch({ type: 'pause' })
+}
+
+function onWindowBlur() {
+  releaseInterruptedInput()
 }
 
 function toggleMute() {
@@ -1794,6 +1804,7 @@ onMounted(() => {
   window.addEventListener('gamepadconnected', applySeats)
   window.addEventListener('gamepaddisconnected', applySeats)
   window.addEventListener('keydown', onKey)
+  window.addEventListener('blur', onWindowBlur)
   window.addEventListener('online', onOnline)
   document.addEventListener('visibilitychange', onVisibility)
   document.addEventListener('fullscreenchange', syncFullscreen)
@@ -1853,6 +1864,7 @@ onBeforeUnmount(() => {
   window.removeEventListener('gamepadconnected', applySeats)
   window.removeEventListener('gamepaddisconnected', applySeats)
   window.removeEventListener('keydown', onKey)
+  window.removeEventListener('blur', onWindowBlur)
   window.removeEventListener('online', onOnline)
   document.removeEventListener('visibilitychange', onVisibility)
   document.removeEventListener('fullscreenchange', syncFullscreen)

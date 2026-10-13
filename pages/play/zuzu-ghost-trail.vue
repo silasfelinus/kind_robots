@@ -4,9 +4,14 @@
       <header class="flex flex-wrap items-center justify-between gap-3">
         <div>
           <p class="text-2xl font-bold">Zuzu · Ghost Trail</p>
-          <p class="text-sm opacity-75">A haunted journey across the frontier.</p>
+          <p class="text-sm opacity-75">
+            A haunted journey across the frontier.
+          </p>
         </div>
-        <NuxtLink to="/play/arcade?game=zuzu-ghost-trail" class="btn btn-outline btn-sm">
+        <NuxtLink
+          to="/play/arcade?game=zuzu-ghost-trail"
+          class="btn btn-outline btn-sm"
+        >
           Arcade cabinet &amp; scores
         </NuxtLink>
       </header>

@@ -92,6 +92,18 @@
             class="ms-5 mt-1 flex flex-col gap-1 rounded-xl border border-base-300/70 border-s-2 border-s-primary/40 bg-base-200/45 p-1"
             :aria-label="tab.label + ' subtabs'"
           >
+            <li v-if="tab.route">
+              <button
+                type="button"
+                class="flex min-h-10 w-full items-center gap-2 rounded-lg px-3 text-left font-bold text-primary hover:bg-base-100"
+                :aria-label="`Open ${tab.label}`"
+                @click="emit('select', tab)"
+              >
+                <Icon :name="tab.icon || channel.icon" class="h-4 w-4 shrink-0" />
+                Open {{ tab.label }}
+                <Icon name="kind-icon:arrow-right" class="ml-auto h-3.5 w-3.5" />
+              </button>
+            </li>
             <li v-for="subtab in subtabsFor(tab)" :key="subtab.tabKey">
               <button
                 type="button"

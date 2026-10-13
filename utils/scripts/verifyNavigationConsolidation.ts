@@ -88,6 +88,12 @@ for (const path of channelMarkdownFiles('content/channels')) {
   )
 }
 assert.ok(
+  channelTabList.includes('v-if="tab.route"') &&
+    channelTabList.includes("emit('select', tab)") &&
+    channelTabList.includes('Open {{ tab.label }}'),
+  'A routed submenu parent such as Storybook must retain an Open Storybook destination.',
+)
+assert.ok(
   channelTabList.includes('navigationSubtabs') &&
     channelTabList.includes("tab.label + ' subtabs'"),
   'the shared tab list must render expandable nested subtabs',

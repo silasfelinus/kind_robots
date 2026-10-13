@@ -17,60 +17,17 @@
         class="relative isolate overflow-hidden rounded-[2rem] border border-pink-200/40 bg-[#251345] text-white shadow-2xl"
         aria-label="Rainbow Space Princess introduction"
       >
-        <div
-          class="pointer-events-none absolute inset-0 opacity-90"
-          aria-hidden="true"
-        >
-          <div
-            class="absolute -right-24 -top-32 h-96 w-96 rounded-full bg-pink-400/45 blur-3xl"
+        <div class="pointer-events-none absolute inset-0" aria-hidden="true">
+          <img
+            :src="RAINBOW_HERO_ART"
+            alt=""
+            width="1344"
+            height="768"
+            class="h-full w-full object-cover object-[70%_center]"
           />
           <div
-            class="absolute bottom-0 right-0 h-72 w-3/4 rounded-full bg-cyan-400/35 blur-3xl"
+            class="absolute inset-0 bg-gradient-to-r from-[#251345] via-[#251345]/75 to-transparent"
           />
-          <div
-            class="absolute -bottom-32 left-1/4 h-60 w-96 rounded-full bg-violet-500/50 blur-3xl"
-          />
-          <div class="princess-stars absolute inset-0" />
-          <svg
-            viewBox="0 0 700 340"
-            class="absolute bottom-0 right-0 h-full w-full max-w-[810px] opacity-90"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <path
-              d="M670 30c-75 3-123 50-121 116 3 68 60 101 125 92"
-              stroke="#F9E1FF"
-              stroke-width="3"
-              opacity=".45"
-            />
-            <path
-              d="M600 18c-68 36-103 100-79 157 24 55 88 64 172 53"
-              stroke="#9BEFFD"
-              stroke-width="2"
-              opacity=".6"
-            />
-            <g transform="translate(435 180)">
-              <path
-                d="M-96 0 24-26 97 0 24 26Z"
-                fill="#FFD2EC"
-                stroke="#FFFFFF"
-                stroke-width="4"
-              />
-              <path d="M-45 0 22-18 69 0 22 18Z" fill="#8BE5EE" />
-              <path d="m-64-4-37-37 75 33M-64 4l-37 37L-26 8" fill="#D698F2" />
-              <ellipse cx="36" cy="0" rx="14" ry="8" fill="#FFFFFF" />
-              <path d="M-97 0-143-12-131 0-143 12Z" fill="#F8D07F" />
-            </g>
-            <g transform="translate(612 70)" stroke="#F4BBF1" stroke-width="4">
-              <ellipse rx="51" ry="26" fill="#744BB9" />
-              <path d="M-28 18 0 59 22 19M-12 24-17 65M15 25 32 68" />
-            </g>
-            <g fill="#FDF5C2">
-              <circle cx="316" cy="124" r="4" />
-              <circle cx="356" cy="136" r="3" />
-              <circle cx="395" cy="150" r="2" />
-            </g>
-          </svg>
         </div>
         <div
           class="relative flex min-h-[340px] flex-col justify-center gap-4 px-6 py-12 sm:px-10"
@@ -295,7 +252,10 @@
 <script setup lang="ts">
 import { onMounted } from 'vue'
 import { useUserStore } from '~/stores/userStore'
-import { RAINBOW_PILOTS } from '~/utils/arcade/games/rainbowPilots'
+import {
+  RAINBOW_HERO_ART,
+  RAINBOW_PILOTS,
+} from '~/utils/arcade/games/rainbowPilots'
 
 const user = useUserStore()
 const missionCards = [
@@ -333,17 +293,3 @@ onMounted(() => {
 })
 useHead({ title: 'Rainbow Bullet Hell Space Princess · Private Arcade' })
 </script>
-
-<style scoped>
-.princess-stars {
-  background-image:
-    radial-gradient(circle, #fff6 1px, transparent 2px),
-    radial-gradient(circle, #99efff99 1px, transparent 2px);
-  background-size:
-    49px 63px,
-    87px 77px;
-  background-position:
-    0 0,
-    28px 15px;
-}
-</style>

@@ -23,7 +23,7 @@ export function sortArcadeGamesByRating(
     const bRated = (br?.count ?? 0) > 0
     if (aRated !== bRated) return aRated ? -1 : 1
     if (aRated && bRated) {
-      const diff = br.average - ar.average || br.count - ar.count
+      const diff = (br?.average ?? 0) - (ar?.average ?? 0) || (br?.count ?? 0) - (ar?.count ?? 0)
       if (diff) return diff
     }
     return a.title.localeCompare(b.title)

@@ -383,6 +383,35 @@ assert.ok(
   'the full navigation directory must link leaf destinations rather than subtab parents',
 )
 
+const channelStoreSource = source('stores/channelContentStore.ts')
+const pickerSource = source('components/navigation/channel-select.vue')
+const siteDirectorySource = source('components/navigation/navigation-trimmed.vue')
+const accountHubSource = source('components/navigation/account-hub.vue')
+const homePageSource = source('components/home/home-page.vue')
+const visitorDirectorySource = source('components/home/home-visitor-directory.vue')
+assert.match(channelStoreSource, /const navigationChannels = computed\\(\\(\\) =>/)
+assert.match(channelStoreSource, /channel\\.channelKey !== 'home'/)
+assert.ok(pickerSource.includes('channelContentStore.navigationChannels'))
+assert.ok(siteDirectorySource.includes('channelContentStore.navigationChannels'))
+assert.ok(pickerSource.includes("activeChannel.channelKey === 'home' ? 'Explore'"))
+assert.ok(homePageSource.includes("homeMode = 'directory'"))
+assert.ok(homePageSource.includes("homeMode = 'dashboard'"))
+assert.ok(homePageSource.includes("!isAdmin.value"))
+assert.ok(homePageSource.includes('<home-visitor-directory v-else'))
+assert.ok(visitorDirectorySource.includes('showcaseHref(card)'))
+assert.ok(visitorDirectorySource.includes('props.showcase.rails.art'))
+assert.ok(visitorDirectorySource.includes('props.showcase.rails.dreams'))
+for (const route of [
+  '/', '/account', '/achievements', '/messages', '/friends', '/themes',
+  '/servers', '/plan/newsfeed', '/about', '/navigation',
+]) {
+  assert.ok(accountHubSource.includes(`route: '${route}'`),
+    `Account hub must retain ${route} without a Home channel`)
+}
+assert.match(accountHubSource, /userStore.isLoggedIn/)
+assert.ok(source('content/channels/home/index.md').includes('contentType: channel'))
+assert.ok(source('content/channels/home/account.md').includes('route: /account'))
+
 console.log(
   'Navigation consolidation verified: Account tools, Resources triage access, Admin > Retired subtabs, hidden diagnostics, nested routes, access metadata, and ArtJob icon all hold.',
 )

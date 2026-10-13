@@ -58,7 +58,7 @@
     </div>
 
     <p
-      class="font-mono text-xs font-black uppercase tracking-widest opacity-70"
+      class="self-start rounded-lg bg-base-100/95 px-2 py-0.5 font-mono text-xs font-black uppercase tracking-widest text-base-content/80"
     >
       Check the papers against the memo, then stamp
     </p>
@@ -67,7 +67,7 @@
         v-for="stamp in stamps"
         :key="stamp.id"
         type="button"
-        class="window-stamp flex min-w-[min(100%,10rem)] flex-1 flex-col justify-center gap-1 rounded-2xl border-4 bg-base-100 px-3 py-2 text-left transition lg:px-5 lg:py-4"
+        class="window-stamp flex min-w-[min(100%,10rem)] flex-1 flex-col justify-center gap-0.5 rounded-2xl border-4 bg-base-100 px-3 py-1.5 text-left transition sm:gap-1 sm:py-2 lg:px-5 lg:py-4"
         :class="stamp.id === 'approve' ? 'is-approve' : 'is-deny'"
         @click="emit('stamp', stamp)"
       >

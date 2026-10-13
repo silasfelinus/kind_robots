@@ -6,7 +6,7 @@
 
     <template v-else>
       <div
-        class="kr-toolbar mx-auto w-full max-w-[1400px] justify-between gap-x-3 gap-y-1 px-2 sm:px-4"
+        class="kr-toolbar mx-auto w-full max-w-[1400px] justify-between gap-x-3 gap-y-1 rounded-2xl bg-base-100/95 px-2 py-1 shadow-sm sm:px-4"
       >
         <p
           class="hidden font-mono text-sm font-black uppercase tracking-[.25em] sm:block"
@@ -175,7 +175,9 @@
         v-else-if="screen === 'hire'"
         class="kr-stage mx-auto w-full max-w-[1400px] gap-2 px-2 pb-2 sm:px-4"
       >
-        <div class="flex shrink-0 items-center justify-between gap-3">
+        <div
+          class="flex shrink-0 items-center justify-between gap-3 rounded-xl bg-base-100/95 px-3 py-1"
+        >
           <p class="font-mono text-sm font-black uppercase tracking-widest">
             Choose your job title
           </p>
@@ -363,7 +365,7 @@
         </div>
         <p
           v-if="currentNotice"
-          class="shrink-0 truncate text-xs font-semibold"
+          class="shrink-0 truncate rounded-lg bg-base-100/95 px-2 py-0.5 text-xs font-semibold"
           :class="{ 'max-md:hidden': deciding || !!run.pending }"
           :title="currentNotice.reason"
         >
@@ -500,8 +502,8 @@
                   class="relative flex flex-col gap-2 rounded-2xl border-2 p-3 sm:p-4"
                   :class="
                     run.pending.success
-                      ? 'border-success/60 bg-success/5'
-                      : 'border-error/60 bg-error/5'
+                      ? 'border-success bg-base-100 shadow-md'
+                      : 'border-error bg-base-100 shadow-md'
                   "
                   aria-live="polite"
                 >
@@ -627,14 +629,14 @@
                       v-for="choice in openRoutes"
                       :key="choice.id"
                       type="button"
-                      class="flex shrink-0 flex-col rounded-xl border-2 bg-base-100 text-left transition"
+                      class="flex shrink-0 flex-col rounded-xl border-2 text-left transition"
                       :class="[
                         manyRoutes
                           ? 'gap-1 px-3 py-1.5'
                           : 'grow justify-center gap-1.5 px-4 py-3 lg:gap-2 lg:rounded-2xl lg:px-5',
                         lockFor(choice)
-                          ? 'cursor-not-allowed border-base-300 opacity-55'
-                          : 'border-base-300 hover:border-warning focus-visible:border-warning',
+                          ? 'cursor-not-allowed border-base-300 bg-base-200 text-base-content/60'
+                          : 'border-base-300 bg-base-100 hover:border-warning focus-visible:border-warning',
                       ]"
                       :aria-disabled="!!lockFor(choice)"
                       :title="lockFor(choice) ?? undefined"
@@ -651,7 +653,7 @@
                           :class="
                             manyRoutes
                               ? 'text-sm'
-                              : 'text-base sm:text-lg lg:text-xl'
+                              : 'text-base sm:text-lg lg:text-2xl'
                           "
                           >{{ choice.label }}</span
                         >
@@ -694,7 +696,7 @@
                         :class="
                           manyRoutes
                             ? 'line-clamp-1 text-xs'
-                            : 'text-sm leading-snug sm:text-base'
+                            : 'text-sm leading-snug sm:text-base lg:text-lg'
                         "
                         :title="
                           manyRoutes
@@ -741,7 +743,7 @@
                     <li
                       v-for="choice in lockedRoutes"
                       :key="choice.id"
-                      class="flex max-w-full items-center gap-1 rounded-lg border border-base-300 bg-base-200 px-2 py-1 text-xs opacity-70"
+                      class="flex max-w-full items-center gap-1 rounded-lg border border-base-300 bg-base-200 px-2 py-1 text-xs text-base-content/70"
                       :title="lockFor(choice) ?? undefined"
                     >
                       <icon
@@ -800,7 +802,7 @@
 
               <p
                 v-else
-                class="rounded-2xl border border-base-300 bg-base-200 p-4 text-sm opacity-80"
+                class="rounded-2xl border border-base-300 bg-base-200 p-4 text-sm text-base-content/80"
               >
                 A file has been placed on your desk. Open it when you are ready.
                 PAL is watching either way.
@@ -1279,13 +1281,10 @@ function toFront(): void {
   screen.value = 'front'
 }
 
-watch(
-  () => [run.value?.position, run.value?.department],
-  () => {
-    opened.value = false
-    deciding.value = false
-  },
-)
+watch([() => run.value?.position, () => run.value?.department], () => {
+  opened.value = false
+  deciding.value = false
+})
 
 onMounted(() => {
   store.load()

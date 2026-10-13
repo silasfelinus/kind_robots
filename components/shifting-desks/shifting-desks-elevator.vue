@@ -4,7 +4,7 @@
     aria-labelledby="elevator-heading"
   >
     <div
-      class="elevator relative flex min-h-[40%] min-w-0 flex-1 flex-col overflow-hidden rounded-2xl"
+      class="elevator relative flex min-h-[30%] min-w-0 flex-1 flex-col overflow-hidden rounded-2xl"
     >
       <div
         class="elevator-panel flex shrink-0 items-center justify-between px-4 py-2"
@@ -73,10 +73,12 @@
           </p>
           <span class="result-stamp">{{ outcomeTitle }}</span>
         </div>
-        <p class="mt-2 text-sm font-semibold">
+        <p class="mt-1 text-xs font-semibold sm:mt-2 sm:text-sm">
           {{ fromTitle }}: {{ outcomeSummary }}
         </p>
-        <ul class="mt-2 flex flex-col gap-1 text-sm">
+        <ul
+          class="mt-1 flex flex-col gap-0.5 text-xs sm:mt-2 sm:gap-1 sm:text-sm"
+        >
           <li v-for="(line, i) in memo" :key="i" class="flex gap-2">
             <span aria-hidden="true">▸</span>{{ line }}
           </li>
@@ -88,7 +90,7 @@
           <p class="font-mono text-[11px] font-black uppercase tracking-widest">
             Restructuring notice · {{ restructuring.headline }}
           </p>
-          <p class="mt-1 text-sm">{{ restructuring.reason }}</p>
+          <p class="mt-1 text-xs sm:text-sm">{{ restructuring.reason }}</p>
           <p
             class="mt-3 font-mono text-[10px] font-black uppercase tracking-widest opacity-70"
           >

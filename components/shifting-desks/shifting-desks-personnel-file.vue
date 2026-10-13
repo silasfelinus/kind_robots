@@ -19,7 +19,7 @@
         >
           {{ verdict.title }}
         </p>
-        <p class="mt-1 line-clamp-3 max-w-2xl text-sm font-semibold sm:text-lg">
+        <p class="mt-1 hidden max-w-2xl font-semibold sm:block sm:text-lg">
           {{ verdict.summary }}
         </p>
       </div>
@@ -51,13 +51,14 @@
           class="flex-col gap-2"
           :class="tab === 'verdict' ? 'flex' : 'hidden print:flex'"
         >
+          <p class="text-sm font-semibold sm:hidden">{{ verdict.summary }}</p>
           <article
             v-if="epilogue"
             class="flex gap-3 rounded-xl border-2 border-stone-800 bg-stone-50/70 p-2 sm:p-3"
             aria-label="Epilogue"
           >
             <shifting-desks-art
-              class="w-[36%] max-w-[13rem] shrink-0 self-start rounded-lg"
+              class="w-[30%] max-w-[13rem] shrink-0 self-start rounded-lg"
               frame="aspect-[2/3]"
               :src="stationArt('endings', epilogue.id)"
               :prompt="epilogue.epilogue.art_prompt"
@@ -74,13 +75,13 @@
               <p class="font-mono text-base font-black uppercase sm:text-xl">
                 {{ epilogue.epilogue.title }}
               </p>
-              <p class="text-sm leading-relaxed">
+              <p class="text-xs leading-relaxed sm:text-sm">
                 {{ epilogue.epilogue.text }}
               </p>
               <p
                 v-for="(line, i) in epilogueLines"
                 :key="i"
-                class="text-sm italic"
+                class="text-xs italic sm:text-sm"
               >
                 {{ line }}
               </p>
@@ -96,7 +97,7 @@
           </p>
           <p
             v-if="ending"
-            class="rounded-xl border border-warning/50 bg-base-200 p-3 text-sm text-base-content"
+            class="hidden rounded-xl border border-warning/50 bg-base-200 p-3 text-sm text-base-content sm:block"
           >
             The Board has decided, and this is one of its endings. The others
             are still on the table, and so, technically, are you. PAL has kept

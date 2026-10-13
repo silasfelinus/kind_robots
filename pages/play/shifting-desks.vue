@@ -471,8 +471,8 @@
                 class="flex shrink-0 items-center gap-2 rounded-xl border-2 border-stone-800 bg-base-200 p-1.5 lg:hidden"
               >
                 <shifting-desks-art
-                  class="size-11 shrink-0 rounded-lg"
-                  frame="h-full w-full"
+                  class="shrink-0 rounded-lg"
+                  frame="size-11"
                   :src="faceArt"
                   :show-brief="false"
                   :fallback-icon="cardIcon"
@@ -619,7 +619,8 @@
                     v-for="choice in view.card.choices"
                     :key="choice.id"
                     type="button"
-                    class="flex shrink-0 flex-col gap-1 rounded-xl border-2 bg-base-100 px-3 py-2 text-left transition"
+                    class="flex shrink-0 flex-col gap-1 rounded-xl border-2 bg-base-100 px-3 text-left transition"
+                    :style="{ paddingBlock: manyRoutes ? '0.35rem' : '0.5rem' }"
                     :class="
                       lockFor(choice)
                         ? 'cursor-not-allowed border-base-300 opacity-55'
@@ -630,30 +631,42 @@
                   >
                     <span class="flex flex-wrap items-center gap-x-2 gap-y-1">
                       <span class="text-sm font-bold">{{ choice.label }}</span>
-                      <span
-                        v-if="choice.roll"
-                        class="flex items-center gap-1 rounded-md bg-base-300 px-1.5 py-0.5 text-[11px] font-bold"
-                      >
-                        <icon name="kind-icon:dice" class="size-3" />
-                        <span class="capitalize">{{ choice.roll.skill }}</span>
-                        {{ run.skills[choice.roll.skill] }} ·
-                        {{ DIFFICULTY[choice.roll.target] ?? '' }}
-                        {{ choice.roll.target }}
-                      </span>
-                      <span
-                        v-else
-                        class="rounded-md bg-base-300 px-1.5 py-0.5 text-[11px] font-bold"
-                        >Certain</span
-                      >
-                      <shifting-desks-effect-chips
-                        v-if="hasCost(choice)"
-                        :effects="choice.cost"
-                        prefix="Cost"
-                      />
+                      <template v-if="!(manyRoutes && lockFor(choice))">
+                        <span
+                          v-if="choice.roll"
+                          class="flex items-center gap-1 rounded-md bg-base-300 px-1.5 py-0.5 text-[11px] font-bold"
+                        >
+                          <icon name="kind-icon:dice" class="size-3" />
+                          <span class="capitalize">{{
+                            choice.roll.skill
+                          }}</span>
+                          {{ run.skills[choice.roll.skill] }} ·
+                          {{ DIFFICULTY[choice.roll.target] ?? '' }}
+                          {{ choice.roll.target }}
+                        </span>
+                        <span
+                          v-else
+                          class="rounded-md bg-base-300 px-1.5 py-0.5 text-[11px] font-bold"
+                          >Certain</span
+                        >
+                        <shifting-desks-effect-chips
+                          v-if="hasCost(choice)"
+                          :effects="choice.cost"
+                          prefix="Cost"
+                        />
+                      </template>
                     </span>
-                    <span class="line-clamp-2 text-xs opacity-80"
+                    <span
+                      v-if="!(manyRoutes && lockFor(choice))"
+                      class="text-xs opacity-80"
+                      :class="manyRoutes ? 'line-clamp-1' : 'line-clamp-2'"
+                      :title="
+                        manyRoutes
+                          ? `${choice.intent} ${choice.risk_hint}`
+                          : undefined
+                      "
                       >{{ choice.intent }}
-                      <span class="italic opacity-80">{{
+                      <span v-if="!manyRoutes" class="italic opacity-80">{{
                         choice.risk_hint
                       }}</span></span
                     >
@@ -1115,6 +1128,8 @@ function aidBadges(choice: Choice): string[] {
   if (mutationFor(choice)) out.push(mutation.value.title)
   return out
 }
+
+const manyRoutes = computed(() => (view.value?.card.choices.length ?? 0) > 4)
 
 const anyRoll = computed(
   () => !!view.value?.card.choices.some((c) => c.roll && !lockFor(c)),

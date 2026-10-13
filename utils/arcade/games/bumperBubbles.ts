@@ -17,7 +17,10 @@
 // robot; hidden-condition items appear when the robots have quietly earned them
 // (bumperBubbles/items.ts); bosses hold floors 25, 50, 75 and 100; and a floor
 // cleared without a robot lost opens a Secret Pantry with a recipe card. The climb
-// saves at every wing.
+// saves at every wing. Wings 8-10 (t-062) add the Haunted Pantry's dark floors and the Jelly
+// Mould, the Storm Rooftop's wind, rain and lightning, the Carbonator's remixes and the Grumble
+// Fizz King on floor 100, and the three endings: solo, co-op and the true one (co-op with all
+// five recipe cards).
 //
 // Arrows move, UP or B hops, A blows a bubble.
 
@@ -61,8 +64,10 @@ import {
   tapSprite,
 } from '../bumperBubbles/art'
 import {
+  BOLT_TICKS,
   GRUMPS,
   GRUMP_LETTERS,
+  disguised,
   grumpCentre,
   harmful,
   makeGrump,
@@ -74,6 +79,7 @@ import {
   BOSSES,
   bossAlive,
   bossCanBeHurt,
+  bossHarms,
   bossHazards,
   bossSpecials,
   bossTouches,
@@ -124,6 +130,12 @@ import {
   updateEffects as updateSpecials,
 } from '../bumperBubbles/specials'
 import type { Effects, EffectHost } from '../bumperBubbles/specials'
+import {
+  LAMP_RADIUS,
+  LAMP_WIDE,
+  paintDarkness,
+  paintRain,
+} from '../bumperBubbles/slice4Art'
 import { HURRY_MUSIC, MUSIC } from '../bumperBubbles/music'
 import {
   FLOOR_Y,
@@ -200,6 +212,14 @@ export const SPECIAL_EVERY = 540
 /** A Secret Pantry's door waits this long after the floor is cleared. */
 export const DOOR_TICKS = 60 * 8
 export const CARD_POINTS = 10_000
+/** The top of the tower: clearing this floor ends the climb. */
+export const TOWER_TOP = 100
+/** What the endings pay, and how long each plays before the cabinet finishes. */
+export const ENDING_BONUS = { solo: 50_000, coop: 100_000, true: 250_000 }
+export const ENDING_TICKS = { solo: 60 * 9, coop: 60 * 12, true: 60 * 26 }
+export type Ending = keyof typeof ENDING_BONUS
+/** The Storm Rooftop's lightning: a flash and a tell, then a bolt down a column. */
+export const STORM = { every: 330, jitter: 200, warn: 50 }
 export const EXTRA_FIRST = 100_000
 export const EXTRA_EVERY = 200_000
 
@@ -292,7 +312,7 @@ type Floater = {
   color: string
 }
 
-type Phase = 'card' | 'ready' | 'play' | 'clear' | 'climb'
+type Phase = 'card' | 'ready' | 'play' | 'clear' | 'climb' | 'ending'
 
 /** Where the last floor was, for the climb's scroll. */
 type ClimbFrom = {
@@ -386,6 +406,11 @@ class BumperBubbles implements ArcadeGameInstance {
   private nextBoost = 0
   private nextExtra = EXTRA_FIRST
   private lostThisWing = false
+  /** How the climb ended, once floor 100 is cleared. */
+  private ending: Ending | null = null
+  /** Ticks to the storm's next lightning, and the flash it leaves. */
+  private strikeIn = -1
+  private flash = 0
   /** The wing the robots are in (a new one shows its card and saves). */
   private wingNow = 0
   private cardDue = false
@@ -470,6 +495,7 @@ class BumperBubbles implements ArcadeGameInstance {
 
   get music(): MusicLoop | null {
     if (this.over || this.offer) return null
+    if (this.phase === 'ending') return MUSIC.carbonator!
     if (this.boss && this.boss.state !== 'done') return MUSIC.boss!
     const id = this.plan.wing.music
     return this.roundTicks >= HURRY_WARN &&
@@ -519,6 +545,8 @@ class BumperBubbles implements ArcadeGameInstance {
     this.frozen = 0
     this.stats.zaps = 0
     this.roundTicks = 0
+    this.flash = 0
+    this.strikeIn = this.floor.storm ? STORM.every : -1
     this.boss = this.floor.boss ? makeBoss(this.floor.boss) : null
     this.boost = this.nextBoost
     this.nextBoost = 0
@@ -544,6 +572,36 @@ class BumperBubbles implements ArcadeGameInstance {
       if (wing.n > 1 && n <= BUILT_FLOORS) this.writeSave(wing.n)
     }
     this.setPhase(this.cardDue ? 'card' : 'ready')
+  }
+
+  /** Floor 100 is cleared: how the climb ends depends on who made it and what they found. */
+  private beginEnding() {
+    const together = this.robots.filter((r) => !r.out).length
+    const everyCard = PANTRY_FLOORS.every((f) => this.cards.has(f))
+    this.ending = together >= 2 ? (everyCard ? 'true' : 'coop') : 'solo'
+    this.addScore(ENDING_BONUS[this.ending])
+    // The climb is won: there is no wing left to continue from.
+    this.saveData = null
+    this.banner = null
+    this.hazards = []
+    this.grumps = []
+    this.setPhase('ending')
+    this.sound.play('extra')
+  }
+
+  private updateEnding(frames: InputFrame[]) {
+    const kind = this.ending ?? 'solo'
+    if (this.phaseTicks % 18 === 0)
+      this.fx.burst(
+        WALL_L + 20 + this.rng() * (WALL_R - WALL_L - 40),
+        TOP + 30 + this.rng() * 90,
+        this.fxRng,
+        { count: 14, colours: [RAMPS.gold[4], RAMPS.pink[3], '#ffffff'] },
+      )
+    const skip =
+      this.phaseTicks > 150 &&
+      frames.some((f) => f.pressed.a || f.pressed.start)
+    if (skip || this.phaseTicks >= ENDING_TICKS[kind]) this.over = true
   }
 
   private writeSave(wing: number) {
@@ -655,7 +713,13 @@ class BumperBubbles implements ArcadeGameInstance {
           if (this.robots.some((r) => this.active(r) && this.atDoor(r)))
             this.enterPantry()
           else if (this.phaseTicks >= DOOR_TICKS) this.climb()
-        } else if (this.phaseTicks >= CLEAR_TICKS) this.climb()
+        } else if (this.phaseTicks >= CLEAR_TICKS) {
+          if (this.level >= TOWER_TOP) this.beginEnding()
+          else this.climb()
+        }
+        return
+      case 'ending':
+        this.updateEnding(frames)
         return
       case 'play':
         this.play(frames)
@@ -1091,6 +1155,20 @@ class BumperBubbles implements ArcadeGameInstance {
       value: TREAT_LADDER[tier]!,
       spin: true,
     })
+    if (g.kind === 'mimic') {
+      // Popping a mimic drops a real gem as well.
+      const gem = Math.min(TREAT_LADDER.length - 1, tier + 2)
+      this.treats.push({
+        x: b.x,
+        y: b.y + 4,
+        vx: (this.rng() - 0.5) * 2.4,
+        vy: -3.4,
+        onGround: false,
+        tier: gem,
+        value: TREAT_LADDER[gem]!,
+        spin: true,
+      })
+    }
   }
 
   private collectLetter(b: Bubble) {
@@ -1194,7 +1272,9 @@ class BumperBubbles implements ArcadeGameInstance {
           slow * (this.isFloat(b) ? 0.3 : b.held ? 0.32 : b.letter ? 0.4 : 0.5)
         const y0 = b.y
         const cur = currentAt(this.floor, b.x, b.y)
-        let dx = cur ? cur.x * speed : Math.sin((b.age + b.x) / 18) * 0.25
+        let dx = cur
+          ? cur.x * speed
+          : Math.sin((b.age + b.x) / 18) * 0.25 + this.floor.wind * speed * 0.9
         const dy = cur ? cur.y * speed : -speed
         const hit = slide(this.floor, b, dx, dy, r)
         // A robot riding a Float bubble goes up with it.
@@ -1378,6 +1458,7 @@ class BumperBubbles implements ArcadeGameInstance {
     }
     this.updateBubbles(live)
     updateSpecials(this.effects, this.effectHost())
+    this.updateStorm()
     this.updateHazards()
     for (const t of this.treats) {
       const was = t.onGround
@@ -1434,6 +1515,17 @@ class BumperBubbles implements ArcadeGameInstance {
         g.vx = dir * 1.5
         this.grumps.push(g)
       },
+      cap: (x, y, vx, vy) =>
+        this.hazards.push({
+          kind: 'cap',
+          x,
+          y,
+          vx,
+          vy,
+          life: 360,
+          x0: 0,
+          x1: 0,
+        }),
       cue: (what) => {
         if (what === 'creak' || what === 'phase' || what === 'rattle')
           this.sound.play('warn')
@@ -1548,10 +1640,52 @@ class BumperBubbles implements ArcadeGameInstance {
     return t >= HOT_PLATE.puff ? 'puff' : t >= HOT_PLATE.glow ? 'glow' : 'cool'
   }
 
+  /** The Storm Rooftop: now and then lightning picks a column near a robot, flashes, then strikes. */
+  private updateStorm() {
+    if (this.flash > 0) this.flash--
+    if (!this.floor.storm || this.strikeIn < 0 || --this.strikeIn > 0) return
+    this.strikeIn = STORM.every + Math.floor(this.rng() * STORM.jitter)
+    const live = this.robots.filter((r) => this.active(r))
+    const pick = live[Math.floor(this.rng() * live.length)]
+    const x = Math.max(
+      WALL_L + 8,
+      Math.min(WALL_R - 8, (pick?.x ?? W / 2) + (this.rng() - 0.5) * 60),
+    )
+    let y1 = TOP + 16
+    while (y1 < FLOOR_Y && !solidAt(this.floor, x, y1)) y1 += 2
+    this.hazards.push({
+      kind: 'bolt',
+      x,
+      y: TOP + 8,
+      vx: 0,
+      life: STORM.warn + BOLT_TICKS,
+      x0: 0,
+      x1: 0,
+      y1,
+      warn: STORM.warn,
+    })
+  }
+
   private updateHazards() {
     for (const h of this.hazards) {
       h.life--
-      if (h.kind === 'jet' || h.kind === 'steam') {
+      if (h.kind === 'bolt') {
+        if ((h.warn ?? 0) > 0 && --h.warn! === 0) {
+          this.flash = 60
+          this.sound.play('boom')
+        }
+      } else if (h.kind === 'cap') {
+        h.x += h.vx
+        h.y += h.vy ?? 0
+        if (
+          h.x < WALL_L ||
+          h.x > WALL_R ||
+          h.y > H ||
+          h.y < TOP ||
+          solidAt(this.floor, h.x, h.y)
+        )
+          h.life = 0
+      } else if (h.kind === 'jet' || h.kind === 'steam') {
         h.x += h.vx
         if (h.x < WALL_L || h.x > WALL_R || solidAt(this.floor, h.x, h.y))
           h.life = 0
@@ -1725,10 +1859,17 @@ class BumperBubbles implements ArcadeGameInstance {
       if (!this.active(r) || r.invuln > 0 || this.demo) continue
       const hazard =
         this.hazards.some((h) =>
-          h.kind === 'beam'
-            ? r.x > h.x0 - 4 && r.x < h.x1 + 4 && Math.abs(h.y - (r.y - 7)) < 8
-            : Math.abs(h.x - r.x) < (h.kind === 'steam' ? 10 : 7) &&
-              Math.abs(h.y - (r.y - 7)) < (h.kind === 'steam' ? 11 : 9),
+          h.kind === 'bolt'
+            ? (h.warn ?? 0) <= 0 &&
+              Math.abs(h.x - r.x) < 6 &&
+              r.y >= h.y &&
+              r.y - 12 <= (h.y1 ?? FLOOR_Y) + 2
+            : h.kind === 'beam'
+              ? r.x > h.x0 - 4 &&
+                r.x < h.x1 + 4 &&
+                Math.abs(h.y - (r.y - 7)) < 8
+              : Math.abs(h.x - r.x) < (h.kind === 'steam' ? 10 : 7) &&
+                Math.abs(h.y - (r.y - 7)) < (h.kind === 'steam' ? 11 : 9),
         ) ||
         this.floor.hotPlates.some((i) => {
           if (this.hotState(i) !== 'puff') return false
@@ -1740,7 +1881,10 @@ class BumperBubbles implements ArcadeGameInstance {
           bossHazards(this.boss).some(
             (z) => r.x > z.x0 && r.x < z.x1 && r.y > z.y0 && r.y - 12 < z.y1,
           ))
-      const boss = !!this.boss && bossTouches(this.boss, r.x, r.y - 7, 6)
+      const boss =
+        !!this.boss &&
+        bossHarms(this.boss) &&
+        bossTouches(this.boss, r.x, r.y - 7, 6)
       if (hazard || boss) {
         this.bonk(r)
         continue
@@ -1892,9 +2036,16 @@ class BumperBubbles implements ArcadeGameInstance {
       return frame
     }
     // A cloud of steam or a snowball close by: get out from under it.
+    const strike = this.hazards.find(
+      (h) => h.kind === 'bolt' && Math.abs(h.x - r.x) < 24 && r.y >= h.y,
+    )
+    if (strike) {
+      go(r.x - strike.x || 1, 0)
+      return frame
+    }
     const blast = this.hazards.find(
       (h) =>
-        (h.kind === 'steam' || h.kind === 'snowball') &&
+        (h.kind === 'steam' || h.kind === 'snowball' || h.kind === 'cap') &&
         Math.abs(h.x - r.x) < 30 &&
         Math.abs(h.y - (r.y - 7)) < 30,
     )
@@ -2239,6 +2390,9 @@ class BumperBubbles implements ArcadeGameInstance {
       for (const b of this.effects.bolts) paintBolt(g, b, this.tick)
       for (const h of this.hazards) paintHazard(g, h, this.tick)
       if (this.fizz) this.renderFizz(g, this.fizz)
+      if (this.floor.dark && this.phase !== 'card')
+        paintDarkness(g, this.lights())
+      if (this.floor.storm) paintRain(g, this.tick, this.floor.wind, this.flash)
       if (this.frozen > 0) {
         g.fillStyle = rgba(RAMPS.sky[3], 0.08)
         g.fillRect(0, TOP, W, H - TOP)
@@ -2269,7 +2423,107 @@ class BumperBubbles implements ArcadeGameInstance {
     vignette(g, W, H, 0.28)
     this.renderHud(g, theme.hud)
     if (this.phase === 'card' && !this.offer) this.renderCard(g)
+    if (this.phase === 'ending') this.renderEnding(g)
     if (this.offer) this.renderOffer(g, this.offer)
+  }
+
+  /** Pools of light on a dark floor: the robots' glowing antennae (a Lamp widens them) and anything that crackles. */
+  private lights(): Array<{ x: number; y: number; r: number }> {
+    const out: Array<{ x: number; y: number; r: number }> = []
+    for (const r of this.robots)
+      if (this.active(r))
+        out.push({
+          x: r.x,
+          y: r.y - 14,
+          r: r.items.includes('lamp') ? LAMP_WIDE : LAMP_RADIUS,
+        })
+    for (const b of this.bubbles)
+      if (b.special) out.push({ x: b.x, y: b.y, r: 16 })
+    for (const h of this.hazards) out.push({ x: h.x, y: h.y, r: 18 })
+    return out
+  }
+
+  private renderEnding(g: CanvasRenderingContext2D) {
+    const kind = this.ending ?? 'solo'
+    const t = this.phaseTicks
+    g.fillStyle = rgba(INK, Math.min(0.82, t / 80))
+    g.fillRect(0, 0, W, H)
+    const line = (text: string, y: number, color = '#ffffff', scale = 1) =>
+      drawText(g, text, W / 2, y, {
+        align: 'center',
+        color,
+        outline: INK,
+        scale,
+      })
+    if (kind === 'true') {
+      // The credits roll down the tower, floor by floor, with every grump as a guest.
+      const rows: Array<[string, string]> = [
+        ['THE KING BAKES THE LOST RECIPE', RAMPS.gold[3]],
+        ['AND THE TOWER FIZZES BACK TO LIFE', '#ffffff'],
+        ['', '#ffffff'],
+        ...WINGS.slice()
+          .reverse()
+          .map(
+            (w) =>
+              [
+                `FLOORS ${wingFirstFloor(w.n)}-${wingFirstFloor(w.n) + 9}  ${w.name}`,
+                RAMPS.teal[3],
+              ] as [string, string],
+          ),
+        ['', '#ffffff'],
+        ['EVERY GRUMP YOU POPPED IS A GUEST', RAMPS.pink[3]],
+        ['AT A HUNDRED-FLOOR CELEBRATION', RAMPS.pink[3]],
+        ['', '#ffffff'],
+        ['THANK YOU FOR CLIMBING', RAMPS.gold[3]],
+      ]
+      const y0 = H - t * 0.55
+      rows.forEach(([text, color], i) => {
+        const y = y0 + i * 14
+        if (y > TOP - 6 && y < H) line(text, Math.round(y), color)
+      })
+      const guests = (Object.keys(GRUMPS) as GrumpKind[]).filter(
+        (k) => k !== 'corklet' && k !== 'jellet',
+      )
+      guests.forEach((kind2, i) => {
+        const x = 14 + ((i * 29 + t * 0.6) % (W + 20))
+        const hop = Math.abs(Math.sin((t + i * 11) / 9)) * 8
+        drawSprite(
+          g,
+          GRUMP_FRAMES[kind2].walk[Math.floor((t + i * 7) / 10) % 2]!,
+          x - 10,
+          H - 8 - hop,
+          { anchor: 'feet' },
+        )
+      })
+    } else {
+      line(
+        kind === 'coop'
+          ? 'THE TOWER THROWS A PARTY!'
+          : 'THE CARBONATOR RESTARTS!',
+        64,
+        RAMPS.gold[3],
+        2,
+      )
+      line('YOU CLIMBED ALL 100 FLOORS', 96)
+      if (kind === 'coop') {
+        line('EVERY ROBOT GETS A SLICE OF CAKE.', 116)
+        line(
+          `RECIPE CARDS: ${this.cards.size} OF ${PANTRY_FLOORS.length}`,
+          140,
+          RAMPS.pink[3],
+        )
+        line('FIND ALL FIVE FOR THE TRUE ENDING.', 154, RAMPS.pink[3])
+      } else {
+        line('THE TOWER IS FIZZING AGAIN, BUT', 116)
+        line('THE TREAT SHOP STAYS SHUT.', 128)
+        line('BRING A FRIEND FOR THE PARTY.', 152, RAMPS.pink[3])
+      }
+    }
+    line(
+      `ENDING BONUS ${ENDING_BONUS[kind].toLocaleString('en-US')}`,
+      H - 22,
+      RAMPS.gold[3],
+    )
   }
 
   private paintStage(
@@ -2369,6 +2623,44 @@ class BumperBubbles implements ArcadeGameInstance {
       }
       return
     }
+    if (
+      gr.state === 'ghost' ||
+      gr.state === 'solid' ||
+      gr.state === 'cloud' ||
+      gr.state === 'charge'
+    ) {
+      const frame = Math.floor(this.tick / 8) % 2
+      const flip = gr.dir === -1
+      if (gr.state === 'ghost') {
+        // See-through and drifting: it can't be trapped.
+        const alpha = 0.28 + 0.1 * Math.sin(this.tick / 6)
+        drawSprite(g, set.walk[frame]!, gr.x, gr.y + 5, { flipX: flip, alpha })
+      } else if (gr.state === 'solid') {
+        // The tell: it turns opaque.
+        glow(g, gr.x, gr.y, 12, RAMPS.cream[3], 0.3)
+        drawSprite(g, set.walk[frame]!, gr.x, gr.y + 5, { flipX: flip })
+      } else if (gr.state === 'charge') {
+        // Storm-dark, crackling: keep off the column beneath it.
+        const shake = this.tick % 4 < 2 ? 0 : 1
+        glow(g, gr.x, gr.y, 14 + (gr.t % 10), RAMPS.gold[3], 0.5)
+        drawSprite(
+          g,
+          ANGRY_FRAMES[gr.kind].walk[frame]!,
+          gr.x + shake,
+          gr.y + 5,
+          {
+            flipX: flip,
+          },
+        )
+        if (this.tick % 6 < 3) {
+          g.fillStyle = RAMPS.gold[4]
+          g.fillRect(Math.round(gr.x) - 1, Math.round(gr.y) + 10, 2, 4)
+        }
+      } else {
+        drawSprite(g, set.walk[frame]!, gr.x, gr.y + 5, { flipX: flip })
+      }
+      return
+    }
     if (gr.state === 'fly' || gr.state === 'comet') {
       const frame = Math.floor(this.tick / 6) % 2
       if (gr.state === 'comet')
@@ -2421,7 +2713,14 @@ class BumperBubbles implements ArcadeGameInstance {
       this.castShadow(g, gr.x, gr.y, 6)
       const rising = gr.state === 'rise'
       const moving = gr.onGround && gr.vx !== 0 && this.phase === 'play'
-      const frame = moving ? Math.floor((this.tick + gr.x) / 8) % 2 : 0
+      const frame =
+        gr.kind === 'mimic'
+          ? disguised(gr)
+            ? 0
+            : 1
+          : moving
+            ? Math.floor((this.tick + gr.x) / 8) % 2
+            : 0
       drawSprite(
         g,
         set.walk[frame]!,
@@ -2713,11 +3012,12 @@ class BumperBubbles implements ArcadeGameInstance {
       color: RAMPS.gold[3],
       outline: INK,
     })
-    drawText(g, 'NEW GRUMPS', W / 2, 104, {
-      align: 'center',
-      color: RAMPS.pink[3],
-      outline: INK,
-    })
+    if (wing.grumps.length)
+      drawText(g, 'NEW GRUMPS', W / 2, 104, {
+        align: 'center',
+        color: RAMPS.pink[3],
+        outline: INK,
+      })
     const kinds = wing.grumps
     const step = Math.min(56, (W - 60) / kinds.length)
     kinds.forEach((kind: GrumpKind, i) => {
@@ -2831,13 +3131,30 @@ function bumperGuide(): ArcadeGuidePage[] {
         'THE CLIMB SAVES AT EVERY WING.',
       ],
     },
+    ...[0, 1, 2].map(
+      (page): ArcadeGuidePage => ({
+        title: `THE GRUMPS ${page + 1}/3`,
+        scale: 1,
+        lines: (Object.keys(GRUMPS) as GrumpKind[])
+          .slice(page * 8, page * 8 + 8)
+          .flatMap((k) => [
+            `${GRUMPS[k].name}${GRUMPS[k].tell ? `: ${GRUMPS[k].tell}` : ''}`,
+            `  ${GRUMPS[k].answer}`,
+          ]),
+      }),
+    ),
     {
-      title: 'THE GRUMPS',
+      title: 'THE TOWER ENDS AT 100',
       scale: 1,
-      lines: (Object.keys(GRUMPS) as GrumpKind[]).flatMap((k) => [
-        `${GRUMPS[k].name}${GRUMPS[k].tell ? `: ${GRUMPS[k].tell}` : ''}`,
-        `  ${GRUMPS[k].answer}`,
-      ]),
+      lines: [
+        'DARK FLOORS: YOUR ANTENNAE GLOW. A LAMP WIDENS THEM.',
+        'RAIN FLOORS: A FLASH MEANS A BOLT IS COMING.',
+        'THE JELLY MOULD SPLITS: POP THE PIECES AGAINST IT.',
+        'THE FIZZ KING: ZAP HIM. CLIMB AHEAD OF THE FIZZ.',
+        'CLEAR FLOOR 100 ALONE: THE TOWER RESTARTS.',
+        'CLEAR IT WITH A FRIEND: THE TOWER THROWS A PARTY.',
+        'FIVE RECIPE CARDS AND A FRIEND: THE TRUE ENDING.',
+      ],
     },
     {
       title: 'FIZZ TAPS',

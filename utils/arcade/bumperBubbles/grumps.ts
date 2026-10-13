@@ -7,6 +7,7 @@
 // game's update loop which grump it is.
 
 import {
+  FLOOR_Y,
   JUMP_V,
   TILE,
   TOP,
@@ -39,6 +40,11 @@ export type GrumpKind =
   | 'skater'
   | 'cog'
   | 'windup'
+  | 'phantom'
+  | 'mimic'
+  | 'thunder'
+  | 'glider'
+  | 'jellet'
 
 export type GrumpSpec = {
   kind: GrumpKind
@@ -53,11 +59,22 @@ export type GrumpSpec = {
   hop: number
   /** Chance it turns back at a platform's edge instead of walking off. */
   edgeTurn: number
-  move: 'walk' | 'fly' | 'hide' | 'swim' | 'comet' | 'toast' | 'cling'
+  move:
+    | 'walk'
+    | 'fly'
+    | 'hide'
+    | 'swim'
+    | 'comet'
+    | 'toast'
+    | 'cling'
+    | 'ghost'
+    | 'cloud'
   /** A wind-up's run and rewind: it speeds up for `run` ticks, then stops `rest` to rewind. */
   rewind?: { run: number; rest: number }
   /** A shot it winds up and fires: a water jet or a lens beam along its row. */
   attack?: { kind: HazardKind; every: number; windup: number }
+  /** A glider drifts down on the wind instead of dropping. */
+  glide?: boolean
   /** What warns you, if anything. */
   tell: string | null
   /** The answer it asks for (the guide's line). */
@@ -275,9 +292,74 @@ export const GRUMPS: Record<GrumpKind, GrumpSpec> = {
     tell: 'ITS KEY TURNS',
     answer: 'TRAP IT DURING THE REWIND',
   },
+  // The Haunted Pantry (wing 8).
+  phantom: {
+    kind: 'phantom',
+    name: 'PHANTOM',
+    letter: 'n',
+    wing: 8,
+    speed: 0.7,
+    hop: 0,
+    edgeTurn: 0,
+    move: 'ghost',
+    tell: 'IT TURNS OPAQUE',
+    answer: 'WAIT FOR IT TO TURN SOLID',
+  },
+  mimic: {
+    kind: 'mimic',
+    name: 'MIMIC GEM',
+    letter: 'e',
+    wing: 8,
+    speed: 0.6,
+    hop: 0.4,
+    edgeTurn: 0.6,
+    move: 'walk',
+    tell: 'THE GEM BLINKS OFF-BEAT',
+    answer: 'TRAP IT: IT DROPS A REAL GEM',
+  },
+  // The Big Jelly's pieces: never in a floor's script, only split off by the boss.
+  jellet: {
+    kind: 'jellet',
+    name: 'LITTLE JELLY',
+    letter: 'j',
+    wing: 8,
+    speed: 1.2,
+    hop: 1.3,
+    edgeTurn: 0.5,
+    move: 'walk',
+    tell: null,
+    answer: 'POP THEM ALL BEFORE THEY RE-FORM',
+  },
+  // The Storm Rooftop (wing 9).
+  thunder: {
+    kind: 'thunder',
+    name: 'THUNDER PUFF',
+    letter: 'z',
+    wing: 9,
+    speed: 0.5,
+    hop: 0,
+    edgeTurn: 0,
+    move: 'cloud',
+    attack: { kind: 'bolt', every: 240, windup: 60 },
+    tell: 'IT TURNS STORM-DARK AND CRACKLES',
+    answer: 'TRAP IT WHILE IT IS GREY',
+  },
+  glider: {
+    kind: 'glider',
+    name: 'UMBRELLA GRUMP',
+    letter: 'l',
+    wing: 9,
+    speed: 0.9,
+    hop: 0.5,
+    edgeTurn: 0.15,
+    move: 'walk',
+    glide: true,
+    tell: null,
+    answer: 'TRAP IT UPWIND',
+  },
 }
 
-export type HazardKind = 'jet' | 'beam' | 'steam' | 'snowball'
+export type HazardKind = 'jet' | 'beam' | 'steam' | 'snowball' | 'bolt' | 'cap'
 
 /** A grump's shot: a water jet flying along, or a beam lit across a row. */
 export type Hazard = {
@@ -289,8 +371,12 @@ export type Hazard = {
   /** A beam's ends. */
   x0: number
   x1: number
-  /** A snowball's fall. */
+  /** A snowball's fall, a bottle cap's flight. */
   vy?: number
+  /** A bolt's lower end: it strikes the column from y down to y1. */
+  y1?: number
+  /** A bolt's tell: ticks until it is live. */
+  warn?: number
 }
 
 export const JET_SPEED = 2.4
@@ -313,6 +399,10 @@ export type GrumpState =
   | 'popup'
   | 'cling'
   | 'rewind'
+  | 'ghost'
+  | 'solid'
+  | 'cloud'
+  | 'charge'
 
 export type Grump = Body & {
   kind: GrumpKind
@@ -371,13 +461,17 @@ export function makeGrump(kind: GrumpKind, at: Spot, rng: () => number): Grump {
               ? 'toast'
               : move === 'cling'
                 ? 'cling'
-                : 'walk'
+                : move === 'ghost'
+                  ? 'ghost'
+                  : move === 'cloud'
+                    ? 'cloud'
+                    : 'walk'
   return {
     kind,
     x: at.x,
     // A cog crawler hangs under the block above its marker.
     y:
-      move === 'fly' || move === 'comet'
+      move === 'fly' || move === 'comet' || move === 'ghost' || move === 'cloud'
         ? at.y - 6
         : move === 'cling'
           ? at.y - 8
@@ -397,23 +491,48 @@ export function makeGrump(kind: GrumpKind, at: Spot, rng: () => number): Grump {
   }
 }
 
+/** Grumps whose position is their centre (they fly, float or hang rather than stand). */
+const CENTRED: ReadonlySet<GrumpState> = new Set([
+  'fly',
+  'comet',
+  'ghost',
+  'solid',
+  'cloud',
+  'charge',
+])
+
+export const PHANTOM = { ghost: 220, solid: 130 }
+export const MIMIC = { beat: 150, disguised: 100 }
+export const BOLT_TICKS = 14
+export const CLOUD_CHARGE = 60
+
+/** A mimic gem sits still as a gem, then blinks its eyes open off the beat. */
+export function disguised(g: Grump): boolean {
+  return g.kind === 'mimic' && g.t % MIMIC.beat < MIMIC.disguised
+}
+
 /** Can a bubble catch it? (A diver under water can't be reached.) */
 export function trappable(g: Grump): boolean {
-  return g.state !== 'swim' && g.state !== 'toast' && g.state !== 'cling'
+  return (
+    g.state !== 'swim' &&
+    g.state !== 'toast' &&
+    g.state !== 'cling' &&
+    g.state !== 'ghost' &&
+    g.state !== 'charge'
+  )
 }
 
 /** A grump that bonks a robot on touch (a sprout hiding as a flower, or still unfolding, doesn't). */
 export function harmful(g: Grump): boolean {
   if (g.state === 'rise') return g.t >= RISE_TICKS / 2
+  if (disguised(g)) return false
   return g.state !== 'hidden' && g.state !== 'swim' && g.state !== 'toast'
 }
 
 /** The centre of a grump's body, where bubbles catch it. */
 export function grumpCentre(g: Grump): Spot {
   if (g.state === 'cling') return { x: g.x, y: g.y + 6 }
-  return g.state === 'fly' || g.state === 'comet'
-    ? { x: g.x, y: g.y }
-    : { x: g.x, y: g.y - 6 }
+  return CENTRED.has(g.state) ? { x: g.x, y: g.y } : { x: g.x, y: g.y - 6 }
 }
 
 function nearest(g: Grump, robots: readonly Spot[]): Spot | null {
@@ -443,12 +562,7 @@ export function updateGrump(g: Grump, w: GrumpWorld) {
   g.t++
   if (w.frozen) {
     // The Clock: everyone stands still (a flyer hangs where it is).
-    if (
-      g.state !== 'fly' &&
-      g.state !== 'comet' &&
-      g.state !== 'cling' &&
-      g.state !== 'toast'
-    ) {
+    if (!CENTRED.has(g.state) && g.state !== 'cling' && g.state !== 'toast') {
       g.vx = 0
       stepBody(w.floor, g, HALF, { ledges: w.ledges })
     }
@@ -468,6 +582,14 @@ export function updateGrump(g: Grump, w: GrumpWorld) {
   }
   if (g.state === 'toast' || g.state === 'popup') {
     toast(g, w)
+    return
+  }
+  if (g.state === 'ghost' || g.state === 'solid') {
+    phantom(g, w, spec.speed * w.speed * mult)
+    return
+  }
+  if (g.state === 'cloud' || g.state === 'charge') {
+    cloud(g, w, spec.speed * w.speed * mult)
     return
   }
   if (g.state === 'cling') {
@@ -571,6 +693,10 @@ export function updateGrump(g: Grump, w: GrumpWorld) {
       g.vy = JUMP_V
       g.onGround = false
     }
+  } else if (spec.glide) {
+    // An umbrella grump floats down slowly and drifts with the wind.
+    g.vy = Math.min(g.vy, 0.45)
+    g.vx = g.dir * w.speed * spec.speed * 0.5 + w.floor.wind * 1.4
   }
   const step = stepBody(w.floor, g, HALF, { ledges: w.ledges })
   if (step.bumped) g.dir = g.dir === 1 ? -1 : 1
@@ -597,6 +723,23 @@ function fire(g: Grump, w: GrumpWorld) {
   const attack = GRUMPS[g.kind].attack
   if (!attack || !w.hazards) return
   const y = g.y - 6
+  if (attack.kind === 'bolt') {
+    // The storm cloud's bolt: straight down its column to the first block.
+    let y1 = g.y + 8
+    while (y1 < 232 && !solidAt(w.floor, g.x, y1)) y1 += 2
+    w.hazards.push({
+      kind: 'bolt',
+      x: g.x,
+      y: g.y + 6,
+      vx: 0,
+      life: BOLT_TICKS,
+      x0: 0,
+      x1: 0,
+      y1,
+      warn: 0,
+    })
+    return
+  }
   if (attack.kind === 'steam') {
     // A scalding cloud puffed out ahead.
     w.hazards.push({
@@ -742,6 +885,61 @@ function swim(g: Grump, w: GrumpWorld, speed: number) {
     g.t = 0
   } else if (g.onGround && g.t > 8) {
     g.state = 'walk'
+    g.t = 0
+  }
+}
+
+/** A phantom: drifts after the nearest robot through blocks, ghostly, then turns solid for a spell. */
+function phantom(g: Grump, w: GrumpWorld, speed: number) {
+  if (g.state === 'ghost' && g.t >= PHANTOM.ghost) {
+    g.state = 'solid'
+    g.t = 0
+  } else if (g.state === 'solid' && g.t >= PHANTOM.solid) {
+    g.state = 'ghost'
+    g.t = 0
+  }
+  const near = nearest(g, w.robots)
+  const s = g.state === 'solid' ? speed * 0.5 : speed
+  if (near) {
+    const dx = near.x - g.x
+    const dy = near.y - 8 - g.y
+    const d = Math.hypot(dx, dy) || 1
+    g.vx = (dx / d) * s
+    g.vy = (dy / d) * s
+    g.dir = dx < 0 ? -1 : 1
+  } else {
+    g.vx = g.dir * s
+    g.vy = 0
+  }
+  g.x = Math.max(WALL_L + HALF, Math.min(WALL_R - HALF, g.x + g.vx))
+  g.y = Math.max(TOP + 12, Math.min(FLOOR_Y - 6, g.y + g.vy))
+  g.onGround = false
+}
+
+/** A thunder puff: drifts along its lane, grey and trappable, then darkens, crackles and bolts the column below. */
+function cloud(g: Grump, w: GrumpWorld, speed: number) {
+  if (g.state === 'charge') {
+    g.vx = 0
+    if (g.t >= CLOUD_CHARGE) {
+      fire(g, w)
+      g.state = 'cloud'
+      g.t = 0
+      g.cool = Math.floor(
+        (GRUMPS[g.kind].attack?.every ?? 240) * (0.7 + w.rng() * 0.6),
+      )
+    }
+    return
+  }
+  const centre = { x: g.x, y: g.y }
+  const hit = slide(w.floor, centre, g.dir * speed, 0, FLY_HALF)
+  if (hit.x || centre.x <= WALL_L + FLY_HALF || centre.x >= WALL_R - FLY_HALF)
+    g.dir = g.dir === 1 ? -1 : 1
+  g.x = centre.x
+  g.vx = g.dir * speed
+  g.onGround = false
+  if (Math.abs(g.y - g.lane) > 1) g.y += Math.sign(g.lane - g.y) * 0.6
+  if (--g.cool <= 0) {
+    g.state = 'charge'
     g.t = 0
   }
 }

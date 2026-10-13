@@ -4,7 +4,7 @@
 // "Structure"). A pantry door appears on floors 20, 40, 60, 80 and 90 when the floor is
 // cleared without a robot lost since the wing began: the classic's kind of hidden condition.
 // Through it is a room of treats and one of the five lost recipe cards the true ending needs.
-// Slice 2 (t-060) opened the first two; slice 3 (t-061) the third.
+// Slice 2 (t-060) opened the first two; slice 3 (t-061) the third; slice 4 (t-062) the last two.
 
 import { PANTRY_ROOMS } from './pantryRooms'
 import type { FloorDef } from './tower'
@@ -36,6 +36,18 @@ export const PANTRIES: readonly PantryDef[] = [
     name: 'THE ICE CELLAR',
     card: 'SNOWMELT FIZZ',
     room: PANTRY_ROOMS[2]!,
+  },
+  {
+    floor: 80,
+    name: 'THE SPICE CELLAR',
+    card: 'GHOST PEPPER',
+    room: PANTRY_ROOMS[3]!,
+  },
+  {
+    floor: 90,
+    name: 'THE RAIN BARREL ROOM',
+    card: 'STORM CLOUD CREAM',
+    room: PANTRY_ROOMS[4]!,
   },
 ]
 

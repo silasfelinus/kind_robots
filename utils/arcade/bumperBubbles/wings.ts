@@ -2,9 +2,8 @@
 //
 // Fizzwick Tower's ten wings of ten floors (conductor kr-arcade m8, spec: CABINETS.md
 // section 7, "The wings"). A wing carries its look (a theme in art.ts), its music,
-// the grumps it introduces, the Fizz Tap it introduces and its floors. Wings are
-// built a slice at a time; until the tower is finished, the climb goes on past the
-// last built floor by replaying the built floors at the higher floor's pace.
+// the grumps it introduces, the Fizz Tap it introduces and its floors. Wings were
+// built a slice at a time; the tower is finished at floor 100 (slice 4, t-062), where the climb ends.
 
 import { BOTTLING_HALL } from './bottlingHall'
 import { GUMDROP_GARDENS } from './gumdropGardens'
@@ -13,6 +12,9 @@ import { STARLIGHT_OBSERVATORY } from './starlightObservatory'
 import { EMBER_KITCHEN } from './emberKitchen'
 import { FROST_FREEZER } from './frostFreezer'
 import { GEARWORKS } from './gearworks'
+import { HAUNTED_PANTRY } from './hauntedPantry'
+import { STORM_ROOFTOP } from './stormRooftop'
+import { CARBONATOR } from './carbonator'
 import type { GrumpKind } from './grumps'
 import { parseFloor } from './tower'
 import type { Flavour, Floor, FloorDef, SpecialKind } from './tower'
@@ -115,6 +117,39 @@ export const WINGS: readonly WingDef[] = [
     motto: 'BELTS, LIFTS AND WIND-UP DOORS',
     special: null,
     floors: GEARWORKS,
+  },
+  {
+    n: 8,
+    name: 'THE HAUNTED PANTRY',
+    theme: 'haunted',
+    music: 'haunted',
+    grumps: ['phantom', 'mimic'],
+    tap: null,
+    motto: 'DARK FLOORS: YOUR ANTENNAE GLOW',
+    special: null,
+    floors: HAUNTED_PANTRY,
+  },
+  {
+    n: 9,
+    name: 'THE STORM ROOFTOP',
+    theme: 'storm',
+    music: 'storm',
+    grumps: ['thunder', 'glider'],
+    tap: null,
+    motto: 'WIND, RAIN AND LIGHTNING ON A FLASH',
+    special: null,
+    floors: STORM_ROOFTOP,
+  },
+  {
+    n: 10,
+    name: 'THE CARBONATOR',
+    theme: 'carbonator',
+    music: 'carbonator',
+    grumps: [],
+    tap: null,
+    motto: 'EVERY WING, REMIXED. RESTART IT.',
+    special: null,
+    floors: CARBONATOR,
   },
 ]
 

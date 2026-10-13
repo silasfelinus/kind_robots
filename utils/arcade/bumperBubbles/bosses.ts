@@ -18,6 +18,16 @@
 //      wave they set loose runs down the platforms and crashes into it.
 //   3. It spins whistling across the floor in great hops. Zap bubbles drift in: a bolt stuns it
 //      and hurts.
+//
+// THE JELLY MOULD (floor 75, in the dark; slice 4, t-062): a wobbling giant jelly. Each phase
+// ends by splitting it: into two, then four, then eight little jellies. Little jellies trapped
+// and popped against it hurt it; left alone too long they slide back together and heal it.
+//
+// THE GRUMBLE FIZZ KING (floor 100; slice 4): a huge sulking bottle on a throne of crates.
+//   1. He throws bottle caps in fans. Only Zap bubbles, and minions popped beside him, hurt him.
+//   2. He shakes himself up and fizz floods the room upward (it rises, drains, rises again):
+//      climb on bubbles and gum ledges ahead of it.
+//   3. His cap pops off and he shrinks into a tiny, cheerful, harmless soda bot.
 
 import type { GrumpKind } from './grumps'
 import { FLOOR_Y, TOP, TILE, WALL_L, WALL_R, groundBelow } from './tower'
@@ -37,6 +47,10 @@ export type BossState =
   | 'spin'
   | 'stunned'
   | 'popping'
+  | 'wobble'
+  | 'throw'
+  | 'shake'
+  | 'tiny'
   | 'done'
 
 /** What can hurt a boss: a minion's bubble popped against it, a Splash wave, a bolt, flames. */
@@ -93,6 +107,42 @@ export const BOSSES: Record<BossId, BossSpec> = {
       3: { text: 'IT SPINS!', sub: 'ZAP BUBBLES STUN IT' },
     },
   },
+  jelly: {
+    name: 'THE JELLY MOULD',
+    r: 22,
+    hpPerPhase: 2,
+    prize: 75_000,
+    minion: 'jellet',
+    maxMinions: 8,
+    popReach: 40,
+    spitEvery: [220, 320, 320],
+    hurtBy: { 1: ['pop'], 2: ['pop'], 3: ['pop'] },
+    specials: { 1: [], 2: [], 3: [] },
+    phases: {
+      2: { text: 'IT SPLITS!', sub: 'POP THE JELLIES AGAINST IT' },
+      3: { text: 'IT SPLITS AGAIN!', sub: 'POP THEM BEFORE THEY RE-FORM' },
+    },
+  },
+  king: {
+    name: 'THE GRUMBLE FIZZ KING',
+    r: 24,
+    hpPerPhase: 3,
+    prize: 150_000,
+    minion: 'waddler',
+    maxMinions: 3,
+    popReach: 46,
+    spitEvery: [260, 420, 99_999],
+    hurtBy: {
+      1: ['zap', 'pop'],
+      2: ['zap', 'pop'],
+      3: ['zap', 'pop'],
+    },
+    specials: { 1: ['zap'], 2: ['zap'], 3: ['zap'] },
+    phases: {
+      2: { text: 'HE SHAKES!', sub: 'CLIMB AHEAD OF THE FIZZ' },
+      3: { text: 'HIS CAP POPS OFF!', sub: 'HE IS TINY AND CHEERFUL' },
+    },
+  },
 }
 
 /** Kept for slice 2's callers: the Big Cork's numbers. */
@@ -113,6 +163,27 @@ export const KETTLE = {
   floodRise: 0.3,
   spinSpeed: 2.4,
   stunTicks: 70,
+} as const
+
+export const JELLY = {
+  /** Its radius in each phase: it shrinks as it splits. */
+  radii: [22, 17, 12],
+  speed: 0.5,
+  /** Ticks without a hit before little jellies start sliding back together. */
+  reform: 900,
+} as const
+
+export const KING = {
+  throwEvery: 120,
+  tell: 30,
+  fan: 5,
+  capSpeed: 1.9,
+  floodMax: 120,
+  floodMin: 30,
+  floodRise: 0.12,
+  floodDrain: 0.3,
+  tinyRadius: 8,
+  tinySpeed: 1.3,
 } as const
 
 export type Boss = {
@@ -136,6 +207,8 @@ export type Boss = {
   target: number
   /** The Kettle's flood, in px above the floor line. */
   flood: number
+  /** Ticks since it was last hurt (little jellies re-form while it is calm). */
+  calm: number
 }
 
 export function makeBoss(id: BossId): Boss {
@@ -156,6 +229,7 @@ export function makeBoss(id: BossId): Boss {
     spit: 120,
     target: 0,
     flood: 0,
+    calm: 0,
   }
 }
 
@@ -170,10 +244,17 @@ export interface BossHost {
   spawnMinion(at: Spot, dir: -1 | 1, kind: GrumpKind): void
   /** Something worth a sound, a shake or a banner. */
   cue(what: 'creak' | 'slam' | 'phase' | 'spit' | 'rattle' | 'blast'): void
+  /** A bottle cap thrown from (x, y) with this velocity. */
+  cap?(x: number, y: number, vx: number, vy: number): void
 }
 
 export function bossAlive(b: Boss): boolean {
   return b.state !== 'done' && b.state !== 'popping'
+}
+
+/** Does touching it bonk a robot? (The King, shrunk to a cheerful soda bot, is harmless.) */
+export function bossHarms(b: Boss): boolean {
+  return bossAlive(b) && !(b.id === 'king' && b.phase === 3)
 }
 
 /** Is (x, y) within `pad` of the boss's body? */
@@ -214,17 +295,29 @@ export function hurtBoss(b: Boss, host: BossHost): boolean {
   if (b.hurt > 0 || b.state === 'enter' || !bossAlive(b)) return false
   const spec = BOSSES[b.id]
   b.hurt = 50
+  b.calm = 0
   b.hp--
   if (b.hp > 0) return true
+  if (b.id === 'jelly') splitJelly(b, host, b.phase === 3 ? 8 : b.phase * 2)
   if (b.phase === 3) {
     b.state = 'popping'
     b.t = 0
     return true
   }
   b.phase = (b.phase + 1) as 2 | 3
-  b.hp = spec.hpPerPhase
+  b.hp = b.id === 'king' && b.phase === 3 ? 1 : spec.hpPerPhase
   b.t = 0
-  if (b.id === 'cork') {
+  if (b.id === 'jelly') {
+    b.r = JELLY.radii[b.phase - 1]!
+    b.state = 'wobble'
+  } else if (b.id === 'king') {
+    b.state = b.phase === 2 ? 'shake' : 'tiny'
+    if (b.phase === 3) {
+      b.r = KING.tinyRadius
+      b.vx = KING.tinySpeed
+      b.vy = 0
+    }
+  } else if (b.id === 'cork') {
     b.state = b.phase === 2 ? 'climb' : 'fizz'
     b.vx = Math.sign(b.vx || 1) * CORK.fizzSpeed
     b.vy = -CORK.fizzSpeed
@@ -234,6 +327,16 @@ export function hurtBoss(b: Boss, host: BossHost): boolean {
   }
   host.cue('phase')
   return true
+}
+
+/** The jelly splits: `n` little jellies burst out of it. */
+function splitJelly(b: Boss, host: BossHost, n: number) {
+  for (let i = 0; i < n; i++)
+    host.spawnMinion(
+      { x: b.x + (i - n / 2) * 5, y: b.y },
+      i % 2 ? -1 : 1,
+      'jellet',
+    )
 }
 
 /** A Zap bolt stuns the Kettle where it spins. */
@@ -290,12 +393,21 @@ export function updateBoss(b: Boss, host: BossHost) {
   if (b.state === 'enter') {
     // It drops in through the ceiling.
     b.y += 1.4
-    const rest = b.id === 'kettle' ? FLOOR_Y - b.r : TOP + TILE + b.r + 30
+    const onFloor = b.id !== 'cork'
+    const rest = onFloor ? FLOOR_Y - b.r : TOP + TILE + b.r + 30
     if (b.y >= rest) {
       b.y = rest
-      b.state = b.id === 'kettle' ? 'idle' : 'bounce'
+      b.state =
+        b.id === 'kettle'
+          ? 'idle'
+          : b.id === 'jelly'
+            ? 'wobble'
+            : b.id === 'king'
+              ? 'throw'
+              : 'bounce'
       b.t = 0
-      if (b.id === 'kettle') host.cue('slam')
+      if (onFloor) host.cue('slam')
+      if (b.id === 'jelly') b.vx = JELLY.speed
     }
     return
   }
@@ -304,15 +416,93 @@ export function updateBoss(b: Boss, host: BossHost) {
     b.spit = spec.spitEvery[b.phase - 1]!
     if (host.minions < spec.maxMinions && b.state !== 'slam') {
       const dir = (b.vx < 0 ? -1 : b.vx > 0 ? 1 : host.rng() < 0.5 ? -1 : 1) as
-        -1 | 1
+        | -1
+        | 1
       // The Big Cork spits from underneath; the Kettle's minions climb out of its lid.
-      const y = b.id === 'kettle' ? b.y - b.r : b.y + b.r - 2
+      const y = b.id === 'cork' ? b.y + b.r - 2 : b.y - b.r
       host.spawnMinion({ x: b.x, y }, dir, spec.minion)
       host.cue('spit')
     }
   }
   if (b.id === 'cork') updateCork(b, host)
-  else updateKettle(b, host)
+  else if (b.id === 'kettle') updateKettle(b, host)
+  else if (b.id === 'jelly') updateJelly(b, host)
+  else updateKing(b, host)
+}
+
+function updateJelly(b: Boss, host: BossHost) {
+  b.calm++
+  // It wobbles slowly back and forth along the floor.
+  b.x += b.vx
+  if (b.x < WALL_L + b.r) {
+    b.x = WALL_L + b.r
+    b.vx = Math.abs(b.vx)
+  } else if (b.x > WALL_R - b.r) {
+    b.x = WALL_R - b.r
+    b.vx = -Math.abs(b.vx)
+  }
+  b.y = FLOOR_Y - b.r
+  // Left alone, the pieces slide back together and it heals a chunk.
+  if (
+    b.phase > 1 &&
+    host.minions > 0 &&
+    b.calm >= JELLY.reform &&
+    b.calm % 450 === 0
+  ) {
+    b.hp = Math.min(BOSSES.jelly.hpPerPhase, b.hp + 1)
+    host.cue('rattle')
+  }
+}
+
+function updateKing(b: Boss, host: BossHost) {
+  if (b.phase === 3) {
+    // Tiny and cheerful: hopping about, the flood draining away.
+    b.flood = Math.max(0, b.flood - 0.6)
+    b.x += b.vx
+    if (b.x < WALL_L + b.r) {
+      b.x = WALL_L + b.r
+      b.vx = Math.abs(b.vx)
+    } else if (b.x > WALL_R - b.r) {
+      b.x = WALL_R - b.r
+      b.vx = -Math.abs(b.vx)
+    }
+    b.vy += 0.15
+    b.y += b.vy
+    if (b.y >= FLOOR_Y - b.r) {
+      b.y = FLOOR_Y - b.r
+      b.vy = -3.2
+    }
+    return
+  }
+  b.y = FLOOR_Y - b.r
+  if (b.phase === 2) {
+    // The fizz rises to its line, then drains a little, over and over.
+    if (b.target === 0) {
+      b.flood = Math.min(KING.floodMax, b.flood + KING.floodRise)
+      if (b.flood >= KING.floodMax) b.target = 1
+    } else {
+      b.flood = Math.max(KING.floodMin, b.flood - KING.floodDrain)
+      if (b.flood <= KING.floodMin) b.target = 0
+    }
+  }
+  // Caps thrown in a fan at the nearest robot: a wider fan and slower beat when he is shaken up.
+  const every = b.phase === 1 ? KING.throwEvery : KING.throwEvery * 1.6
+  if (b.t % every === every - KING.tell) host.cue('rattle')
+  if (b.t % every === 0 && host.cap) {
+    const tx = nearestX(b, host.robots)
+    const aim = Math.atan2(FLOOR_Y - 40 - (b.y - b.r), tx - b.x)
+    const n = b.phase === 1 ? KING.fan : 3
+    for (let i = 0; i < n; i++) {
+      const a = aim + (i - (n - 1) / 2) * 0.4
+      host.cap(
+        b.x,
+        b.y - b.r * 0.4,
+        Math.cos(a) * KING.capSpeed,
+        Math.sin(a) * KING.capSpeed,
+      )
+    }
+    host.cue('spit')
+  }
 }
 
 function updateCork(b: Boss, host: BossHost) {

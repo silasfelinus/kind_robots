@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "source": "silasfelinus/conductor:projects/shifting-desks/encounters/WELLNESS-12.json",
-  "sourceSha": "827aa8a3bf810ae3642a2dee63b56556c199f102",
+  "sourceSha": "84b3f138cfe7155f4d2b1d1ca8ab58aded8c59ce",
   "department": {
     "id": "wellness",
     "title": "Wellness & Testing",
@@ -1215,7 +1215,7 @@
       "flavor_text": "At the back of the Mutation Suite is a round vault door that hums one patient note, like someone waiting to be answered. It has no handle and no lock. Pressed against the steel, you can hear something on the other side humming back.",
       "polarity": "good",
       "tags": ["conspiracy", "mutant"],
-      "weight": 2,
+      "weight": 3,
       "witnessed": false,
       "art_prompt": "Mid-century safety-manual illustration of a huge round steel vault door set into a tiled wall at the end of a row of bubbling tanks, faint sound ripples drawn in the air around it, a worker pressing one ear to the steel, a yellow rubber duck in their other hand, carbon-paper blue and fluorescent green palette, halftone grain, every surface bare and unmarked",
       "choices": [

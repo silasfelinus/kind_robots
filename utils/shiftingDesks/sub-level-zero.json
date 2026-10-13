@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "source": "silasfelinus/conductor:projects/shifting-desks/encounters/SUBLEVEL-ZERO-12.json",
-  "sourceSha": "827aa8a3bf810ae3642a2dee63b56556c199f102",
+  "sourceSha": "84b3f138cfe7155f4d2b1d1ca8ab58aded8c59ce",
   "department": {
     "id": "sub-level-zero",
     "title": "Sub-Level Zero",
@@ -677,7 +677,7 @@
       "flavor_text": "On a shelf above the workbench stand four empty brass stands, each labeled with a year and a little brass nameplate shaped like a mustache. The Founder's eyes follow your gaze. \"My predecessors,\" he says. \"Myself, earlier. The mustaches were taken for safekeeping. I would very much like them back.\"",
       "polarity": "good",
       "tags": ["satire", "conspiracy"],
-      "weight": 2,
+      "weight": 3,
       "witnessed": false,
       "art_prompt": "Mid-century safety-manual illustration of a high wooden shelf in an old garage with four small empty brass stands in a row, a glowing head in a glass jar on the workbench below gazing up at them with longing, a worker holding a small wooden box, warm lamplight, manila and oxblood palette, halftone grain, every surface bare and unmarked",
       "choices": [
@@ -881,7 +881,7 @@
       "tags": ["conspiracy", "sacrifice"],
       "weight": 2,
       "witnessed": true,
-      "art_prompt": "Mid-century safety-manual illustration of an old wooden desk with one drawer pulled open, holding a glossy travel brochure and a dented round film tin, a worker's hands hovering between the two, a glowing head in a jar watching from the corner of the frame, oxblood and manila palette, halftone grain, every surface bare and unmarked",
+      "art_prompt": "Mid-century safety-manual illustration of an old wooden desk with one drawer pulled open, holding a glossy travel brochure and a dented round film tin, a worker's hands hovering between the two, a glowing head in a jar watching from the corner of the desk, oxblood and manila palette, halftone grain, every surface bare and unmarked",
       "choices": [
         {
           "id": "take-the-uncut-reel",

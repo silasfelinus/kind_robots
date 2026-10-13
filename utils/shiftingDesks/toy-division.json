@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "source": "silasfelinus/conductor:projects/shifting-desks/encounters/TOY-DIVISION-12.json",
-  "sourceSha": "827aa8a3bf810ae3642a2dee63b56556c199f102",
+  "sourceSha": "84b3f138cfe7155f4d2b1d1ca8ab58aded8c59ce",
   "department": {
     "id": "toy-division",
     "title": "Toy Division",
@@ -516,7 +516,7 @@
           "id": "squeeze-the-duck",
           "label": "Squeeze the duck he is holding",
           "intent": "Find out what the squeak does. Somebody has to.",
-          "risk_hint": "Dire Vigilance check. Listen very carefully afterward.",
+          "risk_hint": "Risky Vigilance check. Listen very carefully afterward.",
           "requires": null,
           "cost": {
             "composure": -1
@@ -526,7 +526,7 @@
             "die_sides": 6,
             "skill": "vigilance",
             "modifier": 0,
-            "target": 11
+            "target": 9
           },
           "success": {
             "text": "The duck squeaks. Far below, a vault door clunks open, and you hear exactly which one. Dale writes the number on your hand in ballpoint.",

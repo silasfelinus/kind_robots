@@ -46,3 +46,30 @@ jobs:
       - run: npx tsx utils/scripts/verifyEmperorDispatch.test.ts
       - run: npx tsx utils/scripts/verifyEmperorCampaign.test.ts
       - run: npx tsx utils/scripts/verifyEmperorMap.test.ts
+      - name: Temporary pinned Prettier snapshot
+        run: |
+          npx prettier --write pages/admin/emperor-of-dust.vue components/emperorOfDust/ImperialRoadMap.vue utils/emperorOfDust/map.ts utils/emperorOfDust/pilot.ts utils/scripts/verifyEmperorMap.test.ts stores/emperorOfDustStore.ts utils/emperorOfDust/dayOne.ts utils/emperorOfDust/clock.ts
+          printf '\\nEMAP_FMT_0_BEGIN\\n'
+          base64 -w0 pages/admin/emperor-of-dust.vue
+          printf '\\nEMAP_FMT_0_END\\n'
+          printf '\\nEMAP_FMT_1_BEGIN\\n'
+          base64 -w0 components/emperorOfDust/ImperialRoadMap.vue
+          printf '\\nEMAP_FMT_1_END\\n'
+          printf '\\nEMAP_FMT_2_BEGIN\\n'
+          base64 -w0 utils/emperorOfDust/map.ts
+          printf '\\nEMAP_FMT_2_END\\n'
+          printf '\\nEMAP_FMT_3_BEGIN\\n'
+          base64 -w0 utils/emperorOfDust/pilot.ts
+          printf '\\nEMAP_FMT_3_END\\n'
+          printf '\\nEMAP_FMT_4_BEGIN\\n'
+          base64 -w0 utils/scripts/verifyEmperorMap.test.ts
+          printf '\\nEMAP_FMT_4_END\\n'
+          printf '\\nEMAP_FMT_5_BEGIN\\n'
+          base64 -w0 stores/emperorOfDustStore.ts
+          printf '\\nEMAP_FMT_5_END\\n'
+          printf '\\nEMAP_FMT_6_BEGIN\\n'
+          base64 -w0 utils/emperorOfDust/dayOne.ts
+          printf '\\nEMAP_FMT_6_END\\n'
+          printf '\\nEMAP_FMT_7_BEGIN\\n'
+          base64 -w0 utils/emperorOfDust/clock.ts
+          printf '\\nEMAP_FMT_7_END\\n'

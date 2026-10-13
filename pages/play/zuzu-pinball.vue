@@ -1,7 +1,6 @@
 <template>
   <main class="kr-surface">
     <div class="kr-scroll mx-auto max-w-[1500px] space-y-5 px-3 py-5 sm:px-6">
-      <template>
         <section
           class="relative overflow-hidden rounded-3xl border border-base-content/15 bg-base-300"
           aria-label="Zuzu Pinball art direction"
@@ -101,7 +100,6 @@
           </aside>
         </div>
         <ArcadePinballLightMap :table="ZUZU_LAST_BELL_GREYBOX" />
-      </template>
     </div>
   </main>
 </template>
@@ -113,7 +111,7 @@ import { ZUZU_LAST_BELL_GREYBOX } from '~/utils/arcade/pinball/tables/zuzuLastBe
 
 const webglReady = ref(true)
 
-onMounted(async () => {
+onMounted(() => {
   webglReady.value = canRenderWebGL()
 })
 </script>

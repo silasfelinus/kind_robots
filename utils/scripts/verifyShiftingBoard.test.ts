@@ -26,7 +26,10 @@ assert.match(page, /ShiftingLandsJourneyBoard/)
 assert.match(page, /@legacy="legacyMode = true"/)
 assert.match(page, /legacyMode = false/)
 assert.equal(existsSync(file('../../pages/play/zuzu-shifting-lands.vue')), true)
-assert.match(read('../../pages/admin/zuzu-shifting-lands.vue'), /redirectCode: 301/)
+assert.match(
+  read('../../pages/admin/zuzu-shifting-lands.vue'),
+  /redirectCode: 301/,
+)
 
 assert.match(board, /<FlipCard\b/)
 assert.match(board, /<kr-card-flip/)

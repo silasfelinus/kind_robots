@@ -1,0 +1,43 @@
+name: Format Arcade Files Once
+on:
+  pull_request:
+    branches: [main]
+permissions:
+  contents: write
+jobs:
+  format:
+    if: github.event.pull_request.head.repo.full_name == github.repository && startsWith(github.head_ref, 'worker/arcade-ratings-comments-')
+    runs-on: ubuntu-latest
+    env:
+      CYPRESS_INSTALL_BINARY: '0'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref }}
+          persist-credentials: true
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: 'npm'
+      - run: npm ci
+      - name: Prettier format only the touched files
+        run: |
+          npx prettier --write \
+            'components/arcade/arcade-hall.vue' \
+            'components/arcade/arcade-reviews.vue' \
+            'server/api/arcade/reviews.get.ts' \
+            'server/api/arcade/reviews/[game].get.ts' \
+            'server/api/arcade/reviews/[game].put.ts' \
+            'stores/arcadeReviewsStore.ts' \
+            'utils/arcade/reviews.ts' \
+            'utils/scripts/verifyArcadeReviews.test.ts' \
+            'utils/scripts/verifyZuzuLairArcade.test.ts'
+      - name: Commit formatted files on the PR branch
+        run: |
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git config user.name "github-actions[bot]"
+          git add 'components/arcade/arcade-hall.vue' 'components/arcade/arcade-reviews.vue' 'server/api/arcade/reviews.get.ts' 'server/api/arcade/reviews/[game].get.ts' 'server/api/arcade/reviews/[game].put.ts' 'stores/arcadeReviewsStore.ts' 'utils/arcade/reviews.ts' 'utils/scripts/verifyArcadeReviews.test.ts' 'utils/scripts/verifyZuzuLairArcade.test.ts'
+          if ! git diff --cached --quiet; then
+            git commit -m 'style(arcade): format new review UI and contract tests'
+            git push origin HEAD:refs/heads/${{ github.head_ref }}
+          fi

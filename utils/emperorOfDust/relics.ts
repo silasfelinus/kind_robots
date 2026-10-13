@@ -1,5 +1,6 @@
 import type { Campaign } from './types'
-import { dayAt } from './engine'
+import { createCampaign, dayAt } from './engine'
+import { starterFollowers } from './followers'
 
 export const RELICS = {
   'eye-of-elder-crow': {
@@ -100,3 +101,12 @@ export const encodeRelicVault = (vault: RelicVault): string => {
 export const revealFalseReport = (
   campaign: Campaign, reportIsTrue: boolean,
 ): boolean => equipped(campaign, 'eye-of-elder-crow') && !reportIsTrue
+
+export const startWithRelics = (seed: number, vault: RelicVault): Campaign => {
+  if (!validateRelicVault(vault)) throw new Error('Invalid relic collection')
+  return {
+    ...createCampaign(seed, starterFollowers()),
+    equippedRelics: [...vault.nextLoadout],
+    relicUses: {},
+  }
+}

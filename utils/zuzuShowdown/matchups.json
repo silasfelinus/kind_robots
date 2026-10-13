@@ -780,6 +780,179 @@
       "win": {
         "swamp-witch": "There. Back to one. Much tidier."
       }
+    },
+    {
+      "pair": ["zuzu", "jeffery-mittens"],
+      "intro": [
+        {
+          "speaker": "jeffery-mittens",
+          "line": "You. The bear who laced the dead back up."
+        },
+        {
+          "speaker": "zuzu",
+          "line": "..."
+        },
+        {
+          "speaker": "jeffery-mittens",
+          "line": "I ain't scared of you. Much."
+        }
+      ],
+      "win": {
+        "zuzu": "Keep the boots.",
+        "jeffery-mittens": "Ha! Told you I ain't scared. Mostly."
+      }
+    },
+    {
+      "pair": ["coyote-vagrant", "jeffery-mittens"],
+      "intro": [
+        {
+          "speaker": "coyote-vagrant",
+          "line": "Kid. Them boots ain't yours."
+        },
+        {
+          "speaker": "jeffery-mittens",
+          "line": "Ain't yours neither. Ain't nobody's now."
+        }
+      ],
+      "win": {
+        "coyote-vagrant": "I'll take the left one. Only need the left.",
+        "jeffery-mittens": "There's your boot, mister. Both of 'em."
+      }
+    },
+    {
+      "pair": ["the-abbess", "jeffery-mittens"],
+      "intro": [
+        {
+          "speaker": "the-abbess",
+          "line": "Such cold little feet. Come inside, child."
+        },
+        {
+          "speaker": "jeffery-mittens",
+          "line": "I seen the notices. Nobody comes back out."
+        }
+      ],
+      "win": {
+        "the-abbess": "Hush now. There's a bed with your name on it.",
+        "jeffery-mittens": "Them kids get their boots back. All of 'em."
+      }
+    },
+    {
+      "pair": ["the-siblings", "jeffery-mittens"],
+      "intro": [
+        {
+          "speaker": "the-siblings",
+          "line": "Those are dead folks' boots."
+        },
+        {
+          "speaker": "jeffery-mittens",
+          "line": "Dead folks don't walk. You do. Want a pair?"
+        }
+      ],
+      "win": {
+        "the-siblings": "We're fine barefoot. Leave us alone.",
+        "jeffery-mittens": "Sorry. You hit hard. Take the little ones."
+      }
+    },
+    {
+      "pair": ["storm-crow", "jeffery-mittens"],
+      "intro": [
+        {
+          "speaker": "storm-crow",
+          "line": "A thief on my road, in a dead man's coat."
+        },
+        {
+          "speaker": "jeffery-mittens",
+          "line": "Roads ain't got owners. Neither do coats."
+        }
+      ],
+      "win": {
+        "storm-crow": "Fly while you can, little thief.",
+        "jeffery-mittens": "Left a boot in your nest. You're welcome."
+      }
+    },
+    {
+      "pair": ["river-croc", "jeffery-mittens"],
+      "intro": [
+        {
+          "speaker": "jeffery-mittens",
+          "line": "Easy. Easy now. I only want a drink."
+        },
+        {
+          "speaker": "river-croc",
+          "line": "HSSSSSS."
+        }
+      ],
+      "win": {
+        "river-croc": "*gulp* ... *spits out a boot*",
+        "jeffery-mittens": "Can't swallow what you can't catch!"
+      }
+    },
+    {
+      "pair": ["hyena-matriarch", "jeffery-mittens"],
+      "intro": [
+        {
+          "speaker": "hyena-matriarch",
+          "line": "Look at the boots! Heh! Look at his feet!"
+        },
+        {
+          "speaker": "jeffery-mittens",
+          "line": "Laugh it up. Mine don't bleed no more."
+        }
+      ],
+      "win": {
+        "hyena-matriarch": "Run on home, little mask. Heh heh heh.",
+        "jeffery-mittens": "Who's laughin' now? Not me. I'm runnin'."
+      }
+    },
+    {
+      "pair": ["old-komodo", "jeffery-mittens"],
+      "intro": [
+        {
+          "speaker": "old-komodo",
+          "line": "Mm. Small. Quick. Mostly bones."
+        },
+        {
+          "speaker": "jeffery-mittens",
+          "line": "Mostly quick. You'll see."
+        }
+      ],
+      "win": {
+        "old-komodo": "Mm. Too quick to eat. Next time.",
+        "jeffery-mittens": "Your feet's too big for boots anyhow."
+      }
+    },
+    {
+      "pair": ["swamp-witch", "jeffery-mittens"],
+      "intro": [
+        {
+          "speaker": "swamp-witch",
+          "line": "Bring me the boots of the dead, little one."
+        },
+        {
+          "speaker": "jeffery-mittens",
+          "line": "Nah. Them're for the living. Find your own."
+        }
+      ],
+      "win": {
+        "swamp-witch": "Every pair walks back to us, sooner or later.",
+        "jeffery-mittens": "Ain't tradin' nothin' with you. Ever."
+      }
+    },
+    {
+      "pair": ["jeffery-mittens", "jeffery-mittens"],
+      "intro": [
+        {
+          "speaker": "jeffery-mittens",
+          "line": "Hey. That's my coat."
+        },
+        {
+          "speaker": "jeffery-mittens",
+          "line": "Weren't me. I found it."
+        }
+      ],
+      "win": {
+        "jeffery-mittens": "Finders keepers. Them's the rules."
+      }
     }
   ],
   "boss": {
@@ -791,6 +964,7 @@
     "river-croc": "HSSSSSSS.",
     "hyena-matriarch": "Heh... heh. Okay, that one's not funny.",
     "old-komodo": "I have eaten many things. Not that.",
-    "swamp-witch": "Oh, don't be shy. It's only the rest of me."
+    "swamp-witch": "Oh, don't be shy. It's only the rest of me.",
+    "jeffery-mittens": "Weren't me. Weren't us. We only come after."
   }
 }

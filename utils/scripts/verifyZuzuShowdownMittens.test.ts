@@ -27,6 +27,7 @@ import { JEFFERY_MITTENS } from '../zuzuShowdown/fighters/jeffery-mittens'
 import { COYOTE } from '../zuzuShowdown/fighters/coyote'
 import { SIBLINGS } from '../zuzuShowdown/fighters/siblings'
 import { ZUZU } from '../zuzuShowdown/fighters/zuzu'
+import { FIGHTERS } from '../zuzuShowdown/fighters'
 import {
   SIM_BUTTONS,
   SUB,
@@ -117,32 +118,36 @@ const BLOCK_LOW = press({ right: true, down: true })
 
 // ---------------------------------------------------------------- data
 
-check('every special matches its fighters.yaml input', () => {
-  const yaml: Record<string, string> = {
-    'boot-toss': 'QCF+P',
-    underfoot: 'QCB+K',
-    'ledge-drop': 'QCB+K',
-    'tied-laces': 'HCB+P',
-    'little-knife': 'DP+P',
-    'werent-me': 'dd+K',
-    scavenge: 'dd+P',
-    'every-last-boot': 'QCF QCF+P',
-    'the-dry-well-pack': 'QCB QCB+HP',
-  }
-  assert.deepEqual(
-    JEFFERY_MITTENS.specials.map((s) => s.id).sort(),
-    Object.keys(yaml).sort(),
-  )
-  for (const special of JEFFERY_MITTENS.specials) {
-    const parsed = parseNotation(yaml[special.id]!)
-    assert.ok(parsed, special.id)
-    assert.equal(parsed.motion, special.motion, special.id)
-    assert.equal(parsed.button, special.button, special.id)
-  }
-  assert.equal(JEFFERY_MITTENS.slug, 'jeffery-mittens')
-  assert.equal(JEFFERY_MITTENS.health, 900)
-  assert.equal(JEFFERY_MITTENS.ammo, 4)
-})
+check(
+  'every special matches its fighters.yaml input; he joins the roster',
+  () => {
+    const yaml: Record<string, string> = {
+      'boot-toss': 'QCF+P',
+      underfoot: 'QCB+K',
+      'ledge-drop': 'QCB+K',
+      'tied-laces': 'HCB+P',
+      'little-knife': 'DP+P',
+      'werent-me': 'dd+K',
+      scavenge: 'dd+P',
+      'every-last-boot': 'QCF QCF+P',
+      'the-dry-well-pack': 'QCB QCB+HP',
+    }
+    assert.deepEqual(
+      JEFFERY_MITTENS.specials.map((s) => s.id).sort(),
+      Object.keys(yaml).sort(),
+    )
+    for (const special of JEFFERY_MITTENS.specials) {
+      const parsed = parseNotation(yaml[special.id]!)
+      assert.ok(parsed, special.id)
+      assert.equal(parsed.motion, special.motion, special.id)
+      assert.equal(parsed.button, special.button, special.id)
+    }
+    assert.equal(JEFFERY_MITTENS.slug, 'jeffery-mittens')
+    assert.ok(FIGHTERS.includes(JEFFERY_MITTENS))
+    assert.equal(JEFFERY_MITTENS.health, 900)
+    assert.equal(JEFFERY_MITTENS.ammo, 4)
+  },
+)
 
 // ---------------------------------------------------------------- the kit
 

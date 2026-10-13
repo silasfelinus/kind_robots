@@ -41,7 +41,7 @@ export const IMPERIAL_REGIONS: readonly ImperialRegion[] = [
     outwardHours: 3,
   },
   {
-    id: 'jackalwire-canyon',
+    id: 'jackalwire',
     name: 'Jackalwire Canyon',
     faction: 'Jackalwire Pack',
     description: 'Painted wagons and restless raiders contest the dry southern approaches.',

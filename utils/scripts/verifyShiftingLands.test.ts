@@ -152,7 +152,7 @@ const channel = readFileSync(
 const world = readFileSync(toPath('../zuzuWorld.ts'), 'utf8')
 assert.match(channel, /channelKey: projects/)
 assert.match(channel, /route: \/play\/zuzu-shifting-lands/)
-assert.match(channel, /requiredRole: GUEST/)
+assert.doesNotMatch(channel, /requiredRole:/)
 assert.doesNotMatch(channel, /navigation: false/)
 assert.match(world, /route: '\/play\/zuzu-shifting-lands'/)
 assert.match(page, /<FlipCard\b/)

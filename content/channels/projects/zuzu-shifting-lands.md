@@ -10,7 +10,6 @@ description: 'Playable five-land interactive board with drawn encounter cards, s
 icon: kind-icon:map
 route: /play/zuzu-shifting-lands
 sort: 125
-requiredRole: GUEST
 tutorial:
   title: Shifting Lands
   body: >-

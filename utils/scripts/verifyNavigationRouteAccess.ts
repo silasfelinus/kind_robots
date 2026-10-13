@@ -429,7 +429,7 @@ for (const { slug, from, to, route } of navigationMoves) {
     // Showdown separately launched publicly under #3549; never re-gate it.
     assert.ok(!tab.includes(`${newline}requiredRole: ADMIN${newline}`))
     if (slug !== 'zuzu-showdown') {
-      assert.ok(tab.includes(`${newline}requiredRole: GUEST${newline}`))
+      assert.ok(!tab.includes(`${newline}requiredRole:`))
     }
   } else {
     assert.ok(

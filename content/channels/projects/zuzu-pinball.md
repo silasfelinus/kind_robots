@@ -10,7 +10,6 @@ description: "Playable pinball greybox of Zuzu's haunted frontier table, with a 
 icon: kind-icon:gamepad
 route: /play/zuzu-pinball
 sort: 126
-requiredRole: GUEST
 tutorial:
   title: Zuzu Pinball · The Last Bell
   body: >-
@@ -32,11 +31,11 @@ tutorial:
     The Bell spiral feeds the raised Abbey deck and its three hollow bells.
     A soft plunge into the Mortuary is the skill shot.
     WORKSHOP NOTES: Scoring and public leaderboards are intentionally
-    disabled while this table is in development. Administrators can open the separate Pinball Workshop for
-    light-map editing tools.
+    disabled while this table is in development. Administrators can open
+    the separate Pinball Workshop for light-map editing tools.
 ---
 
 The Last Bell is a new Zuzu pinball table. This table remains independent
-of the main Arcade and from AMI Village Rescue. The full game design,
+of the main Arcade and AMI Village Rescue. The full game design,
 including mechanical shot routes and the River Croc animated ball-capture
 toy, is documented in Conductor under `projects/zuzu-pinball/`.

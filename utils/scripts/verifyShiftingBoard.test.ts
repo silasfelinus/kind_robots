@@ -18,7 +18,7 @@ const store = read('../../stores/shiftingLandsJourneyStore.ts')
 const legacy = read('../../stores/shiftingLandsStore.ts')
 const channel = read('../../content/channels/projects/zuzu-shifting-lands.md')
 
-assert.match(channel, /requiredRole: GUEST/)
+assert.doesNotMatch(channel, /requiredRole:/)
 assert.match(channel, /route: \/play\/zuzu-shifting-lands/)
 assert.doesNotMatch(channel, /navigation: false/)
 assert.match(page, /v-else-if="!legacyMode"/)

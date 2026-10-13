@@ -1,7 +1,6 @@
 <template>
   <main class="kr-surface">
     <div class="kr-scroll mx-auto w-full max-w-[1500px] px-2 py-2 sm:px-4">
-      <div>
         <div class="mb-2 flex justify-end">
           <button
             type="button"
@@ -21,8 +20,6 @@
         <section v-else class="zuzu-game-stage" aria-label="Zuzu Pinball game">
           <ArcadeCabinet slug="zuzu-pinball" />
         </section>
-
-      </div>
     </div>
   </main>
 </template>

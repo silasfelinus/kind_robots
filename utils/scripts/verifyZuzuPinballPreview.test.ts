@@ -30,7 +30,7 @@ assert.equal(isPlausibleScore('zuzu-pinball', 5000), false)
 assert.equal(isPlausibleScore('kind-pinball', 5000), true)
 
 const tab = read('../../content/channels/projects/zuzu-pinball.md')
-assert.match(tab, /requiredRole: GUEST/)
+assert.doesNotMatch(tab, /requiredRole:/)
 assert.match(tab, /route: \/play\/zuzu-pinball/)
 assert.match(read('../../pages/admin/zuzu-pinball.vue'), /user\.isAdmin/)
 const pinballPage = read('../../pages/admin/zuzu-pinball.vue')

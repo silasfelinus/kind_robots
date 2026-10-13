@@ -596,8 +596,8 @@ assert.deepEqual(
 // Toy Division (conductor shifting-desks t-011)
 assert.deepEqual(
   DEPARTMENTS.map((d) => d.department.id),
-  ['orientation', 'records', 'toy-division'],
-  'three departments ship, in order',
+  ['orientation', 'records', 'toy-division', 'wellness'],
+  'four departments ship, in order',
 )
 assert.equal(TOY_DIVISION.encounters.length, 12)
 assert.equal(
@@ -635,6 +635,14 @@ for (const soc of SOCIETIES) {
     `${soc.id} has Toy Division orders`,
   )
   assert.ok(soc.objective_text['toy-division'], `${soc.id} explains its orders`)
+}
+assert.equal(
+  fallbackOutcome(DEPARTMENTS[3]!),
+  'retest',
+  'an inconclusive Final Exam schedules a retest',
+)
+for (const soc of SOCIETIES) {
+  assert.ok(soc.objectives.wellness?.length, `${soc.id} has Wellness orders`)
 }
 for (const flag of Object.keys(FLAG_MEMOS)) {
   assert.ok(
@@ -795,7 +803,7 @@ const stationPrompts: Array<[string, string]> = [
   ...MUTATIONS.map((x): [string, string] => [`mutation ${x.id}`, x.art_prompt]),
 ]
 assert.ok(
-  stationPrompts.length >= 70,
+  stationPrompts.length >= 87,
   `every station is covered (${stationPrompts.length})`,
 )
 for (const [station, prompt] of stationPrompts) {

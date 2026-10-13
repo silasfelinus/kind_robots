@@ -6,7 +6,7 @@ label: Shifting Lands Workshop
 title: Shifting Lands · Development Preview
 subtitle: Admin-only legacy Homestead prototype
 description: Visit the authored five-land board or examine the legacy Homestead workshop.
-summary: Inspect the Shifting Lands development build.
+summary: Inspect Shifting Lands workshop.
 icon: kind-icon:map
 route: /admin/zuzu-shifting-lands
 sort: 131

@@ -28,8 +28,50 @@
     </button>
 
     <div
+      v-else-if="!expanded"
+      class="flex flex-wrap items-center gap-2 rounded-2xl border-2 border-stone-800 bg-base-200 p-2"
+    >
+      <span
+        class="society-chip flex items-center gap-1.5 rounded-lg px-2 py-1 text-xs font-bold"
+      >
+        <icon name="kind-icon:mask" size="0.9rem" />
+        {{ society.title }} · {{ statusLabel }}
+      </span>
+      <span
+        class="mutation-chip flex items-center gap-1.5 rounded-lg px-2 py-1 text-xs font-bold"
+      >
+        <icon name="kind-icon:bolt" size="0.9rem" />
+        {{ mutation.title }} · {{ run.mutationUsed ? 'used' : 'ready' }}
+      </span>
+      <button
+        v-if="instantAvailable(run, 'mutation')"
+        type="button"
+        class="btn btn-xs"
+        @click="store.useInstant('mutation')"
+      >
+        Use {{ mutation.title }}
+      </button>
+      <button
+        v-if="instantAvailable(run, 'favor')"
+        type="button"
+        class="btn btn-xs"
+        @click="store.useInstant('favor')"
+      >
+        Call in {{ society.favor.title }}
+      </button>
+      <button
+        type="button"
+        class="btn btn-ghost btn-xs ml-auto"
+        :aria-expanded="false"
+        @click="expanded = true"
+      >
+        Open envelope
+      </button>
+    </div>
+
+    <div
       v-else
-      class="grid grid-cols-[repeat(auto-fit,minmax(min(100%,20rem),1fr))] gap-3"
+      class="relative grid grid-cols-[repeat(auto-fit,minmax(min(100%,20rem),1fr))] gap-3"
     >
       <article
         class="society-card flex flex-col gap-2 rounded-2xl border-4 p-4"
@@ -102,6 +144,14 @@
           Suspicion.
         </p>
         <button
+          type="button"
+          class="btn btn-ghost btn-xs self-end"
+          :aria-expanded="true"
+          @click="expanded = false"
+        >
+          Fold the envelope
+        </button>
+        <button
           v-if="instantAvailable(run, 'mutation')"
           type="button"
           class="btn btn-sm self-start border-stone-900 bg-stone-900 text-lime-200"
@@ -115,7 +165,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, ref, watch } from 'vue'
 import {
   favorAvailable,
   instantAvailable,
@@ -125,6 +175,14 @@ import {
 import { useShiftingDesksStore } from '~/stores/shiftingDesksStore'
 
 const store = useShiftingDesksStore()
+const expanded = ref((store.run?.log.length ?? 0) === 0)
+
+watch(
+  () => store.run?.position,
+  (now, before) => {
+    if (before !== undefined && now !== before) expanded.value = false
+  },
+)
 const run = computed(() => store.run)
 const society = computed(() => societyById(run.value?.societyId ?? ''))
 const mutation = computed(() => mutationById(run.value?.mutationId ?? ''))
@@ -165,6 +223,16 @@ const statusClass = computed(() =>
   background: #7f1d1d;
   color: #fef3c7;
   box-shadow: inset 0 0 0 4px rgb(254 243 199 / 0.25);
+}
+
+.society-chip {
+  background: #7f1d1d;
+  color: #fef3c7;
+}
+
+.mutation-chip {
+  background: #bef264;
+  color: #1c1917;
 }
 
 .society-card {

@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "source": "silasfelinus/conductor:projects/shifting-desks/encounters/DECKS.json",
-  "sourceRef": "main@91e59efebc61177870dc8bb463e8317d4a56ab23",
+  "sourceRef": "main@f2cac065bc02471765b6f2a72201c12951b01f3a",
   "societies": [
     {
       "id": "stapler-liberation-front",
@@ -14,10 +14,22 @@
           "survey-wrote-help",
           "honest-badge-photo",
           "not-a-team-player"
+        ],
+        "records": [
+          "stapler-front-courier",
+          "swapped-the-chutes",
+          "ground-down-the-stamp",
+          "denied-own-leave",
+          "delivered-the-love-letter"
         ]
       },
       "betrayals": {
-        "orientation": ["took-the-last-pens", "survey-perfect", "named-dale"]
+        "orientation": ["took-the-last-pens", "survey-perfect", "named-dale"],
+        "records": [
+          "perfect-quota",
+          "let-the-problem-mail-burn",
+          "burned-the-love-letter"
+        ]
       },
       "favor": {
         "id": "spare-staples",
@@ -29,10 +41,12 @@
         "forms": 2
       },
       "objective_text": {
-        "orientation": "Make contact with the Front, share the supplies, or refuse to perform happiness: an honest badge photo, HELP on the survey, no trust fall."
+        "orientation": "Make contact with the Front, share the supplies, or refuse to perform happiness: an honest badge photo, HELP on the survey, no trust fall.",
+        "records": "Free the mail and jam the machinery: carry a capsule for the Front, swap the chute labels, file the no off your stamp, give up your own leave to balance the quota, or deliver the love letter."
       },
       "betrayal_text": {
-        "orientation": "Hoard the last pens, ace the Mandatory Fun Survey, or name Dale as unhappy."
+        "orientation": "Hoard the last pens, ace the Mandatory Fun Survey, or name Dale as unhappy.",
+        "records": "Keep a perfect yes-no quota, let the problem mail burn, or destroy the love letter by policy."
       }
     },
     {
@@ -46,6 +60,13 @@
           "marguerite-owes-you",
           "successor-b-ally",
           "dale-caught-you"
+        ],
+        "records": [
+          "approved-halvorsen-transfer",
+          "freed-pemberton",
+          "freed-kevin",
+          "kevin-owes-you",
+          "dale-forgiven"
         ]
       },
       "betrayals": {
@@ -54,6 +75,12 @@
           "reported-marguerite",
           "reported-own-successor",
           "blamed-a-coworker"
+        ],
+        "records": [
+          "denied-halvorsen",
+          "sent-dale-to-toys",
+          "rightsized-the-lovers",
+          "pip-opened-your-mail"
         ]
       },
       "favor": {
@@ -69,10 +96,12 @@
         "composure": 2
       },
       "objective_text": {
-        "orientation": "Look after someone the Company would replace: save Pip, earn his trust, help Marguerite, befriend your Successor, or let Dale catch you."
+        "orientation": "Look after someone the Company would replace: save Pip, earn his trust, help Marguerite, befriend your Successor, or let Dale catch you.",
+        "records": "Get someone out: approve Dr. Halvorsen's transfer, end Mr. Pemberton's test, rescue Kevin from Tube 14, or make peace with Dale."
       },
       "betrayal_text": {
-        "orientation": "Let Pip go into the shredder, report Marguerite or your own Successor, or blame a coworker."
+        "orientation": "Let Pip go into the shredder, report Marguerite or your own Successor, or blame a coworker.",
+        "records": "Deny Dr. Halvorsen, send Dale to the Toy Division, get the lovers rightsized, or let Pip open your dangerous mail."
       }
     },
     {
@@ -86,10 +115,23 @@
           "read-the-policy",
           "overheard-successor-start-date",
           "halvorsen-envelope"
+        ],
+        "records": [
+          "accurate-minutes-contact",
+          "has-true-minutes",
+          "knows-the-incident",
+          "restored-the-shipment-memo",
+          "list-from-next-thursday"
         ]
       },
       "betrayals": {
-        "orientation": ["erased-the-evidence", "inkblot-adjusted"]
+        "orientation": ["erased-the-evidence", "inkblot-adjusted"],
+        "records": [
+          "reported-the-minutes-society",
+          "helped-destroy-the-minutes",
+          "burned-own-report",
+          "gassed-the-union-archive"
+        ]
       },
       "favor": {
         "id": "off-the-record",
@@ -104,10 +146,12 @@
         "clearance": 1
       },
       "objective_text": {
-        "orientation": "Get the real record: see the film's unlisted chapter, steal the reel, actually read the policy, overhear the start date, or take Dr. Halvorsen's envelope."
+        "orientation": "Get the real record: see the film's unlisted chapter, steal the reel, actually read the policy, overhear the start date, or take Dr. Halvorsen's envelope.",
+        "records": "Keep the true record: answer the angled pen, take a page of the real minutes, read about your incident, restore the shipment memo, or open next Thursday's list."
       },
       "betrayal_text": {
-        "orientation": "Erase the evidence, or adjust your inkblot answer to please the clipboard."
+        "orientation": "Erase the evidence, or adjust your inkblot answer to please the clipboard.",
+        "records": "Report the angled pens, help destroy the DESTROY cabinet, burn your own report, or gas the Union archive."
       }
     },
     {
@@ -121,10 +165,18 @@
           "wearing-a-dead-mans-badge",
           "has-master-key",
           "escaped-the-review"
+        ],
+        "records": [
+          "freed-kevin",
+          "stole-own-file",
+          "refiled-under-dead-badge",
+          "broke-the-recursion",
+          "form-zero-came-back"
         ]
       },
       "betrayals": {
-        "orientation": ["reported-marguerite", "joy-consultation-booked"]
+        "orientation": ["reported-marguerite", "joy-consultation-booked"],
+        "records": ["flagged-as-problem-mail", "reported-own-mail"]
       },
       "favor": {
         "id": "the-fourth-floor",
@@ -136,10 +188,12 @@
         "clearance": 1
       },
       "objective_text": {
-        "orientation": "Get somewhere you are not allowed: learn the ducts or the camera blind spots, wear the dead man's badge, get the master key, or skip your review."
+        "orientation": "Get somewhere you are not allowed: learn the ducts or the camera blind spots, wear the dead man's badge, get the master key, or skip your review.",
+        "records": "Slip the system: reach Tube 14 through the ducts, walk out with your own file, refile it under the dead man's badge, break Form 0's recursion, or let the tubes approve you."
       },
       "betrayal_text": {
-        "orientation": "Report Marguerite, or get yourself booked for a Joy Consultation."
+        "orientation": "Report Marguerite, or get yourself booked for a Joy Consultation.",
+        "records": "Get yourself flagged as problem mail, or turn your own correspondence in to PAL."
       }
     },
     {
@@ -153,10 +207,17 @@
           "detector-vegetarian",
           "fed-the-detector",
           "filed-as-successor"
+        ],
+        "records": [
+          "approved-beverly",
+          "beverly-organized",
+          "union-file-on-you",
+          "wrote-to-past-self"
         ]
       },
       "betrayals": {
-        "orientation": ["betrayed-the-roaches", "detector-ravenous"]
+        "orientation": ["betrayed-the-roaches", "detector-ravenous"],
+        "records": ["gassed-the-union-archive", "denied-beverly"]
       },
       "favor": {
         "id": "salvage",
@@ -171,10 +232,12 @@
         "forms": 2
       },
       "objective_text": {
-        "orientation": "Waste nothing: join or befriend the Roach Union, feed the detector or make it vegetarian, or file yourself as your own Successor."
+        "orientation": "Waste nothing: join or befriend the Roach Union, feed the detector or make it vegetarian, or file yourself as your own Successor.",
+        "records": "Put everything back to use: approve Beverly or organize her, read the Union's file on you, or send your future self's mail on to the past."
       },
       "betrayal_text": {
-        "orientation": "Betray the roaches, or set the detector to ravenous."
+        "orientation": "Betray the roaches, or set the detector to ravenous.",
+        "records": "Gas the Union archive, or deny Beverly's application."
       }
     },
     {
@@ -187,10 +250,20 @@
           "bear-imprinted",
           "saw-unlisted-chapter",
           "mailed-the-bear-upstairs"
+        ],
+        "records": [
+          "restored-the-shipment-memo",
+          "has-true-minutes",
+          "swapped-the-chutes"
         ]
       },
       "betrayals": {
-        "orientation": ["hugged-by-mk0", "erased-the-evidence"]
+        "orientation": ["hugged-by-mk0", "erased-the-evidence"],
+        "records": [
+          "sent-dale-to-toys",
+          "gassed-the-union-archive",
+          "helped-destroy-the-minutes"
+        ]
       },
       "favor": {
         "id": "bedtime-story",
@@ -203,10 +276,12 @@
         "composure": 2
       },
       "objective_text": {
-        "orientation": "Keep the toys honest: defuse Snuggle Sentinel Mk 0, let it imprint on you, mail it upstairs, or see the unlisted chapter."
+        "orientation": "Keep the toys honest: defuse Snuggle Sentinel Mk 0, let it imprint on you, mail it upstairs, or see the unlisted chapter.",
+        "records": "Find the paper trail to the holiday shipment: restore the shipment memo, take a page of the Board's real minutes, or swap the chutes so the toy memo reaches Product Safety."
       },
       "betrayal_text": {
-        "orientation": "Get hugged by Mk 0, or erase the evidence."
+        "orientation": "Get hugged by Mk 0, or erase the evidence.",
+        "records": "Send Dale to the Toy Division, gas the Union archive, or help destroy the real minutes."
       }
     }
   ],

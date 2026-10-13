@@ -33,7 +33,7 @@
         </div>
       </div>
 
-      <div class="kr-scroll">
+      <div ref="scroller" class="kr-scroll">
         <div
           class="mx-auto flex w-full max-w-[1200px] flex-col gap-6 px-3 pb-10 sm:px-6"
         >
@@ -235,57 +235,51 @@
             </div>
           </section>
 
+          <section v-else-if="run && store.transition">
+            <shifting-desks-elevator
+              :from-title="currentDept.department.title"
+              :from-floor="floorFor(currentDept)"
+              :to-title="upcoming?.department.title ?? ''"
+              :to-floor="upcoming ? floorFor(upcoming) : ''"
+              :to-tagline="upcomingTagline"
+              :outcome-title="store.outcome?.title ?? ''"
+              :outcome-summary="store.outcome?.summary ?? ''"
+              :memo="elevatorMemo"
+              @descend="descend"
+            />
+          </section>
+
           <section
             v-else-if="run && store.finished"
             class="flex flex-col gap-5"
           >
-            <article
-              class="desk-poster relative overflow-hidden rounded-2xl border-4 border-stone-800 p-6 text-stone-900 sm:p-10"
-            >
-              <p
-                class="text-xs font-black uppercase tracking-[.3em] text-stone-700"
+            <shifting-desks-personnel-file
+              @again="screen = 'hire'"
+              @front="toFront"
+            />
+            <details class="rounded-2xl border border-base-300 bg-base-200 p-4">
+              <summary
+                class="cursor-pointer font-mono text-xs font-black uppercase tracking-widest"
               >
-                Department 1 · Orientation · Result
-              </p>
-              <p
-                class="mt-2 font-mono text-4xl font-black uppercase sm:text-5xl"
-              >
-                {{ store.outcome?.title }}
-              </p>
-              <p class="mt-3 max-w-2xl text-lg font-semibold">
-                {{ store.outcome?.summary }}
-              </p>
-              <p class="mt-4 text-sm">
-                Employees used: {{ run.generation + 1 }} · Successors left on
-                file: {{ run.meters.successors }} · Files handled:
-                {{ run.log.length }}
-              </p>
-            </article>
-            <p
-              v-if="run.status === 'department-complete'"
-              class="rounded-2xl border border-warning/50 bg-base-200 p-4 text-sm"
-            >
-              The elevator chimes. Level −1,
-              <strong>Records &amp; Forms</strong>, is still being restructured.
-              PAL promises it will open soon, and that you will love it.
-            </p>
-            <div class="flex flex-wrap gap-3">
-              <button
-                type="button"
-                class="btn btn-warning"
-                @click="screen = 'hire'"
-              >
-                <icon name="kind-icon:refresh" class="size-4" /> New Wellness
-                Weekend
-              </button>
-              <button type="button" class="btn btn-ghost" @click="toFront">
-                Front desk
-              </button>
-            </div>
-            <shifting-desks-journal :entries="run.log" />
+                Full personnel log ({{ run.log.length }} entries)
+              </summary>
+              <shifting-desks-journal class="mt-3" :entries="run.log" />
+            </details>
           </section>
 
           <section v-else-if="run && view" class="flex flex-col gap-4">
+            <div
+              class="dept-banner flex flex-wrap items-center justify-between gap-2 rounded-2xl border-4 border-stone-800 px-4 py-2 text-stone-900"
+            >
+              <p class="font-mono text-sm font-black uppercase tracking-[.2em]">
+                {{ floorFor(currentDept) }} · {{ currentDept.department.title }}
+              </p>
+              <p class="font-mono text-[11px] font-bold uppercase opacity-70">
+                Department {{ currentDept.department.order }} of
+                {{ DEPARTMENTS.length }}
+              </p>
+            </div>
+            <shifting-desks-memo-ticker :lines="tickerLines" />
             <div
               class="flex flex-wrap items-center gap-2 text-xs font-bold uppercase"
             >
@@ -387,7 +381,7 @@
               <div class="flex min-w-0 flex-col gap-3">
                 <template v-if="run.pending">
                   <article
-                    class="flex flex-col gap-3 rounded-2xl border-2 p-5"
+                    class="relative flex flex-col gap-3 rounded-2xl border-2 p-5"
                     :class="
                       run.pending.success
                         ? 'border-success/60 bg-success/5'
@@ -395,6 +389,13 @@
                     "
                     aria-live="polite"
                   >
+                    <span
+                      :key="`stamp-${store.rollSerial}`"
+                      class="result-slam"
+                      :class="run.pending.success ? 'is-approved' : 'is-denied'"
+                      aria-hidden="true"
+                      >{{ run.pending.success ? 'Approved' : 'Denied' }}</span
+                    >
                     <p
                       class="font-mono text-xs font-black uppercase tracking-widest opacity-70"
                     >
@@ -446,6 +447,18 @@
                     >
                       Helped by {{ run.pending.aids.join(', ') }}
                     </p>
+                    <div
+                      v-if="newSuccessor"
+                      class="successor-card flex items-center gap-3 rounded-xl border-2 border-stone-800 p-3 text-stone-900"
+                    >
+                      <icon name="kind-icon:users" size="2rem" />
+                      <p class="text-sm">
+                        <strong class="font-mono uppercase"
+                          >A Successor has been thawed.</strong
+                        >
+                        {{ newSuccessor }}
+                      </p>
+                    </div>
                     <ul
                       v-if="run.pending.events.length"
                       class="flex flex-col gap-1 text-sm font-semibold"
@@ -623,8 +636,11 @@ import {
   DIFFICULTY,
   JOB_TITLES,
   METERS,
+  DEPARTMENTS,
+  DEPARTMENT_FLOORS,
   METER_LABELS,
-  ORIENTATION,
+  departmentPack,
+  nextDepartment,
   SKILLS,
   employeeId,
   jobById,
@@ -637,8 +653,14 @@ import {
   locationById,
   outcomeById,
   type Choice,
+  type Pack,
   type Meter,
 } from '~/utils/shiftingDesks/rules'
+import {
+  memoLines,
+  restructuringMemo,
+  successorLine,
+} from '~/utils/shiftingDesks/memos'
 import { useShiftingDesksStore } from '~/stores/shiftingDesksStore'
 
 const store = useShiftingDesksStore()
@@ -649,6 +671,7 @@ const useFavor = ref(false)
 const useMutation = ref(false)
 const cardHeading = ref<HTMLElement | null>(null)
 const nextButton = ref<HTMLElement | null>(null)
+const scroller = ref<HTMLElement | null>(null)
 
 const run = computed(() => store.run)
 const view = computed(() => store.card)
@@ -706,38 +729,69 @@ const pillars = [
   },
 ]
 
-const levels = [
+const levelNotes = [
   {
     floor: 'Surface',
     name: 'Orientation',
     note: 'Badge photo, psych intake, Supply Closet B and your 90-Day Review.',
-    open: true,
+    id: 'orientation',
   },
   {
     floor: 'Level −1',
     name: 'Records & Forms',
     note: 'Pneumatic tubes, the Sub-Archive and Window 9.',
-    open: false,
+    id: 'records',
   },
   {
     floor: 'Level −2',
     name: 'Product Safety: Toy Division',
     note: 'A plush bear with a peace-of-mind module.',
-    open: false,
+    id: 'toy-division',
   },
   {
     floor: 'Level −3',
     name: 'Wellness & Testing: the Vault',
     note: 'The test is whether you will administer the test.',
-    open: false,
+    id: 'wellness',
   },
   {
     floor: 'Level −4',
     name: 'Sub-Level Zero: the Board',
     note: 'The executives live at the very bottom.',
-    open: false,
+    id: 'sub-level-zero',
   },
 ]
+
+const levels = levelNotes.map((l) => ({
+  ...l,
+  open: DEPARTMENTS.some((d) => d.department.id === l.id),
+}))
+
+const currentDept = computed(() =>
+  departmentPack(run.value?.department ?? 'orientation'),
+)
+const upcoming = computed(() =>
+  nextDepartment(run.value?.department ?? 'orientation'),
+)
+const upcomingTagline = computed(
+  () => levels.find((l) => l.id === upcoming.value?.department.id)?.note ?? '',
+)
+
+function floorFor(dept: Pack): string {
+  return DEPARTMENT_FLOORS[dept.department.order] ?? ''
+}
+
+const tickerLines = computed(() => memoLines(run.value))
+const elevatorMemo = computed(() =>
+  run.value
+    ? restructuringMemo(run.value, upcoming.value?.department.title ?? '')
+    : [],
+)
+const newSuccessor = computed(() =>
+  run.value?.pending?.events.some((e) => e.includes('reports for duty'))
+    ? successorLine(run.value)
+    : '',
+)
 
 const discoveredTitles = computed(() =>
   store.discovered
@@ -749,7 +803,7 @@ const discoveredTitles = computed(() =>
 const steps = computed(() =>
   (run.value?.deck ?? []).map((id) => {
     if (id === 'boss') return 'Review'
-    const enc = ORIENTATION.encounters.find((e) => e.id === id)
+    const enc = currentDept.value.encounters.find((e) => e.id === id)
     return locationById(enc?.location_id ?? '')?.title.split(' & ')[0] ?? 'File'
   }),
 )
@@ -858,9 +912,23 @@ async function pick(choice: Choice): Promise<void> {
   nextButton.value?.focus()
 }
 
-function next(): void {
+function toTop(): void {
+  const reduce = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches
+  scroller.value?.scrollTo({ top: 0, behavior: reduce ? 'auto' : 'smooth' })
+}
+
+async function descend(): Promise<void> {
+  store.descend()
+  opened.value = false
+  await nextTick()
+  toTop()
+}
+
+async function next(): Promise<void> {
   store.advance()
   opened.value = false
+  await nextTick()
+  toTop()
 }
 
 function toFront(): void {
@@ -922,6 +990,62 @@ useHead({ title: 'Shifting Desks' })
   background: #c2410c;
   transform: rotate(-8deg);
   box-shadow: 14px 14px 0 #292524;
+}
+
+.dept-banner {
+  background: #c9a227;
+}
+
+.result-slam {
+  position: absolute;
+  right: 0.75rem;
+  bottom: 0.75rem;
+  transform: rotate(-10deg);
+  border: 4px double currentColor;
+  border-radius: 0.5rem;
+  padding: 0.15rem 0.7rem;
+  font-family: ui-monospace, monospace;
+  font-size: 1rem;
+  font-weight: 900;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  animation: slam 0.4s cubic-bezier(0.2, 1.6, 0.4, 1) both 0.55s;
+  pointer-events: none;
+}
+
+.result-slam.is-approved {
+  color: #15803d;
+}
+
+.result-slam.is-denied {
+  color: #b91c1c;
+}
+
+@keyframes slam {
+  from {
+    transform: rotate(-10deg) scale(2.4);
+    opacity: 0;
+  }
+  to {
+    transform: rotate(-10deg) scale(1);
+    opacity: 0.9;
+  }
+}
+
+.successor-card {
+  background: #bef264;
+  animation: successor-in 0.5s ease-out both 0.8s;
+}
+
+@keyframes successor-in {
+  from {
+    transform: translateY(0.75rem);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
 }
 
 .desk-flip {
@@ -1008,6 +1132,8 @@ useHead({ title: 'Shifting Desks' })
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .result-slam,
+  .successor-card,
   .desk-flip-inner,
   .desk-die {
     transition: none;

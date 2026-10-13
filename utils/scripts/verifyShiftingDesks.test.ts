@@ -11,7 +11,10 @@ import {
   ORIENTATION,
   SKILLS,
   DECKS,
+  DEPARTMENTS,
   MUTATIONS,
+  descend,
+  fallbackOutcome,
   SOCIETIES,
   advance,
   choose,
@@ -44,10 +47,24 @@ assert.doesNotMatch(
   /developer_note|"brief"|art_ref/,
 )
 
-const allChoices = [
-  ...ORIENTATION.encounters.flatMap((e) => e.choices),
-  ...ORIENTATION.boss.choices,
-]
+const allChoices = DEPARTMENTS.flatMap((d) => [
+  ...d.encounters.flatMap((e) => e.choices),
+  ...d.boss.choices,
+])
+assert.deepEqual(
+  DEPARTMENTS.map((d) => d.department.order),
+  DEPARTMENTS.map((_, i) => i + 1),
+  'departments are registered in order',
+)
+for (const d of DEPARTMENTS) {
+  assert.equal(d.encounters.length, 12, `${d.department.id} has 12 cards`)
+  assert.ok(d.boss.choices.some((c) => !c.requires))
+  assert.ok(
+    d.boss.department_outcomes.some((o) => o.id === fallbackOutcome(d)),
+    `${d.department.id} has a recognised fallback outcome`,
+  )
+  assert.doesNotMatch(JSON.stringify(d), /developer_note|"brief"|art_ref/)
+}
 for (const c of allChoices) {
   assert.ok(
     isHarmful(c.cost) || isHarmful(c.success.effects),
@@ -86,7 +103,7 @@ assert.deepEqual(
 assert.equal(a.meters.successors, 6, 'Intern perk adds a Successor')
 assert.equal(newRun('x', 'night-janitor').meters.clearance, 2)
 assert.ok(isRunState(JSON.parse(JSON.stringify(a))))
-assert.equal(isRunState({ ...a, version: 3 }), false)
+assert.equal(isRunState({ ...a, version: 4 }), false)
 assert.equal(isRunState({ ...a, deck: ['not-a-card'] }), false)
 
 assert.ok(SOCIETIES.length >= 6 && MUTATIONS.length >= 8)
@@ -134,7 +151,7 @@ const v1 = {
   version: 1,
 }
 const upgraded = upgradeRun(v1)
-assert.ok(upgraded && upgraded.version === 2, 'v1 saves upgrade')
+assert.ok(upgraded && upgraded.version === 3, 'v1 saves upgrade')
 assert.equal(upgradeRun({ version: 1, seed: 'x' }), null, 'junk v1 rejected')
 
 function withDossier(
@@ -311,12 +328,25 @@ assert.equal(
 const outcomes = new Set<string>()
 let eliminated = 0
 let reorientations = 0
+let descents = 0
+let completed = 0
 for (let i = 0; i < 3000; i++) {
   const job = JOB_TITLES[i % JOB_TITLES.length]!.id
   let run = newRun(`sim-${i}`, job)
   let rng = i + 1
   let guard = 0
-  while (run.status === 'playing' && guard++ < 50) {
+  while (
+    (run.status === 'playing' || run.status === 'department-complete') &&
+    guard++ < 80
+  ) {
+    if (run.status === 'department-complete') {
+      const before = run.department
+      run = descend(run)
+      assert.notEqual(run.department, before, 'descend moves down a level')
+      assert.equal(run.mutationUsed, false, 'mutation resets per department')
+      descents++
+      continue
+    }
     const view = currentCard(run)!
     const open = view.card.choices.filter((c) => !lockReason(run, c))
     assert.ok(
@@ -344,14 +374,30 @@ for (let i = 0; i < 3000; i++) {
     }
     run = advance(run)
   }
-  assert.notEqual(run.status, 'playing', 'every run ends')
+  assert.ok(
+    run.status === 'complete' || run.status === 'eliminated',
+    'every run ends',
+  )
+  assert.ok(run.bossAttempts <= 3, 'a review is attempted at most three times')
   if (run.status === 'eliminated') eliminated++
-  outcomes.add(run.departmentOutcome ?? 'none')
+  if (run.status === 'complete') {
+    completed++
+    assert.deepEqual(
+      Object.keys(run.departmentOutcomes),
+      DEPARTMENTS.map((d) => d.department.id),
+      'a complete run has an outcome for every department',
+    )
+  }
+  for (const o of Object.values(run.departmentOutcomes)) outcomes.add(o)
 }
-for (const id of ORIENTATION.boss.department_outcomes.map((o) => o.id)) {
-  if (id === 'reorientation') continue
-  assert.ok(outcomes.has(id), `department outcome ${id} is reachable`)
+for (const d of DEPARTMENTS) {
+  for (const id of d.boss.department_outcomes.map((o) => o.id)) {
+    if (id === fallbackOutcome(d)) continue
+    assert.ok(outcomes.has(id), `department outcome ${id} is reachable`)
+  }
 }
+assert.ok(descents > 1000, `most runs reach the next department (${descents})`)
+assert.ok(completed > 1000, `most runs finish the demo (${completed})`)
 assert.ok(
   reorientations > 0,
   'a failed review re-deals a file instead of ending the run',
@@ -370,4 +416,6 @@ const tab = asset('../../content/channels/projects/shifting-desks.md')
 assert.match(tab, /route: \/play\/shifting-desks/)
 assert.match(asset('../../public/shifting-desks/front-poster.svg'), /<title/)
 
-console.log(`shifting desks contract ok (${eliminated}/3000 runs eliminated)`)
+console.log(
+  `shifting desks contract ok (${completed}/3000 completed, ${eliminated} eliminated)`,
+)

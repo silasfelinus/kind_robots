@@ -1,4 +1,5 @@
 import pack from './orientation.json'
+import recordsPack from './records.json'
 import decksData from './decks.json'
 
 export const SKILLS = [
@@ -116,6 +117,25 @@ export type Pack = {
 }
 
 export const ORIENTATION = pack as Pack
+export const RECORDS = recordsPack as Pack
+export const DEPARTMENTS: Pack[] = [ORIENTATION, RECORDS]
+
+export function departmentPack(id: string): Pack {
+  return DEPARTMENTS.find((d) => d.department.id === id) ?? ORIENTATION
+}
+
+export function nextDepartment(id: string): Pack | null {
+  const i = DEPARTMENTS.findIndex((d) => d.department.id === id)
+  return i >= 0 ? (DEPARTMENTS[i + 1] ?? null) : null
+}
+
+export const DEPARTMENT_FLOORS: Record<number, string> = {
+  1: 'Surface',
+  2: 'Level −1',
+  3: 'Level −2',
+  4: 'Level −3',
+  5: 'Level −4',
+}
 
 export type FavorKind =
   'force-success' | 'effects' | 'ignore-requirement' | 'bonus'
@@ -280,13 +300,23 @@ export type LogEntry = {
   rerolled: number[] | null
 }
 
-export type RunStatus = 'playing' | 'department-complete' | 'eliminated'
+export type RunStatus =
+  'playing' | 'department-complete' | 'complete' | 'eliminated'
+
+export type Termination = {
+  employee: string
+  cause: string
+  department: string
+}
 
 export type SocietyStatus = 'active' | 'met' | 'betrayed'
 
 export type RunState = {
-  version: 2
+  version: 3
   department: string
+  departmentOutcomes: Record<string, string>
+  societyRecord: Record<string, SocietyStatus>
+  terminations: Termination[]
   societyId: string
   societyStatus: SocietyStatus
   favorUsed: boolean
@@ -309,7 +339,7 @@ export type RunState = {
 }
 
 export const BOSS_CARD = 'boss'
-const SAVE_VERSION = 2
+const SAVE_VERSION = 3
 
 function hashSeed(seed: string): number {
   let h = 2166136261
@@ -347,13 +377,17 @@ function weightedPick(
 }
 
 export function encounterById(id: string): Encounter {
-  const found = ORIENTATION.encounters.find((e) => e.id === id)
+  const found = DEPARTMENTS.flatMap((d) => d.encounters).find(
+    (e) => e.id === id,
+  )
   if (!found) throw new Error(`Unknown Shifting Desks encounter ${id}`)
   return found
 }
 
 export function locationById(id: string): Location | undefined {
-  return ORIENTATION.locations.find((l) => l.location_id === id)
+  return DEPARTMENTS.flatMap((d) => d.locations).find(
+    (l) => l.location_id === id,
+  )
 }
 
 export function jobById(id: string): JobTitle {
@@ -391,6 +425,30 @@ function clampMeters(m: Meters): Meters {
   return out
 }
 
+const FALLBACK_OUTCOMES = ['reorientation', 'refiled', 'resubmit', 'redo']
+const MAX_REVIEW_ATTEMPTS = 3
+
+export function fallbackOutcome(dept: Pack): string {
+  const ids = dept.boss.department_outcomes.map((o) => o.id)
+  return (
+    FALLBACK_OUTCOMES.find((id) => ids.includes(id)) ??
+    ids[ids.length - 1] ??
+    'reorientation'
+  )
+}
+
+function dealDepartment(dept: Pack, seedRng: number): [string[], number] {
+  let rng = seedRng
+  const deck: string[] = []
+  for (const loc of dept.locations) {
+    const [id, next] = weightedPick(loc.encounter_ids, rng)
+    deck.push(id)
+    rng = next
+  }
+  deck.push(BOSS_CARD)
+  return [deck, rng]
+}
+
 export function newRun(seed: string, jobId: string): RunState {
   const job = jobById(jobId)
   const meters = { ...START_METERS }
@@ -401,19 +459,15 @@ export function newRun(seed: string, jobId: string): RunState {
   }
   if (job.id === 'night-janitor') meters.clearance = 2
   if (job.id === 'internal-auditor') meters.composure += 1
-  let rng = hashSeed(seed)
-  const deck: string[] = []
-  for (const loc of ORIENTATION.locations) {
-    const [id, next] = weightedPick(loc.encounter_ids, rng)
-    deck.push(id)
-    rng = next
-  }
-  deck.push(BOSS_CARD)
-  const [societyId, mutationId, dealt] = dealDossier(rng)
-  rng = dealt
+  const [deck, afterDeal] = dealDepartment(ORIENTATION, hashSeed(seed))
+  const [societyId, mutationId, dealt] = dealDossier(afterDeal)
+  const rng = dealt
   return {
     version: SAVE_VERSION,
     department: ORIENTATION.department.id,
+    departmentOutcomes: {},
+    societyRecord: {},
+    terminations: [],
     societyId,
     societyStatus: 'active',
     favorUsed: false,
@@ -446,7 +500,8 @@ export function currentCard(
   { kind: 'encounter'; card: Encounter } | { kind: 'boss'; card: Boss } | null {
   const id = currentCardId(state)
   if (!id) return null
-  if (id === BOSS_CARD) return { kind: 'boss', card: ORIENTATION.boss }
+  if (id === BOSS_CARD)
+    return { kind: 'boss', card: departmentPack(state.department).boss }
   return { kind: 'encounter', card: encounterById(id) }
 }
 
@@ -704,14 +759,32 @@ export function choose(
 
   const successorLost = (effects.successors ?? 0) < 0
   let replaced = successorLost
+  const terminations = [...state.terminations]
+  if (successorLost) {
+    terminations.push({
+      employee,
+      cause: view.card.title,
+      department: state.department,
+    })
+  }
   if (meters.composure <= 0 && meters.successors > 0) {
     meters.successors -= 1
     replaced = true
+    terminations.push({
+      employee,
+      cause: 'Nervous breakdown',
+      department: state.department,
+    })
     events.push(`${employee} suffered a nervous breakdown and was reassigned.`)
   }
   if (meters.suspicion >= 10 && meters.successors > 0) {
     meters.successors -= 1
     replaced = true
+    terminations.push({
+      employee,
+      cause: 'A short, friendly conversation',
+      department: state.department,
+    })
     events.push(`${employee} was invited to a short, friendly conversation.`)
   }
   if (replaced && meters.successors > 0) {
@@ -757,29 +830,47 @@ export function choose(
 
   let deck = state.deck
   let bossAttempts = state.bossAttempts
+  const dept = departmentPack(state.department)
+  const fallback = fallbackOutcome(dept)
+  const finish = (result: string): void => {
+    departmentOutcome = result
+    status = nextDepartment(state.department)
+      ? 'department-complete'
+      : 'complete'
+  }
   if (view.kind === 'boss' && status === 'playing') {
     bossAttempts += 1
-    const result = outcome.department_outcome ?? 'reorientation'
-    if (result === 'reorientation') {
+    const result = outcome.department_outcome ?? fallback
+    if (result === fallback) {
       const used = deck.filter((id) => id !== BOSS_CARD)
-      const all = ORIENTATION.encounters.map((e) => e.id)
-      const unused = all.filter((id) => !used.includes(id))
-      if (unused.length) {
+      const unused = dept.encounters
+        .map((e) => e.id)
+        .filter((id) => !used.includes(id))
+      if (unused.length && bossAttempts < MAX_REVIEW_ATTEMPTS) {
         const [id, next] = weightedPick(unused, rng)
         rng = next
         deck = [...deck.slice(0, state.position + 1), id, BOSS_CARD]
         events.push(
-          'Reorientation: one more Orientation file before the panel will see you again.',
+          `Reorientation: one more ${dept.department.title} file before the panel will see you again.`,
         )
       } else {
-        status = 'department-complete'
-        departmentOutcome = 'reorientation'
+        finish(result)
       }
     } else {
-      status = 'department-complete'
-      departmentOutcome = result
+      finish(result)
     }
   }
+  const departmentOutcomes =
+    status === 'playing'
+      ? state.departmentOutcomes
+      : {
+          ...state.departmentOutcomes,
+          [state.department]: departmentOutcome ?? 'position-eliminated',
+        }
+  const societyRecord =
+    status === 'playing'
+      ? state.societyRecord
+      : { ...state.societyRecord, [state.department]: societyStatus }
 
   return {
     ...state,
@@ -794,8 +885,30 @@ export function choose(
     bossAttempts,
     status,
     departmentOutcome,
+    departmentOutcomes,
+    societyRecord,
+    terminations,
     log: [...state.log, entry],
     pending: entry,
+  }
+}
+
+export function descend(state: RunState): RunState {
+  if (state.status !== 'department-complete' || state.pending) return state
+  const next = nextDepartment(state.department)
+  if (!next) return state
+  const [deck, rng] = dealDepartment(next, state.rng)
+  return {
+    ...state,
+    rng,
+    department: next.department.id,
+    deck,
+    position: 0,
+    bossAttempts: 0,
+    status: 'playing',
+    departmentOutcome: null,
+    mutationUsed: false,
+    societyStatus: 'active',
   }
 }
 
@@ -871,18 +984,46 @@ export function outcomeById(id: string | null): DepartmentOutcome | null {
         'Every Successor on file has been used. HR thanks you for your service and has already repurposed your desk.',
     }
   }
-  return ORIENTATION.boss.department_outcomes.find((o) => o.id === id) ?? null
+  return (
+    DEPARTMENTS.flatMap((d) => d.boss.department_outcomes).find(
+      (o) => o.id === id,
+    ) ?? null
+  )
 }
 
 export function upgradeRun(value: unknown): RunState | null {
   if (isRunState(value)) return value
   if (!value || typeof value !== 'object') return null
-  const v = value as Record<string, unknown>
-  if (v.version !== 1) return null
-  const [societyId, mutationId] = dealDossier(hashSeed(String(v.seed ?? '')))
+  const raw = value as Record<string, unknown>
+  const v = raw.version === 1 ? upgradeV1(raw) : raw
+  if (!v || v.version !== 2) return null
+  const done = v.status === 'department-complete' || v.status === 'eliminated'
+  const dept = String(v.department ?? ORIENTATION.department.id)
   const upgraded = {
     ...v,
     version: SAVE_VERSION,
+    status:
+      v.status === 'department-complete' && !nextDepartment(dept)
+        ? 'complete'
+        : v.status,
+    departmentOutcomes:
+      done && typeof v.departmentOutcome === 'string'
+        ? { [dept]: v.departmentOutcome }
+        : {},
+    societyRecord:
+      done && typeof v.societyStatus === 'string'
+        ? { [dept]: v.societyStatus }
+        : {},
+    terminations: [],
+  }
+  return isRunState(upgraded) ? upgraded : null
+}
+
+function upgradeV1(v: Record<string, unknown>): Record<string, unknown> | null {
+  const [societyId, mutationId] = dealDossier(hashSeed(String(v.seed ?? '')))
+  return {
+    ...v,
+    version: 2,
     department: ORIENTATION.department.id,
     societyId,
     societyStatus: 'active',
@@ -896,7 +1037,6 @@ export function upgradeRun(value: unknown): RunState | null {
       ? { aids: [], rerolled: null, ...(v.pending as object) }
       : null,
   }
-  return isRunState(upgraded) ? upgraded : null
 }
 
 export function isRunState(value: unknown): value is RunState {
@@ -905,6 +1045,12 @@ export function isRunState(value: unknown): value is RunState {
   return (
     v.version === SAVE_VERSION &&
     typeof v.department === 'string' &&
+    DEPARTMENTS.some((d) => d.department.id === v.department) &&
+    !!v.departmentOutcomes &&
+    typeof v.departmentOutcomes === 'object' &&
+    !!v.societyRecord &&
+    typeof v.societyRecord === 'object' &&
+    Array.isArray(v.terminations) &&
     SOCIETIES.some((x) => x.id === v.societyId) &&
     MUTATIONS.some((x) => x.id === v.mutationId) &&
     (v.societyStatus === 'active' ||
@@ -918,7 +1064,8 @@ export function isRunState(value: unknown): value is RunState {
     Array.isArray(v.deck) &&
     v.deck.every(
       (id) =>
-        id === BOSS_CARD || ORIENTATION.encounters.some((e) => e.id === id),
+        id === BOSS_CARD ||
+        DEPARTMENTS.some((d) => d.encounters.some((e) => e.id === id)),
     ) &&
     Array.isArray(v.flags) &&
     Array.isArray(v.log) &&
@@ -928,6 +1075,7 @@ export function isRunState(value: unknown): value is RunState {
     SKILLS.every((k) => typeof v.skills?.[k] === 'number') &&
     (v.status === 'playing' ||
       v.status === 'department-complete' ||
+      v.status === 'complete' ||
       v.status === 'eliminated')
   )
 }

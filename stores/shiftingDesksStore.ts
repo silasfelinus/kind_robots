@@ -2,6 +2,7 @@ import { computed, ref } from 'vue'
 import { defineStore } from 'pinia'
 import {
   advance as advanceRun,
+  descend as descendRun,
   choose as chooseInRun,
   currentCard,
   newRun,
@@ -28,7 +29,16 @@ export const useShiftingDesksStore = defineStore('shiftingDesks', () => {
     outcomeById(run.value?.departmentOutcome ?? null),
   )
   const finished = computed(
-    () => !!run.value && run.value.status !== 'playing' && !run.value.pending,
+    () =>
+      !!run.value &&
+      (run.value.status === 'complete' || run.value.status === 'eliminated') &&
+      !run.value.pending,
+  )
+  const transition = computed(
+    () =>
+      !!run.value &&
+      run.value.status === 'department-complete' &&
+      !run.value.pending,
   )
 
   function persist(): void {
@@ -96,6 +106,12 @@ export const useShiftingDesksStore = defineStore('shiftingDesks', () => {
     }
   }
 
+  function descend(): void {
+    if (!run.value) return
+    run.value = descendRun(run.value)
+    persist()
+  }
+
   function advance(): void {
     if (!run.value) return
     run.value = advanceRun(run.value)
@@ -118,6 +134,8 @@ export const useShiftingDesksStore = defineStore('shiftingDesks', () => {
     card,
     outcome,
     finished,
+    transition,
+    descend,
     load,
     start,
     choose,

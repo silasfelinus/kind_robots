@@ -279,7 +279,8 @@ export const previewDispatch = (
   )
   return {
     ...odds,
-    projectedReturnHour: state.hour + outbound + incident.missionHours + incident.outwardHours,
+    projectedReturnHour:
+      state.hour + outbound + incident.missionHours + incident.outwardHours,
   }
 }
 
@@ -309,7 +310,12 @@ export const dispatchFollowers = (
     ...state,
     dispatches: [...state.dispatches, dispatch],
     ...(useHourglass
-      ? { relicUses: { ...state.relicUses, 'komodo-brass-hourglass': dayAt(state.hour) } }
+      ? {
+          relicUses: {
+            ...state.relicUses,
+            'komodo-brass-hourglass': dayAt(state.hour),
+          },
+        }
       : {}),
   }
 }

@@ -725,6 +725,7 @@ function press(button: ArcadeButton, down: boolean, seat = 0) {
   // Waiting for the fixed-loop poll creates its WebAudio mixer too late.
   if (
     down &&
+    !guide.value &&
     meta.value?.touchLayout === 'pinball' &&
     ATTRACT_PHASES.includes(machine.phase) &&
     (button === 'start' || button === 'a')
@@ -1691,6 +1692,7 @@ function onKey(event: KeyboardEvent) {
   if (event.target instanceof HTMLInputElement) return
   unlockArcadeAudio()
   if (
+    !guide.value &&
     meta.value?.touchLayout === 'pinball' &&
     ATTRACT_PHASES.includes(machine.phase) &&
     ['Enter', 'Space', 'KeyZ'].includes(event.code)

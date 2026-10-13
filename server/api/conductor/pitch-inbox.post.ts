@@ -75,10 +75,16 @@ export default defineEventHandler(async (event) => {
         { notes: choice === 'pass' ? '' : note },
       )
       const label = pitch.deliveryStatus
-        ? (choice === 'approve-changes' ? 'modification requested'
-          : choice === 'approve' ? 'kept' : 'rollback requested')
-        : (choice === 'approve-changes' ? 'approved with changes'
-          : choice === 'approve' ? 'approved' : 'passed')
+        ? choice === 'approve-changes'
+          ? 'modification requested'
+          : choice === 'approve'
+            ? 'kept'
+            : 'rollback requested'
+        : choice === 'approve-changes'
+          ? 'approved with changes'
+          : choice === 'approve'
+            ? 'approved'
+            : 'passed'
       lines.push(`“${escapeHtml(pitch.title)}”: <strong>${label}</strong>`)
     } catch {
       problems[pitch.slug] = 'Saving failed. Try again.'

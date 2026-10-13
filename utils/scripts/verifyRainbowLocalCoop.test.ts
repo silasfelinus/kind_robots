@@ -123,6 +123,84 @@ assert.ok(
   'rejoining retains flown position',
 )
 
+const benchEffects: string[] = []
+const benchFlight = createRainbowPrincessPreview({
+  rng: () => 0.5,
+  sound: {
+    play: (effect) => {
+      benchEffects.push(effect)
+    },
+  },
+  demo: false,
+  hiScore: 0,
+  players: 2,
+})
+for (let frame = 0; frame < 8; frame++) {
+  const p1 = emptyInput()
+  const p2 = emptyInput()
+  p2.held.down = true
+  benchFlight.update(p1, [p1, p2])
+}
+const benchY = benchFlight.snapshot.ships[1]!.y
+assert.ok(Math.abs(benchY - 132.8) < 0.01)
+benchFlight.setPlayers?.(1)
+assert.equal(benchFlight.snapshot.activePlayers, 1)
+for (let frame = 0; frame < 21; frame++) {
+  const move = emptyInput()
+  move.held.down = true
+  benchFlight.update(move)
+}
+let dropped = false
+for (let frame = 0; frame < 1000; frame++) {
+  const fire = emptyInput()
+  fire.held.a = true
+  benchFlight.update(fire)
+  if (benchFlight.snapshot.pickups.some((pickup) => pickup.kind === 'power')) {
+    dropped = true
+    break
+  }
+}
+assert.ok(
+  dropped,
+  'the active pilot earns a real power pickup from enemy defeats',
+)
+for (let frame = 0; frame < 21; frame++) {
+  const move = emptyInput()
+  move.held.up = true
+  benchFlight.update(move)
+}
+assert.ok(benchFlight.snapshot.ships[0]!.y < 85)
+let expired = false
+for (let frame = 0; frame < 900; frame++) {
+  const previous = benchFlight.snapshot.pickups.find(
+    (pickup) => pickup.kind === 'power',
+  )
+  benchFlight.update(emptyInput())
+  const remains = benchFlight.snapshot.pickups.some(
+    (pickup) => pickup.kind === 'power',
+  )
+  if (previous && !remains) {
+    expired = true
+    assert.ok(
+      previous.x < -12,
+      'the pickup must leave the screen, not be collected',
+    )
+    break
+  }
+}
+assert.ok(expired, 'unclaimed power drop eventually leaves the battlefield')
+assert.equal(benchEffects.filter((effect) => effect === 'pickup').length, 0)
+const beforeRejoin = benchFlight.snapshot.tick
+benchFlight.setPlayers?.(2)
+assert.equal(benchFlight.snapshot.tick, beforeRejoin)
+assert.equal(benchFlight.snapshot.ships[1]!.y, benchY)
+assert.equal(
+  benchFlight.snapshot.ships[1]!.power,
+  1,
+  'a benched pilot cannot quietly inherit pickups meant for active crew',
+)
+assert.equal(benchFlight.snapshot.ships[1]!.lives, 3)
+
 console.log(
   'Rainbow Princess local co-op roster, fair scaling and earned revive passed',
 )

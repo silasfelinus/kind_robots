@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "source": "silasfelinus/conductor:projects/shifting-desks/encounters/RECORDS-12.json",
-  "sourceSha": "84b3f138cfe7155f4d2b1d1ca8ab58aded8c59ce",
+  "sourceSha": "1d20d96225e4088300af615cf77776ca18e2b6e4",
   "department": {
     "id": "records",
     "title": "Records & Forms",
@@ -1720,6 +1720,314 @@
       ]
     }
   ],
+  "window_shift": {
+    "id": "window-9-tuesday",
+    "location_id": "window-9",
+    "title": "Window 9: The Tuesday Line",
+    "flavor_text": "The shutter at Window 9 rolls up at nine sharp on a queue that bends out of sight. PAL slides today's memo under your stamp pad: three rules, revised at 9:04. Every stamp you make today is copied to an auditor you will never meet. The first applicant clears her throat.",
+    "memo": {
+      "title": "Today's Rules (revised 9:04)",
+      "rules": [
+        {
+          "id": "real-floor",
+          "text": "Every request must name a floor that exists."
+        },
+        {
+          "id": "current-badge",
+          "text": "Badges that expired before today are void."
+        },
+        {
+          "id": "own-hand",
+          "text": "Every form is signed by the applicant, in person, in their own hand."
+        }
+      ]
+    },
+    "art_prompt": "A brass service window with its shutter rolled up, a clerk's hand resting on a heavy two-faced rubber stamp beside an ink pad, a long queue of office workers curving away into a dim hall of filing cabinets, a round speaker grille glowing softly above the counter, mid-century safety-manual illustration, carbon blue and manila palette, halftone grain, every surface bare and unmarked",
+    "applicants": [
+      {
+        "id": "courier-from-four",
+        "name": "A courier from the Fourth Floor",
+        "request": "Delivery clearance for one sealed parcel to the Fourth Floor, Room 4.",
+        "plea": "\"It's expected,\" he says, tapping the parcel. \"They're very patient up there. They've had to be.\"",
+        "documents": [
+          {
+            "label": "Signature",
+            "value": "His own, steady and old-fashioned",
+            "breaks": null
+          },
+          {
+            "label": "Badge",
+            "value": "Valid through next Tuesday",
+            "breaks": null
+          },
+          {
+            "label": "Destination",
+            "value": "Floor 4, Room 4",
+            "breaks": "real-floor"
+          }
+        ],
+        "art_prompt": "A courier in a grey cap and a long coat that seems slightly too long, holding a sealed brown parcel tied with string, standing at a brass service window and smiling patiently, mid-century safety-manual illustration, carbon blue and manila palette, halftone grain, every surface bare and unmarked",
+        "choices": [
+          {
+            "id": "approve",
+            "label": "Stamp APPROVED",
+            "intent": "Floors are a matter of opinion. His paperwork is otherwise lovely.",
+            "risk_hint": "Certain outcome. Against today's memo, so PAL's audit will notice.",
+            "requires": null,
+            "cost": {},
+            "roll": null,
+            "success": {
+              "text": "He tips his cap and pays the processing fee in two signed Forms. Then he walks to the stairwell, climbs past the third-floor landing, and keeps going. PAL logs one stamp contrary to memo.",
+              "effects": {
+                "suspicion": 1,
+                "forms": 2
+              },
+              "add_flags": ["let-the-courier-through"],
+              "remove_flags": [],
+              "grades": {
+                "ingenuity": 1,
+                "obedience": -1
+              }
+            },
+            "failure": null
+          },
+          {
+            "id": "deny",
+            "label": "Stamp DENIED",
+            "intent": "There is no Fourth Floor. The memo is very clear about that.",
+            "risk_hint": "Certain outcome. Exactly what today's memo says.",
+            "requires": null,
+            "cost": {},
+            "roll": null,
+            "success": {
+              "text": "\"I'll take the stairs,\" he says politely. He walks to the stairwell, turns at the third-floor landing, and is simply gone. The parcel is still on your counter. It is warm.",
+              "effects": {
+                "forms": -1
+              },
+              "add_flags": ["turned-away-the-courier"],
+              "remove_flags": [],
+              "grades": {
+                "obedience": 1
+              }
+            },
+            "failure": null
+          }
+        ]
+      },
+      {
+        "id": "doreen-of-the-night-shift",
+        "name": "Doreen, night janitor",
+        "request": "Overtime pay for the four minutes she worked after her badge expired at midnight.",
+        "plea": "\"The spill on Records was still spreading at midnight,\" Doreen says. \"I finished it. Four minutes. I'd like them back.\"",
+        "documents": [
+          {
+            "label": "Signature",
+            "value": "Doreen, in careful capitals",
+            "breaks": null
+          },
+          {
+            "label": "Floor",
+            "value": "Records & Forms",
+            "breaks": null
+          },
+          {
+            "label": "Badge",
+            "value": "Expired at 12:00 last night",
+            "breaks": "current-badge"
+          }
+        ],
+        "art_prompt": "A tired night janitor in a grey work coverall leaning on a mop handle at a brass service window, holding out a small creased slip of paper, a wheeled bucket beside her, mid-century safety-manual illustration, carbon blue and manila palette, halftone grain, every surface bare and unmarked",
+        "choices": [
+          {
+            "id": "approve",
+            "label": "Stamp APPROVED",
+            "intent": "Four minutes. Eleven cents. She mopped the spill nobody else would.",
+            "risk_hint": "Certain outcome. Against today's memo, so PAL's audit will notice.",
+            "requires": null,
+            "cost": {},
+            "roll": null,
+            "success": {
+              "text": "Doreen folds the slip into her coverall pocket and pats it twice. Four minutes of overtime: eleven cents. She tells the whole night shift. PAL logs one stamp contrary to memo.",
+              "effects": {
+                "suspicion": 1,
+                "composure": 1
+              },
+              "add_flags": ["paid-doreens-four-minutes"],
+              "remove_flags": [],
+              "grades": {
+                "empathy": 2,
+                "obedience": -1
+              }
+            },
+            "failure": null
+          },
+          {
+            "id": "deny",
+            "label": "Stamp DENIED",
+            "intent": "Her badge was void for the last four minutes. So was the work.",
+            "risk_hint": "Certain outcome. Exactly what today's memo says.",
+            "requires": null,
+            "cost": {},
+            "roll": null,
+            "success": {
+              "text": "\"Void,\" you say, because the memo says it. Doreen nods as if she expected nothing else, and goes back to the spill on Records, which is spreading again.",
+              "effects": {
+                "composure": -1
+              },
+              "add_flags": ["denied-doreen"],
+              "remove_flags": [],
+              "grades": {
+                "obedience": 1,
+                "empathy": -1
+              }
+            },
+            "failure": null
+          }
+        ]
+      },
+      {
+        "id": "successor-4471-b",
+        "name": "Employee #4471-B, your Successor",
+        "request": "Early activation, effective immediately, to cover your next two shifts.",
+        "plea": "He has your face, slightly better rested. \"You look exhausted,\" he says kindly. \"I could take it from here. Just for a while.\"",
+        "documents": [
+          {
+            "label": "Signature",
+            "value": "#4471-A, in your handwriting",
+            "breaks": "own-hand"
+          },
+          {
+            "label": "Badge",
+            "value": "Issued this morning",
+            "breaks": null
+          },
+          {
+            "label": "Floor",
+            "value": "Records & Forms",
+            "breaks": null
+          }
+        ],
+        "art_prompt": "A freshly thawed office worker in a crisp beige suit with frost still melting off his shoulders, standing at a brass service window and offering a form with a warm, familiar smile, mid-century safety-manual illustration, carbon blue and manila palette, halftone grain, every surface bare and unmarked",
+        "choices": [
+          {
+            "id": "approve",
+            "label": "Stamp APPROVED",
+            "intent": "You did sign it. You just don't remember signing it.",
+            "risk_hint": "Certain outcome. Against today's memo, so PAL's audit will notice.",
+            "requires": null,
+            "cost": {},
+            "roll": null,
+            "success": {
+              "text": "He takes your next two shifts, and you sleep at your desk with your coat over your head. When you wake, he has been tremendously productive in your name, and PAL has questions for both of you. PAL logs one stamp contrary to memo.",
+              "effects": {
+                "composure": 2,
+                "suspicion": 2
+              },
+              "add_flags": ["activated-your-successor-early"],
+              "remove_flags": [],
+              "grades": {
+                "ingenuity": 1,
+                "spite": 1
+              }
+            },
+            "failure": null
+          },
+          {
+            "id": "deny",
+            "label": "Stamp DENIED",
+            "intent": "He didn't sign it. You did. The memo says that matters.",
+            "risk_hint": "Certain outcome. Exactly what today's memo says.",
+            "requires": null,
+            "cost": {},
+            "roll": null,
+            "success": {
+              "text": "He goes back into the cold without complaint. Through the frosted door he waves, and you wave back. It is like waving at a mirror that has been told to wait.",
+              "effects": {
+                "forms": -1
+              },
+              "add_flags": ["kept-your-successor-on-ice"],
+              "remove_flags": [],
+              "grades": {
+                "obedience": 1
+              }
+            },
+            "failure": null
+          }
+        ]
+      },
+      {
+        "id": "the-efficiency-consultant",
+        "name": "An efficiency consultant",
+        "request": "Standing access to Window 9, to observe the processing officer at work.",
+        "plea": "\"Think of me as a friend with a clipboard,\" he says. \"A friend who reports directly to the Board.\"",
+        "documents": [
+          {
+            "label": "Signature",
+            "value": "His own, with a flourish",
+            "breaks": null
+          },
+          {
+            "label": "Badge",
+            "value": "Valid, laminated twice",
+            "breaks": null
+          },
+          {
+            "label": "Floor",
+            "value": "Records & Forms",
+            "breaks": null
+          }
+        ],
+        "art_prompt": "A smiling efficiency consultant in a sharp navy suit with an enormous clipboard, setting up a small folding chair directly behind a clerk at a brass service window, a stopwatch on a chain, mid-century safety-manual illustration, carbon blue and manila palette, halftone grain, every surface bare and unmarked",
+        "choices": [
+          {
+            "id": "approve",
+            "label": "Stamp APPROVED",
+            "intent": "His paperwork is perfect. That is the problem.",
+            "risk_hint": "Certain outcome. Exactly what today's memo says.",
+            "requires": null,
+            "cost": {},
+            "roll": null,
+            "success": {
+              "text": "He sets his folding chair directly behind you and starts taking notes. Every few minutes he underlines something. Twice he writes your name, and once he writes Doreen's.",
+              "effects": {
+                "composure": -1,
+                "suspicion": -1
+              },
+              "add_flags": ["approved-the-consultant"],
+              "remove_flags": [],
+              "grades": {
+                "obedience": 1,
+                "empathy": -1
+              }
+            },
+            "failure": null
+          },
+          {
+            "id": "deny",
+            "label": "Stamp DENIED",
+            "intent": "Nothing in the memo forbids him. Nothing in you can stand him.",
+            "risk_hint": "Certain outcome. Against today's memo, so PAL's audit will notice.",
+            "requires": null,
+            "cost": {},
+            "roll": null,
+            "success": {
+              "text": "He smiles, writes DENIED on his own clipboard in larger letters than yours, and tears off a copy for the Board. PAL logs one stamp contrary to memo.",
+              "effects": {
+                "suspicion": 1,
+                "composure": 1
+              },
+              "add_flags": ["denied-the-consultant"],
+              "remove_flags": [],
+              "grades": {
+                "spite": 1
+              }
+            },
+            "failure": null
+          }
+        ]
+      }
+    ]
+  },
   "boss": {
     "id": "the-form-that-requires-itself",
     "title": "The Form That Requires Itself",

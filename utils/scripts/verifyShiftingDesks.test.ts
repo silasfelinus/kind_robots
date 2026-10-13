@@ -46,6 +46,10 @@ import {
   ENDINGS,
   endingFor,
   endingLines,
+  WINDOW_PREFIX,
+  brokenRule,
+  byTheBook,
+  windowApplicant,
 } from '../shiftingDesks/rules'
 import { FLAG_MEMOS } from '../shiftingDesks/memos'
 
@@ -489,6 +493,7 @@ function arriveAfter(outcome: string, flags: string[] = []): RunState {
 function locOf(id: string): string {
   return RECORDS.encounters.find((e) => e.id === id)?.location_id ?? 'boss'
 }
+const SHIFT = RECORDS.window_shift!.applicants.length
 for (const memo of RECORDS.restructurings) {
   const board = departmentBoard(RECORDS, memo)
   const open = board.filter((x) => x.change !== 'closed')
@@ -549,7 +554,7 @@ assert.equal(
   'the merged location names its step',
 )
 assert.ok(merged.location_ids.includes(locOf(mergeRun.deck[0]!)))
-assert.equal(mergeRun.deck.length, RECORDS.locations.length)
+assert.equal(mergeRun.deck.length, RECORDS.locations.length + SHIFT)
 
 const added = RECORDS.restructurings.find(
   (m) => m.kind === 'add' && (m.when?.outcomes ?? []).length > 0,
@@ -560,7 +565,7 @@ const fromAdded = addRun.deck.filter(
 )
 assert.equal(fromAdded.length, 2, 'an added location deals a second file')
 assert.notEqual(fromAdded[0], fromAdded[1], 'never the same file twice')
-assert.equal(addRun.deck.length, RECORDS.locations.length + 2)
+assert.equal(addRun.deck.length, RECORDS.locations.length + 2 + SHIFT)
 
 const ducts = RECORDS.restructurings.find((m) =>
   (m.when?.flags ?? []).includes('knows-the-ducts'),
@@ -585,7 +590,103 @@ assert.equal(
   RECORDS.restructurings.at(-1)!.id,
   'otherwise the default memo applies',
 )
-assert.equal(plain.deck.length, RECORDS.locations.length + 1)
+assert.equal(plain.deck.length, RECORDS.locations.length + 1 + SHIFT)
+
+// Window shifts (conductor shifting-desks t-016)
+const shift = RECORDS.window_shift!
+assert.equal(shift.location_id, 'window-9')
+assert.ok(shift.applicants.length >= 3 && shift.applicants.length <= 5)
+const shiftIds = shift.applicants.map((x) => `${WINDOW_PREFIX}${x.id}`)
+assert.deepEqual(
+  plain.deck.slice(-1 - SHIFT, -1),
+  shiftIds,
+  'the whole line is dealt, in order, right before the review',
+)
+assert.ok(
+  !elimRun.deck.some((id) => id.startsWith(WINDOW_PREFIX)),
+  'when Window 9 is closed, nobody queues at it',
+)
+assert.equal(
+  stepLabels(plain).at(-1 - SHIFT),
+  `Window 9 · 1/${SHIFT}`,
+  'each applicant names its place in line',
+)
+assert.deepEqual(
+  [...new Set(shift.applicants.map((x) => byTheBook(x)))].sort(),
+  ['approve', 'deny'],
+  'the memo approves someone and denies someone',
+)
+const atWindow: RunState = {
+  ...plain,
+  position: plain.deck.indexOf(shiftIds[0]!),
+}
+const windowView = currentCard(atWindow)!
+assert.equal(windowView.kind, 'window')
+assert.deepEqual(
+  windowView.card.choices.map((c) => c.id),
+  ['approve', 'deny'],
+)
+assert.ok(
+  windowView.card.choices.every((c) => !c.roll && !lockReason(atWindow, c)),
+)
+for (const applicant of shift.applicants) {
+  const id = `${WINDOW_PREFIX}${applicant.id}`
+  const here: RunState = { ...plain, position: plain.deck.indexOf(id) }
+  const book = byTheBook(applicant)
+  const rule = brokenRule(shift, applicant)
+  assert.equal(
+    !!rule,
+    book === 'deny',
+    `${applicant.id}: deny only for a broken rule`,
+  )
+  for (const stamp of ['approve', 'deny'] as const) {
+    const out = choose(here, stamp)
+    const data = applicant.choices.find((c) => c.id === stamp)!
+    assert.ok(out.pending, `${applicant.id} ${stamp} stamps`)
+    assert.ok(
+      data.success.add_flags.every((f) => out.flags.includes(f)),
+      `${applicant.id} ${stamp} writes its flags`,
+    )
+    const audited = out.pending!.events.some((e) => e.startsWith("PAL's audit"))
+    assert.equal(audited, stamp !== book, `${applicant.id} ${stamp} audit`)
+    if (stamp !== book) {
+      assert.ok(
+        (out.pending!.effects.suspicion ?? 0) >= 1,
+        'an off-memo stamp raises Suspicion',
+      )
+    }
+    assert.equal(advance(out).position, here.position + 1)
+  }
+}
+const savedAtWindow = upgradeRun(JSON.parse(JSON.stringify(atWindow)))
+assert.equal(
+  savedAtWindow && currentCard(savedAtWindow)?.kind,
+  'window',
+  'a save made mid-shift reloads at the same window',
+)
+assert.equal(windowApplicant('window:nobody'), null)
+assert.equal(
+  stationArt('window', shift.applicants[0]!.id),
+  `/images/shifting-desks/window/${shift.applicants[0]!.id}.webp`,
+)
+const ductsEnding = ENDINGS.find((e) => e.id === 'escape-through-the-ducts')!
+assert.ok(
+  endingLines(
+    { ...plain, flags: ['let-the-courier-through'] },
+    ductsEnding,
+  ).some((l) => l.includes('courier')),
+  'the epilogue remembers who you let through',
+)
+assert.match(
+  asset('../../components/shifting-desks/shifting-desks-window.vue'),
+  /memo\.rules[\s\S]*documents[\s\S]*emit\('stamp'/,
+  'the window shows the memo, the documents and the stamps',
+)
+assert.match(
+  asset('../../pages/play/shifting-desks.vue'),
+  /<shifting-desks-window/,
+  'the play page puts the window on the desk',
+)
 
 const v4 = { ...JSON.parse(JSON.stringify(elimRun)), version: 4 }
 delete v4.restructurings
@@ -934,6 +1035,18 @@ const stationPrompts: Array<[string, string]> = [
       `card ${e.id}`,
       e.art_prompt,
     ]),
+    ...(d.window_shift
+      ? [
+          [`window ${d.window_shift.id}`, d.window_shift.art_prompt] as [
+            string,
+            string,
+          ],
+          ...d.window_shift.applicants.map((x): [string, string] => [
+            `applicant ${x.id}`,
+            x.art_prompt,
+          ]),
+        ]
+      : []),
   ]),
   ...DECKS.jobTitles.map((j): [string, string] => [
     `job ${j.id}`,
@@ -943,7 +1056,7 @@ const stationPrompts: Array<[string, string]> = [
   ...MUTATIONS.map((x): [string, string] => [`mutation ${x.id}`, x.art_prompt]),
 ]
 assert.ok(
-  stationPrompts.length >= 104,
+  stationPrompts.length >= 109,
   `every station is covered (${stationPrompts.length})`,
 )
 for (const [station, prompt] of stationPrompts) {

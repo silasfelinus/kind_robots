@@ -420,9 +420,9 @@
                     <span
                       :key="`stamp-${store.rollSerial}`"
                       class="result-slam"
-                      :class="run.pending.success ? 'is-approved' : 'is-denied'"
+                      :class="slamApproved ? 'is-approved' : 'is-denied'"
                       aria-hidden="true"
-                      >{{ run.pending.success ? 'Approved' : 'Denied' }}</span
+                      >{{ slamApproved ? 'Approved' : 'Denied' }}</span
                     >
                     <p
                       class="font-mono text-xs font-black uppercase tracking-widest opacity-70"
@@ -518,6 +518,14 @@
                     </button>
                   </article>
                 </template>
+
+                <shifting-desks-window
+                  v-else-if="opened && view.kind === 'window'"
+                  :shift="view.shift"
+                  :applicant="view.applicant"
+                  :index="view.index"
+                  @stamp="pick"
+                />
 
                 <template v-else-if="opened">
                   <shifting-desks-test-results
@@ -886,7 +894,7 @@ const currentNotice = computed(() => {
 })
 
 const locationTitle = computed(() => {
-  if (view.value?.kind !== 'encounter' || !run.value) return ''
+  if (!run.value || !view.value || view.value.kind === 'boss') return ''
   return (
     stepLabels(run.value)[run.value.position] ??
     locationById(view.value.card.location_id)?.title ??
@@ -907,14 +915,22 @@ const TAG_ICONS: Record<string, string> = {
   sacrifice: 'kind-icon:users',
 }
 
-const faceArt = computed(() =>
-  view.value && run.value
-    ? stationArt('cards', view.value.card.id, run.value.department)
-    : '',
+const faceArt = computed(() => {
+  if (!view.value || !run.value) return ''
+  if (view.value.kind === 'window')
+    return stationArt('window', view.value.applicant.id)
+  return stationArt('cards', view.value.card.id, run.value.department)
+})
+
+// A window stamp is always certain, so the slam follows the stamp you chose.
+const slamApproved = computed(() =>
+  view.value?.kind === 'window'
+    ? run.value?.pending?.choiceId === 'approve'
+    : !!run.value?.pending?.success,
 )
 
 const currentLocation = computed(() =>
-  view.value?.kind === 'encounter'
+  view.value && view.value.kind !== 'boss'
     ? locationById(view.value.card.location_id)
     : undefined,
 )

@@ -11,7 +11,9 @@
           before restarting. Equipped items are locked in for the current run.
         </p>
       </div>
-      <span class="rounded-xl border border-warning/40 bg-warning/10 px-3 py-2 text-sm">
+      <span
+        class="rounded-xl border border-warning/40 bg-warning/10 px-3 py-2 text-sm"
+      >
         {{ court.relicVault.nextLoadout.length }} / {{ court.relicVault.slots }}
         slots prepared
       </span>
@@ -35,7 +37,11 @@
           <strong class="font-serif text-lg">{{ entry.name }}</strong>
           <p class="text-xs opacity-75">{{ entry.description }}</p>
           <p class="text-xs font-semibold text-warning">
-            {{ court.relicVault.owned.includes(entry.id) ? 'Collected' : 'Locked: story reward from Day ' + entry.unlockDay + ' onward' }}
+            {{
+              court.relicVault.owned.includes(entry.id)
+                ? 'Collected'
+                : 'Locked: story reward from Day ' + entry.unlockDay + ' onward'
+            }}
           </p>
           <p v-if="activeRelics.includes(entry.id)" class="text-xs font-bold">
             Active this run
@@ -46,7 +52,11 @@
             class="btn btn-sm btn-outline mt-auto"
             @click="toggleNext(entry.id)"
           >
-            {{ court.relicVault.nextLoadout.includes(entry.id) ? 'Unequip for next run' : 'Equip for next run' }}
+            {{
+              court.relicVault.nextLoadout.includes(entry.id)
+                ? 'Unequip for next run'
+                : 'Equip for next run'
+            }}
           </button>
           <button
             v-else-if="canClaim(entry.id)"
@@ -60,9 +70,10 @@
       </article>
     </div>
     <p class="text-xs opacity-70">
-      The second slot unlocks through a later story milestone. The Eye marks the false briefing.
-      The Hourglass shortens one outbound trip per day, not its return journey.
-      These relic illustrations are placeholders until final art arrives.
+      The second slot unlocks through a later story milestone. The Eye marks the
+      false briefing. The Hourglass shortens one outbound trip per day, not its
+      return journey. These relic illustrations are placeholders until final art
+      arrives.
     </p>
     <button
       v-if="canUnlockSecondSlot"
@@ -84,22 +95,26 @@ import type { RelicId } from '~/utils/emperorOfDust/relics'
 
 const court = useEmperorOfDustStore()
 const notice = ref('')
-const relicEntries = (Object.entries(RELICS) as [RelicId, typeof RELICS[RelicId]][])
-  .map(([id, definition]) => ({ id, ...definition }))
+const relicEntries = (
+  Object.entries(RELICS) as [RelicId, (typeof RELICS)[RelicId]][]
+).map(([id, definition]) => ({ id, ...definition }))
 const activeRelics = computed(() => court.campaign?.equippedRelics ?? [])
-const canUnlockSecondSlot = computed(() =>
-  court.relicVault.slots === 1 &&
-  !!court.campaign &&
-  dayAt(court.campaign.hour) >= 41 &&
-  (court.campaign.flags ?? []).includes('relic-second-slot-earned'),
+const canUnlockSecondSlot = computed(
+  () =>
+    court.relicVault.slots === 1 &&
+    !!court.campaign &&
+    dayAt(court.campaign.hour) >= 41 &&
+    (court.campaign.flags ?? []).includes('relic-second-slot-earned'),
 )
 
 function canClaim(id: RelicId): boolean {
   const campaign = court.campaign
   const definition = RELICS[id]
-  return !!campaign &&
+  return (
+    !!campaign &&
     dayAt(campaign.hour) >= definition.unlockDay &&
     (campaign.flags ?? []).includes(definition.unlockFlag)
+  )
 }
 
 function perform(fn: () => void, success: string) {
@@ -107,7 +122,8 @@ function perform(fn: () => void, success: string) {
     fn()
     notice.value = success
   } catch (error) {
-    notice.value = error instanceof Error ? error.message : 'Could not update relics.'
+    notice.value =
+      error instanceof Error ? error.message : 'Could not update relics.'
   }
 }
 
@@ -127,6 +143,9 @@ function claim(id: RelicId) {
 }
 
 function unlockSecond() {
-  perform(() => court.unlockSecondRelicSlot(), 'A second relic slot is now available.')
+  perform(
+    () => court.unlockSecondRelicSlot(),
+    'A second relic slot is now available.',
+  )
 }
 </script>

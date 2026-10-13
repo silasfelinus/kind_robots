@@ -120,6 +120,17 @@ export type Location = {
   art_prompt: string
 }
 export type DepartmentOutcome = { id: string; title: string; summary: string }
+// Restructuring (conductor shifting-desks t-023): authored memos that reshape a
+// department's map as the player arrives, keyed on how the level above ended.
+export type RestructuringKind = 'eliminate' | 'merge' | 'add' | 'none'
+export type Restructuring = {
+  id: string
+  kind: RestructuringKind
+  location_ids: string[]
+  title: string | null
+  when: { outcomes?: string[]; flags?: string[] } | null
+  reason: string
+}
 export type Boss = {
   id: string
   title: string
@@ -140,6 +151,7 @@ export type Pack = {
     arrival_prompt: string
   }
   locations: Location[]
+  restructurings?: Restructuring[]
   encounters: Encounter[]
   boss: Boss
 }
@@ -361,9 +373,10 @@ export type Termination = {
 export type SocietyStatus = 'active' | 'met' | 'betrayed'
 
 export type RunState = {
-  version: 4
+  version: 5
   department: string
   departmentOutcomes: Record<string, string>
+  restructurings: Record<string, string>
   societyRecord: Record<string, SocietyStatus>
   terminations: Termination[]
   societyId: string
@@ -389,7 +402,8 @@ export type RunState = {
 }
 
 export const BOSS_CARD = 'boss'
-const SAVE_VERSION = 4
+export const RESTRUCTURING_CARD = 'restructuring'
+const SAVE_VERSION = 5
 
 function hashSeed(seed: string): number {
   let h = 2166136261
@@ -487,16 +501,120 @@ export function fallbackOutcome(dept: Pack): string {
   )
 }
 
-function dealDepartment(dept: Pack, seedRng: number): [string[], number] {
+export type BoardSlot = {
+  title: string
+  locationIds: string[]
+  pool: string[]
+  change: 'open' | 'closed' | 'merged' | 'added'
+}
+
+export function departmentBoard(
+  dept: Pack,
+  memo: Restructuring | null = null,
+): BoardSlot[] {
+  const slots: BoardSlot[] = dept.locations.map((loc) => ({
+    title: loc.title,
+    locationIds: [loc.location_id],
+    pool: [...loc.encounter_ids],
+    change: 'open',
+  }))
+  if (!memo || memo.kind === 'none') return slots
+  const at = (id: string | undefined) =>
+    slots.findIndex((x) => x.change === 'open' && x.locationIds[0] === id)
+  const [first, second] = memo.location_ids
+  const i = at(first)
+  if (i < 0) return slots
+  const slot = slots[i]!
+  if (memo.kind === 'eliminate') {
+    slots[i] = { ...slot, pool: [], change: 'closed' }
+  } else if (memo.kind === 'merge') {
+    const j = at(second)
+    if (j < 0) return slots
+    const other = slots[j]!
+    slots[i] = {
+      title: memo.title ?? `${slot.title} and ${other.title}`,
+      locationIds: [...slot.locationIds, ...other.locationIds],
+      pool: [...slot.pool, ...other.pool],
+      change: 'merged',
+    }
+    slots.splice(j, 1)
+  } else if (memo.kind === 'add') {
+    slots.splice(i + 1, 0, {
+      ...slot,
+      title: memo.title ?? `${slot.title}, again`,
+      change: 'added',
+    })
+  }
+  return slots
+}
+
+export function restructuringById(
+  dept: Pack,
+  id: string | undefined,
+): Restructuring | null {
+  return dept.restructurings?.find((r) => r.id === id) ?? null
+}
+
+// The first memo whose trigger matches an outcome or flag from above applies;
+// the last memo (when: null) is the default.
+export function restructuringFor(
+  state: RunState,
+  dept: Pack,
+): Restructuring | null {
+  const outcomes = Object.values(state.departmentOutcomes)
+  return (
+    dept.restructurings?.find((r) => {
+      if (!r.when) return true
+      return (
+        (r.when.outcomes ?? []).some((o) => outcomes.includes(o)) ||
+        (r.when.flags ?? []).some((f) => state.flags.includes(f))
+      )
+    }) ?? null
+  )
+}
+
+export function restructuringHeadline(dept: Pack, memo: Restructuring): string {
+  const title = (id: string | undefined) =>
+    dept.locations.find((l) => l.location_id === id)?.title ?? 'A location'
+  const [first, second] = memo.location_ids
+  if (memo.kind === 'eliminate') return `${title(first)} closed`
+  if (memo.kind === 'merge')
+    return `${title(first)} and ${title(second)} merged`
+  if (memo.kind === 'add') return `${memo.title ?? title(first)} added`
+  return 'No changes'
+}
+
+function dealDepartment(
+  dept: Pack,
+  seedRng: number,
+  memo: Restructuring | null = null,
+): [string[], number] {
   let rng = seedRng
   const deck: string[] = []
-  for (const loc of dept.locations) {
-    const [id, next] = weightedPick(loc.encounter_ids, rng)
+  for (const slot of departmentBoard(dept, memo)) {
+    if (slot.change === 'closed') continue
+    const pool = slot.pool.filter((id) => !deck.includes(id))
+    if (!pool.length) continue
+    const [id, next] = weightedPick(pool, rng)
     deck.push(id)
     rng = next
   }
   deck.push(BOSS_CARD)
   return [deck, rng]
+}
+
+// Breadcrumb names for the deck: the restructured slot titles for the first
+// deal, then each re-dealt file's own location.
+export function stepLabels(state: RunState): string[] {
+  const dept = departmentPack(state.department)
+  const memo = restructuringById(dept, state.restructurings[state.department])
+  const open = departmentBoard(dept, memo).filter((x) => x.change !== 'closed')
+  return state.deck.map((id, i) => {
+    if (id === BOSS_CARD) return 'Review'
+    if (i < open.length && open[i]!.pool.includes(id)) return open[i]!.title
+    const loc = dept.locations.find((l) => l.encounter_ids.includes(id))
+    return loc?.title ?? 'File'
+  })
 }
 
 export function newRun(seed: string, jobId: string): RunState {
@@ -516,6 +634,7 @@ export function newRun(seed: string, jobId: string): RunState {
     version: SAVE_VERSION,
     department: ORIENTATION.department.id,
     departmentOutcomes: {},
+    restructurings: {},
     societyRecord: {},
     terminations: [],
     societyId,
@@ -980,7 +1099,14 @@ export function choose(
     const result = outcome.department_outcome ?? fallback
     if (result === fallback) {
       const used = deck.filter((id) => id !== BOSS_CARD)
+      const closed = departmentBoard(
+        dept,
+        restructuringById(dept, state.restructurings[state.department]),
+      )
+        .filter((x) => x.change === 'closed')
+        .flatMap((x) => x.locationIds)
       const unused = dept.encounters
+        .filter((e) => !closed.includes(e.location_id))
         .map((e) => e.id)
         .filter((id) => !used.includes(id))
       if (unused.length && bossAttempts < MAX_REVIEW_ATTEMPTS) {
@@ -1035,10 +1161,40 @@ export function descend(state: RunState): RunState {
   if (state.status !== 'department-complete' || state.pending) return state
   const next = nextDepartment(state.department)
   if (!next) return state
-  const [deck, rng] = dealDepartment(next, state.rng)
+  const memo = restructuringFor(state, next)
+  const [deck, rng] = dealDepartment(next, state.rng, memo)
+  const log = memo
+    ? [
+        ...state.log,
+        {
+          cardId: RESTRUCTURING_CARD,
+          cardTitle: `${next.department.title} restructured`,
+          choiceId: memo.id,
+          choiceLabel: restructuringHeadline(next, memo),
+          dice: null,
+          skill: null,
+          skillValue: 0,
+          boost: 0,
+          total: null,
+          target: null,
+          success: true,
+          special: null,
+          text: memo.reason,
+          effects: {},
+          events: [],
+          employee: employeeId(state.generation),
+          aids: [],
+          rerolled: null,
+        } satisfies LogEntry,
+      ]
+    : state.log
   return {
     ...state,
     rng,
+    log,
+    restructurings: memo
+      ? { ...state.restructurings, [next.department.id]: memo.id }
+      : state.restructurings,
     department: next.department.id,
     deck,
     position: 0,
@@ -1133,6 +1289,7 @@ export function upgradeRun(value: unknown): RunState | null {
   if (isRunState(value)) return value
   if (!value || typeof value !== 'object') return null
   const raw = value as Record<string, unknown>
+  if (raw.version === 4) return upgradeV4(raw)
   if (raw.version === 3) return upgradeV3(raw)
   const v = raw.version === 1 ? upgradeV1(raw) : raw
   if (!v || v.version !== 2) return null
@@ -1173,7 +1330,12 @@ function upgradeV3(v: Record<string, unknown>): RunState | null {
       entry.success || !choice.failure ? choice.success : choice.failure
     grades = addGrades(grades, out.grades)
   }
-  const upgraded = { ...v, version: SAVE_VERSION, grades }
+  return upgradeV4({ ...v, version: 4, grades })
+}
+
+// Saves from before Restructuring keep the map they were dealt.
+function upgradeV4(v: Record<string, unknown>): RunState | null {
+  const upgraded = { ...v, version: SAVE_VERSION, restructurings: {} }
   return isRunState(upgraded) ? upgraded : null
 }
 
@@ -1206,6 +1368,8 @@ export function isRunState(value: unknown): value is RunState {
     DEPARTMENTS.some((d) => d.department.id === v.department) &&
     !!v.departmentOutcomes &&
     typeof v.departmentOutcomes === 'object' &&
+    !!v.restructurings &&
+    typeof v.restructurings === 'object' &&
     !!v.societyRecord &&
     typeof v.societyRecord === 'object' &&
     Array.isArray(v.terminations) &&

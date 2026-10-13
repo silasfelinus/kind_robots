@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "source": "silasfelinus/conductor:projects/shifting-desks/encounters/RECORDS-12.json",
-  "sourceSha": "51ca7f4afed43db1ae3f2634df7ab812de10f9aa",
+  "sourceSha": "a3ca488b2cf01d130895d981afe7104fc56d56cb",
   "department": {
     "id": "records",
     "title": "Records & Forms",
@@ -45,6 +45,71 @@
         "the-double-sided-stamp"
       ],
       "art_prompt": "A long counter of frosted service windows with brass grilles, a single lit window in the middle, a weary queue of applicants stretching away including a giant cockroach in a necktie, inkpads and rubber stamps lined up on the clerk's side, mid-century safety-manual illustration, screen-printed gouache with halftone grain, limited palette of manila, carbon-paper blue, safety orange, fluorescent-tube green and oxblood, vertical 2:3 portrait composition, every surface bare and unmarked"
+    }
+  ],
+  "restructurings": [
+    {
+      "id": "window-9-eliminated",
+      "kind": "eliminate",
+      "location_ids": ["window-9"],
+      "title": null,
+      "when": {
+        "outcomes": ["promoted-over-a-body"],
+        "flags": []
+      },
+      "reason": "Window 9 has been eliminated. Its staffing budget was reassigned to fund your promotion, and its clerk is now available for reassignment, possibly to you."
+    },
+    {
+      "id": "sub-archive-audit",
+      "kind": "eliminate",
+      "location_ids": ["sub-archive"],
+      "title": null,
+      "when": {
+        "outcomes": ["filed-as-someone-else"],
+        "flags": []
+      },
+      "reason": "The Sub-Archive is closed for an audit. A single personnel file has been found in two places at once, and both of them are yours."
+    },
+    {
+      "id": "customer-experience-hub",
+      "kind": "merge",
+      "location_ids": ["pneumatic-tube-exchange", "window-9"],
+      "title": "Customer Experience Hub",
+      "when": {
+        "outcomes": ["compliant-graduate"],
+        "flags": []
+      },
+      "reason": "The Pneumatic Tube Exchange and Window 9 have merged into one Customer Experience Hub, to save compliant employees like you a walk. Please queue in both lines."
+    },
+    {
+      "id": "mail-rerouted-past-you",
+      "kind": "add",
+      "location_ids": ["pneumatic-tube-exchange"],
+      "title": "Exchange, second delivery",
+      "when": {
+        "outcomes": ["review-derailed"],
+        "flags": []
+      },
+      "reason": "After the incident at your review, all inter-office mail is routed past your desk twice. PAL is sure you have nothing to hide."
+    },
+    {
+      "id": "duct-entrance-found",
+      "kind": "add",
+      "location_ids": ["sub-archive"],
+      "title": "Sub-Archive, via the ducts",
+      "when": {
+        "outcomes": ["escaped-into-the-walls"],
+        "flags": ["knows-the-ducts"]
+      },
+      "reason": "A duct entrance has been discovered above the Sub-Archive. Facilities has added it to your route so everyone can stop pretending it is not there."
+    },
+    {
+      "id": "nothing-has-changed",
+      "kind": "none",
+      "location_ids": [],
+      "title": null,
+      "when": null,
+      "reason": "Records has been restructured overnight. Nothing has changed. Please act surprised, and report anyone who does not."
     }
   ],
   "encounters": [

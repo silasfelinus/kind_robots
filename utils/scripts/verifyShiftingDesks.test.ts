@@ -37,6 +37,10 @@ import {
   gradeRequirement,
   interimResults,
   rankedGrades,
+  RESTRUCTURING_CARD,
+  departmentBoard,
+  restructuringFor,
+  stepLabels,
 } from '../shiftingDesks/rules'
 
 const file = (path: string) => fileURLToPath(new URL(path, import.meta.url))
@@ -110,7 +114,8 @@ assert.deepEqual(
 assert.equal(a.meters.successors, 6, 'Intern perk adds a Successor')
 assert.equal(newRun('x', 'night-janitor').meters.clearance, 2)
 assert.ok(isRunState(JSON.parse(JSON.stringify(a))))
-assert.equal(isRunState({ ...a, version: 5 }), false)
+assert.equal(isRunState({ ...a, version: 6 }), false)
+assert.deepEqual(a.restructurings, {}, 'a new run has no Restructuring yet')
 assert.deepEqual(a.grades, START_GRADES, 'Test Results start blank')
 assert.equal(isRunState({ ...a, grades: undefined }), false)
 assert.equal(isRunState({ ...a, deck: ['not-a-card'] }), false)
@@ -160,7 +165,7 @@ const v1 = {
   version: 1,
 }
 const upgraded = upgradeRun(v1)
-assert.ok(upgraded && upgraded.version === 4, 'v1 saves upgrade')
+assert.ok(upgraded && upgraded.version === 5, 'v1 saves upgrade')
 assert.equal(upgradeRun({ version: 1, seed: 'x' }), null, 'junk v1 rejected')
 
 function withDossier(
@@ -451,6 +456,142 @@ assert.deepEqual(
   'upgrading a v3 save replays its grades from the log',
 )
 
+// Restructuring (conductor shifting-desks t-023)
+const RECORDS = DEPARTMENTS[1]!
+assert.equal(
+  ORIENTATION.restructurings,
+  undefined,
+  'the surface never restructures',
+)
+assert.ok(RECORDS.restructurings && RECORDS.restructurings.length >= 4)
+assert.equal(
+  RECORDS.restructurings.at(-1)!.when,
+  null,
+  'the default comes last',
+)
+
+function arriveAfter(outcome: string, flags: string[] = []): RunState {
+  const top: RunState = {
+    ...newRun(`arrive-${outcome}`, 'temp'),
+    status: 'department-complete',
+    departmentOutcome: outcome,
+    departmentOutcomes: { [ORIENTATION.department.id]: outcome },
+    flags,
+  }
+  return descend(top)
+}
+function locOf(id: string): string {
+  return RECORDS.encounters.find((e) => e.id === id)?.location_id ?? 'boss'
+}
+for (const memo of RECORDS.restructurings) {
+  const board = departmentBoard(RECORDS, memo)
+  const open = board.filter((x) => x.change !== 'closed')
+  if (memo.kind === 'eliminate') {
+    assert.equal(
+      open.length,
+      RECORDS.locations.length - 1,
+      `${memo.id} closes one`,
+    )
+  }
+  if (memo.kind === 'merge') {
+    assert.equal(
+      open.length,
+      RECORDS.locations.length - 1,
+      `${memo.id} merges two`,
+    )
+    assert.ok(
+      board.some((x) => x.change === 'merged' && x.title === memo.title),
+    )
+  }
+  if (memo.kind === 'add') {
+    assert.equal(
+      open.length,
+      RECORDS.locations.length + 1,
+      `${memo.id} adds one`,
+    )
+  }
+  if (memo.kind === 'none') assert.equal(open.length, RECORDS.locations.length)
+  assert.match(memo.reason, /[.!?]$/, `${memo.id} has a written reason`)
+}
+
+const closedMemo = RECORDS.restructurings.find((m) => m.kind === 'eliminate')!
+const elimRun = arriveAfter(closedMemo.when!.outcomes![0]!)
+assert.equal(elimRun.department, RECORDS.department.id)
+assert.equal(elimRun.restructurings[RECORDS.department.id], closedMemo.id)
+assert.equal(
+  elimRun.deck.length,
+  RECORDS.locations.length,
+  'one fewer file, plus the review',
+)
+assert.ok(
+  !elimRun.deck.some((id) => locOf(id) === closedMemo.location_ids[0]),
+  'a closed location deals nothing',
+)
+const memoEntry = elimRun.log.at(-1)!
+assert.equal(memoEntry.cardId, RESTRUCTURING_CARD)
+assert.equal(
+  memoEntry.text,
+  closedMemo.reason,
+  'the reason is pinned in the journal',
+)
+
+const merged = RECORDS.restructurings.find((m) => m.kind === 'merge')!
+const mergeRun = arriveAfter(merged.when!.outcomes![0]!)
+assert.equal(
+  stepLabels(mergeRun)[0],
+  merged.title,
+  'the merged location names its step',
+)
+assert.ok(merged.location_ids.includes(locOf(mergeRun.deck[0]!)))
+assert.equal(mergeRun.deck.length, RECORDS.locations.length)
+
+const added = RECORDS.restructurings.find(
+  (m) => m.kind === 'add' && (m.when?.outcomes ?? []).length > 0,
+)!
+const addRun = arriveAfter(added.when!.outcomes![0]!)
+const fromAdded = addRun.deck.filter(
+  (id) => locOf(id) === added.location_ids[0],
+)
+assert.equal(fromAdded.length, 2, 'an added location deals a second file')
+assert.notEqual(fromAdded[0], fromAdded[1], 'never the same file twice')
+assert.equal(addRun.deck.length, RECORDS.locations.length + 2)
+
+const ducts = RECORDS.restructurings.find((m) =>
+  (m.when?.flags ?? []).includes('knows-the-ducts'),
+)
+if (ducts) {
+  assert.equal(
+    restructuringFor(
+      {
+        ...a,
+        flags: ['knows-the-ducts'],
+        departmentOutcomes: { orientation: 'reorientation' },
+      },
+      RECORDS,
+    )?.id,
+    ducts.id,
+    'a flag from above can trigger a memo',
+  )
+}
+const plain = arriveAfter('reorientation')
+assert.equal(
+  plain.restructurings[RECORDS.department.id],
+  RECORDS.restructurings.at(-1)!.id,
+  'otherwise the default memo applies',
+)
+assert.equal(plain.deck.length, RECORDS.locations.length + 1)
+
+const v4 = { ...JSON.parse(JSON.stringify(elimRun)), version: 4 }
+delete v4.restructurings
+const fromV4 = upgradeRun(v4)
+assert.ok(fromV4 && fromV4.version === 5, 'v4 saves upgrade')
+assert.deepEqual(
+  fromV4.restructurings,
+  {},
+  'old saves keep the map they were dealt',
+)
+
+const kindsSeen = new Set<string>()
 const outcomes = new Set<string>()
 const gradeRoutesTaken = new Set<string>()
 const verdictsSeen = new Set<string>()
@@ -472,6 +613,18 @@ for (let i = 0; i < 3000; i++) {
       run = descend(run)
       assert.notEqual(run.department, before, 'descend moves down a level')
       assert.equal(run.mutationUsed, false, 'mutation resets per department')
+      const memo = RECORDS.restructurings!.find(
+        (m) => m.id === run.restructurings[run.department],
+      )
+      if (memo) {
+        kindsSeen.add(memo.kind)
+        if (memo.kind === 'eliminate') {
+          assert.ok(
+            !run.deck.some((id) => locOf(id) === memo.location_ids[0]),
+            'restructured decks honor closures',
+          )
+        }
+      }
       descents++
       continue
     }
@@ -499,8 +652,18 @@ for (let i = 0; i < 3000; i++) {
     })
     if (r > 0.9 && instantAvailable(run, 'mutation'))
       run = useInstant(run, 'mutation')
-    if (run.pending?.events.some((e) => e.startsWith('Reorientation')))
+    if (run.pending?.events.some((e) => e.startsWith('Reorientation'))) {
       reorientations++
+      const memo = RECORDS.restructurings!.find(
+        (m) => m.id === run.restructurings[run.department],
+      )
+      if (memo?.kind === 'eliminate') {
+        assert.ok(
+          !run.deck.some((id) => locOf(id) === memo.location_ids[0]),
+          'a re-deal never reopens a closed location',
+        )
+      }
+    }
     for (const k of METERS) {
       assert.ok(
         run.meters[k] >= METER_LIMITS[k].min &&
@@ -541,6 +704,11 @@ for (const d of DEPARTMENTS) {
 assert.ok(
   verdictsSeen.size >= 4,
   `the Personnel File reaches varied verdicts (${[...verdictsSeen].join(', ')})`,
+)
+assert.deepEqual(
+  [...kindsSeen].sort(),
+  ['add', 'eliminate', 'merge', 'none'],
+  'every kind of Restructuring happens in play',
 )
 assert.ok(descents > 1000, `most runs reach the next department (${descents})`)
 assert.ok(completed > 1000, `most runs finish the demo (${completed})`)

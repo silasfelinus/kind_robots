@@ -81,3 +81,22 @@ export const earnSecondSlot = (vault: RelicVault, campaign: Campaign): RelicVaul
 
 export const equipped = (campaign: Campaign, id: RelicId): boolean =>
   (campaign.equippedRelics ?? []).includes(id)
+
+export const decodeRelicVault = (raw: string | null): RelicVault | null => {
+  if (!raw || raw.length > 10_000) return null
+  try {
+    const value: unknown = JSON.parse(raw)
+    return validateRelicVault(value) ? value : null
+  } catch {
+    return null
+  }
+}
+
+export const encodeRelicVault = (vault: RelicVault): string => {
+  if (!validateRelicVault(vault)) throw new Error('Invalid relic vault')
+  return JSON.stringify(vault)
+}
+
+export const revealFalseReport = (
+  campaign: Campaign, reportIsTrue: boolean,
+): boolean => equipped(campaign, 'eye-of-elder-crow') && !reportIsTrue

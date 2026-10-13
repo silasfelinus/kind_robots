@@ -372,7 +372,7 @@ const navigationMoves = [
     slug: 'zuzu-lair',
     from: 'projects',
     to: 'admin',
-    route: '/play/zuzu-lair',
+    route: '/admin/zuzu-lair',
   },
   {
     slug: 'tzaddik-gallery',

@@ -902,26 +902,6 @@ export const LINKED_GAMES: ArcadeGameMeta[] = [
     accent: '#fb923c',
     controls: 'Move, two punches, two kicks, dodge',
   },
-  {
-    slug: 'zuzu-lair',
-    title: "Zuzu's Lair",
-    riffsOn: "Dragon's Lair",
-    blurb:
-      "An interactive cartoon of the Shifting Lands. Watch the clip, hit the arrow when it flashes, and survive Zuzu's Lair without a single fall.",
-    howTo: [
-      'WATCH THE CLIP',
-      'PRESS THE ARROW',
-      'WHEN IT FLASHES',
-      'NO DEATHS FOR BONUS',
-    ],
-    width: 480,
-    height: 270,
-    maxPlausibleScore: 100_000,
-    titleArt: '/zuzu-showdown-portraits/zuzu-vs-hd.webp',
-    route: '/play/zuzu-lair',
-    accent: '#f59e0b',
-    controls: 'Four arrows, timed to the flash',
-  },
 ]
 
 /** Everything the hall shows and the hall of fame ranks: the cabinets, then the linked games. */

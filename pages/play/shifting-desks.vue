@@ -607,8 +607,11 @@
                     <summary
                       class="cursor-pointer px-3 py-2 font-mono text-[11px] font-black uppercase tracking-widest"
                     >
-                      PAL has prepared your interim results ·
-                      {{ interim.revealed.length }} shown
+                      <span class="sm:hidden">Interim results</span
+                      ><span class="hidden sm:inline"
+                        >PAL has prepared your interim results</span
+                      >
+                      · {{ interim.revealed.length }} shown
                     </summary>
                     <shifting-desks-test-results
                       :readings="interim.revealed"
@@ -627,10 +630,21 @@
                         : 'border-base-300 hover:border-warning focus-visible:border-warning'
                     "
                     :aria-disabled="!!lockFor(choice)"
+                    :title="lockFor(choice) ?? undefined"
                     @click="pick(choice)"
                   >
                     <span class="flex flex-wrap items-center gap-x-2 gap-y-1">
+                      <icon
+                        v-if="manyRoutes && lockFor(choice)"
+                        name="kind-icon:lock"
+                        class="size-3.5 text-error"
+                      />
                       <span class="text-sm font-bold">{{ choice.label }}</span>
+                      <span
+                        v-if="manyRoutes && lockFor(choice)"
+                        class="sr-only"
+                        >{{ lockFor(choice) }}</span
+                      >
                       <template v-if="!(manyRoutes && lockFor(choice))">
                         <span
                           v-if="choice.roll"
@@ -652,7 +666,7 @@
                         <shifting-desks-effect-chips
                           v-if="hasCost(choice)"
                           :effects="choice.cost"
-                          prefix="Cost"
+                          :prefix="manyRoutes ? '' : 'Cost'"
                         />
                       </template>
                     </span>
@@ -689,7 +703,7 @@
                       >
                     </span>
                     <span
-                      v-if="lockFor(choice)"
+                      v-if="lockFor(choice) && !manyRoutes"
                       class="text-xs font-bold text-error"
                     >
                       <icon name="kind-icon:lock" class="size-3" />

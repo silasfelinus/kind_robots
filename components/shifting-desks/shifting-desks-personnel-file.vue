@@ -9,7 +9,7 @@
     >
       <div class="shrink-0 pr-28 sm:pr-44">
         <p
-          class="font-mono text-[10px] font-black uppercase tracking-[.3em] text-stone-700 sm:text-xs"
+          class="truncate font-mono text-[10px] font-black uppercase tracking-[.3em] text-stone-700 sm:text-xs"
         >
           Consolidated Wellness &amp; Defense · Personnel File #4471
         </p>
@@ -58,7 +58,7 @@
             aria-label="Epilogue"
           >
             <shifting-desks-art
-              class="w-[30%] max-w-[13rem] shrink-0 self-start rounded-lg"
+              class="w-[26%] max-w-[13rem] shrink-0 self-start rounded-lg"
               frame="aspect-[2/3]"
               :src="stationArt('endings', epilogue.id)"
               :prompt="epilogue.epilogue.art_prompt"

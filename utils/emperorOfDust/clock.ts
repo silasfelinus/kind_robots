@@ -19,8 +19,8 @@ export const advanceWithDeadlines = (
         !state.dispatches.some((mission) => mission.incidentId === incident.id)
       )
     })
-    .sort((a, b) =>
-      timeAt(a.day, a.deadlineHour) - timeAt(b.day, b.deadlineHour),
+    .sort(
+      (a, b) => timeAt(a.day, a.deadlineHour) - timeAt(b.day, b.deadlineHour),
     )
 
   let next = state
@@ -41,7 +41,9 @@ export const upcomingMoment = (
       .filter(
         (incident) =>
           !state.ignoredIncidentIds.includes(incident.id) &&
-          !state.dispatches.some((mission) => mission.incidentId === incident.id),
+          !state.dispatches.some(
+            (mission) => mission.incidentId === incident.id,
+          ),
       )
       .flatMap((incident) => [
         timeAt(incident.day, incident.opensAtHour),

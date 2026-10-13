@@ -1295,7 +1295,7 @@ useHead({ title: 'Shifting Desks' })
 
 @media (min-width: 768px) {
   .desk-layout {
-    grid-template-rows: minmax(0, 1fr) minmax(0, 1.15fr);
+    grid-template-rows: minmax(0, 0.85fr) minmax(0, 1.15fr);
   }
 }
 

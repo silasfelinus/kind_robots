@@ -320,10 +320,10 @@ assert.deepEqual(
       .gain
     assert.ok(live.startMusic('mode'))
     liveSound.muted = true
-    live.syncMute()
+    live.unlock()
     assert.equal(liveMaster.value, 0)
     liveSound.muted = false
-    live.syncMute()
+    live.unlock()
     assert.ok(liveMaster.value > 0)
 
     // A tab suspended by the browser gets another resume attempt on the

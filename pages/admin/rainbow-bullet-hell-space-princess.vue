@@ -100,6 +100,11 @@
               >Enter flight simulator ↓</a
             >
             <a
+              href="#princess-pilots"
+              class="btn border-white/40 bg-white/10 text-white hover:bg-white/20"
+              >Meet the pilots</a
+            >
+            <a
               href="#princess-mission"
               class="btn border-white/40 bg-white/10 text-white hover:bg-white/20"
               >Explore the mission</a
@@ -110,6 +115,113 @@
             still being built.
           </p>
         </div>
+      </section>
+
+      <section
+        id="princess-pilots"
+        class="space-y-4"
+        aria-labelledby="princess-pilots-title"
+      >
+        <div class="flex flex-wrap items-end justify-between gap-3">
+          <div>
+            <p class="text-xs uppercase tracking-widest text-secondary">
+              Flight roster · P1–P4
+            </p>
+            <h3 id="princess-pilots-title" class="text-2xl font-bold">
+              Choose your princess
+            </h3>
+          </div>
+          <p class="max-w-md text-sm opacity-75">
+            Every pilot flies the same fair hitbox. Pick by play style, not by
+            size: the glyph and number follow you into battle.
+          </p>
+        </div>
+        <ul class="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+          <li
+            v-for="pilot in RAINBOW_PILOTS"
+            :key="pilot.key"
+            class="group relative overflow-hidden rounded-2xl border-2 bg-[#251345] text-white shadow-lg"
+            :style="{ borderColor: pilot.color }"
+          >
+            <div class="relative aspect-[832/1216] overflow-hidden">
+              <img
+                :src="pilot.portrait"
+                :alt="pilot.portraitAlt"
+                width="576"
+                height="842"
+                loading="lazy"
+                class="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105 motion-reduce:transition-none motion-reduce:group-hover:scale-100"
+              />
+              <div
+                class="absolute left-3 top-3 flex items-center gap-2 rounded-full bg-[#251345]/85 py-1 pl-1 pr-3 text-sm font-black"
+              >
+                <span
+                  class="grid h-8 w-8 place-items-center rounded-full"
+                  :style="{ backgroundColor: pilot.color }"
+                >
+                  <svg
+                    viewBox="0 0 24 24"
+                    class="h-5 w-5"
+                    role="img"
+                    :aria-label="pilot.glyphName"
+                  >
+                    <path
+                      v-if="pilot.glyph.shape === 'path'"
+                      :d="pilot.glyph.d"
+                      fill="#251345"
+                    />
+                    <g v-else fill="none" stroke="#251345" stroke-width="2.5">
+                      <circle cx="12" cy="12" r="9" />
+                      <circle cx="12" cy="12" r="4.5" />
+                    </g>
+                  </svg>
+                </span>
+                P{{ pilot.seat + 1 }}
+              </div>
+              <div
+                class="absolute inset-x-0 bottom-0 bg-gradient-to-t from-[#251345] via-[#251345]/85 to-transparent px-4 pb-4 pt-16"
+              >
+                <h4
+                  class="text-2xl font-black leading-tight"
+                  :style="{ color: pilot.color }"
+                >
+                  {{ pilot.name }}
+                </h4>
+                <p class="text-xs uppercase tracking-widest text-white/75">
+                  {{ pilot.pronouns }} · {{ pilot.colorName }}
+                </p>
+              </div>
+            </div>
+            <dl class="space-y-2 p-4 text-sm">
+              <div>
+                <dt class="text-xs uppercase tracking-widest text-white/60">
+                  Ship
+                </dt>
+                <dd>
+                  <span class="font-bold">{{ pilot.ship }}</span> ·
+                  {{ pilot.shipShape }}
+                </dd>
+              </div>
+              <div>
+                <dt class="text-xs uppercase tracking-widest text-white/60">
+                  Fire
+                </dt>
+                <dd>{{ pilot.primary }}</dd>
+              </div>
+              <div>
+                <dt class="text-xs uppercase tracking-widest text-white/60">
+                  Super
+                </dt>
+                <dd>
+                  <span class="font-bold">{{ pilot.superName }}</span
+                  >:
+                  {{ pilot.superDetail }}
+                </dd>
+              </div>
+              <p class="pt-1 leading-relaxed text-white/85">{{ pilot.hook }}</p>
+            </dl>
+          </li>
+        </ul>
       </section>
 
       <div id="princess-mission" class="grid gap-4 lg:grid-cols-3">
@@ -183,6 +295,7 @@
 <script setup lang="ts">
 import { onMounted } from 'vue'
 import { useUserStore } from '~/stores/userStore'
+import { RAINBOW_PILOTS } from '~/utils/arcade/games/rainbowPilots'
 
 const user = useUserStore()
 const missionCards = [

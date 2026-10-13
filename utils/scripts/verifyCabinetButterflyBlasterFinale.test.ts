@@ -736,6 +736,81 @@ const ALL = new Set<RegionId>(THREAD_REGIONS)
   assert.equal(skip.dry, 1, 'no threads: the Lagoon stays hidden')
 }
 
+// --- New Season keeps earned history through the first checkpoint and reload -----------------------
+{
+  for (const kind of ['dawn', 'zero'] as const) {
+    const earned = game(17)
+    earned.threads = new Set(ALL)
+    earned.score = 12340
+    earned.lives = 1
+    earned.beginStep(stepOf((s) => s.kind === 'ending' && s.ending === kind))
+    const saved = roundTrip(earned)
+    assert.ok(saved?.cleared)
+    assert.equal(saved.zero, kind === 'zero')
+
+    const fresh = game(18, saved)
+    assert.equal(fresh.phase, 'offer')
+    fresh.update(frame('b'))
+    assert.equal(fresh.stepIndex, 0, 'B starts the river again')
+    assert.equal(fresh.dry, 0, 'B starts a fresh season, not a Dry Season lap')
+    assert.equal(fresh.score, 0)
+    assert.equal(fresh.lives, 3)
+    assert.equal(fresh.save!.cleared, true, 'New Season keeps the earned clear')
+    assert.equal(
+      fresh.save!.zero,
+      kind === 'zero',
+      'New Season keeps ending history',
+    )
+    assert.deepEqual(new Set(fresh.save!.threads), ALL)
+
+    // Step zero does not show a Continue offer. Its constructor must still retain history.
+    const reloaded = game(19, roundTrip(fresh))
+    assert.equal(reloaded.phase, 'map')
+    assert.equal(
+      reloaded.save!.cleared,
+      true,
+      'reload before playing keeps the clear',
+    )
+    assert.equal(reloaded.save!.zero, kind === 'zero')
+    assert.deepEqual(new Set(reloaded.save!.threads), ALL)
+    for (let t = 0; t < 31; t++) reloaded.update(emptyInput())
+    reloaded.update(frame('a'))
+    assert.equal(reloaded.phase, 'play')
+    const played = game(20, roundTrip(reloaded))
+    assert.equal(
+      played.save!.cleared,
+      true,
+      'playing and saving retains earned history',
+    )
+    assert.equal(played.save!.zero, kind === 'zero')
+    assert.deepEqual(new Set(played.save!.threads), ALL)
+
+    for (const button of ['a', 'start'] as const) {
+      const continued = game(21, saved)
+      continued.update(frame(button))
+      assert.equal(continued.phase, 'ending')
+      assert.equal(continued.stepIndex, earned.stepIndex)
+      assert.equal(continued.score, 12340, 'Continue retains the current run')
+      assert.equal(continued.lives, 1)
+      assert.equal(continued.cleared, true)
+      assert.equal(continued.zero, kind === 'zero')
+    }
+  }
+  const unfinished = game(22)
+  unfinished.beginStep(nightStep('delta', 0))
+  const legacy = roundTrip(unfinished)!
+  delete legacy.cleared
+  delete legacy.zero
+  const fresh = game(23, legacy)
+  fresh.update(frame('b'))
+  assert.equal(
+    fresh.save!.cleared,
+    false,
+    'a legacy save does not earn an ending',
+  )
+  assert.equal(fresh.save!.zero, false)
+}
+
 // --- the attract demo and a pilot probe ------------------------------------------------------------
 {
   const demo = create({

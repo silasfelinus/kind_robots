@@ -40,8 +40,14 @@ assert.match(pinballPage, /ArcadeCabinet slug="zuzu-pinball"/)
 assert.match(pinballPage, /<details/)
 assert.match(publicPage, /ArcadeCabinet slug="zuzu-pinball"/)
 assert.match(publicPage, /navStore\.openWorkspaceSheet\(\)/)
-assert.doesNotMatch(publicPage, /user\.isAdmin|ArcadePinballLightMap|private engineering workshop/)
-assert.match(read('../../content/channels/admin/zuzu-pinball-workshop.md'), /requiredRole: ADMIN/)
+assert.doesNotMatch(
+  publicPage,
+  /user\.isAdmin|ArcadePinballLightMap|private engineering workshop/,
+)
+assert.match(
+  read('../../content/channels/admin/zuzu-pinball-workshop.md'),
+  /requiredRole: ADMIN/,
+)
 assert.match(pinballPage, /zuzu-game-stage/)
 assert.doesNotMatch(pinballPage, /The water has teeth/)
 assert.doesNotMatch(pinballPage, /Under construction/)

@@ -161,10 +161,19 @@ assert.match(page, /game\.state\.lastCheck/)
 assert.match(page, /images\/adventure\/card\/card-back1.webp/)
 assert.match(page, /game\.state\.discard/)
 assert.match(page, /game\.initialize/)
-const publicPage = readFileSync(toPath('../../pages/play/zuzu-shifting-lands.vue'), 'utf8')
+const publicPage = readFileSync(
+  toPath('../../pages/play/zuzu-shifting-lands.vue'),
+  'utf8',
+)
 assert.match(publicPage, /ShiftingLandsJourneyBoard/)
 assert.doesNotMatch(publicPage, /user\.isAdmin|requiredRole: ADMIN/)
-assert.match(readFileSync(toPath('../../content/channels/admin/zuzu-shifting-lands-workshop.md'), 'utf8'), /requiredRole: ADMIN/)
+assert.match(
+  readFileSync(
+    toPath('../../content/channels/admin/zuzu-shifting-lands-workshop.md'),
+    'utf8',
+  ),
+  /requiredRole: ADMIN/,
+)
 assert.equal(
   existsSync(toPath('../../content/channels/admin/zuzu-shifting-lands.md')),
   false,

@@ -194,7 +194,177 @@
           />
 
           <div
-            v-if="zoomed && game.activeCard"
+            v-if="zoomed && consequence"
+            class="kr-pane-scroll"
+            aria-label="Consequence of your choice"
+          >
+            <div class="encounter-grid min-h-full">
+              <div
+                class="relative aspect-[16/10] overflow-hidden bg-base-300 encounter-art"
+              >
+                <div class="absolute inset-0">
+                  <FlipCard
+                    :trigger-key="consequenceKey"
+                    :reveal-on-trigger="true"
+                    :duration-ms="reducedMotion ? 0 : 650"
+                    radius="0"
+                  >
+                    <template #front>
+                      <img
+                        :src="consequence.plate.src"
+                        :alt="consequence.title + ': ' + consequence.choice"
+                        class="size-full object-cover"
+                        :class="
+                          consequence.plate.painted
+                            ? ''
+                            : consequence.success
+                              ? 'saturate-125'
+                              : 'grayscale-[55%]'
+                        "
+                      />
+                    </template>
+                    <template #back>
+                      <img
+                        :src="
+                          consequence.kind === 'trial'
+                            ? '/shifting-lands/trial-back.svg'
+                            : '/shifting-lands/encounter-back.svg'
+                        "
+                        alt=""
+                        class="size-full object-cover"
+                      />
+                    </template>
+                  </FlipCard>
+                </div>
+                <div
+                  v-if="!consequence.plate.painted"
+                  class="pointer-events-none absolute inset-0 bg-gradient-to-t to-transparent"
+                  :class="
+                    consequence.success
+                      ? 'from-warning/45 via-warning/10'
+                      : 'from-error/55 via-black/25'
+                  "
+                />
+                <span
+                  class="absolute right-3 top-3 rounded-full px-3 py-1 font-serif text-sm font-black uppercase tracking-widest shadow-lg"
+                  :class="
+                    consequence.success
+                      ? 'bg-success text-success-content'
+                      : 'bg-error text-error-content'
+                  "
+                >
+                  {{ consequence.success ? 'Success' : 'Failure' }}
+                </span>
+                <button
+                  type="button"
+                  class="absolute left-3 top-3 inline-flex items-center gap-1 rounded-full bg-black/75 px-3 py-1.5 text-xs font-bold text-white shadow-lg backdrop-blur focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary"
+                  aria-label="Zoom out to the road"
+                  @click="roadPeek = true"
+                >
+                  <Icon name="kind-icon:map" class="size-4" /> Road
+                </button>
+              </div>
+              <div
+                class="flex flex-col justify-center gap-3 bg-base-200/95 p-4 sm:p-6"
+                aria-live="polite"
+              >
+                <p
+                  class="text-[10px] font-black uppercase tracking-[.25em] text-warning"
+                >
+                  {{ consequence.title }} · You chose
+                </p>
+                <p class="-mt-2 font-bold leading-snug">
+                  {{ consequence.choice }}
+                </p>
+                <div
+                  :key="consequenceKey"
+                  class="flex flex-wrap items-center gap-2"
+                  :class="reducedMotion ? '' : 'journey-dice-reveal'"
+                  :aria-label="
+                    'Rolled ' +
+                    consequence.roll.dice.join(' and ') +
+                    ' plus ' +
+                    consequence.roll.modifier +
+                    ', total ' +
+                    consequence.roll.total +
+                    ' against ' +
+                    consequence.roll.difficulty
+                  "
+                >
+                  <span
+                    v-for="(face, index) in consequence.roll.dice"
+                    :key="index"
+                    class="grid size-11 grid-cols-3 grid-rows-3 gap-0.5 rounded-lg border-2 border-base-content/30 bg-base-100 p-1.5 shadow"
+                    aria-hidden="true"
+                  >
+                    <span
+                      v-for="spot in 9"
+                      :key="spot"
+                      class="rounded-full"
+                      :class="
+                        pips(face).includes(spot - 1) ? 'bg-base-content' : ''
+                      "
+                    />
+                  </span>
+                  <span class="text-sm font-bold">
+                    + {{ consequence.roll.modifier }}
+                    <span class="capitalize opacity-70">{{
+                      consequence.roll.skill
+                    }}</span>
+                    = {{ consequence.roll.total }}
+                    <span class="opacity-70"
+                      >vs {{ consequence.roll.difficulty }}</span
+                    >
+                  </span>
+                </div>
+                <h3
+                  ref="outcomeHeading"
+                  tabindex="-1"
+                  class="font-serif text-lg font-bold leading-snug outline-none focus-visible:ring-2 focus-visible:ring-primary sm:text-2xl"
+                >
+                  {{ consequence.text }}
+                </h3>
+                <div class="flex flex-wrap gap-2 text-xs font-black">
+                  <span
+                    class="inline-flex items-center gap-1 rounded-full border px-2.5 py-1"
+                    :class="
+                      consequence.hp < 0
+                        ? 'border-error/50 text-error'
+                        : consequence.hp > 0
+                          ? 'border-success/50 text-success'
+                          : 'border-base-content/20 opacity-70'
+                    "
+                  >
+                    <Icon name="kind-icon:heart" class="size-3.5" />
+                    Health {{ signed(consequence.hp) }}
+                  </span>
+                  <span
+                    class="inline-flex items-center gap-1 rounded-full border px-2.5 py-1"
+                    :class="
+                      consequence.provisions < 0
+                        ? 'border-error/50 text-error'
+                        : consequence.provisions > 0
+                          ? 'border-success/50 text-success'
+                          : 'border-base-content/20 opacity-70'
+                    "
+                  >
+                    <Icon name="kind-icon:bag" class="size-3.5" />
+                    Provisions {{ signed(consequence.provisions) }}
+                  </span>
+                </div>
+                <button
+                  type="button"
+                  class="btn btn-primary self-start"
+                  @click="continueJourney"
+                >
+                  {{ continueLabel }}
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div
+            v-else-if="zoomed && game.activeCard"
             class="kr-pane-scroll"
             aria-label="Current encounter"
           >
@@ -746,11 +916,7 @@
                       : 'Failure'
                   }}
                 </p>
-                <h3
-                  ref="outcomeHeading"
-                  tabindex="-1"
-                  class="mt-1 font-serif text-lg font-bold leading-tight outline-none focus-visible:ring-2 focus-visible:ring-primary"
-                >
+                <h3 class="mt-1 font-serif text-lg font-bold leading-tight">
                   {{ lastPlayedTitle }}
                 </h3>
                 <p class="mt-1 text-sm leading-relaxed">
@@ -1088,6 +1254,7 @@
 import { computed, nextTick, onMounted, ref } from 'vue'
 import { useShiftingLandsJourneyStore } from '~/stores/shiftingLandsJourneyStore'
 import { findFiveLandCard } from '~/utils/shiftingLands/authoredFiveLands'
+import { trialForLand } from '~/utils/shiftingLands/authoredBosses'
 import type {
   BossApproach,
   EncounterApproach,
@@ -1133,6 +1300,9 @@ const sideTab = computed<JourneyTab>(() =>
   tab.value === 'road' ? 'zuzu' : tab.value,
 )
 const roadPeek = ref(false)
+type Reveal = { kind: 'encounter' | 'trial'; turn: number }
+const reveal = ref<Reveal | null>(null)
+const consequenceKey = ref(0)
 const menu = ref<HTMLDetailsElement | null>(null)
 const journalFilters: Array<{ value: JournalFilter; label: string }> = [
   { value: 'all', label: 'All' },
@@ -1164,7 +1334,56 @@ const endTitle = computed(() => {
   if (game.state.phase === 'retired') return 'The road ends here.'
   return 'The journey goes on.'
 })
+const consequence = computed(() => {
+  const showing = reveal.value
+  if (!showing) return null
+  if (showing.kind === 'encounter') {
+    const result = game.lastAuthoredOutcome
+    if (!result || result.turn !== showing.turn) return null
+    const card = findFiveLandCard(result.encounterId)
+    return {
+      kind: showing.kind,
+      title: card?.title ?? 'An encounter remembered',
+      choice:
+        card?.choices.find((item) => item.id === result.choiceId)?.label ??
+        'Your choice',
+      success: result.roll.success,
+      roll: result.roll,
+      text: result.resultText,
+      hp: result.hpChange,
+      provisions: result.provisionChange,
+      plate: game.outcomePlate(result),
+    }
+  }
+  const result = game.lastTrialOutcome
+  if (!result || result.turn !== showing.turn) return null
+  const trial = trialForLand(result.landId)
+  return {
+    kind: showing.kind,
+    title: trial?.title ?? lastTrialBossName.value,
+    choice:
+      trial?.choices.find((item) => item.id === result.choiceId)?.label ??
+      'Your approach',
+    success: result.roll.success,
+    roll: result.roll,
+    text: result.resultText,
+    hp: result.hpChange,
+    provisions: result.provisionChange,
+    plate: game.trialPlate(result),
+  }
+})
+const continueLabel = computed(() => {
+  if (game.finished) return 'See how the journey ends'
+  if (game.bossReady)
+    return consequence.value?.kind === 'trial'
+      ? 'Return to the gate'
+      : 'Face the trial'
+  if (consequence.value?.kind === 'trial')
+    return 'Enter ' + game.currentLand.name
+  return 'Continue down the road'
+})
 const zoomTarget = computed(() => {
+  if (consequence.value) return 'Consequence · ' + consequence.value.title
   if (game.activeCard)
     return (
       'Encounter waiting · ' +
@@ -1245,15 +1464,42 @@ async function drawCard() {
   if (!game.draw()) return
   await zoomIntoEncounter()
 }
-async function chooseEncounter(id: string) {
-  if (!game.choose(id)) return
-  cueDiceResult()
-  roadPeek.value = game.bossReady || game.finished
+async function showConsequence(kind: Reveal['kind'], turn?: number) {
+  if (turn === undefined) return
+  reveal.value = { kind, turn }
+  roadPeek.value = false
+  tab.value = 'road'
+  consequenceKey.value++
   await nextTick()
   outcomeHeading.value?.focus()
 }
+async function chooseEncounter(id: string) {
+  if (!game.choose(id)) return
+  cueDiceResult()
+  await showConsequence('encounter', game.lastAuthoredOutcome?.turn)
+}
 function attemptTrialWithCue(id: string) {
-  if (game.attemptTrial(id)) cueDiceResult()
+  if (!game.attemptTrial(id)) return
+  cueDiceResult()
+  void showConsequence('trial', game.lastTrialOutcome?.turn)
+}
+function continueJourney() {
+  reveal.value = null
+  roadPeek.value = false
+}
+function signed(value: number) {
+  return (value > 0 ? '+' : '') + value
+}
+const PIPS: Readonly<Record<number, number[]>> = {
+  1: [4],
+  2: [0, 8],
+  3: [0, 4, 8],
+  4: [0, 2, 6, 8],
+  5: [0, 2, 4, 6, 8],
+  6: [0, 2, 3, 5, 6, 8],
+}
+function pips(face: number) {
+  return PIPS[face] ?? []
 }
 function resolveWithCue(approach: EncounterApproach) {
   if (game.resolve(approach) && approach === 'test') cueDiceResult()
@@ -1312,6 +1558,7 @@ function startOver() {
   confirmNew.value = false
   inspectorOpen.value = false
   roadPeek.value = false
+  reveal.value = null
   tab.value = 'road'
   dealKey.value = 0
 }

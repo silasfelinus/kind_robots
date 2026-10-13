@@ -10,6 +10,7 @@ const SCENE = '/zuzu-gamebook/scenes/'
 const SECTION = '/zuzu-gamebook/scenes/sections/'
 const STAGE = '/zuzu-showdown-stages/'
 const CARD = '/shifting-lands/cards/'
+const OUTCOME = '/shifting-lands/outcomes/'
 
 // zuzu-shifting-lands t-023/t-026: cards whose own painting has been picked
 // from a conductor art round (projects/zuzu-shifting-lands/art/ROUND-*.yaml)
@@ -73,6 +74,32 @@ const bespoke = new Set(BESPOKE_CARDS)
 
 export function bespokeArt(cardId: string): string | null {
   return bespoke.has(cardId) ? CARD + cardId + '.webp' : null
+}
+
+// zuzu-shifting-lands t-028: consequence paintings from art round 2
+// (projects/zuzu-shifting-lands/art/ROUND-2.yaml), one per authored choice
+// and result, exported to public/shifting-lands/outcomes/<key>.webp. Keys are
+// <cardId>--<choiceId>--success|failure, with trial-<landId> as the card id
+// for major trials. An outcome without a painting falls back to its card.
+export const BESPOKE_OUTCOMES: readonly string[] = []
+
+const paintedOutcomes = new Set(BESPOKE_OUTCOMES)
+
+export function outcomeKey(
+  cardId: string,
+  choiceId: string,
+  success: boolean,
+): string {
+  return cardId + '--' + choiceId + '--' + (success ? 'success' : 'failure')
+}
+
+export function outcomeArt(
+  cardId: string,
+  choiceId: string,
+  success: boolean,
+): string | null {
+  const key = outcomeKey(cardId, choiceId, success)
+  return paintedOutcomes.has(key) ? OUTCOME + key + '.webp' : null
 }
 
 export const LAND_SCENERY: Readonly<Record<string, string>> = {

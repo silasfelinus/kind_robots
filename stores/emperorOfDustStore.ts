@@ -75,7 +75,8 @@ export const useEmperorOfDustStore = defineStore('emperorOfDust', () => {
       const rawRelics = localStorage.getItem(RELIC_KEY)
       const savedRelics = decodeRelicVault(rawRelics)
       if (rawRelics && !savedRelics) {
-        storageWarning.value = 'The relic vault could not be read; it was not overwritten.'
+        storageWarning.value =
+          'The relic vault could not be read; it was not overwritten.'
       }
       relicVault.value = savedRelics ?? emptyRelicVault()
       const raw = localStorage.getItem(SAVE_KEY)
@@ -112,7 +113,8 @@ export const useEmperorOfDustStore = defineStore('emperorOfDust', () => {
     try {
       localStorage.setItem(RELIC_KEY, encoded)
     } catch {
-      storageWarning.value = 'Relic unlock could not be saved. No change was made.'
+      storageWarning.value =
+        'Relic unlock could not be saved. No change was made.'
       throw new Error('Browser storage is full or unavailable for relics')
     }
     relicVault.value = next
@@ -151,7 +153,16 @@ export const useEmperorOfDustStore = defineStore('emperorOfDust', () => {
     useHourglass = false,
   ) {
     if (!campaign.value) throw new Error('Load the court first')
-    update(dispatchFollowers(campaign.value, incident, leaders, troops, choice, useHourglass))
+    update(
+      dispatchFollowers(
+        campaign.value,
+        incident,
+        leaders,
+        troops,
+        choice,
+        useHourglass,
+      ),
+    )
   }
 
   function estimate(
@@ -162,7 +173,14 @@ export const useEmperorOfDustStore = defineStore('emperorOfDust', () => {
     useHourglass = false,
   ) {
     if (!campaign.value) throw new Error('Load the court first')
-    return previewDispatch(campaign.value, incident, leaders, troops, choice, useHourglass)
+    return previewDispatch(
+      campaign.value,
+      incident,
+      leaders,
+      troops,
+      choice,
+      useHourglass,
+    )
   }
 
   function ignore(incident: Incident) {

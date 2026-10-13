@@ -14,10 +14,7 @@ import {
   WAN_VAE,
 } from '../../server/api/comfy/wan/utils/imageToVideoWorkflow'
 import { applyVideoLoraChain } from '../../server/api/comfy/utils/videoLoraChain'
-import {
-  promptWithLoraTriggers,
-  videoLoraCompatible,
-} from '../loraSelection'
+import { promptWithLoraTriggers, videoLoraCompatible } from '../loraSelection'
 
 const base: WanImageToVideoInput = {
   prompt: 'a cat',
@@ -71,7 +68,11 @@ function assertModelChain(
   }
 
   assert.deepEqual(walked, expectedNames)
-  assert.deepEqual(ref, [rootId, 0], 'LoRA chain must terminate at its base model')
+  assert.deepEqual(
+    ref,
+    [rootId, 0],
+    'LoRA chain must terminate at its base model',
+  )
 }
 
 // --- mode selection ---------------------------------------------------------
@@ -159,9 +160,15 @@ const a14bLast = buildWanImageToVideoWorkflow({
   ...base,
   lastImageName: 'z.png',
 })
-assert.deepEqual(node(a14bLast, 'WanImageToVideo').inputs.end_image, [
-  'img_last',
-  0,
+// ComfyUI's WanImageToVideo has no end_image input: a pinned last frame goes
+// through WanFirstLastFrameToVideo, which takes both frames.
+assert.ok(!maybeNode(a14bLast, 'WanImageToVideo'))
+const firstLast = node(a14bLast, 'WanFirstLastFrameToVideo')
+assert.deepEqual(firstLast.inputs.start_image, ['img_first', 0])
+assert.deepEqual(firstLast.inputs.end_image, ['img_last', 0])
+assert.deepEqual(nodeById(a14bLast, 'sampler_high').inputs.latent_image, [
+  'wan_i2v',
+  2,
 ])
 
 // A14B has two experts. The same ordered user stack must patch BOTH model paths.

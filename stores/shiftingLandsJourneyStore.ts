@@ -15,11 +15,13 @@ import {
   encounterArt,
   landScenery,
   locationArt,
+  outcomeArt,
   trialArt,
 } from '~/utils/shiftingLands/sceneArt'
 import {
   trialForLand,
   canChooseTrial,
+  type TrialResult,
 } from '~/utils/shiftingLands/authoredBosses'
 import {
   newJourneyLedgerV5,
@@ -43,6 +45,7 @@ import {
 import {
   activeAuthoredEncounter,
   authoredOutcomeForLocation,
+  type AuthoredResult,
 } from '~/utils/shiftingLands/authoredJourney'
 
 const SAVE_KEY = 'kr.shiftingLands.journeyLedger.v5'
@@ -114,6 +117,33 @@ export const useShiftingLandsJourneyStore = defineStore(
       const drawnId = session.value.drawn?.[locationId]
       const encounter = drawnId ? findFiveLandCard(drawnId) : null
       return land ? encounterArt(land.id, encounter, location) : landArt.value
+    }
+    const outcomePlate = (
+      result: AuthoredResult,
+    ): { src: string; painted: boolean } => {
+      const painted = outcomeArt(
+        result.encounterId,
+        result.choiceId,
+        result.roll.success,
+      )
+      return {
+        src: painted ?? playedArt(result.locationId),
+        painted: !!painted,
+      }
+    }
+    const trialPlate = (
+      result: TrialResult,
+    ): { src: string; painted: boolean } => {
+      const land = JOURNEY_WORLD.lands.find((item) => item.id === result.landId)
+      const painted = outcomeArt(
+        'trial-' + result.landId,
+        result.choiceId,
+        result.roll.success,
+      )
+      return {
+        src: painted ?? trialArt(result.landId, land?.boss.art ?? null),
+        painted: !!painted,
+      }
     }
     const lastAuthoredOutcome = computed(
       () => session.value.outcomes[session.value.outcomes.length - 1] ?? null,
@@ -280,6 +310,8 @@ export const useShiftingLandsJourneyStore = defineStore(
       bossArt,
       roadArt,
       playedArt,
+      outcomePlate,
+      trialPlate,
       currentTrial,
       lastTrialOutcome,
       canTrial,

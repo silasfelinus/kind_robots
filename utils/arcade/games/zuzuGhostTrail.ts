@@ -1493,6 +1493,11 @@ class ZuzuGhostTrail implements ArcadeGameInstance {
   private strike(foe: Foe, damage: number, x: number, y: number) {
     foe.hp -= damage
     this.burst(x, y, 4, '#e5e7eb')
+    if (foe.hp > 0 && foe.kind === 'hyena') {
+      // A surviving coyote flinches visibly instead of reading as invincible.
+      this.burst(foe.x, foe.y - FOES.hyena.cy, 4, '#fbbf24')
+      this.sfx('hit', 'pop')
+    }
     if (foe.hp <= 0) this.defeat(foe)
   }
 

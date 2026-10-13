@@ -12,7 +12,7 @@ ARG COMMIT_SHA=unknown
 
 ENV NUXT_TELEMETRY_DISABLED=1 \
     NUXT_PUBLIC_BUILD_ID=$COMMIT_SHA \
-    NODE_OPTIONS=--max-old-space-size=5632
+    NODE_OPTIONS=--max-old-space-size=6144
 
 COPY . .
 

@@ -5,6 +5,7 @@ import { JOURNEY_WORLD } from '../shiftingLands/journey'
 import { findFiveLandCard } from '../shiftingLands/authoredFiveLands'
 import {
   BESPOKE_CARDS,
+  BESPOKE_OUTCOMES,
   ENCOUNTER_ART,
   bespokeArt,
   LAND_SCENERY,
@@ -12,8 +13,11 @@ import {
   TRIAL_ART,
   encounterArt,
   locationArt,
+  outcomeArt,
+  outcomeKey,
   trialArt,
 } from '../shiftingLands/sceneArt'
+import { AUTHORED_TRIALS } from '../shiftingLands/authoredBosses'
 import homestead from '../shiftingLands/authoredHomestead.json'
 import laterLands from '../shiftingLands/authoredLaterLands.json'
 
@@ -84,6 +88,31 @@ for (const id of BESPOKE_CARDS) {
   )
   shipped(bespokeArt(id)!)
 }
+// t-028: every painted consequence names a real card, choice and result, and
+// ships from a served path. Unpainted outcomes fall back to their card art.
+const outcomeKeys = [
+  ...[...homestead.encounters, ...laterLands.encounters].flatMap((card) =>
+    card.choices.flatMap((choice) => [
+      outcomeKey(card.id, choice.id, true),
+      outcomeKey(card.id, choice.id, false),
+    ]),
+  ),
+  ...AUTHORED_TRIALS.flatMap((trial) =>
+    trial.choices.flatMap((choice) => [
+      outcomeKey('trial-' + trial.landId, choice.id, true),
+      outcomeKey('trial-' + trial.landId, choice.id, false),
+    ]),
+  ),
+]
+assert.equal(new Set(outcomeKeys).size, outcomeKeys.length)
+assert.equal(new Set(BESPOKE_OUTCOMES).size, BESPOKE_OUTCOMES.length)
+for (const key of BESPOKE_OUTCOMES) {
+  assert.ok(outcomeKeys.includes(key), key + ' is not an authored outcome')
+  const [card, choice, result] = key.split('--')
+  shipped(outcomeArt(card!, choice!, result === 'success')!)
+}
+assert.equal(outcomeArt('family-at-the-fence', 'not-a-choice', true), null)
+
 for (const land of JOURNEY_WORLD.lands)
   if (BESPOKE_CARDS.includes('trial-' + land.id))
     assert.equal(
@@ -106,6 +135,13 @@ assert.match(board, /:src="game\.roadArt\(card\.id\)"/)
 assert.match(board, /:src="game\.activeArt"/)
 assert.match(board, /:src="game\.bossArt"/)
 assert.match(board, /:src="game\.playedArt\(inspectedCard\.id\)"/)
+assert.match(board, /:src="consequence\.plate\.src"/)
+const store = readFileSync(
+  toPath('../../stores/shiftingLandsJourneyStore.ts'),
+  'utf8',
+)
+assert.match(store, /painted \?\? playedArt\(result\.locationId\)/)
+assert.match(store, /'trial-' \+ result\.landId/)
 for (const back of ['encounter-back.svg', 'trial-back.svg'])
   shipped('/shifting-lands/' + back)
 

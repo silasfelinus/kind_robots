@@ -1,46 +1,147 @@
 <template>
   <div
-    class="kr-scroll journey-shell mx-auto w-full max-w-[1650px] space-y-5 px-3 py-5 sm:px-6"
+    class="journey-shell mx-auto flex min-h-0 w-full max-w-[1650px] flex-1 flex-col gap-2 px-2 pb-2 pt-1 sm:px-4"
     :class="{ 'journey-reduced-motion': reducedMotion }"
   >
     <header
-      class="kr-panel-flat flex flex-wrap items-end justify-between gap-3 px-4 py-3"
+      class="kr-toolbar justify-between rounded-2xl border border-base-content/10 bg-base-100/90 px-3 py-2 shadow-md backdrop-blur"
     >
-      <div>
-        <p class="text-xs font-black uppercase tracking-[.25em] text-warning">
-          Admin playtest · Five-land expedition
+      <div class="min-w-0 flex-1">
+        <p
+          class="truncate text-[10px] font-black uppercase tracking-[.22em] text-warning"
+        >
+          Land {{ game.state.landIndex + 1 }} / 5 · {{ game.currentLand.name }}
         </p>
-        <h1 class="mt-1 font-serif text-3xl font-black sm:text-5xl">
+        <h1
+          class="truncate font-serif text-lg font-black leading-tight sm:text-2xl"
+        >
           Zuzu: Shifting Lands
         </h1>
-        <p class="mt-2 max-w-2xl text-sm opacity-75">
-          Five changing lands. Fifteen encounters. One road that remembers.
-        </p>
       </div>
-      <div class="flex flex-wrap gap-2">
-        <NuxtLink to="/admin/worlds/zuzu" class="btn btn-outline btn-sm"
-          >World Studio</NuxtLink
+      <nav
+        class="journey-tabs order-last flex w-full gap-1 rounded-xl bg-base-200/80 p-1"
+        role="tablist"
+        aria-label="Journey views"
+      >
+        <button
+          v-for="item in tabs"
+          :key="item.value"
+          type="button"
+          role="tab"
+          class="flex flex-1 items-center justify-center gap-1.5 rounded-xl px-3 py-1.5 text-sm font-bold transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary"
+          :class="[
+            item.value === 'road' ? 'journey-road-tab' : '',
+            item.value === 'zuzu' && tab === 'road'
+              ? 'journey-side-default'
+              : '',
+            isTabActive(item.value)
+              ? 'bg-primary text-primary-content shadow'
+              : 'opacity-75 hover:bg-base-200',
+          ]"
+          :aria-selected="isTabActive(item.value)"
+          @click="tab = item.value"
         >
+          <Icon :name="item.icon" class="size-4" />
+          {{ item.label }}
+          <span
+            v-if="item.value === 'road' && zoomTarget && tab !== 'road'"
+            class="size-2 rounded-full bg-warning"
+            aria-label="Encounter waiting"
+          />
+        </button>
+      </nav>
+      <div class="flex shrink-0 items-center gap-1.5">
         <button
           type="button"
-          class="btn btn-outline btn-sm"
-          @click="emit('legacy')"
+          class="inline-flex h-8 items-center gap-1 rounded-full border border-base-content/15 bg-base-200 px-2 text-xs font-black focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary"
+          :aria-label="
+            'Health ' +
+            game.characterSheet.hp +
+            ' of ' +
+            game.characterSheet.maxHp +
+            '. Open character sheet'
+          "
+          @click="tab = 'zuzu'"
         >
-          Homestead workshop
+          <Icon name="kind-icon:heart" class="size-3.5 text-error" />
+          {{ game.characterSheet.hp }}/{{ game.characterSheet.maxHp }}
         </button>
         <button
           type="button"
-          class="btn btn-primary btn-sm"
-          @click="confirmNew = !confirmNew"
+          class="inline-flex h-8 items-center gap-1 rounded-full border border-base-content/15 bg-base-200 px-2 text-xs font-black focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary"
+          :aria-label="
+            game.characterSheet.provisions + ' provisions. Open character sheet'
+          "
+          @click="tab = 'zuzu'"
         >
-          New journey
+          <Icon name="kind-icon:bag" class="size-3.5 text-warning" />
+          {{ game.characterSheet.provisions }}
         </button>
+        <details ref="menu" class="dropdown dropdown-end">
+          <summary
+            class="btn btn-square btn-ghost btn-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary"
+            aria-label="Journey menu"
+          >
+            <Icon name="kind-icon:settings" class="size-5" />
+          </summary>
+          <div
+            class="dropdown-content z-30 mt-2 w-64 space-y-2 rounded-2xl border border-base-content/15 bg-base-100 p-3 shadow-2xl"
+          >
+            <NuxtLink
+              to="/admin/worlds/zuzu"
+              class="btn btn-outline btn-sm w-full"
+              >World Studio</NuxtLink
+            >
+            <button
+              type="button"
+              class="btn btn-outline btn-sm w-full"
+              @click="emit('legacy')"
+            >
+              Homestead workshop
+            </button>
+            <button
+              type="button"
+              class="btn btn-primary btn-sm w-full"
+              @click="askNewJourney"
+            >
+              New journey
+            </button>
+            <p
+              class="pt-1 text-[10px] font-black uppercase tracking-widest opacity-60"
+            >
+              Presentation · never changes dice
+            </p>
+            <div
+              class="grid grid-cols-2 gap-2"
+              aria-label="Animation and dice sound settings"
+            >
+              <button
+                type="button"
+                class="btn btn-xs"
+                :class="reducedMotion ? 'btn-outline' : 'btn-primary'"
+                :aria-pressed="!reducedMotion"
+                @click="setReducedMotion(!reducedMotion)"
+              >
+                {{ reducedMotion ? 'Motion off' : 'Motion on' }}
+              </button>
+              <button
+                type="button"
+                class="btn btn-xs"
+                :class="soundEnabled ? 'btn-primary' : 'btn-outline'"
+                :aria-pressed="soundEnabled"
+                @click="setSoundEnabled(!soundEnabled)"
+              >
+                {{ soundEnabled ? 'Dice sound on' : 'Dice muted' }}
+              </button>
+            </div>
+          </div>
+        </details>
       </div>
     </header>
 
     <div
       v-if="!game.loaded"
-      class="grid min-h-96 place-items-center"
+      class="grid min-h-0 flex-1 place-items-center"
       aria-live="polite"
     >
       <span class="kr-spinner-lg-primary" />
@@ -49,155 +150,620 @@
       <div
         v-if="game.restoreWarning"
         role="status"
-        class="kr-note kr-note-warning p-3 text-sm"
+        class="kr-note kr-note-warning shrink-0 px-3 py-2 text-xs"
       >
-        The previous journey could not be restored or saved with the current
-        rules. Its source may have changed. You can start a new expedition; the
-        older Homestead save is untouched.
+        The previous journey could not be restored with the current rules. Start
+        a new expedition; the older Homestead save is untouched.
       </div>
       <div
         v-if="confirmNew"
-        class="rounded-2xl border border-warning/50 bg-base-200 p-4 text-sm"
+        class="flex shrink-0 flex-wrap items-center gap-2 rounded-2xl border border-warning/50 bg-base-100/95 px-3 py-2 text-sm"
         role="alert"
       >
-        <p class="font-bold">Replace this five-land expedition?</p>
-        <p class="mt-1 opacity-75">
-          The current journey will be replaced. Your separate Homestead workshop
-          save remains intact.
-        </p>
-        <div class="mt-3 flex flex-wrap gap-2">
-          <button type="button" class="btn btn-error btn-sm" @click="startOver">
-            Start fresh
-          </button>
-          <button
-            type="button"
-            class="btn btn-ghost btn-sm"
-            @click="confirmNew = false"
+        <p class="min-w-0 flex-1 font-bold">
+          Replace this expedition?
+          <span class="font-normal opacity-70"
+            >The Homestead workshop save stays.</span
           >
-            Keep journey
-          </button>
-        </div>
+        </p>
+        <button type="button" class="btn btn-error btn-xs" @click="startOver">
+          Start fresh
+        </button>
+        <button
+          type="button"
+          class="btn btn-ghost btn-xs"
+          @click="confirmNew = false"
+        >
+          Keep journey
+        </button>
       </div>
 
-      <section
-        class="relative isolate overflow-hidden rounded-3xl border border-base-content/15 bg-base-300 shadow-2xl"
-      >
-        <img
-          :src="landAtmosphere"
-          :alt="game.currentLand.name + ' landscape'"
-          class="absolute inset-0 size-full object-cover object-center opacity-60"
-        />
-        <div
-          class="absolute inset-0 bg-gradient-to-r from-base-300 via-base-300/70 to-base-300/15"
-        />
-        <div
-          class="relative flex min-h-60 flex-col justify-end gap-5 p-5 sm:min-h-80 sm:p-8"
+      <div class="kr-panes journey-layout gap-2">
+        <section
+          class="kr-pane relative isolate rounded-3xl border border-base-content/15 bg-base-300 shadow-2xl"
+          :class="tab === 'road' ? '' : 'journey-hidden-narrow'"
+          aria-label="The illustrated travel board"
         >
-          <div>
-            <p
-              class="text-xs font-black uppercase tracking-[.3em] text-warning"
-            >
-              Land {{ game.state.landIndex + 1 }} / 5 ·
-              {{
-                game.state.phase === 'boss'
-                  ? 'The final trial awaits'
-                  : 'An unwritten trail'
-              }}
-            </p>
-            <h2
-              class="mt-2 max-w-4xl font-serif text-3xl font-black sm:text-5xl"
-            >
-              {{ game.currentLand.name }}
-            </h2>
-            <p class="mt-2 text-sm font-medium opacity-85">
-              {{ game.resolved.length }} / 3 encounters ·
-              {{ game.state.bosses.length }} / 5 trials cleared
-            </p>
-          </div>
-          <ol
-            class="flex w-full gap-2 overflow-x-auto pb-1"
-            aria-label="Five-land expedition route"
+          <img
+            :src="landAtmosphere"
+            :alt="game.currentLand.name + ' landscape'"
+            class="absolute inset-0 -z-10 size-full object-cover object-center opacity-75"
+          />
+          <div
+            class="absolute inset-0 -z-10 bg-gradient-to-b from-base-300/40 via-base-300/55 to-base-300/90"
+          />
+
+          <div
+            v-if="zoomed && consequence"
+            class="kr-pane-scroll"
+            aria-label="Consequence of your choice"
           >
-            <li
-              v-for="(land, index) in game.world.lands"
-              :key="land.id"
-              class="min-w-[132px] flex-1"
-            >
+            <div class="encounter-grid min-h-full">
               <div
-                class="rounded-xl border px-3 py-2 backdrop-blur-sm"
-                :class="
-                  index === game.state.landIndex
-                    ? 'border-warning bg-base-100/85 shadow-xl'
-                    : index < game.state.landIndex
-                      ? 'border-success/60 bg-base-100/75'
-                      : 'border-base-content/20 bg-base-300/75'
-                "
-                :aria-current="
-                  index === game.state.landIndex ? 'step' : undefined
-                "
+                class="relative aspect-[16/10] overflow-hidden bg-base-300 encounter-art"
               >
+                <div class="absolute inset-0">
+                  <FlipCard
+                    :trigger-key="consequenceKey"
+                    :reveal-on-trigger="true"
+                    :duration-ms="reducedMotion ? 0 : 650"
+                    radius="0"
+                  >
+                    <template #front>
+                      <img
+                        :src="consequence.plate.src"
+                        :alt="consequence.title + ': ' + consequence.choice"
+                        class="size-full object-cover"
+                        :class="
+                          consequence.plate.painted
+                            ? ''
+                            : consequence.success
+                              ? 'saturate-125'
+                              : 'grayscale-[55%]'
+                        "
+                      />
+                    </template>
+                    <template #back>
+                      <img
+                        :src="
+                          consequence.kind === 'trial'
+                            ? '/shifting-lands/trial-back.svg'
+                            : '/shifting-lands/encounter-back.svg'
+                        "
+                        alt=""
+                        class="size-full object-cover"
+                      />
+                    </template>
+                  </FlipCard>
+                </div>
+                <div
+                  v-if="!consequence.plate.painted"
+                  class="pointer-events-none absolute inset-0 bg-gradient-to-t to-transparent"
+                  :class="
+                    consequence.success
+                      ? 'from-warning/45 via-warning/10'
+                      : 'from-error/55 via-black/25'
+                  "
+                />
                 <span
-                  class="text-[10px] font-bold uppercase tracking-widest opacity-70"
+                  class="absolute right-3 top-3 rounded-full px-3 py-1 font-serif text-sm font-black uppercase tracking-widest shadow-lg"
+                  :class="
+                    consequence.success
+                      ? 'bg-success text-success-content'
+                      : 'bg-error text-error-content'
+                  "
                 >
-                  {{
-                    index < game.state.landIndex
-                      ? 'Cleared'
-                      : index === game.state.landIndex
-                        ? 'Current land'
-                        : 'Uncharted'
-                  }}
+                  {{ consequence.success ? 'Success' : 'Failure' }}
                 </span>
-                <div class="mt-1 flex items-center gap-2">
-                  <Icon
-                    :name="
-                      index < game.state.landIndex
-                        ? 'kind-icon:check'
-                        : index === game.state.landIndex
-                          ? 'kind-icon:map'
-                          : 'kind-icon:lock'
+                <button
+                  type="button"
+                  class="absolute left-3 top-3 inline-flex items-center gap-1 rounded-full bg-black/75 px-3 py-1.5 text-xs font-bold text-white shadow-lg backdrop-blur focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary"
+                  aria-label="Zoom out to the road"
+                  @click="roadPeek = true"
+                >
+                  <Icon name="kind-icon:map" class="size-4" /> Road
+                </button>
+              </div>
+              <div
+                class="flex flex-col justify-center gap-3 bg-base-200/95 p-4 sm:p-6"
+                aria-live="polite"
+              >
+                <p
+                  class="text-[10px] font-black uppercase tracking-[.25em] text-warning"
+                >
+                  {{ consequence.title }} · You chose
+                </p>
+                <p class="-mt-2 font-bold leading-snug">
+                  {{ consequence.choice }}
+                </p>
+                <div
+                  :key="consequenceKey"
+                  class="flex flex-wrap items-center gap-2"
+                  :class="reducedMotion ? '' : 'journey-dice-reveal'"
+                  :aria-label="
+                    'Rolled ' +
+                    consequence.roll.dice.join(' and ') +
+                    ' plus ' +
+                    consequence.roll.modifier +
+                    ', total ' +
+                    consequence.roll.total +
+                    ' against ' +
+                    consequence.roll.difficulty
+                  "
+                >
+                  <span
+                    v-for="(face, index) in consequence.roll.dice"
+                    :key="index"
+                    class="grid size-11 grid-cols-3 grid-rows-3 gap-0.5 rounded-lg border-2 border-base-content/30 bg-base-100 p-1.5 shadow"
+                    aria-hidden="true"
+                  >
+                    <span
+                      v-for="spot in 9"
+                      :key="spot"
+                      class="rounded-full"
+                      :class="
+                        pips(face).includes(spot - 1) ? 'bg-base-content' : ''
+                      "
+                    />
+                  </span>
+                  <span class="text-sm font-bold">
+                    + {{ consequence.roll.modifier }}
+                    <span class="capitalize opacity-70">{{
+                      consequence.roll.skill
+                    }}</span>
+                    = {{ consequence.roll.total }}
+                    <span class="opacity-70"
+                      >vs {{ consequence.roll.difficulty }}</span
+                    >
+                  </span>
+                </div>
+                <h3
+                  ref="outcomeHeading"
+                  tabindex="-1"
+                  class="font-serif text-lg font-bold leading-snug outline-none focus-visible:ring-2 focus-visible:ring-primary sm:text-2xl"
+                >
+                  {{ consequence.text }}
+                </h3>
+                <div class="flex flex-wrap gap-2 text-xs font-black">
+                  <span
+                    class="inline-flex items-center gap-1 rounded-full border px-2.5 py-1"
+                    :class="
+                      consequence.hp < 0
+                        ? 'border-error/50 text-error'
+                        : consequence.hp > 0
+                          ? 'border-success/50 text-success'
+                          : 'border-base-content/20 opacity-70'
                     "
-                    class="size-4 shrink-0"
-                  />
-                  <span class="text-xs font-bold">
-                    {{
+                  >
+                    <Icon name="kind-icon:heart" class="size-3.5" />
+                    Health {{ signed(consequence.hp) }}
+                  </span>
+                  <span
+                    class="inline-flex items-center gap-1 rounded-full border px-2.5 py-1"
+                    :class="
+                      consequence.provisions < 0
+                        ? 'border-error/50 text-error'
+                        : consequence.provisions > 0
+                          ? 'border-success/50 text-success'
+                          : 'border-base-content/20 opacity-70'
+                    "
+                  >
+                    <Icon name="kind-icon:bag" class="size-3.5" />
+                    Provisions {{ signed(consequence.provisions) }}
+                  </span>
+                </div>
+                <button
+                  type="button"
+                  class="btn btn-primary self-start"
+                  @click="continueJourney"
+                >
+                  {{ continueLabel }}
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div
+            v-else-if="zoomed && game.activeCard"
+            class="kr-pane-scroll"
+            aria-label="Current encounter"
+          >
+            <div class="encounter-grid min-h-full">
+              <div
+                class="relative aspect-[16/10] overflow-hidden bg-base-300 encounter-art"
+              >
+                <div class="absolute inset-0">
+                  <FlipCard
+                    :trigger-key="dealKey"
+                    :reveal-on-trigger="true"
+                    :duration-ms="reducedMotion ? 0 : 650"
+                    radius="0"
+                  >
+                    <template #front>
+                      <img
+                        :src="game.activeArt"
+                        :alt="
+                          game.activeEncounter?.title || game.activeCard.label
+                        "
+                        class="size-full object-cover"
+                      />
+                    </template>
+                    <template #back>
+                      <img
+                        src="/shifting-lands/encounter-back.svg"
+                        alt=""
+                        class="size-full object-cover"
+                      />
+                    </template>
+                  </FlipCard>
+                </div>
+                <button
+                  type="button"
+                  class="absolute left-3 top-3 inline-flex items-center gap-1 rounded-full bg-black/75 px-3 py-1.5 text-xs font-bold text-white shadow-lg backdrop-blur focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary"
+                  aria-label="Zoom out to the road"
+                  @click="roadPeek = true"
+                >
+                  <Icon name="kind-icon:map" class="size-4" /> Road
+                </button>
+              </div>
+              <div
+                class="flex flex-col justify-center gap-3 bg-base-200/95 p-4 sm:p-6"
+              >
+                <div>
+                  <p
+                    class="text-[10px] font-black uppercase tracking-[.25em] text-warning"
+                  >
+                    {{ game.currentLand.name }} · Encounter
+                  </p>
+                  <h3
+                    ref="encounterHeading"
+                    tabindex="-1"
+                    class="mt-1 font-serif text-xl font-black leading-tight outline-none focus-visible:ring-2 focus-visible:ring-primary sm:text-3xl"
+                  >
+                    {{ game.activeEncounter?.title || game.activeCard.label }}
+                  </h3>
+                  <p class="mt-2 text-sm leading-relaxed opacity-85">
+                    {{ game.activeEncounter?.flavor || game.activeCard.teaser }}
+                  </p>
+                </div>
+                <div
+                  v-if="game.activeEncounter"
+                  class="grid grid-cols-[repeat(auto-fit,minmax(min(100%,220px),1fr))] gap-2"
+                >
+                  <button
+                    v-for="option in game.activeEncounter.choices"
+                    :key="option.id"
+                    type="button"
+                    class="group flex w-full flex-col gap-1 rounded-xl border border-base-content/20 bg-base-300 p-3 text-left transition-colors hover:border-warning focus-visible:outline focus-visible:outline-4 focus-visible:outline-primary"
+                    @click="chooseEncounter(option.id)"
+                  >
+                    <span class="flex items-start justify-between gap-2">
+                      <strong
+                        class="text-sm leading-snug group-hover:text-warning sm:text-base"
+                        >{{ option.label }}</strong
+                      >
+                      <span
+                        class="inline-flex shrink-0 items-center gap-1 rounded-lg border border-warning/40 px-1.5 py-0.5 text-[11px] font-bold capitalize"
+                        ><Icon name="kind-icon:dice" class="size-3.5" />
+                        {{ option.roll.skill }} · {{ option.roll.target }}</span
+                      >
+                    </span>
+                    <span class="text-sm">{{ option.intent }}</span>
+                    <span class="text-xs opacity-65">{{ option.risk }}</span>
+                  </button>
+                </div>
+                <template v-else>
+                  <p
+                    class="rounded-xl border border-base-content/15 bg-base-300/65 px-3 py-2 text-xs"
+                  >
+                    Original expedition rules:
+                    <strong class="capitalize">{{
+                      game.activeCard.skill
+                    }}</strong>
+                    check, target
+                    <strong>{{ game.activeCard.difficulty }}</strong
+                    >, roll 2d6 + skill. Start a new journey to play authored
+                    cards.
+                  </p>
+                  <div class="grid grid-cols-2 gap-2">
+                    <button
+                      type="button"
+                      class="btn btn-primary"
+                      @click="resolveWithCue('test')"
+                    >
+                      <Icon name="kind-icon:dice" class="size-5" /> Roll
+                    </button>
+                    <button
+                      type="button"
+                      class="btn btn-outline"
+                      @click="resolveWithCue('withdraw')"
+                    >
+                      Withdraw
+                    </button>
+                  </div>
+                </template>
+              </div>
+            </div>
+          </div>
+
+          <div
+            v-else-if="zoomed && game.bossReady"
+            class="kr-pane-scroll"
+            aria-label="Major trial"
+          >
+            <div class="encounter-grid min-h-full">
+              <div
+                class="relative aspect-[16/10] overflow-hidden bg-base-300 encounter-art"
+              >
+                <img
+                  :src="game.bossArt"
+                  :alt="game.currentLand.boss.label"
+                  class="absolute inset-0 size-full object-cover"
+                />
+                <div
+                  class="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/90 to-transparent p-4 text-white"
+                >
+                  <p
+                    class="text-[10px] font-black uppercase tracking-widest opacity-80"
+                  >
+                    Major trial · {{ game.state.landIndex + 1 }} / 5
+                  </p>
+                  <h3
+                    class="mt-1 font-serif text-2xl font-black leading-tight sm:text-3xl"
+                  >
+                    {{ game.currentLand.boss.label }}
+                  </h3>
+                </div>
+                <button
+                  type="button"
+                  class="absolute left-3 top-3 inline-flex items-center gap-1 rounded-full bg-black/75 px-3 py-1.5 text-xs font-bold text-white shadow-lg backdrop-blur focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary"
+                  aria-label="Zoom out to the road"
+                  @click="roadPeek = true"
+                >
+                  <Icon name="kind-icon:map" class="size-4" /> Road
+                </button>
+              </div>
+              <div
+                class="flex flex-col justify-center gap-3 bg-base-200/95 p-4 sm:p-6"
+              >
+                <p class="text-sm leading-relaxed">
+                  {{
+                    game.currentTrial?.flavor || game.currentLand.boss.teaser
+                  }}
+                </p>
+                <template v-if="game.currentTrial">
+                  <div
+                    class="grid grid-cols-[repeat(auto-fit,minmax(min(100%,220px),1fr))] gap-2"
+                    aria-label="Authored trial approaches"
+                  >
+                    <button
+                      v-for="choice in game.currentTrial.choices"
+                      :key="choice.id"
+                      type="button"
+                      class="group flex w-full flex-col gap-1 rounded-xl border border-base-content/20 bg-base-300 p-3 text-left transition-colors hover:border-warning focus-visible:outline focus-visible:outline-4 focus-visible:outline-primary disabled:cursor-not-allowed disabled:opacity-55"
+                      :disabled="!game.canTrial(choice.id)"
+                      @click="attemptTrialWithCue(choice.id)"
+                    >
+                      <span class="flex items-start justify-between gap-2">
+                        <strong class="text-sm leading-snug sm:text-base">{{
+                          choice.label
+                        }}</strong>
+                        <span
+                          class="inline-flex shrink-0 items-center gap-1 rounded-lg border border-warning/40 px-1.5 py-0.5 text-[11px] font-bold capitalize"
+                          ><Icon name="kind-icon:dice" class="size-3.5" />
+                          {{ choice.skill }} · {{ choice.target }}</span
+                        >
+                      </span>
+                      <span class="text-sm opacity-85">{{
+                        choice.intent
+                      }}</span>
+                      <span
+                        v-if="
+                          choice.cost ||
+                          (choice.requiredAnyFlags.length &&
+                            !game.canTrial(choice.id))
+                        "
+                        class="text-xs font-semibold opacity-70"
+                      >
+                        <template v-if="choice.cost"
+                          >Costs {{ choice.cost }} provision</template
+                        >
+                        <template
+                          v-if="
+                            choice.requiredAnyFlags.length &&
+                            !game.canTrial(choice.id)
+                          "
+                        >
+                          Requires discovered evidence</template
+                        >
+                      </span>
+                    </button>
+                  </div>
+                  <div
+                    v-if="game.lastTrialOutcome?.landId === game.currentLand.id"
+                    class="rounded-xl border border-warning/40 bg-base-300 p-3"
+                    role="status"
+                    aria-live="polite"
+                  >
+                    <p class="font-serif text-sm font-bold">
+                      {{
+                        game.lastTrialOutcome.roll.success
+                          ? 'Trial passed'
+                          : 'Trial repelled'
+                      }}
+                    </p>
+                    <p class="mt-1 text-sm leading-relaxed">
+                      {{ game.lastTrialOutcome.resultText }}
+                    </p>
+                    <p class="mt-1 text-xs opacity-75">
+                      {{ game.lastTrialOutcome.roll.dice.join(' + ') }} +
+                      {{ game.lastTrialOutcome.roll.modifier }} =
+                      {{ game.lastTrialOutcome.roll.total }} vs
+                      {{ game.lastTrialOutcome.roll.difficulty }}
+                      · HP {{ game.lastTrialOutcome.hpChange }} · Provisions
+                      {{ game.lastTrialOutcome.provisionChange }}
+                    </p>
+                  </div>
+                </template>
+                <div v-else class="grid grid-cols-2 gap-2">
+                  <button
+                    type="button"
+                    class="btn btn-primary h-auto min-h-12 py-2"
+                    @click="confrontWithCue('challenge')"
+                  >
+                    Challenge · Steel +3 · {{ 9 + game.state.landIndex }}
+                  </button>
+                  <button
+                    type="button"
+                    class="btn btn-outline h-auto min-h-12 py-2"
+                    :disabled="game.state.provisions < 1"
+                    @click="confrontWithCue('parley')"
+                  >
+                    Parley · Bearing +2 · 1 provision
+                  </button>
+                </div>
+                <button
+                  type="button"
+                  class="btn btn-ghost btn-sm self-start"
+                  @click="game.confront('retreat')"
+                >
+                  Retire from the expedition
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div
+            v-else-if="zoomed && game.finished"
+            class="kr-pane-scroll"
+            aria-label="Journey complete"
+          >
+            <div class="encounter-grid min-h-full">
+              <div
+                class="relative aspect-[16/10] overflow-hidden bg-base-300 encounter-art"
+              >
+                <img
+                  src="/zuzu-gamebook/scenes/zuzu-alone.webp"
+                  alt="Zuzu the ronin at journey's end"
+                  class="absolute inset-0 size-full object-cover"
+                />
+                <button
+                  type="button"
+                  class="absolute left-3 top-3 inline-flex items-center gap-1 rounded-full bg-black/75 px-3 py-1.5 text-xs font-bold text-white shadow-lg backdrop-blur focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary"
+                  aria-label="Zoom out to the road"
+                  @click="roadPeek = true"
+                >
+                  <Icon name="kind-icon:map" class="size-4" /> Road
+                </button>
+              </div>
+              <div
+                class="flex flex-col justify-center gap-3 bg-base-200/95 p-4 sm:p-6"
+              >
+                <p
+                  class="text-[10px] font-black uppercase tracking-[.25em] text-warning"
+                >
+                  Journey complete
+                </p>
+                <h3 class="font-serif text-2xl font-black sm:text-3xl">
+                  {{ endTitle }}
+                </h3>
+                <p class="text-sm opacity-80">
+                  {{ game.state.journal[game.state.journal.length - 1]?.text }}
+                </p>
+                <p class="text-sm">
+                  {{ game.state.resolved.length }} encounters visited ·
+                  {{ game.state.bosses.length }} trials cleared
+                </p>
+                <button
+                  type="button"
+                  class="btn btn-primary self-start"
+                  @click="confirmNew = true"
+                >
+                  Begin another journey
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div v-else class="kr-pane-scroll">
+            <div
+              class="mx-auto flex min-h-full max-w-4xl flex-col justify-center gap-3 p-3 sm:p-5"
+            >
+              <button
+                v-if="zoomTarget"
+                type="button"
+                class="flex items-center justify-between gap-2 rounded-xl border border-warning/60 bg-base-100/90 px-3 py-2 text-left text-sm font-bold shadow focus-visible:outline focus-visible:outline-4 focus-visible:outline-primary"
+                @click="roadPeek = false"
+              >
+                <span>{{ zoomTarget }}</span>
+                <span class="inline-flex items-center gap-1 text-warning"
+                  ><Icon name="kind-icon:expand" class="size-4" /> Zoom in</span
+                >
+              </button>
+
+              <div class="flex items-end justify-between gap-3">
+                <div class="min-w-0">
+                  <h2
+                    class="truncate font-serif text-2xl font-black leading-tight sm:text-4xl"
+                  >
+                    {{ game.currentLand.name }}
+                  </h2>
+                  <p class="text-xs font-medium opacity-80">
+                    {{ game.resolved.length }} / 3 roads ·
+                    {{ game.state.bosses.length }} / 5 trials
+                    <template v-if="game.state.phase === 'boss'">
+                      · The trial awaits</template
+                    >
+                  </p>
+                </div>
+                <ol
+                  class="flex shrink-0 gap-1"
+                  aria-label="Five-land expedition route"
+                >
+                  <li
+                    v-for="(land, index) in game.world.lands"
+                    :key="land.id"
+                    class="grid size-7 place-items-center rounded-full border text-[10px] font-black"
+                    :class="
+                      index === game.state.landIndex
+                        ? 'border-warning bg-warning text-warning-content'
+                        : index < game.state.landIndex
+                          ? 'border-success/60 bg-success/25'
+                          : 'border-base-content/25 bg-base-100/60 opacity-70'
+                    "
+                    :aria-current="
+                      index === game.state.landIndex ? 'step' : undefined
+                    "
+                    :aria-label="
+                      index > game.state.landIndex
+                        ? 'Land ' + (index + 1) + ', uncharted'
+                        : land.name +
+                          (index < game.state.landIndex
+                            ? ', cleared'
+                            : ', current land')
+                    "
+                    :title="
                       index > game.state.landIndex
                         ? 'Land ' + (index + 1)
                         : land.name
-                    }}
-                  </span>
-                </div>
+                    "
+                  >
+                    <Icon
+                      v-if="index < game.state.landIndex"
+                      name="kind-icon:check"
+                      class="size-3.5"
+                    />
+                    <template v-else>{{ index + 1 }}</template>
+                  </li>
+                </ol>
               </div>
-            </li>
-          </ol>
-        </div>
-      </section>
 
-      <div class="journey-layout items-start gap-4">
-        <div class="min-w-0 space-y-5">
-          <section class="space-y-3" aria-label="The illustrated travel board">
-            <div class="flex flex-wrap items-end justify-between gap-2">
-              <div>
-                <h2 class="font-serif text-2xl font-black">The roads ahead</h2>
-                <p class="text-xs opacity-70">
-                  Reachable paths glow gold. Face-down cards remember what you
-                  have not discovered.
-                </p>
-              </div>
-              <span class="badge badge-outline"
-                >{{ game.resolved.length }} / 3 visited</span
-              >
-            </div>
-            <div
-              class="grid grid-cols-[repeat(auto-fit,minmax(min(100%,145px),1fr))] gap-3"
-            >
-              <div
-                v-for="(card, index) in game.locations"
-                :key="card.id"
-                class="relative min-w-0"
-              >
+              <div class="grid grid-cols-4 gap-2 sm:gap-3">
                 <button
+                  v-for="(card, index) in game.locations"
+                  :key="card.id"
                   type="button"
-                  class="group relative block w-full overflow-hidden rounded-2xl border text-left shadow-lg transition-transform motion-safe:hover:-translate-y-1 focus-visible:outline focus-visible:outline-4 focus-visible:outline-primary"
+                  class="group relative block w-full min-w-0 overflow-hidden rounded-xl border text-left shadow-lg transition-transform motion-safe:hover:-translate-y-1 focus-visible:outline focus-visible:outline-4 focus-visible:outline-primary sm:rounded-2xl"
                   :class="
                     game.state.active === card.id
                       ? 'border-warning ring-2 ring-warning/60'
@@ -231,718 +797,387 @@
                       class="size-full object-cover"
                     />
                     <div
-                      class="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/95 via-black/70 to-transparent p-3 text-white"
+                      class="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/95 via-black/70 to-transparent px-1.5 pb-1.5 pt-6 text-white sm:p-3"
                     >
-                      <span
-                        class="text-[10px] uppercase tracking-widest opacity-75"
-                        >Road {{ index + 1 }}</span
+                      <p
+                        class="line-clamp-2 font-serif text-[11px] font-bold leading-tight sm:text-sm"
                       >
-                      <p class="mt-1 font-serif text-sm font-bold sm:text-base">
-                        {{ revealed(card.id) ? card.label : 'Uncharted' }}
+                        {{
+                          revealed(card.id) ? card.label : 'Road ' + (index + 1)
+                        }}
                       </p>
                       <span
                         v-if="visited(card.id)"
-                        class="mt-2 inline-block rounded bg-success px-2 py-0.5 text-[10px] font-bold text-success-content"
+                        class="mt-1 inline-block rounded px-1.5 py-px text-[9px] font-bold uppercase tracking-wide sm:text-[10px] bg-success text-success-content"
                       >
-                        Visited · inspect
+                        Visited
                       </span>
                       <span
                         v-else-if="game.state.active === card.id"
-                        class="mt-2 inline-block rounded bg-warning px-2 py-0.5 text-[10px] font-bold text-warning-content"
+                        class="mt-1 inline-block rounded px-1.5 py-px text-[9px] font-bold uppercase tracking-wide sm:text-[10px] bg-warning text-warning-content"
                       >
-                        Encounter active
+                        Active
                       </span>
                       <span
                         v-else-if="game.reachable.includes(card.id)"
-                        class="mt-2 inline-block rounded bg-warning/85 px-2 py-0.5 text-[10px] font-bold text-warning-content"
+                        class="mt-1 inline-block rounded px-1.5 py-px text-[9px] font-bold uppercase tracking-wide sm:text-[10px] bg-warning/85 text-warning-content"
                       >
-                        Travel here
+                        Travel
+                      </span>
+                    </div>
+                  </div>
+                </button>
+                <button
+                  type="button"
+                  class="relative block w-full min-w-0 overflow-hidden rounded-xl border border-base-content/15 bg-base-200 text-left shadow-lg focus-visible:outline focus-visible:outline-4 focus-visible:outline-primary sm:rounded-2xl"
+                  :class="game.bossReady ? 'ring-2 ring-warning/75' : ''"
+                  :disabled="!game.bossReady"
+                  :aria-label="
+                    game.bossReady
+                      ? 'Face ' + game.currentLand.boss.label
+                      : 'Sealed trial'
+                  "
+                  @click="roadPeek = false"
+                >
+                  <div class="relative aspect-[2/3]">
+                    <img
+                      v-if="game.bossReady || bossCleared"
+                      :src="game.bossArt"
+                      :alt="game.currentLand.boss.label"
+                      class="size-full object-cover"
+                    />
+                    <img
+                      v-else
+                      src="/shifting-lands/trial-back.svg"
+                      alt="Sealed boss card"
+                      class="size-full object-cover"
+                    />
+                    <div
+                      class="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/95 via-black/70 to-transparent px-1.5 pb-1.5 pt-6 text-white sm:p-3"
+                    >
+                      <p
+                        class="line-clamp-2 font-serif text-[11px] font-bold leading-tight sm:text-sm"
+                      >
+                        {{
+                          game.bossReady || bossCleared
+                            ? game.currentLand.boss.label
+                            : 'The final gate'
+                        }}
+                      </p>
+                      <span
+                        class="mt-1 inline-block rounded px-1.5 py-px text-[9px] font-bold uppercase tracking-wide sm:text-[10px]"
+                        :class="
+                          bossCleared
+                            ? 'bg-success text-success-content'
+                            : game.bossReady
+                              ? 'bg-warning text-warning-content'
+                              : 'bg-base-100/80 text-base-content'
+                        "
+                      >
+                        {{
+                          bossCleared
+                            ? 'Cleared'
+                            : game.bossReady
+                              ? 'Unlocked'
+                              : 'Sealed'
+                        }}
                       </span>
                     </div>
                   </div>
                 </button>
               </div>
-              <div
-                class="relative overflow-hidden rounded-2xl border border-base-content/15 bg-base-200 shadow-lg"
-                :class="game.bossReady ? 'ring-2 ring-warning/75' : ''"
-              >
-                <div class="relative aspect-[2/3]">
-                  <img
-                    v-if="game.bossReady || bossCleared"
-                    :src="game.bossArt"
-                    :alt="game.currentLand.boss.label"
-                    class="size-full object-cover"
-                  />
-                  <img
-                    v-else
-                    src="/shifting-lands/trial-back.svg"
-                    alt="Sealed boss card"
-                    class="size-full object-cover"
-                  />
-                  <div
-                    class="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/95 via-black/70 to-transparent p-3 text-white"
-                  >
-                    <span
-                      class="text-[10px] font-bold uppercase tracking-widest"
-                    >
-                      {{
-                        bossCleared
-                          ? 'Trial cleared'
-                          : game.bossReady
-                            ? 'Trial unlocked'
-                            : 'Sealed trial'
-                      }}
-                    </span>
-                    <p class="mt-1 font-serif text-sm font-bold sm:text-base">
-                      {{
-                        game.bossReady || bossCleared
-                          ? game.currentLand.boss.label
-                          : 'The final gate'
-                      }}
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <p
-              v-if="game.currentShift"
-              role="status"
-              class="rounded-xl border border-warning/30 bg-base-200 px-4 py-3 text-sm"
-            >
-              <Icon
-                name="kind-icon:map"
-                class="mr-1 inline size-4 text-warning"
-              />
-              <strong>The land shifted:</strong> {{ game.currentShift.reason }}
-              <span class="opacity-65">Earlier visits remain recorded.</span>
-            </p>
-          </section>
 
-          <section
-            class="overflow-hidden rounded-3xl border border-base-content/15 bg-base-200 shadow-xl"
-            aria-label="Current encounter"
-          >
-            <div v-if="game.activeCard" class="encounter-grid gap-0">
-              <div
-                class="relative aspect-[4/3] overflow-hidden bg-base-300 lg:aspect-auto lg:min-h-[420px]"
+              <p
+                v-if="game.currentShift"
+                role="status"
+                class="rounded-xl border border-warning/30 bg-base-100/85 px-3 py-2 text-xs"
               >
-                <div class="absolute inset-0">
-                  <FlipCard
-                    :trigger-key="dealKey"
-                    :reveal-on-trigger="true"
-                    :duration-ms="reducedMotion ? 0 : 650"
-                    radius="0"
-                  >
-                    <template #front>
-                      <img
-                        :src="game.activeArt"
-                        :alt="
-                          game.activeEncounter?.title || game.activeCard.label
-                        "
-                        class="size-full object-cover"
-                      />
-                    </template>
-                    <template #back>
-                      <img
-                        src="/shifting-lands/encounter-back.svg"
-                        alt=""
-                        class="size-full object-cover"
-                      />
-                    </template>
-                  </FlipCard>
-                </div>
-                <span
-                  class="absolute bottom-3 left-3 rounded-full bg-black/80 px-3 py-1 text-xs font-bold text-white"
-                  >Encounter drawn</span
-                >
-              </div>
-              <div class="flex flex-col justify-center gap-4 p-5 sm:p-7">
-                <div>
-                  <p
-                    class="text-xs font-black uppercase tracking-[.25em] text-warning"
-                  >
-                    The encounter
-                  </p>
-                  <h3
-                    ref="encounterHeading"
-                    tabindex="-1"
-                    class="mt-2 font-serif text-2xl font-black outline-none focus-visible:ring-2 focus-visible:ring-primary sm:text-3xl"
-                  >
-                    {{ game.activeEncounter?.title || game.activeCard.label }}
-                  </h3>
-                  <p class="mt-3 text-sm leading-relaxed opacity-85">
-                    {{ game.activeEncounter?.flavor || game.activeCard.teaser }}
-                  </p>
-                </div>
-                <div v-if="game.activeEncounter" class="space-y-3">
-                  <div
-                    class="rounded-xl border border-warning/30 bg-base-300/65 p-4"
-                  >
-                    <p
-                      class="text-xs font-black uppercase tracking-widest text-warning"
-                    >
-                      Your decision
-                    </p>
-                    <p class="mt-2 text-sm opacity-80">
-                      Two roads are open. Each choice has its own stakes, skill
-                      check and written result. Choose once; your dice and
-                      consequences are saved.
-                    </p>
-                  </div>
-                  <button
-                    v-for="option in game.activeEncounter.choices"
-                    :key="option.id"
-                    type="button"
-                    class="group block w-full rounded-xl border border-base-content/20 bg-base-300 p-4 text-left transition-colors hover:border-warning focus-visible:outline focus-visible:outline-4 focus-visible:outline-primary"
-                    @click="chooseEncounter(option.id)"
-                  >
-                    <span class="flex items-start justify-between gap-3">
-                      <strong class="text-base group-hover:text-warning">{{
-                        option.label
-                      }}</strong>
-                      <span
-                        class="shrink-0 rounded-lg border border-warning/40 px-2 py-1 text-xs font-bold capitalize"
-                        >{{ option.roll.skill }} ·
-                        {{ option.roll.target }}</span
-                      >
-                    </span>
-                    <span class="mt-2 block text-sm">{{ option.intent }}</span>
-                    <span class="mt-2 block text-xs opacity-65">{{
-                      option.risk
-                    }}</span>
-                    <span
-                      class="mt-2 inline-flex items-center gap-1 text-xs font-bold text-warning"
-                      ><Icon name="kind-icon:dice" class="size-4" /> Roll 2d6 +
-                      skill</span
-                    >
-                  </button>
-                </div>
-                <template v-else>
-                  <div
-                    class="rounded-xl border border-base-content/15 bg-base-300/65 p-4 text-sm"
-                  >
-                    <p
-                      class="text-xs font-black uppercase tracking-widest opacity-65"
-                    >
-                      Original expedition rules
-                    </p>
-                    <p class="mt-2">
-                      <strong class="capitalize">{{
-                        game.activeCard.skill
-                      }}</strong>
-                      check · target
-                      <strong>{{ game.activeCard.difficulty }}</strong> · roll
-                      2d6 + skill
-                    </p>
-                    <p class="mt-1 text-xs opacity-70">
-                      This saved journey began before authored encounters. Start
-                      a new journey to play the authored cards.
-                    </p>
-                  </div>
-                  <div
-                    class="grid grid-cols-[repeat(auto-fit,minmax(min(100%,170px),1fr))] gap-2"
-                  >
-                    <button
-                      type="button"
-                      class="btn btn-primary min-h-12"
-                      @click="resolveWithCue('test')"
-                    >
-                      <Icon name="kind-icon:dice" class="size-5" /> Roll the
-                      check
-                    </button>
-                    <button
-                      type="button"
-                      class="btn btn-outline min-h-12"
-                      @click="resolveWithCue('withdraw')"
-                    >
-                      Withdraw
-                    </button>
-                  </div>
-                </template>
-              </div>
-            </div>
-            <div v-else-if="game.bossReady" class="encounter-grid">
-              <div
-                class="relative min-h-72 overflow-hidden bg-base-300 lg:min-h-[420px]"
-              >
-                <img
-                  :src="game.bossArt"
-                  :alt="game.currentLand.boss.label"
-                  class="absolute inset-0 size-full object-cover"
+                <Icon
+                  name="kind-icon:map"
+                  class="mr-1 inline size-4 text-warning"
                 />
-                <div
-                  class="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/90 to-transparent p-6 text-white"
+                <strong>The land shifted:</strong>
+                {{ game.currentShift.reason }}
+              </p>
+
+              <section
+                v-if="game.lastAuthoredOutcome && !game.state.active"
+                class="rounded-2xl border border-warning/40 bg-base-100/90 p-3 shadow-lg sm:p-4"
+                aria-label="Last encounter outcome"
+                aria-live="polite"
+              >
+                <p
+                  class="text-[10px] font-black uppercase tracking-widest text-warning"
                 >
-                  <p class="text-xs font-black uppercase tracking-widest">
-                    Major trial · {{ game.state.landIndex + 1 }} / 5
-                  </p>
-                  <h3 class="mt-2 font-serif text-3xl font-black">
-                    {{ game.currentLand.boss.label }}
-                  </h3>
-                </div>
-              </div>
-              <div class="flex flex-col justify-center gap-4 p-5 sm:p-7">
-                <p class="text-sm leading-relaxed">
+                  The road remembers ·
                   {{
-                    game.currentTrial?.flavor || game.currentLand.boss.teaser
+                    game.lastAuthoredOutcome.roll.success
+                      ? 'Success'
+                      : 'Failure'
                   }}
                 </p>
-                <template v-if="game.currentTrial">
-                  <p class="text-xs opacity-70">
-                    The three roads are behind you. Choose how Zuzu faces the
-                    gate. Earned clues can reveal a third path.
-                  </p>
-                  <div class="space-y-2" aria-label="Authored trial approaches">
-                    <button
-                      v-for="choice in game.currentTrial.choices"
-                      :key="choice.id"
-                      type="button"
-                      class="block w-full rounded-xl border border-base-content/20 bg-base-300 p-4 text-left transition-colors hover:border-warning focus-visible:outline focus-visible:outline-4 focus-visible:outline-primary disabled:cursor-not-allowed disabled:opacity-55"
-                      :disabled="!game.canTrial(choice.id)"
-                      @click="attemptTrialWithCue(choice.id)"
-                    >
-                      <span class="block font-bold">{{ choice.label }}</span>
-                      <span class="mt-1 block text-sm opacity-80">{{
-                        choice.intent
-                      }}</span>
-                      <span class="mt-1 block text-xs font-semibold opacity-75">
-                        {{ choice.skill }} · 2d6 + skill · target
-                        {{ choice.target }}
-                        <template v-if="choice.cost">
-                          · {{ choice.cost }} provision</template
-                        >
-                        <template
-                          v-if="
-                            choice.requiredAnyFlags.length &&
-                            !game.canTrial(choice.id)
-                          "
-                        >
-                          · Requires discovered evidence</template
-                        >
-                      </span>
-                    </button>
-                  </div>
-                  <div
-                    v-if="game.lastTrialOutcome?.landId === game.currentLand.id"
-                    class="rounded-xl border border-warning/40 bg-base-300 p-4"
-                    role="status"
-                    aria-live="polite"
-                  >
-                    <p class="font-serif font-bold">
-                      {{
-                        game.lastTrialOutcome.roll.success
-                          ? 'Trial passed'
-                          : 'Trial repelled'
-                      }}
-                    </p>
-                    <p class="mt-2 text-sm leading-relaxed">
-                      {{ game.lastTrialOutcome.resultText }}
-                    </p>
-                    <p class="mt-2 text-xs opacity-75">
-                      {{ game.lastTrialOutcome.roll.dice.join(' + ') }} +
-                      {{ game.lastTrialOutcome.roll.modifier }} =
-                      {{ game.lastTrialOutcome.roll.total }} vs
-                      {{ game.lastTrialOutcome.roll.difficulty }}
-                      · HP {{ game.lastTrialOutcome.hpChange }} · Provisions
-                      {{ game.lastTrialOutcome.provisionChange }}
-                    </p>
-                  </div>
-                </template>
-                <template v-else>
-                  <p class="text-xs opacity-70">
-                    All three locations are resolved. You may fight, seek terms,
-                    or end this expedition.
-                  </p>
-                  <button
-                    type="button"
-                    class="btn btn-primary min-h-12"
-                    @click="confrontWithCue('challenge')"
-                  >
-                    Challenge · Steel +3 · target {{ 9 + game.state.landIndex }}
-                  </button>
-                  <button
-                    type="button"
-                    class="btn btn-outline min-h-12"
-                    :disabled="game.state.provisions < 1"
-                    @click="confrontWithCue('parley')"
-                  >
-                    Parley · Bearing +2 · 1 provision
-                  </button>
-                </template>
-                <button
-                  type="button"
-                  class="btn btn-ghost min-h-12"
-                  @click="game.confront('retreat')"
-                >
-                  Retire from the expedition
-                </button>
-              </div>
-            </div>
-            <div
-              v-else-if="game.finished"
-              class="encounter-grid min-h-80 items-center gap-4 p-8"
-            >
-              <img
-                src="/zuzu-gamebook/scenes/zuzu-alone.webp"
-                alt="Zuzu the ronin at journey's end"
-                class="max-h-80 w-full rounded-2xl object-cover"
-              />
-              <div>
-                <p
-                  class="text-xs font-bold uppercase tracking-[.25em] text-warning"
-                >
-                  Journey complete
-                </p>
-                <h3 class="mt-2 font-serif text-3xl font-black">
-                  {{ endTitle }}
+                <h3 class="mt-1 font-serif text-lg font-bold leading-tight">
+                  {{ lastPlayedTitle }}
                 </h3>
-                <p class="mt-3 text-sm opacity-80">
-                  {{ game.state.journal[game.state.journal.length - 1]?.text }}
+                <p class="mt-1 text-sm leading-relaxed">
+                  {{ game.lastAuthoredOutcome.resultText }}
                 </p>
-                <p class="mt-4 text-sm">
-                  {{ game.state.resolved.length }} encounters visited ·
-                  {{ game.state.bosses.length }} trials cleared
+                <p class="mt-1 text-xs opacity-70">
+                  {{ game.lastAuthoredOutcome.roll.dice.join(' + ') }} +
+                  {{ game.lastAuthoredOutcome.roll.modifier }} =
+                  {{ game.lastAuthoredOutcome.roll.total }} vs
+                  {{ game.lastAuthoredOutcome.roll.difficulty }}
+                  · HP {{ game.lastAuthoredOutcome.hpChange >= 0 ? '+' : ''
+                  }}{{ game.lastAuthoredOutcome.hpChange }} · Provisions
+                  {{ game.lastAuthoredOutcome.provisionChange >= 0 ? '+' : ''
+                  }}{{ game.lastAuthoredOutcome.provisionChange }}
                 </p>
-                <button
-                  type="button"
-                  class="btn btn-primary mt-4"
-                  @click="confirmNew = true"
-                >
-                  Begin another journey
-                </button>
-              </div>
-            </div>
-            <div v-else class="encounter-grid min-h-80 gap-0">
-              <img
-                :src="landAtmosphere"
-                :alt="game.currentLand.name + ' crossroads'"
-                class="h-72 w-full object-cover md:h-full"
-              />
-              <div class="flex flex-col justify-center gap-4 p-5 sm:p-7">
+              </section>
+
+              <section
+                v-if="game.lastTrialOutcome && !game.bossReady"
+                class="rounded-2xl border border-warning/40 bg-base-100/90 p-3 shadow-lg sm:p-4"
+                aria-label="Latest major trial result"
+                aria-live="polite"
+              >
                 <p
-                  class="text-xs font-bold uppercase tracking-[.25em] text-warning"
+                  class="text-[10px] font-black uppercase tracking-widest text-warning"
                 >
-                  Choose your next road
+                  Major trial ·
+                  {{
+                    game.lastTrialOutcome.roll.success ? 'Passed' : 'Repelled'
+                  }}
                 </p>
-                <h3 class="font-serif text-2xl font-black">The deck awaits</h3>
-                <p class="text-sm opacity-75">
-                  Choose a glowing road card above, or draw the next reachable
-                  encounter from the deck. Already-visited locations may be
-                  revisited, but cannot be exploited for another reward.
+                <h3 class="mt-1 font-serif text-lg font-bold leading-tight">
+                  {{ lastTrialBossName }}
+                </h3>
+                <p class="mt-1 text-sm leading-relaxed">
+                  {{ game.lastTrialOutcome.resultText }}
                 </p>
+                <p class="mt-1 text-xs opacity-70">
+                  {{ game.lastTrialOutcome.roll.dice.join(' + ') }} +
+                  {{ game.lastTrialOutcome.roll.modifier }} =
+                  {{ game.lastTrialOutcome.roll.total }} vs
+                  {{ game.lastTrialOutcome.roll.difficulty }}
+                </p>
+              </section>
+
+              <div
+                class="flex items-center gap-3 rounded-2xl border border-base-content/10 bg-base-100/85 p-2 shadow sm:p-3"
+                aria-label="Card decks and discards"
+              >
                 <button
                   type="button"
-                  class="btn btn-primary min-h-12"
+                  class="group flex shrink-0 flex-col items-center gap-0.5"
                   :disabled="!canDraw"
+                  :aria-label="
+                    'Draw a reachable card, ' +
+                    game.remaining.length +
+                    ' remain'
+                  "
                   @click="drawCard"
                 >
-                  Draw reachable card · {{ game.remaining.length }} remain
-                </button>
-              </div>
-            </div>
-          </section>
-
-          <section
-            v-if="game.lastAuthoredOutcome && !game.state.active"
-            class="rounded-2xl border border-warning/40 bg-base-200 p-5 shadow-lg"
-            aria-label="Last encounter outcome"
-            aria-live="polite"
-          >
-            <p
-              class="text-xs font-black uppercase tracking-widest text-warning"
-            >
-              The road remembers
-            </p>
-            <h3
-              ref="outcomeHeading"
-              tabindex="-1"
-              class="mt-2 font-serif text-xl font-bold outline-none focus-visible:ring-2 focus-visible:ring-primary"
-            >
-              {{ lastPlayedTitle }}
-            </h3>
-            <p class="mt-3 text-sm leading-relaxed">
-              {{ game.lastAuthoredOutcome.resultText }}
-            </p>
-            <p class="mt-3 text-xs opacity-70">
-              {{ game.lastAuthoredOutcome.roll.dice.join(' + ') }} +
-              {{ game.lastAuthoredOutcome.roll.modifier }} =
-              {{ game.lastAuthoredOutcome.roll.total }} vs
-              {{ game.lastAuthoredOutcome.roll.difficulty }} ·
-              {{
-                game.lastAuthoredOutcome.roll.success ? 'Success' : 'Failure'
-              }}
-              · HP {{ game.lastAuthoredOutcome.hpChange >= 0 ? '+' : ''
-              }}{{ game.lastAuthoredOutcome.hpChange }} · Provisions
-              {{ game.lastAuthoredOutcome.provisionChange >= 0 ? '+' : ''
-              }}{{ game.lastAuthoredOutcome.provisionChange }}
-            </p>
-          </section>
-
-          <section
-            v-if="game.lastTrialOutcome && !game.bossReady"
-            class="rounded-2xl border border-warning/40 bg-base-200 p-5 shadow-lg"
-            aria-label="Latest major trial result"
-            aria-live="polite"
-          >
-            <p class="text-xs font-bold uppercase tracking-widest text-warning">
-              Major trial ·
-              {{ game.lastTrialOutcome.roll.success ? 'Passed' : 'Repelled' }}
-            </p>
-            <h3 class="mt-2 font-serif text-xl font-bold">
-              {{ lastTrialBossName }}
-            </h3>
-            <p class="mt-3 text-sm leading-relaxed">
-              {{ game.lastTrialOutcome.resultText }}
-            </p>
-            <p class="mt-3 text-xs opacity-70">
-              {{ game.lastTrialOutcome.roll.dice.join(' + ') }} +
-              {{ game.lastTrialOutcome.roll.modifier }} =
-              {{ game.lastTrialOutcome.roll.total }} vs
-              {{ game.lastTrialOutcome.roll.difficulty }}
-            </p>
-          </section>
-
-          <section
-            class="rounded-3xl border border-base-content/15 bg-base-200 px-4 py-5 sm:px-6"
-            aria-label="Card decks and discards"
-          >
-            <div class="flex flex-wrap items-start justify-between gap-4">
-              <div>
-                <h3 class="font-serif text-xl font-black">Your decks</h3>
-                <p class="text-xs opacity-65">
-                  Draw, resolve, discard. All state changes belong to the
-                  journey rules.
-                </p>
-              </div>
-              <div class="flex items-end gap-3 sm:gap-5">
-                <button
-                  type="button"
-                  class="group flex flex-col items-center gap-1"
-                  :disabled="!canDraw"
-                  @click="drawCard"
-                >
-                  <span class="relative block h-24 w-16">
+                  <span class="relative block h-14 w-10">
                     <img
                       src="/shifting-lands/encounter-back.svg"
                       alt=""
-                      class="absolute left-0 top-0 h-24 w-16 rotate-[-8deg] rounded-md object-cover shadow-lg"
+                      class="absolute inset-0 h-14 w-10 rotate-[-8deg] rounded object-cover shadow"
                     />
                     <img
                       src="/shifting-lands/encounter-back.svg"
                       alt=""
-                      class="absolute left-1 top-0 h-24 w-16 rotate-[5deg] rounded-md object-cover shadow-lg motion-safe:group-hover:-translate-y-2"
+                      class="absolute inset-0 h-14 w-10 rotate-[5deg] rounded object-cover shadow motion-safe:group-hover:-translate-y-1"
                     />
                     <span
-                      class="absolute -right-2 -top-2 badge badge-warning z-10"
+                      class="badge badge-warning badge-xs absolute -right-2 -top-1 z-10"
                       >{{ game.remaining.length }}</span
                     >
                   </span>
-                  <span class="text-xs font-bold">Draw</span>
+                  <span class="text-[10px] font-bold">Draw</span>
                 </button>
                 <button
                   type="button"
-                  class="group flex flex-col items-center gap-1"
+                  class="flex shrink-0 flex-col items-center gap-0.5"
                   :disabled="game.resolved.length === 0"
+                  :aria-label="
+                    'Inspect the discard pile, ' +
+                    game.resolved.length +
+                    ' cards'
+                  "
                   @click="inspectLastDiscard"
                 >
-                  <span class="relative block h-24 w-16">
+                  <span class="relative block h-14 w-10">
                     <img
                       src="/shifting-lands/encounter-back.svg"
                       alt=""
-                      class="absolute left-0 top-0 h-24 w-16 rotate-[-3deg] rounded-md object-cover opacity-85 shadow-lg"
+                      class="h-14 w-10 rotate-[-3deg] rounded object-cover opacity-85 shadow"
                     />
                     <span
-                      class="absolute -right-2 -top-2 badge badge-success z-10"
+                      class="badge badge-success badge-xs absolute -right-2 -top-1 z-10"
                       >{{ game.resolved.length }}</span
                     >
                   </span>
-                  <span class="text-xs font-bold">Discard</span>
+                  <span class="text-[10px] font-bold">Discard</span>
                 </button>
-                <div
-                  class="flex flex-col items-center gap-1"
+                <button
+                  type="button"
+                  class="flex shrink-0 flex-col items-center gap-0.5"
                   :aria-label="
-                    game.characterSheet.inventory.length + ' earned rewards'
+                    game.characterSheet.inventory.length +
+                    ' earned rewards. Open character sheet'
                   "
+                  @click="tab = 'zuzu'"
                 >
-                  <span class="relative block h-24 w-16">
+                  <span class="relative block h-14 w-10">
                     <img
                       src="/shifting-lands/trial-back.svg"
                       alt=""
-                      class="h-24 w-16 rounded-md object-cover shadow-md"
+                      class="h-14 w-10 rounded object-cover shadow"
                       :class="
                         game.characterSheet.inventory.length ? '' : 'opacity-50'
                       "
                     />
                     <span
-                      class="absolute -right-2 -top-2 badge badge-primary z-10"
+                      class="badge badge-primary badge-xs absolute -right-2 -top-1 z-10"
                       >{{ game.characterSheet.inventory.length }}</span
                     >
                   </span>
-                  <span class="text-xs font-bold">Rewards</span>
+                  <span class="text-[10px] font-bold">Rewards</span>
+                </button>
+                <div class="min-w-0 flex-1 text-right">
+                  <p
+                    v-if="game.state.lastRoll"
+                    :key="rollEffectKey"
+                    class="text-xs font-bold"
+                    :class="[
+                      reducedMotion ? '' : 'journey-dice-reveal',
+                      game.state.lastRoll.success
+                        ? 'text-success'
+                        : 'text-error',
+                    ]"
+                    aria-live="polite"
+                  >
+                    <Icon name="kind-icon:dice" class="inline size-4" />
+                    {{ game.state.lastRoll.dice.join(' + ') }} +
+                    {{ game.state.lastRoll.modifier }} =
+                    {{ game.state.lastRoll.total }} /
+                    {{ game.state.lastRoll.difficulty }}
+                  </p>
+                  <button
+                    v-if="canDraw"
+                    type="button"
+                    class="btn btn-primary btn-sm mt-1"
+                    @click="drawCard"
+                  >
+                    Draw a road
+                  </button>
+                  <p v-else-if="!zoomTarget" class="mt-1 text-xs opacity-70">
+                    {{
+                      game.finished
+                        ? 'The journey has ended.'
+                        : 'Tap a glowing road to travel.'
+                    }}
+                  </p>
                 </div>
               </div>
             </div>
-          </section>
-          <section
-            v-if="visitedCards.length"
-            class="rounded-2xl border border-base-content/15 bg-base-200 p-4 sm:p-5"
-            aria-label="Discovered locations"
-          >
-            <details>
-              <summary class="cursor-pointer font-serif text-lg font-black">
-                Your discovered trail · {{ visitedCards.length }} places
-              </summary>
-              <div
-                class="mt-4 grid grid-cols-[repeat(auto-fit,minmax(min(100%,125px),1fr))] gap-2"
-              >
-                <button
-                  v-for="card in visitedCards"
-                  :key="card.id"
-                  type="button"
-                  class="overflow-hidden rounded-xl border border-base-content/15 bg-base-300 text-left focus-visible:outline focus-visible:outline-4 focus-visible:outline-primary"
-                  :aria-label="'Inspect previous visit to ' + card.label"
-                  @click="openInspector(card.id)"
-                >
-                  <img
-                    :src="card.art"
-                    :alt="card.label"
-                    class="aspect-[4/3] w-full object-cover"
-                  />
-                  <span class="block truncate px-2 py-2 text-xs font-bold">{{
-                    card.label
-                  }}</span>
-                  <span
-                    class="block truncate px-2 pb-2 text-[10px] opacity-65"
-                    >{{ card.land }}</span
-                  >
-                </button>
-              </div>
-            </details>
-          </section>
-        </div>
+          </div>
+        </section>
 
-        <aside class="space-y-4">
-          <ShiftingLandsCharacterRail
-            :sheet="game.characterSheet"
-            :seed="game.state.seed"
-            :phase="game.state.phase"
-            @use-reward="useEarnedReward"
-          />
-          <section
-            class="rounded-2xl border border-base-content/15 bg-base-200 p-4"
-            aria-label="Animation and dice sound settings"
-          >
-            <h3 class="font-serif text-lg font-black">Presentation</h3>
-            <p class="mt-1 text-xs opacity-65">
-              Display preferences only. These never change dice, actions, or
-              saved results.
-            </p>
-            <div class="mt-3 flex flex-wrap gap-2">
-              <button
-                type="button"
-                class="btn btn-sm"
-                :class="reducedMotion ? 'btn-outline' : 'btn-primary'"
-                :aria-pressed="!reducedMotion"
-                @click="setReducedMotion(!reducedMotion)"
-              >
-                {{ reducedMotion ? 'Reduced motion' : 'Card motion on' }}
-              </button>
-              <button
-                type="button"
-                class="btn btn-sm"
-                :class="soundEnabled ? 'btn-primary' : 'btn-outline'"
-                :aria-pressed="soundEnabled"
-                @click="setSoundEnabled(!soundEnabled)"
-              >
-                {{ soundEnabled ? 'Dice sound on' : 'Dice sound muted' }}
-              </button>
-            </div>
-          </section>
-          <section
-            v-if="game.state.lastRoll"
-            class="rounded-2xl border border-warning/40 bg-base-200 p-4"
-            aria-live="polite"
-          >
-            <p
-              class="text-xs font-black uppercase tracking-[.2em] text-warning"
-            >
-              Last dice roll
-            </p>
-            <p
-              :key="rollEffectKey"
-              class="mt-2 font-serif text-3xl font-black"
-              :class="reducedMotion ? '' : 'journey-dice-reveal'"
-            >
-              {{ game.state.lastRoll.dice.join(' + ') }}
-            </p>
-            <p class="text-sm opacity-80">
-              + {{ game.state.lastRoll.modifier }}
-              {{ game.state.lastRoll.skill }} · total
-              {{ game.state.lastRoll.total }} /
-              {{ game.state.lastRoll.difficulty }}
-            </p>
-            <strong
-              :class="
-                game.state.lastRoll.success ? 'text-success' : 'text-error'
-              "
-            >
-              {{
-                game.state.lastRoll.success ? 'Check succeeded' : 'Check failed'
-              }}
-            </strong>
-          </section>
-          <section
-            class="rounded-2xl border border-base-content/15 bg-base-200 p-4"
-          >
-            <h3 class="font-serif text-xl font-black">Journey journal</h3>
-            <p class="text-xs opacity-65">
-              Your past roads stay written, even when the landscape shifts.
-            </p>
-            <div
-              class="mt-3 flex flex-wrap gap-1"
-              role="group"
-              aria-label="Journal filters"
-            >
-              <button
-                v-for="filter in journalFilters"
-                :key="filter.value"
-                type="button"
-                class="btn btn-xs"
-                :class="
-                  journalFilter === filter.value ? 'btn-primary' : 'btn-ghost'
-                "
-                :aria-pressed="journalFilter === filter.value"
-                @click="journalFilter = filter.value"
-              >
-                {{ filter.label }}
-              </button>
-            </div>
-            <ol
-              class="mt-4 max-h-80 space-y-3 overflow-y-auto pr-1 text-sm"
-              aria-label="Chronological journey events"
-            >
-              <li
-                v-for="(item, index) in visibleJournal"
-                :key="item.turn + '-' + index + '-' + item.kind"
-                class="border-l-2 border-primary/50 pl-3"
-              >
-                <span
-                  class="text-[10px] font-bold uppercase tracking-widest opacity-65"
-                  >Turn {{ item.turn }} · {{ item.kind }}</span
+        <section
+          class="kr-pane rounded-3xl border border-base-content/15 bg-base-200/95 shadow-xl"
+          :class="tab === 'road' ? 'journey-hidden-narrow' : ''"
+          :aria-label="sideTab === 'zuzu' ? 'Character sheet' : 'Journal'"
+        >
+          <div class="kr-pane-scroll p-2 sm:p-3">
+            <ShiftingLandsCharacterRail
+              v-if="sideTab === 'zuzu'"
+              :sheet="game.characterSheet"
+              :seed="game.state.seed"
+              :phase="game.state.phase"
+              @use-reward="useEarnedReward"
+            />
+            <div v-else class="space-y-4 p-1">
+              <div v-if="visitedCards.length" aria-label="Discovered locations">
+                <h3 class="font-serif text-lg font-black">
+                  Discovered trail · {{ visitedCards.length }}
+                </h3>
+                <div
+                  class="mt-2 grid grid-cols-[repeat(auto-fill,minmax(88px,1fr))] gap-2"
                 >
-                <p class="mt-1">{{ item.text }}</p>
-              </li>
-            </ol>
-            <p v-if="!visibleJournal.length" class="mt-3 text-xs opacity-65">
-              Nothing recorded in this category yet.
-            </p>
-          </section>
-          <p class="text-xs opacity-65">
-            Card faces use existing Zuzu artwork until each encounter gets its
-            own painting. People met on the road are contacts, not traveling
-            companions.
-          </p>
-        </aside>
+                  <button
+                    v-for="card in visitedCards"
+                    :key="card.id"
+                    type="button"
+                    class="overflow-hidden rounded-xl border border-base-content/15 bg-base-300 text-left focus-visible:outline focus-visible:outline-4 focus-visible:outline-primary"
+                    :aria-label="'Inspect previous visit to ' + card.label"
+                    @click="openInspector(card.id)"
+                  >
+                    <img
+                      :src="card.art"
+                      :alt="card.label"
+                      class="aspect-[4/3] w-full object-cover"
+                    />
+                    <span
+                      class="block truncate px-2 pt-1 text-[11px] font-bold"
+                      >{{ card.label }}</span
+                    >
+                    <span
+                      class="block truncate px-2 pb-1 text-[10px] opacity-65"
+                      >{{ card.land }}</span
+                    >
+                  </button>
+                </div>
+              </div>
+              <div>
+                <h3 class="font-serif text-lg font-black">Journey journal</h3>
+                <div
+                  class="mt-2 flex flex-wrap gap-1"
+                  role="group"
+                  aria-label="Journal filters"
+                >
+                  <button
+                    v-for="filter in journalFilters"
+                    :key="filter.value"
+                    type="button"
+                    class="btn btn-xs"
+                    :class="
+                      journalFilter === filter.value
+                        ? 'btn-primary'
+                        : 'btn-ghost'
+                    "
+                    :aria-pressed="journalFilter === filter.value"
+                    @click="journalFilter = filter.value"
+                  >
+                    {{ filter.label }}
+                  </button>
+                </div>
+                <ol
+                  class="mt-3 space-y-2 text-sm"
+                  aria-label="Chronological journey events"
+                >
+                  <li
+                    v-for="(item, index) in visibleJournal"
+                    :key="item.turn + '-' + index + '-' + item.kind"
+                    class="border-l-2 border-primary/50 pl-3"
+                  >
+                    <span
+                      class="text-[10px] font-bold uppercase tracking-widest opacity-65"
+                      >Turn {{ item.turn }} · {{ item.kind }}</span
+                    >
+                    <p>{{ item.text }}</p>
+                  </li>
+                </ol>
+                <p
+                  v-if="!visibleJournal.length"
+                  class="mt-2 text-xs opacity-65"
+                >
+                  Nothing recorded in this category yet.
+                </p>
+              </div>
+            </div>
+          </div>
+        </section>
       </div>
 
       <kr-card-flip
@@ -961,7 +1196,7 @@
                 class="size-full object-cover"
               />
             </div>
-            <div class="space-y-4 p-5 sm:p-7">
+            <div class="space-y-3 p-4 sm:p-6">
               <div>
                 <p
                   class="text-xs font-black uppercase tracking-widest text-warning"
@@ -971,13 +1206,13 @@
                 <h2 class="mt-1 font-serif text-2xl font-black">
                   {{ inspectedCard.label }}
                 </h2>
-                <p class="mt-3 text-sm opacity-80">
+                <p class="mt-2 text-sm opacity-80">
                   {{ inspectedCard.teaser }}
                 </p>
               </div>
               <div
                 v-if="inspectedOutcome"
-                class="rounded-xl bg-base-300 p-4 text-sm"
+                class="rounded-xl bg-base-300 p-3 text-sm"
               >
                 <p class="font-bold">
                   Visited on turn {{ inspectedOutcome.turn }}
@@ -1004,17 +1239,9 @@
                   }}{{ inspectedOutcome.provisionChange }}
                 </p>
               </div>
-              <div class="flex flex-wrap gap-2">
-                <button type="button" class="btn btn-primary" @click="close()">
-                  Return to board
-                </button>
-                <NuxtLink
-                  to="/admin/worlds/zuzu"
-                  class="btn btn-outline"
-                  @click="close()"
-                  >World Studio</NuxtLink
-                >
-              </div>
+              <button type="button" class="btn btn-primary" @click="close()">
+                Return to board
+              </button>
             </div>
           </article>
         </template>
@@ -1027,6 +1254,7 @@
 import { computed, nextTick, onMounted, ref } from 'vue'
 import { useShiftingLandsJourneyStore } from '~/stores/shiftingLandsJourneyStore'
 import { findFiveLandCard } from '~/utils/shiftingLands/authoredFiveLands'
+import { trialForLand } from '~/utils/shiftingLands/authoredBosses'
 import type {
   BossApproach,
   EncounterApproach,
@@ -1061,6 +1289,21 @@ const soundEnabled = ref(false)
 const rollEffectKey = ref(0)
 type JournalFilter = 'all' | 'encounter' | 'boss' | 'shift'
 const journalFilter = ref<JournalFilter>('all')
+type JourneyTab = 'road' | 'zuzu' | 'journal'
+const tab = ref<JourneyTab>('road')
+const tabs: Array<{ value: JourneyTab; label: string; icon: string }> = [
+  { value: 'road', label: 'Road', icon: 'kind-icon:map' },
+  { value: 'zuzu', label: 'Zuzu', icon: 'kind-icon:user' },
+  { value: 'journal', label: 'Journal', icon: 'kind-icon:book' },
+]
+const sideTab = computed<JourneyTab>(() =>
+  tab.value === 'road' ? 'zuzu' : tab.value,
+)
+const roadPeek = ref(false)
+type Reveal = { kind: 'encounter' | 'trial'; turn: number }
+const reveal = ref<Reveal | null>(null)
+const consequenceKey = ref(0)
+const menu = ref<HTMLDetailsElement | null>(null)
 const journalFilters: Array<{ value: JournalFilter; label: string }> = [
   { value: 'all', label: 'All' },
   { value: 'encounter', label: 'Encounters' },
@@ -1091,6 +1334,66 @@ const endTitle = computed(() => {
   if (game.state.phase === 'retired') return 'The road ends here.'
   return 'The journey goes on.'
 })
+const consequence = computed(() => {
+  const showing = reveal.value
+  if (!showing) return null
+  if (showing.kind === 'encounter') {
+    const result = game.lastAuthoredOutcome
+    if (!result || result.turn !== showing.turn) return null
+    const card = findFiveLandCard(result.encounterId)
+    return {
+      kind: showing.kind,
+      title: card?.title ?? 'An encounter remembered',
+      choice:
+        card?.choices.find((item) => item.id === result.choiceId)?.label ??
+        'Your choice',
+      success: result.roll.success,
+      roll: result.roll,
+      text: result.resultText,
+      hp: result.hpChange,
+      provisions: result.provisionChange,
+      plate: game.outcomePlate(result),
+    }
+  }
+  const result = game.lastTrialOutcome
+  if (!result || result.turn !== showing.turn) return null
+  const trial = trialForLand(result.landId)
+  return {
+    kind: showing.kind,
+    title: trial?.title ?? lastTrialBossName.value,
+    choice:
+      trial?.choices.find((item) => item.id === result.choiceId)?.label ??
+      'Your approach',
+    success: result.roll.success,
+    roll: result.roll,
+    text: result.resultText,
+    hp: result.hpChange,
+    provisions: result.provisionChange,
+    plate: game.trialPlate(result),
+  }
+})
+const continueLabel = computed(() => {
+  if (game.finished) return 'See how the journey ends'
+  if (game.bossReady)
+    return consequence.value?.kind === 'trial'
+      ? 'Return to the gate'
+      : 'Face the trial'
+  if (consequence.value?.kind === 'trial')
+    return 'Enter ' + game.currentLand.name
+  return 'Continue down the road'
+})
+const zoomTarget = computed(() => {
+  if (consequence.value) return 'Consequence · ' + consequence.value.title
+  if (game.activeCard)
+    return (
+      'Encounter waiting · ' +
+      (game.activeEncounter?.title || game.activeCard.label)
+    )
+  if (game.bossReady) return 'Trial unlocked · ' + game.currentLand.boss.label
+  if (game.finished) return 'Journey complete · ' + endTitle.value
+  return ''
+})
+const zoomed = computed(() => !!zoomTarget.value && !roadPeek.value)
 const inspectedCard = computed(() => {
   for (const land of game.world.lands)
     for (const card of land.locations)
@@ -1127,6 +1430,22 @@ function visited(id: string) {
 function revealed(id: string) {
   return visited(id) || game.state.active === id
 }
+function isTabActive(value: JourneyTab) {
+  return tab.value === value
+}
+function askNewJourney() {
+  if (menu.value) menu.value.open = false
+  confirmNew.value = true
+}
+async function zoomIntoEncounter() {
+  roadPeek.value = false
+  tab.value = 'road'
+  await nextTick()
+  if (game.state.active) {
+    dealKey.value++
+    encounterHeading.value?.focus()
+  }
+}
 function openInspector(id: string) {
   if (!revealed(id)) return
   inspectId.value = id
@@ -1134,32 +1453,53 @@ function openInspector(id: string) {
 }
 async function travel(id: string) {
   if (!game.travel(id)) return
-  await nextTick()
-  if (game.state.active) {
-    dealKey.value++
-    encounterHeading.value?.focus()
-  }
+  await zoomIntoEncounter()
 }
 function chooseCard(id: string) {
-  if (revealed(id)) openInspector(id)
+  if (game.state.active === id) roadPeek.value = false
+  else if (revealed(id)) openInspector(id)
   else void travel(id)
 }
 async function drawCard() {
   if (!game.draw()) return
+  await zoomIntoEncounter()
+}
+async function showConsequence(kind: Reveal['kind'], turn?: number) {
+  if (turn === undefined) return
+  reveal.value = { kind, turn }
+  roadPeek.value = false
+  tab.value = 'road'
+  consequenceKey.value++
   await nextTick()
-  if (game.state.active) {
-    dealKey.value++
-    encounterHeading.value?.focus()
-  }
+  outcomeHeading.value?.focus()
 }
 async function chooseEncounter(id: string) {
   if (!game.choose(id)) return
   cueDiceResult()
-  await nextTick()
-  outcomeHeading.value?.focus()
+  await showConsequence('encounter', game.lastAuthoredOutcome?.turn)
 }
 function attemptTrialWithCue(id: string) {
-  if (game.attemptTrial(id)) cueDiceResult()
+  if (!game.attemptTrial(id)) return
+  cueDiceResult()
+  void showConsequence('trial', game.lastTrialOutcome?.turn)
+}
+function continueJourney() {
+  reveal.value = null
+  roadPeek.value = false
+}
+function signed(value: number) {
+  return (value > 0 ? '+' : '') + value
+}
+const PIPS: Readonly<Record<number, number[]>> = {
+  1: [4],
+  2: [0, 8],
+  3: [0, 4, 8],
+  4: [0, 2, 6, 8],
+  5: [0, 2, 4, 6, 8],
+  6: [0, 2, 3, 5, 6, 8],
+}
+function pips(face: number) {
+  return PIPS[face] ?? []
 }
 function resolveWithCue(approach: EncounterApproach) {
   if (game.resolve(approach) && approach === 'test') cueDiceResult()
@@ -1217,6 +1557,9 @@ function startOver() {
   game.fresh()
   confirmNew.value = false
   inspectorOpen.value = false
+  roadPeek.value = false
+  reveal.value = null
+  tab.value = 'road'
   dealKey.value = 0
 }
 onMounted(() => {
@@ -1254,19 +1597,46 @@ onMounted(() => {
 .journey-shell {
   container-type: inline-size;
 }
-.journey-layout,
+.journey-layout {
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: minmax(0, 1fr);
+}
 .encounter-grid {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
+  align-content: start;
+}
+.journey-hidden-narrow {
+  display: none;
 }
 @container (min-width: 47rem) {
   .encounter-grid {
-    grid-template-columns: minmax(0, 1.15fr) minmax(260px, 1fr);
+    grid-template-columns: minmax(0, 1.15fr) minmax(280px, 1fr);
+    align-content: stretch;
+  }
+  .encounter-art {
+    aspect-ratio: auto;
+    min-height: 100%;
   }
 }
-@container (min-width: 70rem) {
+@container (min-width: 64rem) {
   .journey-layout {
-    grid-template-columns: minmax(0, 1fr) 300px;
+    grid-template-columns: minmax(0, 1fr) 340px;
+  }
+  .journey-hidden-narrow {
+    display: flex;
+  }
+  .journey-tabs {
+    order: 0;
+    width: 340px;
+  }
+  .journey-road-tab {
+    display: none;
+  }
+  .journey-side-default {
+    background: var(--color-primary);
+    color: var(--color-primary-content);
+    opacity: 1;
   }
 }
 </style>

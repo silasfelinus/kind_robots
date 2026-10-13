@@ -234,11 +234,11 @@ export class PinballRuntime<
       this.mixer.unlock()
     }
     const controls = this.demo ? this.pilot() : input
-    const both = controls.held.a && !this.physics.ballOnPlunger()
-    // A tilted machine's flippers are dead until the ball drains.
+    // Never couple both coils to the face/launch button. Only the
+    // corresponding shoulder/trigger, direction, or keyboard side fires.
     const live = !this.rules.tilted
-    const left = live && (controls.held.left || both)
-    const right = live && (controls.held.right || both)
+    const left = live && controls.held.left
+    const right = live && controls.held.right
     if ((controls.pressed.left || controls.pressed.right) && !this.demo) {
       this.mixer.play('flipper')
     }

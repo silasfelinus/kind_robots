@@ -1,16 +1,16 @@
 <template>
   <section
-    class="overflow-hidden rounded-2xl border border-base-content/15 bg-base-200 shadow-lg"
+    class="overflow-hidden rounded-2xl border border-base-content/15 bg-base-200 shadow"
     aria-label="Zuzu character, equipment and relationships"
   >
     <div class="relative">
       <img
         src="/zuzu-gamebook/scenes/zuzu-alone.webp"
         alt="Zuzu the grey koala ronin on the frontier"
-        class="aspect-[16/9] w-full object-cover"
+        class="h-32 w-full object-cover object-[center_35%] sm:h-40"
       />
       <div
-        class="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/85 to-transparent px-4 pb-3 pt-10 text-white"
+        class="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/85 to-transparent px-3 pb-2 pt-8 text-white"
       >
         <p class="text-[10px] font-black uppercase tracking-[.22em] opacity-80">
           The traveling ronin
@@ -18,7 +18,7 @@
         <h3 class="font-serif text-xl font-black">Zuzu · Character sheet</h3>
       </div>
     </div>
-    <div class="space-y-4 p-4">
+    <div class="space-y-3 p-3">
       <div class="grid grid-cols-2 gap-3 text-sm">
         <div>
           <div class="flex justify-between gap-2">
@@ -49,18 +49,20 @@
         open
       >
         <summary
-          class="cursor-pointer px-3 py-3 text-sm font-black focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary"
+          class="cursor-pointer px-3 py-2 text-sm font-black focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary"
         >
           <span class="inline-flex items-center gap-2">
             <Icon name="kind-icon:dice" class="size-4 text-warning" />
             Skills and techniques
           </span>
         </summary>
-        <div class="grid grid-cols-2 gap-2 border-t border-base-content/10 p-3">
+        <div
+          class="grid grid-cols-3 gap-1.5 border-t border-base-content/10 p-2"
+        >
           <div
             v-for="skill in skillNames"
             :key="skill"
-            class="flex items-center justify-between rounded-lg bg-base-200 px-2 py-2 text-xs"
+            class="flex items-center justify-between rounded-lg bg-base-200 px-2 py-1.5 text-xs"
           >
             <span class="capitalize">{{ skill }}</span>
             <strong>+{{ sheet.skills[skill] }}</strong>
@@ -98,7 +100,7 @@
         open
       >
         <summary
-          class="cursor-pointer px-3 py-3 text-sm font-black focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary"
+          class="cursor-pointer px-3 py-2 text-sm font-black focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary"
         >
           <span class="inline-flex items-center gap-2">
             <Icon name="kind-icon:bag" class="size-4 text-warning" />
@@ -156,7 +158,7 @@
         class="group rounded-xl border border-base-content/15 bg-base-300/60"
       >
         <summary
-          class="cursor-pointer px-3 py-3 text-sm font-black focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary"
+          class="cursor-pointer px-3 py-2 text-sm font-black focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary"
         >
           <span class="inline-flex items-center gap-2">
             <Icon name="kind-icon:users" class="size-4 text-warning" />

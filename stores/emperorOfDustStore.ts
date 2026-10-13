@@ -1,7 +1,6 @@
 import { defineStore } from 'pinia'
 import { computed, ref } from 'vue'
 import {
-  advanceClock,
   availableFollowers,
   availableHorde,
   dayAt,
@@ -17,6 +16,7 @@ import {
   scriptedFollowerDeath,
   startEmperorCampaign,
 } from '~/utils/emperorOfDust/progression'
+import { advancePilotClock } from '~/utils/emperorOfDust/pilot'
 import {
   decodeEmperorSave,
   encodeEmperorSave,
@@ -126,7 +126,7 @@ export const useEmperorOfDustStore = defineStore('emperorOfDust', () => {
 
   function advanceTo(hour: number) {
     if (!campaign.value) throw new Error('Load the court first')
-    update(advanceClock(campaign.value, hour))
+    update(advancePilotClock(campaign.value, hour))
   }
 
   function earnFlag(flag: string) {

@@ -4,6 +4,7 @@ import toysPack from './toy-division.json'
 import wellnessPack from './wellness.json'
 import sublevelPack from './sub-level-zero.json'
 import decksData from './decks.json'
+import endingsData from './endings.json'
 
 export const SKILLS = [
   'compliance',
@@ -247,11 +248,63 @@ export const DECKS = decksData as Decks
 export const SOCIETIES = DECKS.societies
 
 export type StationKind =
-  'cards' | 'locations' | 'departments' | 'jobs' | 'societies' | 'mutations'
+  | 'cards'
+  | 'locations'
+  | 'departments'
+  | 'jobs'
+  | 'societies'
+  | 'mutations'
+  | 'endings'
 
 export function stationArt(kind: StationKind, id: string, dept = ''): string {
   const folder = kind === 'cards' ? `cards/${dept}` : kind
   return `/images/shifting-desks/${folder}/${id}.webp`
+}
+
+// The endings ledger (conductor shifting-desks t-014): an epilogue card for
+// every way a run can end, with closing lines keyed to flags the run carries.
+export type Ending = {
+  id: string
+  title: string
+  kind: 'board' | 'elimination' | 'secret'
+  trigger: { department_outcome?: string; status?: string; flag?: string }
+  epilogue: { title: string; text: string; art_prompt: string }
+  variants: Array<{ when_flag: string; text: string }>
+}
+export const ENDINGS = (endingsData as { endings: Ending[] }).endings
+
+export function endingFor(state: RunState): Ending | null {
+  if (state.status === 'eliminated') {
+    const secret = ENDINGS.find(
+      (e) =>
+        e.trigger.status === 'eliminated' &&
+        !!e.trigger.flag &&
+        state.flags.includes(e.trigger.flag),
+    )
+    return (
+      secret ??
+      ENDINGS.find(
+        (e) => e.trigger.status === 'eliminated' && !e.trigger.flag,
+      ) ??
+      null
+    )
+  }
+  if (state.status !== 'complete') return null
+  const outcomes = Object.values(state.departmentOutcomes)
+  return (
+    ENDINGS.find(
+      (e) =>
+        e.kind === 'board' &&
+        !!e.trigger.department_outcome &&
+        outcomes.includes(e.trigger.department_outcome),
+    ) ?? null
+  )
+}
+
+export function endingLines(state: RunState, ending: Ending): string[] {
+  return ending.variants
+    .filter((v) => state.flags.includes(v.when_flag))
+    .map((v) => v.text)
 }
 
 export function jobPrompt(id: string): string {

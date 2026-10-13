@@ -43,6 +43,9 @@ import {
   stepLabels,
   TOY_DIVISION,
   nextDepartment,
+  ENDINGS,
+  endingFor,
+  endingLines,
 } from '../shiftingDesks/rules'
 import { FLAG_MEMOS } from '../shiftingDesks/memos'
 
@@ -649,6 +652,11 @@ assert.equal(
 )
 assert.match(
   asset('../../components/shifting-desks/shifting-desks-personnel-file.vue'),
+  /aria-label="Epilogue"[\s\S]*epilogue\.epilogue\.text[\s\S]*epilogueLines/,
+  'the Personnel File shows the epilogue card and its variant lines',
+)
+assert.match(
+  asset('../../components/shifting-desks/shifting-desks-personnel-file.vue'),
   /const ending = computed/,
   'a run that reaches the Board ends on its ending',
 )
@@ -698,6 +706,83 @@ assert.equal(
   4,
   'a healthy run gets nothing extra',
 )
+
+// Endings ledger (conductor shifting-desks t-014)
+assert.ok(ENDINGS.length >= 10, 'ten or more endings ship')
+const boardOutcomes = DEPARTMENTS.at(-1)!.boss.department_outcomes.map(
+  (o) => o.id,
+)
+for (const oid of boardOutcomes.slice(0, -1)) {
+  assert.ok(
+    ENDINGS.some((e) => e.trigger.department_outcome === oid),
+    `the Board's ${oid} has an epilogue`,
+  )
+}
+const finished: RunState = {
+  ...newRun('ending', 'temp'),
+  status: 'complete',
+  departmentOutcomes: { 'sub-level-zero': 'the-kind-rewrite' },
+  flags: ['saved-pips-tape'],
+}
+assert.equal(endingFor(finished)?.id, 'the-kind-rewrite')
+assert.ok(
+  endingLines(finished, endingFor(finished)!).some((l) => l.includes('Pip')),
+  'a variant line appears when the run carries its flag',
+)
+const dead: RunState = { ...newRun('dead', 'temp'), status: 'eliminated' }
+assert.equal(endingFor(dead)?.id, 'position-eliminated')
+assert.equal(
+  endingFor({ ...dead, flags: ['wearing-a-dead-mans-badge'] })?.id,
+  'posthumous-affairs',
+  'the secret ending outranks the default elimination',
+)
+assert.equal(endingFor({ ...dead, status: 'playing' }), null)
+for (const e of ENDINGS) {
+  assert.match(e.epilogue.art_prompt, /every surface bare and unmarked$/)
+}
+assert.equal(
+  stationArt('endings', 'the-kind-rewrite'),
+  '/images/shifting-desks/endings/the-kind-rewrite.webp',
+)
+
+// Deterministic reachability: every Board ending, forced through its real route.
+const BOTTOM = DEPARTMENTS.at(-1)!
+for (const ending of ENDINGS.filter((e) => e.kind === 'board')) {
+  const route = BOTTOM.boss.choices.find(
+    (c) => c.success.department_outcome === ending.trigger.department_outcome,
+  )
+  assert.ok(route, `${ending.id} has a route at the Board`)
+  const atBoard: RunState = {
+    ...newRun(`reach-${ending.id}`, 'middle-manager'),
+    department: BOTTOM.department.id,
+    deck: [BOSS_CARD],
+    position: 0,
+    flags: route!.requires?.flag ? [route!.requires.flag] : [],
+    grades: {
+      obedience: 9,
+      empathy: 9,
+      ingenuity: 9,
+      spite: 9,
+    },
+    meters: { ...newRun('m', 'middle-manager').meters, forms: 9, composure: 9 },
+  }
+  assert.equal(lockReason(atBoard, route!), null, `${ending.id}'s route opens`)
+  let reached: RunState | null = null
+  for (let rng = 1; rng < 400 && !reached; rng++) {
+    const out = choose({ ...atBoard, rng: rng * 7919 }, route!.id)
+    if (out.pending?.success) reached = out
+  }
+  assert.ok(reached, `${ending.id} resolves on some seed`)
+  assert.equal(reached!.status, 'complete', `${ending.id} completes the run`)
+  assert.equal(endingFor(reached!)?.id, ending.id, `${ending.id} is the ending`)
+  const reloaded = upgradeRun(JSON.parse(JSON.stringify(reached)))
+  assert.equal(
+    reloaded && endingFor(reloaded)?.id,
+    ending.id,
+    `${ending.id} survives a save and reload`,
+  )
+}
+const endingsSeen = new Set<string>()
 
 const kindsSeen = new Set<string>()
 const outcomes = new Set<string>()
@@ -787,6 +872,8 @@ for (let i = 0; i < 3000; i++) {
   )
   assert.ok(run.bossAttempts <= 3, 'a review is attempted at most three times')
   if (run.status === 'eliminated') eliminated++
+  const naturalEnding = endingFor(run)
+  if (naturalEnding) endingsSeen.add(naturalEnding.id)
   if (run.status === 'complete') {
     completed++
     verdictsSeen.add(finalVerdict(run.grades).axis)
@@ -813,6 +900,11 @@ assert.ok(
   verdictsSeen.size >= 4,
   `the Personnel File reaches varied verdicts (${[...verdictsSeen].join(', ')})`,
 )
+assert.ok(
+  endingsSeen.size === ENDINGS.length,
+  `seeded play reaches every ending (${[...endingsSeen].sort().join(', ')})`,
+)
+assert.ok(endingsSeen.has('position-eliminated'), 'elimination stays possible')
 assert.deepEqual(
   [...kindsSeen].sort(),
   ['add', 'eliminate', 'merge', 'none'],
@@ -931,5 +1023,5 @@ for (const kind of [
 }
 
 console.log(
-  `shifting desks contract ok (${completed}/3000 completed, ${eliminated} eliminated)`,
+  `shifting desks contract ok (${completed}/3000 completed, ${eliminated} eliminated; endings reached: ${[...endingsSeen].sort().join(', ')})`,
 )

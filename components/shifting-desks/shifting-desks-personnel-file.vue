@@ -47,6 +47,36 @@
         </div>
       </div>
 
+      <article
+        v-if="epilogue"
+        class="mt-6 flex flex-wrap gap-4 rounded-xl border-2 border-stone-800 bg-stone-50/70 p-4"
+        aria-label="Epilogue"
+      >
+        <shifting-desks-art
+          class="w-full max-w-[12rem] shrink-0 rounded-lg"
+          frame="aspect-[2/3]"
+          :src="stationArt('endings', epilogue.id)"
+          :prompt="epilogue.epilogue.art_prompt"
+          :alt="`Epilogue: ${epilogue.epilogue.title}`"
+          fallback-icon="kind-icon:document"
+          icon-size="3rem"
+        />
+        <div class="flex min-w-[min(100%,16rem)] flex-1 flex-col gap-2">
+          <p
+            class="font-mono text-[11px] font-black uppercase tracking-widest opacity-80"
+          >
+            Epilogue · {{ epilogue.title }}
+          </p>
+          <p class="font-mono text-xl font-black uppercase">
+            {{ epilogue.epilogue.title }}
+          </p>
+          <p class="text-sm leading-relaxed">{{ epilogue.epilogue.text }}</p>
+          <p v-for="(line, i) in epilogueLines" :key="i" class="text-sm italic">
+            {{ line }}
+          </p>
+        </div>
+      </article>
+
       <shifting-desks-test-results
         class="mt-6"
         final
@@ -137,6 +167,9 @@ import {
   jobById,
   mutationById,
   finalVerdict,
+  endingFor,
+  endingLines,
+  stationArt,
   outcomeById,
   RESTRUCTURING_CARD,
   restructuringById,
@@ -161,6 +194,10 @@ const filesHandled = computed(
 )
 const deeperLevel = computed(() => DEPARTMENTS.length)
 const BOTTOM_FLOOR = 5
+const epilogue = computed(() => (run.value ? endingFor(run.value) : null))
+const epilogueLines = computed(() =>
+  run.value && epilogue.value ? endingLines(run.value, epilogue.value) : [],
+)
 
 // On the bottom floor the Board's decision is the run's ending.
 const ending = computed(() => {

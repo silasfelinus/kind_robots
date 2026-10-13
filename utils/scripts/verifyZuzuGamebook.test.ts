@@ -355,7 +355,7 @@ assert.deepEqual(notes.deeds, [
   { text: 'sang' },
   { text: 'listened', dark: true },
 ])
-assert.deepEqual(notes.debts, ['looter'])
+assert.deepEqual(notes.debts, ['Jeffery Mittens'])
 assert.deepEqual(notes.learned, ['wax', 'sister trust'])
 
 // Stateful exploration: seeded random playthroughs reach every ending and never stall.

@@ -6,7 +6,7 @@ export const ZUZU_PROJECTS = [
     route: '/play/music-video',
   },
   { slug: 'comic-film', label: 'Animated episode', route: '/play/music-video' },
-  { slug: 'zuzu-lair', label: "Zuzu's Lair", route: '/play/zuzu-lair' },
+  { slug: 'zuzu-lair', label: "Zuzu's Lair", route: '/admin/zuzu-lair' },
   { slug: 'zuzu-gamebook', label: 'Gamebook', route: '/play/zuzu-gamebook' },
   {
     slug: 'zuzu-shifting-lands',

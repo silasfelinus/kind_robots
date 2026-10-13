@@ -148,7 +148,7 @@ export const PROJECT_PLACEMENTS: Record<string, ProjectPlacement> = {
   'zuzu-lair': {
     channelKey: 'admin',
     tabKey: 'zuzu-lair',
-    route: '/play/zuzu-lair',
+    route: '/admin/zuzu-lair',
   },
   // Out of Admin on 2026-10-11 (Silas: "If it's ready for prime time, it can
   // move to the Play and out of admin"), after the t-024 balance pass.

@@ -10,11 +10,8 @@ import {
 
 const meta = findArcadeGame('zuzu-lair')
 assert.ok(meta, 'zuzu-lair is registered so the score API accepts it')
-assert.equal(meta.route, '/play/zuzu-lair')
-assert.ok(
-  HALL_GAMES.some((g) => g.slug === 'zuzu-lair'),
-  'hall lists the tile',
-)
+assert.equal(meta.route, undefined)
+assert.ok(!HALL_GAMES.some((g) => g.slug === 'zuzu-lair'), 'unfinished Lair must not be public')
 
 const moments = JSON.stringify(CHAPTER_1).split('"success"').length - 1
 const best =

@@ -7,10 +7,16 @@ assert.equal(enemyBulletContact(0, false, 10, 15), 'hit')
 assert.equal(enemyBulletContact(9.99, false, 10, 15), 'hit')
 assert.equal(
   enemyBulletContact(0, true, 10, 15),
-  null,
+  'protected',
   'an invulnerable core overlap is not an earned graze',
 )
-assert.equal(enemyBulletContact(9.99, true, 10, 15), null)
+assert.equal(enemyBulletContact(9.99, true, 10, 15), 'protected')
+const protectedFirst = enemyBulletContact(2, true, 10, 15)
+const grazeAfter = enemyBulletContact(12, true, 10, 15)
+let grazeMask = protectedFirst === 'protected' ? 1 : 0
+const bonus = grazeAfter === 'graze' && (grazeMask & 1) === 0
+assert.equal(bonus, false, 'a protected core crossing disqualifies its later near-miss bonus')
+assert.equal(grazeMask, 1)
 assert.equal(enemyBulletContact(10, false, 10, 15), 'graze')
 assert.equal(enemyBulletContact(14.99, true, 10, 15), 'graze')
 assert.equal(enemyBulletContact(15, false, 10, 15), null)

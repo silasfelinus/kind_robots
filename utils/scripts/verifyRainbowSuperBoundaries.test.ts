@@ -13,7 +13,7 @@ assert.equal(
 assert.equal(enemyBulletContact(9.99, true, 10, 15), 'protected')
 const protectedFirst = enemyBulletContact(2, true, 10, 15)
 const grazeAfter = enemyBulletContact(12, true, 10, 15)
-let grazeMask = protectedFirst === 'protected' ? 1 : 0
+const grazeMask = protectedFirst === 'protected' ? 1 : 0
 const bonus = grazeAfter === 'graze' && (grazeMask & 1) === 0
 assert.equal(bonus, false, 'a protected core crossing disqualifies its later near-miss bonus')
 assert.equal(grazeMask, 1)

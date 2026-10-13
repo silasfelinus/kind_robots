@@ -368,15 +368,69 @@ for (const key of ['art', 'projects', 'studios', 'people', 'shelf']) {
 }
 
 const navigationMoves = [
-  { slug: 'zuzu-lair', from: 'projects', to: 'admin', route: '/play/zuzu-lair', admin: true },
-  { slug: 'tzaddik-gallery', from: 'projects', to: 'admin', route: '/tzaddik-gallery', admin: true },
-  { slug: 'ruler-hooked', from: 'projects', to: 'admin', route: '/admin/ruler-hooked', admin: true },
-  { slug: 'brainstorm', from: 'projects', to: 'admin', route: '/brainstorm', admin: true },
-  { slug: 'zuzu-shifting-lands', from: 'projects', to: 'zuzu', route: '/play/zuzu-shifting-lands', admin: false },
-  { slug: 'zuzu-pinball', from: 'projects', to: 'zuzu', route: '/play/zuzu-pinball', admin: false },
-  { slug: 'zuzu-showdown', from: 'projects', to: 'zuzu', route: '/play/zuzu-showdown', admin: false },
-  { slug: 'zuzu-gamebook', from: 'projects', to: 'zuzu', route: '/play/zuzu-gamebook', admin: false },
-  { slug: 'arcade', from: 'projects', to: 'arcade', route: '/play/arcade', admin: false },
+  {
+    slug: 'zuzu-lair',
+    from: 'projects',
+    to: 'admin',
+    route: '/play/zuzu-lair',
+    admin: true,
+  },
+  {
+    slug: 'tzaddik-gallery',
+    from: 'projects',
+    to: 'admin',
+    route: '/tzaddik-gallery',
+    admin: true,
+  },
+  {
+    slug: 'ruler-hooked',
+    from: 'projects',
+    to: 'admin',
+    route: '/admin/ruler-hooked',
+    admin: true,
+  },
+  {
+    slug: 'brainstorm',
+    from: 'projects',
+    to: 'admin',
+    route: '/brainstorm',
+    admin: true,
+  },
+  {
+    slug: 'zuzu-shifting-lands',
+    from: 'projects',
+    to: 'zuzu',
+    route: '/play/zuzu-shifting-lands',
+    admin: false,
+  },
+  {
+    slug: 'zuzu-pinball',
+    from: 'projects',
+    to: 'zuzu',
+    route: '/play/zuzu-pinball',
+    admin: false,
+  },
+  {
+    slug: 'zuzu-showdown',
+    from: 'projects',
+    to: 'zuzu',
+    route: '/play/zuzu-showdown',
+    admin: false,
+  },
+  {
+    slug: 'zuzu-gamebook',
+    from: 'projects',
+    to: 'zuzu',
+    route: '/play/zuzu-gamebook',
+    admin: false,
+  },
+  {
+    slug: 'arcade',
+    from: 'projects',
+    to: 'arcade',
+    route: '/play/arcade',
+    admin: false,
+  },
 ] as const
 
 const newline = String.fromCharCode(10)
@@ -388,29 +442,49 @@ for (const { slug, from, to, route, admin } of navigationMoves) {
   assert.equal(tab.includes(`${newline}requiredRole: ADMIN${newline}`), admin)
   assert.equal(existsSync(`content/channels/${from}/${slug}.md`), false)
   if (slug !== 'arcade') {
-    assert.deepEqual(PROJECT_PLACEMENTS[slug], { channelKey: to, tabKey: slug, route })
+    assert.deepEqual(PROJECT_PLACEMENTS[slug], {
+      channelKey: to,
+      tabKey: slug,
+      route,
+    })
   }
 }
 
 for (const key of ['arcade', 'zuzu', 'projects', 'admin', 'home']) {
   const index = readFileSync(`content/channels/${key}/index.md`, 'utf8')
-  assert.match(index, /\\ntutorial:\\s*\\n[\\s\\S]*?overview:/)
+  assert.match(index, /\ntutorial:\s*\n[\s\S]*?overview:/)
 }
 const channelSort = (key: string) =>
-  Number(readFileSync(`content/channels/${key}/index.md`, 'utf8').match(/^sort: (\\d+)$/m)?.[1])
-assert.ok(['arcade','zuzu','projects','admin'].every((key) => channelSort(key) < channelSort('home')))
-for (const name of ['storybook','bots','characters','facets','gallery','model-builder','rewards','scenarios']) {
+  Number(
+    readFileSync(`content/channels/${key}/index.md`, 'utf8').match(
+      /^sort: (\d+)$/m,
+    )?.[1],
+  )
+assert.ok(
+  ['arcade', 'zuzu', 'projects', 'admin'].every(
+    (key) => channelSort(key) < channelSort('home'),
+  ),
+)
+for (const name of [
+  'storybook',
+  'bots',
+  'characters',
+  'facets',
+  'gallery',
+  'model-builder',
+  'rewards',
+  'scenarios',
+]) {
   const tab = readFileSync(`content/channels/projects/story-${name}.md`, 'utf8')
   assert.match(tab, /^channelKey: projects$/m)
   if (name !== 'storybook') assert.match(tab, /^parentTabKey: storybook$/m)
 }
 assert.equal(existsSync('content/channels/storybook/index.md'), false)
-for (const path of [
-  'content/brainstorm.md',
-  'content/admin/ruler-hooked.md',
-]) {
+for (const path of ['content/brainstorm.md', 'content/admin/ruler-hooked.md']) {
   assert.ok(
-    readFileSync(path, 'utf8').includes(`${newline}channelKey: admin${newline}`),
+    readFileSync(path, 'utf8').includes(
+      `${newline}channelKey: admin${newline}`,
+    ),
   )
 }
 

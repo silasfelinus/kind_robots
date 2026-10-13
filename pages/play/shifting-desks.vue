@@ -561,7 +561,7 @@
                       v-if="gradeBadge(choice)"
                       class="flex items-center gap-1 self-start rounded-md bg-stone-800 px-2 py-0.5 text-[11px] font-bold uppercase text-amber-50"
                     >
-                      <icon name="kind-icon:clipboard" size="0.8rem" />
+                      <icon name="kind-icon:document" size="0.8rem" />
                       {{ gradeBadge(choice) }}
                     </span>
                     <span

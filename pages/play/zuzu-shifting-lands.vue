@@ -1,9 +1,6 @@
 <template>
   <main class="kr-surface">
-    <ShiftingLandsJourneyBoard
-      v-if="!legacyMode"
-      @legacy="legacyMode = true"
-    />
+    <ShiftingLandsJourneyBoard v-if="!legacyMode" @legacy="legacyMode = true" />
     <div
       v-else
       class="kr-scroll mx-auto w-full max-w-[1540px] space-y-5 px-3 py-5 sm:px-6"

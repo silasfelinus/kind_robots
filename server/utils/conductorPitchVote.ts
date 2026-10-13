@@ -32,7 +32,7 @@ export function pitchTitleOf(content: string, fallback: string): string {
 
 export function pitchIdeaOf(content: string): string {
   const lines = content.split('\n')
-  const start = lines.findIndex((line) => /^##\s*The idea/i.test(line))
+  const start = lines.findIndex((line) => /^##\s*(?:The idea|Delivered change)/i.test(line))
   if (start < 0) return ''
   const body: string[] = []
   for (const line of lines.slice(start + 1)) {
@@ -168,6 +168,7 @@ export interface PendingPitch {
   slug: string
   title: string
   idea: string
+  deliveryStatus?: 'shipped' | 'in-progress'
 }
 
 /** Every pitches/<date>-*.md still awaiting Silas, newest first. */
@@ -193,6 +194,10 @@ export async function listPendingPitches(): Promise<PendingPitch[]> {
             slug,
             title: pitchTitleOf(file.content, slug),
             idea: pitchIdeaOf(file.content),
+            deliveryStatus: (
+              file.content.match(/^delivery-status:\s*(shipped|in-progress)\s*$/m)?.[1]
+              ?? undefined
+            ) as 'shipped' | 'in-progress' | undefined,
           },
         ]
       : [],

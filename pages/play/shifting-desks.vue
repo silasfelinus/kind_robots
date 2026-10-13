@@ -201,6 +201,14 @@
                 class="desk-card flex flex-col gap-3 rounded-2xl border-2 border-stone-800 p-5 text-left text-stone-900 transition hover:-translate-y-1 focus-visible:-translate-y-1"
                 @click="hire(job.id)"
               >
+                <shifting-desks-art
+                  class="rounded-xl border-2 border-stone-800"
+                  :src="stationArt('jobs', job.id)"
+                  :prompt="jobPrompt(job.id)"
+                  :alt="`Portrait: ${job.title}`"
+                  fallback-icon="kind-icon:user"
+                  icon-size="3rem"
+                />
                 <span class="flex items-center gap-2">
                   <icon name="kind-icon:user" class="size-6" />
                   <span class="font-mono text-lg font-black uppercase">{{
@@ -245,6 +253,12 @@
               :outcome-title="store.outcome?.title ?? ''"
               :outcome-summary="store.outcome?.summary ?? ''"
               :memo="elevatorMemo"
+              :arrival-src="
+                upcoming
+                  ? stationArt('departments', upcoming.department.id)
+                  : ''
+              "
+              :arrival-prompt="upcoming?.department.arrival_prompt ?? ''"
               @descend="descend"
             />
           </section>
@@ -316,15 +330,20 @@
                     :aria-hidden="opened"
                     @click="openFile"
                   >
-                    <icon
-                      :name="
+                    <shifting-desks-art
+                      class="!absolute inset-0 rounded-xl"
+                      frame="h-full w-full"
+                      :src="backArt"
+                      :prompt="backPrompt"
+                      :fallback-icon="
                         view.kind === 'boss'
                           ? 'kind-icon:shield'
                           : 'kind-icon:folder'
                       "
-                      size="4.5rem"
+                      icon-size="4.5rem"
+                      :show-brief="false"
                     />
-                    <span class="desk-stamp">
+                    <span class="desk-stamp relative">
                       {{
                         view.kind === 'boss'
                           ? 'Department review'
@@ -332,7 +351,7 @@
                       }}
                     </span>
                     <span
-                      class="rounded-full border-2 px-4 py-1 text-xs font-bold uppercase"
+                      class="relative rounded-full border-2 bg-inherit px-4 py-1 text-xs font-bold uppercase"
                     >
                       Open the file
                     </span>
@@ -341,13 +360,13 @@
                     class="desk-face desk-front desk-card flex flex-col overflow-hidden rounded-2xl border-4 border-stone-800 text-stone-900"
                     :aria-hidden="!opened"
                   >
-                    <div
-                      class="desk-plate relative flex aspect-[4/3] items-center justify-center"
-                    >
-                      <icon
-                        :name="cardIcon"
-                        size="7rem"
-                        class="text-stone-900/80"
+                    <div class="desk-plate relative">
+                      <shifting-desks-art
+                        :src="faceArt"
+                        :prompt="view.card.art_prompt"
+                        :alt="`Illustration: ${view.card.title}`"
+                        :fallback-icon="cardIcon"
+                        icon-size="6rem"
                       />
                       <span
                         class="absolute left-3 top-3 rounded-md bg-stone-900 px-2 py-0.5 text-[10px] font-bold uppercase tracking-widest text-amber-50"
@@ -356,10 +375,6 @@
                             ? 'Department review'
                             : locationTitle
                         }}</span
-                      >
-                      <span
-                        class="absolute bottom-3 right-3 rounded-md bg-stone-50/80 px-2 py-0.5 text-[10px] font-bold uppercase"
-                        >Illustration in production</span
                       >
                     </div>
                     <div class="flex flex-col gap-2 p-4">
@@ -640,6 +655,8 @@ import {
   DEPARTMENT_FLOORS,
   METER_LABELS,
   departmentPack,
+  jobPrompt,
+  stationArt,
   nextDepartment,
   SKILLS,
   employeeId,
@@ -825,6 +842,32 @@ const TAG_ICONS: Record<string, string> = {
   callback: 'kind-icon:book',
   sacrifice: 'kind-icon:users',
 }
+
+const faceArt = computed(() =>
+  view.value && run.value
+    ? stationArt('cards', view.value.card.id, run.value.department)
+    : '',
+)
+
+const currentLocation = computed(() =>
+  view.value?.kind === 'encounter'
+    ? locationById(view.value.card.location_id)
+    : undefined,
+)
+
+const backArt = computed(() =>
+  view.value?.kind === 'boss'
+    ? '/images/shifting-desks/backs/review.webp'
+    : currentLocation.value
+      ? stationArt('locations', currentLocation.value.location_id)
+      : '/images/shifting-desks/backs/encounter.webp',
+)
+
+const backPrompt = computed(() =>
+  view.value?.kind === 'boss'
+    ? view.value.card.art_prompt
+    : (currentLocation.value?.art_prompt ?? ''),
+)
 
 const cardIcon = computed(() => {
   if (!view.value) return 'kind-icon:folder'

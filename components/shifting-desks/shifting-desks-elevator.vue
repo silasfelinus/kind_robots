@@ -17,8 +17,16 @@
         </span>
       </div>
       <div class="elevator-shaft relative aspect-[4/3]">
+        <shifting-desks-art
+          class="!absolute inset-0"
+          frame="h-full w-full"
+          :src="arrivalSrc"
+          :prompt="arrivalPrompt"
+          :alt="`${toTitle}, now arriving`"
+          :show-brief="false"
+        />
         <div
-          class="elevator-inside flex flex-col items-center justify-center gap-3 p-6 text-center"
+          class="elevator-inside flex flex-col items-center justify-end gap-2 p-5 text-center"
         >
           <p
             class="font-mono text-xs font-black uppercase tracking-[.3em] text-stone-700"
@@ -32,6 +40,15 @@
             {{ toTitle }}
           </p>
           <p class="max-w-sm text-sm text-stone-800">{{ toTagline }}</p>
+          <p
+            v-if="arrivalPrompt"
+            class="line-clamp-2 max-w-md text-[10px] italic text-stone-700"
+          >
+            <span class="font-bold not-italic uppercase tracking-wider"
+              >Art brief:</span
+            >
+            {{ arrivalPrompt }}
+          </p>
         </div>
         <div class="door door-left" aria-hidden="true" />
         <div class="door door-right" aria-hidden="true" />
@@ -81,6 +98,8 @@ defineProps<{
   outcomeTitle: string
   outcomeSummary: string
   memo: string[]
+  arrivalSrc: string
+  arrivalPrompt: string
 }>()
 
 const emit = defineEmits<{ descend: [] }>()
@@ -155,12 +174,12 @@ onMounted(() => {
 .elevator-inside {
   position: absolute;
   inset: 0;
-  background-color: #e9d8a6;
-  background-image: radial-gradient(
-    rgb(41 37 36 / 0.12) 1px,
-    transparent 1.2px
+  background: linear-gradient(
+    to top,
+    rgb(233 216 166 / 0.95) 0%,
+    rgb(233 216 166 / 0.85) 38%,
+    rgb(233 216 166 / 0) 70%
   );
-  background-size: 6px 6px;
 }
 
 .door {

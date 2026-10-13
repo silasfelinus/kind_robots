@@ -15,6 +15,7 @@ import {
   MUTATIONS,
   descend,
   fallbackOutcome,
+  stationArt,
   SOCIETIES,
   advance,
   choose,
@@ -407,6 +408,48 @@ assert.ok(
   `elimination stays a risk, not the norm (${eliminated})`,
 )
 
+const SUFFIX = 'every surface bare and unmarked'
+const stationPrompts: Array<[string, string]> = [
+  ...DEPARTMENTS.flatMap((d): Array<[string, string]> => [
+    [`department ${d.department.id}`, d.department.arrival_prompt],
+    [`review ${d.boss.id}`, d.boss.art_prompt],
+    ...d.locations.map((l): [string, string] => [
+      `location ${l.location_id}`,
+      l.art_prompt,
+    ]),
+    ...d.encounters.map((e): [string, string] => [
+      `card ${e.id}`,
+      e.art_prompt,
+    ]),
+  ]),
+  ...DECKS.jobTitles.map((j): [string, string] => [
+    `job ${j.id}`,
+    j.art_prompt,
+  ]),
+  ...SOCIETIES.map((x): [string, string] => [`society ${x.id}`, x.art_prompt]),
+  ...MUTATIONS.map((x): [string, string] => [`mutation ${x.id}`, x.art_prompt]),
+]
+assert.ok(
+  stationPrompts.length >= 53,
+  `every station is covered (${stationPrompts.length})`,
+)
+for (const [station, prompt] of stationPrompts) {
+  assert.ok(
+    typeof prompt === 'string' &&
+      prompt.length >= 50 &&
+      prompt.trimEnd().endsWith(SUFFIX),
+    `${station} has an image prompt (Silas: every station needs an image)`,
+  )
+}
+assert.equal(
+  stationArt('cards', 'gus-shop-steward', 'orientation'),
+  '/images/shifting-desks/cards/orientation/gus-shop-steward.webp',
+)
+assert.equal(
+  stationArt('societies', 'the-recyclers'),
+  '/images/shifting-desks/societies/the-recyclers.webp',
+)
+
 const page = asset('../../pages/play/shifting-desks.vue')
 assert.doesNotMatch(page, /<h1[\s>]/)
 assert.match(page, /class="kr-surface"/)
@@ -415,6 +458,26 @@ assert.match(page, /prefers-reduced-motion: reduce/)
 const tab = asset('../../content/channels/projects/shifting-desks.md')
 assert.match(tab, /route: \/play\/shifting-desks/)
 assert.match(asset('../../public/shifting-desks/front-poster.svg'), /<title/)
+
+const pageWithParts = [
+  page,
+  asset('../../components/shifting-desks/shifting-desks-envelope.vue'),
+  asset('../../components/shifting-desks/shifting-desks-elevator.vue'),
+].join('\n')
+for (const kind of [
+  'cards',
+  'locations',
+  'departments',
+  'jobs',
+  'societies',
+  'mutations',
+]) {
+  assert.match(
+    pageWithParts,
+    new RegExp(`stationArt\\('${kind}'`),
+    `${kind} stations render art`,
+  )
+}
 
 console.log(
   `shifting desks contract ok (${completed}/3000 completed, ${eliminated} eliminated)`,

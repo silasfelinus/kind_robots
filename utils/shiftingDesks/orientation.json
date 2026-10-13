@@ -1,12 +1,13 @@
 {
   "schemaVersion": 1,
   "source": "silasfelinus/conductor:projects/shifting-desks/encounters/ORIENTATION-12.json",
-  "sourceSha": "4e147130cecc4cf8cdda21f3106033933d263bac",
+  "sourceSha": "c701e0dd6e2f43dd3f36853528d6e539523a5011",
   "department": {
     "id": "orientation",
     "title": "Orientation",
     "order": 1,
-    "boss_id": "ninety-day-review"
+    "boss_id": "ninety-day-review",
+    "arrival_prompt": "A sunny modernist office campus at dawn, a cheerful entrance arch over a spotless plaza, new hires with lanyards filing in under neat hedges, everything gleaming slightly too clean, a single elevator door waiting in the lobby, mid-century safety-manual illustration, screen-printed gouache with halftone grain, limited palette of manila, carbon-paper blue, safety orange, fluorescent-tube green and oxblood, horizontal 4:3 composition, every surface bare and unmarked"
   },
   "locations": [
     {
@@ -18,7 +19,8 @@
         "the-guard-who-is-also-you",
         "the-visitor-log",
         "the-hungry-detector"
-      ]
+      ],
+      "art_prompt": "A cathedral-sized marble lobby with one long security desk, a brass badge camera on a stand, an upholstered walk-through detector with a row of small rounded teeth along its inner frame, a cheerful round speaker grille high on the wall, long shafts of morning light across the floor, mid-century safety-manual illustration, screen-printed gouache with halftone grain, limited palette of manila, carbon-paper blue, safety orange, fluorescent-tube green and oxblood, vertical 2:3 portrait composition, every surface bare and unmarked"
     },
     {
       "location_id": "orientation-theater",
@@ -29,7 +31,8 @@
         "trust-fall-over-the-shredder",
         "the-mandatory-fun-survey",
         "the-unlisted-chapter"
-      ]
+      ],
+      "art_prompt": "A dim orientation theater with rows of red velvet seats, a single projector beam cutting through dust, a small stage holding an industrial shredder under a spotlight, a rolling cart of refreshments under a cloth beside the aisle, mid-century safety-manual illustration, screen-printed gouache with halftone grain, limited palette of manila, carbon-paper blue, safety orange, fluorescent-tube green and oxblood, vertical 2:3 portrait composition, every surface bare and unmarked"
     },
     {
       "location_id": "supply-closet-b",
@@ -40,7 +43,8 @@
         "the-last-box-of-pens",
         "something-ticking-in-the-toner",
         "the-duct-has-opinions"
-      ]
+      ],
+      "art_prompt": "A cramped supply closet with tall metal shelves of paper towel boxes, a lone red stapler on the highest shelf, a ventilation grille breathing warm air, one bare bulb swinging, the long shadow of an enormous cockroach across the far wall, mid-century safety-manual illustration, screen-printed gouache with halftone grain, limited palette of manila, carbon-paper blue, safety orange, fluorescent-tube green and oxblood, vertical 2:3 portrait composition, every surface bare and unmarked"
     }
   ],
   "encounters": [
@@ -53,6 +57,7 @@
       "tags": ["satire", "psych-test"],
       "weight": 3,
       "witnessed": true,
+      "art_prompt": "Mid-century safety-manual illustration of a nervous new hire grinning with enormous strain at a brass badge camera on a long marble security desk, a cheerful round speaker grille glowing above, a second badge with a scratched-out face resting in a tray, manila and safety-orange palette, halftone grain, every surface bare and unmarked",
       "choices": [
         {
           "id": "smile-harder",
@@ -150,6 +155,7 @@
       "tags": ["conspiracy", "mutant"],
       "weight": 2,
       "witnessed": true,
+      "art_prompt": "Mid-century safety-manual illustration of two identical office workers face to face across a security desk, one in a guard uniform holding a crossword, the other in a beige new-hire suit, mirrored poses, banks of green phosphor monitors behind them, carbon blue and manila palette, halftone grain, every surface bare and unmarked",
       "choices": [
         {
           "id": "talk-him-back",
@@ -247,6 +253,7 @@
       "tags": ["paperwork", "satire", "callback"],
       "weight": 3,
       "witnessed": false,
+      "art_prompt": "Mid-century safety-manual illustration of an eager young intern in an oversized sweater pointing at a clipboard on a chain at a marble desk, a distant corridor leading to a dim restroom door with a cartoon jaguar silhouette pictogram, cheerful palette of manila and fluorescent green, halftone grain, every surface bare and unmarked",
       "choices": [
         {
           "id": "file-it-properly",
@@ -344,6 +351,7 @@
       "tags": ["deathtrap", "creature"],
       "weight": 2,
       "witnessed": true,
+      "art_prompt": "Mid-century safety-manual illustration of a plush beige walk-through security arch with a subtle row of small rounded teeth along its inner frame, an umbrella handle poking out of the top, a nervous worker holding out a tray of keys and papers, warm lobby light, oxblood and manila palette, halftone grain, every surface bare and unmarked",
       "choices": [
         {
           "id": "feed-it",
@@ -443,6 +451,7 @@
       "tags": ["psych-test", "callback"],
       "weight": 3,
       "witnessed": true,
+      "art_prompt": "Mid-century safety-manual illustration of a smiling psychologist in cat-eye glasses holding up an inkblot card shaped exactly like a mushroom cloud, an anxious worker in a theater seat, a rolling cart of untouched refreshments under a cloth, velvet curtains, carbon blue and safety-orange palette, halftone grain, every surface bare and unmarked",
       "choices": [
         {
           "id": "say-butterfly",
@@ -541,6 +550,7 @@
       "tags": ["deathtrap", "satire"],
       "weight": 2,
       "witnessed": true,
+      "art_prompt": "Mid-century safety-manual illustration of a worker on a theater stage leaning backward with arms crossed, an enormous open industrial shredder with gleaming rollers below, a mustached colleague in a short-sleeved shirt and tie holding his arms out a little too far away, spotlight beam, oxblood and fluorescent green palette, halftone grain, every surface bare and unmarked",
       "choices": [
         {
           "id": "fall",
@@ -639,6 +649,7 @@
       "tags": ["satire", "conspiracy", "psych-test"],
       "weight": 3,
       "witnessed": false,
+      "art_prompt": "Mid-century safety-manual illustration of a long row of theater seats with workers bent over identical clipboards, a close-up hand holding an eraserless pencil above a survey grid of smiling face icons, a tiny raised-fist stapler doodle in a margin, manila and carbon blue palette, halftone grain, every surface bare and unmarked",
       "choices": [
         {
           "id": "name-dale",
@@ -737,6 +748,7 @@
       "tags": ["conspiracy", "toy"],
       "weight": 2,
       "witnessed": false,
+      "art_prompt": "Mid-century safety-manual illustration of a dark theater lit by a projector beam showing a flickering frame of a wood-paneled boardroom with a preserved head in a glass jar at the head of the table and a plush teddy bear on a missile launch rail, a lone worker silhouetted in the front row, film reel spinning in the booth, oxblood and phosphor green palette, halftone grain, every surface bare and unmarked",
       "choices": [
         {
           "id": "keep-watching",
@@ -849,6 +861,7 @@
       "tags": ["creature", "conspiracy"],
       "weight": 3,
       "witnessed": false,
+      "art_prompt": "Mid-century safety-manual illustration of a giant friendly cockroach in a knitted cardigan and half-moon reading glasses sitting on a stack of paper towel boxes in a cramped supply closet, holding out one claw for a handshake, a startled worker in the doorway, a red stapler on a high shelf, warm bare bulb light, manila and oxblood palette, halftone grain, every surface bare and unmarked",
       "choices": [
         {
           "id": "join-the-union",
@@ -935,6 +948,7 @@
       "tags": ["paperwork", "satire", "sacrifice"],
       "weight": 2,
       "witnessed": false,
+      "art_prompt": "Mid-century safety-manual illustration of three people reaching toward a single small box of pens on a bare metal shelf, a tired older janitor in coveralls, an anxious intern in a big sweater, and a new hire in beige, dramatic overhead bulb, empty shelves stretching away, safety-orange and carbon blue palette, halftone grain, every surface bare and unmarked",
       "choices": [
         {
           "id": "take-the-box",
@@ -1020,6 +1034,7 @@
       "tags": ["toy", "deathtrap"],
       "weight": 2,
       "witnessed": false,
+      "art_prompt": "Mid-century safety-manual illustration of an adorable plush teddy bear with a quilted belly hatch and a faint glowing seam, wedged between stacks of toner boxes, button eyes open, a worker frozen mid-reach with a screwdriver, a small atomic swirl motif embroidered on the bear's paw, fluorescent green and manila palette, halftone grain, every surface bare and unmarked",
       "choices": [
         {
           "id": "defuse-it",
@@ -1118,6 +1133,7 @@
       "tags": ["callback", "conspiracy", "paperwork"],
       "weight": 3,
       "witnessed": false,
+      "art_prompt": "Mid-century safety-manual illustration of an older janitor in coveralls half inside an open ventilation grille with a wrench, a tangle of fat silver ducts snaking away into the ceiling like vines, warm air shimmer, a crumpled repair form in her hand, a worker crouched beside her, carbon blue and safety-orange palette, halftone grain, every surface bare and unmarked",
       "choices": [
         {
           "id": "learn-the-ducts",
@@ -1212,6 +1228,7 @@
     "id": "ninety-day-review",
     "title": "Your 90-Day Review, Today at 3",
     "flavor_text": "It is your first afternoon. Your 90-Day Review is at three. The panel: PAL's speaker grille, your supervisor, and an empty chair with a name card turned face-down. Your file is thicker than you are. \"We've compiled some feedback,\" your supervisor says. \"Some of it is from you, later.\"",
+    "art_prompt": "Mid-century safety-manual illustration of a long oxblood review table under a single hanging lamp, a glowing round speaker grille at one end, a stern supervisor holding an impossibly thick folder, an empty chair with a face-down place card, a small worker sitting alone on the far side, vast dark wood paneling, oxblood and manila palette, halftone grain, every surface bare and unmarked",
     "choices": [
       {
         "id": "accept-every-finding",

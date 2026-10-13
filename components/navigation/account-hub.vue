@@ -422,7 +422,10 @@ const personalLinks = computed(() => [
     ? [
         { label: 'My account', route: '/account', icon: 'kind-icon:user' },
         { label: 'Achievements', route: '/achievements', icon: 'kind-icon:star' },
+        { label: 'Wallet', route: '/wallet', icon: 'kind-icon:treasure' },
+        { label: 'Creator earnings', route: '/creator-earnings', icon: 'kind-icon:coins' },
         { label: 'Messages', route: '/messages', icon: 'kind-icon:message' },
+        { label: 'Chats', route: '/chats', icon: 'kind-icon:chat' },
         { label: 'Friends', route: '/friends', icon: 'kind-icon:users' },
         { label: 'Themes', route: '/themes', icon: 'kind-icon:palette' },
         { label: 'Servers', route: '/servers', icon: 'kind-icon:server' },
@@ -433,6 +436,10 @@ const personalLinks = computed(() => [
         { label: 'Register', route: '/register', icon: 'kind-icon:user' },
       ]),
   { label: 'About & support', route: '/about', icon: 'kind-icon:heart' },
+  { label: 'Give', route: '/giving', icon: 'kind-icon:heart' },
+  { label: 'Giftshop', route: '/sanctuary', icon: 'kind-icon:gift' },
+  { label: 'Cart', route: '/cart', icon: 'kind-icon:cart' },
+  { label: 'Privacy', route: '/privacy', icon: 'kind-icon:shield' },
   { label: 'Site directory', route: '/navigation', icon: 'kind-icon:map' },
 ])
 

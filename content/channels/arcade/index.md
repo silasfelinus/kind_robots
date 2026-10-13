@@ -5,7 +5,7 @@ label: Arcade
 title: Kind Robots Arcade
 room: The Arcade
 subtitle: Pick a cabinet, chase a high score
-description: "Free original cabinets: pinball, platformers, shooters, and stranger surprises."
+description: 'Free original cabinets: pinball, platformers, shooters, and stranger surprises.'
 summary: The arcade hall and its games.
 icon: kind-icon:arcade
 image: /images/arcade/arcade-attract-splash.webp

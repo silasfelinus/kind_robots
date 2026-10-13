@@ -251,11 +251,23 @@ export function renderPitchInboxPage(page: {
   }
   const cards = page.cards
     .map((card) => {
-      const delivered = card.deliveryStatus === 'shipped' || card.deliveryStatus === 'in-progress'
+      const delivered =
+        card.deliveryStatus === 'shipped' ||
+        card.deliveryStatus === 'in-progress'
       const labels: Record<PitchInboxChoice, string> = delivered
-        ? { approve: '✅ Keep', 'approve-changes': '✏️ Modify', pass: '↩️ Reject', later: '⏳ Review later' }
+        ? {
+            approve: '✅ Keep',
+            'approve-changes': '✏️ Modify',
+            pass: '↩️ Reject',
+            later: '⏳ Review later',
+          }
         : INBOX_CHOICE_LABELS
-      const badge = delivered ? '<p><strong>Already built or in progress.</strong> Review after implementation.</p>' : ''
+      const badge = delivered
+        ? '<p><strong>Already built or in progress.</strong> Review after implementation.</p>'
+        : ''
+      const notesPlaceholder = delivered
+        ? 'Describe changes to request (required for Modify)'
+        : 'Changes or notes (required for Approve with changes)'
       const choices = PITCH_INBOX_CHOICES.map(
         (choice) =>
           `<label><input type="radio" name="vote:${escapeHtml(card.slug)}" value="${choice}"${
@@ -267,16 +279,20 @@ ${card.problem ? `<p class="problem">${escapeHtml(card.problem)}</p>` : ''}<h2>$
 ${badge}
 <p>${escapeHtml(card.idea)}</p>
 <div class="choices">${choices}</div>
-<textarea name="notes:${escapeHtml(card.slug)}" maxlength="${PITCH_NOTES_MAX}" placeholder="${delivered ? 'Describe changes to request (required for Modify)' : 'Changes or notes (required for Approve with changes)'}">${escapeHtml(page.notes?.[card.slug] ?? '')}</textarea>
+<textarea name="notes:${escapeHtml(card.slug)}" maxlength="${PITCH_NOTES_MAX}" placeholder="${notesPlaceholder}">${escapeHtml(page.notes?.[card.slug] ?? '')}</textarea>
 </section>`
     })
     .join('\n')
   const hasDeliveries = page.cards.some((card) => card.deliveryStatus)
+  const heading = hasDeliveries
+    ? `Review updates (${page.cards.length})`
+    : `Pitch inbox (${page.cards.length})`
+  const instructions = hasDeliveries
+    ? 'Upgrades have already been built or are in progress. Keep, request modifications, or reject to request a scoped rollback. Reject never directly deletes work.'
+    : 'Choose for each pitch, then save once. Anything left on “Decide later” stays here.'
   return inboxShell(
-    hasDeliveries ? `Review updates (${page.cards.length})` : `Pitch inbox (${page.cards.length})`,
-    `<p>${hasDeliveries
-      ? 'Upgrades have already been built or are in progress. Keep, request modifications, or reject to request a scoped rollback. Reject never directly deletes work.'
-      : 'Choose for each pitch, then save once. Anything left on “Decide later” stays here.'}</p>
+    heading,
+    `<p>${instructions}</p>
 <form method="post" action="/api/conductor/pitch-inbox">
 <input type="hidden" name="exp" value="${page.exp}">
 <input type="hidden" name="sig" value="${escapeHtml(page.sig)}">

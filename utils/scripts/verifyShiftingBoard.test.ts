@@ -18,17 +18,16 @@ const store = read('../../stores/shiftingLandsJourneyStore.ts')
 const legacy = read('../../stores/shiftingLandsStore.ts')
 const channel = read('../../content/channels/projects/zuzu-shifting-lands.md')
 
-assert.match(channel, /requiredRole: ADMIN/)
-assert.match(channel, /route: \/admin\/zuzu-shifting-lands/)
+assert.match(channel, /requiredRole: GUEST/)
+assert.match(channel, /route: \/play\/zuzu-shifting-lands/)
 assert.doesNotMatch(channel, /navigation: false/)
 assert.match(page, /v-else-if="!legacyMode"/)
 assert.match(page, /ShiftingLandsJourneyBoard/)
 assert.match(page, /@legacy="legacyMode = true"/)
 assert.match(page, /legacyMode = false/)
-assert.equal(
-  existsSync(file('../../pages/play/zuzu-shifting-lands.vue')),
-  false,
-)
+const publicPage = read('../../pages/play/zuzu-shifting-lands.vue')
+assert.match(publicPage, /ShiftingLandsJourneyBoard/)
+assert.doesNotMatch(publicPage, /isAdmin|admin-only|private workshop/)
 
 assert.match(board, /<FlipCard\b/)
 assert.match(board, /<kr-card-flip/)

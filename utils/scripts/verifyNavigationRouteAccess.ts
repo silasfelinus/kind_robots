@@ -396,13 +396,13 @@ const navigationMoves = [
     slug: 'zuzu-shifting-lands',
     from: 'admin',
     to: 'projects',
-    route: '/admin/zuzu-shifting-lands',
+    route: '/play/zuzu-shifting-lands',
   },
   {
     slug: 'zuzu-pinball',
     from: 'admin',
     to: 'projects',
-    route: '/admin/zuzu-pinball',
+    route: '/play/zuzu-pinball',
   },
   {
     slug: 'zuzu-showdown',
@@ -425,9 +425,12 @@ for (const { slug, from, to, route } of navigationMoves) {
     tab.includes(`${newline}route: ${route}${newline}`),
     `${slug} must preserve its working route`,
   )
-  if (slug === 'zuzu-showdown') {
+  if (['zuzu-showdown', 'zuzu-shifting-lands', 'zuzu-pinball'].includes(slug)) {
     // Showdown separately launched publicly under #3549; never re-gate it.
     assert.ok(!tab.includes(`${newline}requiredRole: ADMIN${newline}`))
+    if (slug !== 'zuzu-showdown') {
+      assert.ok(tab.includes(`${newline}requiredRole: GUEST${newline}`))
+    }
   } else {
     assert.ok(
       tab.includes(`${newline}requiredRole: ADMIN${newline}`),

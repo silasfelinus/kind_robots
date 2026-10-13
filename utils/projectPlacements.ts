@@ -133,12 +133,12 @@ export const PROJECT_PLACEMENTS: Record<string, ProjectPlacement> = {
   'zuzu-shifting-lands': {
     channelKey: 'projects',
     tabKey: 'zuzu-shifting-lands',
-    route: '/admin/zuzu-shifting-lands',
+    route: '/play/zuzu-shifting-lands',
   },
   'zuzu-pinball': {
     channelKey: 'projects',
     tabKey: 'zuzu-pinball',
-    route: '/admin/zuzu-pinball',
+    route: '/play/zuzu-pinball',
   },
   'zuzu-gamebook': {
     channelKey: 'projects',

@@ -8,6 +8,9 @@ subtitle: Storybook, creative tools, and playful experiments
 description: Make stories in Storybook, create art and video, practice skills, and explore playful experiments. Arcade and Zuzu adventures have their own channels.
 icon: kind-icon:blueprint
 image: /images/arcade/arcade-hall-backdrop.webp
+backgroundMobile: /api/art/backdrop/play-mobile
+backgroundTablet: /api/art/backdrop/play-tablet
+backgroundDesktop: /api/art/backdrop/play-desktop
 route: /art
 defaultTab: art
 sort: 40

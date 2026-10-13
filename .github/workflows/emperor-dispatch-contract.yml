@@ -16,7 +16,7 @@ on:
       - 'components/EmperorOfDustImperialRoadMap.vue'
       - 'pages/admin/emperor-of-dust.vue'
       - 'stores/emperorOfDustStore.ts'
-      - 'content/channels/admin/emperor-of-dust.md'
+      - 'content/channels/zuzu/emperor-of-dust.md'
       - '.github/workflows/emperor-dispatch-contract.yml'
   push:
     branches: [main]
@@ -30,7 +30,7 @@ on:
       - 'components/EmperorOfDustImperialRoadMap.vue'
       - 'pages/admin/emperor-of-dust.vue'
       - 'stores/emperorOfDustStore.ts'
-      - 'content/channels/admin/emperor-of-dust.md'
+      - 'content/channels/zuzu/emperor-of-dust.md'
       - '.github/workflows/emperor-dispatch-contract.yml'
 
 jobs:

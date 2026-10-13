@@ -363,7 +363,8 @@ const cabinetAst = ts.createSourceFile(
 {
   const handler = cabinetAst.statements.find(
     (statement) =>
-      ts.isFunctionDeclaration(statement) && statement.name?.text === 'toggleMute',
+      ts.isFunctionDeclaration(statement) &&
+      statement.name?.text === 'toggleMute',
   )
   assert.ok(handler, 'cabinet mute handler exists')
   const sharedSound = { muted: false }

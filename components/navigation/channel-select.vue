@@ -42,8 +42,12 @@
       <span class="kr-text-black-sm min-w-0 truncate sm:text-base xl:text-lg">
         {{
           unifiedMobile
-            ? activeChannel.channelKey === 'home' ? 'Explore' : activeTab?.label || activeChannel.label
-            : activeChannel.channelKey === 'home' ? 'Explore' : activeChannel.label
+            ? activeChannel.channelKey === 'home'
+              ? 'Explore'
+              : activeTab?.label || activeChannel.label
+            : activeChannel.channelKey === 'home'
+              ? 'Explore'
+              : activeChannel.label
         }}
       </span>
 

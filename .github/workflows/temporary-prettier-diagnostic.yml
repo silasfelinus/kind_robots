@@ -1,0 +1,31 @@
+name: Temporary Prettier diagnostics
+on:
+  push:
+    branches:
+      - worker/zuzu-pinball-audio-music-mentor-dream-20261013-0817-kr7
+permissions:
+  contents: read
+jobs:
+  formatter:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+      - run: npm ci --ignore-scripts
+      - name: Emit formatted files without changing the branch
+        shell: bash
+        run: |
+          files=(
+            'pages/play/daily-pitches/index.vue'
+            'utils/scripts/verifyApprovedPitchProgress.test.ts'
+            'utils/scripts/verifyZuzuPinballDmdSound.test.ts'
+          )
+          npx prettier --write "${files[@]}"
+          for path in "${files[@]}"; do
+            printf 'FORMAT_BEGIN:%s\\n' "$path"
+            base64 -w0 "$path"
+            printf '\\nFORMAT_END:%s\\n' "$path"
+          done

@@ -127,4 +127,41 @@ assert.equal(
 assert.equal(damaged.ships[0]!.shield, 2, 'past snapshots are value copies')
 assert.equal(damaged.ships[0]!.invulnerable, 90, 'past damage state is stable')
 
+const shieldEffects: string[] = []
+const pickupGame = createRainbowPrincessPreview({
+  rng: () => (80 - 40) / 190,
+  sound: { play: (effect) => shieldEffects.push(effect) },
+  demo: false,
+  hiScore: 0,
+  players: 1,
+})
+let shieldSeen = false
+let shieldCaught = false
+for (let tick = 0; tick < 1600; tick++) {
+  const current = pickupGame.snapshot
+  const target = current.pickups.find((pickup) => pickup.kind === 'shield')
+  const input = emptyInput()
+  input.held.a = true
+  if (target) {
+    shieldSeen = true
+    const ship = current.ships[0]!
+    input.held.right = ship.x < target.x - 4
+    input.held.left = ship.x > target.x + 4
+    input.held.up = ship.y > target.y + 4
+    input.held.down = ship.y < target.y - 4
+  }
+  pickupGame.update(input)
+  if (target && !pickupGame.snapshot.pickups.some((pickup) => pickup.kind === 'shield')) {
+    const ship = pickupGame.snapshot.ships[0]!
+    shieldCaught =
+      Math.hypot(ship.x - target.x, ship.y - target.y) < 20 &&
+      pickupGame.snapshot.ships[0]!.shield === 3
+    if (shieldCaught) break
+  }
+}
+assert.ok(shieldSeen, 'enemy defeats must generate the shield pickup')
+assert.ok(shieldCaught, 'an actual moving pilot can collect the shield pickup')
+assert.equal(pickupGame.snapshot.ships[0]!.shield, 3, 'repair caps at three shields')
+assert.ok(shieldEffects.includes('pickup'), 'collecting produces pickup feedback')
+
 console.log('Rainbow Princess earned supers, bullet cancellation and shield boundaries passed')

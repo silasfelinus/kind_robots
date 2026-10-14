@@ -14,6 +14,7 @@ import {
 } from './savePlumberArt'
 import { drawHeroine } from './savePlumberHeroineArt'
 import { drawSheetFrame, keyedSheet } from './savePlumberSheets'
+import { actionPoses, rosterFor } from './savePlumberRoster'
 
 const W = 480
 const H = 270
@@ -31,8 +32,6 @@ type Bug = {
   knocked: number
   flipped: boolean
 }
-const HEROINE_RUN = PLUMBER_ART.anim('heroine-b-run')
-const HEROINE_ACTIONS = PLUMBER_ART.anim('heroine-b-actions')
 const PUMPBUG_CYCLE = PLUMBER_ART.anim('pumpbug-cycle')
 const floors: Platform[] = [
   { x: 0, y: FLOOR_Y, width: 333 },
@@ -367,21 +366,35 @@ export function createSavePlumberPreview(
         g.fill()
       }
       const visible = !immune || Math.floor(tick / 6) % 2
-      const paintedReady =
-        keyedSheet(HEROINE_RUN, 6) !== null &&
-        keyedSheet(HEROINE_ACTIONS, 6) !== null
-      if (visible && paintedReady) {
+      const member = rosterFor(plumberHeroine())
+      const poses = actionPoses(member)
+      const runReady = keyedSheet(member.run, 6) !== null
+      if (visible && keyedSheet(member.actions, 6) !== null) {
         const running = ground && Math.abs(vx) > 0.4
+        const bob =
+          running && !runReady ? Math.abs(Math.sin(stride / 2)) * 3 : 0
         const pose = !ground
-          ? { src: HEROINE_ACTIONS, frame: vy < 0 ? 2 : 3 }
+          ? { src: member.actions, frame: vy < 0 ? poses.rise : poses.fall }
           : landed
-            ? { src: HEROINE_ACTIONS, frame: 1 }
-            : running
-              ? { src: HEROINE_RUN, frame: Math.floor(stride / 1.8) % 6 }
-              : { src: HEROINE_ACTIONS, frame: 0 }
-        drawSheetFrame(g, pose.src, 6, pose.frame, x, y + 27, 50, {
-          flipX: facing < 0,
-        })
+            ? { src: member.actions, frame: poses.land }
+            : running && runReady
+              ? { src: member.run, frame: Math.floor(stride / 1.8) % 6 }
+              : running
+                ? {
+                    src: member.actions,
+                    frame: Math.floor(stride / 3) % 2 ? poses.rise : poses.fall,
+                  }
+                : { src: member.actions, frame: poses.idle }
+        drawSheetFrame(
+          g,
+          pose.src,
+          6,
+          pose.frame,
+          x,
+          y + 27 - bob,
+          50 * member.scale,
+          { flipX: facing < 0 },
+        )
       } else if (visible && typeof Path2D !== 'undefined') {
         drawHeroine(g, plumberHeroine(), x, y + 27, 40, {
           stride,

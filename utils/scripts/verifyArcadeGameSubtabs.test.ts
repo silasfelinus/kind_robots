@@ -123,6 +123,16 @@ assert.match(
   'switching games from the menu remounts the cabinet',
 )
 
+assert.match(page, /class="kr-panes min-h-0 grid-cols-1/)
+assert.match(page, /class="kr-pane-scroll min-w-0"/)
+assert.match(page, /id="arcade-cabinet-details"/)
+assert.match(page, /aria-controls="arcade-cabinet-details"/)
+assert.match(page, /:aria-expanded="showDetails"/)
+assert.match(page, /watch\(slug, \(\) =>/)
+assert.match(page, /\? 'hidden xl:block' : 'block'/)
+assert.match(page, /\? 'block' : 'hidden xl:block'/)
+assert.doesNotMatch(page, /class="flex flex-col gap-4 xl:flex-row"/)
+
 console.log(
   `Arcade game subtabs contract passed: ${subtabs.length} cabinets under Arcade.`,
 )

@@ -39,7 +39,9 @@ const privateWorkshop = read('../../pages/admin/zuzu-pinball-workshop.vue')
 assert.match(privateWorkshop, /user\.isAdmin/)
 assert.match(privateWorkshop, /ArcadePinballLightMap/)
 assert.match(privateWorkshop, /ZUZU_LAST_BELL_GREYBOX/)
-const workshopTab = read('../../content/channels/admin/zuzu-pinball-workshop.md')
+const workshopTab = read(
+  '../../content/channels/admin/zuzu-pinball-workshop.md',
+)
 assert.match(workshopTab, /requiredRole: ADMIN/)
 assert.match(workshopTab, /route: \/admin\/zuzu-pinball-workshop/)
 assert.doesNotMatch(publicPlay, /ArcadePinballLightMap/)

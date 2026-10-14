@@ -448,7 +448,8 @@ const features = [
     category: 'play',
     route: '/play/arcade?game=kind-pinball',
     image: '/images/arcade/games/kind-pinball-title.webp',
-    description: 'Flip into AMI Village Rescue, the original arcade pinball table.',
+    description:
+      'Flip into AMI Village Rescue, the original arcade pinball table.',
     related: [],
   },
 ] as const

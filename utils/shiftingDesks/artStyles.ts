@@ -15,23 +15,16 @@ export const ART_STYLES = [
   },
   {
     id: 'corporate-noir',
-    label: 'Corporate Noir',
+    label: 'Noir',
     checkpoint: 'Illustrious/arthemyWesternArt_v30.safetensors',
     mood: 'Western graphic novel inks, deep shadows and noir acting.',
     phase: 'concept',
   },
   {
-    id: 'mandatory-fun',
-    label: 'Mandatory Fun',
-    checkpoint: 'Illustrious/furrytoonmix_xlV3.safetensors',
-    mood: 'Expressive inked animation cels and fluorescent workplace farce.',
-    phase: 'concept',
-  },
-  {
-    id: 'endless-department',
-    label: 'Endless Department',
-    checkpoint: 'SDXL/sdxlUnstableDiffusers_nihilmania.safetensors',
-    mood: 'Painterly architectural surrealism and colossal subterranean offices.',
+    id: 'western-cartoon',
+    label: 'Western Cartoon',
+    checkpoint: 'Illustrious/arthemyWesternArt_v30.safetensors',
+    mood: 'Cinematic western animated-feature illustration: expressive staging, bold ink, warm orange and eerie fluorescent-green light, glossy character detail.',
     phase: 'concept',
   },
 ] as const

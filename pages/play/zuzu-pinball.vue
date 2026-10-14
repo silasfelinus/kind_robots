@@ -1,6 +1,8 @@
 <template>
   <main class="kr-surface">
-    <div class="mx-auto flex h-full min-h-0 w-full max-w-[1500px] flex-col gap-2 px-2 py-2 sm:px-4">
+    <div
+      class="mx-auto flex h-full min-h-0 w-full max-w-[1500px] flex-col gap-2 px-2 py-2 sm:px-4"
+    >
       <div class="flex shrink-0 justify-end">
         <button
           type="button"

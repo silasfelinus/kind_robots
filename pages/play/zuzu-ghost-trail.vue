@@ -1,7 +1,12 @@
 <template>
   <main class="kr-surface">
-    <div class="mx-auto flex h-full min-h-0 w-full max-w-7xl flex-col gap-2 p-2 sm:p-3">
-      <nav class="flex shrink-0 items-center justify-end gap-2" aria-label="Ghost Trail links">
+    <div
+      class="mx-auto flex h-full min-h-0 w-full max-w-7xl flex-col gap-2 p-2 sm:p-3"
+    >
+      <nav
+        class="flex shrink-0 items-center justify-end gap-2"
+        aria-label="Ghost Trail links"
+      >
         <NuxtLink
           to="/play/arcade?game=zuzu-ghost-trail"
           class="btn btn-outline btn-sm"

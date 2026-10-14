@@ -292,8 +292,8 @@ function collect(minFlexWidth) {
    * "documentFlow" is a review signal, not a blanket ban on useful scrolling.
    * Clipped gallery items ARE a hard failure.
    */
-  const surface = [...document.querySelectorAll('.kr-surface')].find(
-    (el) => visible(el, el.getBoundingClientRect()),
+  const surface = [...document.querySelectorAll('.kr-surface')].find((el) =>
+    visible(el, el.getBoundingClientRect()),
   )
   const primaryScroll = surface?.querySelector(':scope > .kr-scroll')
   const topLevelSections = primaryScroll
@@ -328,13 +328,21 @@ function collect(minFlexWidth) {
       ancestor = ancestor.parentElement
     }
     if (blocked) {
-      const title = (last.textContent || '').trim().replace(/\s+/g, ' ').slice(0, 64)
+      const title = (last.textContent || '')
+        .trim()
+        .replace(/\s+/g, ' ')
+        .slice(0, 64)
       clippedGalleries.push(title || 'last gallery item')
     }
   }
 
   return {
-    viewportOwnership: { documentFlow, topLevelSections, measuredGalleries, clippedGalleries },
+    viewportOwnership: {
+      documentFlow,
+      topLevelSections,
+      measuredGalleries,
+      clippedGalleries,
+    },
     vw,
     scrollWidth: de.scrollWidth,
     horizontalScroll: de.scrollWidth > vw + 1,
@@ -450,7 +458,9 @@ for (const vp of VIEWPORTS) {
       }
       if (m.viewportOwnership.clippedGalleries.length) {
         failures += 1
-        console.log(`${label} ❌ last gallery item clipped without a scroll path:`)
+        console.log(
+          `${label} ❌ last gallery item clipped without a scroll path:`,
+        )
         for (const item of m.viewportOwnership.clippedGalleries) {
           console.log(`         CLIPPED-GALLERY ${item}`)
         }
@@ -576,7 +586,15 @@ if (VIEWPORT_REPORT) {
   mkdirSync(dirname(VIEWPORT_REPORT), { recursive: true })
   writeFileSync(
     VIEWPORT_REPORT,
-    JSON.stringify({ base: BASE, auditedAt: new Date().toISOString(), readings: viewportReadings }, null, 2) + '\n',
+    JSON.stringify(
+      {
+        base: BASE,
+        auditedAt: new Date().toISOString(),
+        readings: viewportReadings,
+      },
+      null,
+      2,
+    ) + '\n',
   )
   console.log(`Viewport ownership atlas: ${VIEWPORT_REPORT}`)
 }

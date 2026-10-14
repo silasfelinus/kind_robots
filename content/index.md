@@ -1,9 +1,9 @@
 ---
 title: 'Kind Robots'
-room: 'Dashboard Room'
-subtitle: 'Craft your universe'
-tabMessage: 'Everything the swarm made lately — all of it clickable.'
-description: Welcome to Kind Robots, a consortium of AI-assisted tools to generate and share your creations with others.
+room: 'Exhibition Hall'
+subtitle: 'Play · Create · Discover'
+tabMessage: 'Games, illustrated worlds and recent creations, all a click away.'
+description: Explore the Kind Robots gallery of games, art, stories and creative experiments.
 image: splash/robots.png
 icon: kind-icon:home
 tooltip: Hi! I'm Silas, human programmer for Kind Robots!

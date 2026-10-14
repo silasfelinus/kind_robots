@@ -14,6 +14,16 @@ icon: kind-icon:trophy
 route: /play/challenges
 sort: 130
 requiredRole: ADMIN
+tutorial:
+  title: Judge a matchup
+  body: >-
+    The Arena lists challenges where every contender answers the same prompt.
+    Filter by Division and Fight status, read each fight card's difficulty,
+    entrants and current leader, then open one to see the contenders side by
+    side and react to each entry with Loved, Clapped, Booed or Hated once you
+    are signed in. Rankings opens the leaderboard, and the refresh button
+    reloads the list.
+  image: /images/dashboard-tabs/wonder/challenges.webp
 ---
 
 An admin-only testing ground for challenges still being planned and refined.

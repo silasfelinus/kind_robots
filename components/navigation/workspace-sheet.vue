@@ -373,7 +373,7 @@ import { usePageStore } from '@/stores/pageStore'
 import { useSheetStore } from '@/stores/sheetStore'
 import { NAV_CARDS } from '@/stores/helpers/navCards'
 import type { BuilderCard } from '@/stores/helpers/builderCards'
-import { resolveTutorialChannelFromRoute } from '@/stores/helpers/tutorialCards'
+import { resolveLegacyTutorialChannel } from '@/stores/helpers/tutorialCards'
 
 type ImageCard = BuilderCard & {
   image?: string
@@ -471,11 +471,18 @@ const tutorialLocation = computed(() =>
       },
 )
 
+/*
+ * Content channels own every current destination's help. The legacy map is
+ * reached only for a route no channel the viewer can see resolves -- never for
+ * a current channel tab, and never as a way round role filtering.
+ */
 const tutorialChannelKey = computed(() => {
-  const modernChannel = tutorialLocation.value?.channel
+  const modernChannel =
+    tutorialLocation.value?.channel ?? routeLocation.value?.channel
   if (modernChannel?.tutorial) return modernChannel.channelKey
+  if (modernChannel) return ''
 
-  return resolveTutorialChannelFromRoute(route.path)
+  return resolveLegacyTutorialChannel(route.path) ?? ''
 })
 
 const tutorialTabKey = computed(() => {

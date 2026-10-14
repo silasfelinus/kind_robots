@@ -10,16 +10,21 @@ content schema and permissions model, use `docs/channel-content-authoring.md`.
 - `content/channels/<channel-key>/<tab-key>.md` defines a navigation tab.
 - `content/<page>.md` supplies standalone page content and its component mount.
 - `components/<domain>/<name>.vue` implements the actual UI.
+- The tab's `tutorial` front matter is the page's contextual help, and the
+  channel `index.md` `tutorial` is the channel overview. Both are required.
 - `stores/helpers/dashboardHelper.ts` and `stores/helpers/tutorialCards.ts`
   are compatibility layers, **not** the place to register a new channel or
-  write tutorial copy. Do not add new entries there for modern destinations.
+  write tutorial copy. `tutorialCards.ts` holds only legacy standalone-page
+  exceptions, and CI rejects a channel route added there.
 
 The current channel keys are `arcade`, `zuzu`, `projects`, `admin`,
-and `home`. Home resolves account routes/help but does not appear as a
-main front-facing channel. Storybook belongs inside Projects; games go in
-Arcade or Zuzu. Admin-only previews have a discoverable Admin tab and an
-`/admin/...` route, even when a separate `/play/...` public release route
-will exist later.
+and `home`. The selector shows Arcade, Zuzu, Projects and (for
+administrators) Admin. Home is not in the selector: the former Home
+dashboard and personal pages live in the user/account hub, and Home's
+content only resolves those routes' tabs and help. Storybook is the default
+tab and submenu of Projects; games go in Arcade or Zuzu. Admin-only
+previews have a discoverable Admin tab and an `/admin/...` route, even when
+a separate `/play/...` public release route will exist later.
 
 ## Decide where the new experience belongs
 
@@ -43,6 +48,8 @@ to make a game or project discoverable.
    `requiredRole` check alone cannot protect private or mature resources.
 4. Inspect the actual page, including mobile layout, and review any hero or
    tutorial art by eye before linking it.
+5. If the page is a navigation destination, give its tab the contextual
+   help and artwork Recipe B requires.
 
 A new admin feature belongs at `/admin/<slug>` and must also have a
 discoverable `content/channels/admin/<slug>.md` entry with
@@ -79,6 +86,29 @@ Add `requiredRole: ADMIN` or `requiredPermission: authenticated` when
 required by the feature. Never put restricted story spoilers or private
 artwork in publicly accessible metadata.
 
+**A tab is not finished without contextual help and artwork.** The
+`tutorial` block is what the workspace sheet opens on for this page, and
+`verifyNavigationRouteAccess.ts` fails CI for a routed tab without an
+authored `tutorial.title` and `tutorial.body`. Before writing them:
+
+1. **Trace the route to the component.** Open the page for `route`
+   (`content/<path>.md` and its MDC mount, or `pages/<path>.vue`), then the
+   component and the children it renders by default. Use the labels on
+   screen. Check its API routes for sign-in (`requireApiUser`,
+   `validateApiKey`) and cost (`manaGate`) before mentioning either.
+2. **Look at the art.** Download every image you reference (`/images/...`
+   from `https://media.acrocatranch.com/images/...`, other paths from
+   `public/`) and open it. Reject garbled lettering, generic portraits and
+   art for a different feature. If nothing fits, omit `tutorial.image` so it
+   falls back to the tab art, and record the gap with a proposed prompt in
+   the PR rather than referencing an image you have not seen.
+3. **Do not reveal hidden destinations.** Copy in a public channel's
+   overview must not name a tab that a role gate hides from its readers.
+
+`tutorial: { enabled: false }` is only for a tab that is not a page of its
+own: a route-less submenu parent, or a `?query`-selected mode of a parent
+page whose tab carries the help.
+
 For a submenu, define a parent tab and give child tabs `parentTabKey`
 matching its `tabKey`. Navigation supports one nesting level. Routed
 parents such as Storybook remain openable as well as expandable.
@@ -101,8 +131,9 @@ Once an explicit channel change is approved:
    ordering, selector visibility, role filtering, and direct route access.
 3. Write an **authored** parent `tutorial`: title, overview, hero,
    and conceptual sections with keys, titles, bodies, and reviewed images.
-4. Verify page-specific tutorials for all visible routed tabs. They
-   describe what the visitor actually sees, not just the tab title.
+4. Author page-specific tutorials, with checked artwork, for every routed
+   tab. They describe what the visitor actually sees, not just the tab
+   title.
 5. Check route-first workspace help and the About toggle at phone,
    tablet, and desktop widths. Do not bypass permission filtering.
 
@@ -112,11 +143,16 @@ Once an explicit channel change is approved:
 npm run test:channel-content
 npm run test:channel-resolver
 npm run test:data-surface-manifest
+npm run test:tutorial-channel-resolver
+npx tsx utils/scripts/verifyNavigationRouteAccess.ts
 npm run audit:channel-assets
 ```
 
 Check other relevant contracts and `npm test` as appropriate. The
 channel-content contract rejects missing channel overview tutorial fields
-and missing/duplicate conceptual section fields. It does not prove that
-an image depicts the right feature. Review the browser UI, and keep
-unverified art or missing feature builds explicitly tracked.
+and missing/duplicate conceptual section fields; the navigation route
+access contract rejects a routed tab without authored page help and channel
+copy that names a role-hidden tab; the asset audit rejects missing images.
+None of them proves that an image depicts the right feature. Review the
+browser UI, and keep unverified art or missing feature builds explicitly
+tracked.

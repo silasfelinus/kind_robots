@@ -104,11 +104,12 @@ For a new channel `x` at route `/x` with tabs `t1, t2`, touch these:
    `image: tabImage('x', 't1')`. These tabs are what the manager renders.
 3. Same file → `footerDashboardMap` — add `x: 'x'`. **Compile-enforced**:
    missing entry fails `tsc`.
-4. `stores/helpers/tutorialCards.ts` → `tutorialChannels` — add the channel
-   with one section per tab
-   (`image: tutorialImage('x', 't1')`). **Compile-enforced** — every footer
-   channel must have a tutorial entry. Add the key to `EARNING_CHANNELS`
-   if creators earn from it.
+4. Tutorials live in content metadata, not `stores/helpers/tutorialCards.ts`
+   (that file now holds only legacy standalone-page exceptions). Author the
+   channel `tutorial` overview and sections in
+   `content/channels/x/index.md` and a page `tutorial` (title, body, image)
+   on every routed tab file, as `docs/channel-content-authoring.md`
+   describes; `verifyNavigationRouteAccess.ts` fails the build without them.
 5. `content/x.md` — the page itself, with `dashboardKey: x` and
    `dashboardTab: <defaultTab>` (validated by `validateDashboardPair`).
 6. A manager component that renders the tabs via `getDashboardTabs('x')`.
@@ -117,7 +118,7 @@ For a new channel `x` at route `/x` with tabs `t1, t2`, touch these:
    silently** — forget it and the channel just never appears in the header
    dropdown. This is the easiest one to miss.
 
-Steps 3 and 4 fail the build if skipped; step 7 does not — check it last.
+Steps 3 and 4 fail CI if skipped; step 7 does not — check it last.
 
 ### Image checklist
 

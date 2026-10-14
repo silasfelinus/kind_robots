@@ -25,6 +25,7 @@ tutorial:
     to release a ready experience. Revoke Play approval hides its public link
     again. This public release approval is separate from the original pitch
     approval. Arcade pitches link to their individual cabinets where available.
+  image: /images/splash/dreams.webp
 ---
 
 Discover the next Kind Robots experiences as they take shape.

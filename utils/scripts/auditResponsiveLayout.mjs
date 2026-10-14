@@ -95,7 +95,7 @@ const ROUTES = flag(
     '/about,/cart,/giving,/mermaids,/privacy,/sanctuary,/forum,/servers,' +
     '/auth/google,/build-bench,/coloring-page,/music-mentor,/play/challenges/leaderboard,/play/video-generator,' +
     '/users/1,/play/challenges/neon-ramen-bar-icon,' +
-    '/play/arcade,/play/zuzu-gamebook,/play/zuzu-showdown,/play/zuzu-ghost-trail,' +
+    '/play/arcade,/play/arcade?game=zuzu-ghost-trail,/play/zuzu-gamebook,/play/zuzu-showdown,/play/zuzu-ghost-trail,' +
     '/play/zuzu-pinball,/play/zuzu-shifting-lands,/play/shifting-desks,' +
     '/play/mandarin,/play/aquarium/browse,/play/daily-pitches,/tzaddik-gallery',
 )

@@ -1,5 +1,5 @@
 <template>
-  <div class="flex h-full min-h-0 flex-col gap-2 overflow-hidden">
+  <div class="visitor-home flex h-full min-h-0 flex-col gap-2 overflow-hidden">
     <section
       class="relative isolate shrink-0 overflow-hidden rounded-2xl border border-base-300 bg-base-200"
       aria-label="Welcome to Kind Robots"
@@ -34,7 +34,7 @@
     <div
       role="tablist"
       aria-label="Explore the homepage"
-      class="grid shrink-0 grid-cols-3 gap-1 rounded-xl bg-base-200 p-1 lg:hidden"
+      class="visitor-tabs grid shrink-0 grid-cols-3 gap-1 rounded-xl bg-base-200 p-1"
     >
       <button
         v-for="tab in sections"
@@ -56,14 +56,14 @@
     </div>
 
     <div
-      class="grid min-h-0 flex-1 grid-cols-1 gap-2 lg:grid-cols-[minmax(0,1.7fr)_minmax(0,1fr)] lg:grid-rows-[minmax(0,1fr)_minmax(0,1fr)]"
+      class="kr-panes visitor-layout min-h-0 gap-2"
     >
       <section
         id="visitor-featured"
         role="tabpanel"
         aria-label="Featured experiences"
-        class="min-h-0 flex-col overflow-hidden rounded-2xl border border-base-300 bg-base-100/95 p-3 lg:row-span-2"
-        :class="activeSection === 'featured' ? 'flex' : 'hidden lg:flex'"
+        class="visitor-pane visitor-featured min-h-0 flex-col overflow-hidden rounded-2xl border border-base-300 bg-base-100/95 p-3"
+        :class="activeSection === 'featured' ? 'flex' : 'hidden'"
       >
         <header class="mb-2 flex shrink-0 flex-wrap items-center justify-between gap-2">
           <div>
@@ -94,8 +94,8 @@
             {{ filter.label }}
           </button>
         </div>
-        <div class="kr-scroll min-h-0 flex-1 overflow-y-auto pr-1">
-          <div class="grid grid-cols-2 gap-2 xl:grid-cols-3">
+        <div class="kr-pane-scroll pr-1">
+          <div class="grid grid-cols-[repeat(auto-fit,minmax(min(100%,9rem),1fr))] gap-2">
             <article
               v-for="feature in filteredFeatures"
               :key="feature.route"
@@ -148,8 +148,8 @@
         id="visitor-updates"
         role="tabpanel"
         aria-label="Recent improvements"
-        class="min-h-0 flex-col overflow-hidden rounded-2xl border border-base-300 bg-base-100/95 p-3"
-        :class="activeSection === 'updates' ? 'flex' : 'hidden lg:flex'"
+        class="visitor-pane min-h-0 flex-col overflow-hidden rounded-2xl border border-base-300 bg-base-100/95 p-3"
+        :class="activeSection === 'updates' ? 'flex' : 'hidden'"
       >
         <header class="mb-2 shrink-0">
           <h2 class="font-serif text-lg font-black">Just updated</h2>
@@ -195,8 +195,8 @@
         id="visitor-creations"
         role="tabpanel"
         aria-label="Latest public creations"
-        class="min-h-0 flex-col overflow-hidden rounded-2xl border border-base-300 bg-base-100/95 p-3"
-        :class="activeSection === 'creations' ? 'flex' : 'hidden lg:flex'"
+        class="visitor-pane min-h-0 flex-col overflow-hidden rounded-2xl border border-base-300 bg-base-100/95 p-3"
+        :class="activeSection === 'creations' ? 'flex' : 'hidden'"
       >
         <header class="mb-2 flex shrink-0 items-center justify-between gap-2">
           <div>
@@ -210,10 +210,10 @@
             Art gallery →
           </NuxtLink>
         </header>
-        <div class="kr-scroll min-h-0 flex-1 overflow-y-auto pr-1">
+        <div class="kr-pane-scroll pr-1">
           <div
             v-if="newest.length"
-            class="grid grid-cols-3 gap-2 sm:grid-cols-4 lg:grid-cols-3"
+            class="grid grid-cols-[repeat(auto-fit,minmax(min(100%,7rem),1fr))] gap-2"
           >
             <NuxtLink
               v-for="card in newest"
@@ -475,3 +475,32 @@ const newest = computed<ShowcaseCard[]>(() =>
     .slice(0, 12),
 )
 </script>
+
+<style scoped>
+.visitor-home {
+  container-type: inline-size;
+}
+
+.visitor-layout {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+@container (min-width: 56rem) {
+  .visitor-tabs {
+    display: none;
+  }
+
+  .visitor-layout {
+    grid-template-columns: minmax(0, 1.7fr) minmax(0, 1fr);
+    grid-template-rows: minmax(0, 1fr) minmax(0, 1fr);
+  }
+
+  .visitor-pane {
+    display: flex !important;
+  }
+
+  .visitor-featured {
+    grid-row: span 2 / span 2;
+  }
+}
+</style>

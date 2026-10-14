@@ -1,9 +1,4 @@
 import assert from 'node:assert/strict'
-import {
-  ART_STYLES,
-  normalizeArtStyle,
-  artStyleImageSrc,
-} from '../shiftingDesks/artStyles'
 import { readFileSync } from 'node:fs'
 import { fileURLToPath } from 'node:url'
 import {
@@ -60,39 +55,6 @@ import { FLAG_MEMOS } from '../shiftingDesks/memos'
 
 const file = (path: string) => fileURLToPath(new URL(path, import.meta.url))
 const asset = (path: string) => readFileSync(file(path), 'utf8')
-
-assert.deepEqual(ART_STYLES.map((style) => style.id), [
-  'classic',
-  'corporate-noir',
-  'western-cartoon',
-])
-assert.equal(normalizeArtStyle('unrecognized'), 'classic')
-assert.equal(normalizeArtStyle(null), 'classic')
-const classicCard = '/images/shifting-desks/cards/orientation/gus-shop-steward.webp'
-assert.equal(artStyleImageSrc(classicCard, 'classic'), classicCard)
-assert.equal(
-  artStyleImageSrc(classicCard, 'corporate-noir'),
-  '/images/shifting-desks/styles/corporate-noir/cards/orientation/gus-shop-steward.webp',
-)
-assert.equal(
-  artStyleImageSrc('/unrelated/image.webp', 'western-cartoon'),
-  '/unrelated/image.webp',
-)
-assert.equal(artStyleImageSrc(classicCard, 'invalid'), classicCard)
-assert.equal(
-  artStyleImageSrc(
-    '/images/shifting-desks/backs/review.webp',
-    'western-cartoon',
-  ),
-  '/images/shifting-desks/styles/western-cartoon/backs/review.webp',
-)
-const artWidget = asset('../../components/shifting-desks/shifting-desks-art.vue')
-assert.match(artWidget, /displaySrc\.value !== props\.src/)
-assert.match(artWidget, /onImageError/)
-const artPage = asset('../../pages/play/shifting-desks.vue')
-assert.match(artPage, /v-model="artStyle"/)
-assert.match(artPage, /ART_STYLE_STORAGE_KEY/)
-assert.match(artPage, /provide\('shifting-desks-art-style', artStyle\)/)
 
 assert.equal(ORIENTATION.schemaVersion, 1)
 assert.equal(ORIENTATION.sourceSha.length, 40)
@@ -1142,8 +1104,7 @@ assert.match(
   /role="tablist"/,
   'the Personnel File pages through tabs instead of scrolling',
 )
-assert.doesNotMatch(page, /\$fetch/)
-assert.match(page, /localStorage\.getItem\(ART_STYLE_STORAGE_KEY\)/)
+assert.doesNotMatch(page, /localStorage|\$fetch/)
 assert.match(page, /prefers-reduced-motion: reduce/)
 assert.match(
   page,

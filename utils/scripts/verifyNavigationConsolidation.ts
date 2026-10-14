@@ -455,7 +455,19 @@ for (const internal of [
 }
 assert.ok(visitorDirectorySource.includes('const updates = ['))
 assert.ok(visitorDirectorySource.includes('Development notes #'))
-assert.ok(visitorDirectorySource.includes('kr-scroll'))
+assert.ok(visitorDirectorySource.includes('kr-panes'))
+assert.equal(
+  visitorDirectorySource.match(/kr-pane-scroll/g)?.length,
+  3,
+  'the three co-resident visitor gallery panels must use the multi-pane scroll primitive',
+)
+assert.doesNotMatch(visitorDirectorySource, /\bkr-scroll\b/)
+assert.ok(visitorDirectorySource.includes('container-type: inline-size'))
+assert.doesNotMatch(
+  visitorDirectorySource,
+  /\b(?:sm|md|lg|xl|2xl):grid-cols-/,
+  'shared homepage tiles must size their grids to the actual container',
+)
 assert.ok(visitorDirectorySource.includes('activeSection'))
 assert.ok(visitorDirectorySource.includes('selectedCategory'))
 assert.ok(visitorDirectorySource.includes("image: '/shifting-desks/front-poster.svg'"))

@@ -112,9 +112,7 @@
       >
         <span class="flex items-center gap-2">
           <Icon name="kind-icon:info" class="kr-icon-primary-5" />
-          <span
-            class="kr-text-eyebrow kr-text-dim-sm-70 tracking-widest"
-          >
+          <span class="kr-text-eyebrow kr-text-dim-sm-70 tracking-widest">
             {{ tutorialToggleLabel }}
           </span>
         </span>

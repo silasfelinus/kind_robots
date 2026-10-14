@@ -81,9 +81,7 @@
         "id": 3374,
         "reason": "owned Zuzu row already matches the canon package",
         "advisories": [],
-        "untouchedLegacyFields": [
-          "honorific"
-        ],
+        "untouchedLegacyFields": ["honorific"],
         "related": []
       },
       {
@@ -96,9 +94,7 @@
         "id": 3375,
         "reason": "owned Zuzu row already matches the canon package",
         "advisories": [],
-        "untouchedLegacyFields": [
-          "honorific"
-        ],
+        "untouchedLegacyFields": ["honorific"],
         "related": []
       },
       {
@@ -111,9 +107,7 @@
         "id": 3376,
         "reason": "owned Zuzu row already matches the canon package",
         "advisories": [],
-        "untouchedLegacyFields": [
-          "honorific"
-        ],
+        "untouchedLegacyFields": ["honorific"],
         "related": []
       },
       {
@@ -126,9 +120,7 @@
         "id": 3377,
         "reason": "owned Zuzu row already matches the canon package",
         "advisories": [],
-        "untouchedLegacyFields": [
-          "honorific"
-        ],
+        "untouchedLegacyFields": ["honorific"],
         "related": []
       },
       {
@@ -141,9 +133,7 @@
         "id": 3378,
         "reason": "owned Zuzu row already matches the canon package",
         "advisories": [],
-        "untouchedLegacyFields": [
-          "honorific"
-        ],
+        "untouchedLegacyFields": ["honorific"],
         "related": []
       },
       {
@@ -156,9 +146,7 @@
         "id": 3379,
         "reason": "owned Zuzu row already matches the canon package",
         "advisories": [],
-        "untouchedLegacyFields": [
-          "honorific"
-        ],
+        "untouchedLegacyFields": ["honorific"],
         "related": []
       },
       {
@@ -171,9 +159,7 @@
         "id": 3380,
         "reason": "owned Zuzu row already matches the canon package",
         "advisories": [],
-        "untouchedLegacyFields": [
-          "honorific"
-        ],
+        "untouchedLegacyFields": ["honorific"],
         "related": []
       },
       {
@@ -186,9 +172,7 @@
         "id": 3381,
         "reason": "owned Zuzu row already matches the canon package",
         "advisories": [],
-        "untouchedLegacyFields": [
-          "honorific"
-        ],
+        "untouchedLegacyFields": ["honorific"],
         "related": []
       },
       {
@@ -266,9 +250,7 @@
         "id": 2251,
         "reason": "owned Zuzu row already matches the canon package",
         "advisories": [],
-        "untouchedLegacyFields": [
-          "intros"
-        ],
+        "untouchedLegacyFields": ["intros"],
         "related": []
       },
       {
@@ -281,9 +263,7 @@
         "id": 2252,
         "reason": "owned Zuzu row already matches the canon package",
         "advisories": [],
-        "untouchedLegacyFields": [
-          "intros"
-        ],
+        "untouchedLegacyFields": ["intros"],
         "related": []
       },
       {
@@ -296,9 +276,7 @@
         "id": 2253,
         "reason": "owned Zuzu row already matches the canon package",
         "advisories": [],
-        "untouchedLegacyFields": [
-          "intros"
-        ],
+        "untouchedLegacyFields": ["intros"],
         "related": []
       },
       {
@@ -311,9 +289,7 @@
         "id": 2254,
         "reason": "owned Zuzu row already matches the canon package",
         "advisories": [],
-        "untouchedLegacyFields": [
-          "intros"
-        ],
+        "untouchedLegacyFields": ["intros"],
         "related": []
       },
       {
@@ -326,9 +302,7 @@
         "id": 2255,
         "reason": "owned Zuzu row already matches the canon package",
         "advisories": [],
-        "untouchedLegacyFields": [
-          "intros"
-        ],
+        "untouchedLegacyFields": ["intros"],
         "related": []
       }
     ],
@@ -346,30 +320,10 @@
         "isPublic": true,
         "isMature": false,
         "characterIds": [
-          110,
-          111,
-          112,
-          113,
-          114,
-          134,
-          135,
-          136,
-          137,
-          207,
-          209,
-          213,
-          221,
-          222,
-          246,
-          266
+          110, 111, 112, 113, 114, 134, 135, 136, 137, 207, 209, 213, 221, 222,
+          246, 266
         ],
-        "scenarioIds": [
-          69,
-          83,
-          159,
-          175,
-          176
-        ],
+        "scenarioIds": [69, 83, 159, 175, 176],
         "rewardIds": [],
         "note": "legacy LLM-filler Dream: reference only, zero canon authority; no Dream payload exists, so it is reported and never patched"
       },
@@ -379,21 +333,8 @@
         "userId": 1,
         "isPublic": true,
         "isMature": false,
-        "characterIds": [
-          110,
-          111,
-          112,
-          113,
-          114,
-          231,
-          355
-        ],
-        "scenarioIds": [
-          69,
-          172,
-          198,
-          199
-        ],
+        "characterIds": [110, 111, 112, 113, 114, 231, 355],
+        "scenarioIds": [69, 172, 198, 199],
         "rewardIds": [],
         "note": "legacy LLM-filler Dream: reference only, zero canon authority; no Dream payload exists, so it is reported and never patched"
       }

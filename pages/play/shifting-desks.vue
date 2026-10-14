@@ -13,15 +13,22 @@
         >
           Shifting <span class="text-warning">/</span> Desks
         </p>
-        <label class="flex shrink-0 items-center gap-1 text-xs font-bold" title="Card art style; concept styles use Classic images until alternate renders arrive">
+        <label
+          class="flex shrink-0 items-center gap-1 text-xs font-bold"
+          title="Card art style; missing art uses Classic until new renders arrive"
+        >
           <span class="sr-only">Card art style</span>
           <select
             v-model="artStyle"
             aria-label="Card art style"
             class="select select-bordered select-xs w-28 sm:w-44"
           >
-            <option v-for="style in ART_STYLES" :key="style.id" :value="style.id">
-              {{ style.label }}{{ style.phase === 'concept' ? ' (concept)' : '' }}
+            <option
+              v-for="style in ART_STYLES"
+              :key="style.id"
+              :value="style.id"
+            >
+              {{ style.label }}
             </option>
           </select>
         </label>

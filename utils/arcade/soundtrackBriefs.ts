@@ -206,11 +206,7 @@ export function publishedArcadeAudioPath(
   )
     return null
   const approvedPublicPath = new RegExp(
-    '^/images/arcade/audio/[a-z0-9/-]+[.](ogg|mp3|wav)
-  if (!approvedPublicPath.test(asset.path)) return null
-  return filesConfirmedAccessible.has(asset.path) ? asset.path : null
-}
-,
+    '^/images/arcade/audio/[a-z0-9/-]+[.](ogg|mp3|wav)$',
   )
   if (!approvedPublicPath.test(asset.path)) return null
   return filesConfirmedAccessible.has(asset.path) ? asset.path : null

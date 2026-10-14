@@ -245,16 +245,41 @@
         <div class="grid gap-6 lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
           <div class="space-y-3">
             <h4 class="plumber-display text-2xl">Every enemy is a toy</h4>
+            <p class="text-sm opacity-70">
+              Fourteen families, each with a tell. Hover or tap one to see its
+              move.
+            </p>
             <ul class="grid grid-cols-2 gap-3 sm:grid-cols-3">
               <li
                 v-for="enemy in PLUMBER_ENEMIES"
                 :key="enemy.key"
-                class="group rounded-2xl border border-base-content/10 bg-base-200 p-3 transition hover:-translate-y-1 hover:shadow-lg"
+                class="group cursor-pointer rounded-2xl border border-base-content/10 bg-base-200 p-3 transition hover:-translate-y-1 hover:shadow-lg"
+                @pointerenter="poked = enemy.key"
+                @pointerleave="poked = null"
+                @click="poked = poked === enemy.key ? null : enemy.key"
               >
                 <div
-                  class="mb-2 grid h-24 place-items-center rounded-xl bg-gradient-to-b from-[#d6f2ee] to-[#f8e7c9] dark:from-[#1d3c46] dark:to-[#3a3046]"
+                  class="mb-2 overflow-hidden rounded-xl bg-gradient-to-b from-[#d6f2ee] to-[#f8e7c9] dark:from-[#1d3c46] dark:to-[#3a3046]"
                 >
-                  <PlumberSprite :kind="enemy.key" class="h-24 w-24" />
+                  <PlumberSheetSprite
+                    v-if="ENEMY_ANIMATIONS[enemy.key]"
+                    :animation="ENEMY_ANIMATIONS[enemy.key]!"
+                    :acting="poked === enemy.key"
+                    class="h-28 w-full"
+                  >
+                    <PlumberSprite
+                      v-if="DRAWN_ENEMIES.has(enemy.key)"
+                      :kind="enemy.key"
+                      class="h-24 w-24"
+                    />
+                    <span
+                      v-else
+                      class="h-14 w-14 animate-pulse rounded-full bg-white/60 dark:bg-white/10"
+                    />
+                  </PlumberSheetSprite>
+                  <div v-else class="grid h-28 place-items-center">
+                    <PlumberSprite :kind="enemy.key" class="h-24 w-24" />
+                  </div>
                 </div>
                 <p class="font-bold">{{ enemy.name }}</p>
                 <p class="text-xs leading-snug opacity-70">{{ enemy.toy }}</p>
@@ -375,6 +400,7 @@ import { computed, onMounted, ref, watch } from 'vue'
 import { useUserStore } from '~/stores/userStore'
 import { useSavePlumberStore } from '~/stores/savePlumberStore'
 import { setPlumberHeroine } from '~/utils/arcade/games/savePlumberArt'
+import { ENEMY_ANIMATIONS } from '~/utils/arcade/games/savePlumberAnimations'
 import {
   PLUMBER_CAST,
   PLUMBER_ENEMIES,
@@ -389,6 +415,15 @@ const heroine = computed(() => plumber.heroine)
 watch(heroine, setPlumberHeroine, { immediate: true })
 
 const tilt = ref({ x: 0, y: 0 })
+const poked = ref<string | null>(null)
+const DRAWN_ENEMIES = new Set([
+  'pumpbug',
+  'rivet-roller',
+  'umbrella-mite',
+  'moss-lantern',
+  'glass-gull',
+  'cork-crab',
+])
 let reducedMotion = false
 
 function onTilt(event: PointerEvent) {

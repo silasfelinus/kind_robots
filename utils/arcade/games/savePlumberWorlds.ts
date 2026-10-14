@@ -344,6 +344,46 @@ export const PLUMBER_ENEMIES: PlumberEnemy[] = [
     name: 'Cork crab',
     toy: 'Plugs pipe mouths. Pop it out to open a shortcut.',
   },
+  {
+    key: 'siphon-sprite',
+    name: 'Siphon sprite',
+    toy: 'Sips puddles to carry health. Splash it before it drinks.',
+  },
+  {
+    key: 'clockwork-minnow',
+    name: 'Clockwork minnow',
+    toy: 'Leaps with the current. Jump when its key winds down.',
+  },
+  {
+    key: 'gasket-golem',
+    name: 'Gasket golem',
+    toy: 'Knock its armour plate loose, then throw the plate.',
+  },
+  {
+    key: 'spring-hare',
+    name: 'Spring hare',
+    toy: 'Bounces in chains. Land on it again and again to climb.',
+  },
+  {
+    key: 'paper-kite',
+    name: 'Paper kite',
+    toy: 'Rides the wind. Grab its ribbon and it carries you.',
+  },
+  {
+    key: 'puddle-mimic',
+    name: 'Puddle mimic',
+    toy: 'Just a puddle, until you get close.',
+  },
+  {
+    key: 'chimney-spirit',
+    name: 'Chimney spirit',
+    toy: 'Puffs soot in long arcs. Watch its cheeks swell first.',
+  },
+  {
+    key: 'tea-kettle-knight',
+    name: 'Tea-kettle knight',
+    toy: 'Whistles before it lunges. Strike when the steam stops.',
+  },
 ]
 
 export type PlumberPower = {

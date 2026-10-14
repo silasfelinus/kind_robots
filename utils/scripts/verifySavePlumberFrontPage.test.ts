@@ -62,7 +62,7 @@ assert.deepEqual(
   PLUMBER_CAST.map((member) => member.key),
   ['teo', 'spigot'],
 )
-assert.equal(PLUMBER_ENEMIES.length, 6)
+assert.equal(PLUMBER_ENEMIES.length, 14)
 assert.deepEqual(
   PLUMBER_POWERS.map((power) => power.name),
   ['Springstep', 'Bottled Storm', 'Pocket Lift'],

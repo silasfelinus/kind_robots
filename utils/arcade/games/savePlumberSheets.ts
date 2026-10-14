@@ -14,7 +14,8 @@ export type FrameBox = {
  * (a sparkle, a detached scarf tail, a speed line) into the nearest frame,
  * and order the frames left to right. Painted figures overlap in columns
  * (a raised hand above the next head), so slicing by shape rather than by
- * empty column keeps them apart. Returns null when the sheet does not hold
+ * empty column keeps them apart; shapes stacked in the same columns join
+ * first (stackedGroups). Returns null when the sheet does not hold
  * `expected` substantial figures, for example when two of them touch.
  */
 export function sliceShapes(
@@ -24,7 +25,7 @@ export function sliceShapes(
   expected: number,
 ): { label: Int32Array; frames: (FrameBox & { ids: number[] })[] } | null {
   const label = new Int32Array(width * height)
-  const shapes: (FrameBox & { size: number; id: number })[] = []
+  const shapes: Shape[] = []
   const queue = new Int32Array(width * height)
   for (let start = 0; start < width * height; start++) {
     if (label[start] || alpha(start % width, (start / width) | 0) <= 24)
@@ -63,18 +64,19 @@ export function sliceShapes(
     }
     shapes.push(shape)
   }
-  if (shapes.length < expected) return null
-  shapes.sort((a, b) => b.size - a.size)
-  const frames = shapes.slice(0, expected).map((f) => ({ ...f, ids: [f.id] }))
+  const groups = stackedGroups(shapes)
+  if (groups.length < expected) return null
+  groups.sort((a, b) => b.size - a.size)
+  const frames = groups.slice(0, expected)
   if (frames[expected - 1]!.size < frames[0]!.size * 0.15) return null
-  for (const extra of shapes.slice(expected)) {
+  for (const extra of groups.slice(expected)) {
     const cx = (extra.left + extra.right) / 2
     const cy = (extra.top + extra.bottom) / 2
     const gap = (f: FrameBox) =>
       Math.max(0, f.left - cx, cx - f.right) +
       Math.max(0, f.top - cy, cy - f.bottom)
     const target = frames.reduce((best, f) => (gap(f) < gap(best) ? f : best))
-    target.ids.push(extra.id)
+    target.ids.push(...extra.ids)
     target.left = Math.min(target.left, extra.left)
     target.top = Math.min(target.top, extra.top)
     target.right = Math.max(target.right, extra.right)
@@ -92,6 +94,56 @@ export function sliceShapes(
         ids,
       })),
   }
+}
+
+type Shape = FrameBox & { size: number; id: number }
+type Group = FrameBox & { size: number; ids: number[] }
+
+/**
+ * Join substantial shapes stacked in the same columns into one figure: a hare
+ * in mid-bounce above its own spring, or a lid knocked off a kettle, paints as
+ * two shapes that belong to one pose. Neighbouring figures only share a sliver
+ * of columns (a raised hand), so they stay apart.
+ */
+function stackedGroups(shapes: Shape[]): Group[] {
+  const largest = shapes.reduce((m, s) => Math.max(m, s.size), 0)
+  const parent = shapes.map((_, i) => i)
+  const root = (i: number): number =>
+    parent[i] === i ? i : (parent[i] = root(parent[i]!))
+  const big = shapes
+    .map((s, i) => ({ s, i }))
+    .filter(({ s }) => s.size >= largest * 0.02)
+  for (let a = 0; a < big.length; a++)
+    for (let b = a + 1; b < big.length; b++) {
+      const p = big[a]!.s
+      const q = big[b]!.s
+      const overlap = Math.min(p.right, q.right) - Math.max(p.left, q.left) + 1
+      const narrower = Math.min(p.right - p.left, q.right - q.left) + 1
+      if (overlap >= narrower * 0.7) parent[root(big[a]!.i)] = root(big[b]!.i)
+    }
+  const byRoot = new Map<number, Group>()
+  shapes.forEach((s, i) => {
+    const r = root(i)
+    const g = byRoot.get(r)
+    if (!g) {
+      byRoot.set(r, {
+        left: s.left,
+        top: s.top,
+        right: s.right,
+        bottom: s.bottom,
+        size: s.size,
+        ids: [s.id],
+      })
+      return
+    }
+    g.ids.push(s.id)
+    g.size += s.size
+    g.left = Math.min(g.left, s.left)
+    g.top = Math.min(g.top, s.top)
+    g.right = Math.max(g.right, s.right)
+    g.bottom = Math.max(g.bottom, s.bottom)
+  })
+  return [...byRoot.values()]
 }
 
 /** The figures' bounding boxes, left to right; see sliceShapes. */

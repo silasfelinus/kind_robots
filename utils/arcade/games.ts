@@ -738,6 +738,27 @@ export const ARCADE_GAMES: ArcadeGameMeta[] = [
     accent: '#fde68a',
     controls: 'Walk, climb, hop',
   },
+  {
+    slug: 'dune-digger-dash',
+    title: 'Dune Digger Dash',
+    riffsOn: 'Dig Dug',
+    blurb:
+      'Dig, a small digger robot, burrows through layered sand and pumps wandering sand-sprites until they pop, or drops a loose boulder on them. Sprites that cannot reach you float through the sand as eyes and dig in nearby. Every round brings more sprites, faster pursuit and more boulders, across three dunes.',
+    howTo: [
+      'ARROWS  DIG AND WALK',
+      'A OR B  PUMP',
+      'PUMP 4 TIMES TO POP',
+      'DIG OUT UNDER A ROCK',
+      'DEEP SPRITES PAY MORE',
+      'CLEAR EVERY SPRITE',
+    ],
+    width: 256,
+    height: 288,
+    maxPlausibleScore: 2_000_000,
+    titleArt: '/images/arcade/games/dune-digger-dash-title.webp',
+    accent: '#f59e5b',
+    controls: 'Dig, pump',
+  },
 ]
 
 export type ComingSoonCabinet = {
@@ -894,6 +915,7 @@ const LOADERS: Record<string, () => Promise<ArcadeGameModule>> = {
   'bumper-bubbles': () => import('./games/bumperBubbles'),
   'crate-stack-shuffle': () => import('./games/crateStackShuffle'),
   'lamp-lighter-run': () => import('./games/lampLighterRun'),
+  'dune-digger-dash': () => import('./games/duneDiggerDash'),
 }
 
 let webgl: boolean | null = null

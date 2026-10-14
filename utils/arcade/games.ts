@@ -696,6 +696,27 @@ export const ARCADE_GAMES: ArcadeGameMeta[] = [
     accent: '#38bdf8',
     controls: 'Walk, hop, blow',
   },
+  {
+    slug: 'crate-stack-shuffle',
+    title: 'Crate Stack Shuffle',
+    riffsOn: 'Tetris',
+    blurb:
+      'Stacker, a little warehouse robot, turns and drops falling crates of seven odd shapes to finish full rows, and every finished row ships out. Each ten rows is a new level and the crates fall faster. From level 3 some crates are wrapped in sticky tape, which only comes off the first time its row fills, and from level 5 heavy crates plummet.',
+    howTo: [
+      'LEFT/RIGHT  SLIDE',
+      'A OR UP  TURN',
+      'DOWN  FALL FASTER',
+      'B  DROP IT ALL',
+      'FILL ROWS TO SHIP',
+      'TAPE NEEDS TWO FILLS',
+    ],
+    width: 256,
+    height: 288,
+    maxPlausibleScore: 5_000_000,
+    titleArt: '/images/arcade/games/crate-stack-shuffle-title.webp',
+    accent: '#fbbf24',
+    controls: 'Slide, turn, drop',
+  },
 ]
 
 export type ComingSoonCabinet = {
@@ -850,6 +871,7 @@ const LOADERS: Record<string, () => Promise<ArcadeGameModule>> = {
   'cable-crawler': () => import('./games/cableCrawler'),
   'petal-post': () => import('./games/petalPost'),
   'bumper-bubbles': () => import('./games/bumperBubbles'),
+  'crate-stack-shuffle': () => import('./games/crateStackShuffle'),
 }
 
 let webgl: boolean | null = null

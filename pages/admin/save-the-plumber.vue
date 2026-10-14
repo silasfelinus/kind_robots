@@ -101,7 +101,7 @@
           class="absolute bottom-4 right-4 flex items-center gap-2 rounded-full border border-white/30 bg-[#0b2a3a]/75 py-1.5 pl-1.5 pr-4 text-sm text-white shadow-lg backdrop-blur transition hover:bg-[#0b2a3a]"
         >
           <span class="h-9 w-9 overflow-hidden rounded-full bg-[#ffcf82]">
-            <PlumberHeroinePortrait :heroine="heroine" class="h-full w-full" />
+            <PlumberHeroineFace :heroine="heroine" face class="h-full w-full" />
           </span>
           <span class="leading-tight">
             <span

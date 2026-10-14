@@ -19,6 +19,8 @@ export type Heroine = {
   shirt: string
   scarf: string
   boots: string
+  /** Painted roster member key (savePlumberRoster); absent for code-only looks. */
+  roster?: string
 }
 
 /** Collision box in movement-lab pixels; identical for every heroine. */

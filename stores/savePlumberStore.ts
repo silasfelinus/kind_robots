@@ -3,17 +3,22 @@ import { defineStore } from 'pinia'
 import {
   DEFAULT_HEROINE_SEED,
   HEROINE_SEED_STORAGE_KEY,
-  createHeroine,
   parseStoredHeroineSeed,
-  rollHeroineSeed,
 } from '~/utils/arcade/games/savePlumberHeroine'
+import {
+  PLUMBER_ROSTER,
+  rosterHeroine,
+  rosterIndex,
+  seedForRoster,
+} from '~/utils/arcade/games/savePlumberRoster'
 
 export const useSavePlumberStore = defineStore('savePlumber', () => {
   const seed = ref(DEFAULT_HEROINE_SEED)
   const keptSeed = ref<number | null>(null)
   const loaded = ref(false)
 
-  const heroine = computed(() => createHeroine(seed.value))
+  const heroine = computed(() => rosterHeroine(seed.value))
+  const rosterSlot = computed(() => rosterIndex(seed.value))
   const kept = computed(() => keptSeed.value === seed.value)
 
   function load(): void {
@@ -32,7 +37,15 @@ export const useSavePlumberStore = defineStore('savePlumber', () => {
   }
 
   function reroll(): void {
-    seed.value = rollHeroineSeed()
+    const others = PLUMBER_ROSTER.length - 1
+    seed.value = seedForRoster(
+      rosterSlot.value + 1 + Math.floor(Math.random() * others),
+    )
+  }
+
+  function choose(index: number): void {
+    if (index === rosterSlot.value) return
+    seed.value = seedForRoster(index)
   }
 
   function keep(): void {
@@ -44,5 +57,5 @@ export const useSavePlumberStore = defineStore('savePlumber', () => {
     }
   }
 
-  return { seed, heroine, kept, load, reroll, keep }
+  return { seed, heroine, rosterSlot, kept, load, reroll, choose, keep }
 })

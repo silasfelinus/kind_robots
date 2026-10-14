@@ -30,7 +30,7 @@
             </g>
           </svg>
           <Transition name="plumber-swap" mode="out-in">
-            <PlumberHeroinePortrait
+            <PlumberHeroineFace
               :key="heroine.seed"
               :heroine="heroine"
               class="absolute inset-0 h-full w-full"
@@ -56,13 +56,42 @@
           Now casting
         </p>
         <h3 class="plumber-display text-4xl leading-none sm:text-5xl">
-          A new heroine every adventure.
+          Eight heroines. One of them is yours.
         </h3>
         <p class="max-w-xl text-base leading-relaxed opacity-80">
-          Every new game rolls one young woman with her own name and look, and
-          she stays herself for the whole save. Do not like the first roll? Roll
-          again before you set out.
+          Every new game casts one of eight hand-painted plumbers, each with her
+          own build, look and run cycle, and she stays herself for the whole
+          save. Roll for a surprise or pick her yourself before you set out.
         </p>
+
+        <div
+          class="grid grid-cols-4 gap-2 @lg:grid-cols-8"
+          role="radiogroup"
+          aria-label="Choose your heroine"
+        >
+          <button
+            v-for="(option, i) in PLUMBER_ROSTER"
+            :key="option.key"
+            type="button"
+            role="radio"
+            :aria-checked="plumber.rosterSlot === i"
+            :aria-label="option.name"
+            :title="option.name"
+            class="group relative aspect-square overflow-hidden rounded-2xl border-[3px] bg-white/70 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md dark:bg-white/10"
+            :class="
+              plumber.rosterSlot === i
+                ? 'border-[#d9468f] ring-4 ring-[#d9468f]/25'
+                : 'border-white/80 dark:border-white/10'
+            "
+            @click="plumber.choose(i)"
+          >
+            <PlumberHeroineFace
+              :heroine="rosterLook(i)"
+              face
+              class="absolute inset-0 h-full w-full"
+            />
+          </button>
+        </div>
 
         <dl class="flex flex-wrap gap-2 text-xs">
           <div
@@ -86,8 +115,7 @@
             class="plumber-press btn btn-lg border-0 bg-[#d9468f] text-white hover:bg-[#c03479]"
             @click="plumber.reroll()"
           >
-            <span class="plumber-die" aria-hidden="true">⚄</span> Roll a new
-            heroine
+            <span class="plumber-die" aria-hidden="true">⚄</span> Surprise me
           </button>
           <button
             type="button"
@@ -99,8 +127,8 @@
           </button>
         </div>
         <p class="text-xs opacity-60">
-          Kept heroines are remembered on this device and lead the title screen
-          and map above.
+          Your kept heroine is remembered on this device and leads the title
+          screen, the map and the movement lab.
         </p>
 
         <div
@@ -128,13 +156,15 @@
                 stroke-dasharray="5 4"
                 rx="4"
               />
-              <PlumberHeroineRunner :heroine="h" :running="false" />
+              <g :transform="`scale(${rosterFor(h).scale})`">
+                <PlumberHeroineRunner :heroine="h" :running="false" />
+              </g>
             </g>
           </svg>
           <p class="text-sm leading-snug">
             <span class="font-bold">Looks are cosmetic.</span>
-            Every heroine has the same hitbox, the same jump and the same odds,
-            so no roll ever makes the game harder.
+            Tall or short, every heroine has the same hitbox, the same jump and
+            the same odds, so no choice ever makes the game harder.
           </p>
         </div>
       </div>
@@ -147,38 +177,34 @@ import { computed } from 'vue'
 import { useSavePlumberStore } from '~/stores/savePlumberStore'
 import {
   HEROINE_HITBOX,
-  createHeroine,
   heroineRunCode,
   type Heroine,
 } from '~/utils/arcade/games/savePlumberHeroine'
+import {
+  PLUMBER_ROSTER,
+  rosterFor,
+} from '~/utils/arcade/games/savePlumberRoster'
 
 const plumber = useSavePlumberStore()
 const heroine = computed(() => plumber.heroine)
 
-const hairNames: Record<Heroine['hairStyle'], string> = {
-  curls: 'Big curls',
-  bob: 'Sharp bob',
-  braids: 'Twin braids',
-  ponytail: 'High ponytail',
-  locs: 'Long locs',
-  pixie: 'Pixie cut',
-  bun: 'Top bun',
-}
+const member = computed(() => rosterFor(heroine.value))
 
 const traits = computed(() => [
-  {
-    label: 'Hair',
-    value: hairNames[heroine.value.hairStyle],
-    colour: heroine.value.hair,
-  },
-  { label: 'Overalls', value: '', colour: heroine.value.outfit },
+  { label: 'Build', value: member.value.build, colour: '' },
+  { label: 'Look', value: member.value.signature, colour: heroine.value.hair },
+  { label: 'Workwear', value: '', colour: heroine.value.outfit },
   { label: 'Scarf', value: '', colour: heroine.value.scarf },
-  { label: 'Boots', value: '', colour: heroine.value.boots },
 ])
 
 const backdrop = computed(() => [heroine.value.scarf, heroine.value.outfit])
 
-const lineup = [createHeroine(19), createHeroine(16), createHeroine(17)]
+function rosterLook(index: number): Heroine {
+  const m = PLUMBER_ROSTER[index]!
+  return { seed: index, name: m.name, roster: m.key, ...m.look }
+}
+
+const lineup = [2, 3, 5].map(rosterLook)
 </script>
 
 <style scoped>

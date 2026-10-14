@@ -1,5 +1,9 @@
 import assert from 'node:assert/strict'
-import { ART_STYLES, normalizeArtStyle, artStyleImageSrc } from '../shiftingDesks/artStyles'
+import {
+  ART_STYLES,
+  normalizeArtStyle,
+  artStyleImageSrc,
+} from '../shiftingDesks/artStyles'
 import { readFileSync } from 'node:fs'
 import { fileURLToPath } from 'node:url'
 import {
@@ -57,7 +61,6 @@ import { FLAG_MEMOS } from '../shiftingDesks/memos'
 const file = (path: string) => fileURLToPath(new URL(path, import.meta.url))
 const asset = (path: string) => readFileSync(file(path), 'utf8')
 
-
 assert.deepEqual(ART_STYLES.map((style) => style.id), [
   'classic',
   'corporate-noir',
@@ -71,7 +74,10 @@ assert.equal(
   artStyleImageSrc(classicCard, 'corporate-noir'),
   '/images/shifting-desks/styles/corporate-noir/cards/orientation/gus-shop-steward.webp',
 )
-assert.equal(artStyleImageSrc('/unrelated/image.webp', 'western-cartoon'), '/unrelated/image.webp')
+assert.equal(
+  artStyleImageSrc('/unrelated/image.webp', 'western-cartoon'),
+  '/unrelated/image.webp',
+)
 assert.equal(artStyleImageSrc(classicCard, 'invalid'), classicCard)
 assert.equal(
   artStyleImageSrc('/images/shifting-desks/backs/review.webp', 'western-cartoon'),
@@ -84,8 +90,6 @@ const artPage = asset('../../pages/play/shifting-desks.vue')
 assert.match(artPage, /v-model="artStyle"/)
 assert.match(artPage, /ART_STYLE_STORAGE_KEY/)
 assert.match(artPage, /provide\('shifting-desks-art-style', artStyle\)/)
-
-
 
 assert.equal(ORIENTATION.schemaVersion, 1)
 assert.equal(ORIENTATION.sourceSha.length, 40)

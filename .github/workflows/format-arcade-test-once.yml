@@ -1,0 +1,31 @@
+name: One-shot Arcade test formatter
+on:
+  push:
+    branches:
+      - worker/interface-vision-t143-arcade-cabinet-c91f
+    paths:
+      - .github/workflows/format-arcade-test-once.yml
+permissions:
+  contents: write
+jobs:
+  format:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: worker/interface-vision-t143-arcade-cabinet-c91f
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+      - run: npm ci --ignore-scripts
+      - run: npx prettier --write utils/scripts/verifyArcadeGameSubtabs.test.ts
+      - name: Commit formatted assertions
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add utils/scripts/verifyArcadeGameSubtabs.test.ts
+          if ! git diff --cached --quiet; then
+            git commit -m 'style: format Arcade scroll regression assertions'
+            git push origin HEAD:worker/interface-vision-t143-arcade-cabinet-c91f
+          fi

@@ -102,9 +102,9 @@ jobs:
         run: |
           set -euo pipefail
           if [ -n "${ROUTES:-}" ]; then
-            npm run audit:responsive -- --base "$BASE_URL" --routes "$ROUTES" --shots audit-shots
+            npm run audit:responsive -- --base "$BASE_URL" --routes "$ROUTES" --shots audit-shots --viewport-report audit-shots/viewport-ownership.json
           else
-            npm run audit:responsive -- --base "$BASE_URL" --shots audit-shots
+            npm run audit:responsive -- --base "$BASE_URL" --shots audit-shots --viewport-report audit-shots/viewport-ownership.json
           fi
 
       - name: Audit gallery chrome budget
@@ -119,7 +119,7 @@ jobs:
           BASE_URL: ${{ steps.target.outputs.url }}
         run: npm run audit:tablet-nav -- --base "$BASE_URL"
 
-      - name: Upload screenshots
+      - name: Upload screenshots and viewport ownership atlas
         if: always()
         uses: actions/upload-artifact@v4
         with:

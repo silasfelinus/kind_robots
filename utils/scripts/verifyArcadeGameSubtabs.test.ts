@@ -84,7 +84,7 @@ assert.doesNotMatch(
 const picker = readFileSync('components/navigation/channel-select.vue', 'utf8')
 assert.match(
   picker,
-  /v-if="channel.channelKey === 'arcade'"[\\s\\S]*?@click="selectChannel\\(channel\\)"/,
+  /v-if="channel.channelKey === 'arcade'"[\s\S]*?@click="selectChannel\(channel\)"/,
   'the unified mobile picker shows one Arcade destination instead of a game list',
 )
 assert.match(
@@ -94,12 +94,12 @@ assert.match(
 )
 assert.match(
   picker,
-  /function destinationTab\\(channel: ResolvedChannel\\)[\\s\\S]*?if \\(channel.channelKey === 'arcade'\\) \\{[\\s\\S]*?tab.tabKey === 'arcade'/,
+  /function destinationTab\(channel: ResolvedChannel\)[\s\S]*?if \(channel.channelKey === 'arcade'\) \{[\s\S]*?tab.tabKey === 'arcade'/,
   'the Arcade channel always opens its hall, even if an older tab was remembered',
 )
 assert.match(
   picker,
-  /if \\(channel.channelKey === 'arcade' \\|\\| channel.tabs.length <= 1\\)/,
+  /if \(channel.channelKey === 'arcade' \|\| channel.tabs.length <= 1\)/,
   'hover must not open an Arcade flyout',
 )
 
@@ -113,7 +113,7 @@ assert.match(
 const page = readFileSync('pages/play/arcade/index.vue', 'utf8')
 assert.match(
   page,
-  /<ArcadeCabinet :key="meta\\.slug"/,
+  /<ArcadeCabinet :key="meta\.slug"/,
   'cabinet switching still remounts the game inside the arcade hall',
 )
 

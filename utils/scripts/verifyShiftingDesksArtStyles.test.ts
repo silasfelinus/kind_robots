@@ -11,10 +11,8 @@ import {
 const file = (path: string) => fileURLToPath(new URL(path, import.meta.url))
 const asset = (path: string) => readFileSync(file(path), 'utf8')
 
-assert.deepEqual(
-  ART_STYLES.map((style) => style.id),
-  ['classic', 'corporate-noir', 'western-cartoon'],
-)
+const styleIds = ART_STYLES.map((style) => style.id)
+assert.equal(styleIds.join(','), 'classic,corporate-noir,western-cartoon')
 assert.equal(normalizeArtStyle(null), 'classic')
 assert.equal(normalizeArtStyle('unknown'), 'classic')
 assert.equal(normalizeArtStyle('western-cartoon'), 'western-cartoon')

@@ -7,14 +7,12 @@ on:
     # A push that also changes runtime code still builds and publishes normally.
     paths-ignore:
       - '.github/**'
-      - '.migration-backups/**'
       - 'artifacts/**'
       - 'cypress/**'
       - 'docs/**'
       - 'stores/fallback/**'
       - AGENTS.md
       - AI_README.md
-      - CONTROL.md
       - README.md
       - '**/*.test.ts'
       - '**/*.test.js'

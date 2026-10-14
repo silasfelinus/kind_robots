@@ -25,6 +25,12 @@
 //   'h' a heat tile (the battery drains twice as fast on it)
 //   'F' a fan hub: the 5 x 5 sector round it turns a quarter at a time
 //   't' a hot spot              'l' a leak drip's home
+// The Sound Card (t-066):
+//   'g' 'G' a beat gate: a doorway that shuts and opens on the music. 'g' starts shut, 'G' starts
+//       open, and they swap on every beat, so one set is always open
+//   'O' a speaker cone: on its beat it shoves a plug beside it one cell away
+//   'e' marks an echo: a ghost cable retracing the plug's path four seconds behind
+//   'n' a trio of noise gnats' home
 // Mirrored, the right half copies the left with 'P', '$' and 'B' left out (they stay unique) and
 // the left-right arrows turned round.
 
@@ -64,6 +70,12 @@ export type Maze = {
   flippers: readonly number[]
   hotspots: readonly number[]
   drips: readonly number[]
+  /** The Sound Card: beat gates (with the ones that start shut), speaker cones, echoes, gnats. */
+  gates: readonly number[]
+  shutGates: readonly number[]
+  cones: readonly number[]
+  echoes: readonly number[]
+  gnats: readonly number[]
   boss: number | null
   /** One-way diodes, by cell. */
   diodes: ReadonlyMap<number, Way>
@@ -173,6 +185,11 @@ export function parseMaze(layout: MazeLayout): Maze {
     flippers: all('f'),
     hotspots: all('t'),
     drips: all('l'),
+    gates: [...all('g'), ...all('G')],
+    shutGates: all('g'),
+    cones: all('O'),
+    echoes: all('e'),
+    gnats: all('n'),
     boss: all('B')[0] ?? null,
     diodes,
     air,
@@ -401,6 +418,20 @@ export function mazeProblems(
       const ch = rows[cellY(k)]?.[cellX(k)] ?? '#'
       if (!'#F. '.includes(ch)) out.push(`a '${ch}' in a fan sector`)
     }
+  }
+  // A beat gate is a doorway: walls on two opposite sides, floor on the other two.
+  for (const k of maze.gates) {
+    const x = cellX(k)
+    const y = cellY(k)
+    const w = (dx: number, dy: number) => maze.walls[cellKey(x + dx, y + dy)]
+    const across = w(-1, 0) && w(1, 0) && !w(0, -1) && !w(0, 1)
+    const down = w(0, -1) && w(0, 1) && !w(-1, 0) && !w(1, 0)
+    if (!across && !down)
+      out.push(`a beat gate that is not a doorway at ${x},${y}`)
+  }
+  if (maze.gates.length === 1) out.push('a lone beat gate')
+  for (const k of maze.cones) {
+    if (maze.walls[k]) out.push('a speaker cone in a wall')
   }
   const sockets = maze.sockets.length
   if (kind !== 'open' && (sockets < 2 || sockets > 4))

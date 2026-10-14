@@ -183,9 +183,9 @@ function roundTrip(save: unknown): unknown {
 {
   assert.deepEqual(
     COMPONENTS.map((c) => c.id),
-    ['power-strip', 'ram-rows', 'cooling-fan'],
+    ['power-strip', 'ram-rows', 'cooling-fan', 'sound-card'],
   )
-  assert.equal(BYTE_MAZES.length, 15, 'five golden bytes a component')
+  assert.equal(BYTE_MAZES.length, 20, 'five golden bytes a component')
   for (const c of [RAM_ROWS, COOLING_FAN]) {
     assert.equal(c.mazes.length, 5)
     for (const layout of c.mazes)

@@ -15,6 +15,7 @@ import {
   type MazeLayout,
 } from './mazes'
 import { BREEZE, COOLING_FAN_MAZES, FAN_ROOM } from './mazesFan'
+import { EQUALISER, SOUND_CARD_MAZES, SPEAKER_ROOM } from './mazesSound'
 import { DEFRAG, RAM_ROWS_MAZES, THE_HEAP } from './mazesRam'
 import {
   BOSS_MUSIC,
@@ -22,17 +23,19 @@ import {
   POWER_STRIP_MUSIC,
   RAM_ROWS_MUSIC,
   SCREENSAVER_MUSIC,
+  SOUND_CARD_MUSIC,
   WORKBENCH_MUSIC,
 } from './music'
 
-/** The spark sprite set a component uses: bolts, bits or snowflakes. */
-export type SparkSet = 'bolt' | 'bit' | 'flake'
+/** The spark sprite set a component uses: bolts, bits, snowflakes or notes. */
+export type SparkSet = 'bolt' | 'bit' | 'flake' | 'note'
 /** The Screensaver bonus board a component plays after its third maze. */
-export type ScreensaverKind = 'starfield' | 'defrag' | 'breeze'
+export type ScreensaverKind = 'starfield' | 'defrag' | 'breeze' | 'equaliser'
 /** The boss at the end of a component. */
-export type BossKind = 'surge-protector' | 'memory-leak' | 'big-whirr'
+export type BossKind =
+  'surge-protector' | 'memory-leak' | 'big-whirr' | 'subwoofer'
 /** How a component's wall slabs are dressed: outlet plastic, RAM chips, or cooling fins. */
-export type WallStyle = 'plastic' | 'chips' | 'fins'
+export type WallStyle = 'plastic' | 'chips' | 'fins' | 'speakers'
 
 export type ComponentLook = {
   /** The wall slabs' ramp. */
@@ -136,11 +139,34 @@ export const COOLING_FAN: Component = {
   music: COOLING_FAN_MUSIC,
 }
 
+export const SOUND_CARD: Component = {
+  id: 'sound-card',
+  number: 4,
+  name: 'THE SOUND CARD',
+  tagline: 'MOVE TO THE BEAT, MIND YOUR ECHO',
+  mazes: SOUND_CARD_MAZES,
+  screensaver: { kind: 'equaliser', layout: EQUALISER, name: 'EQUALISER' },
+  boss: { kind: 'subwoofer', layout: SPEAKER_ROOM, name: 'THE SUBWOOFER' },
+  look: {
+    wall: RAMPS.purple,
+    wallStyle: 'speakers',
+    floor: ['#2e1a3a', '#25152f', '#1b0f25', '#12081b'],
+    trace: '#8a3d8f',
+    accent: RAMPS.pink,
+    spark: 'note',
+  },
+  step: 6.5,
+  battery: 78,
+  bugStep: 12,
+  music: SOUND_CARD_MUSIC,
+}
+
 /** The components in campaign order. */
 export const COMPONENTS: readonly Component[] = [
   POWER_STRIP,
   RAM_ROWS,
   COOLING_FAN,
+  SOUND_CARD,
 ]
 
 export { BOSS_MUSIC, SCREENSAVER_MUSIC, WORKBENCH_MUSIC }

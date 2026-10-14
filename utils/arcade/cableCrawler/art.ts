@@ -274,6 +274,25 @@ const FLAKE_SPRITES = [
   pixelSprite(['w.H.w', '.wHw.', 'HwwwH', '.HwH.', 'Y.Y.Y'], FLAKE_PALETTE),
 ] as const
 
+const NOTE_PALETTE = {
+  w: '#ffffff',
+  H: RAMPS.pink[4],
+  Y: RAMPS.pink[3],
+  G: RAMPS.pink[2],
+  d: RAMPS.pink[1],
+}
+/** The Sound Card's sparks: an eighth note, and its twinkle. */
+const NOTE_SPRITES = [
+  pixelSprite(
+    ['..HYY', '..HGG', '..HdY', '.YGG.', 'HYGGd', '.dGd.'],
+    NOTE_PALETTE,
+  ),
+  pixelSprite(
+    ['..HwY', '..HwG', '..HdY', '.wwG.', 'HwwGd', '.dGd.'],
+    NOTE_PALETTE,
+  ),
+] as const
+
 export const SPARK_SPRITES: Record<
   SparkSet,
   readonly [PixelSprite, PixelSprite]
@@ -281,6 +300,7 @@ export const SPARK_SPRITES: Record<
   bolt: BOLT_SPRITES,
   bit: BIT_SPRITES,
   flake: FLAKE_SPRITES,
+  note: NOTE_SPRITES,
 }
 
 /** A mimic spark's twinkle: the same shape, but its core flushes pink and two eyes open. */
@@ -303,6 +323,10 @@ export const MIMIC_TWINKLE: Record<SparkSet, PixelSprite> = {
     ...MIMIC_PALETTE,
     H: RAMPS.pink[3],
   }),
+  note: pixelSprite(
+    ['..HwY', '.kkwG', '..HdY', '.wwG.', 'HwwGd', '.dGd.'],
+    MIMIC_PALETTE,
+  ),
 }
 
 const BYTE_PALETTE = {
@@ -625,7 +649,8 @@ export const FUSE_BEETLE = [1, 2, 3].map((phase) => [
  * down the middle of every corridor and a solder pad on every other cell, shadows the walls cast
  * down and right, and the walls as raised slabs, lit on their top and left edges and shadowed on
  * their bottom and right, outlined in ink. The Power Strip's slabs are cream plastic with an
- * outlet's slots, RAM Rows' are chips with gold contacts, and the Cooling Fan's are finned.
+ * outlet's slots, RAM Rows' are chips with gold contacts, the Cooling Fan's are finned and the Sound Card's are
+ * speaker grilles.
  */
 export function paintBoard(
   k: CanvasRenderingContext2D,
@@ -766,6 +791,17 @@ export function paintBoard(
           k.fillStyle = RAMPS.gold[4]
           k.fillRect(px + 3, py + 3, 1, 1)
         }
+      } else if (look.wallStyle === 'speakers') {
+        // A speaker grille: a dark box with a lit cone ring, its dust cap in the middle.
+        k.fillStyle = RAMPS.night[0]
+        k.fillRect(px + 1, py + 1, TILE - 2, TILE - 2)
+        k.fillStyle = ramp[hash % 2 ? 2 : 3]
+        k.fillRect(px + 3, py + 2, 4, 1)
+        k.fillRect(px + 3, py + TILE - 3, 4, 1)
+        k.fillRect(px + 2, py + 3, 1, 4)
+        k.fillRect(px + TILE - 3, py + 3, 1, 4)
+        k.fillStyle = ramp[4]
+        k.fillRect(px + 4, py + 4, 2, 2)
       } else if (look.wallStyle === 'fins') {
         // Cooling fins: thin lit and shadowed ridges across the slab.
         for (let i = 2; i < TILE - 2; i += 3) {

@@ -35,10 +35,10 @@
           class="kr-panes min-h-0 grid-cols-1 gap-2 xl:grid-cols-[minmax(0,1fr)_20rem]"
         >
           <div
-            class="kr-pane-scroll min-w-0"
-            :class="showDetails ? 'hidden xl:block' : 'block'"
+            class="kr-pane min-w-0"
+            :class="showDetails ? 'hidden xl:flex' : 'flex'"
           >
-            <ArcadeCabinet :key="meta.slug" :slug="meta.slug" />
+            <ArcadeCabinet :key="meta.slug" :slug="meta.slug" contained />
           </div>
 
           <aside

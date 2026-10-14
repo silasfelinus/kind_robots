@@ -95,7 +95,7 @@ const ROUTES = flag(
     '/about,/cart,/giving,/mermaids,/privacy,/sanctuary,/forum,/servers,' +
     '/auth/google,/build-bench,/coloring-page,/music-mentor,/play/challenges/leaderboard,/play/video-generator,' +
     '/users/1,/play/challenges/neon-ramen-bar-icon,' +
-    '/play/arcade,/play/arcade?game=zuzu-ghost-trail,/play/zuzu-gamebook,/play/zuzu-showdown,/play/zuzu-ghost-trail,' +
+    '/play/arcade,/play/arcade?game=zuzu-ghost-trail,/play/arcade?game=battery-maze,/play/zuzu-gamebook,/play/zuzu-showdown,/play/zuzu-ghost-trail,' +
     '/play/zuzu-pinball,/play/zuzu-shifting-lands,/play/shifting-desks,' +
     '/play/mandarin,/play/aquarium/browse,/play/daily-pitches,/tzaddik-gallery',
 )
@@ -336,7 +336,38 @@ function collect(minFlexWidth) {
     }
   }
 
+  const cabinet = document.querySelector('.arcade-cabinet--contained')
+  const cabinetPane = cabinet?.closest('.kr-pane')
+  const playScreen = cabinet?.querySelector('.cabinet-screen')
+  const panel = cabinet?.querySelector('.cabinet-panel')
+  const start = cabinet?.querySelector('.cabinet-start')
+  const cabinetBounds = cabinet?.getBoundingClientRect()
+  const paneBounds = cabinetPane?.getBoundingClientRect()
+  const screenBounds = playScreen?.getBoundingClientRect()
+  const panelBounds = panel?.getBoundingClientRect()
+  const startBounds = start?.getBoundingClientRect()
+  const cabinetFit =
+    cabinetBounds && paneBounds && screenBounds && panelBounds && startBounds
+      ? {
+          fits:
+            cabinetBounds.bottom <= paneBounds.bottom + 2 &&
+            panelBounds.bottom <= paneBounds.bottom + 2 &&
+            screenBounds.bottom <= panelBounds.top + 2 &&
+            startBounds.top >= panelBounds.top - 2 &&
+            startBounds.bottom <= panelBounds.bottom + 2 &&
+            cabinetPane.scrollHeight <= cabinetPane.clientHeight + 3 &&
+            screenBounds.width >= 140 &&
+            screenBounds.height >= 140,
+          paneHeight: Math.round(paneBounds.height),
+          cabinetHeight: Math.round(cabinetBounds.height),
+          screenHeight: Math.round(screenBounds.height),
+          controlsBottom: Math.round(panelBounds.bottom),
+          paneBottom: Math.round(paneBounds.bottom),
+        }
+      : null
+
   return {
+    cabinetFit,
     viewportOwnership: {
       documentFlow,
       topLevelSections,
@@ -450,6 +481,7 @@ for (const vp of VIEWPORTS) {
         breakpoint: vp.name,
         loaded,
         ...m.viewportOwnership,
+        cabinetFit: m.cabinetFit,
       })
       if (m.viewportOwnership.documentFlow) {
         console.log(
@@ -466,6 +498,18 @@ for (const vp of VIEWPORTS) {
         }
       }
       if (STRICT_VIEWPORT && m.viewportOwnership.documentFlow) failures += 1
+      if (route.includes('/play/arcade?game=')) {
+        if (!m.cabinetFit?.fits) {
+          failures += 1
+          console.log(
+            `${label} ❌ ARCADE-FIT: the game screen and Start button must fit inside the cabinet pane ${JSON.stringify(m.cabinetFit)}`,
+          )
+        } else {
+          console.log(
+            `${label} ARCADE-FIT: cabinet and Start button visible in one pane`,
+          )
+        }
+      }
     }
 
     /*

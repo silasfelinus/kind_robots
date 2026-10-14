@@ -14,18 +14,26 @@
           <div
             class="absolute inset-0 bg-gradient-to-r from-stone-950 via-stone-950/90 to-stone-950/10"
           />
-          <div class="relative z-10 flex min-h-56 flex-col justify-between gap-5 p-5 sm:min-h-72 sm:max-w-2xl sm:p-8">
+          <div
+            class="relative z-10 flex min-h-56 flex-col justify-between gap-5 p-5 sm:min-h-72 sm:max-w-2xl sm:p-8"
+          >
             <div>
-              <p class="text-xs font-black uppercase tracking-[0.35em] text-amber-300">
+              <p
+                class="text-xs font-black uppercase tracking-[0.35em] text-amber-300"
+              >
                 Five adventures · One shifting frontier
               </p>
-              <h2 class="mt-2 font-serif text-4xl font-black leading-none tracking-tight sm:text-6xl">
+              <h2
+                class="mt-2 font-serif text-4xl font-black leading-none tracking-tight sm:text-6xl"
+              >
                 The World of Zuzu
               </h2>
-              <p class="mt-3 max-w-lg text-sm leading-relaxed text-amber-100/90 sm:text-base">
-                An Edo-era koala ronin rides into a weird west where borders move,
-                old debts refuse to die, and something happened to the humans.
-                Choose the story, the battlefield or the road ahead.
+              <p
+                class="mt-3 max-w-lg text-sm leading-relaxed text-amber-100/90 sm:text-base"
+              >
+                An Edo-era koala ronin rides into a weird west where borders
+                move, old debts refuse to die, and something happened to the
+                humans. Choose the story, the battlefield or the road ahead.
               </p>
             </div>
             <div class="flex flex-wrap items-center gap-2">
@@ -33,7 +41,8 @@
                 to="/play/zuzu-gamebook"
                 class="btn btn-warning btn-sm font-black text-stone-950"
               >
-                Begin the Gamebook <Icon name="kind-icon:arrow-right" class="size-4" />
+                Begin the Gamebook
+                <Icon name="kind-icon:arrow-right" class="size-4" />
               </NuxtLink>
               <NuxtLink
                 to="/play/zuzu-showdown"
@@ -47,14 +56,19 @@
 
         <div class="flex flex-wrap items-end justify-between gap-2 px-1">
           <div>
-            <p class="text-[0.65rem] font-black uppercase tracking-[0.2em] text-primary">
+            <p
+              class="text-[0.65rem] font-black uppercase tracking-[0.2em] text-primary"
+            >
               Pick a doorway
             </p>
             <h2 class="font-serif text-xl font-black sm:text-2xl">
               Five ways into the Shifting Lands
             </h2>
           </div>
-          <NuxtLink to="/play/arcade" class="text-xs font-bold text-primary hover:underline">
+          <NuxtLink
+            to="/play/arcade"
+            class="text-xs font-bold text-primary hover:underline"
+          >
             Visit the Arcade →
           </NuxtLink>
         </div>
@@ -76,12 +90,16 @@
                 loading="lazy"
                 class="h-full w-full object-cover transition duration-500 group-hover:scale-105"
               />
-              <span class="absolute bottom-2 left-2 rounded-full bg-stone-950/90 px-2.5 py-1 text-[0.65rem] font-black uppercase tracking-wide text-amber-50">
+              <span
+                class="absolute bottom-2 left-2 rounded-full bg-stone-950/90 px-2.5 py-1 text-[0.65rem] font-black uppercase tracking-wide text-amber-50"
+              >
                 {{ adventure.genre }}
               </span>
             </div>
             <div class="flex min-w-0 flex-1 flex-col gap-1.5 p-3 sm:p-4">
-              <h3 class="font-serif text-lg font-black group-hover:text-primary">
+              <h3
+                class="font-serif text-lg font-black group-hover:text-primary"
+              >
                 {{ adventure.title }}
               </h3>
               <p class="flex-1 text-xs leading-relaxed opacity-75 sm:text-sm">

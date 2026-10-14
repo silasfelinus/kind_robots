@@ -48,6 +48,15 @@ loadingMessage: Loading Example…
 refreshLabel: Refresh Example
 dottiTip: Dotti starts this optional two-line conversation.
 amiTip: AMI gets the second line.
+tutorial:
+  title: Example Workshop
+  overview: Explain the real tasks and destinations here.
+  hero: /images/channels/example/channel.webp
+  sections:
+    - key: get-started
+      title: Begin here
+      body: Explain how to complete the first action.
+      image: /images/channels/example/get-started.webp
 ---
 ```
 

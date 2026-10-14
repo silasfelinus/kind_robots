@@ -33,7 +33,9 @@ assert.equal(
   '/unrelated/image.webp',
 )
 
-const component = asset('../../components/shifting-desks/shifting-desks-art.vue')
+const component = asset(
+  '../../components/shifting-desks/shifting-desks-art.vue',
+)
 assert.match(component, /displaySrc\.value !== props\.src/)
 assert.match(component, /onImageError/)
 const page = asset('../../pages/play/shifting-desks.vue')

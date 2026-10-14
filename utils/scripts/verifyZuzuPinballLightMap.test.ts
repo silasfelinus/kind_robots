@@ -129,13 +129,13 @@ assert.equal(cssColor(0xff), '#0000ff')
     'utf8',
   )
   assert.match(workshop, /<ArcadePinballLightMap :table="ZUZU_LAST_BELL_GREYBOX"/)
-  assert.match(workshop, /user\\.isAdmin/, 'workshop requires admin')
+  assert.ok(workshop.includes('user.isAdmin'), 'workshop requires admin')
   const play = readFileSync(
     new URL('../../pages/play/zuzu-pinball.vue', import.meta.url),
     'utf8',
   )
   assert.doesNotMatch(play, /ArcadePinballLightMap/, 'editor stays private')
-  assert.doesNotMatch(play, /user\\.isAdmin/, 'public play stays accessible')
+  assert.ok(!play.includes('user.isAdmin'), 'public play stays accessible')
   const editor = readFileSync(
     new URL(
       '../../components/arcade/arcade-pinball-light-map.vue',

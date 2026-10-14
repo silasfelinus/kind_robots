@@ -86,51 +86,22 @@
 -->
 <template>
   <div
-    class="kr-unbound"
+    class="kr-unbound relative"
     :class="
       showDirectory
         ? 'flex h-full min-h-0 flex-col gap-2 overflow-hidden'
         : 'gap-3 pb-6'
     "
   >
-    <nav
+    <button
       v-if="isAdmin"
-      class="flex shrink-0 flex-wrap items-center justify-between gap-2 kr-panel-flat p-3"
-      aria-label="Home views"
+      type="button"
+      class="absolute right-2 top-2 z-30 rounded-full border border-base-300 bg-base-100/95 px-3 py-1.5 text-xs font-bold text-base-content shadow-md transition hover:border-primary hover:text-primary focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary"
+      :aria-label="showDirectory ? 'Open administrator dashboard' : 'Return to public homepage'"
+      @click="homeMode = showDirectory ? 'dashboard' : 'directory'"
     >
-      <div class="min-w-0">
-        <p class="text-sm font-black">
-          {{ showDirectory ? 'Explore Kind Robots' : 'Kind Robots today' }}
-        </p>
-        <p class="text-xs opacity-70">
-          {{
-            showDirectory
-              ? 'Featured experiences and the freshest creations'
-              : 'Daily dreams, projects and the agent workbench'
-          }}
-        </p>
-      </div>
-      <div class="join" role="group" aria-label="Front page view">
-        <button
-          type="button"
-          class="btn btn-sm join-item"
-          :class="showDirectory ? 'btn-primary' : 'btn-outline'"
-          :aria-pressed="showDirectory"
-          @click="homeMode = 'directory'"
-        >
-          Explore
-        </button>
-        <button
-          type="button"
-          class="btn btn-sm join-item"
-          :class="!showDirectory ? 'btn-primary' : 'btn-outline'"
-          :aria-pressed="!showDirectory"
-          @click="homeMode = 'dashboard'"
-        >
-          Dashboard
-        </button>
-      </div>
-    </nav>
+      {{ showDirectory ? 'Admin dashboard →' : '← Explore Kind Robots' }}
+    </button>
     <template v-if="!showDirectory">
       <div v-if="showcaseStore.errorMessage" class="kr-note kr-note-warning">
         {{ showcaseStore.errorMessage }}
@@ -541,9 +512,7 @@ const userStore = useUserStore()
  */
 const isAdmin = computed(() => userStore.isAdmin)
 const homeMode = ref<'directory' | 'dashboard' | null>(null)
-const showDirectory = computed(() =>
-  homeMode.value ? homeMode.value === 'directory' : !isAdmin.value,
-)
+const showDirectory = computed(() => !isAdmin.value || homeMode.value !== 'dashboard')
 
 const visiblePanes = computed(() =>
   RIGHT_PANES.filter((pane) => pane.key !== 'attention' || isAdmin.value),

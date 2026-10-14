@@ -727,8 +727,7 @@ function goToTab(tab: ResolvedTab): void {
 
   // Already here — pushing again would add a redundant history entry the back
   // button then has to be pressed twice to escape.
-  const sameQuery = (target.query?.tab ?? '') === requestedTabKey.value
-  if (route.path === target.path && sameQuery) return
+  if (router.resolve(target).fullPath === route.fullPath) return
 
   void router.push(target)
 }

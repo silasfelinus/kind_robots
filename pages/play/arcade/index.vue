@@ -15,7 +15,7 @@
 
         <div class="flex flex-col gap-4 xl:flex-row">
           <div class="min-w-0 flex-1">
-            <ArcadeCabinet :slug="meta.slug" />
+            <ArcadeCabinet :key="meta.slug" :slug="meta.slug" />
           </div>
 
           <!--

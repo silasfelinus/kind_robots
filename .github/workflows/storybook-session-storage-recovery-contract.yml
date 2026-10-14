@@ -1,10 +1,12 @@
 name: Storybook Session Storage Recovery Contract
 
 on:
-  push:
-    branches: [main]
   pull_request:
     branches: [main]
+    paths:
+      - '.github/workflows/storybook-session-storage-recovery-contract.yml'
+      - 'stores/storybookRunStore.ts'
+      - 'utils/scripts/verifyStorybookSessionStorageRecoveryGuard.mjs'
   workflow_dispatch:
 
 concurrency:

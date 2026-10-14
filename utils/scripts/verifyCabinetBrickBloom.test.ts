@@ -52,6 +52,12 @@ import {
   wallProblems,
 } from '../arcade/brickBloom/walls'
 import type { CrateKind } from '../arcade/brickBloom/walls'
+import {
+  HOUSES,
+  SEEDLING_HOUSE,
+  houseKinds,
+  houseProblems,
+} from '../arcade/brickBloom/houses'
 import { emptyInput } from '../arcade/types'
 import type { InputFrame } from '../arcade/types'
 
@@ -836,6 +842,36 @@ for (const seed of [5, 9, 13]) {
   assert.equal(g.lives, 0)
 }
 
+// --- slice 2: Seedling House and Vine Hall ---------------------------------------------------
+
+{
+  assert.equal(HOUSES.length, 2, 'two glasshouses')
+  const allIds = new Set<string>()
+  const kinds = new Set<CrateKind>()
+  for (const house of HOUSES) {
+    assert.deepEqual(houseProblems(house), [], `${house.id} is sound`)
+    assert.equal(house.walls.length, 9)
+    for (const w of house.walls) {
+      assert.ok(!allIds.has(w.id), `wall id ${w.id} is unique`)
+      allIds.add(w.id)
+    }
+    for (const k of houseKinds(house)) kinds.add(k)
+  }
+  assert.equal(allIds.size, 18, 'eighteen authored walls')
+  for (const k of ['root', 'vine', 'trellis'] as const)
+    assert.ok(kinds.has(k), `the houses use a ${k} crate`)
+  // The check catches a dangling vent and an unreachable wall.
+  const broken = {
+    ...SEEDLING_HOUSE,
+    walls: SEEDLING_HOUSE.walls.map((w) =>
+      w.id === 'seed-1' ? { ...w, vents: ['nowhere', 'seed-2b'] as const } : w,
+    ),
+  }
+  const found = houseProblems(broken)
+  assert.ok(found.some((p) => p.includes('missing wall nowhere')))
+  assert.ok(found.some((p) => p.includes('seed-2a is unreachable')))
+}
+
 console.log(
-  'Brick Bloom slice 1: walls, bloom bed, chain, rush, curl, crates and seeds passed',
+  'Brick Bloom slices 1-2: walls, houses, bloom bed, chain, rush, curl, crates and seeds passed',
 )

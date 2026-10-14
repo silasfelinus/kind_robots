@@ -6,6 +6,8 @@
 // eight steps (eighth notes) per track:
 //
 //   The Power Strip   a perky hum in D with a ticking hi-hat, like a busy little relay.
+//   The Sound Card    a head-nodding bass groove in A minor with a bright chime on top and a
+//                     backbeat, the board's gates thumping to it.
 //   Boss              a stomping minor march in E for the big glitches.
 //   Screensaver       a floaty, slow drift in F over a soft pad.
 
@@ -197,6 +199,41 @@ export const COOLING_FAN_MUSIC: MusicLoop = {
       ),
     },
     { noise: true, vol: 0.01, steps: eight('x x . x x . x .') },
+  ],
+}
+
+export const SOUND_CARD_MUSIC: MusicLoop = {
+  bpm: 112,
+  tracks: [
+    {
+      type: 'triangle',
+      vol: 0.07,
+      steps: bars(
+        'A2 . A2 C3 . A2 . E3',
+        'A2 . A2 C3 . A2 . G2',
+        'F2 . F2 A2 . F2 . C3',
+        'G2 . G2 B2 . G2 . D3',
+        'A2 . A2 C3 . A2 . E3',
+        'D3 . D3 F3 . D3 . A2',
+        'F2 . F2 A2 . C3 . E3',
+        'E2 . G#2 . B2 . E3 .',
+      ),
+    },
+    {
+      type: 'square',
+      vol: 0.018,
+      steps: bars(
+        'E5 . . C5 . . A4 .',
+        'E5 . . G5 . . E5 .',
+        'C5 . . A4 . . F4 .',
+        'D5 . . B4 . . G4 .',
+        'E5 . . C5 . . A4 .',
+        'F5 . . D5 . . A4 .',
+        'A4 . C5 . F5 . E5 .',
+        'B4 - - G#4 - - E4 .',
+      ),
+    },
+    { noise: true, vol: 0.016, steps: eight('x . . . x . . x') },
   ],
 }
 

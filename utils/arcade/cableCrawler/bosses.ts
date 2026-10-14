@@ -20,6 +20,14 @@
 //    - Phase 2: the fan reverses, quicker. Two surges.
 //    - Phase 3: it spins up and the wind hurries your cable; wrap the cable round two sides of
 //      the hub before you surge. Two surges.
+// 4. The Subwoofer (the Sound Card): a speaker in the middle of the room that pulses the board
+//    on the beat. Each pulse flips every beat gate and sets every cone off; it shrugs off a surge
+//    that lands mid-pulse, so surge it in the gap between beats. It takes surges on its 3 x 3
+//    cabinet from the cable laid beside it.
+//    - Phase 1: a pulse every three seconds, flipping the gates and firing the cones. Two surges.
+//    - Phase 2: each pulse also sends a shockwave that shoves a plug within three cells away.
+//      Two surges.
+//    - Phase 3: the tempo doubles. Two surges.
 
 import type { BossKind } from './components'
 import { COLS, ROWS, cellKey, cellX, cellY } from './mazes'
@@ -60,11 +68,13 @@ export type Boss = {
 export const SURGE_PROTECTOR_HP = 7
 export const MEMORY_LEAK_HP = 4
 export const BIG_WHIRR_HP = 6
+export const SUBWOOFER_HP = 6
 /** Hits left at which each later phase begins. */
 const PHASE_AT: Record<BossKind, readonly [number, number]> = {
   'surge-protector': [4, 2],
   'memory-leak': [3, 1],
   'big-whirr': [4, 2],
+  subwoofer: [4, 2],
 }
 const WALK = [12, 10, 9] as const
 const CHARGE_STEP = 3
@@ -86,6 +96,12 @@ const SPLIT_REFORM = 120
 const WHIRR_TURN = [100, 80, 50] as const
 const WHIRR_DIR = [1, -1, 1] as const
 const JAM_RETRY = 20
+/** The Subwoofer: ticks between beats by phase, how long it glows before one, how long one lasts. */
+export const BEAT_EVERY = [180, 180, 90] as const
+export const BEAT_TELL = 30
+export const BEAT_PULSE = 24
+/** How far its phase 2 shockwave reaches, in cells. */
+export const SHOCK_REACH = 3
 /** Ticks before a turn that the blades glow. */
 export const WHIRR_TELL = 24
 
@@ -96,6 +112,7 @@ const BOSS_HP: Record<BossKind, number> = {
   'surge-protector': SURGE_PROTECTOR_HP,
   'memory-leak': MEMORY_LEAK_HP,
   'big-whirr': BIG_WHIRR_HP,
+  subwoofer: SUBWOOFER_HP,
 }
 
 export function newBoss(
@@ -155,7 +172,8 @@ function near(center: number, r: number, round: boolean): number[] {
 export function bossCells(b: Boss): number[] {
   if (b.hp <= 0) return []
   if (b.kind === 'surge-protector') return [b.ring[b.at]!]
-  if (b.kind === 'big-whirr') return near(b.center, 1, false)
+  if (b.kind === 'big-whirr' || b.kind === 'subwoofer')
+    return near(b.center, 1, false)
   if (b.hp > 1) return near(b.center, blobRadius(b), true)
   return b.splits.filter((s) => s.down === 0).map((s) => s.k)
 }
@@ -210,6 +228,8 @@ export type BossWorld = {
   setWalls(walls: boolean[]): void
   /** Let a leak drip loose on a cell. */
   drip(k: number): void
+  /** The Subwoofer's beat: flip the gates, fire the cones, and in phase 2 on send a shockwave. */
+  beat?(shockwave: boolean): void
   rng(): number
 }
 
@@ -219,6 +239,7 @@ export function updateBoss(b: Boss, world: BossWorld) {
   if (b.invuln > 0) b.invuln--
   if (b.kind === 'memory-leak') return updateLeak(b, world)
   if (b.kind === 'big-whirr') return updateWhirr(b, world)
+  if (b.kind === 'subwoofer') return updateSubwoofer(b, world)
   const phase = bossPhase(b)
   if (phase >= 2 && --b.shuffle <= 0) {
     b.shuffle = SHUFFLE_EVERY
@@ -299,6 +320,23 @@ function updateLeak(b: Boss, world: BossWorld) {
   b.timer++
 }
 
+function updateSubwoofer(b: Boss, world: BossWorld) {
+  if (b.stun > 0) b.stun--
+  if (b.charging > 0) {
+    b.charging--
+    return
+  }
+  const phase = bossPhase(b)
+  if (--b.timer > 0) {
+    b.tell = b.timer <= BEAT_TELL ? b.timer : 0
+    return
+  }
+  b.tell = 0
+  b.timer = BEAT_EVERY[phase - 1]!
+  b.charging = BEAT_PULSE
+  world.beat?.(phase >= 2)
+}
+
 function updateWhirr(b: Boss, world: BossWorld) {
   if (b.stun > 0) {
     b.stun--
@@ -348,6 +386,8 @@ export function hitBoss(
   cable: readonly number[] = [],
 ): boolean {
   if (b.invuln > 0 || b.hp <= 0) return false
+  // The Subwoofer shrugs off a surge that lands in the middle of a beat.
+  if (b.kind === 'subwoofer' && b.charging > 0) return false
   if (b.kind === 'memory-leak' && b.hp === 1) {
     const live = b.splits.filter((s) => s.down === 0)
     const caught = live.filter((s) => swept.has(s.k))

@@ -19,6 +19,14 @@
 //   hot spot      a warm glow that grows slowly and drains the battery inside it. Surge it cool.
 //   leak drip     wanders slowly, leaving goo that takes two steps to crawl through.
 //
+// The Sound Card (t-066):
+//
+//   echo          a ghost cable that retraces the plug's exact path four seconds behind it.
+//                 Meeting it head-on unplugs you. Don't cross your own trail, or cross it on
+//                 purpose so the echo walks into a socket's surge.
+//   noise gnats   a trio that drifts toward the plug when it is near and orbits it, draining the
+//                 battery while they do. They fly over the cable; surge with them touching it.
+//
 // A surged glitch reboots: it turns into points (and sometimes drops a pickup), and the
 // wanderers boot back up at home a while later. Crabs and flippers are solid to the plug; a
 // drip is only a droplet, and its goo is the trouble.
@@ -26,7 +34,16 @@
 import { COLS, ROWS, cellKey, cellX, cellY } from './mazes'
 
 export type GlitchKind =
-  'bug' | 'bunny' | 'mimic' | 'crab' | 'flipper' | 'hotspot' | 'drip' | 'block'
+  | 'bug'
+  | 'bunny'
+  | 'mimic'
+  | 'crab'
+  | 'flipper'
+  | 'hotspot'
+  | 'drip'
+  | 'block'
+  | 'echo'
+  | 'gnats'
 
 export type Glitch = {
   kind: GlitchKind
@@ -59,6 +76,8 @@ export const GLITCH_POINTS: Record<GlitchKind, number> = {
   hotspot: 250,
   drip: 200,
   block: 0,
+  echo: 400,
+  gnats: 300,
 }
 
 /** Glitches that wander and boot back up at home after a reboot. */
@@ -68,6 +87,8 @@ export const WANDERERS: ReadonlySet<GlitchKind> = new Set([
   'flipper',
   'hotspot',
   'drip',
+  'echo',
+  'gnats',
 ])
 /** Glitches the plug cannot crawl into. */
 export const SOLID_GLITCHES: ReadonlySet<GlitchKind> = new Set([
@@ -90,6 +111,15 @@ export const GOO_TICKS = 900
 /** A hot spot's radius grows a cell this often, up to HOT_MAX. */
 export const HOT_GROW = 480
 export const HOT_MAX = 3
+
+/** How far behind the plug an echo runs, in ticks. */
+export const ECHO_DELAY = 240
+/** Ticks a rebooted echo stays down. */
+export const ECHO_DOWN = 600
+/** Ticks per cell the gnats drift, how far they see the plug, and how close they drain it. */
+export const GNAT_STEP = 11
+export const GNAT_SIGHT = 6
+export const GNAT_DRAIN = 2
 
 /** Whether a cache crab's claws are up (it snips). */
 export function clawsUp(g: Glitch): boolean {

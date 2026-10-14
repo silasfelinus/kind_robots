@@ -19,7 +19,9 @@ tutorial:
   tagline: Original cabinets, high scores, no coins required.
   overview: >-
     Arcade brings the cabinets, Memory Dungeon and Cthulhuquarium together. Choose a cabinet from the hall, play with its
-    indicated controls and chase high scores. Each game explains its own rules.
+    indicated controls and chase high scores. Each game explains its own rules. On phones and tablets, use Scores & reviews
+    to switch from the cabinet to its scrollable leaderboard, description and reviews without shrinking the game screen.
+    Use Play game to return. On larger screens, the scores remain alongside the cabinet.
   hero: /images/arcade/arcade-attract-splash.webp
   sections:
     - key: cabinets

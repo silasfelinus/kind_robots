@@ -1,0 +1,85 @@
+import assert from 'node:assert/strict'
+import { spawnSync } from 'node:child_process'
+import {
+  mkdtempSync,
+  mkdirSync,
+  readFileSync,
+  rmSync,
+  writeFileSync,
+} from 'node:fs'
+import { tmpdir } from 'node:os'
+import { join } from 'node:path'
+import { test } from 'node:test'
+import {
+  changedPaths,
+  unstagedPaths,
+  withoutGrandfathered,
+} from './formatChanged.mjs'
+
+function git(cwd, ...args) {
+  const result = spawnSync('git', args, { cwd, encoding: 'utf8' })
+  assert.equal(result.status, 0, result.stderr)
+}
+
+test('previously unformatted baseline files are exempt from the fast changed-file gate', () => {
+  assert.deepEqual(
+    withoutGrandfathered(['src/old.ts', 'src/new.ts'], { src: ['src/old.ts'] }),
+    ['src/new.ts'],
+  )
+})
+
+test('changed-file formatter targets new and modified files, not deletions or unrelated old files', () => {
+  const cwd = mkdtempSync(join(tmpdir(), 'kr-format-changed-'))
+  try {
+    git(cwd, 'init', '-b', 'main')
+    git(cwd, 'config', 'user.email', 'test@example.invalid')
+    git(cwd, 'config', 'user.name', 'Formatting Test')
+    mkdirSync(join(cwd, 'src'))
+    writeFileSync(join(cwd, 'src', 'old.ts'), 'const old=1\n')
+    writeFileSync(join(cwd, 'src', 'delete.ts'), 'const removed=1\n')
+    git(cwd, 'add', '.')
+    git(cwd, '-c', 'core.hooksPath=/dev/null', 'commit', '-m', 'baseline')
+    git(cwd, 'switch', '-c', 'feature')
+
+    writeFileSync(join(cwd, 'src', 'old.ts'), 'const old=2\n')
+    writeFileSync(join(cwd, 'src', 'space name.ts'), 'const x=1\n')
+    rmSync(join(cwd, 'src', 'delete.ts'))
+    git(cwd, 'add', '-A')
+    assert.deepEqual(changedPaths({ cwd, staged: true }).sort(), [
+      'src/old.ts',
+      'src/space name.ts',
+    ])
+    git(cwd, '-c', 'core.hooksPath=/dev/null', 'commit', '-m', 'feature')
+
+    assert.deepEqual(changedPaths({ cwd, base: 'main' }).sort(), [
+      'src/old.ts',
+      'src/space name.ts',
+    ])
+    assert.deepEqual(unstagedPaths(cwd), [])
+    writeFileSync(join(cwd, 'src', 'old.ts'), 'const old=3\n')
+    assert.deepEqual(unstagedPaths(cwd), ['src/old.ts'])
+
+    const installer = join(process.cwd(), 'utils/scripts/installFormatHook.mjs')
+    const installed = spawnSync(process.execPath, [installer], {
+      cwd,
+      env: { ...process.env, CI: 'false' },
+      encoding: 'utf8',
+    })
+    assert.equal(installed.status, 0, installed.stderr)
+    const hook = join(cwd, '.git/hooks/pre-commit')
+    assert.match(
+      readFileSync(hook, 'utf8'),
+      /formatChanged\.mjs --staged --write/,
+    )
+    writeFileSync(hook, '#!/bin/sh\\necho custom hook\\n')
+    const retained = spawnSync(process.execPath, [installer], {
+      cwd,
+      env: { ...process.env, CI: 'false' },
+      encoding: 'utf8',
+    })
+    assert.equal(retained.status, 0, retained.stderr)
+    assert.equal(readFileSync(hook, 'utf8'), '#!/bin/sh\\necho custom hook\\n')
+  } finally {
+    rmSync(cwd, { recursive: true, force: true })
+  }
+})

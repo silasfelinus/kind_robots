@@ -1093,6 +1093,21 @@ assert.equal(
   'front desk, hiring, elevator, Personnel File and desk are each one screen',
 )
 assert.match(page, /class="kr-panes desk-layout/, 'the desk is two panes')
+// Art first (Silas, 2026-10-14): the front desk is one giant hero painted in
+// the chosen style, with the title, one button and the style choice on top.
+// The pitch copy belongs to the tutorial, not the front page.
+assert.match(
+  page,
+  /class="front-hero[\s\S]*stationArt\('departments', 'orientation'\)/,
+  'the front desk opens on a full-bleed hero',
+)
+assert.doesNotMatch(
+  page,
+  /No clean wins|Everyone is a traitor/,
+  'no pitch copy on the front page',
+)
+assert.match(page, /<shifting-desks-style-picker/)
+assert.doesNotMatch(page, /desk-poster/, 'the text-only poster is gone')
 // Themes paint art behind the page, so no container may be see-through.
 assert.doesNotMatch(
   page,

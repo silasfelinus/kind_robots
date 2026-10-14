@@ -1,10 +1,13 @@
 name: Narrative Streaming Text Isolation Contract
 
 on:
-  push:
-    branches: [main]
   pull_request:
     branches: [main]
+    paths:
+      - '.github/workflows/narrative-streaming-text-isolation-contract.yml'
+      - 'stores/chatStore.ts'
+      - 'stores/storybookStore.ts'
+      - 'utils/scripts/verifyNarrativeStreamingTextIsolationGuard.mjs'
   workflow_dispatch:
 
 concurrency:

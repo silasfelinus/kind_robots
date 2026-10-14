@@ -7,7 +7,7 @@ title: The World of Zuzu
 subtitle: Choose the next adventure
 summary: Explore the illustrated Zuzu world.
 description: An illustrated launchpad for Zuzu's gamebook, Shifting Lands, Showdown, Ghost Trail and The Last Bell.
-icon: kind-icon:map
+icon: kind-icon:compass
 image: /zuzu-showdown-portraits/zuzu-vs-hd.webp
 route: /play/zuzu
 sort: 110

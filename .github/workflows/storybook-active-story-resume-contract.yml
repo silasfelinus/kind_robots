@@ -1,10 +1,13 @@
 name: Storybook Active Story Resume Contract
 
 on:
-  push:
-    branches: [main]
   pull_request:
     branches: [main]
+    paths:
+      - '.github/workflows/storybook-active-story-resume-contract.yml'
+      - 'stores/helpers/storybookLibraryHelper.ts'
+      - 'stores/storybookStore.ts'
+      - 'utils/scripts/verifyStorybookActiveStoryResumeGuard.ts'
   workflow_dispatch:
 
 concurrency:

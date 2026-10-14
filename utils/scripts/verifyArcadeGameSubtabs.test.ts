@@ -12,7 +12,7 @@ const items: ChannelContentItem[] = [
   {
     contentType: 'channel',
     channelKey: 'arcade',
-    label: 'Arcade',
+    label: 'Play',
     route: '/play/arcade',
     defaultTab: 'arcade',
   },
@@ -31,10 +31,32 @@ const items: ChannelContentItem[] = [
     route: '/play/aquarium',
   },
   {
+    contentType: 'tab',
+    channelKey: 'arcade',
+    tabKey: 'experiments',
+    label: 'Memory Dungeon',
+    route: '/play/memory',
+  },
+  {
+    contentType: 'tab',
+    channelKey: 'arcade',
+    tabKey: 'shifting-desks',
+    label: 'Shifting Desks',
+    route: '/play/shifting-desks',
+  },
+  {
     contentType: 'channel',
     channelKey: 'zuzu',
     label: 'Zuzu',
-    route: '/play/zuzu-gamebook',
+    route: '/play/zuzu',
+    defaultTab: 'overview',
+  },
+  {
+    contentType: 'tab',
+    channelKey: 'zuzu',
+    tabKey: 'overview',
+    label: 'World Hub',
+    route: '/play/zuzu',
   },
   {
     contentType: 'tab',
@@ -51,8 +73,8 @@ assert.ok(arcade, 'the arcade channel resolves')
 
 assert.deepEqual(
   navigationTabs(arcade).map((tab) => tab.tabKey),
-  ['arcade', 'aquarium'],
-  'existing standalone pages stay registered without auto-generated game tabs',
+  ['arcade', 'aquarium', 'experiments', 'shifting-desks'],
+  'Play must expose the Arcade hall, Cthulhuquarium, Memory Dungeon and Shifting Desks tabs',
 )
 assert.equal(
   navigationSubtabs(arcade, 'arcade').length,
@@ -77,6 +99,12 @@ assert.equal(
   'zuzu',
 )
 
+assert.equal(
+  resolveChannelLocation(channels, { path: '/play/zuzu' })?.tab?.tabKey,
+  'overview',
+  'the Zuzu channel must resolve to its dedicated world hub',
+)
+
 const store = readFileSync('stores/channelContentStore.ts', 'utf8')
 assert.doesNotMatch(
   store,
@@ -85,36 +113,65 @@ assert.doesNotMatch(
 )
 
 const picker = readFileSync('components/navigation/channel-select.vue', 'utf8')
-assert.match(
+assert.doesNotMatch(
   picker,
-  /v-if="channel.channelKey === 'arcade'"[\s\S]*?@click="selectChannel\(channel\)"/,
-  'the unified mobile picker shows one Arcade destination instead of a game list',
+  /v-if="channel.channelKey === 'arcade'"/,
+  'the phone picker must not replace all Play tabs with one Arcade link',
 )
 assert.match(
   picker,
-  /v-if="channel.channelKey !== 'arcade' && channel.tabs.length > 1"/,
-  'the desktop picker hides the Arcade flyout toggle',
+  /v-if="channel.tabs.length > 1"/,
+  'the Play channel must expose its desktop flyout toggle',
+)
+assert.doesNotMatch(
+  picker,
+  /channel.channelKey === 'arcade' \|\| channel.tabs.length <= 1/,
+  'hover must allow the Play flyout to open',
 )
 assert.match(
   picker,
-  /function destinationTab\(channel: ResolvedChannel\)[\s\S]*?if \(channel.channelKey === 'arcade'\) \{[\s\S]*?tab.tabKey === 'arcade'/,
-  'the Arcade channel always opens its hall, even if an older tab was remembered',
+  /<ChannelTabList[\s\S]*?:channel="channel"/,
+  'mobile navigation must render all Play tabs',
 )
-assert.match(
-  picker,
-  /if \(channel.channelKey === 'arcade' \|\| channel.tabs.length <= 1\)/,
-  'hover must not open an Arcade flyout',
-)
-
 const header = readFileSync(
   'components/navigation/workspace-header.vue',
   'utf8',
 )
-assert.match(
+assert.doesNotMatch(
   header,
   /resolvedChannel.channelKey !== 'arcade'/,
-  'Arcade must not display the secondary tab picker',
+  'Play must display the secondary tab picker',
 )
+assert.doesNotMatch(
+  header,
+  /to="\/play\/arcade"/,
+  'the redundant standalone Arcade shortcut must be a Play tab instead',
+)
+
+const playChannel = readFileSync('content/channels/arcade/index.md', 'utf8')
+assert.match(playChannel, /\nlabel: Play\n/)
+for (const path of [
+  'content/channels/arcade/arcade.md',
+  'content/channels/arcade/aquarium.md',
+  'content/channels/arcade/experiments.md',
+  'content/channels/arcade/shifting-desks.md',
+]) {
+  assert.match(readFileSync(path, 'utf8'), /\nchannelKey: arcade\n/)
+}
+const hub = readFileSync('pages/play/zuzu.vue', 'utf8')
+const hubTab = readFileSync('content/channels/zuzu/overview.md', 'utf8')
+assert.match(hubTab, /\nroute: \/play\/zuzu\n/)
+assert.match(hubTab, /\ntabKey: overview\n/)
+for (const route of [
+  '/play/zuzu-gamebook',
+  '/play/zuzu-shifting-lands',
+  '/play/zuzu-showdown',
+  '/play/zuzu-ghost-trail',
+  '/play/zuzu-pinball',
+]) {
+  assert.ok(hub.includes(`route: '${route}'`), 'Zuzu hub must link ' + route)
+}
+assert.doesNotMatch(hub, /\/admin\//, 'public hub must not reveal admin routes')
 
 const page = readFileSync('pages/play/arcade/index.vue', 'utf8')
 assert.match(
@@ -153,5 +210,5 @@ assert.match(responsiveAudit, /\/play\/arcade\?game=battery-maze/)
 assert.match(responsiveAudit, /ARCADE-FIT/)
 assert.match(responsiveAudit, /startBounds\.bottom <= panelBounds\.bottom/)
 console.log(
-  'Arcade direct navigation verified; cabinet pages and standalone routes remain available.',
+  'Play tab navigation and illustrated Zuzu hub verified; cabinets remain inside the Arcade hall.',
 )

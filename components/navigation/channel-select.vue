@@ -98,17 +98,7 @@
             </p>
           </div>
 
-          <button
-            v-if="channel.channelKey === 'arcade'"
-            type="button"
-            class="flex min-h-11 w-full items-center gap-2 rounded-lg px-2 text-left hover:bg-base-200"
-            @click="selectChannel(channel)"
-          >
-            <Icon :name="channel.icon" class="kr-icon-4 shrink-0" />
-            <span>Open Arcade</span>
-          </button>
           <ChannelTabList
-            v-else
             :channel="channel"
             :active-channel-key="activeChannel.channelKey"
             :active-tab-key="
@@ -193,7 +183,7 @@
             </button>
 
             <button
-              v-if="channel.channelKey !== 'arcade' && channel.tabs.length > 1"
+              v-if="channel.tabs.length > 1"
               type="button"
               class="flex w-10 shrink-0 items-center justify-center border-l border-current/10"
               :aria-label="'Show ' + channel.label + ' tabs'"
@@ -421,10 +411,6 @@ const activeTab = computed<ResolvedTab | null>(() => {
 })
 
 function destinationTab(channel: ResolvedChannel): ResolvedTab | null {
-  if (channel.channelKey === 'arcade') {
-    return channel.tabs.find((tab) => tab.tabKey === 'arcade') ?? null
-  }
-
   const storedTabKey = channelContentStore.getActiveTab(channel.channelKey)
 
   return (
@@ -563,7 +549,7 @@ function openChannelTabs(
   event: Event,
   allowInline: boolean,
 ): void {
-  if (channel.channelKey === 'arcade' || channel.tabs.length <= 1) {
+  if (channel.tabs.length <= 1) {
     closeChannelTabs()
     return
   }

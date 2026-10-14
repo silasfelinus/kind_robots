@@ -10,7 +10,7 @@ summary: Play original Kind Robots arcade games.
 icon: kind-icon:arcade
 image: /images/arcade/arcade-attract-splash.webp
 route: /play/arcade
-sort: 115
+sort: 80
 tutorial:
   title: Arcade
   body: Choose a cabinet and start playing. Each cabinet is an original Kind Robots game based on a classic such as Asteroids, Pac-Man or Frogger, and plays with a keyboard, a gamepad or touch. Beside the game are today's best and all-time high-score boards, where you can leave three initials. It is free and needs no account, and Arcade hall takes you back to the row of cabinets.

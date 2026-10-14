@@ -673,19 +673,14 @@ assert.ok(
   tutorialFlyerSource.includes('v-if="activeTabTutorial"'),
   'Tutorial flyer must surface explicitly authored active-page help alongside conceptual channel guidance.',
 )
-assert.ok(
+assert.equal(
   workspaceHeaderSource.includes('to="/play/arcade"'),
-  'The fixed workspace header must keep a direct Arcade shortcut.',
+  false,
+  'Arcade belongs in Play tabs, not as a duplicate fixed header button.',
 )
 assert.ok(
-  workspaceHeaderSource.includes('name="kind-icon:arcade"'),
-  'The Arcade shortcut must use the Arcade surface icon.',
-)
-assert.ok(
-  workspaceHeaderSource.includes(
-    "const arcadeActive = computed(() => route.path.startsWith('/play/arcade'))",
-  ),
-  'The Arcade shortcut must stay active throughout the Arcade route tree.',
+  workspaceHeaderSource.includes('resolvedTabs.length'),
+  'Play must retain the shared desktop tab picker.',
 )
 
 assert.equal(tutorialPageKey('play', 'arcade'), 'play/arcade')

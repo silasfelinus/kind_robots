@@ -433,7 +433,8 @@ for (const route of [
   '/dreams',
   '/play/music-video',
   '/play/mandarin',
-  '/button',
+  '/play/zuzu',
+  '/play/arcade?game=kind-pinball',
 ]) {
   assert.ok(
     visitorDirectorySource.includes("route: '" + route + "'"),
@@ -453,6 +454,13 @@ for (const internal of [
     'private project must not appear as a playable public feature: ' + internal,
   )
 }
+assert.ok(visitorDirectorySource.includes("title: 'Kind Robots Pinball'"))
+assert.ok(visitorDirectorySource.includes("title: 'The World of Zuzu'"))
+assert.equal(
+  visitorDirectorySource.includes("title: 'Rebel Button'"),
+  false,
+  'Rebel Button may stay in Projects but must not occupy homepage highlights',
+)
 assert.ok(visitorDirectorySource.includes('const updates = ['))
 assert.ok(visitorDirectorySource.includes('Development notes #'))
 assert.ok(visitorDirectorySource.includes('kr-panes'))

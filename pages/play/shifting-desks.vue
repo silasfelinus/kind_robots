@@ -77,7 +77,7 @@
           class="desk-poster relative flex min-h-0 flex-1 overflow-hidden rounded-2xl border-4 border-stone-800"
         >
           <div
-            class="relative z-10 flex min-h-0 min-w-0 flex-1 flex-col justify-center gap-3 p-4 sm:gap-4 sm:p-8 lg:max-w-[58%]"
+            class="relative z-10 flex min-h-0 min-w-0 flex-1 flex-col justify-center gap-3 p-4 sm:gap-4 sm:p-8 lg:max-w-[58%] lg:gap-3 lg:py-6"
           >
             <p
               class="text-[10px] font-black uppercase tracking-[.3em] text-stone-700 sm:text-xs"
@@ -85,7 +85,7 @@
               Consolidated Wellness &amp; Defense · Making Tomorrow Safer, Today
             </p>
             <p
-              class="font-mono text-5xl font-black uppercase leading-none text-stone-900 sm:text-7xl"
+              class="font-mono text-5xl font-black uppercase leading-none text-stone-900 sm:text-7xl lg:text-6xl"
             >
               Shifting<br />Desks
             </p>
@@ -97,7 +97,7 @@
               more of you on file.
             </p>
             <blockquote
-              class="max-w-xl rounded-2xl border-2 border-stone-800 bg-stone-50/80 p-3 text-stone-900"
+              class="max-w-xl rounded-2xl border-2 border-stone-800 bg-stone-50/80 p-3 text-stone-900 lg:py-2"
             >
               <p class="font-mono text-xs sm:text-sm">
                 “Welcome to your complimentary Wellness Weekend! I'm PAL, your
@@ -133,6 +133,7 @@
                 }}
               </button>
             </div>
+            <shifting-desks-style-picker class="max-w-xl" />
           </div>
           <aside
             class="relative z-10 hidden min-h-0 w-[42%] flex-col justify-center gap-2 p-6 lg:flex"
@@ -909,13 +910,14 @@ import {
 import { useShiftingDesksStore } from '~/stores/shiftingDesksStore'
 import {
   ART_STYLES,
+  DEFAULT_ART_STYLE,
   loadArtStylePreference,
   saveArtStylePreference,
   type ShiftingDesksArtStyle,
 } from '~/utils/shiftingDesks/artStyles'
 
 const store = useShiftingDesksStore()
-const artStyle = ref<ShiftingDesksArtStyle>('classic')
+const artStyle = ref<ShiftingDesksArtStyle>(DEFAULT_ART_STYLE)
 provide('shifting-desks-art-style', artStyle)
 // Visual choice lives outside gameplay state and survives a reload.
 watch(artStyle, saveArtStylePreference)

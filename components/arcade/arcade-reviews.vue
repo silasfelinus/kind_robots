@@ -1,16 +1,26 @@
 <template>
   <section
-    class="kr-panel mt-5 rounded-2xl border border-primary/20 p-4 sm:p-6"
+    :class="
+      compact
+        ? 'border-t border-base-content/15 pt-4'
+        : 'kr-panel mt-5 rounded-2xl border border-primary/20 p-4 sm:p-6'
+    "
     :aria-label="'Reviews for ' + title"
   >
-    <div class="mb-4 flex flex-wrap items-center justify-between gap-3">
+    <div
+      class="flex flex-wrap items-center justify-between gap-3"
+      :class="compact ? 'mb-3' : 'mb-4'"
+    >
       <div>
-        <p class="text-xs font-bold uppercase tracking-widest text-primary">
+        <p
+          class="text-xs font-bold uppercase tracking-widest"
+          :class="compact ? 'opacity-70' : 'text-primary'"
+        >
           Player reviews
         </p>
-        <h2 class="text-xl font-black">{{ title }}</h2>
+        <h2 v-if="!compact" class="text-xl font-black">{{ title }}</h2>
       </div>
-      <p class="font-bold text-warning">
+      <p class="font-bold text-warning" :class="{ 'text-sm': compact }">
         {{
           summary?.count
             ? summary.average.toFixed(1) + ' ★ (' + summary.count + ')'
@@ -21,7 +31,8 @@
 
     <form
       v-if="user.isLoggedIn"
-      class="mb-5 grid gap-3"
+      class="grid"
+      :class="compact ? 'mb-4 gap-2' : 'mb-5 gap-3'"
       @submit.prevent="submit"
     >
       <label class="text-sm font-bold" for="arcade-review-rating"
@@ -30,7 +41,8 @@
       <select
         id="arcade-review-rating"
         v-model.number="rating"
-        class="select select-bordered w-full max-w-xs"
+        class="select select-bordered w-full"
+        :class="compact ? 'select-sm' : 'max-w-xs'"
         required
       >
         <option v-for="stars in [5, 4, 3, 2, 1]" :key="stars" :value="stars">
@@ -44,6 +56,7 @@
         id="arcade-review-comment"
         v-model="comment"
         class="textarea textarea-bordered w-full"
+        :class="{ 'textarea-sm': compact }"
         rows="3"
         maxlength="2000"
         placeholder="What made this game shine? What needs improvement?"
@@ -66,7 +79,11 @@
       {{ reviews.error }}
     </p>
     <p v-if="reviews.loading" class="text-sm opacity-60">Loading reviews…</p>
-    <div v-else-if="entries.length" class="grid gap-3">
+    <div
+      v-else-if="entries.length"
+      class="grid"
+      :class="compact ? 'gap-2' : 'gap-3'"
+    >
       <article
         v-for="entry in entries"
         :key="entry.id"
@@ -93,7 +110,9 @@ import { useUserStore } from '@/stores/userStore'
 import { useArcadeReviewsStore } from '@/stores/arcadeReviewsStore'
 import { findArcadeGame } from '~/utils/arcade/games'
 
-const props = defineProps<{ game: string }>()
+// compact: the slimmer form the game page's sidebar uses under the high
+// scores; the hall keeps the full panel.
+const props = defineProps<{ game: string; compact?: boolean }>()
 const user = useUserStore()
 const reviews = useArcadeReviewsStore()
 const rating = ref(5)

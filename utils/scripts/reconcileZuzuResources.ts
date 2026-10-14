@@ -16,6 +16,8 @@
 //   npx tsx utils/scripts/reconcileZuzuResources.ts --submissions ../conductor/worlds/zuzu/resource-submissions.json
 //   npx tsx utils/scripts/reconcileZuzuResources.ts --report zuzu-reconcile.json
 //   npx tsx utils/scripts/reconcileZuzuResources.ts --apply --confirm <hash>
+//   --match coyote-vagrant=209  resolves a conflict onto a human-chosen row
+//   (comma-separated key=id pairs; the row must still be an owned Zuzu candidate)
 //
 // Env: KR_API_TOKEN (admin token or user API key; never printed),
 //      KR_API_BASE (default https://kindrobots.org).
@@ -58,6 +60,25 @@ const SUBMISSIONS_ARG =
 const SUBMISSIONS_PATH = resolve(SUBMISSIONS_ARG)
 const REPORT_PATH = flag('--report')
 const CONFIRM = flag('--confirm')
+const MATCH_OVERRIDES: Record<string, number> = Object.fromEntries(
+  (flag('--match') ?? '')
+    .split(',')
+    .map((pair) => pair.trim())
+    .filter(Boolean)
+    .map((pair) => {
+      const [key, id] = pair.split('=')
+      const rowId = Number(id)
+      if (!key || !Number.isSafeInteger(rowId) || rowId <= 0) {
+        throw new Error(`--match expects key=id pairs, got "${pair}"`)
+      }
+      return [key, rowId]
+    }),
+)
+const MATCH_ARG = Object.keys(MATCH_OVERRIDES).length
+  ? ` --match ${Object.entries(MATCH_OVERRIDES)
+      .map(([key, id]) => `${key}=${id}`)
+      .join(',')}`
+  : ''
 
 const DREAM_SEARCH_TERMS = ['Koala Assassin', 'Zuzu', 'Gallowsun']
 const LEGACY_DREAM_ID = 183
@@ -488,6 +509,7 @@ async function main(): Promise<void> {
     submissions,
     existing: state,
     adminUserId: viewer.id,
+    matchOverrides: MATCH_OVERRIDES,
   })
   const mapping = buildMapping(state, plan)
 
@@ -502,7 +524,7 @@ async function main(): Promise<void> {
   if (!APPLY) {
     console.log(
       writeCount
-        ? `\nDry run only. To apply exactly this plan:\n  npx tsx utils/scripts/reconcileZuzuResources.ts --submissions ${SUBMISSIONS_PATH} --apply --confirm ${plan.hash}`
+        ? `\nDry run only. To apply exactly this plan:\n  npx tsx utils/scripts/reconcileZuzuResources.ts --submissions ${SUBMISSIONS_PATH}${MATCH_ARG} --apply --confirm ${plan.hash}`
         : '\nDry run only. Nothing to create or patch.',
     )
     return
@@ -534,6 +556,7 @@ async function main(): Promise<void> {
     submissions,
     existing: await readLiveState(submissions),
     adminUserId: viewer.id,
+    matchOverrides: MATCH_OVERRIDES,
   })
   console.log(
     `\nPost-apply plan ${after.hash}: ${JSON.stringify(after.counts)}`,

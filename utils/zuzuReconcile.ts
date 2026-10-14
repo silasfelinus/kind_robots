@@ -490,6 +490,7 @@ function planEntry(
   rows: readonly ZuzuExistingRow[],
   adminUserId: number,
   linkedIds: ReadonlySet<number>,
+  matchOverride?: number,
 ): ZuzuPlanAction {
   const desired = zuzuDesiredPayload(kind, entry)
   const base: ZuzuActionBase = {
@@ -526,6 +527,22 @@ function planEntry(
     })
   }
 
+  // A human-confirmed identity (`--match <key>=<id>`) resolves a conflict, but
+  // only onto a row that is already an owned, Zuzu-provenanced candidate.
+  if (matchOverride !== undefined) {
+    const forced = candidates.find(
+      (candidate) => candidate.row.id === matchOverride,
+    )
+    if (!forced || !forced.summary.owned || !forced.summary.provenance) {
+      return {
+        ...base,
+        action: 'conflict',
+        reason: `match override #${matchOverride} is not an owned Zuzu candidate for ${entry.key}`,
+        candidates: candidates.map((candidate) => candidate.summary),
+      }
+    }
+  }
+
   if (candidates.length === 0) {
     const payload: Record<string, unknown> = { ...desired, isPublic: false }
     const advisories: string[] = []
@@ -545,7 +562,12 @@ function planEntry(
   // similar-name or same-species Zuzu rows also exist; those are reported as
   // related and left alone. Anything short of that is a human decision.
   const exacts = candidates.filter((candidate) => candidate.summary.exact)
-  const only = exacts.length === 1 ? exacts[0] : undefined
+  const only =
+    matchOverride !== undefined
+      ? candidates.find((candidate) => candidate.row.id === matchOverride)
+      : exacts.length === 1
+        ? exacts[0]
+        : undefined
   if (!only || !only.summary.owned || !only.summary.provenance) {
     return {
       ...base,
@@ -792,8 +814,11 @@ export function planZuzuReconciliation(input: {
   submissions: ZuzuSubmissions
   existing: ZuzuExistingState
   adminUserId: number
+  /** Human-confirmed identities: submission key -> existing row id. */
+  matchOverrides?: Readonly<Record<string, number>>
 }): ZuzuReconcilePlan {
   const { submissions, existing, adminUserId } = input
+  const matchOverrides = input.matchOverrides ?? {}
   if (!Number.isInteger(adminUserId) || adminUserId <= 0) {
     throw new Error('adminUserId must be a positive integer')
   }
@@ -805,7 +830,14 @@ export function planZuzuReconciliation(input: {
   for (const [kind, entries] of submissionsByKind(submissions)) {
     for (const entry of entries) {
       actions.push(
-        planEntry(kind, entry, existing[kind] ?? [], adminUserId, linked[kind]),
+        planEntry(
+          kind,
+          entry,
+          existing[kind] ?? [],
+          adminUserId,
+          linked[kind],
+          matchOverrides[entry.key],
+        ),
       )
     }
   }

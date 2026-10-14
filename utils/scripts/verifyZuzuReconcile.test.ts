@@ -415,6 +415,41 @@ function legacyState(): ZuzuExistingState {
     false,
   )
 
+  // A human-confirmed identity resolves the conflict, but only onto an owned
+  // Zuzu candidate; anything else stays a conflict.
+  const matched = planZuzuReconciliation({
+    submissions,
+    existing: legacyState(),
+    adminUserId: ADMIN,
+    matchOverrides: { 'coyote-vagrant': 14 },
+  })
+  const forcedCoyote = find(matched.actions, 'coyote-vagrant')
+  assert.equal(forcedCoyote.action, 'patch')
+  assert.equal((forcedCoyote as ZuzuPatchAction).id, 14)
+  assert.ok(!('name' in (forcedCoyote as ZuzuPatchAction).payload))
+  assertZuzuWriteIsSafe(forcedCoyote as ZuzuPatchAction, ADMIN)
+  assert.notEqual(matched.hash, plan.hash)
+  for (const badId of [11, 999]) {
+    const refused = find(
+      planZuzuReconciliation({
+        submissions,
+        existing: legacyState(),
+        adminUserId: ADMIN,
+        matchOverrides: { 'coyote-vagrant': badId },
+      }).actions,
+      'coyote-vagrant',
+    )
+    assert.equal(refused.action, 'conflict', `override onto #${badId} refused`)
+  }
+  const matchedAgain = planZuzuReconciliation({
+    submissions,
+    existing: simulateZuzuApply(legacyState(), matched),
+    adminUserId: ADMIN,
+    matchOverrides: { 'coyote-vagrant': 14 },
+  })
+  assert.equal(writes(matchedAgain.actions).length, 0)
+  assert.equal(find(matchedAgain.actions, 'coyote-vagrant').action, 'skip')
+
   // Dreams are mapped, never planned.
   assert.deepEqual(
     plan.dreams.map((dream) => dream.id),

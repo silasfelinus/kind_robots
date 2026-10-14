@@ -277,19 +277,30 @@
           </ol>
 
           <div
-            class="rounded-xl border-2 border-dashed p-3"
+            class="flex items-center gap-3 rounded-xl border-2 border-dashed p-3"
             :style="{ borderColor: active.palette.accent }"
+            @pointerenter="bossHurt = true"
+            @pointerleave="bossHurt = false"
           >
-            <p
-              class="text-[10px] font-black uppercase tracking-[.2em] text-error"
-            >
-              World boss
-            </p>
-            <p class="plumber-display text-xl">{{ active.boss.name }}</p>
-            <p class="text-sm leading-snug opacity-75">
-              <span class="font-semibold">Read the tell:</span>
-              {{ active.boss.tell }}
-            </p>
+            <PlumberSheetSprite
+              :key="active.boss.name"
+              :animation="bossAnimation(active.boss.name)"
+              :acting="bossHurt"
+              :fps="5"
+              class="h-28 w-24 shrink-0"
+            />
+            <div>
+              <p
+                class="text-[10px] font-black uppercase tracking-[.2em] text-error"
+              >
+                World boss
+              </p>
+              <p class="plumber-display text-xl">{{ active.boss.name }}</p>
+              <p class="text-sm leading-snug opacity-75">
+                <span class="font-semibold">Read the tell:</span>
+                {{ active.boss.tell }}
+              </p>
+            </div>
           </div>
 
           <div class="flex flex-wrap items-center gap-2 text-xs">
@@ -312,6 +323,7 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
 import { useSavePlumberStore } from '~/stores/savePlumberStore'
+import { bossAnimation } from '~/utils/arcade/games/savePlumberAnimations'
 import {
   PLUMBER_WORLDS,
   type StageBeat,
@@ -320,6 +332,7 @@ import {
 const plumber = useSavePlumberStore()
 
 const selected = ref(0)
+const bossHurt = ref(false)
 const active = computed(() => PLUMBER_WORLDS[selected.value]!)
 
 const nodes: [number, number][] = [

@@ -20,6 +20,27 @@ assert.deepEqual(
   six.map(([left, top, right, bottom]) => ({ left, top, right, bottom })),
 )
 
+const bouncing: Rect[] = [
+  [10, 10, 40, 50],
+  [60, 5, 90, 30],
+  [65, 40, 85, 50],
+  [110, 10, 140, 50],
+]
+assert.deepEqual(
+  frameBoxes(sheet(bouncing), 150, 60, 3)?.map((b) => [
+    b.left,
+    b.right,
+    b.top,
+    b.bottom,
+  ]),
+  [
+    [10, 40, 10, 50],
+    [60, 90, 5, 50],
+    [110, 140, 10, 50],
+  ],
+  'a figure floating above its own spring is one pose',
+)
+
 const raisedHand: Rect[] = [
   [10, 20, 40, 55],
   [40, 5, 60, 20],

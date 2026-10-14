@@ -528,6 +528,7 @@ class DuneDiggerDash implements ArcadeGameInstance {
   private hose = 0
   private hoseLen = 0
   private popped = 0
+  private visited = new Set<number>()
 
   private grid: Grid = newGrid()
   private sprites: Sprite[] = []
@@ -554,6 +555,7 @@ class DuneDiggerDash implements ArcadeGameInstance {
     this.sprites = round.sprites
     this.boulders = round.boulders
     this.roundTick = 0
+    this.visited.clear()
     this.placeAtStart()
   }
 
@@ -657,9 +659,15 @@ class DuneDiggerDash implements ArcadeGameInstance {
   private digHere() {
     const c = tileOf(this.x)
     const r = tileOf(this.y)
-    if (!inBounds(c, r) || this.grid.dug[r]![c]) return
+    if (!inBounds(c, r)) return
+    // Every new tile you reach pays, dug or already open (the surface included).
+    const key = r * COLS + c
+    if (!this.visited.has(key)) {
+      this.visited.add(key)
+      this.addScore(DIG_POINTS, this.x, this.y - 10, '')
+    }
+    if (this.grid.dug[r]![c]) return
     this.grid.dug[r]![c] = true
-    this.addScore(DIG_POINTS, this.x, this.y - 10, '')
     this.sparkles.burst(this.x, this.y, this.sparkRng, {
       count: 3,
       colours: [DUNES[duneFor(this.level)]!.sand[1]],

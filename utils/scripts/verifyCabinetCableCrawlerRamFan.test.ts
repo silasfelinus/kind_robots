@@ -128,6 +128,7 @@ type Game = {
   updateGlitches(): void
   takePickup(p: Pickup): void
   demoInput(): InputFrame
+  addScore(points: number, x: number, y: number, show: boolean): void
 }
 
 const quiet = { play: () => {} }
@@ -608,6 +609,104 @@ function roundTrip(save: unknown): unknown {
     readCableSave({ v: 1, comp: 0, score: 0, lives: 3, bench: true })!.bench,
     false,
   )
+}
+
+// --- earned spare cables keep a valid checkpoint independently of the purchase limit -----------------
+{
+  for (const count of [8, 9, 10, 98, 99]) {
+    const game = play(17)
+    for (let i = 3; i < count; i++) game.addScore(100_000, 0, 0, false)
+    assert.equal(game.lives, count, 'spares are earned through the score path')
+    game.copper = 42
+    game.reachBonus = 1
+    game.insulation = 2
+    game.colour = 3
+    game.finder = true
+    game.beginComponent(1)
+    // Stage only the byte location; normal collection earns and persists the authored byte.
+    game.byte!.shown = true
+    game.body = [game.byte!.k]
+    const collect = game as Game & { takeByte(): void }
+    collect.takeByte()
+    const saved = roundTrip(game.save)
+    for (const button of ['a', 'start'] as const) {
+      const back = play(18, saved)
+      assert.ok(
+        back.offer,
+        'earned spares keep the later-component Continue offer',
+      )
+      const frame = emptyInput()
+      frame.pressed[button] = true
+      back.update(frame)
+      assert.equal(
+        back.lives,
+        count,
+        'legitimate earned spare count survives Continue',
+      )
+      assert.equal(back.compIndex, 1)
+      assert.equal(back.score, game.save!.score)
+      assert.equal(back.copper, 42)
+      assert.equal(back.reachBonus, 1)
+      assert.equal(back.insulation, 2)
+      assert.equal(back.colour, 3)
+      assert.ok(back.finding)
+      assert.deepEqual(back.save!.bytes, game.save!.bytes)
+      assert.equal(readCableSave(roundTrip(back.save))!.lives, count)
+    }
+    assert.equal(
+      cannotBuy(
+        {
+          copper: 30,
+          lives: count,
+          reach: 0,
+          insulation: 0,
+          colour: 0,
+          finder: false,
+        },
+        'cable',
+      ),
+      count < 9 ? null : 'CABLES FULL',
+    )
+  }
+
+  const capped = play(19)
+  for (let i = 0; i < 97; i++) capped.addScore(100_000, 0, 0, false)
+  assert.equal(capped.score, 9_700_000, 'below the existing score ceiling')
+  assert.equal(
+    capped.lives,
+    99,
+    'score awards respect the existing save domain',
+  )
+  capped.beginComponent(1)
+  const back = play(20, roundTrip(capped.save))
+  assert.ok(back.offer, 'the former 100-cable checkpoint remains resumable')
+  back.update(press('a'))
+  assert.equal(back.lives, 99)
+  // A real battery loss creates room for the next earned cable; awards do not stall at the cap.
+  back.cardTicks = 0
+  back.battery = 0
+  back.update(emptyInput())
+  assert.equal(back.lives, 98)
+  back.addScore(100_000, 0, 0, false)
+  assert.equal(back.lives, 99)
+  for (let i = 0; i < 4; i++) back.addScore(100_000, 0, 0, false)
+  assert.equal(back.lives, 99)
+  back.beginComponent(2)
+  assert.equal(readCableSave(roundTrip(back.save))!.lives, 99)
+  for (const invalid of [
+    100,
+    -1,
+    3.5,
+    Number.NaN,
+    Number.POSITIVE_INFINITY,
+    '9',
+  ]) {
+    assert.equal(
+      readCableSave({ ...capped.save, lives: invalid }),
+      null,
+      'strict invalid-count rejection stays intact',
+    )
+  }
 }
 
 // --- Defrag and Breeze --------------------------------------------------------------------

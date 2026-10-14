@@ -133,7 +133,10 @@ const courtHelp = readFileSync(
   'content/channels/zuzu/emperor-of-dust.md',
   'utf8',
 )
-assert.match(courtPage, /v-else class="[^"]*h-full min-h-0[^"]*overflow-hidden/)
+assert.match(
+  courtPage,
+  /v-else\s+class="[^"]*h-full min-h-0[^"]*overflow-hidden/,
+)
 assert.equal(
   (courtPage.match(/class="kr-scroll /g) ?? []).length,
   1,

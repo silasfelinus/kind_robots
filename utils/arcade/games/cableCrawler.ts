@@ -149,7 +149,11 @@ import {
   type Pickup,
   pickupFor,
 } from '../cableCrawler/pickups'
-import { type CableSave, readCableSave } from '../cableCrawler/save'
+import {
+  type CableSave,
+  MAX_SAVED_LIVES,
+  readCableSave,
+} from '../cableCrawler/save'
 import {
   SOCKET_RECHARGE,
   SURGE_REACH,
@@ -1503,8 +1507,10 @@ class CableCrawler implements ArcadeGameInstance {
     if (this.score >= this.nextExtra) {
       this.nextExtra +=
         this.nextExtra === EXTRA_FIRST ? EXTRA_EVERY - EXTRA_FIRST : EXTRA_EVERY
-      this.lives++
-      this.sound.play('extra')
+      if (this.lives < MAX_SAVED_LIVES) {
+        this.lives++
+        this.sound.play('extra')
+      }
     }
   }
 

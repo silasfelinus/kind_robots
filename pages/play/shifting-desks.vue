@@ -1323,7 +1323,9 @@ watch([() => run.value?.position, () => run.value?.department], () => {
 
 onMounted(() => {
   try {
-    artStyle.value = normalizeArtStyle(localStorage.getItem(ART_STYLE_STORAGE_KEY))
+    artStyle.value = normalizeArtStyle(
+      localStorage.getItem(ART_STYLE_STORAGE_KEY),
+    )
   } catch {
     artStyle.value = 'classic'
   }

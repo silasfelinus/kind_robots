@@ -126,15 +126,29 @@ assert.match(
 assert.match(page, /class="kr-panes min-h-0 grid-cols-1/)
 assert.match(page, /v-if="!slug" class="kr-panes min-h-0 grid-cols-1"/)
 assert.doesNotMatch(page, /\bkr-scroll\b/, 'no mixed single/multi scroll owner')
-assert.match(page, /class="kr-pane-scroll min-w-0"/)
+assert.match(page, /class="kr-pane min-w-0"/)
+assert.match(page, /<ArcadeCabinet :key="meta\.slug" :slug="meta\.slug" contained \/>/)
 assert.match(page, /id="arcade-cabinet-details"/)
 assert.match(page, /aria-controls="arcade-cabinet-details"/)
 assert.match(page, /:aria-expanded="showDetails"/)
 assert.match(page, /watch\(slug, \(\) =>/)
-assert.match(page, /\? 'hidden xl:block' : 'block'/)
+assert.match(page, /\? 'hidden xl:flex' : 'flex'/)
 assert.match(page, /\? 'block' : 'hidden xl:block'/)
 assert.doesNotMatch(page, /class="flex flex-col gap-4 xl:flex-row"/)
 
+const cabinet = readFileSync('components/arcade/arcade-cabinet.vue', 'utf8')
+assert.match(cabinet, /contained\?: boolean/)
+assert.match(cabinet, /fittedWidth\.value/)
+assert.match(cabinet, /height - insets/)
+assert.match(cabinet, /arcade-cabinet--contained/)
+assert.match(cabinet, /\.cabinet-screen-wrap \{/)
+const responsiveAudit = readFileSync(
+  'utils/scripts/auditResponsiveLayout.mjs',
+  'utf8',
+)
+assert.match(responsiveAudit, /\/play\/arcade\?game=battery-maze/)
+assert.match(responsiveAudit, /ARCADE-FIT/)
+assert.match(responsiveAudit, /startBounds\.bottom <= panelBounds\.bottom/)
 console.log(
   'Arcade direct navigation verified; cabinet pages and standalone routes remain available.',
 )

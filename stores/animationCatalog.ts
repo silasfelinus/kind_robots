@@ -804,6 +804,18 @@ export const ANIMATION_EFFECTS = [
     generationSafe: true,
     preferredSurface: 'fullscreen',
   },
+  {
+    id: 'paper-lantern-rise',
+    label: 'Paper Lantern Rise',
+    reveal: 'Paper lanterns drift up into a starry night',
+    icon: 'kind-icon:sparkle',
+    tooltip:
+      'Glowing paper lanterns rise and sway into a starry night sky 🏮 hover near a lantern to make it glow, click to give them a gentle lift',
+    color: '#ffaa46',
+    releasedAt: '2026-10-15T08:00:00Z',
+    generationSafe: true,
+    preferredSurface: 'fullscreen',
+  },
 ] as const satisfies readonly AnimationEffectDefinition[]
 
 export type AnimationEffectId = (typeof ANIMATION_EFFECTS)[number]['id']

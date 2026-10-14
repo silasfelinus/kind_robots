@@ -94,7 +94,10 @@ const ROUTES = flag(
     '/build/animation-manager,/build/hair-studio,' +
     '/about,/cart,/giving,/mermaids,/privacy,/sanctuary,/forum,/servers,' +
     '/auth/google,/build-bench,/coloring-page,/music-mentor,/play/challenges/leaderboard,/play/video-generator,' +
-    '/users/1,/play/challenges/neon-ramen-bar-icon',
+    '/users/1,/play/challenges/neon-ramen-bar-icon,' +
+    '/play/arcade,/play/zuzu-gamebook,/play/zuzu-showdown,/play/zuzu-ghost-trail,' +
+    '/play/zuzu-pinball,/play/zuzu-shifting-lands,/play/shifting-desks,' +
+    '/play/mandarin,/play/aquarium/browse,/play/daily-pitches,/tzaddik-gallery',
 )
   .split(',')
   .map((r) => r.trim())

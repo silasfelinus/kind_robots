@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict'
+import { ART_STYLES, normalizeArtStyle, artStyleImageSrc } from '../shiftingDesks/artStyles'
 import { readFileSync } from 'node:fs'
 import { fileURLToPath } from 'node:url'
 import {
@@ -56,7 +57,6 @@ import { FLAG_MEMOS } from '../shiftingDesks/memos'
 const file = (path: string) => fileURLToPath(new URL(path, import.meta.url))
 const asset = (path: string) => readFileSync(file(path), 'utf8')
 
-import { ART_STYLES, normalizeArtStyle, artStyleImageSrc } from '../shiftingDesks/artStyles'
 
 assert.deepEqual(ART_STYLES.map((style) => style.id), [
   'classic',

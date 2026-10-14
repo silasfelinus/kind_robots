@@ -295,6 +295,29 @@ When the repositories disagree, Conductor wins for coordination fields and Kind 
 for presentation/application fields. Repair the event or projection path instead of editing
 both sides until they happen to match.
 
+## Formatting changed files before CI
+
+Keep the repo-wide Prettier ratchet: old formatting debt is grandfathered in,
+but new unformatted files may never enter the baseline. **Do not weaken the
+ratchet or re-record its baseline to make a PR green.**
+
+After `npm install` / `npm ci` in a local checkout, the repo installs a
+pre-commit hook that formats staged, Prettier-supported files and re-stages
+those files. It refuses to touch partially staged files with additional
+unstaged edits; stage or stash those edits first.
+
+Before opening or updating a PR, run `npm run format:changed` and commit
+the resulting formatting changes. `npm run format:check-changed` is the
+read-only equivalent. Both select only new/modified files on the current
+branch compared to `origin/main`, not the whole repository.
+
+**Connector-only GitHub edits bypass local hooks.** Their author must use
+the fast `Changed-file Prettier` PR check and apply its exact suggested
+patch when red. That job reports the specific formatting diff without
+waiting for the much slower full Contract Tests ratchet. The ratchet stays
+required as the backstop; checking green on an earlier commit does not
+prove a newer commit is green.
+
 ## Verifying your work
 
 Typecheck, and run the tests that cover what you touched. Don't weaken, skip, or delete a

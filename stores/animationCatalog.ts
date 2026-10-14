@@ -792,6 +792,18 @@ export const ANIMATION_EFFECTS = [
     generationSafe: true,
     preferredSurface: 'fullscreen',
   },
+  {
+    id: 'dandelion-seed-drift',
+    label: 'Dandelion Seed Drift',
+    reveal: 'Dandelion seeds float across a summer sky',
+    icon: 'kind-icon:sparkle',
+    tooltip:
+      'Fluffy dandelion seeds drift and bob across a summer sky 🌼 hover near a seed to make it glow, click to send a gentle gust through the field',
+    color: '#f7e3a1',
+    releasedAt: '2026-10-14T08:00:00Z',
+    generationSafe: true,
+    preferredSurface: 'fullscreen',
+  },
 ] as const satisfies readonly AnimationEffectDefinition[]
 
 export type AnimationEffectId = (typeof ANIMATION_EFFECTS)[number]['id']

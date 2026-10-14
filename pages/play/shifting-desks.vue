@@ -6,7 +6,7 @@
 
     <template v-else>
       <div
-        class="kr-toolbar mx-auto w-full max-w-[1400px] justify-between gap-x-3 gap-y-1 rounded-2xl bg-base-100/95 px-2 py-0.5 shadow-sm sm:px-4 sm:py-1"
+        class="kr-toolbar mx-auto w-full max-w-[1400px] justify-between gap-x-2 gap-y-1 sm:gap-x-3 rounded-2xl bg-base-100/95 px-2 py-0.5 shadow-sm sm:px-4 sm:py-1"
       >
         <p
           class="hidden font-mono text-sm font-black uppercase tracking-[.25em] sm:block"
@@ -50,7 +50,7 @@
           </span>
           <button
             type="button"
-            class="btn btn-ghost btn-xs"
+            class="btn btn-ghost btn-xs max-sm:px-1"
             :title="`Personnel file, ${run.log.length} entries`"
             @click="openJournal"
           >
@@ -59,7 +59,7 @@
           </button>
           <button
             type="button"
-            class="btn btn-ghost btn-xs"
+            class="btn btn-ghost btn-xs max-sm:px-1"
             title="Leave for the front desk"
             @click="toFront"
           >

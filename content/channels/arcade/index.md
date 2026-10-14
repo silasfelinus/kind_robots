@@ -1,11 +1,11 @@
 ---
 contentType: channel
 channelKey: arcade
-label: Arcade
-title: Kind Robots Arcade
-room: The Arcade
-subtitle: Pick a cabinet, chase a high score
-description: 'Original cabinets, Memory Dungeon, Cthulhuquarium and other standalone games.'
+label: Play
+title: Play at Kind Robots
+room: Playroom
+subtitle: Games, cabinets and curious adventures
+description: 'Arcade cabinets, Shifting Desks, Memory Dungeon, Cthulhuquarium and other games, all reachable as Play tabs.'
 summary: Arcade cabinets and standalone games.
 icon: kind-icon:arcade
 image: /images/arcade/arcade-attract-splash.webp
@@ -15,10 +15,10 @@ sort: 10
 loadingMessage: Starting the cabinets...
 refreshLabel: Refresh Arcade
 tutorial:
-  title: Arcade
+  title: Play
   tagline: Original cabinets, high scores, no coins required.
   overview: >-
-    Arcade brings the cabinets, Memory Dungeon and Cthulhuquarium together. Choose a cabinet from the hall, play with its
+    Play brings the Arcade, Memory Dungeon, Shifting Desks and Cthulhuquarium together as selectable tabs. Choose a cabinet from the Arcade hall, play with its
     indicated controls and chase high scores. Each game explains its own rules. On phones and tablets, use Scores & reviews
     to switch from the cabinet to its scrollable leaderboard, description and reviews without shrinking the game screen.
     Use Play game to return. On larger screens, the scores remain alongside the cabinet.
@@ -38,4 +38,4 @@ tutorial:
       image: /images/arcade/arcade-attract-splash.webp
 ---
 
-Open the Arcade Hall to pick a cabinet.
+Choose a Play tab for Arcade, Memory Dungeon, Shifting Desks or Cthulhuquarium.

@@ -11,9 +11,21 @@ icon: kind-icon:target
 route: /play/zuzu-pinball
 sort: 126
 tutorial:
-  title: Zuzu Pinball
+  title: Zuzu Pinball · The Last Bell
   body: >-
-    Play the evolving table in The Last Bell. Start the cabinet, hold and release Down to launch, use left and right arrows for flippers and Up to nudge. Try the River Croc mouth on the left bank. This is a physically playable greybox; raised ramps, upper flipper deck, modes, full art and polished modes are future stages.
+    The water has teeth. The Last Bell is a haunted frontier pinball table
+    with a River Croc, the Abbess's bell, and a hidden undercrypt.
+    HOW TO PLAY: Press Start or Enter. Left/right arrows operate the flippers.
+    Hold Down to charge the plunger, then release to launch. Up nudges the
+    table (too many nudges cause TILT). Hold B or Shift to use only the upper
+    Abbey flippers. Gamepads and touch controls also work.
+    TABLE RULES: Ring the Bell lane to open the Mortuary and its story chapters.
+    Break the Abbey seals for multipliers and reveal the captive relic ball.
+    The River Croc swallows and returns balls; five swallows light an extra ball.
+    Homestead unlocks the Watering Hole Death Roll jackpot. Three Citadel locks
+    start Harvest Moon multiball; the Storm Crow and Last Bell modes follow
+    their own shot sequences. A soft Mortuary plunge is the skill shot.
+    This is an evolving playable table, not yet the finished FX3-grade release.
 ---
 
 The Last Bell is a new Zuzu pinball table. The Zuzu channel's work-in-progress table is distinct

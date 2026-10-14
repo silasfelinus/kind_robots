@@ -7,7 +7,15 @@
 export const COLS = 12
 export const ROWS = 9
 
-export type CrateKind = 'crate' | 'bolt' | 'sprout' | 'hinge' | 'puffball'
+export type CrateKind =
+  | 'crate'
+  | 'bolt'
+  | 'sprout'
+  | 'hinge'
+  | 'puffball'
+  | 'root'
+  | 'vine'
+  | 'trellis'
 
 /** The legend: one character per crate kind; `.` is empty air. */
 export const LEGEND: Readonly<Record<string, CrateKind>> = {
@@ -153,11 +161,14 @@ export const WALLS: readonly Wall[] = [
 
 export type Cell = { col: number; row: number; kind: CrateKind }
 
-export function parseWall(w: Wall): Cell[] {
+export function parseWall(
+  w: Wall,
+  legend: Readonly<Record<string, CrateKind>> = LEGEND,
+): Cell[] {
   const out: Cell[] = []
   w.rows.forEach((line, row) => {
     for (let col = 0; col < line.length; col++) {
-      const kind = LEGEND[line[col]!]
+      const kind = legend[line[col]!]
       if (kind) out.push({ col, row, kind })
     }
   })
@@ -172,17 +183,20 @@ export function wallFor(stage: number): Wall {
  * Soundness: right shape, only legend characters, something to break, and every breakable crate
  * can be reached -- connected through non-bolt cells to open air, the roof gap or the floor gap.
  */
-export function wallProblems(w: Wall): string[] {
+export function wallProblems(
+  w: Wall,
+  legend: Readonly<Record<string, CrateKind>> = LEGEND,
+): string[] {
   const problems: string[] = []
   if (w.rows.length !== ROWS) problems.push(`${w.id}: ${w.rows.length} rows`)
   w.rows.forEach((line, i) => {
     if (line.length !== COLS)
       problems.push(`${w.id}: row ${i} is ${line.length} wide`)
     for (const ch of line)
-      if (ch !== '.' && !LEGEND[ch]) problems.push(`${w.id}: unknown "${ch}"`)
+      if (ch !== '.' && !legend[ch]) problems.push(`${w.id}: unknown "${ch}"`)
   })
   if (problems.length) return problems
-  const cells = parseWall(w)
+  const cells = parseWall(w, legend)
   const at = new Map(cells.map((c) => [`${c.col},${c.row}`, c.kind]))
   const breakable = cells.filter((c) => c.kind !== 'bolt')
   if (!breakable.length) problems.push(`${w.id}: nothing to break`)

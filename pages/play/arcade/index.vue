@@ -1,12 +1,17 @@
 <template>
   <main class="kr-surface">
-    <div class="mx-auto flex h-full min-h-0 w-full max-w-7xl flex-col gap-2 overflow-hidden px-2 py-2 sm:px-4">
+    <div
+      class="mx-auto flex h-full min-h-0 w-full max-w-7xl flex-col gap-2 overflow-hidden px-2 py-2 sm:px-4"
+    >
       <div v-if="!slug" class="kr-scroll min-h-0 flex-1">
         <ArcadeHall />
       </div>
 
       <template v-else-if="meta">
-        <nav class="flex shrink-0 items-center gap-2 text-sm" aria-label="Arcade cabinet navigation">
+        <nav
+          class="flex shrink-0 items-center gap-2 text-sm"
+          aria-label="Arcade cabinet navigation"
+        >
           <NuxtLink to="/play/arcade" class="btn btn-sm btn-ghost">
             ← Arcade hall
           </NuxtLink>
@@ -20,11 +25,13 @@
             aria-controls="arcade-cabinet-details"
             @click="showDetails = !showDetails"
           >
-            {{ showDetails ? "Play game" : "Scores & reviews" }}
+            {{ showDetails ? 'Play game' : 'Scores & reviews' }}
           </button>
         </nav>
 
-        <div class="kr-panes min-h-0 grid-cols-1 gap-2 xl:grid-cols-[minmax(0,1fr)_20rem]">
+        <div
+          class="kr-panes min-h-0 grid-cols-1 gap-2 xl:grid-cols-[minmax(0,1fr)_20rem]"
+        >
           <div
             class="kr-pane-scroll min-w-0"
             :class="showDetails ? 'hidden xl:block' : 'block'"

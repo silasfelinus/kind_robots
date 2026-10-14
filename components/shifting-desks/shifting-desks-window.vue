@@ -1,6 +1,6 @@
 <template>
   <section
-    class="flex grow flex-col gap-2 lg:gap-3"
+    class="flex grow flex-col gap-1.5 sm:gap-2 lg:gap-3"
     :aria-label="`${shift.title}, applicant ${index + 1} of ${shift.applicants.length}`"
   >
     <div class="flex flex-wrap gap-2">
@@ -58,7 +58,7 @@
     </div>
 
     <p
-      class="self-start rounded-lg bg-base-100/95 px-2 py-0.5 font-mono text-xs font-black uppercase tracking-widest text-base-content/80"
+      class="hidden self-start rounded-lg bg-base-100/95 px-2 py-0.5 font-mono text-xs font-black uppercase tracking-widest text-base-content/80 sm:block"
     >
       Check the papers against the memo, then stamp
     </p>
@@ -138,19 +138,19 @@ const stamps = computed(() =>
   color: #b91c1c;
 }
 
-.window-stamp:hover,
-.window-stamp:focus-visible {
-  transform: rotate(-1deg) scale(1.01);
+.window-stamp.is-approve:hover,
+.window-stamp.is-approve:focus-visible {
+  box-shadow: inset 0 0 0 3px #15803d;
+}
+
+.window-stamp.is-deny:hover,
+.window-stamp.is-deny:focus-visible {
+  box-shadow: inset 0 0 0 3px #b91c1c;
 }
 
 @media (prefers-reduced-motion: reduce) {
   .window-stamp {
     transition: none;
-  }
-
-  .window-stamp:hover,
-  .window-stamp:focus-visible {
-    transform: none;
   }
 }
 </style>

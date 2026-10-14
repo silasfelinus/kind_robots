@@ -43,7 +43,12 @@ export function unstagedPaths(cwd = process.cwd()) {
 function prettier(files, mode) {
   return spawnSync(
     process.execPath,
-    ['node_modules/prettier/bin/prettier.cjs', mode, '--ignore-unknown', ...files.map((file) => `./${file}`)],
+    [
+      'node_modules/prettier/bin/prettier.cjs',
+      mode,
+      '--ignore-unknown',
+      ...files.map((file) => `./${file}`),
+    ],
     { stdio: 'inherit' },
   )
 }
@@ -53,7 +58,10 @@ function main() {
   const staged = args.has('--staged')
   const write = args.has('--write')
   const baseline = JSON.parse(
-    readFileSync(resolve('utils/scripts/prettier-ratchet-baseline.json'), 'utf8'),
+    readFileSync(
+      resolve('utils/scripts/prettier-ratchet-baseline.json'),
+      'utf8',
+    ),
   )
   const files = withoutGrandfathered(
     changedPaths({ staged }),
@@ -77,11 +85,15 @@ function main() {
     return
   }
 
-  console.log(`Prettier ${write ? 'formatting' : 'checking'} ${files.length} changed file(s).`)
+  console.log(
+    `Prettier ${write ? 'formatting' : 'checking'} ${files.length} changed file(s).`,
+  )
   const result = prettier(files, write ? '--write' : '--check')
   if (result.error || result.status !== 0) {
     if (!write && args.has('--show-fix')) {
-      console.error('Prettier proposes this exact patch (checkout only, not committed):')
+      console.error(
+        'Prettier proposes this exact patch (checkout only, not committed):',
+      )
       const fix = prettier(files, '--write')
       if (fix.status === 0) {
         const patch = git(['diff', '--', ...files])

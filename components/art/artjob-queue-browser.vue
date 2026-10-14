@@ -13,16 +13,11 @@
       and h-full pins the child to the parent's full height on top of that.
 
       Keep the toolbar, cards and pager in one explicit grid column.
-      A CSS utility override or race must never restore the old horizontal
-      flex-row failure: the inline grid track is the final layout guard,
-      while the utility classes preserve the regular design system spacing.
+      The scoped rule wins over competing utility classes, including a
+      transient flex-row override, while the regular grid class remains a
+      fallback if the component-specific CSS has not arrived yet.
     -->
-    <div
-      v-else
-      data-artjob-queue-stack
-      class="grid kr-scroll min-w-0 grid-cols-1 grid-flow-row content-start gap-2 p-2"
-      style="display: grid; grid-template-columns: minmax(0, 1fr); grid-auto-flow: row"
-    >
+    <div v-else class="grid kr-scroll content-start gap-2 p-2">
       <div
         class="flex flex-wrap items-center gap-1 rounded-2xl border border-base-300 bg-base-100 p-1.5 shadow-sm"
       >
@@ -631,3 +626,11 @@ onMounted(async () => {
   void loadSecondaryDashboardData({ includeStats: false })
 })
 </script>
+
+<style scoped>
+.kr-scroll {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  grid-auto-flow: row;
+}
+</style>

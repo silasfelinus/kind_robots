@@ -155,7 +155,7 @@
           <h2 class="font-serif text-lg font-black">Just updated</h2>
           <p class="text-xs opacity-65">Recent work on the experiences</p>
         </header>
-        <div class="kr-scroll min-h-0 flex-1 space-y-2 overflow-y-auto pr-1">
+        <div class="kr-pane-scroll space-y-2 pr-1">
           <article
             v-for="update in updates"
             :key="update.pr"

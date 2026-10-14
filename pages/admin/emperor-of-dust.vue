@@ -15,29 +15,10 @@
     >
       <span class="kr-spinner-lg-primary" />
     </div>
-    <div v-else class="kr-scroll mx-auto max-w-7xl space-y-6 px-3 py-5 sm:px-6">
-      <header
-        class="rounded-3xl border border-warning/30 bg-base-300 p-6 sm:p-9"
-      >
-        <p class="text-xs font-bold uppercase tracking-widest text-warning">
-          Private Zuzu-world strategy chamber · working pilot
-        </p>
-        <h2 class="font-serif text-4xl font-black sm:text-6xl">
-          Emperor of Dust
-        </h2>
-        <p class="font-serif text-2xl italic text-warning">One Hundred Days</p>
-        <p class="mt-3 max-w-3xl">
-          Before Zuzu reached the border, the Emperor ruled by dispatch and
-          compromise. Command a small court, send leaders with the numerical
-          Horde, and live with the results.
-        </p>
-        <p class="mt-3 text-sm font-semibold text-warning">
-          Playable Day 1 systems prototype. Only three incidents are authored.
-          Later days are available for travel and injury-recovery testing, not
-          as a complete campaign.
-        </p>
-      </header>
-
+    <div
+      v-else
+      class="mx-auto flex h-full min-h-0 w-full max-w-7xl flex-col gap-2 overflow-hidden px-2 py-2 sm:px-4"
+    >
       <p
         v-if="court.storageWarning"
         class="kr-note kr-note-error p-4"
@@ -48,27 +29,35 @@
       <p v-if="notice" class="kr-note p-4" role="status">{{ notice }}</p>
 
       <section
-        class="grid grid-cols-2 gap-3 sm:grid-cols-5"
+        class="grid shrink-0 grid-cols-5 gap-1 sm:gap-2"
         aria-label="Campaign status"
       >
         <div
           v-for="stat in figures"
           :key="stat.label"
-          class="rounded-2xl border border-base-content/15 bg-base-200 p-4"
+          class="min-w-0 rounded-lg border border-base-content/15 bg-base-200 px-1 py-1.5 text-center sm:rounded-xl sm:px-3"
         >
-          <p class="text-xs font-bold uppercase tracking-wider opacity-65">
+          <p
+            class="block truncate text-[9px] font-bold uppercase tracking-tight opacity-65 sm:text-xs"
+          >
             {{ stat.label }}
           </p>
-          <strong class="font-serif text-2xl">{{ stat.value }}</strong>
+          <strong class="block truncate font-serif text-base sm:text-xl">{{
+            stat.value
+          }}</strong>
         </div>
       </section>
 
-      <section class="kr-panel flex flex-wrap items-center gap-3 p-4 sm:p-5">
-        <div class="min-w-44 flex-1">
-          <p class="text-xs font-semibold uppercase tracking-widest opacity-65">
+      <section
+        class="kr-panel flex shrink-0 flex-wrap items-center gap-2 p-2 sm:gap-3 sm:p-3"
+      >
+        <div class="min-w-32 flex-1">
+          <p
+            class="text-[10px] font-semibold uppercase tracking-widest opacity-65"
+          >
             Paused imperial clock
           </p>
-          <p class="font-serif text-3xl font-bold">
+          <p class="font-serif text-xl font-bold sm:text-2xl">
             Day {{ court.day }} · {{ timeLabel(campaign.hour) }}
           </p>
         </div>
@@ -96,492 +85,513 @@
         >
           Next morning
         </button>
-        <p class="w-full text-xs opacity-70">
-          Time only advances when commanded. Deadlines close while parties
-          travel. Recovery days pass at the tower, and an injury does not
-          automatically kill a leader.
-        </p>
       </section>
 
-      <section
-        v-if="court.day === 1"
-        class="rounded-3xl border border-warning/25 bg-base-200 p-5"
+      <nav
+        class="flex shrink-0 gap-1 overflow-x-auto rounded-xl bg-base-300 p-1"
+        aria-label="Imperial court sections"
       >
-        <p class="text-xs font-semibold uppercase tracking-widest text-warning">
-          Young Komodo · Day 1 briefing
-        </p>
-        <p class="mt-2 font-serif text-lg italic">{{ KOMODO_DAY_ONE_HINT }}</p>
-        <div class="mt-4 grid gap-3 md:grid-cols-3">
-          <article
-            v-for="report in DAY_ONE_BRIEFINGS"
-            :key="report.id"
-            class="rounded-xl border border-base-content/15 bg-base-100 p-3"
-            :class="
-              revealFalseReport(campaign, report.truth)
-                ? 'border-warning bg-warning/10'
-                : ''
-            "
+        <button
+          v-for="panel in panels"
+          :key="panel.id"
+          type="button"
+          class="btn btn-sm min-w-fit flex-1 whitespace-nowrap"
+          :class="activePanel === panel.id ? 'btn-warning' : 'btn-ghost'"
+          :aria-current="activePanel === panel.id ? 'page' : undefined"
+          @click="selectPanel(panel.id)"
+        >
+          {{ panel.label }}
+        </button>
+      </nav>
+      <div
+        ref="stageViewport"
+        class="kr-scroll min-h-0 flex-1 overscroll-contain rounded-xl border border-base-content/10 bg-base-200/20 p-1.5 sm:p-3"
+      >
+        <div v-show="activePanel === 'briefing'">
+          <section
+            v-if="court.day === 1"
+            class="rounded-3xl border border-warning/25 bg-base-200 p-5"
           >
-            <span
-              v-if="revealFalseReport(campaign, report.truth)"
-              class="text-xs font-bold text-warning"
-              >Eye revealed: false report</span
-            >
-            <p
-              class="text-xs font-semibold uppercase tracking-wider opacity-60"
-            >
-              {{ report.source }}
-            </p>
-            <p class="mt-1 text-sm">{{ report.text }}</p>
-          </article>
-        </div>
-        <p class="mt-3 text-xs opacity-65">
-          Two reports are true. One is a harmless false rumor. The Eye of the
-          Elder Crow can reveal the false rumor if equipped. The full 100-day
-          briefings are not authored yet.
-        </p>
-      </section>
-
-      <EmperorOfDustRelicVault />
-
-      <div class="grid gap-5 xl:grid-cols-[minmax(0,1.4fr)_minmax(320px,1fr)]">
-        <div class="space-y-5">
-          <EmperorOfDustImperialRoadMap
-            :selected-region-id="selectedRegionId"
-            :hour="campaign.hour"
-            :missions="campaign.dispatches"
-            :incidents="DAY_ONE_INCIDENTS"
-            @select="selectRegion"
-          />
-          <section class="kr-panel p-5">
-            <h3 class="font-serif text-2xl font-bold">The Emperor's docket</h3>
-            <p class="mt-1 text-sm opacity-70">
-              Incident reports open at scheduled hours. Outbound travel must
-              reach the location before the deadline, and the return trip still
-              occupies your people.
-            </p>
-            <div class="mt-4 grid gap-3 sm:grid-cols-2">
-              <button
-                v-for="incident in DAY_ONE_INCIDENTS"
-                :key="incident.id"
-                type="button"
-                class="rounded-xl border p-4 text-left transition-colors hover:bg-base-300 focus-visible:outline-2 focus-visible:outline-primary"
-                :class="
-                  selectedIncidentId === incident.id
-                    ? 'border-warning bg-base-300'
-                    : 'border-base-content/15 bg-base-100'
-                "
-                :aria-pressed="selectedIncidentId === incident.id"
-                @click="selectIncident(incident)"
-              >
-                <span
-                  class="block text-xs font-bold uppercase tracking-wider opacity-65"
-                >
-                  {{ timeLabel(timeAt(incident.day, incident.opensAtHour)) }}
-                  · {{ incident.outwardHours }}h outward
-                </span>
-                <strong class="mt-1 block font-serif text-lg">{{
-                  incident.title
-                }}</strong>
-                <span class="mt-2 block text-xs font-semibold text-warning">
-                  {{ incidentStatus(incident) }}
-                </span>
-              </button>
-            </div>
-          </section>
-
-          <section class="kr-panel p-5">
-            <h3 class="font-serif text-2xl font-bold">
-              Expeditions on the roads
-            </h3>
-            <p
-              v-if="campaign.dispatches.length === 0"
-              class="mt-3 text-sm opacity-70"
-            >
-              Nobody has been sent out yet.
-            </p>
-            <div v-else class="mt-3 space-y-2">
-              <article
-                v-for="mission in campaign.dispatches.slice().reverse()"
-                :key="mission.incidentId"
-                class="rounded-xl border border-base-content/15 bg-base-100 p-3"
-              >
-                <div class="flex flex-wrap items-center justify-between gap-2">
-                  <strong>{{ mission.incident.title }}</strong>
-                  <span class="text-xs font-semibold text-warning">
-                    {{ missionStatus(mission) }}
-                  </span>
-                </div>
-                <p class="mt-1 text-xs opacity-75">
-                  {{ mission.leaders.map(leaderName).join(', ') }} ·
-                  {{ mission.hordeSurvivors }} / {{ mission.hordeSent }} Horde
-                  returning · Due {{ timeLabel(mission.returnsAt) }}
-                  <span v-if="dayAt(mission.returnsAt) > court.day">
-                    on Day {{ dayAt(mission.returnsAt) }}
-                  </span>
-                </p>
-                <p v-if="mission.outcome" class="mt-2 text-sm">
-                  {{
-                    mission.outcome.success
-                      ? 'Mission succeeded'
-                      : 'Mission failed'
-                  }}
-                  · Dice {{ mission.outcome.dice.join(' + ') }} ·
-                  {{ mission.outcome.lostHorde }} Horde lost
-                </p>
-              </article>
-            </div>
-          </section>
-        </div>
-
-        <div class="space-y-5">
-          <section class="kr-panel p-5">
             <p
               class="text-xs font-semibold uppercase tracking-widest text-warning"
             >
-              Selected district
+              Young Komodo · Day 1 briefing
             </p>
-            <h3 class="mt-1 font-serif text-2xl font-bold">
-              {{ selectedRegion?.name }}
-            </h3>
-            <p class="mt-2 text-sm">{{ selectedRegion?.description }}</p>
-            <p class="mt-2 text-sm font-bold text-warning">
-              {{ selectedRegion?.faction }}
-              · {{ selectedRegion?.outwardHours }}h outward /
-              {{ (selectedRegion?.outwardHours ?? 0) * 2 }}h round trip
+            <p class="mt-2 font-serif text-lg italic">
+              {{ KOMODO_DAY_ONE_HINT }}
             </p>
-          </section>
-
-          <section class="kr-panel space-y-4 p-5">
-            <h3 class="font-serif text-2xl font-bold">Dispatch orders</h3>
-            <div v-if="!selectedIncident" class="text-sm opacity-70">
-              This district has no authored Day 1 dispatch. Choose a petition
-              from the docket.
-            </div>
-            <template v-else>
-              <div>
-                <strong class="block font-serif text-lg">{{
-                  selectedIncident.title
-                }}</strong>
-                <p class="mt-1 text-xs opacity-70">
-                  Deadline
-                  {{
-                    timeLabel(
-                      timeAt(
-                        selectedIncident.day,
-                        selectedIncident.deadlineHour,
-                      ),
-                    )
-                  }}
-                  · {{ selectedIncident.missionHours }}h on scene ·
-                  {{ selectedIncident.outwardHours }}h return journey
-                </p>
-                <p class="mt-2 text-sm font-semibold text-warning">
-                  {{ incidentStatus(selectedIncident) }}
-                </p>
-              </div>
-              <fieldset
-                class="space-y-2"
-                :disabled="!isDispatchable(selectedIncident)"
+            <div class="mt-4 grid gap-3 md:grid-cols-3">
+              <article
+                v-for="report in DAY_ONE_BRIEFINGS"
+                :key="report.id"
+                class="rounded-xl border border-base-content/15 bg-base-100 p-3"
+                :class="
+                  revealFalseReport(campaign, report.truth)
+                    ? 'border-warning bg-warning/10'
+                    : ''
+                "
               >
-                <legend class="text-sm font-bold">Approach</legend>
+                <span
+                  v-if="revealFalseReport(campaign, report.truth)"
+                  class="text-xs font-bold text-warning"
+                  >Eye revealed: false report</span
+                >
+                <p
+                  class="text-xs font-semibold uppercase tracking-wider opacity-60"
+                >
+                  {{ report.source }}
+                </p>
+                <p class="mt-1 text-sm">{{ report.text }}</p>
+              </article>
+            </div>
+          </section>
+          <p v-if="court.day !== 1" class="kr-panel p-4">
+            Only Day 1 has authored intelligence reports in this pilot.
+          </p>
+        </div>
+        <div v-show="activePanel === 'relics'">
+          <EmperorOfDustRelicVault />
+        </div>
+        <div
+          v-show="activePanel === 'map'"
+          class="grid gap-5 xl:grid-cols-[minmax(0,1.4fr)_minmax(320px,1fr)]"
+        >
+          <div class="space-y-5">
+            <EmperorOfDustImperialRoadMap
+              :selected-region-id="selectedRegionId"
+              :hour="campaign.hour"
+              :missions="campaign.dispatches"
+              :incidents="DAY_ONE_INCIDENTS"
+              @select="selectRegion"
+            />
+            <section class="kr-panel p-5">
+              <h3 class="font-serif text-2xl font-bold">
+                The Emperor's docket
+              </h3>
+              <div class="mt-4 grid gap-3 sm:grid-cols-2">
+                <button
+                  v-for="incident in DAY_ONE_INCIDENTS"
+                  :key="incident.id"
+                  type="button"
+                  class="rounded-xl border p-4 text-left transition-colors hover:bg-base-300 focus-visible:outline-2 focus-visible:outline-primary"
+                  :class="
+                    selectedIncidentId === incident.id
+                      ? 'border-warning bg-base-300'
+                      : 'border-base-content/15 bg-base-100'
+                  "
+                  :aria-pressed="selectedIncidentId === incident.id"
+                  @click="selectIncident(incident)"
+                >
+                  <span
+                    class="block text-xs font-bold uppercase tracking-wider opacity-65"
+                  >
+                    {{ timeLabel(timeAt(incident.day, incident.opensAtHour)) }}
+                    · {{ incident.outwardHours }}h outward
+                  </span>
+                  <strong class="mt-1 block font-serif text-lg">{{
+                    incident.title
+                  }}</strong>
+                  <span class="mt-2 block text-xs font-semibold text-warning">
+                    {{ incidentStatus(incident) }}
+                  </span>
+                </button>
+              </div>
+            </section>
+
+            <section class="kr-panel p-5">
+              <h3 class="font-serif text-2xl font-bold">
+                Expeditions on the roads
+              </h3>
+              <p
+                v-if="campaign.dispatches.length === 0"
+                class="mt-3 text-sm opacity-70"
+              >
+                Nobody has been sent out yet.
+              </p>
+              <div v-else class="mt-3 space-y-2">
+                <article
+                  v-for="mission in campaign.dispatches.slice().reverse()"
+                  :key="mission.incidentId"
+                  class="rounded-xl border border-base-content/15 bg-base-100 p-3"
+                >
+                  <div
+                    class="flex flex-wrap items-center justify-between gap-2"
+                  >
+                    <strong>{{ mission.incident.title }}</strong>
+                    <span class="text-xs font-semibold text-warning">
+                      {{ missionStatus(mission) }}
+                    </span>
+                  </div>
+                  <p class="mt-1 text-xs opacity-75">
+                    {{ mission.leaders.map(leaderName).join(', ') }} ·
+                    {{ mission.hordeSurvivors }} / {{ mission.hordeSent }} Horde
+                    returning · Due {{ timeLabel(mission.returnsAt) }}
+                    <span v-if="dayAt(mission.returnsAt) > court.day">
+                      on Day {{ dayAt(mission.returnsAt) }}
+                    </span>
+                  </p>
+                  <p v-if="mission.outcome" class="mt-2 text-sm">
+                    {{
+                      mission.outcome.success
+                        ? 'Mission succeeded'
+                        : 'Mission failed'
+                    }}
+                    · Dice {{ mission.outcome.dice.join(' + ') }} ·
+                    {{ mission.outcome.lostHorde }} Horde lost
+                  </p>
+                </article>
+              </div>
+            </section>
+          </div>
+
+          <div class="space-y-5">
+            <section class="kr-panel p-5">
+              <p
+                class="text-xs font-semibold uppercase tracking-widest text-warning"
+              >
+                Selected district
+              </p>
+              <h3 class="mt-1 font-serif text-2xl font-bold">
+                {{ selectedRegion?.name }}
+              </h3>
+              <p class="mt-2 text-sm">{{ selectedRegion?.description }}</p>
+              <p class="mt-2 text-sm font-bold text-warning">
+                {{ selectedRegion?.faction }}
+                · {{ selectedRegion?.outwardHours }}h outward /
+                {{ (selectedRegion?.outwardHours ?? 0) * 2 }}h round trip
+              </p>
+            </section>
+
+            <section class="kr-panel space-y-4 p-5">
+              <h3 class="font-serif text-2xl font-bold">Dispatch orders</h3>
+              <div v-if="!selectedIncident" class="text-sm opacity-70">
+                This district has no authored Day 1 dispatch. Choose a petition
+                from the docket.
+              </div>
+              <template v-else>
+                <div>
+                  <strong class="block font-serif text-lg">{{
+                    selectedIncident.title
+                  }}</strong>
+                  <p class="mt-1 text-xs opacity-70">
+                    Deadline
+                    {{
+                      timeLabel(
+                        timeAt(
+                          selectedIncident.day,
+                          selectedIncident.deadlineHour,
+                        ),
+                      )
+                    }}
+                    · {{ selectedIncident.missionHours }}h on scene ·
+                    {{ selectedIncident.outwardHours }}h return journey
+                  </p>
+                  <p class="mt-2 text-sm font-semibold text-warning">
+                    {{ incidentStatus(selectedIncident) }}
+                  </p>
+                </div>
+                <fieldset
+                  class="space-y-2"
+                  :disabled="!isDispatchable(selectedIncident)"
+                >
+                  <legend class="text-sm font-bold">Approach</legend>
+                  <label
+                    v-for="choice in selectedIncident.choices"
+                    :key="choice.id"
+                    class="flex cursor-pointer items-start gap-2 rounded-xl border border-base-content/15 bg-base-100 p-3 text-sm"
+                  >
+                    <input
+                      v-model="selectedChoiceId"
+                      class="radio radio-sm radio-warning mt-0.5"
+                      type="radio"
+                      :value="choice.id"
+                      name="emperor-dispatch-choice"
+                    />
+                    <span>
+                      <strong>{{ choice.label }}</strong>
+                      <span class="mt-1 block text-xs opacity-65">
+                        {{ choice.approach }} · difficulty
+                        {{ choice.difficulty }}
+                      </span>
+                    </span>
+                  </label>
+                </fieldset>
+
+                <div>
+                  <p class="text-sm font-bold">Choose 1–3 available leaders</p>
+                  <p class="mt-1 text-xs opacity-70">
+                    {{ chosenIds.length }} selected
+                  </p>
+                  <div class="mt-2 grid grid-cols-2 gap-2">
+                    <button
+                      v-for="leader in campaign.followers"
+                      :key="leader.id"
+                      type="button"
+                      class="rounded-xl border p-2 text-left text-xs"
+                      :class="
+                        chosenIds.includes(leader.id)
+                          ? 'border-warning bg-warning/10'
+                          : 'border-base-content/15 bg-base-100'
+                      "
+                      :aria-pressed="chosenIds.includes(leader.id)"
+                      :disabled="
+                        !court.ready.some((ready) => ready.id === leader.id) ||
+                        !isDispatchable(selectedIncident)
+                      "
+                      @click="toggleLeader(leader.id)"
+                    >
+                      <strong class="block">{{ leader.name }}</strong>
+                      <span class="block opacity-70">{{
+                        leaderStatus(leader)
+                      }}</span>
+                    </button>
+                  </div>
+                </div>
+                <label class="block text-sm font-bold" for="emperor-horde-sent">
+                  Horde contingent ({{ court.freeHorde }} at the tower)
+                </label>
+                <input
+                  id="emperor-horde-sent"
+                  v-model.number="troops"
+                  type="number"
+                  class="input input-bordered w-full"
+                  :min="selectedIncident.hordeMinimum"
+                  :max="
+                    Math.min(selectedIncident.hordeMaximum, court.freeHorde)
+                  "
+                  :disabled="!isDispatchable(selectedIncident)"
+                />
+                <p class="text-xs opacity-70">
+                  {{ selectedIncident.hordeMinimum }}–{{
+                    selectedIncident.hordeMaximum
+                  }}
+                  troops
+                </p>
                 <label
-                  v-for="choice in selectedIncident.choices"
-                  :key="choice.id"
-                  class="flex cursor-pointer items-start gap-2 rounded-xl border border-base-content/15 bg-base-100 p-3 text-sm"
+                  v-if="hourglassEquipped"
+                  class="flex items-start gap-3 rounded-xl border border-base-content/15 p-3 text-sm"
                 >
                   <input
-                    v-model="selectedChoiceId"
-                    class="radio radio-sm radio-warning mt-0.5"
-                    type="radio"
-                    :value="choice.id"
-                    name="emperor-dispatch-choice"
+                    v-model="useHourglass"
+                    type="checkbox"
+                    class="checkbox checkbox-sm checkbox-warning"
+                    :disabled="
+                      !hourglassReady || !isDispatchable(selectedIncident)
+                    "
                   />
                   <span>
-                    <strong>{{ choice.label }}</strong>
-                    <span class="mt-1 block text-xs opacity-65">
-                      {{ choice.approach }} · difficulty {{ choice.difficulty }}
+                    <strong>Use Brass Hourglass</strong>
+                    <span class="block text-xs opacity-70">
+                      Reduce outbound travel by one hour, once per day. Return
+                      travel stays unchanged.
+                      {{
+                        hourglassReady
+                          ? 'Available today'
+                          : 'Unavailable for this mission'
+                      }}
                     </span>
                   </span>
                 </label>
-              </fieldset>
-
-              <div>
-                <p class="text-sm font-bold">Choose 1–3 available leaders</p>
-                <p class="mt-1 text-xs opacity-70">
-                  Selected: {{ chosenIds.length }}. Leaders are unavailable
-                  until they return to the tower.
+                <div
+                  v-if="odds"
+                  class="rounded-xl border border-warning/40 bg-warning/10 p-3"
+                >
+                  <p class="font-serif text-xl font-bold">
+                    {{ Math.round(odds.probability * 100) }}% projected success
+                  </p>
+                  <p class="text-xs">
+                    {{ odds.numerator }}/36 dice outcomes · returns at
+                    {{ timeLabel(odds.projectedReturnHour) }}
+                    <span v-if="dayAt(odds.projectedReturnHour) > court.day">
+                      on Day {{ dayAt(odds.projectedReturnHour) }}
+                    </span>
+                  </p>
+                </div>
+                <p v-else class="text-xs opacity-70">
+                  Select a leader and a valid troop count for exact seeded 2d6
+                  odds.
                 </p>
-                <div class="mt-2 grid grid-cols-2 gap-2">
+                <div class="flex flex-wrap gap-2">
                   <button
-                    v-for="leader in campaign.followers"
-                    :key="leader.id"
                     type="button"
-                    class="rounded-xl border p-2 text-left text-xs"
-                    :class="
-                      chosenIds.includes(leader.id)
-                        ? 'border-warning bg-warning/10'
-                        : 'border-base-content/15 bg-base-100'
-                    "
-                    :aria-pressed="chosenIds.includes(leader.id)"
-                    :disabled="
-                      !court.ready.some((ready) => ready.id === leader.id) ||
-                      !isDispatchable(selectedIncident)
-                    "
-                    @click="toggleLeader(leader.id)"
+                    class="btn btn-warning"
+                    :disabled="!odds || !isDispatchable(selectedIncident)"
+                    @click="sendParty"
                   >
-                    <strong class="block">{{ leader.name }}</strong>
-                    <span class="block opacity-70">{{
-                      leaderStatus(leader)
-                    }}</span>
+                    Dispatch expedition
+                  </button>
+                  <button
+                    type="button"
+                    class="btn btn-outline"
+                    :disabled="!isDispatchable(selectedIncident)"
+                    @click="sendNobody"
+                  >
+                    Send no one
                   </button>
                 </div>
-              </div>
-              <label class="block text-sm font-bold" for="emperor-horde-sent">
-                Horde contingent ({{ court.freeHorde }} at the tower)
-              </label>
-              <input
-                id="emperor-horde-sent"
-                v-model.number="troops"
-                type="number"
-                class="input input-bordered w-full"
-                :min="selectedIncident.hordeMinimum"
-                :max="Math.min(selectedIncident.hordeMaximum, court.freeHorde)"
-                :disabled="!isDispatchable(selectedIncident)"
-              />
-              <p class="text-xs opacity-70">
-                {{ selectedIncident.hordeMinimum }}–{{
-                  selectedIncident.hordeMaximum
-                }}
-                troops permitted. The Horde is a headcount, not a consumable
-                favor currency.
-              </p>
-              <label
-                v-if="hourglassEquipped"
-                class="flex items-start gap-3 rounded-xl border border-base-content/15 p-3 text-sm"
+              </template>
+            </section>
+          </div>
+        </div>
+
+        <section
+          v-show="activePanel === 'followers'"
+          class="kr-panel space-y-4 p-3 sm:p-5"
+        >
+          <div class="flex flex-wrap justify-between gap-2">
+            <div>
+              <h3 class="font-serif text-2xl font-bold">
+                The Emperor's followers
+              </h3>
+            </div>
+            <span class="text-sm text-warning">
+              {{ court.ready.length }} ready ·
+              {{ court.wounded.length }} recovering
+            </span>
+          </div>
+          <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
+            <article
+              v-for="leader in campaign.followers"
+              :key="leader.id"
+              class="overflow-hidden rounded-2xl border border-base-content/15 bg-base-100"
+            >
+              <div
+                class="grid h-36 place-items-center bg-gradient-to-br from-amber-900/30 via-base-300 to-emerald-950/40"
               >
-                <input
-                  v-model="useHourglass"
-                  type="checkbox"
-                  class="checkbox checkbox-sm checkbox-warning"
-                  :disabled="
-                    !hourglassReady || !isDispatchable(selectedIncident)
+                <img
+                  v-if="leaderPortrait(leader)"
+                  :src="leaderPortrait(leader) ?? undefined"
+                  :alt="
+                    leader.name +
+                    (isInjured(leader) ? ' recovering' : ' portrait')
                   "
+                  class="h-full w-full object-cover"
                 />
-                <span>
-                  <strong>Use Brass Hourglass</strong>
-                  <span class="block text-xs opacity-70">
-                    Reduce outbound travel by one hour, once per day. Return
-                    travel stays unchanged.
+                <div v-else class="text-center">
+                  <span class="font-serif text-5xl font-black opacity-50">
+                    {{ leader.name.charAt(0) }}
+                  </span>
+                  <span
+                    class="mt-1 block text-[10px] font-bold uppercase tracking-widest opacity-65"
+                  >
                     {{
-                      hourglassReady
-                        ? 'Available today'
-                        : 'Unavailable for this mission'
+                      isInjured(leader)
+                        ? 'Injured portrait pending'
+                        : 'Portrait pending'
                     }}
                   </span>
-                </span>
-              </label>
-              <div
-                v-if="odds"
-                class="rounded-xl border border-warning/40 bg-warning/10 p-3"
-              >
-                <p class="font-serif text-xl font-bold">
-                  {{ Math.round(odds.probability * 100) }}% projected success
+                </div>
+              </div>
+              <div class="space-y-1 p-3">
+                <strong class="block font-serif text-lg">{{
+                  leader.name
+                }}</strong>
+                <p class="text-xs text-warning">{{ leaderStatus(leader) }}</p>
+                <p class="text-xs opacity-75">
+                  {{ followerProfile(leader.id)?.faction }}
                 </p>
                 <p class="text-xs">
-                  {{ odds.numerator }}/36 dice outcomes · returns at
-                  {{ timeLabel(odds.projectedReturnHour) }}
-                  <span v-if="dayAt(odds.projectedReturnHour) > court.day">
-                    on Day {{ dayAt(odds.projectedReturnHour) }}
-                  </span>
+                  M {{ leader.stats.might }} · D {{ leader.stats.diplomacy }} ·
+                  I
+                  {{ leader.stats.ingenuity }}
+                </p>
+                <p class="line-clamp-3 text-xs opacity-75">
+                  {{ followerProfile(leader.id)?.biography }}
                 </p>
               </div>
-              <p v-else class="text-xs opacity-70">
-                Select a leader and a valid troop count for exact seeded 2d6
-                odds.
-              </p>
-              <div class="flex flex-wrap gap-2">
+            </article>
+          </div>
+          <details class="rounded-xl border border-base-content/15 p-4">
+            <summary class="cursor-pointer font-semibold">
+              Future recruits ({{ remainingCandidates(campaign).length }})
+            </summary>
+            <div class="mt-3 grid gap-2 md:grid-cols-2">
+              <div
+                v-for="candidate in remainingCandidates(campaign)"
+                :key="candidate.id"
+                class="rounded-xl border border-base-content/15 bg-base-100 p-3"
+              >
+                <strong class="block">{{ candidate.name }}</strong>
+                <span class="block text-xs opacity-70">
+                  {{ candidate.faction }} ·
+                  {{ candidate.recruitCost }} Prosperity
+                </span>
+                <p class="my-2 text-xs">
+                  {{ court.availability(candidate.id).reason }}
+                </p>
                 <button
                   type="button"
-                  class="btn btn-warning"
-                  :disabled="!odds || !isDispatchable(selectedIncident)"
-                  @click="sendParty"
+                  class="btn btn-xs btn-outline"
+                  :disabled="!court.availability(candidate.id).eligible"
+                  @click="recruit(candidate.id)"
                 >
-                  Dispatch expedition
-                </button>
-                <button
-                  type="button"
-                  class="btn btn-outline"
-                  :disabled="!isDispatchable(selectedIncident)"
-                  @click="sendNobody"
-                >
-                  Send no one
+                  Commission
                 </button>
               </div>
-            </template>
-          </section>
-        </div>
-      </div>
+            </div>
+          </details>
+        </section>
 
-      <section class="kr-panel space-y-4 p-5">
-        <div class="flex flex-wrap justify-between gap-2">
+        <section
+          v-show="activePanel === 'ledger'"
+          class="kr-panel flex flex-wrap items-start justify-between gap-4 p-5"
+        >
           <div>
-            <h3 class="font-serif text-2xl font-bold">
-              The Emperor's followers
-            </h3>
-            <p class="text-sm opacity-70">
-              Five starting commanders, with additional candidates gated by
-              story and Prosperity.
-            </p>
+            <h3 class="font-serif text-xl font-bold">Campaign ledger</h3>
+            <ul class="mt-3 space-y-1 text-sm" aria-live="polite">
+              <li
+                v-for="entry in recentLog"
+                :key="entry.incidentId + ':' + entry.hour + ':' + entry.type"
+              >
+                Day {{ dayAt(entry.hour) }}, {{ timeLabel(entry.hour) }}:
+                {{ entry.detail }}
+              </li>
+              <li v-if="recentLog.length === 0" class="opacity-70">
+                Your first order has not been issued.
+              </li>
+            </ul>
           </div>
-          <span class="text-sm text-warning">
-            {{ court.ready.length }} ready ·
-            {{ court.wounded.length }} recovering
-          </span>
-        </div>
-        <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
-          <article
-            v-for="leader in campaign.followers"
-            :key="leader.id"
-            class="overflow-hidden rounded-2xl border border-base-content/15 bg-base-100"
-          >
-            <div
-              class="grid h-36 place-items-center bg-gradient-to-br from-amber-900/30 via-base-300 to-emerald-950/40"
+          <div class="space-y-2">
+            <button
+              v-if="!confirmRestart"
+              type="button"
+              class="btn btn-sm btn-outline"
+              @click="confirmRestart = true"
             >
-              <img
-                v-if="leaderPortrait(leader)"
-                :src="leaderPortrait(leader) ?? undefined"
-                :alt="
-                  leader.name +
-                  (isInjured(leader) ? ' recovering' : ' portrait')
-                "
-                class="h-full w-full object-cover"
-              />
-              <div v-else class="text-center">
-                <span class="font-serif text-5xl font-black opacity-50">
-                  {{ leader.name.charAt(0) }}
-                </span>
-                <span
-                  class="mt-1 block text-[10px] font-bold uppercase tracking-widest opacity-65"
+              Start a new pilot run
+            </button>
+            <div v-else class="rounded-xl border border-warning/50 p-3">
+              <p class="mb-2 text-sm font-semibold">
+                Replace this device's saved run?
+              </p>
+              <div class="flex gap-2">
+                <button
+                  type="button"
+                  class="btn btn-sm btn-warning"
+                  @click="restartRun"
                 >
-                  {{
-                    isInjured(leader)
-                      ? 'Injured portrait pending'
-                      : 'Portrait pending'
-                  }}
-                </span>
+                  Reset run
+                </button>
+                <button
+                  type="button"
+                  class="btn btn-sm btn-outline"
+                  @click="confirmRestart = false"
+                >
+                  Cancel
+                </button>
               </div>
             </div>
-            <div class="space-y-1 p-3">
-              <strong class="block font-serif text-lg">{{
-                leader.name
-              }}</strong>
-              <p class="text-xs text-warning">{{ leaderStatus(leader) }}</p>
-              <p class="text-xs opacity-75">
-                {{ followerProfile(leader.id)?.faction }}
-              </p>
-              <p class="text-xs">
-                M {{ leader.stats.might }} · D {{ leader.stats.diplomacy }} · I
-                {{ leader.stats.ingenuity }}
-              </p>
-              <p class="line-clamp-3 text-xs opacity-75">
-                {{ followerProfile(leader.id)?.biography }}
-              </p>
-            </div>
-          </article>
-        </div>
-        <details class="rounded-xl border border-base-content/15 p-4">
-          <summary class="cursor-pointer font-semibold">
-            Future recruits ({{ remainingCandidates(campaign).length }})
-          </summary>
-          <div class="mt-3 grid gap-2 md:grid-cols-2">
-            <div
-              v-for="candidate in remainingCandidates(campaign)"
-              :key="candidate.id"
-              class="rounded-xl border border-base-content/15 bg-base-100 p-3"
+            <a
+              href="https://github.com/silasfelinus/conductor/blob/main/projects/emperor-of-dust/SYSTEMS-V02.md"
+              class="link link-primary block text-xs"
+              target="_blank"
+              rel="noopener noreferrer"
             >
-              <strong class="block">{{ candidate.name }}</strong>
-              <span class="block text-xs opacity-70">
-                {{ candidate.faction }} · {{ candidate.recruitCost }} Prosperity
-              </span>
-              <p class="my-2 text-xs">
-                {{ court.availability(candidate.id).reason }}
-              </p>
-              <button
-                type="button"
-                class="btn btn-xs btn-outline"
-                :disabled="!court.availability(candidate.id).eligible"
-                @click="recruit(candidate.id)"
-              >
-                Commission
-              </button>
-            </div>
+              Systems bible ↗
+            </a>
           </div>
-        </details>
-      </section>
-
-      <section
-        class="kr-panel flex flex-wrap items-start justify-between gap-4 p-5"
-      >
-        <div>
-          <h3 class="font-serif text-xl font-bold">Campaign ledger</h3>
-          <p class="text-xs opacity-70">
-            Saved locally on this device. The road test has no cloud account
-            sync.
-          </p>
-          <ul class="mt-3 space-y-1 text-sm" aria-live="polite">
-            <li
-              v-for="entry in recentLog"
-              :key="entry.incidentId + ':' + entry.hour + ':' + entry.type"
-            >
-              Day {{ dayAt(entry.hour) }}, {{ timeLabel(entry.hour) }}:
-              {{ entry.detail }}
-            </li>
-            <li v-if="recentLog.length === 0" class="opacity-70">
-              Your first order has not been issued.
-            </li>
-          </ul>
-        </div>
-        <div class="space-y-2">
-          <button
-            v-if="!confirmRestart"
-            type="button"
-            class="btn btn-sm btn-outline"
-            @click="confirmRestart = true"
-          >
-            Start a new pilot run
-          </button>
-          <div v-else class="rounded-xl border border-warning/50 p-3">
-            <p class="mb-2 text-sm font-semibold">
-              Replace this device's saved run?
-            </p>
-            <div class="flex gap-2">
-              <button
-                type="button"
-                class="btn btn-sm btn-warning"
-                @click="restartRun"
-              >
-                Reset run
-              </button>
-              <button
-                type="button"
-                class="btn btn-sm btn-outline"
-                @click="confirmRestart = false"
-              >
-                Cancel
-              </button>
-            </div>
-          </div>
-          <a
-            href="https://github.com/silasfelinus/conductor/blob/main/projects/emperor-of-dust/SYSTEMS-V02.md"
-            class="link link-primary block text-xs"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Systems bible ↗
-          </a>
-        </div>
-      </section>
+        </section>
+      </div>
     </div>
   </main>
 </template>
@@ -621,6 +631,20 @@ const troops = ref(10)
 const useHourglass = ref(false)
 const notice = ref('')
 const confirmRestart = ref(false)
+const panels = [
+  { id: 'map', label: 'Map & orders' },
+  { id: 'briefing', label: 'Briefing' },
+  { id: 'followers', label: 'Followers' },
+  { id: 'relics', label: 'Relics' },
+  { id: 'ledger', label: 'Ledger' },
+] as const
+const activePanel = ref<(typeof panels)[number]['id']>('map')
+const stageViewport = ref<HTMLElement | null>(null)
+
+function selectPanel(panel: (typeof panels)[number]['id']) {
+  activePanel.value = panel
+  stageViewport.value?.scrollTo({ top: 0 })
+}
 
 const selectedRegion = computed(() =>
   IMPERIAL_REGIONS.find((region) => region.id === selectedRegionId.value),

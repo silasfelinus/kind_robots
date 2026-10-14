@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict'
+import { readFileSync } from 'node:fs'
 import { upcomingMoment } from '../emperorOfDust/clock'
 import { DAY_ONE_BRIEFINGS, DAY_ONE_INCIDENTS } from '../emperorOfDust/dayOne'
 import {
@@ -127,6 +128,39 @@ assert.throws(
   () => regionForIncident({ ...aqueduct, outwardHours: 5 }),
   /invalid map route/,
 )
+const courtPage = readFileSync('pages/admin/emperor-of-dust.vue', 'utf8')
+const courtHelp = readFileSync(
+  'content/channels/zuzu/emperor-of-dust.md',
+  'utf8',
+)
+assert.match(
+  courtPage,
+  /v-else\s+class="[^"]*h-full min-h-0[^"]*overflow-hidden/,
+)
+assert.equal(
+  (courtPage.match(/class="kr-scroll /g) ?? []).length,
+  1,
+  'exactly one bounded vertical scroll owner inside the viewport-first court',
+)
+for (const panel of ['map', 'briefing', 'followers', 'relics', 'ledger']) {
+  assert.ok(
+    courtPage.includes("activePanel === '" + panel + "'"),
+    panel + ' must be reachable from the court navigation',
+  )
+}
+assert.match(
+  courtPage,
+  /v-show="activePanel === 'followers'"[\s\S]*?v-for="leader in campaign\.followers"/,
+)
+assert.match(courtPage, /<EmperorOfDustRelicVault \/>/)
+assert.match(courtPage, /\bkr-scroll min-h-0 flex-1\b/)
+assert.match(courtHelp, /Each view scrolls inside its own bounded court stage/)
+assert.doesNotMatch(
+  courtPage,
+  /space-y-6 px-3 py-5/,
+  'no full-page vertical document scroll',
+)
+
 console.log(
   'Emperor of Dust radial map, Day 1 briefing and clock contracts passed',
 )

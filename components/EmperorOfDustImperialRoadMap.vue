@@ -90,10 +90,6 @@
         Prototype roads · not to scale
       </p>
     </div>
-    <p class="px-5 pb-5 pt-3 text-sm opacity-75">
-      Dispatching from the tower reserves the leader and their Horde contingent
-      for the outward road, the mission, and the full return journey.
-    </p>
   </section>
 </template>
 

@@ -64,6 +64,34 @@ MariaDB. Production is served at `https://kindrobots.org` through the current co
 
 An **admin-only feature or development preview** must be available at an `/admin/...` route and have a discoverable `content/channels/admin/*.md` tab with `requiredRole: ADMIN`. Do not leave an admin-only prototype under `/play/...` or a Projects-only tab. Keep public release routes under `/play` for the point when they actually launch. Exceptions for internal non-navigation helpers require an explicit owner decision; avoid silent `navigation: false` for requested admin tools. When relocating an existing admin-only preview, update any associated project route and UI contract tests together. Audit other existing inconsistencies incrementally rather than destructively moving unrelated mature routes.
 
+## Viewport-first interface and complete gallery rule (Silas, 2026-10-13)
+
+Design interactive pages for **one visible screen by default** at phone, tablet, and
+desktop widths. Use the shell's available content height, not a new `100vh`
+wrapper. Keep primary interaction, the active artwork/map/game stage, and a
+compact control/navigation row visible. Put secondary content in switchable
+panes or disclosed panels. When a pane contains more content than fits,
+**scroll inside that bounded content area** (prefer `.kr-scroll`) rather than
+turning the whole page into a tall document. An intentionally long article
+or tutorial is an explicit exception, not the default for games and tools.
+
+**Gallery completion is a reachability contract:** every item must be reachable
+by scrolling the gallery's own bounded area or by clear, working pagination.
+Never silently clip the bottom rows with `overflow-hidden` or a fixed-height
+gallery without an overflow owner. Preserve the gallery's contents, loading
+states, item interactions, keyboard access and visible scroll affordance.
+
+Put how-to paragraphs, prototype caveats, policy explanations, and detailed
+reference text in the existing tutorial / help sidebar. Leave only short
+contextual labels, essential status, and narrative content that is itself
+part of play on the active screen. Do not solve the problem by shrinking
+art and controls into illegibility, piling more nested scrolling containers
+on a page, or creating a second persistent header. When changing an existing
+surface, check 390px / 768px / 1440px widths for no shell scrolling, reachable
+last gallery item, visible primary actions, and safe keyboard navigation.
+The Emperor of Dust court is the first concrete retrofit; apply this rule
+incrementally to existing games, galleries, and tools as they are touched.
+
 ## Art-first interface standard
 
 Kind Robots is an **art-focused website**. Outside settings, administration, diagnostics,

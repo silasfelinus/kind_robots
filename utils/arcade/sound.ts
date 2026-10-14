@@ -213,6 +213,20 @@ export function loopNotesBetween(
 const MUSIC_AHEAD = 0.3
 const MUSIC_TICK_MS = 100
 
+/** Seconds a preset sounds for, from its first note to the end of its last. */
+export function presetSeconds(name: ArcadeSoundName): number {
+  return PRESETS[name].reduce(
+    (end, note) => Math.max(end, (note.at ?? 0) + note.dur),
+    0,
+  )
+}
+
+export function clampVolume(value: unknown, fallback = 1): number {
+  const volume = Number(value)
+  if (!Number.isFinite(volume)) return fallback
+  return Math.max(0, Math.min(1, volume))
+}
+
 export type ArcadeSound = {
   play: (name: ArcadeSoundName) => void
   /** Play a game's own sound. */
@@ -223,13 +237,31 @@ export type ArcadeSound = {
   unlock: () => void
   readonly muted: boolean
   setMuted: (muted: boolean) => void
+  /** Level of everything this object plays through its own output, 0..1. */
+  setVolume: (volume: number) => void
+  /** The context once a gesture has created it; never creates one. */
+  context: () => AudioContext | null
+  /** Send the oscillator music through `node` instead of the shared output. */
+  routeMusic: (node: AudioNode | null) => void
   dispose: () => void
 }
 
 export function createArcadeSound(startMuted = false): ArcadeSound {
   let ctx: AudioContext | null = null
   let muted = startMuted
+  let volume = 1
+  let master: GainNode | null = null
+  let musicRoute: AudioNode | null = null
   let musicGain: GainNode | null = null
+
+  const output = (audio: AudioContext): AudioNode => {
+    if (!master) {
+      master = audio.createGain()
+      master.gain.value = volume
+      master.connect(audio.destination)
+    }
+    return master
+  }
   let music: {
     parsed: ParsedLoop
     started: number | null
@@ -242,7 +274,7 @@ export function createArcadeSound(startMuted = false): ArcadeSound {
     if (!musicGain) {
       musicGain = ctx.createGain()
       musicGain.gain.value = muted ? 0 : 1
-      musicGain.connect(ctx.destination)
+      musicGain.connect(musicRoute ?? output(ctx))
     }
     const now = ctx.currentTime
     if (music.started === null) {
@@ -284,7 +316,7 @@ export function createArcadeSound(startMuted = false): ArcadeSound {
   function voice(
     audio: AudioContext,
     note: Note,
-    out: AudioNode = audio.destination,
+    out: AudioNode = output(audio),
   ) {
     const start = audio.currentTime + Math.max(0, note.at ?? 0)
     const gain = audio.createGain()
@@ -350,8 +382,23 @@ export function createArcadeSound(startMuted = false): ArcadeSound {
       muted = next
       if (musicGain) musicGain.gain.value = muted ? 0 : 1
     },
+    setVolume(next) {
+      volume = clampVolume(next, volume)
+      if (master) master.gain.value = volume
+    },
+    context: () => ctx,
+    routeMusic(node) {
+      musicRoute = node
+      if (musicGain && ctx) {
+        musicGain.disconnect()
+        musicGain.connect(musicRoute ?? output(ctx))
+      }
+    },
     dispose() {
       stopMusic()
+      master?.disconnect()
+      master = null
+      musicRoute = null
       void ctx?.close()
       ctx = null
     },

@@ -80,11 +80,11 @@
 
 <script setup lang="ts">
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
+import { createArcadeSound, type MusicLoop } from '~/utils/arcade/sound'
 import {
-  createArcadeSound,
-  type ArcadeSound,
-  type MusicLoop,
-} from '~/utils/arcade/sound'
+  createArcadeSoundtrack,
+  type ArcadeSoundtrack,
+} from '~/utils/arcade/soundtrackMixer'
 import {
   SOUNDS,
   loopFor,
@@ -597,7 +597,7 @@ function bossFight(): boolean {
 }
 const arcadeStore = useArcadeStore()
 let loop: FixedLoop | null = null
-let sound: ArcadeSound | null = null
+let sound: ArcadeSoundtrack | null = null
 let soundState: SoundState = newSoundState()
 let musicLoop: MusicLoop | null = null
 let resizer: ResizeObserver | null = null
@@ -816,11 +816,11 @@ function syncMusic() {
     const loop = loopFor(stageFor(roster))
     if (musicLoop !== loop) {
       musicLoop = loop
-      sound.startMusic(loop)
+      sound.startCabinetMusic(bossFight() ? 'boss' : 'level', loop)
     }
   } else if (musicLoop) {
     musicLoop = null
-    sound.stopMusic()
+    sound.stopCabinetMusic()
   }
 }
 
@@ -1341,7 +1341,10 @@ onMounted(() => {
   zoom = zoomTarget(match, roster)
   store.loadPreferences({ reducedMotion: reduced, coarsePointer: coarse })
   applyKeyMaps()
-  sound = createArcadeSound(store.muted)
+  sound = createArcadeSoundtrack(createArcadeSound(store.muted), {
+    game: 'zuzu-showdown',
+    volume: arcadeStore.volume,
+  })
   p1.attach(window)
   p2.attach(window)
   window.addEventListener('blur', onBlur)

@@ -1,9 +1,12 @@
 // /utils/scripts/verifyRelayAgentRegistry.ts
 import assert from 'node:assert/strict'
 import {
+  AUDIO_RELAY_MAX_AGE_MS,
   __resetRelayAgentRegistry,
+  audioRelayReadiness,
   listRelayAgents,
   recordRelayClaimAttempt,
+  type RelayAgentStatus,
 } from '../../server/utils/relayAgentRegistry'
 
 // Empty registry.
@@ -79,6 +82,51 @@ agents = listRelayAgents()
 assert.deepEqual(
   agents.map((a) => a.agentId),
   ['new-relay', 'old-relay'],
+)
+
+// supportsAudio defaults to false and is kept when declared (kind_robots#3606).
+assert.equal(agents[0]!.supportsAudio, false)
+__resetRelayAgentRegistry()
+recordRelayClaimAttempt({
+  agentId: 'ace-relay',
+  supportsInputImages: true,
+  supportsAudio: true,
+  engines: ['COMFY'],
+})
+agents = listRelayAgents()
+assert.equal(agents[0]!.supportsAudio, true)
+
+const now = new Date('2026-10-14T12:00:00Z')
+const seen = (agoMs: number) => new Date(now.getTime() - agoMs)
+const relay = (overrides: Partial<RelayAgentStatus>): RelayAgentStatus => ({
+  agentId: 'relay',
+  lastSeenAt: seen(1000),
+  supportsInputImages: true,
+  supportsAudio: true,
+  engines: ['COMFY'],
+  agentVersion: null,
+  ...overrides,
+})
+assert.deepEqual(audioRelayReadiness([relay({})], now), {
+  ready: true,
+  agentIds: ['relay'],
+  reason: 'A live COMFY relay advertises supportsAudio.',
+})
+assert.equal(audioRelayReadiness([], now).ready, false)
+assert.equal(
+  audioRelayReadiness([relay({ supportsAudio: false })], now).ready,
+  false,
+)
+assert.equal(
+  audioRelayReadiness([relay({ engines: ['A1111'] })], now).ready,
+  false,
+)
+assert.equal(
+  audioRelayReadiness(
+    [relay({ lastSeenAt: seen(AUDIO_RELAY_MAX_AGE_MS + 1) })],
+    now,
+  ).reason,
+  'No relay has polled recently.',
 )
 
 console.log('Relay agent registry verified.')

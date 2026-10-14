@@ -1,21 +1,17 @@
 <template>
   <main class="kr-surface">
-    <div class="kr-scroll kr-container max-w-7xl space-y-4 p-3 sm:p-6">
-      <header class="flex flex-wrap items-center justify-between gap-3">
-        <div>
-          <p class="text-2xl font-bold">Zuzu · Ghost Trail</p>
-          <p class="text-sm opacity-75">
-            A haunted journey across the frontier.
-          </p>
-        </div>
+    <div class="mx-auto flex h-full min-h-0 w-full max-w-7xl flex-col gap-2 p-2 sm:p-3">
+      <nav class="flex shrink-0 items-center justify-end gap-2" aria-label="Ghost Trail links">
         <NuxtLink
           to="/play/arcade?game=zuzu-ghost-trail"
           class="btn btn-outline btn-sm"
         >
           Arcade cabinet &amp; scores
         </NuxtLink>
-      </header>
-      <ArcadeCabinet slug="zuzu-ghost-trail" />
+      </nav>
+      <div class="kr-scroll min-h-0 flex-1">
+        <ArcadeCabinet slug="zuzu-ghost-trail" />
+      </div>
     </div>
   </main>
 </template>

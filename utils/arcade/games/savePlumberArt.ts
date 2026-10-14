@@ -17,6 +17,7 @@ export const PLUMBER_ART = {
   prop: (key: string) => `${ROOT}/props/${key}.webp`,
   cast: (key: string) => `${ROOT}/cast/${key}.webp`,
   cutscene: (key: string) => `${ROOT}/cutscenes/${key}.webp`,
+  anim: (key: string) => `${ROOT}/anim/${key}.webp`,
 }
 
 export function plumberStageSlug(name: string): string {

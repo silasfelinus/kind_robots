@@ -12,11 +12,10 @@
       No h-full here. kr-scroll is already `min-h-0 flex-1 overflow-y-auto`,
       and h-full pins the child to the parent's full height on top of that.
 
-      Keep this scroll owner grid/block based rather than `flex flex-col`.
-      If a flex-direction utility is ever late or missing, CSS flex defaults
-      to a row and turns the toolbar/cards/pager into three side-by-side
-      columns. Grid auto-placement stacks these children in rows, and its
-      native block fallback stacks them too.
+      Keep the toolbar, cards and pager in one explicit grid column.
+      The scoped rule wins over competing utility classes, including a
+      transient flex-row override, while the regular grid class remains a
+      fallback if the component-specific CSS has not arrived yet.
     -->
     <div v-else class="grid kr-scroll content-start gap-2 p-2">
       <div
@@ -627,3 +626,11 @@ onMounted(async () => {
   void loadSecondaryDashboardData({ includeStats: false })
 })
 </script>
+
+<style scoped>
+.kr-scroll {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  grid-auto-flow: row;
+}
+</style>

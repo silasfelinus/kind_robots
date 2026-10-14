@@ -43,6 +43,24 @@ for (const token of classes) {
   }
 }
 
+const scopedLayout = component.match(
+  /<style scoped>\s*\.kr-scroll\s*\{([\s\S]*?)\}\s*<\/style>/,
+)?.[1]
+
+if (!scopedLayout) {
+  throw new Error('The ArtJob queue needs a scoped one-column layout guard.')
+}
+
+for (const [name, pattern] of [
+  ['display:grid', /display:\s*grid\s*;/],
+  ['one grid track', /grid-template-columns:\s*minmax\(0,\s*1fr\)\s*;/],
+  ['row flow', /grid-auto-flow:\s*row\s*;/],
+] as const) {
+  if (!pattern.test(scopedLayout)) {
+    throw new Error(`The ArtJob queue's scoped CSS is missing ${name}.`)
+  }
+}
+
 const scrollRule = css.match(/\.kr-scroll\s*\{([\s\S]*?)\}/)
 if (!scrollRule) {
   throw new Error(`${cssPath} is missing the .kr-scroll primitive.`)

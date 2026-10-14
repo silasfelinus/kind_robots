@@ -60,7 +60,10 @@ assert.equal(
   'individual cabinets are chosen inside the arcade rather than in a nav submenu',
 )
 assert.deepEqual(
-  tabRouteTarget(arcade, arcade.tabs.find((tab) => tab.tabKey === 'arcade')!),
+  tabRouteTarget(
+    arcade,
+    arcade.tabs.find((tab) => tab.tabKey === 'arcade')!,
+  ),
   { path: '/play/arcade' },
   'the Arcade destination opens the cabinet hall without a game query',
 )
@@ -103,7 +106,10 @@ assert.match(
   'hover must not open an Arcade flyout',
 )
 
-const header = readFileSync('components/navigation/workspace-header.vue', 'utf8')
+const header = readFileSync(
+  'components/navigation/workspace-header.vue',
+  'utf8',
+)
 assert.match(
   header,
   /resolvedChannel.channelKey !== 'arcade'/,

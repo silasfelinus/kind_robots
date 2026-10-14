@@ -16,6 +16,7 @@ import {
   type NavigationAccessContext,
 } from '@/stores/helpers/navigationAccess'
 import { useUserStore } from '@/stores/userStore'
+import { arcadeGameTabItems } from '@/utils/arcade/navigation'
 import { handleError } from '@/stores/utils'
 
 const channelTabsStorageKey = 'channelTabs'
@@ -174,10 +175,13 @@ export const useChannelContentStore = defineStore('channelContentStore', () => {
       try {
         const content = await queryCollection('channels').all()
 
-        items.value = (content as unknown as ChannelContentItem[]).filter(
-          (item) =>
-            item.contentType === 'channel' || item.contentType === 'tab',
-        )
+        items.value = [
+          ...(content as unknown as ChannelContentItem[]).filter(
+            (item) =>
+              item.contentType === 'channel' || item.contentType === 'tab',
+          ),
+          ...arcadeGameTabItems(),
+        ]
         normalizeActiveTabs()
         initialized.value = true
       } catch (error) {

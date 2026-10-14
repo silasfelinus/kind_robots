@@ -494,6 +494,9 @@ jobs:
       - name: Navigation route access contract
         run: npx tsx utils/scripts/verifyNavigationRouteAccess.ts
 
+      - name: Arcade game subtabs contract
+        run: npm run test:arcade-game-subtabs
+
       - name: Workflow path references contract
         run: npm run test:workflow-paths
 

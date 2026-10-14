@@ -118,6 +118,7 @@ import type {
   ResolvedChannel,
   ResolvedTab,
 } from '@/stores/helpers/channelContent'
+import { navigationTabs } from '@/utils/channelTabGroups'
 
 const props = defineProps<{
   channel: ResolvedChannel
@@ -156,7 +157,7 @@ function measurePanel(): void {
   const availableWidth = window.innerWidth - rect.left - VIEWPORT_GUTTER
   const fitColumns = Math.floor((availableWidth - PANEL_PADDING) / COLUMN_WIDTH)
   const neededColumns = Math.ceil(
-    props.channel.tabs.length / MIN_TABS_PER_COLUMN,
+    navigationTabs(props.channel).length / MIN_TABS_PER_COLUMN,
   )
   const columns = Math.max(1, Math.min(3, fitColumns, neededColumns)) as
     1 | 2 | 3

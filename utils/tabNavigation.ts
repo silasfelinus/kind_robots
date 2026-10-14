@@ -36,7 +36,13 @@ export function tabRouteTarget(
   tab: ResolvedTab,
 ): { path: string; query?: Record<string, string> } | null {
   if (!tab.route) return null
-  return tabSharesRoute(channel, tab)
-    ? { path: tab.route, query: { tab: tab.tabKey } }
-    : { path: tab.route }
+  // A route may carry its own query (the Arcade game subtabs are
+  // `/play/arcade?game=<slug>`); a router location object ignores a query
+  // written into `path`, so it is lifted into `query`.
+  const [path = tab.route, search = ''] = tab.route.split('?')
+  const query: Record<string, string> = Object.fromEntries(
+    new URLSearchParams(search),
+  )
+  if (tabSharesRoute(channel, tab)) query.tab = tab.tabKey
+  return Object.keys(query).length ? { path, query } : { path }
 }

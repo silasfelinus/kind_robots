@@ -613,7 +613,7 @@ function navigateToTab(channel: ResolvedChannel, tab: ResolvedTab): void {
     return
   }
 
-  if (route.path !== tab.route || requestedTabKey.value) {
+  if (route.fullPath !== tab.route) {
     void router.push(tab.route)
   }
 }

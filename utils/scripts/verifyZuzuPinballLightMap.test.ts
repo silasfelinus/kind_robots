@@ -128,7 +128,10 @@ assert.equal(cssColor(0xff), '#0000ff')
     new URL('../../pages/admin/zuzu-pinball-workshop.vue', import.meta.url),
     'utf8',
   )
-  assert.match(workshop, /<ArcadePinballLightMap :table="ZUZU_LAST_BELL_GREYBOX"/)
+  assert.match(
+    workshop,
+    /<ArcadePinballLightMap :table="ZUZU_LAST_BELL_GREYBOX"/,
+  )
   assert.ok(workshop.includes('user.isAdmin'), 'workshop requires admin')
   const play = readFileSync(
     new URL('../../pages/play/zuzu-pinball.vue', import.meta.url),

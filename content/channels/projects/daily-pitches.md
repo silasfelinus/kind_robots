@@ -7,7 +7,7 @@ title: Daily Dream Projects
 subtitle: Explore the ideas that became projects
 description: Browse approved Daily Dream ideas and see which experiences are ready to play or coming soon.
 summary: Daily Dream builds and previews.
-icon: kind-icon:sparkles
+icon: kind-icon:dream
 route: /play/daily-pitches
 sort: 118
 # Reuse queued legacy Plan artwork for this project-building workshop.

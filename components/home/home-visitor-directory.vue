@@ -157,7 +157,7 @@ const features = [
     title: 'Zuzu Showdown',
     category: 'Fighting game',
     route: '/play/zuzu-showdown',
-    image: '/zuzu-showdown-portraits/zuzu-vs-hd.webp',
+    image: '/zuzu-showdown-art/hall-card.webp',
     description:
       'Nine fighters and an ever-evolving journey across the wasteland.',
   },

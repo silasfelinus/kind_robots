@@ -7,7 +7,7 @@ title: Zuzu · Ghost Trail
 subtitle: A haunted side-scrolling adventure
 description: Fight through Zuzu's haunted frontier in the Ghost Trail arcade adventure.
 summary: Play the Ghost Trail adventure.
-icon: kind-icon:swords
+icon: kind-icon:ghost
 image: /images/arcade/games/zuzu-ghost-trail-title.webp
 route: /play/zuzu-ghost-trail
 sort: 130

@@ -11,8 +11,15 @@
  * That one is fixed. This finds the rest, and finds the next one before a log
  * digest has to.
  *
+ * Channel content is scanned too. A tab's `icon:` frontmatter is drawn in the
+ * Explore menu, and content/channels/zuzu/zuzu-pinball.md asked for a
+ * `kind-icon:gamepad` that never existed, so the Pinball tab showed no icon
+ * at all (found 2026-10-14). The same pass fails when two tabs of one channel
+ * share an icon: Silas, 2026-10-14, "we need unique icons for each tab", after
+ * Showdown, Ghost Trail and Zuzu's Lair all drew the same crossed swords.
+ *
  * Usage:
- *   npm run audit:icons                # report missing icons, exit 1 if any
+ *   npm run audit:icons              # report missing icons, exit 1 if any
  *   npm run audit:icons -- --json      # machine-readable
  *   npm run test:icons-selftest        # prove the scan logic on fixtures
  *
@@ -29,6 +36,8 @@ import { fileURLToPath } from 'node:url'
 const scriptDirectory = dirname(fileURLToPath(import.meta.url))
 const repositoryRoot = resolve(scriptDirectory, '../..')
 const iconsDirectory = resolve(repositoryRoot, 'assets/icons')
+const contentDirectory = resolve(repositoryRoot, 'content')
+const channelsDirectory = resolve(contentDirectory, 'channels')
 
 const asJson = process.argv.includes('--json')
 const selfTest = process.argv.includes('--self-test')
@@ -66,6 +75,33 @@ export function findIconReferences(
     if (match[1]) found.push({ name: match[1], location })
   }
   return found
+}
+
+/** The `key: value` lines of a Markdown file's leading frontmatter block. */
+export function frontmatterFields(source: string): Record<string, string> {
+  const fields: Record<string, string> = {}
+  const lines = source.split(/\r?\n/)
+  if (lines[0]?.trim() !== '---') return fields
+  for (const line of lines.slice(1)) {
+    if (line.trim() === '---') break
+    const match = /^([A-Za-z][\w-]*):\s*(.*)$/.exec(line)
+    if (match?.[1]) {
+      fields[match[1]] = (match[2] ?? '').trim().replace(/^['"]|['"]$/g, '')
+    }
+  }
+  return fields
+}
+
+export type TabIcon = { channel: string; icon: string; location: string }
+
+/** Icons drawn by more than one tab of one list (a channel, or a parent tab's subtabs), with every tab that draws them. */
+export function duplicateTabIcons(tabs: TabIcon[]): Map<string, string[]> {
+  const byKey = new Map<string, string[]>()
+  for (const tab of tabs) {
+    const key = `${tab.channel} ${tab.icon}`
+    byKey.set(key, [...(byKey.get(key) ?? []), tab.location])
+  }
+  return new Map([...byKey].filter(([, locations]) => locations.length > 1))
 }
 
 export function missingIcons(
@@ -117,13 +153,15 @@ if (selfTest) {
   )
   expect(
     'reports only what is absent',
-    [...missingIcons(
-      [
-        { name: 'news', location: 'a.vue' },
-        { name: 'scroll', location: 'b.vue' },
-      ],
-      new Set(['scroll']),
-    ).keys()],
+    [
+      ...missingIcons(
+        [
+          { name: 'news', location: 'a.vue' },
+          { name: 'scroll', location: 'b.vue' },
+        ],
+        new Set(['scroll']),
+      ).keys(),
+    ],
     ['news'],
   )
   expect(
@@ -143,8 +181,37 @@ if (selfTest) {
   // builds an icon name from a variable.
   expect(
     'ignores an interpolated name',
-    findIconReferences('name={`kind-icon:${slug}`}', 'd.vue').map((r) => r.name),
+    findIconReferences('name={`kind-icon:${slug}`}', 'd.vue').map(
+      (r) => r.name,
+    ),
     [],
+  )
+
+  expect(
+    'reads tab frontmatter and stops at its close',
+    frontmatterFields(
+      "---\ncontentType: tab\nicon: 'kind-icon:ghost'\n---\nicon: kind-icon:body",
+    ),
+    { contentType: 'tab', icon: 'kind-icon:ghost' },
+  )
+  expect(
+    'flags two tabs of one channel sharing an icon',
+    [
+      ...duplicateTabIcons([
+        { channel: 'zuzu', icon: 'kind-icon:swords', location: 'a.md' },
+        { channel: 'zuzu', icon: 'kind-icon:swords', location: 'b.md' },
+        { channel: 'zuzu', icon: 'kind-icon:ghost', location: 'c.md' },
+      ]),
+    ],
+    [['zuzu kind-icon:swords', ['a.md', 'b.md']]],
+  )
+  expect(
+    'lets different channels reuse an icon',
+    duplicateTabIcons([
+      { channel: 'zuzu', icon: 'kind-icon:map', location: 'a.md' },
+      { channel: 'admin', icon: 'kind-icon:map', location: 'b.md' },
+    ]).size,
+    0,
   )
 
   if (failures.length) {
@@ -152,11 +219,14 @@ if (selfTest) {
     for (const failure of failures) console.error(`   ${failure}`)
     process.exit(1)
   }
-  console.log('✅ Icon audit self-test passed (6 checks).')
+  console.log('✅ Icon audit self-test passed (9 checks).')
   process.exit(0)
 }
 
-async function collectSourceFiles(directory: string): Promise<string[]> {
+async function collectSourceFiles(
+  directory: string,
+  extensions: Set<string> = SCANNED_EXTENSIONS,
+): Promise<string[]> {
   const entries = await readdir(directory, { withFileTypes: true })
   const files: string[] = []
   for (const entry of entries) {
@@ -165,11 +235,11 @@ async function collectSourceFiles(directory: string): Promise<string[]> {
       if (SKIPPED_DIRECTORIES.has(entry.name) || entry.name.startsWith('.')) {
         continue
       }
-      files.push(...(await collectSourceFiles(full)))
+      files.push(...(await collectSourceFiles(full, extensions)))
       continue
     }
     const dot = entry.name.lastIndexOf('.')
-    if (dot > 0 && SCANNED_EXTENSIONS.has(entry.name.slice(dot))) {
+    if (dot > 0 && extensions.has(entry.name.slice(dot))) {
       files.push(full)
     }
   }
@@ -194,7 +264,26 @@ async function main() {
     )
   }
 
+  const tabs: TabIcon[] = []
+  for (const file of await collectSourceFiles(
+    contentDirectory,
+    new Set(['.md']),
+  )) {
+    const source = await readFile(file, 'utf8')
+    const location = relative(repositoryRoot, file)
+    references.push(...findIconReferences(source, location))
+    if (!file.startsWith(channelsDirectory)) continue
+    const fields = frontmatterFields(source)
+    if (fields.contentType === 'tab' && fields.channelKey && fields.icon) {
+      const list = fields.parentTabKey
+        ? `${fields.channelKey}/${fields.parentTabKey}`
+        : fields.channelKey
+      tabs.push({ channel: list, icon: fields.icon, location })
+    }
+  }
+
   const missing = missingIcons(references, available)
+  const duplicates = duplicateTabIcons(tabs)
   const distinct = new Set(references.map((r) => r.name))
 
   if (asJson) {
@@ -207,12 +296,16 @@ async function main() {
             name,
             locations,
           })),
+          duplicateTabIcons: [...duplicates].map(([key, locations]) => ({
+            key,
+            locations,
+          })),
         },
         null,
         2,
       ),
     )
-    process.exit(missing.size ? 1 : 0)
+    process.exit(missing.size || duplicates.size ? 1 : 0)
   }
 
   console.log(
@@ -220,8 +313,24 @@ async function main() {
       `${distinct.size} distinct, ${available.size} icons on disk.`,
   )
 
+  if (duplicates.size) {
+    console.error(
+      `\n❌ ${duplicates.size} icon(s) drawn by more than one tab of a channel:\n`,
+    )
+    for (const [key, locations] of duplicates) {
+      console.error(`  ${key}`)
+      for (const location of locations) console.error(`      ${location}`)
+    }
+    console.error(
+      '\nThe Explore menu tells tabs apart by icon; give each tab its own.',
+    )
+  }
+
   if (!missing.size) {
-    console.log('✅ Every referenced icon exists.')
+    if (duplicates.size) process.exit(1)
+    console.log(
+      '✅ Every referenced icon exists, and no channel repeats a tab icon.',
+    )
     process.exit(0)
   }
 

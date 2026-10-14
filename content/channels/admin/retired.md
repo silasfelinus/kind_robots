@@ -7,7 +7,7 @@ title: Retired
 subtitle: Archived surfaces kept within reach
 description: Retired, experimental, and superseded Kind Robots surfaces preserved for administrator access.
 summary: Open retired tools and pages.
-icon: kind-icon:archive
+icon: kind-icon:history
 sort: 9999
 requiredRole: ADMIN
 tutorial:

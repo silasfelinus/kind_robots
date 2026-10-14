@@ -6,7 +6,7 @@ label: LoRA Triage
 title: LoRA Maturity Triage
 subtitle: Mark every LoRA SFW or NSFW
 description: Mark LoRAs SFW or NSFW in batches, set their categories, and render missing previews.
-icon: kind-icon:database
+icon: kind-icon:microscope
 route: /admin/lora-triage
 sort: 74
 navigation: false

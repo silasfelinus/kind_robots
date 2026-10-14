@@ -7,8 +7,8 @@ title: Zuzu Showdown
 subtitle: A 2D fighter of the Shifting Lands
 summary: Nine fighters and a Story mode.
 description: "A 2D fighting game set in Zuzu's world: nine fighters, a Story mode across the wasteland map to The Thing Behind the Door, versus, CPU and training. Free, with keyboard, gamepad and touch controls."
-icon: kind-icon:swords
-image: /zuzu-showdown-portraits/zuzu-vs-hd.webp
+icon: kind-icon:boxing-glove
+image: /zuzu-showdown-art/hall-card.webp
 route: /play/zuzu-showdown
 sort: 120
 tutorial:

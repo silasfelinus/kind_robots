@@ -897,7 +897,7 @@ export const LINKED_GAMES: ArcadeGameMeta[] = [
     width: 480,
     height: 270,
     maxPlausibleScore: 50_000_000,
-    titleArt: '/zuzu-showdown-portraits/zuzu-vs-hd.webp',
+    titleArt: '/zuzu-showdown-art/hall-card.webp',
     route: '/play/zuzu-showdown',
     accent: '#fb923c',
     controls: 'Move, two punches, two kicks, dodge',

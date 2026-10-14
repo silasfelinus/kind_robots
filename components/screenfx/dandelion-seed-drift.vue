@@ -77,11 +77,10 @@ function resizeCanvas(): void {
 function drawSeed(index: number, seconds: number): void {
   if (!context) return
   const crossings = 1 + (index % 2)
-  const progress = fract(
-    (seconds / LOOP_SECONDS) * crossings + hash(index + 3),
-  )
+  const progress = fract((seconds / LOOP_SECONDS) * crossings + hash(index + 3))
   const bob = Math.sin(
-    (seconds / LOOP_SECONDS) * TWO_PI * (2 + (index % 3)) + hash(index) * TWO_PI,
+    (seconds / LOOP_SECONDS) * TWO_PI * (2 + (index % 3)) +
+      hash(index) * TWO_PI,
   )
   const x = width * (-0.1 + 1.2 * progress) + gust * progress * width * 0.05
   const baseY = height * (0.12 + 0.7 * hash(index + 20))

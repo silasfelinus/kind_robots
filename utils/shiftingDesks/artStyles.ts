@@ -7,6 +7,14 @@
  */
 export const ART_STYLES = [
   {
+    id: 'classic',
+    label: 'Classic',
+    checkpoint: 'Krea 2',
+    blurb: 'Krea 2. Mid-century safety posters, cheerful dread.',
+    mood: 'Mid-century corporate safety posters, halftone gouache, cheerful dread.',
+    phase: 'available',
+  },
+  {
     id: 'western-cartoon',
     label: 'Western Cartoon',
     checkpoint: 'Illustrious/arthemyWesternArt_v30.safetensors',
@@ -22,25 +30,18 @@ export const ART_STYLES = [
     mood: 'Western graphic novel inks, deep shadows and noir acting.',
     phase: 'available',
   },
-  {
-    id: 'classic',
-    label: 'Classic',
-    checkpoint: 'Krea 2',
-    blurb: 'Krea 2. Mid-century safety posters, cheerful dread.',
-    mood: 'Mid-century corporate safety posters, halftone gouache, cheerful dread.',
-    phase: 'available',
-  },
 ] as const
 
-// Silas, 2026-10-14: "Illustrious should be the default."
-export const DEFAULT_ART_STYLE = 'western-cartoon'
+// Silas, 2026-10-14, after playing both: "the new art is actually worse than
+// the classic. classic should be default."
+export const DEFAULT_ART_STYLE = 'classic'
 // The same card in every edition, so the picker compares like with like.
 export const ART_STYLE_SAMPLE =
   '/images/shifting-desks/cards/orientation/gus-shop-steward.webp'
 
 export type ShiftingDesksArtStyle = (typeof ART_STYLES)[number]['id']
-// v2: earlier visitors were saved on Classic before they ever chose it.
-export const ART_STYLE_STORAGE_KEY = 'shifting-desks-art-style-v2'
+// v3: v2 visitors were saved on Western Cartoon while it was the default.
+export const ART_STYLE_STORAGE_KEY = 'shifting-desks-art-style-v3'
 
 export function normalizeArtStyle(value: unknown): ShiftingDesksArtStyle {
   return ART_STYLES.find((s) => s.id === value)?.id ?? DEFAULT_ART_STYLE

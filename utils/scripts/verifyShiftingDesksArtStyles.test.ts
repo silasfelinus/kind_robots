@@ -14,16 +14,11 @@ const file = (path: string) => fileURLToPath(new URL(path, import.meta.url))
 const asset = (path: string) => readFileSync(file(path), 'utf8')
 
 const styleIds = ART_STYLES.map((style) => style.id)
-assert.equal(styleIds.join(','), 'western-cartoon,corporate-noir,classic')
-// Silas, 2026-10-14: Illustrious is the default.
-assert.equal(DEFAULT_ART_STYLE, 'western-cartoon')
-assert.match(
-  ART_STYLES.find((s) => s.id === DEFAULT_ART_STYLE)!.checkpoint,
-  /^Illustrious\//,
-)
-assert.ok(ART_STYLES.every((s) => s.phase === 'available' && s.blurb))
-assert.equal(normalizeArtStyle(null), 'western-cartoon')
-assert.equal(normalizeArtStyle('unknown'), 'western-cartoon')
+assert.equal(styleIds.join(','), 'classic,western-cartoon,corporate-noir')
+// Silas, 2026-10-14: Classic is the default again.
+assert.equal(DEFAULT_ART_STYLE, 'classic')
+assert.equal(normalizeArtStyle(null), 'classic')
+assert.equal(normalizeArtStyle('unknown'), 'classic')
 assert.equal(normalizeArtStyle('classic'), 'classic')
 assert.equal(normalizeArtStyle('western-cartoon'), 'western-cartoon')
 
@@ -32,7 +27,7 @@ assert.equal(artStyleImageSrc(classic, 'classic'), classic)
 assert.equal(
   artStyleImageSrc(classic, 'invalid'),
   artStyleImageSrc(classic, DEFAULT_ART_STYLE),
-  'an unknown style falls back to the Illustrious default',
+  'an unknown style falls back to the default',
 )
 assert.equal(
   artStyleImageSrc(classic, 'corporate-noir'),
@@ -59,7 +54,7 @@ assert.match(page, /saveArtStylePreference/)
 assert.match(page, /provide\('shifting-desks-art-style', artStyle\)/)
 assert.doesNotMatch(page, /localStorage|\$fetch/)
 
-assert.equal(ART_STYLE_STORAGE_KEY, 'shifting-desks-art-style-v2')
+assert.equal(ART_STYLE_STORAGE_KEY, 'shifting-desks-art-style-v3')
 assert.match(page, /ref<ShiftingDesksArtStyle>\(DEFAULT_ART_STYLE\)/)
 assert.match(
   page,

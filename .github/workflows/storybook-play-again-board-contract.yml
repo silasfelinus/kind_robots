@@ -1,10 +1,14 @@
 name: Storybook Play Again Board Contract
 
 on:
-  push:
-    branches: [main]
   pull_request:
     branches: [main]
+    paths:
+      - '.github/workflows/storybook-play-again-board-contract.yml'
+      - 'stores/storybookRunStore.ts'
+      - 'components/storybook/storybook-storymaker.vue'
+      - 'components/storybook/storybook-table.vue'
+      - 'utils/scripts/verifyStorybookPlayAgainBoardGuard.mjs'
   workflow_dispatch:
 
 concurrency:

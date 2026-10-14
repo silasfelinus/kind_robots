@@ -33,6 +33,9 @@ const ALLOWLIST_PREFIXES = [
   // base-ref argument to a script, which reads path-shaped to the bare-token
   // extractor above (kind-robots/t-031).
   'origin/',
+  // Produced by Responsive Layout Audit at runtime and uploaded as an artifact.
+  // Not a checked-in input file; keep every other workflow path validated.
+  'audit-shots/viewport-ownership.json',
 ]
 
 // `run:` steps are shell, not YAML -- we don't parse them, we scan for

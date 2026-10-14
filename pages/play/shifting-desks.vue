@@ -6,7 +6,7 @@
 
     <template v-else>
       <div
-        class="kr-toolbar mx-auto w-full max-w-[1400px] justify-between gap-x-3 gap-y-1 rounded-2xl bg-base-100/95 px-2 py-1 shadow-sm sm:px-4"
+        class="kr-toolbar mx-auto w-full max-w-[1400px] justify-between gap-x-3 gap-y-1 rounded-2xl bg-base-100/95 px-2 py-0.5 shadow-sm sm:px-4 sm:py-1"
       >
         <p
           class="hidden font-mono text-sm font-black uppercase tracking-[.25em] sm:block"
@@ -608,7 +608,7 @@
                     class="rounded-xl border-2 border-stone-800 bg-base-200"
                   >
                     <summary
-                      class="cursor-pointer px-3 py-2 font-mono text-[11px] font-black uppercase tracking-widest"
+                      class="cursor-pointer px-3 py-1.5 font-mono text-[11px] font-black uppercase tracking-widest"
                     >
                       <span class="sm:hidden">Interim results</span
                       ><span class="hidden sm:inline"
@@ -622,8 +622,8 @@
                     />
                   </details>
                   <div
-                    class="flex shrink-0 flex-col gap-2"
-                    :class="manyRoutes ? '' : 'grow lg:gap-3'"
+                    class="flex shrink-0 flex-col"
+                    :class="manyRoutes ? 'gap-1.5' : 'grow gap-2 lg:gap-3'"
                   >
                     <button
                       v-for="choice in openRoutes"

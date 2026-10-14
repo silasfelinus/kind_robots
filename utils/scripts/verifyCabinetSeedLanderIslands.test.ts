@@ -507,6 +507,135 @@ const terrainFor = (pads: MissionSpec['map']['pads']) =>
   assert.equal(r.lives, START_PODS - 1)
 }
 
+// --- initial checkpoint recovery --------------------------------------------------------------------
+{
+  for (const earned of ['acorn', 'plant'] as const) {
+    const g = campaign()
+    launch(g)
+    if (earned === 'acorn') {
+      const a = g.mission.acorns!.find((a) => a.id === 'meadow-a1')!
+      assert.ok(a, 'the real first mission carries the authored acorn')
+      Object.assign(g.pod, { x: a.x, y: a.y, vx: 0, vy: 0, tilt: 0 })
+      g.update(idle())
+      assert.ok(g.acorns.has(a.id))
+    } else {
+      dropOnto(
+        g,
+        g.terrain.pads.find((p) => p.kind === 'seed')!,
+      )
+      assert.equal(g.planted, 1)
+      assert.equal(
+        g.phase,
+        'fly',
+        'partial planting has not cleared the mission',
+      )
+    }
+    const saved = g.save!
+    assert.ok(saved.nectar > 0)
+    assert.equal(saved.island, 0)
+    assert.equal(saved.mission, 0)
+    for (const button of ['a', 'start'] as const) {
+      const resumed = game(7, roundTrip(saved))
+      resumed.update(press(button))
+      assert.equal(
+        resumed.nectar,
+        saved.nectar,
+        `${earned}: first-checkpoint Continue retains nectar`,
+      )
+      assert.deepEqual([...resumed.acorns], saved.acorns)
+      assert.equal(resumed.screen, 'map')
+      launch(resumed)
+      assert.equal(resumed.mission.id, 'meadow-1')
+      assert.equal(
+        resumed.score,
+        saved.score,
+        'resume uses the mission-start score',
+      )
+      const again = game(8, roundTrip(resumed.save))
+      again.update(press(button))
+      assert.equal(
+        again.nectar,
+        saved.nectar,
+        'repeated Continue retains earnings',
+      )
+    }
+    const free = game(9, roundTrip(saved))
+    free.update(press('down')) // New Replanting is the second row.
+    free.update(press('down')) // Free Flight is the third row.
+    free.update(press('a'))
+    assert.equal(free.mode, 'free')
+    free.startHill(6)
+    const afterFree = game(10, roundTrip(free.save))
+    afterFree.update(press('a'))
+    assert.equal(afterFree.mode, 'campaign')
+    assert.equal(
+      afterFree.nectar,
+      saved.nectar,
+      'Free Flight leaves the campaign checkpoint intact',
+    )
+    assert.equal(afterFree.bestHill, 6)
+    assert.deepEqual([...afterFree.acorns], saved.acorns)
+    const fresh = game(11, roundTrip(saved))
+    fresh.update(press('down'))
+    fresh.update(press('a'))
+    assert.equal(
+      fresh.nectar,
+      0,
+      'explicit New Replanting still resets campaign resources',
+    )
+    assert.deepEqual(
+      [...fresh.acorns],
+      saved.acorns,
+      'new campaign retains permanent acorns',
+    )
+  }
+}
+
+// The marker covers even an empty first checkpoint; legacy resources recover old saves.
+{
+  const started = campaign()
+  assert.equal(started.save?.campaignStarted, true)
+  const again = game(1, roundTrip(started.save))
+  again.update(press('start'))
+  assert.equal(again.screen, 'map')
+  assert.equal(again.save?.campaignStarted, true)
+  const legacy: Record<string, unknown> = {
+    ...freshSave(),
+    nectar: 5,
+    acorns: ['meadow-a1'],
+  }
+  delete legacy.campaignStarted
+  const old = game(2, roundTrip(legacy))
+  old.update(press('a'))
+  assert.equal(old.nectar, 5, 'legacy first-mission nectar is not reset')
+  assert.ok(old.acorns.has('meadow-a1'))
+  for (const marker of [undefined, false]) {
+    const profile = {
+      ...freshSave(),
+      campaignStarted: marker,
+      bestHill: 6,
+      acorns: ['meadow-a1'],
+      medals: { 'meadow-1': 7 },
+    }
+    const free = game(3, roundTrip(profile))
+    free.update(press('down'))
+    free.update(press('a'))
+    assert.equal(
+      free.mode,
+      'free',
+      'profile-only history does not insert Continue',
+    )
+    assert.equal(free.save?.campaignStarted, false)
+    assert.equal(free.save?.bestHill, 6)
+  }
+  for (const campaignStarted of ['true', 1, null, {}, []])
+    assert.equal(
+      readLanderSave({ ...freshSave(), campaignStarted }, 2, 6),
+      null,
+      'untrusted checkpoint marker must be a boolean',
+    )
+}
+
 // --- the campaign, the shed, saves --------------------------------------------------------------------
 {
   // A new replanting: the map, then mission 1; each clear saves the next mission.

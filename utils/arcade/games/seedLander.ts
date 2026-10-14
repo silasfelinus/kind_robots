@@ -253,6 +253,7 @@ class SeedLander implements ArcadeGameInstance {
   private resumeScore = 0
   private resumeLives = START_PODS
   private campaignTier: TierId = 'standard'
+  private campaignStarted = false
   private saveData: LanderSave | null = null
   private offer: LanderSave | null = null
   private shedPick = 0
@@ -280,7 +281,7 @@ class SeedLander implements ArcadeGameInstance {
     if (stored) {
       this.saveData = stored
       this.adoptProgress(stored)
-      if (stored.island > 0 || stored.mission > 0) this.offer = stored
+      if (stored.campaignStarted) this.offer = stored
     }
     if (!this.demo) this.menu = { pick: 0 }
     this.startHill(1)
@@ -339,6 +340,7 @@ class SeedLander implements ArcadeGameInstance {
     this.resumeScore = s.score
     this.resumeLives = s.lives
     this.campaignTier = s.tier
+    this.campaignStarted = s.campaignStarted === true
   }
 
   /** Write the save: the campaign's resume point and everything earned so far. */
@@ -346,6 +348,7 @@ class SeedLander implements ArcadeGameInstance {
     if (this.demo) return
     this.saveData = {
       v: 1,
+      campaignStarted: this.campaignStarted,
       tier: this.campaignTier,
       island: this.island,
       mission: this.missionIndex,
@@ -429,6 +432,7 @@ class SeedLander implements ArcadeGameInstance {
   private newCampaign() {
     // A fresh replanting: the acorns, medals and Free Flight best are kept for good.
     this.mode = 'campaign'
+    this.campaignStarted = true
     this.campaignTier = this.tier
     this.island = 0
     this.missionIndex = 0

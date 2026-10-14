@@ -53,6 +53,8 @@ export const MEDAL = { feather: 1, thrifty: 2, swift: 4 } as const
 /** A Seed Lander save. */
 export type LanderSave = {
   v: 1
+  /** An active campaign checkpoint, distinct from a Free Flight-only profile. */
+  campaignStarted?: boolean
   tier: TierId
   /** The island and the mission in it to resume at (mission 5 is the boss). */
   island: number
@@ -74,6 +76,7 @@ export type LanderSave = {
 export function freshSave(tier: TierId = 'standard'): LanderSave {
   return {
     v: 1,
+    campaignStarted: false,
     tier,
     island: 0,
     mission: 0,
@@ -104,6 +107,8 @@ export function readLanderSave(
   const count = (v: unknown, max: number) =>
     typeof v === 'number' && Number.isInteger(v) && v >= 0 && v <= max
   if (r.v !== 1) return null
+  if (r.campaignStarted !== undefined && typeof r.campaignStarted !== 'boolean')
+    return null
   if (!TIER_ORDER.includes(r.tier as TierId)) return null
   if (!count(r.island, islands) || !count(r.mission, missionsPer - 1))
     return null
@@ -134,6 +139,16 @@ export function readLanderSave(
     : []
   return {
     v: 1,
+    // Legacy v1 saves had no marker. Campaign-only position/resources can recover a
+    // first mission; permanent acorns/medals and Free Flight best alone cannot.
+    campaignStarted:
+      typeof r.campaignStarted === 'boolean'
+        ? r.campaignStarted
+        : (r.island as number) > 0 ||
+          (r.mission as number) > 0 ||
+          (r.nectar as number) > 0 ||
+          Object.values(shed).some((n) => n > 0) ||
+          cleared.length > 0,
     tier: r.tier as TierId,
     island: r.island as number,
     mission: r.mission as number,

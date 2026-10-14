@@ -4,12 +4,19 @@ import { mkdtempSync, mkdirSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { test } from 'node:test'
-import { changedPaths, unstagedPaths } from './formatChanged.mjs'
+import { changedPaths, unstagedPaths, withoutGrandfathered } from './formatChanged.mjs'
 
 function git(cwd, ...args) {
   const result = spawnSync('git', args, { cwd, encoding: 'utf8' })
   assert.equal(result.status, 0, result.stderr)
 }
+
+test('previously unformatted baseline files are exempt from the fast changed-file gate', () => {
+  assert.deepEqual(
+    withoutGrandfathered(['src/old.ts', 'src/new.ts'], { src: ['src/old.ts'] }),
+    ['src/new.ts'],
+  )
+})
 
 test('changed-file formatter targets new and modified files, not deletions or unrelated old files', () => {
   const cwd = mkdtempSync(join(tmpdir(), 'kr-format-changed-'))

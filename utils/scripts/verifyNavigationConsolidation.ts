@@ -407,6 +407,48 @@ assert.ok(homePageSource.includes('<home-visitor-directory v-else'))
 assert.ok(visitorDirectorySource.includes('showcaseHref(card)'))
 assert.ok(visitorDirectorySource.includes('props.showcase.rails.art'))
 assert.ok(visitorDirectorySource.includes('props.showcase.rails.dreams'))
+assert.ok(homePageSource.includes('v-if="isAdmin"'))
+assert.ok(homePageSource.includes('flex h-full min-h-0 flex-col gap-2 overflow-hidden'))
+for (const route of [
+  '/play/arcade',
+  '/play/zuzu-gamebook',
+  '/play/zuzu-showdown',
+  '/play/zuzu-shifting-lands',
+  '/play/zuzu-ghost-trail',
+  '/play/zuzu-pinball',
+  '/storybook',
+  '/art',
+  '/play/aquarium',
+  '/play/memory',
+  '/dreams',
+  '/play/music-video',
+  '/play/mandarin',
+  '/button',
+]) {
+  assert.ok(
+    visitorDirectorySource.includes("route: '" + route + "'"),
+    'public showcase must preserve the visitor destination ' + route,
+  )
+}
+for (const internal of [
+  '/admin/emperor-of-dust',
+  '/admin/zuzu-lair',
+  '/butterfly-gallery',
+  '/tzaddik-gallery',
+  '/admin/save-the-plumber',
+]) {
+  assert.equal(
+    visitorDirectorySource.includes("route: '" + internal + "'"),
+    false,
+    'private project must not appear as a playable public feature: ' + internal,
+  )
+}
+assert.ok(visitorDirectorySource.includes('const updates = ['))
+assert.ok(visitorDirectorySource.includes('Development notes #'))
+assert.ok(visitorDirectorySource.includes('kr-scroll'))
+assert.ok(visitorDirectorySource.includes('activeSection'))
+assert.ok(visitorDirectorySource.includes('selectedCategory'))
+
 for (const route of [
   '/', '/account', '/achievements', '/messages', '/friends', '/themes',
   '/servers', '/plan/newsfeed', '/about', '/navigation',

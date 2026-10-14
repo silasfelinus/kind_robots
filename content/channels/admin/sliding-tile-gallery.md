@@ -7,7 +7,7 @@ title: Sliding Tile Gallery · Workshop
 subtitle: Piece the picture back together
 description: Play a three-by-three sliding puzzle, reveal an illustrated postcard and collect solved boards on this device.
 summary: Play the private tile gallery.
-icon: kind-icon:gallery
+icon: kind-icon:gridsquare
 route: /admin/sliding-tile-gallery
 sort: 138
 requiredRole: ADMIN

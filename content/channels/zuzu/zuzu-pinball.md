@@ -7,7 +7,7 @@ title: Zuzu · The Last Bell
 subtitle: An evolving 3D pinball workshop
 summary: Playtest Zuzu's 3D pinball table.
 description: "Playable greybox of Zuzu's haunted frontier table, with a physics-driven steel ball, River Croc mouth capture, lower flippers and the Abbey bell lane. The complex FX3-grade art and modes are still in production."
-icon: kind-icon:gamepad
+icon: kind-icon:target
 route: /play/zuzu-pinball
 sort: 126
 tutorial:

@@ -8,7 +8,7 @@ label: Project Placement
 title: Project Placement
 subtitle: Write the channel and tab map onto Project records
 description: Apply the canonical channel, tab, and live URL map to existing Project records and read a report of the result.
-icon: kind-icon:map
+icon: kind-icon:map-pin
 route: /project-placement
 sort: 30
 navigation: false

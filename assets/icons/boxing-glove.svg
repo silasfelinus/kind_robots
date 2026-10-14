@@ -1,0 +1,13 @@
+<!-- boxing-glove.svg -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none">
+  <!-- Cuff -->
+  <path d="M20 44 H44 V56 C44 58, 42 60, 40 60 H24 C22 60, 20 58, 20 56 Z" fill="#F5F5F5" stroke="#424242" stroke-width="2.5" stroke-linejoin="round"/>
+  <path d="M26 48 L38 54 M38 48 L26 54" stroke="#C62828" stroke-width="2" stroke-linecap="round"/>
+  <!-- Mitt -->
+  <path d="M22 44 C14 40, 12 30, 14 20 C16 10, 26 4, 38 6 C50 8, 54 18, 52 30 C51 38, 48 42, 44 44 Z" fill="#E53935" stroke="#7F1D1D" stroke-width="2.5" stroke-linejoin="round"/>
+  <!-- Thumb -->
+  <path d="M15 26 C8 26, 6 34, 10 38 C13 41, 19 41, 23 38" fill="#E53935" stroke="#7F1D1D" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+  <!-- Knuckle seam and shine -->
+  <path d="M24 24 C30 28, 40 28, 47 23" stroke="#7F1D1D" stroke-width="2" stroke-linecap="round"/>
+  <path d="M28 13 C32 10, 38 10, 42 12" stroke="#FFCDD2" stroke-width="3" stroke-linecap="round"/>
+</svg>

@@ -7,7 +7,7 @@ title: Music Video
 subtitle: Watch and remix music videos
 summary: Watch and remix music videos.
 description: A gallery of music videos, each made from a single pitch with lyrics, a song and illustrated scenes. Watch the public ones or remix one into your own draft.
-icon: kind-icon:video
+icon: kind-icon:music
 route: /play/music-video
 sort: 25
 tutorial:

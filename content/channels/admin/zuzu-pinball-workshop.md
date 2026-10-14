@@ -7,7 +7,7 @@ title: Zuzu Pinball · Engineering Workshop
 subtitle: Admin-only light-map editor and test cabinet
 description: Test the Last Bell table and edit its insert light positions.
 summary: Tune the Last Bell table.
-icon: kind-icon:gamepad
+icon: kind-icon:target
 route: /admin/zuzu-pinball-workshop
 sort: 132
 requiredRole: ADMIN

@@ -7,7 +7,7 @@ title: Save the Plumber
 subtitle: An eight-world platform adventure in development
 description: A private original platformer workshop. Jump through the Bluebell Pipeworks prototype and explore the planned eight-world rescue map.
 summary: Rescue your plumber in eight worlds.
-icon: kind-icon:arcade
+icon: kind-icon:wrench
 route: /admin/save-the-plumber
 sort: 135
 requiredRole: ADMIN

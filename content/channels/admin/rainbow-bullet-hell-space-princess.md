@@ -7,7 +7,7 @@ title: Rainbow Bullet Hell Space Princess
 subtitle: Two-Act Pinkwake and Moonjelly campaign preview
 description: A private two-Act Rainbow Bullet Hell Space Princess preview with Pinkwake, Moonjelly Fields, two bosses, optional rescues and 1–4 local pilots.
 summary: Fly the pastel nebula with friends.
-icon: kind-icon:arcade
+icon: kind-icon:rocket
 route: /admin/rainbow-bullet-hell-space-princess
 sort: 134
 requiredRole: ADMIN

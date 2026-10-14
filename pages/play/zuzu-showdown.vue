@@ -3,8 +3,6 @@
     <div
       class="kr-scroll mx-auto h-full min-h-0 w-full max-w-6xl space-y-2 p-2 sm:p-3"
     >
-      <ZuzuShowdownStage />
-
       <details class="kr-panel rounded-2xl p-2 sm:p-3">
         <summary
           class="cursor-pointer select-none text-sm font-bold"
@@ -167,6 +165,9 @@
           </div>
         </section>
       </details>
+
+      <ZuzuShowdownStage />
+
     </div>
   </main>
 </template>

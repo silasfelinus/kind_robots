@@ -4,10 +4,21 @@ import { performFetch } from '~/stores/utils'
 import type { ZuzuResourceAuditReport } from '~/utils/zuzuResourceAudit'
 import {
   ZUZU_ASSET_PAGE_SIZE,
+  ZUZU_REPO_PAGE_SIZE,
   type ZuzuAsset,
   type ZuzuProject,
+  type ZuzuRepoFileStatus,
+  type ZuzuRepoMedia,
+  type ZuzuRepoMediaPage,
+  type ZuzuUsageRole,
   type ZuzuWorldPage,
 } from '~/utils/zuzuWorld'
+
+export type ZuzuUsageDraft = {
+  role: ZuzuUsageRole
+  slot: string
+  pinnedVersion: string
+}
 
 export const useZuzuWorldStore = defineStore('zuzuWorld', () => {
   const items = ref<ZuzuAsset[]>([])
@@ -19,6 +30,18 @@ export const useZuzuWorldStore = defineStore('zuzuWorld', () => {
   const search = ref('')
   const projectFilter = ref('')
   const kindFilter = ref('all')
+  const roleFilter = ref('')
+  const repoCollectionFilter = ref('')
+  const repoItems = ref<ZuzuRepoMedia[]>([])
+  const repoTotal = ref(0)
+  const repoIndexed = ref(0)
+  const repoCounts = ref<Record<ZuzuRepoFileStatus, number>>({
+    present: 0,
+    missing: 0,
+    unverified: 0,
+  })
+  const repoCollections = ref<ZuzuRepoMediaPage['collections']>([])
+  const repoFocusKey = ref<string | null>(null)
   const selectedIds = ref<number[]>([])
   const focusId = ref<number | null>(null)
   const loading = ref(false)
@@ -38,19 +61,64 @@ export const useZuzuWorldStore = defineStore('zuzuWorld', () => {
   const selectedItems = computed(() =>
     items.value.filter((item) => selectedIds.value.includes(item.id)),
   )
-  const pageCount = computed(() =>
-    Math.max(1, Math.ceil(total.value / ZUZU_ASSET_PAGE_SIZE)),
+  const isRepositoryView = computed(() => kindFilter.value === 'repository')
+  const focusedRepo = computed(
+    () =>
+      repoItems.value.find((item) => item.key === repoFocusKey.value) ?? null,
   )
+  const pageCount = computed(() =>
+    isRepositoryView.value
+      ? Math.max(1, Math.ceil(repoTotal.value / ZUZU_REPO_PAGE_SIZE))
+      : Math.max(1, Math.ceil(total.value / ZUZU_ASSET_PAGE_SIZE)),
+  )
+
+  async function loadRepoMedia(serial: number): Promise<void> {
+    const params = new URLSearchParams({
+      page: String(page.value),
+      q: search.value,
+      project: projectFilter.value,
+      collection: repoCollectionFilter.value,
+    })
+    try {
+      const result = await performFetch<ZuzuRepoMediaPage>(
+        `/api/worlds/zuzu/repo-media?${params.toString()}`,
+      )
+      if (serial !== requestSerial) return
+      if (!result.success || !result.data) {
+        throw new Error(result.message || 'Unable to index repository media.')
+      }
+      repoItems.value = result.data.items
+      repoTotal.value = result.data.total
+      repoIndexed.value = result.data.indexed
+      repoCounts.value = result.data.counts
+      repoCollections.value = result.data.collections
+      if (!repoItems.value.some((item) => item.key === repoFocusKey.value)) {
+        repoFocusKey.value = repoItems.value[0]?.key ?? null
+      }
+    } catch (cause) {
+      if (serial !== requestSerial) return
+      error.value =
+        cause instanceof Error
+          ? cause.message
+          : 'Unable to index repository media.'
+      repoItems.value = []
+      repoTotal.value = 0
+    } finally {
+      if (serial === requestSerial) loading.value = false
+    }
+  }
 
   async function load(): Promise<void> {
     const serial = ++requestSerial
     loading.value = true
     error.value = ''
+    if (isRepositoryView.value) return loadRepoMedia(serial)
     const params = new URLSearchParams({
       page: String(page.value),
       q: search.value,
       project: projectFilter.value,
       kind: kindFilter.value,
+      role: roleFilter.value,
     })
     try {
       const result = await performFetch<ZuzuWorldPage>(
@@ -109,9 +177,42 @@ export const useZuzuWorldStore = defineStore('zuzuWorld', () => {
     }
   }
 
-  function setFilter(key: 'project' | 'kind', value: string): void {
+  function setFilter(
+    key: 'project' | 'kind' | 'role' | 'collection',
+    value: string,
+  ): void {
     if (key === 'project') projectFilter.value = value
-    else kindFilter.value = value
+    else if (key === 'role') roleFilter.value = value
+    else if (key === 'collection') repoCollectionFilter.value = value
+    else {
+      kindFilter.value = value
+      selectedIds.value = []
+    }
+    page.value = 1
+    void load()
+  }
+
+  function focusRepo(key: string): void {
+    repoFocusKey.value = key
+  }
+
+  function openRepoMedia(query: string, key: string | null = null): void {
+    kindFilter.value = 'repository'
+    repoCollectionFilter.value = ''
+    projectFilter.value = ''
+    search.value = query
+    repoFocusKey.value = key
+    selectedIds.value = []
+    page.value = 1
+    void load()
+  }
+
+  function openArtImage(id: number): void {
+    kindFilter.value = 'all'
+    roleFilter.value = ''
+    projectFilter.value = ''
+    search.value = String(id)
+    focusId.value = id
     page.value = 1
     void load()
   }
@@ -148,12 +249,16 @@ export const useZuzuWorldStore = defineStore('zuzuWorld', () => {
   async function assign(
     projectIds: number[],
     action: 'link' | 'unlink',
+    usage?: ZuzuUsageDraft,
+    artImageIds?: number[],
   ): Promise<boolean> {
-    const ids = selectedIds.value.length
-      ? selectedIds.value
-      : focused.value
-        ? [focused.value.id]
-        : []
+    const ids = artImageIds?.length
+      ? artImageIds
+      : selectedIds.value.length
+        ? selectedIds.value
+        : focused.value
+          ? [focused.value.id]
+          : []
     if (!ids.length || !projectIds.length) {
       error.value = 'Select artwork and at least one project.'
       return false
@@ -167,7 +272,20 @@ export const useZuzuWorldStore = defineStore('zuzuWorld', () => {
         references: number
       }>('/api/worlds/zuzu/assign', {
         method: 'POST',
-        body: JSON.stringify({ artImageIds: ids, projectIds, action }),
+        body: JSON.stringify({
+          artImageIds: ids,
+          projectIds,
+          action,
+          ...(action === 'link' && usage
+            ? {
+                usage: {
+                  role: usage.role,
+                  slot: usage.slot.trim() || null,
+                  pinnedVersion: usage.pinnedVersion.trim() || null,
+                },
+              }
+            : {}),
+        }),
       })
       if (!result.success)
         throw new Error(result.message || 'Could not save links.')
@@ -181,6 +299,13 @@ export const useZuzuWorldStore = defineStore('zuzuWorld', () => {
     } finally {
       saving.value = false
     }
+  }
+
+  function unlinkUsage(
+    artImageId: number,
+    projectId: number,
+  ): Promise<boolean> {
+    return assign([projectId], 'unlink', undefined, [artImageId])
   }
 
   async function requestArtChange(
@@ -233,6 +358,16 @@ export const useZuzuWorldStore = defineStore('zuzuWorld', () => {
     search,
     projectFilter,
     kindFilter,
+    roleFilter,
+    repoCollectionFilter,
+    repoItems,
+    repoTotal,
+    repoIndexed,
+    repoCounts,
+    repoCollections,
+    repoFocusKey,
+    focusedRepo,
+    isRepositoryView,
     selectedIds,
     selectedItems,
     focusId,
@@ -251,9 +386,13 @@ export const useZuzuWorldStore = defineStore('zuzuWorld', () => {
     setSearch,
     goToPage,
     focus,
+    focusRepo,
+    openRepoMedia,
+    openArtImage,
     toggle,
     clearSelection,
     assign,
+    unlinkUsage,
     requestArtChange,
   }
 })

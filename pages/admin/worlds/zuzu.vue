@@ -246,6 +246,43 @@
               <option value="image">Images</option>
               <option value="video">Video &amp; clips</option>
               <option value="sheets">Character sheets</option>
+              <option value="repository">Repository media (git)</option>
+            </select>
+          </label>
+          <label v-if="studio.isRepositoryView" class="flex items-center gap-2">
+            <span class="sr-only">Repository collection</span>
+            <select
+              class="select select-bordered select-sm max-w-52 rounded-xl"
+              :value="studio.repoCollectionFilter"
+              aria-label="Repository collection filter"
+              @change="onFilter('collection', $event)"
+            >
+              <option value="">All collections</option>
+              <option
+                v-for="collection in studio.repoCollections"
+                :key="collection.value"
+                :value="collection.value"
+              >
+                {{ collection.label }} ({{ collection.count }})
+              </option>
+            </select>
+          </label>
+          <label v-else class="flex items-center gap-2">
+            <span class="sr-only">Production role</span>
+            <select
+              class="select select-bordered select-sm max-w-48 rounded-xl"
+              :value="studio.roleFilter"
+              aria-label="Production role filter"
+              @change="onFilter('role', $event)"
+            >
+              <option value="">Any role</option>
+              <option
+                v-for="role in ZUZU_USAGE_ROLES"
+                :key="role.value"
+                :value="role.value"
+              >
+                {{ role.label }}
+              </option>
             </select>
           </label>
           <button
@@ -271,7 +308,23 @@
         >
           <section class="min-w-0 space-y-3" aria-label="Zuzu asset gallery">
             <div class="flex flex-wrap items-center justify-between gap-2 px-1">
-              <div class="flex items-center gap-2">
+              <div
+                v-if="studio.isRepositoryView"
+                class="flex flex-wrap items-center gap-2"
+              >
+                <span class="font-black">Repository media</span>
+                <span class="kr-badge-outline"
+                  >{{ studio.repoTotal }} of
+                  {{ studio.repoIndexed }} files</span
+                >
+                <span
+                  v-if="studio.repoCounts.missing"
+                  class="kr-badge-outline text-warning"
+                  >{{ studio.repoCounts.missing }} not on disk</span
+                >
+                <span v-if="studio.loading" class="kr-spinner-xs" />
+              </div>
+              <div v-else class="flex items-center gap-2">
                 <span class="font-black">Asset Library</span>
                 <span class="kr-badge-outline"
                   >{{ studio.total }} live matches</span
@@ -302,7 +355,101 @@
             </div>
 
             <div
-              v-if="studio.loading && !studio.items.length"
+              v-if="studio.isRepositoryView"
+              class="grid grid-cols-2 gap-3 sm:grid-cols-3 2xl:grid-cols-4"
+            >
+              <article
+                v-for="media in studio.repoItems"
+                :key="media.key"
+                class="group relative min-w-0 overflow-hidden rounded-xl border bg-base-200 shadow-sm transition hover:shadow-lg"
+                :class="
+                  studio.repoFocusKey === media.key
+                    ? 'border-secondary ring-2 ring-secondary/40'
+                    : 'border-base-content/10'
+                "
+              >
+                <button
+                  type="button"
+                  class="relative block aspect-[4/3] w-full overflow-hidden bg-base-300"
+                  :aria-label="`Inspect repository file ${media.title}`"
+                  @click="studio.focusRepo(media.key)"
+                >
+                  <img
+                    :src="
+                      media.fileStatus === 'missing' ||
+                      brokenKeys.includes(media.key)
+                        ? fallbackImage
+                        : media.url
+                    "
+                    :alt="media.alt || media.title"
+                    loading="lazy"
+                    class="h-full w-full object-cover transition duration-300 group-hover:scale-105"
+                    @error="markBrokenKey(media.key)"
+                  />
+                  <span
+                    class="absolute left-2 top-2 rounded-lg bg-secondary/85 px-2 py-1 text-[10px] font-bold text-secondary-content"
+                  >
+                    {{ media.storage === 'git' ? 'Repo' : 'Delivered' }}
+                  </span>
+                  <span
+                    v-if="media.fileStatus !== 'present'"
+                    class="absolute right-2 top-2 rounded-lg bg-warning/90 px-2 py-1 text-[10px] font-bold text-warning-content"
+                  >
+                    {{
+                      media.fileStatus === 'missing'
+                        ? 'Not on disk'
+                        : 'Unverified'
+                    }}
+                  </span>
+                </button>
+                <div class="space-y-2 p-3">
+                  <button
+                    type="button"
+                    class="block w-full truncate text-left text-sm font-bold hover:text-secondary"
+                    @click="studio.focusRepo(media.key)"
+                  >
+                    {{ media.title }}
+                  </button>
+                  <div class="flex flex-wrap gap-1">
+                    <span
+                      class="rounded-md bg-secondary/20 px-2 py-0.5 text-[10px] text-secondary"
+                      >{{ labelFor(media.projectSlug) }}</span
+                    >
+                    <span
+                      v-if="media.usedBy.length > 1"
+                      class="rounded-md bg-base-300 px-2 py-0.5 text-[10px]"
+                      >{{ media.usedBy.length }} uses</span
+                    >
+                    <button
+                      v-if="media.artImageId && media.artImageAccessible"
+                      type="button"
+                      class="rounded-md bg-primary/20 px-2 py-0.5 text-[10px] text-primary hover:bg-primary/30"
+                      :aria-label="`Open source ArtImage ${media.artImageId}`"
+                      @click="studio.openArtImage(media.artImageId)"
+                    >
+                      ArtImage #{{ media.artImageId }}
+                    </button>
+                  </div>
+                </div>
+              </article>
+              <div
+                v-if="!studio.repoItems.length && !studio.loading"
+                class="kr-panel col-span-full grid min-h-72 place-items-center gap-2 p-8 text-center"
+              >
+                <p class="font-bold">
+                  No repository media matches these filters
+                </p>
+                <button
+                  type="button"
+                  class="kr-btn btn-outline"
+                  @click="clearFilters"
+                >
+                  Clear filters
+                </button>
+              </div>
+            </div>
+            <div
+              v-else-if="studio.loading && !studio.items.length"
               class="grid min-h-72 place-items-center kr-panel"
             >
               <span class="kr-spinner-lg-primary" />
@@ -412,11 +559,33 @@
                       class="rounded-md bg-base-300 px-2 py-0.5 text-[10px]"
                       >{{ asset.mediaKind }}</span
                     >
-                    <span
-                      v-if="asset.linkedProjectIds.length"
-                      class="rounded-md bg-success/15 px-2 py-0.5 text-[10px] text-success"
-                      >{{ asset.linkedProjectIds.length }} linked</span
+                    <button
+                      v-for="usage in asset.usages.slice(0, 3)"
+                      :key="usage.projectId"
+                      type="button"
+                      class="max-w-full truncate rounded-md bg-success/15 px-2 py-0.5 text-left text-[10px] text-success hover:bg-success/25"
+                      :title="usageTitle(usage)"
+                      :aria-label="`Show ${labelFor(usage.projectSlug)} art`"
+                      @click="studio.setFilter('project', usage.projectSlug)"
                     >
+                      {{ labelFor(usage.projectSlug) }} ·
+                      {{ zuzuUsageRoleShort(usage.role)
+                      }}{{ usage.slot ? ` · ${usage.slot}` : '' }}
+                    </button>
+                    <span
+                      v-if="asset.usages.length > 3"
+                      class="rounded-md bg-success/10 px-2 py-0.5 text-[10px] text-success"
+                      >+{{ asset.usages.length - 3 }}</span
+                    >
+                    <button
+                      v-if="asset.repoExports.length"
+                      type="button"
+                      class="rounded-md bg-secondary/20 px-2 py-0.5 text-[10px] text-secondary hover:bg-secondary/30"
+                      :aria-label="`Show repository files exported from art image ${asset.id}`"
+                      @click="studio.openRepoMedia(String(asset.id))"
+                    >
+                      {{ asset.repoExports.length }} in repo
+                    </button>
                   </div>
                 </div>
               </article>
@@ -433,7 +602,136 @@
             aria-label="Selected asset inspector"
           >
             <div
-              v-if="studio.focused"
+              v-if="studio.isRepositoryView && studio.focusedRepo"
+              class="overflow-hidden rounded-2xl border border-secondary/30 bg-base-200 shadow-lg"
+            >
+              <div class="relative aspect-[4/3] bg-base-300">
+                <img
+                  :src="
+                    studio.focusedRepo.fileStatus === 'missing' ||
+                    brokenKeys.includes(studio.focusedRepo.key)
+                      ? fallbackImage
+                      : studio.focusedRepo.url
+                  "
+                  :alt="studio.focusedRepo.alt || studio.focusedRepo.title"
+                  class="h-full w-full object-contain"
+                  @error="markBrokenKey(studio.focusedRepo.key)"
+                />
+              </div>
+              <div class="space-y-4 p-4">
+                <div>
+                  <p class="break-all font-mono text-xs text-base-content/60">
+                    {{ studio.focusedRepo.key }}
+                  </p>
+                  <h3 class="mt-1 text-lg font-black">
+                    {{ studio.focusedRepo.title }}
+                  </h3>
+                  <p
+                    v-if="studio.focusedRepo.alt"
+                    class="mt-1 line-clamp-3 text-xs text-base-content/65"
+                  >
+                    {{ studio.focusedRepo.alt }}
+                  </p>
+                </div>
+                <div class="space-y-1 rounded-xl bg-base-300/60 p-3 text-xs">
+                  <div class="flex justify-between gap-3">
+                    <span class="text-base-content/60">Production</span
+                    ><strong>{{
+                      labelFor(studio.focusedRepo.projectSlug)
+                    }}</strong>
+                  </div>
+                  <div class="flex justify-between gap-3">
+                    <span class="text-base-content/60">Medium</span
+                    ><strong>{{
+                      studio.focusedRepo.storage === 'git'
+                        ? 'Committed repository file'
+                        : 'Delivered file (not in git)'
+                    }}</strong>
+                  </div>
+                  <div class="flex justify-between gap-3">
+                    <span class="text-base-content/60">On this server</span
+                    ><strong>{{
+                      studio.focusedRepo.fileStatus === 'present'
+                        ? 'Present'
+                        : studio.focusedRepo.fileStatus === 'missing'
+                          ? 'Not found'
+                          : 'Not checked'
+                    }}</strong>
+                  </div>
+                  <div
+                    v-if="studio.focusedRepo.fit"
+                    class="flex justify-between gap-3"
+                  >
+                    <span class="text-base-content/60">Fit</span
+                    ><strong>{{
+                      studio.focusedRepo.fit === 'exact' ? 'Exact' : 'Stand-in'
+                    }}</strong>
+                  </div>
+                  <div class="flex justify-between gap-3">
+                    <span class="text-base-content/60">Manifest</span
+                    ><strong class="break-all text-right font-mono">{{
+                      studio.focusedRepo.manifest
+                    }}</strong>
+                  </div>
+                </div>
+                <div>
+                  <p
+                    class="mb-2 text-xs font-bold uppercase tracking-wide text-base-content/60"
+                  >
+                    Used by {{ studio.focusedRepo.usedBy.length }}
+                    {{
+                      studio.focusedRepo.usedBy.length === 1
+                        ? 'entry'
+                        : 'entries'
+                    }}
+                  </p>
+                  <div class="flex max-h-24 flex-wrap gap-1 overflow-y-auto">
+                    <span
+                      v-for="user in studio.focusedRepo.usedBy"
+                      :key="user"
+                      class="rounded-lg bg-secondary/15 px-2 py-1 font-mono text-[10px]"
+                      >{{ user }}</span
+                    >
+                  </div>
+                </div>
+                <p
+                  v-if="studio.focusedRepo.provenance"
+                  class="text-xs text-base-content/70"
+                >
+                  {{ studio.focusedRepo.provenance }}
+                </p>
+                <div class="flex flex-wrap items-center gap-2">
+                  <button
+                    v-if="
+                      studio.focusedRepo.artImageId &&
+                      studio.focusedRepo.artImageAccessible
+                    "
+                    type="button"
+                    class="kr-btn-primary btn-sm"
+                    @click="openRepoSource"
+                  >
+                    <Icon name="kind-icon:gallery" class="kr-icon-4" />
+                    Source ArtImage #{{ studio.focusedRepo.artImageId }}
+                  </button>
+                  <span
+                    v-else-if="studio.focusedRepo.artImageId"
+                    class="text-xs text-base-content/60"
+                    >Exported from ArtImage #{{
+                      studio.focusedRepo.artImageId
+                    }}
+                    (not accessible here)</span
+                  >
+                  <NuxtLink
+                    :to="routeFor(studio.focusedRepo.projectSlug)"
+                    class="kr-btn btn-outline btn-sm"
+                  >
+                    Open {{ labelFor(studio.focusedRepo.projectSlug) }}
+                  </NuxtLink>
+                </div>
+              </div>
+            </div>
+            <div
+              v-else-if="!studio.isRepositoryView && studio.focused"
               class="overflow-hidden rounded-2xl border border-base-content/10 bg-base-200 shadow-lg"
             >
               <div class="relative aspect-[4/3] bg-base-300">
@@ -491,9 +789,7 @@
                   </div>
                   <div class="flex justify-between gap-3">
                     <span class="text-base-content/60">Project links</span
-                    ><strong>{{
-                      studio.focused.linkedProjectIds.length
-                    }}</strong>
+                    ><strong>{{ studio.focused.usages.length }}</strong>
                   </div>
                 </div>
                 <div>
@@ -502,23 +798,69 @@
                   >
                     Used as a project resource
                   </p>
-                  <div
-                    v-if="studio.focused.linkedProjectIds.length"
-                    class="flex flex-wrap gap-1"
-                  >
-                    <span
-                      v-for="projectId in studio.focused.linkedProjectIds"
-                      :key="projectId"
-                      class="rounded-lg bg-primary/20 px-2 py-1 text-xs"
-                      >{{
-                        studio.projects.find((p) => p.id === projectId)
-                          ?.title || `Project #${projectId}`
-                      }}</span
+                  <ul v-if="studio.focused.usages.length" class="space-y-1">
+                    <li
+                      v-for="usage in studio.focused.usages"
+                      :key="usage.projectId"
+                      class="flex items-center gap-2 rounded-lg bg-primary/10 px-2 py-1.5 text-xs"
                     >
-                  </div>
+                      <div class="min-w-0 flex-1">
+                        <NuxtLink
+                          :to="routeFor(usage.projectSlug)"
+                          class="block truncate font-bold hover:text-primary"
+                          >{{ usage.projectTitle }}</NuxtLink
+                        >
+                        <span class="block truncate text-base-content/65"
+                          >{{ zuzuUsageRoleShort(usage.role)
+                          }}{{ usage.slot ? ` · ${usage.slot}` : ''
+                          }}{{
+                            usage.pinnedVersion
+                              ? ` · pinned ${usage.pinnedVersion}`
+                              : ''
+                          }}</span
+                        >
+                      </div>
+                      <button
+                        type="button"
+                        class="kr-btn btn-ghost btn-xs"
+                        :aria-label="`Edit role in ${usage.projectTitle}`"
+                        @click="openAssignment(usage)"
+                      >
+                        <Icon name="kind-icon:edit" class="h-3.5 w-3.5" />
+                      </button>
+                      <button
+                        type="button"
+                        class="kr-btn btn-ghost btn-xs"
+                        :disabled="studio.saving"
+                        :aria-label="`Unlink from ${usage.projectTitle}; the image is kept`"
+                        @click="unlinkFocused(usage.projectId)"
+                      >
+                        ✕
+                      </button>
+                    </li>
+                  </ul>
                   <p v-else class="text-xs text-base-content/55">
                     No explicit shared project links yet.
                   </p>
+                </div>
+                <div v-if="studio.focused.repoExports.length">
+                  <p
+                    class="mb-2 text-xs font-bold uppercase tracking-wide text-base-content/60"
+                  >
+                    Shipped as repository files
+                  </p>
+                  <div class="flex flex-wrap gap-1">
+                    <button
+                      v-for="file in studio.focused.repoExports"
+                      :key="file.key"
+                      type="button"
+                      class="rounded-lg bg-secondary/15 px-2 py-1 text-left text-xs hover:bg-secondary/25"
+                      :title="file.key"
+                      @click="studio.openRepoMedia(file.key, file.key)"
+                    >
+                      {{ labelFor(file.projectSlug) }} · {{ file.title }}
+                    </button>
+                  </div>
                 </div>
                 <p
                   v-if="studio.focused.promptString"
@@ -530,7 +872,7 @@
                   <button
                     type="button"
                     class="kr-btn-primary"
-                    @click="openAssignment"
+                    @click="openAssignment()"
                   >
                     <Icon name="kind-icon:plus" class="kr-icon-4" />
                     Use in project
@@ -596,7 +938,7 @@
             <button
               type="button"
               class="kr-btn-primary btn-sm"
-              @click="openAssignment"
+              @click="openAssignment()"
             >
               <Icon name="kind-icon:plus" class="kr-icon-4" />
               Use in project
@@ -628,11 +970,48 @@
             </button>
           </div>
           <p class="text-sm text-base-content/70">
-            Link {{ studio.selectedIds.length || 1 }} existing art
-            {{ studio.selectedIds.length === 1 ? 'asset' : 'assets' }} as
-            general references. The original image stays intact and can be used
-            by several productions.
+            Link {{ assignCount }} existing art
+            {{ assignCount === 1 ? 'asset' : 'assets' }} as
+            {{ roleLabel(usageDraft.role).toLowerCase() }}. The original image
+            stays intact and can be used by several productions.
           </p>
+          <div class="grid gap-2 sm:grid-cols-3">
+            <label class="block space-y-1 text-xs sm:col-span-3">
+              <span class="font-bold">Production role</span>
+              <select
+                v-model="usageDraft.role"
+                class="select select-bordered select-sm w-full rounded-xl"
+              >
+                <option
+                  v-for="role in ZUZU_USAGE_ROLES"
+                  :key="role.value"
+                  :value="role.value"
+                >
+                  {{ role.label }}
+                </option>
+              </select>
+            </label>
+            <label class="block space-y-1 text-xs sm:col-span-2">
+              <span class="font-bold">Scene / slot (optional)</span>
+              <input
+                v-model="usageDraft.slot"
+                type="text"
+                :maxlength="ZUZU_SLOT_MAX"
+                class="input input-bordered input-sm w-full rounded-xl"
+                placeholder="Act 2 · scene 4 · panel B"
+              />
+            </label>
+            <label class="block space-y-1 text-xs">
+              <span class="font-bold">Pin version (optional)</span>
+              <input
+                v-model="usageDraft.pinnedVersion"
+                type="text"
+                :maxlength="ZUZU_PINNED_VERSION_MAX"
+                class="input input-bordered input-sm w-full rounded-xl"
+                placeholder="r3 · ArtJob #34959"
+              />
+            </label>
+          </div>
           <div
             class="grid max-h-72 grid-cols-1 gap-2 overflow-y-auto sm:grid-cols-2"
           >
@@ -654,10 +1033,10 @@
             No synchronized Zuzu projects are available for linking.
           </p>
           <div class="rounded-xl bg-base-300 p-3 text-xs text-base-content/70">
-            <strong>Link</strong> shares a reference.
-            <strong>Unlink</strong> removes only the reference, never the image.
-            To request a new crop, variant or animation, use the art request
-            panel.
+            <strong>Link</strong> shares a reference, or updates the role of an
+            existing one. <strong>Unlink</strong> removes only the reference,
+            never the image. To request a new crop, variant or animation, use
+            the art request panel.
           </div>
           <div class="flex flex-wrap justify-end gap-2">
             <button
@@ -761,10 +1140,17 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import { useUserStore } from '~/stores/userStore'
-import { useZuzuWorldStore } from '~/stores/zuzuWorldStore'
-import { ZUZU_PROJECTS } from '~/utils/zuzuWorld'
+import { useZuzuWorldStore, type ZuzuUsageDraft } from '~/stores/zuzuWorldStore'
+import {
+  ZUZU_PINNED_VERSION_MAX,
+  ZUZU_PROJECTS,
+  ZUZU_SLOT_MAX,
+  ZUZU_USAGE_ROLES,
+  zuzuUsageRoleShort,
+  type ZuzuAssetUsage,
+} from '~/utils/zuzuWorld'
 
 const userStore = useUserStore()
 const studio = useZuzuWorldStore()
@@ -772,10 +1158,21 @@ const ready = ref(false)
 const showAssign = ref(false)
 const showRequest = ref(false)
 const targetProjectIds = ref<number[]>([])
+const assignTargetIds = ref<number[] | undefined>(undefined)
+const usageDraft = ref<ZuzuUsageDraft>({
+  role: 'general',
+  slot: '',
+  pinnedVersion: '',
+})
 const requestProject = ref<string>('zuzu-gamebook')
 const requestDirection = ref('')
 const brokenIds = ref<number[]>([])
+const brokenKeys = ref<string[]>([])
 const fallbackImage = '/images/kindart.webp'
+
+const assignCount = computed(
+  () => assignTargetIds.value?.length || studio.selectedIds.length || 1,
+)
 
 const quickLinks = [
   { label: 'Characters', icon: 'kind-icon:users', to: '/characters' },
@@ -800,27 +1197,79 @@ function markBroken(id: number) {
   if (!brokenIds.value.includes(id)) brokenIds.value.push(id)
 }
 
+function markBrokenKey(key: string) {
+  if (!brokenKeys.value.includes(key)) brokenKeys.value.push(key)
+}
+
 function labelFor(slug: string): string {
   return ZUZU_PROJECTS.find((project) => project.slug === slug)?.label ?? slug
+}
+
+function routeFor(slug: string): string {
+  return (
+    ZUZU_PROJECTS.find((project) => project.slug === slug)?.route ??
+    '/admin/worlds/zuzu'
+  )
+}
+
+function roleLabel(role: string): string {
+  return ZUZU_USAGE_ROLES.find((entry) => entry.value === role)?.label ?? role
+}
+
+function usageTitle(usage: ZuzuAssetUsage): string {
+  return [
+    usage.projectTitle,
+    roleLabel(usage.role),
+    usage.slot,
+    usage.pinnedVersion ? `pinned ${usage.pinnedVersion}` : null,
+  ]
+    .filter(Boolean)
+    .join(' · ')
 }
 
 function onSearch(event: Event) {
   studio.setSearch((event.target as HTMLInputElement).value)
 }
 
-function onFilter(key: 'project' | 'kind', event: Event) {
+function onFilter(
+  key: 'project' | 'kind' | 'role' | 'collection',
+  event: Event,
+) {
   studio.setFilter(key, (event.target as HTMLSelectElement).value)
 }
 
 function clearFilters() {
   studio.setSearch('')
   studio.setFilter('project', '')
-  studio.setFilter('kind', 'all')
+  studio.setFilter('role', '')
+  studio.setFilter('collection', '')
+  if (!studio.isRepositoryView) studio.setFilter('kind', 'all')
 }
 
-function openAssignment() {
-  targetProjectIds.value = []
+function openAssignment(usage?: ZuzuAssetUsage) {
+  if (usage && studio.focused) {
+    assignTargetIds.value = [studio.focused.id]
+    targetProjectIds.value = [usage.projectId]
+    usageDraft.value = {
+      role: usage.role,
+      slot: usage.slot ?? '',
+      pinnedVersion: usage.pinnedVersion ?? '',
+    }
+  } else {
+    assignTargetIds.value = undefined
+    targetProjectIds.value = []
+    usageDraft.value = { role: 'general', slot: '', pinnedVersion: '' }
+  }
   showAssign.value = true
+}
+
+function unlinkFocused(projectId: number) {
+  if (studio.focused) void studio.unlinkUsage(studio.focused.id, projectId)
+}
+
+function openRepoSource() {
+  const id = studio.focusedRepo?.artImageId
+  if (id) studio.openArtImage(id)
 }
 
 function toggleTarget(id: number) {
@@ -830,9 +1279,17 @@ function toggleTarget(id: number) {
 }
 
 async function saveAssignment(action: 'link' | 'unlink') {
-  if (await studio.assign(targetProjectIds.value, action)) {
+  if (
+    await studio.assign(
+      targetProjectIds.value,
+      action,
+      usageDraft.value,
+      assignTargetIds.value,
+    )
+  ) {
     showAssign.value = false
     targetProjectIds.value = []
+    assignTargetIds.value = undefined
   }
 }
 

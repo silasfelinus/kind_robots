@@ -19,6 +19,7 @@ import {
   type PendingArcadeScore,
 } from '~/utils/arcade/leaderboard'
 import { isRenderStyle, type RenderStyle } from '~/utils/arcade/display'
+import { clampVolume } from '~/utils/arcade/sound'
 import {
   MASTERY_KEY,
   mergeMastery,
@@ -52,6 +53,8 @@ const PENDING_KEY = 'kr-arcade-pending'
 
 type ArcadePrefs = {
   muted?: boolean
+  /** Arcade sound volume, 0..1, applied to music and effects. */
+  volume?: number
   crt?: boolean
   /** Pinball's camera holds still: no sweeps, cuts instead of pans. */
   stillCamera?: boolean
@@ -166,6 +169,7 @@ export const useArcadeStore = defineStore('arcadeStore', () => {
   const offline = ref(false)
   const lastSubmittedId = ref<number | null>(null)
   const muted = ref(false)
+  const volume = ref(1)
   /** CRT scanlines; defaults off for reduced-motion viewers. */
   const crt = ref(true)
   const stillCamera = ref(false)
@@ -255,6 +259,7 @@ export const useArcadeStore = defineStore('arcadeStore', () => {
     saves.value = readSaves()
     const prefs = readPrefs()
     muted.value = prefs.muted === true
+    volume.value = clampVolume(prefs.volume, 1)
     crt.value = prefs.crt ?? !prefersReducedMotion
     stillCamera.value = prefs.stillCamera ?? prefersReducedMotion
     renderStyle.value = isRenderStyle(prefs.renderStyle)
@@ -278,6 +283,7 @@ export const useArcadeStore = defineStore('arcadeStore', () => {
   function savePreferences() {
     writePrefs({
       muted: muted.value,
+      volume: volume.value,
       crt: crt.value,
       stillCamera: stillCamera.value,
       renderStyle: renderStyle.value,
@@ -299,6 +305,11 @@ export const useArcadeStore = defineStore('arcadeStore', () => {
 
   function setMuted(value: boolean) {
     muted.value = value
+    savePreferences()
+  }
+
+  function setVolume(value: number) {
+    volume.value = clampVolume(value, volume.value)
     savePreferences()
   }
 
@@ -420,6 +431,7 @@ export const useArcadeStore = defineStore('arcadeStore', () => {
     flushPending,
     lastSubmittedId,
     muted,
+    volume,
     crt,
     stillCamera,
     renderStyle,
@@ -440,6 +452,7 @@ export const useArcadeStore = defineStore('arcadeStore', () => {
     submitScore,
     loadPreferences,
     setMuted,
+    setVolume,
     setCrt,
     setStillCamera,
     rememberInitials,

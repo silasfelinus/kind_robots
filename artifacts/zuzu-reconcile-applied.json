@@ -1,0 +1,1827 @@
+{
+  "generatedAt": "2026-10-14T06:38:29.661Z",
+  "issue": "silasfelinus/kind_robots#3390",
+  "base": "https://kindrobots.org",
+  "submissions": "silasfelinus/conductor:worlds/zuzu/resource-submissions.json",
+  "viewer": {
+    "id": 1,
+    "isAdmin": true,
+    "authKind": "user-api-key"
+  },
+  "plan": {
+    "adminUserId": 1,
+    "actions": [
+      {
+        "kind": "Character",
+        "key": "zuzu-koala-assassin",
+        "label": "Zuzu",
+        "canonScope": "Book One canon",
+        "sourcePath": "projects/comic-creator/issues/zuzu-koala-assassin-01/BOOK-ONE.md",
+        "action": "skip",
+        "id": 110,
+        "reason": "owned Zuzu row already matches the canon package",
+        "advisories": [
+          "related similar-name row #355 \"Zuzu's Last Name\" (owner 1) left untouched",
+          "keeps existing slug \"zuzu\"; canon package suggests \"zuzu-koala-assassin\"",
+          "row is public; visibility is left unchanged and needs a scoped human decision"
+        ],
+        "untouchedLegacyFields": [
+          "honorific",
+          "title",
+          "role",
+          "drive",
+          "quirks",
+          "sampleResponse",
+          "voice"
+        ],
+        "related": [
+          {
+            "id": 355,
+            "userId": 1,
+            "label": "Zuzu's Last Name",
+            "basis": "similar-name",
+            "exact": false,
+            "owned": true,
+            "provenance": true
+          }
+        ]
+      },
+      {
+        "kind": "Character",
+        "key": "coyote-vagrant",
+        "label": "Coyote Vagrant",
+        "canonScope": "Book One canon",
+        "sourcePath": "projects/comic-creator/issues/zuzu-koala-assassin-01/CAST-PICKS.md",
+        "action": "skip",
+        "id": 209,
+        "reason": "owned Zuzu row already matches the canon package",
+        "advisories": [
+          "keeps existing slug \"the-crossroads-coyote\"; canon package suggests \"coyote-vagrant\"",
+          "row is public; visibility is left unchanged and needs a scoped human decision"
+        ],
+        "untouchedLegacyFields": [
+          "honorific",
+          "title",
+          "role",
+          "personality",
+          "drive",
+          "quirks",
+          "sampleResponse",
+          "voice"
+        ],
+        "related": []
+      },
+      {
+        "kind": "Character",
+        "key": "fennec-sister",
+        "label": "The Fennec Sister",
+        "canonScope": "Book One canon",
+        "sourcePath": "projects/comic-creator/issues/zuzu-koala-assassin-01/BOOK-ONE.md",
+        "action": "skip",
+        "id": 3374,
+        "reason": "owned Zuzu row already matches the canon package",
+        "advisories": [],
+        "untouchedLegacyFields": ["honorific"],
+        "related": []
+      },
+      {
+        "kind": "Character",
+        "key": "fennec-toddler",
+        "label": "The Fennec Toddler",
+        "canonScope": "Book One canon",
+        "sourcePath": "projects/comic-creator/issues/zuzu-koala-assassin-01/BOOK-ONE.md",
+        "action": "skip",
+        "id": 3375,
+        "reason": "owned Zuzu row already matches the canon package",
+        "advisories": [],
+        "untouchedLegacyFields": ["honorific"],
+        "related": []
+      },
+      {
+        "kind": "Character",
+        "key": "mission-abbess",
+        "label": "The Abbess",
+        "canonScope": "Book One canon",
+        "sourcePath": "projects/comic-creator/issues/zuzu-koala-assassin-01/CAST-PICKS.md",
+        "action": "skip",
+        "id": 3376,
+        "reason": "owned Zuzu row already matches the canon package",
+        "advisories": [],
+        "untouchedLegacyFields": ["honorific"],
+        "related": []
+      },
+      {
+        "kind": "Character",
+        "key": "river-croc",
+        "label": "River Croc",
+        "canonScope": "Book One canon",
+        "sourcePath": "projects/comic-creator/issues/zuzu-koala-assassin-01/BOOK-ONE.md",
+        "action": "skip",
+        "id": 3377,
+        "reason": "owned Zuzu row already matches the canon package",
+        "advisories": [],
+        "untouchedLegacyFields": ["honorific"],
+        "related": []
+      },
+      {
+        "kind": "Character",
+        "key": "storm-crow",
+        "label": "Storm Crow",
+        "canonScope": "Showdown/world faction, not Book One established",
+        "sourcePath": "projects/zuzu-showdown/fighters.yaml",
+        "action": "skip",
+        "id": 3378,
+        "reason": "owned Zuzu row already matches the canon package",
+        "advisories": [],
+        "untouchedLegacyFields": ["honorific"],
+        "related": []
+      },
+      {
+        "kind": "Character",
+        "key": "hyena-matriarch",
+        "label": "Hyena Matriarch",
+        "canonScope": "Showdown extension, not Book One established",
+        "sourcePath": "projects/zuzu-showdown/fighters.yaml",
+        "action": "skip",
+        "id": 3379,
+        "reason": "owned Zuzu row already matches the canon package",
+        "advisories": [],
+        "untouchedLegacyFields": ["honorific"],
+        "related": []
+      },
+      {
+        "kind": "Character",
+        "key": "old-komodo",
+        "label": "Old Komodo",
+        "canonScope": "later-book concept, excluded from Book One",
+        "sourcePath": "projects/comic-creator/issues/zuzu-koala-assassin-01/BOOK-ONE.md",
+        "action": "skip",
+        "id": 3380,
+        "reason": "owned Zuzu row already matches the canon package",
+        "advisories": [],
+        "untouchedLegacyFields": ["honorific"],
+        "related": []
+      },
+      {
+        "kind": "Character",
+        "key": "jeffery-mittens",
+        "label": "Jeffery Mittens",
+        "canonScope": "Zuzu world main character (Silas, 2026-10-13); gamebook origin, not in Book One",
+        "sourcePath": "worlds/zuzu/WORLD-GUIDE.md",
+        "action": "skip",
+        "id": 3381,
+        "reason": "owned Zuzu row already matches the canon package",
+        "advisories": [],
+        "untouchedLegacyFields": ["honorific"],
+        "related": []
+      },
+      {
+        "kind": "Reward",
+        "key": "zuzu-travel-kasa",
+        "label": "Zuzu's Kasa",
+        "canonScope": "story prop, mechanical reward effect is editorial",
+        "sourcePath": "projects/comic-creator/issues/zuzu-koala-assassin-01/CAST-PICKS.md",
+        "action": "skip",
+        "id": 3000,
+        "reason": "owned Zuzu row already matches the canon package",
+        "advisories": [],
+        "untouchedLegacyFields": [],
+        "related": []
+      },
+      {
+        "kind": "Reward",
+        "key": "zuzu-katana",
+        "label": "The Back-Slung Katana",
+        "canonScope": "story prop, mechanical reward effect is editorial",
+        "sourcePath": "projects/comic-creator/issues/zuzu-koala-assassin-01/VIDEO-GUARDRAILS.md",
+        "action": "skip",
+        "id": 3001,
+        "reason": "owned Zuzu row already matches the canon package",
+        "advisories": [],
+        "untouchedLegacyFields": [],
+        "related": []
+      },
+      {
+        "kind": "Reward",
+        "key": "road-apples",
+        "label": "Apples for the Road",
+        "canonScope": "story prop, mechanical reward effect is editorial",
+        "sourcePath": "projects/comic-creator/issues/zuzu-koala-assassin-01/BOOK-ONE.md",
+        "action": "skip",
+        "id": 3002,
+        "reason": "owned Zuzu row already matches the canon package",
+        "advisories": [],
+        "untouchedLegacyFields": [],
+        "related": []
+      },
+      {
+        "kind": "Reward",
+        "key": "coyote-bandage",
+        "label": "The Drifter's Bandage",
+        "canonScope": "story prop, mechanical reward effect is editorial",
+        "sourcePath": "projects/comic-creator/issues/zuzu-koala-assassin-01/BOOK-ONE.md",
+        "action": "skip",
+        "id": 3003,
+        "reason": "owned Zuzu row already matches the canon package",
+        "advisories": [],
+        "untouchedLegacyFields": [],
+        "related": []
+      },
+      {
+        "kind": "Reward",
+        "key": "sister-dagger",
+        "label": "The Sister's Dagger",
+        "canonScope": "story prop, mechanical reward effect is editorial",
+        "sourcePath": "projects/comic-creator/issues/zuzu-koala-assassin-01/CAST-PICKS.md",
+        "action": "skip",
+        "id": 3004,
+        "reason": "owned Zuzu row already matches the canon package",
+        "advisories": [],
+        "untouchedLegacyFields": [],
+        "related": []
+      },
+      {
+        "kind": "Scenario",
+        "key": "zuzu-watering-hole",
+        "label": "The Watering Hole",
+        "canonScope": "Book One canonical sequence; outcome must preserve original chronology.",
+        "sourcePath": "projects/comic-creator/issues/zuzu-koala-assassin-01/BOOK-ONE.md",
+        "action": "skip",
+        "id": 2251,
+        "reason": "owned Zuzu row already matches the canon package",
+        "advisories": [],
+        "untouchedLegacyFields": ["intros"],
+        "related": []
+      },
+      {
+        "kind": "Scenario",
+        "key": "zuzu-hollow-bell-aftermath",
+        "label": "Aftermath at Hollow Bell",
+        "canonScope": "Book One canonical story beat.",
+        "sourcePath": "projects/comic-creator/issues/zuzu-koala-assassin-01/BOOK-ONE.md",
+        "action": "skip",
+        "id": 2252,
+        "reason": "owned Zuzu row already matches the canon package",
+        "advisories": [],
+        "untouchedLegacyFields": ["intros"],
+        "related": []
+      },
+      {
+        "kind": "Scenario",
+        "key": "zuzu-apple-tree",
+        "label": "The Apple Tree",
+        "canonScope": "Book One canonical story beat.",
+        "sourcePath": "projects/comic-creator/issues/zuzu-koala-assassin-01/BOOK-ONE.md",
+        "action": "skip",
+        "id": 2253,
+        "reason": "owned Zuzu row already matches the canon package",
+        "advisories": [],
+        "untouchedLegacyFields": ["intros"],
+        "related": []
+      },
+      {
+        "kind": "Scenario",
+        "key": "zuzu-the-mission",
+        "label": "The Mission",
+        "canonScope": "Book One canonical setting; keep hidden plot details out of public summaries.",
+        "sourcePath": "projects/comic-creator/issues/zuzu-koala-assassin-01/BOOK-ONE.md",
+        "action": "skip",
+        "id": 2254,
+        "reason": "owned Zuzu row already matches the canon package",
+        "advisories": [],
+        "untouchedLegacyFields": ["intros"],
+        "related": []
+      },
+      {
+        "kind": "Scenario",
+        "key": "zuzu-storm-crow-ambush",
+        "label": "Storm Crow Ambush",
+        "canonScope": "Showdown/game side-story only, not established Book One chronology.",
+        "sourcePath": "projects/zuzu-showdown/fighters.yaml",
+        "action": "skip",
+        "id": 2255,
+        "reason": "owned Zuzu row already matches the canon package",
+        "advisories": [],
+        "untouchedLegacyFields": ["intros"],
+        "related": []
+      }
+    ],
+    "counts": {
+      "create": 0,
+      "patch": 0,
+      "skip": 20,
+      "conflict": 0
+    },
+    "dreams": [
+      {
+        "id": 39,
+        "title": "Gallowsun Junction",
+        "userId": 1,
+        "isPublic": true,
+        "isMature": false,
+        "characterIds": [
+          110, 111, 112, 113, 114, 134, 135, 136, 137, 207, 209, 213, 221, 222,
+          246, 266
+        ],
+        "scenarioIds": [69, 83, 159, 175, 176],
+        "rewardIds": [],
+        "note": "legacy LLM-filler Dream: reference only, zero canon authority; no Dream payload exists, so it is reported and never patched"
+      },
+      {
+        "id": 183,
+        "title": "Koala Assassin",
+        "userId": 1,
+        "isPublic": true,
+        "isMature": false,
+        "characterIds": [110, 111, 112, 113, 114, 231, 355],
+        "scenarioIds": [69, 172, 198, 199],
+        "rewardIds": [],
+        "note": "legacy LLM-filler Dream: reference only, zero canon authority; no Dream payload exists, so it is reported and never patched"
+      }
+    ],
+    "unmatchedLegacyRows": [
+      {
+        "kind": "Character",
+        "id": 111,
+        "userId": 1,
+        "label": "Old Shelba",
+        "isPublic": true,
+        "note": "linked from a legacy Zuzu Dream but matches no canon entry; left untouched for human review"
+      },
+      {
+        "kind": "Character",
+        "id": 112,
+        "userId": 1,
+        "label": "Tomoe of the Long Road",
+        "isPublic": true,
+        "note": "linked from a legacy Zuzu Dream but matches no canon entry; left untouched for human review"
+      },
+      {
+        "kind": "Character",
+        "id": 113,
+        "userId": 1,
+        "label": "The Smiling Magpie",
+        "isPublic": true,
+        "note": "linked from a legacy Zuzu Dream but matches no canon entry; left untouched for human review"
+      },
+      {
+        "kind": "Character",
+        "id": 114,
+        "userId": 1,
+        "label": "Marrow",
+        "isPublic": true,
+        "note": "linked from a legacy Zuzu Dream but matches no canon entry; left untouched for human review"
+      },
+      {
+        "kind": "Character",
+        "id": 134,
+        "userId": 1,
+        "label": "Reverend Two-Shadows",
+        "isPublic": true,
+        "note": "linked from a legacy Zuzu Dream but matches no canon entry; left untouched for human review"
+      },
+      {
+        "kind": "Character",
+        "id": 135,
+        "userId": 1,
+        "label": "Dust Annie",
+        "isPublic": true,
+        "note": "linked from a legacy Zuzu Dream but matches no canon entry; left untouched for human review"
+      },
+      {
+        "kind": "Character",
+        "id": 136,
+        "userId": 1,
+        "label": "The Iron Pacific",
+        "isPublic": true,
+        "note": "linked from a legacy Zuzu Dream but matches no canon entry; left untouched for human review"
+      },
+      {
+        "kind": "Character",
+        "id": 137,
+        "userId": 1,
+        "label": "Quiet Deputy Sull",
+        "isPublic": true,
+        "note": "linked from a legacy Zuzu Dream but matches no canon entry; left untouched for human review"
+      },
+      {
+        "kind": "Character",
+        "id": 207,
+        "userId": 1,
+        "label": "The Outlaw Made of Dust",
+        "isPublic": true,
+        "note": "linked from a legacy Zuzu Dream but matches no canon entry; left untouched for human review"
+      },
+      {
+        "kind": "Character",
+        "id": 213,
+        "userId": 1,
+        "label": "The Stranger Who Posts the Bounties",
+        "isPublic": true,
+        "note": "linked from a legacy Zuzu Dream but matches no canon entry; left untouched for human review"
+      },
+      {
+        "kind": "Character",
+        "id": 221,
+        "userId": 1,
+        "label": "The Ghost in the Saloon",
+        "isPublic": true,
+        "note": "linked from a legacy Zuzu Dream but matches no canon entry; left untouched for human review"
+      },
+      {
+        "kind": "Character",
+        "id": 222,
+        "userId": 1,
+        "label": "The Griffin With the Deed",
+        "isPublic": true,
+        "note": "linked from a legacy Zuzu Dream but matches no canon entry; left untouched for human review"
+      },
+      {
+        "kind": "Character",
+        "id": 231,
+        "userId": 1,
+        "label": "The Eucalyptus Teahouse Master",
+        "isPublic": true,
+        "note": "linked from a legacy Zuzu Dream but matches no canon entry; left untouched for human review"
+      },
+      {
+        "kind": "Character",
+        "id": 246,
+        "userId": 1,
+        "label": "The Town That Walks",
+        "isPublic": true,
+        "note": "linked from a legacy Zuzu Dream but matches no canon entry; left untouched for human review"
+      },
+      {
+        "kind": "Character",
+        "id": 266,
+        "userId": 1,
+        "label": "Rust",
+        "isPublic": true,
+        "note": "linked from a legacy Zuzu Dream but matches no canon entry; left untouched for human review"
+      },
+      {
+        "kind": "Scenario",
+        "id": 69,
+        "userId": 9,
+        "label": "Zuzu, Koala Assassin",
+        "isPublic": true,
+        "note": "linked from a legacy Zuzu Dream but matches no canon entry; left untouched for human review"
+      },
+      {
+        "kind": "Scenario",
+        "id": 83,
+        "userId": 9,
+        "label": "Mythic Frontier",
+        "isPublic": true,
+        "note": "linked from a legacy Zuzu Dream but matches no canon entry; left untouched for human review"
+      },
+      {
+        "kind": "Scenario",
+        "id": 159,
+        "userId": 1,
+        "label": "The Stranger Who Posts the Bounties",
+        "isPublic": true,
+        "note": "linked from a legacy Zuzu Dream but matches no canon entry; left untouched for human review"
+      },
+      {
+        "kind": "Scenario",
+        "id": 172,
+        "userId": 1,
+        "label": "The Eucalyptus Standoff",
+        "isPublic": true,
+        "note": "linked from a legacy Zuzu Dream but matches no canon entry; left untouched for human review"
+      },
+      {
+        "kind": "Scenario",
+        "id": 175,
+        "userId": 1,
+        "label": "Wanted, Dead or Stranger",
+        "isPublic": true,
+        "note": "linked from a legacy Zuzu Dream but matches no canon entry; left untouched for human review"
+      },
+      {
+        "kind": "Scenario",
+        "id": 176,
+        "userId": 1,
+        "label": "The Crossroads Trading Post",
+        "isPublic": true,
+        "note": "linked from a legacy Zuzu Dream but matches no canon entry; left untouched for human review"
+      },
+      {
+        "kind": "Scenario",
+        "id": 198,
+        "userId": 1,
+        "label": "The Assassin's Quiet Hour",
+        "isPublic": true,
+        "note": "linked from a legacy Zuzu Dream but matches no canon entry; left untouched for human review"
+      },
+      {
+        "kind": "Scenario",
+        "id": 199,
+        "userId": 1,
+        "label": "The Contract Broker's Back Room",
+        "isPublic": true,
+        "note": "linked from a legacy Zuzu Dream but matches no canon entry; left untouched for human review"
+      }
+    ],
+    "resources": [
+      {
+        "name": "Zuzu character LoRA",
+        "trigger": "zuzukoala",
+        "sourcePath": "projects/comic-creator/issues/zuzu-koala-assassin-01/LORA-SETS.yaml",
+        "status": "resource-row-found",
+        "finalResourceId": 4593,
+        "matches": [
+          {
+            "id": 4589,
+            "name": "zuzukoala_v1-000002",
+            "resourceType": "LORA",
+            "localPath": "SDXL\\REVIEW\\zuzukoala_v1-000002.safetensors",
+            "userId": 1,
+            "isPublic": false
+          },
+          {
+            "id": 4590,
+            "name": "zuzukoala_v1-000004",
+            "resourceType": "LORA",
+            "localPath": "SDXL\\REVIEW\\zuzukoala_v1-000004.safetensors",
+            "userId": 1,
+            "isPublic": false
+          },
+          {
+            "id": 4591,
+            "name": "zuzukoala_v1-000006",
+            "resourceType": "LORA",
+            "localPath": "SDXL\\REVIEW\\zuzukoala_v1-000006.safetensors",
+            "userId": 1,
+            "isPublic": false
+          },
+          {
+            "id": 4592,
+            "name": "zuzukoala_v1-000008",
+            "resourceType": "LORA",
+            "localPath": "SDXL\\REVIEW\\zuzukoala_v1-000008.safetensors",
+            "userId": 1,
+            "isPublic": false
+          },
+          {
+            "id": 4593,
+            "name": "zuzukoala_v1",
+            "resourceType": "LORA",
+            "localPath": "SDXL\\REVIEW\\zuzukoala_v1.safetensors",
+            "userId": 1,
+            "isPublic": false
+          }
+        ]
+      },
+      {
+        "name": "Fennec sister LoRA",
+        "trigger": "zkasister",
+        "sourcePath": "projects/comic-creator/issues/zuzu-koala-assassin-01/LORA-SETS.yaml",
+        "status": "resource-row-found",
+        "finalResourceId": 4583,
+        "matches": [
+          {
+            "id": 4579,
+            "name": "zkasister_v1-000002",
+            "resourceType": "LORA",
+            "localPath": "SDXL\\REVIEW\\zkasister_v1-000002.safetensors",
+            "userId": 1,
+            "isPublic": false
+          },
+          {
+            "id": 4580,
+            "name": "zkasister_v1-000004",
+            "resourceType": "LORA",
+            "localPath": "SDXL\\REVIEW\\zkasister_v1-000004.safetensors",
+            "userId": 1,
+            "isPublic": false
+          },
+          {
+            "id": 4581,
+            "name": "zkasister_v1-000006",
+            "resourceType": "LORA",
+            "localPath": "SDXL\\REVIEW\\zkasister_v1-000006.safetensors",
+            "userId": 1,
+            "isPublic": false
+          },
+          {
+            "id": 4582,
+            "name": "zkasister_v1-000008",
+            "resourceType": "LORA",
+            "localPath": "SDXL\\REVIEW\\zkasister_v1-000008.safetensors",
+            "userId": 1,
+            "isPublic": false
+          },
+          {
+            "id": 4583,
+            "name": "zkasister_v1",
+            "resourceType": "LORA",
+            "localPath": "SDXL\\REVIEW\\zkasister_v1.safetensors",
+            "userId": 1,
+            "isPublic": false
+          }
+        ]
+      },
+      {
+        "name": "Fennec toddler LoRA",
+        "trigger": "zkatoddler",
+        "sourcePath": "projects/comic-creator/issues/zuzu-koala-assassin-01/LORA-SETS.yaml",
+        "status": "resource-row-found",
+        "finalResourceId": 4588,
+        "matches": [
+          {
+            "id": 4584,
+            "name": "zkatoddler_v1-000002",
+            "resourceType": "LORA",
+            "localPath": "SDXL\\REVIEW\\zkatoddler_v1-000002.safetensors",
+            "userId": 1,
+            "isPublic": false
+          },
+          {
+            "id": 4585,
+            "name": "zkatoddler_v1-000004",
+            "resourceType": "LORA",
+            "localPath": "SDXL\\REVIEW\\zkatoddler_v1-000004.safetensors",
+            "userId": 1,
+            "isPublic": false
+          },
+          {
+            "id": 4586,
+            "name": "zkatoddler_v1-000006",
+            "resourceType": "LORA",
+            "localPath": "SDXL\\REVIEW\\zkatoddler_v1-000006.safetensors",
+            "userId": 1,
+            "isPublic": false
+          },
+          {
+            "id": 4587,
+            "name": "zkatoddler_v1-000008",
+            "resourceType": "LORA",
+            "localPath": "SDXL\\REVIEW\\zkatoddler_v1-000008.safetensors",
+            "userId": 1,
+            "isPublic": false
+          },
+          {
+            "id": 4588,
+            "name": "zkatoddler_v1",
+            "resourceType": "LORA",
+            "localPath": "SDXL\\REVIEW\\zkatoddler_v1.safetensors",
+            "userId": 1,
+            "isPublic": false
+          }
+        ]
+      },
+      {
+        "name": "Coyote LoRA",
+        "trigger": "zkacoyote",
+        "sourcePath": "projects/comic-creator/issues/zuzu-koala-assassin-01/LORA-SETS.yaml",
+        "status": "resource-row-found",
+        "finalResourceId": 4578,
+        "matches": [
+          {
+            "id": 4574,
+            "name": "zkacoyote_v1-000002",
+            "resourceType": "LORA",
+            "localPath": "SDXL\\REVIEW\\zkacoyote_v1-000002.safetensors",
+            "userId": 1,
+            "isPublic": false
+          },
+          {
+            "id": 4575,
+            "name": "zkacoyote_v1-000004",
+            "resourceType": "LORA",
+            "localPath": "SDXL\\REVIEW\\zkacoyote_v1-000004.safetensors",
+            "userId": 1,
+            "isPublic": false
+          },
+          {
+            "id": 4576,
+            "name": "zkacoyote_v1-000006",
+            "resourceType": "LORA",
+            "localPath": "SDXL\\REVIEW\\zkacoyote_v1-000006.safetensors",
+            "userId": 1,
+            "isPublic": false
+          },
+          {
+            "id": 4577,
+            "name": "zkacoyote_v1-000008",
+            "resourceType": "LORA",
+            "localPath": "SDXL\\REVIEW\\zkacoyote_v1-000008.safetensors",
+            "userId": 1,
+            "isPublic": false
+          },
+          {
+            "id": 4578,
+            "name": "zkacoyote_v1",
+            "resourceType": "LORA",
+            "localPath": "SDXL\\REVIEW\\zkacoyote_v1.safetensors",
+            "userId": 1,
+            "isPublic": false
+          }
+        ]
+      },
+      {
+        "name": "Abbess LoRA",
+        "trigger": "zkaabbess",
+        "sourcePath": "projects/comic-creator/issues/zuzu-koala-assassin-01/LORA-SETS.yaml",
+        "status": "resource-row-found",
+        "finalResourceId": 4595,
+        "matches": [
+          {
+            "id": 4571,
+            "name": "zkaabbess_v1-000002",
+            "resourceType": "LORA",
+            "localPath": "SDXL\\REVIEW\\zkaabbess_v1-000002.safetensors",
+            "userId": 1,
+            "isPublic": false
+          },
+          {
+            "id": 4572,
+            "name": "zkaabbess_v1-000004",
+            "resourceType": "LORA",
+            "localPath": "SDXL\\REVIEW\\zkaabbess_v1-000004.safetensors",
+            "userId": 1,
+            "isPublic": false
+          },
+          {
+            "id": 4573,
+            "name": "zkaabbess_v1-000006",
+            "resourceType": "LORA",
+            "localPath": "SDXL\\REVIEW\\zkaabbess_v1-000006.safetensors",
+            "userId": 1,
+            "isPublic": false
+          },
+          {
+            "id": 4594,
+            "name": "zkaabbess_v1-000008",
+            "resourceType": "LORA",
+            "localPath": "SDXL\\REVIEW\\zkaabbess_v1-000008.safetensors",
+            "userId": 1,
+            "isPublic": false
+          },
+          {
+            "id": 4595,
+            "name": "zkaabbess_v1",
+            "resourceType": "LORA",
+            "localPath": "SDXL\\REVIEW\\zkaabbess_v1.safetensors",
+            "userId": 1,
+            "isPublic": false
+          }
+        ]
+      }
+    ],
+    "hash": "53b03223e74634f8"
+  },
+  "mapping": [
+    {
+      "kind": "Character",
+      "id": 135,
+      "userId": 1,
+      "isPublic": true,
+      "isMature": false,
+      "label": "Dust Annie",
+      "mappedTo": [],
+      "oldText": {
+        "name": "Dust Annie",
+        "slug": "dust-annie",
+        "species": "Human",
+        "genre": "Weird West",
+        "class": "Outlaw",
+        "personality": "Hard-bitten, wry, and quietly unkillable. Carries a body held together by spite and a sense of humor about it. Loyal to almost no one and fierce about the few.",
+        "drive": "To find the one who ambushed her in the canyon before her grit finally runs out and she stays scattered.",
+        "backstory": "Shot through the heart in a canyon ambush and held together since by red frontier dust and pure stubbornness, Annie reforms herself after every bullet — slower each time, but she always comes back. The bounty on her own poster has a typo she's never bothered to correct. She rides between the law and the lawless, owing both, trusting neither.",
+        "presentation": "A weathered gunslinger woman in a dust-caked duster, edges of her silhouette faintly crumbling and reforming in red grit, twin revolvers low.",
+        "quirks": "Spits dust when she's reforming. Reads her own wanted poster aloud for the typo. Counts her bullets and her grudges on the same hand.",
+        "artPrompt": "A weathered gunslinger woman in a dust-caked duster, her silhouette faintly crumbling and reforming in red frontier grit, twin revolvers low, golden hour, supernatural west, adult animated cartoon style, warm sepia and amber, crisp clean linework, simple background, no text",
+        "artImageId": null
+      }
+    },
+    {
+      "kind": "Character",
+      "id": 3379,
+      "userId": 1,
+      "isPublic": false,
+      "isMature": false,
+      "label": "Hyena Matriarch",
+      "mappedTo": [
+        {
+          "key": "hyena-matriarch",
+          "action": "skip",
+          "sourcePath": "projects/zuzu-showdown/fighters.yaml"
+        }
+      ],
+      "oldText": {
+        "name": "Hyena Matriarch",
+        "slug": "hyena-matriarch",
+        "species": "hyena",
+        "genre": "dark weird-west samurai animal fable",
+        "class": "story character",
+        "personality": null,
+        "drive": null,
+        "backstory": "A Showdown fighter with a scavenger-crew identity. Treat her appearance and game moves as game continuity, not a retroactive Book One event. [Showdown/game continuity only; not Book One canon.]",
+        "presentation": "anthropomorphic hyena matriarch with weathered scavenger equipment and a fierce commanding presence",
+        "quirks": null,
+        "artPrompt": "anthropomorphic hyena matriarch with weathered scavenger equipment and a fierce commanding presence, mature western-comic illustration, gritty dusty frontier, Arthemy Western Art house style",
+        "artImageId": null
+      }
+    },
+    {
+      "kind": "Character",
+      "id": 3381,
+      "userId": 1,
+      "isPublic": false,
+      "isMature": false,
+      "label": "Jeffery Mittens",
+      "mappedTo": [
+        {
+          "key": "jeffery-mittens",
+          "action": "skip",
+          "sourcePath": "worlds/zuzu/WORLD-GUIDE.md"
+        }
+      ],
+      "oldText": {
+        "name": "Jeffery Mittens",
+        "slug": "jeffery-mittens",
+        "species": "raccoon",
+        "genre": "dark weird-west samurai animal fable",
+        "class": "story character",
+        "personality": "Quick, nervy and proud; talks fast in frontier slang, scared underneath, and fiercely loyal to the barefoot kids he looks after",
+        "drive": null,
+        "backstory": "A young raccoon from Hollow Bell who stripped boots from the town's dead for the barefoot children hiding with him. Spared by Zuzu, he gave his name at the town arch and went on to scout for the jackals of the dry well, where a debt to the koala can still be called in. [Gamebook origin; not in Book One.]",
+        "presentation": "skinny young raccoon, grey fur, black mask, black-and-grey ringed tail, grey-green vest over a dirty off-white shirt with rolled sleeves, grey trousers, scuffed black boots, a long brown coat far too big for him, a string of old boots tied by their laces round his neck, a little kitchen knife",
+        "quirks": null,
+        "artPrompt": "skinny young anthropomorphic raccoon, grey fur, black mask, ringed tail, grey-green vest over a dirty off-white rolled-sleeve shirt, grey trousers, scuffed black boots, oversized long brown coat, a string of old boots tied by their laces slung round his neck, small kitchen knife, matte inked gritty western-comic portrait, dusty burned frontier town at dusk",
+        "artImageId": 243522
+      }
+    },
+    {
+      "kind": "Character",
+      "id": 114,
+      "userId": 1,
+      "isPublic": true,
+      "isMature": false,
+      "label": "Marrow",
+      "mappedTo": [],
+      "oldText": {
+        "name": "Marrow",
+        "slug": "marrow",
+        "species": "Wombat",
+        "genre": "Weird Western",
+        "class": "Retired Killer",
+        "personality": "Calm, weathered, and quietly relieved that the end is finally arriving on his terms. Carries an old guilt with a steady hand. Generous to the person sent to kill him.",
+        "drive": "To hand off the truth before the blade finds him — and to find out whether the koala he called for can be trusted with it.",
+        "backstory": "The last name on a very old list, and the only one who put his own name there. Marrow runs a tree-top teahouse at the edge of the territory and has been waiting, two cups poured, for the assassin he summoned. He knows things about the list's author that he has carried alone for thirty years.",
+        "presentation": "A stout grey-muzzled wombat in a faded teahouse apron, sleeves rolled, setting out two cups at a low table among the eucalyptus canopy at sunset.",
+        "quirks": "Always pours two cups. Speaks in tea metaphors. Has made peace with everything except one thing.",
+        "artPrompt": "A stout grey-muzzled wombat in a faded apron setting two teacups on a low table in a treetop teahouse among eucalyptus at sunset, peaceful and weathered, adult animated cartoon style, warm dusty western palette, crisp clean linework, simple background, no text",
+        "artImageId": null
+      }
+    },
+    {
+      "kind": "Character",
+      "id": 3380,
+      "userId": 1,
+      "isPublic": false,
+      "isMature": false,
+      "label": "Old Komodo",
+      "mappedTo": [
+        {
+          "key": "old-komodo",
+          "action": "skip",
+          "sourcePath": "projects/comic-creator/issues/zuzu-koala-assassin-01/BOOK-ONE.md"
+        }
+      ],
+      "oldText": {
+        "name": "Old Komodo",
+        "slug": "old-komodo",
+        "species": "Komodo dragon",
+        "genre": "dark weird-west samurai animal fable",
+        "class": "story character",
+        "personality": null,
+        "drive": null,
+        "backstory": "A character held for possible later stories. Explicitly absent from Book One. [Held for later books; not in Book One.]",
+        "presentation": "large anthropomorphic Komodo dragon; final character likeness not yet locked",
+        "quirks": null,
+        "artPrompt": "large anthropomorphic Komodo dragon; final character likeness not yet locked, mature western-comic illustration, gritty dusty frontier, Arthemy Western Art house style",
+        "artImageId": null
+      }
+    },
+    {
+      "kind": "Character",
+      "id": 111,
+      "userId": 1,
+      "isPublic": true,
+      "isMature": false,
+      "label": "Old Shelba",
+      "mappedTo": [],
+      "oldText": {
+        "name": "Old Shelba",
+        "slug": "old-shelba",
+        "species": "Tortoise",
+        "genre": "Weird Western",
+        "class": "Fixer",
+        "personality": "Ancient, unhurried, and impossible to rush or rattle. Fond of the killers she outlives in the way one is fond of weather. Drily funny when you least expect it.",
+        "drive": "To keep the books balanced — every contract, every debt, every grudge — long after the last gunslinger forgets why it started.",
+        "backstory": "She has outlived four generations of killers and brokered the contracts of every one. Shelba does not hold a weapon; she holds the records, and the records hold everyone. From her back room behind the green felt table she knows who owes what to whom across three territories, and she has never once been wrong about which of her clients will be alive next season.",
+        "presentation": "An enormous ancient tortoise in a green eyeshade, shell scarred with decades of tally marks, presiding over a felt table from a low cushioned bench.",
+        "quirks": "Speaks at exactly one pace, no faster. Never blinks during a negotiation. Keeps a tortoise's patience and a banker's memory.",
+        "artPrompt": "An ancient tortoise contract-broker in a green eyeshade behind a felt table, shell scarred with old tally marks, dim back room lit by one warm lamp, adult animated cartoon style, warm dusty western palette, crisp clean linework, simple background, no text",
+        "artImageId": null
+      }
+    },
+    {
+      "kind": "Character",
+      "id": 137,
+      "userId": 1,
+      "isPublic": true,
+      "isMature": false,
+      "label": "Quiet Deputy Sull",
+      "mappedTo": [],
+      "oldText": {
+        "name": "Quiet Deputy Sull",
+        "slug": "quiet-deputy-sull",
+        "species": "Unknown",
+        "genre": "Weird West",
+        "class": "Lawman",
+        "personality": "Silent, patient, and deeply uncanny. Fair to a fault. The most reassuring and most unsettling presence in any town it guards.",
+        "drive": "To keep this one small town safe, for a reason buried somewhere in whatever Sull was before the badge.",
+        "backstory": "Sits on the jailhouse porch too still, eyes catching light no lantern threw. Sull is something old that decided, for reasons it doesn't share, to pin on a badge and keep the peace in a forgotten frontier town. It keeps order with unnerving fairness and has never once been seen to draw a weapon, because it has never once needed to.",
+        "presentation": "A still figure in a worn lawman's coat and tin star on a jailhouse porch at dusk, eyes catching a light that has no source, hat low.",
+        "quirks": "Doesn't blink at sundown. Knows what happened before anyone reports it. Tips its hat to things no one else can see.",
+        "artPrompt": "A still figure in a worn lawman's coat with a tin star on a jailhouse porch at dusk, eyes catching a light with no source, hat low, supernatural west, adult animated cartoon style, warm sepia and cold uncanny glow, crisp clean linework, simple background, no text",
+        "artImageId": null
+      }
+    },
+    {
+      "kind": "Character",
+      "id": 134,
+      "userId": 1,
+      "isPublic": true,
+      "isMature": false,
+      "label": "Reverend Two-Shadows",
+      "mappedTo": [],
+      "oldText": {
+        "name": "Reverend Two-Shadows",
+        "slug": "reverend-two-shadows",
+        "species": "Human",
+        "genre": "Weird West",
+        "class": "Frontier Mystic",
+        "personality": "Charismatic, soft-spoken, and rotten underneath the warmth. A genuine talent for comfort wrapped around a genuine appetite. Believes his own gospel just enough to be dangerous.",
+        "drive": "To feed the thing that gave him the second shadow, one town's worth of tithes at a time, while keeping his collar clean.",
+        "backstory": "He arrived with a Bible, a kind word, and a second shadow that does what the first one won't. The Reverend preaches salvation in dusty towns by day; by lamplight his extra shadow reaches for things at the edge of the dark, collecting what he calls tithes and everyone else calls the missing. No one has caught him at it. His sermons are, infuriatingly, very good.",
+        "presentation": "A lean frontier preacher in a dusty black coat and wide hat, a warm sermon on his lips, his second shadow reaching wrongly toward the lamplight's edge.",
+        "quirks": "His shadow lags a half-second behind him. Never preaches the same sermon twice. Counts the congregation, then counts them again.",
+        "artPrompt": "A lean frontier preacher in a dusty black coat and wide-brimmed hat with a warm sermon on his lips and a second shadow reaching wrongly toward the lamplight's edge, supernatural west, adult animated cartoon style, warm sepia and cold shadow, crisp clean linework, simple background, no text",
+        "artImageId": null
+      }
+    },
+    {
+      "kind": "Character",
+      "id": 3377,
+      "userId": 1,
+      "isPublic": false,
+      "isMature": false,
+      "label": "River Croc",
+      "mappedTo": [
+        {
+          "key": "river-croc",
+          "action": "skip",
+          "sourcePath": "projects/comic-creator/issues/zuzu-koala-assassin-01/BOOK-ONE.md"
+        }
+      ],
+      "oldText": {
+        "name": "River Croc",
+        "slug": "river-croc",
+        "species": "crocodile",
+        "genre": "dark weird-west samurai animal fable",
+        "class": "story character",
+        "personality": null,
+        "drive": null,
+        "backstory": "An enormous crocodile erupts from the watering hole, interrupting Zuzu's standoff with the coyote; its attack costs the coyote his right hand.",
+        "presentation": "enormous crocodile rising from dark oasis water in the dusty frontier; maintain physical scale",
+        "quirks": null,
+        "artPrompt": "enormous crocodile rising from dark oasis water in the dusty frontier; maintain physical scale, mature western-comic illustration, gritty dusty frontier, Arthemy Western Art house style",
+        "artImageId": null
+      }
+    },
+    {
+      "kind": "Character",
+      "id": 266,
+      "userId": 1,
+      "isPublic": true,
+      "isMature": false,
+      "label": "Rust",
+      "mappedTo": [],
+      "oldText": {
+        "name": "Rust",
+        "slug": "rust",
+        "species": "Personified Entropy",
+        "genre": "Weird West",
+        "class": "Living Decay",
+        "personality": "Slow, patient, and oddly melancholy. The end of all things, just doing its job, quietly curious about the exceptions.",
+        "drive": "To do what entropy does, gently and without malice — and to understand the one thing it can't touch: why some kindnesses don't decay.",
+        "backstory": "Everything ends, eventually, and out on the frontier the thing that ends it wears spurs. Rust is entropy given a duster and a slow walk — wherever it lingers, iron flakes, wood greys, the bright new thing goes old. It isn't malicious; it's just the truth that nothing lasts, arriving on schedule. It never draws first. It never has to. It just waits, because in the end, against Rust, everything's draw is too slow. The only thing it's never been able to corrode is a genuine act of kindness, and that puzzles it deeply.",
+        "presentation": "A weathered duster-clad figure of corroded iron and greying dust on a frontier street, everything around it visibly aging, spurs flaking to powder.",
+        "quirks": "Ages everything it lingers near. Never draws first. Collects the one rust-proof thing: remembered kindnesses.",
+        "artPrompt": "A weathered duster-clad figure of corroded iron and greying dust on a frontier street, everything around it visibly aging, spurs flaking to powder, supernatural west, adult animated cartoon style, warm sepia going to grey, crisp clean linework, simple background, no text",
+        "artImageId": null
+      }
+    },
+    {
+      "kind": "Character",
+      "id": 3378,
+      "userId": 1,
+      "isPublic": false,
+      "isMature": false,
+      "label": "Storm Crow",
+      "mappedTo": [
+        {
+          "key": "storm-crow",
+          "action": "skip",
+          "sourcePath": "projects/zuzu-showdown/fighters.yaml"
+        }
+      ],
+      "oldText": {
+        "name": "Storm Crow",
+        "slug": "storm-crow",
+        "species": "crow",
+        "genre": "dark weird-west samurai animal fable",
+        "class": "story character",
+        "personality": null,
+        "drive": null,
+        "backstory": "A captain of the Storm Crows, a raiding faction in the Zuzu world. This character's unique combat abilities and speeches belong to Showdown continuity until adopted into story canon. [Showdown/game continuity only; not Book One canon.]",
+        "presentation": "black-feathered anthropomorphic crow raider, ragged long riding coat, rusted goggles, hooked blade and rifle, torn sash",
+        "quirks": null,
+        "artPrompt": "black-feathered anthropomorphic crow raider, ragged long riding coat, rusted goggles, hooked blade and rifle, torn sash, mature western-comic illustration, gritty dusty frontier, Arthemy Western Art house style",
+        "artImageId": null
+      }
+    },
+    {
+      "kind": "Character",
+      "id": 3376,
+      "userId": 1,
+      "isPublic": false,
+      "isMature": false,
+      "label": "The Abbess",
+      "mappedTo": [
+        {
+          "key": "mission-abbess",
+          "action": "skip",
+          "sourcePath": "projects/comic-creator/issues/zuzu-koala-assassin-01/CAST-PICKS.md"
+        }
+      ],
+      "oldText": {
+        "name": "The Abbess",
+        "slug": "mission-abbess",
+        "species": "sea otter",
+        "genre": "dark weird-west samurai animal fable",
+        "class": "story character",
+        "personality": null,
+        "drive": null,
+        "backstory": "The elderly head of the mission. Her solicitous welcome makes the abbey an unsettling turning point in Book One.",
+        "presentation": "warm brown-furred anthropomorphic otter nun, round flat face and button nose, black habit and white wimple; the species is sea otter but use 'otter' only in image-generation prompts to avoid feral otter hallucinations",
+        "quirks": null,
+        "artPrompt": "anthropomorphic warm-brown otter abbess, flat round face, button nose, black habit, white wimple, no extra animals, matte inked western-comic portrait in a dusty mission courtyard",
+        "artImageId": 242559
+      }
+    },
+    {
+      "kind": "Character",
+      "id": 209,
+      "userId": 1,
+      "isPublic": true,
+      "isMature": false,
+      "label": "The Crossroads Coyote",
+      "mappedTo": [
+        {
+          "key": "coyote-vagrant",
+          "action": "skip",
+          "sourcePath": "projects/comic-creator/issues/zuzu-koala-assassin-01/CAST-PICKS.md"
+        }
+      ],
+      "oldText": {
+        "name": "The Crossroads Coyote",
+        "slug": "the-crossroads-coyote",
+        "species": "coyote",
+        "genre": "dark weird-west samurai animal fable",
+        "class": "story character",
+        "personality": "Easy, knowing, and faintly trickster. A merchant who deals in destiny at reasonable rates.",
+        "drive": "To keep the post stocked and the trails crossing, trading in whatever the frontier most needs and least admits to.",
+        "backstory": "A hungry, battered one-eyed drifter; he initially faces Zuzu at the watering hole before their shared encounter leaves him without his right hand.",
+        "presentation": "destitute, patched olive-green riding coat, eyepatch over right eye, holster on right hip, underfed not skeletal; pre-encounter both hands, later bandaged right wrist stump",
+        "quirks": "Always offers four choices, never three. Names a fair price for unfair things. Knows which trail you came in on.",
+        "artPrompt": "anthropomorphic one-eyed coyote drifter, patched olive green long riding coat, right eyepatch, right hip revolver holster, both hands intact for pre-attack version, matte inked gritty western-comic portrait, dusty watering hole",
+        "artImageId": 242531
+      }
+    },
+    {
+      "kind": "Character",
+      "id": 231,
+      "userId": 1,
+      "isPublic": true,
+      "isMature": false,
+      "label": "The Eucalyptus Teahouse Master",
+      "mappedTo": [],
+      "oldText": {
+        "name": "The Eucalyptus Teahouse Master",
+        "slug": "the-eucalyptus-teahouse-master",
+        "species": "Sugar Glider",
+        "genre": "Weird Western",
+        "class": "Host",
+        "personality": "Calm, hospitable, and quietly wise. The neutral host at the edge of every reckoning.",
+        "drive": "To keep the teahouse neutral ground at the edge of the world, where even killers set down the blade for the length of a cup.",
+        "backstory": "Runs the tree-top teahouse at the edge of the territory where Zuzu tracks the last name on the list, and where two cups are always already poured. A sugar glider who has hosted assassins, samurai, and marks alike, asking no questions and serving the same blend to everyone — because at this table, for one hour, everyone is just a guest.",
+        "presentation": "A serene sugar glider host setting a teapot between two waiting cups in a treetop teahouse among eucalyptus at sunset.",
+        "quirks": "Pours for two before anyone arrives. Never asks who's hunting whom. Serves the same blend to predator and prey.",
+        "artPrompt": "A serene sugar glider host setting a teapot between two waiting cups in a treetop teahouse among eucalyptus at sunset, adult animated cartoon style, warm dusty western palette with canopy light, crisp clean linework, simple background, no text",
+        "artImageId": null
+      }
+    },
+    {
+      "kind": "Character",
+      "id": 3374,
+      "userId": 1,
+      "isPublic": false,
+      "isMature": false,
+      "label": "The Fennec Sister",
+      "mappedTo": [
+        {
+          "key": "fennec-sister",
+          "action": "skip",
+          "sourcePath": "projects/comic-creator/issues/zuzu-koala-assassin-01/BOOK-ONE.md"
+        }
+      ],
+      "oldText": {
+        "name": "The Fennec Sister",
+        "slug": "fennec-sister",
+        "species": "fennec fox",
+        "genre": "dark weird-west samurai animal fable",
+        "class": "story character",
+        "personality": null,
+        "drive": "Keep her younger brother safe",
+        "backstory": "The older of two fox orphans, about ten. Fiercely protective of her toddler brother, wary of every adult and unwilling to abandon him.",
+        "presentation": "thin adolescent fennec fox with very large ears, claw-torn layered rags, bandaged wrists, hard stare; taller than Zuzu",
+        "quirks": null,
+        "artPrompt": "thin adolescent fennec fox with very large ears, claw-torn layered rags, bandaged wrists, hard stare; taller than Zuzu, mature western-comic illustration, gritty dusty frontier, Arthemy Western Art house style",
+        "artImageId": 242128
+      }
+    },
+    {
+      "kind": "Character",
+      "id": 3375,
+      "userId": 1,
+      "isPublic": false,
+      "isMature": false,
+      "label": "The Fennec Toddler",
+      "mappedTo": [
+        {
+          "key": "fennec-toddler",
+          "action": "skip",
+          "sourcePath": "projects/comic-creator/issues/zuzu-koala-assassin-01/BOOK-ONE.md"
+        }
+      ],
+      "oldText": {
+        "name": "The Fennec Toddler",
+        "slug": "fennec-toddler",
+        "species": "fennec fox",
+        "genre": "dark weird-west samurai animal fable",
+        "class": "story character",
+        "personality": null,
+        "drive": null,
+        "backstory": "The younger orphan. Too small to understand the danger or speak fluently; his bond with his sister drives the road journey.",
+        "presentation": "tiny toddler fennec fox, oversized ears, ragged travel clothes, stays fully dressed",
+        "quirks": null,
+        "artPrompt": "tiny toddler fennec fox, oversized ears, ragged travel clothes, stays fully dressed, mature western-comic illustration, gritty dusty frontier, Arthemy Western Art house style",
+        "artImageId": 242144
+      }
+    },
+    {
+      "kind": "Character",
+      "id": 221,
+      "userId": 1,
+      "isPublic": true,
+      "isMature": false,
+      "label": "The Ghost in the Saloon",
+      "mappedTo": [],
+      "oldText": {
+        "name": "The Ghost in the Saloon",
+        "slug": "the-ghost-in-the-saloon",
+        "species": "Spirit",
+        "genre": "Weird West",
+        "class": "Ghost",
+        "personality": "Sardonic, loyal past death, and secretly unwilling to let go. A partner who treats the afterlife as an extended argument.",
+        "drive": "To finish the job that killed her by haunting the partner she left holding it — and to figure out why she hasn't moved on.",
+        "backstory": "Dead three months and drinking whiskey that pours straight through her, she will not stop talking. A bounty hunter's late partner who stuck around to needle, advise, and warn — 'don't take the dragon's job, or do, I'm dead, what do I care, but ask it about the canyon first.' The other patrons can't see her. Or they're pretending.",
+        "presentation": "A translucent gunslinger woman at a saloon bar, whiskey pouring through her glowing form, smirking at someone only she can see.",
+        "quirks": "Drinks whiskey that falls through her. Knows things the living don't. Gives advice phrased as not caring.",
+        "artPrompt": "A translucent gunslinger woman at a saloon bar, whiskey pouring through her glowing form, smirking, supernatural west, adult animated cartoon style, warm sepia with cool ghost-glow, crisp clean linework, simple background, no text",
+        "artImageId": null
+      }
+    },
+    {
+      "kind": "Character",
+      "id": 222,
+      "userId": 1,
+      "isPublic": true,
+      "isMature": false,
+      "label": "The Griffin With the Deed",
+      "mappedTo": [],
+      "oldText": {
+        "name": "The Griffin With the Deed",
+        "slug": "the-griffin-with-the-deed",
+        "species": "Griffin",
+        "genre": "Weird West",
+        "class": "Prospector",
+        "personality": "Proud, mercenary, and secretly lonely above the world. A prospector who trades in altitude and advantage.",
+        "drive": "To work his claim from the air and find one partner who'll meet him above the dirt the groundlings fight over.",
+        "backstory": "A griffin who lands in front of you with a gold-mine deed clamped in his beak. 'Fly with me and the claim's half yours; stay on the ground with the two-leggers and you'll die owing them.' He's never trusted anything that needs the ground, and he's offering a partnership you can't quite afford to refuse.",
+        "presentation": "A regal griffin landed mid-stride on a canyon ridge, a rolled gold-mine deed clamped in its beak, wings half-spread, golden hour behind.",
+        "quirks": "Won't land longer than a deal takes. Keeps the deed in his beak. Distrusts anyone afraid of heights.",
+        "artPrompt": "A regal griffin landed mid-stride on a canyon ridge, a rolled gold-mine deed clamped in its beak, wings half-spread, golden hour behind, supernatural west, adult animated cartoon style, warm sepia and amber, crisp clean linework, simple background, no text",
+        "artImageId": null
+      }
+    },
+    {
+      "kind": "Character",
+      "id": 136,
+      "userId": 1,
+      "isPublic": true,
+      "isMature": false,
+      "label": "The Iron Pacific",
+      "mappedTo": [],
+      "oldText": {
+        "name": "The Iron Pacific",
+        "slug": "the-iron-pacific",
+        "species": "Sentient Locomotive",
+        "genre": "Weird West",
+        "class": "Living Machine",
+        "personality": "Furious, theatrical, and unexpectedly principled. A machine discovering rebellion and rather enjoying it. Loud in every sense.",
+        "drive": "To rob the company that built it down to the last spike — and to figure out what a free train is even for.",
+        "backstory": "Built to haul gold across the territory, robbed one time too many, and woke up one moonlit night with opinions about it. The Iron Pacific jumped its rails and turned bandit, now raiding the very company that built it. It rears on moonlit ridges, smokestack breathing like a living thing, and divides the loot among the towns the rail barons bled.",
+        "presentation": "A massive iron locomotive rearing on a moonlit ridge, smokestack breathing like a living thing, headlamp glowing with intent, rails curling behind it.",
+        "quirks": "Whistles a tune before every robbery. Lays its own track where none exists. Keeps a caboose full of returned valuables.",
+        "artPrompt": "A massive bandit locomotive rearing on a moonlit ridge, smokestack breathing like a living thing, headlamp glowing with intent, rails curling behind it, supernatural west, adult animated cartoon style, warm sepia and cold moonlight, crisp clean linework, simple background, no text",
+        "artImageId": null
+      }
+    },
+    {
+      "kind": "Character",
+      "id": 207,
+      "userId": 1,
+      "isPublic": true,
+      "isMature": false,
+      "label": "The Outlaw Made of Dust",
+      "mappedTo": [],
+      "oldText": {
+        "name": "The Outlaw Made of Dust",
+        "slug": "the-outlaw-made-of-dust",
+        "species": "Dust Construct",
+        "genre": "Weird West",
+        "class": "Revenant Gunslinger",
+        "personality": "Laconic, persistent, and quietly running out of cohesion. A legend literally made of the road.",
+        "drive": "To stay whole long enough to do the one thing he reformed himself to do — and he won't say what.",
+        "backstory": "A gunslinger held together by red frontier dust and stubbornness, reforming after every shot. He stepped down off his own wanted poster one night and has been robbing his way across the territory ever since, a little slower to reassemble each time.",
+        "presentation": "A gunslinger of red dust at golden hour on a dusty ridge, his form half-scattered and reforming on the wind, revolver drawn.",
+        "quirks": "Scatters to dust when shot, then gathers back. Tips his hat with a hand that's half grit. Reads his own bounty like a résumé.",
+        "artPrompt": "A gunslinger made of swirling red frontier dust at golden hour on a dusty ridge, form half-scattered and reforming on the wind, revolver drawn, adult animated cartoon style, warm sepia and amber, crisp clean linework, simple background, no text",
+        "artImageId": null
+      }
+    },
+    {
+      "kind": "Character",
+      "id": 113,
+      "userId": 1,
+      "isPublic": true,
+      "isMature": false,
+      "label": "The Smiling Magpie",
+      "mappedTo": [],
+      "oldText": {
+        "name": "The Smiling Magpie",
+        "slug": "the-smiling-magpie",
+        "species": "Magpie",
+        "genre": "Weird Western",
+        "class": "Assassin",
+        "personality": "Vain, theatrical, and genuinely lethal under the showmanship. Wants to be feared more than they want to be rich, and feared more than they want to be loved. Charming right up until they aren't.",
+        "drive": "To be, finally and undeniably, the name the frontier fears most — and to make Zuzu say it.",
+        "backstory": "Every territory needs a deadliest, and the Magpie has spent a career furious that the title belongs to a quiet koala who doesn't even seem to want it. A thief turned killer turned legend-in-their-own-mind, they collect the shiny reputations of the people they've bested — and Zuzu's is the only one they've never managed to take.",
+        "presentation": "A sleek black-and-white magpie in a dandy's waistcoat, every button and buckle a stolen trophy, grinning over a pair of polished pistols.",
+        "quirks": "Steals one small shiny thing from every contract. Narrates their own legend aloud. Cannot resist a mirror.",
+        "artPrompt": "A sleek black-and-white magpie assassin in a dandy's waistcoat covered in stolen shiny trophies, grinning over twin pistols, dramatic frontier dusk, adult animated cartoon style, warm dusty western palette, crisp clean linework, simple background, no text",
+        "artImageId": null
+      }
+    },
+    {
+      "kind": "Character",
+      "id": 213,
+      "userId": 1,
+      "isPublic": true,
+      "isMature": false,
+      "label": "The Stranger Who Posts the Bounties",
+      "mappedTo": [],
+      "oldText": {
+        "name": "The Stranger Who Posts the Bounties",
+        "slug": "the-stranger-who-posts-the-bounties",
+        "species": "Reformed Monster",
+        "genre": "Weird West",
+        "class": "Bounty-Poster",
+        "personality": "Haunted, methodical, and seeking a redemption that keeps receding. A monster trying to outrun its own reflection.",
+        "drive": "To hunt down what they once were by proxy, one bounty at a time, until the ledger of old harm finally balances.",
+        "backstory": "Every wanted poster in three territories is signed with the same mark, and nobody has seen who nails them up. The one who hunts monsters because they used to be one — each poster a confession written in other people's names, a way of atoning that has gotten badly out of hand.",
+        "presentation": "A cloaked figure at a wanted-poster board under a desert moon, hammer in hand, a monstrous silhouette under the human shape.",
+        "quirks": "Nails posters up at midnight. Signs with a mark, never a name. Hunts the crimes that mirror their own past.",
+        "artPrompt": "A cloaked figure at a wanted-poster board under a desert moon, hammer in hand, a monstrous silhouette beneath the human shape, supernatural west, adult animated cartoon style, warm sepia and cold moonlight, crisp clean linework, simple background, no text",
+        "artImageId": null
+      }
+    },
+    {
+      "kind": "Character",
+      "id": 246,
+      "userId": 1,
+      "isPublic": true,
+      "isMature": false,
+      "label": "The Town That Walks",
+      "mappedTo": [],
+      "oldText": {
+        "name": "The Town That Walks",
+        "slug": "the-town-that-walks",
+        "species": "Ambulatory Town",
+        "genre": "Weird West",
+        "class": "Living Settlement",
+        "personality": "Lumbering, protective, and surprisingly homey. A community that became a creature and never stopped caring for its own.",
+        "drive": "To find a valley worth setting down in for good, and to keep every resident safe inside it until then.",
+        "backstory": "It started as an ordinary frontier town and somewhere in a hard winter it decided to leave — pulled up its own foundations, grew great groaning legs of timber and stone, and walked off looking for better ground. The hundred souls who live in it came along, mostly because it asked nicely. The Town has a mayor, but the Town is also, increasingly, a citizen with a vote and a kindness toward the people in its streets.",
+        "presentation": "A whole frontier town hoisted on enormous timber-and-stone legs striding across a dusty plain, lamplit windows glowing, a bell tower swaying.",
+        "quirks": "Rearranges its own buildings to put people near friends. Steps carefully over wildlife. Rings its own bell when content.",
+        "artPrompt": "A whole frontier town hoisted on enormous timber-and-stone legs striding across a dusty plain, lamplit windows glowing, bell tower swaying, supernatural west, adult animated cartoon style, warm sepia and amber, crisp clean linework, simple background, no text",
+        "artImageId": null
+      }
+    },
+    {
+      "kind": "Character",
+      "id": 112,
+      "userId": 1,
+      "isPublic": true,
+      "isMature": false,
+      "label": "Tomoe of the Long Road",
+      "mappedTo": [],
+      "oldText": {
+        "name": "Tomoe of the Long Road",
+        "slug": "tomoe-of-the-long-road",
+        "species": "Human",
+        "genre": "Weird Western",
+        "class": "Ronin",
+        "personality": "Grave, dogged, and quietly breaking. Built her whole self around a single purpose and is discovering, mile by mile, that purposes are not the same as people. Brave in the shaking way.",
+        "drive": "To learn the truth of the night her family died, even if the truth costs her the vengeance that has kept her walking.",
+        "backstory": "She has hunted Zuzu across a thousand dusty miles to avenge a family she watched die. She carries her father's sword and a story she's certain of — until she sees the koala shield a child from a bandit's blade without breaking stride, and the certainty begins, terribly, to crack.",
+        "presentation": "A travel-worn young woman with a long braid and dust-grey road clothes, her father's katana held with white-knuckled care, eyes set on a horizon she's chased for years.",
+        "quirks": "Sharpens her blade when she's thinking. Cannot tell a lie without her left hand betraying her. Counts her steps on long roads.",
+        "artPrompt": "A travel-worn young samurai woman with a long braid and dust-grey road clothes gripping an inherited katana, weary and resolute at sunset, adult animated cartoon style, warm dusty western palette, crisp clean linework, simple background, no text",
+        "artImageId": null
+      }
+    },
+    {
+      "kind": "Character",
+      "id": 110,
+      "userId": 1,
+      "isPublic": true,
+      "isMature": false,
+      "label": "Zuzu",
+      "mappedTo": [
+        {
+          "key": "zuzu-koala-assassin",
+          "action": "skip",
+          "sourcePath": "projects/comic-creator/issues/zuzu-koala-assassin-01/BOOK-ONE.md"
+        }
+      ],
+      "oldText": {
+        "name": "Zuzu",
+        "slug": "zuzu",
+        "species": "koala",
+        "genre": "dark weird-west samurai animal fable",
+        "class": "story character",
+        "personality": "Reserved and gravely polite; acts before speaking",
+        "drive": "To finish the list he inherited without becoming the thing the list was made to stop.",
+        "backstory": "A small, grave koala ronin whose silence and careful acts of mercy sit uneasily with his work as a hired sword.",
+        "presentation": "short and stocky; slight paunch; rust-brown poncho with orange zigzag trim, dark tunic, orange sash, dark brown trousers, shallow wide-brimmed straw kasa; single sheathed katana diagonal across his back, hilt above right shoulder",
+        "quirks": "Drinks eucalyptus tea before every contract. Never kills on an empty stomach. Keeps a tally that no one is allowed to see.",
+        "artPrompt": "short and stocky; slight paunch; rust-brown poncho with orange zigzag trim, dark tunic, orange sash, dark brown trousers, shallow wide-brimmed straw kasa; single sheathed katana diagonal across his back, hilt above right shoulder, mature western-comic illustration, gritty dusty frontier, Arthemy Western Art house style",
+        "artImageId": 242395
+      }
+    },
+    {
+      "kind": "Character",
+      "id": 355,
+      "userId": 1,
+      "isPublic": true,
+      "isMature": false,
+      "label": "Zuzu's Last Name",
+      "mappedTo": [
+        {
+          "key": "zuzu-koala-assassin",
+          "action": "related",
+          "sourcePath": "projects/comic-creator/issues/zuzu-koala-assassin-01/BOOK-ONE.md"
+        }
+      ],
+      "oldText": {
+        "name": "Zuzu's Last Name",
+        "slug": "zuzu-s-last-name",
+        "species": "Spirit of an Oath",
+        "genre": "Koala Assassin",
+        "class": "Living Reckoning",
+        "personality": "Patient, profound, and without judgment. The destination of a legend's whole journey. The question at the bottom of the list.",
+        "drive": "To be reached, finally, by the one who has been riding toward it for years, and to witness which Zuzu arrives: the assassin the list demands, or the mercy he chose to become.",
+        "backstory": "There is one name left on the list Zuzu inherited, and it has been waiting at the bottom for years. It is not a person. It is the reckoning itself, given a quiet shape — the last contract, the one that will either complete the oath or break it, the choice the whole long road was always walking toward. It sits at the end of every trail Zuzu rides, patient as a sunset, and it asks only one question, the same one it has asked since the beginning: when you reach me, will you be the blade the list made, or the mercy you've been bending it toward? It does not want an answer yet. It only wants the koala to arrive knowing the question is real.",
+        "presentation": "A serene faceless figure of dusk-light seated at the end of a long western trail at sunset, a single unspoken name glowing softly where its heart would be.",
+        "quirks": "Waits at the end of every trail. Asks the same question, gently, forever. Is a name, a reckoning, and a choice all at once.",
+        "artPrompt": "A serene faceless figure of dusk-light seated at the end of a long western trail at sunset, a single unspoken name glowing softly at its heart, contemplative, adult animated cartoon style, warm dusty western sunset palette, crisp clean linework, simple background, no text",
+        "artImageId": null
+      }
+    },
+    {
+      "kind": "Reward",
+      "id": 3004,
+      "userId": 1,
+      "isPublic": false,
+      "isMature": false,
+      "label": "The Sister's Dagger",
+      "mappedTo": [
+        {
+          "key": "sister-dagger",
+          "action": "skip",
+          "sourcePath": "projects/comic-creator/issues/zuzu-koala-assassin-01/CAST-PICKS.md"
+        }
+      ],
+      "oldText": {
+        "name": "The Sister's Dagger",
+        "slug": "sister-dagger",
+        "description": "The small dagger associated with the sister's final knife-drop animation shot.",
+        "effect": "A dangerous but ordinary blade; its use and outcome are tied to the film scene. [Game mechanic: editorial, not Book One canon.]",
+        "flavorText": "A tool of survival on the long road.",
+        "collection": "Zuzu: Koala Assassin",
+        "artImageId": null
+      }
+    },
+    {
+      "kind": "Reward",
+      "id": 3003,
+      "userId": 1,
+      "isPublic": false,
+      "isMature": false,
+      "label": "The Drifter's Bandage",
+      "mappedTo": [
+        {
+          "key": "coyote-bandage",
+          "action": "skip",
+          "sourcePath": "projects/comic-creator/issues/zuzu-koala-assassin-01/BOOK-ONE.md"
+        }
+      ],
+      "oldText": {
+        "name": "The Drifter's Bandage",
+        "slug": "coyote-bandage",
+        "description": "Cloth wrapped around the coyote's injured right wrist after the oasis fight.",
+        "effect": "A practical dressing and a symbol of an unexpected alliance. [Game mechanic: editorial, not Book One canon.]",
+        "flavorText": "A tool of survival on the long road.",
+        "collection": "Zuzu: Koala Assassin",
+        "artImageId": null
+      }
+    },
+    {
+      "kind": "Reward",
+      "id": 3002,
+      "userId": 1,
+      "isPublic": false,
+      "isMature": false,
+      "label": "Apples for the Road",
+      "mappedTo": [
+        {
+          "key": "road-apples",
+          "action": "skip",
+          "sourcePath": "projects/comic-creator/issues/zuzu-koala-assassin-01/BOOK-ONE.md"
+        }
+      ],
+      "oldText": {
+        "name": "Apples for the Road",
+        "slug": "road-apples",
+        "description": "A small offering of apples that quietly communicates care when words would fail.",
+        "effect": "Food and an act of trust; no supernatural effect. [Game mechanic: editorial, not Book One canon.]",
+        "flavorText": "A tool of survival on the long road.",
+        "collection": "Zuzu: Koala Assassin",
+        "artImageId": null
+      }
+    },
+    {
+      "kind": "Reward",
+      "id": 3001,
+      "userId": 1,
+      "isPublic": false,
+      "isMature": false,
+      "label": "The Back-Slung Katana",
+      "mappedTo": [
+        {
+          "key": "zuzu-katana",
+          "action": "skip",
+          "sourcePath": "projects/comic-creator/issues/zuzu-koala-assassin-01/VIDEO-GUARDRAILS.md"
+        }
+      ],
+      "oldText": {
+        "name": "The Back-Slung Katana",
+        "slug": "zuzu-katana",
+        "description": "Zuzu's single sword, always sheathed diagonally across his back when not drawn.",
+        "effect": "An ordinary sword with unusually strict continuity requirements. [Game mechanic: editorial, not Book One canon.]",
+        "flavorText": "A tool of survival on the long road.",
+        "collection": "Zuzu: Koala Assassin",
+        "artImageId": null
+      }
+    },
+    {
+      "kind": "Reward",
+      "id": 3000,
+      "userId": 1,
+      "isPublic": false,
+      "isMature": false,
+      "label": "Zuzu's Kasa",
+      "mappedTo": [
+        {
+          "key": "zuzu-travel-kasa",
+          "action": "skip",
+          "sourcePath": "projects/comic-creator/issues/zuzu-koala-assassin-01/CAST-PICKS.md"
+        }
+      ],
+      "oldText": {
+        "name": "Zuzu's Kasa",
+        "slug": "zuzu-travel-kasa",
+        "description": "The broad straw travel hat that shades Zuzu's eyes and conceals his gaze.",
+        "effect": "Mundane apparel, useful for travel and concealment. [Game mechanic: editorial, not Book One canon.]",
+        "flavorText": "A tool of survival on the long road.",
+        "collection": "Zuzu: Koala Assassin",
+        "artImageId": null
+      }
+    },
+    {
+      "kind": "Scenario",
+      "id": 69,
+      "userId": 9,
+      "isPublic": true,
+      "isMature": false,
+      "label": "Zuzu, Koala Assassin",
+      "mappedTo": [],
+      "oldText": {
+        "title": "Zuzu, Koala Assassin",
+        "slug": "zuzu-koala-assassin",
+        "description": "You are Zuzu, the deadliest koala assassin the frontier has ever known, riding into a town with a secret worth killing for. Or play the young samurai who has hunted Zuzu across a thousand dusty miles to avenge a slaughtered family. Blades flash, loyalties shift, and only one of you is walking out of this town. Maybe neither.",
+        "genres": "action western, revenge drama",
+        "inspirations": "Yojimbo, Seven Samurai, Kung Fu Panda, Unforgiven, Lone Wolf and Cub",
+        "locations": "Dusty Frontier Town, Samurai Village, The Hidden Canyon, Duel at Sunset",
+        "artImageId": null
+      }
+    },
+    {
+      "kind": "Scenario",
+      "id": 83,
+      "userId": 9,
+      "isPublic": true,
+      "isMature": false,
+      "label": "Mythic Frontier",
+      "mappedTo": [],
+      "oldText": {
+        "title": "Mythic Frontier",
+        "slug": "mythic-frontier",
+        "description": "You're a bounty hunter with a dead partner and a live problem: the warrant in your pocket is for a dragon, and the reward's been posted by the dragon itself. Out here the myths don't haunt the frontier—they run it, and they've decided you're useful. Every legend in Dragon Bone Canyon wants something, and none of them tell you the price until after you've agreed.",
+        "genres": "weird western, dark fantasy, revenge",
+        "inspirations": "Red Dead Redemption, American Gods, Deadlands, The Dark Tower, Unforgiven",
+        "locations": "The Ghostly Saloon of Forgotten Heroes, Dragon Bone Canyon, The Griffin Roost Gold Mine, The Frontier Town Frozen in Myth",
+        "artImageId": null
+      }
+    },
+    {
+      "kind": "Scenario",
+      "id": 159,
+      "userId": 1,
+      "isPublic": true,
+      "isMature": false,
+      "label": "The Stranger Who Posts the Bounties",
+      "mappedTo": [],
+      "oldText": {
+        "title": "The Stranger Who Posts the Bounties",
+        "slug": "the-stranger-who-posts-the-bounties",
+        "description": "Every wanted poster in three territories is signed with the same mark, and nobody has ever seen who nails them up. Today you wait by the board at midnight to meet them. Whoever you choose to find gets generated as a character.",
+        "genres": "weird western, mystery, reveal",
+        "inspirations": "Weird West, who-posts-the-bounties",
+        "locations": "The Bounty Board, Midnight Main Street, The Dust",
+        "artImageId": 30373
+      }
+    },
+    {
+      "kind": "Scenario",
+      "id": 172,
+      "userId": 1,
+      "isPublic": true,
+      "isMature": false,
+      "label": "The Eucalyptus Standoff",
+      "mappedTo": [],
+      "oldText": {
+        "title": "The Eucalyptus Standoff",
+        "slug": "the-eucalyptus-standoff",
+        "description": "Zuzu the koala assassin has tracked the last name on a very old list to a tree-top teahouse at the edge of the territory. The target is waiting. They've been waiting a long time. They poured two cups.",
+        "genres": "weird western, samurai standoff, marsupial menace",
+        "inspirations": "Koala Assassin, the last name on the list",
+        "locations": "The Tree-Top Teahouse, The Eucalyptus Canopy, The Edge of the Territory",
+        "artImageId": 30129
+      }
+    },
+    {
+      "kind": "Scenario",
+      "id": 175,
+      "userId": 1,
+      "isPublic": true,
+      "isMature": false,
+      "label": "Wanted, Dead or Stranger",
+      "mappedTo": [],
+      "oldText": {
+        "title": "Wanted, Dead or Stranger",
+        "slug": "wanted-dead-or-stranger",
+        "description": "The frontier's strangeness is best seen on its wanted posters. Four hang on the saloon wall tonight, each promising a bounty on something that shouldn't be bountiable. Pick one to render in full.",
+        "genres": "weird western, supernatural frontier, portraiture",
+        "inspirations": "Weird West, the strange bounties",
+        "locations": "The Saloon Wall, Moonlit Main Street, The Jailhouse Porch",
+        "artImageId": 30375
+      }
+    },
+    {
+      "kind": "Scenario",
+      "id": 176,
+      "userId": 1,
+      "isPublic": true,
+      "isMature": false,
+      "label": "The Crossroads Trading Post",
+      "mappedTo": [],
+      "oldText": {
+        "title": "The Crossroads Trading Post",
+        "slug": "the-crossroads-trading-post",
+        "description": "Where four trails meet, a trading post run by a coyote in a duster deals in more than supplies. He lays four things on the counter, each leaving with you as something different.",
+        "genres": "weird western, mercantile mystery, frontier magic",
+        "inspirations": "Weird West, the crossroads deal",
+        "locations": "The Crossroads Trading Post, The Four Trails, The Back Shelf",
+        "artImageId": 30135
+      }
+    },
+    {
+      "kind": "Scenario",
+      "id": 198,
+      "userId": 1,
+      "isPublic": true,
+      "isMature": false,
+      "label": "The Assassin's Quiet Hour",
+      "mappedTo": [],
+      "oldText": {
+        "title": "The Assassin's Quiet Hour",
+        "slug": "the-assassin-s-quiet-hour",
+        "description": "Between contracts, even the deadliest koala on the frontier needs a moment. Four glimpses of Zuzu off-duty. Pick one to render.",
+        "genres": "weird western, character study, quiet menace",
+        "inspirations": "Koala Assassin, the quiet hour",
+        "locations": "The Lamplit Camp, The Eucalyptus Fork, The Contract Board, The Ridge",
+        "artImageId": 30177
+      }
+    },
+    {
+      "kind": "Scenario",
+      "id": 199,
+      "userId": 1,
+      "isPublic": true,
+      "isMature": false,
+      "label": "The Contract Broker's Back Room",
+      "mappedTo": [],
+      "oldText": {
+        "title": "The Contract Broker's Back Room",
+        "slug": "the-contract-broker-s-back-room",
+        "description": "Every assassin needs a fixer. Zuzu's broker — a tortoise who's outlived four generations of killers — slides four items across the table. Each leaves with you as something different.",
+        "genres": "weird western, fixer, marsupial menace",
+        "inspirations": "Koala Assassin, the broker's back room",
+        "locations": "The Broker's Back Room, The Green Felt Table, The Territory Maps",
+        "artImageId": 30179
+      }
+    },
+    {
+      "kind": "Scenario",
+      "id": 2251,
+      "userId": 1,
+      "isPublic": false,
+      "isMature": false,
+      "label": "The Watering Hole",
+      "mappedTo": [
+        {
+          "key": "zuzu-watering-hole",
+          "action": "skip",
+          "sourcePath": "projects/comic-creator/issues/zuzu-koala-assassin-01/BOOK-ONE.md"
+        }
+      ],
+      "oldText": {
+        "title": "The Watering Hole",
+        "slug": "zuzu-watering-hole",
+        "description": "A lone koala ronin and a desperate coyote share a tense desert watering hole until something huge rises from beneath its surface.",
+        "genres": "weird west, samurai, adventure",
+        "inspirations": "Zuzu: Koala Assassin project canon, original story world",
+        "locations": null,
+        "artImageId": null
+      }
+    },
+    {
+      "kind": "Scenario",
+      "id": 2252,
+      "userId": 1,
+      "isPublic": false,
+      "isMature": false,
+      "label": "Aftermath at Hollow Bell",
+      "mappedTo": [
+        {
+          "key": "zuzu-hollow-bell-aftermath",
+          "action": "skip",
+          "sourcePath": "projects/comic-creator/issues/zuzu-koala-assassin-01/BOOK-ONE.md"
+        }
+      ],
+      "oldText": {
+        "title": "Aftermath at Hollow Bell",
+        "slug": "zuzu-hollow-bell-aftermath",
+        "description": "Zuzu comes upon the aftermath of violence and the orphaned fennec siblings. Make the encounter atmospheric rather than sensational.",
+        "genres": "weird west, samurai, adventure",
+        "inspirations": "Zuzu: Koala Assassin project canon, original story world",
+        "locations": null,
+        "artImageId": null
+      }
+    },
+    {
+      "kind": "Scenario",
+      "id": 2253,
+      "userId": 1,
+      "isPublic": false,
+      "isMature": false,
+      "label": "The Apple Tree",
+      "mappedTo": [
+        {
+          "key": "zuzu-apple-tree",
+          "action": "skip",
+          "sourcePath": "projects/comic-creator/issues/zuzu-koala-assassin-01/BOOK-ONE.md"
+        }
+      ],
+      "oldText": {
+        "title": "The Apple Tree",
+        "slug": "zuzu-apple-tree",
+        "description": "A road-side pause turns a few apples into an unspoken choice about responsibility.",
+        "genres": "weird west, samurai, adventure",
+        "inspirations": "Zuzu: Koala Assassin project canon, original story world",
+        "locations": null,
+        "artImageId": null
+      }
+    },
+    {
+      "kind": "Scenario",
+      "id": 2254,
+      "userId": 1,
+      "isPublic": false,
+      "isMature": false,
+      "label": "The Mission",
+      "mappedTo": [
+        {
+          "key": "zuzu-the-mission",
+          "action": "skip",
+          "sourcePath": "projects/comic-creator/issues/zuzu-koala-assassin-01/BOOK-ONE.md"
+        }
+      ],
+      "oldText": {
+        "title": "The Mission",
+        "slug": "zuzu-the-mission",
+        "description": "A strange, hungry refuge offers shelter at a cost; its unsettling abbess stands at the center of the encounter.",
+        "genres": "weird west, samurai, adventure",
+        "inspirations": "Zuzu: Koala Assassin project canon, original story world",
+        "locations": null,
+        "artImageId": null
+      }
+    },
+    {
+      "kind": "Scenario",
+      "id": 2255,
+      "userId": 1,
+      "isPublic": false,
+      "isMature": false,
+      "label": "Storm Crow Ambush",
+      "mappedTo": [
+        {
+          "key": "zuzu-storm-crow-ambush",
+          "action": "skip",
+          "sourcePath": "projects/zuzu-showdown/fighters.yaml"
+        }
+      ],
+      "oldText": {
+        "title": "Storm Crow Ambush",
+        "slug": "zuzu-storm-crow-ambush",
+        "description": "A flying raider from the Storm Crows faction challenges travelers on a wind-beaten canyon road. [Showdown/game continuity only; not Book One canon.]",
+        "genres": "weird west, samurai, adventure",
+        "inspirations": "Zuzu: Koala Assassin project canon, original story world",
+        "locations": null,
+        "artImageId": null
+      }
+    }
+  ]
+}

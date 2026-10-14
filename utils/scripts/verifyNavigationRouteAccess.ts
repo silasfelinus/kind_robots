@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict'
 import { existsSync, readdirSync, readFileSync } from 'node:fs'
+import { parse as parseYaml } from 'yaml'
 import {
   filterChannelsByRole,
   resolveChannels,
@@ -312,8 +313,13 @@ const workspaceSheetSource = readFileSync(
 )
 assert.match(
   workspaceSheetSource,
-  /const tutorialChannelKey = computed\(\(\) => \{[\s\S]*?tutorialLocation\.value\?\.channel[\s\S]*?modernChannel\?\.tutorial[\s\S]*?resolveTutorialChannelFromRoute\(route\.path\)/,
-  'Workspace tutorial resolution must prefer modern content channels before legacy route fallback.',
+  /const tutorialChannelKey = computed\(\(\) => \{[\s\S]*?tutorialLocation\.value\?\.channel \?\? routeLocation\.value\?\.channel[\s\S]*?modernChannel\?\.tutorial[\s\S]*?if \(modernChannel\) return ''[\s\S]*?resolveLegacyTutorialChannel\(route\.path\)/,
+  'Workspace tutorial resolution must resolve the content channel from the page or the route first; the legacy map is reached only when no visible channel claims the route.',
+)
+assert.doesNotMatch(
+  workspaceSheetSource,
+  /resolveTutorialChannelFromRoute/,
+  'The footer-era route resolver is retired; current destinations resolve through content channels.',
 )
 assert.match(
   workspaceSheetSource,
@@ -488,18 +494,165 @@ for (const path of ['content/brainstorm.md', 'content/admin/ruler-hooked.md']) {
   )
 }
 
-const adminTabFiles = readdirSync('content/channels/admin').filter(
-  (file) => file.endsWith('.md') && file !== 'index.md',
+/*
+ * THE TUTORIAL-COMPLETENESS CONTRACT, for every current channel (kind_robots
+ * #3379). It started as an Admin-only rule; Zuzu, Arcade, Projects/Storybook
+ * and the account hub's Home channel are held to it too. Every channel needs an
+ * authored overview with sections, and every routed tab needs its own authored
+ * page help -- title and body written for that page, not inherited catalogue
+ * text -- plus artwork. A tab may switch its help off only when it is not a
+ * page of its own: a route-less submenu parent, or a subtab that selects a mode
+ * of its parent's page by query string while the parent carries the help.
+ */
+function channelMarkdownFiles(directory: string): string[] {
+  return readdirSync(directory, { withFileTypes: true }).flatMap((entry) => {
+    const path = `${directory}/${entry.name}`
+    if (entry.isDirectory()) return channelMarkdownFiles(path)
+    return entry.name.endsWith('.md') ? [path] : []
+  })
+}
+
+const contentItems: ChannelContentItem[] = [
+  ...channelMarkdownFiles('content/channels').map((file) => ({
+    ...(parseYaml(
+      readFileSync(file, 'utf8').match(/^---\n([\s\S]*?)\n---/)?.[1] ?? '',
+    ) as ChannelContentItem),
+    path: file,
+  })),
+]
+const contentItemByLocation = new Map(
+  contentItems
+    .filter((item) => item.contentType === 'tab')
+    .map((item) => [`${item.channelKey}/${item.tabKey}`, item]),
 )
-for (const file of adminTabFiles) {
-  const source = readFileSync(`content/channels/admin/${file}`, 'utf8')
-  const frontMatter = source.match(/^---\n([\s\S]*?)\n---/)?.[1] ?? ''
-  assert.match(
-    frontMatter,
-    /\ntutorial:\s*\n\s+(?:enabled:\s*false|title:[^\n]+\n\s+body:)/,
-    `Admin tab ${file} must carry explicit page help (or deliberately disable it).`,
+const contentChannels = resolveChannels(contentItems)
+const hasText = (value: unknown) =>
+  typeof value === 'string' && value.trim().length > 0
+const routePath = (route: string) => route.split('?')[0] ?? ''
+
+assert.deepEqual(
+  contentChannels.map((channel) => channel.channelKey).sort(),
+  ['admin', 'arcade', 'home', 'projects', 'zuzu'],
+  'The tutorial contract must cover every current channel.',
+)
+
+let tabsWithAuthoredHelp = 0
+for (const channel of contentChannels) {
+  assert.equal(
+    channel.tutorial?.sectionsSource,
+    'authored',
+    `${channel.channelKey} needs an authored channel tutorial with sections, not one generated from its tab list.`,
+  )
+  assert.ok(
+    hasText(channel.tutorial?.overview) && channel.tutorial?.sections.length,
+    `${channel.channelKey} needs an authored tutorial overview and at least one section.`,
+  )
+
+  for (const tab of channel.tabs) {
+    const location = `${channel.channelKey}/${tab.tabKey}`
+    const raw = contentItemByLocation.get(location)
+    assert.ok(raw, `${location} was resolved without a content item.`)
+
+    if (!tab.route) {
+      assert.ok(
+        channel.tabs.some((child) => child.parentTabKey === tab.tabKey),
+        `${location} has no route, so it must be a submenu parent.`,
+      )
+      continue
+    }
+
+    if (!tab.tutorial) {
+      const parent = channel.tabs.find(
+        (candidate) => candidate.tabKey === tab.parentTabKey,
+      )
+      assert.ok(
+        parent?.tutorial?.explicit &&
+          routePath(parent.route) === routePath(tab.route) &&
+          tab.route.includes('?'),
+        `${location} switched its page help off, which is allowed only for a query-selected mode of a parent page that carries the help.`,
+      )
+      continue
+    }
+
+    assert.ok(
+      tab.tutorial.explicit &&
+        hasText(raw.tutorial?.title) &&
+        hasText(raw.tutorial?.body),
+      `${location} (${raw.path ?? 'generated'}) must carry authored page help: tutorial.title and tutorial.body written for ${tab.route}.`,
+    )
+    assert.ok(
+      hasText(tab.tutorial.image),
+      `${location} page help needs artwork (tutorial.image, the tab image, or the channel artwork convention).`,
+    )
+    tabsWithAuthoredHelp += 1
+  }
+}
+assert.ok(tabsWithAuthoredHelp > 60, 'Channel tab files were not read.')
+
+/*
+ * TUTORIALS NEVER REVEAL INACCESSIBLE DESTINATIONS. Role filtering already
+ * drops a hidden tab's page help and, for tab-generated tutorials, its section.
+ * Authored channel copy is written by hand, so check it here: the copy of
+ * every channel a viewer can see must not name a destination their role
+ * hides. Sign-in gates (requiredPermission) are exempt -- help may say "once
+ * you are signed in" -- but a role-gated tab is invisible, not locked.
+ * Superkate Services is filtered per account in channelContentStore rather
+ * than by role, so it counts as hidden for every viewer here.
+ */
+const accountScopedTabs = new Set(['projects/stylist'])
+for (const role of ['USER', 'CHILD', 'FAMILY'] as const) {
+  const visible = filterChannelsByRole(contentChannels, role)
+
+  for (const channel of visible) {
+    const full = contentChannels.find(
+      (candidate) => candidate.channelKey === channel.channelKey,
+    )!
+    const isOpenable = (tabKey: string) =>
+      !accountScopedTabs.has(`${channel.channelKey}/${tabKey}`) &&
+      channel.tabs.some((open) => open.tabKey === tabKey)
+    const openableLabels = new Set(
+      full.tabs.filter((tab) => isOpenable(tab.tabKey)).map((tab) => tab.label),
+    )
+    const hidden = full.tabs.filter(
+      (tab) => !isOpenable(tab.tabKey) && !openableLabels.has(tab.label),
+    )
+    const copy = [
+      channel.description,
+      channel.summary,
+      channel.tutorial?.overview,
+      ...(channel.tutorial?.sections ?? []).flatMap((section) => [
+        section.title,
+        section.body,
+      ]),
+    ].join('\n')
+
+    for (const tab of hidden) {
+      assert.ok(
+        !copy.includes(tab.label),
+        `${channel.channelKey} channel copy names "${tab.label}", which a ${role} viewer cannot open.`,
+      )
+    }
+  }
+
+  assert.ok(
+    visible.every(
+      (channel) =>
+        channel.requiredRole !== 'ADMIN' &&
+        channel.tabs.every((tab) => tab.requiredRole !== 'ADMIN'),
+    ),
+    `Role filtering must remove every ADMIN channel and tab, and with them their help, for a ${role} viewer.`,
   )
 }
+
+const channelContentStoreSource = readFileSync(
+  'stores/channelContentStore.ts',
+  'utf8',
+)
+assert.match(
+  channelContentStoreSource,
+  /function getChannel\(channelKey: string\) \{[\s\S]*?visibleChannels\.value\.find/,
+  'Tutorial lookups (getChannel/getTab) must read the role- and permission-filtered channels, so page help for an inaccessible tab cannot be fetched.',
+)
 assert.ok(
   workspaceSheetSource.includes(
     ':tab="pageTutorial ? undefined : tutorialTabKey || undefined"',
@@ -596,5 +749,5 @@ assert.match(
 )
 
 console.log(
-  'Navigation route access contract passed: unrelated, public, authenticated, member, shared-route, admin, and hydration-safe startup behavior verified.',
+  `Navigation route access contract passed: unrelated, public, authenticated, member, shared-route, admin, and hydration-safe startup behavior verified; ${contentChannels.length} channels carry authored overviews and ${tabsWithAuthoredHelp} routed tabs carry authored page help, with no role-hidden destination named in channel copy.`,
 )

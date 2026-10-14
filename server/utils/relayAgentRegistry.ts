@@ -19,6 +19,8 @@ export type RelayAgentStatus = {
   agentId: string
   lastSeenAt: Date
   supportsInputImages: boolean
+  /** Declared supportsAudio: may claim ACE-Step (payload.media 'audio') jobs. */
+  supportsAudio: boolean
   engines: string[]
   agentVersion: string | null
 }
@@ -26,8 +28,49 @@ export type RelayAgentStatus = {
 export type RecordRelayClaimAttemptInput = {
   agentId: string
   supportsInputImages: boolean
+  supportsAudio?: boolean
   engines: string[]
   agentVersion?: string | null
+}
+
+/** A relay counts as live for audio only if it polled this recently. */
+export const AUDIO_RELAY_MAX_AGE_MS = 5 * 60 * 1000
+
+export type AudioRelayReadiness = {
+  ready: boolean
+  agentIds: string[]
+  reason: string
+}
+
+/**
+ * Whether some relay could claim an audio ArtJob right now: it polled within
+ * `maxAgeMs`, takes COMFY jobs and declared supportsAudio. Existing ACE-Step
+ * code is not proof of a worker; this is the poll-time declaration.
+ */
+export function audioRelayReadiness(
+  agents: readonly RelayAgentStatus[],
+  now: Date = new Date(),
+  maxAgeMs: number = AUDIO_RELAY_MAX_AGE_MS,
+): AudioRelayReadiness {
+  const live = agents.filter(
+    (agent) => now.getTime() - agent.lastSeenAt.getTime() <= maxAgeMs,
+  )
+  const ready = live.filter(
+    (agent) => agent.supportsAudio && agent.engines.includes('COMFY'),
+  )
+  if (ready.length)
+    return {
+      ready: true,
+      agentIds: ready.map((agent) => agent.agentId),
+      reason: 'A live COMFY relay advertises supportsAudio.',
+    }
+  return {
+    ready: false,
+    agentIds: [],
+    reason: live.length
+      ? 'No live relay advertises supportsAudio with the COMFY engine.'
+      : 'No relay has polled recently.',
+  }
 }
 
 const registry = new Map<string, RelayAgentStatus>()
@@ -47,6 +90,7 @@ export function recordRelayClaimAttempt(
     agentId: input.agentId,
     lastSeenAt: new Date(),
     supportsInputImages: input.supportsInputImages,
+    supportsAudio: input.supportsAudio === true,
     engines: input.engines,
     agentVersion: input.agentVersion?.trim() || null,
   })

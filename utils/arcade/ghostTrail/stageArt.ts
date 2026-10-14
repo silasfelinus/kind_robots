@@ -178,6 +178,14 @@ const LOOKS: Record<StageKey, Look> = {
   },
 }
 
+/** Every painted world, in campaign order. */
+export const GHOST_TRAIL_STAGE_KEYS = Object.keys(LOOKS) as StageKey[]
+
+/** Where a world's delivered far plate is served from (public/images: delivered, not committed). */
+export function ghostTrailPlateUrl(key: StageKey): string {
+  return `/images/arcade/ghost-trail/plates/${LOOKS[key].plate}.webp`
+}
+
 /** Five-step ramps [ink, shadow, base, light, highlight] for the surfaces. */
 const WOOD = ['#1e120c', '#3e2616', '#6a4226', '#9a6a3e', '#d0a068'] as const
 const GREYWOOD = [
@@ -806,9 +814,7 @@ function drawPlate(
   camX: number,
   length: number,
 ): boolean {
-  const img = loadedImage(
-    `/images/arcade/ghost-trail/plates/${LOOKS[key].plate}.webp`,
-  )
+  const img = loadedImage(ghostTrailPlateUrl(key))
   if (!img) return false
   const t = Math.max(0, Math.min(1, camX / camMaxFor(length)))
   g.save()

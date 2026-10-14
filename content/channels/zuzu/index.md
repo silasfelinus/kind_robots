@@ -5,7 +5,7 @@ label: Zuzu
 title: The World of Zuzu
 room: The Shifting Lands
 subtitle: The koala ronin and the roads between worlds
-description: Illustrated adventures across Zuzu's weird-west frontier, from its gamebook and fighting games to Ghost Trail, Zuzu's Lair and Emperor of Dust.
+description: Illustrated adventures across Zuzu's weird-west frontier, from the gamebook and the Shifting Lands board to the Showdown fighter, Ghost Trail and the pinball table.
 summary: Adventures, combat and pinball in Zuzu's world.
 icon: kind-icon:swords
 image: /zuzu-showdown-portraits/zuzu-vs-hd.webp

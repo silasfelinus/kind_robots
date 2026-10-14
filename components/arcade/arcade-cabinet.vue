@@ -287,6 +287,19 @@
           >
             {{ muted ? 'Sound off' : 'Sound on' }}
           </button>
+          <label class="cabinet-switch cabinet-volume">
+            <span>Vol</span>
+            <input
+              type="range"
+              min="0"
+              max="1"
+              step="0.05"
+              :value="volume"
+              :disabled="muted"
+              aria-label="Arcade volume"
+              @input="onVolumeInput"
+            />
+          </label>
           <button
             type="button"
             class="cabinet-switch"
@@ -381,9 +394,16 @@ import {
 import {
   asMusicLoop,
   createArcadeSound,
-  type ArcadeSound,
   type MusicLoop,
 } from '~/utils/arcade/sound'
+import {
+  createArcadeSoundtrack,
+  type ArcadeSoundtrack,
+} from '~/utils/arcade/soundtrackMixer'
+import {
+  isArcadeMusicScene,
+  type ArcadeMusicScene,
+} from '~/utils/arcade/soundtrackBriefs'
 import { setGamePageLock } from '~/utils/arcade/pageLock'
 import { drawText, lineStep, measureText } from '~/utils/arcade/font'
 import { mulberry32 } from '~/utils/arcade/curve'
@@ -424,6 +444,7 @@ const canvasRef = ref<HTMLCanvasElement | null>(null)
 const stageRef = ref<HTMLCanvasElement | null>(null)
 const phase = ref<ArcadePhase>('title')
 const muted = computed(() => store.muted)
+const volume = computed(() => store.volume)
 const crt = computed(() => store.crt)
 const stillCamera = computed(() => store.stillCamera)
 const renderStyle = computed(() => store.styleFor(props.slug))
@@ -512,7 +533,7 @@ let machine = initialArcadeState()
 let gameModule: ArcadeGameModule | null = null
 let game: ArcadePlayableInstance | null = null
 let demoGame: ArcadePlayableInstance | null = null
-let sound: ArcadeSound | null = null
+let sound: ArcadeSoundtrack | null = null
 let loop: FixedLoop | null = null
 let resizeObserver: ResizeObserver | null = null
 let wrapObserver: ResizeObserver | null = null
@@ -929,17 +950,27 @@ function dispatch(event: ArcadeEvent) {
 
 /** The music loop now playing for the real game, so it is restarted only when it changes. */
 let musicNow: MusicLoop | null = null
+let sceneNow: ArcadeMusicScene = 'level'
+
+/** The soundtrack scene a game asks for (`musicScene`), else its level music. */
+function musicSceneOf(instance: ArcadePlayableInstance): ArcadeMusicScene {
+  const scene = (instance as { musicScene?: unknown }).musicScene
+  return isArcadeMusicScene(scene) ? scene : 'level'
+}
 
 /** Follow the real game's music (a demo plays silent; a finished game stops it). */
 function syncMusic(instance: ArcadePlayableInstance | null) {
+  const playing = instance && instance === game && !instance.over
   const music =
-    instance && instance === game && !instance.over && 'music' in instance
+    playing && 'music' in instance
       ? asMusicLoop((instance as { music?: unknown }).music)
       : null
-  if (music === musicNow) return
+  const scene = playing ? musicSceneOf(instance) : 'level'
+  if (music === musicNow && scene === sceneNow) return
   musicNow = music
-  if (music) sound?.startMusic(music)
-  else sound?.stopMusic()
+  sceneNow = scene
+  if (music) sound?.startCabinetMusic(scene, music)
+  else sound?.stopCabinetMusic()
 }
 
 /** The last progress a game asked to keep, so the store is written only when it changes. */
@@ -1746,6 +1777,12 @@ function toggleMute() {
   unlockArcadeAudio()
 }
 
+function onVolumeInput(event: Event) {
+  unlockArcadeAudio()
+  store.setVolume(Number((event.target as HTMLInputElement).value))
+  sound?.setVolume(store.volume)
+}
+
 function toggleRenderStyle() {
   store.setGameStyle(props.slug, otherStyle.value)
   resizeCanvas()
@@ -1797,7 +1834,10 @@ onMounted(() => {
   store.loadPreferences(
     window.matchMedia('(prefers-reduced-motion: reduce)').matches,
   )
-  sound = createArcadeSound(store.muted)
+  sound = createArcadeSoundtrack(createArcadeSound(store.muted), {
+    game: props.slug,
+    volume: store.volume,
+  })
   touchControls.value = window.matchMedia('(pointer: coarse)').matches
   input.attach(window)
   applySeats()
@@ -1823,7 +1863,9 @@ onMounted(() => {
 
 watch(
   () => props.slug,
-  () => {
+  (slug) => {
+    musicNow = null
+    sound?.setGame(slug)
     void boot().then(applySeats)
   },
 )
@@ -2655,6 +2697,17 @@ onBeforeUnmount(() => {
   letter-spacing: 0.04em;
   text-transform: uppercase;
   border: 1px solid rgba(253, 230, 138, 0.35);
+}
+
+.cabinet-volume {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.cabinet-volume input {
+  width: 5rem;
+  accent-color: #facc15;
 }
 
 .cabinet-start {

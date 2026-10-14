@@ -110,6 +110,7 @@ export default defineEventHandler(async (event) => {
     recordRelayClaimAttempt({
       agentId: claimedBy,
       supportsInputImages,
+      supportsAudio,
       engines,
       agentVersion: body?.agentVersion,
     })

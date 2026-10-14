@@ -5,23 +5,45 @@ on:
     branches: [main]
     paths:
       - 'utils/zuzuWorld.ts'
+      - 'utils/zuzuRepoMedia.ts'
+      - 'utils/zuzuGamebook/art.ts'
+      - 'utils/zuzuGamebook/sectionArt.ts'
+      - 'utils/zuzuShowdown/sprites.ts'
+      - 'utils/zuzuShowdown/portraits.json'
+      - 'utils/zuzuShowdown/stages.ts'
+      - 'utils/arcade/ghostTrail/stageArt.ts'
       - 'stores/zuzuWorldStore.ts'
       - 'pages/admin/worlds/**'
       - 'server/api/worlds/zuzu/**'
       - 'server/utils/zuzuWorldLedger.ts'
+      - 'server/utils/zuzuProjectUsage.ts'
+      - 'server/utils/zuzuRepoMediaFiles.ts'
+      - 'prisma/migrations/20261014090000_project_art_image_production_role/**'
       - 'content/channels/admin/zuzu-world.md'
       - 'utils/scripts/verifyZuzuWorldStudio.test.ts'
+      - 'utils/scripts/verifyZuzuWorldUsage.test.ts'
       - '.github/workflows/zuzu-world-studio.yml'
   push:
     branches: [main]
     paths:
       - 'utils/zuzuWorld.ts'
+      - 'utils/zuzuRepoMedia.ts'
+      - 'utils/zuzuGamebook/art.ts'
+      - 'utils/zuzuGamebook/sectionArt.ts'
+      - 'utils/zuzuShowdown/sprites.ts'
+      - 'utils/zuzuShowdown/portraits.json'
+      - 'utils/zuzuShowdown/stages.ts'
+      - 'utils/arcade/ghostTrail/stageArt.ts'
       - 'stores/zuzuWorldStore.ts'
       - 'pages/admin/worlds/**'
       - 'server/api/worlds/zuzu/**'
       - 'server/utils/zuzuWorldLedger.ts'
+      - 'server/utils/zuzuProjectUsage.ts'
+      - 'server/utils/zuzuRepoMediaFiles.ts'
+      - 'prisma/migrations/20261014090000_project_art_image_production_role/**'
       - 'content/channels/admin/zuzu-world.md'
       - 'utils/scripts/verifyZuzuWorldStudio.test.ts'
+      - 'utils/scripts/verifyZuzuWorldUsage.test.ts'
       - '.github/workflows/zuzu-world-studio.yml'
   workflow_dispatch:
 
@@ -39,3 +61,4 @@ jobs:
         env:
           CYPRESS_INSTALL_BINARY: '0'
       - run: npx tsx utils/scripts/verifyZuzuWorldStudio.test.ts
+      - run: npx tsx utils/scripts/verifyZuzuWorldUsage.test.ts

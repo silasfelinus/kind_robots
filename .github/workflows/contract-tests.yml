@@ -114,6 +114,11 @@ jobs:
       - name: Civitai id resolution contract
         run: npm run test:civitai-ids
 
+      # The admin token may patch any row; the planner alone keeps the Zuzu
+      # canon sync to owned, provenanced, unambiguous rows and private creates.
+      - name: Zuzu legacy-resource reconciliation contract
+        run: npm run test:zuzu-reconcile
+
       # The same sweep, silent for 25 minutes: every network round trip ran
       # before the first line printed, so "working" and "wedged" looked alike.
       - name: LoRA backfill progress-output contract

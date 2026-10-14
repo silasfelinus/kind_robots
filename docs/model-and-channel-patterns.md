@@ -130,7 +130,7 @@ The nav system is mostly derived from registries. For a new channel `x` at route
 1. `stores/helpers/dashboardHelper.ts` → `dashboardConfigs.footer.tabs[]`: add `key`, `label`, `icon`, `title`, `summary`, `image`, `flourish`, `tagline`, `narrative`, and `route`.
 2. Same file → `dashboardConfigs.x`: define `{ key, label, defaultTab, tabs: [...] }` with one tab entry per tab.
 3. Same file → `footerDashboardMap`: add `x: 'x'`; this should be compile-enforced.
-4. `stores/helpers/tutorialCards.ts` → `tutorialChannels`: add one tutorial section per tab; add the key to `EARNING_CHANNELS` if creators earn from it.
+4. Tutorials: author the channel `tutorial` overview and sections in `content/channels/x/index.md`, and a page `tutorial` (title, body, image) on every routed tab, per `docs/channel-content-authoring.md`. `stores/helpers/tutorialCards.ts` holds only legacy standalone-page exceptions; do not add channels there.
 5. `content/x.md`: add the page with `dashboardKey: x` and `dashboardTab: <defaultTab>`.
 6. Manager component: render tabs from `getDashboardTabs('x')` rather than hard-coding menus.
 7. `components/navigation/channel-select.vue`: update `allChannels[]`; this may fail silently if forgotten.

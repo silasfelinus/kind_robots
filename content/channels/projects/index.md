@@ -7,7 +7,7 @@ room: The Creative Workshop
 subtitle: Stories, projects, creation and learning
 description: Storybook, Daily Dream projects, art, video, Mandarin, Rebel Button and other non-game creations. Games live in Arcade and Zuzu.
 icon: kind-icon:blueprint
-image: /images/arcade/arcade-hall-backdrop.webp
+image: /images/tutorials/scenario/storybook.webp
 backgroundMobile: /api/art/backdrop/play-mobile
 backgroundTablet: /api/art/backdrop/play-tablet
 backgroundDesktop: /api/art/backdrop/play-desktop
@@ -22,18 +22,23 @@ tutorial:
   title: Projects
   tagline: Make art, build stories, explore projects.
   overview: >-
-    Projects gathers Storybook and its ingredient galleries, Daily Dream builds,
-    Art Studio, Video Gen, Music Video, Mandarin, Superkate Services and Rebel Button.
-    Arcade has standalone games; Zuzu has the connected weird-west adventures.
-    Each destination provides its own tutorial.
-  hero: /images/arcade/arcade-hall-backdrop.webp
+    Projects gathers Storybook and its ingredient galleries, Art Studio, Video
+    Gen, Music Video, Mandarin, Daily Dream Projects and Rebel Button. Games
+    have their own channels: Arcade for the cabinets and standalone games, and
+    Zuzu for the connected weird-west adventures. Each destination opens with
+    its own page help, and this overview stays behind the About Projects
+    control.
+  hero: /images/tutorials/dream/dreams.webp
   sections:
     - key: storybook
       title: Storybook and its ingredients
       body: >-
-        Start with Storybook to weave an interactive narrative. Expand the
-        Storybook submenu for its ingredient galleries and model tools.
-      image: /images/channels/play/channel.webp
+        Start with Storybook to deal a story onto the Table and play it turn by
+        turn. Expand the Storybook submenu for its ingredient galleries:
+        Dreams, Bots, Characters, Rewards, Scenarios and Facets, plus Models
+        for running records through the build gates. Anything you make there
+        can be dealt into a story.
+      image: /images/tutorials/scenario/storybook.webp
     - key: make
       title: Make images, clips and music videos
       body: >-
@@ -44,36 +49,31 @@ tutorial:
         so sign in first.
       image: /images/art/generate.webp
     - key: learn
-      title: Practice singing and Mandarin
+      title: Practice Mandarin and singing
       body: >-
-        Music Mentor takes a recording of your singing and gives feedback on
-        pitch, timing, dynamics and arrangement. The audio is analyzed in your
-        browser and does not leave your device, and the coaching costs mana.
         Mandarin is a free course that shows how each character is built from
         its parts, lets you hear it, and then asks you to recall it and rate
-        how well you knew it.
+        how well you knew it. Music Mentor, one of the Daily Dream Projects,
+        takes a recording of your singing and gives feedback on pitch, timing,
+        dynamics and arrangement; the audio is analyzed in your browser, and
+        the coaching costs mana.
       image: /images/mandarin-tutor/cards/v2/f24c02b7272a3d3004079114.webp
     - key: games
       title: Where to find games
       body: >-
-        Arcade hosts the standalone games and cabinets.
-        Zuzu has a separate channel for his story, Shifting Lands board,
-        fighting game and pinball. Memory
-        Dungeon is a card-matching game with lives, power-ups and floors to
-        clear. Zuzu Gamebook is an illustrated adventure with choices, dice
-        rolls and several endings. Daily Dream Projects shows approved
-        pitches, their coming-soon previews, and experiences ready for play.
-        Administrators can also find in-development Zuzu playtests in this menu.
-      image: /images/background/memorydungeon.webp
+        Games have moved out of Projects. The Arcade channel holds the
+        cabinets, Memory Dungeon, Shifting Desks and Cthulhuquarium. The Zuzu
+        channel holds Zuzu's gamebook, the Shifting Lands board, Showdown,
+        Ghost Trail and the pinball table.
+      image: /images/arcade/arcade-attract-splash.webp
     - key: toys
-      title: Try the toys and the gallery
+      title: New projects and toys
       body: >-
-        Rebel Button is a button you are told not to press; each press changes
-        its message and adds to a click leaderboard. Cthulhuquarium is an idle
-        aquarium where you collect coins, feed and breed strange creatures, and
-        decorate the tank once you sign in. Other experiments and creative toys are also available
-        from this menu.
-      image: /images/channels/play/aquarium.webp
+        Daily Dream Projects shows approved daily pitches, their coming-soon
+        previews, and the experiences released for play. Rebel Button is a
+        button you are told not to press; each press changes its message and
+        adds to a click leaderboard.
+      image: /images/channels/play/button.webp
 # Stage 3 backdrop art, resolved by slug via /api/art/backdrop/<page>-<variant>.
 # The route finds the completed ArtJob for this page and redirects to its
 # image, so art appears on its own once generation finishes. Until then the

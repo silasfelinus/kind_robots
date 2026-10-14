@@ -9,7 +9,7 @@ files for the details.
 Adding a new **page, tab, or channel** (rather than a data model) has its
 own step-by-step framework: **[`new-section.md`](./new-section.md)**. It is
 the canonical recipe for both humans and agents — including the rule that a
-new *channel* requires Silas's explicit approval. The channel checklist
+new _channel_ requires Silas's explicit approval. The channel checklist
 below is kept in sync with it for use during the model loop.
 
 **Generating instances** of the existing models (bots, dreams, characters,
@@ -20,29 +20,29 @@ to include its art.
 
 **Naming contract** (keep all five consistent or nothing lines up):
 
-| Thing | Convention | For Sample |
-| --- | --- | --- |
-| Prisma model | singular PascalCase | `Sample` |
-| API route | lowercase plural | `/api/samples` → `server/api/samples/` |
-| Store | `stores/<x>Store.ts`, `use<X>Store` | `stores/sampleStore.ts`, `useSampleStore` |
-| Components | `components/<domain>/` kebab-case | `components/sample/sample-manager.vue` |
-| Content page | `content/<route>.md` | `content/samples.md` → route `/samples` |
+| Thing        | Convention                          | For Sample                                |
+| ------------ | ----------------------------------- | ----------------------------------------- |
+| Prisma model | singular PascalCase                 | `Sample`                                  |
+| API route    | lowercase plural                    | `/api/samples` → `server/api/samples/`    |
+| Store        | `stores/<x>Store.ts`, `use<X>Store` | `stores/sampleStore.ts`, `useSampleStore` |
+| Components   | `components/<domain>/` kebab-case   | `components/sample/sample-manager.vue`    |
+| Content page | `content/<route>.md`                | `content/samples.md` → route `/samples`   |
 
 Component filenames must be globally unique — Nuxt registers by filename
 (`pathPrefix: false`), so the folder is organizational only.
 
 ## Where each template goes
 
-| Template | Real destination |
-| --- | --- |
-| `schema.md` | model block in `prisma/schema.prisma` |
-| `index.get.ts`, `index.post.ts`, `[id].get.ts`, `[id].patch.ts`, `[id].delete.ts`, `batch.patch.ts` | `server/api/samples/` |
-| `sampleStore.ts` | `stores/sampleStore.ts` |
-| `sample-manager.vue.txt` (drop `.txt`) | `components/sample/sample-manager.vue` |
-| `add-sample.vue.txt`, `sample-gallery.vue.txt`, `sample-card.vue.txt`, `sample-interact.vue.txt` | `components/sample/` |
-| `samples.md` | `content/samples.md` |
-| `sample.cy.ts` | `cypress/e2e/api/samples.cy.ts` |
-| `sample.http` | next to the route it exercises, e.g. `server/api/samples/` |
+| Template                                                                                            | Real destination                                           |
+| --------------------------------------------------------------------------------------------------- | ---------------------------------------------------------- |
+| `schema.md`                                                                                         | model block in `prisma/schema.prisma`                      |
+| `index.get.ts`, `index.post.ts`, `[id].get.ts`, `[id].patch.ts`, `[id].delete.ts`, `batch.patch.ts` | `server/api/samples/`                                      |
+| `sampleStore.ts`                                                                                    | `stores/sampleStore.ts`                                    |
+| `sample-manager.vue.txt` (drop `.txt`)                                                              | `components/sample/sample-manager.vue`                     |
+| `add-sample.vue.txt`, `sample-gallery.vue.txt`, `sample-card.vue.txt`, `sample-interact.vue.txt`    | `components/sample/`                                       |
+| `samples.md`                                                                                        | `content/samples.md`                                       |
+| `sample.cy.ts`                                                                                      | `cypress/e2e/api/samples.cy.ts`                            |
+| `sample.http`                                                                                       | next to the route it exercises, e.g. `server/api/samples/` |
 
 ## The loop
 
@@ -104,11 +104,12 @@ For a new channel `x` at route `/x` with tabs `t1, t2`, touch these:
    `image: tabImage('x', 't1')`. These tabs are what the manager renders.
 3. Same file → `footerDashboardMap` — add `x: 'x'`. **Compile-enforced**:
    missing entry fails `tsc`.
-4. `stores/helpers/tutorialCards.ts` → `tutorialChannels` — add the channel
-   with one section per tab
-   (`image: tutorialImage('x', 't1')`). **Compile-enforced** — every footer
-   channel must have a tutorial entry. Add the key to `EARNING_CHANNELS`
-   if creators earn from it.
+4. Tutorials live in content metadata, not `stores/helpers/tutorialCards.ts`
+   (that file now holds only legacy standalone-page exceptions). Author the
+   channel `tutorial` overview and sections in
+   `content/channels/x/index.md` and a page `tutorial` (title, body, image)
+   on every routed tab file, as `docs/channel-content-authoring.md`
+   describes; `verifyNavigationRouteAccess.ts` fails the build without them.
 5. `content/x.md` — the page itself, with `dashboardKey: x` and
    `dashboardTab: <defaultTab>` (validated by `validateDashboardPair`).
 6. A manager component that renders the tabs via `getDashboardTabs('x')`.
@@ -117,20 +118,20 @@ For a new channel `x` at route `/x` with tabs `t1, t2`, touch these:
    silently** — forget it and the channel just never appears in the header
    dropdown. This is the easiest one to miss.
 
-Steps 3 and 4 fail the build if skipped; step 7 does not — check it last.
+Steps 3 and 4 fail CI if skipped; step 7 does not — check it last.
 
 ### Image checklist
 
 All under `public/images/`. Helpers in `dashboardHelper.ts` /
 `tutorialCards.ts` derive these paths — the filenames must match the keys.
 
-| Image | Path |
-| --- | --- |
-| Channel hero (nav deck + footer) | `nav/heroes/{channel}.webp` |
-| Channel card/thumb | `nav/thumbs/{channel}.webp` |
-| Dashboard tab (one per tab) | `dashboard-tabs/{channel}/{tab}.webp` |
-| Tutorial section (one per tab) | `tutorials/{channel}/{tab}.webp` |
-| Tutorial hero | `tutorials/{channel}/hero.webp` |
+| Image                            | Path                                  |
+| -------------------------------- | ------------------------------------- |
+| Channel hero (nav deck + footer) | `nav/heroes/{channel}.webp`           |
+| Channel card/thumb               | `nav/thumbs/{channel}.webp`           |
+| Dashboard tab (one per tab)      | `dashboard-tabs/{channel}/{tab}.webp` |
+| Tutorial section (one per tab)   | `tutorials/{channel}/{tab}.webp`      |
+| Tutorial hero                    | `tutorials/{channel}/hero.webp`       |
 
 The tutorial hero is a **separate file** by default
 (`getTutorialHero` falls back to `tutorials/{channel}/hero.webp`); it only

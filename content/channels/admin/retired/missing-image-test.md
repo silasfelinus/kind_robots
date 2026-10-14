@@ -13,6 +13,16 @@ image: /images/channels/admin/missing-image-test.webp
 route: /dev/missing-image-test
 sort: 160
 requiredRole: ADMIN
+tutorial:
+  title: Missing image smoke test
+  body: >-
+    This page deliberately shows two broken images, one local and one from
+    the Conductor repository, so the site's missing-image reporter can be
+    tested. Open it while signed in as an administrator; the reporter should
+    file a Conductor art request for each, which then appears in the Art
+    Prompts section of the Conductor workspace. Afterwards, generate the
+    requested images or remove the test requests from the queue.
+  image: /images/channels/admin/missing-image-test.webp
 ---
 
 Deliberately broken image URLs for exercising the missing-image reporter.

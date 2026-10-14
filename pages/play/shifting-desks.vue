@@ -15,7 +15,7 @@
         </p>
         <button
           type="button"
-          class="btn btn-sm shrink-0 gap-1.5 border-2 border-stone-900 bg-base-100 px-1.5"
+          class="btn btn-xs h-7 shrink-0 gap-1 border-2 border-stone-900 bg-base-100 px-1 sm:btn-sm sm:gap-1.5 sm:px-1.5"
           :title="`Art style: ${currentArtStyle.label}. Change it anytime.`"
           aria-haspopup="dialog"
           @click="openArtPicker"
@@ -23,7 +23,7 @@
           <img
             :src="artStyleImageSrc(ART_STYLE_SAMPLE, artStyle)"
             alt=""
-            class="size-6 rounded object-cover object-[50%_30%]"
+            class="hidden size-6 rounded object-cover object-[50%_30%] sm:block"
             @error="
               ($event.target as HTMLImageElement).style.visibility = 'hidden'
             "
@@ -34,13 +34,13 @@
         </button>
         <div
           v-if="run"
-          class="flex flex-1 flex-wrap items-center justify-end gap-1.5"
+          class="flex flex-1 flex-wrap items-center justify-end gap-1 sm:gap-1.5"
           aria-label="Your file"
         >
           <span
             v-for="m in meterList"
             :key="m.key"
-            class="flex items-center gap-0.5 rounded-md bg-base-200 px-1.5 py-1 text-xs font-bold sm:gap-1 sm:px-2"
+            class="flex items-center gap-0.5 rounded-md bg-base-200 px-1 py-1 text-xs font-bold sm:gap-1 sm:px-2"
             :class="m.danger ? 'text-error' : ''"
             :title="m.help"
           >
@@ -462,18 +462,23 @@
               </div>
               <div
                 v-if="opened"
-                class="desk-card hidden shrink-0 flex-col gap-1 rounded-2xl border-4 border-stone-800 p-3 text-stone-900 md:flex lg:p-4"
+                class="desk-card hidden shrink-0 flex-col gap-1 rounded-2xl border-4 border-stone-800 p-3 text-stone-900 md:flex"
+                :class="manyRoutes ? '' : 'lg:p-4'"
               >
                 <p
                   ref="briefHeading"
                   tabindex="-1"
-                  class="font-mono text-lg font-black uppercase leading-tight lg:text-2xl"
+                  class="font-mono text-lg font-black uppercase leading-tight"
+                  :class="manyRoutes ? 'lg:text-xl' : 'lg:text-2xl'"
                 >
                   {{ view.card.title }}
                 </p>
                 <p
-                  class="leading-relaxed lg:text-lg"
-                  :class="manyRoutes ? 'text-sm' : 'text-base'"
+                  :class="
+                    manyRoutes
+                      ? 'text-sm leading-snug lg:text-base'
+                      : 'text-base leading-relaxed lg:text-lg'
+                  "
                 >
                   {{ view.card.flavor_text }}
                 </p>
@@ -724,7 +729,7 @@
                     <li
                       v-for="choice in lockedRoutes"
                       :key="choice.id"
-                      class="flex max-w-full items-center gap-1 rounded-lg border border-base-300 bg-base-200 px-2 py-1 text-xs text-base-content/70"
+                      class="flex max-w-full items-center gap-1 rounded-lg border border-base-300 bg-base-200 px-2 py-1 text-xs text-base-content/70 max-md:max-w-[calc(50%-0.375rem)]"
                       :title="lockFor(choice) ?? undefined"
                     >
                       <icon

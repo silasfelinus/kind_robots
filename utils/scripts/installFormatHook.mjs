@@ -1,4 +1,10 @@
-import { chmodSync, existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
+import {
+  chmodSync,
+  existsSync,
+  mkdirSync,
+  readFileSync,
+  writeFileSync,
+} from 'node:fs'
 import { spawnSync } from 'node:child_process'
 import { dirname, resolve } from 'node:path'
 
@@ -25,7 +31,9 @@ node utils/scripts/formatChanged.mjs --staged --write
       chmodSync(target, 0o755)
       console.log('Installed Kind Robots staged-file Prettier hook.')
     } else {
-      console.log('Existing pre-commit hook retained; use npm run format:changed before pushing.')
+      console.log(
+        'Existing pre-commit hook retained; use npm run format:changed before pushing.',
+      )
     }
   }
 }

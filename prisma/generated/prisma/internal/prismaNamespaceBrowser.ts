@@ -1184,7 +1184,10 @@ export type ProjectFacetScalarFieldEnum = (typeof ProjectFacetScalarFieldEnum)[k
 export const ProjectArtImageScalarFieldEnum = {
   projectId: 'projectId',
   artImageId: 'artImageId',
-  createdAt: 'createdAt'
+  createdAt: 'createdAt',
+  role: 'role',
+  slot: 'slot',
+  pinnedVersion: 'pinnedVersion'
 } as const
 
 export type ProjectArtImageScalarFieldEnum = (typeof ProjectArtImageScalarFieldEnum)[keyof typeof ProjectArtImageScalarFieldEnum]
@@ -3302,6 +3305,15 @@ export const FacetOrderByRelevanceFieldEnum = {
 } as const
 
 export type FacetOrderByRelevanceFieldEnum = (typeof FacetOrderByRelevanceFieldEnum)[keyof typeof FacetOrderByRelevanceFieldEnum]
+
+
+export const ProjectArtImageOrderByRelevanceFieldEnum = {
+  role: 'role',
+  slot: 'slot',
+  pinnedVersion: 'pinnedVersion'
+} as const
+
+export type ProjectArtImageOrderByRelevanceFieldEnum = (typeof ProjectArtImageOrderByRelevanceFieldEnum)[keyof typeof ProjectArtImageOrderByRelevanceFieldEnum]
 
 
 export const EntityArtImageOrderByRelevanceFieldEnum = {

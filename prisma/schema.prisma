@@ -540,11 +540,14 @@ model ProjectFacet {
 }
 
 model ProjectArtImage {
-  projectId  Int
-  artImageId Int
-  createdAt  DateTime @default(now())
-  ArtImage   ArtImage @relation(fields: [artImageId], references: [id], onDelete: Cascade)
-  Project    Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  projectId     Int
+  artImageId    Int
+  createdAt     DateTime @default(now())
+  role          String?  @db.VarChar(32)
+  slot          String?  @db.VarChar(120)
+  pinnedVersion String?  @db.VarChar(64)
+  ArtImage      ArtImage @relation(fields: [artImageId], references: [id], onDelete: Cascade)
+  Project       Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
 
   @@id([projectId, artImageId])
   @@index([artImageId])

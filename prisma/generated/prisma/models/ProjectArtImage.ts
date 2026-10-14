@@ -40,18 +40,27 @@ export type ProjectArtImageMinAggregateOutputType = {
   projectId: number | null
   artImageId: number | null
   createdAt: Date | null
+  role: string | null
+  slot: string | null
+  pinnedVersion: string | null
 }
 
 export type ProjectArtImageMaxAggregateOutputType = {
   projectId: number | null
   artImageId: number | null
   createdAt: Date | null
+  role: string | null
+  slot: string | null
+  pinnedVersion: string | null
 }
 
 export type ProjectArtImageCountAggregateOutputType = {
   projectId: number
   artImageId: number
   createdAt: number
+  role: number
+  slot: number
+  pinnedVersion: number
   _all: number
 }
 
@@ -70,18 +79,27 @@ export type ProjectArtImageMinAggregateInputType = {
   projectId?: true
   artImageId?: true
   createdAt?: true
+  role?: true
+  slot?: true
+  pinnedVersion?: true
 }
 
 export type ProjectArtImageMaxAggregateInputType = {
   projectId?: true
   artImageId?: true
   createdAt?: true
+  role?: true
+  slot?: true
+  pinnedVersion?: true
 }
 
 export type ProjectArtImageCountAggregateInputType = {
   projectId?: true
   artImageId?: true
   createdAt?: true
+  role?: true
+  slot?: true
+  pinnedVersion?: true
   _all?: true
 }
 
@@ -175,6 +193,9 @@ export type ProjectArtImageGroupByOutputType = {
   projectId: number
   artImageId: number
   createdAt: Date
+  role: string | null
+  slot: string | null
+  pinnedVersion: string | null
   _count: ProjectArtImageCountAggregateOutputType | null
   _avg: ProjectArtImageAvgAggregateOutputType | null
   _sum: ProjectArtImageSumAggregateOutputType | null
@@ -204,6 +225,9 @@ export type ProjectArtImageWhereInput = {
   projectId?: Prisma.IntFilter<"ProjectArtImage"> | number
   artImageId?: Prisma.IntFilter<"ProjectArtImage"> | number
   createdAt?: Prisma.DateTimeFilter<"ProjectArtImage"> | Date | string
+  role?: Prisma.StringNullableFilter<"ProjectArtImage"> | string | null
+  slot?: Prisma.StringNullableFilter<"ProjectArtImage"> | string | null
+  pinnedVersion?: Prisma.StringNullableFilter<"ProjectArtImage"> | string | null
   ArtImage?: Prisma.XOR<Prisma.ArtImageScalarRelationFilter, Prisma.ArtImageWhereInput>
   Project?: Prisma.XOR<Prisma.ProjectScalarRelationFilter, Prisma.ProjectWhereInput>
 }
@@ -212,8 +236,12 @@ export type ProjectArtImageOrderByWithRelationInput = {
   projectId?: Prisma.SortOrder
   artImageId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  role?: Prisma.SortOrderInput | Prisma.SortOrder
+  slot?: Prisma.SortOrderInput | Prisma.SortOrder
+  pinnedVersion?: Prisma.SortOrderInput | Prisma.SortOrder
   ArtImage?: Prisma.ArtImageOrderByWithRelationInput
   Project?: Prisma.ProjectOrderByWithRelationInput
+  _relevance?: Prisma.ProjectArtImageOrderByRelevanceInput
 }
 
 export type ProjectArtImageWhereUniqueInput = Prisma.AtLeast<{
@@ -224,6 +252,9 @@ export type ProjectArtImageWhereUniqueInput = Prisma.AtLeast<{
   projectId?: Prisma.IntFilter<"ProjectArtImage"> | number
   artImageId?: Prisma.IntFilter<"ProjectArtImage"> | number
   createdAt?: Prisma.DateTimeFilter<"ProjectArtImage"> | Date | string
+  role?: Prisma.StringNullableFilter<"ProjectArtImage"> | string | null
+  slot?: Prisma.StringNullableFilter<"ProjectArtImage"> | string | null
+  pinnedVersion?: Prisma.StringNullableFilter<"ProjectArtImage"> | string | null
   ArtImage?: Prisma.XOR<Prisma.ArtImageScalarRelationFilter, Prisma.ArtImageWhereInput>
   Project?: Prisma.XOR<Prisma.ProjectScalarRelationFilter, Prisma.ProjectWhereInput>
 }, "projectId_artImageId">
@@ -232,6 +263,9 @@ export type ProjectArtImageOrderByWithAggregationInput = {
   projectId?: Prisma.SortOrder
   artImageId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  role?: Prisma.SortOrderInput | Prisma.SortOrder
+  slot?: Prisma.SortOrderInput | Prisma.SortOrder
+  pinnedVersion?: Prisma.SortOrderInput | Prisma.SortOrder
   _count?: Prisma.ProjectArtImageCountOrderByAggregateInput
   _avg?: Prisma.ProjectArtImageAvgOrderByAggregateInput
   _max?: Prisma.ProjectArtImageMaxOrderByAggregateInput
@@ -246,10 +280,16 @@ export type ProjectArtImageScalarWhereWithAggregatesInput = {
   projectId?: Prisma.IntWithAggregatesFilter<"ProjectArtImage"> | number
   artImageId?: Prisma.IntWithAggregatesFilter<"ProjectArtImage"> | number
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"ProjectArtImage"> | Date | string
+  role?: Prisma.StringNullableWithAggregatesFilter<"ProjectArtImage"> | string | null
+  slot?: Prisma.StringNullableWithAggregatesFilter<"ProjectArtImage"> | string | null
+  pinnedVersion?: Prisma.StringNullableWithAggregatesFilter<"ProjectArtImage"> | string | null
 }
 
 export type ProjectArtImageCreateInput = {
   createdAt?: Date | string
+  role?: string | null
+  slot?: string | null
+  pinnedVersion?: string | null
   ArtImage: Prisma.ArtImageCreateNestedOneWithoutProjectLinksInput
   Project: Prisma.ProjectCreateNestedOneWithoutArtImageLinksInput
 }
@@ -258,10 +298,16 @@ export type ProjectArtImageUncheckedCreateInput = {
   projectId: number
   artImageId: number
   createdAt?: Date | string
+  role?: string | null
+  slot?: string | null
+  pinnedVersion?: string | null
 }
 
 export type ProjectArtImageUpdateInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  role?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  slot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pinnedVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   ArtImage?: Prisma.ArtImageUpdateOneRequiredWithoutProjectLinksNestedInput
   Project?: Prisma.ProjectUpdateOneRequiredWithoutArtImageLinksNestedInput
 }
@@ -270,22 +316,34 @@ export type ProjectArtImageUncheckedUpdateInput = {
   projectId?: Prisma.IntFieldUpdateOperationsInput | number
   artImageId?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  role?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  slot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pinnedVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type ProjectArtImageCreateManyInput = {
   projectId: number
   artImageId: number
   createdAt?: Date | string
+  role?: string | null
+  slot?: string | null
+  pinnedVersion?: string | null
 }
 
 export type ProjectArtImageUpdateManyMutationInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  role?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  slot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pinnedVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type ProjectArtImageUncheckedUpdateManyInput = {
   projectId?: Prisma.IntFieldUpdateOperationsInput | number
   artImageId?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  role?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  slot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pinnedVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type ProjectArtImageListRelationFilter = {
@@ -298,6 +356,12 @@ export type ProjectArtImageOrderByRelationAggregateInput = {
   _count?: Prisma.SortOrder
 }
 
+export type ProjectArtImageOrderByRelevanceInput = {
+  fields: Prisma.ProjectArtImageOrderByRelevanceFieldEnum | Prisma.ProjectArtImageOrderByRelevanceFieldEnum[]
+  sort: Prisma.SortOrder
+  search: string
+}
+
 export type ProjectArtImageProjectIdArtImageIdCompoundUniqueInput = {
   projectId: number
   artImageId: number
@@ -307,6 +371,9 @@ export type ProjectArtImageCountOrderByAggregateInput = {
   projectId?: Prisma.SortOrder
   artImageId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  role?: Prisma.SortOrder
+  slot?: Prisma.SortOrder
+  pinnedVersion?: Prisma.SortOrder
 }
 
 export type ProjectArtImageAvgOrderByAggregateInput = {
@@ -318,12 +385,18 @@ export type ProjectArtImageMaxOrderByAggregateInput = {
   projectId?: Prisma.SortOrder
   artImageId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  role?: Prisma.SortOrder
+  slot?: Prisma.SortOrder
+  pinnedVersion?: Prisma.SortOrder
 }
 
 export type ProjectArtImageMinOrderByAggregateInput = {
   projectId?: Prisma.SortOrder
   artImageId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  role?: Prisma.SortOrder
+  slot?: Prisma.SortOrder
+  pinnedVersion?: Prisma.SortOrder
 }
 
 export type ProjectArtImageSumOrderByAggregateInput = {
@@ -417,12 +490,18 @@ export type ProjectArtImageUncheckedUpdateManyWithoutProjectNestedInput = {
 
 export type ProjectArtImageCreateWithoutArtImageInput = {
   createdAt?: Date | string
+  role?: string | null
+  slot?: string | null
+  pinnedVersion?: string | null
   Project: Prisma.ProjectCreateNestedOneWithoutArtImageLinksInput
 }
 
 export type ProjectArtImageUncheckedCreateWithoutArtImageInput = {
   projectId: number
   createdAt?: Date | string
+  role?: string | null
+  slot?: string | null
+  pinnedVersion?: string | null
 }
 
 export type ProjectArtImageCreateOrConnectWithoutArtImageInput = {
@@ -458,16 +537,25 @@ export type ProjectArtImageScalarWhereInput = {
   projectId?: Prisma.IntFilter<"ProjectArtImage"> | number
   artImageId?: Prisma.IntFilter<"ProjectArtImage"> | number
   createdAt?: Prisma.DateTimeFilter<"ProjectArtImage"> | Date | string
+  role?: Prisma.StringNullableFilter<"ProjectArtImage"> | string | null
+  slot?: Prisma.StringNullableFilter<"ProjectArtImage"> | string | null
+  pinnedVersion?: Prisma.StringNullableFilter<"ProjectArtImage"> | string | null
 }
 
 export type ProjectArtImageCreateWithoutProjectInput = {
   createdAt?: Date | string
+  role?: string | null
+  slot?: string | null
+  pinnedVersion?: string | null
   ArtImage: Prisma.ArtImageCreateNestedOneWithoutProjectLinksInput
 }
 
 export type ProjectArtImageUncheckedCreateWithoutProjectInput = {
   artImageId: number
   createdAt?: Date | string
+  role?: string | null
+  slot?: string | null
+  pinnedVersion?: string | null
 }
 
 export type ProjectArtImageCreateOrConnectWithoutProjectInput = {
@@ -499,41 +587,65 @@ export type ProjectArtImageUpdateManyWithWhereWithoutProjectInput = {
 export type ProjectArtImageCreateManyArtImageInput = {
   projectId: number
   createdAt?: Date | string
+  role?: string | null
+  slot?: string | null
+  pinnedVersion?: string | null
 }
 
 export type ProjectArtImageUpdateWithoutArtImageInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  role?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  slot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pinnedVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Project?: Prisma.ProjectUpdateOneRequiredWithoutArtImageLinksNestedInput
 }
 
 export type ProjectArtImageUncheckedUpdateWithoutArtImageInput = {
   projectId?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  role?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  slot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pinnedVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type ProjectArtImageUncheckedUpdateManyWithoutArtImageInput = {
   projectId?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  role?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  slot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pinnedVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type ProjectArtImageCreateManyProjectInput = {
   artImageId: number
   createdAt?: Date | string
+  role?: string | null
+  slot?: string | null
+  pinnedVersion?: string | null
 }
 
 export type ProjectArtImageUpdateWithoutProjectInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  role?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  slot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pinnedVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   ArtImage?: Prisma.ArtImageUpdateOneRequiredWithoutProjectLinksNestedInput
 }
 
 export type ProjectArtImageUncheckedUpdateWithoutProjectInput = {
   artImageId?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  role?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  slot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pinnedVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type ProjectArtImageUncheckedUpdateManyWithoutProjectInput = {
   artImageId?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  role?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  slot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pinnedVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 
@@ -542,6 +654,9 @@ export type ProjectArtImageSelect<ExtArgs extends runtime.Types.Extensions.Inter
   projectId?: boolean
   artImageId?: boolean
   createdAt?: boolean
+  role?: boolean
+  slot?: boolean
+  pinnedVersion?: boolean
   ArtImage?: boolean | Prisma.ArtImageDefaultArgs<ExtArgs>
   Project?: boolean | Prisma.ProjectDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["projectArtImage"]>
@@ -552,9 +667,12 @@ export type ProjectArtImageSelectScalar = {
   projectId?: boolean
   artImageId?: boolean
   createdAt?: boolean
+  role?: boolean
+  slot?: boolean
+  pinnedVersion?: boolean
 }
 
-export type ProjectArtImageOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"projectId" | "artImageId" | "createdAt", ExtArgs["result"]["projectArtImage"]>
+export type ProjectArtImageOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"projectId" | "artImageId" | "createdAt" | "role" | "slot" | "pinnedVersion", ExtArgs["result"]["projectArtImage"]>
 export type ProjectArtImageInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   ArtImage?: boolean | Prisma.ArtImageDefaultArgs<ExtArgs>
   Project?: boolean | Prisma.ProjectDefaultArgs<ExtArgs>
@@ -570,6 +688,9 @@ export type $ProjectArtImagePayload<ExtArgs extends runtime.Types.Extensions.Int
     projectId: number
     artImageId: number
     createdAt: Date
+    role: string | null
+    slot: string | null
+    pinnedVersion: string | null
   }, ExtArgs["result"]["projectArtImage"]>
   composites: {}
 }
@@ -944,6 +1065,9 @@ export interface ProjectArtImageFieldRefs {
   readonly projectId: Prisma.FieldRef<"ProjectArtImage", 'Int'>
   readonly artImageId: Prisma.FieldRef<"ProjectArtImage", 'Int'>
   readonly createdAt: Prisma.FieldRef<"ProjectArtImage", 'DateTime'>
+  readonly role: Prisma.FieldRef<"ProjectArtImage", 'String'>
+  readonly slot: Prisma.FieldRef<"ProjectArtImage", 'String'>
+  readonly pinnedVersion: Prisma.FieldRef<"ProjectArtImage", 'String'>
 }
     
 

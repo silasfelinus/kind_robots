@@ -15,10 +15,17 @@ import {
   ZUZU_ASSET_PAGE_SIZE,
   ZUZU_PROJECTS,
   isZuzuProjectSlug,
+  isZuzuUsageRole,
+  zuzuUsageRoleOf,
   type ZuzuAsset,
+  type ZuzuAssetUsage,
   type ZuzuProject,
   type ZuzuWorldPage,
 } from '~/utils/zuzuWorld'
+import {
+  repoExportsByArtImage,
+  zuzuRepoMediaIndex,
+} from '~/utils/zuzuRepoMedia'
 
 const VIDEO_FORMATS = /^(?:video\/|mp4$|webm$|mov$|m4v$)/i
 
@@ -53,6 +60,9 @@ export default defineEventHandler(async (event) => {
     const project = String(query.project ?? '')
     const kind = String(query.kind ?? 'all')
     const scope = isZuzuProjectSlug(project) ? project : ''
+    const roleQuery = String(query.role ?? '')
+    const roleFilter = isZuzuUsageRole(roleQuery) ? roleQuery : ''
+    const repoExports = repoExportsByArtImage(zuzuRepoMediaIndex())
     const ledger = await loadZuzuArtLedger()
     const candidateIds = [...ledger.items.keys()]
 
@@ -92,8 +102,13 @@ export default defineEventHandler(async (event) => {
           ProjectLinks: {
             select: {
               projectId: true,
-              Project: { select: { conductorSlug: true } },
+              role: true,
+              slot: true,
+              pinnedVersion: true,
+              createdAt: true,
+              Project: { select: { conductorSlug: true, title: true } },
             },
+            orderBy: { createdAt: 'asc' },
           },
         },
         orderBy: { id: 'desc' },
@@ -116,6 +131,21 @@ export default defineEventHandler(async (event) => {
           link.Project.conductorSlug &&
           isZuzuProjectSlug(link.Project.conductorSlug),
       )
+      const usages: ZuzuAssetUsage[] = linked.flatMap((link) => {
+        const slug = link.Project.conductorSlug
+        if (!slug || !isZuzuProjectSlug(slug)) return []
+        return [
+          {
+            projectId: link.projectId,
+            projectSlug: slug,
+            projectTitle: link.Project.title,
+            role: zuzuUsageRoleOf(link.role),
+            slot: link.slot,
+            pinnedVersion: link.pinnedVersion,
+            linkedAt: link.createdAt.toISOString(),
+          },
+        ]
+      })
       const projectSlugs = [
         ...new Set([
           meta.sourceProject,
@@ -132,6 +162,8 @@ export default defineEventHandler(async (event) => {
         : titleForKey(meta.key)
 
       if (scope && !projectSlugs.includes(scope)) continue
+      if (roleFilter && !usages.some((usage) => usage.role === roleFilter))
+        continue
       if (kind === 'video' && mediaKind !== 'video') continue
       if (kind === 'image' && mediaKind !== 'image') continue
       if (
@@ -149,6 +181,10 @@ export default defineEventHandler(async (event) => {
           meta.source,
           image.fileName ?? '',
           image.promptString ?? '',
+          ...usages.flatMap((usage) => [
+            usage.slot ?? '',
+            usage.pinnedVersion ?? '',
+          ]),
         ].some((value) => value.toLowerCase().includes(search))
       )
         continue
@@ -162,6 +198,8 @@ export default defineEventHandler(async (event) => {
         artJobIds: meta.jobIds,
         projectSlugs,
         linkedProjectIds: linked.map((link) => link.projectId),
+        usages,
+        repoExports: repoExports.get(image.id) ?? [],
         thumbnailUrl: galleryThumbnailUrl(image.id),
         previewUrl: image.imagePath || galleryThumbnailUrl(image.id),
         fileType: image.fileType,

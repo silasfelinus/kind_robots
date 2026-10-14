@@ -457,6 +457,7 @@
       v-else
       :showcase="showcaseStore.showcase"
       :loaded="showcaseStore.hasLoaded"
+      :admin="isAdmin"
     />
   </div>
 </template>

@@ -404,7 +404,6 @@ jobs:
       - name: ArtImage offload contract
         run: npm run test:art-image-offload
 
-
   contract_2:
     name: Contract shard 2/4
     runs-on: ubuntu-latest
@@ -789,7 +788,6 @@ jobs:
       - name: Newsfeed programmable filters contract
         run: npm run test:newsfeed-filters
 
-
   contract_3:
     name: Contract shard 3/4
     runs-on: ubuntu-latest
@@ -1173,7 +1171,6 @@ jobs:
 
       - name: Model Builder reset/openRun race guard contract
         run: npm run test:model-builder-reset-open-run-guard
-
 
   contract_4:
     name: Contract shard 4/4

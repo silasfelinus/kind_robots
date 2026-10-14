@@ -22,9 +22,9 @@
               <p class="kr-text-eyebrow text-primary">
                 Private workshop · First playable slice
               </p>
-              <h1 class="mt-2 text-3xl font-black sm:text-5xl">
+              <h2 class="mt-2 text-3xl font-black sm:text-5xl">
                 Sliding Tile Gallery
-              </h1>
+              </h2>
               <p class="mt-3 max-w-2xl text-sm text-base-content/75">
                 Slide the eight painted panes into place. Finish the picture to
                 reveal a postcard and save it to your keepsake wall. This build

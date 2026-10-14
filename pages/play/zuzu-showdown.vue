@@ -167,7 +167,6 @@
       </details>
 
       <ZuzuShowdownStage />
-
     </div>
   </main>
 </template>

@@ -52,6 +52,7 @@
     "test:backfill-progress": "tsx utils/scripts/verifyBackfillProgress.test.ts",
     "test:lora-provenance": "tsx utils/scripts/verifyLoraCategoryProvenance.test.ts",
     "test:civitai-ids": "tsx utils/scripts/verifyCivitaiIds.test.ts",
+    "test:zuzu-reconcile": "tsx utils/scripts/verifyZuzuReconcile.test.ts",
     "test:art-random-batch": "tsx utils/scripts/verifyArtRandomBatch.test.ts",
     "backfill:lora-categories": "prisma generate && tsx utils/scripts/backfillLoraCategories.ts",
     "test:zimage-workflow": "tsx utils/scripts/verifyZImageWorkflow.test.ts",

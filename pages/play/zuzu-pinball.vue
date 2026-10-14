@@ -94,7 +94,6 @@
           </section>
         </aside>
       </div>
-      <ArcadePinballLightMap :table="ZUZU_LAST_BELL_GREYBOX" />
     </div>
   </main>
 </template>
@@ -102,7 +101,6 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue'
 import { canRenderWebGL } from '~/utils/arcade/games'
-import { ZUZU_LAST_BELL_GREYBOX } from '~/utils/arcade/pinball/tables/zuzuLastBell/table'
 
 const webglReady = ref(true)
 

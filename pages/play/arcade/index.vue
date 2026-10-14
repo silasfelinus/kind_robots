@@ -13,79 +13,89 @@
           </span>
         </nav>
 
-        <div class="flex flex-col gap-4 xl:flex-row xl:items-start">
+        <div class="flex flex-col gap-4 xl:flex-row">
           <div class="min-w-0 flex-1">
             <ArcadeCabinet :slug="meta.slug" />
           </div>
 
+          <!--
+            Beside the cabinet the sidebar is exactly the cabinet's height and
+            scrolls on its own (the inner box is absolutely filled), so high
+            scores, the blurb and the reviews never push the page past one
+            screen. Stacked below the cabinet on narrower screens it flows.
+          -->
           <aside
-            class="kr-panel flex w-full flex-col gap-4 rounded-2xl p-4 xl:w-80 xl:shrink-0"
-            aria-label="High scores"
+            class="kr-panel relative w-full rounded-2xl xl:w-80 xl:shrink-0"
+            aria-label="High scores, about and reviews"
           >
-            <section v-for="range in ranges" :key="range.key">
-              <p
-                class="mb-2 text-xs font-bold uppercase tracking-widest opacity-70"
-              >
-                {{ range.label }}
-              </p>
-              <ol
-                v-if="store.board(meta.slug, range.key).length"
-                class="space-y-1 font-mono text-sm"
-              >
-                <li
-                  v-for="(row, index) in store.board(meta.slug, range.key)"
-                  :key="row.id"
-                  class="flex justify-between gap-3 rounded px-2 py-0.5"
-                  :class="
-                    row.id === store.lastSubmittedId
-                      ? 'bg-primary/20 font-bold'
-                      : ''
-                  "
-                >
-                  <span class="min-w-0 truncate">
-                    {{ index + 1 }}. {{ row.initials }}
-                    <span
-                      v-if="row.username"
-                      class="font-sans text-xs opacity-70"
-                      :title="`Played by ${row.username}`"
-                      >· {{ row.username }}</span
-                    >
-                  </span>
-                  <span>{{ row.score.toLocaleString() }}</span>
-                </li>
-              </ol>
-              <p v-else class="text-sm opacity-70">
-                No scores yet. Be the first!
-              </p>
-            </section>
-            <p v-if="store.offline" class="text-xs opacity-70">
-              The score server is unreachable, so these are the scores saved on
-              this device.
-            </p>
-            <p v-if="store.pendingCount" class="text-xs opacity-70">
-              {{ store.pendingCount }}
-              {{ store.pendingCount === 1 ? 'score' : 'scores' }} from this
-              device will join the global board as soon as the score server
-              answers.
-            </p>
-            <p class="text-sm leading-relaxed">{{ meta.blurb }}</p>
-            <p
-              v-if="meta.slug === 'butterfly-blaster'"
-              class="text-sm leading-relaxed"
+            <div
+              class="flex flex-col gap-4 p-4 xl:absolute xl:inset-0 xl:overflow-y-auto xl:overscroll-contain"
             >
-              On screen, the butterfly protects villages. Off screen, AMI buys
-              real bed nets for families who need them:
-              <a
-                href="https://againstmalaria.com/amibot"
-                target="_blank"
-                rel="noopener"
-                class="link link-primary"
-                >help her send one</a
-              >.
-            </p>
+              <section v-for="range in ranges" :key="range.key">
+                <p
+                  class="mb-2 text-xs font-bold uppercase tracking-widest opacity-70"
+                >
+                  {{ range.label }}
+                </p>
+                <ol
+                  v-if="store.board(meta.slug, range.key).length"
+                  class="space-y-1 font-mono text-sm"
+                >
+                  <li
+                    v-for="(row, index) in store.board(meta.slug, range.key)"
+                    :key="row.id"
+                    class="flex justify-between gap-3 rounded px-2 py-0.5"
+                    :class="
+                      row.id === store.lastSubmittedId
+                        ? 'bg-primary/20 font-bold'
+                        : ''
+                    "
+                  >
+                    <span class="min-w-0 truncate">
+                      {{ index + 1 }}. {{ row.initials }}
+                      <span
+                        v-if="row.username"
+                        class="font-sans text-xs opacity-70"
+                        :title="`Played by ${row.username}`"
+                        >· {{ row.username }}</span
+                      >
+                    </span>
+                    <span>{{ row.score.toLocaleString() }}</span>
+                  </li>
+                </ol>
+                <p v-else class="text-sm opacity-70">
+                  No scores yet. Be the first!
+                </p>
+              </section>
+              <p v-if="store.offline" class="text-xs opacity-70">
+                The score server is unreachable, so these are the scores saved
+                on this device.
+              </p>
+              <p v-if="store.pendingCount" class="text-xs opacity-70">
+                {{ store.pendingCount }}
+                {{ store.pendingCount === 1 ? 'score' : 'scores' }} from this
+                device will join the global board as soon as the score server
+                answers.
+              </p>
+              <p class="text-sm leading-relaxed">{{ meta.blurb }}</p>
+              <p
+                v-if="meta.slug === 'butterfly-blaster'"
+                class="text-sm leading-relaxed"
+              >
+                On screen, the butterfly protects villages. Off screen, AMI buys
+                real bed nets for families who need them:
+                <a
+                  href="https://againstmalaria.com/amibot"
+                  target="_blank"
+                  rel="noopener"
+                  class="link link-primary"
+                  >help her send one</a
+                >.
+              </p>
+              <ArcadeReviews :game="meta.slug" compact />
+            </div>
           </aside>
         </div>
-        <ArcadeReviews :game="meta.slug" />
       </template>
 
       <div v-else class="kr-panel mx-auto max-w-xl rounded-2xl p-6 text-center">

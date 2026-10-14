@@ -1,10 +1,17 @@
 name: Narrative Primitives Contract
 
 on:
-  push:
-    branches: [main]
   pull_request:
     branches: [main]
+    paths:
+      - '.github/workflows/narrative-primitives-contract.yml'
+      - 'components/narrative/narrative-ingredient-card.vue'
+      - 'components/narrative/narrative-ingredient-picker.vue'
+      - 'components/narrative/kr-chat-window.vue'
+      - 'utils/narrativeTurns.ts'
+      - 'components/narrative/narrative-response-composer.vue'
+      - 'components/conductor/storybook-page.vue'
+      - 'utils/scripts/verifyNarrativePrimitives.mjs'
   workflow_dispatch:
 
 concurrency:

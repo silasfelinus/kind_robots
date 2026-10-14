@@ -12,7 +12,6 @@ import {
 } from '@/stores/helpers/navigationAccess'
 import { evaluateNavigationRouteAccess } from '@/stores/helpers/navigationRouteAccess'
 import { PROJECT_PLACEMENTS } from '@/utils/projectPlacements'
-import { arcadeGameTabItems } from '@/utils/arcade/navigation'
 import { tutorialPageKey } from '@/stores/tutorialStore'
 
 const items: ChannelContentItem[] = [
@@ -520,7 +519,6 @@ const contentItems: ChannelContentItem[] = [
     ) as ChannelContentItem),
     path: file,
   })),
-  ...arcadeGameTabItems(),
 ]
 const contentItemByLocation = new Map(
   contentItems

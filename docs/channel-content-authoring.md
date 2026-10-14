@@ -215,7 +215,7 @@ an Admin-only rule):
 - `tutorial: { enabled: false }` is allowed only where a tab is not a page of
   its own: a route-less submenu parent (Admin's Retired group), or a subtab
   that selects a mode of its parent's page by query string while the parent
-  carries the help (Arcade's generated `?game=` subtabs);
+  carries the help;
 - channel copy (description, summary, tutorial overview and sections) must not
   name a tab the viewer's role hides. Sign-in gates are fine to mention ("once
   you are signed in"); a role-gated tab is invisible, not locked. Role and

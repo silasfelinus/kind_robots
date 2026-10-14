@@ -15,13 +15,12 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  contract-tests:
-    name: Contract verifiers
+  # Run every existing contract test, but fan out independent verifiers for faster PR feedback.
+  # The required Contract verifiers status below fails unless all four shards pass.
+  contract_1:
+    name: Contract shard 1/4
     runs-on: ubuntu-latest
-    # The Zuzu physics soaks and their siblings run the job past 10
-    # minutes; give it room rather than trim what they prove.
     timeout-minutes: 15
-
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -113,16 +112,19 @@ jobs:
 
       # The lookup that silently did nothing: --fetch-tags keyed on a column
       # almost no row has, so it reached 2 of 1,221 and reported success.
+
       - name: Civitai id resolution contract
         run: npm run test:civitai-ids
 
       # The same sweep, silent for 25 minutes: every network round trip ran
       # before the first line printed, so "working" and "wedged" looked alike.
+
       - name: LoRA backfill progress-output contract
         run: npm run test:backfill-progress
 
       # The category is only as trustworthy as what produced it, and the field
       # that says which never rode the list select the triage grid reads from.
+
       - name: LoRA category provenance contract
         run: npm run test:lora-provenance
 
@@ -131,6 +133,7 @@ jobs:
       # randomizer's batch roll. test:prompt-variants existed but was wired
       # into no workflow, so the Challenge Center half of that contract was
       # unguarded at exactly the moment a second caller started depending on it.
+
       - name: Prompt variant generation contract
         run: npm run test:prompt-variants
 
@@ -232,18 +235,25 @@ jobs:
 
       - name: Zuzu Showdown fighter kit (The Abbess)
         run: npm run test:zuzu-showdown-abbess
+
       - name: Zuzu Showdown fighter kit (The Siblings)
         run: npm run test:zuzu-showdown-siblings
+
       - name: Zuzu Showdown fighter kit (Storm Crow)
         run: npm run test:zuzu-showdown-storm-crow
+
       - name: Zuzu Showdown fighter kit (River Croc)
         run: npm run test:zuzu-showdown-river-croc
+
       - name: Zuzu Showdown fighter kit (The Hyena Matriarch)
         run: npm run test:zuzu-showdown-hyena
+
       - name: Zuzu Showdown fighter kit (Old Komodo)
         run: npm run test:zuzu-showdown-komodo
+
       - name: Zuzu Showdown fighter kit (The Swamp Witch)
         run: npm run test:zuzu-showdown-witch
+
       - name: Zuzu Showdown fighter kit (Jeffery Mittens)
         run: npm run test:zuzu-showdown-mittens
 
@@ -406,6 +416,27 @@ jobs:
       - name: ArtImage offload contract
         run: npm run test:art-image-offload
 
+  contract_2:
+    name: Contract shard 2/4
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+        env:
+          CYPRESS_INSTALL_BINARY: '0'
+
       - name: Animated art offload contract
         run: npm run test:animated-art-offload
 
@@ -477,10 +508,6 @@ jobs:
 
       - name: Academy starter manifest provenance contract
         run: npm run test:academy-starter-manifest
-
-      - name: Academy examples manifest provenance contract
-        shell: bash
-        run: npm run test:academy-examples-manifest 2>&1 | tee academy-examples-contract.txt
 
       - name: Academy artist-portraits manifest provenance contract
         run: npm run test:academy-artist-portraits-manifest
@@ -772,6 +799,27 @@ jobs:
 
       - name: Newsfeed programmable filters contract
         run: npm run test:newsfeed-filters
+
+  contract_3:
+    name: Contract shard 3/4
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+        env:
+          CYPRESS_INSTALL_BINARY: '0'
 
       - name: Newsfeed perspective balance contract
         run: npm run test:newsfeed-perspective-balance
@@ -1136,6 +1184,27 @@ jobs:
       - name: Model Builder reset/openRun race guard contract
         run: npm run test:model-builder-reset-open-run-guard
 
+  contract_4:
+    name: Contract shard 4/4
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+        env:
+          CYPRESS_INSTALL_BINARY: '0'
+
       - name: Model Builder openRun cancelled-run guard checker self-test
         run: npm run test:model-builder-open-run-cancelled-guard-selftest
 
@@ -1366,6 +1435,7 @@ jobs:
 
       # First-party Bot/Character authorship is part of the replacement comment
       # system and survives the retired WonderLab ReviewDraft machinery.
+
       - name: Reaction first-party author expand migration contract
         run: npx tsx utils/scripts/verifyReactionFirstPartyAuthorExpand.ts
 
@@ -1506,6 +1576,10 @@ jobs:
         shell: bash
         run: npm run audit:server-api-callers 2>&1 | tee server-api-callers-audit.txt
 
+      - name: Academy examples manifest provenance contract
+        shell: bash
+        run: npm run test:academy-examples-manifest 2>&1 | tee academy-examples-contract.txt
+
       - name: Upload contract diagnostics
         if: always()
         uses: actions/upload-artifact@v4
@@ -1517,3 +1591,26 @@ jobs:
             server-api-callers-audit.txt
           if-no-files-found: warn
           retention-days: 14
+  
+  contract-tests:
+    name: Contract verifiers
+    needs: [contract_1, contract_2, contract_3, contract_4]
+    if: ${{ always() }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    steps:
+      - name: Require all contract shards to succeed
+        env:
+          RESULT_1: ${{ needs.contract_1.result }}
+          RESULT_2: ${{ needs.contract_2.result }}
+          RESULT_3: ${{ needs.contract_3.result }}
+          RESULT_4: ${{ needs.contract_4.result }}
+        shell: bash
+        run: |
+          for result in "$RESULT_1" "$RESULT_2" "$RESULT_3" "$RESULT_4"; do
+            echo "Contract shard result: $result"
+            if [[ "$result" != "success" ]]; then
+              echo "::error::All contract shards must complete successfully."
+              exit 1
+            fi
+          done

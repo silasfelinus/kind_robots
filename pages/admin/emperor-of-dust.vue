@@ -15,29 +15,7 @@
     >
       <span class="kr-spinner-lg-primary" />
     </div>
-    <div v-else class="kr-scroll mx-auto max-w-7xl space-y-6 px-3 py-5 sm:px-6">
-      <header
-        class="rounded-3xl border border-warning/30 bg-base-300 p-6 sm:p-9"
-      >
-        <p class="text-xs font-bold uppercase tracking-widest text-warning">
-          Private Zuzu-world strategy chamber · working pilot
-        </p>
-        <h2 class="font-serif text-4xl font-black sm:text-6xl">
-          Emperor of Dust
-        </h2>
-        <p class="font-serif text-2xl italic text-warning">One Hundred Days</p>
-        <p class="mt-3 max-w-3xl">
-          Before Zuzu reached the border, the Emperor ruled by dispatch and
-          compromise. Command a small court, send leaders with the numerical
-          Horde, and live with the results.
-        </p>
-        <p class="mt-3 text-sm font-semibold text-warning">
-          Playable Day 1 systems prototype. Only three incidents are authored.
-          Later days are available for travel and injury-recovery testing, not
-          as a complete campaign.
-        </p>
-      </header>
-
+    <div v-else class="mx-auto flex h-full min-h-0 w-full max-w-7xl flex-col gap-2 overflow-hidden px-2 py-2 sm:px-4">
       <p
         v-if="court.storageWarning"
         class="kr-note kr-note-error p-4"
@@ -48,27 +26,27 @@
       <p v-if="notice" class="kr-note p-4" role="status">{{ notice }}</p>
 
       <section
-        class="grid grid-cols-2 gap-3 sm:grid-cols-5"
+        class="grid shrink-0 grid-cols-5 gap-1 sm:gap-2"
         aria-label="Campaign status"
       >
         <div
           v-for="stat in figures"
           :key="stat.label"
-          class="rounded-2xl border border-base-content/15 bg-base-200 p-4"
+          class="min-w-0 rounded-lg border border-base-content/15 bg-base-200 px-1 py-1.5 text-center sm:rounded-xl sm:px-3"
         >
-          <p class="text-xs font-bold uppercase tracking-wider opacity-65">
+          <p class="block truncate text-[9px] font-bold uppercase tracking-tight opacity-65 sm:text-xs">
             {{ stat.label }}
           </p>
-          <strong class="font-serif text-2xl">{{ stat.value }}</strong>
+          <strong class="block truncate font-serif text-base sm:text-xl">{{ stat.value }}</strong>
         </div>
       </section>
 
-      <section class="kr-panel flex flex-wrap items-center gap-3 p-4 sm:p-5">
-        <div class="min-w-44 flex-1">
-          <p class="text-xs font-semibold uppercase tracking-widest opacity-65">
+      <section class="kr-panel flex shrink-0 flex-wrap items-center gap-2 p-2 sm:gap-3 sm:p-3">
+        <div class="min-w-32 flex-1">
+          <p class="text-[10px] font-semibold uppercase tracking-widest opacity-65">
             Paused imperial clock
           </p>
-          <p class="font-serif text-3xl font-bold">
+          <p class="font-serif text-xl font-bold sm:text-2xl">
             Day {{ court.day }} · {{ timeLabel(campaign.hour) }}
           </p>
         </div>
@@ -96,13 +74,23 @@
         >
           Next morning
         </button>
-        <p class="w-full text-xs opacity-70">
-          Time only advances when commanded. Deadlines close while parties
-          travel. Recovery days pass at the tower, and an injury does not
-          automatically kill a leader.
-        </p>
       </section>
 
+      <nav class="flex shrink-0 gap-1 overflow-x-auto rounded-xl bg-base-300 p-1" aria-label="Imperial court sections">
+        <button
+          v-for="panel in panels"
+          :key="panel.id"
+          type="button"
+          class="btn btn-sm min-w-fit flex-1 whitespace-nowrap"
+          :class="activePanel === panel.id ? 'btn-warning' : 'btn-ghost'"
+          :aria-current="activePanel === panel.id ? 'page' : undefined"
+          @click="activePanel = panel.id"
+        >
+          {{ panel.label }}
+        </button>
+      </nav>
+      <div class="kr-scroll min-h-0 flex-1 overscroll-contain rounded-xl border border-base-content/10 bg-base-200/20 p-1.5 sm:p-3">
+        <div v-show="activePanel === 'briefing'">
       <section
         v-if="court.day === 1"
         class="rounded-3xl border border-warning/25 bg-base-200 p-5"
@@ -141,10 +129,14 @@
           briefings are not authored yet.
         </p>
       </section>
-
-      <EmperorOfDustRelicVault />
-
-      <div class="grid gap-5 xl:grid-cols-[minmax(0,1.4fr)_minmax(320px,1fr)]">
+          <p v-if="court.day !== 1" class="kr-panel p-4">
+            Only Day 1 has authored intelligence reports in this pilot.
+          </p>
+        </div>
+        <div v-show="activePanel === 'relics'">
+          <EmperorOfDustRelicVault />
+        </div>
+      <div v-show="activePanel === 'map'" class="grid gap-5 xl:grid-cols-[minmax(0,1.4fr)_minmax(320px,1fr)]">
         <div class="space-y-5">
           <EmperorOfDustImperialRoadMap
             :selected-region-id="selectedRegionId"
@@ -423,7 +415,7 @@
         </div>
       </div>
 
-      <section class="kr-panel space-y-4 p-5">
+      <section v-show="activePanel === 'followers'" class="kr-panel space-y-4 p-3 sm:p-5">
         <div class="flex flex-wrap justify-between gap-2">
           <div>
             <h3 class="font-serif text-2xl font-bold">
@@ -521,6 +513,7 @@
       </section>
 
       <section
+        v-show="activePanel === 'ledger'"
         class="kr-panel flex flex-wrap items-start justify-between gap-4 p-5"
       >
         <div>
@@ -582,6 +575,7 @@
           </a>
         </div>
       </section>
+      </div>
     </div>
   </main>
 </template>
@@ -621,6 +615,14 @@ const troops = ref(10)
 const useHourglass = ref(false)
 const notice = ref('')
 const confirmRestart = ref(false)
+const panels = [
+  { id: 'map', label: 'Map & orders' },
+  { id: 'briefing', label: 'Briefing' },
+  { id: 'followers', label: 'Followers' },
+  { id: 'relics', label: 'Relics' },
+  { id: 'ledger', label: 'Ledger' },
+] as const
+const activePanel = ref<(typeof panels)[number]['id']>('map')
 
 const selectedRegion = computed(() =>
   IMPERIAL_REGIONS.find((region) => region.id === selectedRegionId.value),

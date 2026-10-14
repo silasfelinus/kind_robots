@@ -1,5 +1,5 @@
 <template>
-  <main class="kr-surface">
+  <main class="kr-surface" :data-art-style="artStyle">
     <div v-if="!store.loaded" class="kr-stage items-center justify-center">
       <span class="kr-spinner-lg-primary" />
     </div>
@@ -13,6 +13,25 @@
         >
           Shifting <span class="text-warning">/</span> Desks
         </p>
+        <label
+          class="flex shrink-0 items-center gap-1 text-xs font-bold"
+          title="Card art style; missing art uses Classic until new renders arrive"
+        >
+          <span class="sr-only">Card art style</span>
+          <select
+            v-model="artStyle"
+            aria-label="Card art style"
+            class="select select-bordered select-xs w-28 sm:w-44"
+          >
+            <option
+              v-for="style in ART_STYLES"
+              :key="style.id"
+              :value="style.id"
+            >
+              {{ style.label }}
+            </option>
+          </select>
+        </label>
         <div
           v-if="run"
           class="flex flex-1 flex-wrap items-center justify-end gap-1.5"
@@ -847,7 +866,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, nextTick, onMounted, ref, watch } from 'vue'
+import { computed, nextTick, onMounted, provide, ref, watch } from 'vue'
 import {
   DIFFICULTY,
   JOB_TITLES,
@@ -888,8 +907,18 @@ import {
   successorLine,
 } from '~/utils/shiftingDesks/memos'
 import { useShiftingDesksStore } from '~/stores/shiftingDesksStore'
+import {
+  ART_STYLES,
+  loadArtStylePreference,
+  saveArtStylePreference,
+  type ShiftingDesksArtStyle,
+} from '~/utils/shiftingDesks/artStyles'
 
 const store = useShiftingDesksStore()
+const artStyle = ref<ShiftingDesksArtStyle>('classic')
+provide('shifting-desks-art-style', artStyle)
+// Visual choice lives outside gameplay state and survives a reload.
+watch(artStyle, saveArtStylePreference)
 const screen = ref<'front' | 'hire' | 'play'>('front')
 const opened = ref(false)
 const spendForm = ref(false)
@@ -1287,6 +1316,7 @@ watch([() => run.value?.position, () => run.value?.department], () => {
 })
 
 onMounted(() => {
+  artStyle.value = loadArtStylePreference()
   store.load()
 })
 

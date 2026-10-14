@@ -21,10 +21,11 @@ tutorial:
   title: Home
   tagline: Today's dream, your account, your people, and the mission.
   overview: >-
-    The front page welcomes visitors with featured games and recent public
-    creations. Administrators begin with the existing daily dashboard and can
-    switch to the visitor gallery. Personal settings, conversations,
-    achievements and support remain available from the right-side account menu.
+    The front page welcomes everyone, including administrators, with curated
+    games, projects, new public creations and recent development highlights.
+    Administrators can open their original daily dashboard using the discreet
+    corner shortcut, then return to the gallery. Personal settings,
+    conversations, achievements and support remain in the right-side account menu.
   hero: /images/nav/heroes/home.webp
   sections:
     - key: today

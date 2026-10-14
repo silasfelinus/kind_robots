@@ -1,204 +1,122 @@
-# New section framework — page, tab, or channel
+# Add a page, tab, or channel in Kind Robots
 
-The one process for adding a new section to Kind Robots, whether Silas does
-it by hand or an agent does it for a project task. `sample/README.md` covers
-adding a new *model* (schema → API → store); this sheet covers adding a new
-*place in the app*. The two compose: a new model usually lands inside a new
-tab or channel described here.
+This is the current route-first workflow for adding a place in the app.
+For database models and API routes, use `sample/README.md`. For the full
+content schema and permissions model, use `docs/channel-content-authoring.md`.
 
-## Vocabulary
+## What is authoritative?
 
-- **Page** — a Nuxt Content markdown file in `content/`. The filename IS the
-  route (`content/stylist.md` → `/stylist`). Every page is a single-word
-  `title.md` whose body is one line: the `:title-manager` component
-  directive. All visible UI lives in the component, never in the markdown.
-- **Tab** — one entry inside an existing channel's config in
-  `stores/helpers/dashboardHelper.ts` (`dashboardConfigs.{channel}.tabs[]`).
-  The channel's manager component renders it dynamically.
-- **Channel** — a top-level key in `dashboardConfigs` with its own tab list,
-  footer entry, nav card, tutorial channel, route, and image set.
+- `content/channels/<channel-key>/index.md` defines a channel.
+- `content/channels/<channel-key>/<tab-key>.md` defines a navigation tab.
+- `content/<page>.md` supplies standalone page content and its component mount.
+- `components/<domain>/<name>.vue` implements the actual UI.
+- `stores/helpers/dashboardHelper.ts` and `stores/helpers/tutorialCards.ts`
+  are compatibility layers, **not** the place to register a new channel or
+  write tutorial copy. Do not add new entries there for modern destinations.
 
-## Permission gates
+The current channel keys are `arcade`, `zuzu`, `projects`, `admin`,
+and `home`. Home resolves account routes/help but does not appear as a
+main front-facing channel. Storybook belongs inside Projects; games go in
+Arcade or Zuzu. Admin-only previews have a discoverable Admin tab and an
+`/admin/...` route, even when a separate `/play/...` public release route
+will exist later.
 
-| Adding a… | Who can approve it |
-| --- | --- |
-| Page | normal reversible work — no gate |
-| Tab in an existing channel | normal reversible work — no gate |
-| **Channel** | **Silas only.** Agents treat a new channel as a hard `needs-human` in the conductor loop; do not create one without his explicit approval in the task or session. |
+## Decide where the new experience belongs
 
-## Which recipe do I need?
+A new route in an existing area needs a page and one modern tab. A new
+feature within an existing routed tab might only need a component change
+and updated tab tutorial. Creating a genuinely new top-level channel is a
+human-gated change requiring Silas's approval. Do not create a channel just
+to make a game or project discoverable.
 
-- New UI inside an existing channel's flow → **Recipe B (tab)**. Add a page
-  too (Recipe A) only if it deserves its own route (like `/stylist`).
-- New standalone route that maps onto an existing channel/tab → **Recipe A
-  (page)** only.
-- A genuinely new top-level area → **Recipe C (channel)**, which includes
-  A and B for its tabs. Get Silas's sign-off first.
+## Recipe A: create a routed page
 
+1. Create a page under `content/` with the route's accepted path. Link
+   `channelKey` and `tabKey` to its canonical tab, if it participates in
+   navigation. Match the existing nearby page idiom; not every modern page
+   uses the same manager wrapper.
+2. Implement the page's UI in a uniquely named Vue component under
+   `components/` and use the correct MDC mount where content-driven.
+   Nuxt uses `pathPrefix: false`, so the mount name is the bare component
+   filename, not the directory-prefixed name.
+3. If private, gate server APIs as well as the page. A client-side
+   `requiredRole` check alone cannot protect private or mature resources.
+4. Inspect the actual page, including mobile layout, and review any hero or
+   tutorial art by eye before linking it.
+
+A new admin feature belongs at `/admin/<slug>` and must also have a
+discoverable `content/channels/admin/<slug>.md` entry with
+`requiredRole: ADMIN`. Do not expose an admin-only game prototype under
+a public `/play` route until the owner approves publication.
+
+## Recipe B: add a tab to an existing channel
+
+Create a Markdown tab in `content/channels/<channel-key>/`:
+
+```yaml
 ---
+contentType: tab
+channelKey: projects
+tabKey: my-studio
+label: My Studio
+title: My Studio
+subtitle: A tool for a real creative task
+description: Explain what visitors can actually do here.
+summary: Make something in My Studio.
+icon: kind-icon:sparkles
+route: /my-studio
+sort: 60
+tutorial:
+  title: Using My Studio
+  body: Describe the actual controls, access requirements, and result.
+  image: /images/art/generate.webp
+---
+```
 
-## Recipe A — new page
+This is illustrative metadata, not a claim that `/my-studio` or its
+art exists. Replace the values and **visually verify** any chosen image.
+Add `requiredRole: ADMIN` or `requiredPermission: authenticated` when
+required by the feature. Never put restricted story spoilers or private
+artwork in publicly accessible metadata.
 
-1. Create `content/{title}.md` — single word, lowercase; the filename is the
-   route. Copy this frontmatter (fields are validated by
-   `content.config.ts`; anything else is dead weight):
+For a submenu, define a parent tab and give child tabs `parentTabKey`
+matching its `tabKey`. Navigation supports one nesting level. Routed
+parents such as Storybook remain openable as well as expandable.
+Keep each destination in only its canonical channel.
 
-   ```md
-   ---
-   title: 'Title'
-   room: 'Room Name'
-   subtitle: 'One-line hook'
-   description: 'What the visitor can do here, in a sentence or two.'
-   image: 'nav/heroes/{channel}.webp'
-   icon: kind-icon:sparkles
-   tooltip: One-line hover text.
-   dottitip: Dotti's quip about the page.
-   amitip: "AMI's reply."
-   sort: highlight
-   dashboardKey: {channel}     # must exist in dashboardConfigs
-   dashboardTab: {tab}         # must exist in that channel's tabs
-   cards: navCards
-   loadingMessage: Loading {title}...
-   refreshLabel: Refresh {title}
-   ---
+A project may also require an update to `utils/projectPlacements.ts` and
+its Kind Robots Project record, including `liveUrl`, `channelKey`,
+and `tabKey`. Updating `conductor/project-overrides.yaml` alone will
+not change the live row. Make authenticated changes only when authorized,
+and never claim a URL is live merely because it is in a file.
 
-   :{title}-manager
-   ```
+## Recipe C: add a top-level channel (owner approval required)
 
-2. The body is exactly one directive: `:{title}-manager`, the page's
-   primary component. Create it at `components/{domain}/{title}-manager.vue`.
-   Component filenames must be globally unique (Nuxt registers by filename;
-   folders are organizational only).
-3. `dashboardKey`/`dashboardTab` must pass `validateDashboardPair` in
-   `dashboardHelper.ts` — point them at the channel and tab this page
-   belongs to.
+Once an explicit channel change is approved:
 
-Live examples: `content/stylist.md` (`:stylist-manager`, a tab of the art
-channel with its own route), `content/mural.md` (`:mural-manager`).
+1. Add `content/channels/<new-key>/index.md` and tabs. Make its
+   `defaultTab` a real routed tab.
+2. Update the expected channel set in
+   `utils/scripts/verifyChannelContent.ts` and audit navigation-group
+   ordering, selector visibility, role filtering, and direct route access.
+3. Write an **authored** parent `tutorial`: title, overview, hero,
+   and conceptual sections with keys, titles, bodies, and reviewed images.
+4. Verify page-specific tutorials for all visible routed tabs. They
+   describe what the visitor actually sees, not just the tab title.
+5. Check route-first workspace help and the About toggle at phone,
+   tablet, and desktop widths. Do not bypass permission filtering.
 
-## Recipe B — new tab in an existing channel
+## Verification
 
-For tab `{tab}` in channel `{channel}`:
+```bash
+npm run test:channel-content
+npm run test:channel-resolver
+npm run test:data-surface-manifest
+npm run audit:channel-assets
+```
 
-1. **dashboardHelper** — add an entry to
-   `dashboardConfigs.{channel}.tabs[]` in
-   `stores/helpers/dashboardHelper.ts`:
-
-   ```ts
-   {
-     key: '{tab}',
-     label: 'Label',
-     icon: 'kind-icon:sparkles',
-     title: 'Tab Title',
-     summary: 'One-line summary shown on the tab card.',
-     image: tabImage('{channel}', '{tab}'),
-     narrative:
-       'A sentence or two of voice-y description for the dashboard card.',
-     route: '/{channel-route}',   // or the tab's own route if it has a page
-   },
-   ```
-
-   Add `requiredRole: 'ADMIN'` for admin-only tabs.
-2. **tutorialCards** — add a matching section to
-   `tutorialChannels.{channel}.sections[]` in
-   `stores/helpers/tutorialCards.ts`:
-
-   ```ts
-   {
-     key: '{tab}',
-     title: 'Tab Title',
-     body: 'What the user does here, tutorial voice.',
-     image: tutorialImage('{channel}', '{tab}'),
-   },
-   ```
-
-3. **Images** — two files, named by key:
-   - `public/images/dashboard-tabs/{channel}/{tab}.webp` (dashboard card)
-   - `public/images/tutorials/{channel}/{tab}.webp` (tutorial section)
-
-   The same art committed to both paths is fine.
-4. **Component** — the channel's manager picks up the tab automatically via
-   `getDashboardTabs('{channel}')`; wire the tab key to your new component
-   inside that manager.
-5. Optional: give the tab its own route with Recipe A (set the tab's
-   `route:` to the new page).
-6. **Register the placement on the Project DB row** (easy to forget — the
-   front-end wiring above does NOT set it). Set `liveUrl` (the route),
-   `channelKey` (`{channel}`), and `tabKey` (`{tab}`) on the project's
-   `Project` row so it's launchable from Conductor and resolvable by the
-   placement resolver. Kind Robots owns these presentation fields directly —
-   add the entry to `utils/projectPlacements.ts`'s `PROJECT_PLACEMENTS` map
-   (the canonical source) and `PATCH /api/projects/{id}` to set them on the
-   live row. A matching `liveUrl`/`channelKey`/`tabKey` block in conductor's
-   `project-overrides.yaml` is an informational mirror kept in sync by hand
-   for agents reading that file — `conductor/scripts/sync_projects.py` (now a
-   compatibility shim over `sync_kind_robots_projection.py`) is a one-way,
-   commit-stamped projection sender for coordination state and does not push
-   these fields; editing `project-overrides.yaml` alone does not change
-   anything in kind_robots.
-
-## Recipe C — new channel (Silas approval required)
-
-For channel `{channel}` at route `/{channel}` — everything in one registry
-file plus a page, a manager, and images. `dashboardConfigs.footer.tabs` in
-`dashboardHelper.ts` IS the channel list; nav cards derive from it, so you
-do **not** hand-edit `navCards.ts` (its lone hand-written card is conductor,
-which sits outside the footer).
-
-1. `stores/helpers/dashboardHelper.ts` → `dashboardConfigs.footer.tabs[]` —
-   the channel's footer/nav entry: `key`, `label`, `icon`, `title`,
-   `summary`, `image: getNavHeroImagePath('{channel}')`, `flourish`,
-   `tagline`, `narrative`, `route: '/{channel}'`.
-2. Same file → `dashboardConfigs.{channel}` — the channel's own config:
-   `{ key, label, defaultTab, tabs: [...] }`, one Recipe-B entry per tab.
-3. Same file → `footerDashboardMap` — add `'{channel}': '{channel}'`.
-   **Compile-enforced**: missing entry fails `tsc`.
-4. `stores/helpers/tutorialCards.ts` → `tutorialChannels.{channel}` — the
-   channel tutorial: `key`, `title`, `tagline`, `overview`, one section per
-   tab (Recipe B step 2). **Compile-enforced.** Add the key to
-   `EARNING_CHANNELS` if creators earn from it; standalone channels that
-   aren't footer keys go in `ExtraTutorialKey` (see `mural`).
-5. `content/{channel}.md` — the channel page (Recipe A) with
-   `dashboardKey: {channel}` and `dashboardTab: {defaultTab}`.
-6. `components/{channel}/{channel}-manager.vue` — the primary component.
-   A channel manager is a tab switcher: it reads
-   `getDashboardTabs('{channel}')` (or `getVisibleDashboardTabs` for
-   role-gated tabs) and dynamically renders the right tab's component —
-   it does not re-implement the children. `sample/sample-manager.vue.txt`
-   is the template.
-7. `components/navigation/channel-select.vue` → `allChannels[]` — add
-   `{ key, label, path: '/{channel}', icon }`. **Hand-maintained and fails
-   silently** — forget it and the channel never appears in the header
-   dropdown. Check it last.
-
-Steps 3 and 4 fail the build if skipped; step 7 does not.
-
-### Channel image checklist
-
-All under `public/images/`; filenames must match the keys exactly.
-
-| Image | Path |
-| --- | --- |
-| Channel hero (nav deck + footer) | `nav/heroes/{channel}.webp` |
-| Channel card/thumb | `nav/thumbs/{channel}.webp` |
-| Tutorial hero | `tutorials/{channel}/hero.webp` |
-| Dashboard tab (one per tab) | `dashboard-tabs/{channel}/{tab}.webp` |
-| Tutorial section (one per tab) | `tutorials/{channel}/{tab}.webp` |
-
-The tutorial hero is a separate file by default; it only reuses other art
-if you explicitly set `hero:` on the tutorial channel entry. The `icon`
-fields are Iconify `kind-icon:*` names, not files.
-
-Net for a two-tab channel: 3 code files (`dashboardHelper.ts`,
-`tutorialCards.ts`, `channel-select.vue`) + 1 content page + 1 manager
-component + 9 images.
-
-## Verifying
-
-- `npx nuxt typecheck` (or the project's `tsc` script) — catches a missing
-  `footerDashboardMap` or `tutorialChannels` entry.
-- Load the page: the frontmatter's `dashboardKey`/`dashboardTab` pair is
-  validated by `validateDashboardPair`; an invalid pair logs the expected
-  keys.
-- Check the header channel dropdown and the footer nav for the new entry —
-  the dropdown (`channel-select.vue`) is the piece nothing enforces.
+Check other relevant contracts and `npm test` as appropriate. The
+channel-content contract rejects missing channel overview tutorial fields
+and missing/duplicate conceptual section fields. It does not prove that
+an image depicts the right feature. Review the browser UI, and keep
+unverified art or missing feature builds explicitly tracked.

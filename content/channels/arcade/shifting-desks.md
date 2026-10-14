@@ -19,6 +19,12 @@ tutorial:
     options roll two dice plus a skill against 7, 9 or 11, and you can attach
     a signed Form for +2. If Composure runs out or Suspicion fills up, a
     Successor takes over your desk. Three files later, face your 90-Day Review.
+
+
+    No clean wins: choose the cost you can live with. Everyone is a traitor:
+    secret societies whisper in the margins of surveys, and Dale from
+    Compliance is your friend. Probably. Every room is a test: inkblots, trust
+    falls and forty-question happiness surveys. PAL is always grading you.
   image: /shifting-desks/front-poster.svg
 ---
 

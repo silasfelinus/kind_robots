@@ -4,6 +4,7 @@ import { fileURLToPath } from 'node:url'
 import {
   ART_STYLES,
   ART_STYLE_STORAGE_KEY,
+  WITHDRAWN_RENDERS,
   DEFAULT_ART_STYLE,
   artStyleImageSrc,
   normalizeArtStyle,
@@ -70,3 +71,12 @@ const picker = asset(
 )
 assert.match(picker, /role="radiogroup"[\s\S]*v-for="option in ART_STYLES"/)
 assert.match(picker, /artStyleImageSrc\(ART_STYLE_SAMPLE, option\.id\)/)
+
+// A render withdrawn after review always shows Classic, in that style only.
+const jam = '/images/shifting-desks/cards/records/the-jam-in-tube-14.webp'
+assert.ok(WITHDRAWN_RENDERS['western-cartoon']?.length)
+assert.equal(artStyleImageSrc(jam, 'western-cartoon'), jam)
+assert.equal(
+  artStyleImageSrc(jam, 'corporate-noir'),
+  '/images/shifting-desks/styles/corporate-noir/cards/records/the-jam-in-tube-14.webp',
+)

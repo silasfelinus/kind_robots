@@ -46,9 +46,18 @@ export function normalizeArtStyle(value: unknown): ShiftingDesksArtStyle {
   return ART_STYLES.find((s) => s.id === value)?.id ?? DEFAULT_ART_STYLE
 }
 
+// Renders pulled from a style after review (they show Classic instead) until
+// a corrected render replaces them. Paths are relative to /images/shifting-desks/.
+export const WITHDRAWN_RENDERS: Record<string, readonly string[]> = {
+  // 2026-10-14: the Western Cartoon render shows explicit nudity.
+  'western-cartoon': ['cards/records/the-jam-in-tube-14.webp'],
+}
+
 /** A stable, separate namespace so Classic assets can never be overwritten. */
 export function artStyleImageSrc(baseSrc: string, style: unknown): string {
   const selected = normalizeArtStyle(style)
+  const relative = baseSrc.replace('/images/shifting-desks/', '')
+  if (WITHDRAWN_RENDERS[selected]?.includes(relative)) return baseSrc
   return selected !== 'classic' && baseSrc.startsWith('/images/shifting-desks/')
     ? baseSrc.replace(
         '/images/shifting-desks/',

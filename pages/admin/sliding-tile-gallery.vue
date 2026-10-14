@@ -128,16 +128,21 @@
           <div class="space-y-5">
             <section class="overflow-hidden rounded-3xl border border-base-content/15 bg-base-200 shadow-lg">
               <div class="relative flex min-h-72 flex-col justify-end overflow-hidden bg-gradient-to-br from-indigo-950 via-fuchsia-900 to-amber-700 p-6 text-white sm:min-h-96">
-                <div class="absolute right-7 top-6 text-7xl opacity-80">
-                  {{ gallery.puzzle.solved ? '🌈' : '✨' }}
-                </div>
-                <div class="absolute left-8 top-12 text-[7rem] opacity-70">
-                  🤖
-                </div>
+                <template v-if="gallery.puzzle.solved">
+                  <div class="absolute right-7 top-6 text-7xl opacity-80">
+                    🌈
+                  </div>
+                  <div class="absolute left-8 top-12 text-[7rem] opacity-70">
+                    🤖
+                  </div>
+                </template>
                 <div class="absolute bottom-24 right-16 h-24 w-24 rounded-full bg-amber-300/40 blur-2xl" />
-                <div class="relative rounded-2xl border border-white/20 bg-black/25 p-4 backdrop-blur-sm">
+                <div
+                  v-if="gallery.puzzle.solved"
+                  class="relative rounded-2xl border border-white/20 bg-black/25 p-4 backdrop-blur-sm"
+                >
                   <p class="text-xs font-bold uppercase tracking-widest text-amber-200">
-                    {{ gallery.puzzle.solved ? 'Postcard unlocked' : 'Picture in progress' }}
+                    Postcard unlocked
                   </p>
                   <h2 class="mt-2 text-2xl font-bold">
                     The Little Robot Who Gathered Starlight
@@ -145,6 +150,17 @@
                   <p class="mt-2 text-sm text-white/85">
                     A tiny robot collects eight scattered colors from the sky.
                     The last piece turns the whole night into a rainbow.
+                  </p>
+                </div>
+                <div
+                  v-else
+                  class="relative rounded-2xl border border-white/20 bg-black/40 p-5 text-center backdrop-blur-md"
+                >
+                  <p class="text-xs font-bold uppercase tracking-widest text-amber-200">
+                    A mystery postcard awaits
+                  </p>
+                  <p class="mt-2 text-lg font-semibold">
+                    Put the numbered tiles in order to reveal the illustration.
                   </p>
                 </div>
               </div>

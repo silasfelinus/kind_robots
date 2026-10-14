@@ -3,6 +3,24 @@ name: Publish Production Container
 on:
   push:
     branches: [main]
+    # These paths are explicitly deploy-inert in scripts/lib/deployIgnorePaths.mjs.
+    # A push that also changes runtime code still builds and publishes normally.
+    paths-ignore:
+      - '.github/**'
+      - 'artifacts/**'
+      - 'cypress/**'
+      - 'docs/**'
+      - 'stores/fallback/**'
+      - AGENTS.md
+      - AI_README.md
+      - README.md
+      - '**/*.test.ts'
+      - '**/*.test.js'
+      - '**/*.test.mjs'
+      - '**/*.spec.ts'
+      - '**/*.spec.js'
+      - '**/*.spec.mjs'
+      - '**/*.bak'
   pull_request:
     branches: [main]
     paths:

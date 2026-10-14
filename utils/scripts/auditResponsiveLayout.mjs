@@ -505,7 +505,9 @@ for (const vp of VIEWPORTS) {
             `${label} ❌ ARCADE-FIT: the game screen and Start button must fit inside the cabinet pane ${JSON.stringify(m.cabinetFit)}`,
           )
         } else {
-          console.log(`${label} ARCADE-FIT: cabinet and Start button visible in one pane`)
+          console.log(
+            `${label} ARCADE-FIT: cabinet and Start button visible in one pane`,
+          )
         }
       }
     }

@@ -617,7 +617,10 @@ let hintLives: number | null = null
 // fitted to the space measured around it instead (fitScreen), so no resize,
 // rotation or split view can push part of it off screen.
 const screenMaxWidth = computed(() => {
-  if ((locked.value || fullscreen.value || contained.value) && fittedWidth.value > 0)
+  if (
+    (locked.value || fullscreen.value || contained.value) &&
+    fittedWidth.value > 0
+  )
     return `${fittedWidth.value}px`
   if (contained.value) return '100%'
   const ratio = (meta.value?.width ?? 4) / (meta.value?.height ?? 3)
@@ -674,7 +677,9 @@ function fitScreen() {
     const insets = 12
     fittedWidth.value = Math.max(
       0,
-      Math.floor(Math.min(width, (Math.max(0, height - insets) * ratio) + insets)),
+      Math.floor(
+        Math.min(width, Math.max(0, height - insets) * ratio + insets),
+      ),
     )
     return
   }
@@ -1964,18 +1969,26 @@ onBeforeUnmount(() => {
   overflow: hidden;
 }
 
-.arcade-cabinet--contained:not(.arcade-cabinet--locked):not(.arcade-cabinet--fullscreen) {
+.arcade-cabinet--contained:not(.arcade-cabinet--locked):not(
+    .arcade-cabinet--fullscreen
+  ) {
   height: 100%;
   min-height: 0;
 }
 
-.arcade-cabinet--contained:not(.arcade-cabinet--locked):not(.arcade-cabinet--fullscreen) .cabinet-marquee {
+.arcade-cabinet--contained:not(.arcade-cabinet--locked):not(
+    .arcade-cabinet--fullscreen
+  )
+  .cabinet-marquee {
   flex: 0 0 auto;
   height: clamp(2.5rem, 9%, 5.5rem);
   aspect-ratio: auto;
 }
 
-.arcade-cabinet--contained:not(.arcade-cabinet--locked):not(.arcade-cabinet--fullscreen) .cabinet-screen-wrap {
+.arcade-cabinet--contained:not(.arcade-cabinet--locked):not(
+    .arcade-cabinet--fullscreen
+  )
+  .cabinet-screen-wrap {
   flex: 1 1 0;
   min-height: 0;
   display: grid;
@@ -1984,12 +1997,18 @@ onBeforeUnmount(() => {
   padding: 0.375rem;
 }
 
-.arcade-cabinet--contained:not(.arcade-cabinet--locked):not(.arcade-cabinet--fullscreen) .cabinet-bezel {
+.arcade-cabinet--contained:not(.arcade-cabinet--locked):not(
+    .arcade-cabinet--fullscreen
+  )
+  .cabinet-bezel {
   width: 100%;
   padding: 0.375rem;
 }
 
-.arcade-cabinet--contained:not(.arcade-cabinet--locked):not(.arcade-cabinet--fullscreen) .cabinet-panel {
+.arcade-cabinet--contained:not(.arcade-cabinet--locked):not(
+    .arcade-cabinet--fullscreen
+  )
+  .cabinet-panel {
   flex: 0 1 auto;
   min-height: 0;
   max-height: 38%;
@@ -1999,7 +2018,10 @@ onBeforeUnmount(() => {
   overscroll-behavior: contain;
 }
 
-.arcade-cabinet--contained:not(.arcade-cabinet--locked):not(.arcade-cabinet--fullscreen) .cabinet-hint {
+.arcade-cabinet--contained:not(.arcade-cabinet--locked):not(
+    .arcade-cabinet--fullscreen
+  )
+  .cabinet-hint {
   display: none;
 }
 

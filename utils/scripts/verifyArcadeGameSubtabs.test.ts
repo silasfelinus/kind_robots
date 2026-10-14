@@ -127,7 +127,10 @@ assert.match(page, /class="kr-panes min-h-0 grid-cols-1/)
 assert.match(page, /v-if="!slug" class="kr-panes min-h-0 grid-cols-1"/)
 assert.doesNotMatch(page, /\bkr-scroll\b/, 'no mixed single/multi scroll owner')
 assert.match(page, /class="kr-pane min-w-0"/)
-assert.match(page, /<ArcadeCabinet :key="meta\.slug" :slug="meta\.slug" contained \/>/)
+assert.match(
+  page,
+  /<ArcadeCabinet :key="meta\.slug" :slug="meta\.slug" contained \/>/,
+)
 assert.match(page, /id="arcade-cabinet-details"/)
 assert.match(page, /aria-controls="arcade-cabinet-details"/)
 assert.match(page, /:aria-expanded="showDetails"/)

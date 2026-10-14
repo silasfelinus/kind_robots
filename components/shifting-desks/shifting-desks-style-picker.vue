@@ -3,23 +3,16 @@
     class="flex min-h-0 min-w-0 flex-col gap-2"
     aria-labelledby="art-style-heading"
   >
-    <div class="flex flex-col">
-      <p
-        id="art-style-heading"
-        class="font-mono text-sm font-black uppercase tracking-[.2em] sm:text-base"
-      >
-        Choose your art style
-      </p>
-      <span class="hidden text-xs opacity-80 sm:block">
-        Every card in the game is painted in your style. Switch anytime from the
-        toolbar.
-      </span>
-    </div>
+    <p
+      id="art-style-heading"
+      class="font-mono text-sm font-black uppercase tracking-[.2em] sm:text-base"
+    >
+      Choose your art style
+    </p>
     <div
-      class="flex min-h-0 flex-1 gap-2 lg:flex-col"
+      class="flex min-h-0 flex-1 gap-2"
       role="radiogroup"
       aria-label="Art style"
-      aria-describedby="art-style-heading"
     >
       <button
         v-for="option in ART_STYLES"
@@ -27,50 +20,39 @@
         type="button"
         role="radio"
         :aria-checked="style === option.id"
-        class="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden rounded-xl border-2 bg-stone-50 text-left text-stone-900 transition lg:flex-row"
-        :class="
+        class="style-swatch relative min-h-0 min-w-0 flex-1 overflow-hidden rounded-xl border-2 transition"
+        :class="[
+          `is-${option.id}`,
           style === option.id
             ? 'border-stone-900 ring-4 ring-warning'
-            : 'border-stone-800/50 hover:border-stone-900'
-        "
+            : 'border-stone-800/50 hover:border-stone-900',
+        ]"
         :title="option.mood"
         @click="style = option.id"
       >
+        <img
+          v-if="!broken[option.id]"
+          :src="artStyleImageSrc(ART_STYLE_SAMPLE, option.id)"
+          :alt="`${option.label} example: Gus, the shop steward`"
+          class="absolute inset-0 h-full w-full object-cover object-[50%_30%]"
+          loading="lazy"
+          @error="broken[option.id] = true"
+        />
         <span
-          class="style-swatch relative block aspect-[4/3] w-full shrink-0 lg:aspect-auto lg:h-full lg:w-[52%]"
-          :class="`is-${option.id}`"
+          class="absolute inset-x-0 bottom-0 flex items-center justify-center gap-1 bg-stone-950/85 px-1 py-1 font-mono text-[11px] font-black uppercase leading-tight text-amber-50 sm:text-sm lg:text-base"
         >
-          <img
-            v-if="!broken[option.id]"
-            :src="artStyleImageSrc(ART_STYLE_SAMPLE, option.id)"
-            :alt="`${option.label} example: Gus, the shop steward`"
-            class="absolute inset-0 h-full w-full object-cover object-[50%_30%]"
-            loading="lazy"
-            @error="broken[option.id] = true"
+          <icon
+            v-if="style === option.id"
+            name="kind-icon:check"
+            class="size-4 shrink-0"
           />
-          <span
-            v-if="option.id === DEFAULT_ART_STYLE"
-            class="absolute left-1 top-1 rounded bg-stone-900 px-1.5 py-0.5 font-mono text-[9px] font-black uppercase tracking-wider text-amber-50 sm:text-[10px]"
-            >Default</span
-          >
+          {{ option.label }}
         </span>
         <span
-          class="flex min-w-0 flex-col gap-0.5 px-2 py-1 lg:justify-center lg:gap-1 lg:px-4"
+          v-if="option.id === DEFAULT_ART_STYLE"
+          class="absolute left-1 top-1 rounded bg-stone-900 px-1.5 py-0.5 font-mono text-[9px] font-black uppercase tracking-wider text-amber-50 sm:text-[10px]"
+          >Default</span
         >
-          <span
-            class="flex items-center gap-1 font-mono text-[11px] font-black uppercase leading-tight sm:text-sm lg:text-lg"
-          >
-            <icon
-              v-if="style === option.id"
-              name="kind-icon:check"
-              class="size-4 shrink-0"
-            />
-            {{ option.label }}
-          </span>
-          <span class="hidden text-xs leading-snug md:block lg:text-sm">{{
-            option.blurb
-          }}</span>
-        </span>
       </button>
     </div>
   </section>

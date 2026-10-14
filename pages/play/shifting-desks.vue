@@ -73,124 +73,62 @@
         v-if="screen === 'front'"
         class="kr-stage mx-auto w-full max-w-[1400px] px-2 pb-2 sm:px-4"
       >
-        <div class="front-layout grid min-h-0 flex-1 gap-2 sm:gap-3">
-          <div class="flex min-h-0 min-w-0 flex-col gap-2 sm:gap-3">
-            <div
-              class="front-hero relative min-h-0 flex-1 overflow-hidden rounded-2xl border-4 border-stone-900 bg-stone-900"
-            >
-              <shifting-desks-art
-                class="!absolute inset-0"
-                frame="h-full w-full"
-                position="object-[50%_40%]"
-                :src="stationArt('departments', 'orientation')"
-                :prompt="
-                  departmentPack('orientation').department.arrival_prompt
-                "
-                alt="The Company campus at dawn, where every new hire begins"
-                fallback-icon="kind-icon:eye"
-                icon-size="6rem"
-                :show-brief="false"
-              />
-              <div class="front-scrim absolute inset-0" aria-hidden="true" />
-              <div
-                class="relative z-10 flex h-full flex-col justify-end gap-2 p-4 text-amber-50 sm:gap-3 sm:p-8"
-              >
-                <p
-                  class="text-[10px] font-black uppercase tracking-[.3em] text-amber-200 sm:text-xs"
-                >
-                  Consolidated Wellness &amp; Defense · Making Tomorrow Safer,
-                  Today
-                </p>
-                <p
-                  class="front-title font-mono text-5xl font-black uppercase leading-none sm:text-7xl"
-                >
-                  Shifting<br />Desks
-                </p>
-                <p class="max-w-xl text-sm font-semibold sm:text-lg">
-                  A darkly comic card adventure through a paranoid office
-                  hellscape. Every choice costs something. HR has five more of
-                  you on file.
-                </p>
-                <ul class="flex flex-wrap gap-1.5" aria-label="House rules">
-                  <li
-                    v-for="pillar in pillars"
-                    :key="pillar.title"
-                    class="flex items-center gap-1 rounded-full bg-stone-950/70 px-2.5 py-1 text-[11px] font-bold uppercase tracking-wider sm:text-xs"
-                    :title="pillar.body"
-                  >
-                    <icon :name="pillar.icon" class="size-3.5 text-amber-300" />
-                    {{ pillar.title }}
-                  </li>
-                </ul>
-                <div class="flex flex-wrap gap-2 sm:gap-3">
-                  <button
-                    v-if="run"
-                    type="button"
-                    class="btn border-amber-300 bg-amber-300 text-stone-950 hover:bg-amber-200 sm:btn-lg"
-                    @click="screen = 'play'"
-                  >
-                    <icon name="kind-icon:play" class="size-5" />
-                    Return to your desk
-                  </button>
-                  <button
-                    type="button"
-                    class="btn sm:btn-lg"
-                    :class="
-                      run
-                        ? 'border-amber-100 bg-stone-950/70 text-amber-50 hover:bg-stone-900'
-                        : 'border-amber-300 bg-amber-300 text-stone-950 hover:bg-amber-200'
-                    "
-                    @click="screen = 'hire'"
-                  >
-                    <icon name="kind-icon:briefcase" class="size-5" />
-                    {{
-                      run
-                        ? 'Start a new Wellness Weekend'
-                        : 'Begin your Wellness Weekend'
-                    }}
-                  </button>
-                </div>
-              </div>
-            </div>
-            <ol
-              class="hidden h-20 shrink-0 grid-cols-5 gap-1.5 sm:grid sm:gap-2 lg:h-24"
-              aria-label="Five floors down"
-            >
-              <li
-                v-for="level in levels"
-                :key="level.id"
-                class="relative min-h-0 overflow-hidden rounded-xl border-2 border-stone-900 bg-stone-900"
-                :title="level.note"
-              >
-                <shifting-desks-art
-                  class="!absolute inset-0"
-                  frame="h-full w-full"
-                  position="object-[50%_45%]"
-                  :src="stationArt('departments', level.id)"
-                  :prompt="departmentPack(level.id).department.arrival_prompt"
-                  :alt="`${level.name}, ${level.floor}`"
-                  fallback-icon="kind-icon:folder"
-                  icon-size="1.5rem"
-                  :show-brief="false"
-                />
-                <span
-                  class="absolute inset-x-0 bottom-0 flex flex-col bg-gradient-to-t from-stone-950/90 to-transparent px-1.5 pb-1 pt-4 text-amber-50 sm:px-3 sm:pb-2"
-                >
-                  <span
-                    class="font-mono text-[9px] font-black uppercase tracking-widest text-amber-300 sm:text-[11px]"
-                    >{{ level.floor }}</span
-                  >
-                  <span
-                    class="hidden truncate text-sm font-bold leading-tight sm:block"
-                    >{{ level.name }}</span
-                  >
-                </span>
-              </li>
-            </ol>
+        <div
+          class="front-hero relative min-h-0 flex-1 overflow-hidden rounded-2xl border-4 border-stone-900 bg-stone-950"
+        >
+          <div class="absolute inset-0">
+            <shifting-desks-art
+              frame="h-full w-full"
+              position="object-[50%_35%]"
+              :src="stationArt('departments', 'orientation')"
+              alt="Orientation day at Consolidated Wellness & Defense"
+              fallback-icon="kind-icon:folder"
+              icon-size="4rem"
+              :show-brief="false"
+            />
           </div>
-          <shifting-desks-style-picker
-            class="min-h-0 rounded-2xl border-2 border-stone-900 bg-base-100 p-2 shadow-md sm:p-3"
-          />
+          <div class="front-vignette absolute inset-0" aria-hidden="true" />
+          <div
+            class="relative z-10 flex h-full flex-col justify-between gap-3 p-3 text-amber-50 sm:p-6"
+          >
+            <p
+              class="front-title font-mono text-5xl font-black uppercase leading-[.9] sm:text-8xl"
+            >
+              Shifting<br />Desks
+            </p>
+            <div class="flex flex-col gap-3 sm:gap-4">
+              <div class="flex flex-wrap gap-2 sm:gap-3">
+                <button
+                  v-if="run"
+                  type="button"
+                  class="btn btn-lg border-amber-300 bg-amber-300 text-stone-950 shadow-xl hover:bg-amber-200"
+                  @click="screen = 'play'"
+                >
+                  <icon name="kind-icon:play" class="size-5" />
+                  Return to your desk
+                </button>
+                <button
+                  type="button"
+                  class="btn btn-lg shadow-xl"
+                  :class="
+                    run
+                      ? 'border-amber-100 bg-stone-950/85 text-amber-50 hover:bg-stone-900'
+                      : 'border-amber-300 bg-amber-300 text-stone-950 hover:bg-amber-200'
+                  "
+                  @click="screen = 'hire'"
+                >
+                  <icon
+                    :name="run ? 'kind-icon:refresh' : 'kind-icon:play'"
+                    class="size-5"
+                  />
+                  {{ run ? 'New game' : 'Begin' }}
+                </button>
+              </div>
+              <shifting-desks-style-picker
+                class="h-32 w-full rounded-2xl bg-stone-950/85 p-2 text-amber-50 sm:h-40 sm:p-3 lg:w-[38rem]"
+              />
+            </div>
+          </div>
         </div>
       </section>
 
@@ -976,24 +914,6 @@ const meterList = computed(() =>
     : [],
 )
 
-const pillars = [
-  {
-    icon: 'kind-icon:alert-triangle',
-    title: 'No clean wins',
-    body: 'Every option has a price: your Composure, your Clearance, your record, your Forms, or a coworker. Choose the cost you can live with.',
-  },
-  {
-    icon: 'kind-icon:mask',
-    title: 'Everyone is a traitor',
-    body: 'Secret societies whisper in the margins of surveys. Dale from Compliance is your friend. Probably. Report your suspicions.',
-  },
-  {
-    icon: 'kind-icon:brain',
-    title: 'Every room is a test',
-    body: 'Inkblots, trust falls and forty-question happiness surveys. PAL is grading you. PAL is always grading you.',
-  },
-]
-
 const levelNotes = [
   {
     floor: 'Surface',
@@ -1336,28 +1256,20 @@ useHead({ title: 'Shifting Desks' })
   border-bottom: 4px solid #292524;
 }
 
-.front-layout {
-  grid-template-rows: minmax(0, 1fr) auto;
-}
-
-.front-scrim {
+.front-vignette {
   background: linear-gradient(
-    to top,
-    rgb(12 10 9 / 0.92) 0%,
-    rgb(12 10 9 / 0.55) 45%,
-    rgb(12 10 9 / 0.05) 80%
+    to bottom,
+    rgb(12 10 9 / 0.55) 0%,
+    rgb(12 10 9 / 0) 30%,
+    rgb(12 10 9 / 0) 55%,
+    rgb(12 10 9 / 0.7) 100%
   );
 }
 
 .front-title {
-  text-shadow: 0 3px 0 rgb(12 10 9 / 0.6);
-}
-
-@media (min-width: 1024px) {
-  .front-layout {
-    grid-template-columns: minmax(0, 1.55fr) minmax(0, 1fr);
-    grid-template-rows: minmax(0, 1fr);
-  }
+  text-shadow:
+    0 4px 0 rgb(12 10 9 / 0.85),
+    0 0 32px rgb(12 10 9 / 0.9);
 }
 
 .desk-layout {

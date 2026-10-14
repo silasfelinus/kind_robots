@@ -358,7 +358,7 @@ const features = [
     title: 'The World of Zuzu',
     tag: 'Adventure collection',
     category: 'play',
-    route: '/play/zuzu-gamebook',
+    route: '/play/zuzu',
     image: '/zuzu-showdown-portraits/zuzu-vs-hd.webp',
     description: 'A koala ronin crosses the strange Shifting Lands.',
     related: [
@@ -443,12 +443,12 @@ const features = [
     related: [],
   },
   {
-    title: 'Rebel Button',
-    tag: 'Curiosity experiment',
+    title: 'Kind Robots Pinball',
+    tag: 'Arcade pinball',
     category: 'play',
-    route: '/button',
-    image: '/images/channels/play/button.webp',
-    description: 'A button you have been expressly told not to press.',
+    route: '/play/arcade?game=kind-pinball',
+    image: '/images/arcade/games/kind-pinball-title.webp',
+    description: 'Flip into AMI Village Rescue, the original arcade pinball table.',
     related: [],
   },
 ] as const

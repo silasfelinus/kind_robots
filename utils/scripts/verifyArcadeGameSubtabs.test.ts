@@ -117,4 +117,6 @@ assert.match(
   'cabinet switching still remounts the game inside the arcade hall',
 )
 
-console.log('Arcade direct navigation verified; cabinet pages and standalone routes remain available.')
+console.log(
+  'Arcade direct navigation verified; cabinet pages and standalone routes remain available.',
+)

@@ -1,7 +1,7 @@
 <template>
   <main class="kr-surface">
-    <div class="kr-scroll mx-auto w-full max-w-[1500px] px-2 py-2 sm:px-4">
-      <div class="mb-2 flex justify-end">
+    <div class="mx-auto flex h-full min-h-0 w-full max-w-[1500px] flex-col gap-2 px-2 py-2 sm:px-4">
+      <div class="flex shrink-0 justify-end">
         <button
           type="button"
           class="btn btn-ghost btn-sm gap-2 rounded-xl border border-base-300"
@@ -17,7 +17,11 @@
       <div v-if="!webglReady" class="kr-note kr-note-error p-5">
         This 3D pinball table requires a browser with WebGL enabled.
       </div>
-      <section v-else class="zuzu-game-stage" aria-label="Zuzu Pinball game">
+      <section
+        v-else
+        class="zuzu-game-stage kr-scroll min-h-0 flex-1"
+        aria-label="Zuzu Pinball game"
+      >
         <ArcadeCabinet slug="zuzu-pinball" />
       </section>
     </div>

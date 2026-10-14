@@ -8,7 +8,7 @@
 // dropped.
 
 import { BYTE_MAZES } from './components'
-import { CABLE_COLOURS, MAX_INSULATION, MAX_LIVES } from './workbench'
+import { CABLE_COLOURS, MAX_INSULATION } from './workbench'
 
 export type CableSave = {
   v: 1
@@ -32,6 +32,9 @@ export type CableSave = {
   bench?: boolean
 }
 
+/** Earned spares fit the existing save domain; Workbench purchases stop separately at nine. */
+export const MAX_SAVED_LIVES = 99
+
 const count = (v: unknown, max: number) =>
   typeof v === 'number' && Number.isInteger(v) && v >= 0 && v <= max
 
@@ -41,7 +44,7 @@ export function readCableSave(raw: unknown): CableSave | null {
   const r = raw as Record<string, unknown>
   if (r.v !== 1) return null
   if (!count(r.comp, 999) || !count(r.score, 249_999_999)) return null
-  if (!count(r.lives, 99)) return null
+  if (!count(r.lives, MAX_SAVED_LIVES)) return null
   const known = new Set(BYTE_MAZES)
   const bytes = Array.isArray(r.bytes)
     ? [
@@ -57,7 +60,7 @@ export function readCableSave(raw: unknown): CableSave | null {
     v: 1,
     comp: r.comp as number,
     score: r.score as number,
-    lives: Math.max(1, Math.min(MAX_LIVES, r.lives as number)),
+    lives: Math.max(1, r.lives as number),
     continued: r.continued === true,
     bytes,
     reached: count(r.reached, 999) ? Math.max(1, r.reached as number) : 1,

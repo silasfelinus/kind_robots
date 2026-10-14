@@ -9,19 +9,25 @@
         alt=""
         class="absolute inset-0 h-full w-full object-cover opacity-45"
       />
-      <div class="absolute inset-0 bg-gradient-to-r from-base-300 via-base-300/90 to-base-300/35" />
-      <div class="relative flex flex-wrap items-end justify-between gap-3 p-3 sm:p-4"
-        :class="admin ? 'pt-12 sm:pt-4' : ''">
+      <div
+        class="absolute inset-0 bg-gradient-to-r from-base-300 via-base-300/90 to-base-300/35"
+      />
+      <div
+        class="relative flex flex-wrap items-end justify-between gap-3 p-3 sm:p-4"
+        :class="admin ? 'pt-12 sm:pt-4' : ''"
+      >
         <div class="max-w-xl space-y-1">
-          <p class="text-[0.65rem] font-black uppercase tracking-[0.2em] text-primary">
+          <p
+            class="text-[0.65rem] font-black uppercase tracking-[0.2em] text-primary"
+          >
             Play · Create · Discover
           </p>
           <h2 class="font-serif text-xl font-black leading-tight sm:text-3xl">
             Play something. Make something. Change something.
           </h2>
           <p class="text-xs leading-relaxed sm:text-sm">
-            Games, illustrated worlds, art and experiments. A growing
-            creative playground with plenty to explore for free.
+            Games, illustrated worlds, art and experiments. A growing creative
+            playground with plenty to explore for free.
           </p>
         </div>
         <NuxtLink to="/play/arcade" class="btn btn-primary btn-sm shrink-0">
@@ -55,9 +61,7 @@
       </button>
     </div>
 
-    <div
-      class="kr-panes visitor-layout min-h-0 gap-2"
-    >
+    <div class="kr-panes visitor-layout min-h-0 gap-2">
       <section
         id="visitor-featured"
         role="tabpanel"
@@ -65,7 +69,9 @@
         class="visitor-pane visitor-featured min-h-0 flex-col overflow-hidden rounded-2xl border border-base-300 bg-base-100/95 p-3"
         :class="activeSection === 'featured' ? 'flex' : 'hidden'"
       >
-        <header class="mb-2 flex shrink-0 flex-wrap items-center justify-between gap-2">
+        <header
+          class="mb-2 flex shrink-0 flex-wrap items-center justify-between gap-2"
+        >
           <div>
             <h2 class="font-serif text-lg font-black">Featured experiences</h2>
             <p class="text-xs opacity-65">A handpicked tour of Kind Robots</p>
@@ -77,7 +83,10 @@
             All destinations →
           </NuxtLink>
         </header>
-        <div class="mb-2 flex shrink-0 flex-wrap gap-1" aria-label="Filter experiences">
+        <div
+          class="mb-2 flex shrink-0 flex-wrap gap-1"
+          aria-label="Filter experiences"
+        >
           <button
             v-for="filter in categories"
             :key="filter.key"
@@ -95,7 +104,9 @@
           </button>
         </div>
         <div class="kr-pane-scroll pr-1">
-          <div class="grid grid-cols-[repeat(auto-fit,minmax(min(100%,9rem),1fr))] gap-2">
+          <div
+            class="grid grid-cols-[repeat(auto-fit,minmax(min(100%,9rem),1fr))] gap-2"
+          >
             <article
               v-for="feature in filteredFeatures"
               :key="feature.route"
@@ -105,7 +116,9 @@
                 :to="feature.route"
                 class="flex min-w-0 flex-1 flex-col focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary"
               >
-                <div class="relative aspect-[16/10] overflow-hidden bg-base-300">
+                <div
+                  class="relative aspect-[16/10] overflow-hidden bg-base-300"
+                >
                   <img
                     :src="feature.image"
                     :alt="feature.title"
@@ -119,10 +132,14 @@
                   </span>
                 </div>
                 <div class="min-w-0 flex-1 space-y-1 p-2">
-                  <h3 class="text-sm font-black leading-tight group-hover:text-primary">
+                  <h3
+                    class="text-sm font-black leading-tight group-hover:text-primary"
+                  >
                     {{ feature.title }}
                   </h3>
-                  <p class="text-xs leading-snug opacity-70">{{ feature.description }}</p>
+                  <p class="text-xs leading-snug opacity-70">
+                    {{ feature.description }}
+                  </p>
                 </div>
               </NuxtLink>
               <div
@@ -162,7 +179,9 @@
             class="rounded-xl border border-base-300 bg-base-200/55 p-2.5"
           >
             <div class="mb-1 flex flex-wrap items-center justify-between gap-1">
-              <span class="text-[0.65rem] font-black uppercase tracking-wide text-primary">
+              <span
+                class="text-[0.65rem] font-black uppercase tracking-wide text-primary"
+              >
                 {{ update.category }}
               </span>
               <span class="text-[0.65rem] opacity-60">{{ update.date }}</span>
@@ -173,9 +192,13 @@
             >
               {{ update.title }} →
             </NuxtLink>
-            <p class="mt-1 text-xs leading-snug opacity-75">{{ update.description }}</p>
+            <p class="mt-1 text-xs leading-snug opacity-75">
+              {{ update.description }}
+            </p>
             <a
-              :href="'https://github.com/silasfelinus/kind_robots/pull/' + update.pr"
+              :href="
+                'https://github.com/silasfelinus/kind_robots/pull/' + update.pr
+              "
               target="_blank"
               rel="noopener noreferrer"
               class="mt-1 inline-block text-[0.65rem] font-semibold text-primary hover:underline"
@@ -201,7 +224,9 @@
         <header class="mb-2 flex shrink-0 items-center justify-between gap-2">
           <div>
             <h2 class="font-serif text-lg font-black">Freshly made</h2>
-            <p class="text-xs opacity-65">Art, characters and stories from the galleries</p>
+            <p class="text-xs opacity-65">
+              Art, characters and stories from the galleries
+            </p>
           </div>
           <NuxtLink
             to="/art"
@@ -233,10 +258,14 @@
                 />
               </div>
               <div class="p-1.5">
-                <p class="truncate text-[0.7rem] font-bold group-hover:text-primary">
+                <p
+                  class="truncate text-[0.7rem] font-bold group-hover:text-primary"
+                >
                   {{ card.title }}
                 </p>
-                <p class="text-[0.6rem] uppercase opacity-60">{{ card.kind }}</p>
+                <p class="text-[0.6rem] uppercase opacity-60">
+                  {{ card.kind }}
+                </p>
               </div>
             </NuxtLink>
           </div>
@@ -253,7 +282,10 @@
           </div>
           <div v-else class="space-y-2 rounded-xl bg-base-200 p-3 text-xs">
             <p>Today's public gallery has no new images to show yet.</p>
-            <NuxtLink to="/dreams" class="font-bold text-primary hover:underline">
+            <NuxtLink
+              to="/dreams"
+              class="font-bold text-primary hover:underline"
+            >
               Explore Daily Dreams →
             </NuxtLink>
           </div>
@@ -261,8 +293,12 @@
       </section>
     </div>
 
-    <footer class="flex shrink-0 flex-wrap items-center justify-between gap-2 px-1 text-xs">
-      <span class="opacity-70">Kind Robots builds creative tools for human benefit.</span>
+    <footer
+      class="flex shrink-0 flex-wrap items-center justify-between gap-2 px-1 text-xs"
+    >
+      <span class="opacity-70"
+        >Kind Robots builds creative tools for human benefit.</span
+      >
       <div class="flex flex-wrap gap-x-3 gap-y-1 font-bold text-primary">
         <NuxtLink to="/about" class="hover:underline">Our mission</NuxtLink>
         <a

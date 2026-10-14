@@ -717,6 +717,27 @@ export const ARCADE_GAMES: ArcadeGameMeta[] = [
     accent: '#fbbf24',
     controls: 'Slide, turn, drop',
   },
+  {
+    slug: 'lamp-lighter-run',
+    title: 'Lamp Lighter Run',
+    riffsOn: 'Donkey Kong',
+    blurb:
+      'Wick, a lamplighter robot, climbs a scaffold of sloping girders to relight ten street lamps before the lantern timer runs out, hopping the gloom-balls that roll down from the chute. Every level the girders tilt more, the balls roll faster and the timer shrinks, across three night streets.',
+    howTo: [
+      'LEFT/RIGHT  WALK',
+      'UP/DOWN  CLIMB',
+      'A OR B  HOP',
+      'TOUCH LAMPS TO LIGHT',
+      'HOP A BALL FOR BONUS',
+      'LIGHT ALL TEN LAMPS',
+    ],
+    width: 256,
+    height: 288,
+    maxPlausibleScore: 2_000_000,
+    titleArt: '/images/arcade/games/lamp-lighter-run-title.webp',
+    accent: '#fde68a',
+    controls: 'Walk, climb, hop',
+  },
 ]
 
 export type ComingSoonCabinet = {
@@ -872,6 +893,7 @@ const LOADERS: Record<string, () => Promise<ArcadeGameModule>> = {
   'petal-post': () => import('./games/petalPost'),
   'bumper-bubbles': () => import('./games/bumperBubbles'),
   'crate-stack-shuffle': () => import('./games/crateStackShuffle'),
+  'lamp-lighter-run': () => import('./games/lampLighterRun'),
 }
 
 let webgl: boolean | null = null

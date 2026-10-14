@@ -109,6 +109,7 @@ export function restoreSlidingTilePuzzle(
     typeof puzzle.day !== 'string' ||
     !/^\d{4}-\d{2}-\d{2}$/.test(puzzle.day) ||
     !Array.isArray(puzzle.tiles) ||
+    typeof puzzle.moves !== 'number' ||
     !Number.isInteger(puzzle.moves) ||
     puzzle.moves < 0 ||
     !puzzle.tiles.every((number) => Number.isInteger(number)) ||

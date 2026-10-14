@@ -425,12 +425,6 @@ jobs:
         env:
           CYPRESS_INSTALL_BINARY: '0'
 
-      - name: Show Prettier YAML diff (temporary diagnostic)
-        shell: bash
-        run: |
-          npx prettier .github/workflows/contract-tests.yml > /tmp/contract-tests.prettier.yml
-          diff -u .github/workflows/contract-tests.yml /tmp/contract-tests.prettier.yml || true
-
       - name: Animated art offload contract
         run: npm run test:animated-art-offload
 
@@ -1584,7 +1578,6 @@ jobs:
             server-api-callers-audit.txt
           if-no-files-found: warn
           retention-days: 14
-
 
   contract-tests:
     name: Contract verifiers

@@ -1,4 +1,4 @@
-import { existsSync } from 'node:fs'
+import { existsSync, readFileSync } from 'node:fs'
 import { spawnSync } from 'node:child_process'
 import { resolve } from 'node:path'
 
@@ -31,6 +31,11 @@ export function changedPaths({
   )
 }
 
+export function withoutGrandfathered(paths, violations) {
+  const known = new Set(Object.values(violations).flat())
+  return paths.filter((file) => !known.has(file))
+}
+
 export function unstagedPaths(cwd = process.cwd()) {
   return pathsFromGit(['diff', '--name-only'], cwd)
 }
@@ -47,7 +52,13 @@ function main() {
   const args = new Set(process.argv.slice(2))
   const staged = args.has('--staged')
   const write = args.has('--write')
-  const files = changedPaths({ staged })
+  const baseline = JSON.parse(
+    readFileSync(resolve('utils/scripts/prettier-ratchet-baseline.json'), 'utf8'),
+  )
+  const files = withoutGrandfathered(
+    changedPaths({ staged }),
+    baseline.violations,
+  )
 
   if (staged && write) {
     const unstaged = new Set(unstagedPaths())

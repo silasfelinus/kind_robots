@@ -23,20 +23,21 @@
       </p>
     </div>
     <img
-      v-if="src && !failed"
-      :key="src"
-      :src="src"
+      v-if="displaySrc && !failed"
+      :key="displaySrc"
+      :src="displaySrc"
       :alt="alt"
       class="absolute inset-0 h-full w-full object-cover transition-opacity duration-500"
       :class="[loaded ? 'opacity-100' : 'opacity-0', position]"
       @load="loaded = true"
-      @error="failed = true"
+      @error="onImageError"
     />
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, watch } from 'vue'
+import { inject, ref, watch, type Ref } from 'vue'
+import { artStyleImageSrc } from '~/utils/shiftingDesks/artStyles'
 
 const props = withDefaults(
   defineProps<{
@@ -62,14 +63,29 @@ const props = withDefaults(
 
 const loaded = ref(false)
 const failed = ref(false)
+const style = inject<Ref<string>>('shifting-desks-art-style', ref('classic'))
+const displaySrc = ref('')
 
+// A concept skin never turns an otherwise illustrated card into a broken slot.
+// Fall back to the original Classic file only when that alternate render is absent.
 watch(
-  () => props.src,
-  () => {
+  [() => props.src, style],
+  ([src, selected]) => {
+    displaySrc.value = artStyleImageSrc(src, selected)
     loaded.value = false
     failed.value = false
   },
+  { immediate: true },
 )
+
+function onImageError(): void {
+  if (displaySrc.value && displaySrc.value !== props.src) {
+    displaySrc.value = props.src
+    loaded.value = false
+  } else {
+    failed.value = true
+  }
+}
 </script>
 
 <style scoped>

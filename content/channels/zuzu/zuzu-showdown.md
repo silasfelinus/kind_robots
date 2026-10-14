@@ -21,7 +21,16 @@ tutorial:
     and Enter pauses; the pause screen lists your fighter's moves. Turn on Easy
     Specials to fire specials with the special button and a direction; touch
     screens have them on, with on-screen buttons. Story scores go on the
-    Arcade leaderboard.
+    Arcade leaderboard. The game stage takes priority over settings: open
+    Match setup & training underneath the arena only when changing fighters,
+    opponent, graphics or training rules. Controls: Player 1 uses U/I for
+    punches, J/K for kicks, O for specials, and Space for dodge. Player 2
+    uses arrow keys with numpad 4/5 punch, 1/2 kick, 0 dodge and 6 special.
+    A gamepad uses X/Y for punch, A/B for kick, LB for dodge and RB for
+    special. LP+LK near an opponent throws, Dodge+HK taunts, and Down+HK
+    launches (hold Up to chase into an air combo). In training mode, reset
+    the dummy from the Match setup panel. The paused match also displays
+    your selected fighter's detailed move list.
 ---
 
 Nine fighters of the Shifting Lands, from Zuzu the koala ronin to the Swamp Witch, and a Story mode that crosses the wasteland to The Thing Behind the Door.

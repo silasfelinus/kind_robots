@@ -46,6 +46,9 @@
  * stayed dead for weeks.
  */
 
+import { mkdirSync, writeFileSync } from 'node:fs'
+import { dirname } from 'node:path'
+
 const args = process.argv.slice(2)
 const flag = (name, fallback) => {
   const i = args.indexOf(`--${name}`)
@@ -91,12 +94,17 @@ const ROUTES = flag(
     '/build/animation-manager,/build/hair-studio,' +
     '/about,/cart,/giving,/mermaids,/privacy,/sanctuary,/forum,/servers,' +
     '/auth/google,/build-bench,/coloring-page,/music-mentor,/play/challenges/leaderboard,/play/video-generator,' +
-    '/users/1,/play/challenges/neon-ramen-bar-icon',
+    '/users/1,/play/challenges/neon-ramen-bar-icon,' +
+    '/play/arcade,/play/zuzu-gamebook,/play/zuzu-showdown,/play/zuzu-ghost-trail,' +
+    '/play/zuzu-pinball,/play/zuzu-shifting-lands,/play/shifting-desks,' +
+    '/play/mandarin,/play/aquarium/browse,/play/daily-pitches,/tzaddik-gallery',
 )
   .split(',')
   .map((r) => r.trim())
   .filter(Boolean)
 const SHOTS = flag('shots', '')
+const VIEWPORT_REPORT = flag('viewport-report', '')
+const STRICT_VIEWPORT = args.includes('--strict-viewport')
 /** Below this a flexible element is a sliver, not a control or a label. */
 const MIN_FLEX_WIDTH = Number(flag('min-flex', '32'))
 /** How long to let in-flight images finish before judging them broken. */
@@ -275,7 +283,66 @@ function collect(minFlexWidth) {
     )
   }
 
+  /*
+   * Sitewide viewport-first audit (2026-10-13).
+   *
+   * This is deliberately a DOM measurement: a `.kr-scroll` class somewhere
+   * in the source does not prove the last gallery card can be reached, nor
+   * does it distinguish a composed one-screen stage from a long article.
+   * "documentFlow" is a review signal, not a blanket ban on useful scrolling.
+   * Clipped gallery items ARE a hard failure.
+   */
+  const surface = [...document.querySelectorAll('.kr-surface')].find((el) =>
+    visible(el, el.getBoundingClientRect()),
+  )
+  const primaryScroll = surface?.querySelector(':scope > .kr-scroll')
+  const topLevelSections = primaryScroll
+    ? [...primaryScroll.children].filter((el) =>
+        visible(el, el.getBoundingClientRect()),
+      ).length
+    : 0
+  const documentFlow = !!primaryScroll && topLevelSections >= 3
+  const clippedGalleries = []
+  let measuredGalleries = 0
+  for (const gallery of document.querySelectorAll('[data-kr-gallery]')) {
+    if (!visible(gallery, gallery.getBoundingClientRect())) continue
+    const items = gallery.querySelectorAll('[data-kr-gallery-item]')
+    if (!items.length) continue
+    const last = items[items.length - 1]
+    if (!visible(last, last.getBoundingClientRect())) continue
+    measuredGalleries += 1
+    let ancestor = last.parentElement
+    let blocked = false
+    while (ancestor && ancestor !== document.documentElement) {
+      const css = getComputedStyle(ancestor)
+      const overflow = css.overflowY
+      const edge = ancestor.getBoundingClientRect().bottom
+      const extendsBelow = last.getBoundingClientRect().bottom > edge + 2
+      if (extendsBelow && (overflow === 'auto' || overflow === 'scroll')) {
+        if (ancestor.scrollHeight > ancestor.clientHeight + 2) break
+      }
+      if (extendsBelow && (overflow === 'hidden' || overflow === 'clip')) {
+        blocked = true
+        break
+      }
+      ancestor = ancestor.parentElement
+    }
+    if (blocked) {
+      const title = (last.textContent || '')
+        .trim()
+        .replace(/\s+/g, ' ')
+        .slice(0, 64)
+      clippedGalleries.push(title || 'last gallery item')
+    }
+  }
+
   return {
+    viewportOwnership: {
+      documentFlow,
+      topLevelSections,
+      measuredGalleries,
+      clippedGalleries,
+    },
     vw,
     scrollWidth: de.scrollWidth,
     horizontalScroll: de.scrollWidth > vw + 1,
@@ -324,6 +391,7 @@ const browser = await chromium.launch({
 })
 
 let failures = 0
+const viewportReadings = []
 
 /** route -> { phone, tablet, desktop } resolved backdrop URLs. */
 const backdropsByRoute = {}
@@ -376,6 +444,29 @@ for (const vp of VIEWPORTS) {
 
     const m = await page.evaluate(collect, MIN_FLEX_WIDTH).catch(() => null)
     const label = `${vp.name.padEnd(7)} ${route.padEnd(14)}`
+    if (m) {
+      viewportReadings.push({
+        route,
+        breakpoint: vp.name,
+        loaded,
+        ...m.viewportOwnership,
+      })
+      if (m.viewportOwnership.documentFlow) {
+        console.log(
+          `${label} VIEWPORT-REVIEW: one scrolling column holds ${m.viewportOwnership.topLevelSections} top-level sections`,
+        )
+      }
+      if (m.viewportOwnership.clippedGalleries.length) {
+        failures += 1
+        console.log(
+          `${label} ❌ last gallery item clipped without a scroll path:`,
+        )
+        for (const item of m.viewportOwnership.clippedGalleries) {
+          console.log(`         CLIPPED-GALLERY ${item}`)
+        }
+      }
+      if (STRICT_VIEWPORT && m.viewportOwnership.documentFlow) failures += 1
+    }
 
     /*
      * A ROUTE THAT NEVER LOADED IS A FAILURE, NOT A PASS.
@@ -489,6 +580,23 @@ for (const [route, byViewport] of Object.entries(backdropsByRoute)) {
         `\n         order in .kr-backdrop (assets/css/tailwind.css).`,
     )
   }
+}
+
+if (VIEWPORT_REPORT) {
+  mkdirSync(dirname(VIEWPORT_REPORT), { recursive: true })
+  writeFileSync(
+    VIEWPORT_REPORT,
+    JSON.stringify(
+      {
+        base: BASE,
+        auditedAt: new Date().toISOString(),
+        readings: viewportReadings,
+      },
+      null,
+      2,
+    ) + '\n',
+  )
+  console.log(`Viewport ownership atlas: ${VIEWPORT_REPORT}`)
 }
 
 if (failures) {

@@ -52,6 +52,29 @@ assert.match(
   /<ArcadeCabinet slug="zuzu-ghost-trail" \/>/,
 )
 
+for (const [route, cabinetSlug] of [
+  ['zuzu-ghost-trail', 'zuzu-ghost-trail'],
+  ['zuzu-pinball', 'zuzu-pinball'],
+] as const) {
+  const source = read(`pages/play/${route}.vue`)
+  assert.match(source, /h-full min-h-0/)
+  assert.match(source, /kr-scroll min-h-0 flex-1/)
+  assert.equal((source.match(/kr-scroll/g) ?? []).length, 1)
+  assert.ok(source.includes(`<ArcadeCabinet slug="${cabinetSlug}" />`))
+}
+const showdown = read('pages/play/zuzu-showdown.vue')
+assert.match(showdown, /<details class="kr-panel/)
+assert.match(showdown, /Match setup &amp; training/)
+assert.doesNotMatch(showdown, /<h2 class="mb-2 font-bold">Controls<\/h2>/)
+assert.match(nav('zuzu/zuzu-showdown'), /Gamepad|gamepad/i)
+const sitewideAudit = read('utils/scripts/auditResponsiveLayout.mjs')
+assert.match(sitewideAudit, /clippedGalleries/)
+assert.match(sitewideAudit, /viewportReadings/)
+assert.match(
+  read('.github/workflows/responsive-layout-audit.yml'),
+  /--viewport-report audit-shots\/viewport-ownership\.json/,
+)
+
 for (const tab of ['aquarium', 'experiments', 'shifting-desks']) {
   assert.match(nav(`arcade/${tab}`), /\nchannelKey: arcade\n/)
   assert.equal(existsSync(`content/channels/projects/${tab}.md`), false)

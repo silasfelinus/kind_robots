@@ -1,0 +1,37 @@
+name: Game Acceptance Soaks (Manual)
+
+# Expensive proof-of-acceptance simulations. These ran successfully when the
+# games were first accepted and are not useful as required every-PR checks.
+# Run manually after substantial game-engine/physics changes or to investigate
+# a specific regression. Ordinary targeted gameplay contracts still run in CI.
+on:
+  workflow_dispatch:
+
+jobs:
+  game-acceptance:
+    name: Game acceptance soaks
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+        env:
+          CYPRESS_INSTALL_BINARY: '0'
+
+      - name: Full Arcade engine acceptance suite
+        run: npm run test:arcade-engine
+
+      - name: Zuzu Pinball River Croc thousand-swallow simulation
+        run: npm run test:zuzu-pinball-croc
+
+      - name: Zuzu Pinball six-ball endurance simulation
+        run: npm run test:zuzu-pinball-stress

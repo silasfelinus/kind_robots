@@ -3,8 +3,10 @@
     <div
       class="mx-auto flex h-full min-h-0 w-full max-w-7xl flex-col gap-2 overflow-hidden px-2 py-2 sm:px-4"
     >
-      <div v-if="!slug" class="kr-scroll min-h-0 flex-1">
-        <ArcadeHall />
+      <div v-if="!slug" class="kr-panes min-h-0 grid-cols-1">
+        <div class="kr-pane-scroll">
+          <ArcadeHall />
+        </div>
       </div>
 
       <template v-else-if="meta">

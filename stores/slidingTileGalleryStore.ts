@@ -41,116 +41,123 @@ function sanitizeKeepsakes(value: unknown): SlidingTileKeepsake[] {
     .slice(0, KEEP_LIMIT)
 }
 
-export const useSlidingTileGalleryStore = defineStore('slidingTileGallery', () => {
-  const puzzle = ref<SlidingTilePuzzle>(makeSlidingTilePuzzle(currentDay()))
-  const keepsakes = ref<SlidingTileKeepsake[]>([])
-  const loaded = ref(false)
-  let practiceCount = 0
+export const useSlidingTileGalleryStore = defineStore(
+  'slidingTileGallery',
+  () => {
+    const puzzle = ref<SlidingTilePuzzle>(makeSlidingTilePuzzle(currentDay()))
+    const keepsakes = ref<SlidingTileKeepsake[]>([])
+    const loaded = ref(false)
+    let practiceCount = 0
 
-  const solvedCount = computed(() => keepsakes.value.length)
-  const canMove = (index: number) =>
-    !puzzle.value.solved &&
-    Math.abs(
-      Math.floor(index / 3) - Math.floor(puzzle.value.tiles.indexOf(0) / 3),
-    ) +
-      Math.abs((index % 3) - (puzzle.value.tiles.indexOf(0) % 3)) ===
-      1
+    const solvedCount = computed(() => keepsakes.value.length)
+    const canMove = (index: number) =>
+      !puzzle.value.solved &&
+      Math.abs(
+        Math.floor(index / 3) - Math.floor(puzzle.value.tiles.indexOf(0) / 3),
+      ) +
+        Math.abs((index % 3) - (puzzle.value.tiles.indexOf(0) % 3)) ===
+        1
 
-  function persist() {
-    if (!import.meta.client) return
-    try {
-      window.localStorage.setItem(
-        STORAGE_KEY,
-        JSON.stringify({
-          puzzle: puzzle.value,
-          keepsakes: keepsakes.value,
-        }),
-      )
-    } catch {
-      // The board still plays in browsers with storage disabled.
+    function persist() {
+      if (!import.meta.client) return
+      try {
+        window.localStorage.setItem(
+          STORAGE_KEY,
+          JSON.stringify({
+            puzzle: puzzle.value,
+            keepsakes: keepsakes.value,
+          }),
+        )
+      } catch {
+        // The board still plays in browsers with storage disabled.
+      }
     }
-  }
 
-  function initialize() {
-    if (loaded.value) return
-    loaded.value = true
-    if (!import.meta.client) return
-    try {
-      const saved = window.localStorage.getItem(STORAGE_KEY)
-      if (saved) {
-        const value: unknown = JSON.parse(saved)
-        if (value && typeof value === 'object') {
-          const object = value as { puzzle?: unknown; keepsakes?: unknown }
-          keepsakes.value = sanitizeKeepsakes(object.keepsakes)
-          const restored = restoreSlidingTilePuzzle(object.puzzle)
-          if (restored && (restored.mode === 'practice' ||
-              restored.day === currentDay())) {
-            puzzle.value = restored
+    function initialize() {
+      if (loaded.value) return
+      loaded.value = true
+      if (!import.meta.client) return
+      try {
+        const saved = window.localStorage.getItem(STORAGE_KEY)
+        if (saved) {
+          const value: unknown = JSON.parse(saved)
+          if (value && typeof value === 'object') {
+            const object = value as { puzzle?: unknown; keepsakes?: unknown }
+            keepsakes.value = sanitizeKeepsakes(object.keepsakes)
+            const restored = restoreSlidingTilePuzzle(object.puzzle)
+            if (
+              restored &&
+              (restored.mode === 'practice' || restored.day === currentDay())
+            ) {
+              puzzle.value = restored
+            }
           }
         }
+      } catch {
+        // Malformed saved data starts a new puzzle without breaking the page.
       }
-    } catch {
-      // Malformed saved data starts a new puzzle without breaking the page.
     }
-  }
 
-  function move(index: number) {
-    if (!canMove(index)) return false
-    const before = puzzle.value
-    puzzle.value = slideTile(before, index)
-    if (before !== puzzle.value && puzzle.value.solved) {
-      const completed: SlidingTileKeepsake = {
-        key: puzzle.value.key,
-        day: puzzle.value.day,
-        mode: puzzle.value.mode,
-        moves: puzzle.value.moves,
+    function move(index: number) {
+      if (!canMove(index)) return false
+      const before = puzzle.value
+      puzzle.value = slideTile(before, index)
+      if (before !== puzzle.value && puzzle.value.solved) {
+        const completed: SlidingTileKeepsake = {
+          key: puzzle.value.key,
+          day: puzzle.value.day,
+          mode: puzzle.value.mode,
+          moves: puzzle.value.moves,
+        }
+        keepsakes.value = [
+          completed,
+          ...keepsakes.value.filter((row) => row.key !== completed.key),
+        ].slice(0, KEEP_LIMIT)
       }
-      keepsakes.value = [
-        completed,
-        ...keepsakes.value.filter((row) => row.key !== completed.key),
-      ].slice(0, KEEP_LIMIT)
+      persist()
+      return true
     }
-    persist()
-    return true
-  }
 
-  function openDaily() {
-    const day = currentDay()
-    if (puzzle.value.key === `daily:${day}`) return
-    puzzle.value = makeSlidingTilePuzzle(day)
-    persist()
-  }
+    function openDaily() {
+      const day = currentDay()
+      if (puzzle.value.key === `daily:${day}`) return
+      puzzle.value = makeSlidingTilePuzzle(day)
+      persist()
+    }
 
-  function restart() {
-    const current = puzzle.value
-    puzzle.value = makeSlidingTilePuzzle(
-      current.day,
-      current.mode,
-      current.mode === 'practice' ? current.key.slice('practice:'.length) : '',
-    )
-    persist()
-  }
+    function restart() {
+      const current = puzzle.value
+      puzzle.value = makeSlidingTilePuzzle(
+        current.day,
+        current.mode,
+        current.mode === 'practice'
+          ? current.key.slice('practice:'.length)
+          : '',
+      )
+      persist()
+    }
 
-  function newPractice() {
-    practiceCount += 1
-    puzzle.value = makeSlidingTilePuzzle(
-      currentDay(),
-      'practice',
-      `${Date.now()}-${practiceCount}`,
-    )
-    persist()
-  }
+    function newPractice() {
+      practiceCount += 1
+      puzzle.value = makeSlidingTilePuzzle(
+        currentDay(),
+        'practice',
+        `${Date.now()}-${practiceCount}`,
+      )
+      persist()
+    }
 
-  return {
-    puzzle,
-    keepsakes,
-    loaded,
-    solvedCount,
-    canMove,
-    initialize,
-    move,
-    openDaily,
-    restart,
-    newPractice,
-  }
-})
+    return {
+      puzzle,
+      keepsakes,
+      loaded,
+      solvedCount,
+      canMove,
+      initialize,
+      move,
+      openDaily,
+      restart,
+      newPractice,
+    }
+  },
+)

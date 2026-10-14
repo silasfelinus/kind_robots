@@ -17,7 +17,10 @@ const a = makeSlidingTilePuzzle(day)
 const b = makeSlidingTilePuzzle(day)
 assert.deepEqual(a.tiles, b.tiles, 'same UTC day always generates same puzzle')
 assert.equal(a.tiles.length, 9)
-assert.deepEqual([...a.tiles].sort((x, y) => x - y), [0, 1, 2, 3, 4, 5, 6, 7, 8])
+assert.deepEqual(
+  [...a.tiles].sort((x, y) => x - y),
+  [0, 1, 2, 3, 4, 5, 6, 7, 8],
+)
 assert.equal(puzzleIsSolved(a.tiles), false, 'first board must need solving')
 assert.notDeepEqual(
   makeSlidingTilePuzzle('2026-10-14').tiles,

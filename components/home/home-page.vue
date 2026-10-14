@@ -97,7 +97,11 @@
       v-if="isAdmin"
       type="button"
       class="absolute right-2 top-2 z-30 rounded-full border border-base-300 bg-base-100/95 px-3 py-1.5 text-xs font-bold text-base-content shadow-md transition hover:border-primary hover:text-primary focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary"
-      :aria-label="showDirectory ? 'Open administrator dashboard' : 'Return to public homepage'"
+      :aria-label="
+        showDirectory
+          ? 'Open administrator dashboard'
+          : 'Return to public homepage'
+      "
       @click="homeMode = showDirectory ? 'dashboard' : 'directory'"
     >
       {{ showDirectory ? 'Admin dashboard →' : '← Explore Kind Robots' }}
@@ -513,7 +517,9 @@ const userStore = useUserStore()
  */
 const isAdmin = computed(() => userStore.isAdmin)
 const homeMode = ref<'directory' | 'dashboard' | null>(null)
-const showDirectory = computed(() => !isAdmin.value || homeMode.value !== 'dashboard')
+const showDirectory = computed(
+  () => !isAdmin.value || homeMode.value !== 'dashboard',
+)
 
 const visiblePanes = computed(() =>
   RIGHT_PANES.filter((pane) => pane.key !== 'attention' || isAdmin.value),

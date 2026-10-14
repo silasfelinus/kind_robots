@@ -56,6 +56,38 @@ import { FLAG_MEMOS } from '../shiftingDesks/memos'
 const file = (path: string) => fileURLToPath(new URL(path, import.meta.url))
 const asset = (path: string) => readFileSync(file(path), 'utf8')
 
+import { ART_STYLES, normalizeArtStyle, artStyleImageSrc } from '../shiftingDesks/artStyles'
+
+assert.deepEqual(ART_STYLES.map((style) => style.id), [
+  'classic',
+  'corporate-noir',
+  'mandatory-fun',
+  'endless-department',
+])
+assert.equal(normalizeArtStyle('unrecognized'), 'classic')
+assert.equal(normalizeArtStyle(null), 'classic')
+const classicCard = '/images/shifting-desks/cards/orientation/gus-shop-steward.webp'
+assert.equal(artStyleImageSrc(classicCard, 'classic'), classicCard)
+assert.equal(
+  artStyleImageSrc(classicCard, 'corporate-noir'),
+  '/images/shifting-desks/styles/corporate-noir/cards/orientation/gus-shop-steward.webp',
+)
+assert.equal(artStyleImageSrc('/unrelated/image.webp', 'mandatory-fun'), '/unrelated/image.webp')
+assert.equal(artStyleImageSrc(classicCard, 'invalid'), classicCard)
+assert.equal(
+  artStyleImageSrc('/images/shifting-desks/backs/review.webp', 'mandatory-fun'),
+  '/images/shifting-desks/styles/mandatory-fun/backs/review.webp',
+)
+const artWidget = asset('../../components/shifting-desks/shifting-desks-art.vue')
+assert.match(artWidget, /displaySrc\.value !== props\.src/)
+assert.match(artWidget, /onImageError/)
+const artPage = asset('../../pages/play/shifting-desks.vue')
+assert.match(artPage, /v-model="artStyle"/)
+assert.match(artPage, /ART_STYLE_STORAGE_KEY/)
+assert.match(artPage, /provide\('shifting-desks-art-style', artStyle\)/)
+
+
+
 assert.equal(ORIENTATION.schemaVersion, 1)
 assert.equal(ORIENTATION.sourceSha.length, 40)
 assert.equal(ORIENTATION.encounters.length, 12)

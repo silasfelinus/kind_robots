@@ -18,7 +18,15 @@ if (!queueOwner) {
 
 const classes = new Set(queueOwner[1]!.split(/\s+/).filter(Boolean))
 
-for (const required of ['grid', 'kr-scroll', 'min-w-0', 'grid-cols-1', 'grid-flow-row', 'gap-2', 'p-2']) {
+for (const required of [
+  'grid',
+  'kr-scroll',
+  'min-w-0',
+  'grid-cols-1',
+  'grid-flow-row',
+  'gap-2',
+  'p-2',
+]) {
   if (!classes.has(required)) {
     throw new Error(
       `${componentPath} queue scroll owner is missing required class: ${required}`,
@@ -44,24 +52,27 @@ for (const token of classes) {
 }
 
 const inlineLayout = component.match(
-  /<div\\s+v-else\\s+data-artjob-queue-stack\\s+class="[^"]*"\\s+style="([^"]+)"\\s*>/,
+  /<div\s+v-else\s+data-artjob-queue-stack\s+class="[^"]*"\s+style="([^"]+)"\s*>/,
 )?.[1]
 
 if (!inlineLayout) {
-  throw new Error('The ArtJob queue is missing its browser-enforced one-column layout guard.')
+  throw new Error(
+    'The ArtJob queue is missing its browser-enforced one-column layout guard.',
+  )
 }
+
+const declarations = Object.fromEntries(
+  inlineLayout.split(';').map((part) => {
+    const colon = part.indexOf(':')
+    return [part.slice(0, colon).trim(), part.slice(colon + 1).trim()]
+  }),
+)
 
 for (const [property, value] of [
   ['display', 'grid'],
   ['grid-template-columns', 'minmax(0, 1fr)'],
   ['grid-auto-flow', 'row'],
 ] as const) {
-  const declarations = Object.fromEntries(
-    inlineLayout.split(';').map((part) => {
-      const colon = part.indexOf(':')
-      return [part.slice(0, colon).trim(), part.slice(colon + 1).trim()]
-    }),
-  )
   if (declarations[property] !== value) {
     throw new Error(
       `The queue's inline ${property} must equal ${value}, got ${declarations[property] ?? 'absent'}`,

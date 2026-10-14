@@ -33,10 +33,7 @@ export type SparkSet = 'bolt' | 'bit' | 'flake' | 'note'
 export type ScreensaverKind = 'starfield' | 'defrag' | 'breeze' | 'equaliser'
 /** The boss at the end of a component. */
 export type BossKind =
-  | 'surge-protector'
-  | 'memory-leak'
-  | 'big-whirr'
-  | 'subwoofer'
+  'surge-protector' | 'memory-leak' | 'big-whirr' | 'subwoofer'
 /** How a component's wall slabs are dressed: outlet plastic, RAM chips, or cooling fins. */
 export type WallStyle = 'plastic' | 'chips' | 'fins' | 'speakers'
 

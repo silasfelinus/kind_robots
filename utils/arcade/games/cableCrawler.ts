@@ -75,7 +75,6 @@ import {
 } from '../cableCrawler/art'
 import {
   BEAT_PULSE,
-  BEAT_TELL,
   BOSS_DEFEAT_POINTS,
   BOSS_HIT_POINTS,
   SHOCK_REACH,

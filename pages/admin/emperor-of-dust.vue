@@ -84,12 +84,12 @@
           class="btn btn-sm min-w-fit flex-1 whitespace-nowrap"
           :class="activePanel === panel.id ? 'btn-warning' : 'btn-ghost'"
           :aria-current="activePanel === panel.id ? 'page' : undefined"
-          @click="activePanel = panel.id"
+          @click="selectPanel(panel.id)"
         >
           {{ panel.label }}
         </button>
       </nav>
-      <div class="kr-scroll min-h-0 flex-1 overscroll-contain rounded-xl border border-base-content/10 bg-base-200/20 p-1.5 sm:p-3">
+      <div ref="stageViewport" class="kr-scroll min-h-0 flex-1 overscroll-contain rounded-xl border border-base-content/10 bg-base-200/20 p-1.5 sm:p-3">
         <div v-show="activePanel === 'briefing'">
       <section
         v-if="court.day === 1"
@@ -600,6 +600,12 @@ const panels = [
   { id: 'ledger', label: 'Ledger' },
 ] as const
 const activePanel = ref<(typeof panels)[number]['id']>('map')
+const stageViewport = ref<HTMLElement | null>(null)
+
+function selectPanel(panel: (typeof panels)[number]['id']) {
+  activePanel.value = panel
+  stageViewport.value?.scrollTo({ top: 0 })
+}
 
 const selectedRegion = computed(() =>
   IMPERIAL_REGIONS.find((region) => region.id === selectedRegionId.value),

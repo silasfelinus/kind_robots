@@ -61,8 +61,7 @@ import { ART_STYLES, normalizeArtStyle, artStyleImageSrc } from '../shiftingDesk
 assert.deepEqual(ART_STYLES.map((style) => style.id), [
   'classic',
   'corporate-noir',
-  'mandatory-fun',
-  'endless-department',
+  'western-cartoon',
 ])
 assert.equal(normalizeArtStyle('unrecognized'), 'classic')
 assert.equal(normalizeArtStyle(null), 'classic')
@@ -72,11 +71,11 @@ assert.equal(
   artStyleImageSrc(classicCard, 'corporate-noir'),
   '/images/shifting-desks/styles/corporate-noir/cards/orientation/gus-shop-steward.webp',
 )
-assert.equal(artStyleImageSrc('/unrelated/image.webp', 'mandatory-fun'), '/unrelated/image.webp')
+assert.equal(artStyleImageSrc('/unrelated/image.webp', 'western-cartoon'), '/unrelated/image.webp')
 assert.equal(artStyleImageSrc(classicCard, 'invalid'), classicCard)
 assert.equal(
-  artStyleImageSrc('/images/shifting-desks/backs/review.webp', 'mandatory-fun'),
-  '/images/shifting-desks/styles/mandatory-fun/backs/review.webp',
+  artStyleImageSrc('/images/shifting-desks/backs/review.webp', 'western-cartoon'),
+  '/images/shifting-desks/styles/western-cartoon/backs/review.webp',
 )
 const artWidget = asset('../../components/shifting-desks/shifting-desks-art.vue')
 assert.match(artWidget, /displaySrc\.value !== props\.src/)
@@ -1136,7 +1135,8 @@ assert.match(
   /role="tablist"/,
   'the Personnel File pages through tabs instead of scrolling',
 )
-assert.doesNotMatch(page, /localStorage|\$fetch/)
+assert.doesNotMatch(page, /\$fetch/)
+assert.match(page, /localStorage\.getItem\(ART_STYLE_STORAGE_KEY\)/)
 assert.match(page, /prefers-reduced-motion: reduce/)
 assert.match(
   page,

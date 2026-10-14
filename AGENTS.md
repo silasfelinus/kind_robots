@@ -307,7 +307,9 @@ those files. It refuses to touch partially staged files with additional
 unstaged edits; stage or stash those edits first.
 
 Before opening or updating a PR, run `npm run format:changed` and commit
-the resulting formatting changes. `npm run format:check-changed` is the
+the resulting formatting changes. Both the hook and fast check skip files already
+listed as unformatted in the existing ratchet baseline, avoiding unrelated
+whole-file formatting churn. `npm run format:check-changed` is the
 read-only equivalent. Both select only new/modified files on the current
 branch compared to `origin/main`, not the whole repository.
 

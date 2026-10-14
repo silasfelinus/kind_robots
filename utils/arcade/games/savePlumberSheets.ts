@@ -1,63 +1,115 @@
 import { loadedImage } from '../ghostTrail/bake'
 import { keyOutBackground, type KeyedSprite } from './savePlumberArt'
 
-export type FrameSpan = { left: number; right: number }
+export type FrameBox = {
+  left: number
+  top: number
+  right: number
+  bottom: number
+}
 
 /**
- * Split a keyed sheet into frames along its empty columns. Gaps narrower
- * than `minGap` do not split; spans narrower than a sixth of a frame (a
- * stray sparkle or speed line) join their nearest neighbour. Returns null
- * when the sheet does not separate into exactly `expected` frames.
+ * Find the `expected` figures in a keyed sheet: label 4-connected opaque
+ * shapes, keep the `expected` largest as frames, fold every smaller shape
+ * (a sparkle, a detached scarf tail, a speed line) into the nearest frame,
+ * and order the frames left to right. Painted figures overlap in columns
+ * (a raised hand above the next head), so slicing by shape rather than by
+ * empty column keeps them apart. Returns null when the sheet does not hold
+ * `expected` substantial figures, for example when two of them touch.
  */
-export function frameSpans(
+export function sliceShapes(
   alpha: (x: number, y: number) => number,
   width: number,
   height: number,
   expected: number,
-  minGap = 3,
-): FrameSpan[] | null {
-  const filled: boolean[] = []
-  for (let x = 0; x < width; x++) {
-    let any = false
-    for (let y = 0; y < height && !any; y++) any = alpha(x, y) > 24
-    filled.push(any)
-  }
-  const spans: FrameSpan[] = []
-  let start = -1
-  let gap = 0
-  for (let x = 0; x <= width; x++) {
-    const on = x < width && filled[x]
-    if (on) {
-      if (start < 0) start = x
-      gap = 0
+): { label: Int32Array; frames: (FrameBox & { ids: number[] })[] } | null {
+  const label = new Int32Array(width * height)
+  const shapes: (FrameBox & { size: number; id: number })[] = []
+  const queue = new Int32Array(width * height)
+  for (let start = 0; start < width * height; start++) {
+    if (label[start] || alpha(start % width, (start / width) | 0) <= 24)
       continue
+    const id = shapes.length + 1
+    const shape = {
+      id,
+      size: 0,
+      left: width,
+      top: height,
+      right: -1,
+      bottom: -1,
     }
-    if (start < 0) continue
-    gap++
-    if (gap >= minGap || x === width) {
-      spans.push({ left: start, right: x - gap })
-      start = -1
-      gap = 0
+    let head = 0
+    let tail = 0
+    queue[tail++] = start
+    label[start] = id
+    while (head < tail) {
+      const i = queue[head++]!
+      const x = i % width
+      const y = (i - x) / width
+      shape.size++
+      if (x < shape.left) shape.left = x
+      if (x > shape.right) shape.right = x
+      if (y < shape.top) shape.top = y
+      if (y > shape.bottom) shape.bottom = y
+      const visit = (n: number, nx: number, ny: number) => {
+        if (label[n] || alpha(nx, ny) <= 24) return
+        label[n] = id
+        queue[tail++] = n
+      }
+      if (x > 0) visit(i - 1, x - 1, y)
+      if (x < width - 1) visit(i + 1, x + 1, y)
+      if (y > 0) visit(i - width, x, y - 1)
+      if (y < height - 1) visit(i + width, x, y + 1)
     }
+    shapes.push(shape)
   }
-  const minWidth = Math.max(4, Math.round(width / expected / 6))
-  for (let i = 0; i < spans.length;) {
-    const span = spans[i]!
-    if (span.right - span.left + 1 >= minWidth || spans.length === 1) {
-      i++
-      continue
-    }
-    const prev = spans[i - 1]
-    const next = spans[i + 1]
-    const target =
-      prev && (!next || span.left - prev.right <= next.left - span.right)
-        ? prev
-        : next!
-    target.left = Math.min(target.left, span.left)
-    target.right = Math.max(target.right, span.right)
-    spans.splice(i, 1)
+  if (shapes.length < expected) return null
+  shapes.sort((a, b) => b.size - a.size)
+  const frames = shapes.slice(0, expected).map((f) => ({ ...f, ids: [f.id] }))
+  if (frames[expected - 1]!.size < frames[0]!.size * 0.15) return null
+  for (const extra of shapes.slice(expected)) {
+    const cx = (extra.left + extra.right) / 2
+    const cy = (extra.top + extra.bottom) / 2
+    const gap = (f: FrameBox) =>
+      Math.max(0, f.left - cx, cx - f.right) +
+      Math.max(0, f.top - cy, cy - f.bottom)
+    const target = frames.reduce((best, f) => (gap(f) < gap(best) ? f : best))
+    target.ids.push(extra.id)
+    target.left = Math.min(target.left, extra.left)
+    target.top = Math.min(target.top, extra.top)
+    target.right = Math.max(target.right, extra.right)
+    target.bottom = Math.max(target.bottom, extra.bottom)
   }
-  return spans.length === expected ? spans : null
+  return {
+    label,
+    frames: frames
+      .sort((a, b) => a.left - b.left)
+      .map(({ left, top, right, bottom, ids }) => ({
+        left,
+        top,
+        right,
+        bottom,
+        ids,
+      })),
+  }
+}
+
+/** The figures' bounding boxes, left to right; see sliceShapes. */
+export function frameBoxes(
+  alpha: (x: number, y: number) => number,
+  width: number,
+  height: number,
+  expected: number,
+): FrameBox[] | null {
+  const sliced = sliceShapes(alpha, width, height, expected)
+  return sliced
+    ? sliced.frames.map(({ left, top, right, bottom }) => ({
+        left,
+        top,
+        right,
+        bottom,
+      }))
+    : null
 }
 
 export type KeyedSheet = {
@@ -80,7 +132,7 @@ export function keyedSheet(src: string, frames: number): KeyedSheet | null {
   if (cached !== undefined) return cached
   const img = loadedImage(src)
   if (!img || typeof document === 'undefined') return null
-  const scale = Math.min(1, 1600 / img.naturalWidth)
+  const scale = Math.min(1, 960 / img.naturalWidth)
   const w = Math.max(1, Math.round(img.naturalWidth * scale))
   const h = Math.max(1, Math.round(img.naturalHeight * scale))
   const work = document.createElement('canvas')
@@ -99,35 +151,37 @@ export function keyedSheet(src: string, frames: number): KeyedSheet | null {
   }
   wg.putImageData(pixels, 0, 0)
   const alpha = (x: number, y: number) => pixels.data[(y * w + x) * 4 + 3]!
-  const spans = frameSpans(alpha, w, h, frames)
-  if (!spans) {
+  const sliced = sliceShapes(alpha, w, h, frames)
+  if (!sliced) {
     sheets.set(id, null)
     return null
   }
-  const boxes = spans.map((span) => {
-    let top = h
-    let bottom = -1
-    for (let y = 0; y < h; y++)
-      for (let x = span.left; x <= span.right; x++)
-        if (alpha(x, y) > 24) {
-          top = Math.min(top, y)
-          bottom = Math.max(bottom, y)
-          break
-        }
-    return { ...span, top, bottom }
-  })
+  const boxes = sliced.frames
   const tallest = Math.max(...boxes.map((b) => b.bottom - b.top + 1))
   const result: KeyedSheet = {
     height: tallest,
     frames: boxes.map((b) => {
       const fw = b.right - b.left + 1
       const fh = b.bottom - b.top + 1
+      const own = new Set(b.ids)
       const out = document.createElement('canvas')
       out.width = fw
       out.height = tallest
-      out
-        .getContext('2d')
-        ?.drawImage(work, b.left, b.top, fw, fh, 0, tallest - fh, fw, fh)
+      const og = out.getContext('2d')
+      if (og) {
+        const cut = og.createImageData(fw, fh)
+        for (let y = 0; y < fh; y++)
+          for (let x = 0; x < fw; x++) {
+            const from = (b.top + y) * w + b.left + x
+            if (!own.has(sliced.label[from]!)) continue
+            const to = (y * fw + x) * 4
+            cut.data[to] = pixels.data[from * 4]!
+            cut.data[to + 1] = pixels.data[from * 4 + 1]!
+            cut.data[to + 2] = pixels.data[from * 4 + 2]!
+            cut.data[to + 3] = pixels.data[from * 4 + 3]!
+          }
+        og.putImageData(cut, 0, tallest - fh)
+      }
       return { canvas: out, width: fw, height: tallest }
     }),
   }

@@ -1,46 +1,56 @@
 import assert from 'node:assert/strict'
 import { PLUMBER_ART } from '../arcade/games/savePlumberArt'
-import { frameSpans, keyedSheet } from '../arcade/games/savePlumberSheets'
+import { frameBoxes, keyedSheet } from '../arcade/games/savePlumberSheets'
 
-function sheet(width: number, height: number, blocks: [number, number][]) {
+type Rect = [number, number, number, number]
+
+function sheet(rects: Rect[]) {
   return (x: number, y: number) =>
-    y > 2 && y < height - 2 && blocks.some(([l, r]) => x >= l && x <= r)
-      ? 255
-      : 0
+    rects.some(([l, t, r, b]) => x >= l && x <= r && y >= t && y <= b) ? 255 : 0
 }
 
-const six: [number, number][] = [
-  [10, 40],
-  [60, 92],
-  [110, 140],
-  [160, 190],
-  [210, 241],
-  [260, 290],
-]
+const six: Rect[] = [0, 1, 2, 3, 4, 5].map((i) => [
+  10 + i * 50,
+  10,
+  40 + i * 50,
+  50,
+])
 assert.deepEqual(
-  frameSpans(sheet(300, 60, six), 300, 60, 6),
-  six.map(([left, right]) => ({ left, right })),
+  frameBoxes(sheet(six), 320, 60, 6),
+  six.map(([left, top, right, bottom]) => ({ left, top, right, bottom })),
 )
 
-const withSparkle: [number, number][] = [
-  ...six.slice(0, 3),
-  [143, 144],
-  ...six.slice(3),
+const raisedHand: Rect[] = [
+  [10, 20, 40, 55],
+  [40, 5, 60, 20],
+  [50, 22, 80, 55],
+  [90, 20, 120, 55],
 ]
 assert.deepEqual(
-  frameSpans(sheet(300, 60, withSparkle), 300, 60, 6)?.[2],
-  { left: 110, right: 144 },
-  'a stray sparkle joins its nearest frame',
+  frameBoxes(sheet(raisedHand), 130, 60, 3)?.map((b) => [b.left, b.right]),
+  [
+    [10, 60],
+    [50, 80],
+    [90, 120],
+  ],
+  'a raised hand over the next figure stays with its own figure',
 )
 
-const touching: [number, number][] = [[10, 92], ...six.slice(2)]
+const sparkle: Rect[] = [...six, [44, 4, 46, 6]]
+assert.deepEqual(
+  frameBoxes(sheet(sparkle), 320, 60, 6)?.[0],
+  { left: 10, top: 4, right: 46, bottom: 50 },
+  'a stray sparkle joins its nearest figure',
+)
+
+const touching: Rect[] = [[10, 10, 90, 50], ...six.slice(2)]
 assert.equal(
-  frameSpans(sheet(300, 60, touching), 300, 60, 6),
+  frameBoxes(sheet(touching), 320, 60, 6),
   null,
-  'two frames that touch are rejected, not mis-sliced',
+  'two figures that touch are rejected, not mis-sliced',
 )
 assert.equal(
-  frameSpans(() => 0, 100, 40, 6),
+  frameBoxes(() => 0, 100, 40, 6),
   null,
 )
 
@@ -51,5 +61,5 @@ assert.equal(
 assert.equal(keyedSheet(PLUMBER_ART.anim('heroine-a-run'), 6), null)
 
 console.log(
-  'Save the Plumber sprite sheets: frame slicing and fallbacks verified',
+  'Save the Plumber sprite sheets: shape slicing and fallbacks verified',
 )

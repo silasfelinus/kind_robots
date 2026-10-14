@@ -909,8 +909,8 @@ import {
 import { useShiftingDesksStore } from '~/stores/shiftingDesksStore'
 import {
   ART_STYLES,
-  ART_STYLE_STORAGE_KEY,
-  normalizeArtStyle,
+  loadArtStylePreference,
+  saveArtStylePreference,
   type ShiftingDesksArtStyle,
 } from '~/utils/shiftingDesks/artStyles'
 
@@ -918,13 +918,7 @@ const store = useShiftingDesksStore()
 const artStyle = ref<ShiftingDesksArtStyle>('classic')
 provide('shifting-desks-art-style', artStyle)
 // Visual choice lives outside gameplay state and survives a reload.
-watch(artStyle, (style) => {
-  try {
-    localStorage.setItem(ART_STYLE_STORAGE_KEY, style)
-  } catch {
-    // Private-browsing storage restrictions cannot block the game.
-  }
-})
+watch(artStyle, saveArtStylePreference)
 const screen = ref<'front' | 'hire' | 'play'>('front')
 const opened = ref(false)
 const spendForm = ref(false)
@@ -1322,13 +1316,7 @@ watch([() => run.value?.position, () => run.value?.department], () => {
 })
 
 onMounted(() => {
-  try {
-    artStyle.value = normalizeArtStyle(
-      localStorage.getItem(ART_STYLE_STORAGE_KEY),
-    )
-  } catch {
-    artStyle.value = 'classic'
-  }
+  artStyle.value = loadArtStylePreference()
   store.load()
 })
 

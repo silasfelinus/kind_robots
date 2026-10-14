@@ -6,10 +6,6 @@
           Dynasty collection
         </p>
         <h3 class="font-serif text-2xl font-bold">Items of Power</h3>
-        <p class="mt-1 max-w-2xl text-sm opacity-75">
-          Earned relics survive a new campaign. Choose the next run's loadout
-          before restarting. Equipped items are locked in for the current run.
-        </p>
       </div>
       <span
         class="rounded-xl border border-warning/40 bg-warning/10 px-3 py-2 text-sm"
@@ -71,12 +67,6 @@
         </div>
       </article>
     </div>
-    <p class="text-xs opacity-70">
-      The second slot unlocks through a later story milestone. The Eye marks the
-      false briefing. The Hourglass shortens one outbound trip per day, not its
-      return journey. These relic illustrations are placeholders until final art
-      arrives.
-    </p>
     <button
       v-if="canUnlockSecondSlot"
       type="button"

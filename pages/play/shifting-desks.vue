@@ -13,25 +13,25 @@
         >
           Shifting <span class="text-warning">/</span> Desks
         </p>
-        <label
-          class="flex shrink-0 items-center gap-1 text-xs font-bold"
-          title="Card art style; missing art uses Classic until new renders arrive"
+        <button
+          type="button"
+          class="btn btn-sm shrink-0 gap-1.5 border-2 border-stone-900 bg-base-100 px-1.5"
+          :title="`Art style: ${currentArtStyle.label}. Change it anytime.`"
+          aria-haspopup="dialog"
+          @click="openArtPicker"
         >
-          <span class="sr-only">Card art style</span>
-          <select
-            v-model="artStyle"
-            aria-label="Card art style"
-            class="select select-bordered select-xs w-28 sm:w-44"
-          >
-            <option
-              v-for="style in ART_STYLES"
-              :key="style.id"
-              :value="style.id"
-            >
-              {{ style.label }}
-            </option>
-          </select>
-        </label>
+          <img
+            :src="artStyleImageSrc(ART_STYLE_SAMPLE, artStyle)"
+            alt=""
+            class="size-6 rounded object-cover object-[50%_30%]"
+            @error="
+              ($event.target as HTMLImageElement).style.visibility = 'hidden'
+            "
+          />
+          <icon name="kind-icon:palette" class="size-4" />
+          <span class="hidden sm:inline">{{ currentArtStyle.label }}</span>
+          <span class="sr-only">art style, change</span>
+        </button>
         <div
           v-if="run"
           class="flex flex-1 flex-wrap items-center justify-end gap-1.5"
@@ -400,7 +400,7 @@
                     }}</span
                   >
                 </div>
-                <div class="flex shrink-0 flex-col gap-1 p-2 sm:p-3">
+                <div class="flex shrink-0 flex-col gap-1 p-2 sm:p-3 md:hidden">
                   <p
                     ref="cardHeading"
                     tabindex="-1"
@@ -459,6 +459,24 @@
                 >
                   <icon name="kind-icon:arrow-left" class="size-3.5" /> Card
                 </button>
+              </div>
+              <div
+                v-if="opened"
+                class="desk-card hidden shrink-0 flex-col gap-1 rounded-2xl border-4 border-stone-800 p-3 text-stone-900 md:flex lg:p-4"
+              >
+                <p
+                  ref="briefHeading"
+                  tabindex="-1"
+                  class="font-mono text-lg font-black uppercase leading-tight lg:text-2xl"
+                >
+                  {{ view.card.title }}
+                </p>
+                <p
+                  class="leading-relaxed lg:text-lg"
+                  :class="manyRoutes ? 'text-sm' : 'text-base'"
+                >
+                  {{ view.card.flavor_text }}
+                </p>
               </div>
               <template v-if="run.pending">
                 <article
@@ -775,6 +793,22 @@
         </div>
       </section>
 
+      <dialog ref="artPicker" class="modal" aria-label="Choose your art style">
+        <div class="modal-box flex max-w-3xl flex-col gap-3 p-3 sm:p-4">
+          <shifting-desks-style-picker class="h-56 sm:h-80" />
+          <button
+            type="button"
+            class="btn btn-warning self-end"
+            @click="artPicker?.close()"
+          >
+            Done
+          </button>
+        </div>
+        <form method="dialog" class="modal-backdrop">
+          <button type="submit">Close</button>
+        </form>
+      </dialog>
+
       <dialog
         ref="journal"
         class="modal"
@@ -852,7 +886,9 @@ import {
 import { useShiftingDesksStore } from '~/stores/shiftingDesksStore'
 import {
   ART_STYLES,
+  ART_STYLE_SAMPLE,
   DEFAULT_ART_STYLE,
+  artStyleImageSrc,
   loadArtStylePreference,
   saveArtStylePreference,
   type ShiftingDesksArtStyle,
@@ -869,11 +905,22 @@ const spendForm = ref(false)
 const useFavor = ref(false)
 const useMutation = ref(false)
 const cardHeading = ref<HTMLElement | null>(null)
+// From md the card's title and description sit above the choices instead.
+const briefHeading = ref<HTMLElement | null>(null)
 const cardBack = ref<HTMLElement | null>(null)
 const nextButton = ref<HTMLElement | null>(null)
 const decideHeading = ref<HTMLElement | null>(null)
 const deciding = ref(false)
 const journal = ref<HTMLDialogElement | null>(null)
+// Silas, 2026-10-14: "we should be able to change the art style in game."
+const artPicker = ref<HTMLDialogElement | null>(null)
+const currentArtStyle = computed(
+  () => ART_STYLES.find((s) => s.id === artStyle.value) ?? ART_STYLES[0],
+)
+
+function openArtPicker(): void {
+  artPicker.value?.showModal()
+}
 const journalOpen = ref(false)
 const pickedJobId = ref(JOB_TITLES[0]!.id)
 const pickedJob = computed(() => jobById(pickedJobId.value))
@@ -1179,7 +1226,8 @@ async function openFile(): Promise<void> {
   deciding.value = false
   opened.value = true
   await nextTick()
-  cardHeading.value?.focus()
+  const brief = briefHeading.value
+  ;(brief?.offsetParent ? brief : cardHeading.value)?.focus()
 }
 
 async function pick(choice: Choice): Promise<void> {
@@ -1286,7 +1334,7 @@ useHead({ title: 'Shifting Desks' })
 
 @media (min-width: 768px) {
   .desk-layout {
-    grid-template-rows: minmax(0, 0.85fr) minmax(0, 1.15fr);
+    grid-template-rows: minmax(6rem, 1fr) minmax(0, auto);
   }
 }
 

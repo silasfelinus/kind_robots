@@ -1107,6 +1107,14 @@ assert.doesNotMatch(
   'no pitch copy on the front page',
 )
 assert.match(page, /<shifting-desks-style-picker/)
+// Silas, 2026-10-14: the card's description sits on the right, above the
+// choices; the card face keeps it only on phones, where Decide zooms.
+assert.match(
+  page,
+  /ref="briefHeading"[\s\S]*?view\.card\.flavor_text[\s\S]*?v-for="choice in openRoutes"/,
+  'the description renders in the choices pane, above the choices',
+)
+assert.match(page, /p-2 sm:p-3 md:hidden">\s*<p\s+ref="cardHeading"/)
 assert.doesNotMatch(page, /desk-poster/, 'the text-only poster is gone')
 // Themes paint art behind the page, so no container may be see-through.
 assert.doesNotMatch(

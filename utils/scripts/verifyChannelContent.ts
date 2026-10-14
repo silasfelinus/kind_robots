@@ -276,6 +276,63 @@ async function validateStrictFrontMatter(errors: string[]): Promise<void> {
   }
 }
 
+function hasText(value: unknown): boolean {
+  return typeof value === 'string' && value.trim().length > 0
+}
+
+async function validateChannelTutorial(
+  errors: string[],
+  channel: NavigationDocument,
+): Promise<void> {
+  const source = await readFile(resolve(repositoryRoot, channel.file), 'utf8')
+  const frontMatter = source.match(/^---\r?\n([\s\S]*?)\r?\n---(?:\r?\n|$)/)?.[1]
+  if (!frontMatter) {
+    addError(errors, channel, 'missing YAML frontmatter for channel tutorial')
+    return
+  }
+
+  let metadata: Record<string, unknown>
+  try {
+    metadata = parseYaml(frontMatter) as Record<string, unknown>
+  } catch {
+    return
+  }
+
+  const tutorial = metadata?.tutorial
+  if (!tutorial || typeof tutorial !== 'object' || Array.isArray(tutorial)) {
+    addError(errors, channel, 'channel requires an authored tutorial overview')
+    return
+  }
+
+  const fields = tutorial as Record<string, unknown>
+  for (const field of ['title', 'overview', 'hero']) {
+    if (!hasText(fields[field])) {
+      addError(errors, channel, `tutorial.${field} must contain authored text or a hero image path`)
+    }
+  }
+  if (!Array.isArray(fields.sections) || fields.sections.length === 0) {
+    addError(errors, channel, 'tutorial.sections requires at least one authored section')
+    return
+  }
+
+  const seenKeys = new Set<string>()
+  for (const [index, rawSection] of fields.sections.entries()) {
+    const section = rawSection && typeof rawSection === 'object' && !Array.isArray(rawSection)
+      ? rawSection as Record<string, unknown>
+      : {}
+    for (const field of ['key', 'title', 'body', 'image']) {
+      if (!hasText(section[field])) {
+        addError(errors, channel, `tutorial.sections[${index}].${field} is required`)
+      }
+    }
+    if (hasText(section.key)) {
+      const key = section.key as string
+      if (seenKeys.has(key)) addError(errors, channel, `duplicate tutorial section key ${key}`)
+      seenKeys.add(key)
+    }
+  }
+}
+
 async function main(): Promise<void> {
   const documents = await Promise.all(
     (await markdownFiles(channelsDirectory)).map(readDocument),
@@ -290,6 +347,8 @@ async function main(): Promise<void> {
   const tabsByChannelRoute = new Map<string, NavigationDocument[]>()
 
   for (const document of documents) validateChannelDocument(errors, document)
+
+  await Promise.all(channels.map((channel) => validateChannelTutorial(errors, channel)))
 
   for (const channel of channels) {
     if (!channel.defaultTab) addError(errors, channel, 'missing defaultTab')

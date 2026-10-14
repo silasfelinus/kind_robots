@@ -6,41 +6,41 @@
 
     <template v-else>
       <div
-        class="kr-toolbar mx-auto w-full max-w-[1400px] justify-between gap-x-3 gap-y-1 rounded-2xl bg-base-100/95 px-2 py-0.5 shadow-sm sm:px-4 sm:py-1"
+        class="kr-toolbar mx-auto w-full max-w-[1400px] justify-between gap-x-2 gap-y-1 sm:gap-x-3 rounded-2xl bg-base-100/95 px-2 py-0.5 shadow-sm sm:px-4 sm:py-1"
       >
         <p
           class="hidden font-mono text-sm font-black uppercase tracking-[.25em] sm:block"
         >
           Shifting <span class="text-warning">/</span> Desks
         </p>
-        <label
-          class="flex shrink-0 items-center gap-1 text-xs font-bold"
-          title="Card art style; missing art uses Classic until new renders arrive"
+        <button
+          type="button"
+          class="btn btn-xs h-7 shrink-0 gap-1 border-2 border-stone-900 bg-base-100 px-1 sm:btn-sm sm:gap-1.5 sm:px-1.5"
+          :title="`Art style: ${currentArtStyle.label}. Change it anytime.`"
+          aria-haspopup="dialog"
+          @click="openArtPicker"
         >
-          <span class="sr-only">Card art style</span>
-          <select
-            v-model="artStyle"
-            aria-label="Card art style"
-            class="select select-bordered select-xs w-28 sm:w-44"
-          >
-            <option
-              v-for="style in ART_STYLES"
-              :key="style.id"
-              :value="style.id"
-            >
-              {{ style.label }}
-            </option>
-          </select>
-        </label>
+          <img
+            :src="artStyleImageSrc(ART_STYLE_SAMPLE, artStyle)"
+            alt=""
+            class="hidden size-6 rounded object-cover object-[50%_30%] sm:block"
+            @error="
+              ($event.target as HTMLImageElement).style.visibility = 'hidden'
+            "
+          />
+          <icon name="kind-icon:palette" class="size-4" />
+          <span class="hidden sm:inline">{{ currentArtStyle.label }}</span>
+          <span class="sr-only">art style, change</span>
+        </button>
         <div
           v-if="run"
-          class="flex flex-1 flex-wrap items-center justify-end gap-1.5"
+          class="flex flex-1 flex-wrap items-center justify-end gap-1 sm:gap-1.5"
           aria-label="Your file"
         >
           <span
             v-for="m in meterList"
             :key="m.key"
-            class="flex items-center gap-0.5 rounded-md bg-base-200 px-1.5 py-1 text-xs font-bold sm:gap-1 sm:px-2"
+            class="flex items-center gap-0.5 rounded-md bg-base-200 px-1 py-1 text-xs font-bold sm:gap-1 sm:px-2"
             :class="m.danger ? 'text-error' : ''"
             :title="m.help"
           >
@@ -50,7 +50,7 @@
           </span>
           <button
             type="button"
-            class="btn btn-ghost btn-xs"
+            class="btn btn-ghost btn-xs max-sm:px-1"
             :title="`Personnel file, ${run.log.length} entries`"
             @click="openJournal"
           >
@@ -59,7 +59,7 @@
           </button>
           <button
             type="button"
-            class="btn btn-ghost btn-xs"
+            class="btn btn-ghost btn-xs max-sm:px-1"
             title="Leave for the front desk"
             @click="toFront"
           >
@@ -400,7 +400,7 @@
                     }}</span
                   >
                 </div>
-                <div class="flex shrink-0 flex-col gap-1 p-2 sm:p-3">
+                <div class="flex shrink-0 flex-col gap-1 p-2 sm:p-3 md:hidden">
                   <p
                     ref="cardHeading"
                     tabindex="-1"
@@ -459,6 +459,29 @@
                 >
                   <icon name="kind-icon:arrow-left" class="size-3.5" /> Card
                 </button>
+              </div>
+              <div
+                v-if="opened"
+                class="desk-card hidden shrink-0 flex-col gap-1 rounded-2xl border-4 border-stone-800 p-3 text-stone-900 md:flex"
+                :class="manyRoutes ? '' : 'lg:p-4'"
+              >
+                <p
+                  ref="briefHeading"
+                  tabindex="-1"
+                  class="font-mono text-lg font-black uppercase leading-tight"
+                  :class="manyRoutes ? 'lg:text-xl' : 'lg:text-2xl'"
+                >
+                  {{ view.card.title }}
+                </p>
+                <p
+                  :class="
+                    manyRoutes
+                      ? 'text-sm leading-snug lg:text-base'
+                      : 'text-base leading-relaxed lg:text-lg'
+                  "
+                >
+                  {{ view.card.flavor_text }}
+                </p>
               </div>
               <template v-if="run.pending">
                 <article
@@ -706,7 +729,7 @@
                     <li
                       v-for="choice in lockedRoutes"
                       :key="choice.id"
-                      class="flex max-w-full items-center gap-1 rounded-lg border border-base-300 bg-base-200 px-2 py-1 text-xs text-base-content/70"
+                      class="flex max-w-full items-center gap-1 rounded-lg border border-base-300 bg-base-200 px-2 py-1 text-xs text-base-content/70 max-md:max-w-[calc(50%-0.375rem)]"
                       :title="lockFor(choice) ?? undefined"
                     >
                       <icon
@@ -774,6 +797,22 @@
           </div>
         </div>
       </section>
+
+      <dialog ref="artPicker" class="modal" aria-label="Choose your art style">
+        <div class="modal-box flex max-w-3xl flex-col gap-3 p-3 sm:p-4">
+          <shifting-desks-style-picker class="h-56 sm:h-80" />
+          <button
+            type="button"
+            class="btn btn-warning self-end"
+            @click="artPicker?.close()"
+          >
+            Done
+          </button>
+        </div>
+        <form method="dialog" class="modal-backdrop">
+          <button type="submit">Close</button>
+        </form>
+      </dialog>
 
       <dialog
         ref="journal"
@@ -852,7 +891,9 @@ import {
 import { useShiftingDesksStore } from '~/stores/shiftingDesksStore'
 import {
   ART_STYLES,
+  ART_STYLE_SAMPLE,
   DEFAULT_ART_STYLE,
+  artStyleImageSrc,
   loadArtStylePreference,
   saveArtStylePreference,
   type ShiftingDesksArtStyle,
@@ -869,11 +910,22 @@ const spendForm = ref(false)
 const useFavor = ref(false)
 const useMutation = ref(false)
 const cardHeading = ref<HTMLElement | null>(null)
+// From md the card's title and description sit above the choices instead.
+const briefHeading = ref<HTMLElement | null>(null)
 const cardBack = ref<HTMLElement | null>(null)
 const nextButton = ref<HTMLElement | null>(null)
 const decideHeading = ref<HTMLElement | null>(null)
 const deciding = ref(false)
 const journal = ref<HTMLDialogElement | null>(null)
+// Silas, 2026-10-14: "we should be able to change the art style in game."
+const artPicker = ref<HTMLDialogElement | null>(null)
+const currentArtStyle = computed(
+  () => ART_STYLES.find((s) => s.id === artStyle.value) ?? ART_STYLES[0],
+)
+
+function openArtPicker(): void {
+  artPicker.value?.showModal()
+}
 const journalOpen = ref(false)
 const pickedJobId = ref(JOB_TITLES[0]!.id)
 const pickedJob = computed(() => jobById(pickedJobId.value))
@@ -1179,7 +1231,8 @@ async function openFile(): Promise<void> {
   deciding.value = false
   opened.value = true
   await nextTick()
-  cardHeading.value?.focus()
+  const brief = briefHeading.value
+  ;(brief?.offsetParent ? brief : cardHeading.value)?.focus()
 }
 
 async function pick(choice: Choice): Promise<void> {
@@ -1286,7 +1339,7 @@ useHead({ title: 'Shifting Desks' })
 
 @media (min-width: 768px) {
   .desk-layout {
-    grid-template-rows: minmax(0, 0.85fr) minmax(0, 1.15fr);
+    grid-template-rows: minmax(6rem, 1fr) minmax(0, auto);
   }
 }
 

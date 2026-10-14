@@ -48,7 +48,13 @@ const component = asset(
 assert.match(component, /displaySrc\.value !== props\.src/)
 assert.match(component, /onImageError/)
 const page = asset('../../pages/play/shifting-desks.vue')
-assert.match(page, /v-model="artStyle"/)
+// In game, an Art button opens the same picture picker as the front desk.
+assert.match(page, /@click="openArtPicker"/)
+assert.match(
+  page,
+  /ref="artPicker"[\s\S]*?<shifting-desks-style-picker/,
+  'the in-game art dialog holds the picture picker',
+)
 assert.match(page, /loadArtStylePreference/)
 assert.match(page, /saveArtStylePreference/)
 assert.match(page, /provide\('shifting-desks-art-style', artStyle\)/)

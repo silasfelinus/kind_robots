@@ -28,7 +28,7 @@ tutorial:
     Click an island on the overworld map, or a World chip below it, to scout that world's four stages, its boss and its locals. Arrow keys step between islands. Bluebell Pipeworks, Tideglass Marina, Lantern Orchard, Clockwork Fair, Cloudrail Commons, Crystal Underworks, Night Market Rooftops and Stardrain Citadel culminate in the rescue of the plumber. Painted vignettes replace the drawn scenes as the art pipeline delivers them.
 
     Casting call
-    Roll a new heroine to see another young woman with her own name and look, and press Keep her to remember her on this device. Your kept heroine stars on the title screen and the map. Looks are cosmetic: every heroine shares one hitbox and the same abilities.
+    Pick one of eight painted heroines, or press Surprise me to be cast at random, then press Keep her to remember her on this device. Your kept heroine stars on the title screen, the map and the movement lab, running with her own painted animation. Looks are cosmetic: every heroine shares one hitbox and the same abilities.
 ---
 
 An original eight-world rescue platformer. The admin-only front page carries the

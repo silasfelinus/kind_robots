@@ -1,0 +1,21 @@
+name: Temporary Arcade Prettier Diagnosis
+on:
+  push:
+    branches:
+      - worker/arcade-direct-link-20261013-2213-pt
+permissions:
+  contents: read
+jobs:
+  show-format:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - run: npm ci --ignore-scripts
+      - name: Print exact Prettier diff
+        run: |
+          npx prettier --write utils/scripts/verifyArcadeGameSubtabs.test.ts
+          git diff -- utils/scripts/verifyArcadeGameSubtabs.test.ts

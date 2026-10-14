@@ -1,6 +1,8 @@
 name: Contract Tests
 
 # Fast, DB-free contract checks for cross-repo and content-driven contracts.
+# Long-running one-time Arcade and pinball soak acceptance tests are manually
+# runnable in game-soak-acceptance.yml, not required on every change.
 # No database or Nuxt build is needed, so these can gate every pull request.
 
 on:
@@ -799,12 +801,6 @@ jobs:
         env:
           CYPRESS_INSTALL_BINARY: '0'
 
-      - name: Kind Robots Arcade engine
-        run: npm run test:arcade-engine
-
-      - name: Zuzu Pinball setup/dispose and six-ball stress
-        run: npm run test:zuzu-pinball-stress
-
       - name: Newsfeed perspective balance contract
         run: npm run test:newsfeed-perspective-balance
 
@@ -1188,9 +1184,6 @@ jobs:
         run: npm ci
         env:
           CYPRESS_INSTALL_BINARY: '0'
-
-      - name: Zuzu Pinball River Croc (1,000 swallows)
-        run: npm run test:zuzu-pinball-croc
 
       - name: Zuzu Pinball no stuck balls
         run: npm run test:zuzu-pinball-no-stuck

@@ -1,10 +1,12 @@
 name: Taskmaster Session Storage Recovery Contract
 
 on:
-  push:
-    branches: [main]
   pull_request:
     branches: [main]
+    paths:
+      - '.github/workflows/taskmaster-session-storage-recovery-contract.yml'
+      - 'stores/storybookRunStore.ts'
+      - 'utils/scripts/verifyTaskmasterSessionStorageRecoveryGuard.mjs'
   workflow_dispatch:
 
 concurrency:

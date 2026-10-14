@@ -3,8 +3,19 @@ name: Facet Catalog Contract
 on:
   pull_request:
     branches: [main]
-  push:
-    branches: [main]
+    # Facet catalog audits are expensive and only relevant for app/schema inputs.
+    paths:
+      - '.github/workflows/facet-catalog-contract.yml'
+      - 'components/**'
+      - 'server/**'
+      - 'stores/**'
+      - 'utils/**'
+      - 'prisma/**'
+      - 'content/**'
+      - 'scripts/**'
+      - 'assets/**'
+      - 'package.json'
+      - 'package-lock.json'
   workflow_dispatch:
 
 concurrency:

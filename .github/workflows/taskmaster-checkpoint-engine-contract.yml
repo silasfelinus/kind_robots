@@ -1,10 +1,15 @@
 name: Taskmaster Checkpoint Engine Contract
 
 on:
-  push:
-    branches: [main]
   pull_request:
     branches: [main]
+    paths:
+      - '.github/workflows/taskmaster-checkpoint-engine-contract.yml'
+      - 'server/utils/storybookQuest.ts'
+      - 'server/utils/storybookRuns.ts'
+      - 'components/storybook/storybook-table.vue'
+      - 'components/storybook/storybook-reading.vue'
+      - 'utils/scripts/verifyTaskmasterCheckpointEngine.mjs'
   workflow_dispatch:
 
 concurrency:

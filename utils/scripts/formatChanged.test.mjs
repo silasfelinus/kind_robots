@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict'
 import { spawnSync } from 'node:child_process'
-import { mkdtempSync, mkdirSync, rmSync, writeFileSync } from 'node:fs'
+import { mkdtempSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { test } from 'node:test'
@@ -52,6 +52,27 @@ test('changed-file formatter targets new and modified files, not deletions or un
     assert.deepEqual(unstagedPaths(cwd), [])
     writeFileSync(join(cwd, 'src', 'old.ts'), 'const old=3\n')
     assert.deepEqual(unstagedPaths(cwd), ['src/old.ts'])
+
+    const installer = join(process.cwd(), 'utils/scripts/installFormatHook.mjs')
+    const installed = spawnSync(process.execPath, [installer], {
+      cwd,
+      env: { ...process.env, CI: 'false' },
+      encoding: 'utf8',
+    })
+    assert.equal(installed.status, 0, installed.stderr)
+    const hook = join(cwd, '.git/hooks/pre-commit')
+    assert.match(
+      readFileSync(hook, 'utf8'),
+      /formatChanged\.mjs --staged --write/,
+    )
+    writeFileSync(hook, '#!/bin/sh\\necho custom hook\\n')
+    const retained = spawnSync(process.execPath, [installer], {
+      cwd,
+      env: { ...process.env, CI: 'false' },
+      encoding: 'utf8',
+    })
+    assert.equal(retained.status, 0, retained.stderr)
+    assert.equal(readFileSync(hook, 'utf8'), '#!/bin/sh\\necho custom hook\\n')
   } finally {
     rmSync(cwd, { recursive: true, force: true })
   }

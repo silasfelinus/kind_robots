@@ -60,6 +60,8 @@ export const DAS_REPEAT = 4
 /** Points for shipping 1..4 rows at once, times the level. */
 export const SHIP_POINTS = [0, 100, 300, 500, 800] as const
 export const UNSTICK_POINTS = 50
+/** Every crate set down earns a little, times the level. */
+export const PLACE_POINTS = 5
 
 export const CRATE_CURVES = {
   /** Ticks per row of fall. */
@@ -560,6 +562,7 @@ class CrateStackShuffle implements ArcadeGameInstance {
   private settle() {
     lock(this.bay, this.piece!)
     this.piece = null
+    this.addScore(PLACE_POINTS * this.level, null)
     this.spawnTimer = SPAWN_DELAY
     this.sound.play('pop')
     const full = fullRows(this.bay)

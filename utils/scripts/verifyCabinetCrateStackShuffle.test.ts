@@ -125,6 +125,7 @@ assert.deepEqual([...newBag(mulberry32(3))].sort(), [...KINDS].sort())
     ticks++
   }
   assert.ok(idle.over, 'an idle player tops out')
+  assert.ok(idle.score > 0, 'every crate set down earns points')
   assert.equal(idle.lives, 0)
 
   // A player driven by the pilot's own placement logic ships rows and levels up.

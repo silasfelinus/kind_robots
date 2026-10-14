@@ -80,7 +80,10 @@ assert.equal(
 )
 assert.equal(artStyleImageSrc(classicCard, 'invalid'), classicCard)
 assert.equal(
-  artStyleImageSrc('/images/shifting-desks/backs/review.webp', 'western-cartoon'),
+  artStyleImageSrc(
+    '/images/shifting-desks/backs/review.webp',
+    'western-cartoon',
+  ),
   '/images/shifting-desks/styles/western-cartoon/backs/review.webp',
 )
 const artWidget = asset('../../components/shifting-desks/shifting-desks-art.vue')

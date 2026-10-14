@@ -85,9 +85,17 @@
   itself: the animations rail appears on days the pipeline produced clips.
 -->
 <template>
-  <div class="kr-unbound gap-3 pb-6">
+  <div
+    class="kr-unbound"
+    :class="
+      showDirectory
+        ? 'flex h-full min-h-0 flex-col gap-2 overflow-hidden'
+        : 'gap-3 pb-6'
+    "
+  >
     <nav
-      class="flex flex-wrap items-center justify-between gap-2 kr-panel-flat p-3"
+      v-if="isAdmin"
+      class="flex shrink-0 flex-wrap items-center justify-between gap-2 kr-panel-flat p-3"
       aria-label="Home views"
     >
       <div class="min-w-0">

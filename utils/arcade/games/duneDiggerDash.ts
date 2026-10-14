@@ -610,8 +610,8 @@ class DuneDiggerDash implements ArcadeGameInstance {
     return !walkable(this.grid, tileOf(nx), tileOf(ny))
   }
 
-  private movePlayer(c: InputFrame) {
-    let want: Dir | null = null
+  /** The direction the player asks for: when two are held, the one that turns a corner. */
+  private wantedDir(c: InputFrame): Dir | null {
     // Prefer the direction that turns the way you are not already going.
     const dirs: Dir[] = []
     if (c.held.left && !c.held.right) dirs.push({ dx: -1, dy: 0 })
@@ -621,8 +621,13 @@ class DuneDiggerDash implements ArcadeGameInstance {
     if (dirs.length === 2) {
       const sameAxis = (d: Dir) =>
         d.dx !== 0 ? this.face.dx !== 0 : this.face.dy !== 0
-      want = dirs.find((d) => !sameAxis(d)) ?? dirs[0]!
-    } else want = dirs[0] ?? null
+      return dirs.find((d) => !sameAxis(d)) ?? dirs[0]!
+    }
+    return dirs[0] ?? null
+  }
+
+  private movePlayer(c: InputFrame) {
+    const want = this.wantedDir(c)
     if (!want) return
     this.face = want
     this.acc += PLAYER_SPEED

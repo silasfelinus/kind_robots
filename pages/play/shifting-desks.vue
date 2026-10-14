@@ -408,7 +408,9 @@
                   >
                     {{ view.card.title }}
                   </p>
-                  <p class="max-h-40 overflow-y-auto text-sm leading-relaxed">
+                  <p
+                    class="max-h-48 overflow-y-auto text-base leading-relaxed lg:text-lg"
+                  >
                     {{ view.card.flavor_text }}
                   </p>
                   <button

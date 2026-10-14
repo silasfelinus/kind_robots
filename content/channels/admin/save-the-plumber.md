@@ -22,7 +22,7 @@ tutorial:
     Press Start on the title screen or scroll to the training run, then press Start on the Arcade cabinet. Use Left and Right to run, and Up or B to jump. Holding a direction accelerates you; let go to slow. Jump input is buffered just before landing and remains available for a few frames after leaving a ledge. The Arcade cabinet also manages gamepad, touch, pause and sound.
 
     Tools and enemies
-    Press A to use your short-range practice tool against a pumpbug ahead. A careful landing on top of a pumpbug also defeats it. Pick up the brass collectible tokens and cross gaps to reach the pennant. The toy box on this page previews the planned enemy families and the three power disciplines; the training run has only the first mechanical slice.
+    Press A to use your short-range practice tool against a pumpbug ahead. A careful landing on top of a pumpbug also defeats it. Pick up the brass collectible tokens and cross gaps to reach the pennant. The toy box on this page previews all fourteen enemy families in their painted animation (hover or tap a card to see its move) and the three power disciplines, and the world map shows each boss's attack; the training run has only the first mechanical slice.
 
     Eight worlds
     Click an island on the overworld map, or a World chip below it, to scout that world's four stages, its boss and its locals. Arrow keys step between islands. Bluebell Pipeworks, Tideglass Marina, Lantern Orchard, Clockwork Fair, Cloudrail Commons, Crystal Underworks, Night Market Rooftops and Stardrain Citadel culminate in the rescue of the plumber. Painted vignettes replace the drawn scenes as the art pipeline delivers them.

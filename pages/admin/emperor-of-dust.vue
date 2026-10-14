@@ -123,11 +123,6 @@
             <p class="mt-1 text-sm">{{ report.text }}</p>
           </article>
         </div>
-        <p class="mt-3 text-xs opacity-65">
-          Two reports are true. One is a harmless false rumor. The Eye of the
-          Elder Crow can reveal the false rumor if equipped. The full 100-day
-          briefings are not authored yet.
-        </p>
       </section>
           <p v-if="court.day !== 1" class="kr-panel p-4">
             Only Day 1 has authored intelligence reports in this pilot.
@@ -147,11 +142,6 @@
           />
           <section class="kr-panel p-5">
             <h3 class="font-serif text-2xl font-bold">The Emperor's docket</h3>
-            <p class="mt-1 text-sm opacity-70">
-              Incident reports open at scheduled hours. Outbound travel must
-              reach the location before the deadline, and the return trip still
-              occupies your people.
-            </p>
             <div class="mt-4 grid gap-3 sm:grid-cols-2">
               <button
                 v-for="incident in DAY_ONE_INCIDENTS"
@@ -301,8 +291,7 @@
               <div>
                 <p class="text-sm font-bold">Choose 1–3 available leaders</p>
                 <p class="mt-1 text-xs opacity-70">
-                  Selected: {{ chosenIds.length }}. Leaders are unavailable
-                  until they return to the tower.
+                  {{ chosenIds.length }} selected
                 </p>
                 <div class="mt-2 grid grid-cols-2 gap-2">
                   <button
@@ -342,11 +331,7 @@
                 :disabled="!isDispatchable(selectedIncident)"
               />
               <p class="text-xs opacity-70">
-                {{ selectedIncident.hordeMinimum }}–{{
-                  selectedIncident.hordeMaximum
-                }}
-                troops permitted. The Horde is a headcount, not a consumable
-                favor currency.
+                {{ selectedIncident.hordeMinimum }}–{{ selectedIncident.hordeMaximum }} troops
               </p>
               <label
                 v-if="hourglassEquipped"
@@ -421,10 +406,6 @@
             <h3 class="font-serif text-2xl font-bold">
               The Emperor's followers
             </h3>
-            <p class="text-sm opacity-70">
-              Five starting commanders, with additional candidates gated by
-              story and Prosperity.
-            </p>
           </div>
           <span class="text-sm text-warning">
             {{ court.ready.length }} ready ·
@@ -518,10 +499,6 @@
       >
         <div>
           <h3 class="font-serif text-xl font-bold">Campaign ledger</h3>
-          <p class="text-xs opacity-70">
-            Saved locally on this device. The road test has no cloud account
-            sync.
-          </p>
           <ul class="mt-3 space-y-1 text-sm" aria-live="polite">
             <li
               v-for="entry in recentLog"

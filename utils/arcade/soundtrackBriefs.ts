@@ -138,7 +138,9 @@ export function publishedArcadeAudioPath(
   const asset = assets.find((item) => item.game === game && item.cue === cue)
   if (!asset || !asset.approvedAt || !asset.verifiedAt ||
       !/^[0-9a-f]{64}$/.test(asset.contentSha256)) return null
-  if (!/^\/images\/arcade\/audio\/[a-z0-9/-]+\.(?:ogg|mp3|wav)$/.test(asset.path)) {
+  if (!new RegExp('^/images/arcade/audio/[a-z0-9/-]+[.](?:ogg|mp3|wav)  return filesConfirmedAccessible.has(asset.path) ? asset.path : null
+}
+).test(asset.path)) {
     return null
   }
   return filesConfirmedAccessible.has(asset.path) ? asset.path : null

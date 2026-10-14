@@ -13,6 +13,7 @@ import {
   tilePattern,
 } from './savePlumberArt'
 import { drawHeroine } from './savePlumberHeroineArt'
+import { drawSheetFrame, keyedSheet } from './savePlumberSheets'
 
 const W = 480
 const H = 270
@@ -21,7 +22,18 @@ const FLOOR_Y = 220
 const GRAVITY = 0.43
 const JUMP = -8.6
 type Platform = { x: number; y: number; width: number }
-type Bug = { x: number; y: number; home: number; dir: number; active: boolean }
+type Bug = {
+  x: number
+  y: number
+  home: number
+  dir: number
+  active: boolean
+  knocked: number
+  flipped: boolean
+}
+const HEROINE_RUN = PLUMBER_ART.anim('heroine-b-run')
+const HEROINE_ACTIONS = PLUMBER_ART.anim('heroine-b-actions')
+const PUMPBUG_CYCLE = PLUMBER_ART.anim('pumpbug-cycle')
 const floors: Platform[] = [
   { x: 0, y: FLOOR_Y, width: 333 },
   { x: 366, y: FLOOR_Y, width: 284 },
@@ -53,6 +65,7 @@ export function createSavePlumberPreview(
   let camera = 0
   let facing: 1 | -1 = 1
   let stride = 0
+  let landed = 0
   let score = 0
   let lives = 3
   let over = false
@@ -63,6 +76,8 @@ export function createSavePlumberPreview(
     home,
     dir: 1,
     active: true,
+    knocked: 0,
+    flipped: false,
   }))
   const coins = [196, 462, 782, 1070].map((x) => ({ x, y: 133, taken: false }))
 
@@ -116,6 +131,7 @@ export function createSavePlumberPreview(
       const previousBottom = y + 26
       vy = Math.min(10, vy + GRAVITY)
       y += vy
+      const wasGrounded = ground
       ground = false
       if (vy >= 0) {
         for (const surface of surfaces) {
@@ -132,6 +148,8 @@ export function createSavePlumberPreview(
           break
         }
       }
+      if (ground && !wasGrounded) landed = 6
+      else if (landed) landed--
       if (y > H + 40) respawn()
       if (!options.demo && keys.pressed.a && !cooldown) {
         cooldown = 23
@@ -144,6 +162,8 @@ export function createSavePlumberPreview(
         )
         if (hit) {
           hit.active = false
+          hit.knocked = 30
+          hit.flipped = true
           score += 150
           options.sound.play('pop')
         } else options.sound.play('shoot')
@@ -160,6 +180,7 @@ export function createSavePlumberPreview(
         options.sound.play('pickup')
       }
       for (const bug of bugs) {
+        if (bug.knocked) bug.knocked--
         if (!bug.active) continue
         bug.x += bug.dir * 0.56
         if (Math.abs(bug.x - bug.home) > 34) bug.dir *= -1
@@ -171,6 +192,8 @@ export function createSavePlumberPreview(
           continue
         if (vy > 1 && y + 26 <= bug.y + 8) {
           bug.active = false
+          bug.knocked = 30
+          bug.flipped = false
           vy = -5.2
           score += 100
           options.sound.play('pop')
@@ -187,6 +210,7 @@ export function createSavePlumberPreview(
           coin.taken = false
         })
         bugs.forEach((bug) => {
+          bug.knocked = 0
           bug.active = true
           bug.x = bug.home
         })
@@ -282,7 +306,33 @@ export function createSavePlumberPreview(
         g.stroke()
       }
       for (const bug of bugs) {
-        if (!bug.active) continue
+        if (!bug.active) {
+          if (bug.knocked)
+            drawSheetFrame(
+              g,
+              PUMPBUG_CYCLE,
+              6,
+              bug.flipped ? 5 : 4,
+              bug.x,
+              bug.y + 3,
+              24,
+              { flipX: bug.dir < 0, alpha: Math.min(1, bug.knocked / 12) },
+            )
+          continue
+        }
+        if (
+          drawSheetFrame(
+            g,
+            PUMPBUG_CYCLE,
+            6,
+            Math.floor(tick / 8 + bug.home) % 4,
+            bug.x,
+            bug.y + 3,
+            24,
+            { flipX: bug.dir < 0 },
+          )
+        )
+          continue
         const squash = 1 + Math.sin(tick / 5 + bug.home) * 0.07
         if (
           drawSprite(g, PLUMBER_ART.enemy('pumpbug'), bug.x, bug.y + 3, 26, {
@@ -316,10 +366,23 @@ export function createSavePlumberPreview(
         g.lineTo(WORLD_W - 30, FLOOR_Y - 34)
         g.fill()
       }
-      if (
-        (!immune || Math.floor(tick / 6) % 2) &&
-        typeof Path2D !== 'undefined'
-      ) {
+      const visible = !immune || Math.floor(tick / 6) % 2
+      const paintedReady =
+        keyedSheet(HEROINE_RUN, 6) !== null &&
+        keyedSheet(HEROINE_ACTIONS, 6) !== null
+      if (visible && paintedReady) {
+        const running = ground && Math.abs(vx) > 0.4
+        const pose = !ground
+          ? { src: HEROINE_ACTIONS, frame: vy < 0 ? 2 : 3 }
+          : landed
+            ? { src: HEROINE_ACTIONS, frame: 1 }
+            : running
+              ? { src: HEROINE_RUN, frame: Math.floor(stride / 1.8) % 6 }
+              : { src: HEROINE_ACTIONS, frame: 0 }
+        drawSheetFrame(g, pose.src, 6, pose.frame, x, y + 27, 50, {
+          flipX: facing < 0,
+        })
+      } else if (visible && typeof Path2D !== 'undefined') {
         drawHeroine(g, plumberHeroine(), x, y + 27, 40, {
           stride,
           run: Math.min(1, Math.abs(vx) / 2.2),
@@ -328,7 +391,7 @@ export function createSavePlumberPreview(
           facing,
           tick,
         })
-      } else if (!immune || Math.floor(tick / 6) % 2) {
+      } else if (visible) {
         g.save()
         g.translate(x, y)
         g.fillStyle = '#4d656c'

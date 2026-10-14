@@ -1,36 +1,44 @@
 <template>
   <main class="kr-surface">
-    <div class="kr-scroll kr-container max-w-7xl p-2 sm:p-4 lg:p-6">
-      <ArcadeHall v-if="!slug" />
+    <div class="mx-auto flex h-full min-h-0 w-full max-w-7xl flex-col gap-2 overflow-hidden px-2 py-2 sm:px-4">
+      <div v-if="!slug" class="kr-scroll min-h-0 flex-1">
+        <ArcadeHall />
+      </div>
 
       <template v-else-if="meta">
-        <nav class="mb-3 flex flex-wrap items-center gap-3 text-sm">
+        <nav class="flex shrink-0 items-center gap-2 text-sm" aria-label="Arcade cabinet navigation">
           <NuxtLink to="/play/arcade" class="btn btn-sm btn-ghost">
             ← Arcade hall
           </NuxtLink>
-          <span class="opacity-70">
-            {{ meta.title }} · riffs on {{ meta.riffsOn }}
+          <span class="min-w-0 flex-1 truncate opacity-70">
+            {{ meta.title }}
           </span>
+          <button
+            type="button"
+            class="btn btn-outline btn-sm xl:hidden"
+            :aria-expanded="showDetails"
+            aria-controls="arcade-cabinet-details"
+            @click="showDetails = !showDetails"
+          >
+            {{ showDetails ? "Play game" : "Scores & reviews" }}
+          </button>
         </nav>
 
-        <div class="flex flex-col gap-4 xl:flex-row">
-          <div class="min-w-0 flex-1">
+        <div class="kr-panes min-h-0 grid-cols-1 gap-2 xl:grid-cols-[minmax(0,1fr)_20rem]">
+          <div
+            class="kr-pane-scroll min-w-0"
+            :class="showDetails ? 'hidden xl:block' : 'block'"
+          >
             <ArcadeCabinet :key="meta.slug" :slug="meta.slug" />
           </div>
 
-          <!--
-            Beside the cabinet the sidebar is exactly the cabinet's height and
-            scrolls on its own (the inner box is absolutely filled), so high
-            scores, the blurb and the reviews never push the page past one
-            screen. Stacked below the cabinet on narrower screens it flows.
-          -->
           <aside
-            class="kr-panel relative w-full rounded-2xl xl:w-80 xl:shrink-0"
+            id="arcade-cabinet-details"
+            class="kr-pane-scroll kr-panel min-w-0 rounded-2xl"
+            :class="showDetails ? 'block' : 'hidden xl:block'"
             aria-label="High scores, about and reviews"
           >
-            <div
-              class="flex flex-col gap-4 p-4 xl:absolute xl:inset-0 xl:overflow-y-auto xl:overscroll-contain"
-            >
+            <div class="flex flex-col gap-4 p-4">
               <section v-for="range in ranges" :key="range.key">
                 <p
                   class="mb-2 text-xs font-bold uppercase tracking-widest opacity-70"
@@ -114,16 +122,20 @@
 // A query (not a sub-route) keeps the shell header on the Arcade tab, which
 // matches tabs by exact route.
 
-import { computed } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { useArcadeStore } from '@/stores/arcadeStore'
 import { ARCADE_GAMES, findArcadeGame } from '~/utils/arcade/games'
 
 const route = useRoute()
 const store = useArcadeStore()
+const showDetails = ref(false)
 const slug = computed(() =>
   typeof route.query.game === 'string' ? route.query.game : '',
 )
+watch(slug, () => {
+  showDetails.value = false
+})
 const meta = computed(() =>
   ARCADE_GAMES.some((game) => game.slug === slug.value)
     ? findArcadeGame(slug.value)

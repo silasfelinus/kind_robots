@@ -3,19 +3,29 @@
 Kind Robots navigation is defined by Markdown documents in `content/channels`.
 The navigation UI, workspace cards, tutorial flyer, tab artwork, and legacy dashboard bridge consume the same channel and tab metadata.
 
-## Folder shape
+## Current channel layout
+
+The five top-level content channels are **Arcade, Zuzu, Projects, Admin, and Home**.
+Home remains a content key for route and tutorial resolution but is not a
+front-facing channel in the main selector. Account and support surfaces remain
+reachable through the user menu. Storybook is a routed entry and submenu within
+Projects, not a sixth channel. Keep unreleased admin tools under `/admin/...`
+with `requiredRole: ADMIN` and an Admin tab; public game routes belong under
+`/play/...` only when authorized.
 
 ```text
 content/channels/
-├── home/
-├── plan/
-├── play/
-└── admin/
+├── arcade/
+├── zuzu/
+├── projects/
+├── admin/
+└── home/
 ```
 
-Each folder contains one parent channel document named `index.md` and one Markdown document per tab.
-
-Home combines personal/account surfaces with the Kind Robots mission, giving, and gift shop. Plan owns tools for making, learning, practicing, projects, and structured work. Play is for browsing and interacting with creative worlds, characters, rewards, galleries, and experiments. Keep each destination in one canonical channel rather than duplicating model-specific or product-specific tabs across channels.
+Each folder contains `index.md` (the channel overview) and one Markdown
+document per tab. A `parentTabKey` can nest a group of tabs one level deep.
+A routed submenu parent, such as Storybook, remains directly openable.
+Do not add new top-level channels merely to hold a project or game.
 
 ## Add a channel
 
@@ -38,10 +48,19 @@ loadingMessage: Loading Example…
 refreshLabel: Refresh Example
 dottiTip: Dotti starts this optional two-line conversation.
 amiTip: AMI gets the second line.
+tutorial:
+  title: Example Workshop
+  overview: Explain the real tasks and destinations here.
+  hero: /images/channels/example/channel.webp
+  sections:
+    - key: get-started
+      title: Begin here
+      body: Explain how to complete the first action.
+      image: /images/channels/example/get-started.webp
 ---
 ```
 
-`channelKey` must be lowercase kebab-case. The top-level channel list is intentionally limited to Home, Plan, Play, and Admin. Retired is an Admin subtab group rather than a top-level channel. Update the channel-content contract only when deliberately changing that information architecture.
+`channelKey` must be lowercase kebab-case. The five-channel contract is enforced by `utils/scripts/verifyChannelContent.ts`. Changing that set requires an explicit owner-approved navigation change. Retired is an Admin subtab group, not a top-level channel.
 
 Only put `dashboardKey` on the parent when every child truly belongs to the same legacy dashboard. Diverse channels keep legacy adapters on individual tabs instead.
 
@@ -148,6 +167,49 @@ When `image` is omitted, the resolver tries legacy dashboard artwork and then th
 
 Run the non-blocking artwork audit with `npm run audit:channel-assets`. Add `-- --strict` when deliberately using it as a gate.
 
+## Authored tutorials and art review
+
+Every channel `index.md` must author a `tutorial` with a title, overview, hero
+image path, and at least one `sections` entry containing a unique key, title,
+body, and image. The channel-content contract enforces this minimum, not the
+quality or factual correctness of the art and copy.
+
+```yaml
+tutorial:
+  title: The Workshop
+  tagline: What this area is for
+  overview: Explain the real destinations and how someone uses them.
+  hero: /images/channels/projects/channel.webp
+  sections:
+    - key: create
+      title: Make something
+      body: Explain the current actions and their actual effects.
+      image: /images/art/generate.webp
+```
+
+Every visible routed tab should also have intentional page-specific `tutorial`
+metadata rather than inheriting generic catalogue text:
+
+```yaml
+tutorial:
+  title: Create an image
+  body: Explain the actual controls, inputs, cost, and where results appear.
+  image: /images/art/generate.webp
+```
+
+Before authoring copy, trace the tab `route` to its real page and component,
+including the component's current gates and default mode. Check the actual
+image visually before referencing it. A filename existing on disk is not
+evidence that it depicts the right page. If no suitable image exists, keep
+artwork work tracked explicitly instead of asserting it is verified. Never
+claim a feature is playable merely because a PR or scaffold exists.
+
+Use conceptual, task-focused sections in channel tutorials, not a mechanical
+enumeration of all tabs. A routed tab's tutorial is what appears first in the
+workspace sheet, with the channel overview behind the About control. Test the
+sheet on narrow and wide screens, including direct navigation from another
+channel and tab switching within one channel.
+
 ## Dialogue
 
 The optional simulated conversation remains supported:
@@ -194,4 +256,4 @@ npm run test:data-surface-manifest
 npm run audit:channel-assets
 ```
 
-The contracts validate required channels, key syntax, unique locations, defaults, page and Project placements, shared-route groups, component mounts, roles, permissions, inheritance, legacy adapters, and registered data surfaces.
+The contracts validate the five required channels, authored channel tutorial overview/sections, key syntax, unique locations, defaults, page and Project placements, shared-route groups, component mounts, roles, permissions, inheritance, legacy adapters, and registered data surfaces. They do not replace human review of help accuracy or image relevance.

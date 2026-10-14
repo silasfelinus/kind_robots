@@ -7,7 +7,7 @@ const component = readFileSync(componentPath, 'utf8')
 const css = readFileSync(cssPath, 'utf8')
 
 const queueOwner = component.match(
-  /<div\s+v-else\s+class="([^"]*\bkr-scroll\b[^"]*)">/,
+  /<div\s+v-else\s+data-artjob-queue-stack\s+class="([^"]*\bkr-scroll\b[^"]*)"\s+style="[^"]*"\s*>/,
 )
 
 if (!queueOwner) {

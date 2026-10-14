@@ -1,10 +1,13 @@
 name: Narrative Art Status Stall Message Contract
 
 on:
-  push:
-    branches: [main]
   pull_request:
     branches: [main]
+    paths:
+      - '.github/workflows/narrative-art-status-stall-message-contract.yml'
+      - 'components/narrative/narrative-art-status.vue'
+      - 'stores/helpers/narrativeArtJobsHelper.ts'
+      - 'utils/scripts/verifyNarrativeArtStatusStallMessageGuard.mjs'
   workflow_dispatch:
 
 concurrency:

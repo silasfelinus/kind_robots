@@ -582,7 +582,7 @@ for (const vp of VIEWPORTS) {
 
     if (SHOTS) {
       await page.screenshot({
-        path: `${SHOTS}/${vp.name}${route.replace(/\//g, '_')}.png`,
+        path: `${SHOTS}/${vp.name}${route.replace(/[^a-zA-Z0-9_-]/g, '_')}.png`,
       })
     }
     await page.close()

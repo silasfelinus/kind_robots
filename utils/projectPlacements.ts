@@ -12,6 +12,11 @@ export type ProjectPlacement = {
 }
 
 export const PROJECT_PLACEMENTS: Record<string, ProjectPlacement> = {
+  'kind-sliding-tile-gallery': {
+    channelKey: 'admin',
+    tabKey: 'sliding-tile-gallery',
+    route: '/admin/sliding-tile-gallery',
+  },
   'music-mentor': {
     channelKey: 'projects',
     tabKey: 'daily-pitches',

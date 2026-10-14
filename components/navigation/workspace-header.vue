@@ -138,7 +138,6 @@
           v-if="
             resolvedChannel &&
             resolvedChannel.channelKey !== 'home' &&
-            resolvedChannel.channelKey !== 'arcade' &&
             resolvedTabs.length
           "
           class="hidden min-w-0 flex-1 items-stretch border-l border-base-300 sm:flex"
@@ -328,26 +327,6 @@
       </NuxtLink>
 
       <!--
-        ARCADE. Uses the canonical public Arcade route and icon declared by
-        content/channels/projects/arcade.md. Keep it square like the neighboring
-        Art and Memory Dungeon shortcuts so the header never grows horizontally.
-      -->
-      <NuxtLink
-        to="/play/arcade"
-        class="btn btn-ghost btn-sm btn-square shrink-0 rounded-xl border border-base-300"
-        :class="
-          arcadeActive
-            ? 'border-primary bg-primary/15 text-primary'
-            : 'bg-base-100'
-        "
-        :aria-current="arcadeActive ? 'page' : undefined"
-        aria-label="Arcade"
-        title="Arcade"
-      >
-        <Icon name="kind-icon:arcade" class="kr-icon-5" />
-      </NuxtLink>
-
-      <!--
         MEMORY DUNGEON. Silas, 2026-09-08: "I'm really proud of my memory match
         game, it was one of my first projects and still one that I occasionally
         return to. I want a link for it on the dashboard next to the tutorial
@@ -523,7 +502,6 @@ const memoryActive = computed(() => route.path.startsWith('/play/memory'))
 const artjobActive = computed(() => route.path === '/artjob')
 
 const artActive = computed(() => route.path === '/art')
-const arcadeActive = computed(() => route.path.startsWith('/play/arcade'))
 
 const artjobBadge = computed(() =>
   artJobStore.activeJobCount > 99 ? '99+' : String(artJobStore.activeJobCount),

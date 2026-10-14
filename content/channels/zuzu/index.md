@@ -9,8 +9,8 @@ description: Illustrated adventures across Zuzu's weird-west frontier, from the 
 summary: Adventures, combat and pinball in Zuzu's world.
 icon: kind-icon:swords
 image: /zuzu-showdown-portraits/zuzu-vs-hd.webp
-route: /play/zuzu-gamebook
-defaultTab: zuzu-gamebook
+route: /play/zuzu
+defaultTab: overview
 sort: 20
 loadingMessage: Crossing into the Shifting Lands...
 refreshLabel: Refresh Zuzu
@@ -18,7 +18,7 @@ tutorial:
   title: The World of Zuzu
   tagline: Games and stories across the shifting frontier.
   overview: >-
-    Zuzu is an Edo-era koala ronin crossing a strange frontier. Choose an
+    Zuzu is an Edo-era koala ronin crossing a strange frontier. Start at the illustrated Zuzu hub to choose an
     illustrated gamebook, a card-driven board journey, a fighting game or a
     haunted pinball table. Each page explains its controls and current scope.
   hero: /zuzu-showdown-portraits/zuzu-vs-hd.webp

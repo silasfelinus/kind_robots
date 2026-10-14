@@ -10,7 +10,8 @@
         class="absolute inset-0 h-full w-full object-cover opacity-45"
       />
       <div class="absolute inset-0 bg-gradient-to-r from-base-300 via-base-300/90 to-base-300/35" />
-      <div class="relative flex flex-wrap items-end justify-between gap-3 p-3 sm:p-4">
+      <div class="relative flex flex-wrap items-end justify-between gap-3 p-3 sm:p-4"
+        :class="admin ? 'pt-12 sm:pt-4' : ''">
         <div class="max-w-xl space-y-1">
           <p class="text-[0.65rem] font-black uppercase tracking-[0.2em] text-primary">
             Play · Create · Discover
@@ -286,7 +287,11 @@ import {
   type ShowcaseCard,
 } from '@/utils/homeShowcase'
 
-const props = defineProps<{ showcase: HomeShowcase; loaded: boolean }>()
+const props = defineProps<{
+  showcase: HomeShowcase
+  loaded: boolean
+  admin: boolean
+}>()
 
 const sections = [
   { key: 'featured', label: 'Explore' },
@@ -327,6 +332,16 @@ const features = [
       { title: 'Ghost Trail', route: '/play/zuzu-ghost-trail' },
       { title: 'Pinball', route: '/play/zuzu-pinball' },
     ],
+  },
+  {
+    title: 'Shifting Desks',
+    tag: 'Interactive satire',
+    category: 'play',
+    route: '/play/shifting-desks',
+    image: '/shifting-desks/front-poster.svg',
+    description:
+      'Survive office politics, impossible choices and your first 90-day review.',
+    related: [],
   },
   {
     title: 'Storybook',

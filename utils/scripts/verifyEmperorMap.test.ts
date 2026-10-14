@@ -129,7 +129,10 @@ assert.throws(
   /invalid map route/,
 )
 const courtPage = readFileSync('pages/admin/emperor-of-dust.vue', 'utf8')
-const courtHelp = readFileSync('content/channels/zuzu/emperor-of-dust.md', 'utf8')
+const courtHelp = readFileSync(
+  'content/channels/zuzu/emperor-of-dust.md',
+  'utf8',
+)
 assert.match(courtPage, /v-else class="[^"]*h-full min-h-0[^"]*overflow-hidden/)
 assert.equal(
   (courtPage.match(/class="kr-scroll /g) ?? []).length,
@@ -142,11 +145,18 @@ for (const panel of ['map', 'briefing', 'followers', 'relics', 'ledger']) {
     panel + ' must be reachable from the court navigation',
   )
 }
-assert.match(courtPage, /v-show="activePanel === 'followers'"[\s\S]*?v-for="leader in campaign\.followers"/)
+assert.match(
+  courtPage,
+  /v-show="activePanel === 'followers'"[\s\S]*?v-for="leader in campaign\.followers"/,
+)
 assert.match(courtPage, /<EmperorOfDustRelicVault \/>/)
 assert.match(courtPage, /\bkr-scroll min-h-0 flex-1\b/)
 assert.match(courtHelp, /Each view scrolls inside its own bounded court stage/)
-assert.doesNotMatch(courtPage, /space-y-6 px-3 py-5/, 'no full-page vertical document scroll')
+assert.doesNotMatch(
+  courtPage,
+  /space-y-6 px-3 py-5/,
+  'no full-page vertical document scroll',
+)
 
 console.log(
   'Emperor of Dust radial map, Day 1 briefing and clock contracts passed',

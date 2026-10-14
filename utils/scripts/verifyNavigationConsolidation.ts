@@ -400,9 +400,18 @@ assert.ok(channelStoreSource.includes("channel.channelKey !== 'home'"))
 assert.ok(pickerSource.includes('channelContentStore.navigationChannels'))
 assert.ok(siteDirectorySource.includes('channelContentStore.navigationChannels'))
 assert.ok(pickerSource.replace(/\s+/g, ' ').includes("activeChannel.channelKey === 'home' ? 'Explore'"))
-assert.ok(homePageSource.includes("homeMode = 'directory'"))
-assert.ok(homePageSource.includes("homeMode = 'dashboard'"))
-assert.ok(homePageSource.includes("!isAdmin.value"))
+assert.ok(
+  homePageSource.includes("homeMode = showDirectory ? 'dashboard' : 'directory'"),
+  'admins must get a direct gallery/dashboard toggle',
+)
+assert.ok(
+  homePageSource.includes("!isAdmin.value || homeMode.value !== 'dashboard'"),
+  'public gallery must be the default even for admins and non-admins must not see the dashboard',
+)
+assert.ok(
+  homePageSource.includes("'Admin dashboard →'"),
+  'the administrator dashboard must be accessible from a small gallery corner shortcut',
+)
 assert.ok(homePageSource.includes('<home-visitor-directory v-else'))
 assert.ok(visitorDirectorySource.includes('showcaseHref(card)'))
 assert.ok(visitorDirectorySource.includes('props.showcase.rails.art'))
@@ -411,6 +420,7 @@ assert.ok(homePageSource.includes('v-if="isAdmin"'))
 assert.ok(homePageSource.includes('flex h-full min-h-0 flex-col gap-2 overflow-hidden'))
 for (const route of [
   '/play/arcade',
+  '/play/shifting-desks',
   '/play/zuzu-gamebook',
   '/play/zuzu-showdown',
   '/play/zuzu-shifting-lands',
@@ -448,6 +458,12 @@ assert.ok(visitorDirectorySource.includes('Development notes #'))
 assert.ok(visitorDirectorySource.includes('kr-scroll'))
 assert.ok(visitorDirectorySource.includes('activeSection'))
 assert.ok(visitorDirectorySource.includes('selectedCategory'))
+assert.ok(visitorDirectorySource.includes("image: '/shifting-desks/front-poster.svg'"))
+assert.ok(
+  visitorDirectorySource.indexOf("title: 'Shifting Desks'") <
+    visitorDirectorySource.indexOf("title: 'Storybook'"),
+  'Shifting Desks must remain a flagship visitor attraction',
+)
 
 for (const route of [
   '/', '/account', '/achievements', '/messages', '/friends', '/themes',

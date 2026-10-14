@@ -15,7 +15,7 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  # Fan out independent contract tests; retain the existing required all-pass status.
+  # Balance expensive Arcade and pinball soaks across shards; all required tests still run.
   contract_1:
     name: Contract shard 1/4
     runs-on: ubuntu-latest
@@ -147,9 +147,6 @@ jobs:
       - name: Channel content contract
         run: npm run test:channel-content
 
-      - name: Kind Robots Arcade engine
-        run: npm run test:arcade-engine
-
       - name: Arcade reviews and private Lair contract
         run: npm run test:arcade-reviews
 
@@ -168,9 +165,6 @@ jobs:
       - name: Zuzu Pinball rules, chapters and seals
         run: npm run test:zuzu-pinball-rules
 
-      - name: Zuzu Pinball River Croc (1,000 swallows)
-        run: npm run test:zuzu-pinball-croc
-
       - name: Zuzu Pinball Watering Hole and Death Roll
         run: npm run test:zuzu-pinball-watering-hole
 
@@ -183,12 +177,6 @@ jobs:
       - name: Zuzu Pinball hidden undercrypt
         run: npm run test:zuzu-pinball-crypt
 
-      - name: Zuzu Pinball no stuck balls
-        run: npm run test:zuzu-pinball-no-stuck
-
-      - name: Kind Pinball (AMI Village) no stuck balls, and ball rescue
-        run: npm run test:kind-pinball-no-stuck
-
       - name: Zuzu Pinball LED rail
         run: npm run test:zuzu-pinball-leds
 
@@ -197,9 +185,6 @@ jobs:
 
       - name: Zuzu Pinball camera sweeps and still camera
         run: npm run test:zuzu-pinball-camera
-
-      - name: Zuzu Pinball setup/dispose and six-ball stress
-        run: npm run test:zuzu-pinball-stress
 
       - name: Zuzu Pinball insert light-map editor
         run: npm run test:zuzu-pinball-light-map
@@ -809,6 +794,12 @@ jobs:
         env:
           CYPRESS_INSTALL_BINARY: '0'
 
+      - name: Kind Robots Arcade engine
+        run: npm run test:arcade-engine
+
+      - name: Zuzu Pinball setup/dispose and six-ball stress
+        run: npm run test:zuzu-pinball-stress
+
       - name: Newsfeed perspective balance contract
         run: npm run test:newsfeed-perspective-balance
 
@@ -1192,6 +1183,15 @@ jobs:
         run: npm ci
         env:
           CYPRESS_INSTALL_BINARY: '0'
+
+      - name: Zuzu Pinball River Croc (1,000 swallows)
+        run: npm run test:zuzu-pinball-croc
+
+      - name: Zuzu Pinball no stuck balls
+        run: npm run test:zuzu-pinball-no-stuck
+
+      - name: Kind Pinball (AMI Village) no stuck balls, and ball rescue
+        run: npm run test:kind-pinball-no-stuck
 
       - name: Model Builder openRun cancelled-run guard checker self-test
         run: npm run test:model-builder-open-run-cancelled-guard-selftest

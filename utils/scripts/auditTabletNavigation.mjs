@@ -34,7 +34,9 @@ const flag = (name, fallback) => {
 }
 
 const BASE = flag('base', process.env.AUDIT_BASE || 'http://127.0.0.1:3000')
-const ROUTES = flag('routes', '/art,/play/arcade,/dreams')
+// Arcade is a direct destination with no tab menu since #3674, so it is not
+// a tablet-menu route any more.
+const ROUTES = flag('routes', '/art,/dreams')
   .split(',')
   .map((r) => r.trim())
   .filter(Boolean)

@@ -138,6 +138,7 @@
           v-if="
             resolvedChannel &&
             resolvedChannel.channelKey !== 'home' &&
+            resolvedChannel.channelKey !== 'arcade' &&
             resolvedTabs.length
           "
           class="hidden min-w-0 flex-1 items-stretch border-l border-base-300 sm:flex"

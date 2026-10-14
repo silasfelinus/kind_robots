@@ -16,7 +16,6 @@ import {
   type NavigationAccessContext,
 } from '@/stores/helpers/navigationAccess'
 import { useUserStore } from '@/stores/userStore'
-import { arcadeGameTabItems } from '@/utils/arcade/navigation'
 import { handleError } from '@/stores/utils'
 
 const channelTabsStorageKey = 'channelTabs'
@@ -180,7 +179,6 @@ export const useChannelContentStore = defineStore('channelContentStore', () => {
             (item) =>
               item.contentType === 'channel' || item.contentType === 'tab',
           ),
-          ...arcadeGameTabItems(),
         ]
         normalizeActiveTabs()
         initialized.value = true

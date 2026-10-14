@@ -4,7 +4,11 @@ import { mkdtempSync, mkdirSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { test } from 'node:test'
-import { changedPaths, unstagedPaths, withoutGrandfathered } from './formatChanged.mjs'
+import {
+  changedPaths,
+  unstagedPaths,
+  withoutGrandfathered,
+} from './formatChanged.mjs'
 
 function git(cwd, ...args) {
   const result = spawnSync('git', args, { cwd, encoding: 'utf8' })

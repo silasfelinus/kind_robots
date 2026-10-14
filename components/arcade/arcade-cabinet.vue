@@ -8,6 +8,7 @@
       :class="{
         'arcade-cabinet--locked': locked,
         'arcade-cabinet--fullscreen': fullscreen,
+        'arcade-cabinet--contained': contained,
       }"
       :style="{ '--arcade-accent': meta?.accent ?? '#f472b6' }"
       @contextmenu="onContextMenu"
@@ -420,7 +421,8 @@ import {
   type InputFrame,
 } from '~/utils/arcade/types'
 
-const props = defineProps<{ slug: string }>()
+const props = defineProps<{ slug: string; contained?: boolean }>()
+const contained = computed(() => props.contained === true)
 const emit = defineEmits<{ (e: 'scored', score: number): void }>()
 
 const store = useArcadeStore()
@@ -615,8 +617,9 @@ let hintLives: number | null = null
 // fitted to the space measured around it instead (fitScreen), so no resize,
 // rotation or split view can push part of it off screen.
 const screenMaxWidth = computed(() => {
-  if ((locked.value || fullscreen.value) && fittedWidth.value > 0)
+  if ((locked.value || fullscreen.value || contained.value) && fittedWidth.value > 0)
     return `${fittedWidth.value}px`
+  if (contained.value) return '100%'
   const ratio = (meta.value?.width ?? 4) / (meta.value?.height ?? 3)
   return `min(100%, calc(62svh * ${ratio.toFixed(4)}))`
 })
@@ -641,7 +644,7 @@ const screenStyle = computed<CSSProperties>(() =>
 /** Size the bezel to the largest screen that fits the measured play area. */
 function fitScreen() {
   const wrap = wrapRef.value
-  if ((!locked.value && !fullscreen.value) || !wrap) {
+  if ((!locked.value && !fullscreen.value && !contained.value) || !wrap) {
     fittedWidth.value = 0
     fittedHeight.value = 0
     return
@@ -655,15 +658,26 @@ function fitScreen() {
     wrap.clientHeight -
     parseFloat(style.paddingTop) -
     parseFloat(style.paddingBottom)
-  if (width <= 0 || height <= 0) return
+  if (width <= 0 || height <= 0) {
+    fittedWidth.value = 0
+    return
+  }
   if (fillsScreen.value) {
     fittedWidth.value = Math.floor(width)
     fittedHeight.value = Math.floor(height)
     return
   }
   fittedHeight.value = 0
-  // The locked bezel has no padding: the screen gets the whole wrap.
   const ratio = (meta.value?.width ?? 4) / (meta.value?.height ?? 3)
+  if (contained.value && !locked.value && !fullscreen.value) {
+    // Two 6px bezel insets must fit alongside the aspect-locked canvas.
+    const insets = 12
+    fittedWidth.value = Math.max(
+      0,
+      Math.floor(Math.min(width, (Math.max(0, height - insets) * ratio) + insets)),
+    )
+    return
+  }
   fittedWidth.value = Math.max(0, Math.floor(Math.min(width, height * ratio)))
 }
 
@@ -1948,6 +1962,45 @@ onBeforeUnmount(() => {
     0 0 28px color-mix(in srgb, var(--arcade-accent) 45%, transparent),
     inset 0 0 0 2px rgba(253, 230, 138, 0.25);
   overflow: hidden;
+}
+
+.arcade-cabinet--contained:not(.arcade-cabinet--locked):not(.arcade-cabinet--fullscreen) {
+  height: 100%;
+  min-height: 0;
+}
+
+.arcade-cabinet--contained:not(.arcade-cabinet--locked):not(.arcade-cabinet--fullscreen) .cabinet-marquee {
+  flex: 0 0 auto;
+  height: clamp(2.5rem, 9%, 5.5rem);
+  aspect-ratio: auto;
+}
+
+.arcade-cabinet--contained:not(.arcade-cabinet--locked):not(.arcade-cabinet--fullscreen) .cabinet-screen-wrap {
+  flex: 1 1 0;
+  min-height: 0;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  padding: 0.375rem;
+}
+
+.arcade-cabinet--contained:not(.arcade-cabinet--locked):not(.arcade-cabinet--fullscreen) .cabinet-bezel {
+  width: 100%;
+  padding: 0.375rem;
+}
+
+.arcade-cabinet--contained:not(.arcade-cabinet--locked):not(.arcade-cabinet--fullscreen) .cabinet-panel {
+  flex: 0 1 auto;
+  min-height: 0;
+  max-height: 38%;
+  gap: 0.35rem;
+  padding: 0.4rem 0.5rem;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+.arcade-cabinet--contained:not(.arcade-cabinet--locked):not(.arcade-cabinet--fullscreen) .cabinet-hint {
+  display: none;
 }
 
 .arcade-cabinet--fullscreen {

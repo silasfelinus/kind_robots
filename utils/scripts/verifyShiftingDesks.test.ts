@@ -1093,6 +1093,16 @@ assert.equal(
   'front desk, hiring, elevator, Personnel File and desk are each one screen',
 )
 assert.match(page, /class="kr-panes desk-layout/, 'the desk is two panes')
+// Art first (Silas, 2026-10-14): the front desk leads with styled key art,
+// shows every floor's art, and asks the player to choose an art style.
+assert.match(
+  page,
+  /class="front-hero[\s\S]*stationArt\('departments', 'orientation'\)/,
+  'the front desk opens on full-bleed key art',
+)
+assert.match(page, /stationArt\('departments', level\.id\)/)
+assert.match(page, /<shifting-desks-style-picker/)
+assert.doesNotMatch(page, /desk-poster/, 'the text-only poster is gone')
 // Themes paint art behind the page, so no container may be see-through.
 assert.doesNotMatch(
   page,

@@ -1,9 +1,13 @@
 <template>
   <main class="kr-surface">
-    <div class="kr-scroll kr-container max-w-6xl space-y-4 p-2 sm:p-4 lg:p-6">
+    <div class="kr-scroll mx-auto h-full min-h-0 w-full max-w-6xl space-y-2 p-2 sm:p-3">
       <ZuzuShowdownStage />
 
-      <section class="kr-panel flex flex-wrap gap-x-6 gap-y-3 rounded-2xl p-4">
+      <details class="kr-panel rounded-2xl p-2 sm:p-3">
+        <summary class="cursor-pointer select-none text-sm font-bold" aria-label="Open match setup and training options">
+          Match setup &amp; training
+        </summary>
+        <section class="mt-3 flex flex-wrap gap-x-4 gap-y-2">
         <label
           v-for="side in sides"
           :key="side.index"
@@ -154,46 +158,7 @@
         </div>
       </section>
 
-      <section class="grid gap-4 md:grid-cols-2">
-        <div class="kr-panel rounded-2xl p-4 text-sm">
-          <h2 class="mb-2 font-bold">Controls</h2>
-          <dl class="grid grid-cols-[auto_1fr] gap-x-4 gap-y-1">
-            <dt class="font-semibold">Player 1</dt>
-            <dd>
-              WASD (or arrows when solo) · U I punch · J K kick · Space dodge ·
-              O special · Enter pause. Every motion works on keys at a relaxed
-              pace; Easy Specials make it O plus a direction.
-            </dd>
-            <dt class="font-semibold">Player 2</dt>
-            <dd>Arrows · numpad 4 5 punch · 1 2 kick · 0 dodge · 6 special</dd>
-            <dt class="font-semibold">Gamepad</dt>
-            <dd>X Y punch · A B kick · LB dodge · RB special</dd>
-            <dt class="font-semibold">Throw</dt>
-            <dd>LP + LK up close (press it back to tech)</dd>
-            <dt class="font-semibold">Taunt</dt>
-            <dd>Dodge + HK</dd>
-          </dl>
-        </div>
-        <div class="kr-panel rounded-2xl p-4 text-sm">
-          <h2 class="mb-2 font-bold">{{ p1.name }}'s moves</h2>
-          <dl class="grid grid-cols-[auto_1fr] gap-x-4 gap-y-1">
-            <template v-for="row in moves" :key="row.id">
-              <dt class="font-semibold">{{ row.input }}</dt>
-              <dd>
-                {{ row.name }}
-                <span v-if="row.note" class="opacity-60">({{ row.note }})</span>
-                <span
-                  v-if="store.easySpecials && row.easy"
-                  class="kr-badge-xs ml-1"
-                  >Easy: {{ row.easy }}</span
-                >
-              </dd>
-            </template>
-            <dt class="font-semibold">↓ + HK</dt>
-            <dd>Launcher, then hold ↑ to chase into an air combo</dd>
-          </dl>
-        </div>
-      </section>
+      </details>
     </div>
   </main>
 </template>
@@ -201,7 +166,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useZuzuShowdownStore } from '~/stores/zuzuShowdownStore'
-import { FIGHTERS, findFighter, moveList } from '~/utils/zuzuShowdown/fighters'
+import { FIGHTERS } from '~/utils/zuzuShowdown/fighters'
 import { CPU_LEVELS, type CpuLevel } from '~/utils/zuzuShowdown/cpu'
 import {
   RENDER_STYLES,
@@ -221,8 +186,6 @@ const sides = [
   { index: 0 as const, label: 'Player 1' },
   { index: 1 as const, label: 'Player 2' },
 ]
-const p1 = computed(() => findFighter(store.fighters[0]))
-const moves = computed(() => moveList(p1.value))
 
 function onFighter(side: 0 | 1, event: Event) {
   store.setFighter(side, (event.target as HTMLSelectElement).value)

@@ -1,0 +1,31 @@
+name: One-shot Arcade viewport formatting
+on:
+  push:
+    branches:
+      - worker/interface-vision-t143-arcade-cabinet-c91f
+    paths:
+      - .github/workflows/format-arcade-viewport-once.yml
+permissions:
+  contents: write
+jobs:
+  format:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: worker/interface-vision-t143-arcade-cabinet-c91f
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+      - run: npm ci --ignore-scripts
+      - run: npx prettier --write pages/play/arcade/index.vue utils/scripts/verifyArcadeGameSubtabs.test.ts utils/scripts/auditResponsiveLayout.mjs
+      - name: Commit formatted changes
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add pages/play/arcade/index.vue utils/scripts/verifyArcadeGameSubtabs.test.ts utils/scripts/auditResponsiveLayout.mjs
+          if ! git diff --cached --quiet; then
+            git commit -m 'style: format arcade viewport-first pass'
+            git push origin HEAD:worker/interface-vision-t143-arcade-cabinet-c91f
+          fi

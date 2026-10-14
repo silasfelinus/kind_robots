@@ -142,7 +142,7 @@ for (const panel of ['map', 'briefing', 'followers', 'relics', 'ledger']) {
     panel + ' must be reachable from the court navigation',
   )
 }
-assert.match(courtPage, /v-show="activePanel === 'followers'"[\\s\\S]*?v-for="leader in campaign\.followers"/)
+assert.match(courtPage, /v-show="activePanel === 'followers'"[\s\S]*?v-for="leader in campaign\.followers"/)
 assert.match(courtPage, /<EmperorOfDustRelicVault \/>/)
 assert.match(courtPage, /\bkr-scroll min-h-0 flex-1\b/)
 assert.match(courtHelp, /Each view scrolls inside its own bounded court stage/)

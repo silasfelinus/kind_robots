@@ -46,3 +46,19 @@ export function artStyleImageSrc(baseSrc: string, style: unknown): string {
       )
     : baseSrc
 }
+
+export function loadArtStylePreference(): ShiftingDesksArtStyle {
+  try {
+    return normalizeArtStyle(localStorage.getItem(ART_STYLE_STORAGE_KEY))
+  } catch {
+    return 'classic'
+  }
+}
+
+export function saveArtStylePreference(style: ShiftingDesksArtStyle): void {
+  try {
+    localStorage.setItem(ART_STYLE_STORAGE_KEY, style)
+  } catch {
+    // Browser storage is optional; art selection remains usable in memory.
+  }
+}

@@ -196,7 +196,7 @@ assert.ok(
 )
 assert.ok(
   source('pages/play/arcade/index.vue').includes(
-    '<GameAchievementStrip :game="meta.slug" />',
+    '<GameAchievementStrip :game="meta.slug" layout="icons" />',
   ),
   'Each cabinet page shows its three achievements.',
 )

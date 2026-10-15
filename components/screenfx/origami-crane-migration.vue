@@ -168,7 +168,7 @@ function drawScene(seconds: number): void {
   // Layered paper hills.
   const layers = ['#c9a98f', '#a58c82', '#7f7083']
   for (let l = 0; l < layers.length; l += 1) {
-    context.fillStyle = layers[l]
+    context.fillStyle = layers[l] ?? '#7f7083'
     context.beginPath()
     context.moveTo(0, height)
     for (let i = 0; i <= 24; i += 1) {

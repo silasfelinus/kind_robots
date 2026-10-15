@@ -8,7 +8,15 @@
 
 import { levelCurve } from '../curve'
 import type { BossId } from './bosses'
-import type { CrowSpec, FluffSpec, LaneSpec, WindmillSpec } from './hazards'
+import type {
+  CrowSpec,
+  DripSpec,
+  FallSpec,
+  FluffSpec,
+  LaneSpec,
+  PebbleSpec,
+  WindmillSpec,
+} from './hazards'
 import type { CargoKind } from './tether'
 import type { Knot, MapSpec, PadSpec } from './terrain'
 import { knotAt } from './terrain'
@@ -82,7 +90,7 @@ export type CargoSpec = {
 }
 
 /** How a mission's sky and ground are painted. */
-export type ThemeId = 'dawn' | 'noon' | 'dusk' | 'night' | 'downs'
+export type ThemeId = 'dawn' | 'noon' | 'dusk' | 'night' | 'downs' | 'gorge'
 
 /** A petal ring to fly through (a Ring Race). */
 export type RingSpec = { x: number; y: number; r: number }
@@ -116,6 +124,10 @@ export type MissionSpec = {
   windmills?: readonly WindmillSpec[]
   fluff?: readonly FluffSpec[]
   crows?: readonly CrowSpec[]
+  /** Waterfall Gorge: waterfalls, dripping stalactites and pebble rollers. */
+  falls?: readonly FallSpec[]
+  drips?: readonly DripSpec[]
+  pebbles?: readonly PebbleSpec[]
   /** A Ring Race's rings, flown in order, and its time limit. */
   rings?: readonly RingSpec[]
   time?: number

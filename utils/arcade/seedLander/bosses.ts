@@ -11,11 +11,14 @@
 //   The Gale Mill (Windmill Downs): a storm-faced windmill with a platform on each sail tip. They
 //   turn slowest at the top of each turn; land then. The wind reverses each phase and the last
 //   phase spins the other way.
+//   The Geyser Tortoise (Waterfall Gorge): its shell is a pad on top of a geyser. It rises,
+//   calms at the top and sinks again; land on the calm. In phase 2 it swims across the pool, in
+//   phase 3 it surfaces in three places in turn.
 
 import type { Pad, Terrain } from './terrain'
 import { segmentDistance } from './hazards'
 
-export type BossId = 'scarecrow' | 'galemill'
+export type BossId = 'scarecrow' | 'galemill' | 'tortoise'
 
 export type BossView = {
   id: BossId
@@ -292,6 +295,180 @@ export class GaleMill implements Boss {
   }
 }
 
+/** The Geyser Tortoise's pool and pace. */
+export const TORTOISE = {
+  /** The shell's top when the geyser is down, and at the top of the surge. */
+  lowY: 206,
+  highY: 104,
+  shell: 42,
+  /** Ticks in one surge by phase. */
+  cycle: [440, 360, 320],
+  /** The calm at the top of the surge, as a share of the cycle, by phase: [from, to]. */
+  calm: [
+    [0.26, 0.74],
+    [0.28, 0.7],
+    [0.3, 0.66],
+  ],
+  /** Phase 2: how far it swims either side of the middle. */
+  swim: 36,
+  /** Phase 3: where it surfaces (offsets from the middle), in turn. */
+  spots: [0, -48, 48],
+  /** Plantings each phase needs. */
+  need: 2,
+  /** Ticks under water at the start of each new phase. */
+  hold: 90,
+} as const
+
+export class GeyserTortoise implements Boss {
+  readonly id = 'tortoise' as const
+  readonly name = 'THE GEYSER TORTOISE'
+  readonly title = 'LAND ON THE SHELL WHEN THE GEYSER CALMS'
+  readonly phases = 3
+  phase = 0
+  done = false
+  pads: Pad[]
+  wind: number | null = null
+  private t = 0
+  private got = 0
+  /** Ticks the shell stays under after a phase begins (a breath to line up). */
+  private hold = 0
+
+  constructor(
+    private terrain: Terrain,
+    readonly x: number,
+  ) {
+    this.pads = [
+      terrain.addLivePad({
+        id: 'shell',
+        x0: 0,
+        x1: TORTOISE.shell,
+        y: TORTOISE.lowY,
+        mult: 4,
+        kind: 'seed',
+        grows: 'flower',
+        reach: [],
+      }),
+    ]
+    this.place()
+    this.pads[0]!.vx = 0
+    this.pads[0]!.vy = 0
+  }
+
+  /** How far through this surge it is (0..1). */
+  surge(t = this.t): number {
+    const c = TORTOISE.cycle[Math.min(this.phase, 2)]!
+    return (t % c) / c
+  }
+
+  /** Is the geyser calm at the top (the time to land)? */
+  calm(t = this.t): boolean {
+    const [a, b] = TORTOISE.calm[Math.min(this.phase, 2)]!
+    const u = this.surge(t)
+    return u >= a && u <= b
+  }
+
+  /** Where the shell sits for surge number `k` of this phase (it is level with it at the calm). */
+  private spot(k: number): number {
+    // Each phase starts where the last left off (the middle), then goes to one bank and the other.
+    if (this.phase === 1)
+      return this.x + (k === 0 ? 0 : k % 2 ? -TORTOISE.swim : TORTOISE.swim)
+    if (this.phase === 2)
+      return this.x + TORTOISE.spots[k % TORTOISE.spots.length]!
+    return this.x
+  }
+
+  /**
+   * The shell's centre x now. Phase 2 swims across the pool underwater, after the shell sinks;
+   * phase 3 surfaces in three places in turn. It stays put for the whole surge and the calm.
+   */
+  shellX(t = this.t): number {
+    const c = TORTOISE.cycle[Math.min(this.phase, 2)]!
+    const k = Math.floor(t / c)
+    if (this.phase !== 1) return this.spot(k)
+    const [, b] = TORTOISE.calm[1]!
+    const e = Math.max(0, Math.min(1, (this.surge(t) - b) / (1 - b)))
+    return (
+      this.spot(k) + (this.spot(k + 1) - this.spot(k)) * (e * e * (3 - 2 * e))
+    )
+  }
+
+  /** Ticks of calm left at the top of this surge (0 when not calm). */
+  calmLeft(): number {
+    if (!this.calm()) return 0
+    const c = TORTOISE.cycle[Math.min(this.phase, 2)]!
+    const [, b] = TORTOISE.calm[Math.min(this.phase, 2)]!
+    return Math.max(0, Math.round((b - this.surge()) * c))
+  }
+
+  /** Where the shell will be at the next (or current) calm: where a pilot should wait. */
+  calmX(): number {
+    const c = TORTOISE.cycle[Math.min(this.phase, 2)]!
+    const [, b] = TORTOISE.calm[Math.min(this.phase, 2)]!
+    const k = Math.floor(this.t / c)
+    return this.spot(this.surge() > b ? k + 1 : k)
+  }
+
+  /** The shell's top now: down in the pool, up on the geyser, level at the calm. */
+  shellY(t = this.t): number {
+    const [a, b] = TORTOISE.calm[Math.min(this.phase, 2)]!
+    const u = this.surge(t)
+    const { lowY, highY } = TORTOISE
+    const ease = (v: number) => v * v * (3 - 2 * v)
+    if (u < a) return lowY + (highY - lowY) * ease(u / a)
+    if (u <= b) return highY + Math.sin(t * 0.08) * 0.6
+    const down = (u - b) / (1 - b)
+    return highY + (lowY - highY) * ease(Math.min(1, down * 1.25))
+  }
+
+  private place() {
+    const p = this.pads[0]!
+    this.terrain.movePad(p, this.shellX(), this.shellY())
+    // Only the calm is landable; below it the shell is just a shell in the water.
+    p.blocked = !p.planted && !this.calm()
+  }
+
+  update() {
+    if (this.done) return
+    if (this.hold > 0) this.hold--
+    else this.t++
+    this.place()
+  }
+
+  planted(): boolean {
+    this.pads[0]!.planted = false
+    this.got++
+    if (this.got < TORTOISE.need) return false
+    this.got = 0
+    this.phase++
+    if (this.phase >= this.phases) {
+      this.done = true
+      this.pads[0]!.blocked = false
+    }
+    this.t = 0
+    this.hold = TORTOISE.hold
+    return true
+  }
+
+  hits(x: number, y: number): string | null {
+    const p = this.pads[0]!
+    const cx = (p.x0 + p.x1) / 2
+    // The shell's flanks and the head poking out of the pool.
+    if (y > p.y + 3 && y < TORTOISE.lowY + 14 && Math.abs(x - cx) < 18)
+      return 'BUMPED THE TORTOISE'
+    return null
+  }
+
+  view(): BossView {
+    return {
+      id: this.id,
+      phase: this.phase,
+      phases: this.phases,
+      got: this.got,
+      need: TORTOISE.need,
+    }
+  }
+}
+
 /** Build a boss on its arena's terrain, standing at x. */
 export function makeBoss(id: BossId, terrain: Terrain, x: number): Boss {
   switch (id) {
@@ -299,10 +476,13 @@ export function makeBoss(id: BossId, terrain: Terrain, x: number): Boss {
       return new OldScarecrow(terrain, x)
     case 'galemill':
       return new GaleMill(terrain, x)
+    case 'tortoise':
+      return new GeyserTortoise(terrain, x)
   }
 }
 
 export const BOSS_NAMES: Record<BossId, string> = {
   scarecrow: 'OLD SCARECROW',
   galemill: 'THE GALE MILL',
+  tortoise: 'THE GEYSER TORTOISE',
 }

@@ -43,7 +43,12 @@ import {
   paintTerrain,
 } from '../seedLander/art'
 import { drawBoss } from '../seedLander/bossArt'
-import { GALE_MILL, makeBoss } from '../seedLander/bosses'
+import {
+  GALE_MILL,
+  GeyserTortoise,
+  TORTOISE,
+  makeBoss,
+} from '../seedLander/bosses'
 import type { Boss } from '../seedLander/bosses'
 import { Camera, VIEW_H } from '../seedLander/camera'
 import {
@@ -79,12 +84,19 @@ import { PLANT_NAMES, bounceSpeed, grow } from '../seedLander/gardens'
 import type { Growth } from '../seedLander/gardens'
 import {
   CROW,
+  DRIP,
+  FALL,
   FLUFF,
+  PEBBLE,
   crowHits,
+  dripAt,
   driftFluff,
+  fallPush,
   flyCrow,
   hitsWindmill,
+  inFall,
   lanePush,
+  pebbleAt,
   newCrow,
   newWindmill,
   rise,
@@ -94,9 +106,12 @@ import type { Crow, Fluff, Windmill } from '../seedLander/hazards'
 import {
   drawAcorn,
   drawCrow,
+  drawDrip,
+  drawFall,
   drawFluff,
   drawGrowsMark,
   drawGrowth,
+  drawPebble,
   drawPodFluff,
   drawRings,
   drawWindmill,
@@ -209,6 +224,8 @@ class SeedLander implements ArcadeGameInstance {
   private pods: Pod[] = []
   private cargo: Cargo[] = []
   private cargoTo = new Map<string, string>()
+  /** Where each cargo started (a popped water bubble returns to its spring). */
+  private cargoHome = new Map<string, number>()
   private vents: VentSpec[] = []
   private windmills: Windmill[] = []
   private fluffs: Fluff[] = []
@@ -542,12 +559,14 @@ class SeedLander implements ArcadeGameInstance {
     this.terrain = new Terrain(spec.map)
     this.cargo = []
     this.cargoTo.clear()
+    this.cargoHome.clear()
     ;(spec.cargo ?? []).forEach((c, i) => {
       const id = c.id ?? `cargo${i}`
       const crate = newCargo(id, c.kind, c.x, 0, c.seedlings ?? 3)
       crate.y = this.terrain.groundAt(c.x) - crate.r
       this.cargo.push(crate)
       this.cargoTo.set(id, c.to)
+      this.cargoHome.set(id, c.x)
     })
     this.vents = (spec.vents ?? []).map((v) => ({ ...v }))
     this.windmills = (spec.windmills ?? []).map(newWindmill)
@@ -596,6 +615,7 @@ class SeedLander implements ArcadeGameInstance {
     const m = this.mission
     switch (m.kind) {
       case 'deliver':
+      case 'water':
         return this.delivered >= (m.deliveries ?? this.cargo.length)
       case 'rings':
         return this.ring >= (m.rings?.length ?? 0)
@@ -612,6 +632,8 @@ class SeedLander implements ArcadeGameInstance {
     switch (m.kind) {
       case 'deliver':
         return `CRATES ${this.delivered}/${m.deliveries ?? this.cargo.length}`
+      case 'water':
+        return `BEDS WATERED ${this.delivered}/${m.deliveries ?? this.cargo.length}`
       case 'rings':
         return `RINGS ${this.ring}/${m.rings?.length ?? 0} ${Math.ceil(this.ringTicks / 60)}S`
       case 'boss': {
@@ -694,7 +716,7 @@ class SeedLander implements ArcadeGameInstance {
     }
     return {
       x: this.wind + lanePush(this.mission.lanes ?? [], x, y),
-      y: -lift,
+      y: fallPush(this.mission.falls ?? [], x, y) - lift,
     }
   }
 
@@ -713,6 +735,7 @@ class SeedLander implements ArcadeGameInstance {
     const sunBefore = pod.sun
     const push = this.pushAt(pod.x, pod.y)
     if (pod.fluff) pod.vx *= 1 - FLUFF.drag * pod.fluff
+    if (inFall(this.mission.falls ?? [], pod.x, pod.y)) pod.vx *= FALL.spray
     if (
       steerPod(
         pod,
@@ -878,7 +901,13 @@ class SeedLander implements ArcadeGameInstance {
       })
       return
     }
-    if (pad?.blocked) return this.crash(pod, 'A CROW WAS SITTING THERE')
+    if (pad?.blocked)
+      return this.crash(
+        pod,
+        this.boss?.id === 'tortoise'
+          ? 'THE GEYSER WAS STILL SURGING'
+          : 'A CROW WAS SITTING THERE',
+      )
     const rank = pad
       ? rankLanding(pod.vx - pad.vx, pod.vy - pad.vy, pod.tilt, this.legs)
       : 'bonk'
@@ -1003,7 +1032,11 @@ class SeedLander implements ArcadeGameInstance {
           ? boss.phase === 2
             ? 'CROWS PERCH ON HIS HANDS'
             : 'HE WAVES FASTER'
-          : 'THE WIND TURNS',
+          : boss.id === 'tortoise'
+            ? boss.phase === 2
+              ? 'HE SURFACES IN THREE PLACES'
+              : 'HE SWIMS ACROSS THE POOL'
+            : 'THE WIND TURNS',
       ticks: 140,
     }
   }
@@ -1293,6 +1326,33 @@ class SeedLander implements ArcadeGameInstance {
         this.sound.play('pop')
       }
     }
+    // Stalactite drips and pebble rollers knock a flying pod about, and bonk a resting one.
+    if (this.phase === 'fly' && !pod.chute) {
+      for (const d of this.mission.drips ?? []) {
+        const v = dripAt(d, this.tick, this.terrain.groundAt(d.x))
+        if (
+          v.state === 'swell' &&
+          this.tick % 30 === 0 &&
+          d.x > this.camera.x - 20
+        )
+          this.sound.play('blip')
+        if (
+          v.state !== 'fall' ||
+          Math.hypot(v.x - pod.x, v.y - pod.y) > DRIP.hit
+        )
+          continue
+        if (pod.restOn) continue
+        this.knockPod(pod, v.x < pod.x ? 1 : -1, DRIP.knock, 'DRIP!')
+      }
+      for (const p of this.mission.pebbles ?? []) {
+        const v = pebbleAt(p, this.tick, (x) => this.terrain.groundAt(x))
+        if (!v?.rolling) continue
+        const near = Math.hypot(v.x - pod.x, v.y - pod.y) < PEBBLE.hit + 4
+        if (!near) continue
+        if (pod.restOn) return this.crash(pod, 'ROLLED OVER BY A PEBBLE')
+        this.knockPod(pod, p.x1 > p.x0 ? 1 : -1, PEBBLE.knock, 'BUMP!')
+      }
+    }
     // Sails knock crates about too.
     for (const c of this.cargo) {
       if (c.delivered || c.bumpCool > 0) continue
@@ -1302,6 +1362,19 @@ class SeedLander implements ArcadeGameInstance {
       if (c.seedlings > 0) c.seedlings--
       this.sound.play('pop')
     }
+  }
+
+  private knockPod(pod: Pod, dir: number, knock: number, text: string) {
+    pod.tilt += knock * dir
+    pod.vx += 0.7 * dir
+    this.floaters.push({
+      x: pod.x,
+      y: pod.y - 16,
+      text,
+      life: 40,
+      color: RAMPS.rust[3],
+    })
+    this.sound.play('pop')
   }
 
   // --- the tether winch -------------------------------------------------------------------
@@ -1349,6 +1422,10 @@ class SeedLander implements ArcadeGameInstance {
       } else dropCargo(c, this.gravity)
       c.x = Math.max(c.r, Math.min(this.terrain.w - c.r, c.x))
       const result = groundCargo(c, this.terrain.floorAt(c.x, c.y))
+      if (result === 'bump' && c.kind === 'water') {
+        this.popBubble(c)
+        continue
+      }
       if (result === 'bump') {
         this.sound.play('pop')
         this.floaters.push({
@@ -1361,6 +1438,28 @@ class SeedLander implements ArcadeGameInstance {
       }
       if (result === 'land') this.checkDelivery(c)
     }
+  }
+
+  /** A water bubble that lands hard bursts, and a fresh one wells up at its spring. */
+  private popBubble(c: Cargo) {
+    this.fx.burst(c.x, c.y, this.fxRng, {
+      count: 12,
+      colours: [RAMPS.sky[3], RAMPS.sky[4], '#ffffff'],
+    })
+    this.floaters.push({
+      x: c.x,
+      y: c.y - 14,
+      text: 'POP! A NEW BUBBLE WELLS UP',
+      life: 60,
+      color: RAMPS.sky[4],
+    })
+    this.sound.play('pop')
+    c.hookedBy = -1
+    c.vx = 0
+    c.vy = 0
+    c.x = this.cargoHome.get(c.id) ?? c.x
+    c.y = this.terrain.groundAt(c.x) - c.r
+    c.resting = true
   }
 
   private checkDelivery(c: Cargo) {
@@ -1376,12 +1475,19 @@ class SeedLander implements ArcadeGameInstance {
     this.earnNectar(c.seedlings)
     this.fx.burst(c.x, c.y - 6, this.fxRng, { count: 12 })
     this.banner = {
-      text: 'DELIVERED!',
-      sub: `${c.seedlings} SEEDLINGS  ${points}`,
+      text: c.kind === 'water' ? 'WATERED!' : 'DELIVERED!',
+      sub:
+        c.kind === 'water'
+          ? `THE BED DRINKS  ${points}`
+          : `${c.seedlings} SEEDLINGS  ${points}`,
       ticks: 100,
     }
     this.sound.play('extra')
-    if (this.mission.kind === 'deliver' && this.goalMet()) this.clearMission()
+    if (
+      (this.mission.kind === 'deliver' || this.mission.kind === 'water') &&
+      this.goalMet()
+    )
+      this.clearMission()
   }
 
   // --- scoring and effects ---------------------------------------------------------------
@@ -1537,7 +1643,10 @@ class SeedLander implements ArcadeGameInstance {
         }
         goalX = mid(pad)
       }
-    } else if (this.mission.kind === 'deliver') {
+    } else if (
+      this.mission.kind === 'deliver' ||
+      this.mission.kind === 'water'
+    ) {
       const crate = [...this.cargo]
         .filter((c) => !c.delivered)
         .sort((a, b) => far(a.x) - far(b.x))[0]
@@ -1583,6 +1692,18 @@ class SeedLander implements ArcadeGameInstance {
           }
           goalX = hub
         }
+      } else if (this.boss instanceof GeyserTortoise) {
+        // The Geyser Tortoise: hover over the shell's spot until the column calms, then land.
+        const shell = this.boss.pads[0]!
+        const late = this.boss.calmLeft() < 60 && this.pod.y < shell.y - 22
+        if (shell.blocked || late) {
+          goal = {
+            kind: 'hover',
+            x: (this.boss.calmX() + this.boss.x * 3) / 4,
+            y: TORTOISE.highY - 24,
+          }
+        } else goal = { kind: 'land', pad: shell }
+        goalX = mid(shell)
       } else if (bed?.blocked) {
         // A crow sits on it: hover close by until it flies off.
         goal = { kind: 'hover', x: mid(bed), y: bed.y - 52 }
@@ -1655,6 +1776,10 @@ class SeedLander implements ArcadeGameInstance {
     const ground = (x: number) => this.terrain.groundAt(x)
     for (const v of this.vents) drawVent(g, v, ground(v.x), this.tick)
     for (const m of this.windmills) drawWindmill(g, m, ground(m.x), this.tick)
+    for (const d of this.mission.drips ?? [])
+      drawDrip(g, d, ground(d.x), this.tick)
+    for (const p of this.mission.pebbles ?? [])
+      drawPebble(g, p, ground, this.tick)
     if (this.boss) drawBoss(g, this.boss, ground, this.tick)
     for (const growth of this.growths)
       drawGrowth(g, growth, (id) => this.terrain.pad(id), this.tick)
@@ -1706,6 +1831,7 @@ class SeedLander implements ArcadeGameInstance {
         drawPod(g, pod, this.tick)
         if (pod.fluff) drawPodFluff(g, pod.x, pod.y, pod.fluff, this.tick)
       }
+    for (const f of this.mission.falls ?? []) drawFall(g, f, this.tick)
     for (const c of this.crows)
       drawCrow(g, c, (x) => this.terrain.floorAt(x, c.y), this.tick)
     this.fx.render(g)

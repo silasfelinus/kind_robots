@@ -6,6 +6,8 @@
 //
 //   1 Meadow Isle (dawn): today's hills, wider; updraft vents; First Bloom; Old Scarecrow.
 //   2 Windmill Downs: gust lanes, windmills, dandelion drift and crow-bots; Pollen Post; the Gale Mill.
+//   3 Waterfall Gorge: waterfalls, drip stalactites and pebble rollers; Thirsty Terraces (carry
+//     water bubbles to dry beds); the Geyser Tortoise.
 
 import type { MissionSpec, ThemeId } from './missions'
 
@@ -505,7 +507,251 @@ const DOWNS: Island = {
   ],
 }
 
-export const ISLANDS: readonly Island[] = [MEADOW, DOWNS]
+// --- 3. Waterfall Gorge ---------------------------------------------------------------------------
+
+const GORGE: Island = {
+  id: 'gorge',
+  name: 'WATERFALL GORGE',
+  about: 'WHITE WATER, DRIPS AND PEBBLES',
+  theme: 'gorge',
+  missions: [
+    {
+      id: 'gorge-1',
+      name: 'CASCADE',
+      brief: 'WHITE WATER PUSHES YOU DOWN',
+      kind: 'plant',
+      theme: 'gorge',
+      unlocked: ['waterfall'],
+      map: {
+        w: 960,
+        h: 260,
+        ground: [
+          [0, 196],
+          [128, 202],
+          [256, 196],
+          [384, 210],
+          [520, 214],
+          [640, 198],
+          [768, 190],
+          [880, 196],
+          [960, 190],
+        ],
+        pads: [
+          { id: 'bed1', x: 200, w: 36, mult: 1 },
+          { id: 'bed3', x: 660, w: 24, mult: 3 },
+          { id: 'bed2', x: 880, w: 28, mult: 2 },
+          { id: 'sun', x: 340, w: 30, kind: 'sun' },
+        ],
+      },
+      start: { x: 40, y: 40 },
+      sun: 1000,
+      wind: 0.001,
+      seeds: 3,
+      falls: [{ x0: 440, x1: 462, y0: 24, y1: 206, push: 0.012 }],
+      acorns: [{ id: 'gorge-a1', x: 450, y: 196 }],
+      par: par(700, 55),
+    },
+    {
+      id: 'gorge-2',
+      name: 'DRIP DROP',
+      brief: 'WAIT ONE BEAT FOR THE DRIP',
+      kind: 'plant',
+      theme: 'gorge',
+      unlocked: ['stalactite'],
+      map: {
+        w: 960,
+        h: 260,
+        ground: [
+          [0, 200],
+          [128, 204],
+          [256, 210],
+          [384, 206],
+          [512, 214],
+          [640, 208],
+          [768, 196],
+          [864, 186],
+          [960, 192],
+        ],
+        pads: [
+          { id: 'mush', x: 300, w: 30, mult: 1, grows: 'mushroom' },
+          { id: 'bed2', x: 560, w: 28, mult: 2 },
+          { id: 'bed4', x: 880, w: 18, mult: 4 },
+          { id: 'sun', x: 430, w: 30, kind: 'sun' },
+        ],
+      },
+      start: { x: 40, y: 40 },
+      sun: 1000,
+      wind: 0.001,
+      seeds: 3,
+      drips: [
+        { x: 200, y: 36, every: 170, offset: 0 },
+        { x: 370, y: 36, every: 170, offset: 60 },
+        { x: 640, y: 36, every: 190, offset: 30 },
+        { x: 760, y: 36, every: 190, offset: 110 },
+      ],
+      par: par(700, 55),
+    },
+    {
+      id: 'gorge-3',
+      name: 'THIRSTY TERRACES',
+      brief: 'CARRY WATER BUBBLES TO THE DRY BEDS',
+      kind: 'water',
+      theme: 'gorge',
+      map: {
+        w: 1280,
+        h: 260,
+        ground: [
+          [0, 200],
+          [128, 204],
+          [256, 202],
+          [400, 200],
+          [440, 192],
+          [620, 190],
+          [660, 178],
+          [860, 176],
+          [900, 162],
+          [1100, 160],
+          [1180, 168],
+          [1280, 170],
+        ],
+        pads: [
+          { id: 'terrace1', x: 520, w: 40, kind: 'drop' },
+          { id: 'terrace2', x: 760, w: 40, kind: 'drop' },
+          { id: 'terrace3', x: 1000, w: 40, kind: 'drop' },
+          { id: 'sun1', x: 350, w: 30, kind: 'sun' },
+          { id: 'sun2', x: 810, w: 30, kind: 'sun' },
+        ],
+      },
+      start: { x: 40, y: 40 },
+      sun: 1300,
+      wind: 0.001,
+      seeds: 0,
+      cargo: [
+        { kind: 'water', x: 110, seedlings: 0, to: 'terrace1' },
+        { kind: 'water', x: 160, seedlings: 0, to: 'terrace2' },
+        { kind: 'water', x: 210, seedlings: 0, to: 'terrace3' },
+      ],
+      falls: [{ x0: 60, x1: 80, y0: 24, y1: 200, push: 0.01 }],
+      acorns: [{ id: 'gorge-a2', x: 1100, y: 70 }],
+      par: par(1100, 110),
+    },
+    {
+      id: 'gorge-4',
+      name: 'PEBBLE SLOPE',
+      brief: "DON'T PARK BELOW THE ROCKY SLOPE",
+      kind: 'plant',
+      theme: 'gorge',
+      unlocked: ['pebble'],
+      map: {
+        w: 960,
+        h: 260,
+        ground: [
+          [0, 150],
+          [220, 152],
+          [260, 160],
+          [380, 190],
+          [500, 212],
+          [640, 214],
+          [720, 200],
+          [800, 190],
+          [960, 196],
+        ],
+        pads: [
+          { id: 'sun', x: 120, w: 30, kind: 'sun' },
+          { id: 'bed1', x: 590, w: 36, mult: 1 },
+          { id: 'bed3', x: 780, w: 24, mult: 3 },
+          { id: 'bed5', x: 900, w: 16, mult: 5 },
+        ],
+      },
+      start: { x: 60, y: 30 },
+      sun: 1000,
+      wind: 0.001,
+      seeds: 3,
+      pebbles: [
+        { x0: 250, x1: 520, every: 220, offset: 0 },
+        { x0: 230, x1: 500, every: 220, offset: 110 },
+      ],
+      par: par(700, 55),
+    },
+    {
+      id: 'gorge-5',
+      name: 'FALLS SLALOM',
+      brief: 'FLY THE RINGS BETWEEN THE FALLS',
+      kind: 'rings',
+      theme: 'gorge',
+      map: {
+        w: 960,
+        h: 260,
+        ground: [
+          [0, 204],
+          [128, 200],
+          [256, 214],
+          [384, 206],
+          [512, 216],
+          [640, 202],
+          [768, 210],
+          [864, 198],
+          [960, 204],
+        ],
+        pads: [
+          { id: 'sun', x: 440, w: 30, kind: 'sun' },
+          { id: 'home', x: 900, w: 40, kind: 'home' },
+        ],
+      },
+      start: { x: 40, y: 40 },
+      sun: 1100,
+      wind: 0.001,
+      seeds: 0,
+      rings: [
+        { x: 160, y: 120, r: 16 },
+        { x: 310, y: 150, r: 16 },
+        { x: 460, y: 90, r: 15 },
+        { x: 600, y: 140, r: 15 },
+        { x: 730, y: 90, r: 14 },
+        { x: 850, y: 130, r: 14 },
+      ],
+      falls: [
+        { x0: 230, x1: 248, y0: 24, y1: 204, push: 0.01 },
+        { x0: 530, x1: 548, y0: 24, y1: 206, push: 0.01 },
+        { x0: 790, x1: 808, y0: 24, y1: 202, push: 0.01 },
+      ],
+      time: 60 * 55,
+      acorns: [{ id: 'gorge-a3', x: 390, y: 40 }],
+      par: par(600, 35),
+    },
+    {
+      id: 'gorge-boss',
+      name: 'THE GEYSER TORTOISE',
+      brief: 'LAND ON THE SHELL WHEN THE GEYSER CALMS',
+      kind: 'boss',
+      theme: 'gorge',
+      map: {
+        w: 800,
+        h: 260,
+        ground: [
+          [0, 214],
+          [200, 222],
+          [320, 232],
+          [480, 232],
+          [600, 222],
+          [800, 214],
+        ],
+        pads: [
+          { id: 'sunL', x: 80, w: 32, kind: 'sun' },
+          { id: 'sunR', x: 720, w: 32, kind: 'sun' },
+        ],
+      },
+      start: { x: 80, y: 40 },
+      sun: 2200,
+      wind: 0,
+      seeds: 0,
+      boss: { id: 'tortoise', x: 400 },
+      par: par(1100, 100),
+    },
+  ],
+}
+
+export const ISLANDS: readonly Island[] = [MEADOW, DOWNS, GORGE]
 
 /** Every golden acorn on the islands built so far. */
 export const ALL_ACORNS: readonly string[] = ISLANDS.flatMap((i) =>

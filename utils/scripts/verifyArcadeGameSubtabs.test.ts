@@ -234,8 +234,9 @@ assert.match(
   achievementStrip,
   /class="game-achievement-tooltip" role="tooltip"/,
 )
-assert.match(achievementStrip, /game-achievement-icon:focus-within/)
-assert.match(achievementStrip, /game-achievement-icon\[open\]/)
+assert.match(achievementStrip, /game-achievement-icon button:focus-visible/)
+assert.match(achievementStrip, /game-achievement-icon--open/)
+assert.match(achievementStrip, /@click="openBadge = openBadge === entry.code/)
 assert.match(achievementStrip, /v-if="layout !== 'icons'"/)
 
 const reviewForm = readFileSync('components/arcade/arcade-reviews.vue', 'utf8')

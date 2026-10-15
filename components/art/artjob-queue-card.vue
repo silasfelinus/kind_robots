@@ -19,7 +19,7 @@
     class="flex min-w-0 flex-col overflow-hidden rounded-2xl border border-base-300 bg-base-100 shadow-sm"
   >
     <div
-      v-if="job.status === 'DONE'"
+      v-if="job.status === 'DONE' && !isRestylePilot"
       class="relative flex aspect-[4/3] min-h-52 w-full items-center justify-center overflow-hidden bg-base-100"
     >
       <!-- The output opens its art card, not the raw file. Silas, 2026-09-28:
@@ -188,7 +188,7 @@
 
     <div class="flex min-w-0 flex-1 flex-col gap-3 p-3">
       <div
-        v-if="job.status !== 'DONE'"
+        v-if="job.status !== 'DONE' || isRestylePilot"
         class="flex flex-wrap items-center justify-between gap-2"
       >
         <div class="flex flex-wrap gap-1">
@@ -328,6 +328,20 @@
         </button>
       </div>
 
+      <div
+        v-if="isRestylePilot"
+        class="space-y-2 rounded-xl border border-info/30 bg-info/10 p-3 text-xs"
+      >
+        <p class="font-semibold">Coat Dance · motion-controlled VACE pilot</p>
+        <p>
+          Registered in ArtJob. The standard relay cannot run motion-controlled
+          VACE jobs; this pilot requires the dedicated local GPU worker.
+          Progress synchronizes when the Coat Dance studio refreshes.
+        </p>
+        <NuxtLink to="/admin/coat-dance" class="btn btn-primary btn-sm text-primary-content">
+          Open Coat Dance Studio
+        </NuxtLink>
+      </div>
       <div class="flex flex-wrap gap-1">
         <span
           v-for="setting in jobSettings.slice(0, 6)"
@@ -457,7 +471,7 @@
           {{ copied ? 'Copied' : 'Copy prompt' }}
         </button>
 
-        <div class="flex flex-wrap items-center justify-end gap-1">
+        <div v-if="!isRestylePilot" class="flex flex-wrap items-center justify-end gap-1">
           <form
             v-if="job.status === 'PENDING'"
             class="flex items-center gap-1"
@@ -569,6 +583,7 @@
 </template>
 
 <script setup lang="ts">
+import { isVideoRestyleArtJobPayload } from '@/utils/artJobMedia'
 import {
   computed,
   onBeforeUnmount,
@@ -614,6 +629,8 @@ type EditorAction = 'EDIT' | 'NEW_OUTPUT' | 'OVERWRITE'
 const props = defineProps<{
   job: ArtJobRecord
 }>()
+
+const isRestylePilot = computed(() => isVideoRestyleArtJobPayload(props.job.payload))
 
 const emit = defineEmits<{
   edit: [job: ArtJobRecord, action: EditorAction]

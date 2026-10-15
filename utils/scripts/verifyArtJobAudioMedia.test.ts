@@ -9,7 +9,11 @@
 import assert from 'node:assert/strict'
 
 import { isAudioType, resolveArtImageSource } from '../artImageSource.js'
-import { artJobClaimableBy, isAudioArtJobPayload } from '../artJobMedia.js'
+import {
+  artJobClaimableBy,
+  isAudioArtJobPayload,
+  isVideoRestyleArtJobPayload,
+} from '../artJobMedia.js'
 
 const B64 = 'A'.repeat(64)
 
@@ -124,3 +128,13 @@ console.log(
 )
 
 console.log('✅ verifyArtJobAudioMedia: all assertions passed')
+
+assert.equal(isVideoRestyleArtJobPayload({ media: 'video-restyle-vace' }), true)
+assert.equal(isVideoRestyleArtJobPayload({ media: 'video' }), false)
+assert.equal(
+  artJobClaimableBy(
+    { media: 'video-restyle-vace', workflow: { fake: 'image-workflow' } },
+    { supportsInputImages: true, supportsAudio: true },
+  ),
+  false,
+)

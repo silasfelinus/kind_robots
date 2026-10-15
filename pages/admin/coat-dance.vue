@@ -3,9 +3,11 @@
     <div
       class="kr-container-wide flex h-full min-h-0 flex-col gap-3 p-3 sm:p-4"
     >
-      <header class="flex flex-wrap items-center justify-between gap-2">
+      <header
+        class="flex flex-wrap items-center justify-between gap-2 rounded-2xl border border-base-300 bg-base-100 p-2 text-base-content shadow-sm"
+      >
         <nav
-          class="flex items-center gap-1 rounded-xl border border-base-300 bg-base-100/80 p-1"
+          class="flex items-center gap-1 rounded-xl border border-base-300 bg-base-200 p-1"
           aria-label="Video generation mode"
         >
           <NuxtLink to="/play/video-generator" class="kr-btn-xs btn-ghost"
@@ -16,8 +18,12 @@
           >
         </nav>
         <div class="flex items-center gap-2 text-xs">
-          <span class="kr-badge-outline">Private studio</span>
-          <span class="kr-badge-outline">Source motion retained</span>
+          <span class="kr-badge-outline bg-base-200 text-base-content"
+            >Private studio</span
+          >
+          <span class="kr-badge-outline bg-base-200 text-base-content"
+            >Source motion retained</span
+          >
         </div>
       </header>
 
@@ -34,14 +40,18 @@
         <div
           v-if="store.error"
           role="alert"
-          class="kr-note kr-note-error flex items-center justify-between gap-2 p-2 text-sm"
+          class="kr-note kr-note-error flex items-center justify-between gap-2 border border-error/30 bg-base-100 p-2 text-sm text-base-content shadow-sm"
         >
           {{ store.error }}
           <button type="button" class="kr-btn-xs" @click="store.error = ''">
             Dismiss
           </button>
         </div>
-        <div v-if="store.notice" role="status" class="kr-note p-2 text-xs">
+        <div
+          v-if="store.notice"
+          role="status"
+          class="rounded-xl border border-base-300 bg-base-100 p-2 text-xs text-base-content shadow-sm"
+        >
           {{ store.notice }}
         </div>
         <nav
@@ -361,6 +371,13 @@
                 />
               </div>
               <p class="text-base-content/70">{{ store.selected.stage }}</p>
+              <NuxtLink
+                v-if="store.selected.pilot?.artJobId"
+                to="/artjob"
+                class="inline-flex items-center gap-1 font-semibold text-primary hover:underline"
+              >
+                View ArtJob #{{ store.selected.pilot.artJobId }} in the queue
+              </NuxtLink>
               <p v-if="store.selected.pilot" class="text-base-content/70">
                 {{ store.selected.pilot.completedSegments }}/{{
                   store.selected.pilot.totalSegments

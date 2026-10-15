@@ -209,7 +209,8 @@ export async function updateRestyleSettings(
   if (job.status !== 'STAGED') {
     throw createError({
       statusCode: 409,
-      message: 'Rendering has already started; these settings can no longer be changed.',
+      message:
+        'Rendering has already started; these settings can no longer be changed.',
     })
   }
   const style = RESTYLE_STYLES.find((entry) => entry.id === styleId)!
@@ -226,7 +227,10 @@ export async function updateRestyleSettings(
   }
   const target = path.join(root(userId), id, 'job.json')
   const temporary = `${target}.${randomUUID()}.tmp`
-  await writeFile(temporary, JSON.stringify(updated, null, 2), { flag: 'wx', mode: 0o600 })
+  await writeFile(temporary, JSON.stringify(updated, null, 2), {
+    flag: 'wx',
+    mode: 0o600,
+  })
   await rename(temporary, target)
   return updated
 }

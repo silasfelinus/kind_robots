@@ -1,10 +1,19 @@
 import { createReadStream } from 'node:fs'
 import { stat } from 'node:fs/promises'
 import path from 'node:path'
-import { createError, defineEventHandler, getRouterParam, sendStream, setHeader } from 'h3'
+import {
+  createError,
+  defineEventHandler,
+  getRouterParam,
+  sendStream,
+  setHeader,
+} from 'h3'
 import { requireAdminApiUser } from '@/server/utils/authGuard'
 import { errorHandler } from '@/server/utils/error'
-import { loadRestyleJob, restyleSourcePath } from '@/server/utils/videoRestyleJobs'
+import {
+  loadRestyleJob,
+  restyleSourcePath,
+} from '@/server/utils/videoRestyleJobs'
 
 const CONTENT_TYPES: Record<string, string> = {
   '.mp4': 'video/mp4',
@@ -15,7 +24,10 @@ const CONTENT_TYPES: Record<string, string> = {
 export default defineEventHandler(async (event) => {
   try {
     const auth = await requireAdminApiUser(event)
-    const job = await loadRestyleJob(auth.user.id, getRouterParam(event, 'id') || '')
+    const job = await loadRestyleJob(
+      auth.user.id,
+      getRouterParam(event, 'id') || '',
+    )
     if (!/^source\.(mp4|mov|webm)$/.test(job.sourceFile)) {
       throw createError({ statusCode: 404, message: 'Source video not found.' })
     }
@@ -24,7 +36,11 @@ export default defineEventHandler(async (event) => {
     if (!fileStat?.isFile()) {
       throw createError({ statusCode: 404, message: 'Source video not found.' })
     }
-    setHeader(event, 'Content-Type', CONTENT_TYPES[path.extname(job.sourceFile)] || 'application/octet-stream')
+    setHeader(
+      event,
+      'Content-Type',
+      CONTENT_TYPES[path.extname(job.sourceFile)] || 'application/octet-stream',
+    )
     setHeader(event, 'Content-Length', String(fileStat.size))
     setHeader(event, 'Cache-Control', 'private, no-store')
     setHeader(event, 'X-Content-Type-Options', 'nosniff')

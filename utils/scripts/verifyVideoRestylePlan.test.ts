@@ -30,7 +30,10 @@ for (const duration of [1, 4.5, 5, 17, 30, 332, 900]) {
 console.info('Video restyle segment planning verified')
 
 const studio = readFileSync('pages/admin/coat-dance.vue', 'utf8')
-const source = readFileSync('server/api/video-restyle/[id]/source.get.ts', 'utf8')
+const source = readFileSync(
+  'server/api/video-restyle/[id]/source.get.ts',
+  'utf8',
+)
 const settings = readFileSync('server/api/video-restyle/[id].patch.ts', 'utf8')
 assert.ok(!studio.includes('v-show="activePanel'))
 assert.ok(studio.includes('hidden lg:flex'))

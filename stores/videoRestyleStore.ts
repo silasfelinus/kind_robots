@@ -99,7 +99,6 @@ export const useVideoRestyleStore = defineStore('videoRestyle', () => {
     }
   }
 
-
   async function loadSourcePreview(id: string): Promise<boolean> {
     if (!import.meta.client) return false
     const userStore = useUserStore()
@@ -112,27 +111,41 @@ export const useVideoRestyleStore = defineStore('videoRestyle', () => {
     sourceBusy.value = true
     clearPreview()
     try {
-      const response = await fetch(`/api/video-restyle/${encodeURIComponent(id)}/source`, {
-        headers: { Authorization: `Bearer ${token}` },
-      })
+      const response = await fetch(
+        `/api/video-restyle/${encodeURIComponent(id)}/source`,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        },
+      )
       if (!response.ok) {
-        const details = (await response.json().catch(() => null)) as { message?: string } | null
-        throw new Error(details?.message || `Source video request failed (${response.status}).`)
+        const details = (await response.json().catch(() => null)) as {
+          message?: string
+        } | null
+        throw new Error(
+          details?.message ||
+            `Source video request failed (${response.status}).`,
+        )
       }
       const file = await response.blob()
-      if (!file.type.startsWith('video/')) throw new Error('The stored file is not a video.')
+      if (!file.type.startsWith('video/'))
+        throw new Error('The stored file is not a video.')
       if (selectedId.value !== id) return false
       previewUrl.value = URL.createObjectURL(file)
       return true
     } catch (caught) {
-      error.value = caught instanceof Error ? caught.message : 'Unable to open saved video.'
+      error.value =
+        caught instanceof Error ? caught.message : 'Unable to open saved video.'
       return false
     } finally {
       sourceBusy.value = false
     }
   }
 
-  async function saveSettings(id: string, style: RestyleStyleId, quality: RestyleQuality): Promise<boolean> {
+  async function saveSettings(
+    id: string,
+    style: RestyleStyleId,
+    quality: RestyleQuality,
+  ): Promise<boolean> {
     busy.value = true
     error.value = ''
     notice.value = ''
@@ -145,7 +158,9 @@ export const useVideoRestyleStore = defineStore('videoRestyle', () => {
         error.value = response.message || 'Could not save restyle settings.'
         return false
       }
-      jobs.value = jobs.value.map((job) => job.id === id ? response.data! : job)
+      jobs.value = jobs.value.map((job) =>
+        job.id === id ? response.data! : job,
+      )
       notice.value = 'Animation look and output target saved to this project.'
       return true
     } finally {

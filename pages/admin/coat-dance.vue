@@ -104,8 +104,14 @@
                     The performance stays in frame. The coat gets its own
                     animated life.
                   </p>
-                  <div v-if="store.selected && !sourceFile" class="space-y-2 pt-3">
-                    <p class="text-sm font-bold">{{ store.selected.title }} · {{ formatRestyleTime(store.selected.sourceDurationSec) }}</p>
+                  <div
+                    v-if="store.selected && !sourceFile"
+                    class="space-y-2 pt-3"
+                  >
+                    <p class="text-sm font-bold">
+                      {{ store.selected.title }} ·
+                      {{ formatRestyleTime(store.selected.sourceDurationSec) }}
+                    </p>
                     <button
                       type="button"
                       class="kr-btn kr-btn-primary"
@@ -113,7 +119,11 @@
                       @click="store.loadSourcePreview(store.selected.id)"
                     >
                       <span v-if="store.sourceBusy" class="kr-spinner-xs" />
-                      {{ store.sourceBusy ? 'Loading private video…' : 'Preview saved source' }}
+                      {{
+                        store.sourceBusy
+                          ? 'Loading private video…'
+                          : 'Preview saved source'
+                      }}
                     </button>
                   </div>
                 </div>
@@ -157,8 +167,14 @@
               }}</span>
               <span>Original audio & camera preserved</span>
             </div>
-            <div v-if="store.selected && !sourceFile" class="flex flex-wrap items-center justify-between gap-2 rounded-xl bg-base-200 p-2 text-xs">
-              <span>Saved privately · {{ store.selected.segments.length }} motion windows</span>
+            <div
+              v-if="store.selected && !sourceFile"
+              class="flex flex-wrap items-center justify-between gap-2 rounded-xl bg-base-200 p-2 text-xs"
+            >
+              <span
+                >Saved privately · {{ store.selected.segments.length }} motion
+                windows</span
+              >
               <span class="font-semibold">{{ store.selected.status }}</span>
             </div>
             <button
@@ -253,13 +269,23 @@
               working resolution.
             </p>
             <button
-              v-if="store.selected && !sourceFile && store.selected.status === 'STAGED'"
+              v-if="
+                store.selected &&
+                !sourceFile &&
+                store.selected.status === 'STAGED'
+              "
               type="button"
               class="kr-btn kr-btn-primary w-full"
               :disabled="store.busy || !lookChanged"
               @click="saveLook"
             >
-              {{ store.busy ? 'Saving…' : lookChanged ? 'Save look to this project' : 'Look saved' }}
+              {{
+                store.busy
+                  ? 'Saving…'
+                  : lookChanged
+                    ? 'Save look to this project'
+                    : 'Look saved'
+              }}
             </button>
           </section>
 
@@ -383,7 +409,8 @@ const fileInput = ref<HTMLInputElement | null>(null)
 const lookChanged = computed(() =>
   Boolean(
     store.selected &&
-    (store.selected.style !== style.value || store.selected.quality !== quality.value),
+    (store.selected.style !== style.value ||
+      store.selected.quality !== quality.value),
   ),
 )
 const fileDescription = computed(() =>
@@ -455,7 +482,7 @@ async function stage() {
   ) {
     activePanel.value = 'source'
     sourceFile.value = null
-    durationSec.value = 0
+    durationSec.value = store.selected?.sourceDurationSec ?? 0
     if (fileInput.value) fileInput.value.value = ''
   }
 }

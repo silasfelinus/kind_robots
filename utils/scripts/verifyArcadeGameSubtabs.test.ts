@@ -196,7 +196,23 @@ assert.match(page, /'arcade-playfield--hidden': showDetails/)
 assert.match(page, /'arcade-details--hidden': !showDetails/)
 assert.match(page, /arcade-detail-section--inactive/)
 assert.match(page, /detailTabs/)
-assert.match(page, /detailTab\.value = 'scores'/)
+assert.match(
+  page,
+  /\{ key: 'instructions', label: 'How to play' \}/,
+  'Instructions should be first in the small-screen details tabs.',
+)
+assert.ok(
+  page.indexOf("detailTab !== 'instructions'") <
+    page.indexOf("detailTab !== 'scores'"),
+  'Instructions must be first in the desktop sidebar as well.',
+)
+assert.match(
+  page,
+  /<GameAchievementStrip :game="meta\.slug" layout="icons" \/>/,
+  'Arcade sidebars show image badges instead of text-heavy achievement cards.',
+)
+
+assert.match(page, /detailTab\.value = 'instructions'/)
 assert.match(page, /<ArcadeReviews :game="meta\.slug" compact \/>/)
 assert.match(page, /grid-template-rows: minmax\(0, 1fr\)/)
 assert.match(
@@ -207,6 +223,23 @@ assert.match(page, /\.arcade-playfield :deep\(\.arcade-cabinet--contained\)/)
 assert.match(page, /@media \(max-width: 1023px\)/)
 assert.match(page, /@media \(min-width: 1024px\)/)
 assert.doesNotMatch(page, /class="flex flex-col gap-4 xl:flex-row"/)
+
+const achievementStrip = readFileSync(
+  'components/achievements/game-achievement-strip.vue',
+  'utf8',
+)
+assert.match(achievementStrip, /layout === 'icons'/)
+assert.match(achievementStrip, /class="game-achievement-icons"/)
+assert.match(achievementStrip, /class="game-achievement-tooltip" role="tooltip"/)
+assert.match(achievementStrip, /game-achievement-icon:focus-within/)
+assert.match(achievementStrip, /game-achievement-icon\[open\]/)
+assert.match(achievementStrip, /v-if="layout !== 'icons'"/)
+
+const reviewForm = readFileSync('components/arcade/arcade-reviews.vue', 'utf8')
+assert.match(reviewForm, /v-model\.number="rating"/)
+assert.match(reviewForm, /type="radio"/)
+assert.match(reviewForm, /v-for="stars in \[1, 2, 3, 4, 5\]"/)
+assert.doesNotMatch(reviewForm, /<select/)
 
 const cabinet = readFileSync('components/arcade/arcade-cabinet.vue', 'utf8')
 assert.match(cabinet, /contained\?: boolean/)

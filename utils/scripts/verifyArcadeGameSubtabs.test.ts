@@ -230,7 +230,10 @@ const achievementStrip = readFileSync(
 )
 assert.match(achievementStrip, /layout === 'icons'/)
 assert.match(achievementStrip, /class="game-achievement-icons"/)
-assert.match(achievementStrip, /class="game-achievement-tooltip" role="tooltip"/)
+assert.match(
+  achievementStrip,
+  /class="game-achievement-tooltip" role="tooltip"/,
+)
 assert.match(achievementStrip, /game-achievement-icon:focus-within/)
 assert.match(achievementStrip, /game-achievement-icon\[open\]/)
 assert.match(achievementStrip, /v-if="layout !== 'icons'"/)

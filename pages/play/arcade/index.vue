@@ -67,6 +67,41 @@
               <section
                 class="arcade-detail-section"
                 :class="{
+                  'arcade-detail-section--inactive':
+                    detailTab !== 'instructions',
+                }"
+                aria-label="How to play"
+              >
+                <h2
+                  class="mb-1 text-xs font-bold uppercase tracking-widest opacity-70"
+                >
+                  How to play
+                </h2>
+                <p class="text-sm leading-relaxed">{{ meta.blurb }}</p>
+                <p class="mt-2 text-xs opacity-70">
+                  Keyboard: arrows or WASD to move, Enter to start, P to pause,
+                  Space/Z for A and X/Shift for B. Gamepads also work.
+                </p>
+                <p
+                  v-if="meta.slug === 'butterfly-blaster'"
+                  class="mt-2 text-sm leading-relaxed"
+                >
+                  On screen, the butterfly protects villages. Off screen, AMI
+                  buys real bed nets for families who need them:
+                  <a
+                    href="https://againstmalaria.com/amibot"
+                    target="_blank"
+                    rel="noopener"
+                    class="link link-primary"
+                    >help her send one</a
+                  >.
+                </p>
+              </section>
+
+
+              <section
+                class="arcade-detail-section"
+                :class="{
                   'arcade-detail-section--inactive': detailTab !== 'scores',
                 }"
                 aria-label="High scores"
@@ -129,41 +164,7 @@
                 }"
                 aria-label="Achievements"
               >
-                <GameAchievementStrip :game="meta.slug" />
-              </section>
-
-              <section
-                class="arcade-detail-section"
-                :class="{
-                  'arcade-detail-section--inactive':
-                    detailTab !== 'instructions',
-                }"
-                aria-label="How to play"
-              >
-                <h2
-                  class="mb-1 text-xs font-bold uppercase tracking-widest opacity-70"
-                >
-                  How to play
-                </h2>
-                <p class="text-sm leading-relaxed">{{ meta.blurb }}</p>
-                <p class="mt-2 text-xs opacity-70">
-                  Keyboard: arrows or WASD to move, Enter to start, P to pause,
-                  Space/Z for A and X/Shift for B. Gamepads also work.
-                </p>
-                <p
-                  v-if="meta.slug === 'butterfly-blaster'"
-                  class="mt-2 text-sm leading-relaxed"
-                >
-                  On screen, the butterfly protects villages. Off screen, AMI
-                  buys real bed nets for families who need them:
-                  <a
-                    href="https://againstmalaria.com/amibot"
-                    target="_blank"
-                    rel="noopener"
-                    class="link link-primary"
-                    >help her send one</a
-                  >.
-                </p>
+                <GameAchievementStrip :game="meta.slug" layout="icons" />
               </section>
 
               <section
@@ -205,18 +206,18 @@ const store = useArcadeStore()
 const showDetails = ref(false)
 type DetailTab = 'scores' | 'achievements' | 'instructions' | 'reviews'
 const detailTabs: { key: DetailTab; label: string }[] = [
+  { key: 'instructions', label: 'How to play' },
   { key: 'scores', label: 'Scores' },
   { key: 'achievements', label: 'Awards' },
-  { key: 'instructions', label: 'How to play' },
   { key: 'reviews', label: 'Reviews' },
 ]
-const detailTab = ref<DetailTab>('scores')
+const detailTab = ref<DetailTab>('instructions')
 const slug = computed(() =>
   typeof route.query.game === 'string' ? route.query.game : '',
 )
 watch(slug, () => {
   showDetails.value = false
-  detailTab.value = 'scores'
+  detailTab.value = 'instructions'
 })
 const meta = computed(() =>
   ARCADE_GAMES.some((game) => game.slug === slug.value)

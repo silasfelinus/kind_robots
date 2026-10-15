@@ -8,10 +8,10 @@
 -->
 <template>
   <section
-    class="directory-home kr-unbound flex h-full min-h-0 w-full flex-col gap-3 overflow-hidden"
+    class="directory-home kr-unbound flex w-full flex-col gap-3"
   >
     <header
-      class="flex shrink-0 flex-col gap-3 rounded-2xl border border-base-300 bg-base-100/95 p-3 shadow-sm sm:flex-row sm:items-center sm:justify-between sm:p-4"
+      class="sticky top-0 z-10 flex flex-col gap-3 rounded-2xl border border-base-300 bg-base-100/95 p-3 shadow-sm backdrop-blur-sm sm:flex-row sm:items-center sm:justify-between sm:p-4"
     >
       <div class="min-w-0">
         <p class="text-sm font-black text-base-content">
@@ -36,7 +36,7 @@
       </label>
     </header>
 
-    <div class="kr-scroll min-h-0 flex-1 space-y-4 pb-4 pr-1 sm:space-y-5">
+    <div class="space-y-4 pb-4 sm:space-y-5">
       <p
         v-if="!filteredChannels.length"
         class="rounded-2xl border border-base-300 bg-base-100/95 p-6 text-center text-sm text-base-content/75"

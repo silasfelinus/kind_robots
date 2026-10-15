@@ -63,8 +63,8 @@
           class="kr-panes min-h-0 flex-1 gap-3 lg:grid-cols-[minmax(0,1.35fr)_minmax(15rem,0.85fr)_minmax(14rem,0.7fr)]"
         >
           <section
-            v-show="activePanel === 'source'"
-            class="kr-panel flex min-h-0 flex-col gap-3 overflow-hidden p-3 lg:flex"
+            :class="activePanel === 'source' ? 'flex' : 'hidden lg:flex'"
+            class="kr-panel min-h-0 flex-col gap-3 overflow-hidden p-3 lg:flex"
             aria-label="Source performance"
           >
             <div class="flex items-center justify-between">
@@ -104,6 +104,18 @@
                     The performance stays in frame. The coat gets its own
                     animated life.
                   </p>
+                  <div v-if="store.selected && !sourceFile" class="space-y-2 pt-3">
+                    <p class="text-sm font-bold">{{ store.selected.title }} · {{ formatRestyleTime(store.selected.sourceDurationSec) }}</p>
+                    <button
+                      type="button"
+                      class="kr-btn kr-btn-primary"
+                      :disabled="store.sourceBusy"
+                      @click="store.loadSourcePreview(store.selected.id)"
+                    >
+                      <span v-if="store.sourceBusy" class="kr-spinner-xs" />
+                      {{ store.sourceBusy ? 'Loading private video…' : 'Preview saved source' }}
+                    </button>
+                  </div>
                 </div>
               </template>
             </div>
@@ -137,11 +149,20 @@
               class="flex flex-wrap items-center justify-between gap-2 text-xs opacity-80"
             >
               <span>{{
-                sourceFile ? fileDescription : 'Up to 128 MiB · 15 minutes'
+                sourceFile
+                  ? fileDescription
+                  : store.selected
+                    ? `${store.selected.sourceFile} · ${(store.selected.sourceBytes / (1024 * 1024)).toFixed(1)} MiB saved`
+                    : 'Up to 128 MiB · 15 minutes'
               }}</span>
               <span>Original audio & camera preserved</span>
             </div>
+            <div v-if="store.selected && !sourceFile" class="flex flex-wrap items-center justify-between gap-2 rounded-xl bg-base-200 p-2 text-xs">
+              <span>Saved privately · {{ store.selected.segments.length }} motion windows</span>
+              <span class="font-semibold">{{ store.selected.status }}</span>
+            </div>
             <button
+              v-else
               type="button"
               class="kr-btn kr-btn-primary w-full"
               :disabled="!canStage || store.busy"
@@ -157,8 +178,8 @@
           </section>
 
           <section
-            v-show="activePanel === 'style'"
-            class="kr-panel flex min-h-0 flex-col gap-2 overflow-hidden p-3 lg:flex"
+            :class="activePanel === 'style' ? 'flex' : 'hidden lg:flex'"
+            class="kr-panel min-h-0 flex-col gap-2 overflow-hidden p-3 lg:flex"
             aria-label="Animation style presets"
           >
             <div class="flex items-center justify-between gap-2">
@@ -231,11 +252,20 @@
               1080p is an upscale target after assembly, not the diffusion
               working resolution.
             </p>
+            <button
+              v-if="store.selected && !sourceFile && store.selected.status === 'STAGED'"
+              type="button"
+              class="kr-btn kr-btn-primary w-full"
+              :disabled="store.busy || !lookChanged"
+              @click="saveLook"
+            >
+              {{ store.busy ? 'Saving…' : lookChanged ? 'Save look to this project' : 'Look saved' }}
+            </button>
           </section>
 
           <section
-            v-show="activePanel === 'jobs'"
-            class="kr-panel flex min-h-0 flex-col gap-2 overflow-hidden p-3 lg:flex"
+            :class="activePanel === 'jobs' ? 'flex' : 'hidden lg:flex'"
+            class="kr-panel min-h-0 flex-col gap-2 overflow-hidden p-3 lg:flex"
             aria-label="Saved render projects"
           >
             <div class="flex items-center justify-between gap-2">
@@ -267,7 +297,7 @@
                     ? 'border-primary bg-primary/10'
                     : 'border-base-300 bg-base-100/60'
                 "
-                @click="store.selectedId = job.id"
+                @click="selectJob(job)"
               >
                 <span class="flex items-center justify-between gap-2">
                   <strong class="truncate text-sm">{{ job.title }}</strong>
@@ -322,6 +352,7 @@
 
 <script setup lang="ts">
 import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
+import type { VideoRestyleJob } from '@/server/utils/videoRestyleJobs'
 import { useVideoRestyleStore } from '@/stores/videoRestyleStore'
 import { useUserStore } from '@/stores/userStore'
 import {
@@ -349,6 +380,12 @@ const title = ref('Coat Dance')
 const sourceFile = ref<File | null>(null)
 const durationSec = ref(0)
 const fileInput = ref<HTMLInputElement | null>(null)
+const lookChanged = computed(() =>
+  Boolean(
+    store.selected &&
+    (store.selected.style !== style.value || store.selected.quality !== quality.value),
+  ),
+)
 const fileDescription = computed(() =>
   sourceFile.value
     ? `${sourceFile.value.name} · ${(sourceFile.value.size / (1024 * 1024)).toFixed(1)} MiB`
@@ -365,6 +402,23 @@ const canStage = computed(() =>
 
 function labelFor(value: RestyleStyleId): string {
   return RESTYLE_STYLES.find((entry) => entry.id === value)?.label || value
+}
+
+function selectJob(job: VideoRestyleJob) {
+  store.selectedId = job.id
+  store.clearPreview()
+  sourceFile.value = null
+  durationSec.value = job.sourceDurationSec
+  title.value = job.title
+  style.value = job.style
+  quality.value = job.quality
+  if (fileInput.value) fileInput.value.value = ''
+  activePanel.value = 'source'
+}
+
+async function saveLook() {
+  if (!store.selected || sourceFile.value) return
+  await store.saveSettings(store.selected.id, style.value, quality.value)
 }
 
 function chooseFile(event: Event) {
@@ -399,17 +453,19 @@ async function stage() {
       quality: quality.value,
     })
   ) {
-    activePanel.value = 'jobs'
+    activePanel.value = 'source'
     sourceFile.value = null
     durationSec.value = 0
     if (fileInput.value) fileInput.value.value = ''
-    store.clearPreview()
   }
 }
 
 onMounted(async () => {
   await userStore.initialize()
-  if (userStore.isAdmin) await store.refresh()
+  if (userStore.isAdmin) {
+    await store.refresh()
+    if (store.selected) selectJob(store.selected)
+  }
   ready.value = true
 })
 

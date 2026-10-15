@@ -1,5 +1,5 @@
 import { randomUUID } from 'node:crypto'
-import { mkdir, readFile, readdir, writeFile } from 'node:fs/promises'
+import { mkdir, readFile, readdir, rename, writeFile } from 'node:fs/promises'
 import path from 'node:path'
 import { createError } from 'h3'
 import { getArtArchiveRoot } from '@/server/utils/artArchiveRoot'
@@ -191,4 +191,42 @@ export async function stageRestyleVideo(input: {
     { flag: 'wx', mode: 0o600 },
   )
   return job
+}
+
+export async function updateRestyleSettings(
+  userId: number,
+  id: string,
+  styleId: unknown,
+  quality: unknown,
+): Promise<VideoRestyleJob> {
+  if (!isRestyleStyle(styleId)) {
+    throw createError({ statusCode: 400, message: 'Unknown animation style.' })
+  }
+  if (quality !== '720p' && quality !== '1080p') {
+    throw createError({ statusCode: 400, message: 'Choose 720p or 1080p.' })
+  }
+  const job = await loadRestyleJob(userId, id)
+  if (job.status !== 'STAGED') {
+    throw createError({
+      statusCode: 409,
+      message: 'Rendering has already started; these settings can no longer be changed.',
+    })
+  }
+  const style = RESTYLE_STYLES.find((entry) => entry.id === styleId)!
+  const updated: VideoRestyleJob = {
+    ...job,
+    style: styleId,
+    quality,
+    updatedAt: new Date().toISOString(),
+    renderRecipe: {
+      ...job.renderRecipe,
+      upscaleAfterAssembly: quality === '1080p',
+      stylePrompt: style.prompt,
+    },
+  }
+  const target = path.join(root(userId), id, 'job.json')
+  const temporary = `${target}.${randomUUID()}.tmp`
+  await writeFile(temporary, JSON.stringify(updated, null, 2), { flag: 'wx', mode: 0o600 })
+  await rename(temporary, target)
+  return updated
 }

@@ -120,6 +120,9 @@ async function main() {
           where: {
             projectSlug: PROJECT_SLUG,
             userId: SEED_USER_ID,
+            // A FAILED/CANCELLED job renders nothing; reusing it would block
+            // the achievement from ever being requeued after a prompt fix.
+            status: { notIn: ['FAILED', 'CANCELLED'] },
             AND: [
               { payload: { contains: achievementEntityMarker(achievement.id) } },
               { payload: { contains: achievementArtVersionMarker() } },

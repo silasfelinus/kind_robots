@@ -391,13 +391,18 @@ assert.ok(
 
 assert.match(
   source('components/navigation/navigation-trimmed.vue'),
-  /class="directory-home kr-unbound flex h-full min-h-0/,
-  'the destination directory must stay viewport-bounded within the shell',
+  /class="directory-home kr-unbound flex w-full flex-col gap-3"/,
+  'the destination directory must use the content page scroll owner',
+)
+assert.doesNotMatch(
+  source('components/navigation/navigation-trimmed.vue'),
+  /class="kr-scroll|overflow-y-auto/,
+  'do not create nested scrolling inside the content page scroll owner',
 )
 assert.match(
-  source('components/navigation/navigation-trimmed.vue'),
-  /class="kr-scroll min-h-0 flex-1/,
-  'all visible destinations must be reachable through one bounded scroller',
+  source('pages/[...slug].vue'),
+  /content-host flex h-full min-h-0 w-full flex-col overflow-y-auto/,
+  'the existing content host must remain responsible for reaching the final directory card',
 )
 assert.match(
   source('components/navigation/navigation-trimmed.vue'),

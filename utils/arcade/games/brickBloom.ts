@@ -59,6 +59,15 @@ import {
   steerToward,
 } from '../brickBloom/rules'
 import type { Bed } from '../brickBloom/rules'
+import {
+  HOUSES,
+  HOUSE_LEGEND,
+  TOUR_START,
+  houseWall,
+  nextTourPos,
+  ventSide,
+} from '../brickBloom/houses'
+import type { TourPos } from '../brickBloom/houses'
 import { COLS, ROWS, parseWall, wallFor } from '../brickBloom/walls'
 import type { CrateKind } from '../brickBloom/walls'
 import { drawText } from '../font'
@@ -277,6 +286,9 @@ const FLASH_SPRITE = crateSprite(RAMPS.cream, 'flash')
 const SPROUT_CRATE = crateSprite(RAMPS.leaf, 'crate')
 const HINGE_CRATE = crateSprite(RAMPS.earth, 'crate')
 const PUFF_CRATE = crateSprite(RAMPS.pink, 'crate')
+const ROOT_CRATE = crateSprite(RAMPS.rust, 'crate')
+const VINE_CRATE = crateSprite(RAMPS.leaf, 'crate')
+const TRELLIS_CRATE = crateSprite(RAMPS.cream, 'crate')
 
 /**
  * The paddle bot: a lit tray with pink bumper caps and an inked visor with two shining eyes
@@ -691,6 +703,12 @@ class BrickBloom implements ArcadeGameInstance {
   private puffs: Puff[] = []
   private flowers: Flower[] = []
   private speed = 0
+  /** The Grand Tour's place (Seedling House, Vine Hall), or null once the tour is over. */
+  private tour: TourPos | null = TOUR_START
+  /** Stages the tour took, so the classic walls start from their first after it. */
+  private tourStages = 0
+  /** Where the last crate cracked: that side of the screen picks the vent. */
+  private lastCrackX = W / 2
   private clear = 0
   private lost = 0
   private serveTimer = SERVE_TICKS
@@ -721,10 +739,15 @@ class BrickBloom implements ArcadeGameInstance {
     this.level = stage
     const tough = Math.round(levelCurve(stage, BLOOM_CURVES.tough))
     this.bricks = []
-    for (const cell of parseWall(wallFor(stage))) {
+    const house = this.tour ? HOUSES[this.tour.house] : undefined
+    const vented =
+      house && this.tour ? houseWall(house, this.tour.wall) : undefined
+    const wall = vented ?? wallFor(stage - this.tourStages)
+    for (const cell of parseWall(wall, vented ? HOUSE_LEGEND : undefined)) {
       // The top rows are the toughest; special crates take one hit and let the wall's shape play.
       const plain = cell.kind === 'crate' || cell.kind === 'bolt'
-      const hp = plain ? Math.max(1, tough - Math.floor(cell.row / 3)) : 1
+      let hp = plain ? Math.max(1, tough - Math.floor(cell.row / 3)) : 1
+      if (cell.kind === 'root') hp = 2
       this.bricks.push({
         col: cell.col,
         row: cell.row,
@@ -736,7 +759,10 @@ class BrickBloom implements ArcadeGameInstance {
         flash: 0,
       })
     }
-    const bolts = Math.max(0, Math.round(levelCurve(stage, BLOOM_CURVES.bolts)))
+    // Glasshouse walls are authored: no random bolts on top of them.
+    const bolts = vented
+      ? 0
+      : Math.max(0, Math.round(levelCurve(stage, BLOOM_CURVES.bolts)))
     for (let i = 0; i < bolts && this.bricks.length > 12; i++) {
       const pick = this.bricks[Math.floor(this.rng() * this.bricks.length)]!
       // Keep the top row breakable, so no wall is sealed shut.
@@ -771,11 +797,9 @@ class BrickBloom implements ArcadeGameInstance {
     this.chime = false
     this.rushTicks = 0
     this.serve()
-    this.banner = {
-      text: `STAGE ${stage}`,
-      sub: 'BLOOM EVERY CRATE',
-      ticks: 90,
-    }
+    this.banner = vented
+      ? { text: vented.name.toUpperCase(), sub: house!.name, ticks: 90 }
+      : { text: `STAGE ${stage}`, sub: 'BLOOM EVERY CRATE', ticks: 90 }
   }
 
   private serve() {
@@ -815,7 +839,14 @@ class BrickBloom implements ArcadeGameInstance {
     if (this.over) return
     const controls = this.demo ? this.demoInput() : input
     if (this.clear > 0) {
-      if (--this.clear === 0) this.startStage(this.level + 1)
+      if (--this.clear === 0) {
+        if (this.tour) {
+          this.tour = nextTourPos(this.tour, ventSide(this.lastCrackX, W))
+          // Past the last house the classic walls begin again from their first.
+          if (!this.tour) this.tourStages = this.level
+        }
+        this.startStage(this.level + 1)
+      }
       return
     }
     if (this.lost > 0) {
@@ -1088,7 +1119,7 @@ class BrickBloom implements ArcadeGameInstance {
       else {
         ball.x -= dx
         ball.vx = -ball.vx
-        this.crack(hitX)
+        if (hitX.kind !== 'trellis') this.crack(hitX)
       }
     }
     ball.y += dy
@@ -1103,7 +1134,8 @@ class BrickBloom implements ArcadeGameInstance {
       else {
         ball.y -= dy
         ball.vy = -ball.vy
-        this.crack(hitY)
+        // A trellis only breaks from below; the ball skips off its top and sides.
+        if (hitY.kind !== 'trellis' || dy < 0) this.crack(hitY)
       }
     }
     this.hitPaddle(ball)
@@ -1202,6 +1234,7 @@ class BrickBloom implements ArcadeGameInstance {
     const r = this.brickRect(b)
     const cx = r.x + r.w / 2
     const cy = r.y + r.h / 2
+    if (b.hp <= 0) this.lastCrackX = cx
     // The roof chime doubles the next crate's points, chip or crack.
     const chimed = this.chime ? CHIME_MULT : 1
     this.chime = false
@@ -1256,6 +1289,16 @@ class BrickBloom implements ArcadeGameInstance {
         y: cy,
         kind: SEEDS[Math.floor(this.rng() * SEEDS.length)]!,
       })
+    // A cracked vine pulls its side neighbours down a row (never into another crate or the floor).
+    if (b.kind === 'vine') {
+      for (const o of this.bricks) {
+        if (o.row !== b.row || Math.abs(o.col - b.col) !== 1) continue
+        if (o.row + 1 >= ROWS) continue
+        if (this.bricks.some((x) => x.col === o.col && x.row === o.row + 1))
+          continue
+        o.row++
+      }
+    }
     // A puffball bursts: it cracks all eight neighbours, so chains can run.
     if (b.kind === 'puffball') {
       this.fx.burst(cx, cy, this.fxRng, { count: 12, speed: 2 })
@@ -1597,7 +1640,13 @@ class BrickBloom implements ArcadeGameInstance {
             ? HINGE_CRATE
             : b.kind === 'puffball'
               ? PUFF_CRATE
-              : CRATE_SPRITES[b.row]!
+              : b.kind === 'root'
+                ? ROOT_CRATE
+                : b.kind === 'vine'
+                  ? VINE_CRATE
+                  : b.kind === 'trellis'
+                    ? TRELLIS_CRATE
+                    : CRATE_SPRITES[b.row]!
     // An open hinge crate is a ghost the ball flies through.
     drawSprite(g, sprite, x - 1, y - 1, {
       anchor: 'topleft',

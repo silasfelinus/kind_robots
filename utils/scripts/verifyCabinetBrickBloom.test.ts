@@ -55,8 +55,11 @@ import type { CrateKind } from '../arcade/brickBloom/walls'
 import {
   HOUSES,
   SEEDLING_HOUSE,
+  TOUR_START,
   houseKinds,
   houseProblems,
+  nextTourPos,
+  ventSide,
 } from '../arcade/brickBloom/houses'
 import { emptyInput } from '../arcade/types'
 import type { InputFrame } from '../arcade/types'
@@ -340,9 +343,11 @@ const run = (g: Inner, ticks: number, frame: () => InputFrame = idle) => {
   for (let i = 0; i < ticks; i++) g.update(frame())
 }
 
-// Stage 1 is the first authored wall, in data.
+// With the tour over, stages play the classic authored walls from the first, in data.
 {
   const g = make()
+  ;(g as unknown as { tour: null }).tour = null
+  g.startStage(1)
   const first = parseWall(wallFor(1))
   assert.equal(
     g.bricks.length,
@@ -875,3 +880,70 @@ for (const seed of [5, 9, 13]) {
 console.log(
   'Brick Bloom slices 1-2: walls, houses, bloom bed, chain, rush, curl, crates and seeds passed',
 )
+
+// --- slice 2: the Grand Tour through Seedling House and Vine Hall (t-079 part 2) ---------------
+{
+  assert.equal(ventSide(10, 240), 0)
+  assert.equal(ventSide(200, 240), 1)
+  assert.deepEqual(nextTourPos(TOUR_START, 0), { house: 0, wall: 'seed-2a' })
+  assert.deepEqual(nextTourPos(TOUR_START, 1), { house: 0, wall: 'seed-2b' })
+  const bossWall = SEEDLING_HOUSE.walls.find((w) => w.vents === 'boss')!
+  assert.deepEqual(nextTourPos({ house: 0, wall: bossWall.id }, 0), {
+    house: 1,
+    wall: HOUSES[1]!.start,
+  })
+  const last = HOUSES[1]!.walls.find((w) => w.vents === 'boss')!
+  assert.equal(nextTourPos({ house: 1, wall: last.id }, 0), null)
+
+  // Stage 1 is the Seedling House's first wall: roots take two hits.
+  const g = make(3)
+  assert.equal(g.bricks.filter((b) => b.kind === 'root').length > 0, true)
+  for (const b of g.bricks.filter((b) => b.kind === 'root'))
+    assert.equal(b.hp, 2)
+
+  // A cracked vine pulls its neighbours down a row.
+  const v = crate(5, 2, 'vine')
+  const n = crate(6, 2)
+  stage(make(), [v, n, ...KEEP()]).crack(v)
+  assert.equal(n.row, 3)
+  // ...but not into a crate below it.
+  const v2 = crate(5, 2, 'vine')
+  const n2 = crate(6, 2)
+  const below = crate(6, 3)
+  stage(make(), [v2, n2, below, ...KEEP()]).crack(v2)
+  assert.equal(n2.row, 2)
+
+  // A trellis only breaks from below: a ball coming down skips off it, one going up cracks it.
+  const down = crate(5, 4, 'trellis')
+  const gDown = stage(make(), [down, ...KEEP()])
+  // drive stepBall directly
+  const inner = gDown as unknown as {
+    stepBall(b: Ball, dx: number, dy: number): void
+    brickRect(b: Brick): { x: number; y: number; w: number; h: number }
+  }
+  const rect = inner.brickRect(down)
+  const bd = ball(rect.x + rect.w / 2, rect.y - 3, 0, 2)
+  inner.stepBall(bd, 0, 4)
+  assert.equal(down.hp, 1, 'ball moving down skips off a trellis')
+  assert.ok(bd.vy < 0)
+  const up = crate(5, 4, 'trellis')
+  const gUp = stage(make(), [up, ...KEEP()]) as unknown as typeof inner
+  const ru = gUp.brickRect(up)
+  const bu = ball(ru.x + ru.w / 2, ru.y + ru.h + 3, 0, -2)
+  gUp.stepBall(bu, 0, -4)
+  assert.ok(up.hp <= 0, 'ball moving up cracks a trellis')
+
+  // Clearing a wall follows the vent on the side of the last crate.
+  const gt = make(5) as unknown as Inner & {
+    tour: { house: number; wall: string } | null
+  }
+  const only = crate(1, 0)
+  stage(gt, [only, ...KEEP().slice(0, 0)])
+  gt.crack(only)
+  for (let i = 0; i < 400; i++) gt.update(emptyInput())
+  assert.equal(
+    gt.tour?.wall,
+    'seed-2a',
+    'last crate on the left takes the left vent',
+  )
+}

@@ -506,6 +506,28 @@ assert.equal(
 )
 assert.doesNotMatch(visitorDirectorySource, /\bkr-scroll\b/)
 assert.ok(visitorDirectorySource.includes('container-type: inline-size'))
+assert.ok(
+  visitorDirectorySource.includes(
+    'visitor-featured-grid grid grid-cols-[repeat(auto-fit,minmax(min(100%,9rem),1fr))]',
+  ),
+  'phone and tablet feature cards must keep their existing dense gallery layout',
+)
+assert.match(
+  visitorDirectorySource,
+  /@container \(min-width: 56rem\)[\s\S]*?\.visitor-featured-grid \{[\s\S]*?repeat\(3, minmax\(0, 1fr\)\)/,
+  'standard desktop widths must show three readable artwork columns rather than ten tiny tiles',
+)
+assert.match(
+  visitorDirectorySource,
+  /@container \(min-width: 84rem\)[\s\S]*?\.visitor-featured-grid \{[\s\S]*?repeat\(4, minmax\(0, 1fr\)\)/,
+  'extra-wide desktop widths and browser zoom-out must cap the featured gallery at four columns',
+)
+assert.match(
+  visitorDirectorySource,
+  /\.visitor-featured-grid \{[\s\S]*?align-content: start;/,
+  'desktop gallery rows must start at the top and scroll inside the bounded feature pane',
+)
+
 assert.doesNotMatch(
   visitorDirectorySource,
   /\b(?:sm|md|lg|xl|2xl):grid-cols-/,

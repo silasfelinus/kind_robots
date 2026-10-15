@@ -78,7 +78,7 @@
         </div>
         <div class="kr-pane-scroll pr-1">
           <div
-            class="grid grid-cols-[repeat(auto-fit,minmax(min(100%,9rem),1fr))] gap-2"
+            class="visitor-featured-grid grid grid-cols-[repeat(auto-fit,minmax(min(100%,9rem),1fr))] gap-2"
           >
             <article
               v-for="feature in filteredFeatures"
@@ -482,6 +482,26 @@ const newest = computed<ShowcaseCard[]>(() =>
 
   .visitor-featured {
     grid-row: span 2 / span 2;
+  }
+
+  .visitor-featured-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    align-content: start;
+  }
+
+  .visitor-featured-grid h3 {
+    font-size: 1rem;
+    line-height: 1.35;
+  }
+
+  .visitor-featured-grid article p {
+    font-size: 0.8125rem;
+    line-height: 1.4;
+  }
+}
+@container (min-width: 84rem) {
+  .visitor-featured-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
   }
 }
 </style>

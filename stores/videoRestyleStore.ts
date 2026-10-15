@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia'
 import { computed, ref } from 'vue'
 import { performFetch } from '@/stores/utils'
+import { useUserStore } from '@/stores/userStore'
 import type { VideoRestyleJob } from '@/server/utils/videoRestyleJobs'
 import {
   RESTYLE_MAX_BYTES,
@@ -13,6 +14,7 @@ export const useVideoRestyleStore = defineStore('videoRestyle', () => {
   const jobs = ref<VideoRestyleJob[]>([])
   const selectedId = ref<string | null>(null)
   const busy = ref(false)
+  const sourceBusy = ref(false)
   const error = ref('')
   const notice = ref('')
   const previewUrl = ref<string | null>(null)
@@ -97,16 +99,88 @@ export const useVideoRestyleStore = defineStore('videoRestyle', () => {
     }
   }
 
+  async function loadSourcePreview(id: string): Promise<boolean> {
+    if (!import.meta.client) return false
+    const userStore = useUserStore()
+    const token = userStore.token || userStore.user?.token
+    if (!token) {
+      error.value = 'Sign in to play your saved private video.'
+      return false
+    }
+    error.value = ''
+    sourceBusy.value = true
+    clearPreview()
+    try {
+      const response = await fetch(
+        `/api/video-restyle/${encodeURIComponent(id)}/source`,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        },
+      )
+      if (!response.ok) {
+        const details = (await response.json().catch(() => null)) as {
+          message?: string
+        } | null
+        throw new Error(
+          details?.message ||
+            `Source video request failed (${response.status}).`,
+        )
+      }
+      const file = await response.blob()
+      if (!file.type.startsWith('video/'))
+        throw new Error('The stored file is not a video.')
+      if (selectedId.value !== id) return false
+      previewUrl.value = URL.createObjectURL(file)
+      return true
+    } catch (caught) {
+      error.value =
+        caught instanceof Error ? caught.message : 'Unable to open saved video.'
+      return false
+    } finally {
+      sourceBusy.value = false
+    }
+  }
+
+  async function saveSettings(
+    id: string,
+    style: RestyleStyleId,
+    quality: RestyleQuality,
+  ): Promise<boolean> {
+    busy.value = true
+    error.value = ''
+    notice.value = ''
+    try {
+      const response = await performFetch<VideoRestyleJob>(
+        `/api/video-restyle/${encodeURIComponent(id)}`,
+        { method: 'PATCH', body: JSON.stringify({ style, quality }) },
+      )
+      if (!response.success || !response.data) {
+        error.value = response.message || 'Could not save restyle settings.'
+        return false
+      }
+      jobs.value = jobs.value.map((job) =>
+        job.id === id ? response.data! : job,
+      )
+      notice.value = 'Animation look and output target saved to this project.'
+      return true
+    } finally {
+      busy.value = false
+    }
+  }
+
   return {
     jobs,
     selected,
     selectedId,
     busy,
+    sourceBusy,
     error,
     notice,
     previewUrl,
     refresh,
     stage,
+    saveSettings,
+    loadSourcePreview,
     preview,
     clearPreview,
   }

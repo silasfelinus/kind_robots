@@ -12,7 +12,7 @@ is not verified against the file until the worker uses ffprobe.**
 State **STAGED** is deliberate: **this PR does not yet implement motion-conditioned
 rendering, audio assembly, automated worker execution or notifications**. Do not
 call a staged job queued/running/done, set nonzero progress, or charge mana.
-No browser tab must remain open for storage to persist. A future worker owns
+The saved source can be reopened from the same admin workspace through an authenticated\nprivate streaming route (never a public URL); staged style and quality can be updated\nwithout re-uploading the video. The three editor panes remain visible together\nat desktop widths and switch independently on narrow screens.\nNo browser tab must remain open for storage to persist. A future worker owns
 status transitions, media probing, resumability and reassembly.
 
 ## Worker acceptance contract

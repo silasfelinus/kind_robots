@@ -2,13 +2,18 @@
 <template>
   <div class="relative inline-flex shrink-0">
     <button
-      class="kr-icon-9 kr-btn-ghost-outline flex min-h-9 min-w-9 shrink-0 items-center justify-center p-0 sm:h-full sm:w-full sm:min-w-0"
+      :class="
+        buttonLabel
+          ? 'btn btn-outline btn-xs shrink-0 gap-1.5 rounded-xl'
+          : 'kr-icon-9 kr-btn-ghost-outline flex min-h-9 min-w-9 shrink-0 items-center justify-center p-0 sm:h-full sm:w-full sm:min-w-0'
+      "
       type="button"
-      title="Server settings"
-      aria-label="Server settings"
+      :title="buttonLabel || 'Server settings'"
+      :aria-label="buttonLabel || 'Server settings'"
       @click="openSelector"
     >
-      <Icon name="kind-icon:server" class="kr-icon-6 shrink-0" />
+      <Icon name="kind-icon:server" :class="buttonLabel ? 'size-3.5' : 'kr-icon-6 shrink-0'" />
+      <span v-if="buttonLabel">{{ buttonLabel }}</span>
     </button>
 
     <dialog ref="selectorDialog" class="modal modal-bottom sm:modal-middle">
@@ -450,6 +455,8 @@
 import { computed, onMounted, reactive, ref } from 'vue'
 import { useServerStore } from '@/stores/serverStore'
 import type { Server } from '~/prisma/generated/prisma/client'
+
+defineProps<{ buttonLabel?: string }>()
 
 type ProviderType = 'OPENAI' | 'ANTHROPIC'
 type LocalServerType = 'A1111' | 'COMFY' | 'OLLAMA'

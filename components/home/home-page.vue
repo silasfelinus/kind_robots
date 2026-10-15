@@ -94,17 +94,13 @@
     "
   >
     <button
-      v-if="isAdmin"
+      v-if="!showDirectory"
       type="button"
       class="absolute right-2 top-2 z-30 rounded-full border border-base-300 bg-base-100/95 px-3 py-1.5 text-xs font-bold text-base-content shadow-md transition hover:border-primary hover:text-primary focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary"
-      :aria-label="
-        showDirectory
-          ? 'Open administrator dashboard'
-          : 'Return to public homepage'
-      "
-      @click="homeMode = showDirectory ? 'dashboard' : 'directory'"
+      aria-label="Return to public homepage"
+      @click="returnToDirectory"
     >
-      {{ showDirectory ? 'Admin dashboard →' : '← Explore Kind Robots' }}
+      ← Explore Kind Robots
     </button>
     <template v-if="!showDirectory">
       <div v-if="showcaseStore.errorMessage" class="kr-note kr-note-warning">
@@ -462,12 +458,14 @@
       :showcase="showcaseStore.showcase"
       :loaded="showcaseStore.hasLoaded"
       :admin="isAdmin"
+      @open-dashboard="homeMode = 'dashboard'"
     />
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 import { useConductorStore } from '@/stores/conductorStore'
 import { useHomeShowcaseStore } from '@/stores/homeShowcaseStore'
 import { useUserStore } from '@/stores/userStore'
@@ -516,10 +514,28 @@ const userStore = useUserStore()
  * honest thing.
  */
 const isAdmin = computed(() => userStore.isAdmin)
+const route = useRoute()
+const router = useRouter()
 const homeMode = ref<'directory' | 'dashboard' | null>(null)
 const showDirectory = computed(
-  () => !isAdmin.value || homeMode.value !== 'dashboard',
+  () =>
+    homeMode.value === 'directory' ||
+    (homeMode.value !== 'dashboard' && route.query.view !== 'dashboard'),
 )
+
+watch(
+  () => route.query.view,
+  () => {
+    homeMode.value = null
+  },
+)
+
+function returnToDirectory(): void {
+  homeMode.value = 'directory'
+  if (route.query.view === 'dashboard') {
+    void router.push('/')
+  }
+}
 
 const visiblePanes = computed(() =>
   RIGHT_PANES.filter((pane) => pane.key !== 'attention' || isAdmin.value),

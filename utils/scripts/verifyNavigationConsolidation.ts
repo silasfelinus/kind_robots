@@ -401,16 +401,35 @@ assert.ok(pickerSource.includes('channelContentStore.navigationChannels'))
 assert.ok(siteDirectorySource.includes('channelContentStore.navigationChannels'))
 assert.ok(pickerSource.replace(/\s+/g, ' ').includes("activeChannel.channelKey === 'home' ? 'Explore'"))
 assert.ok(
-  homePageSource.includes("homeMode = showDirectory ? 'dashboard' : 'directory'"),
-  'admins must get a direct gallery/dashboard toggle',
+  homePageSource.includes("route.query.view !== 'dashboard'"),
+  'Daily Dream visitors must be able to access the original dashboard by direct link',
 )
 assert.ok(
-  homePageSource.includes("!isAdmin.value || homeMode.value !== 'dashboard'"),
-  'public gallery must be the default even for admins and non-admins must not see the dashboard',
+  homePageSource.includes("@open-dashboard=\"homeMode = 'dashboard'\""),
+  'admins must retain a way to open their dashboard from the compact homepage',
 )
 assert.ok(
-  homePageSource.includes("'Admin dashboard →'"),
-  'the administrator dashboard must be accessible from a small gallery corner shortcut',
+  visitorDirectorySource.includes('Admin dashboard →'),
+  'the admin dashboard shortcut must appear beside the gallery header',
+)
+assert.doesNotMatch(
+  visitorDirectorySource,
+  /aria-label="Welcome to Kind Robots"/,
+  'the duplicate welcome banner must not consume the mobile viewport',
+)
+assert.doesNotMatch(
+  visitorDirectorySource,
+  /Enter the Arcade/,
+  'Arcade already leads the featured gallery and needs no hero button',
+)
+assert.doesNotMatch(
+  visitorDirectorySource,
+  /feature\.related/,
+  'Zuzu world hub replaces the extra five individual game links on its tile',
+)
+assert.ok(
+  visitorDirectorySource.includes("route: '/?view=dashboard'"),
+  'Daily Dreams must link to the original dashboard, not the dreams object gallery',
 )
 assert.ok(homePageSource.includes('<home-visitor-directory v-else'))
 assert.ok(visitorDirectorySource.includes('showcaseHref(card)'))
@@ -421,16 +440,11 @@ assert.ok(homePageSource.includes('flex h-full min-h-0 flex-col gap-2 overflow-h
 for (const route of [
   '/play/arcade',
   '/play/shifting-desks',
-  '/play/zuzu-gamebook',
-  '/play/zuzu-showdown',
-  '/play/zuzu-shifting-lands',
-  '/play/zuzu-ghost-trail',
-  '/play/zuzu-pinball',
   '/storybook',
   '/art',
   '/play/aquarium',
   '/play/memory',
-  '/dreams',
+  '/?view=dashboard',
   '/play/music-video',
   '/play/mandarin',
   '/play/zuzu',
@@ -456,11 +470,32 @@ for (const internal of [
 }
 assert.ok(visitorDirectorySource.includes("title: 'Kind Robots Pinball'"))
 assert.ok(visitorDirectorySource.includes("title: 'The World of Zuzu'"))
+const zuzuHubSource = source('pages/play/zuzu.vue')
+for (const route of [
+  '/play/zuzu-gamebook',
+  '/play/zuzu-showdown',
+  '/play/zuzu-shifting-lands',
+  '/play/zuzu-ghost-trail',
+  '/play/zuzu-pinball',
+]) {
+  assert.ok(
+    zuzuHubSource.includes("route: '" + route + "'"),
+    'individual Zuzu games belong in the world hub, not homepage chips',
+  )
+}
 assert.equal(
   visitorDirectorySource.includes("title: 'Rebel Button'"),
   false,
   'Rebel Button may stay in Projects but must not occupy homepage highlights',
 )
+const storybookTableSource = source('components/storybook/storybook-table.vue')
+const serverSelectorSource = source('components/navigation/server-selector.vue')
+assert.ok(storybookTableSource.includes('button-label="Add OpenAI / Claude key"'))
+assert.ok(storybookTableSource.includes('<server-selector'))
+assert.ok(storybookTableSource.includes('Story narration currently requires your own'))
+assert.ok(serverSelectorSource.includes("buttonLabel || 'Server settings'"))
+assert.ok(serverSelectorSource.includes('saveOpenAi'))
+assert.ok(serverSelectorSource.includes('saveAnthropic'))
 assert.ok(visitorDirectorySource.includes('const updates = ['))
 assert.ok(visitorDirectorySource.includes('Development notes #'))
 assert.ok(visitorDirectorySource.includes('kr-panes'))

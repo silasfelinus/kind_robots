@@ -49,7 +49,8 @@ assert.ok(ghostGap(3) < ghostGap(1))
 assert.ok(spriteCount(99) <= 8 && spriteSpeed(99) <= 1 && ghostGap(99) >= 300)
 assert.equal(duneFor(1), 0)
 assert.equal(duneFor(DUNES.length + 1), 0)
-assert.equal(new Set([1, 2, 3].map(duneFor)).size, 3)
+assert.equal(new Set([1, 2, 3, 4, 5].map(duneFor)).size, DUNES.length)
+assert.equal(DUNES.length, 5)
 
 // Deeper pops pay more; a multi-crush pays more per sprite.
 assert.ok(popPoints(16) > popPoints(4))

@@ -28,6 +28,13 @@ export type VideoRestyleJob = {
   status: RestyleStatus
   stage: string
   progress: number
+  pilot?: {
+    startSec: number
+    durationSec: number
+    completedSegments: number
+    totalSegments: number
+    renderModel: string
+  }
   createdAt: string
   updatedAt: string
   segments: RestyleSegment[]
@@ -224,6 +231,52 @@ export async function updateRestyleSettings(
       upscaleAfterAssembly: quality === '1080p',
       stylePrompt: style.prompt,
     },
+  }
+  const target = path.join(root(userId), id, 'job.json')
+  const temporary = `${target}.${randomUUID()}.tmp`
+  await writeFile(temporary, JSON.stringify(updated, null, 2), {
+    flag: 'wx',
+    mode: 0o600,
+  })
+  await rename(temporary, target)
+  return updated
+}
+
+export async function queueRestylePilot(
+  userId: number,
+  id: string,
+): Promise<VideoRestyleJob> {
+  const job = await loadRestyleJob(userId, id)
+  if (!['STAGED', 'PILOT_FAILED', 'PILOT_BLOCKED'].includes(job.status)) {
+    throw createError({
+      statusCode: 409,
+      message: 'Pilot is already queued or complete.',
+    })
+  }
+  if (job.style !== 'illustrious') {
+    throw createError({
+      statusCode: 400,
+      message: 'The first motion-preserving pilot must use Illustrious cel.',
+    })
+  }
+  const startSec = job.sourceDurationSec >= 182 ? 158 : 0
+  const durationSec = Math.min(24, job.sourceDurationSec - startSec)
+  const updated: VideoRestyleJob = {
+    ...job,
+    status: 'PILOT_QUEUED',
+    stage:
+      '24-second motion-conditioned pilot queued for the external GPU worker',
+    progress: 0,
+    error: null,
+    resultFile: null,
+    pilot: {
+      startSec,
+      durationSec,
+      completedSegments: 0,
+      totalSegments: Math.ceil(Math.max(0, durationSec * 16 - 65) / 57) + 1,
+      renderModel: 'wan2.1_vace_1.3B_fp16.safetensors',
+    },
+    updatedAt: new Date().toISOString(),
   }
   const target = path.join(root(userId), id, 'job.json')
   const temporary = `${target}.${randomUUID()}.tmp`

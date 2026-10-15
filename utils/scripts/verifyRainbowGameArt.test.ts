@@ -3,11 +3,14 @@ import { existsSync, readFileSync, statSync } from 'node:fs'
 import {
   RAINBOW_COMMS_SPEAKERS,
   RAINBOW_ENEMY_SPRITES,
+  RAINBOW_PICKUP_SPRITES,
   RAINBOW_SHIP_SPRITES,
   drawRainbowCommsPortrait,
   drawRainbowEnemySprite,
+  drawRainbowPickupSprite,
   drawRainbowShipSprite,
   rainbowEnemySprite,
+  rainbowPickupSprite,
   rainbowCommsKey,
   rainbowCommsPortrait,
   rainbowShipSprite,
@@ -99,6 +102,30 @@ assert.match(
   'enemies keep their primitive body until the sprite loads',
 )
 
+// Pickups: the engine's Pickup kind union, each with a committed sprite.
+const pickupUnion =
+  /type Pickup = \{[^}]*kind: ([^}\n]+)/.exec(engine)?.[1] ?? ''
+assert.deepEqual(
+  [...pickupUnion.matchAll(/'(\w+)'/g)].map((m) => m[1]!).sort(),
+  [...RAINBOW_PICKUP_SPRITES].sort(),
+  'every pickup kind has a sprite',
+)
+for (const kind of RAINBOW_PICKUP_SPRITES) {
+  const src = rainbowPickupSprite(kind)!
+  assert.ok(existsSync(publicFile(src)), `${kind} pickup is committed`)
+  assert.ok(
+    statSync(publicFile(src)).size < 16_000,
+    `${kind} pickup stays small`,
+  )
+}
+assert.equal(rainbowPickupSprite('extra-life'), null)
+assert.equal(drawRainbowPickupSprite(g, 'power', 0, 0), false)
+assert.match(
+  engine,
+  /if \(drawRainbowPickupSprite\(g, pickup\.kind, pickup\.x, pickup\.y\)\)\s+continue/,
+  'pickups keep the lettered circle until the sprite loads',
+)
+
 console.log(
-  `rainbow game art: ok (${painted}/4 painted ships, ${RAINBOW_ENEMY_SPRITES.length} enemies)`,
+  `rainbow game art: ok (${painted}/4 painted ships, ${RAINBOW_ENEMY_SPRITES.length} enemies, ${RAINBOW_PICKUP_SPRITES.length} pickups)`,
 )

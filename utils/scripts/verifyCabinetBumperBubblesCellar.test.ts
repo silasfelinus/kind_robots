@@ -102,13 +102,16 @@ const stateOf = (x: { state: string }): string => x.state
 function game(
   options: { seed?: number; resume?: unknown; demo?: boolean } = {},
 ): Inner {
-  return create({
+  const g = create({
     rng: mulberry32(options.seed ?? 1),
     sound: quiet,
     demo: options.demo ?? false,
     hiScore: 0,
     resume: options.resume,
-  }) as unknown as Inner
+  }) as unknown as Inner & { menu: unknown }
+  // The mode menu opens a fresh game; these tests start on the ground floor.
+  g.menu = null
+  return g
 }
 /** Floor n in play, its grumps (and any boss) cleared away, the robot safe. */
 function staged(n: number, seed = 1): Inner {

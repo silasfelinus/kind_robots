@@ -138,6 +138,28 @@ import {
 } from '../bumperBubbles/slice4Art'
 import { HURRY_MUSIC, MUSIC } from '../bumperBubbles/music'
 import {
+  MENU,
+  PARTY_BONUS,
+  PARTY_HOLD,
+  PARTY_LAST,
+  clock,
+  emptyStars,
+  fizzClock,
+  partyFloor,
+  readBest,
+  readStars,
+  renderMenu,
+  renderResult,
+  selectableFloors,
+  starsAt,
+  starsEarned,
+  trialMedal,
+  trialPar,
+  trialWings,
+  withStars,
+} from '../bumperBubbles/modes'
+import type { BestTimes, ModeId } from '../bumperBubbles/modes'
+import {
   FLOOR_Y,
   H,
   JUMP_V,
@@ -333,6 +355,10 @@ export type BumperSave = {
   letters: string
   /** Recipe cards found, by their pantry's floor. */
   cards?: number[]
+  /** A star digit (0-3) for each of the hundred floors. */
+  stars?: string
+  /** Best Time Trial ticks by wing number. */
+  best?: BestTimes
 }
 
 /** A stored save, checked against this build; null when unusable. */
@@ -342,7 +368,7 @@ export function readBumperSave(raw: unknown): BumperSave | null {
   if (r.v !== 1) return null
   const int = (v: unknown, lo: number, hi: number) =>
     typeof v === 'number' && Number.isInteger(v) && v >= lo && v <= hi
-  if (!int(r.wing, 2, WINGS.length) || !int(r.score, 0, 249_999_999))
+  if (!int(r.wing, 1, WINGS.length) || !int(r.score, 0, 249_999_999))
     return null
   const letters = typeof r.letters === 'string' ? r.letters : ''
   if (
@@ -362,12 +388,17 @@ export function readBumperSave(raw: unknown): BumperSave | null {
     )
   )
     return null
+  const stars = readStars(r.stars)
+  const best = readBest(r.best)
+  if (stars === null || best === null) return null
   return {
     v: 1,
     wing: r.wing as number,
     score: r.score as number,
     letters,
     cards: cards as number[],
+    stars,
+    best,
   }
 }
 
@@ -440,6 +471,22 @@ class BumperBubbles implements ArcadeGameInstance {
   private floaters: Floater[] = []
   private banner: { text: string; sub?: string; ticks: number } | null = null
   private offer: BumperSave | null = null
+  /** The mode being played, and the menu that picks it (null once begun). */
+  private mode: ModeId = 'climb'
+  private menu: {
+    cursor: number
+    floor: number
+    wing: number
+    board: boolean
+    ticks: number
+  } | null = null
+  private result: { title: string; lines: string[]; ticks: number } | null =
+    null
+  private stars = emptyStars()
+  private best: BestTimes = {}
+  private lostThisFloor = false
+  private trialWing = 1
+  private trialTicks = 0
   private saveData: BumperSave | null = null
   private overTimer = 0
   private pilotMemo = {
@@ -484,9 +531,12 @@ class BumperBubbles implements ArcadeGameInstance {
     const stored = this.demo ? null : readBumperSave(options.resume)
     this.startFloor(1)
     if (stored) {
-      this.offer = stored
+      this.stars = stored.stars ?? emptyStars()
+      this.best = { ...stored.best }
       this.saveData = stored
     }
+    if (stored && stored.wing >= 2) this.offer = stored
+    else if (!this.demo) this.openMenu()
   }
 
   get save(): BumperSave | null | undefined {
@@ -494,11 +544,11 @@ class BumperBubbles implements ArcadeGameInstance {
   }
 
   get music(): MusicLoop | null {
-    if (this.over || this.offer) return null
+    if (this.over || this.offer || this.menu) return null
     if (this.phase === 'ending') return MUSIC.carbonator!
     if (this.boss && this.boss.state !== 'done') return MUSIC.boss!
     const id = this.plan.wing.music
-    return this.roundTicks >= HURRY_WARN &&
+    return this.roundTicks >= this.hurryClock()[0] &&
       this.phase === 'play' &&
       !this.pantry
       ? HURRY_MUSIC[id]!
@@ -512,6 +562,8 @@ class BumperBubbles implements ArcadeGameInstance {
   // --- the climb ---------------------------------------------------------------------------------
 
   private startFloor(n: number) {
+    this.menu = null
+    this.lostThisFloor = false
     this.level = n
     this.plan = floorPlan(n)
     // A floor's own parse: its wind-up doors open and shut for this game alone.
@@ -568,9 +620,17 @@ class BumperBubbles implements ArcadeGameInstance {
       this.wingNow = wing.n
       this.lostThisWing = false
       // A save at the start of every wing (past the top of the built tower, the replayed
-      // floors don't overwrite it).
-      if (wing.n > 1 && n <= BUILT_FLOORS) this.writeSave(wing.n)
+      // floors don't overwrite it; nor do the side modes, nor a Floor Select climb that starts
+      // below the wing already saved).
+      if (
+        wing.n > 1 &&
+        n <= BUILT_FLOORS &&
+        (this.mode === 'climb' ||
+          (this.mode === 'select' && wing.n >= (this.saveData?.wing ?? 0)))
+      )
+        this.writeSave(wing.n)
     }
+    if (this.mode === 'party') this.bubbleEveryGrump()
     this.setPhase(this.cardDue ? 'card' : 'ready')
   }
 
@@ -580,8 +640,9 @@ class BumperBubbles implements ArcadeGameInstance {
     const everyCard = PANTRY_FLOORS.every((f) => this.cards.has(f))
     this.ending = together >= 2 ? (everyCard ? 'true' : 'coop') : 'solo'
     this.addScore(ENDING_BONUS[this.ending])
-    // The climb is won: there is no wing left to continue from.
+    // The climb is won: there is no wing left to continue from, but the stars stay.
     this.saveData = null
+    this.keepRecords()
     this.banner = null
     this.hazards = []
     this.grumps = []
@@ -604,6 +665,178 @@ class BumperBubbles implements ArcadeGameInstance {
     if (skip || this.phaseTicks >= ENDING_TICKS[kind]) this.over = true
   }
 
+  // --- modes, menu and stars ---------------------------------------------------------------------
+
+  private hurryClock(): [number, number] {
+    return this.mode === 'fizz'
+      ? fizzClock(this.level)
+      : [HURRY_WARN, HURRY_TICKS]
+  }
+
+  private openMenu() {
+    this.menu = { cursor: 0, floor: 1, wing: 1, board: false, ticks: 0 }
+    this.banner = null
+  }
+
+  private selectMax() {
+    return selectableFloors(this.stars, this.saveData?.wing ?? 1)
+  }
+
+  private trialMax() {
+    return trialWings(this.stars, this.saveData?.wing ?? 1)
+  }
+
+  private updateMenu(input: InputFrame) {
+    const m = this.menu!
+    m.ticks++
+    if (m.board) {
+      if (
+        m.ticks > 10 &&
+        (input.pressed.a || input.pressed.b || input.pressed.start)
+      )
+        m.board = false
+      return
+    }
+    if (input.pressed.up) m.cursor = (m.cursor + MENU.length - 1) % MENU.length
+    if (input.pressed.down) m.cursor = (m.cursor + 1) % MENU.length
+    if (input.pressed.up || input.pressed.down) this.sound.play('blip')
+    const id = MENU[m.cursor]!.id
+    if (id === 'select') {
+      const max = this.selectMax()
+      if (input.pressed.left) m.floor = m.floor <= 1 ? max : m.floor - 1
+      if (input.pressed.right) m.floor = m.floor >= max ? 1 : m.floor + 1
+    }
+    if (id === 'trial') {
+      const max = this.trialMax()
+      if (input.pressed.left) m.wing = m.wing <= 1 ? max : m.wing - 1
+      if (input.pressed.right) m.wing = m.wing >= max ? 1 : m.wing + 1
+    }
+    if (m.ticks < 8 || (!input.pressed.a && !input.pressed.start)) return
+    if (id === 'stars') {
+      m.board = true
+      m.ticks = 0
+      return
+    }
+    this.begin(id, id === 'select' ? m.floor : m.wing)
+  }
+
+  /** Start a mode from the menu (`arg`: the floor for Floor Select, the wing for Time Trial). */
+  private begin(
+    id: Exclude<(typeof MENU)[number]['id'], 'stars'>,
+    arg: number,
+  ) {
+    this.menu = null
+    this.mode = id
+    this.sound.play('start')
+    if (id === 'climb') {
+      this.startFloor(1)
+    } else if (id === 'select') {
+      this.startFloor(Math.min(arg, this.selectMax()))
+    } else if (id === 'party') {
+      this.startFloor(partyFloor(1))
+    } else if (id === 'fizz') {
+      this.startFloor(1)
+    } else {
+      this.trialWing = Math.min(arg, this.trialMax())
+      this.trialTicks = 0
+      this.startFloor(wingFirstFloor(this.trialWing))
+    }
+  }
+
+  /** Every grump of a Pop Party floor starts already held in a bubble. */
+  private bubbleEveryGrump() {
+    for (const g of this.grumps) {
+      const c = grumpCentre(g)
+      this.bubbles.push({
+        x: c.x,
+        y: c.y,
+        vx: 0,
+        age: 0,
+        flight: 0,
+        held: g,
+        holdLeft: PARTY_HOLD,
+        flavour: 'classic',
+        stuck: 0,
+        letter: null,
+        special: null,
+        vy: 0,
+        owner: 0,
+      })
+    }
+    this.grumps = []
+  }
+
+  /** One to three stars for the floor just cleared, kept for the climb's modes. */
+  private earnStars() {
+    if (this.mode === 'party' || this.mode === 'fizz') return
+    const n = starsEarned({
+      lost: this.lostThisFloor,
+      ticks: this.roundTicks,
+    })
+    if (n > starsAt(this.stars, this.level)) {
+      this.stars = withStars(this.stars, this.level, n)
+      this.keepRecords()
+    }
+    // The stars take the banner's second line unless a door is waiting there.
+    if (this.banner && !this.door)
+      this.banner.sub = `${'*'.repeat(n)}${'-'.repeat(3 - n)}`
+  }
+
+  /** The clear is shown: on to the next floor, or the end of the mode. */
+  private afterClear() {
+    if (this.mode === 'party') {
+      if (this.level >= PARTY_LAST) this.finishParty()
+      else this.climb(this.level + FLOORS_PER_WING)
+      return
+    }
+    if (this.mode === 'trial') {
+      if (this.level >= wingFirstFloor(this.trialWing) + FLOORS_PER_WING - 1)
+        this.finishTrial()
+      else this.climb()
+      return
+    }
+    if (this.mode === 'fizz') {
+      this.climb()
+      return
+    }
+    if (this.level >= TOWER_TOP) this.beginEnding()
+    else this.climb()
+  }
+
+  private finishParty() {
+    this.addScore(PARTY_BONUS)
+    this.result = {
+      title: 'PARTY OVER!',
+      lines: [`SCORE ${this.score}`, 'ONE FLOOR FROM EVERY WING', 'A: DONE'],
+      ticks: 0,
+    }
+    this.sound.play('extra')
+  }
+
+  private finishTrial() {
+    const wing = this.trialWing
+    const ticks = this.trialTicks
+    const medal = trialMedal(ticks, wing)
+    const old = this.best[String(wing)]
+    const record = old === undefined || ticks < old
+    if (record) {
+      this.best[String(wing)] = Math.max(1, Math.round(ticks))
+      this.keepRecords()
+    }
+    this.addScore(Math.max(0, trialPar(wing) - ticks) * 2)
+    this.result = {
+      title: `WING ${wing} TRIAL`,
+      lines: [
+        `TIME ${clock(ticks)}`,
+        `${['', 'BRONZE', 'SILVER', 'GOLD'][medal]} MEDAL  PAR ${clock(trialPar(wing))}`,
+        record ? 'NEW BEST!' : `BEST ${clock(old!)}`,
+        'A: DONE',
+      ],
+      ticks: 0,
+    }
+    this.sound.play('extra')
+  }
+
   private writeSave(wing: number) {
     if (this.demo) return
     this.saveData = {
@@ -612,6 +845,24 @@ class BumperBubbles implements ArcadeGameInstance {
       score: Math.min(249_999_999, this.score),
       letters: [...FRIEND].filter((ch) => this.letters.has(ch)).join(''),
       cards: [...this.cards].sort((a, b) => a - b),
+      stars: this.stars,
+      best: { ...this.best },
+    }
+  }
+
+  /** Stars and best times belong to the pilot: they ride along even when no climb is saved. */
+  private keepRecords() {
+    if (this.demo) return
+    this.saveData = {
+      ...(this.saveData ?? {
+        v: 1,
+        wing: 1,
+        score: 0,
+        letters: '',
+        cards: [],
+      }),
+      stars: this.stars,
+      best: { ...this.best },
     }
   }
 
@@ -666,9 +917,21 @@ class BumperBubbles implements ArcadeGameInstance {
         this.offer = null
         this.resumeFrom(s)
       } else if (input.pressed.b) {
-        // A new climb from the ground floor; the save stays until the next wing.
+        // Pick a way to play instead; the save stays until the next wing.
         this.offer = null
+        this.openMenu()
       }
+      return
+    }
+    if (this.menu) {
+      this.updateMenu(input)
+      return
+    }
+    if (this.result) {
+      const r = this.result
+      if (++r.ticks > 120 && (input.pressed.a || input.pressed.start))
+        this.over = true
+      else if (r.ticks > 60 * 14) this.over = true
       return
     }
     const frames = this.robots.map((r) =>
@@ -714,8 +977,7 @@ class BumperBubbles implements ArcadeGameInstance {
             this.enterPantry()
           else if (this.phaseTicks >= DOOR_TICKS) this.climb()
         } else if (this.phaseTicks >= CLEAR_TICKS) {
-          if (this.level >= TOWER_TOP) this.beginEnding()
-          else this.climb()
+          this.afterClear()
         }
         return
       case 'ending':
@@ -728,13 +990,15 @@ class BumperBubbles implements ArcadeGameInstance {
 
   private play(frames: InputFrame[]) {
     this.roundTicks++
+    if (this.mode === 'trial') this.trialTicks++
     // A boss is pressure enough: no hurry on a boss floor (or in a pantry).
     const hurry = !this.boss && !this.pantry
-    if (hurry && this.roundTicks === HURRY_WARN) {
+    const [warnAt, fizzAt] = this.hurryClock()
+    if (hurry && this.roundTicks === warnAt) {
       this.banner = { text: 'HURRY!', ticks: 90 }
       this.sound.play('warn')
     }
-    if (hurry && this.roundTicks === HURRY_TICKS) {
+    if (hurry && this.roundTicks === fizzAt) {
       this.fizz = { x: W / 2, y: TOP + 6, t: 0, leaving: false }
       this.sound.play('warn')
     }
@@ -773,6 +1037,7 @@ class BumperBubbles implements ArcadeGameInstance {
       this.stats.speedies = speedy ? this.stats.speedies + 1 : 0
       const pantry = pantryFor(this.level)
       this.door =
+        (this.mode === 'climb' || this.mode === 'select') &&
         !!pantry &&
         !!this.floor.door &&
         !this.lostThisWing &&
@@ -787,6 +1052,7 @@ class BumperBubbles implements ArcadeGameInstance {
         ticks: CLEAR_TICKS - 20,
       }
       if (speedy) this.addScore(2000 * this.wing.n)
+      this.earnStars()
       if (this.fizz) this.fizz.leaving = true
       this.sound.play('level')
       const lead = this.robots.find((r) => this.active(r))!
@@ -1912,6 +2178,7 @@ class BumperBubbles implements ArcadeGameInstance {
     r.on = null
     this.lives = Math.max(0, this.lives - 1)
     this.lostThisWing = true
+    this.lostThisFloor = true
     this.burst(r.x, r.y - 7, 14, RAMPS.teal[3])
     this.sound.play('die')
     this.banner = {
@@ -2422,9 +2689,25 @@ class BumperBubbles implements ArcadeGameInstance {
     }
     vignette(g, W, H, 0.28)
     this.renderHud(g, theme.hud)
-    if (this.phase === 'card' && !this.offer) this.renderCard(g)
+    if (this.phase === 'card' && !this.offer && !this.menu) this.renderCard(g)
     if (this.phase === 'ending') this.renderEnding(g)
     if (this.offer) this.renderOffer(g, this.offer)
+    if (this.result) renderResult(g, this.result)
+    if (this.menu)
+      renderMenu(
+        g,
+        {
+          cursor: this.menu.cursor,
+          floor: this.menu.floor,
+          floors: this.selectMax(),
+          wing: this.menu.wing,
+          wings: this.trialMax(),
+          stars: this.stars,
+          best: this.best,
+          board: this.menu.board,
+        },
+        this.tick,
+      )
   }
 
   /** Pools of light on a dark floor: the robots' glowing antennae (a Lamp widens them) and anything that crackles. */
@@ -3131,16 +3414,18 @@ function bumperGuide(): ArcadeGuidePage[] {
         'THE CLIMB SAVES AT EVERY WING.',
       ],
     },
-    ...[0, 1, 2].map((page): ArcadeGuidePage => ({
-      title: `THE GRUMPS ${page + 1}/3`,
-      scale: 1,
-      lines: (Object.keys(GRUMPS) as GrumpKind[])
-        .slice(page * 8, page * 8 + 8)
-        .flatMap((k) => [
-          `${GRUMPS[k].name}${GRUMPS[k].tell ? `: ${GRUMPS[k].tell}` : ''}`,
-          `  ${GRUMPS[k].answer}`,
-        ]),
-    })),
+    ...[0, 1, 2].map(
+      (page): ArcadeGuidePage => ({
+        title: `THE GRUMPS ${page + 1}/3`,
+        scale: 1,
+        lines: (Object.keys(GRUMPS) as GrumpKind[])
+          .slice(page * 8, page * 8 + 8)
+          .flatMap((k) => [
+            `${GRUMPS[k].name}${GRUMPS[k].tell ? `: ${GRUMPS[k].tell}` : ''}`,
+            `  ${GRUMPS[k].answer}`,
+          ]),
+      }),
+    ),
     {
       title: 'THE TOWER ENDS AT 100',
       scale: 1,

@@ -683,7 +683,7 @@ export const ARCADE_GAMES: ArcadeGameMeta[] = [
     title: 'Bumper Bubbles',
     riffsOn: 'Bubble Bobble',
     blurb:
-      'A little robot hops between floating platforms blowing bubbles. Trap a gremlin in a bubble, then bump it to pop it for points and a falling gem. Wait too long and the gremlin bursts free, angrier and faster. Quick pops build a chain bonus, and every round brings more gremlins.',
+      'Climb the hundred floors of Fizzwick Tower, trapping grumps in bubbles and popping them for treats, up to a final boss, five recipe cards and three endings. Play alone or seat up to four robots. Earn up to three stars on every floor, then try Floor Select, Pop Party, Endless Fizz and the Time Trial.',
     howTo: [
       'LEFT/RIGHT  WALK',
       'UP OR B  HOP',
@@ -691,9 +691,12 @@ export const ARCADE_GAMES: ArcadeGameMeta[] = [
       'TRAP GREMLINS',
       'BUMP BUBBLES TO POP',
       'POP FAST FOR CHAINS',
+      'MENU: FLOORS, PARTY, TRIAL',
+      'UP TO FOUR ROBOTS',
     ],
     width: 256,
     height: 240,
+    maxPlayers: 4,
     maxPlausibleScore: 20_000_000,
     titleArt: '/images/arcade/games/bumper-bubbles-title.webp',
     accent: '#38bdf8',

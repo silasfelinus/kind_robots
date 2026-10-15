@@ -97,14 +97,17 @@ function game(
     demo?: boolean
   } = {},
 ): Inner {
-  return create({
+  const g = create({
     rng: mulberry32(options.seed ?? 1),
     sound: quiet,
     demo: options.demo ?? false,
     hiScore: 0,
     players: options.players,
     resume: options.resume,
-  }) as unknown as Inner
+  }) as unknown as Inner & { menu: unknown }
+  // The mode menu opens a fresh game; these tests start on the ground floor.
+  g.menu = null
+  return g
 }
 /** A floor in play with its grumps cleared away, so one rule can be staged. */
 function staged(n = 1, seed = 1): Inner {
@@ -701,14 +704,16 @@ function anchor(g: Inner) {
     score: 81_234,
     letters: '',
     cards: [],
+    stars: '3'.padEnd(100, '0'),
+    best: {},
   })
   assert.equal(g.phase, 'card')
   // Saves are validated on the way back in.
   assert.equal(readBumperSave(null), null)
   assert.equal(
-    readBumperSave({ v: 1, wing: 1, score: 0, letters: '' }),
+    readBumperSave({ v: 1, wing: 0, score: 0, letters: '' }),
     null,
-    'wing 1 needs no save',
+    'there is no wing 0',
   )
   assert.equal(readBumperSave({ v: 1, wing: 99, score: 0, letters: '' }), null)
   assert.equal(readBumperSave({ v: 1, wing: 2, score: -1, letters: '' }), null)
@@ -720,6 +725,8 @@ function anchor(g: Inner) {
     score: 5,
     letters: 'RF',
     cards: [],
+    stars: '0'.repeat(100),
+    best: {},
   })
   // The demo never saves.
   assert.equal(game({ demo: true }).save, undefined)
@@ -743,6 +750,8 @@ function anchor(g: Inner) {
     score: 90_000,
     letters: 'FR',
     cards: [],
+    stars: '0'.repeat(100),
+    best: {},
   })
   // A resumed game offers to continue, at half score, from the wing's first floor.
   const back = game({ resume: kept })

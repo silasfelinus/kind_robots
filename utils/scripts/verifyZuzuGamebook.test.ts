@@ -181,7 +181,11 @@ assert.equal(
 )
 const looter = { ...startRun(123), sceneId: 'a2-looter' }
 const passingBy = takeChoice(looter, 'walk-on')
-assert.equal(passingBy.sceneId, 'survivors', 'ignoring the raccoon advances the story')
+assert.equal(
+  passingBy.sceneId,
+  'survivors',
+  'ignoring the raccoon advances the story',
+)
 assert.ok(!passingBy.flags.includes('met:looter'))
 assert.ok(!passingBy.flags.includes('debt:looter'))
 assert.ok(

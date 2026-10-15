@@ -135,7 +135,8 @@ function drawFlock(seconds: number): void {
         y += (dy / d) * push
       }
     }
-    const flap = 0.5 + 0.5 * Math.sin(TWO_PI * FLAP_CYCLES * phase + crane * 0.5)
+    const flap =
+      0.5 + 0.5 * Math.sin(TWO_PI * FLAP_CYCLES * phase + crane * 0.5)
     const shade = 8 + Math.round(40 * hash(crane + 31))
     context.save()
     context.translate(x, y)

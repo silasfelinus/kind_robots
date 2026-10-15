@@ -517,9 +517,10 @@ const isAdmin = computed(() => userStore.isAdmin)
 const route = useRoute()
 const router = useRouter()
 const homeMode = ref<'directory' | 'dashboard' | null>(null)
-const showDirectory = computed(() =>
-  homeMode.value === 'directory' ||
-  (homeMode.value !== 'dashboard' && route.query.view !== 'dashboard'),
+const showDirectory = computed(
+  () =>
+    homeMode.value === 'directory' ||
+    (homeMode.value !== 'dashboard' && route.query.view !== 'dashboard'),
 )
 
 watch(

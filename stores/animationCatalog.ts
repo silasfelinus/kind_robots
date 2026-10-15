@@ -816,6 +816,18 @@ export const ANIMATION_EFFECTS = [
     generationSafe: true,
     preferredSurface: 'fullscreen',
   },
+  {
+    id: 'origami-crane-migration',
+    label: 'Origami Crane Migration',
+    reveal: 'A flock of paper cranes crosses a paper sunset',
+    icon: 'kind-icon:sparkle',
+    tooltip:
+      'A V of folded paper cranes flaps across layered paper hills 🕊️ hover to part the flock, click to scatter it briefly',
+    color: '#e86048',
+    releasedAt: '2026-10-15T12:00:00Z',
+    generationSafe: true,
+    preferredSurface: 'fullscreen',
+  },
 ] as const satisfies readonly AnimationEffectDefinition[]
 
 export type AnimationEffectId = (typeof ANIMATION_EFFECTS)[number]['id']

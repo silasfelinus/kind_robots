@@ -36,9 +36,7 @@
               : 'border-base-300 bg-base-300/60'
           "
           :aria-label="
-            entry.label +
-            ': ' +
-            (entry.earned ? entry.message : entry.tooltip)
+            entry.label + ': ' + (entry.earned ? entry.message : entry.tooltip)
           "
         >
           <img
@@ -65,9 +63,7 @@
               :key="n"
               name="kind-icon:star"
               class="size-2.5"
-              :class="
-                n <= entry.tier ? 'text-warning' : 'text-base-content/20'
-              "
+              :class="n <= entry.tier ? 'text-warning' : 'text-base-content/20'"
             />
           </span>
         </button>

@@ -37,6 +37,7 @@ import {
   vignette,
 } from '../snes'
 import type { MusicLoop } from '../sound'
+import { emptyInput } from '../types'
 import type {
   ArcadeGameInstance,
   ArcadeGameModule,
@@ -261,6 +262,18 @@ import {
 } from '../butterflyBlaster/weather'
 import type { Weather } from '../butterflyBlaster/weather'
 
+import {
+  COOP_LIVES_PER_EXTRA,
+  MATE_TINTS,
+  TEAM_BONUS,
+  TEAM_MULTIPLIER,
+  flyMate,
+  layMate,
+  newMates,
+  teamLoop,
+} from '../butterflyBlaster/coop'
+import type { Mate } from '../butterflyBlaster/coop'
+
 export { endlessNight, SWARM_RADIUS, SWARM_TREE }
 export type { Pest, Pool, Swarm, Hut }
 
@@ -458,6 +471,12 @@ class ButterflyBlaster implements ArcadeGameInstance {
 
   private tick = 0
   private ship = { x: W / 2, y: SKY / 2, vx: 0, vy: 0, angle: 0 }
+  /** Seats at the cabinet (1 to 4); Co-op Flight needs two. */
+  private seats = 1
+  /** Co-op Flight's other butterflies, one per extra seat. */
+  private mates: Mate[] = []
+  /** Every seated player's frame this tick, player 1 first. */
+  private frames: InputFrame[] = []
   /** The butterfly's position before the sky wraps it: the ribbon is laid here. */
   private unwrapped = { x: W / 2, y: SKY / 2 }
   private alive = true
@@ -584,6 +603,9 @@ class ButterflyBlaster implements ArcadeGameInstance {
     this.sound = options.sound
     this.demo = options.demo
     this.hiScore = options.hiScore
+    this.seats = this.demo
+      ? 1
+      : Math.max(1, Math.min(4, Math.round(options.players ?? 1)))
     const stored = this.demo ? null : readBlasterSave(options.resume)
     // Earned history belongs to the pilot, including a fresh season's step-zero save.
     if (stored) {
@@ -736,7 +758,11 @@ class ButterflyBlaster implements ArcadeGameInstance {
       this.sound.play('extra')
       return
     }
-    if (this.mode === 'longnight' || this.mode === 'classic') {
+    if (
+      this.mode === 'longnight' ||
+      this.mode === 'classic' ||
+      this.mode === 'coop'
+    ) {
       this.nextModeNight()
       return
     }
@@ -805,6 +831,7 @@ class ButterflyBlaster implements ArcadeGameInstance {
     this.unwrapped = { x: W / 2, y: SKY / 2 }
     this.ribbon.clear()
     this.invuln = Math.max(this.invuln, 90)
+    this.seatMates()
     if (this.owned.has('startNet')) this.giveNet()
     if (isRegionStart(this.steps[this.stepIndex]))
       this.card = { region: this.region, t: 0 }
@@ -896,6 +923,11 @@ class ButterflyBlaster implements ArcadeGameInstance {
       m.ticks = 0
       return
     }
+    if (id === 'coop' && this.seats < 2) {
+      // Co-op Flight wants a second butterfly in the air.
+      this.sound.play('warn')
+      return
+    }
     if (
       id === 'timeattack' &&
       !this.openRegionList().includes(THREAD_REGIONS[m.region]!)
@@ -912,7 +944,8 @@ class ButterflyBlaster implements ArcadeGameInstance {
     this.mode = id
     this.score = 0
     this.level = 0
-    this.lives = START_LIVES
+    this.mates = id === 'coop' ? newMates(this.seats) : []
+    this.lives = START_LIVES + this.mates.length * COOP_LIVES_PER_EXTRA
     this.beads = 0
     this.owned = new Set()
     this.attack = { region, night: 0, ticks: 0, done: 0 }
@@ -1230,7 +1263,8 @@ class ButterflyBlaster implements ArcadeGameInstance {
 
   // --- update ------------------------------------------------------------------------------------
 
-  update(input: InputFrame) {
+  update(input: InputFrame, players?: InputFrame[]) {
+    this.frames = players?.length ? players : [input]
     this.tick++
     this.updateEffects()
     if (this.banner && --this.banner.ticks <= 0) this.banner = null
@@ -1293,6 +1327,7 @@ class ButterflyBlaster implements ArcadeGameInstance {
     if (this.card && ++this.card.t > 150) this.card = null
     if (this.alive) this.updateShip(controls)
     else this.tryRespawn()
+    this.updateMates()
 
     this.nightTicks++
     this.attack.ticks++
@@ -1310,11 +1345,11 @@ class ButterflyBlaster implements ArcadeGameInstance {
 
     if (this.phase === 'gap') {
       if (--this.phaseTicks <= 0) this.startWave(this.wave + 1)
-    } else if (this.waveClear() && this.lives > 0) {
+    } else if (this.waveClear() && this.anyoneUp()) {
       this.endWave()
     }
 
-    if (this.lives <= 0 && !this.alive && ++this.overTimer > 90) {
+    if (this.lives <= 0 && !this.anyoneUp() && ++this.overTimer > 90) {
       this.over = true
     }
   }
@@ -2433,8 +2468,8 @@ class ButterflyBlaster implements ArcadeGameInstance {
   }
 
   /** The Rainbow Lasso closes: every mosquito inside is netted at once. */
-  private closeLoop(loop: Loop) {
-    const shift = {
+  private closeLoop(loop: Loop, via?: Point, team = false) {
+    const shift = via ?? {
       x: this.ship.x - this.unwrapped.x,
       y: this.ship.y - this.unwrapped.y,
     }
@@ -2468,13 +2503,16 @@ class ButterflyBlaster implements ArcadeGameInstance {
     this.biggestLoop = Math.max(this.biggestLoop, count)
     cx /= caught
     cy /= caught
-    const mult = lassoMultiplier(count)
-    const points = LASSO_POINTS * count * mult
-    this.addScore(points, cx, cy + 14)
+    const mult = lassoMultiplier(count) * (team ? TEAM_MULTIPLIER : 1)
+    const points = LASSO_POINTS * count * mult + (team ? TEAM_BONUS * count : 0)
+    this.addScore(points, cx, cy + 14, team ? 'TEAM LASSO' : undefined)
     this.floaters.push({
       x: cx,
       y: cy - 18,
-      text: mult > 1 ? `NETTED ${count} X${mult}` : `NETTED ${count}`,
+      text:
+        mult > 1
+          ? `${team ? 'TEAM ' : ''}NETTED ${count} X${mult}`
+          : `NETTED ${count}`,
       life: 70,
       color: RAMPS.sky[4],
       scale: count >= 7 ? 2 : 1,
@@ -2658,7 +2696,149 @@ class ButterflyBlaster implements ArcadeGameInstance {
     this.ribbon.clear()
     this.burst(this.ship.x, this.ship.y, 40, RAINBOW)
     this.sound.play('die')
-    if (this.lives <= 0) this.banner = { text: 'GAME OVER', ticks: 200 }
+    if (this.lives <= 0 && !this.mates.some((m) => m.alive))
+      this.banner = { text: 'GAME OVER', ticks: 200 }
+  }
+
+  /** Is any butterfly flying, or one still to come back? */
+  private anyoneUp(): boolean {
+    return this.lives > 0 || this.alive || this.mates.some((m) => m.alive)
+  }
+
+  // --- Co-op Flight -------------------------------------------------------------------------------
+
+  /** Put every wingmate back by the first butterfly (a night begins). */
+  private seatMates() {
+    this.mates = this.mates.length ? newMates(this.mates.length + 1) : []
+    for (const m of this.mates) m.invuln = 90
+  }
+
+  /** The wingmates fly their own frames, sparkle into the shared sky and lasso with the team. */
+  private updateMates() {
+    if (!this.mates.length || this.phase !== 'play') return
+    const flight = {
+      turn: this.sticky > 0 ? TURN * STICKY.turn : TURN,
+      thrust: THRUST,
+      grip: GRIP,
+      friction: FRICTION,
+      maxSpeed: MAX_SPEED,
+      ribbonSpeed: RIBBON_SPEED,
+    }
+    const push = this.wind.gust > 0 ? this.wind.dir * WIND.push : 0
+    for (const m of this.mates) {
+      const frame = this.frames[m.seat] ?? emptyInput()
+      if (!m.alive) {
+        this.tryRespawnMate(m)
+        continue
+      }
+      if (flyMate(m, frame.held, flight, push, this.tick)) {
+        const loop = layMate(m, this.tick)
+        if (loop)
+          this.closeLoop(loop, {
+            x: m.x - m.unwrapped.x,
+            y: m.y - m.unwrapped.y,
+          })
+      }
+      if (m.fireCooldown > 0) m.fireCooldown--
+      const wantsFire =
+        (frame.pressed.a && m.fireCooldown <= FIRE_COOLDOWN - 4) ||
+        (frame.held.a && m.fireCooldown === 0)
+      if (
+        wantsFire &&
+        this.shots.length < MAX_SHOTS * (1 + this.mates.length)
+      ) {
+        this.shots.push({
+          x: m.x + Math.sin(m.angle) * 13,
+          y: m.y - Math.cos(m.angle) * 13,
+          vx: m.vx + Math.sin(m.angle) * SHOT_SPEED,
+          vy: m.vy - Math.cos(m.angle) * SHOT_SPEED,
+          life: SHOT_LIFE,
+          hue: this.tick + m.seat * 90,
+        })
+        m.fireCooldown = frame.pressed.a ? FIRE_COOLDOWN : AUTOFIRE_COOLDOWN
+        this.sound.play('shoot')
+      }
+      if (m.invuln > 0) m.invuln--
+      this.mateStrike(m)
+    }
+    this.teamLasso()
+  }
+
+  /** Ribbons that cross between two butterflies close a loop worth double. */
+  private teamLasso() {
+    const trails = [
+      {
+        ribbon: this.ribbon,
+        shift: {
+          x: this.ship.x - this.unwrapped.x,
+          y: this.ship.y - this.unwrapped.y,
+        },
+        live: this.alive,
+      },
+      ...this.mates.map((m) => ({
+        ribbon: m.ribbon,
+        shift: { x: m.x - m.unwrapped.x, y: m.y - m.unwrapped.y },
+        live: m.alive,
+      })),
+    ]
+    for (let i = 0; i < trails.length; i++) {
+      for (let j = i + 1; j < trails.length; j++) {
+        const a = trails[i]!
+        const b = trails[j]!
+        if (!a.live || !b.live) continue
+        const loop = teamLoop(a, b)
+        if (!loop) continue
+        this.closeLoop(loop, a.shift, true)
+        a.ribbon.clear()
+        b.ribbon.clear()
+        return
+      }
+    }
+  }
+
+  private tryRespawnMate(m: Mate) {
+    if (this.lives <= 0) return
+    if (m.respawn > 0) {
+      m.respawn--
+      return
+    }
+    const at = { x: this.ship.x + 30, y: this.ship.y }
+    const clear =
+      this.swarms.every((s) => wrapDist(s, at) > SWARM_RADIUS[s.size] + 50) &&
+      this.pests.every((p) => p.kind !== 'needle' || wrapDist(p, at) > 70)
+    if (!clear) return
+    Object.assign(m, { x: at.x, y: at.y, vx: 0, vy: 0, angle: 0 })
+    wrap(m)
+    m.unwrapped = { x: m.x, y: m.y }
+    m.ribbon.clear()
+    m.alive = true
+    m.invuln = INVULN_TICKS
+  }
+
+  /** A wingmate touched something that hurts: a shared life goes, and it flutters back soon. */
+  private mateStrike(m: Mate) {
+    if (m.invuln > 0) return
+    const swarm = this.swarms.findIndex(
+      (s) => wrapDist(s, m) < SWARM_RADIUS[s.size] * HURT + SHIP_RADIUS - 2,
+    )
+    const pest = this.pests.findIndex(
+      (p) =>
+        pestHurts(p) && wrapDist(p, m) < PEST_RADIUS[p.kind] + SHIP_RADIUS - 3,
+    )
+    const cloud =
+      this.cloud !== null &&
+      wrapDist(this.cloud, m) < SHIP_RADIUS + (this.cloud.small ? 10 : 18)
+    if (swarm < 0 && pest < 0 && !cloud) return
+    if (swarm >= 0) this.hitSwarm(swarm, false)
+    else if (pest >= 0) this.hitPest(pest, false)
+    m.alive = false
+    m.respawn = RESPAWN_TICKS
+    m.ribbon.clear()
+    this.lives--
+    this.burst(m.x, m.y, 30, MATE_TINTS[m.seat % 4]!)
+    this.sound.play('die')
+    if (this.lives <= 0 && !this.alive && !this.mates.some((o) => o.alive))
+      this.banner = { text: 'GAME OVER', ticks: 200 }
   }
 
   private burst(
@@ -3060,6 +3240,14 @@ class ButterflyBlaster implements ArcadeGameInstance {
         this.loopFlash.t,
       )
     if (this.alive) renderRibbon(g, this.ribbon, this.ribbonShift(), this.tick)
+    for (const m of this.mates)
+      if (m.alive)
+        renderRibbon(
+          g,
+          m.ribbon,
+          { x: m.x - m.unwrapped.x, y: m.y - m.unwrapped.y },
+          this.tick,
+        )
     for (const d of this.kitDrops) renderKitDrop(g, d, d.kit, d.spin, this.tick)
     if (this.fairy)
       renderFairy(
@@ -3158,6 +3346,16 @@ class ButterflyBlaster implements ArcadeGameInstance {
           outline: INK,
         })
       }
+    }
+    for (const m of this.mates) {
+      if (!m.alive) continue
+      if (m.invuln > 0 && Math.floor(m.invuln / 6) % 2 === 0) continue
+      renderButterfly(g, m.x, m.y, m.angle, m.flap, MATE_TINTS[m.seat % 4])
+      drawText(g, `P${m.seat + 1}`, m.x, m.y - 24, {
+        align: 'center',
+        color: MATE_TINTS[m.seat % 4]![0]!,
+        outline: INK,
+      })
     }
     for (const bag of this.bags)
       renderBag(g, bag.x, bag.y, bag.count, this.tick)

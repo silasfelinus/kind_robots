@@ -199,7 +199,10 @@ assert.match(page, /detailTabs/)
 assert.match(page, /detailTab\.value = 'scores'/)
 assert.match(page, /<ArcadeReviews :game="meta\.slug" compact \/>/)
 assert.match(page, /grid-template-rows: minmax\(0, 1fr\)/)
-assert.match(page, /grid-template-columns: minmax\(0, 1fr\) minmax\(15rem, 19rem\)/)
+assert.match(
+  page,
+  /grid-template-columns: minmax\(0, 1fr\) minmax\(15rem, 19rem\)/,
+)
 assert.match(page, /\.arcade-playfield :deep\(\.arcade-cabinet--contained\)/)
 assert.match(page, /@media \(max-width: 1023px\)/)
 assert.match(page, /@media \(min-width: 1024px\)/)

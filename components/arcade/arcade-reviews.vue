@@ -35,20 +35,42 @@
       :class="compact ? 'mb-4 gap-2' : 'mb-5 gap-3'"
       @submit.prevent="submit"
     >
-      <label class="text-sm font-bold" for="arcade-review-rating"
-        >Your rating</label
-      >
-      <select
-        id="arcade-review-rating"
-        v-model.number="rating"
-        class="select select-bordered w-full"
-        :class="compact ? 'select-sm' : 'max-w-xs'"
-        required
-      >
-        <option v-for="stars in [5, 4, 3, 2, 1]" :key="stars" :value="stars">
-          {{ stars }} ★
-        </option>
-      </select>
+      <fieldset class="min-w-0">
+        <legend class="mb-1 text-sm font-bold">Your rating</legend>
+        <div
+          class="flex items-center gap-1"
+          aria-label="Select a rating from one to five stars"
+          @mouseleave="hoverRating = 0"
+        >
+          <label
+            v-for="stars in [1, 2, 3, 4, 5]"
+            :key="stars"
+            class="flex size-9 cursor-pointer items-center justify-center rounded-lg focus-within:outline-2 focus-within:outline-offset-1 focus-within:outline-primary"
+            :title="stars + ' out of 5 stars'"
+            @mouseenter="hoverRating = stars"
+          >
+            <input
+              v-model.number="rating"
+              type="radio"
+              :name="'arcade-review-rating-' + game"
+              :value="stars"
+              :aria-label="stars + ' out of 5 stars'"
+              class="sr-only"
+              required
+            />
+            <Icon
+              name="kind-icon:star"
+              class="size-7 transition-colors"
+              :class="
+                stars <= (hoverRating || rating)
+                  ? 'text-warning'
+                  : 'text-base-content/20'
+              "
+              aria-hidden="true"
+            />
+          </label>
+        </div>
+      </fieldset>
       <label class="text-sm font-bold" for="arcade-review-comment"
         >Your comment</label
       >
@@ -116,6 +138,7 @@ const props = defineProps<{ game: string; compact?: boolean }>()
 const user = useUserStore()
 const reviews = useArcadeReviewsStore()
 const rating = ref(5)
+const hoverRating = ref(0)
 const comment = ref('')
 const title = computed(() => findArcadeGame(props.game)?.title ?? 'Game')
 const summary = computed(() => reviews.summaries[props.game])
@@ -125,6 +148,7 @@ async function load() {
   await reviews.fetchReviews(props.game)
   const own = entries.value.find((row) => row.userId === user.userId)
   rating.value = own?.rating ?? 5
+  hoverRating.value = 0
   comment.value = own?.comment ?? ''
 }
 

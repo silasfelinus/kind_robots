@@ -71,7 +71,9 @@
             class="hidden shrink-0 rounded-full border border-base-300 bg-base-200 px-3 py-1 text-xs font-bold text-base-content/65 sm:inline-flex"
           >
             {{ channel.visibleTabs.length }}
-            {{ channel.visibleTabs.length === 1 ? 'destination' : 'destinations' }}
+            {{
+              channel.visibleTabs.length === 1 ? 'destination' : 'destinations'
+            }}
           </span>
         </header>
 
@@ -208,7 +210,6 @@ function isAdminOnlyTab(channel: ResolvedChannel, tab: ResolvedTab): boolean {
   return tab.requiredRole === 'ADMIN' && channel.channelKey !== 'admin'
 }
 </script>
-
 
 <style scoped>
 .directory-home {

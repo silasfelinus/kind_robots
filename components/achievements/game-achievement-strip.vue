@@ -18,10 +18,18 @@
     </div>
 
     <ul v-if="layout === 'icons'" class="game-achievement-icons">
-      <li v-for="entry in entries" :key="entry.code" class="min-w-0">
-        <details class="game-achievement-icon" :data-earned="entry.earned">
-          <summary
-            class="relative block aspect-square cursor-pointer list-none overflow-hidden rounded-xl border focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+      <li
+        v-for="entry in entries"
+        :key="entry.code"
+        class="game-achievement-icon min-w-0"
+        :class="{ 'game-achievement-icon--open': openBadge === entry.code }"
+        @keydown.esc="openBadge = ''"
+      >
+          <button
+            type="button"
+            class="relative block aspect-square w-full cursor-pointer overflow-hidden rounded-xl border focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+            :aria-expanded="openBadge === entry.code"
+            @click="openBadge = openBadge === entry.code ? '' : entry.code"
             :class="
               entry.earned
                 ? 'border-warning/70 bg-warning/10'
@@ -62,7 +70,7 @@
                 "
               />
             </span>
-          </summary>
+          </button>
           <div class="game-achievement-tooltip" role="tooltip">
             <p class="font-bold">{{ entry.label }}</p>
             <p class="mt-1 text-xs leading-snug">
@@ -72,7 +80,6 @@
               {{ entry.earned ? 'Earned' : '+' + entry.karma + ' karma' }}
             </p>
           </div>
-        </details>
       </li>
     </ul>
 
@@ -140,7 +147,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import { useAchievementStore } from '@/stores/achievementStore'
 import { useUserStore } from '@/stores/userStore'
 import {
@@ -158,6 +165,7 @@ const props = withDefaults(
 
 const achievementStore = useAchievementStore()
 const userStore = useUserStore()
+const openBadge = ref('')
 
 const title = computed(
   () => ACHIEVEMENT_GAMES.find((game) => game.key === props.game)?.title ?? '',
@@ -199,10 +207,6 @@ onMounted(() => {
   position: static;
 }
 
-.game-achievement-icon summary::-webkit-details-marker {
-  display: none;
-}
-
 .game-achievement-tooltip {
   position: absolute;
   z-index: 20;
@@ -220,8 +224,8 @@ onMounted(() => {
 }
 
 .game-achievement-icon:hover .game-achievement-tooltip,
-.game-achievement-icon:focus-within .game-achievement-tooltip,
-.game-achievement-icon[open] .game-achievement-tooltip {
+.game-achievement-icon button:focus-visible + .game-achievement-tooltip,
+.game-achievement-icon--open .game-achievement-tooltip {
   visibility: visible;
   opacity: 1;
 }

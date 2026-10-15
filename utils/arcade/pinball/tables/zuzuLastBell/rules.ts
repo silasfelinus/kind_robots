@@ -1253,6 +1253,19 @@ export const ZUZU_RULESET: PinballRuleset<ZuzuRulesState> = {
   step: stepZuzuRules,
   lamps: zuzuLamps,
   shows: zuzuShows,
+  feats: (before, after) => [
+    ...(before.multiball.kind !== 'harvest' &&
+    after.multiball.kind === 'harvest'
+      ? ['harvest-moon']
+      : []),
+    ...(after.wateringHole.rolls > before.wateringHole.rolls
+      ? ['death-roll']
+      : []),
+    ...(before.multiball.kind !== 'last-bell' &&
+    after.multiball.kind === 'last-bell'
+      ? ['last-bell']
+      : []),
+  ],
   leds: zuzuLeds,
   music: (state) =>
     state.over || state.tilted

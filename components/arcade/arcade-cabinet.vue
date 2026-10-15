@@ -1271,6 +1271,8 @@ function tick() {
     if (hintLives === null) hintLives = game.lives
     else if (game.lives < hintLives) pinballHints.value = false
     game.update(frames[0]!, frames)
+    const feats = game.drainFeats?.()
+    if (feats?.length) void store.awardFeats(props.slug, feats)
     keepSave(game)
     syncMusic(game)
     if (game.over) {

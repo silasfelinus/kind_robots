@@ -59,6 +59,8 @@ export type AchievementGame = {
   section: Exclude<AchievementSectionKey, 'site'>
   route: string
   arcade: boolean
+  /** Only administrators can reach it yet, so the public gallery hides it. */
+  adminOnly?: boolean
 }
 
 export type GameAchievement = GameAchievementDef & {
@@ -89,6 +91,7 @@ const OTHER_GAMES: AchievementGame[] = [
     section: 'zuzu',
     route: '/admin/zuzu-lair',
     arcade: false,
+    adminOnly: true,
   },
   {
     key: 'zuzu-gamebook',
@@ -124,6 +127,7 @@ const OTHER_GAMES: AchievementGame[] = [
     section: 'emperor-of-dust',
     route: '/admin/emperor-of-dust',
     arcade: false,
+    adminOnly: true,
   },
 ]
 
@@ -179,6 +183,22 @@ export function achievementsForGame(game: string): GameAchievement[] {
   return GAME_ACHIEVEMENTS.filter((entry) => entry.game === game).sort(
     tierOrder,
   )
+}
+
+/** The non-arcade game whose page this is (cabinets show theirs beside the cabinet). */
+export function achievementGameForPath(path: string): string | null {
+  const game = ACHIEVEMENT_GAMES.find(
+    (entry) => !entry.arcade && entry.route === path,
+  )
+  return game?.key ?? null
+}
+
+/** A game achievement only administrators can reach yet. */
+export function isAdminOnlyAchievement(
+  triggerCode: string | null | undefined,
+): boolean {
+  const entry = gameAchievementByCode(triggerCode)
+  return Boolean(entry && gameByKey.get(entry.game)?.adminOnly)
 }
 
 export function achievementSectionOf(

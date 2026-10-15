@@ -36,6 +36,8 @@ import {
   type JourneyLedgerV4,
 } from '~/utils/shiftingLands/saveLedgerV4'
 import { computed, ref } from 'vue'
+import { useAchievementStore } from './achievementStore'
+import type { AuthoredJourneyState } from '~/utils/shiftingLands/authoredJourney'
 import {
   JOURNEY_WORLD,
   reachableLocations,
@@ -255,10 +257,33 @@ export const useShiftingLandsJourneyStore = defineStore(
             ? stepJourneyLedgerV4(active, action as JourneyLedgerAction)
             : stepJourneyLedger(active, action as JourneyLedgerAction)
       if (next === ledger.value) return false
+      const before = active.current.journey
       ledger.value = next
       restoreWarning.value = false
       persist()
+      awardJourneyDeeds(before, next.current.journey)
       return true
+    }
+    function awardJourneyDeeds(
+      before: AuthoredJourneyState['journey'],
+      after: AuthoredJourneyState['journey'],
+    ) {
+      const achievements = useAchievementStore()
+      if (after.bosses.length > before.bosses.length) {
+        const passed = after.bosses[after.bosses.length - 1]!.landId
+        if (passed === 'homestead')
+          void achievements.rewardAchievementByCode(
+            'zuzu-shifting-lands-open-door',
+          )
+        if (passed === 'tablelands')
+          void achievements.rewardAchievementByCode(
+            'zuzu-shifting-lands-canyon-warden',
+          )
+      }
+      if (after.phase === 'complete' && before.phase !== 'complete')
+        void achievements.rewardAchievementByCode(
+          'zuzu-shifting-lands-beyond-the-verge',
+        )
     }
     function travel(id: string) {
       return dispatch({ type: 'TRAVEL', locationId: id })

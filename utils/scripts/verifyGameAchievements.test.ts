@@ -128,9 +128,16 @@ function collect(dir: string) {
 }
 SOURCE_DIRS.forEach(collect)
 
+const FEAT_TABLES: Record<string, string> = {
+  'zuzu-pinball': 'utils/arcade/pinball/tables/zuzuLastBell/rules.ts',
+}
+const featRules = (game: string) =>
+  FEAT_TABLES[game] ? (source(FEAT_TABLES[game]!).split('feats:')[1] ?? '') : ''
+
 for (const entry of GAME_ACHIEVEMENTS.filter((e) => e.rule.kind === 'event')) {
   assert.ok(
-    appSources.some((text) => text.includes(`'${entry.code}'`)),
+    appSources.some((text) => text.includes(`'${entry.code}'`)) ||
+      featRules(entry.game).includes(`['${entry.key}']`),
     `${entry.code} is never awarded: wire rewardAchievementByCode('${entry.code}') at the deed.`,
   )
 }
@@ -198,6 +205,23 @@ assert.ok(
     'achievementSectionOf(achievement.triggerCode)',
   ),
   'The achievements page filters by section.',
+)
+
+const runtime = source('utils/arcade/pinball/runtime.ts')
+assert.ok(
+  runtime.includes(
+    'this.featQueue.push(...this.ruleset.feats(this.rules, state))',
+  ) &&
+    runtime.includes('!this.demo && this.ruleset.feats') &&
+    cabinet.includes('game.drainFeats?.()') &&
+    arcadeStore.includes('`${game}-${feat}`'),
+  'Table feats are queued outside the attract demo and awarded by the cabinet.',
+)
+assert.ok(
+  source('components/navigation/workspace-sheet.vue').includes(
+    'achievementGameForPath(route.path)',
+  ),
+  "Each game page's sidebar shows that game's achievements.",
 )
 
 const seed = source('scripts/seed_achievements.ts')

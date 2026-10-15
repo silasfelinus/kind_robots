@@ -132,6 +132,12 @@
       />
     </template>
 
+    <GameAchievementStrip
+      v-if="routeAchievementGame"
+      :game="routeAchievementGame"
+      class="kr-panel-flat p-4"
+    />
+
     <template v-if="isBuilder">
       <div class="kr-panel p-4">
         <div class="mb-3 flex items-center justify-between gap-3">
@@ -365,6 +371,7 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
 import { useRoute } from 'vue-router'
+import { achievementGameForPath } from '~/utils/achievements/gameAchievements'
 import { useBuilderStore } from '@/stores/builderStore'
 import { useChannelContentStore } from '@/stores/channelContentStore'
 import { usePageStore } from '@/stores/pageStore'
@@ -408,6 +415,7 @@ const BUILDER_DEFAULT_IMAGE_FIELD_PRIORITY = [
 ] as const
 
 const route = useRoute()
+const routeAchievementGame = computed(() => achievementGameForPath(route.path))
 const builderStore = useBuilderStore()
 const channelContentStore = useChannelContentStore()
 const pageStore = usePageStore()

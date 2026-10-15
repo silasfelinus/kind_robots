@@ -137,6 +137,7 @@ export class PinballRuntime<
   /** ...and has decided to miss this one. */
   private pilotMisses = false
   private demo: boolean
+  private featQueue: string[] = []
   /** Reduced motion: the LED rail holds its colours (rules/leds.ts). */
   private reducedMotion = prefersReducedMotion()
   /** The player's still camera (t-012): no sweeps, cuts for pans. */
@@ -217,6 +218,11 @@ export class PinballRuntime<
   /** Mastery goals earned this game (none in the attract demo). */
   get mastered(): readonly string[] {
     return this.earnedNow
+  }
+
+  /** Achievement deeds performed since the last call (none in the attract demo). */
+  drainFeats(): string[] {
+    return this.featQueue.splice(0)
   }
 
   get isDisposed() {
@@ -524,6 +530,8 @@ export class PinballRuntime<
     const mastery = this.ruleset.mastery
     const goals =
       this.demo || !mastery ? [] : mastery.met(this.rules, state, effects)
+    if (!this.demo && this.ruleset.feats)
+      this.featQueue.push(...this.ruleset.feats(this.rules, state))
     this.rules = state
     for (const effect of effects) this.effect(effect)
     for (const goal of goals) this.master(goal)

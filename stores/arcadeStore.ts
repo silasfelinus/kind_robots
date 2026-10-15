@@ -264,6 +264,16 @@ export const useArcadeStore = defineStore('arcadeStore', () => {
     }
   }
 
+  /** Award the achievements a table reported the moment it performed them. */
+  async function awardFeats(game: string, feats: readonly string[]) {
+    const achievements = useAchievementStore()
+    for (const feat of feats) {
+      const code = `${game}-${feat}`
+      if (achievements.hasEarnedCode(code)) continue
+      await achievements.rewardAchievementByCode(code)
+    }
+  }
+
   /** A game's saved progress on this device, if any. */
   function saveFor(game: string): unknown {
     return saves.value[game]
@@ -467,6 +477,7 @@ export const useArcadeStore = defineStore('arcadeStore', () => {
     masteryFor,
     recordMastery,
     awardRunAchievements,
+    awardFeats,
     saveFor,
     recordSave,
     playersFor,

@@ -72,6 +72,8 @@ export type PinballRuleset<S extends CoreRulesState = CoreRulesState> = {
   /** Animatronic toys' poses by id, at physics step `step`. */
   animatronics?(state: S, step: number): Record<string, AnimatronicPose>
   /** Mastery goals, when the table has them. */
+  /** Site achievement deeds (ids) the step from `before` to `after` performed. */
+  feats?(before: S, after: S): string[]
   mastery?: {
     goals: readonly ArcadeMasteryGoal[]
     met(before: S, after: S, effects: readonly RuleEffect[]): string[]

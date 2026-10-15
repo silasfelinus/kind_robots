@@ -138,6 +138,7 @@ import type { Achievement } from '~/prisma/generated/prisma/client'
 import {
   ACHIEVEMENT_SECTIONS,
   achievementSectionOf,
+  isAdminOnlyAchievement,
   type AchievementSectionKey,
 } from '~/utils/achievements/gameAchievements'
 
@@ -154,8 +155,13 @@ const activeSection = ref<SectionFilter>(
     : 'all',
 )
 
+function isVisible(achievement: Achievement) {
+  return userStore.isAdmin || !isAdminOnlyAchievement(achievement.triggerCode)
+}
+
 function inActiveSection(achievement: Achievement) {
   return (
+    isVisible(achievement) &&
     activeSection.value === 'all' ||
     achievementSectionOf(achievement.triggerCode) === activeSection.value
   )
@@ -229,7 +235,8 @@ const unearnedAchievements = computed(() =>
 const sectionChips = computed(() => {
   const tally = (key: SectionFilter) => {
     const match = (achievement: Achievement) =>
-      key === 'all' || achievementSectionOf(achievement.triggerCode) === key
+      isVisible(achievement) &&
+      (key === 'all' || achievementSectionOf(achievement.triggerCode) === key)
     const earned = allEarnedAchievements.value.filter(match).length
     return { earned, total: earned + allUnearnedAchievements.value.filter(match).length }
   }

@@ -237,6 +237,7 @@ import { setGamePageLock } from '~/utils/arcade/pageLock'
 import { isAllowedInitials, normalizeInitials } from '~/utils/arcade/initials'
 import { readGamepad } from '~/utils/arcade/input'
 import { useArcadeStore } from '~/stores/arcadeStore'
+import { useAchievementStore } from '~/stores/achievementStore'
 import { useZuzuLairStore } from '~/stores/zuzuLairStore'
 
 useHead({ title: "Zuzu's Lair" })
@@ -325,7 +326,19 @@ function dispatch(action: LairAction) {
   if (after === before) return
   run.value = after
   if (after.node !== before.node) onNode(before, after)
-  if (after.phase === 'complete' && before.phase !== 'complete') finish()
+  if (after.phase === 'complete' && before.phase !== 'complete') {
+    awardChapter(after)
+    finish()
+  }
+}
+
+function awardChapter(after: LairRun) {
+  const achievements = useAchievementStore()
+  void achievements.rewardAchievementByCode('zuzu-lair-dry-gulch')
+  if (after.difficulty !== 'classic') return
+  void achievements.rewardAchievementByCode('zuzu-lair-classic-gulch')
+  if (after.deaths === 0)
+    void achievements.rewardAchievementByCode('zuzu-lair-not-a-scratch')
 }
 
 function onNode(before: LairRun, after: LairRun) {

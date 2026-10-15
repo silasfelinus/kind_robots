@@ -199,6 +199,7 @@ import {
 } from '~/utils/zuzuShowdown/types'
 import { useZuzuShowdownStore } from '~/stores/zuzuShowdownStore'
 import { useArcadeStore } from '~/stores/arcadeStore'
+import { useAchievementStore } from '~/stores/achievementStore'
 import { mapArtShipped, mapArtUrl } from '~/utils/zuzuShowdown/worldMap'
 import {
   BOSS,
@@ -683,6 +684,10 @@ function openLadder() {
   if (!arcade) return
   if (arcade.rung > arcade.ladder.length) {
     arcade.cleared = true
+    const achievements = useAchievementStore()
+    void achievements.rewardAchievementByCode('zuzu-showdown-door-closed')
+    if (arcade.start === 'showdown')
+      void achievements.rewardAchievementByCode('zuzu-showdown-showdown-legend')
     startEnding()
     return
   }
@@ -990,6 +995,10 @@ function tick() {
     if (resultCountdown <= 0) {
       screenFrame = 0
       phase.value = 'result'
+      if (match.winner === 0 && (store.mode === 'cpu' || arcade))
+        void useAchievementStore().rewardAchievementByCode(
+          'zuzu-showdown-first-ko',
+        )
     }
   }
 }

@@ -233,7 +233,7 @@ def assemble(job_dir, source, pilot, outputs, frame_count, quality):
 def render(job_path, args):
     job_dir = job_path.parent
     job = json.loads(job_path.read_text(encoding="utf-8"))
-    if job.get("status") != "PILOT_QUEUED":
+    if job.get("status") not in ("PILOT_QUEUED", "PILOT_RUNNING"):
         return
     if not UUID_RE.fullmatch(job.get("id", "")) or job_dir.name != job["id"]:
         raise ValueError("Invalid restyle job ID.")
@@ -327,7 +327,8 @@ def _render_unlocked(job_path, job, meta, source, pilot, frame_count, spans, arg
 def main():
     parser = argparse.ArgumentParser(description="Private Coat Dance Wan VACE pilot runner")
     parser.add_argument("--private-root", type=Path, default=Path(os.environ.get("PRIVATE_PATH", "/app/private")))
-    parser.add_argument("--comfy-input", type=Path, default=Path(os.environ.get("COMFY_INPUT_PATH", ".")))
+    parser.add_argument("--comfy-input", type=Path,
+                        default=Path(os.environ["COMFY_INPUT_PATH"]) if os.environ.get("COMFY_INPUT_PATH") else None)
     parser.add_argument("--comfy-url", default=os.environ.get("COMFY_URL", "http://127.0.0.1:8188"))
     parser.add_argument("--timeout-seconds", type=int, default=10800)
     parser.add_argument("--poll-seconds", type=int, default=30)
@@ -337,13 +338,14 @@ def main():
     root = args.private_root / "video-restyle"
     if not root.is_dir():
         raise SystemExit(f"Restyle volume not mounted: {root}")
-    if not args.dry_run and not args.comfy_input.is_dir():
-        raise SystemExit(f"Comfy input directory not mounted: {args.comfy_input}")
+    if not args.dry_run and (args.comfy_input is None or not args.comfy_input.is_dir()):
+        raise SystemExit("Set --comfy-input or COMFY_INPUT_PATH to the real ComfyUI input directory.")
     while True:
         jobs = sorted(root.glob("*/????????-????-????-????-????????????/job.json"))
         for path in jobs:
             try:
-                if json.loads(path.read_text(encoding="utf-8")).get("status") == "PILOT_QUEUED":
+                job_status = json.loads(path.read_text(encoding="utf-8")).get("status")
+                if job_status in ("PILOT_QUEUED", "PILOT_RUNNING"):
                     render(path, args)
             except Exception as exc:
                 print(f"Pilot {path.parent.name} error: {exc}", file=sys.stderr)

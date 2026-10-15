@@ -7,9 +7,7 @@
   content/navigation.md.
 -->
 <template>
-  <section
-    class="directory-home kr-unbound flex w-full flex-col gap-3"
-  >
+  <section class="directory-home kr-unbound flex w-full flex-col gap-3">
     <header
       class="sticky top-0 z-10 flex flex-col gap-3 rounded-2xl border border-base-300 bg-base-100/95 p-3 shadow-sm backdrop-blur-sm sm:flex-row sm:items-center sm:justify-between sm:p-4"
     >

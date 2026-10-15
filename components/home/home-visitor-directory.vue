@@ -485,10 +485,7 @@ const newest = computed<ShowcaseCard[]>(() =>
   }
 
   .visitor-featured-grid {
-    grid-template-columns: repeat(
-      auto-fit,
-      minmax(min(100%, 15rem), 1fr)
-    );
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 15rem), 1fr));
     align-content: start;
   }
 

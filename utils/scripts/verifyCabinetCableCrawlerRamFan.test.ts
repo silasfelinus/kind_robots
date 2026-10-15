@@ -183,15 +183,22 @@ function roundTrip(save: unknown): unknown {
 {
   assert.deepEqual(
     COMPONENTS.map((c) => c.id),
-    ['power-strip', 'ram-rows', 'cooling-fan', 'sound-card', 'graphics-card'],
+    [
+      'power-strip',
+      'ram-rows',
+      'cooling-fan',
+      'sound-card',
+      'graphics-card',
+      'cpu-core',
+    ],
   )
-  assert.equal(BYTE_MAZES.length, 25, 'five golden bytes a component')
+  assert.equal(BYTE_MAZES.length, 30, 'five golden bytes a component')
   for (const c of [RAM_ROWS, COOLING_FAN]) {
     assert.equal(c.mazes.length, 5)
     for (const layout of c.mazes)
       assert.deepEqual(mazeProblems(layout), [], `${layout.id} is sound`)
     assert.deepEqual(mazeProblems(c.boss.layout, 'boss'), [], c.boss.name)
-    assert.deepEqual(mazeProblems(c.screensaver.layout, 'open'), [])
+    assert.deepEqual(mazeProblems(c.screensaver!.layout, 'open'), [])
   }
   const ram = RAM_ROWS.mazes.map(parseMaze)
   assert.ok(

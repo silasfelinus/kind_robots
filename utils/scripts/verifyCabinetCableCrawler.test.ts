@@ -170,7 +170,7 @@ function roundTrip(save: unknown): unknown {
   }
   assert.equal(ids.size, 5, 'unique maze ids')
   assert.deepEqual(mazeProblems(POWER_STRIP.boss.layout, 'boss'), [])
-  assert.deepEqual(mazeProblems(POWER_STRIP.screensaver.layout, 'open'), [])
+  assert.deepEqual(mazeProblems(POWER_STRIP.screensaver!.layout, 'open'), [])
   // Mirrored mazes really mirror, except the one start and the one golden byte.
   const half = POWER_STRIP.mazes[0]!
   assert.ok(half.mirror)

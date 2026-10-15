@@ -10,6 +10,8 @@
 //                     backbeat, the board's gates thumping to it.
 //   The Graphics Card a bright, glitchy chiptune arpeggio in D major, a pixel at a time, over
 //                     a steady kick and a stuttering hi-hat.
+//   The CPU Core      a driving, clock-ticked minor groove in E with a staccato arpeggio, the
+//                     whole board feeling the pulse.
 //   Boss              a stomping minor march in E for the big glitches.
 //   Screensaver       a floaty, slow drift in F over a soft pad.
 
@@ -271,6 +273,41 @@ export const GRAPHICS_CARD_MUSIC: MusicLoop = {
       ),
     },
     { noise: true, vol: 0.015, steps: eight('x . x x x . x .') },
+  ],
+}
+
+export const CPU_CORE_MUSIC: MusicLoop = {
+  bpm: 138,
+  tracks: [
+    {
+      type: 'triangle',
+      vol: 0.07,
+      steps: bars(
+        'E2 . E2 E3 E2 . E2 B2',
+        'C2 . C2 C3 C2 . C2 G2',
+        'D2 . D2 D3 D2 . D2 A2',
+        'B1 . B1 B2 B1 . B1 F#2',
+        'E2 . E2 E3 E2 . E2 B2',
+        'C2 . C2 C3 C2 . G2 C3',
+        'D2 . D2 D3 F#2 . A2 D3',
+        'B1 . F#2 . B2 . A2 F#2',
+      ),
+    },
+    {
+      type: 'square',
+      vol: 0.016,
+      steps: bars(
+        'E5 . B5 . E6 . B5 .',
+        'C5 . G5 . C6 . G5 .',
+        'D5 . A5 . D6 . A5 .',
+        'B4 . F#5 . B5 . F#5 .',
+        'E5 . B5 . G6 . B5 .',
+        'C5 . G5 . E6 . G5 .',
+        'D5 . A5 . F#6 . A5 .',
+        'B4 . D5 . F#5 . B5 .',
+      ),
+    },
+    { noise: true, vol: 0.016, steps: eight('x . x . x . x x') },
   ],
 }
 

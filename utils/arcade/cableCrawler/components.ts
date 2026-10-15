@@ -15,12 +15,14 @@ import {
   type MazeLayout,
 } from './mazes'
 import { BREEZE, COOLING_FAN_MAZES, FAN_ROOM } from './mazesFan'
+import { CPU_CORE_MAZES, KERNEL_ROOM } from './mazesCpu'
 import { GLITCH_ROOM, GRAPHICS_CARD_MAZES, PAINT } from './mazesGraphics'
 import { EQUALISER, SOUND_CARD_MAZES, SPEAKER_ROOM } from './mazesSound'
 import { DEFRAG, RAM_ROWS_MAZES, THE_HEAP } from './mazesRam'
 import {
   BOSS_MUSIC,
   COOLING_FAN_MUSIC,
+  CPU_CORE_MUSIC,
   GRAPHICS_CARD_MUSIC,
   POWER_STRIP_MUSIC,
   RAM_ROWS_MUSIC,
@@ -30,15 +32,21 @@ import {
 } from './music'
 
 /** The spark sprite set a component uses: bolts, bits, snowflakes or notes. */
-export type SparkSet = 'bolt' | 'bit' | 'flake' | 'note' | 'pixel'
+export type SparkSet = 'bolt' | 'bit' | 'flake' | 'note' | 'pixel' | 'tick'
 /** The Screensaver bonus board a component plays after its third maze. */
 export type ScreensaverKind =
   'starfield' | 'defrag' | 'breeze' | 'equaliser' | 'paint'
 /** The boss at the end of a component. */
 export type BossKind =
-  'surge-protector' | 'memory-leak' | 'big-whirr' | 'subwoofer' | 'the-glitch'
+  | 'surge-protector'
+  | 'memory-leak'
+  | 'big-whirr'
+  | 'subwoofer'
+  | 'the-glitch'
+  | 'sleepy-kernel'
 /** How a component's wall slabs are dressed: outlet plastic, RAM chips, or cooling fins. */
-export type WallStyle = 'plastic' | 'chips' | 'fins' | 'speakers' | 'bezel'
+export type WallStyle =
+  'plastic' | 'chips' | 'fins' | 'speakers' | 'bezel' | 'pins'
 
 export type ComponentLook = {
   /** The wall slabs' ramp. */
@@ -60,7 +68,12 @@ export type Component = {
   /** One line for the component's title card. */
   tagline: string
   mazes: readonly MazeLayout[]
-  screensaver: { kind: ScreensaverKind; layout: MazeLayout; name: string }
+  /** The Screensaver bonus board after the third maze (the CPU Core has none). */
+  screensaver: {
+    kind: ScreensaverKind
+    layout: MazeLayout
+    name: string
+  } | null
   boss: { kind: BossKind; layout: MazeLayout; name: string }
   look: ComponentLook
   /** Ticks per cell the plug crawls on the first maze (each maze after is a little quicker). */
@@ -186,6 +199,32 @@ export const GRAPHICS_CARD: Component = {
   music: GRAPHICS_CARD_MUSIC,
 }
 
+export const CPU_CORE: Component = {
+  id: 'cpu-core',
+  number: 6,
+  name: 'THE CPU CORE',
+  tagline: 'KEEP TIME, MIND THE INTERRUPTS',
+  mazes: CPU_CORE_MAZES,
+  screensaver: null,
+  boss: {
+    kind: 'sleepy-kernel',
+    layout: KERNEL_ROOM,
+    name: 'THE SLEEPY KERNEL',
+  },
+  look: {
+    wall: RAMPS.steel,
+    wallStyle: 'pins',
+    floor: ['#22203a', '#1b1930', '#141228', '#0d0b1e'],
+    trace: '#b88a2a',
+    accent: RAMPS.gold,
+    spark: 'tick',
+  },
+  step: 5.5,
+  battery: 74,
+  bugStep: 10,
+  music: CPU_CORE_MUSIC,
+}
+
 /** The components in campaign order. */
 export const COMPONENTS: readonly Component[] = [
   POWER_STRIP,
@@ -193,6 +232,7 @@ export const COMPONENTS: readonly Component[] = [
   COOLING_FAN,
   SOUND_CARD,
   GRAPHICS_CARD,
+  CPU_CORE,
 ]
 
 export { BOSS_MUSIC, SCREENSAVER_MUSIC, WORKBENCH_MUSIC }
@@ -217,7 +257,9 @@ export function componentSteps(c: Component): Step[] {
     maze(0),
     maze(1),
     maze(2),
-    { kind: 'screensaver', layout: c.screensaver.layout },
+    ...(c.screensaver
+      ? [{ kind: 'screensaver', layout: c.screensaver.layout } as const]
+      : []),
     maze(3),
     maze(4),
     { kind: 'boss', layout: c.boss.layout },
@@ -227,6 +269,16 @@ export function componentSteps(c: Component): Step[] {
 
 /** The boards a component plays (every step but the Workbench). */
 export const BOARDS_PER_COMPONENT = 7
+
+/** How many boards come before a component in the campaign (the CPU Core has no Screensaver). */
+export function boardsBefore(index: number): number {
+  let n = 0
+  for (let i = 0; i < index; i++)
+    n += COMPONENTS[i % COMPONENTS.length]!.screensaver
+      ? BOARDS_PER_COMPONENT
+      : BOARDS_PER_COMPONENT - 1
+  return n
+}
 
 /** The component at a campaign index, and how many laps of the Mainframe came before it. */
 export function componentAt(index: number): {

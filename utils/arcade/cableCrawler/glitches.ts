@@ -33,6 +33,12 @@
 //                 spark for a second before it lands; touching it unplugs you. Change route.
 //   z-fighter wall (a wall, not a glitch: see the game) flickers between solid and passable.
 //
+// The CPU Core (t-067):
+//
+//   rival cable   another cable racing you for the sparks. Its body is a wall; plug against plug
+//                 pauses you both. Out-route it, trap it, or surge it with your cable touching it.
+//   (the interrupt is a board mechanic, not a glitch: see the game)
+//
 // A surged glitch reboots: it turns into points (and sometimes drops a pickup), and the
 // wanderers boot back up at home a while later. Crabs and flippers are solid to the plug; a
 // drip is only a droplet, and its goo is the trouble.
@@ -51,6 +57,7 @@ export type GlitchKind =
   | 'echo'
   | 'gnats'
   | 'sprite'
+  | 'rival'
 
 export type Glitch = {
   kind: GlitchKind
@@ -75,6 +82,8 @@ export type Glitch = {
   /** A glitch sprite: the spark it is about to land on (-1 for none) and ticks of tell left. */
   aim: number
   tell: number
+  /** A rival cable: the cells of its body behind the head, newest first. */
+  tail: number[]
 }
 
 export const GLITCH_POINTS: Record<GlitchKind, number> = {
@@ -89,6 +98,7 @@ export const GLITCH_POINTS: Record<GlitchKind, number> = {
   echo: 400,
   gnats: 300,
   sprite: 350,
+  rival: 600,
 }
 
 /** Glitches that wander and boot back up at home after a reboot. */
@@ -101,12 +111,14 @@ export const WANDERERS: ReadonlySet<GlitchKind> = new Set([
   'echo',
   'gnats',
   'sprite',
+  'rival',
 ])
 /** Glitches the plug cannot crawl into. */
 export const SOLID_GLITCHES: ReadonlySet<GlitchKind> = new Set([
   'crab',
   'flipper',
   'block',
+  'rival',
 ])
 
 /** Ticks per cell a cache crab scuttles, and its claw cycle: up for the first part. */
@@ -172,6 +184,7 @@ export function newGlitch(kind: GlitchKind, k: number): Glitch {
     locked: false,
     aim: -1,
     tell: 0,
+    tail: [],
   }
 }
 
@@ -220,3 +233,8 @@ export function bugWay(
   const reverse = WAYS.find(back)
   return reverse && can(reverse) ? reverse : null
 }
+
+/** A rival cable: ticks per cell it crawls, its shortest and longest body, and sparks per cell grown. */
+export const RIVAL_STEP = 10
+export const RIVAL_MIN = 3
+export const RIVAL_MAX = 8

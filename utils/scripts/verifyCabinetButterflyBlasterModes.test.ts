@@ -60,7 +60,7 @@ function choose(g: any, row: number, right = 0) {
 {
   assert.deepEqual(
     MENU.map((m) => m.id),
-    ['season', 'longnight', 'timeattack', 'classic', 'board'],
+    ['season', 'longnight', 'timeattack', 'classic', 'coop', 'board'],
   )
   const g = make()
   assert.equal(g.phase, 'menu', 'a fresh watch opens on the menu')

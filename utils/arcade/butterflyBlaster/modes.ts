@@ -10,7 +10,7 @@
 //
 // And the medals: every night can win three, Not a Bite (no hut bitten), Lasso Master (twenty or
 // more mosquitoes in one loop) and Swift Night (under par), kept on a medal board per region.
-// (Co-op Flight is the slice's second part.)
+// - Co-op Flight: two to four butterflies on one shared watch (see coop.ts), endless like Long Night.
 
 import { drawText } from '../font'
 import { levelCurve } from '../curve'
@@ -19,7 +19,7 @@ import { REGIONS, THREAD_REGIONS, campaignSteps } from './season'
 import type { NightDef, RegionId } from './season'
 import { H, W } from './sky'
 
-export type ModeId = 'season' | 'longnight' | 'timeattack' | 'classic'
+export type ModeId = 'season' | 'longnight' | 'coop' | 'timeattack' | 'classic'
 
 export const MENU = [
   {
@@ -38,6 +38,11 @@ export const MENU = [
     line: 'ONE REGION AGAINST THE CLOCK',
   },
   { id: 'classic', name: 'CLASSIC NIGHT', line: 'THE ORIGINAL RULES, ONE SKY' },
+  {
+    id: 'coop',
+    name: 'CO-OP FLIGHT',
+    line: 'SEAT TWO TO FOUR. TEAM LASSO PAYS DOUBLE',
+  },
   { id: 'board', name: 'MEDAL BOARD', line: 'EVERY MEDAL YOU HAVE WON' },
 ] as const
 

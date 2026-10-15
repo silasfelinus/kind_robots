@@ -57,13 +57,15 @@ export const ARCADE_GAMES: ArcadeGameMeta[] = [
     title: 'Butterfly Blaster',
     riffsOn: 'Asteroids',
     blurb:
-      'Fly a rainbow butterfly through the night sky and break up the mosquito swarms before they reach the village. Every wave you clear keeps a village safe.',
+      'Fly a rainbow butterfly through the night sky and break up the mosquito swarms before they reach the village. Every wave you clear keeps a village safe. Seat a friend (up to four) for Co-op Flight: shared village and lives, and when your ribbons cross the team lasso pays double.',
     howTo: [
       'LEFT/RIGHT  TURN',
       'UP  FLUTTER FORWARD',
       'A  SPARKLE   B  HOP',
       'BIG SWARMS SPLIT!',
       "CATCH AMI'S NETS",
+      'TWO TO FOUR: CO-OP FLIGHT',
+      'CROSS RIBBONS: TEAM LASSO!',
     ],
     width: 480,
     height: 360,
@@ -71,6 +73,7 @@ export const ARCADE_GAMES: ArcadeGameMeta[] = [
     titleArt: '/images/arcade/games/butterfly-blaster-title.webp',
     accent: '#f472b6',
     controls: 'Turn, flutter, sparkle, hop',
+    maxPlayers: 4,
   },
   {
     slug: 'battery-maze',

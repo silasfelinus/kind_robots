@@ -6,7 +6,7 @@ label: Coat Dance
 title: Coat Dance Studio
 subtitle: Transform a full performance into a new animated film
 description: Privately stage a full-length source video, choose a visual treatment, and return later to the saved render project.
-summary: Full-length performance restyling workspace.
+summary: Restyle full-length dance videos.
 icon: kind-icon:video
 image: /images/channels/plan/video-generator.webp
 route: /admin/coat-dance

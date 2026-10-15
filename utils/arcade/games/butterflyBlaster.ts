@@ -124,6 +124,26 @@ import {
 } from '../butterflyBlaster/music'
 import { endlessNight } from '../butterflyBlaster/nights'
 import {
+  MEDALS,
+  MENU,
+  classicNight,
+  clock,
+  longNightLevel,
+  medalKey,
+  medalsWon,
+  openRegions,
+  readMedals,
+  readTimes,
+  regionNights,
+  renderMenu,
+} from '../butterflyBlaster/modes'
+import type {
+  BestTimes,
+  MedalBoard,
+  MenuId,
+  ModeId,
+} from '../butterflyBlaster/modes'
+import {
   BROODS,
   PEST_POINTS,
   PEST_RADIUS,
@@ -320,7 +340,16 @@ type Floater = {
 type Bag = { x: number; y: number; count: number; life: number }
 
 type Phase =
-  'offer' | 'map' | 'play' | 'gap' | 'dawn' | 'clinic' | 'bossDone' | 'ending'
+  | 'menu'
+  | 'result'
+  | 'offer'
+  | 'map'
+  | 'play'
+  | 'gap'
+  | 'dawn'
+  | 'clinic'
+  | 'bossDone'
+  | 'ending'
 
 type Dawn = {
   rows: TallyRow[]
@@ -351,6 +380,9 @@ export type BlasterSave = {
   dry?: number
   /** Zero Night, the true ending, has been reached. */
   zero?: boolean
+  /** Medals won per night (medalKey -> bits), and Region Time Attack bests, kept for every mode. */
+  medals?: MedalBoard
+  times?: BestTimes
 }
 
 const ONCE_ITEMS: readonly ClinicItem[] = [
@@ -408,6 +440,8 @@ export function readBlasterSave(raw: unknown): BlasterSave | null {
     cleared: r.cleared === true,
     dry: count(r.dry, 99) ? (r.dry as number) : 0,
     zero: r.zero === true,
+    medals: readMedals(r.medals) ?? {},
+    times: readTimes(r.times) ?? {},
   }
 }
 
@@ -511,6 +545,23 @@ class ButterflyBlaster implements ArcadeGameInstance {
   private dry = 0
   private zero = false
 
+  // The modes (butterflyBlaster/modes.ts).
+  private mode: ModeId = 'season'
+  private menu: {
+    cursor: number
+    region: number
+    board: boolean
+    ticks: number
+  } | null = null
+  private medals: MedalBoard = {}
+  private times: BestTimes = {}
+  /** The most mosquitoes one loop netted tonight (the Lasso Master medal). */
+  private biggestLoop = 0
+  /** Region Time Attack: the region, the night in it, ticks on the clock, and the finished time. */
+  private attack = { region: 0, night: 0, ticks: 0, done: 0 }
+  /** Medals won tonight, for the dawn tally. */
+  private nightMedals = 0
+
   private chain = 0
   private chainTimer = 0
   private lurk = 0
@@ -539,13 +590,16 @@ class ButterflyBlaster implements ArcadeGameInstance {
       this.threads = new Set(stored.threads)
       this.cleared = stored.cleared === true
       this.zero = stored.zero === true
+      this.medals = { ...stored.medals }
+      this.times = { ...stored.times }
+      this.record = new Map(stored.record)
+      this.saveData = stored
     }
     this.beginStep(0)
     if (stored && (stored.step > 0 || (stored.dry ?? 0) > 0)) {
       this.offer = stored
-      this.saveData = stored
       this.phase = 'offer'
-    }
+    } else if (!this.demo) this.openMenu()
   }
 
   get save(): BlasterSave | null | undefined {
@@ -553,7 +607,14 @@ class ButterflyBlaster implements ArcadeGameInstance {
   }
 
   get music(): MusicLoop | null {
-    if (this.over || this.demo || this.phase === 'offer') return null
+    if (
+      this.over ||
+      this.demo ||
+      this.phase === 'offer' ||
+      this.phase === 'menu' ||
+      this.phase === 'result'
+    )
+      return null
     if (this.phase === 'map') return RIVER
     if (this.phase === 'clinic') return CLINIC_MUSIC
     if (this.phase === 'ending') return ENDING
@@ -655,6 +716,30 @@ class ButterflyBlaster implements ArcadeGameInstance {
   }
 
   private advance() {
+    if (this.mode === 'timeattack') {
+      if (
+        ++this.attack.night <
+        regionNights(THREAD_REGIONS[this.attack.region]!).length
+      ) {
+        this.nextModeNight()
+        return
+      }
+      // The region is cleared: its time goes on the board, then the run is done.
+      const id = THREAD_REGIONS[this.attack.region]!
+      this.attack.done = this.attack.ticks
+      const best = this.times[id]
+      if (best === undefined || this.attack.ticks < best)
+        this.times = { ...this.times, [id]: this.attack.ticks }
+      this.keepRecords()
+      this.phase = 'result'
+      this.phaseTicks = 0
+      this.sound.play('extra')
+      return
+    }
+    if (this.mode === 'longnight' || this.mode === 'classic') {
+      this.nextModeNight()
+      return
+    }
     if (this.inEndless) {
       this.beginStep(this.stepIndex)
       return
@@ -670,6 +755,7 @@ class ButterflyBlaster implements ArcadeGameInstance {
     )
     this.swarms = []
     this.pests = []
+    this.biggestLoop = 0
     this.drops = []
     this.shots = []
     this.cloud = null
@@ -752,6 +838,7 @@ class ButterflyBlaster implements ArcadeGameInstance {
   /** Write the save: where the season is, and what the watch has earned. */
   private keep() {
     if (this.demo) return
+    if (this.mode !== 'season') return this.keepRecords()
     this.saveData = {
       v: 1,
       step: this.stepIndex,
@@ -766,6 +853,143 @@ class ButterflyBlaster implements ArcadeGameInstance {
       cleared: this.cleared,
       dry: this.dry,
       zero: this.zero,
+      medals: { ...this.medals },
+      times: { ...this.times },
+    }
+  }
+
+  // --- the menu of modes -------------------------------------------------------------------------
+
+  private openMenu() {
+    this.menu = { cursor: 0, region: 0, board: false, ticks: 0 }
+    this.phase = 'menu'
+    this.banner = null
+  }
+
+  private openRegionList(): RegionId[] {
+    return openRegions(this.record, this.cleared)
+  }
+
+  private updateMenu(input: InputFrame) {
+    const m = this.menu!
+    m.ticks++
+    if (m.board) {
+      if (
+        m.ticks > 10 &&
+        (input.pressed.a || input.pressed.b || input.pressed.start)
+      )
+        m.board = false
+      return
+    }
+    if (input.pressed.up) m.cursor = (m.cursor + MENU.length - 1) % MENU.length
+    if (input.pressed.down) m.cursor = (m.cursor + 1) % MENU.length
+    if (input.pressed.up || input.pressed.down) this.sound.play('blip')
+    if (MENU[m.cursor]!.id === 'timeattack') {
+      const n = THREAD_REGIONS.length
+      if (input.pressed.left) m.region = (m.region + n - 1) % n
+      if (input.pressed.right) m.region = (m.region + 1) % n
+    }
+    if (m.ticks < 8 || (!input.pressed.a && !input.pressed.start)) return
+    const id = MENU[m.cursor]!.id
+    if (id === 'board') {
+      m.board = true
+      m.ticks = 0
+      return
+    }
+    if (
+      id === 'timeattack' &&
+      !this.openRegionList().includes(THREAD_REGIONS[m.region]!)
+    ) {
+      this.sound.play('warn')
+      return
+    }
+    this.begin(id, m.region)
+  }
+
+  /** Start a mode from the menu (Time Attack in a region). */
+  private begin(id: Exclude<MenuId, 'board'>, region = 0) {
+    this.menu = null
+    this.mode = id
+    this.score = 0
+    this.level = 0
+    this.lives = START_LIVES
+    this.beads = 0
+    this.owned = new Set()
+    this.attack = { region, night: 0, ticks: 0, done: 0 }
+    this.sound.play('start')
+    if (id === 'season') {
+      this.inEndless = false
+      this.beginStep(0)
+      return
+    }
+    this.keepRecords()
+    this.nextModeNight()
+  }
+
+  /** The next night of Long Night, Classic Night or the Time Attack region. */
+  private nextModeNight() {
+    this.boss = null
+    this.bossId = null
+    this.dawn = null
+    this.card = null
+    this.ending = null
+    if (this.mode === 'timeattack') {
+      this.inEndless = false
+      const id = THREAD_REGIONS[this.attack.region]!
+      this.region = REGIONS[id]
+      this.level = this.attack.night + 1
+      this.plan = regionNights(id)[this.attack.night]!
+    } else if (this.mode === 'classic') {
+      this.inEndless = true
+      this.level++
+      this.region = REGIONS.riverbend
+      this.plan = classicNight(this.level)
+    } else {
+      this.inEndless = true
+      this.level++
+      const from = THREAD_REGIONS[(this.level - 1) % THREAD_REGIONS.length]!
+      this.region = REGIONS[from]
+      const look = this.region.nights[this.region.nights.length - 1]!
+      this.plan = {
+        ...endlessNight(longNightLevel(this.level)),
+        title: `NIGHT ${this.level}`,
+        wind: this.level % 3 === 0,
+        tide: look.tide,
+        fog: look.fog,
+        strings: look.strings,
+        storm: look.storm,
+      }
+    }
+    this.setupNight()
+    // Classic Night has no river map: straight onto the sky.
+    if (this.mode === 'classic') this.startPlay()
+  }
+
+  /** A save at the season's start: what a watch with no season under way keeps. */
+  private freshSave(): BlasterSave {
+    return {
+      v: 1,
+      step: 0,
+      score: 0,
+      lives: START_LIVES,
+      beads: 0,
+      owned: [],
+      hints: [],
+      threads: [...this.threads],
+      record: [...this.record],
+    }
+  }
+
+  /** Medals and bests live in the save for every mode; a Season's own progress is left as it was. */
+  private keepRecords() {
+    if (this.demo) return
+    const base = this.saveData ?? this.freshSave()
+    this.saveData = {
+      ...base,
+      cleared: this.cleared || base.cleared === true,
+      zero: this.zero || base.zero === true,
+      medals: { ...this.medals },
+      times: { ...this.times },
     }
   }
 
@@ -780,6 +1004,8 @@ class ButterflyBlaster implements ArcadeGameInstance {
     this.cleared = s.cleared === true
     this.dry = s.dry ?? 0
     this.zero = s.zero === true
+    this.medals = { ...s.medals }
+    this.times = { ...s.times }
     this.applyUpgrades()
     if (this.steps[s.step]?.kind === 'endless')
       this.level = Math.max(0, (s.level ?? this.levelAt(s.step)) - 1)
@@ -894,6 +1120,12 @@ class ButterflyBlaster implements ArcadeGameInstance {
     this.cloud = null
     this.drops = []
     this.ribbon.clear()
+    if (this.mode === 'classic') {
+      // The original had no village to thank you: the next wave just comes.
+      this.sound.play('level')
+      this.advance()
+      return
+    }
     if (this.wave < this.plan.waves.length - 1) {
       this.phase = 'gap'
       this.phaseTicks = WAVE_GAP
@@ -948,8 +1180,10 @@ class ButterflyBlaster implements ArcadeGameInstance {
     this.kitDrops = []
     this.fairy = null
     this.sound.play('level')
-    this.record.set(this.stepIndex, tally.unbitten)
-    if (thread && !this.inEndless) this.threads.add(this.region.id)
+    this.awardMedals(tally.perfect)
+    if (this.mode === 'season') this.record.set(this.stepIndex, tally.unbitten)
+    if (thread && this.mode === 'season' && !this.inEndless)
+      this.threads.add(this.region.id)
     this.beads += beads
     if (!this.demo) {
       this.score += total
@@ -967,6 +1201,33 @@ class ButterflyBlaster implements ArcadeGameInstance {
     }
   }
 
+  /** Tonight's medals: Not a Bite, Lasso Master and Swift Night, kept on the board per region. */
+  private awardMedals(perfect: boolean) {
+    this.nightMedals = 0
+    if (this.demo) return
+    let key: string | null = null
+    if (this.mode === 'timeattack')
+      key = medalKey(THREAD_REGIONS[this.attack.region]!, this.attack.night)
+    else if (this.mode === 'season' && !this.inEndless) {
+      const step = this.steps[this.stepIndex]
+      if (step?.kind === 'night') key = medalKey(step.region, step.night)
+    }
+    if (!key || this.bossId) return
+    const bits = medalsWon({
+      perfect,
+      biggestLoop: this.biggestLoop,
+      ticks: this.nightTicks,
+      night: this.plan,
+    })
+    this.nightMedals = bits
+    this.medals = { ...this.medals, [key]: (this.medals[key] ?? 0) | bits }
+    // The board is written now; the season's own place waits for the next night.
+    this.saveData = {
+      ...(this.saveData ?? this.freshSave()),
+      medals: { ...this.medals },
+    }
+  }
+
   // --- update ------------------------------------------------------------------------------------
 
   update(input: InputFrame) {
@@ -976,6 +1237,15 @@ class ButterflyBlaster implements ArcadeGameInstance {
     if (this.over) return
     const controls = this.demo ? this.demoInput() : input
 
+    if (this.phase === 'menu') {
+      this.updateMenu(controls)
+      return
+    }
+    if (this.phase === 'result') {
+      if (++this.phaseTicks > 60 && (input.pressed.a || input.pressed.start))
+        this.over = true
+      return
+    }
     if (this.phase === 'offer') {
       this.updateOffer(controls)
       return
@@ -1025,6 +1295,7 @@ class ButterflyBlaster implements ArcadeGameInstance {
     else this.tryRespawn()
 
     this.nightTicks++
+    this.attack.ticks++
     this.updateWind()
     this.updateWeather()
     this.updateShots()
@@ -1057,9 +1328,20 @@ class ButterflyBlaster implements ArcadeGameInstance {
     } else if (input.pressed.b) {
       // A new season: threads and ending history stay, the river starts again.
       this.offer = null
-      this.saveData = null
+      this.saveData = {
+        ...s,
+        step: 0,
+        score: 0,
+        beads: 0,
+        owned: [],
+        hints: [],
+        record: [],
+        level: undefined,
+      }
       this.threads = new Set(s.threads)
+      this.record = new Map()
       this.beginStep(0)
+      this.openMenu()
     }
   }
 
@@ -2183,6 +2465,7 @@ class ButterflyBlaster implements ArcadeGameInstance {
       this.sound.play(bossCaught ? 'extra' : 'blip')
       return
     }
+    this.biggestLoop = Math.max(this.biggestLoop, count)
     cx /= caught
     cy /= caught
     const mult = lassoMultiplier(count)
@@ -2661,6 +2944,25 @@ class ButterflyBlaster implements ArcadeGameInstance {
   }
 
   render(g: CanvasRenderingContext2D) {
+    if (this.phase === 'menu' && this.menu) {
+      renderMenu(
+        g,
+        {
+          cursor: this.menu.cursor,
+          region: this.menu.region,
+          open: this.openRegionList(),
+          times: this.times,
+          board: this.menu.board,
+          medals: this.medals,
+        },
+        this.tick,
+      )
+      return
+    }
+    if (this.phase === 'result') {
+      this.renderResult(g)
+      return
+    }
     if (this.phase === 'ending' && this.ending) {
       renderEnding(
         g,
@@ -3044,12 +3346,49 @@ class ButterflyBlaster implements ArcadeGameInstance {
     }
   }
 
+  private renderResult(g: CanvasRenderingContext2D) {
+    g.fillStyle = INK
+    g.fillRect(0, 0, W, H)
+    hudPanel(g, 60, 80, W - 120, 200, RAMPS.gold)
+    drawText(g, 'REGION CLEARED', W / 2, 98, {
+      scale: 2,
+      align: 'center',
+      color: '#ffffff',
+      outline: INK,
+    })
+    drawText(g, this.region.name, W / 2, 130, {
+      align: 'center',
+      color: RAMPS.gold[4],
+      outline: INK,
+    })
+    drawText(g, clock(this.attack.done), W / 2, 156, {
+      scale: 3,
+      align: 'center',
+      color: '#ffffff',
+      outline: INK,
+    })
+    const best = this.times[this.region.id]
+    drawText(
+      g,
+      best === this.attack.done ? 'A NEW BEST!' : `BEST ${clock(best ?? 0)}`,
+      W / 2,
+      192,
+      { align: 'center', color: RAMPS.sky[4], outline: INK },
+    )
+    drawText(g, 'A: DONE', W / 2, 240, {
+      align: 'center',
+      color: Math.floor(this.tick / 20) % 2 === 0 ? RAMPS.gold[4] : '#ffffff',
+      outline: INK,
+    })
+  }
+
   private renderTally(g: CanvasRenderingContext2D, tally: Dawn) {
     const t = DAWN_TICKS - this.phaseTicks
     const x = W / 2 - 150
     const y = 60
     const rows = tally.rows.length
-    const h = 96 + rows * 18 + (tally.perfect ? 18 : 0)
+    const h =
+      96 + rows * 18 + (tally.perfect ? 18 : 0) + (this.nightMedals ? 18 : 0)
     hudPanel(g, x, y, 300, h, RAMPS.gold)
     drawText(g, 'DAWN', W / 2, y + 8, {
       scale: 3,
@@ -3091,6 +3430,16 @@ class ButterflyBlaster implements ArcadeGameInstance {
           outline: INK,
         })
         ry += 18
+      }
+      if (this.nightMedals) {
+        const names = MEDALS.filter((m) => this.nightMedals & m.bit)
+          .map((m) => m.name)
+          .join('  ')
+        drawText(g, `MEDALS: ${names}`, W / 2, ry + 44, {
+          align: 'center',
+          color: RAMPS.leaf[3],
+          outline: INK,
+        })
       }
       drawText(g, `THANK YOU! ${tally.total}`, W / 2, ry + 2, {
         scale: 2,

@@ -28,13 +28,7 @@ export const H = 240
 export const HUD_H = 26
 
 export type MissionKind =
-  | 'plant'
-  | 'deliver'
-  | 'water'
-  | 'rescue'
-  | 'lantern'
-  | 'rings'
-  | 'boss'
+  'plant' | 'deliver' | 'water' | 'rescue' | 'lantern' | 'rings' | 'boss'
 
 /** The hazard roster (CABINETS.md section 9), in the order Free Flight unlocks them. */
 export const HAZARD_LADDER = [

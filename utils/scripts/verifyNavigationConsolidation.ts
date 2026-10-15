@@ -514,8 +514,13 @@ assert.ok(
 )
 assert.match(
   visitorDirectorySource,
-  /@container \(min-width: 56rem\)[\s\S]*?\.visitor-featured-grid \{[\s\S]*?minmax\(min\(100%, 15rem\), 1fr\)/,
-  'desktop must show larger, multi-row featured artwork rather than ten tiny tiles in one row',
+  /@container \(min-width: 56rem\)[\s\S]*?\.visitor-featured-grid \{[\s\S]*?repeat\(3, minmax\(0, 1fr\)\)/,
+  'standard desktop widths must show three readable artwork columns rather than ten tiny tiles',
+)
+assert.match(
+  visitorDirectorySource,
+  /@container \(min-width: 84rem\)[\s\S]*?\.visitor-featured-grid \{[\s\S]*?repeat\(4, minmax\(0, 1fr\)\)/,
+  'extra-wide desktop widths and browser zoom-out must cap the featured gallery at four columns',
 )
 assert.match(
   visitorDirectorySource,

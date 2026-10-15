@@ -46,9 +46,11 @@ def stamp():
 def windows(frame_count):
     if frame_count <= 0:
         raise ValueError("empty sample")
+    starts = [0]
+    while starts[-1] + WINDOW < frame_count:
+        starts.append(starts[-1] + STEP)
     return [(index, start, min(WINDOW, frame_count - start))
-            for index, start in enumerate(range(0, frame_count, STEP))
-            if start == 0 or start < frame_count]
+            for index, start in enumerate(starts)]
 
 
 def accepted_frames(frame_count):
@@ -262,14 +264,16 @@ def render(job_path, args):
         update(job_path, job, status="PILOT_BLOCKED", stage=str(error), error=str(error))
         return
     lock = job_dir / "pilot.lock"
+    owned_lock = False
     try:
         with lock.open("x", encoding="utf-8") as owned:
             owned.write(stamp())
+        owned_lock = True
         _render_unlocked(job_path, job, meta, source, pilot, frame_count, spans, args)
     except FileExistsError:
         print("Pilot already owned by another worker:", job["id"])
     finally:
-        if lock.is_file():
+        if owned_lock:
             lock.unlink(missing_ok=True)
 
 

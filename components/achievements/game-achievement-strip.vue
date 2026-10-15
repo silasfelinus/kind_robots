@@ -25,61 +25,61 @@
         :class="{ 'game-achievement-icon--open': openBadge === entry.code }"
         @keydown.esc="openBadge = ''"
       >
-          <button
-            type="button"
-            class="relative block aspect-square w-full cursor-pointer overflow-hidden rounded-xl border focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
-            :aria-expanded="openBadge === entry.code"
-            @click="openBadge = openBadge === entry.code ? '' : entry.code"
-            :class="
-              entry.earned
-                ? 'border-warning/70 bg-warning/10'
-                : 'border-base-300 bg-base-300/60'
-            "
-            :aria-label="
-              entry.label +
-              ': ' +
-              (entry.earned ? entry.message : entry.tooltip)
-            "
+        <button
+          type="button"
+          class="relative block aspect-square w-full cursor-pointer overflow-hidden rounded-xl border focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+          :aria-expanded="openBadge === entry.code"
+          @click="openBadge = openBadge === entry.code ? '' : entry.code"
+          :class="
+            entry.earned
+              ? 'border-warning/70 bg-warning/10'
+              : 'border-base-300 bg-base-300/60'
+          "
+          :aria-label="
+            entry.label +
+            ': ' +
+            (entry.earned ? entry.message : entry.tooltip)
+          "
+        >
+          <img
+            v-if="entry.imagePath"
+            :src="entry.imagePath"
+            alt=""
+            class="kr-img-cover"
+            :class="entry.earned ? '' : 'game-achievement-locked'"
+            loading="lazy"
+          />
+          <Icon
+            v-else
+            :name="entry.icon"
+            class="absolute inset-0 m-auto size-8"
+            :class="entry.earned ? 'text-warning' : 'text-base-content/35'"
+            aria-hidden="true"
+          />
+          <span
+            class="absolute bottom-1 left-1 flex gap-0.5 rounded-full bg-base-100/80 px-1 py-0.5"
+            aria-hidden="true"
           >
-            <img
-              v-if="entry.imagePath"
-              :src="entry.imagePath"
-              alt=""
-              class="kr-img-cover"
-              :class="entry.earned ? '' : 'game-achievement-locked'"
-              loading="lazy"
-            />
             <Icon
-              v-else
-              :name="entry.icon"
-              class="absolute inset-0 m-auto size-8"
-              :class="entry.earned ? 'text-warning' : 'text-base-content/35'"
-              aria-hidden="true"
+              v-for="n in 3"
+              :key="n"
+              name="kind-icon:star"
+              class="size-2.5"
+              :class="
+                n <= entry.tier ? 'text-warning' : 'text-base-content/20'
+              "
             />
-            <span
-              class="absolute bottom-1 left-1 flex gap-0.5 rounded-full bg-base-100/80 px-1 py-0.5"
-              aria-hidden="true"
-            >
-              <Icon
-                v-for="n in 3"
-                :key="n"
-                name="kind-icon:star"
-                class="size-2.5"
-                :class="
-                  n <= entry.tier ? 'text-warning' : 'text-base-content/20'
-                "
-              />
-            </span>
-          </button>
-          <div class="game-achievement-tooltip" role="tooltip">
-            <p class="font-bold">{{ entry.label }}</p>
-            <p class="mt-1 text-xs leading-snug">
-              {{ entry.earned ? entry.message : entry.tooltip }}
-            </p>
-            <p class="mt-1 text-xs font-bold text-warning">
-              {{ entry.earned ? 'Earned' : '+' + entry.karma + ' karma' }}
-            </p>
-          </div>
+          </span>
+        </button>
+        <div class="game-achievement-tooltip" role="tooltip">
+          <p class="font-bold">{{ entry.label }}</p>
+          <p class="mt-1 text-xs leading-snug">
+            {{ entry.earned ? entry.message : entry.tooltip }}
+          </p>
+          <p class="mt-1 text-xs font-bold text-warning">
+            {{ entry.earned ? 'Earned' : '+' + entry.karma + ' karma' }}
+          </p>
+        </div>
       </li>
     </ul>
 

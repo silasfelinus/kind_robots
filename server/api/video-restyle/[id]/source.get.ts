@@ -41,7 +41,7 @@ export default defineEventHandler(async (event) => {
       'Content-Type',
       CONTENT_TYPES[path.extname(job.sourceFile)] || 'application/octet-stream',
     )
-    setHeader(event, 'Content-Length', String(fileStat.size))
+    setHeader(event, 'Content-Length', fileStat.size)
     setHeader(event, 'Cache-Control', 'private, no-store')
     setHeader(event, 'X-Content-Type-Options', 'nosniff')
     return sendStream(event, createReadStream(filePath))

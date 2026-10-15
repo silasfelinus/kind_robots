@@ -151,11 +151,11 @@ function lay(game: Game, cells: Array<[number, number]>, dir: Way) {
   assert.equal(COMPONENTS[4], GRAPHICS_CARD)
   assert.equal(GRAPHICS_CARD.number, 5)
   assert.equal(GRAPHICS_CARD.mazes.length, 5)
-  assert.equal(BYTE_MAZES.length, 25)
+  assert.equal(BYTE_MAZES.length, 30)
   for (const layout of GRAPHICS_CARD.mazes)
     assert.deepEqual(mazeProblems(layout), [], `${layout.id} is sound`)
   assert.deepEqual(mazeProblems(GRAPHICS_CARD.boss.layout, 'boss'), [])
-  assert.deepEqual(mazeProblems(GRAPHICS_CARD.screensaver.layout, 'open'), [])
+  assert.deepEqual(mazeProblems(GRAPHICS_CARD.screensaver!.layout, 'open'), [])
   const all = GRAPHICS_CARD.mazes.map(parseMaze)
   assert.ok(
     all.every((m) => m.zfighters.length >= 2),
@@ -211,7 +211,7 @@ function lay(game: Game, cells: Array<[number, number]>, dir: Way) {
   }
   assert.equal(pictureColour('sunrise', 2, 2), null, 'off the lattice')
   // Paint: every pixel of the heart is a spark two cells apart.
-  const paint = parseMaze(GRAPHICS_CARD.screensaver.layout)
+  const paint = parseMaze(GRAPHICS_CARD.screensaver!.layout)
   const pixels = PAINT_ART.join('').replace(/ /g, '').length
   assert.equal(paint.sparks.length, pixels)
   for (const k of paint.sparks)

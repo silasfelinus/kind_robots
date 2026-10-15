@@ -306,6 +306,19 @@ const PIXEL_SPRITES = [
   pixelSprite(['wwHY', 'wHYG', 'HYGG', 'YGGd'], PIXEL_PALETTE),
 ] as const
 
+const TICK_PALETTE = {
+  w: '#ffffff',
+  H: RAMPS.gold[4],
+  Y: RAMPS.gold[3],
+  G: RAMPS.gold[2],
+  d: RAMPS.gold[1],
+}
+/** The CPU Core's sparks: a gold clock tick, a little diamond, and its twinkle. */
+const TICK_SPRITES = [
+  pixelSprite(['.HY.', 'HYYG', 'YYGG', '.GG.'], TICK_PALETTE),
+  pixelSprite(['.wH.', 'wHYG', 'HYGG', '.Gd.'], TICK_PALETTE),
+] as const
+
 export const SPARK_SPRITES: Record<
   SparkSet,
   readonly [PixelSprite, PixelSprite]
@@ -315,6 +328,7 @@ export const SPARK_SPRITES: Record<
   flake: FLAKE_SPRITES,
   note: NOTE_SPRITES,
   pixel: PIXEL_SPRITES,
+  tick: TICK_SPRITES,
 }
 
 /** A mimic spark's twinkle: the same shape, but its core flushes pink and two eyes open. */
@@ -342,6 +356,7 @@ export const MIMIC_TWINKLE: Record<SparkSet, PixelSprite> = {
     MIMIC_PALETTE,
   ),
   pixel: pixelSprite(['HHYY', 'kwkG', 'YYGG', 'YGGd'], MIMIC_PALETTE),
+  tick: pixelSprite(['.HY.', 'kwkG', 'YYGG', '.GG.'], MIMIC_PALETTE),
 }
 
 const BYTE_PALETTE = {
@@ -867,6 +882,16 @@ export function paintBoard(
           2,
           2,
         )
+      } else if (look.wallStyle === 'pins') {
+        // A CPU socket: a dark slab with rows of gold pins and a bright corner.
+        k.fillStyle = ramp[1]
+        k.fillRect(px + 1, py + 1, TILE - 2, TILE - 2)
+        k.fillStyle = RAMPS.gold[2]
+        for (let gy = 2; gy < TILE - 2; gy += 3)
+          for (let gx = 2; gx < TILE - 2; gx += 3)
+            if ((gx + gy + hash) % 2) k.fillRect(px + gx, py + gy, 2, 2)
+        k.fillStyle = RAMPS.gold[4]
+        k.fillRect(px + 2 + (hash % 3) * 3, py + 2, 2, 2)
       } else if (look.wallStyle === 'fins') {
         // Cooling fins: thin lit and shadowed ridges across the slab.
         for (let i = 2; i < TILE - 2; i += 3) {

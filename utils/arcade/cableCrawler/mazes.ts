@@ -36,6 +36,11 @@
 //   's' a glitch sprite's home: it teleports onto the spark you are heading for
 //   A layout with `scan` sweeps a scanline down the board; one with `picture` hides an image
 //   under its sparks, which each slurped spark reveals.
+// The CPU Core (t-067):
+//   'r' a rival cable's home: another cable racing you for the sparks
+//   '1' '2' '3' '4' a pin bank of the Sleepy Kernel (the cells of one bank share a digit)
+//   A layout with `clock` swings the whole board's pace in a cycle; one with `interrupts` has
+//   that many interrupts dropping a wall in front of the plug (an outline first).
 // Mirrored, the right half copies the left with 'P', '$' and 'B' left out (they stay unique) and
 // the left-right arrows turned round.
 
@@ -56,6 +61,10 @@ export type MazeLayout = {
   scan?: number
   /** The Graphics Card: the picture the sparks are the pixels of. */
   picture?: string
+  /** The CPU Core: the board's pace swings slow, steady, fast in a cycle. */
+  clock?: boolean
+  /** The CPU Core: how many interrupts drop walls in front of the plug. */
+  interrupts?: number
 }
 
 export type Way = { dx: number; dy: number }
@@ -90,6 +99,11 @@ export type Maze = {
   sprites: readonly number[]
   scan: number
   picture: string | null
+  /** The CPU Core: rival cables' homes, the Sleepy Kernel's pin banks, the clock and interrupts. */
+  rivals: readonly number[]
+  banks: readonly (readonly number[])[]
+  clock: boolean
+  interrupts: number
   boss: number | null
   /** One-way diodes, by cell. */
   diodes: ReadonlyMap<number, Way>
@@ -208,6 +222,10 @@ export function parseMaze(layout: MazeLayout): Maze {
     sprites: all('s'),
     scan: layout.scan ?? 0,
     picture: layout.picture ?? null,
+    rivals: all('r'),
+    banks: ['1', '2', '3', '4'].map(all).filter((b) => b.length > 0),
+    clock: layout.clock === true,
+    interrupts: layout.interrupts ?? 0,
     boss: all('B')[0] ?? null,
     diodes,
     air,

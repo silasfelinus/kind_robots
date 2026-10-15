@@ -35,6 +35,14 @@
 //      against your own length and it is stunned. Two surges.
 //    - Phase 3: it splits in two, one worm each way round the ring, and a surge must catch both.
 //      Two surges.
+// 6. The Sleepy Kernel (the CPU Core): a huge drowsy chip in the middle of the room with four pin
+//    banks round it. Lay the cable through all four banks (each stays lit while the cable is on
+//    it, and a while after) and surge: the current runs into the chip. Each surge puts the banks
+//    out and the Kernel dozes a moment, so the route must be laid again.
+//    - Phase 1: just the routing. Two surges.
+//    - Phase 2: the board's clock swings between slow and fast. Two surges.
+//    - Phase 3: interrupts drop walls in front of the plug as well. One surge, and the Mainframe
+//      boots.
 
 import type { BossKind } from './components'
 import { COLS, ROWS, cellKey, cellX, cellY } from './mazes'
@@ -73,6 +81,12 @@ export type Boss = {
   /** The Glitch's second worm (phase 3): its place on the ring (-1 until it splits) and way. */
   twin: number
   twinDir: 1 | -1
+  /** The Sleepy Kernel: the cells of its four pin banks, which are lit, and ticks to going dark. */
+  banks: readonly (readonly number[])[]
+  lit: boolean[]
+  fade: number[]
+  /** Ticks the Kernel dozes after a surge, when no bank will light. */
+  rest: number
 }
 
 export const SURGE_PROTECTOR_HP = 7
@@ -80,6 +94,10 @@ export const MEMORY_LEAK_HP = 4
 export const BIG_WHIRR_HP = 6
 export const SUBWOOFER_HP = 6
 export const THE_GLITCH_HP = 6
+export const SLEEPY_KERNEL_HP = 5
+/** Ticks a pin bank stays lit after the cable leaves it, and the Kernel's doze after a surge. */
+export const BANK_FADE = 60 * 7
+export const KERNEL_REST = 150
 /** How many ring cells long each of The Glitch's worms is. */
 export const WORM_LENGTH = 4
 /** Hits left at which each later phase begins. */
@@ -89,6 +107,7 @@ const PHASE_AT: Record<BossKind, readonly [number, number]> = {
   'big-whirr': [4, 2],
   subwoofer: [4, 2],
   'the-glitch': [4, 2],
+  'sleepy-kernel': [3, 1],
 }
 const WALK = [12, 10, 9] as const
 /** The Glitch's ticks per cell by phase. */
@@ -130,6 +149,7 @@ const BOSS_HP: Record<BossKind, number> = {
   'big-whirr': BIG_WHIRR_HP,
   subwoofer: SUBWOOFER_HP,
   'the-glitch': THE_GLITCH_HP,
+  'sleepy-kernel': SLEEPY_KERNEL_HP,
 }
 
 export function newBoss(
@@ -137,6 +157,7 @@ export function newBoss(
   ring: readonly number[],
   start: number,
   walls: readonly boolean[] = [],
+  banks: readonly (readonly number[])[] = [],
 ): Boss {
   return {
     kind,
@@ -159,6 +180,10 @@ export function newBoss(
     jam: 0,
     twin: -1,
     twinDir: -1,
+    banks,
+    lit: banks.map(() => false),
+    fade: banks.map(() => 0),
+    rest: 0,
   }
 }
 
@@ -216,7 +241,11 @@ export function bossCells(b: Boss): number[] {
       ...wormCells(b.ring, b.at, b.dir),
       ...(b.twin >= 0 ? wormCells(b.ring, b.twin, b.twinDir) : []),
     ]
-  if (b.kind === 'big-whirr' || b.kind === 'subwoofer')
+  if (
+    b.kind === 'big-whirr' ||
+    b.kind === 'subwoofer' ||
+    b.kind === 'sleepy-kernel'
+  )
     return near(b.center, 1, false)
   if (b.hp > 1) return near(b.center, blobRadius(b), true)
   return b.splits.filter((s) => s.down === 0).map((s) => s.k)
@@ -285,6 +314,7 @@ export function updateBoss(b: Boss, world: BossWorld) {
   if (b.kind === 'big-whirr') return updateWhirr(b, world)
   if (b.kind === 'subwoofer') return updateSubwoofer(b, world)
   if (b.kind === 'the-glitch') return updateGlitch(b, world)
+  if (b.kind === 'sleepy-kernel') return updateKernel(b, world)
   const phase = bossPhase(b)
   if (phase >= 2 && --b.shuffle <= 0) {
     b.shuffle = SHUFFLE_EVERY
@@ -469,6 +499,27 @@ function updateWhirr(b: Boss, world: BossWorld) {
   world.setWalls(whirrWalls(b))
 }
 
+/**
+ * The Sleepy Kernel: a pin bank lights while the cable lies on it and stays lit a while after.
+ * Nothing lights while the Kernel dozes after a surge.
+ */
+function updateKernel(b: Boss, world: BossWorld) {
+  b.timer++
+  if (b.rest > 0) b.rest--
+  b.banks.forEach((cells, i) => {
+    const on = cells.some((k) => world.cable(k) !== null)
+    if (on && b.rest === 0) {
+      b.lit[i] = true
+      b.fade[i] = BANK_FADE
+    } else if (b.lit[i] && --b.fade[i]! <= 0) b.lit[i] = false
+  })
+}
+
+/** Whether every pin bank of the Sleepy Kernel is lit: a surge now runs into the chip. */
+export function banksLit(b: Boss): boolean {
+  return b.banks.length > 0 && b.lit.every(Boolean)
+}
+
 /** The hub's four sides the cable lies against (the Big Whirr's last phase wants two). */
 export function wrapSides(b: Boss, cable: readonly number[]): number {
   const cx = cellX(b.center)
@@ -497,6 +548,8 @@ export function hitBoss(
   cable: readonly number[] = [],
 ): boolean {
   if (b.invuln > 0 || b.hp <= 0) return false
+  // The Sleepy Kernel takes any surge once all four banks are lit.
+  if (b.kind === 'sleepy-kernel' && !banksLit(b)) return false
   // The Subwoofer shrugs off a surge that lands in the middle of a beat.
   if (b.kind === 'subwoofer' && b.charging > 0) return false
   if (b.kind === 'memory-leak' && b.hp === 1) {
@@ -513,7 +566,7 @@ export function hitBoss(
     const two = wormCells(b.ring, b.twin, b.twinDir)
     if (!one.some((k) => swept.has(k)) || !two.some((k) => swept.has(k)))
       return false
-  } else {
+  } else if (b.kind !== 'sleepy-kernel') {
     if (!bossCells(b).some((k) => swept.has(k))) return false
     if (b.kind === 'big-whirr' && bossPhase(b) === 3 && wrapSides(b, cable) < 2)
       return false
@@ -525,6 +578,11 @@ export function hitBoss(
   b.tell = 0
   b.blocked = 0
   b.shuffle = Math.max(b.shuffle, SHUFFLE_TELL + 30)
+  if (b.kind === 'sleepy-kernel') {
+    b.lit = b.banks.map(() => false)
+    b.fade = b.banks.map(() => 0)
+    b.rest = KERNEL_REST
+  }
   if (b.kind === 'the-glitch' && bossPhase(b) === 3 && b.twin < 0)
     b.twin = (b.at + (b.ring.length >> 1)) % b.ring.length
   if (b.kind === 'memory-leak' && b.hp === 1)

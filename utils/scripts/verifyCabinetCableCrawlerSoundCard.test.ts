@@ -133,11 +133,11 @@ function lay(game: Game, cells: Array<[number, number]>, dir: Way) {
   assert.equal(COMPONENTS[3], SOUND_CARD)
   assert.equal(SOUND_CARD.number, 4)
   assert.equal(SOUND_CARD.mazes.length, 5)
-  assert.equal(BYTE_MAZES.length, 25)
+  assert.equal(BYTE_MAZES.length, 30)
   for (const layout of SOUND_CARD.mazes)
     assert.deepEqual(mazeProblems(layout), [], `${layout.id} is sound`)
   assert.deepEqual(mazeProblems(SOUND_CARD.boss.layout, 'boss'), [])
-  assert.deepEqual(mazeProblems(SOUND_CARD.screensaver.layout, 'open'), [])
+  assert.deepEqual(mazeProblems(SOUND_CARD.screensaver!.layout, 'open'), [])
   const all = SOUND_CARD.mazes.map(parseMaze)
   assert.ok(
     all.every((m) => m.gates.length >= 2),

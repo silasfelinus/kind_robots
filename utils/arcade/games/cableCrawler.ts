@@ -18,7 +18,8 @@
 //
 // Components so far: the Power Strip (t-064), RAM Rows and the Cooling Fan (t-065), the Sound
 // Card (t-066: beat gates, speaker cones, echoes, noise gnats, the Equaliser and the Subwoofer),
-// with the Workbench between components. Mazes, components, glitches, bosses, pickups, art and music live
+// and the Graphics Card (t-066: picture boards, scanlines, glitch sprites, z-fighter walls, Paint
+// and The Glitch), with the Workbench between components. Mazes, components, glitches, bosses, pickups, art and music live
 // in utils/arcade/cableCrawler/. Arrows steer; A and B work the Workbench and menus.
 
 import { drawText, measureText } from '../font'
@@ -66,6 +67,7 @@ import {
   REBOOT_SPRITE,
   REEL_SPRITE,
   SOCKET_SPRITE,
+  SPRITE_SPRITES,
   SPARK_SPRITES,
   TILE,
   TUBE_SURGE,
@@ -88,8 +90,10 @@ import {
   bossPhase,
   hitBoss,
   newBoss,
+  ringBoss,
   updateBoss,
   whirrWalls,
+  wormCells,
   wrapSides,
 } from '../cableCrawler/bosses'
 import {
@@ -120,6 +124,9 @@ import {
   MIMIC_SHORT,
   SNIP_MIN,
   SOLID_GLITCHES,
+  SPRITE_EVERY,
+  SPRITE_SIGHT,
+  SPRITE_TELL,
   WANDERERS,
   type Glitch,
   type GlitchKind,
@@ -157,6 +164,11 @@ import {
   type Pickup,
   pickupFor,
 } from '../cableCrawler/pickups'
+import {
+  paintColour,
+  pictureById,
+  pictureColour,
+} from '../cableCrawler/pictures'
 import {
   type CableSave,
   MAX_SAVED_LIVES,
@@ -225,6 +237,18 @@ const GATE_JAM = 20
 const CONE_EVERY = 60 * 2.5
 const CONE_TELL = 24
 const CONE_RING = 16
+/** The Graphics Card: a z-fighter wall's flicker cycle, how long it is solid, and its tell. */
+const ZF_CYCLE = 60 * 5
+const ZF_SHUT = 60 * 2
+const ZF_TELL = 24
+/** The scanline rests this many rows' worth of time between sweeps, and bites this many cells. */
+const SCAN_REST = 6
+const SCAN_BITE = 4
+/** What a restored picture is worth. */
+const PICTURE_BONUS = 2000
+/** Glitch sprites rest once fewer sparks than this are left. */
+const SPRITE_REST_SPARKS = 4
+
 /** The Equaliser's bars: their columns, how long a caught bar's spark waits to come back. */
 const EQ_COLUMNS = [2, 5, 8, 11, 14, 17, 20] as const
 const EQ_WAIT = 70
@@ -326,6 +350,10 @@ class CableCrawler implements ArcadeGameInstance {
   private gateTimer = GATE_EVERY
   private coneTimer = CONE_EVERY / 2
   private waves: Wave[] = []
+  /** The Graphics Card: the scanline's row (-1 before a sweep) and ticks to its next row. */
+  private scanRow = -1
+  private scanTimer = 0
+  private scanBitten = false
   /** The plug's cell on each of the last ECHO_DELAY ticks (an echo walks it back). */
   private trail: number[] = []
   private ring: number[] = []
@@ -473,6 +501,8 @@ class CableCrawler implements ArcadeGameInstance {
     this.coneTimer = CONE_EVERY / 2
     this.waves = []
     this.trail = []
+    this.scanRow = -1
+    this.scanTimer = this.maze.scan * 2
     this.applyGates()
     this.ring = s.kind === 'boss' ? ringOf(this.maze) : []
     this.sparks = new Set(this.maze.sparks)
@@ -490,6 +520,7 @@ class CableCrawler implements ArcadeGameInstance {
       ...spawn('drip', this.maze.drips),
       ...spawn('block', this.maze.blocks),
       ...spawn('gnats', this.maze.gnats),
+      ...spawn('sprite', this.maze.sprites),
       ...(this.maze.echoes.length ? [newGlitch('echo', this.maze.start)] : []),
     ]
     this.pickups = []
@@ -497,9 +528,12 @@ class CableCrawler implements ArcadeGameInstance {
     if (s.kind === 'boss') {
       const kind = this.component.boss.kind
       const lair = this.maze.boss ?? this.maze.start
-      if (kind === 'surge-protector' && this.ring.length)
+      if (
+        (kind === 'surge-protector' || kind === 'the-glitch') &&
+        this.ring.length
+      )
         this.boss = newBoss(kind, this.ring, lair)
-      else if (kind !== 'surge-protector')
+      else if (kind !== 'surge-protector' && kind !== 'the-glitch')
         this.boss = newBoss(kind, [], lair, this.maze.walls)
       if (this.boss?.kind === 'big-whirr') this.walls = whirrWalls(this.boss)
     }
@@ -519,6 +553,7 @@ class CableCrawler implements ArcadeGameInstance {
             bars: [],
           }
         : null
+    if (this.saver?.kind === 'paint') this.saver.total = this.sparks.size
     if (this.saver?.kind === 'equaliser') {
       this.saver.bars = EQ_COLUMNS.map((x, i) => ({
         x,
@@ -545,6 +580,7 @@ class CableCrawler implements ArcadeGameInstance {
       defrag: 'PUSH THE BLOCKS INTO THE SLOTS',
       breeze: 'RIDE THE AIR, CATCH THE FLAKES',
       equaliser: 'CATCH THE RISING SPARKS',
+      paint: 'COLOUR IN THE PICTURE',
     }
     this.banner = {
       text: this.boardTitle(),
@@ -598,7 +634,11 @@ class CableCrawler implements ArcadeGameInstance {
     this.magnet = 0
     this.pilot = null
     this.trail = []
+    this.scanRow = -1
+    this.scanTimer = this.maze.scan * 2
     for (const g of this.glitches) {
+      g.aim = -1
+      g.tell = 0
       if (!WANDERERS.has(g.kind) || g.gone) continue
       g.k = g.home
       g.timer = 40
@@ -606,8 +646,14 @@ class CableCrawler implements ArcadeGameInstance {
     }
     if (this.boss) {
       const b = this.boss
-      if (b.kind === 'surge-protector')
+      if (ringBoss(b)) {
         b.at = Math.max(0, this.ring.indexOf(this.maze.boss ?? this.ring[0]!))
+        b.dir = 1
+        if (b.twin >= 0) {
+          b.twin = (b.at + (this.ring.length >> 1)) % this.ring.length
+          b.twinDir = -1
+        }
+      }
       for (const s of b.splits) s.k = s.home
       b.stun = 90
       b.charging = 0
@@ -791,6 +837,8 @@ class CableCrawler implements ArcadeGameInstance {
       }
     }
     this.waves = this.waves.filter((w) => --w.life > 0)
+    if (this.maze.scan) this.updateScan()
+    if (this.maze.zfighters.length) this.applyZFighters()
     if (this.maze.refresh && --this.refreshTimer <= 0) {
       this.refreshTimer = REFRESH_EVERY
       this.refreshRows()
@@ -809,6 +857,157 @@ class CableCrawler implements ArcadeGameInstance {
       else this.goo.set(k, t - 1)
     for (const p of this.pickups) p.life--
     this.pickups = this.pickups.filter((p) => p.life > 0)
+  }
+
+  // --- the Graphics Card ----------------------------------------------------------------------
+
+  /** Whether a z-fighter wall wants to be solid right now. */
+  private zWantsShut(k: number, ahead = 0): boolean {
+    const i = this.maze.zfighters.indexOf(k)
+    return (this.tick + ahead + i * 97) % ZF_CYCLE < ZF_SHUT
+  }
+
+  /** Whether a z-fighter wall flickers its tell: it is about to go solid. */
+  private zTell(k: number): boolean {
+    return !this.zWantsShut(k) && this.zWantsShut(k, ZF_TELL)
+  }
+
+  /** Something a z-fighter wall must not go solid on. */
+  private zOccupied(k: number): boolean {
+    return (
+      this.body.includes(k) ||
+      this.pickups.some((p) => p.k === k) ||
+      this.glitches.some(
+        (g) =>
+          !g.gone &&
+          g.down === 0 &&
+          g.k === k &&
+          g.kind !== 'echo' &&
+          g.kind !== 'gnats',
+      ) ||
+      (!!this.boss && bossCells(this.boss).includes(k))
+    )
+  }
+
+  /** Put the z-fighter walls up or down. Like a beat gate, one never goes solid on the cable. */
+  private applyZFighters() {
+    let walls: boolean[] | null = null
+    for (const k of this.maze.zfighters) {
+      const shut = this.zWantsShut(k) && !this.zOccupied(k)
+      if (this.walls[k] === shut) continue
+      walls ??= [...this.walls]
+      walls[k] = shut
+    }
+    if (walls) this.walls = walls
+  }
+
+  /**
+   * The scanline sweeps the board a row at a time, with a flicker on the row it hits next. A plug
+   * caught on the row it reaches loses the tail end of its cable, once a sweep.
+   */
+  private updateScan() {
+    if (--this.scanTimer > 0) return
+    this.scanTimer = this.maze.scan
+    this.scanRow++
+    if (this.scanRow >= ROWS + SCAN_REST) this.scanRow = -1
+    if (this.scanRow <= 0) this.scanBitten = false
+    if (this.scanRow >= 0 && this.scanRow < ROWS) this.scanCut(this.scanRow)
+  }
+
+  private scanCut(y: number) {
+    if (this.dead > 0 || this.clear > 0 || this.scanBitten) return
+    if (cellY(this.body[0]!) !== y) return
+    const keep = Math.max(SNIP_MIN, this.body.length - SCAN_BITE)
+    if (keep >= this.body.length) return
+    this.scanBitten = true
+    for (const k of this.body.slice(keep))
+      this.crumbs.burst(px(k), py(k), this.fxRng, {
+        count: 2,
+        speed: 0.6,
+        colours: [RAMPS.teal[3]],
+      })
+    const tail = this.body[keep - 1]!
+    this.body.length = keep
+    this.grow = 0
+    this.floaters.push({
+      x: px(tail),
+      y: py(tail) - 10,
+      text: 'SCANNED!',
+      life: 60,
+    })
+    this.sound.play('pop')
+  }
+
+  /** The spark a glitch sprite will land on: the first one ahead of the plug, else the nearest. */
+  private spriteTarget(sprite: Glitch): number {
+    const head = this.body[0]!
+    let pos = head
+    let d = this.dir
+    for (let i = 0; i < SPRITE_SIGHT; i++) {
+      let next = step(pos, d)
+      if (next < 0 || this.isWall(next)) {
+        const way = DIRS.find((w) => {
+          const n = step(pos, w)
+          return !reverseOf(w, d) && n >= 0 && !this.isWall(n)
+        })
+        if (!way) break
+        d = way
+        next = step(pos, way)
+      }
+      if (this.sparks.has(next) && next !== sprite.k && next !== head)
+        return next
+      pos = next
+    }
+    let best = -1
+    let bestDist = 9
+    for (const k of this.sparks) {
+      const m = manhattan(k, head)
+      if (m > 1 && m < bestDist && k !== sprite.k && !this.body.includes(k)) {
+        best = k
+        bestDist = m
+      }
+    }
+    return best
+  }
+
+  /** A glitch sprite flickers a scanline on a spark, then teleports onto it. */
+  private updateSprite(g: Glitch) {
+    // The end of a maze is never contested: with a few sparks left a sprite loses interest and
+    // flickers out for a while.
+    if (this.sparks.size < SPRITE_REST_SPARKS) {
+      g.aim = -1
+      g.tell = 0
+      g.down = BUG_DOWN
+      return
+    }
+    if (g.tell > 0) {
+      if (--g.tell > 0) return
+      const to = g.aim
+      g.aim = -1
+      g.timer = SPRITE_EVERY
+      if (to < 0 || this.body.includes(to) || this.isWall(to)) return
+      if (
+        this.glitches.some(
+          (o) => o !== g && !o.gone && o.down === 0 && o.k === to,
+        )
+      )
+        return
+      this.fx.burst(px(g.k), py(g.k), this.fxRng, {
+        count: 6,
+        colours: [RAMPS.teal[4], RAMPS.pink[3], '#ffffff'],
+      })
+      g.k = to
+      this.sound.play('blip')
+      return
+    }
+    if (--g.timer > 0) return
+    const aim = this.spriteTarget(g)
+    if (aim < 0) {
+      g.timer = 30
+      return
+    }
+    g.aim = aim
+    g.tell = SPRITE_TELL
   }
 
   /** Ticks between beat-gate swaps: a little quicker on each lap of the Mainframe. */
@@ -1100,6 +1299,10 @@ class CableCrawler implements ArcadeGameInstance {
       this.unplug('RAN INTO YOUR ECHO')
       return
     }
+    if (this.glitchAt(next, 'sprite')) {
+      this.unplug('GLITCHED!')
+      return
+    }
     if (this.boss && bossCells(this.boss).includes(next)) {
       this.unplug('BONKED BY THE BOSS')
       return
@@ -1145,6 +1348,11 @@ class CableCrawler implements ArcadeGameInstance {
       if (this.saver) {
         this.saver.caught++
         this.addScore(STAR_POINTS * this.mult, x, y - 8, false)
+        if (
+          this.saver.kind === 'paint' &&
+          this.saver.caught >= this.saver.total
+        )
+          this.endSaver(true)
       } else {
         this.grow++
         this.addScore(SPARK_POINTS * this.mult, x, y - 8, false)
@@ -1343,6 +1551,9 @@ class CableCrawler implements ArcadeGameInstance {
           if (this.body.includes(g.home)) g.down = 30
           else {
             g.k = g.home
+            g.aim = -1
+            g.tell = 0
+            g.timer = SPRITE_EVERY / 2
             g.booting = g.kind === 'hotspot' ? 0 : BUG_BOOT
           }
         }
@@ -1353,6 +1564,10 @@ class CableCrawler implements ArcadeGameInstance {
         continue
       }
       g.age++
+      if (g.kind === 'sprite') {
+        this.updateSprite(g)
+        continue
+      }
       if (g.kind === 'gnats') {
         if (--g.timer <= 0) {
           g.timer = GNAT_STEP - Math.min(4, this.lap * 2)
@@ -1751,6 +1966,7 @@ class CableCrawler implements ArcadeGameInstance {
       defrag: 'BLOCKS IN',
       breeze: 'FLAKES CAUGHT',
       equaliser: 'SPARKS CAUGHT',
+      paint: 'PIXELS PAINTED',
     }
     this.banner = {
       text: onTime ? 'SCREEN WAKES!' : 'TANGLED: WAKING UP',
@@ -1777,9 +1993,14 @@ class CableCrawler implements ArcadeGameInstance {
         { count: 10, speed: 2 },
       )
     this.sound.play('level')
+    const picture = pictureById(this.maze.picture)
+    if (picture)
+      this.addScore(PICTURE_BONUS * this.mult, W / 2, H / 2 + 14, true)
     this.banner = {
-      text: 'MAZE CLEAR!',
-      sub: `BATTERY BONUS +${bonus}`,
+      text: picture ? 'PICTURE RESTORED!' : 'MAZE CLEAR!',
+      sub: picture
+        ? `${picture.name}  BONUS +${bonus + PICTURE_BONUS * this.mult}`
+        : `BATTERY BONUS +${bonus}`,
       ticks: CLEAR_TICKS,
     }
   }
@@ -1924,11 +2145,17 @@ class CableCrawler implements ArcadeGameInstance {
     }
     if (this.boss && this.boss.hp > 0) {
       const b = this.boss
-      if (b.kind === 'surge-protector') {
+      if (ringBoss(b)) {
         const n = b.ring.length
         const reach = b.charging || b.tell ? 10 : 2
         for (let i = -1; i <= reach; i++)
           out.add(b.ring[(((b.at + b.dir * i) % n) + n) % n]!)
+        if (b.kind === 'the-glitch') {
+          for (const k of bossCells(b)) out.add(k)
+          if (b.twin >= 0)
+            for (let i = -1; i <= 2; i++)
+              out.add(b.ring[(((b.twin + b.twinDir * i) % n) + n) % n]!)
+        }
       } else {
         for (const k of bossCells(b)) {
           out.add(k)
@@ -2073,7 +2300,12 @@ class CableCrawler implements ArcadeGameInstance {
       !(boss.kind === 'subwoofer' && (boss.charging > 0 || boss.tell > 0)) &&
       (boss.kind === 'memory-leak' && boss.hp === 1
         ? boss.splits.every((sp) => sp.down === 0 && sweep.has(sp.k))
-        : bossCells(boss).some((k) => sweep.has(k))) &&
+        : boss.kind === 'the-glitch' && boss.twin >= 0
+          ? wormCells(boss.ring, boss.at, boss.dir).some((k) => sweep.has(k)) &&
+            wormCells(boss.ring, boss.twin, boss.twinDir).some((k) =>
+              sweep.has(k),
+            )
+          : bossCells(boss).some((k) => sweep.has(k))) &&
       !(
         boss.kind === 'big-whirr' &&
         bossPhase(boss) === 3 &&
@@ -2085,7 +2317,7 @@ class CableCrawler implements ArcadeGameInstance {
       return new Set(ready.map((sk) => sk.k))
     if (boss && this.body.length >= 12) {
       const out = new Set<number>()
-      if (boss.kind === 'surge-protector') {
+      if (ringBoss(boss)) {
         // Lay the cable across the beetle's path, a little ahead of it.
         const n = boss.ring.length
         for (let i = 5; i <= 9; i++)
@@ -2186,7 +2418,9 @@ class CableCrawler implements ArcadeGameInstance {
       paintBoard(g, this.walls, this.component.look)
     }
     this.renderFloor(g)
+    this.renderPicture(g)
     this.renderBeat(g)
+    this.renderGraphicsBoard(g)
     if (this.saver?.kind === 'starfield') this.renderStarfield(g)
     if (this.saver?.kind === 'equaliser') this.renderEqualiser(g)
     this.renderSockets(g)
@@ -2480,6 +2714,67 @@ class CableCrawler implements ArcadeGameInstance {
   }
 
   /** Every spark: a baked glow under it, and a twinkle running across the board. */
+  /** The picture under the board: each slurped spark has revealed the pixel it sat on. */
+  private renderPicture(g: CanvasRenderingContext2D) {
+    const id = this.maze.picture
+    const painting = this.saver?.kind === 'paint'
+    if (!id && !painting) return
+    g.save()
+    g.globalAlpha = 0.55
+    for (const k of this.maze.sparks) {
+      if (this.sparks.has(k)) continue
+      const x = cellX(k)
+      const y = cellY(k)
+      const colour = id ? pictureColour(id, x, y) : paintColour(x, y)
+      if (!colour) continue
+      g.fillStyle = colour
+      for (let dy = 0; dy < 2; dy++)
+        for (let dx = 0; dx < 2; dx++) {
+          const c = cellKey(x + dx, y + dy)
+          if (x + dx < COLS && y + dy < ROWS && !this.walls[c])
+            g.fillRect((x + dx) * TILE, (y + dy) * TILE, TILE, TILE)
+        }
+    }
+    g.restore()
+  }
+
+  /** The Graphics Card's scanline and z-fighter walls. */
+  private renderGraphicsBoard(g: CanvasRenderingContext2D) {
+    const flicker = (this.tick >> 1) % 2
+    if (this.maze.scan) {
+      const next = this.scanRow + 1
+      if (next >= 0 && next < ROWS) {
+        g.fillStyle = rgba(RAMPS.teal[4], flicker ? 0.14 : 0.06)
+        g.fillRect(0, next * TILE, BOARD_W, TILE)
+      }
+      if (this.scanRow >= 0 && this.scanRow < ROWS) {
+        glow(
+          g,
+          BOARD_W / 2,
+          this.scanRow * TILE + TILE / 2,
+          BOARD_W / 2,
+          RAMPS.teal[4],
+          0.22,
+        )
+        g.fillStyle = rgba('#ffffff', 0.4)
+        g.fillRect(0, this.scanRow * TILE + 3, BOARD_W, 2)
+      }
+    }
+    for (const k of this.maze.zfighters) {
+      if (this.walls[k]) continue
+      const x = cellX(k) * TILE
+      const y = cellY(k) * TILE
+      const tell = this.zTell(k)
+      g.fillStyle = rgba(
+        tell ? RAMPS.pink[3] : RAMPS.teal[3],
+        tell ? (flicker ? 0.55 : 0.2) : 0.28,
+      )
+      g.fillRect(x, y, TILE, TILE)
+      g.fillStyle = rgba(RAMPS.teal[4], 0.7)
+      g.fillRect(x, y + 3 + ((this.tick >> 2) % 4), TILE, 1)
+    }
+  }
+
   private renderSparks(g: CanvasRenderingContext2D) {
     const set = SPARK_SPRITES[this.component.look.spark]
     const stamp = glowStamp(this.component.look.accent[3], 3, 0.45)
@@ -2590,6 +2885,17 @@ class CableCrawler implements ArcadeGameInstance {
         }
         if (manhattan(gl.k, head) <= GNAT_SIGHT)
           glow(g, x, y, 8, RAMPS.pink[2], 0.25)
+      } else if (gl.kind === 'sprite') {
+        // The tell: a scanline flickers on the spark it is about to land on.
+        if (gl.tell > 0 && gl.aim >= 0) {
+          const ax = px(gl.aim)
+          const ay = py(gl.aim)
+          glow(g, ax, ay, 11, RAMPS.pink[3], 0.4 + 0.2 * ((this.tick >> 1) % 2))
+          g.fillStyle = rgba('#ffffff', 0.6)
+          g.fillRect(ax - TILE / 2, ay - 4 + ((this.tick >> 1) % 8), TILE, 1)
+        }
+        glow(g, x, y, 9, RAMPS.teal[3], 0.3)
+        drawSprite(g, SPRITE_SPRITES[(this.tick >> 3) % 2]!, x, y)
       } else if (gl.kind === 'flipper') {
         drawSprite(g, FLIPPER_SPRITES[frame]!, x, y)
       } else if (gl.kind === 'drip') {
@@ -2635,6 +2941,7 @@ class CableCrawler implements ArcadeGameInstance {
     if (b.kind === 'memory-leak') return this.renderLeak(g, b)
     if (b.kind === 'big-whirr') return this.renderWhirr(g, b)
     if (b.kind === 'subwoofer') return this.renderSubwoofer(g, b)
+    if (b.kind === 'the-glitch') return this.renderTheGlitch(g, b)
     const k = bossCell(b)
     const x = px(k)
     const y = py(k)
@@ -2654,6 +2961,45 @@ class CableCrawler implements ArcadeGameInstance {
       { flipX: b.dir < 0 },
     )
     if (b.stun > 0) this.renderDizzy(g, x, y - 10)
+  }
+
+  /** The Glitch: a rival cable of corrupted pixels, one worm or (in phase 3) two. */
+  private renderTheGlitch(g: CanvasRenderingContext2D, b: Boss) {
+    if (b.invuln > 0 && Math.floor(b.invuln / 4) % 2) return
+    const worms = [wormCells(b.ring, b.at, b.dir)]
+    if (b.twin >= 0) worms.push(wormCells(b.ring, b.twin, b.twinDir))
+    const warn = b.tell > 0 || b.charging > 0
+    worms.forEach((cells, w) =>
+      cells.forEach((k, i) => {
+        const x = px(k)
+        const y = py(k)
+        const jitter = Math.floor(this.tick / 3 + k + i) % 5 === 0 ? 1 : 0
+        glow(
+          g,
+          x,
+          y,
+          11,
+          i === 0 ? RAMPS.pink[3] : RAMPS.teal[3],
+          warn ? 0.6 : 0.3,
+        )
+        g.fillStyle = INK
+        g.fillRect(x - 5 + jitter, y - 5, 11, 11)
+        g.fillStyle =
+          (i + w + Math.floor(this.tick / 6)) % 2
+            ? RAMPS.teal[3]
+            : RAMPS.pink[3]
+        g.fillRect(x - 4 + jitter, y - 4, 9, 9)
+        g.fillStyle = '#ffffff'
+        g.fillRect(x - 4, y - 4 + ((this.tick + i * 3) % 9), 9, 1)
+        if (i === 0) {
+          g.fillStyle = INK
+          g.fillRect(x - 3, y - 2, 2, 3)
+          g.fillRect(x + 1, y - 2, 2, 3)
+        }
+      }),
+    )
+    if (b.stun > 0)
+      this.renderDizzy(g, px(b.ring[b.at]!), py(b.ring[b.at]!) - 10)
   }
 
   private renderDizzy(g: CanvasRenderingContext2D, x: number, y: number) {

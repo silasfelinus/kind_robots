@@ -293,6 +293,19 @@ const NOTE_SPRITES = [
   ),
 ] as const
 
+const PIXEL_PALETTE = {
+  w: '#ffffff',
+  H: RAMPS.teal[4],
+  Y: RAMPS.teal[3],
+  G: RAMPS.teal[2],
+  d: RAMPS.teal[1],
+}
+/** The Graphics Card's sparks: a square pixel with a lit corner, and its twinkle. */
+const PIXEL_SPRITES = [
+  pixelSprite(['HHYY', 'HYYG', 'YYGG', 'YGGd'], PIXEL_PALETTE),
+  pixelSprite(['wwHY', 'wHYG', 'HYGG', 'YGGd'], PIXEL_PALETTE),
+] as const
+
 export const SPARK_SPRITES: Record<
   SparkSet,
   readonly [PixelSprite, PixelSprite]
@@ -301,6 +314,7 @@ export const SPARK_SPRITES: Record<
   bit: BIT_SPRITES,
   flake: FLAKE_SPRITES,
   note: NOTE_SPRITES,
+  pixel: PIXEL_SPRITES,
 }
 
 /** A mimic spark's twinkle: the same shape, but its core flushes pink and two eyes open. */
@@ -327,6 +341,7 @@ export const MIMIC_TWINKLE: Record<SparkSet, PixelSprite> = {
     ['..HwY', '.kkwG', '..HdY', '.wwG.', 'HwwGd', '.dGd.'],
     MIMIC_PALETTE,
   ),
+  pixel: pixelSprite(['HHYY', 'kwkG', 'YYGG', 'YGGd'], MIMIC_PALETTE),
 }
 
 const BYTE_PALETTE = {
@@ -390,6 +405,41 @@ const BUG_PALETTE = {
   y: RAMPS.gold[4],
 }
 /** A static bug: a fuzzy blue beetle with crackling antennae, legs scuttling. */
+const GLITCH_PALETTE = {
+  w: '#ffffff',
+  H: RAMPS.teal[4],
+  Y: RAMPS.pink[3],
+  G: RAMPS.teal[2],
+  k: INK,
+}
+/** A glitch sprite: a ragged little ghost of mismatched pixels, flickering between two frames. */
+export const SPRITE_SPRITES = [
+  pixelSprite(
+    [
+      '..HHH..',
+      '.HYHYH.',
+      'HHwHwHH',
+      'HYHHHYH',
+      'HHHHHHH',
+      'H.HH.HH',
+      '.H.H.H.',
+    ],
+    GLITCH_PALETTE,
+  ),
+  pixelSprite(
+    [
+      '..HHH..',
+      '.YHYHY.',
+      'HYwHwYH',
+      'HHHYHHH',
+      'HHYHHHH',
+      'HH.HH.H',
+      'H.H.H.H',
+    ],
+    GLITCH_PALETTE,
+  ),
+] as const
+
 export const BUG_SPRITES = [
   pixelSprite(
     [
@@ -802,6 +852,21 @@ export function paintBoard(
         k.fillRect(px + TILE - 3, py + 3, 1, 4)
         k.fillStyle = ramp[4]
         k.fillRect(px + 4, py + 4, 2, 2)
+      } else if (look.wallStyle === 'bezel') {
+        // A monitor bezel: a dark screen with a lit pixel grid and one bright pixel.
+        k.fillStyle = RAMPS.night[0]
+        k.fillRect(px + 1, py + 1, TILE - 2, TILE - 2)
+        k.fillStyle = ramp[hash % 2 ? 2 : 1]
+        for (let gy = 2; gy < TILE - 2; gy += 3)
+          for (let gx = 2; gx < TILE - 2; gx += 3)
+            k.fillRect(px + gx, py + gy, 2, 2)
+        k.fillStyle = ramp[4]
+        k.fillRect(
+          px + 2 + (hash % 3) * 3,
+          py + 2 + ((hash >> 2) % 3) * 3,
+          2,
+          2,
+        )
       } else if (look.wallStyle === 'fins') {
         // Cooling fins: thin lit and shadowed ridges across the slab.
         for (let i = 2; i < TILE - 2; i += 3) {

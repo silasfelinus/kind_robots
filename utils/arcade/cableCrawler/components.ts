@@ -15,11 +15,13 @@ import {
   type MazeLayout,
 } from './mazes'
 import { BREEZE, COOLING_FAN_MAZES, FAN_ROOM } from './mazesFan'
+import { GLITCH_ROOM, GRAPHICS_CARD_MAZES, PAINT } from './mazesGraphics'
 import { EQUALISER, SOUND_CARD_MAZES, SPEAKER_ROOM } from './mazesSound'
 import { DEFRAG, RAM_ROWS_MAZES, THE_HEAP } from './mazesRam'
 import {
   BOSS_MUSIC,
   COOLING_FAN_MUSIC,
+  GRAPHICS_CARD_MUSIC,
   POWER_STRIP_MUSIC,
   RAM_ROWS_MUSIC,
   SCREENSAVER_MUSIC,
@@ -28,14 +30,15 @@ import {
 } from './music'
 
 /** The spark sprite set a component uses: bolts, bits, snowflakes or notes. */
-export type SparkSet = 'bolt' | 'bit' | 'flake' | 'note'
+export type SparkSet = 'bolt' | 'bit' | 'flake' | 'note' | 'pixel'
 /** The Screensaver bonus board a component plays after its third maze. */
-export type ScreensaverKind = 'starfield' | 'defrag' | 'breeze' | 'equaliser'
+export type ScreensaverKind =
+  'starfield' | 'defrag' | 'breeze' | 'equaliser' | 'paint'
 /** The boss at the end of a component. */
 export type BossKind =
-  'surge-protector' | 'memory-leak' | 'big-whirr' | 'subwoofer'
+  'surge-protector' | 'memory-leak' | 'big-whirr' | 'subwoofer' | 'the-glitch'
 /** How a component's wall slabs are dressed: outlet plastic, RAM chips, or cooling fins. */
-export type WallStyle = 'plastic' | 'chips' | 'fins' | 'speakers'
+export type WallStyle = 'plastic' | 'chips' | 'fins' | 'speakers' | 'bezel'
 
 export type ComponentLook = {
   /** The wall slabs' ramp. */
@@ -161,12 +164,35 @@ export const SOUND_CARD: Component = {
   music: SOUND_CARD_MUSIC,
 }
 
+export const GRAPHICS_CARD: Component = {
+  id: 'graphics-card',
+  number: 5,
+  name: 'THE GRAPHICS CARD',
+  tagline: 'RESTORE THE PICTURE, MIND THE SCANLINE',
+  mazes: GRAPHICS_CARD_MAZES,
+  screensaver: { kind: 'paint', layout: PAINT, name: 'PAINT' },
+  boss: { kind: 'the-glitch', layout: GLITCH_ROOM, name: 'THE GLITCH' },
+  look: {
+    wall: RAMPS.teal,
+    wallStyle: 'bezel',
+    floor: ['#10283a', '#0c2030', '#081827', '#05101c'],
+    trace: '#2fa7a0',
+    accent: RAMPS.teal,
+    spark: 'pixel',
+  },
+  step: 6,
+  battery: 76,
+  bugStep: 11,
+  music: GRAPHICS_CARD_MUSIC,
+}
+
 /** The components in campaign order. */
 export const COMPONENTS: readonly Component[] = [
   POWER_STRIP,
   RAM_ROWS,
   COOLING_FAN,
   SOUND_CARD,
+  GRAPHICS_CARD,
 ]
 
 export { BOSS_MUSIC, SCREENSAVER_MUSIC, WORKBENCH_MUSIC }

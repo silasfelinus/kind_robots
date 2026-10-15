@@ -28,6 +28,13 @@
 //    - Phase 2: each pulse also sends a shockwave that shoves a plug within three cells away.
 //      Two surges.
 //    - Phase 3: the tempo doubles. Two surges.
+// 5. The Glitch (the Graphics Card): a rival cable of corrupted pixels, four cells long, walking
+//    the room's ring corridor. Touching its head unplugs you; its body is a wall.
+//    - Phase 1: a race for the ring, a surge through its body hits it. Two surges.
+//    - Phase 2: it sees the plug and cuts you off: a glowing tell, then a fast charge. Trap it
+//      against your own length and it is stunned. Two surges.
+//    - Phase 3: it splits in two, one worm each way round the ring, and a surge must catch both.
+//      Two surges.
 
 import type { BossKind } from './components'
 import { COLS, ROWS, cellKey, cellX, cellY } from './mazes'
@@ -63,20 +70,29 @@ export type Boss = {
   base: readonly boolean[]
   /** Ticks a blade has been jammed against the cable. */
   jam: number
+  /** The Glitch's second worm (phase 3): its place on the ring (-1 until it splits) and way. */
+  twin: number
+  twinDir: 1 | -1
 }
 
 export const SURGE_PROTECTOR_HP = 7
 export const MEMORY_LEAK_HP = 4
 export const BIG_WHIRR_HP = 6
 export const SUBWOOFER_HP = 6
+export const THE_GLITCH_HP = 6
+/** How many ring cells long each of The Glitch's worms is. */
+export const WORM_LENGTH = 4
 /** Hits left at which each later phase begins. */
 const PHASE_AT: Record<BossKind, readonly [number, number]> = {
   'surge-protector': [4, 2],
   'memory-leak': [3, 1],
   'big-whirr': [4, 2],
   subwoofer: [4, 2],
+  'the-glitch': [4, 2],
 }
 const WALK = [12, 10, 9] as const
+/** The Glitch's ticks per cell by phase. */
+const GLITCH_WALK = [11, 10, 9] as const
 const CHARGE_STEP = 3
 const CHARGE_SIGHT = 8
 const CHARGE_TELL = 36
@@ -113,6 +129,7 @@ const BOSS_HP: Record<BossKind, number> = {
   'memory-leak': MEMORY_LEAK_HP,
   'big-whirr': BIG_WHIRR_HP,
   subwoofer: SUBWOOFER_HP,
+  'the-glitch': THE_GLITCH_HP,
 }
 
 export function newBoss(
@@ -140,6 +157,8 @@ export function newBoss(
     angle: 0,
     base: walls,
     jam: 0,
+    twin: -1,
+    twinDir: -1,
   }
 }
 
@@ -151,7 +170,9 @@ export function bossPhase(b: Boss): number {
 
 /** Where the boss is drawn from: the beetle's cell, or the middle of the room. */
 export function bossCell(b: Boss): number {
-  return b.kind === 'surge-protector' ? b.ring[b.at]! : b.center
+  return b.kind === 'surge-protector' || b.kind === 'the-glitch'
+    ? b.ring[b.at]!
+    : b.center
 }
 
 /** The Memory Leak's blob: every cell within its radius of the middle. */
@@ -168,10 +189,33 @@ function near(center: number, r: number, round: boolean): number[] {
   return out
 }
 
+/** The ring cells of a worm whose head is at ring index `at` and which moves the way `dir`. */
+export function wormCells(
+  ring: readonly number[],
+  at: number,
+  dir: 1 | -1,
+): number[] {
+  const n = ring.length
+  const out: number[] = []
+  for (let i = 0; i < WORM_LENGTH; i++)
+    out.push(ring[(((at - dir * i) % n) + n) % n]!)
+  return out
+}
+
+/** Whether a boss walks the ring corridor (as a beetle, or as worms). */
+export function ringBoss(b: Boss): boolean {
+  return b.kind === 'surge-protector' || b.kind === 'the-glitch'
+}
+
 /** The cells the boss fills: the plug can't crawl into them, and meeting one is a bonk. */
 export function bossCells(b: Boss): number[] {
   if (b.hp <= 0) return []
   if (b.kind === 'surge-protector') return [b.ring[b.at]!]
+  if (b.kind === 'the-glitch')
+    return [
+      ...wormCells(b.ring, b.at, b.dir),
+      ...(b.twin >= 0 ? wormCells(b.ring, b.twin, b.twinDir) : []),
+    ]
   if (b.kind === 'big-whirr' || b.kind === 'subwoofer')
     return near(b.center, 1, false)
   if (b.hp > 1) return near(b.center, blobRadius(b), true)
@@ -240,6 +284,7 @@ export function updateBoss(b: Boss, world: BossWorld) {
   if (b.kind === 'memory-leak') return updateLeak(b, world)
   if (b.kind === 'big-whirr') return updateWhirr(b, world)
   if (b.kind === 'subwoofer') return updateSubwoofer(b, world)
+  if (b.kind === 'the-glitch') return updateGlitch(b, world)
   const phase = bossPhase(b)
   if (phase >= 2 && --b.shuffle <= 0) {
     b.shuffle = SHUFFLE_EVERY
@@ -287,6 +332,72 @@ export function updateBoss(b: Boss, world: BossWorld) {
   b.blocked = 0
   b.at = (((b.at + b.dir) % n) + n) % n
   if (b.charging && --b.charging === 0) b.timer = WALK[2]
+}
+
+function updateGlitch(b: Boss, world: BossWorld) {
+  const phase = bossPhase(b)
+  const n = b.ring.length
+  const wrap = (i: number) => ((i % n) + n) % n
+  if (phase === 3 && b.twin < 0) b.twin = wrap(b.at + (n >> 1))
+  if (b.stun > 0) {
+    b.stun--
+    return
+  }
+  const ahead = (from: number, dir: number, i: number) =>
+    b.ring[wrap(from + dir * i)]!
+  if (phase >= 2 && !b.charging) {
+    if (b.tell > 0) {
+      if (--b.tell === 0) b.charging = CHARGE_RUN
+      return
+    }
+    for (let i = 1; i <= CHARGE_SIGHT; i++) {
+      const sees = world.cable(ahead(b.at, b.dir, i))
+      if (sees === 'head') b.tell = CHARGE_TELL
+      if (sees) break
+    }
+    if (b.tell > 0) return
+  }
+  if (--b.timer > 0) return
+  b.timer = b.charging ? CHARGE_STEP : GLITCH_WALK[phase - 1]!
+  const next = ahead(b.at, b.dir, 1)
+  const there = world.cable(next)
+  if (there === 'head') {
+    world.bite()
+    return
+  }
+  if (there === 'body') {
+    if (b.charging) {
+      // A charge into the cable stuns the worm: a chance to surge.
+      b.charging = 0
+      b.stun = BONK_STUN
+      return
+    }
+    if (++b.blocked * GLITCH_WALK[phase - 1]! >= BLOCKED_TURN) {
+      b.blocked = 0
+      b.dir = b.dir === 1 ? -1 : 1
+    }
+  } else {
+    b.blocked = 0
+    b.at = wrap(b.at + b.dir)
+    if (b.charging && --b.charging === 0) b.timer = GLITCH_WALK[2]
+  }
+  if (b.twin < 0) return
+  const tnext = ahead(b.twin, b.twinDir, 1)
+  const tthere = world.cable(tnext)
+  if (tthere === 'head') {
+    world.bite()
+    return
+  }
+  const mine = wormCells(b.ring, b.at, b.dir)
+  if (tthere === 'body' || mine.includes(tnext)) {
+    if (++b.jam * GLITCH_WALK[phase - 1]! >= BLOCKED_TURN) {
+      b.jam = 0
+      b.twinDir = b.twinDir === 1 ? -1 : 1
+    }
+    return
+  }
+  b.jam = 0
+  b.twin = wrap(b.twin + b.twinDir)
 }
 
 function updateLeak(b: Boss, world: BossWorld) {
@@ -396,6 +507,12 @@ export function hitBoss(
       for (const s of caught) s.down = SPLIT_REFORM
       return false
     }
+  } else if (b.kind === 'the-glitch' && bossPhase(b) === 3 && b.twin >= 0) {
+    // Both worms must be caught by the same surge.
+    const one = wormCells(b.ring, b.at, b.dir)
+    const two = wormCells(b.ring, b.twin, b.twinDir)
+    if (!one.some((k) => swept.has(k)) || !two.some((k) => swept.has(k)))
+      return false
   } else {
     if (!bossCells(b).some((k) => swept.has(k))) return false
     if (b.kind === 'big-whirr' && bossPhase(b) === 3 && wrapSides(b, cable) < 2)
@@ -408,6 +525,8 @@ export function hitBoss(
   b.tell = 0
   b.blocked = 0
   b.shuffle = Math.max(b.shuffle, SHUFFLE_TELL + 30)
+  if (b.kind === 'the-glitch' && bossPhase(b) === 3 && b.twin < 0)
+    b.twin = (b.at + (b.ring.length >> 1)) % b.ring.length
   if (b.kind === 'memory-leak' && b.hp === 1)
     // The blob splits into three drips that crawl off along the rows.
     b.splits = [-2, 0, 2].map((dy, i) => {

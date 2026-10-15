@@ -37,7 +37,6 @@ import {
 } from '~/utils/shiftingLands/saveLedgerV4'
 import { computed, ref } from 'vue'
 import { useAchievementStore } from './achievementStore'
-import type { AuthoredJourneyState } from '~/utils/shiftingLands/authoredJourney'
 import {
   JOURNEY_WORLD,
   reachableLocations,
@@ -47,6 +46,7 @@ import {
 import {
   activeAuthoredEncounter,
   authoredOutcomeForLocation,
+  type AuthoredJourneyState,
   type AuthoredResult,
 } from '~/utils/shiftingLands/authoredJourney'
 

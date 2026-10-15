@@ -1,8 +1,13 @@
 import { defineStore } from 'pinia'
 import { computed, ref } from 'vue'
 import { performFetch } from '@/stores/utils'
-import { type VideoRestyleJob, } from '@/server/utils/videoRestyleJobs'
-import { RESTYLE_MAX_BYTES, RESTYLE_MAX_DURATION_SEC, type RestyleQuality, type RestyleStyleId } from '@/utils/videoRestylePlan'
+import type { VideoRestyleJob } from '@/server/utils/videoRestyleJobs'
+import {
+  RESTYLE_MAX_BYTES,
+  RESTYLE_MAX_DURATION_SEC,
+  type RestyleQuality,
+  type RestyleStyleId,
+} from '@/utils/videoRestylePlan'
 
 export const useVideoRestyleStore = defineStore('videoRestyle', () => {
   const jobs = ref<VideoRestyleJob[]>([])
@@ -11,10 +16,13 @@ export const useVideoRestyleStore = defineStore('videoRestyle', () => {
   const error = ref('')
   const notice = ref('')
   const previewUrl = ref<string | null>(null)
-  const selected = computed(() => jobs.value.find((job) => job.id === selectedId.value) ?? null)
+  const selected = computed(
+    () => jobs.value.find((job) => job.id === selectedId.value) ?? null,
+  )
 
   function clearPreview() {
-    if (previewUrl.value && import.meta.client) URL.revokeObjectURL(previewUrl.value)
+    if (previewUrl.value && import.meta.client)
+      URL.revokeObjectURL(previewUrl.value)
     previewUrl.value = null
   }
 
@@ -24,10 +32,16 @@ export const useVideoRestyleStore = defineStore('videoRestyle', () => {
   }
 
   async function refresh() {
-    const response = await performFetch<VideoRestyleJob[]>('/api/video-restyle', {}, 1, 30_000)
+    const response = await performFetch<VideoRestyleJob[]>(
+      '/api/video-restyle',
+      {},
+      1,
+      30_000,
+    )
     if (response.success && response.data) {
       jobs.value = response.data
-      if (!selectedId.value && jobs.value.length) selectedId.value = jobs.value[0]!.id
+      if (!selectedId.value && jobs.value.length)
+        selectedId.value = jobs.value[0]!.id
     } else {
       error.value = response.message || 'Cannot load your restyle projects.'
     }
@@ -46,7 +60,9 @@ export const useVideoRestyleStore = defineStore('videoRestyle', () => {
       error.value = 'Choose a video under 128 MiB.'
       return false
     }
-    if (!(input.durationSec >= 1 && input.durationSec <= RESTYLE_MAX_DURATION_SEC)) {
+    if (!(
+      input.durationSec >= 1 && input.durationSec <= RESTYLE_MAX_DURATION_SEC
+    )) {
       error.value = 'Choose a video between one second and fifteen minutes.'
       return false
     }
@@ -69,7 +85,8 @@ export const useVideoRestyleStore = defineStore('videoRestyle', () => {
         return false
       }
       selectedId.value = response.data.id
-      notice.value = 'Source saved privately. The motion-conditioned renderer is not connected yet.'
+      notice.value =
+        'Source saved privately. The motion-conditioned renderer is not connected yet.'
       await refresh()
       return true
     } catch (caught) {
@@ -80,5 +97,17 @@ export const useVideoRestyleStore = defineStore('videoRestyle', () => {
     }
   }
 
-  return { jobs, selected, selectedId, busy, error, notice, previewUrl, refresh, stage, preview, clearPreview }
+  return {
+    jobs,
+    selected,
+    selectedId,
+    busy,
+    error,
+    notice,
+    previewUrl,
+    refresh,
+    stage,
+    preview,
+    clearPreview,
+  }
 })

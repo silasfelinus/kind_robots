@@ -19,7 +19,7 @@ status transitions, media probing, resumability and reassembly.
 
 1. Run ffprobe against the private source, reject invalid media or durations
    above 15 minutes, inspect rotation, pixel aspect, fps, and audio streams.
-2. Rebuild the timestamp manifest from the *verified* source duration. The
+2. Rebuild the timestamp manifest from the _verified_ source duration. The
    client-provided duration is a hint only. Never truncate the original
    5:32 choreography by trusting that hint.
 3. Create motion/pose and optional depth/line guides from original frames.
@@ -33,7 +33,7 @@ status transitions, media probing, resumability and reassembly.
 5. Render a faithful 20-30 second sample including the coat flourish. Compare
    motion and silhouettes side-by-side with the original before full production.
 6. Stitch using exact source PTS, blend overlaps instead of duplicating frames,
-   copy the original synchronized audio and upscale *after* assembly (target
+   copy the original synchronized audio and upscale _after_ assembly (target
    720p or 1080p). Check duration, A/V sync and dropped-frame count.
 7. Persist progress server-side and offer a private playable MP4 download.
    Notification should be sent from the established queue/digest service,

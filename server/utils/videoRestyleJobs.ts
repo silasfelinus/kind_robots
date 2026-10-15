@@ -45,7 +45,8 @@ export type VideoRestyleJob = {
   }
 }
 
-const SAFE_ID = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i
+const SAFE_ID =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i
 
 function root(userId: number): string {
   return path.join(getArtArchiveRoot(), 'video-restyle', String(userId))
@@ -55,19 +56,29 @@ export function restyleSourcePath(job: VideoRestyleJob): string {
   return path.join(root(job.userId), job.id, job.sourceFile)
 }
 
-export async function loadRestyleJob(userId: number, id: string): Promise<VideoRestyleJob> {
-  if (!SAFE_ID.test(id)) throw createError({ statusCode: 404, message: 'Restyle not found.' })
+export async function loadRestyleJob(
+  userId: number,
+  id: string,
+): Promise<VideoRestyleJob> {
+  if (!SAFE_ID.test(id))
+    throw createError({ statusCode: 404, message: 'Restyle not found.' })
   try {
-    const content = await readFile(path.join(root(userId), id, 'job.json'), 'utf8')
+    const content = await readFile(
+      path.join(root(userId), id, 'job.json'),
+      'utf8',
+    )
     const job = JSON.parse(content) as VideoRestyleJob
-    if (job.userId !== userId || job.id !== id) throw new Error('Invalid job ownership.')
+    if (job.userId !== userId || job.id !== id)
+      throw new Error('Invalid job ownership.')
     return job
   } catch {
     throw createError({ statusCode: 404, message: 'Restyle not found.' })
   }
 }
 
-export async function listRestyleJobs(userId: number): Promise<VideoRestyleJob[]> {
+export async function listRestyleJobs(
+  userId: number,
+): Promise<VideoRestyleJob[]> {
   let names: string[]
   try {
     names = await readdir(root(userId))
@@ -76,10 +87,14 @@ export async function listRestyleJobs(userId: number): Promise<VideoRestyleJob[]
     throw error
   }
   const results = await Promise.all(
-    names.filter((name) => SAFE_ID.test(name)).map((id) => loadRestyleJob(userId, id).catch(() => null)),
+    names
+      .filter((name) => SAFE_ID.test(name))
+      .map((id) => loadRestyleJob(userId, id).catch(() => null)),
   )
-  return results.filter((job): job is VideoRestyleJob => Boolean(job))
-    .sort((a, b) => b.createdAt.localeCompare(a.createdAt)).slice(0, 100)
+  return results
+    .filter((job): job is VideoRestyleJob => Boolean(job))
+    .sort((a, b) => b.createdAt.localeCompare(a.createdAt))
+    .slice(0, 100)
 }
 
 function sourceFormat(bytes: Buffer): 'mp4' | 'mov' | 'webm' | null {
@@ -99,28 +114,48 @@ export async function stageRestyleVideo(input: {
   durationSec: unknown
 }): Promise<VideoRestyleJob> {
   if (!input.data.length || input.data.length > RESTYLE_MAX_BYTES) {
-    throw createError({ statusCode: 413, message: 'Upload must be a video under 128 MiB.' })
+    throw createError({
+      statusCode: 413,
+      message: 'Upload must be a video under 128 MiB.',
+    })
   }
   const format = sourceFormat(input.data)
-  if (!format) throw createError({ statusCode: 415, message: 'Upload an MP4, MOV or WebM video.' })
-  if (!isRestyleStyle(input.style)) throw createError({ statusCode: 400, message: 'Unknown animation style.' })
+  if (!format)
+    throw createError({
+      statusCode: 415,
+      message: 'Upload an MP4, MOV or WebM video.',
+    })
+  if (!isRestyleStyle(input.style))
+    throw createError({ statusCode: 400, message: 'Unknown animation style.' })
   if (input.quality !== '720p' && input.quality !== '1080p') {
     throw createError({ statusCode: 400, message: 'Choose 720p or 1080p.' })
   }
   const duration = Number(input.durationSec)
-  if (!Number.isFinite(duration) || duration < 1 || duration > RESTYLE_MAX_DURATION_SEC) {
-    throw createError({ statusCode: 400, message: 'Video must be between 1 second and 15 minutes.' })
+  if (
+    !Number.isFinite(duration) ||
+    duration < 1 ||
+    duration > RESTYLE_MAX_DURATION_SEC
+  ) {
+    throw createError({
+      statusCode: 400,
+      message: 'Video must be between 1 second and 15 minutes.',
+    })
   }
   const id = randomUUID()
   const directory = path.join(root(input.userId), id)
   await mkdir(directory, { recursive: true, mode: 0o700 })
   const now = new Date().toISOString()
-  const style = RESTYLE_STYLES.find((candidate) => candidate.id === input.style)!
+  const style = RESTYLE_STYLES.find(
+    (candidate) => candidate.id === input.style,
+  )!
   const file = `source.${format}`
   const job: VideoRestyleJob = {
     id,
     userId: input.userId,
-    title: String(input.title || 'Untitled performance').trim().slice(0, 120) || 'Untitled performance',
+    title:
+      String(input.title || 'Untitled performance')
+        .trim()
+        .slice(0, 120) || 'Untitled performance',
     sourceFile: file,
     sourceBytes: input.data.length,
     sourceDurationSec: duration,
@@ -146,7 +181,14 @@ export async function stageRestyleVideo(input: {
       stylePrompt: style.prompt,
     },
   }
-  await writeFile(path.join(directory, file), input.data, { flag: 'wx', mode: 0o600 })
-  await writeFile(path.join(directory, 'job.json'), JSON.stringify(job, null, 2), { flag: 'wx', mode: 0o600 })
+  await writeFile(path.join(directory, file), input.data, {
+    flag: 'wx',
+    mode: 0o600,
+  })
+  await writeFile(
+    path.join(directory, 'job.json'),
+    JSON.stringify(job, null, 2),
+    { flag: 'wx', mode: 0o600 },
+  )
   return job
 }

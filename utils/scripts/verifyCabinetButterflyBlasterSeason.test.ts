@@ -90,13 +90,17 @@ type Inner = {
 
 const quiet = { play: () => {} }
 function game(seed = 1, resume?: unknown, demo = false): Inner {
-  return create({
+  const g = create({
     rng: mulberry32(seed),
     sound: quiet,
     demo,
     hiScore: 0,
     resume,
   }) as unknown as Inner
+  // A fresh pilot meets the menu of modes (modes.ts); these tests play the Season.
+  if (g.phase === ('menu' as string))
+    (g as unknown as { begin(id: string): void }).begin('season')
+  return g
 }
 const frame = (...buttons: Array<keyof InputFrame['held']>) => {
   const f = emptyInput()

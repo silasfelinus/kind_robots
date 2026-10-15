@@ -45,7 +45,11 @@
             :class="{ 'arcade-details--hidden': !showDetails }"
             aria-label="High scores, achievements, instructions and reviews"
           >
-            <div class="arcade-details-tabs" role="group" aria-label="Game details">
+            <div
+              class="arcade-details-tabs"
+              role="group"
+              aria-label="Game details"
+            >
               <button
                 v-for="tab in detailTabs"
                 :key="tab.key"
@@ -62,10 +66,16 @@
             <div class="flex flex-col gap-3 p-3">
               <section
                 class="arcade-detail-section"
-                :class="{ 'arcade-detail-section--inactive': detailTab !== 'scores' }"
+                :class="{
+                  'arcade-detail-section--inactive': detailTab !== 'scores',
+                }"
                 aria-label="High scores"
               >
-                <section v-for="range in ranges" :key="range.key" class="mb-3 last:mb-0">
+                <section
+                  v-for="range in ranges"
+                  :key="range.key"
+                  class="mb-3 last:mb-0"
+                >
                   <p
                     class="mb-1 text-xs font-bold uppercase tracking-widest opacity-70"
                   >
@@ -114,7 +124,8 @@
               <section
                 class="arcade-detail-section"
                 :class="{
-                  'arcade-detail-section--inactive': detailTab !== 'achievements',
+                  'arcade-detail-section--inactive':
+                    detailTab !== 'achievements',
                 }"
                 aria-label="Achievements"
               >
@@ -124,11 +135,14 @@
               <section
                 class="arcade-detail-section"
                 :class="{
-                  'arcade-detail-section--inactive': detailTab !== 'instructions',
+                  'arcade-detail-section--inactive':
+                    detailTab !== 'instructions',
                 }"
                 aria-label="How to play"
               >
-                <h2 class="mb-1 text-xs font-bold uppercase tracking-widest opacity-70">
+                <h2
+                  class="mb-1 text-xs font-bold uppercase tracking-widest opacity-70"
+                >
                   How to play
                 </h2>
                 <p class="text-sm leading-relaxed">{{ meta.blurb }}</p>
@@ -140,8 +154,8 @@
                   v-if="meta.slug === 'butterfly-blaster'"
                   class="mt-2 text-sm leading-relaxed"
                 >
-                  On screen, the butterfly protects villages. Off screen, AMI buys
-                  real bed nets for families who need them:
+                  On screen, the butterfly protects villages. Off screen, AMI
+                  buys real bed nets for families who need them:
                   <a
                     href="https://againstmalaria.com/amibot"
                     target="_blank"
@@ -154,7 +168,9 @@
 
               <section
                 class="arcade-detail-section"
-                :class="{ 'arcade-detail-section--inactive': detailTab !== 'reviews' }"
+                :class="{
+                  'arcade-detail-section--inactive': detailTab !== 'reviews',
+                }"
               >
                 <ArcadeReviews :game="meta.slug" compact />
               </section>

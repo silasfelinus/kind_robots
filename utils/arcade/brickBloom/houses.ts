@@ -292,6 +292,29 @@ export function houseProblems(h: House): string[] {
   return problems
 }
 
+/** Where the Grand Tour stands: which house, and which wall of it. */
+export type TourPos = { house: number; wall: string }
+
+export const TOUR_START: TourPos = { house: 0, wall: SEEDLING_HOUSE.start }
+
+/** The left half of the screen takes the left vent, the right half the right one. */
+export function ventSide(x: number, width: number): 0 | 1 {
+  return x < width / 2 ? 0 : 1
+}
+
+/**
+ * The wall after a clear: a vent wall leads to the vent the last crate's side picked; a house's
+ * final wall leads to the next house's first wall; past the last house the tour is over (null).
+ */
+export function nextTourPos(pos: TourPos, side: 0 | 1): TourPos | null {
+  const house = HOUSES[pos.house]
+  const w = house && houseWall(house, pos.wall)
+  if (!house || !w) return null
+  if (w.vents !== 'boss') return { house: pos.house, wall: w.vents[side] }
+  const next = HOUSES[pos.house + 1]
+  return next ? { house: pos.house + 1, wall: next.start } : null
+}
+
 /** The crate kinds a house's walls use. */
 export function houseKinds(h: House): Set<CrateKind> {
   const kinds = new Set<CrateKind>()

@@ -9,6 +9,10 @@ const canvasRef = ref<HTMLCanvasElement | null>(null)
 
 const LOOP_SECONDS = 50
 const CRANES = 9
+const FLOCK_START_X = 0.16
+const FLOCK_TRAVEL_X = 1.1
+const BOB_CYCLES = 11
+const FLAP_CYCLES = 17
 const SCATTER_COOLDOWN_MS = 3000
 const SCATTER_DECAY_PER_SEC = 0.4
 const TWO_PI = Math.PI * 2
@@ -18,6 +22,7 @@ let resizeObserver: ResizeObserver | null = null
 let motionQuery: MediaQueryList | null = null
 let animationFrameId: number | null = null
 let lastFrameTs = 0
+let animationStartTs: number | null = null
 let width = 1
 let height = 1
 let reducedMotion = false
@@ -106,16 +111,18 @@ function drawCrane(size: number, flap: number, shade: number): void {
 function drawFlock(seconds: number): void {
   if (!context) return
   const phase = fract(seconds / LOOP_SECONDS)
-  const lead = -0.25 + 1.5 * phase
+  const lead = FLOCK_START_X + FLOCK_TRAVEL_X * phase
   const size = Math.min(width, height) * 0.035
-  for (let i = 0; i < CRANES; i += 1) {
-    const rank = Math.ceil(i / 2)
-    const side = i === 0 ? 0 : i % 2 === 1 ? -1 : 1
+  for (let i = 0; i < CRANES * 2; i += 1) {
+    const crane = i % CRANES
+    const wrap = i >= CRANES ? -FLOCK_TRAVEL_X : 0
+    const rank = Math.ceil(crane / 2)
+    const side = crane === 0 ? 0 : crane % 2 === 1 ? -1 : 1
     const ox = -rank * 0.045
     const oy = side * rank * 0.04
-    const bob = Math.sin(seconds * 1.4 + i * 0.9) * 0.008
-    const away = scatter * (hash(i + 7) - 0.5) * 0.3
-    let x = width * (lead + ox)
+    const bob = Math.sin(TWO_PI * BOB_CYCLES * phase + crane * 0.9) * 0.008
+    const away = scatter * (hash(crane + 7) - 0.5) * 0.3
+    let x = width * (lead + wrap + ox)
     let y = height * (0.42 + oy + bob + away)
     if (pointerX >= 0) {
       const dx = x - pointerX
@@ -128,8 +135,9 @@ function drawFlock(seconds: number): void {
         y += (dy / d) * push
       }
     }
-    const flap = 0.5 + 0.5 * Math.sin(seconds * 2.2 * 1 + i * 0.5)
-    const shade = 8 + Math.round(40 * hash(i + 31))
+    const flap =
+      0.5 + 0.5 * Math.sin(TWO_PI * FLAP_CYCLES * phase + crane * 0.5)
+    const shade = 8 + Math.round(40 * hash(crane + 31))
     context.save()
     context.translate(x, y)
     context.rotate(Math.PI / 2 + side * 0.05)
@@ -190,7 +198,8 @@ function renderFrame(timestamp: number): void {
   const dt = lastFrameTs ? Math.min(0.1, (timestamp - lastFrameTs) / 1000) : 0
   lastFrameTs = timestamp
   scatter = Math.max(0, scatter - SCATTER_DECAY_PER_SEC * dt)
-  drawScene(timestamp / 1000)
+  if (animationStartTs === null) animationStartTs = timestamp
+  drawScene((timestamp - animationStartTs) / 1000)
   animationFrameId = window.requestAnimationFrame(renderFrame)
 }
 
@@ -221,7 +230,10 @@ onMounted(() => {
   window.addEventListener('pointerdown', handlePointerDown, { passive: true })
   resizeCanvas()
   if (reducedMotion) drawScene(15)
-  else animationFrameId = window.requestAnimationFrame(renderFrame)
+  else {
+    drawScene(0)
+    animationFrameId = window.requestAnimationFrame(renderFrame)
+  }
 })
 
 onBeforeUnmount(() => {

@@ -54,6 +54,10 @@ const CORE_RADIUS = 4
 const GRAZE_RADIUS = 15
 const PILOT_COLORS = ['#ffd2ef', '#b8f8ff', '#ffe99f', '#b9a9ff'] as const
 const SHIP_NAMES = ['PETAL', 'PRISM', 'HALO', 'COMET'] as const
+const BURST_FRAMES = 42
+/** HUD text clears the cabinet's corner chips (close/fullscreen left, pause right). */
+const HUD_LEFT = 44
+const HUD_RIGHT = W - 26
 
 type Ship = {
   x: number
@@ -149,6 +153,7 @@ export function createRainbowPrincessPreview(
   let over = false
   let clearCount = 0
   let supers = 0
+  const bursts: Array<{ seat: number; x: number; y: number; age: number }> = []
   let boss: PinkwakeBoss | null = null
   let defeatedAt: number | null = null
   let rescuedStation = false
@@ -272,6 +277,7 @@ export function createRainbowPrincessPreview(
     if (ship.charge < 100) return
     ship.charge = 0
     supers++
+    bursts.push({ seat, x: ship.x, y: ship.y, age: 0 })
     enemyShots.length = 0
     if (boss && boss.frame > 85) {
       boss.hp -= seat === 1 ? 28 : 20
@@ -423,6 +429,8 @@ export function createRainbowPrincessPreview(
   function update(input: InputFrame, seated = [input]) {
     if (over) return
     tick++
+    for (let i = bursts.length - 1; i >= 0; i--)
+      if (++bursts[i]!.age > BURST_FRAMES) bursts.splice(i, 1)
     if (
       moonStart === null &&
       defeatedAt !== null &&
@@ -1036,6 +1044,70 @@ export function createRainbowPrincessPreview(
         g.strokeStyle = '#fff'
         g.font = 'bold 9px sans-serif'
         g.strokeText(String(seat + 1), -3, -17)
+        if (ship.charge >= 100 && Math.floor(tick / 10) % 2 === 0) {
+          g.fillStyle = PILOT_COLORS[seat]!
+          g.font = 'bold 7px monospace'
+          g.textAlign = 'center'
+          g.fillText('SUPER READY · TAP B', 0, 24)
+          g.textAlign = 'left'
+        }
+        g.restore()
+      }
+      for (const burst of bursts) {
+        const t = burst.age / BURST_FRAMES
+        const fade = 1 - t
+        const color = PILOT_COLORS[burst.seat]!
+        g.save()
+        if (burst.age < 8) {
+          g.globalAlpha = (8 - burst.age) / 16
+          g.fillStyle = color
+          g.fillRect(0, 0, W, H)
+        }
+        g.globalAlpha = fade
+        g.strokeStyle = color
+        g.fillStyle = color
+        g.shadowColor = color
+        g.shadowBlur = 18
+        if (burst.seat === 0) {
+          const r = 20 + t * 170
+          for (let petal = 0; petal < 8; petal++) {
+            const a = (petal / 8) * Math.PI * 2 + t * 1.5
+            g.beginPath()
+            g.ellipse(
+              burst.x + Math.cos(a) * r,
+              burst.y + Math.sin(a) * r,
+              14 * fade + 4,
+              6 * fade + 2,
+              a,
+              0,
+              Math.PI * 2,
+            )
+            g.fill()
+          }
+        } else if (burst.seat === 1) {
+          const half = 22 * fade + 2
+          g.fillRect(burst.x, burst.y - half, W - burst.x, half * 2)
+          g.fillStyle = '#ffffff'
+          g.fillRect(burst.x, burst.y - half / 3, W - burst.x, (half * 2) / 3)
+        } else if (burst.seat === 2) {
+          g.lineWidth = 4 * fade + 1
+          for (const scale of [1, 0.6]) {
+            g.beginPath()
+            g.arc(burst.x, burst.y, (24 + t * 140) * scale, 0, Math.PI * 2)
+            g.stroke()
+          }
+        } else {
+          for (let comet = 0; comet < 7; comet++) {
+            const y = burst.y + (comet - 3) * 18
+            const x = burst.x + t * (W - burst.x + 60) - comet * 6
+            g.beginPath()
+            g.moveTo(x, y)
+            g.lineTo(x - 46, y - 3)
+            g.lineTo(x - 46, y + 3)
+            g.closePath()
+            g.fill()
+          }
+        }
         g.restore()
       }
       g.fillStyle = '#180d38e8'
@@ -1044,19 +1116,23 @@ export function createRainbowPrincessPreview(
       g.font = 'bold 10px monospace'
       g.fillText(
         moonStart === null ? 'ACT I / PINKWAKE' : 'ACT II / MOONJELLY',
-        9,
+        HUD_LEFT,
         12,
       )
       g.font = '9px monospace'
-      g.fillText('A FIRE · HOLD B FOCUS · CHARGED B SUPER', 9, 24)
+      g.fillText('A FIRE · HOLD B FOCUS · TAP B AT 100% = SUPER', HUD_LEFT, 24)
       g.textAlign = 'right'
-      g.fillText(`SHOALS ${clearCount}  ·  NOVAS ${supers}`, W - 9, 12)
+      g.fillText(`SHOALS ${clearCount}  ·  NOVAS ${supers}`, HUD_RIGHT, 12)
+      if (activePlayers > 1) {
+        g.fillStyle = '#180d38e8'
+        g.fillRect(HUD_RIGHT - 150, 29, 158, (activePlayers - 1) * 10 + 4)
+      }
       for (let seat = 0; seat < activePlayers; seat++) {
         const ship = ships[seat]!
         g.fillStyle = PILOT_COLORS[seat]!
         g.fillText(
           `${SHIP_NAMES[seat]} ${ship.lives}♥ ${ship.shield}◇ P${ship.power} ${ship.charge}%`,
-          W - 9,
+          HUD_RIGHT,
           24 + seat * 10,
         )
       }
@@ -1080,22 +1156,23 @@ export function createRainbowPrincessPreview(
               rescuedNemi,
             )
         : null
+      const commsTop = 33 + Math.max(0, activePlayers - 1) * 10
       if (dialogue) {
         g.fillStyle = '#160b34e8'
-        g.fillRect(15, H - 63, W - 30, 51)
+        g.fillRect(15, commsTop, W - 30, 51)
         g.strokeStyle = '#ffe2fa'
         g.lineWidth = 1
-        g.strokeRect(15, H - 63, W - 30, 51)
+        g.strokeRect(15, commsTop, W - 30, 51)
         const portrait = drawRainbowCommsPortrait(
           g,
           dialogue.speaker,
           19,
-          H - 59,
+          commsTop + 4,
           43,
         )
         if (portrait) {
           g.strokeStyle = '#aef6f0'
-          g.strokeRect(19, H - 59, 43, 43)
+          g.strokeRect(19, commsTop + 4, 43, 43)
         }
         const textX = portrait ? 70 : 24
         const wrap = portrait ? 57 : 65
@@ -1104,7 +1181,7 @@ export function createRainbowPrincessPreview(
         g.fillText(
           `${scene!.id} / ${dialogue.speaker.toUpperCase()}`,
           textX,
-          H - 47,
+          commsTop + 16,
         )
         const words = dialogue.text.split(' ')
         const lines = ['']
@@ -1116,37 +1193,37 @@ export function createRainbowPrincessPreview(
         g.fillStyle = '#fff4fa'
         g.font = '9px monospace'
         for (let line = 0; line < Math.min(lines.length, 2); line++) {
-          g.fillText(lines[line]!, textX, H - 33 + line * 12)
+          g.fillText(lines[line]!, textX, commsTop + 30 + line * 12)
         }
       } else if (
         moonDefeatedFrame !== null &&
         moonFrame() - moonDefeatedFrame >= MOONJELLY.aftermathFrames
       ) {
         g.fillStyle = '#180d38d9'
-        g.fillRect(48, H - 47, W - 96, 33)
+        g.fillRect(48, commsTop, W - 96, 33)
         g.fillStyle = '#c7ffe6'
         g.textAlign = 'center'
         g.font = 'bold 11px monospace'
-        g.fillText('AURELIA FREED · ACT II PREVIEW CLEAR', W / 2, H - 28)
+        g.fillText('AURELIA FREED · ACT II PREVIEW CLEAR', W / 2, commsTop + 19)
         g.font = '8px monospace'
         g.fillText(
           'Safe transit to Chromatic Trench · Act III in production',
           W / 2,
-          H - 17,
+          commsTop + 30,
         )
         g.textAlign = 'left'
       } else if (moonStart === null && defeatedAt !== null) {
         g.fillStyle = '#180d38d9'
-        g.fillRect(65, H - 47, W - 130, 33)
+        g.fillRect(65, commsTop, W - 130, 33)
         g.fillStyle = '#c7ffe6'
         g.textAlign = 'center'
         g.font = 'bold 11px monospace'
-        g.fillText('POD RESCUED · ACT I PREVIEW CLEAR', W / 2, H - 28)
+        g.fillText('POD RESCUED · ACT I PREVIEW CLEAR', W / 2, commsTop + 19)
         g.font = '8px monospace'
         g.fillText(
           'Moonjelly Fields incoming: shields and power persist',
           W / 2,
-          H - 17,
+          commsTop + 30,
         )
         g.textAlign = 'left'
       }

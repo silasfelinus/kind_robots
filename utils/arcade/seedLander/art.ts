@@ -134,6 +134,45 @@ export const THEMES: Record<ThemeId, Theme> = {
     turf: ['#3a3a10', '#6a6a18', '#a8a030', '#e0d060', '#fff8c0'],
     soil: RAMPS.earth,
   },
+  gorge: {
+    sky: ['#12304a', '#1d4d6e', '#2c7490', '#4ea0a8', '#8cc8b8', '#c8e8c0'],
+    stars: 0,
+    orb: {
+      x: W - 74,
+      y: HUD_H + 28,
+      r: 12,
+      ramp: RAMPS.cream,
+      glow: RAMPS.sky[4],
+    },
+    planet: false,
+    cloud: [RAMPS.sky[0], RAMPS.sky[2], '#cfeaf0', '#ffffff', '#ffffff'],
+    far: { fill: mix(RAMPS.sky[1], RAMPS.leaf[0], 0.5), rim: RAMPS.sky[3] },
+    mid: { fill: mix(RAMPS.leaf[0], RAMPS.steel[1], 0.5), rim: RAMPS.leaf[2] },
+    haze: '#d8f4f0',
+    turf: [RAMPS.leaf[0], '#1f5a46', '#3c8a5c', '#7cc27c', '#d4f4b4'],
+    soil: RAMPS.steel,
+  },
+  cavern: {
+    sky: ['#06041a', '#0c0a2a', '#14123e', '#1c1a52', '#262466', '#322e7a'],
+    stars: 0,
+    orb: {
+      x: W - 60,
+      y: HUD_H + 30,
+      r: 6,
+      ramp: RAMPS.teal,
+      glow: RAMPS.teal[3],
+    },
+    planet: false,
+    cloud: ['#0c0a2a', '#14123e', '#1c1a52', '#262466', '#322e7a'],
+    far: {
+      fill: mix(RAMPS.night[1], RAMPS.purple[0], 0.5),
+      rim: RAMPS.purple[1],
+    },
+    mid: { fill: mix(RAMPS.night[2], RAMPS.teal[0], 0.5), rim: RAMPS.teal[1] },
+    haze: RAMPS.purple[2],
+    turf: [RAMPS.night[1], '#1a3a5a', '#2a6a7a', '#5ec4b4', '#bff8e8'],
+    soil: RAMPS.night,
+  },
   night: {
     sky: [
       RAMPS.night[0],
@@ -665,6 +704,32 @@ export function drawCargo(
     if (tick % 50 < 8) glow(g, cargo.x, cargo.y, 10, RAMPS.gold[3], 0.5)
   }
   dropShadow(g, cargo.x, cargo.y + cargo.r + 1, cargo.r, 1.2, 0.35)
+  if (cargo.kind === 'sprout') {
+    // A stranded sprout-bot: a little leaf-green body, a sprig on top and a blinking eye.
+    const blink = cargo.hookedBy < 0 && tick % 90 < 6
+    shadedOrb(g, cargo.x, cargo.y, cargo.r + 0.5, RAMPS.leaf)
+    g.fillStyle = INK
+    if (!blink)
+      g.fillRect(Math.round(cargo.x) - 2, Math.round(cargo.y) - 1, 4, 1)
+    g.fillRect(Math.round(cargo.x), Math.round(cargo.y) - cargo.r - 3, 1, 3)
+    g.fillStyle = RAMPS.leaf[4]
+    g.fillRect(Math.round(cargo.x) + 1, Math.round(cargo.y) - cargo.r - 3, 2, 1)
+    return
+  }
+  if (cargo.kind === 'water') {
+    // A water bubble: a wobbling blue orb with a highlight.
+    const wob = Math.sin(tick / 6) * 0.6
+    shadedOrb(
+      g,
+      cargo.x,
+      cargo.y + wob * 0.3,
+      cargo.r + 0.5 + wob * 0.3,
+      RAMPS.sky,
+    )
+    g.fillStyle = '#ffffff'
+    g.fillRect(Math.round(cargo.x) - 2, Math.round(cargo.y) - 3, 2, 1)
+    return
+  }
   drawSprite(g, CRATE, cargo.x, cargo.y)
   for (let i = 0; i < cargo.seedlings; i++) {
     g.fillStyle = INK

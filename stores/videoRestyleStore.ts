@@ -141,6 +141,61 @@ export const useVideoRestyleStore = defineStore('videoRestyle', () => {
     }
   }
 
+  async function queuePilot(id: string): Promise<boolean> {
+    busy.value = true
+    error.value = ''
+    notice.value = ''
+    try {
+      const response = await performFetch<VideoRestyleJob>(
+        `/api/video-restyle/${encodeURIComponent(id)}/pilot`,
+        { method: 'POST', body: JSON.stringify({}) },
+        1,
+        30_000,
+      )
+      if (!response.success || !response.data) {
+        error.value = response.message || 'Unable to queue the pilot.'
+        return false
+      }
+      jobs.value = jobs.value.map((job) =>
+        job.id === id ? response.data! : job,
+      )
+      notice.value = 'Pilot queued. A local GPU worker must be running to process it.'
+      return true
+    } finally {
+      busy.value = false
+    }
+  }
+
+  async function loadPilotPreview(id: string): Promise<boolean> {
+    if (!import.meta.client) return false
+    const userStore = useUserStore()
+    const token = userStore.token || userStore.user?.token
+    if (!token) {
+      error.value = 'Sign in to view your private pilot.'
+      return false
+    }
+    sourceBusy.value = true
+    error.value = ''
+    clearPreview()
+    try {
+      const response = await fetch(
+        `/api/video-restyle/${encodeURIComponent(id)}/result`,
+        { headers: { Authorization: `Bearer ${token}` } },
+      )
+      if (!response.ok) throw new Error('Pilot video is unavailable.')
+      const file = await response.blob()
+      if (!file.type.startsWith('video/')) throw new Error('Pilot result was not a video.')
+      if (selectedId.value !== id) return false
+      previewUrl.value = URL.createObjectURL(file)
+      return true
+    } catch (caught) {
+      error.value = caught instanceof Error ? caught.message : 'Unable to load pilot.'
+      return false
+    } finally {
+      sourceBusy.value = false
+    }
+  }
+
   async function saveSettings(
     id: string,
     style: RestyleStyleId,
@@ -180,6 +235,8 @@ export const useVideoRestyleStore = defineStore('videoRestyle', () => {
     refresh,
     stage,
     saveSettings,
+    queuePilot,
+    loadPilotPreview,
     loadSourcePreview,
     preview,
     clearPreview,

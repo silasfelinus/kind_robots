@@ -18,8 +18,8 @@ tutorial:
     Upload the full performance as MP4, MOV or WebM (128 MiB maximum, fifteen
     minutes maximum), select a look, and save the source privately. Your file,
     segment manifest and preferences persist under PRIVATE_PATH/video-restyle.
-    This first stage prepares the motion-preserving WAN VACE rendering recipe,
-    but does not yet enqueue ArtJobs or claim to generate an animated movie.
+    The 24-second pilot (2:38–3:02 in the original) queues a native WAN VACE\n    1.3B control-video worker job on the private mounted directory.\n    This stage prepares the motion-preserving WAN VACE rendering recipe,
+    but does not yet enqueue ArtJobs or claim a finished animated movie.
     A separate GPU worker must be built and verified on a 20-30 second excerpt
     before unattended processing, stitched exports, progress updates and
     notifications are enabled. The original framing and soundtrack are

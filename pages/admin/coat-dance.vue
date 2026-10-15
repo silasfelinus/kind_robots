@@ -361,13 +361,47 @@
                 />
               </div>
               <p class="text-base-content/70">{{ store.selected.stage }}</p>
+              <p v-if="store.selected.pilot" class="text-base-content/70">
+                {{ store.selected.pilot.completedSegments }}/{{ store.selected.pilot.totalSegments }} VACE motion windows
+                · {{ Math.round(store.selected.progress) }}%
+              </p>
+              <p v-if="store.selected.error" class="text-error" role="alert">
+                {{ store.selected.error }}
+              </p>
+              <button
+                v-if="
+                  (store.selected.status === 'STAGED' ||
+                    store.selected.status === 'PILOT_BLOCKED' ||
+                    store.selected.status === 'PILOT_FAILED') &&
+                  !sourceFile
+                "
+                type="button"
+                class="kr-btn kr-btn-primary w-full"
+                :disabled="store.busy || lookChanged || style !== 'illustrious'"
+                @click="store.queuePilot(store.selected.id)"
+              >
+                {{ store.busy ? 'Queueing…' : 'Render 24-second motion pilot' }}
+              </button>
+              <button
+                v-if="store.selected.status === 'REVIEW'"
+                type="button"
+                class="kr-btn kr-btn-primary w-full"
+                :disabled="store.sourceBusy"
+                @click="showPilot"
+              >
+                {{ store.sourceBusy ? 'Loading…' : 'Watch animated pilot' }}
+              </button>
+              <p v-if="lookChanged" class="kr-text-faded-xs">
+                Save the selected look before starting a pilot.
+              </p>
             </div>
             <div
               class="rounded-xl border border-warning/30 bg-warning/10 p-2 text-xs leading-relaxed"
             >
-              <strong>Renderer not connected yet.</strong> Upload and
-              render-plan storage work; WAN VACE conditioning, assembly, and
-              finish alerts are the next production stage.
+              <strong>Local GPU worker required.</strong> A pilot uses native
+              Wan VACE video control, not WAN image-to-video. Rendering waits
+              for the worker and VACE model on the home GPU; the full 5:32
+              run is still disabled until the pilot is reviewed.
             </div>
           </section>
         </div>
@@ -443,6 +477,13 @@ function selectJob(job: VideoRestyleJob) {
   activePanel.value = 'source'
 }
 
+async function showPilot() {
+  if (!store.selected) return
+  if (await store.loadPilotPreview(store.selected.id)) {
+    activePanel.value = 'source'
+  }
+}
+
 async function saveLook() {
   if (!store.selected || sourceFile.value) return
   await store.saveSettings(store.selected.id, style.value, quality.value)
@@ -487,6 +528,8 @@ async function stage() {
   }
 }
 
+let refreshTimer: ReturnType<typeof setInterval> | null = null
+
 onMounted(async () => {
   await userStore.initialize()
   if (userStore.isAdmin) {
@@ -494,7 +537,17 @@ onMounted(async () => {
     if (store.selected) selectJob(store.selected)
   }
   ready.value = true
+  if (userStore.isAdmin) {
+    refreshTimer = setInterval(() => {
+      if (store.jobs.some((job) => ['PILOT_QUEUED', 'PILOT_RUNNING'].includes(job.status))) {
+        void store.refresh()
+      }
+    }, 15_000)
+  }
 })
 
-onBeforeUnmount(() => store.clearPreview())
+onBeforeUnmount(() => {
+  if (refreshTimer) clearInterval(refreshTimer)
+  store.clearPreview()
+})
 </script>

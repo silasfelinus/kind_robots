@@ -34,6 +34,11 @@ const nightOrRoad: Choice[] = [
 
 const looterChoices: Choice[] = [
   {
+    id: 'walk-on',
+    label: 'Leave the raccoon alone and continue to the boardwalk.',
+    to: 'survivors',
+  },
+  {
     id: 'break',
     label: 'Take his knife wrist and break his hand.',
     to: 'a2-looter-broken',
@@ -205,7 +210,7 @@ export const ACT_II: Act = {
         choices: [
           {
             id: 'watch',
-            label: 'Stay in the smoke and watch him a while first.',
+            label: 'Watch from the smoke before deciding whether to intervene.',
             to: 'a2-looter-watch',
           },
           ...looterChoices,

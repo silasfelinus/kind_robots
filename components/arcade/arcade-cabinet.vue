@@ -2388,7 +2388,7 @@ onBeforeUnmount(() => {
 }
 
 @media (orientation: landscape) {
-  .cabinet-cluster-1 .cabinet-buttons {
+  .cabinet-overlay--duo .cabinet-cluster-1 .cabinet-buttons {
     right: auto;
     left: calc(max(1rem, env(safe-area-inset-left)) + var(--key) * 3 + 0.75rem);
   }

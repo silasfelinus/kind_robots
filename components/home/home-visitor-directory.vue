@@ -485,7 +485,7 @@ const newest = computed<ShowcaseCard[]>(() =>
   }
 
   .visitor-featured-grid {
-    grid-template-columns: repeat(auto-fit, minmax(min(100%, 15rem), 1fr));
+    grid-template-columns: repeat(3, minmax(0, 1fr));
     align-content: start;
   }
 
@@ -497,6 +497,11 @@ const newest = computed<ShowcaseCard[]>(() =>
   .visitor-featured-grid article p {
     font-size: 0.8125rem;
     line-height: 1.4;
+  }
+}
+@container (min-width: 84rem) {
+  .visitor-featured-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
   }
 }
 </style>

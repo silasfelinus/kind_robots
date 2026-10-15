@@ -452,11 +452,11 @@
 </template>
 
 <script setup lang="ts">
-defineProps<{ buttonLabel?: string }>()
-
 import { computed, onMounted, reactive, ref } from 'vue'
 import { useServerStore } from '@/stores/serverStore'
 import type { Server } from '~/prisma/generated/prisma/client'
+
+defineProps<{ buttonLabel?: string }>()
 
 type ProviderType = 'OPENAI' | 'ANTHROPIC'
 type LocalServerType = 'A1111' | 'COMFY' | 'OLLAMA'

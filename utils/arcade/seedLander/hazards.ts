@@ -9,6 +9,9 @@
 //   - crow-bots: they circle a roost, caw, then dive at the shadow of what they want (towed cargo
 //     first, else the pod). A hit knocks the pod's lean or steals a seedling; a resting pod is
 //     left alone.
+//   - waterfalls (Waterfall Gorge): white water that pushes the pod down, its spray slowing it;
+//   - drip stalactites: a drop swells (the tell), waits one beat, then falls and knocks the pod;
+//   - pebble rollers: pebbles wobble on a slope, then roll down it and bump what is in the way.
 // Updraft vents live with the mission format (missions.ts). Gameplay dice come from the game's rng.
 
 /** A band of steady wind across part of the island. */
@@ -272,4 +275,108 @@ export function rise(c: Crow) {
 /** A diving crow touching a point. */
 export function crowHits(c: Crow, x: number, y: number): boolean {
   return c.state === 'dive' && Math.hypot(c.x - x, c.y - y) < CROW.hit
+}
+
+// --- Waterfall Gorge (conductor kr-arcade/t-071) ------------------------------------------------
+
+/** A waterfall column: it pushes down, and its spray slows the pod. */
+export type FallSpec = {
+  x0: number
+  x1: number
+  y0: number
+  y1: number
+  /** Downward push per tick. */
+  push: number
+}
+
+/** A stalactite whose tip hangs at (x, y) and drips every `every` ticks. */
+export type DripSpec = { x: number; y: number; every: number; offset?: number }
+
+/** Pebbles that wobble at x0, then roll along the ground to x1 every `every` ticks. */
+export type PebbleSpec = {
+  x0: number
+  x1: number
+  every: number
+  offset?: number
+}
+
+export const FALL = {
+  /** The spray: speed across is multiplied by this each tick in the column. */
+  spray: 0.965,
+} as const
+
+export const DRIP = {
+  /** The drop swells this long before it lets go. */
+  swell: 54,
+  /** Then it hangs one beat. */
+  beat: 14,
+  gravity: 0.045,
+  hit: 5.5,
+  /** The knock a hit gives the pod's lean and drift. */
+  knock: 0.5,
+} as const
+
+export const PEBBLE = {
+  wobble: 56,
+  speed: 1.15,
+  hit: 6,
+  knock: 0.5,
+} as const
+
+/** Is a point inside a waterfall column? */
+export function inFall(falls: readonly FallSpec[], x: number, y: number) {
+  return falls.some((f) => x >= f.x0 && x <= f.x1 && y >= f.y0 && y <= f.y1)
+}
+
+/** Downward push from any waterfalls at a point. */
+export function fallPush(
+  falls: readonly FallSpec[],
+  x: number,
+  y: number,
+): number {
+  let push = 0
+  for (const f of falls)
+    if (x >= f.x0 && x <= f.x1 && y >= f.y0 && y <= f.y1) push += f.push
+  return push
+}
+
+export type DripView = {
+  /** 'swell' (the tell), 'hang' (one beat), 'fall', or 'wait'. */
+  state: 'swell' | 'hang' | 'fall' | 'wait'
+  /** The drop's position now. */
+  x: number
+  y: number
+  /** 0..1 how swollen. */
+  swell: number
+}
+
+/** A stalactite's drop at `tick`: deterministic from the tick, falling to `floor`. */
+export function dripAt(spec: DripSpec, tick: number, floor: number): DripView {
+  const t = (tick + (spec.offset ?? 0)) % spec.every
+  const x = spec.x
+  if (t < DRIP.swell)
+    return { state: 'swell', x, y: spec.y, swell: t / DRIP.swell }
+  if (t < DRIP.swell + DRIP.beat)
+    return { state: 'hang', x, y: spec.y + 1, swell: 1 }
+  const dt = t - DRIP.swell - DRIP.beat
+  const y = spec.y + 1 + 0.5 * DRIP.gravity * dt * dt
+  if (y >= floor) return { state: 'wait', x, y: floor, swell: 0 }
+  return { state: 'fall', x, y, swell: 0 }
+}
+
+export type PebbleView = { x: number; y: number; rolling: boolean }
+
+/** A pebble roller at `tick`, or null while the slope is quiet. */
+export function pebbleAt(
+  spec: PebbleSpec,
+  tick: number,
+  groundAt: (x: number) => number,
+): PebbleView | null {
+  const t = (tick + (spec.offset ?? 0)) % spec.every
+  if (t < PEBBLE.wobble)
+    return { x: spec.x0, y: groundAt(spec.x0) - 3, rolling: false }
+  const dir = Math.sign(spec.x1 - spec.x0) || 1
+  const x = spec.x0 + dir * (t - PEBBLE.wobble) * PEBBLE.speed
+  if ((x - spec.x1) * dir > 0) return null
+  return { x, y: groundAt(x) - 3, rolling: true }
 }

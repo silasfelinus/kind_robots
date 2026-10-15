@@ -19,8 +19,15 @@ import {
 } from '../snes'
 import { drawSunflower } from './art'
 import type { Growth } from './gardens'
-import type { Crow, Fluff, Windmill } from './hazards'
-import { sailAngles } from './hazards'
+import type {
+  Crow,
+  DripSpec,
+  FallSpec,
+  Fluff,
+  PebbleSpec,
+  Windmill,
+} from './hazards'
+import { dripAt, pebbleAt, sailAngles } from './hazards'
 import type { AcornSpec, RingSpec } from './missions'
 import type { Pad, PlantKind } from './terrain'
 
@@ -353,4 +360,106 @@ export function drawCrow(
   const frame =
     CROW_FRAMES[Math.floor(tick / (c.state === 'dive' ? 3 : 7)) % 2]!
   drawSprite(g, frame, c.x, c.y, { flipX: c.vx < 0 })
+}
+
+/** A waterfall: white water streaming down a column, spray at its foot. */
+export function drawFall(
+  g: CanvasRenderingContext2D,
+  f: FallSpec,
+  tick: number,
+) {
+  const w = f.x1 - f.x0
+  g.fillStyle = rgba(RAMPS.sky[4], 0.28)
+  g.fillRect(f.x0, f.y0, w, f.y1 - f.y0)
+  for (let i = 0; i < Math.floor(w / 3); i++) {
+    const x = f.x0 + 1 + i * 3
+    const run = 14 + ((i * 7) % 11)
+    const off = (tick * (1.6 + (i % 3) * 0.4) + i * 23) % (f.y1 - f.y0 + run)
+    const y0 = f.y0 + off - run
+    const top = Math.max(f.y0, y0)
+    const bottom = Math.min(f.y1, y0 + run)
+    if (bottom <= top) continue
+    g.fillStyle = i % 2 ? '#ffffff' : RAMPS.sky[4]
+    g.fillRect(x, top, 2, bottom - top)
+  }
+  for (let k = 0; k < 6; k++) {
+    const sx = f.x0 + ((k * 13 + tick * 0.7) % (w + 14)) - 7
+    const sy = f.y1 - ((tick * 0.5 + k * 5) % 9)
+    g.fillStyle = rgba('#ffffff', 0.55)
+    g.fillRect(Math.round(sx), Math.round(sy), 2, 1)
+  }
+  g.fillStyle = rgba('#ffffff', 0.4)
+  g.fillRect(f.x0 - 3, f.y1 - 3, w + 6, 3)
+}
+
+/** A drip stalactite: a rock tooth with a drop that swells, hangs, then falls. */
+export function drawDrip(
+  g: CanvasRenderingContext2D,
+  d: DripSpec,
+  floor: number,
+  tick: number,
+) {
+  g.fillStyle = INK
+  g.beginPath()
+  g.moveTo(d.x - 6, d.y - 22)
+  g.lineTo(d.x + 6, d.y - 22)
+  g.lineTo(d.x + 1, d.y + 1)
+  g.lineTo(d.x - 1, d.y + 1)
+  g.closePath()
+  g.fill()
+  g.fillStyle = RAMPS.steel[2]
+  g.beginPath()
+  g.moveTo(d.x - 4, d.y - 22)
+  g.lineTo(d.x + 4, d.y - 22)
+  g.lineTo(d.x + 0.5, d.y - 2)
+  g.lineTo(d.x - 0.5, d.y - 2)
+  g.closePath()
+  g.fill()
+  const v = dripAt(d, tick, floor)
+  if (v.state === 'wait') return
+  const r = v.state === 'swell' ? 0.8 + v.swell * 1.8 : 2.4
+  if (v.state === 'hang' && tick % 6 < 3)
+    glow(g, v.x, v.y, 8, RAMPS.sky[4], 0.4)
+  g.fillStyle = INK
+  g.fillRect(
+    Math.round(v.x - r - 0.5),
+    Math.round(v.y - r),
+    Math.ceil(r * 2 + 1),
+    Math.ceil(r * 2 + 1),
+  )
+  g.fillStyle = v.state === 'fall' ? '#ffffff' : RAMPS.sky[3]
+  g.fillRect(
+    Math.round(v.x - r + 0.5),
+    Math.round(v.y - r + 1),
+    Math.max(1, Math.ceil(r * 2 - 1)),
+    Math.max(1, Math.ceil(r * 2 - 1)),
+  )
+}
+
+/** A pebble that wobbles on its slope (the tell) and then rolls down it. */
+export function drawPebble(
+  g: CanvasRenderingContext2D,
+  p: PebbleSpec,
+  groundAt: (x: number) => number,
+  tick: number,
+) {
+  const v = pebbleAt(p, tick, groundAt)
+  if (!v) return
+  const wob = v.rolling ? 0 : Math.sin(tick * 0.9) * 1.2
+  shadedOrb(g, v.x + wob, v.y - 1, 4, RAMPS.steel)
+  if (!v.rolling && tick % 14 < 7)
+    drawText(g, '!', v.x, v.y - 12, {
+      align: 'center',
+      color: RAMPS.ember[3],
+      outline: INK,
+    })
+  if (v.rolling && tick % 4 < 2) {
+    g.fillStyle = rgba(RAMPS.earth[3], 0.6)
+    g.fillRect(
+      Math.round(v.x - Math.sign(p.x1 - p.x0) * 5),
+      Math.round(v.y + 1),
+      2,
+      1,
+    )
+  }
 }

@@ -1,0 +1,247 @@
+<template>
+  <main class="kr-surface h-full min-h-0 overflow-hidden">
+    <div class="kr-container-wide flex h-full min-h-0 flex-col gap-3 p-3 sm:p-4">
+      <header class="flex flex-wrap items-center justify-between gap-2">
+        <nav class="flex items-center gap-1 rounded-xl border border-base-300 bg-base-100/80 p-1" aria-label="Video generation mode">
+          <NuxtLink to="/play/video-generator" class="kr-btn-xs btn-ghost">Image to video</NuxtLink>
+          <span class="kr-btn-xs btn-primary" aria-current="page">Full video restyle</span>
+        </nav>
+        <div class="flex items-center gap-2 text-xs">
+          <span class="kr-badge-outline">Private studio</span>
+          <span class="kr-badge-outline">Source motion retained</span>
+        </div>
+      </header>
+
+      <div v-if="!ready" class="kr-panel grid flex-1 place-items-center">
+        <span class="kr-spinner-lg-primary" />
+      </div>
+      <div v-else-if="!userStore.isAdmin" class="kr-panel grid flex-1 place-items-center p-6">
+        <p>This studio is currently available to administrators.</p>
+      </div>
+      <template v-else>
+        <div v-if="store.error" role="alert" class="kr-note kr-note-error flex items-center justify-between gap-2 p-2 text-sm">
+          {{ store.error }}
+          <button type="button" class="kr-btn-xs" @click="store.error = ''">Dismiss</button>
+        </div>
+        <div v-if="store.notice" role="status" class="kr-note p-2 text-xs">
+          {{ store.notice }}
+        </div>
+        <nav class="grid grid-cols-3 gap-1 rounded-xl bg-base-200 p-1 lg:hidden" aria-label="Studio panels">
+          <button v-for="panel in panels" :key="panel.value" type="button"
+            class="kr-btn-xs" :class="activePanel === panel.value ? 'btn-primary' : 'btn-ghost'"
+            @click="activePanel = panel.value">
+            {{ panel.label }}
+          </button>
+        </nav>
+        <div class="grid min-h-0 flex-1 gap-3 lg:grid-cols-[minmax(0,1.35fr)_minmax(15rem,0.85fr)_minmax(14rem,0.7fr)]">
+          <section v-show="activePanel === 'source'" class="kr-panel flex min-h-0 flex-col gap-3 overflow-hidden p-3 lg:flex"
+            aria-label="Source performance">
+            <div class="flex items-center justify-between">
+              <span class="kr-text-semibold-sm">01 / Source performance</span>
+              <span class="kr-badge-ghost-sm">{{ durationSec ? formatRestyleTime(durationSec) : 'Ready for video' }}</span>
+            </div>
+            <div class="relative grid min-h-0 flex-1 place-items-center overflow-hidden rounded-2xl border border-base-300 bg-neutral text-neutral-content">
+              <video v-if="store.previewUrl" :src="store.previewUrl" controls playsinline preload="metadata"
+                class="max-h-full w-full object-contain" aria-label="Source video preview"
+                @loadedmetadata="readVideoMetadata" />
+              <template v-else>
+                <img src="/images/channels/plan/video-generator.webp" alt="Illustrated video creation stage"
+                  class="absolute inset-0 h-full w-full object-cover opacity-50" />
+                <div class="absolute inset-0 bg-gradient-to-t from-neutral via-neutral/35 to-transparent" />
+                <div class="relative max-w-xs space-y-2 p-4 text-center">
+                  <icon name="kind-icon:video" class="mx-auto h-10 w-10" />
+                  <p class="text-xl font-black tracking-tight">Keep the dance. Change the world.</p>
+                  <p class="text-sm opacity-80">The performance stays in frame. The coat gets its own animated life.</p>
+                </div>
+              </template>
+            </div>
+            <div class="grid gap-2 sm:grid-cols-[1fr_auto]">
+              <label class="min-w-0">
+                <span class="kr-text-faded-xs block">Project title</span>
+                <input v-model="title" type="text" class="kr-input w-full" maxlength="120"
+                  placeholder="Coat Dance / original performance" aria-label="Project title" />
+              </label>
+              <label class="flex cursor-pointer flex-col justify-end">
+                <span class="kr-text-faded-xs block">Source video</span>
+                <span class="kr-btn btn-outline w-full sm:w-auto">{{ sourceFile ? 'Replace file' : 'Choose MP4 / MOV / WebM' }}</span>
+                <input ref="fileInput" type="file" class="sr-only" accept=".mp4,.mov,.webm,video/mp4,video/quicktime,video/webm"
+                  @change="chooseFile" />
+              </label>
+            </div>
+            <div class="flex flex-wrap items-center justify-between gap-2 text-xs opacity-80">
+              <span>{{ sourceFile ? fileDescription : 'Up to 128 MiB · 15 minutes' }}</span>
+              <span>Original audio & camera preserved</span>
+            </div>
+            <button type="button" class="kr-btn kr-btn-primary w-full" :disabled="!canStage || store.busy" @click="stage">
+              <span v-if="store.busy" class="kr-spinner-xs" />
+              {{ store.busy ? 'Uploading source…' : 'Upload & prepare render project' }}
+            </button>
+          </section>
+
+          <section v-show="activePanel === 'style'" class="kr-panel flex min-h-0 flex-col gap-2 overflow-hidden p-3 lg:flex"
+            aria-label="Animation style presets">
+            <div class="flex items-center justify-between gap-2">
+              <span class="kr-text-semibold-sm">02 / Animation look</span>
+              <span class="kr-badge-outline">6 presets</span>
+            </div>
+            <p class="kr-text-faded-xs">A consistent visual treatment across the original choreography.</p>
+            <div class="kr-scroll min-h-0 flex-1 overflow-y-auto">
+              <div class="grid grid-cols-2 gap-2">
+                <button v-for="look in RESTYLE_STYLES" :key="look.id" type="button"
+                  class="overflow-hidden rounded-xl border-2 bg-base-200 text-left transition-colors"
+                  :class="style === look.id ? 'border-primary' : 'border-transparent hover:border-base-content/30'"
+                  :aria-pressed="style === look.id" @click="style = look.id">
+                  <span class="relative block aspect-[5/3] overflow-hidden bg-gradient-to-br" :class="look.tone">
+                    <span class="absolute inset-0 grid place-items-center text-5xl font-light text-base-content/80">✦</span>
+                    <span v-if="style === look.id" class="absolute right-1 top-1 rounded-full bg-primary p-1 text-primary-content">
+                      <icon name="kind-icon:check" class="h-3 w-3" />
+                    </span>
+                  </span>
+                  <span class="block px-2 py-1.5">
+                    <span class="block text-xs font-bold">{{ look.label }}</span>
+                    <span class="block text-[10px] opacity-65">{{ look.note }}</span>
+                  </span>
+                </button>
+              </div>
+            </div>
+            <div class="flex items-center justify-between gap-2 border-t border-base-300 pt-2">
+              <span class="kr-text-semibold-sm">Output quality</span>
+              <div class="flex gap-1">
+                <button v-for="value in qualityOptions" :key="value" type="button"
+                  class="kr-btn-xs" :class="quality === value ? 'btn-primary' : 'btn-outline'"
+                  :aria-pressed="quality === value" @click="quality = value">{{ value }}</button>
+              </div>
+            </div>
+            <p class="kr-text-faded-xs">1080p is an upscale target after assembly, not the diffusion working resolution.</p>
+          </section>
+
+          <section v-show="activePanel === 'jobs'" class="kr-panel flex min-h-0 flex-col gap-2 overflow-hidden p-3 lg:flex"
+            aria-label="Saved render projects">
+            <div class="flex items-center justify-between gap-2">
+              <span class="kr-text-semibold-sm">03 / Projects</span>
+              <button type="button" class="kr-btn-outline-xs" :disabled="store.busy" @click="store.refresh()">Refresh</button>
+            </div>
+            <div class="kr-scroll min-h-0 flex-1 space-y-2 overflow-y-auto">
+              <p v-if="!store.jobs.length" class="kr-text-faded-sm rounded-xl border border-dashed border-base-300 p-4">
+                Your staged films will appear here after upload and remain available when you return.
+              </p>
+              <button v-for="job in store.jobs" :key="job.id" type="button"
+                class="w-full rounded-xl border p-3 text-left"
+                :class="store.selectedId === job.id ? 'border-primary bg-primary/10' : 'border-base-300 bg-base-100/60'"
+                @click="store.selectedId = job.id">
+                <span class="flex items-center justify-between gap-2">
+                  <strong class="truncate text-sm">{{ job.title }}</strong>
+                  <span class="text-[10px] font-semibold uppercase tracking-wide">{{ job.status }}</span>
+                </span>
+                <span class="mt-1 block text-xs opacity-70">{{ formatRestyleTime(job.sourceDurationSec) }} · {{ labelFor(job.style) }}</span>
+                <span class="mt-1 block text-[10px] opacity-60">{{ new Date(job.createdAt).toLocaleDateString() }}</span>
+              </button>
+            </div>
+            <div v-if="store.selected" class="space-y-2 border-t border-base-300 pt-3 text-xs">
+              <p class="font-bold">Saved render plan</p>
+              <div class="grid grid-cols-2 gap-2">
+                <span class="rounded-lg bg-base-200 p-2">{{ store.selected.segments.length }} motion windows</span>
+                <span class="rounded-lg bg-base-200 p-2">{{ store.selected.quality }} target</span>
+              </div>
+              <div class="h-1.5 overflow-hidden rounded-full bg-base-300">
+                <div class="h-full bg-primary" :style="{ width: store.selected.progress + '%' }" />
+              </div>
+              <p class="text-base-content/70">{{ store.selected.stage }}</p>
+            </div>
+            <div class="rounded-xl border border-warning/30 bg-warning/10 p-2 text-xs leading-relaxed">
+              <strong>Renderer not connected yet.</strong> Upload and render-plan storage work; WAN VACE conditioning, assembly, and finish alerts are the next production stage.
+            </div>
+          </section>
+        </div>
+      </template>
+    </div>
+  </main>
+</template>
+
+<script setup lang="ts">
+import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
+import { useVideoRestyleStore } from '@/stores/videoRestyleStore'
+import { useUserStore } from '@/stores/userStore'
+import {
+  RESTYLE_MAX_BYTES,
+  RESTYLE_MAX_DURATION_SEC,
+  RESTYLE_STYLES,
+  formatRestyleTime,
+  type RestyleQuality,
+  type RestyleStyleId,
+} from '@/utils/videoRestylePlan'
+
+const userStore = useUserStore()
+const store = useVideoRestyleStore()
+const ready = ref(false)
+const panels = [
+  { value: 'source', label: 'Source' },
+  { value: 'style', label: 'Looks' },
+  { value: 'jobs', label: 'Projects' },
+] as const
+const activePanel = ref<(typeof panels)[number]['value']>('source')
+const qualityOptions = ['720p', '1080p'] as const
+const style = ref<RestyleStyleId>('illustrious')
+const quality = ref<RestyleQuality>('1080p')
+const title = ref('Coat Dance')
+const sourceFile = ref<File | null>(null)
+const durationSec = ref(0)
+const fileInput = ref<HTMLInputElement | null>(null)
+const fileDescription = computed(() =>
+  sourceFile.value
+    ? `${sourceFile.value.name} · ${(sourceFile.value.size / (1024 * 1024)).toFixed(1)} MiB`
+    : '',
+)
+const canStage = computed(() =>
+  Boolean(sourceFile.value && sourceFile.value.size <= RESTYLE_MAX_BYTES
+    && durationSec.value >= 1 && durationSec.value <= RESTYLE_MAX_DURATION_SEC),
+)
+
+function labelFor(value: RestyleStyleId): string {
+  return RESTYLE_STYLES.find((entry) => entry.id === value)?.label || value
+}
+
+function chooseFile(event: Event) {
+  const input = event.target as HTMLInputElement
+  sourceFile.value = input.files?.[0] || null
+  durationSec.value = 0
+  if (sourceFile.value) {
+    store.preview(sourceFile.value)
+    store.error = sourceFile.value.size > RESTYLE_MAX_BYTES
+      ? 'This video exceeds the 128 MiB upload limit.' : ''
+  } else store.clearPreview()
+}
+
+function readVideoMetadata(event: Event) {
+  const video = event.target as HTMLVideoElement
+  durationSec.value = Number.isFinite(video.duration) ? video.duration : 0
+  if (durationSec.value > RESTYLE_MAX_DURATION_SEC) {
+    store.error = 'This studio currently supports videos up to 15 minutes.'
+  }
+}
+
+async function stage() {
+  if (!sourceFile.value || !canStage.value) return
+  if (await store.stage({
+    file: sourceFile.value,
+    title: title.value,
+    durationSec: durationSec.value,
+    style: style.value,
+    quality: quality.value,
+  })) {
+    activePanel.value = 'jobs'
+    sourceFile.value = null
+    durationSec.value = 0
+    if (fileInput.value) fileInput.value.value = ''
+    store.clearPreview()
+  }
+}
+
+onMounted(async () => {
+  await userStore.initialize()
+  if (userStore.isAdmin) await store.refresh()
+  ready.value = true
+})
+
+onBeforeUnmount(() => store.clearPreview())
+</script>

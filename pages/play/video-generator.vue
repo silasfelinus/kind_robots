@@ -1,7 +1,12 @@
 <template>
   <div class="kr-surface">
     <div class="kr-scroll kr-container max-w-7xl space-y-4 p-4 sm:p-5">
-      <header class="flex justify-end">
+      <header class="flex flex-wrap items-center justify-between gap-2">
+        <NuxtLink v-if="userStore.isAdmin" to="/admin/coat-dance" class="kr-btn-outline-xs">
+          <icon name="kind-icon:video" class="kr-icon-4" />
+          Full video restyle
+        </NuxtLink>
+        <span v-else />
         <span class="kr-badge-ghost-sm">
           {{ activeEngine.label }} · {{ selectedPreset?.label || 'Custom' }}
         </span>

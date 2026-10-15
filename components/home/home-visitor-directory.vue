@@ -321,7 +321,6 @@ const features = [
     route: '/play/zuzu',
     image: '/zuzu-showdown-portraits/zuzu-vs-hd.webp',
     description: 'A koala ronin crosses the strange Shifting Lands.',
-
   },
   {
     title: 'Shifting Desks',

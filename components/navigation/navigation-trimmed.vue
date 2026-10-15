@@ -7,105 +7,128 @@
   content/navigation.md.
 -->
 <template>
-  <section class="flex w-full flex-col gap-5">
-    <header class="flex flex-col gap-3">
-      <div class="flex flex-wrap items-end justify-end gap-3">
-        <label class="relative flex w-full max-w-xs items-center sm:w-64">
-          <Icon
-            name="kind-icon:search"
-            class="pointer-events-none absolute left-3 h-4 w-4 text-base-content/50"
-          />
-          <input
-            v-model="query"
-            type="search"
-            placeholder="Search destinations…"
-            aria-label="Search destinations"
-            class="kr-input-rounded-xl h-10 w-full pl-9 text-sm"
-          />
-        </label>
+  <section
+    class="directory-home kr-unbound flex h-full min-h-0 w-full flex-col gap-3 overflow-hidden"
+  >
+    <header
+      class="flex shrink-0 flex-col gap-3 rounded-2xl border border-base-300 bg-base-100/95 p-3 shadow-sm sm:flex-row sm:items-center sm:justify-between sm:p-4"
+    >
+      <div class="min-w-0">
+        <p class="text-sm font-black text-base-content">
+          Find your next adventure
+        </p>
+        <p class="text-xs text-base-content/65">
+          Every game, story, studio and workshop in one place.
+        </p>
       </div>
+      <label class="relative flex w-full shrink-0 items-center sm:w-72">
+        <Icon
+          name="kind-icon:search"
+          class="pointer-events-none absolute left-3 h-4 w-4 text-base-content/50"
+        />
+        <input
+          v-model="query"
+          type="search"
+          placeholder="Search destinations…"
+          aria-label="Search destinations"
+          class="kr-input-rounded-xl h-10 w-full pl-9 text-sm"
+        />
+      </label>
     </header>
 
-    <p
-      v-if="!filteredChannels.length"
-      class="kr-text-dim-sm kr-panel-flat p-6 text-center"
-    >
-      No destinations match “{{ query }}”.
-    </p>
-
-    <div
-      v-for="channel in filteredChannels"
-      :key="channel.channelKey"
-      class="flex flex-col gap-3"
-    >
-      <div class="flex items-center gap-2">
-        <span
-          class="kr-icon-9 flex shrink-0 items-center justify-center rounded-lg border border-base-300/70 bg-base-200"
-        >
-          <Icon :name="channel.icon" class="kr-icon-5" />
-        </span>
-        <div class="flex min-w-0 flex-col leading-tight">
-          <h3 class="kr-text-black-base truncate">{{ channel.label }}</h3>
-          <p
-            v-if="channel.summary || channel.description"
-            class="kr-text-dim-xs-55 line-clamp-1"
-          >
-            {{ channel.summary || channel.description }}
-          </p>
-        </div>
-      </div>
-
-      <ul
-        class="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3"
-        :aria-label="`${channel.label} destinations`"
+    <div class="kr-scroll min-h-0 flex-1 space-y-4 pb-4 pr-1 sm:space-y-5">
+      <p
+        v-if="!filteredChannels.length"
+        class="rounded-2xl border border-base-300 bg-base-100/95 p-6 text-center text-sm text-base-content/75"
       >
-        <li v-for="tab in channel.visibleTabs" :key="tab.tabKey">
-          <NuxtLink
-            :to="tabTo(channel, tab)"
-            class="flex h-full items-center gap-3 kr-panel-compact-xs transition-all hover:-translate-y-0.5 hover:border-primary/50 hover:shadow-md"
-          >
-            <span
-              class="relative flex h-11 w-11 shrink-0 overflow-hidden rounded-lg bg-base-200"
-            >
-              <NavigationArtwork
-                :src="tab.image"
-                :alt="tab.title || tab.label"
-              />
-              <span
-                class="absolute inset-0 flex items-center justify-center bg-base-content/15"
-              >
-                <Icon
-                  :name="tab.icon || channel.icon"
-                  class="kr-icon-5 text-base-100 drop-shadow"
-                />
-              </span>
-            </span>
+        No destinations match “{{ query }}”.
+      </p>
 
-            <span
-              class="flex min-w-0 flex-1 flex-col items-start leading-tight"
+      <section
+        v-for="channel in filteredChannels"
+        :key="channel.channelKey"
+        :aria-label="channel.label"
+        class="rounded-3xl border border-base-300/75 bg-base-100/95 p-3 shadow-md sm:p-4"
+      >
+        <header class="mb-3 flex items-center gap-3">
+          <span
+            class="flex size-11 shrink-0 items-center justify-center rounded-2xl border border-primary/15 bg-primary/10 text-primary"
+          >
+            <Icon :name="channel.icon" class="size-6" />
+          </span>
+          <div class="min-w-0 flex-1">
+            <h2 class="text-lg font-black leading-tight text-base-content">
+              {{ channel.label }}
+            </h2>
+            <p
+              v-if="channel.summary || channel.description"
+              class="line-clamp-2 text-xs leading-snug text-base-content/65 sm:text-sm"
             >
-              <span class="flex max-w-full items-center gap-1">
-                <span class="kr-text-black-sm truncate">
-                  {{ tab.label }}
+              {{ channel.summary || channel.description }}
+            </p>
+          </div>
+          <span
+            class="hidden shrink-0 rounded-full border border-base-300 bg-base-200 px-3 py-1 text-xs font-bold text-base-content/65 sm:inline-flex"
+          >
+            {{ channel.visibleTabs.length }}
+            {{ channel.visibleTabs.length === 1 ? 'destination' : 'destinations' }}
+          </span>
+        </header>
+
+        <ul
+          class="directory-grid grid gap-3"
+          :aria-label="channel.label + ' destinations'"
+        >
+          <li
+            v-for="tab in channel.visibleTabs"
+            :key="tab.tabKey"
+            class="min-w-0"
+          >
+            <NuxtLink
+              :to="tabTo(channel, tab)"
+              class="group flex h-full min-h-32 min-w-0 items-stretch gap-3 overflow-hidden rounded-2xl border border-base-300 bg-base-100 p-2.5 text-base-content shadow-sm transition hover:-translate-y-0.5 hover:border-primary/60 hover:shadow-lg focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary"
+            >
+              <span
+                class="relative min-h-28 w-28 shrink-0 self-stretch overflow-hidden rounded-xl bg-gradient-to-br from-primary/15 via-base-200 to-secondary/15 sm:w-36"
+              >
+                <NavigationArtwork :src="tab.image" alt="" />
+                <span
+                  class="absolute bottom-2 right-2 flex size-8 items-center justify-center rounded-xl border border-base-100/80 bg-base-100/90 text-primary shadow-sm backdrop-blur-sm"
+                >
+                  <Icon :name="tab.icon || channel.icon" class="size-4" />
+                </span>
+              </span>
+
+              <span class="flex min-w-0 flex-1 flex-col gap-2 py-1 pr-0.5">
+                <span class="flex items-start justify-between gap-2">
+                  <span
+                    class="min-w-0 text-base font-black leading-snug text-base-content transition group-hover:text-primary"
+                  >
+                    {{ tab.label }}
+                  </span>
+                  <Icon
+                    name="kind-icon:arrow-right"
+                    class="mt-0.5 size-4 shrink-0 text-primary/65 transition group-hover:translate-x-0.5 group-hover:text-primary"
+                  />
+                </span>
+                <span
+                  v-if="tab.summary || tab.description"
+                  class="line-clamp-3 text-sm leading-snug text-base-content/70"
+                >
+                  {{ tab.summary || tab.description }}
                 </span>
                 <span
                   v-if="isAdminOnlyTab(channel, tab)"
-                  class="kr-text-eyebrow-bold kr-badge-warning-xs shrink-0"
+                  class="mt-auto w-fit rounded-full bg-warning/20 px-2 py-0.5 text-[0.65rem] font-black uppercase tracking-wide text-warning-content"
                   title="Admin-only page"
                 >
-                  Admin
+                  Admin only
                 </span>
               </span>
-              <span
-                v-if="tab.summary || tab.description"
-                class="kr-text-dim-xs-60 line-clamp-2 font-medium"
-              >
-                {{ tab.summary || tab.description }}
-              </span>
-            </span>
-          </NuxtLink>
-        </li>
-      </ul>
+            </NuxtLink>
+          </li>
+        </ul>
+      </section>
     </div>
   </section>
 </template>
@@ -185,3 +208,20 @@ function isAdminOnlyTab(channel: ResolvedChannel, tab: ResolvedTab): boolean {
   return tab.requiredRole === 'ADMIN' && channel.channelKey !== 'admin'
 }
 </script>
+
+
+<style scoped>
+.directory-home {
+  container-type: inline-size;
+}
+
+.directory-grid {
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 21rem), 1fr));
+}
+
+@container (min-width: 80rem) {
+  .directory-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+</style>

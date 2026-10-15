@@ -409,7 +409,7 @@ assert.ok(
   'admins must retain a way to open their dashboard from the compact homepage',
 )
 assert.ok(
-  visitorDirectorySource.includes("'Admin dashboard →'"),
+  visitorDirectorySource.includes('Admin dashboard →'),
   'the admin dashboard shortcut must appear beside the gallery header',
 )
 assert.doesNotMatch(

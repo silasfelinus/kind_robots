@@ -2,6 +2,7 @@ import { computed, ref, watch } from 'vue'
 import { defineStore } from 'pinia'
 import { performFetch } from './utils'
 import { useUserStore } from './userStore'
+import { useAchievementStore } from './achievementStore'
 import type {
   MandarinCard,
   MandarinCatalogPayload,
@@ -876,6 +877,7 @@ export const useMandarinTutorStore = defineStore('mandarinTutorStore', () => {
         completedLessonKeys.value = new Set(completedLessonKeys.value).add(
           cardKey,
         )
+        void useAchievementStore().rewardAchievementByCode('mandarin-lesson')
       }
       pointTotals.value = {
         ...EMPTY_MANDARIN_POINT_TOTALS,

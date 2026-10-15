@@ -13,6 +13,7 @@ import {
   markSnapshotActive,
 } from '@/stores/helpers/snapshotLoader'
 import { useSheetStore } from '@/stores/sheetStore'
+import { useAchievementStore } from '@/stores/achievementStore'
 import { scenarios as seedScenarios } from '@/utils/sceneChoices'
 
 const isClient = typeof window !== 'undefined'
@@ -657,6 +658,7 @@ export const useScenarioStore = defineStore('scenarioStore', () => {
       selectedScenario.value = created
       scenarioForm.value = toScenarioForm(created)
       syncToLocalStorage()
+      void useAchievementStore().rewardAchievementByCode('first-scenario')
 
       return created
     } catch (error) {

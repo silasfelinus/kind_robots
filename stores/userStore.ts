@@ -850,7 +850,10 @@ export const useUserStore = defineStore('userStore', () => {
     await flushUserPatchQueue()
 
     // Achievement: "Face of Kindness" for setting a profile avatar (deduped).
-    if ('avatarImage' in fields && fields.avatarImage) {
+    if (
+      ('avatarImage' in fields && fields.avatarImage) ||
+      ('artImageId' in fields && fields.artImageId)
+    ) {
       void useAchievementStore().rewardAchievementByCode('profile-avatar')
     }
   }

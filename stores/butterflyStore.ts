@@ -516,13 +516,8 @@ export const useButterflyStore = defineStore('butterflyStore', () => {
     ])
     discoveryButterfly.value = butterfly
 
-    // Achievements: "Butterfly Whisperer" on the first catch, "Lepidopterist"
-    // at 25. Reward dedupe makes firing on every capture safe.
-    const achievementStore = useAchievementStore()
-    void achievementStore.rewardAchievementByCode('butterfly-first')
-    if (capturedButterflyIds.value.size >= 25) {
-      void achievementStore.rewardAchievementByCode('butterfly-swarm')
-    }
+    // Achievement: "Butterfly Whisperer" on the first catch (deduped).
+    void useAchievementStore().rewardAchievementByCode('butterfly-first')
   }
 
   function clearDiscovery() {

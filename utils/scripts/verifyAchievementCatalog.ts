@@ -20,20 +20,21 @@ assert.equal(
 )
 
 const validPageHints = new Set([
-  '/',
+  '/register',
+  '/login',
   '/dashboard',
-  '/brainstorm',
-  '/weirdlandia',
+  '/dreams',
+  '/storybook',
   '/bots',
-  '/builder?tab=art',
-  '/builder?tab=character',
   '/art',
-  '/amibot',
+  '/characters',
+  '/giving',
   '/themes',
   '/achievements',
   '/play/memory',
+  '/play/mandarin',
   '/rewards',
-  '/prompts',
+  '/stories',
   '/friends',
   '/button',
 ])
@@ -63,7 +64,13 @@ for (const achievement of achievementData) {
   )
 }
 
-for (const retiredCode of ['fate', 'test']) {
+for (const retiredCode of [
+  'fate',
+  'test',
+  'weirdlandia',
+  'butterfly-swarm',
+  'first-prompt',
+]) {
   assert.ok(
     !triggerCodes.some((code) => code.toLowerCase() === retiredCode),
     `Retired trigger code ${retiredCode} must not return.`,
@@ -73,7 +80,7 @@ for (const retiredCode of ['fate', 'test']) {
 const triggerSources: Record<string, string[]> = {
   Dashboard: ['stores/userStore.ts'],
   Brainstorm: ['components/dreams/dream-brainstorm.vue'],
-  weirdlandia: ['stores/weirdStore.ts'],
+  'storybook-open': ['stores/storybookRunStore.ts'],
   botcafe: ['stores/chatStore.ts'],
   artmaker: ['stores/artStore.ts'],
   'first-character': ['stores/characterStore.ts'],
@@ -85,16 +92,16 @@ const triggerSources: Record<string, string[]> = {
   'art-ten': ['stores/artStore.ts'],
   'chat-fifty': ['stores/chatStore.ts'],
   'reaction-twentyfive': ['stores/reactionStore.ts'],
-  'butterfly-first': ['stores/butterflyStore.ts'],
-  'butterfly-swarm': ['stores/butterflyStore.ts'],
+  'butterfly-first': ['components/icons/swarm-icon.vue'],
+  'mandarin-lesson': ['stores/mandarinTutorStore.ts'],
   'memory-master': ['stores/memoryStore.ts'],
   'welcome-back': ['stores/userStore.ts'],
   'jellybean-hunter': ['stores/achievementStore.ts'],
   'first-reward': ['stores/rewardStore.ts'],
-  'first-prompt': ['stores/promptStore.ts'],
+  'first-scenario': ['stores/scenarioStore.ts'],
   'first-friend': ['stores/friendStore.ts'],
   'profile-avatar': ['stores/userStore.ts'],
-  'story-weaver': ['stores/weirdStore.ts'],
+  'story-weaver': ['stores/storybookRunStore.ts'],
   'rebel-button': ['components/pages/rebel-button.vue'],
 }
 
@@ -114,8 +121,9 @@ for (const [triggerCode, paths] of Object.entries(triggerSources)) {
 const achievementStore = source('stores/achievementStore.ts')
 assert.ok(
   achievementStore.includes("'/achievements': 'achievement-tour'") &&
-    achievementStore.includes("'/amibot': 'amibot'"),
-  'Route achievements must map to the live achievements and AMI pages.',
+    achievementStore.includes("'/giving': 'amibot'") &&
+    !achievementStore.includes("'/amibot'"),
+  'Route achievements must map to the live achievements and Giving pages.',
 )
 assert.ok(
   achievementStore.includes('fetchAchievements(true)') &&
@@ -245,8 +253,29 @@ assert.ok(
 const seed = source('scripts/seed_achievements.ts')
 assert.ok(
   seed.includes("'first-character': ['fate']") &&
-    seed.includes("'achievement-tour': ['test']"),
+    seed.includes("'achievement-tour': ['test']") &&
+    seed.includes("'storybook-open': ['weirdlandia']"),
   'Legacy DB rows must be reconciled without losing earned records.',
+)
+assert.ok(
+  seed.includes(
+    "DEACTIVATED_TRIGGER_CODES = ['butterfly-swarm', 'first-prompt']",
+  ) &&
+    seed.includes('data: { isActive: false }') &&
+    !/RETIRED_TRIGGER_CODES = \[[^\]]*(butterfly-swarm|first-prompt)/.test(seed),
+  'Achievements for retired features are hidden, never deleted with their earned records.',
+)
+assert.ok(
+  source('stores/userStore.ts').includes(
+    "('artImageId' in fields && fields.artImageId)",
+  ),
+  'Face of Kindness must fire on the artImageId avatar path every picker uses.',
+)
+assert.ok(
+  /async function acceptRequest[\s\S]{0,600}rewardAchievementByCode\('first-friend'\)/.test(
+    source('stores/friendStore.ts'),
+  ),
+  'Accepting a friend request from the Friends panel must award Kindred Spirit.',
 )
 assert.ok(
   !seed.includes('imagePath: achievement.imagePath') &&

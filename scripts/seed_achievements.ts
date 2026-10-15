@@ -30,7 +30,16 @@ import {
 const LEGACY_TRIGGER_ALIASES: Record<string, string[]> = {
   'first-character': ['fate'],
   'achievement-tour': ['test'],
+  'storybook-open': ['weirdlandia'],
 }
+
+// Rows adopted through an alias above whose meaning changed: the old badge art
+// no longer fits, so it is cleared and the art queue draws a new one.
+const REPAINT_ON_ADOPTION = new Set(['storybook-open'])
+
+// Achievements whose feature is gone. They are hidden from the catalog, but
+// their rows and everyone's earned records are kept.
+const DEACTIVATED_TRIGGER_CODES = ['butterfly-swarm', 'first-prompt'] as const
 
 const RETIRED_TRIGGER_CODES = [
   'pitchmaster',
@@ -100,9 +109,12 @@ export async function upsertAchievement(
     : null
 
   if (legacy) {
+    const repaint = REPAINT_ON_ADOPTION.has(triggerCode)
+      ? { imagePath: null, artImageId: null }
+      : {}
     await prisma.achievement.update({
       where: { id: legacy.id },
-      data: { ...data, triggerCode },
+      data: { ...data, ...repaint, triggerCode },
     })
     return
   }
@@ -158,6 +170,24 @@ export async function deleteRetiredAchievements(
   return deleted.count
 }
 
+export async function deactivateRetiredFeatures(
+  prisma: PrismaClient,
+): Promise<number> {
+  const result = await prisma.achievement.updateMany({
+    where: {
+      triggerCode: { in: [...DEACTIVATED_TRIGGER_CODES] },
+      isActive: true,
+    },
+    data: { isActive: false },
+  })
+  if (result.count) {
+    console.log(
+      `  deactivated ${result.count} achievement(s) whose feature is gone; earned records kept`,
+    )
+  }
+  return result.count
+}
+
 async function main() {
   const WRITE = process.argv.includes('--write')
 
@@ -192,6 +222,7 @@ async function main() {
       }
 
       await deleteRetiredAchievements(prisma)
+      await deactivateRetiredFeatures(prisma)
 
       const after = await prisma.achievement.count()
       const activeAfter = await prisma.achievement.count({

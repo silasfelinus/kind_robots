@@ -34,7 +34,7 @@ const pendingGuestAchievementsStorageKey = 'pendingGuestAchievements'
 
 const routeAchievementCodes: Record<string, string> = {
   '/achievements': 'achievement-tour',
-  '/amibot': 'amibot',
+  '/giving': 'amibot',
 }
 
 function safeGetLocalStorage(key: string): string | null {

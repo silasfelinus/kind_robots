@@ -440,11 +440,6 @@ assert.ok(homePageSource.includes('flex h-full min-h-0 flex-col gap-2 overflow-h
 for (const route of [
   '/play/arcade',
   '/play/shifting-desks',
-  '/play/zuzu-gamebook',
-  '/play/zuzu-showdown',
-  '/play/zuzu-shifting-lands',
-  '/play/zuzu-ghost-trail',
-  '/play/zuzu-pinball',
   '/storybook',
   '/art',
   '/play/aquarium',
@@ -475,6 +470,19 @@ for (const internal of [
 }
 assert.ok(visitorDirectorySource.includes("title: 'Kind Robots Pinball'"))
 assert.ok(visitorDirectorySource.includes("title: 'The World of Zuzu'"))
+const zuzuHubSource = source('pages/play/zuzu.vue')
+for (const route of [
+  '/play/zuzu-gamebook',
+  '/play/zuzu-showdown',
+  '/play/zuzu-shifting-lands',
+  '/play/zuzu-ghost-trail',
+  '/play/zuzu-pinball',
+]) {
+  assert.ok(
+    zuzuHubSource.includes("route: '" + route + "'"),
+    'individual Zuzu games belong in the world hub, not homepage chips',
+  )
+}
 assert.equal(
   visitorDirectorySource.includes("title: 'Rebel Button'"),
   false,

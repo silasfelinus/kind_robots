@@ -12,6 +12,9 @@
 
     <section class="arcade-hall-intro">
       <p class="arcade-neon">Kind Robots Arcade</p>
+      <NuxtLink to="/achievements?section=arcade" class="arcade-link">
+        Arcade achievements · {{ arcadeEarned }}/{{ arcadeTotal }} earned
+      </NuxtLink>
     </section>
 
     <ul class="arcade-row" aria-label="Cabinets">
@@ -42,6 +45,9 @@
               {{ topLine(game.slug) }}
             </span>
             <span class="arcade-mini-score">{{ ratingLine(game.slug) }}</span>
+            <span v-if="achievementLine(game.slug)" class="arcade-mini-score">
+              {{ achievementLine(game.slug) }}
+            </span>
             <span class="arcade-mini-play">Play</span>
           </span>
         </NuxtLink>
@@ -161,6 +167,11 @@ import { COMING_SOON, HALL_GAMES, shortArcadeBlurb } from '~/utils/arcade/games'
 import { formatChampion } from '~/utils/arcade/leaderboard'
 import { sortArcadeGamesByRating } from '~/utils/arcade/reviews'
 import type { ArcadeGameMeta } from '~/utils/arcade/types'
+import { useAchievementStore } from '@/stores/achievementStore'
+import {
+  GAME_ACHIEVEMENTS,
+  achievementsForGame,
+} from '~/utils/achievements/gameAchievements'
 
 const store = useArcadeStore()
 const reviewStore = useArcadeReviewsStore()
@@ -202,12 +213,34 @@ function ratingLine(slug: string) {
     : 'Not rated yet'
 }
 
+const achievementStore = useAchievementStore()
+const arcadeAchievements = GAME_ACHIEVEMENTS.filter(
+  (entry) => entry.section === 'arcade',
+)
+const arcadeTotal = arcadeAchievements.length
+const arcadeEarned = computed(
+  () =>
+    arcadeAchievements.filter((entry) =>
+      achievementStore.hasEarnedCode(entry.code),
+    ).length,
+)
+
+function achievementLine(slug: string) {
+  const entries = achievementsForGame(slug)
+  if (!entries.length) return ''
+  const earned = entries.filter((entry) =>
+    achievementStore.hasEarnedCode(entry.code),
+  ).length
+  return `Achievements ${'★'.repeat(earned)}${'☆'.repeat(entries.length - earned)}`
+}
+
 function playsLabel(plays: number) {
   return plays === 1 ? '1 score on the board' : `${plays} scores on the board`
 }
 
 onMounted(async () => {
   void reviewStore.fetchSummaries()
+  void achievementStore.fetchAchievements()
   await store.fetchHallOfFame()
   void store.flushPending()
   // Fall back to per-cabinet boards (or this device's) if the hall of fame

@@ -21,6 +21,12 @@
         class="mb-3 size-16 text-primary"
       />
 
+      <p
+        v-if="gameTitle"
+        class="kr-text-eyebrow mb-1 text-xs tracking-wide text-primary"
+      >
+        {{ gameTitle }}
+      </p>
       <div class="kr-text-black-xl max-w-full">
         <a
           v-if="achievement.pageHint"
@@ -56,6 +62,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import type { Achievement } from '~/prisma/generated/prisma/client'
+import { gameAchievementByCode } from '~/utils/achievements/gameAchievements'
 
 const props = defineProps<{
   achievement: Achievement
@@ -76,4 +83,8 @@ const earnedDate = computed(() => {
 })
 
 const achievement = props.achievement
+
+const gameTitle = gameAchievementByCode(
+  props.achievement.triggerCode,
+)?.gameTitle
 </script>

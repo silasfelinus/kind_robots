@@ -32,6 +32,25 @@
       </button>
     </header>
 
+    <nav
+      class="flex shrink-0 gap-2 overflow-x-auto pb-1"
+      aria-label="Achievement sections"
+    >
+      <button
+        v-for="section in sectionChips"
+        :key="section.key"
+        type="button"
+        class="btn btn-sm shrink-0 rounded-xl"
+        :class="activeSection === section.key ? 'btn-primary' : 'btn-ghost border border-base-300'"
+        :aria-pressed="activeSection === section.key"
+        @click="activeSection = section.key"
+      >
+        <Icon :name="section.icon" class="kr-icon-4" />
+        {{ section.label }}
+        <span class="text-xs opacity-70">{{ section.earned }}/{{ section.total }}</span>
+      </button>
+    </nav>
+
     <div class="kr-scroll flex min-h-0 flex-col gap-6 pr-1">
       <section class="space-y-3">
         <div class="flex items-center gap-2 px-1">
@@ -112,12 +131,35 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
+import { useRoute } from 'vue-router'
 import type { GalleryItem } from '@/components/gallery/kr-gallery.vue'
 import type { Achievement } from '~/prisma/generated/prisma/client'
+import {
+  ACHIEVEMENT_SECTIONS,
+  achievementSectionOf,
+  type AchievementSectionKey,
+} from '~/utils/achievements/gameAchievements'
 
 const achievementStore = useAchievementStore()
 const userStore = useUserStore()
+const route = useRoute()
+
+type SectionFilter = AchievementSectionKey | 'all'
+
+const requestedSection = String(route.query.section ?? '')
+const activeSection = ref<SectionFilter>(
+  ACHIEVEMENT_SECTIONS.some((section) => section.key === requestedSection)
+    ? (requestedSection as AchievementSectionKey)
+    : 'all',
+)
+
+function inActiveSection(achievement: Achievement) {
+  return (
+    activeSection.value === 'all' ||
+    achievementSectionOf(achievement.triggerCode) === activeSection.value
+  )
+}
 
 type EarnedAchievement = Achievement & {
   acquiredAt: string | null
@@ -133,7 +175,7 @@ function toIsoOrNull(value: unknown): string | null {
   return null
 }
 
-const earnedAchievements = computed<EarnedAchievement[]>(() => {
+const allEarnedAchievements = computed<EarnedAchievement[]>(() => {
   const userId = userStore.userId
   if (!userId) return []
 
@@ -159,7 +201,7 @@ const earnedAchievements = computed<EarnedAchievement[]>(() => {
   return earned
 })
 
-const unearnedAchievements = computed(() => {
+const allUnearnedAchievements = computed(() => {
   const userId = userStore.userId
   if (!userId) return achievementStore.achievements
 
@@ -174,6 +216,29 @@ const unearnedAchievements = computed(() => {
   return achievementStore.achievements.filter(
     (achievement) => !earnedIds.has(achievement.id),
   )
+})
+
+const earnedAchievements = computed(() =>
+  allEarnedAchievements.value.filter(inActiveSection),
+)
+
+const unearnedAchievements = computed(() =>
+  allUnearnedAchievements.value.filter(inActiveSection),
+)
+
+const sectionChips = computed(() => {
+  const tally = (key: SectionFilter) => {
+    const match = (achievement: Achievement) =>
+      key === 'all' || achievementSectionOf(achievement.triggerCode) === key
+    const earned = allEarnedAchievements.value.filter(match).length
+    return { earned, total: earned + allUnearnedAchievements.value.filter(match).length }
+  }
+  return [
+    { key: 'all' as SectionFilter, label: 'All', icon: 'kind-icon:trophy' },
+    ...ACHIEVEMENT_SECTIONS,
+  ]
+    .map((section) => ({ ...section, ...tally(section.key) }))
+    .filter((section) => section.key === 'all' || section.total > 0)
 })
 
 const unearnedItems = computed<GalleryItem[]>(() =>

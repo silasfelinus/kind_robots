@@ -8,6 +8,12 @@
         class="kr-icon-8 mb-3 text-base-content/70"
       />
 
+      <p
+        v-if="gameTitle"
+        class="kr-text-eyebrow mb-1 text-xs tracking-wide text-primary"
+      >
+        {{ gameTitle }}
+      </p>
       <h3 class="kr-text-black-lg text-base-content">
         {{ achievement.label }}
       </h3>
@@ -42,6 +48,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import type { Achievement } from '~/prisma/generated/prisma/client'
+import { gameAchievementByCode } from '~/utils/achievements/gameAchievements'
 
 const props = defineProps<{
   achievement: Achievement
@@ -61,4 +68,6 @@ const toggleTooltip = () => {
     }, 2400)
   }
 }
+
+const gameTitle = gameAchievementByCode(props.achievement.triggerCode)?.gameTitle
 </script>

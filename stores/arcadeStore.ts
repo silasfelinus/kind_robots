@@ -10,6 +10,7 @@
 import { ref } from 'vue'
 import { defineStore } from 'pinia'
 import { performFetch } from './utils'
+import { useAchievementStore } from './achievementStore'
 import {
   enqueuePending,
   PENDING_FLUSH_BATCH,
@@ -32,6 +33,7 @@ import {
   withSave,
   type SaveRecord,
 } from '~/utils/arcade/saves'
+import { arcadeAchievementsEarned } from '~/utils/achievements/gameAchievements'
 
 export type ArcadeBoardRange = 'all' | 'today'
 
@@ -241,6 +243,27 @@ export const useArcadeStore = defineStore('arcadeStore', () => {
     writeMastery(next)
   }
 
+  /**
+   * Award the site achievements a run earned at a cabinet: its score, its
+   * level, and every mastery goal this player holds there. Already-earned
+   * ones are skipped, so a run only announces what is new.
+   */
+  async function awardRunAchievements(
+    game: string,
+    run: { score: number; level: number },
+  ) {
+    const earned = arcadeAchievementsEarned(game, {
+      ...run,
+      mastered: masteryFor(game),
+    })
+    if (!earned.length) return
+    const achievements = useAchievementStore()
+    for (const entry of earned) {
+      if (achievements.hasEarnedCode(entry.code)) continue
+      await achievements.rewardAchievementByCode(entry.code)
+    }
+  }
+
   /** A game's saved progress on this device, if any. */
   function saveFor(game: string): unknown {
     return saves.value[game]
@@ -443,6 +466,7 @@ export const useArcadeStore = defineStore('arcadeStore', () => {
     mastery,
     masteryFor,
     recordMastery,
+    awardRunAchievements,
     saveFor,
     recordSave,
     playersFor,

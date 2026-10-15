@@ -56,10 +56,51 @@ export function drawRainbowShipSprite(
   seat: number,
   area = 960,
 ): boolean {
-  const img = loadedImage(rainbowShipSprite(seat))
+  return drawFitted(g, rainbowShipSprite(seat), area, 34, 56)
+}
+
+/** The engine's enemy kinds, E01-E08 in the design doc, each with a round-9 sprite. */
+export const RAINBOW_ENEMY_SPRITES = [
+  'picket',
+  'spiral',
+  'anchor',
+  'urchin',
+  'lantern',
+  'relay',
+  'skimmer',
+  'coral',
+] as const
+
+export function rainbowEnemySprite(kind: string): string | null {
+  return (RAINBOW_ENEMY_SPRITES as readonly string[]).includes(kind)
+    ? `${RAINBOW_GAME_ART_ROOT}/enemies/${kind}.webp`
+    : null
+}
+
+/**
+ * Draw an enemy centred on the origin, facing left; false when the kind has no sprite or it is loading.
+ * The default area keeps the picture close to the 28x26 box player shots hit.
+ */
+export function drawRainbowEnemySprite(
+  g: CanvasRenderingContext2D,
+  kind: string,
+  area = 1000,
+): boolean {
+  const src = rainbowEnemySprite(kind)
+  return src ? drawFitted(g, src, area, 24, 46) : false
+}
+
+function drawFitted(
+  g: CanvasRenderingContext2D,
+  src: string,
+  area: number,
+  minWidth: number,
+  maxWidth: number,
+): boolean {
+  const img = loadedImage(src)
   if (!img) return false
   const aspect = img.naturalWidth / img.naturalHeight
-  const width = Math.min(56, Math.max(34, Math.sqrt(area * aspect)))
+  const width = Math.min(maxWidth, Math.max(minWidth, Math.sqrt(area * aspect)))
   const height = width / aspect
   g.drawImage(img, -width / 2, -height / 2, width, height)
   return true

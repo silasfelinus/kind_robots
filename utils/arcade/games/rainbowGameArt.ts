@@ -47,15 +47,20 @@ export function rainbowCommsPortrait(speaker: string): string | null {
   return key ? `${RAINBOW_GAME_ART_ROOT}/comms/${key}.webp` : null
 }
 
-/** Draw the seat's ship centred on the origin, nose to the right; false while the sprite is loading. */
+/**
+ * Draw the seat's ship centred on the origin, nose to the right; false while the sprite is loading. Ships
+ * are sized to a common area, so a long, slim jet and a stubby delta read as the same weight on screen.
+ */
 export function drawRainbowShipSprite(
   g: CanvasRenderingContext2D,
   seat: number,
-  width = 40,
+  area = 960,
 ): boolean {
   const img = loadedImage(rainbowShipSprite(seat))
   if (!img) return false
-  const height = (width * img.naturalHeight) / img.naturalWidth
+  const aspect = img.naturalWidth / img.naturalHeight
+  const width = Math.min(56, Math.max(34, Math.sqrt(area * aspect)))
+  const height = width / aspect
   g.drawImage(img, -width / 2, -height / 2, width, height)
   return true
 }

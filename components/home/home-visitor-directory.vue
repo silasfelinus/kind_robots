@@ -115,7 +115,6 @@
                   </p>
                 </div>
               </NuxtLink>
-
             </article>
           </div>
         </div>

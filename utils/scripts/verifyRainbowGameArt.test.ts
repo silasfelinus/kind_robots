@@ -49,7 +49,7 @@ for (const key of RAINBOW_SHIP_SPRITES) {
   painted++
   assert.ok(statSync(file).size < 32_000, `${key} sprite stays small`)
 }
-assert.ok(painted >= 3, 'the painted ships are committed')
+assert.equal(painted, 4, 'every pilot has a painted ship')
 
 // Headless (no Image): nothing draws and the engine falls back to its vector art.
 const g = {} as CanvasRenderingContext2D

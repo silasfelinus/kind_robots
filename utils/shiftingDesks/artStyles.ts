@@ -25,9 +25,10 @@ export const ART_STYLES = [
   {
     id: 'corporate-noir',
     label: 'Noir',
-    checkpoint: 'Illustrious/arthemyWesternArt_v30.safetensors',
-    blurb: 'Illustrious. Graphic-novel shadows and phosphor glow.',
-    mood: 'Western graphic novel inks, deep shadows and noir acting.',
+    // 2026-10-15: moved off Illustrious, which read as Western Cartoon again.
+    checkpoint: 'Krea 2',
+    blurb: 'Krea 2. Black-and-white film noir: hard shadows, smoke and rain.',
+    mood: 'Black-and-white 1940s film noir stills: low-key light, venetian-blind shadows, smoke haze and silver grain.',
     phase: 'available',
   },
 ] as const

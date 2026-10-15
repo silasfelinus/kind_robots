@@ -17,6 +17,11 @@ const styleIds = ART_STYLES.map((style) => style.id)
 assert.equal(styleIds.join(','), 'classic,western-cartoon,corporate-noir')
 // Silas, 2026-10-14: Classic is the default again.
 assert.equal(DEFAULT_ART_STYLE, 'classic')
+// Silas, 2026-10-15: Noir was too close to Western Cartoon on Illustrious.
+assert.equal(
+  ART_STYLES.find((s) => s.id === 'corporate-noir')!.checkpoint,
+  'Krea 2',
+)
 assert.equal(normalizeArtStyle(null), 'classic')
 assert.equal(normalizeArtStyle('unknown'), 'classic')
 assert.equal(normalizeArtStyle('classic'), 'classic')

@@ -136,6 +136,23 @@
         </div>
       </div>
 
+      <div class="mt-2 flex flex-wrap items-center gap-2 text-xs">
+        <span class="opacity-75">
+          Story narration currently requires your own OpenAI or Claude API key.
+        </span>
+        <server-selector
+          v-if="userStore.isLoggedIn"
+          button-label="Add OpenAI / Claude key"
+        />
+        <NuxtLink
+          v-else
+          to="/login"
+          class="font-bold text-primary underline hover:no-underline"
+        >
+          Sign in to add a key →
+        </NuxtLink>
+      </div>
+
       <p v-if="errorMessage" class="kr-text-dim-xs mt-1 text-error">
         {{ errorMessage }}
       </p>
@@ -289,6 +306,7 @@ import { useDreamStore } from '@/stores/dreamStore'
 import { useFacetStore } from '@/stores/facetStore'
 import { useRewardStore } from '@/stores/rewardStore'
 import { useScenarioStore } from '@/stores/scenarioStore'
+import { useUserStore } from '@/stores/userStore'
 import {
   useStorybookRunStore,
   type StorybookBoard,
@@ -331,6 +349,7 @@ const facetStore = useFacetStore()
 const rewardStore = useRewardStore()
 const scenarioStore = useScenarioStore()
 const projectStore = useProjectStore()
+const userStore = useUserStore()
 
 const slotSpecs = STORYBOOK_SLOT_SPECS
 const lengthPresets = LENGTH_PRESETS

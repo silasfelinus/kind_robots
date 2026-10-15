@@ -2,7 +2,7 @@
 
 The first controlled GPU run is a **24-second pilot at source time 2:38–3:02**.
 This window includes beat-map rows 16–17, the 2:40–2:58 coat flourish and
-measured movement climax. It is *not* an arbitrary first five seconds.
+measured movement climax. It is _not_ an arbitrary first five seconds.
 
 The admin-only /admin/coat-dance studio saves the original video and queues
 a pilot by changing job.json to PILOT_QUEUED. It does **not** execute GPU
@@ -25,7 +25,7 @@ existing `wan_2.1_vae.safetensors` and
 `umt5-xxl-encoder-Q5_K_M.gguf` (the latter via CLIPLoaderGGUF).
 
 To run on the machine that hosts ComfyUI and can read the private Kind Robots
-mount, point at the *real* shared paths, which may be different from the
+mount, point at the _real_ shared paths, which may be different from the
 web container's /app/private:
 
 ```sh
@@ -52,7 +52,7 @@ automatic remote polling until it is running.
    changing camera or source timing, padded only at the final edge.
 3. Build a **native ComfyUI VACE video-to-video** graph from each clip,
    decode it with `GetVideoComponents`, create Canny structural guidance,
-   and feed the motion sequence into `WanVaceToVideo`. A *separate* optional
+   and feed the motion sequence into `WanVaceToVideo`. A _separate_ optional
    `reference.png` next to the job adds consistent visual identity once an
    Illustrious-painted anchor frame is generated.
 4. Persist one output per window and update job.json after each, so completed

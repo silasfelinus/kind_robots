@@ -56,7 +56,15 @@ export const RESTYLE_STYLES = [
 export type RestyleStyleId = (typeof RESTYLE_STYLES)[number]['id']
 export type RestyleQuality = '720p' | '1080p'
 export type RestyleStatus =
-  'STAGED' | 'PROCESSING' | 'REVIEW' | 'DONE' | 'FAILED' | 'PILOT_QUEUED' | 'PILOT_RUNNING' | 'PILOT_FAILED' | 'PILOT_BLOCKED'
+  | 'STAGED'
+  | 'PROCESSING'
+  | 'REVIEW'
+  | 'DONE'
+  | 'FAILED'
+  | 'PILOT_QUEUED'
+  | 'PILOT_RUNNING'
+  | 'PILOT_FAILED'
+  | 'PILOT_BLOCKED'
 
 export type RestyleSegment = {
   index: number

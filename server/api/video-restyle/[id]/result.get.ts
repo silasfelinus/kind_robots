@@ -25,16 +25,15 @@ export default defineEventHandler(async (event) => {
     if (job.status !== 'REVIEW' || job.resultFile !== 'pilot.mp4') {
       throw createError({ statusCode: 404, message: 'Source video not found.' })
     }
-    const filePath = path.join(path.dirname(restyleSourcePath(job)), 'pilot.mp4')
+    const filePath = path.join(
+      path.dirname(restyleSourcePath(job)),
+      'pilot.mp4',
+    )
     const fileStat = await stat(filePath).catch(() => null)
     if (!fileStat?.isFile()) {
       throw createError({ statusCode: 404, message: 'Source video not found.' })
     }
-    setHeader(
-      event,
-      'Content-Type',
-      'video/mp4',
-    )
+    setHeader(event, 'Content-Type', 'video/mp4')
     setHeader(event, 'Content-Length', fileStat.size)
     setHeader(event, 'Cache-Control', 'private, no-store')
     setHeader(event, 'X-Content-Type-Options', 'nosniff')

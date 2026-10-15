@@ -159,7 +159,8 @@ export const useVideoRestyleStore = defineStore('videoRestyle', () => {
       jobs.value = jobs.value.map((job) =>
         job.id === id ? response.data! : job,
       )
-      notice.value = 'Pilot queued. A local GPU worker must be running to process it.'
+      notice.value =
+        'Pilot queued. A local GPU worker must be running to process it.'
       return true
     } finally {
       busy.value = false
@@ -184,12 +185,14 @@ export const useVideoRestyleStore = defineStore('videoRestyle', () => {
       )
       if (!response.ok) throw new Error('Pilot video is unavailable.')
       const file = await response.blob()
-      if (!file.type.startsWith('video/')) throw new Error('Pilot result was not a video.')
+      if (!file.type.startsWith('video/'))
+        throw new Error('Pilot result was not a video.')
       if (selectedId.value !== id) return false
       previewUrl.value = URL.createObjectURL(file)
       return true
     } catch (caught) {
-      error.value = caught instanceof Error ? caught.message : 'Unable to load pilot.'
+      error.value =
+        caught instanceof Error ? caught.message : 'Unable to load pilot.'
       return false
     } finally {
       sourceBusy.value = false

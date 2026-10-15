@@ -362,8 +362,10 @@
               </div>
               <p class="text-base-content/70">{{ store.selected.stage }}</p>
               <p v-if="store.selected.pilot" class="text-base-content/70">
-                {{ store.selected.pilot.completedSegments }}/{{ store.selected.pilot.totalSegments }} VACE motion windows
-                · {{ Math.round(store.selected.progress) }}%
+                {{ store.selected.pilot.completedSegments }}/{{
+                  store.selected.pilot.totalSegments
+                }}
+                VACE motion windows · {{ Math.round(store.selected.progress) }}%
               </p>
               <p v-if="store.selected.error" class="text-error" role="alert">
                 {{ store.selected.error }}
@@ -400,8 +402,8 @@
             >
               <strong>Local GPU worker required.</strong> A pilot uses native
               Wan VACE video control, not WAN image-to-video. Rendering waits
-              for the worker and VACE model on the home GPU; the full 5:32
-              run is still disabled until the pilot is reviewed.
+              for the worker and VACE model on the home GPU; the full 5:32 run
+              is still disabled until the pilot is reviewed.
             </div>
           </section>
         </div>
@@ -539,7 +541,11 @@ onMounted(async () => {
   ready.value = true
   if (userStore.isAdmin) {
     refreshTimer = setInterval(() => {
-      if (store.jobs.some((job) => ['PILOT_QUEUED', 'PILOT_RUNNING'].includes(job.status))) {
+      if (
+        store.jobs.some((job) =>
+          ['PILOT_QUEUED', 'PILOT_RUNNING'].includes(job.status),
+        )
+      ) {
         void store.refresh()
       }
     }, 15_000)

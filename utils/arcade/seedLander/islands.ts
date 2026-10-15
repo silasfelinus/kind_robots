@@ -8,6 +8,8 @@
 //   2 Windmill Downs: gust lanes, windmills, dandelion drift and crow-bots; Pollen Post; the Gale Mill.
 //   3 Waterfall Gorge: waterfalls, drip stalactites and pebble rollers; Thirsty Terraces (carry
 //     water bubbles to dry beds); the Geyser Tortoise.
+//   4 Firefly Caverns: dark caves lit by your glow, crystal bumpers, spore puffballs; Lantern Run
+//     (relight the cave), Rescue (tow stranded sprout-bots home); the Glowworm Queen.
 
 import type { MissionSpec, ThemeId } from './missions'
 
@@ -751,7 +753,253 @@ const GORGE: Island = {
   ],
 }
 
-export const ISLANDS: readonly Island[] = [MEADOW, DOWNS, GORGE]
+// --- 4. Firefly Caverns ---------------------------------------------------------------------------
+
+const CAVERNS: Island = {
+  id: 'caverns',
+  name: 'FIREFLY CAVERNS',
+  about: 'DARK CAVES LIT BY YOUR GLOW',
+  theme: 'cavern',
+  missions: [
+    {
+      id: 'caverns-1',
+      name: 'FIRST GLOW',
+      brief: 'ONLY YOUR GLOW LIGHTS THE CAVE',
+      kind: 'plant',
+      theme: 'cavern',
+      dark: true,
+      map: {
+        w: 960,
+        h: 260,
+        ground: [
+          [0, 198],
+          [128, 204],
+          [256, 196],
+          [384, 210],
+          [512, 206],
+          [640, 198],
+          [768, 202],
+          [880, 192],
+          [960, 196],
+        ],
+        pads: [
+          { id: 'sun', x: 120, w: 30, kind: 'sun' },
+          { id: 'bed1', x: 330, w: 36, mult: 1 },
+          { id: 'bed2', x: 600, w: 28, mult: 2 },
+          { id: 'bed3', x: 880, w: 22, mult: 3 },
+        ],
+      },
+      start: { x: 40, y: 50 },
+      sun: 1000,
+      wind: 0,
+      seeds: 3,
+      acorns: [{ id: 'caverns-a1', x: 480, y: 80 }],
+      par: par(700, 55),
+    },
+    {
+      id: 'caverns-2',
+      name: 'CRYSTAL BUMPERS',
+      brief: 'THE GEMS BOUNCE YOU GENTLY',
+      kind: 'plant',
+      theme: 'cavern',
+      dark: true,
+      map: {
+        w: 960,
+        h: 260,
+        ground: [
+          [0, 200],
+          [128, 204],
+          [256, 210],
+          [384, 206],
+          [512, 214],
+          [640, 208],
+          [768, 198],
+          [864, 190],
+          [960, 196],
+        ],
+        pads: [
+          { id: 'sun', x: 90, w: 30, kind: 'sun' },
+          { id: 'bed1', x: 420, w: 34, mult: 1 },
+          { id: 'bed3', x: 700, w: 24, mult: 3 },
+          { id: 'bed4', x: 900, w: 18, mult: 4 },
+        ],
+      },
+      start: { x: 40, y: 50 },
+      sun: 1000,
+      wind: 0,
+      seeds: 3,
+      crystals: [
+        { x: 230, y: 150, r: 10 },
+        { x: 320, y: 110, r: 8 },
+        { x: 560, y: 150, r: 10 },
+        { x: 640, y: 120, r: 8 },
+        { x: 800, y: 150, r: 9 },
+      ],
+      par: par(700, 55),
+    },
+    {
+      id: 'caverns-3',
+      name: 'SPORE HOLLOW',
+      brief: 'PUFFBALLS BLUR YOUR GAUGES FOR 2 SECONDS',
+      kind: 'plant',
+      theme: 'cavern',
+      dark: true,
+      unlocked: ['spore'],
+      map: {
+        w: 960,
+        h: 260,
+        ground: [
+          [0, 202],
+          [128, 198],
+          [256, 206],
+          [384, 212],
+          [512, 208],
+          [640, 200],
+          [768, 204],
+          [864, 196],
+          [960, 200],
+        ],
+        pads: [
+          { id: 'sun', x: 90, w: 30, kind: 'sun' },
+          { id: 'bed1', x: 400, w: 34, mult: 1 },
+          { id: 'bed2', x: 640, w: 28, mult: 2 },
+          { id: 'bed5', x: 900, w: 16, mult: 5 },
+        ],
+      },
+      start: { x: 40, y: 50 },
+      sun: 1000,
+      wind: 0,
+      seeds: 3,
+      spores: [
+        { x: 220, y: 150, r: 9 },
+        { x: 520, y: 150, r: 9 },
+        { x: 760, y: 150, r: 9 },
+      ],
+      crystals: [{ x: 360, y: 120, r: 9 }],
+      acorns: [{ id: 'caverns-a2', x: 640, y: 60 }],
+      par: par(700, 55),
+    },
+    {
+      id: 'caverns-4',
+      name: 'LANTERN RUN',
+      brief: 'LAND BESIDE EACH LANTERN TO RELIGHT IT',
+      kind: 'lantern',
+      theme: 'cavern',
+      dark: true,
+      map: {
+        w: 1280,
+        h: 260,
+        ground: [
+          [0, 200],
+          [160, 204],
+          [320, 196],
+          [480, 206],
+          [640, 198],
+          [800, 208],
+          [960, 196],
+          [1120, 202],
+          [1280, 198],
+        ],
+        pads: [
+          { id: 'sun1', x: 100, w: 30, kind: 'sun' },
+          { id: 'lampPad1', x: 330, w: 36, kind: 'home' },
+          { id: 'lampPad2', x: 620, w: 36, kind: 'home' },
+          { id: 'sun2', x: 760, w: 30, kind: 'sun' },
+          { id: 'lampPad3', x: 940, w: 36, kind: 'home' },
+          { id: 'lampPad4', x: 1200, w: 36, kind: 'home' },
+        ],
+      },
+      start: { x: 40, y: 50 },
+      sun: 1500,
+      wind: 0,
+      seeds: 0,
+      lanterns: [
+        { id: 'lamp1', x: 330 },
+        { id: 'lamp2', x: 620 },
+        { id: 'lamp3', x: 940 },
+        { id: 'lamp4', x: 1200 },
+      ],
+      par: par(1100, 90),
+    },
+    {
+      id: 'caverns-5',
+      name: 'STRANDED SPROUTS',
+      brief: 'TOW THE LOST SPROUT-BOTS HOME',
+      kind: 'rescue',
+      theme: 'cavern',
+      dark: true,
+      map: {
+        w: 1280,
+        h: 260,
+        ground: [
+          [0, 200],
+          [160, 204],
+          [320, 210],
+          [480, 202],
+          [640, 208],
+          [800, 196],
+          [960, 204],
+          [1120, 198],
+          [1280, 202],
+        ],
+        pads: [
+          { id: 'sun1', x: 100, w: 30, kind: 'sun' },
+          { id: 'sun2', x: 700, w: 30, kind: 'sun' },
+          { id: 'home1', x: 1000, w: 40, kind: 'drop' },
+          { id: 'home2', x: 1120, w: 40, kind: 'drop' },
+          { id: 'home3', x: 1230, w: 40, kind: 'drop' },
+        ],
+      },
+      start: { x: 40, y: 50 },
+      sun: 1500,
+      wind: 0,
+      seeds: 0,
+      cargo: [
+        { kind: 'sprout', x: 280, seedlings: 0, to: 'home1' },
+        { kind: 'sprout', x: 440, seedlings: 0, to: 'home2' },
+        { kind: 'sprout', x: 560, seedlings: 0, to: 'home3' },
+      ],
+      spores: [{ x: 780, y: 150, r: 9 }],
+      crystals: [
+        { x: 380, y: 140, r: 9 },
+        { x: 860, y: 140, r: 9 },
+      ],
+      acorns: [{ id: 'caverns-a3', x: 1100, y: 60 }],
+      par: par(1100, 100),
+    },
+    {
+      id: 'caverns-boss',
+      name: 'THE GLOWWORM QUEEN',
+      brief: 'LAND ON THE LIT SEGMENT',
+      kind: 'boss',
+      theme: 'cavern',
+      dark: true,
+      map: {
+        w: 800,
+        h: 260,
+        ground: [
+          [0, 220],
+          [200, 226],
+          [400, 230],
+          [600, 226],
+          [800, 220],
+        ],
+        pads: [
+          { id: 'sunL', x: 70, w: 32, kind: 'sun' },
+          { id: 'sunR', x: 730, w: 32, kind: 'sun' },
+        ],
+      },
+      start: { x: 80, y: 60 },
+      sun: 2200,
+      wind: 0,
+      seeds: 0,
+      boss: { id: 'queen', x: 400 },
+      par: par(1100, 100),
+    },
+  ],
+}
+
+export const ISLANDS: readonly Island[] = [MEADOW, DOWNS, GORGE, CAVERNS]
 
 /** Every golden acorn on the islands built so far. */
 export const ALL_ACORNS: readonly string[] = ISLANDS.flatMap((i) =>

@@ -8,6 +8,7 @@
 
 import { levelCurve } from '../curve'
 import type { BossId } from './bosses'
+import type { CrystalSpec, LanternSpec, SporeSpec } from './cavern'
 import type {
   CrowSpec,
   DripSpec,
@@ -56,6 +57,10 @@ export const BUILT_HAZARDS: ReadonlySet<HazardId> = new Set<HazardId>([
   'windmill',
   'dandelion',
   'crow',
+  'waterfall',
+  'stalactite',
+  'pebble',
+  'spore',
 ])
 
 export const HAZARD_NAMES: Record<HazardId, string> = {
@@ -90,7 +95,8 @@ export type CargoSpec = {
 }
 
 /** How a mission's sky and ground are painted. */
-export type ThemeId = 'dawn' | 'noon' | 'dusk' | 'night' | 'downs' | 'gorge'
+export type ThemeId =
+  'dawn' | 'noon' | 'dusk' | 'night' | 'downs' | 'gorge' | 'cavern'
 
 /** A petal ring to fly through (a Ring Race). */
 export type RingSpec = { x: number; y: number; r: number }
@@ -128,6 +134,11 @@ export type MissionSpec = {
   falls?: readonly FallSpec[]
   drips?: readonly DripSpec[]
   pebbles?: readonly PebbleSpec[]
+  /** Firefly Caverns: a dark cave, crystal bumpers, spore puffballs and lanterns to relight. */
+  dark?: boolean
+  crystals?: readonly CrystalSpec[]
+  spores?: readonly SporeSpec[]
+  lanterns?: readonly LanternSpec[]
   /** A Ring Race's rings, flown in order, and its time limit. */
   rings?: readonly RingSpec[]
   time?: number
@@ -279,6 +290,43 @@ export function freeHill(hill: number, rng: () => number): MissionSpec {
         y: 46 + rng() * 20,
       }))
     : []
+  const falls: FallSpec[] = hazards.includes('waterfall')
+    ? Array.from({ length: after(21, 6, 3) }, () => {
+        const x = take()
+        return {
+          x0: x - 9,
+          x1: x + 9,
+          y0: 24,
+          y1: knotAt(knots, x) - 2,
+          push: 0.01,
+        }
+      })
+    : []
+  const drips: DripSpec[] = hazards.includes('stalactite')
+    ? Array.from({ length: after(25, 4, 4) }, (_, i) => ({
+        x: take(),
+        y: 36,
+        every: 170 + 20 * i,
+        offset: 40 * i,
+      }))
+    : []
+  const pebbles: PebbleSpec[] = hazards.includes('pebble')
+    ? Array.from({ length: after(29, 6, 3) }, (_, i) => {
+        const x0 = take()
+        return {
+          x0,
+          x1: Math.min(w - 8, x0 + 160),
+          every: 220,
+          offset: 70 * i,
+        }
+      })
+    : []
+  const spores: SporeSpec[] = hazards.includes('spore')
+    ? Array.from({ length: after(33, 4, 4) }, () => {
+        const x = take()
+        return { x, y: knotAt(knots, x) - 44 - rng() * 30, r: 9 }
+      })
+    : []
   const seeds = hill < 5 ? 2 : 3
   const sun = 700 + 190 * screens + 70 * seeds
   return {
@@ -295,6 +343,10 @@ export function freeHill(hill: number, rng: () => number): MissionSpec {
     windmills,
     fluff,
     crows,
+    falls,
+    drips,
+    pebbles,
+    spores,
     map: {
       w,
       h,

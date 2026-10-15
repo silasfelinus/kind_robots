@@ -389,6 +389,67 @@ assert.ok(
   'the full navigation directory must link leaf destinations rather than subtab parents',
 )
 
+assert.match(
+  source('components/navigation/navigation-trimmed.vue'),
+  /class="directory-home kr-unbound flex w-full flex-col gap-3"/,
+  'the destination directory must use the content page scroll owner',
+)
+assert.doesNotMatch(
+  source('components/navigation/navigation-trimmed.vue'),
+  /class="kr-scroll|overflow-y-auto/,
+  'do not create nested scrolling inside the content page scroll owner',
+)
+assert.match(
+  source('pages/[...slug].vue'),
+  /content-host flex h-full min-h-0 w-full flex-col overflow-y-auto/,
+  'the existing content host must remain responsible for reaching the final directory card',
+)
+assert.match(
+  source('components/navigation/navigation-trimmed.vue'),
+  /class="directory-grid grid gap-3"/,
+  'destinations should render as grouped responsive cards, not compact strips',
+)
+assert.match(
+  source('components/navigation/navigation-trimmed.vue'),
+  /min-h-32 min-w-0 items-stretch/,
+  'directory cards need legible rectangular artwork and readable copy',
+)
+assert.match(
+  source('components/navigation/navigation-trimmed.vue'),
+  /grid-template-columns: repeat\(auto-fit, minmax\(min\(100%, 21rem\), 1fr\)\)/,
+  'the directory grid must follow the available container width',
+)
+assert.match(
+  source('components/navigation/navigation-trimmed.vue'),
+  /@container \(min-width: 80rem\)[\s\S]*?repeat\(4, minmax\(0, 1fr\)\)/,
+  'the wide desktop directory must not compress into tiny tiles',
+)
+assert.doesNotMatch(
+  source('components/navigation/navigation-trimmed.vue'),
+  /kr-panel-compact-xs|sm:grid-cols-2 lg:grid-cols-3/,
+  'the directory must not regress to tiny horizontal strips or viewport-based columns',
+)
+assert.match(
+  source('components/navigation/navigation-trimmed.vue'),
+  /navigationDestinations\(channel\)/,
+  'all routed navigation destinations must remain available',
+)
+assert.match(
+  source('components/navigation/navigation-trimmed.vue'),
+  /v-model="query"/,
+  'the destination search field must remain functional',
+)
+assert.match(
+  source('components/navigation/navigation-trimmed.vue'),
+  /isAdminOnlyTab\(channel, tab\)/,
+  'mixed-channel admin badges must be preserved',
+)
+assert.match(
+  source('components/navigation/navigation-trimmed.vue'),
+  /:to="tabTo\(channel, tab\)"/,
+  'duplicate tab routes must still be disambiguated',
+)
+
 const channelStoreSource = source('stores/channelContentStore.ts')
 const pickerSource = source('components/navigation/channel-select.vue')
 const siteDirectorySource = source('components/navigation/navigation-trimmed.vue')

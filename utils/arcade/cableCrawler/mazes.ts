@@ -31,6 +31,11 @@
 //   'O' a speaker cone: on its beat it shoves a plug beside it one cell away
 //   'e' marks an echo: a ghost cable retracing the plug's path four seconds behind
 //   'n' a trio of noise gnats' home
+// The Graphics Card (t-066):
+//   'z' a z-fighter wall: a doorway that flickers between solid and passable on its own beat
+//   's' a glitch sprite's home: it teleports onto the spark you are heading for
+//   A layout with `scan` sweeps a scanline down the board; one with `picture` hides an image
+//   under its sparks, which each slurped spark reveals.
 // Mirrored, the right half copies the left with 'P', '$' and 'B' left out (they stay unique) and
 // the left-right arrows turned round.
 
@@ -47,6 +52,10 @@ export type MazeLayout = {
   open?: boolean
   /** RAM Rows: the rows swap their sparks on a beat. */
   refresh?: boolean
+  /** The Graphics Card: ticks per row the scanline sweeps (none when absent). */
+  scan?: number
+  /** The Graphics Card: the picture the sparks are the pixels of. */
+  picture?: string
 }
 
 export type Way = { dx: number; dy: number }
@@ -76,6 +85,11 @@ export type Maze = {
   cones: readonly number[]
   echoes: readonly number[]
   gnats: readonly number[]
+  /** The Graphics Card: z-fighter walls and glitch sprites' homes. */
+  zfighters: readonly number[]
+  sprites: readonly number[]
+  scan: number
+  picture: string | null
   boss: number | null
   /** One-way diodes, by cell. */
   diodes: ReadonlyMap<number, Way>
@@ -190,6 +204,10 @@ export function parseMaze(layout: MazeLayout): Maze {
     cones: all('O'),
     echoes: all('e'),
     gnats: all('n'),
+    zfighters: all('z'),
+    sprites: all('s'),
+    scan: layout.scan ?? 0,
+    picture: layout.picture ?? null,
     boss: all('B')[0] ?? null,
     diodes,
     air,
@@ -420,14 +438,14 @@ export function mazeProblems(
     }
   }
   // A beat gate is a doorway: walls on two opposite sides, floor on the other two.
-  for (const k of maze.gates) {
+  for (const k of [...maze.gates, ...maze.zfighters]) {
     const x = cellX(k)
     const y = cellY(k)
     const w = (dx: number, dy: number) => maze.walls[cellKey(x + dx, y + dy)]
     const across = w(-1, 0) && w(1, 0) && !w(0, -1) && !w(0, 1)
     const down = w(0, -1) && w(0, 1) && !w(-1, 0) && !w(1, 0)
     if (!across && !down)
-      out.push(`a beat gate that is not a doorway at ${x},${y}`)
+      out.push(`a beat gate or z-fighter wall that is not a doorway at ${x},${y}`)
   }
   if (maze.gates.length === 1) out.push('a lone beat gate')
   for (const k of maze.cones) {

@@ -27,6 +27,12 @@
 //   noise gnats   a trio that drifts toward the plug when it is near and orbits it, draining the
 //                 battery while they do. They fly over the cable; surge with them touching it.
 //
+// The Graphics Card (t-066):
+//
+//   glitch sprite teleports onto the spark you are heading for. A scanline flickers on that
+//                 spark for a second before it lands; touching it unplugs you. Change route.
+//   z-fighter wall (a wall, not a glitch: see the game) flickers between solid and passable.
+//
 // A surged glitch reboots: it turns into points (and sometimes drops a pickup), and the
 // wanderers boot back up at home a while later. Crabs and flippers are solid to the plug; a
 // drip is only a droplet, and its goo is the trouble.
@@ -44,6 +50,7 @@ export type GlitchKind =
   | 'block'
   | 'echo'
   | 'gnats'
+  | 'sprite'
 
 export type Glitch = {
   kind: GlitchKind
@@ -65,6 +72,9 @@ export type Glitch = {
   age: number
   /** A Defrag block settled in its slot. */
   locked: boolean
+  /** A glitch sprite: the spark it is about to land on (-1 for none) and ticks of tell left. */
+  aim: number
+  tell: number
 }
 
 export const GLITCH_POINTS: Record<GlitchKind, number> = {
@@ -78,6 +88,7 @@ export const GLITCH_POINTS: Record<GlitchKind, number> = {
   block: 0,
   echo: 400,
   gnats: 300,
+  sprite: 350,
 }
 
 /** Glitches that wander and boot back up at home after a reboot. */
@@ -89,6 +100,7 @@ export const WANDERERS: ReadonlySet<GlitchKind> = new Set([
   'drip',
   'echo',
   'gnats',
+  'sprite',
 ])
 /** Glitches the plug cannot crawl into. */
 export const SOLID_GLITCHES: ReadonlySet<GlitchKind> = new Set([
@@ -120,6 +132,11 @@ export const ECHO_DOWN = 600
 export const GNAT_STEP = 11
 export const GNAT_SIGHT = 6
 export const GNAT_DRAIN = 2
+
+/** A glitch sprite: ticks between jumps, the flicker before one, and how far it looks ahead. */
+export const SPRITE_EVERY = 60 * 4
+export const SPRITE_TELL = 60
+export const SPRITE_SIGHT = 12
 
 /** Whether a cache crab's claws are up (it snips). */
 export function clawsUp(g: Glitch): boolean {
@@ -153,6 +170,8 @@ export function newGlitch(kind: GlitchKind, k: number): Glitch {
     gone: false,
     age: 0,
     locked: false,
+    aim: -1,
+    tell: 0,
   }
 }
 

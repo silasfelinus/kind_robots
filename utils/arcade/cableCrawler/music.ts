@@ -8,6 +8,8 @@
 //   The Power Strip   a perky hum in D with a ticking hi-hat, like a busy little relay.
 //   The Sound Card    a head-nodding bass groove in A minor with a bright chime on top and a
 //                     backbeat, the board's gates thumping to it.
+//   The Graphics Card a bright, glitchy chiptune arpeggio in D major, a pixel at a time, over
+//                     a steady kick and a stuttering hi-hat.
 //   Boss              a stomping minor march in E for the big glitches.
 //   Screensaver       a floaty, slow drift in F over a soft pad.
 
@@ -234,6 +236,41 @@ export const SOUND_CARD_MUSIC: MusicLoop = {
       ),
     },
     { noise: true, vol: 0.016, steps: eight('x . . . x . . x') },
+  ],
+}
+
+export const GRAPHICS_CARD_MUSIC: MusicLoop = {
+  bpm: 126,
+  tracks: [
+    {
+      type: 'triangle',
+      vol: 0.07,
+      steps: bars(
+        'D2 . D3 . D2 . D3 A2',
+        'G2 . G3 . G2 . G3 D3',
+        'B1 . B2 . B1 . B2 F#2',
+        'A1 . A2 . A1 . A2 E3',
+        'D2 . D3 . D2 . D3 A2',
+        'E2 . E3 . E2 . E3 B2',
+        'G2 . G3 . A2 . A3 .',
+        'A1 . A2 . A1 . E2 A1',
+      ),
+    },
+    {
+      type: 'square',
+      vol: 0.017,
+      steps: bars(
+        'F#5 A5 D6 A5 F#5 A5 D6 A5',
+        'G5 B5 D6 B5 G5 B5 D6 B5',
+        'F#5 B5 D6 B5 F#5 B5 D6 B5',
+        'E5 A5 C#6 A5 E5 A5 C#6 A5',
+        'F#5 A5 D6 A5 F#5 A5 D6 A5',
+        'G5 B5 E6 B5 G5 B5 E6 B5',
+        'B5 D6 G6 D6 A5 C#6 E6 C#6',
+        'A5 E5 C#5 E5 A4 . . .',
+      ),
+    },
+    { noise: true, vol: 0.015, steps: eight('x . x x x . x .') },
   ],
 }
 

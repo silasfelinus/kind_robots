@@ -445,7 +445,9 @@ export function mazeProblems(
     const across = w(-1, 0) && w(1, 0) && !w(0, -1) && !w(0, 1)
     const down = w(0, -1) && w(0, 1) && !w(-1, 0) && !w(1, 0)
     if (!across && !down)
-      out.push(`a beat gate or z-fighter wall that is not a doorway at ${x},${y}`)
+      out.push(
+        `a beat gate or z-fighter wall that is not a doorway at ${x},${y}`,
+      )
   }
   if (maze.gates.length === 1) out.push('a lone beat gate')
   for (const k of maze.cones) {

@@ -3,7 +3,9 @@
     <div
       class="kr-container-wide flex h-full min-h-0 flex-col gap-3 p-3 sm:p-4"
     >
-      <header class="flex flex-wrap items-center justify-between gap-2 rounded-2xl border border-base-300 bg-base-100 p-2 text-base-content shadow-sm">
+      <header
+        class="flex flex-wrap items-center justify-between gap-2 rounded-2xl border border-base-300 bg-base-100 p-2 text-base-content shadow-sm"
+      >
         <nav
           class="flex items-center gap-1 rounded-xl border border-base-300 bg-base-200 p-1"
           aria-label="Video generation mode"
@@ -16,8 +18,12 @@
           >
         </nav>
         <div class="flex items-center gap-2 text-xs">
-          <span class="kr-badge-outline bg-base-200 text-base-content">Private studio</span>
-          <span class="kr-badge-outline bg-base-200 text-base-content">Source motion retained</span>
+          <span class="kr-badge-outline bg-base-200 text-base-content"
+            >Private studio</span
+          >
+          <span class="kr-badge-outline bg-base-200 text-base-content"
+            >Source motion retained</span
+          >
         </div>
       </header>
 
@@ -41,7 +47,11 @@
             Dismiss
           </button>
         </div>
-        <div v-if="store.notice" role="status" class="rounded-xl border border-base-300 bg-base-100 p-2 text-xs text-base-content shadow-sm">
+        <div
+          v-if="store.notice"
+          role="status"
+          class="rounded-xl border border-base-300 bg-base-100 p-2 text-xs text-base-content shadow-sm"
+        >
           {{ store.notice }}
         </div>
         <nav

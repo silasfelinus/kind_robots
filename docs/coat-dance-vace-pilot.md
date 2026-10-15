@@ -22,8 +22,6 @@ pilot-specific actions; generic priority, edit, and cancel buttons are hidden
 because those would mutate the mirror without controlling the local worker.
 Until the studio reconciles, an ArtJob may lag the file-backed worker status.
 
-
-
 The first controlled GPU run is a **24-second pilot at source time 2:38–3:02**.
 This window includes beat-map rows 16–17, the 2:40–2:58 coat flourish and
 measured movement climax. It is _not_ an arbitrary first five seconds.

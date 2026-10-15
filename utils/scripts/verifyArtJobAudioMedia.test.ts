@@ -9,7 +9,11 @@
 import assert from 'node:assert/strict'
 
 import { isAudioType, resolveArtImageSource } from '../artImageSource.js'
-import { artJobClaimableBy, isAudioArtJobPayload, isVideoRestyleArtJobPayload } from '../artJobMedia.js'
+import {
+  artJobClaimableBy,
+  isAudioArtJobPayload,
+  isVideoRestyleArtJobPayload,
+} from '../artJobMedia.js'
 
 const B64 = 'A'.repeat(64)
 

@@ -43,8 +43,14 @@ assert.ok(source.includes('requireAdminApiUser'))
 assert.ok(source.includes('restyleSourcePath'))
 assert.ok(settings.includes('updateRestyleSettings'))
 
-const pilot = readFileSync('server/api/video-restyle/[id]/pilot.post.ts', 'utf8')
-const reconcile = readFileSync('server/api/video-restyle/reconcile.post.ts', 'utf8')
+const pilot = readFileSync(
+  'server/api/video-restyle/[id]/pilot.post.ts',
+  'utf8',
+)
+const reconcile = readFileSync(
+  'server/api/video-restyle/reconcile.post.ts',
+  'utf8',
+)
 const artjob = readFileSync('server/utils/videoRestyleArtJob.ts', 'utf8')
 const queueCard = readFileSync('components/art/artjob-queue-card.vue', 'utf8')
 const media = readFileSync('utils/artJobMedia.ts', 'utf8')

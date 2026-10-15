@@ -18,6 +18,8 @@ import {
   shadedOrb,
 } from '../snes'
 import { drawSunflower } from './art'
+import { LIGHT, darkAt, fireflyAt, sporeSwell } from './cavern'
+import type { CrystalSpec, LanternSpec, LightSource, SporeSpec } from './cavern'
 import type { Growth } from './gardens'
 import type {
   Crow,
@@ -462,4 +464,144 @@ export function drawPebble(
       1,
     )
   }
+}
+
+// --- Firefly Caverns ----------------------------------------------------------------------------
+
+/** A crystal bumper: a faceted gem that glints. */
+export function drawCrystal(
+  g: CanvasRenderingContext2D,
+  c: CrystalSpec,
+  tick: number,
+) {
+  glow(g, c.x, c.y, c.r + 10, RAMPS.teal[3], 0.25 + 0.1 * Math.sin(tick / 20))
+  g.fillStyle = INK
+  g.beginPath()
+  g.moveTo(c.x, c.y - c.r - 1)
+  g.lineTo(c.x + c.r + 1, c.y)
+  g.lineTo(c.x, c.y + c.r + 1)
+  g.lineTo(c.x - c.r - 1, c.y)
+  g.closePath()
+  g.fill()
+  g.fillStyle = RAMPS.teal[2]
+  g.beginPath()
+  g.moveTo(c.x, c.y - c.r)
+  g.lineTo(c.x + c.r, c.y)
+  g.lineTo(c.x, c.y + c.r)
+  g.lineTo(c.x - c.r, c.y)
+  g.closePath()
+  g.fill()
+  g.fillStyle = RAMPS.teal[4]
+  g.fillRect(Math.round(c.x - 1), Math.round(c.y - c.r + 2), 2, 3)
+  if (tick % 90 < 6) g.fillRect(Math.round(c.x + 2), Math.round(c.y - 2), 1, 1)
+}
+
+/** A spore puffball: it swells (the tell) as the pod nears, and breathes a pink haze. */
+export function drawSpore(
+  g: CanvasRenderingContext2D,
+  s: SporeSpec,
+  podX: number,
+  podY: number,
+  tick: number,
+) {
+  const swell = sporeSwell(s, podX, podY)
+  const r = s.r * (1 + 0.35 * swell) + Math.sin(tick / 14) * 0.5
+  glow(g, s.x, s.y, r + 8, RAMPS.pink[3], 0.2 + 0.25 * swell)
+  shadedOrb(g, s.x, s.y, r, RAMPS.pink)
+  g.fillStyle = INK
+  g.fillRect(Math.round(s.x - 3), Math.round(s.y - 1), 1, 2)
+  g.fillRect(Math.round(s.x + 2), Math.round(s.y - 1), 1, 2)
+  for (let k = 0; k < 4; k++) {
+    const a = tick / 30 + k * 1.7
+    g.fillStyle = rgba(RAMPS.pink[4], 0.5)
+    g.fillRect(
+      Math.round(s.x + Math.cos(a) * (r + 3)),
+      Math.round(s.y + Math.sin(a) * (r + 3) - swell * 3),
+      1,
+      1,
+    )
+  }
+}
+
+/** A cave lantern on its post: a dead husk until relit, then a warm glow. */
+export function drawLantern(
+  g: CanvasRenderingContext2D,
+  l: LanternSpec,
+  ground: number,
+  lit: boolean,
+  tick: number,
+) {
+  g.fillStyle = INK
+  g.fillRect(Math.round(l.x) - 1, ground - 16, 3, 16)
+  g.fillRect(Math.round(l.x) - 5, ground - 24, 11, 10)
+  g.fillStyle = lit ? RAMPS.gold[3] : RAMPS.steel[1]
+  g.fillRect(Math.round(l.x) - 4, ground - 23, 9, 8)
+  if (lit) {
+    g.fillStyle = RAMPS.gold[4]
+    g.fillRect(
+      Math.round(l.x) - 1,
+      ground - 21 + (tick % 20 < 10 ? 0 : 1),
+      3,
+      4,
+    )
+    glow(g, l.x, ground - 19, 28, RAMPS.gold[3], 0.45)
+  } else if (tick % 60 < 8) {
+    // A dim flicker: it wants lighting.
+    g.fillStyle = RAMPS.gold[1]
+    g.fillRect(Math.round(l.x), ground - 20, 1, 2)
+  }
+}
+
+/** A firefly: a drifting spark that lights the cave a little. */
+export function drawFirefly(
+  g: CanvasRenderingContext2D,
+  f: { x: number; y: number },
+  tick: number,
+) {
+  const on = tick % 70 < 52
+  if (on) glow(g, f.x, f.y, 9, RAMPS.leaf[3], 0.55)
+  g.fillStyle = on ? RAMPS.leaf[4] : RAMPS.leaf[2]
+  g.fillRect(Math.round(f.x), Math.round(f.y), 1, 1)
+}
+
+/** Where a cave's fireflies drift: a few near each stretch of the map, from the tick alone. */
+export function fireflies(
+  w: number,
+  h: number,
+  tick: number,
+): Array<{ x: number; y: number }> {
+  const out: Array<{ x: number; y: number }> = []
+  const n = Math.max(4, Math.round(w / 90))
+  for (let k = 0; k < n; k++) {
+    const hx = ((k + 0.5) / n) * w + ((k * 37) % 23) - 11
+    const hy = h * (0.3 + ((k * 53) % 40) / 100)
+    out.push(fireflyAt(hx, hy, k, tick))
+  }
+  return out
+}
+
+/**
+ * The dark of a cave over the world view: pixel cells that fade from clear near a light to
+ * near-black far from every one. Drawn in world units, inside the camera transform.
+ */
+export function drawDarkness(
+  g: CanvasRenderingContext2D,
+  view: { x0: number; y0: number; x1: number; y1: number },
+  lights: readonly LightSource[],
+) {
+  const cell = LIGHT.cell
+  const x0 = Math.floor(view.x0 / cell) * cell
+  const y0 = Math.floor(view.y0 / cell) * cell
+  g.fillStyle = '#04021a'
+  for (let y = y0; y < view.y1; y += cell) {
+    for (let x = x0; x < view.x1; x += cell) {
+      const d = darkAt(lights, x + cell / 2, y + cell / 2)
+      // Four steps of dark, so the edge reads as pixel art rather than a smooth fade.
+      const step = Math.round(d * 4) / 4
+      if (step <= 0) continue
+      g.globalAlpha = step
+      g.fillRect(x, y, cell, cell)
+    }
+  }
+  g.globalAlpha = 1
 }

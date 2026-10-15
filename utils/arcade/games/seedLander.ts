@@ -23,7 +23,15 @@
 // Left/right lean the pod; Up or A puffs; B hops; DOWN works the winch.
 
 import { drawText } from '../font'
-import { INK, RAMPS, Sparkles, backdropRng, glow, vignette } from '../snes'
+import {
+  INK,
+  RAMPS,
+  Sparkles,
+  backdropRng,
+  glow,
+  rgba,
+  vignette,
+} from '../snes'
 import type {
   ArcadeGameInstance,
   ArcadeGameModule,
@@ -46,11 +54,22 @@ import { drawBoss } from '../seedLander/bossArt'
 import {
   GALE_MILL,
   GeyserTortoise,
+  GlowwormQueen,
+  QUEEN,
   TORTOISE,
   makeBoss,
 } from '../seedLander/bosses'
 import type { Boss } from '../seedLander/bosses'
 import { Camera, VIEW_H } from '../seedLander/camera'
+import {
+  LANTERN,
+  LIGHT,
+  SPORE,
+  crystalBump,
+  lanternReached,
+  sporeTriggered,
+} from '../seedLander/cavern'
+import type { LightSource } from '../seedLander/cavern'
 import {
   MEDAL,
   UPGRADES,
@@ -106,9 +125,15 @@ import type { Crow, Fluff, Windmill } from '../seedLander/hazards'
 import {
   drawAcorn,
   drawCrow,
+  drawCrystal,
+  drawDarkness,
   drawDrip,
   drawFall,
+  drawFirefly,
   drawFluff,
+  drawLantern,
+  drawSpore,
+  fireflies,
   drawGrowsMark,
   drawGrowth,
   drawPebble,
@@ -226,6 +251,11 @@ class SeedLander implements ArcadeGameInstance {
   private cargoTo = new Map<string, string>()
   /** Where each cargo started (a popped water bubble returns to its spring). */
   private cargoHome = new Map<string, number>()
+  /** Firefly Caverns: lanterns relit so far, ticks each puffball waits to go off again, and
+   *  ticks of blurred gauges left. */
+  private lit = new Set<string>()
+  private sporeWait: number[] = []
+  private blur = 0
   private vents: VentSpec[] = []
   private windmills: Windmill[] = []
   private fluffs: Fluff[] = []
@@ -560,6 +590,9 @@ class SeedLander implements ArcadeGameInstance {
     this.cargo = []
     this.cargoTo.clear()
     this.cargoHome.clear()
+    this.lit.clear()
+    this.sporeWait = (spec.spores ?? []).map(() => 0)
+    this.blur = 0
     ;(spec.cargo ?? []).forEach((c, i) => {
       const id = c.id ?? `cargo${i}`
       const crate = newCargo(id, c.kind, c.x, 0, c.seedlings ?? 3)
@@ -616,7 +649,10 @@ class SeedLander implements ArcadeGameInstance {
     switch (m.kind) {
       case 'deliver':
       case 'water':
+      case 'rescue':
         return this.delivered >= (m.deliveries ?? this.cargo.length)
+      case 'lantern':
+        return this.lit.size >= (m.lanterns?.length ?? 0)
       case 'rings':
         return this.ring >= (m.rings?.length ?? 0)
       case 'boss':
@@ -632,6 +668,10 @@ class SeedLander implements ArcadeGameInstance {
     switch (m.kind) {
       case 'deliver':
         return `CRATES ${this.delivered}/${m.deliveries ?? this.cargo.length}`
+      case 'rescue':
+        return `RESCUED ${this.delivered}/${m.deliveries ?? this.cargo.length}`
+      case 'lantern':
+        return `LANTERNS ${this.lit.size}/${m.lanterns?.length ?? 0}`
       case 'water':
         return `BEDS WATERED ${this.delivered}/${m.deliveries ?? this.cargo.length}`
       case 'rings':
@@ -906,7 +946,9 @@ class SeedLander implements ArcadeGameInstance {
         pod,
         this.boss?.id === 'tortoise'
           ? 'THE GEYSER WAS STILL SURGING'
-          : 'A CROW WAS SITTING THERE',
+          : this.boss?.id === 'queen'
+            ? 'THAT SEGMENT WAS DARK'
+            : 'A CROW WAS SITTING THERE',
       )
     const rank = pad
       ? rankLanding(pod.vx - pad.vx, pod.vy - pad.vy, pod.tilt, this.legs)
@@ -942,6 +984,7 @@ class SeedLander implements ArcadeGameInstance {
       this.plant(pod, pad, rank, cx)
       return
     }
+    this.relight(cx)
     // Any other pad: a rest stop. Sunflowers refuel; the shed and planted beds just hold the pod.
     this.floaters.push({
       x: cx,
@@ -958,6 +1001,27 @@ class SeedLander implements ArcadeGameInstance {
       }
       this.sound.play('pickup')
     } else this.sound.play('blip')
+  }
+
+  /** Landing beside an unlit cave lantern relights it. */
+  private relight(cx: number) {
+    for (const l of this.mission.lanterns ?? []) {
+      if (this.lit.has(l.id) || !lanternReached(l, cx)) continue
+      this.lit.add(l.id)
+      this.earnNectar(1)
+      this.addScore(300, l.x, this.terrain.groundAt(l.x) - 30, RAMPS.gold[3])
+      this.fx.burst(l.x, this.terrain.groundAt(l.x) - 20, this.fxRng, {
+        count: 14,
+        colours: [RAMPS.gold[3], RAMPS.gold[4], '#ffffff'],
+      })
+      this.banner = {
+        text: 'LANTERN LIT!',
+        sub: `${this.lit.size}/${this.mission.lanterns?.length ?? 0}`,
+        ticks: 90,
+      }
+      this.sound.play('extra')
+    }
+    if (this.mission.kind === 'lantern' && this.goalMet()) this.clearMission()
   }
 
   private plant(pod: Pod, pad: Pad, rank: LandingRank, cx: number) {
@@ -1036,7 +1100,11 @@ class SeedLander implements ArcadeGameInstance {
             ? boss.phase === 2
               ? 'HE SURFACES IN THREE PLACES'
               : 'HE SWIMS ACROSS THE POOL'
-            : 'THE WIND TURNS',
+            : boss.id === 'queen'
+              ? boss.phase === 2
+                ? 'THE LIGHT RACES BACK AND FORTH'
+                : 'THE LIGHT SKIPS ALONG'
+              : 'THE WIND TURNS',
       ticks: 140,
     }
   }
@@ -1326,6 +1394,40 @@ class SeedLander implements ArcadeGameInstance {
         this.sound.play('pop')
       }
     }
+    // Crystal bumpers bounce a flying pod gently; a puffball it brushes blurs the gauges.
+    if (this.blur > 0) this.blur--
+    this.sporeWait = this.sporeWait.map((w) => Math.max(0, w - 1))
+    if (this.phase === 'fly' && !pod.chute && !pod.restOn) {
+      for (const c of this.mission.crystals ?? []) {
+        const v = crystalBump(c, pod.x, pod.y, pod.vx, pod.vy)
+        if (!v) continue
+        pod.vx = v.vx
+        pod.vy = v.vy
+        this.sound.play('blip')
+        this.fx.burst(c.x, c.y, this.fxRng, {
+          count: 4,
+          colours: [RAMPS.teal[3], RAMPS.teal[4]],
+        })
+      }
+      ;(this.mission.spores ?? []).forEach((sp, i) => {
+        if ((this.sporeWait[i] ?? 0) > 0 || !sporeTriggered(sp, pod.x, pod.y))
+          return
+        this.sporeWait[i] = SPORE.cool
+        this.blur = SPORE.blur
+        this.floaters.push({
+          x: sp.x,
+          y: sp.y - 16,
+          text: 'SPORES! GAUGES BLURRED',
+          life: 60,
+          color: RAMPS.pink[3],
+        })
+        this.fx.burst(sp.x, sp.y, this.fxRng, {
+          count: 10,
+          colours: [RAMPS.pink[3], RAMPS.pink[4]],
+        })
+        this.sound.play('pop')
+      })
+    }
     // Stalactite drips and pebble rollers knock a flying pod about, and bonk a resting one.
     if (this.phase === 'fly' && !pod.chute) {
       for (const d of this.mission.drips ?? []) {
@@ -1475,16 +1577,25 @@ class SeedLander implements ArcadeGameInstance {
     this.earnNectar(c.seedlings)
     this.fx.burst(c.x, c.y - 6, this.fxRng, { count: 12 })
     this.banner = {
-      text: c.kind === 'water' ? 'WATERED!' : 'DELIVERED!',
+      text:
+        c.kind === 'water'
+          ? 'WATERED!'
+          : c.kind === 'sprout'
+            ? 'RESCUED!'
+            : 'DELIVERED!',
       sub:
         c.kind === 'water'
           ? `THE BED DRINKS  ${points}`
-          : `${c.seedlings} SEEDLINGS  ${points}`,
+          : c.kind === 'sprout'
+            ? `A SPROUT-BOT IS HOME  ${points}`
+            : `${c.seedlings} SEEDLINGS  ${points}`,
       ticks: 100,
     }
     this.sound.play('extra')
     if (
-      (this.mission.kind === 'deliver' || this.mission.kind === 'water') &&
+      (this.mission.kind === 'deliver' ||
+        this.mission.kind === 'water' ||
+        this.mission.kind === 'rescue') &&
       this.goalMet()
     )
       this.clearMission()
@@ -1643,9 +1754,22 @@ class SeedLander implements ArcadeGameInstance {
         }
         goalX = mid(pad)
       }
+    } else if (this.mission.kind === 'lantern') {
+      // Land on the pad beside the nearest lantern that is still dark.
+      const lamp = [...(this.mission.lanterns ?? [])]
+        .filter((l) => !this.lit.has(l.id))
+        .sort((a, b) => far(a.x) - far(b.x))[0]
+      const pad = lamp
+        ? pads.find((q) => q.x0 <= lamp.x && q.x1 >= lamp.x)
+        : undefined
+      if (pad) {
+        goal = { kind: 'land', pad }
+        goalX = mid(pad)
+      }
     } else if (
       this.mission.kind === 'deliver' ||
-      this.mission.kind === 'water'
+      this.mission.kind === 'water' ||
+      this.mission.kind === 'rescue'
     ) {
       const crate = [...this.cargo]
         .filter((c) => !c.delivered)
@@ -1704,6 +1828,18 @@ class SeedLander implements ArcadeGameInstance {
           }
         } else goal = { kind: 'land', pad: shell }
         goalX = mid(shell)
+      } else if (this.boss instanceof GlowwormQueen) {
+        // The Glowworm Queen: land on the lit segment while it has time left, else hover over
+        // the one lit next.
+        const q = this.boss
+        const lit = q.pads[q.lit()]
+        const near = lit ? Math.abs(mid(lit) - pod.x) < 60 : false
+        if (lit && q.litLeft() > 50 && near) goal = { kind: 'land', pad: lit }
+        else {
+          const aim = q.pads[lit && q.litLeft() > 50 ? q.lit() : q.next()]!
+          goal = { kind: 'hover', x: mid(aim), y: QUEEN.ys[0]! - 46 }
+        }
+        goalX = pod.x
       } else if (bed?.blocked) {
         // A crow sits on it: hover close by until it flies off.
         goal = { kind: 'hover', x: mid(bed), y: bed.y - 52 }
@@ -1832,6 +1968,7 @@ class SeedLander implements ArcadeGameInstance {
         if (pod.fluff) drawPodFluff(g, pod.x, pod.y, pod.fluff, this.tick)
       }
     for (const f of this.mission.falls ?? []) drawFall(g, f, this.tick)
+    this.renderCave(g)
     for (const c of this.crows)
       drawCrow(g, c, (x) => this.terrain.floorAt(x, c.y), this.tick)
     this.fx.render(g)
@@ -1845,6 +1982,7 @@ class SeedLander implements ArcadeGameInstance {
     this.renderPointers(g)
     vignette(g, W, H, 0.24)
     this.renderHud(g)
+    if (this.blur > 0) this.renderBlur(g)
     if (this.card > 0 && !this.menu && this.phase === 'fly')
       drawMissionCard(g, {
         name: this.mission.name,
@@ -1887,6 +2025,58 @@ class SeedLander implements ArcadeGameInstance {
         pick: this.menu.pick,
         tick: this.tick,
       })
+  }
+
+  /** Firefly Caverns' things in the world, then the dark over them (lit by the glows). */
+  private renderCave(g: CanvasRenderingContext2D) {
+    const m = this.mission
+    const ground = (x: number) => this.terrain.groundAt(x)
+    for (const c of m.crystals ?? []) drawCrystal(g, c, this.tick)
+    for (const sp of m.spores ?? [])
+      drawSpore(g, sp, this.pod.x, this.pod.y, this.tick)
+    for (const l of m.lanterns ?? [])
+      drawLantern(g, l, ground(l.x), this.lit.has(l.id), this.tick)
+    if (!m.dark) return
+    const flies = fireflies(this.terrain.w, this.terrain.h, this.tick)
+    for (const f of flies) drawFirefly(g, f, this.tick)
+    const lights: LightSource[] = flies.map((f) => ({
+      x: f.x,
+      y: f.y,
+      r: LIGHT.firefly,
+    }))
+    for (const pod of this.pods)
+      lights.push({
+        x: pod.x,
+        y: pod.y,
+        r:
+          LIGHT.pod * (1 + 0.15 * this.upgrades.lamp) +
+          (pod.puffing ? LIGHT.puff : 0),
+      })
+    for (const l of m.lanterns ?? [])
+      if (this.lit.has(l.id))
+        lights.push({ x: l.x, y: ground(l.x) - 18, r: LANTERN.light })
+    if (this.boss instanceof GlowwormQueen) {
+      const lit = this.boss.pads[this.boss.lit()]
+      if (lit)
+        lights.push({ x: (lit.x0 + lit.x1) / 2, y: lit.y, r: LANTERN.light })
+    }
+    drawDarkness(g, this.camera.view(), lights)
+  }
+
+  /** Spores: the HUD strip smears for a moment. */
+  private renderBlur(g: CanvasRenderingContext2D) {
+    const fade = Math.min(1, this.blur / 20)
+    for (let i = 0; i < 18; i++) {
+      g.fillStyle = rgba(RAMPS.pink[2], 0.35 * fade)
+      g.fillRect(
+        ((i * 37 + this.tick * 3) % (W + 40)) - 20,
+        (i * 5) % HUD_H,
+        40,
+        3,
+      )
+    }
+    g.fillStyle = rgba(RAMPS.pink[3], 0.35 * fade)
+    g.fillRect(0, 0, W, HUD_H)
   }
 
   private renderHud(g: CanvasRenderingContext2D) {
@@ -2049,7 +2239,10 @@ class SeedLander implements ArcadeGameInstance {
       else if (p.kind === 'sun' && this.pod.sun < this.sunMax * 0.3)
         goals.push({ x, y: p.y, label: '*', ramp: RAMPS.gold })
     }
-    if (this.mission.kind === 'deliver' && !towing.length)
+    if (
+      (this.mission.kind === 'deliver' || this.mission.kind === 'rescue') &&
+      !towing.length
+    )
       for (const c of this.cargo)
         if (!c.delivered)
           goals.push({ x: c.x, y: c.y, label: 'C', ramp: RAMPS.rust })

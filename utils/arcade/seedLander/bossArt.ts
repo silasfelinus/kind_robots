@@ -20,6 +20,7 @@ import {
   GALE_MILL,
   GaleMill,
   GeyserTortoise,
+  GlowwormQueen,
   OldScarecrow,
   SCARECROW,
   TORTOISE,
@@ -39,6 +40,7 @@ export function drawBoss(
   if (boss instanceof OldScarecrow) drawScarecrow(g, boss, ground, tick)
   if (boss instanceof GaleMill) drawGaleMill(g, boss, ground, tick)
   if (boss instanceof GeyserTortoise) drawTortoise(g, boss, tick)
+  if (boss instanceof GlowwormQueen) drawQueen(g, boss, tick)
 }
 
 function drawScarecrow(
@@ -254,4 +256,55 @@ function drawTortoise(
     g.fillStyle = rgba('#ffffff', 0.5)
     g.fillRect(Math.round(cx - 150 + ((k * 23 + tick * 0.4) % 300)), pool, 4, 1)
   }
+}
+
+/** The Glowworm Queen: a long body of segments, the lit one glowing gold and the rest dim. */
+function drawQueen(
+  g: CanvasRenderingContext2D,
+  b: GlowwormQueen,
+  tick: number,
+) {
+  const lit = b.lit()
+  const next = b.next()
+  // The body between the segments.
+  const first = b.pads[0]!
+  const last = b.pads[b.pads.length - 1]!
+  g.fillStyle = INK
+  g.fillRect(first.x0 - 6, first.y + 2, last.x1 - first.x0 + 12, 14)
+  g.fillStyle = RAMPS.purple[1]
+  g.fillRect(first.x0 - 4, first.y + 4, last.x1 - first.x0 + 8, 10)
+  b.pads.forEach((p, k) => {
+    const cx = (p.x0 + p.x1) / 2
+    const on = k === lit
+    // The next segment pulses faintly: the sequence is learnable.
+    const soon = k === next && lit >= 0 && b.litLeft() < 40
+    if (on) glow(g, cx, p.y + 6, 30, RAMPS.gold[3], 0.6)
+    else if (soon && tick % 10 < 5) glow(g, cx, p.y + 6, 16, RAMPS.gold[2], 0.3)
+    bevel(
+      g,
+      p.x0 - 1,
+      p.y,
+      p.x1 - p.x0 + 2,
+      14,
+      on ? RAMPS.gold : RAMPS.purple,
+      {
+        depth: 1,
+      },
+    )
+    if (on) {
+      g.fillStyle = RAMPS.gold[4]
+      g.fillRect(Math.round(cx) - 3, p.y + 3, 6, 2)
+    }
+  })
+  // The head, at the right end, with a lure that swings above it.
+  const hx = last.x1 + 12
+  shadedOrb(g, hx, last.y + 9, 9, RAMPS.purple)
+  g.fillStyle = INK
+  g.fillRect(Math.round(hx) - 3, Math.round(last.y) + 6, 2, 3)
+  g.fillRect(Math.round(hx) + 1, Math.round(last.y) + 6, 2, 3)
+  const lx = hx - 4 + Math.sin(tick / 25) * 3
+  g.fillRect(Math.round(hx) - 1, Math.round(last.y) - 8, 1, 8)
+  glow(g, lx, last.y - 10, 8, RAMPS.gold[3], 0.6)
+  g.fillStyle = RAMPS.gold[4]
+  g.fillRect(Math.round(lx) - 1, Math.round(last.y) - 11, 2, 2)
 }

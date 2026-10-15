@@ -14,11 +14,13 @@
 //   The Geyser Tortoise (Waterfall Gorge): its shell is a pad on top of a geyser. It rises,
 //   calms at the top and sinks again; land on the calm. In phase 2 it swims across the pool, in
 //   phase 3 it surfaces in three places in turn.
+//   The Glowworm Queen (Firefly Caverns): a cave-long worm whose lit segment is the only pad. The
+//   light runs down her body in a sequence you learn, and each phase speeds it up.
 
 import type { Pad, Terrain } from './terrain'
 import { segmentDistance } from './hazards'
 
-export type BossId = 'scarecrow' | 'galemill' | 'tortoise'
+export type BossId = 'scarecrow' | 'galemill' | 'tortoise' | 'queen'
 
 export type BossView = {
   id: BossId
@@ -469,6 +471,138 @@ export class GeyserTortoise implements Boss {
   }
 }
 
+/** The Glowworm Queen's body and pace. */
+export const QUEEN = {
+  /** Segments, their pad width and spacing. */
+  segments: 5,
+  pad: 34,
+  gap: 58,
+  /** Each segment's top (an arch). */
+  ys: [176, 166, 160, 166, 176],
+  /** The order the light runs down her body, by phase. */
+  sequences: [
+    [0, 1, 2, 3, 4],
+    [0, 2, 4, 3, 1],
+    [0, 4, 1, 3, 2, 3, 1, 4],
+  ],
+  /** Ticks each segment stays lit, by phase. */
+  step: [110, 84, 62],
+  /** Plantings each phase needs. */
+  need: 2,
+  /** Ticks dark at the start of each new phase. */
+  hold: 90,
+} as const
+
+export class GlowwormQueen implements Boss {
+  readonly id = 'queen' as const
+  readonly name = 'THE GLOWWORM QUEEN'
+  readonly title = 'LAND ON THE LIT SEGMENT'
+  readonly phases = 3
+  phase = 0
+  done = false
+  pads: Pad[]
+  wind: number | null = null
+  private t = 0
+  private got = 0
+  private hold = 0
+
+  constructor(
+    terrain: Terrain,
+    readonly x: number,
+  ) {
+    this.pads = Array.from({ length: QUEEN.segments }, (_, k) => {
+      const cx = x + (k - (QUEEN.segments - 1) / 2) * QUEEN.gap
+      return terrain.addLivePad({
+        id: `segment${k}`,
+        x0: cx - QUEEN.pad / 2,
+        x1: cx + QUEEN.pad / 2,
+        y: QUEEN.ys[k]!,
+        mult: 3,
+        kind: 'seed',
+        grows: 'flower',
+        reach: [],
+      })
+    })
+    this.place()
+  }
+
+  private seq(): readonly number[] {
+    return QUEEN.sequences[Math.min(this.phase, 2)]!
+  }
+
+  private stepTicks(): number {
+    return QUEEN.step[Math.min(this.phase, 2)]!
+  }
+
+  /** The segment that is lit now, or -1 while a new phase gets its breath. */
+  lit(): number {
+    if (this.hold > 0) return -1
+    const s = this.seq()
+    return s[Math.floor(this.t / this.stepTicks()) % s.length]!
+  }
+
+  /** Ticks the lit segment has left. */
+  litLeft(): number {
+    if (this.hold > 0) return 0
+    const n = this.stepTicks()
+    return n - (this.t % n)
+  }
+
+  /** The segment that will be lit next. */
+  next(): number {
+    const s = this.seq()
+    return s[(Math.floor(this.t / this.stepTicks()) + 1) % s.length]!
+  }
+
+  private place() {
+    const lit = this.lit()
+    this.pads.forEach((p, k) => {
+      p.blocked = !p.planted && k !== lit
+    })
+  }
+
+  update() {
+    if (this.done) return
+    if (this.hold > 0) this.hold--
+    else this.t++
+    this.place()
+  }
+
+  planted(pad: Pad): boolean {
+    pad.planted = false
+    this.got++
+    if (this.got < QUEEN.need) return false
+    this.got = 0
+    this.phase++
+    this.t = 0
+    this.hold = QUEEN.hold
+    if (this.phase >= this.phases) {
+      this.done = true
+      for (const p of this.pads) p.blocked = false
+    } else this.place()
+    return true
+  }
+
+  hits(x: number, y: number): string | null {
+    const a = this.pads[0]!
+    const b = this.pads[this.pads.length - 1]!
+    // Her body runs under the pads: flying into the glowing belly bonks.
+    if (x > a.x0 - 4 && x < b.x1 + 4 && y > 172 && y < 192)
+      return 'BUMPED THE QUEEN'
+    return null
+  }
+
+  view(): BossView {
+    return {
+      id: this.id,
+      phase: this.phase,
+      phases: this.phases,
+      got: this.got,
+      need: QUEEN.need,
+    }
+  }
+}
+
 /** Build a boss on its arena's terrain, standing at x. */
 export function makeBoss(id: BossId, terrain: Terrain, x: number): Boss {
   switch (id) {
@@ -478,6 +612,8 @@ export function makeBoss(id: BossId, terrain: Terrain, x: number): Boss {
       return new GaleMill(terrain, x)
     case 'tortoise':
       return new GeyserTortoise(terrain, x)
+    case 'queen':
+      return new GlowwormQueen(terrain, x)
   }
 }
 
@@ -485,4 +621,5 @@ export const BOSS_NAMES: Record<BossId, string> = {
   scarecrow: 'OLD SCARECROW',
   galemill: 'THE GALE MILL',
   tortoise: 'THE GEYSER TORTOISE',
+  queen: 'THE GLOWWORM QUEEN',
 }

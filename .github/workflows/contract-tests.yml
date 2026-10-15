@@ -375,6 +375,9 @@ jobs:
       - name: ArtJob audio media contract
         run: npm run test:artjob-audio-media
 
+      - name: Coat Dance queue and restyle contract
+        run: npm run test:video-restyle
+
       - name: Mandarin course contract
         run: npm run test:mandarin-course
 

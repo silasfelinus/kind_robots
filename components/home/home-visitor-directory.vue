@@ -366,7 +366,7 @@ const features = [
   },
   {
     title: 'Daily Dreams',
-    tag: 'Today's featured dream',
+    tag: 'Featured today',
     category: 'create',
     route: '/?view=dashboard',
     image: '/images/splash/dreams.webp',

@@ -33,6 +33,7 @@ export type VideoRestyleJob = {
     durationSec: number
     completedSegments: number
     totalSegments: number
+    artJobId?: number
     renderModel: string
   }
   createdAt: string

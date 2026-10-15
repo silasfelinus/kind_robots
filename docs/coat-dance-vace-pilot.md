@@ -1,5 +1,29 @@
 # Coat Dance motion-preserving pilot: runtime integration
 
+## ArtJob queue registration and limits
+
+Pilot creation now registers a private COMFY ArtJob under project `coat-dance`,
+using one deterministic fingerprint per owner and source video. The record has
+`media: video-restyle-vace` and a linked ID on the pilot manifest. Ordinary
+`/api/art/queue/claim` workers explicitly skip this media type, so a legacy
+image-to-video worker cannot claim it or mistake the source control clip for a
+first-frame image.
+
+The admin studio calls an authenticated `POST /api/video-restyle/reconcile`
+on load and while it is open. This **backfills previously queued pilots**,
+avoids duplicating known ArtJobs and mirrors pilot progress/status from the
+private worker manifest into the ArtJob record. This is a specialized queue
+registration, not a claim that the standard ArtJob relay can execute VACE.
+
+When an existing pilot changes to RUNNING, BLOCKED, FAILED, or REVIEW on the
+worker host, the studio refresh synchronizes its corresponding ArtJob status
+(RUNNING, FAILED, or DONE). The queue card links back to Coat Dance for
+pilot-specific actions; generic priority, edit, and cancel buttons are hidden
+because those would mutate the mirror without controlling the local worker.
+Until the studio reconciles, an ArtJob may lag the file-backed worker status.
+
+
+
 The first controlled GPU run is a **24-second pilot at source time 2:38–3:02**.
 This window includes beat-map rows 16–17, the 2:40–2:58 coat flourish and
 measured movement climax. It is _not_ an arbitrary first five seconds.

@@ -1,8 +1,8 @@
 <template>
   <div class="kr-surface">
     <div class="kr-scroll kr-container max-w-7xl space-y-4 p-4 sm:p-5">
-      <header class="flex flex-wrap items-center justify-between gap-2">
-        <NuxtLink v-if="userStore.isAdmin" to="/admin/coat-dance" class="kr-btn-outline-xs">
+      <header class="flex flex-wrap items-center justify-between gap-2 rounded-2xl border border-base-300 bg-base-100 p-2 text-base-content shadow-sm">
+        <NuxtLink v-if="userStore.isAdmin" to="/admin/coat-dance" class="btn btn-primary btn-sm rounded-xl text-primary-content">
           <icon name="kind-icon:video" class="kr-icon-4" />
           Full video restyle
         </NuxtLink>

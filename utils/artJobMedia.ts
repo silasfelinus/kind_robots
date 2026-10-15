@@ -30,6 +30,10 @@ function payloadObject(payload: unknown): Record<string, unknown> | null {
     : null
 }
 
+export function isVideoRestyleArtJobPayload(payload: unknown): boolean {
+  return payloadObject(payload)?.media === 'video-restyle-vace'
+}
+
 export function isAudioArtJobPayload(payload: unknown): boolean {
   const media = payloadObject(payload)?.media
   return typeof media === 'string' && media.trim().toLowerCase() === 'audio'
@@ -40,6 +44,7 @@ export function artJobClaimableBy(
   capabilities: ArtJobRelayCapabilities,
 ): boolean {
   const body = payloadObject(payload)
+  if (isVideoRestyleArtJobPayload(body)) return false
   const needsInputImages =
     Array.isArray(body?.images) && (body?.images as unknown[]).length > 0
   if (needsInputImages && !capabilities.supportsInputImages) return false

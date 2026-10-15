@@ -98,7 +98,6 @@
                 </p>
               </section>
 
-
               <section
                 class="arcade-detail-section"
                 :class="{

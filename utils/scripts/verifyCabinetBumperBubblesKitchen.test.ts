@@ -88,13 +88,16 @@ const quiet = { play: () => {} }
 /** A state read fresh (an assertion about it shouldn't narrow the next read). */
 const stateOf = (x: { state: string }): string => x.state
 function game(options: { seed?: number; resume?: unknown } = {}): Inner {
-  return create({
+  const g = create({
     rng: mulberry32(options.seed ?? 1),
     sound: quiet,
     demo: false,
     hiScore: 0,
     resume: options.resume,
-  }) as unknown as Inner
+  }) as unknown as Inner & { menu: unknown }
+  // The mode menu opens a fresh game; these tests start on the ground floor.
+  g.menu = null
+  return g
 }
 function staged(n: number, seed = 1): Inner {
   const g = game({ seed })

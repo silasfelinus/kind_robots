@@ -94,14 +94,17 @@ const stateOf = (x: { state: string }): string => x.state
 function game(
   options: { seed?: number; resume?: unknown; players?: number } = {},
 ): Inner {
-  return create({
+  const g = create({
     rng: mulberry32(options.seed ?? 1),
     sound: quiet,
     demo: false,
     hiScore: 0,
     resume: options.resume,
     players: options.players,
-  }) as unknown as Inner
+  }) as unknown as Inner & { menu: unknown }
+  // The mode menu opens a fresh game; these tests start on the ground floor.
+  g.menu = null
+  return g
 }
 function staged(n: number, seed = 1): Inner {
   const g = game({ seed })
@@ -520,7 +523,15 @@ const fakeCtx = () =>
   assert.equal(solo.phase, 'ending')
   assert.equal(solo.ending, 'solo')
   assert.ok(solo.score >= ENDING_BONUS.solo)
-  assert.equal(solo.save, null, 'the won climb leaves no save to continue')
+  assert.equal(
+    (solo.save as BumperSave).wing,
+    1,
+    'the won climb leaves only its stars, no wing to continue',
+  )
+  assert.ok(
+    (solo.save as BumperSave).stars!.endsWith('3'),
+    'floor 100 earned its stars',
+  )
   assert.ok(!solo.over)
   assert.equal(solo.music, MUSIC.carbonator)
   solo.render(fakeCtx())

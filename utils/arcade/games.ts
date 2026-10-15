@@ -691,7 +691,7 @@ export const ARCADE_GAMES: ArcadeGameMeta[] = [
       'TRAP GREMLINS',
       'BUMP BUBBLES TO POP',
       'POP FAST FOR CHAINS',
-      'MENU: FLOORS, PARTY, TRIAL',
+      'FLOORS, PARTY, TRIAL',
       'UP TO FOUR ROBOTS',
     ],
     width: 256,

@@ -28,8 +28,6 @@
         <button
           type="button"
           class="relative block aspect-square w-full cursor-pointer overflow-hidden rounded-xl border focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
-          :aria-expanded="openBadge === entry.code"
-          @click="openBadge = openBadge === entry.code ? '' : entry.code"
           :class="
             entry.earned
               ? 'border-warning/70 bg-warning/10'
@@ -38,6 +36,8 @@
           :aria-label="
             entry.label + ': ' + (entry.earned ? entry.message : entry.tooltip)
           "
+          :aria-expanded="openBadge === entry.code"
+          @click="openBadge = openBadge === entry.code ? '' : entry.code"
         >
           <img
             v-if="entry.imagePath"

@@ -19,7 +19,7 @@ export const OTHER_GAME_ACHIEVEMENT_DEFS: GameAchievementDef[] = [
     icon: 'kind-icon:boxing-glove',
     rule: { kind: 'event' },
     artPrompt:
-      'Fighting-game victory splash: Zuzu, a chubby, very short koala ronin with a big round head and a small round belly, in a dark terracotta poncho, orange scarf and wide-brimmed woven straw hat, strikes a triumphant pose on a sunbaked wasteland arena, katana raised high, while a dazed river crocodile slumps in the dust behind him. A ring of swirling dust and impact sparks frames him like an emblem. Western comic book illustration, clean bold ink lines, rich natural color, dramatic sunset backlight, centered badge composition, clear silhouette, every surface bare and unmarked.',
+      'Fighting-game victory splash: Zuzu, a chubby, very short koala ronin with a big round head and a small round belly, in a dark terracotta poncho, orange scarf and wide-brimmed woven straw hat, strikes a triumphant pose on a sunbaked wasteland arena, katana raised high, while a dazed river crocodile slumps in the dust behind him. A ring of swirling dust and impact sparks encircles him like an emblem. Western comic book illustration, clean bold ink lines, rich natural color, dramatic sunset backlight, centered badge composition, clear silhouette, every surface bare and unmarked.',
   },
   {
     game: 'zuzu-showdown',

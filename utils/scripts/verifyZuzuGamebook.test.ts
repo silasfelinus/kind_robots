@@ -184,11 +184,18 @@ const passingBy = takeChoice(looter, 'walk-on')
 assert.equal(passingBy.sceneId, 'survivors', 'ignoring the raccoon advances the story')
 assert.ok(!passingBy.flags.includes('met:looter'))
 assert.ok(!passingBy.flags.includes('debt:looter'))
-assert.ok(!visibleChoices(passingBy, scene(passingBy.sceneId)).some((c) => c.to === 'a2-looter'))
+assert.ok(
+  !visibleChoices(passingBy, scene(passingBy.sceneId)).some(
+    (choice) => choice.to === 'a2-looter',
+  ),
+)
 const observedLooter = takeChoice(looter, 'watch')
 assert.equal(observedLooter.sceneId, 'a2-looter-watch')
-assert.equal(takeChoice(observedLooter, 'walk-on').sceneId, 'survivors',
-  'observing the raccoon also allows walking away without confrontation')
+assert.equal(
+  takeChoice(observedLooter, 'walk-on').sceneId,
+  'survivors',
+  'observing the raccoon also allows walking away without confrontation',
+)
 
 const good = takeChoice(initial, 'approach')
 assert.equal(good.sceneId, 'coyote')

@@ -27,6 +27,10 @@ import {
 } from './rainbowLocalCoop'
 import { enemyBulletContact } from './rainbowHitGeometry'
 import {
+  drawRainbowCommsPortrait,
+  drawRainbowShipSprite,
+} from './rainbowGameArt'
+import {
   MOONJELLY,
   moonjellyDialogue,
   moonjellyScene,
@@ -1001,22 +1005,28 @@ export function createRainbowPrincessPreview(
           continue
         g.save()
         g.translate(ship.x, ship.y)
-        g.fillStyle = PILOT_COLORS[seat]!
         g.shadowColor = PILOT_COLORS[seat]!
-        g.shadowBlur = 15
-        g.beginPath()
-        g.moveTo(16, 0)
-        g.lineTo(-13, -11)
-        g.lineTo(-6, 0)
-        g.lineTo(-13, 11)
-        g.closePath()
-        g.fill()
-        g.strokeStyle = '#fff7fc'
-        g.lineWidth = 2
-        g.stroke()
+        g.shadowBlur = 10
+        if (!drawRainbowShipSprite(g, seat)) {
+          g.fillStyle = PILOT_COLORS[seat]!
+          g.shadowBlur = 15
+          g.beginPath()
+          g.moveTo(16, 0)
+          g.lineTo(-13, -11)
+          g.lineTo(-6, 0)
+          g.lineTo(-13, 11)
+          g.closePath()
+          g.fill()
+          g.strokeStyle = '#fff7fc'
+          g.lineWidth = 2
+          g.stroke()
+        }
         g.shadowBlur = 0
         g.fillStyle = '#44235c'
         g.fillRect(-3, -3, 6, 6)
+        g.strokeStyle = PILOT_COLORS[seat]!
+        g.lineWidth = 1
+        g.strokeRect(-3, -3, 6, 6)
         if (ship.focus) {
           g.strokeStyle = '#fff'
           g.beginPath()
@@ -1076,24 +1086,37 @@ export function createRainbowPrincessPreview(
         g.strokeStyle = '#ffe2fa'
         g.lineWidth = 1
         g.strokeRect(15, H - 63, W - 30, 51)
+        const portrait = drawRainbowCommsPortrait(
+          g,
+          dialogue.speaker,
+          19,
+          H - 59,
+          43,
+        )
+        if (portrait) {
+          g.strokeStyle = '#aef6f0'
+          g.strokeRect(19, H - 59, 43, 43)
+        }
+        const textX = portrait ? 70 : 24
+        const wrap = portrait ? 57 : 65
         g.fillStyle = '#aef6f0'
         g.font = 'bold 10px monospace'
         g.fillText(
           `${scene!.id} / ${dialogue.speaker.toUpperCase()}`,
-          24,
+          textX,
           H - 47,
         )
         const words = dialogue.text.split(' ')
         const lines = ['']
         for (const word of words) {
           const i = lines.length - 1
-          if (lines[i]!.length + word.length + 1 > 65) lines.push(word)
+          if (lines[i]!.length + word.length + 1 > wrap) lines.push(word)
           else lines[i] = (lines[i] ? lines[i] + ' ' : '') + word
         }
         g.fillStyle = '#fff4fa'
         g.font = '9px monospace'
         for (let line = 0; line < Math.min(lines.length, 2); line++) {
-          g.fillText(lines[line]!, 24, H - 33 + line * 12)
+          g.fillText(lines[line]!, textX, H - 33 + line * 12)
         }
       } else if (
         moonDefeatedFrame !== null &&

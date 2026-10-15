@@ -1,42 +1,5 @@
 <template>
   <div class="visitor-home flex h-full min-h-0 flex-col gap-2 overflow-hidden">
-    <section
-      class="relative isolate shrink-0 overflow-hidden rounded-2xl border border-base-300 bg-base-200"
-      aria-label="Welcome to Kind Robots"
-    >
-      <img
-        src="/images/arcade/arcade-hall-backdrop.webp"
-        alt=""
-        class="absolute inset-0 h-full w-full object-cover opacity-45"
-      />
-      <div
-        class="absolute inset-0 bg-gradient-to-r from-base-300 via-base-300/90 to-base-300/35"
-      />
-      <div
-        class="relative flex flex-wrap items-end justify-between gap-3 p-3 sm:p-4"
-        :class="admin ? 'pt-12 sm:pt-4' : ''"
-      >
-        <div class="max-w-xl space-y-1">
-          <p
-            class="text-[0.65rem] font-black uppercase tracking-[0.2em] text-primary"
-          >
-            Play · Create · Discover
-          </p>
-          <h2 class="font-serif text-xl font-black leading-tight sm:text-3xl">
-            Play something. Make something. Change something.
-          </h2>
-          <p class="text-xs leading-relaxed sm:text-sm">
-            Games, illustrated worlds, art and experiments. A growing creative
-            playground with plenty to explore for free.
-          </p>
-        </div>
-        <NuxtLink to="/play/arcade" class="btn btn-primary btn-sm shrink-0">
-          Enter the Arcade
-          <Icon name="kind-icon:arrow-right" class="size-4" />
-        </NuxtLink>
-      </div>
-    </section>
-
     <div
       role="tablist"
       aria-label="Explore the homepage"
@@ -76,12 +39,22 @@
             <h2 class="font-serif text-lg font-black">Featured experiences</h2>
             <p class="text-xs opacity-65">A handpicked tour of Kind Robots</p>
           </div>
-          <NuxtLink
-            to="/navigation"
-            class="text-xs font-bold text-primary hover:underline"
-          >
-            All destinations →
-          </NuxtLink>
+          <div class="flex shrink-0 flex-wrap items-center gap-x-3 gap-y-1">
+            <button
+              v-if="admin"
+              type="button"
+              class="text-xs font-bold text-primary hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary"
+              @click="$emit('openDashboard')"
+            >
+              Admin dashboard →
+            </button>
+            <NuxtLink
+              to="/navigation"
+              class="text-xs font-bold text-primary hover:underline"
+            >
+              All destinations →
+            </NuxtLink>
+          </div>
         </header>
         <div
           class="mb-2 flex shrink-0 flex-wrap gap-1"
@@ -142,20 +115,7 @@
                   </p>
                 </div>
               </NuxtLink>
-              <div
-                v-if="feature.related.length"
-                class="flex flex-wrap gap-1 border-t border-base-300 px-2 py-2"
-                aria-label="More Zuzu adventures"
-              >
-                <NuxtLink
-                  v-for="related in feature.related"
-                  :key="related.route"
-                  :to="related.route"
-                  class="rounded-md bg-base-100 px-1.5 py-1 text-[0.65rem] font-semibold hover:text-primary focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary"
-                >
-                  {{ related.title }}
-                </NuxtLink>
-              </div>
+
             </article>
           </div>
         </div>
@@ -329,6 +289,8 @@ const props = defineProps<{
   admin: boolean
 }>()
 
+defineEmits<{ openDashboard: [] }>()
+
 const sections = [
   { key: 'featured', label: 'Explore' },
   { key: 'updates', label: 'Just updated' },
@@ -352,7 +314,6 @@ const features = [
     route: '/play/arcade',
     image: '/images/arcade/arcade-attract-splash.webp',
     description: 'Original cabinets, high scores and quick-fire challenges.',
-    related: [],
   },
   {
     title: 'The World of Zuzu',
@@ -361,13 +322,7 @@ const features = [
     route: '/play/zuzu',
     image: '/zuzu-showdown-portraits/zuzu-vs-hd.webp',
     description: 'A koala ronin crosses the strange Shifting Lands.',
-    related: [
-      { title: 'Showdown', route: '/play/zuzu-showdown' },
-      { title: 'Gamebook', route: '/play/zuzu-gamebook' },
-      { title: 'Shifting Lands', route: '/play/zuzu-shifting-lands' },
-      { title: 'Ghost Trail', route: '/play/zuzu-ghost-trail' },
-      { title: 'Pinball', route: '/play/zuzu-pinball' },
-    ],
+
   },
   {
     title: 'Shifting Desks',
@@ -377,7 +332,6 @@ const features = [
     image: '/shifting-desks/front-poster.svg',
     description:
       'Survive office politics, impossible choices and your first 90-day review.',
-    related: [],
   },
   {
     title: 'Storybook',
@@ -386,7 +340,6 @@ const features = [
     route: '/storybook',
     image: '/images/channels/play/channel.webp',
     description: 'Weave your own worlds, characters and branching tales.',
-    related: [],
   },
   {
     title: 'Art Gallery & Studio',
@@ -395,7 +348,6 @@ const features = [
     route: '/art',
     image: '/images/art/generate.webp',
     description: 'Browse finished work, or sign in to generate your own.',
-    related: [],
   },
   {
     title: 'Cthulhuquarium',
@@ -404,7 +356,6 @@ const features = [
     route: '/play/aquarium',
     image: '/images/channels/admin/aquarium.webp',
     description: 'Meet strange aquatic creatures and grow your own tank.',
-    related: [],
   },
   {
     title: 'Memory Dungeon',
@@ -413,16 +364,14 @@ const features = [
     route: '/play/memory',
     image: '/images/background/memorydungeon.webp',
     description: 'Match cards, survive the dungeon and collect rewards.',
-    related: [],
   },
   {
     title: 'Daily Dreams',
-    tag: 'Worlds and stories',
+    tag: 'Today's featured dream',
     category: 'create',
-    route: '/dreams',
+    route: '/?view=dashboard',
     image: '/images/splash/dreams.webp',
-    description: 'A growing parade of shared creative universes.',
-    related: [],
+    description: 'See the daily Dream and the original dashboard of creations.',
   },
   {
     title: 'Music Videos',
@@ -431,7 +380,6 @@ const features = [
     route: '/play/music-video',
     image: '/images/channels/plan/video-generator.webp',
     description: 'Watch illustrated music videos and remix new drafts.',
-    related: [],
   },
   {
     title: 'Mandarin Tutor',
@@ -440,7 +388,6 @@ const features = [
     route: '/play/mandarin',
     image: '/images/mandarin-tutor/cards/v2/f24c02b7272a3d3004079114.webp',
     description: 'Discover how Chinese characters work, then practice.',
-    related: [],
   },
   {
     title: 'Kind Robots Pinball',
@@ -450,7 +397,6 @@ const features = [
     image: '/images/arcade/games/kind-pinball-title.webp',
     description:
       'Flip into AMI Village Rescue, the original arcade pinball table.',
-    related: [],
   },
 ] as const
 

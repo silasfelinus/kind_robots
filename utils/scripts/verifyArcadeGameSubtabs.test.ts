@@ -180,10 +180,10 @@ assert.match(
   'cabinet switching still remounts the game inside the arcade hall',
 )
 
-assert.match(page, /class="kr-panes min-h-0 grid-cols-1/)
+assert.match(page, /class="kr-panes arcade-layout min-h-0 grid-cols-1 gap-2"/)
 assert.match(page, /v-if="!slug" class="kr-panes min-h-0 grid-cols-1"/)
 assert.doesNotMatch(page, /\bkr-scroll\b/, 'no mixed single/multi scroll owner')
-assert.match(page, /class="kr-pane min-w-0"/)
+assert.match(page, /class="kr-pane arcade-playfield min-w-0"/)
 assert.match(
   page,
   /<ArcadeCabinet :key="meta\.slug" :slug="meta\.slug" contained \/>/,
@@ -192,8 +192,20 @@ assert.match(page, /id="arcade-cabinet-details"/)
 assert.match(page, /aria-controls="arcade-cabinet-details"/)
 assert.match(page, /:aria-expanded="showDetails"/)
 assert.match(page, /watch\(slug, \(\) =>/)
-assert.match(page, /\? 'hidden xl:flex' : 'flex'/)
-assert.match(page, /\? 'block' : 'hidden xl:block'/)
+assert.match(page, /'arcade-playfield--hidden': showDetails/)
+assert.match(page, /'arcade-details--hidden': !showDetails/)
+assert.match(page, /arcade-detail-section--inactive/)
+assert.match(page, /detailTabs/)
+assert.match(page, /detailTab\.value = 'scores'/)
+assert.match(page, /<ArcadeReviews :game="meta\.slug" compact \/>/)
+assert.match(page, /grid-template-rows: minmax\(0, 1fr\)/)
+assert.match(
+  page,
+  /grid-template-columns: minmax\(0, 1fr\) minmax\(15rem, 19rem\)/,
+)
+assert.match(page, /\.arcade-playfield :deep\(\.arcade-cabinet--contained\)/)
+assert.match(page, /@media \(max-width: 1023px\)/)
+assert.match(page, /@media \(min-width: 1024px\)/)
 assert.doesNotMatch(page, /class="flex flex-col gap-4 xl:flex-row"/)
 
 const cabinet = readFileSync('components/arcade/arcade-cabinet.vue', 'utf8')

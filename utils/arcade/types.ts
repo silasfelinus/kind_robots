@@ -148,6 +148,8 @@ export interface ArcadeGameInstance {
   setPlayers?(count: number): void
   /** Mastery goals earned this game, for a cabinet with a ladder. */
   readonly mastered?: readonly string[]
+  /** Achievement deeds performed since the last call, for a table that reports them. */
+  drainFeats?(): string[]
   /**
    * Progress to keep if the player leaves, for a game with a save (a long campaign): the cabinet
    * stores it whenever it changes and hands it back as `resume`. null clears it; a game without
@@ -182,6 +184,8 @@ export interface ArcadeWebGLGameInstance {
   readonly over: boolean
   /** Mastery goals earned this game, for a cabinet with a ladder. */
   readonly mastered?: readonly string[]
+  /** Achievement deeds performed since the last call, for a table that reports them. */
+  drainFeats?(): string[]
   /** Attach to the stage canvas and build the scene. */
   mount(canvas: HTMLCanvasElement): void
   /** CSS size of the stage in pixels, and the device pixel ratio to render at. */

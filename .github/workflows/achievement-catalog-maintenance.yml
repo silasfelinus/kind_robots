@@ -1,0 +1,89 @@
+name: Achievement Catalog Maintenance
+
+# Reconciles the Achievement catalog (training/achievementData.ts plus the
+# three achievements of every game in utils/achievements/) into the production
+# database, then queues durable, entity-backed ArtJobs for every achievement
+# still missing its badge art. Both steps are idempotent: the seed upserts by
+# triggerCode and preserves generated art, and the art queue reuses any
+# same-version ArtJob. Runs off the deploy path, like Facet maintenance.
+#
+# Required repository Actions secrets:
+#   DATABASE_URL
+#   DATABASE_SSL_CA_BASE64 or DATABASE_SSL_CA
+#   TS_OAUTH_CLIENT_ID
+#   TS_OAUTH_SECRET
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'training/achievementData.ts'
+      - 'utils/achievements/**'
+      - 'scripts/seed_achievements.ts'
+      - 'scripts/generate_achievement_art.ts'
+      - '.github/workflows/achievement-catalog-maintenance.yml'
+  workflow_dispatch:
+    inputs:
+      art:
+        description: 'Queue badge art for achievements that have none'
+        type: boolean
+        default: true
+
+concurrency:
+  group: achievement-catalog-maintenance
+  cancel-in-progress: false
+
+jobs:
+  maintenance:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      DATABASE_SSL_CA_BASE64: ${{ secrets.DATABASE_SSL_CA_BASE64 }}
+      DATABASE_SSL_CA: ${{ secrets.DATABASE_SSL_CA }}
+    steps:
+      - name: Require secrets
+        env:
+          TS_OAUTH_CLIENT_ID: ${{ secrets.TS_OAUTH_CLIENT_ID }}
+          TS_OAUTH_SECRET: ${{ secrets.TS_OAUTH_SECRET }}
+        run: |
+          if [ -z "$DATABASE_URL" ]; then
+            echo "::error::DATABASE_URL is empty. Add it as a REPOSITORY ACTIONS SECRET (Settings → Secrets and variables → Actions)."
+            exit 1
+          fi
+          if [ -z "$TS_OAUTH_CLIENT_ID" ] || [ -z "$TS_OAUTH_SECRET" ]; then
+            echo "::error::TS_OAUTH_CLIENT_ID / TS_OAUTH_SECRET are empty. The database is not reachable from GitHub runner IPs without joining the tailnet."
+            exit 1
+          fi
+          if [ -z "$DATABASE_SSL_CA_BASE64" ] && [ -z "$DATABASE_SSL_CA" ]; then
+            echo "::warning::No database CA secret set. ProxySQL enforces TLS, so this run will likely fail with 'Access denied ... SSL is required'."
+          fi
+
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci --no-audit --no-fund
+        env:
+          CYPRESS_INSTALL_BINARY: '0'
+
+      - name: Generate Prisma client
+        run: npx prisma generate
+
+      - name: Connect to Tailscale
+        uses: tailscale/github-action@v3
+        with:
+          oauth-client-id: ${{ secrets.TS_OAUTH_CLIENT_ID }}
+          oauth-secret: ${{ secrets.TS_OAUTH_SECRET }}
+          tags: tag:ci
+
+      - name: Reconcile the achievement catalog
+        run: npx tsx scripts/seed_achievements.ts --write
+
+      - name: Queue missing achievement art
+        if: ${{ github.event_name != 'workflow_dispatch' || inputs.art }}
+        run: npx tsx scripts/generate_achievement_art.ts --write

@@ -31,6 +31,18 @@ import {
   encodeEmperorSave,
 } from '~/utils/emperorOfDust/save'
 import type { Campaign, Incident } from '~/utils/emperorOfDust/types'
+import { DAY_ONE_INCIDENTS } from '~/utils/emperorOfDust/dayOne'
+import { useAchievementStore } from './achievementStore'
+
+const KIND_ORDERS: Record<string, string> = {
+  'd001-aqueduct': 'repair',
+  'd001-toll': 'parley',
+  'd001-mirefen': 'escort',
+}
+
+function missionsWon(campaign: Campaign | null) {
+  return (campaign?.dispatches ?? []).filter((d) => d.outcome?.success)
+}
 
 const SAVE_KEY = 'kr-emperor-of-dust-campaign-v1'
 const RELIC_KEY = 'kr-emperor-of-dust-relic-vault-v1'
@@ -97,8 +109,29 @@ export const useEmperorOfDustStore = defineStore('emperorOfDust', () => {
   function update(next: Campaign) {
     if (!loaded.value || !campaign.value)
       throw new Error('Load the court first')
+    const before = missionsWon(campaign.value).length
     campaign.value = next
     persist()
+    awardMissions(before, next)
+  }
+
+  function awardMissions(before: number, next: Campaign) {
+    const won = missionsWon(next)
+    if (won.length <= before) return
+    const achievements = useAchievementStore()
+    void achievements.rewardAchievementByCode(
+      'emperor-of-dust-orders-carried-out',
+    )
+    const wonIds = new Set(won.map((d) => d.incidentId))
+    if (!DAY_ONE_INCIDENTS.every((incident) => wonIds.has(incident.id))) return
+    void achievements.rewardAchievementByCode('emperor-of-dust-day-well-ruled')
+    const kind = Object.entries(KIND_ORDERS).every(([incident, choice]) =>
+      won.some((d) => d.incidentId === incident && d.choiceId === choice),
+    )
+    if (kind)
+      void achievements.rewardAchievementByCode(
+        'emperor-of-dust-merciful-court',
+      )
   }
 
   function beginNewRun() {

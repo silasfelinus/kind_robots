@@ -27,7 +27,7 @@
             aria-controls="arcade-cabinet-details"
             @click="showDetails = !showDetails"
           >
-            {{ showDetails ? 'Play game' : 'Scores & reviews' }}
+            {{ showDetails ? 'Play game' : 'Scores & achievements' }}
           </button>
         </nav>
 
@@ -45,7 +45,7 @@
             id="arcade-cabinet-details"
             class="kr-pane-scroll kr-panel min-w-0 rounded-2xl"
             :class="showDetails ? 'block' : 'hidden xl:block'"
-            aria-label="High scores, about and reviews"
+            aria-label="High scores, achievements, about and reviews"
           >
             <div class="flex flex-col gap-4 p-4">
               <section v-for="range in ranges" :key="range.key">
@@ -94,6 +94,7 @@
                 device will join the global board as soon as the score server
                 answers.
               </p>
+              <GameAchievementStrip :game="meta.slug" />
               <p class="text-sm leading-relaxed">{{ meta.blurb }}</p>
               <p
                 v-if="meta.slug === 'butterfly-blaster'"

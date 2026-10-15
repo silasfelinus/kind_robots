@@ -16,6 +16,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useButterflyStore } from '@/stores/butterflyStore'
+import { useAchievementStore } from '@/stores/achievementStore'
 
 const butterflyStore = useButterflyStore()
 
@@ -27,6 +28,8 @@ const hasActiveButterflies = computed(
 
 function toggleAmiSwarm() {
   butterflyStore.toggleSwarm(20)
+  if (butterflyStore.showSwarm)
+    void useAchievementStore().rewardAchievementByCode('butterfly-first')
 }
 </script>
 

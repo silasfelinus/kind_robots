@@ -198,7 +198,10 @@ export const useFriendStore = defineStore('friendStore', () => {
         method: 'PATCH',
         body: JSON.stringify({ status: 'ACCEPTED' }),
       })
-      if (res.success) await load(true) // pull both halves of the new pair
+      if (res.success) {
+        await load(true) // pull both halves of the new pair
+        void useAchievementStore().rewardAchievementByCode('first-friend')
+      }
     } catch (error) {
       handleError(error, 'acceptRequest')
     } finally {
@@ -240,8 +243,6 @@ export const useFriendStore = defineStore('friendStore', () => {
     const row = findReceivedRequest(userId, 'FRIEND')
     if (row) {
       await acceptRequest(row.id)
-      // Achievement: "Kindred Spirit" for accepting a friend (deduped).
-      void useAchievementStore().rewardAchievementByCode('first-friend')
     }
   }
   async function declineFriendRequest(userId: number): Promise<void> {

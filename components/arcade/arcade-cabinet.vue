@@ -1019,6 +1019,11 @@ function retire(instance: ArcadePlayableInstance | null) {
   // Goals earned in a game left unfinished still count.
   if (instance?.mastered?.length)
     store.recordMastery(props.slug, instance.mastered)
+  if (instance && instance === game && !instance.over && instance.score > 0)
+    void store.awardRunAchievements(props.slug, {
+      score: instance.score,
+      level: instance.level,
+    })
   keepSave(instance)
   if (instance && instance === game) {
     musicNow = null
@@ -1266,12 +1271,18 @@ function tick() {
     if (hintLives === null) hintLives = game.lives
     else if (game.lives < hintLives) pinballHints.value = false
     game.update(frames[0]!, frames)
+    const feats = game.drainFeats?.()
+    if (feats?.length) void store.awardFeats(props.slug, feats)
     keepSave(game)
     syncMusic(game)
     if (game.over) {
       if (game.mastered?.length) store.recordMastery(props.slug, game.mastered)
       lastScore = game.score
       lastLevel = game.level
+      void store.awardRunAchievements(props.slug, {
+        score: lastScore,
+        level: lastLevel,
+      })
       qualifies =
         ARCADE_GAMES.some((entry) => entry.slug === props.slug) &&
         qualifiesForBoard(lastScore, board.value)

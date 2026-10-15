@@ -34,7 +34,7 @@ const pendingGuestAchievementsStorageKey = 'pendingGuestAchievements'
 
 const routeAchievementCodes: Record<string, string> = {
   '/achievements': 'achievement-tour',
-  '/amibot': 'amibot',
+  '/giving': 'amibot',
 }
 
 function safeGetLocalStorage(key: string): string | null {
@@ -129,6 +129,38 @@ export const useAchievementStore = defineStore('achievementStore', () => {
       isActive: achievement.isActive,
     })),
   )
+
+  const earnedAchievementIds = computed(() => {
+    const ids = new Set<number>(pendingGuestAchievements.value)
+    const userId = userStore.userId
+    if (!userId) return ids
+    for (const record of achievementRecords.value) {
+      if (record.userId === userId) ids.add(record.achievementId)
+    }
+    return ids
+  })
+
+  const earnedTriggerCodes = computed(
+    () =>
+      new Set(
+        achievements.value
+          .filter((achievement) => earnedAchievementIds.value.has(achievement.id))
+          .map((achievement) => slugify(achievement.triggerCode ?? ''))
+          .filter(Boolean),
+      ),
+  )
+
+  function hasEarnedCode(code: string) {
+    return earnedTriggerCodes.value.has(slugify(code))
+  }
+
+  function achievementByCode(code: string) {
+    const target = slugify(code)
+    if (!target) return undefined
+    return achievements.value.find(
+      (entry) => slugify(entry.triggerCode ?? '') === target,
+    )
+  }
 
   const activeAchievements = computed(() =>
     achievements.value.filter((achievement) => achievement.isActive),
@@ -797,9 +829,7 @@ export const useAchievementStore = defineStore('achievementStore', () => {
       await fetchAchievements()
     }
 
-    const achievement = achievements.value.find(
-      (entry) => slugify(entry.triggerCode ?? '') === target,
-    )
+    const achievement = achievementByCode(target)
 
     if (!achievement) {
       console.warn(`[achievementStore] No achievement with triggerCode "${target}"`)
@@ -876,6 +906,9 @@ export const useAchievementStore = defineStore('achievementStore', () => {
     updateAchievementRecord,
     recordAchievement,
     hasAchievement,
+    hasEarnedCode,
+    achievementByCode,
+    earnedAchievementIds,
     clearAllAchievementRecords,
     achievementCountForUser,
 

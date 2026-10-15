@@ -1,9 +1,10 @@
 // scripts/seed_achievements.ts
 //
 // Idempotent seed for the site achievement catalog ("jellybeans"). It upserts
-// every entry in training/achievementData.ts into the Achievement table keyed on
-// `triggerCode` (which is @unique), so re-running never creates duplicates and
-// always brings existing rows in sync with the catalog.
+// every entry in training/achievementData.ts, plus the three achievements of
+// every game (utils/achievements/gameAchievements.ts), into the Achievement
+// table keyed on `triggerCode` (which is @unique), so re-running never creates
+// duplicates and always brings existing rows in sync with the catalog.
 //
 // Running without --write validates and previews the seed without touching the
 // database. It NEVER creates ArtImage rows or sets artImageId — per-achievement
@@ -21,11 +22,24 @@ import {
   withDatabaseRetry,
 } from './lib/databaseRetry'
 import { achievementData } from '../training/achievementData'
+import {
+  gameAchievementCatalogRows,
+  type AchievementCatalogEntry,
+} from '../utils/achievements/gameAchievements'
 
 const LEGACY_TRIGGER_ALIASES: Record<string, string[]> = {
   'first-character': ['fate'],
   'achievement-tour': ['test'],
+  'storybook-open': ['weirdlandia'],
 }
+
+// Rows adopted through an alias above whose meaning changed: the old badge art
+// no longer fits, so it is cleared and the art queue draws a new one.
+const REPAINT_ON_ADOPTION = new Set(['storybook-open'])
+
+// Achievements whose feature is gone. They are hidden from the catalog, but
+// their rows and everyone's earned records are kept.
+const DEACTIVATED_TRIGGER_CODES = ['butterfly-swarm', 'first-prompt'] as const
 
 const RETIRED_TRIGGER_CODES = [
   'pitchmaster',
@@ -35,9 +49,16 @@ const RETIRED_TRIGGER_CODES = [
   'milestone',
 ] as const
 
+type CatalogAchievement =
+  (typeof achievementData)[number] | AchievementCatalogEntry
+
+export function fullCatalog(): CatalogAchievement[] {
+  return [...achievementData, ...gameAchievementCatalogRows()]
+}
+
 // The descriptive fields owned by the catalog. Generated `imagePath` and
 // `artImageId` are deliberately omitted so a reconciliation never erases art.
-function toUpsertData(achievement: (typeof achievementData)[number]) {
+function toUpsertData(achievement: CatalogAchievement) {
   return {
     label: achievement.label,
     message: achievement.message,
@@ -53,7 +74,7 @@ function toUpsertData(achievement: (typeof achievementData)[number]) {
 }
 
 export function validateCatalog(): void {
-  const codes = achievementData.map((a) => a.triggerCode)
+  const codes = fullCatalog().map((a) => a.triggerCode)
   if (codes.some((code) => !code)) {
     throw new Error('Every achievement must have a triggerCode')
   }
@@ -64,7 +85,7 @@ export function validateCatalog(): void {
 
 export async function upsertAchievement(
   prisma: PrismaClient,
-  achievement: (typeof achievementData)[number],
+  achievement: CatalogAchievement,
 ): Promise<void> {
   const triggerCode = achievement.triggerCode as string
   const data = toUpsertData(achievement)
@@ -88,9 +109,12 @@ export async function upsertAchievement(
     : null
 
   if (legacy) {
+    const repaint = REPAINT_ON_ADOPTION.has(triggerCode)
+      ? { imagePath: null, artImageId: null }
+      : {}
     await prisma.achievement.update({
       where: { id: legacy.id },
-      data: { ...data, triggerCode },
+      data: { ...data, ...repaint, triggerCode },
     })
     return
   }
@@ -146,16 +170,35 @@ export async function deleteRetiredAchievements(
   return deleted.count
 }
 
+export async function deactivateRetiredFeatures(
+  prisma: PrismaClient,
+): Promise<number> {
+  const result = await prisma.achievement.updateMany({
+    where: {
+      triggerCode: { in: [...DEACTIVATED_TRIGGER_CODES] },
+      isActive: true,
+    },
+    data: { isActive: false },
+  })
+  if (result.count) {
+    console.log(
+      `  deactivated ${result.count} achievement(s) whose feature is gone; earned records kept`,
+    )
+  }
+  return result.count
+}
+
 async function main() {
   const WRITE = process.argv.includes('--write')
 
   validateCatalog()
-  console.log(`Parsed ${achievementData.length} achievements from the catalog.`)
+  const catalog = fullCatalog()
+  console.log(`Parsed ${catalog.length} achievements from the catalog.`)
 
   // A dry run only validates the catalog, so it never needs a database.
   if (!WRITE) {
     console.log(
-      `[dry run] Catalog is valid. Would upsert ${achievementData.length} achievements by triggerCode. Re-run with --write to apply.`,
+      `[dry run] Catalog is valid. Would upsert ${catalog.length} achievements by triggerCode. Re-run with --write to apply.`,
     )
     return
   }
@@ -172,15 +215,14 @@ async function main() {
       )
 
       let done = 0
-      for (const achievement of achievementData) {
+      for (const achievement of catalog) {
         await upsertAchievement(prisma, achievement)
         done += 1
-        console.log(
-          `  ...${done}/${achievementData.length} ${achievement.triggerCode}`,
-        )
+        console.log(`  ...${done}/${catalog.length} ${achievement.triggerCode}`)
       }
 
       await deleteRetiredAchievements(prisma)
+      await deactivateRetiredFeatures(prisma)
 
       const after = await prisma.achievement.count()
       const activeAfter = await prisma.achievement.count({

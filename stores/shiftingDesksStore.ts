@@ -1,5 +1,6 @@
 import { computed, ref } from 'vue'
 import { defineStore } from 'pinia'
+import { useAchievementStore } from './achievementStore'
 import {
   advance as advanceRun,
   descend as descendRun,
@@ -81,9 +82,11 @@ export const useShiftingDesksStore = defineStore('shiftingDesks', () => {
 
   function choose(choiceId: string, options: ChooseOptions = {}): void {
     if (!run.value) return
+    const prev = run.value
     const before = run.value.log.length
     run.value = chooseInRun(run.value, choiceId, options)
     if (run.value.log.length === before) return
+    awardShiftEnd(prev.status, run.value)
     rollSerial.value += 1
     const id = run.value.departmentOutcome
     if (id && !discovered.value.includes(id))
@@ -106,10 +109,31 @@ export const useShiftingDesksStore = defineStore('shiftingDesks', () => {
     }
   }
 
+  function awardShiftEnd(previous: RunState['status'], after: RunState): void {
+    if (previous !== 'playing' || after.status === 'playing') return
+    const achievements = useAchievementStore()
+    if (after.department === 'orientation' && after.status !== 'eliminated')
+      void achievements.rewardAchievementByCode(
+        'shifting-desks-survived-review',
+      )
+    if (after.status === 'complete')
+      void achievements.rewardAchievementByCode(
+        'shifting-desks-faced-the-board',
+      )
+  }
+
   function descend(): void {
     if (!run.value) return
+    const previous = run.value.department
     run.value = descendRun(run.value)
     persist()
+    if (
+      previous !== 'sub-level-zero' &&
+      run.value.department === 'sub-level-zero'
+    )
+      void useAchievementStore().rewardAchievementByCode(
+        'shifting-desks-sub-level-zero',
+      )
   }
 
   function advance(): void {

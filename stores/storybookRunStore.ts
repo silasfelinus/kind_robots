@@ -22,6 +22,7 @@
 import { defineStore } from 'pinia'
 import { computed, ref } from 'vue'
 import { performFetch } from '@/stores/utils'
+import { useAchievementStore } from '@/stores/achievementStore'
 
 /**
  * The four modes a story can be told in (storybook/t-039). Replaces the four
@@ -468,6 +469,7 @@ export const useStorybookRunStore = defineStore('storybookRunStore', () => {
       if (response.data.narrationError) {
         errorMessage.value = response.data.narrationError
       }
+      void useAchievementStore().rewardAchievementByCode('storybook-open')
       return true
     } finally {
       isOpening.value = false
@@ -553,6 +555,7 @@ export const useStorybookRunStore = defineStore('storybookRunStore', () => {
       const turn = payload.turn as StorybookRunTurn | null
       if (turn) turns.value = [...turns.value, turn]
       applyTurnPayload(payload)
+      void useAchievementStore().rewardAchievementByCode('story-weaver')
       return true
     } finally {
       isNarrating.value = false

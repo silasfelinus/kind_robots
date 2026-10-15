@@ -5,9 +5,11 @@ import {
   takeChoice,
   fight,
   isSavedRun,
+  scene,
   type Run,
   type BattleAction,
 } from '~/utils/zuzuGamebook/adventure'
+import { useAchievementStore } from './achievementStore'
 
 const SAVE_KEY = 'kr-zuzu-gamebook-v1'
 const ENDINGS_KEY = 'kr-zuzu-gamebook-endings-v1'
@@ -55,11 +57,25 @@ export const useZuzuGamebookStore = defineStore('zuzuGamebook', () => {
     save()
   }
 
+  function awardDeeds(before: Run, after: Run) {
+    const achievements = useAchievementStore()
+    const foe = scene(before.sceneId).battle
+    if (foe && before.battle && after.sceneId === foe.win)
+      void achievements.rewardAchievementByCode('zuzu-gamebook-first-fight-won')
+    if (after.endings.length <= before.endings.length) return
+    if (scene(after.sceneId).ending === 'hope')
+      void achievements.rewardAchievementByCode('zuzu-gamebook-hopeful-ending')
+    if (after.sceneId === 'ending-bell')
+      void achievements.rewardAchievementByCode('zuzu-gamebook-ring-the-bell')
+  }
+
   function choose(id: string) {
     if (!loaded.value) return
+    const before = run.value
     const next = takeChoice(run.value, id)
     if (next === run.value) return
     run.value = next
+    awardDeeds(before, next)
     if (next.lastRoll) rollSerial.value++
     rememberEnding()
     save()
@@ -67,9 +83,11 @@ export const useZuzuGamebookStore = defineStore('zuzuGamebook', () => {
 
   function battle(action: BattleAction) {
     if (!loaded.value) return
+    const before = run.value
     const next = fight(run.value, action)
     if (next === run.value) return
     run.value = next
+    awardDeeds(before, next)
     rollSerial.value++
     rememberEnding()
     save()

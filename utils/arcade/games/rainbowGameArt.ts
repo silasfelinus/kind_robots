@@ -90,6 +90,33 @@ export function drawRainbowEnemySprite(
   return src ? drawFitted(g, src, area, 24, 46) : false
 }
 
+/** The engine's three pickups, painted from the U01 gem, U06 bubble shield and U08 star charms. */
+export const RAINBOW_PICKUP_SPRITES = ['power', 'shield', 'charge'] as const
+
+export function rainbowPickupSprite(kind: string): string | null {
+  return (RAINBOW_PICKUP_SPRITES as readonly string[]).includes(kind)
+    ? `${RAINBOW_GAME_ART_ROOT}/pickups/${kind}.webp`
+    : null
+}
+
+/** Draw a pickup centred on (x, y) inside a size-by-size box; false when it has no sprite or is loading. */
+export function drawRainbowPickupSprite(
+  g: CanvasRenderingContext2D,
+  kind: string,
+  x: number,
+  y: number,
+  size = 22,
+): boolean {
+  const src = rainbowPickupSprite(kind)
+  const img = src ? loadedImage(src) : null
+  if (!img) return false
+  const scale = size / Math.max(img.naturalWidth, img.naturalHeight)
+  const width = img.naturalWidth * scale
+  const height = img.naturalHeight * scale
+  g.drawImage(img, x - width / 2, y - height / 2, width, height)
+  return true
+}
+
 function drawFitted(
   g: CanvasRenderingContext2D,
   src: string,

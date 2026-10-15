@@ -29,6 +29,7 @@ import { enemyBulletContact } from './rainbowHitGeometry'
 import {
   drawRainbowCommsPortrait,
   drawRainbowEnemySprite,
+  drawRainbowPickupSprite,
   drawRainbowShipSprite,
 } from './rainbowGameArt'
 import {
@@ -990,6 +991,8 @@ export function createRainbowPrincessPreview(
         g.stroke()
       }
       for (const pickup of pickups) {
+        if (drawRainbowPickupSprite(g, pickup.kind, pickup.x, pickup.y))
+          continue
         g.fillStyle =
           pickup.kind === 'power'
             ? '#a5f3fc'

@@ -249,7 +249,7 @@
                 Refresh
               </button>
             </div>
-            <div class="kr-scroll min-h-0 flex-1 space-y-2 overflow-y-auto">
+            <div class="kr-pane-scroll min-h-0 flex-1 space-y-2">
               <p
                 v-if="!store.jobs.length"
                 class="kr-text-faded-sm rounded-xl border border-dashed border-base-300 p-4"

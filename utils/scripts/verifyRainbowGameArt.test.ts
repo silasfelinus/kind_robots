@@ -2,9 +2,12 @@ import assert from 'node:assert/strict'
 import { existsSync, readFileSync, statSync } from 'node:fs'
 import {
   RAINBOW_COMMS_SPEAKERS,
+  RAINBOW_ENEMY_SPRITES,
   RAINBOW_SHIP_SPRITES,
   drawRainbowCommsPortrait,
+  drawRainbowEnemySprite,
   drawRainbowShipSprite,
+  rainbowEnemySprite,
   rainbowCommsKey,
   rainbowCommsPortrait,
   rainbowShipSprite,
@@ -68,4 +71,34 @@ assert.ok(
 )
 assert.match(engine, /drawRainbowCommsPortrait\(\s*g,\s*dialogue\.speaker/)
 
-console.log(`rainbow game art: ok (${painted}/4 painted ships)`)
+// Enemies: every kind the engine spawns (the Pinkwake and Moonjelly type unions) has a painted sprite.
+const engineKinds = ['rainbowPinkwake', 'rainbowMoonjelly'].flatMap((name) => {
+  const source = readFileSync(
+    new URL(`../arcade/games/${name}.ts`, import.meta.url),
+    'utf8',
+  )
+  const union = /export type \w+Enemy =([^\n]+)/.exec(source)?.[1] ?? ''
+  return [...union.matchAll(/'(\w+)'/g)].map((m) => m[1]!)
+})
+assert.deepEqual(
+  [...engineKinds].sort(),
+  [...RAINBOW_ENEMY_SPRITES].sort(),
+  'every enemy kind the engine spawns has a sprite',
+)
+for (const kind of RAINBOW_ENEMY_SPRITES) {
+  const src = rainbowEnemySprite(kind)!
+  assert.equal(src, `/rainbow-princess-art/enemies/${kind}.webp`)
+  assert.ok(existsSync(publicFile(src)), `${kind} sprite is committed`)
+  assert.ok(statSync(publicFile(src)).size < 32_000, `${kind} stays small`)
+}
+assert.equal(rainbowEnemySprite('kraken'), null)
+assert.equal(drawRainbowEnemySprite(g, 'picket'), false)
+assert.match(
+  engine,
+  /if \(!drawRainbowEnemySprite\(g, reef\.kind\)\) \{\s+g\.beginPath\(\)/,
+  'enemies keep their primitive body until the sprite loads',
+)
+
+console.log(
+  `rainbow game art: ok (${painted}/4 painted ships, ${RAINBOW_ENEMY_SPRITES.length} enemies)`,
+)

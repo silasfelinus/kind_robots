@@ -28,6 +28,7 @@ import {
 import { enemyBulletContact } from './rainbowHitGeometry'
 import {
   drawRainbowCommsPortrait,
+  drawRainbowEnemySprite,
   drawRainbowShipSprite,
 } from './rainbowGameArt'
 import {
@@ -828,19 +829,29 @@ export function createRainbowPrincessPreview(
                       : reef.kind === 'coral'
                         ? '#e4c0ff'
                         : '#d09ffd'
-        g.beginPath()
-        g.ellipse(0, 0, reef.kind === 'urchin' ? 14 : 16, 10, 0, 0, Math.PI * 2)
-        g.fill()
-        g.fillStyle = '#fce7ff'
-        g.beginPath()
-        g.ellipse(-6, -2, 6, 4, 0, 0, Math.PI * 2)
-        g.fill()
-        g.strokeStyle = '#b5fbff'
-        g.lineWidth = 3
-        g.beginPath()
-        g.moveTo(9, -5)
-        g.quadraticCurveTo(23, -15, 17, -22)
-        g.stroke()
+        if (!drawRainbowEnemySprite(g, reef.kind)) {
+          g.beginPath()
+          g.ellipse(
+            0,
+            0,
+            reef.kind === 'urchin' ? 14 : 16,
+            10,
+            0,
+            0,
+            Math.PI * 2,
+          )
+          g.fill()
+          g.fillStyle = '#fce7ff'
+          g.beginPath()
+          g.ellipse(-6, -2, 6, 4, 0, 0, Math.PI * 2)
+          g.fill()
+          g.strokeStyle = '#b5fbff'
+          g.lineWidth = 3
+          g.beginPath()
+          g.moveTo(9, -5)
+          g.quadraticCurveTo(23, -15, 17, -22)
+          g.stroke()
+        }
         g.restore()
       }
       if (nemi) {

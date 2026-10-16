@@ -6,6 +6,8 @@
 // cannot restart every historical failure in the database.
 import { createError, defineEventHandler, readBody } from 'h3'
 import prisma from '../../../utils/prisma'
+import { isVideoRestyleArtJobPayload } from '@/utils/artJobMedia'
+import { retryFailedRestyleArtJob } from '@/server/utils/videoRestyleArtJob'
 import { errorHandler } from '../../../utils/error'
 import { requireMachineUser } from '../../../utils/authGuard'
 import { normalizeFailedArtJobIds } from '../../../utils/failedArtJobScope'
@@ -58,6 +60,17 @@ function failureMessage(error: unknown): string {
 async function requeueFailedJob(
   source: FailedJobSource,
 ): Promise<RequeueResult> {
+  if (isVideoRestyleArtJobPayload(source.payload)) {
+    await retryFailedRestyleArtJob(source.id)
+    return {
+      id: source.id,
+      imagePathChanged: false,
+      promptChanged: false,
+      loraPathChanged: false,
+      loraResourceIds: [],
+      loraNames: [],
+    }
+  }
   const normalization = normalizeQueuedArtJobPayload(source.payload)
   // A job that failed the claim-time contract on nothing but an out-of-band
   // step count would otherwise be requeued verbatim and fail again on the next

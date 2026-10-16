@@ -432,9 +432,19 @@
                 type="button"
                 class="kr-btn kr-btn-primary w-full"
                 :disabled="store.busy || lookChanged || style !== 'illustrious'"
-                @click="store.queuePilot(store.selected.id)"
+                @click="
+                  store.selected.status === 'PILOT_FAILED'
+                    ? store.retryPilot(store.selected.id)
+                    : store.queuePilot(store.selected.id)
+                "
               >
-                {{ store.busy ? 'Queueing…' : 'Render 24-second motion pilot' }}
+                {{
+                  store.busy
+                    ? 'Queueing…'
+                    : store.selected.status === 'PILOT_FAILED'
+                      ? 'Retry pilot in the same ArtJob'
+                      : 'Render 24-second motion pilot'
+                }}
               </button>
               <button
                 v-if="store.selected.status === 'REVIEW'"

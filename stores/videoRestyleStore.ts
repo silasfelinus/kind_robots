@@ -193,7 +193,33 @@ export const useVideoRestyleStore = defineStore('videoRestyle', () => {
         job.id === id ? response.data! : job,
       )
       notice.value =
-        'Pilot queued. A local GPU worker must be running to process it.'
+        'Pilot queued for KR Relay when ComfyUI is ready.'
+      return true
+    } finally {
+      busy.value = false
+    }
+  }
+
+  async function retryPilot(id: string): Promise<boolean> {
+    if (busy.value) return false
+    busy.value = true
+    error.value = ''
+    notice.value = ''
+    try {
+      const response = await performFetch<VideoRestyleJob>(
+        `/api/video-restyle/${encodeURIComponent(id)}/pilot/retry`,
+        { method: 'POST', body: JSON.stringify({}) },
+        1,
+        30_000,
+      )
+      if (!response.success || !response.data) {
+        error.value = response.message || 'Unable to retry the pilot.'
+        return false
+      }
+      jobs.value = jobs.value.map((job) =>
+        job.id === id ? response.data! : job,
+      )
+      notice.value = 'Existing ArtJob requeued for KR Relay; source preserved.'
       return true
     } finally {
       busy.value = false
@@ -274,6 +300,7 @@ export const useVideoRestyleStore = defineStore('videoRestyle', () => {
     stage,
     saveSettings,
     queuePilot,
+    retryPilot,
     loadPilotPreview,
     loadSourcePreview,
     preview,

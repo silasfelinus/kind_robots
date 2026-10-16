@@ -15,6 +15,7 @@ on:
       - 'utils/scripts/verifyShiftingDesksBalance.test.ts'
       - 'utils/scripts/verifyShiftingDesksArtStyles.test.ts'
       - 'utils/scripts/shiftingDesksBalanceReport.ts'
+      - 'cypress/public/shifting-desks-endings.cy.ts'
       - '.github/workflows/shifting-desks-gameplay.yml'
   push:
     branches: [main]
@@ -29,7 +30,16 @@ on:
       - 'utils/scripts/verifyShiftingDesksBalance.test.ts'
       - 'utils/scripts/verifyShiftingDesksArtStyles.test.ts'
       - 'utils/scripts/shiftingDesksBalanceReport.ts'
+      - 'cypress/public/shifting-desks-endings.cy.ts'
       - '.github/workflows/shifting-desks-gameplay.yml'
+  # The browser contract reads a deployed site, so it runs on demand against
+  # the URL given (default production) once a deploy has landed.
+  workflow_dispatch:
+    inputs:
+      base_url:
+        description: 'Deployed base URL to verify'
+        required: false
+        default: 'https://kindrobots.org'
 jobs:
   contract:
     runs-on: ubuntu-latest
@@ -46,3 +56,35 @@ jobs:
       - run: npx tsx utils/scripts/verifyShiftingDesks.test.ts
       - run: npx tsx utils/scripts/verifyShiftingDesksBalance.test.ts
       - run: npx tsx utils/scripts/verifyShiftingDesksArtStyles.test.ts
+
+  # t-026: every ending, loaded from a naturally reached save through real
+  # localStorage into the mounted page, at 390/768/1440, plus a real reload
+  # and an art-failure fallback. Read-only: no API writes, no deployment.
+  browser-contract:
+    if: github.event_name == 'workflow_dispatch'
+    needs: contract
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+      - run: npm ci
+      - name: Run the endings browser contract
+        uses: cypress-io/github-action@v6
+        with:
+          install: false
+          browser: chrome
+          config-file: cypress.public.config.ts
+          spec: cypress/public/shifting-desks-endings.cy.ts
+        env:
+          CYPRESS_BASE_URL: ${{ inputs.base_url || 'https://kindrobots.org' }}
+      - name: Upload screenshots on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: shifting-desks-endings-screenshots
+          path: cypress/screenshots
+          if-no-files-found: ignore

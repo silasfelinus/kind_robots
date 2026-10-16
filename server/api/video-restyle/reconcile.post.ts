@@ -2,7 +2,10 @@ import { defineEventHandler } from 'h3'
 import { requireAdminApiUser } from '@/server/utils/authGuard'
 import { errorHandler } from '@/server/utils/error'
 import { listRestyleJobs } from '@/server/utils/videoRestyleJobs'
-import { syncRestyleFullArtJob, syncRestylePilotArtJob } from '@/server/utils/videoRestyleArtJob'
+import {
+  syncRestyleFullArtJob,
+  syncRestylePilotArtJob,
+} from '@/server/utils/videoRestyleArtJob'
 
 export default defineEventHandler(async (event) => {
   try {
@@ -11,7 +14,9 @@ export default defineEventHandler(async (event) => {
     const synchronized = []
     for (const job of jobs) {
       synchronized.push(
-        job.full ? await syncRestyleFullArtJob(job) : await syncRestylePilotArtJob(job),
+        job.full
+          ? await syncRestyleFullArtJob(job)
+          : await syncRestylePilotArtJob(job),
       )
     }
     return {

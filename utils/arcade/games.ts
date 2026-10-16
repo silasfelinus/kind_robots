@@ -749,7 +749,7 @@ export const ARCADE_GAMES: ArcadeGameMeta[] = [
     title: 'Dune Digger Dash',
     riffsOn: 'Dig Dug',
     blurb:
-      'Dig, a small digger robot, burrows through layered sand and pumps wandering sand-sprites until they pop, or drops a loose boulder on them. Sprites that cannot reach you float through the sand as eyes and dig in nearby. Every round brings more sprites, faster pursuit and more boulders, across five dunes.',
+      'Dig, a small digger robot, burrows through layered sand and pumps wandering sand-sprites until they pop, or drops a loose boulder on them. Sprites that cannot reach you float through the sand as eyes and dig in nearby. Every round brings more sprites, faster pursuit and more boulders, across six dunes, from gold sand to frostglass.',
     howTo: [
       'ARROWS  DIG AND WALK',
       'A OR B  PUMP',

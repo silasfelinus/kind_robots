@@ -50,13 +50,31 @@ function recordingCanvas() {
 
 type Game = ReturnType<typeof createRainbowPrincessPreview>
 
-/** Fly the lanes through the waves; at the boss, hold its line and slip aside when a volley is due. */
-function pilot(game: Game, seat: number, frame: number): InputFrame {
+/**
+ * Fly the lanes through the waves; at the boss, hold its line and slip aside when a volley is due. A
+ * `timed` pilot also holds fire within 24 HP of a phase boundary until the boss starts charging, so the
+ * crossing lands mid-warning by choice rather than by luck.
+ */
+function pilot(
+  game: Game,
+  seat: number,
+  frame: number,
+  timed = false,
+): InputFrame {
   const snapshot = game.snapshot
   const input = emptyInput()
   const ship = snapshot.ships[seat]
   if (!ship) return input
   input.held.a = true
+  const boss = snapshot.boss
+  if (timed && boss) {
+    const upper = (boss.maxHp * 2) / 3
+    const next = boss.hp > upper ? upper : boss.maxHp / 3
+    const due = boss.nextVolleyAt - boss.frame
+    const charging = due > 0 && due <= WARNING_FRAMES
+    if (boss.hp > next && boss.hp - next <= 24 && !charging)
+      input.held.a = false
+  }
   let target: number
   if (snapshot.boss) {
     const due = snapshot.boss.nextVolleyAt - snapshot.boss.frame
@@ -76,7 +94,7 @@ type Crossing = {
   duringWarning: boolean
 }
 
-function fight(players: number, seed: number) {
+function fight(players: number, seed: number, timed = false) {
   const game = createRainbowPrincessPreview({
     players,
     demo: false,
@@ -104,7 +122,7 @@ function fight(players: number, seed: number) {
       continue
     }
     const inputs = Array.from({ length: players }, (_, seat) =>
-      pilot(game, seat, frame),
+      pilot(game, seat, frame, timed),
     )
     game.update(inputs[0]!, inputs)
     const after = game.snapshot
@@ -211,15 +229,16 @@ function fight(players: number, seed: number) {
 }
 
 const runs = [
-  { players: 1, seed: 1234 },
-  { players: 4, seed: 1234 },
-  { players: 2, seed: 77 },
-  { players: 3, seed: 9001 },
+  { players: 1, seed: 1234, timed: false },
+  { players: 4, seed: 1234, timed: false },
+  { players: 2, seed: 77, timed: false },
+  { players: 3, seed: 9001, timed: false },
+  { players: 1, seed: 1234, timed: true },
 ]
 const summary: string[] = []
 const allCrossings: Crossing[] = []
-for (const { players, seed } of runs) {
-  const result = fight(players, seed)
+for (const { players, seed, timed } of runs) {
+  const result = fight(players, seed, timed)
   allCrossings.push(...result.crossings)
   assert.ok(result.volleys > 0, `${players} pilots met at least one volley`)
   assert.ok(
@@ -228,7 +247,7 @@ for (const { players, seed } of runs) {
     `${players} pilots earned both HP crossings`,
   )
   summary.push(
-    `${players}p: ${result.volleys} volleys, ${result.crossings.length} crossings (${result.interrupted} mid-warning), ${result.attempts} attempt(s), ${result.continues} continue(s)`,
+    `${players}p${timed ? ' timed' : ''}: ${result.volleys} volleys, ${result.crossings.length} crossings (${result.interrupted} mid-warning), ${result.attempts} attempt(s), ${result.continues} continue(s)`,
   )
 }
 // The two-thirds and one-third hull boundaries are met both while the boss is charging (the cue is

@@ -223,9 +223,9 @@ const turnDone = (s: Snapshot) =>
   assert.ok(!watch.turnLines.has(RESCUED_LINE))
 }
 
-// 3. A fallen pilot in Nemi's lane cannot rescue her. Pilot 2 rams craft and shots in Act II until one hit is
-// left, then waits on her lane for the last; pilot 1 dodges clear so the crew never needs a continue.
-// Nemi drifts over the wreck.
+// 3. A fallen pilot in Nemi's lane cannot rescue her. Pilot 2 rams craft and shots in Act II until one hit
+// is left, then holds her lane and meets whatever crosses it for the last; pilot 1 dodges clear so the crew
+// never needs a continue. Nemi drifts over the wreck.
 {
   let wreck: { x: number; y: number } | null = null
   let missedOverWreck = false
@@ -241,7 +241,13 @@ const turnDone = (s: Snapshot) =>
           .sort((a, b) => a.x - b.x)[0]
         if (!(ship.lives === 1 && ship.shield === 1) && prey)
           steer(ram, ship, prey.x, prey.y)
-        else steer(ram, ship, 140, NEMI_LANE)
+        else {
+          // One hit left: hold Nemi's lane and meet whatever crosses it, so the last hit lands there.
+          const crossing = [...s.enemies, ...s.enemyShots]
+            .filter((hazard) => Math.abs(hazard.y - NEMI_LANE) < 20)
+            .sort((a, b) => a.x - b.x)[0]
+          steer(ram, ship, crossing ? Math.max(40, crossing.x) : 140, NEMI_LANE)
+        }
         inputs[1] = ram
       }
       return inputs

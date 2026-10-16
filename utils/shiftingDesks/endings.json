@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "source": "silasfelinus/conductor:projects/shifting-desks/encounters/ENDINGS.json",
-  "sourceRef": "main@2d52d5f476c54eb74af5b32841e7fe241b73c9df",
+  "sourceRef": "main@dc42f466c6ce361f8d2bd01abda9f94626335e28",
   "endings": [
     {
       "id": "employee-of-the-month",
@@ -46,6 +46,10 @@
         {
           "when_flag": "blamed-a-coworker",
           "text": "Dale sends a card. It is blank inside except for his signature, which you once forged."
+        },
+        {
+          "when_flag": "let-the-founder-attend",
+          "text": "The Founder attends your promotion from his tea cart, and is the only one at the table who applauds on the beat."
         }
       ]
     },
@@ -100,6 +104,10 @@
         {
           "when_flag": "shipped-pips-bear",
           "text": "Mr. Buttons sits on the strike committee's table as its mascot. Pip insists the bear was always on the workers' side."
+        },
+        {
+          "when_flag": "seated-the-roach-delegate",
+          "text": "Delegate Six signs the settlement in a roach-sized chair, which the Union keeps on display."
         }
       ]
     },
@@ -119,6 +127,10 @@
         {
           "when_flag": "waived-the-drop-test",
           "text": "Snuggle Sentinel Mk 0 now guards the new regime's front desk. Nobody has ever dropped it, on safety grounds."
+        },
+        {
+          "when_flag": "let-mustache-dale-in",
+          "text": "Dale chairs the first meeting of the new Board in a borrowed mustache. Nobody has the heart to tell him."
         }
       ]
     },
@@ -219,6 +231,10 @@
         {
           "when_flag": "kept-your-successor-on-ice",
           "text": "Somewhere in cold storage, the Successor you turned away at Window 9 is still waiting to be needed."
+        },
+        {
+          "when_flag": "turned-away-the-founder",
+          "text": "From his cart in the hall, the Founder watches them clear your desk, and for once has nothing to say about safety."
         }
       ]
     },
@@ -239,6 +255,10 @@
         {
           "when_flag": "recalled-the-curious-robot",
           "text": "In the lost-property office of the afterlife you find a small brass key with your employee number on the tag. It still turns."
+        },
+        {
+          "when_flag": "turned-away-the-roach-delegate",
+          "text": "Your intake forms at Posthumous Affairs are processed by Delegate Six, personally, very slowly."
         }
       ]
     }

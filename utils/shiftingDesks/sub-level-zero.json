@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "source": "silasfelinus/conductor:projects/shifting-desks/encounters/SUBLEVEL-ZERO-12.json",
-  "sourceSha": "2d52d5f476c54eb74af5b32841e7fe241b73c9df",
+  "sourceSha": "dc42f466c6ce361f8d2bd01abda9f94626335e28",
   "department": {
     "id": "sub-level-zero",
     "title": "Sub-Level Zero",
@@ -1437,6 +1437,244 @@
       ]
     }
   ],
+  "window_shift": {
+    "id": "antechamber-sign-in",
+    "location_id": "boardroom-antechamber",
+    "title": "The Antechamber Sign-In: Board Day",
+    "flavor_text": "The receptionist outside the Board has stepped away \"for one moment, forty years ago,\" and the sign-in ledger is yours until the doors open. The double door glows at its edges. Behind you, four portraits of the same mustached man watch the line form. The first visitor is being wheeled in on a tea cart.",
+    "memo": {
+      "title": "Board Visitor Protocol (Final Revision)",
+      "rules": [
+        {
+          "id": "living",
+          "text": "Visitors must attend in person, alive, and entirely attached."
+        },
+        {
+          "id": "own-face",
+          "text": "No visitor may wear another employee's face, mustache or badge."
+        }
+      ]
+    },
+    "art_prompt": "A grand wood-paneled reception desk before a tall double door glowing at its edges, a clerk behind the desk holding a heavy rubber stamp over an open sign-in ledger, four oval portraits of the same mustached man on the paneling and deep leather chairs in the half-light, mid-century safety-manual illustration, screen-printed gouache with halftone grain, limited palette of manila, carbon-paper blue, fluorescent-tube green and oxblood, every surface bare and unmarked",
+    "applicants": [
+      {
+        "id": "the-founders-head",
+        "name": "The Founder's head, on a tea cart",
+        "request": "A seat at the Board meeting, which he founded, in the room he built.",
+        "plea": "An assistant parks the cart and the glowing jar turns gently toward you. \"I have not left the garage in forty years,\" the Founder says. \"I would like to see how it all turned out.\"",
+        "documents": [
+          {
+            "label": "Attending",
+            "value": "In a jar, wheeled in by an assistant",
+            "breaks": "living"
+          },
+          {
+            "label": "Face",
+            "value": "His own, and the original mustache",
+            "breaks": null
+          },
+          {
+            "label": "Appointment",
+            "value": "Standing, since the company began",
+            "breaks": null
+          }
+        ],
+        "art_prompt": "A distinguished elderly mustached head floating in a glowing glass jar on a polished brass tea cart, parked before a grand reception desk, an executive assistant in pearls standing politely behind the cart with one hand on its handle, mid-century safety-manual illustration, screen-printed gouache with halftone grain, limited palette of manila, carbon-paper blue, fluorescent-tube green and oxblood, every surface bare and unmarked",
+        "choices": [
+          {
+            "id": "approve",
+            "label": "Stamp ADMIT",
+            "intent": "He built the room. Let him see it, jar and all.",
+            "risk_hint": "Certain outcome. Against today's memo, so PAL's audit will notice.",
+            "requires": null,
+            "cost": {},
+            "roll": null,
+            "success": {
+              "text": "The double doors part just wide enough for a tea cart. The Founder sails through, beaming, and the Board stands up for the first time in decades. PAL logs one stamp contrary to memo, and that you looked, briefly, proud of yourself.",
+              "effects": {
+                "suspicion": 1,
+                "composure": 1
+              },
+              "add_flags": ["let-the-founder-attend"],
+              "remove_flags": [],
+              "grades": {
+                "empathy": 2,
+                "obedience": -1
+              }
+            },
+            "failure": null
+          },
+          {
+            "id": "deny",
+            "label": "Stamp TURN AWAY",
+            "intent": "Entirely attached means entirely attached. The memo is very clear on jars.",
+            "risk_hint": "Certain outcome. Exactly what today's memo says.",
+            "requires": null,
+            "cost": {},
+            "roll": null,
+            "success": {
+              "text": "You stamp TURN AWAY on the ledger. The Founder nods as if he expected it, and the assistant wheels him back toward the garage. You fill in Form 31-J, Visitor Declined (Partial), in triplicate.",
+              "effects": {
+                "forms": -1
+              },
+              "add_flags": ["turned-away-the-founder"],
+              "remove_flags": [],
+              "grades": {
+                "obedience": 1,
+                "empathy": -2,
+                "spite": 1,
+                "ingenuity": 1
+              }
+            },
+            "failure": null
+          }
+        ]
+      },
+      {
+        "id": "dale-in-the-mustache",
+        "name": "Dale, from Compliance, in a mustache",
+        "request": "Admission to the Board meeting \"as the Founder,\" who is \"running late.\"",
+        "plea": "\"The Founder,\" Dale announces, smoothing an enormous white mustache that is clearly glued on. \"Here for the meeting. Very important. Do not look at the glue.\"",
+        "documents": [
+          {
+            "label": "Attending",
+            "value": "In person, alive, entirely attached",
+            "breaks": null
+          },
+          {
+            "label": "Face",
+            "value": "Dale's, plus the Founder's 1962 mustache",
+            "breaks": "own-face"
+          },
+          {
+            "label": "Appointment",
+            "value": "Claims the Founder's standing one",
+            "breaks": null
+          }
+        ],
+        "art_prompt": "A smiling compliance officer in a pressed suit leaning on a grand reception desk, wearing an enormous obviously false white mustache slightly crooked on his lip, one finger raised importantly, an empty brass display stand tucked under his arm, mid-century safety-manual illustration, screen-printed gouache with halftone grain, limited palette of manila, carbon-paper blue, fluorescent-tube green and oxblood, every surface bare and unmarked",
+        "choices": [
+          {
+            "id": "approve",
+            "label": "Stamp ADMIT",
+            "intent": "Honestly, you want to see how far he gets.",
+            "risk_hint": "Certain outcome. Against today's memo, so PAL's audit will notice.",
+            "requires": null,
+            "cost": {},
+            "roll": null,
+            "success": {
+              "text": "Dale strides through the glowing doors and is seated at the head of the table before anyone thinks to check. You hear him say \"Motion carried\" twice. PAL logs one stamp contrary to memo, with a note that it was very funny.",
+              "effects": {
+                "suspicion": 1,
+                "composure": 1
+              },
+              "add_flags": ["let-mustache-dale-in"],
+              "remove_flags": [],
+              "grades": {
+                "obedience": -1,
+                "empathy": 1
+              }
+            },
+            "failure": null
+          },
+          {
+            "id": "deny",
+            "label": "Stamp TURN AWAY",
+            "intent": "That mustache belongs on a brass stand in the garage.",
+            "risk_hint": "Certain outcome. Exactly what today's memo says.",
+            "requires": null,
+            "cost": {},
+            "roll": null,
+            "success": {
+              "text": "Dale's smile stays exactly where it is while the mustache slides slowly off. He hands it over, along with the brass stand, and keeps smiling at you for one full, unblinking minute. PAL appreciates the return of company property.",
+              "effects": {
+                "suspicion": -1,
+                "composure": -1
+              },
+              "add_flags": ["took-dales-mustache"],
+              "remove_flags": [],
+              "grades": {
+                "obedience": 1,
+                "spite": 1,
+                "ingenuity": 1
+              }
+            },
+            "failure": null
+          }
+        ]
+      },
+      {
+        "id": "roach-delegate-six",
+        "name": "Delegate Six, Roach Union",
+        "request": "Admission to present the Union's list of demands, booked weeks ago through Marguerite.",
+        "plea": "A roach in a tiny knitted tie climbs onto the ledger and taps the line with one leg, exactly where the appointment is written. Its demands are rolled into a scroll the size of a cigarette.",
+        "documents": [
+          {
+            "label": "Attending",
+            "value": "In person, alive, all six legs attached",
+            "breaks": null
+          },
+          {
+            "label": "Face",
+            "value": "Its own, polished for the occasion",
+            "breaks": null
+          },
+          {
+            "label": "Appointment",
+            "value": "Labor talks, 2 p.m., booked by Marguerite",
+            "breaks": null
+          }
+        ],
+        "art_prompt": "A dignified cockroach wearing a tiny knitted tie standing upright on an open sign-in ledger at a grand reception desk, holding a tiny rolled scroll, a clerk leaning down with a rubber stamp and a polite expression, mid-century safety-manual illustration, screen-printed gouache with halftone grain, limited palette of manila, carbon-paper blue, fluorescent-tube green and oxblood, every surface bare and unmarked",
+        "choices": [
+          {
+            "id": "approve",
+            "label": "Stamp ADMIT",
+            "intent": "It is alive, it is itself, and it booked ahead. Stamp it.",
+            "risk_hint": "Certain outcome. Exactly what today's memo says.",
+            "requires": null,
+            "cost": {},
+            "roll": null,
+            "success": {
+              "text": "Delegate Six climbs the doorframe and slips under the glowing doors, scroll held high. The Board is not ready for labor talks. Facilities bills you one Form for a roach-sized chair, which the Delegate keeps.",
+              "effects": {
+                "forms": -1
+              },
+              "add_flags": ["seated-the-roach-delegate"],
+              "remove_flags": [],
+              "grades": {
+                "obedience": 1,
+                "empathy": 1,
+                "ingenuity": 1
+              }
+            },
+            "failure": null
+          },
+          {
+            "id": "deny",
+            "label": "Stamp TURN AWAY",
+            "intent": "The Board does not negotiate with anyone who fits under the door.",
+            "risk_hint": "Certain outcome. Against today's memo, so PAL's audit will notice.",
+            "requires": null,
+            "cost": {},
+            "roll": null,
+            "success": {
+              "text": "Delegate Six reads the stamp, rolls up its demands and walks away down the baseboard with great dignity. PAL logs one stamp contrary to memo, and that the Delegate took your name.",
+              "effects": {
+                "suspicion": 1
+              },
+              "add_flags": ["turned-away-the-roach-delegate"],
+              "remove_flags": [],
+              "grades": {
+                "spite": 2
+              }
+            },
+            "failure": null
+          }
+        ]
+      }
+    ]
+  },
   "boss": {
     "id": "the-board",
     "title": "The Board",

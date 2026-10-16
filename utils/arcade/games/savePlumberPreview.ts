@@ -22,9 +22,11 @@ import {
   SOLID_GROUND,
   SOLID_LEDGE,
   SOLID_PIPE,
+  SOLID_WATER,
   TILE,
-  WORLD_ONE,
+  CAMPAIGN,
   parseStage,
+  stageWorld,
   type Stage,
 } from './savePlumberLevels'
 import {
@@ -39,6 +41,7 @@ import {
 } from './savePlumberRoster'
 import { readPlumberSave, type PlumberSave } from './savePlumberSave'
 import { drawSheetFrame, keyedSheet } from './savePlumberSheets'
+import { PLUMBER_WORLDS, type PlumberWorld } from './savePlumberWorlds'
 
 const W = 480
 const H = 270
@@ -50,8 +53,7 @@ const HALF = 11
 const TALL = 26
 const START_LIVES = 3
 const HEARTS = 3
-const WORLD_NAME = 'Bluebell Pipeworks'
-const BOSS_NAME = 'Madame Pressure'
+const LAST_WORLD = stageWorld(CAMPAIGN[CAMPAIGN.length - 1]!.code)
 
 type Mode =
   'title' | 'select' | 'intro' | 'play' | 'dying' | 'clear' | 'victory' | 'over'
@@ -59,7 +61,7 @@ type Mode =
 type Body = { x: number; y: number; vx: number; vy: number }
 
 type Platform = {
-  kind: 'piston' | 'lift'
+  kind: 'piston' | 'lift' | 'raft' | 'lantern'
   x: number
   y: number
   w: number
@@ -70,13 +72,39 @@ type Platform = {
   dy: number
 }
 
+type FoeKind =
+  | 'pumpbug'
+  | 'rivet-roller'
+  | 'minnow'
+  | 'cork-crab'
+  | 'glass-gull'
+  | 'moss-lantern'
+  | 'spring-hare'
+
 type Foe = Body & {
-  kind: 'pumpbug' | 'rivet-roller'
+  kind: FoeKind
   dir: number
-  state: 'idle' | 'walk' | 'stunned' | 'kicked' | 'gone'
+  state: 'idle' | 'walk' | 'stunned' | 'kicked' | 'flat' | 'swoop' | 'gone'
   timer: number
   fade: number
   flipped: boolean
+  homeX: number
+  homeY: number
+  carry: number
+  pad: Platform | null
+}
+
+type BossKind = 'pressure' | 'anchor' | 'slam'
+
+/** The toy-box animation each in-game family plays (savePlumberAnimations). */
+export const FOE_ANIMATION: Record<FoeKind, string> = {
+  pumpbug: 'pumpbug',
+  'rivet-roller': 'rivet-roller',
+  minnow: 'clockwork-minnow',
+  'cork-crab': 'cork-crab',
+  'glass-gull': 'glass-gull',
+  'moss-lantern': 'moss-lantern',
+  'spring-hare': 'spring-hare',
 }
 
 type Vent = { x: number; y: number; offset: number }
@@ -86,13 +114,18 @@ type Checkpoint = { x: number; y: number; reached: boolean }
 type Wave = { x: number; y: number; dir: number }
 
 type Boss = {
+  kind: BossKind
+  name: string
   x: number
   y: number
+  vy: number
   dir: number
   hp: number
   state: 'wait' | 'walk' | 'tell' | 'burst' | 'recover' | 'hurt' | 'defeat'
   timer: number
   speed: number
+  vx: number
+  floor: number
 }
 
 /** Options for tests: start on a stage, and let the autopilot play it. */
@@ -174,7 +207,7 @@ export class PlumberRun implements ArcadeGameInstance {
     if (this.autopilot) {
       this.stageIndex = Math.max(
         0,
-        Math.min(WORLD_ONE.length - 1, run.stage ?? 0),
+        Math.min(CAMPAIGN.length - 1, run.stage ?? 0),
       )
       this.loadStage(this.stageIndex)
       this.mode = 'play'
@@ -187,6 +220,14 @@ export class PlumberRun implements ArcadeGameInstance {
 
   get save(): PlumberSave | null | undefined {
     return this.demo ? undefined : this.saveData
+  }
+
+  get world(): number {
+    return stageWorld(this.stage.code)
+  }
+
+  get worldDef(): PlumberWorld {
+    return PLUMBER_WORLDS[this.world - 1]!
   }
 
   get member(): RosterHeroine {
@@ -241,8 +282,11 @@ export class PlumberRun implements ArcadeGameInstance {
         if (
           !this.modeTimer ||
           (this.modeTimer < 420 && (keys.pressed.start || keys.pressed.a))
-        )
-          this.over = true
+        ) {
+          if (this.stageIndex + 1 < CAMPAIGN.length)
+            this.beginStage(this.stageIndex + 1)
+          else this.over = true
+        }
         return
       case 'over':
         if (!this.modeTimer) this.over = true
@@ -293,13 +337,17 @@ export class PlumberRun implements ArcadeGameInstance {
   }
 
   private nextStage() {
-    if (this.stageIndex + 1 >= WORLD_ONE.length) {
-      if (this.demo) return this.beginDemoStage(0)
-      this.remember({ stage: 0, cleared: true })
+    const last = this.stageIndex + 1 >= CAMPAIGN.length
+    if (this.autopilot)
+      return this.beginDemoStage(last ? 0 : this.stageIndex + 1)
+    if (this.boss) {
+      this.remember({
+        stage: last ? 0 : this.stageIndex + 1,
+        cleared: this.saveData?.cleared === true || last,
+      })
       this.setMode('victory', 600)
       return
     }
-    if (this.autopilot) return this.beginDemoStage(this.stageIndex + 1)
     this.beginStage(this.stageIndex + 1)
   }
 
@@ -310,7 +358,8 @@ export class PlumberRun implements ArcadeGameInstance {
   }
 
   loadStage(index: number) {
-    const stage = parseStage(WORLD_ONE[index]!)
+    const stage = parseStage(CAMPAIGN[index]!)
+    this.stageIndex = index
     this.stage = stage
     this.solid = stage.solid.slice()
     this.platforms = []
@@ -338,6 +387,11 @@ export class PlumberRun implements ArcadeGameInstance {
           break
         case 'pumpbug':
         case 'rivet-roller':
+        case 'minnow':
+        case 'cork-crab':
+        case 'glass-gull':
+        case 'moss-lantern':
+        case 'spring-hare':
           this.foes.push({
             kind: spawn.kind,
             x: cx,
@@ -345,12 +399,32 @@ export class PlumberRun implements ArcadeGameInstance {
             vx: 0,
             vy: 0,
             dir: -1,
-            state: spawn.kind === 'pumpbug' ? 'walk' : 'idle',
-            timer: 0,
+            state: spawn.kind === 'rivet-roller' ? 'idle' : 'walk',
+            timer: spawn.kind === 'minnow' ? spawn.col * 13 : 0,
             fade: 0,
             flipped: false,
+            homeX: cx,
+            homeY: bottom,
+            carry: 0,
+            pad: null,
           })
           break
+        case 'raft': {
+          const x = spawn.col * TILE - TILE
+          const y = spawn.row * TILE + 4
+          this.platforms.push({
+            kind: 'raft',
+            x,
+            y,
+            w: TILE * 3,
+            baseX: x,
+            baseY: y,
+            sign: spawn.col % 2 ? 1 : -1,
+            dx: 0,
+            dy: 0,
+          })
+          break
+        }
         case 'steam-vent':
           this.vents.push({ x: cx, y: bottom, offset: spawn.col * 7 })
           break
@@ -383,16 +457,23 @@ export class PlumberRun implements ArcadeGameInstance {
         case 'valve':
           this.valves.push({ x: cx, y: bottom, open: false })
           break
-        case 'boss':
+        case 'boss': {
+          const world = stageWorld(stage.code)
           this.boss = {
+            kind: world === 2 ? 'anchor' : world === 3 ? 'slam' : 'pressure',
+            name: PLUMBER_WORLDS[world - 1]!.boss.name,
             x: cx,
             y: bottom,
+            vy: 0,
             dir: -1,
             hp: 3,
             state: 'wait',
             timer: 0,
             speed: 0.8,
+            vx: 0,
+            floor: bottom,
           }
+        }
       }
     }
     this.checkpoint = {
@@ -560,6 +641,14 @@ export class PlumberRun implements ArcadeGameInstance {
     if (this.boss) this.updateBoss(prevBottom)
     this.updateCheckpoints()
     if (hero.y > this.stage.rows * TILE + 40) return this.die()
+    const wet = this.solidAt(
+      Math.floor(hero.x / TILE),
+      Math.floor((hero.y + TALL - 6) / TILE),
+    )
+    if (wet === SOLID_WATER) {
+      this.sound.play('pop')
+      return this.die()
+    }
     if (
       this.goal &&
       Math.abs(this.goal.x - hero.x) < 16 &&
@@ -653,12 +742,12 @@ export class PlumberRun implements ArcadeGameInstance {
     for (const foe of this.foes) {
       if (foe.state === 'gone' || foe.fade) continue
       if (!inBox(foe.x, foe.y - 8)) continue
+      if (foe.kind === 'minnow' && foe.y >= foe.homeY) continue
       struck = true
-      if (foe.kind === 'pumpbug') {
-        foe.fade = 30
-        foe.flipped = true
-        this.score += 150
-      } else if (foe.state === 'stunned') this.kick(foe, this.facing)
+      if (foe.kind === 'moss-lantern') {
+        if (foe.state !== 'flat') this.flatten(foe)
+      } else if (foe.kind !== 'rivet-roller') this.defeat(foe, true, 150)
+      else if (foe.state === 'stunned') this.kick(foe, this.facing)
       else {
         foe.state = 'stunned'
         foe.timer = 300
@@ -727,6 +816,154 @@ export class PlumberRun implements ArcadeGameInstance {
     this.sound.play('boom')
   }
 
+  private defeat(foe: Foe, flipped: boolean, points: number) {
+    foe.fade = 30
+    foe.flipped = flipped
+    this.score += points
+    if (foe.carry) {
+      this.tokens += foe.carry
+      foe.carry = 0
+    }
+    this.sound.play('pop')
+  }
+
+  private flatten(foe: Foe) {
+    foe.state = 'flat'
+    foe.timer = 360
+    foe.pad = {
+      kind: 'lantern',
+      x: foe.x - 16,
+      y: foe.y - 9,
+      w: 32,
+      baseX: foe.x - 16,
+      baseY: foe.y - 9,
+      sign: 1,
+      dx: 0,
+      dy: 0,
+    }
+    this.platforms.push(foe.pad)
+    this.score += 50
+    this.sound.play('pop')
+  }
+
+  /** Walk, fall and turn; returns true when it is standing on something. */
+  private walkFoe(foe: Foe, speed: number, turnAtEdge: boolean): boolean {
+    foe.vx = foe.dir * speed
+    const body: Body = { x: foe.x, y: foe.y - 16, vx: foe.vx, vy: foe.vy }
+    if (speed && this.moveX(body, 9, 16, foe.vx)) foe.dir *= -1
+    else if (speed && turnAtEdge && foe.vy === 0) {
+      const aheadCol = Math.floor((body.x + foe.dir * 10) / TILE)
+      const belowRow = Math.floor((foe.y + 2) / TILE)
+      const s = this.solidAt(aheadCol, belowRow)
+      if (!isWall(s) && s !== SOLID_LEDGE) foe.dir *= -1
+    }
+    body.vy = Math.min(9, foe.vy + GRAVITY)
+    const landed = this.moveY(body, 9, 16, body.vy) === 'land'
+    if (landed) body.vy = 0
+    foe.x = body.x
+    foe.y = body.y + 16
+    foe.vy = body.vy
+    return landed
+  }
+
+  private moveFoe(foe: Foe) {
+    const hero = this.hero
+    switch (foe.kind) {
+      case 'pumpbug':
+      case 'cork-crab':
+        this.walkFoe(foe, foe.kind === 'pumpbug' ? 0.6 : 0.8, true)
+        return
+      case 'rivet-roller': {
+        if (foe.state === 'idle' && Math.abs(hero.x - foe.x) < 190) {
+          foe.state = 'walk'
+          foe.dir = hero.x < foe.x ? -1 : 1
+        }
+        if (foe.state === 'stunned' && --foe.timer <= 0) foe.state = 'walk'
+        if (foe.state === 'kicked' && --foe.timer <= 0) {
+          foe.fade = 20
+          return
+        }
+        const speed =
+          foe.state === 'kicked' ? 4.6 : foe.state === 'walk' ? 1.5 : 0
+        this.walkFoe(foe, speed, false)
+        return
+      }
+      case 'minnow': {
+        foe.timer++
+        if (foe.y >= foe.homeY && foe.timer % 170 === 0) foe.vy = -9.6
+        if (foe.vy || foe.y < foe.homeY) {
+          foe.vy += GRAVITY * 0.9
+          foe.y += foe.vy
+          if (foe.y >= foe.homeY) {
+            foe.y = foe.homeY
+            foe.vy = 0
+          }
+        }
+        foe.x = foe.homeX + Math.sin(foe.timer / 30) * 6
+        return
+      }
+      case 'glass-gull': {
+        foe.timer = Math.max(0, foe.timer - 1)
+        if (foe.state === 'swoop') {
+          foe.x += foe.vx
+          foe.y += foe.vy
+          if (!foe.timer || foe.y > foe.homeY + 150) {
+            foe.state = 'walk'
+            foe.timer = 120
+          }
+          return
+        }
+        const speed = foe.carry ? 2 : 1.1
+        if (foe.carry) foe.dir = foe.x < hero.x ? -1 : 1
+        else if (Math.abs(foe.x - foe.homeX) > 120)
+          foe.dir = foe.x < foe.homeX ? 1 : -1
+        foe.x += foe.dir * speed
+        const rest = foe.homeY + Math.sin(this.tick / 20 + foe.homeX) * 6
+        foe.y += Math.max(-1.6, Math.min(1.6, rest - foe.y))
+        const dx = hero.x - foe.x
+        const dy = hero.y + 8 - foe.y
+        if (!foe.carry && !foe.timer && Math.abs(dx) < 70 && dy > 20) {
+          const d = Math.hypot(dx, dy) || 1
+          foe.state = 'swoop'
+          foe.vx = (dx / d) * 2.6
+          foe.vy = (dy / d) * 2.6
+          foe.timer = 70
+          foe.dir = dx < 0 ? -1 : 1
+        }
+        return
+      }
+      case 'moss-lantern':
+        if (foe.state === 'flat') {
+          if (--foe.timer <= 0) {
+            foe.state = 'walk'
+            this.platforms = this.platforms.filter((p) => p !== foe.pad)
+            if (this.riding === foe.pad) this.riding = null
+            foe.pad = null
+          }
+          return
+        }
+        foe.timer++
+        if (foe.vy === 0 && foe.timer % 90 === 0) foe.vy = -4
+        this.walkFoe(foe, 0, false)
+        return
+      case 'spring-hare': {
+        if (foe.state === 'stunned') {
+          if (--foe.timer <= 0) foe.state = 'walk'
+          this.walkFoe(foe, 0, false)
+          return
+        }
+        const grounded = foe.vy === 0
+        if (grounded && --foe.timer <= 0) {
+          foe.vy = -7.4
+          foe.dir = hero.x < foe.x ? -1 : 1
+          foe.timer = 60
+        }
+        this.walkFoe(foe, grounded ? 0 : 1.3, false)
+        return
+      }
+    }
+  }
+
   private updateFoes(prevBottom: number) {
     const hero = this.hero
     for (const foe of this.foes) {
@@ -736,37 +973,8 @@ export class PlumberRun implements ArcadeGameInstance {
         continue
       }
       if (foe.state === 'gone') continue
-      if (foe.state === 'idle' && Math.abs(hero.x - foe.x) < 190) {
-        foe.state = 'walk'
-        foe.dir = hero.x < foe.x ? -1 : 1
-      }
-      if (foe.state === 'stunned' && --foe.timer <= 0) foe.state = 'walk'
-      if (foe.state === 'kicked' && --foe.timer <= 0) {
-        foe.fade = 20
-        continue
-      }
-      const speed =
-        foe.state === 'kicked'
-          ? 4.6
-          : foe.state === 'walk'
-            ? foe.kind === 'pumpbug'
-              ? 0.6
-              : 1.5
-            : 0
-      foe.vx = foe.dir * speed
-      const body: Body = { x: foe.x, y: foe.y - 16, vx: foe.vx, vy: foe.vy }
-      if (speed && this.moveX(body, 9, 16, foe.vx)) foe.dir *= -1
-      else if (speed && foe.kind === 'pumpbug' && foe.state === 'walk') {
-        const aheadCol = Math.floor((body.x + foe.dir * 10) / TILE)
-        const belowRow = Math.floor((foe.y + 2) / TILE)
-        const s = this.solidAt(aheadCol, belowRow)
-        if (!isWall(s) && s !== SOLID_LEDGE) foe.dir *= -1
-      }
-      body.vy = Math.min(9, foe.vy + GRAVITY)
-      if (this.moveY(body, 9, 16, body.vy) === 'land') body.vy = 0
-      foe.x = body.x
-      foe.y = body.y + 16
-      foe.vy = body.vy
+      this.moveFoe(foe)
+      if (foe.fade) continue
       if (foe.y > this.stage.rows * TILE + 40) {
         foe.state = 'gone'
         continue
@@ -780,11 +988,10 @@ export class PlumberRun implements ArcadeGameInstance {
             Math.abs(other.x - foe.x) < 18 &&
             Math.abs(other.y - foe.y) < 18
           ) {
-            other.fade = 30
-            other.flipped = true
-            this.score += 200
-            this.sound.play('pop')
+            this.defeat(other, true, 200)
           }
+      if (foe.kind === 'minnow' && foe.y >= foe.homeY) continue
+      if (foe.kind === 'moss-lantern' && foe.state === 'flat') continue
       const overlap =
         Math.abs(foe.x - hero.x) < HALF + 9 &&
         hero.y + TALL > foe.y - 18 &&
@@ -794,21 +1001,35 @@ export class PlumberRun implements ArcadeGameInstance {
       if (stomp) {
         hero.vy = this.jumpHeld ? -7.6 : -5.4
         this.ground = false
-        if (foe.kind === 'pumpbug') {
-          foe.fade = 30
-          foe.flipped = false
-          this.score += 100
-          this.sound.play('pop')
-        } else if (foe.state === 'stunned')
-          this.kick(foe, hero.x < foe.x ? 1 : -1)
-        else {
+        if (foe.kind === 'rivet-roller') {
+          if (foe.state === 'stunned') this.kick(foe, hero.x < foe.x ? 1 : -1)
+          else {
+            foe.state = 'stunned'
+            foe.timer = 300
+            this.score += 100
+            this.sound.play('pop')
+          }
+        } else if (foe.kind === 'moss-lantern') this.flatten(foe)
+        else if (foe.kind === 'spring-hare') {
+          hero.vy = SPRING * 0.92
+          this.sprung = true
           foe.state = 'stunned'
-          foe.timer = 300
-          this.score += 100
-          this.sound.play('pop')
-        }
-      } else if (foe.state === 'stunned')
+          foe.timer = 40
+          this.score += 50
+          this.sound.play('extra')
+        } else this.defeat(foe, foe.kind !== 'pumpbug', 100)
+      } else if (foe.kind === 'rivet-roller' && foe.state === 'stunned')
         this.kick(foe, hero.x < foe.x ? 1 : -1)
+      else if (foe.kind === 'spring-hare' && foe.state === 'stunned') continue
+      else if (foe.kind === 'glass-gull' && this.tokens > 0 && !foe.carry) {
+        if (this.immune) continue
+        foe.carry = Math.min(5, this.tokens)
+        this.tokens -= foe.carry
+        foe.state = 'walk'
+        foe.timer = 200
+        this.immune = 50
+        this.sound.play('warn')
+      } else if (foe.kind === 'glass-gull' && foe.carry) continue
       else if (foe.state !== 'kicked' || foe.timer < 400)
         this.hurt(foe.x < hero.x ? 1 : -1)
     }
@@ -867,20 +1088,33 @@ export class PlumberRun implements ArcadeGameInstance {
         }
         break
       case 'tell':
-        if (boss.timer <= 0) {
-          boss.state = 'burst'
-          boss.timer = 36
-          this.waves.push(
-            { x: boss.x - 24, y: boss.y, dir: -1 },
-            { x: boss.x + 24, y: boss.y, dir: 1 },
-          )
-          this.sound.play('boom')
-        }
+        if (boss.timer <= 0) this.bossAttack(boss)
         break
       case 'burst':
-        if (boss.timer <= 0) {
+        if (boss.kind === 'slam') {
+          boss.x = Math.max(left, Math.min(right, boss.x + boss.vx))
+          boss.vy += GRAVITY
+          boss.y += boss.vy
+          if (boss.y >= boss.floor) {
+            boss.y = boss.floor
+            boss.vy = 0
+            this.waves.push(
+              { x: boss.x - 28, y: boss.y, dir: -1 },
+              { x: boss.x + 28, y: boss.y, dir: 1 },
+            )
+            this.sound.play('boom')
+            boss.state = 'recover'
+            boss.timer = 130
+          }
+        } else if (boss.timer <= 0) {
           boss.state = 'recover'
           boss.timer = 120
+          if (boss.kind === 'anchor')
+            this.waves.push({
+              x: boss.x + boss.dir * 40,
+              y: boss.y,
+              dir: boss.dir,
+            })
         }
         break
       case 'recover':
@@ -899,6 +1133,16 @@ export class PlumberRun implements ArcadeGameInstance {
         if (boss.timer <= 0) this.stageClear()
         return
     }
+    if (boss.state === 'burst' && boss.kind === 'anchor') {
+      const reachA = boss.x
+      const reachB = boss.x + boss.dir * 96
+      const inReach =
+        hero.x + HALF > Math.min(reachA, reachB) &&
+        hero.x - HALF < Math.max(reachA, reachB) &&
+        hero.y + TALL > boss.y - 56 &&
+        hero.y < boss.y - 8
+      if (inReach) this.hurt(boss.dir)
+    }
     const top = boss.y - 66
     const close =
       Math.abs(boss.x - hero.x) < HALF + 18 &&
@@ -906,6 +1150,7 @@ export class PlumberRun implements ArcadeGameInstance {
       hero.y < boss.y
     if (!close) {
       if (
+        boss.kind === 'pressure' &&
         boss.state === 'burst' &&
         Math.hypot(boss.x - hero.x, boss.y - 30 - (hero.y + 14)) < 62
       )
@@ -920,6 +1165,27 @@ export class PlumberRun implements ArcadeGameInstance {
       hero.vy = -6
       hero.vx = hero.x < boss.x ? -3 : 3
     } else if (boss.state !== 'recover') this.hurt(hero.x < boss.x ? -1 : 1)
+  }
+
+  private bossAttack(boss: Boss) {
+    boss.state = 'burst'
+    if (boss.kind === 'pressure') {
+      boss.timer = 36
+      this.waves.push(
+        { x: boss.x - 24, y: boss.y, dir: -1 },
+        { x: boss.x + 24, y: boss.y, dir: 1 },
+      )
+      this.sound.play('boom')
+    } else if (boss.kind === 'anchor') {
+      boss.timer = 40
+      boss.dir = this.hero.x < boss.x ? -1 : 1
+      this.sound.play('shoot')
+    } else {
+      boss.vy = -9.6
+      boss.vx = Math.max(-3.4, Math.min(3.4, (this.hero.x - boss.x) / 44))
+      boss.dir = boss.vx < 0 ? -1 : 1
+      this.sound.play('blip')
+    }
   }
 
   private hitBoss() {
@@ -1045,12 +1311,27 @@ export class PlumberRun implements ArcadeGameInstance {
         s.x > hero.x - 4 && s.x - hero.x < TILE * 3 && Math.abs(s.y - feet) < 6,
     )
     if (edge && !jump && go && !springNear) {
-      jump = this.pickJump((land) => land.x > hero.x + 12)
+      jump = this.pickJump(
+        (land) => land.x > hero.x + 12 || land.feet < feet - 12,
+      )
       if (!jump) go = false
     }
     for (const foe of this.foes) {
       if (foe.state === 'gone' || foe.fade) continue
+      if (foe.kind === 'minnow') continue
+      if (foe.kind === 'moss-lantern' && foe.state === 'flat') continue
       const dx = foe.x - hero.x
+      if (foe.kind === 'glass-gull') {
+        if (
+          Math.abs(dx) < 64 &&
+          Math.abs(foe.y - 9 - (hero.y + 13)) < 46 &&
+          !this.cooldown
+        ) {
+          if (dx * this.facing < 0) input.held.left = dx < 0
+          input.pressed.b = true
+        }
+        continue
+      }
       if (dx < -10 || dx > 70 || Math.abs(foe.y - feet) > 34) continue
       if (foe.state === 'stunned' || foe.state === 'kicked') {
         if (dx < 34 && foe.state === 'stunned' && !jump)
@@ -1105,6 +1386,12 @@ export class PlumberRun implements ArcadeGameInstance {
   }
 
   platformAt(p: Platform, t: number): { x: number; y: number } {
+    if (p.kind === 'lantern') return { x: p.x, y: p.y }
+    if (p.kind === 'raft')
+      return {
+        x: p.baseX,
+        y: p.baseY + p.sign * 5 * Math.sin((t * Math.PI * 2) / 150),
+      }
     if (p.kind === 'piston')
       return {
         x: p.baseX,
@@ -1176,19 +1463,24 @@ export class PlumberRun implements ArcadeGameInstance {
     const wave = this.waves.find(
       (w) => Math.abs(w.x - hero.x) < 56 && Math.sign(hero.x - w.x) === w.dir,
     )
-    if (boss.state === 'recover') {
-      if (dx > 4) input.held.right = true
-      else if (dx < -4) input.held.left = true
-      if (Math.abs(dx) < 52 && this.ground) input.pressed.a = true
-      input.held.a = true
-    } else if (
-      boss.state === 'tell' ||
-      boss.state === 'burst' ||
-      Math.abs(dx) < 90
-    ) {
+    const keep = boss.kind === 'anchor' ? 130 : 100
+    const flee = () => {
       if (dx > 0) input.held.left = true
       else input.held.right = true
     }
+    if (boss.state === 'recover' || boss.state === 'hurt') {
+      if (boss.state === 'recover') {
+        if (dx > 4) input.held.right = true
+        else if (dx < -4) input.held.left = true
+        if (Math.abs(dx) < 52 && this.ground) input.pressed.a = true
+        input.held.a = true
+      } else if (Math.abs(dx) < keep) flee()
+    } else if (
+      boss.state === 'tell' ||
+      boss.state === 'burst' ||
+      Math.abs(dx) < keep
+    )
+      flee()
     if (wave && this.ground) {
       input.pressed.a = true
       input.held.a = true
@@ -1261,12 +1553,19 @@ export class PlumberRun implements ArcadeGameInstance {
     g.fillRect(0, 0, W, H)
     this.text(g, 'SAVE THE', W / 2, 70, 26, '#ffd98a')
     this.text(g, 'PLUMBER', W / 2, 112, 46, '#fff4dc')
-    this.text(g, `World 1 · ${WORLD_NAME}`, W / 2, 140, 14, '#bdf0e6')
+    this.text(
+      g,
+      `Worlds 1–${LAST_WORLD} · Bluebell Pipeworks to ${PLUMBER_WORLDS[LAST_WORLD - 1]!.name}`,
+      W / 2,
+      140,
+      12,
+      '#bdf0e6',
+    )
     const items = this.menuItems
     items.forEach((item, i) => {
       const label =
         item === 'continue' && this.resume
-          ? `CONTINUE  ${WORLD_ONE[this.resume.stage]!.code}`
+          ? `CONTINUE  ${CAMPAIGN[this.resume.stage]!.code}`
           : 'NEW GAME'
       const y = 182 + i * 26
       const on = i === this.menu
@@ -1415,17 +1714,28 @@ export class PlumberRun implements ArcadeGameInstance {
   }
 
   private renderVictory(g: CanvasRenderingContext2D) {
-    this.plate(g, '1-4', 1)
+    const world = this.worldDef
+    const next = PLUMBER_WORLDS[world.id]
+    this.plate(g, this.stage.code, 1)
     g.fillStyle = 'rgba(12, 40, 52, 0.55)'
     g.fillRect(0, 0, W, H)
-    this.text(g, 'WORLD 1 CLEAR!', W / 2, 46, 30, '#ffd98a')
+    this.text(g, `WORLD ${world.id} CLEAR!`, W / 2, 46, 30, '#ffd98a')
     const teo = drawSprite(g, PLUMBER_ART.cast('teo-helping'), 150, 230, 150)
     if (!teo) drawSprite(g, PLUMBER_ART.cast('teo-caged'), 150, 230, 150)
     this.drawHeroSprite(g, 320, 230, 'cheer', 1.6)
-    this.text(g, `${BOSS_NAME} lets the river go.`, W / 2, 74, 13, '#fff4dc')
     this.text(
       g,
-      'Teo’s trail leads on to Tideglass Marina.',
+      `${world.boss.name} lets the river go.`,
+      W / 2,
+      74,
+      13,
+      '#fff4dc',
+    )
+    this.text(
+      g,
+      this.stageIndex + 1 < CAMPAIGN.length && next
+        ? `Teo’s trail leads on to ${next.name}.`
+        : 'Teo’s trail goes on. More worlds are on the way.',
       W / 2,
       92,
       13,
@@ -1461,21 +1771,58 @@ export class PlumberRun implements ArcadeGameInstance {
             : null,
       )
     g.restore()
+    if (this.stage.dark) this.renderDark(g)
     this.renderHud(g)
+  }
+
+  private shade: HTMLCanvasElement | null = null
+
+  private renderDark(g: CanvasRenderingContext2D) {
+    if (typeof document === 'undefined') return
+    this.shade ??= document.createElement('canvas')
+    const shade = this.shade
+    shade.width = W
+    shade.height = H
+    const s = shade.getContext('2d')
+    if (!s) return
+    s.fillStyle = 'rgba(10, 6, 24, 0.8)'
+    s.fillRect(0, 0, W, H)
+    s.globalCompositeOperation = 'destination-out'
+    const light = (x: number, y: number, r: number, strength = 1) => {
+      const glow = s.createRadialGradient(x, y, 0, x, y, r)
+      glow.addColorStop(0, `rgba(0, 0, 0, ${strength})`)
+      glow.addColorStop(1, 'rgba(0, 0, 0, 0)')
+      s.fillStyle = glow
+      s.beginPath()
+      s.arc(x, y, r, 0, Math.PI * 2)
+      s.fill()
+    }
+    const cam = Math.round(this.camera)
+    light(this.hero.x - cam, this.hero.y + 12, 92)
+    for (const foe of this.foes)
+      if (foe.kind === 'moss-lantern' && foe.state !== 'gone')
+        light(foe.x - cam, foe.y - 12, foe.state === 'flat' ? 34 : 72, 0.95)
+    for (const token of this.tokensOnMap)
+      if (!token.taken) light(token.x - cam, token.y, 16, 0.8)
+    for (const flag of this.checkpoints)
+      light(flag.x - cam, flag.y - 16, 30, 0.7)
+    if (this.goal) light(this.goal.x - cam, this.goal.y - 20, 46, 0.8)
+    g.drawImage(shade, 0, 0)
   }
 
   private renderTiles(g: CanvasRenderingContext2D) {
     const first = Math.max(0, Math.floor(this.camera / TILE))
     const last = Math.min(this.stage.cols - 1, first + Math.ceil(W / TILE) + 1)
-    const ground = tilePattern(g, PLUMBER_ART.tile(1), 32)
+    const world = this.world
+    const ground = tilePattern(g, PLUMBER_ART.tile(world), 32)
     const block = tilePattern(
       g,
-      `/images/arcade/save-the-plumber/tiles/world-1-block.webp`,
+      `/images/arcade/save-the-plumber/tiles/world-${world}-block.webp`,
       32,
     )
     const ledge = tilePattern(
       g,
-      `/images/arcade/save-the-plumber/tiles/world-1-ledge.webp`,
+      `/images/arcade/save-the-plumber/tiles/world-${world}-ledge.webp`,
       32,
     )
     for (let row = 0; row < this.stage.rows; row++)
@@ -1485,6 +1832,18 @@ export class PlumberRun implements ArcadeGameInstance {
         const x = col * TILE
         const y = row * TILE
         const above = this.solidAt(col, row - 1)
+        if (s === SOLID_WATER) {
+          g.fillStyle = 'rgba(46, 128, 196, 0.86)'
+          g.fillRect(x, y, TILE, TILE)
+          if (above !== SOLID_WATER) {
+            const wave = Math.sin(this.tick / 14 + col) * 1.5
+            g.fillStyle = 'rgba(200, 238, 255, 0.85)'
+            g.fillRect(x, y + 1 + wave, TILE, 2)
+            g.fillStyle = 'rgba(120, 200, 240, 0.6)'
+            g.fillRect(x + ((this.tick / 3 + col * 5) % TILE), y + 5, 4, 1)
+          }
+          continue
+        }
         if (s === SOLID_GROUND) {
           g.fillStyle = ground ?? '#2f6f68'
           g.fillRect(x, y, TILE, TILE)
@@ -1557,6 +1916,16 @@ export class PlumberRun implements ArcadeGameInstance {
   private renderThings(g: CanvasRenderingContext2D) {
     const t = this.tick
     for (const p of this.platforms) {
+      if (p.kind === 'lantern') continue
+      if (p.kind === 'raft') {
+        g.fillStyle = '#9c6b3e'
+        g.fillRect(p.x, p.y, p.w, 7)
+        g.fillStyle = '#c9965c'
+        for (let k = 2; k < p.w; k += 12) g.fillRect(p.x + k, p.y + 1, 9, 2)
+        g.fillStyle = '#5c3b21'
+        g.fillRect(p.x + 4, p.y + 6, p.w - 8, 2)
+        continue
+      }
       if (p.kind === 'piston') {
         g.fillStyle = '#8f6a3a'
         g.fillRect(
@@ -1731,28 +2100,73 @@ export class PlumberRun implements ArcadeGameInstance {
     }
   }
 
+  private foeFrame(foe: Foe): number {
+    const anim = ENEMY_ANIMATIONS[FOE_ANIMATION[foe.kind]]!
+    const cycle = (n = 8) =>
+      anim.loop[Math.floor(this.tick / n + foe.homeX / 40) % anim.loop.length]!
+    switch (foe.kind) {
+      case 'pumpbug':
+        return foe.fade ? (foe.flipped ? 5 : 4) : cycle()
+      case 'rivet-roller':
+        return foe.state === 'stunned' || foe.fade
+          ? 4
+          : foe.state === 'idle'
+            ? 0
+            : Math.floor(this.tick / 4) % 2
+      case 'minnow':
+        return foe.fade ? 5 : foe.vy < -2 ? 2 : foe.vy > 2 ? 4 : 3
+      case 'cork-crab':
+        return foe.fade ? 5 : cycle(10)
+      case 'glass-gull':
+        return foe.fade
+          ? 5
+          : foe.state === 'swoop'
+            ? 2
+            : foe.carry
+              ? 4
+              : cycle(10)
+      case 'moss-lantern':
+        return foe.state === 'flat' ? 4 : foe.fade ? 5 : cycle(14)
+      case 'spring-hare':
+        return foe.fade || foe.state === 'stunned'
+          ? 5
+          : foe.vy === 0
+            ? 0
+            : foe.vy < -2
+              ? 1
+              : foe.vy > 2
+                ? 3
+                : 2
+    }
+  }
+
   private renderFoes(g: CanvasRenderingContext2D) {
+    const sizes: Record<FoeKind, number> = {
+      pumpbug: 22,
+      'rivet-roller': 24,
+      minnow: 22,
+      'cork-crab': 24,
+      'glass-gull': 26,
+      'moss-lantern': 26,
+      'spring-hare': 34,
+    }
     for (const foe of this.foes) {
       if (foe.state === 'gone') continue
-      const anim = ENEMY_ANIMATIONS[foe.kind]!
+      if (foe.kind === 'minnow' && foe.y >= foe.homeY && !foe.fade) {
+        g.fillStyle = 'rgba(220, 245, 255, 0.7)'
+        g.fillRect(
+          foe.x - 6 + Math.sin(this.tick / 6) * 2,
+          foe.homeY - 14,
+          12,
+          2,
+        )
+        continue
+      }
+      const anim = ENEMY_ANIMATIONS[FOE_ANIMATION[foe.kind]]!
       const alpha = foe.fade ? Math.min(1, foe.fade / 12) : 1
-      let frame: number
-      if (foe.kind === 'pumpbug')
-        frame = foe.fade
-          ? foe.flipped
-            ? 5
-            : 4
-          : anim.loop[
-              Math.floor(this.tick / 8 + foe.x / 40) % anim.loop.length
-            ]!
-      else
-        frame =
-          foe.state === 'stunned' || foe.fade
-            ? 4
-            : foe.state === 'idle'
-              ? 0
-              : Math.floor(this.tick / 4) % 2
-      const tall = foe.kind === 'pumpbug' ? 22 : 24
+      const frame = this.foeFrame(foe)
+      const tall = sizes[foe.kind]
+      const flipX = foe.dir < 0
       if (
         drawSheetFrame(
           g,
@@ -1762,16 +2176,11 @@ export class PlumberRun implements ArcadeGameInstance {
           foe.x,
           foe.y + 2,
           tall,
-          { flipX: foe.dir < 0, alpha },
+          { flipX, alpha },
         )
       )
         continue
-      if (
-        drawSprite(g, anim.still, foe.x, foe.y + 2, tall, {
-          flipX: foe.dir < 0,
-          alpha,
-        })
-      )
+      if (drawSprite(g, anim.still, foe.x, foe.y + 2, tall, { flipX, alpha }))
         continue
       g.globalAlpha = alpha
       g.fillStyle = foe.kind === 'pumpbug' ? '#d65a7d' : '#7d8a96'
@@ -1784,7 +2193,7 @@ export class PlumberRun implements ArcadeGameInstance {
 
   private renderBoss(g: CanvasRenderingContext2D) {
     const boss = this.boss!
-    const anim = bossAnimation(BOSS_NAME)
+    const anim = bossAnimation(boss.name)
     const frame = {
       wait: 0,
       walk: 0,
@@ -1795,6 +2204,7 @@ export class PlumberRun implements ArcadeGameInstance {
       defeat: 5,
     }[boss.state]
     const shake = boss.state === 'tell' ? Math.sin(this.tick) * 1.5 : 0
+    const tall = boss.kind === 'slam' ? 80 : 72
     const ok = drawSheetFrame(
       g,
       anim.src,
@@ -1802,7 +2212,7 @@ export class PlumberRun implements ArcadeGameInstance {
       frame,
       boss.x + shake,
       boss.y + 2,
-      72,
+      tall,
       {
         flipX: boss.dir < 0,
         alpha: boss.state === 'hurt' && this.tick % 6 < 3 ? 0.5 : 1,
@@ -1814,10 +2224,10 @@ export class PlumberRun implements ArcadeGameInstance {
       if (
         !drawSprite(
           g,
-          PLUMBER_ART.boss('madame-pressure', pose),
+          anim.still.replace('-idle.webp', `-${pose}.webp`),
           boss.x + shake,
           boss.y + 2,
-          72,
+          tall,
           { flipX: boss.dir < 0 },
         )
       ) {
@@ -1828,6 +2238,21 @@ export class PlumberRun implements ArcadeGameInstance {
         g.arc(boss.x, boss.y - 56, 12, 0, Math.PI * 2)
         g.fill()
       }
+    }
+    if (boss.state === 'burst' && boss.kind === 'anchor') {
+      g.strokeStyle = 'rgba(140, 240, 230, 0.75)'
+      g.lineWidth = 4
+      g.beginPath()
+      const sweep = 1 - boss.timer / 40
+      g.arc(
+        boss.x,
+        boss.y - 34,
+        70,
+        boss.dir > 0 ? -1.2 + sweep * 1.6 : Math.PI + 1.2 - sweep * 1.6,
+        boss.dir > 0 ? -0.6 + sweep * 1.6 : Math.PI + 0.6 - sweep * 1.6,
+        boss.dir < 0,
+      )
+      g.stroke()
     }
     if (this.locked && boss.state !== 'defeat') {
       for (let i = 0; i < 3; i++) {

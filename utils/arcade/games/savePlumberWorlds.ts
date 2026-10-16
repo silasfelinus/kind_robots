@@ -5,6 +5,7 @@
  * and DESIGN-BRIEF.md; these are design targets, and only the stage flagged
  * `playable` exists as code today (the Bluebell movement lab).
  */
+import { CAMPAIGN } from './savePlumberLevels'
 
 export type StageBeat = 'Introduce' | 'Combine' | 'Subvert' | 'Boss'
 
@@ -39,20 +40,21 @@ export type PlumberWorld = {
 
 const ART_ROOT = '/images/arcade/save-the-plumber'
 
+const PLAYABLE = new Set(CAMPAIGN.map((stage) => stage.code))
+
 const beats: StageBeat[] = ['Introduce', 'Combine', 'Subvert', 'Boss']
 
-function stages(
-  world: number,
-  rows: [string, string][],
-  playable?: number,
-): PlumberStage[] {
-  return rows.map(([name, idea], index) => ({
-    code: `${world}-${index + 1}`,
-    name,
-    beat: beats[index]!,
-    idea,
-    ...(playable === index ? { playable: true } : {}),
-  }))
+function stages(world: number, rows: [string, string][]): PlumberStage[] {
+  return rows.map(([name, idea], index) => {
+    const code = `${world}-${index + 1}`
+    return {
+      code,
+      name,
+      beat: beats[index]!,
+      idea,
+      ...(PLAYABLE.has(code) ? { playable: true } : {}),
+    }
+  })
 }
 
 export const PLUMBER_WORLDS: PlumberWorld[] = [
@@ -67,16 +69,12 @@ export const PLUMBER_WORLDS: PlumberWorld[] = [
       tell: 'Her gauge needle swings to red a full beat before each steam burst.',
     },
     enemies: ['Pumpbugs', 'Rivet rollers'],
-    stages: stages(
-      1,
-      [
-        ['Rainy Courtyard', 'Learn to run, leap and bop baby pumpbugs.'],
-        ['Copper Greenhouses', 'Rising pistons lift you through glass.'],
-        ['Buried Meter', 'A secret route and stairs that move on you.'],
-        ['The Pump Tower', 'Climb the tower and out-think Madame Pressure.'],
-      ],
-      0,
-    ),
+    stages: stages(1, [
+      ['Rainy Courtyard', 'Learn to run, leap and bop baby pumpbugs.'],
+      ['Copper Greenhouses', 'Rising pistons lift you through glass.'],
+      ['Buried Meter', 'A secret route and stairs that move on you.'],
+      ['The Pump Tower', 'Climb the tower and out-think Madame Pressure.'],
+    ]),
     palette: {
       skyTop: '#7fd3d1',
       skyBottom: '#fdf0cf',

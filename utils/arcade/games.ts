@@ -792,7 +792,7 @@ export const PREVIEW_GAMES: ArcadeGameMeta[] = [
     title: 'Save the Plumber',
     riffsOn: 'classic side-scrolling platform adventures',
     blurb:
-      'Private World 1 build: pick one of eight painted heroines, then run Bluebell Pipeworks from the Rainy Courtyard to the Pump Tower and Madame Pressure. Worlds 2 to 8 are still under development.',
+      'Private Worlds 1 to 3 build: pick one of eight painted heroines, then cross Bluebell Pipeworks, Tideglass Marina and Lantern Orchard past Madame Pressure, Captain Barnaclejack and the Overripe Baron. Worlds 4 to 8 are still under development.',
     howTo: [
       'ARROWS  RUN',
       'A OR UP  JUMP',

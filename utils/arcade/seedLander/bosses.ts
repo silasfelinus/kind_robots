@@ -27,12 +27,7 @@ import type { Pad, Terrain } from './terrain'
 import { segmentDistance } from './hazards'
 
 export type BossId =
-  | 'scarecrow'
-  | 'galemill'
-  | 'tortoise'
-  | 'queen'
-  | 'thunderhead'
-  | 'oldlander'
+  'scarecrow' | 'galemill' | 'tortoise' | 'queen' | 'thunderhead' | 'oldlander'
 
 export type BossView = {
   id: BossId

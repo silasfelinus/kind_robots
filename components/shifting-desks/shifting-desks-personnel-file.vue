@@ -15,11 +15,13 @@
         </p>
         <p
           id="file-heading"
-          class="mt-1 font-mono text-2xl font-black uppercase leading-tight sm:text-5xl"
+          class="file-title mt-1 font-mono text-2xl font-black uppercase leading-tight sm:text-5xl"
         >
           {{ verdict.title }}
         </p>
-        <p class="mt-1 hidden max-w-2xl font-semibold sm:block sm:text-lg">
+        <p
+          class="file-summary mt-1 hidden max-w-2xl font-semibold sm:block sm:text-lg"
+        >
           {{ verdict.summary }}
         </p>
       </div>
@@ -408,6 +410,24 @@ function printFile(): void {
 @media (prefers-reduced-motion: reduce) {
   .file-stamp {
     animation: none;
+  }
+}
+
+/* Short screens (a landscape tablet) keep the verdict readable without the
+   tab panel scrolling: a smaller headline and summary (2026-10-16). */
+@media (min-width: 640px) and (max-height: 820px) {
+  .file-folder {
+    padding: 1rem;
+  }
+
+  .file-title {
+    font-size: 1.875rem;
+    line-height: 2.25rem;
+  }
+
+  .file-summary {
+    font-size: 1rem;
+    line-height: 1.4rem;
   }
 }
 </style>

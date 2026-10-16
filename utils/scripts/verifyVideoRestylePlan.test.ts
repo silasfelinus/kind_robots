@@ -172,10 +172,13 @@ const settingsRoute = readFileSync(
 assert.ok(variantsRoute.includes('requireAdminApiUser'))
 assert.ok(variantsRoute.includes('cloneRestyleVideo'))
 assert.ok(restyleJobs.includes('export async function cloneRestyleVideo'))
-assert.ok(restyleJobs.includes('sourceProjectId: source.sourceProjectId ?? source.id'))
+assert.ok(
+  restyleJobs.includes('sourceProjectId: source.sourceProjectId ?? source.id'),
+)
 assert.ok(restyleJobs.includes('sourceProjectId?: string'))
-assert.ok(restyleJobs.includes('await copyFile(restyleSourcePath(source)'))
-assert.ok(restyleJobs.includes('status: \'STAGED\''))
+assert.ok(restyleJobs.includes('await copyFile('))
+assert.ok(restyleJobs.includes('restyleSourcePath(source),'))
+assert.ok(restyleJobs.includes("status: 'STAGED'"))
 assert.ok(restyleJobs.includes('pilot: undefined'))
 assert.ok(restyleJobs.includes('isPrivate: restyleFlag'))
 assert.ok(restyleJobs.includes('isMature: restyleFlag'))

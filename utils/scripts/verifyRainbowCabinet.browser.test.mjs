@@ -1,11 +1,14 @@
 import assert from 'node:assert/strict'
-import { readFileSync, mkdirSync } from 'node:fs'
+import { mkdirSync } from 'node:fs'
 import path from 'node:path'
-import { fileURLToPath } from 'node:url'
-import { parse, compileScript, compileStyle } from '@vue/compiler-sfc'
-import { parse as parseYaml } from 'yaml'
-import { build } from 'esbuild'
 import { chromium } from 'playwright'
+import {
+  bundleCabinetFixture,
+  openCabinet,
+  rainbowRun as play,
+  startRainbowRun as startRun,
+  wait,
+} from './arcadeCabinetFixture.mjs'
 
 // Conductor rainbow t-015: the private flight deck's help and controls, proven through the actual shared
 // ArcadeCabinet and the actual tutorial flyer that renders the admin tab's help, in Chromium at phone,
@@ -13,166 +16,8 @@ import { chromium } from 'playwright'
 // seating and the Rainbow engine are the real ones. Synthetic keyboard and gamepad input is not
 // physical-device evidence.
 
-const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..')
 const SLUG = 'rainbow-bullet-hell-space-princess'
-const frontMatter = (file) =>
-  parseYaml(readFileSync(path.join(root, file), 'utf8').split('---')[1])
-const content = [
-  frontMatter('content/channels/admin/index.md'),
-  frontMatter(`content/channels/admin/${SLUG}.md`),
-]
-
-const stores = {
-  arcadeStore: `
-    import { reactive } from 'vue'
-    export function useArcadeStore() {
-      if (window.__arcadeStore) return window.__arcadeStore
-      const seated = {}
-      window.__arcadeStore = reactive({
-        muted: true, volume: 0, crt: false, stillCamera: false, offline: false,
-        lastSubmittedId: null, savedInitials: '',
-        board: () => [], fetchBoard: async () => {}, masteryFor: () => [], recordMastery() {},
-        awardRunAchievements: async () => {}, awardFeats: async () => {}, submitScore: async () => ({ success: false }),
-        styleFor: () => 'hd', setGameStyle() {}, setVolume() {}, setMuted() {}, setCrt() {},
-        setStillCamera() {}, rememberInitials() {}, saveFor: () => undefined, recordSave() {},
-        loadPreferences() {}, flushPending: async () => {},
-        playersFor: (game, max) => Math.max(1, Math.min(max, seated[game] ?? window.__seats ?? 1)),
-        setPlayers(game, count) { seated[game] = count },
-      })
-      return window.__arcadeStore
-    }`,
-  userStore: `export function useUserStore() { return { user: null } }`,
-  channelContentStore: `
-    import { resolveChannels } from '@/stores/helpers/channelContent'
-    export function useChannelContentStore() {
-      const channels = resolveChannels(window.__content)
-      return {
-        initialize: async () => {},
-        getChannel: (key) => channels.find((channel) => channel.channelKey === key) ?? null,
-        getTab: (channelKey, tabKey) =>
-          channels.find((channel) => channel.channelKey === channelKey)?.tabs.find((tab) => tab.key === tabKey) ?? null,
-      }
-    }`,
-  tutorialStore: `
-    export function useTutorialStore() {
-      return { activeChannel: null, close() {}, maybeAutoOpen() {}, setShowForChannel() {}, shouldAutoShow: () => false }
-    }`,
-}
-
-const styles = []
-let scopeCounter = 0
-const vuePlugin = {
-  name: 'fixture',
-  setup(builder) {
-    builder.onResolve(
-      {
-        filter:
-          /^@\/stores\/(arcadeStore|userStore|channelContentStore|tutorialStore)$/,
-      },
-      ({ path: name }) => ({
-        path: name.split('/').pop(),
-        namespace: 'store-stub',
-      }),
-    )
-    builder.onLoad(
-      { filter: /.*/, namespace: 'store-stub' },
-      ({ path: name }) => ({
-        contents: stores[name],
-        loader: 'ts',
-        resolveDir: root,
-      }),
-    )
-    builder.onResolve(
-      { filter: /^[@~]\// },
-      async ({ path: name, kind, importer }) => {
-        const resolved = await builder.resolve('./' + name.slice(2), {
-          resolveDir: root,
-          kind,
-          importer,
-        })
-        return resolved
-      },
-    )
-    // Expose each Rainbow engine the cabinet creates, so the fixture can read its snapshot.
-    builder.onLoad(
-      { filter: /rainbowPrincessPreview\.ts$/ },
-      ({ path: file }) => {
-        const source = readFileSync(file, 'utf8').replace(
-          'export function createRainbowPrincessPreview(',
-          'function createRainbowPrincessPreviewInner(',
-        )
-        return {
-          contents:
-            source +
-            `\nexport function createRainbowPrincessPreview(options) {
-            const game = createRainbowPrincessPreviewInner(options)
-            ;(window.__games ||= []).push({ demo: Boolean(options.demo), game })
-            return game
-          }\n`,
-          loader: 'ts',
-          resolveDir: path.dirname(file),
-        }
-      },
-    )
-    builder.onLoad({ filter: /\.vue$/ }, ({ path: file }) => {
-      const { descriptor } = parse(readFileSync(file, 'utf8'), {
-        filename: file,
-      })
-      const id = `f${scopeCounter++}`
-      const scoped = descriptor.styles.some((style) => style.scoped)
-      for (const style of descriptor.styles) {
-        styles.push(
-          compileStyle({
-            source: style.content,
-            filename: file,
-            id: `data-v-${id}`,
-            scoped: style.scoped,
-          }).code,
-        )
-      }
-      const script = compileScript(descriptor, {
-        id,
-        inlineTemplate: true,
-        templateOptions: {
-          scoped,
-          compilerOptions: { scopeId: scoped ? `data-v-${id}` : undefined },
-        },
-      })
-      // Like a bundler's Vue plugin, tag the component with its scope id so scoped styles match.
-      const contents = scoped
-        ? script.content.replace('export default ', 'const __sfc__ = ') +
-          `\n__sfc__.__scopeId = 'data-v-${id}'\nexport default __sfc__\n`
-        : script.content
-      return { contents, loader: 'ts', resolveDir: path.dirname(file) }
-    })
-  },
-}
-
-const entry = `
-import { createApp, h, Suspense } from 'vue'
-import ArcadeCabinet from '@/components/arcade/arcade-cabinet.vue'
-import TutorialFlyer from '@/components/navigation/tutorial-flyer.vue'
-createApp({
-  render: () => h('main', { id: 'deck' }, [
-    h('section', { id: 'help' }, [h(Suspense, null, { default: () => h(TutorialFlyer, { channel: 'admin', tab: '${SLUG}', inline: true }) })]),
-    h('section', { id: 'cabinet' }, [h(ArcadeCabinet, { slug: '${SLUG}' })]),
-  ]),
-}).mount('#app')
-`
-const bundled = await build({
-  stdin: { contents: entry, resolveDir: root, loader: 'ts' },
-  bundle: true,
-  write: false,
-  format: 'iife',
-  define: {
-    'import.meta.client': 'true',
-    'import.meta.server': 'false',
-    'process.env.NODE_ENV': '"production"',
-  },
-  plugins: [vuePlugin],
-  logLevel: 'error',
-})
-
+const fixture = await bundleCabinetFixture()
 const browser = await chromium.launch({
   executablePath: process.env.CHROMIUM_PATH || undefined,
   args: ['--no-sandbox', '--autoplay-policy=no-user-gesture-required'],
@@ -181,58 +26,21 @@ const shots = process.env.RAINBOW_CABINET_SHOTS
 if (shots) mkdirSync(shots, { recursive: true })
 
 async function open(width, height, seats = 1) {
-  const page = await browser.newPage({ viewport: { width, height } })
-  const errors = []
-  page.on('pageerror', (error) => errors.push(error.message))
-  await page.setContent(
-    '<!doctype html><html><head></head><body style="margin:0"><div id="app"></div></body></html>',
-  )
-  await page.evaluate(
-    ({ items, seatCount }) => {
-      window.__content = items
-      window.__seats = seatCount
-      window.__pads = []
-      navigator.getGamepads = () => window.__pads
-    },
-    { items: content, seatCount: seats },
-  )
-  // The site's Tailwind preflight sizes every box by its border; the fixture keeps that one global rule.
-  await page.addStyleTag({
-    content: '*,::before,::after{box-sizing:border-box}\n' + styles.join('\n'),
+  const opened = await openCabinet(browser, fixture, {
+    slug: SLUG,
+    width,
+    height,
+    seats,
+    help: SLUG,
   })
-  await page.addScriptTag({ content: bundled.outputFiles[0].text })
-  await page.waitForSelector('#cabinet canvas')
-  await page.waitForFunction(() =>
+  await opened.page.waitForFunction(() =>
     document
       .querySelector('#help')
       ?.textContent.includes('Princess pilot training'),
   )
-  return { page, errors }
+  return opened
 }
 
-const play = (page) =>
-  page.evaluate(() => {
-    const run = (window.__games ?? []).filter((entry) => !entry.demo).at(-1)
-    return run
-      ? {
-          tick: run.game.snapshot.tick,
-          ships: run.game.snapshot.ships.map((ship) => ({
-            x: ship.x,
-            y: ship.y,
-            lives: ship.lives,
-          })),
-        }
-      : null
-  })
-const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms))
-async function startRun(page) {
-  await page.keyboard.press('Enter')
-  await page.waitForFunction(() =>
-    (window.__games ?? []).some(
-      (entry) => !entry.demo && entry.game.snapshot.tick > 30,
-    ),
-  )
-}
 async function advancing(page, ms = 400) {
   const before = (await play(page)).tick
   await wait(ms)

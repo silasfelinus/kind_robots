@@ -150,6 +150,34 @@ export function drawRainbowBossSprite(
   return true
 }
 
+/** Super cut-in banners (round-14 Kontext), one per pilot seat, cropped to 2.9:1 around face and power. */
+export const RAINBOW_CUTIN_PILOTS = [
+  'maribel',
+  'azure',
+  'solenne',
+  'vivi',
+] as const
+
+export function rainbowSuperCutin(seat: number): string {
+  const key = RAINBOW_CUTIN_PILOTS[seat % RAINBOW_CUTIN_PILOTS.length]!
+  return `${RAINBOW_GAME_ART_ROOT}/cutins/${key}.webp`
+}
+
+/** Draw the seat's cut-in banner at (x, y) with the given height; returns its width, or 0 while loading. */
+export function drawRainbowSuperCutin(
+  g: CanvasRenderingContext2D,
+  seat: number,
+  x: number,
+  y: number,
+  height: number,
+): number {
+  const img = loadedImage(rainbowSuperCutin(seat))
+  if (!img) return 0
+  const width = (height * img.naturalWidth) / img.naturalHeight
+  g.drawImage(img, x, y, width, height)
+  return width
+}
+
 function drawFitted(
   g: CanvasRenderingContext2D,
   src: string,

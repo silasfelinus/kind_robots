@@ -3,6 +3,7 @@ import { existsSync, readFileSync, statSync } from 'node:fs'
 import {
   RAINBOW_BOSS_SPRITES,
   RAINBOW_COMMS_SPEAKERS,
+  RAINBOW_CUTIN_PILOTS,
   RAINBOW_ENEMY_SPRITES,
   RAINBOW_PICKUP_SPRITES,
   RAINBOW_SHIP_SPRITES,
@@ -11,12 +12,14 @@ import {
   drawRainbowEnemySprite,
   drawRainbowPickupSprite,
   drawRainbowShipSprite,
+  drawRainbowSuperCutin,
   rainbowBossSprite,
   rainbowEnemySprite,
   rainbowPickupSprite,
   rainbowCommsKey,
   rainbowCommsPortrait,
   rainbowShipSprite,
+  rainbowSuperCutin,
 } from '../arcade/games/rainbowGameArt'
 
 // Silas, 2026-10-14 PT: "upgrade ship art, and get the pilot portraits for the interstitial talking
@@ -166,6 +169,35 @@ assert.match(
   'the escape pod is always drawn',
 )
 
+// Super cut-ins: a banner for each pilot slides in at the comms position for the length of the burst.
+// It may cover the top band only because the super has just cleared every enemy shot.
+for (const [seat, key] of RAINBOW_CUTIN_PILOTS.entries()) {
+  const src = rainbowSuperCutin(seat)
+  assert.equal(src, `/rainbow-princess-art/cutins/${key}.webp`)
+  assert.ok(existsSync(publicFile(src)), `${key} cut-in is committed`)
+  assert.ok(
+    statSync(publicFile(src)).size < 20_000,
+    `${key} cut-in stays small`,
+  )
+}
+assert.equal(drawRainbowSuperCutin(g, 0, 0, 0, 48), 0)
+assert.match(
+  engine,
+  /bursts\.push\(\{ seat, x: ship\.x, y: ship\.y, age: 0 \}\)\s+enemyShots\.length = 0/,
+  'a super clears every enemy shot before its cut-in covers the comms band',
+)
+assert.match(engine, /const cut = bursts\[bursts\.length - 1\]/)
+assert.match(
+  engine,
+  /g\.fillRect\(x, commsTop, 270, 52\)/,
+  'cut-in sits in the comms band',
+)
+assert.match(
+  engine,
+  /\(covers \? 0\.55 : 1\)/,
+  'a ship under the cut-in shows through it',
+)
+
 console.log(
-  `rainbow game art: ok (${painted}/4 painted ships, ${RAINBOW_ENEMY_SPRITES.length} enemies, ${RAINBOW_PICKUP_SPRITES.length} pickups, ${RAINBOW_BOSS_SPRITES.length} bosses x 3 phases)`,
+  `rainbow game art: ok (${painted}/4 painted ships, ${RAINBOW_ENEMY_SPRITES.length} enemies, ${RAINBOW_PICKUP_SPRITES.length} pickups, ${RAINBOW_BOSS_SPRITES.length} bosses x 3 phases, ${RAINBOW_CUTIN_PILOTS.length} cut-ins)`,
 )

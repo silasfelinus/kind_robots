@@ -32,7 +32,9 @@ import {
   drawRainbowEnemySprite,
   drawRainbowPickupSprite,
   drawRainbowShipSprite,
+  drawRainbowSuperCutin,
 } from './rainbowGameArt'
+import { RAINBOW_PILOTS } from './rainbowPilots'
 import {
   MOONJELLY,
   moonjellyDialogue,
@@ -58,6 +60,7 @@ const GRAZE_RADIUS = 15
 const PILOT_COLORS = ['#ffd2ef', '#b8f8ff', '#ffe99f', '#b9a9ff'] as const
 const SHIP_NAMES = ['PETAL', 'PRISM', 'HALO', 'COMET'] as const
 const BURST_FRAMES = 42
+const CUTIN_FADE_FRAMES = 10
 /** HUD text clears the cabinet's corner chips (close/fullscreen left, pause right). */
 const HUD_LEFT = 44
 const HUD_RIGHT = W - 26
@@ -1290,6 +1293,55 @@ export function createRainbowPrincessPreview(
           commsTop + 30,
         )
         g.textAlign = 'left'
+      }
+      // Super cut-in: the newest burst's pilot slides in where comms sit, clear of the touch controls. A
+      // super has just cleared every enemy shot, so the banner hides no threat while it plays.
+      const cut = bursts[bursts.length - 1]
+      if (cut) {
+        const pilot = RAINBOW_PILOTS[cut.seat % RAINBOW_PILOTS.length]!
+        const slide = Math.min(1, cut.age / 6)
+        const x = 15 - (1 - slide) * 200
+        // A ship flying under the banner stays visible through it.
+        const covers = ships
+          .slice(0, activePlayers)
+          .some(
+            (ship) =>
+              ship.lives > 0 &&
+              ship.x > x - 18 &&
+              ship.x < x + 288 &&
+              ship.y > commsTop - 18 &&
+              ship.y < commsTop + 70,
+          )
+        g.save()
+        g.globalAlpha =
+          Math.max(
+            0,
+            Math.min(1, (BURST_FRAMES - cut.age) / CUTIN_FADE_FRAMES),
+          ) * (covers ? 0.55 : 1)
+        g.fillStyle = '#160b34ee'
+        g.fillRect(x, commsTop, 270, 52)
+        const artWidth = drawRainbowSuperCutin(
+          g,
+          cut.seat,
+          x + 2,
+          commsTop + 2,
+          48,
+        )
+        g.strokeStyle = PILOT_COLORS[cut.seat]!
+        g.lineWidth = 2
+        g.strokeRect(x, commsTop, 270, 52)
+        const textX = x + artWidth + 10
+        g.fillStyle = '#fff4fa'
+        g.font = 'bold 8px monospace'
+        g.fillText(
+          `P${cut.seat + 1} ${pilot.name.split(' ')[0]!.toUpperCase()}`,
+          textX,
+          commsTop + 17,
+        )
+        g.fillStyle = PILOT_COLORS[cut.seat]!
+        g.font = 'bold 13px monospace'
+        g.fillText(`${pilot.superName.toUpperCase()}!`, textX, commsTop + 34)
+        g.restore()
       }
     },
   }

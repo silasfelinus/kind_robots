@@ -212,6 +212,7 @@ export async function retryFailedRestyleArtJob(
   }
   const payload = parseArtJobPayload(artJob.payload)
   const video = payload.videoRestyle as Record<string, unknown> | undefined
+  if (video?.phase === 'full') return retryFailedRestyleFullArtJob(id)
   const pilotId = String(video?.id || '')
   const job = await loadRestyleJob(artJob.userId, pilotId)
   if (
@@ -269,5 +270,190 @@ export async function retryFailedRestyleArtJob(
       message: 'The pilot changed while retrying; refresh before trying again.',
     })
   }
+  return next
+}
+
+
+/**
+ * Full-length results are separate ArtJobs; keep the approved pilot's DONE
+ * row and protected MP4. The dedicated fingerprint makes reconciling safe.
+ */
+export async function syncRestyleFullArtJob(
+  job: VideoRestyleJob,
+): Promise<VideoRestyleJob> {
+  if (!job.full) return job
+  const fingerprint = createHash('sha256')
+    .update(`coat-dance:full:${job.userId}:${job.id}`)
+    .digest('hex')
+  const status =
+    job.status === 'FULL_RUNNING'
+      ? 'RUNNING'
+      : job.status === 'FULL_FAILED'
+        ? 'FAILED'
+        : job.status === 'DONE'
+          ? 'DONE'
+          : 'PENDING'
+  const payload = serializeArtJobPayload({
+    media: RESTYLE_ARTJOB_MEDIA,
+    engine: 'wan-vace',
+    promptString: `${job.title}: full-length ${job.style} film. ${job.renderRecipe.stylePrompt}`,
+    requestId: `coat-dance/${job.id}/full`,
+    attemptFingerprint: fingerprint,
+    videoRestyle: {
+      id: job.id,
+      phase: 'full',
+      startSec: 0,
+      durationSec: job.full.durationSec,
+      completedSegments: job.full.completedSegments,
+      totalSegments: job.full.totalSegments,
+      progress: job.progress,
+      state: job.status,
+      executor: 'kr-relay',
+      quality: job.quality,
+      stylePrompt: job.renderRecipe.stylePrompt,
+      isPrivate: job.isPrivate ?? true,
+      isMature: job.isMature ?? false,
+    },
+    save: {
+      isPublic: false,
+      isMature: job.isMature ?? false,
+      designer: PROJECT_SLUG,
+      artCollectionIds: [],
+    },
+  })
+  const linked = job.full.artJobId
+    ? await prisma.artJob.findFirst({
+        where: {
+          id: job.full.artJobId,
+          userId: job.userId,
+          projectSlug: PROJECT_SLUG,
+          attemptFingerprint: fingerprint,
+        },
+      })
+    : null
+  const found =
+    linked ??
+    (await prisma.artJob.findFirst({
+      where: {
+        userId: job.userId,
+        projectSlug: PROJECT_SLUG,
+        attemptFingerprint: fingerprint,
+      },
+    }))
+  let artJobId: number
+  if (found) {
+    artJobId = found.id
+    if (found.status === 'FAILED' && job.status !== 'DONE') {
+      return {
+        ...job,
+        status: 'FULL_FAILED',
+        stage: 'Full render failed. Requeue the existing ArtJob to resume.',
+        error: found.error || job.error || 'KR Relay could not finish the film.',
+      }
+    }
+    if (found.status === 'RUNNING' && job.status === 'FULL_QUEUED') {
+      return { ...job, status: 'FULL_RUNNING', stage: 'KR Relay is rendering the full film.' }
+    }
+    if (found.status === 'RUNNING' || found.status === 'DONE') return job
+    if (found.status !== status || found.payload !== payload) {
+      await prisma.artJob.update({
+        where: { id: found.id },
+        data: {
+          status,
+          payload,
+          error: job.error,
+          claimedBy: null,
+          claimedAt: null,
+        },
+      })
+    }
+  } else {
+    const created = await prisma.artJob.create({
+      data: {
+        userId: job.userId,
+        projectSlug: PROJECT_SLUG,
+        engine: 'COMFY',
+        status,
+        priority: -100,
+        payload,
+        attemptFingerprint: fingerprint,
+        error: null,
+      },
+    })
+    artJobId = created.id
+  }
+  if (job.full.artJobId === artJobId) return job
+  const target = path.join(path.dirname(restyleSourcePath(job)), 'job.json')
+  const current = JSON.parse(await readFile(target, 'utf8')) as VideoRestyleJob
+  if (current.id !== job.id || current.userId !== job.userId || !current.full) {
+    throw new Error('Full-length job changed during ArtJob registration.')
+  }
+  const next = { ...current, full: { ...current.full, artJobId } }
+  const temp = `${target}.${randomUUID()}.tmp`
+  await writeFile(temp, JSON.stringify(next, null, 2), {
+    flag: 'wx',
+    mode: 0o600,
+  })
+  await rename(temp, target)
+  return next
+}
+
+export async function retryFailedRestyleFullArtJob(
+  id: number,
+): Promise<VideoRestyleJob> {
+  const artJob = await prisma.artJob.findUnique({ where: { id } })
+  if (!artJob || !isVideoRestyleArtJobPayload(artJob.payload)) {
+    throw createError({ statusCode: 404, message: 'Full-film ArtJob not found.' })
+  }
+  const payload = parseArtJobPayload(artJob.payload)
+  const video = payload.videoRestyle as Record<string, unknown> | undefined
+  if (video?.phase !== 'full' || artJob.status !== 'FAILED') {
+    throw createError({ statusCode: 409, message: 'Only failed full films can resume.' })
+  }
+  const job = await loadRestyleJob(artJob.userId, String(video.id || ''))
+  if (!job.full || job.full.artJobId !== id || job.status !== 'FULL_FAILED') {
+    throw createError({
+      statusCode: 409,
+      message: 'Full-film manifest is not eligible for retry.',
+    })
+  }
+  const next: VideoRestyleJob = {
+    ...job,
+    status: 'FULL_QUEUED',
+    stage: 'Full film queued to resume completed windows',
+    progress: 0,
+    error: null,
+    updatedAt: new Date().toISOString(),
+    full: { ...job.full, completedSegments: 0 },
+  }
+  const updated = await prisma.artJob.updateMany({
+    where: { id, userId: job.userId, status: 'FAILED' },
+    data: {
+      status: 'PENDING',
+      claimedBy: null,
+      claimedAt: null,
+      error: null,
+      attempts: 0,
+      payload: serializeArtJobPayload({
+        ...payload,
+        videoRestyle: {
+          ...video,
+          completedSegments: 0,
+          progress: 0,
+          state: 'FULL_QUEUED',
+        },
+      }),
+    },
+  })
+  if (updated.count !== 1) {
+    throw createError({ statusCode: 409, message: 'Full-film claim changed; refresh.' })
+  }
+  const target = path.join(path.dirname(restyleSourcePath(job)), 'job.json')
+  const temp = `${target}.${randomUUID()}.tmp`
+  await writeFile(temp, JSON.stringify(next, null, 2), {
+    flag: 'wx',
+    mode: 0o600,
+  })
+  await rename(temp, target)
   return next
 }

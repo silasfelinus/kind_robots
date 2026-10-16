@@ -2,6 +2,7 @@ import assert from 'node:assert/strict'
 import {
   MOONJELLY,
   moonjellyDialogue,
+  MOONJELLY_GUARDIAN,
   MOONJELLY_SECTIONS,
   MOONJELLY_WAVES,
   MOONJELLY_WAVE_SIZES,
@@ -63,9 +64,11 @@ assert.equal(
 )
 assert.ok(actTwoCraft >= 180, `Act II authors ${actTwoCraft} craft`)
 for (const section of MOONJELLY_SECTIONS) {
-  assert.ok(
+  // The guardian holds its section alone; every other section is authored waves.
+  assert.equal(
     MOONJELLY_WAVES.some((w) => w.at >= section.from && w.at < section.to),
-    `${section.name} has waves`,
+    section.name !== MOONJELLY_GUARDIAN.name,
+    `${section.name} ${section.name === MOONJELLY_GUARDIAN.name ? 'has no' : 'has'} waves`,
   )
 }
 // Nemi drifts in through a lane no formation crosses while she is on screen.
@@ -159,8 +162,8 @@ for (const players of [1, 4]) {
   let sawMoonBoss = false
   let reachedClear = false
   let startingLives = 0
-  // The demo clears both bosses near frame 58,100 with one pilot and 55,000 with four.
-  for (let frame = 0; frame < 64000; frame++) {
+  // The demo clears both bosses near frame 61,800 with one pilot and 58,600 with four.
+  for (let frame = 0; frame < 72000; frame++) {
     a.update(idle)
     b.update(idle)
     const snapshot = a.snapshot

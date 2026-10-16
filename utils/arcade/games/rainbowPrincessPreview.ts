@@ -7,6 +7,7 @@ import type {
 import {
   PINKWAKE,
   pinkwakeDialogue,
+  PINKWAKE_GUARDIAN,
   PINKWAKE_SECTIONS,
   PINKWAKE_WAVES,
   PINKWAKE_WAVE_SIZES,
@@ -44,6 +45,7 @@ import { RAINBOW_PILOTS } from './rainbowPilots'
 import {
   MOONJELLY,
   moonjellyDialogue,
+  MOONJELLY_GUARDIAN,
   MOONJELLY_SECTIONS,
   MOONJELLY_WAVES,
   MOONJELLY_WAVE_SIZES,
@@ -53,6 +55,15 @@ import {
   type MoonjellyEnemy,
 } from './rainbowMoonjelly'
 import { RAINBOW_LANES } from './rainbowFormations'
+import {
+  createRainbowGuardian,
+  RAINBOW_GUARDIAN,
+  rainbowGuardianGone,
+  rainbowGuardianWarning,
+  stepRainbowGuardian,
+  type RainbowGuardian,
+  type RainbowGuardianSection,
+} from './rainbowGuardian'
 import {
   actCheckpoints,
   checkpointLabel,
@@ -134,6 +145,7 @@ type EnemyShot = {
   grazed: number
 }
 type Pickup = { x: number; y: number; kind: 'power' | 'shield' | 'charge' }
+type GuardianOutcome = 'waiting' | 'defeated' | 'escaped'
 
 export type RainbowCombatSnapshot = {
   tick: number
@@ -155,6 +167,9 @@ export type RainbowCombatSnapshot = {
     | null
   boss: Readonly<PinkwakeBoss> | null
   moonBoss: Readonly<MoonjellyBoss> | null
+  guardian: Readonly<RainbowGuardian> | null
+  /** Each Act's guardian: still to come (or in play), destroyed, or escaped. */
+  guardians: Readonly<Record<1 | 2, GuardianOutcome>>
   rescuedNemi: boolean
   actTwoFrame: number
   rescuedStation: boolean
@@ -205,6 +220,11 @@ export function createRainbowPrincessPreview(
   let moonBoss: MoonjellyBoss | null = null
   // A continue mid-fight brings the boss back as damaged as the crew left it, so every attempt counts.
   let bossCarryHp: number | null = null
+  let guardian: RainbowGuardian | null = null
+  const guardians: Record<1 | 2, GuardianOutcome> = {
+    1: 'waiting',
+    2: 'waiting',
+  }
   let moonBossCarryHp: number | null = null
   let moonDefeatedFrame: number | null = null
   let rescuedNemi = false
@@ -347,6 +367,12 @@ export function createRainbowPrincessPreview(
         } else if ((waveLeft.get(id) ?? 0) > 0) brokenWaves.add(id)
       })
       tick = resumeTick(checkpoint, moonStart)
+      // A guardian whose section lies after the checkpoint flies again; one already behind it does not.
+      guardian = null
+      const section =
+        checkpoint.act === 1 ? PINKWAKE_GUARDIAN : MOONJELLY_GUARDIAN
+      if (checkpoint.frame <= section.from)
+        guardians[checkpoint.act] = 'waiting'
       if (boss) bossCarryHp = boss.hp
       if (moonBoss) moonBossCarryHp = moonBoss.hp
       boss = null
@@ -443,6 +469,10 @@ export function createRainbowPrincessPreview(
     if (moonBoss && moonBoss.frame > 85) {
       moonBoss.hp -= seat === 1 ? 28 : 20
       if (moonBoss.hp <= 0) defeatMoonBoss()
+    }
+    if (guardian && guardian.frame > 60) {
+      guardian.hp -= seat === 1 ? 28 : 20
+      if (guardian.hp <= 0) defeatGuardian(seat)
     }
     for (let i = reefs.length - 1; i >= 0; i--) {
       const reef = reefs[i]!
@@ -565,6 +595,37 @@ export function createRainbowPrincessPreview(
     }
   }
 
+  /** Bring on the Act's guardian once its section opens, unless it was already destroyed or escaped. */
+  function summonGuardian(
+    act: 1 | 2,
+    frame: number,
+    section: RainbowGuardianSection,
+  ) {
+    if (guardian || guardians[act] !== 'waiting') return
+    if (
+      frame >= section.from &&
+      frame < section.to - RAINBOW_GUARDIAN.escapeLead
+    )
+      guardian = createRainbowGuardian(section.kind, activePlayers)
+  }
+
+  function defeatGuardian(seat: number) {
+    if (!guardian) return
+    const { x, y } = guardian
+    guardian = null
+    guardians[moonStart === null ? 1 : 2] = 'defeated'
+    // Like a boss, a destroyed guardian takes its pellets with it.
+    enemyShots.length = 0
+    score += RAINBOW_GUARDIAN.bonus
+    const ship = ships[seat]
+    if (ship) ship.charge = Math.min(100, ship.charge + 30)
+    const kinds: Pickup['kind'][] = ['power', 'shield', 'charge']
+    kinds.forEach((kind, i) =>
+      pickups.push({ x: x - 12 + i * 12, y: y - 12 + i * 12, kind }),
+    )
+    options.sound.play('extra')
+  }
+
   function hitShip(ship: Ship) {
     // The attract-mode flythrough must be able to reach its authored boss and
     // second Act rather than silently losing every autonomous pilot.
@@ -612,7 +673,10 @@ export function createRainbowPrincessPreview(
     }
     if (moonStart === null) {
       const stage = pinkwakeStage(tick, defeatedAt)
-      if (defeatedAt === null) passCheckpoint(1, tick)
+      if (defeatedAt === null) {
+        passCheckpoint(1, tick)
+        summonGuardian(1, tick, PINKWAKE_GUARDIAN)
+      }
       if (stage === 'waves') {
         for (const entry of pinkwakeSpawns(tick)) {
           spawn(entry.kind, entry.y, entry.wave)
@@ -628,7 +692,10 @@ export function createRainbowPrincessPreview(
     } else {
       const frame = moonFrame()
       const stage = moonjellyStage(frame, moonDefeatedFrame)
-      if (moonDefeatedFrame === null) passCheckpoint(2, frame)
+      if (moonDefeatedFrame === null) {
+        passCheckpoint(2, frame)
+        summonGuardian(2, frame, MOONJELLY_GUARDIAN)
+      }
       if (stage === 'waves' || stage === 'remix') {
         for (const entry of moonjellySpawns(frame)) {
           spawn(entry.kind, entry.y, entry.wave)
@@ -696,6 +763,22 @@ export function createRainbowPrincessPreview(
     }
     if (boss) {
       enemyShots.push(...stepPinkwakeBoss(boss, ships.slice(0, activePlayers)))
+    }
+    if (guardian) {
+      const act = moonStart === null ? 1 : 2
+      const section = act === 1 ? PINKWAKE_GUARDIAN : MOONJELLY_GUARDIAN
+      const frame = act === 1 ? tick : moonFrame()
+      enemyShots.push(
+        ...stepRainbowGuardian(
+          guardian,
+          ships.slice(0, activePlayers),
+          frame >= section.to - RAINBOW_GUARDIAN.escapeLead,
+        ),
+      )
+      if (rainbowGuardianGone(guardian)) {
+        guardian = null
+        guardians[act] = 'escaped'
+      }
     }
     if (moonBoss) {
       enemyShots.push(
@@ -766,6 +849,16 @@ export function createRainbowPrincessPreview(
         continue
       }
       if (
+        guardian &&
+        Math.hypot(shot.x - guardian.x, shot.y - guardian.y) <
+          RAINBOW_GUARDIAN.hitRadius
+      ) {
+        shots.splice(si, 1)
+        guardian.hp -= shot.damage
+        if (guardian.hp <= 0) defeatGuardian(shot.seat)
+        continue
+      }
+      if (
         boss &&
         boss.frame > 85 &&
         Math.hypot(shot.x - (boss.x - 17), shot.y - boss.y) < 37
@@ -805,6 +898,18 @@ export function createRainbowPrincessPreview(
         if (reef.wave !== null) brokenWaves.add(reef.wave)
         reefs.splice(ei, 1)
         hitShip(ship)
+      }
+    }
+
+    if (guardian) {
+      for (const ship of ships.slice(0, activePlayers)) {
+        if (
+          ship.lives > 0 &&
+          ship.invulnerable === 0 &&
+          Math.hypot(ship.x - guardian.x, ship.y - guardian.y) <
+            RAINBOW_GUARDIAN.hitRadius
+        )
+          hitShip(ship)
       }
     }
 
@@ -911,6 +1016,8 @@ export function createRainbowPrincessPreview(
             : (moonjellyScene(moonFrame(), moonDefeatedFrame)?.id ?? null),
         boss: boss ? { ...boss } : null,
         moonBoss: moonBoss ? { ...moonBoss } : null,
+        guardian: guardian ? { ...guardian } : null,
+        guardians: { ...guardians },
         rescuedNemi,
         actTwoFrame: moonFrame(),
         rescuedStation,
@@ -1066,6 +1173,34 @@ export function createRainbowPrincessPreview(
         g.font = 'bold 9px monospace'
         g.textAlign = 'center'
         g.fillText('NEMI', 0, 3)
+        g.restore()
+      }
+      if (guardian) {
+        g.save()
+        g.translate(guardian.x, guardian.y)
+        g.save()
+        g.scale(2.3, 2.3)
+        if (!drawRainbowEnemySprite(g, guardian.kind)) {
+          g.fillStyle = guardian.kind === 'urchin' ? '#d09ffd' : '#afffea'
+          g.beginPath()
+          g.arc(0, 0, 11, 0, Math.PI * 2)
+          g.fill()
+        }
+        g.restore()
+        // Same charge cue as the bosses: a pulsing ring that never fades below three quarters.
+        if (rainbowGuardianWarning(guardian)) {
+          g.strokeStyle = '#fffbb6'
+          g.lineWidth = 4
+          g.globalAlpha = 0.75 + 0.25 * Math.sin(guardian.frame / 3)
+          g.beginPath()
+          g.arc(0, 0, RAINBOW_GUARDIAN.hitRadius + 6, 0, Math.PI * 2)
+          g.stroke()
+          g.globalAlpha = 1
+        }
+        g.fillStyle = '#240c42'
+        g.fillRect(-26, -42, 52, 6)
+        g.fillStyle = '#ffe58a'
+        g.fillRect(-25, -41, 50 * Math.max(0, guardian.hp / guardian.maxHp), 4)
         g.restore()
       }
       if (station) {

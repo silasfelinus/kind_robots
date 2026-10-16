@@ -9,6 +9,7 @@
         class="kr-toolbar mx-auto w-full max-w-[1400px] justify-between gap-x-2 gap-y-1 sm:gap-x-3 rounded-2xl bg-base-100/95 px-2 py-0.5 shadow-sm sm:px-4 sm:py-1"
       >
         <p
+          v-if="!atDesk"
           class="hidden font-mono text-sm font-black uppercase tracking-[.25em] sm:block"
         >
           Shifting <span class="text-warning">/</span> Desks
@@ -32,22 +33,55 @@
           <span class="hidden sm:inline">{{ currentArtStyle.label }}</span>
           <span class="sr-only">art style, change</span>
         </button>
+        <button
+          v-if="atDesk && run"
+          type="button"
+          class="dept-banner flex min-w-0 shrink items-center gap-2 rounded-lg border-2 border-stone-800 px-2 py-1 text-stone-900"
+          :aria-describedby="hudTip === 'floor' ? 'hud-tip' : undefined"
+          v-bind="tipHandlers('floor')"
+        >
+          <span
+            class="truncate font-mono text-[11px] font-black uppercase tracking-wider sm:text-xs"
+          >
+            {{ floorFor(currentDept) }} ·
+            {{ currentDept.department.title.split(':')[0] }}
+          </span>
+          <span class="flex shrink-0 items-center gap-0.5" aria-hidden="true">
+            <span
+              v-for="(step, i) in steps"
+              :key="i"
+              class="h-2 w-2 rounded-full border border-stone-800 sm:w-3"
+              :class="
+                i < run.position
+                  ? 'bg-stone-800'
+                  : i === run.position
+                    ? 'bg-amber-50'
+                    : 'bg-stone-800/20'
+              "
+            />
+          </span>
+        </button>
         <div
           v-if="run"
           class="flex flex-1 flex-wrap items-center justify-end gap-1 sm:gap-1.5"
+          :class="{ 'max-sm:basis-full': atDesk }"
           aria-label="Your file"
         >
-          <span
+          <button
             v-for="m in meterList"
             :key="m.key"
-            class="flex items-center gap-0.5 rounded-md bg-base-200 px-1 py-1 text-xs font-bold sm:gap-1 sm:px-2"
+            type="button"
+            class="flex items-center gap-0.5 rounded-md bg-base-200 px-1 py-1 text-xs font-bold hover:bg-base-300 sm:gap-1 sm:px-2"
             :class="m.danger ? 'text-error' : ''"
-            :title="m.help"
+            :aria-label="`${m.label} ${m.value}`"
+            :aria-describedby="hudTip === m.key ? 'hud-tip' : undefined"
+            v-bind="tipHandlers(m.key)"
           >
             <icon :name="m.icon" class="size-3.5" />
-            <span class="sr-only lg:not-sr-only">{{ m.label }}</span>
+            <span class="hidden xl:inline">{{ m.label }}</span>
             {{ m.value }}
-          </span>
+          </button>
+          <shifting-desks-envelope v-if="atDesk" compact :highlight="!opened" />
           <button
             type="button"
             class="btn btn-ghost btn-xs max-sm:px-1"
@@ -55,7 +89,7 @@
             @click="openJournal"
           >
             <icon name="kind-icon:book" class="size-4" />
-            <span class="sr-only sm:not-sr-only">File</span>
+            <span class="sr-only lg:not-sr-only">File</span>
           </button>
           <button
             type="button"
@@ -64,9 +98,17 @@
             @click="toFront"
           >
             <icon name="kind-icon:arrow-left" class="size-4" />
-            <span class="sr-only sm:not-sr-only">Leave</span>
+            <span class="sr-only lg:not-sr-only">Leave</span>
           </button>
         </div>
+        <p
+          v-if="hudTip && hudTipText"
+          id="hud-tip"
+          role="tooltip"
+          class="absolute right-2 top-full z-40 mt-1 max-w-sm rounded-xl border-2 border-stone-900 bg-base-100 px-3 py-2 text-sm leading-snug shadow-xl"
+        >
+          {{ hudTipText }}
+        </p>
       </div>
 
       <section
@@ -286,59 +328,19 @@
         v-else-if="run && view"
         class="kr-stage mx-auto w-full max-w-[1400px] gap-2 px-2 pb-2 sm:px-4"
       >
-        <div
-          class="dept-banner flex shrink-0 items-center gap-2 rounded-xl border-2 border-stone-800 px-2 py-1 text-stone-900 sm:border-4 sm:px-3"
-        >
-          <p
-            class="shrink-0 font-mono text-[11px] font-black uppercase tracking-[.15em] sm:text-sm"
-            :title="currentNotice ? currentNotice.reason : undefined"
-          >
-            {{ floorFor(currentDept) }} ·
-            {{ currentDept.department.title.split(':')[0] }}
-          </p>
-          <ol
-            class="flex min-w-0 flex-1 items-center justify-end gap-1"
-            aria-label="Files in this department"
-          >
-            <li
-              v-for="(step, i) in steps"
-              :key="i"
-              class="h-2 min-w-2 flex-1 rounded-full border border-stone-800 sm:max-w-12"
-              :class="
-                i < run.position
-                  ? 'bg-stone-800'
-                  : i === run.position
-                    ? 'bg-amber-50'
-                    : 'bg-stone-800/20'
-              "
-              :title="step"
-            >
-              <span class="sr-only"
-                >{{ step }}{{ i === run.position ? ' (current)' : '' }}</span
-              >
-            </li>
-          </ol>
-          <p
-            class="hidden shrink-0 font-mono text-[11px] font-bold uppercase md:block"
-          >
-            {{ employee }} · {{ jobTitle }}
-          </p>
-        </div>
         <p
-          v-if="currentNotice"
+          v-if="currentNotice && !opened"
           class="shrink-0 truncate rounded-lg bg-base-100/95 px-2 py-0.5 text-xs font-semibold"
-          :class="{ 'max-md:hidden': deciding || !!run.pending }"
           :title="currentNotice.reason"
         >
           <span class="font-mono font-black uppercase">Restructured:</span>
           {{ currentNotice.headline }}. {{ currentNotice.reason }}
         </p>
         <shifting-desks-memo-ticker
+          v-if="!opened"
           class="hidden shrink-0 sm:flex"
           :lines="tickerLines"
         />
-
-        <shifting-desks-envelope class="shrink-0" />
 
         <div class="kr-panes desk-layout gap-2 lg:gap-4">
           <div
@@ -462,7 +464,7 @@
               </div>
               <div
                 v-if="opened"
-                class="desk-card hidden shrink-0 flex-col gap-1 rounded-2xl border-4 border-stone-800 p-3 text-stone-900 md:flex"
+                class="desk-brief desk-card hidden shrink-0 flex-col gap-1 rounded-2xl border-4 border-stone-800 p-3 text-stone-900 md:flex"
                 :class="manyRoutes ? '' : 'lg:p-4'"
               >
                 <p
@@ -477,7 +479,7 @@
                   :class="
                     manyRoutes
                       ? 'text-sm leading-snug lg:text-base'
-                      : 'text-base leading-relaxed lg:text-lg'
+                      : 'desk-brief-text text-base leading-relaxed lg:text-lg'
                   "
                 >
                   {{ view.card.flavor_text }}
@@ -618,8 +620,8 @@
                       class="flex shrink-0 flex-col rounded-xl border-2 text-left transition"
                       :class="[
                         manyRoutes
-                          ? 'gap-1 px-3 py-1.5'
-                          : 'grow justify-center gap-1.5 px-4 py-3 lg:gap-2 lg:rounded-2xl lg:px-5',
+                          ? 'choice-card-compact gap-1 px-3 py-1.5'
+                          : 'choice-card grow justify-center gap-1.5 px-4 py-3 lg:gap-2 lg:rounded-2xl lg:px-5',
                         lockFor(choice)
                           ? 'cursor-not-allowed border-base-300 bg-base-200 text-base-content/60'
                           : 'border-base-300 bg-base-100 hover:border-warning focus-visible:border-warning',
@@ -639,7 +641,7 @@
                           :class="
                             manyRoutes
                               ? 'text-sm'
-                              : 'text-base sm:text-lg lg:text-2xl'
+                              : 'choice-label text-base sm:text-lg lg:text-2xl'
                           "
                           >{{ choice.label }}</span
                         >
@@ -729,7 +731,7 @@
                     <li
                       v-for="choice in lockedRoutes"
                       :key="choice.id"
-                      class="flex max-w-full items-center gap-1 rounded-lg border border-base-300 bg-base-200 px-2 py-1 text-xs text-base-content/70 max-md:max-w-[calc(50%-0.375rem)]"
+                      class="locked-chip flex max-w-full items-center gap-1 rounded-lg border border-base-300 bg-base-200 px-2 py-1 text-xs text-base-content/70 max-md:max-w-[calc(50%-0.375rem)]"
                       :title="lockFor(choice) ?? undefined"
                     >
                       <icon
@@ -906,6 +908,52 @@ provide('shifting-desks-art-style', artStyle)
 watch(artStyle, saveArtStylePreference)
 const screen = ref<'front' | 'hire' | 'play'>('front')
 const opened = ref(false)
+
+// Silas, 2026-10-16: the bars above the desk took the space the art, the
+// file and the choices need. One heads-up bar carries the floor, the meters
+// and the envelope; each chip explains itself on tap, hover or focus.
+const atDesk = computed(
+  () =>
+    screen.value === 'play' &&
+    !!run.value &&
+    !store.transition &&
+    !store.finished &&
+    !!view.value,
+)
+const hudTip = ref<string | null>(null)
+
+function tipHandlers(key: string) {
+  return {
+    onMouseenter: () => (hudTip.value = key),
+    onMouseleave: () => (hudTip.value = null),
+    onFocus: () => (hudTip.value = key),
+    onBlur: () => (hudTip.value = null),
+    onClick: () => (hudTip.value = key),
+    onKeydown: (event: KeyboardEvent) => {
+      if (event.key === 'Escape') hudTip.value = null
+    },
+  }
+}
+
+const hudTipText = computed(() => {
+  const key = hudTip.value
+  if (!key || !run.value) return ''
+  if (key === 'floor') {
+    const dept = currentDept.value
+    const total = steps.value.length
+    const at = Math.min(run.value.position + 1, total)
+    const notice = currentNotice.value
+      ? ` Restructured: ${currentNotice.value.headline}. ${currentNotice.value.reason}`
+      : ''
+    return (
+      `${floorFor(dept)} · ${dept.department.title.split(':')[0]}. ` +
+      `File ${at} of ${total}. You are ${employee.value}, ${jobTitle.value}.` +
+      notice
+    )
+  }
+  const meter = meterList.value.find((m) => m.key === key)
+  return meter ? `${meter.label} ${meter.value}: ${meter.help}` : ''
+})
 const spendForm = ref(false)
 const useFavor = ref(false)
 const useMutation = ref(false)
@@ -1329,6 +1377,48 @@ useHead({ title: 'Shifting Desks' })
 
 .desk-layout {
   grid-template-rows: minmax(0, 1fr);
+}
+
+/* Wide but short (a landscape tablet): the reading column gets more width
+   and the type steps down one size, so the file and every choice fit beside
+   the art (Silas, 2026-10-16). Unlayered, so it outranks the utilities. */
+@media (min-width: 1024px) and (max-height: 820px) {
+  .desk-layout {
+    grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr) !important;
+  }
+
+  .choice-card {
+    padding-block: 0.5rem;
+    gap: 0.25rem;
+  }
+
+  .choice-label {
+    font-size: 1.25rem;
+    line-height: 1.6rem;
+  }
+
+  .desk-brief-text {
+    font-size: 1rem;
+    line-height: 1.55rem;
+  }
+
+  .desk-brief {
+    padding: 0.5rem 0.75rem;
+  }
+
+  .choice-card-compact {
+    padding-block: 0.25rem;
+    gap: 0.125rem;
+  }
+
+  .desk-brief > p:first-child {
+    font-size: 1rem;
+    line-height: 1.35rem;
+  }
+
+  .locked-chip {
+    padding-block: 0.125rem;
+  }
 }
 
 @media (max-width: 767.98px) {

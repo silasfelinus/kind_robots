@@ -1,7 +1,43 @@
 <template>
-  <section v-if="run" aria-label="Your sealed envelope">
+  <section
+    v-if="run"
+    aria-label="Your sealed envelope"
+    :class="compact ? 'contents' : ''"
+  >
     <button
-      v-if="!store.envelopeOpened"
+      v-if="compact"
+      type="button"
+      class="btn btn-xs relative max-sm:px-1"
+      :class="
+        !store.envelopeOpened && highlight
+          ? 'envelope-sealed border-2 border-stone-800 text-stone-900'
+          : 'btn-ghost'
+      "
+      :title="
+        store.envelopeOpened
+          ? `Envelope: ${society.title} · ${statusLabel}; ${mutation.title} · ${run.mutationUsed ? 'used' : 'ready'}`
+          : 'A sealed envelope is taped under your desk'
+      "
+      @click="store.envelopeOpened ? (expanded = true) : breakSeal()"
+    >
+      <icon name="kind-icon:mask" class="size-4" />
+      <span
+        :class="
+          !store.envelopeOpened && highlight ? '' : 'sr-only lg:not-sr-only'
+        "
+        >{{ store.envelopeOpened ? 'Envelope' : 'Break the seal' }}</span
+      >
+      <span
+        v-if="
+          store.envelopeOpened &&
+          (instantAvailable(run, 'favor') || instantAvailable(run, 'mutation'))
+        "
+        class="absolute -right-0.5 -top-0.5 size-2 rounded-full bg-warning"
+        aria-hidden="true"
+      />
+    </button>
+    <button
+      v-else-if="!store.envelopeOpened"
       type="button"
       class="envelope-sealed flex w-full items-center justify-between gap-3 rounded-2xl border-2 border-stone-800 px-3 py-2 text-left text-stone-900"
       @click="breakSeal"
@@ -206,6 +242,10 @@ import {
 } from '~/utils/shiftingDesks/rules'
 import { useShiftingDesksStore } from '~/stores/shiftingDesksStore'
 
+withDefaults(defineProps<{ compact?: boolean; highlight?: boolean }>(), {
+  compact: false,
+  highlight: false,
+})
 const store = useShiftingDesksStore()
 const expanded = ref(false)
 const sheet = ref<HTMLDialogElement | null>(null)

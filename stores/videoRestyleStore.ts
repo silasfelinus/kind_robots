@@ -204,7 +204,8 @@ export const useVideoRestyleStore = defineStore('videoRestyle', () => {
       jobs.value = [response.data, ...jobs.value]
       selectedId.value = response.data.id
       clearPreview()
-      notice.value = 'New style project created using your saved source. No upload needed.'
+      notice.value =
+        'New style project created using your saved source. No upload needed.'
       return true
     } finally {
       busy.value = false
@@ -311,7 +312,10 @@ export const useVideoRestyleStore = defineStore('videoRestyle', () => {
     try {
       const response = await performFetch<VideoRestyleJob>(
         `/api/video-restyle/${encodeURIComponent(id)}`,
-        { method: 'PATCH', body: JSON.stringify({ style, quality, isPrivate, isMature }) },
+        {
+          method: 'PATCH',
+          body: JSON.stringify({ style, quality, isPrivate, isMature }),
+        },
       )
       if (!response.success || !response.data) {
         error.value = response.message || 'Could not save restyle settings.'

@@ -186,11 +186,3 @@ export function heroineRunCode(seed: number): string {
 
 /** The seed the page shows before anyone rolls: a fixed, friendly default. */
 export const DEFAULT_HEROINE_SEED = 0x5a7e0001
-
-export const HEROINE_SEED_STORAGE_KEY = 'save-the-plumber:heroine-seed:v1'
-
-export function parseStoredHeroineSeed(raw: string | null): number | null {
-  if (!raw || !/^\d{1,10}$/.test(raw)) return null
-  const value = Number(raw)
-  return value <= 0xffffffff ? value : null
-}

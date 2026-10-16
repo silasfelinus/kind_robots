@@ -4,6 +4,7 @@ import type {
   ArcadeGameOptions,
   InputFrame,
 } from '../types'
+import { emptyInput } from '../types'
 import {
   PLUMBER_ART,
   drawSprite,
@@ -12,432 +13,1981 @@ import {
   stagePlate,
   tilePattern,
 } from './savePlumberArt'
+import { ENEMY_ANIMATIONS, bossAnimation } from './savePlumberAnimations'
 import { drawHeroine } from './savePlumberHeroineArt'
+import {
+  SOLID_BLOCK,
+  SOLID_CRATE,
+  SOLID_GATE,
+  SOLID_GROUND,
+  SOLID_LEDGE,
+  SOLID_PIPE,
+  TILE,
+  WORLD_ONE,
+  parseStage,
+  type Stage,
+} from './savePlumberLevels'
+import {
+  PLUMBER_ROSTER,
+  actionPoses,
+  rosterFor,
+  rosterHeroine,
+  rosterIndex,
+  rosterPortrait,
+  seedForRoster,
+  type RosterHeroine,
+} from './savePlumberRoster'
+import { readPlumberSave, type PlumberSave } from './savePlumberSave'
 import { drawSheetFrame, keyedSheet } from './savePlumberSheets'
-import { actionPoses, rosterFor } from './savePlumberRoster'
 
 const W = 480
 const H = 270
-const WORLD_W = 1280
-const FLOOR_Y = 220
 const GRAVITY = 0.43
 const JUMP = -8.6
-type Platform = { x: number; y: number; width: number }
-type Bug = {
+const SPRING = -12.2
+const RUN = 2.85
+const HALF = 11
+const TALL = 26
+const START_LIVES = 3
+const HEARTS = 3
+const WORLD_NAME = 'Bluebell Pipeworks'
+const BOSS_NAME = 'Madame Pressure'
+
+type Mode =
+  'title' | 'select' | 'intro' | 'play' | 'dying' | 'clear' | 'victory' | 'over'
+
+type Body = { x: number; y: number; vx: number; vy: number }
+
+type Platform = {
+  kind: 'piston' | 'lift'
   x: number
   y: number
-  home: number
+  w: number
+  baseX: number
+  baseY: number
+  sign: number
+  dx: number
+  dy: number
+}
+
+type Foe = Body & {
+  kind: 'pumpbug' | 'rivet-roller'
   dir: number
-  active: boolean
-  knocked: number
+  state: 'idle' | 'walk' | 'stunned' | 'kicked' | 'gone'
+  timer: number
+  fade: number
   flipped: boolean
 }
-const PUMPBUG_CYCLE = PLUMBER_ART.anim('pumpbug-cycle')
-const floors: Platform[] = [
-  { x: 0, y: FLOOR_Y, width: 333 },
-  { x: 366, y: FLOOR_Y, width: 284 },
-  { x: 695, y: FLOOR_Y, width: 271 },
-  { x: 1005, y: FLOOR_Y, width: 275 },
-]
-const balconies: Platform[] = [
-  { x: 158, y: 162, width: 84 },
-  { x: 440, y: 153, width: 100 },
-  { x: 748, y: 166, width: 115 },
-  { x: 1050, y: 154, width: 94 },
-]
-const surfaces = [...floors, ...balconies]
-const initialBugs = [270, 515, 830, 1100]
 
-export function createSavePlumberPreview(
-  options: ArcadeGameOptions,
-): ArcadeGameInstance {
-  let x = 54
-  let y = FLOOR_Y - 26
-  let vx = 0
-  let vy = 0
-  let ground = true
-  let grace = 0
-  let jumpBuffer = 0
-  let cooldown = 0
-  let immune = 55
-  let tick = 0
-  let camera = 0
-  let facing: 1 | -1 = 1
-  let stride = 0
-  let landed = 0
-  let score = 0
-  let lives = 3
-  let over = false
-  let completed = 0
-  const bugs: Bug[] = initialBugs.map((home) => ({
-    x: home,
-    y: FLOOR_Y - 10,
-    home,
-    dir: 1,
-    active: true,
-    knocked: 0,
-    flipped: false,
-  }))
-  const coins = [196, 462, 782, 1070].map((x) => ({ x, y: 133, taken: false }))
+type Vent = { x: number; y: number; offset: number }
+type Spring = { x: number; y: number; squash: number }
+type Token = { x: number; y: number; taken: boolean }
+type Checkpoint = { x: number; y: number; reached: boolean }
+type Wave = { x: number; y: number; dir: number }
 
-  function respawn() {
-    x = 54
-    y = FLOOR_Y - 26
-    vx = 0
-    vy = 0
-    immune = 85
-    if (!options.demo && --lives <= 0) over = true
+type Boss = {
+  x: number
+  y: number
+  dir: number
+  hp: number
+  state: 'wait' | 'walk' | 'tell' | 'burst' | 'recover' | 'hurt' | 'defeat'
+  timer: number
+  speed: number
+}
+
+/** Options for tests: start on a stage, and let the autopilot play it. */
+export type PlumberRunOptions = { stage?: number; autopilot?: boolean }
+
+const isWall = (s: number) =>
+  s === SOLID_GROUND ||
+  s === SOLID_BLOCK ||
+  s === SOLID_GATE ||
+  s === SOLID_PIPE ||
+  s === SOLID_CRATE
+
+export class PlumberRun implements ArcadeGameInstance {
+  score = 0
+  lives = START_LIVES
+  over = false
+  mode: Mode = 'title'
+  stageIndex = 0
+  stage!: Stage
+  /** Stages cleared this game, for tests and the demo loop. */
+  cleared: string[] = []
+  heroineSeed: number
+  tokens = 0
+  hearts = HEARTS
+  tick = 0
+  modeTimer = 0
+  menu = 0
+  cursor: number
+  readonly demo: boolean
+  readonly autopilot: boolean
+  private sound: ArcadeGameOptions['sound']
+  private rng: () => number
+  private saveData: PlumberSave | null
+  private resume: PlumberSave | null
+
+  hero: Body = { x: 0, y: 0, vx: 0, vy: 0 }
+  ground = false
+  grace = 0
+  jumpBuffer = 0
+  jumpHeld = false
+  facing: 1 | -1 = 1
+  stride = 0
+  landed = 0
+  immune = 0
+  cooldown = 0
+  swing = 0
+  riding: Platform | null = null
+  sprung = false
+  checkpoint = { x: 0, y: 0 }
+  camera = 0
+  locked = false
+
+  platforms: Platform[] = []
+  foes: Foe[] = []
+  vents: Vent[] = []
+  springs: Spring[] = []
+  tokensOnMap: Token[] = []
+  checkpoints: Checkpoint[] = []
+  goal: { x: number; y: number } | null = null
+  valves: { x: number; y: number; open: boolean }[] = []
+  boss: Boss | null = null
+  waves: Wave[] = []
+  private solid!: Uint8Array
+  private pilotStuck = 0
+  private pilotBest = 0
+  private pilotHold = 0
+  private pilotRight = true
+  private pilotSeek: number | null = null
+
+  constructor(options: ArcadeGameOptions, run: PlumberRunOptions = {}) {
+    this.demo = options.demo
+    this.autopilot = options.demo || run.autopilot === true
+    this.sound = options.sound
+    this.rng = options.rng
+    this.resume = this.demo ? null : readPlumberSave(options.resume)
+    this.saveData = this.resume
+    this.heroineSeed = this.resume?.heroine ?? plumberHeroine().seed
+    this.cursor = rosterIndex(this.heroineSeed)
+    if (this.autopilot) {
+      this.stageIndex = Math.max(
+        0,
+        Math.min(WORLD_ONE.length - 1, run.stage ?? 0),
+      )
+      this.loadStage(this.stageIndex)
+      this.mode = 'play'
+    }
   }
 
-  return {
-    get score() {
-      return score
-    },
-    get level() {
-      return 1
-    },
-    get lives() {
-      return lives
-    },
-    get over() {
-      return over
-    },
-    update(input: InputFrame) {
-      if (over) return
-      tick++
-      const keys = input
-      if (cooldown) cooldown--
-      if (immune) immune--
-      const move = options.demo
-        ? 1
-        : Number(keys.held.right) - Number(keys.held.left)
-      vx = move ? Math.max(-2.85, Math.min(2.85, vx + move * 0.44)) : vx * 0.77
-      if (move) facing = move > 0 ? 1 : -1
-      if (ground) stride += Math.abs(vx) * 0.17
-      x = Math.max(10, Math.min(WORLD_W - 15, x + vx))
-      if (ground) grace = 7
-      else if (grace) grace--
-      if (options.demo ? tick % 108 === 2 : keys.pressed.up || keys.pressed.b)
-        jumpBuffer = 7
-      else if (jumpBuffer) jumpBuffer--
-      if (jumpBuffer && grace) {
-        vy = JUMP
-        ground = false
-        grace = 0
-        jumpBuffer = 0
-        options.sound.play('blip')
-      }
-      const previousBottom = y + 26
-      vy = Math.min(10, vy + GRAVITY)
-      y += vy
-      const wasGrounded = ground
-      ground = false
-      if (vy >= 0) {
-        for (const surface of surfaces) {
-          if (previousBottom > surface.y + 3) continue
-          if (
-            y + 26 < surface.y ||
-            x + 11 < surface.x ||
-            x - 11 > surface.x + surface.width
-          )
-            continue
-          y = surface.y - 26
-          vy = 0
-          ground = true
+  get level() {
+    return this.stageIndex + 1
+  }
+
+  get save(): PlumberSave | null | undefined {
+    return this.demo ? undefined : this.saveData
+  }
+
+  get member(): RosterHeroine {
+    return rosterFor(rosterHeroine(this.heroineSeed))
+  }
+
+  private get menuItems(): ('continue' | 'new')[] {
+    return this.resume ? ['continue', 'new'] : ['new']
+  }
+
+  private remember(extra: Partial<PlumberSave> = {}) {
+    this.saveData = {
+      v: 1,
+      heroine: this.heroineSeed,
+      stage: this.stageIndex,
+      score: this.score,
+      lives: Math.max(1, this.lives),
+      tokens: this.tokens,
+      cleared: this.saveData?.cleared === true,
+      ...extra,
+    }
+  }
+
+  private setMode(mode: Mode, timer = 0) {
+    this.mode = mode
+    this.modeTimer = timer
+  }
+
+  update(input: InputFrame) {
+    if (this.over) return
+    this.tick++
+    if (this.modeTimer > 0) this.modeTimer--
+    const keys = this.autopilot ? this.pilotInput() : input
+    switch (this.mode) {
+      case 'title':
+        return this.updateTitle(keys)
+      case 'select':
+        return this.updateSelect(keys)
+      case 'intro':
+        if (!this.modeTimer || keys.pressed.start || keys.pressed.a)
+          this.setMode('play')
+        return
+      case 'play':
+        return this.updatePlay(keys)
+      case 'dying':
+        if (!this.modeTimer) this.afterDeath()
+        return
+      case 'clear':
+        if (!this.modeTimer) this.nextStage()
+        return
+      case 'victory':
+        if (
+          !this.modeTimer ||
+          (this.modeTimer < 420 && (keys.pressed.start || keys.pressed.a))
+        )
+          this.over = true
+        return
+      case 'over':
+        if (!this.modeTimer) this.over = true
+    }
+  }
+
+  private updateTitle(keys: InputFrame) {
+    const items = this.menuItems
+    if (keys.pressed.up || keys.pressed.down) {
+      this.menu = (this.menu + 1) % items.length
+      this.sound.play('blip')
+    }
+    if (!(keys.pressed.a || keys.pressed.start)) return
+    this.sound.play('pickup')
+    if (items[this.menu] === 'continue' && this.resume) {
+      this.score = this.resume.score
+      this.lives = this.resume.lives
+      this.tokens = this.resume.tokens
+      this.heroineSeed = this.resume.heroine
+      this.beginStage(this.resume.stage)
+    } else this.setMode('select')
+  }
+
+  private updateSelect(keys: InputFrame) {
+    const n = PLUMBER_ROSTER.length
+    const before = this.cursor
+    if (keys.pressed.left) this.cursor = (this.cursor + n - 1) % n
+    if (keys.pressed.right) this.cursor = (this.cursor + 1) % n
+    if (keys.pressed.up || keys.pressed.down)
+      this.cursor = (this.cursor + 4) % n
+    if (keys.pressed.b)
+      this.cursor = (this.cursor + 1 + Math.floor(this.rng() * (n - 1))) % n
+    if (this.cursor !== before) this.sound.play('blip')
+    if (!(keys.pressed.a || keys.pressed.start)) return
+    this.sound.play('level')
+    this.heroineSeed = seedForRoster(this.cursor, this.rng)
+    this.score = 0
+    this.lives = START_LIVES
+    this.tokens = 0
+    this.beginStage(0)
+  }
+
+  private beginStage(index: number) {
+    this.stageIndex = index
+    this.loadStage(index)
+    this.remember()
+    this.setMode('intro', 150)
+  }
+
+  private nextStage() {
+    if (this.stageIndex + 1 >= WORLD_ONE.length) {
+      if (this.demo) return this.beginDemoStage(0)
+      this.remember({ stage: 0, cleared: true })
+      this.setMode('victory', 600)
+      return
+    }
+    if (this.autopilot) return this.beginDemoStage(this.stageIndex + 1)
+    this.beginStage(this.stageIndex + 1)
+  }
+
+  private beginDemoStage(index: number) {
+    this.stageIndex = index
+    this.loadStage(index)
+    this.setMode('play')
+  }
+
+  loadStage(index: number) {
+    const stage = parseStage(WORLD_ONE[index]!)
+    this.stage = stage
+    this.solid = stage.solid.slice()
+    this.platforms = []
+    this.foes = []
+    this.vents = []
+    this.springs = []
+    this.tokensOnMap = []
+    this.checkpoints = []
+    this.valves = []
+    this.waves = []
+    this.goal = null
+    this.boss = null
+    this.locked = false
+    let lift = 0
+    for (const spawn of stage.spawns) {
+      const cx = spawn.col * TILE + TILE / 2
+      const bottom = (spawn.row + 1) * TILE
+      switch (spawn.kind) {
+        case 'token':
+          this.tokensOnMap.push({
+            x: cx,
+            y: spawn.row * TILE + 8,
+            taken: false,
+          })
+          break
+        case 'pumpbug':
+        case 'rivet-roller':
+          this.foes.push({
+            kind: spawn.kind,
+            x: cx,
+            y: bottom,
+            vx: 0,
+            vy: 0,
+            dir: -1,
+            state: spawn.kind === 'pumpbug' ? 'walk' : 'idle',
+            timer: 0,
+            fade: 0,
+            flipped: false,
+          })
+          break
+        case 'steam-vent':
+          this.vents.push({ x: cx, y: bottom, offset: spawn.col * 7 })
+          break
+        case 'springstep':
+          this.springs.push({ x: cx, y: bottom, squash: 0 })
+          break
+        case 'piston':
+        case 'lift': {
+          const x = spawn.col * TILE - TILE
+          const y = spawn.row * TILE
+          this.platforms.push({
+            kind: spawn.kind,
+            x,
+            y,
+            w: TILE * 3,
+            baseX: x,
+            baseY: y,
+            sign: spawn.kind === 'lift' ? (lift++ % 2 ? -1 : 1) : 1,
+            dx: 0,
+            dy: 0,
+          })
           break
         }
+        case 'checkpoint':
+          this.checkpoints.push({ x: cx, y: bottom, reached: false })
+          break
+        case 'goal':
+          this.goal = { x: cx, y: bottom }
+          break
+        case 'valve':
+          this.valves.push({ x: cx, y: bottom, open: false })
+          break
+        case 'boss':
+          this.boss = {
+            x: cx,
+            y: bottom,
+            dir: -1,
+            hp: 3,
+            state: 'wait',
+            timer: 0,
+            speed: 0.8,
+          }
       }
-      if (ground && !wasGrounded) landed = 6
-      else if (landed) landed--
-      if (y > H + 40) respawn()
-      if (!options.demo && keys.pressed.a && !cooldown) {
-        cooldown = 23
-        const hit = bugs.find(
-          (bug) =>
-            bug.active &&
-            bug.x > x &&
-            bug.x - x < 72 &&
-            Math.abs(bug.y - (y + 14)) < 28,
-        )
-        if (hit) {
-          hit.active = false
-          hit.knocked = 30
-          hit.flipped = true
-          score += 150
-          options.sound.play('pop')
-        } else options.sound.play('shoot')
-      }
-      for (const coin of coins) {
-        if (
-          coin.taken ||
-          Math.abs(coin.x - x) > 16 ||
-          Math.abs(coin.y - (y + 10)) > 23
-        )
-          continue
-        coin.taken = true
-        score += 50
-        options.sound.play('pickup')
-      }
-      for (const bug of bugs) {
-        if (bug.knocked) bug.knocked--
-        if (!bug.active) continue
-        bug.x += bug.dir * 0.56
-        if (Math.abs(bug.x - bug.home) > 34) bug.dir *= -1
-        if (
-          immune ||
-          Math.abs(bug.x - x) >= 17 ||
-          Math.abs(bug.y - (y + 18)) >= 20
-        )
-          continue
-        if (vy > 1 && y + 26 <= bug.y + 8) {
-          bug.active = false
-          bug.knocked = 30
-          bug.flipped = false
-          vy = -5.2
-          score += 100
-          options.sound.play('pop')
-        } else respawn()
-      }
-      if (x > WORLD_W - 42) {
-        completed++
-        score += 1000
-        x = 54
-        y = FLOOR_Y - 26
-        vx = vy = 0
-        immune = 70
-        coins.forEach((coin) => {
-          coin.taken = false
-        })
-        bugs.forEach((bug) => {
-          bug.knocked = 0
-          bug.active = true
-          bug.x = bug.home
-        })
-        options.sound.play('level')
-      }
-      camera = Math.max(0, Math.min(WORLD_W - W, x - W * 0.38))
-    },
-    render(g: CanvasRenderingContext2D) {
-      const back = g.createLinearGradient(0, 0, 0, H)
-      back.addColorStop(0, '#76d8d6')
-      back.addColorStop(0.55, '#d6f7dc')
-      back.addColorStop(1, '#ffe5c8')
-      g.fillStyle = back
-      g.fillRect(0, 0, W, H)
-      const platePath = plumberStageArt('1-1')
-      const plate = platePath ? stagePlate(platePath) : null
-      if (plate) {
-        const cover =
-          Math.max(W / plate.naturalWidth, H / plate.naturalHeight) * 1.18
-        const pw = plate.naturalWidth * cover
-        const ph = plate.naturalHeight * cover
-        const pan = (camera / (WORLD_W - W)) * (pw - W)
-        g.drawImage(plate, -pan, H - ph, pw, ph)
-        const wash = g.createLinearGradient(0, 0, 0, H)
-        wash.addColorStop(0, 'rgba(214, 247, 236, 0.1)')
-        wash.addColorStop(1, 'rgba(255, 236, 214, 0.28)')
-        g.fillStyle = wash
-        g.fillRect(0, 0, W, H)
-      } else {
-        for (let i = 0; i < 12; i++) {
-          const bx = ((((i * 123 - camera * 0.28) % 640) + 640) % 640) - 70
-          g.fillStyle = i % 2 ? '#d0a5b9aa' : '#f5e8c6aa'
-          g.fillRect(bx, 96 + (i % 3) * 14, 72, 160)
-          g.fillStyle = '#fff8dc'
-          g.fillRect(bx + 9, 112 + (i % 3) * 14, 16, 25)
-          g.fillRect(bx + 42, 112 + (i % 3) * 14, 16, 25)
+    }
+    this.checkpoint = {
+      x: stage.start.col * TILE + TILE / 2,
+      y: (stage.start.row + 1) * TILE - TALL,
+    }
+    this.placeHero()
+  }
+
+  private placeHero() {
+    this.hero = { x: this.checkpoint.x, y: this.checkpoint.y, vx: 0, vy: 0 }
+    this.ground = false
+    this.riding = null
+    this.hearts = HEARTS
+    this.immune = 60
+    this.facing = 1
+    this.camera = this.cameraTarget()
+  }
+
+  solidAt(col: number, row: number): number {
+    if (col < 0 || col >= this.stage.cols) return SOLID_BLOCK
+    if (row < 0 || row >= this.stage.rows) return 0
+    return this.solid[row * this.stage.cols + col]!
+  }
+
+  private setSolid(col: number, row: number, value: number) {
+    if (col < 0 || col >= this.stage.cols || row < 0 || row >= this.stage.rows)
+      return
+    this.solid[row * this.stage.cols + col] = value
+  }
+
+  /** Move a box horizontally against walls; returns true when it hit one. */
+  private moveX(body: Body, half: number, tall: number, dx: number): boolean {
+    body.x += dx
+    const top = Math.floor((body.y + 1) / TILE)
+    const bottom = Math.floor((body.y + tall - 1) / TILE)
+    if (dx > 0) {
+      const col = Math.floor((body.x + half) / TILE)
+      for (let row = top; row <= bottom; row++)
+        if (isWall(this.solidAt(col, row))) {
+          body.x = col * TILE - half - 0.01
+          return true
         }
-        for (let i = 0; i < 10; i++) {
-          const bx = ((((i * 164 - camera * 0.55) % 790) + 790) % 790) - 80
-          g.strokeStyle = '#679f9e'
-          g.lineWidth = 11
-          g.beginPath()
-          g.moveTo(bx, H)
-          g.lineTo(bx, 165)
-          g.quadraticCurveTo(bx + 18, 142, bx + 35, 165)
-          g.stroke()
+    } else if (dx < 0) {
+      const col = Math.floor((body.x - half) / TILE)
+      for (let row = top; row <= bottom; row++)
+        if (isWall(this.solidAt(col, row))) {
+          body.x = (col + 1) * TILE + half + 0.01
+          return true
+        }
+    }
+    return false
+  }
+
+  /** Move a box vertically; returns 'land', 'bump' or null. */
+  private moveY(body: Body, half: number, tall: number, dy: number) {
+    const prevBottom = body.y + tall
+    body.y += dy
+    const left = Math.floor((body.x - half + 1) / TILE)
+    const right = Math.floor((body.x + half - 1) / TILE)
+    if (dy > 0) {
+      const row = Math.floor((body.y + tall) / TILE)
+      for (let col = left; col <= right; col++) {
+        const s = this.solidAt(col, row)
+        if (
+          isWall(s) ||
+          (s === SOLID_LEDGE && prevBottom <= row * TILE + 0.5)
+        ) {
+          body.y = row * TILE - tall
+          return 'land' as const
         }
       }
-      g.save()
-      g.translate(-camera, 0)
-      const ground = tilePattern(g, PLUMBER_ART.tile(1), 32)
-      for (const floor of surfaces) {
-        g.fillStyle = ground ?? '#396d79'
-        g.fillRect(
-          floor.x,
-          floor.y + 4,
-          floor.width,
-          ground && floor.y === FLOOR_Y ? 46 : 19,
-        )
-        g.fillStyle = '#c7a473'
-        g.fillRect(floor.x, floor.y, floor.width, 7)
-        g.fillStyle = '#f3e4a2'
-        for (let k = 12; k < floor.width; k += 40)
-          g.fillRect(floor.x + k, floor.y + 2, 6, 3)
-      }
-      for (const coin of coins) {
-        if (coin.taken) continue
-        const lift = Math.sin(tick / 17) * 2
+    } else if (dy < 0) {
+      const row = Math.floor(body.y / TILE)
+      for (let col = left; col <= right; col++)
+        if (isWall(this.solidAt(col, row))) {
+          body.y = (row + 1) * TILE
+          return 'bump' as const
+        }
+    }
+    return null
+  }
+
+  private updatePlatforms() {
+    const t = this.tick
+    for (const p of this.platforms) {
+      const ox = p.x
+      const oy = p.y
+      const at = this.platformAt(p, t)
+      p.x = at.x
+      p.y = at.y
+      p.dx = p.x - ox
+      p.dy = p.y - oy
+    }
+  }
+
+  private updatePlay(keys: InputFrame) {
+    this.updatePlatforms()
+    if (this.immune) this.immune--
+    if (this.cooldown) this.cooldown--
+    if (this.swing) this.swing--
+    const hero = this.hero
+    if (this.riding) {
+      this.moveX(hero, HALF, TALL, this.riding.dx)
+      hero.y += this.riding.dy
+    }
+    const move = Number(keys.held.right) - Number(keys.held.left)
+    hero.vx = move
+      ? Math.max(-RUN, Math.min(RUN, hero.vx + move * 0.44))
+      : hero.vx * 0.77
+    if (Math.abs(hero.vx) < 0.05) hero.vx = 0
+    if (move) this.facing = move > 0 ? 1 : -1
+    if (this.ground) this.stride += Math.abs(hero.vx) * 0.17
+    if (this.moveX(hero, HALF, TALL, hero.vx)) hero.vx = 0
+    if (this.ground) this.grace = 7
+    else if (this.grace) this.grace--
+    const jumpDown = keys.pressed.a || keys.pressed.up
+    this.jumpHeld = keys.held.a || keys.held.up
+    if (jumpDown) this.jumpBuffer = 7
+    else if (this.jumpBuffer) this.jumpBuffer--
+    if (this.jumpBuffer && this.grace) {
+      hero.vy = JUMP
+      this.ground = false
+      this.riding = null
+      this.grace = 0
+      this.jumpBuffer = 0
+      this.sound.play('blip')
+    }
+    if (hero.vy >= 0) this.sprung = false
+    if (!this.jumpHeld && !this.sprung && hero.vy < -3.4) hero.vy = -3.4
+    hero.vy = Math.min(9, hero.vy + GRAVITY)
+    const prevBottom = hero.y + TALL
+    const wasGround = this.ground
+    this.ground = false
+    this.riding = null
+    const hit = this.moveY(hero, HALF, TALL, hero.vy)
+    if (hit === 'land') {
+      hero.vy = 0
+      this.ground = true
+    } else if (hit === 'bump') hero.vy = 0.5
+    if (hero.vy >= 0) {
+      for (const p of this.platforms) {
+        if (prevBottom > p.y - p.dy + 0.6) continue
         if (
-          drawSprite(
-            g,
-            PLUMBER_ART.prop('brass-token'),
-            coin.x,
-            coin.y + 10 + lift,
-            20,
+          hero.y + TALL < p.y ||
+          hero.x + HALF < p.x ||
+          hero.x - HALF > p.x + p.w
+        )
+          continue
+        hero.y = p.y - TALL
+        hero.vy = 0
+        this.ground = true
+        this.riding = p
+        break
+      }
+    }
+    if (this.ground && !wasGround) this.landed = 6
+    else if (this.landed) this.landed--
+    this.updateSprings(prevBottom)
+    if (keys.pressed.down && this.ground) this.tryDoor()
+    if (keys.pressed.b && !this.cooldown) this.useTool()
+    this.collectTokens()
+    this.updateFoes(prevBottom)
+    this.updateVents()
+    if (this.boss) this.updateBoss(prevBottom)
+    this.updateCheckpoints()
+    if (hero.y > this.stage.rows * TILE + 40) return this.die()
+    if (
+      this.goal &&
+      Math.abs(this.goal.x - hero.x) < 16 &&
+      hero.y + TALL > this.goal.y - 48
+    )
+      return this.stageClear()
+    if (this.stage.gate !== null && !this.locked) {
+      const gateX = (this.stage.gate + 1) * TILE + HALF
+      if (hero.x > gateX + TILE) {
+        this.locked = true
+        for (let row = 1; row < 14; row++)
+          this.setSolid(this.stage.gate, row, SOLID_BLOCK)
+        if (this.boss) this.boss.state = 'walk'
+        this.sound.play('extra')
+      }
+    }
+    const target = this.cameraTarget()
+    this.camera += (target - this.camera) * 0.2
+  }
+
+  private cameraTarget() {
+    const max = this.stage.cols * TILE - W
+    if (this.locked) return max
+    return Math.max(0, Math.min(max, this.hero.x - W * 0.4))
+  }
+
+  private updateSprings(prevBottom: number) {
+    const hero = this.hero
+    for (const spring of this.springs) {
+      if (spring.squash) spring.squash--
+      if (hero.vy < 0 && !this.ground) continue
+      if (Math.abs(hero.x - spring.x) > 12) continue
+      const top = spring.y - 10
+      const feet = hero.y + TALL
+      const landing = prevBottom <= top + 1 && feet >= top
+      const stepping =
+        this.ground &&
+        Math.abs(hero.x - spring.x) < 9 &&
+        Math.abs(feet - spring.y) < 2
+      if (landing || stepping) {
+        hero.y = top - TALL
+        hero.vy = SPRING
+        this.sprung = true
+        this.ground = false
+        this.riding = null
+        spring.squash = 12
+        this.sound.play('extra')
+      }
+    }
+  }
+
+  private tryDoor() {
+    const hero = this.hero
+    const feet = Math.round(hero.y + TALL)
+    const doors = this.stage.doors
+    for (const door of doors) {
+      if (feet !== door.row * TILE) continue
+      if (Math.abs(hero.x - (door.col * TILE + TILE / 2)) > 10) continue
+      const to = doors[door.to]!
+      hero.x = to.col * TILE + TILE / 2
+      hero.y = to.row * TILE - TALL
+      hero.vx = hero.vy = 0
+      this.camera = this.cameraTarget()
+      this.sound.play('extra')
+      return
+    }
+  }
+
+  private toolBox() {
+    const hero = this.hero
+    const near = hero.x + this.facing * 6
+    const far = hero.x + this.facing * 42
+    return {
+      left: Math.min(near, far),
+      right: Math.max(near, far),
+      top: hero.y + 2,
+      bottom: hero.y + TALL,
+    }
+  }
+
+  private useTool() {
+    this.cooldown = 20
+    this.swing = 14
+    const box = this.toolBox()
+    const inBox = (x: number, y: number) =>
+      x >= box.left - 10 &&
+      x <= box.right + 10 &&
+      y >= box.top - 6 &&
+      y <= box.bottom + 18
+    let struck = false
+    for (const foe of this.foes) {
+      if (foe.state === 'gone' || foe.fade) continue
+      if (!inBox(foe.x, foe.y - 8)) continue
+      struck = true
+      if (foe.kind === 'pumpbug') {
+        foe.fade = 30
+        foe.flipped = true
+        this.score += 150
+      } else if (foe.state === 'stunned') this.kick(foe, this.facing)
+      else {
+        foe.state = 'stunned'
+        foe.timer = 300
+        foe.vx = 0
+        this.score += 100
+      }
+    }
+    for (const valve of this.valves)
+      if (!valve.open && inBox(valve.x, valve.y - 8)) {
+        valve.open = true
+        struck = true
+        this.score += 200
+        for (let i = 0; i < this.solid.length; i++)
+          if (this.solid[i] === SOLID_GATE) this.solid[i] = 0
+        this.sound.play('extra')
+      }
+    const rowTop = Math.floor(box.top / TILE)
+    const rowBottom = Math.floor((box.bottom - 1) / TILE)
+    for (
+      let col = Math.floor(box.left / TILE);
+      col <= Math.floor(box.right / TILE);
+      col++
+    )
+      for (let row = rowTop - 1; row <= rowBottom; row++)
+        if (this.solidAt(col, row) === SOLID_CRATE) {
+          this.setSolid(col, row, 0)
+          this.score += 70
+          this.tokens++
+          struck = true
+        }
+    const boss = this.boss
+    if (
+      boss &&
+      boss.state === 'recover' &&
+      Math.abs(boss.x - (box.left + box.right) / 2) < 46
+    ) {
+      this.hitBoss()
+      struck = true
+    }
+    this.sound.play(struck ? 'pop' : 'shoot')
+  }
+
+  private collectTokens() {
+    const hero = this.hero
+    for (const token of this.tokensOnMap) {
+      if (token.taken) continue
+      if (Math.abs(token.x - hero.x) > 15) continue
+      if (token.y < hero.y - 10 || token.y > hero.y + TALL + 8) continue
+      token.taken = true
+      this.score += 50
+      this.tokens++
+      if (this.tokens >= 100) {
+        this.tokens -= 100
+        this.lives++
+        this.sound.play('level')
+      } else this.sound.play('pickup')
+    }
+  }
+
+  private kick(foe: Foe, dir: number) {
+    foe.state = 'kicked'
+    foe.dir = dir
+    foe.timer = 420
+    foe.vx = dir * 4.6
+    this.score += 100
+    this.sound.play('boom')
+  }
+
+  private updateFoes(prevBottom: number) {
+    const hero = this.hero
+    for (const foe of this.foes) {
+      if (foe.fade) {
+        foe.fade--
+        if (!foe.fade) foe.state = 'gone'
+        continue
+      }
+      if (foe.state === 'gone') continue
+      if (foe.state === 'idle' && Math.abs(hero.x - foe.x) < 190) {
+        foe.state = 'walk'
+        foe.dir = hero.x < foe.x ? -1 : 1
+      }
+      if (foe.state === 'stunned' && --foe.timer <= 0) foe.state = 'walk'
+      if (foe.state === 'kicked' && --foe.timer <= 0) {
+        foe.fade = 20
+        continue
+      }
+      const speed =
+        foe.state === 'kicked'
+          ? 4.6
+          : foe.state === 'walk'
+            ? foe.kind === 'pumpbug'
+              ? 0.6
+              : 1.5
+            : 0
+      foe.vx = foe.dir * speed
+      const body: Body = { x: foe.x, y: foe.y - 16, vx: foe.vx, vy: foe.vy }
+      if (speed && this.moveX(body, 9, 16, foe.vx)) foe.dir *= -1
+      else if (speed && foe.kind === 'pumpbug' && foe.state === 'walk') {
+        const aheadCol = Math.floor((body.x + foe.dir * 10) / TILE)
+        const belowRow = Math.floor((foe.y + 2) / TILE)
+        const s = this.solidAt(aheadCol, belowRow)
+        if (!isWall(s) && s !== SOLID_LEDGE) foe.dir *= -1
+      }
+      body.vy = Math.min(9, foe.vy + GRAVITY)
+      if (this.moveY(body, 9, 16, body.vy) === 'land') body.vy = 0
+      foe.x = body.x
+      foe.y = body.y + 16
+      foe.vy = body.vy
+      if (foe.y > this.stage.rows * TILE + 40) {
+        foe.state = 'gone'
+        continue
+      }
+      if (foe.state === 'kicked')
+        for (const other of this.foes)
+          if (
+            other !== foe &&
+            !other.fade &&
+            other.state !== 'gone' &&
+            Math.abs(other.x - foe.x) < 18 &&
+            Math.abs(other.y - foe.y) < 18
+          ) {
+            other.fade = 30
+            other.flipped = true
+            this.score += 200
+            this.sound.play('pop')
+          }
+      const overlap =
+        Math.abs(foe.x - hero.x) < HALF + 9 &&
+        hero.y + TALL > foe.y - 18 &&
+        hero.y < foe.y
+      if (!overlap || this.mode !== 'play') continue
+      const stomp = hero.vy > 0.5 && prevBottom <= foe.y - 10
+      if (stomp) {
+        hero.vy = this.jumpHeld ? -7.6 : -5.4
+        this.ground = false
+        if (foe.kind === 'pumpbug') {
+          foe.fade = 30
+          foe.flipped = false
+          this.score += 100
+          this.sound.play('pop')
+        } else if (foe.state === 'stunned')
+          this.kick(foe, hero.x < foe.x ? 1 : -1)
+        else {
+          foe.state = 'stunned'
+          foe.timer = 300
+          this.score += 100
+          this.sound.play('pop')
+        }
+      } else if (foe.state === 'stunned')
+        this.kick(foe, hero.x < foe.x ? 1 : -1)
+      else if (foe.state !== 'kicked' || foe.timer < 400)
+        this.hurt(foe.x < hero.x ? 1 : -1)
+    }
+  }
+
+  ventActive(vent: Vent): number {
+    const phase = (this.tick + vent.offset) % 180
+    if (phase >= 120) return 2
+    if (phase >= 100) return 1
+    return 0
+  }
+
+  private updateVents() {
+    const hero = this.hero
+    for (const vent of this.vents) {
+      if (this.ventActive(vent) !== 2) continue
+      if (Math.abs(hero.x - vent.x) > HALF + 7) continue
+      if (hero.y + TALL < vent.y - 60) continue
+      this.hurt(hero.x < vent.x ? -1 : 1)
+    }
+    for (const wave of this.waves) {
+      wave.x += wave.dir * 2.7
+      if (Math.abs(wave.x - hero.x) < HALF + 10 && hero.y + TALL > wave.y - 22)
+        this.hurt(wave.dir)
+    }
+    const left = (this.stage.gate ?? 0) * TILE
+    const right = this.stage.cols * TILE
+    this.waves = this.waves.filter((w) => w.x > left && w.x < right)
+  }
+
+  private updateCheckpoints() {
+    for (const flag of this.checkpoints) {
+      if (flag.reached || this.hero.x < flag.x - 8) continue
+      flag.reached = true
+      this.checkpoint = { x: flag.x, y: flag.y - TALL }
+      this.score += 100
+      this.sound.play('extra')
+    }
+  }
+
+  private updateBoss(prevBottom: number) {
+    const boss = this.boss!
+    const hero = this.hero
+    boss.timer--
+    const left = ((this.stage.gate ?? 0) + 3) * TILE
+    const right = (this.stage.cols - 2) * TILE
+    switch (boss.state) {
+      case 'wait':
+        return
+      case 'walk':
+        boss.dir = hero.x < boss.x ? -1 : 1
+        boss.x = Math.max(left, Math.min(right, boss.x + boss.dir * boss.speed))
+        if (boss.timer <= 0) {
+          boss.state = 'tell'
+          boss.timer = 60
+        }
+        break
+      case 'tell':
+        if (boss.timer <= 0) {
+          boss.state = 'burst'
+          boss.timer = 36
+          this.waves.push(
+            { x: boss.x - 24, y: boss.y, dir: -1 },
+            { x: boss.x + 24, y: boss.y, dir: 1 },
           )
+          this.sound.play('boom')
+        }
+        break
+      case 'burst':
+        if (boss.timer <= 0) {
+          boss.state = 'recover'
+          boss.timer = 120
+        }
+        break
+      case 'recover':
+        if (boss.timer <= 0) {
+          boss.state = 'walk'
+          boss.timer = 100 + Math.floor(this.rng() * 60)
+        }
+        break
+      case 'hurt':
+        if (boss.timer <= 0) {
+          boss.state = boss.hp > 0 ? 'walk' : 'defeat'
+          boss.timer = boss.hp > 0 ? 80 : 170
+        }
+        return
+      case 'defeat':
+        if (boss.timer <= 0) this.stageClear()
+        return
+    }
+    const top = boss.y - 66
+    const close =
+      Math.abs(boss.x - hero.x) < HALF + 18 &&
+      hero.y + TALL > top &&
+      hero.y < boss.y
+    if (!close) {
+      if (
+        boss.state === 'burst' &&
+        Math.hypot(boss.x - hero.x, boss.y - 30 - (hero.y + 14)) < 62
+      )
+        this.hurt(hero.x < boss.x ? -1 : 1)
+      return
+    }
+    const stomp = hero.vy > 0.5 && prevBottom <= top + 12
+    if (stomp && boss.state === 'recover') {
+      hero.vy = -7.2
+      this.hitBoss()
+    } else if (stomp) {
+      hero.vy = -6
+      hero.vx = hero.x < boss.x ? -3 : 3
+    } else if (boss.state !== 'recover') this.hurt(hero.x < boss.x ? -1 : 1)
+  }
+
+  private hitBoss() {
+    const boss = this.boss!
+    boss.hp--
+    boss.state = 'hurt'
+    boss.timer = 50
+    boss.speed *= 1.25
+    this.score += 1000
+    this.sound.play('boom')
+  }
+
+  private hurt(dir: number) {
+    if (this.immune || this.mode !== 'play') return
+    this.hearts--
+    this.immune = 90
+    this.hero.vx = dir * 3.2
+    this.hero.vy = -4.4
+    this.ground = false
+    this.riding = null
+    this.sound.play('warn')
+    if (this.hearts <= 0) this.die()
+  }
+
+  private die() {
+    this.sound.play('die')
+    this.setMode('dying', 80)
+  }
+
+  private afterDeath() {
+    if (!this.autopilot) this.lives--
+    if (this.lives <= 0) {
+      this.remember({ lives: START_LIVES, score: 0, tokens: 0 })
+      this.setMode('over', 220)
+      return
+    }
+    const flags = this.checkpoints.map((f) => f.reached)
+    const stageCheckpoint = this.checkpoint
+    this.loadStage(this.stageIndex)
+    this.checkpoints.forEach((f, i) => {
+      f.reached = flags[i] ?? false
+    })
+    this.checkpoint = stageCheckpoint
+    this.placeHero()
+    this.setMode('play')
+  }
+
+  private stageClear() {
+    if (this.mode !== 'play') return
+    this.cleared.push(this.stage.code)
+    this.score += 1000 + this.hearts * 200
+    this.sound.play('level')
+    this.setMode('clear', this.autopilot ? 30 : 170)
+  }
+
+  /** Demo and test pilot: predicts each jump against the tiles and the moving platforms. */
+  private pilotInput(): InputFrame {
+    const input = emptyInput()
+    if (this.mode !== 'play') return input
+    const boss = this.boss
+    if (boss && this.locked && boss.state !== 'defeat')
+      return this.pilotBoss(input)
+    const hero = this.hero
+    const feet = hero.y + TALL
+    if (!this.ground) {
+      input.held.a = this.pilotHold > 0
+      if (this.pilotHold) this.pilotHold--
+      input.held.right = this.pilotRight
+      return input
+    }
+    if (this.pilotSeek !== null) {
+      if (hero.x > this.pilotSeek) {
+        input.held.left = true
+        return input
+      }
+      this.pilotSeek = null
+    }
+    let go = true
+    let jump: { hold: number; right: boolean } | null = null
+    const footRow = Math.floor((feet + 1) / TILE)
+    const aheadCol = Math.floor((hero.x + HALF + 4) / TILE)
+    const bodyRows = [
+      Math.floor((hero.y + 2) / TILE),
+      Math.floor((feet - 2) / TILE),
+    ]
+    let wall = 0
+    for (let row = bodyRows[0]!; row <= bodyRows[1]!; row++) {
+      const s = this.solidAt(aheadCol, row)
+      if (isWall(s)) wall = s
+    }
+    const gate = this.gateAhead()
+    const valve = this.valves.find((v) => !v.open)
+    if (gate !== null && valve && valve.x < hero.x + 40) {
+      const dx = valve.x - hero.x
+      if (dx < 6) {
+        input.held.left = true
+        go = false
+      } else if (dx < 40) {
+        go = false
+        if (!this.cooldown) input.pressed.b = true
+      }
+    } else if (wall === SOLID_CRATE) {
+      go = false
+      if (!this.cooldown) input.pressed.b = true
+    } else if (wall) {
+      jump = this.pickJump(
+        (land) => land.feet < feet - 4 || land.x > hero.x + 24,
+      )
+      if (!jump) {
+        const spring = this.springs.find(
+          (s) => s.x < hero.x && hero.x - s.x < TILE * 9,
         )
-          continue
-        g.fillStyle = '#f7b83b'
+        if (spring) {
+          this.pilotSeek = spring.x - TILE * 2
+          input.held.left = true
+          return input
+        } else jump = { hold: 16, right: true }
+      }
+    }
+    const edge = !this.supportedAt(hero.x + HALF + 6, feet, footRow)
+    const springNear = this.springs.some(
+      (s) =>
+        s.x > hero.x - 4 && s.x - hero.x < TILE * 3 && Math.abs(s.y - feet) < 6,
+    )
+    if (edge && !jump && go && !springNear) {
+      jump = this.pickJump((land) => land.x > hero.x + 12)
+      if (!jump) go = false
+    }
+    for (const foe of this.foes) {
+      if (foe.state === 'gone' || foe.fade) continue
+      const dx = foe.x - hero.x
+      if (dx < -10 || dx > 70 || Math.abs(foe.y - feet) > 34) continue
+      if (foe.state === 'stunned' || foe.state === 'kicked') {
+        if (dx < 34 && foe.state === 'stunned' && !jump)
+          jump = { hold: 12, right: true }
+      } else if (!this.cooldown && dx < 54) input.pressed.b = true
+    }
+    for (const vent of this.vents) {
+      const dx = vent.x - hero.x
+      if (dx < -HALF - 10 || dx > 46 || Math.abs(vent.y - feet) > 20) continue
+      const phase = (this.tick + vent.offset) % 180
+      if (phase >= 64 && dx > 6) {
+        go = false
+        jump = null
+      }
+    }
+    if (hero.x > this.pilotBest + 2) {
+      this.pilotBest = hero.x
+      this.pilotStuck = 0
+    } else if (go && ++this.pilotStuck > 240) {
+      jump = { hold: 16, right: true }
+      this.pilotStuck = 0
+    }
+    if (jump) {
+      input.pressed.a = true
+      input.held.a = true
+      this.pilotHold = jump.hold
+      this.pilotRight = jump.right
+      input.held.right = jump.right
+      return input
+    }
+    input.held.right = go && !input.held.left
+    return input
+  }
+
+  private gateAhead(): number | null {
+    const from = Math.floor(this.hero.x / TILE)
+    for (let col = from; col < from + 10; col++)
+      for (let row = 0; row < this.stage.rows; row++)
+        if (this.solidAt(col, row) === SOLID_GATE) return col
+    return null
+  }
+
+  private supportedAt(x: number, feet: number, footRow: number): boolean {
+    const col = Math.floor(x / TILE)
+    for (let row = footRow; row <= footRow + 2; row++) {
+      const s = this.solidAt(col, row)
+      if (isWall(s) || s === SOLID_LEDGE) return true
+    }
+    return this.platforms.some(
+      (p) => x >= p.x && x <= p.x + p.w && Math.abs(p.y - feet) < 6,
+    )
+  }
+
+  platformAt(p: Platform, t: number): { x: number; y: number } {
+    if (p.kind === 'piston')
+      return {
+        x: p.baseX,
+        y: p.baseY + 64 * (0.5 - 0.5 * Math.cos((t * Math.PI * 2) / 220)),
+      }
+    return {
+      x: p.baseX + p.sign * 80 * Math.sin((t * Math.PI * 2) / 280),
+      y: p.baseY,
+    }
+  }
+
+  /** The first jump whose simulated landing is solid and passes `good`. */
+  private pickJump(
+    good: (land: { x: number; feet: number }) => boolean,
+  ): { hold: number; right: boolean } | null {
+    for (const option of [
+      { hold: 16, right: true },
+      { hold: 8, right: true },
+      { hold: 3, right: true },
+      { hold: 16, right: false },
+    ]) {
+      const land = this.simulateJump(option.hold, option.right)
+      if (land && good(land) && !this.ventAt(land.x, land.feet)) return option
+    }
+    return null
+  }
+
+  private ventAt(x: number, feet: number): boolean {
+    return this.vents.some(
+      (v) => Math.abs(v.x - x) < HALF + 9 && Math.abs(v.y - feet) < 4,
+    )
+  }
+
+  private simulateJump(hold: number, right: boolean) {
+    const body: Body = { ...this.hero }
+    let vx = right ? body.vx : body.vx * 0.5
+    let vy = JUMP
+    for (let k = 1; k <= 120; k++) {
+      vx = right ? Math.min(RUN, vx + 0.44) : vx * 0.77
+      if (this.moveX(body, HALF, TALL, vx)) vx = 0
+      if (k > hold && vy < -3.4) vy = -3.4
+      vy = Math.min(9, vy + GRAVITY)
+      const prevBottom = body.y + TALL
+      const hit = this.moveY(body, HALF, TALL, vy)
+      if (hit === 'land') return { x: body.x, feet: body.y + TALL }
+      if (hit === 'bump') vy = 0.5
+      if (vy >= 0)
+        for (const p of this.platforms) {
+          const at = this.platformAt(p, this.tick + k)
+          const before = this.platformAt(p, this.tick + k - 1)
+          if (prevBottom > before.y + 0.6) continue
+          if (
+            body.y + TALL < at.y ||
+            body.x + HALF < at.x + 2 ||
+            body.x - HALF > at.x + p.w - 2
+          )
+            continue
+          return { x: body.x, feet: at.y }
+        }
+      if (body.y > this.stage.rows * TILE) return null
+    }
+    return null
+  }
+
+  private pilotBoss(input: InputFrame): InputFrame {
+    const hero = this.hero
+    const boss = this.boss!
+    const dx = boss.x - hero.x
+    const wave = this.waves.find(
+      (w) => Math.abs(w.x - hero.x) < 56 && Math.sign(hero.x - w.x) === w.dir,
+    )
+    if (boss.state === 'recover') {
+      if (dx > 4) input.held.right = true
+      else if (dx < -4) input.held.left = true
+      if (Math.abs(dx) < 52 && this.ground) input.pressed.a = true
+      input.held.a = true
+    } else if (
+      boss.state === 'tell' ||
+      boss.state === 'burst' ||
+      Math.abs(dx) < 90
+    ) {
+      if (dx > 0) input.held.left = true
+      else input.held.right = true
+    }
+    if (wave && this.ground) {
+      input.pressed.a = true
+      input.held.a = true
+    }
+    return input
+  }
+
+  render(g: CanvasRenderingContext2D) {
+    switch (this.mode) {
+      case 'title':
+        return this.renderTitle(g)
+      case 'select':
+        return this.renderSelect(g)
+      case 'victory':
+        return this.renderVictory(g)
+      default:
+        this.renderStage(g)
+        if (this.mode === 'intro') this.renderIntro(g)
+        if (this.mode === 'clear')
+          this.renderBanner(g, 'STAGE CLEAR', `+${1000 + this.hearts * 200}`)
+        if (this.mode === 'over')
+          this.renderBanner(
+            g,
+            'GAME OVER',
+            `Continue from ${this.stage.code} on the title screen`,
+          )
+    }
+  }
+
+  private plate(g: CanvasRenderingContext2D, code: string, pan: number) {
+    const back = g.createLinearGradient(0, 0, 0, H)
+    back.addColorStop(0, '#76d8d6')
+    back.addColorStop(0.55, '#d6f7dc')
+    back.addColorStop(1, '#ffe5c8')
+    g.fillStyle = back
+    g.fillRect(0, 0, W, H)
+    const path = plumberStageArt(code)
+    const plate = path ? stagePlate(path) : null
+    if (!plate) return
+    const cover =
+      Math.max(W / plate.naturalWidth, H / plate.naturalHeight) * 1.18
+    const pw = plate.naturalWidth * cover
+    const ph = plate.naturalHeight * cover
+    g.drawImage(plate, -pan * (pw - W), H - ph, pw, ph)
+  }
+
+  private text(
+    g: CanvasRenderingContext2D,
+    words: string,
+    x: number,
+    y: number,
+    size: number,
+    color = '#fff4dc',
+    align: CanvasTextAlign = 'center',
+  ) {
+    g.font = `900 ${size}px "Lilita One", system-ui, sans-serif`
+    g.textAlign = align
+    g.lineJoin = 'round'
+    g.lineWidth = Math.max(3, size / 5)
+    g.strokeStyle = '#1b3440'
+    g.strokeText(words, x, y)
+    g.fillStyle = color
+    g.fillText(words, x, y)
+    g.textAlign = 'left'
+  }
+
+  private renderTitle(g: CanvasRenderingContext2D) {
+    this.plate(g, '1-1', (Math.sin(this.tick / 400) + 1) / 2)
+    g.fillStyle = 'rgba(12, 40, 52, 0.35)'
+    g.fillRect(0, 0, W, H)
+    this.text(g, 'SAVE THE', W / 2, 70, 26, '#ffd98a')
+    this.text(g, 'PLUMBER', W / 2, 112, 46, '#fff4dc')
+    this.text(g, `World 1 · ${WORLD_NAME}`, W / 2, 140, 14, '#bdf0e6')
+    const items = this.menuItems
+    items.forEach((item, i) => {
+      const label =
+        item === 'continue' && this.resume
+          ? `CONTINUE  ${WORLD_ONE[this.resume.stage]!.code}`
+          : 'NEW GAME'
+      const y = 182 + i * 26
+      const on = i === this.menu
+      if (on) {
+        g.fillStyle = 'rgba(255, 217, 138, 0.25)'
+        g.fillRect(W / 2 - 92, y - 18, 184, 24)
+      }
+      this.text(
+        g,
+        `${on ? '▶ ' : ''}${label}`,
+        W / 2,
+        y,
+        16,
+        on ? '#ffd98a' : '#fff4dc',
+      )
+    })
+    this.text(g, 'A  JUMP     B  TOOL     ↓  PIPES', W / 2, 256, 10, '#d6f2ee')
+  }
+
+  private renderSelect(g: CanvasRenderingContext2D) {
+    this.plate(g, '1-1', 0.2)
+    g.fillStyle = 'rgba(12, 40, 52, 0.62)'
+    g.fillRect(0, 0, W, H)
+    this.text(g, 'CHOOSE YOUR HEROINE', W / 2, 30, 20, '#ffd98a')
+    const cw = 66
+    const ch = 92
+    PLUMBER_ROSTER.forEach((member, i) => {
+      const x = 16 + (i % 4) * (cw + 8)
+      const y = 46 + Math.floor(i / 4) * (ch + 10)
+      const on = i === this.cursor
+      g.fillStyle = on ? '#ffd98a' : '#fff4dc'
+      g.fillRect(x - 3, y - 3, cw + 6, ch + 6)
+      g.fillStyle = '#d6f2ee'
+      g.fillRect(x, y, cw, ch)
+      const portrait = stagePlate(rosterPortrait(member))
+      if (portrait) {
+        const s =
+          Math.max(cw / portrait.naturalWidth, ch / portrait.naturalHeight) *
+          1.25
+        const pw = portrait.naturalWidth * s
+        g.save()
+        g.beginPath()
+        g.rect(x, y, cw, ch)
+        g.clip()
+        g.drawImage(
+          portrait,
+          x + (cw - pw) / 2,
+          y - 4,
+          pw,
+          portrait.naturalHeight * s,
+        )
+        g.restore()
+      } else if (typeof Path2D !== 'undefined')
+        drawHeroine(
+          g,
+          rosterHeroine(seedForRoster(i, () => 0)),
+          x + cw / 2,
+          y + ch - 6,
+          70,
+          {
+            stride: 0,
+            run: 0,
+            airborne: false,
+            rising: false,
+            facing: 1,
+            tick: this.tick,
+          },
+        )
+      g.fillStyle = 'rgba(27, 52, 64, 0.78)'
+      g.fillRect(x, y + ch - 16, cw, 16)
+      this.text(
+        g,
+        member.name,
+        x + cw / 2,
+        y + ch - 4,
+        11,
+        on ? '#ffd98a' : '#fff4dc',
+      )
+    })
+    const member = PLUMBER_ROSTER[this.cursor]!
+    const px = 330
+    this.text(g, member.name, px + 70, 70, 24, '#ffd98a')
+    this.text(g, member.build, px + 70, 90, 11, '#d6f2ee')
+    this.text(g, member.signature, px + 70, 106, 10, '#d6f2ee')
+    const frame = Math.floor(this.tick / 6) % 6
+    const runReady = keyedSheet(member.run, 6) !== null
+    const drawn = drawSheetFrame(
+      g,
+      runReady ? member.run : member.actions,
+      6,
+      runReady ? frame : actionPoses(member).idle,
+      px + 70,
+      206,
+      80 * member.scale,
+    )
+    if (!drawn && typeof Path2D !== 'undefined')
+      drawHeroine(
+        g,
+        rosterHeroine(seedForRoster(this.cursor, () => 0)),
+        px + 70,
+        206,
+        66,
+        {
+          stride: this.tick / 4,
+          run: 1,
+          airborne: false,
+          rising: false,
+          facing: 1,
+          tick: this.tick,
+        },
+      )
+    this.text(
+      g,
+      '◀ ▶  CHOOSE    A  START    B  SURPRISE',
+      W / 2,
+      260,
+      10,
+      '#fff4dc',
+    )
+  }
+
+  private renderIntro(g: CanvasRenderingContext2D) {
+    g.fillStyle = 'rgba(12, 40, 52, 0.72)'
+    g.fillRect(0, 86, W, 96)
+    this.text(g, `WORLD ${this.stage.code}`, W / 2, 118, 18, '#ffd98a')
+    this.text(g, this.stage.name.toUpperCase(), W / 2, 150, 28)
+    this.text(
+      g,
+      `${this.member.name}  ×${this.lives}`,
+      W / 2,
+      172,
+      12,
+      '#d6f2ee',
+    )
+  }
+
+  private renderBanner(
+    g: CanvasRenderingContext2D,
+    title: string,
+    line: string,
+  ) {
+    g.fillStyle = 'rgba(12, 40, 52, 0.66)'
+    g.fillRect(0, 96, W, 78)
+    this.text(g, title, W / 2, 136, 30, '#ffd98a')
+    this.text(g, line, W / 2, 160, 12, '#d6f2ee')
+  }
+
+  private renderVictory(g: CanvasRenderingContext2D) {
+    this.plate(g, '1-4', 1)
+    g.fillStyle = 'rgba(12, 40, 52, 0.55)'
+    g.fillRect(0, 0, W, H)
+    this.text(g, 'WORLD 1 CLEAR!', W / 2, 46, 30, '#ffd98a')
+    const teo = drawSprite(g, PLUMBER_ART.cast('teo-helping'), 150, 230, 150)
+    if (!teo) drawSprite(g, PLUMBER_ART.cast('teo-caged'), 150, 230, 150)
+    this.drawHeroSprite(g, 320, 230, 'cheer', 1.6)
+    this.text(g, `${BOSS_NAME} lets the river go.`, W / 2, 74, 13, '#fff4dc')
+    this.text(
+      g,
+      'Teo’s trail leads on to Tideglass Marina.',
+      W / 2,
+      92,
+      13,
+      '#d6f2ee',
+    )
+    this.text(g, `SCORE ${this.score}`, W / 2, 256, 14, '#ffd98a')
+  }
+
+  private renderStage(g: CanvasRenderingContext2D) {
+    const max = Math.max(1, this.stage.cols * TILE - W)
+    this.plate(g, this.stage.code, this.camera / max)
+    const wash = g.createLinearGradient(0, 0, 0, H)
+    wash.addColorStop(0, 'rgba(214, 247, 236, 0.08)')
+    wash.addColorStop(1, 'rgba(255, 236, 214, 0.22)')
+    g.fillStyle = wash
+    g.fillRect(0, 0, W, H)
+    g.save()
+    g.translate(-Math.round(this.camera), 0)
+    this.renderTiles(g)
+    this.renderThings(g)
+    this.renderFoes(g)
+    if (this.boss) this.renderBoss(g)
+    const blink = this.immune && Math.floor(this.tick / 5) % 2
+    if (!blink || this.mode === 'dying')
+      this.drawHeroSprite(
+        g,
+        this.hero.x,
+        this.hero.y + TALL + 1,
+        this.mode === 'dying'
+          ? 'dazed'
+          : this.mode === 'clear'
+            ? 'cheer'
+            : null,
+      )
+    g.restore()
+    this.renderHud(g)
+  }
+
+  private renderTiles(g: CanvasRenderingContext2D) {
+    const first = Math.max(0, Math.floor(this.camera / TILE))
+    const last = Math.min(this.stage.cols - 1, first + Math.ceil(W / TILE) + 1)
+    const ground = tilePattern(g, PLUMBER_ART.tile(1), 32)
+    const block = tilePattern(
+      g,
+      `/images/arcade/save-the-plumber/tiles/world-1-block.webp`,
+      32,
+    )
+    const ledge = tilePattern(
+      g,
+      `/images/arcade/save-the-plumber/tiles/world-1-ledge.webp`,
+      32,
+    )
+    for (let row = 0; row < this.stage.rows; row++)
+      for (let col = first; col <= last; col++) {
+        const s = this.solidAt(col, row)
+        if (!s) continue
+        const x = col * TILE
+        const y = row * TILE
+        const above = this.solidAt(col, row - 1)
+        if (s === SOLID_GROUND) {
+          g.fillStyle = ground ?? '#2f6f68'
+          g.fillRect(x, y, TILE, TILE)
+          if (above !== SOLID_GROUND) {
+            g.fillStyle = '#c7a473'
+            g.fillRect(x, y, TILE, 5)
+            g.fillStyle = '#f3e4a2'
+            if (col % 3 === 0) g.fillRect(x + 5, y + 1, 5, 2)
+          }
+        } else if (s === SOLID_BLOCK) {
+          g.fillStyle = block ?? ground ?? '#356b7b'
+          g.fillRect(x, y, TILE, TILE)
+          g.fillStyle = 'rgba(12, 40, 52, 0.28)'
+          g.fillRect(x, y + TILE - 2, TILE, 2)
+          g.fillRect(x + TILE - 2, y, 2, TILE)
+          if (!ground && !block) {
+            g.fillStyle = '#5a93a0'
+            g.fillRect(x + 2, y + 2, TILE - 4, 3)
+          }
+        } else if (s === SOLID_LEDGE) {
+          g.fillStyle = ledge ?? '#c99a52'
+          g.fillRect(x, y, TILE, 7)
+          g.fillStyle = '#7a5a2f'
+          g.fillRect(x, y + 6, TILE, 2)
+          g.fillStyle = '#f3e4a2'
+          g.fillRect(x + 3, y + 1, 3, 2)
+        } else if (s === SOLID_GATE) {
+          g.fillStyle = 'rgba(94, 209, 195, 0.55)'
+          g.fillRect(x + 2, y, TILE - 4, TILE)
+          g.fillStyle = '#bdf0e6'
+          g.fillRect(x + 4 + ((this.tick / 3 + row * 5) % 8), y, 2, TILE)
+        } else if (s === SOLID_CRATE) {
+          if (
+            !drawSprite(
+              g,
+              PLUMBER_ART.prop('wooden-crate'),
+              x + 8,
+              y + TILE + 1,
+              18,
+            )
+          ) {
+            g.fillStyle = '#b07a3e'
+            g.fillRect(x + 1, y + 1, TILE - 2, TILE - 2)
+            g.strokeStyle = '#6a4321'
+            g.strokeRect(x + 2.5, y + 2.5, TILE - 5, TILE - 5)
+          }
+        } else if (s === SOLID_PIPE && above !== SOLID_PIPE) {
+          let depth = 1
+          while (this.solidAt(col, row + depth) === SOLID_PIPE) depth++
+          const tall = depth * TILE
+          if (
+            !drawSprite(
+              g,
+              '/images/arcade/save-the-plumber/props/pipe-door.webp',
+              x + 8,
+              y + tall + 2,
+              tall + 10,
+            )
+          ) {
+            g.fillStyle = '#2f9a7f'
+            g.fillRect(x - 2, y, TILE + 4, 6)
+            g.fillRect(x, y + 6, TILE, tall - 6)
+            g.fillStyle = '#1b5c4c'
+            g.fillRect(x + 3, y + 1, TILE - 6, 3)
+          }
+        }
+      }
+  }
+
+  private renderThings(g: CanvasRenderingContext2D) {
+    const t = this.tick
+    for (const p of this.platforms) {
+      if (p.kind === 'piston') {
+        g.fillStyle = '#8f6a3a'
+        g.fillRect(
+          p.x + p.w / 2 - 4,
+          p.y + 8,
+          8,
+          Math.max(0, this.stage.rows * TILE - p.y),
+        )
+      }
+      if (
+        !drawSprite(
+          g,
+          '/images/arcade/save-the-plumber/props/brass-lift.webp',
+          p.x + p.w / 2,
+          p.y + 14,
+          20,
+        )
+      ) {
+        g.fillStyle = '#d9a441'
+        g.fillRect(p.x, p.y, p.w, 8)
+        g.fillStyle = '#2f9a7f'
+        g.fillRect(p.x, p.y + 6, p.w, 3)
+      }
+    }
+    for (const token of this.tokensOnMap) {
+      if (token.taken) continue
+      const lift = Math.sin(t / 17 + token.x) * 2
+      if (
+        drawSprite(
+          g,
+          PLUMBER_ART.prop('brass-token'),
+          token.x,
+          token.y + 9 + lift,
+          16,
+        )
+      )
+        continue
+      g.fillStyle = '#f7b83b'
+      g.beginPath()
+      g.ellipse(token.x, token.y + lift, 5, 7, 0, 0, Math.PI * 2)
+      g.fill()
+    }
+    for (const spring of this.springs) {
+      const squash = spring.squash ? 0.7 : 1
+      if (
+        drawSprite(g, PLUMBER_ART.prop('springstep'), spring.x, spring.y, 20, {
+          squash,
+        })
+      )
+        continue
+      g.fillStyle = '#d9a441'
+      g.fillRect(spring.x - 9, spring.y - 10 * squash, 18, 10 * squash)
+    }
+    for (const vent of this.vents) {
+      const state = this.ventActive(vent)
+      if (
+        !drawSprite(
+          g,
+          '/images/arcade/save-the-plumber/props/steam-vent.webp',
+          vent.x,
+          vent.y,
+          16,
+        )
+      ) {
+        g.fillStyle = '#9b7a45'
+        g.fillRect(vent.x - 9, vent.y - 5, 18, 5)
+      }
+      if (state) {
+        const tall = state === 2 ? 60 : 14
+        for (let i = 0; i < 6; i++) {
+          const k = (t * 2 + i * 11) % tall
+          g.fillStyle = `rgba(255, 255, 255, ${state === 2 ? 0.75 : 0.4})`
+          g.beginPath()
+          g.ellipse(
+            vent.x + Math.sin(k / 6 + i) * 3,
+            vent.y - 6 - k,
+            6 + k / 8,
+            5 + k / 10,
+            0,
+            0,
+            Math.PI * 2,
+          )
+          g.fill()
+        }
+      }
+    }
+    for (const valve of this.valves) {
+      const turn = valve.open ? 0.8 : 0
+      g.save()
+      g.translate(valve.x, valve.y)
+      if (
+        !drawSprite(
+          g,
+          '/images/arcade/save-the-plumber/props/valve-switch.webp',
+          0,
+          0,
+          24,
+        )
+      ) {
+        g.fillStyle = '#2f9a7f'
+        g.fillRect(-3, -14, 6, 14)
+        g.rotate(turn)
+        g.strokeStyle = valve.open ? '#8ad66b' : '#e8705f'
+        g.lineWidth = 3
+        g.beginPath()
+        g.arc(0, -16, 7, 0, Math.PI * 2)
+        g.stroke()
+      }
+      g.restore()
+    }
+    for (const flag of this.checkpoints) {
+      const drawn = drawSprite(
+        g,
+        PLUMBER_ART.prop('checkpoint-pennant'),
+        flag.x,
+        flag.y,
+        flag.reached ? 34 : 28,
+        {
+          alpha: flag.reached ? 1 : 0.7,
+        },
+      )
+      if (!drawn) {
+        g.fillStyle = '#fff4dc'
+        g.fillRect(flag.x - 1, flag.y - 30, 3, 30)
+        g.fillStyle = flag.reached ? '#8ad66b' : '#e6798b'
+        g.fillRect(flag.x + 2, flag.y - 30, 12, 8)
+      }
+    }
+    if (
+      this.goal &&
+      !drawSprite(
+        g,
+        PLUMBER_ART.prop('goal-valve'),
+        this.goal.x,
+        this.goal.y,
+        48,
+      )
+    ) {
+      g.fillStyle = '#ffe5a6'
+      g.fillRect(this.goal.x - 3, this.goal.y - 50, 6, 50)
+      g.fillStyle = '#e6798b'
+      g.fillRect(this.goal.x + 3, this.goal.y - 50, 20, 12)
+    }
+    if (this.stage.gate !== null) {
+      const x = this.stage.gate * TILE + TILE / 2
+      drawSprite(
+        g,
+        '/images/arcade/save-the-plumber/props/boss-gate.webp',
+        x,
+        14 * TILE,
+        this.locked ? 60 : 44,
+        {
+          alpha: this.locked ? 1 : 0.85,
+        },
+      )
+    }
+    for (const wave of this.waves) {
+      for (let i = 0; i < 4; i++) {
+        g.fillStyle = 'rgba(255, 255, 255, 0.8)'
         g.beginPath()
         g.ellipse(
-          coin.x,
-          coin.y + Math.sin(tick / 17) * 2,
-          7,
-          9,
+          wave.x - wave.dir * i * 5,
+          wave.y - 8 - i * 3,
+          9 - i,
+          8 - i,
           0,
           0,
           Math.PI * 2,
         )
         g.fill()
-        g.strokeStyle = '#fff4c1'
-        g.lineWidth = 2
-        g.stroke()
       }
-      for (const bug of bugs) {
-        if (!bug.active) {
-          if (bug.knocked)
-            drawSheetFrame(
-              g,
-              PUMPBUG_CYCLE,
-              6,
-              bug.flipped ? 5 : 4,
-              bug.x,
-              bug.y + 3,
-              24,
-              { flipX: bug.dir < 0, alpha: Math.min(1, bug.knocked / 12) },
-            )
-          continue
-        }
-        if (
-          drawSheetFrame(
-            g,
-            PUMPBUG_CYCLE,
-            6,
-            Math.floor(tick / 8 + bug.home) % 4,
-            bug.x,
-            bug.y + 3,
-            24,
-            { flipX: bug.dir < 0 },
-          )
-        )
-          continue
-        const squash = 1 + Math.sin(tick / 5 + bug.home) * 0.07
-        if (
-          drawSprite(g, PLUMBER_ART.enemy('pumpbug'), bug.x, bug.y + 3, 26, {
-            flipX: bug.dir < 0,
-            squash,
-          })
-        )
-          continue
-        g.fillStyle = '#b77696'
-        g.beginPath()
-        g.ellipse(bug.x, bug.y, 12, 9, 0, Math.PI, 2 * Math.PI)
-        g.fill()
-        g.fillStyle = '#f6ddca'
-        g.fillRect(bug.x - 8, bug.y - 5, 4, 4)
-        g.fillRect(bug.x + 4, bug.y - 5, 4, 4)
-      }
-      const goalDrawn = drawSprite(
-        g,
-        PLUMBER_ART.prop('goal-valve'),
-        WORLD_W - 30,
-        FLOOR_Y,
-        52,
-      )
-      if (!goalDrawn) {
-        g.fillStyle = '#ffe5a6'
-        g.fillRect(WORLD_W - 36, FLOOR_Y - 57, 6, 57)
-        g.fillStyle = '#e6798b'
-        g.beginPath()
-        g.moveTo(WORLD_W - 30, FLOOR_Y - 56)
-        g.lineTo(WORLD_W - 5, FLOOR_Y - 45)
-        g.lineTo(WORLD_W - 30, FLOOR_Y - 34)
-        g.fill()
-      }
-      const visible = !immune || Math.floor(tick / 6) % 2
-      const member = rosterFor(plumberHeroine())
-      const poses = actionPoses(member)
-      const runReady = keyedSheet(member.run, 6) !== null
-      if (visible && keyedSheet(member.actions, 6) !== null) {
-        const running = ground && Math.abs(vx) > 0.4
-        const bob =
-          running && !runReady ? Math.abs(Math.sin(stride / 2)) * 3 : 0
-        const pose = !ground
-          ? { src: member.actions, frame: vy < 0 ? poses.rise : poses.fall }
-          : landed
-            ? { src: member.actions, frame: poses.land }
-            : running && runReady
-              ? { src: member.run, frame: Math.floor(stride / 1.8) % 6 }
-              : running
-                ? {
-                    src: member.actions,
-                    frame: Math.floor(stride / 3) % 2 ? poses.rise : poses.fall,
-                  }
-                : { src: member.actions, frame: poses.idle }
+    }
+  }
+
+  private renderFoes(g: CanvasRenderingContext2D) {
+    for (const foe of this.foes) {
+      if (foe.state === 'gone') continue
+      const anim = ENEMY_ANIMATIONS[foe.kind]!
+      const alpha = foe.fade ? Math.min(1, foe.fade / 12) : 1
+      let frame: number
+      if (foe.kind === 'pumpbug')
+        frame = foe.fade
+          ? foe.flipped
+            ? 5
+            : 4
+          : anim.loop[
+              Math.floor(this.tick / 8 + foe.x / 40) % anim.loop.length
+            ]!
+      else
+        frame =
+          foe.state === 'stunned' || foe.fade
+            ? 4
+            : foe.state === 'idle'
+              ? 0
+              : Math.floor(this.tick / 4) % 2
+      const tall = foe.kind === 'pumpbug' ? 22 : 24
+      if (
         drawSheetFrame(
           g,
-          pose.src,
-          6,
-          pose.frame,
-          x,
-          y + 27 - bob,
-          50 * member.scale,
-          { flipX: facing < 0 },
+          anim.src,
+          anim.frames,
+          frame,
+          foe.x,
+          foe.y + 2,
+          tall,
+          { flipX: foe.dir < 0, alpha },
         )
-      } else if (visible && typeof Path2D !== 'undefined') {
-        drawHeroine(g, plumberHeroine(), x, y + 27, 40, {
-          stride,
-          run: Math.min(1, Math.abs(vx) / 2.2),
-          airborne: !ground,
-          rising: vy < 0,
-          facing,
-          tick,
+      )
+        continue
+      if (
+        drawSprite(g, anim.still, foe.x, foe.y + 2, tall, {
+          flipX: foe.dir < 0,
+          alpha,
         })
-      } else if (visible) {
-        g.save()
-        g.translate(x, y)
-        g.fillStyle = '#4d656c'
-        g.fillRect(-8, 17, 7, 10)
-        g.fillRect(2, 17, 7, 10)
-        g.fillStyle = '#248e9a'
-        g.fillRect(-11, 6, 22, 15)
-        g.fillStyle = '#f2bb92'
+      )
+        continue
+      g.globalAlpha = alpha
+      g.fillStyle = foe.kind === 'pumpbug' ? '#d65a7d' : '#7d8a96'
+      g.beginPath()
+      g.arc(foe.x, foe.y - 9, 9, 0, Math.PI * 2)
+      g.fill()
+      g.globalAlpha = 1
+    }
+  }
+
+  private renderBoss(g: CanvasRenderingContext2D) {
+    const boss = this.boss!
+    const anim = bossAnimation(BOSS_NAME)
+    const frame = {
+      wait: 0,
+      walk: 0,
+      tell: 1,
+      burst: 2,
+      recover: 3,
+      hurt: 4,
+      defeat: 5,
+    }[boss.state]
+    const shake = boss.state === 'tell' ? Math.sin(this.tick) * 1.5 : 0
+    const ok = drawSheetFrame(
+      g,
+      anim.src,
+      anim.frames,
+      frame,
+      boss.x + shake,
+      boss.y + 2,
+      72,
+      {
+        flipX: boss.dir < 0,
+        alpha: boss.state === 'hurt' && this.tick % 6 < 3 ? 0.5 : 1,
+      },
+    )
+    if (!ok) {
+      const pose =
+        boss.state === 'tell' || boss.state === 'burst' ? 'tell' : 'idle'
+      if (
+        !drawSprite(
+          g,
+          PLUMBER_ART.boss('madame-pressure', pose),
+          boss.x + shake,
+          boss.y + 2,
+          72,
+          { flipX: boss.dir < 0 },
+        )
+      ) {
+        g.fillStyle = '#b8743a'
+        g.fillRect(boss.x - 18, boss.y - 66, 36, 66)
+        g.fillStyle = boss.state === 'tell' ? '#e8705f' : '#8ad66b'
         g.beginPath()
-        g.arc(0, 0, 10, 0, Math.PI * 2)
+        g.arc(boss.x, boss.y - 56, 12, 0, Math.PI * 2)
         g.fill()
-        g.fillStyle = '#49364d'
-        g.beginPath()
-        g.arc(0, -5, 11, Math.PI, 2 * Math.PI)
-        g.fill()
-        g.fillStyle = '#fff'
-        g.fillRect(3, -1, 3, 3)
-        g.fillStyle = '#f37e73'
-        g.fillRect(-8, 3, 5, 10)
-        g.restore()
       }
-      g.restore()
-      g.fillStyle = '#1c3f52dd'
-      g.fillRect(0, 0, W, 27)
-      g.fillStyle = '#fff1ce'
-      g.font = 'bold 11px monospace'
-      g.fillText('BLUEBELL PIPEWORKS  1-1', 12, 18)
-      g.textAlign = 'right'
-      g.fillText(`VALVES ${completed}  ·  TOOLS ${score}`, W - 10, 18)
-      g.textAlign = 'left'
-    },
+    }
+    if (this.locked && boss.state !== 'defeat') {
+      for (let i = 0; i < 3; i++) {
+        g.fillStyle = i < boss.hp ? '#e8705f' : 'rgba(255,255,255,0.35)'
+        g.beginPath()
+        g.arc(boss.x - 12 + i * 12, boss.y - 80, 4, 0, Math.PI * 2)
+        g.fill()
+      }
+    }
+  }
+
+  private drawHeroSprite(
+    g: CanvasRenderingContext2D,
+    x: number,
+    feet: number,
+    special: 'cheer' | 'dazed' | null,
+    zoom = 1,
+  ) {
+    const member = this.member
+    const poses = actionPoses(member)
+    const moves = PLUMBER_ART.anim(`heroine-${member.key}-moves`)
+    const height = 50 * member.scale * zoom
+    const flipX = this.facing < 0
+    if (special) {
+      if (
+        drawSheetFrame(
+          g,
+          moves,
+          6,
+          special === 'cheer' ? 4 : 5,
+          x,
+          feet,
+          height,
+          { flipX },
+        )
+      )
+        return
+      if (
+        drawSheetFrame(
+          g,
+          member.actions,
+          6,
+          special === 'cheer' ? poses.rise : 5,
+          x,
+          feet,
+          height,
+          { flipX },
+        )
+      )
+        return
+    }
+    if (this.swing && !special) {
+      if (
+        drawSheetFrame(g, moves, 6, this.swing > 8 ? 0 : 1, x, feet, height, {
+          flipX,
+        })
+      ) {
+        this.drawSplash(g, x, feet)
+        return
+      }
+    }
+    const runReady = keyedSheet(member.run, 6) !== null
+    if (keyedSheet(member.actions, 6) !== null) {
+      const running = this.ground && Math.abs(this.hero.vx) > 0.4
+      const bob =
+        running && !runReady ? Math.abs(Math.sin(this.stride / 2)) * 3 : 0
+      const pose = !this.ground
+        ? {
+            src: member.actions,
+            frame: this.hero.vy < 0 ? poses.rise : poses.fall,
+          }
+        : this.landed
+          ? { src: member.actions, frame: poses.land }
+          : running && runReady
+            ? { src: member.run, frame: Math.floor(this.stride / 1.8) % 6 }
+            : running
+              ? {
+                  src: member.actions,
+                  frame:
+                    Math.floor(this.stride / 3) % 2 ? poses.rise : poses.fall,
+                }
+              : { src: member.actions, frame: poses.idle }
+      drawSheetFrame(g, pose.src, 6, pose.frame, x, feet - bob, height, {
+        flipX,
+      })
+      if (this.swing) this.drawSplash(g, x, feet)
+      return
+    }
+    if (typeof Path2D !== 'undefined')
+      drawHeroine(g, rosterHeroine(this.heroineSeed), x, feet, 40 * zoom, {
+        stride: this.stride,
+        run: Math.min(1, Math.abs(this.hero.vx) / 2.2),
+        airborne: !this.ground,
+        rising: this.hero.vy < 0,
+        facing: this.facing,
+        tick: this.tick,
+      })
+    if (this.swing) this.drawSplash(g, x, feet)
+  }
+
+  private drawSplash(g: CanvasRenderingContext2D, x: number, feet: number) {
+    const reach = 14 - this.swing
+    for (let i = 0; i < 5; i++) {
+      g.fillStyle = 'rgba(158, 225, 245, 0.85)'
+      g.beginPath()
+      g.arc(
+        x + this.facing * (14 + reach * 2 + i * 4),
+        feet - 14 - Math.sin(i + reach) * 4,
+        3 - i * 0.3,
+        0,
+        Math.PI * 2,
+      )
+      g.fill()
+    }
+  }
+
+  private renderHud(g: CanvasRenderingContext2D) {
+    g.fillStyle = 'rgba(28, 63, 82, 0.82)'
+    g.fillRect(0, 0, W, 24)
+    this.text(
+      g,
+      `${this.stage.code}  ${this.stage.name.toUpperCase()}`,
+      10,
+      17,
+      12,
+      '#fff1ce',
+      'left',
+    )
+    for (let i = 0; i < HEARTS; i++) {
+      const x = 196 + i * 16
+      g.fillStyle = i < this.hearts ? '#ef5d7a' : 'rgba(255,255,255,0.25)'
+      g.beginPath()
+      g.moveTo(x, 9)
+      g.bezierCurveTo(x - 7, 2, x - 9, 12, x, 18)
+      g.bezierCurveTo(x + 9, 12, x + 7, 2, x, 9)
+      g.fill()
+    }
+    this.text(g, `◎ ${this.tokens}`, 262, 17, 12, '#ffd98a', 'left')
+    this.text(
+      g,
+      `${this.member.name} ×${this.lives}`,
+      316,
+      17,
+      12,
+      '#fff1ce',
+      'left',
+    )
+    this.text(g, `${this.score}`, W - 10, 17, 12, '#fff1ce', 'right')
   }
 }
-const module: ArcadeGameModule = { create: createSavePlumberPreview }
+
+export function createSavePlumberPreview(
+  options: ArcadeGameOptions,
+  run: PlumberRunOptions = {},
+): PlumberRun {
+  return new PlumberRun(options, run)
+}
+
+const module: ArcadeGameModule = {
+  create: (options) => createSavePlumberPreview(options),
+}
 export default module
 export const create = createSavePlumberPreview

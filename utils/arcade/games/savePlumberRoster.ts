@@ -51,7 +51,7 @@ export const PLUMBER_ROSTER: readonly RosterHeroine[] = [
       scarf: '#f2786a',
       boots: '#b8322c',
     },
-    run: PLUMBER_ART.anim('heroine-marisol-run-v2'),
+    run: PLUMBER_ART.anim('heroine-marisol-run-v3'),
     actions: PLUMBER_ART.anim('heroine-marisol-actions'),
   },
   {

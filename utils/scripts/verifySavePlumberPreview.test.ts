@@ -44,15 +44,24 @@ const options = {
 }
 const game = createSavePlumberPreview(options)
 const input = emptyInput()
+const press = (button: 'a' | 'b' | 'start' | 'right') => {
+  input.pressed[button] = true
+  game.update(input)
+  input.pressed[button] = false
+}
+assert.equal(game.mode, 'title')
+press('start')
+assert.equal(game.mode, 'select', 'Start opens the heroine select')
+press('a')
+assert.equal(game.mode, 'intro')
+press('a')
+assert.equal(game.mode, 'play')
 input.held.right = true
 for (let frame = 0; frame < 25; frame++) game.update(input)
 assert.equal(game.level, 1)
 assert.equal(game.over, false)
 assert.equal(game.lives, 3)
 input.held.right = false
-input.pressed.up = true
-game.update(input)
-input.pressed.up = false
 for (let frame = 0; frame < 30; frame++) game.update(input)
 assert.equal(game.over, false)
-console.log('Save the Plumber private Arcade route and movement slice verified')
+console.log('Save the Plumber private Arcade route and opening flow verified')

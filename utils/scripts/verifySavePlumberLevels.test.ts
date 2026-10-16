@@ -8,12 +8,15 @@ import {
   CAMPAIGN,
   SOLID_BELT_LEFT,
   SOLID_BELT_RIGHT,
+  SOLID_BRIDGE,
   SOLID_GATE,
   SOLID_WATER,
   TILE,
   WORLD_FIVE,
   WORLD_FOUR,
   WORLD_ONE,
+  WORLD_SEVEN,
+  WORLD_SIX,
   WORLD_THREE,
   WORLD_TWO,
   parseStage,
@@ -52,7 +55,15 @@ assert.deepEqual(
   WORLD_FIVE.map((stage) => stage.code),
   ['5-1', '5-2', '5-3', '5-4'],
 )
-assert.equal(CAMPAIGN.length, 20)
+assert.deepEqual(
+  WORLD_SIX.map((stage) => stage.code),
+  ['6-1', '6-2', '6-3', '6-4'],
+)
+assert.deepEqual(
+  WORLD_SEVEN.map((stage) => stage.code),
+  ['7-1', '7-2', '7-3', '7-4'],
+)
+assert.equal(CAMPAIGN.length, 28)
 for (const def of CAMPAIGN) {
   const stage = parseStage(def)
   assert.equal(stage.rows, 17, `${def.code} is 17 rows tall`)
@@ -87,6 +98,24 @@ for (const kind of ['gasket-golem', 'rivet-roller', 'piston', 'lift'] as const)
   assert.ok(kindsIn(4).has(kind), `World 4 has ${kind}`)
 for (const kind of ['paper-kite', 'umbrella-mite', 'wind', 'cargo'] as const)
   assert.ok(kindsIn(5).has(kind), `World 5 has ${kind}`)
+for (const kind of ['puddle-mimic', 'siphon-sprite', 'valve'] as const)
+  assert.ok(kindsIn(6).has(kind), `World 6 has ${kind}`)
+for (const kind of [
+  'chimney-spirit',
+  'tea-kettle-knight',
+  'springstep',
+] as const)
+  assert.ok(kindsIn(7).has(kind), `World 7 has ${kind}`)
+assert.ok(
+  WORLD_SIX.slice(0, 3).every((d) =>
+    parseStage(d).solid.includes(SOLID_BRIDGE),
+  ),
+  'the Underworks stages cross crystal bridges',
+)
+assert.ok(
+  WORLD_SIX.some((d) => d.dark),
+  'the Underworks has unlit stages',
+)
 assert.ok(
   WORLD_FOUR.every((d) => {
     const solid = parseStage(d).solid
@@ -102,7 +131,15 @@ assert.ok(
   WORLD_THREE.some((d) => d.dark),
   'the orchard has unlit stages',
 )
-for (const world of [WORLD_ONE, WORLD_TWO, WORLD_THREE, WORLD_FOUR, WORLD_FIVE])
+for (const world of [
+  WORLD_ONE,
+  WORLD_TWO,
+  WORLD_THREE,
+  WORLD_FOUR,
+  WORLD_FIVE,
+  WORLD_SIX,
+  WORLD_SEVEN,
+])
   assert.notEqual(
     parseStage(world[3]!).gate,
     null,
@@ -118,6 +155,8 @@ const bosses = [
   'The Overripe Baron',
   'Tick-Tock Duchess',
   'Admiral Gust',
+  'Prism Mole',
+  'The Umbrella Dragon',
 ]
 for (let index = 0; index < CAMPAIGN.length; index++) {
   const game = createSavePlumberPreview(options(), {
@@ -398,6 +437,65 @@ const pushedFrom = gust.hero.x
 for (let i = 0; i < 10; i++) gust.update(emptyInput())
 assert.ok(gust.hero.x < pushedFrom - 8, 'the Admiral gale pushes you back')
 
+// World 6 and 7 machinery, families and bosses.
+const caverns = lab(21)
+const bridge = caverns.stage.solid.indexOf(SOLID_BRIDGE)
+const bridgeCol = bridge % caverns.stage.cols
+const bridgeRow = Math.floor(bridge / caverns.stage.cols)
+assert.ok(
+  caverns.bridgeLit(10) && !caverns.bridgeLit(200),
+  'bridges glow, then fade',
+)
+caverns.tick = 10
+assert.equal(caverns.solidAt(bridgeCol, bridgeRow), SOLID_BRIDGE)
+caverns.tick = 200
+assert.equal(
+  caverns.solidAt(bridgeCol, bridgeRow),
+  0,
+  'a dark bridge is not there',
+)
+
+const sluice = lab(20)
+const mimic = sluice.foes.find((f) => f.kind === 'puddle-mimic')!
+assert.equal(mimic.state, 'idle', 'a puddle mimic lies still')
+sluice.hero.x = mimic.x - 60
+sluice.hero.y = mimic.y - 26
+sluice.immune = 99
+sluice.update(emptyInput())
+assert.equal(mimic.state, 'walk', 'and rises when you come close')
+
+const roofs = lab(24)
+const spirit = roofs.foes.find((f) => f.kind === 'chimney-spirit')!
+roofs.hero.x = spirit.x - 100
+roofs.hero.y = spirit.y - 26
+let puffed = false
+for (let i = 0; i < 260 && !puffed; i++) {
+  roofs.immune = 99
+  roofs.update(emptyInput())
+  puffed = roofs.soot.length > 0
+}
+assert.ok(puffed, 'a chimney spirit lobs soot')
+const knightLab = lab(24)
+const knight = knightLab.foes.find((f) => f.kind === 'tea-kettle-knight')!
+knightLab.hero.x = knight.x - 70
+knightLab.hero.y = knight.y - 26
+let whistled = false
+let lunged = false
+for (let i = 0; i < 120; i++) {
+  knightLab.immune = 99
+  knightLab.update(emptyInput())
+  whistled ||= knight.state === 'stunned'
+  lunged ||= whistled && knight.state === 'swoop'
+}
+assert.ok(whistled && lunged, 'a tea-kettle knight whistles, then lunges')
+
+const mole = duel(23)
+assert.equal(mole.boss!.kind, 'burrow')
+assert.equal(mole.boss!.state, 'burst', 'the Prism Mole erupts after its tell')
+const dragon = duel(27)
+assert.equal(dragon.boss!.kind, 'dive')
+assert.ok(Math.abs(dragon.boss!.vx) > 4, 'the Umbrella Dragon dives')
+
 // Beating a world's boss continues the campaign into the next world.
 const boss = createSavePlumberPreview(options())
 boss.loadStage(3)
@@ -423,5 +521,5 @@ assert.equal(demo.mode === 'play' || demo.mode === 'clear', true)
 assert.equal(demo.save, undefined, 'the demo never saves')
 
 console.log(
-  'Save the Plumber Worlds 1 to 5: twenty finishable stages, five bosses, controls, select and saves verified',
+  'Save the Plumber Worlds 1 to 7: twenty-eight finishable stages, seven bosses, controls, select and saves verified',
 )

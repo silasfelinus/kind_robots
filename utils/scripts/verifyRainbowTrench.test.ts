@@ -9,18 +9,27 @@ import {
   stepClawburstBoss,
 } from '../arcade/games/rainbowClawburst'
 import { formationMembers } from '../arcade/games/rainbowFormations'
+import { RAINBOW_GUARDIAN } from '../arcade/games/rainbowGuardian'
 import { rainbowBossHp } from '../arcade/games/rainbowPinkwakeBoss'
 import { createRainbowPrincessPreview } from '../arcade/games/rainbowPrincessPreview'
 import {
   TRENCH,
+  TRENCH_ALL_WAVES,
+  TRENCH_FORK,
   TRENCH_GUARDIAN,
+  TRENCH_SAFE_SECTIONS,
+  TRENCH_SAFE_WAVES,
   TRENCH_SECTIONS,
   TRENCH_WAVES,
   TRENCH_WAVE_SIZES,
   trenchDialogue,
+  trenchRouteFor,
   trenchScene,
+  trenchSections,
   trenchSpawns,
   trenchStage,
+  trenchWaveRoute,
+  type TrenchRoute,
   type TrenchSceneId,
 } from '../arcade/games/rainbowTrench'
 import { emptyInput } from '../arcade/types'
@@ -35,8 +44,12 @@ assert.equal(trenchStage(TRENCH.openingEnds, null), 'waves')
 assert.equal(trenchStage(TRENCH.turnStarts, null), 'turn')
 assert.equal(trenchStage(TRENCH.bossStarts, null), 'boss')
 assert.equal(trenchStage(100, 50), 'aftermath')
-assert.deepEqual(trenchSpawns(100), [], 'the opening comms are a safe corridor')
-assert.deepEqual(trenchSpawns(TRENCH.turnStarts + 10), [])
+assert.deepEqual(
+  trenchSpawns(100, null),
+  [],
+  'the opening comms are a safe corridor',
+)
+assert.deepEqual(trenchSpawns(TRENCH.turnStarts + 10, 'vault'), [])
 assert.equal(TRENCH_SECTIONS[0]!.from, TRENCH.openingEnds)
 assert.equal(TRENCH_SECTIONS.at(-1)!.to, TRENCH.turnStarts)
 const firstKind: Record<string, string> = {
@@ -60,7 +73,7 @@ for (const [i, section] of TRENCH_SECTIONS.entries()) {
   if (firstKind[section.name])
     assert.equal(waves[0]!.kind, firstKind[section.name], section.name)
 }
-for (const entry of TRENCH_WAVES) {
+for (const entry of TRENCH_ALL_WAVES) {
   for (const member of formationMembers(entry))
     assert.ok(
       member.at < TRENCH.turnStarts,
@@ -74,9 +87,10 @@ for (const kind of ['clawstrike', 'pistol', 'angler', 'skate'])
     TRENCH_WAVES.some((w) => w.kind === kind),
     `${kind} flies`,
   )
-// Three scenes, three lines each, every line inside its scene window for every crew size.
+// Four scenes (the fork has two lines, the rest three), every line inside its window for every crew size.
 const windows: Record<TrenchSceneId, number> = {
   'A03.OPEN': TRENCH.openingEnds,
+  'A03.FORK': TRENCH_FORK.decideAt - TRENCH_FORK.markFrom,
   'A03.TURN': TRENCH.bossStarts - TRENCH.turnStarts,
   'A03.AFTER': TRENCH.aftermathFrames,
 }
@@ -84,17 +98,95 @@ for (const players of [1, 2, 3, 4]) {
   for (const [id, frames] of Object.entries(windows) as Array<
     [TrenchSceneId, number]
   >) {
-    for (let line = 0; line < 3; line++) {
+    const lines = id === 'A03.FORK' ? 2 : 3
+    for (let line = 0; line < lines; line++) {
       const said = trenchDialogue(id, line * TRENCH.lineFrames, players)
       assert.ok(said && said.speaker && said.text, `${id} line ${line + 1}`)
     }
-    assert.ok(3 * TRENCH.lineFrames <= frames, `${id} fits its window`)
+    assert.equal(trenchDialogue(id, lines * TRENCH.lineFrames, players), null)
+    assert.ok(lines * TRENCH.lineFrames <= frames, `${id} fits its window`)
   }
 }
 assert.equal(trenchScene(0, null)?.id, 'A03.OPEN')
 assert.equal(trenchScene(TRENCH.turnStarts, null)?.id, 'A03.TURN')
 assert.equal(trenchScene(TRENCH.openingEnds + 10, null), null)
 assert.equal(trenchScene(9000, 9000)?.id, 'A03.AFTER')
+assert.equal(trenchScene(TRENCH_FORK.markFrom, null)?.id, 'A03.FORK')
+assert.equal(trenchScene(TRENCH_FORK.decideAt, null), null)
+
+// The fork (world bible S03: salvage vault or safe passage). Its comms wait until the guardian has
+// stopped firing to escape, the choice falls on a section boundary, and both routes rejoin on one.
+assert.ok(
+  TRENCH_FORK.markFrom >= TRENCH_GUARDIAN.to - RAINBOW_GUARDIAN.escapeLead,
+  'no fork comms over a guardian volley',
+)
+assert.equal(TRENCH_FORK.decideAt, TRENCH_GUARDIAN.to)
+assert.ok(TRENCH_SECTIONS.some((s) => s.from === TRENCH_FORK.rejoinAt))
+assert.equal(TRENCH_SAFE_SECTIONS[0]!.from, TRENCH_FORK.decideAt)
+assert.equal(TRENCH_SAFE_SECTIONS.at(-1)!.to, TRENCH_FORK.rejoinAt)
+assert.ok(
+  trenchDialogue('A03.FORK', TRENCH.lineFrames, 2)!.speaker === 'Azure',
+  'Azure reads the safe route when she flies',
+)
+assert.notEqual(
+  trenchDialogue('A03.TURN', 0, 1, 'vault')!.text,
+  trenchDialogue('A03.TURN', 0, 1, 'safe')!.text,
+  'the TURN remembers the route',
+)
+// Most living pilots above the channel line take the vault; a tie follows the lead pilot.
+assert.equal(trenchRouteFor([60]), 'vault')
+assert.equal(trenchRouteFor([200]), 'safe')
+assert.equal(trenchRouteFor([200, 60, 70]), 'vault')
+assert.equal(trenchRouteFor([60, 200, 210]), 'safe')
+assert.equal(trenchRouteFor([60, 200]), 'vault')
+assert.equal(trenchRouteFor([200, 60]), 'safe')
+assert.equal(trenchRouteFor([TRENCH_FORK.splitY]), 'safe')
+// Each route flies only its own waves inside the branch and the shared waves outside it.
+const routeCraft: Record<TrenchRoute, number> = { vault: 0, safe: 0 }
+for (const route of ['vault', 'safe'] as const) {
+  const sections = trenchSections(route)
+  assert.deepEqual(
+    sections.map((s) => s.from),
+    TRENCH_SECTIONS.map((s) => s.from),
+    `${route}: the same checkpoints`,
+  )
+  for (let frame = 0; frame < TRENCH.turnStarts; frame++) {
+    for (const spawn of trenchSpawns(frame, route)) {
+      const only = trenchWaveRoute(spawn.wave - TRENCH.waveBase)
+      assert.ok(only === null || only === route, `${route} at ${frame}`)
+      if (frame >= TRENCH_FORK.decideAt && frame < TRENCH_FORK.rejoinAt)
+        routeCraft[route]++
+    }
+  }
+  for (const section of sections) {
+    if (section.from < TRENCH_FORK.decideAt) continue
+    if (section.from >= TRENCH_FORK.rejoinAt) break
+    const waves = TRENCH_ALL_WAVES.filter(
+      (w, i) =>
+        w.at >= section.from &&
+        w.at < section.to &&
+        trenchWaveRoute(i) === route,
+    )
+    assert.ok(waves.length >= 6, `${route}: ${section.name} is authored`)
+  }
+}
+assert.deepEqual(
+  trenchSections('safe')
+    .filter(
+      (s) => s.from >= TRENCH_FORK.decideAt && s.from < TRENCH_FORK.rejoinAt,
+    )
+    .map((s) => s.name),
+  TRENCH_SAFE_SECTIONS.map((s) => s.name),
+)
+assert.ok(
+  routeCraft.safe * 2 <= routeCraft.vault,
+  `the safe passage is lighter (${routeCraft.safe} craft against ${routeCraft.vault})`,
+)
+assert.ok(
+  TRENCH_SAFE_WAVES.every(
+    (w) => w.at >= TRENCH_FORK.decideAt && w.at < TRENCH_FORK.rejoinAt,
+  ),
+)
 assert.equal(resumeTick({ act: 3, frame: 1800 }, 100, 5000), 6799)
 
 // B03 Clawburst: a full warning before every attack, the marked lane is the lane fired, a fresh warning
@@ -186,6 +278,8 @@ for (const players of [1, 4]) {
   const a = create(players)
   const b = create(players)
   const seen = { bolt: 0, ring: 0, cross: 0, glance: 0, marks: 0 }
+  let route: TrenchRoute | null = null
+  let settled = false
   const checkpoints: number[] = []
   let entered: number | null = null
   let cleared = false
@@ -220,6 +314,49 @@ for (const players of [1, 4]) {
         checkpoints.at(-1) !== after.checkpoint.frame
       )
         checkpoints.push(after.checkpoint.frame)
+      // The fork: the route is chosen where the crew flies on the decision frame and then never changes.
+      if (after.actThreeFrame < TRENCH_FORK.decideAt)
+        assert.equal(after.trenchRoute, null)
+      else if (after.actThreeFrame === TRENCH_FORK.decideAt) {
+        route = trenchRouteFor(
+          after.ships.filter((s) => s.lives > 0).map((s) => s.y),
+        )
+        assert.equal(after.trenchRoute, route, 'the crew picks the route')
+        assert.equal(after.checkpoint.trenchRoute, route)
+      } else assert.equal(after.trenchRoute, route)
+      for (const reef of after.enemies) {
+        if (reef.wave === null || reef.wave < TRENCH.waveBase) continue
+        const only = trenchWaveRoute(reef.wave - TRENCH.waveBase)
+        assert.ok(
+          only === null || only === route,
+          'only the chosen route flies',
+        )
+      }
+      if (after.actThreeFrame === TRENCH_FORK.rejoinAt) {
+        settled = true
+        const living = after.ships.filter((s) => s.lives > 0)
+        const was = before.ships.filter((s) => s.lives > 0)
+        assert.equal(after.securedSalvage, route === 'vault')
+        assert.ok(after.checkpoint.routeSettled)
+        if (route === 'vault') {
+          assert.ok(after.score >= before.score + TRENCH_FORK.salvageScore)
+          living.forEach((s, i) =>
+            assert.equal(
+              s.power,
+              Math.min(3, was[i]!.power + 1),
+              'salvage powers up',
+            ),
+          )
+        } else {
+          living.forEach((s, i) =>
+            assert.equal(
+              s.shield,
+              Math.min(3, was[i]!.shield + 1),
+              'shields repaired',
+            ),
+          )
+        }
+      }
       // Clawstrike: a 36-frame lane mark that holds still, then a straight bolt down that lane.
       for (const reef of after.enemies) {
         if (reef.kind !== 'clawstrike' || reef.charge === undefined) continue
@@ -287,6 +424,12 @@ for (const players of [1, 4]) {
   }
   assert.ok(entered !== null, `${players} pilots reach the Chromatic Trench`)
   assert.ok(cleared, `${players} pilots defeat Clawburst`)
+  assert.ok(
+    route !== null && settled,
+    `${players} pilots fly a route and rejoin`,
+  )
+  // The attract demo shows both: odd crews take the vault, even crews the safe passage.
+  assert.equal(route, players % 2 === 1 ? 'vault' : 'safe')
   assert.deepEqual(
     checkpoints,
     ACT_THREE_CHECKPOINTS,
@@ -296,7 +439,7 @@ for (const players of [1, 4]) {
     for (const [what, count] of Object.entries(seen))
       assert.ok(count > 0, `the solo run saw a ${what}`)
   }
-  console.log(`  ${players}p: ${JSON.stringify(seen)}`)
+  console.log(`  ${players}p: ${route} route, ${JSON.stringify(seen)}`)
 }
 
 console.log(

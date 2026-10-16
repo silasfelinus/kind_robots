@@ -7,8 +7,10 @@
  * off the trench walls; then a vault-approach remix, the Clawstrike guardian (see rainbowGuardian) and
  * twelve escalations (crossfire ridge, bubble garden, mirror vents, lure maze, pressure drop, ember drift,
  * sigil wreck, echo trench, cinder lanes, hollow armoury, deep vents, vault gate). A clean run of Act III
- * takes about ten minutes. The
- * TURN waits at the salvage vault before B03
+ * takes about ten minutes. After the guardian the trench forks (world bible S03: salvage vault or safe
+ * passage): the crew flies high into the vault gauntlet (the first four escalations, then salvage: power
+ * and the securedSalvage story flag) or low through the safe passage (four lighter sections, then a
+ * shield repair). Both routes rejoin at the pressure drop. The TURN waits at the salvage vault before B03
  * Clawburst (ACT-STRUCTURE: pre-boss). Wave ids start at 2000 so Act III formations never share a school
  * with Acts I or II.
  */
@@ -22,7 +24,9 @@ import type { RainbowGuardianSection } from './rainbowGuardian'
 
 export type TrenchEnemy = 'clawstrike' | 'pistol' | 'angler' | 'skate'
 export type TrenchStage = 'opening' | 'waves' | 'turn' | 'boss' | 'aftermath'
-export type TrenchSceneId = 'A03.OPEN' | 'A03.TURN' | 'A03.AFTER'
+export type TrenchSceneId = 'A03.OPEN' | 'A03.FORK' | 'A03.TURN' | 'A03.AFTER'
+/** S03's route: high through the salvage vault gauntlet, or low along the safe passage. */
+export type TrenchRoute = 'vault' | 'safe'
 export type TrenchDialogue = { speaker: string; text: string }
 export type TrenchWave = RainbowWave<TrenchEnemy>
 export type TrenchSpawn = RainbowSpawn<TrenchEnemy>
@@ -34,6 +38,19 @@ export const TRENCH = {
   aftermathFrames: 390,
   lineFrames: 96,
   waveBase: 2000,
+} as const
+
+/**
+ * The fork: two comms lines and the route marks from markFrom (after the guardian has stopped firing to
+ * escape); the crew's position decides at decideAt, and both routes rejoin at rejoinAt.
+ */
+export const TRENCH_FORK = {
+  markFrom: 9708,
+  decideAt: 9900,
+  rejoinAt: 17100,
+  /** The channel line: above it is the vault, below it the safe passage. */
+  splitY: 135,
+  salvageScore: 2500,
 } as const
 
 export const TRENCH_SECTIONS = [
@@ -56,6 +73,26 @@ export const TRENCH_SECTIONS = [
   { name: 'Deep vents', from: 27900, to: 29700 },
   { name: 'Vault gate', from: 29700, to: 31500 },
 ] as const
+
+/** The safe passage's sections, which replace the vault gauntlet's four on that route. */
+export const TRENCH_SAFE_SECTIONS = [
+  { name: 'Winding passage', from: 9900, to: 11700 },
+  { name: 'Coral shelf', from: 11700, to: 13500 },
+  { name: 'Quiet vents', from: 13500, to: 15300 },
+  { name: 'Lantern hollow', from: 15300, to: 17100 },
+] as const
+
+/** The Act's sections as the crew flies them: the safe passage swaps in its own four. */
+export function trenchSections(
+  route: TrenchRoute | null,
+): ReadonlyArray<{ name: string; from: number; to: number }> {
+  if (route !== 'safe') return TRENCH_SECTIONS
+  return TRENCH_SECTIONS.map(
+    (section) =>
+      TRENCH_SAFE_SECTIONS.find((safe) => safe.from === section.from) ??
+      section,
+  )
+}
 
 /** The Clawstrike guardian holds the Act after the vault-approach remix; no waves fly in its section. */
 export const TRENCH_GUARDIAN: RainbowGuardianSection = {
@@ -248,9 +285,56 @@ export const TRENCH_WAVES: readonly TrenchWave[] = [
   wave(31260, 'clawstrike', 'single', 1, 0.5),
 ]
 
-const schedule = buildFormationSchedule(TRENCH_WAVES, TRENCH.waveBase)
+/** The safe passage's waves; they fly only on that route, in place of the vault gauntlet's. */
+export const TRENCH_SAFE_WAVES: readonly TrenchWave[] = [
+  // Winding passage: single craft along a slow bend, each one alone on screen.
+  wave(9960, 'skate', 'line', 2, 0.5),
+  wave(10200, 'clawstrike', 'single', 1, 0.3),
+  wave(10440, 'pistol', 'single', 1, 0.6),
+  wave(10740, 'skate', 'pair', 2, 0.25),
+  wave(11040, 'angler', 'single', 1, 0.5),
+  wave(11340, 'clawstrike', 'single', 1, 0.7),
+  // Coral shelf: pistol bubbles drift over a calm shelf with room to read every ring.
+  wave(11760, 'pistol', 'single', 1, 0.4),
+  wave(12060, 'skate', 'line', 3, 0.6),
+  wave(12360, 'pistol', 'pair', 2, 0.3),
+  wave(12660, 'angler', 'single', 1, 0.5),
+  wave(12960, 'skate', 'vee', 3, 0.5),
+  wave(13260, 'pistol', 'single', 1, 0.7),
+  // Quiet vents: the vents breathe on a beat; skates glance off them one stair at a time.
+  wave(13560, 'skate', 'stair', 3, 0.2),
+  wave(13860, 'clawstrike', 'single', 1, 0.5),
+  wave(14160, 'skate', 'stair', 3, 0.8, { step: -1 }),
+  wave(14460, 'pistol', 'single', 1, 0.3),
+  wave(14760, 'skate', 'pair', 2, 0.5),
+  wave(15060, 'angler', 'single', 1, 0.4),
+  // Lantern hollow: a single lure at a time, so each false halo can be read and shot.
+  wave(15360, 'angler', 'single', 1, 0.3),
+  wave(15660, 'skate', 'line', 3, 0.5),
+  wave(15960, 'angler', 'single', 1, 0.7),
+  wave(16260, 'clawstrike', 'single', 1, 0.5),
+  wave(16560, 'pistol', 'pair', 2, 0.25),
+  wave(16860, 'angler', 'single', 1, 0.5),
+]
 
-/** Craft per wave, by wave index, for the school bonus. */
+/** Every Act III wave, both routes; a wave's id is TRENCH.waveBase plus its index here. */
+export const TRENCH_ALL_WAVES: readonly TrenchWave[] = [
+  ...TRENCH_WAVES,
+  ...TRENCH_SAFE_WAVES,
+]
+
+/** Which route a wave belongs to, by its index in TRENCH_ALL_WAVES; null flies on both. */
+export function trenchWaveRoute(index: number): TrenchRoute | null {
+  if (index >= TRENCH_WAVES.length) return 'safe'
+  const at = TRENCH_WAVES[index]?.at ?? 0
+  return at >= TRENCH_FORK.decideAt && at < TRENCH_FORK.rejoinAt
+    ? 'vault'
+    : null
+}
+
+const schedule = buildFormationSchedule(TRENCH_ALL_WAVES, TRENCH.waveBase)
+
+/** Craft per wave, by wave index in TRENCH_ALL_WAVES, for the school bonus. */
 export const TRENCH_WAVE_SIZES: readonly number[] = schedule.sizes
 
 export function trenchStage(
@@ -264,9 +348,27 @@ export function trenchStage(
   return 'boss'
 }
 
-/** Every craft that enters on this Act III frame; empty outside the waves stage. */
-export function trenchSpawns(frame: number): readonly TrenchSpawn[] {
-  return trenchStage(frame, null) === 'waves' ? schedule.at(frame) : []
+/**
+ * The route the crew's position chooses at the fork: most living pilots above the channel line take the
+ * vault, most below take the safe passage, and a tie follows the lead pilot.
+ */
+export function trenchRouteFor(ys: readonly number[]): TrenchRoute {
+  const high = ys.filter((y) => y < TRENCH_FORK.splitY).length
+  const low = ys.length - high
+  if (high !== low) return high > low ? 'vault' : 'safe'
+  return ys[0] !== undefined && ys[0] < TRENCH_FORK.splitY ? 'vault' : 'safe'
+}
+
+/** Every craft that enters on this Act III frame on this route; empty outside the waves stage. */
+export function trenchSpawns(
+  frame: number,
+  route: TrenchRoute | null,
+): readonly TrenchSpawn[] {
+  if (trenchStage(frame, null) !== 'waves') return []
+  return schedule.at(frame).filter((spawn) => {
+    const only = trenchWaveRoute(spawn.wave - TRENCH.waveBase)
+    return only === null || only === (route ?? 'vault')
+  })
 }
 
 const PILOTS = ['Maribel', 'Azure', 'Solenne', 'Vivi'] as const
@@ -275,10 +377,13 @@ export function trenchDialogue(
   id: TrenchSceneId,
   elapsed: number,
   players: number,
+  route: TrenchRoute | null = null,
 ): TrenchDialogue | null {
   const crew = PILOTS.slice(0, Math.max(1, Math.min(4, players)))
   const lead = crew[0]!
   const wing = crew[crew.length - 1]!
+  // CAST-BIBLE: Azure identifies the S03 safe route; without her the lead reads the vents.
+  const scout = crew.includes('Azure') ? 'Azure' : lead
   const lines: Record<TrenchSceneId, TrenchDialogue[]> = {
     'A03.OPEN': [
       {
@@ -294,10 +399,23 @@ export function trenchDialogue(
         text: 'Every hull down here wears the same fleet sigil, scratched half off.',
       },
     ],
+    'A03.FORK': [
+      {
+        speaker: 'Lilt-7',
+        text: 'The trench forks: high through the salvage vault, low along a safe passage.',
+      },
+      {
+        speaker: scout,
+        text: 'The low vents breathe on a beat, so that way is safe. The vault pays if we earn it.',
+      },
+    ],
     'A03.TURN': [
       {
         speaker: 'Lilt-7',
-        text: 'Salvage vault ahead. Its locks answer to Crown-compatible hardware.',
+        text:
+          route === 'vault'
+            ? 'Vault salvage aboard. Its locks answered to Crown-compatible hardware.'
+            : 'The vault is behind us, and its locks answer to Crown-compatible hardware.',
       },
       {
         speaker: wing,
@@ -337,6 +455,9 @@ export function trenchScene(
       : null
   }
   if (frame < TRENCH.openingEnds) return { id: 'A03.OPEN', elapsed: frame }
+  if (frame >= TRENCH_FORK.markFrom && frame < TRENCH_FORK.decideAt) {
+    return { id: 'A03.FORK', elapsed: frame - TRENCH_FORK.markFrom }
+  }
   if (frame >= TRENCH.turnStarts && frame < TRENCH.bossStarts) {
     return { id: 'A03.TURN', elapsed: frame - TRENCH.turnStarts }
   }

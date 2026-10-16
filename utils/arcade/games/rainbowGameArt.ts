@@ -169,7 +169,8 @@ export function drawRainbowBossSprite(
 
 /**
  * Super cut-in banners, one per pilot seat, cropped to 2.9:1 around face and power: round-14 Kontext, except
- * Solenne's round-22 reroll (247803), which keeps her broad, muscular build.
+ * Solenne's round-22 reroll (247803), which keeps her broad, muscular build, and Vivi's round-23 reroll
+ * (247844) from her clean-tee portrait, with no lettering on her shirt.
  */
 export const RAINBOW_CUTIN_PILOTS = [
   'maribel',

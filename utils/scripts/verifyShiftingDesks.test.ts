@@ -600,6 +600,25 @@ assert.equal(
 assert.equal(plain.deck.length, RECORDS.locations.length + 1 + SHIFT)
 
 // Window shifts (conductor shifting-desks t-016)
+// The endings gallery: the front desk shows every ending this browser has
+// reached; the store records one whenever a run completes or ends.
+{
+  const store = asset('../../stores/shiftingDesksStore.ts')
+  assert.match(store, /ENDINGS_KEY = 'shifting-desks-endings-v1'/)
+  assert.match(
+    store,
+    /function recordEnding\(\)[\s\S]*?endingFor\(run\.value\)/,
+  )
+  assert.match(
+    asset('../../pages/play/shifting-desks.vue'),
+    /@click="endingsGallery\?\.open\(\)"/,
+  )
+  const gallery = asset(
+    '../../components/shifting-desks/shifting-desks-endings-gallery.vue',
+  )
+  assert.match(gallery, /v-for="ending in ENDINGS"/)
+  assert.match(gallery, /stationArt\('endings', ending\.id\)/)
+}
 // Toy Division's Recall Desk (conductor shifting-desks t-028): a second
 // window shift, at the Proving Grounds, with its own SAFE / RECALL stamps.
 {

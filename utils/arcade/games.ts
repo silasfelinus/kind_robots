@@ -812,12 +812,13 @@ export const PREVIEW_GAMES: ArcadeGameMeta[] = [
     title: 'Rainbow Bullet Hell Space Princess',
     riffsOn: 'cinematic side-scrolling shmups',
     blurb:
-      'Private Pinkwake Estuary combat-engine slice: oceanic scouts, numbered local pilots and real shots. This is not the complete eight-stage campaign.',
+      'Private two-Act preview: Pinkwake Estuary and Moonjelly Fields, two bosses, rescues, checkpoints and one to four numbered local pilots. It is not yet the complete eight-stage campaign.',
     howTo: [
       'ARROWS  FLY',
-      'HOLD A  PETAL FIRE',
-      'B  REPAIR SHIELD',
-      'DODGE THE SEA SCOUTS',
+      'HOLD A  FIRE',
+      'HOLD B  FOCUS',
+      'B AT 100%  SUPER',
+      'START  PAUSE',
       '1 TO 4 LOCAL PILOTS',
     ],
     width: 480,
@@ -825,8 +826,9 @@ export const PREVIEW_GAMES: ArcadeGameMeta[] = [
     maxPlausibleScore: 0,
     titleArt: '',
     accent: '#f9a8d4',
-    controls: 'Fly, shoot, shield',
+    controls: 'Fly, shoot, focus, super',
     maxPlayers: 4,
+    startPauses: true,
   },
   {
     slug: 'zuzu-pinball',

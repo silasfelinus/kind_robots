@@ -1,0 +1,50 @@
+name: Rainbow Cabinet Browser Contract
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'components/arcade/arcade-cabinet.vue'
+      - 'components/arcade/arcade-pinball-touch.vue'
+      - 'components/navigation/tutorial-flyer.vue'
+      - 'content/channels/admin/index.md'
+      - 'content/channels/admin/rainbow-bullet-hell-space-princess.md'
+      - 'stores/helpers/channelContent.ts'
+      - 'utils/arcade/**'
+      - 'utils/scripts/verifyRainbowCabinet.browser.test.mjs'
+      - '.github/workflows/rainbow-cabinet-contract.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: rainbow-cabinet-contract-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  rainbow-cabinet:
+    name: Rainbow cabinet help and controls in Chromium
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+      - name: Install dependencies
+        run: npm ci
+        env:
+          CYPRESS_INSTALL_BINARY: '0'
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+      - name: Verify the actual cabinet and tutorial flyer
+        run: node utils/scripts/verifyRainbowCabinet.browser.test.mjs
+        env:
+          RAINBOW_CABINET_SHOTS: rainbow-cabinet-shots
+      - name: Preserve responsive fixtures
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: rainbow-cabinet-states
+          path: rainbow-cabinet-shots

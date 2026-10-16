@@ -104,6 +104,11 @@ export type ArcadeGameMeta = {
    */
   touchLayout?: 'pinball'
   /**
+   * The game never reads Start while it plays, so the cabinet treats any seat's Start (Enter or a
+   * gamepad's Start) as Pause. Without it, pausing mid-game takes P, Escape or the pause button.
+   */
+  startPauses?: boolean
+  /**
    * The game reads InputFrame.aim (twin-stick): while it plays the cabinet aims with the right
    * stick, an on-screen aim stick, or the arrows (moving on WASD). Solo cabinets only.
    */

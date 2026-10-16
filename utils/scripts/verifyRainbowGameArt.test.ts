@@ -1,14 +1,17 @@
 import assert from 'node:assert/strict'
 import { existsSync, readFileSync, statSync } from 'node:fs'
 import {
+  RAINBOW_BOSS_SPRITES,
   RAINBOW_COMMS_SPEAKERS,
   RAINBOW_ENEMY_SPRITES,
   RAINBOW_PICKUP_SPRITES,
   RAINBOW_SHIP_SPRITES,
+  drawRainbowBossSprite,
   drawRainbowCommsPortrait,
   drawRainbowEnemySprite,
   drawRainbowPickupSprite,
   drawRainbowShipSprite,
+  rainbowBossSprite,
   rainbowEnemySprite,
   rainbowPickupSprite,
   rainbowCommsKey,
@@ -126,6 +129,43 @@ assert.match(
   'pickups keep the lettered circle until the sprite loads',
 )
 
+// Bosses: calm, damaged and enraged pictures for B01 and B02. The fair hit circles and the 36-frame
+// telegraph are unchanged; a painted boss still glows and gains a pulsing ring while it warns, and the
+// Pearl Seahorse still visibly carries the escape pod the story asks players to rescue.
+for (const boss of RAINBOW_BOSS_SPRITES) {
+  for (const phase of [1, 2, 3]) {
+    const src = rainbowBossSprite(boss, phase)
+    assert.equal(src, `/rainbow-princess-art/bosses/${boss}-phase${phase}.webp`)
+    assert.ok(
+      existsSync(publicFile(src)),
+      `${boss} phase ${phase} is committed`,
+    )
+    assert.ok(
+      statSync(publicFile(src)).size < 48_000,
+      `${boss} phase ${phase} stays small`,
+    )
+  }
+  assert.equal(rainbowBossSprite(boss, 7), rainbowBossSprite(boss, 3))
+}
+assert.equal(drawRainbowBossSprite(g, 'b01', 1, 0, 0, 100), false)
+assert.match(engine, /drawRainbowBossSprite\(g, 'b01', boss\.phase/)
+assert.match(engine, /drawRainbowBossSprite\(\s*g,\s*'b02',\s*moonBoss\.phase/)
+assert.match(
+  engine,
+  /if \(glow\) \{\s+g\.strokeStyle = '#fffbb6'/,
+  'B01 telegraph ring',
+)
+assert.match(
+  engine,
+  /if \(warn\) \{\s+g\.strokeStyle = '#fff3a2'/,
+  'B02 warning ring',
+)
+assert.match(
+  engine,
+  /g\.fillText\('POD', podX/,
+  'the escape pod is always drawn',
+)
+
 console.log(
-  `rainbow game art: ok (${painted}/4 painted ships, ${RAINBOW_ENEMY_SPRITES.length} enemies, ${RAINBOW_PICKUP_SPRITES.length} pickups)`,
+  `rainbow game art: ok (${painted}/4 painted ships, ${RAINBOW_ENEMY_SPRITES.length} enemies, ${RAINBOW_PICKUP_SPRITES.length} pickups, ${RAINBOW_BOSS_SPRITES.length} bosses x 3 phases)`,
 )

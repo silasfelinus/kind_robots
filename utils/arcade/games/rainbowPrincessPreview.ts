@@ -27,6 +27,7 @@ import {
 } from './rainbowLocalCoop'
 import { enemyBulletContact } from './rainbowHitGeometry'
 import {
+  drawRainbowBossSprite,
   drawRainbowCommsPortrait,
   drawRainbowEnemySprite,
   drawRainbowPickupSprite,
@@ -896,34 +897,61 @@ export function createRainbowPrincessPreview(
         const glow = bossTelegraph(boss)
         g.shadowColor = glow ? '#fff7a7' : '#ffaff1'
         g.shadowBlur = glow ? 25 : 9
-        g.fillStyle = boss.phase === 3 ? '#c791ff' : '#ffd0ef'
-        g.beginPath()
-        g.ellipse(0, 0, 38, 49, -0.2, 0, Math.PI * 2)
-        g.fill()
-        g.strokeStyle = glow ? '#fffbb6' : '#724aab'
-        g.lineWidth = glow ? 5 : 3
-        g.beginPath()
-        g.moveTo(12, -32)
-        g.quadraticCurveTo(-54, -72, -41, -22)
-        g.quadraticCurveTo(-12, 1, -30, 42)
-        g.quadraticCurveTo(-10, 70, 15, 40)
-        g.stroke()
-        g.shadowBlur = 0
-        g.fillStyle = '#3d205a'
-        g.beginPath()
-        g.arc(-16, -19, 6, 0, Math.PI * 2)
-        g.fill()
+        // The painted seahorse carries the escape pod in its coil; the vector body carries it at its belly.
+        const painted = drawRainbowBossSprite(g, 'b01', boss.phase, -10, 0, 116)
+        const pod = painted ? { x: 23, y: 2, rx: 11, ry: 13 } : null
+        if (painted) {
+          g.shadowBlur = 0
+          if (glow) {
+            g.strokeStyle = '#fffbb6'
+            g.lineWidth = 3
+            g.globalAlpha = 0.55 + 0.45 * Math.sin(boss.frame / 3)
+            g.beginPath()
+            g.arc(-17, 0, 41, 0, Math.PI * 2)
+            g.stroke()
+            g.globalAlpha = 1
+          }
+        } else {
+          g.fillStyle = boss.phase === 3 ? '#c791ff' : '#ffd0ef'
+          g.beginPath()
+          g.ellipse(0, 0, 38, 49, -0.2, 0, Math.PI * 2)
+          g.fill()
+          g.strokeStyle = glow ? '#fffbb6' : '#724aab'
+          g.lineWidth = glow ? 5 : 3
+          g.beginPath()
+          g.moveTo(12, -32)
+          g.quadraticCurveTo(-54, -72, -41, -22)
+          g.quadraticCurveTo(-12, 1, -30, 42)
+          g.quadraticCurveTo(-10, 70, 15, 40)
+          g.stroke()
+          g.shadowBlur = 0
+          g.fillStyle = '#3d205a'
+          g.beginPath()
+          g.arc(-16, -19, 6, 0, Math.PI * 2)
+          g.fill()
+        }
+        const {
+          x: podX,
+          y: podY,
+          rx,
+          ry,
+        } = pod ?? {
+          x: -9,
+          y: 16,
+          rx: 13,
+          ry: 19,
+        }
         g.fillStyle = '#e2fff6'
         g.beginPath()
-        g.ellipse(-9, 16, 13, 19, -0.1, 0, Math.PI * 2)
+        g.ellipse(podX, podY, rx, ry, -0.1, 0, Math.PI * 2)
         g.fill()
         g.strokeStyle = '#5bdac8'
         g.lineWidth = 2
         g.stroke()
         g.fillStyle = '#3d8b94'
-        g.font = 'bold 9px monospace'
+        g.font = `bold ${painted ? 7 : 9}px monospace`
         g.textAlign = 'center'
-        g.fillText('POD', -9, 19)
+        g.fillText('POD', podX, podY + (painted ? 2 : 3))
         g.restore()
         g.fillStyle = '#240c42'
         g.fillRect(148, 30, 184, 14)
@@ -944,29 +972,51 @@ export function createRainbowPrincessPreview(
         g.translate(moonBoss.x, moonBoss.y)
         g.shadowColor = warn ? '#fff49c' : '#affff7'
         g.shadowBlur = warn ? 25 : 12
-        g.fillStyle = '#b4f4f1b8'
-        g.strokeStyle = warn ? '#fff3a2' : '#c5f7ff'
-        g.lineWidth = warn ? 5 : 3
-        g.beginPath()
-        g.ellipse(0, -9, 42, 38, 0, Math.PI, 2 * Math.PI)
-        g.fill()
-        g.stroke()
-        g.shadowBlur = 0
-        for (let arm = -3; arm <= 3; arm++) {
-          g.beginPath()
-          g.moveTo(arm * 10, -8)
-          g.quadraticCurveTo(
-            arm * 14 + Math.sin(moonBoss.frame / 24 + arm) * 8,
-            41,
-            arm * 9,
-            55,
+        if (
+          drawRainbowBossSprite(
+            g,
+            'b02',
+            moonBoss.phase,
+            -10,
+            4 + Math.sin(moonBoss.frame / 24) * 2,
+            102,
           )
+        ) {
+          g.shadowBlur = 0
+          if (warn) {
+            g.strokeStyle = '#fff3a2'
+            g.lineWidth = 3
+            g.globalAlpha = 0.55 + 0.45 * Math.sin(moonBoss.frame / 3)
+            g.beginPath()
+            g.arc(-17, 0, 47, 0, Math.PI * 2)
+            g.stroke()
+            g.globalAlpha = 1
+          }
+        } else {
+          g.fillStyle = '#b4f4f1b8'
+          g.strokeStyle = warn ? '#fff3a2' : '#c5f7ff'
+          g.lineWidth = warn ? 5 : 3
+          g.beginPath()
+          g.ellipse(0, -9, 42, 38, 0, Math.PI, 2 * Math.PI)
+          g.fill()
           g.stroke()
+          g.shadowBlur = 0
+          for (let arm = -3; arm <= 3; arm++) {
+            g.beginPath()
+            g.moveTo(arm * 10, -8)
+            g.quadraticCurveTo(
+              arm * 14 + Math.sin(moonBoss.frame / 24 + arm) * 8,
+              41,
+              arm * 9,
+              55,
+            )
+            g.stroke()
+          }
+          g.fillStyle = '#edffff'
+          g.beginPath()
+          g.arc(-11, -23, 7, 0, 2 * Math.PI)
+          g.fill()
         }
-        g.fillStyle = '#edffff'
-        g.beginPath()
-        g.arc(-11, -23, 7, 0, 2 * Math.PI)
-        g.fill()
         g.restore()
         g.fillStyle = '#1d2750'
         g.fillRect(148, 30, 184, 14)

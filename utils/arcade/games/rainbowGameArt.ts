@@ -117,6 +117,39 @@ export function drawRainbowPickupSprite(
   return true
 }
 
+/** B01 Pearl Seahorse and B02 Aurelia Array: calm, damaged (phase 2) and enraged (phase 3) pictures. */
+export const RAINBOW_BOSS_SPRITES = ['b01', 'b02'] as const
+export type RainbowBossKey = (typeof RAINBOW_BOSS_SPRITES)[number]
+
+export function rainbowBossSprite(boss: RainbowBossKey, phase: number): string {
+  const step = Math.min(3, Math.max(1, Math.round(phase)))
+  return `${RAINBOW_GAME_ART_ROOT}/bosses/${boss}-phase${step}.webp`
+}
+
+/**
+ * Draw the boss's phase picture centred on (x, y) at the given width, facing left. All three phases are
+ * requested on the first draw, so a phase change rarely waits; until it has loaded the phase-1 picture
+ * stands in. False when nothing has loaded yet, so the engine keeps its vector body.
+ */
+export function drawRainbowBossSprite(
+  g: CanvasRenderingContext2D,
+  boss: RainbowBossKey,
+  phase: number,
+  x: number,
+  y: number,
+  width: number,
+): boolean {
+  const pictures = [1, 2, 3].map((step) =>
+    loadedImage(rainbowBossSprite(boss, step)),
+  )
+  const step = Math.min(3, Math.max(1, Math.round(phase)))
+  const img = pictures[step - 1] ?? pictures[0]
+  if (!img) return false
+  const height = (width * img.naturalHeight) / img.naturalWidth
+  g.drawImage(img, x - width / 2, y - height / 2, width, height)
+  return true
+}
+
 function drawFitted(
   g: CanvasRenderingContext2D,
   src: string,

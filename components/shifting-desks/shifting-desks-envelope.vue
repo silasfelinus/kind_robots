@@ -242,10 +242,10 @@ import {
 } from '~/utils/shiftingDesks/rules'
 import { useShiftingDesksStore } from '~/stores/shiftingDesksStore'
 
-withDefaults(
-  defineProps<{ compact?: boolean; highlight?: boolean }>(),
-  { compact: false, highlight: false },
-)
+withDefaults(defineProps<{ compact?: boolean; highlight?: boolean }>(), {
+  compact: false,
+  highlight: false,
+})
 const store = useShiftingDesksStore()
 const expanded = ref(false)
 const sheet = ref<HTMLDialogElement | null>(null)

@@ -64,3 +64,32 @@ assert.ok(studio.includes('View ArtJob #'))
 assert.ok(queueCard.includes('isRestylePilot'))
 assert.ok(queueCard.includes('Open Coat Dance Studio'))
 assert.ok(media.includes('if (isVideoRestyleArtJobPayload(body)) return false'))
+
+const storeSource = readFileSync('stores/videoRestyleStore.ts', 'utf8')
+const refreshSource = storeSource.slice(
+  storeSource.indexOf('async function refresh()'),
+  storeSource.indexOf('async function stage('),
+)
+assert.match(refreshSource, /['"]\/api\/video-restyle\/reconcile['"]/)
+assert.match(refreshSource, /method: 'POST'/)
+assert.match(refreshSource, /registrationError\.value/)
+assert.ok(
+  refreshSource.indexOf('/api/video-restyle/reconcile') <
+    refreshSource.indexOf("'/api/video-restyle'"),
+)
+assert.match(studio, /ArtJob registration failed:/)
+assert.match(studio, /Register in ArtJob/)
+
+const artQueueList = readFileSync('server/api/art/queue/index.get.ts', 'utf8')
+const artQueueStore = readFileSync('stores/artJobStore.ts', 'utf8')
+const artQueueView = readFileSync(
+  'components/art/artjob-queue-browser.vue',
+  'utf8',
+)
+assert.ok(artQueueList.includes('where.id = jobId'))
+assert.ok(
+  artQueueStore.includes("params.set('jobId', String(state.focusedJobId))"),
+)
+assert.ok(artQueueView.includes('route.query.jobId'))
+assert.ok(artQueueView.includes('Showing ArtJob #'))
+assert.ok(studio.includes('query: { jobId: store.selected.pilot.artJobId }'))

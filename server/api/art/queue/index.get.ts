@@ -44,6 +44,14 @@ export default defineEventHandler(async (event) => {
       where.status = status as Prisma.ArtJobWhereInput['status']
     }
 
+    if (query.jobId !== undefined) {
+      const jobId = Number(query.jobId)
+      if (!Number.isSafeInteger(jobId) || jobId < 1) {
+        throw createError({ statusCode: 400, message: 'Invalid ArtJob ID.' })
+      }
+      where.id = jobId
+    }
+
     const projectSlug = String(query.projectSlug || '')
       .trim()
       .toLowerCase()

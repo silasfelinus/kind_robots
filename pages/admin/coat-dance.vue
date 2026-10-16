@@ -54,6 +54,24 @@
         >
           {{ store.notice }}
         </div>
+        <div
+          v-if="store.registrationError"
+          role="alert"
+          class="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-error/40 bg-base-100 p-2 text-sm text-base-content shadow-sm"
+        >
+          <span>
+            ArtJob registration failed: {{ store.registrationError }}
+            Your original video remains saved.
+          </span>
+          <button
+            type="button"
+            class="kr-btn-outline-xs"
+            :disabled="store.syncing"
+            @click="store.refresh()"
+          >
+            {{ store.syncing ? 'Retrying…' : 'Retry ArtJob registration' }}
+          </button>
+        </div>
         <nav
           class="grid grid-cols-3 gap-1 rounded-xl bg-base-200 p-1 lg:hidden"
           aria-label="Studio panels"
@@ -309,7 +327,7 @@
               <button
                 type="button"
                 class="kr-btn-outline-xs"
-                :disabled="store.busy"
+                :disabled="store.busy || store.syncing"
                 @click="store.refresh()"
               >
                 Refresh
@@ -373,11 +391,28 @@
               <p class="text-base-content/70">{{ store.selected.stage }}</p>
               <NuxtLink
                 v-if="store.selected.pilot?.artJobId"
-                to="/artjob"
+                :to="{
+                  path: '/artjob',
+                  query: { jobId: store.selected.pilot.artJobId },
+                }"
                 class="inline-flex items-center gap-1 font-semibold text-primary hover:underline"
               >
                 View ArtJob #{{ store.selected.pilot.artJobId }} in the queue
               </NuxtLink>
+              <div
+                v-else-if="store.selected.pilot"
+                class="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-warning/30 bg-warning/10 p-2"
+              >
+                <span>Not registered in ArtJob yet.</span>
+                <button
+                  type="button"
+                  class="kr-btn-outline-xs"
+                  :disabled="store.syncing"
+                  @click="store.refresh()"
+                >
+                  {{ store.syncing ? 'Registering…' : 'Register in ArtJob' }}
+                </button>
+              </div>
               <p v-if="store.selected.pilot" class="text-base-content/70">
                 {{ store.selected.pilot.completedSegments }}/{{
                   store.selected.pilot.totalSegments

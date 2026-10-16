@@ -14,6 +14,8 @@ export const useVideoRestyleStore = defineStore('videoRestyle', () => {
   const jobs = ref<VideoRestyleJob[]>([])
   const selectedId = ref<string | null>(null)
   const busy = ref(false)
+  const syncing = ref(false)
+  const registrationError = ref('')
   const sourceBusy = ref(false)
   const error = ref('')
   const notice = ref('')
@@ -34,18 +36,49 @@ export const useVideoRestyleStore = defineStore('videoRestyle', () => {
   }
 
   async function refresh() {
-    const response = await performFetch<VideoRestyleJob[]>(
-      '/api/video-restyle',
-      {},
-      1,
-      30_000,
-    )
-    if (response.success && response.data) {
-      jobs.value = response.data
-      if (!selectedId.value && jobs.value.length)
+    if (syncing.value) return
+    syncing.value = true
+    try {
+      // Registration is an explicit owner-authorized write. A read-only list
+      // cannot backfill a pilot that was queued before ArtJob mirroring existed.
+      const response = await performFetch<VideoRestyleJob[]>(
+        '/api/video-restyle/reconcile',
+        { method: 'POST' },
+        1,
+        30_000,
+      )
+      if (response.success && Array.isArray(response.data)) {
+        jobs.value = response.data
+        registrationError.value = jobs.value.some(
+          (job) => job.pilot && !job.pilot.artJobId,
+        )
+          ? 'The server returned a pilot without an ArtJob ID.'
+          : ''
+      } else {
+        // Preserve the ability to view an uploaded film if the database or
+        // registration endpoint is unavailable, but never hide that failure.
+        registrationError.value =
+          response.message || 'Unable to register pilots in ArtJob.'
+        const fallback = await performFetch<VideoRestyleJob[]>(
+          '/api/video-restyle',
+          {},
+          1,
+          30_000,
+        )
+        if (fallback.success && Array.isArray(fallback.data)) {
+          jobs.value = fallback.data
+        } else {
+          error.value = fallback.message || 'Cannot load your restyle projects.'
+        }
+      }
+      if (
+        jobs.value.length &&
+        !jobs.value.some((job) => job.id === selectedId.value)
+      ) {
         selectedId.value = jobs.value[0]!.id
-    } else {
-      error.value = response.message || 'Cannot load your restyle projects.'
+      }
+    } finally {
+      syncing.value = false
     }
   }
 
@@ -231,6 +264,8 @@ export const useVideoRestyleStore = defineStore('videoRestyle', () => {
     selected,
     selectedId,
     busy,
+    syncing,
+    registrationError,
     sourceBusy,
     error,
     notice,

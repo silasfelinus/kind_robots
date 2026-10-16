@@ -88,6 +88,8 @@ export const useVideoRestyleStore = defineStore('videoRestyle', () => {
     durationSec: number
     style: RestyleStyleId
     quality: RestyleQuality
+    isPrivate: boolean
+    isMature: boolean
   }): Promise<boolean> {
     error.value = ''
     notice.value = ''
@@ -109,6 +111,8 @@ export const useVideoRestyleStore = defineStore('videoRestyle', () => {
       form.append('durationSec', String(input.durationSec))
       form.append('style', input.style)
       form.append('quality', input.quality)
+      form.append('isPrivate', String(input.isPrivate))
+      form.append('isMature', String(input.isMature))
       const response = await performFetch<VideoRestyleJob>(
         '/api/video-restyle',
         { method: 'POST', body: form },
@@ -121,7 +125,7 @@ export const useVideoRestyleStore = defineStore('videoRestyle', () => {
       }
       selectedId.value = response.data.id
       notice.value =
-        'Source saved privately. The motion-conditioned renderer is not connected yet.'
+        'Video saved in your private studio. Choose a look and queue a pilot when ready.'
       await refresh()
       return true
     } catch (caught) {
@@ -171,6 +175,40 @@ export const useVideoRestyleStore = defineStore('videoRestyle', () => {
       return false
     } finally {
       sourceBusy.value = false
+    }
+  }
+
+  async function createVariant(input: {
+    id: string
+    title: string
+    style: RestyleStyleId
+    quality: RestyleQuality
+    isPrivate: boolean
+    isMature: boolean
+  }): Promise<boolean> {
+    if (busy.value) return false
+    busy.value = true
+    error.value = ''
+    notice.value = ''
+    try {
+      const response = await performFetch<VideoRestyleJob>(
+        `/api/video-restyle/${encodeURIComponent(input.id)}/variants`,
+        { method: 'POST', body: JSON.stringify(input) },
+        1,
+        30_000,
+      )
+      if (!response.success || !response.data) {
+        error.value = response.message || 'Unable to create a style variation.'
+        return false
+      }
+      jobs.value = [response.data, ...jobs.value]
+      selectedId.value = response.data.id
+      clearPreview()
+      notice.value =
+        'New style project created using your saved source. No upload needed.'
+      return true
+    } finally {
+      busy.value = false
     }
   }
 
@@ -265,6 +303,8 @@ export const useVideoRestyleStore = defineStore('videoRestyle', () => {
     id: string,
     style: RestyleStyleId,
     quality: RestyleQuality,
+    isPrivate: boolean,
+    isMature: boolean,
   ): Promise<boolean> {
     busy.value = true
     error.value = ''
@@ -272,7 +312,10 @@ export const useVideoRestyleStore = defineStore('videoRestyle', () => {
     try {
       const response = await performFetch<VideoRestyleJob>(
         `/api/video-restyle/${encodeURIComponent(id)}`,
-        { method: 'PATCH', body: JSON.stringify({ style, quality }) },
+        {
+          method: 'PATCH',
+          body: JSON.stringify({ style, quality, isPrivate, isMature }),
+        },
       )
       if (!response.success || !response.data) {
         error.value = response.message || 'Could not save restyle settings.'
@@ -301,6 +344,7 @@ export const useVideoRestyleStore = defineStore('videoRestyle', () => {
     previewUrl,
     refresh,
     stage,
+    createVariant,
     saveSettings,
     queuePilot,
     retryPilot,

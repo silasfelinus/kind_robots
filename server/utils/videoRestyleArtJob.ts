@@ -48,7 +48,7 @@ export async function syncRestylePilotArtJob(
   const payload = serializeArtJobPayload({
     media: RESTYLE_ARTJOB_MEDIA,
     engine: 'wan-vace',
-    promptString: `${job.title}: motion-guided Illustrious pilot. ${job.renderRecipe.stylePrompt}`,
+    promptString: `${job.title}: motion-guided ${job.style} pilot. ${job.renderRecipe.stylePrompt}`,
     requestId: `coat-dance/${job.id}/pilot/${revision}`,
     attemptFingerprint: fingerprint,
     videoRestyle: {
@@ -64,10 +64,12 @@ export async function syncRestylePilotArtJob(
       executor: 'kr-relay',
       quality: job.quality,
       stylePrompt: job.renderRecipe.stylePrompt,
+      isPrivate: job.isPrivate ?? true,
+      isMature: job.isMature ?? false,
     },
     save: {
       isPublic: false,
-      isMature: false,
+      isMature: job.isMature ?? false,
       designer: PROJECT_SLUG,
       artCollectionIds: [],
     },

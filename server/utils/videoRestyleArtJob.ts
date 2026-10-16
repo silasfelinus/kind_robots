@@ -35,19 +35,26 @@ export async function syncRestylePilotArtJob(
 ): Promise<VideoRestyleJob> {
   if (!job.pilot || job.status === 'STAGED') return job
 
+  // Revision one keeps the original fingerprint for existing, already-rendered pilots.
+  // Later revisions get new ArtJobs, preserving the previous DONE record.
+  const revision = job.pilot.revision ?? 1
   const fingerprint = createHash('sha256')
-    .update(`coat-dance:pilot:${job.userId}:${job.id}`)
+    .update(
+      `coat-dance:pilot:${job.userId}:${job.id}` +
+        (revision === 1 ? '' : `:revision:${revision}`),
+    )
     .digest('hex')
   const status = trackedStatus(job.status)
   const payload = serializeArtJobPayload({
     media: RESTYLE_ARTJOB_MEDIA,
     engine: 'wan-vace',
     promptString: `${job.title}: motion-guided Illustrious pilot. ${job.renderRecipe.stylePrompt}`,
-    requestId: `coat-dance/${job.id}/pilot`,
+    requestId: `coat-dance/${job.id}/pilot/${revision}`,
     attemptFingerprint: fingerprint,
     videoRestyle: {
       id: job.id,
       phase: 'pilot',
+      revision,
       startSec: job.pilot.startSec,
       durationSec: job.pilot.durationSec,
       completedSegments: job.pilot.completedSegments,

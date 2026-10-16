@@ -223,7 +223,10 @@ function restyleFlag(value: unknown, fallback: boolean): boolean {
   if (value === undefined || value === null) return fallback
   if (value === true || value === 'true') return true
   if (value === false || value === 'false') return false
-  throw createError({ statusCode: 400, message: 'Invalid video privacy or maturity setting.' })
+  throw createError({
+    statusCode: 400,
+    message: 'Invalid video privacy or maturity setting.',
+  })
 }
 
 export async function cloneRestyleVideo(input: {
@@ -237,7 +240,10 @@ export async function cloneRestyleVideo(input: {
 }): Promise<VideoRestyleJob> {
   const source = await loadRestyleJob(input.userId, input.id)
   if (!/^source\.(mp4|mov|webm)$/.test(source.sourceFile)) {
-    throw createError({ statusCode: 400, message: 'Invalid saved source file.' })
+    throw createError({
+      statusCode: 400,
+      message: 'Invalid saved source file.',
+    })
   }
   if (!isRestyleStyle(input.style)) {
     throw createError({ statusCode: 400, message: 'Unknown animation style.' })
@@ -252,7 +258,10 @@ export async function cloneRestyleVideo(input: {
   const cloned: VideoRestyleJob = {
     ...source,
     id,
-    title: String(input.title || `${source.title} · ${style.label}`).trim().slice(0, 120) || source.title,
+    title:
+      String(input.title || `${source.title} · ${style.label}`)
+        .trim()
+        .slice(0, 120) || source.title,
     sourceProjectId: source.sourceProjectId ?? source.id,
     style: input.style,
     quality: input.quality,
@@ -274,10 +283,19 @@ export async function cloneRestyleVideo(input: {
   }
   await mkdir(folder, { recursive: false, mode: 0o700 })
   try {
-    await copyFile(restyleSourcePath(source), path.join(folder, source.sourceFile), constants.COPYFILE_EXCL)
-    await writeFile(path.join(folder, 'job.json'), JSON.stringify(cloned, null, 2), {
-      flag: 'wx', mode: 0o600,
-    })
+    await copyFile(
+      restyleSourcePath(source),
+      path.join(folder, source.sourceFile),
+      constants.COPYFILE_EXCL,
+    )
+    await writeFile(
+      path.join(folder, 'job.json'),
+      JSON.stringify(cloned, null, 2),
+      {
+        flag: 'wx',
+        mode: 0o600,
+      },
+    )
   } catch (error) {
     await rm(folder, { recursive: true, force: true })
     throw error

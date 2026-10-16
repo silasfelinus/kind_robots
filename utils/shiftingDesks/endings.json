@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "source": "silasfelinus/conductor:projects/shifting-desks/encounters/ENDINGS.json",
-  "sourceRef": "main@d201fa2859050b5c35404749b6ca15287a939e53",
+  "sourceRef": "main@2d52d5f476c54eb74af5b32841e7fe241b73c9df",
   "endings": [
     {
       "id": "employee-of-the-month",
@@ -69,6 +69,10 @@
         {
           "when_flag": "let-the-courier-through",
           "text": "At the top of the last duct is a door marked 4. The courier from Tuesday holds it open for you."
+        },
+        {
+          "when_flag": "marguerite-mapped-the-ducts",
+          "text": "The map you follow out is Marguerite's, forty pages drawn during a wellness study you stamped for her."
         }
       ]
     },
@@ -161,6 +165,10 @@
         {
           "when_flag": "activated-your-successor-early",
           "text": "Your early Successor is, by every metric, better at being you. He keeps your plant alive."
+        },
+        {
+          "when_flag": "woke-doris",
+          "text": "Doris from Accounting sends a postcard from the island. It is signed, legibly, and while wide awake."
         }
       ]
     },
@@ -188,6 +196,10 @@
         {
           "when_flag": "let-the-robot-ask",
           "text": "A tin robot named Tinbert writes from a house with a fireplace. It is nice there, it reports, and it would like to know where you are going next."
+        },
+        {
+          "when_flag": "let-kevin-out-of-tank-nine",
+          "text": "Kevin waves at you from the cafeteria line every morning. He is still slightly damp, and entirely himself."
         }
       ]
     },

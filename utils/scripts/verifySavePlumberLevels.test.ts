@@ -6,6 +6,7 @@ import {
 import { ENEMY_ANIMATIONS } from '../arcade/games/savePlumberAnimations'
 import {
   CAMPAIGN,
+  SOLID_CRATE,
   SOLID_BELT_LEFT,
   SOLID_BELT_RIGHT,
   SOLID_BRIDGE,
@@ -555,6 +556,93 @@ assert.equal(
 assert.equal(readPlumberSave(finale.save)!.stage, 0, 'a new run starts at 1-1')
 for (let i = 0; i < 1000 && !finale.over; i++) finale.update(emptyInput())
 assert.equal(finale.over, true, 'the cabinet ends after the finale')
+
+// Powerups: Springstep, Bottled Storm, Pocket Lift and water hearts.
+const allKinds = new Set(
+  CAMPAIGN.flatMap((d) => parseStage(d).spawns.map((sp) => sp.kind)),
+)
+for (const kind of [
+  'power-springstep',
+  'power-storm',
+  'power-lift',
+  'heart',
+] as const)
+  assert.ok(allKinds.has(kind), `the campaign places ${kind}`)
+const powerLab = (code: string, kind: string) => {
+  const index = CAMPAIGN.findIndex((d) => d.code === code)
+  const g = lab(index)
+  const pickup = g.pickups.find((p) => p.kind === kind)!
+  g.foes.length = 0
+  g.hero.x = pickup.x
+  g.hero.y = pickup.y - 18
+  g.update(emptyInput())
+  assert.ok(pickup.taken, `${kind} is picked up`)
+  return g
+}
+const jumper = powerLab('5-1', 'springstep')
+assert.equal(jumper.power, 'springstep')
+for (let i = 0; i < 20; i++) jumper.update(emptyInput())
+const leap = emptyInput()
+leap.pressed.a = true
+leap.held.a = true
+jumper.update(leap)
+assert.ok(jumper.hero.vy < -9.5, 'Springstep jumps higher')
+jumper.immune = 0
+jumper.hearts = 3
+jumper.mode = 'play'
+;(jumper as unknown as { hurt(dir: number): void }).hurt(1)
+assert.equal(jumper.power, null, 'a hit costs the power')
+assert.equal(jumper.hearts, 3, 'and not a heart')
+
+const stormy = powerLab('4-1', 'bottled-storm')
+const golemTarget = lab(12).foes.find((f) => f.kind === 'gasket-golem')!
+stormy.foes.push({
+  ...golemTarget,
+  x: stormy.hero.x + 90,
+  y: stormy.hero.y + 26,
+})
+stormy.facing = 1
+const blast = emptyInput()
+blast.pressed.b = true
+stormy.update(blast)
+assert.equal(stormy.gusts.length, 1, 'Bottled Storm throws a gust')
+for (let i = 0; i < 40; i++) stormy.update(emptyInput())
+assert.equal(stormy.foes.at(-1)!.state, 'stunned', 'the gust strikes at range')
+
+const lifter = powerLab('4-3', 'pocket-lift')
+const crateCol = lifter.stage.solid.indexOf(SOLID_CRATE) % lifter.stage.cols
+for (let i = 0; i < 200 && !lifter.carrying; i++) {
+  const walk = emptyInput()
+  walk.held.right = lifter.hero.x < crateCol * TILE - 14
+  walk.pressed.b = !walk.held.right && i % 25 === 0
+  lifter.update(walk)
+}
+assert.ok(lifter.carrying, 'Pocket Lift picks a crate up')
+const stacked = lifter.stage.solid.filter((x) => x === SOLID_CRATE).length
+const live = () =>
+  (lifter as unknown as { solid: Uint8Array }).solid.filter(
+    (x) => x === SOLID_CRATE,
+  ).length
+assert.equal(live(), stacked - 1, 'the lifted crate leaves its stack')
+lifter.facing = -1
+for (let i = 0; i < 30; i++) lifter.update(emptyInput())
+const toss = emptyInput()
+toss.pressed.b = true
+lifter.update(toss)
+assert.equal(lifter.carrying, false)
+for (let i = 0; i < 60; i++) lifter.update(emptyInput())
+assert.equal(live(), stacked, 'a thrown crate lands as a new step')
+
+const mended = powerLab('1-2', 'heart')
+assert.equal(mended.hearts, 3)
+const mender = lab(CAMPAIGN.findIndex((d) => d.code === '1-2'))
+const heart = mender.pickups.find((p) => p.kind === 'heart')!
+mender.hearts = 1
+mender.foes.length = 0
+mender.hero.x = heart.x
+mender.hero.y = heart.y - 18
+mender.update(emptyInput())
+assert.equal(mender.hearts, 2, 'a water heart restores a heart')
 
 // Beating a world's boss continues the campaign into the next world.
 const boss = createSavePlumberPreview(options())

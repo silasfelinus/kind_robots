@@ -8,6 +8,7 @@ import {
   dailySeed,
   dailyShareText,
 } from '../shiftingDesks/daily'
+import { naturalEndingSaves } from '../shiftingDesks/endingSaves'
 import {
   type RunState,
   BOSS_CARD,
@@ -1320,6 +1321,56 @@ for (const kind of [
     `${kind} stations render art`,
   )
 }
+
+// t-026: the browser contract (cypress/public/shifting-desks-endings.cy.ts)
+// loads one naturally reached save per ending. Keep that set complete here so
+// a content change that strands an ending fails in PR CI, not in the browser.
+const endingSaves = naturalEndingSaves()
+assert.deepEqual(
+  endingSaves.map((s) => s.ending),
+  ENDINGS.map((e) => e.id),
+  'a naturally reached save exists for every ending',
+)
+for (const save of endingSaves) {
+  assert.equal(endingFor(save.run)?.id, save.ending, `${save.ending} save`)
+  assert.equal(
+    JSON.stringify(JSON.parse(JSON.stringify(save.run))),
+    JSON.stringify(save.run),
+    `${save.ending} save survives localStorage round-tripping`,
+  )
+}
+assert.deepEqual(
+  endingSaves
+    .filter((s) => s.run.status === 'eliminated')
+    .map((s) => s.kind)
+    .sort(),
+  ['elimination', 'secret'],
+  'secret and default eliminations both have saves',
+)
+const endingSpec = readFileSync(
+  fileURLToPath(
+    new URL(
+      '../../cypress/public/shifting-desks-endings.cy.ts',
+      import.meta.url,
+    ),
+  ),
+  'utf8',
+)
+assert.match(
+  endingSpec,
+  /naturalEndingSaves\(\)/,
+  'browser contract uses natural saves',
+)
+assert.match(
+  endingSpec,
+  /textContent/,
+  'browser contract reads text-transform-safe DOM text',
+)
+assert.match(
+  endingSpec,
+  /cy\.reload\(\)/,
+  'browser contract reloads the saved run',
+)
 
 console.log(
   `shifting desks contract ok (${completed}/3000 completed, ${eliminated} eliminated; endings reached: ${[...endingsSeen].sort().join(', ')})`,

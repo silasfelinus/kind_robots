@@ -113,7 +113,7 @@ function bump(record: Record<string, number>, key: string, by = 1): void {
   record[key] = (record[key] ?? 0) + by
 }
 
-function emptyReport(policy: string, runs: number): PolicyReport {
+export function emptyReport(policy: string, runs: number): PolicyReport {
   return {
     policy,
     runs,

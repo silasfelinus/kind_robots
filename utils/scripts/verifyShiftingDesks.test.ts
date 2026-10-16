@@ -49,6 +49,7 @@ import {
   restructuringFor,
   stepLabels,
   TOY_DIVISION,
+  WELLNESS,
   nextDepartment,
   ENDINGS,
   endingFor,
@@ -618,6 +619,23 @@ assert.equal(plain.deck.length, RECORDS.locations.length + 1 + SHIFT)
   )
   assert.match(gallery, /v-for="ending in ENDINGS"/)
   assert.match(gallery, /stationArt\('endings', ending\.id\)/)
+}
+// Wellness's Consent Window (conductor shifting-desks t-029): a third window
+// shift, at the Mutation Suite, stamped CONSENT / VOID.
+{
+  const consent = WELLNESS.window_shift!
+  assert.equal(consent.id, 'consent-window-rounds')
+  assert.equal(consent.location_id, 'mutation-suite')
+  assert.equal(consent.applicants.length, 3)
+  assert.ok(
+    consent.applicants.every(
+      (a) =>
+        a.choices
+          .map((c) => c.label)
+          .sort()
+          .join() === 'Stamp CONSENT,Stamp VOID',
+    ),
+  )
 }
 // Toy Division's Recall Desk (conductor shifting-desks t-028): a second
 // window shift, at the Proving Grounds, with its own SAFE / RECALL stamps.

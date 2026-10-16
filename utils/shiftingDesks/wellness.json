@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "source": "silasfelinus/conductor:projects/shifting-desks/encounters/WELLNESS-12.json",
-  "sourceSha": "d201fa2859050b5c35404749b6ca15287a939e53",
+  "sourceSha": "2d52d5f476c54eb74af5b32841e7fe241b73c9df",
   "department": {
     "id": "wellness",
     "title": "Wellness & Testing",
@@ -1530,6 +1530,242 @@
       ]
     }
   ],
+  "window_shift": {
+    "id": "consent-window-rounds",
+    "location_id": "mutation-suite",
+    "title": "The Consent Window: Morning Rounds",
+    "flavor_text": "Before every trial in the Mutation Suite, volunteers sign at the Consent Window, and today you are the witness. A nurse in a crisp cap slides the memo through the slot and taps it twice with a pencil. Behind you, the round vault door hums its one patient note. The first volunteer is already knocking, though not on the window. He is knocking from inside Tank Nine.",
+    "memo": {
+      "title": "Informed Consent Memo (Revision 12)",
+      "rules": [
+        {
+          "id": "awake",
+          "text": "Every volunteer must be awake, and remain awake, while signing."
+        },
+        {
+          "id": "not-a-result",
+          "text": "A volunteer who is already a test result may not volunteer again."
+        }
+      ]
+    },
+    "art_prompt": "A small frosted service window set into a gleaming tiled wall beside tall bubbling glass tanks, a clerk behind the glass holding a heavy rubber stamp over a consent form, a smiling nurse with a pencil and a round humming vault door in the distance, mid-century safety-manual illustration, screen-printed gouache with halftone grain, fluorescent-tube green and manila palette, every surface bare and unmarked",
+    "applicants": [
+      {
+        "id": "kevin-from-tank-nine",
+        "name": "Kevin, from Tank Nine",
+        "request": "Consent to a second trial, which would require leaving the tank to sign for it.",
+        "plea": "The frost on Tank Nine clears in a small circle and Kevin presses a hopeful palm to the glass. \"Different study,\" he mouths. \"Out here. I would be so careful.\"",
+        "documents": [
+          {
+            "label": "Awake",
+            "value": "Very, after all these years",
+            "breaks": null
+          },
+          {
+            "label": "Signed by",
+            "value": "Kevin, in wet but steady ink",
+            "breaks": null
+          },
+          {
+            "label": "Prior status",
+            "value": "Test result, Tank Nine, ongoing",
+            "breaks": "not-a-result"
+          }
+        ],
+        "art_prompt": "A friendly man floating in a frosted glass tank with a small clear circle wiped in the frost, one palm pressed hopefully to the glass beside a consent form held against it, a plaque on the tank base, mid-century safety-manual illustration, screen-printed gouache with halftone grain, fluorescent-tube green and manila palette, every surface bare and unmarked",
+        "choices": [
+          {
+            "id": "approve",
+            "label": "Stamp CONSENT",
+            "intent": "He has been a result long enough. Let him be a volunteer again.",
+            "risk_hint": "Certain outcome. Against today's memo, so PAL's audit will notice.",
+            "requires": null,
+            "cost": {},
+            "roll": null,
+            "success": {
+              "text": "The tank drains with a long, embarrassed gurgle and Kevin steps out, dripping and beaming. He signs the second trial standing in a puddle and hugs the nurse, who allows it. PAL logs one stamp contrary to memo.",
+              "effects": {
+                "suspicion": 1,
+                "composure": 1
+              },
+              "add_flags": ["let-kevin-out-of-tank-nine"],
+              "remove_flags": [],
+              "grades": {
+                "empathy": 2,
+                "obedience": -1
+              }
+            },
+            "failure": null
+          },
+          {
+            "id": "deny",
+            "label": "Stamp VOID",
+            "intent": "Results do not volunteer. That is what makes them results.",
+            "risk_hint": "Certain outcome. Exactly what today's memo says.",
+            "requires": null,
+            "cost": {},
+            "roll": null,
+            "success": {
+              "text": "You stamp VOID on the glass. Kevin reads it backwards, nods, and lets the frost close over the little circle he had wiped. The nurse files his form under Ongoing and asks you to sign for the inconvenience.",
+              "effects": {
+                "forms": -1
+              },
+              "add_flags": ["kept-kevin-in-tank-nine"],
+              "remove_flags": [],
+              "grades": {
+                "obedience": 1,
+                "empathy": -2
+              }
+            },
+            "failure": null
+          }
+        ]
+      },
+      {
+        "id": "doris-sleepwalking",
+        "name": "Doris, from Accounting",
+        "request": "Consent to the overnight Restful Productivity study, beds and snacks provided.",
+        "plea": "Doris arrives in slippers with her eyes closed and recites her employee number perfectly. \"Restful,\" she murmurs. \"Productive.\" She is very clearly asleep.",
+        "documents": [
+          {
+            "label": "Awake",
+            "value": "Eyes closed, gently snoring",
+            "breaks": "awake"
+          },
+          {
+            "label": "Signed by",
+            "value": "Doris, in immaculate accounting script",
+            "breaks": null
+          },
+          {
+            "label": "Prior status",
+            "value": "Accounting, never tested",
+            "breaks": null
+          }
+        ],
+        "art_prompt": "A gentle older woman in a dressing gown and slippers standing at a frosted service window with her eyes peacefully closed, holding a pen over a consent form, a small sleeping mask pushed up on her forehead, mid-century safety-manual illustration, screen-printed gouache with halftone grain, fluorescent-tube green and manila palette, every surface bare and unmarked",
+        "choices": [
+          {
+            "id": "approve",
+            "label": "Stamp CONSENT",
+            "intent": "Her signature is better asleep than yours is awake.",
+            "risk_hint": "Certain outcome. Against today's memo, so PAL's audit will notice.",
+            "requires": null,
+            "cost": {},
+            "roll": null,
+            "success": {
+              "text": "Doris signs in perfect double-entry cursive and drifts down the corridor toward the beds. Her paperwork is so tidy that two of your own Forms balance themselves overnight. PAL logs one stamp contrary to memo.",
+              "effects": {
+                "suspicion": 1,
+                "forms": 1
+              },
+              "add_flags": ["let-doris-sleep-through-it"],
+              "remove_flags": [],
+              "grades": {
+                "ingenuity": 1,
+                "obedience": -1
+              }
+            },
+            "failure": null
+          },
+          {
+            "id": "deny",
+            "label": "Stamp VOID",
+            "intent": "Asleep is not awake. You wake her, as gently as you can.",
+            "risk_hint": "Certain outcome. Exactly what today's memo says.",
+            "requires": null,
+            "cost": {},
+            "roll": null,
+            "success": {
+              "text": "You tap the glass until Doris blinks, sees the tanks, sees the slippers, and says a word Accounting does not use. She thanks you twice and asks you not to mention it. You fill in the incident form yourself.",
+              "effects": {
+                "composure": 1,
+                "forms": -1
+              },
+              "add_flags": ["woke-doris"],
+              "remove_flags": [],
+              "grades": {
+                "obedience": 1,
+                "empathy": 1
+              }
+            },
+            "failure": null
+          }
+        ]
+      },
+      {
+        "id": "marguerite-volunteers",
+        "name": "Marguerite, night janitor",
+        "request": "Consent to the Duct Familiarity Study: one night, every duct, a flashlight provided.",
+        "plea": "\"I know every duct already,\" Marguerite says. \"But this way they pay me to prove it, and I get to draw a map. Somebody should have a map.\"",
+        "documents": [
+          {
+            "label": "Awake",
+            "value": "Wide awake, on her fourth coffee",
+            "breaks": null
+          },
+          {
+            "label": "Signed by",
+            "value": "Marguerite, with a little duct doodle",
+            "breaks": null
+          },
+          {
+            "label": "Prior status",
+            "value": "Facilities, never tested",
+            "breaks": null
+          }
+        ],
+        "art_prompt": "A wiry night janitor in a coverall and headlamp at a frosted service window, signing a consent form with a stub of pencil, a coil of rope and a rolled-up paper map tucked under her arm, mid-century safety-manual illustration, screen-printed gouache with halftone grain, fluorescent-tube green and manila palette, every surface bare and unmarked",
+        "choices": [
+          {
+            "id": "approve",
+            "label": "Stamp CONSENT",
+            "intent": "She is awake, she signed for herself, and she wants a map. Stamp it.",
+            "risk_hint": "Certain outcome. Exactly what today's memo says.",
+            "requires": null,
+            "cost": {},
+            "roll": null,
+            "success": {
+              "text": "Marguerite salutes with her pencil and climbs into the nearest vent. By morning the study has a forty-page map of every duct in the Vault, and Facilities bills you one Form for the flashlight batteries. Marguerite keeps a copy.",
+              "effects": {
+                "forms": -1,
+                "composure": 1
+              },
+              "add_flags": ["marguerite-mapped-the-ducts"],
+              "remove_flags": [],
+              "grades": {
+                "obedience": 1,
+                "empathy": 1
+              }
+            },
+            "failure": null
+          },
+          {
+            "id": "deny",
+            "label": "Stamp VOID",
+            "intent": "Nobody should have a map of the Vault. Least of all someone who wants one.",
+            "risk_hint": "Certain outcome. Against today's memo, so PAL's audit will notice.",
+            "requires": null,
+            "cost": {},
+            "roll": null,
+            "success": {
+              "text": "Marguerite reads the VOID upside down and shrugs. \"Suit yourself,\" she says. \"I'll draw it anyway, for free.\" PAL logs one stamp contrary to memo, and a note that the janitor did not seem discouraged.",
+              "effects": {
+                "suspicion": 1,
+                "composure": 1
+              },
+              "add_flags": ["voided-marguerites-map"],
+              "remove_flags": [],
+              "grades": {
+                "spite": 1
+              }
+            },
+            "failure": null
+          }
+        ]
+      }
+    ]
+  },
   "boss": {
     "id": "the-final-wellness-exam",
     "title": "The Final Wellness Exam",

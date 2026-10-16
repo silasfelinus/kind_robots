@@ -1,9 +1,13 @@
 import assert from 'node:assert/strict'
 import {
   PINKWAKE,
+  PINKWAKE_SECTIONS,
+  PINKWAKE_WAVES,
+  PINKWAKE_WAVE_SIZES,
   pinkwakeDialogue,
+  pinkwakeFormation,
   pinkwakeScene,
-  pinkwakeSpawn,
+  pinkwakeSpawns,
   pinkwakeStage,
 } from '../arcade/games/rainbowPinkwake'
 import {
@@ -20,16 +24,85 @@ assert.equal(pinkwakeStage(PINKWAKE.openingEnds, null), 'waves')
 assert.equal(pinkwakeStage(PINKWAKE.turnStarts, null), 'turn')
 assert.equal(pinkwakeStage(PINKWAKE.bossStarts, null), 'boss')
 assert.equal(pinkwakeStage(5000, 4850), 'aftermath')
-assert.equal(pinkwakeSpawn(100), null, 'opening scene is a safe corridor')
-assert.equal(pinkwakeSpawn(312), 'picket')
-assert.equal(pinkwakeSpawn(1320), 'spiral')
-assert.equal(pinkwakeSpawn(2450), 'anchor')
-assert.equal(pinkwakeSpawn(3362), 'urchin')
-assert.equal(
-  pinkwakeSpawn(PINKWAKE.turnStarts),
-  null,
+const laneY = (lane: number) => PINKWAKE.laneTop + lane * PINKWAKE.laneSpan
+assert.deepEqual(pinkwakeSpawns(100), [], 'opening scene is a safe corridor')
+assert.deepEqual(
+  pinkwakeSpawns(360).map((spawn) => [spawn.kind, spawn.y]),
+  [['picket', laneY(0.3)]],
+  'the picket school opens with a three-craft line',
+)
+assert.equal(pinkwakeSpawns(392).length, 1, 'line members enter in file')
+assert.equal(pinkwakeSpawns(2160)[0]?.kind, 'spiral')
+assert.equal(pinkwakeSpawns(5760)[0]?.kind, 'urchin')
+assert.deepEqual(
+  pinkwakeSpawns(PINKWAKE.turnStarts),
+  [],
   'pre-boss dialogue is safe',
 )
+
+// Authored formations: every craft enters inside the waves stage, on the playfield, in its section.
+let craft = 0
+for (let tick = 0; tick < PINKWAKE.bossStarts + 600; tick++) {
+  for (const spawn of pinkwakeSpawns(tick)) {
+    craft++
+    assert.equal(pinkwakeStage(tick, null), 'waves')
+    assert.ok(spawn.y >= laneY(0) && spawn.y <= laneY(1), `y ${spawn.y}`)
+  }
+}
+assert.equal(
+  craft,
+  PINKWAKE_WAVE_SIZES.reduce((sum, size) => sum + size, 0),
+  'every formation member spawns before the pre-boss turn',
+)
+assert.ok(
+  craft >= 120,
+  `Act I authors ${craft} craft, over twice the 59 of the old slice`,
+)
+for (const [i, section] of PINKWAKE_SECTIONS.entries()) {
+  if (i > 0) assert.equal(section.from, PINKWAKE_SECTIONS[i - 1]!.to)
+  assert.ok(
+    PINKWAKE_WAVES.some((w) => w.at >= section.from && w.at < section.to),
+    `${section.name} has waves`,
+  )
+}
+assert.equal(PINKWAKE_SECTIONS[0]!.from, PINKWAKE.openingEnds)
+assert.equal(PINKWAKE_SECTIONS.at(-1)!.to, PINKWAKE.turnStarts)
+assert.ok(
+  PINKWAKE.turnStarts - PINKWAKE.openingEnds >= 7800,
+  'Act I waves run over two minutes',
+)
+
+// A mine-corridor wall always leaves one open lane a ship can thread: half the corridor clears the
+// 14px ram radius (core 4 + craft 10) with at least 12px to spare on each side.
+const walls = PINKWAKE_WAVES.filter((wave) => wave.formation === 'wall')
+assert.ok(walls.length >= 5)
+for (const wall of walls) {
+  const lanes = pinkwakeFormation(wall)
+    .map((member) => laneY(member.lane))
+    .sort((a, b) => a - b)
+  const edges = [laneY(0) - 20, ...lanes, laneY(1) + 20]
+  const widest = Math.max(...edges.slice(1).map((y, i) => y - edges[i]!))
+  assert.ok(
+    widest / 2 >= 14 + 12,
+    `wall at ${wall.at} leaves a ${widest}px corridor`,
+  )
+  const gapY = laneY(wall.lane)
+  assert.ok(
+    lanes.every((y) => Math.abs(y - gapY) >= 20),
+    `wall at ${wall.at} keeps its authored gap open`,
+  )
+}
+
+// The SOS station drifts through a lane no formation crosses while it is on screen.
+for (
+  let tick = PINKWAKE.stationAppears - 60;
+  tick <= PINKWAKE.stationAppears + 60;
+  tick++
+) {
+  for (const spawn of pinkwakeSpawns(tick)) {
+    assert.ok(Math.abs(spawn.y - 190) >= 30, `station lane clear at ${tick}`)
+  }
+}
 assert.equal(pinkwakeScene(10, null)?.id, 'A01.OPEN')
 assert.equal(pinkwakeScene(1100, null), null)
 assert.equal(pinkwakeScene(PINKWAKE.turnStarts, null)?.id, 'A01.TURN')
@@ -139,11 +212,11 @@ const create = () =>
   })
 const a = create()
 const b = create()
-for (let tick = 0; tick < 4650; tick++) {
+for (let tick = 0; tick < PINKWAKE.bossStarts + 150; tick++) {
   const frame = emptyInput()
   a.update(frame, [frame, frame])
   b.update(frame, [frame, frame])
-  if (tick % 300 === 0 || tick > 4498) {
+  if (tick % 300 === 0 || tick > PINKWAKE.bossStarts - 2) {
     assert.deepEqual(
       a.snapshot,
       b.snapshot,
@@ -161,5 +234,36 @@ assert.equal(
   a.snapshot.sceneId,
   null,
   'dangerous boss volley has no dialogue overlay',
+)
+
+// School bonus: clearing every craft of a formation pays out; formations that slip past do not.
+function school(players: number, fire: boolean, frames: number) {
+  const game = createRainbowPrincessPreview({
+    rng: rng(3),
+    sound: { play() {} },
+    demo: false,
+    hiScore: 0,
+    players,
+  })
+  for (let tick = 0; tick < frames; tick++) {
+    const pilots = Array.from({ length: players }, () => {
+      const frame = emptyInput()
+      frame.held.a = fire
+      return frame
+    })
+    game.update(pilots[0]!, pilots)
+  }
+  return game.snapshot
+}
+const squad = school(4, true, 600)
+assert.ok(squad.schoolBonuses >= 1, 'a cleared opening line pays a bonus')
+assert.ok(
+  squad.score >= 3 * 125 + 3 * PINKWAKE.schoolBonusPerCraft,
+  'the bonus is added to the score',
+)
+assert.equal(
+  school(1, false, 2200).schoolBonuses,
+  0,
+  'formations that escape earn nothing',
 )
 console.log('Pinkwake Act I wave, comms and boss fixtures passed')

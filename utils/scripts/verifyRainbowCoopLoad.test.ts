@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict'
 import { performance } from 'node:perf_hooks'
-import { PINKWAKE } from '../arcade/games/rainbowPinkwake'
+import { PINKWAKE_SECTIONS } from '../arcade/games/rainbowPinkwake'
 import { createRainbowPrincessPreview } from '../arcade/games/rainbowPrincessPreview'
 import { emptyInput, type InputFrame } from '../arcade/types'
 
@@ -182,10 +182,13 @@ function continueIfDown(game: Flight) {
   let total = 0
   let frames = 0
   let peakObjects = 0
+  const storm = PINKWAKE_SECTIONS.find(
+    (section) => section.name === 'Pearl storm',
+  )!
   for (let frame = 0; frame < 40000; frame++) {
     if (continueIfDown(game)) continue
     const snapshot = game.snapshot
-    if (snapshot.tick >= PINKWAKE.turnStarts) break
+    if (snapshot.tick >= storm.to) break
     const inputs = snapshot.ships.map((ship, seat) => {
       const input = emptyInput()
       input.held.a = true
@@ -196,7 +199,7 @@ function continueIfDown(game: Flight) {
     game.update(inputs[0]!, inputs)
     game.render(g)
     const spent = performance.now() - start
-    if (snapshot.tick >= 12000) {
+    if (snapshot.tick >= storm.from) {
       worst = Math.max(worst, spent)
       total += spent
       frames++

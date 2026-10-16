@@ -29,6 +29,9 @@ assert.deepEqual(actOne, [
   8400,
   10200,
   12000,
+  13800,
+  15600,
+  17400,
   PINKWAKE.bossStarts,
 ])
 assert.deepEqual(actTwo, [
@@ -41,6 +44,9 @@ assert.deepEqual(actTwo, [
   6900,
   8700,
   10500,
+  12300,
+  14100,
+  15900,
   MOONJELLY.bossStarts,
 ])
 assert.equal(

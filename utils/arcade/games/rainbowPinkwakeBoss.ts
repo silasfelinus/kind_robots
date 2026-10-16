@@ -22,12 +22,17 @@ export type BossTarget = { x: number; y: number; lives: number }
 export const BOSS_MAX_HP = 150
 
 /**
- * Hull for a fight that lasts. Each pilot adds a full share, so four pilots with stacked supers
+ * Hull for a fight that lasts: 2.5 base shares for the first pilot and 4 for each pilot after. A crew
+ * out-damages its head count (someone is always lined up with the boss), so four powered-up pilots
  * still see all three phases instead of melting the boss in seconds.
  */
-export const RAINBOW_BOSS_HP_PER_PILOT = 2.5
+export const RAINBOW_BOSS_HP_FIRST_PILOT = 2.5
+export const RAINBOW_BOSS_HP_EXTRA_PILOT = 4
 export function rainbowBossHp(base: number, pilots: number): number {
-  return Math.round(base * RAINBOW_BOSS_HP_PER_PILOT * Math.max(1, pilots))
+  const extra = Math.max(1, pilots) - 1
+  return Math.round(
+    base * (RAINBOW_BOSS_HP_FIRST_PILOT + RAINBOW_BOSS_HP_EXTRA_PILOT * extra),
+  )
 }
 
 /** Phases turn at two thirds and one third of the hull, whatever its size. */

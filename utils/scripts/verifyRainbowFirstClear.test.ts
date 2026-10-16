@@ -14,14 +14,15 @@ import { emptyInput, type InputFrame } from '../arcade/types'
 // damage the crew already dealt. The world bible's pacing target is 10-15 minutes per Act; each Act's
 // time is measured here, may not exceed 15 minutes, and may not fall below its floor. Raise the floor
 // as authored sections are added, until it reaches 10.
-const ACT_FLOOR_MINUTES = 4.5
+const ACT_FLOOR_MINUTES = 6
 
 const MINUTE = 3600
 
 assert.equal(rainbowBossHp(BOSS_MAX_HP, 1), 375)
-assert.equal(rainbowBossHp(BOSS_MAX_HP, 4), 1500)
+assert.equal(rainbowBossHp(BOSS_MAX_HP, 2), 975)
+assert.equal(rainbowBossHp(BOSS_MAX_HP, 4), 2175)
 assert.equal(rainbowBossHp(AURELIA_MAX_HP, 1), 525)
-assert.equal(rainbowBossHp(AURELIA_MAX_HP, 4), 2100)
+assert.equal(rainbowBossHp(AURELIA_MAX_HP, 4), 3045)
 assert.equal(rainbowBossHp(BOSS_MAX_HP, 0), 375, 'never an empty hull')
 assert.equal(rainbowBossPhase(375, 375), 1)
 assert.equal(rainbowBossPhase(250, 375), 2, 'two thirds turns phase 2')

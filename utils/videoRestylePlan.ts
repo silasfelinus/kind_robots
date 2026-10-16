@@ -65,6 +65,9 @@ export type RestyleStatus =
   | 'PILOT_RUNNING'
   | 'PILOT_FAILED'
   | 'PILOT_BLOCKED'
+  | 'FULL_QUEUED'
+  | 'FULL_RUNNING'
+  | 'FULL_FAILED'
 
 export type RestyleSegment = {
   index: number

@@ -109,7 +109,8 @@ assert.ok(
 )
 assert.ok(artQueueView.includes('route.query.jobId'))
 assert.ok(artQueueView.includes('Showing ArtJob #'))
-assert.ok(studio.includes('query: { jobId: store.selected.pilot.artJobId }'))
+assert.ok(studio.includes('store.selected.full?.artJobId'))
+assert.ok(studio.includes('store.selected.pilot?.artJobId'))
 
 const failedRequeue = readFileSync(
   'server/api/art/queue/reenqueue-failed.post.ts',
@@ -194,3 +195,72 @@ assert.ok(studio.includes('v-model="isMature"'))
 assert.ok(storeSource.includes('/variants'))
 assert.ok(storeSource.includes('isPrivate: boolean'))
 assert.ok(storeSource.includes('isMature: boolean'))
+
+const fullQueueRoute = readFileSync(
+  'server/api/video-restyle/[id]/full.post.ts',
+  'utf8',
+)
+const fullChunk = readFileSync(
+  'server/api/video-restyle/[id]/full/chunk.post.ts',
+  'utf8',
+)
+const fullComplete = readFileSync(
+  'server/api/video-restyle/[id]/full/complete.post.ts',
+  'utf8',
+)
+const fullRetry = readFileSync(
+  'server/api/video-restyle/[id]/full/retry.post.ts',
+  'utf8',
+)
+const claimedPilot = readFileSync('server/utils/claimedVacePilot.ts', 'utf8')
+const planSource = readFileSync('utils/videoRestylePlan.ts', 'utf8')
+assert.ok(fullQueueRoute.includes('requireAdminApiUser'))
+assert.ok(fullQueueRoute.includes('queueRestyleFull'))
+assert.ok(fullQueueRoute.includes('syncRestyleFullArtJob'))
+assert.ok(restyleJobs.includes('export async function queueRestyleFull'))
+assert.ok(restyleJobs.includes("job.status !== 'REVIEW'"))
+assert.ok(restyleJobs.includes("status: 'FULL_QUEUED'"))
+assert.ok(restyleJobs.includes('startSec: 0'))
+assert.ok(restyleJobs.includes('Math.round(durationSec * 16)'))
+assert.ok(reconcile.includes('syncRestyleFullArtJob'))
+assert.ok(artjob.includes("phase: 'full'"))
+assert.ok(artjob.includes('retryFailedRestyleFullArtJob'))
+assert.ok(
+  artjob.includes(
+    "found.status === 'PENDING' && job.status === 'FULL_RUNNING'",
+  ),
+)
+assert.ok(artjob.includes('coat-dance:full:'))
+assert.ok(claimedPilot.includes("restyle?.phase === 'full'"))
+assert.ok(claimedPilot.includes('plan.artJobId !== artJobId'))
+assert.ok(vaceReport.includes("phase === 'full'"))
+assert.ok(vaceReport.includes("'FULL_RUNNING'"))
+assert.ok(vaceReport.includes("'FULL_FAILED'"))
+assert.ok(vaceReport.includes('claimedAt: new Date()'))
+assert.ok(
+  vaceReport.includes('Math.max(requestedCompleted, plan.completedSegments)'),
+)
+assert.ok(fullChunk.includes('requireClaimedVacePilot'))
+assert.ok(fullChunk.includes("phase !== 'full'"))
+assert.ok(fullChunk.includes('4 * 1024 * 1024'))
+assert.ok(fullChunk.includes('readRawBody(event, false)'))
+assert.ok(fullChunk.includes("getHeader(event, 'content-length')"))
+assert.ok(fullChunk.includes("getHeader(event, 'x-vace-chunk-sha256')"))
+assert.ok(fullComplete.includes('requireClaimedVacePilot'))
+assert.ok(fullComplete.includes("phase !== 'full'"))
+assert.ok(fullComplete.includes("hasher.digest('hex') !== expectedSha"))
+assert.ok(fullComplete.includes("status: 'DONE'"))
+assert.ok(fullComplete.includes("resultFile: 'full.mp4'"))
+assert.ok(fullComplete.includes('prisma.artJob.update'))
+assert.ok(fullRetry.includes('requireAdminApiUser'))
+assert.ok(fullRetry.includes('retryFailedRestyleFullArtJob'))
+assert.ok(resultSource.includes("getQuery(event).full === '1'"))
+assert.ok(storeSource.includes('async function queueFull('))
+assert.ok(storeSource.includes('async function retryFull('))
+assert.ok(storeSource.includes("'?full=1'"))
+assert.ok(studio.includes('Render full'))
+assert.ok(studio.includes('Watch finished full film'))
+assert.ok(studio.includes('Resume full film using saved windows'))
+assert.ok(planSource.includes("'FULL_QUEUED'"))
+assert.ok(planSource.includes("'FULL_RUNNING'"))
+assert.ok(planSource.includes("'FULL_FAILED'"))

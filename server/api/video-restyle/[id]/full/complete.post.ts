@@ -4,7 +4,6 @@ import {
   readFile,
   rename,
   rm,
-  stat,
   writeFile,
 } from 'node:fs/promises'
 import path from 'node:path'

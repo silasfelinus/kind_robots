@@ -1,5 +1,12 @@
 import { createHash, randomUUID } from 'node:crypto'
-import { appendFile, readFile, rename, rm, stat, writeFile } from 'node:fs/promises'
+import {
+  appendFile,
+  readFile,
+  rename,
+  rm,
+  stat,
+  writeFile,
+} from 'node:fs/promises'
 import path from 'node:path'
 import { createError, defineEventHandler, getRouterParam, readBody } from 'h3'
 import prisma from '@/server/utils/prisma'
@@ -36,7 +43,10 @@ export default defineEventHandler(async (event) => {
       expectedSize > MAX_CHUNKS * CHUNK_BYTES ||
       !/^[a-f0-9]{64}$/.test(expectedSha)
     ) {
-      throw createError({ statusCode: 400, message: 'Invalid full-film finalization.' })
+      throw createError({
+        statusCode: 400,
+        message: 'Invalid full-film finalization.',
+      })
     }
     const { job, artJob, phase } = await requireClaimedVacePilot(
       getRouterParam(event, 'id') || '',
@@ -44,7 +54,10 @@ export default defineEventHandler(async (event) => {
       String(body?.agentId || ''),
     )
     if (phase !== 'full' || !job.full) {
-      throw createError({ statusCode: 409, message: 'Full film is not claimed.' })
+      throw createError({
+        statusCode: 409,
+        message: 'Full film is not claimed.',
+      })
     }
     const folder = path.dirname(restyleSourcePath(job))
     const parts = path.join(folder, 'full-parts')
@@ -57,20 +70,35 @@ export default defineEventHandler(async (event) => {
         const name = path.join(parts, `part-${String(index).padStart(3, '0')}`)
         const bytes = await readFile(name).catch(() => null)
         if (!bytes || bytes.length < 1 || bytes.length > CHUNK_BYTES) {
-          throw createError({ statusCode: 409, message: `Missing/corrupt MP4 chunk ${index}.` })
+          throw createError({
+            statusCode: 409,
+            message: `Missing/corrupt MP4 chunk ${index}.`,
+          })
         }
         if (index === 0 && bytes.toString('ascii', 4, 8) !== 'ftyp') {
-          throw createError({ statusCode: 400, message: 'Result must be an MP4.' })
+          throw createError({
+            statusCode: 400,
+            message: 'Result must be an MP4.',
+          })
         }
         hasher.update(bytes)
         bytesWritten += bytes.length
         if (bytesWritten > expectedSize) {
-          throw createError({ statusCode: 400, message: 'Full film exceeds declared size.' })
+          throw createError({
+            statusCode: 400,
+            message: 'Full film exceeds declared size.',
+          })
         }
         await appendFile(staging, bytes)
       }
-      if (bytesWritten !== expectedSize || hasher.digest('hex') !== expectedSha) {
-        throw createError({ statusCode: 400, message: 'Whole-film checksum mismatch.' })
+      if (
+        bytesWritten !== expectedSize ||
+        hasher.digest('hex') !== expectedSha
+      ) {
+        throw createError({
+          statusCode: 400,
+          message: 'Whole-film checksum mismatch.',
+        })
       }
       await rename(staging, path.join(folder, 'full.mp4'))
     } finally {

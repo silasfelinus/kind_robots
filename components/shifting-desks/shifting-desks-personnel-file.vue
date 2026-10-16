@@ -63,7 +63,7 @@
             aria-label="Epilogue"
           >
             <shifting-desks-art
-              class="w-[26%] max-w-[13rem] shrink-0 self-start rounded-lg"
+              class="epilogue-art w-[26%] max-w-[13rem] shrink-0 self-start rounded-lg"
               frame="aspect-[2/3]"
               :src="stationArt('endings', epilogue.id)"
               :prompt="epilogue.epilogue.art_prompt"
@@ -232,7 +232,7 @@
       </button>
       <button
         type="button"
-        class="btn btn-outline btn-sm sm:btn-md"
+        class="btn btn-outline btn-sm max-sm:hidden sm:btn-md"
         @click="printFile"
       >
         <icon name="kind-icon:document" size="1rem" /> Print your file
@@ -468,6 +468,10 @@ function printFile(): void {
   .file-summary {
     font-size: 1rem;
     line-height: 1.4rem;
+  }
+
+  .epilogue-art {
+    width: 7.5rem;
   }
 }
 </style>

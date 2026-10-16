@@ -252,7 +252,7 @@
           >
             <div class="kr-pane-scroll flex flex-col gap-2 p-3 sm:p-4">
               <shifting-desks-art
-                class="hidden shrink-0 rounded-xl border-2 border-stone-800 lg:block"
+                class="hire-portrait hidden shrink-0 rounded-xl border-2 border-stone-800 lg:block"
                 frame="aspect-[16/9]"
                 :src="stationArt('jobs', pickedJob.id)"
                 :prompt="jobPrompt(pickedJob.id)"
@@ -1438,6 +1438,11 @@ useHead({ title: 'Shifting Desks' })
   .choice-card-compact {
     padding-block: 0.25rem;
     gap: 0.125rem;
+  }
+
+  .hire-portrait {
+    aspect-ratio: auto;
+    height: 9rem;
   }
 
   .desk-brief > p:first-child {

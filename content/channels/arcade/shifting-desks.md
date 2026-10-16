@@ -25,6 +25,10 @@ tutorial:
     secret societies whisper in the margins of surveys, and Dale from
     Compliance is your friend. Probably. Every room is a test: inkblots, trust
     falls and forty-question happiness surveys. PAL is always grading you.
+
+
+    The Daily Memo deals one shared Wellness Weekend a day: everyone gets the
+    same files, society and mutation, and you can share your result.
   image: /shifting-desks/front-poster.svg
 ---
 

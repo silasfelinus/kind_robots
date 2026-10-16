@@ -4,8 +4,8 @@
  * The waves are authored formations (see rainbowFormations) in eight sections that follow the world
  * bible's S01 beats: a picket school, spiral eddies, anchor mine corridors with one open lane, urchin
  * escorts and a remix, then three escalations (buoy shoal, riptide run, pearl storm). The demo clears
- * Act I in about five minutes; an ordinary solo first clear of both Acts takes 10-15 minutes
- * (verifyRainbowFirstClear).
+ * Act I in about five minutes; verifyRainbowFirstClear measures ordinary pilots against the world
+ * bible's 10-15 minute per-Act target, which remains t-007 work.
  */
 import {
   buildFormationSchedule,

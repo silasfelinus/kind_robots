@@ -12,16 +12,20 @@ import {
   useInstant as useInstantInRun,
   type ChooseOptions,
   type RunState,
+  endingFor,
 } from '~/utils/shiftingDesks/rules'
 import { dailySeed } from '~/utils/shiftingDesks/daily'
 
 const SAVE_KEY = 'shifting-desks-run-v1'
 const ENVELOPE_KEY = 'shifting-desks-envelope-opened-v1'
 const OUTCOMES_KEY = 'shifting-desks-outcomes-v1'
+// Every ending this browser has reached: the front desk's collectible gallery.
+const ENDINGS_KEY = 'shifting-desks-endings-v1'
 
 export const useShiftingDesksStore = defineStore('shiftingDesks', () => {
   const run = ref<RunState | null>(null)
   const discovered = ref<string[]>([])
+  const endingsFound = ref<string[]>([])
   const loaded = ref(false)
   const rollSerial = ref(0)
   const envelopeOpened = ref(false)
@@ -48,6 +52,7 @@ export const useShiftingDesksStore = defineStore('shiftingDesks', () => {
       if (run.value) localStorage.setItem(SAVE_KEY, JSON.stringify(run.value))
       else localStorage.removeItem(SAVE_KEY)
       localStorage.setItem(OUTCOMES_KEY, JSON.stringify(discovered.value))
+      localStorage.setItem(ENDINGS_KEY, JSON.stringify(endingsFound.value))
     } catch {
       return
     }
@@ -67,6 +72,13 @@ export const useShiftingDesksStore = defineStore('shiftingDesks', () => {
       discovered.value = Array.isArray(seen)
         ? seen.filter((s): s is string => typeof s === 'string')
         : []
+      const endings: unknown = JSON.parse(
+        localStorage.getItem(ENDINGS_KEY) ?? '[]',
+      )
+      endingsFound.value = Array.isArray(endings)
+        ? endings.filter((s): s is string => typeof s === 'string')
+        : []
+      if (recordEnding()) persist()
     } catch {
       run.value = null
       discovered.value = []
@@ -95,7 +107,19 @@ export const useShiftingDesksStore = defineStore('shiftingDesks', () => {
     const id = run.value.departmentOutcome
     if (id && !discovered.value.includes(id))
       discovered.value = [...discovered.value, id]
+    recordEnding()
     persist()
+  }
+
+  // True when this run reached an ending the gallery had not seen yet.
+  function recordEnding(): boolean {
+    if (!run.value) return false
+    if (run.value.status !== 'complete' && run.value.status !== 'eliminated')
+      return false
+    const ending = endingFor(run.value)
+    if (!ending || endingsFound.value.includes(ending.id)) return false
+    endingsFound.value = [...endingsFound.value, ending.id]
+    return true
   }
 
   function useInstant(which: 'favor' | 'mutation'): void {
@@ -157,6 +181,7 @@ export const useShiftingDesksStore = defineStore('shiftingDesks', () => {
     useInstant,
     openEnvelope,
     discovered,
+    endingsFound,
     loaded,
     rollSerial,
     card,

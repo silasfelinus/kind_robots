@@ -4,7 +4,9 @@
  * bible's S03 beats, one new craft per section: E09 clawstrike snipers that mark their lane before a
  * straight bolt, E10 pistol shuttles whose bubbles burst into rings, E11 angler decoys whose false
  * pickup halo flashes a cross before it detonates, and E12 glassfin skates whose pellets ricochet once
- * off the trench walls; then a vault-approach remix. The TURN waits at the salvage vault before B03
+ * off the trench walls; then a vault-approach remix, the Clawstrike guardian (see rainbowGuardian) and six
+ * escalations (crossfire ridge, bubble garden, mirror vents, lure maze, pressure drop, vault gate). The
+ * TURN waits at the salvage vault before B03
  * Clawburst (ACT-STRUCTURE: pre-boss). Wave ids start at 2000 so Act III formations never share a school
  * with Acts I or II.
  */
@@ -14,6 +16,7 @@ import {
   type RainbowSpawn,
   type RainbowWave,
 } from './rainbowFormations'
+import type { RainbowGuardianSection } from './rainbowGuardian'
 
 export type TrenchEnemy = 'clawstrike' | 'pistol' | 'angler' | 'skate'
 export type TrenchStage = 'opening' | 'waves' | 'turn' | 'boss' | 'aftermath'
@@ -24,8 +27,8 @@ export type TrenchSpawn = RainbowSpawn<TrenchEnemy>
 
 export const TRENCH = {
   openingEnds: 300,
-  turnStarts: 8100,
-  bossStarts: 8400,
+  turnStarts: 20700,
+  bossStarts: 21000,
   aftermathFrames: 390,
   lineFrames: 96,
   waveBase: 2000,
@@ -37,7 +40,22 @@ export const TRENCH_SECTIONS = [
   { name: 'Angler lights', from: 3300, to: 4800 },
   { name: 'Glass skates', from: 4800, to: 6300 },
   { name: 'Vault approach', from: 6300, to: 8100 },
+  { name: 'Clawstrike guardian', from: 8100, to: 9900 },
+  { name: 'Crossfire ridge', from: 9900, to: 11700 },
+  { name: 'Bubble garden', from: 11700, to: 13500 },
+  { name: 'Mirror vents', from: 13500, to: 15300 },
+  { name: 'Lure maze', from: 15300, to: 17100 },
+  { name: 'Pressure drop', from: 17100, to: 18900 },
+  { name: 'Vault gate', from: 18900, to: 20700 },
 ] as const
+
+/** The Clawstrike guardian holds the Act after the vault-approach remix; no waves fly in its section. */
+export const TRENCH_GUARDIAN: RainbowGuardianSection = {
+  name: 'Clawstrike guardian',
+  from: 8100,
+  to: 9900,
+  kind: 'clawstrike',
+}
 
 export const TRENCH_WAVES: readonly TrenchWave[] = [
   // Sniper ridge: one clawstrike at a time, so each lane mark is read before the bolt.
@@ -88,6 +106,72 @@ export const TRENCH_WAVES: readonly TrenchWave[] = [
   wave(7620, 'angler', 'pair', 2, 0.2),
   wave(7800, 'clawstrike', 'line', 3, 0.5),
   wave(7920, 'skate', 'pair', 4, 0.15),
+  // Crossfire ridge: clawstrike pairs from both walls, with skate glass between their lanes.
+  wave(9960, 'clawstrike', 'pair', 2, 0.15),
+  wave(10140, 'skate', 'line', 3, 0.5),
+  wave(10320, 'clawstrike', 'pair', 2, 0.3),
+  wave(10500, 'skate', 'vee', 3, 0.5),
+  wave(10680, 'clawstrike', 'single', 1, 0.5),
+  wave(10800, 'pistol', 'single', 1, 0.3),
+  wave(10980, 'clawstrike', 'pair', 2, 0.2),
+  wave(11160, 'skate', 'stair', 4, 0.15),
+  wave(11340, 'clawstrike', 'line', 3, 0.5),
+  wave(11520, 'skate', 'pair', 4, 0.25),
+  // Bubble garden: pistol columns sow bubble rings while angler lures hide among them.
+  wave(11760, 'pistol', 'column', 2, 0.5, { spread: 0.5 }),
+  wave(11940, 'angler', 'single', 1, 0.5),
+  wave(12120, 'pistol', 'pair', 2, 0.25),
+  wave(12300, 'pistol', 'single', 1, 0.5),
+  wave(12480, 'angler', 'pair', 2, 0.3),
+  wave(12660, 'skate', 'line', 3, 0.5),
+  wave(12840, 'pistol', 'column', 3, 0.5, { spread: 0.3 }),
+  wave(13020, 'angler', 'single', 1, 0.2),
+  wave(13200, 'pistol', 'pair', 2, 0.15),
+  wave(13320, 'skate', 'vee', 3, 0.5),
+  // Mirror vents: crossing skate stairs fill the walls with ricochets around lone snipers.
+  wave(13560, 'skate', 'stair', 5, 0.1),
+  wave(13800, 'skate', 'stair', 5, 0.9, { step: -1 }),
+  wave(13980, 'clawstrike', 'single', 1, 0.5),
+  wave(14160, 'skate', 'pair', 4, 0.2),
+  wave(14340, 'clawstrike', 'pair', 2, 0.3),
+  wave(14520, 'skate', 'vee', 5, 0.5),
+  wave(14700, 'pistol', 'single', 1, 0.5),
+  wave(14880, 'skate', 'line', 4, 0.3),
+  wave(15060, 'clawstrike', 'single', 1, 0.7),
+  // Lure maze: angler lures high and low, so every cross must be read before it fires.
+  wave(15360, 'angler', 'single', 1, 0.2),
+  wave(15480, 'angler', 'single', 1, 0.8),
+  wave(15660, 'clawstrike', 'single', 1, 0.5),
+  wave(15840, 'angler', 'pair', 2, 0.35),
+  wave(16020, 'pistol', 'single', 1, 0.5),
+  wave(16200, 'angler', 'column', 2, 0.5, { spread: 0.5 }),
+  wave(16380, 'skate', 'line', 3, 0.5),
+  wave(16560, 'angler', 'single', 1, 0.5),
+  wave(16740, 'clawstrike', 'pair', 2, 0.2),
+  wave(16920, 'angler', 'pair', 2, 0.25),
+  // Pressure drop: the trench narrows and every craft presses in at once.
+  wave(17160, 'pistol', 'pair', 2, 0.3),
+  wave(17280, 'skate', 'vee', 5, 0.5),
+  wave(17460, 'clawstrike', 'pair', 2, 0.15),
+  wave(17580, 'angler', 'single', 1, 0.5),
+  wave(17700, 'skate', 'stair', 5, 0.1),
+  wave(17880, 'pistol', 'column', 2, 0.5, { spread: 0.5 }),
+  wave(18060, 'clawstrike', 'line', 3, 0.5),
+  wave(18180, 'skate', 'pair', 4, 0.2),
+  wave(18360, 'angler', 'pair', 2, 0.3),
+  wave(18540, 'pistol', 'single', 1, 0.5),
+  wave(18660, 'skate', 'line', 4, 0.7),
+  // Vault gate: the vault guns wake: a last remix before the salvage vault opens.
+  wave(18960, 'clawstrike', 'pair', 2, 0.25),
+  wave(19140, 'skate', 'vee', 5, 0.5),
+  wave(19320, 'pistol', 'pair', 2, 0.2),
+  wave(19440, 'angler', 'single', 1, 0.5),
+  wave(19620, 'skate', 'stair', 5, 0.85, { step: -1 }),
+  wave(19800, 'clawstrike', 'line', 3, 0.35),
+  wave(19920, 'pistol', 'single', 1, 0.65),
+  wave(20100, 'skate', 'pair', 4, 0.15),
+  wave(20280, 'angler', 'pair', 2, 0.25),
+  wave(20460, 'clawstrike', 'single', 1, 0.5),
 ]
 
 const schedule = buildFormationSchedule(TRENCH_WAVES, TRENCH.waveBase)

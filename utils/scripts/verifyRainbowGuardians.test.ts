@@ -22,13 +22,17 @@ import { emptyInput, type InputFrame } from '../arcade/types'
 assert.equal(createRainbowGuardian('urchin', 1).maxHp, 60)
 assert.equal(createRainbowGuardian('urchin', 4).maxHp, 348)
 assert.ok(PINKWAKE_SECTIONS.some((s) => s.name === PINKWAKE_GUARDIAN.name))
-for (const kind of ['urchin', 'lantern'] as const) {
+for (const kind of ['urchin', 'lantern', 'clawstrike'] as const) {
   const guardian = createRainbowGuardian(kind, 1)
   const pilots = [{ x: 80, y: 150, lives: 3 }]
   let cue = 0
   let volleys = 0
+  let marked: number[] = []
+  let markedEnraged = false
   for (let frame = 0; frame < 1200; frame++) {
     if (frame === 600) guardian.hp = guardian.maxHp / 2
+    // The pilot drifts, so lanes locked at the warning differ from where the pilot is at the volley.
+    pilots[0]!.y = 150 + Math.sin(frame / 40) * 40
     const shots = stepRainbowGuardian(guardian, pilots, false)
     if (shots.length) {
       volleys++
@@ -40,6 +44,16 @@ for (const kind of ['urchin', 'lantern'] as const) {
       if (kind === 'urchin') {
         // A twelve (sixteen when enraged) pearl ring with three pearls missing.
         assert.equal(shots.length, enraged ? 13 : 9)
+      } else if (kind === 'clawstrike') {
+        // A straight bolt down each lane marked when the warning began: three, or five if it was
+        // already enraged then.
+        assert.equal(shots.length, markedEnraged ? 5 : 3)
+        assert.deepEqual(
+          shots.map((shot) => shot.y),
+          marked,
+          'the bolts fly the marked lanes',
+        )
+        for (const shot of shots) assert.equal(shot.vy, 0)
       } else {
         const aim = Math.atan2(
           pilots[0]!.y - shots[0]!.y,
@@ -53,7 +67,12 @@ for (const kind of ['urchin', 'lantern'] as const) {
       }
     }
     // The cue is drawn after each step, as the game renders after it updates.
-    cue = rainbowGuardianWarning(guardian) ? cue + 1 : 0
+    const warning = rainbowGuardianWarning(guardian)
+    if (warning && cue === 0) {
+      marked = [...guardian.lanes]
+      markedEnraged = guardian.hp <= guardian.maxHp / 2
+    }
+    cue = warning ? cue + 1 : 0
   }
   assert.ok(volleys >= 8, `${kind} fired ${volleys} volleys`)
   // Escaping abandons a charge in progress: no volley ever fires once it gives up.

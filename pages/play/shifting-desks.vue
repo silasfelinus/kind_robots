@@ -63,7 +63,8 @@
         </button>
         <div
           v-if="run"
-          class="flex flex-1 flex-wrap items-center justify-end gap-1 max-sm:basis-full sm:gap-1.5"
+          class="flex flex-1 flex-wrap items-center justify-end gap-1 sm:gap-1.5"
+          :class="{ 'max-sm:basis-full': atDesk }"
           aria-label="Your file"
         >
           <button

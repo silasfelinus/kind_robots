@@ -7,6 +7,8 @@ import type {
 import {
   PINKWAKE,
   pinkwakeDialogue,
+  PINKWAKE_SECTIONS,
+  PINKWAKE_WAVES,
   PINKWAKE_WAVE_SIZES,
   pinkwakeScene,
   pinkwakeSpawns,
@@ -41,6 +43,8 @@ import { RAINBOW_PILOTS } from './rainbowPilots'
 import {
   MOONJELLY,
   moonjellyDialogue,
+  MOONJELLY_SECTIONS,
+  MOONJELLY_WAVES,
   MOONJELLY_WAVE_SIZES,
   moonjellyScene,
   moonjellySpawns,
@@ -48,6 +52,14 @@ import {
   type MoonjellyEnemy,
 } from './rainbowMoonjelly'
 import { RAINBOW_LANES } from './rainbowFormations'
+import {
+  actCheckpoints,
+  checkpointLabel,
+  continueSeconds,
+  RAINBOW_CONTINUE,
+  resumeTick,
+  type RainbowCheckpoint,
+} from './rainbowCheckpoints'
 import {
   AURELIA_MAX_HP,
   createMoonjellyBoss,
@@ -70,6 +82,16 @@ const POPUP_FRAMES = 50
 const INTRO_FRAMES = 160
 const STRIP_HEIGHT = 50
 const STRIP_SPEED = 0.55
+const ACT_ONE_CHECKPOINTS = actCheckpoints(
+  PINKWAKE_SECTIONS,
+  PINKWAKE.bossStarts,
+)
+const ACT_TWO_CHECKPOINTS = actCheckpoints(
+  MOONJELLY_SECTIONS,
+  MOONJELLY.bossStarts,
+)
+/** Presses this soon after the crew falls are fire-button carry-over, not a choice to continue. */
+const CONTINUE_GRACE_FRAMES = 30
 /** HUD text clears the cabinet's corner chips (close/fullscreen left, pause right). */
 const HUD_LEFT = 44
 const HUD_RIGHT = W - 26
@@ -138,6 +160,9 @@ export type RainbowCombatSnapshot = {
   defeatedAt: number | null
   activePlayers: number
   schoolBonuses: number
+  checkpoint: Readonly<RainbowCheckpoint>
+  continueLeft: number
+  continues: number
 }
 
 /** The preview's deterministic 60 Hz combat layer; stages and bosses are separate work. */
@@ -184,6 +209,16 @@ export function createRainbowPrincessPreview(
   const waveLeft = new Map<number, number>()
   const brokenWaves = new Set<number>()
   let schoolBonuses = 0
+  let checkpoint: RainbowCheckpoint = {
+    act: 1,
+    frame: 0,
+    score: 0,
+    rescuedStation: false,
+    rescuedNemi: false,
+    schoolBonuses: 0,
+  }
+  let continueLeft = 0
+  let continues = 0
   const popups: Array<{ x: number; y: number; text: string; age: number }> = []
   function moonFrame() {
     return moonStart === null ? 0 : tick - moonStart
@@ -266,6 +301,69 @@ export function createRainbowPrincessPreview(
     score += bonus
     schoolBonuses++
     popups.push({ x: reef.x, y: reef.y, text: `SCHOOL +${bonus}`, age: 0 })
+  }
+
+  /** Remember the run as it stands when the Act clock reaches one of its checkpoints. */
+  function passCheckpoint(act: 1 | 2, frame: number) {
+    if (
+      !(act === 1 ? ACT_ONE_CHECKPOINTS : ACT_TWO_CHECKPOINTS).includes(frame)
+    )
+      return
+    if (checkpoint.act === act && frame <= checkpoint.frame) return
+    checkpoint = {
+      act,
+      frame,
+      score,
+      rescuedStation,
+      rescuedNemi,
+      schoolBonuses,
+    }
+    if (frame > 0) popups.push({ x: W / 2, y: 74, text: 'CHECKPOINT', age: 0 })
+  }
+
+  /**
+   * Continue: rewind the Act clock to the last checkpoint so its authored waves replay, restore every
+   * seated pilot, and put the score back where the checkpoint found it. A crew that falls after the boss
+   * is already beaten keeps its clear and simply relaunches.
+   */
+  function resumeFromCheckpoint() {
+    continueLeft = 0
+    continues++
+    const cleared =
+      checkpoint.act === 1 ? defeatedAt !== null : moonDefeatedFrame !== null
+    if (!cleared) {
+      const waves = checkpoint.act === 1 ? PINKWAKE_WAVES : MOONJELLY_WAVES
+      const base = checkpoint.act === 1 ? 0 : MOONJELLY.waveBase
+      waves.forEach((entry, index) => {
+        const id = base + index
+        if (entry.at >= checkpoint.frame) {
+          waveSpawned.delete(id)
+          waveLeft.delete(id)
+          brokenWaves.delete(id)
+        } else if ((waveLeft.get(id) ?? 0) > 0) brokenWaves.add(id)
+      })
+      tick = resumeTick(checkpoint, moonStart)
+      boss = null
+      moonBoss = null
+      station = null
+      nemi = null
+      score = checkpoint.score
+      rescuedStation = checkpoint.rescuedStation
+      rescuedNemi = checkpoint.rescuedNemi
+      schoolBonuses = checkpoint.schoolBonuses
+    }
+    reefs.length = 0
+    shots.length = 0
+    enemyShots.length = 0
+    pickups.length = 0
+    bursts.length = 0
+    popups.length = 0
+    for (let seat = 0; seat < activePlayers; seat++) {
+      Object.assign(ships[seat]!, createShip(seat), {
+        invulnerable: RAINBOW_CONTINUE.invulnerableFrames,
+      })
+    }
+    options.sound.play('level')
   }
 
   function defeatBoss() {
@@ -475,13 +573,22 @@ export function createRainbowPrincessPreview(
         !options.demo &&
         ships.slice(0, activePlayers).every((candidate) => candidate.lives <= 0)
       )
-        over = true
+        continueLeft = RAINBOW_CONTINUE.countdownFrames
     }
     options.sound.play('pop')
   }
 
   function update(input: InputFrame, seated = [input]) {
     if (over) return
+    // The whole crew is down: the world holds still while the CONTINUE? countdown runs.
+    if (continueLeft > 0) {
+      const waited =
+        RAINBOW_CONTINUE.countdownFrames - continueLeft >= CONTINUE_GRACE_FRAMES
+      if (waited && [input, ...seated].some((keys) => keys?.pressed.a))
+        resumeFromCheckpoint()
+      else if (--continueLeft === 0) over = true
+      return
+    }
     tick++
     for (let i = bursts.length - 1; i >= 0; i--)
       if (++bursts[i]!.age > BURST_FRAMES) bursts.splice(i, 1)
@@ -499,6 +606,7 @@ export function createRainbowPrincessPreview(
     }
     if (moonStart === null) {
       const stage = pinkwakeStage(tick, defeatedAt)
+      if (defeatedAt === null) passCheckpoint(1, tick)
       if (stage === 'waves') {
         for (const entry of pinkwakeSpawns(tick)) {
           spawn(entry.kind, entry.y, entry.wave)
@@ -513,6 +621,7 @@ export function createRainbowPrincessPreview(
     } else {
       const frame = moonFrame()
       const stage = moonjellyStage(frame, moonDefeatedFrame)
+      if (moonDefeatedFrame === null) passCheckpoint(2, frame)
       if (stage === 'waves' || stage === 'remix') {
         for (const entry of moonjellySpawns(frame)) {
           spawn(entry.kind, entry.y, entry.wave)
@@ -796,6 +905,9 @@ export function createRainbowPrincessPreview(
         rescuedStation,
         defeatedAt,
         schoolBonuses,
+        checkpoint: { ...checkpoint },
+        continueLeft,
+        continues,
       }
     },
     update,
@@ -1446,6 +1558,44 @@ export function createRainbowPrincessPreview(
         g.fillStyle = PILOT_COLORS[cut.seat]!
         g.font = 'bold 13px monospace'
         g.fillText(`${pilot.superName.toUpperCase()}!`, textX, commsTop + 34)
+        g.restore()
+      }
+      if (continueLeft > 0) {
+        const where =
+          checkpoint.act === 1
+            ? checkpointLabel(
+                PINKWAKE_SECTIONS,
+                PINKWAKE.bossStarts,
+                checkpoint.frame,
+              )
+            : checkpointLabel(
+                MOONJELLY_SECTIONS,
+                MOONJELLY.bossStarts,
+                checkpoint.frame,
+              )
+        g.save()
+        g.fillStyle = '#0c0620d0'
+        g.fillRect(0, 0, W, H)
+        g.textAlign = 'center'
+        g.fillStyle = '#ffd2ef'
+        g.font = 'bold 22px monospace'
+        g.fillText('CONTINUE?', W / 2, 104)
+        g.fillStyle = '#fff2a8'
+        g.font = 'bold 40px monospace'
+        g.fillText(String(continueSeconds(continueLeft)), W / 2, 148)
+        g.fillStyle = '#e8ddff'
+        g.font = 'bold 9px monospace'
+        g.fillText(
+          `PRESS A · ACT ${checkpoint.act === 1 ? 'I' : 'II'} · ${where}`,
+          W / 2,
+          172,
+        )
+        g.font = '8px monospace'
+        g.fillText(
+          `SCORE RETURNS TO ${checkpoint.score}${continues ? ` · CONTINUES ${continues}` : ''}`,
+          W / 2,
+          186,
+        )
         g.restore()
       }
     },

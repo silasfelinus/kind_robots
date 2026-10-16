@@ -1107,6 +1107,27 @@ assert.doesNotMatch(
   'no pitch copy on the front page',
 )
 assert.match(page, /<shifting-desks-style-picker/)
+// Silas, 2026-10-16: one heads-up bar instead of four stacked ones. The
+// floor, meters and envelope live in the toolbar, every chip explains itself
+// on tap, and the ticker and restructure notice wait until the file is open.
+const toolbar = page.slice(
+  page.indexOf('class="kr-toolbar'),
+  page.indexOf('<section'),
+)
+assert.match(toolbar, /class="dept-banner/, 'the floor rides in the toolbar')
+assert.match(toolbar, /<shifting-desks-envelope v-if="atDesk" compact/)
+assert.match(
+  toolbar,
+  /v-for="m in meterList"[\s\S]*?v-bind="tipHandlers\(m\.key\)"/,
+)
+assert.match(toolbar, /role="tooltip"/, 'meters explain themselves on tap')
+assert.equal(
+  (page.match(/class="dept-banner/g) ?? []).length,
+  1,
+  'no second floor banner above the desk',
+)
+assert.match(page, /<shifting-desks-memo-ticker\s+v-if="!opened"/)
+assert.match(page, /v-if="currentNotice && !opened"/)
 // Silas, 2026-10-14: the card's description sits on the right, above the
 // choices; the card face keeps it only on phones, where Decide zooms.
 assert.match(

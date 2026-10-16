@@ -182,6 +182,26 @@ export function drawRainbowSuperCutin(
  * Keyed foreground coral strips for the playable stages (round-14 Kontext 247628 and 247630), each saved
  * as the strip followed by its mirror so the tile loops without a seam.
  */
+/** Painted Act title cards (round-15/16 Kontext), shown as the Act intro splash. */
+export function rainbowStageCard(stage: RainbowStageStrip): string {
+  return `${RAINBOW_GAME_ART_ROOT}/stages/${stage}-card.webp`
+}
+
+/** Draw the stage's title card at (x, y) with the given width; returns its height, or 0 while loading. */
+export function drawRainbowStageCard(
+  g: CanvasRenderingContext2D,
+  stage: RainbowStageStrip,
+  x: number,
+  y: number,
+  width: number,
+): number {
+  const img = loadedImage(rainbowStageCard(stage))
+  if (!img) return 0
+  const height = (width * img.naturalHeight) / img.naturalWidth
+  g.drawImage(img, x, y, width, height)
+  return height
+}
+
 export const RAINBOW_STAGE_STRIPS = ['s01', 's02'] as const
 export type RainbowStageStrip = (typeof RAINBOW_STAGE_STRIPS)[number]
 

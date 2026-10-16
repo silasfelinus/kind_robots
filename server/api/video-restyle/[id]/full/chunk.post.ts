@@ -82,7 +82,10 @@ export default defineEventHandler(async (event) => {
     // A retried full render may re-encode its MP4 differently while the
     // completed VACE windows stay cached. Replace a stale part atomically;
     // complete.post.ts still verifies the entire MP4 digest before promotion.
-    if (!prior || createHash('sha256').update(prior).digest('hex') !== declaredSha) {
+    if (
+      !prior ||
+      createHash('sha256').update(prior).digest('hex') !== declaredSha
+    ) {
       const temporary = `${destination}.${randomUUID()}.tmp`
       await writeFile(temporary, bytes, { flag: 'wx', mode: 0o600 })
       await rename(temporary, destination)

@@ -79,14 +79,10 @@ export default defineEventHandler(async (event) => {
         throw error
       },
     )
-    if (prior) {
-      if (createHash('sha256').update(prior).digest('hex') !== declaredSha) {
-        throw createError({
-          statusCode: 409,
-          message: 'Chunk index has different saved bytes.',
-        })
-      }
-    } else {
+    // A retried full render may re-encode its MP4 differently while the
+    // completed VACE windows stay cached. Replace a stale part atomically;
+    // complete.post.ts still verifies the entire MP4 digest before promotion.
+    if (!prior || createHash('sha256').update(prior).digest('hex') !== declaredSha) {
       const temporary = `${destination}.${randomUUID()}.tmp`
       await writeFile(temporary, bytes, { flag: 'wx', mode: 0o600 })
       await rename(temporary, destination)

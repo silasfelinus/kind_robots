@@ -195,7 +195,6 @@ assert.ok(storeSource.includes('/variants'))
 assert.ok(storeSource.includes('isPrivate: boolean'))
 assert.ok(storeSource.includes('isMature: boolean'))
 
-
 const fullQueueRoute = readFileSync(
   'server/api/video-restyle/[id]/full.post.ts',
   'utf8',
@@ -234,7 +233,7 @@ assert.ok(vaceReport.includes("'FULL_FAILED'"))
 assert.ok(fullChunk.includes('requireClaimedVacePilot'))
 assert.ok(fullChunk.includes("phase !== 'full'"))
 assert.ok(fullChunk.includes('4 * 1024 * 1024'))
-assert.ok(fullChunk.includes("readRawBody(event, false)"))
+assert.ok(fullChunk.includes('readRawBody(event, false)'))
 assert.ok(fullChunk.includes("getHeader(event, 'content-length')"))
 assert.ok(fullChunk.includes("getHeader(event, 'x-vace-chunk-sha256')"))
 assert.ok(fullComplete.includes('requireClaimedVacePilot'))

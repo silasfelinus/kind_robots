@@ -91,16 +91,25 @@ export async function syncRestylePilotArtJob(
     // KR Relay is authoritative once it claims a pilot. In particular, a
     // connection-refused failure may leave job.json at PILOT_QUEUED. Never
     // silently resurrect that FAILED ArtJob from a studio refresh.
-    if (found.status === 'FAILED' && job.status !== 'REVIEW' && job.status !== 'DONE') {
+    if (
+      found.status === 'FAILED' &&
+      job.status !== 'REVIEW' &&
+      job.status !== 'DONE'
+    ) {
       return {
         ...job,
         status: 'PILOT_FAILED',
-        error: found.error || job.error || 'KR Relay could not render the pilot.',
+        error:
+          found.error || job.error || 'KR Relay could not render the pilot.',
         stage: 'Pilot failed on KR Relay. Retry the existing ArtJob.',
       }
     }
     if (found.status === 'RUNNING' && job.status === 'PILOT_QUEUED') {
-      return { ...job, status: 'PILOT_RUNNING', stage: 'KR Relay is processing the pilot.' }
+      return {
+        ...job,
+        status: 'PILOT_RUNNING',
+        stage: 'KR Relay is processing the pilot.',
+      }
     }
     if (found.status === 'DONE' || found.status === 'RUNNING') return job
     if (
@@ -174,21 +183,36 @@ export async function syncRestylePilotArtJob(
  * motion plan survive. Never run image-job normalizers over a video control
  * payload, and never create another ArtJob for an existing fingerprint.
  */
-export async function retryFailedRestyleArtJob(id: number): Promise<VideoRestyleJob> {
+export async function retryFailedRestyleArtJob(
+  id: number,
+): Promise<VideoRestyleJob> {
   const artJob = await prisma.artJob.findUnique({ where: { id } })
   if (!artJob || !isVideoRestyleArtJobPayload(artJob.payload)) {
-    throw createError({ statusCode: 404, message: 'VACE pilot ArtJob not found.' })
+    throw createError({
+      statusCode: 404,
+      message: 'VACE pilot ArtJob not found.',
+    })
   }
   if (artJob.status !== 'FAILED') {
-    throw createError({ statusCode: 409, message: 'Only a failed VACE pilot can be retried.' })
+    throw createError({
+      statusCode: 409,
+      message: 'Only a failed VACE pilot can be retried.',
+    })
   }
   const payload = parseArtJobPayload(artJob.payload)
   const video = payload.videoRestyle as Record<string, unknown> | undefined
   const pilotId = String(video?.id || '')
   const job = await loadRestyleJob(artJob.userId, pilotId)
-  if (!job.pilot || job.pilot.artJobId !== id ||
-      job.status === 'REVIEW' || job.status === 'DONE') {
-    throw createError({ statusCode: 409, message: 'Pilot source and ArtJob are not eligible for retry.' })
+  if (
+    !job.pilot ||
+    job.pilot.artJobId !== id ||
+    job.status === 'REVIEW' ||
+    job.status === 'DONE'
+  ) {
+    throw createError({
+      statusCode: 409,
+      message: 'Pilot source and ArtJob are not eligible for retry.',
+    })
   }
   const next: VideoRestyleJob = {
     ...job,
@@ -229,7 +253,10 @@ export async function retryFailedRestyleArtJob(id: number): Promise<VideoRestyle
     },
   })
   if (updated.count !== 1) {
-    throw createError({ statusCode: 409, message: 'The pilot changed while retrying; refresh before trying again.' })
+    throw createError({
+      statusCode: 409,
+      message: 'The pilot changed while retrying; refresh before trying again.',
+    })
   }
   return next
 }

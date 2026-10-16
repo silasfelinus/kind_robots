@@ -7,9 +7,15 @@ import { retryFailedRestyleArtJob } from '@/server/utils/videoRestyleArtJob'
 export default defineEventHandler(async (event) => {
   try {
     const auth = await requireAdminApiUser(event)
-    const job = await loadRestyleJob(auth.user.id, getRouterParam(event, 'id') || '')
+    const job = await loadRestyleJob(
+      auth.user.id,
+      getRouterParam(event, 'id') || '',
+    )
     if (!job.pilot?.artJobId) {
-      throw createError({ statusCode: 409, message: 'Pilot has no linked ArtJob.' })
+      throw createError({
+        statusCode: 409,
+        message: 'Pilot has no linked ArtJob.',
+      })
     }
     const queued = await retryFailedRestyleArtJob(job.pilot.artJobId)
     return {

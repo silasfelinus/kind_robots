@@ -192,8 +192,7 @@ export const useVideoRestyleStore = defineStore('videoRestyle', () => {
       jobs.value = jobs.value.map((job) =>
         job.id === id ? response.data! : job,
       )
-      notice.value =
-        'Pilot queued for KR Relay when ComfyUI is ready.'
+      notice.value = 'Pilot queued for KR Relay when ComfyUI is ready.'
       return true
     } finally {
       busy.value = false

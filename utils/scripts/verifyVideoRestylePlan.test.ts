@@ -123,8 +123,10 @@ const specialRetry = readFileSync(
   'server/api/video-restyle/[id]/pilot/retry.post.ts',
   'utf8',
 )
-assert.ok(failedRequeue.indexOf('isVideoRestyleArtJobPayload(source.payload)') <
-  failedRequeue.indexOf('normalizeQueuedArtJobPayload(source.payload)'))
+assert.ok(
+  failedRequeue.indexOf('isVideoRestyleArtJobPayload(source.payload)') <
+    failedRequeue.indexOf('normalizeQueuedArtJobPayload(source.payload)'),
+)
 assert.ok(failedRequeue.includes('retryFailedRestyleArtJob(source.id)'))
 assert.ok(singleRequeue.includes('retryFailedRestyleArtJob(id)'))
 assert.ok(specialRetry.includes('requireAdminApiUser'))
@@ -132,7 +134,9 @@ assert.ok(specialRetry.includes('retryFailedRestyleArtJob'))
 assert.ok(artjob.includes("found.status === 'FAILED'"))
 assert.ok(artjob.includes("status: 'PILOT_QUEUED'"))
 assert.ok(artjob.includes("status: 'PENDING'"))
-assert.ok(artjob.includes("attempts: 0"))
-assert.ok(artjob.includes("where: { id, userId: job.userId, status: 'FAILED' }"))
+assert.ok(artjob.includes('attempts: 0'))
+assert.ok(
+  artjob.includes("where: { id, userId: job.userId, status: 'FAILED' }"),
+)
 assert.ok(studio.includes('Retry pilot in the same ArtJob'))
 assert.ok(storeSource.includes('/pilot/retry'))

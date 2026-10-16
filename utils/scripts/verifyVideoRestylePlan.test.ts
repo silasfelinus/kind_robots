@@ -140,3 +140,21 @@ assert.ok(
 )
 assert.ok(studio.includes('Retry pilot in the same ArtJob'))
 assert.ok(storeSource.includes('/pilot/retry'))
+
+const queueSource = readFileSync('server/utils/videoRestyleJobs.ts', 'utf8')
+const resultSource = readFileSync(
+  'server/api/video-restyle/[id]/result.get.ts',
+  'utf8',
+)
+assert.ok(queueSource.includes("job.status === 'REVIEW'"))
+assert.ok(queueSource.includes('constants.COPYFILE_EXCL'))
+assert.ok(queueSource.includes('previousRevision: priorRevision'))
+assert.ok(queueSource.includes('revision: job.status'))
+assert.ok(artjob.includes('revision === 1'))
+assert.ok(artjob.includes(':revision:'))
+assert.ok(resultSource.includes('getQuery(event).previous'))
+assert.ok(resultSource.includes('previousRevision'))
+assert.ok(resultSource.includes('requireAdminApiUser'))
+assert.ok(studio.includes('Render improved continuity pilot'))
+assert.ok(studio.includes('Watch previous pilot for comparison'))
+assert.ok(storeSource.includes("previous ? '?previous=1' : ''"))

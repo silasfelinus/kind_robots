@@ -192,7 +192,8 @@ export const useVideoRestyleStore = defineStore('videoRestyle', () => {
       jobs.value = jobs.value.map((job) =>
         job.id === id ? response.data! : job,
       )
-      notice.value = 'Pilot queued for KR Relay when ComfyUI is ready.'
+      notice.value =
+        'Pilot revision queued for KR Relay. Earlier results are preserved.'
       return true
     } finally {
       busy.value = false
@@ -225,7 +226,10 @@ export const useVideoRestyleStore = defineStore('videoRestyle', () => {
     }
   }
 
-  async function loadPilotPreview(id: string): Promise<boolean> {
+  async function loadPilotPreview(
+    id: string,
+    previous = false,
+  ): Promise<boolean> {
     if (!import.meta.client) return false
     const userStore = useUserStore()
     const token = userStore.token || userStore.user?.token
@@ -238,7 +242,7 @@ export const useVideoRestyleStore = defineStore('videoRestyle', () => {
     clearPreview()
     try {
       const response = await fetch(
-        `/api/video-restyle/${encodeURIComponent(id)}/result`,
+        `/api/video-restyle/${encodeURIComponent(id)}/result${previous ? '?previous=1' : ''}`,
         { headers: { Authorization: `Bearer ${token}` } },
       )
       if (!response.ok) throw new Error('Pilot video is unavailable.')

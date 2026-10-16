@@ -426,7 +426,8 @@
                 v-if="
                   (store.selected.status === 'STAGED' ||
                     store.selected.status === 'PILOT_BLOCKED' ||
-                    store.selected.status === 'PILOT_FAILED') &&
+                    store.selected.status === 'PILOT_FAILED' ||
+                    store.selected.status === 'REVIEW') &&
                   !sourceFile
                 "
                 type="button"
@@ -443,7 +444,9 @@
                     ? 'Queueing…'
                     : store.selected.status === 'PILOT_FAILED'
                       ? 'Retry pilot in the same ArtJob'
-                      : 'Render 24-second motion pilot'
+                      : store.selected.status === 'REVIEW'
+                        ? 'Render improved continuity pilot'
+                        : 'Render 24-second motion pilot'
                 }}
               </button>
               <button
@@ -451,9 +454,18 @@
                 type="button"
                 class="kr-btn kr-btn-primary w-full"
                 :disabled="store.sourceBusy"
-                @click="showPilot"
+                @click="showPilot()"
               >
                 {{ store.sourceBusy ? 'Loading…' : 'Watch animated pilot' }}
+              </button>
+              <button
+                v-if="store.selected.pilot?.previousRevision"
+                type="button"
+                class="btn btn-outline w-full"
+                :disabled="store.sourceBusy"
+                @click="showPilot(true)"
+              >
+                Watch previous pilot for comparison
               </button>
               <p v-if="lookChanged" class="kr-text-faded-xs">
                 Save the selected look before starting a pilot.
@@ -541,9 +553,9 @@ function selectJob(job: VideoRestyleJob) {
   activePanel.value = 'source'
 }
 
-async function showPilot() {
+async function showPilot(previous = false) {
   if (!store.selected) return
-  if (await store.loadPilotPreview(store.selected.id)) {
+  if (await store.loadPilotPreview(store.selected.id, previous)) {
     activePanel.value = 'source'
   }
 }

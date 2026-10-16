@@ -1,5 +1,13 @@
 import { randomUUID } from 'node:crypto'
-import { mkdir, readFile, readdir, rename, writeFile } from 'node:fs/promises'
+import { constants } from 'node:fs'
+import {
+  copyFile,
+  mkdir,
+  readFile,
+  readdir,
+  rename,
+  writeFile,
+} from 'node:fs/promises'
 import path from 'node:path'
 import { createError } from 'h3'
 import { getArtArchiveRoot } from '@/server/utils/artArchiveRoot'
@@ -34,6 +42,8 @@ export type VideoRestyleJob = {
     completedSegments: number
     totalSegments: number
     artJobId?: number
+    revision?: number
+    previousRevision?: number
     renderModel: string
   }
   createdAt: string
@@ -248,10 +258,12 @@ export async function queueRestylePilot(
   id: string,
 ): Promise<VideoRestyleJob> {
   const job = await loadRestyleJob(userId, id)
-  if (!['STAGED', 'PILOT_FAILED', 'PILOT_BLOCKED'].includes(job.status)) {
+  if (
+    !['STAGED', 'PILOT_FAILED', 'PILOT_BLOCKED', 'REVIEW'].includes(job.status)
+  ) {
     throw createError({
       statusCode: 409,
-      message: 'Pilot is already queued or complete.',
+      message: 'Pilot is already queued or being rendered.',
     })
   }
   if (job.style !== 'illustrious') {
@@ -259,6 +271,23 @@ export async function queueRestylePilot(
       statusCode: 400,
       message: 'The first motion-preserving pilot must use Illustrious cel.',
     })
+  }
+  const priorRevision = job.pilot?.revision ?? 1
+  if (job.status === 'REVIEW') {
+    if (job.resultFile !== 'pilot.mp4') {
+      throw createError({
+        statusCode: 409,
+        message: 'The current pilot result is missing.',
+      })
+    }
+    const folder = path.dirname(restyleSourcePath(job))
+    // Preserve the reviewed version, including when the next generation fails.
+    // Never overwrite an existing archive with different bytes.
+    await copyFile(
+      path.join(folder, 'pilot.mp4'),
+      path.join(folder, `pilot-v${priorRevision}.mp4`),
+      constants.COPYFILE_EXCL,
+    )
   }
   const startSec = job.sourceDurationSec >= 182 ? 158 : 0
   const durationSec = Math.min(24, job.sourceDurationSec - startSec)
@@ -273,6 +302,12 @@ export async function queueRestylePilot(
     pilot: {
       startSec,
       durationSec,
+      revision: job.status === 'REVIEW' ? priorRevision + 1 : priorRevision,
+      ...(job.status === 'REVIEW'
+        ? { previousRevision: priorRevision }
+        : job.pilot?.previousRevision
+          ? { previousRevision: job.pilot.previousRevision }
+          : {}),
       completedSegments: 0,
       totalSegments: Math.ceil(Math.max(0, durationSec * 16 - 65) / 57) + 1,
       renderModel: 'wan2.1_vace_1.3B_fp16.safetensors',

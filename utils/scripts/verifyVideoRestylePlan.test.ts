@@ -80,7 +80,7 @@ assert.ok(queueCard.includes('KR Relay will claim this VACE pilot'))
 assert.ok(studio.includes('View ArtJob #'))
 assert.ok(queueCard.includes('isRestylePilot'))
 assert.ok(queueCard.includes('Open Coat Dance Studio'))
-assert.ok(media.includes('if (isVideoRestyleArtJobPayload(body)) return false'))
+assert.ok(media.includes('return capabilities.supportsVideoRestyle === true'))
 
 const storeSource = readFileSync('stores/videoRestyleStore.ts', 'utf8')
 const refreshSource = storeSource.slice(

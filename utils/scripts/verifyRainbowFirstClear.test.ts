@@ -14,7 +14,7 @@ import { emptyInput, type InputFrame } from '../arcade/types'
 // damage the crew already dealt. The world bible's pacing target is 10-15 minutes per Act; each Act's
 // time is measured here, may not exceed 15 minutes, and may not fall below its floor. Raise the floor
 // as authored sections are added, until it reaches 10.
-const ACT_FLOOR_MINUTES = 6
+const ACT_FLOOR_MINUTES = 7.5
 
 const MINUTE = 3600
 

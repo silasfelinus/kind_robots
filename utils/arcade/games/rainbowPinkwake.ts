@@ -1,11 +1,11 @@
 /**
  * Act I director. One fixed tick is 1/60 s; no random or wall-clock scheduling.
  * A01.OPEN / TURN / AFTER play only in deliberately safe corridors.
- * The waves are authored formations (see rainbowFormations) in eleven sections that follow the world
+ * The waves are authored formations (see rainbowFormations) in fourteen sections that follow the world
  * bible's S01 beats: a picket school, spiral eddies, anchor mine corridors with one open lane, urchin
- * escorts and a remix, then six escalations (buoy shoal, riptide run, pearl storm, coral chicane,
- * urchin nursery, tidal crescendo). The demo clears
- * Act I in about five minutes; verifyRainbowFirstClear measures ordinary pilots against the world
+ * escorts and a remix, then nine escalations (buoy shoal, riptide run, pearl storm, coral chicane,
+ * urchin nursery, tidal crescendo, glass buoy maze, pearl rain, seahorse wake). The demo clears
+ * Act I in about eight minutes; verifyRainbowFirstClear measures ordinary pilots against the world
  * bible's 10-15 minute per-Act target, which remains t-007 work.
  */
 import {
@@ -25,8 +25,8 @@ export type PinkwakeSpawn = RainbowSpawn<PinkwakeEnemy>
 export const PINKWAKE = {
   openingEnds: 300,
   stationAppears: 2880,
-  turnStarts: 19200,
-  bossStarts: 19500,
+  turnStarts: 24600,
+  bossStarts: 24900,
   sceneLineFrames: 96,
   aftermathFrames: 390,
 } as const
@@ -43,6 +43,9 @@ export const PINKWAKE_SECTIONS = [
   { name: 'Coral chicane', from: 13800, to: 15600 },
   { name: 'Urchin nursery', from: 15600, to: 17400 },
   { name: 'Tidal crescendo', from: 17400, to: 19200 },
+  { name: 'Glass buoy maze', from: 19200, to: 21000 },
+  { name: 'Pearl rain', from: 21000, to: 22800 },
+  { name: 'Seahorse wake', from: 22800, to: 24600 },
 ] as const
 
 export const PINKWAKE_WAVES: readonly PinkwakeWave[] = [
@@ -157,7 +160,7 @@ export const PINKWAKE_WAVES: readonly PinkwakeWave[] = [
   wave(16860, 'spiral', 'pair', 2, 0.4),
   wave(17100, 'picket', 'line', 5, 0.5),
   wave(17220, 'urchin', 'pair', 2, 0.15),
-  // Tidal crescendo: twin schools, crossing stairs and a last wall before the Pearl Seahorse.
+  // Tidal crescendo: twin schools, crossing stairs and a mine wall.
   wave(17460, 'picket', 'vee', 5, 0.3),
   wave(17460, 'picket', 'vee', 5, 0.7),
   wave(17700, 'spiral', 'stair', 5, 0.1),
@@ -170,6 +173,44 @@ export const PINKWAKE_WAVES: readonly PinkwakeWave[] = [
   wave(18720, 'anchor', 'wall', 5, 0.3),
   wave(18840, 'picket', 'line', 4, 0.3),
   wave(19020, 'picket', 'stair', 5, 0.1),
+  // Glass buoy maze: back-to-back mine walls whose open lanes step one notch at a time, so the ship
+  // threads a staircase corridor, with spirals drifting through the open lane.
+  wave(19260, 'anchor', 'wall', 5, 0.15),
+  wave(19440, 'anchor', 'wall', 5, 0.3),
+  wave(19560, 'spiral', 'single', 1, 0.3),
+  wave(19620, 'anchor', 'wall', 5, 0.45),
+  wave(19800, 'anchor', 'wall', 5, 0.6),
+  wave(19920, 'spiral', 'single', 1, 0.6),
+  wave(19980, 'anchor', 'wall', 5, 0.75),
+  wave(20160, 'picket', 'line', 4, 0.75),
+  wave(20340, 'anchor', 'wall', 5, 0.55),
+  wave(20520, 'anchor', 'wall', 5, 0.35),
+  wave(20700, 'picket', 'vee', 5, 0.35),
+  // Pearl rain: urchins fall into formation behind columns of pickets, the densest urchin stretch.
+  wave(21060, 'urchin', 'single', 1, 0.2),
+  wave(21060, 'urchin', 'single', 1, 0.8),
+  wave(21240, 'picket', 'column', 4, 0.5, { spread: 0.22 }),
+  wave(21420, 'urchin', 'pair', 2, 0.3),
+  wave(21600, 'spiral', 'vee', 5, 0.5),
+  wave(21780, 'urchin', 'single', 1, 0.5),
+  wave(21780, 'picket', 'pair', 4, 0.1),
+  wave(21960, 'spiral', 'stair', 5, 0.85, { step: -1 }),
+  wave(22140, 'urchin', 'pair', 2, 0.2),
+  wave(22320, 'picket', 'column', 4, 0.5, { spread: 0.22 }),
+  wave(22500, 'urchin', 'single', 1, 0.35),
+  wave(22620, 'spiral', 'stair', 5, 0.1),
+  // Seahorse wake: the Pearl Seahorse's escort school, every Act I craft one last time.
+  wave(22860, 'picket', 'vee', 5, 0.5),
+  wave(22980, 'spiral', 'pair', 2, 0.15),
+  wave(23160, 'anchor', 'wall', 5, 0.65),
+  wave(23280, 'picket', 'line', 4, 0.65),
+  wave(23460, 'urchin', 'pair', 2, 0.25),
+  wave(23640, 'spiral', 'stair', 5, 0.9, { step: -1 }),
+  wave(23820, 'picket', 'vee', 5, 0.3),
+  wave(23820, 'picket', 'vee', 5, 0.7),
+  wave(24060, 'anchor', 'wall', 5, 0.5),
+  wave(24180, 'urchin', 'single', 1, 0.5),
+  wave(24360, 'picket', 'stair', 5, 0.9, { step: -1 }),
 ]
 
 export const pinkwakeFormation = formationMembers<PinkwakeEnemy>

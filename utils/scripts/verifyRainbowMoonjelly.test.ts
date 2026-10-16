@@ -159,8 +159,8 @@ for (const players of [1, 4]) {
   let sawMoonBoss = false
   let reachedClear = false
   let startingLives = 0
-  // The demo clears both bosses near frame 47,400 with one pilot and 42,300 with four.
-  for (let frame = 0; frame < 52000; frame++) {
+  // The demo clears both bosses near frame 58,100 with one pilot and 55,000 with four.
+  for (let frame = 0; frame < 64000; frame++) {
     a.update(idle)
     b.update(idle)
     const snapshot = a.snapshot

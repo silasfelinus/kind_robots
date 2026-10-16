@@ -38,8 +38,8 @@
             <span
               class="mr-1 inline-block h-2 w-2 animate-pulse rounded-full bg-emerald-400 align-middle"
             />
-            Workshop build · Worlds 1 to 7 playable, twenty-eight stages and
-            seven bosses
+            Workshop build · all eight worlds playable, thirty-two stages and
+            the rescue
           </p>
 
           <h2 class="plumber-logo select-none" aria-label="Save the Plumber!">
@@ -324,13 +324,13 @@
                 <p
                   class="text-xs font-bold uppercase tracking-[.22em] text-[#ffcf82]"
                 >
-                  Worlds 1 to 7 · Bluebell Pipeworks to the Night Market
+                  Worlds 1 to 8 · Bluebell Pipeworks to Stardrain Citadel
                 </p>
                 <h3
                   id="plumber-play-title"
                   class="plumber-display text-3xl sm:text-4xl"
                 >
-                  Twenty-eight stages, seven bosses
+                  Thirty-two stages, eight bosses
                 </h3>
               </div>
               <span
@@ -393,10 +393,9 @@
               </ul>
             </div>
             <p class="px-1 text-xs leading-relaxed text-white/60">
-              Worlds 1 to 7 are playable from the Rainy Courtyard to the
-              Umbrella Dragon. The cabinet saves your heroine and stage on this
-              device, so Continue picks up where you left off. World 8 and the
-              rescue are on the way.
+              The whole campaign is playable, from the Rainy Courtyard to Lady
+              Spigot and Teo's rescue. The cabinet saves your heroine and stage
+              on this device, so Continue picks up where you left off.
             </p>
           </aside>
         </div>

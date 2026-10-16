@@ -792,7 +792,7 @@ export const PREVIEW_GAMES: ArcadeGameMeta[] = [
     title: 'Save the Plumber',
     riffsOn: 'classic side-scrolling platform adventures',
     blurb:
-      'Private Worlds 1 to 7 build: pick one of eight painted heroines, then cross seven worlds from Bluebell Pipeworks to the Night Market Rooftops past seven bosses, from Madame Pressure to the Umbrella Dragon. World 8 and the rescue are still under development.',
+      'Private full-campaign build: pick one of eight painted heroines, then cross all eight worlds from Bluebell Pipeworks to the Stardrain Citadel, past eight bosses from Madame Pressure to Lady Spigot, and free Teo.',
     howTo: [
       'ARROWS  RUN',
       'A OR UP  JUMP',

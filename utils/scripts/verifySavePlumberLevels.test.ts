@@ -12,6 +12,7 @@ import {
   SOLID_GATE,
   SOLID_WATER,
   TILE,
+  WORLD_EIGHT,
   WORLD_FIVE,
   WORLD_FOUR,
   WORLD_ONE,
@@ -63,7 +64,11 @@ assert.deepEqual(
   WORLD_SEVEN.map((stage) => stage.code),
   ['7-1', '7-2', '7-3', '7-4'],
 )
-assert.equal(CAMPAIGN.length, 28)
+assert.deepEqual(
+  WORLD_EIGHT.map((stage) => stage.code),
+  ['8-1', '8-2', '8-3', '8-4'],
+)
+assert.equal(CAMPAIGN.length, 32)
 for (const def of CAMPAIGN) {
   const stage = parseStage(def)
   assert.equal(stage.rows, 17, `${def.code} is 17 rows tall`)
@@ -116,6 +121,17 @@ assert.ok(
   WORLD_SIX.some((d) => d.dark),
   'the Underworks has unlit stages',
 )
+for (const kind of [
+  'gasket-golem',
+  'siphon-sprite',
+  'pumpbug',
+  'raft',
+  'valve',
+  'wind',
+  'cargo',
+  'lift',
+] as const)
+  assert.ok(kindsIn(8).has(kind), `the Citadel brings back ${kind}`)
 assert.ok(
   WORLD_FOUR.every((d) => {
     const solid = parseStage(d).solid
@@ -139,6 +155,7 @@ for (const world of [
   WORLD_FIVE,
   WORLD_SIX,
   WORLD_SEVEN,
+  WORLD_EIGHT,
 ])
   assert.notEqual(
     parseStage(world[3]!).gate,
@@ -157,6 +174,7 @@ const bosses = [
   'Admiral Gust',
   'Prism Mole',
   'The Umbrella Dragon',
+  'Lady Spigot',
 ]
 for (let index = 0; index < CAMPAIGN.length; index++) {
   const game = createSavePlumberPreview(options(), {
@@ -496,6 +514,41 @@ const dragon = duel(27)
 assert.equal(dragon.boss!.kind, 'dive')
 assert.ok(Math.abs(dragon.boss!.vx) > 4, 'the Umbrella Dragon dives')
 
+// Lady Spigot: the hissing valve picks the side her water jet fires from.
+const spigot = duel(31)
+assert.equal(spigot.boss!.kind, 'spigot')
+assert.equal(spigot.boss!.state, 'burst')
+spigot.immune = 0
+spigot.hero.x = spigot.boss!.x + spigot.boss!.dir * 60
+spigot.hero.y = spigot.boss!.y - 26
+spigot.update(emptyInput())
+assert.equal(spigot.hearts, 2, 'her jet soaks the hissing side')
+const safe = duel(31)
+safe.immune = 0
+safe.hero.x = safe.boss!.x - safe.boss!.dir * 60
+safe.hero.y = safe.boss!.y - 26
+safe.update(emptyInput())
+assert.equal(safe.hearts, 3, 'the quiet side stays dry')
+
+// Beating Lady Spigot plays the rescue finale and marks the campaign cleared.
+const finale = createSavePlumberPreview(options())
+finale.loadStage(CAMPAIGN.length - 1)
+finale.mode = 'play'
+finale.boss!.hp = 0
+finale.boss!.state = 'defeat'
+finale.boss!.timer = 1
+for (let i = 0; i < 200 && (finale.mode as string) !== 'victory'; i++)
+  finale.update(emptyInput())
+assert.equal(finale.mode, 'victory', 'the rescue finale plays')
+assert.equal(
+  readPlumberSave(finale.save)!.cleared,
+  true,
+  'the campaign is cleared',
+)
+assert.equal(readPlumberSave(finale.save)!.stage, 0, 'a new run starts at 1-1')
+for (let i = 0; i < 1000 && !finale.over; i++) finale.update(emptyInput())
+assert.equal(finale.over, true, 'the cabinet ends after the finale')
+
 // Beating a world's boss continues the campaign into the next world.
 const boss = createSavePlumberPreview(options())
 boss.loadStage(3)
@@ -521,5 +574,5 @@ assert.equal(demo.mode === 'play' || demo.mode === 'clear', true)
 assert.equal(demo.save, undefined, 'the demo never saves')
 
 console.log(
-  'Save the Plumber Worlds 1 to 7: twenty-eight finishable stages, seven bosses, controls, select and saves verified',
+  'Save the Plumber Worlds 1 to 8: thirty-two finishable stages, eight bosses, the rescue finale, controls, select and saves verified',
 )

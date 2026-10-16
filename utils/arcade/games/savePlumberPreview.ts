@@ -105,7 +105,14 @@ type Foe = Body & {
 }
 
 type BossKind =
-  'pressure' | 'anchor' | 'slam' | 'chime' | 'gale' | 'burrow' | 'dive'
+  | 'pressure'
+  | 'anchor'
+  | 'slam'
+  | 'chime'
+  | 'gale'
+  | 'burrow'
+  | 'dive'
+  | 'spigot'
 
 /** The toy-box animation each in-game family plays (savePlumberAnimations). */
 export const FOE_ANIMATION: Record<FoeKind, string> = {
@@ -134,7 +141,11 @@ const BOSS_KINDS: BossKind[] = [
   'gale',
   'burrow',
   'dive',
+  'spigot',
 ]
+
+/** How far Lady Spigot's water jet reaches from her side. */
+const JET = 140
 
 /** Conveyor belt speed, and the push of a headwind gust in a wind corridor. */
 const BELT = 1.1
@@ -400,7 +411,7 @@ export class PlumberRun implements ArcadeGameInstance {
         stage: last ? 0 : this.stageIndex + 1,
         cleared: this.saveData?.cleared === true || last,
       })
-      this.setMode('victory', 600)
+      this.setMode('victory', last ? 900 : 600)
       return
     }
     this.beginStage(this.stageIndex + 1)
@@ -1381,7 +1392,7 @@ export class PlumberRun implements ArcadeGameInstance {
       case 'walk': {
         boss.dir = hero.x < boss.x ? -1 : 1
         const step =
-          boss.kind === 'gale'
+          boss.kind === 'gale' || boss.kind === 'spigot'
             ? Math.max(-boss.speed, Math.min(boss.speed, boss.home - boss.x))
             : boss.dir * boss.speed
         boss.x = Math.max(left, Math.min(right, boss.x + step))
@@ -1390,12 +1401,18 @@ export class PlumberRun implements ArcadeGameInstance {
           boss.timer = boss.kind === 'chime' ? 80 : 60
           if (boss.kind === 'burrow')
             boss.x = Math.max(left, Math.min(right, hero.x))
+          if (boss.kind === 'spigot') {
+            boss.dir = this.rng() < 0.5 ? -1 : 1
+            boss.timer = 70
+          }
         }
         break
       }
       case 'tell':
         if (boss.kind === 'chime' && boss.timer % 20 === 0 && boss.timer > 0)
           this.sound.play('blip')
+        if (boss.kind === 'spigot' && boss.timer % 14 === 0)
+          this.sound.play('warn')
         if (boss.timer <= 0) this.bossAttack(boss)
         break
       case 'burst':
@@ -1426,6 +1443,11 @@ export class PlumberRun implements ArcadeGameInstance {
         } else if (boss.timer <= 0) {
           boss.state = 'recover'
           boss.timer = 120
+          if (boss.kind === 'spigot')
+            this.waves.push(
+              { x: boss.x - 26, y: boss.y, dir: -1 },
+              { x: boss.x + 26, y: boss.y, dir: 1 },
+            )
           if (boss.kind === 'anchor' || boss.kind === 'chime')
             this.waves.push({
               x: boss.x + boss.dir * 40,
@@ -1464,6 +1486,11 @@ export class PlumberRun implements ArcadeGameInstance {
       const swing = Math.abs(hero.x - boss.x) < 84
       if (swing && hero.y + TALL > boss.y - 30)
         this.hurt(hero.x < boss.x ? -1 : 1)
+    }
+    if (boss.state === 'burst' && boss.kind === 'spigot') {
+      const reach = (hero.x - boss.x) * boss.dir
+      if (reach > 4 && reach < JET + HALF && hero.y + TALL > boss.y - 72)
+        this.hurt(boss.dir)
     }
     if (boss.state === 'burst' && boss.kind === 'gale')
       this.moveX(hero, HALF, TALL, hero.x < boss.x ? -1.5 : 1.5)
@@ -1509,6 +1536,9 @@ export class PlumberRun implements ArcadeGameInstance {
     } else if (boss.kind === 'chime') {
       boss.timer = 36
       boss.dir = this.hero.x < boss.x ? -1 : 1
+      this.sound.play('boom')
+    } else if (boss.kind === 'spigot') {
+      boss.timer = 50
       this.sound.play('boom')
     } else if (boss.kind === 'burrow') {
       boss.timer = 24
@@ -1864,6 +1894,22 @@ export class PlumberRun implements ArcadeGameInstance {
     )
     const keep =
       boss.kind === 'anchor' ? 130 : boss.kind === 'chime' ? 116 : 100
+    if (
+      boss.kind === 'spigot' &&
+      (boss.state === 'tell' || boss.state === 'burst')
+    ) {
+      const reach = (hero.x - boss.x) * boss.dir
+      if (reach > -6 && reach < JET + 24) {
+        if (boss.dir > 0) input.held.right = true
+        else input.held.left = true
+      }
+      if (wave && this.ground) {
+        input.pressed.a = true
+        input.held.a = true
+      }
+      if (!this.ground && hero.vy < 0) input.held.a = true
+      return input
+    }
     if (boss.kind === 'dive') {
       const coming =
         boss.state === 'burst' && Math.sign(hero.x - boss.x) === boss.dir
@@ -2133,6 +2179,7 @@ export class PlumberRun implements ArcadeGameInstance {
   }
 
   private renderVictory(g: CanvasRenderingContext2D) {
+    if (this.stageIndex + 1 >= CAMPAIGN.length) return this.renderFinale(g)
     const world = this.worldDef
     const next = PLUMBER_WORLDS[world.id]
     this.plate(g, this.stage.code, 1)
@@ -2161,6 +2208,39 @@ export class PlumberRun implements ArcadeGameInstance {
       '#d6f2ee',
     )
     this.text(g, `SCORE ${this.score}`, W / 2, 256, 14, '#ffd98a')
+  }
+
+  private renderFinale(g: CanvasRenderingContext2D) {
+    const art = stagePlate(PLUMBER_ART.cutscene('finale-reversal'))
+    if (art) g.drawImage(art, 0, 0, W, H)
+    else {
+      g.fillStyle = '#1c2946'
+      g.fillRect(0, 0, W, H)
+    }
+    g.fillStyle = 'rgba(12, 24, 40, 0.45)'
+    g.fillRect(0, 0, W, 104)
+    g.fillRect(0, H - 34, W, 34)
+    this.text(g, 'THE RIVERS RUN HOME!', W / 2, 40, 28, '#ffd98a')
+    this.text(
+      g,
+      `Lady Spigot lets the last river go, and ${this.member.name} frees Teo.`,
+      W / 2,
+      66,
+      12,
+      '#fff4dc',
+    )
+    this.text(
+      g,
+      'Every stolen stream tumbles back down to the land.',
+      W / 2,
+      84,
+      12,
+      '#d6f2ee',
+    )
+    const teo = drawSprite(g, PLUMBER_ART.cast('teo-helping'), 160, 236, 120)
+    if (!teo) drawSprite(g, PLUMBER_ART.cast('teo-caged'), 160, 236, 120)
+    this.drawHeroSprite(g, 320, 236, 'cheer', 1.4)
+    this.text(g, `FINAL SCORE ${this.score}`, W / 2, 258, 14, '#ffd98a')
   }
 
   private renderStage(g: CanvasRenderingContext2D) {
@@ -2864,6 +2944,32 @@ export class PlumberRun implements ArcadeGameInstance {
       for (let i = 0; i < 4; i++) {
         g.fillStyle = i < chimes ? '#ffe08a' : 'rgba(255,255,255,0.3)'
         g.fillRect(boss.x - 15 + i * 8, boss.y - 92, 5, 5)
+      }
+    }
+    if (boss.kind === 'spigot' && boss.state === 'tell') {
+      for (let k = 0; k < 4; k++) {
+        const rise = (this.tick * 1.5 + k * 9) % 30
+        g.fillStyle = `rgba(255, 255, 255, ${0.7 - rise / 50})`
+        g.beginPath()
+        g.arc(
+          boss.x + boss.dir * (20 + rise / 3),
+          boss.y - 40 - rise,
+          4 + rise / 6,
+          0,
+          Math.PI * 2,
+        )
+        g.fill()
+      }
+    }
+    if (boss.kind === 'spigot' && boss.state === 'burst') {
+      const from = boss.x + boss.dir * 16
+      const wobble = Math.sin(this.tick / 2) * 3
+      g.fillStyle = 'rgba(120, 214, 255, 0.55)'
+      g.fillRect(Math.min(from, from + boss.dir * JET), boss.y - 70, JET, 70)
+      g.fillStyle = 'rgba(230, 250, 255, 0.8)'
+      for (let k = 0; k < 6; k++) {
+        const x = from + boss.dir * ((this.tick * 6 + k * 23) % JET)
+        g.fillRect(x, boss.y - 60 + k * 9 + wobble, 10, 3)
       }
     }
     if (boss.state === 'burst' && boss.kind === 'gale') {

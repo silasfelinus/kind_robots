@@ -11,7 +11,9 @@ on:
       - 'content/channels/admin/rainbow-bullet-hell-space-princess.md'
       - 'stores/helpers/channelContent.ts'
       - 'utils/arcade/**'
+      - 'utils/scripts/arcadeCabinetFixture.mjs'
       - 'utils/scripts/verifyRainbowCabinet.browser.test.mjs'
+      - 'utils/scripts/verifyRainbowTouch.browser.test.mjs'
       - '.github/workflows/rainbow-cabinet-contract.yml'
 
 permissions:
@@ -23,7 +25,7 @@ concurrency:
 
 jobs:
   rainbow-cabinet:
-    name: Rainbow cabinet help and controls in Chromium
+    name: Rainbow cabinet help, controls and touch in Chromium
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
@@ -42,6 +44,10 @@ jobs:
         run: node utils/scripts/verifyRainbowCabinet.browser.test.mjs
         env:
           RAINBOW_CABINET_SHOTS: rainbow-cabinet-shots
+      - name: Replay touch controls through the actual cabinet
+        run: node utils/scripts/verifyRainbowTouch.browser.test.mjs
+        env:
+          RAINBOW_TOUCH_SHOTS: rainbow-cabinet-shots
       - name: Preserve responsive fixtures
         if: always()
         uses: actions/upload-artifact@v4

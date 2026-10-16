@@ -23,20 +23,27 @@ export default defineEventHandler(async (event) => {
       auth.user.id,
       getRouterParam(event, 'id') || '',
     )
+    const full = getQuery(event).full === '1'
     const previous = getQuery(event).previous === '1'
     const previousRevision = job.pilot?.previousRevision
     if (
-      previous
-        ? !Number.isSafeInteger(previousRevision) ||
-          !previousRevision ||
-          previousRevision < 1
-        : job.status !== 'REVIEW' || job.resultFile !== 'pilot.mp4'
+      full
+        ? job.status !== 'DONE' || job.resultFile !== 'full.mp4'
+        : previous
+          ? !Number.isSafeInteger(previousRevision) ||
+            !previousRevision ||
+            previousRevision < 1
+          : job.status !== 'REVIEW' && !job.full
     ) {
       throw createError({ statusCode: 404, message: 'Pilot video not found.' })
     }
     const filePath = path.join(
       path.dirname(restyleSourcePath(job)),
-      previous ? `pilot-v${previousRevision}.mp4` : 'pilot.mp4',
+      full
+        ? 'full.mp4'
+        : previous
+          ? `pilot-v${previousRevision}.mp4`
+          : 'pilot.mp4',
     )
     const fileStat = await stat(filePath).catch(() => null)
     if (!fileStat?.isFile()) {

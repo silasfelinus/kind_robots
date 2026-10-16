@@ -66,30 +66,40 @@ export default defineEventHandler(async (event) => {
     const jobId = Number(value('artJobId'))
     const agentId = String(value('agentId') || '')
     const kind = String(value('kind') || '')
-    const { artJob, job } = await requireClaimedVacePilot(
+    const { artJob, job, phase } = await requireClaimedVacePilot(
       getRouterParam(event, 'id') || '',
       jobId,
       agentId,
     )
 
-    const totalSegments = job.pilot!.totalSegments
-    const completed = Number(value('completedSegments'))
+    const plan = phase === 'full' ? job.full! : job.pilot!
+    const totalSegments = plan.totalSegments
+    const requestedCompleted = Number(value('completedSegments'))
     if (
-      !Number.isSafeInteger(completed) ||
-      completed < 0 ||
-      completed > totalSegments
+      !Number.isSafeInteger(requestedCompleted) ||
+      requestedCompleted < 0 ||
+      requestedCompleted > totalSegments
     ) {
       throw createError({ statusCode: 400, message: 'Invalid VACE progress.' })
     }
 
+    // A heartbeat must never roll completed windows or displayed progress back.
+    const completed = Math.max(requestedCompleted, plan.completedSegments)
     const now = new Date().toISOString()
-    let status: VideoRestyleJob['status'] = 'PILOT_RUNNING'
+    let status: VideoRestyleJob['status'] =
+      phase === 'full' ? 'FULL_RUNNING' : 'PILOT_RUNNING'
     let error: string | null = null
     let resultFile: string | null = null
     if (kind === 'failed') {
-      status = 'PILOT_FAILED'
+      status = phase === 'full' ? 'FULL_FAILED' : 'PILOT_FAILED'
       error = String(value('error') || 'VACE worker failed.').slice(0, 2000)
     } else if (kind === 'complete') {
+      if (phase === 'full') {
+        throw createError({
+          statusCode: 400,
+          message: 'Full videos must use the bounded chunk upload endpoint.',
+        })
+      }
       const video = part('file')
       if (
         !video ||
@@ -140,10 +150,12 @@ export default defineEventHandler(async (event) => {
         kind === 'complete'
           ? 'Pilot ready for choreography review'
           : kind === 'failed'
-            ? 'Pilot render failed'
-            : `KR Relay VACE window ${completed}/${totalSegments}`,
+            ? `${phase === 'full' ? 'Full film' : 'Pilot'} render failed`
+            : `KR Relay ${phase === 'full' ? 'full film' : 'pilot'} window ${completed}/${totalSegments}`,
       updatedAt: now,
-      pilot: { ...job.pilot!, completedSegments: completed },
+      ...(phase === 'full'
+        ? { full: { ...job.full!, completedSegments: completed } }
+        : { pilot: { ...job.pilot!, completedSegments: completed } }),
     }
     await saveManifest(job, next)
 
@@ -168,7 +180,9 @@ export default defineEventHandler(async (event) => {
               : 'RUNNING',
         payload: JSON.stringify(payload),
         error,
-        ...(kind !== 'progress' ? { claimedAt: null, claimedBy: null } : {}),
+        ...(kind === 'progress'
+          ? { claimedAt: new Date() } // renewable lease during overnight jobs
+          : { claimedAt: null, claimedBy: null }),
       },
     })
     return {

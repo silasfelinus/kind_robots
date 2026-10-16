@@ -50,7 +50,9 @@ export const useVideoRestyleStore = defineStore('videoRestyle', () => {
       if (response.success && Array.isArray(response.data)) {
         jobs.value = response.data
         registrationError.value = jobs.value.some(
-          (job) => job.pilot && !job.pilot.artJobId,
+          (job) =>
+            (job.full && !job.full.artJobId) ||
+            (job.pilot && !job.pilot.artJobId),
         )
           ? 'The server returned a pilot without an ArtJob ID.'
           : ''
@@ -238,6 +240,58 @@ export const useVideoRestyleStore = defineStore('videoRestyle', () => {
     }
   }
 
+  async function queueFull(id: string): Promise<boolean> {
+    if (busy.value) return false
+    busy.value = true
+    error.value = ''
+    notice.value = ''
+    try {
+      const response = await performFetch<VideoRestyleJob>(
+        `/api/video-restyle/${encodeURIComponent(id)}/full`,
+        { method: 'POST', body: JSON.stringify({}) },
+        1,
+        30_000,
+      )
+      if (!response.success || !response.data) {
+        error.value = response.message || 'Unable to queue full-length render.'
+        return false
+      }
+      jobs.value = jobs.value.map((job) =>
+        job.id === id ? response.data! : job,
+      )
+      notice.value = 'Full film queued privately. Progress survives restarts.'
+      return true
+    } finally {
+      busy.value = false
+    }
+  }
+
+  async function retryFull(id: string): Promise<boolean> {
+    if (busy.value) return false
+    busy.value = true
+    error.value = ''
+    notice.value = ''
+    try {
+      const response = await performFetch<VideoRestyleJob>(
+        `/api/video-restyle/${encodeURIComponent(id)}/full/retry`,
+        { method: 'POST', body: JSON.stringify({}) },
+        1,
+        30_000,
+      )
+      if (!response.success || !response.data) {
+        error.value = response.message || 'Unable to retry full-length render.'
+        return false
+      }
+      jobs.value = jobs.value.map((job) =>
+        job.id === id ? response.data! : job,
+      )
+      notice.value = 'Full film requeued; completed windows will be reused.'
+      return true
+    } finally {
+      busy.value = false
+    }
+  }
+
   async function retryPilot(id: string): Promise<boolean> {
     if (busy.value) return false
     busy.value = true
@@ -267,6 +321,7 @@ export const useVideoRestyleStore = defineStore('videoRestyle', () => {
   async function loadPilotPreview(
     id: string,
     previous = false,
+    full = false,
   ): Promise<boolean> {
     if (!import.meta.client) return false
     const userStore = useUserStore()
@@ -280,7 +335,7 @@ export const useVideoRestyleStore = defineStore('videoRestyle', () => {
     clearPreview()
     try {
       const response = await fetch(
-        `/api/video-restyle/${encodeURIComponent(id)}/result${previous ? '?previous=1' : ''}`,
+        `/api/video-restyle/${encodeURIComponent(id)}/result${full ? '?full=1' : previous ? '?previous=1' : ''}`,
         { headers: { Authorization: `Bearer ${token}` } },
       )
       if (!response.ok) throw new Error('Pilot video is unavailable.')
@@ -347,6 +402,8 @@ export const useVideoRestyleStore = defineStore('videoRestyle', () => {
     createVariant,
     saveSettings,
     queuePilot,
+    queueFull,
+    retryFull,
     retryPilot,
     loadPilotPreview,
     loadSourcePreview,

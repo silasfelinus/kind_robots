@@ -4,22 +4,21 @@
     :class="{ 'journey-reduced-motion': reducedMotion }"
   >
     <header
-      class="kr-toolbar justify-between rounded-2xl border border-base-content/10 bg-base-100/90 px-3 py-2 shadow-md backdrop-blur"
+      class="kr-toolbar flex-nowrap justify-between gap-2 rounded-2xl border border-base-content/10 bg-base-100/95 px-2 py-1 shadow-md backdrop-blur sm:px-3"
     >
-      <div class="min-w-0 flex-1">
-        <p
-          class="truncate text-[10px] font-black uppercase tracking-[.22em] text-warning"
+      <!-- Silas, 2026-10-16: one bar under the site header. The site header
+           already names the game, so the bar leads with where Zuzu is. -->
+      <p
+        class="flex min-w-0 flex-1 items-baseline gap-1.5 font-serif text-sm font-black sm:text-base"
+        :title="`Land ${game.state.landIndex + 1} of 5: ${game.currentLand.name}`"
+      >
+        <span class="shrink-0 whitespace-nowrap text-warning"
+          >{{ game.state.landIndex + 1 }}/5</span
         >
-          Land {{ game.state.landIndex + 1 }} / 5 · {{ game.currentLand.name }}
-        </p>
-        <h1
-          class="truncate font-serif text-lg font-black leading-tight sm:text-2xl"
-        >
-          Zuzu: Shifting Lands
-        </h1>
-      </div>
+        <span class="truncate max-sm:sr-only">{{ game.currentLand.name }}</span>
+      </p>
       <nav
-        class="journey-tabs order-last flex w-full gap-1 rounded-xl bg-base-200/80 p-1"
+        class="journey-tabs flex shrink-0 gap-1 rounded-xl bg-base-200/80 p-1"
         role="tablist"
         aria-label="Journey views"
       >
@@ -28,7 +27,7 @@
           :key="item.value"
           type="button"
           role="tab"
-          class="flex flex-1 items-center justify-center gap-1.5 rounded-xl px-3 py-1.5 text-sm font-bold transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary"
+          class="flex flex-1 items-center justify-center gap-1.5 rounded-xl px-2 py-1 text-sm font-bold transition-colors sm:px-3 focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary"
           :class="[
             item.value === 'road' ? 'journey-road-tab' : '',
             item.value === 'zuzu' && tab === 'road'
@@ -42,7 +41,7 @@
           @click="tab = item.value"
         >
           <Icon :name="item.icon" class="size-4" />
-          {{ item.label }}
+          <span class="max-sm:sr-only">{{ item.label }}</span>
           <span
             v-if="item.value === 'road' && zoomTarget && tab !== 'road'"
             class="size-2 rounded-full bg-warning"
@@ -758,7 +757,7 @@
                 </ol>
               </div>
 
-              <div class="grid grid-cols-4 gap-2 sm:gap-3">
+              <div class="road-grid grid grid-cols-4 gap-2 sm:gap-3">
                 <button
                   v-for="(card, index) in game.locations"
                   :key="card.id"
@@ -1609,6 +1608,15 @@ onMounted(() => {
 .journey-hidden-narrow {
   display: none;
 }
+/* Portrait screens: the four road cards sit two by two, so they read as
+   cards instead of a thin strip in a tall, empty board (Silas, 2026-10-16). */
+@media (orientation: portrait) {
+  .road-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    width: min(100%, 26rem);
+    margin-inline: auto;
+  }
+}
 @container (min-width: 47rem) {
   .encounter-grid {
     grid-template-columns: minmax(0, 1.15fr) minmax(280px, 1fr);
@@ -1627,7 +1635,6 @@ onMounted(() => {
     display: flex;
   }
   .journey-tabs {
-    order: 0;
     width: 340px;
   }
   .journey-road-tab {

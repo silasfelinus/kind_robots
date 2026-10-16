@@ -2,8 +2,14 @@ import { createHash, randomUUID } from 'node:crypto'
 import { readFile, rename, writeFile } from 'node:fs/promises'
 import path from 'node:path'
 import prisma from '@/server/utils/prisma'
-import { serializeArtJobPayload } from '@/server/utils/artJobPayload'
+import { createError } from 'h3'
 import {
+  parseArtJobPayload,
+  serializeArtJobPayload,
+} from '@/server/utils/artJobPayload'
+import { isVideoRestyleArtJobPayload } from '@/utils/artJobMedia'
+import {
+  loadRestyleJob,
   restyleSourcePath,
   type VideoRestyleJob,
 } from '@/server/utils/videoRestyleJobs'
@@ -84,6 +90,30 @@ export async function syncRestylePilotArtJob(
   let artJobId: number
   if (found) {
     artJobId = found.id
+    // KR Relay is authoritative once it claims a pilot. In particular, a
+    // connection-refused failure may leave job.json at PILOT_QUEUED. Never
+    // silently resurrect that FAILED ArtJob from a studio refresh.
+    if (
+      found.status === 'FAILED' &&
+      job.status !== 'REVIEW' &&
+      job.status !== 'DONE'
+    ) {
+      return {
+        ...job,
+        status: 'PILOT_FAILED',
+        error:
+          found.error || job.error || 'KR Relay could not render the pilot.',
+        stage: 'Pilot failed on KR Relay. Retry the existing ArtJob.',
+      }
+    }
+    if (found.status === 'RUNNING' && job.status === 'PILOT_QUEUED') {
+      return {
+        ...job,
+        status: 'PILOT_RUNNING',
+        stage: 'KR Relay is processing the pilot.',
+      }
+    }
+    if (found.status === 'DONE' || found.status === 'RUNNING') return job
     if (
       found.status !== status ||
       found.payload !== payload ||
@@ -148,4 +178,87 @@ export async function syncRestylePilotArtJob(
   })
   await rename(temporary, destination)
   return updated
+}
+
+/**
+ * Retry one failed VACE pilot IN PLACE: ArtJob identity, saved source and
+ * motion plan survive. Never run image-job normalizers over a video control
+ * payload, and never create another ArtJob for an existing fingerprint.
+ */
+export async function retryFailedRestyleArtJob(
+  id: number,
+): Promise<VideoRestyleJob> {
+  const artJob = await prisma.artJob.findUnique({ where: { id } })
+  if (!artJob || !isVideoRestyleArtJobPayload(artJob.payload)) {
+    throw createError({
+      statusCode: 404,
+      message: 'VACE pilot ArtJob not found.',
+    })
+  }
+  if (artJob.status !== 'FAILED') {
+    throw createError({
+      statusCode: 409,
+      message: 'Only a failed VACE pilot can be retried.',
+    })
+  }
+  const payload = parseArtJobPayload(artJob.payload)
+  const video = payload.videoRestyle as Record<string, unknown> | undefined
+  const pilotId = String(video?.id || '')
+  const job = await loadRestyleJob(artJob.userId, pilotId)
+  if (
+    !job.pilot ||
+    job.pilot.artJobId !== id ||
+    job.status === 'REVIEW' ||
+    job.status === 'DONE'
+  ) {
+    throw createError({
+      statusCode: 409,
+      message: 'Pilot source and ArtJob are not eligible for retry.',
+    })
+  }
+  const next: VideoRestyleJob = {
+    ...job,
+    status: 'PILOT_QUEUED',
+    stage: 'Queued for retry by KR Relay',
+    progress: 0,
+    error: null,
+    resultFile: null,
+    updatedAt: new Date().toISOString(),
+    pilot: { ...job.pilot, completedSegments: 0 },
+  }
+  const target = path.join(path.dirname(restyleSourcePath(job)), 'job.json')
+  const temporary = `${target}.${randomUUID()}.tmp`
+  await writeFile(temporary, JSON.stringify(next, null, 2), {
+    flag: 'wx',
+    mode: 0o600,
+  })
+  await rename(temporary, target)
+
+  const updatedPayload = {
+    ...payload,
+    videoRestyle: {
+      ...video,
+      completedSegments: 0,
+      progress: 0,
+      state: 'PILOT_QUEUED',
+    },
+  }
+  const updated = await prisma.artJob.updateMany({
+    where: { id, userId: job.userId, status: 'FAILED' },
+    data: {
+      status: 'PENDING',
+      claimedBy: null,
+      claimedAt: null,
+      error: null,
+      attempts: 0,
+      payload: serializeArtJobPayload(updatedPayload),
+    },
+  })
+  if (updated.count !== 1) {
+    throw createError({
+      statusCode: 409,
+      message: 'The pilot changed while retrying; refresh before trying again.',
+    })
+  }
+  return next
 }

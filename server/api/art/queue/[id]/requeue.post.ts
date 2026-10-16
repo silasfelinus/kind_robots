@@ -8,6 +8,8 @@
 // Admin/server credentials only (same trust level as claim/complete).
 import { createError, defineEventHandler, getRouterParam, readBody } from 'h3'
 import prisma from '../../../../utils/prisma'
+import { isVideoRestyleArtJobPayload } from '@/utils/artJobMedia'
+import { retryFailedRestyleArtJob } from '@/server/utils/videoRestyleArtJob'
 import { errorHandler } from '../../../../utils/error'
 import { requireMachineUser } from '../../../../utils/authGuard'
 import { serializeArtJobPayload } from '../../../../utils/artJobPayload'
@@ -51,6 +53,17 @@ export default defineEventHandler(async (event) => {
         statusCode: 409,
         message: `Job ${id} is already DONE — nothing to requeue.`,
       })
+    }
+
+    if (isVideoRestyleArtJobPayload(job.payload)) {
+      await retryFailedRestyleArtJob(id)
+      const updated = await prisma.artJob.findUnique({ where: { id } })
+      return {
+        success: true,
+        message: `Coat Dance pilot ArtJob #${id} requeued in place for KR Relay.`,
+        data: { job: updated, resourcePathsChanged: false },
+        statusCode: 200,
+      }
     }
 
     const checkpointRefresh = await refreshArtJobCheckpointResource(job.payload)

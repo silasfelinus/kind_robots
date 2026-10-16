@@ -58,8 +58,42 @@ const START_LIVES = 3
 const HEARTS = 3
 const LAST_WORLD = stageWorld(CAMPAIGN[CAMPAIGN.length - 1]!.code)
 
+/** The opening: painted cutscene, then two caption lines; `{name}` is the heroine. */
+const STORY: { art: string; lines: [string, string] }[] = [
+  {
+    art: 'intro-discovery',
+    lines: [
+      'Dawn in the Bluebell Pipeworks. Teo, plumber and tinkerer,',
+      'looks up from his bench: every river is flowing into the sky.',
+    ],
+  },
+  {
+    art: 'intro-capture',
+    lines: [
+      'Brass claws from a floating waterworks snatch him off the roof.',
+      'Teo jams his wrench in the gears and scatters brass tokens as a trail.',
+    ],
+  },
+  {
+    art: 'intro-capture',
+    lines: [
+      '{name} catches the first token and picks up her own wrench.',
+      'Follow the trail. Bring the rivers, and Teo, home.',
+    ],
+  },
+]
+const STORY_PANEL = 330
+
 type Mode =
-  'title' | 'select' | 'intro' | 'play' | 'dying' | 'clear' | 'victory' | 'over'
+  | 'title'
+  | 'select'
+  | 'story'
+  | 'intro'
+  | 'play'
+  | 'dying'
+  | 'clear'
+  | 'victory'
+  | 'over'
 
 type Body = { x: number; y: number; vx: number; vy: number }
 
@@ -213,6 +247,7 @@ export class PlumberRun implements ArcadeGameInstance {
   tick = 0
   modeTimer = 0
   menu = 0
+  storyPanel = 0
   cursor: number
   readonly demo: boolean
   readonly autopilot: boolean
@@ -332,6 +367,8 @@ export class PlumberRun implements ArcadeGameInstance {
         return this.updateTitle(keys)
       case 'select':
         return this.updateSelect(keys)
+      case 'story':
+        return this.updateStory(keys)
       case 'intro':
         if (!this.modeTimer || keys.pressed.start || keys.pressed.a)
           this.setMode('play')
@@ -393,6 +430,17 @@ export class PlumberRun implements ArcadeGameInstance {
     this.lives = START_LIVES
     this.tokens = 0
     this.beginStage(0)
+    this.storyPanel = 0
+    this.setMode('story', STORY_PANEL)
+  }
+
+  private updateStory(keys: InputFrame) {
+    if (keys.pressed.start) return this.setMode('intro', 150)
+    if (this.modeTimer && !keys.pressed.a) return
+    this.storyPanel++
+    this.sound.play('blip')
+    if (this.storyPanel >= STORY.length) this.setMode('intro', 150)
+    else this.modeTimer = STORY_PANEL
   }
 
   private beginStage(index: number) {
@@ -1961,6 +2009,8 @@ export class PlumberRun implements ArcadeGameInstance {
         return this.renderSelect(g)
       case 'victory':
         return this.renderVictory(g)
+      case 'story':
+        return this.renderStory(g)
       default:
         this.renderStage(g)
         if (this.mode === 'intro') this.renderIntro(g)
@@ -2150,6 +2200,37 @@ export class PlumberRun implements ArcadeGameInstance {
       10,
       '#fff4dc',
     )
+  }
+
+  private renderStory(g: CanvasRenderingContext2D) {
+    const panel = STORY[Math.min(this.storyPanel, STORY.length - 1)]!
+    const art = stagePlate(PLUMBER_ART.cutscene(panel.art))
+    const t = 1 - this.modeTimer / STORY_PANEL
+    if (art) {
+      const zoom = 1.04 + t * 0.06
+      const w = W * zoom
+      const h = H * zoom
+      const drift = this.storyPanel === 2 ? 1 : 0
+      g.drawImage(art, (W - w) * (drift ? 1 - t : t), (H - h) * 0.5, w, h)
+    } else {
+      g.fillStyle = '#1c2946'
+      g.fillRect(0, 0, W, H)
+    }
+    g.fillStyle = 'rgba(12, 24, 40, 0.68)'
+    g.fillRect(0, H - 62, W, 62)
+    const name = this.member.name
+    panel.lines.forEach((line, i) =>
+      this.text(
+        g,
+        line.replace('{name}', name),
+        W / 2,
+        H - 40 + i * 18,
+        12,
+        i ? '#d6f2ee' : '#fff4dc',
+      ),
+    )
+    if (Math.floor(this.tick / 30) % 2)
+      this.text(g, 'A ▶   START SKIP', W - 62, 16, 9, '#ffd98a')
   }
 
   private renderIntro(g: CanvasRenderingContext2D) {

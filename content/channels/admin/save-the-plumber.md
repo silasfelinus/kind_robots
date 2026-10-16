@@ -16,7 +16,7 @@ tutorial:
   body: |-
     Thirty-two stages, one determined heroine.
 
-    Save the Plumber is planned as a full eight-world side-scrolling adventure. This Admin page is its front door: the title screen, a prologue, the overworld map, the eight heroines, the cast and the Arcade cabinet, where all eight worlds are playable: thirty-two stages, eight bosses and the rescue finale. The opening cutscene and powerups are forthcoming.
+    Save the Plumber is planned as a full eight-world side-scrolling adventure. This Admin page is its front door: the title screen, a prologue, the overworld map, the eight heroines, the cast and the Arcade cabinet, where all eight worlds are playable: thirty-two stages, eight bosses and the rescue finale. A new game opens with a painted story of Teo's capture (press A to turn the page, START to skip). Powerups are forthcoming.
 
     Movement lab
     Scroll to the cabinet and press Start. Choose New Game, then pick one of eight heroines with the arrows and press A (B picks one at random). Use Left and Right to run, and A or Up to jump; hold A to jump higher. Jump input is buffered just before landing and remains available for a few frames after leaving a ledge. The cabinet saves your heroine and stage on this device, so Continue picks up where you left off. The Arcade cabinet also manages gamepad, touch, pause and sound.

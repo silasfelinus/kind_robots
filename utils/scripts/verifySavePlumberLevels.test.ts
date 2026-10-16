@@ -257,7 +257,14 @@ assert.notEqual(
 )
 const picked = fresh.cursor
 tap('a')
-assert.equal(fresh.mode, 'intro')
+assert.equal(fresh.mode, 'story', 'a new game opens with the story')
+assert.equal(fresh.storyPanel, 0)
+tap('a')
+assert.equal(fresh.storyPanel, 1, 'A turns the page')
+for (let i = 0; i < 800 && fresh.mode === 'story'; i++)
+  fresh.update(emptyInput())
+assert.equal(fresh.mode, 'intro', 'the story plays through to 1-1')
+assert.equal(fresh.stage.code, '1-1')
 assert.equal(
   rosterIndex(fresh.heroineSeed),
   picked,

@@ -29,7 +29,7 @@ export function dailySeed(date: Date = new Date()): string {
 /** The day a daily run belongs to, or null for an ordinary run. */
 export function dailyDateOf(seed: string | null | undefined): string | null {
   const match = /^daily-(\d{4}-\d{2}-\d{2})$/.exec(seed ?? '')
-  return match ? match[1]! : null
+  return match?.[1] ?? null
 }
 
 /** "Oct 16" for a YYYY-MM-DD key. */

@@ -55,8 +55,12 @@ for (let tick = 0; tick < 900; tick++) {
     input.held.a = true
     input.held.right = tick % 140 < 60
     input.held.left = tick % 140 >= 60
-    input.held.up = seat % 2 === 0 && tick % 100 < 25
-    input.held.down = seat % 2 !== 0 && tick % 100 < 25
+    // Weave across Act I's authored formation lanes instead of parking on the screen edges.
+    const sweep = tick % 100
+    const rising = seat % 2 === 0 ? sweep < 25 : sweep >= 50 && sweep < 75
+    const falling = seat % 2 === 0 ? sweep >= 50 && sweep < 75 : sweep < 25
+    input.held.up = rising
+    input.held.down = falling
     input.held.b = tick % 120 >= 90
     input.pressed.b = tick % 120 === 90
     return input

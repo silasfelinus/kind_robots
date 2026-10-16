@@ -7,8 +7,9 @@ import type {
 import {
   PINKWAKE,
   pinkwakeDialogue,
+  PINKWAKE_WAVE_SIZES,
   pinkwakeScene,
-  pinkwakeSpawn,
+  pinkwakeSpawns,
   pinkwakeStage,
   type PinkwakeEnemy,
 } from './rainbowPinkwake'
@@ -62,6 +63,7 @@ const PILOT_COLORS = ['#ffd2ef', '#b8f8ff', '#ffe99f', '#b9a9ff'] as const
 const SHIP_NAMES = ['PETAL', 'PRISM', 'HALO', 'COMET'] as const
 const BURST_FRAMES = 42
 const CUTIN_FADE_FRAMES = 10
+const POPUP_FRAMES = 50
 const STRIP_HEIGHT = 50
 const STRIP_SPEED = 0.55
 /** HUD text clears the cabinet's corner chips (close/fullscreen left, pause right). */
@@ -95,6 +97,7 @@ type Reef = {
   health: number
   kind: PinkwakeEnemy | MoonjellyEnemy
   fired: boolean
+  wave: number | null
 }
 type EnemyShot = {
   x: number
@@ -130,6 +133,7 @@ export type RainbowCombatSnapshot = {
   rescuedStation: boolean
   defeatedAt: number | null
   activePlayers: number
+  schoolBonuses: number
 }
 
 /** The preview's deterministic 60 Hz combat layer; stages and bosses are separate work. */
@@ -172,6 +176,11 @@ export function createRainbowPrincessPreview(
   let moonDefeatedFrame: number | null = null
   let rescuedNemi = false
   let nemi: { x: number; y: number } | null = null
+  const waveSpawned = new Map<number, number>()
+  const waveLeft = new Map<number, number>()
+  const brokenWaves = new Set<number>()
+  let schoolBonuses = 0
+  const popups: Array<{ x: number; y: number; text: string; age: number }> = []
   function moonFrame() {
     return moonStart === null ? 0 : tick - moonStart
   }
@@ -196,11 +205,19 @@ export function createRainbowPrincessPreview(
     }
   }
 
-  function spawn(kind: PinkwakeEnemy | MoonjellyEnemy) {
+  function spawn(
+    kind: PinkwakeEnemy | MoonjellyEnemy,
+    y?: number,
+    wave: number | null = null,
+  ) {
+    if (wave !== null) {
+      waveSpawned.set(wave, (waveSpawned.get(wave) ?? 0) + 1)
+      waveLeft.set(wave, (waveLeft.get(wave) ?? 0) + 1)
+    }
     reefs.push({
       x: W + 18,
-      y: 40 + options.rng() * (H - 80),
-      phase: options.rng() * Math.PI * 2,
+      y: y ?? 40 + options.rng() * (H - 80),
+      phase: wave === null ? options.rng() * Math.PI * 2 : wave * 0.9,
       health: coopEnemyHealth(
         kind === 'picket'
           ? 2
@@ -221,7 +238,27 @@ export function createRainbowPrincessPreview(
       ),
       kind,
       fired: false,
+      wave,
     })
+  }
+
+  /** A formation that loses no craft to escape or ramming pays a school bonus on its last kill. */
+  function creditWave(reef: Reef) {
+    if (reef.wave === null) return
+    const left = (waveLeft.get(reef.wave) ?? 1) - 1
+    waveLeft.set(reef.wave, left)
+    const size = PINKWAKE_WAVE_SIZES[reef.wave] ?? 0
+    if (
+      left > 0 ||
+      size < PINKWAKE.schoolSize ||
+      waveSpawned.get(reef.wave) !== size ||
+      brokenWaves.has(reef.wave)
+    )
+      return
+    const bonus = size * PINKWAKE.schoolBonusPerCraft
+    score += bonus
+    schoolBonuses++
+    popups.push({ x: reef.x, y: reef.y, text: `SCHOOL +${bonus}`, age: 0 })
   }
 
   function defeatBoss() {
@@ -316,6 +353,7 @@ export function createRainbowPrincessPreview(
     const reef = reefs[index]!
     reefs.splice(index, 1)
     score += reef.kind === 'urchin' ? 250 : 125
+    creditWave(reef)
     clearCount++
     const ship = ships[seat]!
     ship.charge = Math.min(
@@ -440,6 +478,8 @@ export function createRainbowPrincessPreview(
     tick++
     for (let i = bursts.length - 1; i >= 0; i--)
       if (++bursts[i]!.age > BURST_FRAMES) bursts.splice(i, 1)
+    for (let i = popups.length - 1; i >= 0; i--)
+      if (++popups[i]!.age > POPUP_FRAMES) popups.splice(i, 1)
     if (
       moonStart === null &&
       defeatedAt !== null &&
@@ -453,9 +493,10 @@ export function createRainbowPrincessPreview(
     if (moonStart === null) {
       const stage = pinkwakeStage(tick, defeatedAt)
       if (stage === 'waves') {
-        const kind = pinkwakeSpawn(tick)
-        if (kind) spawn(kind)
-        if (tick === 2520) station = { x: W + 18, y: 190 }
+        for (const entry of pinkwakeSpawns(tick)) {
+          spawn(entry.kind, entry.y, entry.wave)
+        }
+        if (tick === PINKWAKE.stationAppears) station = { x: W + 18, y: 190 }
       } else if (stage === 'turn' && tick === PINKWAKE.turnStarts) {
         reefs.length = 0
         enemyShots.length = 0
@@ -619,6 +660,7 @@ export function createRainbowPrincessPreview(
     for (let ei = reefs.length - 1; ei >= 0; ei--) {
       const reef = reefs[ei]!
       if (reef.x < -25) {
+        if (reef.wave !== null) brokenWaves.add(reef.wave)
         reefs.splice(ei, 1)
         continue
       }
@@ -632,6 +674,7 @@ export function createRainbowPrincessPreview(
               CORE_RADIUS + 10,
         )
       if (ship) {
+        if (reef.wave !== null) brokenWaves.add(reef.wave)
         reefs.splice(ei, 1)
         hitShip(ship)
       }
@@ -744,6 +787,7 @@ export function createRainbowPrincessPreview(
         actTwoFrame: moonFrame(),
         rescuedStation,
         defeatedAt,
+        schoolBonuses,
       }
     },
     update,
@@ -1308,6 +1352,19 @@ export function createRainbowPrincessPreview(
           commsTop + 30,
         )
         g.textAlign = 'left'
+      }
+      for (const popup of popups) {
+        g.save()
+        g.globalAlpha = Math.max(0, 1 - popup.age / POPUP_FRAMES)
+        g.fillStyle = '#fff2a8'
+        g.strokeStyle = '#2a1450'
+        g.lineWidth = 3
+        g.font = 'bold 9px monospace'
+        g.textAlign = 'center'
+        const y = Math.max(46, popup.y - popup.age * 0.4)
+        g.strokeText(popup.text, Math.min(W - 40, popup.x), y)
+        g.fillText(popup.text, Math.min(W - 40, popup.x), y)
+        g.restore()
       }
       // Super cut-in: the newest burst's pilot slides in where comms sit, clear of the touch controls. A
       // super has just cleared every enemy shot, so the banner hides no threat while it plays.

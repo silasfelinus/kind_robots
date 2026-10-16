@@ -57,6 +57,8 @@ import {
   GlowwormQueen,
   QUEEN,
   TORTOISE,
+  THUNDERHEAD,
+  Thunderhead,
   makeBoss,
 } from '../seedLander/bosses'
 import type { Boss } from '../seedLander/bosses'
@@ -948,7 +950,9 @@ class SeedLander implements ArcadeGameInstance {
           ? 'THE GEYSER WAS STILL SURGING'
           : this.boss?.id === 'queen'
             ? 'THAT SEGMENT WAS DARK'
-            : 'A CROW WAS SITTING THERE',
+            : this.boss?.id === 'thunderhead'
+              ? 'LIGHTNING STRUCK THAT TOP'
+              : 'A CROW WAS SITTING THERE',
       )
     const rank = pad
       ? rankLanding(pod.vx - pad.vx, pod.vy - pad.vy, pod.tilt, this.legs)
@@ -1104,7 +1108,11 @@ class SeedLander implements ArcadeGameInstance {
               ? boss.phase === 2
                 ? 'THE LIGHT RACES BACK AND FORTH'
                 : 'THE LIGHT SKIPS ALONG'
-              : 'THE WIND TURNS',
+              : boss.id === 'thunderhead'
+                ? boss.phase === 2
+                  ? 'HAIL! THE TOPS BOUNCE'
+                  : 'THE TOPS CRACKLE BEFORE A STRIKE'
+                : 'THE WIND TURNS',
       ticks: 140,
     }
   }
@@ -1828,6 +1836,17 @@ class SeedLander implements ArcadeGameInstance {
           }
         } else goal = { kind: 'land', pad: shell }
         goalX = mid(shell)
+      } else if (this.boss instanceof Thunderhead) {
+        // Thunderhead: land on the nearest top that is not charging, else hover over it.
+        const storm = this.boss
+        const open = storm.pads
+          .filter((p, k) => !p.planted && k !== storm.charging())
+          .sort((p, q) => Math.abs(mid(p) - pod.x) - Math.abs(mid(q) - pod.x))
+        const top = open[0] ?? this.boss.pads[0]!
+        if (Math.abs(mid(top) - pod.x) < 40 && pod.y > top.y - 70)
+          goal = { kind: 'land', pad: top }
+        else goal = { kind: 'hover', x: mid(top), y: THUNDERHEAD.y - 50 }
+        goalX = pod.x
       } else if (this.boss instanceof GlowwormQueen) {
         // The Glowworm Queen: land on the lit segment while it has time left, else hover over
         // the one lit next.

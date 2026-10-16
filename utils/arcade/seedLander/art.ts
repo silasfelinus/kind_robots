@@ -173,6 +173,27 @@ export const THEMES: Record<ThemeId, Theme> = {
     turf: [RAMPS.night[1], '#1a3a5a', '#2a6a7a', '#5ec4b4', '#bff8e8'],
     soil: RAMPS.night,
   },
+  storm: {
+    sky: ['#22283c', '#2e3650', '#3e4a68', '#56668a', '#7c8cae', '#a8b4cc'],
+    stars: 0,
+    orb: {
+      x: W - 70,
+      y: HUD_H + 28,
+      r: 9,
+      ramp: RAMPS.steel,
+      glow: RAMPS.steel[3],
+    },
+    planet: false,
+    cloud: ['#2a3046', '#3e4660', '#5a6684', '#8896b4', '#c4cee0'],
+    far: {
+      fill: mix(RAMPS.steel[1], RAMPS.night[2], 0.5),
+      rim: RAMPS.steel[3],
+    },
+    mid: { fill: mix(RAMPS.steel[1], RAMPS.leaf[0], 0.5), rim: RAMPS.steel[3] },
+    haze: '#c4cee0',
+    turf: [RAMPS.leaf[0], '#2a5a4a', '#4a8a6a', '#8ac49a', '#d4f4d0'],
+    soil: RAMPS.steel,
+  },
   night: {
     sky: [
       RAMPS.night[0],

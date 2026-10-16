@@ -336,7 +336,11 @@ const stompGolem = () => {
     golemLab.update(emptyInput())
 }
 stompGolem()
-assert.equal(golem.state, 'stunned', 'the first stomp knocks a golem plate loose')
+assert.equal(
+  golem.state,
+  'stunned',
+  'the first stomp knocks a golem plate loose',
+)
 assert.equal(golem.fade, 0, 'a gasket golem takes two hits')
 stompGolem()
 assert.ok(golem.fade > 0, 'the second stomp topples a gasket golem')

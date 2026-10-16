@@ -1666,7 +1666,8 @@ export class PlumberRun implements ArcadeGameInstance {
     const wave = this.waves.find(
       (w) => Math.abs(w.x - hero.x) < 56 && Math.sign(hero.x - w.x) === w.dir,
     )
-    const keep = boss.kind === 'anchor' ? 130 : boss.kind === 'chime' ? 116 : 100
+    const keep =
+      boss.kind === 'anchor' ? 130 : boss.kind === 'chime' ? 116 : 100
     const flee = () => {
       if (dx > 0) input.held.left = true
       else input.held.right = true
@@ -2319,7 +2320,10 @@ export class PlumberRun implements ArcadeGameInstance {
     const t = this.tick
     if (t % 300 < 150) {
       const first = Math.max(0, Math.floor(this.camera / TILE))
-      const last = Math.min(this.stage.cols - 1, first + Math.ceil(W / TILE) + 1)
+      const last = Math.min(
+        this.stage.cols - 1,
+        first + Math.ceil(W / TILE) + 1,
+      )
       g.strokeStyle = 'rgba(255, 255, 255, 0.55)'
       g.lineWidth = 1.5
       for (let col = first; col <= last; col++) {
@@ -2541,7 +2545,10 @@ export class PlumberRun implements ArcadeGameInstance {
       g.lineWidth = 3
       g.beginPath()
       g.moveTo(boss.x, boss.y - 60)
-      g.lineTo(boss.x + Math.sin(swing) * 80, boss.y - 60 + Math.cos(swing) * 56)
+      g.lineTo(
+        boss.x + Math.sin(swing) * 80,
+        boss.y - 60 + Math.cos(swing) * 56,
+      )
       g.stroke()
       g.fillStyle = '#ffe08a'
       g.beginPath()

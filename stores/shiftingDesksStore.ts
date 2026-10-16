@@ -13,6 +13,7 @@ import {
   type ChooseOptions,
   type RunState,
 } from '~/utils/shiftingDesks/rules'
+import { dailySeed } from '~/utils/shiftingDesks/daily'
 
 const SAVE_KEY = 'shifting-desks-run-v1'
 const ENVELOPE_KEY = 'shifting-desks-envelope-opened-v1'
@@ -73,8 +74,11 @@ export const useShiftingDesksStore = defineStore('shiftingDesks', () => {
     loaded.value = true
   }
 
-  function start(jobId: string): void {
-    const seed = `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`
+  // `daily` deals today's Daily Memo seed, the same run for everyone.
+  function start(jobId: string, options: { daily?: boolean } = {}): void {
+    const seed = options.daily
+      ? dailySeed()
+      : `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`
     run.value = newRun(seed, jobId)
     envelopeOpened.value = false
     persist()

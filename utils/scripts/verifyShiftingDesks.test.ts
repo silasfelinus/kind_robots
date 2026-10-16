@@ -2,6 +2,13 @@ import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
 import { fileURLToPath } from 'node:url'
 import {
+  dailyDateOf,
+  dailyKey,
+  dailyLabel,
+  dailySeed,
+  dailyShareText,
+} from '../shiftingDesks/daily'
+import {
   type RunState,
   BOSS_CARD,
   HARMFUL_SIGN,
@@ -1107,6 +1114,53 @@ assert.doesNotMatch(
   'no pitch copy on the front page',
 )
 assert.match(page, /<shifting-desks-style-picker/)
+// The Daily Memo: one seeded run per Pacific calendar day, the same for
+// everyone, with a shareable result (2026-10-16).
+assert.equal(dailyKey(new Date('2026-10-16T06:30:00Z')), '2026-10-15')
+assert.equal(dailyKey(new Date('2026-10-16T08:00:00Z')), '2026-10-16')
+assert.equal(
+  dailySeed(new Date('2026-10-16T08:00:00Z')),
+  dailySeed(new Date('2026-10-17T06:59:00Z')),
+  'one seed for the whole Pacific day',
+)
+assert.equal(dailyDateOf('daily-2026-10-16'), '2026-10-16')
+assert.equal(dailyDateOf('lq3k-ab12cd'), null)
+assert.equal(dailyLabel('2026-10-16'), 'Oct 16')
+{
+  const seed = dailySeed(new Date('2026-10-16T12:00:00Z'))
+  const a = newRun(seed, 'temp')
+  const b = newRun(seed, 'temp')
+  assert.deepEqual(a, b, 'every player gets the same daily run')
+  assert.ok(isRunState(JSON.parse(JSON.stringify(a))), 'a daily run saves')
+  const text = dailyShareText({
+    key: '2026-10-16',
+    title: 'The Kind Rewrite',
+    successor: 2,
+    files: 21,
+    verdict: 'Model Employee',
+  })
+  assert.match(text, /Daily Memo Oct 16/)
+  assert.match(text, /kindrobots\.org\/play\/shifting-desks/)
+}
+assert.match(
+  page,
+  /@click="beginHire\(true\)"/,
+  'the front desk offers the memo',
+)
+assert.match(page, /store\.start\(jobId, \{ daily: dailyNext\.value \}\)/)
+assert.match(
+  readFileSync(
+    fileURLToPath(
+      new URL(
+        '../../components/shifting-desks/shifting-desks-personnel-file.vue',
+        import.meta.url,
+      ),
+    ),
+    'utf8',
+  ),
+  /@click="shareDaily"/,
+  'a daily file can be shared',
+)
 // Silas, 2026-10-16: one heads-up bar instead of four stacked ones. The
 // floor, meters and envelope live in the toolbar, every chip explains itself
 // on tap, and the ticker and restructure notice wait until the file is open.

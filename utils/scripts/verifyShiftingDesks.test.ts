@@ -49,6 +49,7 @@ import {
   departmentBoard,
   restructuringFor,
   stepLabels,
+  SUB_LEVEL_ZERO,
   TOY_DIVISION,
   WELLNESS,
   nextDepartment,
@@ -620,6 +621,27 @@ assert.equal(plain.deck.length, RECORDS.locations.length + 1 + SHIFT)
   )
   assert.match(gallery, /v-for="ending in ENDINGS"/)
   assert.match(gallery, /stationArt\('endings', ending\.id\)/)
+}
+// Sub-Level Zero's Antechamber Sign-In (conductor shifting-desks t-030): the
+// fourth window shift, at the Board's door, stamped ADMIT / TURN AWAY.
+{
+  const signIn = SUB_LEVEL_ZERO.window_shift!
+  assert.equal(signIn.id, 'antechamber-sign-in')
+  assert.equal(signIn.location_id, 'boardroom-antechamber')
+  assert.equal(signIn.applicants.length, 3)
+  assert.ok(
+    signIn.applicants.every(
+      (a) =>
+        a.choices
+          .map((c) => c.label)
+          .sort()
+          .join() === 'Stamp ADMIT,Stamp TURN AWAY',
+    ),
+  )
+  assert.ok(
+    signIn.applicants.every((a) => windowApplicant(`${WINDOW_PREFIX}${a.id}`)),
+    'sign-in visitors resolve like Window 9 applicants',
+  )
 }
 // Wellness's Consent Window (conductor shifting-desks t-029): a third window
 // shift, at the Mutation Suite, stamped CONSENT / VOID.

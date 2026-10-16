@@ -1,9 +1,10 @@
 /**
  * Act I director. One fixed tick is 1/60 s; no random or wall-clock scheduling.
  * A01.OPEN / TURN / AFTER play only in deliberately safe corridors.
- * The waves are authored formations (see rainbowFormations) in five sections that follow the world
+ * The waves are authored formations (see rainbowFormations) in eight sections that follow the world
  * bible's S01 beats: a picket school, spiral eddies, anchor mine corridors with one open lane, urchin
- * escorts, then a remix. Act I runs about four minutes; the full 10-15 minute pacing remains t-007 work.
+ * escorts and a remix, then three escalations (buoy shoal, riptide run, pearl storm). The demo clears
+ * Act I in about four and a half minutes; the full 10-15 minute first clear remains t-007 work.
  */
 import {
   buildFormationSchedule,
@@ -22,8 +23,8 @@ export type PinkwakeSpawn = RainbowSpawn<PinkwakeEnemy>
 export const PINKWAKE = {
   openingEnds: 300,
   stationAppears: 2880,
-  turnStarts: 8400,
-  bossStarts: 8700,
+  turnStarts: 13800,
+  bossStarts: 14100,
   sceneLineFrames: 96,
   aftermathFrames: 390,
 } as const
@@ -34,6 +35,9 @@ export const PINKWAKE_SECTIONS = [
   { name: 'Mine corridors', from: 3900, to: 5700 },
   { name: 'Urchin escort', from: 5700, to: 7200 },
   { name: 'Estuary remix', from: 7200, to: 8400 },
+  { name: 'Buoy shoal', from: 8400, to: 10200 },
+  { name: 'Riptide run', from: 10200, to: 12000 },
+  { name: 'Pearl storm', from: 12000, to: 13800 },
 ] as const
 
 export const PINKWAKE_WAVES: readonly PinkwakeWave[] = [
@@ -86,6 +90,43 @@ export const PINKWAKE_WAVES: readonly PinkwakeWave[] = [
   wave(7860, 'spiral', 'pair', 2, 0.15),
   wave(8040, 'urchin', 'pair', 2, 0.3),
   wave(8220, 'picket', 'stair', 5, 0.1),
+  // Buoy shoal: the school returns faster and doubled, with spirals cutting across it.
+  wave(8460, 'picket', 'vee', 5, 0.3),
+  wave(8640, 'picket', 'vee', 5, 0.7),
+  wave(8820, 'spiral', 'line', 3, 0.5),
+  wave(8940, 'picket', 'pair', 4, 0.15),
+  wave(9120, 'spiral', 'stair', 4, 0.8, { step: -1 }),
+  wave(9300, 'picket', 'column', 4, 0.5, { spread: 0.22 }),
+  wave(9480, 'spiral', 'pair', 4, 0.3),
+  wave(9660, 'picket', 'line', 5, 0.2),
+  wave(9660, 'picket', 'line', 5, 0.8),
+  wave(9900, 'spiral', 'vee', 5, 0.5),
+  wave(10080, 'picket', 'stair', 5, 0.9, { step: -1 }),
+  // Riptide run: mine walls whose corridor holds a picket file to clear before you pass.
+  wave(10260, 'anchor', 'wall', 5, 0.35),
+  wave(10440, 'picket', 'line', 3, 0.35),
+  wave(10620, 'anchor', 'wall', 5, 0.65),
+  wave(10800, 'urchin', 'single', 1, 0.65),
+  wave(10980, 'anchor', 'wall', 5, 0.5),
+  wave(11100, 'picket', 'line', 3, 0.5),
+  wave(11280, 'anchor', 'wall', 5, 0.25),
+  wave(11400, 'urchin', 'single', 1, 0.25),
+  wave(11580, 'anchor', 'wall', 5, 0.75),
+  wave(11700, 'picket', 'line', 4, 0.75),
+  wave(11880, 'urchin', 'pair', 2, 0.2),
+  // Pearl storm: every Act I craft at once, the densest stretch before the Pearl Seahorse.
+  wave(12060, 'picket', 'vee', 5, 0.5),
+  wave(12180, 'spiral', 'pair', 2, 0.15),
+  wave(12300, 'urchin', 'single', 1, 0.5),
+  wave(12300, 'picket', 'column', 2, 0.5, { spread: 0.36 }),
+  wave(12480, 'anchor', 'pair', 2, 0.2),
+  wave(12600, 'spiral', 'stair', 5, 0.1),
+  wave(12780, 'picket', 'line', 5, 0.6),
+  wave(12900, 'urchin', 'pair', 2, 0.3),
+  wave(13080, 'spiral', 'vee', 5, 0.5),
+  wave(13260, 'anchor', 'wall', 5, 0.5),
+  wave(13380, 'picket', 'line', 4, 0.5),
+  wave(13560, 'picket', 'stair', 5, 0.85, { step: -1 }),
 ]
 
 export const pinkwakeFormation = formationMembers<PinkwakeEnemy>

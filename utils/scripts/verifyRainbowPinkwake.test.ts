@@ -56,8 +56,8 @@ assert.equal(
   'every formation member spawns before the pre-boss turn',
 )
 assert.ok(
-  craft >= 120,
-  `Act I authors ${craft} craft, over twice the 59 of the old slice`,
+  craft >= 250,
+  `Act I authors ${craft} craft, over four times the 59 of the old slice`,
 )
 for (const [i, section] of PINKWAKE_SECTIONS.entries()) {
   if (i > 0) assert.equal(section.from, PINKWAKE_SECTIONS[i - 1]!.to)
@@ -69,8 +69,8 @@ for (const [i, section] of PINKWAKE_SECTIONS.entries()) {
 assert.equal(PINKWAKE_SECTIONS[0]!.from, PINKWAKE.openingEnds)
 assert.equal(PINKWAKE_SECTIONS.at(-1)!.to, PINKWAKE.turnStarts)
 assert.ok(
-  PINKWAKE.turnStarts - PINKWAKE.openingEnds >= 7800,
-  'Act I waves run over two minutes',
+  PINKWAKE.turnStarts - PINKWAKE.openingEnds >= 13200,
+  'Act I waves run over three and a half minutes',
 )
 
 // A mine-corridor wall always leaves one open lane a ship can thread: half the corridor clears the

@@ -61,7 +61,7 @@ assert.equal(
   MOONJELLY_WAVE_SIZES.reduce((sum, size) => sum + size, 0),
   'every Act II formation member spawns',
 )
-assert.ok(actTwoCraft >= 80, `Act II authors ${actTwoCraft} craft`)
+assert.ok(actTwoCraft >= 180, `Act II authors ${actTwoCraft} craft`)
 for (const section of MOONJELLY_SECTIONS) {
   assert.ok(
     MOONJELLY_WAVES.some((w) => w.at >= section.from && w.at < section.to),
@@ -159,7 +159,8 @@ for (const players of [1, 4]) {
   let sawMoonBoss = false
   let reachedClear = false
   let startingLives = 0
-  for (let frame = 0; frame < 31000; frame++) {
+  // The demo clears both bosses near frame 31,000 with one pilot and 27,700 with four.
+  for (let frame = 0; frame < 40000; frame++) {
     a.update(idle)
     b.update(idle)
     const snapshot = a.snapshot

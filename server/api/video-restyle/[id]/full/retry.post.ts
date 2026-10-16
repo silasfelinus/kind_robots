@@ -11,7 +11,10 @@ export default defineEventHandler(async (event) => {
       auth.user.id,
       getRouterParam(event, 'id') || '',
     )
-    if (!project.full?.artJobId || project.status !== 'FULL_FAILED') {
+    if (
+      !project.full?.artJobId ||
+      !['FULL_FAILED', 'FULL_RUNNING', 'FULL_QUEUED'].includes(project.status)
+    ) {
       throw new Error('Only failed full films can be retried.')
     }
     const job = await retryFailedRestyleFullArtJob(project.full.artJobId)

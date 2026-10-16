@@ -7,11 +7,13 @@ import {
   RAINBOW_ENEMY_SPRITES,
   RAINBOW_PICKUP_SPRITES,
   RAINBOW_SHIP_SPRITES,
+  RAINBOW_STAGE_STRIPS,
   drawRainbowBossSprite,
   drawRainbowCommsPortrait,
   drawRainbowEnemySprite,
   drawRainbowPickupSprite,
   drawRainbowShipSprite,
+  drawRainbowStageStrip,
   drawRainbowSuperCutin,
   rainbowBossSprite,
   rainbowEnemySprite,
@@ -19,6 +21,7 @@ import {
   rainbowCommsKey,
   rainbowCommsPortrait,
   rainbowShipSprite,
+  rainbowStageStrip,
   rainbowSuperCutin,
 } from '../arcade/games/rainbowGameArt'
 
@@ -198,6 +201,28 @@ assert.match(
   'a ship under the cut-in shows through it',
 )
 
+// Stage strips: a keyed coral floor per playable stage, drawn before (behind) enemies, shots and ships.
+for (const stage of RAINBOW_STAGE_STRIPS) {
+  const src = rainbowStageStrip(stage)
+  assert.ok(existsSync(publicFile(src)), `${stage} strip is committed`)
+  assert.ok(
+    statSync(publicFile(src)).size < 120_000,
+    `${stage} strip stays small`,
+  )
+}
+assert.equal(drawRainbowStageStrip(g, 's01', 0, 220, 50), false)
+const stripAt = engine.indexOf('drawRainbowStageStrip(')
+assert.ok(
+  stripAt > 0 &&
+    stripAt < engine.indexOf('for (const reef of reefs) {\n        g.save()') &&
+    stripAt <
+      engine.indexOf(
+        "for (const bullet of enemyShots) {\n        g.fillStyle = '#1b163e'",
+      ) &&
+    stripAt < engine.indexOf('drawRainbowShipSprite(g, seat)'),
+  'the coral strip sits behind enemies, enemy shots and ships',
+)
+
 console.log(
-  `rainbow game art: ok (${painted}/4 painted ships, ${RAINBOW_ENEMY_SPRITES.length} enemies, ${RAINBOW_PICKUP_SPRITES.length} pickups, ${RAINBOW_BOSS_SPRITES.length} bosses x 3 phases, ${RAINBOW_CUTIN_PILOTS.length} cut-ins)`,
+  `rainbow game art: ok (${painted}/4 painted ships, ${RAINBOW_ENEMY_SPRITES.length} enemies, ${RAINBOW_PICKUP_SPRITES.length} pickups, ${RAINBOW_BOSS_SPRITES.length} bosses x 3 phases, ${RAINBOW_CUTIN_PILOTS.length} cut-ins, ${RAINBOW_STAGE_STRIPS.length} stage strips)`,
 )

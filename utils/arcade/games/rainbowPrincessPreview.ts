@@ -57,6 +57,7 @@ import {
 import { RAINBOW_LANES } from './rainbowFormations'
 import {
   TRENCH,
+  TRENCH_GUARDIAN,
   TRENCH_SECTIONS,
   TRENCH_WAVES,
   TRENCH_WAVE_SIZES,
@@ -239,7 +240,7 @@ export type RainbowCombatSnapshot = {
   clawBoss: Readonly<ClawburstBoss> | null
   guardian: Readonly<RainbowGuardian> | null
   /** Each Act's guardian: still to come (or in play), destroyed, or escaped. */
-  guardians: Readonly<Record<1 | 2, GuardianOutcome>>
+  guardians: Readonly<Record<1 | 2 | 3, GuardianOutcome>>
   rescuedNemi: boolean
   actTwoFrame: number
   actThreeFrame: number
@@ -292,10 +293,16 @@ export function createRainbowPrincessPreview(
   // A continue mid-fight brings the boss back as damaged as the crew left it, so every attempt counts.
   let bossCarryHp: number | null = null
   let guardian: RainbowGuardian | null = null
-  const guardians: Record<1 | 2, GuardianOutcome> = {
+  const guardians: Record<1 | 2 | 3, GuardianOutcome> = {
     1: 'waiting',
     2: 'waiting',
+    3: 'waiting',
   }
+  const guardianSections = {
+    1: PINKWAKE_GUARDIAN,
+    2: MOONJELLY_GUARDIAN,
+    3: TRENCH_GUARDIAN,
+  } as const
   let moonBossCarryHp: number | null = null
   let moonDefeatedFrame: number | null = null
   let trenchStart: number | null = null
@@ -468,12 +475,8 @@ export function createRainbowPrincessPreview(
       tick = resumeTick(checkpoint, moonStart, trenchStart)
       // A guardian whose section lies after the checkpoint flies again; one already behind it does not.
       guardian = null
-      if (checkpoint.act !== 3) {
-        const section =
-          checkpoint.act === 1 ? PINKWAKE_GUARDIAN : MOONJELLY_GUARDIAN
-        if (checkpoint.frame <= section.from)
-          guardians[checkpoint.act] = 'waiting'
-      }
+      if (checkpoint.frame <= guardianSections[checkpoint.act].from)
+        guardians[checkpoint.act] = 'waiting'
       if (boss) bossCarryHp = boss.hp
       if (moonBoss) moonBossCarryHp = moonBoss.hp
       if (clawBoss) clawBossCarryHp = clawBoss.hp
@@ -745,7 +748,7 @@ export function createRainbowPrincessPreview(
 
   /** Bring on the Act's guardian once its section opens, unless it was already destroyed or escaped. */
   function summonGuardian(
-    act: 1 | 2,
+    act: 1 | 2 | 3,
     frame: number,
     section: RainbowGuardianSection,
   ) {
@@ -761,7 +764,7 @@ export function createRainbowPrincessPreview(
     if (!guardian) return
     const { x, y } = guardian
     guardian = null
-    guardians[moonStart === null ? 1 : 2] = 'defeated'
+    guardians[currentAct()] = 'defeated'
     // Like a boss, a destroyed guardian takes its pellets with it.
     enemyShots.length = 0
     score += RAINBOW_GUARDIAN.bonus
@@ -877,7 +880,10 @@ export function createRainbowPrincessPreview(
     } else {
       const frame = trenchFrame()
       const stage = trenchStage(frame, trenchDefeatedFrame)
-      if (trenchDefeatedFrame === null) passCheckpoint(3, frame)
+      if (trenchDefeatedFrame === null) {
+        passCheckpoint(3, frame)
+        summonGuardian(3, frame, TRENCH_GUARDIAN)
+      }
       if (stage === 'waves') {
         for (const entry of trenchSpawns(frame)) {
           spawn(entry.kind, entry.y, entry.wave)
@@ -968,9 +974,9 @@ export function createRainbowPrincessPreview(
       enemyShots.push(...stepPinkwakeBoss(boss, ships.slice(0, activePlayers)))
     }
     if (guardian) {
-      const act = moonStart === null ? 1 : 2
-      const section = act === 1 ? PINKWAKE_GUARDIAN : MOONJELLY_GUARDIAN
-      const frame = act === 1 ? tick : moonFrame()
+      const act = currentAct()
+      const section = guardianSections[act]
+      const frame = act === 1 ? tick : act === 2 ? moonFrame() : trenchFrame()
       enemyShots.push(
         ...stepRainbowGuardian(
           guardian,
@@ -1465,10 +1471,33 @@ export function createRainbowPrincessPreview(
       if (guardian) {
         g.save()
         g.translate(guardian.x, guardian.y)
+        if (
+          guardian.kind === 'clawstrike' &&
+          rainbowGuardianWarning(guardian)
+        ) {
+          // Every lane it will fire down is marked for the whole charge.
+          g.save()
+          g.strokeStyle = '#ffb38a'
+          g.globalAlpha = 0.6
+          g.lineWidth = 2
+          g.setLineDash([6, 5])
+          for (const lane of guardian.lanes) {
+            g.beginPath()
+            g.moveTo(-18, lane - guardian.y)
+            g.lineTo(-guardian.x, lane - guardian.y)
+            g.stroke()
+          }
+          g.restore()
+        }
         g.save()
         g.scale(2.3, 2.3)
         if (!drawRainbowEnemySprite(g, guardian.kind)) {
-          g.fillStyle = guardian.kind === 'urchin' ? '#d09ffd' : '#afffea'
+          g.fillStyle =
+            guardian.kind === 'urchin'
+              ? '#d09ffd'
+              : guardian.kind === 'lantern'
+                ? '#afffea'
+                : '#ff9e7a'
           g.beginPath()
           g.arc(0, 0, 11, 0, Math.PI * 2)
           g.fill()

@@ -13,6 +13,7 @@ import { rainbowBossHp } from '../arcade/games/rainbowPinkwakeBoss'
 import { createRainbowPrincessPreview } from '../arcade/games/rainbowPrincessPreview'
 import {
   TRENCH,
+  TRENCH_GUARDIAN,
   TRENCH_SECTIONS,
   TRENCH_WAVES,
   TRENCH_WAVE_SIZES,
@@ -49,7 +50,12 @@ for (const [i, section] of TRENCH_SECTIONS.entries()) {
   const waves = TRENCH_WAVES.filter(
     (w) => w.at >= section.from && w.at < section.to,
   )
-  assert.ok(waves.length > 0, `${section.name} has waves`)
+  // The guardian holds its section alone; every other section is authored waves.
+  assert.equal(
+    waves.length > 0,
+    section.name !== TRENCH_GUARDIAN.name,
+    `${section.name} waves`,
+  )
   // Each lesson section opens with the craft it teaches.
   if (firstKind[section.name])
     assert.equal(waves[0]!.kind, firstKind[section.name], section.name)

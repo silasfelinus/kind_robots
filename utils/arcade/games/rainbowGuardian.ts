@@ -6,7 +6,7 @@
  */
 import { rainbowBossHp } from './rainbowPinkwakeBoss'
 
-export type RainbowGuardianKind = 'urchin' | 'lantern'
+export type RainbowGuardianKind = 'urchin' | 'lantern' | 'clawstrike'
 
 export type RainbowGuardianSection = {
   name: string
@@ -25,6 +25,8 @@ export type RainbowGuardian = {
   nextVolley: number
   volleys: number
   leaving: boolean
+  /** A clawstrike guardian's lanes, locked when its warning starts: the lanes its bolts fly. */
+  lanes: number[]
 }
 
 export type RainbowGuardianShot = {
@@ -61,6 +63,7 @@ export function createRainbowGuardian(
     nextVolley: RAINBOW_GUARDIAN.firstVolley,
     volleys: 0,
     leaving: false,
+    lanes: [],
   }
 }
 
@@ -95,6 +98,26 @@ export function stepRainbowGuardian(
   }
   guardian.x = Math.max(RAINBOW_GUARDIAN.holdX, guardian.x - 1.2)
   guardian.y = 135 + Math.sin(guardian.frame / 70) * 42
+  const living = targets.filter((target) => target.lives > 0)
+  const nearest = living.reduce(
+    (best, ship) =>
+      Math.abs(ship.y - guardian.y) < Math.abs(best.y - guardian.y)
+        ? ship
+        : best,
+    living[0] ?? { x: 80, y: 135, lives: 1 },
+  )
+  if (
+    guardian.kind === 'clawstrike' &&
+    guardian.frame === guardian.nextVolley - RAINBOW_GUARDIAN.warningFrames
+  ) {
+    // Three lanes (five when enraged) centred on the nearest pilot; the gaps between them are safe.
+    const enraged = guardian.hp <= guardian.maxHp / 2
+    const spacing = enraged ? 40 : 52
+    const count = enraged ? 5 : 3
+    guardian.lanes = Array.from({ length: count }, (_, i) =>
+      Math.max(40, Math.min(240, nearest.y + (i - (count - 1) / 2) * spacing)),
+    )
+  }
   if (guardian.frame < guardian.nextVolley) return []
   guardian.volleys++
   const enraged = guardian.hp <= guardian.maxHp / 2
@@ -117,16 +140,13 @@ export function stepRainbowGuardian(
       if (fromGap < 3) continue
       shot((i / count) * Math.PI * 2, 1.45)
     }
+  } else if (guardian.kind === 'clawstrike') {
+    // A straight bolt down every lane its warning marked.
+    for (const lane of guardian.lanes)
+      shots.push({ x: guardian.x - 18, y: lane, vx: -4.2, vy: 0, grazed: 0 })
   } else {
     // Two lantern fans either side of the nearest living pilot; the lane straight at them stays open.
-    const living = targets.filter((target) => target.lives > 0)
-    const target = living.reduce(
-      (best, ship) =>
-        Math.abs(ship.y - guardian.y) < Math.abs(best.y - guardian.y)
-          ? ship
-          : best,
-      living[0] ?? { x: 80, y: 135, lives: 1 },
-    )
+    const target = nearest
     const aim = Math.atan2(target.y - guardian.y, target.x - guardian.x)
     const spread = enraged ? [0.22, 0.34, 0.46, 0.58] : [0.24, 0.38, 0.52]
     for (const side of [-1, 1])

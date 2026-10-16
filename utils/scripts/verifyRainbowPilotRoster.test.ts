@@ -87,7 +87,7 @@ assert.match(
 // an image-shaped gradient slot. Every pilot card shows her super cut-in.
 assert.match(page, /id="princess-expedition"/)
 const cards = [...page.matchAll(/\$\{STAGE_CARD_ROOT\}\/(s0\d-card\.webp)/g)]
-assert.ok(cards.length >= 5, 'at least five stages carry a title card')
+assert.equal(cards.length, 8, 'every stage carries a title card')
 for (const [, name] of cards) {
   const file = new URL(`public/rainbow-princess-art/stages/${name}`, root)
   assert.ok(existsSync(file), `${name} is committed`)

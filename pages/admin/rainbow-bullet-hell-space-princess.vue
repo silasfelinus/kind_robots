@@ -260,7 +260,7 @@
           </div>
           <p class="max-w-md text-sm opacity-75">
             Pinkwake and Moonjelly fly today. The other six seas are being
-            painted and built.
+            built.
           </p>
         </div>
         <ol class="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
@@ -375,7 +375,7 @@ const stages = [
     name: 'Blossom Wreckyard',
     setting: 'A starship graveyard of petal wreck slabs and dock machinery.',
     scene: 'a starship graveyard',
-    card: null,
+    card: `${STAGE_CARD_ROOT}/s05-card.webp`,
     playable: false,
   },
   {
@@ -389,14 +389,14 @@ const stages = [
     name: 'Glass Current',
     setting: 'A mirrored star canyon of crystal strata and fractured beams.',
     scene: 'a mirrored crystal canyon',
-    card: null,
+    card: `${STAGE_CARD_ROOT}/s07-card.webp`,
     playable: false,
   },
   {
     name: 'Eclipse Palace',
     setting: 'An eclipse corona over captive armadas and pearl heart spires.',
     scene: 'an eclipsed pearl palace',
-    card: null,
+    card: `${STAGE_CARD_ROOT}/s08-card.webp`,
     playable: false,
   },
 ]

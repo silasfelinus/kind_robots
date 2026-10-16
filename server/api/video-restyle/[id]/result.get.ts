@@ -27,7 +27,9 @@ export default defineEventHandler(async (event) => {
     const previousRevision = job.pilot?.previousRevision
     if (
       previous
-        ? !Number.isSafeInteger(previousRevision) || !previousRevision || previousRevision < 1
+        ? !Number.isSafeInteger(previousRevision) ||
+          !previousRevision ||
+          previousRevision < 1
         : job.status !== 'REVIEW' || job.resultFile !== 'pilot.mp4'
     ) {
       throw createError({ statusCode: 404, message: 'Pilot video not found.' })

@@ -109,7 +109,8 @@ assert.ok(
 )
 assert.ok(artQueueView.includes('route.query.jobId'))
 assert.ok(artQueueView.includes('Showing ArtJob #'))
-assert.ok(studio.includes('query: { jobId: store.selected.pilot.artJobId }'))
+assert.ok(studio.includes('store.selected.full?.artJobId'))
+assert.ok(studio.includes('store.selected.pilot?.artJobId'))
 
 const failedRequeue = readFileSync(
   'server/api/art/queue/reenqueue-failed.post.ts',

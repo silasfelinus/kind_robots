@@ -83,4 +83,26 @@ assert.match(
   'hero text keeps a dark scrim over the painted backdrop',
 )
 
+// The expedition gallery shows each stage's painted Act title card where one is clean; the others keep
+// an image-shaped gradient slot. Every pilot card shows her super cut-in.
+assert.match(page, /id="princess-expedition"/)
+const cards = [...page.matchAll(/\$\{STAGE_CARD_ROOT\}\/(s0\d-card\.webp)/g)]
+assert.ok(cards.length >= 5, 'at least five stages carry a title card')
+for (const [, name] of cards) {
+  const file = new URL(`public/rainbow-princess-art/stages/${name}`, root)
+  assert.ok(existsSync(file), `${name} is committed`)
+  assert.ok(statSync(file).size < 60_000, `${name} stays light`)
+}
+assert.equal(
+  (page.match(/^ {4}name: '/gm) ?? []).length,
+  8,
+  'all eight stages are listed',
+)
+assert.match(page, /:src="rainbowSuperCutin\(pilot\.seat\)"/)
+assert.doesNotMatch(
+  page,
+  /restores a\s+damaged practice shield/,
+  'flight school describes the real B button: focus and super',
+)
+
 console.log('rainbow pilot roster: ok')

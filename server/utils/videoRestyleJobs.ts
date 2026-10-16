@@ -422,7 +422,6 @@ export async function queueRestylePilot(
   return updated
 }
 
-
 /** Queue a whole-source pass only after a completed, personally reviewable pilot. */
 export async function queueRestyleFull(
   userId: number,

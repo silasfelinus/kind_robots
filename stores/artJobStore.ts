@@ -177,6 +177,7 @@ type ArtJobState = {
    */
   failedImageKeys: string[]
   jobStatusFilter: ArtJobStatus | 'ALL'
+  focusedJobId: number | null
   jobPage: number
   jobPageSize: number
   jobTotalCount: number
@@ -219,6 +220,7 @@ export const useArtJobStore = defineStore('artJobStore', () => {
     loadingImageIds: [],
     failedImageKeys: [],
     jobStatusFilter: 'PENDING',
+    focusedJobId: null,
     jobPage: 1,
     jobPageSize: DEFAULT_JOB_PAGE_SIZE,
     jobTotalCount: 0,
@@ -426,6 +428,7 @@ export const useArtJobStore = defineStore('artJobStore', () => {
         pageSize: String(state.jobPageSize),
       })
       if (status !== 'ALL') params.set('status', status)
+      if (state.focusedJobId !== null) params.set('jobId', String(state.focusedJobId))
 
       const res = await performFetch<{
         jobs: ArtJobRecord[]
@@ -443,6 +446,10 @@ export const useArtJobStore = defineStore('artJobStore', () => {
     } finally {
       state.loadingJobs = false
     }
+  }
+
+  function focusJob(jobId: number | null): void {
+    state.focusedJobId = jobId
   }
 
   async function setJobPage(page: number): Promise<void> {
@@ -722,6 +729,7 @@ export const useArtJobStore = defineStore('artJobStore', () => {
     stopQueueBadgePolling,
     fetchUptime,
     fetchJobs,
+    focusJob,
     setJobPage,
     setJobPageSize,
     fetchTrainerJobs,

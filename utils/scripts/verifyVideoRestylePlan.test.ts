@@ -79,3 +79,12 @@ assert.ok(
 )
 assert.match(studio, /ArtJob registration failed:/)
 assert.match(studio, /Register in ArtJob/)
+
+const artQueueList = readFileSync('server/api/art/queue/index.get.ts', 'utf8')
+const artQueueStore = readFileSync('stores/artJobStore.ts', 'utf8')
+const artQueueView = readFileSync('components/art/artjob-queue-browser.vue', 'utf8')
+assert.ok(artQueueList.includes("where.id = jobId"))
+assert.ok(artQueueStore.includes("params.set('jobId', String(state.focusedJobId))"))
+assert.ok(artQueueView.includes("route.query.jobId"))
+assert.ok(artQueueView.includes("Showing ArtJob #"))
+assert.ok(studio.includes("query: { jobId: store.selected.pilot.artJobId }"))

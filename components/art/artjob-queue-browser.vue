@@ -19,6 +19,16 @@
     -->
     <div v-else class="grid kr-scroll content-start gap-2 p-2">
       <div
+        v-if="artJobStore.focusedJobId !== null"
+        class="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-primary/30 bg-base-100 px-3 py-2 text-xs"
+        role="status"
+      >
+        <strong>Showing ArtJob #{{ artJobStore.focusedJobId }}</strong>
+        <button type="button" class="kr-btn-outline-xs" @click="showAllJobs">
+          Show all jobs
+        </button>
+      </div>
+      <div
         class="flex flex-wrap items-center gap-1 rounded-2xl border border-base-300 bg-base-100 p-1.5 shadow-sm"
       >
         <button
@@ -389,6 +399,7 @@ import type { Server } from '@/stores/serverStore'
 type EditorAction = 'EDIT' | 'NEW_OUTPUT' | 'OVERWRITE'
 
 const artJobStore = useArtJobStore()
+const route = useRoute()
 const loadStore = useLoadStore()
 const serverStore = useServerStore()
 const userStore = useUserStore()
@@ -554,8 +565,14 @@ function openEditor(job: ArtJobRecord, action: EditorAction): void {
 }
 
 async function changeStatus(status: ArtJobStatus | 'ALL'): Promise<void> {
+  artJobStore.focusJob(null)
   queueLoadMessage.value = loadStore.randomLoadMessage()
   await artJobStore.fetchJobs(status, 1)
+}
+
+async function showAllJobs(): Promise<void> {
+  artJobStore.focusJob(null)
+  await loadInitialJobs()
 }
 
 async function applyPageSize(): Promise<void> {
@@ -622,7 +639,18 @@ onMounted(async () => {
   // content". Cached jobs from the last visit stay on screen while the stats
   // and the chosen tab load, so there is no spinner flash.
   queueLoadMessage.value = loadStore.randomLoadMessage()
-  await loadInitialJobs()
+  const focusedJobId = Number(route.query.jobId)
+  if (
+    route.query.jobId !== undefined &&
+    Number.isSafeInteger(focusedJobId) &&
+    focusedJobId > 0
+  ) {
+    artJobStore.focusJob(focusedJobId)
+    await artJobStore.fetchJobs('ALL', 1)
+  } else {
+    artJobStore.focusJob(null)
+    await loadInitialJobs()
+  }
   void loadSecondaryDashboardData({ includeStats: false })
 })
 </script>

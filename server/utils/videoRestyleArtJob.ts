@@ -351,6 +351,15 @@ export async function syncRestyleFullArtJob(
           found.error || job.error || 'KR Relay could not finish the film.',
       }
     }
+    // A new relay poll can release abandoned claims back to PENDING. Do not
+    // resurrect the orphaned RUNNING manifest or steal its queue slot.
+    if (found.status === 'PENDING' && job.status === 'FULL_RUNNING') {
+      return {
+        ...job,
+        status: 'FULL_QUEUED',
+        stage: 'Full render awaiting relay recovery; completed windows preserved.',
+      }
+    }
     if (found.status === 'RUNNING' && job.status === 'FULL_QUEUED') {
       return {
         ...job,
@@ -421,7 +430,11 @@ export async function retryFailedRestyleFullArtJob(
     })
   }
   const job = await loadRestyleJob(artJob.userId, String(video.id || ''))
-  if (!job.full || job.full.artJobId !== id || job.status !== 'FULL_FAILED') {
+  if (
+    !job.full ||
+    job.full.artJobId !== id ||
+    !['FULL_FAILED', 'FULL_RUNNING', 'FULL_QUEUED'].includes(job.status)
+  ) {
     throw createError({
       statusCode: 409,
       message: 'Full-film manifest is not eligible for retry.',

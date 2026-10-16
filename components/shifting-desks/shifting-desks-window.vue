@@ -74,7 +74,7 @@
         <span
           class="window-stamp-face font-mono text-lg font-black uppercase md:text-2xl lg:text-3xl"
         >
-          {{ stamp.id === 'approve' ? 'Approved' : 'Denied' }}
+          {{ stampFace(stamp) }}
         </span>
         <span class="text-xs opacity-80 md:text-sm lg:text-base">{{
           stamp.intent
@@ -101,6 +101,12 @@ const emit = defineEmits<{ stamp: [choice: Choice] }>()
 
 // The memo decides what PAL expects; the stamps only show their temptation,
 // never the audit hint, so reading the papers is the whole job.
+// Each desk names its own stamps ("Stamp APPROVED", "Stamp SAFE"); the face
+// shows the word on the rubber.
+function stampFace(stamp: Choice): string {
+  return stamp.label.replace(/^Stamp\s+/i, '')
+}
+
 const stamps = computed(() =>
   ['approve', 'deny']
     .map((id) => props.applicant.choices.find((c) => c.id === id))

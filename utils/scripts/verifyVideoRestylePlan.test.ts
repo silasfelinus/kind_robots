@@ -73,6 +73,9 @@ const refreshSource = storeSource.slice(
 assert.match(refreshSource, /['"]\/api\/video-restyle\/reconcile['"]/)
 assert.match(refreshSource, /method: 'POST'/)
 assert.match(refreshSource, /registrationError\.value/)
-assert.ok(refreshSource.indexOf('/api/video-restyle/reconcile') < refreshSource.indexOf("'/api/video-restyle'"))
+assert.ok(
+  refreshSource.indexOf('/api/video-restyle/reconcile') <
+    refreshSource.indexOf("'/api/video-restyle'"),
+)
 assert.match(studio, /ArtJob registration failed:/)
 assert.match(studio, /Register in ArtJob/)

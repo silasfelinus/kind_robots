@@ -38,6 +38,8 @@ export default defineEventHandler(async (event) => {
       style: field('style'),
       quality: field('quality'),
       durationSec: field('durationSec'),
+      isPrivate: field('isPrivate'),
+      isMature: field('isMature'),
     })
     event.node.res.statusCode = 201
     return {

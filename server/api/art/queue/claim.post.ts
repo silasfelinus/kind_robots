@@ -70,6 +70,7 @@ type ClaimRequestBody = {
   engines?: string[] | null
   supportsInputImages?: boolean | null
   supportsAudio?: boolean | null
+  supportsVideoRestyle?: boolean | null
   supportsCompletionProof?: boolean | null
   agentVersion?: string | null
   smartQueue?: boolean | null
@@ -106,6 +107,7 @@ export default defineEventHandler(async (event) => {
 
     const supportsInputImages = body?.supportsInputImages === true
     const supportsAudio = body?.supportsAudio === true
+    const supportsVideoRestyle = body?.supportsVideoRestyle === true
     const supportsCompletionProof = body?.supportsCompletionProof === true
     const smartQueue = body?.smartQueue !== false
     const singleSlot = body?.singleSlot !== false
@@ -320,6 +322,7 @@ export default defineEventHandler(async (event) => {
           artJobClaimableBy(candidate.payload, {
             supportsInputImages,
             supportsAudio,
+            supportsVideoRestyle,
           }),
         )
 

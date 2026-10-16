@@ -190,7 +190,7 @@ for (const players of [1, 4]) {
   let entered: number | null = null
   let cleared = false
   let before = a.snapshot
-  for (let frame = 0; frame < 110000 && !cleared; frame++) {
+  for (let frame = 0; frame < 130000 && !cleared; frame++) {
     a.update(emptyInput())
     b.update(emptyInput())
     const after = a.snapshot

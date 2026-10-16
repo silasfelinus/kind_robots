@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict'
 import { MOONJELLY } from '../arcade/games/rainbowMoonjelly'
+import { TRENCH } from '../arcade/games/rainbowTrench'
 import { AURELIA_MAX_HP } from '../arcade/games/rainbowMoonjellyBoss'
 import {
   BOSS_MAX_HP,
@@ -184,20 +185,24 @@ for (const { players, seed } of [
     hiScore: 0,
   })
   let actTwoAt = 0
+  let actThreeAt = 0
   let clean: number[] = []
-  for (let frame = 0; frame < 40 * MINUTE; frame++) {
+  for (let frame = 0; frame < 50 * MINUTE; frame++) {
     game.update(emptyInput())
     const s = game.snapshot
     if (s.act === 'S02' && actTwoAt === 0) actTwoAt = frame
-    if (s.act === 'S02' && s.stage === 'aftermath') {
+    if (s.act === 'S03' && actThreeAt === 0) actThreeAt = frame
+    if (s.act === 'S03' && s.stage === 'aftermath') {
+      // Each Act runs to the next one's start; Act III includes its closing A03.AFTER scene.
       clean = [
         actTwoAt / MINUTE,
-        (frame + 1 - actTwoAt + MOONJELLY.aftermathFrames) / MINUTE,
+        (actThreeAt - actTwoAt) / MINUTE,
+        (frame + 1 - actThreeAt + TRENCH.aftermathFrames) / MINUTE,
       ]
       break
     }
   }
-  assert.equal(clean.length, 2, 'the clean run clears Act II')
+  assert.equal(clean.length, 3, 'the clean run clears Act III')
   clean.forEach((minutes, index) =>
     assert.ok(
       minutes >= 10 && minutes <= 15,
@@ -205,7 +210,7 @@ for (const { players, seed } of [
     ),
   )
   summary.push(
-    `clean solo Act I ${clean[0]!.toFixed(2)} + Act II ${clean[1]!.toFixed(2)} min`,
+    `clean solo Act I ${clean[0]!.toFixed(2)} + Act II ${clean[1]!.toFixed(2)} + Act III ${clean[2]!.toFixed(2)} min`,
   )
 }
 

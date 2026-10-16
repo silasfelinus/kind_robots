@@ -451,14 +451,25 @@
               </div>
               <p class="text-base-content/70">{{ store.selected.stage }}</p>
               <NuxtLink
-                v-if="store.selected.full?.artJobId || store.selected.pilot?.artJobId"
+                v-if="
+                  store.selected.full?.artJobId ||
+                  store.selected.pilot?.artJobId
+                "
                 :to="{
                   path: '/artjob',
-                  query: { jobId: store.selected.full?.artJobId || store.selected.pilot?.artJobId },
+                  query: {
+                    jobId:
+                      store.selected.full?.artJobId ||
+                      store.selected.pilot?.artJobId,
+                  },
                 }"
                 class="inline-flex items-center gap-1 font-semibold text-primary hover:underline"
               >
-                View ArtJob #{{ store.selected.full?.artJobId || store.selected.pilot?.artJobId }} in the queue
+                View ArtJob #{{
+                  store.selected.full?.artJobId ||
+                  store.selected.pilot?.artJobId
+                }}
+                in the queue
               </NuxtLink>
               <div
                 v-else-if="store.selected.pilot"
@@ -477,7 +488,8 @@
               <p v-if="store.selected.full" class="text-base-content/70">
                 Full film · {{ store.selected.full.completedSegments }}/{{
                   store.selected.full.totalSegments
-                }} windows · {{ Math.round(store.selected.progress) }}%
+                }}
+                windows · {{ Math.round(store.selected.progress) }}%
               </p>
               <p v-else-if="store.selected.pilot" class="text-base-content/70">
                 {{ store.selected.pilot.completedSegments }}/{{
@@ -516,17 +528,29 @@
                 }}
               </button>
               <button
-                v-if="store.selected.status === 'REVIEW' && !store.selected.full"
+                v-if="
+                  store.selected.status === 'REVIEW' && !store.selected.full
+                "
                 type="button"
                 class="kr-btn kr-btn-primary w-full"
                 :disabled="store.busy || lookChanged"
                 @click="store.queueFull(store.selected.id)"
               >
-                {{ store.busy ? 'Queueing…' : `Render full ${formatRestyleTime(store.selected.sourceDurationSec)} film` }}
+                {{
+                  store.busy
+                    ? 'Queueing…'
+                    : `Render full ${formatRestyleTime(store.selected.sourceDurationSec)} film`
+                }}
               </button>
-              <p v-if="store.selected.status === 'REVIEW' && !store.selected.full" class="kr-text-faded-xs">
+              <p
+                v-if="
+                  store.selected.status === 'REVIEW' && !store.selected.full
+                "
+                class="kr-text-faded-xs"
+              >
                 Full-length rendering can run overnight. Completed windows are
-                reusable after interruptions. The original soundtrack is restored.
+                reusable after interruptions. The original soundtrack is
+                restored.
               </p>
               <button
                 v-if="store.selected.status === 'FULL_FAILED'"
@@ -535,7 +559,11 @@
                 :disabled="store.busy"
                 @click="store.retryFull(store.selected.id)"
               >
-                {{ store.busy ? 'Queueing…' : 'Resume full film using saved windows' }}
+                {{
+                  store.busy
+                    ? 'Queueing…'
+                    : 'Resume full film using saved windows'
+                }}
               </button>
               <button
                 v-if="store.selected.status === 'DONE' && store.selected.full"
@@ -780,7 +808,12 @@ onMounted(async () => {
     refreshTimer = setInterval(() => {
       if (
         store.jobs.some((job) =>
-          ['PILOT_QUEUED', 'PILOT_RUNNING', 'FULL_QUEUED', 'FULL_RUNNING'].includes(job.status),
+          [
+            'PILOT_QUEUED',
+            'PILOT_RUNNING',
+            'FULL_QUEUED',
+            'FULL_RUNNING',
+          ].includes(job.status),
         )
       ) {
         void store.refresh()

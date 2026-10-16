@@ -56,6 +56,25 @@ import {
 } from './rainbowMoonjelly'
 import { RAINBOW_LANES } from './rainbowFormations'
 import {
+  TRENCH,
+  TRENCH_SECTIONS,
+  TRENCH_WAVES,
+  TRENCH_WAVE_SIZES,
+  trenchDialogue,
+  trenchScene,
+  trenchSpawns,
+  trenchStage,
+  type TrenchEnemy,
+} from './rainbowTrench'
+import {
+  CLAWBURST_MAX_HP,
+  clawburstExposed,
+  clawburstWarning,
+  createClawburstBoss,
+  stepClawburstBoss,
+  type ClawburstBoss,
+} from './rainbowClawburst'
+import {
   createRainbowGuardian,
   RAINBOW_GUARDIAN,
   rainbowGuardianGone,
@@ -102,6 +121,43 @@ const ACT_TWO_CHECKPOINTS = actCheckpoints(
   MOONJELLY_SECTIONS,
   MOONJELLY.bossStarts,
 )
+const ACT_THREE_CHECKPOINTS = actCheckpoints(TRENCH_SECTIONS, TRENCH.bossStarts)
+/** A clawstrike shows its lane for this long before the bolt. */
+const CLAWSTRIKE_CHARGE_FRAMES = 36
+/** The trench walls a glassfin skate pellet glances off. */
+const WALL_TOP = 34
+const WALL_BOTTOM = 252
+const BASE_HEALTH: Record<string, number> = {
+  picket: 2,
+  spiral: 3,
+  anchor: 4,
+  lantern: 3,
+  relay: 4,
+  skimmer: 3,
+  coral: 6,
+  urchin: 5,
+  clawstrike: 4,
+  pistol: 5,
+  angler: 4,
+  skate: 3,
+}
+
+/** A pistol bubble bursts into an eight-pellet ring; an angler lure into a four-way cross. */
+function burstShots(bullet: EnemyShot): EnemyShot[] {
+  const ring = bullet.burst === 'ring'
+  const count = ring ? 8 : 4
+  const speed = ring ? 1.35 : 1.6
+  return Array.from({ length: count }, (_, i) => {
+    const theta = (i / count) * Math.PI * 2 + (ring ? Math.PI / 8 : 0)
+    return {
+      x: bullet.x,
+      y: bullet.y,
+      vx: Math.cos(theta) * speed,
+      vy: Math.sin(theta) * speed,
+      grazed: 0,
+    }
+  })
+}
 /** Presses this soon after the crew falls are fire-button carry-over, not a choice to continue. */
 const CONTINUE_GRACE_FRAMES = 30
 /** HUD text clears the cabinet's corner chips (close/fullscreen left, pause right). */
@@ -133,8 +189,10 @@ type Reef = {
   y: number
   phase: number
   health: number
-  kind: PinkwakeEnemy | MoonjellyEnemy
+  kind: PinkwakeEnemy | MoonjellyEnemy | TrenchEnemy
   fired: boolean
+  /** A clawstrike's lane mark: frames left before its bolt fires. */
+  charge?: number
   wave: number | null
 }
 type EnemyShot = {
@@ -143,6 +201,11 @@ type EnemyShot = {
   vx: number
   vy: number
   grazed: number
+  /** Frames until a pistol bubble or angler lure bursts. */
+  fuse?: number
+  burst?: 'ring' | 'cross'
+  /** Wall glances left for a glassfin skate pellet. */
+  bounces?: number
 }
 type Pickup = { x: number; y: number; kind: 'power' | 'shield' | 'charge' }
 type GuardianOutcome = 'waiting' | 'defeated' | 'escaped'
@@ -155,8 +218,11 @@ export type RainbowCombatSnapshot = {
   enemies: ReadonlyArray<Readonly<Reef>>
   enemyShots: ReadonlyArray<Readonly<EnemyShot>>
   pickups: ReadonlyArray<Readonly<Pickup>>
-  act: 'S01' | 'S02'
-  stage: ReturnType<typeof pinkwakeStage> | ReturnType<typeof moonjellyStage>
+  act: 'S01' | 'S02' | 'S03'
+  stage:
+    | ReturnType<typeof pinkwakeStage>
+    | ReturnType<typeof moonjellyStage>
+    | ReturnType<typeof trenchStage>
   sceneId:
     | 'A01.OPEN'
     | 'A01.TURN'
@@ -164,14 +230,19 @@ export type RainbowCombatSnapshot = {
     | 'A02.OPEN'
     | 'A02.TURN'
     | 'A02.AFTER'
+    | 'A03.OPEN'
+    | 'A03.TURN'
+    | 'A03.AFTER'
     | null
   boss: Readonly<PinkwakeBoss> | null
   moonBoss: Readonly<MoonjellyBoss> | null
+  clawBoss: Readonly<ClawburstBoss> | null
   guardian: Readonly<RainbowGuardian> | null
   /** Each Act's guardian: still to come (or in play), destroyed, or escaped. */
   guardians: Readonly<Record<1 | 2, GuardianOutcome>>
   rescuedNemi: boolean
   actTwoFrame: number
+  actThreeFrame: number
   rescuedStation: boolean
   defeatedAt: number | null
   activePlayers: number
@@ -227,6 +298,10 @@ export function createRainbowPrincessPreview(
   }
   let moonBossCarryHp: number | null = null
   let moonDefeatedFrame: number | null = null
+  let trenchStart: number | null = null
+  let clawBoss: ClawburstBoss | null = null
+  let clawBossCarryHp: number | null = null
+  let trenchDefeatedFrame: number | null = null
   let rescuedNemi = false
   let nemi: { x: number; y: number } | null = null
   const waveSpawned = new Map<number, number>()
@@ -246,6 +321,25 @@ export function createRainbowPrincessPreview(
   const popups: Array<{ x: number; y: number; text: string; age: number }> = []
   function moonFrame() {
     return moonStart === null ? 0 : tick - moonStart
+  }
+  function trenchFrame() {
+    return trenchStart === null ? 0 : tick - trenchStart
+  }
+  function currentAct(): 1 | 2 | 3 {
+    return trenchStart !== null ? 3 : moonStart !== null ? 2 : 1
+  }
+
+  function defeatClawBoss() {
+    if (!clawBoss || trenchDefeatedFrame !== null) return
+    clawBoss = null
+    trenchDefeatedFrame = trenchFrame()
+    reefs.length = 0
+    enemyShots.length = 0
+    score += 4500
+    for (const ship of ships.slice(0, activePlayers)) {
+      ship.invulnerable = Math.max(ship.invulnerable, 240)
+    }
+    options.sound.play('level')
   }
 
   function defeatMoonBoss() {
@@ -269,7 +363,7 @@ export function createRainbowPrincessPreview(
   }
 
   function spawn(
-    kind: PinkwakeEnemy | MoonjellyEnemy,
+    kind: PinkwakeEnemy | MoonjellyEnemy | TrenchEnemy,
     y?: number,
     wave: number | null = null,
   ) {
@@ -281,24 +375,7 @@ export function createRainbowPrincessPreview(
       x: W + 18,
       y: y ?? 40 + options.rng() * (H - 80),
       phase: wave === null ? options.rng() * Math.PI * 2 : wave * 0.9,
-      health: coopEnemyHealth(
-        kind === 'picket'
-          ? 2
-          : kind === 'spiral'
-            ? 3
-            : kind === 'anchor'
-              ? 4
-              : kind === 'lantern'
-                ? 3
-                : kind === 'relay'
-                  ? 4
-                  : kind === 'skimmer'
-                    ? 3
-                    : kind === 'coral'
-                      ? 6
-                      : 5,
-        activePlayers,
-      ),
+      health: coopEnemyHealth(BASE_HEALTH[kind] ?? 5, activePlayers),
       kind,
       fired: false,
       wave,
@@ -311,9 +388,11 @@ export function createRainbowPrincessPreview(
     const left = (waveLeft.get(reef.wave) ?? 1) - 1
     waveLeft.set(reef.wave, left)
     const size =
-      (reef.wave >= MOONJELLY.waveBase
-        ? MOONJELLY_WAVE_SIZES[reef.wave - MOONJELLY.waveBase]
-        : PINKWAKE_WAVE_SIZES[reef.wave]) ?? 0
+      (reef.wave >= TRENCH.waveBase
+        ? TRENCH_WAVE_SIZES[reef.wave - TRENCH.waveBase]
+        : reef.wave >= MOONJELLY.waveBase
+          ? MOONJELLY_WAVE_SIZES[reef.wave - MOONJELLY.waveBase]
+          : PINKWAKE_WAVE_SIZES[reef.wave]) ?? 0
     if (
       left > 0 ||
       size < RAINBOW_LANES.schoolSize ||
@@ -328,9 +407,15 @@ export function createRainbowPrincessPreview(
   }
 
   /** Remember the run as it stands when the Act clock reaches one of its checkpoints. */
-  function passCheckpoint(act: 1 | 2, frame: number) {
+  function passCheckpoint(act: 1 | 2 | 3, frame: number) {
     if (
-      !(act === 1 ? ACT_ONE_CHECKPOINTS : ACT_TWO_CHECKPOINTS).includes(frame)
+      !(
+        act === 1
+          ? ACT_ONE_CHECKPOINTS
+          : act === 2
+            ? ACT_TWO_CHECKPOINTS
+            : ACT_THREE_CHECKPOINTS
+      ).includes(frame)
     )
       return
     if (checkpoint.act === act && frame <= checkpoint.frame) return
@@ -354,10 +439,24 @@ export function createRainbowPrincessPreview(
     continueLeft = 0
     continues++
     const cleared =
-      checkpoint.act === 1 ? defeatedAt !== null : moonDefeatedFrame !== null
+      checkpoint.act === 1
+        ? defeatedAt !== null
+        : checkpoint.act === 2
+          ? moonDefeatedFrame !== null
+          : trenchDefeatedFrame !== null
     if (!cleared) {
-      const waves = checkpoint.act === 1 ? PINKWAKE_WAVES : MOONJELLY_WAVES
-      const base = checkpoint.act === 1 ? 0 : MOONJELLY.waveBase
+      const waves: ReadonlyArray<{ at: number }> =
+        checkpoint.act === 1
+          ? PINKWAKE_WAVES
+          : checkpoint.act === 2
+            ? MOONJELLY_WAVES
+            : TRENCH_WAVES
+      const base =
+        checkpoint.act === 1
+          ? 0
+          : checkpoint.act === 2
+            ? MOONJELLY.waveBase
+            : TRENCH.waveBase
       waves.forEach((entry, index) => {
         const id = base + index
         if (entry.at >= checkpoint.frame) {
@@ -366,17 +465,21 @@ export function createRainbowPrincessPreview(
           brokenWaves.delete(id)
         } else if ((waveLeft.get(id) ?? 0) > 0) brokenWaves.add(id)
       })
-      tick = resumeTick(checkpoint, moonStart)
+      tick = resumeTick(checkpoint, moonStart, trenchStart)
       // A guardian whose section lies after the checkpoint flies again; one already behind it does not.
       guardian = null
-      const section =
-        checkpoint.act === 1 ? PINKWAKE_GUARDIAN : MOONJELLY_GUARDIAN
-      if (checkpoint.frame <= section.from)
-        guardians[checkpoint.act] = 'waiting'
+      if (checkpoint.act !== 3) {
+        const section =
+          checkpoint.act === 1 ? PINKWAKE_GUARDIAN : MOONJELLY_GUARDIAN
+        if (checkpoint.frame <= section.from)
+          guardians[checkpoint.act] = 'waiting'
+      }
       if (boss) bossCarryHp = boss.hp
       if (moonBoss) moonBossCarryHp = moonBoss.hp
+      if (clawBoss) clawBossCarryHp = clawBoss.hp
       boss = null
       moonBoss = null
+      clawBoss = null
       station = null
       nemi = null
       score = checkpoint.score
@@ -470,6 +573,10 @@ export function createRainbowPrincessPreview(
       moonBoss.hp -= seat === 1 ? 28 : 20
       if (moonBoss.hp <= 0) defeatMoonBoss()
     }
+    if (clawBoss && clawBoss.frame > 85) {
+      clawBoss.hp -= seat === 1 ? 28 : 20
+      if (clawBoss.hp <= 0) defeatClawBoss()
+    }
     if (guardian && guardian.frame > 60) {
       guardian.hp -= seat === 1 ? 28 : 20
       if (guardian.hp <= 0) defeatGuardian(seat)
@@ -523,6 +630,47 @@ export function createRainbowPrincessPreview(
     const dx = target.x - reef.x
     const dy = target.y - reef.y
     const length = Math.hypot(dx, dy) || 1
+    if (reef.kind === 'pistol') {
+      enemyShots.push({
+        x: reef.x - 8,
+        y: reef.y,
+        vx: (dx / length) * 1.15,
+        vy: (dy / length) * 1.15,
+        grazed: 0,
+        fuse: 75,
+        burst: 'ring',
+      })
+      return
+    }
+    if (reef.kind === 'angler') {
+      // The lure drifts like a pickup and flashes its cross for its last 36 frames.
+      enemyShots.push({
+        x: reef.x - 8,
+        y: reef.y,
+        vx: -0.9,
+        vy: 0,
+        grazed: 0,
+        fuse: 100,
+        burst: 'cross',
+      })
+      return
+    }
+    if (reef.kind === 'skate') {
+      // Aim at the pilot's reflection in the nearer wall, so the pellet glances off it once.
+      const wall = target.y < H / 2 ? WALL_TOP : WALL_BOTTOM
+      const mx = target.x - reef.x
+      const my = 2 * wall - target.y - reef.y
+      const reach = Math.hypot(mx, my) || 1
+      enemyShots.push({
+        x: reef.x - 8,
+        y: reef.y,
+        vx: (mx / reach) * 2.1,
+        vy: (my / reach) * 2.1,
+        grazed: 0,
+        bounces: 1,
+      })
+      return
+    }
     const vx = (dx / length) * 2.15
     const vy = (dy / length) * 2.15
     enemyShots.push({ x: reef.x - 8, y: reef.y, vx, vy, grazed: 0 })
@@ -671,6 +819,16 @@ export function createRainbowPrincessPreview(
       pickups.length = 0
       station = null
     }
+    if (
+      trenchStart === null &&
+      moonDefeatedFrame !== null &&
+      moonFrame() - moonDefeatedFrame >= MOONJELLY.aftermathFrames
+    ) {
+      trenchStart = tick
+      shots.length = 0
+      pickups.length = 0
+      nemi = null
+    }
     if (moonStart === null) {
       const stage = pinkwakeStage(tick, defeatedAt)
       if (defeatedAt === null) {
@@ -689,7 +847,7 @@ export function createRainbowPrincessPreview(
         boss = createPinkwakeBoss(rainbowBossHp(BOSS_MAX_HP, activePlayers))
         if (bossCarryHp !== null) boss.hp = Math.min(boss.hp, bossCarryHp)
       }
-    } else {
+    } else if (trenchStart === null) {
       const frame = moonFrame()
       const stage = moonjellyStage(frame, moonDefeatedFrame)
       if (moonDefeatedFrame === null) {
@@ -715,6 +873,28 @@ export function createRainbowPrincessPreview(
         )
         if (moonBossCarryHp !== null)
           moonBoss.hp = Math.min(moonBoss.hp, moonBossCarryHp)
+      }
+    } else {
+      const frame = trenchFrame()
+      const stage = trenchStage(frame, trenchDefeatedFrame)
+      if (trenchDefeatedFrame === null) passCheckpoint(3, frame)
+      if (stage === 'waves') {
+        for (const entry of trenchSpawns(frame)) {
+          spawn(entry.kind, entry.y, entry.wave)
+        }
+      } else if (stage === 'turn' && frame === TRENCH.turnStarts) {
+        reefs.length = 0
+        enemyShots.length = 0
+      } else if (
+        stage === 'boss' &&
+        !clawBoss &&
+        trenchDefeatedFrame === null
+      ) {
+        clawBoss = createClawburstBoss(
+          rainbowBossHp(CLAWBURST_MAX_HP, activePlayers),
+        )
+        if (clawBossCarryHp !== null)
+          clawBoss.hp = Math.min(clawBoss.hp, clawBossCarryHp)
       }
     }
 
@@ -746,20 +926,43 @@ export function createRainbowPrincessPreview(
     }
     for (const reef of reefs) {
       reef.x -=
-        reef.kind === 'anchor'
-          ? 0.65
-          : reef.kind === 'coral'
-            ? 0.8
-            : reef.kind === 'urchin'
-              ? 0.9
-              : 1.25
-      reef.y +=
-        Math.sin(tick / (reef.kind === 'spiral' ? 14 : 24) + reef.phase) *
-        (reef.kind === 'spiral' ? 1.3 : 0.55)
+        reef.kind === 'clawstrike'
+          ? 0.7
+          : reef.kind === 'pistol'
+            ? 0.95
+            : reef.kind === 'angler'
+              ? 0.8
+              : reef.kind === 'skate'
+                ? 1.35
+                : reef.kind === 'anchor'
+                  ? 0.65
+                  : reef.kind === 'coral'
+                    ? 0.8
+                    : reef.kind === 'urchin'
+                      ? 0.9
+                      : 1.25
+      // A clawstrike holds its lane steady so the mark it shows is the lane its bolt flies.
+      if (reef.kind !== 'clawstrike')
+        reef.y +=
+          Math.sin(tick / (reef.kind === 'spiral' ? 14 : 24) + reef.phase) *
+          (reef.kind === 'spiral' ? 1.3 : 0.55)
       if (!reef.fired && reef.x < W - 50) {
         reef.fired = true
-        fireEnemy(reef)
-      }
+        if (reef.kind === 'clawstrike') reef.charge = CLAWSTRIKE_CHARGE_FRAMES
+        else fireEnemy(reef)
+      } else if (
+        reef.charge !== undefined &&
+        reef.charge > 0 &&
+        --reef.charge === 0
+      )
+        // The mark is drawn for the full 36 frames, then the bolt flies down it.
+        enemyShots.push({
+          x: reef.x - 10,
+          y: reef.y,
+          vx: -4.4,
+          vy: 0,
+          grazed: 0,
+        })
     }
     if (boss) {
       enemyShots.push(...stepPinkwakeBoss(boss, ships.slice(0, activePlayers)))
@@ -783,6 +986,11 @@ export function createRainbowPrincessPreview(
     if (moonBoss) {
       enemyShots.push(
         ...stepMoonjellyBoss(moonBoss, ships.slice(0, activePlayers)),
+      )
+    }
+    if (clawBoss) {
+      enemyShots.push(
+        ...stepClawburstBoss(clawBoss, ships.slice(0, activePlayers)),
       )
     }
     if (nemi) {
@@ -826,9 +1034,19 @@ export function createRainbowPrincessPreview(
         options.sound.play('pickup')
       }
     }
-    for (const bullet of enemyShots) {
+    for (let bi = enemyShots.length - 1; bi >= 0; bi--) {
+      const bullet = enemyShots[bi]!
       bullet.x += bullet.vx
       bullet.y += bullet.vy
+      if (bullet.bounces && (bullet.y < WALL_TOP || bullet.y > WALL_BOTTOM)) {
+        bullet.vy = -bullet.vy
+        bullet.y = Math.max(WALL_TOP, Math.min(WALL_BOTTOM, bullet.y))
+        bullet.bounces--
+      }
+      if (bullet.fuse !== undefined && --bullet.fuse <= 0) {
+        enemyShots.splice(bi, 1)
+        enemyShots.push(...burstShots(bullet))
+      }
     }
     for (const pickup of pickups) pickup.x -= 0.8
 
@@ -875,6 +1093,17 @@ export function createRainbowPrincessPreview(
         shots.splice(si, 1)
         moonBoss.hp -= shot.damage
         if (moonBoss.hp <= 0) defeatMoonBoss()
+      }
+      if (
+        clawBoss &&
+        clawBoss.frame > 85 &&
+        Math.hypot(shot.x - (clawBoss.x - 17), shot.y - clawBoss.y) < 40
+      ) {
+        shots.splice(si, 1)
+        // The cracked cannon after a punch takes double damage.
+        clawBoss.hp -= shot.damage * (clawburstExposed(clawBoss) ? 2 : 1)
+        if (clawBoss.hp <= 0) defeatClawBoss()
+        continue
       }
     }
 
@@ -984,7 +1213,7 @@ export function createRainbowPrincessPreview(
       return score
     },
     get level() {
-      return moonStart === null ? 1 : 2
+      return currentAct()
     },
     get lives() {
       return ships
@@ -1005,21 +1234,27 @@ export function createRainbowPrincessPreview(
         enemies: reefs.map((reef) => ({ ...reef })),
         enemyShots: enemyShots.map((bullet) => ({ ...bullet })),
         pickups: pickups.map((pickup) => ({ ...pickup })),
-        act: moonStart === null ? 'S01' : 'S02',
+        act: (['S01', 'S02', 'S03'] as const)[currentAct() - 1]!,
         stage:
-          moonStart === null
+          currentAct() === 1
             ? pinkwakeStage(tick, defeatedAt)
-            : moonjellyStage(moonFrame(), moonDefeatedFrame),
+            : currentAct() === 2
+              ? moonjellyStage(moonFrame(), moonDefeatedFrame)
+              : trenchStage(trenchFrame(), trenchDefeatedFrame),
         sceneId:
-          moonStart === null
+          currentAct() === 1
             ? (pinkwakeScene(tick, defeatedAt)?.id ?? null)
-            : (moonjellyScene(moonFrame(), moonDefeatedFrame)?.id ?? null),
+            : currentAct() === 2
+              ? (moonjellyScene(moonFrame(), moonDefeatedFrame)?.id ?? null)
+              : (trenchScene(trenchFrame(), trenchDefeatedFrame)?.id ?? null),
         boss: boss ? { ...boss } : null,
         moonBoss: moonBoss ? { ...moonBoss } : null,
+        clawBoss: clawBoss ? { ...clawBoss } : null,
         guardian: guardian ? { ...guardian } : null,
         guardians: { ...guardians },
         rescuedNemi,
         actTwoFrame: moonFrame(),
+        actThreeFrame: trenchFrame(),
         rescuedStation,
         defeatedAt,
         schoolBonuses,
@@ -1031,9 +1266,14 @@ export function createRainbowPrincessPreview(
     update,
     render(g: CanvasRenderingContext2D) {
       const sky = g.createLinearGradient(0, 0, 0, H)
-      sky.addColorStop(0, moonStart === null ? '#100d40' : '#072f50')
-      sky.addColorStop(0.55, moonStart === null ? '#6d427e' : '#357a91')
-      sky.addColorStop(1, moonStart === null ? '#ed9dbb' : '#ae9fe3')
+      const palette = [
+        ['#100d40', '#6d427e', '#ed9dbb'],
+        ['#072f50', '#357a91', '#ae9fe3'],
+        ['#0b0626', '#2a1a55', '#7a2f52'],
+      ][currentAct() - 1]!
+      sky.addColorStop(0, palette[0]!)
+      sky.addColorStop(0.55, palette[1]!)
+      sky.addColorStop(1, palette[2]!)
       g.fillStyle = sky
       g.fillRect(0, 0, W, H)
       for (let plane = 0; plane < 4; plane++) {
@@ -1058,7 +1298,36 @@ export function createRainbowPrincessPreview(
         g.ellipse(x, 244 + Math.sin(i) * 12, 56, 25, 0, 0, Math.PI * 2)
         g.fill()
       }
-      if (moonStart !== null) {
+      if (trenchStart !== null) {
+        // Chromatic Trench: indigo void, rock ribs and volcanic vents breathing heat.
+        const frame = trenchFrame()
+        for (let plane = 0; plane < 3; plane++) {
+          const speed = 0.18 + plane * 0.3
+          g.fillStyle = ['#3a225c88', '#4b2a6aaa', '#2a1440cc'][plane]!
+          for (let i = 0; i < 5; i++) {
+            const x =
+              ((((i * 137 + plane * 41 - frame * speed) % 700) + 700) % 700) -
+              90
+            const height = 70 + ((i * 53 + plane * 31) % 60) + plane * 18
+            g.beginPath()
+            g.moveTo(x, H)
+            g.lineTo(x + 22, H - height)
+            g.lineTo(x + 48, H - height + 18)
+            g.lineTo(x + 70, H)
+            g.closePath()
+            g.fill()
+          }
+        }
+        for (let i = 0; i < 4; i++) {
+          const x = ((((i * 160 - frame * 0.55) % 640) + 640) % 640) - 40
+          const glow = 0.35 + 0.25 * Math.sin(frame / 20 + i * 1.7)
+          g.fillStyle = `rgba(255, 140, 90, ${glow.toFixed(3)})`
+          g.beginPath()
+          g.ellipse(x, H - 30, 10, 60, 0, 0, Math.PI * 2)
+          g.fill()
+        }
+      }
+      if (moonStart !== null && trenchStart === null) {
         for (let plane = 0; plane < 4; plane++) {
           const speed = 0.12 + plane * 0.21
           g.lineWidth = 1 + plane * 0.8
@@ -1103,13 +1372,31 @@ export function createRainbowPrincessPreview(
       g.globalAlpha = 0.92
       drawRainbowStageStrip(
         g,
-        moonStart === null ? 's01' : 's02',
-        (moonStart === null ? tick : moonFrame()) * STRIP_SPEED,
+        (['s01', 's02', 's03'] as const)[currentAct() - 1]!,
+        (currentAct() === 1
+          ? tick
+          : currentAct() === 2
+            ? moonFrame()
+            : trenchFrame()) * STRIP_SPEED,
         H - STRIP_HEIGHT,
         STRIP_HEIGHT,
         W,
       )
       g.restore()
+      for (const reef of reefs) {
+        if (!reef.charge) continue
+        g.save()
+        g.strokeStyle = '#ffb38a'
+        g.globalAlpha =
+          0.45 + 0.4 * (1 - reef.charge / CLAWSTRIKE_CHARGE_FRAMES)
+        g.lineWidth = 2
+        g.setLineDash([6, 5])
+        g.beginPath()
+        g.moveTo(reef.x - 12, reef.y)
+        g.lineTo(0, reef.y)
+        g.stroke()
+        g.restore()
+      }
       for (const reef of reefs) {
         g.save()
         g.translate(reef.x, reef.y)
@@ -1361,7 +1648,133 @@ export function createRainbowPrincessPreview(
         g.fillText('B02 AURELIA ARRAY', 240, 53)
         g.textAlign = 'left'
       }
+      if (clawBoss) {
+        const warn = clawburstWarning(clawBoss)
+        const exposed = clawburstExposed(clawBoss)
+        if (warn && clawBoss.phase !== 2) {
+          // The rail and the punch fire down the lane their warning marks.
+          g.save()
+          g.strokeStyle = '#ffd1a8'
+          g.globalAlpha = 0.55
+          g.lineWidth = 3
+          g.setLineDash([8, 6])
+          g.beginPath()
+          g.moveTo(clawBoss.x - 34, clawBoss.y)
+          g.lineTo(80, clawBoss.aimY)
+          g.stroke()
+          g.restore()
+        }
+        g.save()
+        g.translate(clawBoss.x, clawBoss.y)
+        g.shadowColor = exposed ? '#ff7a6b' : warn ? '#fff49c' : '#ffb38a'
+        g.shadowBlur = warn || exposed ? 25 : 12
+        if (drawRainbowBossSprite(g, 'b03', clawBoss.phase, -10, 0, 110)) {
+          g.shadowBlur = 0
+          // The ring pulses but never fades below three quarters, so a phone-sized canvas still shows it.
+          if (warn) {
+            g.strokeStyle = '#fffbb6'
+            g.lineWidth = 4
+            g.globalAlpha = 0.75 + 0.25 * Math.sin(clawBoss.frame / 3)
+            g.beginPath()
+            g.arc(-17, 0, 47, 0, Math.PI * 2)
+            g.stroke()
+            g.globalAlpha = 1
+          }
+        } else {
+          g.fillStyle = clawBoss.phase === 3 ? '#ff8f7a' : '#ffb38a'
+          g.strokeStyle = warn ? '#fffbb6' : '#6b2f4a'
+          g.lineWidth = warn ? 5 : 3
+          g.beginPath()
+          g.ellipse(0, 0, 44, 30, 0, 0, Math.PI * 2)
+          g.fill()
+          g.stroke()
+          g.fillRect(-58, -6, 22, 12)
+        }
+        if (exposed) {
+          g.strokeStyle = '#ff7a6b'
+          g.lineWidth = 3
+          g.beginPath()
+          g.arc(-34, 0, 14 + 3 * Math.sin(clawBoss.frame / 2), 0, Math.PI * 2)
+          g.stroke()
+        }
+        g.restore()
+        g.fillStyle = '#2a0f30'
+        g.fillRect(148, 30, 184, 14)
+        g.fillStyle = '#ffb38a'
+        g.fillRect(150, 32, 180 * Math.max(0, clawBoss.hp / clawBoss.maxHp), 10)
+        g.strokeStyle = '#fff4c4'
+        g.lineWidth = 1
+        g.strokeRect(148, 30, 184, 14)
+        g.textAlign = 'center'
+        g.font = 'bold 8px monospace'
+        g.fillStyle = '#fff4c4'
+        g.fillText(
+          exposed ? 'B03 CLAWBURST · CANNON OPEN' : 'B03 CLAWBURST',
+          240,
+          53,
+        )
+        g.textAlign = 'left'
+      }
       for (const bullet of enemyShots) {
+        if (bullet.burst === 'cross' && bullet.fuse !== undefined) {
+          // Angler lure: a false pickup halo that flashes the cross it is about to fire.
+          if (bullet.fuse <= 36) {
+            g.save()
+            g.strokeStyle = '#ff8a8a'
+            g.globalAlpha = 0.5 + 0.3 * Math.sin(bullet.fuse / 2)
+            g.lineWidth = 2
+            g.beginPath()
+            g.moveTo(bullet.x - 70, bullet.y)
+            g.lineTo(bullet.x + 70, bullet.y)
+            g.moveTo(bullet.x, bullet.y - 70)
+            g.lineTo(bullet.x, bullet.y + 70)
+            g.stroke()
+            g.restore()
+          }
+          g.fillStyle = '#ffe08a'
+          g.beginPath()
+          g.arc(bullet.x, bullet.y, 6, 0, Math.PI * 2)
+          g.fill()
+          g.strokeStyle = '#ffffff'
+          g.lineWidth = 2
+          g.beginPath()
+          g.arc(
+            bullet.x,
+            bullet.y,
+            9 + (bullet.fuse % 12 < 6 ? 2 : 0),
+            0,
+            Math.PI * 2,
+          )
+          g.stroke()
+          continue
+        }
+        if (bullet.burst === 'ring' && bullet.fuse !== undefined) {
+          // Pistol bubble: swells as it ripens into its ring.
+          const r = 6 + (1 - bullet.fuse / 75) * 6
+          g.fillStyle = '#9ee7ff55'
+          g.beginPath()
+          g.arc(bullet.x, bullet.y, r, 0, Math.PI * 2)
+          g.fill()
+          g.strokeStyle = bullet.fuse < 20 ? '#ffffff' : '#9ee7ff'
+          g.lineWidth = 2
+          g.stroke()
+          continue
+        }
+        if (bullet.bounces) {
+          // Skate glass: a diamond that has not yet glanced off the wall.
+          g.fillStyle = '#a6fff0'
+          g.beginPath()
+          g.moveTo(bullet.x, bullet.y - 6)
+          g.lineTo(bullet.x + 5, bullet.y)
+          g.lineTo(bullet.x, bullet.y + 6)
+          g.lineTo(bullet.x - 5, bullet.y)
+          g.closePath()
+          g.fill()
+          g.strokeStyle = '#1b163e'
+          g.lineWidth = 1.5
+          g.stroke()
+          continue
+        }
         g.fillStyle = '#1b163e'
         g.beginPath()
         g.arc(bullet.x, bullet.y, 5, 0, Math.PI * 2)
@@ -1505,9 +1918,11 @@ export function createRainbowPrincessPreview(
         g.restore()
       }
       // Act intro splash: the painted title card fades in under the opening comms while no craft spawn.
-      const introFrame = moonStart === null ? tick : moonFrame()
+      const act = currentAct()
+      const introFrame =
+        act === 1 ? tick : act === 2 ? moonFrame() : trenchFrame()
       if (introFrame < INTRO_FRAMES && (moonStart !== null || !defeatedAt)) {
-        const stage = moonStart === null ? 's01' : 's02'
+        const stage = (['s01', 's02', 's03'] as const)[act - 1]!
         const top = 33 + Math.max(0, activePlayers - 1) * 10 + 60
         g.save()
         g.globalAlpha =
@@ -1520,10 +1935,12 @@ export function createRainbowPrincessPreview(
         g.fillStyle = '#ffe7f5'
         g.textAlign = 'center'
         g.font = 'bold 8px monospace'
-        g.fillText(moonStart === null ? 'ACT I' : 'ACT II', W / 2, bandY + 9)
+        g.fillText(['ACT I', 'ACT II', 'ACT III'][act - 1]!, W / 2, bandY + 9)
         g.font = 'bold 10px monospace'
         g.fillText(
-          moonStart === null ? 'PINKWAKE ESTUARY' : 'MOONJELLY FIELDS',
+          ['PINKWAKE ESTUARY', 'MOONJELLY FIELDS', 'CHROMATIC TRENCH'][
+            act - 1
+          ]!,
           W / 2,
           bandY + 19,
         )
@@ -1534,7 +1951,9 @@ export function createRainbowPrincessPreview(
       g.fillStyle = '#ffe7f5'
       g.font = 'bold 10px monospace'
       g.fillText(
-        moonStart === null ? 'ACT I / PINKWAKE' : 'ACT II / MOONJELLY',
+        ['ACT I / PINKWAKE', 'ACT II / MOONJELLY', 'ACT III / TRENCH'][
+          act - 1
+        ]!,
         HUD_LEFT,
         12,
       )
@@ -1557,23 +1976,31 @@ export function createRainbowPrincessPreview(
       }
       g.textAlign = 'left'
       const scene =
-        moonStart === null
+        act === 1
           ? pinkwakeScene(tick, defeatedAt)
-          : moonjellyScene(moonFrame(), moonDefeatedFrame)
+          : act === 2
+            ? moonjellyScene(moonFrame(), moonDefeatedFrame)
+            : trenchScene(trenchFrame(), trenchDefeatedFrame)
       const dialogue = scene
-        ? moonStart === null
-          ? pinkwakeDialogue(
-              scene.id as 'A01.OPEN' | 'A01.TURN' | 'A01.AFTER',
+        ? act === 3
+          ? trenchDialogue(
+              scene.id as 'A03.OPEN' | 'A03.TURN' | 'A03.AFTER',
               scene.elapsed,
               activePlayers,
-              rescuedStation,
             )
-          : moonjellyDialogue(
-              scene.id as 'A02.OPEN' | 'A02.TURN' | 'A02.AFTER',
-              scene.elapsed,
-              activePlayers,
-              rescuedNemi,
-            )
+          : act === 1
+            ? pinkwakeDialogue(
+                scene.id as 'A01.OPEN' | 'A01.TURN' | 'A01.AFTER',
+                scene.elapsed,
+                activePlayers,
+                rescuedStation,
+              )
+            : moonjellyDialogue(
+                scene.id as 'A02.OPEN' | 'A02.TURN' | 'A02.AFTER',
+                scene.elapsed,
+                activePlayers,
+                rescuedNemi,
+              )
         : null
       const commsTop = 33 + Math.max(0, activePlayers - 1) * 10
       if (dialogue) {
@@ -1615,18 +2042,23 @@ export function createRainbowPrincessPreview(
           g.fillText(lines[line]!, textX, commsTop + 30 + line * 12)
         }
       } else if (
-        moonDefeatedFrame !== null &&
-        moonFrame() - moonDefeatedFrame >= MOONJELLY.aftermathFrames
+        trenchDefeatedFrame !== null &&
+        trenchFrame() - trenchDefeatedFrame >= TRENCH.aftermathFrames
       ) {
+        // ACT-STRUCTURE: Act III ends on a quiet salvage-dock tableau rather than a seamless bridge.
         g.fillStyle = '#180d38d9'
-        g.fillRect(48, commsTop, W - 96, 33)
-        g.fillStyle = '#c7ffe6'
+        g.fillRect(40, commsTop, W - 80, 33)
+        g.fillStyle = '#ffd9b8'
         g.textAlign = 'center'
         g.font = 'bold 11px monospace'
-        g.fillText('AURELIA FREED · ACT II PREVIEW CLEAR', W / 2, commsTop + 19)
+        g.fillText(
+          'CLAWBURST PILOT RESCUED · ACT III PREVIEW CLEAR',
+          W / 2,
+          commsTop + 19,
+        )
         g.font = '8px monospace'
         g.fillText(
-          'Safe transit to Chromatic Trench · Act III in production',
+          'Salvage dock: a quiet moment · Rosefin Express (Act IV) in production',
           W / 2,
           commsTop + 30,
         )

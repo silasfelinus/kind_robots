@@ -12,8 +12,8 @@ export const RAINBOW_CONTINUE = {
 } as const
 
 export type RainbowCheckpoint = {
-  act: 1 | 2
-  /** The Act frame the run resumes from: Act I's tick, or Act II's frame since it began. */
+  act: 1 | 2 | 3
+  /** The Act frame the run resumes from: Act I's tick, or a later Act's frame since it began. */
   frame: number
   score: number
   rescuedStation: boolean
@@ -46,15 +46,17 @@ export function checkpointLabel(
 
 /**
  * The engine tick to rewind to so that the next update replays the checkpoint frame itself. Act I runs on
- * the global tick and has already stepped past frame 0 on its first update; Act II counts from the tick it
- * began on, so its first frame is that tick.
+ * the global tick and has already stepped past frame 0 on its first update; later Acts count from the tick
+ * they began on, so their first frame is that tick.
  */
 export function resumeTick(
   checkpoint: Pick<RainbowCheckpoint, 'act' | 'frame'>,
   actTwoStart: number | null,
+  actThreeStart: number | null = null,
 ): number {
   if (checkpoint.act === 1) return Math.max(0, checkpoint.frame - 1)
-  return (actTwoStart ?? 0) + checkpoint.frame - 1
+  const start = checkpoint.act === 2 ? actTwoStart : actThreeStart
+  return (start ?? 0) + checkpoint.frame - 1
 }
 
 /** The seconds left to show on the CONTINUE? countdown, counting down from 10 to 1. */

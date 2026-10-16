@@ -10,6 +10,7 @@ import {
   pinkwakeSpawns,
   pinkwakeStage,
 } from '../arcade/games/rainbowPinkwake'
+import { RAINBOW_LANES } from '../arcade/games/rainbowFormations'
 import {
   BOSS_MAX_HP,
   bossTelegraph,
@@ -24,7 +25,7 @@ assert.equal(pinkwakeStage(PINKWAKE.openingEnds, null), 'waves')
 assert.equal(pinkwakeStage(PINKWAKE.turnStarts, null), 'turn')
 assert.equal(pinkwakeStage(PINKWAKE.bossStarts, null), 'boss')
 assert.equal(pinkwakeStage(5000, 4850), 'aftermath')
-const laneY = (lane: number) => PINKWAKE.laneTop + lane * PINKWAKE.laneSpan
+const laneY = (lane: number) => RAINBOW_LANES.top + lane * RAINBOW_LANES.span
 assert.deepEqual(pinkwakeSpawns(100), [], 'opening scene is a safe corridor')
 assert.deepEqual(
   pinkwakeSpawns(360).map((spawn) => [spawn.kind, spawn.y]),
@@ -258,7 +259,7 @@ function school(players: number, fire: boolean, frames: number) {
 const squad = school(4, true, 600)
 assert.ok(squad.schoolBonuses >= 1, 'a cleared opening line pays a bonus')
 assert.ok(
-  squad.score >= 3 * 125 + 3 * PINKWAKE.schoolBonusPerCraft,
+  squad.score >= 3 * 125 + 3 * RAINBOW_LANES.schoolBonusPerCraft,
   'the bonus is added to the score',
 )
 assert.equal(

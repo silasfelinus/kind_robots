@@ -1,23 +1,85 @@
 /**
  * Authored Act II encounter director. Uses local 60 Hz frames after the
  * Pinkwake aftermath, so the global combat tick and inventory never reset.
+ * The waves are authored formations (see rainbowFormations) in five sections that follow the world
+ * bible's S02 beats: the lantern gap lesson, linked relays, skimmer bead rain, breakable coral cover
+ * and a bell remix. Wave ids start at 1000 so Act II formations never share a school with Act I.
  */
+import {
+  buildFormationSchedule,
+  wave,
+  type RainbowSpawn,
+  type RainbowWave,
+} from './rainbowFormations'
+
 export type MoonjellyEnemy = 'lantern' | 'relay' | 'skimmer' | 'coral'
 export type MoonjellyStage =
   'opening' | 'waves' | 'turn' | 'remix' | 'approach' | 'boss' | 'aftermath'
 export type MoonjellySceneId = 'A02.OPEN' | 'A02.TURN' | 'A02.AFTER'
 export type MoonjellyDialogue = { speaker: string; text: string }
+export type MoonjellyWave = RainbowWave<MoonjellyEnemy>
+export type MoonjellySpawn = RainbowSpawn<MoonjellyEnemy>
 
 export const MOONJELLY = {
   openingEnds: 300,
-  nemiAppears: 1480,
-  turnStarts: 2300,
-  turnEnds: 2600,
-  approachStarts: 4550,
-  bossStarts: 4850,
+  nemiAppears: 1680,
+  turnStarts: 3900,
+  turnEnds: 4200,
+  approachStarts: 6900,
+  bossStarts: 7200,
   aftermathFrames: 360,
   lineFrames: 96,
+  waveBase: 1000,
 } as const
+
+export const MOONJELLY_SECTIONS = [
+  { name: 'Lantern gap lesson', from: 300, to: 1500 },
+  { name: 'Relay links', from: 1500, to: 2700 },
+  { name: 'Skimmer rain', from: 2700, to: 3900 },
+  { name: 'Coral cover', from: 4200, to: 5700 },
+  { name: 'Bell remix', from: 5700, to: 6900 },
+] as const
+
+export const MOONJELLY_WAVES: readonly MoonjellyWave[] = [
+  wave(330, 'lantern', 'single', 1, 0.5),
+  wave(540, 'lantern', 'pair', 2, 0.25),
+  wave(780, 'lantern', 'single', 1, 0.3),
+  wave(900, 'lantern', 'single', 1, 0.7),
+  wave(1080, 'lantern', 'pair', 2, 0.2),
+  wave(1320, 'lantern', 'column', 2, 0.5, { spread: 0.5 }),
+  wave(1560, 'relay', 'line', 3, 0.25),
+  wave(1800, 'relay', 'line', 3, 0.3),
+  wave(1980, 'relay', 'column', 3, 0.5),
+  wave(2160, 'relay', 'vee', 3, 0.5),
+  wave(2340, 'relay', 'pair', 4, 0.2),
+  wave(2520, 'lantern', 'single', 1, 0.5),
+  wave(2520, 'relay', 'line', 3, 0.15),
+  wave(2760, 'skimmer', 'line', 4, 0.15),
+  wave(2940, 'skimmer', 'line', 4, 0.3),
+  wave(3120, 'skimmer', 'stair', 5, 0.1),
+  wave(3360, 'skimmer', 'pair', 4, 0.2),
+  wave(3600, 'skimmer', 'line', 3, 0.15),
+  wave(3600, 'lantern', 'single', 1, 0.7),
+  wave(3780, 'skimmer', 'vee', 5, 0.3),
+  wave(4260, 'coral', 'wall', 3, 0.5),
+  wave(4500, 'relay', 'line', 3, 0.5),
+  wave(4740, 'coral', 'wall', 4, 0.3),
+  wave(4980, 'lantern', 'pair', 2, 0.3),
+  wave(5160, 'coral', 'wall', 4, 0.7),
+  wave(5400, 'relay', 'column', 3, 0.5),
+  wave(5400, 'skimmer', 'line', 3, 0.15),
+  wave(5760, 'lantern', 'single', 1, 0.5),
+  wave(5760, 'relay', 'pair', 2, 0.2),
+  wave(6000, 'coral', 'wall', 3, 0.4),
+  wave(6240, 'skimmer', 'stair', 5, 0.1),
+  wave(6480, 'relay', 'vee', 5, 0.5),
+  wave(6720, 'lantern', 'pair', 2, 0.25),
+]
+
+const schedule = buildFormationSchedule(MOONJELLY_WAVES, MOONJELLY.waveBase)
+
+/** Craft per wave, by wave index (id minus waveBase), for the school bonus. */
+export const MOONJELLY_WAVE_SIZES: readonly number[] = schedule.sizes
 
 export function moonjellyStage(
   frame: number,
@@ -32,14 +94,11 @@ export function moonjellyStage(
   return 'boss'
 }
 
-export function moonjellySpawn(frame: number): MoonjellyEnemy | null {
+/** Every craft that enters on this Act II frame; empty outside the waves and remix stages. */
+export function moonjellySpawns(frame: number): readonly MoonjellySpawn[] {
   const stage = moonjellyStage(frame, null)
-  if (stage !== 'waves' && stage !== 'remix') return null
-  if (frame < 1050) return frame % 65 === 0 ? 'lantern' : null
-  if (frame < 1800) return frame % 80 === 0 ? 'relay' : null
-  if (frame < MOONJELLY.turnStarts) return frame % 95 === 0 ? 'skimmer' : null
-  if (frame < 3400) return frame % 85 === 0 ? 'coral' : null
-  return frame % 90 === 0 ? 'relay' : frame % 66 === 0 ? 'lantern' : null
+  if (stage !== 'waves' && stage !== 'remix') return []
+  return schedule.at(frame)
 }
 
 const PILOTS = ['Maribel', 'Azure', 'Solenne', 'Vivi'] as const

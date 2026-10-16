@@ -40,11 +40,13 @@ import { RAINBOW_PILOTS } from './rainbowPilots'
 import {
   MOONJELLY,
   moonjellyDialogue,
+  MOONJELLY_WAVE_SIZES,
   moonjellyScene,
-  moonjellySpawn,
+  moonjellySpawns,
   moonjellyStage,
   type MoonjellyEnemy,
 } from './rainbowMoonjelly'
+import { RAINBOW_LANES } from './rainbowFormations'
 import {
   AURELIA_MAX_HP,
   createMoonjellyBoss,
@@ -247,15 +249,18 @@ export function createRainbowPrincessPreview(
     if (reef.wave === null) return
     const left = (waveLeft.get(reef.wave) ?? 1) - 1
     waveLeft.set(reef.wave, left)
-    const size = PINKWAKE_WAVE_SIZES[reef.wave] ?? 0
+    const size =
+      (reef.wave >= MOONJELLY.waveBase
+        ? MOONJELLY_WAVE_SIZES[reef.wave - MOONJELLY.waveBase]
+        : PINKWAKE_WAVE_SIZES[reef.wave]) ?? 0
     if (
       left > 0 ||
-      size < PINKWAKE.schoolSize ||
+      size < RAINBOW_LANES.schoolSize ||
       waveSpawned.get(reef.wave) !== size ||
       brokenWaves.has(reef.wave)
     )
       return
-    const bonus = size * PINKWAKE.schoolBonusPerCraft
+    const bonus = size * RAINBOW_LANES.schoolBonusPerCraft
     score += bonus
     schoolBonuses++
     popups.push({ x: reef.x, y: reef.y, text: `SCHOOL +${bonus}`, age: 0 })
@@ -507,8 +512,9 @@ export function createRainbowPrincessPreview(
       const frame = moonFrame()
       const stage = moonjellyStage(frame, moonDefeatedFrame)
       if (stage === 'waves' || stage === 'remix') {
-        const kind = moonjellySpawn(frame)
-        if (kind) spawn(kind)
+        for (const entry of moonjellySpawns(frame)) {
+          spawn(entry.kind, entry.y, entry.wave)
+        }
         if (frame === MOONJELLY.nemiAppears) {
           nemi = { x: W + 16, y: 158 }
         }

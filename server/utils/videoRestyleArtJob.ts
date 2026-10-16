@@ -48,7 +48,9 @@ export async function syncRestylePilotArtJob(
       totalSegments: job.pilot.totalSegments,
       progress: job.progress,
       state: job.status,
-      executor: 'local-vace-worker',
+      executor: 'kr-relay',
+      quality: job.quality,
+      stylePrompt: job.renderRecipe.stylePrompt,
     },
     save: {
       isPublic: false,

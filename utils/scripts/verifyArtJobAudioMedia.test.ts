@@ -138,3 +138,18 @@ assert.equal(
   ),
   false,
 )
+
+assert.equal(
+  artJobClaimableBy(
+    { media: 'video-restyle-vace' },
+    { supportsInputImages: true, supportsAudio: true, supportsVideoRestyle: true },
+  ),
+  true,
+)
+assert.equal(
+  artJobClaimableBy(
+    { media: 'video-restyle-vace' },
+    { supportsInputImages: true, supportsAudio: true, supportsVideoRestyle: false },
+  ),
+  false,
+)

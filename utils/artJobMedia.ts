@@ -12,6 +12,7 @@
 export type ArtJobRelayCapabilities = {
   supportsInputImages: boolean
   supportsAudio: boolean
+  supportsVideoRestyle?: boolean
 }
 
 function payloadObject(payload: unknown): Record<string, unknown> | null {
@@ -44,7 +45,7 @@ export function artJobClaimableBy(
   capabilities: ArtJobRelayCapabilities,
 ): boolean {
   const body = payloadObject(payload)
-  if (isVideoRestyleArtJobPayload(body)) return false
+  if (isVideoRestyleArtJobPayload(body)) return capabilities.supportsVideoRestyle === true
   const needsInputImages =
     Array.isArray(body?.images) && (body?.images as unknown[]).length > 0
   if (needsInputImages && !capabilities.supportsInputImages) return false

@@ -73,12 +73,14 @@ export const RAINBOW_ENEMY_SPRITES = [
 
 /**
  * Act III's painted craft, ready before the stage spawns them: E09 Clawstrike Shrimp, E10 Pistol Shrimp
- * Shuttle and E11 Angler Decoy (round-17 Kontext 247709, 247711, 247713).
+ * Shuttle and E11 Angler Decoy (round-17 Kontext 247709, 247711, 247713) and E12 Glassfin Skate (round-21
+ * 247818).
  */
 export const RAINBOW_ACT_THREE_ENEMY_SPRITES = [
   'clawstrike',
   'pistol',
   'angler',
+  'skate',
 ] as const
 
 export function rainbowEnemySprite(kind: string): string | null {
@@ -165,7 +167,10 @@ export function drawRainbowBossSprite(
   return true
 }
 
-/** Super cut-in banners (round-14 Kontext), one per pilot seat, cropped to 2.9:1 around face and power. */
+/**
+ * Super cut-in banners, one per pilot seat, cropped to 2.9:1 around face and power: round-14 Kontext, except
+ * Solenne's round-22 reroll (247803), which keeps her broad, muscular build.
+ */
 export const RAINBOW_CUTIN_PILOTS = [
   'maribel',
   'azure',

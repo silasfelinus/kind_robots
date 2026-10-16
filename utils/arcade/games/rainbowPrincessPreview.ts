@@ -19,6 +19,7 @@ import {
   BOSS_MAX_HP,
   bossTelegraph,
   createPinkwakeBoss,
+  rainbowBossHp,
   stepPinkwakeBoss,
   type PinkwakeBoss,
 } from './rainbowPinkwakeBoss'
@@ -202,6 +203,9 @@ export function createRainbowPrincessPreview(
   let station: { x: number; y: number } | null = null
   let moonStart: number | null = null
   let moonBoss: MoonjellyBoss | null = null
+  // A continue mid-fight brings the boss back as damaged as the crew left it, so every attempt counts.
+  let bossCarryHp: number | null = null
+  let moonBossCarryHp: number | null = null
   let moonDefeatedFrame: number | null = null
   let rescuedNemi = false
   let nemi: { x: number; y: number } | null = null
@@ -343,6 +347,8 @@ export function createRainbowPrincessPreview(
         } else if ((waveLeft.get(id) ?? 0) > 0) brokenWaves.add(id)
       })
       tick = resumeTick(checkpoint, moonStart)
+      if (boss) bossCarryHp = boss.hp
+      if (moonBoss) moonBossCarryHp = moonBoss.hp
       boss = null
       moonBoss = null
       station = null
@@ -616,7 +622,8 @@ export function createRainbowPrincessPreview(
         reefs.length = 0
         enemyShots.length = 0
       } else if (stage === 'boss' && !boss) {
-        boss = createPinkwakeBoss()
+        boss = createPinkwakeBoss(rainbowBossHp(BOSS_MAX_HP, activePlayers))
+        if (bossCarryHp !== null) boss.hp = Math.min(boss.hp, bossCarryHp)
       }
     } else {
       const frame = moonFrame()
@@ -636,7 +643,11 @@ export function createRainbowPrincessPreview(
         reefs.length = 0
         enemyShots.length = 0
       } else if (stage === 'boss' && !moonBoss && moonDefeatedFrame === null) {
-        moonBoss = createMoonjellyBoss()
+        moonBoss = createMoonjellyBoss(
+          rainbowBossHp(AURELIA_MAX_HP, activePlayers),
+        )
+        if (moonBossCarryHp !== null)
+          moonBoss.hp = Math.min(moonBoss.hp, moonBossCarryHp)
       }
     }
 
@@ -1139,7 +1150,7 @@ export function createRainbowPrincessPreview(
         g.fillStyle = '#240c42'
         g.fillRect(148, 30, 184, 14)
         g.fillStyle = '#ffb9e6'
-        g.fillRect(150, 32, 180 * Math.max(0, boss.hp / BOSS_MAX_HP), 10)
+        g.fillRect(150, 32, 180 * Math.max(0, boss.hp / boss.maxHp), 10)
         g.strokeStyle = '#fff7cf'
         g.lineWidth = 1
         g.strokeRect(148, 30, 184, 14)
@@ -1205,7 +1216,7 @@ export function createRainbowPrincessPreview(
         g.fillStyle = '#1d2750'
         g.fillRect(148, 30, 184, 14)
         g.fillStyle = '#c2fff4'
-        g.fillRect(150, 32, 180 * Math.max(0, moonBoss.hp / AURELIA_MAX_HP), 10)
+        g.fillRect(150, 32, 180 * Math.max(0, moonBoss.hp / moonBoss.maxHp), 10)
         g.strokeStyle = '#fff4c4'
         g.lineWidth = 1
         g.strokeRect(148, 30, 184, 14)

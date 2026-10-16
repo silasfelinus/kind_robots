@@ -3,6 +3,7 @@ export type PinkwakeBoss = {
   x: number
   y: number
   hp: number
+  maxHp: number
   frame: number
   phase: 1 | 2 | 3
   nextVolleyAt: number
@@ -17,13 +18,29 @@ export type BossProjectile = {
 }
 export type BossTarget = { x: number; y: number; lives: number }
 
+/** One pilot's share of B01's hull, before rainbowBossHp scales it. */
 export const BOSS_MAX_HP = 150
 
-export function createPinkwakeBoss(): PinkwakeBoss {
+/**
+ * Hull for a fight that lasts. Each pilot adds a full share, so four pilots with stacked supers
+ * still see all three phases instead of melting the boss in seconds.
+ */
+export const RAINBOW_BOSS_HP_PER_PILOT = 2.5
+export function rainbowBossHp(base: number, pilots: number): number {
+  return Math.round(base * RAINBOW_BOSS_HP_PER_PILOT * Math.max(1, pilots))
+}
+
+/** Phases turn at two thirds and one third of the hull, whatever its size. */
+export function rainbowBossPhase(hp: number, maxHp: number): 1 | 2 | 3 {
+  return hp > (maxHp * 2) / 3 ? 1 : hp > maxHp / 3 ? 2 : 3
+}
+
+export function createPinkwakeBoss(maxHp: number = BOSS_MAX_HP): PinkwakeBoss {
   return {
     x: 525,
     y: 135,
-    hp: BOSS_MAX_HP,
+    hp: maxHp,
+    maxHp,
     frame: 0,
     phase: 1,
     nextVolleyAt: 162,
@@ -37,7 +54,7 @@ export function stepPinkwakeBoss(
   boss.frame++
   boss.x = Math.max(398, 525 - boss.frame * 1.3)
   boss.y = 135 + Math.sin(boss.frame / 62) * 44
-  const nextPhase = boss.hp > 100 ? 1 : boss.hp > 50 ? 2 : 3
+  const nextPhase = rainbowBossPhase(boss.hp, boss.maxHp)
   if (nextPhase !== boss.phase) {
     boss.phase = nextPhase
     // Damage lands after the boss step in the game loop. Switching phases

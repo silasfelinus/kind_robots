@@ -1,8 +1,11 @@
+import { rainbowBossPhase } from './rainbowPinkwakeBoss'
+
 /** B02 Aurelia Array: translucent bell colony, three fair telegraphed phases. */
 export type MoonjellyBoss = {
   x: number
   y: number
   hp: number
+  maxHp: number
   frame: number
   phase: 1 | 2 | 3
   nextVolley: number
@@ -15,12 +18,16 @@ export type MoonjellyProjectile = {
   grazed: number
 }
 
+/** One pilot's share of B02's hull, before rainbowBossHp scales it. */
 export const AURELIA_MAX_HP = 210
-export function createMoonjellyBoss(): MoonjellyBoss {
+export function createMoonjellyBoss(
+  maxHp: number = AURELIA_MAX_HP,
+): MoonjellyBoss {
   return {
     x: 532,
     y: 132,
-    hp: AURELIA_MAX_HP,
+    hp: maxHp,
+    maxHp,
     frame: 0,
     phase: 1,
     nextVolley: 132,
@@ -39,7 +46,7 @@ export function stepMoonjellyBoss(
   boss.frame++
   boss.x = Math.max(398, 532 - boss.frame * 1.45)
   boss.y = 134 + Math.sin(boss.frame / 68) * 32
-  const phase = boss.hp > 140 ? 1 : boss.hp > 70 ? 2 : 3
+  const phase = rainbowBossPhase(boss.hp, boss.maxHp)
   if (phase !== boss.phase) {
     boss.phase = phase
     boss.nextVolley = Math.max(boss.nextVolley, boss.frame + 37)

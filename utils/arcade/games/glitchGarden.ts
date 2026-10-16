@@ -13,6 +13,12 @@
 // worms are faster and arrive with extra loose heads. Touching a worm segment
 // or the beetle costs a sprayer; every 12,000 points earns one back.
 //
+// From wave 3 a slime snail crawls across the upper lawn, glitching every lamp
+// it touches (they turn static-grey). A worm that meets a glitched lamp plunges
+// straight down to the flowerbed, and a worm that lingers in the bed sends
+// side-crawlers in from the edges. Lamps creep down a row between waves, and
+// every wave repaints the lawn and recolours the worm.
+//
 // Arrows move the sprayer around the flowerbed; A (or B) sprays. One beam at a
 // time, so get close to fire faster.
 
@@ -66,17 +72,41 @@ const BODY_POINTS = 10
 const BLOOM_POINTS = 1
 const MOTH_POINTS = 200
 
+/** Lamps planted at the start of wave 1 (later lamps come from the moth and the creep). */
+export const START_LAMPS = 34
+/** The snail first crosses on this wave, and its crossings come this often (ticks). */
+export const SNAIL_WAVE = 3
+export const SNAIL_EVERY = 1100
+export const SNAIL_POINTS = 1000
+/** Ticks a worm must stay in the flowerbed before side-crawlers join it. */
+export const CRAWLER_AFTER = 360
+export const CRAWLER_EVERY = 300
+export const MAX_CRAWLERS = 2
+/** Rows of the upper lawn the snail crosses (the bed and the top row stay clear). */
+export const SNAIL_ROWS = [3, 4, 5, 6, 7, 8, 9, 10, 11, 12] as const
+/** The beetle stops getting faster at this wave. */
+export const BEETLE_SPEED_CAP_WAVE = 10
+
+/** The beetle's crawl speed: rises with the wave, then stops. */
+export function beetleSpeed(wave: number): number {
+  return 0.8 + Math.min(wave, BEETLE_SPEED_CAP_WAVE) * 0.05
+}
+
 export const GARDEN_CURVES = {
   /** Pixels per tick the worm crawls (always divides the 8px cell). */
   speed: { start: 1, step: 0.5, limit: 2 },
   length: { start: 12, step: 0, limit: 12 },
   /** Extra one-segment heads that come with the worm. */
   looseHeads: { start: -1, step: 1, limit: 5 },
-  lamps: { start: 34, step: 3, limit: 55 },
   beetleEvery: { start: 900, step: -90, limit: 360 },
 } as const
 
-type Obstacle = { hp: number; kind: 'lamp' | 'sprout' }
+type Obstacle = {
+  hp: number
+  kind: 'lamp' | 'sprout'
+  /** Glitched by the snail: grey static that sends a worm plunging. */
+  glitched?: boolean
+}
 /** A worm: the head leads, and segment k sits k * spacing steps back along its trail. */
 type Worm = {
   /** The head's past positions, newest first. */
@@ -85,7 +115,12 @@ type Worm = {
   dx: 1 | -1
   /** Down until the flowerbed floor, then back up and down within the bed. */
   dy: 1 | -1
+  /** Diving straight down to the flowerbed after meeting a glitched lamp. */
+  plunge?: boolean
+  /** A side-crawler: a one-segment head that entered the bed from an edge. */
+  crawler?: boolean
 }
+type Snail = { x: number; y: number; vx: number }
 type Beetle = { x: number; y: number; vx: number; vy: number; turn: number }
 type Moth = { x: number; y: number; hp: number }
 type Flower = { col: number; row: number; color: string }
@@ -196,6 +231,57 @@ const LAMP_FLICKER_SPRITES = LAMP_ROWS.map((rows) =>
   rows.length ? pixelSprite(rows, LAMP_FLICKER) : null,
 )
 
+/** A glitched lamp: dead grey static with a few stray bright pixels. */
+const GLITCHED_PALETTE = {
+  ...LAMP_PALETTE,
+  H: RAMPS.steel[4],
+  L: RAMPS.steel[3],
+  P: RAMPS.steel[2],
+  p: RAMPS.steel[1],
+  d: RAMPS.steel[0],
+  c: RAMPS.teal[3],
+}
+const GLITCHED_SPRITES = LAMP_ROWS.map((rows) =>
+  rows.length ? pixelSprite(rows, GLITCHED_PALETTE) : null,
+)
+
+const SNAIL_PALETTE = {
+  h: RAMPS.leaf[4],
+  L: RAMPS.leaf[3],
+  P: RAMPS.leaf[2],
+  p: RAMPS.leaf[1],
+  s: RAMPS.pink[3],
+  S: RAMPS.pink[2],
+  d: RAMPS.pink[1],
+  k: INK,
+  e: RAMPS.gold[3],
+}
+/** The slime snail faces right; its eye-stalks bob in two frames. */
+const SNAIL_SPRITES = [
+  pixelSprite(
+    [
+      '......sSS...',
+      '.....sSdSS.e',
+      '.e..sSddSS.e',
+      '.kLLsSdSdS..',
+      'hLLLPSSSSd..',
+      'pPPPPPPpppp.',
+    ],
+    SNAIL_PALETTE,
+  ),
+  pixelSprite(
+    [
+      '......sSS..e',
+      '.....sSdSS.e',
+      '....sSddSS..',
+      '.ekLsSdSdS..',
+      'hLLLPSSSSd..',
+      'pPPPPPPpppp.',
+    ],
+    SNAIL_PALETTE,
+  ),
+] as const
+
 /** A sprout keeps one leaf per hp left (index 1..3). */
 const SPROUT_PALETTE = {
   H: RAMPS.leaf[4],
@@ -236,6 +322,17 @@ const FLOWER_SPRITES = new Map<string, PixelSprite>(
   ]),
 )
 
+/** The lawn's tint and the worm's colours, one set per wave (the classic's palette change). */
+export const WAVE_PALETTES = [
+  { tint: null, worm: RAMPS.purple },
+  { tint: RAMPS.water[2], worm: RAMPS.ember },
+  { tint: RAMPS.gold[2], worm: RAMPS.teal },
+  { tint: RAMPS.rust[2], worm: RAMPS.sky },
+  { tint: RAMPS.pink[1], worm: RAMPS.leaf },
+] as const
+export const paletteFor = (wave: number) =>
+  WAVE_PALETTES[(Math.max(1, wave) - 1) % WAVE_PALETTES.length]!
+
 const rampPalette = (ramp: Ramp) => ({
   h: ramp[4],
   L: ramp[3],
@@ -248,12 +345,17 @@ const SEGMENT_ROWS = [
   ['.hLLP.', 'hLLPPp', 'LLPPpp', 'PPPppd', 'Pppddd', '.pddd.', '.p..p.'],
   ['.hLLP.', 'hLPPPp', 'LLPPpp', 'PPppdd', 'Pppddd', '.pddd.', 'p....p'],
 ] as const
-const SEGMENT_SPRITES = SEGMENT_ROWS.map((rows) =>
-  pixelSprite(rows, rampPalette(RAMPS.purple)),
+const SEGMENT_SETS = WAVE_PALETTES.map((p) =>
+  SEGMENT_ROWS.map((rows) => pixelSprite(rows, rampPalette(p.worm))),
 )
-/** A glitching segment flickers into teal. */
-const GLITCH_SPRITES = SEGMENT_ROWS.map((rows) =>
-  pixelSprite(rows, rampPalette(RAMPS.teal)),
+/** A glitching segment flickers into another palette's colour. */
+const GLITCH_SETS = WAVE_PALETTES.map((_, i) =>
+  SEGMENT_ROWS.map((rows) =>
+    pixelSprite(
+      rows,
+      rampPalette(WAVE_PALETTES[(i + 2) % WAVE_PALETTES.length]!.worm),
+    ),
+  ),
 )
 /** The head faces right (flip it to go left): wiggling antennae and a chomping grin. */
 const HEAD_SPRITES = [
@@ -403,6 +505,10 @@ class GlitchGarden implements ArcadeGameInstance {
   private beetle: Beetle | null = null
   private beetleTimer = 0
   private moth: Moth | null = null
+  private snail: Snail | null = null
+  private snailTimer = 0
+  private bedTicks = 0
+  private crawlerTimer = 0
   private speed = 1
   private dead = 0
   private clear = 0
@@ -419,7 +525,7 @@ class GlitchGarden implements ArcadeGameInstance {
     this.sound = options.sound
     this.demo = options.demo
     this.hiScore = options.hiScore
-    this.plantLamps(Math.round(levelCurve(1, GARDEN_CURVES.lamps)))
+    this.plantLamps(START_LAMPS)
     this.startWave(1)
   }
 
@@ -454,6 +560,11 @@ class GlitchGarden implements ArcadeGameInstance {
     this.level = wave
     this.speed = levelCurve(wave, GARDEN_CURVES.speed)
     this.worms = []
+    this.snail = null
+    this.snailTimer = Math.round(SNAIL_EVERY / 2)
+    this.bedTicks = 0
+    this.crawlerTimer = 0
+    if (wave > 1) this.creepLamps()
     const length = Math.round(levelCurve(wave, GARDEN_CURVES.length))
     this.spawnWorm(Math.floor(COLS / 2) * CELL, length, 1)
     const loose = Math.max(
@@ -471,6 +582,31 @@ class GlitchGarden implements ArcadeGameInstance {
       text: `WAVE ${wave}`,
       sub: 'FIX THE GLITCH-WORM',
       ticks: 80,
+    }
+  }
+
+  /**
+   * Between waves every lamp in the upper lawn creeps down a row (Millipede's drift), so the field
+   * never chokes. A lamp that would enter the flowerbed sinks into the soil, and a fresh lamp is
+   * planted near the top for each one lost.
+   */
+  private creepLamps() {
+    let lost = 0
+    for (let row = BED_TOP - 1; row >= 1; row--)
+      for (let col = 0; col < COLS; col++) {
+        const ob = this.at(col, row)
+        if (!ob || ob.kind !== 'lamp') continue
+        this.grid[this.idx(col, row)] = null
+        if (row + 1 >= BED_TOP) lost++
+        else if (!this.at(col, row + 1)) this.grid[this.idx(col, row + 1)] = ob
+        else lost++
+      }
+    for (let tries = 0; lost > 0 && tries < lost * 8; tries++) {
+      const col = Math.floor(this.rng() * COLS)
+      const row = 1 + Math.floor(this.rng() * 3)
+      if (this.at(col, row)) continue
+      this.grid[this.idx(col, row)] = { hp: LAMP_HP, kind: 'lamp' }
+      lost--
     }
   }
 
@@ -510,6 +646,8 @@ class GlitchGarden implements ArcadeGameInstance {
     this.moveWorms()
     this.updateBeetle()
     this.updateMoth()
+    this.updateSnail()
+    this.updateCrawlers()
     this.checkHits()
     if (!this.worms.length && this.dead === 0) {
       this.clear = WAVE_CLEAR_TICKS
@@ -562,7 +700,8 @@ class GlitchGarden implements ArcadeGameInstance {
       if (
         this.hitWorm(beam.x, beam.y) ||
         this.hitMoth(beam.x, beam.y) ||
-        this.hitBeetle(beam.x, beam.y)
+        this.hitBeetle(beam.x, beam.y) ||
+        this.hitSnail(beam.x, beam.y)
       ) {
         this.beam = null
         return
@@ -671,10 +810,32 @@ class GlitchGarden implements ArcadeGameInstance {
     if (x % CELL === 0 && (y - HUD) % CELL === 0) {
       const col = x / CELL
       const row = (y - HUD) / CELL
+      if (w.plunge) {
+        // Diving: straight down a row at a time until it lands in the flowerbed.
+        if (row >= BED_TOP || row + 1 >= ROWS) {
+          w.plunge = false
+          w.dy = -1
+        } else {
+          y += CELL
+          w.trail.unshift({ x, y })
+          this.trimTrail(w)
+          return
+        }
+      }
       const nextCol = col + w.dx
-      const blocked =
-        nextCol < 0 || nextCol >= COLS || this.at(nextCol, row) !== null
+      const ahead =
+        nextCol < 0 || nextCol >= COLS ? null : this.at(nextCol, row)
+      const blocked = nextCol < 0 || nextCol >= COLS || ahead !== null
       if (blocked) {
+        if (ahead?.glitched && row < BED_TOP) {
+          // A glitched lamp: no turning, a dive.
+          w.plunge = true
+          w.dy = 1
+          y += CELL
+          w.trail.unshift({ x, y })
+          this.trimTrail(w)
+          return
+        }
         // Turn: down a row (or up again, once it's bouncing in the flowerbed).
         if (row + w.dy >= ROWS) w.dy = -1
         else if (w.dy < 0 && row + w.dy < BED_TOP) w.dy = 1
@@ -704,7 +865,7 @@ class GlitchGarden implements ArcadeGameInstance {
       this.beetle = {
         x: fromLeft ? -6 : W + 6,
         y: HUD + (BED_TOP + 1) * CELL,
-        vx: (fromLeft ? 1 : -1) * (0.8 + this.level * 0.05),
+        vx: (fromLeft ? 1 : -1) * beetleSpeed(this.level),
         vy: 1.2,
         turn: 20,
       }
@@ -726,6 +887,75 @@ class GlitchGarden implements ArcadeGameInstance {
     const ob = this.at(col, row)
     if (ob && this.rng() < 0.05) this.grid[this.idx(col, row)] = null
     if (b.x < -10 || b.x > W + 10) this.beetle = null
+  }
+
+  /** From wave 3 a slime snail crosses the upper lawn, glitching every lamp it touches. */
+  private updateSnail() {
+    if (!this.snail && this.level >= SNAIL_WAVE && --this.snailTimer <= 0) {
+      this.snailTimer = SNAIL_EVERY
+      const fromLeft = this.rng() < 0.5
+      const row = SNAIL_ROWS[Math.floor(this.rng() * SNAIL_ROWS.length)]!
+      this.snail = {
+        x: fromLeft ? -8 : W + 8,
+        y: HUD + row * CELL + 2,
+        vx: (fromLeft ? 1 : -1) * 0.5,
+      }
+      this.sound.play('warn')
+    }
+    const s = this.snail
+    if (!s) return
+    s.x += s.vx
+    const col = Math.floor(s.x / CELL)
+    const row = Math.floor((s.y - HUD) / CELL)
+    const ob = this.at(col, row)
+    if (ob && ob.kind === 'lamp' && !ob.glitched) {
+      ob.glitched = true
+      this.fx.burst(col * CELL + 4, HUD + row * CELL + 3, this.fxRng, {
+        count: 5,
+        speed: 0.8,
+        colours: [RAMPS.steel[3], RAMPS.teal[3], '#ffffff'],
+      })
+    }
+    if (s.x < -12 || s.x > W + 12) this.snail = null
+  }
+
+  private hitSnail(x: number, y: number): boolean {
+    const s = this.snail
+    if (!s || Math.abs(s.x - x) > 7 || Math.abs(s.y - y) > 6) return false
+    this.addScore(SNAIL_POINTS, s.x, s.y - 8)
+    this.burst(s.x, s.y, 12, '#f9a8d4')
+    this.fx.burst(s.x, s.y, this.fxRng, {
+      count: 14,
+      colours: [RAMPS.pink[3], RAMPS.leaf[3], RAMPS.gold[4]],
+    })
+    this.sound.play('pop')
+    this.snail = null
+    return true
+  }
+
+  /** A worm that lingers in the flowerbed sends loose heads in from the sides. */
+  private updateCrawlers() {
+    const inBed = this.worms.some(
+      (w) => (w.trail[0]!.y - HUD) / CELL >= BED_TOP,
+    )
+    this.bedTicks = inBed ? this.bedTicks + 1 : 0
+    if (this.bedTicks < CRAWLER_AFTER) return
+    if (--this.crawlerTimer > 0) return
+    this.crawlerTimer = CRAWLER_EVERY
+    const crawlers = this.worms.filter((w) => w.crawler).length
+    if (crawlers >= MAX_CRAWLERS) return
+    const fromLeft = this.rng() < 0.5
+    const row = BED_TOP + Math.floor(this.rng() * (BED_ROWS - 1))
+    const x = fromLeft ? -CELL : W
+    const y = HUD + row * CELL
+    this.worms.push({
+      trail: [{ x, y }],
+      segments: 1,
+      dx: fromLeft ? 1 : -1,
+      dy: 1,
+      crawler: true,
+    })
+    this.sound.play('warn')
   }
 
   private hitBeetle(x: number, y: number): boolean {
@@ -833,13 +1063,15 @@ class GlitchGarden implements ArcadeGameInstance {
       }
     }
     // The worms start the wave over from the top, the same lengths.
-    const lengths = this.worms.map((w) => w.segments)
+    const lengths = this.worms.filter((w) => !w.crawler).map((w) => w.segments)
     this.worms = []
     lengths.forEach((n, i) =>
       this.spawnWorm(((i * 7 + 15) % COLS) * CELL, n, i % 2 ? -1 : 1),
     )
     this.beetle = null
     this.moth = null
+    this.snail = null
+    this.bedTicks = 0
     this.px = W / 2
     this.py = HUD + (ROWS - 2) * CELL
     // Clear a spot to stand in.
@@ -946,6 +1178,11 @@ class GlitchGarden implements ArcadeGameInstance {
 
   render(g: CanvasRenderingContext2D) {
     this.renderGarden(g)
+    const tint = paletteFor(this.level).tint
+    if (tint) {
+      g.fillStyle = rgba(tint, 0.14)
+      g.fillRect(0, LAWN_TOP, W, BED_Y - LAWN_TOP)
+    }
     for (const f of this.flowers) {
       const sprite = FLOWER_SPRITES.get(f.color)
       if (sprite)
@@ -959,6 +1196,7 @@ class GlitchGarden implements ArcadeGameInstance {
       }
     for (const w of this.worms) this.renderWorm(g, w)
     if (this.beetle) this.renderBeetle(g, this.beetle)
+    if (this.snail) this.renderSnail(g, this.snail)
     if (this.moth) this.renderMoth(g, this.moth)
     if (this.beam) this.renderBeam(g, this.beam)
     if (this.dead === 0) this.renderSprayer(g)
@@ -1065,6 +1303,13 @@ class GlitchGarden implements ArcadeGameInstance {
     // A glitchy mushroom lamp: the cap shrinks as it's sprayed.
     const hp = Math.max(1, Math.min(LAMP_HP, ob.hp))
     const flicker = (c * 7 + r * 3 + Math.floor(this.tick / 6)) % 11 === 0
+    if (ob.glitched) {
+      // Static: the grey lamp jitters a pixel sideways now and then.
+      const jitter = (c + r + Math.floor(this.tick / 5)) % 7 === 0 ? 1 : 0
+      const dead = GLITCHED_SPRITES[hp]
+      if (dead) drawSprite(g, dead, x + jitter, y, { anchor: 'topleft' })
+      return
+    }
     const sprite = (flicker ? LAMP_FLICKER_SPRITES : LAMP_SPRITES)[hp]
     if (flicker) glow(g, x + 4, y + 3, 9, FUCHSIA[3], 0.5)
     if (sprite) drawSprite(g, sprite, x, y, { anchor: 'topleft' })
@@ -1087,6 +1332,9 @@ class GlitchGarden implements ArcadeGameInstance {
         continue
       }
       const glitch = (k + Math.floor(this.tick / 4)) % 5 === 0
+      const pal = (this.level - 1) % WAVE_PALETTES.length
+      const SEGMENT_SPRITES = SEGMENT_SETS[pal]!
+      const GLITCH_SPRITES = GLITCH_SETS[pal]!
       if (glitch) {
         // A chromatic tear: a ghost of the segment slips sideways.
         drawSprite(g, GLITCH_SPRITES[frame]!, x + 2, y, {
@@ -1104,6 +1352,13 @@ class GlitchGarden implements ArcadeGameInstance {
     const frame = Math.floor(this.tick / 4) % 2
     dropShadow(g, b.x + 1, b.y + 5, 6, 1.5, 0.45)
     drawSprite(g, BEETLE_SPRITES[frame]!, b.x, b.y, { flipX: b.vx < 0 })
+  }
+
+  private renderSnail(g: CanvasRenderingContext2D, s: Snail) {
+    const frame = Math.floor(this.tick / 12) % 2
+    dropShadow(g, s.x, s.y + 4, 6, 1.5, 0.4)
+    glow(g, s.x, s.y, 9, RAMPS.pink[3], 0.3)
+    drawSprite(g, SNAIL_SPRITES[frame]!, s.x, s.y, { flipX: s.vx < 0 })
   }
 
   private renderMoth(g: CanvasRenderingContext2D, m: Moth) {

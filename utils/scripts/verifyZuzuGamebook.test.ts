@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict'
-import { existsSync, readdirSync } from 'node:fs'
+import { existsSync, readdirSync, readFileSync } from 'node:fs'
 import { join } from 'node:path'
 import {
   PLATES,
@@ -410,6 +410,22 @@ for (let walk = 0; walk < 6000; walk++) {
 }
 for (const id of endings)
   assert.ok(reached.has(id), 'ending never reached in play: ' + id)
+
+// Silas, 2026-10-16 layout sweep: one solid toolbar row, the fitted page from
+// portrait tablets up, and wide-but-short screens set the plate beside the text.
+const page = readFileSync(
+  join(process.cwd(), 'pages/play/zuzu-gamebook.vue'),
+  'utf8',
+)
+assert.match(
+  page,
+  /class="kr-toolbar[^"]*bg-base-100\/95/,
+  'toolbar has a solid bar',
+)
+assert.match(page, /\(min-width: 1024px\) and \(max-height: 820px\)/)
+assert.match(page, /\(min-width: 768px\) and \(orientation: portrait\)/)
+assert.match(page, /md:grid-rows-\[minmax\(9rem,1fr\)_auto\]/)
+assert.match(page, /max-md:max-h-\[34svh\]/, 'phones keep the plate to a third')
 
 console.log(
   'Zuzu gamebook contract: ' +

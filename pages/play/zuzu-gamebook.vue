@@ -5,11 +5,13 @@
     </div>
     <template v-else>
       <div
-        class="kr-toolbar mx-auto w-full max-w-[1500px] justify-between gap-x-4 px-3 py-2 sm:px-6 lg:px-8"
+        class="kr-toolbar mx-auto w-[calc(100%-1.5rem)] max-w-[1476px] flex-nowrap justify-between gap-x-3 rounded-2xl bg-base-100/95 px-3 py-1 shadow-sm sm:w-[calc(100%-3rem)] sm:px-4 lg:w-[calc(100%-4rem)]"
       >
         <div class="flex min-w-0 items-baseline gap-3">
           <p class="shrink-0 font-serif text-lg font-black tracking-wide">
-            ZUZU <span class="text-warning">/</span> KOALA ASSASSIN
+            ZUZU<span class="hidden sm:inline">
+              <span class="text-warning">/</span> KOALA ASSASSIN</span
+            >
           </p>
           <p
             class="hidden truncate text-[11px] font-bold uppercase tracking-[.22em] opacity-60 sm:block"
@@ -17,7 +19,7 @@
             {{ current.chapter }}
           </p>
         </div>
-        <div class="flex flex-wrap items-center gap-2">
+        <div class="flex shrink-0 items-center gap-1.5 sm:gap-2">
           <span
             class="rounded-md bg-base-200 px-3 py-1.5 text-xs font-bold"
             aria-label="Resources"
@@ -39,8 +41,14 @@
               >Sheet</span
             ><span class="hidden sm:inline">Character sheet</span>
           </button>
-          <button type="button" class="btn btn-ghost btn-sm" @click="restart">
-            New journey
+          <button
+            type="button"
+            class="btn btn-ghost btn-sm max-sm:px-2"
+            title="New journey"
+            @click="restart"
+          >
+            <icon name="kind-icon:refresh" class="size-4 sm:hidden" />
+            <span class="max-sm:sr-only">New journey</span>
           </button>
         </div>
       </div>
@@ -55,25 +63,26 @@
           :class="showSheet ? 'hidden lg:block' : ''"
         >
           <article
-            class="flex min-h-full flex-col gap-4 lg:gap-6"
+            class="flex min-h-full flex-col gap-4 md:gap-6"
+            :data-short-wide="shortWide ? '' : undefined"
             :class="
               layout === 'right'
-                ? 'lg:flex-row'
-                : 'lg:grid lg:grid-rows-[minmax(12rem,1fr)_auto]'
+                ? 'md:flex-row'
+                : 'md:grid md:grid-rows-[minmax(9rem,1fr)_auto]'
             "
           >
             <figure
-              class="relative isolate shrink-0 overflow-hidden rounded-2xl border border-warning/20 bg-stone-950 shadow-2xl lg:flex lg:aspect-auto lg:items-center lg:justify-center lg:[container-type:size]"
+              class="relative isolate shrink-0 overflow-hidden rounded-2xl border border-warning/20 bg-stone-950 shadow-2xl md:flex md:aspect-auto md:items-center md:justify-center md:[container-type:size]"
               :class="plateClass"
             >
               <img
                 :src="platePath(art)"
-                class="absolute inset-0 hidden size-full scale-110 object-cover opacity-90 blur-2xl brightness-75 lg:block"
+                class="absolute inset-0 hidden size-full scale-110 object-cover opacity-90 blur-2xl brightness-75 md:block"
                 alt=""
                 aria-hidden="true"
               />
               <div
-                class="relative size-full overflow-hidden lg:shadow-2xl lg:ring-1 lg:ring-black/50"
+                class="relative size-full overflow-hidden md:shadow-2xl md:ring-1 md:ring-black/50"
                 :class="frameClass"
               >
                 <img
@@ -91,8 +100,8 @@
               class="flex flex-col gap-6 rounded-2xl border border-warning/20 bg-base-200 px-5 py-5 shadow-xl sm:px-8"
               :class="
                 layout === 'top'
-                  ? 'lg:grid lg:grid-cols-[minmax(0,7fr)_minmax(18rem,5fr)] lg:items-start lg:gap-10'
-                  : 'lg:min-w-0 lg:flex-1 lg:justify-center'
+                  ? 'md:grid md:grid-cols-[minmax(0,7fr)_minmax(18rem,5fr)] md:items-start md:gap-10'
+                  : 'md:min-w-0 md:flex-1 md:justify-center'
               "
             >
               <div>
@@ -108,7 +117,7 @@
                   {{ current.title }}
                 </h2>
                 <p
-                  class="mt-4 max-w-3xl font-serif text-lg leading-[1.75] text-base-content xl:text-xl"
+                  class="zuzu-prose mt-4 max-w-3xl font-serif text-lg leading-[1.75] text-base-content xl:text-xl"
                 >
                   <template v-for="(part, i) in prose" :key="i">
                     <em v-if="part.em">{{ part.text }}</em>
@@ -124,7 +133,7 @@
                 </p>
                 <section
                   v-if="store.run.lastRoll"
-                  class="mt-5 border-y border-base-content/15 py-4"
+                  class="zuzu-roll mt-5 border-y border-base-content/15 py-4"
                   aria-live="polite"
                   aria-label="Last dice result"
                 >
@@ -160,7 +169,7 @@
                       <span
                         v-for="(die, index) of store.run.lastRoll.dice"
                         :key="index"
-                        class="zuzu-die grid size-12 place-items-center rounded-lg border-2 border-amber-900 bg-amber-100 font-serif text-2xl font-black text-stone-900 shadow-lg"
+                        class="zuzu-die zuzu-die-face grid size-12 place-items-center rounded-lg border-2 border-amber-900 bg-amber-100 font-serif text-2xl font-black text-stone-900 shadow-lg"
                         >{{ die }}</span
                       >
                       <span class="ml-2 text-sm opacity-70"
@@ -173,7 +182,7 @@
               <div class="min-w-0">
                 <div
                   v-if="current.battle && store.run.battle"
-                  class="rounded-xl border border-error/30 bg-base-300 p-4 sm:p-6"
+                  class="zuzu-battle rounded-xl border border-error/30 bg-base-300 p-4 sm:p-6"
                 >
                   <div
                     class="flex flex-wrap items-center justify-between gap-3"
@@ -211,7 +220,7 @@
                       :key="move.action"
                       type="button"
                       :aria-keyshortcuts="String(index + 1)"
-                      class="group rounded-xl border border-base-content/20 bg-base-100 p-3 text-left transition hover:border-warning hover:bg-base-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-warning"
+                      class="zuzu-move group rounded-xl border border-base-content/20 bg-base-100 p-3 text-left transition hover:border-warning hover:bg-base-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-warning"
                       :disabled="
                         move.action === 'quiet-draw' && store.run.resolve < 2
                       "
@@ -268,7 +277,7 @@
                       :aria-keyshortcuts="
                         index < 9 ? String(index + 1) : undefined
                       "
-                      class="group flex min-h-12 items-center gap-4 rounded-xl border border-base-content/20 bg-base-100 px-4 py-2.5 text-left transition hover:border-warning hover:bg-base-300 focus-visible:outline focus-visible:outline-2 focus-visible:outline-warning disabled:cursor-not-allowed disabled:opacity-45"
+                      class="zuzu-choice group flex min-h-12 items-center gap-4 rounded-xl border border-base-content/20 bg-base-100 px-4 py-2.5 text-left transition hover:border-warning hover:bg-base-300 focus-visible:outline focus-visible:outline-2 focus-visible:outline-warning disabled:cursor-not-allowed disabled:opacity-45"
                       @click="store.choose(choice.id)"
                     >
                       <span
@@ -444,22 +453,45 @@ const shape = computed(() => art.value.shape ?? 'wide')
 // page of display." Phones stack the plate above the text; from lg up the section fits the pane, the plate fills
 // whatever room the text leaves. The picture keeps close to its own shape inside that room (a wide plate may crop
 // to 12:5 at most) and a blur of itself fills the rest, so a short screen never slices it to a strip.
-const layout = computed(() => plateLayout(art.value))
+// Silas, 2026-10-16: on a landscape tablet a plate above the text left no room
+// for the choices. A wide, short screen sets every plate to the right.
+const shortWide = ref(false)
+const portraitTablet = ref(false)
+const layout = computed(() =>
+  shortWide.value
+    ? 'right'
+    : portraitTablet.value
+      ? 'top'
+      : plateLayout(art.value),
+)
 const plateClass = computed(() => [
   shape.value === 'wide'
     ? 'aspect-video'
     : shape.value === 'tall'
       ? 'aspect-[4/5]'
       : 'aspect-square',
-  layout.value === 'top' ? '' : 'lg:order-last lg:w-[min(44%,38rem)]',
+  layout.value === 'top' ? '' : 'md:order-last md:w-[min(44%,38rem)]',
+  // Phones stack the plate above the text; it keeps to a third of the screen
+  // so the section starts above the fold.
+  'max-md:max-h-[34svh]',
 ])
-const frameClass = computed(() =>
-  shape.value === 'wide'
-    ? 'lg:h-[100cqh] lg:w-[min(100cqw,240cqh)]'
-    : shape.value === 'tall'
-      ? 'lg:w-full lg:h-[min(100cqh,128cqw)]'
-      : 'lg:w-full lg:h-[min(100cqh,100cqw)]',
-)
+const frameClass = computed(() => {
+  // Beside the text on a short screen, any plate fills its column.
+  if (shortWide.value) return 'md:size-full'
+  if (shape.value === 'wide')
+    return layout.value === 'right'
+      ? 'md:size-full'
+      : 'md:h-[100cqh] md:w-[min(100cqw,240cqh)]'
+  // A tall or square plate above the text keeps its own shape, centred on a
+  // blur of itself, instead of being cropped to a strip.
+  if (layout.value === 'top')
+    return shape.value === 'tall'
+      ? 'md:h-[100cqh] md:w-[min(100cqw,80cqh)]'
+      : 'md:h-[100cqh] md:w-[min(100cqw,100cqh)]'
+  return shape.value === 'tall'
+    ? 'md:w-full md:h-[min(100cqh,128cqw)]'
+    : 'md:w-full md:h-[min(100cqh,100cqw)]'
+})
 const prose = computed(() => emphasis(current.value.text))
 const choices = computed(() => visibleChoices(store.run, current.value))
 const notes = computed(() => journal(store.run.flags))
@@ -521,11 +553,31 @@ function onKey(event: KeyboardEvent) {
   event.preventDefault()
   store.choose(choice.id)
 }
+let shortWideQuery: MediaQueryList | null = null
+let portraitTabletQuery: MediaQueryList | null = null
+function syncShortWide(): void {
+  shortWide.value = !!shortWideQuery?.matches
+  portraitTablet.value = !!portraitTabletQuery?.matches
+}
+
 onMounted(() => {
+  shortWideQuery = window.matchMedia(
+    '(min-width: 1024px) and (max-height: 820px)',
+  )
+  portraitTabletQuery = window.matchMedia(
+    '(min-width: 768px) and (orientation: portrait)',
+  )
+  syncShortWide()
+  shortWideQuery.addEventListener('change', syncShortWide)
+  portraitTabletQuery.addEventListener('change', syncShortWide)
   store.load()
   window.addEventListener('keydown', onKey)
 })
-onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
+onBeforeUnmount(() => {
+  window.removeEventListener('keydown', onKey)
+  shortWideQuery?.removeEventListener('change', syncShortWide)
+  portraitTabletQuery?.removeEventListener('change', syncShortWide)
+})
 useHead({ title: 'Zuzu: Koala Assassin · The Bell That Never Rang' })
 </script>
 
@@ -555,5 +607,59 @@ useHead({ title: 'Zuzu: Koala Assassin · The Bell That Never Rang' })
   .zuzu-die {
     animation: none;
   }
+}
+
+/* Wide but short (a landscape tablet): the plate sits right and the text
+   steps down a size so the choices stay in view (Silas, 2026-10-16). */
+article[data-short-wide] > figure {
+  width: min(34%, 30rem);
+}
+
+article[data-short-wide] .zuzu-battle {
+  padding: 0.75rem 1rem;
+}
+
+article[data-short-wide] .zuzu-battle > * + * {
+  margin-top: 0.5rem;
+}
+
+article[data-short-wide] .zuzu-move {
+  padding: 0.5rem 0.75rem;
+}
+
+article[data-short-wide] .zuzu-prose {
+  margin-top: 0.5rem;
+  font-size: 1rem;
+  line-height: 1.5;
+}
+
+article[data-short-wide] .zuzu-choice + .zuzu-choice {
+  margin-top: -0.125rem;
+}
+
+article[data-short-wide] .zuzu-choice {
+  min-height: 2.25rem;
+  padding-block: 0.25rem;
+}
+
+article[data-short-wide] > div {
+  gap: 0.75rem;
+  padding-block: 1rem;
+}
+
+article[data-short-wide] .zuzu-roll {
+  margin-top: 0.25rem;
+  padding-block: 0.25rem;
+}
+
+article[data-short-wide] .zuzu-die-face {
+  width: 2rem;
+  height: 2rem;
+  font-size: 1.125rem;
+}
+
+article[data-short-wide] h2 {
+  font-size: 1.5rem;
+  line-height: 2rem;
 }
 </style>

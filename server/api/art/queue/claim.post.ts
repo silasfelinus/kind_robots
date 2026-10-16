@@ -26,7 +26,10 @@
 // low-priority one could sit behind priority-100 work for hours (2026-09-12:
 // #21788, attempt 2, RUNNING for 63 minutes next to the live #21803). A relay
 // that genuinely renders several jobs at once opts out with singleSlot=false.
-import { artJobClaimableBy } from '~/utils/artJobMedia'
+import {
+  artJobClaimableBy,
+  isVideoRestyleArtJobPayload,
+} from '~/utils/artJobMedia'
 import { createError, defineEventHandler, readBody } from 'h3'
 import prisma from '../../../utils/prisma'
 import { errorHandler } from '../../../utils/error'
@@ -67,6 +70,7 @@ type ClaimRequestBody = {
   engines?: string[] | null
   supportsInputImages?: boolean | null
   supportsAudio?: boolean | null
+  supportsVideoRestyle?: boolean | null
   supportsCompletionProof?: boolean | null
   agentVersion?: string | null
   smartQueue?: boolean | null
@@ -103,6 +107,7 @@ export default defineEventHandler(async (event) => {
 
     const supportsInputImages = body?.supportsInputImages === true
     const supportsAudio = body?.supportsAudio === true
+    const supportsVideoRestyle = body?.supportsVideoRestyle === true
     const supportsCompletionProof = body?.supportsCompletionProof === true
     const smartQueue = body?.smartQueue !== false
     const singleSlot = body?.singleSlot !== false
@@ -141,6 +146,61 @@ export default defineEventHandler(async (event) => {
           scheduling: { mode: smartQueue ? 'SMART' : 'FIFO' },
         },
         statusCode: 200,
+      }
+    }
+
+    // KR Relay is the production VACE worker, not a second daemon. A relay
+    // declares this capability only after probing ffmpeg, VACE weights, and
+    // native ComfyUI video nodes. Dedicated pilots bypass the image-workflow
+    // normalizer, which cannot validate WanVaceToVideo payloads.
+    // There are normally 0-1 pilots; do not let priority -100 bury one
+    // behind thousands of still images. A relay without the capability
+    // always skips this block and can never claim a VACE pilot.
+    if (supportsVideoRestyle && engines.includes('COMFY')) {
+      const pilots = await prisma.artJob.findMany({
+        where: {
+          projectSlug: 'coat-dance',
+          engine: 'COMFY',
+          status: 'PENDING',
+          attempts: { lt: MAX_ATTEMPTS },
+        },
+        orderBy: [{ id: 'asc' }],
+        take: 20,
+      })
+      for (const pilot of pilots) {
+        if (!isVideoRestyleArtJobPayload(pilot.payload)) continue
+        const won = await prisma.artJob.updateMany({
+          where: {
+            id: pilot.id,
+            status: 'PENDING',
+            claimedAt: pilot.claimedAt,
+            attempts: { lt: MAX_ATTEMPTS },
+          },
+          data: {
+            status: 'RUNNING',
+            claimedAt: new Date(),
+            claimedBy,
+            attempts: { increment: 1 },
+          },
+        })
+        if (won.count !== 1) continue
+        const claimed = await prisma.artJob.findUnique({
+          where: { id: pilot.id },
+        })
+        return {
+          success: true,
+          message: 'VACE motion pilot claimed by KR Relay.',
+          statusCode: 200,
+          data: {
+            job: claimed ? decodeArtJobPayload(claimed) : null,
+            released,
+            relayContract: {
+              supportsCompletionProof,
+              completionProofRequired: false,
+            },
+            scheduling: { mode: 'VACE_PILOT' },
+          },
+        }
       }
     }
 
@@ -262,6 +322,7 @@ export default defineEventHandler(async (event) => {
           artJobClaimableBy(candidate.payload, {
             supportsInputImages,
             supportsAudio,
+            supportsVideoRestyle,
           }),
         )
 

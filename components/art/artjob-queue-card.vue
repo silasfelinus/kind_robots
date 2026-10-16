@@ -334,9 +334,9 @@
       >
         <p class="font-semibold">Coat Dance · motion-controlled VACE pilot</p>
         <p>
-          Registered in ArtJob. The standard relay cannot run motion-controlled
-          VACE jobs; this pilot requires the dedicated local GPU worker.
-          Progress synchronizes when the Coat Dance studio refreshes.
+          Registered in ArtJob. KR Relay will claim this VACE pilot when its GPU
+          reports the required Wan VACE 1.3B model, video nodes, and FFmpeg.
+          The normal relay process handles rendering and completion.
         </p>
         <NuxtLink to="/admin/coat-dance" class="btn btn-primary btn-sm text-primary-content">
           Open Coat Dance Studio

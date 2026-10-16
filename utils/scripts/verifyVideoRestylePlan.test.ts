@@ -60,10 +60,27 @@ assert.ok(reconcile.includes('syncRestylePilotArtJob'))
 assert.ok(artjob.includes('attemptFingerprint: fingerprint'))
 assert.ok(artjob.includes('projectSlug: PROJECT_SLUG'))
 assert.ok(artjob.includes('priority: -100'))
+const vaceReport = readFileSync(
+  'server/api/video-restyle/[id]/pilot/report.post.ts',
+  'utf8',
+)
+const vaceSource = readFileSync(
+  'server/api/video-restyle/[id]/pilot/source.get.ts',
+  'utf8',
+)
+const vaceClaim = readFileSync('server/api/art/queue/claim.post.ts', 'utf8')
+assert.ok(vaceClaim.includes('supportsVideoRestyle'))
+assert.ok(vaceClaim.includes("mode: 'VACE_PILOT'"))
+assert.ok(vaceReport.includes('requireClaimedVacePilot'))
+assert.ok(vaceReport.includes('sha256'))
+assert.ok(vaceSource.includes('requireClaimedVacePilot'))
+assert.ok(artjob.includes("executor: 'kr-relay'"))
+assert.ok(queueCard.includes('KR Relay will claim this VACE pilot'))
+
 assert.ok(studio.includes('View ArtJob #'))
 assert.ok(queueCard.includes('isRestylePilot'))
 assert.ok(queueCard.includes('Open Coat Dance Studio'))
-assert.ok(media.includes('if (isVideoRestyleArtJobPayload(body)) return false'))
+assert.ok(media.includes('return capabilities.supportsVideoRestyle === true'))
 
 const storeSource = readFileSync('stores/videoRestyleStore.ts', 'utf8')
 const refreshSource = storeSource.slice(

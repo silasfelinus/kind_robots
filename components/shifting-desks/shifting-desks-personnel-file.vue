@@ -12,6 +12,9 @@
           class="truncate font-mono text-[10px] font-black uppercase tracking-[.3em] text-stone-700 sm:text-xs"
         >
           Consolidated Wellness &amp; Defense · Personnel File #4471
+          <span v-if="daily" class="text-amber-800">
+            · Daily Memo {{ dailyLabel(daily) }}</span
+          >
         </p>
         <p
           id="file-heading"
@@ -60,7 +63,7 @@
             aria-label="Epilogue"
           >
             <shifting-desks-art
-              class="w-[26%] max-w-[13rem] shrink-0 self-start rounded-lg"
+              class="epilogue-art w-[26%] max-w-[13rem] shrink-0 self-start rounded-lg"
               frame="aspect-[2/3]"
               :src="stationArt('endings', epilogue.id)"
               :prompt="epilogue.epilogue.art_prompt"
@@ -219,8 +222,17 @@
         <icon name="kind-icon:refresh" size="1rem" /> New Wellness Weekend
       </button>
       <button
+        v-if="daily"
         type="button"
         class="btn btn-outline btn-sm sm:btn-md"
+        @click="shareDaily"
+      >
+        <icon name="kind-icon:copy" size="1rem" />
+        {{ shared ? 'Copied' : "Share today's memo" }}
+      </button>
+      <button
+        type="button"
+        class="btn btn-outline btn-sm max-sm:hidden sm:btn-md"
         @click="printFile"
       >
         <icon name="kind-icon:document" size="1rem" /> Print your file
@@ -256,6 +268,11 @@ import {
   START_GRADES,
 } from '~/utils/shiftingDesks/rules'
 import { useShiftingDesksStore } from '~/stores/shiftingDesksStore'
+import {
+  dailyDateOf,
+  dailyLabel,
+  dailyShareText,
+} from '~/utils/shiftingDesks/daily'
 
 const emit = defineEmits<{ again: []; front: [] }>()
 const tab = ref<'verdict' | 'departments' | 'results' | 'record'>('verdict')
@@ -362,6 +379,29 @@ const verdict = computed(() => {
   }
 })
 
+const daily = computed(() => dailyDateOf(run.value?.seed))
+const shared = ref(false)
+
+// The Daily Memo result: the native share sheet where there is one (phones,
+// tablets), otherwise the clipboard.
+async function shareDaily(): Promise<void> {
+  if (!run.value || !daily.value) return
+  const text = dailyShareText({
+    key: daily.value,
+    title: verdict.value.title,
+    successor: run.value.generation + 1,
+    files: filesHandled.value,
+    verdict: resultsVerdict.value.title,
+  })
+  try {
+    if (navigator.share) await navigator.share({ text })
+    else await navigator.clipboard.writeText(text)
+    shared.value = true
+  } catch {
+    // A dismissed share sheet is not an error worth surfacing.
+  }
+}
+
 function printFile(): void {
   window.print()
 }
@@ -428,6 +468,10 @@ function printFile(): void {
   .file-summary {
     font-size: 1rem;
     line-height: 1.4rem;
+  }
+
+  .epilogue-art {
+    width: 7.5rem;
   }
 }
 </style>

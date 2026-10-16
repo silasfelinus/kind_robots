@@ -157,13 +157,25 @@
                       ? 'border-amber-100 bg-stone-950/85 text-amber-50 hover:bg-stone-900'
                       : 'border-amber-300 bg-amber-300 text-stone-950 hover:bg-amber-200'
                   "
-                  @click="screen = 'hire'"
+                  @click="beginHire(false)"
                 >
                   <icon
                     :name="run ? 'kind-icon:refresh' : 'kind-icon:play'"
                     class="size-5"
                   />
                   {{ run ? 'New game' : 'Begin' }}
+                </button>
+                <button
+                  type="button"
+                  class="btn btn-lg border-amber-100 bg-stone-950/85 text-amber-50 shadow-xl hover:bg-stone-900"
+                  :title="`Today's Daily Memo (${todayLabel}): the same files for everyone, every day`"
+                  @click="beginHire(true)"
+                >
+                  <icon name="kind-icon:calendar" class="size-5" />
+                  Daily Memo
+                  <span class="text-sm font-normal opacity-80">{{
+                    todayLabel
+                  }}</span>
                 </button>
               </div>
               <shifting-desks-style-picker
@@ -183,6 +195,11 @@
         >
           <p class="font-mono text-sm font-black uppercase tracking-widest">
             Choose your job title
+            <span
+              v-if="dailyNext"
+              class="ml-2 rounded-md bg-amber-300 px-1.5 py-0.5 text-stone-950"
+              >Daily Memo · {{ todayLabel }}</span
+            >
           </p>
           <button
             type="button"
@@ -235,7 +252,7 @@
           >
             <div class="kr-pane-scroll flex flex-col gap-2 p-3 sm:p-4">
               <shifting-desks-art
-                class="hidden shrink-0 rounded-xl border-2 border-stone-800 lg:block"
+                class="hire-portrait hidden shrink-0 rounded-xl border-2 border-stone-800 lg:block"
                 frame="aspect-[16/9]"
                 :src="stationArt('jobs', pickedJob.id)"
                 :prompt="jobPrompt(pickedJob.id)"
@@ -319,7 +336,7 @@
       >
         <shifting-desks-personnel-file
           class="min-h-0 flex-1"
-          @again="screen = 'hire'"
+          @again="beginHire(false)"
           @front="toFront"
         />
       </section>
@@ -891,6 +908,7 @@ import {
   successorLine,
 } from '~/utils/shiftingDesks/memos'
 import { useShiftingDesksStore } from '~/stores/shiftingDesksStore'
+import { dailyDateOf, dailyKey, dailyLabel } from '~/utils/shiftingDesks/daily'
 import {
   ART_STYLES,
   ART_STYLE_SAMPLE,
@@ -945,7 +963,9 @@ const hudTipText = computed(() => {
     const notice = currentNotice.value
       ? ` Restructured: ${currentNotice.value.headline}. ${currentNotice.value.reason}`
       : ''
+    const daily = dailyDateOf(run.value.seed)
     return (
+      (daily ? `Daily Memo, ${dailyLabel(daily)}. ` : '') +
       `${floorFor(dept)} · ${dept.department.title.split(':')[0]}. ` +
       `File ${at} of ${total}. You are ${employee.value}, ${jobTitle.value}.` +
       notice
@@ -1262,8 +1282,17 @@ function hasCost(choice: Choice): boolean {
   return Object.keys(choice.cost).length > 0
 }
 
+// Silas, 2026-10-16 (free rein): the Daily Memo, one seeded run per day.
+const dailyNext = ref(false)
+const todayLabel = dailyLabel(dailyKey())
+
+function beginHire(daily: boolean): void {
+  dailyNext.value = daily
+  screen.value = 'hire'
+}
+
 function hire(jobId: string): void {
-  store.start(jobId)
+  store.start(jobId, { daily: dailyNext.value })
   opened.value = false
   spendForm.value = false
   screen.value = 'play'
@@ -1409,6 +1438,11 @@ useHead({ title: 'Shifting Desks' })
   .choice-card-compact {
     padding-block: 0.25rem;
     gap: 0.125rem;
+  }
+
+  .hire-portrait {
+    aspect-ratio: auto;
+    height: 9rem;
   }
 
   .desk-brief > p:first-child {

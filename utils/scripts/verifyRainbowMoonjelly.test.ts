@@ -2,10 +2,14 @@ import assert from 'node:assert/strict'
 import {
   MOONJELLY,
   moonjellyDialogue,
+  MOONJELLY_SECTIONS,
+  MOONJELLY_WAVES,
+  MOONJELLY_WAVE_SIZES,
   moonjellyScene,
-  moonjellySpawn,
+  moonjellySpawns,
   moonjellyStage,
 } from '../arcade/games/rainbowMoonjelly'
+import { laneY } from '../arcade/games/rainbowFormations'
 import {
   AURELIA_MAX_HP,
   createMoonjellyBoss,
@@ -22,15 +26,58 @@ assert.equal(moonjellyStage(MOONJELLY.turnEnds, null), 'remix')
 assert.equal(moonjellyStage(MOONJELLY.approachStarts, null), 'approach')
 assert.equal(moonjellyStage(MOONJELLY.bossStarts, null), 'boss')
 assert.equal(moonjellyStage(5000, 4900), 'aftermath')
-assert.equal(moonjellySpawn(260), null)
-assert.equal(moonjellySpawn(325), 'lantern')
-assert.equal(moonjellySpawn(1120), 'relay')
-assert.equal(moonjellySpawn(1900), 'skimmer')
-assert.equal(moonjellySpawn(2635), 'coral')
-assert.equal(moonjellySpawn(3600), 'relay')
-assert.equal(moonjellySpawn(3696), 'lantern')
-assert.equal(moonjellySpawn(MOONJELLY.turnStarts), null)
-assert.equal(moonjellySpawn(MOONJELLY.approachStarts), null)
+assert.deepEqual(moonjellySpawns(260), [], 'opening comms are a safe corridor')
+assert.deepEqual(
+  moonjellySpawns(330).map((spawn) => [spawn.kind, spawn.y]),
+  [['lantern', laneY(0.5)]],
+  'the gap lesson opens with one lantern',
+)
+assert.equal(moonjellySpawns(1560)[0]?.kind, 'relay')
+assert.equal(moonjellySpawns(2760)[0]?.kind, 'skimmer')
+assert.equal(moonjellySpawns(4260)[0]?.kind, 'coral')
+assert.ok(
+  moonjellySpawns(330)[0]!.wave >= MOONJELLY.waveBase,
+  'Act II formations never share a school id with Act I',
+)
+assert.deepEqual(moonjellySpawns(MOONJELLY.turnStarts), [])
+assert.deepEqual(moonjellySpawns(MOONJELLY.approachStarts), [])
+
+// Authored formations: craft enter only in waves and remix, on the playfield, inside a section.
+let actTwoCraft = 0
+for (let frame = 0; frame < MOONJELLY.bossStarts + 600; frame++) {
+  for (const spawn of moonjellySpawns(frame)) {
+    actTwoCraft++
+    const stage = moonjellyStage(frame, null)
+    assert.ok(stage === 'waves' || stage === 'remix', `frame ${frame}`)
+    assert.ok(spawn.y >= laneY(0) && spawn.y <= laneY(1))
+    assert.ok(
+      MOONJELLY_SECTIONS.some((s) => frame >= s.from && frame < s.to),
+      `frame ${frame} sits in a section`,
+    )
+  }
+}
+assert.equal(
+  actTwoCraft,
+  MOONJELLY_WAVE_SIZES.reduce((sum, size) => sum + size, 0),
+  'every Act II formation member spawns',
+)
+assert.ok(actTwoCraft >= 80, `Act II authors ${actTwoCraft} craft`)
+for (const section of MOONJELLY_SECTIONS) {
+  assert.ok(
+    MOONJELLY_WAVES.some((w) => w.at >= section.from && w.at < section.to),
+    `${section.name} has waves`,
+  )
+}
+// Nemi drifts in through a lane no formation crosses while she is on screen.
+for (
+  let frame = MOONJELLY.nemiAppears - 60;
+  frame <= MOONJELLY.nemiAppears + 60;
+  frame++
+) {
+  for (const spawn of moonjellySpawns(frame)) {
+    assert.ok(Math.abs(spawn.y - 158) >= 30, `Nemi's lane clear at ${frame}`)
+  }
+}
 assert.equal(moonjellyScene(0, null)?.id, 'A02.OPEN')
 assert.equal(moonjellyScene(1500, null), null)
 assert.equal(moonjellyScene(MOONJELLY.turnStarts, null)?.id, 'A02.TURN')

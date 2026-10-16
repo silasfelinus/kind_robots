@@ -192,7 +192,8 @@ export const useVideoRestyleStore = defineStore('videoRestyle', () => {
       jobs.value = jobs.value.map((job) =>
         job.id === id ? response.data! : job,
       )
-      notice.value = 'Pilot revision queued for KR Relay. Earlier results are preserved.'
+      notice.value =
+        'Pilot revision queued for KR Relay. Earlier results are preserved.'
       return true
     } finally {
       busy.value = false
@@ -225,7 +226,10 @@ export const useVideoRestyleStore = defineStore('videoRestyle', () => {
     }
   }
 
-  async function loadPilotPreview(id: string, previous = false): Promise<boolean> {
+  async function loadPilotPreview(
+    id: string,
+    previous = false,
+  ): Promise<boolean> {
     if (!import.meta.client) return false
     const userStore = useUserStore()
     const token = userStore.token || userStore.user?.token

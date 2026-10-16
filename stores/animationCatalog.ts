@@ -828,6 +828,18 @@ export const ANIMATION_EFFECTS = [
     generationSafe: true,
     preferredSurface: 'fullscreen',
   },
+  {
+    id: 'glowworm-grotto',
+    label: 'Glowworm Grotto',
+    reveal: 'Glowworm threads pulse in a slow wave across a cave ceiling',
+    icon: 'kind-icon:sparkle',
+    tooltip:
+      'Dozens of glowworm threads shimmer in a travelling wave 🪱 hover to brighten the ones near you, click to flash the whole grotto',
+    color: '#8cffd2',
+    releasedAt: '2026-10-16T12:00:00Z',
+    generationSafe: true,
+    preferredSurface: 'fullscreen',
+  },
 ] as const satisfies readonly AnimationEffectDefinition[]
 
 export type AnimationEffectId = (typeof ANIMATION_EFFECTS)[number]['id']

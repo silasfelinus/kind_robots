@@ -296,14 +296,30 @@
               Looks are prompt-guided Wan VACE treatments. 1080p is upscaled
               after assembly.
             </p>
-            <div class="space-y-2 rounded-xl border border-base-300 bg-base-200/70 p-2 text-xs">
+            <div
+              class="space-y-2 rounded-xl border border-base-300 bg-base-200/70 p-2 text-xs"
+            >
               <label class="flex cursor-pointer items-center gap-2">
-                <input v-model="isPrivate" type="checkbox" class="checkbox checkbox-sm" />
-                <span><strong>Keep private</strong> · saved for a later release choice</span>
+                <input
+                  v-model="isPrivate"
+                  type="checkbox"
+                  class="checkbox checkbox-sm"
+                />
+                <span
+                  ><strong>Keep private</strong> · saved for a later release
+                  choice</span
+                >
               </label>
               <label class="flex cursor-pointer items-center gap-2">
-                <input v-model="isMature" type="checkbox" class="checkbox checkbox-sm" />
-                <span><strong>Mature content</strong> · mark this video appropriately</span>
+                <input
+                  v-model="isMature"
+                  type="checkbox"
+                  class="checkbox checkbox-sm"
+                />
+                <span
+                  ><strong>Mature content</strong> · mark this video
+                  appropriately</span
+                >
               </label>
               <p class="text-base-content/70">
                 All source videos and pilots stay access-controlled, even when
@@ -336,7 +352,9 @@
               :disabled="store.busy"
               @click="createVariant"
             >
-              {{ store.busy ? 'Creating…' : 'New style project from saved video' }}
+              {{
+                store.busy ? 'Creating…' : 'New style project from saved video'
+              }}
             </button>
             <p v-if="store.selected && !sourceFile" class="kr-text-faded-xs">
               Creates an independent project without uploading again or altering
@@ -360,7 +378,9 @@
                 Refresh
               </button>
             </div>
-            <div class="kr-pane-scroll min-h-0 max-h-[29vh] shrink-0 space-y-1 overflow-y-auto sm:max-h-[36vh] lg:max-h-none lg:flex-1">
+            <div
+              class="kr-pane-scroll min-h-0 max-h-[29vh] shrink-0 space-y-1 overflow-y-auto sm:max-h-[36vh] lg:max-h-none lg:flex-1"
+            >
               <p
                 v-if="!store.jobs.length"
                 class="kr-text-faded-sm rounded-xl border border-dashed border-base-300 p-4"
@@ -380,9 +400,15 @@
                 "
                 @click="selectJob(job)"
               >
-                <span class="flex min-w-0 flex-wrap items-start justify-between gap-x-2 gap-y-1">
-                  <strong class="min-w-0 flex-1 break-words text-sm">{{ job.title }}</strong>
-                  <span class="shrink-0 rounded-md bg-base-200 px-1.5 py-0.5 text-[10px] font-semibold">
+                <span
+                  class="flex min-w-0 flex-wrap items-start justify-between gap-x-2 gap-y-1"
+                >
+                  <strong class="min-w-0 flex-1 break-words text-sm">{{
+                    job.title
+                  }}</strong>
+                  <span
+                    class="shrink-0 rounded-md bg-base-200 px-1.5 py-0.5 text-[10px] font-semibold"
+                  >
                     {{ statusLabel(job.status) }}
                   </span>
                 </span>
@@ -390,7 +416,9 @@
                   >{{ formatRestyleTime(job.sourceDurationSec) }} ·
                   {{ labelFor(job.style) }}
                   <span v-if="job.isMature"> · Mature</span>
-                  <span v-if="job.isPrivate === false"> · Publication candidate</span>
+                  <span v-if="job.isPrivate === false">
+                    · Publication candidate</span
+                  >
                 </span>
                 >
                 <span class="mt-1 block text-[10px] opacity-60">{{
@@ -404,7 +432,8 @@
             >
               <p class="font-bold">Saved render plan</p>
               <p class="text-base-content/70 sm:hidden">
-                {{ store.selected.segments.length }} windows · {{ store.selected.quality }} target
+                {{ store.selected.segments.length }} windows ·
+                {{ store.selected.quality }} target
               </p>
               <div class="hidden grid-cols-2 gap-2 sm:grid">
                 <span class="rounded-lg bg-base-200 p-2"
@@ -500,17 +529,24 @@
                 Watch previous pilot for comparison
               </button>
               <p v-if="lookChanged" class="kr-text-faded-xs">
-                {{ store.selected.status === 'STAGED'
-                  ? 'Save these settings in Looks before rendering.'
-                  : 'This project is already rendering or reviewed. Create a separate style project in Looks.' }}
+                {{
+                  store.selected.status === 'STAGED'
+                    ? 'Save these settings in Looks before rendering.'
+                    : 'This project is already rendering or reviewed. Create a separate style project in Looks.'
+                }}
               </p>
             </div>
-            <details class="shrink-0 rounded-xl border border-base-300 bg-base-200/50 p-2 text-xs">
-              <summary class="cursor-pointer font-semibold">How rendering works</summary>
+            <details
+              class="shrink-0 rounded-xl border border-base-300 bg-base-200/50 p-2 text-xs"
+            >
+              <summary class="cursor-pointer font-semibold">
+                How rendering works
+              </summary>
               <p class="mt-2 leading-relaxed text-base-content/70">
-                KR Relay processes motion-controlled pilots using your saved video.
-                Each look has its own render project. The full-length render waits
-                for pilot review; no video is published from this studio.
+                KR Relay processes motion-controlled pilots using your saved
+                video. Each look has its own render project. The full-length
+                render waits for pilot review; no video is published from this
+                studio.
               </p>
             </details>
           </section>

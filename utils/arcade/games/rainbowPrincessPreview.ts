@@ -32,6 +32,7 @@ import {
   drawRainbowEnemySprite,
   drawRainbowPickupSprite,
   drawRainbowShipSprite,
+  drawRainbowStageStrip,
   drawRainbowSuperCutin,
 } from './rainbowGameArt'
 import { RAINBOW_PILOTS } from './rainbowPilots'
@@ -61,6 +62,8 @@ const PILOT_COLORS = ['#ffd2ef', '#b8f8ff', '#ffe99f', '#b9a9ff'] as const
 const SHIP_NAMES = ['PETAL', 'PRISM', 'HALO', 'COMET'] as const
 const BURST_FRAMES = 42
 const CUTIN_FADE_FRAMES = 10
+const STRIP_HEIGHT = 50
+const STRIP_SPEED = 0.55
 /** HUD text clears the cabinet's corner chips (close/fullscreen left, pause right). */
 const HUD_LEFT = 44
 const HUD_RIGHT = W - 26
@@ -813,6 +816,18 @@ export function createRainbowPrincessPreview(
           }
         }
       }
+      // Near coral plane: keyed painted strip along the floor, behind every enemy, shot and ship.
+      g.save()
+      g.globalAlpha = 0.92
+      drawRainbowStageStrip(
+        g,
+        moonStart === null ? 's01' : 's02',
+        (moonStart === null ? tick : moonFrame()) * STRIP_SPEED,
+        H - STRIP_HEIGHT,
+        STRIP_HEIGHT,
+        W,
+      )
+      g.restore()
       for (const reef of reefs) {
         g.save()
         g.translate(reef.x, reef.y)

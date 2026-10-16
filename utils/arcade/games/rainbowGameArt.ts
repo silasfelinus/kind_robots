@@ -178,6 +178,35 @@ export function drawRainbowSuperCutin(
   return width
 }
 
+/**
+ * Keyed foreground coral strips for the playable stages (round-14 Kontext 247628 and 247630), each saved
+ * as the strip followed by its mirror so the tile loops without a seam.
+ */
+export const RAINBOW_STAGE_STRIPS = ['s01', 's02'] as const
+export type RainbowStageStrip = (typeof RAINBOW_STAGE_STRIPS)[number]
+
+export function rainbowStageStrip(stage: RainbowStageStrip): string {
+  return `${RAINBOW_GAME_ART_ROOT}/stages/${stage}-fore.webp`
+}
+
+/** Tile the stage's strip across the playfield at (0, y), scrolled left by `scroll` logical pixels. */
+export function drawRainbowStageStrip(
+  g: CanvasRenderingContext2D,
+  stage: RainbowStageStrip,
+  scroll: number,
+  y: number,
+  height: number,
+  width = 480,
+): boolean {
+  const img = loadedImage(rainbowStageStrip(stage))
+  if (!img) return false
+  const tile = (height * img.naturalWidth) / img.naturalHeight
+  for (let x = -(((scroll % tile) + tile) % tile); x < width; x += tile) {
+    g.drawImage(img, x, y, tile, height)
+  }
+  return true
+}
+
 function drawFitted(
   g: CanvasRenderingContext2D,
   src: string,

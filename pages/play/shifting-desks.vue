@@ -30,13 +30,13 @@
             "
           />
           <icon name="kind-icon:palette" class="size-4" />
-          <span class="hidden sm:inline">{{ currentArtStyle.label }}</span>
+          <span class="hidden lg:inline">{{ currentArtStyle.label }}</span>
           <span class="sr-only">art style, change</span>
         </button>
         <button
           v-if="atDesk && run"
           type="button"
-          class="dept-banner flex min-w-0 shrink items-center gap-2 rounded-lg border-2 border-stone-800 px-2 py-1 text-stone-900"
+          class="dept-banner flex min-w-0 shrink items-center gap-2 sm:max-w-fit sm:flex-1 sm:basis-0 rounded-lg border-2 border-stone-800 px-2 py-1 text-stone-900"
           :aria-describedby="hudTip === 'floor' ? 'hud-tip' : undefined"
           v-bind="tipHandlers('floor')"
         >
@@ -63,7 +63,7 @@
         </button>
         <div
           v-if="run"
-          class="flex flex-1 flex-wrap items-center justify-end gap-1 sm:gap-1.5"
+          class="flex flex-wrap items-center justify-end gap-1 sm:shrink-0 sm:gap-1.5 max-sm:flex-1"
           :class="{ 'max-sm:basis-full': atDesk }"
           aria-label="Your file"
         >

@@ -6,6 +6,7 @@ import {
   readFile,
   readdir,
   rename,
+  rm,
   writeFile,
 } from 'node:fs/promises'
 import path from 'node:path'
@@ -33,6 +34,9 @@ export type VideoRestyleJob = {
   sourceDurationProvenance: 'browser-unverified'
   style: RestyleStyleId
   quality: RestyleQuality
+  isPrivate?: boolean
+  isMature?: boolean
+  sourceProjectId?: string
   status: RestyleStatus
   stage: string
   progress: number
@@ -130,6 +134,8 @@ export async function stageRestyleVideo(input: {
   style: unknown
   quality: unknown
   durationSec: unknown
+  isPrivate?: unknown
+  isMature?: unknown
 }): Promise<VideoRestyleJob> {
   if (!input.data.length || input.data.length > RESTYLE_MAX_BYTES) {
     throw createError({
@@ -180,6 +186,8 @@ export async function stageRestyleVideo(input: {
     sourceDurationProvenance: 'browser-unverified',
     style: input.style,
     quality: input.quality,
+    isPrivate: restyleFlag(input.isPrivate, true),
+    isMature: restyleFlag(input.isMature, false),
     status: 'STAGED',
     stage: 'Waiting for a motion-conditioned render worker',
     progress: 0,
@@ -211,11 +219,79 @@ export async function stageRestyleVideo(input: {
   return job
 }
 
+function restyleFlag(value: unknown, fallback: boolean): boolean {
+  if (value === undefined || value === null) return fallback
+  if (value === true || value === 'true') return true
+  if (value === false || value === 'false') return false
+  throw createError({ statusCode: 400, message: 'Invalid video privacy or maturity setting.' })
+}
+
+export async function cloneRestyleVideo(input: {
+  userId: number
+  id: string
+  title: unknown
+  style: unknown
+  quality: unknown
+  isPrivate?: unknown
+  isMature?: unknown
+}): Promise<VideoRestyleJob> {
+  const source = await loadRestyleJob(input.userId, input.id)
+  if (!/^source\.(mp4|mov|webm)$/.test(source.sourceFile)) {
+    throw createError({ statusCode: 400, message: 'Invalid saved source file.' })
+  }
+  if (!isRestyleStyle(input.style)) {
+    throw createError({ statusCode: 400, message: 'Unknown animation style.' })
+  }
+  if (input.quality !== '720p' && input.quality !== '1080p') {
+    throw createError({ statusCode: 400, message: 'Choose 720p or 1080p.' })
+  }
+  const id = randomUUID()
+  const folder = path.join(root(input.userId), id)
+  const now = new Date().toISOString()
+  const style = RESTYLE_STYLES.find((entry) => entry.id === input.style)!
+  const cloned: VideoRestyleJob = {
+    ...source,
+    id,
+    title: String(input.title || `${source.title} · ${style.label}`).trim().slice(0, 120) || source.title,
+    sourceProjectId: source.sourceProjectId ?? source.id,
+    style: input.style,
+    quality: input.quality,
+    isPrivate: restyleFlag(input.isPrivate, source.isPrivate ?? true),
+    isMature: restyleFlag(input.isMature, source.isMature ?? false),
+    status: 'STAGED',
+    stage: 'Saved source reused; ready to queue a new style pilot',
+    progress: 0,
+    pilot: undefined,
+    resultFile: null,
+    error: null,
+    createdAt: now,
+    updatedAt: now,
+    renderRecipe: {
+      ...source.renderRecipe,
+      stylePrompt: style.prompt,
+      upscaleAfterAssembly: input.quality === '1080p',
+    },
+  }
+  await mkdir(folder, { recursive: false, mode: 0o700 })
+  try {
+    await copyFile(restyleSourcePath(source), path.join(folder, source.sourceFile), constants.COPYFILE_EXCL)
+    await writeFile(path.join(folder, 'job.json'), JSON.stringify(cloned, null, 2), {
+      flag: 'wx', mode: 0o600,
+    })
+  } catch (error) {
+    await rm(folder, { recursive: true, force: true })
+    throw error
+  }
+  return cloned
+}
+
 export async function updateRestyleSettings(
   userId: number,
   id: string,
   styleId: unknown,
   quality: unknown,
+  isPrivate?: unknown,
+  isMature?: unknown,
 ): Promise<VideoRestyleJob> {
   if (!isRestyleStyle(styleId)) {
     throw createError({ statusCode: 400, message: 'Unknown animation style.' })
@@ -236,6 +312,8 @@ export async function updateRestyleSettings(
     ...job,
     style: styleId,
     quality,
+    isPrivate: restyleFlag(isPrivate, job.isPrivate ?? true),
+    isMature: restyleFlag(isMature, job.isMature ?? false),
     updatedAt: new Date().toISOString(),
     renderRecipe: {
       ...job.renderRecipe,
@@ -264,12 +342,6 @@ export async function queueRestylePilot(
     throw createError({
       statusCode: 409,
       message: 'Pilot is already queued or being rendered.',
-    })
-  }
-  if (job.style !== 'illustrious') {
-    throw createError({
-      statusCode: 400,
-      message: 'The first motion-preserving pilot must use Illustrious cel.',
     })
   }
   const priorRevision = job.pilot?.revision ?? 1

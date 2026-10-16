@@ -600,6 +600,32 @@ assert.equal(
 assert.equal(plain.deck.length, RECORDS.locations.length + 1 + SHIFT)
 
 // Window shifts (conductor shifting-desks t-016)
+// Toy Division's Recall Desk (conductor shifting-desks t-028): a second
+// window shift, at the Proving Grounds, with its own SAFE / RECALL stamps.
+{
+  const recall = TOY_DIVISION.window_shift!
+  assert.equal(recall.id, 'recall-desk-friday')
+  assert.equal(recall.location_id, 'proving-grounds')
+  assert.equal(recall.applicants.length, 4)
+  assert.ok(
+    recall.applicants.every(
+      (a) =>
+        a.choices
+          .map((c) => c.label)
+          .sort()
+          .join() === 'Stamp RECALL,Stamp SAFE',
+    ),
+  )
+  assert.ok(
+    recall.applicants.some((a) => windowApplicant(`${WINDOW_PREFIX}${a.id}`)),
+    'recall applicants resolve like Window 9 applicants',
+  )
+}
+assert.match(
+  asset('../../components/shifting-desks/shifting-desks-window.vue'),
+  /stampFace\(stamp\)/,
+  'each desk shows its own stamp words',
+)
 const shift = RECORDS.window_shift!
 assert.equal(shift.location_id, 'window-9')
 assert.ok(shift.applicants.length >= 3 && shift.applicants.length <= 5)

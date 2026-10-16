@@ -68,8 +68,8 @@
             >
           </div>
           <p class="text-xs text-pink-100/75">
-            Pilot training only. Campaign, boss encounters and online co-op are
-            still being built.
+            Acts I and II are playable previews with bosses. The full campaign
+            and online co-op are still being built.
           </p>
         </div>
       </section>
@@ -170,6 +170,14 @@
                   Super
                 </dt>
                 <dd>
+                  <img
+                    :src="rainbowSuperCutin(pilot.seat)"
+                    :alt="`${pilot.name} firing ${pilot.superName}`"
+                    width="360"
+                    height="124"
+                    loading="lazy"
+                    class="mb-2 aspect-[360/124] w-full rounded-lg border border-white/15 object-cover"
+                  />
                   <span class="font-bold">{{ pilot.superName }}</span
                   >:
                   {{ pilot.superDetail }}
@@ -219,32 +227,85 @@
             <p class="text-sm leading-relaxed opacity-80">
               Choose one to four pilots on the cabinet attract screen. Move with
               arrows or your assigned controls; hold A to fire. Your ship marker
-              is numbered, so it reads through the spectacle. B restores a
-              damaged practice shield.
+              is numbered, so it reads through the spectacle.
             </p>
             <p class="text-sm leading-relaxed opacity-80">
-              The simulator has moving marine scouts and live hit detection. It
-              is not the eight-stage game yet, and scores are intentionally
+              Hold B to focus: you fly slower, fire a tight fast stream and see
+              your exact hitbox. Downing shoals fills your charge; tap B at 100%
+              for your super, which clears every enemy shot on screen.
+            </p>
+            <p class="text-sm leading-relaxed opacity-80">
+              Act I Pinkwake and Act II Moonjelly are playable previews, each
+              with a rescue, pilot comms and a three-phase boss. They are
+              shortened slices of the eight-stage campaign, and scores stay
               private.
             </p>
           </section>
-          <section class="kr-panel space-y-3 p-5">
-            <h3 class="text-xl font-bold">The full expedition</h3>
-            <ol class="space-y-2 text-sm">
-              <li
-                v-for="(stage, index) in stages"
-                :key="stage"
-                class="flex gap-2"
-              >
-                <span class="font-mono text-secondary">{{
-                  String(index + 1).padStart(2, '0')
-                }}</span
-                >{{ stage }}
-              </li>
-            </ol>
-          </section>
         </aside>
       </div>
+
+      <section
+        id="princess-expedition"
+        class="space-y-4"
+        aria-labelledby="princess-expedition-title"
+      >
+        <div class="flex flex-wrap items-end justify-between gap-3">
+          <div>
+            <p class="text-xs uppercase tracking-widest text-secondary">
+              The full expedition · S01–S08
+            </p>
+            <h3 id="princess-expedition-title" class="text-2xl font-bold">
+              Eight seas to the Eclipse Palace
+            </h3>
+          </div>
+          <p class="max-w-md text-sm opacity-75">
+            Pinkwake and Moonjelly fly today. The other six seas are being
+            built.
+          </p>
+        </div>
+        <ol class="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+          <li
+            v-for="(stage, index) in stages"
+            :key="stage.name"
+            class="overflow-hidden rounded-2xl border border-primary/20 bg-[#251345] text-white shadow-sm"
+          >
+            <div
+              class="relative aspect-[640/366] overflow-hidden bg-gradient-to-br from-[#3b2470] via-[#251345] to-[#0f2a4a]"
+            >
+              <img
+                v-if="stage.card"
+                :src="stage.card"
+                :alt="`${stage.name} title card: the four pilot ships over ${stage.scene}`"
+                width="640"
+                height="366"
+                loading="lazy"
+                class="h-full w-full object-cover"
+              />
+              <span
+                class="absolute left-3 top-3 rounded-full bg-[#251345]/85 px-3 py-1 font-mono text-xs font-bold"
+                >S{{ String(index + 1).padStart(2, '0') }}</span
+              >
+              <span
+                class="absolute right-3 top-3 rounded-full px-3 py-1 text-xs font-bold"
+                :class="
+                  stage.playable
+                    ? 'bg-pink-200 text-[#37204e]'
+                    : 'bg-[#251345]/85 text-white'
+                "
+                >{{
+                  stage.playable ? 'Playable preview' : 'In production'
+                }}</span
+              >
+            </div>
+            <div class="space-y-1 p-4">
+              <h4 class="text-lg font-black">{{ stage.name }}</h4>
+              <p class="text-sm leading-relaxed text-white/80">
+                {{ stage.setting }}
+              </p>
+            </div>
+          </li>
+        </ol>
+      </section>
     </div>
   </main>
 </template>
@@ -256,6 +317,7 @@ import {
   RAINBOW_HERO_ART,
   RAINBOW_PILOTS,
 } from '~/utils/arcade/games/rainbowPilots'
+import { rainbowSuperCutin } from '~/utils/arcade/games/rainbowGameArt'
 
 const user = useUserStore()
 const missionCards = [
@@ -278,15 +340,65 @@ const missionCards = [
       'Simultaneous 1–4 player combat is the goal. Local pilots work in this engine preview; online rooms come later.',
   },
 ]
+const STAGE_CARD_ROOT = '/rainbow-princess-art/stages'
 const stages = [
-  'Pinkwake Estuary',
-  'Moonjelly Fields',
-  'Chromatic Trench',
-  'Rosefin Express',
-  'Blossom Wreckyard',
-  'Crown Reef',
-  'Glass Current',
-  'Eclipse Palace',
+  {
+    name: 'Pinkwake Estuary',
+    setting: 'A pink cloud sea of glass buoys, pearly shoals and coral.',
+    scene: 'a pink cloud sea',
+    card: `${STAGE_CARD_ROOT}/s01-card.webp`,
+    playable: true,
+  },
+  {
+    name: 'Moonjelly Fields',
+    setting:
+      'A translucent nebula of floating bell towers and charged tendrils.',
+    scene: 'a teal jellyfish nebula',
+    card: `${STAGE_CARD_ROOT}/s02-card.webp`,
+    playable: true,
+  },
+  {
+    name: 'Chromatic Trench',
+    setting: 'An indigo void of volcanic vents and abandoned vaults.',
+    scene: 'an indigo canyon of glowing vents',
+    card: `${STAGE_CARD_ROOT}/s03-card.webp`,
+    playable: false,
+  },
+  {
+    name: 'Rosefin Express',
+    setting: 'Streaming aurora, transit rings and migrating light-rail trains.',
+    scene: 'a rose and green aurora above light-rail trains',
+    card: `${STAGE_CARD_ROOT}/s04-card.webp`,
+    playable: false,
+  },
+  {
+    name: 'Blossom Wreckyard',
+    setting: 'A starship graveyard of petal wreck slabs and dock machinery.',
+    scene: 'a starship graveyard',
+    card: `${STAGE_CARD_ROOT}/s05-card.webp`,
+    playable: false,
+  },
+  {
+    name: 'Crown Reef',
+    setting: 'A gold nebula of coral megastructures and glowing arches.',
+    scene: 'golden coral arches',
+    card: `${STAGE_CARD_ROOT}/s06-card.webp`,
+    playable: false,
+  },
+  {
+    name: 'Glass Current',
+    setting: 'A mirrored star canyon of crystal strata and fractured beams.',
+    scene: 'a mirrored crystal canyon',
+    card: `${STAGE_CARD_ROOT}/s07-card.webp`,
+    playable: false,
+  },
+  {
+    name: 'Eclipse Palace',
+    setting: 'An eclipse corona over captive armadas and pearl heart spires.',
+    scene: 'an eclipsed pearl palace',
+    card: `${STAGE_CARD_ROOT}/s08-card.webp`,
+    playable: false,
+  },
 ]
 onMounted(() => {
   void user.initialize()

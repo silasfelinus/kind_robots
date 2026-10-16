@@ -3,7 +3,7 @@
  * (utils/arcade/saves.ts): the heroine chosen in the cabinet, the stage to
  * continue from, and the run's score and lives. Untrusted on the way back in.
  */
-import { WORLD_ONE } from './savePlumberLevels'
+import { CAMPAIGN } from './savePlumberLevels'
 
 export type PlumberSave = {
   v: 1
@@ -27,7 +27,7 @@ export function readPlumberSave(raw: unknown): PlumberSave | null {
     typeof v === 'number' && Number.isInteger(v) && v >= 0 && v <= max
   if (r.v !== 1) return null
   if (!count(r.heroine, 0xffffffff)) return null
-  if (!count(r.stage, WORLD_ONE.length - 1)) return null
+  if (!count(r.stage, CAMPAIGN.length - 1)) return null
   if (!count(r.score, 99_999_999) || !count(r.lives, 99)) return null
   if (!count(r.tokens, 99)) return null
   return {

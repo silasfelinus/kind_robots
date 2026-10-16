@@ -1,10 +1,23 @@
 import assert from 'node:assert/strict'
-import { createSavePlumberPreview } from '../arcade/games/savePlumberPreview'
 import {
+  FOE_ANIMATION,
+  createSavePlumberPreview,
+} from '../arcade/games/savePlumberPreview'
+import { ENEMY_ANIMATIONS } from '../arcade/games/savePlumberAnimations'
+import {
+  CAMPAIGN,
+  SOLID_BELT_LEFT,
+  SOLID_BELT_RIGHT,
   SOLID_GATE,
+  SOLID_WATER,
   TILE,
+  WORLD_FIVE,
+  WORLD_FOUR,
   WORLD_ONE,
+  WORLD_THREE,
+  WORLD_TWO,
   parseStage,
+  stageWorld,
 } from '../arcade/games/savePlumberLevels'
 import { PLUMBER_ROSTER, rosterIndex } from '../arcade/games/savePlumberRoster'
 import { readPlumberSave } from '../arcade/games/savePlumberSave'
@@ -23,10 +36,27 @@ assert.deepEqual(
   WORLD_ONE.map((stage) => stage.code),
   ['1-1', '1-2', '1-3', '1-4'],
 )
-for (const def of WORLD_ONE) {
+assert.deepEqual(
+  WORLD_TWO.map((stage) => stage.code),
+  ['2-1', '2-2', '2-3', '2-4'],
+)
+assert.deepEqual(
+  WORLD_THREE.map((stage) => stage.code),
+  ['3-1', '3-2', '3-3', '3-4'],
+)
+assert.deepEqual(
+  WORLD_FOUR.map((stage) => stage.code),
+  ['4-1', '4-2', '4-3', '4-4'],
+)
+assert.deepEqual(
+  WORLD_FIVE.map((stage) => stage.code),
+  ['5-1', '5-2', '5-3', '5-4'],
+)
+assert.equal(CAMPAIGN.length, 20)
+for (const def of CAMPAIGN) {
   const stage = parseStage(def)
   assert.equal(stage.rows, 17, `${def.code} is 17 rows tall`)
-  assert.ok(stage.cols >= 120, `${def.code} is a full stage, not a screen`)
+  assert.ok(stage.cols >= 96, `${def.code} is a full stage, not a screen`)
   const kinds = new Set(stage.spawns.map((s) => s.kind))
   assert.ok(kinds.has('token'), `${def.code} has tokens`)
   assert.ok(kinds.has('checkpoint'), `${def.code} has a checkpoint`)
@@ -43,11 +73,53 @@ assert.notEqual(
   null,
   '1-4 ends in a boss arena',
 )
+const kindsIn = (world: number) =>
+  new Set(
+    CAMPAIGN.filter((d) => stageWorld(d.code) === world).flatMap((d) =>
+      parseStage(d).spawns.map((s) => s.kind),
+    ),
+  )
+for (const kind of ['minnow', 'cork-crab', 'glass-gull', 'raft'] as const)
+  assert.ok(kindsIn(2).has(kind), `World 2 has ${kind}`)
+for (const kind of ['moss-lantern', 'spring-hare'] as const)
+  assert.ok(kindsIn(3).has(kind), `World 3 has ${kind}`)
+for (const kind of ['gasket-golem', 'rivet-roller', 'piston', 'lift'] as const)
+  assert.ok(kindsIn(4).has(kind), `World 4 has ${kind}`)
+for (const kind of ['paper-kite', 'umbrella-mite', 'wind', 'cargo'] as const)
+  assert.ok(kindsIn(5).has(kind), `World 5 has ${kind}`)
+assert.ok(
+  WORLD_FOUR.every((d) => {
+    const solid = parseStage(d).solid
+    return solid.includes(SOLID_BELT_LEFT) || solid.includes(SOLID_BELT_RIGHT)
+  }),
+  'every Clockwork Fair stage has conveyor belts',
+)
+assert.ok(
+  parseStage(WORLD_TWO[0]!).solid.includes(SOLID_WATER),
+  'the marina has water',
+)
+assert.ok(
+  WORLD_THREE.some((d) => d.dark),
+  'the orchard has unlit stages',
+)
+for (const world of [WORLD_ONE, WORLD_TWO, WORLD_THREE, WORLD_FOUR, WORLD_FIVE])
+  assert.notEqual(
+    parseStage(world[3]!).gate,
+    null,
+    `${world[3]!.code} ends in a boss arena`,
+  )
 assert.throws(() => parseStage({ code: 'x', name: 'x', rows: ['..', '.'] }))
 assert.throws(() => parseStage({ code: 'x', name: 'x', rows: ['..'] }))
 
 // Every stage is finishable: the predictive autopilot plays each one through.
-for (let index = 0; index < WORLD_ONE.length; index++) {
+const bosses = [
+  'Madame Pressure',
+  'Captain Barnaclejack',
+  'The Overripe Baron',
+  'Tick-Tock Duchess',
+  'Admiral Gust',
+]
+for (let index = 0; index < CAMPAIGN.length; index++) {
   const game = createSavePlumberPreview(options(), {
     stage: index,
     autopilot: true,
@@ -60,10 +132,13 @@ for (let index = 0; index < WORLD_ONE.length; index++) {
   }
   assert.deepEqual(
     game.cleared,
-    [WORLD_ONE[index]!.code],
-    `${WORLD_ONE[index]!.code} is cleared by the autopilot`,
+    [CAMPAIGN[index]!.code],
+    `${CAMPAIGN[index]!.code} is cleared by the autopilot`,
   )
-  if (index === 3) assert.equal(game.boss?.hp, 0, 'Madame Pressure is beaten')
+  if (index % 4 === 3) {
+    assert.equal(game.boss?.name, bosses[(index - 3) / 4])
+    assert.equal(game.boss?.hp, 0, `${game.boss?.name} is beaten`)
+  }
 }
 
 // Controls: A jumps, B swings the wrench.
@@ -156,7 +231,7 @@ assert.equal(
   readPlumberSave({
     v: 1,
     heroine: 1,
-    stage: 9,
+    stage: 99,
     score: 0,
     lives: 3,
     tokens: 0,
@@ -177,6 +252,170 @@ for (let i = 0; i < 100; i++) faller.update(emptyInput())
 assert.equal(faller.lives, before - 1)
 assert.equal(faller.mode, 'play')
 
+for (const [kind, key] of Object.entries(FOE_ANIMATION))
+  assert.ok(ENEMY_ANIMATIONS[key], `${kind} has a painted animation`)
+
+// World 2 and 3 families behave as their toy-box lines promise.
+const lab = (stage: number) => {
+  const g = createSavePlumberPreview(options(), { stage })
+  g.loadStage(stage)
+  g.mode = 'play'
+  return g
+}
+const marina = lab(4)
+const gull = marina.foes.find((f) => f.kind === 'glass-gull')!
+marina.tokens = 9
+marina.immune = 0
+marina.hero.x = gull.x
+marina.hero.y = gull.y - 20
+marina.hero.vy = 0
+marina.update(emptyInput())
+assert.ok(gull.carry > 0, 'a glass gull steals tokens')
+assert.equal(marina.hearts, 3, 'a steal costs tokens, not hearts')
+const minnow = marina.foes.find((f) => f.kind === 'minnow')!
+let leapt = false
+for (let i = 0; i < 400 && !leapt; i++) {
+  marina.update(emptyInput())
+  leapt = minnow.y < minnow.homeY - 40
+}
+assert.ok(leapt, 'a clockwork minnow leaps out of the water')
+const sink = lab(4)
+sink.hero.x = 20 * TILE
+sink.hero.y = 15 * TILE - 20
+for (let i = 0; i < 40; i++) sink.update(emptyInput())
+assert.equal(sink.mode, 'dying', 'water costs a life')
+
+const orchard = lab(9)
+const lantern = orchard.foes.find((f) => f.kind === 'moss-lantern')!
+orchard.hero.x = lantern.x
+orchard.hero.y = lantern.y - 60
+orchard.hero.vy = 2
+for (let i = 0; i < 30 && lantern.state !== 'flat'; i++)
+  orchard.update(emptyInput())
+assert.equal(lantern.state, 'flat', 'stomping a moss lantern flattens it')
+assert.ok(
+  orchard.platforms.includes(lantern.pad!),
+  'a flat lantern is a platform',
+)
+const hop = lab(8)
+const hare = hop.foes.find((f) => f.kind === 'spring-hare')!
+for (let i = 0; i < 10; i++) hop.update(emptyInput())
+hop.hero.x = hare.x
+hop.hero.y = hare.y - 60
+hop.hero.vy = 3
+let launched = false
+for (let i = 0; i < 30 && !launched; i++) {
+  hop.update(emptyInput())
+  launched = hop.hero.vy < -9
+}
+assert.ok(launched, 'stomping a spring hare bounces you higher')
+
+// World 4 and 5 machinery and families.
+const fair = lab(12)
+const beltCol =
+  parseStage(WORLD_FOUR[0]!).solid.indexOf(
+    SOLID_BELT_RIGHT,
+    14 * fair.stage.cols,
+  ) % fair.stage.cols
+fair.foes.length = 0
+fair.hero.x = beltCol * TILE + 40
+fair.hero.y = 14 * TILE - 26
+fair.update(emptyInput())
+const onBelt = fair.hero.x
+for (let i = 0; i < 20; i++) fair.update(emptyInput())
+assert.ok(fair.hero.x > onBelt + 15, 'a right-hand belt carries you right')
+
+const golemLab = lab(12)
+const golem = golemLab.foes.find((f) => f.kind === 'gasket-golem')!
+const stompGolem = () => {
+  golemLab.immune = 0
+  golemLab.hero.x = golem.x
+  golemLab.hero.y = golem.y - 60
+  golemLab.hero.vy = 3
+  for (let i = 0; i < 30 && golemLab.hero.vy >= 0; i++)
+    golemLab.update(emptyInput())
+}
+stompGolem()
+assert.equal(
+  golem.state,
+  'stunned',
+  'the first stomp knocks a golem plate loose',
+)
+assert.equal(golem.fade, 0, 'a gasket golem takes two hits')
+stompGolem()
+assert.ok(golem.fade > 0, 'the second stomp topples a gasket golem')
+
+const ropeway = lab(16)
+const mite = ropeway.foes.find((f) => f.kind === 'umbrella-mite')!
+let fastest = 0
+for (let i = 0; i < 600; i++) {
+  ropeway.immune = 99
+  ropeway.update(emptyInput())
+  fastest = Math.max(fastest, mite.vy)
+}
+assert.ok(fastest > 0.5, 'an umbrella mite walks off its ledge')
+assert.ok(fastest <= 1.1, 'an umbrella mite floats down slowly')
+const kite = ropeway.foes.find((f) => f.kind === 'paper-kite')!
+const kiteYs = new Set<number>()
+for (let i = 0; i < 120; i++) {
+  ropeway.update(emptyInput())
+  kiteYs.add(Math.round(kite.y))
+}
+assert.ok(kiteYs.size > 10, 'a paper kite rides the air')
+
+const windmill = lab(17)
+const windCol = windmill.windy.indexOf(1)
+assert.ok(windCol > 0, '5-2 has a wind corridor')
+assert.ok(windmill.windAt(windCol * TILE + 4, 10) < 0, 'gusts blow a headwind')
+assert.equal(windmill.windAt(windCol * TILE + 4, 200), 0, 'and then calm')
+assert.equal(windmill.windAt(2 * TILE, 10), 0, 'outside the corridor is still')
+
+const yard = lab(18)
+const crate = yard.cargo[0]!
+for (let i = 0; i < 800 && crate.state !== 'landed'; i++) {
+  yard.immune = 99
+  yard.update(emptyInput())
+}
+assert.equal(crate.state, 'landed', 'falling cargo lands')
+assert.ok(yard.platforms.includes(crate.pad!), 'landed cargo is a step')
+
+const duel = (stage: number) => {
+  const g = lab(stage)
+  g.hero.x = (g.stage.cols - 6) * TILE
+  g.update(emptyInput())
+  g.boss!.state = 'tell'
+  g.boss!.timer = 1
+  g.update(emptyInput())
+  return g
+}
+const duchess = duel(15)
+assert.equal(duchess.boss!.kind, 'chime')
+assert.equal(duchess.boss!.state, 'burst', 'the fourth chime is the swing')
+const gust = duel(19)
+assert.equal(gust.boss!.kind, 'gale')
+gust.hero.x = gust.boss!.x - 60
+const pushedFrom = gust.hero.x
+for (let i = 0; i < 10; i++) gust.update(emptyInput())
+assert.ok(gust.hero.x < pushedFrom - 8, 'the Admiral gale pushes you back')
+
+// Beating a world's boss continues the campaign into the next world.
+const boss = createSavePlumberPreview(options())
+boss.loadStage(3)
+boss.mode = 'play'
+boss.boss!.hp = 0
+boss.boss!.state = 'defeat'
+boss.boss!.timer = 1
+for (let i = 0; i < 200 && (boss.mode as string) !== 'victory'; i++)
+  boss.update(emptyInput())
+assert.equal(boss.mode, 'victory')
+assert.equal(readPlumberSave(boss.save)!.stage, 4, 'the save moves on to 2-1')
+const next = emptyInput()
+for (let i = 0; i < 200; i++) boss.update(next)
+next.pressed.a = true
+boss.update(next)
+assert.equal(boss.stage.code, '2-1', 'the next world begins')
+assert.equal(boss.over, false)
+
 // The attract demo plays itself and never asks for input.
 const demo = createSavePlumberPreview(options({ demo: true }))
 for (let i = 0; i < 60 * 20; i++) demo.update(emptyInput())
@@ -184,5 +423,5 @@ assert.equal(demo.mode === 'play' || demo.mode === 'clear', true)
 assert.equal(demo.save, undefined, 'the demo never saves')
 
 console.log(
-  'Save the Plumber World 1: four finishable stages, controls, select and saves verified',
+  'Save the Plumber Worlds 1 to 5: twenty finishable stages, five bosses, controls, select and saves verified',
 )

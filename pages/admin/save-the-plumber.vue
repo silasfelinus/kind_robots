@@ -38,7 +38,8 @@
             <span
               class="mr-1 inline-block h-2 w-2 animate-pulse rounded-full bg-emerald-400 align-middle"
             />
-            Workshop build · World 1 playable, four stages and a boss
+            Workshop build · Worlds 1 to 5 playable, twenty stages and five
+            bosses
           </p>
 
           <h2 class="plumber-logo select-none" aria-label="Save the Plumber!">
@@ -323,13 +324,13 @@
                 <p
                   class="text-xs font-bold uppercase tracking-[.22em] text-[#ffcf82]"
                 >
-                  World 1 · Bluebell Pipeworks
+                  Worlds 1 to 5 · Bluebell Pipeworks to Cloudrail Commons
                 </p>
                 <h3
                   id="plumber-play-title"
                   class="plumber-display text-3xl sm:text-4xl"
                 >
-                  Four stages and Madame Pressure
+                  Twenty stages, five bosses
                 </h3>
               </div>
               <span
@@ -392,9 +393,10 @@
               </ul>
             </div>
             <p class="px-1 text-xs leading-relaxed text-white/60">
-              World 1 is playable from start to boss. The cabinet saves your
-              heroine and stage on this device, so Continue picks up where you
-              left off. Worlds 2 to 8 are on the way.
+              Worlds 1 to 5 are playable from the Rainy Courtyard to Admiral
+              Gust. The cabinet saves your heroine and stage on this device, so
+              Continue picks up where you left off. Worlds 6 to 8 are on the
+              way.
             </p>
           </aside>
         </div>

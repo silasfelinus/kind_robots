@@ -379,7 +379,7 @@
               </button>
             </div>
             <div
-              class="kr-pane-scroll min-h-0 max-h-[29vh] shrink-0 space-y-1 overflow-y-auto sm:max-h-[36vh] lg:max-h-none lg:flex-1"
+              class="kr-pane-scroll min-h-0 max-h-[29vh] shrink-0 space-y-1 sm:max-h-[36vh] lg:max-h-none lg:flex-1"
             >
               <p
                 v-if="!store.jobs.length"
@@ -428,7 +428,7 @@
             </div>
             <div
               v-if="store.selected"
-              class="kr-pane-scroll min-h-0 flex-1 space-y-2 overflow-y-auto border-t border-base-300 pt-2 text-xs"
+              class="kr-pane-scroll min-h-0 flex-1 space-y-2 border-t border-base-300 pt-2 text-xs"
             >
               <p class="font-bold">Saved render plan</p>
               <p class="text-base-content/70 sm:hidden">

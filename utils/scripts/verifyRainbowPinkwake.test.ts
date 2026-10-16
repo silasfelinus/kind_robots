@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict'
 import {
   PINKWAKE,
+  PINKWAKE_GUARDIAN,
   PINKWAKE_SECTIONS,
   PINKWAKE_WAVES,
   PINKWAKE_WAVE_SIZES,
@@ -61,9 +62,11 @@ assert.ok(
 )
 for (const [i, section] of PINKWAKE_SECTIONS.entries()) {
   if (i > 0) assert.equal(section.from, PINKWAKE_SECTIONS[i - 1]!.to)
-  assert.ok(
+  // The guardian holds its section alone; every other section is authored waves.
+  assert.equal(
     PINKWAKE_WAVES.some((w) => w.at >= section.from && w.at < section.to),
-    `${section.name} has waves`,
+    section.name !== PINKWAKE_GUARDIAN.name,
+    `${section.name} ${section.name === PINKWAKE_GUARDIAN.name ? 'has no' : 'has'} waves`,
   )
 }
 assert.equal(PINKWAKE_SECTIONS[0]!.from, PINKWAKE.openingEnds)

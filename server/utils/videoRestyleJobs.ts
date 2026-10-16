@@ -1,6 +1,13 @@
 import { randomUUID } from 'node:crypto'
 import { constants } from 'node:fs'
-import { copyFile, mkdir, readFile, readdir, rename, writeFile } from 'node:fs/promises'
+import {
+  copyFile,
+  mkdir,
+  readFile,
+  readdir,
+  rename,
+  writeFile,
+} from 'node:fs/promises'
 import path from 'node:path'
 import { createError } from 'h3'
 import { getArtArchiveRoot } from '@/server/utils/artArchiveRoot'
@@ -251,7 +258,9 @@ export async function queueRestylePilot(
   id: string,
 ): Promise<VideoRestyleJob> {
   const job = await loadRestyleJob(userId, id)
-  if (!['STAGED', 'PILOT_FAILED', 'PILOT_BLOCKED', 'REVIEW'].includes(job.status)) {
+  if (
+    !['STAGED', 'PILOT_FAILED', 'PILOT_BLOCKED', 'REVIEW'].includes(job.status)
+  ) {
     throw createError({
       statusCode: 409,
       message: 'Pilot is already queued or being rendered.',
@@ -266,7 +275,10 @@ export async function queueRestylePilot(
   const priorRevision = job.pilot?.revision ?? 1
   if (job.status === 'REVIEW') {
     if (job.resultFile !== 'pilot.mp4') {
-      throw createError({ statusCode: 409, message: 'The current pilot result is missing.' })
+      throw createError({
+        statusCode: 409,
+        message: 'The current pilot result is missing.',
+      })
     }
     const folder = path.dirname(restyleSourcePath(job))
     // Preserve the reviewed version, including when the next generation fails.

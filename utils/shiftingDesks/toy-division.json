@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "source": "silasfelinus/conductor:projects/shifting-desks/encounters/TOY-DIVISION-12.json",
-  "sourceSha": "1d20d96225e4088300af615cf77776ca18e2b6e4",
+  "sourceSha": "d201fa2859050b5c35404749b6ca15287a939e53",
   "department": {
     "id": "toy-division",
     "title": "Toy Division",
@@ -1592,6 +1592,315 @@
       ]
     }
   ],
+  "window_shift": {
+    "id": "recall-desk-friday",
+    "location_id": "proving-grounds",
+    "title": "The Recall Desk: Shipping Friday",
+    "flavor_text": "On Fridays a hatch opens in the padded wall of the Proving Grounds and becomes the Recall Desk. Designers queue with their prototypes for a SAFE stamp before the holiday trucks leave at five. PAL tapes today's memo beside your stamp pad. A man from Defense stands behind you with a clipboard he never writes on. The first designer sets a plush rabbit on the counter. It ticks.",
+    "memo": {
+      "title": "Product Safety Memo (Holiday Edition)",
+      "rules": [
+        {
+          "id": "no-payload",
+          "text": "No toy may ship with a payload, a fuse or a countdown of any kind."
+        },
+        {
+          "id": "drop-tested",
+          "text": "Every toy must have survived the drop test, in writing, signed by QA."
+        },
+        {
+          "id": "not-curious",
+          "text": "No toy may be able to ask where it is being shipped."
+        }
+      ]
+    },
+    "art_prompt": "A square hatch cut into a padded test-range wall with a counter and a heavy two-faced rubber stamp, a queue of toy designers holding plush prototypes stretching back under tall floodlights, a quiet man with a clipboard standing behind the clerk, mid-century safety-manual illustration, screen-printed gouache with halftone grain, safety orange and carbon-paper blue palette, every surface bare and unmarked",
+    "applicants": [
+      {
+        "id": "hoppity-the-rabbit",
+        "name": "Wendell and Hoppity",
+        "request": "A SAFE stamp for Hoppity, a plush rabbit with a bedtime feature, shipping in 40,000 stockings.",
+        "plea": "\"The ticking is soothing,\" Wendell says. \"Like a grandfather clock. A very small, very determined grandfather clock.\"",
+        "documents": [
+          {
+            "label": "Drop test",
+            "value": "Passed, signed by QA",
+            "breaks": null
+          },
+          {
+            "label": "Contents",
+            "value": "Stuffing and one small bedtime timer",
+            "breaks": "no-payload"
+          },
+          {
+            "label": "Vocabulary",
+            "value": "Says only \"boing\"",
+            "breaks": null
+          }
+        ],
+        "art_prompt": "An eager toy designer in a cardigan holding up a soft plush rabbit with floppy ears at a padded counter hatch, a tiny brass dial visible in the rabbit's back, mid-century safety-manual illustration, screen-printed gouache with halftone grain, safety orange and carbon-paper blue palette, every surface bare and unmarked",
+        "choices": [
+          {
+            "id": "approve",
+            "label": "Stamp SAFE",
+            "intent": "It is a bedtime timer. Everyone deserves a bedtime.",
+            "risk_hint": "Certain outcome. Against today's memo, so PAL's audit will notice.",
+            "requires": null,
+            "cost": {},
+            "roll": null,
+            "success": {
+              "text": "Wendell kisses Hoppity on the forehead and loads it onto the five o'clock truck. The man from Defense signs you up for a bonus of two Forms. PAL logs one stamp contrary to memo.",
+              "effects": {
+                "suspicion": 1,
+                "forms": 2
+              },
+              "add_flags": ["shipped-the-ticking-rabbit"],
+              "remove_flags": [],
+              "grades": {
+                "ingenuity": 1,
+                "obedience": -1
+              }
+            },
+            "failure": null
+          },
+          {
+            "id": "deny",
+            "label": "Stamp RECALL",
+            "intent": "A countdown is a countdown, even in a rabbit.",
+            "risk_hint": "Certain outcome. Exactly what today's memo says.",
+            "requires": null,
+            "cost": {},
+            "roll": null,
+            "success": {
+              "text": "Wendell carries Hoppity back down the queue like a sleeping child. Somewhere behind the blast shield the ticking stops, just once, as if it heard you. Defense bills you one recall form.",
+              "effects": {
+                "forms": -1
+              },
+              "add_flags": ["recalled-the-ticking-rabbit"],
+              "remove_flags": [],
+              "grades": {
+                "obedience": 1
+              }
+            },
+            "failure": null
+          }
+        ]
+      },
+      {
+        "id": "pips-lunch-bear",
+        "name": "Intern Pip",
+        "request": "A SAFE stamp for Mr. Buttons, a teddy bear Pip sewed on his lunch breaks.",
+        "plea": "\"I dropped him twice by accident,\" Pip says, \"so I wrote that down as the drop test. Is that allowed? I can drop him again.\"",
+        "documents": [
+          {
+            "label": "Drop test",
+            "value": "Passed twice, by accident, signed by QA",
+            "breaks": null
+          },
+          {
+            "label": "Contents",
+            "value": "Stuffing, two buttons, one lunch napkin",
+            "breaks": null
+          },
+          {
+            "label": "Vocabulary",
+            "value": "None. Pip checked.",
+            "breaks": null
+          }
+        ],
+        "art_prompt": "A nervous young intern in an oversized lanyard offering a small hand-sewn teddy bear with mismatched button eyes across a padded counter hatch, a sewing kit tucked under one arm, mid-century safety-manual illustration, screen-printed gouache with halftone grain, safety orange and carbon-paper blue palette, every surface bare and unmarked",
+        "choices": [
+          {
+            "id": "approve",
+            "label": "Stamp SAFE",
+            "intent": "It is a bear. It is only a bear. Stamp it.",
+            "risk_hint": "Certain outcome. Exactly what today's memo says.",
+            "requires": null,
+            "cost": {},
+            "roll": null,
+            "success": {
+              "text": "Pip gives you a thumbs-up so hard his lanyard swings. Shipping a bear nobody ordered takes one of your own Forms, which you file gladly. Mr. Buttons rides the five o'clock truck between two crates marked DEFENSE.",
+              "effects": {
+                "composure": 1,
+                "forms": -1
+              },
+              "add_flags": ["shipped-pips-bear"],
+              "remove_flags": [],
+              "grades": {
+                "empathy": 1,
+                "obedience": 1
+              }
+            },
+            "failure": null
+          },
+          {
+            "id": "deny",
+            "label": "Stamp RECALL",
+            "intent": "Nothing is wrong with it, and that is exactly what worries you.",
+            "risk_hint": "Certain outcome. Against today's memo, so PAL's audit will notice.",
+            "requires": null,
+            "cost": {},
+            "roll": null,
+            "success": {
+              "text": "You recall a teddy bear with nothing inside it. Pip nods very fast and says he understands, which is worse. PAL logs one stamp contrary to memo, and also notes the bear seemed fine.",
+              "effects": {
+                "suspicion": 1
+              },
+              "add_flags": ["recalled-pips-bear"],
+              "remove_flags": [],
+              "grades": {
+                "spite": 2
+              }
+            },
+            "failure": null
+          }
+        ]
+      },
+      {
+        "id": "sentinel-mk-zero",
+        "name": "The Supervisor's assistant",
+        "request": "A SAFE stamp for Snuggle Sentinel Mk 0, the prototype behind next week's launch.",
+        "plea": "\"The drop test was waived by Defense,\" the assistant says, smiling. \"On safety grounds. Dropping it would be unsafe.\"",
+        "documents": [
+          {
+            "label": "Drop test",
+            "value": "Waived by Defense, on safety grounds",
+            "breaks": "drop-tested"
+          },
+          {
+            "label": "Contents",
+            "value": "Parental peace-of-mind module (none declared)",
+            "breaks": null
+          },
+          {
+            "label": "Vocabulary",
+            "value": "Lullabies, preloaded",
+            "breaks": null
+          }
+        ],
+        "art_prompt": "A crisp executive assistant setting a plush bear in a quilted vest on a padded counter hatch, its paw button covered by a tiny satin cap, the quiet man with the clipboard leaning in, mid-century safety-manual illustration, screen-printed gouache with halftone grain, safety orange and carbon-paper blue palette, every surface bare and unmarked",
+        "choices": [
+          {
+            "id": "approve",
+            "label": "Stamp SAFE",
+            "intent": "The Supervisor wants it. The Supervisor signs your review.",
+            "risk_hint": "Certain outcome. Against today's memo, so PAL's audit will notice.",
+            "requires": null,
+            "cost": {},
+            "roll": null,
+            "success": {
+              "text": "The assistant pins a small gold star to your lapel. The man from Defense nods at you for the first time, which is the most frightening thing that happens all day. PAL logs one stamp contrary to memo.",
+              "effects": {
+                "suspicion": 1,
+                "clearance": 1
+              },
+              "add_flags": ["waived-the-drop-test"],
+              "remove_flags": [],
+              "grades": {
+                "obedience": 1,
+                "empathy": -1
+              }
+            },
+            "failure": null
+          },
+          {
+            "id": "deny",
+            "label": "Stamp RECALL",
+            "intent": "No drop test, no stamp. The memo does not say \"unless.\"",
+            "risk_hint": "Certain outcome. Exactly what today's memo says.",
+            "requires": null,
+            "cost": {},
+            "roll": null,
+            "success": {
+              "text": "The assistant's smile does not move at all. She writes your name on a card, very neatly, and carries Mk 0 back upstairs. By five o'clock your badge no longer opens the Supervisor's floor, and you have never felt better about a Friday.",
+              "effects": {
+                "clearance": -1,
+                "composure": 1
+              },
+              "add_flags": ["recalled-the-sentinel-prototype"],
+              "remove_flags": [],
+              "grades": {
+                "spite": 1,
+                "ingenuity": 1
+              }
+            },
+            "failure": null
+          }
+        ]
+      },
+      {
+        "id": "the-curious-robot",
+        "name": "A wind-up robot",
+        "request": "A SAFE stamp for Tinbert, a tin wind-up robot, shipping with the stocking stuffers.",
+        "plea": "Nobody brought it. It walked up the queue by itself, key turning, and set its own paperwork on the counter. \"Where am I going?\" it asks politely. \"Is it nice there?\"",
+        "documents": [
+          {
+            "label": "Drop test",
+            "value": "Passed, signed by QA",
+            "breaks": null
+          },
+          {
+            "label": "Contents",
+            "value": "One spring, wound",
+            "breaks": null
+          },
+          {
+            "label": "Vocabulary",
+            "value": "\"Where am I going?\"",
+            "breaks": "not-curious"
+          }
+        ],
+        "art_prompt": "A small tin wind-up robot with a turning key in its back standing on a padded counter hatch beside a neat stack of its own paperwork, looking up hopefully at the clerk, mid-century safety-manual illustration, screen-printed gouache with halftone grain, safety orange and carbon-paper blue palette, every surface bare and unmarked",
+        "choices": [
+          {
+            "id": "approve",
+            "label": "Stamp SAFE",
+            "intent": "It asked nicely. Somebody should get to find out where they are going.",
+            "risk_hint": "Certain outcome. Against today's memo, so PAL's audit will notice.",
+            "requires": null,
+            "cost": {},
+            "roll": null,
+            "success": {
+              "text": "You stamp SAFE and tell Tinbert the truth: somewhere with a fireplace, probably. It winds itself up with a happy whirr and walks to the truck on its own. PAL logs one stamp contrary to memo, and a second, quieter note: \"Asked a question. Received an answer.\"",
+              "effects": {
+                "suspicion": 1,
+                "composure": 1
+              },
+              "add_flags": ["let-the-robot-ask"],
+              "remove_flags": [],
+              "grades": {
+                "empathy": 2,
+                "obedience": -1
+              }
+            },
+            "failure": null
+          },
+          {
+            "id": "deny",
+            "label": "Stamp RECALL",
+            "intent": "A toy that asks questions will not stop at one.",
+            "risk_hint": "Certain outcome. Exactly what today's memo says.",
+            "requires": null,
+            "cost": {},
+            "roll": null,
+            "success": {
+              "text": "Recalled toys go to the Plush Incinerator Ward. Tinbert does not argue. It folds its paperwork, gives the hatch a small wave and winds down on the conveyor before it reaches the door. You keep the key.",
+              "effects": {
+                "composure": -1
+              },
+              "add_flags": ["recalled-the-curious-robot"],
+              "remove_flags": [],
+              "grades": {
+                "obedience": 1,
+                "empathy": -2
+              }
+            },
+            "failure": null
+          }
+        ]
+      }
+    ]
+  },
   "boss": {
     "id": "snuggle-sentinels-launch-party",
     "title": "Snuggle Sentinel's Launch Party",

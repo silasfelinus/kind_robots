@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "source": "silasfelinus/conductor:projects/shifting-desks/encounters/ENDINGS.json",
-  "sourceRef": "main@1d20d96225e4088300af615cf77776ca18e2b6e4",
+  "sourceRef": "main@d201fa2859050b5c35404749b6ca15287a939e53",
   "endings": [
     {
       "id": "employee-of-the-month",
@@ -23,6 +23,10 @@
         {
           "when_flag": "approved-the-consultant",
           "text": "The efficiency consultant's final report recommends that you be duplicated. Twice."
+        },
+        {
+          "when_flag": "shipped-the-ticking-rabbit",
+          "text": "Forty thousand plush rabbits went out in forty thousand stockings. Nobody told you what happened at midnight, and you have decided not to ask."
         }
       ]
     },
@@ -88,6 +92,10 @@
         {
           "when_flag": "paid-doreens-four-minutes",
           "text": "Doreen walks the night shift out four minutes early, on purpose, and nobody stops her."
+        },
+        {
+          "when_flag": "shipped-pips-bear",
+          "text": "Mr. Buttons sits on the strike committee's table as its mascot. Pip insists the bear was always on the workers' side."
         }
       ]
     },
@@ -103,7 +111,12 @@
         "text": "Your secret society holds its first open meeting in the round room, under its own name, for the first time in Company history. Policies change overnight: the survey now asks how you really feel, and nobody reads the answers, on purpose. The new Board is kinder, odder and every bit as secret. You are given the corner seat, in a room with no corners.",
         "art_prompt": "A round boardroom full of mismatched people in cardigans and lab coats raising their hands in a vote around a dark round table, a red stapler and an old chrome coffee machine set proudly at its center, warm lamplight, mid-century safety-manual illustration, screen-printed gouache with halftone grain, limited palette of manila, carbon-paper blue, safety orange, fluorescent-tube green and oxblood, vertical 2:3 portrait composition, every surface bare and unmarked"
       },
-      "variants": []
+      "variants": [
+        {
+          "when_flag": "waived-the-drop-test",
+          "text": "Snuggle Sentinel Mk 0 now guards the new regime's front desk. Nobody has ever dropped it, on safety grounds."
+        }
+      ]
     },
     {
       "id": "whistleblower",
@@ -121,6 +134,10 @@
         {
           "when_flag": "has-true-minutes",
           "text": "The Society for Accurate Minutes mails you the real minutes of that day, with your name in them, spelled correctly."
+        },
+        {
+          "when_flag": "recalled-the-sentinel-prototype",
+          "text": "Your recall slip for Snuggle Sentinel Mk 0 is Exhibit A. It is the only document in the case signed in your own hand."
         }
       ]
     },
@@ -167,6 +184,10 @@
         {
           "when_flag": "silenced-the-bears",
           "text": "Four million bears are only bears now. Everyone agrees they are much better bears."
+        },
+        {
+          "when_flag": "let-the-robot-ask",
+          "text": "A tin robot named Tinbert writes from a house with a fireplace. It is nice there, it reports, and it would like to know where you are going next."
         }
       ]
     },
@@ -202,7 +223,12 @@
         "text": "You wake at a desk in a beige office you have never seen, under a lamp that is somehow cheerful. You were already filed as dead on your first morning, the clerk explains, so your elimination was merely a correction. The afterlife has forms too. You are handed the first one, and it requires itself.",
         "art_prompt": "A pale ghostly worker sitting at a tidy beige desk in a misty endless office, a translucent clerk in a green visor sliding a single form across to them, rows of identical desks fading into soft fog, mid-century safety-manual illustration, screen-printed gouache with halftone grain, limited palette of manila, carbon-paper blue, safety orange, fluorescent-tube green and oxblood, vertical 2:3 portrait composition, every surface bare and unmarked"
       },
-      "variants": []
+      "variants": [
+        {
+          "when_flag": "recalled-the-curious-robot",
+          "text": "In the lost-property office of the afterlife you find a small brass key with your employee number on the tag. It still turns."
+        }
+      ]
     }
   ]
 }

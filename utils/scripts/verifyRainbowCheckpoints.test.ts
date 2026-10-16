@@ -77,6 +77,7 @@ function seeded(seed = 1234) {
 const create = () =>
   createRainbowPrincessPreview({
     players: 1,
+    demo: false,
     rng: seeded(),
     sound: { play() {} },
     hiScore: 0,

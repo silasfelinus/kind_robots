@@ -19,8 +19,30 @@ import { emptyInput, type InputFrame } from '../arcade/types'
 
 const actOne = actCheckpoints(PINKWAKE_SECTIONS, PINKWAKE.bossStarts)
 const actTwo = actCheckpoints(MOONJELLY_SECTIONS, MOONJELLY.bossStarts)
-assert.deepEqual(actOne, [0, 300, 2100, 3900, 5700, 7200, PINKWAKE.bossStarts])
-assert.deepEqual(actTwo, [0, 300, 1500, 2700, 4200, 5700, MOONJELLY.bossStarts])
+assert.deepEqual(actOne, [
+  0,
+  300,
+  2100,
+  3900,
+  5700,
+  7200,
+  8400,
+  10200,
+  12000,
+  PINKWAKE.bossStarts,
+])
+assert.deepEqual(actTwo, [
+  0,
+  300,
+  1500,
+  2700,
+  4200,
+  5700,
+  6900,
+  8700,
+  10500,
+  MOONJELLY.bossStarts,
+])
 assert.equal(
   checkpointLabel(PINKWAKE_SECTIONS, PINKWAKE.bossStarts, 0),
   'ACT START',

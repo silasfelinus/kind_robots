@@ -1,9 +1,10 @@
 /**
  * Authored Act II encounter director. Uses local 60 Hz frames after the
  * Pinkwake aftermath, so the global combat tick and inventory never reset.
- * The waves are authored formations (see rainbowFormations) in five sections that follow the world
+ * The waves are authored formations (see rainbowFormations) in eight sections that follow the world
  * bible's S02 beats: the lantern gap lesson, linked relays, skimmer bead rain, breakable coral cover
- * and a bell remix. Wave ids start at 1000 so Act II formations never share a school with Act I.
+ * and a bell remix, then three escalations (tendril maze, lantern lattice, moonrise surge). Wave ids
+ * start at 1000 so Act II formations never share a school with Act I.
  */
 import {
   buildFormationSchedule,
@@ -25,8 +26,8 @@ export const MOONJELLY = {
   nemiAppears: 1680,
   turnStarts: 3900,
   turnEnds: 4200,
-  approachStarts: 6900,
-  bossStarts: 7200,
+  approachStarts: 12300,
+  bossStarts: 12600,
   aftermathFrames: 360,
   lineFrames: 96,
   waveBase: 1000,
@@ -38,6 +39,9 @@ export const MOONJELLY_SECTIONS = [
   { name: 'Skimmer rain', from: 2700, to: 3900 },
   { name: 'Coral cover', from: 4200, to: 5700 },
   { name: 'Bell remix', from: 5700, to: 6900 },
+  { name: 'Tendril maze', from: 6900, to: 8700 },
+  { name: 'Lantern lattice', from: 8700, to: 10500 },
+  { name: 'Moonrise surge', from: 10500, to: 12300 },
 ] as const
 
 export const MOONJELLY_WAVES: readonly MoonjellyWave[] = [
@@ -74,6 +78,40 @@ export const MOONJELLY_WAVES: readonly MoonjellyWave[] = [
   wave(6240, 'skimmer', 'stair', 5, 0.1),
   wave(6480, 'relay', 'vee', 5, 0.5),
   wave(6720, 'lantern', 'pair', 2, 0.25),
+  // Tendril maze: coral walls whose corridors hold relay files, with skimmer rain over the top.
+  wave(6960, 'coral', 'wall', 4, 0.5),
+  wave(7140, 'relay', 'line', 3, 0.5),
+  wave(7320, 'skimmer', 'line', 4, 0.15),
+  wave(7500, 'coral', 'wall', 4, 0.3),
+  wave(7620, 'relay', 'line', 3, 0.3),
+  wave(7860, 'coral', 'wall', 4, 0.7),
+  wave(7980, 'relay', 'line', 3, 0.7),
+  wave(8160, 'skimmer', 'stair', 5, 0.1),
+  wave(8400, 'lantern', 'single', 1, 0.5),
+  wave(8520, 'relay', 'pair', 4, 0.2),
+  // Lantern lattice: two lanterns' fans at once, so the gap lesson becomes a gap choice.
+  wave(8760, 'lantern', 'pair', 2, 0.3),
+  wave(8940, 'relay', 'vee', 5, 0.5),
+  wave(9120, 'lantern', 'column', 2, 0.5, { spread: 0.5 }),
+  wave(9300, 'relay', 'column', 3, 0.5),
+  wave(9480, 'skimmer', 'line', 4, 0.2),
+  wave(9660, 'lantern', 'single', 1, 0.25),
+  wave(9660, 'relay', 'line', 3, 0.75),
+  wave(9900, 'lantern', 'pair', 2, 0.2),
+  wave(10080, 'relay', 'stair', 5, 0.15),
+  wave(10260, 'skimmer', 'vee', 5, 0.3),
+  // Moonrise surge: every Act II craft, building to the Aurelia Array.
+  wave(10560, 'relay', 'vee', 5, 0.5),
+  wave(10740, 'coral', 'wall', 3, 0.5),
+  wave(10860, 'skimmer', 'line', 4, 0.1),
+  wave(11040, 'lantern', 'pair', 2, 0.25),
+  wave(11220, 'relay', 'column', 4, 0.5, { spread: 0.2 }),
+  wave(11400, 'coral', 'wall', 4, 0.35),
+  wave(11520, 'relay', 'line', 3, 0.35),
+  wave(11700, 'skimmer', 'stair', 5, 0.1),
+  wave(11880, 'lantern', 'single', 1, 0.5),
+  wave(11880, 'relay', 'pair', 4, 0.15),
+  wave(12060, 'skimmer', 'vee', 5, 0.3),
 ]
 
 const schedule = buildFormationSchedule(MOONJELLY_WAVES, MOONJELLY.waveBase)

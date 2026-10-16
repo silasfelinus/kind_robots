@@ -72,7 +72,8 @@ function lanes(s: Snapshot, seat: number, frame: number, avoid: boolean) {
   input.held.a = true
   const boss = s.boss ?? s.moonBoss
   if (boss) {
-    const due = boss.nextVolleyAt - boss.frame
+    const next = 'nextVolleyAt' in boss ? boss.nextVolleyAt : boss.nextVolley
+    const due = next - boss.frame
     steer(input, ship, 110, boss.y + (due < 30 ? (seat % 2 ? 46 : -46) : 0))
   } else {
     const options = avoid ? [206, 236] : [70, 140, 210]
@@ -280,7 +281,7 @@ const turnDone = (s: Snapshot) =>
         after.activePlayers === 2
       ) {
         bench = { y: after.ships[1]!.y, charge: after.ships[1]!.charge }
-        game.setPlayers(1)
+        game.setPlayers!(1)
         watch.nemiDrawn.length = 0
       }
       if (
@@ -297,7 +298,7 @@ const turnDone = (s: Snapshot) =>
           'Nemi drifted past the bench',
         )
         assert.equal(after.rescuedNemi, false, 'a benched seat cannot rescue')
-        game.setPlayers(2)
+        game.setPlayers!(2)
         assert.equal(game.snapshot.activePlayers, 2)
         assert.equal(
           game.snapshot.ships[1]!.charge,

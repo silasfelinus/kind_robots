@@ -16,11 +16,19 @@
 //   phase 3 it surfaces in three places in turn.
 //   The Glowworm Queen (Firefly Caverns): a cave-long worm whose lit segment is the only pad. The
 //   light runs down her body in a sequence you learn, and each phase speeds it up.
+//   Thunderhead (Storm Shelf): a grumpy storm cloud with four puffy tops to plant sun seeds on.
+//   Phase 1 is rain (the tops drift), phase 2 lightning (a top crackles, glowing, for a beat
+//   before it strikes: be elsewhere) and phase 3 hail (everything faster, the tops bounce).
 
 import type { Pad, Terrain } from './terrain'
 import { segmentDistance } from './hazards'
 
-export type BossId = 'scarecrow' | 'galemill' | 'tortoise' | 'queen'
+export type BossId =
+  | 'scarecrow'
+  | 'galemill'
+  | 'tortoise'
+  | 'queen'
+  | 'thunderhead'
 
 export type BossView = {
   id: BossId
@@ -603,6 +611,141 @@ export class GlowwormQueen implements Boss {
   }
 }
 
+/** Thunderhead's body and pace. */
+export const THUNDERHEAD = {
+  tops: 4,
+  pad: 36,
+  gap: 76,
+  /** Resting height of the tops. */
+  y: 150,
+  /** Sideways drift (px) and speed (radians a tick) by phase. */
+  amp: [14, 20, 26],
+  rate: [0.012, 0.016, 0.024],
+  /** Up-and-down bounce by phase (hail). */
+  bob: [0, 0, 7],
+  /** Ticks a top charges before it strikes, by phase (phase 0 has no lightning). */
+  charge: [0, 150, 96],
+  /** Plantings each phase needs. */
+  need: 2,
+  /** Ticks calm at the start of each new phase. */
+  hold: 90,
+} as const
+
+/** Centre of top k before it drifts. */
+function topX(x: number, k: number): number {
+  return x + (k - (THUNDERHEAD.tops - 1) / 2) * THUNDERHEAD.gap
+}
+
+export class Thunderhead implements Boss {
+  readonly id = 'thunderhead' as const
+  readonly name = 'THUNDERHEAD'
+  readonly title = 'PLANT SUN SEEDS ON HIS PUFFY TOPS'
+  readonly phases = 3
+  phase = 0
+  done = false
+  pads: Pad[]
+  wind: number | null = null
+  private t = 0
+  private got = 0
+  private hold = 0
+
+  constructor(
+    private terrain: Terrain,
+    readonly x: number,
+  ) {
+    this.pads = Array.from({ length: THUNDERHEAD.tops }, (_, k) =>
+      terrain.addLivePad({
+        id: `top${k}`,
+        x0: 0,
+        x1: THUNDERHEAD.pad,
+        y: THUNDERHEAD.y,
+        mult: 3,
+        kind: 'seed',
+        grows: 'sunflower',
+        reach: [],
+      }),
+    )
+    this.place()
+    for (const p of this.pads) {
+      p.vx = 0
+      p.vy = 0
+    }
+  }
+
+  /** The top that is charging (crackling and glowing) now, or -1. */
+  charging(): number {
+    const n = THUNDERHEAD.charge[Math.min(this.phase, 2)]!
+    if (n === 0 || this.hold > 0) return -1
+    // The strike order hops about so it has to be read, not memorised by position.
+    return [0, 2, 1, 3][Math.floor(this.t / n) % THUNDERHEAD.tops]!
+  }
+
+  /** 0..1 through the charge of the current top. */
+  chargeLeft(): number {
+    const n = THUNDERHEAD.charge[Math.min(this.phase, 2)]!
+    return n === 0 ? 0 : 1 - (this.t % n) / n
+  }
+
+  private place() {
+    const ph = Math.min(this.phase, 2)
+    const live = this.hold > 0 ? 0 : 1
+    const bad = this.charging()
+    this.pads.forEach((p, k) => {
+      const w = this.t * THUNDERHEAD.rate[ph]! + k * 1.7
+      this.terrain.movePad(
+        p,
+        topX(this.x, k) + Math.sin(w) * THUNDERHEAD.amp[ph]! * live,
+        THUNDERHEAD.y +
+          (k % 2 ? 6 : -6) +
+          Math.sin(w * 1.3) * THUNDERHEAD.bob[ph]! * live,
+      )
+      p.blocked = !p.planted && k === bad
+    })
+  }
+
+  update() {
+    if (this.done) return
+    if (this.hold > 0) this.hold--
+    else this.t++
+    this.place()
+  }
+
+  planted(pad: Pad): boolean {
+    pad.planted = false
+    this.got++
+    if (this.got < THUNDERHEAD.need) return false
+    this.got = 0
+    this.phase++
+    this.t = 0
+    this.hold = THUNDERHEAD.hold
+    if (this.phase >= this.phases) {
+      this.done = true
+      for (const p of this.pads) p.blocked = false
+    } else this.place()
+    return true
+  }
+
+  hits(x: number, y: number): string | null {
+    const reach = THUNDERHEAD.amp[2]! + THUNDERHEAD.pad / 2
+    const a = topX(this.x, 0) - reach
+    const b = topX(this.x, THUNDERHEAD.tops - 1) + reach
+    // His grumpy belly hangs under the tops.
+    if (x > a && x < b && y > THUNDERHEAD.y + 26 && y < THUNDERHEAD.y + 50)
+      return 'BUMPED THE THUNDERHEAD'
+    return null
+  }
+
+  view(): BossView {
+    return {
+      id: this.id,
+      phase: this.phase,
+      phases: this.phases,
+      got: this.got,
+      need: THUNDERHEAD.need,
+    }
+  }
+}
+
 /** Build a boss on its arena's terrain, standing at x. */
 export function makeBoss(id: BossId, terrain: Terrain, x: number): Boss {
   switch (id) {
@@ -614,6 +757,8 @@ export function makeBoss(id: BossId, terrain: Terrain, x: number): Boss {
       return new GeyserTortoise(terrain, x)
     case 'queen':
       return new GlowwormQueen(terrain, x)
+    case 'thunderhead':
+      return new Thunderhead(terrain, x)
   }
 }
 
@@ -622,4 +767,5 @@ export const BOSS_NAMES: Record<BossId, string> = {
   galemill: 'THE GALE MILL',
   tortoise: 'THE GEYSER TORTOISE',
   queen: 'THE GLOWWORM QUEEN',
+  thunderhead: 'THUNDERHEAD',
 }

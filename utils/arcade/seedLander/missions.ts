@@ -28,7 +28,13 @@ export const H = 240
 export const HUD_H = 26
 
 export type MissionKind =
-  'plant' | 'deliver' | 'water' | 'rescue' | 'lantern' | 'rings' | 'boss'
+  | 'plant'
+  | 'deliver'
+  | 'water'
+  | 'rescue'
+  | 'lantern'
+  | 'rings'
+  | 'boss'
 
 /** The hazard roster (CABINETS.md section 9), in the order Free Flight unlocks them. */
 export const HAZARD_LADDER = [
@@ -96,7 +102,14 @@ export type CargoSpec = {
 
 /** How a mission's sky and ground are painted. */
 export type ThemeId =
-  'dawn' | 'noon' | 'dusk' | 'night' | 'downs' | 'gorge' | 'cavern'
+  | 'dawn'
+  | 'noon'
+  | 'dusk'
+  | 'night'
+  | 'downs'
+  | 'gorge'
+  | 'cavern'
+  | 'storm'
 
 /** A petal ring to fly through (a Ring Race). */
 export type RingSpec = { x: number; y: number; r: number }

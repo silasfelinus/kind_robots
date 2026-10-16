@@ -24,6 +24,8 @@ import {
   OldScarecrow,
   SCARECROW,
   TORTOISE,
+  THUNDERHEAD,
+  Thunderhead,
 } from './bosses'
 
 const PERCHED_CROW = pixelSprite(
@@ -41,6 +43,7 @@ export function drawBoss(
   if (boss instanceof GaleMill) drawGaleMill(g, boss, ground, tick)
   if (boss instanceof GeyserTortoise) drawTortoise(g, boss, tick)
   if (boss instanceof GlowwormQueen) drawQueen(g, boss, tick)
+  if (boss instanceof Thunderhead) drawThunderhead(g, boss, tick)
 }
 
 function drawScarecrow(
@@ -307,4 +310,44 @@ function drawQueen(
   glow(g, lx, last.y - 10, 8, RAMPS.gold[3], 0.6)
   g.fillStyle = RAMPS.gold[4]
   g.fillRect(Math.round(lx) - 1, Math.round(last.y) - 11, 2, 2)
+}
+
+/** Thunderhead: a grumpy storm cloud, its puffy tops the pads; the charging top glows and crackles. */
+function drawThunderhead(
+  g: CanvasRenderingContext2D,
+  b: Thunderhead,
+  tick: number,
+) {
+  const bad = b.charging()
+  const cx = b.x
+  // The big grey belly under the tops, with a frown.
+  shadedOrb(g, cx, THUNDERHEAD.y + 34, 58, RAMPS.steel)
+  g.fillStyle = INK
+  g.fillRect(Math.round(cx) - 18, THUNDERHEAD.y + 30, 6, 6)
+  g.fillRect(Math.round(cx) + 12, THUNDERHEAD.y + 30, 6, 6)
+  g.fillRect(Math.round(cx) - 10, THUNDERHEAD.y + 46, 20, 2)
+  g.fillRect(Math.round(cx) - 12, THUNDERHEAD.y + 44, 3, 2)
+  g.fillRect(Math.round(cx) + 9, THUNDERHEAD.y + 44, 3, 2)
+  b.pads.forEach((p, k) => {
+    const mx = (p.x0 + p.x1) / 2
+    const on = k === bad
+    const hot = on && (b.chargeLeft() < 0.5 ? tick % 6 < 3 : tick % 12 < 6)
+    if (on)
+      glow(g, mx, p.y, 26, RAMPS.gold[4], 0.35 + 0.4 * (1 - b.chargeLeft()))
+    shadedOrb(g, mx, p.y + 4, 14, on ? RAMPS.gold : RAMPS.steel)
+    bevel(g, p.x0, p.y, p.x1 - p.x0, 5, on ? RAMPS.gold : RAMPS.sky, {
+      depth: 1,
+    })
+    if (hot) {
+      // A zigzag bolt of warning.
+      g.fillStyle = RAMPS.gold[4]
+      for (let i = 0; i < 6; i++)
+        g.fillRect(
+          Math.round(mx) + (i % 2 ? 3 : -3),
+          Math.round(p.y) - 22 + i * 4,
+          3,
+          4,
+        )
+    }
+  })
 }

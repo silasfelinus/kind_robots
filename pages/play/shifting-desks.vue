@@ -130,6 +130,16 @@
             />
           </div>
           <div class="front-vignette absolute inset-0" aria-hidden="true" />
+          <button
+            type="button"
+            class="btn btn-sm absolute right-3 top-3 z-20 border-amber-100 bg-stone-950/85 text-amber-50 hover:bg-stone-900 sm:right-6 sm:top-6"
+            :title="`Endings on file: ${endingsCount} of ${ENDINGS.length}`"
+            @click="endingsGallery?.open()"
+          >
+            <icon name="kind-icon:trophy" class="size-4" />
+            {{ endingsCount }}/{{ ENDINGS.length }}
+            <span class="sr-only">endings found, open the gallery</span>
+          </button>
           <div
             class="relative z-10 flex h-full flex-col justify-between gap-3 p-3 text-amber-50 sm:p-6"
           >
@@ -817,6 +827,8 @@
         </div>
       </section>
 
+      <shifting-desks-endings-gallery ref="endingsGallery" />
+
       <dialog ref="artPicker" class="modal" aria-label="Choose your art style">
         <div class="modal-box flex max-w-3xl flex-col gap-3 p-3 sm:p-4">
           <shifting-desks-style-picker class="h-56 sm:h-80" />
@@ -901,6 +913,7 @@ import {
   type Choice,
   type Pack,
   type Meter,
+  ENDINGS,
 } from '~/utils/shiftingDesks/rules'
 import {
   memoLines,
@@ -1281,6 +1294,12 @@ const anyRoll = computed(
 function hasCost(choice: Choice): boolean {
   return Object.keys(choice.cost).length > 0
 }
+
+// The front desk's collectible: every ending this browser has reached.
+const endingsGallery = ref<{ open: () => void } | null>(null)
+const endingsCount = computed(
+  () => ENDINGS.filter((e) => store.endingsFound.includes(e.id)).length,
+)
 
 // Silas, 2026-10-16 (free rein): the Daily Memo, one seeded run per day.
 const dailyNext = ref(false)

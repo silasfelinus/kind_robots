@@ -461,7 +461,7 @@
               <button
                 v-if="store.selected.pilot?.previousRevision"
                 type="button"
-                class="kr-btn kr-btn-outline w-full"
+                class="btn btn-outline w-full"
                 :disabled="store.sourceBusy"
                 @click="showPilot(true)"
               >

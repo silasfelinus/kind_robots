@@ -1265,6 +1265,10 @@ function tick() {
     return
   }
   if (current === 'playing' && game) {
+    if (meta.value?.startPauses && frame.pressed.start) {
+      togglePause()
+      return
+    }
     if (pinballPad.value && pinballPull.value !== null)
       frames[0]!.plunger = pinballPull.value
     // The first ball gone: the touch hints have done their job.

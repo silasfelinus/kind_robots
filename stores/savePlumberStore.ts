@@ -10,7 +10,7 @@ import {
   PLUMBER_SLUG,
   readPlumberSave,
 } from '~/utils/arcade/games/savePlumberSave'
-import { WORLD_ONE } from '~/utils/arcade/games/savePlumberLevels'
+import { CAMPAIGN } from '~/utils/arcade/games/savePlumberLevels'
 
 /**
  * The front page's view of the player's Save the Plumber run. The heroine is
@@ -27,7 +27,7 @@ export const useSavePlumberStore = defineStore('savePlumber', () => {
   const rosterSlot = computed(() => rosterIndex(seed.value))
   const chosen = computed(() => progress.value !== null)
   const nextStage = computed(() =>
-    progress.value ? WORLD_ONE[progress.value.stage]!.code : null,
+    progress.value ? CAMPAIGN[progress.value.stage]!.code : null,
   )
 
   return { seed, heroine, rosterSlot, chosen, nextStage, progress }

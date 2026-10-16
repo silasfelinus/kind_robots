@@ -104,6 +104,27 @@ export function drawRainbowEnemySprite(
   return src ? drawFitted(g, src, area, 24, 46) : false
 }
 
+/**
+ * Painted mid-Act guardians (round-24 Kontext: 247858 armoured urchin, 247860 lantern), keyed at 256 px so
+ * they stay crisp at guardian size; until they load the engine scales up the scout sprite instead.
+ */
+export const RAINBOW_GUARDIAN_SPRITES = ['urchin', 'lantern'] as const
+
+export function rainbowGuardianSprite(kind: string): string | null {
+  return (RAINBOW_GUARDIAN_SPRITES as readonly string[]).includes(kind)
+    ? `${RAINBOW_GAME_ART_ROOT}/enemies/guardian-${kind}.webp`
+    : null
+}
+
+/** Draw a guardian centred on the origin, about 106 px across; false while its picture is loading. */
+export function drawRainbowGuardianSprite(
+  g: CanvasRenderingContext2D,
+  kind: string,
+): boolean {
+  const src = rainbowGuardianSprite(kind)
+  return src ? drawFitted(g, src, 9200, 84, 112) : false
+}
+
 /** The engine's three pickups, painted from the U01 gem, U06 bubble shield and U08 star charms. */
 export const RAINBOW_PICKUP_SPRITES = ['power', 'shield', 'charge'] as const
 

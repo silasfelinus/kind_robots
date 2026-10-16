@@ -74,15 +74,17 @@ export default defineEventHandler(async (event) => {
 
     const plan = phase === 'full' ? job.full! : job.pilot!
     const totalSegments = plan.totalSegments
-    const completed = Number(value('completedSegments'))
+    const requestedCompleted = Number(value('completedSegments'))
     if (
-      !Number.isSafeInteger(completed) ||
-      completed < 0 ||
-      completed > totalSegments
+      !Number.isSafeInteger(requestedCompleted) ||
+      requestedCompleted < 0 ||
+      requestedCompleted > totalSegments
     ) {
       throw createError({ statusCode: 400, message: 'Invalid VACE progress.' })
     }
 
+    // A heartbeat must never roll completed windows or displayed progress back.
+    const completed = Math.max(requestedCompleted, plan.completedSegments)
     const now = new Date().toISOString()
     let status: VideoRestyleJob['status'] =
       phase === 'full' ? 'FULL_RUNNING' : 'PILOT_RUNNING'
@@ -178,7 +180,9 @@ export default defineEventHandler(async (event) => {
               : 'RUNNING',
         payload: JSON.stringify(payload),
         error,
-        ...(kind !== 'progress' ? { claimedAt: null, claimedBy: null } : {}),
+        ...(kind === 'progress'
+          ? { claimedAt: new Date() } // renewable lease during overnight jobs
+          : { claimedAt: null, claimedBy: null }),
       },
     })
     return {

@@ -231,7 +231,9 @@ assert.ok(vaceReport.includes("phase === 'full'"))
 assert.ok(vaceReport.includes("'FULL_RUNNING'"))
 assert.ok(vaceReport.includes("'FULL_FAILED'"))
 assert.ok(vaceReport.includes('claimedAt: new Date()'))
-assert.ok(vaceReport.includes('Math.max(requestedCompleted, plan.completedSegments)'))
+assert.ok(
+  vaceReport.includes('Math.max(requestedCompleted, plan.completedSegments)'),
+)
 assert.ok(fullChunk.includes('requireClaimedVacePilot'))
 assert.ok(fullChunk.includes("phase !== 'full'"))
 assert.ok(fullChunk.includes('4 * 1024 * 1024'))

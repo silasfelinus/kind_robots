@@ -27,7 +27,8 @@ export default defineEventHandler(async (event) => {
     return {
       success: true,
       statusCode: 201,
-      message: 'Independent style project created from your private saved source.',
+      message:
+        'Independent style project created from your private saved source.',
       data: cloned,
     }
   } catch (error) {

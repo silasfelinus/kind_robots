@@ -7,12 +7,14 @@ export default defineEventHandler(async (event) => {
   try {
     const auth = await requireAdminApiUser(event)
     const body =
-      (await readBody<{ style?: unknown; quality?: unknown }>(event)) ?? {}
+      (await readBody<{ style?: unknown; quality?: unknown; isPrivate?: unknown; isMature?: unknown }>(event)) ?? {}
     const job = await updateRestyleSettings(
       auth.user.id,
       getRouterParam(event, 'id') || '',
       body.style,
       body.quality,
+      body.isPrivate,
+      body.isMature,
     )
     return {
       success: true,

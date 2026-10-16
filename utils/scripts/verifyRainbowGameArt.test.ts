@@ -13,6 +13,7 @@ import {
   drawRainbowEnemySprite,
   drawRainbowPickupSprite,
   drawRainbowShipSprite,
+  drawRainbowStageCard,
   drawRainbowStageStrip,
   drawRainbowSuperCutin,
   rainbowBossSprite,
@@ -21,9 +22,12 @@ import {
   rainbowCommsKey,
   rainbowCommsPortrait,
   rainbowShipSprite,
+  rainbowStageCard,
   rainbowStageStrip,
   rainbowSuperCutin,
 } from '../arcade/games/rainbowGameArt'
+import { PINKWAKE } from '../arcade/games/rainbowPinkwake'
+import { MOONJELLY } from '../arcade/games/rainbowMoonjelly'
 
 // Silas, 2026-10-14 PT: "upgrade ship art, and get the pilot portraits for the interstitial talking
 // moments." Painted ships and comms portraits are optional decoration: the vector hull stands in until a
@@ -223,6 +227,22 @@ assert.ok(
   'the coral strip sits behind enemies, enemy shots and ships',
 )
 
+// Act intro splash: each playable Act's painted title card fades in under the opening comms and is
+// gone before the first craft can enter, so it never hides a threat.
+for (const stage of RAINBOW_STAGE_STRIPS) {
+  const src = rainbowStageCard(stage)
+  assert.ok(existsSync(publicFile(src)), `${stage} title card is committed`)
+}
+assert.equal(drawRainbowStageCard(g, 's01', 0, 0, 200), 0)
+const introFrames = Number(/const INTRO_FRAMES = (\d+)/.exec(engine)?.[1])
+assert.ok(
+  introFrames > 0 &&
+    introFrames <= PINKWAKE.openingEnds &&
+    introFrames <= MOONJELLY.openingEnds,
+  'the intro card ends before either Act spawns a craft',
+)
+assert.match(engine, /drawRainbowStageCard\(g, stage, W \/ 2 - 100, top, 200\)/)
+
 console.log(
-  `rainbow game art: ok (${painted}/4 painted ships, ${RAINBOW_ENEMY_SPRITES.length} enemies, ${RAINBOW_PICKUP_SPRITES.length} pickups, ${RAINBOW_BOSS_SPRITES.length} bosses x 3 phases, ${RAINBOW_CUTIN_PILOTS.length} cut-ins, ${RAINBOW_STAGE_STRIPS.length} stage strips)`,
+  `rainbow game art: ok (${painted}/4 painted ships, ${RAINBOW_ENEMY_SPRITES.length} enemies, ${RAINBOW_PICKUP_SPRITES.length} pickups, ${RAINBOW_BOSS_SPRITES.length} bosses x 3 phases, ${RAINBOW_CUTIN_PILOTS.length} cut-ins, ${RAINBOW_STAGE_STRIPS.length} stage strips and intro cards)`,
 )

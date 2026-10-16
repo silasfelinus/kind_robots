@@ -33,6 +33,7 @@ import {
   drawRainbowEnemySprite,
   drawRainbowPickupSprite,
   drawRainbowShipSprite,
+  drawRainbowStageCard,
   drawRainbowStageStrip,
   drawRainbowSuperCutin,
 } from './rainbowGameArt'
@@ -66,6 +67,7 @@ const SHIP_NAMES = ['PETAL', 'PRISM', 'HALO', 'COMET'] as const
 const BURST_FRAMES = 42
 const CUTIN_FADE_FRAMES = 10
 const POPUP_FRAMES = 50
+const INTRO_FRAMES = 160
 const STRIP_HEIGHT = 50
 const STRIP_SPEED = 0.55
 /** HUD text clears the cabinet's corner chips (close/fullscreen left, pause right). */
@@ -1240,6 +1242,31 @@ export function createRainbowPrincessPreview(
             g.fill()
           }
         }
+        g.restore()
+      }
+      // Act intro splash: the painted title card fades in under the opening comms while no craft spawn.
+      const introFrame = moonStart === null ? tick : moonFrame()
+      if (introFrame < INTRO_FRAMES && (moonStart !== null || !defeatedAt)) {
+        const stage = moonStart === null ? 's01' : 's02'
+        const top = 33 + Math.max(0, activePlayers - 1) * 10 + 60
+        g.save()
+        g.globalAlpha =
+          Math.min(1, introFrame / 15) *
+          Math.min(1, (INTRO_FRAMES - introFrame) / 30)
+        const height = drawRainbowStageCard(g, stage, W / 2 - 100, top, 200)
+        const bandY = top + Math.max(height, 40) - 22
+        g.fillStyle = '#180d38d9'
+        g.fillRect(W / 2 - 100, bandY, 200, 22)
+        g.fillStyle = '#ffe7f5'
+        g.textAlign = 'center'
+        g.font = 'bold 8px monospace'
+        g.fillText(moonStart === null ? 'ACT I' : 'ACT II', W / 2, bandY + 9)
+        g.font = 'bold 10px monospace'
+        g.fillText(
+          moonStart === null ? 'PINKWAKE ESTUARY' : 'MOONJELLY FIELDS',
+          W / 2,
+          bandY + 19,
+        )
         g.restore()
       }
       g.fillStyle = '#180d38e8'

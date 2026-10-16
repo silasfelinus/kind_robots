@@ -207,6 +207,26 @@ export function drawRainbowStageStrip(
   return true
 }
 
+/** Painted Act title cards (round-15/16 Kontext), shown as the Act intro splash. */
+export function rainbowStageCard(stage: RainbowStageStrip): string {
+  return `${RAINBOW_GAME_ART_ROOT}/stages/${stage}-card.webp`
+}
+
+/** Draw the stage's title card at (x, y) with the given width; returns its height, or 0 while loading. */
+export function drawRainbowStageCard(
+  g: CanvasRenderingContext2D,
+  stage: RainbowStageStrip,
+  x: number,
+  y: number,
+  width: number,
+): number {
+  const img = loadedImage(rainbowStageCard(stage))
+  if (!img) return 0
+  const height = (width * img.naturalHeight) / img.naturalWidth
+  g.drawImage(img, x, y, width, height)
+  return height
+}
+
 function drawFitted(
   g: CanvasRenderingContext2D,
   src: string,

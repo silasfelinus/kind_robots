@@ -357,7 +357,8 @@ export async function syncRestyleFullArtJob(
       return {
         ...job,
         status: 'FULL_QUEUED',
-        stage: 'Full render awaiting relay recovery; completed windows preserved.',
+        stage:
+          'Full render awaiting relay recovery; completed windows preserved.',
       }
     }
     if (found.status === 'RUNNING' && job.status === 'FULL_QUEUED') {

@@ -472,7 +472,7 @@ type Dune = {
   pebble: string
 }
 
-/** Five dunes, one per round in turn: gold, rose, moonlit blue, ember and oasis-teal sand. */
+/** Six dunes, one per round in turn: gold, rose, moonlit blue, ember, oasis-teal and frostglass sand. */
 export const DUNES: readonly Dune[] = [
   {
     sky: [RAMPS.sky[2], RAMPS.sky[3]],
@@ -503,6 +503,12 @@ export const DUNES: readonly Dune[] = [
     sand: [RAMPS.leaf[3], RAMPS.teal[2], RAMPS.teal[1], RAMPS.leaf[0]],
     grass: RAMPS.leaf[2],
     pebble: RAMPS.teal[4],
+  },
+  {
+    sky: [RAMPS.steel[3], RAMPS.sky[4]],
+    sand: [RAMPS.sky[4], RAMPS.sky[3], RAMPS.steel[2], RAMPS.steel[1]],
+    grass: RAMPS.water[3],
+    pebble: RAMPS.steel[4],
   },
 ]
 

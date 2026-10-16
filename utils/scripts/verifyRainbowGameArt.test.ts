@@ -6,6 +6,7 @@ import {
   RAINBOW_COMMS_SPEAKERS,
   RAINBOW_CUTIN_PILOTS,
   RAINBOW_ENEMY_SPRITES,
+  RAINBOW_GUARDIAN_SPRITES,
   RAINBOW_PICKUP_SPRITES,
   RAINBOW_SHIP_SPRITES,
   RAINBOW_STAGE_STRIPS,
@@ -19,6 +20,7 @@ import {
   drawRainbowSuperCutin,
   rainbowBossSprite,
   rainbowEnemySprite,
+  rainbowGuardianSprite,
   rainbowPickupSprite,
   rainbowCommsKey,
   rainbowCommsPortrait,
@@ -116,6 +118,22 @@ for (const kind of RAINBOW_ACT_THREE_ENEMY_SPRITES) {
   assert.ok(statSync(publicFile(src)).size < 32_000, `${kind} stays small`)
 }
 assert.equal(rainbowEnemySprite('kraken'), null)
+// Each mid-Act guardian has its own painted sprite, keyed larger than the scouts.
+for (const kind of RAINBOW_GUARDIAN_SPRITES) {
+  const src = rainbowGuardianSprite(kind)!
+  assert.equal(src, `/rainbow-princess-art/enemies/guardian-${kind}.webp`)
+  assert.ok(existsSync(publicFile(src)), `${kind} guardian sprite is committed`)
+  assert.ok(
+    statSync(publicFile(src)).size < 48_000,
+    `${kind} guardian stays small`,
+  )
+}
+assert.equal(rainbowGuardianSprite('picket'), null)
+assert.match(
+  engine,
+  /if \(!drawRainbowGuardianSprite\(g, guardian\.kind\)\) \{/,
+  'guardians fall back to the scaled scout sprite while their own loads',
+)
 assert.equal(drawRainbowEnemySprite(g, 'picket'), false)
 assert.match(
   engine,

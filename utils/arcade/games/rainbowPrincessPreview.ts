@@ -35,6 +35,7 @@ import {
   drawRainbowBossSprite,
   drawRainbowCommsPortrait,
   drawRainbowEnemySprite,
+  drawRainbowGuardianSprite,
   drawRainbowPickupSprite,
   drawRainbowShipSprite,
   drawRainbowStageCard,
@@ -1178,15 +1179,17 @@ export function createRainbowPrincessPreview(
       if (guardian) {
         g.save()
         g.translate(guardian.x, guardian.y)
-        g.save()
-        g.scale(2.3, 2.3)
-        if (!drawRainbowEnemySprite(g, guardian.kind)) {
-          g.fillStyle = guardian.kind === 'urchin' ? '#d09ffd' : '#afffea'
-          g.beginPath()
-          g.arc(0, 0, 11, 0, Math.PI * 2)
-          g.fill()
+        if (!drawRainbowGuardianSprite(g, guardian.kind)) {
+          g.save()
+          g.scale(2.3, 2.3)
+          if (!drawRainbowEnemySprite(g, guardian.kind)) {
+            g.fillStyle = guardian.kind === 'urchin' ? '#d09ffd' : '#afffea'
+            g.beginPath()
+            g.arc(0, 0, 11, 0, Math.PI * 2)
+            g.fill()
+          }
+          g.restore()
         }
-        g.restore()
         // Same charge cue as the bosses: a pulsing ring that never fades below three quarters.
         if (rainbowGuardianWarning(guardian)) {
           g.strokeStyle = '#fffbb6'

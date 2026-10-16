@@ -1,10 +1,10 @@
 <template>
   <main class="kr-surface h-full min-h-0 overflow-hidden">
     <div
-      class="kr-container-wide flex h-full min-h-0 flex-col gap-3 p-3 sm:p-4"
+      class="kr-container-wide flex h-full min-h-0 flex-col gap-2 overflow-hidden p-2 sm:gap-3 sm:p-4"
     >
       <header
-        class="flex flex-wrap items-center justify-between gap-2 rounded-2xl border border-base-300 bg-base-100 p-2 text-base-content shadow-sm"
+        class="flex min-w-0 flex-wrap items-center justify-between gap-1 rounded-2xl border border-base-300 bg-base-100 p-2 text-base-content shadow-sm sm:gap-2"
       >
         <nav
           class="flex items-center gap-1 rounded-xl border border-base-300 bg-base-200 p-1"
@@ -17,7 +17,7 @@
             >Full video restyle</span
           >
         </nav>
-        <div class="flex items-center gap-2 text-xs">
+        <div class="hidden items-center gap-2 text-xs sm:flex">
           <span class="kr-badge-outline bg-base-200 text-base-content"
             >Private studio</span
           >
@@ -88,7 +88,7 @@
           </button>
         </nav>
         <div
-          class="kr-panes min-h-0 flex-1 gap-3 lg:grid-cols-[minmax(0,1.35fr)_minmax(15rem,0.85fr)_minmax(14rem,0.7fr)]"
+          class="kr-panes min-h-0 flex-1 gap-2 overflow-hidden sm:gap-3 lg:grid-cols-[minmax(0,1.35fr)_minmax(15rem,0.85fr)_minmax(14rem,0.7fr)]"
         >
           <section
             :class="activePanel === 'source' ? 'flex' : 'hidden lg:flex'"
@@ -293,9 +293,23 @@
               </div>
             </div>
             <p class="kr-text-faded-xs">
-              1080p is an upscale target after assembly, not the diffusion
-              working resolution.
+              Looks are prompt-guided Wan VACE treatments. 1080p is upscaled
+              after assembly.
             </p>
+            <div class="space-y-2 rounded-xl border border-base-300 bg-base-200/70 p-2 text-xs">
+              <label class="flex cursor-pointer items-center gap-2">
+                <input v-model="isPrivate" type="checkbox" class="checkbox checkbox-sm" />
+                <span><strong>Keep private</strong> · saved for a later release choice</span>
+              </label>
+              <label class="flex cursor-pointer items-center gap-2">
+                <input v-model="isMature" type="checkbox" class="checkbox checkbox-sm" />
+                <span><strong>Mature content</strong> · mark this video appropriately</span>
+              </label>
+              <p class="text-base-content/70">
+                All source videos and pilots stay access-controlled, even when
+                marked as candidates for future publication.
+              </p>
+            </div>
             <button
               v-if="
                 store.selected &&
@@ -315,11 +329,24 @@
                     : 'Look saved'
               }}
             </button>
+            <button
+              v-if="store.selected && !sourceFile"
+              type="button"
+              class="kr-btn btn-outline w-full"
+              :disabled="store.busy"
+              @click="createVariant"
+            >
+              {{ store.busy ? 'Creating…' : 'New style project from saved video' }}
+            </button>
+            <p v-if="store.selected && !sourceFile" class="kr-text-faded-xs">
+              Creates an independent project without uploading again or altering
+              the current pilot.
+            </p>
           </section>
 
           <section
             :class="activePanel === 'jobs' ? 'flex' : 'hidden lg:flex'"
-            class="kr-panel min-h-0 flex-col gap-2 overflow-hidden p-3 lg:flex"
+            class="kr-panel min-h-0 flex-col gap-2 overflow-hidden p-2 sm:p-3 lg:flex"
             aria-label="Saved render projects"
           >
             <div class="flex items-center justify-between gap-2">
@@ -333,7 +360,7 @@
                 Refresh
               </button>
             </div>
-            <div class="kr-pane-scroll min-h-0 flex-1 space-y-2">
+            <div class="kr-pane-scroll min-h-0 max-h-[29vh] shrink-0 space-y-1 overflow-y-auto sm:max-h-[36vh] lg:max-h-none lg:flex-1">
               <p
                 v-if="!store.jobs.length"
                 class="kr-text-faded-sm rounded-xl border border-dashed border-base-300 p-4"
@@ -345,7 +372,7 @@
                 v-for="job in store.jobs"
                 :key="job.id"
                 type="button"
-                class="w-full rounded-xl border p-3 text-left"
+                class="w-full rounded-xl border p-2 text-left"
                 :class="
                   store.selectedId === job.id
                     ? 'border-primary bg-primary/10'
@@ -353,16 +380,18 @@
                 "
                 @click="selectJob(job)"
               >
-                <span class="flex items-center justify-between gap-2">
-                  <strong class="truncate text-sm">{{ job.title }}</strong>
-                  <span
-                    class="text-[10px] font-semibold uppercase tracking-wide"
-                    >{{ job.status }}</span
-                  >
+                <span class="flex min-w-0 flex-wrap items-start justify-between gap-x-2 gap-y-1">
+                  <strong class="min-w-0 flex-1 break-words text-sm">{{ job.title }}</strong>
+                  <span class="shrink-0 rounded-md bg-base-200 px-1.5 py-0.5 text-[10px] font-semibold">
+                    {{ statusLabel(job.status) }}
+                  </span>
                 </span>
                 <span class="mt-1 block text-xs opacity-70"
                   >{{ formatRestyleTime(job.sourceDurationSec) }} ·
-                  {{ labelFor(job.style) }}</span
+                  {{ labelFor(job.style) }}
+                  <span v-if="job.isMature"> · Mature</span>
+                  <span v-if="job.isPrivate === false"> · Publication candidate</span>
+                </span>
                 >
                 <span class="mt-1 block text-[10px] opacity-60">{{
                   new Date(job.createdAt).toLocaleDateString()
@@ -371,10 +400,13 @@
             </div>
             <div
               v-if="store.selected"
-              class="space-y-2 border-t border-base-300 pt-3 text-xs"
+              class="kr-pane-scroll min-h-0 flex-1 space-y-2 overflow-y-auto border-t border-base-300 pt-2 text-xs"
             >
               <p class="font-bold">Saved render plan</p>
-              <div class="grid grid-cols-2 gap-2">
+              <p class="text-base-content/70 sm:hidden">
+                {{ store.selected.segments.length }} windows · {{ store.selected.quality }} target
+              </p>
+              <div class="hidden grid-cols-2 gap-2 sm:grid">
                 <span class="rounded-lg bg-base-200 p-2"
                   >{{ store.selected.segments.length }} motion windows</span
                 >
@@ -432,7 +464,7 @@
                 "
                 type="button"
                 class="kr-btn kr-btn-primary w-full"
-                :disabled="store.busy || lookChanged || style !== 'illustrious'"
+                :disabled="store.busy || lookChanged"
                 @click="
                   store.selected.status === 'PILOT_FAILED'
                     ? store.retryPilot(store.selected.id)
@@ -468,17 +500,19 @@
                 Watch previous pilot for comparison
               </button>
               <p v-if="lookChanged" class="kr-text-faded-xs">
-                Save the selected look before starting a pilot.
+                {{ store.selected.status === 'STAGED'
+                  ? 'Save these settings in Looks before rendering.'
+                  : 'This project is already rendering or reviewed. Create a separate style project in Looks.' }}
               </p>
             </div>
-            <div
-              class="rounded-xl border border-warning/30 bg-warning/10 p-2 text-xs leading-relaxed"
-            >
-              <strong>KR Relay handles rendering.</strong> The existing art
-              relay will claim this native VACE video-control pilot once its GPU
-              reports the model and video nodes available. The full 5:32 render
-              stays disabled until the 24-second pilot is reviewed.
-            </div>
+            <details class="shrink-0 rounded-xl border border-base-300 bg-base-200/50 p-2 text-xs">
+              <summary class="cursor-pointer font-semibold">How rendering works</summary>
+              <p class="mt-2 leading-relaxed text-base-content/70">
+                KR Relay processes motion-controlled pilots using your saved video.
+                Each look has its own render project. The full-length render waits
+                for pilot review; no video is published from this studio.
+              </p>
+            </details>
           </section>
         </div>
       </template>
@@ -512,6 +546,8 @@ const activePanel = ref<(typeof panels)[number]['value']>('source')
 const qualityOptions = ['720p', '1080p'] as const
 const style = ref<RestyleStyleId>('illustrious')
 const quality = ref<RestyleQuality>('1080p')
+const isPrivate = ref(true)
+const isMature = ref(false)
 const title = ref('Coat Dance')
 const sourceFile = ref<File | null>(null)
 const durationSec = ref(0)
@@ -520,7 +556,9 @@ const lookChanged = computed(() =>
   Boolean(
     store.selected &&
     (store.selected.style !== style.value ||
-      store.selected.quality !== quality.value),
+      store.selected.quality !== quality.value ||
+      (store.selected.isPrivate ?? true) !== isPrivate.value ||
+      (store.selected.isMature ?? false) !== isMature.value),
   ),
 )
 const fileDescription = computed(() =>
@@ -541,6 +579,20 @@ function labelFor(value: RestyleStyleId): string {
   return RESTYLE_STYLES.find((entry) => entry.id === value)?.label || value
 }
 
+function statusLabel(value: VideoRestyleJob['status']): string {
+  return {
+    STAGED: 'Ready',
+    PROCESSING: 'Processing',
+    REVIEW: 'Pilot ready',
+    DONE: 'Done',
+    FAILED: 'Failed',
+    PILOT_QUEUED: 'Queued',
+    PILOT_RUNNING: 'Rendering',
+    PILOT_FAILED: 'Pilot failed',
+    PILOT_BLOCKED: 'Blocked',
+  }[value]
+}
+
 function selectJob(job: VideoRestyleJob) {
   store.selectedId = job.id
   store.clearPreview()
@@ -549,6 +601,8 @@ function selectJob(job: VideoRestyleJob) {
   title.value = job.title
   style.value = job.style
   quality.value = job.quality
+  isPrivate.value = job.isPrivate ?? true
+  isMature.value = job.isMature ?? false
   if (fileInput.value) fileInput.value.value = ''
   activePanel.value = 'source'
 }
@@ -562,7 +616,32 @@ async function showPilot(previous = false) {
 
 async function saveLook() {
   if (!store.selected || sourceFile.value) return
-  await store.saveSettings(store.selected.id, style.value, quality.value)
+  await store.saveSettings(
+    store.selected.id,
+    style.value,
+    quality.value,
+    isPrivate.value,
+    isMature.value,
+  )
+}
+
+async function createVariant() {
+  if (!store.selected || sourceFile.value) return
+  const sourceId = store.selected.id
+  const name = `${store.selected.title} · ${labelFor(style.value)}`
+  if (
+    await store.createVariant({
+      id: sourceId,
+      title: name,
+      style: style.value,
+      quality: quality.value,
+      isPrivate: isPrivate.value,
+      isMature: isMature.value,
+    })
+  ) {
+    if (store.selected) selectJob(store.selected)
+    activePanel.value = 'jobs'
+  }
 }
 
 function chooseFile(event: Event) {
@@ -595,6 +674,8 @@ async function stage() {
       durationSec: durationSec.value,
       style: style.value,
       quality: quality.value,
+      isPrivate: isPrivate.value,
+      isMature: isMature.value,
     })
   ) {
     activePanel.value = 'source'

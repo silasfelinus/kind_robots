@@ -451,14 +451,14 @@
               </div>
               <p class="text-base-content/70">{{ store.selected.stage }}</p>
               <NuxtLink
-                v-if="store.selected.pilot?.artJobId"
+                v-if="store.selected.full?.artJobId || store.selected.pilot?.artJobId"
                 :to="{
                   path: '/artjob',
-                  query: { jobId: store.selected.pilot.artJobId },
+                  query: { jobId: store.selected.full?.artJobId || store.selected.pilot?.artJobId },
                 }"
                 class="inline-flex items-center gap-1 font-semibold text-primary hover:underline"
               >
-                View ArtJob #{{ store.selected.pilot.artJobId }} in the queue
+                View ArtJob #{{ store.selected.full?.artJobId || store.selected.pilot?.artJobId }} in the queue
               </NuxtLink>
               <div
                 v-else-if="store.selected.pilot"
@@ -474,11 +474,16 @@
                   {{ store.syncing ? 'Registering…' : 'Register in ArtJob' }}
                 </button>
               </div>
-              <p v-if="store.selected.pilot" class="text-base-content/70">
+              <p v-if="store.selected.full" class="text-base-content/70">
+                Full film · {{ store.selected.full.completedSegments }}/{{
+                  store.selected.full.totalSegments
+                }} windows · {{ Math.round(store.selected.progress) }}%
+              </p>
+              <p v-else-if="store.selected.pilot" class="text-base-content/70">
                 {{ store.selected.pilot.completedSegments }}/{{
                   store.selected.pilot.totalSegments
                 }}
-                VACE motion windows · {{ Math.round(store.selected.progress) }}%
+                pilot windows · {{ Math.round(store.selected.progress) }}%
               </p>
               <p v-if="store.selected.error" class="text-error" role="alert">
                 {{ store.selected.error }}
@@ -511,7 +516,38 @@
                 }}
               </button>
               <button
-                v-if="store.selected.status === 'REVIEW'"
+                v-if="store.selected.status === 'REVIEW' && !store.selected.full"
+                type="button"
+                class="kr-btn kr-btn-primary w-full"
+                :disabled="store.busy || lookChanged"
+                @click="store.queueFull(store.selected.id)"
+              >
+                {{ store.busy ? 'Queueing…' : `Render full ${formatRestyleTime(store.selected.sourceDurationSec)} film` }}
+              </button>
+              <p v-if="store.selected.status === 'REVIEW' && !store.selected.full" class="kr-text-faded-xs">
+                Full-length rendering can run overnight. Completed windows are
+                reusable after interruptions. The original soundtrack is restored.
+              </p>
+              <button
+                v-if="store.selected.status === 'FULL_FAILED'"
+                type="button"
+                class="kr-btn kr-btn-primary w-full"
+                :disabled="store.busy"
+                @click="store.retryFull(store.selected.id)"
+              >
+                {{ store.busy ? 'Queueing…' : 'Resume full film using saved windows' }}
+              </button>
+              <button
+                v-if="store.selected.status === 'DONE' && store.selected.full"
+                type="button"
+                class="kr-btn kr-btn-primary w-full"
+                :disabled="store.sourceBusy"
+                @click="showFull"
+              >
+                {{ store.sourceBusy ? 'Loading…' : 'Watch finished full film' }}
+              </button>
+              <button
+                v-if="store.selected.status === 'REVIEW' || store.selected.full"
                 type="button"
                 class="kr-btn kr-btn-primary w-full"
                 :disabled="store.sourceBusy"
@@ -626,6 +662,9 @@ function statusLabel(value: VideoRestyleJob['status']): string {
     PILOT_RUNNING: 'Rendering',
     PILOT_FAILED: 'Pilot failed',
     PILOT_BLOCKED: 'Blocked',
+    FULL_QUEUED: 'Full queued',
+    FULL_RUNNING: 'Rendering film',
+    FULL_FAILED: 'Full failed',
   }[value]
 }
 
@@ -641,6 +680,13 @@ function selectJob(job: VideoRestyleJob) {
   isMature.value = job.isMature ?? false
   if (fileInput.value) fileInput.value.value = ''
   activePanel.value = 'source'
+}
+
+async function showFull() {
+  if (!store.selected) return
+  if (await store.loadPilotPreview(store.selected.id, false, true)) {
+    activePanel.value = 'source'
+  }
 }
 
 async function showPilot(previous = false) {
@@ -734,7 +780,7 @@ onMounted(async () => {
     refreshTimer = setInterval(() => {
       if (
         store.jobs.some((job) =>
-          ['PILOT_QUEUED', 'PILOT_RUNNING'].includes(job.status),
+          ['PILOT_QUEUED', 'PILOT_RUNNING', 'FULL_QUEUED', 'FULL_RUNNING'].includes(job.status),
         )
       ) {
         void store.refresh()

@@ -44,46 +44,46 @@
             {{ heroine.name }}
           </p>
           <p
-            class="font-mono text-[11px] tracking-widest text-[#1f2d3a]/60 dark:text-white/60"
+            class="text-[11px] font-bold uppercase tracking-widest text-[#1f2d3a]/60 dark:text-white/60"
           >
-            RUN {{ heroineRunCode(heroine.seed) }}
+            {{ caption }}
           </p>
         </figcaption>
       </figure>
 
       <div class="space-y-4">
         <p class="text-xs font-black uppercase tracking-[.25em] text-[#d9468f]">
-          Now casting
+          The crew
         </p>
         <h3 class="plumber-display text-4xl leading-none sm:text-5xl">
           Eight heroines. One of them is yours.
         </h3>
         <p class="max-w-xl text-base leading-relaxed opacity-80">
-          Every new game casts one of eight hand-painted plumbers, each with her
-          own build, look and run cycle, and she stays herself for the whole
-          save. Roll for a surprise or pick her yourself before you set out.
+          Each one is hand-painted with her own build, look and run cycle. Press
+          Start in the cabinet to choose her, and she stays herself for the
+          whole save.
         </p>
 
         <div
           class="grid grid-cols-4 gap-2 @lg:grid-cols-8"
-          role="radiogroup"
-          aria-label="Choose your heroine"
+          aria-label="Preview a heroine"
         >
           <button
             v-for="(option, i) in PLUMBER_ROSTER"
             :key="option.key"
             type="button"
-            role="radio"
-            :aria-checked="plumber.rosterSlot === i"
-            :aria-label="option.name"
+            :aria-pressed="shown === i"
+            :aria-label="`Preview ${option.name}`"
             :title="option.name"
             class="group relative aspect-square overflow-hidden rounded-2xl border-[3px] bg-white/70 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md dark:bg-white/10"
             :class="
-              plumber.rosterSlot === i
+              shown === i
                 ? 'border-[#d9468f] ring-4 ring-[#d9468f]/25'
                 : 'border-white/80 dark:border-white/10'
             "
-            @click="plumber.choose(i)"
+            @pointerenter="previewing = i"
+            @focus="previewing = i"
+            @click="previewing = i"
           >
             <PlumberHeroineFace
               :heroine="rosterLook(i)"
@@ -109,27 +109,21 @@
           </div>
         </dl>
 
-        <div class="flex flex-wrap gap-3">
-          <button
-            type="button"
+        <div class="flex flex-wrap items-center gap-3">
+          <a
+            href="#plumber-play"
             class="plumber-press btn btn-lg border-0 bg-[#d9468f] text-white hover:bg-[#c03479]"
-            @click="plumber.reroll()"
           >
-            <span class="plumber-die" aria-hidden="true">⚄</span> Surprise me
-          </button>
-          <button
-            type="button"
-            class="btn btn-lg border-2 border-[#1f2d3a]/20 bg-white/70 text-[#1f2d3a] hover:bg-white dark:border-white/20 dark:bg-white/10 dark:text-white"
-            :disabled="plumber.kept"
-            @click="plumber.keep()"
-          >
-            {{ plumber.kept ? '✓ She is your heroine' : 'Keep her' }}
-          </button>
+            ▶ Choose her in the cabinet
+          </a>
+          <p class="text-sm opacity-75">
+            {{
+              plumber.chosen
+                ? `Saved run: ${plumber.heroine.name}, continue from ${plumber.nextStage}.`
+                : 'On the heroine select, B picks one at random.'
+            }}
+          </p>
         </div>
-        <p class="text-xs opacity-60">
-          Your kept heroine is remembered on this device and leads the title
-          screen, the map and the movement lab.
-        </p>
 
         <div
           class="flex flex-col items-center gap-4 rounded-2xl bg-white/60 p-4 sm:flex-row sm:items-end dark:bg-white/5"
@@ -173,11 +167,10 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 import { useSavePlumberStore } from '~/stores/savePlumberStore'
 import {
   HEROINE_HITBOX,
-  heroineRunCode,
   type Heroine,
 } from '~/utils/arcade/games/savePlumberHeroine'
 import {
@@ -186,7 +179,16 @@ import {
 } from '~/utils/arcade/games/savePlumberRoster'
 
 const plumber = useSavePlumberStore()
-const heroine = computed(() => plumber.heroine)
+const previewing = ref<number | null>(null)
+const shown = computed(() => previewing.value ?? plumber.rosterSlot)
+const heroine = computed(() =>
+  previewing.value === null ? plumber.heroine : rosterLook(previewing.value),
+)
+const caption = computed(() =>
+  previewing.value === null && plumber.chosen
+    ? 'Your heroine'
+    : member.value.build,
+)
 
 const member = computed(() => rosterFor(heroine.value))
 

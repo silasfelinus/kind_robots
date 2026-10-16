@@ -5,7 +5,7 @@ tabKey: save-the-plumber
 label: Save the Plumber
 title: Save the Plumber
 subtitle: An eight-world platform adventure in development
-description: A private original platformer workshop. Jump through the Bluebell Pipeworks prototype and explore the planned eight-world rescue map.
+description: A private original platformer workshop. Play World 1, Bluebell Pipeworks, from the Rainy Courtyard to Madame Pressure, and explore the planned eight-world rescue map.
 summary: Rescue your plumber in eight worlds.
 icon: kind-icon:wrench
 route: /admin/save-the-plumber
@@ -16,21 +16,21 @@ tutorial:
   body: |-
     Thirty-two stages, one determined heroine.
 
-    Save the Plumber is planned as a full eight-world side-scrolling adventure. This Admin page is its front door: the title screen, a prologue, the overworld map, heroine casting, the cast and the first playable training run. The full authored levels, cutscenes, powerups and boss fights are forthcoming.
+    Save the Plumber is planned as a full eight-world side-scrolling adventure. This Admin page is its front door: the title screen, a prologue, the overworld map, the eight heroines, the cast and the Arcade cabinet, where World 1 is playable from its first stage to its boss. Worlds 2 to 8, cutscenes and powerups are forthcoming.
 
     Movement lab
-    Press Start on the title screen or scroll to the training run, then press Start on the Arcade cabinet. Use Left and Right to run, and Up or B to jump. Holding a direction accelerates you; let go to slow. Jump input is buffered just before landing and remains available for a few frames after leaving a ledge. The Arcade cabinet also manages gamepad, touch, pause and sound.
+    Scroll to the cabinet and press Start. Choose New Game, then pick one of eight heroines with the arrows and press A (B picks one at random). Use Left and Right to run, and A or Up to jump; hold A to jump higher. Jump input is buffered just before landing and remains available for a few frames after leaving a ledge. The cabinet saves your heroine and stage on this device, so Continue picks up where you left off. The Arcade cabinet also manages gamepad, touch, pause and sound.
 
     Tools and enemies
-    Press A to use your short-range practice tool against a pumpbug ahead. A careful landing on top of a pumpbug also defeats it. Pick up the brass collectible tokens and cross gaps to reach the pennant. The toy box on this page previews all fourteen enemy families in their painted animation (hover or tap a card to see its move) and the three power disciplines, and the world map shows each boss's attack; the training run has only the first mechanical slice.
+    Press B to splash your wrench ahead: it defeats pumpbugs, stuns rivet rollers, breaks crates and turns valve switches, which open blue water gates. Landing on a pumpbug defeats it; landing on a rivet roller stuns it, and touching a stunned roller kicks it into its friends. Steam vents puff on a beat, springsteps launch you high, and pistons and brass lifts carry you over pits. Press Down while standing on a pipe to enter a secret room. Three hearts protect each life, checkpoint pennants save your place, and turning the goal valve clears a stage. In 1-4, jump Madame Pressure's steam waves and stomp her while she wobbles. The toy box on this page previews all fourteen enemy families in their painted animation.
 
     Eight worlds
     Click an island on the overworld map, or a World chip below it, to scout that world's four stages, its boss and its locals. Arrow keys step between islands. Bluebell Pipeworks, Tideglass Marina, Lantern Orchard, Clockwork Fair, Cloudrail Commons, Crystal Underworks, Night Market Rooftops and Stardrain Citadel culminate in the rescue of the plumber. Painted vignettes replace the drawn scenes as the art pipeline delivers them.
 
     Casting call
-    Pick one of eight painted heroines, or press Surprise me to be cast at random, then press Keep her to remember her on this device. Your kept heroine stars on the title screen, the map and the movement lab, running with her own painted animation. Looks are cosmetic: every heroine shares one hitbox and the same abilities.
+    Meet the eight painted heroines on this page; hover or tap one to preview her. You choose her in the cabinet when you start a new game, and the page then stars your saved heroine on the title screen and the map. Looks are cosmetic: every heroine shares one hitbox and the same abilities.
 ---
 
 An original eight-world rescue platformer. The admin-only front page carries the
-title screen, overworld map, heroine casting and the first movement training run;
-it is not yet a public Arcade cabinet.
+title screen, overworld map, the heroine roster and a playable World 1 (four stages and
+Madame Pressure); it is not yet a public Arcade cabinet.

@@ -1,61 +1,34 @@
-import { computed, ref } from 'vue'
+import { computed } from 'vue'
 import { defineStore } from 'pinia'
+import { useArcadeStore } from '~/stores/arcadeStore'
+import { DEFAULT_HEROINE_SEED } from '~/utils/arcade/games/savePlumberHeroine'
 import {
-  DEFAULT_HEROINE_SEED,
-  HEROINE_SEED_STORAGE_KEY,
-  parseStoredHeroineSeed,
-} from '~/utils/arcade/games/savePlumberHeroine'
-import {
-  PLUMBER_ROSTER,
   rosterHeroine,
   rosterIndex,
-  seedForRoster,
 } from '~/utils/arcade/games/savePlumberRoster'
+import {
+  PLUMBER_SLUG,
+  readPlumberSave,
+} from '~/utils/arcade/games/savePlumberSave'
+import { WORLD_ONE } from '~/utils/arcade/games/savePlumberLevels'
 
+/**
+ * The front page's view of the player's Save the Plumber run. The heroine is
+ * chosen inside the cabinet (its heroine select), and the cabinet keeps the
+ * run's save on this device; the page reads that save to star the same
+ * heroine on the title scene and map.
+ */
 export const useSavePlumberStore = defineStore('savePlumber', () => {
-  const seed = ref(DEFAULT_HEROINE_SEED)
-  const keptSeed = ref<number | null>(null)
-  const loaded = ref(false)
+  const arcade = useArcadeStore()
 
+  const progress = computed(() => readPlumberSave(arcade.saveFor(PLUMBER_SLUG)))
+  const seed = computed(() => progress.value?.heroine ?? DEFAULT_HEROINE_SEED)
   const heroine = computed(() => rosterHeroine(seed.value))
   const rosterSlot = computed(() => rosterIndex(seed.value))
-  const kept = computed(() => keptSeed.value === seed.value)
+  const chosen = computed(() => progress.value !== null)
+  const nextStage = computed(() =>
+    progress.value ? WORLD_ONE[progress.value.stage]!.code : null,
+  )
 
-  function load(): void {
-    if (loaded.value) return
-    loaded.value = true
-    try {
-      const stored = parseStoredHeroineSeed(
-        localStorage.getItem(HEROINE_SEED_STORAGE_KEY),
-      )
-      if (stored === null) return
-      seed.value = stored
-      keptSeed.value = stored
-    } catch {
-      return
-    }
-  }
-
-  function reroll(): void {
-    const others = PLUMBER_ROSTER.length - 1
-    seed.value = seedForRoster(
-      rosterSlot.value + 1 + Math.floor(Math.random() * others),
-    )
-  }
-
-  function choose(index: number): void {
-    if (index === rosterSlot.value) return
-    seed.value = seedForRoster(index)
-  }
-
-  function keep(): void {
-    keptSeed.value = seed.value
-    try {
-      localStorage.setItem(HEROINE_SEED_STORAGE_KEY, String(seed.value))
-    } catch {
-      return
-    }
-  }
-
-  return { seed, heroine, rosterSlot, kept, load, reroll, choose, keep }
+  return { seed, heroine, rosterSlot, chosen, nextStage, progress }
 })

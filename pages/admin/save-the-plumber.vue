@@ -38,7 +38,7 @@
             <span
               class="mr-1 inline-block h-2 w-2 animate-pulse rounded-full bg-emerald-400 align-middle"
             />
-            Workshop build · World 1 training run playable
+            Workshop build · World 1 playable, four stages and a boss
           </p>
 
           <h2 class="plumber-logo select-none" aria-label="Save the Plumber!">
@@ -72,7 +72,7 @@
               href="#plumber-casting"
               class="btn btn-lg border-white/40 bg-white/10 text-white backdrop-blur hover:bg-white/20"
             >
-              Meet your heroine
+              Meet the heroines
             </a>
           </div>
 
@@ -329,13 +329,17 @@
                   id="plumber-play-title"
                   class="plumber-display text-3xl sm:text-4xl"
                 >
-                  Training run: Rainy Courtyard
+                  Four stages and Madame Pressure
                 </h3>
               </div>
               <span
                 class="rounded-full border border-white/25 px-3 py-1 text-xs font-bold uppercase tracking-wider text-white/80"
               >
-                Movement lab
+                {{
+                  plumber.nextStage
+                    ? `Saved at ${plumber.nextStage}`
+                    : 'Pick your heroine in the cabinet'
+                }}
               </span>
             </div>
             <ArcadeCabinet slug="save-the-plumber" />
@@ -366,27 +370,31 @@
               <h4 class="plumber-display mb-3 text-xl">Your goals</h4>
               <ul class="space-y-2 text-sm text-white/85">
                 <li class="flex gap-2">
-                  <span class="text-[#ffcf82]">◆</span> Press Start on the
-                  cabinet.
+                  <span class="text-[#ffcf82]">◆</span> Press Start, then pick
+                  one of eight heroines.
                 </li>
                 <li class="flex gap-2">
                   <span class="text-[#ffcf82]">◆</span> Bop pumpbugs from above,
-                  or zap them with your tool.
+                  or splash them with your wrench.
                 </li>
                 <li class="flex gap-2">
-                  <span class="text-[#ffcf82]">◆</span> Grab the brass tokens
-                  floating over the gaps.
+                  <span class="text-[#ffcf82]">◆</span> Stun a rivet roller,
+                  then kick it into its friends.
                 </li>
                 <li class="flex gap-2">
-                  <span class="text-[#ffcf82]">◆</span> Reach the pink pennant
-                  to open a valve.
+                  <span class="text-[#ffcf82]">◆</span> Wrench a valve to open
+                  water gates; press down on a pipe to find a secret room.
+                </li>
+                <li class="flex gap-2">
+                  <span class="text-[#ffcf82]">◆</span> Turn the goal valve to
+                  clear a stage, and stomp Madame Pressure while she wobbles.
                 </li>
               </ul>
             </div>
             <p class="px-1 text-xs leading-relaxed text-white/60">
-              This is the engine's first training course, with coyote time and
-              buffered jumps already in. The full authored 1-1 and the rest of
-              the campaign are on the way.
+              World 1 is playable from start to boss. The cabinet saves your
+              heroine and stage on this device, so Continue picks up where you
+              left off. Worlds 2 to 8 are on the way.
             </p>
           </aside>
         </div>
@@ -396,10 +404,9 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref, watch } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import { useUserStore } from '~/stores/userStore'
 import { useSavePlumberStore } from '~/stores/savePlumberStore'
-import { setPlumberHeroine } from '~/utils/arcade/games/savePlumberArt'
 import { ENEMY_ANIMATIONS } from '~/utils/arcade/games/savePlumberAnimations'
 import {
   PLUMBER_CAST,
@@ -412,7 +419,6 @@ import {
 const user = useUserStore()
 const plumber = useSavePlumberStore()
 const heroine = computed(() => plumber.heroine)
-watch(heroine, setPlumberHeroine, { immediate: true })
 
 const tilt = ref({ x: 0, y: 0 })
 const poked = ref<string | null>(null)
@@ -439,7 +445,7 @@ const stats = [
   { value: PLUMBER_WORLDS.length, label: 'Worlds' },
   { value: PLUMBER_STAGE_COUNT, label: 'Stages' },
   { value: PLUMBER_WORLDS.length, label: 'Bosses' },
-  { value: 1, label: 'Heroine, yours' },
+  { value: 8, label: 'Heroines' },
 ]
 
 const prologue = [
@@ -462,15 +468,15 @@ const prologue = [
 
 const controls = [
   { keys: ['←', '→'], does: 'Run (hold to build speed)' },
-  { keys: ['↑', 'B'], does: 'Jump, buffered and forgiving' },
-  { keys: ['A'], does: 'Tool blast at a nearby pumpbug' },
+  { keys: ['A', '↑'], does: 'Jump (hold for higher)' },
+  { keys: ['B'], does: 'Wrench splash: stun, break crates, turn valves' },
+  { keys: ['↓'], does: 'Enter a pipe you stand on' },
 ]
 
 onMounted(() => {
   void user.initialize()
   reducedMotion =
     window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ?? false
-  plumber.load()
   if (!document.getElementById('plumber-display-font')) {
     const link = document.createElement('link')
     link.id = 'plumber-display-font'

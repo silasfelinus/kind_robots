@@ -10,7 +10,6 @@ import {
   HEROINE_SKIN_TONES,
   createHeroine,
   heroineRunCode,
-  parseStoredHeroineSeed,
   rollHeroineSeed,
 } from '../arcade/games/savePlumberHeroine'
 import {
@@ -111,12 +110,6 @@ assert.equal(
   0,
 )
 
-assert.equal(parseStoredHeroineSeed(null), null)
-assert.equal(parseStoredHeroineSeed('abc'), null)
-assert.equal(parseStoredHeroineSeed('-4'), null)
-assert.equal(parseStoredHeroineSeed('4294967296'), null)
-assert.equal(parseStoredHeroineSeed('42'), 42)
-
 const page = source('../../pages/admin/save-the-plumber.vue')
 for (const part of [
   '<PlumberTitleScene',
@@ -159,7 +152,8 @@ for (const name of components) {
 assert.ok(!/localStorage/.test(page), 'the page leaves storage to the store')
 assert.match(
   source('../../stores/savePlumberStore.ts'),
-  /HEROINE_SEED_STORAGE_KEY/,
+  /readPlumberSave\(arcade\.saveFor\(PLUMBER_SLUG\)\)/,
+  'the page stars the heroine chosen in the cabinet',
 )
 
 console.log(

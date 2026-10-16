@@ -69,7 +69,12 @@ function pilot(game: Game, seat: number, frame: number): InputFrame {
   return input
 }
 
-type Crossing = { to: number; hp: number; duringWarning: boolean }
+type Crossing = {
+  to: number
+  hp: number
+  boundary: number
+  duringWarning: boolean
+}
 
 function fight(players: number, seed: number) {
   const game = createRainbowPrincessPreview({
@@ -87,6 +92,7 @@ function fight(players: number, seed: number) {
   const crossings: Crossing[] = []
   let interrupted = 0
   let before = game.snapshot
+  let leftAt: number | null = null
   for (let frame = 0; frame < 60000; frame++) {
     if (before.continueLeft > 0) {
       const input = emptyInput()
@@ -105,16 +111,34 @@ function fight(players: number, seed: number) {
     const boss = after.boss
     const prior = before.boss
 
-    if (boss && boss.frame === 1) attempts++
+    if (boss && boss.frame === 1) {
+      attempts++
+      // Each pilot adds a full share: 2.5 times the 150 HP base per pilot.
+      assert.equal(boss.maxHp, BOSS_MAX_HP * 2.5 * players)
+      // A continue brings the boss back as damaged as the crew left it.
+      assert.equal(
+        boss.hp,
+        leftAt ?? boss.maxHp,
+        `attempt ${attempts} starts where the last one left off`,
+      )
+    }
+    if (boss) leftAt = boss.hp
     if (boss && prior && boss.frame === prior.frame + 1) {
       // Damage lands after the boss step: the phase follows the HP one step later, never mid-step.
-      const expected = prior.hp > 100 ? 1 : prior.hp > 50 ? 2 : 3
+      const upper = (prior.maxHp * 2) / 3
+      const lower = prior.maxHp / 3
+      const expected = prior.hp > upper ? 1 : prior.hp > lower ? 2 : 3
       assert.equal(boss.phase, expected, `phase follows HP at ${after.tick}`)
       if (boss.phase !== prior.phase) {
         const duringWarning =
           prior.frame >= prior.nextVolleyAt - WARNING_FRAMES &&
           prior.frame < prior.nextVolleyAt
-        crossings.push({ to: boss.phase, hp: prior.hp, duringWarning })
+        crossings.push({
+          to: boss.phase,
+          hp: prior.hp,
+          boundary: boss.phase === 2 ? upper : lower,
+          duringWarning,
+        })
         if (duringWarning) interrupted++
         assert.equal(
           boss.nextVolleyAt,
@@ -207,25 +231,25 @@ for (const { players, seed } of runs) {
     `${players}p: ${result.volleys} volleys, ${result.crossings.length} crossings (${result.interrupted} mid-warning), ${result.attempts} attempt(s), ${result.continues} continue(s)`,
   )
 }
-// The 100 and 50 HP boundaries are met both while the boss is charging (the cue is interrupted and
-// restarts) and while it is not.
+// The two-thirds and one-third hull boundaries are met both while the boss is charging (the cue is
+// interrupted and restarts) and while it is not.
 for (const [to, boundary] of [
-  [2, BOSS_MAX_HP - 50],
-  [3, BOSS_MAX_HP - 100],
+  [2, 'two-thirds'],
+  [3, 'one-third'],
 ] as const) {
   for (const duringWarning of [true, false]) {
     assert.ok(
       allCrossings.some(
         (c) => c.to === to && c.duringWarning === duringWarning,
       ),
-      `the ${boundary} HP crossing is earned ${duringWarning ? 'mid-warning' : 'outside a warning'}`,
+      `the ${boundary} hull crossing is earned ${duringWarning ? 'mid-warning' : 'outside a warning'}`,
     )
   }
   assert.ok(
     allCrossings
       .filter((c) => c.to === to)
-      .every((c) => c.hp <= boundary && c.hp > boundary - 10),
-    `phase ${to} begins at the ${boundary} HP boundary`,
+      .every((c) => c.hp <= c.boundary && c.hp > c.boundary - 10),
+    `phase ${to} begins at the ${boundary} hull boundary`,
   )
 }
 

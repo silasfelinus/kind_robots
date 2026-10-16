@@ -28,10 +28,13 @@ tutorial:
     Four new enemy behaviors appear in the jelly fields: glowing lantern fans, paired relay pellets, downward-skimming beads, and breakable coral drifters. A pale green NEMI beacon drifts through the mid-act waves; reach it before it passes to rescue her and earn super charge for every active pilot. The mid-Act Lilt conversation changes based on that rescue. Aurelia's three health bands open dangerous fan patterns, but every volley carries a visible advance glow and navigable gaps. Defeating Aurelia frees its colony and leaves the crew in a safe transition toward Act III.
 
     Checkpoints and continues
-    Every section start and each boss is a checkpoint; a CHECKPOINT toast marks it. When the whole crew is down, a ten-second CONTINUE? countdown holds the battle still. Press A to resume from the last checkpoint with every pilot restored; the score returns to what it was at that checkpoint. Let the countdown run out to end the run.
+    Every section start and each boss is a checkpoint; a CHECKPOINT toast marks it. When the whole crew is down, a ten-second CONTINUE? countdown holds the battle still. Press A to resume from the last checkpoint with every pilot restored; the score returns to what it was at that checkpoint. Let the countdown run out to end the run. A continue during a boss fight brings the boss back as damaged as you left it, so every attempt chips away at it.
+
+    Boss fights
+    Each boss hull grows with the crew: every pilot adds a full share, so four pilots stacking supers still fight through all three phases. Phases turn at two thirds and one third of the hull. A first solo clear of both Acts takes about 10–15 minutes; a full crew of four finishes in about ten.
 
     Future campaign
-    Eight Acts are planned in total: Pinkwake, Moonjelly Fields, Chromatic Trench, Rosefin Express, Blossom Wreckyard, Crown Reef, Glass Current and Eclipse Palace, followed by the final confrontation. Acts I and II are playable today at roughly four to five minutes each; their full 10–15-minute pacing, cinematics, the remaining six Acts and online co-op are still in production. This is an admin-only rehearsal, not a public leaderboard release.
+    Eight Acts are planned in total: Pinkwake, Moonjelly Fields, Chromatic Trench, Rosefin Express, Blossom Wreckyard, Crown Reef, Glass Current and Eclipse Palace, followed by the final confrontation. Acts I and II are playable today, together a 10–15-minute first clear; cinematics, the remaining six Acts and online co-op are still in production. This is an admin-only rehearsal, not a public leaderboard release.
 ---
 
 The pastel starport is a private development page with a real Arcade-powered

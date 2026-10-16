@@ -165,6 +165,21 @@ assert.doesNotMatch(
   /canon_motivation|world_mysteries|sacrifice/,
 )
 
+// Silas, 2026-10-16 layout sweep: one toolbar row under the site header (no
+// second title), tabs inline, and road cards two by two on portrait screens.
+const toolbar = board.slice(
+  board.indexOf('<header'),
+  board.indexOf('</header>'),
+)
+assert.doesNotMatch(
+  toolbar,
+  /<h1[\s>]/,
+  'the site header already names the game',
+)
+assert.doesNotMatch(toolbar, /order-last/, 'tabs stay on the toolbar row')
+assert.match(toolbar, /class="kr-toolbar flex-nowrap/)
+assert.match(board, /@media \(orientation: portrait\)[\s\S]*?\.road-grid/)
+
 console.log(
   'Shifting Lands playable board contract passed: safe card reveals, five-land controls, real reducer integration, legacy save isolation and inspectable history',
 )

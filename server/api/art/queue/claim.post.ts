@@ -26,7 +26,10 @@
 // low-priority one could sit behind priority-100 work for hours (2026-09-12:
 // #21788, attempt 2, RUNNING for 63 minutes next to the live #21803). A relay
 // that genuinely renders several jobs at once opts out with singleSlot=false.
-import { artJobClaimableBy, isVideoRestyleArtJobPayload } from '~/utils/artJobMedia'
+import {
+  artJobClaimableBy,
+  isVideoRestyleArtJobPayload,
+} from '~/utils/artJobMedia'
 import { createError, defineEventHandler, readBody } from 'h3'
 import prisma from '../../../utils/prisma'
 import { errorHandler } from '../../../utils/error'

@@ -45,7 +45,8 @@ export function artJobClaimableBy(
   capabilities: ArtJobRelayCapabilities,
 ): boolean {
   const body = payloadObject(payload)
-  if (isVideoRestyleArtJobPayload(body)) return capabilities.supportsVideoRestyle === true
+  if (isVideoRestyleArtJobPayload(body))
+    return capabilities.supportsVideoRestyle === true
   const needsInputImages =
     Array.isArray(body?.images) && (body?.images as unknown[]).length > 0
   if (needsInputImages && !capabilities.supportsInputImages) return false

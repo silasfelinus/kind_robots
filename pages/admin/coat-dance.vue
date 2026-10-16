@@ -452,10 +452,10 @@
             <div
               class="rounded-xl border border-warning/30 bg-warning/10 p-2 text-xs leading-relaxed"
             >
-              <strong>KR Relay handles rendering.</strong> The existing art relay
-              will claim this native VACE video-control pilot once its GPU
-              reports the model and video nodes available. The full 5:32
-              render stays disabled until the 24-second pilot is reviewed.
+              <strong>KR Relay handles rendering.</strong> The existing art
+              relay will claim this native VACE video-control pilot once its GPU
+              reports the model and video nodes available. The full 5:32 render
+              stays disabled until the 24-second pilot is reviewed.
             </div>
           </section>
         </div>

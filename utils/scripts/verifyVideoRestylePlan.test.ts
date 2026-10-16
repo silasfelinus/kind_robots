@@ -60,8 +60,14 @@ assert.ok(reconcile.includes('syncRestylePilotArtJob'))
 assert.ok(artjob.includes('attemptFingerprint: fingerprint'))
 assert.ok(artjob.includes('projectSlug: PROJECT_SLUG'))
 assert.ok(artjob.includes('priority: -100'))
-const vaceReport = readFileSync('server/api/video-restyle/[id]/pilot/report.post.ts', 'utf8')
-const vaceSource = readFileSync('server/api/video-restyle/[id]/pilot/source.get.ts', 'utf8')
+const vaceReport = readFileSync(
+  'server/api/video-restyle/[id]/pilot/report.post.ts',
+  'utf8',
+)
+const vaceSource = readFileSync(
+  'server/api/video-restyle/[id]/pilot/source.get.ts',
+  'utf8',
+)
 const vaceClaim = readFileSync('server/api/art/queue/claim.post.ts', 'utf8')
 assert.ok(vaceClaim.includes('supportsVideoRestyle'))
 assert.ok(vaceClaim.includes("mode: 'VACE_PILOT'"))

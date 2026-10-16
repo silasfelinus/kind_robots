@@ -391,7 +391,10 @@
               <p class="text-base-content/70">{{ store.selected.stage }}</p>
               <NuxtLink
                 v-if="store.selected.pilot?.artJobId"
-                :to="{ path: '/artjob', query: { jobId: store.selected.pilot.artJobId } }"
+                :to="{
+                  path: '/artjob',
+                  query: { jobId: store.selected.pilot.artJobId },
+                }"
                 class="inline-flex items-center gap-1 font-semibold text-primary hover:underline"
               >
                 View ArtJob #{{ store.selected.pilot.artJobId }} in the queue

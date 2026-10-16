@@ -428,7 +428,8 @@ export const useArtJobStore = defineStore('artJobStore', () => {
         pageSize: String(state.jobPageSize),
       })
       if (status !== 'ALL') params.set('status', status)
-      if (state.focusedJobId !== null) params.set('jobId', String(state.focusedJobId))
+      if (state.focusedJobId !== null)
+        params.set('jobId', String(state.focusedJobId))
 
       const res = await performFetch<{
         jobs: ArtJobRecord[]

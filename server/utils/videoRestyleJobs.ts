@@ -40,6 +40,14 @@ export type VideoRestyleJob = {
   status: RestyleStatus
   stage: string
   progress: number
+  full?: {
+    startSec: number
+    durationSec: number
+    completedSegments: number
+    totalSegments: number
+    artJobId?: number
+    renderModel: string
+  }
   pilot?: {
     startSec: number
     durationSec: number
@@ -411,5 +419,53 @@ export async function queueRestylePilot(
     mode: 0o600,
   })
   await rename(temporary, target)
+  return updated
+}
+
+
+/** Queue a whole-source pass only after a completed, personally reviewable pilot. */
+export async function queueRestyleFull(
+  userId: number,
+  id: string,
+): Promise<VideoRestyleJob> {
+  const job = await loadRestyleJob(userId, id)
+  if (job.status !== 'REVIEW' || job.resultFile !== 'pilot.mp4') {
+    throw createError({
+      statusCode: 409,
+      message: 'Review the completed pilot before queueing a full-length film.',
+    })
+  }
+  if (job.full) {
+    throw createError({
+      statusCode: 409,
+      message: 'A full-length job already exists for this project.',
+    })
+  }
+  const durationSec = job.sourceDurationSec
+  const frameCount = Math.max(1, Math.round(durationSec * 16))
+  const totalSegments = Math.ceil(Math.max(0, frameCount - 65) / 57) + 1
+  const updated: VideoRestyleJob = {
+    ...job,
+    status: 'FULL_QUEUED',
+    stage: 'Full-length render queued; pilot preserved for comparison',
+    progress: 0,
+    error: null,
+    resultFile: null,
+    full: {
+      startSec: 0,
+      durationSec,
+      completedSegments: 0,
+      totalSegments,
+      renderModel: 'wan2.1_vace_1.3B_fp16.safetensors',
+    },
+    updatedAt: new Date().toISOString(),
+  }
+  const target = path.join(root(userId), id, 'job.json')
+  const temp = `${target}.${randomUUID()}.tmp`
+  await writeFile(temp, JSON.stringify(updated, null, 2), {
+    flag: 'wx',
+    mode: 0o600,
+  })
+  await rename(temp, target)
   return updated
 }

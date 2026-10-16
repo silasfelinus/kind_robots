@@ -4,8 +4,8 @@ channelKey: admin
 tabKey: rainbow-bullet-hell-space-princess
 label: Space Princess
 title: Rainbow Bullet Hell Space Princess
-subtitle: Two-Act Pinkwake and Moonjelly campaign preview
-description: A private two-Act Rainbow Bullet Hell Space Princess preview with Pinkwake, Moonjelly Fields, two bosses, optional rescues, checkpoints and 1–4 local pilots.
+subtitle: Three-Act Pinkwake, Moonjelly and Chromatic Trench campaign preview
+description: A private three-Act Rainbow Bullet Hell Space Princess preview with Pinkwake, Moonjelly Fields, the Chromatic Trench, three bosses, two guardians, optional rescues, checkpoints and 1–4 local pilots.
 summary: Fly the pastel nebula with friends.
 icon: kind-icon:rocket
 route: /admin/rainbow-bullet-hell-space-princess
@@ -27,6 +27,9 @@ tutorial:
     Moonjelly rescue
     Four new enemy behaviors appear in the jelly fields: glowing lantern fans, paired relay pellets, downward-skimming beads, and breakable coral drifters. A pale green NEMI beacon drifts through the mid-act waves; reach it before it passes to rescue her and earn super charge for every active pilot. The mid-Act Lilt conversation changes based on that rescue. Aurelia's three health bands open dangerous fan patterns, but every volley carries a visible advance glow and navigable gaps. Defeating Aurelia frees its colony and leaves the crew in a safe transition toward Act III.
 
+    Chromatic Trench
+    After the Aurelia Array falls, the jelly tendrils stretch down into Act III, the Chromatic Trench, with your lives, shields and power intact. Four new craft each teach one rule. Clawstrike snipers mark their lane with a dashed line for a moment before a fast bolt flies down it, so leave the marked lane early. Pistol shuttles lob bubbles that swell and burst into a ring of pellets; keep the bubble's edge at a distance. Angler decoys drop a glowing halo that looks like a pickup, then flash a red cross before it fires along both lines. Glassfin skate pellets glance off the trench wall once, so read the angle as well as the shot. At the salvage vault, Lilt finds Crown-compatible hardware before B03 Clawburst arrives. Its rail shot and punch fire down the lane their dashed warning marks; after the punch the cannon cracks open and takes double damage. Free its pilot, and the Act ends quietly at the salvage dock.
+
     Guardians
     Midway through each Act a guardian takes the screen alone: a giant pearl urchin in Pinkwake, a giant lantern in Moonjelly Fields. Its ring glows before every volley. The urchin fires a ring of pearls with a gap that moves round each time; the lantern fires two fans that leave the lane straight at you open. Destroy it before it escapes for a 1,500-point bonus and a power, shield and charge pickup. If the whole crew falls during its section, it returns with the continue.
 
@@ -37,7 +40,7 @@ tutorial:
     Each boss hull grows with the crew, and each extra pilot adds more than the first, so four powered-up pilots stacking supers still fight through all three phases. Phases turn at two thirds and one third of the hull. A clean solo run of each Act takes about ten minutes; a first clear with continues takes twelve to fifteen, and a crew of four finishes each in about ten to eleven.
 
     Future campaign
-    Eight Acts are planned in total: Pinkwake, Moonjelly Fields, Chromatic Trench, Rosefin Express, Blossom Wreckyard, Crown Reef, Glass Current and Eclipse Palace, followed by the final confrontation. Acts I and II are playable today at their full 10–15-minute pacing; cinematics, the remaining six Acts and online co-op are still in production. This is an admin-only rehearsal, not a public leaderboard release.
+    Eight Acts are planned in total: Pinkwake, Moonjelly Fields, Chromatic Trench, Rosefin Express, Blossom Wreckyard, Crown Reef, Glass Current and Eclipse Palace, followed by the final confrontation. Acts I and II are playable today at their full 10–15-minute pacing, and Act III, the Chromatic Trench, is playable as a shorter first slice; its full pacing and route choice, cinematics, the remaining five Acts and online co-op are still in production. This is an admin-only rehearsal, not a public leaderboard release.
 ---
 
 The pastel starport is a private development page with a real Arcade-powered

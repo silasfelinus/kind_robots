@@ -247,7 +247,7 @@ assert.ok(
     stripAt < engine.indexOf('for (const reef of reefs) {\n        g.save()') &&
     stripAt <
       engine.indexOf(
-        "for (const bullet of enemyShots) {\n        g.fillStyle = '#1b163e'",
+        "for (const bullet of enemyShots) {\n        if (bullet.burst === 'cross'",
       ) &&
     stripAt < engine.indexOf('drawRainbowShipSprite(g, seat)'),
   'the coral strip sits behind enemies, enemy shots and ships',

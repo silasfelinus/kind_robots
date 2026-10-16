@@ -40,7 +40,10 @@ export default defineEventHandler(async (event) => {
       size > CHUNK_BYTES ||
       !/^[a-f0-9]{64}$/.test(declaredSha)
     ) {
-      throw createError({ statusCode: 413, message: 'Invalid bounded full-film chunk.' })
+      throw createError({
+        statusCode: 413,
+        message: 'Invalid bounded full-film chunk.',
+      })
     }
     const { job, phase } = await requireClaimedVacePilot(
       getRouterParam(event, 'id') || '',
@@ -48,22 +51,40 @@ export default defineEventHandler(async (event) => {
       agentId,
     )
     if (phase !== 'full') {
-      throw createError({ statusCode: 409, message: 'Not a claimed full film.' })
+      throw createError({
+        statusCode: 409,
+        message: 'Not a claimed full film.',
+      })
     }
     const bytes = await readRawBody(event, false)
-    if (!bytes || bytes.length !== size || createHash('sha256').update(bytes).digest('hex') !== declaredSha) {
-      throw createError({ statusCode: 400, message: 'Chunk checksum/length mismatch.' })
+    if (
+      !bytes ||
+      bytes.length !== size ||
+      createHash('sha256').update(bytes).digest('hex') !== declaredSha
+    ) {
+      throw createError({
+        statusCode: 400,
+        message: 'Chunk checksum/length mismatch.',
+      })
     }
     const folder = path.join(path.dirname(restyleSourcePath(job)), 'full-parts')
     await mkdir(folder, { recursive: true, mode: 0o700 })
-    const destination = path.join(folder, `part-${String(index).padStart(3, '0')}`)
-    const prior = await readFile(destination).catch((error: NodeJS.ErrnoException) => {
-      if (error.code === 'ENOENT') return null
-      throw error
-    })
+    const destination = path.join(
+      folder,
+      `part-${String(index).padStart(3, '0')}`,
+    )
+    const prior = await readFile(destination).catch(
+      (error: NodeJS.ErrnoException) => {
+        if (error.code === 'ENOENT') return null
+        throw error
+      },
+    )
     if (prior) {
       if (createHash('sha256').update(prior).digest('hex') !== declaredSha) {
-        throw createError({ statusCode: 409, message: 'Chunk index has different saved bytes.' })
+        throw createError({
+          statusCode: 409,
+          message: 'Chunk index has different saved bytes.',
+        })
       }
     } else {
       const temporary = `${destination}.${randomUUID()}.tmp`

@@ -1,11 +1,12 @@
 /**
  * Authored Act II encounter director. Uses local 60 Hz frames after the
  * Pinkwake aftermath, so the global combat tick and inventory never reset.
- * The waves are authored formations (see rainbowFormations) in fifteen sections that follow the world
+ * The waves are authored formations (see rainbowFormations) in eighteen sections that follow the world
  * bible's S02 beats: the lantern gap lesson, linked relays, skimmer bead rain, breakable coral cover
- * and a bell remix, the Lantern guardian (see rainbowGuardian), then nine escalations (tendril maze, lantern lattice, moonrise surge, bell canyon,
- * relay storm, bell veil, tendril crossing, lantern choir, colony wake). Wave ids
- * start at 1000 so Act II formations never share a school with Act I.
+ * and a bell remix, the Lantern guardian (see rainbowGuardian), then twelve escalations (tendril maze,
+ * lantern lattice, moonrise surge, bell canyon, relay storm, bell veil, tendril crossing, lantern
+ * choir, glow drift, coral orchard, tide of bells, colony wake). Wave ids start at 1000 so Act II
+ * formations never share a school with Act I.
  */
 import {
   buildFormationSchedule,
@@ -28,8 +29,8 @@ export const MOONJELLY = {
   nemiAppears: 1680,
   turnStarts: 3900,
   turnEnds: 4200,
-  approachStarts: 24900,
-  bossStarts: 25200,
+  approachStarts: 30300,
+  bossStarts: 30600,
   aftermathFrames: 360,
   lineFrames: 96,
   waveBase: 1000,
@@ -50,7 +51,10 @@ export const MOONJELLY_SECTIONS = [
   { name: 'Bell veil', from: 17700, to: 19500 },
   { name: 'Tendril crossing', from: 19500, to: 21300 },
   { name: 'Lantern choir', from: 21300, to: 23100 },
-  { name: 'Colony wake', from: 23100, to: 24900 },
+  { name: 'Glow drift', from: 23100, to: 24900 },
+  { name: 'Coral orchard', from: 24900, to: 26700 },
+  { name: 'Tide of bells', from: 26700, to: 28500 },
+  { name: 'Colony wake', from: 28500, to: 30300 },
 ] as const
 
 /** The Lantern guardian holds the Act between the Bell remix and the escalations; no waves fly in its section. */
@@ -186,18 +190,51 @@ export const MOONJELLY_WAVES: readonly MoonjellyWave[] = [
   wave(22680, 'lantern', 'single', 1, 0.35),
   wave(22680, 'relay', 'pair', 4, 0.15),
   wave(22920, 'skimmer', 'vee', 5, 0.5),
+  // Glow drift: skimmer rain over relay vees, with single lanterns marking the gaps.
+  wave(23160, 'skimmer', 'line', 4, 0.2),
+  wave(23340, 'relay', 'vee', 5, 0.5),
+  wave(23520, 'lantern', 'single', 1, 0.3),
+  wave(23640, 'skimmer', 'line', 4, 0.7),
+  wave(23820, 'relay', 'column', 3, 0.5),
+  wave(24000, 'lantern', 'single', 1, 0.7),
+  wave(24120, 'skimmer', 'stair', 5, 0.1),
+  wave(24300, 'relay', 'pair', 4, 0.2),
+  wave(24480, 'lantern', 'pair', 2, 0.25),
+  wave(24660, 'skimmer', 'vee', 5, 0.5),
+  // Coral orchard: coral walls in rows, each corridor holding a relay file.
+  wave(24960, 'coral', 'wall', 4, 0.3),
+  wave(25140, 'relay', 'line', 3, 0.3),
+  wave(25320, 'coral', 'wall', 4, 0.7),
+  wave(25500, 'relay', 'line', 3, 0.7),
+  wave(25680, 'lantern', 'single', 1, 0.5),
+  wave(25800, 'coral', 'wall', 3, 0.5),
+  wave(25980, 'skimmer', 'line', 4, 0.15),
+  wave(26160, 'coral', 'wall', 4, 0.4),
+  wave(26280, 'relay', 'line', 3, 0.4),
+  wave(26460, 'lantern', 'pair', 2, 0.2),
+  // Tide of bells: lanterns high and low, then relay stairs and a last coral gate.
+  wave(26760, 'lantern', 'single', 1, 0.2),
+  wave(26880, 'lantern', 'single', 1, 0.8),
+  wave(27060, 'relay', 'vee', 5, 0.5),
+  wave(27240, 'skimmer', 'stair', 5, 0.1),
+  wave(27420, 'lantern', 'column', 2, 0.5, { spread: 0.5 }),
+  wave(27600, 'relay', 'stair', 5, 0.85, { step: -1 }),
+  wave(27780, 'coral', 'wall', 4, 0.5),
+  wave(27900, 'relay', 'line', 3, 0.5),
+  wave(28080, 'skimmer', 'vee', 5, 0.3),
+  wave(28260, 'lantern', 'pair', 2, 0.25),
   // Colony wake: the Aurelia Array's escort colony, every Act II craft one last time.
-  wave(23160, 'relay', 'vee', 5, 0.5),
-  wave(23340, 'coral', 'wall', 4, 0.3),
-  wave(23460, 'relay', 'line', 3, 0.3),
-  wave(23640, 'lantern', 'pair', 2, 0.2),
-  wave(23820, 'skimmer', 'stair', 5, 0.1),
-  wave(24000, 'coral', 'wall', 4, 0.7),
-  wave(24120, 'relay', 'line', 3, 0.7),
-  wave(24300, 'lantern', 'single', 1, 0.5),
-  wave(24300, 'skimmer', 'line', 4, 0.15),
-  wave(24480, 'relay', 'column', 4, 0.5, { spread: 0.2 }),
-  wave(24660, 'skimmer', 'vee', 5, 0.3),
+  wave(28560, 'relay', 'vee', 5, 0.5),
+  wave(28740, 'coral', 'wall', 4, 0.3),
+  wave(28860, 'relay', 'line', 3, 0.3),
+  wave(29040, 'lantern', 'pair', 2, 0.2),
+  wave(29220, 'skimmer', 'stair', 5, 0.1),
+  wave(29400, 'coral', 'wall', 4, 0.7),
+  wave(29520, 'relay', 'line', 3, 0.7),
+  wave(29700, 'lantern', 'single', 1, 0.5),
+  wave(29700, 'skimmer', 'line', 4, 0.15),
+  wave(29880, 'relay', 'column', 4, 0.5, { spread: 0.2 }),
+  wave(30060, 'skimmer', 'vee', 5, 0.3),
 ]
 
 const schedule = buildFormationSchedule(MOONJELLY_WAVES, MOONJELLY.waveBase)

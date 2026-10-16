@@ -102,10 +102,11 @@ const lampsIn = (g: Probe, from: number, to: number) => {
   assert.equal(g.snail, null)
   let seen = false
   for (let i = 0; i < 2400 && !seen; i++) {
-    if (g.snail) {
+    const snail = g.snail as { x: number; y: number; vx: number } | null
+    if (snail) {
       // Plant a lamp right in its path.
-      const col = Math.floor(g.snail.x / CELL) + (g.snail.vx > 0 ? 3 : -3)
-      const row = Math.floor((g.snail.y - HUD) / CELL)
+      const col = Math.floor(snail.x / CELL) + (snail.vx > 0 ? 3 : -3)
+      const row = Math.floor((snail.y - HUD) / CELL)
       if (col >= 0 && col < COLS && !g.grid[row * COLS + col])
         g.grid[row * COLS + col] = { hp: 4, kind: 'lamp' }
       seen = true

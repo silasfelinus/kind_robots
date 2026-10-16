@@ -14,6 +14,7 @@ on:
       - 'utils/scripts/arcadeCabinetFixture.mjs'
       - 'utils/scripts/verifyRainbowCabinet.browser.test.mjs'
       - 'utils/scripts/verifyRainbowTouch.browser.test.mjs'
+      - 'utils/scripts/verifyRainbowCoopCabinet.browser.test.mjs'
       - '.github/workflows/rainbow-cabinet-contract.yml'
 
 permissions:
@@ -25,7 +26,7 @@ concurrency:
 
 jobs:
   rainbow-cabinet:
-    name: Rainbow cabinet help, controls and touch in Chromium
+    name: Rainbow cabinet help, controls, touch and co-op in Chromium
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
@@ -48,6 +49,10 @@ jobs:
         run: node utils/scripts/verifyRainbowTouch.browser.test.mjs
         env:
           RAINBOW_TOUCH_SHOTS: rainbow-cabinet-shots
+      - name: Join, bench and four-pilot co-op through the actual cabinet
+        run: node utils/scripts/verifyRainbowCoopCabinet.browser.test.mjs
+        env:
+          RAINBOW_COOP_SHOTS: rainbow-cabinet-shots
       - name: Preserve responsive fixtures
         if: always()
         uses: actions/upload-artifact@v4

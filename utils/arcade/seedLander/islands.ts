@@ -11,6 +11,7 @@
 //   4 Firefly Caverns: dark caves lit by your glow, crystal bumpers, spore puffballs; Lantern Run
 //     (relight the cave), Rescue (tow stranded sprout-bots home); the Glowworm Queen.
 //   5 Storm Shelf: rain-heavy skies (gravity up), sun seeds, sky farms; Thunderhead (t-072).
+//   6 Moon Garden: low gravity, no wind, huge inertia; meteor streaks; the Old Lander (t-072).
 
 import type { MissionSpec, ThemeId } from './missions'
 
@@ -1236,7 +1237,108 @@ const STORM: Island = {
   ],
 }
 
-export const ISLANDS: readonly Island[] = [MEADOW, DOWNS, GORGE, CAVERNS, STORM]
+// --- 6. Moon Garden -------------------------------------------------------------------------------
+// The homage: low gravity, no wind and huge inertia. Each mission reworks a Storm Shelf map for
+// the moon (craters in the ground, a x5 pad, a floaty pod that needs braking early).
+
+const moonOf = (
+  m: MissionSpec,
+  over: Partial<MissionSpec> & { id: string; name: string; brief: string },
+): MissionSpec => ({ ...m, theme: 'moon', wind: 0, gravity: 0.42, ...over })
+
+const [S1, S2, S3, S4, S5] = STORM.missions as [
+  MissionSpec,
+  MissionSpec,
+  MissionSpec,
+  MissionSpec,
+  MissionSpec,
+]
+
+const MOON: Island = {
+  id: 'moon',
+  name: 'MOON GARDEN',
+  about: 'LOW GRAVITY, HUGE INERTIA: BRAKE EARLY',
+  theme: 'moon',
+  missions: [
+    moonOf(S1, {
+      id: 'moon-1',
+      name: 'CRATER BEDS',
+      brief: 'THE POD FLOATS: BRAKE EARLY',
+      map: {
+        ...S1.map,
+        pads: [
+          { id: 'sun', x: 90, w: 30, kind: 'sun' },
+          { id: 'bed1', x: 330, w: 34, mult: 1 },
+          { id: 'bed3', x: 590, w: 26, mult: 3 },
+          { id: 'bed5', x: 840, w: 18, mult: 5 },
+        ],
+      },
+      acorns: [{ id: 'moon-a1', x: 460, y: 60 }],
+    }),
+    moonOf(S2, {
+      id: 'moon-2',
+      name: 'MOON SUNFLOWERS',
+      brief: 'LOW GRAVITY MAKES A LONG HOP: PLANT THE SUNFLOWER',
+      acorns: [{ id: 'moon-a2', x: 760, y: 50 }],
+    }),
+    moonOf(S3, {
+      id: 'moon-3',
+      name: 'MOON MAIL',
+      brief: 'TOW EACH CRATE: IT SWINGS FOR A LONG TIME',
+      gravity: 0.5,
+    }),
+    moonOf(S4, {
+      id: 'moon-4',
+      name: 'METEOR DRIZZLE',
+      brief: 'FLY THE RINGS ABOVE THE CRATER RIMS',
+      acorns: [{ id: 'moon-a3', x: 560, y: 30 }],
+    }),
+    moonOf(S5, {
+      id: 'moon-5',
+      name: 'OLD FRIENDS',
+      brief: 'WAKE AND TOW THE SLEEPING LANDERS HOME',
+      gravity: 0.5,
+    }),
+    {
+      id: 'moon-boss',
+      name: 'THE OLD LANDER',
+      brief: 'PLANT ON HIS LEGS, AWAY FROM THE METEOR STREAKS',
+      kind: 'boss',
+      theme: 'moon',
+      map: {
+        w: 800,
+        h: 260,
+        ground: [
+          [0, 220],
+          [200, 228],
+          [400, 232],
+          [600, 228],
+          [800, 220],
+        ],
+        pads: [
+          { id: 'sunL', x: 70, w: 32, kind: 'sun' },
+          { id: 'sunR', x: 730, w: 32, kind: 'sun' },
+        ],
+      },
+      start: { x: 80, y: 60 },
+      sun: 2400,
+      wind: 0,
+      gravity: 0.45,
+      seeds: 0,
+      boss: { id: 'oldlander', x: 400 },
+      par: par(1200, 110),
+    },
+  ],
+}
+
+export const ISLANDS: readonly Island[] = [
+  MEADOW,
+  DOWNS,
+  GORGE,
+  CAVERNS,
+  STORM,
+  MOON,
+]
 
 /** Every golden acorn on the islands built so far. */
 export const ALL_ACORNS: readonly string[] = ISLANDS.flatMap((i) =>

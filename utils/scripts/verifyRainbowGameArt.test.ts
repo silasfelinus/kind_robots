@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict'
 import { existsSync, readFileSync, statSync } from 'node:fs'
 import {
+  RAINBOW_ACT_THREE_ENEMY_SPRITES,
   RAINBOW_BOSS_SPRITES,
   RAINBOW_COMMS_SPEAKERS,
   RAINBOW_CUTIN_PILOTS,
@@ -107,6 +108,13 @@ for (const kind of RAINBOW_ENEMY_SPRITES) {
   assert.ok(existsSync(publicFile(src)), `${kind} sprite is committed`)
   assert.ok(statSync(publicFile(src)).size < 32_000, `${kind} stays small`)
 }
+// Act III's craft are painted ahead of the stage that spawns them.
+for (const kind of RAINBOW_ACT_THREE_ENEMY_SPRITES) {
+  const src = rainbowEnemySprite(kind)!
+  assert.equal(src, `/rainbow-princess-art/enemies/${kind}.webp`)
+  assert.ok(existsSync(publicFile(src)), `${kind} sprite is committed`)
+  assert.ok(statSync(publicFile(src)).size < 32_000, `${kind} stays small`)
+}
 assert.equal(rainbowEnemySprite('kraken'), null)
 assert.equal(drawRainbowEnemySprite(g, 'picket'), false)
 assert.match(
@@ -139,7 +147,7 @@ assert.match(
   'pickups keep the lettered circle until the sprite loads',
 )
 
-// Bosses: calm, damaged and enraged pictures for B01 and B02. The fair hit circles and the 36-frame
+// Bosses: calm, damaged and enraged pictures for B01, B02 and Act III's B03. The fair hit circles and the 36-frame
 // telegraph are unchanged; a painted boss still glows and gains a pulsing ring while it warns, and the
 // Pearl Seahorse still visibly carries the escape pod the story asks players to rescue.
 for (const boss of RAINBOW_BOSS_SPRITES) {
@@ -205,7 +213,7 @@ assert.match(
   'a ship under the cut-in shows through it',
 )
 
-// Stage strips: a keyed coral floor per playable stage, drawn before (behind) enemies, shots and ships.
+// Stage strips: a keyed foreground floor for every stage, drawn before (behind) enemies, shots and ships.
 for (const stage of RAINBOW_STAGE_STRIPS) {
   const src = rainbowStageStrip(stage)
   assert.ok(existsSync(publicFile(src)), `${stage} strip is committed`)

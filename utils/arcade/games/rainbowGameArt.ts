@@ -71,8 +71,20 @@ export const RAINBOW_ENEMY_SPRITES = [
   'coral',
 ] as const
 
+/**
+ * Act III's painted craft, ready before the stage spawns them: E09 Clawstrike Shrimp, E10 Pistol Shrimp
+ * Shuttle and E11 Angler Decoy (round-17 Kontext 247709, 247711, 247713).
+ */
+export const RAINBOW_ACT_THREE_ENEMY_SPRITES = [
+  'clawstrike',
+  'pistol',
+  'angler',
+] as const
+
 export function rainbowEnemySprite(kind: string): string | null {
-  return (RAINBOW_ENEMY_SPRITES as readonly string[]).includes(kind)
+  return [...RAINBOW_ENEMY_SPRITES, ...RAINBOW_ACT_THREE_ENEMY_SPRITES].some(
+    (name) => name === kind,
+  )
     ? `${RAINBOW_GAME_ART_ROOT}/enemies/${kind}.webp`
     : null
 }
@@ -117,8 +129,11 @@ export function drawRainbowPickupSprite(
   return true
 }
 
-/** B01 Pearl Seahorse and B02 Aurelia Array: calm, damaged (phase 2) and enraged (phase 3) pictures. */
-export const RAINBOW_BOSS_SPRITES = ['b01', 'b02'] as const
+/**
+ * Calm, damaged (phase 2) and enraged (phase 3) pictures: B01 Pearl Seahorse and B02 Aurelia Array, which fly
+ * today, and B03 Clawburst for Act III (round-18 Kontext 247730, round-20 phases 247765 and 247768).
+ */
+export const RAINBOW_BOSS_SPRITES = ['b01', 'b02', 'b03'] as const
 export type RainbowBossKey = (typeof RAINBOW_BOSS_SPRITES)[number]
 
 export function rainbowBossSprite(boss: RainbowBossKey, phase: number): string {
@@ -179,10 +194,20 @@ export function drawRainbowSuperCutin(
 }
 
 /**
- * Keyed foreground coral strips for the playable stages (round-14 Kontext 247628 and 247630), each saved
- * as the strip followed by its mirror so the tile loops without a seam.
+ * Keyed foreground strips for all eight stages, each saved as the strip followed by its mirror so the tile
+ * loops without a seam: S01/S02 coral from round-14 Kontext 247628 and 247630, and S03-S08 restyled from
+ * that S01 strip in round 20 (247770, 247785, 247787, 247790, 247791, 247793). Only S01 and S02 fly today.
  */
-export const RAINBOW_STAGE_STRIPS = ['s01', 's02'] as const
+export const RAINBOW_STAGE_STRIPS = [
+  's01',
+  's02',
+  's03',
+  's04',
+  's05',
+  's06',
+  's07',
+  's08',
+] as const
 export type RainbowStageStrip = (typeof RAINBOW_STAGE_STRIPS)[number]
 
 export function rainbowStageStrip(stage: RainbowStageStrip): string {

@@ -1084,10 +1084,11 @@ export function createRainbowPrincessPreview(
         const pod = painted ? { x: 23, y: 2, rx: 11, ry: 13 } : null
         if (painted) {
           g.shadowBlur = 0
+          // The ring pulses but never fades below half strength, so a phone-sized canvas still shows it.
           if (glow) {
             g.strokeStyle = '#fffbb6'
-            g.lineWidth = 3
-            g.globalAlpha = 0.55 + 0.45 * Math.sin(boss.frame / 3)
+            g.lineWidth = 4
+            g.globalAlpha = 0.75 + 0.25 * Math.sin(boss.frame / 3)
             g.beginPath()
             g.arc(-17, 0, 41, 0, Math.PI * 2)
             g.stroke()
@@ -1165,10 +1166,11 @@ export function createRainbowPrincessPreview(
           )
         ) {
           g.shadowBlur = 0
+          // The ring pulses but never fades below half strength, so a phone-sized canvas still shows it.
           if (warn) {
             g.strokeStyle = '#fff3a2'
-            g.lineWidth = 3
-            g.globalAlpha = 0.55 + 0.45 * Math.sin(moonBoss.frame / 3)
+            g.lineWidth = 4
+            g.globalAlpha = 0.75 + 0.25 * Math.sin(moonBoss.frame / 3)
             g.beginPath()
             g.arc(-17, 0, 47, 0, Math.PI * 2)
             g.stroke()

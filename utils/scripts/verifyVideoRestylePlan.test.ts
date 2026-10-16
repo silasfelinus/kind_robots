@@ -158,3 +158,36 @@ assert.ok(resultSource.includes('requireAdminApiUser'))
 assert.ok(studio.includes('Render improved continuity pilot'))
 assert.ok(studio.includes('Watch previous pilot for comparison'))
 assert.ok(storeSource.includes("previous ? '?previous=1' : ''"))
+
+const variantsRoute = readFileSync(
+  'server/api/video-restyle/[id]/variants.post.ts',
+  'utf8',
+)
+const restyleJobs = readFileSync('server/utils/videoRestyleJobs.ts', 'utf8')
+const newUpload = readFileSync('server/api/video-restyle/index.post.ts', 'utf8')
+const settingsRoute = readFileSync(
+  'server/api/video-restyle/[id].patch.ts',
+  'utf8',
+)
+assert.ok(variantsRoute.includes('requireAdminApiUser'))
+assert.ok(variantsRoute.includes('cloneRestyleVideo'))
+assert.ok(restyleJobs.includes('export async function cloneRestyleVideo'))
+assert.ok(restyleJobs.includes('sourceProjectId: source.sourceProjectId ?? source.id'))
+assert.ok(restyleJobs.includes('sourceProjectId?: string'))
+assert.ok(restyleJobs.includes('await copyFile(restyleSourcePath(source)'))
+assert.ok(restyleJobs.includes('status: \'STAGED\''))
+assert.ok(restyleJobs.includes('pilot: undefined'))
+assert.ok(restyleJobs.includes('isPrivate: restyleFlag'))
+assert.ok(restyleJobs.includes('isMature: restyleFlag'))
+assert.ok(!restyleJobs.includes("job.style !== 'illustrious'"))
+assert.ok(newUpload.includes("isMature: field('isMature')"))
+assert.ok(settingsRoute.includes('body.isMature'))
+assert.ok(artjob.includes('isPublic: false'))
+assert.ok(artjob.includes('isMature: job.isMature ?? false'))
+assert.ok(studio.includes('New style project from saved video'))
+assert.ok(studio.includes('How rendering works'))
+assert.ok(studio.includes('statusLabel(job.status)'))
+assert.ok(studio.includes('v-model="isMature"'))
+assert.ok(storeSource.includes('/variants'))
+assert.ok(storeSource.includes('isPrivate: boolean'))
+assert.ok(storeSource.includes('isMature: boolean'))

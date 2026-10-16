@@ -31,10 +31,10 @@ tutorial:
     Every section start and each boss is a checkpoint; a CHECKPOINT toast marks it. When the whole crew is down, a ten-second CONTINUE? countdown holds the battle still. Press A to resume from the last checkpoint with every pilot restored; the score returns to what it was at that checkpoint. Let the countdown run out to end the run. A continue during a boss fight brings the boss back as damaged as you left it, so every attempt chips away at it.
 
     Boss fights
-    Each boss hull grows with the crew: every pilot adds a full share, so four pilots stacking supers still fight through all three phases. Phases turn at two thirds and one third of the hull. A first solo clear of Acts I and II, continues included, takes about thirteen minutes; a full crew of four finishes in under ten.
+    Each boss hull grows with the crew, and each extra pilot adds more than the first, so four powered-up pilots stacking supers still fight through all three phases. Phases turn at two thirds and one third of the hull. A first solo clear, continues included, takes about eight and a half minutes per Act; a full crew of four finishes each in about six and a half.
 
     Future campaign
-    Eight Acts are planned in total: Pinkwake, Moonjelly Fields, Chromatic Trench, Rosefin Express, Blossom Wreckyard, Crown Reef, Glass Current and Eclipse Palace, followed by the final confrontation. Acts I and II are playable today at roughly five to seven minutes each; their full 10–15-minute pacing, cinematics, the remaining six Acts and online co-op are still in production. This is an admin-only rehearsal, not a public leaderboard release.
+    Eight Acts are planned in total: Pinkwake, Moonjelly Fields, Chromatic Trench, Rosefin Express, Blossom Wreckyard, Crown Reef, Glass Current and Eclipse Palace, followed by the final confrontation. Acts I and II are playable today at roughly six to nine minutes each; their full 10–15-minute pacing, cinematics, the remaining six Acts and online co-op are still in production. This is an admin-only rehearsal, not a public leaderboard release.
 ---
 
 The pastel starport is a private development page with a real Arcade-powered

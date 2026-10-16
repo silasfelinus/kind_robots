@@ -87,6 +87,32 @@ function lanes(s: Snapshot, seat: number, frame: number, avoid: boolean) {
   return input
 }
 
+/** Outside boss fights, steer for the lane farthest from the hazards about to arrive. */
+function dodge(s: Snapshot, seat: number, avoid: boolean) {
+  const ship = s.ships[seat]
+  if (!ship || s.boss || s.moonBoss) return lanes(s, seat, 0, avoid)
+  const input = emptyInput()
+  input.held.a = true
+  const ahead = [...s.enemies, ...s.enemyShots].filter(
+    (hazard) => hazard.x > ship.x - 16 && hazard.x < ship.x + 110,
+  )
+  let best = ship.y
+  let bestScore = -Infinity
+  for (let y = 50; y <= 236; y += 8) {
+    // Keep to the side of Nemi's lane the ship is on, so it never crosses her path.
+    if (avoid && (ship.y < NEMI_LANE ? y > NEMI_LANE - 40 : y < NEMI_LANE + 40))
+      continue
+    const room = Math.min(60, ...ahead.map((hazard) => Math.abs(hazard.y - y)))
+    const score = room - Math.abs(y - ship.y) * 0.05
+    if (score > bestScore) {
+      bestScore = score
+      best = y
+    }
+  }
+  steer(input, ship, 60, best)
+  return input
+}
+
 type Watch = {
   /** Act II frames on which the renderer drew Nemi, per pass through her window. */
   nemiDrawn: number[]
@@ -197,23 +223,21 @@ const turnDone = (s: Snapshot) =>
   assert.ok(!watch.turnLines.has(RESCUED_LINE))
 }
 
-// 3. A fallen pilot in Nemi's lane cannot rescue her. Pilot 2 rams craft in Act II until one hit is
-// left, then waits on her lane for the last; pilot 1 stays clear. Nemi drifts over the wreck.
+// 3. A fallen pilot in Nemi's lane cannot rescue her. Pilot 2 rams craft and shots in Act II until one hit is
+// left, then waits on her lane for the last; pilot 1 dodges clear so the crew never needs a continue.
+// Nemi drifts over the wreck.
 {
   let wreck: { x: number; y: number } | null = null
   let missedOverWreck = false
   fly(
     2,
     (s, frame) => {
-      const inputs = [
-        lanes(s, 0, frame, inNemiWindow(s)),
-        lanes(s, 1, frame, false),
-      ]
+      const inputs = [dodge(s, 0, inNemiWindow(s)), lanes(s, 1, frame, false)]
       if (s.act === 'S02' && s.actTwoFrame >= 300 && s.ships[1]!.lives > 0) {
         const ram = emptyInput()
         const ship = s.ships[1]!
-        const prey = s.enemies
-          .filter((enemy) => enemy.x > 40 && enemy.x < 300)
+        const prey = [...s.enemies, ...s.enemyShots]
+          .filter((hazard) => hazard.x > 40 && hazard.x < 300)
           .sort((a, b) => a.x - b.x)[0]
         if (!(ship.lives === 1 && ship.shield === 1) && prey)
           steer(ram, ship, prey.x, prey.y)
@@ -243,7 +267,7 @@ const turnDone = (s: Snapshot) =>
         )
         assert.ok(
           watch.nemiDrawn.length >= NEMI_LIFETIME - 2,
-          'Nemi drifted over the wreck',
+          `Nemi drifted over the wreck (${watch.nemiDrawn.length} of ${NEMI_LIFETIME} frames)`,
         )
         assert.equal(after.rescuedNemi, false, 'a fallen pilot cannot rescue')
         missedOverWreck = true

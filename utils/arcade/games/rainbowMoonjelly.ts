@@ -1,9 +1,10 @@
 /**
  * Authored Act II encounter director. Uses local 60 Hz frames after the
  * Pinkwake aftermath, so the global combat tick and inventory never reset.
- * The waves are authored formations (see rainbowFormations) in eight sections that follow the world
+ * The waves are authored formations (see rainbowFormations) in eleven sections that follow the world
  * bible's S02 beats: the lantern gap lesson, linked relays, skimmer bead rain, breakable coral cover
- * and a bell remix, then three escalations (tendril maze, lantern lattice, moonrise surge). Wave ids
+ * and a bell remix, then six escalations (tendril maze, lantern lattice, moonrise surge, bell canyon,
+ * relay storm, bell veil). Wave ids
  * start at 1000 so Act II formations never share a school with Act I.
  */
 import {
@@ -26,8 +27,8 @@ export const MOONJELLY = {
   nemiAppears: 1680,
   turnStarts: 3900,
   turnEnds: 4200,
-  approachStarts: 12300,
-  bossStarts: 12600,
+  approachStarts: 17700,
+  bossStarts: 18000,
   aftermathFrames: 360,
   lineFrames: 96,
   waveBase: 1000,
@@ -42,6 +43,9 @@ export const MOONJELLY_SECTIONS = [
   { name: 'Tendril maze', from: 6900, to: 8700 },
   { name: 'Lantern lattice', from: 8700, to: 10500 },
   { name: 'Moonrise surge', from: 10500, to: 12300 },
+  { name: 'Bell canyon', from: 12300, to: 14100 },
+  { name: 'Relay storm', from: 14100, to: 15900 },
+  { name: 'Bell veil', from: 15900, to: 17700 },
 ] as const
 
 export const MOONJELLY_WAVES: readonly MoonjellyWave[] = [
@@ -112,6 +116,40 @@ export const MOONJELLY_WAVES: readonly MoonjellyWave[] = [
   wave(11880, 'lantern', 'single', 1, 0.5),
   wave(11880, 'relay', 'pair', 4, 0.15),
   wave(12060, 'skimmer', 'vee', 5, 0.3),
+  // Bell canyon: coral walls open high, then low, each gap guarded by a lantern's fan.
+  wave(12360, 'coral', 'wall', 4, 0.2),
+  wave(12540, 'lantern', 'single', 1, 0.2),
+  wave(12720, 'coral', 'wall', 4, 0.8),
+  wave(12900, 'lantern', 'single', 1, 0.8),
+  wave(13080, 'relay', 'vee', 5, 0.5),
+  wave(13260, 'coral', 'wall', 4, 0.5),
+  wave(13440, 'relay', 'line', 3, 0.5),
+  wave(13620, 'skimmer', 'line', 4, 0.15),
+  wave(13800, 'lantern', 'pair', 2, 0.25),
+  wave(13920, 'relay', 'column', 3, 0.5),
+  // Relay storm: relay files crossing in both directions under skimmer rain.
+  wave(14160, 'relay', 'stair', 5, 0.1),
+  wave(14340, 'relay', 'stair', 5, 0.9, { step: -1 }),
+  wave(14520, 'skimmer', 'vee', 5, 0.5),
+  wave(14700, 'relay', 'column', 4, 0.5, { spread: 0.2 }),
+  wave(14880, 'lantern', 'single', 1, 0.5),
+  wave(15000, 'relay', 'pair', 4, 0.15),
+  wave(15180, 'skimmer', 'line', 4, 0.85),
+  wave(15360, 'relay', 'vee', 5, 0.3),
+  wave(15540, 'relay', 'vee', 5, 0.7),
+  wave(15720, 'skimmer', 'stair', 5, 0.1),
+  // Bell veil: the colony's last screen, every Act II craft before the Aurelia Array.
+  wave(15960, 'lantern', 'pair', 2, 0.2),
+  wave(16140, 'coral', 'wall', 3, 0.5),
+  wave(16260, 'relay', 'line', 3, 0.5),
+  wave(16440, 'skimmer', 'line', 4, 0.1),
+  wave(16620, 'lantern', 'column', 2, 0.5, { spread: 0.5 }),
+  wave(16800, 'relay', 'stair', 5, 0.15),
+  wave(16980, 'coral', 'wall', 4, 0.65),
+  wave(17100, 'relay', 'line', 3, 0.65),
+  wave(17280, 'lantern', 'single', 1, 0.35),
+  wave(17280, 'skimmer', 'vee', 5, 0.5),
+  wave(17460, 'relay', 'pair', 4, 0.2),
 ]
 
 const schedule = buildFormationSchedule(MOONJELLY_WAVES, MOONJELLY.waveBase)

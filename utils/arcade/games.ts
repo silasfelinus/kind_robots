@@ -838,6 +838,7 @@ export const PREVIEW_GAMES: ArcadeGameMeta[] = [
     startPauses: true,
     difficulty: RAINBOW_DIFFICULTY_NAMES,
     mastery: RAINBOW_MASTERY,
+    calmMotion: true,
   },
   {
     slug: 'zuzu-pinball',

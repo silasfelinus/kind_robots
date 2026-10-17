@@ -329,6 +329,16 @@
             {{ stillCamera ? 'Camera still' : 'Camera moves' }}
           </button>
           <button
+            v-else-if="meta?.calmMotion"
+            type="button"
+            class="cabinet-switch"
+            :aria-pressed="stillCamera"
+            title="Calm motion: no screen flashes or shockwaves, fewer sparks and slower scenery"
+            @click="toggleStillCamera"
+          >
+            {{ stillCamera ? 'Motion calm' : 'Motion full' }}
+          </button>
+          <button
             type="button"
             class="cabinet-switch"
             :title="`Render style: ${RENDER_STYLE_NAMES[renderStyle]} (click for ${RENDER_STYLE_NAMES[otherStyle]})`"
@@ -1857,7 +1867,7 @@ function cycleDifficulty() {
 function toggleStillCamera() {
   store.setStillCamera(!store.stillCamera)
   for (const instance of [game, demoGame])
-    if (isWebGLInstance(instance)) instance.setStillCamera?.(store.stillCamera)
+    instance?.setStillCamera?.(store.stillCamera)
 }
 
 async function boot() {

@@ -426,6 +426,23 @@ function burstShots(bullet: EnemyShot): EnemyShot[] {
 /** Presses this soon after the crew falls are fire-button carry-over, not a choice to continue. */
 const CONTINUE_GRACE_FRAMES = 30
 /**
+ * Effects (conductor rainbow t-011): explosions as sparks within a budget, and calm motion (the arcade's
+ * still-camera choice, which follows the device's reduced-motion setting) that drops full-screen flashes and
+ * shockwaves, thins the sparks and slows the scenery's drift. Sparks never draw on the game's rng, so the
+ * attract demo and every replay fly the same with or without them.
+ */
+export const RAINBOW_EFFECTS = {
+  maxSparks: 160,
+  craftSparks: 10,
+  bossSparks: 56,
+  craftLife: 30,
+  bossLife: 80,
+  /** Calm motion keeps this share of each explosion's sparks. */
+  calmShare: 0.4,
+  /** Calm motion scrolls the scenery at this share of its speed. */
+  calmDrift: 0.3,
+} as const
+/**
  * Difficulty (conductor rainbow t-010): Cadet, Pilot and Ace. Cadet flies with five lives, slower enemy
  * pellets and softer craft and bosses; Ace with faster pellets and tougher craft and bosses. Every attack keeps
  * its full warning at every level. The score scales with the level, so one leaderboard stays fair.
@@ -459,6 +476,18 @@ type Ship = {
   graze: number
   lives: number
   focus: boolean
+}
+type Spark = {
+  x: number
+  y: number
+  vx: number
+  vy: number
+  age: number
+  life: number
+  color: string
+  size: number
+  /** A boss's expanding shockwave instead of a spark (full motion only). */
+  ring?: boolean
 }
 type Shot = {
   x: number
@@ -530,6 +559,10 @@ export type RainbowCombatSnapshot = {
   score: number
   ships: ReadonlyArray<Readonly<Ship>>
   shots: ReadonlyArray<Readonly<Shot>>
+  /** Explosion sparks in flight (t-011), within RAINBOW_EFFECTS.maxSparks. */
+  sparks: number
+  /** Calm motion is on (t-011). */
+  calm: boolean
   /** Medals won so far, by Act (t-010). */
   medals: Readonly<
     Partial<Record<1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9, RainbowMedal>>
@@ -778,6 +811,9 @@ export function createRainbowPrincessPreview(
   let continueLeft = 0
   let continues = 0
   const popups: Array<{ x: number; y: number; text: string; age: number }> = []
+  const sparks: Spark[] = []
+  /** Calm motion: no flashes or shockwaves, fewer sparks, slower scenery (t-011). */
+  let calm = options.stillCamera === true
   /** Medals won by Act, and the hits taken and continues spent in the Act under way (t-010). */
   const medals: Partial<
     Record<1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9, RainbowMedal>
@@ -938,6 +974,7 @@ export function createRainbowPrincessPreview(
   /** The Crown's heart is spent: its weapons fall silent and the final choice opens. */
   function subdueCrown() {
     if (!crown) return
+    explode(crown.x, crown.y, true, '#fff2a8')
     crown = null
     choiceFrame = 0
     enemyShots.length = 0
@@ -963,6 +1000,7 @@ export function createRainbowPrincessPreview(
 
   function defeatLeviathan() {
     if (!leviathan || palaceDefeatedFrame !== null) return
+    explode(leviathan.x, leviathan.y, true, '#ffd27a')
     leviathan = null
     palaceDefeatedFrame = palaceFrame()
     // The freed whale fleet takes every captive still in the palace with it.
@@ -1011,6 +1049,7 @@ export function createRainbowPrincessPreview(
 
   function defeatGlassEel() {
     if (!glassEel || glassDefeatedFrame !== null) return
+    explode(glassEel.x, glassEel.y, true, '#c9f2ff')
     glassEel = null
     glassDefeatedFrame = glassFrame()
     reefs.length = 0
@@ -1066,6 +1105,7 @@ export function createRainbowPrincessPreview(
 
   function defeatLanternRay() {
     if (!lanternRay || reefDefeatedFrame !== null) return
+    explode(lanternRay.x, lanternRay.y, true, '#ffe08a')
     lanternRay = null
     reefDefeatedFrame = reefFrame()
     reefs.length = 0
@@ -1186,6 +1226,7 @@ export function createRainbowPrincessPreview(
 
   function defeatSawtooth() {
     if (!sawtooth || wreckDefeatedFrame !== null) return
+    explode(sawtooth.x, sawtooth.y, true, '#ffb38a')
     sawtooth = null
     wreckDefeatedFrame = wreckFrame()
     reefs.length = 0
@@ -1296,6 +1337,7 @@ export function createRainbowPrincessPreview(
 
   function defeatDelphion() {
     if (!delphion || rosefinDefeatedFrame !== null) return
+    explode(delphion.x, delphion.y, true, '#9ee7ff')
     delphion = null
     rosefinDefeatedFrame = rosefinFrame()
     reefs.length = 0
@@ -1424,6 +1466,7 @@ export function createRainbowPrincessPreview(
 
   function defeatClawBoss() {
     if (!clawBoss || trenchDefeatedFrame !== null) return
+    explode(clawBoss.x - 17, clawBoss.y, true, '#ffb38a')
     clawBoss = null
     trenchDefeatedFrame = trenchFrame()
     reefs.length = 0
@@ -1437,6 +1480,7 @@ export function createRainbowPrincessPreview(
 
   function defeatMoonBoss() {
     if (!moonBoss || moonDefeatedFrame !== null) return
+    explode(moonBoss.x - 17, moonBoss.y, true, '#d8c4ff')
     moonBoss = null
     moonDefeatedFrame = moonFrame()
     reefs.length = 0
@@ -1841,6 +1885,7 @@ export function createRainbowPrincessPreview(
 
   function defeatBoss() {
     if (!boss || defeatedAt !== null) return
+    explode(boss.x - 17, boss.y, true, '#ff9fd8')
     boss = null
     defeatedAt = tick
     enemyShots.length = 0
@@ -2048,9 +2093,51 @@ export function createRainbowPrincessPreview(
     options.sound.play('extra')
   }
 
+  /**
+   * An explosion: a burst of sparks (a boss's is larger and longer, with a shockwave in full motion). Angles and
+   * speeds come from the spark's index and the tick, never the game's rng.
+   */
+  function explode(x: number, y: number, big = false, color = '#ffb3e0') {
+    const count = Math.round(
+      (big ? RAINBOW_EFFECTS.bossSparks : RAINBOW_EFFECTS.craftSparks) *
+        (calm ? RAINBOW_EFFECTS.calmShare : 1),
+    )
+    const life = big ? RAINBOW_EFFECTS.bossLife : RAINBOW_EFFECTS.craftLife
+    if (big && !calm)
+      sparks.push({
+        x,
+        y,
+        vx: 0,
+        vy: 0,
+        age: 0,
+        life,
+        color: '#fff2a8',
+        size: 0,
+        ring: true,
+      })
+    for (let i = 0; i < count; i++) {
+      const angle = (i / count) * Math.PI * 2 + tick * 0.37
+      const speed = (big ? 1.4 : 0.9) + ((i * 37) % 11) / (big ? 4 : 7)
+      sparks.push({
+        x,
+        y,
+        vx: Math.cos(angle) * speed,
+        vy: Math.sin(angle) * speed,
+        age: 0,
+        life: life - ((i * 13) % 10),
+        color: i % 3 === 0 ? '#ffffff' : color,
+        size: big ? 2.5 : 1.8,
+      })
+    }
+    // The budget: the oldest sparks give way.
+    if (sparks.length > RAINBOW_EFFECTS.maxSparks)
+      sparks.splice(0, sparks.length - RAINBOW_EFFECTS.maxSparks)
+  }
+
   function defeat(index: number, seat: number) {
     const reef = reefs[index]!
     reefs.splice(index, 1)
+    explode(reef.x, reef.y)
     score += reef.kind === 'urchin' ? 250 : 125
     if (reef.kind === 'pylon' && reefRoute === 'relay') {
       pylonsDown++
@@ -2399,6 +2486,7 @@ export function createRainbowPrincessPreview(
   function defeatGuardian(seat: number) {
     if (!guardian) return
     const { x, y } = guardian
+    explode(x, y, true)
     guardian = null
     const act = currentAct()
     // The finale has no guardian of its own.
@@ -2469,6 +2557,14 @@ export function createRainbowPrincessPreview(
       if (++bursts[i]!.age > BURST_FRAMES) bursts.splice(i, 1)
     for (let i = popups.length - 1; i >= 0; i--)
       if (++popups[i]!.age > POPUP_FRAMES) popups.splice(i, 1)
+    for (let i = sparks.length - 1; i >= 0; i--) {
+      const spark = sparks[i]!
+      spark.x += spark.vx
+      spark.y += spark.vy
+      spark.vx *= 0.94
+      spark.vy *= 0.94
+      if (++spark.age >= spark.life) sparks.splice(i, 1)
+    }
     if (
       moonStart === null &&
       defeatedAt !== null &&
@@ -3726,6 +3822,10 @@ export function createRainbowPrincessPreview(
       return saveRecord
     },
     setPlayers,
+    /** The cabinet's motion switch, mid-game (t-011). */
+    setStillCamera(still: boolean) {
+      calm = still
+    },
     get snapshot(): RainbowCombatSnapshot {
       return {
         tick,
@@ -3734,6 +3834,8 @@ export function createRainbowPrincessPreview(
         activePlayers,
         shots: shots.map((shot) => ({ ...shot })),
         medals: { ...medals },
+        sparks: sparks.length,
+        calm,
         earned: [...earned],
         difficulty,
         resumeMenu: resumeMenu ? resumeMenu.pick : null,
@@ -3865,6 +3967,8 @@ export function createRainbowPrincessPreview(
     },
     update,
     render(g: CanvasRenderingContext2D) {
+      /** Calm motion slows every scenery plane alike, so their parallax still reads. */
+      const drift = calm ? RAINBOW_EFFECTS.calmDrift : 1
       const sky = g.createLinearGradient(0, 0, 0, H)
       const palette = [
         ['#100d40', '#6d427e', '#ed9dbb'],
@@ -3889,7 +3993,9 @@ export function createRainbowPrincessPreview(
         const speed = [0.15, 0.34, 0.72, 1.3][plane]!
         for (let i = 0; i < 16; i++) {
           const x =
-            (((i * (47 + plane * 8) - tick * speed) % (W + 65)) + W + 65) %
+            (((i * (47 + plane * 8) - tick * drift * speed) % (W + 65)) +
+              W +
+              65) %
             (W + 65)
           const y = 36 + ((i * 73 + plane * 29) % (H - 65))
           g.beginPath()
@@ -3899,7 +4005,7 @@ export function createRainbowPrincessPreview(
       }
       g.fillStyle = '#f6c4e655'
       for (let i = 0; i < 6; i++) {
-        const x = ((((i * 108 - tick * 0.28) % 640) + 640) % 640) - 60
+        const x = ((((i * 108 - tick * drift * 0.28) % 640) + 640) % 640) - 60
         g.beginPath()
         g.ellipse(x, 244 + Math.sin(i) * 12, 56, 25, 0, 0, Math.PI * 2)
         g.fill()
@@ -3926,7 +4032,7 @@ export function createRainbowPrincessPreview(
         g.restore()
         g.fillStyle = '#ffd27a55'
         for (let i = 0; i < 10; i++) {
-          const x = ((((i * 97 - frame * 0.9) % 560) + 560) % 560) - 40
+          const x = ((((i * 97 - frame * drift * 0.9) % 560) + 560) % 560) - 40
           const y = 40 + ((i * 59) % 200)
           g.beginPath()
           g.moveTo(x, y - 5)
@@ -3959,7 +4065,8 @@ export function createRainbowPrincessPreview(
           g.fillStyle = ['#5a2a6a66', '#8a3a7a88'][plane]!
           for (let i = 0; i < 4; i++) {
             const x =
-              ((((i * 190 + plane * 70 - frame * speed) % 760) + 760) % 760) -
+              ((((i * 190 + plane * 70 - frame * drift * speed) % 760) + 760) %
+                760) -
               100
             const tall = 90 + ((i * 37 + plane * 23) % 60) + plane * 20
             g.beginPath()
@@ -3986,7 +4093,8 @@ export function createRainbowPrincessPreview(
           g.fillStyle = ['#bfe6ff22', '#d8c4ff33', '#f0faff44'][plane]!
           for (let i = 0; i < 5; i++) {
             const x =
-              ((((i * 150 + plane * 55 - frame * speed) % 750) + 750) % 750) -
+              ((((i * 150 + plane * 55 - frame * drift * speed) % 750) + 750) %
+                750) -
               100
             const top = i % 2 === 0
             const y = top ? 30 : H
@@ -4003,7 +4111,8 @@ export function createRainbowPrincessPreview(
         g.strokeStyle = '#e8f6ff'
         g.lineWidth = 1
         for (let i = 0; i < 4; i++) {
-          const x = ((((i * 170 - frame * 0.6) % 680) + 680) % 680) - 100
+          const x =
+            ((((i * 170 - frame * drift * 0.6) % 680) + 680) % 680) - 100
           g.globalAlpha = 0.18 + 0.12 * Math.sin(frame / 30 + i * 2)
           g.beginPath()
           g.moveTo(x, 40)
@@ -4021,7 +4130,8 @@ export function createRainbowPrincessPreview(
           g.lineWidth = 6 + plane * 3
           for (let i = 0; i < 3; i++) {
             const x =
-              ((((i * 260 + plane * 90 - frame * speed) % 780) + 780) % 780) -
+              ((((i * 260 + plane * 90 - frame * drift * speed) % 780) + 780) %
+                780) -
               120
             const r = 70 + plane * 22 + ((i * 31) % 30)
             g.beginPath()
@@ -4031,7 +4141,7 @@ export function createRainbowPrincessPreview(
         }
         g.fillStyle = '#c7ffe6'
         for (let i = 0; i < 18; i++) {
-          const x = ((((i * 61 - frame * 0.4) % 520) + 520) % 520) - 20
+          const x = ((((i * 61 - frame * drift * 0.4) % 520) + 520) % 520) - 20
           const y = 50 + ((i * 47) % 170) + Math.sin(frame / 50 + i) * 6
           g.globalAlpha = 0.35 + 0.3 * Math.sin(frame / 25 + i * 1.3)
           g.fillRect(x, y, 2, 2)
@@ -4045,7 +4155,8 @@ export function createRainbowPrincessPreview(
           g.fillStyle = ['#3a1c3a88', '#5a2a48aa', '#2a1028cc'][plane]!
           for (let i = 0; i < 4; i++) {
             const x =
-              ((((i * 173 + plane * 57 - frame * speed) % 720) + 720) % 720) -
+              ((((i * 173 + plane * 57 - frame * drift * speed) % 720) + 720) %
+                720) -
               100
             const top = H - 60 - ((i * 41 + plane * 23) % 70) - plane * 14
             g.beginPath()
@@ -4060,7 +4171,7 @@ export function createRainbowPrincessPreview(
         g.strokeStyle = '#ffb3c855'
         g.lineWidth = 2
         for (let i = 0; i < 3; i++) {
-          const x = ((((i * 230 - frame * 0.3) % 690) + 690) % 690) - 60
+          const x = ((((i * 230 - frame * drift * 0.3) % 690) + 690) % 690) - 60
           g.beginPath()
           g.moveTo(x, H - 40)
           g.lineTo(x, 70)
@@ -4094,7 +4205,8 @@ export function createRainbowPrincessPreview(
           g.fillStyle = '#fff0fbcc'
           for (let i = 0; i < 8; i++) {
             const x =
-              ((((i * 70 - frame * (1.2 + rail * 0.4) * speed) % 560) + 560) %
+              ((((i * 70 - frame * drift * (1.2 + rail * 0.4) * speed) % 560) +
+                560) %
                 560) -
               40
             g.fillRect(x, y - 1, 10 + (speed - 1) * 30, 2)
@@ -4108,7 +4220,8 @@ export function createRainbowPrincessPreview(
           g.fillStyle = ['#3a225c88', '#4b2a6aaa', '#2a1440cc'][plane]!
           for (let i = 0; i < 5; i++) {
             const x =
-              ((((i * 137 + plane * 41 - frame * speed) % 700) + 700) % 700) -
+              ((((i * 137 + plane * 41 - frame * drift * speed) % 700) + 700) %
+                700) -
               90
             const height = 70 + ((i * 53 + plane * 31) % 60) + plane * 18
             g.beginPath()
@@ -4121,7 +4234,8 @@ export function createRainbowPrincessPreview(
           }
         }
         for (let i = 0; i < 4; i++) {
-          const x = ((((i * 160 - frame * 0.55) % 640) + 640) % 640) - 40
+          const x =
+            ((((i * 160 - frame * drift * 0.55) % 640) + 640) % 640) - 40
           const glow = 0.35 + 0.25 * Math.sin(frame / 20 + i * 1.7)
           g.fillStyle = `rgba(255, 140, 90, ${glow.toFixed(3)})`
           g.beginPath()
@@ -4141,7 +4255,8 @@ export function createRainbowPrincessPreview(
           ]!
           for (let i = 0; i < 6; i++) {
             const x =
-              ((((i * 111 - moonFrame() * speed) % 650) + 650) % 650) - 42
+              ((((i * 111 - moonFrame() * drift * speed) % 650) + 650) % 650) -
+              42
             const y = 45 + ((i * 73 + plane * 39) % 170)
             g.beginPath()
             g.ellipse(
@@ -4187,7 +4302,7 @@ export function createRainbowPrincessPreview(
             's08',
           ] as const
         )[currentAct() - 1]!,
-        actFrame(currentAct()) * STRIP_SPEED,
+        actFrame(currentAct()) * STRIP_SPEED * drift,
         H - STRIP_HEIGHT,
         STRIP_HEIGHT,
         W,
@@ -5551,6 +5666,14 @@ export function createRainbowPrincessPreview(
         )
         g.textAlign = 'left'
       }
+      // Every solid hostile pellet sits on a dark halo inside its light rim, so it reads against any scenery.
+      g.fillStyle = '#05030fa6'
+      for (const bullet of enemyShots) {
+        if (bullet.ghost) continue
+        g.beginPath()
+        g.arc(bullet.x, bullet.y, 8, 0, Math.PI * 2)
+        g.fill()
+      }
       for (const bullet of enemyShots) {
         if (bullet.ghost) {
           g.save()
@@ -5667,6 +5790,27 @@ export function createRainbowPrincessPreview(
         )
         g.textAlign = 'left'
       }
+      // Explosions: sparks that slow and fade, and a boss's shockwave ring.
+      for (const spark of sparks) {
+        const fade = 1 - spark.age / spark.life
+        g.globalAlpha = fade
+        if (spark.ring) {
+          g.strokeStyle = spark.color
+          g.lineWidth = 1 + 3 * fade
+          g.beginPath()
+          g.arc(spark.x, spark.y, 8 + spark.age * 1.6, 0, Math.PI * 2)
+          g.stroke()
+        } else {
+          g.fillStyle = spark.color
+          g.fillRect(
+            spark.x - spark.size / 2,
+            spark.y - spark.size / 2,
+            spark.size,
+            spark.size,
+          )
+        }
+      }
+      g.globalAlpha = 1
       for (const shot of shots) {
         g.fillStyle = PILOT_COLORS[shot.seat]!
         if (shot.kind === 'needle') {
@@ -5756,7 +5900,7 @@ export function createRainbowPrincessPreview(
         const fade = 1 - t
         const color = PILOT_COLORS[burst.seat]!
         g.save()
-        if (burst.age < 8) {
+        if (burst.age < 8 && !calm) {
           g.globalAlpha = (8 - burst.age) / 16
           g.fillStyle = color
           g.fillRect(0, 0, W, H)

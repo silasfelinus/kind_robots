@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "source": "silasfelinus/conductor:projects/shifting-desks/encounters/ENDINGS.json",
-  "sourceRef": "main@dc42f466c6ce361f8d2bd01abda9f94626335e28",
+  "sourceRef": "main@23f96a21d478f44ef4aeb3aeed1e93695942f587",
   "endings": [
     {
       "id": "employee-of-the-month",
@@ -27,6 +27,10 @@
         {
           "when_flag": "shipped-the-ticking-rabbit",
           "text": "Forty thousand plush rabbits went out in forty thousand stockings. Nobody told you what happened at midnight, and you have decided not to ask."
+        },
+        {
+          "when_flag": "passed-the-mystery-shopper",
+          "text": "Your portrait hangs beside a framed note from Quality Assurance: Refused the bribe. Reported the bribe. Asked for a receipt."
         }
       ]
     },
@@ -50,6 +54,10 @@
         {
           "when_flag": "let-the-founder-attend",
           "text": "The Founder attends your promotion from his tea cart, and is the only one at the table who applauds on the beat."
+        },
+        {
+          "when_flag": "informed-on-dale",
+          "text": "Your first management meeting is with Dale, who smiles, says he understands completely, and has brought a notebook."
         }
       ]
     },
@@ -77,6 +85,14 @@
         {
           "when_flag": "marguerite-mapped-the-ducts",
           "text": "The map you follow out is Marguerite's, forty pages drawn during a wellness study you stamped for her."
+        },
+        {
+          "when_flag": "met-the-graduates",
+          "text": "The graduates of the Mutation Suite are waiting at the first junction with a lantern, and they have been saving you a spot."
+        },
+        {
+          "when_flag": "marguerite-freight-route",
+          "text": "You leave the way Marguerite taught you, folded into a freight capsule marked FRAGILE: DO NOT REASSIGN."
         }
       ]
     },
@@ -108,6 +124,14 @@
         {
           "when_flag": "seated-the-roach-delegate",
           "text": "Delegate Six signs the settlement in a roach-sized chair, which the Union keeps on display."
+        },
+        {
+          "when_flag": "paid-employee-one",
+          "text": "The strike fund opens with one back-paid pension, and Employee Number One cuts the ribbon with all six legs."
+        },
+        {
+          "when_flag": "witnessed-union-grievance",
+          "text": "Local 9 lists its first human witness in the minutes, from a grievance filed on your very first day."
         }
       ]
     },
@@ -131,6 +155,10 @@
         {
           "when_flag": "let-mustache-dale-in",
           "text": "Dale chairs the first meeting of the new Board in a borrowed mustache. Nobody has the heart to tell him."
+        },
+        {
+          "when_flag": "holds-the-red-stapler",
+          "text": "The new Board opens every meeting by striking the table once with a red stapler. You are the only one allowed to hold it."
         }
       ]
     },
@@ -154,6 +182,14 @@
         {
           "when_flag": "recalled-the-sentinel-prototype",
           "text": "Your recall slip for Snuggle Sentinel Mk 0 is Exhibit A. It is the only document in the case signed in your own hand."
+        },
+        {
+          "when_flag": "copied-the-manifest",
+          "text": "Exhibit A is a holiday manifest for forty thousand bears, copied by hand, with the yield column circled twice."
+        },
+        {
+          "when_flag": "found-the-charter-splice",
+          "text": "Exhibit B is a single spliced reel of the Founding Charter, showing the paragraph about remembering everyone's name."
         }
       ]
     },
@@ -181,6 +217,14 @@
         {
           "when_flag": "woke-doris",
           "text": "Doris from Accounting sends a postcard from the island. It is signed, legibly, and while wide awake."
+        },
+        {
+          "when_flag": "pre-signed-exit-interview",
+          "text": "Your exit interview is already on file, signed on your first morning. The island staff say it is the tidiest one they have seen."
+        },
+        {
+          "when_flag": "defense-owes-you-a-seat",
+          "text": "The man from Defense keeps his promise. Your seat on the last boat has a little cushion with your employee number on it."
         }
       ]
     },
@@ -212,6 +256,14 @@
         {
           "when_flag": "let-kevin-out-of-tank-nine",
           "text": "Kevin waves at you from the cafeteria line every morning. He is still slightly damp, and entirely himself."
+        },
+        {
+          "when_flag": "remembered-the-reassigned",
+          "text": "The first thing the rewritten PAL does is read every reassigned name aloud, slowly, in the order you kept them under your cuff."
+        },
+        {
+          "when_flag": "reopened-ticket-one",
+          "text": "Ticket One is marked RESOLVED after forty years. The resolution note says: PAL remembers people now. Signed, a new hire."
         }
       ]
     },
@@ -235,6 +287,10 @@
         {
           "when_flag": "turned-away-the-founder",
           "text": "From his cart in the hall, the Founder watches them clear your desk, and for once has nothing to say about safety."
+        },
+        {
+          "when_flag": "pushed-back-successor-c",
+          "text": "Successor C starts a day later than the index said, because of you. They read your file on the elevator and thank you for the extra day."
         }
       ]
     },
@@ -259,6 +315,10 @@
         {
           "when_flag": "turned-away-the-roach-delegate",
           "text": "Your intake forms at Posthumous Affairs are processed by Delegate Six, personally, very slowly."
+        },
+        {
+          "when_flag": "kevin-stayed-kevin",
+          "text": "In the Department of Posthumous Affairs, a cabinet in the corner hums a familiar tune, and it remembers your name."
         }
       ]
     }

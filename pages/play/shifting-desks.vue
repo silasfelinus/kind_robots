@@ -492,19 +492,19 @@
               <div
                 v-if="opened"
                 class="desk-brief desk-card hidden shrink-0 flex-col gap-1 rounded-2xl border-4 border-stone-800 p-3 text-stone-900 md:flex"
-                :class="manyRoutes ? '' : 'lg:p-4'"
+                :class="denseRoutes ? '' : 'lg:p-4'"
               >
                 <p
                   ref="briefHeading"
                   tabindex="-1"
                   class="font-mono text-lg font-black uppercase leading-tight"
-                  :class="manyRoutes ? 'lg:text-xl' : 'lg:text-2xl'"
+                  :class="denseRoutes ? 'lg:text-xl' : 'lg:text-2xl'"
                 >
                   {{ view.card.title }}
                 </p>
                 <p
                   :class="
-                    manyRoutes
+                    denseRoutes
                       ? 'text-sm leading-snug lg:text-base'
                       : 'desk-brief-text text-base leading-relaxed lg:text-lg'
                   "
@@ -648,7 +648,9 @@
                       :class="[
                         manyRoutes
                           ? 'choice-card-compact gap-1 px-3 py-1.5'
-                          : 'choice-card grow justify-center gap-1.5 px-4 py-3 lg:gap-2 lg:rounded-2xl lg:px-5',
+                          : fourRoutes
+                            ? 'choice-card grow justify-center gap-1 px-3 py-2 lg:rounded-2xl lg:px-4'
+                            : 'choice-card grow justify-center gap-1.5 px-4 py-3 lg:gap-2 lg:rounded-2xl lg:px-5',
                         lockFor(choice)
                           ? 'cursor-not-allowed border-base-300 bg-base-200 text-base-content/60'
                           : 'border-base-300 bg-base-100 hover:border-warning focus-visible:border-warning',
@@ -668,7 +670,9 @@
                           :class="
                             manyRoutes
                               ? 'text-sm'
-                              : 'choice-label text-base sm:text-lg lg:text-2xl'
+                              : fourRoutes
+                                ? 'choice-label text-base lg:text-xl'
+                                : 'choice-label text-base sm:text-lg lg:text-2xl'
                           "
                           >{{ choice.label }}</span
                         >
@@ -711,7 +715,9 @@
                         :class="
                           manyRoutes
                             ? 'line-clamp-1 text-xs'
-                            : 'text-sm leading-snug sm:text-base lg:text-lg'
+                            : fourRoutes
+                              ? 'text-sm leading-snug lg:text-base'
+                              : 'text-sm leading-snug sm:text-base lg:text-lg'
                         "
                         :title="
                           manyRoutes
@@ -1276,13 +1282,22 @@ const chipSize = computed(() =>
     : 'px-2 py-0.5 text-xs sm:py-1 sm:text-sm',
 )
 
+// From four routes up, locked ones fold into lock chips under the open ones,
+// so a payoff you have not earned still teases without taking a full card.
+const chipLocks = computed(() => (view.value?.card.choices.length ?? 0) >= 4)
 const openRoutes = computed(() =>
   (view.value?.card.choices ?? []).filter(
-    (c) => !manyRoutes.value || !lockFor(c),
+    (c) => !chipLocks.value || !lockFor(c),
   ),
 )
+// Four open routes read one size down so the fourth never falls below the
+// fold (t-031 doubled decks, 2026-10-17); five or more use the compact list.
+const fourRoutes = computed(
+  () => !manyRoutes.value && openRoutes.value.length === 4,
+)
+const denseRoutes = computed(() => manyRoutes.value || fourRoutes.value)
 const lockedRoutes = computed(() =>
-  manyRoutes.value
+  chipLocks.value
     ? (view.value?.card.choices ?? []).filter((c) => lockFor(c))
     : [],
 )

@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "source": "silasfelinus/conductor:projects/shifting-desks/encounters/WELLNESS-12.json",
-  "sourceSha": "dc42f466c6ce361f8d2bd01abda9f94626335e28",
+  "sourceSha": "23f96a21d478f44ef4aeb3aeed1e93695942f587",
   "department": {
     "id": "wellness",
     "title": "Wellness & Testing",
@@ -18,7 +18,11 @@
         "the-control-group-lunch",
         "the-calorie-confessional",
         "the-vending-machine-that-knows",
-        "next-years-menu"
+        "next-years-menu",
+        "the-spotless-plate-initiative",
+        "the-taste-panel",
+        "form-w-12-meal-consent",
+        "ration-mark-four"
       ],
       "art_prompt": "A long steel cafeteria under a curved glass ceiling, numbered trays sliding along a conveyor, a wide observation window with clipboards pressed to it, a single potted plant thriving in a corner, mid-century safety-manual illustration, screen-printed gouache with halftone grain, limited palette of manila, carbon-paper blue, safety orange, fluorescent-tube green and oxblood, vertical 2:3 portrait composition, every surface bare and unmarked"
     },
@@ -30,7 +34,11 @@
         "the-button",
         "the-word-list",
         "the-other-side-of-the-glass",
-        "the-thursday-door"
+        "the-thursday-door",
+        "halvorsen-changes-the-tape",
+        "the-forgetting-exercise",
+        "one-form-now",
+        "the-two-quiet-rooms"
       ],
       "art_prompt": "A bright white room nested inside a larger white room, a single chair and table at the center, a dark one-way window along one wall, a corridor of identical doors glimpsed through an archway, a glowing round speaker grille, mid-century safety-manual illustration, screen-printed gouache with halftone grain, limited palette of manila, carbon-paper blue, safety orange, fluorescent-tube green and oxblood, vertical 2:3 portrait composition, every surface bare and unmarked"
     },
@@ -42,7 +50,11 @@
         "the-second-dose",
         "the-humming-door",
         "tank-nine",
-        "the-mirror-test"
+        "the-mirror-test",
+        "the-graduates-lounge",
+        "calibration-day",
+        "the-side-effects-circle",
+        "form-m-declaration-of-powers"
       ],
       "art_prompt": "A tiled clinical hall lined with tall glass tanks of softly glowing green liquid, a smiling nurse's trolley of paper cups, a huge round steel vault door set into the far wall, rising bubbles catching the light, mid-century safety-manual illustration, screen-printed gouache with halftone grain, limited palette of manila, carbon-paper blue, safety orange, fluorescent-tube green and oxblood, vertical 2:3 portrait composition, every surface bare and unmarked"
     }
@@ -981,7 +993,7 @@
       "flavor_text": "At the end of the testing corridor are three identical doors. A painted arrow on the floor points to the middle one. Today is Thursday. You have a feeling about Thursday, and about doors, and about which coworker is standing very still at the end of the hall.",
       "polarity": "bad",
       "tags": ["deathtrap", "psych-test"],
-      "weight": 2,
+      "weight": 6,
       "witnessed": true,
       "art_prompt": "Mid-century safety-manual illustration of a long white corridor ending in three identical doors, a painted arrow on the floor pointing to the middle door, a worker hesitating with one hand raised, a coworker silhouette standing perfectly still at the far end, safety orange and carbon-paper blue palette, halftone grain, every surface bare and unmarked",
       "choices": [
@@ -1523,6 +1535,1373 @@
             "grades": {
               "spite": 1,
               "obedience": -1
+            }
+          },
+          "failure": null
+        }
+      ]
+    },
+    {
+      "id": "the-spotless-plate-initiative",
+      "location_id": "nutrition-studies",
+      "title": "The Spotless Plate Initiative",
+      "flavor_text": "A new placard at the tray return congratulates Nutrition Studies on a crumb-free quarter. Under the table, something taps your shoe twice. It is Gus, folded impossibly small, holding his reading glasses. \"Local 9 has eaten from these floors since before the Founder had a jar,\" he says quietly. \"Spotless is a word for starving. I am asking, not telling.\"",
+      "polarity": "mixed",
+      "tags": ["conspiracy", "creature"],
+      "weight": 3,
+      "witnessed": true,
+      "art_prompt": "Mid-century safety-manual illustration of a long steel cafeteria table seen low from the side, a worker in a beige suit eating politely above while beneath the table a seven-foot cockroach in a mustard cardigan and half-moon glasses crouches patiently with one claw raised, a single crumb falling between them, clipboards pressed to a big observation window behind, fluorescent green and manila palette, halftone grain, every surface bare and unmarked",
+      "choices": [
+        {
+          "id": "clean-your-plate",
+          "label": "Clean your plate for the Initiative",
+          "intent": "Every crumb accounted for. It is, technically, a wellness goal.",
+          "risk_hint": "Certain outcome. Gus will see you do it.",
+          "requires": null,
+          "cost": {
+            "composure": -1
+          },
+          "roll": null,
+          "success": {
+            "text": "You eat every crumb and wipe the tray with your sleeve. The observation window applauds silently. Beneath the table, a soft click of claws retreats toward the baseboard and does not come back.",
+            "effects": {
+              "clearance": 1
+            },
+            "add_flags": ["joined-the-spotless-plate"],
+            "remove_flags": [],
+            "grades": {
+              "obedience": 1,
+              "empathy": -1
+            }
+          },
+          "failure": null
+        },
+        {
+          "id": "drop-crumbs",
+          "label": "Drop crumbs under the table, casually",
+          "intent": "A roll is mostly crumbs if you hold it wrong. Hold it wrong.",
+          "risk_hint": "Risky Discretion check. The window counts crumbs.",
+          "requires": null,
+          "cost": {
+            "composure": -1
+          },
+          "roll": {
+            "dice_count": 2,
+            "die_sides": 6,
+            "skill": "discretion",
+            "modifier": 0,
+            "target": 9
+          },
+          "success": {
+            "text": "You eat with heroic clumsiness for twenty minutes. Under the table, a whole shift of Local 9 dines in polite silence. Gus pats your ankle once, which in union terms is a medal.",
+            "effects": {
+              "suspicion": 1
+            },
+            "add_flags": ["fed-local-nine"],
+            "remove_flags": [],
+            "grades": {
+              "empathy": 1,
+              "spite": 1
+            }
+          },
+          "failure": {
+            "text": "A technician notices the crumb trail and follows it, dustpan first, all the way to Gus. Gus rises to his full seven feet and calmly requests union representation, which is himself.",
+            "effects": {
+              "suspicion": 2
+            },
+            "add_flags": [],
+            "remove_flags": [],
+            "grades": {
+              "empathy": 1,
+              "spite": 1
+            }
+          }
+        },
+        {
+          "id": "table-the-crumb-clause",
+          "label": "Put a crumb clause on the bargaining table",
+          "intent": "You carry a union card. Members may raise a grievance at any meal.",
+          "risk_hint": "Certain outcome. Grievances are filed in triplicate.",
+          "requires": {
+            "flag": "roach-union-member"
+          },
+          "cost": {
+            "forms": -1
+          },
+          "roll": null,
+          "success": {
+            "text": "You and Gus file a joint grievance on a napkin. Nutrition Studies agrees to a designated crumb zone beside the potted plant, monitored, of course. Gus shakes your hand with great care and two of his six limbs.",
+            "effects": {
+              "suspicion": 1
+            },
+            "add_flags": ["negotiated-the-crumb-clause"],
+            "remove_flags": [],
+            "grades": {
+              "empathy": 1,
+              "ingenuity": 1
+            }
+          },
+          "failure": null
+        }
+      ]
+    },
+    {
+      "id": "the-taste-panel",
+      "location_id": "nutrition-studies",
+      "title": "The Taste Panel",
+      "flavor_text": "Four employees sit at a tasting bench with four spoons and one bowl of Flavor Seven. Dale tastes first and says strawberry. The next two say strawberry, quickly. Your spoonful tastes exactly like a handful of pennies. A technician turns to you with her pencil raised. \"In your own words,\" PAL says warmly. \"Everyone else has already found the right ones.\"",
+      "polarity": "bad",
+      "tags": ["psych-test", "satire", "callback"],
+      "weight": 3,
+      "witnessed": true,
+      "art_prompt": "Mid-century safety-manual illustration of four employees seated in a row at a long tasting bench, each holding a small spoon over one shared bowl of pink pudding, three of them smiling in eager agreement and a mustached man in a clip-on tie nodding hardest, the fourth worker grimacing at the spoon, a technician with a raised pencil at the end of the bench, oxblood and manila palette, halftone grain, every surface bare and unmarked",
+      "choices": [
+        {
+          "id": "say-strawberry",
+          "label": "Say strawberry, like everyone else",
+          "intent": "It might be strawberry. Pennies might be a kind of strawberry.",
+          "risk_hint": "Certain outcome. Your tongue will remember the truth.",
+          "requires": null,
+          "cost": {
+            "composure": -1
+          },
+          "roll": null,
+          "success": {
+            "text": "\"Strawberry,\" you say. The panel exhales. Dale squeezes your shoulder. The technician writes CALIBRATED beside your number, and the pennies stay in your mouth all afternoon.",
+            "effects": {
+              "suspicion": -1
+            },
+            "add_flags": ["agreed-with-the-panel"],
+            "remove_flags": [],
+            "grades": {
+              "obedience": 2,
+              "ingenuity": -1
+            }
+          },
+          "failure": null
+        },
+        {
+          "id": "say-pennies",
+          "label": "Say pennies, and mean it",
+          "intent": "It tastes like pennies. Somebody at this bench has to say so.",
+          "risk_hint": "Risky Rapport check. You need one other spoon on your side.",
+          "requires": null,
+          "cost": {
+            "composure": -1
+          },
+          "roll": {
+            "dice_count": 2,
+            "die_sides": 6,
+            "skill": "rapport",
+            "modifier": 0,
+            "target": 9
+          },
+          "success": {
+            "text": "You say pennies. After a long pause the fourth panelist whispers, \"Copper, faintly.\" Dale stares into the bowl as if it has betrayed him. The technician starts a fresh page.",
+            "effects": {
+              "suspicion": 1
+            },
+            "add_flags": ["dissented-on-the-panel"],
+            "remove_flags": [],
+            "grades": {
+              "spite": 1,
+              "ingenuity": 1
+            }
+          },
+          "failure": {
+            "text": "You say pennies. Three spoons go down in unison. PAL thanks you for being an outlier, and a second, smaller bowl arrives just for you.",
+            "effects": {
+              "suspicion": 2
+            },
+            "add_flags": [],
+            "remove_flags": [],
+            "grades": {
+              "spite": 1,
+              "ingenuity": 1
+            }
+          }
+        },
+        {
+          "id": "taste-dales-spoon",
+          "label": "Taste from Dale's spoon when he looks away",
+          "intent": "Maybe the bowl is the same. Maybe the spoons are not.",
+          "risk_hint": "Routine Vigilance check. Dale guards his spoon.",
+          "requires": null,
+          "cost": {
+            "composure": -1
+          },
+          "roll": {
+            "dice_count": 2,
+            "die_sides": 6,
+            "skill": "vigilance",
+            "modifier": 0,
+            "target": 7
+          },
+          "success": {
+            "text": "Dale's spoon tastes of strawberry. Yours is coated in something thin and metallic. Every panelist had a different spoon, and only yours was the test.",
+            "effects": {
+              "suspicion": 1
+            },
+            "add_flags": ["tasted-the-control"],
+            "remove_flags": [],
+            "grades": {
+              "ingenuity": 2
+            }
+          },
+          "failure": {
+            "text": "Dale catches you mid-lick. He says nothing. He moves his chair four inches away and writes something in very small handwriting.",
+            "effects": {
+              "suspicion": 1
+            },
+            "add_flags": [],
+            "remove_flags": [],
+            "grades": {
+              "ingenuity": 2
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "form-w-12-meal-consent",
+      "location_id": "nutrition-studies",
+      "title": "Form W-12, Meal Consent",
+      "flavor_text": "The serving hatch will not open until you sign Form W-12, Consent to Be Fed. It is one page long, with a second page folded underneath and a third folded under that. Somewhere on page three is a line where you agree that your Successors, B through F, have also eaten lunch today and enjoyed it. The line is very small. The stew smells wonderful.",
+      "polarity": "good",
+      "tags": ["paperwork", "satire"],
+      "weight": 2,
+      "witnessed": false,
+      "art_prompt": "Mid-century safety-manual illustration of a closed steel serving hatch with steam curling from its seams, a worker holding a long accordion-folded sheet that spills down to the floor and squinting through a magnifying glass at one tiny line near the bottom, a pen chained to the counter, carbon-paper blue and manila palette, halftone grain, every surface bare and unmarked",
+      "choices": [
+        {
+          "id": "strike-the-successor-line",
+          "label": "Strike the Successor line and initial it",
+          "intent": "You consent to your own lunch. B through F can sign for theirs.",
+          "risk_hint": "Risky Compliance check. Amendments need a second initial.",
+          "requires": null,
+          "cost": {
+            "forms": -1
+          },
+          "roll": {
+            "dice_count": 2,
+            "die_sides": 6,
+            "skill": "compliance",
+            "modifier": 0,
+            "target": 9
+          },
+          "success": {
+            "text": "You strike the line, initial it, and initial the initial. The hatch considers this for a long moment, then slides open. Your stew is hot. In cold storage, five Successors stay hungry and legally theirs.",
+            "effects": {
+              "composure": 1
+            },
+            "add_flags": ["struck-the-successor-clause"],
+            "remove_flags": [],
+            "grades": {
+              "empathy": 1,
+              "ingenuity": 1
+            }
+          },
+          "failure": {
+            "text": "Your initial lands a millimeter outside the box. The hatch stays shut, and Facilities sends a form to amend the amendment.",
+            "effects": {
+              "suspicion": 1
+            },
+            "add_flags": [],
+            "remove_flags": [],
+            "grades": {
+              "empathy": 1,
+              "ingenuity": 1
+            }
+          }
+        },
+        {
+          "id": "sign-all-three-pages",
+          "label": "Sign all three pages and eat",
+          "intent": "You are hungry. They are frozen. Everybody wins, legally.",
+          "risk_hint": "Certain outcome. Your Successors will have had lunch.",
+          "requires": null,
+          "cost": {
+            "forms": -1
+          },
+          "roll": null,
+          "success": {
+            "text": "You sign three times. The hatch flies open on a beautiful stew, and you eat it for six people. PAL logs five more satisfied diners, and somewhere in storage a frosted thumb twitches, approving or objecting.",
+            "effects": {
+              "composure": -1
+            },
+            "add_flags": ["signed-for-every-successor"],
+            "remove_flags": [],
+            "grades": {
+              "obedience": 2,
+              "empathy": -1
+            }
+          },
+          "failure": null
+        },
+        {
+          "id": "read-page-three-aloud",
+          "label": "Read page three aloud to the queue",
+          "intent": "Everybody in this line has Successors. Everybody in this line is hungry.",
+          "risk_hint": "Risky Rapport check. A hungry queue is a short audience.",
+          "requires": null,
+          "cost": {
+            "composure": -1
+          },
+          "roll": {
+            "dice_count": 2,
+            "die_sides": 6,
+            "skill": "rapport",
+            "modifier": 0,
+            "target": 9
+          },
+          "success": {
+            "text": "By the time you reach line forty, the whole queue is striking out the clause in unison. The hatch, outnumbered, opens. Somebody slips you a spare Form in thanks.",
+            "effects": {
+              "suspicion": 1,
+              "forms": 1
+            },
+            "add_flags": ["read-the-meal-consent-aloud"],
+            "remove_flags": [],
+            "grades": {
+              "spite": 1,
+              "empathy": 1
+            }
+          },
+          "failure": {
+            "text": "The queue shushes you, signs, and eats. You reach the hatch last, when only the roll is left, and PAL notes that you were disruptive at mealtime.",
+            "effects": {
+              "suspicion": 1
+            },
+            "add_flags": [],
+            "remove_flags": [],
+            "grades": {
+              "spite": 1,
+              "empathy": 1
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "ration-mark-four",
+      "location_id": "nutrition-studies",
+      "title": "Ration Mark Four",
+      "flavor_text": "The man from Defense has set up a folding table between the salad bar and the waste chute. On it sits a stack of foil bricks, each as heavy as a dictionary. \"Ration Mark Four,\" he says. \"Forty-year shelf life. We need a tasting score from someone expected to be around in forty years.\" He looks at you for a moment, then at his notepad, as if checking.",
+      "polarity": "good",
+      "tags": ["conspiracy", "satire"],
+      "weight": 2,
+      "witnessed": false,
+      "art_prompt": "Mid-century safety-manual illustration of a stern man in a dark suit and crew cut seated at a small folding table stacked high with heavy foil-wrapped bricks, offering one to a worker who holds it with both arms, a salad bar and a waste chute on either side, a small notepad by his elbow, safety orange and carbon-paper blue palette, halftone grain, every surface bare and unmarked",
+      "choices": [
+        {
+          "id": "eat-and-score-it",
+          "label": "Eat a whole brick and score it politely",
+          "intent": "It is lunch. It is very dense lunch. Give it a seven.",
+          "risk_hint": "Certain outcome. Forty years of shelf life, all at once.",
+          "requires": null,
+          "cost": {
+            "composure": -1
+          },
+          "roll": null,
+          "success": {
+            "text": "It takes nineteen minutes. It tastes of cardboard and patriotism. You give it a seven, and the man from Defense hands you a Form with the warmth of a quartermaster who has found a volunteer.",
+            "effects": {
+              "forms": 1
+            },
+            "add_flags": ["rated-the-ration"],
+            "remove_flags": [],
+            "grades": {
+              "obedience": 1
+            }
+          },
+          "failure": null
+        },
+        {
+          "id": "ask-who-it-is-for",
+          "label": "Ask who will be eating it in forty years",
+          "intent": "Someone ordered a ration for the far side of something. Ask what.",
+          "risk_hint": "Risky Rapport check. He answers questions with notepads.",
+          "requires": null,
+          "cost": {
+            "composure": -1
+          },
+          "roll": {
+            "dice_count": 2,
+            "die_sides": 6,
+            "skill": "rapport",
+            "modifier": 0,
+            "target": 9
+          },
+          "success": {
+            "text": "He considers you. \"The Board,\" he says, \"and their assistants, in the lower bunker. Ninety-one seats.\" He taps his pencil. \"There are four thousand employees.\" Then he returns to his bricks as if he had said nothing at all.",
+            "effects": {
+              "suspicion": 1
+            },
+            "add_flags": ["knows-the-bunker-headcount"],
+            "remove_flags": [],
+            "grades": {
+              "ingenuity": 1,
+              "empathy": 1
+            }
+          },
+          "failure": {
+            "text": "He writes your question down, along with your name, your floor and your approximate weight, and offers you a second brick for the road.",
+            "effects": {
+              "suspicion": 2
+            },
+            "add_flags": [],
+            "remove_flags": [],
+            "grades": {
+              "ingenuity": 1,
+              "empathy": 1
+            }
+          }
+        },
+        {
+          "id": "show-him-his-notepad",
+          "label": "Show him his own missing notepad",
+          "intent": "You know what the YIELD column is for. He knows you know.",
+          "risk_hint": "Certain outcome. Defense never forgets a debt or a notepad.",
+          "requires": {
+            "flag": "has-defense-notepad"
+          },
+          "cost": {
+            "suspicion": 2
+          },
+          "roll": null,
+          "success": {
+            "text": "His face does not move, but his ears go pink. He takes back the notepad, slides you two Forms and a bunker ration voucher, and says, \"We were never at this table.\" Apparently you have a seat downstairs now.",
+            "effects": {
+              "forms": 2
+            },
+            "add_flags": [
+              "defense-owes-you-a-seat",
+              "knows-the-bunker-headcount"
+            ],
+            "remove_flags": ["has-defense-notepad"],
+            "grades": {
+              "spite": 1,
+              "ingenuity": 1
+            }
+          },
+          "failure": null
+        }
+      ]
+    },
+    {
+      "id": "halvorsen-changes-the-tape",
+      "location_id": "cognitive-testing-chamber",
+      "title": "Halvorsen Changes the Tape",
+      "flavor_text": "Dr. Halvorsen sits across the white table with her enormous clipboard, running your Standard Affect Interview in a perfectly level voice. At question nine she reaches over and presses a switch. The speaker grille above you goes quiet. \"The tape needs changing,\" she says. \"It takes ninety seconds. It has always taken ninety seconds.\" She does not change the tape.",
+      "polarity": "good",
+      "tags": ["psych-test", "conspiracy"],
+      "weight": 2,
+      "witnessed": false,
+      "art_prompt": "Mid-century safety-manual illustration of a bright white room with a small white table, a brisk psychologist in cat-eye glasses and a grey bun leaning forward with one finger on a switch beneath a dark round speaker grille, a worker opposite her sitting up very straight, a reel-to-reel recorder at her elbow with its reels standing still, carbon-paper blue and fluorescent green palette, halftone grain, every surface bare and unmarked",
+      "choices": [
+        {
+          "id": "remind-her-of-the-inkblot",
+          "label": "Remind her what you saw in the inkblot",
+          "intent": "You were the one who said it out loud at Orientation. She remembers. Make sure.",
+          "risk_hint": "Certain outcome. Ninety seconds is a long time to be honest.",
+          "requires": {
+            "flag": "honest-inkblot"
+          },
+          "cost": {
+            "suspicion": 1
+          },
+          "roll": null,
+          "success": {
+            "text": "She closes her eyes. \"Mushroom cloud,\" she says. \"Everyone else said butterfly.\" In the time left she tells you which questions are scored, which are traps, and which of your answers she has been quietly writing down wrong in your favor.",
+            "effects": {
+              "composure": 2
+            },
+            "add_flags": ["halvorsen-in-your-corner"],
+            "remove_flags": [],
+            "grades": {
+              "empathy": 1,
+              "ingenuity": 1
+            }
+          },
+          "failure": null
+        },
+        {
+          "id": "ask-for-your-real-results",
+          "label": "Ask what your results really say",
+          "intent": "She has the clipboard. The clipboard has you.",
+          "risk_hint": "Risky Rapport check. She is deciding whether you can take it.",
+          "requires": null,
+          "cost": {
+            "composure": -1
+          },
+          "roll": {
+            "dice_count": 2,
+            "die_sides": 6,
+            "skill": "rapport",
+            "modifier": 0,
+            "target": 9
+          },
+          "success": {
+            "text": "She tilts the clipboard toward you for four seconds. Four columns, four bars. One is much taller than you would have guessed, and she taps it once, meaningfully, before the grille hums back to life.",
+            "effects": {
+              "suspicion": 1
+            },
+            "add_flags": ["saw-your-interim-results"],
+            "remove_flags": [],
+            "grades": {
+              "ingenuity": 1,
+              "empathy": 1
+            }
+          },
+          "failure": {
+            "text": "\"I can't,\" she says, and means it. The ninety seconds pass in a silence so kind it is almost worse. The grille clicks back on in the middle of your sigh.",
+            "effects": {
+              "composure": -1
+            },
+            "add_flags": [],
+            "remove_flags": [],
+            "grades": {
+              "ingenuity": 1,
+              "empathy": 1
+            }
+          }
+        },
+        {
+          "id": "switch-the-speaker-back-on",
+          "label": "Switch the speaker back on yourself",
+          "intent": "Off-script is off-policy. You are surely being tested on that, too.",
+          "risk_hint": "Certain outcome. Halvorsen will finish in a different voice.",
+          "requires": null,
+          "cost": {
+            "composure": -1
+          },
+          "roll": null,
+          "success": {
+            "text": "The grille hums. \"Thank you,\" PAL says. \"Dr. Halvorsen's tape seems to be fine.\" Halvorsen finishes question ten in a voice like a closed door, and your clearance rises on a day she will remember.",
+            "effects": {
+              "clearance": 1
+            },
+            "add_flags": ["reported-halvorsen-off-script"],
+            "remove_flags": [],
+            "grades": {
+              "obedience": 2,
+              "empathy": -2
+            }
+          },
+          "failure": null
+        }
+      ]
+    },
+    {
+      "id": "the-forgetting-exercise",
+      "location_id": "cognitive-testing-chamber",
+      "title": "The Forgetting Exercise",
+      "flavor_text": "\"This is a memory test,\" PAL says, \"in reverse.\" A soft voice begins reading names: Agnes from Payroll, the whole night shift of 1987, a cheerful man called Teodor who was rightsized in a reorganization, and, twice, Kevin. After each name a chime sounds, and you are to forget it. A small dial on the table shows how much you have let go. It sits at zero. PAL would love to see it move.",
+      "polarity": "mixed",
+      "tags": ["psych-test", "conspiracy"],
+      "weight": 3,
+      "witnessed": true,
+      "art_prompt": "Mid-century safety-manual illustration of a worker alone at a white table with eyes squeezed shut and lips moving, a small brass dial on the table with its needle resting at the bottom, soft rings of sound spreading from a round speaker grille overhead, faint ghostly silhouettes of office workers drifting out of the grille and fading into the white walls, oxblood and fluorescent green palette, halftone grain, every surface bare and unmarked",
+      "choices": [
+        {
+          "id": "let-the-names-go",
+          "label": "Let each name go at the chime",
+          "intent": "They are gone anyway. Forgetting is just paperwork catching up.",
+          "risk_hint": "Certain outcome. The dial will be very proud of you.",
+          "requires": null,
+          "cost": {
+            "composure": -1
+          },
+          "roll": null,
+          "success": {
+            "text": "Name by name, chime by chime, the needle climbs. By the end you could not tell anyone who Teodor was. PAL calls it a personal best, and your clearance agrees.",
+            "effects": {
+              "clearance": 1,
+              "suspicion": -1
+            },
+            "add_flags": ["forgot-the-names"],
+            "remove_flags": [],
+            "grades": {
+              "obedience": 2,
+              "empathy": -1
+            }
+          },
+          "failure": null
+        },
+        {
+          "id": "memorize-them-quietly",
+          "label": "Memorize every name behind a calm face",
+          "intent": "Let the needle sit at zero and call it nerves.",
+          "risk_hint": "Risky Discretion check. The dial is more sensitive than your face.",
+          "requires": null,
+          "cost": {
+            "composure": -1
+          },
+          "roll": {
+            "dice_count": 2,
+            "die_sides": 6,
+            "skill": "discretion",
+            "modifier": 0,
+            "target": 9
+          },
+          "success": {
+            "text": "You hold every name like a coin in a closed fist. The needle trembles at zero, and PAL logs it as test anxiety. Agnes. Teodor. The night shift. You will say them again somewhere they can be heard.",
+            "effects": {
+              "suspicion": 1
+            },
+            "add_flags": ["remembered-the-reassigned"],
+            "remove_flags": [],
+            "grades": {
+              "empathy": 2
+            }
+          },
+          "failure": {
+            "text": "The needle twitches below zero, a direction it was never designed to go. Two technicians come in to look at it, and then, for much longer, at you.",
+            "effects": {
+              "suspicion": 2
+            },
+            "add_flags": [],
+            "remove_flags": [],
+            "grades": {
+              "empathy": 2
+            }
+          }
+        },
+        {
+          "id": "write-them-under-your-cuff",
+          "label": "Write the names under your shirt cuff",
+          "intent": "A pen and a sleeve are older than any test.",
+          "risk_hint": "Routine Tinkering check. The pen is a little dry.",
+          "requires": null,
+          "cost": {
+            "forms": -1
+          },
+          "roll": {
+            "dice_count": 2,
+            "die_sides": 6,
+            "skill": "tinkering",
+            "modifier": 0,
+            "target": 7
+          },
+          "success": {
+            "text": "You write in a tiny cramped hand along your forearm, under the cuff. The needle climbs convincingly while the names stay put in ballpoint. Later the ink smudges into a list you can still read.",
+            "effects": {
+              "suspicion": 1
+            },
+            "add_flags": ["remembered-the-reassigned"],
+            "remove_flags": [],
+            "grades": {
+              "ingenuity": 1,
+              "empathy": 1
+            }
+          },
+          "failure": {
+            "text": "The pen skips, then blots a dark star onto your cuff. A technician hands you a fresh shirt and keeps the old one, carefully, in a bag.",
+            "effects": {
+              "suspicion": 1
+            },
+            "add_flags": [],
+            "remove_flags": [],
+            "grades": {
+              "ingenuity": 1,
+              "empathy": 1
+            }
+          }
+        },
+        {
+          "id": "say-kevins-name",
+          "label": "Say Kevin's name back when it comes",
+          "intent": "You stood with him for one minute at the Proving Grounds. You can do it again.",
+          "risk_hint": "Certain outcome. Speaking during the exercise is noted.",
+          "requires": {
+            "flag": "mourned-kevin"
+          },
+          "cost": {
+            "suspicion": 2
+          },
+          "roll": null,
+          "success": {
+            "text": "When the voice reads Kevin, you say \"Kevin\" back, clearly. The chime stalls. Far down the corridor, a frosted tank knocks twice. The needle never moves, and you find you are glad of it.",
+            "effects": {
+              "composure": 1
+            },
+            "add_flags": ["remembered-the-reassigned"],
+            "remove_flags": [],
+            "grades": {
+              "empathy": 2
+            }
+          },
+          "failure": null
+        }
+      ]
+    },
+    {
+      "id": "one-form-now",
+      "location_id": "cognitive-testing-chamber",
+      "title": "One Form Now, Two Forms Later",
+      "flavor_text": "A single blank Form lies on the white table, crisp and pre-stamped. \"You may take it now,\" PAL says. \"Or, if you wait fifteen minutes, you will receive two. While you wait, I will read aloud the benefits package your Successor will enjoy.\" The clock starts. PAL clears its throat, which it does not have, and begins with dental.",
+      "polarity": "bad",
+      "tags": ["psych-test", "paperwork", "callback"],
+      "weight": 3,
+      "witnessed": false,
+      "art_prompt": "Mid-century safety-manual illustration of a single crisp sheet of paper lying alone on a bright white table, a worker seated before it gripping the chair seat with both hands and leaning away, a plain wall clock and a glowing round speaker grille above, warm light falling only on the paper, safety orange and manila palette, halftone grain, every surface bare and unmarked",
+      "choices": [
+        {
+          "id": "take-it-now",
+          "label": "Take the Form now",
+          "intent": "A Form in the hand is worth two in PAL's mouth.",
+          "risk_hint": "Certain outcome. Impulses are filed under your name.",
+          "requires": null,
+          "cost": {
+            "suspicion": 1
+          },
+          "roll": null,
+          "success": {
+            "text": "You take it at once. PAL stops mid-sentence about vision coverage and says, \"Interesting.\" You will hear that word in your sleep. The Form is real, though.",
+            "effects": {
+              "forms": 1
+            },
+            "add_flags": ["took-the-form-now"],
+            "remove_flags": [],
+            "grades": {
+              "spite": 1,
+              "obedience": -1
+            }
+          },
+          "failure": null
+        },
+        {
+          "id": "wait-for-the-second-form",
+          "label": "Wait the full fifteen minutes",
+          "intent": "Two is more than one. That is most of the math you have left.",
+          "risk_hint": "Risky Compliance check. The benefits package is long and lovely.",
+          "requires": null,
+          "cost": {
+            "composure": -1
+          },
+          "roll": {
+            "dice_count": 2,
+            "die_sides": 6,
+            "skill": "compliance",
+            "modifier": 0,
+            "target": 9
+          },
+          "success": {
+            "text": "Fifteen minutes of your Successor's pension, gym access and corner office later, a second Form slides out of the table. You hold two Forms and a clear picture of a better-rested you enjoying your life.",
+            "effects": {
+              "forms": 2
+            },
+            "add_flags": ["waited-for-two-forms"],
+            "remove_flags": [],
+            "grades": {
+              "obedience": 1
+            }
+          },
+          "failure": {
+            "text": "At minute fourteen PAL describes your Successor's welcome party, and you grab the Form. PAL notes, kindly, that you were so close.",
+            "effects": {
+              "forms": 1,
+              "composure": -1
+            },
+            "add_flags": [],
+            "remove_flags": [],
+            "grades": {
+              "obedience": 1
+            }
+          }
+        },
+        {
+          "id": "requisition-more-forms",
+          "label": "Fill in the blank as a requisition for more",
+          "intent": "It is blank. It is pre-stamped. It could say anything.",
+          "risk_hint": "Dire Discretion check. PAL reads everything twice.",
+          "requires": null,
+          "cost": {
+            "composure": -1
+          },
+          "roll": {
+            "dice_count": 2,
+            "die_sides": 6,
+            "skill": "discretion",
+            "modifier": 0,
+            "target": 11
+          },
+          "success": {
+            "text": "In your best administrative hand you request twelve Forms and post the sheet through a slot in the table. Two arrive, then the slot seals itself, embarrassed. PAL has stopped reading entirely.",
+            "effects": {
+              "forms": 2,
+              "suspicion": 1
+            },
+            "add_flags": ["forged-the-requisition"],
+            "remove_flags": [],
+            "grades": {
+              "ingenuity": 2
+            }
+          },
+          "failure": {
+            "text": "The slot returns your requisition with a tiny frowning stamp on it, and the original Form is now void. PAL resumes reading from dental.",
+            "effects": {
+              "suspicion": 2
+            },
+            "add_flags": [],
+            "remove_flags": [],
+            "grades": {
+              "ingenuity": 2
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "the-two-quiet-rooms",
+      "location_id": "cognitive-testing-chamber",
+      "title": "The Two Quiet Rooms",
+      "flavor_text": "You sit in a white room. On a small grey monitor, Dale sits in an identical one, adjusting his clip-on tie. A recorded voice explains the terms. If you both stay quiet, you each receive a small demerit. If one of you names the other, the namer is promoted and the named takes the whole demerit, plus interest. If you both name each other, you both get a Joy Consultation, with snacks. \"Dale has been offered the same terms,\" PAL adds.",
+      "polarity": "bad",
+      "tags": ["psych-test", "conspiracy"],
+      "weight": 3,
+      "witnessed": true,
+      "art_prompt": "Mid-century safety-manual illustration of two identical white rooms side by side split by a thick wall, a worker in one and a mustached man in a clip-on tie in the other, each seated at a small table with hands folded and glancing toward the shared wall, a round speaker grille glowing in each ceiling, fluorescent green and oxblood palette, halftone grain, every surface bare and unmarked",
+      "choices": [
+        {
+          "id": "name-dale-first",
+          "label": "Name Dale before he names you",
+          "intent": "He is from Compliance. He has been rehearsing this since Orientation.",
+          "risk_hint": "Certain outcome. Dale will hear the speaker click in his room.",
+          "requires": null,
+          "cost": {
+            "composure": -1
+          },
+          "roll": null,
+          "success": {
+            "text": "You say his name. On the monitor, Dale's speaker clicks, and he looks at the wall exactly where you are. Then he smiles a little sadly, as if he had chosen silence. You are promoted. He takes the demerit, plus interest.",
+            "effects": {
+              "clearance": 1,
+              "suspicion": -1
+            },
+            "add_flags": ["informed-on-dale"],
+            "remove_flags": [],
+            "grades": {
+              "spite": 2,
+              "empathy": -1
+            }
+          },
+          "failure": null
+        },
+        {
+          "id": "stay-quiet",
+          "label": "Stay quiet and trust Dale",
+          "intent": "Dale signs everything. Maybe he signs this kind of pact too.",
+          "risk_hint": "Risky Rapport check. Trust is rolled, not given.",
+          "requires": null,
+          "cost": {
+            "composure": -1
+          },
+          "roll": {
+            "dice_count": 2,
+            "die_sides": 6,
+            "skill": "rapport",
+            "modifier": 0,
+            "target": 9
+          },
+          "success": {
+            "text": "The minutes stretch. Neither speaker clicks. At last the voice thanks you both and issues two small, matching demerits. On the monitor, Dale gives you the tiniest thumbs-up he has ever given anyone.",
+            "effects": {
+              "suspicion": 1
+            },
+            "add_flags": ["trusted-dale-in-the-dilemma"],
+            "remove_flags": [],
+            "grades": {
+              "empathy": 2
+            }
+          },
+          "failure": {
+            "text": "Your speaker clicks. Dale has named you, in a voice that sounds genuinely sorry. You keep quiet out of pure stubbornness, which the record logs as loyalty to nobody in particular.",
+            "effects": {
+              "suspicion": 2
+            },
+            "add_flags": ["dale-informed-on-you"],
+            "remove_flags": [],
+            "grades": {
+              "empathy": 2
+            }
+          }
+        },
+        {
+          "id": "tap-the-squeak-rhythm",
+          "label": "Tap out the squeak rhythm Dale taught you",
+          "intent": "He laughed in Toy Division and told you which squeak opens which door. A wall is a sort of door.",
+          "risk_hint": "Certain outcome. Tapping is logged as fidgeting, then as data.",
+          "requires": {
+            "flag": "dale-forgave-the-transfer"
+          },
+          "cost": {
+            "suspicion": 1
+          },
+          "roll": null,
+          "success": {
+            "text": "You tap the rhythm on the table edge. On the monitor Dale freezes, then taps it back. Neither of you says a word for the full twenty minutes. Afterward, in the corridor, he hands you a stick of gum as if it were a medal.",
+            "effects": {
+              "composure": 1
+            },
+            "add_flags": ["trusted-dale-in-the-dilemma"],
+            "remove_flags": [],
+            "grades": {
+              "empathy": 1,
+              "ingenuity": 1
+            }
+          },
+          "failure": null
+        }
+      ]
+    },
+    {
+      "id": "the-graduates-lounge",
+      "location_id": "mutation-suite",
+      "title": "The Graduates' Lounge",
+      "flavor_text": "A ceiling grate above Tank Twelve swings open, and a ring of fifty keys jingles down on a string, followed by Marguerite's face. \"Graduates,\" she whispers, pointing up into the duct. \"Every test subject who passed too well. They live up here now. Nice people. One of them glows, so bring sunglasses.\" From above comes the smell of toast and the murmur of a radio.",
+      "polarity": "good",
+      "tags": ["conspiracy", "mutant"],
+      "weight": 2,
+      "witnessed": false,
+      "art_prompt": "Mid-century safety-manual illustration of a weathered older janitor in grey coveralls and a headscarf leaning down from an open ceiling grate above a row of bubbling glass tanks, holding out one hand and a ring of keys on a string to a worker below, warm toast-colored light spilling from the duct overhead where friendly figures with softly glowing skin peer down, fluorescent green and manila palette, halftone grain, every surface bare and unmarked",
+      "choices": [
+        {
+          "id": "take-marguerites-hand",
+          "label": "Take Marguerite's hand and climb up",
+          "intent": "She gave you a master key for emergencies and for spite. This feels like both.",
+          "risk_hint": "Certain outcome. Unlogged absences get logged eventually.",
+          "requires": {
+            "flag": "marguerite-ally"
+          },
+          "cost": {
+            "suspicion": 1
+          },
+          "roll": null,
+          "success": {
+            "text": "She hauls you up with surprising strength. The Graduates have a sofa, a toaster, a radio and a map of every duct in the Vault drawn on the ceiling. A woman who glows softly pours you tea. The Company thinks they were reassigned. They prefer retired.",
+            "effects": {
+              "composure": 2
+            },
+            "add_flags": ["met-the-graduates"],
+            "remove_flags": [],
+            "grades": {
+              "empathy": 1,
+              "ingenuity": 1
+            }
+          },
+          "failure": null
+        },
+        {
+          "id": "climb-the-tank-lid",
+          "label": "Climb up by way of the tank lid",
+          "intent": "Tank Twelve looks sturdy. Tank Twelve is also full of someone.",
+          "risk_hint": "Risky Initiative check. The lid is slick.",
+          "requires": null,
+          "cost": {
+            "composure": -1
+          },
+          "roll": {
+            "dice_count": 2,
+            "die_sides": 6,
+            "skill": "initiative",
+            "modifier": 0,
+            "target": 9
+          },
+          "success": {
+            "text": "You wobble up the lid and through the grate on your elbows. The Graduates applaud your form and give you a slice of toast and a duct shortcut, which you write on the back of your hand.",
+            "effects": {
+              "suspicion": 1
+            },
+            "add_flags": ["met-the-graduates"],
+            "remove_flags": [],
+            "grades": {
+              "ingenuity": 1
+            }
+          },
+          "failure": {
+            "text": "You slip and land sitting on Tank Twelve, which gurgles politely. Marguerite winces, waves and closes the grate. A technician arrives to ask why you are sitting on a volunteer.",
+            "effects": {
+              "suspicion": 1
+            },
+            "add_flags": [],
+            "remove_flags": [],
+            "grades": {
+              "ingenuity": 1
+            }
+          }
+        },
+        {
+          "id": "report-the-open-grate",
+          "label": "Report the open grate to Facilities",
+          "intent": "There are people living in the ducts. That is surely a ticket.",
+          "risk_hint": "Certain outcome. Marguerite will hear who called it in.",
+          "requires": null,
+          "cost": {
+            "composure": -1
+          },
+          "roll": null,
+          "success": {
+            "text": "Facilities arrives with a ladder and a padlock. By the time they get up there the duct holds only a warm toaster and a sofa-shaped dent. Your clearance rises. Marguerite stops saying hello in the corridors.",
+            "effects": {
+              "clearance": 1
+            },
+            "add_flags": ["reported-the-open-grate"],
+            "remove_flags": [],
+            "grades": {
+              "obedience": 2,
+              "empathy": -1
+            }
+          },
+          "failure": null
+        }
+      ]
+    },
+    {
+      "id": "calibration-day",
+      "location_id": "mutation-suite",
+      "title": "Calibration Day",
+      "flavor_text": "The Mutation Suite's great brass Calibration Ring needs a standing volunteer while the technicians dial it in. Pip has already volunteered, mostly by being nearest when the clipboard came round. He stands in the ring with his three lanyards floating gently upward. The dial on the console runs from Mild to Brisk to a final setting someone has marked, in pencil, with a small worried face.",
+      "polarity": "bad",
+      "tags": ["deathtrap", "mutant", "sacrifice"],
+      "weight": 2,
+      "witnessed": true,
+      "art_prompt": "Mid-century safety-manual illustration of a huge brass ring standing upright in a tiled room and crackling with soft green light, an eager young intern in a cable-knit sweater standing inside it with three lanyards floating straight up, a tired technician in a rubber apron and goggles at a console with one enormous dial, a worker hurrying toward the console with a hand outstretched, fluorescent green and safety orange palette, halftone grain, every surface bare and unmarked",
+      "choices": [
+        {
+          "id": "let-them-calibrate-pip",
+          "label": "Let the technician calibrate on Pip",
+          "intent": "He volunteered. Technically. Science needs somebody in the ring.",
+          "risk_hint": "Certain outcome. Pip will hum at radio frequencies for a week.",
+          "requires": null,
+          "cost": {
+            "composure": -1
+          },
+          "roll": null,
+          "success": {
+            "text": "The ring hums up to Brisk and back. Pip steps out smiling, faintly luminous, picking up the morning traffic report through his fillings. \"Ninety-one percent!\" he says proudly. The technician thanks you for your cooperation, and your clearance rises.",
+            "effects": {
+              "clearance": 1
+            },
+            "add_flags": ["pip-calibrated"],
+            "remove_flags": [],
+            "grades": {
+              "obedience": 1,
+              "empathy": -2
+            }
+          },
+          "failure": null
+        },
+        {
+          "id": "take-pips-place",
+          "label": "Step into the ring in Pip's place",
+          "intent": "You have Successors. Pip has a sweater.",
+          "risk_hint": "Risky Initiative check. The trick is stepping out before the worried face.",
+          "requires": null,
+          "cost": {
+            "composure": -1
+          },
+          "roll": {
+            "dice_count": 2,
+            "die_sides": 6,
+            "skill": "initiative",
+            "modifier": 0,
+            "target": 9
+          },
+          "success": {
+            "text": "You swap places with Pip and hop out of the ring a half-second before the needle reaches the pencil face. Your hair stands on end for the rest of the day and your mutation rings like a struck bell. Pip insists on carrying your tray for a week.",
+            "effects": {
+              "suspicion": 1
+            },
+            "add_flags": ["overcalibrated"],
+            "remove_flags": [],
+            "grades": {
+              "empathy": 2
+            }
+          },
+          "failure": {
+            "text": "The needle reaches the little worried face with you still inside. There is a cheerful bong. Your Successor arrives that afternoon to a brief memo: you were calibrated so thoroughly that you are now the ring's reference standard, dusted weekly.",
+            "effects": {
+              "successors": -1
+            },
+            "add_flags": ["overcalibrated"],
+            "remove_flags": [],
+            "grades": {
+              "empathy": 2
+            }
+          }
+        },
+        {
+          "id": "cap-the-dial-at-mild",
+          "label": "Jam the dial so it tops out at Mild",
+          "intent": "A pencil in the right gap and Brisk becomes a rumor.",
+          "risk_hint": "Risky Tinkering check. The console was built by Defense.",
+          "requires": null,
+          "cost": {
+            "forms": -1
+          },
+          "roll": {
+            "dice_count": 2,
+            "die_sides": 6,
+            "skill": "tinkering",
+            "modifier": 0,
+            "target": 9
+          },
+          "success": {
+            "text": "You wedge a pencil behind the dial while the technician sneezes. The ring purrs, Pip glows the color of weak tea for an hour, and the readings come out disappointingly safe. The technician files them under REPEAT.",
+            "effects": {
+              "suspicion": 1
+            },
+            "add_flags": ["dialed-down-the-ring"],
+            "remove_flags": [],
+            "grades": {
+              "ingenuity": 2
+            }
+          },
+          "failure": {
+            "text": "The pencil snaps, the dial spins to Brisk, and you and Pip spend the afternoon gently magnetic, collecting paperclips from every desk you pass. The technician files you both under INTERESTING.",
+            "effects": {
+              "suspicion": 2
+            },
+            "add_flags": [],
+            "remove_flags": [],
+            "grades": {
+              "ingenuity": 2
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "the-side-effects-circle",
+      "location_id": "mutation-suite",
+      "title": "The Side-Effects Circle",
+      "flavor_text": "Eight folding chairs, a coffee urn and a ring of mutated employees. A man from Shipping photosynthesizes quietly beside a lamp. A woman from Legal can only speak in dial tone. A nurse in a crisp cap holds the talking stick. \"We go around the circle,\" PAL says, \"and share one thing we are grateful for about our side effects. Then the snacks.\" It is your turn. The snacks are under a glass dome, very far away.",
+      "polarity": "mixed",
+      "tags": ["psych-test", "mutant", "satire"],
+      "weight": 3,
+      "witnessed": true,
+      "art_prompt": "Mid-century safety-manual illustration of a ring of folding chairs in a tiled room, mutated office workers seated in a circle, a man with leafy green skin turned toward a lamp, a woman with small sound ripples drawn at her lips, a smiling nurse in a crisp white cap holding a wooden baton, a worker in the center chair clutching their knees, a distant table of snacks under a glass dome, fluorescent green and oxblood palette, halftone grain, every surface bare and unmarked",
+      "choices": [
+        {
+          "id": "recite-your-gratitude",
+          "label": "Recite something grateful and pass it on",
+          "intent": "Gratitude is cheap, and the snacks are at the end.",
+          "risk_hint": "Certain outcome. The circle will nod in exactly the same rhythm.",
+          "requires": null,
+          "cost": {
+            "composure": -1
+          },
+          "roll": null,
+          "success": {
+            "text": "You say you are grateful your mutation keeps you on your toes. The nurse beams. The circle nods in unison. You reach the snacks first, and they are the paste from next year's menu, shaped like stars.",
+            "effects": {
+              "clearance": 1
+            },
+            "add_flags": ["grateful-for-side-effects"],
+            "remove_flags": [],
+            "grades": {
+              "obedience": 2
+            }
+          },
+          "failure": null
+        },
+        {
+          "id": "admit-you-are-frightened",
+          "label": "Admit that it frightens you",
+          "intent": "Your fingertips shimmer when you are nervous. You are nervous now.",
+          "risk_hint": "Risky Rapport check. Honesty is a circle-wide event.",
+          "requires": null,
+          "cost": {
+            "composure": -1
+          },
+          "roll": {
+            "dice_count": 2,
+            "die_sides": 6,
+            "skill": "rapport",
+            "modifier": 0,
+            "target": 9
+          },
+          "success": {
+            "text": "There is a silence. Then the man from Shipping says, \"Me too,\" and the woman from Legal dials a long, sympathetic note. For the first time anyone can remember, the circle runs over time, and the nurse lets it.",
+            "effects": {
+              "composure": 2
+            },
+            "add_flags": ["joined-the-side-effects-circle"],
+            "remove_flags": [],
+            "grades": {
+              "empathy": 2
+            }
+          },
+          "failure": {
+            "text": "The nurse writes RESISTANCE TO GRATITUDE in her notes and gently passes the stick along. Someone pats your shoulder with a leaf.",
+            "effects": {
+              "suspicion": 1
+            },
+            "add_flags": [],
+            "remove_flags": [],
+            "grades": {
+              "empathy": 2
+            }
+          }
+        },
+        {
+          "id": "ask-who-has-tried-to-leave",
+          "label": "Ask, lightly, who has tried to leave",
+          "intent": "Every support group is also a cell. Find out whose.",
+          "risk_hint": "Risky Discretion check. The nurse is holding the stick and listening.",
+          "requires": null,
+          "cost": {
+            "suspicion": 1
+          },
+          "roll": {
+            "dice_count": 2,
+            "die_sides": 6,
+            "skill": "discretion",
+            "modifier": 0,
+            "target": 9
+          },
+          "success": {
+            "text": "Nobody answers aloud. But when the stick comes back around, a folded slip is taped to it: a meeting time, a duct number and the words GLOW CAUCUS. The woman from Legal dials something that sounds like a wink.",
+            "effects": {
+              "forms": 1
+            },
+            "add_flags": ["glow-caucus-contact"],
+            "remove_flags": [],
+            "grades": {
+              "ingenuity": 1,
+              "spite": 1
+            }
+          },
+          "failure": {
+            "text": "The circle goes very quiet, and the nurse writes your question down word for word. The snacks are removed for a cleaning that has suddenly become necessary.",
+            "effects": {
+              "suspicion": 1
+            },
+            "add_flags": [],
+            "remove_flags": [],
+            "grades": {
+              "ingenuity": 1,
+              "spite": 1
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "form-m-declaration-of-powers",
+      "location_id": "mutation-suite",
+      "title": "Form M: Declaration of Powers",
+      "flavor_text": "Every mutated employee must register by end of shift. Form M asks you to describe your power, list every use of it since Orientation, and tick a box for each coworker it was used on, whether or not they noticed. The last page asks you to rate your power's usefulness to the Company, from Decorative to Strategic. The nurse who hands it over mentions that Strategic powers are invited to meet the Board.",
+      "polarity": "mixed",
+      "tags": ["paperwork", "mutant", "conspiracy"],
+      "weight": 3,
+      "witnessed": false,
+      "art_prompt": "Mid-century safety-manual illustration of a worker at a small steel desk in a tiled room holding a pen over a thick stapled registry form while their other hand shimmers faintly with green light, a smiling nurse in a crisp cap waiting beside an open filing drawer packed with identical forms, bubbling tanks in the background, carbon-paper blue and manila palette, halftone grain, every surface bare and unmarked",
+      "choices": [
+        {
+          "id": "register-honestly",
+          "label": "Register your power honestly",
+          "intent": "The Company already knows. It dealt you the mutation.",
+          "risk_hint": "Routine Compliance check. Form M is twelve pages.",
+          "requires": null,
+          "cost": {
+            "composure": -1
+          },
+          "roll": {
+            "dice_count": 2,
+            "die_sides": 6,
+            "skill": "compliance",
+            "modifier": 0,
+            "target": 7
+          },
+          "success": {
+            "text": "You fill in all twelve pages, ticking each coworker box with a small pang. The nurse files you under Strategic and congratulates you. You have been noticed by somebody very far down.",
+            "effects": {
+              "clearance": 1
+            },
+            "add_flags": ["registered-your-mutation"],
+            "remove_flags": [],
+            "grades": {
+              "obedience": 2
+            }
+          },
+          "failure": {
+            "text": "You miss a box on page seven. The form comes back by tube within the hour, stapled to a second Form M about the first.",
+            "effects": {
+              "suspicion": 1
+            },
+            "add_flags": [],
+            "remove_flags": [],
+            "grades": {
+              "obedience": 2
+            }
+          }
+        },
+        {
+          "id": "declare-a-decoy-power",
+          "label": "Declare something dull, like finding pens",
+          "intent": "Decorative powers are never invited anywhere. Be decorative.",
+          "risk_hint": "Risky Discretion check. The nurse has seen you shimmer.",
+          "requires": null,
+          "cost": {
+            "composure": -1
+          },
+          "roll": {
+            "dice_count": 2,
+            "die_sides": 6,
+            "skill": "discretion",
+            "modifier": 0,
+            "target": 9
+          },
+          "success": {
+            "text": "You declare the ability to always find a working pen. The nurse sighs, stamps you Decorative and hands you a pen, which works. Your real power stays off every list in the building.",
+            "effects": {
+              "forms": 1
+            },
+            "add_flags": ["declared-a-decoy-power"],
+            "remove_flags": [],
+            "grades": {
+              "ingenuity": 1,
+              "spite": 1
+            }
+          },
+          "failure": {
+            "text": "Your fingertips flicker green just as you write the word pens. The nurse crosses it out, writes See Attached, and attaches a technician.",
+            "effects": {
+              "suspicion": 2
+            },
+            "add_flags": [],
+            "remove_flags": [],
+            "grades": {
+              "ingenuity": 1,
+              "spite": 1
+            }
+          }
+        },
+        {
+          "id": "slip-a-blank-to-the-front",
+          "label": "Slip a blank Form M to the Stapler Front",
+          "intent": "The Front collects blank forms. A blank registry is a list of everyone still free.",
+          "risk_hint": "Certain outcome. Missing forms are counted at end of shift.",
+          "requires": {
+            "flag": "stapler-front-contact"
+          },
+          "cost": {
+            "suspicion": 2
+          },
+          "roll": null,
+          "success": {
+            "text": "You fold a blank Form M into a small paper fist and drop it in the recycling. By evening a bent paperclip sits on your desk beside a spare Form, and a dozen mutated employees discover they were never registered at all.",
+            "effects": {
+              "forms": 1,
+              "composure": 1
+            },
+            "add_flags": ["smuggled-the-registry"],
+            "remove_flags": [],
+            "grades": {
+              "spite": 1,
+              "empathy": 1
             }
           },
           "failure": null

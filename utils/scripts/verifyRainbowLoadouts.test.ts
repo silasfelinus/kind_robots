@@ -11,6 +11,7 @@ import {
 } from '../arcade/games/rainbowLoadouts'
 import {
   RAINBOW_DIFFICULTY,
+  RECOVERY_CACHE,
   createRainbowPrincessPreview,
 } from '../arcade/games/rainbowPrincessPreview'
 import { emptyInput } from '../arcade/types'
@@ -283,6 +284,76 @@ for (const [index, act] of [
   assert.equal(game.snapshot.difficulty, 'hard')
 }
 
+// U12 Recovery Cache: a life lost above power 1 drops that power level just ahead for four seconds, for its
+// own pilot alone; flying into it restores the level, and an untouched cache fades.
+{
+  /** Chase the nearest pickup while firing, until power 2; then sit still and fire until a life is lost. */
+  const flyToCache = (game: ReturnType<typeof create>) => {
+    for (let frame = 0; frame < 30000; frame++) {
+      const ship = game.snapshot.ships[0]!
+      const target =
+        ship.power < 2
+          ? [...game.snapshot.pickups]
+              .filter((p) => p.kind === 'power')
+              .sort((p, q) => p.x - q.x)[0]
+          : undefined
+      const held: Partial<InputFrame['held']> = { a: true }
+      if (target) {
+        held.up = target.y < ship.y - 3
+        held.down = target.y > ship.y + 3
+        held.left = target.x < ship.x - 3
+        held.right = target.x > ship.x + 3
+      }
+      const lives = ship.lives
+      const power = ship.power
+      game.update(keys(held))
+      if (game.snapshot.ships[0]!.lives < lives) return power
+    }
+    return 0
+  }
+  const game = create()
+  const before = flyToCache(game)
+  assert.ok(
+    before >= 2,
+    `the pilot powered up (${before}) and then lost a life`,
+  )
+  const after = game.snapshot
+  assert.equal(after.ships[0]!.power, before - 1, 'the life took a power level')
+  assert.equal(after.caches.length, 1, 'and dropped it as a cache')
+  const cache = after.caches[0]!
+  assert.equal(cache.seat, 0)
+  assert.ok(cache.x > after.ships[0]!.x, 'just ahead of the pilot')
+  // Fly into it.
+  for (let i = 0; i < 120 && game.snapshot.caches.length; i++) {
+    const ship = game.snapshot.ships[0]!
+    game.update(
+      keys({
+        right: cache.x > ship.x + 2,
+        left: cache.x < ship.x - 2,
+        down: cache.y > ship.y + 2,
+        up: cache.y < ship.y - 2,
+      }),
+    )
+  }
+  assert.equal(game.snapshot.caches.length, 0)
+  assert.equal(game.snapshot.ships[0]!.power, before, 'the cache restores it')
+
+  // Left alone, it fades after four seconds.
+  const idle = create()
+  flyToCache(idle)
+  assert.equal(idle.snapshot.caches.length, 1)
+  const backward = keys({ left: true })
+  const born = idle.snapshot.caches[0]!.age
+  for (let i = born; i < RECOVERY_CACHE.frames - 1; i++) idle.update(backward)
+  assert.equal(
+    idle.snapshot.caches.length,
+    1,
+    'still there at 4 s less a frame',
+  )
+  idle.update(backward)
+  assert.equal(idle.snapshot.caches.length, 0, 'gone at 4 s')
+}
+
 console.log(
-  `rainbow loadouts: ok (needle/thread/link/arc, pierce and glance, ${RAINBOW_MASTERY.length}-rung ladder, gold medals and saves at 8 Act starts, continue/new menu)`,
+  `rainbow loadouts: ok (needle/thread/link/arc, pierce and glance, ${RAINBOW_MASTERY.length}-rung ladder, gold medals and saves at 8 Act starts, continue/new menu, recovery cache)`,
 )

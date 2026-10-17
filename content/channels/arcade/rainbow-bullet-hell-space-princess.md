@@ -72,8 +72,8 @@ tutorial:
     Each boss hull grows with the crew, and each extra pilot adds more than the first, so four powered-up pilots stacking supers still fight through all three phases. Phases turn at two thirds and one third of the hull. After the first playtest, Act I was recut to about four and three-quarter minutes for a clean solo run: eight dense sections, the Urchin guardian at about a minute and a half, and the Pearl Seahorse before four minutes. Its craft fire more than once, red-finned divers lock your lane and swoop, urchins take a real beating, and coral spires (which shots cannot break) rise from the floor and hang from the ceiling, so you weave between them. Lilt calls out every new section. Beating any guardian early moves the Act straight on. The later Acts still run about ten minutes each and are next in line for the same treatment.
 
     Future campaign
-    Eight Acts are planned in total: Pinkwake, Moonjelly Fields, Chromatic Trench, Rosefin Express, Blossom Wreckyard, Crown Reef, Glass Current and Eclipse Palace, followed by the final confrontation. All eight Acts and the finale are playable today, Act I to THE END; the cinematic ending boards, voice and online co-op are still in production. This is an admin-only rehearsal, not a public leaderboard release.
+    Eight Acts are planned in total: Pinkwake, Moonjelly Fields, Chromatic Trench, Rosefin Express, Blossom Wreckyard, Crown Reef, Glass Current and Eclipse Palace, followed by the final confrontation. The Play page showcases the in-progress flight simulator, with Pinkwake and Moonjelly as the playable preview acts. The remaining acts, cinematic ending boards, voice and online co-op are still in production. This is a public work-in-progress preview, not a completed campaign.
 ---
 
-The pastel starport is a private development page with a real Arcade-powered
-two-Act vertical-slice combat preview. Public release is held for a later quality and approval gate.
+The pastel starport is a public work-in-progress Play page with an Arcade-powered
+two-Act combat preview. The remaining campaign and finishing passes are in development.

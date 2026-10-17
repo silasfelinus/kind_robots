@@ -228,13 +228,27 @@
           >
             <div class="flex items-center justify-between gap-2">
               <span class="kr-text-semibold-sm">02 / Animation look</span>
-              <span class="kr-badge-outline">6 presets</span>
+              <div class="flex items-center gap-1">
+                <span class="kr-badge-outline"
+                  >{{ RESTYLE_STYLES.length }} presets</span
+                >
+                <button
+                  v-if="missingPreviewCount"
+                  type="button"
+                  class="kr-btn-xs btn-outline"
+                  title="Generate all missing previews"
+                  :disabled="store.stylePreviewBusy"
+                  @click="store.queueStylePreviews({ missing: true })"
+                >
+                  Generate missing ({{ missingPreviewCount }})
+                </button>
+              </div>
             </div>
             <p class="kr-text-faded-xs">
               A consistent visual treatment across the original choreography.
             </p>
             <div class="kr-pane-scroll min-h-0 flex-1">
-              <div class="grid grid-cols-2 gap-2">
+              <div class="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-2">
                 <button
                   v-for="look in RESTYLE_STYLES"
                   :key="look.id"
@@ -249,12 +263,25 @@
                   @click="style = look.id"
                 >
                   <span
-                    class="relative block aspect-[5/3] overflow-hidden bg-gradient-to-br"
+                    class="relative block aspect-[7/9] overflow-hidden bg-gradient-to-br"
                     :class="look.tone"
                   >
+                    <img
+                      v-if="store.stylePreviews[look.id]?.imageUrl"
+                      :src="store.stylePreviews[look.id]!.imageUrl!"
+                      :alt="`${look.label} style preview`"
+                      loading="lazy"
+                      class="absolute inset-0 h-full w-full object-cover"
+                    />
                     <span
+                      v-else
                       class="absolute inset-0 grid place-items-center text-5xl font-light text-base-content/80"
                       >✦</span
+                    >
+                    <span
+                      v-if="previewBadge(look.id)"
+                      class="absolute left-1 top-1 rounded-full bg-base-100/85 px-1.5 py-0.5 text-[10px] font-semibold"
+                      >{{ previewBadge(look.id) }}</span
                     >
                     <span
                       v-if="style === look.id"
@@ -274,6 +301,44 @@
                 </button>
               </div>
             </div>
+            <div
+              class="flex flex-wrap items-center justify-between gap-2 border-t border-base-300 pt-2 text-xs"
+            >
+              <span class="min-w-0 flex-1 truncate">
+                <strong>{{ labelFor(style) }}</strong>
+                · {{ previewStateLabel(selectedPreview?.state) }}
+                <NuxtLink
+                  v-if="selectedPreview?.artJobId"
+                  :to="{
+                    path: '/artjob',
+                    query: { jobId: selectedPreview.artJobId },
+                  }"
+                  class="font-semibold text-primary hover:underline"
+                >
+                  ArtJob #{{ selectedPreview.artJobId }}
+                </NuxtLink>
+              </span>
+              <button
+                type="button"
+                class="kr-btn-xs btn-outline"
+                :disabled="store.stylePreviewBusy || previewActive"
+                @click="
+                  store.queueStylePreviews({
+                    styleIds: [style],
+                    force: Boolean(selectedPreview?.imageUrl),
+                  })
+                "
+              >
+                {{
+                  selectedPreview?.imageUrl
+                    ? 'Regenerate preview'
+                    : 'Generate preview'
+                }}
+              </button>
+            </div>
+            <p v-if="store.stylePreviewError" class="text-xs text-error">
+              {{ store.stylePreviewError }}
+            </p>
             <div
               class="flex items-center justify-between gap-2 border-t border-base-300 pt-2"
             >
@@ -630,6 +695,7 @@ import {
   RESTYLE_MAX_DURATION_SEC,
   RESTYLE_STYLES,
   formatRestyleTime,
+  type RestylePreviewState,
   type RestyleQuality,
   type RestyleStyleId,
 } from '@/utils/videoRestylePlan'
@@ -674,6 +740,35 @@ const canStage = computed(() =>
     durationSec.value <= RESTYLE_MAX_DURATION_SEC,
   ),
 )
+
+const selectedPreview = computed(() => store.stylePreviews[style.value])
+const previewActive = computed(() =>
+  ['QUEUED', 'RENDERING'].includes(selectedPreview.value?.state ?? ''),
+)
+const missingPreviewCount = computed(
+  () =>
+    RESTYLE_STYLES.filter((look) => !store.stylePreviews[look.id]?.imageUrl)
+      .length,
+)
+
+function previewStateLabel(state?: RestylePreviewState): string {
+  return {
+    MISSING: 'No preview yet',
+    QUEUED: 'Preview queued',
+    RENDERING: 'Preview rendering',
+    READY: 'Preview ready',
+    FAILED: 'Preview failed',
+  }[state ?? 'MISSING']
+}
+
+function previewBadge(value: RestyleStyleId): string {
+  const preview = store.stylePreviews[value]
+  if (!preview || preview.state === 'MISSING') return ''
+  if (preview.state === 'QUEUED') return 'Queued'
+  if (preview.state === 'RENDERING') return 'Rendering'
+  if (preview.state === 'FAILED') return 'Failed'
+  return preview.stale ? 'Prompt changed' : ''
+}
 
 function labelFor(value: RestyleStyleId): string {
   return RESTYLE_STYLES.find((entry) => entry.id === value)?.label || value
@@ -800,12 +895,19 @@ let refreshTimer: ReturnType<typeof setInterval> | null = null
 onMounted(async () => {
   await userStore.initialize()
   if (userStore.isAdmin) {
-    await store.refresh()
+    await Promise.all([store.refresh(), store.loadStylePreviews()])
     if (store.selected) selectJob(store.selected)
   }
   ready.value = true
   if (userStore.isAdmin) {
     refreshTimer = setInterval(() => {
+      if (
+        Object.values(store.stylePreviews).some((preview) =>
+          ['QUEUED', 'RENDERING'].includes(preview?.state ?? ''),
+        )
+      ) {
+        void store.loadStylePreviews()
+      }
       if (
         store.jobs.some((job) =>
           [

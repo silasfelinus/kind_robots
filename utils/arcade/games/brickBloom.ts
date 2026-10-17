@@ -60,6 +60,15 @@ import {
 } from '../brickBloom/rules'
 import type { Bed } from '../brickBloom/rules'
 import {
+  miteGone,
+  miteHit,
+  mitesHatch,
+  popMite,
+  spawnMiteLine,
+  stepMite,
+} from '../brickBloom/mites'
+import type { Mite, MiteLine } from '../brickBloom/mites'
+import {
   HOUSES,
   HOUSE_LEGEND,
   TOUR_START,
@@ -701,6 +710,8 @@ class BrickBloom implements ArcadeGameInstance {
   private balls: Ball[] = []
   private drops: Drop[] = []
   private puffs: Puff[] = []
+  /** The Seedling House's pollen mites: a line of three swaying down from the roof vents. */
+  private miteLine: MiteLine | null = null
   private flowers: Flower[] = []
   private speed = 0
   /** The Grand Tour's place (Seedling House, Vine Hall), or null once the tour is over. */
@@ -771,6 +782,10 @@ class BrickBloom implements ArcadeGameInstance {
         pick.kind = 'bolt'
       }
     }
+    this.miteLine =
+      vented && this.tour && mitesHatch(this.tour.house, vented.id)
+        ? spawnMiteLine(W / 2 + (this.rng() - 0.5) * 80)
+        : null
     this.puffs = []
     const puffs = Math.max(0, Math.round(levelCurve(stage, BLOOM_CURVES.puffs)))
     for (let i = 0; i < puffs; i++) {
@@ -872,6 +887,7 @@ class BrickBloom implements ArcadeGameInstance {
     this.updateRain()
     this.updateRush()
     this.updatePuffs()
+    this.updateMites()
     for (const b of this.bricks) if (b.flash > 0) b.flash--
     if (!this.bricks.some((b) => !b.bolt)) this.stageClear()
   }
@@ -1148,6 +1164,47 @@ class BrickBloom implements ArcadeGameInstance {
       ball.vy = -Math.abs(Math.sin(a) * s) - 0.4
       this.hitPuff(puff)
     }
+    const line = this.miteLine
+    if (line) {
+      for (const mite of [...line.mites]) {
+        if (miteHit(mite, ball.x, ball.y)) this.popPollenMite(line, mite)
+      }
+    }
+  }
+
+  private updateMites() {
+    const line = this.miteLine
+    if (!line) return
+    for (const m of line.mites) stepMite(m, this.tick)
+    line.mites = line.mites.filter((m) => !miteGone(m))
+    if (line.mites.length === 0) this.miteLine = null
+  }
+
+  private popPollenMite(line: MiteLine, mite: Mite) {
+    const score = popMite(line, mite, this.level)
+    this.addScore(score, mite.x, mite.y - 8)
+    this.burst(mite.x, mite.y, 8, '#fde047')
+    this.sound.play('pop')
+    if (line.popped === line.total) this.miteLine = null
+  }
+
+  private renderMite(g: CanvasRenderingContext2D, m: Mite) {
+    const x = Math.round(m.x)
+    const y = Math.round(m.y)
+    const flap = Math.floor(this.tick / 6) % 2
+    glow(g, x, y, 8, '#fde047', 0.3)
+    g.fillStyle = INK
+    g.fillRect(x - 4, y - 3, 8, 7)
+    g.fillStyle = '#fde047'
+    g.fillRect(x - 3, y - 2, 6, 5)
+    g.fillStyle = '#fef9c3'
+    g.fillRect(x - 3, y - 2, 6, 1)
+    g.fillStyle = INK
+    g.fillRect(x - 2, y - 1, 1, 1)
+    g.fillRect(x + 1, y - 1, 1, 1)
+    g.fillStyle = '#ffffff'
+    g.fillRect(x - 6, y - 4 + flap * 2, 2, 2)
+    g.fillRect(x + 4, y - 4 + flap * 2, 2, 2)
   }
 
   /** The Thorn Ball goes straight through a crate: it breaks outright and the ball flies on. */
@@ -1573,6 +1630,8 @@ class BrickBloom implements ArcadeGameInstance {
     }
     if (this.bumble) this.renderBumble(g, this.bumble)
     for (const p of this.puffs) this.renderPuff(g, p)
+    if (this.miteLine)
+      for (const m of this.miteLine.mites) this.renderMite(g, m)
     for (const d of this.drops) this.renderDrop(g, d)
     this.renderPaddle(g)
     for (const ball of this.balls) this.renderBall(g, ball)

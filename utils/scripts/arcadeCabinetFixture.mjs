@@ -245,9 +245,25 @@ export function rainbowRun(page) {
   })
 }
 
-/** Press Start and wait until a Rainbow run has played its first half second. */
+/**
+ * Press Start, launch through the pilot select with the defaults (A after its beat, the way a player
+ * does), and wait until a Rainbow run has played its first half second.
+ */
 export async function startRainbowRun(page) {
   await page.keyboard.press('Enter')
+  await page.waitForFunction(() =>
+    (window.__games ?? []).some((entry) => !entry.demo),
+  )
+  if (
+    await page.evaluate(
+      () =>
+        (window.__games ?? []).filter((entry) => !entry.demo).at(-1)?.game
+          .snapshot.selectMenu,
+    )
+  ) {
+    await wait(500)
+    await page.keyboard.press('KeyZ')
+  }
   await page.waitForFunction(() =>
     (window.__games ?? []).some(
       (entry) => !entry.demo && entry.game.snapshot.tick > 30,

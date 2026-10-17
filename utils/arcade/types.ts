@@ -150,6 +150,11 @@ export type ArcadeGameOptions = {
    * that scales its score by difficulty keeps one leaderboard fair across levels.
    */
   difficulty?: ArcadeDifficulty
+  /**
+   * Open with the game's own pilot / difficulty select, for a game that has one. The cabinet sets it for
+   * a real game; demos, replays and headless tests leave it off and start flying at once.
+   */
+  selectScreen?: boolean
 }
 
 /** The three difficulty levels a cabinet can offer. */

@@ -128,7 +128,7 @@ assert.throws(
   () => regionForIncident({ ...aqueduct, outwardHours: 5 }),
   /invalid map route/,
 )
-const courtPage = readFileSync('pages/admin/emperor-of-dust.vue', 'utf8')
+const courtPage = readFileSync('pages/play/emperor-of-dust.vue', 'utf8')
 const courtHelp = readFileSync(
   'content/channels/zuzu/emperor-of-dust.md',
   'utf8',
@@ -155,6 +155,8 @@ assert.match(
 assert.match(courtPage, /<EmperorOfDustRelicVault \/>/)
 assert.match(courtPage, /\bkr-scroll min-h-0 flex-1\b/)
 assert.match(courtHelp, /Each view scrolls inside its own bounded court stage/)
+assert.match(courtHelp, /Work in progress/)
+assert.doesNotMatch(courtHelp, /requiredRole: ADMIN/)
 assert.doesNotMatch(
   courtPage,
   /space-y-6 px-3 py-5/,

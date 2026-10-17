@@ -3956,25 +3956,34 @@ export function createRainbowPrincessPreview(
         if (reef.kind === 'captive') {
           g.save()
           g.translate(reef.x, reef.y)
-          if (reef.freed) g.globalAlpha = 0.85
-          g.fillStyle = reef.freed ? '#fff0fa' : '#b9b3cf'
-          g.strokeStyle = reef.freed ? '#ff9fd8' : '#5a4a7a'
-          g.lineWidth = 2
-          g.beginPath()
-          g.ellipse(0, 0, 20, 11, 0, 0, Math.PI * 2)
-          g.fill()
-          g.stroke()
-          g.beginPath()
-          g.moveTo(17, 0)
-          g.lineTo(28, -8)
-          g.lineTo(28, 8)
-          g.closePath()
-          g.fill()
-          g.stroke()
-          g.fillStyle = '#1b163e'
-          g.beginPath()
-          g.arc(-11, -2, 2, 0, Math.PI * 2)
-          g.fill()
+          if (reef.freed) {
+            // A freed captive glows as it lifts away.
+            g.globalAlpha = 0.85
+            g.shadowColor = '#ff9fd8'
+            g.shadowBlur = 14
+          }
+          // The painted hull when it has loaded; until then a simple whale shape.
+          if (!drawRainbowEnemySprite(g, 'captive', 1400)) {
+            g.fillStyle = reef.freed ? '#fff0fa' : '#b9b3cf'
+            g.strokeStyle = reef.freed ? '#ff9fd8' : '#5a4a7a'
+            g.lineWidth = 2
+            g.beginPath()
+            g.ellipse(0, 0, 20, 11, 0, 0, Math.PI * 2)
+            g.fill()
+            g.stroke()
+            g.beginPath()
+            g.moveTo(17, 0)
+            g.lineTo(28, -8)
+            g.lineTo(28, 8)
+            g.closePath()
+            g.fill()
+            g.stroke()
+            g.fillStyle = '#1b163e'
+            g.beginPath()
+            g.arc(-11, -2, 2, 0, Math.PI * 2)
+            g.fill()
+          }
+          g.shadowBlur = 0
           if (!reef.freed) {
             // The chain up to the collar, and the collar itself: the only part to shoot.
             g.strokeStyle = '#8a7aa8'

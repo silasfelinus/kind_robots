@@ -117,6 +117,11 @@ export const RAINBOW_ACT_SEVEN_ENEMY_SPRITES = [
   'harbinger',
   'squid',
 ] as const
+/**
+ * Act VIII's captive whale hull (round-31 Kontext 247998, the round-30 247968 look without its collar): the engine
+ * draws the chain and collar over it, since only the collar takes damage.
+ */
+export const RAINBOW_ACT_EIGHT_ENEMY_SPRITES = ['captive'] as const
 
 export function rainbowEnemySprite(kind: string): string | null {
   return [
@@ -126,6 +131,7 @@ export function rainbowEnemySprite(kind: string): string | null {
     ...RAINBOW_ACT_FIVE_ENEMY_SPRITES,
     ...RAINBOW_ACT_SIX_ENEMY_SPRITES,
     ...RAINBOW_ACT_SEVEN_ENEMY_SPRITES,
+    ...RAINBOW_ACT_EIGHT_ENEMY_SPRITES,
   ].some((name) => name === kind)
     ? `${RAINBOW_GAME_ART_ROOT}/enemies/${kind}.webp`
     : null
@@ -147,7 +153,8 @@ export function drawRainbowEnemySprite(
 /**
  * Painted mid-Act guardians (round-24 Kontext: 247858 armoured urchin, 247860 lantern; round 25: 247876
  * armoured clawstrike with its cannon claw; round 26: 247895 rose-gold courier and 247897 armoured salvager;
- * round 27: 247946 nautilus bulwark; round 29: 247964 silver mirror eel),
+ * round 27: 247946 nautilus bulwark; round 29: 247964 silver mirror eel; round 31: 248008 crowned herald
+ * warship),
  * keyed at 256 px so they stay crisp at guardian size; until they load the engine scales up the scout sprite
  * instead.
  */
@@ -159,6 +166,7 @@ export const RAINBOW_GUARDIAN_SPRITES = [
   'salvager',
   'bulwark',
   'mirror',
+  'herald',
 ] as const
 
 export function rainbowGuardianSprite(kind: string): string | null {

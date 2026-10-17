@@ -72,9 +72,60 @@
             {{ store.syncing ? 'Retrying…' : 'Retry ArtJob registration' }}
           </button>
         </div>
+        <div
+          class="flex min-w-0 shrink-0 items-center gap-2 rounded-xl border border-base-300 bg-base-100 px-2 py-1.5 text-xs"
+        >
+          <label for="restyle-current-project" class="shrink-0 font-semibold"
+            >Project</label
+          >
+          <select
+            id="restyle-current-project"
+            class="select select-bordered select-sm min-w-0 flex-1"
+            aria-label="Current video restyle project"
+            :value="store.selectedId ?? ''"
+            @change="selectJobFromPicker"
+          >
+            <option value="" disabled>
+              {{
+                store.jobs.length ? 'Choose a project' : 'No saved videos yet'
+              }}
+            </option>
+            <option v-for="job in store.jobs" :key="job.id" :value="job.id">
+              {{ job.title }} · {{ labelFor(job.style) }} ·
+              {{ statusLabel(job.status) }}
+            </option>
+          </select>
+          <button
+            type="button"
+            class="kr-btn-xs btn-outline shrink-0"
+            @click="activePanel = 'library'"
+          >
+            {{ store.selected ? 'View video' : 'Upload video' }}
+          </button>
+        </div>
+        <div
+          v-if="
+            store.selected &&
+            (store.selected.full
+              ? !store.selected.full.artJobId
+              : store.selected.pilot && !store.selected.pilot.artJobId)
+          "
+          class="flex shrink-0 items-center justify-between gap-2 rounded-lg border border-warning/30 bg-base-100 p-2 text-xs"
+          role="status"
+        >
+          <span>Saved project needs an ArtJob queue link.</span>
+          <button
+            type="button"
+            class="kr-btn-outline-xs"
+            :disabled="store.syncing"
+            @click="store.refresh()"
+          >
+            {{ store.syncing ? 'Registering…' : 'Register in ArtJob' }}
+          </button>
+        </div>
         <nav
-          class="grid grid-cols-3 gap-1 rounded-xl bg-base-200 p-1 lg:hidden"
-          aria-label="Studio panels"
+          class="grid grid-cols-2 gap-1 rounded-xl bg-base-200 p-1"
+          aria-label="Studio views"
         >
           <button
             v-for="panel in panels"
@@ -88,11 +139,16 @@
           </button>
         </nav>
         <div
-          class="kr-panes min-h-0 flex-1 gap-2 overflow-hidden sm:gap-3 lg:grid-cols-[minmax(0,1.35fr)_minmax(15rem,0.85fr)_minmax(14rem,0.7fr)]"
+          class="kr-panes min-h-0 flex-1 gap-2 overflow-hidden sm:gap-3"
+          :class="
+            activePanel === 'studio'
+              ? 'lg:grid-cols-1'
+              : 'lg:grid-cols-[minmax(0,1.35fr)_minmax(16rem,0.75fr)]'
+          "
         >
           <section
-            :class="activePanel === 'source' ? 'flex' : 'hidden lg:flex'"
-            class="kr-panel min-h-0 flex-col gap-3 overflow-hidden p-3 lg:flex"
+            :class="activePanel === 'library' ? 'flex' : 'hidden'"
+            class="kr-panel min-h-0 flex-col gap-2 overflow-hidden p-2 sm:p-3"
             aria-label="Source performance"
           >
             <div class="flex items-center justify-between">
@@ -111,7 +167,7 @@
                 playsinline
                 preload="metadata"
                 class="max-h-full w-full object-contain"
-                aria-label="Source video preview"
+                aria-label="Video playback preview"
                 @loadedmetadata="readVideoMetadata"
               />
               <template v-else>
@@ -157,13 +213,61 @@
                 </div>
               </template>
             </div>
+            <div
+              v-if="store.selected && !sourceFile"
+              class="flex shrink-0 flex-wrap gap-1"
+              aria-label="Available video versions"
+            >
+              <button
+                type="button"
+                class="kr-btn-xs btn-outline"
+                :disabled="store.sourceBusy"
+                @click="store.loadSourcePreview(store.selected.id)"
+              >
+                Original source
+              </button>
+              <button
+                v-if="store.selected.status === 'REVIEW' || store.selected.full"
+                type="button"
+                class="kr-btn-xs btn-outline"
+                :disabled="store.sourceBusy"
+                @click="showPilot()"
+              >
+                Animated pilot
+              </button>
+              <button
+                v-if="store.selected.pilot?.previousRevision"
+                type="button"
+                class="kr-btn-xs btn-outline"
+                :disabled="store.sourceBusy"
+                @click="showPilot(true)"
+              >
+                Previous pilot
+              </button>
+              <button
+                v-if="store.selected.status === 'DONE' && store.selected.full"
+                type="button"
+                class="kr-btn-xs btn-primary"
+                :disabled="store.sourceBusy"
+                @click="showFull"
+              >
+                Full film
+              </button>
+            </div>
             <div class="grid gap-2 sm:grid-cols-[1fr_auto]">
               <label class="min-w-0">
-                <span class="kr-text-faded-xs block">Project title</span>
+                <span class="kr-text-faded-xs block">
+                  {{
+                    store.selected && !sourceFile
+                      ? 'Saved project'
+                      : 'New project title'
+                  }}
+                </span>
                 <input
                   v-model="title"
                   type="text"
                   class="kr-input w-full"
+                  :readonly="Boolean(store.selected && !sourceFile)"
                   maxlength="120"
                   placeholder="Coat Dance / original performance"
                   aria-label="Project title"
@@ -222,8 +326,8 @@
           </section>
 
           <section
-            :class="activePanel === 'style' ? 'flex' : 'hidden lg:flex'"
-            class="kr-panel min-h-0 flex-col gap-2 overflow-hidden p-3 lg:flex"
+            :class="activePanel === 'studio' ? 'flex' : 'hidden'"
+            class="kr-panel min-h-0 flex-col gap-2 overflow-hidden p-2 sm:p-3"
             aria-label="Animation style presets"
           >
             <div class="flex items-center justify-between gap-2">
@@ -244,11 +348,10 @@
                 </button>
               </div>
             </div>
-            <p class="kr-text-faded-xs">
-              A consistent visual treatment across the original choreography.
-            </p>
             <div class="kr-pane-scroll min-h-0 flex-1">
-              <div class="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-2">
+              <div
+                class="grid grid-cols-3 gap-1.5 sm:grid-cols-4 lg:grid-cols-6 xl:grid-cols-7"
+              >
                 <button
                   v-for="look in RESTYLE_STYLES"
                   :key="look.id"
@@ -263,7 +366,7 @@
                   @click="style = look.id"
                 >
                   <span
-                    class="relative block aspect-[7/9] overflow-hidden bg-gradient-to-br"
+                    class="relative block aspect-[4/5] overflow-hidden bg-gradient-to-br"
                     :class="look.tone"
                   >
                     <img
@@ -290,11 +393,11 @@
                       <icon name="kind-icon:check" class="h-3 w-3" />
                     </span>
                   </span>
-                  <span class="block px-2 py-1.5">
-                    <span class="block text-xs font-bold">{{
+                  <span class="block px-1.5 py-1">
+                    <span class="block truncate text-[11px] font-bold">{{
                       look.label
                     }}</span>
-                    <span class="block text-[10px] opacity-65">{{
+                    <span class="block truncate text-[10px] opacity-65">{{
                       look.note
                     }}</span>
                   </span>
@@ -339,97 +442,240 @@
             <p v-if="store.stylePreviewError" class="text-xs text-error">
               {{ store.stylePreviewError }}
             </p>
-            <div
-              class="flex items-center justify-between gap-2 border-t border-base-300 pt-2"
+            <details
+              class="shrink-0 rounded-xl border border-base-300 bg-base-100 px-2 py-1 text-xs"
             >
-              <span class="kr-text-semibold-sm">Output quality</span>
-              <div class="flex gap-1">
-                <button
-                  v-for="value in qualityOptions"
-                  :key="value"
-                  type="button"
-                  class="kr-btn-xs"
-                  :class="quality === value ? 'btn-primary' : 'btn-outline'"
-                  :aria-pressed="quality === value"
-                  @click="quality = value"
+              <summary class="cursor-pointer font-semibold">
+                Render settings · {{ quality }} ·
+                {{ isPrivate ? 'Private' : 'Release candidate'
+                }}{{ isMature ? ' · Mature' : '' }}
+              </summary>
+              <div class="space-y-2 pt-2">
+                <div
+                  class="flex items-center justify-between gap-2 border-t border-base-300 pt-2"
                 >
-                  {{ value }}
+                  <span class="kr-text-semibold-sm">Output quality</span>
+                  <div class="flex gap-1">
+                    <button
+                      v-for="value in qualityOptions"
+                      :key="value"
+                      type="button"
+                      class="kr-btn-xs"
+                      :class="quality === value ? 'btn-primary' : 'btn-outline'"
+                      :aria-pressed="quality === value"
+                      @click="quality = value"
+                    >
+                      {{ value }}
+                    </button>
+                  </div>
+                </div>
+                <p class="kr-text-faded-xs">
+                  Looks are prompt-guided Wan VACE treatments. 1080p is upscaled
+                  after assembly.
+                </p>
+                <div
+                  class="space-y-2 rounded-xl border border-base-300 bg-base-200/70 p-2 text-xs"
+                >
+                  <label class="flex cursor-pointer items-center gap-2">
+                    <input
+                      v-model="isPrivate"
+                      type="checkbox"
+                      class="checkbox checkbox-sm"
+                    />
+                    <span
+                      ><strong>Keep private</strong> · saved for a later release
+                      choice</span
+                    >
+                  </label>
+                  <label class="flex cursor-pointer items-center gap-2">
+                    <input
+                      v-model="isMature"
+                      type="checkbox"
+                      class="checkbox checkbox-sm"
+                    />
+                    <span
+                      ><strong>Mature content</strong> · mark this video
+                      appropriately</span
+                    >
+                  </label>
+                  <p class="text-base-content/70">
+                    All source videos and pilots stay access-controlled, even
+                    when marked as candidates for future publication.
+                  </p>
+                </div>
+              </div>
+            </details>
+            <div
+              class="shrink-0 space-y-2 rounded-xl border border-primary/30 bg-base-200/60 p-2"
+              aria-label="Selected look and next render"
+            >
+              <div
+                class="flex flex-wrap items-baseline justify-between gap-x-2 text-xs"
+              >
+                <span>
+                  <strong>Selected look: {{ labelFor(style) }}</strong>
+                  <span v-if="sourceFile" class="opacity-70">
+                    · New upload</span
+                  >
+                  <span v-else-if="store.selected" class="opacity-70">
+                    · {{ store.selected.title }}</span
+                  >
+                </span>
+                <span v-if="store.selected" class="opacity-70">{{
+                  statusLabel(store.selected.status)
+                }}</span>
+              </div>
+              <p v-if="sourceFile" class="text-xs text-base-content/80">
+                New source selected. Prepare it with
+                {{ labelFor(style) }} before generating.
+              </p>
+              <p
+                v-else-if="store.selected && lookChanged"
+                class="text-xs text-base-content/80"
+                role="status"
+              >
+                {{
+                  store.selected.status === 'STAGED'
+                    ? 'Unsaved choices. Save this look before rendering this project.'
+                    : `New version selected. Your existing ${labelFor(store.selected.style)} project stays unchanged until you create another project.`
+                }}
+              </p>
+              <p
+                v-else-if="store.selected"
+                class="text-xs text-base-content/70"
+              >
+                Matches the saved {{ labelFor(store.selected.style) }} project.
+                Render actions use this look.
+              </p>
+              <p v-else class="text-xs text-base-content/70">
+                Upload a video in Library to create a project.
+              </p>
+              <div class="flex flex-wrap gap-2">
+                <button
+                  v-if="sourceFile"
+                  type="button"
+                  class="kr-btn kr-btn-primary flex-1"
+                  :disabled="!canStage || store.busy"
+                  @click="stage"
+                >
+                  {{ store.busy ? 'Uploading…' : 'Upload & prepare this look' }}
+                </button>
+                <button
+                  v-if="
+                    store.selected &&
+                    !sourceFile &&
+                    store.selected.status === 'STAGED' &&
+                    lookChanged
+                  "
+                  type="button"
+                  class="kr-btn kr-btn-primary flex-1"
+                  :disabled="store.busy"
+                  @click="saveLook"
+                >
+                  {{ store.busy ? 'Saving…' : 'Save look to this project' }}
+                </button>
+                <button
+                  v-if="
+                    store.selected &&
+                    !sourceFile &&
+                    (lookChanged || store.selected.status !== 'STAGED')
+                  "
+                  type="button"
+                  class="kr-btn btn-outline flex-1"
+                  :disabled="store.busy"
+                  @click="createVariant"
+                >
+                  {{
+                    store.busy
+                      ? 'Creating…'
+                      : 'New style project from saved video'
+                  }}
+                </button>
+                <button
+                  v-if="
+                    store.selected &&
+                    !sourceFile &&
+                    !lookChanged &&
+                    [
+                      'STAGED',
+                      'PILOT_BLOCKED',
+                      'PILOT_FAILED',
+                      'REVIEW',
+                    ].includes(store.selected.status)
+                  "
+                  type="button"
+                  class="kr-btn kr-btn-primary flex-1"
+                  :disabled="store.busy"
+                  @click="
+                    store.selected.status === 'PILOT_FAILED'
+                      ? store.retryPilot(store.selected.id)
+                      : store.queuePilot(store.selected.id)
+                  "
+                >
+                  {{
+                    store.busy
+                      ? 'Queueing…'
+                      : store.selected.status === 'PILOT_FAILED'
+                        ? 'Retry pilot in the same ArtJob'
+                        : store.selected.status === 'REVIEW'
+                          ? 'Render improved continuity pilot'
+                          : 'Render 24-second pilot'
+                  }}
+                </button>
+                <button
+                  v-if="
+                    store.selected &&
+                    !lookChanged &&
+                    store.selected.status === 'REVIEW' &&
+                    !store.selected.full
+                  "
+                  type="button"
+                  class="kr-btn kr-btn-primary flex-1"
+                  :disabled="store.busy"
+                  @click="store.queueFull(store.selected.id)"
+                >
+                  {{
+                    store.busy
+                      ? 'Queueing…'
+                      : `Render full ${formatRestyleTime(store.selected.sourceDurationSec)} film`
+                  }}
+                </button>
+                <button
+                  v-if="
+                    store.selected &&
+                    !lookChanged &&
+                    store.selected.status === 'FULL_FAILED'
+                  "
+                  type="button"
+                  class="kr-btn kr-btn-primary flex-1"
+                  :disabled="store.busy"
+                  @click="store.retryFull(store.selected.id)"
+                >
+                  {{
+                    store.busy
+                      ? 'Queueing…'
+                      : 'Resume full film using saved windows'
+                  }}
+                </button>
+                <button
+                  v-if="
+                    store.selected &&
+                    (store.selected.status === 'REVIEW' ||
+                      store.selected.status === 'DONE')
+                  "
+                  type="button"
+                  class="kr-btn btn-outline flex-1"
+                  @click="activePanel = 'library'"
+                >
+                  View results
                 </button>
               </div>
             </div>
-            <p class="kr-text-faded-xs">
-              Looks are prompt-guided Wan VACE treatments. 1080p is upscaled
-              after assembly.
-            </p>
-            <div
-              class="space-y-2 rounded-xl border border-base-300 bg-base-200/70 p-2 text-xs"
-            >
-              <label class="flex cursor-pointer items-center gap-2">
-                <input
-                  v-model="isPrivate"
-                  type="checkbox"
-                  class="checkbox checkbox-sm"
-                />
-                <span
-                  ><strong>Keep private</strong> · saved for a later release
-                  choice</span
-                >
-              </label>
-              <label class="flex cursor-pointer items-center gap-2">
-                <input
-                  v-model="isMature"
-                  type="checkbox"
-                  class="checkbox checkbox-sm"
-                />
-                <span
-                  ><strong>Mature content</strong> · mark this video
-                  appropriately</span
-                >
-              </label>
-              <p class="text-base-content/70">
-                All source videos and pilots stay access-controlled, even when
-                marked as candidates for future publication.
-              </p>
-            </div>
-            <button
-              v-if="
-                store.selected &&
-                !sourceFile &&
-                store.selected.status === 'STAGED'
-              "
-              type="button"
-              class="kr-btn kr-btn-primary w-full"
-              :disabled="store.busy || !lookChanged"
-              @click="saveLook"
-            >
-              {{
-                store.busy
-                  ? 'Saving…'
-                  : lookChanged
-                    ? 'Save look to this project'
-                    : 'Look saved'
-              }}
-            </button>
-            <button
-              v-if="store.selected && !sourceFile"
-              type="button"
-              class="kr-btn btn-outline w-full"
-              :disabled="store.busy"
-              @click="createVariant"
-            >
-              {{
-                store.busy ? 'Creating…' : 'New style project from saved video'
-              }}
-            </button>
-            <p v-if="store.selected && !sourceFile" class="kr-text-faded-xs">
-              Creates an independent project without uploading again or altering
-              the current pilot.
-            </p>
           </section>
 
           <section
-            :class="activePanel === 'jobs' ? 'flex' : 'hidden lg:flex'"
-            class="kr-panel min-h-0 flex-col gap-2 overflow-hidden p-2 sm:p-3 lg:flex"
+            :class="activePanel === 'library' ? 'hidden lg:flex' : 'hidden'"
+            class="kr-panel min-h-0 flex-col gap-2 overflow-hidden p-2 sm:p-3"
             aria-label="Saved render projects"
           >
             <div class="flex items-center justify-between gap-2">
@@ -444,7 +690,7 @@
               </button>
             </div>
             <div
-              class="kr-pane-scroll min-h-0 max-h-[29vh] shrink-0 space-y-1 sm:max-h-[36vh] lg:max-h-none lg:flex-1"
+              class="kr-pane-scroll min-h-0 max-h-[29vh] shrink-0 space-y-1 sm:max-h-[36vh] lg:max-h-[40%]"
             >
               <p
                 v-if="!store.jobs.length"
@@ -485,7 +731,6 @@
                     · Publication candidate</span
                   >
                 </span>
-                >
                 <span class="mt-1 block text-[10px] opacity-60">{{
                   new Date(job.createdAt).toLocaleDateString()
                 }}</span>
@@ -493,21 +738,17 @@
             </div>
             <div
               v-if="store.selected"
-              class="kr-pane-scroll min-h-0 flex-1 space-y-2 border-t border-base-300 pt-2 text-xs"
+              class="min-h-0 shrink-0 space-y-2 border-t border-base-300 pt-2 text-xs"
             >
-              <p class="font-bold">Saved render plan</p>
-              <p class="text-base-content/70 sm:hidden">
-                {{ store.selected.segments.length }} windows ·
-                {{ store.selected.quality }} target
-              </p>
-              <div class="hidden grid-cols-2 gap-2 sm:grid">
-                <span class="rounded-lg bg-base-200 p-2"
-                  >{{ store.selected.segments.length }} motion windows</span
-                >
-                <span class="rounded-lg bg-base-200 p-2"
-                  >{{ store.selected.quality }} target</span
-                >
+              <div class="flex items-center justify-between gap-2">
+                <strong>{{ store.selected.title }}</strong>
+                <span>{{ statusLabel(store.selected.status) }}</span>
               </div>
+              <p class="text-base-content/70">
+                {{ labelFor(store.selected.style) }} ·
+                {{ store.selected.quality }} ·
+                {{ formatRestyleTime(store.selected.sourceDurationSec) }}
+              </p>
               <div class="h-1.5 overflow-hidden rounded-full bg-base-300">
                 <div
                   class="h-full bg-primary"
@@ -515,6 +756,19 @@
                 />
               </div>
               <p class="text-base-content/70">{{ store.selected.stage }}</p>
+              <p
+                v-if="store.selected.full || store.selected.pilot"
+                class="text-base-content/70"
+              >
+                {{
+                  store.selected.full?.completedSegments ??
+                  store.selected.pilot?.completedSegments
+                }}/{{
+                  store.selected.full?.totalSegments ??
+                  store.selected.pilot?.totalSegments
+                }}
+                completed windows · {{ Math.round(store.selected.progress) }}%
+              </p>
               <NuxtLink
                 v-if="
                   store.selected.full?.artJobId ||
@@ -528,142 +782,54 @@
                       store.selected.pilot?.artJobId,
                   },
                 }"
-                class="inline-flex items-center gap-1 font-semibold text-primary hover:underline"
-              >
-                View ArtJob #{{
+                class="font-semibold text-primary hover:underline"
+                >View ArtJob #{{
                   store.selected.full?.artJobId ||
                   store.selected.pilot?.artJobId
                 }}
-                in the queue
-              </NuxtLink>
-              <div
-                v-else-if="store.selected.pilot"
-                class="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-warning/30 bg-warning/10 p-2"
+                in the queue</NuxtLink
               >
-                <span>Not registered in ArtJob yet.</span>
-                <button
-                  type="button"
-                  class="kr-btn-outline-xs"
-                  :disabled="store.syncing"
-                  @click="store.refresh()"
-                >
-                  {{ store.syncing ? 'Registering…' : 'Register in ArtJob' }}
-                </button>
-              </div>
-              <p v-if="store.selected.full" class="text-base-content/70">
-                Full film · {{ store.selected.full.completedSegments }}/{{
-                  store.selected.full.totalSegments
-                }}
-                windows · {{ Math.round(store.selected.progress) }}%
-              </p>
-              <p v-else-if="store.selected.pilot" class="text-base-content/70">
-                {{ store.selected.pilot.completedSegments }}/{{
-                  store.selected.pilot.totalSegments
-                }}
-                pilot windows · {{ Math.round(store.selected.progress) }}%
-              </p>
               <p v-if="store.selected.error" class="text-error" role="alert">
                 {{ store.selected.error }}
               </p>
-              <button
-                v-if="
-                  (store.selected.status === 'STAGED' ||
-                    store.selected.status === 'PILOT_BLOCKED' ||
-                    store.selected.status === 'PILOT_FAILED' ||
-                    store.selected.status === 'REVIEW') &&
-                  !sourceFile
-                "
-                type="button"
-                class="kr-btn kr-btn-primary w-full"
-                :disabled="store.busy || lookChanged"
-                @click="
-                  store.selected.status === 'PILOT_FAILED'
-                    ? store.retryPilot(store.selected.id)
-                    : store.queuePilot(store.selected.id)
-                "
-              >
-                {{
-                  store.busy
-                    ? 'Queueing…'
-                    : store.selected.status === 'PILOT_FAILED'
-                      ? 'Retry pilot in the same ArtJob'
-                      : store.selected.status === 'REVIEW'
-                        ? 'Render improved continuity pilot'
-                        : 'Render 24-second motion pilot'
-                }}
-              </button>
-              <button
-                v-if="
-                  store.selected.status === 'REVIEW' && !store.selected.full
-                "
-                type="button"
-                class="kr-btn kr-btn-primary w-full"
-                :disabled="store.busy || lookChanged"
-                @click="store.queueFull(store.selected.id)"
-              >
-                {{
-                  store.busy
-                    ? 'Queueing…'
-                    : `Render full ${formatRestyleTime(store.selected.sourceDurationSec)} film`
-                }}
-              </button>
-              <p
-                v-if="
-                  store.selected.status === 'REVIEW' && !store.selected.full
-                "
-                class="kr-text-faded-xs"
-              >
-                Full-length rendering can run overnight. Completed windows are
-                reusable after interruptions. The original soundtrack is
-                restored.
-              </p>
-              <button
-                v-if="store.selected.status === 'FULL_FAILED'"
-                type="button"
-                class="kr-btn kr-btn-primary w-full"
-                :disabled="store.busy"
-                @click="store.retryFull(store.selected.id)"
-              >
-                {{
-                  store.busy
-                    ? 'Queueing…'
-                    : 'Resume full film using saved windows'
-                }}
-              </button>
-              <button
-                v-if="store.selected.status === 'DONE' && store.selected.full"
-                type="button"
-                class="kr-btn kr-btn-primary w-full"
-                :disabled="store.sourceBusy"
-                @click="showFull"
-              >
-                {{ store.sourceBusy ? 'Loading…' : 'Watch finished full film' }}
-              </button>
-              <button
-                v-if="store.selected.status === 'REVIEW' || store.selected.full"
-                type="button"
-                class="kr-btn kr-btn-primary w-full"
-                :disabled="store.sourceBusy"
-                @click="showPilot()"
-              >
-                {{ store.sourceBusy ? 'Loading…' : 'Watch animated pilot' }}
-              </button>
-              <button
-                v-if="store.selected.pilot?.previousRevision"
-                type="button"
-                class="btn btn-outline w-full"
-                :disabled="store.sourceBusy"
-                @click="showPilot(true)"
-              >
-                Watch previous pilot for comparison
-              </button>
-              <p v-if="lookChanged" class="kr-text-faded-xs">
-                {{
-                  store.selected.status === 'STAGED'
-                    ? 'Save these settings in Looks before rendering.'
-                    : 'This project is already rendering or reviewed. Create a separate style project in Looks.'
-                }}
-              </p>
+              <div class="flex flex-wrap gap-2">
+                <button
+                  v-if="store.selected.status === 'DONE' && store.selected.full"
+                  type="button"
+                  class="kr-btn kr-btn-primary flex-1"
+                  :disabled="store.sourceBusy"
+                  @click="showFull"
+                >
+                  Watch finished full film
+                </button>
+                <button
+                  v-if="
+                    store.selected.status === 'REVIEW' || store.selected.full
+                  "
+                  type="button"
+                  class="kr-btn btn-outline flex-1"
+                  :disabled="store.sourceBusy"
+                  @click="showPilot()"
+                >
+                  Watch animated pilot
+                </button>
+                <button
+                  v-if="store.selected.pilot?.previousRevision"
+                  type="button"
+                  class="kr-btn btn-outline flex-1"
+                  :disabled="store.sourceBusy"
+                  @click="showPilot(true)"
+                >
+                  Watch previous pilot for comparison
+                </button>
+                <button
+                  type="button"
+                  class="kr-btn btn-outline flex-1"
+                  @click="activePanel = 'studio'"
+                >
+                  Choose look / render
+                </button>
+              </div>
             </div>
             <details
               class="shrink-0 rounded-xl border border-base-300 bg-base-200/50 p-2 text-xs"
@@ -704,11 +870,10 @@ const userStore = useUserStore()
 const store = useVideoRestyleStore()
 const ready = ref(false)
 const panels = [
-  { value: 'source', label: 'Source' },
-  { value: 'style', label: 'Looks' },
-  { value: 'jobs', label: 'Projects' },
+  { value: 'studio', label: 'Studio' },
+  { value: 'library', label: 'Library' },
 ] as const
-const activePanel = ref<(typeof panels)[number]['value']>('source')
+const activePanel = ref<(typeof panels)[number]['value']>('studio')
 const qualityOptions = ['720p', '1080p'] as const
 const style = ref<RestyleStyleId>('illustrious')
 const quality = ref<RestyleQuality>('1080p')
@@ -802,20 +967,25 @@ function selectJob(job: VideoRestyleJob) {
   isPrivate.value = job.isPrivate ?? true
   isMature.value = job.isMature ?? false
   if (fileInput.value) fileInput.value.value = ''
-  activePanel.value = 'source'
+}
+
+function selectJobFromPicker(event: Event) {
+  const id = (event.target as HTMLSelectElement).value
+  const job = store.jobs.find((item) => item.id === id)
+  if (job) selectJob(job)
 }
 
 async function showFull() {
   if (!store.selected) return
   if (await store.loadPilotPreview(store.selected.id, false, true)) {
-    activePanel.value = 'source'
+    activePanel.value = 'library'
   }
 }
 
 async function showPilot(previous = false) {
   if (!store.selected) return
   if (await store.loadPilotPreview(store.selected.id, previous)) {
-    activePanel.value = 'source'
+    activePanel.value = 'library'
   }
 }
 
@@ -845,7 +1015,7 @@ async function createVariant() {
     })
   ) {
     if (store.selected) selectJob(store.selected)
-    activePanel.value = 'jobs'
+    activePanel.value = 'studio'
   }
 }
 
@@ -864,6 +1034,9 @@ function chooseFile(event: Event) {
 
 function readVideoMetadata(event: Event) {
   const video = event.target as HTMLVideoElement
+  // Watching a 24-second generated pilot must not replace the 5:32
+  // metadata of its full source in the project setup.
+  if (!sourceFile.value) return
   durationSec.value = Number.isFinite(video.duration) ? video.duration : 0
   if (durationSec.value > RESTYLE_MAX_DURATION_SEC) {
     store.error = 'This studio currently supports videos up to 15 minutes.'
@@ -883,7 +1056,7 @@ async function stage() {
       isMature: isMature.value,
     })
   ) {
-    activePanel.value = 'source'
+    activePanel.value = 'studio'
     sourceFile.value = null
     durationSec.value = store.selected?.sourceDurationSec ?? 0
     if (fileInput.value) fileInput.value.value = ''

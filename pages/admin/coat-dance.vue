@@ -72,9 +72,27 @@
             {{ store.syncing ? 'Retrying…' : 'Retry ArtJob registration' }}
           </button>
         </div>
+        <div class="flex min-w-0 shrink-0 items-center gap-2 rounded-xl border border-base-300 bg-base-100 px-2 py-1.5 text-xs">
+          <label for="restyle-current-project" class="shrink-0 font-semibold">Project</label>
+          <select
+            id="restyle-current-project"
+            class="select select-bordered select-sm min-w-0 flex-1"
+            aria-label="Current video restyle project"
+            :value="store.selectedId ?? ''"
+            @change="selectJobFromPicker"
+          >
+            <option value="" disabled>{{ store.jobs.length ? 'Choose a project' : 'No saved videos yet' }}</option>
+            <option v-for="job in store.jobs" :key="job.id" :value="job.id">
+              {{ job.title }} · {{ labelFor(job.style) }} · {{ statusLabel(job.status) }}
+            </option>
+          </select>
+          <button type="button" class="kr-btn-xs btn-outline shrink-0" @click="activePanel = 'library'">
+            {{ store.selected ? 'View video' : 'Upload video' }}
+          </button>
+        </div>
         <nav
-          class="grid grid-cols-3 gap-1 rounded-xl bg-base-200 p-1 lg:hidden"
-          aria-label="Studio panels"
+          class="grid grid-cols-2 gap-1 rounded-xl bg-base-200 p-1"
+          aria-label="Studio views"
         >
           <button
             v-for="panel in panels"
@@ -88,11 +106,12 @@
           </button>
         </nav>
         <div
-          class="kr-panes min-h-0 flex-1 gap-2 overflow-hidden sm:gap-3 lg:grid-cols-[minmax(0,1.35fr)_minmax(15rem,0.85fr)_minmax(14rem,0.7fr)]"
+          class="kr-panes min-h-0 flex-1 gap-2 overflow-hidden sm:gap-3"
+          :class="activePanel === 'studio' ? 'lg:grid-cols-1' : 'lg:grid-cols-[minmax(0,1.35fr)_minmax(16rem,0.75fr)]"
         >
           <section
-            :class="activePanel === 'source' ? 'flex' : 'hidden lg:flex'"
-            class="kr-panel min-h-0 flex-col gap-3 overflow-hidden p-3 lg:flex"
+            :class="activePanel === 'library' ? 'flex' : 'hidden'"
+            class="kr-panel min-h-0 flex-col gap-2 overflow-hidden p-2 sm:p-3"
             aria-label="Source performance"
           >
             <div class="flex items-center justify-between">
@@ -222,8 +241,8 @@
           </section>
 
           <section
-            :class="activePanel === 'style' ? 'flex' : 'hidden lg:flex'"
-            class="kr-panel min-h-0 flex-col gap-2 overflow-hidden p-3 lg:flex"
+            :class="activePanel === 'studio' ? 'flex' : 'hidden'"
+            class="kr-panel min-h-0 flex-col gap-2 overflow-hidden p-2 sm:p-3"
             aria-label="Animation style presets"
           >
             <div class="flex items-center justify-between gap-2">
@@ -244,11 +263,8 @@
                 </button>
               </div>
             </div>
-            <p class="kr-text-faded-xs">
-              A consistent visual treatment across the original choreography.
-            </p>
             <div class="kr-pane-scroll min-h-0 flex-1">
-              <div class="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-2">
+              <div class="grid grid-cols-3 gap-1.5 sm:grid-cols-4 lg:grid-cols-6 xl:grid-cols-7">
                 <button
                   v-for="look in RESTYLE_STYLES"
                   :key="look.id"
@@ -263,7 +279,7 @@
                   @click="style = look.id"
                 >
                   <span
-                    class="relative block aspect-[7/9] overflow-hidden bg-gradient-to-br"
+                    class="relative block aspect-[4/5] overflow-hidden bg-gradient-to-br"
                     :class="look.tone"
                   >
                     <img
@@ -290,11 +306,11 @@
                       <icon name="kind-icon:check" class="h-3 w-3" />
                     </span>
                   </span>
-                  <span class="block px-2 py-1.5">
-                    <span class="block text-xs font-bold">{{
+                  <span class="block px-1.5 py-1">
+                    <span class="block truncate text-[11px] font-bold">{{
                       look.label
                     }}</span>
-                    <span class="block text-[10px] opacity-65">{{
+                    <span class="block truncate text-[10px] opacity-65">{{
                       look.note
                     }}</span>
                   </span>
@@ -428,8 +444,8 @@
           </section>
 
           <section
-            :class="activePanel === 'jobs' ? 'flex' : 'hidden lg:flex'"
-            class="kr-panel min-h-0 flex-col gap-2 overflow-hidden p-2 sm:p-3 lg:flex"
+            :class="activePanel === 'library' ? 'hidden lg:flex' : 'hidden'"
+            class="kr-panel min-h-0 flex-col gap-2 overflow-hidden p-2 sm:p-3"
             aria-label="Saved render projects"
           >
             <div class="flex items-center justify-between gap-2">
@@ -444,7 +460,7 @@
               </button>
             </div>
             <div
-              class="kr-pane-scroll min-h-0 max-h-[29vh] shrink-0 space-y-1 sm:max-h-[36vh] lg:max-h-none lg:flex-1"
+              class="kr-pane-scroll min-h-0 max-h-[29vh] shrink-0 space-y-1 sm:max-h-[36vh] lg:max-h-[40%]"
             >
               <p
                 v-if="!store.jobs.length"
@@ -485,7 +501,6 @@
                     · Publication candidate</span
                   >
                 </span>
-                >
                 <span class="mt-1 block text-[10px] opacity-60">{{
                   new Date(job.createdAt).toLocaleDateString()
                 }}</span>
@@ -704,11 +719,10 @@ const userStore = useUserStore()
 const store = useVideoRestyleStore()
 const ready = ref(false)
 const panels = [
-  { value: 'source', label: 'Source' },
-  { value: 'style', label: 'Looks' },
-  { value: 'jobs', label: 'Projects' },
+  { value: 'studio', label: 'Studio' },
+  { value: 'library', label: 'Library' },
 ] as const
-const activePanel = ref<(typeof panels)[number]['value']>('source')
+const activePanel = ref<(typeof panels)[number]['value']>('studio')
 const qualityOptions = ['720p', '1080p'] as const
 const style = ref<RestyleStyleId>('illustrious')
 const quality = ref<RestyleQuality>('1080p')
@@ -802,20 +816,25 @@ function selectJob(job: VideoRestyleJob) {
   isPrivate.value = job.isPrivate ?? true
   isMature.value = job.isMature ?? false
   if (fileInput.value) fileInput.value.value = ''
-  activePanel.value = 'source'
+}
+
+function selectJobFromPicker(event: Event) {
+  const id = (event.target as HTMLSelectElement).value
+  const job = store.jobs.find((item) => item.id === id)
+  if (job) selectJob(job)
 }
 
 async function showFull() {
   if (!store.selected) return
   if (await store.loadPilotPreview(store.selected.id, false, true)) {
-    activePanel.value = 'source'
+    activePanel.value = 'library'
   }
 }
 
 async function showPilot(previous = false) {
   if (!store.selected) return
   if (await store.loadPilotPreview(store.selected.id, previous)) {
-    activePanel.value = 'source'
+    activePanel.value = 'library'
   }
 }
 
@@ -845,7 +864,7 @@ async function createVariant() {
     })
   ) {
     if (store.selected) selectJob(store.selected)
-    activePanel.value = 'jobs'
+    activePanel.value = 'studio'
   }
 }
 
@@ -883,7 +902,7 @@ async function stage() {
       isMature: isMature.value,
     })
   ) {
-    activePanel.value = 'source'
+    activePanel.value = 'studio'
     sourceFile.value = null
     durationSec.value = store.selected?.sourceDurationSec ?? 0
     if (fileInput.value) fileInput.value.value = ''

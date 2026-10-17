@@ -85,7 +85,8 @@ export const RAINBOW_ACT_THREE_ENEMY_SPRITES = [
 
 /**
  * Acts IV and V's painted craft (round-25 Kontext from the round-3 concepts), ready before their stages:
- * E13 Dolphin Pair 247868, E14 Dolphin Courier 247869, E15 Electric Eel Threader 247870, then E16 Shark
+ * E13 Dolphin Pair 247868, E14 Dolphin Courier 247869, E15 Electric Eel Threader (round-26 247888, from the
+ * round-12 B07 eel, replacing round 25's stubby 247870), then E16 Shark
  * Cutter 247871, E17 Shark Hammerhead 247873 (fin missile pods) and E18 Octopus Salvager 247875.
  */
 export const RAINBOW_ACT_FOUR_ENEMY_SPRITES = [
@@ -98,6 +99,8 @@ export const RAINBOW_ACT_FIVE_ENEMY_SPRITES = [
   'hammerhead',
   'salvager',
 ] as const
+/** Act VI's craft, ahead of their stage: E20 Reef Turret 247892 and E21 Nautilus Bulwark 247893 (round 26). */
+export const RAINBOW_ACT_SIX_ENEMY_SPRITES = ['turret', 'bulwark'] as const
 
 export function rainbowEnemySprite(kind: string): string | null {
   return [
@@ -105,6 +108,7 @@ export function rainbowEnemySprite(kind: string): string | null {
     ...RAINBOW_ACT_THREE_ENEMY_SPRITES,
     ...RAINBOW_ACT_FOUR_ENEMY_SPRITES,
     ...RAINBOW_ACT_FIVE_ENEMY_SPRITES,
+    ...RAINBOW_ACT_SIX_ENEMY_SPRITES,
   ].some((name) => name === kind)
     ? `${RAINBOW_GAME_ART_ROOT}/enemies/${kind}.webp`
     : null
@@ -125,13 +129,16 @@ export function drawRainbowEnemySprite(
 
 /**
  * Painted mid-Act guardians (round-24 Kontext: 247858 armoured urchin, 247860 lantern; round 25: 247876
- * armoured clawstrike with its cannon claw), keyed at 256 px so they stay crisp at guardian size; until they
- * load the engine scales up the scout sprite instead.
+ * armoured clawstrike with its cannon claw; round 26: 247895 rose-gold courier and 247897 armoured salvager),
+ * keyed at 256 px so they stay crisp at guardian size; until they load the engine scales up the scout sprite
+ * instead.
  */
 export const RAINBOW_GUARDIAN_SPRITES = [
   'urchin',
   'lantern',
   'clawstrike',
+  'courier',
+  'salvager',
 ] as const
 
 export function rainbowGuardianSprite(kind: string): string | null {
@@ -180,9 +187,18 @@ export function drawRainbowPickupSprite(
  * Calm, damaged (phase 2) and enraged (phase 3) pictures: B01 Pearl Seahorse and B02 Aurelia Array, which fly
  * today, B03 Clawburst for Act III (round-18 Kontext 247730, round-20 phases 247765 and 247768), and, ahead
  * of their Acts, B04 Delphion and B05 Sawtooth Regent (round-15 bases 247593 and 247594, round-25 phases
- * 247878/247881 and 247883/247884).
+ * 247878/247881 and 247883/247884), then B06 Lantern Ray (round-12 247595, mirrored to face left; round-26
+ * phases 247899 and 247901) and B07 Glass Eel (247596; 247903 and 247905).
  */
-export const RAINBOW_BOSS_SPRITES = ['b01', 'b02', 'b03', 'b04', 'b05'] as const
+export const RAINBOW_BOSS_SPRITES = [
+  'b01',
+  'b02',
+  'b03',
+  'b04',
+  'b05',
+  'b06',
+  'b07',
+] as const
 export type RainbowBossKey = (typeof RAINBOW_BOSS_SPRITES)[number]
 
 export function rainbowBossSprite(boss: RainbowBossKey, phase: number): string {

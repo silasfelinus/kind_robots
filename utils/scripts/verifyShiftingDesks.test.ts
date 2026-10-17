@@ -68,10 +68,10 @@ const asset = (path: string) => readFileSync(file(path), 'utf8')
 
 assert.equal(ORIENTATION.schemaVersion, 1)
 assert.equal(ORIENTATION.sourceSha.length, 40)
-assert.equal(ORIENTATION.encounters.length, 12)
+assert.equal(ORIENTATION.encounters.length, 24)
 assert.deepEqual(
   ORIENTATION.locations.map((l) => l.encounter_ids.length),
-  [4, 4, 4],
+  [8, 8, 8],
 )
 assert.doesNotMatch(
   JSON.stringify(ORIENTATION),
@@ -88,7 +88,7 @@ assert.deepEqual(
   'departments are registered in order',
 )
 for (const d of DEPARTMENTS) {
-  assert.equal(d.encounters.length, 12, `${d.department.id} has 12 cards`)
+  assert.equal(d.encounters.length, 24, `${d.department.id} has 24 cards`)
   assert.ok(d.boss.choices.some((c) => !c.requires))
   assert.ok(
     d.boss.department_outcomes.some((o) => o.id === fallbackOutcome(d)),
@@ -797,7 +797,7 @@ assert.deepEqual(
   ['orientation', 'records', 'toy-division', 'wellness', 'sub-level-zero'],
   'all five departments ship, in order',
 )
-assert.equal(TOY_DIVISION.encounters.length, 12)
+assert.equal(TOY_DIVISION.encounters.length, 24)
 assert.equal(
   fallbackOutcome(TOY_DIVISION),
   'back-to-the-drawing-board',

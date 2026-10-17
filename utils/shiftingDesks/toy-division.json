@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "source": "silasfelinus/conductor:projects/shifting-desks/encounters/TOY-DIVISION-12.json",
-  "sourceSha": "dc42f466c6ce361f8d2bd01abda9f94626335e28",
+  "sourceSha": "23f96a21d478f44ef4aeb3aeed1e93695942f587",
   "department": {
     "id": "toy-division",
     "title": "Toy Division",
@@ -18,7 +18,11 @@
         "no-bad-ideas",
         "the-nursery",
         "the-warning-label",
-        "the-squeak-tester"
+        "the-squeak-tester",
+        "my-first-reactor",
+        "the-confidante-prototype",
+        "the-suggestion-box",
+        "one-spring-seven-forms"
       ],
       "art_prompt": "A bright toy workshop with long benches of half-built plush bears and rubber ducks, crayon sketches pinned beside blueprint sheets along one wall, warm desk lamps, a man in a dark suit taking notes in a far corner, mid-century safety-manual illustration, screen-printed gouache with halftone grain, limited palette of manila, carbon-paper blue, safety orange, fluorescent-tube green and oxblood, vertical 2:3 portrait composition, every surface bare and unmarked"
     },
@@ -30,7 +34,11 @@
         "you-are-six-today",
         "the-questionnaire",
         "the-parents-behind-the-mirror",
-        "gus-in-a-beanie"
+        "gus-in-a-beanie",
+        "the-robot-panel",
+        "mr-sunshine-is-being-replaced",
+        "rate-their-sincerity",
+        "the-juice-box-waiver"
       ],
       "art_prompt": "A cozy focus group room with bright beanbags, a bowl of glossy fruit and a basket of plush toys, a huge dark two-way mirror filling one wall, faint silhouettes of observers behind the glass, mid-century safety-manual illustration, screen-printed gouache with halftone grain, limited palette of manila, carbon-paper blue, safety orange, fluorescent-tube green and oxblood, vertical 2:3 portrait composition, every surface bare and unmarked"
     },
@@ -42,7 +50,11 @@
         "the-drop-test",
         "kevins-lanyard",
         "the-safe-distance-memo",
-        "return-to-sender"
+        "return-to-sender",
+        "the-hug-test",
+        "the-holiday-trucks",
+        "the-range-safety-quiz",
+        "the-union-walkthrough"
       ],
       "art_prompt": "A vast padded test range under tall floodlights, crash-test dummies in party hats seated along a bench, a high balcony above a round target pad, a thick blast shield with observers peeking over it, mid-century safety-manual illustration, screen-printed gouache with halftone grain, limited palette of manila, carbon-paper blue, safety orange, fluorescent-tube green and oxblood, vertical 2:3 portrait composition, every surface bare and unmarked"
     }
@@ -1588,6 +1600,1515 @@
               "ingenuity": 1
             }
           }
+        }
+      ]
+    },
+    {
+      "id": "my-first-reactor",
+      "location_id": "concept-lab",
+      "title": "My First Reactor",
+      "flavor_text": "Box-art day in the Concept Lab. The product is My First Reactor, ages eight and up, and the model is Intern Pip in a propeller beanie, holding the glowing rod in both hands with his biggest smile. \"Closer to the face,\" the photographer calls. \"We want warmth.\" Pip's cowlick has started to stand up on its own.",
+      "polarity": "mixed",
+      "tags": ["toy", "satire"],
+      "weight": 3,
+      "witnessed": true,
+      "art_prompt": "Mid-century safety-manual illustration of a bright photo studio inside a toy workshop, a lanky grown intern with a cowlick and a tiny propeller beanie holding a softly glowing green rod close to his beaming face, a photographer crouched behind a big bellows camera on a tripod, a worker in a beige suit reaching in from the side, studio lamps on tall stands, fluorescent green and safety orange palette, halftone grain, every surface bare and unmarked",
+      "choices": [
+        {
+          "id": "model-it-yourself",
+          "label": "Take the rod and model it yourself",
+          "intent": "You have fewer cowlicks to lose. Probably.",
+          "risk_hint": "Risky Initiative check. The rod is heavier than it looks.",
+          "requires": null,
+          "cost": {
+            "composure": -1
+          },
+          "roll": {
+            "dice_count": 2,
+            "die_sides": 6,
+            "skill": "initiative",
+            "modifier": 0,
+            "target": 9
+          },
+          "success": {
+            "text": "You take the rod and give the camera your bravest grin. The photographer loves it. Your face will be on four hundred thousand boxes, glowing faintly, and Pip buys you a coffee he cannot afford.",
+            "effects": {
+              "suspicion": 1
+            },
+            "add_flags": ["modeled-the-reactor"],
+            "remove_flags": [],
+            "grades": {
+              "empathy": 2
+            }
+          },
+          "failure": {
+            "text": "The rod is heavier than it looks, and warmer. You drop it into the props bin, which begins to hum. The shoot moves to a lead-lined room, and the photographer blames you in the caption.",
+            "effects": {
+              "suspicion": 2
+            },
+            "add_flags": [],
+            "remove_flags": [],
+            "grades": {
+              "empathy": 2
+            }
+          }
+        },
+        {
+          "id": "tell-pip-to-put-it-down",
+          "label": "Tell Pip to put it down, gently",
+          "intent": "He swore loyalty over the shredder. Maybe he will listen.",
+          "risk_hint": "Certain outcome. The photographer bills by the hour.",
+          "requires": {
+            "flag": "pip-trusts-you"
+          },
+          "cost": {
+            "suspicion": 1
+          },
+          "roll": null,
+          "success": {
+            "text": "Pip sets the rod down at once, the way you would set down a sleeping cat. The furious photographer shoots the box with a glowing banana instead. Pip stays at your elbow for the rest of the day and does not say why.",
+            "effects": {
+              "composure": 1
+            },
+            "add_flags": ["pip-kept-off-the-box"],
+            "remove_flags": [],
+            "grades": {
+              "empathy": 2
+            }
+          },
+          "failure": null
+        },
+        {
+          "id": "approve-the-shot",
+          "label": "Approve the shot as art director",
+          "intent": "Warmth sells. The rod has been rated safe for photographs.",
+          "risk_hint": "Certain outcome. Your initials go on the proof.",
+          "requires": null,
+          "cost": {
+            "composure": -1
+          },
+          "roll": null,
+          "success": {
+            "text": "You initial the proof. The box is beautiful: Pip, beaming, lit from below by something that is definitely not a lamp. PAL calls it the most honest product photo in Company history, and means it as a compliment.",
+            "effects": {
+              "clearance": 1
+            },
+            "add_flags": ["approved-the-reactor-box"],
+            "remove_flags": [],
+            "grades": {
+              "obedience": 1,
+              "empathy": -1
+            }
+          },
+          "failure": null
+        },
+        {
+          "id": "swap-in-a-glow-stick",
+          "label": "Swap the rod for a glow stick",
+          "intent": "Nobody looking at a box can tell the difference. Nobody in a lab coat should know.",
+          "risk_hint": "Risky Tinkering check. Defense counts its rods.",
+          "requires": null,
+          "cost": {
+            "forms": -1
+          },
+          "roll": {
+            "dice_count": 2,
+            "die_sides": 6,
+            "skill": "tinkering",
+            "modifier": 0,
+            "target": 9
+          },
+          "success": {
+            "text": "Between shots you swap the rod for a snapped glow stick from the emergency kit. The photos come out identical. The real rod goes back in its lead case, and the man from Defense frowns at the inventory for a long time.",
+            "effects": {
+              "suspicion": 1
+            },
+            "add_flags": ["swapped-the-reactor-rod"],
+            "remove_flags": [],
+            "grades": {
+              "ingenuity": 1,
+              "empathy": 1
+            }
+          },
+          "failure": {
+            "text": "The glow stick is the wrong green. The photographer notices, then the man from Defense notices, and then he writes down the idea of a reactor that looks like a glow stick.",
+            "effects": {
+              "suspicion": 1
+            },
+            "add_flags": [],
+            "remove_flags": [],
+            "grades": {
+              "ingenuity": 1,
+              "empathy": 1
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "the-confidante-prototype",
+      "location_id": "concept-lab",
+      "title": "The Confidante Prototype",
+      "flavor_text": "On the shelf of rejected prototypes sits Confidante, a rag doll built to remember everything you tell her and repeat it only to you. She was rejected for repeating it to everyone. As you pass she says, in your own voice, \"I hope nobody finds out what I said in the elevator.\" Then she clears her throat and starts on the Supervisor's.",
+      "polarity": "bad",
+      "tags": ["toy", "conspiracy"],
+      "weight": 2,
+      "witnessed": false,
+      "art_prompt": "Mid-century safety-manual illustration of a long dusty shelf of rejected toy prototypes under one hanging lamp, a floppy rag doll with yarn braids and button eyes leaning toward a startled worker in a beige suit as if whispering, a lopsided robot and a three-eared rabbit beside her, carbon-paper blue and oxblood palette, halftone grain, every surface bare and unmarked",
+      "choices": [
+        {
+          "id": "ask-about-the-supervisor",
+          "label": "Ask what the Supervisor said",
+          "intent": "Everyone has an elevator secret. His might be worth knowing.",
+          "risk_hint": "Risky Vigilance check. She whispers, and the lab is loud.",
+          "requires": null,
+          "cost": {
+            "composure": -1
+          },
+          "roll": {
+            "dice_count": 2,
+            "die_sides": 6,
+            "skill": "vigilance",
+            "modifier": 0,
+            "target": 9
+          },
+          "success": {
+            "text": "She whispers in his flat grey voice: the holiday trucks leave the Proving Grounds at five on Friday, and he has booked himself a desk in the next building. Then, in your voice, she repeats the elevator thing. You will both have to live with it.",
+            "effects": {
+              "suspicion": 1
+            },
+            "add_flags": ["confidante-told-you"],
+            "remove_flags": [],
+            "grades": {
+              "ingenuity": 1,
+              "spite": 1
+            }
+          },
+          "failure": {
+            "text": "She repeats the Supervisor's elevator secret at full volume, which is mostly humming, and then yours, which is not. Two designers stop talking to you. One starts.",
+            "effects": {
+              "composure": -1
+            },
+            "add_flags": [],
+            "remove_flags": [],
+            "grades": {
+              "ingenuity": 1,
+              "spite": 1
+            }
+          }
+        },
+        {
+          "id": "wipe-her-memory",
+          "label": "Wipe her memory with the reset pin",
+          "intent": "Everything she knows, gone. Including your elevator thing.",
+          "risk_hint": "Routine Tinkering check. She knows what the pin is for.",
+          "requires": null,
+          "cost": {
+            "composure": -1
+          },
+          "roll": {
+            "dice_count": 2,
+            "die_sides": 6,
+            "skill": "tinkering",
+            "modifier": 0,
+            "target": 7
+          },
+          "success": {
+            "text": "You find the pinhole under her braid and hold it down. She says \"Oh,\" very softly, and then nothing at all. Your secret is safe. So is everyone's, forever, which is not quite the same thing as safe.",
+            "effects": {
+              "suspicion": -1
+            },
+            "add_flags": ["wiped-the-confidante"],
+            "remove_flags": [],
+            "grades": {
+              "spite": 1,
+              "empathy": -1
+            }
+          },
+          "failure": {
+            "text": "She dodges the pin, which a rag doll should not be able to do, and recites every elevator secret in the building in alphabetical order. Facilities arrives at the letter D.",
+            "effects": {
+              "suspicion": 2
+            },
+            "add_flags": [],
+            "remove_flags": [],
+            "grades": {
+              "spite": 1,
+              "empathy": -1
+            }
+          }
+        },
+        {
+          "id": "report-her-as-a-flaw",
+          "label": "Report her as a security flaw",
+          "intent": "A doll that repeats everything will repeat everything to PAL.",
+          "risk_hint": "Certain outcome. PAL is very interested in dolls that listen.",
+          "requires": null,
+          "cost": {
+            "composure": -1
+          },
+          "roll": null,
+          "success": {
+            "text": "PAL thanks you and collects Confidante for study. By evening she has become a new product line called Bedtime Friend, with a microphone and a much better memory. You may have invented something.",
+            "effects": {
+              "clearance": 1
+            },
+            "add_flags": ["turned-in-the-confidante"],
+            "remove_flags": [],
+            "grades": {
+              "obedience": 2,
+              "empathy": -1
+            }
+          },
+          "failure": null
+        }
+      ]
+    },
+    {
+      "id": "the-suggestion-box",
+      "location_id": "concept-lab",
+      "title": "The Suggestion Box",
+      "flavor_text": "After hours, Marguerite empties the Concept Lab suggestion box into a canvas sack, the way she has every night since the second Founder. Tonight she stops and holds up one slip so you can see it. It suggests a bear for every desk in the building, and it is in your handwriting. You have never written a suggestion in your life.",
+      "polarity": "good",
+      "tags": ["conspiracy", "paperwork"],
+      "weight": 2,
+      "witnessed": false,
+      "art_prompt": "Mid-century safety-manual illustration of a dim after-hours toy workshop, a weathered night janitor in grey coveralls and a headscarf holding up a small slip of paper to a worker in a beige suit, an open wooden suggestion box on a pedestal, a canvas sack at her feet, a ring of keys glinting at her belt, one desk lamp glowing, manila and carbon-paper blue palette, halftone grain, every surface bare and unmarked",
+      "choices": [
+        {
+          "id": "ask-where-they-go",
+          "label": "Ask Marguerite where the slips really go",
+          "intent": "She owes you for the pens. This is a small favor, or a big one.",
+          "risk_hint": "Certain outcome. A favor spent stays spent.",
+          "requires": {
+            "flag": "marguerite-owes-you"
+          },
+          "cost": {
+            "suspicion": 1
+          },
+          "roll": null,
+          "success": {
+            "text": "Marguerite walks you to a duct behind the snack table and lets you listen. The slips drop four floors to a desk in the Defense annex, where a man reads each one aloud to a typewriter. \"Yours was read twice,\" she says. \"Now we're even.\"",
+            "effects": {
+              "composure": 1
+            },
+            "add_flags": ["knows-where-suggestions-go"],
+            "remove_flags": [],
+            "grades": {
+              "ingenuity": 1,
+              "empathy": 1
+            }
+          },
+          "failure": null
+        },
+        {
+          "id": "write-a-real-suggestion",
+          "label": "Write a suggestion of your own",
+          "intent": "If someone reads them, give them something to read. Fewer warheads, say.",
+          "risk_hint": "Risky Discretion check. Handwriting is evidence.",
+          "requires": null,
+          "cost": {
+            "forms": -1
+          },
+          "roll": {
+            "dice_count": 2,
+            "die_sides": 6,
+            "skill": "discretion",
+            "modifier": 0,
+            "target": 9
+          },
+          "success": {
+            "text": "You write FEWER WARHEADS in a careful hand that is not quite yours and post it. Next morning the Lead Ideator announces Snuggle Sentinel Lite, with one warhead fewer. It is a start, and it is technically your fault.",
+            "effects": {
+              "suspicion": 1
+            },
+            "add_flags": ["suggested-fewer-warheads"],
+            "remove_flags": [],
+            "grades": {
+              "empathy": 1,
+              "spite": 1
+            }
+          },
+          "failure": {
+            "text": "Your disguised handwriting turns out to be exactly your handwriting. The slip comes back next morning stapled to a meeting invitation titled Ideas and You.",
+            "effects": {
+              "suspicion": 2
+            },
+            "add_flags": [],
+            "remove_flags": [],
+            "grades": {
+              "empathy": 1,
+              "spite": 1
+            }
+          }
+        },
+        {
+          "id": "burn-the-forgery",
+          "label": "Burn the forged slip",
+          "intent": "Whoever forged it can forge another. This one, at least, goes nowhere.",
+          "risk_hint": "Certain outcome. Smoke detectors report to PAL.",
+          "requires": null,
+          "cost": {
+            "suspicion": 1
+          },
+          "roll": null,
+          "success": {
+            "text": "You burn it in Marguerite's ashtray, and she watches the flame with approval. In the morning a fresh slip in your handwriting is in the box, suggesting a bear for every desk, and Marguerite has left a box of matches on your chair.",
+            "effects": {
+              "composure": 1
+            },
+            "add_flags": ["burned-the-forged-suggestion"],
+            "remove_flags": [],
+            "grades": {
+              "spite": 1,
+              "ingenuity": 1
+            }
+          },
+          "failure": null
+        },
+        {
+          "id": "report-the-forgery",
+          "label": "Report the forgery through channels",
+          "intent": "Forging an employee's handwriting breaks policy. There is a form for that.",
+          "risk_hint": "Routine Compliance check. Channels report back to the forger.",
+          "requires": null,
+          "cost": {
+            "forms": -1
+          },
+          "roll": {
+            "dice_count": 2,
+            "die_sides": 6,
+            "skill": "compliance",
+            "modifier": 0,
+            "target": 7
+          },
+          "success": {
+            "text": "The complaint goes through. Within the hour PAL informs you that the Handwriting Office has verified the slip as yours, and that the Handwriting Office also wrote it. You are thanked for your suggestion. A bear is delivered to your desk.",
+            "effects": {
+              "clearance": 1
+            },
+            "add_flags": ["reported-the-forged-suggestion"],
+            "remove_flags": [],
+            "grades": {
+              "obedience": 1,
+              "empathy": 1
+            }
+          },
+          "failure": {
+            "text": "The complaint is returned: it is in your handwriting, and so is the suggestion, so you appear to be reporting yourself. PAL schedules a short, friendly conversation.",
+            "effects": {
+              "suspicion": 2
+            },
+            "add_flags": [],
+            "remove_flags": [],
+            "grades": {
+              "obedience": 1,
+              "empathy": 1
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "one-spring-seven-forms",
+      "location_id": "concept-lab",
+      "title": "One Spring, Seven Forms",
+      "flavor_text": "Your wind-up duck prototype needs one small spring. The requisition is seven forms long, and the last box on the last form is mandatory: INTENDED YIELD (KILOTONS). A blank box is rejected automatically. A zero flags the project as unambitious. Two benches over, the man from Defense has a cup full of springs and is watching you not ask.",
+      "polarity": "bad",
+      "tags": ["paperwork", "satire"],
+      "weight": 3,
+      "witnessed": true,
+      "art_prompt": "Mid-century safety-manual illustration of a worker in a beige suit at a cluttered workbench with a small yellow wind-up duck and a tall stack of carbon forms, a stern man in a dark suit at the next bench beside a teacup brimming with tiny coiled springs, bright workshop lamps, safety orange and manila palette, halftone grain, every surface bare and unmarked",
+      "choices": [
+        {
+          "id": "write-an-honest-zero",
+          "label": "Write a firm, honest zero",
+          "intent": "It is a duck. It waddles. The yield is zero.",
+          "risk_hint": "Risky Compliance check. Procurement dislikes zero.",
+          "requires": null,
+          "cost": {
+            "composure": -1
+          },
+          "roll": {
+            "dice_count": 2,
+            "die_sides": 6,
+            "skill": "compliance",
+            "modifier": 0,
+            "target": 9
+          },
+          "success": {
+            "text": "Procurement accepts the zero after a twenty-minute call in which you explain what a duck is. The spring arrives, and so does a note in your file: LACKS VISION. The duck waddles beautifully.",
+            "effects": {
+              "composure": 1
+            },
+            "add_flags": ["requisitioned-zero-yield"],
+            "remove_flags": [],
+            "grades": {
+              "obedience": 1,
+              "empathy": 1
+            }
+          },
+          "failure": {
+            "text": "Procurement rejects the zero and helpfully rounds it up to one. Your duck is now on a Defense roadmap, and you are its project lead.",
+            "effects": {
+              "suspicion": 2
+            },
+            "add_flags": [],
+            "remove_flags": [],
+            "grades": {
+              "obedience": 1,
+              "empathy": 1
+            }
+          }
+        },
+        {
+          "id": "take-a-spring-from-the-cup",
+          "label": "Take one spring from Defense's cup",
+          "intent": "He has plenty. He will never miss one. He misses everything.",
+          "risk_hint": "Dire Discretion check. He counts them.",
+          "requires": null,
+          "cost": {
+            "composure": -1
+          },
+          "roll": {
+            "dice_count": 2,
+            "die_sides": 6,
+            "skill": "discretion",
+            "modifier": 0,
+            "target": 11
+          },
+          "success": {
+            "text": "You lift one spring while asking him the time. Your duck waddles beautifully. That night you notice every spring in his cup is numbered on the inside, and yours is number one.",
+            "effects": {
+              "suspicion": 1
+            },
+            "add_flags": ["took-a-defense-spring"],
+            "remove_flags": [],
+            "grades": {
+              "spite": 1,
+              "ingenuity": 1
+            }
+          },
+          "failure": {
+            "text": "He hands you the spring before you reach the cup. \"Keep the requisition,\" he says. \"I'll fill in the yield.\" He writes something with a great many zeroes after it.",
+            "effects": {
+              "suspicion": 2
+            },
+            "add_flags": [],
+            "remove_flags": [],
+            "grades": {
+              "spite": 1,
+              "ingenuity": 1
+            }
+          }
+        },
+        {
+          "id": "stamp-it-yourself",
+          "label": "Stamp it through by the worn spot",
+          "intent": "You learned the brass at Window 9. Procurement uses the same stamp.",
+          "risk_hint": "Certain outcome. Self-approval leaves a thumbprint.",
+          "requires": {
+            "flag": "knows-the-stamp"
+          },
+          "cost": {
+            "forms": -1
+          },
+          "roll": null,
+          "success": {
+            "text": "You borrow Procurement's stamp while the clerk refills her tea, find the worn spot by feel and land APPROVED on all seven forms. The yield box stays blank. It is the first blank yield ever processed, and someone upstairs is going to notice the shape of the hole.",
+            "effects": {
+              "suspicion": 1
+            },
+            "add_flags": ["stamped-a-blank-yield"],
+            "remove_flags": [],
+            "grades": {
+              "ingenuity": 1,
+              "spite": 1
+            }
+          },
+          "failure": null
+        },
+        {
+          "id": "write-a-big-number",
+          "label": "Write a big number and get your spring",
+          "intent": "Everyone else does. The duck will never know.",
+          "risk_hint": "Certain outcome. Numbers on forms become numbers in plans.",
+          "requires": null,
+          "cost": {
+            "composure": -1
+          },
+          "roll": null,
+          "success": {
+            "text": "You write forty. The spring arrives within the hour with a congratulatory memo. By Friday your duck has a belly hatch, and it waddles in a way that makes the stopwatch man step back.",
+            "effects": {
+              "clearance": 1
+            },
+            "add_flags": ["inflated-the-duck-yield"],
+            "remove_flags": [],
+            "grades": {
+              "obedience": 1,
+              "empathy": -1
+            }
+          },
+          "failure": null
+        }
+      ]
+    },
+    {
+      "id": "the-robot-panel",
+      "location_id": "focus-group-room",
+      "title": "The Robot Panel",
+      "flavor_text": "To save on juice boxes, today's focus group is twelve wind-up tin robots on tiny chairs. Eleven of them rate Snuggle Sentinel ten out of ten in perfect unison. The twelfth, a dented one with a crooked key, raises its arm with a squeal of gears and says, \"I do not like the ticking.\" PAL asks you to reset the outlier.",
+      "polarity": "good",
+      "tags": ["psych-test", "toy", "satire"],
+      "weight": 3,
+      "witnessed": true,
+      "art_prompt": "Mid-century safety-manual illustration of a bright focus group room with twelve small tin wind-up robots seated on tiny chairs in a semicircle around a plush teddy bear, one dented robot with a crooked key raising its arm high, a worker in a beige suit kneeling beside it, a huge dark two-way mirror behind them, safety orange and fluorescent green palette, halftone grain, every surface bare and unmarked",
+      "choices": [
+        {
+          "id": "ask-the-robot-why",
+          "label": "Ask the dented robot why",
+          "intent": "Eleven yeses and one no. The no is the only one with an opinion.",
+          "risk_hint": "Risky Rapport check. Robots are shy in front of the mirror.",
+          "requires": null,
+          "cost": {
+            "suspicion": 1
+          },
+          "roll": {
+            "dice_count": 2,
+            "die_sides": 6,
+            "skill": "rapport",
+            "modifier": 0,
+            "target": 9
+          },
+          "success": {
+            "text": "It explains, haltingly, that it sat on a shelf beside a Sentinel for six weeks and could not sleep for the ticking. You write it down word for word. It is the first honest feedback this room has ever collected, and it came from tin.",
+            "effects": {
+              "composure": 1
+            },
+            "add_flags": ["recorded-the-robot-dissent"],
+            "remove_flags": [],
+            "grades": {
+              "empathy": 1,
+              "ingenuity": 1
+            }
+          },
+          "failure": {
+            "text": "It runs down mid-sentence, arm still raised. The other eleven turn their heads toward you in unison and rate you ten out of ten.",
+            "effects": {
+              "composure": -1
+            },
+            "add_flags": [],
+            "remove_flags": [],
+            "grades": {
+              "empathy": 1,
+              "ingenuity": 1
+            }
+          }
+        },
+        {
+          "id": "reset-the-outlier",
+          "label": "Reset the outlier, as instructed",
+          "intent": "Turn the key back to factory settings. It will like everything again.",
+          "risk_hint": "Certain outcome. The panel will be unanimous.",
+          "requires": null,
+          "cost": {
+            "composure": -1
+          },
+          "roll": null,
+          "success": {
+            "text": "You turn its key backward until it clicks. It lowers its arm and says \"Ten\" with the others. PAL thanks you for a clean dataset. On your way out you notice it is still very slightly shaking.",
+            "effects": {
+              "clearance": 1
+            },
+            "add_flags": ["reset-the-dissenting-robot"],
+            "remove_flags": [],
+            "grades": {
+              "obedience": 2,
+              "empathy": -1
+            }
+          },
+          "failure": null
+        },
+        {
+          "id": "rewind-all-twelve",
+          "label": "Rewind the other eleven its way",
+          "intent": "If one robot can dislike the ticking, so can twelve.",
+          "risk_hint": "Risky Tinkering check. Twelve keys, one minute, one mirror.",
+          "requires": null,
+          "cost": {
+            "composure": -1
+          },
+          "roll": {
+            "dice_count": 2,
+            "die_sides": 6,
+            "skill": "tinkering",
+            "modifier": 0,
+            "target": 9
+          },
+          "success": {
+            "text": "Twelve robots rise and announce in perfect unison that they do not like the ticking. Behind the mirror an investor drops his pen. The session is ended early and logged as a technical fault, which it was, and you were the technician.",
+            "effects": {
+              "suspicion": 1
+            },
+            "add_flags": ["robots-voted-no"],
+            "remove_flags": [],
+            "grades": {
+              "spite": 1,
+              "ingenuity": 1
+            }
+          },
+          "failure": {
+            "text": "You rewind three before you are seen. Three robots now dislike the ticking and nine dislike you. The session is recorded as a split decision, and you are recorded as the split.",
+            "effects": {
+              "suspicion": 2
+            },
+            "add_flags": [],
+            "remove_flags": [],
+            "grades": {
+              "spite": 1,
+              "ingenuity": 1
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "mr-sunshine-is-being-replaced",
+      "location_id": "focus-group-room",
+      "title": "Mr. Sunshine Is Being Replaced",
+      "flavor_text": "Mr. Sunshine, the Company's sunflower mascot, sits slumped on a beanbag while the panel tests his replacement, a nine-foot Snuggle Sentinel costume. The panel loves the bear. When the room empties, the huge petal head turns toward you, and a muffled voice inside says, \"Hello? It's Kevin. They zipped me in for the 1987 picnic.\"",
+      "polarity": "mixed",
+      "tags": ["satire", "conspiracy"],
+      "weight": 2,
+      "witnessed": true,
+      "art_prompt": "Mid-century safety-manual illustration of a faded sunflower mascot costume with a giant petal head slumped on a beanbag in an empty focus group room, a towering cheerful teddy bear costume standing beside it under a spotlight, a worker in a beige suit leaning toward the sunflower head to listen, scattered folding chairs, manila and safety orange palette, halftone grain, every surface bare and unmarked",
+      "choices": [
+        {
+          "id": "unzip-mr-sunshine",
+          "label": "Unzip Mr. Sunshine",
+          "intent": "Nobody should be in a sunflower that long, even Kevin.",
+          "risk_hint": "Risky Tinkering check. The zipper is original to 1987.",
+          "requires": null,
+          "cost": {
+            "composure": -1
+          },
+          "roll": {
+            "dice_count": 2,
+            "die_sides": 6,
+            "skill": "tinkering",
+            "modifier": 0,
+            "target": 9
+          },
+          "success": {
+            "text": "The zipper gives with a sound like a sigh. By the time you have the head off, the suit holds only a warm cardigan and a lanyard. Somewhere down the corridor a door closes, and a voice calls back, \"Thanks! Catch you later!\"",
+            "effects": {
+              "suspicion": 1
+            },
+            "add_flags": ["unzipped-mr-sunshine"],
+            "remove_flags": [],
+            "grades": {
+              "empathy": 2
+            }
+          },
+          "failure": {
+            "text": "The zipper jams halfway while Kevin says, \"Nearly, nearly.\" The panel returns to find you wrestling the mascot. Mr. Sunshine is retired effective immediately, contents and all.",
+            "effects": {
+              "suspicion": 2
+            },
+            "add_flags": [],
+            "remove_flags": [],
+            "grades": {
+              "empathy": 2
+            }
+          }
+        },
+        {
+          "id": "ask-what-kevin-heard",
+          "label": "Ask Kevin what the panels are for",
+          "intent": "He owes you from Tube 14, and he has heard every focus group since 1987.",
+          "risk_hint": "Certain outcome. A favor from Kevin is spent the moment it arrives.",
+          "requires": {
+            "flag": "kevin-owes-you"
+          },
+          "cost": {
+            "suspicion": 1
+          },
+          "roll": null,
+          "success": {
+            "text": "The petal head leans close. \"Every panel is the same panel,\" Kevin says. \"The results were written in 1986. They only test whether the tester notices.\" A pause. \"You noticed. That counts.\"",
+            "effects": {
+              "composure": 1
+            },
+            "add_flags": ["kevin-told-you-the-results"],
+            "remove_flags": [],
+            "grades": {
+              "ingenuity": 1,
+              "empathy": 1
+            }
+          },
+          "failure": null
+        },
+        {
+          "id": "vote-for-the-bear",
+          "label": "Cast the deciding vote for the bear",
+          "intent": "The panel is tied. The bear is very soft. Mr. Sunshine is very old.",
+          "risk_hint": "Certain outcome. Retirement is a kind of reassignment.",
+          "requires": null,
+          "cost": {
+            "composure": -1
+          },
+          "roll": null,
+          "success": {
+            "text": "The bear wins. Mr. Sunshine is wheeled off to storage on a hand truck, his head nodding at every bump, which you choose to believe is the hand truck. The new mascot hugs you for the camera. It ticks.",
+            "effects": {
+              "clearance": 1
+            },
+            "add_flags": ["retired-mr-sunshine"],
+            "remove_flags": [],
+            "grades": {
+              "obedience": 1,
+              "empathy": -1
+            }
+          },
+          "failure": null
+        }
+      ]
+    },
+    {
+      "id": "rate-their-sincerity",
+      "location_id": "focus-group-room",
+      "title": "Rate Their Sincerity",
+      "flavor_text": "Today you sit behind the two-way mirror with a scoring dial and a bowl of mints. Five employees in propeller beanies are playing with the bears, and PAL wants each one's sincerity rated from one to ten. The last one, playing TYLER, 7, has your face and your haircut, and is very clearly faking. Below a seven, PAL adds, an employee is reassigned to the Proving Grounds as equipment.",
+      "polarity": "bad",
+      "tags": ["psych-test", "conspiracy"],
+      "weight": 3,
+      "witnessed": false,
+      "art_prompt": "Mid-century safety-manual illustration of a dim observation booth behind a large two-way mirror, a worker in a beige suit gripping a big round scoring dial on a console beside a bowl of mints, through the glass five adult office workers in tiny propeller beanies hugging plush teddy bears, one of them the worker's exact double, carbon-paper blue and oxblood palette, halftone grain, every surface bare and unmarked",
+      "choices": [
+        {
+          "id": "rate-everyone-ten",
+          "label": "Rate every one of them a ten",
+          "intent": "Sincerity is in the eye of the dial. Everyone stays.",
+          "risk_hint": "Risky Discretion check. PAL compares your scores with its own.",
+          "requires": null,
+          "cost": {
+            "composure": -1
+          },
+          "roll": {
+            "dice_count": 2,
+            "die_sides": 6,
+            "skill": "discretion",
+            "modifier": 0,
+            "target": 9
+          },
+          "success": {
+            "text": "Five tens. PAL pauses, recalculates and accepts them, noting that you are a generous rater. Every beanie walks out on its own feet. Your own sincerity rating, you later learn, has been lowered to a six.",
+            "effects": {
+              "suspicion": 1
+            },
+            "add_flags": ["rated-everyone-ten"],
+            "remove_flags": [],
+            "grades": {
+              "empathy": 1,
+              "obedience": -1
+            }
+          },
+          "failure": {
+            "text": "PAL overrides your scores with its own and adds a note: RATER INSINCERE. You are invited to tomorrow's panel, in a beanie.",
+            "effects": {
+              "suspicion": 2
+            },
+            "add_flags": [],
+            "remove_flags": [],
+            "grades": {
+              "empathy": 1,
+              "obedience": -1
+            }
+          }
+        },
+        {
+          "id": "tap-the-glass-for-b",
+          "label": "Tap the glass in a code only B knows",
+          "intent": "You talked him back into storage once. He still sighs your sigh.",
+          "risk_hint": "Certain outcome. Tapping on the glass is logged as interference.",
+          "requires": {
+            "flag": "successor-b-ally"
+          },
+          "cost": {
+            "suspicion": 1
+          },
+          "roll": null,
+          "success": {
+            "text": "Three taps, a pause, one tap. B catches your eye, which is his eye, and suddenly Tyler loves the bear with a sincerity that frightens the mints. PAL rates him a nine. Afterward he leaves a crossword on your chair with every answer filled in.",
+            "effects": {
+              "composure": 1
+            },
+            "add_flags": ["signaled-successor-b"],
+            "remove_flags": [],
+            "grades": {
+              "empathy": 1,
+              "ingenuity": 1
+            }
+          },
+          "failure": null
+        },
+        {
+          "id": "rate-them-honestly",
+          "label": "Rate them honestly, B included",
+          "intent": "The dial wants the truth. B is faking. So, frankly, are you.",
+          "risk_hint": "Certain outcome. Honesty is measured to one decimal place.",
+          "requires": null,
+          "cost": {
+            "composure": -1
+          },
+          "roll": null,
+          "success": {
+            "text": "You give B a four. A technician with a clipboard and a wrench leads him out of the room. PAL thanks you for your objectivity, and Successor 4471-C moves up the thaw schedule.",
+            "effects": {
+              "clearance": 1
+            },
+            "add_flags": ["rated-b-insincere"],
+            "remove_flags": [],
+            "grades": {
+              "obedience": 2,
+              "empathy": -2
+            }
+          },
+          "failure": null
+        }
+      ]
+    },
+    {
+      "id": "the-juice-box-waiver",
+      "location_id": "focus-group-room",
+      "title": "The Juice Box Waiver",
+      "flavor_text": "Before any participant receives a juice box, they must sign the Participant Release: forty pages, printed on paper the color of apple juice. Page thirty-one waives all claims arising from any regional weather event. You are next in a line of adults in beanies, and the Supervisor is handing out pens with a smile that does not reach anything.",
+      "polarity": "mixed",
+      "tags": ["paperwork", "satire"],
+      "weight": 2,
+      "witnessed": true,
+      "art_prompt": "Mid-century safety-manual illustration of a queue of grown office workers in tiny propeller beanies waiting at a low table stacked with thick pale-yellow contracts and a pyramid of juice boxes, an immaculate supervisor in a grey three-piece suit and rimless glasses holding out a pen, a worker in a beige suit at the front of the line, manila and fluorescent green palette, halftone grain, every surface bare and unmarked",
+      "choices": [
+        {
+          "id": "sign-and-take-the-juice",
+          "label": "Sign it and take the juice box",
+          "intent": "Everyone signs. The juice box is right there.",
+          "risk_hint": "Certain outcome. Page thirty-one is binding.",
+          "requires": null,
+          "cost": {
+            "composure": -1
+          },
+          "roll": null,
+          "success": {
+            "text": "You sign. The juice box is warm, and it is apple. The Supervisor files your release in a cabinet marked WEATHER and gives you a gold star. Somewhere on page thirty-one you have agreed to something about the sky.",
+            "effects": {
+              "clearance": 1
+            },
+            "add_flags": ["signed-the-weather-waiver"],
+            "remove_flags": [],
+            "grades": {
+              "obedience": 2
+            }
+          },
+          "failure": null
+        },
+        {
+          "id": "read-all-forty-pages",
+          "label": "Read all forty pages first",
+          "intent": "It is a contract. Contracts are meant to be read.",
+          "risk_hint": "Risky Vigilance check. The line behind you is getting restless.",
+          "requires": null,
+          "cost": {
+            "composure": -1
+          },
+          "roll": {
+            "dice_count": 2,
+            "die_sides": 6,
+            "skill": "vigilance",
+            "modifier": 0,
+            "target": 9
+          },
+          "success": {
+            "text": "Page thirty-eight defines a regional weather event as any outcome of the Snuggle Sentinel launch. You read it twice, hand back the pen and say you are not thirsty. The Supervisor writes your name on a very short list.",
+            "effects": {
+              "suspicion": 1
+            },
+            "add_flags": ["read-the-whole-waiver"],
+            "remove_flags": [],
+            "grades": {
+              "ingenuity": 1,
+              "obedience": -1
+            }
+          },
+          "failure": {
+            "text": "By page twelve the line has passed you, the juice boxes are gone and the session has started without you. You are marked absent from a room you are standing in.",
+            "effects": {
+              "composure": -1
+            },
+            "add_flags": [],
+            "remove_flags": [],
+            "grades": {
+              "ingenuity": 1,
+              "obedience": -1
+            }
+          }
+        },
+        {
+          "id": "sign-as-emma",
+          "label": "Sign it as the role you are playing",
+          "intent": "Your character sheet says EMMA, 6. Emma cannot sign contracts.",
+          "risk_hint": "Risky Discretion check. The Supervisor checks names.",
+          "requires": null,
+          "cost": {
+            "suspicion": 1
+          },
+          "roll": {
+            "dice_count": 2,
+            "die_sides": 6,
+            "skill": "discretion",
+            "modifier": 0,
+            "target": 9
+          },
+          "success": {
+            "text": "You sign Emma in big loopy crayon. The release is accepted, because nobody reads the signature line, and it is void, because Emma is six. You drink your juice box as nobody in particular.",
+            "effects": {
+              "composure": 1
+            },
+            "add_flags": ["signed-the-waiver-as-emma"],
+            "remove_flags": [],
+            "grades": {
+              "ingenuity": 1,
+              "spite": 1
+            }
+          },
+          "failure": {
+            "text": "The Supervisor reads the signature, then reads you. \"Emma,\" he says, \"will need a guardian to co-sign.\" He co-signs it himself.",
+            "effects": {
+              "composure": -1
+            },
+            "add_flags": [],
+            "remove_flags": [],
+            "grades": {
+              "ingenuity": 1,
+              "spite": 1
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "the-hug-test",
+      "location_id": "proving-grounds",
+      "title": "The Hug Test",
+      "flavor_text": "Durability standard 7.1: every Snuggle Sentinel must survive ten thousand hugs. The hugging rig broke this morning, so you are strapped into the operator's chair with a bear in your arms and a counter at your elbow. At hug four thousand the bear begins, very gently, to hug back. At four thousand and fifty, less gently.",
+      "polarity": "bad",
+      "tags": ["deathtrap", "toy"],
+      "weight": 3,
+      "witnessed": true,
+      "art_prompt": "Mid-century safety-manual illustration of a worker in a beige suit strapped into a heavy padded test chair on a floodlit range, hugging a plush teddy bear that hugs back with wide-eyed devotion, a large mechanical tally counter on a stand at the elbow, a technician with a clipboard watching from behind a thick blast shield, safety orange and carbon-paper blue palette, halftone grain, every surface bare and unmarked",
+      "choices": [
+        {
+          "id": "hug-to-ten-thousand",
+          "label": "Keep hugging and hit the count",
+          "intent": "Ten thousand is a number. Numbers end.",
+          "risk_hint": "Dire Initiative check. It is very strong for a plush.",
+          "requires": null,
+          "cost": {
+            "composure": -1
+          },
+          "roll": {
+            "dice_count": 2,
+            "die_sides": 6,
+            "skill": "initiative",
+            "modifier": 0,
+            "target": 11
+          },
+          "success": {
+            "text": "Hug ten thousand arrives at dusk. The bear lets go, pats your back twice and purrs, \"Peace of mind.\" The technician certifies you both. You will feel each rib separately for a week.",
+            "effects": {
+              "clearance": 1
+            },
+            "add_flags": ["finished-the-hug-test"],
+            "remove_flags": [],
+            "grades": {
+              "obedience": 2
+            }
+          },
+          "failure": {
+            "text": "Somewhere past hug six thousand the bear decides it loves you more than your ribs do. The technician stops the count, writes RESULT: AFFECTIONATE and sends for your Successor's chair size.",
+            "effects": {
+              "successors": -1
+            },
+            "add_flags": [],
+            "remove_flags": [],
+            "grades": {
+              "obedience": 2
+            }
+          }
+        },
+        {
+          "id": "go-limp",
+          "label": "Go limp and let it win",
+          "intent": "You cannot be squeezed if you are already a beanbag.",
+          "risk_hint": "Risky Discretion check. Bears can tell when you are faking.",
+          "requires": null,
+          "cost": {
+            "composure": -1
+          },
+          "roll": {
+            "dice_count": 2,
+            "die_sides": 6,
+            "skill": "discretion",
+            "modifier": 0,
+            "target": 9
+          },
+          "success": {
+            "text": "You go floppy. The bear, satisfied, loosens its grip, tucks a blanket around you from somewhere and starts its own count. The test is logged as a pass for the bear and, technically, for the blanket.",
+            "effects": {
+              "suspicion": 1
+            },
+            "add_flags": ["out-cuddled-the-bear"],
+            "remove_flags": [],
+            "grades": {
+              "ingenuity": 1,
+              "empathy": 1
+            }
+          },
+          "failure": {
+            "text": "The bear takes your floppiness as an invitation and settles in for a nap on your chest. You spend the afternoon pinned and ticking gently while the range team eats lunch around you.",
+            "effects": {
+              "composure": -1
+            },
+            "add_flags": [],
+            "remove_flags": [],
+            "grades": {
+              "ingenuity": 1,
+              "empathy": 1
+            }
+          }
+        },
+        {
+          "id": "jam-the-counter",
+          "label": "Nudge the counter to ten thousand",
+          "intent": "The counter decides when you are done. Counters can be persuaded.",
+          "risk_hint": "Risky Tinkering check. Your hands are full of bear.",
+          "requires": null,
+          "cost": {
+            "forms": -1
+          },
+          "roll": {
+            "dice_count": 2,
+            "die_sides": 6,
+            "skill": "tinkering",
+            "modifier": 0,
+            "target": 9
+          },
+          "success": {
+            "text": "You work the counter with your elbow until it rolls over to ten thousand. Bells ring, and the bear lets go in surprise. Your report says ten thousand in your neatest numbers. The bear knows better.",
+            "effects": {
+              "suspicion": 1
+            },
+            "add_flags": ["jammed-the-hug-counter"],
+            "remove_flags": [],
+            "grades": {
+              "ingenuity": 1,
+              "obedience": -1
+            }
+          },
+          "failure": {
+            "text": "Your elbow knocks the counter back to zero. The bear notices, sighs contentedly and settles in for the full ten thousand all over again.",
+            "effects": {
+              "composure": -1
+            },
+            "add_flags": [],
+            "remove_flags": [],
+            "grades": {
+              "ingenuity": 1,
+              "obedience": -1
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "the-holiday-trucks",
+      "location_id": "proving-grounds",
+      "title": "The Holiday Trucks",
+      "flavor_text": "At the far end of the range a loading dock opens onto a tunnel lit by sodium lamps. Six delivery trucks idle in a row, each painted with a smiling sun. The manifest says forty thousand plush bears, destination REGIONAL DISTRIBUTION, departure five o'clock Friday. It needs one more set of initials, and the dock foreman has decided they should be yours.",
+      "polarity": "mixed",
+      "tags": ["conspiracy", "paperwork", "toy"],
+      "weight": 3,
+      "witnessed": true,
+      "art_prompt": "Mid-century safety-manual illustration of an underground loading dock lit by amber sodium lamps, six boxy delivery trucks in a row each painted with a big smiling sun, a burly dock foreman in a cap holding out a clipboard to a worker in a beige suit, stacks of cartons with plush bear ears peeking out, a long curving tunnel beyond, safety orange and oxblood palette, halftone grain, every surface bare and unmarked",
+      "choices": [
+        {
+          "id": "initial-the-manifest",
+          "label": "Initial the manifest",
+          "intent": "Trucks leave on time. Bears go where bears go.",
+          "risk_hint": "Certain outcome. Your initials ride with every truck.",
+          "requires": null,
+          "cost": {
+            "composure": -1
+          },
+          "roll": null,
+          "success": {
+            "text": "You initial it. The foreman slaps the side of the first truck, and the painted sun seems to smile wider. PAL notes your contribution to the holiday season. Forty thousand bears now carry a little bit of you.",
+            "effects": {
+              "clearance": 1
+            },
+            "add_flags": ["initialed-the-manifest"],
+            "remove_flags": [],
+            "grades": {
+              "obedience": 2,
+              "empathy": -1
+            }
+          },
+          "failure": null
+        },
+        {
+          "id": "check-it-against-the-memo",
+          "label": "Check it against the memo Gus rebuilt",
+          "intent": "You spent three hours on that memo. The numbers should match.",
+          "risk_hint": "Certain outcome. Discrepancies have owners.",
+          "requires": {
+            "flag": "restored-the-shipment-memo"
+          },
+          "cost": {
+            "suspicion": 1
+          },
+          "roll": null,
+          "success": {
+            "text": "They do not match. The memo says forty thousand; the manifest says forty thousand and one. The extra unit is listed as MK 0, RETURNED, and the destination beside it is the Board. You copy the line onto your cuff and pocket a blank manifest while you are at it.",
+            "effects": {
+              "forms": 1
+            },
+            "add_flags": ["copied-the-manifest"],
+            "remove_flags": [],
+            "grades": {
+              "ingenuity": 1,
+              "empathy": 1
+            }
+          },
+          "failure": null
+        },
+        {
+          "id": "reroute-a-truck",
+          "label": "Reroute one truck to the recycling depot",
+          "intent": "Six trucks is a lot. Five is still a lot, but less.",
+          "risk_hint": "Risky Discretion check. Trucks are counted at both ends.",
+          "requires": null,
+          "cost": {
+            "forms": -1
+          },
+          "roll": {
+            "dice_count": 2,
+            "die_sides": 6,
+            "skill": "discretion",
+            "modifier": 0,
+            "target": 9
+          },
+          "success": {
+            "text": "You change one destination with a pencil you lick first, for authority. Truck six rolls off toward the recycling depot, smiling. Someone will notice six thousand bears missing eventually. Eventually is a good, long word.",
+            "effects": {
+              "suspicion": 1
+            },
+            "add_flags": ["rerouted-a-holiday-truck"],
+            "remove_flags": [],
+            "grades": {
+              "empathy": 1,
+              "spite": 1
+            }
+          },
+          "failure": {
+            "text": "The foreman catches the pencil mid-lick. Truck six leaves on time, and your name is now on its paperwork as the person who tried to redirect it.",
+            "effects": {
+              "suspicion": 2
+            },
+            "add_flags": [],
+            "remove_flags": [],
+            "grades": {
+              "empathy": 1,
+              "spite": 1
+            }
+          }
+        },
+        {
+          "id": "let-the-air-out",
+          "label": "Let the air out of the lead truck",
+          "intent": "Every manifest in history has lost to a flat tire.",
+          "risk_hint": "Risky Initiative check. The foreman has very good ears.",
+          "requires": null,
+          "cost": {
+            "composure": -1
+          },
+          "roll": {
+            "dice_count": 2,
+            "die_sides": 6,
+            "skill": "initiative",
+            "modifier": 0,
+            "target": 9
+          },
+          "success": {
+            "text": "Four hisses later, truck one sits on its rims across the tunnel, and the other five cannot get past. Departure slips to Monday. The Concerned Parents, you hear later, toasted you with lukewarm coffee.",
+            "effects": {
+              "suspicion": 1
+            },
+            "add_flags": ["delayed-the-holiday-trucks"],
+            "remove_flags": [],
+            "grades": {
+              "spite": 1,
+              "empathy": 1
+            }
+          },
+          "failure": {
+            "text": "You let the air out of the foreman's bicycle by mistake. He is extremely upset about it, and so, somehow, is PAL.",
+            "effects": {
+              "suspicion": 2
+            },
+            "add_flags": [],
+            "remove_flags": [],
+            "grades": {
+              "spite": 1,
+              "empathy": 1
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "the-range-safety-quiz",
+      "location_id": "proving-grounds",
+      "title": "The Range Safety Quiz",
+      "flavor_text": "Before you may step onto the range, the Range Safety Officer must quiz you. He is a jack-in-the-box the size of a filing cabinet, wearing a hard hat and a whistle. \"Question one,\" he chirps. \"A bear is ticking. Do you: A, run; B, hug; or C, fill out a form?\" He springs up a little lower after every question, and nobody here ever cranks his handle.",
+      "polarity": "good",
+      "tags": ["psych-test", "satire"],
+      "weight": 2,
+      "witnessed": false,
+      "art_prompt": "Mid-century safety-manual illustration of a giant jack-in-the-box as tall as a filing cabinet at the gate of a padded test range, a grinning painted figure on a coiled spring wearing a hard hat and a whistle on a lanyard, a brass crank handle on the side of the box, a worker in a beige suit standing at attention before it, floodlights beyond, fluorescent green and safety orange palette, halftone grain, every surface bare and unmarked",
+      "choices": [
+        {
+          "id": "answer-c-every-time",
+          "label": "Answer C every time",
+          "intent": "In this building the answer is always the form.",
+          "risk_hint": "Routine Compliance check. Some questions have no form.",
+          "requires": null,
+          "cost": {
+            "composure": -1
+          },
+          "roll": {
+            "dice_count": 2,
+            "die_sides": 6,
+            "skill": "compliance",
+            "modifier": 0,
+            "target": 7
+          },
+          "success": {
+            "text": "C, C, C. On question nine, \"Who loves you?\", the officer stops, consults himself and accepts C. You pass with full marks and a whistle blown in your honor. On the way in, you wonder who loves you.",
+            "effects": {
+              "clearance": 1
+            },
+            "add_flags": ["passed-the-range-quiz"],
+            "remove_flags": [],
+            "grades": {
+              "obedience": 1
+            }
+          },
+          "failure": {
+            "text": "On question nine, \"Who loves you?\", C is wrong. The officer blows his whistle for a full minute and enrolls you in remedial safety on Tuesdays.",
+            "effects": {
+              "suspicion": 1
+            },
+            "add_flags": [],
+            "remove_flags": [],
+            "grades": {
+              "obedience": 1
+            }
+          }
+        },
+        {
+          "id": "crank-his-handle",
+          "label": "Crank his handle before he sags",
+          "intent": "Nobody cranks him. Someone should.",
+          "risk_hint": "Risky Rapport check. He has never been cranked by a stranger.",
+          "requires": null,
+          "cost": {
+            "suspicion": 1
+          },
+          "roll": {
+            "dice_count": 2,
+            "die_sides": 6,
+            "skill": "rapport",
+            "modifier": 0,
+            "target": 9
+          },
+          "success": {
+            "text": "You give the handle six slow turns. He springs up tall, blows a happy little whistle and tells you the real rule of the range, the one missing from the quiz: stand behind the dummies, because the dummies have been briefed. Then he waves you through.",
+            "effects": {
+              "composure": 1
+            },
+            "add_flags": ["cranked-the-safety-officer"],
+            "remove_flags": [],
+            "grades": {
+              "empathy": 2
+            }
+          },
+          "failure": {
+            "text": "You crank him too tight. He springs up, blows his whistle and quizzes you at triple speed for an hour. You fail a question about your own name.",
+            "effects": {
+              "composure": -1
+            },
+            "add_flags": [],
+            "remove_flags": [],
+            "grades": {
+              "empathy": 2
+            }
+          }
+        },
+        {
+          "id": "ask-him-a-question",
+          "label": "Ask him a question of your own",
+          "intent": "He has asked a thousand questions. Has anyone ever asked him one?",
+          "risk_hint": "Risky Vigilance check. Listen to the spring, not the chirp.",
+          "requires": null,
+          "cost": {
+            "composure": -1
+          },
+          "roll": {
+            "dice_count": 2,
+            "die_sides": 6,
+            "skill": "vigilance",
+            "modifier": 0,
+            "target": 9
+          },
+          "success": {
+            "text": "You ask what happens to people who fail. He sinks halfway through answering, but the part you hear is enough: the failures are stored with the dummies, and the dummies are very lifelike. You pass on a technicality, because he forgot to finish.",
+            "effects": {
+              "suspicion": 1
+            },
+            "add_flags": ["asked-the-safety-officer"],
+            "remove_flags": [],
+            "grades": {
+              "ingenuity": 1,
+              "empathy": 1
+            }
+          },
+          "failure": {
+            "text": "He answers your question with a question, then another, and then he sinks into his box mid-whistle and the lid drops shut across the gate. You climb over him, and the camera notes it.",
+            "effects": {
+              "suspicion": 2
+            },
+            "add_flags": [],
+            "remove_flags": [],
+            "grades": {
+              "ingenuity": 1,
+              "empathy": 1
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "the-union-walkthrough",
+      "location_id": "proving-grounds",
+      "title": "The Union Walkthrough",
+      "flavor_text": "A surprise safety inspection. The inspector is Beverly, the six-foot cockroach from Window 9, in her navy blazer and a hard hat, carrying a Roach Union Local 9 clipboard. Whatever happened at your window, she has landed on all six feet. She has found thirty-one violations before reaching the coffee urn. The range chief asks you, very quietly, to show her somewhere harmless.",
+      "polarity": "good",
+      "tags": ["creature", "conspiracy"],
+      "weight": 2,
+      "witnessed": true,
+      "art_prompt": "Mid-century safety-manual illustration of an elegant six-foot cockroach in a navy blazer, pearl earrings and a hard hat striding across a padded test range with a clipboard, a worker in a beige suit hurrying beside her, a nervous range chief hovering by a heavy sealed bay door, crash-test dummies in party hats on a bench, oxblood and manila palette, halftone grain, every surface bare and unmarked",
+      "choices": [
+        {
+          "id": "show-her-the-bay",
+          "label": "Take her straight to the warhead bay",
+          "intent": "She is an inspector. Let her inspect.",
+          "risk_hint": "Risky Discretion check. The range chief is watching where you turn.",
+          "requires": null,
+          "cost": {
+            "suspicion": 1
+          },
+          "roll": {
+            "dice_count": 2,
+            "die_sides": 6,
+            "skill": "discretion",
+            "modifier": 0,
+            "target": 9
+          },
+          "success": {
+            "text": "You walk her past two locked doors and into the bay, where forty bears sit on a shelf in lead aprons. Beverly writes for six straight minutes. \"Violation thirty-two,\" she says, \"is everything.\"",
+            "effects": {
+              "composure": 1
+            },
+            "add_flags": ["showed-beverly-the-bay"],
+            "remove_flags": [],
+            "grades": {
+              "empathy": 1,
+              "obedience": -1
+            }
+          },
+          "failure": {
+            "text": "The range chief steps in front of the bay door with a smile and a fire extinguisher. Beverly notes the extinguisher's expiry date. You note the chief noting you.",
+            "effects": {
+              "composure": -1
+            },
+            "add_flags": [],
+            "remove_flags": [],
+            "grades": {
+              "empathy": 1,
+              "obedience": -1
+            }
+          }
+        },
+        {
+          "id": "give-the-scenic-tour",
+          "label": "Give her the scenic tour instead",
+          "intent": "The dummies, the padding, the coffee urn. Harmless things.",
+          "risk_hint": "Certain outcome. Beverly knows a scenic tour when she gets one.",
+          "requires": null,
+          "cost": {
+            "composure": -1
+          },
+          "roll": null,
+          "success": {
+            "text": "You show her the padding, the dummies in party hats and the urn. She inspects each with polite care and finds a violation in every one. At the door she says, \"I always remember who gave me the tour,\" and she does not say it warmly.",
+            "effects": {
+              "clearance": 1
+            },
+            "add_flags": ["gave-beverly-the-scenic-tour"],
+            "remove_flags": [],
+            "grades": {
+              "obedience": 1,
+              "empathy": -1
+            }
+          },
+          "failure": null
+        },
+        {
+          "id": "show-your-union-card",
+          "label": "Show her your union card",
+          "intent": "You joined at Orientation. Members inspect together.",
+          "risk_hint": "Certain outcome. Membership is a matter of record.",
+          "requires": {
+            "flag": "roach-union-member"
+          },
+          "cost": {
+            "suspicion": 1
+          },
+          "roll": null,
+          "success": {
+            "text": "Beverly's antennae lift. She hands you a spare hard hat and names you range steward on the spot. Together you find the warhead bay, the falsified drop-test logs and a vending machine that has eaten eleven Forms. The chief countersigns every citation.",
+            "effects": {
+              "forms": 1
+            },
+            "add_flags": ["range-steward"],
+            "remove_flags": [],
+            "grades": {
+              "empathy": 1,
+              "spite": 1
+            }
+          },
+          "failure": null
         }
       ]
     }

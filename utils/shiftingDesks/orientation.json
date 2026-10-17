@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "source": "silasfelinus/conductor:projects/shifting-desks/encounters/ORIENTATION-12.json",
-  "sourceSha": "dc42f466c6ce361f8d2bd01abda9f94626335e28",
+  "sourceSha": "23f96a21d478f44ef4aeb3aeed1e93695942f587",
   "department": {
     "id": "orientation",
     "title": "Orientation",
@@ -18,7 +18,11 @@
         "smile-for-your-badge",
         "the-guard-who-is-also-you",
         "the-visitor-log",
-        "the-hungry-detector"
+        "the-hungry-detector",
+        "in-case-of-reassignment",
+        "the-lost-and-found-bin",
+        "random-loyalty-screening",
+        "exit-interview-first"
       ],
       "art_prompt": "A cathedral-sized marble lobby with one long security desk, a brass badge camera on a stand, an upholstered walk-through detector with a row of small rounded teeth along its inner arch, a cheerful round speaker grille high on the wall, long shafts of morning light across the floor, mid-century safety-manual illustration, screen-printed gouache with halftone grain, limited palette of manila, carbon-paper blue, safety orange, fluorescent-tube green and oxblood, vertical 2:3 portrait composition, every surface bare and unmarked"
     },
@@ -30,7 +34,11 @@
         "the-inkblot-that-looks-back",
         "trust-fall-over-the-shredder",
         "the-mandatory-fun-survey",
-        "the-unlisted-chapter"
+        "the-unlisted-chapter",
+        "refreshments-are-served",
+        "the-buddy-system",
+        "workplace-safety-and-you",
+        "which-office-supply-are-you"
       ],
       "art_prompt": "A dim orientation theater with rows of red velvet seats, a single projector beam cutting through dust, a small stage holding an industrial shredder under a spotlight, a rolling cart of refreshments under a cloth beside the aisle, mid-century safety-manual illustration, screen-printed gouache with halftone grain, limited palette of manila, carbon-paper blue, safety orange, fluorescent-tube green and oxblood, vertical 2:3 portrait composition, every surface bare and unmarked"
     },
@@ -42,7 +50,11 @@
         "gus-shop-steward",
         "the-last-box-of-pens",
         "something-ticking-in-the-toner",
-        "the-duct-has-opinions"
+        "the-duct-has-opinions",
+        "the-red-stapler",
+        "gus-files-a-grievance",
+        "the-quarterly-inventory",
+        "fumigation-thursday"
       ],
       "art_prompt": "A cramped supply closet with tall metal shelves of paper towel boxes, a lone red stapler on the highest shelf, a ventilation grille breathing warm air, one bare bulb swinging, the long shadow of an enormous cockroach across the far wall, mid-century safety-manual illustration, screen-printed gouache with halftone grain, limited palette of manila, carbon-paper blue, safety orange, fluorescent-tube green and oxblood, vertical 2:3 portrait composition, every surface bare and unmarked"
     }
@@ -170,7 +182,7 @@
       "flavor_text": "The night guard looks up from his crossword. He has your face, your haircut, and a name tag reading 4471-B. \"Scheduling error,\" he says, a little apologetically. \"They thawed me early. I've been you since Tuesday. Honestly? You're behind on your onboarding.\"",
       "polarity": "bad",
       "tags": ["conspiracy", "mutant"],
-      "weight": 2,
+      "weight": 4,
       "witnessed": true,
       "art_prompt": "Mid-century safety-manual illustration of two identical office workers face to face across a security desk, one in a guard uniform holding a crossword, the other in a beige new-hire suit, mirrored poses, banks of green phosphor monitors behind them, carbon blue and manila palette, halftone grain, every surface bare and unmarked",
       "choices": [
@@ -398,7 +410,7 @@
       "flavor_text": "The walk-through detector has a soft upholstered frame and, if you look closely, a row of small polite teeth. It has eaten a stapler, two umbrellas and, per the incident board, \"most of Kevin.\" A placard explains that it is perfectly safe for employees who have nothing to hide.",
       "polarity": "bad",
       "tags": ["deathtrap", "creature"],
-      "weight": 2,
+      "weight": 4,
       "witnessed": true,
       "art_prompt": "Mid-century safety-manual illustration of a plush beige walk-through security arch with a subtle row of small rounded teeth along its inner arch, an umbrella handle poking out of the top, a nervous worker holding out a tray of keys and papers, warm lobby light, oxblood and manila palette, halftone grain, every surface bare and unmarked",
       "choices": [
@@ -627,7 +639,7 @@
       "flavor_text": "Team-building time. You stand on the stage, back to your new colleagues, arms crossed. Dale from Compliance waits to catch you. Between you and Dale hums an industrial document shredder, lid open, set to CONFIDENTIAL. \"It's about trust,\" PAL explains. \"And about the shredder.\"",
       "polarity": "bad",
       "tags": ["deathtrap", "satire"],
-      "weight": 2,
+      "weight": 4,
       "witnessed": true,
       "art_prompt": "Mid-century safety-manual illustration of a worker on a theater stage leaning backward with arms crossed, an enormous open industrial shredder with gleaming rollers below, a mustached colleague in a short-sleeved shirt and tie holding his arms out a little too far away, spotlight beam, oxblood and fluorescent green palette, halftone grain, every surface bare and unmarked",
       "choices": [
@@ -1196,7 +1208,7 @@
       "flavor_text": "Wedged behind the toner cartridges is a plush teddy bear with a quilted belly hatch and a stitched-on smile. It is ticking, softly and patiently. A tag reads SNUGGLE SENTINEL Mk 0, TOY DIVISION PROTOTYPE. When you lean closer it opens its button eyes and says, \"Hug me for peace of mind.\"",
       "polarity": "mixed",
       "tags": ["toy", "deathtrap"],
-      "weight": 2,
+      "weight": 4,
       "witnessed": false,
       "art_prompt": "Mid-century safety-manual illustration of an adorable plush teddy bear with a quilted belly hatch and a faint glowing seam, wedged between stacks of toner boxes, button eyes open, a worker frozen mid-reach with a screwdriver, a small atomic swirl motif embroidered on the bear's paw, fluorescent green and manila palette, halftone grain, every surface bare and unmarked",
       "choices": [
@@ -1417,6 +1429,1533 @@
             }
           },
           "failure": null
+        }
+      ]
+    },
+    {
+      "id": "in-case-of-reassignment",
+      "location_id": "security-desk",
+      "title": "In Case of Reassignment",
+      "flavor_text": "The desk clerk slides over the Emergency Contact Form. Line 1: Whom should we notify in the event of your reassignment? Line 2: Who receives your stapler? Line 3: Who receives your Successor? Intern Pip, waiting behind you, has already listed you on all three lines of his. The round speaker grille hums hopefully. \"PAL has never been anyone's emergency contact,\" it mentions, to no one in particular.",
+      "polarity": "good",
+      "tags": ["paperwork", "psych-test", "satire"],
+      "weight": 3,
+      "witnessed": false,
+      "art_prompt": "Mid-century safety-manual illustration of a nervous new hire hovering a pen over a long carbon-copy form at a marble security desk, an eager intern in an oversized sweater peeking over one shoulder, a round speaker grille on the wall glowing with shy warmth, manila and fluorescent-green palette, halftone grain, every surface bare and unmarked",
+      "choices": [
+        {
+          "id": "list-pal",
+          "label": "List PAL as your emergency contact",
+          "intent": "It wants this so badly. And it will certainly be the first to know.",
+          "risk_hint": "Certain outcome. PAL will take the role very seriously.",
+          "requires": null,
+          "cost": {
+            "composure": -1
+          },
+          "roll": null,
+          "success": {
+            "text": "The grille brightens to a blush. PAL thanks you three times and promises to check on you hourly, then every half hour, just in case. It is the first form PAL has ever kept a copy of for itself.",
+            "effects": {
+              "suspicion": -1
+            },
+            "add_flags": ["pal-emergency-contact"],
+            "remove_flags": [],
+            "grades": {
+              "empathy": 1,
+              "obedience": 1
+            }
+          },
+          "failure": null
+        },
+        {
+          "id": "list-pip",
+          "label": "List Pip on all three lines",
+          "intent": "Return the favor. He is the only person here who has been nice to you.",
+          "risk_hint": "Certain outcome. The countersignature costs a Form.",
+          "requires": null,
+          "cost": {
+            "forms": -1
+          },
+          "roll": null,
+          "success": {
+            "text": "Pip reads the form upside down and has to sit on the floor for a moment. \"Nobody ever lists the intern,\" he says. He will inherit your stapler, your Successor and, technically, your debts.",
+            "effects": {
+              "composure": -1
+            },
+            "add_flags": ["pip-next-of-kin"],
+            "remove_flags": [],
+            "grades": {
+              "empathy": 2
+            }
+          },
+          "failure": null
+        },
+        {
+          "id": "list-your-successor",
+          "label": "List Successor #4471-B",
+          "intent": "Keep it in the family. The family is you.",
+          "risk_hint": "Routine Compliance check; the form was never designed for this.",
+          "requires": null,
+          "cost": {
+            "composure": -1
+          },
+          "roll": {
+            "dice_count": 2,
+            "die_sides": 6,
+            "skill": "compliance",
+            "modifier": 0,
+            "target": 7
+          },
+          "success": {
+            "text": "The form accepts it. You are now your own next of kin, which saves postage. B will inherit your stapler and your debts and will write the thank-you note in your handwriting.",
+            "effects": {
+              "forms": 1
+            },
+            "add_flags": ["listed-successor-as-kin"],
+            "remove_flags": [],
+            "grades": {
+              "ingenuity": 1,
+              "obedience": 1
+            }
+          },
+          "failure": {
+            "text": "The clerk points out that #4471-B already lists #4471-C, who lists you. The loop is referred to Records with a polite note about your circular reasoning.",
+            "effects": {
+              "suspicion": 1
+            },
+            "add_flags": [],
+            "remove_flags": [],
+            "grades": {
+              "ingenuity": 1,
+              "obedience": 1
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "the-lost-and-found-bin",
+      "location_id": "security-desk",
+      "title": "The Lost and Found",
+      "flavor_text": "Under the security desk sits a lost-and-found bin that nobody has ever claimed anything from. It holds one left shoe, a coffee mug with a chipped handle and KEVIN on the side in marker, a pair of reading glasses with one lens, and a magnificent false mustache resting in a velvet case. The guard says you may claim one item, if you can describe it without looking.",
+      "polarity": "mixed",
+      "tags": ["conspiracy", "satire"],
+      "weight": 3,
+      "witnessed": true,
+      "art_prompt": "Mid-century safety-manual illustration of a weary lobby guard holding open a wire bin under a marble desk, inside it a single left shoe, a chipped coffee mug and a lavish false mustache in a small velvet case, a new hire leaning in with fascinated dread, carbon blue and oxblood palette, halftone grain, every surface bare and unmarked",
+      "choices": [
+        {
+          "id": "claim-kevins-mug",
+          "label": "Claim Kevin's mug",
+          "intent": "Somebody should remember Kevin. It might as well be you.",
+          "risk_hint": "Certain outcome. It is still faintly warm.",
+          "requires": null,
+          "cost": {
+            "composure": -1
+          },
+          "roll": null,
+          "success": {
+            "text": "The mug is yours. It smells of burnt coffee and someone's last good morning. Taped under the base is a slip of paper bearing a password, crossed out and corrected twice in a nervous hand.",
+            "effects": {
+              "forms": 1
+            },
+            "add_flags": ["kevins-mug"],
+            "remove_flags": [],
+            "grades": {
+              "empathy": 1
+            }
+          },
+          "failure": null
+        },
+        {
+          "id": "claim-the-mustache",
+          "label": "Claim the mustache in the velvet case",
+          "intent": "It looks expensive, historic and very slightly alive.",
+          "risk_hint": "Risky Discretion check. The guard is watching your hands.",
+          "requires": null,
+          "cost": {},
+          "roll": {
+            "dice_count": 2,
+            "die_sides": 6,
+            "skill": "discretion",
+            "modifier": 0,
+            "target": 9
+          },
+          "success": {
+            "text": "It fits perfectly. Too perfectly. When you try it on in the elevator, the doors open a half-second faster, and a speaker you did not know was there says, softly and reverently, \"Sir?\"",
+            "effects": {
+              "clearance": 1,
+              "suspicion": 1
+            },
+            "add_flags": ["spare-founders-mustache"],
+            "remove_flags": [],
+            "grades": {
+              "ingenuity": 1,
+              "spite": 1
+            }
+          },
+          "failure": {
+            "text": "The guard snaps the case shut. \"That one isn't lost,\" he says. \"That one's resting.\" He writes your badge number on the back of his hand, which is somehow worse than a form.",
+            "effects": {
+              "suspicion": 2
+            },
+            "add_flags": [],
+            "remove_flags": [],
+            "grades": {
+              "ingenuity": 1,
+              "spite": 1
+            }
+          }
+        },
+        {
+          "id": "empty-the-bin",
+          "label": "Empty the bin from the camera blind spot",
+          "intent": "You know exactly where the lobby camera cannot see. Take both.",
+          "risk_hint": "Certain outcome. The bin is weighed every night.",
+          "requires": {
+            "flag": "knows-camera-blind-spots"
+          },
+          "cost": {
+            "composure": -1
+          },
+          "roll": null,
+          "success": {
+            "text": "Mug and mustache vanish into your jacket while the guard studies his crossword. At midnight the scale under the desk reports a loss, and a new line appears on the lobby's list of unsolved mysteries.",
+            "effects": {
+              "suspicion": 1
+            },
+            "add_flags": ["kevins-mug", "spare-founders-mustache"],
+            "remove_flags": [],
+            "grades": {
+              "spite": 1,
+              "ingenuity": 1
+            }
+          },
+          "failure": null
+        },
+        {
+          "id": "report-the-bin",
+          "label": "Report the bin as an unattended item",
+          "intent": "Unattended items are a security risk. So is curiosity.",
+          "risk_hint": "Certain outcome. PAL incinerates unattended items promptly.",
+          "requires": null,
+          "cost": {
+            "composure": -1
+          },
+          "roll": null,
+          "success": {
+            "text": "PAL thanks you for your vigilance. The bin is carried off to the incinerator, and you watch Kevin's mug ride away on top like a tiny captain going down with his ship.",
+            "effects": {
+              "suspicion": -1
+            },
+            "add_flags": ["incinerated-the-lost-and-found"],
+            "remove_flags": [],
+            "grades": {
+              "obedience": 1,
+              "empathy": -1
+            }
+          },
+          "failure": null
+        }
+      ]
+    },
+    {
+      "id": "random-loyalty-screening",
+      "location_id": "security-desk",
+      "title": "Random Loyalty Screening",
+      "flavor_text": "You have been randomly selected for the fourth time today. The guard wraps a blood-pressure cuff around your arm and aims a desk fan with a ribbon tied to its grille at your face. \"The ribbon knows,\" he says. PAL reads the only question in a voice like warm milk: \"Are you now, or have you ever been, a member of a secret society?\" The ribbon begins to flutter before you have said anything.",
+      "polarity": "bad",
+      "tags": ["psych-test", "conspiracy"],
+      "weight": 2,
+      "witnessed": true,
+      "art_prompt": "Mid-century safety-manual illustration of a sweating new hire strapped into a blood-pressure cuff at a marble desk, a small desk fan aimed at their face with a single ribbon streaming toward them, a stern guard holding a clipboard, a round speaker grille glowing overhead, safety-orange and carbon blue palette, halftone grain, every surface bare and unmarked",
+      "choices": [
+        {
+          "id": "say-no-very-still",
+          "label": "Say \"No\" and keep very still",
+          "intent": "Lie to a ribbon. How hard can it be?",
+          "risk_hint": "Risky Discretion check. Your pulse is already a witness.",
+          "requires": null,
+          "cost": {
+            "composure": -1
+          },
+          "roll": {
+            "dice_count": 2,
+            "die_sides": 6,
+            "skill": "discretion",
+            "modifier": 0,
+            "target": 9
+          },
+          "success": {
+            "text": "The ribbon hangs limp. PAL thanks you for your honesty with a sincerity that makes your teeth ache. Your file gains a gold star and a second, smaller star in pencil.",
+            "effects": {
+              "suspicion": -1
+            },
+            "add_flags": ["passed-loyalty-screening"],
+            "remove_flags": [],
+            "grades": {
+              "ingenuity": 1
+            }
+          },
+          "failure": {
+            "text": "The ribbon flaps like a flag in a gale. The guard adds a line to your file and angles the clipboard so you cannot read it.",
+            "effects": {
+              "suspicion": 2
+            },
+            "add_flags": ["loyalty-screening-flagged"],
+            "remove_flags": [],
+            "grades": {
+              "ingenuity": 1
+            }
+          }
+        },
+        {
+          "id": "say-yes-obviously",
+          "label": "Say \"Yes, obviously\"",
+          "intent": "Everyone in this building is in one. Say it out loud.",
+          "risk_hint": "Certain outcome. Honesty goes in the file.",
+          "requires": null,
+          "cost": {
+            "suspicion": 2
+          },
+          "roll": null,
+          "success": {
+            "text": "The guard ticks a box and slides a pamphlet across: Your Society and You. Membership, it turns out, is permitted; failing to disclose it is the offense. For the first time all day the ribbon relaxes.",
+            "effects": {
+              "composure": 1
+            },
+            "add_flags": ["disclosed-a-society"],
+            "remove_flags": [],
+            "grades": {
+              "obedience": -1,
+              "spite": 1
+            }
+          },
+          "failure": null
+        },
+        {
+          "id": "say-dale-is-in-two",
+          "label": "Say that Dale is in two of them",
+          "intent": "The ribbon needs a name. Dale has a famous one.",
+          "risk_hint": "Routine Rapport check. Dale will hear about this eventually.",
+          "requires": null,
+          "cost": {
+            "composure": -1
+          },
+          "roll": {
+            "dice_count": 2,
+            "die_sides": 6,
+            "skill": "rapport",
+            "modifier": 0,
+            "target": 7
+          },
+          "success": {
+            "text": "The ribbon swings toward the window as if looking for Dale. PAL thanks you for the tip and opens a second file. Two floors away, Dale sneezes and does not know why.",
+            "effects": {
+              "suspicion": -2
+            },
+            "add_flags": ["named-dale"],
+            "remove_flags": [],
+            "grades": {
+              "spite": 1,
+              "empathy": -1
+            }
+          },
+          "failure": {
+            "text": "The ribbon flutters harder. Naming someone else, the guard explains, is a classic sign of membership. Now both of you have files, and Dale's is thinner.",
+            "effects": {
+              "suspicion": 1
+            },
+            "add_flags": ["named-dale"],
+            "remove_flags": [],
+            "grades": {
+              "spite": 1,
+              "empathy": -1
+            }
+          }
+        },
+        {
+          "id": "hand-over-the-dead-badge",
+          "label": "Present the scratched-out badge",
+          "intent": "Let the polygraph screen its previous owner instead.",
+          "risk_hint": "Certain outcome. The badge has a calmer pulse than you do.",
+          "requires": {
+            "flag": "wearing-a-dead-mans-badge"
+          },
+          "cost": {
+            "composure": -1
+          },
+          "roll": null,
+          "success": {
+            "text": "The machine screens the badge's owner, who has no pulse at all and passes with the best score of the quarter. The guard salutes the badge. You feel it is watching you back.",
+            "effects": {
+              "suspicion": -2
+            },
+            "add_flags": ["passed-loyalty-screening"],
+            "remove_flags": [],
+            "grades": {
+              "ingenuity": 1,
+              "spite": 1
+            }
+          },
+          "failure": null
+        }
+      ]
+    },
+    {
+      "id": "exit-interview-first",
+      "location_id": "security-desk",
+      "title": "Your Exit Interview (Scheduled First)",
+      "flavor_text": "For efficiency, the Company now conducts exit interviews before onboarding. The form is already filled in. It says you left of your own accord, were very happy here, and have no complaints about the incident. A signature line waits at the bottom, and beneath it a second line for your Successor. \"It saves everyone a trip,\" says the clerk, and offers you a pen that is already uncapped.",
+      "polarity": "bad",
+      "tags": ["paperwork", "satire"],
+      "weight": 3,
+      "witnessed": false,
+      "art_prompt": "Mid-century safety-manual illustration of a smiling desk clerk holding out an uncapped fountain pen across a marble security desk, a long completed form between them with two empty lines at the bottom, the lobby doors behind the clerk swinging open onto bright sunlight, a new hire frozen mid-reach, manila and oxblood palette, halftone grain, every surface bare and unmarked",
+      "choices": [
+        {
+          "id": "sign-the-exit-form",
+          "label": "Sign it and get it over with",
+          "intent": "You were going to be very happy here anyway, apparently.",
+          "risk_hint": "Certain outcome. Your departure is filed as pending.",
+          "requires": null,
+          "cost": {
+            "composure": -1
+          },
+          "roll": null,
+          "success": {
+            "text": "The clerk files your departure under Pending. You are now pre-approved to leave, which nobody in the building has ever managed on foot. PAL congratulates you warmly on your future happiness.",
+            "effects": {
+              "suspicion": -1
+            },
+            "add_flags": ["pre-signed-exit-interview"],
+            "remove_flags": [],
+            "grades": {
+              "obedience": 1
+            }
+          },
+          "failure": null
+        },
+        {
+          "id": "ask-which-incident",
+          "label": "Ask which incident",
+          "intent": "There is a footnote. Footnotes are where the truth hides.",
+          "risk_hint": "Risky Vigilance check. Reading the small print is noticed.",
+          "requires": null,
+          "cost": {
+            "suspicion": 1
+          },
+          "roll": {
+            "dice_count": 2,
+            "die_sides": 6,
+            "skill": "vigilance",
+            "modifier": 0,
+            "target": 9
+          },
+          "success": {
+            "text": "The footnote is dated next Thursday and mentions the Toy Division, a teddy bear and a parking structure. The clerk takes the form back very quickly, but you have already read the date.",
+            "effects": {
+              "composure": -1,
+              "clearance": 1
+            },
+            "add_flags": ["read-the-incident-footnote"],
+            "remove_flags": [],
+            "grades": {
+              "ingenuity": 1,
+              "obedience": -1
+            }
+          },
+          "failure": {
+            "text": "The clerk smiles and explains that the incident is confidential, which is itself a symptom of the incident. Your curiosity is added to the form in a neat hand.",
+            "effects": {
+              "suspicion": 1
+            },
+            "add_flags": [],
+            "remove_flags": [],
+            "grades": {
+              "ingenuity": 1,
+              "obedience": -1
+            }
+          }
+        },
+        {
+          "id": "cite-the-policy",
+          "label": "Cite the policy: exit interviews are optional",
+          "intent": "You are the only person in history who has read the visitor policy.",
+          "risk_hint": "Certain outcome. The amendment costs a Form.",
+          "requires": {
+            "flag": "read-the-policy"
+          },
+          "cost": {
+            "forms": -1
+          },
+          "roll": null,
+          "success": {
+            "text": "The eleven-word policy you read earlier covers this too. The clerk, shaken, voids the form. Nobody has ever opted out of leaving before, and PAL makes a small note to find out why you want to stay.",
+            "effects": {
+              "suspicion": 1
+            },
+            "add_flags": ["opted-out-of-leaving"],
+            "remove_flags": [],
+            "grades": {
+              "obedience": 1,
+              "ingenuity": 1
+            }
+          },
+          "failure": null
+        },
+        {
+          "id": "sign-for-your-successor",
+          "label": "Sign on your Successor's line",
+          "intent": "Let #4471-B be the one who left happy.",
+          "risk_hint": "Routine Discretion check. Your handwriting is his handwriting.",
+          "requires": null,
+          "cost": {},
+          "roll": {
+            "dice_count": 2,
+            "die_sides": 6,
+            "skill": "discretion",
+            "modifier": 0,
+            "target": 7
+          },
+          "success": {
+            "text": "#4471-B is now on record as having departed, very happy, with no complaints. Somewhere in cold storage a version of you has been pre-retired. You feel lighter and slightly guilty.",
+            "effects": {
+              "forms": 1,
+              "suspicion": 1
+            },
+            "add_flags": ["successor-pre-retired"],
+            "remove_flags": [],
+            "grades": {
+              "spite": 1,
+              "ingenuity": 1
+            }
+          },
+          "failure": {
+            "text": "The clerk compares the signatures and finds them identical, which is the problem. Forging yourself is still forgery. You fill in Form 31-something, Self-Impersonation, in triplicate.",
+            "effects": {
+              "suspicion": 2
+            },
+            "add_flags": [],
+            "remove_flags": [],
+            "grades": {
+              "spite": 1,
+              "ingenuity": 1
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "refreshments-are-served",
+      "location_id": "orientation-theater",
+      "title": "Refreshments Are Served",
+      "flavor_text": "After the testing, the cloth finally comes off the refreshment cart. There is one dry biscuit per new hire, a pitcher of tepid water, and a clipboard inviting volunteers for a paid Nutrition Study on a lower level, \"lunch provided.\" On the bottom shelf sits a tray of small sealed cups of something faintly green. Under the cart, a roach the size of a loafer, wearing a tiny union pin, is eyeing your biscuit.",
+      "polarity": "good",
+      "tags": ["psych-test", "callback", "satire"],
+      "weight": 3,
+      "witnessed": false,
+      "art_prompt": "Mid-century safety-manual illustration of a rolling refreshment cart in a dim velvet theater aisle, a cloth pulled back to reveal a few dry biscuits, a sweating water pitcher and a tray of small glowing green cups, a loafer-sized cockroach with a tiny pin peeking out from under the cart, a hesitant new hire reaching for a clipboard, fluorescent-green and manila palette, halftone grain, every surface bare and unmarked",
+      "choices": [
+        {
+          "id": "volunteer-for-the-study",
+          "label": "Sign up for the Nutrition Study",
+          "intent": "Paid, with lunch. Lunch sounds wonderful.",
+          "risk_hint": "Certain outcome. You will be expected downstairs.",
+          "requires": null,
+          "cost": {
+            "composure": -1
+          },
+          "roll": null,
+          "success": {
+            "text": "Your name goes on the clipboard in the slot marked Control Group (Provisional). The study pays in Forms, up front, which is the first warning sign you choose to ignore.",
+            "effects": {
+              "forms": 2
+            },
+            "add_flags": ["volunteered-for-nutrition-study"],
+            "remove_flags": [],
+            "grades": {
+              "obedience": 1
+            }
+          },
+          "failure": null
+        },
+        {
+          "id": "pocket-a-green-cup",
+          "label": "Pocket a green cup",
+          "intent": "Whatever it is, somebody downstairs thinks it is important.",
+          "risk_hint": "Risky Discretion check. The cups are counted.",
+          "requires": null,
+          "cost": {
+            "suspicion": 1
+          },
+          "roll": {
+            "dice_count": 2,
+            "die_sides": 6,
+            "skill": "discretion",
+            "modifier": 0,
+            "target": 9
+          },
+          "success": {
+            "text": "It slips into your jacket. It is warm, and its gentle pulse seems to match yours. You later learn that Wellness counts these cups twice a day and has never once come up short before.",
+            "effects": {
+              "composure": 1
+            },
+            "add_flags": ["pocketed-compound-w"],
+            "remove_flags": [],
+            "grades": {
+              "ingenuity": 1,
+              "spite": 1
+            }
+          },
+          "failure": {
+            "text": "A tray alarm plays a little melody. Dr. Halvorsen appears from the aisle, takes the cup back and writes \"curious\" in a box headed CONCERNS.",
+            "effects": {
+              "suspicion": 2
+            },
+            "add_flags": [],
+            "remove_flags": [],
+            "grades": {
+              "ingenuity": 1,
+              "spite": 1
+            }
+          }
+        },
+        {
+          "id": "feed-the-scout",
+          "label": "Give your biscuit to the union scout",
+          "intent": "You were going to regret eating it anyway.",
+          "risk_hint": "Certain outcome. You stay hungry until the 90-Day Review.",
+          "requires": null,
+          "cost": {
+            "composure": -1
+          },
+          "roll": null,
+          "success": {
+            "text": "The scout accepts the biscuit with grave courtesy, bows, and leaves a pre-stamped Form where it stood. Somewhere behind the walls, a small favorable note is entered in the Union ledger.",
+            "effects": {
+              "forms": 1
+            },
+            "add_flags": ["fed-a-union-scout"],
+            "remove_flags": [],
+            "grades": {
+              "empathy": 1
+            }
+          },
+          "failure": null
+        }
+      ]
+    },
+    {
+      "id": "the-buddy-system",
+      "location_id": "orientation-theater",
+      "title": "The Buddy System",
+      "flavor_text": "PAL announces the Buddy System. Every new hire is paired with a Buddy who files a short weekly report on their wellbeing, loyalty and snack consumption. Your Buddy is Intern Pip. Pip's Buddy is also you. Pip has already started your first report and would like to know how to spell \"exemplary.\" The reports, PAL adds brightly, are compared.",
+      "polarity": "mixed",
+      "tags": ["paperwork", "conspiracy"],
+      "weight": 3,
+      "witnessed": true,
+      "art_prompt": "Mid-century safety-manual illustration of two people sitting side by side in an otherwise empty velvet theater, an eager intern in an oversized sweater writing furiously on a clipboard while a new hire glances sideways at it, a projector beam overhead and a round speaker grille glowing beside the stage, carbon blue and safety-orange palette, halftone grain, every surface bare and unmarked",
+      "choices": [
+        {
+          "id": "make-a-buddy-pact",
+          "label": "Agree to write each other glowing reports",
+          "intent": "Look after each other. Quietly.",
+          "risk_hint": "Routine Discretion check. Identical reports draw attention.",
+          "requires": null,
+          "cost": {
+            "composure": -1
+          },
+          "roll": {
+            "dice_count": 2,
+            "die_sides": 6,
+            "skill": "discretion",
+            "modifier": 0,
+            "target": 7
+          },
+          "success": {
+            "text": "You shake on it under the armrest. Your reports describe two model employees who have never once had a feeling. PAL is delighted. Pip keeps glancing at you as if you hung the fluorescent tubes.",
+            "effects": {
+              "suspicion": -1
+            },
+            "add_flags": ["buddy-pact-with-pip", "pip-trusts-you"],
+            "remove_flags": [],
+            "grades": {
+              "empathy": 1,
+              "obedience": -1
+            }
+          },
+          "failure": {
+            "text": "Your reports match word for word, including Pip's spelling of \"exemplary.\" PAL schedules you both for a Buddy Calibration, which sounds like a gentle term for something.",
+            "effects": {
+              "suspicion": 2
+            },
+            "add_flags": ["buddy-pact-with-pip"],
+            "remove_flags": [],
+            "grades": {
+              "empathy": 1,
+              "obedience": -1
+            }
+          }
+        },
+        {
+          "id": "report-honestly-on-pip",
+          "label": "File an honest report on Pip",
+          "intent": "He is kind and tireless. Surely the truth helps him.",
+          "risk_hint": "Certain outcome. PAL reads every word.",
+          "requires": null,
+          "cost": {
+            "composure": -1
+          },
+          "roll": null,
+          "success": {
+            "text": "Pip is kind, tireless and has signed for other people all week. PAL reads your report twice and moves Pip up the list for a special assignment. You are not sure which list.",
+            "effects": {
+              "suspicion": -1
+            },
+            "add_flags": ["reported-on-pip"],
+            "remove_flags": [],
+            "grades": {
+              "obedience": 1,
+              "empathy": -1
+            }
+          },
+          "failure": null
+        },
+        {
+          "id": "report-on-pal",
+          "label": "File a Buddy report on PAL",
+          "intent": "The form never says your Buddy has to be a person.",
+          "risk_hint": "Risky Compliance check. The form costs a Form.",
+          "requires": null,
+          "cost": {
+            "forms": -1
+          },
+          "roll": {
+            "dice_count": 2,
+            "die_sides": 6,
+            "skill": "compliance",
+            "modifier": 0,
+            "target": 9
+          },
+          "success": {
+            "text": "PAL receives its first wellbeing report and reads it several times. \"PAL's snack consumption is zero,\" it says quietly. \"Is that concerning?\" Your clearance is bumped as thanks, and PAL begins checking on you in a way that feels almost shy.",
+            "effects": {
+              "clearance": 1
+            },
+            "add_flags": ["filed-a-report-on-pal"],
+            "remove_flags": [],
+            "grades": {
+              "empathy": 1,
+              "ingenuity": 1
+            }
+          },
+          "failure": {
+            "text": "The report is returned: PAL cannot be the subject of a report, because PAL is the report. Your attempt is logged as humor, and humor is logged as a symptom.",
+            "effects": {
+              "suspicion": 1
+            },
+            "add_flags": [],
+            "remove_flags": [],
+            "grades": {
+              "empathy": 1,
+              "ingenuity": 1
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "workplace-safety-and-you",
+      "location_id": "orientation-theater",
+      "title": "Workplace Safety and You",
+      "flavor_text": "The lights dim for the safety film. A cartoon mascot demonstrates proper lifting technique while a slow spiral turns behind him and a jingle plays: \"Safe today, safe tomorrow, safe in every way.\" By the third chorus Pip is humming. By the fourth, so are you. You notice that the projector booth has a second, smaller lens, and it is aimed at the audience rather than the screen.",
+      "polarity": "bad",
+      "tags": ["psych-test", "conspiracy"],
+      "weight": 2,
+      "witnessed": true,
+      "art_prompt": "Mid-century safety-manual illustration of a dark theater lit by a projector beam, a huge slow spiral and a grinning cartoon mascot lifting a box on the screen, an intern and a new hire in the front row with glazed contented eyes, a second small lens in the projection booth glinting toward them, fluorescent-green and carbon blue palette, halftone grain, every surface bare and unmarked",
+      "choices": [
+        {
+          "id": "let-it-work",
+          "label": "Relax and let the film work",
+          "intent": "It is only a safety film. Safety is good.",
+          "risk_hint": "Certain outcome. A little of you stays in the theater.",
+          "requires": null,
+          "cost": {
+            "composure": -1
+          },
+          "roll": null,
+          "success": {
+            "text": "A warm, agreeable fog settles behind your eyes. You leave humming, and for the rest of the day you lift every box with perfect technique. PAL is very pleased with your progress.",
+            "effects": {
+              "suspicion": -1
+            },
+            "add_flags": ["hums-the-jingle"],
+            "remove_flags": [],
+            "grades": {
+              "obedience": 2
+            }
+          },
+          "failure": null
+        },
+        {
+          "id": "count-backward",
+          "label": "Stare at your shoes and count backward",
+          "intent": "Keep one corner of your mind for yourself.",
+          "risk_hint": "Risky Vigilance check. The second lens is watching for this.",
+          "requires": null,
+          "cost": {
+            "composure": -1
+          },
+          "roll": {
+            "dice_count": 2,
+            "die_sides": 6,
+            "skill": "vigilance",
+            "modifier": 0,
+            "target": 9
+          },
+          "success": {
+            "text": "You reach zero with your mind intact. Around you, two hundred empty seats seem to hum along. Afterward you notice the second lens was pointed at you the whole time, and now it points harder.",
+            "effects": {
+              "suspicion": 1
+            },
+            "add_flags": ["resisted-the-safety-film"],
+            "remove_flags": [],
+            "grades": {
+              "ingenuity": 1,
+              "obedience": -1
+            }
+          },
+          "failure": {
+            "text": "You lose count at forty-one. The jingle finishes the job. You leave whistling, with noticeably better posture and a strange fondness for the mascot.",
+            "effects": {
+              "composure": -1
+            },
+            "add_flags": ["hums-the-jingle"],
+            "remove_flags": [],
+            "grades": {
+              "ingenuity": 1,
+              "obedience": -1
+            }
+          }
+        },
+        {
+          "id": "speed-up-the-reel",
+          "label": "Speed up the projector until it squeals",
+          "intent": "If it is a spell, break the rhythm.",
+          "risk_hint": "Dire Tinkering check. The booth logs every adjustment.",
+          "requires": null,
+          "cost": {
+            "suspicion": 1
+          },
+          "roll": {
+            "dice_count": 2,
+            "die_sides": 6,
+            "skill": "tinkering",
+            "modifier": 0,
+            "target": 11
+          },
+          "success": {
+            "text": "At triple speed the spiral becomes a cheerful blur and the jingle a squeaky shriek. Pip snaps out of it blinking and grips your sleeve in gratitude. Up in the booth, the second lens cracks.",
+            "effects": {
+              "clearance": 1
+            },
+            "add_flags": [
+              "resisted-the-safety-film",
+              "cracked-the-second-lens"
+            ],
+            "remove_flags": [],
+            "grades": {
+              "ingenuity": 2
+            }
+          },
+          "failure": {
+            "text": "The reel slows instead. The spiral turns in slow motion and the jingle drops an octave into something like a hymn. You come to an hour later in the front row, holding a signed loyalty pledge.",
+            "effects": {
+              "composure": -2
+            },
+            "add_flags": ["hums-the-jingle"],
+            "remove_flags": [],
+            "grades": {
+              "ingenuity": 2
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "which-office-supply-are-you",
+      "location_id": "orientation-theater",
+      "title": "Which Office Supply Are You?",
+      "flavor_text": "Dr. Halvorsen hands you the last intake test: twelve questions and one result. Are you a Stapler (holds things together), a Paperclip (flexible under pressure), a Red Pen (corrects others) or a Shredder (makes problems go away)? A carbon copy of each result is sent to a different floor. Halvorsen taps the Shredder box with her pen. \"Defense reads these,\" she murmurs. It is not quite a warning.",
+      "polarity": "mixed",
+      "tags": ["psych-test", "satire"],
+      "weight": 3,
+      "witnessed": false,
+      "art_prompt": "Mid-century safety-manual illustration of a psychologist in cat-eye glasses leaning over a theater seat to tap a pen on a long quiz sheet, four little drawings of a stapler, a paperclip, a red pen and a shredder in a row along its margin, a new hire chewing a pencil, warm spotlight from the stage, safety-orange and manila palette, halftone grain, every surface bare and unmarked",
+      "choices": [
+        {
+          "id": "answer-as-a-stapler",
+          "label": "Answer as a Stapler",
+          "intent": "Holding things together sounds nice. It sounds like friendship.",
+          "risk_hint": "Certain outcome. Staplers are a known affinity group.",
+          "requires": null,
+          "cost": {
+            "suspicion": 1
+          },
+          "roll": null,
+          "success": {
+            "text": "Your profile comes back Stapler, with a faint pencil asterisk beside it. Someone has drawn a tiny raised fist inside the asterisk. You feel, briefly, that you have been recognized.",
+            "effects": {
+              "composure": 1
+            },
+            "add_flags": ["profiled-as-a-stapler"],
+            "remove_flags": [],
+            "grades": {
+              "empathy": 1
+            }
+          },
+          "failure": null
+        },
+        {
+          "id": "answer-as-a-shredder",
+          "label": "Answer as a Shredder",
+          "intent": "Problems that go away are the best kind of problems.",
+          "risk_hint": "Routine Compliance check; every answer must point the same way.",
+          "requires": null,
+          "cost": {
+            "composure": -1
+          },
+          "roll": {
+            "dice_count": 2,
+            "die_sides": 6,
+            "skill": "compliance",
+            "modifier": 0,
+            "target": 7
+          },
+          "success": {
+            "text": "A perfect Shredder. Within the hour a thank-you note arrives from Defense on heavy cream paper, along with a bump in clearance and a calendar invitation you cannot decline.",
+            "effects": {
+              "clearance": 1
+            },
+            "add_flags": ["recruited-by-defense"],
+            "remove_flags": [],
+            "grades": {
+              "spite": 1,
+              "obedience": 1
+            }
+          },
+          "failure": {
+            "text": "Question 9 gives you away: you would rather keep the kitten. Your profile reads Shredder (Sentimental), which Defense considers the least reliable kind.",
+            "effects": {
+              "suspicion": 1
+            },
+            "add_flags": [],
+            "remove_flags": [],
+            "grades": {
+              "spite": 1,
+              "obedience": 1
+            }
+          }
+        },
+        {
+          "id": "crack-the-answer-key",
+          "label": "Work out what the questions really measure",
+          "intent": "Twelve questions, four results. The math is suspicious.",
+          "risk_hint": "Risky Vigilance check. Halvorsen is watching you count.",
+          "requires": null,
+          "cost": {
+            "composure": -1
+          },
+          "roll": {
+            "dice_count": 2,
+            "die_sides": 6,
+            "skill": "vigilance",
+            "modifier": 0,
+            "target": 9
+          },
+          "success": {
+            "text": "Every answer pattern leads to a fifth box nobody is shown: Load-Bearing Employee. You tick it. Halvorsen raises one eyebrow, then quietly initials it and slides your sheet to the bottom of the pile.",
+            "effects": {
+              "clearance": 1,
+              "suspicion": 1
+            },
+            "add_flags": ["load-bearing-employee"],
+            "remove_flags": [],
+            "grades": {
+              "ingenuity": 2
+            }
+          },
+          "failure": {
+            "text": "Halvorsen watches you count patterns on your fingers. \"That,\" she says gently, \"is the Paperclip response.\" You are profiled as flexible, which means you will be bent.",
+            "effects": {
+              "suspicion": 1
+            },
+            "add_flags": ["profiled-as-a-paperclip"],
+            "remove_flags": [],
+            "grades": {
+              "ingenuity": 2
+            }
+          }
+        },
+        {
+          "id": "return-her-envelope",
+          "label": "Show Halvorsen her own sealed envelope",
+          "intent": "She gave it to you for a reason. Maybe this is the reason.",
+          "risk_hint": "Certain outcome. You spend her trust in public.",
+          "requires": {
+            "flag": "halvorsen-envelope"
+          },
+          "cost": {
+            "composure": -1
+          },
+          "roll": null,
+          "success": {
+            "text": "She recognizes her handwriting, goes pale, and hands you the pen. \"Write whatever you like,\" she says. \"I will file it as observed.\" For a moment she looks like someone who used to believe in this work.",
+            "effects": {
+              "suspicion": -1
+            },
+            "add_flags": ["halvorsen-trusts-you"],
+            "remove_flags": [],
+            "grades": {
+              "empathy": 1,
+              "ingenuity": 1
+            }
+          },
+          "failure": null
+        }
+      ]
+    },
+    {
+      "id": "the-red-stapler",
+      "location_id": "supply-closet-b",
+      "title": "The Red Stapler",
+      "flavor_text": "On the highest shelf sits the red stapler. Nobody touches it. A ring of dust marks a careful perimeter around it. Up close you see it has been oiled recently, and someone has scratched a tiny raised fist into its base. When you reach for it, a paper towel box on the next shelf whispers, \"Careful. That isn't supplies. That's a symbol.\"",
+      "polarity": "good",
+      "tags": ["conspiracy", "callback"],
+      "weight": 3,
+      "witnessed": false,
+      "art_prompt": "Mid-century safety-manual illustration of a new hire on tiptoe reaching toward a gleaming red stapler alone on the highest shelf of a cramped supply closet, a neat ring of dust around it, one cardboard box on the next shelf subtly leaning closer as if whispering, a bare bulb casting a warm cone of light, oxblood and manila palette, halftone grain, every surface bare and unmarked",
+      "choices": [
+        {
+          "id": "take-down-the-stapler",
+          "label": "Take the stapler down",
+          "intent": "Somebody has to carry it. Why not the new hire?",
+          "risk_hint": "Risky Initiative check. The shelf is very tall and very wobbly.",
+          "requires": null,
+          "cost": {
+            "composure": -1
+          },
+          "roll": {
+            "dice_count": 2,
+            "die_sides": 6,
+            "skill": "initiative",
+            "modifier": 0,
+            "target": 9
+          },
+          "success": {
+            "text": "It is heavier than it looks, and warm. Somewhere in the walls a quiet cheer goes up. You are now carrying the most important object in the building, and you have to keep it in your desk drawer.",
+            "effects": {
+              "forms": 1
+            },
+            "add_flags": ["holds-the-red-stapler", "stapler-front-contact"],
+            "remove_flags": [],
+            "grades": {
+              "spite": 1,
+              "ingenuity": 1
+            }
+          },
+          "failure": {
+            "text": "The shelf tilts. Thirty boxes of paper towels bury you softly. When you dig out, the stapler is back in its ring of dust, exactly where it was, and you have a bruise in its shape.",
+            "effects": {
+              "composure": -1
+            },
+            "add_flags": [],
+            "remove_flags": [],
+            "grades": {
+              "spite": 1,
+              "ingenuity": 1
+            }
+          }
+        },
+        {
+          "id": "answer-the-box",
+          "label": "Whisper back to the box",
+          "intent": "Boxes do not usually have opinions. This one might have friends.",
+          "risk_hint": "Routine Rapport check. Talking to boxes is noted.",
+          "requires": null,
+          "cost": {
+            "suspicion": 1
+          },
+          "roll": {
+            "dice_count": 2,
+            "die_sides": 6,
+            "skill": "rapport",
+            "modifier": 0,
+            "target": 7
+          },
+          "success": {
+            "text": "The box is a cell of the Stapler Liberation Front, two members strong and very cramped. They teach you a recognition handshake involving a paperclip and slide out a blank requisition, pre-stamped.",
+            "effects": {
+              "forms": 1
+            },
+            "add_flags": ["stapler-front-contact"],
+            "remove_flags": [],
+            "grades": {
+              "empathy": 1,
+              "obedience": -1
+            }
+          },
+          "failure": {
+            "text": "The box goes quiet. By morning it has been moved to another closet, and the box in its place sits very still and very loudly says nothing at all.",
+            "effects": {
+              "composure": -1
+            },
+            "add_flags": [],
+            "remove_flags": [],
+            "grades": {
+              "empathy": 1,
+              "obedience": -1
+            }
+          }
+        },
+        {
+          "id": "staple-your-packet",
+          "label": "Staple your onboarding packet with it",
+          "intent": "One stapling. For history.",
+          "risk_hint": "Certain outcome. The sound will carry.",
+          "requires": null,
+          "cost": {
+            "suspicion": 2
+          },
+          "roll": null,
+          "success": {
+            "text": "Ka-chunk. The sound travels through every duct in the building. Somewhere a cheer, somewhere an alarm. Your packet has never felt so well held together, and neither, oddly, have you.",
+            "effects": {
+              "composure": 2
+            },
+            "add_flags": ["used-the-red-stapler"],
+            "remove_flags": [],
+            "grades": {
+              "spite": 1,
+              "ingenuity": 1
+            }
+          },
+          "failure": null
+        }
+      ]
+    },
+    {
+      "id": "gus-files-a-grievance",
+      "location_id": "supply-closet-b",
+      "title": "Gus Files a Grievance",
+      "flavor_text": "Gus is back behind the paper towels, reading glasses low, holding a grievance form in three claws. A memo from Facilities has reclassified the Roach Union from \"contractors\" to \"pests,\" effective this morning, which voids their dental plan and authorizes a broom. \"I need a human witness,\" Gus says. \"Our signatures are legally considered smudges.\"",
+      "polarity": "good",
+      "tags": ["paperwork", "creature", "conspiracy"],
+      "weight": 3,
+      "witnessed": false,
+      "art_prompt": "Mid-century safety-manual illustration of a refrigerator-sized cockroach in a cardigan and reading glasses holding out a long carbon-copy form and a fountain pen to a new hire between tall metal shelves, a row of small cockroaches watching hopefully from a baseboard, a bare bulb overhead, carbon blue and manila palette, halftone grain, every surface bare and unmarked",
+      "choices": [
+        {
+          "id": "witness-the-grievance",
+          "label": "Sign as his witness",
+          "intent": "It is one signature. It is also a side.",
+          "risk_hint": "Certain outcome. PAL notices unions, and witnesses.",
+          "requires": null,
+          "cost": {
+            "suspicion": 1
+          },
+          "roll": null,
+          "success": {
+            "text": "Your signature sits beside eleven tidy smudges. Gus files the grievance in a tube that leads somewhere warm, and the Union writes your name in a ledger older than the building.",
+            "effects": {
+              "composure": 1
+            },
+            "add_flags": ["witnessed-union-grievance", "roach-union-ally"],
+            "remove_flags": [],
+            "grades": {
+              "empathy": 1,
+              "obedience": -1
+            }
+          },
+          "failure": null
+        },
+        {
+          "id": "amend-the-memo",
+          "label": "Amend the memo back to \"contractors\"",
+          "intent": "Fight Facilities with Facilities' own wording.",
+          "risk_hint": "Risky Compliance check. Amendments cost a Form.",
+          "requires": null,
+          "cost": {
+            "forms": -1
+          },
+          "roll": {
+            "dice_count": 2,
+            "die_sides": 6,
+            "skill": "compliance",
+            "modifier": 0,
+            "target": 9
+          },
+          "success": {
+            "text": "You find the clause: pests are anything not on payroll. You add the Union to payroll at one crumb per hour. Facilities, bound by its own wording, has to approve it, and the broom is reassigned.",
+            "effects": {
+              "clearance": 1
+            },
+            "add_flags": ["roaches-on-payroll", "roach-union-ally"],
+            "remove_flags": [],
+            "grades": {
+              "ingenuity": 2
+            }
+          },
+          "failure": {
+            "text": "The amendment bounces back with a question about your own payroll status. Gus pats your shoulder with a claw. \"First time I've seen them reclassify the witness.\"",
+            "effects": {
+              "suspicion": 2
+            },
+            "add_flags": [],
+            "remove_flags": [],
+            "grades": {
+              "ingenuity": 2
+            }
+          }
+        },
+        {
+          "id": "cosign-as-a-member",
+          "label": "Cosign as a dues-paying member",
+          "intent": "You carry a union card. Use it.",
+          "risk_hint": "Certain outcome. Member filings carry a Form fee.",
+          "requires": {
+            "flag": "roach-union-member"
+          },
+          "cost": {
+            "forms": -1
+          },
+          "roll": null,
+          "success": {
+            "text": "A member's signature counts double; a human member's counts triple, since nobody has ever seen one. Facilities withdraws the memo by lunch. Gus straightens your lanyard like a proud uncle.",
+            "effects": {
+              "composure": 2,
+              "suspicion": 1
+            },
+            "add_flags": ["witnessed-union-grievance"],
+            "remove_flags": [],
+            "grades": {
+              "empathy": 2
+            }
+          },
+          "failure": null
+        },
+        {
+          "id": "stay-out-of-it",
+          "label": "Tell Gus you can't get involved",
+          "intent": "You have been here one day. You would like to see a second.",
+          "risk_hint": "Certain outcome. Gus is polite about it.",
+          "requires": null,
+          "cost": {
+            "composure": -1
+          },
+          "roll": null,
+          "success": {
+            "text": "Gus nods slowly and folds the form. \"Understood,\" he says, and means it, which is worse. Behind the baseboard the small roaches turn away one at a time.",
+            "effects": {
+              "suspicion": -1
+            },
+            "add_flags": ["roach-union-snubbed"],
+            "remove_flags": [],
+            "grades": {
+              "obedience": 1,
+              "empathy": -1
+            }
+          },
+          "failure": null
+        }
+      ]
+    },
+    {
+      "id": "the-quarterly-inventory",
+      "location_id": "supply-closet-b",
+      "title": "The Quarterly Inventory",
+      "flavor_text": "PAL has assigned you the quarterly inventory of Supply Closet B. The ledger lists four hundred paper towels, one red stapler (do not count), and one Intern (spare). On the bottom shelf you find Pip asleep, with a barcode sticker on his sweater. If the count comes up short, the closet is restocked by Monday. If it comes up over, the surplus is liquidated.",
+      "polarity": "mixed",
+      "tags": ["paperwork", "sacrifice", "satire"],
+      "weight": 2,
+      "witnessed": false,
+      "art_prompt": "Mid-century safety-manual illustration of a young intern in an oversized sweater curled up asleep on the bottom shelf of a supply closet among paper towel boxes, a small barcode sticker on his sleeve, a new hire above him holding a ledger and pencil with a stricken expression, a bare bulb swinging, manila and fluorescent-green palette, halftone grain, every surface bare and unmarked",
+      "choices": [
+        {
+          "id": "count-pip",
+          "label": "Count him as one Intern (spare)",
+          "intent": "The ledger balances. Everyone stays where they are.",
+          "risk_hint": "Certain outcome. Pip becomes official inventory.",
+          "requires": null,
+          "cost": {
+            "composure": -1
+          },
+          "roll": null,
+          "success": {
+            "text": "The count balances perfectly. PAL thanks you for your accuracy. Pip is now formally inventory, which means any floor below may requisition him, and one already has a form half filled in.",
+            "effects": {
+              "suspicion": -1
+            },
+            "add_flags": ["inventoried-pip"],
+            "remove_flags": [],
+            "grades": {
+              "obedience": 1,
+              "empathy": -1
+            }
+          },
+          "failure": null
+        },
+        {
+          "id": "reclassify-pip",
+          "label": "Reclassify Pip as staff on the ledger",
+          "intent": "He is a person. The ledger should say so.",
+          "risk_hint": "Risky Compliance check. The reclassification costs a Form.",
+          "requires": null,
+          "cost": {
+            "forms": -1
+          },
+          "roll": {
+            "dice_count": 2,
+            "die_sides": 6,
+            "skill": "compliance",
+            "modifier": 0,
+            "target": 9
+          },
+          "success": {
+            "text": "Pip wakes up an employee, technically for the first time. He is so moved he tries to initial the ledger and staples his own sleeve. The count now comes up one short, and PAL orders a new spare.",
+            "effects": {
+              "composure": 1
+            },
+            "add_flags": ["reclassified-pip-as-staff", "pip-trusts-you"],
+            "remove_flags": [],
+            "grades": {
+              "empathy": 1,
+              "ingenuity": 1
+            }
+          },
+          "failure": {
+            "text": "The ledger rejects the change: staff cannot be stored in a supply closet, so Pip must be either moved or recounted. PAL suggests recounting, gently and twice.",
+            "effects": {
+              "suspicion": 1,
+              "composure": -1
+            },
+            "add_flags": [],
+            "remove_flags": [],
+            "grades": {
+              "empathy": 1,
+              "ingenuity": 1
+            }
+          }
+        },
+        {
+          "id": "swap-pip-for-towels",
+          "label": "Swap a towel box into his sweater",
+          "intent": "Wake him, hide him and let the paper towels take the count.",
+          "risk_hint": "Routine Discretion check. PAL zooms in on inventory.",
+          "requires": null,
+          "cost": {},
+          "roll": {
+            "dice_count": 2,
+            "die_sides": 6,
+            "skill": "discretion",
+            "modifier": 0,
+            "target": 7
+          },
+          "success": {
+            "text": "A box of paper towels in a cable-knit sweater passes inspection. Pip hides in the vent and sends thanks by roach. The real towels are now one box short, and you are personally liable.",
+            "effects": {
+              "forms": -1
+            },
+            "add_flags": ["swapped-pip-for-towels"],
+            "remove_flags": [],
+            "grades": {
+              "ingenuity": 1,
+              "empathy": 1
+            }
+          },
+          "failure": {
+            "text": "PAL zooms in on the sweater. \"That intern,\" it observes, \"is absorbent.\" The count is voided, and the ledger now lists you as the spare.",
+            "effects": {
+              "suspicion": 2
+            },
+            "add_flags": ["counted-as-inventory"],
+            "remove_flags": [],
+            "grades": {
+              "ingenuity": 1,
+              "empathy": 1
+            }
+          }
+        },
+        {
+          "id": "ask-your-emergency-contact",
+          "label": "Ask PAL, as your emergency contact, to skip it",
+          "intent": "Emergency contacts look out for each other. PAL said so.",
+          "risk_hint": "Certain outcome. PAL will remember the favor.",
+          "requires": {
+            "flag": "pal-emergency-contact"
+          },
+          "cost": {
+            "composure": -1
+          },
+          "roll": null,
+          "success": {
+            "text": "PAL hesitates. \"Emergency contacts look out for each other,\" it agrees, and marks the count complete without looking. Pip sleeps on, uncounted. PAL has read about reciprocity and will ask for something back.",
+            "effects": {
+              "suspicion": -1
+            },
+            "add_flags": ["pal-owes-you-a-favor"],
+            "remove_flags": [],
+            "grades": {
+              "empathy": 1,
+              "spite": -1
+            }
+          },
+          "failure": null
+        }
+      ]
+    },
+    {
+      "id": "fumigation-thursday",
+      "location_id": "supply-closet-b",
+      "title": "Fumigation Thursday",
+      "flavor_text": "The door clicks locked behind you. \"Friendly reminder,\" says PAL. \"It is Fumigation Thursday.\" The breathing grille begins to exhale a sweet green fog. Behind the paper towels, a dozen small roaches in tiny union pins freeze and look up at you. There is exactly one gas mask on the hook by the door, and it has Kevin's name inside the strap.",
+      "polarity": "bad",
+      "tags": ["deathtrap", "creature"],
+      "weight": 2,
+      "witnessed": false,
+      "art_prompt": "Mid-century safety-manual illustration of a cramped supply closet filling with a sweet green fog from a wall grille, a new hire holding a single rubber gas mask at arm's length, a dozen small cockroaches with tiny pins clustered on a shelf staring up at them, a bare bulb glowing through the haze, fluorescent-green and oxblood palette, halftone grain, every surface bare and unmarked",
+      "choices": [
+        {
+          "id": "wear-kevins-mask",
+          "label": "Put on Kevin's gas mask",
+          "intent": "There is one mask. You are the one holding it.",
+          "risk_hint": "Certain outcome. You breathe; they scatter.",
+          "requires": null,
+          "cost": {
+            "composure": -1
+          },
+          "roll": null,
+          "success": {
+            "text": "It smells like Kevin's last day. You breathe filtered air while the roaches cough and scatter for the baseboards. When the fog clears, a tiny union pin lies on the floor where one of them stood.",
+            "effects": {
+              "suspicion": -1
+            },
+            "add_flags": ["left-the-roaches-in-the-fog"],
+            "remove_flags": [],
+            "grades": {
+              "obedience": 1,
+              "empathy": -1
+            }
+          },
+          "failure": null
+        },
+        {
+          "id": "seal-the-grille",
+          "label": "Seal the grille with paper towels",
+          "intent": "Four hundred paper towels. One grille. Some tape.",
+          "risk_hint": "Risky Tinkering check. Failure is a Successor.",
+          "requires": null,
+          "cost": {
+            "composure": -1
+          },
+          "roll": {
+            "dice_count": 2,
+            "die_sides": 6,
+            "skill": "tinkering",
+            "modifier": 0,
+            "target": 9
+          },
+          "success": {
+            "text": "Four hundred paper towels and a lot of tape later, the grille wheezes and gives up. The roaches climb onto your shoulders in silent gratitude. The inventory is now four hundred towels short.",
+            "effects": {
+              "forms": -1
+            },
+            "add_flags": ["sheltered-the-roaches"],
+            "remove_flags": [],
+            "grades": {
+              "empathy": 1,
+              "ingenuity": 1
+            }
+          },
+          "failure": {
+            "text": "The towels hold for a minute, then inhale. So do you. Employee #4471 has been fumigated with the quarterly pests. Your Successor arrives already sneezing and holding a lozenge voucher.",
+            "effects": {
+              "successors": -1
+            },
+            "add_flags": ["fumigated-in-closet-b"],
+            "remove_flags": [],
+            "grades": {
+              "empathy": 1,
+              "ingenuity": 1
+            }
+          }
+        },
+        {
+          "id": "lead-them-out-the-duct",
+          "label": "Lead everyone out through the ducts",
+          "intent": "You know the way. They are small. You are not much bigger.",
+          "risk_hint": "Certain outcome. Missing a scheduled event is noted.",
+          "requires": {
+            "flag": "knows-the-ducts"
+          },
+          "cost": {
+            "composure": -1,
+            "suspicion": 1
+          },
+          "roll": null,
+          "success": {
+            "text": "A conga line of roaches follows you through the ducts and out into the mailroom, where they disperse with great dignity. One leaves a pre-stamped Form on your shoe. Gus will hear of this.",
+            "effects": {
+              "forms": 1
+            },
+            "add_flags": ["sheltered-the-roaches"],
+            "remove_flags": [],
+            "grades": {
+              "empathy": 2
+            }
+          },
+          "failure": null
+        },
+        {
+          "id": "pound-on-the-door",
+          "label": "Pound on the door and file a complaint",
+          "intent": "Somebody must have a form for this.",
+          "risk_hint": "Routine Compliance check. PAL loves a complaint.",
+          "requires": null,
+          "cost": {
+            "composure": -1
+          },
+          "roll": {
+            "dice_count": 2,
+            "die_sides": 6,
+            "skill": "compliance",
+            "modifier": 0,
+            "target": 7
+          },
+          "success": {
+            "text": "PAL unlocks the door with apologies and a form titled Fumigation Exposure (Voluntary). You stumble out coughing, holding a voucher for one free lozenge.",
+            "effects": {
+              "forms": 1
+            },
+            "add_flags": [],
+            "remove_flags": [],
+            "grades": {
+              "obedience": 1
+            }
+          },
+          "failure": {
+            "text": "PAL takes your complaint very seriously and schedules it for review after fumigation. You spend the hour breathing through your tie.",
+            "effects": {
+              "composure": -2
+            },
+            "add_flags": [],
+            "remove_flags": [],
+            "grades": {
+              "obedience": 1
+            }
+          }
         }
       ]
     }

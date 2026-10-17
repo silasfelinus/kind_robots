@@ -4,16 +4,18 @@
 //
 //   npx tsx utils/scripts/verifyCabinetSeedLanderVault.test.ts
 import assert from 'node:assert/strict'
+import { mulberry32 } from '../arcade/curve'
+import { create } from '../arcade/games/seedLander'
+import { freshSave, readLanderSave } from '../arcade/seedLander/campaign'
 import {
   ALL_ACORNS,
   ISLANDS,
+  MISSIONS_PER_ISLAND,
   VAULT,
   VAULT_INDEX,
   islandAt,
   vaultOpen,
 } from '../arcade/seedLander/islands'
-import { MISSIONS_PER_ISLAND } from '../arcade/seedLander/islands'
-import { readLanderSave, freshSave } from '../arcade/seedLander/campaign'
 import { Terrain } from '../arcade/seedLander/terrain'
 
 // The vault is secret: not an ordinary island, and shut until every acorn is found.
@@ -77,8 +79,6 @@ assert.equal(
 )
 
 // In the cabinet: past Moon Garden the vault's map opens only with every acorn.
-import { mulberry32 } from '../arcade/curve'
-import { create } from '../arcade/games/seedLander'
 const resumeAt = (acorns: string[]) =>
   create({
     rng: mulberry32(1),

@@ -36,11 +36,7 @@ import {
 export type SparkSet = 'bolt' | 'bit' | 'flake' | 'note' | 'pixel' | 'tick'
 /** The Screensaver bonus board a component plays after its third maze. */
 export type ScreensaverKind =
-  | 'starfield'
-  | 'defrag'
-  | 'breeze'
-  | 'equaliser'
-  | 'paint'
+  'starfield' | 'defrag' | 'breeze' | 'equaliser' | 'paint'
 /** The boss at the end of a component. */
 export type BossKind =
   | 'surge-protector'
@@ -52,13 +48,7 @@ export type BossKind =
   | 'boot-loader'
 /** How a component's wall slabs are dressed: outlet plastic, RAM chips, or cooling fins. */
 export type WallStyle =
-  | 'plastic'
-  | 'chips'
-  | 'fins'
-  | 'speakers'
-  | 'bezel'
-  | 'pins'
-  | 'text'
+  'plastic' | 'chips' | 'fins' | 'speakers' | 'bezel' | 'pins' | 'text'
 
 export type ComponentLook = {
   /** The wall slabs' ramp. */

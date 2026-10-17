@@ -270,6 +270,12 @@
                     class="rounded-full bg-emerald-500 px-2 py-0.5 text-[10px] font-black uppercase tracking-wider text-white hover:bg-emerald-600"
                     >▶ Playable</a
                   >
+                  <span
+                    v-if="plumber.gears.has(stage.code)"
+                    class="rounded-full bg-amber-400 px-2 py-0.5 text-[10px] font-black uppercase tracking-wider text-amber-950"
+                    title="Golden Gear found"
+                    >⚙ Gear</span
+                  >
                 </div>
                 <p class="text-sm leading-snug opacity-75">{{ stage.idea }}</p>
               </div>

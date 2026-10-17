@@ -7,7 +7,13 @@
 import { rainbowBossHp } from './rainbowPinkwakeBoss'
 
 export type RainbowGuardianKind =
-  'urchin' | 'lantern' | 'clawstrike' | 'courier' | 'salvager' | 'bulwark'
+  | 'urchin'
+  | 'lantern'
+  | 'clawstrike'
+  | 'courier'
+  | 'salvager'
+  | 'bulwark'
+  | 'mirror'
 
 export type RainbowGuardianSection = {
   name: string
@@ -39,6 +45,8 @@ export type RainbowGuardianShot = {
   /** A courier guardian's cargo mine: frames until it bursts into a ring. */
   fuse?: number
   burst?: 'ring'
+  /** A mirror guardian's phantom pellet: only light, it never hits. */
+  ghost?: boolean
 }
 
 export const RAINBOW_GUARDIAN = {
@@ -148,6 +156,20 @@ export function stepRainbowGuardian(
     // A straight bolt down every lane its warning marked.
     for (const lane of guardian.lanes)
       shots.push({ x: guardian.x - 18, y: lane, vx: -4.2, vy: 0, grazed: 0 })
+  } else if (guardian.kind === 'mirror') {
+    // A fan at the nearest pilot where every other pellet is a phantom; read the solid ones.
+    const count = enraged ? 13 : 9
+    const aim = Math.atan2(nearest.y - guardian.y, nearest.x - guardian.x)
+    const solidOdd = guardian.volleys % 2 === 1
+    for (let i = 0; i < count; i++)
+      shots.push({
+        x: guardian.x - 18,
+        y: guardian.y,
+        vx: Math.cos(aim + (i / (count - 1) - 0.5) * 1.4) * 1.6,
+        vy: Math.sin(aim + (i / (count - 1) - 0.5) * 1.4) * 1.6,
+        grazed: 0,
+        ...((i % 2 === 1) === solidOdd ? {} : { ghost: true }),
+      })
   } else if (guardian.kind === 'bulwark') {
     // The shell window opens on a slow sweeping barrier: a fan of pellets that sweeps one way, then back.
     const count = enraged ? 13 : 9

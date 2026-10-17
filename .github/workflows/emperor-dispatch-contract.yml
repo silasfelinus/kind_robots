@@ -14,7 +14,7 @@ on:
       - 'utils/scripts/verifyEmperorDayTwo.test.ts'
       - 'utils/scripts/verifyEmperorDayThree.test.ts'
       - 'components/EmperorOfDustImperialRoadMap.vue'
-      - 'pages/admin/emperor-of-dust.vue'
+      - 'pages/play/emperor-of-dust.vue'
       - 'stores/emperorOfDustStore.ts'
       - '.github/workflows/emperor-dispatch-contract.yml'
   push:
@@ -27,7 +27,7 @@ on:
       - 'utils/scripts/verifyEmperorDayTwo.test.ts'
       - 'utils/scripts/verifyEmperorDayThree.test.ts'
       - 'components/EmperorOfDustImperialRoadMap.vue'
-      - 'pages/admin/emperor-of-dust.vue'
+      - 'pages/play/emperor-of-dust.vue'
       - 'stores/emperorOfDustStore.ts'
       - '.github/workflows/emperor-dispatch-contract.yml'
 

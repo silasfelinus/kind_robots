@@ -4,12 +4,8 @@
       <header
         class="relative overflow-hidden rounded-3xl border border-base-content/15 bg-base-200 p-5 shadow-xl sm:p-8"
       >
-        <div class="absolute -right-10 -top-16 text-[11rem] opacity-10">
-          🧩
-        </div>
-        <div
-          class="relative flex flex-wrap items-start justify-between gap-4"
-        >
+        <div class="absolute -right-10 -top-16 text-[11rem] opacity-10">🧩</div>
+        <div class="relative flex flex-wrap items-start justify-between gap-4">
           <div>
             <p class="kr-text-eyebrow text-primary">
               Work in progress · First playable slice
@@ -19,9 +15,9 @@
             </h2>
             <p class="mt-3 max-w-2xl text-sm text-base-content/75">
               Slide the eight painted panes into place. Finish the picture to
-              reveal a postcard and save it to your keepsake wall. This build
-              is a working puzzle prototype; commissioned gallery art is still
-              on the production list.
+              reveal a postcard and save it to your keepsake wall. This build is
+              a working puzzle prototype; commissioned gallery art is still on
+              the production list.
             </p>
           </div>
           <button
@@ -74,8 +70,7 @@
                 }}
               </p>
               <p class="text-sm text-base-content/60">
-                {{ gallery.puzzle.day }} · Select a tile beside the empty
-                space
+                {{ gallery.puzzle.day }} · Select a tile beside the empty space
               </p>
             </div>
             <div class="rounded-xl bg-base-300 px-4 py-2 text-center">
@@ -134,9 +129,7 @@
               class="relative flex min-h-72 flex-col justify-end overflow-hidden bg-gradient-to-br from-indigo-950 via-fuchsia-900 to-amber-700 p-6 text-white sm:min-h-96"
             >
               <template v-if="gallery.puzzle.solved">
-                <div class="absolute right-7 top-6 text-7xl opacity-80">
-                  🌈
-                </div>
+                <div class="absolute right-7 top-6 text-7xl opacity-80">🌈</div>
                 <div class="absolute left-8 top-12 text-[7rem] opacity-70">
                   🤖
                 </div>
@@ -157,8 +150,8 @@
                   The Little Robot Who Gathered Starlight
                 </h2>
                 <p class="mt-2 text-sm text-white/85">
-                  A tiny robot collects eight scattered colors from the sky.
-                  The last piece turns the whole night into a rainbow.
+                  A tiny robot collects eight scattered colors from the sky. The
+                  last piece turns the whole night into a rainbow.
                 </p>
               </div>
               <div

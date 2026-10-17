@@ -96,14 +96,27 @@ assert.ok(
 assert.match(engine, /drawRainbowCommsPortrait\(\s*g,\s*dialogue\.speaker/)
 
 // Enemies: every kind the engine spawns (the Pinkwake and Moonjelly type unions) has a painted sprite.
+// Two Act I kinds borrow art (Silas's 2026-10-17 playtest recut): a diver flies the picket sprite with a red
+// glow, and a coral spire is terrain the engine draws itself.
+const SPRITELESS_KINDS = ['diver', 'spire']
 const engineKinds = ['rainbowPinkwake', 'rainbowMoonjelly'].flatMap((name) => {
   const source = readFileSync(
     new URL(`../arcade/games/${name}.ts`, import.meta.url),
     'utf8',
   )
-  const union = /export type \w+Enemy =([^\n]+)/.exec(source)?.[1] ?? ''
-  return [...union.matchAll(/'(\w+)'/g)].map((m) => m[1]!)
+  const union =
+    /export type \w+Enemy =([\s\S]*?)\n(?:export |\/\*\*|\n)/.exec(
+      source,
+    )?.[1] ?? ''
+  return [...union.matchAll(/'(\w+)'/g)]
+    .map((m) => m[1]!)
+    .filter((kind) => !SPRITELESS_KINDS.includes(kind))
 })
+assert.match(
+  engine,
+  /drawRainbowEnemySprite\(\s*g,\s*reef\.kind === 'diver' \? 'picket' : reef\.kind/,
+)
+assert.match(engine, /Coral spires: terrain columns/)
 assert.deepEqual(
   [...engineKinds].sort(),
   [...RAINBOW_ENEMY_SPRITES].sort(),
@@ -149,7 +162,7 @@ assert.match(
 assert.equal(drawRainbowEnemySprite(g, 'picket'), false)
 assert.match(
   engine,
-  /if \(\s*!drawRainbowEnemySprite\(g, reef\.kind\)[^{]*\) \{\s+g\.beginPath\(\)/,
+  /if \(\s*!drawRainbowEnemySprite\(\s*g,\s*reef\.kind === 'diver' \? 'picket' : reef\.kind,?\s*\)[^{]*\) \{\s+g\.beginPath\(\)/,
   'enemies keep their primitive body until the sprite loads',
 )
 

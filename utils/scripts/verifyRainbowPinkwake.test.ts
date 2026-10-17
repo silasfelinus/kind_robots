@@ -9,7 +9,11 @@ import {
   pinkwakeFormation,
   pinkwakeScene,
   pinkwakeSpawns,
+  pinkwakeSpires,
   pinkwakeStage,
+  PINKWAKE_CALLOUTS,
+  PINKWAKE_SPIRES,
+  SPIRE,
 } from '../arcade/games/rainbowPinkwake'
 import { RAINBOW_LANES } from '../arcade/games/rainbowFormations'
 import {
@@ -29,13 +33,15 @@ assert.equal(pinkwakeStage(5000, 4850), 'aftermath')
 const laneY = (lane: number) => RAINBOW_LANES.top + lane * RAINBOW_LANES.span
 assert.deepEqual(pinkwakeSpawns(100), [], 'opening scene is a safe corridor')
 assert.deepEqual(
-  pinkwakeSpawns(360).map((spawn) => [spawn.kind, spawn.y]),
-  [['picket', laneY(0.3)]],
-  'the picket school opens with a three-craft line',
+  pinkwakeSpawns(330).map((spawn) => [spawn.kind, spawn.y]),
+  [['picket', laneY(0.5)]],
+  'the picket school opens on a vee',
 )
-assert.equal(pinkwakeSpawns(392).length, 1, 'line members enter in file')
-assert.equal(pinkwakeSpawns(2160)[0]?.kind, 'spiral')
-assert.equal(pinkwakeSpawns(5760)[0]?.kind, 'urchin')
+assert.equal(pinkwakeSpawns(342).length, 2, 'the vee opens out in pairs')
+assert.equal(pinkwakeSpawns(496).length, 1, 'line members enter in file')
+assert.equal(pinkwakeSpawns(1560)[0]?.kind, 'spiral')
+assert.equal(pinkwakeSpawns(3960)[0]?.kind, 'urchin')
+assert.equal(pinkwakeSpawns(6660)[0]?.kind, 'diver')
 assert.deepEqual(
   pinkwakeSpawns(PINKWAKE.turnStarts),
   [],
@@ -56,9 +62,16 @@ assert.equal(
   PINKWAKE_WAVE_SIZES.reduce((sum, size) => sum + size, 0),
   'every formation member spawns before the pre-boss turn',
 )
+// Silas's first playtest (2026-10-17) asked for more craft in less time: the recut packs about as many
+// craft as the nine-minute Act did into roughly a third of the time.
+const waveMinutes = (PINKWAKE.turnStarts - PINKWAKE.openingEnds) / 3600
 assert.ok(
   craft >= 250,
   `Act I authors ${craft} craft, over four times the 59 of the old slice`,
+)
+assert.ok(
+  craft / waveMinutes >= 75,
+  `Act I sends ${(craft / waveMinutes).toFixed(0)} craft a minute`,
 )
 for (const [i, section] of PINKWAKE_SECTIONS.entries()) {
   if (i > 0) assert.equal(section.from, PINKWAKE_SECTIONS[i - 1]!.to)
@@ -72,9 +85,49 @@ for (const [i, section] of PINKWAKE_SECTIONS.entries()) {
 assert.equal(PINKWAKE_SECTIONS[0]!.from, PINKWAKE.openingEnds)
 assert.equal(PINKWAKE_SECTIONS.at(-1)!.to, PINKWAKE.turnStarts)
 assert.ok(
-  PINKWAKE.turnStarts - PINKWAKE.openingEnds >= 13200,
-  'Act I waves run over three and a half minutes',
+  waveMinutes >= 3 && waveMinutes <= 4,
+  `Act I waves run ${waveMinutes.toFixed(2)} minutes (the playtest found nine too long)`,
 )
+assert.ok(
+  PINKWAKE.bossStarts / 3600 <= 4,
+  'the Pearl Seahorse arrives within four minutes',
+)
+assert.ok(
+  PINKWAKE_GUARDIAN.from / 3600 <= 1.5,
+  'the Urchin guardian arrives within a minute and a half',
+)
+
+// Coral spires: terrain that rises in the waves stage, never in the guardian's section, tips on the field.
+assert.ok(PINKWAKE_SPIRES.length >= 12)
+for (const spire of PINKWAKE_SPIRES) {
+  assert.equal(pinkwakeStage(spire.at, null), 'waves')
+  assert.ok(
+    spire.at < PINKWAKE_GUARDIAN.from || spire.at >= PINKWAKE_GUARDIAN.to,
+  )
+  assert.ok(
+    spire.tip > 0.3 && spire.tip < 0.7,
+    'a spire never closes the field',
+  )
+  assert.deepEqual(pinkwakeSpires(spire.at).length >= 1, true)
+}
+// In the chicane the spires alternate, so no straight line runs past them all: weave.
+const chicane = PINKWAKE_SPIRES.filter((s) => s.at >= 7800 && s.at < 9300)
+assert.ok(chicane.length >= 8)
+for (let i = 1; i < chicane.length; i++) {
+  const [prev, next] = [chicane[i - 1]!, chicane[i]!]
+  assert.notEqual(prev.top, next.top)
+  const prevOpen = prev.top
+    ? [laneY(prev.tip), laneY(1)]
+    : [laneY(0), laneY(prev.tip)]
+  const nextOpen = next.top
+    ? [laneY(next.tip), laneY(1)]
+    : [laneY(0), laneY(next.tip)]
+  assert.ok(
+    Math.max(prevOpen[0]!, nextOpen[0]!) + SPIRE.halfWidth >
+      Math.min(prevOpen[1]!, nextOpen[1]!) - SPIRE.halfWidth,
+    `spires at ${prev.at} and ${next.at} leave no straight line`,
+  )
+}
 
 // A mine-corridor wall always leaves one open lane a ship can thread: half the corridor clears the
 // 14px ram radius (core 4 + craft 10) with at least 12px to spare on each side.
@@ -109,6 +162,20 @@ for (
 }
 assert.equal(pinkwakeScene(10, null)?.id, 'A01.OPEN')
 assert.equal(pinkwakeScene(1100, null), null)
+// Lilt calls out every section after the first, so no stretch of the Act goes quiet, solo included.
+assert.equal(PINKWAKE_CALLOUTS.length, PINKWAKE_SECTIONS.length - 1)
+for (const [from, id] of PINKWAKE_CALLOUTS) {
+  assert.ok(PINKWAKE_SECTIONS.some((section) => section.from === from))
+  assert.equal(pinkwakeScene(from, null)?.id, id)
+  assert.equal(pinkwakeScene(from + 2 * PINKWAKE.sceneLineFrames, null), null)
+  for (const count of [1, 2, 3, 4])
+    for (const elapsed of [0, PINKWAKE.sceneLineFrames]) {
+      const line = pinkwakeDialogue(id, elapsed, count, false)
+      assert.ok(line?.text)
+      const active = ['Maribel', 'Azure', 'Solenne', 'Vivi'].slice(0, count)
+      assert.ok(line.speaker === 'Lilt-7' || active.includes(line.speaker))
+    }
+}
 assert.equal(pinkwakeScene(PINKWAKE.turnStarts, null)?.id, 'A01.TURN')
 assert.equal(pinkwakeScene(PINKWAKE.bossStarts, null), null)
 assert.equal(pinkwakeScene(4900, 4900)?.id, 'A01.AFTER')

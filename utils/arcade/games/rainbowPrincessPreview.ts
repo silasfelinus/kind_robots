@@ -2211,7 +2211,7 @@ export function createRainbowPrincessPreview(
         continue
       }
       reef.health -= seat === 1 ? 8 : 5
-      if (reef.health <= 0) defeat(i, seat)
+      if (reef.health <= 0) defeat(i, seat, false)
     }
     if (seat === 2) {
       haloRevive(ships, activePlayers, seat)
@@ -2312,7 +2312,8 @@ export function createRainbowPrincessPreview(
     })
   }
 
-  function defeat(index: number, seat: number) {
+  /** A craft destroyed by `seat`; a super's own kills (`refund` false) never recharge it. */
+  function defeat(index: number, seat: number, refund = true) {
     const reef = reefs[index]!
     reefs.splice(index, 1)
     explode(reef.x, reef.y)
@@ -2329,10 +2330,11 @@ export function createRainbowPrincessPreview(
     creditWave(reef)
     clearCount++
     const ship = ships[seat]!
-    ship.charge = Math.min(
-      100,
-      ship.charge + (reef.kind === 'urchin' ? 24 : 12),
-    )
+    if (refund)
+      ship.charge = Math.min(
+        100,
+        ship.charge + (reef.kind === 'urchin' ? 24 : 12),
+      )
     if (clearCount % 3 === 0) {
       const kinds: Pickup['kind'][] = ['power', 'shield', 'charge']
       pickups.push({
@@ -3152,6 +3154,9 @@ export function createRainbowPrincessPreview(
       const lastY = ship.y
       if (options.demo) {
         ship.y = 135 + Math.sin(tick / 33 + seat) * 56
+        // A guardian on screen: the attract demo lines up on it, so it shows the guardian beaten.
+        if (guardian && guardian.frame > 60)
+          ship.y += (guardian.y + (seat - 1.5) * 8 - ship.y) * 0.7
         // The attract demo flies around the nearest coral spire ahead.
         const spire = reefs
           .filter((reef) => reef.kind === 'spire' && reef.x > ship.x - 30)

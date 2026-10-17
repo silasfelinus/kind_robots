@@ -66,12 +66,13 @@ const g = brickBloom.create({
   demo: false,
   hiScore: 0,
 }) as unknown as Inner
+const miteLineOf = (): MiteLine | null => g.miteLine
 
 assert.equal(g.miteLine, null, 'the first wall has no mites')
 g.tour = { house: 0, wall: 'seed-2a' }
 g.startStage(2)
 assert.equal(
-  g.miteLine?.mites.length,
+  miteLineOf()?.mites.length,
   3,
   'the second Seedling wall hatches three',
 )
@@ -81,7 +82,7 @@ assert.equal(g.miteLine, null, 'Vine Hall has none')
 
 g.tour = { house: 0, wall: 'seed-2a' }
 g.startStage(2)
-const target = g.miteLine!.mites[1]!
+const target = miteLineOf()!.mites[1]!
 const before = g.score
 g.stepBall(
   {
@@ -98,7 +99,7 @@ g.stepBall(
   0,
   0,
 )
-assert.equal(g.miteLine?.mites.length, 2, 'a ball through a mite pops it')
+assert.equal(miteLineOf()?.mites.length, 2, 'a ball through a mite pops it')
 assert.ok(g.score > before, 'and scores')
 
 console.log('Brick Bloom pollen mite: hatch, sway, pop and petal chain passed')

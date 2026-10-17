@@ -130,7 +130,7 @@
                 playsinline
                 preload="metadata"
                 class="max-h-full w-full object-contain"
-                aria-label="Source video preview"
+                aria-label="Video playback preview"
                 @loadedmetadata="readVideoMetadata"
               />
               <template v-else>
@@ -176,13 +176,49 @@
                 </div>
               </template>
             </div>
+            <div
+              v-if="store.selected && !sourceFile"
+              class="flex shrink-0 flex-wrap gap-1"
+              aria-label="Available video versions"
+            >
+              <button
+                type="button"
+                class="kr-btn-xs btn-outline"
+                :disabled="store.sourceBusy"
+                @click="store.loadSourcePreview(store.selected.id)"
+              >Original source</button>
+              <button
+                v-if="store.selected.status === 'REVIEW' || store.selected.full"
+                type="button"
+                class="kr-btn-xs btn-outline"
+                :disabled="store.sourceBusy"
+                @click="showPilot()"
+              >Animated pilot</button>
+              <button
+                v-if="store.selected.pilot?.previousRevision"
+                type="button"
+                class="kr-btn-xs btn-outline"
+                :disabled="store.sourceBusy"
+                @click="showPilot(true)"
+              >Previous pilot</button>
+              <button
+                v-if="store.selected.status === 'DONE' && store.selected.full"
+                type="button"
+                class="kr-btn-xs btn-primary"
+                :disabled="store.sourceBusy"
+                @click="showFull"
+              >Full film</button>
+            </div>
             <div class="grid gap-2 sm:grid-cols-[1fr_auto]">
               <label class="min-w-0">
-                <span class="kr-text-faded-xs block">Project title</span>
+                <span class="kr-text-faded-xs block">
+                  {{ store.selected && !sourceFile ? 'Saved project' : 'New project title' }}
+                </span>
                 <input
                   v-model="title"
                   type="text"
                   class="kr-input w-full"
+                  :readonly="Boolean(store.selected && !sourceFile)"
                   maxlength="120"
                   placeholder="Coat Dance / original performance"
                   aria-label="Project title"
@@ -807,6 +843,9 @@ function chooseFile(event: Event) {
 
 function readVideoMetadata(event: Event) {
   const video = event.target as HTMLVideoElement
+  // Watching a 24-second generated pilot must not replace the 5:32
+  // metadata of its full source in the project setup.
+  if (!sourceFile.value) return
   durationSec.value = Number.isFinite(video.duration) ? video.duration : 0
   if (durationSec.value > RESTYLE_MAX_DURATION_SEC) {
     store.error = 'This studio currently supports videos up to 15 minutes.'

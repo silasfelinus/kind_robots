@@ -57,6 +57,12 @@ tutorial:
     Difficulty
     The cabinet's difficulty switch picks Cadet, Pilot or Ace before a run starts. Cadets fly with five lives, slower enemy pellets and softer craft and bosses; Aces face faster pellets and tougher craft and bosses. Every attack keeps its full warning at every level. The score scales with the level (half for Cadet, one and a half times for Ace), so everyone shares one leaderboard.
 
+    Focused weapons
+    Hold B to focus: each ship trades its spread for its own precise weapon. Petal Wing fires a Rose Needle, one fast needle that hits twice as hard, with a twin from power 2. Prism Lance fires a Prism Thread that passes through two craft, one more per power level; walls, slabs and closed shells still stop it. Halo Fin's two orbit drones fire inward so their shots cross on your line. Comet Crown throws Comet Arc sparks up and down that glance off the walls twice.
+
+    Medals, mastery and saves
+    Every Act ends with a medal: gold for no hits, silver for no continues, bronze for the clear. The cabinet's mastery ladder tracks First Light, Gold Wing, The End, Guardian Breaker, No One Left Behind, Every Ending and a secret goal. Each Act start from Act II on saves on this device; the next game offers a Flight Log to continue from that Act with its score, rescues, routes, medals and difficulty, or to start a new flight. Reaching THE END clears the save.
+
     Boss fights
     Each boss hull grows with the crew, and each extra pilot adds more than the first, so four powered-up pilots stacking supers still fight through all three phases. Phases turn at two thirds and one third of the hull. A clean solo run of each Act takes about ten minutes; a first clear with continues takes twelve to fifteen, and a crew of four finishes each in about ten to eleven.
 

@@ -5,6 +5,7 @@ import type {
   ArcadeGameOptions,
   InputFrame,
 } from '../types'
+import { ARCADE_DIFFICULTIES } from '../types'
 import {
   PINKWAKE,
   pinkwakeDialogue,
@@ -184,6 +185,7 @@ import {
 import {
   PALACE,
   PALACE_CAPTIVE,
+  PALACE_CAPTIVES,
   PALACE_GUARDIAN,
   PALACE_SECTIONS,
   PALACE_WAVES,
@@ -262,6 +264,14 @@ import {
   type RainbowCheckpoint,
 } from './rainbowCheckpoints'
 import {
+  RAINBOW_DIFFICULTY_NAMES,
+  RAINBOW_FOCUS,
+  RAINBOW_MASTERY,
+  rainbowMedal,
+  readRainbowSave,
+} from './rainbowLoadouts'
+import type { RainbowMedal, RainbowSave } from './rainbowLoadouts'
+import {
   AURELIA_MAX_HP,
   createMoonjellyBoss,
   moonjellyBossWarning,
@@ -280,6 +290,8 @@ const SHIP_NAMES = ['PETAL', 'PRISM', 'HALO', 'COMET'] as const
 const BURST_FRAMES = 42
 const CUTIN_FADE_FRAMES = 10
 const POPUP_FRAMES = 50
+/** Frames before the continue/new menu takes an A press. */
+const RESUME_MENU_GRACE = 20
 const INTRO_FRAMES = 160
 const STRIP_HEIGHT = 50
 const STRIP_SPEED = 0.55
@@ -455,6 +467,13 @@ type Shot = {
   vy: number
   seat: number
   damage: number
+  /** A focused weapon's shot (t-010), drawn in its family's shape; unfocused fire leaves it out. */
+  kind?: 'needle' | 'thread' | 'link' | 'arc'
+  /** A Prism Thread passes through this many more craft, never the same one twice. */
+  pierce?: number
+  struck?: Reef[]
+  /** A Comet Arc spark glances off the corridor walls this many more times. */
+  bounces?: number
 }
 type Reef = {
   x: number
@@ -511,6 +530,15 @@ export type RainbowCombatSnapshot = {
   score: number
   ships: ReadonlyArray<Readonly<Ship>>
   shots: ReadonlyArray<Readonly<Shot>>
+  /** Medals won so far, by Act (t-010). */
+  medals: Readonly<
+    Partial<Record<1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9, RainbowMedal>>
+  >
+  /** Mastery goals this run has met (the attract demo's too, which it never reports). */
+  earned: readonly string[]
+  difficulty: ArcadeDifficulty
+  /** The continue/new menu's highlighted line (0 continue, 1 new flight), or null when it is not shown. */
+  resumeMenu: 0 | 1 | null
   enemies: ReadonlyArray<Readonly<Reef>>
   enemyShots: ReadonlyArray<Readonly<EnemyShot>>
   pickups: ReadonlyArray<Readonly<Pickup>>
@@ -611,11 +639,11 @@ export function createRainbowPrincessPreview(
 ): ArcadeGameInstance & { readonly snapshot: RainbowCombatSnapshot } {
   const count = Math.max(1, Math.min(4, options.players ?? 1))
   let activePlayers = count
-  const difficulty: ArcadeDifficulty =
+  let difficulty: ArcadeDifficulty =
     options.difficulty && options.difficulty in RAINBOW_DIFFICULTY
       ? options.difficulty
       : 'normal'
-  const level = RAINBOW_DIFFICULTY[difficulty]
+  let level = RAINBOW_DIFFICULTY[difficulty]
   /** A boss's hull for this crew at this difficulty. */
   const bossHp = (base: number) =>
     Math.max(1, Math.round(rainbowBossHp(base, activePlayers) * level.bossHp))
@@ -750,6 +778,20 @@ export function createRainbowPrincessPreview(
   let continueLeft = 0
   let continues = 0
   const popups: Array<{ x: number; y: number; text: string; age: number }> = []
+  /** Medals won by Act, and the hits taken and continues spent in the Act under way (t-010). */
+  const medals: Partial<
+    Record<1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9, RainbowMedal>
+  > = {}
+  let actHits = 0
+  let actContinues = 0
+  /** Mastery goals earned this game. */
+  const earned: string[] = []
+  /** The progress the cabinet keeps: written at each Act start, cleared at THE END. */
+  let saveRecord: RainbowSave | null | undefined = undefined
+  /** A saved flight to offer before the game begins: continue from its Act, or start a new one. */
+  const offered = options.demo ? null : readRainbowSave(options.resume)
+  let resumeMenu: { save: RainbowSave; pick: 0 | 1; frame: number } | null =
+    offered ? { save: offered, pick: 0, frame: 0 } : null
   function moonFrame() {
     return moonStart === null ? 0 : tick - moonStart
   }
@@ -1529,6 +1571,117 @@ export function createRainbowPrincessPreview(
       schoolBonuses,
     }
     if (frame > 0) popups.push({ x: W / 2, y: 74, text: 'CHECKPOINT', age: 0 })
+    if (frame === 0 && act >= 2) {
+      awardMedal((act - 1) as 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8)
+      if (act === 9) {
+        const flags = palaceFlags()
+        if (
+          rescuedStation &&
+          flags.rescuedNemi &&
+          flags.rescuedCourier &&
+          flags.freedDepot &&
+          flags.stoppedRelay &&
+          flags.rescuedNavigator &&
+          flags.captivesFreed >= PALACE_CAPTIVES
+        )
+          earn('no-one-left')
+      }
+      // The demo keeps one too (the cabinet never stores a demo's), so the flythrough proves it.
+      writeSave()
+    }
+  }
+
+  /** Earn a mastery goal (once a game); the game announces it only the first time ever. */
+  function earn(id: string) {
+    if (earned.includes(id)) return
+    earned.push(id)
+    if (options.demo || options.mastery?.includes(id)) return
+    const goal = RAINBOW_MASTERY.find((rung) => rung.id === id)
+    if (goal)
+      popups.push({ x: W / 2, y: 112, text: `MASTERY · ${goal.title}`, age: 0 })
+  }
+
+  /** An Act's medal: gold for no hits, silver for no continues, bronze for the clear. */
+  function awardMedal(act: 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9) {
+    const medal = rainbowMedal(actHits, actContinues)
+    medals[act] = medal
+    actHits = 0
+    actContinues = 0
+    popups.push({
+      x: W / 2,
+      y: 96,
+      text: `${ACT_NUMERALS[act - 1]} · ${medal.toUpperCase()} MEDAL`,
+      age: 0,
+    })
+    if (act === 1) earn('first-light')
+    if (medal === 'gold') earn('gold-wing')
+  }
+
+  /** Keep this Act start for the cabinet: the checkpoint, the difficulty, the guardians met and the medals. */
+  function writeSave() {
+    const met: RainbowSave['guardians'] = {}
+    for (const act of [1, 2, 3, 4, 5, 6, 7, 8] as const)
+      if (guardians[act] !== 'waiting')
+        met[act] = guardians[act] as 'defeated' | 'escaped'
+    saveRecord = {
+      v: 1,
+      difficulty,
+      checkpoint: { ...checkpoint },
+      guardians: met,
+      medals: { ...medals },
+    }
+  }
+
+  /**
+   * Continue a saved flight: its difficulty, score, rescues, routes, guardians and medals, with every Act
+   * before it flown and its own Act about to begin (its first update is its frame 0).
+   */
+  function continueFrom(save: RainbowSave) {
+    difficulty = save.difficulty
+    level = RAINBOW_DIFFICULTY[difficulty]
+    for (const ship of ships) ship.lives = level.lives
+    const c = save.checkpoint
+    score = c.score
+    rescuedStation = c.rescuedStation
+    rescuedNemi = c.rescuedNemi
+    trenchRoute = c.trenchRoute
+    routeSettled = c.routeSettled
+    rescuedCourier = c.rescuedCourier
+    escortDone = c.act > 4
+    wreckRoute = c.wreckRoute
+    wreckSettled = c.wreckSettled
+    podsSaved = c.podsSaved
+    reefRoute = c.reefRoute
+    reefSettled = c.reefSettled
+    pylonsDown = c.pylonsDown
+    rescuedNavigator = c.rescuedNavigator
+    navigatorDone = c.act > 7
+    captivesFreed = c.captivesFreed
+    schoolBonuses = c.schoolBonuses
+    for (const act of [1, 2, 3, 4, 5, 6, 7, 8] as const)
+      guardians[act] =
+        save.guardians[act] ?? (act < c.act ? 'escaped' : 'waiting')
+    Object.assign(medals, save.medals)
+    const n = c.act
+    const start = (act: number) => (act < n ? 0 : act === n ? 1 : null)
+    const beaten = (act: number) => (act < n ? 0 : null)
+    defeatedAt = beaten(1)
+    moonDefeatedFrame = beaten(2)
+    trenchDefeatedFrame = beaten(3)
+    rosefinDefeatedFrame = beaten(4)
+    wreckDefeatedFrame = beaten(5)
+    reefDefeatedFrame = beaten(6)
+    glassDefeatedFrame = beaten(7)
+    palaceDefeatedFrame = beaten(8)
+    moonStart = start(2)
+    trenchStart = start(3)
+    rosefinStart = start(4)
+    wreckStart = start(5)
+    reefStart = start(6)
+    glassStart = start(7)
+    palaceStart = start(8)
+    finaleStart = start(9)
+    checkpoint = { ...c }
   }
 
   /**
@@ -1539,6 +1692,7 @@ export function createRainbowPrincessPreview(
   function resumeFromCheckpoint() {
     continueLeft = 0
     continues++
+    actContinues++
     if (escapeFrame !== null) {
       restartEscape()
       return
@@ -1697,7 +1851,92 @@ export function createRainbowPrincessPreview(
     options.sound.play('level')
   }
 
+  /** Each ship's focused weapon family (t-010): precise fire that trades away the spread. */
+  function fireFocused(ship: Ship, seat: number) {
+    const power = ship.power
+    if (seat === 0) {
+      // Petal Wing's Rose Needle: one fast needle, a twin from power 2.
+      const { speed, damage, cooldown } = RAINBOW_FOCUS.needle
+      for (const dy of power >= 2 ? [-2, 2] : [0])
+        shots.push({
+          x: ship.x + 15,
+          y: ship.y + dy,
+          vx: speed,
+          vy: 0,
+          seat,
+          damage,
+          kind: 'needle',
+        })
+      ship.cooldown = cooldown
+    } else if (seat === 1) {
+      // Prism Lance's Prism Thread: pierces craft, one more per power level.
+      const { speed, damage, pierce, cooldown } = RAINBOW_FOCUS.thread
+      shots.push({
+        x: ship.x + 15,
+        y: ship.y,
+        vx: speed,
+        vy: 0,
+        seat,
+        damage,
+        kind: 'thread',
+        pierce: pierce + power - 1,
+      })
+      ship.cooldown = cooldown
+    } else if (seat === 2) {
+      // Halo Fin's Halo Link: the orbit drones' shots cross on the line ahead; power 3 hits harder.
+      const { speed, offset, crossAt, cooldown } = RAINBOW_FOCUS.link
+      shots.push({
+        x: ship.x + 15,
+        y: ship.y,
+        vx: speed,
+        vy: 0,
+        seat,
+        damage: 1,
+        kind: 'link',
+      })
+      for (const side of [-1, 1])
+        shots.push({
+          x: ship.x + 10,
+          y: ship.y + side * offset,
+          vx: speed,
+          vy: (-side * offset * speed) / crossAt,
+          seat,
+          damage: power >= 3 ? 2 : 1,
+          kind: 'link',
+        })
+      ship.cooldown = cooldown
+    } else {
+      // Comet Crown's Comet Arc: sparks thrown up and down that glance off the walls; power 3 hits harder.
+      const { speed, rise, bounces, cooldown } = RAINBOW_FOCUS.arc
+      shots.push({
+        x: ship.x + 15,
+        y: ship.y,
+        vx: speed + 1,
+        vy: 0,
+        seat,
+        damage: 1,
+        kind: 'arc',
+      })
+      for (const side of power >= 2 ? [-1, 1] : [-1])
+        shots.push({
+          x: ship.x + 12,
+          y: ship.y,
+          vx: speed,
+          vy: side * rise,
+          seat,
+          damage: power >= 3 ? 2 : 1,
+          kind: 'arc',
+          bounces,
+        })
+      ship.cooldown = cooldown
+    }
+  }
+
   function fire(ship: Ship, seat: number) {
+    if (ship.focus) {
+      fireFocused(ship, seat)
+      return
+    }
     const power = ship.power
     const speed = seat === 1 ? 10 : seat === 3 ? 9 : 8
     const damage = seat === 1 ? 2 : 1
@@ -2164,6 +2403,8 @@ export function createRainbowPrincessPreview(
     const act = currentAct()
     // The finale has no guardian of its own.
     if (act !== 9) guardians[act] = 'defeated'
+    if (Object.values(guardians).every((outcome) => outcome === 'defeated'))
+      earn('guardian-breaker')
     // Like a boss, a destroyed guardian takes its pellets with it.
     enemyShots.length = 0
     score += RAINBOW_GUARDIAN.bonus
@@ -2180,6 +2421,7 @@ export function createRainbowPrincessPreview(
     // The attract-mode flythrough must be able to reach its authored boss and
     // second Act rather than silently losing every autonomous pilot.
     if (options.demo || ship.invulnerable > 0) return
+    actHits++
     ship.invulnerable = 90
     ship.shield--
     if (ship.shield <= 0) {
@@ -2197,6 +2439,22 @@ export function createRainbowPrincessPreview(
 
   function update(input: InputFrame, seated = [input]) {
     if (over) return
+    if (resumeMenu) {
+      // Up or down picks; A (after a beat, so the press that started the game doesn't choose) confirms.
+      const keys = [input, ...seated]
+      if (keys.some((frame) => frame?.pressed.up || frame?.pressed.down))
+        resumeMenu.pick = resumeMenu.pick ? 0 : 1
+      if (
+        ++resumeMenu.frame > RESUME_MENU_GRACE &&
+        keys.some((frame) => frame?.pressed.a)
+      ) {
+        const chosen = resumeMenu
+        resumeMenu = null
+        if (chosen.pick === 0) continueFrom(chosen.save)
+        options.sound.play('blip')
+      }
+      return
+    }
     // The whole crew is down: the world holds still while the CONTINUE? countdown runs.
     if (continueLeft > 0) {
       const waited =
@@ -2547,6 +2805,12 @@ export function createRainbowPrincessPreview(
           endingFrame = 0
           enemyShots.length = 0
           score += FINALE.completeScore
+          awardMedal(9)
+          earn('the-end')
+          earn(`ending-${finalChoice ?? 'evacuate'}`)
+          if (difficulty === 'hard') earn('ace-of-eclipse')
+          // The campaign is over: there is no Act left to continue from.
+          saveRecord = null
           for (const ship of ships.slice(0, activePlayers))
             ship.invulnerable = Math.max(ship.invulnerable, 99999)
           options.sound.play('level')
@@ -2674,6 +2938,11 @@ export function createRainbowPrincessPreview(
     for (const shot of shots) {
       shot.x += shot.vx
       shot.y += shot.vy
+      if (shot.bounces && (shot.y < WALL_TOP || shot.y > WALL_BOTTOM)) {
+        shot.vy = -shot.vy
+        shot.y = Math.max(WALL_TOP, Math.min(WALL_BOTTOM, shot.y))
+        shot.bounces--
+      }
     }
     for (const reef of reefs) {
       if (
@@ -3017,7 +3286,7 @@ export function createRainbowPrincessPreview(
         continue
       }
       const hitIndex = reefs.findIndex((reef) =>
-        reef.kind === 'captive'
+        shot.struck?.includes(reef) || reef.kind === 'captive'
           ? false
           : reef.kind === 'eel'
             ? Math.abs(reef.x - shot.x) < 8 &&
@@ -3032,8 +3301,18 @@ export function createRainbowPrincessPreview(
                   : 13),
       )
       if (hitIndex >= 0) {
-        shots.splice(si, 1)
         const reef = reefs[hitIndex]!
+        // A Prism Thread passes through craft, but whatever soaks shots stops it like any other.
+        const soaks =
+          (reef.kind === 'eel' &&
+            Math.abs(shot.y - reef.y) < EEL.half - EEL.endReach) ||
+          reef.kind === 'scrap' ||
+          reef.kind === 'gate' ||
+          (reef.kind === 'bulwark' && !bulwarkOpen(reef))
+        if (shot.pierce && !soaks) {
+          shot.pierce--
+          ;(shot.struck ??= []).push(reef)
+        } else shots.splice(si, 1)
         // An eel's body soaks shots; only its bright ends take damage.
         if (
           reef.kind === 'eel' &&
@@ -3438,6 +3717,14 @@ export function createRainbowPrincessPreview(
     get over() {
       return over
     },
+    /** Mastery goals earned this game (t-010). */
+    get mastered() {
+      return options.demo ? [] : earned
+    },
+    /** The last Act start, for the cabinet to keep; null once the campaign is over. */
+    get save() {
+      return saveRecord
+    },
     setPlayers,
     get snapshot(): RainbowCombatSnapshot {
       return {
@@ -3446,6 +3733,10 @@ export function createRainbowPrincessPreview(
         ships: ships.slice(0, activePlayers).map((ship) => ({ ...ship })),
         activePlayers,
         shots: shots.map((shot) => ({ ...shot })),
+        medals: { ...medals },
+        earned: [...earned],
+        difficulty,
+        resumeMenu: resumeMenu ? resumeMenu.pick : null,
         enemies: reefs.map((reef) => ({ ...reef })),
         enemyShots: enemyShots.map((bullet) => ({ ...bullet })),
         pickups: pickups.map((pickup) => ({ ...pickup })),
@@ -5378,9 +5669,34 @@ export function createRainbowPrincessPreview(
       }
       for (const shot of shots) {
         g.fillStyle = PILOT_COLORS[shot.seat]!
-        g.fillRect(shot.x, shot.y - 2, 12, 4)
-        g.fillStyle = '#fff'
-        g.fillRect(shot.x + 8, shot.y - 1, 5, 2)
+        if (shot.kind === 'needle') {
+          // Rose Needle: a long thin needle with a white point.
+          g.fillRect(shot.x - 4, shot.y - 1, 16, 2)
+          g.fillStyle = '#fff'
+          g.fillRect(shot.x + 9, shot.y - 1, 4, 2)
+        } else if (shot.kind === 'thread') {
+          // Prism Thread: a bright beam segment with a white core.
+          g.fillRect(shot.x - 10, shot.y - 2, 24, 4)
+          g.fillStyle = '#fff'
+          g.fillRect(shot.x - 8, shot.y - 0.5, 22, 1)
+        } else if (shot.kind === 'link' || shot.kind === 'arc') {
+          // Halo Link orbs and Comet Arc sparks.
+          g.beginPath()
+          g.arc(
+            shot.x + 4,
+            shot.y,
+            shot.kind === 'arc' ? 3 : 3.5,
+            0,
+            Math.PI * 2,
+          )
+          g.fill()
+          g.fillStyle = '#fff'
+          g.fillRect(shot.x + 3, shot.y - 1, 2, 2)
+        } else {
+          g.fillRect(shot.x, shot.y - 2, 12, 4)
+          g.fillStyle = '#fff'
+          g.fillRect(shot.x + 8, shot.y - 1, 5, 2)
+        }
       }
       for (let seat = 0; seat < activePlayers; seat++) {
         const ship = ships[seat]!
@@ -6082,6 +6398,36 @@ export function createRainbowPrincessPreview(
           W / 2,
           186,
         )
+        g.restore()
+      }
+      if (resumeMenu) {
+        const saved = resumeMenu.save
+        const won = Object.values(saved.medals)
+        g.save()
+        g.fillStyle = '#0c0620e0'
+        g.fillRect(0, 0, W, H)
+        g.textAlign = 'center'
+        g.fillStyle = '#ffd2ef'
+        g.font = 'bold 18px monospace'
+        g.fillText('FLIGHT LOG', W / 2, 88)
+        const lines = [
+          `CONTINUE · ${ACT_NUMERALS[saved.checkpoint.act - 1]}`,
+          'NEW FLIGHT · ACT I',
+        ]
+        lines.forEach((line, i) => {
+          const picked = resumeMenu!.pick === i
+          g.fillStyle = picked ? '#fff2a8' : '#9b8fc4'
+          g.font = `bold ${picked ? 13 : 11}px monospace`
+          g.fillText(`${picked ? '▶ ' : ''}${line}`, W / 2, 124 + i * 22)
+        })
+        g.fillStyle = '#e8ddff'
+        g.font = '8px monospace'
+        g.fillText(
+          `SCORE ${Math.round(saved.checkpoint.score * RAINBOW_DIFFICULTY[saved.difficulty].score)} · ${RAINBOW_DIFFICULTY_NAMES[ARCADE_DIFFICULTIES.indexOf(saved.difficulty)]!.toUpperCase()} · MEDALS ${won.filter((m) => m === 'gold').length} GOLD ${won.filter((m) => m === 'silver').length} SILVER ${won.filter((m) => m === 'bronze').length} BRONZE`,
+          W / 2,
+          178,
+        )
+        g.fillText('UP / DOWN TO CHOOSE · A TO FLY', W / 2, 192)
         g.restore()
       }
     },

@@ -41,7 +41,11 @@ for (const key of ['zuzu-lair']) {
 
 assert.match(nav('zuzu/emperor-of-dust'), /\nroute: \/play\/emperor-of-dust\n/)
 assert.doesNotMatch(nav('zuzu/emperor-of-dust'), /requiredRole: ADMIN/)
-for (const key of ['sliding-tile-gallery', 'save-the-plumber', 'rainbow-bullet-hell-space-princess']) {
+for (const key of [
+  'sliding-tile-gallery',
+  'save-the-plumber',
+  'rainbow-bullet-hell-space-princess',
+]) {
   const tab = nav(`arcade/${key}`)
   assert.match(tab, /\nchannelKey: arcade\n/)
   assert.match(tab, /Work in progress/)

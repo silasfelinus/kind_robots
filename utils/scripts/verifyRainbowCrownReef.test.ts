@@ -390,7 +390,7 @@ for (const players of [1, 2]) {
       assert.ok(count > 0, `the solo run saw a ${what}`)
     assert.ok(a.snapshot.stoppedRelay, 'the solo demo stops the relay')
     assert.ok(
-      minutes >= 10 && minutes <= 15,
+      minutes >= 3 && minutes <= 15, // 10-15 before Silas's 2026-10-17 playtest cut the Acts
       `a clean solo Act VI takes ${minutes.toFixed(2)} minutes`,
     )
     assert.ok(bossFrames >= 30 * 60, 'the Lantern Ray is a real fight')

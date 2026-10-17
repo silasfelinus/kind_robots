@@ -3089,6 +3089,15 @@ export function createRainbowPrincessPreview(
             Math.sin(tick / 33 + seat) * (wreckRoute === 'depot' ? 34 : 14)
           ship.y += (lane - ship.y) * Math.min(1, wreckLead / 60)
         }
+        // Odd crews on the depot route steer for the nearest survivor pod ahead, so the demo frees the depot
+        // however the Act's clock has run (a guardian beaten early moves it on).
+        const pod =
+          wreckRoute === 'depot' && activePlayers % 2 === 1
+            ? survivors.find((p) => p.x > ship.x - 8 && p.x < ship.x + 140)
+            : undefined
+        // (The demo sets its lane afresh each frame, so ease all the way in as the pod nears.)
+        if (pod)
+          ship.y += (pod.y - ship.y) * Math.min(1, (ship.x + 140 - pod.x) / 70)
         const reef = reefStart === null ? -1 : reefFrame()
         const reefLead = Math.min(
           reef - CROWN_REEF_FORK.markFrom,

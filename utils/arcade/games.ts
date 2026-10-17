@@ -820,6 +820,7 @@ export const PREVIEW_GAMES: ArcadeGameMeta[] = [
       'B AT 100%  SUPER',
       'START  PAUSE',
       '1 TO 4 LOCAL PILOTS',
+      'CADET · PILOT · ACE DIFFICULTY',
     ],
     width: 480,
     height: 270,
@@ -829,6 +830,7 @@ export const PREVIEW_GAMES: ArcadeGameMeta[] = [
     controls: 'Fly, shoot, focus, super',
     maxPlayers: 4,
     startPauses: true,
+    difficulty: ['Cadet', 'Pilot', 'Ace'],
   },
   {
     slug: 'zuzu-pinball',

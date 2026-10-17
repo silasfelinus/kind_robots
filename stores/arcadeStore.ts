@@ -34,6 +34,10 @@ import {
   type SaveRecord,
 } from '~/utils/arcade/saves'
 import { arcadeAchievementsEarned } from '~/utils/achievements/gameAchievements'
+import {
+  ARCADE_DIFFICULTIES,
+  type ArcadeDifficulty,
+} from '~/utils/arcade/types'
 
 export type ArcadeBoardRange = 'all' | 'today'
 
@@ -66,6 +70,8 @@ type ArcadePrefs = {
   initials?: string
   /** Players last seated at each co-op cabinet, by game slug. */
   players?: Record<string, number>
+  /** The difficulty last chosen at each cabinet that offers one, by game slug. */
+  difficulties?: Record<string, ArcadeDifficulty>
 }
 
 function readPrefs(): ArcadePrefs {
@@ -180,6 +186,8 @@ export const useArcadeStore = defineStore('arcadeStore', () => {
   const savedInitials = ref('')
   /** Players last seated at each co-op cabinet, by game slug. */
   const seatedPlayers = ref<Record<string, number>>({})
+  /** The difficulty last chosen at each cabinet that offers one, by game slug. */
+  const difficulties = ref<Record<string, ArcadeDifficulty>>({})
   /** Mastery goals this device's player has earned, by game slug. */
   const mastery = ref<MasteryRecord>({})
   /** Each long cabinet's saved progress on this device, by game slug. */
@@ -309,6 +317,11 @@ export const useArcadeStore = defineStore('arcadeStore', () => {
       for (const [game, count] of Object.entries(prefs.players))
         if (Number.isInteger(count) && count >= 1 && count <= 4)
           seatedPlayers.value[game] = count
+    difficulties.value = {}
+    if (prefs.difficulties && typeof prefs.difficulties === 'object')
+      for (const [game, level] of Object.entries(prefs.difficulties))
+        if (ARCADE_DIFFICULTIES.includes(level))
+          difficulties.value[game] = level
     pendingCount.value = readPending().length
     if (pendingCount.value) void flushPending()
   }
@@ -323,6 +336,7 @@ export const useArcadeStore = defineStore('arcadeStore', () => {
       gameStyles: gameStyles.value,
       initials: savedInitials.value,
       players: seatedPlayers.value,
+      difficulties: difficulties.value,
     })
   }
 
@@ -333,6 +347,16 @@ export const useArcadeStore = defineStore('arcadeStore', () => {
 
   function setPlayers(game: string, count: number) {
     seatedPlayers.value = { ...seatedPlayers.value, [game]: count }
+    savePreferences()
+  }
+
+  /** The difficulty to start this cabinet's next game at: the last choice, else normal. */
+  function difficultyFor(game: string): ArcadeDifficulty {
+    return difficulties.value[game] ?? 'normal'
+  }
+
+  function setDifficulty(game: string, level: ArcadeDifficulty) {
+    difficulties.value = { ...difficulties.value, [game]: level }
     savePreferences()
   }
 
@@ -490,6 +514,8 @@ export const useArcadeStore = defineStore('arcadeStore', () => {
     setVolume,
     setCrt,
     setStillCamera,
+    difficultyFor,
+    setDifficulty,
     rememberInitials,
   }
 })

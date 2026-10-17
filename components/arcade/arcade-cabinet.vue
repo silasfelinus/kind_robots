@@ -310,6 +310,15 @@
             {{ crt ? 'CRT on' : 'CRT off' }}
           </button>
           <button
+            v-if="meta?.difficulty"
+            type="button"
+            class="cabinet-switch"
+            :title="`Difficulty: ${difficultyName}. Click to change; it applies from the next game.`"
+            @click="cycleDifficulty"
+          >
+            {{ difficultyName }}
+          </button>
+          <button
             v-if="meta?.touchLayout === 'pinball'"
             type="button"
             class="cabinet-switch"
@@ -384,6 +393,7 @@ import {
   TWIN_KEYS,
 } from '~/utils/arcade/input'
 import { startFixedLoop, TICK_MS, type FixedLoop } from '~/utils/arcade/loop'
+import { ARCADE_DIFFICULTIES } from '~/utils/arcade/types'
 import {
   arcadeReducer,
   ATTRACT_PHASES,
@@ -449,6 +459,13 @@ const muted = computed(() => store.muted)
 const volume = computed(() => store.volume)
 const crt = computed(() => store.crt)
 const stillCamera = computed(() => store.stillCamera)
+const difficulty = computed(() => store.difficultyFor(props.slug))
+/** The cabinet's own name for the chosen difficulty (meta.difficulty lists them easiest first). */
+const difficultyName = computed(
+  () =>
+    meta.value?.difficulty?.[ARCADE_DIFFICULTIES.indexOf(difficulty.value)] ??
+    '',
+)
 const renderStyle = computed(() => store.styleFor(props.slug))
 const otherStyle = computed<RenderStyle>(() =>
   renderStyle.value === 'hd' ? 'pixel' : 'hd',
@@ -1103,6 +1120,7 @@ function startGame() {
       mastery: store.masteryFor(props.slug),
       resume: store.saveFor(props.slug),
       stillCamera: store.stillCamera,
+      difficulty: meta.value?.difficulty ? difficulty.value : undefined,
     }),
   )
   lastSave = undefined
@@ -1824,6 +1842,16 @@ function toggleRenderStyle() {
 
 function toggleCrt() {
   store.setCrt(!store.crt)
+}
+
+/** Step to the next difficulty (easy, normal, hard, then back); a game already running keeps its own. */
+function cycleDifficulty() {
+  const next =
+    ARCADE_DIFFICULTIES[
+      (ARCADE_DIFFICULTIES.indexOf(difficulty.value) + 1) %
+        ARCADE_DIFFICULTIES.length
+    ]!
+  store.setDifficulty(props.slug, next)
 }
 
 function toggleStillCamera() {

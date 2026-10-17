@@ -28,8 +28,8 @@
             <span
               class="mr-1 inline-block h-2 w-2 animate-pulse rounded-full bg-emerald-400 align-middle"
             />
-            Work in progress · eight worlds playable, thirty-two stages and
-            the rescue
+            Work in progress · eight worlds playable, thirty-two stages and the
+            rescue
           </p>
 
           <h2 class="plumber-logo select-none" aria-label="Save the Plumber!">

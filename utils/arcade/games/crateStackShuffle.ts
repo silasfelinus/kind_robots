@@ -712,7 +712,7 @@ class CrateStackShuffle implements ArcadeGameInstance {
 
   private renderBackdrop(g: CanvasRenderingContext2D) {
     const bay = warehouseFor(this.level)
-    const look = WAREHOUSES[bay]
+    const look = WAREHOUSES[bay]!
     cachedLayer(g, `crate-stack-shuffle-bg-${bay}`, W, H, (layer) => {
       bandedGradient(layer, 0, 0, W, H, look.sky, 6)
       // Warehouse shelving silhouettes.

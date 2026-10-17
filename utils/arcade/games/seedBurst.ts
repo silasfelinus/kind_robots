@@ -162,8 +162,8 @@ const BLOOM_RAMPS: readonly Ramp[] = [
   RAMPS.rust,
 ]
 
-/** Three garden looks, taken in turn round by round: spring, deep summer, twilight. */
-const GARDENS: readonly { grass: Ramp; flowers: readonly string[] }[] = [
+/** Five garden looks, taken in turn round by round: spring, deep summer, twilight, autumn, winter. */
+export const GARDENS: readonly { grass: Ramp; flowers: readonly string[] }[] = [
   {
     grass: ['#173f22', '#24602e', '#3a8a3c', '#5aac4c', '#94d470'],
     flowers: [RAMPS.pink[3], '#ffffff', RAMPS.gold[3]],
@@ -175,6 +175,14 @@ const GARDENS: readonly { grass: Ramp; flowers: readonly string[] }[] = [
   {
     grass: ['#0c2436', '#12384a', '#1a5058', '#276c68', '#4f9a86'],
     flowers: [RAMPS.teal[4], RAMPS.pink[3], RAMPS.gold[4]],
+  },
+  {
+    grass: ['#3a2a0c', '#5c4210', '#82601a', '#a98530', '#d2b05a'],
+    flowers: [RAMPS.rust[3], RAMPS.gold[3], RAMPS.pink[3]],
+  },
+  {
+    grass: ['#20324a', '#2f4a68', '#476a8a', '#6c92ae', '#a9cade'],
+    flowers: ['#ffffff', RAMPS.sky[4], RAMPS.purple[4]],
   },
 ]
 

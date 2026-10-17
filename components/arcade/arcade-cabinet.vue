@@ -145,7 +145,34 @@
               {{ pad.glyph }}
             </span>
           </div>
-          <div class="cabinet-buttons">
+          <div
+            class="cabinet-buttons"
+            :class="{ 'cabinet-buttons--four': fourButtons && !duo }"
+          >
+            <template v-if="fourButtons && !duo">
+              <button
+                type="button"
+                class="cabinet-ball cabinet-ball-x"
+                aria-label="X button"
+                @pointerdown.prevent="holdButton($event, 'x', seat)"
+                @pointerup.prevent="press('x', false, seat)"
+                @pointercancel="press('x', false, seat)"
+                @lostpointercapture="press('x', false, seat)"
+              >
+                X
+              </button>
+              <button
+                type="button"
+                class="cabinet-ball cabinet-ball-y"
+                aria-label="Y button"
+                @pointerdown.prevent="holdButton($event, 'y', seat)"
+                @pointerup.prevent="press('y', false, seat)"
+                @pointercancel="press('y', false, seat)"
+                @lostpointercapture="press('y', false, seat)"
+              >
+                Y
+              </button>
+            </template>
             <button
               type="button"
               class="cabinet-ball cabinet-ball-b"
@@ -216,6 +243,10 @@
           Left / right = flippers · hold Down, release to launch · Up nudges
           (nudge too often and it TILTs) · Enter = Start · P pauses · gamepads
           work too
+        </p>
+        <p v-else-if="!touchControls && fourButtons" class="cabinet-hint">
+          Arrows or WASD move · Space or Z = A · X or Shift = B · C = X · V = Y
+          · Enter = Start · P pauses · gamepads work too
         </p>
         <p v-else-if="!touchControls" class="cabinet-hint">
           Arrows or WASD move · Space or Z = A · X or Shift = B · Enter = Start
@@ -397,6 +428,7 @@ import {
   KEY_MAP,
   P1_KEYS,
   P2_KEYS,
+  readFourButtonPad,
   readGhostTrailPad,
   readPinballPad,
   stickAim,
@@ -530,6 +562,7 @@ const maxPlayers = computed(() =>
 const duo = computed(() => players.value > 1)
 /** A twin-stick game played solo (t-027): the arrows, the right stick or a touch stick aim. */
 const twinStick = computed(() => meta.value?.twinStick === true && !duo.value)
+const fourButtons = computed(() => meta.value?.fourButtons === true)
 /** Aiming is live only while such a game plays, so menus keep the arrows. */
 const aiming = computed(() => twinStick.value && phase.value === 'playing')
 const seatList = computed(() =>
@@ -572,7 +605,9 @@ const input = new ArcadeInput(
     ? readGhostTrailPad
     : props.slug === 'kind-pinball' || props.slug === 'zuzu-pinball'
       ? readPinballPad
-      : undefined,
+      : findArcadeGame(props.slug)?.fourButtons
+        ? readFourButtonPad
+        : undefined,
 )
 /**
  * Every seat's controls, read only while seated: player 2 has the arrows,
@@ -907,7 +942,7 @@ function releaseTouch() {
   pinballPull.value = null
   for (let seat = 0; seat < MAX_SEATS; seat++) {
     releaseDpad(seat)
-    for (const button of ['a', 'b', 'start'] as const)
+    for (const button of ['a', 'b', 'x', 'y', 'start'] as const)
       seatInput(seat).setTouch(button, false)
   }
 }
@@ -1257,8 +1292,8 @@ function eitherFrame(frames: InputFrame[]): InputFrame {
   }
   for (const other of rest) {
     for (const key of Object.keys(frame.held) as ArcadeButton[]) {
-      frame.held[key] ||= other.held[key]
-      frame.pressed[key] ||= other.pressed[key]
+      frame.held[key] ||= other.held[key] === true
+      frame.pressed[key] ||= other.pressed[key] === true
     }
   }
   return frame
@@ -2280,6 +2315,23 @@ onBeforeUnmount(() => {
   background: rgba(20, 184, 166, 0.55);
 }
 
+.cabinet-overlay .cabinet-buttons--four .cabinet-ball {
+  width: calc(var(--key) * 1.1);
+  height: calc(var(--key) * 1.1);
+}
+
+.cabinet-overlay .cabinet-buttons--four .cabinet-ball-a {
+  margin-bottom: 0;
+}
+
+.cabinet-overlay .cabinet-ball-x {
+  background: rgba(245, 158, 11, 0.55);
+}
+
+.cabinet-overlay .cabinet-ball-y {
+  background: rgba(139, 92, 246, 0.55);
+}
+
 .cabinet-overlay .cabinet-ball:active {
   transform: scale(0.94);
   box-shadow: none;
@@ -2799,6 +2851,25 @@ onBeforeUnmount(() => {
 
 .cabinet-ball-b {
   background: #14b8a6;
+}
+
+.cabinet-buttons--four {
+  display: grid;
+  grid-template-columns: repeat(2, auto);
+  gap: 0.6rem 0.9rem;
+  align-items: end;
+}
+
+.cabinet-buttons--four .cabinet-ball-a {
+  margin-bottom: 0;
+}
+
+.cabinet-ball-x {
+  background: #f59e0b;
+}
+
+.cabinet-ball-y {
+  background: #8b5cf6;
 }
 
 .cabinet-hint {

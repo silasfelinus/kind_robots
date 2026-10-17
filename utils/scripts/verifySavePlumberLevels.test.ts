@@ -24,7 +24,11 @@ import {
   parseStage,
   stageWorld,
 } from '../arcade/games/savePlumberLevels'
-import { PLUMBER_ROSTER, rosterIndex } from '../arcade/games/savePlumberRoster'
+import {
+  PLUMBER_ROSTER,
+  rosterIndex,
+  seedForRoster,
+} from '../arcade/games/savePlumberRoster'
 import { readPlumberSave } from '../arcade/games/savePlumberSave'
 import { emptyInput, type ArcadeButton } from '../arcade/types'
 
@@ -72,7 +76,7 @@ assert.deepEqual(
 assert.equal(CAMPAIGN.length, 32)
 for (const def of CAMPAIGN) {
   const stage = parseStage(def)
-  assert.equal(stage.rows, 17, `${def.code} is 17 rows tall`)
+  assert.equal(stage.rows, 24, `${def.code} is 24 rows tall`)
   assert.ok(stage.cols >= 96, `${def.code} is a full stage, not a screen`)
   const kinds = new Set(stage.spawns.map((s) => s.kind))
   assert.ok(kinds.has('token'), `${def.code} has tokens`)
@@ -199,7 +203,7 @@ for (let index = 0; index < CAMPAIGN.length; index++) {
   }
 }
 
-// Controls: A jumps, B swings the wrench.
+// Controls: A jumps, B runs, X swings the wrench, Y is the heroine's special.
 const play = createSavePlumberPreview(options(), { stage: 0 })
 play.loadStage(0)
 play.mode = 'play'
@@ -215,9 +219,88 @@ step(['a'], ['a'])
 assert.ok(play.hero.vy < 0, 'A jumps')
 for (let i = 0; i < 60; i++) step()
 assert.ok(play.ground)
-step([], ['b'])
-assert.ok(play.ground, 'B does not jump')
-assert.ok(play.swing > 0, 'B swings the wrench')
+step([], ['x'])
+assert.ok(play.ground, 'X does not jump')
+assert.ok(play.swing > 0, 'X swings the wrench')
+const topSpeed = (run: boolean) => {
+  const g = createSavePlumberPreview(options(), { stage: 0 })
+  g.loadStage(0)
+  g.mode = 'play'
+  g.foes.length = 0
+  let fastest = 0
+  for (let i = 0; i < 50; i++) {
+    const f = emptyInput()
+    f.held.right = true
+    f.held.b = run
+    g.update(f)
+    fastest = Math.max(fastest, g.hero.vx)
+  }
+  return fastest
+}
+assert.ok(topSpeed(false) <= 2.9, 'walking tops out at walking speed')
+assert.ok(topSpeed(true) > 4, 'holding B runs')
+
+// Every heroine's special on Y does her own thing.
+const withHeroine = (key: string) => {
+  const g = createSavePlumberPreview(options(), { stage: 0 })
+  g.heroineSeed = seedForRoster(
+    PLUMBER_ROSTER.findIndex((m) => m.key === key),
+    () => 0.37,
+  )
+  g.loadStage(0)
+  g.mode = 'play'
+  g.foes.length = 0
+  for (let i = 0; i < 20; i++) g.update(emptyInput())
+  assert.equal(
+    g.specialKind,
+    PLUMBER_ROSTER.find((m) => m.key === key)!.special.key,
+  )
+  return g
+}
+const frame = (held: ArcadeButton[] = [], pressed: ArcadeButton[] = []) => {
+  const f = emptyInput()
+  for (const b of held) f.held[b] = true
+  for (const b of pressed) f.pressed[b] = true
+  return f
+}
+const airborne = (g: ReturnType<typeof withHeroine>, ticks: number) => {
+  g.update(frame(['a'], ['a']))
+  for (let i = 0; i < ticks; i++) g.update(frame(['a']))
+}
+const dasher = withHeroine('marisol')
+dasher.update(frame([], ['y']))
+assert.ok(dasher.hero.vx > 6, 'Marisol dashes')
+const pip = withHeroine('pip')
+airborne(pip, 12)
+pip.update(frame([], ['y']))
+assert.ok(pip.hero.vy < -6, 'Pip jumps again in mid-air')
+const tala = withHeroine('tala')
+airborne(tala, 10)
+tala.update(frame([], ['y']))
+assert.equal(tala.hero.vy, 9, 'Tala slams down')
+for (let i = 0; i < 60 && !tala.ground; i++) tala.update(emptyInput())
+assert.ok(tala.ground && tala.specialCooldown > 0, 'and the pound lands')
+const jiwoo = withHeroine('jiwoo')
+jiwoo.update(frame([], ['y']))
+assert.ok(jiwoo.hero.vx >= 5, 'Ji-woo charges')
+const hearts = jiwoo.hearts
+;(jiwoo as unknown as { hurt(dir: number): void }).hurt(1)
+assert.equal(jiwoo.hearts, hearts, 'nothing hurts a charge')
+const odette = withHeroine('odette')
+airborne(odette, 30)
+for (let i = 0; i < 6; i++) odette.update(frame(['y']))
+assert.ok(odette.hero.vy <= 1.7, 'Odette floats down on her parasol')
+const hodan = withHeroine('hodan')
+hodan.update(frame([], ['y']))
+assert.ok(hodan.specialTimer > 0, 'Hodan spins')
+const priya = withHeroine('priya')
+priya.update(frame([], ['y']))
+assert.ok(priya.hero.vx > 4, 'Priya rolls')
+;(priya as unknown as { hurt(dir: number): void }).hurt(1)
+assert.equal(priya.hearts, 3, 'nothing hurts a roll')
+const nova = withHeroine('nova')
+nova.update(frame([], ['y']))
+assert.ok(nova.hero.vy < -11, 'Nova vaults far higher than a jump')
 const jumpTop = (hold: number) => {
   const g = createSavePlumberPreview(options(), { stage: 0 })
   g.loadStage(0)
@@ -311,7 +394,7 @@ const faller = createSavePlumberPreview(options(), { stage: 0 })
 faller.loadStage(0)
 faller.mode = 'play'
 faller.hero.x = 8 * TILE * 8
-faller.hero.y = 17 * TILE + 60
+faller.hero.y = faller.stage.rows * TILE + 60
 const before = faller.lives
 for (let i = 0; i < 100; i++) faller.update(emptyInput())
 assert.equal(faller.lives, before - 1)
@@ -346,7 +429,7 @@ for (let i = 0; i < 400 && !leapt; i++) {
 assert.ok(leapt, 'a clockwork minnow leaps out of the water')
 const sink = lab(4)
 sink.hero.x = 20 * TILE
-sink.hero.y = 15 * TILE - 20
+sink.hero.y = (sink.groundRow + 1) * TILE - 20
 for (let i = 0; i < 40; i++) sink.update(emptyInput())
 assert.equal(sink.mode, 'dying', 'water costs a life')
 
@@ -380,11 +463,11 @@ const fair = lab(12)
 const beltCol =
   parseStage(WORLD_FOUR[0]!).solid.indexOf(
     SOLID_BELT_RIGHT,
-    14 * fair.stage.cols,
+    (fair.stage.rows - 3) * fair.stage.cols,
   ) % fair.stage.cols
 fair.foes.length = 0
 fair.hero.x = beltCol * TILE + 40
-fair.hero.y = 14 * TILE - 26
+fair.hero.y = fair.groundRow * TILE - 26
 fair.update(emptyInput())
 const onBelt = fair.hero.x
 for (let i = 0; i < 20; i++) fair.update(emptyInput())
@@ -603,7 +686,7 @@ stormy.foes.push({
 })
 stormy.facing = 1
 const blast = emptyInput()
-blast.pressed.b = true
+blast.pressed.x = true
 stormy.update(blast)
 assert.equal(stormy.gusts.length, 1, 'Bottled Storm throws a gust')
 for (let i = 0; i < 40; i++) stormy.update(emptyInput())
@@ -614,7 +697,7 @@ const crateCol = lifter.stage.solid.indexOf(SOLID_CRATE) % lifter.stage.cols
 for (let i = 0; i < 200 && !lifter.carrying; i++) {
   const walk = emptyInput()
   walk.held.right = lifter.hero.x < crateCol * TILE - 14
-  walk.pressed.b = !walk.held.right && i % 25 === 0
+  walk.pressed.x = !walk.held.right && i % 25 === 0
   lifter.update(walk)
 }
 assert.ok(lifter.carrying, 'Pocket Lift picks a crate up')
@@ -627,7 +710,7 @@ assert.equal(live(), stacked - 1, 'the lifted crate leaves its stack')
 lifter.facing = -1
 for (let i = 0; i < 30; i++) lifter.update(emptyInput())
 const toss = emptyInput()
-toss.pressed.b = true
+toss.pressed.x = true
 lifter.update(toss)
 assert.equal(lifter.carrying, false)
 for (let i = 0; i < 60; i++) lifter.update(emptyInput())
@@ -643,6 +726,23 @@ mender.hero.x = heart.x
 mender.hero.y = heart.y - 18
 mender.update(emptyInput())
 assert.equal(mender.hearts, 2, 'a water heart restores a heart')
+
+// Stages are 24 rows: on the ground the view frames the ground as before, and
+// the camera follows a climb into the upper rows.
+const tall = lab(0)
+for (let i = 0; i < 60; i++) tall.update(emptyInput())
+const lowest = tall.stage.rows * TILE - 270
+assert.ok(
+  Math.abs(tall.cameraY - lowest) < 1,
+  'the ground view sits at the bottom',
+)
+tall.hero.y = 2 * TILE
+tall.hero.vy = 0
+for (let i = 0; i < 40; i++) {
+  tall.hero.y = 2 * TILE
+  tall.update(emptyInput())
+}
+assert.ok(tall.cameraY < lowest - 60, 'the camera follows her up')
 
 // Beating a world's boss continues the campaign into the next world.
 const boss = createSavePlumberPreview(options())

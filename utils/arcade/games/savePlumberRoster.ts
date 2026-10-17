@@ -14,11 +14,23 @@ export type ActionPoses = {
   fall: number
 }
 
+export type PlumberSpecial =
+  | 'dash'
+  | 'double-jump'
+  | 'pound'
+  | 'charge'
+  | 'float'
+  | 'spin'
+  | 'roll'
+  | 'vault'
+
 export type RosterHeroine = {
   key: string
   name: string
   build: string
   signature: string
+  /** Her move on the Y button. */
+  special: { key: PlumberSpecial; name: string; does: string }
   /** Sprite height relative to Pip; the hitbox never changes. */
   scale: number
   look: Omit<Heroine, 'seed' | 'name' | 'roster'>
@@ -40,6 +52,11 @@ export const PLUMBER_ROSTER: readonly RosterHeroine[] = [
     name: 'Marisol',
     build: 'Slim and athletic',
     signature: 'Big curls and a coral bandana',
+    special: {
+      key: 'dash',
+      name: 'Dash',
+      does: 'A quick burst forward, once in the air too',
+    },
     scale: 1,
     look: {
       skin: '#8a5636',
@@ -59,6 +76,11 @@ export const PLUMBER_ROSTER: readonly RosterHeroine[] = [
     name: 'Pip',
     build: 'Small and quick',
     signature: 'Freckles and a magenta bob',
+    special: {
+      key: 'double-jump',
+      name: 'Double jump',
+      does: 'A second jump in mid-air',
+    },
     scale: 1,
     look: {
       skin: '#fbd9c0',
@@ -78,6 +100,11 @@ export const PLUMBER_ROSTER: readonly RosterHeroine[] = [
     name: 'Tala',
     build: 'Tall, broad and strong',
     signature: 'A thick braid with a hibiscus clip',
+    special: {
+      key: 'pound',
+      name: 'Ground pound',
+      does: 'Slam down: knocks out foes nearby and breaks crates',
+    },
     scale: 1.08,
     look: {
       skin: '#c98e64',
@@ -97,6 +124,11 @@ export const PLUMBER_ROSTER: readonly RosterHeroine[] = [
     name: 'Ji-woo',
     build: 'Short, stocky and powerful',
     signature: 'A teal-topped undercut',
+    special: {
+      key: 'charge',
+      name: 'Shoulder charge',
+      does: 'Plow through foes and crates',
+    },
     scale: 0.9,
     look: {
       skin: '#f1c4a0',
@@ -116,6 +148,11 @@ export const PLUMBER_ROSTER: readonly RosterHeroine[] = [
     name: 'Odette',
     build: 'Sixty-something and spry',
     signature: 'Silver locs and gold glasses',
+    special: {
+      key: 'float',
+      name: 'Parasol float',
+      does: 'Hold to drift down slowly',
+    },
     scale: 0.96,
     look: {
       skin: '#4e2c1c',
@@ -135,6 +172,11 @@ export const PLUMBER_ROSTER: readonly RosterHeroine[] = [
     name: 'Hodan',
     build: 'Very tall and long-limbed',
     signature: 'A sporty teal hijab',
+    special: {
+      key: 'spin',
+      name: 'Spin',
+      does: 'Whirl to strike all around, with a hover in the air',
+    },
     scale: 1.12,
     look: {
       skin: '#6b3f27',
@@ -154,6 +196,11 @@ export const PLUMBER_ROSTER: readonly RosterHeroine[] = [
     name: 'Priya',
     build: 'Short and curvy',
     signature: 'A long braid and a gold nose stud',
+    special: {
+      key: 'roll',
+      name: 'Dodge roll',
+      does: 'Roll forward; nothing can hurt you mid-roll',
+    },
     scale: 0.92,
     look: {
       skin: '#a86e48',
@@ -173,6 +220,11 @@ export const PLUMBER_ROSTER: readonly RosterHeroine[] = [
     name: 'Nova',
     build: 'Lean and wiry',
     signature: 'Twin braids and a running blade',
+    special: {
+      key: 'vault',
+      name: 'Blade vault',
+      does: 'Spring off the running blade, far higher than a jump',
+    },
     scale: 1.02,
     look: {
       skin: '#b8774a',

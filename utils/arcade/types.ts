@@ -6,8 +6,17 @@
 
 import type { ArcadeSound, MusicLoop } from './sound'
 
-export type ArcadeButton =
-  'up' | 'down' | 'left' | 'right' | 'a' | 'b' | 'start'
+/** Every cabinet has these; games build frames from them. */
+export type CoreButton = 'up' | 'down' | 'left' | 'right' | 'a' | 'b' | 'start'
+
+/** Extra face buttons, read only by a game that sets `fourButtons`. */
+export type ExtraButton = 'x' | 'y'
+
+export type ArcadeButton = CoreButton | ExtraButton
+
+/** Buttons held or pressed in one frame: X and Y may be absent (read as up). */
+export type ButtonState = Record<CoreButton, boolean> &
+  Partial<Record<ExtraButton, boolean>>
 
 export const ARCADE_BUTTONS: ArcadeButton[] = [
   'up',
@@ -16,13 +25,15 @@ export const ARCADE_BUTTONS: ArcadeButton[] = [
   'right',
   'a',
   'b',
+  'x',
+  'y',
   'start',
 ]
 
 /** One fixed tick of input: what is held, and what went down this tick. */
 export type InputFrame = {
-  held: Record<ArcadeButton, boolean>
-  pressed: Record<ArcadeButton, boolean>
+  held: ButtonState
+  pressed: ButtonState
   /**
    * A plunger pulled back this far (0..1) by a finger on a touch screen, for
    * a game that has one (Kind Pinball's touch layout); absent otherwise.
@@ -123,6 +134,11 @@ export type ArcadeGameMeta = {
    * stick, an on-screen aim stick, or the arrows (moving on WASD). Solo cabinets only.
    */
   twinStick?: boolean
+  /**
+   * The game reads X and Y as well as A and B: the cabinet shows four face buttons, maps a
+   * gamepad's X and Y to them (instead of doubling A and B) and lists C and V on the keyboard.
+   */
+  fourButtons?: boolean
 }
 
 export type ArcadeGameOptions = {

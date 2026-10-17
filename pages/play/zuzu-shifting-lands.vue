@@ -87,9 +87,10 @@
       <div class="grid items-start gap-4 xl:grid-cols-[minmax(0,1fr)_310px]">
         <section class="min-w-0 space-y-4">
           <div class="flex items-center justify-between gap-3">
-            <h2 class="font-serif text-xl font-black">The three roads</h2>
+            <h2 class="font-serif text-xl font-black">The four roads</h2>
             <span class="badge badge-outline"
-              >{{ game.state.discard.length }} / 3 visited</span
+              >{{ game.state.discard.length }} /
+              {{ game.cards.length }} visited</span
             >
           </div>
           <div class="grid grid-cols-2 gap-3 sm:grid-cols-4">

@@ -16,6 +16,8 @@ import {
   pictureProgress,
   pyramidBoard,
   resolveTile,
+  ruleDemo,
+  sidewaysStep,
   tileDone,
   withSpecial,
 } from '../arcade/games/pixelHopBoards'
@@ -116,4 +118,17 @@ assert.equal(pyramidBoard(boardRows(4)).cells.length, 36)
   assert.ok(speedPaintBonus(par / 2, par) > speedPaintBonus(par - 1, par))
   assert.ok(speedPaintBonus(0, par) <= 5000)
   console.log('Pixel Hop combos passed')
+}
+
+{
+  const b = pyramidBoard(4)
+  assert.deepEqual(sidewaysStep(b, { r: 2, c: 1 }, 1), { r: 2, c: 2 })
+  assert.deepEqual(sidewaysStep(b, { r: 2, c: 1 }, -1), { r: 2, c: 0 })
+  assert.equal(sidewaysStep(b, { r: 2, c: 2 }, 1), null, 'off the row end')
+  assert.equal(sidewaysStep(b, { r: 0, c: 0 }, -1), null)
+
+  assert.deepEqual(ruleDemo(RULES.two).levels, [1, 2, 2])
+  assert.deepEqual(ruleDemo(RULES.flip).levels, [1, 0, 1])
+  assert.deepEqual(ruleDemo(RULES.cycle).levels, [1, 2, 3])
+  console.log('Pixel Hop sideways and demo passed')
 }

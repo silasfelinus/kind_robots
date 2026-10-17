@@ -87,8 +87,26 @@
         {
           "label": "Knock politely",
           "to": "hum"
+        },
+        {
+          "label": "Play the tune you wound",
+          "to": "lullaby",
+          "requires": ["wound"]
         }
       ]
+    },
+    "lullaby": {
+      "id": "lullaby",
+      "text": "Pip carries the melody up the attic stairs and lets it drift beneath the little locked door. Slowly the latch relaxes, as if the door itself had been waiting all night to be sung to. Behind it, a nest of sleepy lantern moths unfolds glowing wings and settles on the little robot's shoulders. The workshop has kept this quiet secret for years, and it chose Pip to share it with, simply because Pip stopped to listen.",
+      "art": {
+        "file": "lullaby.webp",
+        "alt": "Illustration for lullaby",
+        "prompt": "storybook watercolor, lullaby"
+      },
+      "ending": {
+        "kind": "secret",
+        "title": "The Lantern Moths"
+      }
     },
     "hum": {
       "id": "hum",

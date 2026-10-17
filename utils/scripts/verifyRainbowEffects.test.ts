@@ -101,7 +101,11 @@ for (let frame = 0; frame < 400000 && !full.over; frame++) {
 assert.ok(full.over && still.over, 'both reach THE END')
 assert.equal(full.score, still.score)
 assert.ok(firstCraft, 'a craft explodes into sparks')
-assert.equal(firstCraft.full, RAINBOW_EFFECTS.craftSparks)
+assert.equal(
+  firstCraft.full,
+  RAINBOW_EFFECTS.craftSparks + 1,
+  'sparks and a shockwave',
+)
 assert.equal(
   firstCraft.still,
   Math.round(RAINBOW_EFFECTS.craftSparks * RAINBOW_EFFECTS.calmShare),

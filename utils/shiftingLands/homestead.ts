@@ -85,6 +85,16 @@ export const HOMESTEAD_CARDS: HomesteadCard[] = [
     reward: 'A night of shelter restores one health.',
     penalty: 'The troubling bell costs Zuzu one health.',
   },
+  {
+    id: 'wagon',
+    title: "The Peddler's Wagon",
+    art: '/zuzu-gamebook/scenes/wagon.webp',
+    teaser: 'A canvas wagon rests where no road runs.',
+    narrative:
+      'The peddler swears every trinket was honestly come by. Zuzu may weigh the wares before he trusts the prices.',
+    reward: 'A fair trade and a bandaged scrape restore one health.',
+    penalty: 'A sharp bargain and a sharper dog cost Zuzu one health.',
+  },
 ]
 export const BOSS_CARD: HomesteadCard = {
   id: 'abbess',

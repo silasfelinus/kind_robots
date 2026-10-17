@@ -12,7 +12,7 @@ export const RAINBOW_CONTINUE = {
 } as const
 
 export type RainbowCheckpoint = {
-  act: 1 | 2 | 3 | 4 | 5 | 6 | 7
+  act: 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8
   /** The Act frame the run resumes from: Act I's tick, or a later Act's frame since it began. */
   frame: number
   score: number
@@ -33,6 +33,8 @@ export type RainbowCheckpoint = {
   pylonsDown: number
   /** Act VII's optional rescue: the Lost Navigator reached before the boss. */
   rescuedNavigator: boolean
+  /** Act VIII's captives whose collars the crew has broken. */
+  captivesFreed: number
   schoolBonuses: number
 }
 
@@ -72,6 +74,7 @@ export function resumeTick(
   actFiveStart: number | null = null,
   actSixStart: number | null = null,
   actSevenStart: number | null = null,
+  actEightStart: number | null = null,
 ): number {
   if (checkpoint.act === 1) return Math.max(0, checkpoint.frame - 1)
   const start =
@@ -85,7 +88,9 @@ export function resumeTick(
             ? actFiveStart
             : checkpoint.act === 6
               ? actSixStart
-              : actSevenStart
+              : checkpoint.act === 7
+                ? actSevenStart
+                : actEightStart
   return (start ?? 0) + checkpoint.frame - 1
 }
 

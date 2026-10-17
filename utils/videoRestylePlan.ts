@@ -52,7 +52,7 @@ export const RESTYLE_STYLES = [
     prompt:
       'Handcrafted felt puppet animation, wool fibers and fabric seams, stop motion miniature theatre, physical light and shadow',
     preview:
-      'Embroidered felt textile art with layered fabric shapes, visible stitching, fuzzy wool fibres and warm handcrafted miniature lighting',
+      'Embroidered felt textile art in which every figure and surface is stitched from layered felt shapes, with visible stitching, fuzzy wool fibres, button details and warm handcrafted miniature lighting',
   },
   {
     id: 'noir',
@@ -142,7 +142,7 @@ export const RESTYLE_STYLES = [
     prompt:
       'Claymation stop-motion animation, sculpted plasticine figures with thumbprint texture, miniature handmade set, soft studio lighting, chunky fabric folds',
     preview:
-      'A claymation stop-motion scene with sculpted plasticine figures, visible thumbprint texture, a miniature handmade set and soft studio lighting',
+      'A claymation stop-motion scene in which every figure, the dancer included, is sculpted from smooth plasticine with rounded simplified features, visible thumbprint texture, a miniature handmade set and soft studio lighting',
   },
   {
     id: 'pixel',
@@ -272,7 +272,7 @@ export const RESTYLE_STYLES = [
     prompt:
       'Marionette puppet theatre animation, carved wooden puppet with painted features, velvet curtains, warm footlights, miniature stage, fabric costumes',
     preview:
-      'A marionette puppet theatre scene with a carved wooden puppet with painted features and fabric costume, red velvet curtains and warm footlights on a miniature stage',
+      'A marionette puppet theatre scene in which the dancer and the crowd are all carved wooden marionettes with painted faces, jointed limbs, visible strings rising from their hands and shoulders, red velvet curtains and warm footlights on a miniature stage',
   },
   {
     id: 'soft-pastel',

@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict'
+import { RAINBOW_FAILURE } from '../arcade/games/rainbowFailure'
 import {
   actCheckpoints,
   checkpointLabel,
@@ -227,6 +228,10 @@ flyUntilDown(game, [])
 assert.ok(game.snapshot.checkpoint.frame >= down.checkpoint.frame)
 for (let i = 0; i < RAINBOW_CONTINUE.countdownFrames; i++)
   game.update(emptyInput())
+// (conductor rainbow t-012) Lilt's failure ending plays first, then the run ends.
+assert.equal(game.over, false)
+assert.equal(game.snapshot.failFrame, 0)
+for (let i = 0; i < RAINBOW_FAILURE.holdFrames; i++) game.update(emptyInput())
 assert.equal(game.over, true)
 const final = game.snapshot
 game.update(press())

@@ -5,6 +5,7 @@ import type {
   ArcadeGameOptions,
   InputFrame,
 } from '../types'
+import type { MusicLoop } from '../sound'
 import { ARCADE_DIFFICULTIES } from '../types'
 import {
   PINKWAKE,
@@ -270,6 +271,8 @@ import {
   rainbowMedal,
   readRainbowSave,
 } from './rainbowLoadouts'
+import { RAINBOW_FAILURE, failureLines } from './rainbowFailure'
+import { rainbowMusicFor } from './rainbowScore'
 import type { RainbowMedal, RainbowSave } from './rainbowLoadouts'
 import {
   AURELIA_MAX_HP,
@@ -292,6 +295,8 @@ const CUTIN_FADE_FRAMES = 10
 const POPUP_FRAMES = 50
 /** Frames before the continue/new menu takes an A press. */
 const RESUME_MENU_GRACE = 20
+/** Frames of credits before A skips the rest to THE END (t-012). */
+const CREDITS_SKIP_GRACE = 60
 /** U12 Recovery Cache: how long a dropped power level waits (4 s), and how far ahead of the pilot it falls. */
 export const RECOVERY_CACHE = { frames: 240, ahead: 36, reach: 18 } as const
 const INTRO_FRAMES = 160
@@ -565,6 +570,8 @@ export type RainbowCombatSnapshot = {
   shots: ReadonlyArray<Readonly<Shot>>
   /** Explosion sparks in flight (t-011), within RAINBOW_EFFECTS.maxSparks. */
   sparks: number
+  /** The failure ending's frame, or null (t-012). */
+  failFrame: number | null
   /** Recovery Caches waiting for their pilots (U12). */
   caches: ReadonlyArray<Readonly<RecoveryCache>>
   /** Calm motion is on (t-011). */
@@ -819,6 +826,10 @@ export function createRainbowPrincessPreview(
   const popups: Array<{ x: number; y: number; text: string; age: number }> = []
   const sparks: Spark[] = []
   const caches: RecoveryCache[] = []
+  /** The failure ending's frame once the CONTINUE? countdown has run out, else null (t-012). */
+  let failFrame: number | null = null
+  /** The Act the cabinet's save would continue from, for the failure ending's last line. */
+  let savedAct: number | null = null
   /** Calm motion: no flashes or shockwaves, fewer sparks, slower scenery (t-011). */
   let calm = options.stillCamera === true
   /** Medals won by Act, and the hits taken and continues spent in the Act under way (t-010). */
@@ -1674,6 +1685,7 @@ export function createRainbowPrincessPreview(
     for (const act of [1, 2, 3, 4, 5, 6, 7, 8] as const)
       if (guardians[act] !== 'waiting')
         met[act] = guardians[act] as 'defeated' | 'escaped'
+    savedAct = checkpoint.act
     saveRecord = {
       v: 1,
       difficulty,
@@ -1733,6 +1745,7 @@ export function createRainbowPrincessPreview(
     palaceStart = start(8)
     finaleStart = start(9)
     checkpoint = { ...c }
+    savedAct = n
   }
 
   /**
@@ -2559,13 +2572,27 @@ export function createRainbowPrincessPreview(
       }
       return
     }
+    // The failure ending: Lilt closes the run; A ends it after a beat, or it ends by itself.
+    if (failFrame !== null) {
+      failFrame++
+      if (
+        failFrame >= RAINBOW_FAILURE.holdFrames ||
+        (failFrame >= RAINBOW_FAILURE.minFrames &&
+          [input, ...seated].some((keys) => keys?.pressed.a))
+      )
+        over = true
+      return
+    }
     // The whole crew is down: the world holds still while the CONTINUE? countdown runs.
     if (continueLeft > 0) {
       const waited =
         RAINBOW_CONTINUE.countdownFrames - continueLeft >= CONTINUE_GRACE_FRAMES
       if (waited && [input, ...seated].some((keys) => keys?.pressed.a))
         resumeFromCheckpoint()
-      else if (--continueLeft === 0) over = true
+      else if (--continueLeft === 0) {
+        failFrame = 0
+        options.sound.play('die')
+      }
       return
     }
     tick++
@@ -2923,6 +2950,7 @@ export function createRainbowPrincessPreview(
           if (difficulty === 'hard') earn('ace-of-eclipse')
           // The campaign is over: there is no Act left to continue from.
           saveRecord = null
+          savedAct = null
           for (const ship of ships.slice(0, activePlayers))
             ship.invulnerable = Math.max(ship.invulnerable, 99999)
           options.sound.play('level')
@@ -2930,6 +2958,14 @@ export function createRainbowPrincessPreview(
       } else if (endingFrame !== null) {
         // The ending, then the credits, then THE END: A closes the run, or it closes by itself.
         endingFrame++
+        // A skips the rest of the credits to THE END.
+        const credits = endingFrame - FINALE_ENDING_FRAMES
+        if (
+          credits >= CREDITS_SKIP_GRACE &&
+          credits < FINALE.creditFrames &&
+          [input, ...seated].some((keys) => keys?.pressed.a)
+        )
+          endingFrame = FINALE_ENDING_FRAMES + FINALE.creditFrames
         const shown = endingFrame - FINALE_ENDING_FRAMES - FINALE.creditFrames
         if (
           shown >= FINALE.endHoldFrames ||
@@ -3847,6 +3883,30 @@ export function createRainbowPrincessPreview(
     get mastered() {
       return options.demo ? [] : earned
     },
+    /**
+     * The score for this moment (t-012): the Act's layer for the danger on screen (flying, a guardian, a boss),
+     * the ending, or the failure ending; silence in the demo, the menus and the CONTINUE? countdown.
+     */
+    get music(): MusicLoop | null {
+      if (options.demo || over || resumeMenu || continueLeft > 0) return null
+      return rainbowMusicFor({
+        act: currentAct(),
+        boss: Boolean(
+          boss ||
+          moonBoss ||
+          clawBoss ||
+          delphion ||
+          sawtooth ||
+          lanternRay ||
+          glassEel ||
+          leviathan ||
+          crown,
+        ),
+        guardian: guardian !== null,
+        ending: endingFrame !== null,
+        failure: failFrame !== null,
+      })
+    },
     /** The last Act start, for the cabinet to keep; null once the campaign is over. */
     get save() {
       return saveRecord
@@ -3865,6 +3925,7 @@ export function createRainbowPrincessPreview(
         shots: shots.map((shot) => ({ ...shot })),
         medals: { ...medals },
         sparks: sparks.length,
+        failFrame,
         caches: caches.map((cache) => ({ ...cache })),
         calm,
         earned: [...earned],
@@ -6602,6 +6663,46 @@ export function createRainbowPrincessPreview(
           W / 2,
           186,
         )
+        g.restore()
+      }
+      if (failFrame !== null) {
+        const flags = palaceFlags()
+        const rescues =
+          Number(rescuedStation) +
+          Number(flags.rescuedNemi) +
+          Number(flags.rescuedCourier) +
+          Number(flags.freedDepot) +
+          Number(flags.stoppedRelay) +
+          Number(flags.rescuedNavigator) +
+          flags.captivesFreed
+        const lines = failureLines(currentAct(), rescues, savedAct)
+        g.save()
+        g.fillStyle = '#05030fe6'
+        g.fillRect(0, 0, W, H)
+        g.textAlign = 'center'
+        g.fillStyle = '#ffd2ef'
+        g.font = 'bold 20px monospace'
+        g.fillText('THE ECLIPSE HOLDS', W / 2, 70)
+        g.font = '9px monospace'
+        lines.forEach((line, i) => {
+          const shown = failFrame! - i * RAINBOW_FAILURE.lineFrames
+          if (shown < 0) return
+          g.globalAlpha = Math.min(1, shown / 30)
+          g.fillStyle = '#e8ddff'
+          // Long lines wrap once at the sentence break.
+          const [first, ...rest] = line.split('. ')
+          g.fillText(rest.length ? `${first}.` : line, W / 2, 112 + i * 34)
+          if (rest.length) g.fillText(rest.join('. '), W / 2, 124 + i * 34)
+        })
+        g.globalAlpha = 1
+        g.fillStyle = '#fff2a8'
+        g.font = 'bold 11px monospace'
+        g.fillText(`FINAL SCORE ${Math.round(score * level.score)}`, W / 2, 224)
+        if (failFrame >= RAINBOW_FAILURE.minFrames) {
+          g.fillStyle = '#9b8fc4'
+          g.font = '8px monospace'
+          g.fillText('PRESS A', W / 2, 244)
+        }
         g.restore()
       }
       if (resumeMenu) {

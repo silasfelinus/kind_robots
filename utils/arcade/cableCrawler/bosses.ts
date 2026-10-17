@@ -95,6 +95,11 @@ export const BIG_WHIRR_HP = 6
 export const SUBWOOFER_HP = 6
 export const THE_GLITCH_HP = 6
 export const SLEEPY_KERNEL_HP = 5
+/** The Boot Loader has one hit for each of its three checksum sockets. */
+export const BOOT_LOADER_HP = 3
+/** Ticks between the Boot Loader's line rewrites by phase, and the outline before one. */
+export const REWRITE_EVERY = [150, 110, 75] as const
+export const REWRITE_TELL = 40
 /** Ticks a pin bank stays lit after the cable leaves it, and the Kernel's doze after a surge. */
 export const BANK_FADE = 60 * 7
 export const KERNEL_REST = 150
@@ -108,6 +113,7 @@ const PHASE_AT: Record<BossKind, readonly [number, number]> = {
   subwoofer: [4, 2],
   'the-glitch': [4, 2],
   'sleepy-kernel': [3, 1],
+  'boot-loader': [2, 1],
 }
 const WALK = [12, 10, 9] as const
 /** The Glitch's ticks per cell by phase. */
@@ -150,6 +156,7 @@ const BOSS_HP: Record<BossKind, number> = {
   subwoofer: SUBWOOFER_HP,
   'the-glitch': THE_GLITCH_HP,
   'sleepy-kernel': SLEEPY_KERNEL_HP,
+  'boot-loader': BOOT_LOADER_HP,
 }
 
 export function newBoss(
@@ -235,6 +242,7 @@ export function ringBoss(b: Boss): boolean {
 /** The cells the boss fills: the plug can't crawl into them, and meeting one is a bonk. */
 export function bossCells(b: Boss): number[] {
   if (b.hp <= 0) return []
+  if (b.kind === 'boot-loader') return []
   if (b.kind === 'surge-protector') return [b.ring[b.at]!]
   if (b.kind === 'the-glitch')
     return [
@@ -303,6 +311,8 @@ export type BossWorld = {
   drip(k: number): void
   /** The Subwoofer's beat: flip the gates, fire the cones, and in phase 2 on send a shockwave. */
   beat?(shockwave: boolean): void
+  /** The Boot Loader rewrites one line of the walls (row `y`). */
+  rewrite?(y: number): void
   rng(): number
 }
 
@@ -315,6 +325,7 @@ export function updateBoss(b: Boss, world: BossWorld) {
   if (b.kind === 'subwoofer') return updateSubwoofer(b, world)
   if (b.kind === 'the-glitch') return updateGlitch(b, world)
   if (b.kind === 'sleepy-kernel') return updateKernel(b, world)
+  if (b.kind === 'boot-loader') return updateBootLoader(b, world)
   const phase = bossPhase(b)
   if (phase >= 2 && --b.shuffle <= 0) {
     b.shuffle = SHUFFLE_EVERY
@@ -515,6 +526,28 @@ function updateKernel(b: Boss, world: BossWorld) {
   })
 }
 
+/**
+ * The Boot Loader: every so often it rewrites one line of the room (a row outlined first, `at`
+ * holds the row), rotating that line's pillars along. It has no body; it is hit by surging a
+ * checksum socket that has not been verified yet.
+ */
+function updateBootLoader(b: Boss, world: BossWorld) {
+  if (b.stun > 0) {
+    b.stun--
+    return
+  }
+  const phase = bossPhase(b)
+  if (b.tell === 0) {
+    if (--b.timer > 0) return
+    b.at = 1 + ((b.at * 7 + 5 + Math.floor(world.rng() * 6)) % (ROWS - 2))
+    b.tell = REWRITE_TELL
+    return
+  }
+  if (--b.tell > 0) return
+  world.rewrite?.(b.at)
+  b.timer = REWRITE_EVERY[phase - 1]!
+}
+
 /** Whether every pin bank of the Sleepy Kernel is lit: a surge now runs into the chip. */
 export function banksLit(b: Boss): boolean {
   return b.banks.length > 0 && b.lit.every(Boolean)
@@ -566,6 +599,13 @@ export function hitBoss(
     const two = wormCells(b.ring, b.twin, b.twinDir)
     if (!one.some((k) => swept.has(k)) || !two.some((k) => swept.has(k)))
       return false
+  } else if (b.kind === 'boot-loader') {
+    // Surge a checksum socket that is not yet verified (beside the cable, or under it).
+    const i = b.banks.findIndex(
+      (c, n) => !b.lit[n] && c.some((k) => swept.has(k) || cable.includes(k)),
+    )
+    if (i < 0) return false
+    b.lit[i] = true
   } else if (b.kind !== 'sleepy-kernel') {
     if (!bossCells(b).some((k) => swept.has(k))) return false
     if (b.kind === 'big-whirr' && bossPhase(b) === 3 && wrapSides(b, cable) < 2)

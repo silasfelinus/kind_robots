@@ -98,8 +98,11 @@ import {
   wormCells,
   wrapSides,
 } from '../cableCrawler/bosses'
+import { earnedMedals, MEDAL_NAMES } from '../cableCrawler/medals'
 import {
   BOSS_MUSIC,
+  BIOS_INDEX,
+  biosOpen,
   boardsBefore,
   COMPONENTS,
   SCREENSAVER_MUSIC,
@@ -349,6 +352,13 @@ class CableCrawler implements ArcadeGameInstance {
   private stepIndex = 0
   private reached = 1
   private bytes = new Set<string>()
+  /** Maze medals earned for good, as `mazeId:medal`. */
+  private medals = new Set<string>()
+  /** This maze so far: whether the cable was unplugged, and its biggest surge. */
+  private bitten = false
+  private biggestSurge = 0
+  /** The true ending (the Boot Loader beaten) is playing instead of the boot ending. */
+  private trueEnd = false
   /** A saved run waiting on CONTINUE (A) or NEW RUN (B). */
   private offer: CableSave | null = null
   // The Workbench kit, and the Workbench screen while it is open.
@@ -436,6 +446,7 @@ class CableCrawler implements ArcadeGameInstance {
     const stored = this.demo ? null : readCableSave(options.resume)
     if (stored) {
       this.bytes = new Set(stored.bytes)
+      this.medals = new Set(stored.medals ?? [])
       this.reached = stored.reached
       if (stored.comp > 0) this.offer = stored
       this.save = stored
@@ -489,16 +500,32 @@ class CableCrawler implements ArcadeGameInstance {
     this.bench = null
     this.finding = this.finder
     this.finder = false
-    if (!this.demo) this.reached = Math.max(this.reached, index + 1)
+    if (!this.demo && index !== BIOS_INDEX)
+      this.reached = Math.max(this.reached, index + 1)
     this.cardTicks = CARD_TICKS
     this.startStep()
     this.keep()
   }
 
+  /**
+   * The component after this one. The first time round, a CPU Core finished with every golden
+   * byte in hand opens the secret BIOS; the BIOS leads on to the next lap of the Mainframe.
+   */
+  private nextComponent(): number {
+    if (this.compIndex === BIOS_INDEX) return COMPONENTS.length
+    if (
+      this.component === COMPONENTS[COMPONENTS.length - 1] &&
+      this.lap === 0 &&
+      biosOpen(this.bytes)
+    )
+      return BIOS_INDEX
+    return this.compIndex + 1
+  }
+
   private advance() {
     this.stepIndex++
     if (this.stepIndex >= this.steps.length) {
-      this.beginComponent(this.compIndex + 1)
+      this.beginComponent(this.nextComponent())
       return
     }
     this.startStep()
@@ -595,6 +622,8 @@ class CableCrawler implements ArcadeGameInstance {
       this.saver.total = this.saver.bars.length
     }
     this.bossSparkTimer = 0
+    this.bitten = false
+    this.biggestSurge = 0
     this.arcs = []
     const index = s.kind === 'maze' ? s.index : s.kind === 'screensaver' ? 3 : 5
     this.startLen = START_LEN + LEN_RAMP * index
@@ -722,6 +751,7 @@ class CableCrawler implements ArcadeGameInstance {
       lives: Math.max(1, this.lives),
       continued: false,
       bytes: [...this.bytes],
+      medals: [...this.medals],
       reached: this.reached,
       copper: this.copper,
       reach: this.reachBonus,
@@ -743,7 +773,12 @@ class CableCrawler implements ArcadeGameInstance {
   private persist() {
     if (this.demo) return
     const base = this.save ?? this.snapshot(0, false)
-    this.save = { ...base, bytes: [...this.bytes], reached: this.reached }
+    this.save = {
+      ...base,
+      bytes: [...this.bytes],
+      medals: [...this.medals],
+      reached: this.reached,
+    }
   }
 
   /** Pick a saved run back up at the start of its component (or its Workbench). */
@@ -829,6 +864,7 @@ class CableCrawler implements ArcadeGameInstance {
       }
       if (--this.clear === 0) {
         this.ending = 0
+        this.trueEnd = false
         this.advance()
       }
       return
@@ -1757,6 +1793,7 @@ class CableCrawler implements ArcadeGameInstance {
         g.age = 0
       } else g.gone = true
     }
+    this.biggestSurge = Math.max(this.biggestSurge, chain + rebooted)
     if (this.boss && hitBoss(this.boss, swept, this.body)) {
       const k = bossCell(this.boss)
       this.arcs.push({ from: from(k), to: k, life: 30 })
@@ -1981,6 +2018,34 @@ class CableCrawler implements ArcadeGameInstance {
     g.k = next
   }
 
+  /**
+   * The Boot Loader rewrites a line: that row's pillars shift one cell along, leaving the cable,
+   * the sockets, the checksum sockets and everything standing on a cell where it was.
+   */
+  private rewriteLine(y: number) {
+    const fixed = new Set<number>([
+      this.maze.start,
+      ...this.body,
+      ...this.sockets.map((sk) => sk.k),
+      ...this.maze.banks.flat(),
+      ...this.glitches.filter((g) => !g.gone).map((g) => g.k),
+      ...this.pickups.map((p) => p.k),
+    ])
+    const cells: number[] = []
+    for (let x = 1; x < COLS - 1; x++) {
+      const k = cellKey(x, y)
+      if (!fixed.has(k)) cells.push(k)
+    }
+    const flags = cells.map((k) => this.walls[k] === true)
+    const walls = [...this.walls]
+    cells.forEach((k, i) => {
+      walls[k] = flags[(i + cells.length - 1) % cells.length]!
+    })
+    this.walls = walls
+    for (const k of this.sparks) if (walls[k]) this.sparks.delete(k)
+    this.sound.play('warn')
+  }
+
   private updateBossBoard() {
     const boss = this.boss!
     updateBoss(boss, {
@@ -2000,6 +2065,7 @@ class CableCrawler implements ArcadeGameInstance {
         for (const k of this.sparks) if (walls[k]) this.sparks.delete(k)
       },
       beat: (shockwave) => this.bossBeat(shockwave),
+      rewrite: (y) => this.rewriteLine(y),
       drip: (k) => {
         const live = this.glitches.filter((g) => g.kind === 'drip' && !g.gone)
         if (live.length >= 3) return
@@ -2057,8 +2123,20 @@ class CableCrawler implements ArcadeGameInstance {
       )
     this.earn(COPPER.boss)
     // Saved straight away: a quit from here on comes back at the Workbench.
-    if (!this.demo) this.save = this.snapshot(this.compIndex + 1, true)
+    if (!this.demo)
+      this.save =
+        boss.kind === 'boot-loader'
+          ? this.snapshot(COMPONENTS.length, false)
+          : this.snapshot(this.compIndex + 1, true)
     this.sound.play('level')
+    if (boss.kind === 'boot-loader') {
+      // The true boss of the Mainframe: the whole machine comes alive.
+      this.trueEnd = true
+      this.ending = BOOT_TICKS
+      this.clear = BOOT_TICKS
+      this.banner = null
+      return
+    }
     if (boss.kind === 'sleepy-kernel') {
       // The last boss of the Mainframe: the machine boots.
       this.ending = BOOT_TICKS
@@ -2266,17 +2344,35 @@ class CableCrawler implements ArcadeGameInstance {
     const picture = pictureById(this.maze.picture)
     if (picture)
       this.addScore(PICTURE_BONUS * this.mult, W / 2, H / 2 + 14, true)
+    const won = earnedMedals({
+      bitten: this.bitten,
+      biggestSurge: this.biggestSurge,
+      battery: this.battery,
+      batteryMax: this.batteryMax,
+    })
+    const fresh = won.filter((m) => !this.medals.has(`${this.maze.id}:${m}`))
+    if (!this.demo && fresh.length) {
+      for (const m of fresh) this.medals.add(`${this.maze.id}:${m}`)
+      this.earn(COPPER.maze * fresh.length)
+      this.persist()
+    }
+    const medalLine = won.length
+      ? `  MEDAL ${won.map((m) => MEDAL_NAMES[m]).join(' + ')}`
+      : ''
     this.banner = {
       text: picture ? 'PICTURE RESTORED!' : 'MAZE CLEAR!',
-      sub: picture
-        ? `${picture.name}  BONUS +${bonus + PICTURE_BONUS * this.mult}`
-        : `BATTERY BONUS +${bonus}`,
+      sub: `${
+        picture
+          ? `${picture.name}  BONUS +${bonus + PICTURE_BONUS * this.mult}`
+          : `BATTERY BONUS +${bonus}`
+      }${medalLine}`,
       ticks: CLEAR_TICKS,
     }
   }
 
   private unplug(why: string) {
     if (this.dead > 0 || this.clear > 0) return
+    this.bitten = true
     this.lives--
     this.dead = DEAD_TICKS
     const head = this.body[0]!
@@ -2587,13 +2683,32 @@ class CableCrawler implements ArcadeGameInstance {
       boss?.kind === 'sleepy-kernel' && boss.invuln === 0 && banksLit(boss)
     const lowBattery = this.battery < this.batteryMax * 0.3
     const enough = value >= Math.max(5, Math.min(12, this.sparks.size >> 2))
+    // The Boot Loader takes a surge that reaches a checksum socket not yet verified.
+    const checksumReady =
+      boss?.kind === 'boot-loader' &&
+      boss.invuln === 0 &&
+      boss.banks.some(
+        (cells, i) =>
+          !boss.lit[i] &&
+          cells.some((k) => sweep.has(k) || this.body.includes(k)),
+      )
     if (
       ready.length &&
       (boss?.kind === 'sleepy-kernel'
         ? kernelReady || lowBattery
-        : enough || glitchNear || bossNear || lowBattery)
+        : boss?.kind === 'boot-loader'
+          ? checksumReady || lowBattery
+          : enough || glitchNear || bossNear || lowBattery)
     )
       return new Set(ready.map((sk) => sk.k))
+    if (boss?.kind === 'boot-loader') {
+      // Lay the cable beside a checksum socket that is not yet verified.
+      const dark = new Set<number>()
+      boss.banks.forEach((cells, i) => {
+        if (!boss.lit[i]) for (const k of cells) dark.add(k)
+      })
+      if (dark.size) return dark
+    }
     if (boss?.kind === 'sleepy-kernel') {
       // Lay the cable through every pin bank that is dark (or about to go dark).
       const dark = new Set<number>()
@@ -3258,6 +3373,7 @@ class CableCrawler implements ArcadeGameInstance {
     if (b.kind === 'subwoofer') return this.renderSubwoofer(g, b)
     if (b.kind === 'the-glitch') return this.renderTheGlitch(g, b)
     if (b.kind === 'sleepy-kernel') return this.renderKernel(g, b)
+    if (b.kind === 'boot-loader') return this.renderBootLoader(g, b)
     const k = bossCell(b)
     const x = px(k)
     const y = py(k)
@@ -3319,6 +3435,47 @@ class CableCrawler implements ArcadeGameInstance {
   }
 
   /** The Sleepy Kernel: a big drowsy chip, with a lit pin bank on each side and current between. */
+  /** The Boot Loader: a blinking cursor in the middle, the line it will rewrite, three checksums. */
+  private renderBootLoader(g: CanvasRenderingContext2D, b: Boss) {
+    const cx = px(b.center)
+    const cy = py(b.center)
+    const flicker = (this.tick >> 1) % 2
+    if (b.tell > 0) {
+      const y = b.at * TILE
+      g.fillStyle = rgba(RAMPS.leaf[4], flicker ? 0.3 : 0.12)
+      g.fillRect(TILE, y, BOARD_W - TILE * 2, TILE)
+      g.strokeStyle = rgba(RAMPS.leaf[4], flicker ? 0.95 : 0.5)
+      g.lineWidth = 1
+      g.strokeRect(TILE + 0.5, y + 0.5, BOARD_W - TILE * 2 - 1, TILE - 1)
+    }
+    glow(g, cx, cy, 20, RAMPS.leaf[3], 0.2 + 0.1 * flicker)
+    drawText(g, 'BOOT>', cx, cy - 8, {
+      align: 'center',
+      color: RAMPS.leaf[4],
+      outline: INK,
+    })
+    if (Math.floor(this.tick / 20) % 2 === 0) {
+      g.fillStyle = RAMPS.leaf[4]
+      g.fillRect(cx - 3, cy + 3, 7, 3)
+    }
+    // The three checksum sockets: dark until a surge verifies each.
+    b.banks.forEach((cells, i) => {
+      for (const k of cells) {
+        const x = px(k)
+        const y = py(k)
+        g.fillStyle = INK
+        g.fillRect(x - 6, y - 6, 13, 13)
+        g.fillStyle = b.lit[i] ? RAMPS.leaf[4] : RAMPS.steel[1]
+        g.fillRect(x - 5, y - 5, 11, 11)
+        drawText(g, b.lit[i] ? 'OK' : `0${i + 1}`, x, y - 3, {
+          align: 'center',
+          color: b.lit[i] ? INK : RAMPS.leaf[3],
+        })
+        if (b.lit[i]) glow(g, x, y, 10, RAMPS.leaf[4], 0.4)
+      }
+    })
+  }
+
   private renderKernel(g: CanvasRenderingContext2D, b: Boss) {
     const cx = px(b.center)
     const cy = py(b.center)
@@ -3434,14 +3591,25 @@ class CableCrawler implements ArcadeGameInstance {
     hudPanel(g, x, BY + 14, w, BOARD_H - 28, RAMPS.leaf)
     g.fillStyle = '#04100a'
     g.fillRect(x + 6, BY + 20, w - 12, BOARD_H - 40)
-    const lines = [
-      'MAINFRAME BIOS v6.0',
-      ...COMPONENTS.map((c) => `${c.name} .... OK`),
-      'ALL GLITCHES REBOOTED',
-      '',
-      `SCORE ${String(this.score).padStart(6, '0')}`,
-      'THE MAINFRAME IS ONLINE!',
-    ]
+    const lines = this.trueEnd
+      ? [
+          'MAINFRAME BIOS v7.0',
+          'CHECKSUM 01 .... OK',
+          'CHECKSUM 02 .... OK',
+          'CHECKSUM 03 .... OK',
+          `${this.bytes.size} GOLDEN BYTES RESTORED`,
+          'EVERY GLITCH WAVES FROM THE SCREEN',
+          `SCORE ${String(this.score).padStart(6, '0')}`,
+          'THE MAINFRAME IS ALIVE!',
+        ]
+      : [
+          'MAINFRAME BIOS v6.0',
+          ...COMPONENTS.map((c) => `${c.name} .... OK`),
+          'ALL GLITCHES REBOOTED',
+          '',
+          `SCORE ${String(this.score).padStart(6, '0')}`,
+          'THE MAINFRAME IS ONLINE!',
+        ]
     const shown = Math.min(lines.length, Math.floor(t / 28))
     lines.slice(0, shown).forEach((line, i) =>
       drawText(g, line, x + 12, BY + 26 + i * 13, {
@@ -3988,7 +4156,7 @@ class CableCrawler implements ArcadeGameInstance {
     )
     drawText(
       g,
-      `GOLDEN BYTES ${o.bytes.length}  COPPER ${o.copper ?? 0}`,
+      `GOLDEN BYTES ${o.bytes.length}  MEDALS ${o.medals?.length ?? 0}  COPPER ${o.copper ?? 0}`,
       W / 2,
       134,
       {

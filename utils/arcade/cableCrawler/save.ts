@@ -7,7 +7,8 @@
 // The game owns the shape and checks it on the way back in; anything it doesn't recognise is
 // dropped.
 
-import { BYTE_MAZES } from './components'
+import { BIOS, BYTE_MAZES } from './components'
+import { MEDALS } from './medals'
 import { CABLE_COLOURS, MAX_INSULATION } from './workbench'
 
 export type CableSave = {
@@ -20,6 +21,8 @@ export type CableSave = {
   continued: boolean
   /** Maze ids whose golden byte has been found. */
   bytes: string[]
+  /** Maze medals earned, as `mazeId:medal`. */
+  medals?: string[]
   /** How many components the campaign has reached. */
   reached: number
   /** The Workbench kit: copper, the long surge, insulation, cable colour, the byte finder. */
@@ -55,6 +58,20 @@ export function readCableSave(raw: unknown): CableSave | null {
         ),
       ]
     : []
+  const medalIds = new Set(
+    [...BYTE_MAZES, ...BIOS.mazes.map((m) => m.id)].flatMap((id) =>
+      MEDALS.map((m) => `${id}:${m}`),
+    ),
+  )
+  const medals = Array.isArray(r.medals)
+    ? [
+        ...new Set(
+          r.medals.filter(
+            (m): m is string => typeof m === 'string' && medalIds.has(m),
+          ),
+        ),
+      ]
+    : []
   const num = (v: unknown, max: number) => (count(v, max) ? (v as number) : 0)
   return {
     v: 1,
@@ -63,6 +80,7 @@ export function readCableSave(raw: unknown): CableSave | null {
     lives: Math.max(1, r.lives as number),
     continued: r.continued === true,
     bytes,
+    medals,
     reached: count(r.reached, 999) ? Math.max(1, r.reached as number) : 1,
     copper: num(r.copper, 9999),
     reach: num(r.reach, 1),

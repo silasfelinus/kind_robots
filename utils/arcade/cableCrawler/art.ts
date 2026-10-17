@@ -892,6 +892,15 @@ export function paintBoard(
             if ((gx + gy + hash) % 2) k.fillRect(px + gx, py + gy, 2, 2)
         k.fillStyle = RAMPS.gold[4]
         k.fillRect(px + 2 + (hash % 3) * 3, py + 2, 2, 2)
+      } else if (look.wallStyle === 'text') {
+        // BIOS text mode: a dark slab of green glyph strokes, one cell of a line of code.
+        k.fillStyle = ramp[0]
+        k.fillRect(px + 1, py + 1, TILE - 2, TILE - 2)
+        k.fillStyle = ramp[(x + y) % 2 ? 3 : 4]
+        for (let gy = 2; gy < TILE - 3; gy += 4)
+          for (let gx = 2; gx < TILE - 3; gx += 4)
+            if ((gx * 3 + gy * 5 + hash + x) % 3)
+              k.fillRect(px + gx, py + gy, 3, 2)
       } else if (look.wallStyle === 'fins') {
         // Cooling fins: thin lit and shadowed ridges across the slab.
         for (let i = 2; i < TILE - 2; i += 3) {

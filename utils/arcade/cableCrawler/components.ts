@@ -15,6 +15,7 @@ import {
   type MazeLayout,
 } from './mazes'
 import { BREEZE, COOLING_FAN_MAZES, FAN_ROOM } from './mazesFan'
+import { BIOS_MAZES, BOOT_ROOM } from './mazesBios'
 import { CPU_CORE_MAZES, KERNEL_ROOM } from './mazesCpu'
 import { GLITCH_ROOM, GRAPHICS_CARD_MAZES, PAINT } from './mazesGraphics'
 import { EQUALISER, SOUND_CARD_MAZES, SPEAKER_ROOM } from './mazesSound'
@@ -35,7 +36,11 @@ import {
 export type SparkSet = 'bolt' | 'bit' | 'flake' | 'note' | 'pixel' | 'tick'
 /** The Screensaver bonus board a component plays after its third maze. */
 export type ScreensaverKind =
-  'starfield' | 'defrag' | 'breeze' | 'equaliser' | 'paint'
+  | 'starfield'
+  | 'defrag'
+  | 'breeze'
+  | 'equaliser'
+  | 'paint'
 /** The boss at the end of a component. */
 export type BossKind =
   | 'surge-protector'
@@ -44,9 +49,16 @@ export type BossKind =
   | 'subwoofer'
   | 'the-glitch'
   | 'sleepy-kernel'
+  | 'boot-loader'
 /** How a component's wall slabs are dressed: outlet plastic, RAM chips, or cooling fins. */
 export type WallStyle =
-  'plastic' | 'chips' | 'fins' | 'speakers' | 'bezel' | 'pins'
+  | 'plastic'
+  | 'chips'
+  | 'fins'
+  | 'speakers'
+  | 'bezel'
+  | 'pins'
+  | 'text'
 
 export type ComponentLook = {
   /** The wall slabs' ramp. */
@@ -225,6 +237,36 @@ export const CPU_CORE: Component = {
   music: CPU_CORE_MUSIC,
 }
 
+/**
+ * The secret seventh component, the BIOS: three green-screen mazes and the Boot Loader. It sits
+ * outside COMPONENTS (the campaign's laps never walk into it); the CPU Core's Workbench opens
+ * its door once all thirty golden bytes are found.
+ */
+export const BIOS: Component = {
+  id: 'bios',
+  number: 7,
+  name: 'THE BIOS',
+  tagline: 'THE OLDEST CODE IN THE MACHINE',
+  mazes: BIOS_MAZES,
+  screensaver: null,
+  boss: { kind: 'boot-loader', layout: BOOT_ROOM, name: 'THE BOOT LOADER' },
+  look: {
+    wall: RAMPS.leaf,
+    wallStyle: 'text',
+    floor: ['#031a0c', '#021408', '#010e05', '#000803'],
+    trace: '#1f7a3c',
+    accent: RAMPS.leaf,
+    spark: 'tick',
+  },
+  step: 5,
+  battery: 72,
+  bugStep: 9,
+  music: CPU_CORE_MUSIC,
+}
+
+/** The campaign index that stands for the BIOS in a save. */
+export const BIOS_INDEX = 900
+
 /** The components in campaign order. */
 export const COMPONENTS: readonly Component[] = [
   POWER_STRIP,
@@ -253,6 +295,9 @@ export function componentSteps(c: Component): Step[] {
     index,
     layout: c.mazes[index]!,
   })
+  // The BIOS: three mazes, then its boss; the true ending stands in for a Workbench.
+  if (c === BIOS)
+    return [maze(0), maze(1), maze(2), { kind: 'boss', layout: c.boss.layout }]
   return [
     maze(0),
     maze(1),
@@ -272,6 +317,7 @@ export const BOARDS_PER_COMPONENT = 7
 
 /** How many boards come before a component in the campaign (the CPU Core has no Screensaver). */
 export function boardsBefore(index: number): number {
+  if (index === BIOS_INDEX) return boardsBefore(COMPONENTS.length)
   let n = 0
   for (let i = 0; i < index; i++)
     n += COMPONENTS[i % COMPONENTS.length]!.screensaver
@@ -285,6 +331,7 @@ export function componentAt(index: number): {
   component: Component
   lap: number
 } {
+  if (index === BIOS_INDEX) return { component: BIOS, lap: 0 }
   return {
     component: COMPONENTS[index % COMPONENTS.length]!,
     lap: Math.floor(index / COMPONENTS.length),
@@ -295,3 +342,8 @@ export function componentAt(index: number): {
 export const BYTE_MAZES: readonly string[] = COMPONENTS.flatMap((c) =>
   c.mazes.map((m) => m.id),
 )
+
+/** Whether every golden byte of the six main components is found: the BIOS's door is open. */
+export function biosOpen(bytes: ReadonlySet<string>): boolean {
+  return BYTE_MAZES.every((id) => bytes.has(id))
+}

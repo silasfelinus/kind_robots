@@ -2640,7 +2640,7 @@ export function createRainbowPrincessPreview(
         ['#0b0626', '#2a1a55', '#7a2f52'],
         ['#160a3a', '#4f2470', '#c9649e'],
         ['#140a24', '#4a2440', '#b86a78'],
-        ['#160f08', '#5e4418', '#d9a54c'],
+        ['#160f08', '#5a4016', '#b8863e'],
       ][currentAct() - 1]!
       sky.addColorStop(0, palette[0]!)
       sky.addColorStop(0.55, palette[1]!)
@@ -3477,7 +3477,7 @@ export function createRainbowPrincessPreview(
         g.restore()
         g.fillStyle = '#2a0f30'
         g.fillRect(148, 30, 184, 14)
-        g.fillStyle = '#ffd27a'
+        g.fillStyle = '#b8672a'
         g.fillRect(
           150,
           32,

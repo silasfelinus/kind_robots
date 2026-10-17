@@ -145,7 +145,7 @@ assert.match(
 assert.equal(drawRainbowEnemySprite(g, 'picket'), false)
 assert.match(
   engine,
-  /if \(!drawRainbowEnemySprite\(g, reef\.kind\)\) \{\s+g\.beginPath\(\)/,
+  /if \(\s*!drawRainbowEnemySprite\(g, reef\.kind\)[^{]*\) \{\s+g\.beginPath\(\)/,
   'enemies keep their primitive body until the sprite loads',
 )
 

@@ -1,12 +1,47 @@
 import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
+import { checkArtPromptContract } from '../../server/utils/artPromptContract'
 import {
+  RESTYLE_PREVIEW_CFG,
+  RESTYLE_PREVIEW_ENGINE,
+  RESTYLE_PREVIEW_HEIGHT,
+  RESTYLE_PREVIEW_SCENE,
+  RESTYLE_PREVIEW_STEPS,
+  RESTYLE_PREVIEW_WIDTH,
   RESTYLE_STYLES,
   isRestyleStyle,
   planRestyleSegments,
+  restylePreviewPrompt,
 } from '../videoRestylePlan'
 
-assert.equal(RESTYLE_STYLES.length, 6)
+assert.equal(RESTYLE_STYLES.length, 33)
+assert.equal(
+  new Set(RESTYLE_STYLES.map((style) => style.id)).size,
+  RESTYLE_STYLES.length,
+)
+assert.deepEqual(
+  RESTYLE_STYLES.slice(0, 6).map((style) => style.id),
+  ['illustrious', 'ink', 'watercolor', 'storybook', 'felt', 'noir'],
+)
+assert.equal(RESTYLE_PREVIEW_WIDTH % 64, 0)
+assert.equal(RESTYLE_PREVIEW_HEIGHT % 64, 0)
+assert.ok(RESTYLE_PREVIEW_HEIGHT > RESTYLE_PREVIEW_WIDTH)
+for (const style of RESTYLE_STYLES) {
+  assert.ok(style.prompt.trim(), `${style.id} needs a video prompt`)
+  assert.ok(style.preview.trim(), `${style.id} needs a preview clause`)
+  const prompt = restylePreviewPrompt(style.id)
+  assert.ok(prompt.includes(RESTYLE_PREVIEW_SCENE))
+  assert.deepEqual(
+    checkArtPromptContract({
+      prompt,
+      engine: RESTYLE_PREVIEW_ENGINE,
+      steps: RESTYLE_PREVIEW_STEPS,
+      cfg: RESTYLE_PREVIEW_CFG,
+    }),
+    [],
+    `${style.id} preview prompt breaks the art prompt contract`,
+  )
+}
 assert.equal(isRestyleStyle('illustrious'), true)
 assert.equal(isRestyleStyle('unverified'), false)
 assert.throws(() => planRestyleSegments(0))
@@ -264,3 +299,27 @@ assert.ok(studio.includes('Resume full film using saved windows'))
 assert.ok(planSource.includes("'FULL_QUEUED'"))
 assert.ok(planSource.includes("'FULL_RUNNING'"))
 assert.ok(planSource.includes("'FULL_FAILED'"))
+
+const previewUtil = readFileSync('server/utils/videoRestylePreviews.ts', 'utf8')
+const previewGet = readFileSync(
+  'server/api/video-restyle/previews.get.ts',
+  'utf8',
+)
+const previewPost = readFileSync(
+  'server/api/video-restyle/previews.post.ts',
+  'utf8',
+)
+assert.ok(previewGet.includes('requireAdminApiUser'))
+assert.ok(previewPost.includes('requireAdminApiUser'))
+assert.ok(previewPost.includes('body.missing === true'))
+assert.ok(previewUtil.includes("'/api/art/enqueue'"))
+assert.ok(previewUtil.includes('projectSlug: PROJECT_SLUG'))
+assert.ok(previewUtil.includes('restylePreview }'))
+assert.ok(previewUtil.includes('/api/art/images/${artImageId}/file'))
+assert.ok(storeSource.includes('async function loadStylePreviews('))
+assert.ok(storeSource.includes('async function queueStylePreviews('))
+assert.ok(studio.includes('store.stylePreviews[look.id]?.imageUrl'))
+assert.ok(studio.includes('Generate all missing previews'))
+assert.ok(studio.includes('Regenerate preview'))
+assert.ok(studio.includes('store.loadStylePreviews()'))
+assert.ok(!studio.includes('6 presets'))

@@ -6,6 +6,7 @@ import type { VideoRestyleJob } from '@/server/utils/videoRestyleJobs'
 import {
   RESTYLE_MAX_BYTES,
   RESTYLE_MAX_DURATION_SEC,
+  type RestylePreview,
   type RestyleQuality,
   type RestyleStyleId,
 } from '@/utils/videoRestylePlan'
@@ -20,6 +21,9 @@ export const useVideoRestyleStore = defineStore('videoRestyle', () => {
   const error = ref('')
   const notice = ref('')
   const previewUrl = ref<string | null>(null)
+  const stylePreviews = ref<Partial<Record<RestyleStyleId, RestylePreview>>>({})
+  const stylePreviewBusy = ref(false)
+  const stylePreviewError = ref('')
   const selected = computed(
     () => jobs.value.find((job) => job.id === selectedId.value) ?? null,
   )
@@ -386,6 +390,64 @@ export const useVideoRestyleStore = defineStore('videoRestyle', () => {
     }
   }
 
+  function storeStylePreviews(list: RestylePreview[]) {
+    stylePreviews.value = Object.fromEntries(
+      list.map((preview) => [preview.styleId, preview]),
+    )
+  }
+
+  async function loadStylePreviews() {
+    const response = await performFetch<RestylePreview[]>(
+      '/api/video-restyle/previews',
+      {},
+      1,
+      30_000,
+    )
+    if (response.success && Array.isArray(response.data)) {
+      storeStylePreviews(response.data)
+      stylePreviewError.value = ''
+    } else {
+      stylePreviewError.value =
+        response.message || 'Cannot load style preview art.'
+    }
+  }
+
+  async function queueStylePreviews(input: {
+    styleIds?: RestyleStyleId[]
+    missing?: boolean
+    force?: boolean
+  }): Promise<boolean> {
+    stylePreviewBusy.value = true
+    stylePreviewError.value = ''
+    try {
+      const response = await performFetch<{
+        outcomes: Array<{ status: string; reason?: string }>
+        previews: RestylePreview[]
+      }>(
+        '/api/video-restyle/previews',
+        { method: 'POST', body: JSON.stringify(input) },
+        1,
+        120_000,
+      )
+      if (!response.success || !response.data) {
+        stylePreviewError.value =
+          response.message || 'Could not queue style preview art.'
+        return false
+      }
+      storeStylePreviews(response.data.previews)
+      const failed = response.data.outcomes.filter(
+        (outcome) => outcome.status === 'failed',
+      )
+      if (failed.length) {
+        stylePreviewError.value = `${failed.length} preview(s) could not be queued: ${failed[0]?.reason || 'unknown error'}`
+      }
+      notice.value = response.message || 'Style preview art queued.'
+      return failed.length === 0
+    } finally {
+      stylePreviewBusy.value = false
+    }
+  }
+
   return {
     jobs,
     selected,
@@ -397,6 +459,11 @@ export const useVideoRestyleStore = defineStore('videoRestyle', () => {
     error,
     notice,
     previewUrl,
+    stylePreviews,
+    stylePreviewBusy,
+    stylePreviewError,
+    loadStylePreviews,
+    queueStylePreviews,
     refresh,
     stage,
     createVariant,

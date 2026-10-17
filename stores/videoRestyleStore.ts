@@ -6,10 +6,17 @@ import type { VideoRestyleJob } from '@/server/utils/videoRestyleJobs'
 import {
   RESTYLE_MAX_BYTES,
   RESTYLE_MAX_DURATION_SEC,
+  type RestyleLookId,
   type RestylePreview,
   type RestyleQuality,
   type RestyleStyleId,
+  type RestyleVariantMode,
 } from '@/utils/videoRestylePlan'
+
+type GrabBagChoice = {
+  variantStyleIds?: RestyleStyleId[]
+  variantMode?: RestyleVariantMode
+}
 
 export const useVideoRestyleStore = defineStore('videoRestyle', () => {
   const jobs = ref<VideoRestyleJob[]>([])
@@ -88,15 +95,17 @@ export const useVideoRestyleStore = defineStore('videoRestyle', () => {
     }
   }
 
-  async function stage(input: {
-    file: File
-    title: string
-    durationSec: number
-    style: RestyleStyleId
-    quality: RestyleQuality
-    isPrivate: boolean
-    isMature: boolean
-  }): Promise<boolean> {
+  async function stage(
+    input: {
+      file: File
+      title: string
+      durationSec: number
+      style: RestyleLookId
+      quality: RestyleQuality
+      isPrivate: boolean
+      isMature: boolean
+    } & GrabBagChoice,
+  ): Promise<boolean> {
     error.value = ''
     notice.value = ''
     if (input.file.size > RESTYLE_MAX_BYTES || input.file.size <= 0) {
@@ -116,6 +125,10 @@ export const useVideoRestyleStore = defineStore('videoRestyle', () => {
       form.append('title', input.title)
       form.append('durationSec', String(input.durationSec))
       form.append('style', input.style)
+      if (input.variantStyleIds?.length) {
+        form.append('variantStyleIds', input.variantStyleIds.join(','))
+        form.append('variantMode', input.variantMode ?? 'cycle')
+      }
       form.append('quality', input.quality)
       form.append('isPrivate', String(input.isPrivate))
       form.append('isMature', String(input.isMature))
@@ -184,14 +197,16 @@ export const useVideoRestyleStore = defineStore('videoRestyle', () => {
     }
   }
 
-  async function createVariant(input: {
-    id: string
-    title: string
-    style: RestyleStyleId
-    quality: RestyleQuality
-    isPrivate: boolean
-    isMature: boolean
-  }): Promise<boolean> {
+  async function createVariant(
+    input: {
+      id: string
+      title: string
+      style: RestyleLookId
+      quality: RestyleQuality
+      isPrivate: boolean
+      isMature: boolean
+    } & GrabBagChoice,
+  ): Promise<boolean> {
     if (busy.value) return false
     busy.value = true
     error.value = ''
@@ -360,10 +375,11 @@ export const useVideoRestyleStore = defineStore('videoRestyle', () => {
 
   async function saveSettings(
     id: string,
-    style: RestyleStyleId,
+    style: RestyleLookId,
     quality: RestyleQuality,
     isPrivate: boolean,
     isMature: boolean,
+    grabBag: GrabBagChoice = {},
   ): Promise<boolean> {
     busy.value = true
     error.value = ''
@@ -373,7 +389,13 @@ export const useVideoRestyleStore = defineStore('videoRestyle', () => {
         `/api/video-restyle/${encodeURIComponent(id)}`,
         {
           method: 'PATCH',
-          body: JSON.stringify({ style, quality, isPrivate, isMature }),
+          body: JSON.stringify({
+            style,
+            quality,
+            isPrivate,
+            isMature,
+            ...grabBag,
+          }),
         },
       )
       if (!response.success || !response.data) {

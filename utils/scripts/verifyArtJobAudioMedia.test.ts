@@ -12,6 +12,7 @@ import { isAudioType, resolveArtImageSource } from '../artImageSource.js'
 import {
   artJobClaimableBy,
   isAudioArtJobPayload,
+  isGrabBagRestyleArtJobPayload,
   isVideoRestyleArtJobPayload,
 } from '../artJobMedia.js'
 
@@ -161,3 +162,41 @@ assert.equal(
   ),
   false,
 )
+
+{
+  const vace = { media: 'video-restyle-vace', videoRestyle: { phase: 'pilot' } }
+  const grabBag = {
+    media: 'video-restyle-vace',
+    videoRestyle: {
+      phase: 'pilot',
+      styleSchedule: [{ index: 0, styleId: 'noir' }],
+      stylePrompts: { noir: 'Expressionist animated noir' },
+    },
+  }
+  const relay = { supportsInputImages: true, supportsAudio: true }
+  assert.equal(isGrabBagRestyleArtJobPayload(grabBag), true)
+  assert.equal(isGrabBagRestyleArtJobPayload(JSON.stringify(grabBag)), true)
+  assert.equal(isGrabBagRestyleArtJobPayload(vace), false)
+  assert.equal(
+    artJobClaimableBy(vace, { ...relay, supportsVideoRestyle: true }),
+    true,
+  )
+  assert.equal(
+    artJobClaimableBy(grabBag, { ...relay, supportsVideoRestyle: true }),
+    false,
+    'a relay without per-window looks must never render a Grab bag in one style',
+  )
+  assert.equal(
+    artJobClaimableBy(grabBag, {
+      ...relay,
+      supportsVideoRestyle: true,
+      supportsVideoRestyleGrabBag: true,
+    }),
+    true,
+  )
+  assert.equal(
+    artJobClaimableBy(grabBag, { ...relay, supportsVideoRestyleGrabBag: true }),
+    false,
+  )
+}
+console.log('✅ Grab bag VACE jobs need a per-window-look relay')

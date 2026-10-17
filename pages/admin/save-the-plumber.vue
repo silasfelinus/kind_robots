@@ -470,7 +470,9 @@ const prologue = [
 const controls = [
   { keys: ['←', '→'], does: 'Run (hold to build speed)' },
   { keys: ['A', '↑'], does: 'Jump (hold for higher)' },
-  { keys: ['B'], does: 'Wrench splash: stun, break crates, turn valves' },
+  { keys: ['B'], does: 'Run (hold)' },
+  { keys: ['X'], does: 'Wrench splash: stun, break crates, turn valves' },
+  { keys: ['Y'], does: 'Your heroine’s special' },
   { keys: ['↓'], does: 'Enter a pipe you stand on' },
 ]
 

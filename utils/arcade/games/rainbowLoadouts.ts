@@ -100,6 +100,8 @@ export type RainbowSave = {
   >
   /** Medals won so far, by Act. */
   medals: Partial<Record<1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9, RainbowMedal>>
+  /** P1's pilot (the select screen); older saves leave it out and fly Maribel. */
+  pilot?: number
 }
 
 const bool = (value: unknown) => typeof value === 'boolean'
@@ -183,5 +185,6 @@ export function readRainbowSave(raw: unknown): RainbowSave | null {
     },
     guardians,
     medals,
+    ...(count(save.pilot, 3) ? { pilot: save.pilot as number } : {}),
   }
 }

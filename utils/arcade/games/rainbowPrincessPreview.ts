@@ -270,6 +270,7 @@ import {
 import {
   RAINBOW_DIFFICULTY_NAMES,
   RAINBOW_FOCUS,
+  RAINBOW_LOADOUTS,
   RAINBOW_MASTERY,
   rainbowMedal,
   readRainbowSave,
@@ -620,6 +621,10 @@ export type RainbowCombatSnapshot = {
   difficulty: ArcadeDifficulty
   /** The continue/new menu's highlighted line (0 continue, 1 new flight), or null when it is not shown. */
   resumeMenu: 0 | 1 | null
+  /** The pilot and difficulty select, or null when it is not shown. */
+  selectMenu: { row: 0 | 1; pilot: number; difficulty: ArcadeDifficulty } | null
+  /** The pilot each seat flies (RAINBOW_PILOTS index). */
+  pilots: readonly number[]
   enemies: ReadonlyArray<Readonly<Reef>>
   enemyShots: ReadonlyArray<Readonly<EnemyShot>>
   pickups: ReadonlyArray<Readonly<Pickup>>
@@ -751,7 +756,13 @@ export function createRainbowPrincessPreview(
   let over = false
   let clearCount = 0
   let supers = 0
-  const bursts: Array<{ seat: number; x: number; y: number; age: number }> = []
+  const bursts: Array<{
+    seat: number
+    pilot: number
+    x: number
+    y: number
+    age: number
+  }> = []
   let boss: PinkwakeBoss | null = null
   let defeatedAt: number | null = null
   let rescuedStation = false
@@ -880,6 +891,18 @@ export function createRainbowPrincessPreview(
   const offered = options.demo ? null : readRainbowSave(options.resume)
   let resumeMenu: { save: RainbowSave; pick: 0 | 1; frame: number } | null =
     offered ? { save: offered, pick: 0, frame: 0 } : null
+  /** P1's pilot (the select screen): the seats fly the pilots in order from it. */
+  let pick = 0
+  const pilotOf = (seat: number) => (seat + pick) % RAINBOW_PILOTS.length
+  /** The pilot and difficulty select a seated game opens with when the cabinet asks for it. */
+  const newSelect = () => ({
+    row: 0 as 0 | 1,
+    pilot: pick,
+    difficulty: ARCADE_DIFFICULTIES.indexOf(difficulty),
+    frame: 0,
+  })
+  let selectMenu: ReturnType<typeof newSelect> | null =
+    options.selectScreen && !options.demo && !offered ? newSelect() : null
   function moonFrame() {
     return moonStart === null ? 0 : tick - moonStart
   }
@@ -1800,6 +1823,7 @@ export function createRainbowPrincessPreview(
       checkpoint: { ...checkpoint },
       guardians: met,
       medals: { ...medals },
+      pilot: pick,
     }
   }
 
@@ -1807,10 +1831,28 @@ export function createRainbowPrincessPreview(
    * Continue a saved flight: its difficulty, score, rescues, routes, guardians and medals, with every Act
    * before it flown and its own Act about to begin (its first update is its frame 0).
    */
-  function continueFrom(save: RainbowSave) {
-    difficulty = save.difficulty
+  /** Fly at `chosen` from the start: its lives, pellets, hulls and score. */
+  function setDifficulty(chosen: ArcadeDifficulty) {
+    difficulty = chosen
     level = RAINBOW_DIFFICULTY[difficulty]
     for (const ship of ships) ship.lives = level.lives
+  }
+
+  /** A line of dialogue with the crew's names swapped for the pilots actually flying each seat. */
+  function crewLine<Line extends { speaker: string; text: string }>(
+    line: Line,
+  ): Line {
+    if (!pick) return line
+    const names = RAINBOW_PILOTS.map((pilot) => pilot.name.split(' ')[0]!)
+    const pattern = new RegExp(`\\b(${names.join('|')})\\b`, 'g')
+    const swap = (text: string) =>
+      text.replace(pattern, (name) => names[pilotOf(names.indexOf(name))]!)
+    return { ...line, speaker: swap(line.speaker), text: swap(line.text) }
+  }
+
+  function continueFrom(save: RainbowSave) {
+    setDifficulty(save.difficulty)
+    pick = save.pilot ?? 0
     const c = save.checkpoint
     score = c.score
     rescuedStation = c.rescuedStation
@@ -2027,8 +2069,9 @@ export function createRainbowPrincessPreview(
 
   /** Each ship's focused weapon family (t-010): precise fire that trades away the spread. */
   function fireFocused(ship: Ship, seat: number) {
+    const kind = pilotOf(seat)
     const power = ship.power
-    if (seat === 0) {
+    if (kind === 0) {
       // Petal Wing's Rose Needle: one fast needle, a twin from power 2.
       const { speed, damage, cooldown } = RAINBOW_FOCUS.needle
       for (const dy of power >= 2 ? [-2, 2] : [0])
@@ -2042,7 +2085,7 @@ export function createRainbowPrincessPreview(
           kind: 'needle',
         })
       ship.cooldown = cooldown
-    } else if (seat === 1) {
+    } else if (kind === 1) {
       // Prism Lance's Prism Thread: pierces craft, one more per power level.
       const { speed, damage, pierce, cooldown } = RAINBOW_FOCUS.thread
       shots.push({
@@ -2056,7 +2099,7 @@ export function createRainbowPrincessPreview(
         pierce: pierce + power - 1,
       })
       ship.cooldown = cooldown
-    } else if (seat === 2) {
+    } else if (kind === 2) {
       // Halo Fin's Halo Link: the orbit drones' shots cross on the line ahead; power 3 hits harder.
       const { speed, offset, crossAt, cooldown } = RAINBOW_FOCUS.link
       shots.push({
@@ -2107,16 +2150,17 @@ export function createRainbowPrincessPreview(
   }
 
   function fire(ship: Ship, seat: number) {
+    const kind = pilotOf(seat)
     if (ship.focus) {
       fireFocused(ship, seat)
       return
     }
     const power = ship.power
-    const speed = seat === 1 ? 10 : seat === 3 ? 9 : 8
-    const damage = seat === 1 ? 2 : 1
+    const speed = kind === 1 ? 10 : kind === 3 ? 9 : 8
+    const damage = kind === 1 ? 2 : 1
     shots.push({ x: ship.x + 15, y: ship.y, vx: speed, vy: 0, seat, damage })
     if (!ship.focus && power >= 2) {
-      const spread = seat === 0 ? 1.8 : 1.1
+      const spread = kind === 0 ? 1.8 : 1.1
       shots.push({
         x: ship.x + 12,
         y: ship.y - 3,
@@ -2134,7 +2178,7 @@ export function createRainbowPrincessPreview(
         damage: 1,
       })
     }
-    if (power >= 3 && (seat === 2 || seat === 3)) {
+    if (power >= 3 && (kind === 2 || kind === 3)) {
       shots.push({
         x: ship.x + 10,
         y: ship.y - 10,
@@ -2152,68 +2196,69 @@ export function createRainbowPrincessPreview(
         damage: 1,
       })
     }
-    ship.cooldown = ship.focus ? 8 : seat === 3 ? 7 : 11
+    ship.cooldown = ship.focus ? 8 : kind === 3 ? 7 : 11
   }
 
   function superAttack(seat: number) {
+    const kind = pilotOf(seat)
     const ship = ships[seat]!
     if (ship.charge < 100) return
     ship.charge = 0
     supers++
-    bursts.push({ seat, x: ship.x, y: ship.y, age: 0 })
+    bursts.push({ seat, pilot: kind, x: ship.x, y: ship.y, age: 0 })
     enemyShots.length = 0
     if (boss && boss.frame > 85) {
-      boss.hp -= seat === 1 ? 28 : 20
+      boss.hp -= kind === 1 ? 28 : 20
       if (boss.hp <= 0) defeatBoss()
     }
     if (moonBoss && moonBoss.frame > 85) {
-      moonBoss.hp -= seat === 1 ? 28 : 20
+      moonBoss.hp -= kind === 1 ? 28 : 20
       if (moonBoss.hp <= 0) defeatMoonBoss()
     }
     if (clawBoss && clawBoss.frame > 85) {
-      clawBoss.hp -= seat === 1 ? 28 : 20
+      clawBoss.hp -= kind === 1 ? 28 : 20
       if (clawBoss.hp <= 0) defeatClawBoss()
     }
     if (delphion && delphion.frame > 85) {
-      delphion.hp -= seat === 1 ? 28 : 20
+      delphion.hp -= kind === 1 ? 28 : 20
       if (delphion.hp <= 0) defeatDelphion()
     }
     if (sawtooth && sawtooth.frame > 85) {
-      sawtooth.hp -= seat === 1 ? 28 : 20
+      sawtooth.hp -= kind === 1 ? 28 : 20
       if (sawtooth.hp <= 0) defeatSawtooth()
     }
     if (lanternRay && lanternRay.frame > 85) {
-      lanternRay.hp -= seat === 1 ? 28 : 20
+      lanternRay.hp -= kind === 1 ? 28 : 20
       if (lanternRay.hp <= 0) defeatLanternRay()
     }
     if (glassEel && glassEel.frame > 85) {
-      glassEel.hp -= seat === 1 ? 28 : 20
+      glassEel.hp -= kind === 1 ? 28 : 20
       if (glassEel.hp <= 0) defeatGlassEel()
     }
     if (leviathan && leviathan.frame > 85) {
-      leviathan.hp -= seat === 1 ? 28 : 20
+      leviathan.hp -= kind === 1 ? 28 : 20
       if (leviathan.hp <= 0) defeatLeviathan()
     }
     if (crown && crown.frame > 85) {
-      crown.hp -= seat === 1 ? 28 : 20
+      crown.hp -= kind === 1 ? 28 : 20
       if (crown.hp <= 0) subdueCrown()
     }
     if (guardian && guardian.frame > 60) {
-      guardian.hp -= seat === 1 ? 28 : 20
+      guardian.hp -= kind === 1 ? 28 : 20
       if (guardian.hp <= 0) defeatGuardian(seat)
     }
     for (let i = reefs.length - 1; i >= 0; i--) {
       const reef = reefs[i]!
-      if (seat === 1 && reef.x < ship.x) continue
+      if (kind === 1 && reef.x < ship.x) continue
       if (reef.kind === 'spire') continue
       if (reef.kind === 'captive') {
         freeCaptive(reef)
         continue
       }
-      reef.health -= seat === 1 ? 8 : 5
+      reef.health -= kind === 1 ? 8 : 5
       if (reef.health <= 0) defeat(i, seat, false)
     }
-    if (seat === 2) {
+    if (kind === 2) {
       haloRevive(ships, activePlayers, seat)
       for (const ally of ships.slice(0, activePlayers)) {
         ally.shield = Math.min(3, ally.shield + 1)
@@ -2735,7 +2780,41 @@ export function createRainbowPrincessPreview(
         const chosen = resumeMenu
         resumeMenu = null
         if (chosen.pick === 0) continueFrom(chosen.save)
+        else if (options.selectScreen) selectMenu = newSelect()
         options.sound.play('blip')
+      }
+      return
+    }
+    if (selectMenu) {
+      // Left and right change the highlighted row, up and down switch rows, A launches (after a beat).
+      const keys = [input, ...seated]
+      const pressed = (button: 'up' | 'down' | 'left' | 'right' | 'a') =>
+        keys.some((frame) => frame?.pressed[button])
+      if (pressed('up') || pressed('down')) {
+        selectMenu.row = selectMenu.row ? 0 : 1
+        options.sound.play('blip')
+      }
+      const step = Number(pressed('right')) - Number(pressed('left'))
+      if (step) {
+        if (selectMenu.row === 0)
+          selectMenu.pilot =
+            (selectMenu.pilot + step + RAINBOW_PILOTS.length) %
+            RAINBOW_PILOTS.length
+        else
+          selectMenu.difficulty = Math.max(
+            0,
+            Math.min(
+              ARCADE_DIFFICULTIES.length - 1,
+              selectMenu.difficulty + step,
+            ),
+          )
+        options.sound.play('blip')
+      }
+      if (++selectMenu.frame > RESUME_MENU_GRACE && pressed('a')) {
+        pick = selectMenu.pilot
+        setDifficulty(ARCADE_DIFFICULTIES[selectMenu.difficulty]!)
+        selectMenu = null
+        options.sound.play('start')
       }
       return
     }
@@ -4113,7 +4192,8 @@ export function createRainbowPrincessPreview(
      * the ending, or the failure ending; silence in the demo, the menus and the CONTINUE? countdown.
      */
     get music(): MusicLoop | null {
-      if (options.demo || over || resumeMenu || continueLeft > 0) return null
+      if (options.demo || over || resumeMenu || selectMenu || continueLeft > 0)
+        return null
       return rainbowMusicFor({
         act: currentAct(),
         boss: Boolean(
@@ -4156,6 +4236,14 @@ export function createRainbowPrincessPreview(
         earned: [...earned],
         difficulty,
         resumeMenu: resumeMenu ? resumeMenu.pick : null,
+        selectMenu: selectMenu
+          ? {
+              row: selectMenu.row,
+              pilot: selectMenu.pilot,
+              difficulty: ARCADE_DIFFICULTIES[selectMenu.difficulty]!,
+            }
+          : null,
+        pilots: ships.slice(0, activePlayers).map((_, seat) => pilotOf(seat)),
         enemies: reefs.map((reef) => ({ ...reef })),
         enemyShots: enemyShots.map((bullet) => ({ ...bullet })),
         pickups: pickups.map((pickup) => ({ ...pickup })),
@@ -6171,7 +6259,7 @@ export function createRainbowPrincessPreview(
         if (left < 0.25 && Math.floor(cache.age / 5) % 2 === 0) continue
         g.save()
         g.translate(cache.x, cache.y)
-        g.strokeStyle = PILOT_COLORS[cache.seat]!
+        g.strokeStyle = PILOT_COLORS[pilotOf(cache.seat)]!
         g.lineWidth = 2
         g.beginPath()
         g.arc(0, 0, 10, -Math.PI / 2, -Math.PI / 2 + left * Math.PI * 2)
@@ -6269,7 +6357,7 @@ export function createRainbowPrincessPreview(
       }
       g.globalAlpha = 1
       for (const shot of shots) {
-        g.fillStyle = PILOT_COLORS[shot.seat]!
+        g.fillStyle = PILOT_COLORS[pilotOf(shot.seat)]!
         if (shot.kind === 'needle') {
           // Rose Needle: a long thin needle with a white point.
           g.fillRect(shot.x - 4, shot.y - 1, 16, 2)
@@ -6315,10 +6403,10 @@ export function createRainbowPrincessPreview(
         // Bank into a climb or a dive: tilt with the vertical speed, flattening a little as it turns.
         g.rotate(Math.max(-0.35, Math.min(0.35, ship.bank * 0.12)))
         g.scale(1, 1 - Math.min(0.18, Math.abs(ship.bank) * 0.05))
-        g.shadowColor = PILOT_COLORS[seat]!
+        g.shadowColor = PILOT_COLORS[pilotOf(seat)]!
         g.shadowBlur = 10
-        if (!drawRainbowShipSprite(g, seat)) {
-          g.fillStyle = PILOT_COLORS[seat]!
+        if (!drawRainbowShipSprite(g, pilotOf(seat))) {
+          g.fillStyle = PILOT_COLORS[pilotOf(seat)]!
           g.shadowBlur = 15
           g.beginPath()
           g.moveTo(16, 0)
@@ -6334,7 +6422,7 @@ export function createRainbowPrincessPreview(
         g.shadowBlur = 0
         g.fillStyle = '#44235c'
         g.fillRect(-3, -3, 6, 6)
-        g.strokeStyle = PILOT_COLORS[seat]!
+        g.strokeStyle = PILOT_COLORS[pilotOf(seat)]!
         g.lineWidth = 1
         g.strokeRect(-3, -3, 6, 6)
         if (ship.focus) {
@@ -6347,7 +6435,7 @@ export function createRainbowPrincessPreview(
         g.font = 'bold 9px sans-serif'
         g.strokeText(String(seat + 1), -3, -17)
         if (ship.charge >= 100 && Math.floor(tick / 10) % 2 === 0) {
-          g.fillStyle = PILOT_COLORS[seat]!
+          g.fillStyle = PILOT_COLORS[pilotOf(seat)]!
           g.font = 'bold 7px monospace'
           g.textAlign = 'center'
           g.fillText('SUPER READY · TAP B', 0, 24)
@@ -6358,7 +6446,7 @@ export function createRainbowPrincessPreview(
       for (const burst of bursts) {
         const t = burst.age / BURST_FRAMES
         const fade = 1 - t
-        const color = PILOT_COLORS[burst.seat]!
+        const color = PILOT_COLORS[burst.pilot]!
         g.save()
         if (burst.age < 8 && !calm) {
           g.globalAlpha = (8 - burst.age) / 16
@@ -6370,7 +6458,7 @@ export function createRainbowPrincessPreview(
         g.fillStyle = color
         g.shadowColor = color
         g.shadowBlur = 18
-        if (burst.seat === 0) {
+        if (burst.pilot === 0) {
           const r = 20 + t * 170
           for (let petal = 0; petal < 8; petal++) {
             const a = (petal / 8) * Math.PI * 2 + t * 1.5
@@ -6386,12 +6474,12 @@ export function createRainbowPrincessPreview(
             )
             g.fill()
           }
-        } else if (burst.seat === 1) {
+        } else if (burst.pilot === 1) {
           const half = 22 * fade + 2
           g.fillRect(burst.x, burst.y - half, W - burst.x, half * 2)
           g.fillStyle = '#ffffff'
           g.fillRect(burst.x, burst.y - half / 3, W - burst.x, (half * 2) / 3)
-        } else if (burst.seat === 2) {
+        } else if (burst.pilot === 2) {
           g.lineWidth = 4 * fade + 1
           for (const scale of [1, 0.6]) {
             g.beginPath()
@@ -6489,9 +6577,9 @@ export function createRainbowPrincessPreview(
       }
       for (let seat = 0; seat < activePlayers; seat++) {
         const ship = ships[seat]!
-        g.fillStyle = PILOT_COLORS[seat]!
+        g.fillStyle = PILOT_COLORS[pilotOf(seat)]!
         g.fillText(
-          `${SHIP_NAMES[seat]} ${ship.lives}♥ ${ship.shield}◇ P${ship.power} ${ship.charge}%`,
+          `${SHIP_NAMES[pilotOf(seat)]} ${ship.lives}♥ ${ship.shield}◇ P${ship.power} ${ship.charge}%`,
           HUD_RIGHT,
           24 + seat * 10,
         )
@@ -6520,7 +6608,7 @@ export function createRainbowPrincessPreview(
                             escapeFrame,
                             endingFrame,
                           )
-      const dialogue = scene
+      const said = scene
         ? act === 9
           ? finaleDialogue(
               scene.id as FinaleSceneId,
@@ -6588,6 +6676,7 @@ export function createRainbowPrincessPreview(
                             rescuedNemi,
                           )
         : null
+      const dialogue = said && crewLine(said)
       const commsTop = 33 + Math.max(0, activePlayers - 1) * 10
       if (dialogue) {
         g.fillStyle = '#160b34e8'
@@ -6877,7 +6966,7 @@ export function createRainbowPrincessPreview(
       // super has just cleared every enemy shot, so the banner hides no threat while it plays.
       const cut = bursts[bursts.length - 1]
       if (cut) {
-        const pilot = RAINBOW_PILOTS[cut.seat % RAINBOW_PILOTS.length]!
+        const pilot = RAINBOW_PILOTS[cut.pilot % RAINBOW_PILOTS.length]!
         const slide = Math.min(1, cut.age / 6)
         const x = 15 - (1 - slide) * 200
         // A ship flying under the banner stays visible through it.
@@ -6906,7 +6995,7 @@ export function createRainbowPrincessPreview(
           commsTop + 2,
           48,
         )
-        g.strokeStyle = PILOT_COLORS[cut.seat]!
+        g.strokeStyle = PILOT_COLORS[cut.pilot]!
         g.lineWidth = 2
         g.strokeRect(x, commsTop, 270, 52)
         const textX = x + artWidth + 10
@@ -6917,7 +7006,7 @@ export function createRainbowPrincessPreview(
           textX,
           commsTop + 17,
         )
-        g.fillStyle = PILOT_COLORS[cut.seat]!
+        g.fillStyle = PILOT_COLORS[cut.pilot]!
         g.font = 'bold 13px monospace'
         g.fillText(`${pilot.superName.toUpperCase()}!`, textX, commsTop + 34)
         g.restore()
@@ -7042,6 +7131,106 @@ export function createRainbowPrincessPreview(
           g.font = '8px monospace'
           g.fillText('PRESS A', W / 2, 244)
         }
+        g.restore()
+      }
+      if (selectMenu) {
+        const menu = selectMenu
+        g.save()
+        g.fillStyle = '#0c0620ee'
+        g.fillRect(0, 0, W, H)
+        g.textAlign = 'center'
+        g.fillStyle = '#ffd2ef'
+        g.font = 'bold 16px monospace'
+        g.fillText('CHOOSE YOUR PILOT', W / 2, 30)
+        RAINBOW_PILOTS.forEach((pilot, i) => {
+          const x = 18 + i * 113
+          const chosen = menu.pilot === i
+          // The seat that flies this pilot, if any: P1 flies the chosen one, the others follow in order.
+          const seat =
+            (i - menu.pilot + RAINBOW_PILOTS.length) % RAINBOW_PILOTS.length
+          g.fillStyle = chosen ? '#2a1450' : '#160b34'
+          g.fillRect(x, 42, 105, 142)
+          g.strokeStyle = PILOT_COLORS[i]!
+          g.lineWidth = chosen
+            ? menu.row === 0
+              ? 2 + Math.sin(tick / 6)
+              : 2
+            : 1
+          g.globalAlpha = chosen ? 1 : 0.55
+          g.strokeRect(x, 42, 105, 142)
+          if (
+            !drawRainbowCommsPortrait(
+              g,
+              pilot.name.split(' ')[0]!,
+              x + 30,
+              48,
+              44,
+            )
+          ) {
+            g.fillStyle = PILOT_COLORS[i]!
+            g.beginPath()
+            g.arc(x + 52, 70, 18, 0, Math.PI * 2)
+            g.fill()
+          }
+          g.save()
+          g.translate(x + 52, 112)
+          g.scale(1.3, 1.3)
+          if (!drawRainbowShipSprite(g, i)) {
+            g.fillStyle = PILOT_COLORS[i]!
+            g.beginPath()
+            g.moveTo(16, 0)
+            g.lineTo(-13, -11)
+            g.lineTo(-6, 0)
+            g.lineTo(-13, 11)
+            g.closePath()
+            g.fill()
+          }
+          g.restore()
+          g.fillStyle = PILOT_COLORS[i]!
+          g.font = 'bold 10px monospace'
+          g.fillText(pilot.name.split(' ')[0]!.toUpperCase(), x + 52, 142)
+          g.fillStyle = '#e8ddff'
+          g.font = '7px monospace'
+          g.fillText(pilot.ship.toUpperCase(), x + 52, 153)
+          g.fillText(
+            `FOCUS ${RAINBOW_LOADOUTS[i]!.focus.toUpperCase()}`,
+            x + 52,
+            164,
+          )
+          g.fillText(`SUPER ${pilot.superName.toUpperCase()}`, x + 52, 175)
+          if (seat < activePlayers) {
+            g.fillStyle = PILOT_COLORS[i]!
+            g.font = 'bold 9px monospace'
+            g.fillText(`P${seat + 1}`, x + 10, 54)
+          }
+          g.globalAlpha = 1
+        })
+        const levels = [
+          ['CADET', 'Five lives, slower pellets, softer craft: half score'],
+          ['PILOT', 'Three lives: the flight as designed'],
+          ['ACE', 'Faster pellets, tougher craft and bosses: score x1.5'],
+        ] as const
+        levels.forEach(([name], i) => {
+          const chosen = menu.difficulty === i
+          g.fillStyle = chosen
+            ? menu.row === 1
+              ? '#fff2a8'
+              : '#ffd2ef'
+            : '#7a6fa4'
+          g.font = `bold ${chosen ? 12 : 10}px monospace`
+          g.fillText(chosen ? `[ ${name} ]` : name, W / 2 + (i - 1) * 110, 206)
+        })
+        g.fillStyle = '#e8ddff'
+        g.font = '8px monospace'
+        g.fillText(levels[menu.difficulty]![1], W / 2, 222)
+        g.fillStyle = '#9b8fc4'
+        g.fillText(
+          menu.row === 0
+            ? 'LEFT / RIGHT: PILOT · UP / DOWN: DIFFICULTY · A: LAUNCH'
+            : 'LEFT / RIGHT: DIFFICULTY · UP / DOWN: PILOT · A: LAUNCH',
+          W / 2,
+          246,
+        )
         g.restore()
       }
       if (resumeMenu) {

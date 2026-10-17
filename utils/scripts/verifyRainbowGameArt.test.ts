@@ -87,7 +87,7 @@ const engine = readFileSync(
   new URL('../arcade/games/rainbowPrincessPreview.ts', import.meta.url),
   'utf8',
 )
-const sprite = engine.indexOf('if (!drawRainbowShipSprite(g, seat))')
+const sprite = engine.indexOf('if (!drawRainbowShipSprite(g, pilotOf(seat)))')
 const core = engine.indexOf('g.fillRect(-3, -3, 6, 6)', sprite)
 assert.ok(
   sprite > 0 && core > sprite,
@@ -241,7 +241,7 @@ for (const [seat, key] of RAINBOW_CUTIN_PILOTS.entries()) {
 assert.equal(drawRainbowSuperCutin(g, 0, 0, 0, 48), 0)
 assert.match(
   engine,
-  /bursts\.push\(\{ seat, x: ship\.x, y: ship\.y, age: 0 \}\)\s+enemyShots\.length = 0/,
+  /bursts\.push\(\{ seat, pilot: kind, x: ship\.x, y: ship\.y, age: 0 \}\)\s+enemyShots\.length = 0/,
   'a super clears every enemy shot before its cut-in covers the comms band',
 )
 assert.match(engine, /const cut = bursts\[bursts\.length - 1\]/)
@@ -274,7 +274,7 @@ assert.ok(
       engine.indexOf(
         'for (const bullet of enemyShots) {\n        if (bullet.ghost) {',
       ) &&
-    stripAt < engine.indexOf('drawRainbowShipSprite(g, seat)'),
+    stripAt < engine.indexOf('drawRainbowShipSprite(g, pilotOf(seat))'),
   'the coral strip sits behind enemies, enemy shots and ships',
 )
 

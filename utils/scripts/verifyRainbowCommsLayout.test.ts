@@ -26,7 +26,7 @@ assert.match(
 )
 assert.match(engine, /for \(const burst of bursts\)/)
 assert.match(engine, /SUPER READY · TAP B/)
-assert.match(engine, /TAP B AT 100% = SUPER/)
+assert.match(engine, /B FOCUS, SUPER AT 100% · X SPECIAL · Y EVADE/)
 assert.match(
   engine,
   /const HUD_LEFT = 44\n/,

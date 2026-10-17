@@ -824,6 +824,8 @@ export const PREVIEW_GAMES: ArcadeGameMeta[] = [
       'HOLD B  FOCUS',
       'FOCUS: NEEDLE · THREAD · LINK · ARC',
       'B AT 100%  SUPER',
+      'X  PILOT SPECIAL',
+      'Y  EVADE: ROLL · DASH · BLINK · BOOST',
       'START  PAUSE',
       '1 TO 4 LOCAL PILOTS',
       'CADET · PILOT · ACE DIFFICULTY',
@@ -840,6 +842,7 @@ export const PREVIEW_GAMES: ArcadeGameMeta[] = [
     difficulty: RAINBOW_DIFFICULTY_NAMES,
     mastery: RAINBOW_MASTERY,
     calmMotion: true,
+    fourButtons: true,
   },
   {
     slug: 'zuzu-pinball',

@@ -9,6 +9,10 @@
 
 import type { ArcadeGameMeta, ArcadeGameModule } from './types'
 import { MASTERY_GOALS } from './pinball/rules/mastery'
+import {
+  RAINBOW_DIFFICULTY_NAMES,
+  RAINBOW_MASTERY,
+} from './games/rainbowLoadouts'
 
 export const ARCADE_BLURB_MAX = 170
 
@@ -817,10 +821,12 @@ export const PREVIEW_GAMES: ArcadeGameMeta[] = [
       'ARROWS  FLY',
       'HOLD A  FIRE',
       'HOLD B  FOCUS',
+      'FOCUS: NEEDLE · THREAD · LINK · ARC',
       'B AT 100%  SUPER',
       'START  PAUSE',
       '1 TO 4 LOCAL PILOTS',
       'CADET · PILOT · ACE DIFFICULTY',
+      'EACH ACT START SAVES',
     ],
     width: 480,
     height: 270,
@@ -830,7 +836,8 @@ export const PREVIEW_GAMES: ArcadeGameMeta[] = [
     controls: 'Fly, shoot, focus, super',
     maxPlayers: 4,
     startPauses: true,
-    difficulty: ['Cadet', 'Pilot', 'Ace'],
+    difficulty: RAINBOW_DIFFICULTY_NAMES,
+    mastery: RAINBOW_MASTERY,
   },
   {
     slug: 'zuzu-pinball',

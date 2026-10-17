@@ -210,6 +210,8 @@ type Pickup = {
 type Gust = { x: number; y: number; dir: number; life: number }
 type Cargo = {
   x: number
+  /** Where its crates start falling from. */
+  top: number
   y: number
   vy: number
   offset: number
@@ -285,6 +287,8 @@ export class PlumberRun implements ArcadeGameInstance {
   sprung = false
   checkpoint = { x: 0, y: 0 }
   camera = 0
+  /** Vertical scroll: 0 shows the top of the stage; the lowest view frames the ground. */
+  cameraY = 0
   locked = false
 
   platforms: Platform[] = []
@@ -610,6 +614,7 @@ export class PlumberRun implements ArcadeGameInstance {
         case 'cargo':
           this.cargo.push({
             x: cx,
+            top: spawn.row * TILE,
             y: 0,
             vy: 0,
             offset: spawn.col * 23,
@@ -685,6 +690,7 @@ export class PlumberRun implements ArcadeGameInstance {
     this.immune = 60
     this.facing = 1
     this.camera = this.cameraTarget()
+    this.cameraY = this.cameraTargetY()
   }
 
   solidAt(col: number, row: number): number {
@@ -888,7 +894,7 @@ export class PlumberRun implements ArcadeGameInstance {
       const gateX = (this.stage.gate + 1) * TILE + HALF
       if (hero.x > gateX + TILE) {
         this.locked = true
-        for (let row = 1; row < 14; row++)
+        for (let row = 1; row < this.groundRow; row++)
           this.setSolid(this.stage.gate, row, SOLID_BLOCK)
         if (this.boss) this.boss.state = 'walk'
         this.sound.play('extra')
@@ -896,6 +902,7 @@ export class PlumberRun implements ArcadeGameInstance {
     }
     const target = this.cameraTarget()
     this.camera += (target - this.camera) * 0.2
+    this.cameraY += (this.cameraTargetY() - this.cameraY) * 0.14
   }
 
   get specialKind(): PlumberSpecial {
@@ -1073,7 +1080,7 @@ export class PlumberRun implements ArcadeGameInstance {
       if (cargo.state === 'wait') {
         if (this.cargoPhase(cargo) === 0) {
           cargo.state = 'fall'
-          cargo.y = -TILE
+          cargo.y = cargo.top - TILE
           cargo.vy = 0
         }
         continue
@@ -1136,6 +1143,18 @@ export class PlumberRun implements ArcadeGameInstance {
         p.y < this.stage.rows * TILE &&
         !isWall(this.solidAt(Math.floor(p.x / TILE), Math.floor(p.y / TILE))),
     )
+  }
+
+  /** The stage's ground surface row: three rows above the bottom, in every stage. */
+  get groundRow(): number {
+    return this.stage.rows - 3
+  }
+
+  /** Follow the heroine up; on the ground the view sits at the bottom of the stage. */
+  private cameraTargetY() {
+    const max = Math.max(0, this.stage.rows * TILE - H)
+    if (this.locked) return max
+    return Math.max(0, Math.min(max, this.hero.y + TALL / 2 - H * 0.55))
   }
 
   private cameraTarget() {
@@ -2711,7 +2730,7 @@ export class PlumberRun implements ArcadeGameInstance {
     g.fillStyle = wash
     g.fillRect(0, 0, W, H)
     g.save()
-    g.translate(-Math.round(this.camera), 0)
+    g.translate(-Math.round(this.camera), -Math.round(this.cameraY))
     this.renderTiles(g)
     this.renderThings(g)
     this.renderFoes(g)
@@ -2842,7 +2861,10 @@ export class PlumberRun implements ArcadeGameInstance {
     s.fillStyle = 'rgba(10, 6, 24, 0.8)'
     s.fillRect(0, 0, W, H)
     s.globalCompositeOperation = 'destination-out'
-    const light = (x: number, y: number, r: number, strength = 1) => {
+    const cam = Math.round(this.camera)
+    const camY = Math.round(this.cameraY)
+    const light = (x: number, worldY: number, r: number, strength = 1) => {
+      const y = worldY - camY
       const glow = s.createRadialGradient(x, y, 0, x, y, r)
       glow.addColorStop(0, `rgba(0, 0, 0, ${strength})`)
       glow.addColorStop(1, 'rgba(0, 0, 0, 0)')
@@ -2851,7 +2873,6 @@ export class PlumberRun implements ArcadeGameInstance {
       s.arc(x, y, r, 0, Math.PI * 2)
       s.fill()
     }
-    const cam = Math.round(this.camera)
     light(this.hero.x - cam, this.hero.y + 12, 92)
     for (const foe of this.foes)
       if (foe.kind === 'moss-lantern' && foe.state !== 'gone')
@@ -2890,7 +2911,9 @@ export class PlumberRun implements ArcadeGameInstance {
       `/images/arcade/save-the-plumber/tiles/world-${world}-ledge.webp`,
       32,
     )
-    for (let row = 0; row < this.stage.rows; row++)
+    const top = Math.max(0, Math.floor(this.cameraY / TILE))
+    const bottom = Math.min(this.stage.rows - 1, top + Math.ceil(H / TILE) + 1)
+    for (let row = top; row <= bottom; row++)
       for (let col = first; col <= last; col++) {
         const s = this.solid[row * this.stage.cols + col]!
         if (!s) continue
@@ -3161,7 +3184,7 @@ export class PlumberRun implements ArcadeGameInstance {
         g,
         '/images/arcade/save-the-plumber/props/boss-gate.webp',
         x,
-        14 * TILE,
+        this.groundRow * TILE,
         this.locked ? 60 : 44,
         {
           alpha: this.locked ? 1 : 0.85,
@@ -3239,6 +3262,20 @@ export class PlumberRun implements ArcadeGameInstance {
       crate(this.hero.x, this.hero.y - 8)
   }
 
+  /** The first solid surface under a point, for drop shadows. */
+  private floorBelow(x: number, y: number): number {
+    const col = Math.floor(x / TILE)
+    for (
+      let row = Math.max(0, Math.floor(y / TILE));
+      row < this.stage.rows;
+      row++
+    ) {
+      const s = this.solidAt(col, row)
+      if (isWall(s) || s === SOLID_LEDGE) return row * TILE
+    }
+    return this.stage.rows * TILE
+  }
+
   private renderWindAndCargo(g: CanvasRenderingContext2D) {
     const t = this.tick
     if (t % 300 < 150) {
@@ -3252,7 +3289,7 @@ export class PlumberRun implements ArcadeGameInstance {
       for (let col = first; col <= last; col++) {
         if (!this.windy[col]) continue
         for (let k = 0; k < 3; k++) {
-          const y = 30 + ((col * 37 + k * 71) % 180)
+          const y = this.cameraY + 30 + ((col * 37 + k * 71) % 180)
           const x = col * TILE + TILE - ((t * 3 + k * 9 + col * 5) % TILE)
           g.beginPath()
           g.moveTo(x, y)
@@ -3266,7 +3303,15 @@ export class PlumberRun implements ArcadeGameInstance {
         if (this.cargoPhase(cargo) > 170) {
           g.fillStyle = 'rgba(30, 20, 40, 0.25)'
           g.beginPath()
-          g.ellipse(cargo.x, 14 * TILE - 1, 10, 3, 0, 0, Math.PI * 2)
+          g.ellipse(
+            cargo.x,
+            this.floorBelow(cargo.x, cargo.top) - 1,
+            10,
+            3,
+            0,
+            0,
+            Math.PI * 2,
+          )
           g.fill()
         }
         continue

@@ -1,8 +1,6 @@
 <template>
   <main class="kr-surface">
-    <div
-      class="kr-scroll mx-auto max-w-[1500px] space-y-6 px-3 py-5 sm:px-6"
-    >
+    <div class="kr-scroll mx-auto max-w-[1500px] space-y-6 px-3 py-5 sm:px-6">
       <section
         class="relative isolate overflow-hidden rounded-[2rem] border border-pink-200/40 bg-[#251345] text-white shadow-2xl"
         aria-label="Rainbow Space Princess introduction"

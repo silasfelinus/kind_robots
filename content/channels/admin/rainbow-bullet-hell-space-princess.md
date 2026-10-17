@@ -4,8 +4,8 @@ channelKey: admin
 tabKey: rainbow-bullet-hell-space-princess
 label: Space Princess
 title: Rainbow Bullet Hell Space Princess
-subtitle: Four-Act Pinkwake, Moonjelly, Chromatic Trench and Rosefin Express campaign preview
-description: A private four-Act Rainbow Bullet Hell Space Princess preview with Pinkwake, Moonjelly Fields, the Chromatic Trench, the Rosefin Express, four bosses, four guardians, optional rescues, checkpoints and 1–4 local pilots.
+subtitle: Five-Act campaign preview, from the Pinkwake Estuary to the Blossom Wreckyard
+description: A private five-Act Rainbow Bullet Hell Space Princess preview with Pinkwake, Moonjelly Fields, the Chromatic Trench, the Rosefin Express, the Blossom Wreckyard, five bosses, five guardians, route choices, optional rescues, checkpoints and 1–4 local pilots.
 summary: Fly the pastel nebula with friends.
 icon: kind-icon:rocket
 route: /admin/rainbow-bullet-hell-space-princess
@@ -33,8 +33,11 @@ tutorial:
     Rosefin Express
     After Clawburst falls, the crew rests at a quiet salvage dock. Every pilot repairs one shield there; press A to launch, or the dock launches you after ten seconds. Act IV rides the Rosefin Express, light rails where civilian convoys travel and the whole current sometimes surges faster. Three new craft each teach one rule. Dolphin craft fly in mirrored pairs: their beacons pulse, then they dive across each other and hang dizzy in the middle, taking double damage. Couriers flicker their cargo light, then dash across and drop a cargo mine that bursts into a ring. Eels light a short upright barrier: fly round its bright ends, the only part your shots can damage. After the Courier guardian, a civilian courier pod runs the rails while the dolphins dive at it; shield it with your ship and shoot what threatens it. If it reaches the far side, the courier is saved. B04 Delphion is two dolphin ships on one coupling. They pulse their beacons and swap sides through the middle, then leap between lanes after marking the lanes they will fire down. Finally they spread wide and expose the glowing link core, which takes double damage. A clean run of Act IV takes about ten minutes.
 
+    Blossom Wreckyard
+    Delphion's fall leads straight into Act V, a graveyard of petal hulls where the convoy's route ends. Shark cutters open their jaws twice while they slide onto your lane, then charge straight down it: let one lock onto you, then step aside. Hammerheads lock two fin pods that each fire a missile; shoot a pod off to open a safe lane. Octopus salvagers point four arms, fire along them and grab a loose pickup unless you hit them while their arms are out. Wreck slabs drift through and soak every shot. After the Salvager guardian, the crew must choose. Fly high to free the survivor depot, reaching the drifting SOS pods within Solenne's forty-second limit, or fly low to raid the armory for power and full supers. B05 Sawtooth Regent marks a lane, opens its jaw and charges down it, calls hammerhead escorts and, in its last phase, leaves its jaw hinge open to double damage. The Act ends on a quiet memorial for the lost ships.
+
     Guardians
-    Midway through each Act a guardian takes the screen alone: a giant pearl urchin in Pinkwake, a giant lantern in Moonjelly Fields, a clawstrike in the Chromatic Trench and a cargo courier on the Rosefin Express. Its ring glows before every volley. The urchin fires a ring of pearls with a gap that moves round each time; the lantern fires two fans that leave the lane straight at you open; the courier lobs cargo mines that burst into rings. Destroy it before it escapes for a 1,500-point bonus and a power, shield and charge pickup. If the whole crew falls during its section, it returns with the continue.
+    Midway through each Act a guardian takes the screen alone: a giant pearl urchin in Pinkwake, a giant lantern in Moonjelly Fields, a clawstrike in the Chromatic Trench, a cargo courier on the Rosefin Express and an octopus salvager in the Blossom Wreckyard. Its ring glows before every volley. The urchin fires a ring of pearls with a gap that moves round each time; the lantern fires two fans that leave the lane straight at you open; the courier lobs cargo mines that burst into rings; the salvager throws lines of pellets along four arms that turn every volley. Destroy it before it escapes for a 1,500-point bonus and a power, shield and charge pickup. If the whole crew falls during its section, it returns with the continue.
 
     Checkpoints and continues
     Every section start and each boss is a checkpoint; a CHECKPOINT toast marks it. When the whole crew is down, a ten-second CONTINUE? countdown holds the battle still. Press A to resume from the last checkpoint with every pilot restored; the score returns to what it was at that checkpoint. Let the countdown run out to end the run. A continue during a boss fight brings the boss back as damaged as you left it, so every attempt chips away at it.
@@ -43,7 +46,7 @@ tutorial:
     Each boss hull grows with the crew, and each extra pilot adds more than the first, so four powered-up pilots stacking supers still fight through all three phases. Phases turn at two thirds and one third of the hull. A clean solo run of each Act takes about ten minutes; a first clear with continues takes twelve to fifteen, and a crew of four finishes each in about ten to eleven.
 
     Future campaign
-    Eight Acts are planned in total: Pinkwake, Moonjelly Fields, Chromatic Trench, Rosefin Express, Blossom Wreckyard, Crown Reef, Glass Current and Eclipse Palace, followed by the final confrontation. Acts I to IV are playable today at their full 10–15-minute pacing; the cinematics, the remaining four Acts and online co-op are still in production. This is an admin-only rehearsal, not a public leaderboard release.
+    Eight Acts are planned in total: Pinkwake, Moonjelly Fields, Chromatic Trench, Rosefin Express, Blossom Wreckyard, Crown Reef, Glass Current and Eclipse Palace, followed by the final confrontation. Acts I to V are playable today at their full 10–15-minute pacing; the cinematics, the remaining three Acts and online co-op are still in production. This is an admin-only rehearsal, not a public leaderboard release.
 ---
 
 The pastel starport is a private development page with a real Arcade-powered

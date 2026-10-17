@@ -250,7 +250,7 @@ assert.equal(drawRainbowStageStrip(g, 's01', 0, 220, 50), false)
 const stripAt = engine.indexOf('drawRainbowStageStrip(')
 assert.ok(
   stripAt > 0 &&
-    stripAt < engine.indexOf('for (const reef of reefs) {\n        g.save()') &&
+    stripAt < engine.indexOf('g.translate(reef.x, reef.y)') &&
     stripAt <
       engine.indexOf(
         "for (const bullet of enemyShots) {\n        if (bullet.burst === 'cross'",

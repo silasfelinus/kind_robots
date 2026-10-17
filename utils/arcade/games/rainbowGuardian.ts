@@ -7,7 +7,7 @@
 import { rainbowBossHp } from './rainbowPinkwakeBoss'
 
 export type RainbowGuardianKind =
-  'urchin' | 'lantern' | 'clawstrike' | 'courier'
+  'urchin' | 'lantern' | 'clawstrike' | 'courier' | 'salvager'
 
 export type RainbowGuardianSection = {
   name: string
@@ -148,6 +148,14 @@ export function stepRainbowGuardian(
     // A straight bolt down every lane its warning marked.
     for (const lane of guardian.lanes)
       shots.push({ x: guardian.x - 18, y: lane, vx: -4.2, vy: 0, grazed: 0 })
+  } else if (guardian.kind === 'salvager') {
+    // Four arms (eight when enraged), each throwing a short line of three pellets; the arms turn by half
+    // the gap between them every volley, so the safe wedges move round.
+    const arms = enraged ? 8 : 4
+    const turn = (guardian.volleys % 2) * (Math.PI / arms)
+    for (let arm = 0; arm < arms; arm++)
+      for (const speed of [1.25, 1.55, 1.85])
+        shot((arm / arms) * Math.PI * 2 + turn, speed)
   } else if (guardian.kind === 'courier') {
     // Cargo mines lobbed in a spread at the nearest pilot; each bursts into a ring where it ripens.
     const aim = Math.atan2(nearest.y - guardian.y, nearest.x - guardian.x)

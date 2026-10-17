@@ -840,6 +840,18 @@ export const ANIMATION_EFFECTS = [
     generationSafe: true,
     preferredSurface: 'fullscreen',
   },
+  {
+    id: 'dune-wind-ripples',
+    label: 'Dune Wind Ripples',
+    reveal: 'Sand dunes creep under a low sun as wind lifts grains',
+    icon: 'kind-icon:sparkle',
+    tooltip:
+      'Layered desert dunes creep while wind-blown grains skim the crests 🏜️ hover to lift grains near you, click to send a strong gust across the dunes',
+    color: '#f6b26b',
+    releasedAt: '2026-10-17T08:00:00Z',
+    generationSafe: true,
+    preferredSurface: 'fullscreen',
+  },
 ] as const satisfies readonly AnimationEffectDefinition[]
 
 export type AnimationEffectId = (typeof ANIMATION_EFFECTS)[number]['id']

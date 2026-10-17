@@ -18,7 +18,13 @@
 // down-right, Down down-left, Left up-left.
 
 import { levelCurve } from '../curve'
-import { boardRows, endlessPressure } from './pixelHopBoards'
+import {
+  boardRows,
+  endlessPressure,
+  prismComplete,
+  pyramidBoard,
+  stripeComplete,
+} from './pixelHopBoards'
 import { drawText } from '../font'
 import {
   INK,
@@ -67,6 +73,8 @@ const ROUNDS_PER_LEVEL = 4
 const EXTRA_EVERY = 12_000
 
 const PAINT_POINTS = 25
+const STRIPE_POINTS = 150
+const PRISM_POINTS = 100
 const ROUND_BONUS = 1000
 const BOING_LURE_POINTS = 500
 const GREMLIN_POINTS = 300
@@ -765,9 +773,23 @@ class PixelHop implements ArcadeGameInstance {
       if (next > tile) {
         const at = cubeTop(r, c)
         this.addScore(PAINT_POINTS, at.x, at.y - 14)
+        if (next === 2) this.hopCombos(r, c)
       }
     }
     if (this.paint.every((row) => row.every((t) => t === 2))) this.roundClear()
+  }
+
+  /** Stripe (a whole row done) and Prism (a 3-cube triangle done) bonuses. */
+  private hopCombos(r: number, c: number) {
+    const board = pyramidBoard(this.rows)
+    const done = board.cells.map((cell) => this.paint[cell.r]![cell.c] === 2)
+    const landed = { r, c }
+    const at = cubeTop(r, c)
+    if (r > 0 && stripeComplete(board, done, landed)) {
+      this.addScore(STRIPE_POINTS, at.x, at.y - 28)
+    } else if (prismComplete(board, done, landed)) {
+      this.addScore(PRISM_POINTS, at.x, at.y - 28)
+    }
   }
 
   private roundClear() {

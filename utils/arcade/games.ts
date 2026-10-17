@@ -795,14 +795,15 @@ export const PREVIEW_GAMES: ArcadeGameMeta[] = [
     slug: 'save-the-plumber',
     title: 'Save the Plumber',
     riffsOn: 'classic side-scrolling platform adventures',
+    fourButtons: true,
     blurb:
       'Private full-campaign build: pick one of eight painted heroines, then cross all eight worlds from Bluebell Pipeworks to the Stardrain Citadel, past eight bosses from Madame Pressure to Lady Spigot, and free Teo.',
     howTo: [
-      'ARROWS  RUN',
+      'ARROWS  MOVE   B  RUN',
       'A OR UP  JUMP',
-      'B  WRENCH SPLASH',
+      'X  WRENCH SPLASH',
+      'Y  YOUR HEROINE SPECIAL',
       'DOWN ON A PIPE  ENTER',
-      'TURN THE GOAL VALVE',
     ],
     width: 480,
     height: 270,

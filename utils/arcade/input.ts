@@ -38,6 +38,10 @@ export const KEY_MAP: Record<string, ArcadeButton> = {
   KeyK: 'b',
   ShiftLeft: 'b',
   ShiftRight: 'b',
+  KeyC: 'x',
+  KeyL: 'x',
+  KeyV: 'y',
+  KeyI: 'y',
   Enter: 'start',
   NumpadEnter: 'start',
 }
@@ -139,6 +143,20 @@ export function readGamepad(
     down: down(13) || y > AXIS_DEADZONE,
     left: down(14) || x < -AXIS_DEADZONE,
     right: down(15) || x > AXIS_DEADZONE,
+  }
+}
+
+/** All four face buttons apart, for a game that sets `fourButtons`. */
+export function readFourButtonPad(
+  pad: Pick<Gamepad, 'buttons' | 'axes'>,
+): Partial<Record<ArcadeButton, boolean>> {
+  const down = (index: number) => Boolean(pad.buttons[index]?.pressed)
+  return {
+    ...readGamepad(pad),
+    a: down(0),
+    b: down(1),
+    x: down(2),
+    y: down(3),
   }
 }
 
@@ -255,7 +273,7 @@ export function combineButtons<B extends string>(
 
 /** The cabinet's seven buttons folded into one frame. */
 export function combineFrame(
-  previous: Record<ArcadeButton, boolean>,
+  previous: Partial<Record<ArcadeButton, boolean>>,
   sources: Array<Partial<Record<ArcadeButton, boolean>>>,
 ): InputFrame {
   return combineButtons(ARCADE_BUTTONS, previous, sources)

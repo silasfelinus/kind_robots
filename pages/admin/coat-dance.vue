@@ -72,8 +72,12 @@
             {{ store.syncing ? 'Retrying…' : 'Retry ArtJob registration' }}
           </button>
         </div>
-        <div class="flex min-w-0 shrink-0 items-center gap-2 rounded-xl border border-base-300 bg-base-100 px-2 py-1.5 text-xs">
-          <label for="restyle-current-project" class="shrink-0 font-semibold">Project</label>
+        <div
+          class="flex min-w-0 shrink-0 items-center gap-2 rounded-xl border border-base-300 bg-base-100 px-2 py-1.5 text-xs"
+        >
+          <label for="restyle-current-project" class="shrink-0 font-semibold"
+            >Project</label
+          >
           <select
             id="restyle-current-project"
             class="select select-bordered select-sm min-w-0 flex-1"
@@ -81,12 +85,21 @@
             :value="store.selectedId ?? ''"
             @change="selectJobFromPicker"
           >
-            <option value="" disabled>{{ store.jobs.length ? 'Choose a project' : 'No saved videos yet' }}</option>
+            <option value="" disabled>
+              {{
+                store.jobs.length ? 'Choose a project' : 'No saved videos yet'
+              }}
+            </option>
             <option v-for="job in store.jobs" :key="job.id" :value="job.id">
-              {{ job.title }} · {{ labelFor(job.style) }} · {{ statusLabel(job.status) }}
+              {{ job.title }} · {{ labelFor(job.style) }} ·
+              {{ statusLabel(job.status) }}
             </option>
           </select>
-          <button type="button" class="kr-btn-xs btn-outline shrink-0" @click="activePanel = 'library'">
+          <button
+            type="button"
+            class="kr-btn-xs btn-outline shrink-0"
+            @click="activePanel = 'library'"
+          >
             {{ store.selected ? 'View video' : 'Upload video' }}
           </button>
         </div>
@@ -186,33 +199,45 @@
                 class="kr-btn-xs btn-outline"
                 :disabled="store.sourceBusy"
                 @click="store.loadSourcePreview(store.selected.id)"
-              >Original source</button>
+              >
+                Original source
+              </button>
               <button
                 v-if="store.selected.status === 'REVIEW' || store.selected.full"
                 type="button"
                 class="kr-btn-xs btn-outline"
                 :disabled="store.sourceBusy"
                 @click="showPilot()"
-              >Animated pilot</button>
+              >
+                Animated pilot
+              </button>
               <button
                 v-if="store.selected.pilot?.previousRevision"
                 type="button"
                 class="kr-btn-xs btn-outline"
                 :disabled="store.sourceBusy"
                 @click="showPilot(true)"
-              >Previous pilot</button>
+              >
+                Previous pilot
+              </button>
               <button
                 v-if="store.selected.status === 'DONE' && store.selected.full"
                 type="button"
                 class="kr-btn-xs btn-primary"
                 :disabled="store.sourceBusy"
                 @click="showFull"
-              >Full film</button>
+              >
+                Full film
+              </button>
             </div>
             <div class="grid gap-2 sm:grid-cols-[1fr_auto]">
               <label class="min-w-0">
                 <span class="kr-text-faded-xs block">
-                  {{ store.selected && !sourceFile ? 'Saved project' : 'New project title' }}
+                  {{
+                    store.selected && !sourceFile
+                      ? 'Saved project'
+                      : 'New project title'
+                  }}
                 </span>
                 <input
                   v-model="title"
@@ -300,7 +325,9 @@
               </div>
             </div>
             <div class="kr-pane-scroll min-h-0 flex-1">
-              <div class="grid grid-cols-3 gap-1.5 sm:grid-cols-4 lg:grid-cols-6 xl:grid-cols-7">
+              <div
+                class="grid grid-cols-3 gap-1.5 sm:grid-cols-4 lg:grid-cols-6 xl:grid-cols-7"
+              >
                 <button
                   v-for="look in RESTYLE_STYLES"
                   :key="look.id"
@@ -391,85 +418,110 @@
             <p v-if="store.stylePreviewError" class="text-xs text-error">
               {{ store.stylePreviewError }}
             </p>
-            <details class="shrink-0 rounded-xl border border-base-300 bg-base-100 px-2 py-1 text-xs">
+            <details
+              class="shrink-0 rounded-xl border border-base-300 bg-base-100 px-2 py-1 text-xs"
+            >
               <summary class="cursor-pointer font-semibold">
-                Render settings · {{ quality }} · {{ isPrivate ? 'Private' : 'Release candidate' }}{{ isMature ? ' · Mature' : '' }}
+                Render settings · {{ quality }} ·
+                {{ isPrivate ? 'Private' : 'Release candidate'
+                }}{{ isMature ? ' · Mature' : '' }}
               </summary>
               <div class="space-y-2 pt-2">
-            <div
-              class="flex items-center justify-between gap-2 border-t border-base-300 pt-2"
-            >
-              <span class="kr-text-semibold-sm">Output quality</span>
-              <div class="flex gap-1">
-                <button
-                  v-for="value in qualityOptions"
-                  :key="value"
-                  type="button"
-                  class="kr-btn-xs"
-                  :class="quality === value ? 'btn-primary' : 'btn-outline'"
-                  :aria-pressed="quality === value"
-                  @click="quality = value"
+                <div
+                  class="flex items-center justify-between gap-2 border-t border-base-300 pt-2"
                 >
-                  {{ value }}
-                </button>
-              </div>
-            </div>
-            <p class="kr-text-faded-xs">
-              Looks are prompt-guided Wan VACE treatments. 1080p is upscaled
-              after assembly.
-            </p>
-            <div
-              class="space-y-2 rounded-xl border border-base-300 bg-base-200/70 p-2 text-xs"
-            >
-              <label class="flex cursor-pointer items-center gap-2">
-                <input
-                  v-model="isPrivate"
-                  type="checkbox"
-                  class="checkbox checkbox-sm"
-                />
-                <span
-                  ><strong>Keep private</strong> · saved for a later release
-                  choice</span
+                  <span class="kr-text-semibold-sm">Output quality</span>
+                  <div class="flex gap-1">
+                    <button
+                      v-for="value in qualityOptions"
+                      :key="value"
+                      type="button"
+                      class="kr-btn-xs"
+                      :class="quality === value ? 'btn-primary' : 'btn-outline'"
+                      :aria-pressed="quality === value"
+                      @click="quality = value"
+                    >
+                      {{ value }}
+                    </button>
+                  </div>
+                </div>
+                <p class="kr-text-faded-xs">
+                  Looks are prompt-guided Wan VACE treatments. 1080p is upscaled
+                  after assembly.
+                </p>
+                <div
+                  class="space-y-2 rounded-xl border border-base-300 bg-base-200/70 p-2 text-xs"
                 >
-              </label>
-              <label class="flex cursor-pointer items-center gap-2">
-                <input
-                  v-model="isMature"
-                  type="checkbox"
-                  class="checkbox checkbox-sm"
-                />
-                <span
-                  ><strong>Mature content</strong> · mark this video
-                  appropriately</span
-                >
-              </label>
-              <p class="text-base-content/70">
-                All source videos and pilots stay access-controlled, even when
-                marked as candidates for future publication.
-              </p>
-            </div>
-
+                  <label class="flex cursor-pointer items-center gap-2">
+                    <input
+                      v-model="isPrivate"
+                      type="checkbox"
+                      class="checkbox checkbox-sm"
+                    />
+                    <span
+                      ><strong>Keep private</strong> · saved for a later release
+                      choice</span
+                    >
+                  </label>
+                  <label class="flex cursor-pointer items-center gap-2">
+                    <input
+                      v-model="isMature"
+                      type="checkbox"
+                      class="checkbox checkbox-sm"
+                    />
+                    <span
+                      ><strong>Mature content</strong> · mark this video
+                      appropriately</span
+                    >
+                  </label>
+                  <p class="text-base-content/70">
+                    All source videos and pilots stay access-controlled, even
+                    when marked as candidates for future publication.
+                  </p>
+                </div>
               </div>
             </details>
-            <div class="shrink-0 space-y-2 rounded-xl border border-primary/30 bg-base-200/60 p-2" aria-label="Selected look and next render">
-              <div class="flex flex-wrap items-baseline justify-between gap-x-2 text-xs">
+            <div
+              class="shrink-0 space-y-2 rounded-xl border border-primary/30 bg-base-200/60 p-2"
+              aria-label="Selected look and next render"
+            >
+              <div
+                class="flex flex-wrap items-baseline justify-between gap-x-2 text-xs"
+              >
                 <span>
                   <strong>Selected look: {{ labelFor(style) }}</strong>
-                  <span v-if="sourceFile" class="opacity-70"> · New upload</span>
-                  <span v-else-if="store.selected" class="opacity-70"> · {{ store.selected.title }}</span>
+                  <span v-if="sourceFile" class="opacity-70">
+                    · New upload</span
+                  >
+                  <span v-else-if="store.selected" class="opacity-70">
+                    · {{ store.selected.title }}</span
+                  >
                 </span>
-                <span v-if="store.selected" class="opacity-70">{{ statusLabel(store.selected.status) }}</span>
+                <span v-if="store.selected" class="opacity-70">{{
+                  statusLabel(store.selected.status)
+                }}</span>
               </div>
               <p v-if="sourceFile" class="text-xs text-base-content/80">
-                New source selected. Prepare it with {{ labelFor(style) }} before generating.
+                New source selected. Prepare it with
+                {{ labelFor(style) }} before generating.
               </p>
-              <p v-else-if="store.selected && lookChanged" class="text-xs text-base-content/80" role="status">
-                {{ store.selected.status === 'STAGED'
-                  ? 'Unsaved choices. Save this look before rendering this project.'
-                  : `New version selected. Your existing ${labelFor(store.selected.style)} project stays unchanged until you create another project.` }}
+              <p
+                v-else-if="store.selected && lookChanged"
+                class="text-xs text-base-content/80"
+                role="status"
+              >
+                {{
+                  store.selected.status === 'STAGED'
+                    ? 'Unsaved choices. Save this look before rendering this project.'
+                    : `New version selected. Your existing ${labelFor(store.selected.style)} project stays unchanged until you create another project.`
+                }}
               </p>
-              <p v-else-if="store.selected" class="text-xs text-base-content/70">
-                Matches the saved {{ labelFor(store.selected.style) }} project. Render actions use this look.
+              <p
+                v-else-if="store.selected"
+                class="text-xs text-base-content/70"
+              >
+                Matches the saved {{ labelFor(store.selected.style) }} project.
+                Render actions use this look.
               </p>
               <p v-else class="text-xs text-base-content/70">
                 Upload a video in Library to create a project.
@@ -481,53 +533,118 @@
                   class="kr-btn kr-btn-primary flex-1"
                   :disabled="!canStage || store.busy"
                   @click="stage"
-                >{{ store.busy ? 'Uploading…' : 'Upload & prepare this look' }}</button>
+                >
+                  {{ store.busy ? 'Uploading…' : 'Upload & prepare this look' }}
+                </button>
                 <button
-                  v-if="store.selected && !sourceFile && store.selected.status === 'STAGED' && lookChanged"
+                  v-if="
+                    store.selected &&
+                    !sourceFile &&
+                    store.selected.status === 'STAGED' &&
+                    lookChanged
+                  "
                   type="button"
                   class="kr-btn kr-btn-primary flex-1"
                   :disabled="store.busy"
                   @click="saveLook"
-                >{{ store.busy ? 'Saving…' : 'Save look to this project' }}</button>
+                >
+                  {{ store.busy ? 'Saving…' : 'Save look to this project' }}
+                </button>
                 <button
-                  v-if="store.selected && !sourceFile && (lookChanged || store.selected.status !== 'STAGED')"
+                  v-if="
+                    store.selected &&
+                    !sourceFile &&
+                    (lookChanged || store.selected.status !== 'STAGED')
+                  "
                   type="button"
                   class="kr-btn btn-outline flex-1"
                   :disabled="store.busy"
                   @click="createVariant"
-                >{{ store.busy ? 'Creating…' : 'New style project from saved video' }}</button>
+                >
+                  {{
+                    store.busy
+                      ? 'Creating…'
+                      : 'New style project from saved video'
+                  }}
+                </button>
                 <button
-                  v-if="store.selected && !sourceFile && !lookChanged && ['STAGED', 'PILOT_BLOCKED', 'PILOT_FAILED', 'REVIEW'].includes(store.selected.status)"
+                  v-if="
+                    store.selected &&
+                    !sourceFile &&
+                    !lookChanged &&
+                    [
+                      'STAGED',
+                      'PILOT_BLOCKED',
+                      'PILOT_FAILED',
+                      'REVIEW',
+                    ].includes(store.selected.status)
+                  "
                   type="button"
                   class="kr-btn kr-btn-primary flex-1"
                   :disabled="store.busy"
-                  @click="store.selected.status === 'PILOT_FAILED' ? store.retryPilot(store.selected.id) : store.queuePilot(store.selected.id)"
+                  @click="
+                    store.selected.status === 'PILOT_FAILED'
+                      ? store.retryPilot(store.selected.id)
+                      : store.queuePilot(store.selected.id)
+                  "
                 >
-                  {{ store.busy ? 'Queueing…'
-                    : store.selected.status === 'PILOT_FAILED' ? 'Retry pilot in the same ArtJob'
-                    : store.selected.status === 'REVIEW' ? 'Render improved continuity pilot'
-                    : 'Render 24-second pilot' }}
+                  {{
+                    store.busy
+                      ? 'Queueing…'
+                      : store.selected.status === 'PILOT_FAILED'
+                        ? 'Retry pilot in the same ArtJob'
+                        : store.selected.status === 'REVIEW'
+                          ? 'Render improved continuity pilot'
+                          : 'Render 24-second pilot'
+                  }}
                 </button>
                 <button
-                  v-if="store.selected && !lookChanged && store.selected.status === 'REVIEW' && !store.selected.full"
+                  v-if="
+                    store.selected &&
+                    !lookChanged &&
+                    store.selected.status === 'REVIEW' &&
+                    !store.selected.full
+                  "
                   type="button"
                   class="kr-btn kr-btn-primary flex-1"
                   :disabled="store.busy"
                   @click="store.queueFull(store.selected.id)"
-                >{{ store.busy ? 'Queueing…' : `Render full ${formatRestyleTime(store.selected.sourceDurationSec)} film` }}</button>
+                >
+                  {{
+                    store.busy
+                      ? 'Queueing…'
+                      : `Render full ${formatRestyleTime(store.selected.sourceDurationSec)} film`
+                  }}
+                </button>
                 <button
-                  v-if="store.selected && !lookChanged && store.selected.status === 'FULL_FAILED'"
+                  v-if="
+                    store.selected &&
+                    !lookChanged &&
+                    store.selected.status === 'FULL_FAILED'
+                  "
                   type="button"
                   class="kr-btn kr-btn-primary flex-1"
                   :disabled="store.busy"
                   @click="store.retryFull(store.selected.id)"
-                >{{ store.busy ? 'Queueing…' : 'Resume full film using saved windows' }}</button>
+                >
+                  {{
+                    store.busy
+                      ? 'Queueing…'
+                      : 'Resume full film using saved windows'
+                  }}
+                </button>
                 <button
-                  v-if="store.selected && (store.selected.status === 'REVIEW' || store.selected.status === 'DONE')"
+                  v-if="
+                    store.selected &&
+                    (store.selected.status === 'REVIEW' ||
+                      store.selected.status === 'DONE')
+                  "
                   type="button"
                   class="kr-btn btn-outline flex-1"
                   @click="activePanel = 'library'"
-                >View results</button>
+                >
+                  View results
+                </button>
               </div>
             </div>
           </section>
@@ -604,26 +721,53 @@
                 <span>{{ statusLabel(store.selected.status) }}</span>
               </div>
               <p class="text-base-content/70">
-                {{ labelFor(store.selected.style) }} · {{ store.selected.quality }} ·
+                {{ labelFor(store.selected.style) }} ·
+                {{ store.selected.quality }} ·
                 {{ formatRestyleTime(store.selected.sourceDurationSec) }}
               </p>
               <div class="h-1.5 overflow-hidden rounded-full bg-base-300">
-                <div class="h-full bg-primary" :style="{ width: store.selected.progress + '%' }" />
+                <div
+                  class="h-full bg-primary"
+                  :style="{ width: store.selected.progress + '%' }"
+                />
               </div>
               <p class="text-base-content/70">{{ store.selected.stage }}</p>
-              <p v-if="store.selected.full || store.selected.pilot" class="text-base-content/70">
-                {{ store.selected.full?.completedSegments ?? store.selected.pilot?.completedSegments }}/{{ store.selected.full?.totalSegments ?? store.selected.pilot?.totalSegments }}
+              <p
+                v-if="store.selected.full || store.selected.pilot"
+                class="text-base-content/70"
+              >
+                {{
+                  store.selected.full?.completedSegments ??
+                  store.selected.pilot?.completedSegments
+                }}/{{
+                  store.selected.full?.totalSegments ??
+                  store.selected.pilot?.totalSegments
+                }}
                 completed windows · {{ Math.round(store.selected.progress) }}%
               </p>
               <NuxtLink
-                v-if="store.selected.full?.artJobId || store.selected.pilot?.artJobId"
+                v-if="
+                  store.selected.full?.artJobId ||
+                  store.selected.pilot?.artJobId
+                "
                 :to="{
                   path: '/artjob',
-                  query: { jobId: store.selected.full?.artJobId || store.selected.pilot?.artJobId },
+                  query: {
+                    jobId:
+                      store.selected.full?.artJobId ||
+                      store.selected.pilot?.artJobId,
+                  },
                 }"
                 class="font-semibold text-primary hover:underline"
-              >View ArtJob #{{ store.selected.full?.artJobId || store.selected.pilot?.artJobId }} in the queue</NuxtLink>
-              <p v-if="store.selected.error" class="text-error" role="alert">{{ store.selected.error }}</p>
+                >View ArtJob #{{
+                  store.selected.full?.artJobId ||
+                  store.selected.pilot?.artJobId
+                }}
+                in the queue</NuxtLink
+              >
+              <p v-if="store.selected.error" class="text-error" role="alert">
+                {{ store.selected.error }}
+              </p>
               <div class="flex flex-wrap gap-2">
                 <button
                   v-if="store.selected.status === 'DONE' && store.selected.full"
@@ -631,22 +775,34 @@
                   class="kr-btn kr-btn-primary flex-1"
                   :disabled="store.sourceBusy"
                   @click="showFull"
-                >Watch finished full film</button>
+                >
+                  Watch finished full film
+                </button>
                 <button
-                  v-if="store.selected.status === 'REVIEW' || store.selected.full"
+                  v-if="
+                    store.selected.status === 'REVIEW' || store.selected.full
+                  "
                   type="button"
                   class="kr-btn btn-outline flex-1"
                   :disabled="store.sourceBusy"
                   @click="showPilot()"
-                >Watch animated pilot</button>
+                >
+                  Watch animated pilot
+                </button>
                 <button
                   v-if="store.selected.pilot?.previousRevision"
                   type="button"
                   class="kr-btn btn-outline flex-1"
                   :disabled="store.sourceBusy"
                   @click="showPilot(true)"
-                >Watch previous pilot for comparison</button>
-                <button type="button" class="kr-btn btn-outline flex-1" @click="activePanel = 'studio'">
+                >
+                  Watch previous pilot for comparison
+                </button>
+                <button
+                  type="button"
+                  class="kr-btn btn-outline flex-1"
+                  @click="activePanel = 'studio'"
+                >
                   Choose look / render
                 </button>
               </div>

@@ -649,7 +649,7 @@
                         manyRoutes
                           ? 'choice-card-compact gap-1 px-3 py-1.5'
                           : fourRoutes
-                            ? 'choice-card grow justify-center gap-1 px-3 py-2 lg:rounded-2xl lg:px-4'
+                            ? 'choice-card choice-four grow justify-center gap-1 px-3 py-2 lg:rounded-2xl lg:px-4'
                             : 'choice-card grow justify-center gap-1.5 px-4 py-3 lg:gap-2 lg:rounded-2xl lg:px-5',
                         lockFor(choice)
                           ? 'cursor-not-allowed border-base-300 bg-base-200 text-base-content/60'
@@ -716,7 +716,7 @@
                           manyRoutes
                             ? 'line-clamp-1 text-xs'
                             : fourRoutes
-                              ? 'text-sm leading-snug lg:text-base'
+                              ? 'choice-intent text-sm leading-snug lg:text-base'
                               : 'text-sm leading-snug sm:text-base lg:text-lg'
                         "
                         :title="
@@ -1295,7 +1295,7 @@ const openRoutes = computed(() =>
 const fourRoutes = computed(
   () => !manyRoutes.value && openRoutes.value.length === 4,
 )
-const denseRoutes = computed(() => manyRoutes.value || fourRoutes.value)
+const denseRoutes = computed(() => manyRoutes.value || chipLocks.value)
 const lockedRoutes = computed(() =>
   chipLocks.value
     ? (view.value?.card.choices ?? []).filter((c) => lockFor(c))
@@ -1472,6 +1472,21 @@ useHead({ title: 'Shifting Desks' })
   .choice-card-compact {
     padding-block: 0.25rem;
     gap: 0.125rem;
+  }
+
+  .choice-four {
+    padding-block: 0.3rem;
+    gap: 0.125rem;
+  }
+
+  .choice-four .choice-label {
+    font-size: 1.05rem;
+    line-height: 1.35rem;
+  }
+
+  .choice-four .choice-intent {
+    font-size: 0.875rem;
+    line-height: 1.25rem;
   }
 
   .hire-portrait {

@@ -324,7 +324,6 @@ assert.ok(studio.includes('Regenerate preview'))
 assert.ok(studio.includes('store.loadStylePreviews()'))
 assert.ok(!studio.includes('6 presets'))
 
-
 assert.ok(studio.includes("{ value: 'studio', label: 'Studio' }"))
 assert.ok(studio.includes("{ value: 'library', label: 'Library' }"))
 assert.ok(studio.includes("'studio')"))
@@ -342,5 +341,7 @@ assert.ok(studio.includes('Choose look / render'))
 assert.ok(studio.includes('if (!sourceFile.value) return'))
 assert.ok(!studio.includes("activePanel.value = 'source'"))
 assert.ok(!studio.includes("activePanel.value = 'jobs'"))
-assert.ok(!studio.includes('grid-cols-3 gap-1 rounded-xl bg-base-200 p-1 lg:hidden'))
+assert.ok(
+  !studio.includes('grid-cols-3 gap-1 rounded-xl bg-base-200 p-1 lg:hidden'),
+)
 assert.ok(!studio.includes('class="block text-[10px] opacity-65"'))

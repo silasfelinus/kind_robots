@@ -140,7 +140,7 @@
         </nav>
         <div
           class="kr-panes min-h-0 flex-1 gap-2 overflow-hidden sm:gap-3"
-          :class="activePanel === 'studio' ? 'lg:grid-cols-1' : 'lg:grid-cols-[minmax(0,1.35fr)_minmax(16rem,0.75fr)]"
+          :class="activePanel === 'studio' ? 'lg:grid-cols-1' : 'lg:grid-cols-[minmax(0,1.35fr)_minmax(16rem,0.75fr)]'"
         >
           <section
             :class="activePanel === 'library' ? 'flex' : 'hidden'"

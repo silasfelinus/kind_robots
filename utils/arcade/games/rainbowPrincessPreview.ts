@@ -129,6 +129,34 @@ import {
   type SawtoothBoss,
 } from './rainbowSawtooth'
 import {
+  CROWN_REEF,
+  CROWN_REEF_ALL_WAVES,
+  CROWN_REEF_FORK,
+  CROWN_REEF_GUARDIAN,
+  CROWN_REEF_PYLONS,
+  CROWN_REEF_SECTIONS,
+  CROWN_REEF_WAVE_SIZES,
+  reefDialogue,
+  reefRouteFor,
+  reefScene,
+  reefSpawns,
+  reefStage,
+  type ReefEnemy,
+  type ReefRoute,
+  type ReefSceneId,
+} from './rainbowCrownReef'
+import {
+  LANTERN_RAY,
+  LANTERN_RAY_MAX_HP,
+  createLanternRayBoss,
+  lanternRayBeacon,
+  lanternRayExposed,
+  lanternRayNurseries,
+  lanternRayWarning,
+  stepLanternRayBoss,
+  type LanternRayBoss,
+} from './rainbowLanternRay'
+import {
   CLAWBURST_MAX_HP,
   clawburstExposed,
   clawburstWarning,
@@ -184,7 +212,24 @@ const ACT_TWO_CHECKPOINTS = actCheckpoints(
   MOONJELLY.bossStarts,
 )
 const ACT_THREE_CHECKPOINTS = actCheckpoints(TRENCH_SECTIONS, TRENCH.bossStarts)
-const ACT_NUMERALS = ['ACT I', 'ACT II', 'ACT III', 'ACT IV', 'ACT V'] as const
+const ACT_NUMERALS = [
+  'ACT I',
+  'ACT II',
+  'ACT III',
+  'ACT IV',
+  'ACT V',
+  'ACT VI',
+] as const
+const ACT_SIX_CHECKPOINTS = actCheckpoints(
+  CROWN_REEF_SECTIONS,
+  CROWN_REEF.bossStarts,
+)
+/** E19 broodships darken their wings this long, then launch two drones. */
+const BROOD_SHADOW_FRAMES = 40
+/** E20 turrets unfold for the warning, fire, then fold to reload. */
+const TURRET = { unfoldFrames: 40, reloadFrames: 110 } as const
+/** E21 bulwarks: a 150-frame shell cycle, glowing for 30 frames before the window opens for 60. */
+const BULWARK = { cycle: 150, glowFrom: 60, openFrom: 90 } as const
 const ACT_FIVE_CHECKPOINTS = actCheckpoints(WRECK_SECTIONS, WRECK.bossStarts)
 /** E16 cutters open their jaws twice while sliding onto the locked lane, then charge down it. */
 const CUTTER = { jawFrames: 36, chargeSpeed: 5 } as const
@@ -232,6 +277,12 @@ const BASE_HEALTH: Record<string, number> = {
   hammerhead: 5,
   salvager: 6,
   scrap: 1,
+  brood: 9,
+  drone: 1,
+  turret: 5,
+  bulwark: 8,
+  gate: 1,
+  pylon: 12,
 }
 
 /** A pistol bubble bursts into an eight-pellet ring; an angler lure into a four-way cross. */
@@ -281,7 +332,13 @@ type Reef = {
   y: number
   phase: number
   health: number
-  kind: PinkwakeEnemy | MoonjellyEnemy | TrenchEnemy | RosefinEnemy | WreckEnemy
+  kind:
+    | PinkwakeEnemy
+    | MoonjellyEnemy
+    | TrenchEnemy
+    | RosefinEnemy
+    | WreckEnemy
+    | ReefEnemy
   fired: boolean
   /**
    * A clawstrike's lane mark, a dolphin's beacon, a courier's cargo flicker or an eel's barrier warning:
@@ -320,13 +377,14 @@ export type RainbowCombatSnapshot = {
   enemies: ReadonlyArray<Readonly<Reef>>
   enemyShots: ReadonlyArray<Readonly<EnemyShot>>
   pickups: ReadonlyArray<Readonly<Pickup>>
-  act: 'S01' | 'S02' | 'S03' | 'S04' | 'S05'
+  act: 'S01' | 'S02' | 'S03' | 'S04' | 'S05' | 'S06'
   stage:
     | ReturnType<typeof pinkwakeStage>
     | ReturnType<typeof moonjellyStage>
     | ReturnType<typeof trenchStage>
     | ReturnType<typeof rosefinStage>
     | ReturnType<typeof wreckStage>
+    | ReturnType<typeof reefStage>
   sceneId:
     | 'A01.OPEN'
     | 'A01.TURN'
@@ -340,15 +398,17 @@ export type RainbowCombatSnapshot = {
     | 'A03.AFTER'
     | RosefinSceneId
     | WreckSceneId
+    | ReefSceneId
     | null
   boss: Readonly<PinkwakeBoss> | null
   moonBoss: Readonly<MoonjellyBoss> | null
   clawBoss: Readonly<ClawburstBoss> | null
   delphion: Readonly<DelphionBoss> | null
   sawtooth: Readonly<SawtoothBoss> | null
+  lanternRay: Readonly<LanternRayBoss> | null
   guardian: Readonly<RainbowGuardian> | null
   /** Each Act's guardian: still to come (or in play), destroyed, or escaped. */
-  guardians: Readonly<Record<1 | 2 | 3 | 4 | 5, GuardianOutcome>>
+  guardians: Readonly<Record<1 | 2 | 3 | 4 | 5 | 6, GuardianOutcome>>
   rescuedNemi: boolean
   /** Act III's route: null until the fork, then the vault gauntlet or the safe passage. */
   trenchRoute: TrenchRoute | null
@@ -367,6 +427,13 @@ export type RainbowCombatSnapshot = {
   podsSaved: number
   survivors: ReadonlyArray<Readonly<{ x: number; y: number }>>
   freedDepot: boolean
+  actSixFrame: number
+  /** Frames the crew has rested at Act V's memorial, or null when not resting. */
+  resting: number | null
+  /** Act VI's route, the relay pylons broken, and the story flag the relay earns. */
+  reefRoute: ReefRoute | null
+  pylonsDown: number
+  stoppedRelay: boolean
   /** Frames the crew has rested at Act III's salvage dock, or null when not docked. */
   docked: number | null
   rescuedStation: boolean
@@ -418,12 +485,13 @@ export function createRainbowPrincessPreview(
   // A continue mid-fight brings the boss back as damaged as the crew left it, so every attempt counts.
   let bossCarryHp: number | null = null
   let guardian: RainbowGuardian | null = null
-  const guardians: Record<1 | 2 | 3 | 4 | 5, GuardianOutcome> = {
+  const guardians: Record<1 | 2 | 3 | 4 | 5 | 6, GuardianOutcome> = {
     1: 'waiting',
     2: 'waiting',
     3: 'waiting',
     4: 'waiting',
     5: 'waiting',
+    6: 'waiting',
   }
   const guardianSections = {
     1: PINKWAKE_GUARDIAN,
@@ -431,6 +499,7 @@ export function createRainbowPrincessPreview(
     3: TRENCH_GUARDIAN,
     4: ROSEFIN_GUARDIAN,
     5: WRECK_GUARDIAN,
+    6: CROWN_REEF_GUARDIAN,
   } as const
   let moonBossCarryHp: number | null = null
   let moonDefeatedFrame: number | null = null
@@ -453,6 +522,13 @@ export function createRainbowPrincessPreview(
   let wreckSettled = false
   let podsSaved = 0
   const survivors: Array<{ x: number; y: number }> = []
+  let reefStart: number | null = null
+  let lanternRay: LanternRayBoss | null = null
+  let lanternRayCarryHp: number | null = null
+  let reefDefeatedFrame: number | null = null
+  let reefRoute: ReefRoute | null = null
+  let reefSettled = false
+  let pylonsDown = 0
   let rescuedNemi = false
   let trenchRoute: TrenchRoute | null = null
   let routeSettled = false
@@ -473,6 +549,9 @@ export function createRainbowPrincessPreview(
     wreckRoute: null,
     wreckSettled: false,
     podsSaved: 0,
+    reefRoute: null,
+    reefSettled: false,
+    pylonsDown: 0,
     schoolBonuses: 0,
   }
   let continueLeft = 0
@@ -490,19 +569,24 @@ export function createRainbowPrincessPreview(
   function wreckFrame() {
     return wreckStart === null ? 0 : tick - wreckStart
   }
-  function currentAct(): 1 | 2 | 3 | 4 | 5 {
-    return wreckStart !== null
-      ? 5
-      : rosefinStart !== null
-        ? 4
-        : trenchStart !== null
-          ? 3
-          : moonStart !== null
-            ? 2
-            : 1
+  function reefFrame() {
+    return reefStart === null ? 0 : tick - reefStart
+  }
+  function currentAct(): 1 | 2 | 3 | 4 | 5 | 6 {
+    return reefStart !== null
+      ? 6
+      : wreckStart !== null
+        ? 5
+        : rosefinStart !== null
+          ? 4
+          : trenchStart !== null
+            ? 3
+            : moonStart !== null
+              ? 2
+              : 1
   }
   /** The Act's own clock: Act I runs on the global tick, later Acts count from their first frame. */
-  function actFrame(act: 1 | 2 | 3 | 4 | 5) {
+  function actFrame(act: 1 | 2 | 3 | 4 | 5 | 6) {
     return act === 1
       ? tick
       : act === 2
@@ -511,10 +595,147 @@ export function createRainbowPrincessPreview(
           ? trenchFrame()
           : act === 4
             ? rosefinFrame()
-            : wreckFrame()
+            : act === 5
+              ? wreckFrame()
+              : reefFrame()
   }
   function livingShips() {
     return ships.slice(0, activePlayers).filter((ship) => ship.lives > 0)
+  }
+  /** Frames rested at Act V's memorial, or null before it (or once Act VI has launched). */
+  function restingFrames() {
+    if (wreckDefeatedFrame === null || reefStart !== null) return null
+    const rested = wreckFrame() - wreckDefeatedFrame - WRECK.aftermathFrames
+    return rested >= 0 ? rested : null
+  }
+
+  /** Leave the memorial for Act VI: one bounded repair (a shield each), then the Crown Reef. */
+  function launchCrownReef() {
+    reefStart = tick
+    shots.length = 0
+    pickups.length = 0
+    enemyShots.length = 0
+    survivors.length = 0
+    for (const ship of livingShips()) ship.shield = Math.min(3, ship.shield + 1)
+  }
+
+  /** Act VI's fork: where the living crew flies at the decision frame picks the route. */
+  function chooseReefRoute() {
+    reefRoute = reefRouteFor(livingShips().map((ship) => ship.y))
+    popups.push({
+      x: W / 2,
+      y: 92,
+      text: reefRoute === 'relay' ? 'DAMAGE RELAY' : 'SHIELD CACHE',
+      age: 0,
+    })
+  }
+
+  /** The rejoin: a broken relay pays out and powers the crew up; the cache refills every shield. */
+  function settleReefRoute() {
+    reefSettled = true
+    const stopped = reefRoute === 'relay' && pylonsDown >= CROWN_REEF_PYLONS
+    if (reefRoute === 'relay') {
+      if (stopped) score += CROWN_REEF_FORK.relayScore
+      for (const ship of livingShips()) ship.power = Math.min(3, ship.power + 1)
+    } else {
+      for (const ship of livingShips()) {
+        ship.shield = 3
+        ship.charge = Math.min(100, ship.charge + 50)
+      }
+    }
+    popups.push({
+      x: W / 2,
+      y: 92,
+      text:
+        reefRoute === 'relay'
+          ? stopped
+            ? `RELAY STOPPED +${CROWN_REEF_FORK.relayScore} · POWER UP`
+            : `RELAY STILL LIVE · POWER UP`
+          : 'SHIELD CACHE · SHIELDS FULL',
+      age: 0,
+    })
+    options.sound.play('pickup')
+  }
+
+  function defeatLanternRay() {
+    if (!lanternRay || reefDefeatedFrame !== null) return
+    lanternRay = null
+    reefDefeatedFrame = reefFrame()
+    reefs.length = 0
+    enemyShots.length = 0
+    score += 6000
+    for (const ship of ships.slice(0, activePlayers)) {
+      ship.invulnerable = Math.max(ship.invulnerable, 240)
+    }
+    options.sound.play('level')
+  }
+
+  /** True while a bulwark's shell window is open: only then does its spiral eye take damage. */
+  function bulwarkOpen(reef: Reef) {
+    return (
+      reef.kind === 'bulwark' &&
+      reef.dive !== undefined &&
+      reef.dive % BULWARK.cycle >= BULWARK.openFrom
+    )
+  }
+
+  /** Act VI's craft move by their own rules. */
+  function stepReefCraft(reef: Reef) {
+    if (reef.kind === 'gate') {
+      reef.x -= 0.8
+      return
+    }
+    if (reef.kind === 'pylon') {
+      reef.x -= 0.45
+      return
+    }
+    if (reef.kind === 'drone') {
+      // Interceptors weave toward the nearest pilot and fire once.
+      reef.x -= 1.8
+      const living = livingShips()
+      const target = living.reduce(
+        (best, ship) =>
+          Math.abs(ship.y - reef.y) < Math.abs(best.y - reef.y) ? ship : best,
+        living[0] ?? { y: reef.y },
+      )
+      reef.y += Math.sign(target.y - reef.y) * 0.45
+      if (!reef.fired && reef.x < W - 120) {
+        reef.fired = true
+        fireEnemy(reef)
+      }
+      return
+    }
+    if (reef.kind === 'brood') {
+      reef.x -= 0.6
+      reef.y += Math.sin(tick / 40 + reef.phase) * 0.25
+      if (reef.charge === undefined && reef.x < W - 70)
+        reef.charge = BROOD_SHADOW_FRAMES
+      else if (
+        reef.charge !== undefined &&
+        reef.charge > 0 &&
+        --reef.charge === 0
+      )
+        for (const side of [-1, 1]) spawn('drone', reef.y + side * 18, null)
+      return
+    }
+    if (reef.kind === 'turret') {
+      reef.x -= 0.55
+      if (reef.charge === undefined) {
+        if (reef.x < W - 60) reef.charge = TURRET.unfoldFrames
+      } else if (reef.charge > 0) {
+        if (--reef.charge === 0) {
+          fireEnemy(reef)
+          reef.dive = TURRET.reloadFrames
+        }
+      } else if (reef.dive !== undefined && --reef.dive === 0) {
+        reef.charge = TURRET.unfoldFrames
+      }
+      return
+    }
+    // Bulwark: a steady shell cycle; the window opens on a sweeping barrier.
+    reef.x -= 0.5
+    reef.dive = (reef.dive ?? 0) + 1
+    if (reef.dive % BULWARK.cycle === BULWARK.openFrom) fireEnemy(reef)
   }
 
   /** Act V's fork: where the living crew flies at the decision frame picks the route. */
@@ -829,7 +1050,12 @@ export function createRainbowPrincessPreview(
 
   function spawn(
     kind:
-      PinkwakeEnemy | MoonjellyEnemy | TrenchEnemy | RosefinEnemy | WreckEnemy,
+      | PinkwakeEnemy
+      | MoonjellyEnemy
+      | TrenchEnemy
+      | RosefinEnemy
+      | WreckEnemy
+      | ReefEnemy,
     y?: number,
     wave: number | null = null,
   ) {
@@ -855,7 +1081,9 @@ export function createRainbowPrincessPreview(
     waveLeft.set(reef.wave, left)
     const size =
       (reef.wave >= WRECK.waveBase
-        ? WRECK_WAVE_SIZES[reef.wave - WRECK.waveBase]
+        ? reef.wave >= CROWN_REEF.waveBase
+          ? CROWN_REEF_WAVE_SIZES[reef.wave - CROWN_REEF.waveBase]
+          : WRECK_WAVE_SIZES[reef.wave - WRECK.waveBase]
         : reef.wave >= ROSEFIN.waveBase
           ? ROSEFIN_WAVE_SIZES[reef.wave - ROSEFIN.waveBase]
           : reef.wave >= TRENCH.waveBase
@@ -877,7 +1105,7 @@ export function createRainbowPrincessPreview(
   }
 
   /** Remember the run as it stands when the Act clock reaches one of its checkpoints. */
-  function passCheckpoint(act: 1 | 2 | 3 | 4 | 5, frame: number) {
+  function passCheckpoint(act: 1 | 2 | 3 | 4 | 5 | 6, frame: number) {
     if (
       !(
         act === 1
@@ -888,7 +1116,9 @@ export function createRainbowPrincessPreview(
               ? ACT_THREE_CHECKPOINTS
               : act === 4
                 ? ACT_FOUR_CHECKPOINTS
-                : ACT_FIVE_CHECKPOINTS
+                : act === 5
+                  ? ACT_FIVE_CHECKPOINTS
+                  : ACT_SIX_CHECKPOINTS
       ).includes(frame)
     )
       return
@@ -905,6 +1135,9 @@ export function createRainbowPrincessPreview(
       wreckRoute,
       wreckSettled,
       podsSaved,
+      reefRoute,
+      reefSettled,
+      pylonsDown,
       schoolBonuses,
     }
     if (frame > 0) popups.push({ x: W / 2, y: 74, text: 'CHECKPOINT', age: 0 })
@@ -927,7 +1160,9 @@ export function createRainbowPrincessPreview(
             ? trenchDefeatedFrame !== null
             : checkpoint.act === 4
               ? rosefinDefeatedFrame !== null
-              : wreckDefeatedFrame !== null
+              : checkpoint.act === 5
+                ? wreckDefeatedFrame !== null
+                : reefDefeatedFrame !== null
     if (!cleared) {
       const waves: ReadonlyArray<{ at: number }> =
         checkpoint.act === 1
@@ -938,7 +1173,9 @@ export function createRainbowPrincessPreview(
               ? TRENCH_ALL_WAVES
               : checkpoint.act === 4
                 ? ROSEFIN_WAVES
-                : WRECK_ALL_WAVES
+                : checkpoint.act === 5
+                  ? WRECK_ALL_WAVES
+                  : CROWN_REEF_ALL_WAVES
       const base =
         checkpoint.act === 1
           ? 0
@@ -948,7 +1185,9 @@ export function createRainbowPrincessPreview(
               ? TRENCH.waveBase
               : checkpoint.act === 4
                 ? ROSEFIN.waveBase
-                : WRECK.waveBase
+                : checkpoint.act === 5
+                  ? WRECK.waveBase
+                  : CROWN_REEF.waveBase
       waves.forEach((entry, index) => {
         const id = base + index
         if (entry.at >= checkpoint.frame) {
@@ -963,6 +1202,7 @@ export function createRainbowPrincessPreview(
         trenchStart,
         rosefinStart,
         wreckStart,
+        reefStart,
       )
       // A guardian whose section lies after the checkpoint flies again; one already behind it does not.
       guardian = null
@@ -973,11 +1213,13 @@ export function createRainbowPrincessPreview(
       if (clawBoss) clawBossCarryHp = clawBoss.hp
       if (delphion) delphionCarryHp = delphion.hp
       if (sawtooth) sawtoothCarryHp = sawtooth.hp
+      if (lanternRay) lanternRayCarryHp = lanternRay.hp
       boss = null
       moonBoss = null
       clawBoss = null
       delphion = null
       sawtooth = null
+      lanternRay = null
       escort = null
       survivors.length = 0
       station = null
@@ -994,6 +1236,9 @@ export function createRainbowPrincessPreview(
       wreckRoute = checkpoint.wreckRoute
       wreckSettled = checkpoint.wreckSettled
       podsSaved = checkpoint.podsSaved
+      reefRoute = checkpoint.reefRoute
+      reefSettled = checkpoint.reefSettled
+      pylonsDown = checkpoint.pylonsDown
       schoolBonuses = checkpoint.schoolBonuses
     }
     reefs.length = 0
@@ -1094,6 +1339,10 @@ export function createRainbowPrincessPreview(
       sawtooth.hp -= seat === 1 ? 28 : 20
       if (sawtooth.hp <= 0) defeatSawtooth()
     }
+    if (lanternRay && lanternRay.frame > 85) {
+      lanternRay.hp -= seat === 1 ? 28 : 20
+      if (lanternRay.hp <= 0) defeatLanternRay()
+    }
     if (guardian && guardian.frame > 60) {
       guardian.hp -= seat === 1 ? 28 : 20
       if (guardian.hp <= 0) defeatGuardian(seat)
@@ -1118,6 +1367,15 @@ export function createRainbowPrincessPreview(
     const reef = reefs[index]!
     reefs.splice(index, 1)
     score += reef.kind === 'urchin' ? 250 : 125
+    if (reef.kind === 'pylon' && reefRoute === 'relay') {
+      pylonsDown++
+      popups.push({
+        x: reef.x,
+        y: reef.y,
+        text: `PYLON ${pylonsDown}/${CROWN_REEF_PYLONS}`,
+        age: 0,
+      })
+    }
     creditWave(reef)
     clearCount++
     const ship = ships[seat]!
@@ -1178,8 +1436,50 @@ export function createRainbowPrincessPreview(
       })
       return
     }
-    if (reef.kind === 'eel' || reef.kind === 'cutter' || reef.kind === 'scrap')
+    if (
+      reef.kind === 'eel' ||
+      reef.kind === 'cutter' ||
+      reef.kind === 'scrap' ||
+      reef.kind === 'gate' ||
+      reef.kind === 'pylon' ||
+      reef.kind === 'brood'
+    )
       return
+    if (reef.kind === 'drone') {
+      enemyShots.push({
+        x: reef.x - 6,
+        y: reef.y,
+        vx: (dx / length) * 2.3,
+        vy: (dy / length) * 2.3,
+        grazed: 0,
+      })
+      return
+    }
+    if (reef.kind === 'turret') {
+      // A five-petal barrage at the target.
+      const theta = Math.atan2(dy, dx)
+      for (let i = -2; i <= 2; i++)
+        enemyShots.push({
+          x: reef.x - 6,
+          y: reef.y - 8,
+          vx: Math.cos(theta + i * 0.16) * 1.7,
+          vy: Math.sin(theta + i * 0.16) * 1.7,
+          grazed: 0,
+        })
+      return
+    }
+    if (reef.kind === 'bulwark') {
+      // A slow upright barrier sweeping out of the open window.
+      for (let row = -3; row <= 3; row++)
+        enemyShots.push({
+          x: reef.x - 10,
+          y: reef.y + row * 12,
+          vx: -1.15,
+          vy: row * 0.06,
+          grazed: 0,
+        })
+      return
+    }
     if (reef.kind === 'hammerhead') {
       // A missile from each fin pod still attached, curling in from above and below.
       for (const [bit, side] of [
@@ -1328,7 +1628,7 @@ export function createRainbowPrincessPreview(
 
   /** Bring on the Act's guardian once its section opens, unless it was already destroyed or escaped. */
   function summonGuardian(
-    act: 1 | 2 | 3 | 4 | 5,
+    act: 1 | 2 | 3 | 4 | 5 | 6,
     frame: number,
     section: RainbowGuardianSection,
   ) {
@@ -1423,6 +1723,14 @@ export function createRainbowPrincessPreview(
       pickups.length = 0
       escort = null
     }
+    const rested = restingFrames()
+    if (
+      rested !== null &&
+      (rested >= CROWN_REEF.restMaxFrames ||
+        (rested >= CROWN_REEF.restMinFrames &&
+          [input, ...seated].some((keys) => keys?.pressed.a)))
+    )
+      launchCrownReef()
     const docked = dockedFrames()
     if (
       docked !== null &&
@@ -1541,7 +1849,7 @@ export function createRainbowPrincessPreview(
         if (delphionCarryHp !== null)
           delphion.hp = Math.min(delphion.hp, delphionCarryHp)
       }
-    } else {
+    } else if (reefStart === null) {
       const frame = wreckFrame()
       const stage = wreckStage(frame, wreckDefeatedFrame)
       if (wreckDefeatedFrame === null) {
@@ -1573,6 +1881,40 @@ export function createRainbowPrincessPreview(
         )
         if (sawtoothCarryHp !== null)
           sawtooth.hp = Math.min(sawtooth.hp, sawtoothCarryHp)
+      }
+    } else {
+      const frame = reefFrame()
+      const stage = reefStage(frame, reefDefeatedFrame)
+      if (reefDefeatedFrame === null) {
+        // Route before checkpoint, so a checkpoint on the fork or rejoin frame keeps what it decided.
+        if (frame === CROWN_REEF_FORK.decideAt && reefRoute === null)
+          chooseReefRoute()
+        if (
+          frame === CROWN_REEF_FORK.rejoinAt &&
+          reefRoute !== null &&
+          !reefSettled
+        )
+          settleReefRoute()
+        passCheckpoint(6, frame)
+        summonGuardian(6, frame, CROWN_REEF_GUARDIAN)
+      }
+      if (stage === 'waves') {
+        for (const entry of reefSpawns(frame, reefRoute)) {
+          spawn(entry.kind, entry.y, entry.wave)
+        }
+      } else if (stage === 'turn' && frame === CROWN_REEF.turnStarts) {
+        reefs.length = 0
+        enemyShots.length = 0
+      } else if (
+        stage === 'boss' &&
+        !lanternRay &&
+        reefDefeatedFrame === null
+      ) {
+        lanternRay = createLanternRayBoss(
+          rainbowBossHp(LANTERN_RAY_MAX_HP, activePlayers),
+        )
+        if (lanternRayCarryHp !== null)
+          lanternRay.hp = Math.min(lanternRay.hp, lanternRayCarryHp)
       }
     }
 
@@ -1610,6 +1952,17 @@ export function createRainbowPrincessPreview(
             Math.sin(tick / 33 + seat) * (wreckRoute === 'depot' ? 34 : 14)
           ship.y += (lane - ship.y) * Math.min(1, wreckLead / 60)
         }
+        const reef = reefStart === null ? -1 : reefFrame()
+        const reefLead = Math.min(
+          reef - CROWN_REEF_FORK.markFrom,
+          CROWN_REEF_FORK.decideAt + 60 - reef,
+        )
+        if (reefLead >= 0) {
+          const lane =
+            (activePlayers % 2 === 1 ? 88 : 182) +
+            Math.sin(tick / 33 + seat) * 14
+          ship.y += (lane - ship.y) * Math.min(1, reefLead / 60)
+        }
       } else {
         const dx = Number(keys.held.right) - Number(keys.held.left)
         const dy = Number(keys.held.down) - Number(keys.held.up)
@@ -1644,6 +1997,17 @@ export function createRainbowPrincessPreview(
         reef.kind === 'scrap'
       ) {
         stepWreckCraft(reef)
+        continue
+      }
+      if (
+        reef.kind === 'brood' ||
+        reef.kind === 'drone' ||
+        reef.kind === 'turret' ||
+        reef.kind === 'bulwark' ||
+        reef.kind === 'gate' ||
+        reef.kind === 'pylon'
+      ) {
+        stepReefCraft(reef)
         continue
       }
       reef.x -=
@@ -1732,6 +2096,17 @@ export function createRainbowPrincessPreview(
         Math.max(0, sawtooth.summon - escorts),
       ))
         spawn('hammerhead', y, null)
+    }
+    if (lanternRay) {
+      enemyShots.push(
+        ...stepLanternRayBoss(lanternRay, ships.slice(0, activePlayers)),
+      )
+      // Each surviving nursery launches an interceptor, never more than four at once.
+      const drones = reefs.filter(
+        (reef) => reef.kind === 'drone' && reef.wave === null,
+      ).length
+      for (const y of lanternRay.launches.slice(0, Math.max(0, 4 - drones)))
+        spawn('drone', y, null)
     }
     for (let i = survivors.length - 1; i >= 0; i--) {
       const pod = survivors[i]!
@@ -1862,7 +2237,12 @@ export function createRainbowPrincessPreview(
             Math.abs(reef.y - shot.y) < EEL.half + 6
           : Math.abs(reef.x - shot.x) < 14 &&
             Math.abs(reef.y - shot.y) <
-              (reef.kind === 'hammerhead' || reef.kind === 'scrap' ? 20 : 13),
+              (reef.kind === 'hammerhead' ||
+              reef.kind === 'scrap' ||
+              reef.kind === 'bulwark' ||
+              reef.kind === 'pylon'
+                ? 20
+                : 13),
       )
       if (hitIndex >= 0) {
         shots.splice(si, 1)
@@ -1874,7 +2254,17 @@ export function createRainbowPrincessPreview(
         )
           continue
         // Wreck slabs soak every shot.
-        if (reef.kind === 'scrap') continue
+        if (reef.kind === 'scrap' || reef.kind === 'gate') continue
+        // A closed bulwark shell soaks every shot.
+        if (reef.kind === 'bulwark' && !bulwarkOpen(reef)) continue
+        // A reef turret's stem breaks at double damage.
+        if (reef.kind === 'turret' && shot.y > reef.y + 4) {
+          reef.health -= shot.damage
+          if (reef.health <= 0) {
+            defeat(hitIndex, shot.seat)
+            continue
+          }
+        }
         // A shot at a hammerhead's fin pod knocks that pod off instead of hurting the body.
         if (reef.kind === 'hammerhead') {
           const bit = shot.y < reef.y - 7 ? 1 : shot.y > reef.y + 7 ? 2 : 0
@@ -1966,6 +2356,44 @@ export function createRainbowPrincessPreview(
           continue
         }
       }
+      if (lanternRay && lanternRay.frame > 85) {
+        const beacon = lanternRayBeacon(lanternRay)
+        const onBeacon =
+          lanternRayExposed(lanternRay) &&
+          Math.hypot(shot.x - beacon.x, shot.y - beacon.y) <
+            LANTERN_RAY.beaconRadius
+        const nursery = lanternRayNurseries(lanternRay).findIndex(
+          (wing, i) =>
+            lanternRay!.nurseries[i]! > 0 &&
+            Math.hypot(shot.x - wing.x, shot.y - wing.y) <
+              LANTERN_RAY.nurseryRadius,
+        )
+        if (
+          onBeacon ||
+          nursery >= 0 ||
+          Math.hypot(shot.x - lanternRay.x, shot.y - lanternRay.y) <
+            LANTERN_RAY.bodyRadius
+        ) {
+          shots.splice(si, 1)
+          // A nursery takes the hit (and the hull with it); the exposed beacon takes double.
+          if (nursery >= 0) {
+            lanternRay.nurseries[nursery] = Math.max(
+              0,
+              lanternRay.nurseries[nursery]! - shot.damage,
+            )
+            if (lanternRay.nurseries[nursery] === 0)
+              popups.push({
+                x: lanternRay.x,
+                y: lanternRayNurseries(lanternRay)[nursery]!.y,
+                text: 'NURSERY OPEN',
+                age: 0,
+              })
+          }
+          lanternRay.hp -= shot.damage * (onBeacon ? 2 : 1)
+          if (lanternRay.hp <= 0) defeatLanternRay()
+          continue
+        }
+      }
     }
 
     for (let ei = reefs.length - 1; ei >= 0; ei--) {
@@ -1994,6 +2422,16 @@ export function createRainbowPrincessPreview(
       }
     }
 
+    if (lanternRay) {
+      for (const ship of livingShips()) {
+        if (
+          ship.invulnerable === 0 &&
+          Math.hypot(ship.x - lanternRay.x, ship.y - lanternRay.y) <
+            LANTERN_RAY.bodyRadius
+        )
+          hitShip(ship)
+      }
+    }
     if (sawtooth) {
       for (const ship of livingShips()) {
         if (
@@ -2122,7 +2560,9 @@ export function createRainbowPrincessPreview(
         enemies: reefs.map((reef) => ({ ...reef })),
         enemyShots: enemyShots.map((bullet) => ({ ...bullet })),
         pickups: pickups.map((pickup) => ({ ...pickup })),
-        act: (['S01', 'S02', 'S03', 'S04', 'S05'] as const)[currentAct() - 1]!,
+        act: (['S01', 'S02', 'S03', 'S04', 'S05', 'S06'] as const)[
+          currentAct() - 1
+        ]!,
         stage:
           currentAct() === 1
             ? pinkwakeStage(tick, defeatedAt)
@@ -2132,7 +2572,9 @@ export function createRainbowPrincessPreview(
                 ? trenchStage(trenchFrame(), trenchDefeatedFrame)
                 : currentAct() === 4
                   ? rosefinStage(rosefinFrame(), rosefinDefeatedFrame)
-                  : wreckStage(wreckFrame(), wreckDefeatedFrame),
+                  : currentAct() === 5
+                    ? wreckStage(wreckFrame(), wreckDefeatedFrame)
+                    : reefStage(reefFrame(), reefDefeatedFrame),
         sceneId:
           currentAct() === 1
             ? (pinkwakeScene(tick, defeatedAt)?.id ?? null)
@@ -2143,12 +2585,17 @@ export function createRainbowPrincessPreview(
                 : currentAct() === 4
                   ? (rosefinScene(rosefinFrame(), rosefinDefeatedFrame)?.id ??
                     null)
-                  : (wreckScene(wreckFrame(), wreckDefeatedFrame)?.id ?? null),
+                  : currentAct() === 5
+                    ? (wreckScene(wreckFrame(), wreckDefeatedFrame)?.id ?? null)
+                    : (reefScene(reefFrame(), reefDefeatedFrame)?.id ?? null),
         boss: boss ? { ...boss } : null,
         moonBoss: moonBoss ? { ...moonBoss } : null,
         clawBoss: clawBoss ? { ...clawBoss } : null,
         delphion: delphion ? { ...delphion } : null,
         sawtooth: sawtooth ? { ...sawtooth } : null,
+        lanternRay: lanternRay
+          ? { ...lanternRay, nurseries: [...lanternRay.nurseries] }
+          : null,
         guardian: guardian ? { ...guardian } : null,
         guardians: { ...guardians },
         rescuedNemi,
@@ -2158,6 +2605,14 @@ export function createRainbowPrincessPreview(
         actThreeFrame: trenchFrame(),
         actFourFrame: rosefinFrame(),
         actFiveFrame: wreckFrame(),
+        actSixFrame: reefFrame(),
+        resting: restingFrames(),
+        reefRoute,
+        pylonsDown,
+        stoppedRelay:
+          reefRoute === 'relay' &&
+          reefSettled &&
+          pylonsDown >= CROWN_REEF_PYLONS,
         wreckRoute,
         podsSaved,
         survivors: survivors.map((pod) => ({ ...pod })),
@@ -2185,6 +2640,7 @@ export function createRainbowPrincessPreview(
         ['#0b0626', '#2a1a55', '#7a2f52'],
         ['#160a3a', '#4f2470', '#c9649e'],
         ['#140a24', '#4a2440', '#b86a78'],
+        ['#160f08', '#5e4418', '#d9a54c'],
       ][currentAct() - 1]!
       sky.addColorStop(0, palette[0]!)
       sky.addColorStop(0.55, palette[1]!)
@@ -2213,7 +2669,32 @@ export function createRainbowPrincessPreview(
         g.ellipse(x, 244 + Math.sin(i) * 12, 56, 25, 0, 0, Math.PI * 2)
         g.fill()
       }
-      if (wreckStart !== null) {
+      if (reefStart !== null) {
+        // Crown Reef: gold nebula, coral megastructure arches and bioluminescent motes.
+        const frame = reefFrame()
+        for (let plane = 0; plane < 3; plane++) {
+          const speed = 0.14 + plane * 0.24
+          g.strokeStyle = ['#ffd27a40', '#ffb35a66', '#ff9fd888'][plane]!
+          g.lineWidth = 6 + plane * 3
+          for (let i = 0; i < 3; i++) {
+            const x =
+              ((((i * 260 + plane * 90 - frame * speed) % 780) + 780) % 780) -
+              120
+            const r = 70 + plane * 22 + ((i * 31) % 30)
+            g.beginPath()
+            g.arc(x, H + 10, r, Math.PI, 2 * Math.PI)
+            g.stroke()
+          }
+        }
+        g.fillStyle = '#c7ffe6'
+        for (let i = 0; i < 18; i++) {
+          const x = ((((i * 61 - frame * 0.4) % 520) + 520) % 520) - 20
+          const y = 50 + ((i * 47) % 170) + Math.sin(frame / 50 + i) * 6
+          g.globalAlpha = 0.35 + 0.3 * Math.sin(frame / 25 + i * 1.3)
+          g.fillRect(x, y, 2, 2)
+        }
+        g.globalAlpha = 1
+      } else if (wreckStart !== null) {
         // Blossom Wreckyard: petal-hull wreck slabs at three depths and dock cranes against a rust sky.
         const frame = wreckFrame()
         for (let plane = 0; plane < 3; plane++) {
@@ -2350,7 +2831,9 @@ export function createRainbowPrincessPreview(
       g.globalAlpha = 0.92
       drawRainbowStageStrip(
         g,
-        (['s01', 's02', 's03', 's04', 's05'] as const)[currentAct() - 1]!,
+        (['s01', 's02', 's03', 's04', 's05', 's06'] as const)[
+          currentAct() - 1
+        ]!,
         actFrame(currentAct()) * STRIP_SPEED,
         H - STRIP_HEIGHT,
         STRIP_HEIGHT,
@@ -2432,6 +2915,45 @@ export function createRainbowPrincessPreview(
           }
           g.restore()
         }
+        if (reef.kind === 'gate' || reef.kind === 'pylon') {
+          g.save()
+          g.translate(reef.x, reef.y)
+          if (reef.kind === 'gate') {
+            // A coral gate pillar.
+            g.fillStyle = '#c4566e'
+            g.strokeStyle = '#ffd27a'
+            g.lineWidth = 1.5
+            g.beginPath()
+            g.roundRect(-9, -16, 18, 32, 7)
+            g.fill()
+            g.stroke()
+            g.fillStyle = '#ff9fd8'
+            g.beginPath()
+            g.arc(0, -8, 3, 0, Math.PI * 2)
+            g.arc(2, 6, 2.5, 0, Math.PI * 2)
+            g.fill()
+          } else {
+            // A relay pylon, its signal light pulsing.
+            g.fillStyle = '#4a3a6a'
+            g.strokeStyle = '#ffd27a'
+            g.lineWidth = 2
+            g.beginPath()
+            g.moveTo(-8, 18)
+            g.lineTo(-3, -16)
+            g.lineTo(3, -16)
+            g.lineTo(8, 18)
+            g.closePath()
+            g.fill()
+            g.stroke()
+            g.fillStyle = '#ffd27a'
+            g.globalAlpha = 0.6 + 0.4 * Math.sin(tick / 6)
+            g.beginPath()
+            g.arc(0, -19, 5, 0, Math.PI * 2)
+            g.fill()
+          }
+          g.restore()
+          continue
+        }
         if (reef.kind !== 'scrap') continue
         g.save()
         g.translate(reef.x, reef.y)
@@ -2456,10 +2978,17 @@ export function createRainbowPrincessPreview(
         g.restore()
       }
       for (const reef of reefs) {
-        if (reef.kind === 'scrap') continue
+        if (
+          reef.kind === 'scrap' ||
+          reef.kind === 'gate' ||
+          reef.kind === 'pylon'
+        )
+          continue
         g.save()
         g.translate(reef.x, reef.y)
         if (reef.kind === 'eel') g.rotate(-Math.PI / 2)
+        if (reef.kind === 'brood') g.scale(1.6, 1.6)
+        if (reef.kind === 'drone') g.scale(0.65, 0.65)
         g.shadowColor = reef.kind === 'urchin' ? '#ffe38a' : '#ffa3e6'
         g.shadowBlur = 12
         g.fillStyle =
@@ -2478,7 +3007,11 @@ export function createRainbowPrincessPreview(
                       : reef.kind === 'coral'
                         ? '#e4c0ff'
                         : '#d09ffd'
-        if (!drawRainbowEnemySprite(g, reef.kind)) {
+        if (
+          !drawRainbowEnemySprite(g, reef.kind) &&
+          !(reef.kind === 'brood' && drawRainbowEnemySprite(g, 'skate')) &&
+          !(reef.kind === 'drone' && drawRainbowEnemySprite(g, 'skimmer'))
+        ) {
           g.beginPath()
           g.ellipse(
             0,
@@ -2500,6 +3033,45 @@ export function createRainbowPrincessPreview(
           g.moveTo(9, -5)
           g.quadraticCurveTo(23, -15, 17, -22)
           g.stroke()
+        }
+        if (reef.kind === 'brood' && reef.charge) {
+          // The wing shadow before the drones launch.
+          g.fillStyle = '#100820'
+          g.globalAlpha = 0.5
+          g.beginPath()
+          g.ellipse(0, 4, 26, 12, 0, 0, Math.PI * 2)
+          g.fill()
+          g.globalAlpha = 1
+        }
+        if (reef.kind === 'turret' && reef.charge) {
+          // The flower unfolds over the warning.
+          const open = 1 - reef.charge / TURRET.unfoldFrames
+          g.fillStyle = '#ffb3e6'
+          for (let petal = 0; petal < 5; petal++) {
+            const theta = (petal / 5) * Math.PI * 2
+            g.beginPath()
+            g.ellipse(
+              Math.cos(theta) * 6 * open,
+              -10 + Math.sin(theta) * 6 * open,
+              4,
+              2 + 3 * open,
+              theta,
+              0,
+              Math.PI * 2,
+            )
+            g.fill()
+          }
+        }
+        if (reef.kind === 'bulwark' && reef.dive !== undefined) {
+          const cycle = reef.dive % BULWARK.cycle
+          if (cycle >= BULWARK.glowFrom) {
+            // The shell glows before the window opens, and the spiral eye shows while it is open.
+            g.strokeStyle = cycle >= BULWARK.openFrom ? '#ff7ad9' : '#fff49c'
+            g.lineWidth = 2.5
+            g.beginPath()
+            g.arc(-4, 0, cycle >= BULWARK.openFrom ? 9 : 14, 0, Math.PI * 2)
+            g.stroke()
+          }
         }
         if (reef.kind === 'hammerhead') {
           // The fin pods still attached; they glow while they lock.
@@ -2833,6 +3405,96 @@ export function createRainbowPrincessPreview(
         g.font = 'bold 8px monospace'
         g.fillStyle = '#fff4c4'
         g.fillText('B02 AURELIA ARRAY', 240, 53)
+        g.textAlign = 'left'
+      }
+      if (lanternRay) {
+        const warn = lanternRayWarning(lanternRay)
+        const exposed = lanternRayExposed(lanternRay)
+        if (warn && lanternRay.phase === 1) {
+          // Two broad shadow lanes, dark for the whole warning; the pellet walls race down them.
+          g.save()
+          g.fillStyle = '#0a0414'
+          g.globalAlpha = 0.45 + 0.1 * Math.sin(lanternRay.frame / 3)
+          for (const lane of lanternRay.lanes)
+            g.fillRect(
+              0,
+              lane - LANTERN_RAY.laneHalf,
+              W,
+              LANTERN_RAY.laneHalf * 2,
+            )
+          g.restore()
+        }
+        g.save()
+        g.translate(lanternRay.x, lanternRay.y)
+        g.shadowColor = exposed ? '#ff7ad9' : warn ? '#fff49c' : '#ffd27a'
+        g.shadowBlur = warn || exposed ? 24 : 10
+        if (!drawRainbowBossSprite(g, 'b06', lanternRay.phase, 0, 0, 150)) {
+          g.fillStyle = '#2a3a6a'
+          g.beginPath()
+          g.ellipse(0, 0, 60, 24, 0, 0, Math.PI * 2)
+          g.fill()
+        }
+        g.shadowBlur = 0
+        for (const [i, side] of [-1, 1].entries()) {
+          if (lanternRay.nurseries[i]! <= 0) continue
+          // A wing nursery: shoot it off and it stops launching drones.
+          g.fillStyle = '#ffd27a'
+          g.strokeStyle = '#7a3a1a'
+          g.lineWidth = 2
+          g.beginPath()
+          g.arc(
+            10,
+            side * LANTERN_RAY.nurseryOffset,
+            LANTERN_RAY.nurseryRadius - 3,
+            0,
+            Math.PI * 2,
+          )
+          g.fill()
+          g.stroke()
+        }
+        if (warn) {
+          g.strokeStyle = '#fffbb6'
+          g.lineWidth = 4
+          g.globalAlpha = 0.75 + 0.25 * Math.sin(lanternRay.frame / 3)
+          g.beginPath()
+          g.arc(0, 0, LANTERN_RAY.bodyRadius + 8, 0, Math.PI * 2)
+          g.stroke()
+          g.globalAlpha = 1
+        }
+        if (exposed) {
+          g.strokeStyle = '#ff7ad9'
+          g.lineWidth = 3
+          g.beginPath()
+          g.arc(
+            0,
+            LANTERN_RAY.beaconOffset,
+            LANTERN_RAY.beaconRadius + 2 * Math.sin(lanternRay.frame / 2),
+            0,
+            Math.PI * 2,
+          )
+          g.stroke()
+        }
+        g.restore()
+        g.fillStyle = '#2a0f30'
+        g.fillRect(148, 30, 184, 14)
+        g.fillStyle = '#ffd27a'
+        g.fillRect(
+          150,
+          32,
+          180 * Math.max(0, lanternRay.hp / lanternRay.maxHp),
+          10,
+        )
+        g.strokeStyle = '#fff4c4'
+        g.lineWidth = 1
+        g.strokeRect(148, 30, 184, 14)
+        g.textAlign = 'center'
+        g.font = 'bold 8px monospace'
+        g.fillStyle = '#fff4c4'
+        g.fillText(
+          exposed ? 'B06 LANTERN RAY · BEACON OPEN' : 'B06 LANTERN RAY',
+          240,
+          41,
+        )
         g.textAlign = 'left'
       }
       if (sawtooth) {
@@ -3282,7 +3944,9 @@ export function createRainbowPrincessPreview(
       const act = currentAct()
       const introFrame = actFrame(act)
       if (introFrame < INTRO_FRAMES && (moonStart !== null || !defeatedAt)) {
-        const stage = (['s01', 's02', 's03', 's04', 's05'] as const)[act - 1]!
+        const stage = (['s01', 's02', 's03', 's04', 's05', 's06'] as const)[
+          act - 1
+        ]!
         const top = 33 + Math.max(0, activePlayers - 1) * 10 + 60
         g.save()
         g.globalAlpha =
@@ -3304,6 +3968,7 @@ export function createRainbowPrincessPreview(
             'CHROMATIC TRENCH',
             'ROSEFIN EXPRESS',
             'BLOSSOM WRECKYARD',
+            'CROWN REEF',
           ][act - 1]!,
           W / 2,
           bandY + 19,
@@ -3321,6 +3986,7 @@ export function createRainbowPrincessPreview(
           'ACT III / TRENCH',
           'ACT IV / EXPRESS',
           'ACT V / WRECKYARD',
+          'ACT VI / CROWN REEF',
         ][act - 1]!,
         HUD_LEFT,
         12,
@@ -3352,43 +4018,53 @@ export function createRainbowPrincessPreview(
               ? trenchScene(trenchFrame(), trenchDefeatedFrame)
               : act === 4
                 ? rosefinScene(rosefinFrame(), rosefinDefeatedFrame)
-                : wreckScene(wreckFrame(), wreckDefeatedFrame)
+                : act === 5
+                  ? wreckScene(wreckFrame(), wreckDefeatedFrame)
+                  : reefScene(reefFrame(), reefDefeatedFrame)
       const dialogue = scene
-        ? act === 5
-          ? wreckDialogue(
-              scene.id as WreckSceneId,
+        ? act === 6
+          ? reefDialogue(
+              scene.id as ReefSceneId,
               scene.elapsed,
               activePlayers,
-              wreckRoute,
-              wreckRoute === 'depot' && podsSaved >= WRECK_FORK.podsToFree,
+              reefRoute,
+              reefRoute === 'relay' && pylonsDown >= CROWN_REEF_PYLONS,
             )
-          : act === 4
-            ? rosefinDialogue(
-                scene.id as RosefinSceneId,
+          : act === 5
+            ? wreckDialogue(
+                scene.id as WreckSceneId,
                 scene.elapsed,
                 activePlayers,
-                rescuedCourier,
+                wreckRoute,
+                wreckRoute === 'depot' && podsSaved >= WRECK_FORK.podsToFree,
               )
-            : act === 3
-              ? trenchDialogue(
-                  scene.id as TrenchSceneId,
+            : act === 4
+              ? rosefinDialogue(
+                  scene.id as RosefinSceneId,
                   scene.elapsed,
                   activePlayers,
-                  trenchRoute,
+                  rescuedCourier,
                 )
-              : act === 1
-                ? pinkwakeDialogue(
-                    scene.id as 'A01.OPEN' | 'A01.TURN' | 'A01.AFTER',
+              : act === 3
+                ? trenchDialogue(
+                    scene.id as TrenchSceneId,
                     scene.elapsed,
                     activePlayers,
-                    rescuedStation,
+                    trenchRoute,
                   )
-                : moonjellyDialogue(
-                    scene.id as 'A02.OPEN' | 'A02.TURN' | 'A02.AFTER',
-                    scene.elapsed,
-                    activePlayers,
-                    rescuedNemi,
-                  )
+                : act === 1
+                  ? pinkwakeDialogue(
+                      scene.id as 'A01.OPEN' | 'A01.TURN' | 'A01.AFTER',
+                      scene.elapsed,
+                      activePlayers,
+                      rescuedStation,
+                    )
+                  : moonjellyDialogue(
+                      scene.id as 'A02.OPEN' | 'A02.TURN' | 'A02.AFTER',
+                      scene.elapsed,
+                      activePlayers,
+                      rescuedNemi,
+                    )
         : null
       const commsTop = 33 + Math.max(0, activePlayers - 1) * 10
       if (dialogue) {
@@ -3430,10 +4106,25 @@ export function createRainbowPrincessPreview(
           g.fillText(lines[line]!, textX, commsTop + 30 + line * 12)
         }
       } else if (
-        wreckDefeatedFrame !== null &&
-        wreckFrame() - wreckDefeatedFrame >= WRECK.aftermathFrames
+        reefDefeatedFrame !== null &&
+        reefFrame() - reefDefeatedFrame >= CROWN_REEF.aftermathFrames
       ) {
-        // ACT-STRUCTURE: Act V ends on a recovery and memorial tableau.
+        // ACT-STRUCTURE: Act VI runs straight on into the Glass Current, which is still to come.
+        g.fillStyle = '#180d38d9'
+        g.fillRect(40, commsTop, W - 80, 33)
+        g.fillStyle = '#ffe2a8'
+        g.textAlign = 'center'
+        g.font = 'bold 11px monospace'
+        g.fillText('NURSERY OPEN · ACT VI PREVIEW CLEAR', W / 2, commsTop + 19)
+        g.font = '8px monospace'
+        g.fillText(
+          `${reefRoute === 'relay' ? (pylonsDown >= CROWN_REEF_PYLONS ? 'Relay stopped' : 'Relay still live') : 'Shield cache taken'} · Glass Current (Act VII) in production`,
+          W / 2,
+          commsTop + 30,
+        )
+        g.textAlign = 'left'
+      } else if (restingFrames() !== null) {
+        // ACT-STRUCTURE: Act V ends on a recovery and memorial tableau, the second quiet intermission.
         g.fillStyle = '#180d38d9'
         g.fillRect(40, commsTop, W - 80, 33)
         g.fillStyle = '#ffd1ec'
@@ -3446,7 +4137,9 @@ export function createRainbowPrincessPreview(
         )
         g.font = '8px monospace'
         g.fillText(
-          `A memorial for the lost ships · ${wreckRoute === 'depot' ? `${podsSaved} survivors home` : 'armory raided'} · Crown Reef (Act VI) in production`,
+          restingFrames()! >= CROWN_REEF.restMinFrames
+            ? `Shields +1 at launch · PRESS A for the Crown Reef (${Math.ceil((CROWN_REEF.restMaxFrames - restingFrames()!) / 60)})`
+            : `A memorial for the lost ships · ${wreckRoute === 'depot' ? `${podsSaved} survivors home` : 'armory raided'}`,
           W / 2,
           commsTop + 30,
         )
@@ -3487,6 +4180,49 @@ export function createRainbowPrincessPreview(
           commsTop + 30,
         )
         g.textAlign = 'left'
+      }
+      if (act === 6 && reefDefeatedFrame === null) {
+        const frame = reefFrame()
+        if (
+          frame >= CROWN_REEF_FORK.markFrom &&
+          frame < CROWN_REEF_FORK.decideAt
+        ) {
+          // The fork: the relay above the line, the shield cache below it.
+          g.save()
+          g.globalAlpha = 0.6 + 0.25 * Math.sin(frame / 8)
+          g.strokeStyle = '#ffe2fa'
+          g.lineWidth = 1
+          g.setLineDash([8, 6])
+          g.beginPath()
+          g.moveTo(W - 170, CROWN_REEF_FORK.splitY)
+          g.lineTo(W, CROWN_REEF_FORK.splitY)
+          g.stroke()
+          g.setLineDash([])
+          g.font = 'bold 9px monospace'
+          g.textAlign = 'right'
+          g.fillStyle = '#ffd27a'
+          g.fillText('▲ DAMAGE RELAY', W - 8, CROWN_REEF_FORK.splitY - 8)
+          g.fillStyle = '#9ff3ff'
+          g.fillText('▼ SHIELD CACHE', W - 8, CROWN_REEF_FORK.splitY + 16)
+          g.restore()
+        } else if (
+          reefRoute !== null &&
+          frame >= CROWN_REEF_FORK.decideAt &&
+          frame < CROWN_REEF_FORK.rejoinAt
+        ) {
+          g.save()
+          g.font = '8px monospace'
+          g.textAlign = 'right'
+          g.fillStyle = reefRoute === 'relay' ? '#ffd27a' : '#9ff3ff'
+          g.fillText(
+            reefRoute === 'relay'
+              ? `ROUTE · DAMAGE RELAY · PYLONS ${pylonsDown}/${CROWN_REEF_PYLONS}`
+              : 'ROUTE · SHIELD CACHE',
+            W - 8,
+            H - 8,
+          )
+          g.restore()
+        }
       }
       if (act === 5 && wreckDefeatedFrame === null) {
         const frame = wreckFrame()
@@ -3655,11 +4391,17 @@ export function createRainbowPrincessPreview(
                       ROSEFIN.bossStarts,
                       checkpoint.frame,
                     )
-                  : checkpointLabel(
-                      WRECK_SECTIONS,
-                      WRECK.bossStarts,
-                      checkpoint.frame,
-                    )
+                  : checkpoint.act === 5
+                    ? checkpointLabel(
+                        WRECK_SECTIONS,
+                        WRECK.bossStarts,
+                        checkpoint.frame,
+                      )
+                    : checkpointLabel(
+                        CROWN_REEF_SECTIONS,
+                        CROWN_REEF.bossStarts,
+                        checkpoint.frame,
+                      )
         g.save()
         g.fillStyle = '#0c0620d0'
         g.fillRect(0, 0, W, H)

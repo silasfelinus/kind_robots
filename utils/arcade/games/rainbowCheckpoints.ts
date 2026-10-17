@@ -12,7 +12,7 @@ export const RAINBOW_CONTINUE = {
 } as const
 
 export type RainbowCheckpoint = {
-  act: 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8
+  act: 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9
   /** The Act frame the run resumes from: Act I's tick, or a later Act's frame since it began. */
   frame: number
   score: number
@@ -75,6 +75,7 @@ export function resumeTick(
   actSixStart: number | null = null,
   actSevenStart: number | null = null,
   actEightStart: number | null = null,
+  finaleStart: number | null = null,
 ): number {
   if (checkpoint.act === 1) return Math.max(0, checkpoint.frame - 1)
   const start =
@@ -90,7 +91,9 @@ export function resumeTick(
               ? actSixStart
               : checkpoint.act === 7
                 ? actSevenStart
-                : actEightStart
+                : checkpoint.act === 8
+                  ? actEightStart
+                  : finaleStart
   return (start ?? 0) + checkpoint.frame - 1
 }
 

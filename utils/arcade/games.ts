@@ -812,7 +812,7 @@ export const PREVIEW_GAMES: ArcadeGameMeta[] = [
     title: 'Rainbow Bullet Hell Space Princess',
     riffsOn: 'cinematic side-scrolling shmups',
     blurb:
-      'Private eight-Act preview: Pinkwake Estuary, Moonjelly Fields, the Chromatic Trench, the Rosefin Express, the Blossom Wreckyard, the Crown Reef, the Glass Current and the Eclipse Palace, eight bosses, eight guardians, route choices, rescues, checkpoints and one to four numbered local pilots. The finale, endings and credits are still to come.',
+      'Private preview of the whole campaign: eight Acts from Pinkwake Estuary to the Eclipse Palace and the Eclipse Crown finale, nine bosses, eight guardians, route choices, rescues, a final choice with three endings, credits and one to four numbered local pilots.',
     howTo: [
       'ARROWS  FLY',
       'HOLD A  FIRE',

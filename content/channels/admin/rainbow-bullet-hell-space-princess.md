@@ -4,8 +4,8 @@ channelKey: admin
 tabKey: rainbow-bullet-hell-space-princess
 label: Space Princess
 title: Rainbow Bullet Hell Space Princess
-subtitle: Eight-Act campaign preview, from the Pinkwake Estuary to the Eclipse Palace
-description: A private eight-Act Rainbow Bullet Hell Space Princess preview with Pinkwake, Moonjelly Fields, the Chromatic Trench, the Rosefin Express, the Blossom Wreckyard, the Crown Reef, the Glass Current, the Eclipse Palace, eight bosses, eight guardians, route choices, optional rescues, checkpoints and 1–4 local pilots.
+subtitle: The whole campaign, from the Pinkwake Estuary to the Eclipse Crown
+description: A private Rainbow Bullet Hell Space Princess preview of the whole campaign, with Pinkwake, Moonjelly Fields, the Chromatic Trench, the Rosefin Express, the Blossom Wreckyard, the Crown Reef, the Glass Current, the Eclipse Palace and the Eclipse Crown finale, nine bosses, eight guardians, a final choice with three endings, route choices, optional rescues, checkpoints and 1–4 local pilots.
 summary: Fly the pastel nebula with friends.
 icon: kind-icon:rocket
 route: /admin/rainbow-bullet-hell-space-princess
@@ -45,6 +45,9 @@ tutorial:
     Eclipse Palace
     Act VIII climbs the heart spires of the Eclipse Palace under an eclipsed sun. Craft from every earlier Act return in elite formations, each still giving its own warning. The palace's captive armada drifts through in glowing collars: a captive is never your enemy, and its hull soaks every shot. Shoot the collar above it to free it, or let it drift; a Nova breaks every collar on screen. After the Herald guardian, the crew holds a council on how to free the captives without erasing them, and the friends you rescued earlier answer: the navigator, Nemi's colony, the courier, the depot survivors and a stopped relay each add a shield and charge. B08 Prism Leviathan rolls a tidal wall of pellets with one marked gap, then fires from four spire locks on its back that you can shoot off, and finally opens its forehead gem to double damage after each pair of rings. Free it and the whole whale fleet swims home.
 
+    Finale: the Eclipse Crown
+    The palace opens straight onto the machine nerve halo at the Crown's heart. "You were made to keep them safe," says the Crown. "Yes," Lilt answers. "Not to keep them still." B09 Eclipse Crown first marks six spokes for the whole warning and fires down them; the wide wedges between are safe, and the spokes turn a little every volley. Below half its hull, the heart breaks loose and drifts in a slow figure of eight: now only the heart takes damage, while the crown fires rings with a gap that walks round. When the heart is spent the Crown falls silent and the crew makes the final choice by where it flies: high to restore its first rule, through the middle to evacuate everyone, or low to sever its control. Then the heart collapses and the crew escapes through prism corridors that narrow as they go. The ending is composed from your choice, the six rescues you made along the way and the pilots who flew, and the credits name everyone you saved. No pilot has to die, and every choice is a full ending.
+
     Guardians
     Midway through each Act a guardian takes the screen alone: a giant pearl urchin in Pinkwake, a giant lantern in Moonjelly Fields, a clawstrike in the Chromatic Trench, a cargo courier on the Rosefin Express, an octopus salvager in the Blossom Wreckyard, a nautilus bulwark in the Crown Reef, a mirror guardian in the Glass Current and a crown herald in the Eclipse Palace. Its ring glows before every volley. The urchin fires a ring of pearls with a gap that moves round each time; the lantern fires two fans that leave the lane straight at you open; the courier lobs cargo mines that burst into rings; the salvager throws lines of pellets along four arms that turn every volley; the bulwark sweeps a fan one way, then back; the mirror guardian's fan is half phantom light, so read the solid pellets; the herald alternates bolts down marked lanes with a gapped ring. Destroy it before it escapes for a 1,500-point bonus and a power, shield and charge pickup. If the whole crew falls during its section, it returns with the continue.
 
@@ -55,7 +58,7 @@ tutorial:
     Each boss hull grows with the crew, and each extra pilot adds more than the first, so four powered-up pilots stacking supers still fight through all three phases. Phases turn at two thirds and one third of the hull. A clean solo run of each Act takes about ten minutes; a first clear with continues takes twelve to fifteen, and a crew of four finishes each in about ten to eleven.
 
     Future campaign
-    Eight Acts are planned in total: Pinkwake, Moonjelly Fields, Chromatic Trench, Rosefin Express, Blossom Wreckyard, Crown Reef, Glass Current and Eclipse Palace, followed by the final confrontation. Acts I to VIII are playable today at their full 10–15-minute pacing; the cinematics, the final confrontation, the endings and online co-op are still in production. This is an admin-only rehearsal, not a public leaderboard release.
+    Eight Acts are planned in total: Pinkwake, Moonjelly Fields, Chromatic Trench, Rosefin Express, Blossom Wreckyard, Crown Reef, Glass Current and Eclipse Palace, followed by the final confrontation. All eight Acts and the finale are playable today, Act I to THE END; the cinematic ending boards, voice and online co-op are still in production. This is an admin-only rehearsal, not a public leaderboard release.
 ---
 
 The pastel starport is a private development page with a real Arcade-powered

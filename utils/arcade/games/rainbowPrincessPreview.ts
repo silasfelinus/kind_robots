@@ -209,6 +209,32 @@ import {
   type PrismLeviathanBoss,
 } from './rainbowPrismLeviathan'
 import {
+  ECLIPSE_CROWN,
+  ECLIPSE_CROWN_MAX_HP,
+  ECLIPSE_ESCAPE,
+  createEclipseCrownBoss,
+  eclipseCrownSpokes,
+  eclipseCrownWarning,
+  eclipseEscapeGapY,
+  eclipseEscapeWall,
+  stepEclipseCrownBoss,
+  type EclipseCrownBoss,
+} from './rainbowEclipseCrown'
+import {
+  FINALE,
+  FINALE_ENDING_FRAMES,
+  FINALE_LANES,
+  FINALE_SECTIONS,
+  finaleChoiceFor,
+  finaleCredits,
+  finaleDialogue,
+  finaleScene,
+  finaleStage,
+  type FinaleChoice,
+  type FinaleFlags,
+  type FinaleSceneId,
+} from './rainbowEclipseFinale'
+import {
   CLAWBURST_MAX_HP,
   clawburstExposed,
   clawburstWarning,
@@ -274,9 +300,11 @@ const ACT_NUMERALS = [
   'ACT VI',
   'ACT VII',
   'ACT VIII',
+  'FINALE',
 ] as const
 const ACT_SEVEN_CHECKPOINTS = actCheckpoints(GLASS_SECTIONS, GLASS.bossStarts)
 const ACT_EIGHT_CHECKPOINTS = actCheckpoints(PALACE_SECTIONS, PALACE.bossStarts)
+const FINALE_CHECKPOINTS = actCheckpoints(FINALE_SECTIONS, FINALE.bossStarts)
 /** E23 crystal squids glint for this long, then fire a pellet that splits in three after its fuse. */
 const SQUID = { glintFrames: 36, splitFuse: 60 } as const
 /** E24 harbingers warm their prism, then alternate a lane bolt and a ring bubble. */
@@ -466,7 +494,7 @@ export type RainbowCombatSnapshot = {
   enemies: ReadonlyArray<Readonly<Reef>>
   enemyShots: ReadonlyArray<Readonly<EnemyShot>>
   pickups: ReadonlyArray<Readonly<Pickup>>
-  act: 'S01' | 'S02' | 'S03' | 'S04' | 'S05' | 'S06' | 'S07' | 'S08'
+  act: 'S01' | 'S02' | 'S03' | 'S04' | 'S05' | 'S06' | 'S07' | 'S08' | 'S09'
   stage:
     | ReturnType<typeof pinkwakeStage>
     | ReturnType<typeof moonjellyStage>
@@ -476,6 +504,7 @@ export type RainbowCombatSnapshot = {
     | ReturnType<typeof reefStage>
     | ReturnType<typeof glassStage>
     | ReturnType<typeof palaceStage>
+    | ReturnType<typeof finaleStage>
   sceneId:
     | 'A01.OPEN'
     | 'A01.TURN'
@@ -492,6 +521,7 @@ export type RainbowCombatSnapshot = {
     | ReefSceneId
     | GlassSceneId
     | PalaceSceneId
+    | FinaleSceneId
     | null
   boss: Readonly<PinkwakeBoss> | null
   moonBoss: Readonly<MoonjellyBoss> | null
@@ -501,6 +531,7 @@ export type RainbowCombatSnapshot = {
   lanternRay: Readonly<LanternRayBoss> | null
   glassEel: Readonly<GlassEelBoss> | null
   leviathan: Readonly<PrismLeviathanBoss> | null
+  crown: Readonly<EclipseCrownBoss> | null
   guardian: Readonly<RainbowGuardian> | null
   /** Each Act's guardian: still to come (or in play), destroyed, or escaped. */
   guardians: Readonly<Record<1 | 2 | 3 | 4 | 5 | 6 | 7 | 8, GuardianOutcome>>
@@ -537,6 +568,12 @@ export type RainbowCombatSnapshot = {
   /** Act VIII's captives freed so far, and the allies earlier rescues bring to the council. */
   captivesFreed: number
   allies: readonly string[]
+  /** The finale: its clock, the choice window and the escape (frames in, or null), and the choice made. */
+  finaleFrame: number
+  choiceFrame: number | null
+  escapeFrame: number | null
+  endingFrame: number | null
+  finalChoice: FinaleChoice | null
   /** Frames the crew has rested at Act III's salvage dock, or null when not docked. */
   docked: number | null
   rescuedStation: boolean
@@ -648,6 +685,13 @@ export function createRainbowPrincessPreview(
   let leviathanCarryHp: number | null = null
   let palaceDefeatedFrame: number | null = null
   let captivesFreed = 0
+  let finaleStart: number | null = null
+  let crown: EclipseCrownBoss | null = null
+  let crownCarryHp: number | null = null
+  let choiceFrame: number | null = null
+  let escapeFrame: number | null = null
+  let endingFrame: number | null = null
+  let finalChoice: FinaleChoice | null = null
   let rescuedNemi = false
   let trenchRoute: TrenchRoute | null = null
   let routeSettled = false
@@ -699,25 +743,30 @@ export function createRainbowPrincessPreview(
   function palaceFrame() {
     return palaceStart === null ? 0 : tick - palaceStart
   }
-  function currentAct(): 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 {
-    return palaceStart !== null
-      ? 8
-      : glassStart !== null
-        ? 7
-        : reefStart !== null
-          ? 6
-          : wreckStart !== null
-            ? 5
-            : rosefinStart !== null
-              ? 4
-              : trenchStart !== null
-                ? 3
-                : moonStart !== null
-                  ? 2
-                  : 1
+  function finaleFrame() {
+    return finaleStart === null ? 0 : tick - finaleStart
+  }
+  function currentAct(): 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 {
+    return finaleStart !== null
+      ? 9
+      : palaceStart !== null
+        ? 8
+        : glassStart !== null
+          ? 7
+          : reefStart !== null
+            ? 6
+            : wreckStart !== null
+              ? 5
+              : rosefinStart !== null
+                ? 4
+                : trenchStart !== null
+                  ? 3
+                  : moonStart !== null
+                    ? 2
+                    : 1
   }
   /** The Act's own clock: Act I runs on the global tick, later Acts count from their first frame. */
-  function actFrame(act: 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8) {
+  function actFrame(act: 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9) {
     return act === 1
       ? tick
       : act === 2
@@ -732,7 +781,16 @@ export function createRainbowPrincessPreview(
                 ? reefFrame()
                 : act === 7
                   ? glassFrame()
-                  : palaceFrame()
+                  : act === 8
+                    ? palaceFrame()
+                    : finaleFrame()
+  }
+  /** The six rescue flags and the armada count, for the ending and the credits. */
+  function finaleFlags(): FinaleFlags {
+    return {
+      ...palaceFlags(),
+      securedSalvage: trenchRoute === 'vault' && routeSettled,
+    }
   }
   /** What the crew carries into the palace from earlier Acts. */
   function palaceFlags(): PalaceFlags {
@@ -805,6 +863,32 @@ export function createRainbowPrincessPreview(
       age: 0,
     })
     options.sound.play('pickup')
+  }
+
+  /** The Crown's heart is spent: its weapons fall silent and the final choice opens. */
+  function subdueCrown() {
+    if (!crown) return
+    crown = null
+    choiceFrame = 0
+    enemyShots.length = 0
+    score += 9000
+    for (const ship of ships.slice(0, activePlayers))
+      ship.invulnerable = Math.max(ship.invulnerable, 240)
+    options.sound.play('level')
+  }
+
+  /** The whole crew fell in the prism corridors: the escape starts again, the choice kept. */
+  function restartEscape() {
+    escapeFrame = 0
+    shots.length = 0
+    enemyShots.length = 0
+    pickups.length = 0
+    for (let seat = 0; seat < activePlayers; seat++) {
+      Object.assign(ships[seat]!, createShip(seat), {
+        invulnerable: RAINBOW_CONTINUE.invulnerableFrames,
+      })
+    }
+    options.sound.play('level')
   }
 
   function defeatLeviathan() {
@@ -1364,7 +1448,10 @@ export function createRainbowPrincessPreview(
   }
 
   /** Remember the run as it stands when the Act clock reaches one of its checkpoints. */
-  function passCheckpoint(act: 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8, frame: number) {
+  function passCheckpoint(
+    act: 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9,
+    frame: number,
+  ) {
     if (
       !(
         act === 1
@@ -1381,7 +1468,9 @@ export function createRainbowPrincessPreview(
                     ? ACT_SIX_CHECKPOINTS
                     : act === 7
                       ? ACT_SEVEN_CHECKPOINTS
-                      : ACT_EIGHT_CHECKPOINTS
+                      : act === 8
+                        ? ACT_EIGHT_CHECKPOINTS
+                        : FINALE_CHECKPOINTS
       ).includes(frame)
     )
       return
@@ -1416,6 +1505,10 @@ export function createRainbowPrincessPreview(
   function resumeFromCheckpoint() {
     continueLeft = 0
     continues++
+    if (escapeFrame !== null) {
+      restartEscape()
+      return
+    }
     const cleared =
       checkpoint.act === 1
         ? defeatedAt !== null
@@ -1431,7 +1524,9 @@ export function createRainbowPrincessPreview(
                   ? reefDefeatedFrame !== null
                   : checkpoint.act === 7
                     ? glassDefeatedFrame !== null
-                    : palaceDefeatedFrame !== null
+                    : checkpoint.act === 8
+                      ? palaceDefeatedFrame !== null
+                      : choiceFrame !== null || finalChoice !== null
     if (!cleared) {
       const waves: ReadonlyArray<{ at: number }> =
         checkpoint.act === 1
@@ -1448,7 +1543,9 @@ export function createRainbowPrincessPreview(
                     ? CROWN_REEF_ALL_WAVES
                     : checkpoint.act === 7
                       ? GLASS_WAVES
-                      : PALACE_WAVES
+                      : checkpoint.act === 8
+                        ? PALACE_WAVES
+                        : []
       const base =
         checkpoint.act === 1
           ? 0
@@ -1482,10 +1579,15 @@ export function createRainbowPrincessPreview(
         reefStart,
         glassStart,
         palaceStart,
+        finaleStart,
       )
       // A guardian whose section lies after the checkpoint flies again; one already behind it does not.
       guardian = null
-      if (checkpoint.frame <= guardianSections[checkpoint.act].from)
+      // The finale has no guardian.
+      if (
+        checkpoint.act !== 9 &&
+        checkpoint.frame <= guardianSections[checkpoint.act].from
+      )
         guardians[checkpoint.act] = 'waiting'
       if (boss) bossCarryHp = boss.hp
       if (moonBoss) moonBossCarryHp = moonBoss.hp
@@ -1495,6 +1597,7 @@ export function createRainbowPrincessPreview(
       if (lanternRay) lanternRayCarryHp = lanternRay.hp
       if (glassEel) glassEelCarryHp = glassEel.hp
       if (leviathan) leviathanCarryHp = leviathan.hp
+      if (crown) crownCarryHp = crown.hp
       boss = null
       moonBoss = null
       clawBoss = null
@@ -1503,6 +1606,7 @@ export function createRainbowPrincessPreview(
       lanternRay = null
       glassEel = null
       leviathan = null
+      crown = null
       navigator = null
       escort = null
       survivors.length = 0
@@ -1642,6 +1746,10 @@ export function createRainbowPrincessPreview(
     if (leviathan && leviathan.frame > 85) {
       leviathan.hp -= seat === 1 ? 28 : 20
       if (leviathan.hp <= 0) defeatLeviathan()
+    }
+    if (crown && crown.frame > 85) {
+      crown.hp -= seat === 1 ? 28 : 20
+      if (crown.hp <= 0) subdueCrown()
     }
     if (guardian && guardian.frame > 60) {
       guardian.hp -= seat === 1 ? 28 : 20
@@ -2014,7 +2122,9 @@ export function createRainbowPrincessPreview(
     if (!guardian) return
     const { x, y } = guardian
     guardian = null
-    guardians[currentAct()] = 'defeated'
+    const act = currentAct()
+    // The finale has no guardian of its own.
+    if (act !== 9) guardians[act] = 'defeated'
     // Like a boss, a destroyed guardian takes its pellets with it.
     enemyShots.length = 0
     score += RAINBOW_GUARDIAN.bonus
@@ -2092,6 +2202,16 @@ export function createRainbowPrincessPreview(
       shots.length = 0
       pickups.length = 0
       escort = null
+    }
+    if (
+      finaleStart === null &&
+      palaceDefeatedFrame !== null &&
+      palaceFrame() - palaceDefeatedFrame >= PALACE.aftermathFrames
+    ) {
+      // ACT-STRUCTURE: one authored safe transition from the palace straight into the finale.
+      finaleStart = tick
+      shots.length = 0
+      pickups.length = 0
     }
     if (
       palaceStart === null &&
@@ -2334,7 +2454,7 @@ export function createRainbowPrincessPreview(
         if (glassEelCarryHp !== null)
           glassEel.hp = Math.min(glassEel.hp, glassEelCarryHp)
       }
-    } else {
+    } else if (finaleStart === null) {
       const frame = palaceFrame()
       const stage = palaceStage(frame, palaceDefeatedFrame)
       if (palaceDefeatedFrame === null) {
@@ -2366,6 +2486,58 @@ export function createRainbowPrincessPreview(
         )
         if (leviathanCarryHp !== null)
           leviathan.hp = Math.min(leviathan.hp, leviathanCarryHp)
+      }
+    } else {
+      const frame = finaleFrame()
+      if (
+        choiceFrame === null &&
+        escapeFrame === null &&
+        finalChoice === null
+      ) {
+        passCheckpoint(9, frame)
+        if (frame >= FINALE.bossStarts && !crown) {
+          crown = createEclipseCrownBoss(
+            rainbowBossHp(ECLIPSE_CROWN_MAX_HP, activePlayers),
+          )
+          if (crownCarryHp !== null) crown.hp = Math.min(crown.hp, crownCarryHp)
+        }
+      } else if (choiceFrame !== null) {
+        // The final choice: nothing fires while the crew flies to its lane.
+        for (const ship of livingShips())
+          ship.invulnerable = Math.max(ship.invulnerable, 2)
+        if (++choiceFrame >= FINALE.choiceFrames) {
+          finalChoice = finaleChoiceFor(livingShips().map((ship) => ship.y))
+          choiceFrame = null
+          escapeFrame = 0
+          popups.push({
+            x: W / 2,
+            y: 92,
+            text: finalChoice.toUpperCase(),
+            age: 0,
+          })
+          options.sound.play('extra')
+        }
+      } else if (escapeFrame !== null) {
+        enemyShots.push(...eclipseEscapeWall(escapeFrame, W + 10))
+        if (++escapeFrame >= ECLIPSE_ESCAPE.frames) {
+          escapeFrame = null
+          endingFrame = 0
+          enemyShots.length = 0
+          score += FINALE.completeScore
+          for (const ship of ships.slice(0, activePlayers))
+            ship.invulnerable = Math.max(ship.invulnerable, 99999)
+          options.sound.play('level')
+        }
+      } else if (endingFrame !== null) {
+        // The ending, then the credits, then THE END: A closes the run, or it closes by itself.
+        endingFrame++
+        const shown = endingFrame - FINALE_ENDING_FRAMES - FINALE.creditFrames
+        if (
+          shown >= FINALE.endHoldFrames ||
+          (shown >= FINALE.endMinFrames &&
+            [input, ...seated].some((keys) => keys?.pressed.a))
+        )
+          over = true
       }
     }
 
@@ -2421,6 +2593,38 @@ export function createRainbowPrincessPreview(
           const lane =
             activePlayers % 2 === 1 ? navigator.y + seat * 6 : 243 - seat * 4
           ship.y += (lane - ship.y) * ease
+        }
+        if (choiceFrame !== null) {
+          // The attract demo shows every ending: one pilot restores, two evacuate, three sever.
+          const lane =
+            FINALE_LANES[
+              (['restore', 'evacuate', 'sever'] as const)[
+                (activePlayers - 1) % 3
+              ]!
+            ]
+          ship.y +=
+            (lane + (seat - 1.5) * 6 - ship.y) * Math.min(1, choiceFrame / 90)
+        } else if (escapeFrame !== null) {
+          // Fly the gap of the wall about to reach the ship, easing from the wall before it.
+          const lead = (W + 10 - ship.x) / ECLIPSE_ESCAPE.wallSpeed
+          const k = Math.max(
+            0,
+            Math.ceil((escapeFrame - lead) / ECLIPSE_ESCAPE.wallEvery),
+          )
+          const next = eclipseEscapeGapY(k * ECLIPSE_ESCAPE.wallEvery)
+          const prev = eclipseEscapeGapY(
+            Math.max(0, k - 1) * ECLIPSE_ESCAPE.wallEvery,
+          )
+          const t = Math.min(
+            1,
+            Math.max(
+              0,
+              1 -
+                (k * ECLIPSE_ESCAPE.wallEvery + lead - escapeFrame) /
+                  ECLIPSE_ESCAPE.wallEvery,
+            ),
+          )
+          ship.y = prev + (next - prev) * t + (seat - 1.5) * 4
         }
         // Freeing captives is a choice too: odd crews line up on each collar, even crews fly past.
         const collar = reefs.find(
@@ -2540,8 +2744,9 @@ export function createRainbowPrincessPreview(
     if (boss) {
       enemyShots.push(...stepPinkwakeBoss(boss, ships.slice(0, activePlayers)))
     }
-    if (guardian) {
-      const act = currentAct()
+    const guardianAct = currentAct()
+    if (guardian && guardianAct !== 9) {
+      const act = guardianAct
       const section = guardianSections[act]
       const frame = actFrame(act)
       enemyShots.push(
@@ -2604,6 +2809,11 @@ export function createRainbowPrincessPreview(
     if (leviathan) {
       enemyShots.push(
         ...stepPrismLeviathanBoss(leviathan, ships.slice(0, activePlayers)),
+      )
+    }
+    if (crown) {
+      enemyShots.push(
+        ...stepEclipseCrownBoss(crown, ships.slice(0, activePlayers)),
       )
     }
     if (navigator) {
@@ -2960,6 +3170,23 @@ export function createRainbowPrincessPreview(
         if (glassEel.hp <= 0) defeatGlassEel()
         continue
       }
+      if (crown && crown.frame > 85) {
+        const onHeart =
+          Math.hypot(shot.x - crown.heartX, shot.y - crown.heartY) <
+          ECLIPSE_CROWN.heartRadius
+        const onRing =
+          Math.hypot(shot.x - crown.x, shot.y - crown.y) <
+          ECLIPSE_CROWN.ringRadius
+        if (onHeart || onRing) {
+          shots.splice(si, 1)
+          // While the heart is free, the crown's ring soaks every shot; only the heart takes damage.
+          if (crown.phase === 1 || onHeart) {
+            crown.hp -= shot.damage
+            if (crown.hp <= 0) subdueCrown()
+          }
+          continue
+        }
+      }
       if (leviathan && leviathan.frame > 85) {
         const gem = prismLeviathanGem(leviathan)
         const onGem =
@@ -3026,6 +3253,18 @@ export function createRainbowPrincessPreview(
       }
     }
 
+    if (crown) {
+      for (const ship of livingShips()) {
+        if (
+          ship.invulnerable === 0 &&
+          (Math.hypot(ship.x - crown.x, ship.y - crown.y) <
+            ECLIPSE_CROWN.ringRadius ||
+            Math.hypot(ship.x - crown.heartX, ship.y - crown.heartY) <
+              ECLIPSE_CROWN.heartRadius)
+        )
+          hitShip(ship)
+      }
+    }
     if (leviathan) {
       for (const ship of livingShips()) {
         if (
@@ -3187,7 +3426,17 @@ export function createRainbowPrincessPreview(
         enemyShots: enemyShots.map((bullet) => ({ ...bullet })),
         pickups: pickups.map((pickup) => ({ ...pickup })),
         act: (
-          ['S01', 'S02', 'S03', 'S04', 'S05', 'S06', 'S07', 'S08'] as const
+          [
+            'S01',
+            'S02',
+            'S03',
+            'S04',
+            'S05',
+            'S06',
+            'S07',
+            'S08',
+            'S09',
+          ] as const
         )[currentAct() - 1]!,
         stage:
           currentAct() === 1
@@ -3204,7 +3453,14 @@ export function createRainbowPrincessPreview(
                       ? reefStage(reefFrame(), reefDefeatedFrame)
                       : currentAct() === 7
                         ? glassStage(glassFrame(), glassDefeatedFrame)
-                        : palaceStage(palaceFrame(), palaceDefeatedFrame),
+                        : currentAct() === 8
+                          ? palaceStage(palaceFrame(), palaceDefeatedFrame)
+                          : finaleStage(
+                              finaleFrame(),
+                              choiceFrame,
+                              escapeFrame,
+                              endingFrame,
+                            ),
         sceneId:
           currentAct() === 1
             ? (pinkwakeScene(tick, defeatedAt)?.id ?? null)
@@ -3222,8 +3478,15 @@ export function createRainbowPrincessPreview(
                       : currentAct() === 7
                         ? (glassScene(glassFrame(), glassDefeatedFrame)?.id ??
                           null)
-                        : (palaceScene(palaceFrame(), palaceDefeatedFrame)
-                            ?.id ?? null),
+                        : currentAct() === 8
+                          ? (palaceScene(palaceFrame(), palaceDefeatedFrame)
+                              ?.id ?? null)
+                          : (finaleScene(
+                              finaleFrame(),
+                              choiceFrame,
+                              escapeFrame,
+                              endingFrame,
+                            )?.id ?? null),
         boss: boss ? { ...boss } : null,
         moonBoss: moonBoss ? { ...moonBoss } : null,
         clawBoss: clawBoss ? { ...clawBoss } : null,
@@ -3238,6 +3501,7 @@ export function createRainbowPrincessPreview(
         leviathan: leviathan
           ? { ...leviathan, locks: [...leviathan.locks] }
           : null,
+        crown: crown ? { ...crown } : null,
         guardian: guardian ? { ...guardian } : null,
         guardians: { ...guardians },
         rescuedNemi,
@@ -3261,6 +3525,11 @@ export function createRainbowPrincessPreview(
         actEightFrame: palaceFrame(),
         captivesFreed,
         allies: palaceAllies(palaceFlags()),
+        finaleFrame: finaleFrame(),
+        choiceFrame,
+        escapeFrame,
+        endingFrame,
+        finalChoice,
         wreckRoute,
         podsSaved,
         survivors: survivors.map((pod) => ({ ...pod })),
@@ -3291,6 +3560,7 @@ export function createRainbowPrincessPreview(
         ['#160f08', '#5a4016', '#b8863e'],
         ['#06101e', '#1f3a5e', '#8fb8d9'],
         ['#0a0418', '#3a1450', '#c9708e'],
+        ['#05030f', '#24083a', '#6a2a6a'],
       ][currentAct() - 1]!
       sky.addColorStop(0, palette[0]!)
       sky.addColorStop(0.55, palette[1]!)
@@ -3319,7 +3589,38 @@ export function createRainbowPrincessPreview(
         g.ellipse(x, 244 + Math.sin(i) * 12, 56, 25, 0, 0, Math.PI * 2)
         g.fill()
       }
-      if (palaceStart !== null) {
+      if (finaleStart !== null) {
+        // The machine nerve halo: slow stained-glass rings turning behind the Crown, and crown fragments.
+        const frame = finaleFrame()
+        g.save()
+        g.translate(352, 135)
+        for (let ring = 0; ring < 3; ring++) {
+          const radius = 70 + ring * 38
+          const turn = (frame / (400 + ring * 200)) * (ring % 2 ? -1 : 1)
+          for (let pane = 0; pane < 12; pane++) {
+            const from = turn + (pane / 12) * Math.PI * 2
+            g.strokeStyle = ['#ff9fd855', '#9fd8ff44', '#ffd27a44'][
+              (pane + ring) % 3
+            ]!
+            g.lineWidth = 10 - ring * 2
+            g.beginPath()
+            g.arc(0, 0, radius, from + 0.04, from + Math.PI / 6 - 0.04)
+            g.stroke()
+          }
+        }
+        g.restore()
+        g.fillStyle = '#ffd27a55'
+        for (let i = 0; i < 10; i++) {
+          const x = ((((i * 97 - frame * 0.9) % 560) + 560) % 560) - 40
+          const y = 40 + ((i * 59) % 200)
+          g.beginPath()
+          g.moveTo(x, y - 5)
+          g.lineTo(x + 4, y + 4)
+          g.lineTo(x - 4, y + 4)
+          g.closePath()
+          g.fill()
+        }
+      } else if (palaceStart !== null) {
         // Eclipse Palace: an eclipsed sun with a corona, and heart spires climbing past.
         const frame = palaceFrame()
         g.save()
@@ -3558,9 +3859,19 @@ export function createRainbowPrincessPreview(
       g.globalAlpha = 0.92
       drawRainbowStageStrip(
         g,
-        (['s01', 's02', 's03', 's04', 's05', 's06', 's07', 's08'] as const)[
-          currentAct() - 1
-        ]!,
+        (
+          [
+            's01',
+            's02',
+            's03',
+            's04',
+            's05',
+            's06',
+            's07',
+            's08',
+            's08',
+          ] as const
+        )[currentAct() - 1]!,
         actFrame(currentAct()) * STRIP_SPEED,
         H - STRIP_HEIGHT,
         STRIP_HEIGHT,
@@ -4277,6 +4588,141 @@ export function createRainbowPrincessPreview(
         g.fillText('B02 AURELIA ARRAY', 240, 53)
         g.textAlign = 'left'
       }
+      if (crown) {
+        const warn = eclipseCrownWarning(crown)
+        if (warn && crown.phase === 1) {
+          // Every spoke the volley will fire down is drawn for the whole warning; the wedges are safe.
+          g.save()
+          g.strokeStyle = '#ff9fd8'
+          g.globalAlpha = 0.5 + 0.2 * Math.sin(crown.frame / 3)
+          g.lineWidth = 3
+          g.setLineDash([8, 6])
+          for (const angle of eclipseCrownSpokes(crown)) {
+            g.beginPath()
+            g.moveTo(crown.x, crown.y)
+            g.lineTo(
+              crown.x + Math.cos(angle) * 520,
+              crown.y + Math.sin(angle) * 520,
+            )
+            g.stroke()
+          }
+          g.restore()
+        }
+        g.save()
+        g.translate(crown.x, crown.y)
+        g.shadowColor = warn ? '#fff49c' : '#ff9fd8'
+        g.shadowBlur = warn ? 24 : 12
+        if (
+          !drawRainbowBossSprite(g, 'b09', crown.phase === 1 ? 1 : 2, 0, 0, 160)
+        ) {
+          g.fillStyle = '#2a1a4a'
+          g.beginPath()
+          g.arc(0, 0, ECLIPSE_CROWN.ringRadius, 0, Math.PI * 2)
+          g.fill()
+        }
+        g.shadowBlur = 0
+        // The crown ring itself.
+        g.strokeStyle = crown.phase === 1 ? '#ffd27a' : '#8a7aa8'
+        g.lineWidth = 3
+        g.beginPath()
+        g.arc(0, 0, ECLIPSE_CROWN.ringRadius, 0, Math.PI * 2)
+        g.stroke()
+        if (warn) {
+          g.strokeStyle = '#fffbb6'
+          g.lineWidth = 4
+          g.globalAlpha = 0.75 + 0.25 * Math.sin(crown.frame / 3)
+          g.beginPath()
+          g.arc(0, 0, ECLIPSE_CROWN.ringRadius + 8, 0, Math.PI * 2)
+          g.stroke()
+          g.globalAlpha = 1
+        }
+        g.restore()
+        // The heart node: home in the crown, then drifting free and open to every shot.
+        g.save()
+        g.translate(crown.heartX, crown.heartY)
+        g.fillStyle = crown.phase === 2 ? '#ff5ac8' : '#c9708e'
+        g.shadowColor = '#ff9fd8'
+        g.shadowBlur = crown.phase === 2 ? 18 : 6
+        g.beginPath()
+        g.moveTo(0, 8)
+        g.bezierCurveTo(-14, -2, -8, -14, 0, -6)
+        g.bezierCurveTo(8, -14, 14, -2, 0, 8)
+        g.fill()
+        if (crown.phase === 2) {
+          g.strokeStyle = '#ffffff'
+          g.lineWidth = 2
+          g.beginPath()
+          g.arc(0, 0, ECLIPSE_CROWN.heartRadius, 0, Math.PI * 2)
+          g.stroke()
+        }
+        g.restore()
+        g.fillStyle = '#1a0a30'
+        g.fillRect(148, 30, 184, 14)
+        g.fillStyle = '#ff5ac8'
+        g.fillRect(150, 32, 180 * Math.max(0, crown.hp / crown.maxHp), 10)
+        g.strokeStyle = '#ffe2fa'
+        g.lineWidth = 1
+        g.strokeRect(148, 30, 184, 14)
+        g.textAlign = 'center'
+        g.font = 'bold 8px monospace'
+        g.fillStyle = '#ffffff'
+        g.fillText(
+          crown.phase === 2
+            ? 'B09 ECLIPSE CROWN · HEART FREE'
+            : 'B09 ECLIPSE CROWN',
+          240,
+          41,
+        )
+        g.textAlign = 'left'
+      }
+      if (choiceFrame !== null) {
+        // The final choice: three lanes, each named; the crew flies to one.
+        const lanes = [
+          ['restore', 'RESTORE ITS FIRST RULE', '#ffd27a'],
+          ['evacuate', 'EVACUATE EVERYONE', '#9ff3ff'],
+          ['sever', 'SEVER ITS CONTROL', '#ff9fd8'],
+        ] as const
+        g.save()
+        for (const [choice, label, color] of lanes) {
+          const y = FINALE_LANES[choice]
+          g.globalAlpha = 0.18
+          g.fillStyle = color
+          g.fillRect(0, y - 24, W, 48)
+          g.globalAlpha = 1
+          g.fillStyle = color
+          g.font = 'bold 10px monospace'
+          g.textAlign = 'right'
+          g.fillText(label, W - 10, y + 4)
+        }
+        g.fillStyle = '#180d38d9'
+        g.fillRect(W / 2 - 70, H - 21, 140, 15)
+        g.textAlign = 'center'
+        g.fillStyle = '#ffffff'
+        g.font = 'bold 9px monospace'
+        g.fillText(
+          `CHOOSE TOGETHER · ${Math.ceil((FINALE.choiceFrames - choiceFrame) / 60)}`,
+          W / 2,
+          H - 10,
+        )
+        g.restore()
+      }
+      if (escapeFrame !== null) {
+        // How far the crew has flown through the closing corridors.
+        g.fillStyle = '#1a0a30'
+        g.fillRect(148, 30, 184, 10)
+        g.fillStyle = '#9ff3ff'
+        g.fillRect(
+          150,
+          32,
+          180 * Math.min(1, escapeFrame / ECLIPSE_ESCAPE.frames),
+          6,
+        )
+        g.textAlign = 'center'
+        g.font = 'bold 8px monospace'
+        g.fillStyle = '#ffffff'
+        g.fillText('ESCAPE · FOLLOW THE LIGHT', 240, 50)
+        g.textAlign = 'left'
+      }
       if (leviathan) {
         const warn = prismLeviathanWarning(leviathan)
         const exposed = prismLeviathanExposed(leviathan)
@@ -4905,9 +5351,13 @@ export function createRainbowPrincessPreview(
       }
       for (let seat = 0; seat < activePlayers; seat++) {
         const ship = ships[seat]!
+        // Ships blink while invulnerable, except at the final choice, where nothing fires and every
+        // pilot needs to see where they are flying.
         if (
           ship.lives <= 0 ||
-          (ship.invulnerable && Math.floor(tick / 6) % 2 === 0)
+          (ship.invulnerable &&
+            choiceFrame === null &&
+            Math.floor(tick / 6) % 2 === 0)
         )
           continue
         g.save()
@@ -5014,7 +5464,17 @@ export function createRainbowPrincessPreview(
       const introFrame = actFrame(act)
       if (introFrame < INTRO_FRAMES && (moonStart !== null || !defeatedAt)) {
         const stage = (
-          ['s01', 's02', 's03', 's04', 's05', 's06', 's07', 's08'] as const
+          [
+            's01',
+            's02',
+            's03',
+            's04',
+            's05',
+            's06',
+            's07',
+            's08',
+            's08',
+          ] as const
         )[act - 1]!
         const top = 33 + Math.max(0, activePlayers - 1) * 10 + 60
         g.save()
@@ -5040,6 +5500,7 @@ export function createRainbowPrincessPreview(
             'CROWN REEF',
             'GLASS CURRENT',
             'ECLIPSE PALACE',
+            'ECLIPSE CROWN',
           ][act - 1]!,
           W / 2,
           bandY + 19,
@@ -5060,6 +5521,7 @@ export function createRainbowPrincessPreview(
           'ACT VI / CROWN REEF',
           'ACT VII / GLASS CURRENT',
           'ACT VIII / ECLIPSE PALACE',
+          'FINALE / ECLIPSE CROWN',
         ][act - 1]!,
         HUD_LEFT,
         12,
@@ -5097,66 +5559,81 @@ export function createRainbowPrincessPreview(
                     ? reefScene(reefFrame(), reefDefeatedFrame)
                     : act === 7
                       ? glassScene(glassFrame(), glassDefeatedFrame)
-                      : palaceScene(palaceFrame(), palaceDefeatedFrame)
+                      : act === 8
+                        ? palaceScene(palaceFrame(), palaceDefeatedFrame)
+                        : finaleScene(
+                            finaleFrame(),
+                            choiceFrame,
+                            escapeFrame,
+                            endingFrame,
+                          )
       const dialogue = scene
-        ? act === 8
-          ? palaceDialogue(
-              scene.id as PalaceSceneId,
+        ? act === 9
+          ? finaleDialogue(
+              scene.id as FinaleSceneId,
               scene.elapsed,
               activePlayers,
-              palaceFlags(),
+              finaleFlags(),
+              finalChoice,
             )
-          : act === 7
-            ? glassDialogue(
-                scene.id as GlassSceneId,
+          : act === 8
+            ? palaceDialogue(
+                scene.id as PalaceSceneId,
                 scene.elapsed,
                 activePlayers,
-                rescuedNavigator,
+                palaceFlags(),
               )
-            : act === 6
-              ? reefDialogue(
-                  scene.id as ReefSceneId,
+            : act === 7
+              ? glassDialogue(
+                  scene.id as GlassSceneId,
                   scene.elapsed,
                   activePlayers,
-                  reefRoute,
-                  reefRoute === 'relay' && pylonsDown >= CROWN_REEF_PYLONS,
+                  rescuedNavigator,
                 )
-              : act === 5
-                ? wreckDialogue(
-                    scene.id as WreckSceneId,
+              : act === 6
+                ? reefDialogue(
+                    scene.id as ReefSceneId,
                     scene.elapsed,
                     activePlayers,
-                    wreckRoute,
-                    wreckRoute === 'depot' &&
-                      podsSaved >= WRECK_FORK.podsToFree,
+                    reefRoute,
+                    reefRoute === 'relay' && pylonsDown >= CROWN_REEF_PYLONS,
                   )
-                : act === 4
-                  ? rosefinDialogue(
-                      scene.id as RosefinSceneId,
+                : act === 5
+                  ? wreckDialogue(
+                      scene.id as WreckSceneId,
                       scene.elapsed,
                       activePlayers,
-                      rescuedCourier,
+                      wreckRoute,
+                      wreckRoute === 'depot' &&
+                        podsSaved >= WRECK_FORK.podsToFree,
                     )
-                  : act === 3
-                    ? trenchDialogue(
-                        scene.id as TrenchSceneId,
+                  : act === 4
+                    ? rosefinDialogue(
+                        scene.id as RosefinSceneId,
                         scene.elapsed,
                         activePlayers,
-                        trenchRoute,
+                        rescuedCourier,
                       )
-                    : act === 1
-                      ? pinkwakeDialogue(
-                          scene.id as 'A01.OPEN' | 'A01.TURN' | 'A01.AFTER',
+                    : act === 3
+                      ? trenchDialogue(
+                          scene.id as TrenchSceneId,
                           scene.elapsed,
                           activePlayers,
-                          rescuedStation,
+                          trenchRoute,
                         )
-                      : moonjellyDialogue(
-                          scene.id as 'A02.OPEN' | 'A02.TURN' | 'A02.AFTER',
-                          scene.elapsed,
-                          activePlayers,
-                          rescuedNemi,
-                        )
+                      : act === 1
+                        ? pinkwakeDialogue(
+                            scene.id as 'A01.OPEN' | 'A01.TURN' | 'A01.AFTER',
+                            scene.elapsed,
+                            activePlayers,
+                            rescuedStation,
+                          )
+                        : moonjellyDialogue(
+                            scene.id as 'A02.OPEN' | 'A02.TURN' | 'A02.AFTER',
+                            scene.elapsed,
+                            activePlayers,
+                            rescuedNemi,
+                          )
         : null
       const commsTop = 33 + Math.max(0, activePlayers - 1) * 10
       if (dialogue) {
@@ -5197,28 +5674,6 @@ export function createRainbowPrincessPreview(
         for (let line = 0; line < Math.min(lines.length, 2); line++) {
           g.fillText(lines[line]!, textX, commsTop + 30 + line * 12)
         }
-      } else if (
-        palaceDefeatedFrame !== null &&
-        palaceFrame() - palaceDefeatedFrame >= PALACE.aftermathFrames
-      ) {
-        // ACT-STRUCTURE: Act VIII runs straight on into the finale, which is still to come.
-        g.fillStyle = '#180d38d9'
-        g.fillRect(40, commsTop, W - 80, 33)
-        g.fillStyle = '#ffd1ec'
-        g.textAlign = 'center'
-        g.font = 'bold 11px monospace'
-        g.fillText(
-          'LEVIATHAN FREED · ACT VIII PREVIEW CLEAR',
-          W / 2,
-          commsTop + 19,
-        )
-        g.font = '8px monospace'
-        g.fillText(
-          `${captivesFreed} captives freed · The Eclipse Crown (finale) in production`,
-          W / 2,
-          commsTop + 30,
-        )
-        g.textAlign = 'left'
       } else if (restingFrames() !== null) {
         // ACT-STRUCTURE: Act V ends on a recovery and memorial tableau, the second quiet intermission.
         g.fillStyle = '#180d38d9'
@@ -5276,6 +5731,48 @@ export function createRainbowPrincessPreview(
           commsTop + 30,
         )
         g.textAlign = 'left'
+      }
+      if (endingFrame !== null && endingFrame >= FINALE_ENDING_FRAMES) {
+        // The credits roll over the halo, naming the crew and the rescued; then THE END.
+        const rolled = endingFrame - FINALE_ENDING_FRAMES
+        g.save()
+        g.fillStyle = '#05030fe6'
+        g.fillRect(0, 0, W, H)
+        g.textAlign = 'center'
+        if (rolled < FINALE.creditFrames) {
+          const lines = finaleCredits(
+            finaleFlags(),
+            activePlayers,
+            finalChoice ?? 'evacuate',
+          )
+          const top =
+            H + 10 - (rolled / FINALE.creditFrames) * (lines.length * 16 + H)
+          for (const [i, line] of lines.entries()) {
+            const y = top + i * 16
+            if (y < -10 || y > H + 10) continue
+            const heading = line === line.toUpperCase() && line.length > 0
+            g.fillStyle = heading ? '#ffd27a' : '#ffe7f5'
+            g.font = heading ? 'bold 10px monospace' : '9px monospace'
+            g.fillText(line, W / 2, y)
+          }
+        } else {
+          g.fillStyle = '#ffd1ec'
+          g.font = 'bold 26px monospace'
+          g.fillText('THE END', W / 2, 112)
+          g.fillStyle = '#ffe7f5'
+          g.font = '10px monospace'
+          g.fillText(
+            `FINAL SCORE ${score} · ${(finalChoice ?? 'evacuate').toUpperCase()}`,
+            W / 2,
+            140,
+          )
+          if (rolled - FINALE.creditFrames >= FINALE.endMinFrames) {
+            g.font = 'bold 9px monospace'
+            g.fillStyle = '#9ff3ff'
+            g.fillText('THANK YOU FOR FLYING · PRESS A', W / 2, 166)
+          }
+        }
+        g.restore()
       }
       if (act === 8 && palaceDefeatedFrame === null) {
         // The armada count sits on a dark chip so it reads over the bright palace floor.
@@ -5516,11 +6013,19 @@ export function createRainbowPrincessPreview(
                             GLASS.bossStarts,
                             checkpoint.frame,
                           )
-                        : checkpointLabel(
-                            PALACE_SECTIONS,
-                            PALACE.bossStarts,
-                            checkpoint.frame,
-                          )
+                        : checkpoint.act === 8
+                          ? checkpointLabel(
+                              PALACE_SECTIONS,
+                              PALACE.bossStarts,
+                              checkpoint.frame,
+                            )
+                          : escapeFrame !== null
+                            ? 'Escape'
+                            : checkpointLabel(
+                                FINALE_SECTIONS,
+                                FINALE.bossStarts,
+                                checkpoint.frame,
+                              )
         g.save()
         g.fillStyle = '#0c0620d0'
         g.fillRect(0, 0, W, H)
